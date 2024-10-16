@@ -1,143 +1,148 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F20E914B06C
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 01:58:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 772B61B395B
+	for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 07:26:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729043933; cv=none; b=Ys9dTFfvBBThkfrclGV8tl7rpoY70WjFxbz+3WUeLyTIf43N3UGjSFkxyddmnHOL4XyQPyomErY3yrPUJt3A+xi3M/LIrERQzZ1YOS1USrNMUSTw8UbEcPqkd4KOgBO0pHEaxbpVdf4C6ejZpMEeR0hiY4FA+ZXdKKT1n+Wsmf8=
+	t=1729063584; cv=none; b=mJRdhatmkP/JMX36y0SxgNuPQfB/5CwTQAtOvwTW+I70AIB9aFNapUDwlF5tqbUQq/Cr5rLFAZ3uot+EuLTI2lujBJoVm/pegEJ88P9X65SHBeuuuNpfR3dnL3upWf73etA5wWoQyI9WV5xpTluyUhYUU1dxyz2Qz4ygJFtGDs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729043933; c=relaxed/simple;
-	bh=dVq8802sNgxsYQrKPhpLGl2Ji48gzebkMI0KMfI8BG8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A1lovrnWDhmOtp1b5G86KwcmM+Cs5PuiABEOuBZyz5UeoxG87lFDiTgai61ke5uAklWLdFmqvCRyw+qEAUcutdJOgsM87MCwUyFX7i99pM9W5Lj+5MJEAUV70axDZm+TfNZse7j2fYEGTkSV/p2MzWOwLEEZ2PDvwX1/2rmIVJ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=taPsKg/3; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1729063584; c=relaxed/simple;
+	bh=C7myXz1PzgO5KntaMzSJdRvlacDd6/XrNcUeuxTsbuY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Htt5gIQB3mZrE4FDu7DGdhnc3N4XACYhIfjh2pP6+BKSKaRMwNeSyoxGYz8LpM6XaYBYMdmnHqPYMRt+BqDiGzM5RdZ7vnVUnnGsiGwUurUZUMFf0ExPBUGGOUTWsQ5EGyfrMtpyNsuuISUqRIqdVcI+U094GWbzWUXoh8QZy8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LW1KLnIe; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="taPsKg/3"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B6F78608A9
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 01:58:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 58axMPPvDt3P for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Oct 2024 01:58:51 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::12c; helo=mail-lf1-x12c.google.com; envelope-from=zhangfei.gao@linaro.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 72C25608BE
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72C25608BE
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=taPsKg/3
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 72C25608BE
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 01:58:50 +0000 (UTC)
-Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-539fe02c386so443143e87.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 18:58:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1729043928; x=1729648728; darn=lists.linux-foundation.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=A/rtU2ORxq4VQYJugdVXcy5ZyrAZXc1jQ9TPE/XvnVI=;
-        b=taPsKg/3qWvKprQdk3phNhMmb+0X8gCssBdCtIoyy1uiD27gPjIoAXg4/qiyv37FNV
-         vog56jukz9kYlWqmVq9k0iF56Xdq0Vnd19g4vFmtMxHsUwISNt6CB85sl7zgSZ/nx805
-         fJvEBxXRoO/1qR7WwRNOe3a1b7sZZknKJAt05qIQQq7qpmvHG/6AQvvf4hA+nj22sEUQ
-         lvf37bx8j+ZRPI0pXa7DtR3o5iuTbt6T46xz45H50KFGEl4ILq8ViAUvFMKDbyrAhB7j
-         GV3w8v8DaWz5wpyUVMJQyhNS/dBghEltbV+/bBhRE4q8EsnOo/SRhr2qbGgnn4kHbjNx
-         Y/7g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LW1KLnIe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729063581;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=2rDSgv3l5eJFW/isc5zWXHEc/hfh9FE/9/H5LJ8JrEs=;
+	b=LW1KLnIeuYJmmFx8l19QzVS1CUitPv0GoYJUbYNKess3BMvXMXCvis0mvwAxcYHzjhV/RW
+	QIFkurSN48SOiMZT2ZOAbhJjwr4MVWSkGhVAgKwyiF4/PTRPkK62FXid5lJhsYW5utdLI1
+	LQrszBoQPPBX22zX/rk8CClhZ8PJ5ZY=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-203-5j3hp1c2Ox-XGd9-w0y7fQ-1; Wed, 16 Oct 2024 03:26:20 -0400
+X-MC-Unique: 5j3hp1c2Ox-XGd9-w0y7fQ-1
+Received: by mail-yb1-f199.google.com with SMTP id 3f1490d57ef6-e2971589916so2404048276.3
+        for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 00:26:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729043928; x=1729648728;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20230601; t=1729063580; x=1729668380;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=A/rtU2ORxq4VQYJugdVXcy5ZyrAZXc1jQ9TPE/XvnVI=;
-        b=Nj+6wAZMEW5BgDPqxcI9c90nS4F5wdUZkcQXLeT859I13ckn/Ek6V3KGyrUGEW9w0E
-         QoWo/dna0JKAjw+nN3P6pi+86rvAWRNypG8FeXFXeEJZDye9Ptk7FONvBsaSldld3E9S
-         qGKSUc1nQmnjhEpKixmDcYxEyuaVWBGYKbIvxRFSaUxgZwBT8dRNSpOrvNe4qc/I6oD8
-         ziAz87CcHeejkuN2xvDC+sMfeTsI4ixDecv6DUQhqRKGNNjocDE0yWGxpqRq1FkWNnYx
-         wxpSCmsaceBAwBoTn1CY4NH47SVCXHgT6yYekII+qPcW2vi6F0H69r6FjDOVCs6r4Mdg
-         rsTA==
-X-Forwarded-Encrypted: i=1; AJvYcCU5DwOvnC9BCRcLJ+usDV9w5l1uMHIYnE7miW5yIdC+7Zqs8hi4yhv1nq3xvQar0ujZqglr4LJfFNmWqpgNUA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxWw8iNIFesymNqJlYLpRyLkCg2b7imXF7AA6qu5hcecrYjXVn0
-	Lb7TukRo8rjwlD53OWkVvNknzt6KqDHXevl+gOLqwCzJa70y6WdUF9fRvUogqMZ5KBaoDy7jRwg
-	D+awv1E0NqdyMXd3g5ioJsKFQBhJko1rdsq+jbQ==
-X-Google-Smtp-Source: AGHT+IEB/XndljAYmvf9daRxR8zUkYMGinPm83aD1j6YhAnINHWEAphdGASnRtu0uajjdc4lTF2hFS3dM0SJE/wV/i4=
-X-Received: by 2002:a05:6512:3a94:b0:539:fc1b:36d1 with SMTP id
- 2adb3069b0e04-53a03c8fc81mr731316e87.6.1729043927809; Tue, 15 Oct 2024
- 18:58:47 -0700 (PDT)
+        bh=2rDSgv3l5eJFW/isc5zWXHEc/hfh9FE/9/H5LJ8JrEs=;
+        b=VJ9tUsfXrSjCX6tkyv/962ywoCBq4pCCeBUfjRHyi4BHKISbsU5QZG6EUhpkf7azjV
+         ru7bXFAGmdrIFcCOQLJY01IQaTAxtomc9bE24MwZZWi/e3kgJeMX3xj0k1c73/vFT88s
+         o/woDHroua8TmiQohjavEehaxM8IGc7ydiKI250C1+ewErzylxXYIhXoD5yeF8p4WxF9
+         OXWstMWva64ii8bP6hQlahulZXlaSBid5ycqPTcOLajDPyuvVQvpayRlBqAtd65zC0Db
+         2mbBsvz2mlKbXFnilGJVzB3QE4dp5ME3TccIrtPOQmFpEz27bufHxKvlJacfz/6eOxYG
+         KZSw==
+X-Gm-Message-State: AOJu0Ywux7u5+GCzfGODK/3SDBAG4Fgi6cEfYO9sGk1c5OFq55WE85FC
+	M/awscUYGK7F6NSHKQaO7Qt318Fr6xavxawql23hYu9hSWklWCpIUBLUDHB2ZrqS2Fcy/vuIOzi
+	VL9oanr8edtj8pYGGegwK7+VYzdOS1qRY20XVZ8wPMIHlQQXqXImUOteRD7LaBWaj
+X-Received: by 2002:a05:6902:2b92:b0:e25:fc6f:9cbf with SMTP id 3f1490d57ef6-e2919ffb24amr15378996276.52.1729063579897;
+        Wed, 16 Oct 2024 00:26:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH0VnLtU01GEdrbqIU14wiCEwVYdDzFIuoPMbbYPcqCMCItsvNSf8e9UkD6khJT6N2aapdCgQ==
+X-Received: by 2002:a05:6902:2b92:b0:e25:fc6f:9cbf with SMTP id 3f1490d57ef6-e2919ffb24amr15378990276.52.1729063579574;
+        Wed, 16 Oct 2024 00:26:19 -0700 (PDT)
+Received: from eisenberg.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cc22910f0bsm14645746d6.16.2024.10.16.00.26.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Oct 2024 00:26:19 -0700 (PDT)
+From: Philipp Stanner <pstanner@redhat.com>
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Philipp Stanner <pstanner@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	Andy Shevchenko <andy@kernel.org>
+Subject: [PATCH RESEND] vdpa: solidrun: Fix UB bug with devres
+Date: Wed, 16 Oct 2024 09:25:54 +0200
+Message-ID: <20241016072553.8891-2-pstanner@redhat.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-8-baolu.lu@linux.intel.com> <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca>
-In-Reply-To: <20241015125420.GK1825128@ziepe.ca>
-From: Zhangfei Gao <zhangfei.gao@linaro.org>
-Date: Wed, 16 Oct 2024 09:58:36 +0800
-Message-ID: <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt attach/detach/replace
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>, 
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
-	Jean-Philippe Brucker <jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, 
-	Yi Liu <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, 
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
-On Tue, 15 Oct 2024 at 20:54, Jason Gunthorpe <jgg@ziepe.ca> wrote:
->
-> On Tue, Oct 15, 2024 at 11:19:33AM +0800, Zhangfei Gao wrote:
-> > > +static int iommufd_fault_iopf_enable(struct iommufd_device *idev)
-> > > +{
-> > > +       struct device *dev = idev->dev;
-> > > +       int ret;
-> > > +
-> > > +       /*
-> > > +        * Once we turn on PCI/PRI support for VF, the response failure code
-> > > +        * should not be forwarded to the hardware due to PRI being a shared
-> > > +        * resource between PF and VFs. There is no coordination for this
-> > > +        * shared capability. This waits for a vPRI reset to recover.
-> > > +        */
-> > > +       if (dev_is_pci(dev) && to_pci_dev(dev)->is_virtfn)
-> > > +               return -EINVAL;
-> >
-> > I am using the SMMUv3 stall feature, and need to forward this to hardware,
-> > And now I am hacking to comment this check.
-> > Any suggestions?
->
-> Are you using PCI SRIOV and stall together?
+In psnet_open_pf_bar() and snet_open_vf_bar() a string later passed to
+pcim_iomap_regions() is placed on the stack. Neither
+pcim_iomap_regions() nor the functions it calls copy that string.
 
-Only use smmuv3 stall feature.
+Should the string later ever be used, this, consequently, causes
+undefined behavior since the stack frame will by then have disappeared.
 
->
-> > > +       mutex_lock(&idev->iopf_lock);
-> > > +       /* Device iopf has already been on. */
-> > > +       if (++idev->iopf_enabled > 1) {
-> > > +               mutex_unlock(&idev->iopf_lock);
-> > > +               return 0;
-> > > +       }
-> > > +
-> > > +       ret = iommu_dev_enable_feature(dev, IOMMU_DEV_FEAT_IOPF);
-> > > +       if (ret)
-> > > +               --idev->iopf_enabled;
-> > > +       mutex_unlock(&idev->iopf_lock);
-> >
-> > Also iommu_dev_enable_feature(idev->dev, IOMMU_DEV_FEAT_SVA); is required
-> > In thinking how to add it properly.
->
-> FEAT_SVA needs to be deleted, not added too.
->
-> smmu-v3 needs some more fixing to move that
-> arm_smmu_master_enable_sva() logic into domain attachment.
+Fix the bug by allocating the strings on the heap through
+devm_kasprintf().
 
-Will think about this, Thanks Jason
+Cc: stable@vger.kernel.org	# v6.3
+Fixes: 51a8f9d7f587 ("virtio: vdpa: new SolidNET DPU driver.")
+Reported-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Closes: https://lore.kernel.org/all/74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanadoo.fr/
+Suggested-by: Andy Shevchenko <andy@kernel.org>
+Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+---
+ drivers/vdpa/solidrun/snet_main.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
->
-> Jason
+diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+index 99428a04068d..c8b74980dbd1 100644
+--- a/drivers/vdpa/solidrun/snet_main.c
++++ b/drivers/vdpa/solidrun/snet_main.c
+@@ -555,7 +555,7 @@ static const struct vdpa_config_ops snet_config_ops = {
+ 
+ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+ {
+-	char name[50];
++	char *name;
+ 	int ret, i, mask = 0;
+ 	/* We don't know which BAR will be used to communicate..
+ 	 * We will map every bar with len > 0.
+@@ -573,7 +573,10 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+ 		return -ENODEV;
+ 	}
+ 
+-	snprintf(name, sizeof(name), "psnet[%s]-bars", pci_name(pdev));
++	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-bars", pci_name(pdev));
++	if (!name)
++		return -ENOMEM;
++
+ 	ret = pcim_iomap_regions(pdev, mask, name);
+ 	if (ret) {
+ 		SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
+@@ -590,10 +593,13 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+ 
+ static int snet_open_vf_bar(struct pci_dev *pdev, struct snet *snet)
+ {
+-	char name[50];
++	char *name;
+ 	int ret;
+ 
+-	snprintf(name, sizeof(name), "snet[%s]-bar", pci_name(pdev));
++	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-bars", pci_name(pdev));
++	if (!name)
++		return -ENOMEM;
++
+ 	/* Request and map BAR */
+ 	ret = pcim_iomap_regions(pdev, BIT(snet->psnet->cfg.vf_bar), name);
+ 	if (ret) {
+-- 
+2.46.1
+
