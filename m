@@ -1,115 +1,106 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86BC018C340
-	for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 09:22:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94888205E05
+	for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 10:23:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729070575; cv=none; b=O9XdfaeA+r57Xi+Vg32Rxc9+N+S0RiHLxxTHpfTXxNMUf9toqrxTuF+SUBCNF/0XWYN4Wc3Y250bpU8x+4u+gFTH+w26iO4erW2aow6GYU8cS1wsculO20jj63cIl3CUz/JiQbWaplTtPERh3GfK6Pjnr+msLzFR6QECSfaWGrE=
+	t=1729074206; cv=none; b=uzz3H46dLjcsHPsuJpAKWrMxAnhjW5ZkUPLBlBNEJJXhGggN1I04mpOU3ln48HICX63LACOzscqLiqdTo5uEcgiK8TfzNwUkR36lm/myl1h0HM1CmbDnYMyylvOnQPR7ZdBcTZlFaJ0yeu4cMWTPLqGtbq61w6sskQ3CGskoGJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729070575; c=relaxed/simple;
-	bh=7NHqxy8z9St5srRirP40JQGjKhgMJDkdXyhJQwFf7RY=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jWgybXdcFV5cM/isRTGAyfZec9g2cHI/oAiiAns2LmoQOcCO/jdjNjmegNXYHpGDPTYN/G1hg5hSrpDKHwDoAbgDgTdiScnGdk7bmiVih29zapEmRzCYFJREXWOb3Ie8REIoPRAa20yZgXhAVI1gpLD6EeM4tcQXByrwl0xcdY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EZ4+M72o; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729074206; c=relaxed/simple;
+	bh=q/4Xnfo2QoXLnMrsQKtONWcJi0JMSdcZjjDyjdhf5aQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kIFWgZirZLs7hGNsXB4Ltvh55Z8K/96wnXG8Y6qSFhrwGS+0HWoNM9k6Kbh0bU/jX5CNN5YDLhx1VbdgxvQgdU/skMwXpVb/xVbi/lBAQYkf/lKmR47BJ/6dT4zs0FJs+MBF9IEqQGpSX4SQFdL1+9LB39ftsUyIAsfzrk6Qf64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k3SSt4/I; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EZ4+M72o"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729070572;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7NHqxy8z9St5srRirP40JQGjKhgMJDkdXyhJQwFf7RY=;
-	b=EZ4+M72oXR141XvVyE07bAcxijmOdmprknlNSRKYrSqWyDsGdDYjFgymhSHr3voFvXo2YF
-	ZIOxvJ8Ert8hYgeuqjvYh42q2+539IHjmwo+JyNEN5H8qzmQE7v4g/IkmBEIlq0M5OlE5K
-	iBM2Cmy8QuBknD7yIbRL3uOr0exBVpg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-166-6jtcm8AQOTeHJC9fK0tb4A-1; Wed, 16 Oct 2024 05:22:51 -0400
-X-MC-Unique: 6jtcm8AQOTeHJC9fK0tb4A-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d533a484aso331178f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 02:22:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k3SSt4/I"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-539fb49c64aso4363763e87.0
+        for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 03:23:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1729074203; x=1729679003; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=q/4Xnfo2QoXLnMrsQKtONWcJi0JMSdcZjjDyjdhf5aQ=;
+        b=k3SSt4/IbAGqr4M7HCjvEmIhwBObD9m8F1APWRDnkSUR7G3yeXzo6ClIXvA8VnvioE
+         jJ4G09r9SjzEkFV76WZ5VAV/OxBpFbet2gI6i4LT3i35Lde1rcYWKMjv4NqubAm6+AQP
+         3UoU0Coskf2RuJs4DG/iFRppR0618lxbgOZe3x1xulWI4n2ojMC5zWIDRSV0yozj8n5r
+         gB8ph9oX4bLBwUWHL/em2i7HzEJ1NJH19UUhoQXA8jFgtMZnwrDY/XPFzMrAzJXhlmF7
+         hubgsJyr4WlqNDZ9t70cSXY2HLbxmcai7bnpHjKHo0yAoSgI6qisp+ofAnR2ac1KO7VJ
+         WS5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729070570; x=1729675370;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=7NHqxy8z9St5srRirP40JQGjKhgMJDkdXyhJQwFf7RY=;
-        b=FbeYrmh5DPr91PYUcTma9BvjPJaIPqbsJf5tQxGcqopRyT3PUJHyuaQPUdZ+1ykWnK
-         52gvUrtWE/FsR8396sIgZ6e/SHp+qkvA9GBzGVpoIYhBZbxslZe2artvJV68RSbVPq2X
-         HMgCd2Dbo5wZf/e8tR7mSzaRpbdhhWSLF2pk8+hFFkCCo6Igt2+zQsn5y8aWX/rBpk5Y
-         /FsFUh7cE4ci7LQksJm89k49O/6RVZ/tvIR6QAe10xtFRpi6IuuimM7My+uz9jSN53i7
-         4Pz7t3n2POKnxZbV0BiW+wlpi8H/uEyH/JNSu2aejXxD3LVKKH/a7tvayhfvpmoaCjY8
-         +q9g==
-X-Forwarded-Encrypted: i=1; AJvYcCUVf57SSk2+qU8keZbFkkPJMYjcZqnz9Ia2HbAqxvVPSyIrH9OyGrzvR8PcLg8vKDaVuUX3FJGngFQldneL2g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwJy0tBnkXAFAZSXC5YNGVvLvK7sWIIfWdG22jYDSf1yfsKH4kU
-	AHs8NM2+BTQzbACicg2zdb7udNtbvMyxIUvjKhqT4ml1Tn7Szn2itL0b06FABf/7lqu150UFDxW
-	HrHksGzWyaRmncPGMPJN2PkAlsvEk9Ai6cCnaCYhbzLYP7SQuPV3mzwYr2tvkHTVS
-X-Received: by 2002:a05:6000:ac1:b0:37c:f561:1130 with SMTP id ffacd0b85a97d-37d551fd967mr16230974f8f.18.1729070570113;
-        Wed, 16 Oct 2024 02:22:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFYuIRB3SOz3zBfW+1TrVdJdzEMd1HnJYU2msz5wLlhJ2CtVCce9o3U7IRhaBXskyCKsIvrxQ==
-X-Received: by 2002:a05:6000:ac1:b0:37c:f561:1130 with SMTP id ffacd0b85a97d-37d551fd967mr16230952f8f.18.1729070569691;
-        Wed, 16 Oct 2024 02:22:49 -0700 (PDT)
-Received: from dhcp-64-113.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d7fa9077dsm3825575f8f.55.2024.10.16.02.22.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Oct 2024 02:22:49 -0700 (PDT)
-Message-ID: <17b0528bb7e7c31a89913b0d53cc174ba0c26ea4.camel@redhat.com>
-Subject: Re: [PATCH RESEND] vdpa: solidrun: Fix UB bug with devres
-From: Philipp Stanner <pstanner@redhat.com>
-To: Andy Shevchenko <andy@kernel.org>
-Cc: Alvaro Karsz <alvaro.karsz@solid-run.com>, "Michael S. Tsirkin"
-	 <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
-	 <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
-	 <eperezma@redhat.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org, Christophe JAILLET
-	 <christophe.jaillet@wanadoo.fr>
-Date: Wed, 16 Oct 2024 11:22:48 +0200
-In-Reply-To: <Zw-CqayFcWzOwci_@smile.fi.intel.com>
-References: <20241016072553.8891-2-pstanner@redhat.com>
-	 <Zw-CqayFcWzOwci_@smile.fi.intel.com>
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
+        d=1e100.net; s=20230601; t=1729074203; x=1729679003;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=q/4Xnfo2QoXLnMrsQKtONWcJi0JMSdcZjjDyjdhf5aQ=;
+        b=ceD8GdHP1sTi4Jv86vDLoWbHTLNlNp98mOfFwMYu1/zBFl1xBoc2zAKxT7tQprWBxj
+         5EerDgCFR4ANO4ZePKAvXiegGFmMnoXgmK8r9ftVL3qvkAkeV2Ivwth4lKlCwA/5/yG6
+         aV/k5o6O5gEcn87HVFRnrBFj77XjhGDPqUHjA8lr9gVBnqdstFNEqJq9iy94AqWLK+IE
+         LcsTN5otZjHH+zPM8VpfSLiMx/Lvn5o4oi/GOmKQIYWEh0vXqUyd2Nk6ML874AehCEed
+         RoRbrracfGY0pkrDJgw9Inff/Xb7x6rXl/jbOVN87XNN3X3BH9rW8+8bxVg8VNd6yRMn
+         yBwQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX1bHqcJwCynguzA26fs0p4wSNkH+b5GUBb6O4zWCEQ9vkSbXGdeMbbu0BHAvJoXEsMKDDylu3q6DlU8i+0VQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy1N7hrju1TKQ9GlGnDGNIuCYYxNuwtmXVJshcCVDhkCkpud26P
+	3BQFWQOGT26L6LpsXXsJ12mCPCqWHz2yn5FAedc0IUyH4NfEhYUqjUu9EkUCtM1nqP3WhX+sZVc
+	cG/aDI7FzmwO1jDW02QW245CJygufNpIw
+X-Google-Smtp-Source: AGHT+IHecL3xyZYXLTNm5iA6rs/KvXKjLMOFmfwx3AdAWDJHF6WIEmSzNsGABI2L/R0hEVHbIIgQ2Q6LGf7wWO/MM7E=
+X-Received: by 2002:a05:6512:10d1:b0:536:a695:9414 with SMTP id
+ 2adb3069b0e04-539e54d7907mr9596702e87.6.1729074202511; Wed, 16 Oct 2024
+ 03:23:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+References: <20241016072553.8891-2-pstanner@redhat.com> <Zw-CqayFcWzOwci_@smile.fi.intel.com>
+ <17b0528bb7e7c31a89913b0d53cc174ba0c26ea4.camel@redhat.com>
+In-Reply-To: <17b0528bb7e7c31a89913b0d53cc174ba0c26ea4.camel@redhat.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Wed, 16 Oct 2024 13:22:44 +0300
+Message-ID: <CAHp75VcO5g1UerroLaiUa4n7Aj8TPQ594tPGdG-T-xkh4uqyCA@mail.gmail.com>
+Subject: Re: [PATCH RESEND] vdpa: solidrun: Fix UB bug with devres
+To: Philipp Stanner <pstanner@redhat.com>
+Cc: Andy Shevchenko <andy@kernel.org>, Alvaro Karsz <alvaro.karsz@solid-run.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2024-10-16 at 12:08 +0300, Andy Shevchenko wrote:
-> On Wed, Oct 16, 2024 at 09:25:54AM +0200, Philipp Stanner wrote:
-> > In psnet_open_pf_bar() and snet_open_vf_bar() a string later passed
-> > to
-> > pcim_iomap_regions() is placed on the stack. Neither
-> > pcim_iomap_regions() nor the functions it calls copy that string.
-> >=20
-> > Should the string later ever be used, this, consequently, causes
-> > undefined behavior since the stack frame will by then have
-> > disappeared.
-> >=20
-> > Fix the bug by allocating the strings on the heap through
-> > devm_kasprintf().
->=20
-> > ---
->=20
-> I haven't found the reason for resending. Can you elaborate here?
+On Wed, Oct 16, 2024 at 12:22=E2=80=AFPM Philipp Stanner <pstanner@redhat.c=
+om> wrote:
+> On Wed, 2024-10-16 at 12:08 +0300, Andy Shevchenko wrote:
+> > On Wed, Oct 16, 2024 at 09:25:54AM +0200, Philipp Stanner wrote:
 
-Impatience ;p
+...
 
-This is not a v2.
+> > > ---
+> >
+> > I haven't found the reason for resending. Can you elaborate here?
+>
+> Impatience ;p
+>
+> This is not a v2.
 
-I mean, it's a bug, easy to fix and merge [and it's blocking my other
-PCI work, *cough*]. Should contributors wait longer than 8 days until
-resending in your opinion?
+It doesn't matter, the reviewers and maintainers should get a clue
+which version is to be used (even if it's a simple resend) and why it
+has been sent.
 
+> I mean, it's a bug, easy to fix and merge [and it's blocking my other
+> PCI work, *cough*]. Should contributors wait longer than 8 days until
+> resending in your opinion?
 
-P.
+Usually we may ping for that. And yeah, depending on the maintainers
+it takes a while to get it to the point. In some (quite rare I
+believe) cases we may escalate up to Linus about this. I probably has
+only one case like that in my full period of working on the Linux
+kernel project (several years).
 
+--=20
+With Best Regards,
+Andy Shevchenko
