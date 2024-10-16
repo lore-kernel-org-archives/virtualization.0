@@ -1,133 +1,143 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED50A1CB9F0
-	for <virtualization@lists.linux.dev>; Tue, 15 Oct 2024 15:20:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F20E914B06C
+	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 01:58:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729005622; cv=none; b=Y1EQqbucuaUYMi9ZUef40yE24FiV8jwQ7mzxHuNQ/HcgxZscYzDwV2t7Yu+ZuSsBVYYUYUHGw7bg7NX/N32zVoiPTpUrAavkDmV8DjXLA5vPpO+IJ+h9IaCuHuNnnpWh46J3yVMbZE+7LcZSzUBnl3iXr3ArO5NCiUcjoI5QC3o=
+	t=1729043933; cv=none; b=Ys9dTFfvBBThkfrclGV8tl7rpoY70WjFxbz+3WUeLyTIf43N3UGjSFkxyddmnHOL4XyQPyomErY3yrPUJt3A+xi3M/LIrERQzZ1YOS1USrNMUSTw8UbEcPqkd4KOgBO0pHEaxbpVdf4C6ejZpMEeR0hiY4FA+ZXdKKT1n+Wsmf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729005622; c=relaxed/simple;
-	bh=lVkV1vFjNJEMDvdyimYUH+siM7VBxYLLrgPg2wIHi2w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=qJDilZn/Nt3YyK/Jl7h70iqMDWttiATVRsmfcB4ZMix0S+pAsrv8neQS3YFwxw6jo2CwFvq1bBr9MX3oMUxISwHl3cQtJylWr0R0REtiFnBQ4ttc9p1yw16wdm7xmMkSBrIF3qq8JRUwnFMZWWhEvP0CTZvCn/5oy3+3XpJzszs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TpHTiMsV; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1729043933; c=relaxed/simple;
+	bh=dVq8802sNgxsYQrKPhpLGl2Ji48gzebkMI0KMfI8BG8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=A1lovrnWDhmOtp1b5G86KwcmM+Cs5PuiABEOuBZyz5UeoxG87lFDiTgai61ke5uAklWLdFmqvCRyw+qEAUcutdJOgsM87MCwUyFX7i99pM9W5Lj+5MJEAUV70axDZm+TfNZse7j2fYEGTkSV/p2MzWOwLEEZ2PDvwX1/2rmIVJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=taPsKg/3; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TpHTiMsV"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FFJqMo016714;
-	Tue, 15 Oct 2024 15:20:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=iGuQeqwI6HZC3u7lEqO9aIAaSIscVF
-	1CMX/wdfvit/s=; b=TpHTiMsV7gss9CE2gbTv2CeHsBmwRk9TsMr12i/hKys93P
-	WKlRkjvobxfliO1vTzhtIxt+eW5FfqcrDXvU1ucgCaZCC8y4F+nwbiO7zezxjUOk
-	TUwI9kmcCTCGDAd9VrQ4PoTD9oO0joSVgiuTDmBl4io9IwAaF71Y7u168DIqGS4+
-	MokAYq7Sl1D3LCgAi0k9IuBtPoJirNfIt7OmSf0A5WLM0LzpVjTrq59FBGwRbNKT
-	Q+TYgxxaHAyejOuT3a7N/lXpAr4gdzStgwz8h5PRBpDmgFGvR0gFCNBtbXqtz8gt
-	s8j/VF7dXYidIvDu/zIsipCnLc2M6oPxIFVCSW6A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429txf004v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 15:20:16 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49FFKFsp017969;
-	Tue, 15 Oct 2024 15:20:15 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 429txf004n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 15:20:15 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49FEdsIN006401;
-	Tue, 15 Oct 2024 15:20:14 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284xk4fps-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 15:20:14 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49FFKA2H57999682
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 15 Oct 2024 15:20:10 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA9F62004F;
-	Tue, 15 Oct 2024 15:20:10 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 133C420040;
-	Tue, 15 Oct 2024 15:20:10 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 15 Oct 2024 15:20:10 +0000 (GMT)
-Date: Tue, 15 Oct 2024 17:20:08 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
-        kvm@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
- to support QEMU/KVM memory devices
-Message-ID: <20241015152008.7641-P-hca@linux.ibm.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-5-david@redhat.com>
- <20241014184339.10447-E-hca@linux.ibm.com>
- <8131b905c61a7baf4bd09ec4a08e1ace84d36754.camel@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8131b905c61a7baf4bd09ec4a08e1ace84d36754.camel@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: i1zBRW8UGLcWVcN5Coobxt0ARxFddDl7
-X-Proofpoint-ORIG-GUID: Ub7xaX8YqTGNc9RIsPz804moAAXEwY3a
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="taPsKg/3"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id B6F78608A9
+	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 01:58:51 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 58axMPPvDt3P for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Oct 2024 01:58:51 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::12c; helo=mail-lf1-x12c.google.com; envelope-from=zhangfei.gao@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 72C25608BE
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72C25608BE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=taPsKg/3
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 72C25608BE
+	for <virtualization@lists.linux-foundation.org>; Wed, 16 Oct 2024 01:58:50 +0000 (UTC)
+Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-539fe02c386so443143e87.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 15 Oct 2024 18:58:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1729043928; x=1729648728; darn=lists.linux-foundation.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=A/rtU2ORxq4VQYJugdVXcy5ZyrAZXc1jQ9TPE/XvnVI=;
+        b=taPsKg/3qWvKprQdk3phNhMmb+0X8gCssBdCtIoyy1uiD27gPjIoAXg4/qiyv37FNV
+         vog56jukz9kYlWqmVq9k0iF56Xdq0Vnd19g4vFmtMxHsUwISNt6CB85sl7zgSZ/nx805
+         fJvEBxXRoO/1qR7WwRNOe3a1b7sZZknKJAt05qIQQq7qpmvHG/6AQvvf4hA+nj22sEUQ
+         lvf37bx8j+ZRPI0pXa7DtR3o5iuTbt6T46xz45H50KFGEl4ILq8ViAUvFMKDbyrAhB7j
+         GV3w8v8DaWz5wpyUVMJQyhNS/dBghEltbV+/bBhRE4q8EsnOo/SRhr2qbGgnn4kHbjNx
+         Y/7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729043928; x=1729648728;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=A/rtU2ORxq4VQYJugdVXcy5ZyrAZXc1jQ9TPE/XvnVI=;
+        b=Nj+6wAZMEW5BgDPqxcI9c90nS4F5wdUZkcQXLeT859I13ckn/Ek6V3KGyrUGEW9w0E
+         QoWo/dna0JKAjw+nN3P6pi+86rvAWRNypG8FeXFXeEJZDye9Ptk7FONvBsaSldld3E9S
+         qGKSUc1nQmnjhEpKixmDcYxEyuaVWBGYKbIvxRFSaUxgZwBT8dRNSpOrvNe4qc/I6oD8
+         ziAz87CcHeejkuN2xvDC+sMfeTsI4ixDecv6DUQhqRKGNNjocDE0yWGxpqRq1FkWNnYx
+         wxpSCmsaceBAwBoTn1CY4NH47SVCXHgT6yYekII+qPcW2vi6F0H69r6FjDOVCs6r4Mdg
+         rsTA==
+X-Forwarded-Encrypted: i=1; AJvYcCU5DwOvnC9BCRcLJ+usDV9w5l1uMHIYnE7miW5yIdC+7Zqs8hi4yhv1nq3xvQar0ujZqglr4LJfFNmWqpgNUA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxWw8iNIFesymNqJlYLpRyLkCg2b7imXF7AA6qu5hcecrYjXVn0
+	Lb7TukRo8rjwlD53OWkVvNknzt6KqDHXevl+gOLqwCzJa70y6WdUF9fRvUogqMZ5KBaoDy7jRwg
+	D+awv1E0NqdyMXd3g5ioJsKFQBhJko1rdsq+jbQ==
+X-Google-Smtp-Source: AGHT+IEB/XndljAYmvf9daRxR8zUkYMGinPm83aD1j6YhAnINHWEAphdGASnRtu0uajjdc4lTF2hFS3dM0SJE/wV/i4=
+X-Received: by 2002:a05:6512:3a94:b0:539:fc1b:36d1 with SMTP id
+ 2adb3069b0e04-53a03c8fc81mr731316e87.6.1729043927809; Tue, 15 Oct 2024
+ 18:58:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 phishscore=0 priorityscore=1501 suspectscore=0 spamscore=0
- lowpriorityscore=0 bulkscore=0 clxscore=1015 mlxscore=0 adultscore=0
- mlxlogscore=649 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410150105
+References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
+ <20240702063444.105814-8-baolu.lu@linux.intel.com> <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
+ <20241015125420.GK1825128@ziepe.ca>
+In-Reply-To: <20241015125420.GK1825128@ziepe.ca>
+From: Zhangfei Gao <zhangfei.gao@linaro.org>
+Date: Wed, 16 Oct 2024 09:58:36 +0800
+Message-ID: <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
+Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt attach/detach/replace
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>, 
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
+	Jean-Philippe Brucker <jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, 
+	Yi Liu <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, 
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Oct 15, 2024 at 11:01:44AM -0400, Eric Farman wrote:
-> On Mon, 2024-10-14 at 20:43 +0200, Heiko Carstens wrote:
-> > On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
-...
-> > +#define DIAG500_SC_STOR_LIMIT 4
-...
-> I like the idea of a defined constant here instead of hardcoded, but maybe it should be placed
-> somewhere in include/uapi so that QEMU can pick it up with update-linux-headers.sh and be in sync
-> with the kernel, instead of just an equivalent definition in [1] ?
-> 
-> [1] https://lore.kernel.org/qemu-devel/20241008105455.2302628-8-david@redhat.com/
+On Tue, 15 Oct 2024 at 20:54, Jason Gunthorpe <jgg@ziepe.ca> wrote:
+>
+> On Tue, Oct 15, 2024 at 11:19:33AM +0800, Zhangfei Gao wrote:
+> > > +static int iommufd_fault_iopf_enable(struct iommufd_device *idev)
+> > > +{
+> > > +       struct device *dev = idev->dev;
+> > > +       int ret;
+> > > +
+> > > +       /*
+> > > +        * Once we turn on PCI/PRI support for VF, the response failure code
+> > > +        * should not be forwarded to the hardware due to PRI being a shared
+> > > +        * resource between PF and VFs. There is no coordination for this
+> > > +        * shared capability. This waits for a vPRI reset to recover.
+> > > +        */
+> > > +       if (dev_is_pci(dev) && to_pci_dev(dev)->is_virtfn)
+> > > +               return -EINVAL;
+> >
+> > I am using the SMMUv3 stall feature, and need to forward this to hardware,
+> > And now I am hacking to comment this check.
+> > Any suggestions?
+>
+> Are you using PCI SRIOV and stall together?
 
-It is already a mess; we have already subcode 3 defined:
+Only use smmuv3 stall feature.
 
-#define KVM_S390_VIRTIO_CCW_NOTIFY 3
+>
+> > > +       mutex_lock(&idev->iopf_lock);
+> > > +       /* Device iopf has already been on. */
+> > > +       if (++idev->iopf_enabled > 1) {
+> > > +               mutex_unlock(&idev->iopf_lock);
+> > > +               return 0;
+> > > +       }
+> > > +
+> > > +       ret = iommu_dev_enable_feature(dev, IOMMU_DEV_FEAT_IOPF);
+> > > +       if (ret)
+> > > +               --idev->iopf_enabled;
+> > > +       mutex_unlock(&idev->iopf_lock);
+> >
+> > Also iommu_dev_enable_feature(idev->dev, IOMMU_DEV_FEAT_SVA); is required
+> > In thinking how to add it properly.
+>
+> FEAT_SVA needs to be deleted, not added too.
+>
+> smmu-v3 needs some more fixing to move that
+> arm_smmu_master_enable_sva() logic into domain attachment.
 
-in
+Will think about this, Thanks Jason
 
-arch/s390/include/uapi/asm/virtio-ccw.h
-
-which for some reason is uapi. But it doesn't make sense to put the
-new subcode 4 there too. So what is the end result?
-
-Another uapi file? I think resolving this would be a project on its own.
+>
+> Jason
