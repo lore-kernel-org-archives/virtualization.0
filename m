@@ -1,156 +1,165 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37F1E206E9C
-	for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 11:16:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B87A2076DA
+	for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 13:36:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729077400; cv=none; b=W6OPeXTT2g61kcEFkNj2iIMOg+ybum0iD3LVZBeB7Cps6WBy49gD4rEUcyP1Fz8juxJdopcYolUSmC7z+Y8oD+QZVI4vhT0BGoGfLcn1W5FfdCWiTN62YBm2oZtD1CgsILrlv6AGb7DsxUd1VSk7va6y4z57FUtHycdIZXlf9qY=
+	t=1729085768; cv=none; b=eK8mMAW5XF1x2sD7n5IH2zsi03Kz18uPpizKIQp6GSp8XlaVXA68WH/OrD1tLVZbnzDeg/YrfjWYge/96Wcsic7bUpt5jbP5tSGjeAwjVqy1ODesMxl5dZUtx3ERuzLG41jOZY9WlUOTmz4A7k1YkBucEN4Lyi3Yih/pOgEPEmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729077400; c=relaxed/simple;
-	bh=ionG4jDjTyVSCbBxsm9pbenqEucVFWILHnagSxWDumc=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eKPfrat3k4v5kggqsUXd4ZjkCz8+O3n/tT8tE03Jilh9d/VMH4+YjtFqFAnype1xFP1U9Jc0pDQmpGehHYyHBOar0BYa7FCdYaPe2NbrfkWU6D2TIiTrwP8xCmUpkuhdKReiliZM7g4OcHpRielvoJ2gb/nM/JZFUK9cokLED60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KGT6X885; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729085768; c=relaxed/simple;
+	bh=pZNXk/x0fFwUjZqS/zBnAfyZnmbaXf4MIWAifLb2V1Q=;
+	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:MIME-Version:
+	 Content-Type; b=XP8RkB8kcXcPNCry+ABfJWhRd0jvBFFdUw/NHykXk9LgI0AvvW9m7v73AxResVvisJR46M+pLVht7AOBsqCJmTBU3jVx+i4cuxA6212JUr9OchVbYuy2UFhV6+0ha3daTONVn2SO9rhmnNLlVynCENL/g1QVGAO8gcXJpLJ6bfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=maObSdMq; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KGT6X885"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729077398;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ionG4jDjTyVSCbBxsm9pbenqEucVFWILHnagSxWDumc=;
-	b=KGT6X885vlCqgee41XjZJ2iLt0jLu6lkA35RzH5hoHlqW4ObkIMA8TT2LeaEpEWeBrtIZd
-	JcGi3HHRBlAwA3rWAyqaRKPyrRlGLnNOBqa7rDrfmcKX7IlEvwp2K7oP30Inp+5SKG5XbX
-	y5V2adVOBsAkpXPuyYTk8/wCBxZ58u4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-H3an3q3FP2Gjtq411cj4Tw-1; Wed, 16 Oct 2024 07:16:35 -0400
-X-MC-Unique: H3an3q3FP2Gjtq411cj4Tw-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43152cd2843so3408575e9.3
-        for <virtualization@lists.linux.dev>; Wed, 16 Oct 2024 04:16:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729077394; x=1729682194;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ionG4jDjTyVSCbBxsm9pbenqEucVFWILHnagSxWDumc=;
-        b=B6QPED6JFgJQDAkOw5BO7ZjsnzyZ9j6ffmaUJrTfLkR0E1LBRyicq8anvgdK+udMRn
-         +zmFOwC7MHAAlGT67lY/1YiOa4c9WyIdQEPnRzq+2SfPEY+t4OWsCwk1aTlNuY91OQvj
-         f1QJUuL1Nz3wLBW3l0mnSa9qqxunkEoPA8HWV7UELSDqD7Zc1a9IsxJeLvV004iBn+JG
-         3NPEQVEbfBsN9YYFhPLXu1ADOEO1o3o0EiJpn7NuM8xVBLEPLi403XTrpTDxYfBRVBYi
-         dX1Q2fjvzck7zMET2HRnt0aKy1wi69HEz2aXITn9DejFXyCPE6Fx8B/6AHIx01TJtD6j
-         aGog==
-X-Forwarded-Encrypted: i=1; AJvYcCUS1yrcllGb+wDaV222+B8s+xQgxjtM232g54rOl2DO5EaGHqvWzLsL0QHNgXuhC7qa3n+ke6tNe5ZRTYLaog==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxZxTWYAXb/152OOysij7iHlAiJkfP4TQeHsl7raXpG2KNCnY3L
-	MeF1I0B9PRTbJ3rrngs74sclaAJ4noVOiZvSxTOfx+D6kHwvvMpEzOE8FFxJYcCHgMstgGq/wew
-	S1LKPbmoW3UsBgFnExQhoqOoRfoVg7v1yoFgZB7bQrTMQ8rWYZjNqncfGCHPb5D03
-X-Received: by 2002:a05:600c:c0d:b0:42c:b80e:5e50 with SMTP id 5b1f17b1804b1-4311ddffb8dmr160143275e9.0.1729077393818;
-        Wed, 16 Oct 2024 04:16:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHF6mlruAq+rlftht0xklUty2+K9bi4n84O7QB16BRpDQ0gUnzdPdf71NDf6zOxbjqpZa7ZqQ==
-X-Received: by 2002:a05:600c:c0d:b0:42c:b80e:5e50 with SMTP id 5b1f17b1804b1-4311ddffb8dmr160143025e9.0.1729077393411;
-        Wed, 16 Oct 2024 04:16:33 -0700 (PDT)
-Received: from dhcp-64-113.muc.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4314f5e2258sm22567745e9.10.2024.10.16.04.16.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Oct 2024 04:16:33 -0700 (PDT)
-Message-ID: <482d0c45ea2121484a85ed9be6a1863b6d39ac1e.camel@redhat.com>
-Subject: Re: [PATCH RESEND] vdpa: solidrun: Fix UB bug with devres
-From: Philipp Stanner <pstanner@redhat.com>
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Andy Shevchenko <andy@kernel.org>, Alvaro Karsz
- <alvaro.karsz@solid-run.com>,  "Michael S. Tsirkin" <mst@redhat.com>, Jason
- Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
- =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
- virtualization@lists.linux.dev,  linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Date: Wed, 16 Oct 2024 13:16:32 +0200
-In-Reply-To: <2024101627-tacking-foothill-cdf9@gregkh>
-References: <20241016072553.8891-2-pstanner@redhat.com>
-	 <Zw-CqayFcWzOwci_@smile.fi.intel.com>
-	 <17b0528bb7e7c31a89913b0d53cc174ba0c26ea4.camel@redhat.com>
-	 <2024101627-tacking-foothill-cdf9@gregkh>
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="maObSdMq"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49GCs3FM021241;
+	Wed, 16 Oct 2024 13:36:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:subject:to; s=pp1; bh=YSX7Qf3np3wpVslux96pU8DtgICF+GNcykXf3D0a9
+	jM=; b=maObSdMq9gobBKJPWmzX31K7KNNbmheIkGTgvgDPVg6Hldi4Kj9c9a8Ck
+	Hv+TCuBwoQi84r8BWa+oOQRIm+SOGDHcuxhvl7ZJdETh7MqAelw3MZUJAA2et6oI
+	Sqsfukr1bnKSHzy6JQi7710rS9hTY50qmVVDley0TPMa4tfPuYhN4x5H+6FXFU7e
+	bOeWAZsWWMoUoap8B56ZHGfmhxvJyz96EoGfMHRQekpFngiT836iEsVOpglaehD3
+	TEDVDHN4xnpsHci62XNv3YqlzJ5I284nLbV77OXA1stbp43/n6ovRX9ZtU40PGgy
+	5htOptCwrb7MI0dUtJTp0is777d+Q==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42adw8r7m6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 16 Oct 2024 13:36:00 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49GDa0x0027595;
+	Wed, 16 Oct 2024 13:36:00 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42adw8r7kx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 16 Oct 2024 13:36:00 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49GCg5eV006690;
+	Wed, 16 Oct 2024 13:35:59 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4283es1ur1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 16 Oct 2024 13:35:59 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49GDZtmt28508670
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 16 Oct 2024 13:35:55 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7A4F220043;
+	Wed, 16 Oct 2024 13:35:55 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5E81320040;
+	Wed, 16 Oct 2024 13:35:55 +0000 (GMT)
+Received: from localhost (unknown [9.155.200.179])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 16 Oct 2024 13:35:55 +0000 (GMT)
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
+To: david@redhat.com
+Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
+        borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
+        egorenar@linux.ibm.com, eperezma@redhat.com, frankja@linux.ibm.com,
+        gor@linux.ibm.com, hca@linux.ibm.com, imbrenda@linux.ibm.com,
+        jasowang@redhat.com, kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+        svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+        xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+In-Reply-To: <a3f310d0-b878-44c4-9454-f7faf8be04ad@redhat.com>
+Date: Wed, 16 Oct 2024 15:35:55 +0200
+Message-ID: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2024-10-16 at 12:51 +0200, Greg KH wrote:
-> On Wed, Oct 16, 2024 at 11:22:48AM +0200, Philipp Stanner wrote:
-> > On Wed, 2024-10-16 at 12:08 +0300, Andy Shevchenko wrote:
-> > > On Wed, Oct 16, 2024 at 09:25:54AM +0200, Philipp Stanner wrote:
-> > > > In psnet_open_pf_bar() and snet_open_vf_bar() a string later
-> > > > passed
-> > > > to
-> > > > pcim_iomap_regions() is placed on the stack. Neither
-> > > > pcim_iomap_regions() nor the functions it calls copy that
-> > > > string.
-> > > >=20
-> > > > Should the string later ever be used, this, consequently,
-> > > > causes
-> > > > undefined behavior since the stack frame will by then have
-> > > > disappeared.
-> > > >=20
-> > > > Fix the bug by allocating the strings on the heap through
-> > > > devm_kasprintf().
-> > >=20
-> > > > ---
-> > >=20
-> > > I haven't found the reason for resending. Can you elaborate here?
-> >=20
-> > Impatience ;p
-> >=20
-> > This is not a v2.
-> >=20
-> > I mean, it's a bug, easy to fix and merge [and it's blocking my
-> > other
-> > PCI work, *cough*]. Should contributors wait longer than 8 days
-> > until
-> > resending in your opinion?
->=20
-> 2 weeks is normally the expected response time, but each subsystem
-> might
-> have other time limites, the documentation should show those that do.
-
-Where do we document that?
-
-Regarding resend intervals, the official guide line is contradictory:
-"You should receive comments within a few weeks (typically 2-3)" <->
-"Wait for a minimum of one week before resubmitting or pinging
-reviewers" <--> "It=E2=80=99s also ok to resend the patch or the patch seri=
-es
-after a couple of weeks"
-
-https://www.kernel.org/doc/html/latest/process/submitting-patches.html#don-=
-t-get-discouraged-or-impatient
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MZec_mqCiGFqFGIM06wGZZ-9NJht6plF
+X-Proofpoint-ORIG-GUID: NI9xYGJknyFiVOPGQDiENcgtrcbdq7fD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ phishscore=0 priorityscore=1501 clxscore=1011 impostorscore=0 adultscore=0
+ mlxlogscore=400 mlxscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410160084
 
 
-We could make the docu more consistent and specify 2 weeks as the
-minimum time.
+Hi David,
 
-P.
+> My concern is that we'll now have
+>
+> bool is_kdump_kernel(void)
+> {
+>         return oldmem_data.start && !is_ipl_type_dump();
+> }
+>
+> Which matches 3), but if 2) is also called "kdump", then should it actually
+> be
+>
+> bool is_kdump_kernel(void)
+> {
+>         return oldmem_data.start;
+> }
+>
+> ?
+>
+> When I wrote that code I was rather convinced that the variant in this patch
+> is the right thing to do.
 
+A short explanation about what a stand-alone kdump is.
 
->=20
-> While you wait, take the time to review other pending patches for
-> that
-> maintainer, that will ensure that your patches move to the top as
-> they
-> will be the only ones remaining.
->=20
-> thanks,
->=20
-> greg k-h
->=20
+* First, it's not really a _regular_ kdump activated with kexec-tools and
+  executed by Linux itself but a regular stand-alone dump (SCSI) from the
+  FW's perspective (one has to use HMC or dumpconf to execute it and not
+  with kexec-tools like for the _regular_ kdump).
+* One has to reserve crashkernel memory region in the old crashed kernel
+  even if it remains unused until the dump starts.
+* zipl uses regular kdump kernel and initramfs to create stand-alone
+  dumper images and to write them to a dump disk which is used for
+  IPLIng the stand-alone dumper.
+* The zipl bootloader takes care of transferring the old kernel memory
+  saved in HSA by the FW to the crashkernel memory region reserved by the old
+  crashed kernel before it enters the dumper. The HSA memory is released
+  by the zipl bootloader _before_ the dumper image is entered,
+  therefore, we cannot use HSA to read old kernel memory, and instead
+  use memory from crashkernel region, just like the regular kdump.
+* is_ipl_type_dump() will be true for a stand-alone kdump because we IPL
+  the dumper like a regular stand-alone dump (e.g. zfcpdump).
+* Summarized, zipl bootloader prepares an environment which is expected by
+  the regular kdump for a stand-alone kdump dumper before it is entered.
 
+In my opinion, the correct version of is_kdump_kernel() would be
+
+bool is_kdump_kernel(void)
+{
+        return oldmem_data.start;
+}
+
+because Linux kernel doesn't differentiate between both the regular
+and the stand-alone kdump where it matters while performing dumper
+operations (e.g. reading saved old kernel memory from crashkernel memory region).
+
+Furthermore, if i'm not mistaken then the purpose of is_kdump_kernel()
+is to tell us whether Linux kernel runs in a kdump like environment and not
+whether the current mode is identical to the proper and true kdump,
+right ? And if stand-alone kdump swims like a duck, quacks like one, then it
+is one, regardless how it was started, by kexecing or IPLing
+from a disk.
+
+The stand-alone kdump has a very special use case which most users will
+never encounter. And usually, one just takes zfcpdump instead which is
+more robust and much smaller considering how big kdump initrd can get.
+stand-alone kdump dumper images cannot exceed HSA memory limit on a Z machine.
+
+Regards
+Alex
