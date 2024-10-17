@@ -1,61 +1,41 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C6316BE0D
-	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 07:01:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E24B194A4B
+	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 07:21:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729148499; cv=none; b=KKEzzF6CeS5WZBKNDyS6dWeBUfBeEHnWSQrU01Se6Bsy3NEOsmYspWWjDqLuYY54j+5NZHJFINN4iXLtv4rHn31NBaqmO7OuTaXNHVSusWfaYggQYGJw41cSfv4JZdjVnFrsLqqxtXW1ceh1lBfyRR1uik++E1pWSS6mdiuE3nk=
+	t=1729149714; cv=none; b=VYlCXwYTk3k0ce9c24tl6pafZ4nm5FPmyPnSuMMgUZN1SK1zfn9/5n4Rn5ZD6zHjMzNs4TT2HkjkewNbbukfxtxX41mxWmpN+IwpFZL/IHY8nklvrFV5XqbaO4pY3K77qw0+FtppJZQQHzkaPnTF+3YP4VJ8tEqeujf7+0yLxTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729148499; c=relaxed/simple;
-	bh=ptrDT5yKmft1N/p1HVAwK2vX29TKKA2kcd6VcHBkASs=;
+	s=arc-20240116; t=1729149714; c=relaxed/simple;
+	bh=Z6zHfgJld0xU1iCfxUaWD/oJ3UVGD3DyuRRvY5ltBJU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MzdixzqIu1Ff8qvRIhQGjstAFYEbB9vqQhAXs0f8auHynstSnyhriQ+6CR+bckURIQA0xfkPSeOs3tOFyvA9Iu32FUSdt1Qhxv7PV125KxcH6tBui7bpnuAphHI0Hdbi7Es3mBH46An3LEe29mhS57EPRGIHi5dV8qflOTVnQDA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LfM5MBhd; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=IWjrSPkK9GerRUDwpQc/wtcuANLxu1IehOhUiZ4BTurdhc+QQCP0F6ny4SCRRNW6BVZJJDTJqtfrRpWZ7T2w3H9P3PIemNm7huK41JfWZFoGUAyycBXDZakDPm26shpFzOD6VtBLD65CVX5DUSFjlRPNBhN5r9YfWsijjIAebf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JzCktZo2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LfM5MBhd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729148495;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ptrDT5yKmft1N/p1HVAwK2vX29TKKA2kcd6VcHBkASs=;
-	b=LfM5MBhdgqFtTc0eeNzUwWi55zy8ZzFATDlvMH8PeL6BLYfyxZfzyIDpuLyfkASTxofJgV
-	dj7qaBM5MUr2aNNIWAZp4SewSwBI6Zuyk64pO579SXKbzQwWAfWsOOxw3OsJkJC8BvBFzY
-	cNlUZbrvUw61WA74iA/QD4nZuazlU/o=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-641-wqYE8OJIP-W0_W5ZGuzJbQ-1; Thu, 17 Oct 2024 03:01:32 -0400
-X-MC-Unique: wqYE8OJIP-W0_W5ZGuzJbQ-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2e2a6f9438eso808097a91.3
-        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 00:01:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729148491; x=1729753291;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ptrDT5yKmft1N/p1HVAwK2vX29TKKA2kcd6VcHBkASs=;
-        b=nqSpZ/+EA4FGLXiSXwgysmKQlfaHrOoK0ZkHEOJn2/ZHJecIkYjLeUpiS8n5sYRCqc
-         xafUYMsH7nqwQBTMiDquPwvHdgdGffi2PwlGDr7arcAPSr1pP527b7KoaKVT+bZnLifk
-         wjhxSBUT1Ij2ThzVCyQZYlOd8wW6MBdXtCDVvh54zNfkghDOAZPDze0y+gzfPfT9CzHu
-         UYUhVS9OIoxY+y4m2OAC7PohBHHRkaA1eqUx/9PgwwbRhJgWRQK17bPYOkMjvhVKCcob
-         +KdDB4tv6QiTQRTOr5zdTbMutOctNYRKCR//3iBYFs8GD5486p/yl2KxW9+PbEVrjas8
-         nYaQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVnfmEts6x7mLnTj1hsYjyK/Z3SGAMgBKaKKH4BquIXsKIReyILi/3b4Pa7v7wvlpK9+J4SirJZVuYArCTJTw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzNm4e/KDOw4WGHRrFVeTP2fDm0LmSCTcDTpmGb3XcJlMzyeyXC
-	sVNV7wNc6uBWxdMCmzvwkgjD1TzQaeHMspKbhyFI1ujm4ily0Mku7taUImEaexcjqT4rGVrKnqs
-	p1YymsjZ7d+rrWTnFxrjzKAL+CiscBpfIrQg0tNGJ8hpbyPVnycf1lwWr11JuBhL5szRTp7U9iL
-	mAeoV6bfkLHe0UxKbmsTZ6CUKi7BmX+8t7IoNZ8f4=
-X-Received: by 2002:a17:90a:dd86:b0:2e0:99bc:6907 with SMTP id 98e67ed59e1d1-2e3152c8361mr21483685a91.15.1729148491210;
-        Thu, 17 Oct 2024 00:01:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGrBlnJbOKhQQK6QuG1u9VQfSftdSelf73brpFPmwNfOjiHRV1dKB+7crdUJzW4jEtREoYKtEK/yTwEpenhcmA=
-X-Received: by 2002:a17:90a:dd86:b0:2e0:99bc:6907 with SMTP id
- 98e67ed59e1d1-2e3152c8361mr21483663a91.15.1729148490793; Thu, 17 Oct 2024
- 00:01:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JzCktZo2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF26C4CEC3
+	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 07:21:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1729149714;
+	bh=Z6zHfgJld0xU1iCfxUaWD/oJ3UVGD3DyuRRvY5ltBJU=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=JzCktZo2t4BOPbjEdfYXHOm5os/1lYZ90OB10FLfXDLFnjPOtV6MUBvfPG176bjRn
+	 +wzZyht56kbUO/m+jgydzhQhdF/or0yanMriLJ878ugeVacD2DmqzK5xa+f6/SI00T
+	 YHQ1qdMMpw9wT7XAJJaJPvEl3qQsaA/qWgD/63BZbePbeCWjHLaAz1QijFXYkwYOgY
+	 XnZKCoS2GqlXe0+VkCUCfbqIl5kteVBXFUjvOew6JlScs/vdnXEt71M1viF6ro4128
+	 BFm6yjeQZBwMgAPzmBurcD1Ci8tOnpR7uerep3XdXuJD1YAJytQgueMIQ57nm2krHe
+	 LyMQA1GoZUXrA==
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-71e52582cf8so388389b3a.2
+        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 00:21:54 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXJfwWtwfbbfCZms4CZHPpHXBPUyzEIE0QIkwcgvUraYv1S1RMC/KiiQ/sLnzIIzDoTf7UQfPkZSE2F2RO7uQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyYc+MMbCsZOJ26qsktnYVnJ2RQDNIvSu8nROJ/PH014gH/C4NW
+	7cbof5iG6D8lC5Od4O8NNEXyMG4t5LGpm5lnggGOER7hQEcAJYuXAyN4b5oWMacBQJeqLR2y//E
+	u2fDphoWmrJwsZrf1xKvWIMF0J4M=
+X-Google-Smtp-Source: AGHT+IHEfgKL4XN+dW0ytWupM7+mdtcvg2YRTyzLvXUraQCVKOZpIO4rJ2GdVCpbbBFmcldM1Km7J3vMNvOplF8rM6Y=
+X-Received: by 2002:a05:6a00:2e97:b0:71e:cc7:c507 with SMTP id
+ d2e1a72fcca58-71e4c1cf183mr31892726b3a.23.1729149713658; Thu, 17 Oct 2024
+ 00:21:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -64,21 +44,22 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20241017013812.129952-1-yuancan@huawei.com>
 In-Reply-To: <20241017013812.129952-1-yuancan@huawei.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 17 Oct 2024 15:01:19 +0800
-Message-ID: <CACGkMEsUoVPfn+kab18yTvGqEnqDyFZvivKMFLzU1UkSRd7aEQ@mail.gmail.com>
+From: Zhu Lingshan <lingshan.zhu@kernel.org>
+Date: Thu, 17 Oct 2024 15:21:42 +0800
+X-Gmail-Original-Message-ID: <CAL=tH4acr1SkjcJrhwW3Qx2yJtydsvRHsvYNOv8k_dcQbPXbsw@mail.gmail.com>
+Message-ID: <CAL=tH4acr1SkjcJrhwW3Qx2yJtydsvRHsvYNOv8k_dcQbPXbsw@mail.gmail.com>
 Subject: Re: [PATCH] vDPA/ifcvf: Fix pci_read_config_byte() return code handling
 To: Yuan Can <yuancan@huawei.com>
-Cc: lingshan.zhu@kernel.org, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
 	eperezma@redhat.com, xiao.w.wang@intel.com, tiwei.bie@intel.com, 
 	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 17, 2024 at 9:51=E2=80=AFAM Yuan Can <yuancan@huawei.com> wrote=
-:
+Acked-by: Zhu Lingshan <lingshan.zhu@kernel.org>
+
+Yuan Can <yuancan@huawei.com> =E4=BA=8E2024=E5=B9=B410=E6=9C=8817=E6=97=A5=
+=E5=91=A8=E5=9B=9B 09:42=E5=86=99=E9=81=93=EF=BC=9A
 >
 > ifcvf_init_hw() uses pci_read_config_byte() that returns
 > PCIBIOS_* codes. The error handling, however, assumes the codes are
@@ -87,8 +68,25 @@ On Thu, Oct 17, 2024 at 9:51=E2=80=AFAM Yuan Can <yuancan@huawei.com> wrote=
 >
 > Fixes: 5a2414bc454e ("virtio: Intel IFC VF driver for VDPA")
 > Signed-off-by: Yuan Can <yuancan@huawei.com>
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
-
+> ---
+>  drivers/vdpa/ifcvf/ifcvf_base.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_b=
+ase.c
+> index 472daa588a9d..d5507b63b6cd 100644
+> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
+> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+> @@ -108,7 +108,7 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev=
+ *pdev)
+>         u32 i;
+>
+>         ret =3D pci_read_config_byte(pdev, PCI_CAPABILITY_LIST, &pos);
+> -       if (ret < 0) {
+> +       if (ret) {
+>                 IFCVF_ERR(pdev, "Failed to read PCI capability list\n");
+>                 return -EIO;
+>         }
+> --
+> 2.17.1
+>
