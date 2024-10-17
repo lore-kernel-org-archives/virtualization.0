@@ -1,118 +1,149 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3271DD523
-	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 13:43:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A43261DE4EA
+	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 14:32:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729172587; cv=none; b=c/i+Ag3s4qCrArci3+PJ6P3HULd0zDqPYYhlkYH8ePQmrssvOxg4r+fRTIQ2UYk7VHJP2xjkNPOU1wCx/6jfKOBCNIHbxTN1OMruBwVKm/hV3TJIiuhOjQ7+gDErfjVw32Ofdb2MUDYY6EkJvFcVxXkwXOy6+ZSJP0eWURLw16I=
+	t=1729175543; cv=none; b=pM1gblWhywRYLSBnUCf+sBuukYbJj5H/e7IgKFM+ssZvsFwRiVMDrbJfU6VWtSFpd7StxVKIogf4U5SpWZfSN9ptF7FosvBprB9UgwIr90/Nn7hMtHYQ8E1zxFfPkRSMEHtajpRTxZubxbw0GJOy5+TgIeyBLk2oZDXkX7pl0Lc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729172587; c=relaxed/simple;
-	bh=KZ+DDTai52HEjeRdNqB4qNF1N8g+/cqxevuiRsuabDU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=umdZm/7j6mU0eA9//HVFvtZq2ItVtAX/hZK/6hwtl13ZMjzyyyE41wxSf8o7V8zRzoWiuk4LONedpWIzUclKx7Uw4uARbjZKQ1FCyLo/HvNVfGy7y8Sag6qDPfGUe0iC3QTmvfd1+eD4NxZINuMA55Iz69Mc4pNxYQ0NhVZB1jQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DUeNq2yV; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729175543; c=relaxed/simple;
+	bh=lqwk6LYhIvZ4BuQ+y9qMS+/LMg+fUflKiZ7c5mJ07yM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rU+9MyFJBCbfG6QgayBcnu5qaf18G2fOOuKAv1ZDw+X6hABxp/L4aJiTCi3C4YtdJTEU+nc1jlO+At8FN0qnnMzhrQu9AWeqp1MlbaIUq+jPRetiOVtxhN/FpxIj2eJY5qHBct5Y1ZrLdlhr5sW9WfqPUHj/r3myGmWf5qi4bLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oPVXLRa4; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUeNq2yV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729172584;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Wyp/GRBR8xPGOtCYjjOBwoc4l6FYiJIRBvxKC1/fE/8=;
-	b=DUeNq2yVYBV/x93NcA12uuvCco94Gno3KDnow3iHCsvgHBHNi3x5vbdkl6e6JLibEovRBZ
-	DZ9f3bVVXbty/KSOEYZmuJeULxdCv06tC7pV3aBJUrsn10B1vvdgiDTplFqm6jea/KWEnw
-	nz9pjAkoHaTZ6d5KBZrtneGGb0csJqE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-515-Ftvw1GG8NzKqjvaIBCvx1g-1; Thu, 17 Oct 2024 09:43:03 -0400
-X-MC-Unique: Ftvw1GG8NzKqjvaIBCvx1g-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d47fdbbd6so489903f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 06:43:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729172582; x=1729777382;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Wyp/GRBR8xPGOtCYjjOBwoc4l6FYiJIRBvxKC1/fE/8=;
-        b=XbYuWV5/75+LPIVs5WJ1Ho776pYkBEZclt6m7Rxn1zPqrzGEBaPaFzxSJhetnEQv8R
-         G81EXFvBhWjjYVMEEobcbHg1qZpM3CwQkx98UZXxdVWaDhJYWj1fceiHaOQvVwPo4HJm
-         FetHgWFWIp6CCWXSba0KR1qdnW60zZi1OTVIwd0HSgYRDLPuaVanNjvieml0hCDILTc+
-         gHKe6Na401BcLG6inQX8ZCJ3GJF3igDbb9lFeqKhuBAbqcZe8XVVWpDrcoOeClLC/TC1
-         s3htK6ARj1l75PzwZtg3TK2llnrpDhvxkc12YF8jUFq8Fyenri0zIiCoanA4K9iGEkWy
-         pTAw==
-X-Forwarded-Encrypted: i=1; AJvYcCWZGCbgbd2hRJIrNERw0cKryKY3Hjy7U2Rs5FVA29Kz1zyMj4tnCxEO6IyqtkHtNrJQf5XvRPJfn/JOsVt+gw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy71j+znzvurI4Zg3a2ZiDdJsrRRmwVO0KfRTsJEO1ykpSWwgaa
-	J8Tap82tNzs/Vw2v/F7S5tOPJZZ+C6Jhr+YYXcVUjZsYq34K5kZfrL+IAoqKDo/1SA0Z2eSjYUW
-	Ui6f0tho867wcVEDcavbTfPMDbbkEk+T3b7OhCJZbFGvSXWvxmwFZjcIPL1d91olf
-X-Received: by 2002:adf:ea49:0:b0:37d:5035:451 with SMTP id ffacd0b85a97d-37d55199194mr16836164f8f.10.1729172582110;
-        Thu, 17 Oct 2024 06:43:02 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGR8cTr4aAwVoN++OeqwrgM43zxkxe6ACzmvgpcylM7pD/wNRhitVc+bDaNXzucsy+xSzBU1Q==
-X-Received: by 2002:adf:ea49:0:b0:37d:5035:451 with SMTP id ffacd0b85a97d-37d55199194mr16836136f8f.10.1729172581647;
-        Thu, 17 Oct 2024 06:43:01 -0700 (PDT)
-Received: from [192.168.88.248] (146-241-63-201.dyn.eolo.it. [146.241.63.201])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43158c50c43sm26996795e9.42.2024.10.17.06.43.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Oct 2024 06:43:01 -0700 (PDT)
-Message-ID: <6aaee824-a5df-42a4-b35e-e89756471084@redhat.com>
-Date: Thu, 17 Oct 2024 15:42:59 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oPVXLRa4"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49HBnpDp030939;
+	Thu, 17 Oct 2024 14:32:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=x9M7OqCmvYwJLYp7viWiXrPFfxDnW3
+	xZHfW7zLFJR0w=; b=oPVXLRa46MOc6Sf+5LBNZDM0qkdDCDe2W+Ef2UqLTdqR1R
+	mt1HSka4pBPv67fk3O7RPoDXwiupI6N4Ex7naatzPHyjB+GL/9aW6uBfHEug5GvN
+	ZH6RAyI6rrA7u5ESXRlf5vwelKAC/D+mw4kYd5X5Yzzvf10eDW5zEUuFDHSbpG/0
+	a59f9iyZn1Xq8L0f851CeK/LHvCRORqZPnr2OMo9Ap6sweb9Ghig8N8TQItzoVsO
+	47ssd8S4GR87Rgt0oubL3bfNteAlYdBl9EUCY1kORvH1DxLHAQRSvu3xBOuppg38
+	V1taPJrS9eJx1nwkM6b1f4OjDKAzMk1hgqWA1meg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd3a3y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 14:32:16 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49HERF9H018368;
+	Thu, 17 Oct 2024 14:32:15 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd3a3r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 14:32:15 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49HDr3Bj005377;
+	Thu, 17 Oct 2024 14:32:14 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4285njf5dv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 14:32:14 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49HEWAhP48628210
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 17 Oct 2024 14:32:10 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A8B7B20049;
+	Thu, 17 Oct 2024 14:32:10 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C59BF20040;
+	Thu, 17 Oct 2024 14:32:09 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 17 Oct 2024 14:32:09 +0000 (GMT)
+Date: Thu, 17 Oct 2024 16:32:08 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
+ to support QEMU/KVM memory devices
+Message-ID: <ZxEf6NOs1hDFZd1E@tuxmaker.boeblingen.de.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-5-david@redhat.com>
+ <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <04d5169f-3289-4aac-abca-90b20ad4e9c9@redhat.com>
+ <ZxDetq73hETPMjln@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <1c7ef09e-9ba2-488e-a249-4db3f65e077d@redhat.com>
+ <45de474c-9af3-4d71-959f-6dbc223b432b@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/5] virtio-net: fix overflow inside virtnet_rq_alloc
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
- Si-Wei Liu <si-wei.liu@oracle.com>
-References: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
- <20241014031234.7659-2-xuanzhuo@linux.alibaba.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20241014031234.7659-2-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45de474c-9af3-4d71-959f-6dbc223b432b@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: cHhgOMeaziZtns-QiP2HmAZDEba7eikD
+X-Proofpoint-GUID: 2uY6DRZW2AitsKuflnkKSDREZnezK4Ep
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ malwarescore=0 spamscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0
+ clxscore=1015 adultscore=0 priorityscore=1501 mlxlogscore=512
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410170100
 
-
-
-On 10/14/24 05:12, Xuan Zhuo wrote:
-> When the frag just got a page, then may lead to regression on VM.
-> Specially if the sysctl net.core.high_order_alloc_disable value is 1,
-> then the frag always get a page when do refill.
+On Thu, Oct 17, 2024 at 02:07:12PM +0200, David Hildenbrand wrote:
+> On 17.10.24 12:00, David Hildenbrand wrote:
+> > Well, DIAGNOSE 260 is z/VM only and DIAG 500 is KVM only. So there are
+> > currently not really any other reasonable ways besides SCLP.
 > 
-> Which could see reliable crashes or scp failure (scp a file 100M in size
-> to VM):
+> Correction: Staring at the code again, in detect_physmem_online_ranges()
+> we will indeed try:
 > 
-> The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> of a new frag. When the frag size is larger than PAGE_SIZE,
-> everything is fine. However, if the frag is only one page and the
-> total size of the buffer and virtnet_rq_dma is larger than one page, an
-> overflow may occur.
+> a) sclp_early_read_storage_info()
+> b) diag260()
+
+So why care to call diag260() in case of DIAGNOSE 500? What about the below?
+
+void detect_physmem_online_ranges(unsigned long max_physmem_end)
+{
+	if (!sclp_early_read_storage_info()) {
+		physmem_info.info_source = MEM_DETECT_SCLP_STOR_INFO;
+	} else if (physmem_info.info_source == MEM_DETECT_DIAG500_STOR_LIMIT) {
+		unsigned long online_end;
+
+		if (!sclp_early_get_memsize(&online_end)) {
+			physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
+			add_physmem_online_range(0, online_end);
+		}
+	} else if (!diag260()) {
+		physmem_info.info_source = MEM_DETECT_DIAG260;
+	} else if (max_physmem_end) {
+		add_physmem_online_range(0, max_physmem_end);
+	}
+}
+
+> But if neither works, we cannot blindly add all that memory, something is
+> messed up. So we'll fallback to
 > 
-> Here, when the frag size is not enough, we reduce the buffer len to fix
-> this problem.
+> c) sclp_early_get_memsize()
 > 
-> Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
-> Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> But if none of that works, something is seriously wrong.
 
-This looks like a fix that should target the net tree, but the following 
-patches looks like net-next material. Any special reason to bundle them 
-together?
-
-Also, please explicitly include the the target tree in the subj on next 
-submissions, thanks!
-
-Paolo
-
+Ok, thanks for the clarification.
