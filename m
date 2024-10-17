@@ -1,129 +1,118 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 764821DED4F
-	for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 13:08:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3271DD523
+	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 13:43:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729170494; cv=none; b=Ff3Iquxj/4aWxxGP0pUyyb7zPGsuSjKF5kmQeDrxBSYfguH24sTSqfOU0RzwrU5eqB65DAXqJZiBVxswqLna+mwrsiK/28XScxmwPxN+riQpNN+Wzhjuq1FrDFuycse8SEGNmLO58ZSCD7a8u7NlrPLTXlDgVa3bns7Mr4rdRbM=
+	t=1729172587; cv=none; b=c/i+Ag3s4qCrArci3+PJ6P3HULd0zDqPYYhlkYH8ePQmrssvOxg4r+fRTIQ2UYk7VHJP2xjkNPOU1wCx/6jfKOBCNIHbxTN1OMruBwVKm/hV3TJIiuhOjQ7+gDErfjVw32Ofdb2MUDYY6EkJvFcVxXkwXOy6+ZSJP0eWURLw16I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729170494; c=relaxed/simple;
-	bh=MCRIxE9GhA2NAkXdzXaszALYW7VA4HLq5f6MBrAaTKw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nlvIpTJo8ogZJqX7ouBNcKM+7e+//wmHRJowLC3lUkx1Kvxu4KCryZaNCR2ZqhGib9L9dSFiPM1fVkY4CVPfM5w7RhIGCNNLG9mk6gZL/j7zHhwVmnv7/rdQnlhT322Y6A2AhbkklH6gu9d1ZseTfz4t/95pSjngbv7fBPBWsFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=lYrV18LY; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1729172587; c=relaxed/simple;
+	bh=KZ+DDTai52HEjeRdNqB4qNF1N8g+/cqxevuiRsuabDU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=umdZm/7j6mU0eA9//HVFvtZq2ItVtAX/hZK/6hwtl13ZMjzyyyE41wxSf8o7V8zRzoWiuk4LONedpWIzUclKx7Uw4uARbjZKQ1FCyLo/HvNVfGy7y8Sag6qDPfGUe0iC3QTmvfd1+eD4NxZINuMA55Iz69Mc4pNxYQ0NhVZB1jQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DUeNq2yV; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="lYrV18LY"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id ED180608B4
-	for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 13:08:12 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id b4vOOiFrPH82 for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Oct 2024 13:08:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::834; helo=mail-qt1-x834.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 3CBC660671
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3CBC660671
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=lYrV18LY
-Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3CBC660671
-	for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 13:08:08 +0000 (UTC)
-Received: by mail-qt1-x834.google.com with SMTP id d75a77b69052e-4608e389407so12233361cf.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 06:08:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1729170487; x=1729775287; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wq3teVnFjCQljMHeJKswAqz9sY5geo+xNzpep4xNz44=;
-        b=lYrV18LY9VthTVO4c2fNoKD7x/uKk5c7+hhqUfCJqLBp2DVIFLm0ttkY2iGsUP+NI8
-         4qnAc3SQIUtkrkdh/KKArf3jK0wRnU5k8rqqoN+E4G4fuFQv2Ob7uidMRHH1MAf+Xroq
-         iVXa/+EvvYdkxtr7fp1fwzll+/DVDR8CAWZJsqaS5Uqqdi6Xl6E12KeW4WkcVTPcfWxg
-         MAIYLOW8xWlFyepjSB2On/wPIidJRGr7/NZ+c3GnxcqkrMIaeXBQdNUThRL4luIMXN+n
-         Z3DG+qPkRxNXXPIeRHAuWaxJ9kF376xAeqbhgqOPNQu687UvlaAZl4wLWY4SO1D7KYC/
-         tQZw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUeNq2yV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729172584;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Wyp/GRBR8xPGOtCYjjOBwoc4l6FYiJIRBvxKC1/fE/8=;
+	b=DUeNq2yVYBV/x93NcA12uuvCco94Gno3KDnow3iHCsvgHBHNi3x5vbdkl6e6JLibEovRBZ
+	DZ9f3bVVXbty/KSOEYZmuJeULxdCv06tC7pV3aBJUrsn10B1vvdgiDTplFqm6jea/KWEnw
+	nz9pjAkoHaTZ6d5KBZrtneGGb0csJqE=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-515-Ftvw1GG8NzKqjvaIBCvx1g-1; Thu, 17 Oct 2024 09:43:03 -0400
+X-MC-Unique: Ftvw1GG8NzKqjvaIBCvx1g-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d47fdbbd6so489903f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 06:43:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729170487; x=1729775287;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wq3teVnFjCQljMHeJKswAqz9sY5geo+xNzpep4xNz44=;
-        b=rrZFSpyhZsPKMSsss3uYT5z1YvwlQOlEYhP5FaQVsApzY/hfF5bKokJz0BM3Vg2Nmx
-         48jY20dZ6tUwvvOtr3rfuEybMWtR9hFiBVxlgJigYloMvIgNuMYl9/gFC+ZUi6YyxF7l
-         u0af2CY4YPf3IBlyW5evdMjK1mZxgnD2cwiBZGETQR4lVHUCFD+mE2V3eJbHg0ZzrH4n
-         N+qSfXf5oj/qlRG62wjWY4Ik/iK+DTdZENac5HoA80R6ROmkOyRSYnRNg5Uc57540ZhF
-         frHYTpmG2FQdCqGC1dKnTEx+bDJrKxq4NSOdRde10/yUwwwIR1Ff+KxsKWDZtPuRXASV
-         SRhw==
-X-Forwarded-Encrypted: i=1; AJvYcCVWuD+81+XVWPFdKFCvIzjGsSLeQv0gZcrH3cmhs8Ch/NE8ZfaeGvnTVBBiCwq0F1UK52cSagEiFXcTq5KicQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwBply0YL5hwx4jkTJ/FndsxvIlZ/vDvvhU8Hi4ELisSlsVzsPM
-	MGDjyzFdGU0dH4VAaJ1NbqvNebgTt/SN7x5eatHihgRhYQFWSdEPZEN4zhZgTJA=
-X-Google-Smtp-Source: AGHT+IFIWL+tda1Up3Uym74uSu9HXo+USovi7zkNskhvncDpsDguxTD9i3KfGBRjr2fW7WKmWz8dEg==
-X-Received: by 2002:a05:6214:460f:b0:6cb:d558:6f00 with SMTP id 6a1803df08f44-6cc2b8dc70emr135440876d6.29.1729170486776;
-        Thu, 17 Oct 2024 06:08:06 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-128-5.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.128.5])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cc2299043dsm28134646d6.136.2024.10.17.06.08.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2024 06:08:06 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1t1QEX-003tKN-T4;
-	Thu, 17 Oct 2024 10:08:05 -0300
-Date: Thu, 17 Oct 2024 10:08:05 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Zhangfei Gao <zhangfei.gao@linaro.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt
- attach/detach/replace
-Message-ID: <20241017130805.GA926121@ziepe.ca>
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-8-baolu.lu@linux.intel.com>
- <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca>
- <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
- <20241016152503.GB4020792@ziepe.ca>
- <CABQgh9FCJcOa0G0Kj__NUm-Q8C9uH4ud04XcHv+3c48T2qEnug@mail.gmail.com>
- <20241017120518.GI4020792@ziepe.ca>
- <CABQgh9EnEqDKkxg3VUgjSqBzz27h8B3Ct4w=A0vR6JK=d7fXHQ@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1729172582; x=1729777382;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Wyp/GRBR8xPGOtCYjjOBwoc4l6FYiJIRBvxKC1/fE/8=;
+        b=XbYuWV5/75+LPIVs5WJ1Ho776pYkBEZclt6m7Rxn1zPqrzGEBaPaFzxSJhetnEQv8R
+         G81EXFvBhWjjYVMEEobcbHg1qZpM3CwQkx98UZXxdVWaDhJYWj1fceiHaOQvVwPo4HJm
+         FetHgWFWIp6CCWXSba0KR1qdnW60zZi1OTVIwd0HSgYRDLPuaVanNjvieml0hCDILTc+
+         gHKe6Na401BcLG6inQX8ZCJ3GJF3igDbb9lFeqKhuBAbqcZe8XVVWpDrcoOeClLC/TC1
+         s3htK6ARj1l75PzwZtg3TK2llnrpDhvxkc12YF8jUFq8Fyenri0zIiCoanA4K9iGEkWy
+         pTAw==
+X-Forwarded-Encrypted: i=1; AJvYcCWZGCbgbd2hRJIrNERw0cKryKY3Hjy7U2Rs5FVA29Kz1zyMj4tnCxEO6IyqtkHtNrJQf5XvRPJfn/JOsVt+gw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy71j+znzvurI4Zg3a2ZiDdJsrRRmwVO0KfRTsJEO1ykpSWwgaa
+	J8Tap82tNzs/Vw2v/F7S5tOPJZZ+C6Jhr+YYXcVUjZsYq34K5kZfrL+IAoqKDo/1SA0Z2eSjYUW
+	Ui6f0tho867wcVEDcavbTfPMDbbkEk+T3b7OhCJZbFGvSXWvxmwFZjcIPL1d91olf
+X-Received: by 2002:adf:ea49:0:b0:37d:5035:451 with SMTP id ffacd0b85a97d-37d55199194mr16836164f8f.10.1729172582110;
+        Thu, 17 Oct 2024 06:43:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGR8cTr4aAwVoN++OeqwrgM43zxkxe6ACzmvgpcylM7pD/wNRhitVc+bDaNXzucsy+xSzBU1Q==
+X-Received: by 2002:adf:ea49:0:b0:37d:5035:451 with SMTP id ffacd0b85a97d-37d55199194mr16836136f8f.10.1729172581647;
+        Thu, 17 Oct 2024 06:43:01 -0700 (PDT)
+Received: from [192.168.88.248] (146-241-63-201.dyn.eolo.it. [146.241.63.201])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43158c50c43sm26996795e9.42.2024.10.17.06.43.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 17 Oct 2024 06:43:01 -0700 (PDT)
+Message-ID: <6aaee824-a5df-42a4-b35e-e89756471084@redhat.com>
+Date: Thu, 17 Oct 2024 15:42:59 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABQgh9EnEqDKkxg3VUgjSqBzz27h8B3Ct4w=A0vR6JK=d7fXHQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/5] virtio-net: fix overflow inside virtnet_rq_alloc
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
+ Si-Wei Liu <si-wei.liu@oracle.com>
+References: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
+ <20241014031234.7659-2-xuanzhuo@linux.alibaba.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20241014031234.7659-2-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Oct 17, 2024 at 08:35:24PM +0800, Zhangfei Gao wrote:
 
-> Yes, you are right
->  I am using SRIOV vf and stall feature, so is_virtfn == true
+
+On 10/14/24 05:12, Xuan Zhuo wrote:
+> When the frag just got a page, then may lead to regression on VM.
+> Specially if the sysctl net.core.high_order_alloc_disable value is 1,
+> then the frag always get a page when do refill.
 > 
-> Our ACC devices are fake pci endpoint devices which supports stall,
-> And they also supports sriov
+> Which could see reliable crashes or scp failure (scp a file 100M in size
+> to VM):
 > 
-> So I have to ignore the limitation.
+> The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
+> of a new frag. When the frag size is larger than PAGE_SIZE,
+> everything is fine. However, if the frag is only one page and the
+> total size of the buffer and virtnet_rq_dma is larger than one page, an
+> overflow may occur.
+> 
+> Here, when the frag size is not enough, we reduce the buffer len to fix
+> this problem.
+> 
+> Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
+> Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-I see, so that is more complicated. 
+This looks like a fix that should target the net tree, but the following 
+patches looks like net-next material. Any special reason to bundle them 
+together?
 
-Lu, what do you think about also checking if the PCI function has PRI
-? If not PRI assume the fault is special and doesn't follow PRI rules?
+Also, please explicitly include the the target tree in the subj on next 
+submissions, thanks!
 
-Or maybe we can have the iommu driver tag the event as a PRI/not-PRI
-fault?
+Paolo
 
-Jason
