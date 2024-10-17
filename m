@@ -1,194 +1,157 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD121CCEE5
-	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 10:01:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 054761DC1B0
+	for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 12:05:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729159265; cv=none; b=j1UvnndTVd90mpCgu3KXg70Kq+au9cpD5aKCR2G4IjuNsUpnca42Z5cNsVKFfHEgW700UysnL9mEv/OgcS6JeULZ6vF2KobYSSg4DZneszTo2poz4cJhWO3rRkZ6e12xo3zKLxZdGqEDvjXLcyKPKql7XbJ/hAQjdZVJVXKtWxw=
+	t=1729166730; cv=none; b=cmcQ9EqGPjzehQ8CF37/cc++cCDI3kgT0y8N9gJACr/pB3mSj7GwQzJbSzxPs+cU20ptCyChidV04mMzD3z20jYvc++Zfmdsxl4OQAomHalF1sA6iwfXJyAHPfyuQ4yBqC6X63Up+zotFqxU6H+EK3+yf8R5jznR2twJXlYD55w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729159265; c=relaxed/simple;
-	bh=VKBNhI+Ue429dozrCIKUPXiUij6uamodEC+N98AL0lo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nILvYzFwO7uF4uneOIePlKqV+nXmJNTWSEpikjnGOO5Un0UMZldX1c4nyLy5Ss+CuacnQX4K2QG4z0av25El4DcAR88qWmnwK7cipOLmmg8odGJewDcR0iydVFagR/vUps8/MQBYyuvvzO2qoy5dCsKP6A6Kg8YmQ1n5vn/YWLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fkpcSU7J; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729166730; c=relaxed/simple;
+	bh=9Ou2IPV+fUYVUZFwDwpHsxjEEQ10P3Z4LAfWFwq7vtU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qBWTTVPnMfObJqHNfR924HlUV2VziIR23xxhWjjBPo1ddz8eYQE7CPvm/R4hkEdl2rN/7xNMgwu6/hg6BXgwJjmqfdi/x5PqB15ih8mZEURBpJgV2rfSgRohPxdCiHy4AqctVOIXDylkoPGKwoIZGf769NWT8hKeb9KZg0djA1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=PkOnDrUx; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fkpcSU7J"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729159263;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=MNXpYWC/snVv/RcQcy4Z6FTQ4rOQoP2EVP5TGZ+dUTk=;
-	b=fkpcSU7JR+MpaNzTFfldfCeXZ4Ytv22KwM9zjkS8Jt3GRjgv2i6+O4zVsY1xM3k8fKPSJv
-	bVEr/uL9lP17joeQu6gveFOitm36B55CF/k5O+uJeAvq63jF51c6NpHeDdtz4U7k8j7qpj
-	vp3Jsp/VNGfP7xCl444LtlXsvF7LI0w=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-682-GPRxxnHbPXu1vE0pR5dJIg-1; Thu, 17 Oct 2024 06:01:02 -0400
-X-MC-Unique: GPRxxnHbPXu1vE0pR5dJIg-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43056c979c9so6119955e9.1
-        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 03:01:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="PkOnDrUx"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6AB94402CC
+	for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 12:05:25 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id VMq2QVFGciTx for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Oct 2024 12:05:21 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::736; helo=mail-qk1-x736.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C429340114
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C429340114
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=PkOnDrUx
+Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C429340114
+	for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 12:05:20 +0000 (UTC)
+Received: by mail-qk1-x736.google.com with SMTP id af79cd13be357-7b1343e8042so91248685a.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 05:05:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1729166719; x=1729771519; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=WqYmbfPGoH8bApHw169OlytcN5sSb6v9X/QNj/xnHLY=;
+        b=PkOnDrUxLZjZjR8sPBswQuja2655hRTSa182uwGFkMMZ8dDllKhrjxpTgsxljeAAlU
+         kYZk2mw/Itiq85eNq8XBwKza98SsISMcY2pT132Tw0B0pPzxTLKS5Hov2MSvZCIGyv7a
+         DX55H2WYoW0wappKr0zBufxZtDOkekNYNB7agcaUjaGIjPE6Dm9mKCWHUtQI+XK25CyQ
+         A+lfLFN9ECPuO8lE6djmZuNGSvL75Wh6DL/haQwR2RSN3mVQc+pju88DdB6vmlECMgJv
+         E4NgyZ62aSjWnfVKXky6mujTiKE5puVs4sIwj7fRICQtdrtXm11Pqlb6cAIlayzqFcQS
+         lzhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729159261; x=1729764061;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=MNXpYWC/snVv/RcQcy4Z6FTQ4rOQoP2EVP5TGZ+dUTk=;
-        b=XNC4QdsXauVXIldOuW/BXRQxZnQtLm2WsLqpIV+DGzJkR/4ENt8EUIanLnVlvH8++L
-         6f3eTJld/3L5Rvb//NEV9K3/raS92aT41/sobrO/ohF7RLUMHT1NE0jHjMc6YN09V9uy
-         3ETjdLfmVPCYvCboq1ldJINpZWuEDxiPafGkm9rloNX9P6WqoBUqOt0BKRo/rBZ7Y+Kv
-         crFGDtKabMhxeYBdYLhEhPz0RQZXbK3iupOS/ezLwXFIT5xGJEhxMxL1M6qov9+RlCtn
-         EeklYOZVgIEPOT5F4hInt1hjITp4jzMtsEt5yw+eDeBRNgRwYUqDQ3qzmJmTkNkVkNBW
-         aA/w==
-X-Forwarded-Encrypted: i=1; AJvYcCXxVKSeMtKucQkLsVSYB4NI8DgAIr3I013gM6PUfysWwZJq14frRsMlknEmT71RcRRxPYfcz/w6Mj6wEeWxDA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy/y9dpp9CLQ0AqJWQqvTZt/S8tvOC/f2kx9IZWJNjM/VrU3h5D
-	ojtQAezbSzAqNxJEMbdBiijEJSkhc9ZoAUUEqTWSz3/CRt3jQAwcOP3bLIX2KrQu0Dun1MfsYrT
-	/6PsjB+d9s/bMi5GOjA2WEqEZLBkGByTq1ba57Q4O27+9ubPIftJzWTna/8oyMU3o
-X-Received: by 2002:adf:f803:0:b0:37d:43f1:57fc with SMTP id ffacd0b85a97d-37d86d84f81mr3888588f8f.58.1729159260961;
-        Thu, 17 Oct 2024 03:01:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEeAsN2x2tkKcYuYJ2ZGm7ZZUGgpQNN57Jt9VpZjjuVf5PjflWwSWuvgSY7iIq2nRYvpheTJQ==
-X-Received: by 2002:adf:f803:0:b0:37d:43f1:57fc with SMTP id ffacd0b85a97d-37d86d84f81mr3888571f8f.58.1729159260463;
-        Thu, 17 Oct 2024 03:01:00 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:7600:62cc:24c1:9dbe:a2f5? (p200300cbc705760062cc24c19dbea2f5.dip0.t-ipconnect.de. [2003:cb:c705:7600:62cc:24c1:9dbe:a2f5])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37d7fa7a2a8sm6734586f8f.3.2024.10.17.03.00.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Oct 2024 03:01:00 -0700 (PDT)
-Message-ID: <1c7ef09e-9ba2-488e-a249-4db3f65e077d@redhat.com>
-Date: Thu, 17 Oct 2024 12:00:58 +0200
+        d=1e100.net; s=20230601; t=1729166719; x=1729771519;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WqYmbfPGoH8bApHw169OlytcN5sSb6v9X/QNj/xnHLY=;
+        b=bFdlV/uaflB9+Hort5EcrYz0+Z/MV919KxM5c39rSgK17WyC4JkLQF0wkvWDUq9Uw2
+         FvyWyZm/FVv7t+MGFUDJcHWJDS+DPKYKF+OTs43oMoqfqJkZuct9Kd8unWk/YeWSKFPn
+         8AX2KW3bQHVd/Lx8Vuc2p9o2WurCI0JRxTTQmxCYKu3D7+U9O6BJR/l3/aRsiDjwbLx8
+         1OYKh88WLx/fXnl+RzqNmxBvAknm4F1TIYrQq39oZxgHaPepy5BpXCn4k7ov9PwsaTc1
+         OL7Fph9cJJT6PbEJjgABK1Mwwjz1Uqsp1jnVR1K3F1q88QZ3BKg2kpx9oGHJzyWJE1WK
+         mqVg==
+X-Forwarded-Encrypted: i=1; AJvYcCUv33vEuw7HyogkMDgZoKbccThI6VxFg0mmG+E0qEJTd6bL0i/qe2vRaGIvlvZjTKjMki5JqM26YpDxgNRhKg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyG/ObK4pc3wf+ILeBADbpwCO3koWmt5pMtwdzg8JNXK3wOdvf4
+	RaWd/mZevSqY6ynEuYKeaCSGCNDTRJn6hFOCp6sgLekmYRRS+ugwiL1q68c3xe0=
+X-Google-Smtp-Source: AGHT+IEPtt04l70kN6bicB55lZv2cm4Yf4rIE4G65war3hf5YJH+Qt48rYAG8z4yCn6t9Q2qUjjXgg==
+X-Received: by 2002:a05:620a:44c5:b0:7a9:ab71:f820 with SMTP id af79cd13be357-7b1417a24ddmr959080985a.4.1729166719151;
+        Thu, 17 Oct 2024 05:05:19 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-128-5.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.128.5])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b1424ba332sm223436285a.81.2024.10.17.05.05.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Oct 2024 05:05:18 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1t1PFm-003iH2-4Y;
+	Thu, 17 Oct 2024 09:05:18 -0300
+Date: Thu, 17 Oct 2024 09:05:18 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Zhangfei Gao <zhangfei.gao@linaro.org>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt
+ attach/detach/replace
+Message-ID: <20241017120518.GI4020792@ziepe.ca>
+References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
+ <20240702063444.105814-8-baolu.lu@linux.intel.com>
+ <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
+ <20241015125420.GK1825128@ziepe.ca>
+ <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
+ <20241016152503.GB4020792@ziepe.ca>
+ <CABQgh9FCJcOa0G0Kj__NUm-Q8C9uH4ud04XcHv+3c48T2qEnug@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT) to
- support QEMU/KVM memory devices
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
- Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-5-david@redhat.com>
- <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <04d5169f-3289-4aac-abca-90b20ad4e9c9@redhat.com>
- <ZxDetq73hETPMjln@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <ZxDetq73hETPMjln@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CABQgh9FCJcOa0G0Kj__NUm-Q8C9uH4ud04XcHv+3c48T2qEnug@mail.gmail.com>
 
-On 17.10.24 11:53, Alexander Gordeev wrote:
->>> Why search_mem_end() is not tried in case sclp_early_get_memsize() failed?
->>
->> Patch #3 documents that:
->>
->> +    The storage limit does not indicate currently usable storage, it may
->> +    include holes, standby storage and areas reserved for other means, such
->> +    as memory hotplug or virtio-mem devices. Other interfaces for detecting
->> +    actually usable storage, such as SCLP, must be used in conjunction with
->> +    this subfunction.
+On Thu, Oct 17, 2024 at 09:44:18AM +0800, Zhangfei Gao wrote:
+> On Wed, 16 Oct 2024 at 23:25, Jason Gunthorpe <jgg@ziepe.ca> wrote:
+> >
+> > On Wed, Oct 16, 2024 at 09:58:36AM +0800, Zhangfei Gao wrote:
+> > > On Tue, 15 Oct 2024 at 20:54, Jason Gunthorpe <jgg@ziepe.ca> wrote:
+> > > >
+> > > > On Tue, Oct 15, 2024 at 11:19:33AM +0800, Zhangfei Gao wrote:
+> > > > > > +static int iommufd_fault_iopf_enable(struct iommufd_device *idev)
+> > > > > > +{
+> > > > > > +       struct device *dev = idev->dev;
+> > > > > > +       int ret;
+> > > > > > +
+> > > > > > +       /*
+> > > > > > +        * Once we turn on PCI/PRI support for VF, the response failure code
+> > > > > > +        * should not be forwarded to the hardware due to PRI being a shared
+> > > > > > +        * resource between PF and VFs. There is no coordination for this
+> > > > > > +        * shared capability. This waits for a vPRI reset to recover.
+> > > > > > +        */
+> > > > > > +       if (dev_is_pci(dev) && to_pci_dev(dev)->is_virtfn)
+> > > > > > +               return -EINVAL;
+> > > > >
+> > > > > I am using the SMMUv3 stall feature, and need to forward this to hardware,
+> > > > > And now I am hacking to comment this check.
+> > > > > Any suggestions?
+> > > >
+> > > > Are you using PCI SRIOV and stall together?
+> > >
+> > > Only use smmuv3 stall feature.
+> >
+> > Then isn't to_pci_dev(dev)->is_virtfn == false?
+> >
+> > That should only be true with SRIOV
 > 
-> Yes, I read this and that exactly what causes my confusion. In this wording it
-> sounds like SCLP *or* other methods are fine to use. But then you use SCLP or
-> DIAGNOSE 260, but not memory scanning. So I am still confused ;)
+> Do you mean
+> if (dev_is_pci(dev) && to_pci_dev(dev)->is_virtfn == false)
+>     return -EINVAL;
+>
+> This is fine
 
-Well, DIAGNOSE 260 is z/VM only and DIAG 500 is KVM only. So there are 
-currently not really any other reasonable ways besides SCLP.
+No, I mean on your test system you are not using SRIOV so all your PCI
+devices will have is_virtfn == false and the above if shouldn't be a
+problem. is_virtfn indicates the PCI device is a SRIOV VF.
 
-> 
->> If SCLP would fail, something would be seriously wrong and we should just crash
->> instead of trying to fallback to the legacy way of scanning.
-> 
-> But what is wrong with the legacy way of scanning?
+Your explanation for your problem doesn't really make sense, or there
+is something wrong someplace else to get a bogus is_virtfn..
 
-Missing to detect holes and starting to use them, detecting and using 
-device memory without negotiating with the device ... it all falls to 
-pieces.
+If you are doing SRIOV with stall, then that is understandable.
 
-> 
->>>> +	case MEM_DETECT_DIAG500_STOR_LIMIT:
->>>> +		return "diag500 storage limit";
->>>
->>> AFAIU you want to always override MEM_DETECT_DIAG500_STOR_LIMIT method
->>> with an online memory detection method. In that case this code is dead.
->>
->> Not in the above case, pathological case above where something went wrong
->> during sclp_early_get_memsize(). In that scenario, die_oom() would indicate
->> that there are no memory ranges but that "diag500 storage limit" worked.
->>
->> Does that make sense?
-> 
-> Yes, I get your approach.
-
-Thanks, please let me know if I should make it clearer in the 
-description, of if you think we can improve the code.
-
--- 
-Cheers,
-
-David / dhildenb
-
+Jason
