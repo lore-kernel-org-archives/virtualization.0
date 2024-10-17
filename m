@@ -1,92 +1,170 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E24B194A4B
-	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 07:21:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A56841925B2
+	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 07:37:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729149714; cv=none; b=VYlCXwYTk3k0ce9c24tl6pafZ4nm5FPmyPnSuMMgUZN1SK1zfn9/5n4Rn5ZD6zHjMzNs4TT2HkjkewNbbukfxtxX41mxWmpN+IwpFZL/IHY8nklvrFV5XqbaO4pY3K77qw0+FtppJZQQHzkaPnTF+3YP4VJ8tEqeujf7+0yLxTI=
+	t=1729150634; cv=none; b=EKnQtfxyAhmbnbL9CsyS3+gI0+DDBMKT62UViXQdINEJFycYhzsnNT33eZEwbEnTSL6p8awqA4KH/xHGneRi5sFv/hH4t0I5MW8xGJS1D12st6p2fi+fS8PjqT3eGzAOh2eC0xmTNiAVO/qA6FwLZt03iwd4bMlpuLNaw1oX39Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729149714; c=relaxed/simple;
-	bh=Z6zHfgJld0xU1iCfxUaWD/oJ3UVGD3DyuRRvY5ltBJU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IWjrSPkK9GerRUDwpQc/wtcuANLxu1IehOhUiZ4BTurdhc+QQCP0F6ny4SCRRNW6BVZJJDTJqtfrRpWZ7T2w3H9P3PIemNm7huK41JfWZFoGUAyycBXDZakDPm26shpFzOD6VtBLD65CVX5DUSFjlRPNBhN5r9YfWsijjIAebf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JzCktZo2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1729150634; c=relaxed/simple;
+	bh=ULpWoA+MsrzVpR2MlRuFWV7zX9hHcTjhDUqYHtMGPMw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JuZGh4pQvWi5Ak0SEtoVhjbtypHriskLVf5lDxZXmH38fD83nmhp08kDkv6YaRA9S4UnJBbNv/2Ew5eL+TMfp29SovFqoAVUkyA0VzR4ZAD0yW/XMuC7aOnEE/36Yh8o620InoTXPpR2aAEF1+msWKk4LJlJES5j8ThQ4w3VVJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UjTR6QP5; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JzCktZo2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF26C4CEC3
-	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 07:21:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1729149714;
-	bh=Z6zHfgJld0xU1iCfxUaWD/oJ3UVGD3DyuRRvY5ltBJU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=JzCktZo2t4BOPbjEdfYXHOm5os/1lYZ90OB10FLfXDLFnjPOtV6MUBvfPG176bjRn
-	 +wzZyht56kbUO/m+jgydzhQhdF/or0yanMriLJ878ugeVacD2DmqzK5xa+f6/SI00T
-	 YHQ1qdMMpw9wT7XAJJaJPvEl3qQsaA/qWgD/63BZbePbeCWjHLaAz1QijFXYkwYOgY
-	 XnZKCoS2GqlXe0+VkCUCfbqIl5kteVBXFUjvOew6JlScs/vdnXEt71M1viF6ro4128
-	 BFm6yjeQZBwMgAPzmBurcD1Ci8tOnpR7uerep3XdXuJD1YAJytQgueMIQ57nm2krHe
-	 LyMQA1GoZUXrA==
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-71e52582cf8so388389b3a.2
-        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 00:21:54 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCXJfwWtwfbbfCZms4CZHPpHXBPUyzEIE0QIkwcgvUraYv1S1RMC/KiiQ/sLnzIIzDoTf7UQfPkZSE2F2RO7uQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyYc+MMbCsZOJ26qsktnYVnJ2RQDNIvSu8nROJ/PH014gH/C4NW
-	7cbof5iG6D8lC5Od4O8NNEXyMG4t5LGpm5lnggGOER7hQEcAJYuXAyN4b5oWMacBQJeqLR2y//E
-	u2fDphoWmrJwsZrf1xKvWIMF0J4M=
-X-Google-Smtp-Source: AGHT+IHEfgKL4XN+dW0ytWupM7+mdtcvg2YRTyzLvXUraQCVKOZpIO4rJ2GdVCpbbBFmcldM1Km7J3vMNvOplF8rM6Y=
-X-Received: by 2002:a05:6a00:2e97:b0:71e:cc7:c507 with SMTP id
- d2e1a72fcca58-71e4c1cf183mr31892726b3a.23.1729149713658; Thu, 17 Oct 2024
- 00:21:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UjTR6QP5"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49H1tltB028414;
+	Thu, 17 Oct 2024 07:37:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=CCockiiMIdzXFF10k9ecjz3T/PBTZF
+	sqm9mtgI58+4o=; b=UjTR6QP5gdttKteJTjOOPX61PMn5doVH66+queNczgz/vK
+	YOZb36GRkMUBNOrjzE8wt4kakW4grWrRi+8NFe9UwJFqGe8OzbS1y48PNu/uDu4Y
+	FFf8XFchFn+bJ8MS5AgeqG4KS8K252VShEjBHc/sZobnNM+zRTIS6xioyVJWXHME
+	gQPjwAun2y2bU2wABSIrWHGWktprvkSvDA2bDTid20KRK32jXYULZ8rcQ6eqtKum
+	9toCtOb2X30ovGnILNh3+uuf+WM2y/VgQ9XH+IXXqJkdDkcpGtJo/wfGXrl5ZqJv
+	Egqgvz/Rd3G+zEpZudT/lsspmRxWWycaWbHctrrw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd16cf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 07:37:07 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49H7b6Bg020668;
+	Thu, 17 Oct 2024 07:37:06 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42asbd16c9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 07:37:06 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49H6AHRq006401;
+	Thu, 17 Oct 2024 07:37:04 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4284xkde73-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Oct 2024 07:37:04 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49H7b06D18809164
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 17 Oct 2024 07:37:00 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 870CD2004B;
+	Thu, 17 Oct 2024 07:37:00 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 804AE20040;
+	Thu, 17 Oct 2024 07:36:59 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.26.155])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 17 Oct 2024 07:36:59 +0000 (GMT)
+Date: Thu, 17 Oct 2024 09:36:58 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
+ to support QEMU/KVM memory devices
+Message-ID: <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-5-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241017013812.129952-1-yuancan@huawei.com>
-In-Reply-To: <20241017013812.129952-1-yuancan@huawei.com>
-From: Zhu Lingshan <lingshan.zhu@kernel.org>
-Date: Thu, 17 Oct 2024 15:21:42 +0800
-X-Gmail-Original-Message-ID: <CAL=tH4acr1SkjcJrhwW3Qx2yJtydsvRHsvYNOv8k_dcQbPXbsw@mail.gmail.com>
-Message-ID: <CAL=tH4acr1SkjcJrhwW3Qx2yJtydsvRHsvYNOv8k_dcQbPXbsw@mail.gmail.com>
-Subject: Re: [PATCH] vDPA/ifcvf: Fix pci_read_config_byte() return code handling
-To: Yuan Can <yuancan@huawei.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, xiao.w.wang@intel.com, tiwei.bie@intel.com, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241014144622.876731-5-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: I8XjFklzuWznK3cD6E4X0sa9LCHD5Rtg
+X-Proofpoint-GUID: bnb60nF_oPjDqifw1vM7LX54XpsdFO6s
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ malwarescore=0 spamscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0
+ clxscore=1011 adultscore=0 priorityscore=1501 mlxlogscore=535
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410170048
 
-Acked-by: Zhu Lingshan <lingshan.zhu@kernel.org>
+On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
 
-Yuan Can <yuancan@huawei.com> =E4=BA=8E2024=E5=B9=B410=E6=9C=8817=E6=97=A5=
-=E5=91=A8=E5=9B=9B 09:42=E5=86=99=E9=81=93=EF=BC=9A
->
-> ifcvf_init_hw() uses pci_read_config_byte() that returns
-> PCIBIOS_* codes. The error handling, however, assumes the codes are
-> normal errnos because it checks for < 0.
-> Convert the error check to plain non-zero check.
->
-> Fixes: 5a2414bc454e ("virtio: Intel IFC VF driver for VDPA")
-> Signed-off-by: Yuan Can <yuancan@huawei.com>
-> ---
->  drivers/vdpa/ifcvf/ifcvf_base.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_b=
-ase.c
-> index 472daa588a9d..d5507b63b6cd 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-> @@ -108,7 +108,7 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev=
- *pdev)
->         u32 i;
->
->         ret =3D pci_read_config_byte(pdev, PCI_CAPABILITY_LIST, &pos);
-> -       if (ret < 0) {
-> +       if (ret) {
->                 IFCVF_ERR(pdev, "Failed to read PCI capability list\n");
->                 return -EIO;
->         }
-> --
-> 2.17.1
->
+Hi David!
+
+> @@ -157,7 +189,9 @@ unsigned long detect_max_physmem_end(void)
+>  {
+>  	unsigned long max_physmem_end = 0;
+>  
+> -	if (!sclp_early_get_memsize(&max_physmem_end)) {
+> +	if (!diag500_storage_limit(&max_physmem_end)) {
+> +		physmem_info.info_source = MEM_DETECT_DIAG500_STOR_LIMIT;
+> +	} else if (!sclp_early_get_memsize(&max_physmem_end)) {
+>  		physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
+>  	} else {
+>  		max_physmem_end = search_mem_end();
+> @@ -170,11 +204,17 @@ void detect_physmem_online_ranges(unsigned long max_physmem_end)
+>  {
+>  	if (!sclp_early_read_storage_info()) {
+>  		physmem_info.info_source = MEM_DETECT_SCLP_STOR_INFO;
+> +		return;
+>  	} else if (!diag260()) {
+>  		physmem_info.info_source = MEM_DETECT_DIAG260;
+> -	} else if (max_physmem_end) {
+> -		add_physmem_online_range(0, max_physmem_end);
+> +		return;
+> +	} else if (physmem_info.info_source == MEM_DETECT_DIAG500_STOR_LIMIT) {
+> +		max_physmem_end = 0;
+> +		if (!sclp_early_get_memsize(&max_physmem_end))
+> +			physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
+
+Why search_mem_end() is not tried in case sclp_early_get_memsize() failed?
+
+>  	}
+> +	if (max_physmem_end)
+> +		add_physmem_online_range(0, max_physmem_end);
+>  }
+>  
+>  void physmem_set_usable_limit(unsigned long limit)
+> diff --git a/arch/s390/include/asm/physmem_info.h b/arch/s390/include/asm/physmem_info.h
+> index f45cfc8bc233..51b68a43e195 100644
+> --- a/arch/s390/include/asm/physmem_info.h
+> +++ b/arch/s390/include/asm/physmem_info.h
+> @@ -9,6 +9,7 @@ enum physmem_info_source {
+>  	MEM_DETECT_NONE = 0,
+>  	MEM_DETECT_SCLP_STOR_INFO,
+>  	MEM_DETECT_DIAG260,
+> +	MEM_DETECT_DIAG500_STOR_LIMIT,
+>  	MEM_DETECT_SCLP_READ_INFO,
+>  	MEM_DETECT_BIN_SEARCH
+>  };
+> @@ -107,6 +108,8 @@ static inline const char *get_physmem_info_source(void)
+>  		return "sclp storage info";
+>  	case MEM_DETECT_DIAG260:
+>  		return "diag260";
+> +	case MEM_DETECT_DIAG500_STOR_LIMIT:
+> +		return "diag500 storage limit";
+
+AFAIU you want to always override MEM_DETECT_DIAG500_STOR_LIMIT method
+with an online memory detection method. In that case this code is dead.
+
+>  	case MEM_DETECT_SCLP_READ_INFO:
+>  		return "sclp read info";
+>  	case MEM_DETECT_BIN_SEARCH:
+
+Thanks!
