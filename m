@@ -1,135 +1,120 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97EE21547E1
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 02:45:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73D5313AA3F
+	for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 04:55:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729219529; cv=none; b=nknDgTUGsrAdZ3ypXRNJLej8GRfHq+MBuhkmkYqIDjAvy/UtO9uuuMfW9xKL5iZFEz9zOgyXJBZ+cuujPHVoAjYXFG1mteezj8yH92M2JMxI10eTagJq4lpkh6AvpRv2PjXsUiZ65OyV5vHkPrkM9CQXuXspisrJadRS2YSSl9o=
+	t=1729227305; cv=none; b=IXfEOmHZQwUoWRbnEH9U6w57DCrWYXEmxRHzqJ5oljDzLRyQEsgMLoD9f2fKhcTra8q8s7psaheabPOfx2oZOXk8mY/VWAo0zkHe+BgX3rsG1lmx207G3e2fBA+mbjWJFb8Scjp6M//O9+SPtVTqsKC/pVcsC5+wiSljlYHx4hA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729219529; c=relaxed/simple;
-	bh=kgRRZiy9FfZN7xD7EZSFKYhFZvRCjUnO4G3r4bM18nU=;
+	s=arc-20240116; t=1729227305; c=relaxed/simple;
+	bh=JIqvG2jCtfUzqKikp6Uyzo7Po4a2fnUn52lM0O7ye2U=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=h9J7HC/aIGAaW3F1GNDaBepZUUXX0pJT3dWP3D2ksq78rLbYQ6QnVevn6BIhwbhlAbN8woxI3A3o04R2UwlsR5XckEbNRarEPQU+iSHIaRvK/mKAJlozBXIddpKS0+weyiSi+WqswdLQmqhbZ8+xNixikvFe6TtVxZWtvGYNOKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=vlB6AB7i; arc=none smtp.client-ip=140.211.166.133
+	 To:Cc:Content-Type; b=sqimCzuqOpIjRVJPadhnE9E01Xl9ezIP/mUccr6kamhu1HKW/E9TZAVFbu81vUEJHnupG968X0+m8jmVYJ5hyFymLipoOWUGihFHhvoR63vRIRdZ+wxqBGDCJspc5pN+X/TJSio9uaUkopB+gyByPvaipRr1Ltb8OET+XbJHbS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DC6swlRM; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="vlB6AB7i"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2CEFE40252
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 02:45:27 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Z8AuM36tZU4M for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Oct 2024 02:45:26 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::132; helo=mail-lf1-x132.google.com; envelope-from=zhangfei.gao@linaro.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org CDFC140004
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CDFC140004
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=vlB6AB7i
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CDFC140004
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 02:45:24 +0000 (UTC)
-Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-539e13375d3so1866707e87.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 17 Oct 2024 19:45:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1729219522; x=1729824322; darn=lists.linux-foundation.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=1sLZ/lXwGBM2rahMvEDIQo5diSLBoxj3foQMEQZCG+M=;
-        b=vlB6AB7ioWcTqWj3/DjePmVM023Qk6Fw5WxHZfofZFy4oKYz8q2Zcoco7LBMHwHGI8
-         gWToiaH4tFuV8km0S1yvbPrglh8I8p7zvkoRbj4oez2qz6B33Hu1JjZJUNrTIxMstmdm
-         iomsL97n1upiaOm+znyzU8ZpgZTF2pUH6kDXKVuVNZENFhJKoaPY3WJ8hOf72i6qoKRp
-         aHVwT3M1KDeCABsUF5NewbuLF4MrzNBgkO/OVtFvy6h5T45hYnxZ/5UIOIvtvZEyT1Gc
-         IjY+6qwH/fgheqr8cc2gKPxx+JZknH05gZIXKwRvHi2qTVcCk+vY72xlX8qJspPQNOxf
-         MLiw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DC6swlRM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729227302;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=szoLsmL231n26j+M8ujJ4xDFFgCiCGUDcshF849Y4SY=;
+	b=DC6swlRM1c3FaT/B5LCaYT/wF05/zJx3YHXM1s1JFCr/tInoJ8dYBe/opM/5yhkxHMBMDo
+	AR7F07QjTy+z7CqMCETZGHGbcM1DPWdeze56VgHEWUtRXOEc7gazKLdcogII/BZCklnwgQ
+	PhcSawk/7k2RCZC2+e8HUrwIhrl+tPw=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-240-SWTSHk7WOEu0vGIOVkKdlQ-1; Fri, 18 Oct 2024 00:55:00 -0400
+X-MC-Unique: SWTSHk7WOEu0vGIOVkKdlQ-1
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-205425b7e27so15097775ad.0
+        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 21:55:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729219522; x=1729824322;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1sLZ/lXwGBM2rahMvEDIQo5diSLBoxj3foQMEQZCG+M=;
-        b=KvjLZcYPs1IOmnj+dI6XHaJyW8cBSFIwUj1nyRr7JanTMzwYy9OuMlhUU/yV0Qyst6
-         +jsV4PJY/hSG63upv+xq11+4CDp/diGiMj0zPaB//Az/j/DEi91rM3K6nn/8/nnV2F79
-         24krAQyVRxd1kojaOiCtnQMKv/YuFg8eTeMofkdVL15/PJPMeBHWD0QgLxLyWyOaFvPo
-         yojJ8F1uO9sHz3dqldBChztG2cNpgogJoy30kY5NI7Jh9EfX3M6Cd6Zmh2o7Qh9LDC84
-         1LnZzU+r5cOQfek6n+VegtWTjHpgm54kJaDHzdmOOGpW4i1rdoXLi1Fo2otN0uebltPX
-         itlA==
-X-Forwarded-Encrypted: i=1; AJvYcCWzeenCTi34xf1LQiE3eR+ODh9hmY5XGZ0Wa1NEC41TsOxMzcQNJ+PqLWvbZxXtdb+Ev0xzzmk6xW2XinJ36Q==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyxYZ7xWYDYCi0xW1H9VD9LdYHYpBnEd9xmG/Is5G8OdvuOMd4b
-	TF9J3+NG0QJknR9dhDimcJAUHCNnLn7donfD4K2S5dXPglIizuCiBIk9vqnAxGVNq/Q+gyX+DwG
-	tblg5kgX0Xuergi6aSHAF9FcDJVRZaxBL7h5bVw==
-X-Google-Smtp-Source: AGHT+IE4lNRH1NWbi5vrC+GoEkZzjuYwAofdC4w+Awg53/xnT+cp6AFOUD/q+symJRS/APkqXdj2/T+NOFXcw+CS00A=
-X-Received: by 2002:a05:6512:128f:b0:539:f1ce:5fa8 with SMTP id
- 2adb3069b0e04-53a1550b9e6mr438878e87.49.1729219522198; Thu, 17 Oct 2024
- 19:45:22 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1729227299; x=1729832099;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=szoLsmL231n26j+M8ujJ4xDFFgCiCGUDcshF849Y4SY=;
+        b=FA0uO/+yNDAcYD202/bad3/v+f9fFdL/snOiuQhxAoXkiAwinTGKCpghRrt/x4rvNP
+         YrdwN8d++WuglUohDGyPIXdzi/u5zCcV6AvJdAOAWKLAiClSSkos2+xHamTUak2RQRqX
+         So9WIs46Rm8uGobZWfJ59ABR8NN14C6XRr/FMN9ApEme4aXZqcOfYscSW5pSTmQJSm7N
+         SXnrholQslznUE16Np+61zacF5KTHJPyYr+DtgyNAIB2isBdNAuNh7aPo19P7pd3b4qd
+         Q+wTdFB7F8kMHlFVp9+b3/nLuHEgzSOrpMIhryOc2Rbf005Wy1l2Ge9DsQ2xw3c8bU7B
+         8tnQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUXHvSIuH30cRIRUXRVQjpb3l54/MY3koJZ/U5n6qxhE9My7Ictefm9D/0H44XfBexzHCVNGRqwoRvp63wNXA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwJSqRKl1mEcqFwNOw4WBsxfdiBA1bYO4KZBAEIQT2JEW2uJr1C
+	koSPVNSTYaOMRE/P+Xk5k4HdnjStMrL3iDeXU7Y0vgfjzc/qyz8YuU/3MclddO+A/hn4C5HRob0
+	Fs4FgDkns4H9LpRftaifDNb7VC+AOP/dGEgg7LABkU5vS/H87L0a6Zegh8l6FBUBbVvAm+emuP9
+	sbeOsCnQofn2RivhQgqYst5bF11+EdUhVC9LwwuGY=
+X-Received: by 2002:a17:902:ea08:b0:20c:aae9:7bf8 with SMTP id d9443c01a7336-20e5a79f484mr18664565ad.5.1729227299441;
+        Thu, 17 Oct 2024 21:54:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFa2qtY5gLDoKqA6Yco3p4816y2zQXXPzBeUVcOWJS6Zu2NpeNQ0xtaSVTScNoct/TB2ZVWLO0OINwXOzis3OI=
+X-Received: by 2002:a17:902:ea08:b0:20c:aae9:7bf8 with SMTP id
+ d9443c01a7336-20e5a79f484mr18664325ad.5.1729227299043; Thu, 17 Oct 2024
+ 21:54:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-8-baolu.lu@linux.intel.com> <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca> <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
- <20241016152503.GB4020792@ziepe.ca> <CABQgh9FCJcOa0G0Kj__NUm-Q8C9uH4ud04XcHv+3c48T2qEnug@mail.gmail.com>
- <20241017120518.GI4020792@ziepe.ca> <CABQgh9EnEqDKkxg3VUgjSqBzz27h8B3Ct4w=A0vR6JK=d7fXHQ@mail.gmail.com>
- <20241017130805.GA926121@ziepe.ca> <f218230c-ae01-4168-b36e-5e502de6b3db@linux.intel.com>
-In-Reply-To: <f218230c-ae01-4168-b36e-5e502de6b3db@linux.intel.com>
-From: Zhangfei Gao <zhangfei.gao@linaro.org>
-Date: Fri, 18 Oct 2024 10:45:11 +0800
-Message-ID: <CABQgh9GU4xp=7Svs_Ni=bvNKECKKUjHgq4d-FjT5Y_4wu44kDA@mail.gmail.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt attach/detach/replace
-To: Baolu Lu <baolu.lu@linux.intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>, 
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
-	Jean-Philippe Brucker <jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, 
-	Yi Liu <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, 
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+References: <20240920140530.775307-1-schalla@marvell.com> <Zvu3HktM4imgHpUw@infradead.org>
+ <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <Zw3mC3Ej7m0KyZVv@infradead.org> <DS0PR18MB5368CB509A66A6617E519672A0462@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <ZxCsaMSBpoozpEQH@infradead.org> <DS0PR18MB53686815E2F86EFC5DFE1E45A0472@DS0PR18MB5368.namprd18.prod.outlook.com>
+In-Reply-To: <DS0PR18MB53686815E2F86EFC5DFE1E45A0472@DS0PR18MB5368.namprd18.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 18 Oct 2024 12:54:48 +0800
+Message-ID: <CACGkMEs81qAn4sOzNBiUUd=VgFuP5QvUtsfSjKVx3Uv2aHnK0Q@mail.gmail.com>
+Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
+ NO-IOMMU mode
+To: Srujana Challa <schalla@marvell.com>
+Cc: Christoph Hellwig <hch@infradead.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, 
+	"eperezma@redhat.com" <eperezma@redhat.com>, Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>, 
+	Jerin Jacob <jerinj@marvell.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi, Baolu
-
-On Fri, 18 Oct 2024 at 09:58, Baolu Lu <baolu.lu@linux.intel.com> wrote:
+On Thu, Oct 17, 2024 at 4:53=E2=80=AFPM Srujana Challa <schalla@marvell.com=
+> wrote:
 >
-> On 2024/10/17 21:08, Jason Gunthorpe wrote:
-> > On Thu, Oct 17, 2024 at 08:35:24PM +0800, Zhangfei Gao wrote:
+> > Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for =
+NO-
+> > IOMMU mode
 > >
-> >> Yes, you are right
-> >>   I am using SRIOV vf and stall feature, so is_virtfn == true
-> >>
-> >> Our ACC devices are fake pci endpoint devices which supports stall,
-> >> And they also supports sriov
-> >>
-> >> So I have to ignore the limitation.
-> > I see, so that is more complicated.
+> > On Wed, Oct 16, 2024 at 05:28:27PM +0000, Srujana Challa wrote:
+> > > When using the DPDK virtio user PMD, we=E2=80=99ve noticed a signific=
+ant 70%
+> > > performance improvement when IOMMU is disabled on specific low-end
+> > > x86 machines. This performance improvement can be particularly
+> > > advantageous for embedded platforms where applications operate in
+> > > controlled environments. Therefore, we believe supporting the
+> > > intel_iommu=3Doff mode is beneficial.
 > >
-> > Lu, what do you think about also checking if the PCI function has PRI
-> > ? If not PRI assume the fault is special and doesn't follow PRI rules?
-> >
-> > Or maybe we can have the iommu driver tag the event as a PRI/not-PRI
-> > fault?
+> > While making the system completely unsafe to use.  Maybe you should fix
+> > your stack to use the iommu more itelligently instead?
 >
-> This limitation applies to PRI on PCI/SRIOV VFs because the PRI might be
-> a shared resource and current iommu subsystem is not ready to support
-> enabling/disabling PRI on a VF without any impact on others.
->
-> In my understanding, it's fine to remove this limitation from the use
-> case of non-PRI on SRIOV VFs. Perhaps something like below?
->
-#include <linux/pci-ats.h>
->         if (dev_is_pci(dev)) {
->                 struct pci_dev *pdev = to_pci_dev(dev);
->                 if (pdev->is_virtfn && pci_pri_supported(pdev))
->                         return -EINVAL;
->         }
+> We observed better performance with "intel_iommu=3Don" in high-end x86 ma=
+chines,
+> indicating that the performance limitations are specific to low-end x86 h=
+ardware.
 
-Yes, this works on our platform.
+Do you have any analysis on why Intel IOMMU is slow on "low-end" x86
+hardware? Anyhow, we can ask Intel IOMMU experts to help here.
 
-Thanks Baolu.
+Thanks
+
+> This presents a trade-off between performance and security. Since intel_i=
+ommu
+> is enabled by default, users who prioritize security over performance do =
+not need to
+> disable this option.
+
