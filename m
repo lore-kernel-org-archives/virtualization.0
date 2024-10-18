@@ -1,146 +1,154 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D25DA1EE020
-	for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 14:39:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08918200C81
+	for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 14:49:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729262393; cv=none; b=DHC2ZIzHL6jmsbYong9w3Ly5CMqrGju8fKjdr6dnatytIRGMQm2nmeZw0wFzGb9Bh3BuxGBJU+5ChhkqZjpF1/Ql8slI6mEi8jnqxK5EDwJ8GC/C+REx0E0zpdtOUG1tcdgM5937llEiUrvi0hul2vYZahe4gNXFu8n2KiLPAKc=
+	t=1729262982; cv=none; b=DirSwFeWukEyw9ychE5tbt2maChHp6nYkzzAjfXbLHyvli+qNN+hAMT47+3iodIsjN6vASveq2MmBWGZGTGFUzaz6hwcVsiBqhimGTpAge213/KA4AOwo1a1DPxx75OMgb7MJxOWXz7MCgB13s5U/BUd9q65/Kagy4di2BnoYw4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729262393; c=relaxed/simple;
-	bh=tr8jRKAqh09ouuyihQan5X+g0ShJthMmUZ6d8PXsqVQ=;
+	s=arc-20240116; t=1729262982; c=relaxed/simple;
+	bh=OFVzv/Bzy5SEVC2fr38Gqy63G+CyJt1NjMHppf2By3o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HwYZIaZQE3IxMi2NSFASGyQQV8FgfHwJZGqoHj47AjPphoAsijVjwJSZxGPV0IX05lI+Settpvih2JM1itUluUY0wiCtEsl71XWw1M35Guz/5mRTraoQVZIz52k0RFLmvJJgyjtfjvqssiKJyRA5MrForSmg+yzRwxWZ3B+pGvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C2Zdztnc; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=mUHpmnXs6WbpX+TJxdqPyPHb3Z1xPx1fB53mHHpvg13oG62OIpq7UqCTbTuHA7LmgWq60QxvSsk2e6rliSxv+5Q/z14OcCkRZ5GMkKvLfYeUGaO/6sJUoBwgTI8iklmgi+ebqCFMujVbVyblkiLF7ec+IiCEZo9sxVaxDy8f+XI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iTe3ul7g; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C2Zdztnc"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iTe3ul7g"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729262390;
+	s=mimecast20190719; t=1729262979;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Q1kdgqSpUkHaDdHlWc2ZMvh2f7J4lCZH1eEq8CMsWKE=;
-	b=C2ZdztnclnUwcoZngtsNEH0Ju7G6NUFhjXhUOArCugU4unweLJ4nHXjh5p+T41wRqATeBJ
-	XFS6MpggafdKy//Nrn8IN+7XvSmDW5Z9oko9/3cD0Q51b6i8J7x+9nelNRz/r8oiviJKIT
-	RIvjkLHm3sfwLysk2rn3i6UrULY3otI=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=PLK06kjenlDOhOsBFo7iWO+e34B5cBf5XFw1B3ccV2U=;
+	b=iTe3ul7gt8Ctz03GXvi465eB+j/B4mQkW9yZ8FCSjEeE0Dl35L3gQmAhDNolHCumkxVHPu
+	K8NDn4XVdh+hN7FcJOLBtXL1SMJDBR7HASZjhwwj6+DgmAtqIn0GLkH00/ZyowYc2O9+OH
+	br7/L3oEmFVTP1unkEN+9/9pbOLLzYc=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-FxfY5KvGO9m7HPx_jWXXyQ-1; Fri, 18 Oct 2024 10:39:49 -0400
-X-MC-Unique: FxfY5KvGO9m7HPx_jWXXyQ-1
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6cbec7fbf1cso28610426d6.1
-        for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 07:39:49 -0700 (PDT)
+ us-mta-460-vgFRS3VjMb2RDLxYhDQotw-1; Fri, 18 Oct 2024 10:49:38 -0400
+X-MC-Unique: vgFRS3VjMb2RDLxYhDQotw-1
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-7a7fa073718so335495785a.3
+        for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 07:49:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729262389; x=1729867189;
+        d=1e100.net; s=20230601; t=1729262978; x=1729867778;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Q1kdgqSpUkHaDdHlWc2ZMvh2f7J4lCZH1eEq8CMsWKE=;
-        b=ArdEi8E71ApJjvkMArAzX6vM8ctRSrmRpg74hYwMT1nv+Bn7sTQQSYV/kobyTQnw3D
-         vA6okezw/OC1ZJ83t2olw4zvyXi4HdHMu8KsZYiITlGzcbqX9G1pymE6J+ikBV+u9kXV
-         H4VC5+mkKE6VR8gen0hFKH7Ei/A3qSF0kDlUm8d78kJSJnxTVupvNUItHI9VXt0tBPyl
-         JyzWm1gwwNeHY3naZcQ3Zhmq/pTLKgEC4ZHHMvqYjMcii+DPnDjgm9MstqlcdIH9qW6/
-         dWKKnZy6rSzsAJiP0a5D7ZmW8fClMtF9kkHcB3eu9UbtVzdL5JMtOjJnq8sQs6twT4kT
-         ofwA==
-X-Forwarded-Encrypted: i=1; AJvYcCUEiObiGyRfxAREQer88XR2Mw7uSW62PylTL0aOGXS0Pq9tbqAvQc5LWWdYXO5yD/4HXhK0XXk6mJk6GPsN2w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxak59DKidDEf0tQoxDzCUjdIzDvMP5kQ0zQvGTItROr/yOaF8J
-	ZvKocwUG2Nhgg86YQ7X9AjYMNab6BfDTns6bia8mboNu1tdU63jKyCiv/PQ2iM6ynZhSy4ksrlx
-	xOXTfgxM+LRVGKb/Jlag7Ln9wTpq9jUrivAwhGOeSN/mHkRfXR1wsCYpDGJv2YJ2o
-X-Received: by 2002:a05:6214:5541:b0:6cb:20b6:f398 with SMTP id 6a1803df08f44-6cde150dd18mr34710856d6.21.1729262389301;
-        Fri, 18 Oct 2024 07:39:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFsprW5VkpYV0rcxGwN4Pw/bcWrNG/R/XuTyrPHGf/vzAwEznM75iAODlOWI+en0Ua/metoMA==
-X-Received: by 2002:a05:6214:5541:b0:6cb:20b6:f398 with SMTP id 6a1803df08f44-6cde150dd18mr34710536d6.21.1729262388975;
-        Fri, 18 Oct 2024 07:39:48 -0700 (PDT)
+        bh=PLK06kjenlDOhOsBFo7iWO+e34B5cBf5XFw1B3ccV2U=;
+        b=r1h5BemROiJQ59Dia+BlPL6q2e5j/tweS2z4gjoVuKEkpsEwMvb6h0yruadsYs9hVU
+         uIGjIvzzriPFF4AkZH5OudOT6vV65XcCLQV/tUtTEx9mWSVXf09J7WyeMYsAnTsyjeP/
+         gXSRy2UJSgtnhDhg1DzGLkZHLgFtFKAMA0675HhgL1VZrk4PZ4gd1YZ95LWMLLcvWmv+
+         m1h/sESlTsyrzGqjY2hMHxkbOo/vjwndc6Fa4koCMfMqRA143X67Xtr6yGYYmg1OIKA7
+         oT5pC4f3M3v1KFo02cyUi0mJBjea17C08v17kRipguDJlyihrmjq0QGbJ10mecAgy74o
+         z7jA==
+X-Forwarded-Encrypted: i=1; AJvYcCXgMBkkYpE4vlf3+bPPFIQuqcYVP1KUvBHTI8zBzglHk6m0Nw8Exb/f8R48Pgy2/dNpLXVp814nI7yizhWdPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YynRdvSca+sO3lNsNhDR1NlULZtwgwT2Du70+pEZLpaJhmIB4k+
+	ySaUQoA/809pqo36PJsAFYWq20A8Cnd6v9tfNaF8zxsFBqvhMBR+aYXqFxsIOlS9gRXLTJ79FAA
+	E1XUwWNFaYL6fldJ5Gp9YXfjj2lcBDVyjMLJcysooSCN3r4zDSiQtyTMlDmEJZtUb
+X-Received: by 2002:a05:620a:28ca:b0:7ac:b3bf:c30c with SMTP id af79cd13be357-7b157be329dmr296849585a.45.1729262978350;
+        Fri, 18 Oct 2024 07:49:38 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGdfckV/4mq/+sa6eyJY9yg4483MucXF6w+/neilLz6xBQ/bACL6PpfbLYrwxMWUXC6aOTZ6A==
+X-Received: by 2002:a05:620a:28ca:b0:7ac:b3bf:c30c with SMTP id af79cd13be357-7b157be329dmr296846185a.45.1729262977922;
+        Fri, 18 Oct 2024 07:49:37 -0700 (PDT)
 Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cde115577csm7560936d6.55.2024.10.18.07.39.46
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b156f9509fsm75604885a.30.2024.10.18.07.49.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Oct 2024 07:39:48 -0700 (PDT)
-Date: Fri, 18 Oct 2024 16:39:41 +0200
+        Fri, 18 Oct 2024 07:49:37 -0700 (PDT)
+Date: Fri, 18 Oct 2024 16:49:33 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, 
-	"Colin King (gmail)" <colin.i.king@gmail.com>, Jason Wang <jasowang@redhat.com>, 
+To: Philipp Stanner <pstanner@redhat.com>
+Cc: Alvaro Karsz <alvaro.karsz@solid-run.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org
-Subject: Re: [PATCH] virtio_net: fix integer overflow in stats
-Message-ID: <riu6774ovfsubpe3zzuehfmzr2lz4slv6wmcsenoewl47nukf6@ba2tode64wby>
-References: <53e2bd6728136d5916e384a7840e5dc7eebff832.1729099611.git.mst@redhat.com>
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>, Andy Shevchenko <andy@kernel.org>
+Subject: Re: [PATCH RESEND] vdpa: solidrun: Fix UB bug with devres
+Message-ID: <xyv4vzeq7tqq6qqfafaqxfohgmwu5tx4sb4pgg6dilpgqou32m@l4c5il7euzpb>
+References: <20241016072553.8891-2-pstanner@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <53e2bd6728136d5916e384a7840e5dc7eebff832.1729099611.git.mst@redhat.com>
+In-Reply-To: <20241016072553.8891-2-pstanner@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Wed, Oct 16, 2024 at 01:27:07PM -0400, Michael S. Tsirkin wrote:
->Static analysis on linux-next has detected the following issue
->in function virtnet_stats_ctx_init, in drivers/net/virtio_net.c :
+On Wed, Oct 16, 2024 at 09:25:54AM +0200, Philipp Stanner wrote:
+>In psnet_open_pf_bar() and snet_open_vf_bar() a string later passed to
+>pcim_iomap_regions() is placed on the stack. Neither
+>pcim_iomap_regions() nor the functions it calls copy that string.
 >
->        if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_CVQ) {
->                queue_type = VIRTNET_Q_TYPE_CQ;
->                ctx->bitmap[queue_type]   |= VIRTIO_NET_STATS_TYPE_CVQ;
->                ctx->desc_num[queue_type] += ARRAY_SIZE(virtnet_stats_cvq_desc);
->                ctx->size[queue_type]     += sizeof(struct virtio_net_stats_cvq);
->        }
+>Should the string later ever be used, this, consequently, causes
+>undefined behavior since the stack frame will by then have disappeared.
 >
->ctx->bitmap is declared as a u32 however it is being bit-wise or'd with
->VIRTIO_NET_STATS_TYPE_CVQ and this is defined as 1 << 32:
+>Fix the bug by allocating the strings on the heap through
+>devm_kasprintf().
 >
->include/uapi/linux/virtio_net.h:#define VIRTIO_NET_STATS_TYPE_CVQ (1ULL << 32)
->
->..and hence the bit-wise or operation won't set any bits in ctx->bitmap
->because 1ULL < 32 is too wide for a u32.
->
->In fact, the field is read into a u64:
->
->       u64 offset, bitmap;
->....
->       bitmap = ctx->bitmap[queue_type];
->
->so to fix, it is enough to make bitmap an array of u64.
->
->Fixes: 941168f8b40e5 ("virtio_net: support device stats")
-
-Release with v6.10, so should we cc stable?
-
->Reported-by: "Colin King (gmail)" <colin.i.king@gmail.com>
->Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>Cc: stable@vger.kernel.org	# v6.3
+>Fixes: 51a8f9d7f587 ("virtio: vdpa: new SolidNET DPU driver.")
+>Reported-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+>Closes: https://lore.kernel.org/all/74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanadoo.fr/
+>Suggested-by: Andy Shevchenko <andy@kernel.org>
+>Signed-off-by: Philipp Stanner <pstanner@redhat.com>
 >---
-> drivers/net/virtio_net.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
+> drivers/vdpa/solidrun/snet_main.c | 14 ++++++++++----
+> 1 file changed, 10 insertions(+), 4 deletions(-)
 
 LGTM!
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Thanks,
-Stefano
-
 >
->diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->index c6af18948092..b950d24b1ffa 100644
->--- a/drivers/net/virtio_net.c
->+++ b/drivers/net/virtio_net.c
->@@ -4112,7 +4112,7 @@ struct virtnet_stats_ctx {
-> 	u32 desc_num[3];
+>diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+>index 99428a04068d..c8b74980dbd1 100644
+>--- a/drivers/vdpa/solidrun/snet_main.c
+>+++ b/drivers/vdpa/solidrun/snet_main.c
+>@@ -555,7 +555,7 @@ static const struct vdpa_config_ops snet_config_ops = {
 >
-> 	/* The actual supported stat types. */
->-	u32 bitmap[3];
->+	u64 bitmap[3];
+> static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+> {
+>-	char name[50];
+>+	char *name;
+> 	int ret, i, mask = 0;
+> 	/* We don't know which BAR will be used to communicate..
+> 	 * We will map every bar with len > 0.
+>@@ -573,7 +573,10 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+> 		return -ENODEV;
+> 	}
 >
-> 	/* Used to calculate the reply buffer size. */
-> 	u32 size[3];
+>-	snprintf(name, sizeof(name), "psnet[%s]-bars", pci_name(pdev));
+>+	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-bars", pci_name(pdev));
+>+	if (!name)
+>+		return -ENOMEM;
+>+
+> 	ret = pcim_iomap_regions(pdev, mask, name);
+> 	if (ret) {
+> 		SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
+>@@ -590,10 +593,13 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+>
+> static int snet_open_vf_bar(struct pci_dev *pdev, struct snet *snet)
+> {
+>-	char name[50];
+>+	char *name;
+> 	int ret;
+>
+>-	snprintf(name, sizeof(name), "snet[%s]-bar", pci_name(pdev));
+>+	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-bars", pci_name(pdev));
+>+	if (!name)
+>+		return -ENOMEM;
+>+
+> 	/* Request and map BAR */
+> 	ret = pcim_iomap_regions(pdev, BIT(snet->psnet->cfg.vf_bar), name);
+> 	if (ret) {
 >-- 
->MST
+>2.46.1
 >
 >
 
