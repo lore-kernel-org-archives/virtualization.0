@@ -1,185 +1,209 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CB3F187339
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 08:15:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 508A4205AB2
+	for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 11:00:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729239330; cv=none; b=DzcWuyQZ3uAnnxPKYjKoLYpB17tn9X6ilzLEvn9g3haTUFd7C0P0/cVhk8pqyDTl3jvpeV6HrjUxZ/J+LVCUpalj1MFr0zAXBkBEJGt8uLnFEpEF455Upwe2qjw19gP5ZHi/whme/bbNMwnyXDzERNIDvBdqHOePwAEgxrXAR3k=
+	t=1729249223; cv=none; b=HU73Iviil0DZrBtGO3HIQ4ROXjVD89svYHf/jGhCJmFDkczqvy/zdmwCvoHn5q9j/GB6WlNjJgzMgFXvXIQJIUI9JfCwOCM3jVuuX1AULMA0ieT4xOtyq83yoBBcXxQATbXbr1NNsFivz4hbPzljllZuTSr3nvrqBrhTNiP6sxo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729239330; c=relaxed/simple;
-	bh=RyCuiX7Z7beQNgjkYjzS1E6I9EFHABI+uLFOdorHDUA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=REATReWz1SjdFQl2w+Sl9/3tTYWcDSlTOLcQnhbzWEcUM7tyofjr8/uAopvkadAebgVNIdG1Z7eVhrjsW2vyuKTzqyBR54PDihXpymPPrfLsmRkAtD8fcJ+iG5uGf2bR8Bq6q65EK2XNwZvu2wsQWPiozWB8cJfgQoCEMItS5IM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LNeddTMH; arc=none smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LNeddTMH"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0CA6880891
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 08:15:29 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id r_zB2We3pHTP for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Oct 2024 08:15:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 186BE80A4A
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 186BE80A4A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LNeddTMH
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 186BE80A4A
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 08:15:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729239326;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yr2YuJLh1oBlVb3LAJ7sYOHk9wkq05eBctRIWz59ZDw=;
-	b=LNeddTMH8AlEWYJBJR6TdYyS31gX1hZoA0dU3PXI4KA1Zq127bA1bepsU/kJ1uukFAeUzo
-	ibTjBKCgQYEhDhu1B1yhW/zLc7/8Iua9Z2/hD6eqkHdQGrm9T3pjdCtdZEiUfy4hyY5Dsg
-	EbroMNA6cxm6ZCUgt9XoaX1P/O9kfwE=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-568-2iiNfoaGPVqU6Ea9vce3zA-1; Fri, 18 Oct 2024 04:15:25 -0400
-X-MC-Unique: 2iiNfoaGPVqU6Ea9vce3zA-1
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-7ea9acf089bso1436123a12.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 01:15:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729239324; x=1729844124;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yr2YuJLh1oBlVb3LAJ7sYOHk9wkq05eBctRIWz59ZDw=;
-        b=bL76I/3pdar/fxfxNIhI7h4K15ul9WJPLcArAZZmhaundPyo9Smg3RQzqsjcjKcrDw
-         Ifgtkl/P0kdgt7eAGOoiOXvgziYonw4DKAu/dSU+NzMZSPrQHOL6JSJnmWNLtt2eLZUE
-         Hx/3aDiy29Uvu6E9GoisqH92Qn7buJceBYAUKXgHQFuoGXnRae9rs2efFMqqa1woB1cu
-         JGo8iMSzEWK2Tb0a9nAVtKyTSpeQEgpPb7gqzARfiSPkdS68sx8d/qyjNATrg/rtcZzJ
-         QfrQPmRZvvlhpefi256dWVcvsFKDXYTylEcaI5aIOnpWiTJ5DvkcrbvUWItwpX3vUwu2
-         76LA==
-X-Forwarded-Encrypted: i=1; AJvYcCUrLM4ddN6v/W2vhSY6wRPRzf/gZyYXsPTGLvK5L8cS74Q0P5wlJH5M/scF3jVXlTHlpip9XCsi9vUB5JWv1A==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxnH4neQsFZgvN/cO9A3KpyOHYacNvf9L8gt0rAfOff/BG22+Y9
-	99cSwJsYgxrTFDWGMRq2Vycgs2+iSX6Z38XDP6YrYsS7ewV5kvGpzY04xaWXElKCbUeAXDJUMFW
-	66VBXU6A3f/GAvgATndzRuk8Y4kvw3kyl8Dp9dXdBa9GUdlfw7o6X2vReiqDUwC0vSSzoYA47KK
-	ojrmkMXTRhodUAs6h4PhqD01sbneP3jPCUs9PrR7UIBkKcfqMhijlpww==
-X-Received: by 2002:a05:6a21:178a:b0:1d8:aa1d:b30c with SMTP id adf61e73a8af0-1d92c9f8becmr2035169637.1.1729239324402;
-        Fri, 18 Oct 2024 01:15:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGLD3LtPmdn3YgZFunCmr4YCke9ZeVKhkDNBtOgm6i/o4DVa5u2WpwUUag2e6tVVnOKvDE1CSmiKahP3Ex3VII=
-X-Received: by 2002:a05:6a21:178a:b0:1d8:aa1d:b30c with SMTP id
- adf61e73a8af0-1d92c9f8becmr2035126637.1.1729239323920; Fri, 18 Oct 2024
- 01:15:23 -0700 (PDT)
+	s=arc-20240116; t=1729249223; c=relaxed/simple;
+	bh=Vtn4ty+DNVttgo/VCotVaihT5LPay8T9vsmHcQZE2Us=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bmou59nvAe6Og8FOBA2VNvdKu7Cx+cTqFca1VPp8u4nM2u2qdjjoGz0OOMYfs57Nv7OgGYx4NBo0GdBwK3FzMwrkFUTd3jbrCsgrZoUv9+SQvs8RZ0ptTDVT0HFMu3qKzisWbVY+tFJjcVK4gJbySajMr39RWHQncYtlboaKbWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.234])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4XVMC82SPnz1SCwM;
+	Fri, 18 Oct 2024 18:59:00 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id B37551402E2;
+	Fri, 18 Oct 2024 19:00:17 +0800 (CST)
+Received: from localhost.localdomain (10.90.30.45) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Fri, 18 Oct 2024 19:00:17 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
+	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
+	Alexander Duyck <alexanderduyck@fb.com>, Chuck Lever
+	<chuck.lever@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Eric
+ Dumazet <edumazet@google.com>, David Howells <dhowells@redhat.com>, Marc
+ Dionne <marc.dionne@auristor.com>, Jeff Layton <jlayton@kernel.org>, Neil
+ Brown <neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Trond Myklebust
+	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Shuah Khan
+	<shuah@kernel.org>, <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-mm@kvack.org>, <linux-afs@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
+Subject: [PATCH net-next v22 04/14] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
+Date: Fri, 18 Oct 2024 18:53:41 +0800
+Message-ID: <20241018105351.1960345-5-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20241018105351.1960345-1-linyunsheng@huawei.com>
+References: <20241018105351.1960345-1-linyunsheng@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241008-rss-v5-0-f3cf68df005d@daynix.com> <20241008-rss-v5-7-f3cf68df005d@daynix.com>
- <CACGkMEsPNTr3zcstsQGoOiQdCFQ+6EG6cSGiZzNxONsH9Xm=Aw@mail.gmail.com> <4bc7dfaa-a7cd-41f4-a917-e71b5c7241f7@daynix.com>
-In-Reply-To: <4bc7dfaa-a7cd-41f4-a917-e71b5c7241f7@daynix.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 18 Oct 2024 16:15:12 +0800
-Message-ID: <CACGkMEtt7a4+gadQt2=3zz+MCUtueuWj+zwaHR_gXCvLg=0PcQ@mail.gmail.com>
-Subject: Re: [PATCH RFC v5 07/10] tun: Introduce virtio-net RSS
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
-	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
-	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On Sat, Oct 12, 2024 at 6:29=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix=
-.com> wrote:
->
-> On 2024/10/09 17:14, Jason Wang wrote:
-> > On Tue, Oct 8, 2024 at 2:55=E2=80=AFPM Akihiko Odaki <akihiko.odaki@day=
-nix.com> wrote:
-> >>
-> >> RSS is a receive steering algorithm that can be negotiated to use with
-> >> virtio_net. Conventionally the hash calculation was done by the VMM.
-> >> However, computing the hash after the queue was chosen defeats the
-> >> purpose of RSS.
-> >>
-> >> Another approach is to use eBPF steering program. This approach has
-> >> another downside: it cannot report the calculated hash due to the
-> >> restrictive nature of eBPF steering program.
-> >>
-> >> Introduce the code to perform RSS to the kernel in order to overcome
-> >> thse challenges. An alternative solution is to extend the eBPF steerin=
-g
-> >> program so that it will be able to report to the userspace, but I didn=
-'t
-> >> opt for it because extending the current mechanism of eBPF steering
-> >> program as is because it relies on legacy context rewriting, and
-> >> introducing kfunc-based eBPF will result in non-UAPI dependency while
-> >> the other relevant virtualization APIs such as KVM and vhost_net are
-> >> UAPIs.
-> >>
-> >> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> >> ---
-> >>   drivers/net/tap.c           | 11 +++++-
-> >>   drivers/net/tun.c           | 57 ++++++++++++++++++++-------
-> >>   drivers/net/tun_vnet.h      | 96 +++++++++++++++++++++++++++++++++++=
-++++++----
-> >>   include/linux/if_tap.h      |  4 +-
-> >>   include/uapi/linux/if_tun.h | 27 +++++++++++++
-> >>   5 files changed, 169 insertions(+), 26 deletions(-)
-> >>
+Use appropriate frag_page API instead of caller accessing
+'page_frag_cache' directly.
 
-[...]
+CC: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Acked-by: Chuck Lever <chuck.lever@oracle.com>
+---
+ drivers/vhost/net.c                                   |  2 +-
+ include/linux/page_frag_cache.h                       | 10 ++++++++++
+ net/core/skbuff.c                                     |  6 +++---
+ net/rxrpc/conn_object.c                               |  4 +---
+ net/rxrpc/local_object.c                              |  4 +---
+ net/sunrpc/svcsock.c                                  |  6 ++----
+ tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
+ 7 files changed, 19 insertions(+), 15 deletions(-)
 
-> >> diff --git a/include/uapi/linux/if_tun.h b/include/uapi/linux/if_tun.h
-> >> index d11e79b4e0dc..4887f97500a8 100644
-> >> --- a/include/uapi/linux/if_tun.h
-> >> +++ b/include/uapi/linux/if_tun.h
-> >> @@ -75,6 +75,14 @@
-> >>    *
-> >>    * The argument is a pointer to &struct tun_vnet_hash.
-> >>    *
-> >> + * The argument is a pointer to the compound of the following in orde=
-r if
-> >> + * %TUN_VNET_HASH_RSS is set:
-> >> + *
-> >> + * 1. &struct tun_vnet_hash
-> >> + * 2. &struct tun_vnet_hash_rss
-> >> + * 3. Indirection table
-> >> + * 4. Key
-> >> + *
-> >
-> > Let's try not modify uAPI. We can introduce new ioctl if necessary.
->
-> 2, 3, and 4 are new additions. Adding a separate ioctl for them means we
-> need to call two ioctls to configure RSS and it is hard to design the
-> interactions with them.
->
-> For example, if we set TUN_VNET_HASH_RSS with TUNSETVNETHASH before
-> setting struct tun_vnet_hash_rss with another ioctl, tuntap will enable
-> RSS with undefined parameters. Setting struct tun_vnet_hash_rss with
-> TUN_VNET_HASH_RSS unset also sounds unreasnoable.
->
-> Letting the new ioctl set TUN_VNET_HASH_RSS does not help either.
-> TUNSETVNETHASH still sets the bitmask of allowed hash types so RSS will
-> depend on two ioctls.
-
-I meant let's avoid introducing an ioctl with function 1 in one patch,
-and adding 2,3,4 in exactly the same ioctl in the following. It breaks
-the uABI consistency and bisection.
-
-We can add all in one patch.
-
-Thanks
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f16279351db5..9ad37c012189 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 			vqs[VHOST_NET_VQ_RX]);
+ 
+ 	f->private_data = n;
+-	n->pf_cache.va = NULL;
++	page_frag_cache_init(&n->pf_cache);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
+index 67ac8626ed9b..0a52f7a179c8 100644
+--- a/include/linux/page_frag_cache.h
++++ b/include/linux/page_frag_cache.h
+@@ -7,6 +7,16 @@
+ #include <linux/mm_types_task.h>
+ #include <linux/types.h>
+ 
++static inline void page_frag_cache_init(struct page_frag_cache *nc)
++{
++	nc->va = NULL;
++}
++
++static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
++{
++	return !!nc->pfmemalloc;
++}
++
+ void page_frag_cache_drain(struct page_frag_cache *nc);
+ void __page_frag_cache_drain(struct page *page, unsigned int count);
+ void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 00afeb90c23a..6841e61a6bd0 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -753,14 +753,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
+ 	if (in_hardirq() || irqs_disabled()) {
+ 		nc = this_cpu_ptr(&netdev_alloc_cache);
+ 		data = page_frag_alloc(nc, len, gfp_mask);
+-		pfmemalloc = nc->pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
+ 	} else {
+ 		local_bh_disable();
+ 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
+ 
+ 		nc = this_cpu_ptr(&napi_alloc_cache.page);
+ 		data = page_frag_alloc(nc, len, gfp_mask);
+-		pfmemalloc = nc->pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
+ 
+ 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
+ 		local_bh_enable();
+@@ -850,7 +850,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
+ 		len = SKB_HEAD_ALIGN(len);
+ 
+ 		data = page_frag_alloc(&nc->page, len, gfp_mask);
+-		pfmemalloc = nc->page.pfmemalloc;
++		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
+ 	}
+ 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
+ 
+diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
+index 1539d315afe7..694c4df7a1a3 100644
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
+ 	 */
+ 	rxrpc_purge_queue(&conn->rx_queue);
+ 
+-	if (conn->tx_data_alloc.va)
+-		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
+-					conn->tx_data_alloc.pagecnt_bias);
++	page_frag_cache_drain(&conn->tx_data_alloc);
+ 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
+ }
+ 
+diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
+index f9623ace2201..2792d2304605 100644
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
+ #endif
+ 	rxrpc_purge_queue(&local->rx_queue);
+ 	rxrpc_purge_client_connections(local);
+-	if (local->tx_alloc.va)
+-		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
+-					local->tx_alloc.pagecnt_bias);
++	page_frag_cache_drain(&local->tx_alloc);
+ }
+ 
+ /*
+diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
+index 825ec5357691..b785425c3315 100644
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -1608,7 +1608,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
+ static void svc_sock_free(struct svc_xprt *xprt)
+ {
+ 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
+-	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
+ 	struct socket *sock = svsk->sk_sock;
+ 
+ 	trace_svcsock_free(svsk, sock);
+@@ -1618,8 +1617,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
+ 		sockfd_put(sock);
+ 	else
+ 		sock_release(sock);
+-	if (pfc->va)
+-		__page_frag_cache_drain(virt_to_head_page(pfc->va),
+-					pfc->pagecnt_bias);
++
++	page_frag_cache_drain(&svsk->sk_frag_cache);
+ 	kfree(svsk);
+ }
+diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
+index 13c44133e009..e806c1866e36 100644
+--- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
++++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
+@@ -126,7 +126,7 @@ static int __init page_frag_test_init(void)
+ 	u64 duration;
+ 	int ret;
+ 
+-	test_nc.va = NULL;
++	page_frag_cache_init(&test_nc);
+ 	atomic_set(&nthreads, 2);
+ 	init_completion(&wait);
+ 
+-- 
+2.33.0
 
