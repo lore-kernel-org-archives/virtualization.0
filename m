@@ -1,147 +1,146 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DA851DB352
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 14:33:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D25DA1EE020
+	for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 14:39:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729261991; cv=none; b=cnTkRJ/04pO5i+/OpSwFKck8R8QPxEEQJEFs7uXH4SBBfuoOklUIEAp34bYD5YBIeJWo4iCUNLBFaIoojgNzAvQL4r0HURXyx9iXOg5w/nZsshe6OHA7M1v5eSwApI35utfW7wIc92uA4gd+3JhitifW9GCMTiXK+JE7+/rO2oY=
+	t=1729262393; cv=none; b=DHC2ZIzHL6jmsbYong9w3Ly5CMqrGju8fKjdr6dnatytIRGMQm2nmeZw0wFzGb9Bh3BuxGBJU+5ChhkqZjpF1/Ql8slI6mEi8jnqxK5EDwJ8GC/C+REx0E0zpdtOUG1tcdgM5937llEiUrvi0hul2vYZahe4gNXFu8n2KiLPAKc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729261991; c=relaxed/simple;
-	bh=ZsBt8lSxzA+AlE5/dHTYCGZPEvYSA2sH3m2oRztGLPM=;
+	s=arc-20240116; t=1729262393; c=relaxed/simple;
+	bh=tr8jRKAqh09ouuyihQan5X+g0ShJthMmUZ6d8PXsqVQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s2x+IIg8LuiwPV64YkPMDKC8ziLzf4SWF3pYWtSax6OAufNfLBKJTlV6cXRSsWTpyBc2qQixfyG+LpLLD/FPjQJ21oiMWN1puowXl8WH3ORIDxzWS0utuqS2W21wIVaP9sBk0EEJxEnTsFM1ietlBAsJ8es7sX0Rz2o4cY9tIok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=nFlkyEs9; arc=none smtp.client-ip=140.211.166.136
+	 In-Reply-To:Content-Type:Content-Disposition; b=HwYZIaZQE3IxMi2NSFASGyQQV8FgfHwJZGqoHj47AjPphoAsijVjwJSZxGPV0IX05lI+Settpvih2JM1itUluUY0wiCtEsl71XWw1M35Guz/5mRTraoQVZIz52k0RFLmvJJgyjtfjvqssiKJyRA5MrForSmg+yzRwxWZ3B+pGvA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C2Zdztnc; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="nFlkyEs9"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 277D560B24
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 14:33:10 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Hp8gWjGUv2Uz for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Oct 2024 14:33:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::f2f; helo=mail-qv1-xf2f.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 1B85B60B29
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1B85B60B29
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=nFlkyEs9
-Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1B85B60B29
-	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 14:33:08 +0000 (UTC)
-Received: by mail-qv1-xf2f.google.com with SMTP id 6a1803df08f44-6cbd12b38b4so14568106d6.2
-        for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 07:33:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1729261987; x=1729866787; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=t+9pFFBKupu2d6NLFEvg3/oQA/e9juqrsydZKewjkBU=;
-        b=nFlkyEs9FcgcCZnBCcsrBQeKJReX7XiICW1RCn07dp5CpTMgV5W70znNzxo2W/9SlL
-         706aF2mKdle9s27yrZgumxzJIc5fPSNRZrJToLbE6U71tRPSsLV21d42LBtDcO7FWF+M
-         ZKRne0VbU64Q7Rt+H/oxJbWgFykmieM6VQY7rlnlM1BXWrZEhEEFajlifM47XgR8sBDI
-         CBXWDZJRX6gjBWMbzHuJA7kfz1JnCuB1MjLlP92jiLt27tr2gJy3qIv8BqHfiYZzC+UC
-         bofKQba8a7q6pIBApIGyw2F+hk5H0L61LPB7FejjkI2WP/2WHets2YBdsjx1XhoNoQm7
-         +qBQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C2Zdztnc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729262390;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q1kdgqSpUkHaDdHlWc2ZMvh2f7J4lCZH1eEq8CMsWKE=;
+	b=C2ZdztnclnUwcoZngtsNEH0Ju7G6NUFhjXhUOArCugU4unweLJ4nHXjh5p+T41wRqATeBJ
+	XFS6MpggafdKy//Nrn8IN+7XvSmDW5Z9oko9/3cD0Q51b6i8J7x+9nelNRz/r8oiviJKIT
+	RIvjkLHm3sfwLysk2rn3i6UrULY3otI=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-118-FxfY5KvGO9m7HPx_jWXXyQ-1; Fri, 18 Oct 2024 10:39:49 -0400
+X-MC-Unique: FxfY5KvGO9m7HPx_jWXXyQ-1
+Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6cbec7fbf1cso28610426d6.1
+        for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 07:39:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729261987; x=1729866787;
+        d=1e100.net; s=20230601; t=1729262389; x=1729867189;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=t+9pFFBKupu2d6NLFEvg3/oQA/e9juqrsydZKewjkBU=;
-        b=bqhQmjsq0QLA9wRepl50Vz3bLVRyybRASZ6I7A7UxTHO13oNdlk3dLNVb6DHgBNi59
-         eEghXFbmso/TC5j4hvosCSBlO9gWrYGL22BDBDBAQs+RtuEQLyyYxEe2oyR/mvHd92cb
-         2lsu2FWkzIwDm9DtluErnLEmy3ZXzcg6X6JfR109q+DvX3GmXFhgTlUMuuZbFXZ1pDsE
-         5QzMp0cKbFDiVPeoUT1gaXgGZ3OI2/efEfw4qe6mVp5uZkA91UnQtJpHc4SoOrv2fDXQ
-         puz7pJ1Mg8/dw9/Ikl9e+hYaKZzhmrGxJW7sL3oISTYgFqw+/Ra+baVuZSRivf3Xd6ak
-         9G2g==
-X-Forwarded-Encrypted: i=1; AJvYcCUmA3ngoZAAYb66TW3hKOiXrp9gy8RM/+RYY/kxf0vLlpMLqp4zSpKV91YMZfbISznEjUr5SCniyhAg+gDGxg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yxao8az5R4ZPqi2hLh6POA2NUUNJNjxBDgdDsVWZxIVB7DAfkZ4
-	M/sleSQwEyVXFVjazD7M055ATp+xAsSIdynIVR6maO2WgOR6yBxpMZznXaS2RD0=
-X-Google-Smtp-Source: AGHT+IEUnvffc5zoOVV9FmS8JNociVSvHRxNtwPJIviTG5dQGue9og+yy0xqzK1+WW1GOz5SrBvicA==
-X-Received: by 2002:a05:6214:4605:b0:6cb:e8d2:fef1 with SMTP id 6a1803df08f44-6cde15e2b1dmr56786036d6.39.1729261987343;
-        Fri, 18 Oct 2024 07:33:07 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-128-5.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.128.5])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cde1179224sm7408316d6.64.2024.10.18.07.33.06
+        bh=Q1kdgqSpUkHaDdHlWc2ZMvh2f7J4lCZH1eEq8CMsWKE=;
+        b=ArdEi8E71ApJjvkMArAzX6vM8ctRSrmRpg74hYwMT1nv+Bn7sTQQSYV/kobyTQnw3D
+         vA6okezw/OC1ZJ83t2olw4zvyXi4HdHMu8KsZYiITlGzcbqX9G1pymE6J+ikBV+u9kXV
+         H4VC5+mkKE6VR8gen0hFKH7Ei/A3qSF0kDlUm8d78kJSJnxTVupvNUItHI9VXt0tBPyl
+         JyzWm1gwwNeHY3naZcQ3Zhmq/pTLKgEC4ZHHMvqYjMcii+DPnDjgm9MstqlcdIH9qW6/
+         dWKKnZy6rSzsAJiP0a5D7ZmW8fClMtF9kkHcB3eu9UbtVzdL5JMtOjJnq8sQs6twT4kT
+         ofwA==
+X-Forwarded-Encrypted: i=1; AJvYcCUEiObiGyRfxAREQer88XR2Mw7uSW62PylTL0aOGXS0Pq9tbqAvQc5LWWdYXO5yD/4HXhK0XXk6mJk6GPsN2w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxak59DKidDEf0tQoxDzCUjdIzDvMP5kQ0zQvGTItROr/yOaF8J
+	ZvKocwUG2Nhgg86YQ7X9AjYMNab6BfDTns6bia8mboNu1tdU63jKyCiv/PQ2iM6ynZhSy4ksrlx
+	xOXTfgxM+LRVGKb/Jlag7Ln9wTpq9jUrivAwhGOeSN/mHkRfXR1wsCYpDGJv2YJ2o
+X-Received: by 2002:a05:6214:5541:b0:6cb:20b6:f398 with SMTP id 6a1803df08f44-6cde150dd18mr34710856d6.21.1729262389301;
+        Fri, 18 Oct 2024 07:39:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFsprW5VkpYV0rcxGwN4Pw/bcWrNG/R/XuTyrPHGf/vzAwEznM75iAODlOWI+en0Ua/metoMA==
+X-Received: by 2002:a05:6214:5541:b0:6cb:20b6:f398 with SMTP id 6a1803df08f44-6cde150dd18mr34710536d6.21.1729262388975;
+        Fri, 18 Oct 2024 07:39:48 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cde115577csm7560936d6.55.2024.10.18.07.39.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Oct 2024 07:33:06 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1t1o2M-008F2Q-A5;
-	Fri, 18 Oct 2024 11:33:06 -0300
-Date: Fri, 18 Oct 2024 11:33:06 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Baolu Lu <baolu.lu@linux.intel.com>
-Cc: Zhangfei Gao <zhangfei.gao@linaro.org>,
-	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt
- attach/detach/replace
-Message-ID: <20241018143306.GN948948@ziepe.ca>
-References: <20240702063444.105814-8-baolu.lu@linux.intel.com>
- <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca>
- <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
- <20241016152503.GB4020792@ziepe.ca>
- <CABQgh9FCJcOa0G0Kj__NUm-Q8C9uH4ud04XcHv+3c48T2qEnug@mail.gmail.com>
- <20241017120518.GI4020792@ziepe.ca>
- <CABQgh9EnEqDKkxg3VUgjSqBzz27h8B3Ct4w=A0vR6JK=d7fXHQ@mail.gmail.com>
- <20241017130805.GA926121@ziepe.ca>
- <f218230c-ae01-4168-b36e-5e502de6b3db@linux.intel.com>
+        Fri, 18 Oct 2024 07:39:48 -0700 (PDT)
+Date: Fri, 18 Oct 2024 16:39:41 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, 
+	"Colin King (gmail)" <colin.i.king@gmail.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org
+Subject: Re: [PATCH] virtio_net: fix integer overflow in stats
+Message-ID: <riu6774ovfsubpe3zzuehfmzr2lz4slv6wmcsenoewl47nukf6@ba2tode64wby>
+References: <53e2bd6728136d5916e384a7840e5dc7eebff832.1729099611.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <53e2bd6728136d5916e384a7840e5dc7eebff832.1729099611.git.mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <f218230c-ae01-4168-b36e-5e502de6b3db@linux.intel.com>
 
-On Fri, Oct 18, 2024 at 09:58:37AM +0800, Baolu Lu wrote:
-> On 2024/10/17 21:08, Jason Gunthorpe wrote:
-> > On Thu, Oct 17, 2024 at 08:35:24PM +0800, Zhangfei Gao wrote:
-> > 
-> > > Yes, you are right
-> > >   I am using SRIOV vf and stall feature, so is_virtfn == true
-> > > 
-> > > Our ACC devices are fake pci endpoint devices which supports stall,
-> > > And they also supports sriov
-> > > 
-> > > So I have to ignore the limitation.
-> > I see, so that is more complicated.
-> > 
-> > Lu, what do you think about also checking if the PCI function has PRI
-> > ? If not PRI assume the fault is special and doesn't follow PRI rules?
-> > 
-> > Or maybe we can have the iommu driver tag the event as a PRI/not-PRI
-> > fault?
-> 
-> This limitation applies to PRI on PCI/SRIOV VFs because the PRI might be
-> a shared resource and current iommu subsystem is not ready to support
-> enabling/disabling PRI on a VF without any impact on others.
-> 
-> In my understanding, it's fine to remove this limitation from the use
-> case of non-PRI on SRIOV VFs. Perhaps something like below?
-> 
-> 	if (dev_is_pci(dev)) {
-> 		struct pci_dev *pdev = to_pci_dev(dev);
-> 		if (pdev->is_virtfn && pci_pri_supported(pdev))
-> 			return -EINVAL;
-> 	}
+On Wed, Oct 16, 2024 at 01:27:07PM -0400, Michael S. Tsirkin wrote:
+>Static analysis on linux-next has detected the following issue
+>in function virtnet_stats_ctx_init, in drivers/net/virtio_net.c :
+>
+>        if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_CVQ) {
+>                queue_type = VIRTNET_Q_TYPE_CQ;
+>                ctx->bitmap[queue_type]   |= VIRTIO_NET_STATS_TYPE_CVQ;
+>                ctx->desc_num[queue_type] += ARRAY_SIZE(virtnet_stats_cvq_desc);
+>                ctx->size[queue_type]     += sizeof(struct virtio_net_stats_cvq);
+>        }
+>
+>ctx->bitmap is declared as a u32 however it is being bit-wise or'd with
+>VIRTIO_NET_STATS_TYPE_CVQ and this is defined as 1 << 32:
+>
+>include/uapi/linux/virtio_net.h:#define VIRTIO_NET_STATS_TYPE_CVQ (1ULL << 32)
+>
+>..and hence the bit-wise or operation won't set any bits in ctx->bitmap
+>because 1ULL < 32 is too wide for a u32.
+>
+>In fact, the field is read into a u64:
+>
+>       u64 offset, bitmap;
+>....
+>       bitmap = ctx->bitmap[queue_type];
+>
+>so to fix, it is enough to make bitmap an array of u64.
+>
+>Fixes: 941168f8b40e5 ("virtio_net: support device stats")
 
-Makes sense to me
+Release with v6.10, so should we cc stable?
+
+>Reported-by: "Colin King (gmail)" <colin.i.king@gmail.com>
+>Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>---
+> drivers/net/virtio_net.c | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+
+LGTM!
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 Thanks,
-Jason
+Stefano
+
+>
+>diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>index c6af18948092..b950d24b1ffa 100644
+>--- a/drivers/net/virtio_net.c
+>+++ b/drivers/net/virtio_net.c
+>@@ -4112,7 +4112,7 @@ struct virtnet_stats_ctx {
+> 	u32 desc_num[3];
+>
+> 	/* The actual supported stat types. */
+>-	u32 bitmap[3];
+>+	u64 bitmap[3];
+>
+> 	/* Used to calculate the reply buffer size. */
+> 	u32 size[3];
+>-- 
+>MST
+>
+>
+
