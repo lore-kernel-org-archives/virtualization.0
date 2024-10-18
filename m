@@ -1,209 +1,220 @@
-Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 508A4205AB2
-	for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 11:00:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729249223; cv=none; b=HU73Iviil0DZrBtGO3HIQ4ROXjVD89svYHf/jGhCJmFDkczqvy/zdmwCvoHn5q9j/GB6WlNjJgzMgFXvXIQJIUI9JfCwOCM3jVuuX1AULMA0ieT4xOtyq83yoBBcXxQATbXbr1NNsFivz4hbPzljllZuTSr3nvrqBrhTNiP6sxo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729249223; c=relaxed/simple;
-	bh=Vtn4ty+DNVttgo/VCotVaihT5LPay8T9vsmHcQZE2Us=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bmou59nvAe6Og8FOBA2VNvdKu7Cx+cTqFca1VPp8u4nM2u2qdjjoGz0OOMYfs57Nv7OgGYx4NBo0GdBwK3FzMwrkFUTd3jbrCsgrZoUv9+SQvs8RZ0ptTDVT0HFMu3qKzisWbVY+tFJjcVK4gJbySajMr39RWHQncYtlboaKbWs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.234])
-	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4XVMC82SPnz1SCwM;
-	Fri, 18 Oct 2024 18:59:00 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id B37551402E2;
-	Fri, 18 Oct 2024 19:00:17 +0800 (CST)
-Received: from localhost.localdomain (10.90.30.45) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Fri, 18 Oct 2024 19:00:17 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
-	Alexander Duyck <alexanderduyck@fb.com>, Chuck Lever
-	<chuck.lever@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Eric
- Dumazet <edumazet@google.com>, David Howells <dhowells@redhat.com>, Marc
- Dionne <marc.dionne@auristor.com>, Jeff Layton <jlayton@kernel.org>, Neil
- Brown <neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Trond Myklebust
-	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Shuah Khan
-	<shuah@kernel.org>, <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-mm@kvack.org>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-Subject: [PATCH net-next v22 04/14] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Fri, 18 Oct 2024 18:53:41 +0800
-Message-ID: <20241018105351.1960345-5-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20241018105351.1960345-1-linyunsheng@huawei.com>
-References: <20241018105351.1960345-1-linyunsheng@huawei.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0EA01CD2B
+	for <virtualization@lists.linux.dev>; Fri, 18 Oct 2024 13:08:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.156.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1729256933; cv=fail; b=fA6uPxI8ImFFssvp+X2JOGNteOg+L9wWygf/V8NYw1yioiNKww3Sb2LwP0bCciUae6RlylcK8mXvb9Ajxdmr2D4qPfLS3+uXyGzLqfmblIGsVvhGAVrg38KDBu4yLSiyixJrvwR3InUJDBH5ReoGzOOTovYfGdmj/8xxWDwBq90=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1729256933; c=relaxed/simple;
+	bh=u0aN4eb7PdfDNd+XnvPo/rWKF733AS8fNifnQyiV99k=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 MIME-Version:Content-Type; b=SLlTPQAHj5+UZUsfA+pyp7wgXfYMWqCCt+iPdhAKJg7cY6J7tjlTBpZRSZrsEv+kh705YMHUbUAU/fBCWpyRYdAwx7ZLzaY3QgbQkY+PorLKGzrm1gRNfuVkAMJrPUG9+C4hqf3IYnva8vkXH/JovoFlnubEBg6WJZkKBX5dJH0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=fail (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=sFJTHVcA reason="signature verification failed"; arc=fail smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="sFJTHVcA"
+Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49IAPGaT023317;
+	Fri, 18 Oct 2024 06:08:41 -0700
+Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam02lp2044.outbound.protection.outlook.com [104.47.56.44])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 42bnvug9c3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 18 Oct 2024 06:08:39 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Znaar6nONDEZo+pIuRJD+1mRPXLyg44uKaeGBY1tKVjWOMnot2VeskOlCJrL6i4MzebLXjdf54VyhxFhYbQPj4osuwAe44X0CfEMPGFiQW9D5OX8QnmS3E9Ym4Bi718Gh6kBMwhOHliZ8iSX2Bu57DpZjgCY3/eVMSQWT1Kf4vJVesyJapvCJ5eZ63Ge3P3UtP0KODApnAS60yTLeVGZhXJ2HvLVon9b50Be9bjJVW42H0/WN0ATQ+LY0arQtfcXO9NYjshcf0H5OEd+5AzcoeqH3ez4gmrhogX+zzm54krZ+L4UXCElxIJukP2EcbG/k2pd55Di8zznLN2TeNtfTg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bRz0yxinlIUya/qkdJgK1uvvgHCojMzRmC5+YguFzho=;
+ b=dY0gBLKh/V3EdQ9Vf0neajjQFukvYptd8x59Krojp5Gda2fYIk0ff4YipoARnp9Bt07mXO1gbGgOLbckHLRTqAGmrH4BrKBW1cX7dRLHastmuRXTxdfNzhoUBlp7h6Q8i9CV0/5bq4NlYQUp83a+zbS+AHFCusmETVRy5jr4biHeeGupn4wLB3qzzx6iFqjD8urXkZ00Zrop77LEdyhGyDRlfOWBR/4/CkE1sBs0X5+vCO5rdnzsGopRUCsvUm6Cl+l1kOfq74YDAZoYDESSQtax6Vw6sBPesKRzcNr9NhZyZ26JCiZ39kfvXew2aRQX+Mjg6f9hjgwqgNgPndBeFw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
+ dkim=pass header.d=marvell.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bRz0yxinlIUya/qkdJgK1uvvgHCojMzRmC5+YguFzho=;
+ b=sFJTHVcAaHgQbUyAoNmp4kOgsopxKEPZpsudwhbej73EQGt4/Lg3t6lKT78bEykkNSbB6uLZrEeYuncH6R3Z9WXazn54g/aOD/sCmKJMFJmWd/025qZ4/EJAFFeX4RbGIR2DAAQUiyYgaQg9z+AHUSKXAOzZamFnxeQxd07GUeo=
+Received: from PH7PR18MB5354.namprd18.prod.outlook.com (2603:10b6:510:24d::11)
+ by PH0PR18MB4040.namprd18.prod.outlook.com (2603:10b6:510:2::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8069.20; Fri, 18 Oct
+ 2024 13:08:37 +0000
+Received: from PH7PR18MB5354.namprd18.prod.outlook.com
+ ([fe80::7f70:2c74:a8e2:a610]) by PH7PR18MB5354.namprd18.prod.outlook.com
+ ([fe80::7f70:2c74:a8e2:a610%5]) with mapi id 15.20.8069.016; Fri, 18 Oct 2024
+ 13:08:37 +0000
+From: Srujana Challa <schalla@marvell.com>
+To: Christoph Hellwig <hch@infradead.org>
+CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "mst@redhat.com"
+	<mst@redhat.com>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "eperezma@redhat.com" <eperezma@redhat.com>,
+        Nithin Kumar Dabilpuram
+	<ndabilpuram@marvell.com>,
+        Jerin Jacob <jerinj@marvell.com>
+Subject: RE: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
+ NO-IOMMU mode
+Thread-Topic: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
+ NO-IOMMU mode
+Thread-Index:
+ AQHbE96PlQaeJdnt006ohvbKHfff0rKGTA1AgAD2ZICAAnCmAIAA3iwAgAALuYCAAXcsgIAATAOQ
+Date: Fri, 18 Oct 2024 13:08:36 +0000
+Message-ID:
+ <PH7PR18MB5354CF1D29BDEAC106C641E5A0402@PH7PR18MB5354.namprd18.prod.outlook.com>
+References: <20240920140530.775307-1-schalla@marvell.com>
+ <Zvu3HktM4imgHpUw@infradead.org>
+ <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <Zw3mC3Ej7m0KyZVv@infradead.org>
+ <DS0PR18MB5368CB509A66A6617E519672A0462@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <ZxCsaMSBpoozpEQH@infradead.org>
+ <DS0PR18MB53686815E2F86EFC5DFE1E45A0472@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <ZxHw9dZ-EolHR0k3@infradead.org>
+In-Reply-To: <ZxHw9dZ-EolHR0k3@infradead.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PH7PR18MB5354:EE_|PH0PR18MB4040:EE_
+x-ms-office365-filtering-correlation-id: 2ec26069-7aca-4d58-ef5c-08dcef75fa49
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|366016|1800799024|38070700018;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?dEJYd081TzZYaDJnSnhtUzd2OXRyREVkd09YYWhBZlVBWVgyR3ZtYStTV3lM?=
+ =?utf-8?B?SWFjclRReS9INURKYWtHNndKK1hYYVNnZGdkcW1HT2JwZTdyWEtMZFdZTjRn?=
+ =?utf-8?B?Wk1BanFjNDFrTktvSnNST2p1bFNVSFNWMEVaOEdFOVpWRk8zeENqWFkvbnNq?=
+ =?utf-8?B?MFZOaS9mTDhrQXEzMFNkdzgxZmxQZkhzWk83RHl2NzloMS9Fdm5uSlF2UGRM?=
+ =?utf-8?B?dWIwOGMxcTl1TUl1YSthYzRRcVBZbzZIdWFLUHV0V3FNdm5DVnpBeC9iOFBS?=
+ =?utf-8?B?enEwN3dEQmU2OU9TNDBxdVNFdlRwd1ZjQldPamFuVEp1MEw4YnkvR3RzL0tF?=
+ =?utf-8?B?T0NkQ1J6ZVRjVHNtbkh1MkZMc0xkYXFIaTQvK1lMcnZvRnc1NnR4YndleWxM?=
+ =?utf-8?B?SnI2KzBaMHdWZ0UvK09xVFZUNm1lNnJKN1VQNS9tUHBsdE82ZEZiVFJuYVFw?=
+ =?utf-8?B?aTVFSUI1TGZsN0U2NjduNldoOW9rQW1DQ1o5aXVjZGxrK0JYbmllK3EyWGd2?=
+ =?utf-8?B?dmUvVXBSMmxkVGxwT1U5bGtJVkgzU1dyKzJuakpmeW5uUmh6YVRQekx6S3pN?=
+ =?utf-8?B?NXdZNnYzWFhkMkV3VHRMc1ZZYjdmSTVKUG1CV0x3ci9DNmVXUlJxTmVDM2N1?=
+ =?utf-8?B?V0FsS291ZzNFS3ovc0EyMWxoZ0dVY1BNcHBpVzZKZnEvdTJNNGFrK093VC9R?=
+ =?utf-8?B?K2lMY1dXK0J2S3N4WkFjR2cra1N0Y2Z5YlJWOTd0RjVkSlhIMDdoQnF2VENp?=
+ =?utf-8?B?b21LdVFDanAyZnlUeGFJU1dGdWM4MU1QNGpndEZGU2szTjlpUjZ1c2JlVEV5?=
+ =?utf-8?B?MklSRXpqa3lSNDJYZ2xxeDdaVHB1WEFjVGJnL2JHZlk0SXJZSWJVTTJhNUU1?=
+ =?utf-8?B?UlN5K25xNTYvNVlrL3dJdGpJYXZ3YUVvM0VjUlJCdnBFWitkTTcrcFhXTzM4?=
+ =?utf-8?B?OUxYWjZBWmZPREpscDViZE96OUNya3pFT2paOXpKV2YxQXhQR0pJcWZVMkVP?=
+ =?utf-8?B?VVB5REtMbUdGS25YMFBBNnpNVDY1RDlzcUpJc2pCWE8zeGoyVEJYZ3BDYTQy?=
+ =?utf-8?B?SkFmOWlkTHpRSml4aXlWTFcxN25ZM3hEZ29GWms3WEc2bVo4Q0F4MXJ5Z0Zv?=
+ =?utf-8?B?dWJ1QzNiNDhkeWdWM29PbHJ1MUpTdjRwdVNDQXJUenZwZi82dm9OS2lyckVE?=
+ =?utf-8?B?KzJPbHIzbGJiR05rUGx0RFl5NGJwa3Z4OWpZNFFZbklHMWZKTXF0Yms5NXQ5?=
+ =?utf-8?B?N2UxUVFuVXZDUUlKSWIxcUJRNlFZUlFPNU1hcmlnVE1hbHI5U2pUajFYNWli?=
+ =?utf-8?B?K2NneS9kK3FIQUhaZ0hibHRkbUtobC95dDlkV2lGZzl3QUNydVJMY0tabGhR?=
+ =?utf-8?B?M1ZoWlFzTVJhdjlGMFVMVVAxbnc5UlVld2lxZFdaSkt4LzVLTklCcmtLVW9v?=
+ =?utf-8?B?cnQwTWFUZzVaZGpoenRzMnh5clZ3K0d1Nk5iYzJ3ZXJhcVpVaTRWcjZKOXMw?=
+ =?utf-8?B?OW80ZFpuclZxWDZ4dGJhMkpvdDZ2d3ZYZkZ2c2gvWjI0eWlWSTRoYWJhLzNM?=
+ =?utf-8?B?dG9kSFVtUlFVMmZ5ckxBc2R5Y0c1RUxoOUVpN2I0d3RoNUpWcUR2eWM2aDFw?=
+ =?utf-8?B?YW95YWdwcTBidDJtK0JGRk5nZU05NEpKQm5PdjlCb0NUT0dZaXB1RzVFckRm?=
+ =?utf-8?B?NmR5Z2dxc2hnZWtXamtTNWl0M0lmK251RU1zVUsvWDgxY3NFU1Rhd0pMUGVS?=
+ =?utf-8?Q?98fP7C6Zn5M5cDhqibJpv3qsVPvm1KnxuY2FPJ/?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR18MB5354.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(38070700018);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?T25CdCtPZHZaMGVGT0lCYjZ5QjFpbU1pa1JZMHM4b2syYXA4SnlQbStZcWFN?=
+ =?utf-8?B?VlkzNGhSd3dLYStueWwreWdtcmhsTEkwVzI0L3dJaStOODhxMnQ4eVdScTQv?=
+ =?utf-8?B?T2hsMGRPZ0dhUWpYTnQxZ2t1Zkdkc3ZzU0lIZCs1MHM4b2xTS25xUDB2b1B6?=
+ =?utf-8?B?QVhlV1VrU1o2ZXVzZGNmZVJTQ3JDZzlEWFBBc0gwcXdyeXdWYm5wZlM1ZDQy?=
+ =?utf-8?B?Uk44SktQV2VwdGVGUUg5cDR6NDVSSS9iM3ZkYU0yT0hDUXZsS1ZTb1FENmk2?=
+ =?utf-8?B?YVljakJPUHIzeXNJVkNRWUdNSHphRVlQTUQrTG45YnY3S0s3WXl0dzF2SXJY?=
+ =?utf-8?B?Y2J0WU1iWlJ0WnFneDVnNE5aUGNoTktVY0oxNk5qb3dvUTRBZXg3N05sM3dH?=
+ =?utf-8?B?M2ViUlBKd1VNVEN1VGlJeUtIMTNZNmd1Vnp4ZnR4SWtOZVJvSGJ1a3RWOFhO?=
+ =?utf-8?B?Vi9rb21MdldwbXJRMlF2TzlUTUhYVk1mMmFsMmJTUmx1NkhmdmE2UTNSTEJo?=
+ =?utf-8?B?djc4MTJCZm0zejI0Nk0yZXhmalZYZGtKL0JKZ3pWQUZpZTFzLyt6YUZmMG9v?=
+ =?utf-8?B?S3hEa29zS2UwcXdYQUE1MmRHQnJCQnEycTVkM2xkb08zZWJXUGduWjd4WDg0?=
+ =?utf-8?B?ZnlWRE9oai9MM0pTN0ZTaVdCRFVDa0F1SFZvMitOUHNZUm9rbDFvc0hRU3pi?=
+ =?utf-8?B?K09EUVJSMm8zL3IyeUNOL1RPNjEzME5NNlpvNU5FTjhaNDY0L2kzVE5RSDF5?=
+ =?utf-8?B?Yk5VRUUxRWIrdlAvSWpJS2J0ZmVqSXNmeFA3MlBPUDJyTmtSZE5Za1pOUWdZ?=
+ =?utf-8?B?UXo4Q2lOenlDeHB6YzZqRW9hMEJzcXFFMmRFMXhQY2VhZDF4dWZCYktVMDVC?=
+ =?utf-8?B?UDJzcEFPMjlTZG1ZMTNWaUVCSlB2ZC9DeHZmK2VLU0VrSWdPSjVHcGE5SVkz?=
+ =?utf-8?B?TDdkdHI3d2pzM2Vvem0xYy9DTk93NjIyenN1cDFJWjBOSzBjdmF2UFZrM0U2?=
+ =?utf-8?B?ZzBuckt5UkNRSlhESi9WUVlsK1ZTTWRrcVY0djByUkZTdmI2dmJya3FyaWls?=
+ =?utf-8?B?eHRCcVBaaG5hMTByUG9LSm50WUpoeGtCZkFjRmNDdUtOWWtHMXBkMXpvU2ZP?=
+ =?utf-8?B?SnFQaFRXNTlTdXRXUityZ3JDVFV1TjhXUU9tUE5WK0JtdnNZNUZaRFNQaVY5?=
+ =?utf-8?B?QjdZd0VKbDlWdVNVTlZVTkRKejI5RkUwSk5HTkNmRmRpQlBMSmh5VitWNllr?=
+ =?utf-8?B?OG1XaU9OZGJpb2s2STUzTjg3a1V5VlZzVFllWkdBT0NITnVhQ0lPZGNoZ0t5?=
+ =?utf-8?B?U2xoS3RMYTliVmRNb1N3NTg3eGZFR0lZVDlWdkZtMFdaWVk2WEpKOHpuY3Z6?=
+ =?utf-8?B?eVhvTXNkL1pxWnZaRllOeTUzeUdKejBjaVk0S2k0bVBvcTlyT01GNDJQMHpa?=
+ =?utf-8?B?cmhXTitSWWRVa2ZaN0p1ZWpWK1M3MzN3WDRtREp5Sys4TnFPazNGRmtSVHQ4?=
+ =?utf-8?B?anFmck51V2hPWEhKWXYwMWJXRDVxbmhqYlphMDVsN0NCNnNFMTY5VjhxTExG?=
+ =?utf-8?B?NGZPeHVMd2dzL0FaZE44eGVvTGlnRFJONThWaDg3UE5qNHlESlpNWDhLOWx1?=
+ =?utf-8?B?Y1hjRk5WV3NpTmZxMnJEdXRIbWEyTW1TQjN2WGFPY1NRbERnejFuNzBuQmhC?=
+ =?utf-8?B?YnZJbi85NktnYUtYTWFVYXpJSUF3dEhNeUZGZkloaXZRMWhJOTQ1M2NtMXl1?=
+ =?utf-8?B?MWtSdHBzcHNwbjBwbGJ3VEFZVFB2eEZmd3duT3BFcmlyZCtwb2VQN0lOamtU?=
+ =?utf-8?B?TnhhWnN3L3JoeTBhbWk3U01jVVIvTmtqVmNEdmorRnM1SGg3K3dDSS8vVjBm?=
+ =?utf-8?B?WmNnelZmNWZFbHF0T0FlR2NGYWFUdHZJbWh2ZTRJRDVERWJLRVdPQUw5YUVX?=
+ =?utf-8?B?dkJGUHNwaUxjMDFoV1VEdjBDejdmVk5nRXluODNDQlNIRnc0em13bS9wWWlU?=
+ =?utf-8?B?VEU3aSs2YkJCdEJhM29IUWVma3BIK2NPM3JsNXQ2Y1ZtS0NQSXpZeVIwRXhV?=
+ =?utf-8?B?WXBvcmR3bFhVelp0VFNDbGNSOUd6NjQzRUNPN0EvNjcwN1FrYkhPU2R0TTV0?=
+ =?utf-8?Q?x+X3tFPf3AjKOeVEhfdwzyQNl?=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+X-OriginatorOrg: marvell.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR18MB5354.namprd18.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2ec26069-7aca-4d58-ef5c-08dcef75fa49
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Oct 2024 13:08:36.8676
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 1Spm8sdSx/3SpzGYh0YMZd/9fthUHiMsgkvyE6ONVfpMJ3w3Oveokl3PdTMOUar5mUaQ8tE/FRGy11A+nkWVqg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR18MB4040
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-GUID: Qy2Jrg1PPMC43HwPDTn-j6wDpFuQIr20
+X-Proofpoint-ORIG-GUID: Qy2Jrg1PPMC43HwPDTn-j6wDpFuQIr20
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
-
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
----
- drivers/vhost/net.c                                   |  2 +-
- include/linux/page_frag_cache.h                       | 10 ++++++++++
- net/core/skbuff.c                                     |  6 +++---
- net/rxrpc/conn_object.c                               |  4 +---
- net/rxrpc/local_object.c                              |  4 +---
- net/sunrpc/svcsock.c                                  |  6 ++----
- tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
- 7 files changed, 19 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f16279351db5..9ad37c012189 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index 67ac8626ed9b..0a52f7a179c8 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -7,6 +7,16 @@
- #include <linux/mm_types_task.h>
- #include <linux/types.h>
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 00afeb90c23a..6841e61a6bd0 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -753,14 +753,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
- 
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 
- 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 		local_bh_enable();
-@@ -850,7 +850,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index f9623ace2201..2792d2304605 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 825ec5357691..b785425c3315 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1608,7 +1608,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1618,8 +1617,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
-diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-index 13c44133e009..e806c1866e36 100644
---- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
-+++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-@@ -126,7 +126,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_nc.va = NULL;
-+	page_frag_cache_init(&test_nc);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
--- 
-2.33.0
+> Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for NO-
+> IOMMU mode
+>=20
+> On Thu, Oct 17, 2024 at 08:=E2=80=8A53:=E2=80=8A08AM +0000, Srujana Chall=
+a wrote: > We
+> observed better performance with "intel_iommu=3Don" in high-end x86
+> machines, > indicating that the performance limitations are specific to l=
+ow-
+> end x86 hardware. What does=20
+> On Thu, Oct 17, 2024 at 08:53:08AM +0000, Srujana Challa wrote:
+> > We observed better performance with "intel_iommu=3Don" in high-end x86
+> > machines, indicating that the performance limitations are specific to l=
+ow-
+> end x86 hardware.
+>=20
+> What does "low-end" vs "high-end" mean?  Atom vs other cores?
+ High-end, model name      : Intel(R) Xeon(R) Platinum 8462Y+,  64 Cores
+ Low-end,  model name      : 13th Gen Intel(R) Core(TM) i9-13900K, 32 Cores
+>  =09
+> > This presents a trade-off between performance and security. Since
+> > intel_iommu is enabled by default, users who prioritize security over
+> > performance do not need to disable this option.
+>=20
+> Either way, just disabling essential protection because it is slow is a n=
+o-go.
+> We'll need to either fix your issues, or you need to use more suitable
+> hardware for your workload.
+I disagree. Why to pay more HW cost if the use case does not need demand fo=
+r it?
+fox example, embedded environment and trusted application are running.
+It is the same thing is done for VFIO scheme. I don't understand your reser=
+vation
+on a mode you are not planning to use and default is protected.
+There are a lot kernel options, which does the correct trade between various
+parameter like performance, security, power and HW cost etc.
 
