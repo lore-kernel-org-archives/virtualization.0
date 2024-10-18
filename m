@@ -1,66 +1,68 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB5571DE4EA
-	for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 14:36:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5590E82488
+	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 01:58:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729175820; cv=none; b=BTiFNpApHkLiEq6px2WMjkyGevGPU6CVQyHf5rE2lhMilf7/WEBEG62jokVTmebiGzDTZQM8XIhhqyrEaYlSGCFmWAuKLXk0x4BsEOKIiV/8Pi2sLp5oSu1hRae/2Rud1F5k51tM2k2+GSGdoAGj7Oi4PCvo9iV6HQx0GFL6+j8=
+	t=1729216726; cv=none; b=O0nsgp3BWnBSY6M31GSg4ciHrzdAoWEdlG58hKys+NJQFlN8DvUob6Dqz20BgQzGesl4PVKY//zyDKVOw4+DGAZWq/RM42YxU1zWJi2opiLqwSiPCIqx/M7rKvYlt89WIQrYLg7C5+tJ/hroficafNxaCCc2D8W4g04qvUSW7jE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729175820; c=relaxed/simple;
-	bh=QXtnX+sdvYBkyWY1Bntt5HQGfkMEAVqFb1Kg5Izp/Oo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=njuZWrvizo6hhRGnclLBOT9xoidsR7hTCR8pvFWAuFi/1A1vKPdgu2g1M5nM9NM/xDyV4XO/Iit7rdkLPls5qkLpEqr15v7GzwOYWYG3tdqtKjPYVUN+DOTqq2Lq7E2oupVA2nMAG6vr2xtWCtJz1JstSkUVEsq+bGtru1/l4+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D2hLUnZo; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729216726; c=relaxed/simple;
+	bh=z0TiPjA1esacraE/iuy/u3ZF8AIUwcsbFBy9SdtcBr8=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=oLveqdo0aE3HvN3Rtc7xESVgEhbkTGE8BStsWwYZ7oAPqUGN35ctfO2wivMyO6408hAfYizgCcOizxKj8zWXnVE9PA1jgnBVpamjLibr1BA8QoNgKpszBgkOtsJe6lYhzpQY9k+pvBiyJfXG7Ywd0pq8tN00/SSvqcXZ3xkBOO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Dav5vNsf; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D2hLUnZo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729175817;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=UzfXLoTrDUyX1VJYFE3FTnLV0X70G74YSwU8euehzao=;
-	b=D2hLUnZoI7W8Xz6tsu/Hir01VjNDj4paxz1wi0kzATIwzlEJDXB2apN4tq4Gl27xkLSTT1
-	tpE3+1pvxoyvAmlpJ2v7rSDs+5DPScW0foA26WriZOIaQsiEwEHM/XA+1sDpVvb05gMtu4
-	Prmpp4wAqbnhz7jvYQ1SwWlgZhZmDkk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-346-pboVKSmiOGKsDZvPmTlmgw-1; Thu, 17 Oct 2024 10:36:55 -0400
-X-MC-Unique: pboVKSmiOGKsDZvPmTlmgw-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42ac185e26cso8216795e9.3
-        for <virtualization@lists.linux.dev>; Thu, 17 Oct 2024 07:36:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729175814; x=1729780614;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=UzfXLoTrDUyX1VJYFE3FTnLV0X70G74YSwU8euehzao=;
-        b=JpyTw5Tfjckhmq0z54jbm56RN/On8eJW0kijflSkNprfHdS1L2IGsyLoZUeolK5JUY
-         xfWLx5u0sHLrq+mD+R32G0YyBf4sv/5h3y9C6FMbdXzKjkcO7VbdHYrXHh7sjxvUA+JB
-         4ZRvb64uDTS7FbZJfVwVdqGCR/MKQRrDiw2HK/Erlf81Ai/lLQMzsTmF3wOXpS0PVeOT
-         6f8UyM9wB5wqu7eoq716XoTxXgph5twqfcapvc96t4MdmVa8LO6FRVym3DYQ+UCL7ZXX
-         h2CYoXcCC5M7n3jRBIrVRYQ28VeIzuUnZza6ZywTxVtEC8Zlh2jzcnQcg8gezkdi3Xp2
-         CK7Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVeiwBrI6NXk1fAegm+QX4Q8PU8UUy0uF3oUVcGZI76zFdtlVQZSJG3zNTJSFv/DXmL0eERj6UadAh1Qq1w4g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxREep4bdQmHCzDDdCRNo+xM7OLq4ACShfj/0rWT9q+nkpkg5Kr
-	ZMP4Jv6g4gjWqEPq+R96HSMaSLk4dvOF7E0yKxag6I+q4ldOctZYUz0fWHh08818YdGwgR6N5VX
-	abaUQi4SMygIkbc3iA6qnrYd+jXzAIftzGqwkaaUsMD0+bHFJ2T75pMLUPmG+SOKP
-X-Received: by 2002:a05:600c:3b99:b0:426:647b:1bfc with SMTP id 5b1f17b1804b1-4314a3abe93mr69661485e9.30.1729175814120;
-        Thu, 17 Oct 2024 07:36:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFHpU9cpWS3yeJ12WQ1qdRFSatXmwxIJA5brFMmY8AiQ4Fgny5eENTh1y2xj5WODUe0A3g91w==
-X-Received: by 2002:a05:600c:3b99:b0:426:647b:1bfc with SMTP id 5b1f17b1804b1-4314a3abe93mr69661145e9.30.1729175813692;
-        Thu, 17 Oct 2024 07:36:53 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:7600:62cc:24c1:9dbe:a2f5? (p200300cbc705760062cc24c19dbea2f5.dip0.t-ipconnect.de. [2003:cb:c705:7600:62cc:24c1:9dbe:a2f5])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4314f1c3197sm42435665e9.0.2024.10.17.07.36.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Oct 2024 07:36:53 -0700 (PDT)
-Message-ID: <0224bd06-3a77-474e-917d-814d2082186e@redhat.com>
-Date: Thu, 17 Oct 2024 16:36:51 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Dav5vNsf"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id D08A381361
+	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 01:58:44 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -7.99
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id RmLBKnYJkRcM for <virtualization@lists.linux-foundation.org>;
+ Fri, 18 Oct 2024 01:58:44 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org E086A8135F
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E086A8135F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Dav5vNsf
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E086A8135F
+	for <virtualization@lists.linux-foundation.org>; Fri, 18 Oct 2024 01:58:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1729216724; x=1760752724;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=z0TiPjA1esacraE/iuy/u3ZF8AIUwcsbFBy9SdtcBr8=;
+  b=Dav5vNsf6IKis8GcECj07n6Sl2zZWdurZEP1PzIMLz3dfZIoq/Ne24JT
+   pt/tgePgGWv2BZaWVj8ssihmUpzmRkwqwOW7BaWbYZ/cXouihNR5GASGI
+   cD+FNnfUjf1M+ajDcTLgoCpG+3hs5GiQRRsm0A2dqZRpxkk8qNfalVM/u
+   E47pnPp+9W7J7oFkeYlGMW5D42ExKVBu3p/LDMQJ6nSW96/MzQtk9pL78
+   i6n5gEBHMSDTER9y0+TyMW+7bV/SQBcyiUaC+DHasvSHBUM/FWnsLuKQG
+   lhBsRM9seS5cO58++7ArgjpKSVIV2YLQKYkzK5EbRAfD6kw1XZKrQCJJy
+   A==;
+X-CSE-ConnectionGUID: Ihvv7SRPSpqfVMnoQrcQEg==
+X-CSE-MsgGUID: e7xRKmnpSg2fse3cbhsTbw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11222"; a="28613705"
+X-IronPort-AV: E=Sophos;i="6.11,199,1725346800"; 
+   d="scan'208";a="28613705"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2024 18:58:43 -0700
+X-CSE-ConnectionGUID: WslB4K4WRX+jx3xs76Nskg==
+X-CSE-MsgGUID: rMHC0WJ4QO+roVP274Zd6Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,212,1725346800"; 
+   d="scan'208";a="78774900"
+Received: from unknown (HELO [10.238.0.51]) ([10.238.0.51])
+  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2024 18:58:39 -0700
+Message-ID: <f218230c-ae01-4168-b36e-5e502de6b3db@linux.intel.com>
+Date: Fri, 18 Oct 2024 09:58:37 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,118 +70,64 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT) to
- support QEMU/KVM memory devices
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
- Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-5-david@redhat.com>
- <ZxC+mr5PcGv4fBcY@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <04d5169f-3289-4aac-abca-90b20ad4e9c9@redhat.com>
- <ZxDetq73hETPMjln@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <1c7ef09e-9ba2-488e-a249-4db3f65e077d@redhat.com>
- <45de474c-9af3-4d71-959f-6dbc223b432b@redhat.com>
- <ZxEf6NOs1hDFZd1E@tuxmaker.boeblingen.de.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <ZxEf6NOs1hDFZd1E@tuxmaker.boeblingen.de.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt
+ attach/detach/replace
+To: Jason Gunthorpe <jgg@ziepe.ca>, Zhangfei Gao <zhangfei.gao@linaro.org>
+References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
+ <20240702063444.105814-8-baolu.lu@linux.intel.com>
+ <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
+ <20241015125420.GK1825128@ziepe.ca>
+ <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
+ <20241016152503.GB4020792@ziepe.ca>
+ <CABQgh9FCJcOa0G0Kj__NUm-Q8C9uH4ud04XcHv+3c48T2qEnug@mail.gmail.com>
+ <20241017120518.GI4020792@ziepe.ca>
+ <CABQgh9EnEqDKkxg3VUgjSqBzz27h8B3Ct4w=A0vR6JK=d7fXHQ@mail.gmail.com>
+ <20241017130805.GA926121@ziepe.ca>
 Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20241017130805.GA926121@ziepe.ca>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 17.10.24 16:32, Alexander Gordeev wrote:
-> On Thu, Oct 17, 2024 at 02:07:12PM +0200, David Hildenbrand wrote:
->> On 17.10.24 12:00, David Hildenbrand wrote:
->>> Well, DIAGNOSE 260 is z/VM only and DIAG 500 is KVM only. So there are
->>> currently not really any other reasonable ways besides SCLP.
+On 2024/10/17 21:08, Jason Gunthorpe wrote:
+> On Thu, Oct 17, 2024 at 08:35:24PM +0800, Zhangfei Gao wrote:
+> 
+>> Yes, you are right
+>>   I am using SRIOV vf and stall feature, so is_virtfn == true
 >>
->> Correction: Staring at the code again, in detect_physmem_online_ranges()
->> we will indeed try:
+>> Our ACC devices are fake pci endpoint devices which supports stall,
+>> And they also supports sriov
 >>
->> a) sclp_early_read_storage_info()
->> b) diag260()
+>> So I have to ignore the limitation.
+> I see, so that is more complicated.
 > 
-> So why care to call diag260() in case of DIAGNOSE 500? What about the below?
+> Lu, what do you think about also checking if the PCI function has PRI
+> ? If not PRI assume the fault is special and doesn't follow PRI rules?
 > 
-> void detect_physmem_online_ranges(unsigned long max_physmem_end)
-> {
-> 	if (!sclp_early_read_storage_info()) {
-> 		physmem_info.info_source = MEM_DETECT_SCLP_STOR_INFO;
-> 	} else if (physmem_info.info_source == MEM_DETECT_DIAG500_STOR_LIMIT) {
-> 		unsigned long online_end;
-> 
-> 		if (!sclp_early_get_memsize(&online_end)) {
-> 			physmem_info.info_source = MEM_DETECT_SCLP_READ_INFO;
-> 			add_physmem_online_range(0, online_end);
-> 		}
-> 	} else if (!diag260()) {
-> 		physmem_info.info_source = MEM_DETECT_DIAG260;
-> 	} else if (max_physmem_end) {
-> 		add_physmem_online_range(0, max_physmem_end);
-> 	}
-> }
+> Or maybe we can have the iommu driver tag the event as a PRI/not-PRI
+> fault?
 
-Works for me, thanks!
+This limitation applies to PRI on PCI/SRIOV VFs because the PRI might be
+a shared resource and current iommu subsystem is not ready to support
+enabling/disabling PRI on a VF without any impact on others.
 
--- 
-Cheers,
+In my understanding, it's fine to remove this limitation from the use
+case of non-PRI on SRIOV VFs. Perhaps something like below?
 
-David / dhildenb
+	if (dev_is_pci(dev)) {
+		struct pci_dev *pdev = to_pci_dev(dev);
+		if (pdev->is_virtfn && pci_pri_supported(pdev))
+			return -EINVAL;
+	}
 
+Thanks,
+baolu
