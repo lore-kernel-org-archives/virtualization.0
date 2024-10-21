@@ -1,139 +1,183 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2043.outbound.protection.outlook.com [40.107.101.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D14E51E9064
-	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 12:46:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729514780; cv=none; b=hom9iyFvhPzvtoKbTH3JQ08nD/DlWL7WTGl+ntXZVrI4NBmxpPb6NLyJyx37gUnLkLA2YoeRDWrcmmIgo6y02RjNh6TgaFMDF27WJtdan9CwpIA/ANCm2z3bGInq4zwP7mp1nGtfFhjIOgiEuDDJTTsj+8Th0azXPSvAWR4sNkY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729514780; c=relaxed/simple;
-	bh=pWofFWrN4meoxrlDgXFp+FDqGZwULUzvgV2VK4OrfvI=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=aY1HVLZ5XbuO6pl+79XfsRHdcG9+roIChd08F1SSyUj2uEU2ANhu69rBp3G+L0kruRF/4L9dYPCb69+acF/7FogczqFn0R8+2OOv/X/I9wuC4DDVAmoCs//7xsjE4kP9QY82SeRzrwSAybWqA8xcxWeskEJgjSWF1fkPEoii2L4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FllWIjqg; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 846AA1F12EA
+	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 13:41:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.101.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1729518077; cv=fail; b=BQl1ibrLDzRdKy4wjhlbPwRxVGvkPF6aDv6IJKJPiKc70rPvCzTjgvvXM5QhD1Rwcw6fz+25O2/NhsFli/2V/mEykRiv0IFTY6wkX/jSALih1B/Pq7btUvxKg4aecaxoH3ntS4HsJgZflDmGerrujQ3k4RbvtxQ2KriPHnbzMWU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1729518077; c=relaxed/simple;
+	bh=Rf1RHoaCf/6Na474D6SyfsJ9wRZ5SBLjPmdsEE8j3bo=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jUzfTeeyOmyj8l5B/EMCQpN/4iV0L9ScTvOjktNYcHPHDUH1XcvnqPERgoawGdob12cfXZPC4uICd0wQ9j/gRP8rqbdSJAOqSsLYSclofhXu7Lq+ljx2V4+rBKrjSPTEZ4/lx5sjr9c0NNxxWYyEY3U80rf2jGXNZiOckUq8xyI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FNUUdWDh; arc=fail smtp.client-ip=40.107.101.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FllWIjqg"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49L2KIwL030363;
-	Mon, 21 Oct 2024 12:46:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=lR0jO/0xiV9IX40bSvxOvJgQf4enhl
-	qTnliqRfVPuDQ=; b=FllWIjqgF7s33e3vF82ifvOX4m/HI/xa7RUFy9iUYyvQER
-	bTwNkzmdSYyBB5Ju5Xp4lXOULnvRGV4b/LIkw7M//GFVSCGV7AcjOVTi9/HaVq6S
-	qlYl1/ewPa1Pkk/WST5jGhCPE/ZrZLQ0LnTY+Z5yL95WWM+eCJr5zFhLCuxaasRv
-	d7j6VoXY7zWM2v2IaQPSldfTXWFp5bASAh/fnek1pucpLvKDTdgUcpy3K6rfR062
-	/nQS3flCd73yoM/g0rQsH0Lb82GcHBdKg1/Zj8v4tkYh0i9ggytzquEP5RtLwNSu
-	m4IfdnInJwOor/hml/Q7lJVN+tzVL6nIMNXrbzZw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5fsrtp8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 21 Oct 2024 12:46:12 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49LCkBt7028404;
-	Mon, 21 Oct 2024 12:46:11 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42c5fsrtp5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 21 Oct 2024 12:46:11 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49LBV0hn028864;
-	Mon, 21 Oct 2024 12:46:10 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42cqfxefp6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 21 Oct 2024 12:46:10 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49LCk6Y853281068
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 21 Oct 2024 12:46:07 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D8F0220043;
-	Mon, 21 Oct 2024 12:46:06 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C10F120040;
-	Mon, 21 Oct 2024 12:46:06 +0000 (GMT)
-Received: from localhost (unknown [9.152.212.62])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 21 Oct 2024 12:46:06 +0000 (GMT)
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
-        borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
-        eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
-        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
-        svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
-        xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
-Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
-In-Reply-To: <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
-References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
- <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
-Date: Mon, 21 Oct 2024 14:46:06 +0200
-Message-ID: <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FNUUdWDh"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=irQJ/aNR9Bnz+QqglvKnOb/yGe29gPQya5JjTRuHPeZ5TkctqCC/w2M20R5Doqltq7PNim91rvO6jUeGokaPiKEUvfbOFHIxplgE2qdyNyeut8sMKUOx/osQBeb3kajncJtOG9sLSNCdaJ6jU5B8mx/zi0nnpMD/PlxKjUKM2CvXzN4KCLg1ueIRBz896KVA1mLaXfm5Ii/edre7xJ0JMBbDqZDG+82X4L3sUzpnjSCQC8hTwXqdXSt8Vzz1i+qdCT5gf5kHZyjBt0VB1lnyxVzUkq5xI1XMmeFCD0mpZ/7UynkI0pVmoKxfz9yUJQ/XfO8PL7hLcXHxqJFtnUIcqA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=jDNjLU02G8PpOuJ6Z9jxPjx5558biv/L88IuCeaadmo=;
+ b=UpD0NPVcigooKU4CwljZ9m8/8Im8YzHReyaAuc2bMelOo5nEcJ0KCLxDzQdb3YIdM0QGShmhM0eoDvB3l5RY3qLMQjYss0pZOEQ60sfJSZwlCw0U0gKCj8DKPtfNTd7FUsYcdHt+C9fhL2lowAAtY6X8QNBJb1z51jxtr1wX0gp8HpyiLrra7mVpJdUMKWi3/qGpxTtE1YWj7vBCLP+MM1q/v1T6xdsBgmwqYjBSqq3OEgmMldnlnoo6UMxSNSK2Uj2hrMZDl4g9aaPa7yRKWlyMyg+ZPLTsiskJT5YOmnR1QJD+ojW+neRonW9Duq0UzK+kNt4859cMCszJXpfD+g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jDNjLU02G8PpOuJ6Z9jxPjx5558biv/L88IuCeaadmo=;
+ b=FNUUdWDhIWgU3K9TC5nMaMO31UqU4hhhXZtGP0YWiw6UF+5tDmuTil77FFtQka7BhXa20c29qn8II9pBIJbGq6LeCQMn3K3qHDoqWCXPu5XA+eLS+ZwIc3yPGb/5IlzUGdL+tz/XtsybWdmxNDQ5+9xitIWbG8WUrJG5445WvOp3kVytd08VQF4BgDEwOhvmLzuSCCBCqMgB1nAQFMgSZh7rrhBRDORmbr29V27hxRTrF8cgfpQHZRc5I1bloKlKQHFLK5wCihHN9KAgsRqS4J+PX7SJTfhTCsEHbCRSNqCjwywVCG7h/4LvXVMyfsgNxqT8uGgZzjZ/5LKYPObWkA==
+Received: from MN2PR04CA0026.namprd04.prod.outlook.com (2603:10b6:208:d4::39)
+ by MW4PR12MB7263.namprd12.prod.outlook.com (2603:10b6:303:226::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8069.28; Mon, 21 Oct
+ 2024 13:41:12 +0000
+Received: from BN2PEPF000044AA.namprd04.prod.outlook.com
+ (2603:10b6:208:d4:cafe::7c) by MN2PR04CA0026.outlook.office365.com
+ (2603:10b6:208:d4::39) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8069.26 via Frontend
+ Transport; Mon, 21 Oct 2024 13:41:11 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BN2PEPF000044AA.mail.protection.outlook.com (10.167.243.105) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8093.14 via Frontend Transport; Mon, 21 Oct 2024 13:41:11 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 21 Oct
+ 2024 06:40:54 -0700
+Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 21 Oct
+ 2024 06:40:54 -0700
+Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
+ mail.nvidia.com (10.129.68.9) with Microsoft SMTP Server id 15.2.1544.4 via
+ Frontend Transport; Mon, 21 Oct 2024 06:40:50 -0700
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, <virtualization@lists.linux.dev>,
+	Si-Wei Liu <si-wei.liu@oracle.com>
+CC: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio Perez Martin <eperezma@redhat.com>, <kvm@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Gal Pressman <gal@nvidia.com>, Parav Pandit
+	<parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	<stable@vger.kernel.org>
+Subject: [PATCH vhost 1/2] vdpa/mlx5: Fix PA offset with unaligned starting iotlb map
+Date: Mon, 21 Oct 2024 16:40:39 +0300
+Message-ID: <20241021134040.975221-2-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.46.1
+In-Reply-To: <20241021134040.975221-1-dtatulea@nvidia.com>
+References: <20241021134040.975221-1-dtatulea@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4UF9Fv-AK_XRBxOtezlAQD7YmT9k-wuq
-X-Proofpoint-ORIG-GUID: gPbbIZU3umCCUjsbfFgI52rfW3pmqV0a
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- impostorscore=0 clxscore=1015 mlxscore=0 malwarescore=0 bulkscore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 priorityscore=1501
- spamscore=0 mlxlogscore=690 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2410210090
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN2PEPF000044AA:EE_|MW4PR12MB7263:EE_
+X-MS-Office365-Filtering-Correlation-Id: 66cacbac-bf91-4b5b-a6f3-08dcf1d606c4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|36860700013|82310400026;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?TP7Z3vVDh6hOFfgoWMpl26eN5qCmdSfp943kCNlmkHEt3qglS2rwKhIywyWV?=
+ =?us-ascii?Q?VxjM5Qf+R2Fjz+/8QJbSiC2acdrKyZhhQwVJU45FnidzQYw8HJFyTQpBJgLs?=
+ =?us-ascii?Q?pFzsHJt5MPxZrInvFpI7tsw8+hPF2BXdoRkve2UB+PwiCz4IFf1IoKYSoQx5?=
+ =?us-ascii?Q?lDDJl3prgJi3+gWwnSkBJ7oCrcV3vQF7F6wbw/Pr5hpm+/kuE2EUTZmT74R3?=
+ =?us-ascii?Q?rLopgR/D3AwgaZvxP79RadO+hRgPQi2aww24RaO3IDmVnpk8LXU4AdGwsZZl?=
+ =?us-ascii?Q?D2OJNkLVrFCdAbvTytM+l3ODLfhk3DwjDmTVy3gPB579fAgui85iTCLfvQq/?=
+ =?us-ascii?Q?ATRoF2tLu65S1QtfkN+Tf5EbZ4/nPXzSiAAUUYZmMBegtyIzIdmMe3G3IcGD?=
+ =?us-ascii?Q?nmwQ40dwRkIbSKSKcjiPsRoxqy3ysmTMVfTZIUh8zvI9jtYSDihN1heVEZ5o?=
+ =?us-ascii?Q?dFuYMnuqNnYnNl/iKQFgzCtpOLeFpNa+0mZUk1ddseh99+SmQSqL1S3Oz47F?=
+ =?us-ascii?Q?Yc8VszNZQIs7B4dePPE7SqR4Aim99a6HBMeUjI3mLxZyHr4cNlMWmmcp36u1?=
+ =?us-ascii?Q?zlULlHj2xNZ2yTeSuK4MhT7vEmNNX240gp+coPFjVpTAvXvyXrDrDKS91+ts?=
+ =?us-ascii?Q?hqpL7x1d+K8my5jTiZ8SmcqFcllBvx4hnOd8lygFCqamBIuDWJUfkMP3gKma?=
+ =?us-ascii?Q?WNzuR5dtaAnu7yxWM4rulC87c5HeyrobpygWP0HO2SIr+uQBHsN+7p0mH/A+?=
+ =?us-ascii?Q?DCX/tIQ4d+U8HAuquWISh7+82sIoMfZhgbgbhDntENoJ9rwpgco4SaJifw8I?=
+ =?us-ascii?Q?d7X4WYkqDV6rTAzVrd3ymZCG6ysxdV99nSHY194lM6eX9LG65yj0+LJUQc44?=
+ =?us-ascii?Q?rdL0FcNmSA2JsyTtaFF8N22P2av4Gb5Trfgi6SayPQqT+y59eVOclD5HtTqt?=
+ =?us-ascii?Q?YtFv7Cpkh6L7M7ALk9AcfzFERJBYlYVpvbC5NqAoxn+YfrPogCH8URtz307E?=
+ =?us-ascii?Q?1qNy6idRzJAcZoAw+yzCP2o1XwO8+qIEwJck9vem52f+GLgPyf/9+vzV3Bq3?=
+ =?us-ascii?Q?6HcxyIKOuz+VP96AcbzRJ7iZj4QL7crMlWMwD4GpJ3Pj5pZZeWeLIE8yg9fO?=
+ =?us-ascii?Q?eusmMfZZw6duUB1nvGNh+amJDSyEBEdHHV77xxLP958ZUkdpopepUvEPLAHw?=
+ =?us-ascii?Q?8ZaTPvf6MLbZS6WOsxpXQy5iNdsIx7X+3iDgnD94CRUY3obk/9UYDSC8n1jd?=
+ =?us-ascii?Q?Xu6pVqzCyyr1AQKe0GPUjUt+kEztI8yYRG08dmzXR/yrjalUszC7yu4wlvon?=
+ =?us-ascii?Q?Hngu5vnxOx9fXuZG+NXLjeX3OQycFN6X6pGrxm9/pHuQfmGhoZv39MYARRmS?=
+ =?us-ascii?Q?Ig9PWObN4egtemKtdW389NLhwBY1B8eb+c6/wdisyBw1tswRhw=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(376014)(36860700013)(82310400026);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Oct 2024 13:41:11.6583
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 66cacbac-bf91-4b5b-a6f3-08dcf1d606c4
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN2PEPF000044AA.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7263
 
-Hi David,
+From: Si-Wei Liu <si-wei.liu@oracle.com>
 
-David Hildenbrand <david@redhat.com> writes:
+When calculating the physical address range based on the iotlb and mr
+[start,end) ranges, the offset of mr->start relative to map->start
+is not taken into account. This leads to some incorrect and duplicate
+mappings.
 
-> Makes sense, so it boils down to either
->
-> bool is_kdump_kernel(void)
-> {
->           return oldmem_data.start;
-> }
->
-> Which means is_kdump_kernel() can be "false" even though /proc/vmcore is 
-> available or
->
-> bool is_kdump_kernel(void)
-> {
->           return dump_available();
-> }
->
-> Which means is_kdump_kernel() can never be "false" if /proc/vmcore is 
-> available. There is the chance of is_kdump_kernel() being "true" if 
-> "elfcorehdr_alloc()" fails with -ENODEV.
+For the case when mr->start < map->start the code is already correct:
+the range in [mr->start, map->start) was handled by a different
+iteration.
 
-Do you consider is_kdump_kernel() returning "true" in case of zfcpdump or
-nvme/eckd+ldipl dump (also called NGDump) okay ? Because
-dump_available() would return "true" in such cases too.
-If yes then please explain why, i might have missed a previous
-explanation from you.
+Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+---
+ drivers/vdpa/mlx5/core/mr.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-I'm afraid everyone will make wrong assumptions while reading the name
-of is_kdump_kernel() and assuming that it only applies to kdump or
-kdump-alike dumps (like stand-alone kdump), and, therefore, introduce
-bugs because the name of the function conveys the wrong idea to code
-readers. I consider dump_available() as a superset of is_kdump_kernel()
-and, therefore, to me they are not equivalent.
+diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+index 2dd21e0b399e..7d0c83b5b071 100644
+--- a/drivers/vdpa/mlx5/core/mr.c
++++ b/drivers/vdpa/mlx5/core/mr.c
+@@ -373,7 +373,7 @@ static int map_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr
+ 	struct page *pg;
+ 	unsigned int nsg;
+ 	int sglen;
+-	u64 pa;
++	u64 pa, offset;
+ 	u64 paend;
+ 	struct scatterlist *sg;
+ 	struct device *dma = mvdev->vdev.dma_dev;
+@@ -396,8 +396,10 @@ static int map_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr
+ 	sg = mr->sg_head.sgl;
+ 	for (map = vhost_iotlb_itree_first(iotlb, mr->start, mr->end - 1);
+ 	     map; map = vhost_iotlb_itree_next(map, mr->start, mr->end - 1)) {
+-		paend = map->addr + maplen(map, mr);
+-		for (pa = map->addr; pa < paend; pa += sglen) {
++		offset = mr->start > map->start ? mr->start - map->start : 0;
++		pa = map->addr + offset;
++		paend = map->addr + offset + maplen(map, mr);
++		for (; pa < paend; pa += sglen) {
+ 			pg = pfn_to_page(__phys_to_pfn(pa));
+ 			if (!sg) {
+ 				mlx5_vdpa_warn(mvdev, "sg null. start 0x%llx, end 0x%llx\n",
+-- 
+2.46.1
 
-I have the feeling you consider is_kdump_kernel() equivalent to
-"/proc/vmcore" being present and not really saying anything about
-whether kdump is active ?
-
-Regards
-Alex
