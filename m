@@ -1,54 +1,58 @@
-Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AA121DC19E
-	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 12:08:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CCC51EBFEF
+	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 12:08:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729512530; cv=none; b=Betw8Ej9Y/dc+/3gCInxSw4/p4qpcsMS/qY+m2BaA8OPWmXLHq40Iq36WCBz4E/iUrpGeagOI3qPHW9CocD+4nGb3vXdCu5bpkT81Vtqu6TtQM3dTLVl1u+Y7Y7Pt98xrmjxEzzyR8T0PmC+mRY03vhLJ9L7r17fGlYkOOL6vlg=
+	t=1729512535; cv=none; b=MB3EMtbdEWryRhNUPpa37UO1no0wBuJtL7xjhOsgPjwHwqMu658rXm4Ns73tJgnY3q6h2kAW6L7j/TYHbli7JsxRQmDjmcQkc5njRJgaTv0asoArgRNKvHqHG+65yF9x0rmwUBgev8TuHVcd4BzL671EhLb3VBCWqQQqGDa/0BI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729512530; c=relaxed/simple;
-	bh=3bSMN63SS0O1JqxMVL2Km5ADBcS94qUikfjIm2ZiteY=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=X/tTGf0Gi7PwV9e1LyF9lNZx7O8Q7c39YcoZMCKaDGv0U+Zx1S5FZTruEim+p2rvGfNWfxfmAPV2TlupNRiIu1mwIGEkHUkl96ldlgmFMFBcgeXmNSZVN8Bsbyv+6IboW2cLHfUDJaalM0YAmVMvdIpsomWSp1Hdw6PPYbFC3LY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=TIPSoaVi; arc=none smtp.client-ip=67.231.148.174
+	s=arc-20240116; t=1729512535; c=relaxed/simple;
+	bh=1MsCKRlQpRqcAV+Ym1q6F7N57bnxFPzjbWMnWZ1PfrI=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=l0SEy6xcJs4sztuK2fvdI639N8b14sfdF5WIFsoq6rFFJVDKBc1Y0bBq24z5x8NcHxelHiIBn0e7DUKJtnmzdo+RYciX8XY1C5ki6cFa0hK2aUtp3PYE9iNQANBX0HQlOxxLUVsXKh6gDtNjJp2xU9RxLqXfRl3Mc/ACAOQlhoY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=Tf3GhymB; arc=none smtp.client-ip=67.231.148.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="TIPSoaVi"
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49L8P3dr001682;
-	Mon, 21 Oct 2024 05:08:42 -0700
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="Tf3GhymB"
+Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49L9QaZW008385;
+	Mon, 21 Oct 2024 05:08:47 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pfpt0220; bh=5NaK/CokaNbKYqs5HlYd8Jt
-	Q1ROW7axkdLFpvxIYc08=; b=TIPSoaVif1Y+kjXiMyuZ4zobfe6RilXsYuMEUMM
-	5wPeutaSBoLtrfaOwHjK+9TAKJWnUHr0vZLFfm/eKi1Zv0INAhteKkxelRPUpExK
-	GT2CDOyggBbspOUK4XV2o5osx/Sy9g6EJ8Gw4+w0OqNtLaEndvi73ssHDOp5V+2c
-	ZmeFw3PA6q+Ubqv2fYhgIrTjcql0DlHrLkFRblqNao6ddUjCE4NN90jnwXXrYOed
-	F48wZTpP+DzVsF2fGl75XY2SQaFV4l9ABuW++a7h0Bk6h7VvR7yx3+FU8e4FZssf
-	z7ANZVqCph6dLLK8aliFnFHY5dGWcPXZ4VW22ZzAjJI8hFQ==
-Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 42dke60dby-1
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=R
+	Zmiy4Vbw49Ml5cNO5E7GnvY/OYaPsiB+WypP02EBto=; b=Tf3GhymB7ItzY1FaT
+	UD3b9N7gUnUx86Zhk1cj487Bcx3XUtpdhfohcbW/1x9FnHGSsQo1a+t1ahHc4CvO
+	F2x46G+ss5XAyoESXpzt6S63uKPvqUcihN9hDh+iSdxch77OB1HXKbUSiZ7n9gkm
+	LZcCeXnBP57tnuqP/gK52GfI8oFqfU1LFEU0p3/VSsdPuEO5Ux7iGe6RR3JzZfI7
+	RDXMjVbrUInJ3sRuOBB2dUtl9FXci9PBf/rBHXU7wwG2jKkE+Yeq/odN32xOkk5n
+	VNDriAoGUX20IbokMKS0QpaHbYJz7/uZXPeon/IeAdJgFrT6yQQazun6zMBwcuxm
+	XletQ==
+Received: from dc5-exch05.marvell.com ([199.233.59.128])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 42dmay89gy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 21 Oct 2024 05:08:42 -0700 (PDT)
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+	Mon, 21 Oct 2024 05:08:46 -0700 (PDT)
+Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
+ DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Mon, 21 Oct 2024 05:08:40 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
- (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Mon, 21 Oct 2024 05:08:40 -0700
+ 15.2.1544.4; Mon, 21 Oct 2024 05:08:45 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
+ (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Mon, 21 Oct 2024 05:08:45 -0700
 Received: from localhost.localdomain (unknown [10.28.36.175])
-	by maili.marvell.com (Postfix) with ESMTP id 4B1843F7052;
-	Mon, 21 Oct 2024 05:08:38 -0700 (PDT)
+	by maili.marvell.com (Postfix) with ESMTP id 9BE4C3F7052;
+	Mon, 21 Oct 2024 05:08:43 -0700 (PDT)
 From: Srujana Challa <schalla@marvell.com>
 To: <virtualization@lists.linux.dev>, <kvm@vger.kernel.org>
 CC: <mst@redhat.com>, <jasowang@redhat.com>, <eperezma@redhat.com>,
         <ndabilpuram@marvell.com>, <jerinj@marvell.com>
-Subject: [PATCH v3 0/2] vhost-vdpa: Add support for NO-IOMMU mode
-Date: Mon, 21 Oct 2024 17:38:35 +0530
-Message-ID: <20241021120837.1438628-1-schalla@marvell.com>
+Subject: [PATCH v3 2/2] vhost-vdpa: introduce NO-IOMMU backend feature bit
+Date: Mon, 21 Oct 2024 17:38:37 +0530
+Message-ID: <20241021120837.1438628-3-schalla@marvell.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20241021120837.1438628-1-schalla@marvell.com>
+References: <20241021120837.1438628-1-schalla@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -57,47 +61,85 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Proofpoint-GUID: Qo4ARWR9KKoUMu5Lyqf9LpcM4rmK9peE
-X-Proofpoint-ORIG-GUID: Qo4ARWR9KKoUMu5Lyqf9LpcM4rmK9peE
+X-Proofpoint-GUID: t-A0dTSPI0zmV-OOJfZHG5lN9ii0nARe
+X-Proofpoint-ORIG-GUID: t-A0dTSPI0zmV-OOJfZHG5lN9ii0nARe
 X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+ engine=ICAP:2.0.293,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
 
-This patchset introduces support for an UNSAFE, no-IOMMU mode in the
-vhost-vdpa driver. When enabled, this mode provides no device isolation,
-no DMA translation, no host kernel protection, and cannot be used for
-device assignment to virtual machines. It requires RAWIO permissions
-and will taint the kernel.
+This patch introduces the VHOST_BACKEND_F_NOIOMMU feature flag.
+This flag allows userspace to identify if the driver can operate
+without an IOMMU, providing more flexibility in environments where
+IOMMU is not available or desired.
 
-This mode requires enabling the "enable_vhost_vdpa_unsafe_noiommu_mode"
-option on the vhost-vdpa driver and also negotiate the feature flag
-VHOST_BACKEND_F_NOIOMMU. This mode would be useful to get
-better performance on specifice low end machines and can be leveraged
-by embedded platforms where applications run in controlled environment.
+Key changes include:
+    - Addition of the VHOST_BACKEND_F_NOIOMMU feature flag.
+    - Updates to vhost_vdpa_unlocked_ioctl to handle the NO-IOMMU
+      feature.
+The NO-IOMMU mode is enabled if:
+    - The vdpa device lacks an IOMMU domain.
+    - The system has the required RAWIO permissions.
+    - The vdpa device explicitly supports NO-IOMMU mode.
 
-First patch introduces a module parameter
-"enable_vhost_vdpa_unsafe_noiommu_mode", while the second patch
-introduces a feature flag VHOST_BACKEND_F_NOIOMMU to the vhost vdpa
-driver to support NO-IOMMU mode.
+This feature flag indicates to userspace that the driver can
+operate in NO-IOMMU mode. If the flag is absent, userspace should
+treat NO-IOMMU mode as unsupported and refrain from proceeding when
+IOMMU is not present.
 
-This feature flag indicates to userspace that the driver can safely
-operate in NO-IOMMU mode. If the flag is not present, userspace should
-assume NO-IOMMU mode is unsupported and must not proceed.
-
-v1->v2:
-- Introduced new feature flag to vhost backend features for negotiating
-  NO-IOMMU feature.
-v1->v3:
-- Resolved the sparse error reported by kernel test robot.
-
-Srujana Challa (2):
-  vhost-vdpa: introduce module parameter for no-IOMMU mode
-  vhost-vdpa: introduce NO-IOMMU backend feature bit
-
- drivers/vhost/vdpa.c             | 39 +++++++++++++++++++++++++++++++-
+Signed-off-by: Srujana Challa <schalla@marvell.com>
+---
+ drivers/vhost/vdpa.c             | 11 ++++++++++-
  include/uapi/linux/vhost_types.h |  2 ++
- 2 files changed, 40 insertions(+), 1 deletion(-)
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 81dd8bfb152b..7ac6966fc825 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -797,7 +797,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+ 				 BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST) |
+ 				 BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
+ 				 BIT_ULL(VHOST_BACKEND_F_RESUME) |
+-				 BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK)))
++				 BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK) |
++				 BIT_ULL(VHOST_BACKEND_F_NOIOMMU)))
+ 			return -EOPNOTSUPP;
+ 		if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
+ 		     !vhost_vdpa_can_suspend(v))
+@@ -814,6 +815,12 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+ 		if ((features & BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST)) &&
+ 		     !vhost_vdpa_has_persistent_map(v))
+ 			return -EOPNOTSUPP;
++		if ((features & BIT_ULL(VHOST_BACKEND_F_NOIOMMU)) &&
++		    !v->noiommu_en)
++			return -EOPNOTSUPP;
++		if (!(features & BIT_ULL(VHOST_BACKEND_F_NOIOMMU)) &&
++		    v->noiommu_en)
++			return -EOPNOTSUPP;
+ 		vhost_set_backend_features(&v->vdev, features);
+ 		return 0;
+ 	}
+@@ -871,6 +878,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+ 			features |= BIT_ULL(VHOST_BACKEND_F_DESC_ASID);
+ 		if (vhost_vdpa_has_persistent_map(v))
+ 			features |= BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST);
++		if (v->noiommu_en)
++			features |= BIT_ULL(VHOST_BACKEND_F_NOIOMMU);
+ 		features |= vhost_vdpa_get_backend_features(v);
+ 		if (copy_to_user(featurep, &features, sizeof(features)))
+ 			r = -EFAULT;
+diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+index d7656908f730..dda673c3456a 100644
+--- a/include/uapi/linux/vhost_types.h
++++ b/include/uapi/linux/vhost_types.h
+@@ -192,5 +192,7 @@ struct vhost_vdpa_iova_range {
+ #define VHOST_BACKEND_F_DESC_ASID    0x7
+ /* IOTLB don't flush memory mapping across device reset */
+ #define VHOST_BACKEND_F_IOTLB_PERSIST  0x8
++/* Enables the device to operate in NO-IOMMU mode as well */
++#define VHOST_BACKEND_F_NOIOMMU  0x9
+ 
+ #endif
 -- 
 2.25.1
 
