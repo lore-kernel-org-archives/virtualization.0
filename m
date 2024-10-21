@@ -1,154 +1,135 @@
-Received: from flow-a2-smtp.messagingengine.com (flow-a2-smtp.messagingengine.com [103.168.172.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F6631E47A8
-	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 11:21:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.137
+Received: from erminea.space (erminea.space [51.250.125.203])
+	by smtp.subspace.kernel.org (Postfix) with SMTP id 1CA321E5706
+	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 11:52:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.250.125.203
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729509685; cv=none; b=Whf2MuuPQXxhN/Xb3O6KnmBj4yDmMKiqoferT1dhWZszytnZFM0crv6ZoinZxswJ4D0Q7FREkvHE6qcJihB+YjSg9eAI48jSbbbbVNO7ZPjysUaG27nBmIJ/0vVvMLHY/ylYCsKp1znhA+WVFEyxa7DRwI8w0I1+g49pw5Vd5Iw=
+	t=1729511558; cv=none; b=KDaz815wHuCE8PeHcOUys8FMVTwle/bSDvKO8Csv6DxrV8mEFtdtOMyL4oxEHuPqmakl1Hs4YyVhh2CFFO0yQdANSdzJRK94BKXC4jjf3UnhZuVMhoLLAiseanC1owZGkGEYdc2bGi2FBjKO6p3UnFwKoOWMrd4d9CKwouA8ESo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729509685; c=relaxed/simple;
-	bh=mHxtqJKALMM2JzQ4QjvJxiwzCfXdEBolIhZyDxg/CEU=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=UEVZrAsozR9YFiA+NbmP9YT+mhCzPBc+KzMdzvBcSfUeCjlDCIdEDzaZhjLlKH/L7iO0S2gjV041M2h8WRVLhZv3IBw0Gzj61OLpFnX1IAUDJNnGE4u3kANfmi+yzPXC5hhleQPNo7blxlDclJtFcowwP/+ySXfK3iAXcT07gmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ulqzTF6d; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=JxpTRpOJ; arc=none smtp.client-ip=103.168.172.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ulqzTF6d";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="JxpTRpOJ"
-Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
-	by mailflow.phl.internal (Postfix) with ESMTP id 1134D200206;
-	Mon, 21 Oct 2024 07:21:22 -0400 (EDT)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-10.internal (MEProxy); Mon, 21 Oct 2024 07:21:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1729509682;
-	 x=1729516882; bh=fvD3ctpqrCWAfhRvwnz/vMYY3oWGeyeXaHqmlBQJW9U=; b=
-	ulqzTF6dqm9TDZQpemlAVPsLUXyYkvNAzrfcULOOPesTtIz+Z4Ai0z12HABf1ctb
-	23jnEQISppKaZtN6R9jusvv7XqVCi0GMq66sPA8O1L7cdwWtoeVCMtKVTY2w3haz
-	rR27LXnZBNV800rflp1teAMig+lDUvZYxCWza+PX2DR439QxbF0PkDODEoGNUrfW
-	uGbdoE84+5R3BJtwqf3G5Velav1VcdQq1cU6M6bhPD4PYg0M+daEBboU4PXXFuFP
-	6Yl3lx39pHOGWiPPfJt+bY029hBO3KTVN6+6fzhbPZfDaS3w3qYPY+gJMUHqeNuK
-	jUSdbxK0JB8OePnbvxPktA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1729509682; x=
-	1729516882; bh=fvD3ctpqrCWAfhRvwnz/vMYY3oWGeyeXaHqmlBQJW9U=; b=J
-	xpTRpOJ4uJFwt33ULhA4kXA4a69HtyOOzm7oX2UNenK3N/lPf3Zz1ZBrrZnSJNYZ
-	wQAzuMzfS4Ki7UDhYhHkMeh/yNkBJufymBB/OQTgsngdWT9YJl7jWeFKgOK5Y88Y
-	spFb7baVoJP9/V7CXc0MIMDhLF13YbMlhL3dYiqR6EfIMoWXO1tdm8GFNOyH5WKM
-	vJPia/cKnpVJ3vVqUzwCxhP3JUsM9zzdcgzWBH879ZQBBxJf+/Zf5BLdrJyDeDpm
-	bjQoUwGM+18gRD90QgYWxo0Hx2AiPhq0U+bV5AfGcFGBppQPrm5TCZ+HKwBRszPT
-	Z42mn8unbo1AXgbzzs5cQ==
-X-ME-Sender: <xms:MTkWZ22VTNkVIywiKLmtz380cPoWc7iOcVWQx0cbwZL_zea-JlVLLw>
-    <xme:MTkWZ5GpTeL7YzfMr3FRdWC5EOA-Ex1W4Xq2UVEGQF2VCJyx3kpnP8L8tMW9sVCAS
-    puxE_DA0EG9LBRlhZA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvdehledggedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdej
-    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
-    guvgeqnecuggftrfgrthhtvghrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdeg
-    jedvfeehtdeggeevheefleejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepvdel
-    pdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehsihhmohhnrgesfhhffihllhdrtg
-    hhpdhrtghpthhtoheprghirhhlihgvugesghhmrghilhdrtghomhdprhgtphhtthhopehl
-    uhhiiidruggvnhhtiiesghhmrghilhdrtghomhdprhgtphhtthhopehprghtrhhikhdrrh
-    drjhgrkhhosghsshhonhesghhmrghilhdrtghomhdprhgtphhtthhopehmrghrtggvlhes
-    hhholhhtmhgrnhhnrdhorhhgpdhrtghpthhtoheplhhutggrshdruggvmhgrrhgthhhise
-    hinhhtvghlrdgtohhmpdhrtghpthhtoheprhhoughrihhgohdrvhhivhhisehinhhtvghl
-    rdgtohhmpdhrtghpthhtoheprghrnhgusehkvghrnhgvlhdrohhrghdprhgtphhtthhope
-    hjihhrihhslhgrsgihsehkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:MTkWZ-7QdSiiIGy0vrhYQCsmMwygcvB-Q-0Wm6NmjI3Y8Q1M0bbqnw>
-    <xmx:MTkWZ301K1iwMIhsTcnFUngtniJVM2fWmbJjNAvDI5KAN7BEu1xNvw>
-    <xmx:MTkWZ5HY801U3mzpDI6Nkai1KBdpOODBwoYuAdLiNoXCOdAjHV96fA>
-    <xmx:MTkWZw8Y-CkdqEhfxR3RiTbMpKUABg-0CW3NZxU18UUaJHLwCQjamQ>
-    <xmx:MjkWZ-s9DCM7I8in58DNLWEmCFENsnEANFLsBcYnqsHEooUFVPU72N_x>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 268142220071; Mon, 21 Oct 2024 07:21:21 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	s=arc-20240116; t=1729511558; c=relaxed/simple;
+	bh=fBOgAUdNDCZWG3KGA0hLFJBosJCirNqqo8lEj6awgt8=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=Xi44UaubGFwHBrixry7etqQs8Qow0tS+qqC8/lLkjOlg1ZkYwWd9kh3z6c1oVWvrYUr2CFU6rDki2R+iCTywY/PcMHQf5GtOqEHhMhZYtIZcTcpcYwVB/M6IT6I7U8CazoclU4t0gck0yRr4wKJO1qDRsd9XyNrWoM2ntD7VTO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space; spf=pass smtp.mailfrom=erminea.space; arc=none smtp.client-ip=51.250.125.203
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=erminea.space
+Received: (qmail 20491 invoked from network); 21 Oct 2024 11:52:27 -0000
+Received: from localhost. (HELO erminea.space) (127.0.0.1)
+  by 0.0.0.0 with SMTP; 21 Oct 2024 11:52:27 -0000
+Received: from localhost.localdomain ([37.204.49.201])
+	by erminea.space with ESMTPSA
+	id h6SSHXtAFmcHUAAAH+dm7w
+	(envelope-from <mustela@erminea.space>); Mon, 21 Oct 2024 14:52:27 +0300
+From: Peter Shkenev <mustela@erminea.space>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Simona Vetter <simona@ffwll.ch>,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] drm/virtio: use generic dumb_map_offset implementation
+Date: Mon, 21 Oct 2024 14:52:05 +0300
+Message-ID: <20241021115210.5439-1-mustela@erminea.space>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Mon, 21 Oct 2024 11:21:00 +0000
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Thomas Zimmermann" <tzimmermann@suse.de>,
- "Niklas Schnelle" <schnelle@linux.ibm.com>, "Brian Cain" <bcain@quicinc.com>,
- "Marcel Holtmann" <marcel@holtmann.org>,
- "Luiz Augusto von Dentz" <luiz.dentz@gmail.com>,
- "Patrik Jakobsson" <patrik.r.jakobsson@gmail.com>,
- "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
- "Maxime Ripard" <mripard@kernel.org>, "Dave Airlie" <airlied@gmail.com>,
- "Simona Vetter" <simona@ffwll.ch>, "Dave Airlie" <airlied@redhat.com>,
- "Gerd Hoffmann" <kraxel@redhat.com>,
- "Lucas De Marchi" <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- "Rodrigo Vivi" <rodrigo.vivi@intel.com>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Jiri Slaby" <jirislaby@kernel.org>, "Maciej W. Rozycki" <macro@orcam.me.uk>,
- "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, linux-serial@vger.kernel.org,
- Linux-Arch <linux-arch@vger.kernel.org>, "Arnd Bergmann" <arnd@kernel.org>
-Message-Id: <c7592bd4-a9f9-43b0-a243-0fb2ef6bb83d@app.fastmail.com>
-In-Reply-To: <aa679655-290e-4d19-9195-1a581431b9e6@suse.de>
-References: <20241008-b4-has_ioport-v8-0-793e68aeadda@linux.ibm.com>
- <20241008-b4-has_ioport-v8-3-793e68aeadda@linux.ibm.com>
- <64cc9c8f-fff3-4845-bb32-d7f1046ef619@suse.de>
- <a25086c4-e2fc-4ffc-bc20-afa50e560d96@app.fastmail.com>
- <aa679655-290e-4d19-9195-1a581431b9e6@suse.de>
-Subject: Re: [PATCH v8 3/5] drm: handle HAS_IOPORT dependencies
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Oct 21, 2024, at 10:58, Thomas Zimmermann wrote:
-> Am 21.10.24 um 12:08 schrieb Arnd Bergmann:
->> On Mon, Oct 21, 2024, at 07:52, Thomas Zimmermann wrote:
->> --- a/drivers/gpu/drm/tiny/bochs.c
->> +++ b/drivers/gpu/drm/tiny/bochs.c
->> @@ -112,14 +112,12 @@ static void bochs_vga_writeb(struct bochs_devic=
-e *bochs, u16 ioport, u8 val)
->>   	if (WARN_ON(ioport < 0x3c0 || ioport > 0x3df))
->>   		return;
->>  =20
->> -	if (bochs->mmio) {
->> +	if (!IS_DEFINED(CONFIG_HAS_IOPORT) || bochs->mmio) {
+Currently, virtio uses its own dumb_map_offset implementation,
+virtio_gpu_mode_dumb_mmap. It works similarly to generic implementation,
+drm_gem_dumb_map_offset, and using the generic implementation is
+preferable (and making drivers to do so is a task stated on the DRM
+subsystem's TODO list).
 
-I meant IS_ENABLED() of course.
+Thus, make driver use the generic implementation. This includes
+VIRTGPU_MAP ioctl so it cannot be used to circumvent rules imposed by
+drm_gem_dumb_map_offset (imported objects cannot be mapped).
 
-> For all functions with such a pattern, could we use:
->
-> bool bochs_uses_mmio(bochs)
-> {
->  =C2=A0=C2=A0=C2=A0 return !IS_DEFINED(CONFIG_HAS_IOPORT) || bochs->mm=
-io
-> }
->
-> void writeb_func()
-> {
->  =C2=A0=C2=A0=C2=A0 if (bochs_uses_mmio()) {
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 writeb()
-> #if CONFIG_HAS_IOPORT
->  =C2=A0=C2=A0=C2=A0 } else {
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 outb()
-> #endif
->  =C2=A0=C2=A0=C2=A0 }
+Signed-off-by: Peter Shkenev <mustela@erminea.space>
+---
+Changes in v2:
+  - Remove excessive include of drm_gem.h from virtgpu_ioctl.h
+  - Remove obsoleted virtio_gpu_mode_dumb_mmap prototype from
+    virtgpu_drv.h
 
-Yes, that helper function look fine, but it should then
-be either __always_inline or a macro. With that, the
-#ifdef is not needed since gcc only warns if there is
-a path that leads to outb() actually getting called.
+ drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 -
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 ---
+ drivers/gpu/drm/virtio/virtgpu_gem.c   | 15 ---------------
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c |  2 +-
+ 4 files changed, 1 insertion(+), 20 deletions(-)
 
-      Arnd
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index ffca6e2e1c9a..909808398d66 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -184,7 +184,6 @@ static const struct drm_driver driver = {
+ 	.postclose = virtio_gpu_driver_postclose,
+ 
+ 	.dumb_create = virtio_gpu_mode_dumb_create,
+-	.dumb_map_offset = virtio_gpu_mode_dumb_mmap,
+ 
+ 	DRM_FBDEV_SHMEM_DRIVER_OPS,
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 64c236169db8..76f6f29f819a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -301,9 +301,6 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 				struct drm_device *dev,
+ 				struct drm_mode_create_dumb *args);
+-int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+-			      struct drm_device *dev,
+-			      uint32_t handle, uint64_t *offset_p);
+ 
+ struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
+ struct virtio_gpu_object_array*
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 7db48d17ee3a..aefbb49481f1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -99,21 +99,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 	return ret;
+ }
+ 
+-int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+-			      struct drm_device *dev,
+-			      uint32_t handle, uint64_t *offset_p)
+-{
+-	struct drm_gem_object *gobj;
+-
+-	BUG_ON(!offset_p);
+-	gobj = drm_gem_object_lookup(file_priv, handle);
+-	if (gobj == NULL)
+-		return -ENOENT;
+-	*offset_p = drm_vma_node_offset_addr(&gobj->vma_node);
+-	drm_gem_object_put(gobj);
+-	return 0;
+-}
+-
+ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+ 			       struct drm_file *file)
+ {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index e4f76f315550..112142f4b618 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -80,7 +80,7 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 	struct drm_virtgpu_map *virtio_gpu_map = data;
+ 
+-	return virtio_gpu_mode_dumb_mmap(file, vgdev->ddev,
++	return drm_gem_dumb_map_offset(file, vgdev->ddev,
+ 					 virtio_gpu_map->handle,
+ 					 &virtio_gpu_map->offset);
+ }
+-- 
+2.47.0
+
