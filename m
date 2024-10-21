@@ -1,151 +1,198 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2066.outbound.protection.outlook.com [40.107.236.66])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18CC51F427E
-	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 13:41:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.66
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729518096; cv=fail; b=rFPEu8pAjGPaJded+ofFCOgcSEEZGAgtZlJepEUZ2a4YdtSDleaoUHtKKp1somQk/oFcq8VTLStKUSJUTXOX7cZhuYVJ44V8rMMylmu1hAXEXuuIqNjIxZMedEkmWjuDl7kGLU4kchgH+IZpU0AJZXZCmjINEJIlgHUFYOyKwI8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729518096; c=relaxed/simple;
-	bh=Ga/Vi8yVUKlEcNx7eBvsD0BaSj0Zi8IpgpybQ0mha8Y=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JGYlzxBUYq7XQbaPq4ENlngra4zlL5H4VQewkq9thClAG+GIjUqW90NwscJVLawLxdAUGUQxLpyDGFlPFCv0DPxdndzXENmFMNG05MxTPlBZtvqg7hAxA0TPHJ1vUuGTZXmbBmWnL9Vg6ZrOBKR5I9vvV4iUABIF926hK3hxk3k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=S1cOZ8UY; arc=fail smtp.client-ip=40.107.236.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 545D41FA272
+	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 14:46:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1729521967; cv=none; b=Z7ikMTEQSIG86g9y0GbHQokEDrzgNaM40Kd5bY74YpAWSAtJeyw7bmH9XfPJFMa8Gp2ojmbA4JTizYW5gHAqIfscVE+lmbPyVHN94Mkb3kbinxFs2y8g1uQllKGG8bHyJ/DmTAmg+qIy2urbz+VfyChTD4N1ci/oGj5mSrUExVc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1729521967; c=relaxed/simple;
+	bh=DmQWkn1T9PFoG0NEwWjY8BdpxvZZCy1ZxEjLTxUCtIw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bbqoxoYtzWcy1h32j8bFLmSmxSBmDX/Os50mH1QyQm6axgJmrvmwPcmZgCgWvnfy2Of0TuP1889qSRT1m+PAPDmAkJE29wXe7jGfqtVNFfZ5MOMeDfyq33nn/lp0YOOJLxEujW1yfvDj24cMYqZ+t+h23E3n3/XP2/8V/SENMiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H5cRZtn4; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="S1cOZ8UY"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=juTmLd7I9PjBj/M2LMeZz9HXOEXCa1MjKDtw1jtAkpvaCsv7lOgeEuTHM1aFLfjFaRmUmdumfoQQIUG3/mEQyNfimSNa4xqQymyngACXO8xIEJzq4R3//fBq+lgKB6dCZ/IodbXGpQPCMeaxNDZzgfdck+ejUgjPZ+Oz1mz6PrIAKg21hgORBzQc5tdNZoZ3AsgJ/CTZ0K/cLuZY1rQV1Cw9d3LT9Sa/jC6uJmrjJA23eLgRi6Emy4xdMtoNJMNve2FumaVxSLnfLYHJ8Fliofc/KLnxiE2HuiYQ5XyxkbSFpuxMi5E0tGLJE/I7AdfXgVDR5eVLQTY+NpQN6u4Uzg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1+CxSH1g3xkZQPfs5XeBBJ1+43gSTlRB6LKA9UYGeCs=;
- b=cG7REzq20bZjMII05L3EV8vpeTJwsv9FKzND85EXXh99E4tIQaHzbwXQ95DNhi30yoeSNEypcdRfpHf0vAjaHL9VP3Osf8GfSg4xtxxB1yX1bBQcv18+j9DVGpFYCa/yFJmdX5xrLah8BWbejlPyUzQIKiJryjqoL75vZxK4k8UBCMK1qxPcWlAGXB3SPGcYos/YPWZ+TYyjv8Nersq1MXp6t5NT2Wn7tSuLmZap/CGaNK8Ibf6Rt0mDqUeuXf7su6VxaiDojymDnkIPvor4upWsdWZjEUWfs9xpgFxFOyxWn69EM53rGuVb+uWBEu2N+ocYkhXTPr1/9C0ZNQeU+Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1+CxSH1g3xkZQPfs5XeBBJ1+43gSTlRB6LKA9UYGeCs=;
- b=S1cOZ8UYnLnoftZDL/dLj763Fgsb75v+mzXJ/HTdZ1wjpTccOtYe0oNAp6iSo5ArJQCOjzi31GaWe7iknsHR0dP61795piCh8aSm6MeTNjL6yJfDSV5JepuKDMDw2gfwvuWK4tdQlN6KieeHoEf1mWGUUPVq5DCIpYSUTxgWT40BesWPAeeOAENd1x1DB5v/7gMzJt+ZkgBifep33nka71EuKFde/J5pNef2D+Mnr9eJIuKP/TUT08WhBWpwYkZ/AJdx4hnU3+T+owhNDBs8gtcZtW7/1yXcGyDkEfkyMRPwNdDH4HrTXVjRuyQbSFGaZ50WFDEHv9vcB2t+hDpWOQ==
-Received: from SJ0PR13CA0003.namprd13.prod.outlook.com (2603:10b6:a03:2c0::8)
- by SA3PR12MB7976.namprd12.prod.outlook.com (2603:10b6:806:312::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8069.29; Mon, 21 Oct
- 2024 13:41:28 +0000
-Received: from MWH0EPF000989E9.namprd02.prod.outlook.com
- (2603:10b6:a03:2c0:cafe::11) by SJ0PR13CA0003.outlook.office365.com
- (2603:10b6:a03:2c0::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8093.15 via Frontend
- Transport; Mon, 21 Oct 2024 13:41:27 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- MWH0EPF000989E9.mail.protection.outlook.com (10.167.241.136) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8093.14 via Frontend Transport; Mon, 21 Oct 2024 13:41:27 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 21 Oct
- 2024 06:40:49 -0700
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 21 Oct
- 2024 06:40:48 -0700
-Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
- mail.nvidia.com (10.129.68.9) with Microsoft SMTP Server id 15.2.1544.4 via
- Frontend Transport; Mon, 21 Oct 2024 06:40:45 -0700
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, <virtualization@lists.linux.dev>,
-	Si-Wei Liu <si-wei.liu@oracle.com>
-CC: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowang@redhat.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>, <kvm@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Gal Pressman <gal@nvidia.com>, Parav Pandit
-	<parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH vhost 0/2] vdpa/mlx5: Iova mapping related fixes
-Date: Mon, 21 Oct 2024 16:40:38 +0300
-Message-ID: <20241021134040.975221-1-dtatulea@nvidia.com>
-X-Mailer: git-send-email 2.46.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H5cRZtn4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729521964;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3pBpP7qLCW9N3cROeVqgUltAMhaWq+ArP+b0NXa5W34=;
+	b=H5cRZtn4S3k2zxVWxgUs7ePZ3pHPDBmy6qVp5eN7J1nrFxl/wmlRXYAV1JRzVNSi9GusBp
+	KgeOaBDnUMPtY+vHpb23p/Mflb3vXuY2RiX1kJnBzLXMEESEfB/z4tb33rWStsUrF4SYZ3
+	xjh8gEijiWOTcqikaOxJ8AYREylj2eU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-509-KEdThHPyPK2o6RyfJxwr4A-1; Mon, 21 Oct 2024 10:46:03 -0400
+X-MC-Unique: KEdThHPyPK2o6RyfJxwr4A-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43157cff1d1so36531905e9.2
+        for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 07:46:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729521962; x=1730126762;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3pBpP7qLCW9N3cROeVqgUltAMhaWq+ArP+b0NXa5W34=;
+        b=ixGnPL0a5VFQeDb/R9pHyA1IrUqLYXjmGRiXnbcNUbekuq5ps/cwuClYT81H3haF2G
+         YeN/u9tVdLflV0ZyjiWF/kLYEUVEj1N5PLKAHFm8jp/pr12efp6d0LLVVxesTJ8/tN6d
+         BAoZU4Jl08zg0gZ6Vr8C1tB2bj3xEUya3gXoJpUY82BxK/w+BbfHVJP4iHxLcLUgxUrT
+         v2ZX9n9UN++N/IFbp4SaUgO9HanNTu7slN37q2JBx6493NcOVrD+j9Uxps7tcC8oCnC7
+         i/vemvCPaJSZuEYRwnmmS686sxYaI2fdMKjIadMbMzfgGdG62qLyXwwuXpLp6SfBZ5mg
+         pVZA==
+X-Forwarded-Encrypted: i=1; AJvYcCUFiAw4a+tv8mo849riO3qpxml5KtDWndiRdI7PTvKm9SPQweiNwcuCidP0jVH9CKAUgelf6rZmpWW+OHkiew==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwifD23M5LtYG25AaX2gIGDLVL/UUfsOE426KswDHKWyIyzrpV7
+	1r5LZ0ou7Z/AnpzYqUHAqOnL6Xs6iPYz4WkEg+ugnIUPH2KFrP8nLqoYjUKXkNxDqsZvEmpzVwU
+	crxw/cD602gETbZnBLV2QZ3R8cg/zOrvq0JWy1aAgtREfRZck3mSqA2m/YRcsj61A
+X-Received: by 2002:a05:600c:4f15:b0:42c:b187:bde9 with SMTP id 5b1f17b1804b1-4316168ffb3mr101784515e9.30.1729521961931;
+        Mon, 21 Oct 2024 07:46:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHnIcoVRRXbRUhxXReK6GpWNjdl0oiVGYJ9jq/7PmjHByyOKh4qiRtxhiYigJPvogBLyhVgLw==
+X-Received: by 2002:a05:600c:4f15:b0:42c:b187:bde9 with SMTP id 5b1f17b1804b1-4316168ffb3mr101784205e9.30.1729521961507;
+        Mon, 21 Oct 2024 07:46:01 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:36d3:2b96:a142:a05b? ([2a09:80c0:192:0:36d3:2b96:a142:a05b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4316f57fc77sm60419925e9.17.2024.10.21.07.46.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Oct 2024 07:46:01 -0700 (PDT)
+Message-ID: <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
+Date: Mon, 21 Oct 2024 16:45:59 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000989E9:EE_|SA3PR12MB7976:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7b85a3ea-fc7e-463a-6003-08dcf1d61033
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|36860700013|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?BtZGz/5u9qohY+QH2kQlfdG4UBggT7to4dVqYkOnQPoiwyInrRMn/7jgScRR?=
- =?us-ascii?Q?uuzcmlc0qvq2xF8zgL1HcJHtzub3oIxlh7i04xlEY/6BLvJcZgMeRPTneUCX?=
- =?us-ascii?Q?SqUqHHKCDTiXQfIS/A3QWDV1Mx7J5GpjlvJKJ/Y7GwjPokaARuPVt2gy+BwE?=
- =?us-ascii?Q?jlPPiW/dOGisE6i3er5fD3ZoSwPOsSweATBecqbWfyUJnCXrITrHBYurUeN7?=
- =?us-ascii?Q?7YU8K8KKupqBeKsQZZxMCRYsPGNH+FjPEBmuoW06bPjkQXiERqR+3HroS+b2?=
- =?us-ascii?Q?GjBzi0wwhWItsUnkd7bzZOngGHj3urTD2W3LUAibFvvwthvRRxEub6P2ZB+Y?=
- =?us-ascii?Q?8tKlsaOL4dAXRNM3Z+Qu4Zt9OkCE4ixqsH9f2B2xhlImBWvDGJWaQUOzKM9i?=
- =?us-ascii?Q?BQf75Ne9AMXeStCVZzNaVNK4lv6gmlW1f7PJ6j23WYg9ueiJkRbu9gyaoJKb?=
- =?us-ascii?Q?QYJAB/XLYovPKL9R3UgP9fq7zqujnT0MNkvq6Ob7Ce+/O70tWjlKGKJvx0BU?=
- =?us-ascii?Q?veM/ifNUZpP9htm38qV7vSGnKuHFkU/UFn9aokKELDjgXVjSUm0w284gFpe3?=
- =?us-ascii?Q?DFTFhxm7L/T24Fywo44QRs4C0pyNGrWDGezMq4G54VsYpf+J1rvXQXVfG2mK?=
- =?us-ascii?Q?yzRHXbLOwGn2q/7DTp0lFKF57shJlvICpy8vQpmbC2DJX9nUbpDfaAGBzHtI?=
- =?us-ascii?Q?PLb1JCsKICZJqrTCgdD+LbJF3w76NTbq++Kj4uTnit8PNGKCsv6TUj9LVpMj?=
- =?us-ascii?Q?IMvZt+rMAPNz4ltiiRhzjwmhBpEJ99kv3OJOj/Ufy+NRMQDpXsivmfeVXZtv?=
- =?us-ascii?Q?Gx2Zj0B7tbLCsxsFx91gNLb8zSRSZ5p6+3q1LCvS3W6OEU/7vKcHPXso/L52?=
- =?us-ascii?Q?TjVSWFtxmshsoqHOpDSUVTc8RV4HSkU86k6d8bN2rNyva6sA4rOQTKTs35sz?=
- =?us-ascii?Q?tIiZdDPBcxeOxVWaaUO5ZwM3MsCeU75ChaHz8YhC/yJHq5VyytjIhig9jYZl?=
- =?us-ascii?Q?Anzs+6iU03uA0d8Yi45jwRu7GzxduUhSsuzahdLvlXDw15fdHSh0QP88sp6y?=
- =?us-ascii?Q?huNDZIrt0J+PaB4PITwYHB+iVMCMc9UY0ggE3ti9GuLyRWelRZ2Ffb0QtwUO?=
- =?us-ascii?Q?kT2nRtxASvz0gSkpydcFpS2kIC5vWkAxZlhgR5ETknFrm4pD7BK+NdSG/1pA?=
- =?us-ascii?Q?KTA2rdSxCUOgqwI1k7E/ws13uruJ4PpKTAvWk7F0iJp3lHEq5gyjLirEAGvX?=
- =?us-ascii?Q?CNZoXEx1Onb3EnilzPtdLbkF6k2SeITMk0ujbyQrfr0imo4v2YkASGrTWwXJ?=
- =?us-ascii?Q?ioK849rnooj+lwpRWd7cjfp13ZWXzvot6Gg1i3AVV4S6gKPcZ19hkqxGYkjH?=
- =?us-ascii?Q?5WeRG3yDBeGaew4De8m+jQ4qykbFhwTb02rrUQFnGBuF8dJn8Q=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700013)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Oct 2024 13:41:27.6240
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7b85a3ea-fc7e-463a-6003-08dcf1d61033
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MWH0EPF000989E9.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7976
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+To: Alexander Egorenkov <egorenar@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
+ borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
+ eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
+ hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
+ kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+ svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+ <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+ <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+In-Reply-To: <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Here are 2 fixes from Si-Wei:
-- The first one is an important fix that has to be applied as far
-  back as possible (hence CC'ing linux-stable).
-- The second is more of an improvement. That's why it doesn't have the
-  Fixes tag.
 
-I'd like to thank Si-Wei for the effort of finding and fixing these
-issues. Especially the first issue which was very well hidden and
-was there since day 1.
 
-Si-Wei Liu (2):
-  vdpa/mlx5: Fix PA offset with unaligned starting iotlb map
-  vdpa/mlx5: Fix suboptimal range on iotlb iteration
+Am 21.10.24 um 14:46 schrieb Alexander Egorenkov:
+> Hi David,
+> 
+> David Hildenbrand <david@redhat.com> writes:
+> 
+>> Makes sense, so it boils down to either
+>>
+>> bool is_kdump_kernel(void)
+>> {
+>>            return oldmem_data.start;
+>> }
+>>
+>> Which means is_kdump_kernel() can be "false" even though /proc/vmcore is
+>> available or
+>>
+>> bool is_kdump_kernel(void)
+>> {
+>>            return dump_available();
+>> }
+>>
+>> Which means is_kdump_kernel() can never be "false" if /proc/vmcore is
+>> available. There is the chance of is_kdump_kernel() being "true" if
+>> "elfcorehdr_alloc()" fails with -ENODEV.
 
- drivers/vdpa/mlx5/core/mr.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Thanks for having another look!
+
+> 
+> Do you consider is_kdump_kernel() returning "true" in case of zfcpdump or
+> nvme/eckd+ldipl dump (also called NGDump) okay ? Because
+> dump_available() would return "true" in such cases too.
+> If yes then please explain why, i might have missed a previous
+> explanation from you.
+
+I consider it okay because this is the current behavior after elfcorehdr_alloc() 
+succeeded and set elfcorehdr_addr.
+
+Not sure if it is the right think to do, though :)
+
+Whatever we do, we should achieve on s390 that the result of is_kdump_kernel() 
+is consistent throughout the booting stages, just like on all other architectures.
+
+Right now it goes from false->true when /proc/vmcore gets initialized (and only 
+if it gets initialized properly).
+
+> 
+> I'm afraid everyone will make wrong assumptions while reading the name
+> of is_kdump_kernel() and assuming that it only applies to kdump or
+> kdump-alike dumps (like stand-alone kdump), and, therefore, introduce
+> bugs because the name of the function conveys the wrong idea to code
+> readers. I consider dump_available() as a superset of is_kdump_kernel()
+> and, therefore, to me they are not equivalent.
+ > > I have the feeling you consider is_kdump_kernel() equivalent to
+> "/proc/vmcore" being present and not really saying anything about
+> whether kdump is active ?
+
+Yes, but primarily because this is the existing handling.
+
+Staring at the powerpc implementation:
+
+/*
+  * Return true only when kexec based kernel dump capturing method is used.
+  * This ensures all restritions applied for kdump case are not automatically
+  * applied for fadump case.
+  */
+bool is_kdump_kernel(void)
+{
+	return !is_fadump_active() && elfcorehdr_addr != ELFCORE_ADDR_MAX;
+}
+EXPORT_SYMBOL_GPL(is_kdump_kernel);
+
+
+Which was added by
+
+commit b098f1c32365304633077d73e4ae21c72d4241b3
+Author: Hari Bathini <hbathini@linux.ibm.com>
+Date:   Tue Sep 12 13:59:50 2023 +0530
+
+     powerpc/fadump: make is_kdump_kernel() return false when fadump is active
+
+     Currently, is_kdump_kernel() returns true in crash dump capture kernel
+     for both kdump and fadump crash dump capturing methods, as both these
+     methods set elfcorehdr_addr. Some restrictions enforced for crash dump
+     capture kernel, based on is_kdump_kernel(), are specifically meant for
+     kdump case and not desirable for fadump - eg. IO queues restriction in
+     device drivers. So, define is_kdump_kernel() to return false when f/w
+     assisted dump is active.
+
+
+For my purpose (virtio-mem), it's sufficient to only support "kexec triggered 
+kdump" either way, so I don't care.
+
+So for me it's good enough to have
+
+bool is_kdump_kernel(void)
+{
+	return oldmem_data.start;
+}
+
+And trying to document the situation in a comment like powerpc does :)
 
 -- 
-2.46.1
+Cheers,
+
+David / dhildenb
 
