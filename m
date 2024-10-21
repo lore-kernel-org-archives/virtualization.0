@@ -1,268 +1,153 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38F86198A0E
-	for <virtualization@lists.linux-foundation.org>; Sun, 20 Oct 2024 23:08:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45C3364A
+	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 04:17:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729465718; cv=pass; b=ShsIz+ICU15ZpWRw9gYfZRYi1lhd1HXmV8qN+IefV3N3M3yGXIZQjwMAR/sogLvYpCOJVcdryN6rSB30j9JW8gr0eVDCNKxG2ZFulKg8mRf9v8jrzUjMwhCqLKzZAeusORHis5LF8WZ0D7W9KdIOIw0Skd0YJ9TW0Cn33EY4lpk=
+	t=1729484246; cv=pass; b=YFCE8h0Wn6EmN8g6B+LI2GZVCl67a7M2ub714jve3yuhg7IBSMGS0q0UkinUw6Gtz3ly9qtGfJNXda64GGtRfRosHkrryumsog2DSU6VpQGA0i9i6QN0c3Tin0IPONERZHtz+SVGS4Nj2jCmhgH616J5NiEGzSYe4W5cCIEu728=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729465718; c=relaxed/simple;
-	bh=GG+yAJEPibPNTwOOPr76s9wPVqp5W4O4sdKPRu9S7ww=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XmE1V7XYhoS9c9DY5bQIElsJ5t907rPQaTGoo5S0UhKLhKkKUP5/6JuaXyP6dr557XLKT4kE6j8qgIcy96ZnTd/0vDc/PnZvv5gKBabEnJVvrDCA6kL8BP4i0feXrJEZRsNLfAWWwmkcWlg1IwolgL5DRwbyJtpKfNgjJeUVKUU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=WMq6dWaU; arc=pass smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1729484246; c=relaxed/simple;
+	bh=UXis7XHcejehQ3o0Lj1mc1QGW6wLSSBClol6FfrmzyM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=WwWGYBzsQZbNA+ZdfP3IdYNWtsIR4sj6HHtnQDH93Qes1pTF1p08AMgTh0QUwRB9nmzankR27ls5BYv4+nQCeZI8z4xXnTHt94y4qsGBC8UXRnWwDpwz8PvnOoR6CK29UsYTyrCiyK819IqTlMt3D5QbsYV/pG1UGww3e5fEpv8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=HGRyFK3d; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="WMq6dWaU"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B819740126
-	for <virtualization@lists.linux-foundation.org>; Sun, 20 Oct 2024 23:08:36 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.789
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id IpJgvOfYkn1s for <virtualization@lists.linux-foundation.org>;
- Sun, 20 Oct 2024 23:08:35 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=136.143.188.112; helo=sender4-pp-f112.zoho.com; envelope-from=dmitry.osipenko@collabora.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 78C6440109
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 78C6440109
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=WMq6dWaU
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 78C6440109
-	for <virtualization@lists.linux-foundation.org>; Sun, 20 Oct 2024 23:08:35 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; t=1729465707; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="HGRyFK3d"
+ARC-Seal: i=1; a=rsa-sha256; t=1729484234; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=d/H/pOGfCSEFfRKwoys+TLlZo7n1Lae+zWnmdaSDT/O7HPAfJTJolW4Abo9m9M/LVN5G2fj3P1vKP1DId8V9VMwxXvuCMCufB1ntWlHm6vhGbbeKCuQZ/SAnYFNtpZ7xX0DTQKJAKY1hoaIZ+BMVVm+x9957PXgwQKNvnPSrmwQ=
+	b=ifCZ664MCdZJKpDHi9XHCD/Vvyfdk/dmW4z955C6/YBanLlLjzoWP4yvSMP78JSiMv90FySf6Itq8TkNpdmc3IWK2KaGLQqxq/wqtH8MKxn/d8/hKCMLX+1oGBPSE4QrjiUTsy/gk3WSKOnkxZ0xQes/wG39mJwqwcpqb3FRII8=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1729465707; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=NSMo1G/5mzlO6sSUsZnRrHjoUcA/glI1EUTfxStqJa0=; 
-	b=IYEC5kav78yWOWSs7wFbOoc48wxJJeoN2jSnqPv4/PEnHa9MSBezgwIdqst3bBZza4E7yTrgRaDMTQ6J4p1CcIxEypI+HCqqOP829OfvX4oj/eTWdyeX53ez18dYQxJB8MlTspa5jbaY9ZX4PpJjQrGRLq6ijO83mjl2UK/Ness=
+	t=1729484234; h=Content-Type:Content-Transfer-Encoding:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To:Cc; 
+	bh=BiJ0LdQv6I0pZ/hvzsw8lAMtI1oZK3ScOGveRvtfO3Y=; 
+	b=mO/nwvXcvZHntqj43V20Ur4W0jMGc/I33ZOEsom4i7/mL+NP6/eOTnR2h6Ebaq3cC1z0+mF+CZeMFLuLDDhISxGPR2FU0CGh3ll+El1b0RittKeBET9BRqTsFRGPyqck6+i3uvK5fytyfIRXVhcdBl2nHAkukhRmD8Gsbk2mN3k=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1729465707;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1729484234;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=NSMo1G/5mzlO6sSUsZnRrHjoUcA/glI1EUTfxStqJa0=;
-	b=WMq6dWaU7D5GB2HEZs2emoYjNzUIEVdCjH/ODFj5w+cd6sHpxB6/9X8d/3iWDiy3
-	VT6xAdBavi8td7mwrinN7/iUTscKBiVnXqdLdEYY0z6WsdjWcwrGEOBrXglHRxSAd6n
-	DBCK/jpVr03gSFBGJNOdNFwqVQeKdRPAcLcE2uqk=
-Received: by mx.zohomail.com with SMTPS id 172946570460449.947607983647686;
-	Sun, 20 Oct 2024 16:08:24 -0700 (PDT)
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
-	Kim Dongwon <dongwon.kim@intel.com>,
-	Kasireddy Vivek <vivek.kasireddy@intel.com>
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	kernel@collabora.com
-Subject: [PATCH v3 2/2] drm/virtio: New fence for every plane update
-Date: Mon, 21 Oct 2024 02:08:03 +0300
-Message-ID: <20241020230803.247419-2-dmitry.osipenko@collabora.com>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20241020230803.247419-1-dmitry.osipenko@collabora.com>
-References: <20241020230803.247419-1-dmitry.osipenko@collabora.com>
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To:Cc;
+	bh=BiJ0LdQv6I0pZ/hvzsw8lAMtI1oZK3ScOGveRvtfO3Y=;
+	b=HGRyFK3dDkeNjLDCkYWahEugKa9Rq3m7SAeLDdlfggcPj4XbGV6w5gEyq+YhhOl/
+	c7JOGLxbjNnEvK0nfUmJ1foRvdjBhZVawZuSN+Gmx7cnlvmOZvDYqHKY2Xo42HJomFk
+	+8kVsJlm/2wZXJtv1uq+zIYoVmE0/iI15pkri7DU=
+Received: by mx.zohomail.com with SMTPS id 1729484232419792.3567314862235;
+	Sun, 20 Oct 2024 21:17:12 -0700 (PDT)
+Message-ID: <d81b181b-ef81-4533-aa9d-1084e2b26da2@collabora.com>
+Date: Mon, 21 Oct 2024 07:17:07 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: use generic dumb_map_offset implementation
+To: Peter Shkenev <mustela@erminea.space>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20241014170801.71231-1-mustela@erminea.space>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20241014170801.71231-1-mustela@erminea.space>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-From: Dongwon Kim <dongwon.kim@intel.com>
+On 10/14/24 20:07, Peter Shkenev wrote:
+> Currently, virtio uses its own dumb_map_offset implementation,
+> virtio_gpu_mode_dumb_mmap. It works similarly to generic implementation,
+> drm_gem_dumb_map_offset, and using the generic implementation is
+> preferable (and making drivers to do so is a task stated on the DRM
+> subsystem's TODO list).
+> 
+> Thus, make driver use the generic implementation. This includes
+> VIRTGPU_MAP ioctl so it cannot be used to circumvent rules imposed by
+> drm_gem_dumb_map_offset (imported objects cannot be mapped).
+> 
+> Signed-off-by: Peter Shkenev <mustela@erminea.space>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 -
+>  drivers/gpu/drm/virtio/virtgpu_gem.c   | 15 ---------------
+>  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  3 ++-
+>  3 files changed, 2 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index ffca6e2e1c9a..909808398d66 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -184,7 +184,6 @@ static const struct drm_driver driver = {
+>  	.postclose = virtio_gpu_driver_postclose,
+>  
+>  	.dumb_create = virtio_gpu_mode_dumb_create,
+> -	.dumb_map_offset = virtio_gpu_mode_dumb_mmap,
+>  
+>  	DRM_FBDEV_SHMEM_DRIVER_OPS,
+>  
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> index 7db48d17ee3a..aefbb49481f1 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> @@ -99,21 +99,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+>  	return ret;
+>  }
+>  
+> -int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+> -			      struct drm_device *dev,
+> -			      uint32_t handle, uint64_t *offset_p)
+> -{
+> -	struct drm_gem_object *gobj;
+> -
+> -	BUG_ON(!offset_p);
+> -	gobj = drm_gem_object_lookup(file_priv, handle);
+> -	if (gobj == NULL)
+> -		return -ENOENT;
+> -	*offset_p = drm_vma_node_offset_addr(&gobj->vma_node);
+> -	drm_gem_object_put(gobj);
+> -	return 0;
+> -}
+> -
+>  int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+>  			       struct drm_file *file)
+>  {
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> index e4f76f315550..13f3ed60a0e5 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> @@ -30,6 +30,7 @@
+>  #include <linux/uaccess.h>
+>  
+>  #include <drm/drm_file.h>
+> +#include <drm/drm_gem.h>
 
-Having a fence linked to a virtio_gpu_framebuffer in the plane update
-sequence would cause conflict when several planes referencing the same
-framebuffer (e.g. Xorg screen covering multi-displays configured for an
-extended mode) and those planes are updated concurrently. So it is needed
-to allocate a fence for every plane state instead of the framebuffer.
+This include shouldn't be needed as drm_gem.h is included by virtgpu_drv.h
 
-Signed-off-by: Dongwon Kim <dongwon.kim@intel.com>
-[dmitry.osipenko@collabora.com: rebase, fix up, edit commit message]
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  7 ++++
- drivers/gpu/drm/virtio/virtgpu_plane.c | 58 +++++++++++++++++---------
- 2 files changed, 46 insertions(+), 19 deletions(-)
+>  #include <drm/virtgpu_drm.h>
+>  
+>  #include "virtgpu_drv.h"
+> @@ -80,7 +81,7 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
+>  	struct virtio_gpu_device *vgdev = dev->dev_private;
+>  	struct drm_virtgpu_map *virtio_gpu_map = data;
+>  
+> -	return virtio_gpu_mode_dumb_mmap(file, vgdev->ddev,
+> +	return drm_gem_dumb_map_offset(file, vgdev->ddev,
+>  					 virtio_gpu_map->handle,
+>  					 &virtio_gpu_map->offset);
+>  }
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 64c236169db8..5dc8eeaf7123 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -194,6 +194,13 @@ struct virtio_gpu_framebuffer {
- #define to_virtio_gpu_framebuffer(x) \
- 	container_of(x, struct virtio_gpu_framebuffer, base)
- 
-+struct virtio_gpu_plane_state {
-+	struct drm_plane_state base;
-+	struct virtio_gpu_fence *fence;
-+};
-+#define to_virtio_gpu_plane_state(x) \
-+	container_of(x, struct virtio_gpu_plane_state, base)
-+
- struct virtio_gpu_queue {
- 	struct virtqueue *vq;
- 	spinlock_t qlock;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index ab7232921cb7..2add67c6b66d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -67,11 +67,28 @@ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
- 	return format;
- }
- 
-+static struct
-+drm_plane_state *virtio_gpu_plane_duplicate_state(struct drm_plane *plane)
-+{
-+	struct virtio_gpu_plane_state *new;
-+
-+	if (WARN_ON(!plane->state))
-+		return NULL;
-+
-+	new = kzalloc(sizeof(*new), GFP_KERNEL);
-+	if (!new)
-+		return NULL;
-+
-+	__drm_atomic_helper_plane_duplicate_state(plane, &new->base);
-+
-+	return &new->base;
-+}
-+
- static const struct drm_plane_funcs virtio_gpu_plane_funcs = {
- 	.update_plane		= drm_atomic_helper_update_plane,
- 	.disable_plane		= drm_atomic_helper_disable_plane,
- 	.reset			= drm_atomic_helper_plane_reset,
--	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
-+	.atomic_duplicate_state = virtio_gpu_plane_duplicate_state,
- 	.atomic_destroy_state	= drm_atomic_helper_plane_destroy_state,
- };
- 
-@@ -139,11 +156,13 @@ static void virtio_gpu_resource_flush(struct drm_plane *plane,
- 	struct drm_device *dev = plane->dev;
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_framebuffer *vgfb;
-+	struct virtio_gpu_plane_state *vgplane_st;
- 	struct virtio_gpu_object *bo;
- 
- 	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
-+	vgplane_st = to_virtio_gpu_plane_state(plane->state);
- 	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
--	if (vgfb->fence) {
-+	if (vgplane_st->fence) {
- 		struct virtio_gpu_object_array *objs;
- 
- 		objs = virtio_gpu_array_alloc(1);
-@@ -152,13 +171,11 @@ static void virtio_gpu_resource_flush(struct drm_plane *plane,
- 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
- 		virtio_gpu_array_lock_resv(objs);
- 		virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle, x, y,
--					      width, height, objs, vgfb->fence);
-+					      width, height, objs,
-+					      vgplane_st->fence);
- 		virtio_gpu_notify(vgdev);
--
--		dma_fence_wait_timeout(&vgfb->fence->f, true,
-+		dma_fence_wait_timeout(&vgplane_st->fence->f, true,
- 				       msecs_to_jiffies(50));
--		dma_fence_put(&vgfb->fence->f);
--		vgfb->fence = NULL;
- 	} else {
- 		virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle, x, y,
- 					      width, height, NULL, NULL);
-@@ -248,12 +265,14 @@ static int virtio_gpu_plane_prepare_fb(struct drm_plane *plane,
- 	struct drm_device *dev = plane->dev;
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_framebuffer *vgfb;
-+	struct virtio_gpu_plane_state *vgplane_st;
- 	struct virtio_gpu_object *bo;
- 
- 	if (!new_state->fb)
- 		return 0;
- 
- 	vgfb = to_virtio_gpu_framebuffer(new_state->fb);
-+	vgplane_st = to_virtio_gpu_plane_state(new_state);
- 	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
- 
- 	drm_gem_plane_helper_prepare_fb(plane, new_state);
-@@ -261,10 +280,11 @@ static int virtio_gpu_plane_prepare_fb(struct drm_plane *plane,
- 	if (!bo || (plane->type == DRM_PLANE_TYPE_PRIMARY && !bo->guest_blob))
- 		return 0;
- 
--	if (bo->dumb && (plane->state->fb != new_state->fb)) {
--		vgfb->fence = virtio_gpu_fence_alloc(vgdev, vgdev->fence_drv.context,
-+	if (bo->dumb) {
-+		vgplane_st->fence = virtio_gpu_fence_alloc(vgdev,
-+						     vgdev->fence_drv.context,
- 						     0);
--		if (!vgfb->fence)
-+		if (!vgplane_st->fence)
- 			return -ENOMEM;
- 	}
- 
-@@ -274,15 +294,15 @@ static int virtio_gpu_plane_prepare_fb(struct drm_plane *plane,
- static void virtio_gpu_plane_cleanup_fb(struct drm_plane *plane,
- 					struct drm_plane_state *state)
- {
--	struct virtio_gpu_framebuffer *vgfb;
-+	struct virtio_gpu_plane_state *vgplane_st;
- 
- 	if (!state->fb)
- 		return;
- 
--	vgfb = to_virtio_gpu_framebuffer(state->fb);
--	if (vgfb->fence) {
--		dma_fence_put(&vgfb->fence->f);
--		vgfb->fence = NULL;
-+	vgplane_st = to_virtio_gpu_plane_state(state);
-+	if (vgplane_st->fence) {
-+		dma_fence_put(&vgplane_st->fence->f);
-+		vgplane_st->fence = NULL;
- 	}
- }
- 
-@@ -295,6 +315,7 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_output *output = NULL;
- 	struct virtio_gpu_framebuffer *vgfb;
-+	struct virtio_gpu_plane_state *vgplane_st;
- 	struct virtio_gpu_object *bo = NULL;
- 	uint32_t handle;
- 
-@@ -307,6 +328,7 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 
- 	if (plane->state->fb) {
- 		vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
-+		vgplane_st = to_virtio_gpu_plane_state(plane->state);
- 		bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
- 		handle = bo->hw_res_handle;
- 	} else {
-@@ -326,11 +348,9 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 			(vgdev, 0,
- 			 plane->state->crtc_w,
- 			 plane->state->crtc_h,
--			 0, 0, objs, vgfb->fence);
-+			 0, 0, objs, vgplane_st->fence);
- 		virtio_gpu_notify(vgdev);
--		dma_fence_wait(&vgfb->fence->f, true);
--		dma_fence_put(&vgfb->fence->f);
--		vgfb->fence = NULL;
-+		dma_fence_wait(&vgplane_st->fence->f, true);
- 	}
- 
- 	if (plane->state->fb != old_state->fb) {
+Please remove obsoleted virtio_gpu_mode_dumb_mmap() prototype from
+virtgpu_drv.h
+
+Otherwise patch looks good.
+
 -- 
-2.47.0
+Best regards,
+Dmitry
 
