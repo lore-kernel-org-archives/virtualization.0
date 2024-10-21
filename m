@@ -1,39 +1,58 @@
-Received: from erminea.space (erminea.space [51.250.125.203])
-	by smtp.subspace.kernel.org (Postfix) with SMTP id 1CA321E5706
-	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 11:52:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.250.125.203
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701CC1E4113
+	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 12:08:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729511558; cv=none; b=KDaz815wHuCE8PeHcOUys8FMVTwle/bSDvKO8Csv6DxrV8mEFtdtOMyL4oxEHuPqmakl1Hs4YyVhh2CFFO0yQdANSdzJRK94BKXC4jjf3UnhZuVMhoLLAiseanC1owZGkGEYdc2bGi2FBjKO6p3UnFwKoOWMrd4d9CKwouA8ESo=
+	t=1729512529; cv=none; b=ig5MfCFptnHjn8+7sXq1AfPHTWF2x4CfCGfrmnYKPI0q5iofOV7al74lsgj06GoXyvZcrOUqa+To2PpkoY1KIjMJLCceS6e9e3Ga6s/8fEHQ6L7+z9jCyXPjkCVjrtIX5lREK4lm4O5/c16+SPcp8FIfcaIoSVXwSCPrhSsv3ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729511558; c=relaxed/simple;
-	bh=fBOgAUdNDCZWG3KGA0hLFJBosJCirNqqo8lEj6awgt8=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=Xi44UaubGFwHBrixry7etqQs8Qow0tS+qqC8/lLkjOlg1ZkYwWd9kh3z6c1oVWvrYUr2CFU6rDki2R+iCTywY/PcMHQf5GtOqEHhMhZYtIZcTcpcYwVB/M6IT6I7U8CazoclU4t0gck0yRr4wKJO1qDRsd9XyNrWoM2ntD7VTO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space; spf=pass smtp.mailfrom=erminea.space; arc=none smtp.client-ip=51.250.125.203
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=erminea.space
-Received: (qmail 20491 invoked from network); 21 Oct 2024 11:52:27 -0000
-Received: from localhost. (HELO erminea.space) (127.0.0.1)
-  by 0.0.0.0 with SMTP; 21 Oct 2024 11:52:27 -0000
-Received: from localhost.localdomain ([37.204.49.201])
-	by erminea.space with ESMTPSA
-	id h6SSHXtAFmcHUAAAH+dm7w
-	(envelope-from <mustela@erminea.space>); Mon, 21 Oct 2024 14:52:27 +0300
-From: Peter Shkenev <mustela@erminea.space>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] drm/virtio: use generic dumb_map_offset implementation
-Date: Mon, 21 Oct 2024 14:52:05 +0300
-Message-ID: <20241021115210.5439-1-mustela@erminea.space>
-X-Mailer: git-send-email 2.47.0
+	s=arc-20240116; t=1729512529; c=relaxed/simple;
+	bh=j+GJsbNdGb3n5KiawnqmerPW8nffx8mxZoxb7H8tD/E=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=gsNI/Jn8Dkjt4hr53GijqBCU4CvtC1bw+2MY6ETBXp64OqatcJj0/+pQV3HGyDZUN3FQp0ijlLclsAfYiaEelSGaqyq2y/HZPXfEQk8v4EhfbGIbZLn7L1YrdySQfP3G5bYMcPCklQLBNWO7/CgFq8FSGzt6KLngATdXh/DtDQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=YJ/6meCC; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="YJ/6meCC"
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49L7X55L026105;
+	Mon, 21 Oct 2024 05:08:44 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=4
+	SpD7Y0HWT0PK/7D7AOc2lrARoe+J909jM6IJ6l9NEA=; b=YJ/6meCC2957gPJM6
+	655UeeCQEiw2R4XleD1FiwyLIJRYHAmAwbeqUZzyq71MVIChmf+mlH4oZ1rR0eI/
+	W2IyAww4QlO4OHzYFZ5Y7x4HYUmTVgM0nMlY+6ZmONaSBYqChW57HYKSJu/7cC3d
+	Y9pAiIfJgm27ubbSLBL6WUXHuxVtKGJ6UPf9FmjTlOKbLwjS7YNXoowGjVpGXGv5
+	dwJgpUFgPC0quXHW1+dLja8HOtlqmtUxTj2YyxpmcpP7pdUu3DoT1eJRTCZOygCZ
+	dw0LrLDgsh9u2OGOlzRK76tsYD1L3qst5/F2BLAFyfRGQJAY2QwsXXKtjDDoN2lZ
+	MXfUg==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 42djnmrh9p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Oct 2024 05:08:44 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.4; Mon, 21 Oct 2024 05:08:43 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Mon, 21 Oct 2024 05:08:43 -0700
+Received: from localhost.localdomain (unknown [10.28.36.175])
+	by maili.marvell.com (Postfix) with ESMTP id EF0C83F7052;
+	Mon, 21 Oct 2024 05:08:40 -0700 (PDT)
+From: Srujana Challa <schalla@marvell.com>
+To: <virtualization@lists.linux.dev>, <kvm@vger.kernel.org>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <eperezma@redhat.com>,
+        <ndabilpuram@marvell.com>, <jerinj@marvell.com>
+Subject: [PATCH v3 1/2] vhost-vdpa: introduce module parameter for no-IOMMU mode
+Date: Mon, 21 Oct 2024 17:38:36 +0530
+Message-ID: <20241021120837.1438628-2-schalla@marvell.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20241021120837.1438628-1-schalla@marvell.com>
+References: <20241021120837.1438628-1-schalla@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,95 +60,106 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: Rw_62OBNltKANjYGmJ42OX6LdJUjc4F8
+X-Proofpoint-ORIG-GUID: Rw_62OBNltKANjYGmJ42OX6LdJUjc4F8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
 
-Currently, virtio uses its own dumb_map_offset implementation,
-virtio_gpu_mode_dumb_mmap. It works similarly to generic implementation,
-drm_gem_dumb_map_offset, and using the generic implementation is
-preferable (and making drivers to do so is a task stated on the DRM
-subsystem's TODO list).
+This commit introduces module parameter
+"enable_vhost_vdpa_unsafe_noiommu_mode" to enable an UNSAFE, no-IOMMU
+mode in the vhost-vdpa driver. When enabled, this mode provides no
+device isolation, no DMA translation, no host kernel protection, and
+cannot be used for device assignment to virtual machines.
+It requires RAWIO permissions and will taint the kernel.
 
-Thus, make driver use the generic implementation. This includes
-VIRTGPU_MAP ioctl so it cannot be used to circumvent rules imposed by
-drm_gem_dumb_map_offset (imported objects cannot be mapped).
-
-Signed-off-by: Peter Shkenev <mustela@erminea.space>
+Signed-off-by: Srujana Challa <schalla@marvell.com>
+Change-Id: I6b9bbedb81a8f5031f69707ffc3213d9d5cbc6f5
 ---
-Changes in v2:
-  - Remove excessive include of drm_gem.h from virtgpu_ioctl.h
-  - Remove obsoleted virtio_gpu_mode_dumb_mmap prototype from
-    virtgpu_drv.h
+ drivers/vhost/vdpa.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
- drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 -
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 ---
- drivers/gpu/drm/virtio/virtgpu_gem.c   | 15 ---------------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  2 +-
- 4 files changed, 1 insertion(+), 20 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index ffca6e2e1c9a..909808398d66 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -184,7 +184,6 @@ static const struct drm_driver driver = {
- 	.postclose = virtio_gpu_driver_postclose,
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 5a49b5a6d496..81dd8bfb152b 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -36,6 +36,11 @@ enum {
  
- 	.dumb_create = virtio_gpu_mode_dumb_create,
--	.dumb_map_offset = virtio_gpu_mode_dumb_mmap,
+ #define VHOST_VDPA_IOTLB_BUCKETS 16
  
- 	DRM_FBDEV_SHMEM_DRIVER_OPS,
++static bool vhost_vdpa_noiommu;
++module_param_named(enable_vhost_vdpa_unsafe_noiommu_mode,
++		   vhost_vdpa_noiommu, bool, 0644);
++MODULE_PARM_DESC(enable_vhost_vdpa_unsafe_noiommu_mode, "Enable UNSAFE, no-IOMMU mode.  This mode provides no device isolation, no DMA translation, no host kernel protection, cannot be used for device assignment to virtual machines, requires RAWIO permissions, and will taint the kernel.  If you do not know what this is for, step away. (default: false)");
++
+ struct vhost_vdpa_as {
+ 	struct hlist_node hash_link;
+ 	struct vhost_iotlb iotlb;
+@@ -60,6 +65,7 @@ struct vhost_vdpa {
+ 	struct vdpa_iova_range range;
+ 	u32 batch_asid;
+ 	bool suspended;
++	bool noiommu_en;
+ };
  
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 64c236169db8..76f6f29f819a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -301,9 +301,6 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
- int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 				struct drm_device *dev,
- 				struct drm_mode_create_dumb *args);
--int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
--			      struct drm_device *dev,
--			      uint32_t handle, uint64_t *offset_p);
- 
- struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
- struct virtio_gpu_object_array*
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 7db48d17ee3a..aefbb49481f1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -99,21 +99,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	return ret;
- }
- 
--int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
--			      struct drm_device *dev,
--			      uint32_t handle, uint64_t *offset_p)
--{
--	struct drm_gem_object *gobj;
--
--	BUG_ON(!offset_p);
--	gobj = drm_gem_object_lookup(file_priv, handle);
--	if (gobj == NULL)
--		return -ENOENT;
--	*offset_p = drm_vma_node_offset_addr(&gobj->vma_node);
--	drm_gem_object_put(gobj);
--	return 0;
--}
--
- int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
- 			       struct drm_file *file)
+ static DEFINE_IDA(vhost_vdpa_ida);
+@@ -910,6 +916,10 @@ static void vhost_vdpa_general_unmap(struct vhost_vdpa *v,
  {
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index e4f76f315550..112142f4b618 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -80,7 +80,7 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct drm_virtgpu_map *virtio_gpu_map = data;
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
++
++	if (v->noiommu_en)
++		return;
++
+ 	if (ops->dma_map) {
+ 		ops->dma_unmap(vdpa, asid, map->start, map->size);
+ 	} else if (ops->set_map == NULL) {
+@@ -1003,6 +1013,9 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
+ 	if (r)
+ 		return r;
  
--	return virtio_gpu_mode_dumb_mmap(file, vgdev->ddev,
-+	return drm_gem_dumb_map_offset(file, vgdev->ddev,
- 					 virtio_gpu_map->handle,
- 					 &virtio_gpu_map->offset);
- }
++	if (v->noiommu_en)
++		goto skip_map;
++
+ 	if (ops->dma_map) {
+ 		r = ops->dma_map(vdpa, asid, iova, size, pa, perm, opaque);
+ 	} else if (ops->set_map) {
+@@ -1018,6 +1031,7 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
+ 		return r;
+ 	}
+ 
++skip_map:
+ 	if (!vdpa->use_va)
+ 		atomic64_add(PFN_DOWN(size), &dev->mm->pinned_vm);
+ 
+@@ -1321,12 +1335,26 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 	struct device *dma_dev = vdpa_get_dma_dev(vdpa);
++	struct iommu_domain *domain;
+ 	int ret;
+ 
+ 	/* Device want to do DMA by itself */
+ 	if (ops->set_map || ops->dma_map)
+ 		return 0;
+ 
++	domain = iommu_get_domain_for_dev(dma_dev);
++	if (!domain && vhost_vdpa_noiommu) {
++		if (!capable(CAP_SYS_RAWIO)) {
++			dev_warn_once(&v->dev, "No RAWIO permissions, couldn't support NOIOMMU\n");
++			return -ENOTSUPP;
++		}
++		add_taint(TAINT_USER, LOCKDEP_STILL_OK);
++		dev_warn(&v->dev, "Adding kernel taint for noiommu on device\n");
++		v->noiommu_en = true;
++		return 0;
++	}
++	v->noiommu_en = false;
++
+ 	if (!device_iommu_capable(dma_dev, IOMMU_CAP_CACHE_COHERENCY)) {
+ 		dev_warn_once(&v->dev,
+ 			      "Failed to allocate domain, device is not IOMMU cache coherent capable\n");
 -- 
-2.47.0
+2.25.1
 
