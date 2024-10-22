@@ -1,100 +1,242 @@
-Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE4AE1FE0F8
-	for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 20:48:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729543738; cv=none; b=Ha4j+veEra7Gu+JydHX+RakSzujntN7dWsMJtfxKpf2VyA6FEyPzNBv8vV6eDpCpvLhhrF9P5StnXf4w8m+9MPAUP/ZLYfMwqe+blwSnWgEYU5I8JZ2Fb+IhQmoVzCxddxSzgDLbgzwO8JTmo6e5Oi18X9vUjH0ttI1pFIcDRus=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729543738; c=relaxed/simple;
-	bh=h/OVx8fY1Np52b6ZnjtJ7sQ3UhDWKWmuvHiNf1EmvbI=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=EKHRjM0n7CbknHC8t/CfP1FcOLFHMOi+XF+fbbAcPVFBetR2gyVWoDCCmVbJqlSZmQDp/v6X207Q4vbD6C5WqdgoQpmnI7kUmW+bw1fcj75RJNJoB5u30LXm7LKsG43DrWQ0Kqvbg2oBPxsxwQhLS9jhT1r5PAoOcdltQb6Qlhk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=3tbZ/j0n; arc=none smtp.client-ip=209.85.128.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA9C3811EB
+	for <virtualization@lists.linux-foundation.org>; Tue, 22 Oct 2024 04:42:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1729572122; cv=fail; b=Mwnyl9TgVX/TXXrDLHPz2ba+WNuOKY3ghpD8KuBP+/9nvNeHvyyBQOA2vI0l+w4as4EUj8n1dR6cIlFc9UO5b4V9ZDzFb5pKAfmhxFzH7V6SJJMHJiHjxgV3Rxpn2kqRbupzvp4e+Pfdd1iII0iY7KcRCCH/WJRUNhcZ9rr6qxc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1729572122; c=relaxed/simple;
+	bh=d8DuDsMsWmmPt3DoOBIO5ThRrv1E6ifLcv3h2os8mm0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=qnTntylx/W3KsjjfI2/rC3RxP8ArNu+wnQT6mrR4NjOpMBGGEQbYOAzVHAfOw+xm50gZPHgpgzWhg+eR8az9ToR4Hw/ZVft2Wpr/J66xAgLA0qV7Oz7g0Bz6nl90gMhKuUTqT4AuWoREyTxd6krNVgoJ4lDAu2GjLtvyTWNISvA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bfAr8K9f; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="3tbZ/j0n"
-Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-6e3529d80e5so86125217b3.0
-        for <virtualization@lists.linux.dev>; Mon, 21 Oct 2024 13:48:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1729543736; x=1730148536; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tlBeTjB30t5sVtg+4c19Ovx17PsydaPYj9vbcqxgxA8=;
-        b=3tbZ/j0nSqyGwvlbIs4sDojZub+Va2xGWHdn4UskZe9Uxsd0Q+ushRV/YqPrdpZWHe
-         DWhrSCqqbzr8MLQ6BZStCKFXVx6cGC/xRlb49tFnKQirPEzv9EaN5imxwehH8W0FQoTL
-         Dm99d/C69/hYuIsk9B8aFxzX2L2idTGQ97WlrvDeXUoDeOgYcQtEG9yUp8YsqGqrOxqd
-         A8QOdepyHfa65tuWYzrRFYLhYxor11a6ZdnTuZxkxgDTdDr11p0mBqsGuJpnDnisopHL
-         XeO0+WjJVb9fGqlgXtNnoIx9chSghilFFRbB0YUSA06knGF5LlNh2Pk+4QYgs/idhT7c
-         dbKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729543736; x=1730148536;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=tlBeTjB30t5sVtg+4c19Ovx17PsydaPYj9vbcqxgxA8=;
-        b=rgLxUo6s0ZcnN8mHEf/o5M8/zyLK55Vq9MCDc++FMLRCddYxvmFxn1KWqlGmVGjVvl
-         I1cZx2YmCzaejO1h1fNQ774QXeVmva9oEJ6TQVJOER2W1zYF1txbKMYt4zrHvB+PYQNV
-         1L1ayEv+/qeoYpLT/ji1JxsZadt8/w8wPHKxtvhPkisKqiR4Z8La5iBKjZM6v2/gS6zj
-         jdZKL5H+pTuDql6UKhESR7/mcHl5i6Zqk1cghTNgD3qF8Jzh7MrdYC7Hq2uz3lM9j0RB
-         GuPIXJUuGLb1Og1MYmjZHBMVkfo2+ebO8gh6QQLKJvhJzWn7l8JS+gvvYV264GExAln0
-         JAtQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU3qPl86IP+SDs2uFI4hjE8TX2bdzjn+R2Lzpg+DgcG5MJTAkkrOS9F3eQa9YLTCTJRv/XKoazGLIrYyLBtDA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzTdhsiZzHXYecFMTl0cwrgq7JSvu2AtwtfsuZIL/re2aga2MyO
-	bgbOgLUC/b1N/df8pgVrtl4eAlF2gwGDPXK32nU/hkIhIk0LuvZtwbTc7V75PCSUQKOWt0vipNa
-	fBUmSwA==
-X-Google-Smtp-Source: AGHT+IFaD6sHUUx1iDTWVXuvYhwh3MjPeso168+Vopjk3XjtpPDKt7LWCqxSWBJfBAZl5rNsNo4cmve1/N3T
-X-Received: from yuanchu.svl.corp.google.com ([2620:15c:2c5:11:202a:34de:6d58:91d2])
- (user=yuanchu job=sendgmr) by 2002:a05:690c:9b06:b0:6e2:ad08:4924 with SMTP
- id 00721157ae682-6e5bfd21d18mr3568567b3.4.1729543735690; Mon, 21 Oct 2024
- 13:48:55 -0700 (PDT)
-Date: Mon, 21 Oct 2024 13:48:49 -0700
-In-Reply-To: <20241021204849.1580384-1-yuanchu@google.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bfAr8K9f"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3C7BE40388
+	for <virtualization@lists.linux-foundation.org>; Tue, 22 Oct 2024 04:42:01 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.093
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id dowIEXasqxXH for <virtualization@lists.linux-foundation.org>;
+ Tue, 22 Oct 2024 04:42:00 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=vivek.kasireddy@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org F1787401D1
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F1787401D1
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bfAr8K9f
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id F1787401D1
+	for <virtualization@lists.linux-foundation.org>; Tue, 22 Oct 2024 04:41:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1729572120; x=1761108120;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=d8DuDsMsWmmPt3DoOBIO5ThRrv1E6ifLcv3h2os8mm0=;
+  b=bfAr8K9fI9KXrZspsc5lr9svXmjVJe/p1XPVX/aFzZbjUVl3R7HdWVpI
+   y4SoRZRCw9KbMDcwpVMI2s6esXpg25vDpA7zdJVp9JHxy1K9AUs9sjyuS
+   HH32muDgVxvqOynJBz214cZIPdDtxahyhbpvRLfeQMEHostiNoan5XPxy
+   LQ9Tt5b8DrhQlvGPXYPZaPBxItF8kB1B/God4Ms5Yuxe6lSu/1v0pw3wq
+   CO7zZjIMpcSsgTTxBMBiCNN6C9ep/JcEYMJX1Gf9hz8Cs7k0FZ0PPpsqg
+   A5TqwOACYdpZLQaDCouPTv0+phd+FgcCSTloR9/3+X1TqrSf9aFAW+1g8
+   w==;
+X-CSE-ConnectionGUID: VpvxD1KDQrawoPlVWZeF5A==
+X-CSE-MsgGUID: 1lPcjvP4SaaV+TONt5oseg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11232"; a="28517945"
+X-IronPort-AV: E=Sophos;i="6.11,222,1725346800"; 
+   d="scan'208";a="28517945"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2024 21:41:58 -0700
+X-CSE-ConnectionGUID: OA2cVeqESyq0LUgEV1WsIg==
+X-CSE-MsgGUID: pA+HrJrtQfi5eeV4Qm+BFA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,222,1725346800"; 
+   d="scan'208";a="79658666"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by orviesa009.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 21 Oct 2024 21:41:59 -0700
+Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Mon, 21 Oct 2024 21:41:57 -0700
+Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Mon, 21 Oct 2024 21:41:57 -0700
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (104.47.74.48) by
+ edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Mon, 21 Oct 2024 21:41:57 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=C9YhLaragTPcB4evarVVhH08YY1Sdkp4aZCm4oME94aX1GjhX7RtGtqDofkHUT1YGq/FvUiRz2ndGh9iwvQGAY78VhTviMob6McbCthqlgXKSKtze933g+yfONGB2RHzmtTTvb5lwFcE7lXjMMcumg/tQ304EYCMXZfK+j8b6gKPJyPviH6LnWv4MIJlySvg88aeDxuLVkzmlxAltr/PBk/JC+oZb+IYw2BW/zcuFoSpxCzBN9oJ6Lyzh5MPum+Z0Cz3ikALT24y9oU3MQCleRRhqe4Oe5u3imbTelFGNtKBxI3SWj3elhdbFJjHJVYd5dHnFg7dciVkh4i+05Bj+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0Z/LcCYs1ELG6wCVZblDypcFcmpV4xUV/oP5UK33O5k=;
+ b=mCMejYkU+ufTwErYxrmANTbRYF3Knh5ihLW1q4HdUYJbMHwtE1X1WfDXo+20oK6+FMDRgm4O0e+TzKX+iRyYNoik/abAJ3Badm+ED+s9KompS1FSFw3+7f+Psu+2zSwXDISLBwuy/ImrO9DDF6cSKC9UOvK3DM0xVIF1yecfb7Zwp6obd0nmzXHrZDGJLavT5kmaQavD7ZXa9yDCIxbAEscxi06UZioZ4dq4LzV+JQvveZr+G/wCuyx+6XoxYKlObB7svWYwHIgAFUqbAOkScOfvXE2VGRz9zCInAsfK8QurtLgnqT1icjAzRVfJnhwMb7gHlj9dbAsq7t2k4iPuEQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from IA0PR11MB7185.namprd11.prod.outlook.com (2603:10b6:208:432::20)
+ by SA1PR11MB6685.namprd11.prod.outlook.com (2603:10b6:806:258::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8069.28; Tue, 22 Oct
+ 2024 04:41:49 +0000
+Received: from IA0PR11MB7185.namprd11.prod.outlook.com
+ ([fe80::dd3b:ce77:841a:722b]) by IA0PR11MB7185.namprd11.prod.outlook.com
+ ([fe80::dd3b:ce77:841a:722b%5]) with mapi id 15.20.8069.027; Tue, 22 Oct 2024
+ 04:41:49 +0000
+From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie
+	<airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
+	<gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Rob Clark
+	<robdclark@gmail.com>, Pierre-Eric Pelloux-Prayer
+	<pierre-eric.pelloux-prayer@amd.com>, "Kim, Dongwon" <dongwon.kim@intel.com>
+CC: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "kernel@collabora.com" <kernel@collabora.com>
+Subject: RE: [PATCH v3 1/2] drm/virtio: Use drm_gem_plane_helper_prepare_fb()
+Thread-Topic: [PATCH v3 1/2] drm/virtio: Use drm_gem_plane_helper_prepare_fb()
+Thread-Index: AQHbI0T/oHBvH7FUo0avEvknZScKJLKSCkXw
+Date: Tue, 22 Oct 2024 04:41:49 +0000
+Message-ID: <IA0PR11MB7185BF5A10E79A81B1A79796F84C2@IA0PR11MB7185.namprd11.prod.outlook.com>
+References: <20241020230803.247419-1-dmitry.osipenko@collabora.com>
+In-Reply-To: <20241020230803.247419-1-dmitry.osipenko@collabora.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: IA0PR11MB7185:EE_|SA1PR11MB6685:EE_
+x-ms-office365-filtering-correlation-id: ff93d7d8-5897-4934-38ea-08dcf253d7b7
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|376014|7416014|1800799024|38070700018;
+x-microsoft-antispam-message-info: =?us-ascii?Q?GwkSScyaIBc+jBE7Fzi3KxFN6JlL+91IgrnWdSCgj1kZ6RUKjzLP/3I88GlS?=
+ =?us-ascii?Q?6r4U6VMA8CErFeah4L+E5gTilqEqZklS3eoaf+JSeGCY0Op403biNXmAz2k8?=
+ =?us-ascii?Q?6wE6mDQIqDm7InFdjtIkNWydBySAPxpdueMFdQ66yHK9/D9R+pGwivQCNTrr?=
+ =?us-ascii?Q?drnSBh168WzVZFy+iQhg8K5JOi/ZESN3/yoGTtl0c1jl5rmskl5A4nVdkiOi?=
+ =?us-ascii?Q?79RJHOKnAlEs1EOJu6u5hUR6ncx6aS8B1gC8evE+mQsQtgRV9BCbz8U5470J?=
+ =?us-ascii?Q?P14mAn1nllnXpgAHhqNpXSycrcaBd59OQMy1NjkqFPf65huoFTcsehoboPWZ?=
+ =?us-ascii?Q?n+weBgJawgjKdOafxoSIRCVRO5DoFpRulA070mJRqjZhXn3XQJiH3xsYCkGN?=
+ =?us-ascii?Q?Es9iK/+anBm12GRRc2GKBS3lmWiJiLAeKYXlnCIH5d8bkb59+WvDLe6K4soj?=
+ =?us-ascii?Q?+bdc76LeFj07EpEJPuOLZ4Z6JchX/bcfNrKowaWuAnFBQwNYazZ1WxcbylLa?=
+ =?us-ascii?Q?7eOx8VJOIvpbnisU3gKW6gPtSFGpquXsuMrVpFC5hQ1wB5gCrRS5TZCP9x4K?=
+ =?us-ascii?Q?jg+5HKKSLus4kWYHbnUapjlVRtSfk2thSbUGByuJx/72NVz9GhbkXxoUAWq5?=
+ =?us-ascii?Q?ZSU/EUxXDfRB6mo/S7qEbPf7/c0AzJHs0yzvhGAapyWkeFQcGzk0Vff3FHCc?=
+ =?us-ascii?Q?juKSakcoGyTaJgdg3o3XS/E0v4FY9Jufnps8CaaXUxdB949cHyLrQtnxVgqu?=
+ =?us-ascii?Q?xg33Vae8EOW2ZswXyFGtkrNLCAsizf2qhCER8YmS/74PkBlQmHnBA7cCVgAT?=
+ =?us-ascii?Q?fLLp25U1+6xzC4j0vST+8MyEy6K1217m3Qn6eCVes9jW1agm2H/wlItZcDFi?=
+ =?us-ascii?Q?z5EiN1OxVv1wdhtDYdc8VaZvUxZt05+dadg70KehdsKa4Vne2vS29T1gJBpX?=
+ =?us-ascii?Q?UaAtDKOHrdL6TbjQdpPSFP6mtGMo9IC6w4mCc3F8RNj5Jt2vmPbDfU7j4Wud?=
+ =?us-ascii?Q?RjVzP2tpjzcP+3S07fE+IYjBuvfq2iKUsgOqCdY4whjZfGXiXBaApwwmHuoT?=
+ =?us-ascii?Q?h2jDBU89kWRFAb1BPr/mu30kLUPn2YsK8/3cfUd9kho8nB0brcFZ7R2ePjOL?=
+ =?us-ascii?Q?e/eI9hXHjAyONWIplLbzndDtrNsLhywgx83BRullSlr/jGHIvAZvyzDFXV9T?=
+ =?us-ascii?Q?qCgbh+Ll7GRQcn1EDpBbTPeKBhAPoMKQr6upWj5P50AySkiGC4kFXsgITjCY?=
+ =?us-ascii?Q?m2FCnKRTvfeIsOv9COZPTBViRU+c8fLzuHSwZLeesBE4N+EFU+BI0clWZ+LI?=
+ =?us-ascii?Q?Y20pC+1KQ40z02zzUpInZjVWdvM7IeuR6nQtExT68ucYiMx4cNMTZ/XEnWXC?=
+ =?us-ascii?Q?2JMzmgk=3D?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR11MB7185.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?xmmf73LHFPS1+D456nn6R5vanzAUN56HhPowWlDiABVcmyANXbocpXQW7KiC?=
+ =?us-ascii?Q?4KveyDdh/dB3aBmq8ONJnaqbu0zANX+MhWDeon/0a3yOOCfjjvRt3db1X99q?=
+ =?us-ascii?Q?rCQ1fA/q7xUUBsuxwKh/Hab862JFYByUwrexWpn6kaOZdH7WOe2xL5EJjXYS?=
+ =?us-ascii?Q?zUJWM6r0WPyM3ntlC6I/feKpVlrjOMUrRCbKxfXXBhD9uN+U1hpQOfY2lO7u?=
+ =?us-ascii?Q?f7K2eXmdZef0Wk67ZfUvySRwCdXqUUcchY72h17/reNbwu1R9UDyfaeDonPt?=
+ =?us-ascii?Q?R4MJESjQrxO8tVYQvymDA8//rEPoqINTCYgL9ByxhI5vI+LSmPOqib+W2o4b?=
+ =?us-ascii?Q?wIQ1Pshhb7bBBxZjDRuf3MbyJubY80fd7/+MTv4zzzQHoWzxJlCuyE2BXMb2?=
+ =?us-ascii?Q?iaJTTp/tFl9Aw5OcFJ+au0QErR2AmuG2p2wJalfZJMY6Fb29v+0V09OijDm4?=
+ =?us-ascii?Q?EOPj8F2J0COtwfiJ3GBVyBOybsCLWqNUA5zpARbMzamlulEW6quDqfx/hz2h?=
+ =?us-ascii?Q?aNCCd9GVCDSZy45ksehfBdgG77SUNmdj5x7bmyACylOQSWH1k5MqtcZ9s4Nq?=
+ =?us-ascii?Q?6sl2ttOsciRLlqg/WfTVj2u80fVBrPEAkWI/Z9b1T1vO5Q8ycPk43dNDQMfD?=
+ =?us-ascii?Q?zNmxWILYnN77+LvLZJQfMf1B/poX/GwRmcd3mB/YQc6z0UaqxQdHlfXWsVa/?=
+ =?us-ascii?Q?IG8t2dV0mYmXDLnxoPK3IVXnFyBAvMsJGPrMHvq001Wtqh5WcG//fHmp5wXt?=
+ =?us-ascii?Q?Lyr/M1kNiUSTXzuPQ+FZsGOVlAQJNLKkiwAR4xauNyHV3dM3qvrYiMiUAJum?=
+ =?us-ascii?Q?LPS0X1/co3P2YLQqEF1mEZ/F0yZ6WbkTnQMEaHNv7mUDmUq2Lz59ZQ3xjpGy?=
+ =?us-ascii?Q?j+sjAf2CPuNf0+4LcXJ8awXOsGmx5VzCGhG11D320VdJMweSKUThTgJzzld/?=
+ =?us-ascii?Q?zqxbx6eTIj471lRlCY78TaZUBO2rHZaJOKtXfisOz8BA7GCFjBpBVbfvHH3X?=
+ =?us-ascii?Q?llaHeRzNDwz6IUu44Y3CX8T2f2UR/i1P6Sq32FqQg5E0HYYyNuSwcr6mBzqZ?=
+ =?us-ascii?Q?T/oaVYZKQ//WKoVmWcJNG3DH5cg+Zw4BrKZiMvayBAp3hF7GyWkPeGIvSKwf?=
+ =?us-ascii?Q?yhMYxFSY5y2nECjQd4OUyKQWl02/MW2P/JsVSIpKykLpM308ch9g/pvRG4MT?=
+ =?us-ascii?Q?k7knaOOEtF9/ddlL8JVIjGgp3qKbKzykeZq8u72S4T/tjK+ITwGULkX3GUK/?=
+ =?us-ascii?Q?2fKBUhwnNGl9PBvdzMXXcPC38QhQJqfOC5SS4mrh+Wm4Tf0/l9mFFaUdqTjA?=
+ =?us-ascii?Q?wX7a8ulMjPX0MLNa3cw5hVI8vuJNMAJM+deZi7CSkBEEB2nMcipV1zJPM2Kl?=
+ =?us-ascii?Q?UjYppuZx9uiJMhHJ9jgBd9m1QTD/x7Gn/YqHlVapQvgyLVksoMR+bWDeP/ZT?=
+ =?us-ascii?Q?eKA68e6LItiKLrfrG7aLpCwfesZaOLHwLP5dESNSKCyt2b/loBN8NSKHC5az?=
+ =?us-ascii?Q?c57Q993cUfpHz+S01k6m8U5DNLcfkq3OdyY8nEDgyBk0But3xkWQb1ISZ4Tr?=
+ =?us-ascii?Q?QJW0JkjAbp6O7mMlnDf/VRvCaVphwHiQ19jnLGqK?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20241021204849.1580384-1-yuanchu@google.com>
-X-Mailer: git-send-email 2.46.0
-Message-ID: <20241021204849.1580384-2-yuanchu@google.com>
-Subject: [PATCH v4 2/2] virt: pvmemcontrol: add Yuanchu and Pasha as maintainers
-From: Yuanchu Xie <yuanchu@google.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>, 
-	"Theodore Ts'o" <tytso@mit.edu>, Pasha Tatashin <pasha.tatashin@soleen.com>, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, virtualization@lists.linux.dev, 
-	dev@lists.cloudhypervisor.org, Yuanchu Xie <yuanchu@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: IA0PR11MB7185.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ff93d7d8-5897-4934-38ea-08dcf253d7b7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Oct 2024 04:41:49.4894
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: L9thZ1Q62wG3MkQiKD3VH+ooYxvaO50VVI/zNW2KerZlYtdodiIt00Sp/N5Bb1Y/BDcqmSqOR+4yrOmPuntCteVW4H1TPY9fOE5WAoyZcBI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR11MB6685
+X-OriginatorOrg: intel.com
 
-The pvmemcontrol driver lives under drivers/virt/pvmemcontrol. We
-specify maintainers for the driver.
+> Subject: [PATCH v3 1/2] drm/virtio: Use
+> drm_gem_plane_helper_prepare_fb()
+>=20
+> From: Dongwon Kim <dongwon.kim@intel.com>
+>=20
+> Use drm_gem_plane_helper_prepare_fb() helper for explicit framebuffer
+> synchronization. We need to wait for explicit fences in a case of
+> Venus and native contexts when guest user space uses explicit fencing.
+>=20
+> Signed-off-by: Dongwon Kim <dongwon.kim@intel.com>
+> [dmitry.osipenko@collabora.com>: Edit commit message]
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_plane.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index a72a2dbda031..ab7232921cb7 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -26,6 +26,7 @@
+>  #include <drm/drm_atomic_helper.h>
+>  #include <drm/drm_damage_helper.h>
+>  #include <drm/drm_fourcc.h>
+> +#include <drm/drm_gem_atomic_helper.h>
+>=20
+>  #include "virtgpu_drv.h"
+>=20
+> @@ -254,6 +255,9 @@ static int virtio_gpu_plane_prepare_fb(struct
+> drm_plane *plane,
+>=20
+>  	vgfb =3D to_virtio_gpu_framebuffer(new_state->fb);
+>  	bo =3D gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
+> +
+> +	drm_gem_plane_helper_prepare_fb(plane, new_state);
+> +
+Acked-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
 
-Signed-off-by: Yuanchu Xie <yuanchu@google.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7ad507f49324..c0afabab8b71 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18716,6 +18716,13 @@ L:	linux-wireless@vger.kernel.org
- S:	Supported
- F:	drivers/net/wireless/purelifi/plfxlc/
- 
-+PVMEMCONTROL GUEST DRIVER
-+M:	Yuanchu Xie <yuanchu@google.com>
-+M:	Pasha Tatashin <pasha.tatashin@soleen.com>
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+F:	drivers/virt/pvmemcontrol/
-+
- PVRUSB2 VIDEO4LINUX DRIVER
- M:	Mike Isely <isely@pobox.com>
- L:	pvrusb2@isely.net	(subscribers-only)
--- 
-2.46.0
+>  	if (!bo || (plane->type =3D=3D DRM_PLANE_TYPE_PRIMARY && !bo-
+> >guest_blob))
+>  		return 0;
+>=20
+> --
+> 2.47.0
 
