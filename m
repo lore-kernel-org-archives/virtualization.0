@@ -1,63 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10AC91DDF5;
-	Tue, 22 Oct 2024 05:18:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A524814A084
+	for <virtualization@lists.linux.dev>; Tue, 22 Oct 2024 07:26:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729574335; cv=none; b=isYd5S7ev6H+hnQr+ORl6J0ZL5BZ3pdHaM+qLZiBVWuByRP/Mfk24lxl0SShBx3mudi9r0X6qqN0M20CcRXiewDTs7uYV/rXyUB3Gktw9jGw7dB7bXtAQn7McRLOBFCsmEjFEWnwK6SPXE7BKLgl1NCa5jInY+gQn1f0DU8haKw=
+	t=1729581982; cv=none; b=swPeOO3fZ345pnkmdCEsvAXzShf7aU4eK9mk/BUzttPUueW64Z3493OO569Mg9LiaNMWAE5/e7SJmyH7TKCb3MQJu9tFIQvvI9UOIFEZods4uDOiW7Zs5gzIzs7EprDM+Y15t4Qh6pt+s826HhguYP0FcZKtGUaQNpm8W56Y5Qc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729574335; c=relaxed/simple;
-	bh=RAhRQrMU/Jtdv6RJGp290Zy6A86u4CQL3hSzqxzV+MY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Rk/jPFk5Tw0wf1dCGdQbI1jHKv6Ma8dXFzI5gUtA7URn3l1Dfgs7zvA7zbcUG7whPlYMiOfdYLC4KHI4SrYsDNaEEo6WUrjHFoL0+do0cIAGV+1wRWq7oIWsD8JW5s0/nK9yKhRpzl2e6JJicMmCEmdugCtqPaFMwPrVz5PJzLs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=x6kjNyBk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1729581982; c=relaxed/simple;
+	bh=XXQtPBrZ9W84M1N+XoRyccWWIHR6QnK+jlUEKQ5ZI60=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=R5/AIoJLIgzd49vxXecUsgXhYL3Hp1NJ3zQV4JtSePH86i6P4tXdxd5xZxF4YcfXjAN2RdL/rOaaGoKq2Qb57vfCINcj89TzFOsWAsRKNmIZzvlIq5m4Hm2/AR59qrHHzasQ+Sj6j+x/m3d3tKJnIzZBPeQ3V8oANtx+P2XnUoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=QVDptM+8; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="x6kjNyBk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ACB3C4CEC3;
-	Tue, 22 Oct 2024 05:18:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1729574334;
-	bh=RAhRQrMU/Jtdv6RJGp290Zy6A86u4CQL3hSzqxzV+MY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=x6kjNyBkmkyAsInHuER1P5sOUfn+u2m10/9gK4m8d0gjLRYI0B569eNzxqqDLFSuZ
-	 pUfFJpsgSJ2G9YmDhNrIDygUG7uP0l5x9MSTtMZSObE8d5OqUDH21GSvG4ITKTYzet
-	 0V4KEORQl6P5yJIaZ5AjGaw9qLNF56gk30pCwzOE=
-Date: Tue, 22 Oct 2024 07:18:44 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Yuanchu Xie <yuanchu@google.com>
-Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org
-Subject: Re: [PATCH v4 1/2] virt: pvmemcontrol: control guest physical memory
- properties
-Message-ID: <2024102220-creed-darkening-aac0@gregkh>
-References: <20241021204849.1580384-1-yuanchu@google.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="QVDptM+8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1729581978;
+	bh=XXQtPBrZ9W84M1N+XoRyccWWIHR6QnK+jlUEKQ5ZI60=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=QVDptM+8fv9NCuIO6hY9PfOZT7AfeRldt9dyQd7CqnwieJIg7+gYW7/RB4+gicVCd
+	 wL1fF6Dxv2CQtkb/atzcLWQYNQgqmMUpnhwkL/wUBVpChUK29PdGsgnnqHNPQAyYtV
+	 TwbcMc2jVYevMQFKVc8ee7aP5ohHmtoSZMitj87hXKn1DGuwKzDsZlQSF+jhGI2toq
+	 kL/nVBjUOhDfkPueMKFW8cU4D421EM3U2M2IzthMKvXd+yaeearUHRM700YBKU57aj
+	 DgA2cgwFib6ZqQdpR0t3NI5oTFOcJUg/NMI4OCPXcB0BzF2cGXZ1O/gASEoUut/ZYx
+	 oM7Mz8BbG+c6w==
+Received: from [192.168.50.250] (unknown [171.76.81.24])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id B69B317E10D2;
+	Tue, 22 Oct 2024 09:26:15 +0200 (CEST)
+Message-ID: <0cd1d4af-ee47-468a-be70-ee2c30948eb8@collabora.com>
+Date: Tue, 22 Oct 2024 12:55:54 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241021204849.1580384-1-yuanchu@google.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] drm/ci: refactor software-driver stage jobs
+To: Daniel Stone <daniel@fooishbar.org>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
+ helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
+ robdclark@gmail.com, guilherme.gallo@collabora.com,
+ sergi.blanch.torne@collabora.com, deborah.brouwer@collabora.com,
+ dmitry.baryshkov@linaro.org, linux-arm-msm@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20241004133126.2436930-1-vignesh.raman@collabora.com>
+ <20241004133126.2436930-2-vignesh.raman@collabora.com>
+ <CAPj87rPGD8Pu_CSPXfRtsS_w8UYVJGR9CoLx7RAT69EUKefs3A@mail.gmail.com>
+Content-Language: en-US
+From: Vignesh Raman <vignesh.raman@collabora.com>
+In-Reply-To: <CAPj87rPGD8Pu_CSPXfRtsS_w8UYVJGR9CoLx7RAT69EUKefs3A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Oct 21, 2024 at 01:48:48PM -0700, Yuanchu Xie wrote:
-> +static DEFINE_RWLOCK(pvmemcontrol_lock);
+Hi Daniel,
 
-What does this lock control?
+On 07/10/24 22:07, Daniel Stone wrote:
+> Hi Vignesh,
+> 
+> On Fri, 4 Oct 2024 at 09:31, Vignesh Raman <vignesh.raman@collabora.com> wrote:
+>> +.software-driver:
+>> +  stage: software-driver
+>> +  extends:
+>> +    - .test-gl
+>> +    - .test-rules
+>> +  timeout: "1h30m"
+>> +  tags:
+>> +    - kvm
+>> +  script:
+>> +    - ln -sf $CI_PROJECT_DIR/install /install
+>> +    - mv install/bzImage /lava-files/bzImage
+>> +    - mkdir -p /lib/modules
+>> +    - mkdir -p $CI_PROJECT_DIR/results
+>> +    - ln -sf $CI_PROJECT_DIR/results /results
+>> +    - install/crosvm-runner.sh install/igt_runner.sh
+> 
+> Instead of inlining this here, can we please move towards reusing more
+> of .gitlab-ci/common/init-stage[12].sh? If those files need to be
+> modified then that's totally fine, but I'd rather have something more
+> predictable, and fewer random pieces of shell in each job section.
 
-> +static struct pvmemcontrol *pvmemcontrol __read_mostly;
+Sure. I will look into init-stage[12].sh and see if we can reuse it. Thanks.
 
-Having a single static device should not be needed, please tie this
-properly to the pci device that the driver core gives you.  With this
-design, you have limited yourself to a fixed number of devices in the
-system at once (i.e. 1).  This isn't the 1990's anymore, drivers should
-be able to handle any number of devices at once.
-
-thanks,
-
-greg k-h
+Regards,
+Vignesh
