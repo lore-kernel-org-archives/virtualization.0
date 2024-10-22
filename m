@@ -1,142 +1,169 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4BBB1A255A
-	for <virtualization@lists.linux-foundation.org>; Tue, 22 Oct 2024 14:30:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA41019DF75
+	for <virtualization@lists.linux.dev>; Tue, 22 Oct 2024 14:35:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729607429; cv=none; b=MSJIH2N7yIYs/vcy4hWrj+MwmuUBfz1mXn1Pvmj+7m44WPX+m4mIhPNC9FHe8OMbbEKk7JyDZEx18nldonu1cAXF9pqstjmiqa0JKpAwi9cPfsJhFVx37jnZaD1HQQYstj4aIWHN2khswK7mFXTcwf2XPQVErEqd8XeIPQBcG4Y=
+	t=1729607739; cv=none; b=PuSrqHIYvztCZgfndYUkrV+iszuaMaBIrwOmfnJa+u8J7M/RAiBML/Ln3r9dgOtqpY8CSYbYtzl2/hasCOFYcqUwAtd1opSTQbRYtNjXA2HsYdKm+CLu4neGe0IMd9uPFHf/d8IBZCPlc5w9aLHXCNNcnrj9xkkibdzHfhZhVeM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729607429; c=relaxed/simple;
-	bh=k0amHKO6MIntAv5M0SzgajpPonlLOfoo6JXAgIJwIcc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t725o/X78wxrpck2z2xS5e6L/OcJbOkT4U5XhWC85cYljJWJgN13m6E9jw3wP2z8/WTWOjChSw7V8+8/fTofxtbA3jcWqX3EebxBrXVDkTjK2gNwvpcIAJTeMyWC8FCyQ70m3j2Lq0CcDeCiu7W5MLAEBBvztN+AppOda52D1ZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=BVSWP0+G; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1729607739; c=relaxed/simple;
+	bh=IN3uw7A4e5+EHfOBzjLB/rIishhOKQYppCUa9vpRwos=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ANAkNG2+Ho7Te4iLHwzvO/EkpG9O+tCUKAZn4hxP1ENqlxgvtKGQT1VuFRjv3YqgV9oX1mF1SCmi1Eby23DjLi285w2H310cZQRWjLUokIQLKd6NZqnaPF+7oiqWdnk9Ja+O7oBM8vsNpIMxw6tWpuWDnSaw7vxdjazOXgYUlWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VSE0g/ru; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="BVSWP0+G"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 63B9240384
-	for <virtualization@lists.linux-foundation.org>; Tue, 22 Oct 2024 14:30:27 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 0oxjIQVqm-BW for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Oct 2024 14:30:26 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::12b; helo=mail-lf1-x12b.google.com; envelope-from=zhangfei.gao@linaro.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B9EBD40391
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B9EBD40391
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=BVSWP0+G
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B9EBD40391
-	for <virtualization@lists.linux-foundation.org>; Tue, 22 Oct 2024 14:30:24 +0000 (UTC)
-Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-539e8586b53so5698968e87.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 22 Oct 2024 07:30:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1729607422; x=1730212222; darn=lists.linux-foundation.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=lp8dKdoQIA1w+n8BQQ++9JKmCC1EPM5x54cAk4kCfAY=;
-        b=BVSWP0+GoExwB7SO8l4MXhSsX6nTD2fBipURPcL7Q4SwCXstB/GYZ/dU7En3fgCJge
-         n+qHjUpSbAR4fCNfxIEL6ggxqrA5QrDI5MlW3L8YpWtlAKGrrUfILuF3Bk31lZbjUQmK
-         JGsrMhMCafZZ3avdKdqse0lZV7JQF0hRcM7LPVGhNaZJxDMQ29+DhiAGPS1RysrYCPM7
-         Trz+vfCoiT65ENDbGQ8mFZ1MCdFhISywRrx7dI0QR2hqEJuezLftF/iU/fA5wxC7x7X0
-         fIuSA2U6hy8uAVQYgpT6aZ8mA62gWRIkNbpbSL0L3+X39lq0PEn8OuqgsY4iS0D/p/0x
-         SwEA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VSE0g/ru"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729607736;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=lamMGHbzeKB83vh3+3DISoETzmuJPevg91wnqG+F12Y=;
+	b=VSE0g/ru5929r0f+zcO7yAZp+T8FIbvh95iV4UHCVooFyKl/KHgnlBG5osRZ8RCyHFSwMr
+	U2OBLL7lLGyx8Dy5GT2dFKByPvm+KIbf2s+5ojaP/Dwuq1DwdExeP2cj+hELEgTXJ2QepM
+	I2X06k8bmI06IRz5wR1UrMQ56iCX+7A=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-472-AugiVN2oNKSDkmBwnwIPow-1; Tue, 22 Oct 2024 10:35:34 -0400
+X-MC-Unique: AugiVN2oNKSDkmBwnwIPow-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-37d49887a2cso3186770f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 22 Oct 2024 07:35:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729607422; x=1730212222;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lp8dKdoQIA1w+n8BQQ++9JKmCC1EPM5x54cAk4kCfAY=;
-        b=fNHJZop937qDBa1dUcAybs0LKM4+vxvESorEfz16RiSLzKhIRefCwt1zQVNHsAZXSH
-         rWEiQzAemkvxoBdGKWGcavn1kVJvtIFnfOuSjg+Y2rXtqetYLAHTRtfaR10In3OV2FL/
-         2FHA5gTccLR1MmAEmm3pZEAcMMH1sFmdMv2OQHgFofkAEoIjp5PuRjA3sjtWOWE9T0J+
-         A4xc/CEv1Ka5f1vCxY8h1mxSc0J64KyxxPdDNhyCbdBEJAbC27wCb7nQv8G8fjh9MmRN
-         BYhSiJFZMFxdadKUX1241AdyMnZdMKR8HwfEczVmkNURS3yBOxI+ROI9dnm+MZkxupLg
-         UuRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVfdj9a+2OD6ejndc1+6CSPooJV+UwpQRbksRSYEVdleBX7nzKvrDAm9wfnxzgvRZ2ciuYALT6m/mn++/BfEA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YznuwmvxvapIB5XEOUKpF8GymBra7qwV9jKY/wHwzomhJF1vD5u
-	v4KRB58oGS/58INnSM1Ey/Fqauzjne2iKTQBZ5xQYOL0nVu/bfBZpsNbM6CS31ucKo3aXy3Huvr
-	tQIikehYlUqeoui+Ug8rpfs1Z0lOAILvtpJH9Qw==
-X-Google-Smtp-Source: AGHT+IEmsgyC/7BPZ0DVAIPPJOMrKuG0dVpOFVN4k5ykLXaGddAjQf1rjB9Wpg/JrSZFFy9ylzXvbFdWuCjJSeysOhI=
-X-Received: by 2002:a05:6512:3d22:b0:539:ea18:437d with SMTP id
- 2adb3069b0e04-53b13181fd5mr1172054e87.25.1729607422263; Tue, 22 Oct 2024
- 07:30:22 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1729607733; x=1730212533;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=lamMGHbzeKB83vh3+3DISoETzmuJPevg91wnqG+F12Y=;
+        b=EI1SAzROdKp878ahHrxnPLXPOISDRm4XMt/0ZEgNzfM/5hNI8xNSmTpZlWNLCVRD04
+         fjDkoXbPGAO23Xcbks/AuOqTp4OXWZUmonVoK9G5WulZ+B8E6x52E1j7aYtR5YFFWArK
+         owMz5uu/Lk09dwiCKjUp3ebFbxqh4A4t/UEJd+3x6lRE5M/enDCZKj8/XI6pJOAH1lrD
+         8M6cG/6EVrMS70AtkGD+go+eFceq6lklly3KIr5AW2LwoU1JffIufJI5HEj9T9y3NET9
+         ex1mqYeL3MbFh+Fcp3G63zvk2SDJWCiFR/qfjfQvoReZ6Aj41JBO+UexvfG6SEuq0XGd
+         HV+g==
+X-Forwarded-Encrypted: i=1; AJvYcCVLiGks9kx4jRrqYxFnEUvCpuf6WN4M/im57g5cuUUhpteoOaRJCyIXpiOeXuS1uJOg2/ptIVaPtTx+pWPwJA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxqwXJcvog0aUCgd8j7KmX40ea3iTc4up88AxdZGl1EKBqec4dh
+	QJbiXmWyssbzDC8ygwY+Z/GJbROCao81PAl0gdU5MwDz7bMTXcAK2TAxiC+DnzU8HSqKphJHEKw
+	PK6DuUPPRA3MaGbTHG8UhUp9nCg8EhaTx54WwAsC5atxBcphvt2STnPexEWGgEHU/
+X-Received: by 2002:a5d:6dd1:0:b0:37d:34e7:6d24 with SMTP id ffacd0b85a97d-37ef14da610mr2116310f8f.18.1729607732942;
+        Tue, 22 Oct 2024 07:35:32 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGWL0LrxW7yMAYEPXvxEhUcKCrtkxuOmsMf8pB0UDuwJsdi/xEgMYz10obQmmaXjoQPDcO2QA==
+X-Received: by 2002:a5d:6dd1:0:b0:37d:34e7:6d24 with SMTP id ffacd0b85a97d-37ef14da610mr2116288f8f.18.1729607732535;
+        Tue, 22 Oct 2024 07:35:32 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c705:f700:352b:d857:b95d:9072? (p200300cbc705f700352bd857b95d9072.dip0.t-ipconnect.de. [2003:cb:c705:f700:352b:d857:b95d:9072])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37ee0b9bb15sm6766254f8f.99.2024.10.22.07.35.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Oct 2024 07:35:31 -0700 (PDT)
+Message-ID: <4a14d90b-75f0-4f4f-9e04-e2f7a39d85ba@redhat.com>
+Date: Tue, 22 Oct 2024 16:35:30 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-8-baolu.lu@linux.intel.com> <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca> <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
- <20241016152503.GB4020792@ziepe.ca> <20241018135343.GA1914429@nvidia.com>
-In-Reply-To: <20241018135343.GA1914429@nvidia.com>
-From: Zhangfei Gao <zhangfei.gao@linaro.org>
-Date: Tue, 22 Oct 2024 22:30:10 +0800
-Message-ID: <CABQgh9Hd0QCfEtVcMyXG+=KHuZdGGUA=kk5iL_ysOzfOpLh=-w@mail.gmail.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt attach/detach/replace
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>, 
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
-	Jean-Philippe Brucker <jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, 
-	Yi Liu <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, 
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC] Virtualizing tagged disaggregated memory capacity (app
+ specific, multi host shared)
+To: Gregory Price <gourry@gourry.net>
+Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-mm@kvack.org,
+ linux-cxl@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>,
+ Ira Weiny <ira.weiny@intel.com>, John Groves <John@groves.net>,
+ virtualization@lists.linux.dev, Oscar Salvador <osalvador@suse.de>,
+ qemu-devel@nongnu.org, Dave Jiang <dave.jiang@intel.com>,
+ Dan Williams <dan.j.williams@intel.com>, linuxarm@huawei.com,
+ wangkefeng.wang@huawei.com, John Groves <jgroves@micron.com>,
+ Fan Ni <fan.ni@samsung.com>, Navneet Singh <navneet.singh@intel.com>,
+ =?UTF-8?B?4oCcTWljaGFlbCBTLiBUc2lya2lu4oCd?= <mst@redhat.com>,
+ Igor Mammedov <imammedo@redhat.com>,
+ =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@linaro.org>
+References: <20240815172223.00001ca7@Huawei.com>
+ <fc05d089-ce04-42d2-a0d7-ea32fd73fe90@redhat.com>
+ <Zu07AU3aUrHBMXaw@PC2K9PVX.TheFacebook.com>
+ <1238f2a3-88a2-4996-92f2-05735801002b@redhat.com>
+ <Zxe1h8-E-OcO9cG3@PC2K9PVX.TheFacebook.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <Zxe1h8-E-OcO9cG3@PC2K9PVX.TheFacebook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 18 Oct 2024 at 21:53, Jason Gunthorpe <jgg@nvidia.com> wrote:
->
-> On Wed, Oct 16, 2024 at 12:25:03PM -0300, Jason Gunthorpe wrote:
-> > > > smmu-v3 needs some more fixing to move that
-> > > > arm_smmu_master_enable_sva() logic into domain attachment.
-> > >
-> > > Will think about this, Thanks Jason
-> >
-> > Can you test it if a patch is made?
->
-> Here it is:
->
-> https://github.com/jgunthorpe/linux/commits/smmuv3_nesting/
->
-> fa1528253d2210 iommu: Remove IOMMU_DEV_FEAT_SVA
-> 5675560a272cf5 iommu/vt-d: Check if SVA is supported when attaching the SVA domain
-> 94bc2b9525b508 iommu/arm-smmu-v3: Put iopf enablement in the domain attach path
->
-> Let me know..
+On 22.10.24 16:24, Gregory Price wrote:
+> On Tue, Oct 22, 2024 at 11:33:07AM +0200, David Hildenbrand wrote:
+>> On 20.09.24 11:06, Gregory Price wrote:
+>>
+>>> The only concern is when insufficient ZONE_NORMAL exists to support
+>>> ZONE_MOVABLE capacity - but this is unlikely to be the general scenario AND
+>>> can be mitigated w/ existing mechanisms.
+>>
+>> It might be worthwhile looking at
+>> Documentation/admin-guide/mm/memory-hotplug.rst "auto-movable" memory
+>> onlining polciy. It might not fit all sue cases, though (just like
+>> ZONE_MOVABLE doesn't)
+>>
+> 
+> I managed to miss auto-movable in my last pass through there. Though for
+> our use-case, forcibly preventing ZONE_NORMAL for all CXL is the preferred
+> option in an effort to keep as much kernel resources out of high latency
+> memory.
 
-With these patches, do we still need ops->user_pasid_table?
+Yes, that makes sense for this memory with very different performance 
+characteristics.
 
-if (fault->prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) {
-                attach_handle = iommu_attach_handle_get(dev->iommu_group,
-                                fault->prm.pasid, 0);
+-- 
+Cheers,
 
-// is attach_handle expected effect value here?
-                if (IS_ERR(attach_handle)) {
-                        const struct iommu_ops *ops = dev_iommu_ops(dev);
+David / dhildenb
 
-                        if (!ops->user_pasid_table)
-                                return NULL;
-                        /*
-                         * The iommu driver for this device supports user-
-                         * managed PASID table. Therefore page faults for
-                         * any PASID should go through the NESTING domain
-                         * attached to the device RID.
-                         */
-                        attach_handle = iommu_attach_handle_get(
-                                        dev->iommu_group, IOMMU_NO_PASID,
-                                        IOMMU_DOMAIN_NESTED);
-
-Now I still need set ops->user_pasid_table, since attach_handle can not
-return from the first iommu_attach_handle_get with fault->prm.pasid = 1,
-but the second iommu_attach_handle_get with  IOMMU_NO_PASID,
-suppose it is not expected?
-
-Thanks
