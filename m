@@ -1,125 +1,110 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BECE11386D7
-	for <virtualization@lists.linux.dev>; Wed, 23 Oct 2024 11:17:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1EC51ABEA6;
+	Wed, 23 Oct 2024 12:09:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729682258; cv=none; b=Poo6zFAslD7cw3uszPBIr76gJnzCTolZHJ83IdHHCpyhb2Hg1poa0nGqiiRcuz+JyHnHz9/JyE18AfEYQaszS2ytDTXmo4SzI95nkNLi9CxdTb0YzjF0Dj1PtJoFJHrg/3a0BZ1RyKJCxvWGQW4WV4bVI0cZ3UG9c9rcrKKNepM=
+	t=1729685397; cv=none; b=JA8nmz5ppzGl3GJdx8AIjIFyys6yA0Ck5JXWQatnQ1cyHckq7bO3K+OBcRjoCW0SlxjReVfGkaeKbVDmyQfBDBqboABu5Y86A1cWwYXAfpoUFHDn88SAvD7mbGJzTShAiMZb5AGmB9ntLBLJWxw5An9kJ5O2dgy6aisttiTmtf4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729682258; c=relaxed/simple;
-	bh=eCBwA2uVeaP+2Ms9EufdOjG1uAd6/PDeJZo0k69Rz0I=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Uie7uloigqMC3/lO+A1IVUMayfRScJouF5gXznSXXq616L0lgZJtPLA/zRFZHb7688jK9q1fWwZAGBHV4MS6VK5XLEJiBXPAC82AJzVX6c50OBkgEdzH5UYfnDx51lGK5+fm4ImkKNELprNMIDiG0TwyJMG+MvORmCqAsx6JK1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KIYk3zFK; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1729685397; c=relaxed/simple;
+	bh=AXAFmD5+kV5yDbgBzUHhaWDhN8JMbiV5Uhxt1/QMjAE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=O/yU2wZzc9XqWjTpvMdYA147YmekbXLeIO/vDuDa4eOhz0nJRVl5t8z6J8Mzy/rYOmy3n8z/BgsuRjAqTpdEadE7SddH0+ZkWnF6gkAG8Fj9ZA4XC3G9+PMxtW/o/fxDTiv2gNyKf9DBECzABaFg6kaNHN5AmkUTjpY8k3RZ1Y4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ezyg/Dop; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KIYk3zFK"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49N0N2WV027060;
-	Wed, 23 Oct 2024 11:17:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=ZE6D+HYETUE/ynzDtMdhfiXsH2K1dY
-	hl0JDp52VsIME=; b=KIYk3zFKjt5NfqmqLpfkxYcX8Bh7E5ZOBX6MngDiUHPE7i
-	za35AfTYZSqkN3qn84cGmanG6XJibAGMbIuZeE/0leRww3WfTrn9uja63UVmQyvD
-	Dt3CgfWVW/IGXx4PzjP2G32bTqT68OB2pAvEJ3HubS7qc+d0yJmNEQYa/MB7WBfJ
-	0OMsqSw9z6ZHAtCf8qUQhMdxawGtGtIL8edswVaZJYZN32wTfJOeT0YS694mWCkP
-	QmMwUvvHS9V6eE5MPzUVbxG5due9OOfbRZ9SE4N1MHXPSXmSmlt5GkG79410yxEn
-	1N9eXrQLZ6QyzC5Y5EFuO4LnUY48ytK/9LzZyYgw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emafjq2p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Oct 2024 11:17:31 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49NBF8co023247;
-	Wed, 23 Oct 2024 11:17:30 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emafjq2g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Oct 2024 11:17:30 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49N7XXlk014287;
-	Wed, 23 Oct 2024 11:17:29 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emhfjjfk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Oct 2024 11:17:29 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49NBHPJO41615756
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Oct 2024 11:17:25 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 74C2D2004B;
-	Wed, 23 Oct 2024 11:17:25 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A65520049;
-	Wed, 23 Oct 2024 11:17:25 +0000 (GMT)
-Received: from localhost (unknown [9.155.200.179])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 23 Oct 2024 11:17:25 +0000 (GMT)
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
-        borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
-        eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
-        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
-        svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
-        xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
-Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
-In-Reply-To: <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
-References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
- <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
- <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
- <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
-Date: Wed, 23 Oct 2024 13:17:25 +0200
-Message-ID: <87wmhzt6ey.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ezyg/Dop"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1729685396; x=1761221396;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=AXAFmD5+kV5yDbgBzUHhaWDhN8JMbiV5Uhxt1/QMjAE=;
+  b=Ezyg/DopoMklj8sThNk8mq71lB21PhHL8pMlq3hv6/H+dU9pSuowT5GN
+   tG/LY2QC3MFsNJGwJZAABCeq10Aen85YKHBKcb3Phn5RY+RGNP9qjDXVI
+   ZtoXbXPwyE6VqTuv+1Rh7uVcCnLk7Pl4n9l1p12NOmWTPLzthTQgdpDet
+   84M+OXQJX3eqh6Y6KDYjoaBEzApgEW68Ns5loO+MqyFZ5KEjHdEpf/C+f
+   ztPrr3UqJuLPCGASDiC7OsOBVA8LSDYte2MJ2ZCzDNsAIKkYGTKVCiBiR
+   houEo466CKH0BYrDQA6A8AyduIP6rYJJ+24kI88qxkM1355XUrcDRpA2K
+   g==;
+X-CSE-ConnectionGUID: EI1/7kqgRYaB7fBLb/j88A==
+X-CSE-MsgGUID: jo6WobCRSWWbNX+J1usV4w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11234"; a="29376760"
+X-IronPort-AV: E=Sophos;i="6.11,226,1725346800"; 
+   d="scan'208";a="29376760"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Oct 2024 05:09:54 -0700
+X-CSE-ConnectionGUID: CU1WNP8UT8uzJGu3GTNoXw==
+X-CSE-MsgGUID: ww3eUaktSi2PIB25nAUjSg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,226,1725346800"; 
+   d="scan'208";a="117651570"
+Received: from lkp-server01.sh.intel.com (HELO a48cf1aa22e8) ([10.239.97.150])
+  by orviesa001.jf.intel.com with ESMTP; 23 Oct 2024 05:09:51 -0700
+Received: from kbuild by a48cf1aa22e8 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1t3aBR-000Usu-0i;
+	Wed, 23 Oct 2024 12:09:49 +0000
+Date: Wed, 23 Oct 2024 20:09:25 +0800
+From: kernel test robot <lkp@intel.com>
+To: Yuanchu Xie <yuanchu@google.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: oe-kbuild-all@lists.linux.dev, Wei Liu <liuwe@microsoft.com>,
+	Rob Bradford <rbradford@rivosinc.com>,
+	Theodore Ts'o <tytso@mit.edu>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org,
+	Yuanchu Xie <yuanchu@google.com>
+Subject: Re: [PATCH v4 1/2] virt: pvmemcontrol: control guest physical memory
+ properties
+Message-ID: <202410231908.jZfkawyd-lkp@intel.com>
+References: <20241021204849.1580384-1-yuanchu@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: CKYpV1nV98NDEQcpmjz79r4Re2RRu4UK
-X-Proofpoint-GUID: nlELFtrFhiav0kiOq_i2qsR30bXf8Zr-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- mlxscore=0 mlxlogscore=804 adultscore=0 lowpriorityscore=0 malwarescore=0
- spamscore=0 phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
- definitions=main-2410230065
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241021204849.1580384-1-yuanchu@google.com>
 
-Hi David,
+Hi Yuanchu,
 
-David Hildenbrand <david@redhat.com> writes:
+kernel test robot noticed the following build errors:
 
+[auto build test ERROR on linus/master]
+[also build test ERROR on v6.12-rc4 next-20241023]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-> Staring at the powerpc implementation:
->
-> /*
->   * Return true only when kexec based kernel dump capturing method is used.
->   * This ensures all restritions applied for kdump case are not automatically
->   * applied for fadump case.
->   */
-> bool is_kdump_kernel(void)
-> {
-> 	return !is_fadump_active() && elfcorehdr_addr != ELFCORE_ADDR_MAX;
-> }
-> EXPORT_SYMBOL_GPL(is_kdump_kernel);
+url:    https://github.com/intel-lab-lkp/linux/commits/Yuanchu-Xie/virt-pvmemcontrol-add-Yuanchu-and-Pasha-as-maintainers/20241022-045035
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20241021204849.1580384-1-yuanchu%40google.com
+patch subject: [PATCH v4 1/2] virt: pvmemcontrol: control guest physical memory properties
+config: i386-allmodconfig (https://download.01.org/0day-ci/archive/20241023/202410231908.jZfkawyd-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241023/202410231908.jZfkawyd-lkp@intel.com/reproduce)
 
-Thanks for the pointer.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202410231908.jZfkawyd-lkp@intel.com/
 
-I would say power's version is semantically equivalent to what i have in
-mind for s390 :) If a dump kernel is running, but not a stand-alone
-one (apart from sa kdump), then it's a kdump kernel. 
+All errors (new ones prefixed by >>, old ones prefixed by <<):
 
-Regards
-Alex
+>> ERROR: modpost: "per_cpu_ptr_to_phys" [drivers/virt/pvmemcontrol/pvmemcontrol.ko] undefined!
+
+Kconfig warnings: (for reference only)
+   WARNING: unmet direct dependencies detected for GET_FREE_REGION
+   Depends on [n]: SPARSEMEM [=n]
+   Selected by [m]:
+   - RESOURCE_KUNIT_TEST [=m] && RUNTIME_TESTING_MENU [=y] && KUNIT [=m]
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
