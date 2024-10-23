@@ -1,169 +1,125 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 230561A4B69
-	for <virtualization@lists.linux-foundation.org>; Wed, 23 Oct 2024 10:22:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BECE11386D7
+	for <virtualization@lists.linux.dev>; Wed, 23 Oct 2024 11:17:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729678980; cv=none; b=NSdXQWUSSwVgo7PpK067gTHD0iSdxnk/cmKfyucLNcEv5ZEfX8VLyWWNzlj60gvVsnca2V9E4gDGRv+mOyIdSsMCf3qPJ7TuAy/q3i9GDIUMRp90nS/VBX13UC6Z/xOH6dFeHLXUMhWGfnaoXd9QXxUp2cvTcQKLzpeZADgA46g=
+	t=1729682258; cv=none; b=Poo6zFAslD7cw3uszPBIr76gJnzCTolZHJ83IdHHCpyhb2Hg1poa0nGqiiRcuz+JyHnHz9/JyE18AfEYQaszS2ytDTXmo4SzI95nkNLi9CxdTb0YzjF0Dj1PtJoFJHrg/3a0BZ1RyKJCxvWGQW4WV4bVI0cZ3UG9c9rcrKKNepM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729678980; c=relaxed/simple;
-	bh=NS4ilObULb/+LNuO08aUDsktHnNBmiP8ABY85oWc1eI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UWXvjAulVS537Hznbf0fUtxfwpOw6BSzsSYkL2Xy8DsQUS7upxewwlrIHXalKfV4cYYBTG135Tnz7vYGBWeLStyQhSH99aK/wOmgggLRj2RG2s0Mq+xL8jUNeEfRYeJjRRB73smBJOx+aofNLz9Ja9zgrNkCNy1F/H9j5dfDvdI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=GK9F6McV; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1729682258; c=relaxed/simple;
+	bh=eCBwA2uVeaP+2Ms9EufdOjG1uAd6/PDeJZo0k69Rz0I=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Uie7uloigqMC3/lO+A1IVUMayfRScJouF5gXznSXXq616L0lgZJtPLA/zRFZHb7688jK9q1fWwZAGBHV4MS6VK5XLEJiBXPAC82AJzVX6c50OBkgEdzH5UYfnDx51lGK5+fm4ImkKNELprNMIDiG0TwyJMG+MvORmCqAsx6JK1M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KIYk3zFK; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="GK9F6McV"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CB56840263
-	for <virtualization@lists.linux-foundation.org>; Wed, 23 Oct 2024 10:22:58 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id xSJ2yQV6o89e for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Oct 2024 10:22:57 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::22b; helo=mail-lj1-x22b.google.com; envelope-from=zhangfei.gao@linaro.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1360440167
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1360440167
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=GK9F6McV
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1360440167
-	for <virtualization@lists.linux-foundation.org>; Wed, 23 Oct 2024 10:22:56 +0000 (UTC)
-Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2fb3debdc09so52171421fa.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 23 Oct 2024 03:22:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1729678974; x=1730283774; darn=lists.linux-foundation.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=it5qqymkWGY0OitCSnqR7X8aXYDfuNSva2WMI6HrQ68=;
-        b=GK9F6McViavRMQUNFRfM6hyYh5Q1SHcJa/xwpQ3RqngElcRL94sSgI33qdmIY6cJdk
-         TLKSZYsu+xG5RPjVor3joH6nHTIO0Y5CwQcra/KOrBB3ElWjeoAY6L1Vhnm0aabXsPoR
-         k8ncn/CD4fEvUa4lSAbPXzCCcq31GRWGCkiSfekgpvztZ479jQXsvpEfOxk8CtPwJmbv
-         SPCq4K4n1vPquNVL6ah+/LDFM7DFPasjFD4ckwU/eHW0evtxac666JWsQbochx0fAPpS
-         f3T5sLKwiP7sDt+mgzN7ktkJ0oT28L7A4tRPgHbyTQp0Pnh0rn6fgaXLuBXhVywzwGsf
-         tFHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729678974; x=1730283774;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=it5qqymkWGY0OitCSnqR7X8aXYDfuNSva2WMI6HrQ68=;
-        b=GqA8mNVlPb4YCbv/LvtbIiMUrDyd6Tdq3prlNpiLgoFuushmnz9jVgYzE5lQqcu7Uj
-         rELYWnncLhVfasqqiy+PiqfwJQxeHG+gpoGq2CpX8OMCXgTDUhRu3rDtrHjpGFzThX2j
-         RJaSZczVK8U4G7bhCDNZYL69wYyJzsqZzlOSLdRvkwd4zSlhjefXHTxXsdPodGxZOMLT
-         B1nw2jTsoQhk9afQZ71w3OAISJzk3fswXe+wv4W/6i3pgKnKDulGms+0scznrfWhjVhl
-         B2VNktEDUtVHhopNbS6MAChbhf8kp/HKiqg4Fhf/G0c/COQ/20rZ/Dj2hP9jXHsoyQr7
-         wwCg==
-X-Forwarded-Encrypted: i=1; AJvYcCXA1JpOsXWf+Pmuc76SLvs2ny3xvseU32sfvMyruJmF7Dj1g4Rfq8s/TctRAyWHS+zuGfbFTW6prYfC03Xzyw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YymENTBRSiMm1RIvZyTy9g4J0+/y5hUMg9NUrnYrAchO0QGV+1w
-	r6Ie8ktJMqz3rUrWujT3Ku6VIOn95xN7288X5qhg1n7GGPzjeeMlZ12CyScS1dY6A8xpsGH42dm
-	fnPIAuc+prD1vFcjEu/TNTpMLN+bA7Jx5Sb0OBA==
-X-Google-Smtp-Source: AGHT+IHSlBLk0S83wm+5RZnogzP4oUfDRPvMnigWOthmmvnTrPqpN9jwiZcT3cwHLQu70zUFj7sVT87cHsqqjLDYfWw=
-X-Received: by 2002:a05:6512:308a:b0:536:56d8:24b4 with SMTP id
- 2adb3069b0e04-53b1a30c28cmr1039048e87.5.1729678974140; Wed, 23 Oct 2024
- 03:22:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KIYk3zFK"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49N0N2WV027060;
+	Wed, 23 Oct 2024 11:17:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=ZE6D+HYETUE/ynzDtMdhfiXsH2K1dY
+	hl0JDp52VsIME=; b=KIYk3zFKjt5NfqmqLpfkxYcX8Bh7E5ZOBX6MngDiUHPE7i
+	za35AfTYZSqkN3qn84cGmanG6XJibAGMbIuZeE/0leRww3WfTrn9uja63UVmQyvD
+	Dt3CgfWVW/IGXx4PzjP2G32bTqT68OB2pAvEJ3HubS7qc+d0yJmNEQYa/MB7WBfJ
+	0OMsqSw9z6ZHAtCf8qUQhMdxawGtGtIL8edswVaZJYZN32wTfJOeT0YS694mWCkP
+	QmMwUvvHS9V6eE5MPzUVbxG5due9OOfbRZ9SE4N1MHXPSXmSmlt5GkG79410yxEn
+	1N9eXrQLZ6QyzC5Y5EFuO4LnUY48ytK/9LzZyYgw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emafjq2p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Oct 2024 11:17:31 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49NBF8co023247;
+	Wed, 23 Oct 2024 11:17:30 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emafjq2g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Oct 2024 11:17:30 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49N7XXlk014287;
+	Wed, 23 Oct 2024 11:17:29 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emhfjjfk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Oct 2024 11:17:29 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49NBHPJO41615756
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 23 Oct 2024 11:17:25 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 74C2D2004B;
+	Wed, 23 Oct 2024 11:17:25 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A65520049;
+	Wed, 23 Oct 2024 11:17:25 +0000 (GMT)
+Received: from localhost (unknown [9.155.200.179])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 23 Oct 2024 11:17:25 +0000 (GMT)
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: agordeev@linux.ibm.com, akpm@linux-foundation.org,
+        borntraeger@linux.ibm.com, cohuck@redhat.com, corbet@lwn.net,
+        eperezma@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
+        hca@linux.ibm.com, imbrenda@linux.ibm.com, jasowang@redhat.com,
+        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+        svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+        xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+In-Reply-To: <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
+References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+ <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+ <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+ <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
+Date: Wed, 23 Oct 2024 13:17:25 +0200
+Message-ID: <87wmhzt6ey.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-8-baolu.lu@linux.intel.com> <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca> <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
- <20241016152503.GB4020792@ziepe.ca> <20241018135343.GA1914429@nvidia.com>
- <CABQgh9Hd0QCfEtVcMyXG+=KHuZdGGUA=kk5iL_ysOzfOpLh=-w@mail.gmail.com> <20241022145257.GB864191@nvidia.com>
-In-Reply-To: <20241022145257.GB864191@nvidia.com>
-From: Zhangfei Gao <zhangfei.gao@linaro.org>
-Date: Wed, 23 Oct 2024 18:22:42 +0800
-Message-ID: <CABQgh9E4XE6G7cK6_77ZsXgvfdOfa4rXXU2VUVxkqRd01tG+Rw@mail.gmail.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt attach/detach/replace
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>, 
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
-	Jean-Philippe Brucker <jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, 
-	Yi Liu <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, 
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CKYpV1nV98NDEQcpmjz79r4Re2RRu4UK
+X-Proofpoint-GUID: nlELFtrFhiav0kiOq_i2qsR30bXf8Zr-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ mlxscore=0 mlxlogscore=804 adultscore=0 lowpriorityscore=0 malwarescore=0
+ spamscore=0 phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410230065
 
-On Tue, 22 Oct 2024 at 22:53, Jason Gunthorpe <jgg@nvidia.com> wrote:
+Hi David,
+
+David Hildenbrand <david@redhat.com> writes:
+
+
+> Staring at the powerpc implementation:
 >
-> On Tue, Oct 22, 2024 at 10:30:10PM +0800, Zhangfei Gao wrote:
-> > On Fri, 18 Oct 2024 at 21:53, Jason Gunthorpe <jgg@nvidia.com> wrote:
-> > >
-> > > On Wed, Oct 16, 2024 at 12:25:03PM -0300, Jason Gunthorpe wrote:
-> > > > > > smmu-v3 needs some more fixing to move that
-> > > > > > arm_smmu_master_enable_sva() logic into domain attachment.
-> > > > >
-> > > > > Will think about this, Thanks Jason
-> > > >
-> > > > Can you test it if a patch is made?
-> > >
-> > > Here it is:
-> > >
-> > > https://github.com/jgunthorpe/linux/commits/smmuv3_nesting/
-> > >
-> > > fa1528253d2210 iommu: Remove IOMMU_DEV_FEAT_SVA
-> > > 5675560a272cf5 iommu/vt-d: Check if SVA is supported when attaching the SVA domain
-> > > 94bc2b9525b508 iommu/arm-smmu-v3: Put iopf enablement in the domain attach path
-> > >
-> > > Let me know..
-> >
-> > With these patches, do we still need ops->user_pasid_table?
->
-> It makes no change - you need user_pasid_table to make
-> IOMMU_DOMAIN_NESTED work.
->
-> If you aren't using IOMMU_DOMAIN_NESTED you shouldn't need it.
+> /*
+>   * Return true only when kexec based kernel dump capturing method is used.
+>   * This ensures all restritions applied for kdump case are not automatically
+>   * applied for fadump case.
+>   */
+> bool is_kdump_kernel(void)
+> {
+> 	return !is_fadump_active() && elfcorehdr_addr != ELFCORE_ADDR_MAX;
+> }
+> EXPORT_SYMBOL_GPL(is_kdump_kernel);
 
-OK, I misunderstood.
+Thanks for the pointer.
 
-Then with user_pasid_table=1
-both with these patches and without patches, user page fault is OK.
+I would say power's version is semantically equivalent to what i have in
+mind for s390 :) If a dump kernel is running, but not a stand-alone
+one (apart from sa kdump), then it's a kdump kernel. 
 
->
-> > if (fault->prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) {
-> >                 attach_handle = iommu_attach_handle_get(dev->iommu_group,
-> >                                 fault->prm.pasid, 0);
-> >
-> > // is attach_handle expected effect value here?
-> >                 if (IS_ERR(attach_handle)) {
-> >                         const struct iommu_ops *ops = dev_iommu_ops(dev);
-> >
-> >                         if (!ops->user_pasid_table)
-> >                                 return NULL;
-> >                         /*
-> >                          * The iommu driver for this device supports user-
-> >                          * managed PASID table. Therefore page faults for
-> >                          * any PASID should go through the NESTING domain
-> >                          * attached to the device RID.
-> >                          */
-> >                         attach_handle = iommu_attach_handle_get(
-> >                                         dev->iommu_group, IOMMU_NO_PASID,
-> >                                         IOMMU_DOMAIN_NESTED);
-> >
-> > Now I still need set ops->user_pasid_table, since attach_handle can not
-> > return from the first iommu_attach_handle_get with fault->prm.pasid = 1,
-> > but the second iommu_attach_handle_get with  IOMMU_NO_PASID,
-> > suppose it is not expected?
->
-> The second handle_get will always fail unless you are using
-> IOMMU_DOMAIN_NESTED in userspace with iommufd.
->
-> What testing are you doing exactly?
-
-I am testing vsva based on Nico's iommufd_viommu_p2-v3 branch,
-which requires IOMMU_DOMAIN_NESTED in user space with iommufd.
-
-About the three patches
-1. Tested host sva, OK
-2. Simply tested vsva on guests, OK, will do more tests.
-
-Thanks
+Regards
+Alex
