@@ -1,55 +1,82 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5291598F4;
-	Wed, 23 Oct 2024 06:58:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3190F1CA84
+	for <virtualization@lists.linux.dev>; Wed, 23 Oct 2024 07:42:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729666701; cv=none; b=Wc6+QTgA/uNNvVJrma/vuuFmZtZ9zGne8IZWgsPmPoBQ980OoeLUj0xi8zuzno/RJKKaufF8wwSE2pT3ppP4PYopt5BXMFR2yGrxktaGsycasb2BTjMAYdOy+yrmGRdUo30RRjyPAsgOvVHXd3q2nNASsOnO3rkN4bGYVu+VbkI=
+	t=1729669371; cv=none; b=hkGllBjyZ3rVeZh2KS5cYgQVkZsteXQG0yuiR9mooe3uODcxtyxHleZldYmPE4gqFtOWILVf2MqR1ZH5SNyVcAcqFievBaHAdx6kWTj2vuvKrpwFE/d1UFymg0iepYXCe36r9eRIBVByIw4365jIcvXpT2VoPN0pmZTDSPYeBo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729666701; c=relaxed/simple;
-	bh=6vN1RWTuulRIgIW2oChoUe8GtsBgQxYoedNj7Pzt7AE=;
+	s=arc-20240116; t=1729669371; c=relaxed/simple;
+	bh=35cxrIBquTIsbDYEYNBDPA1fYWrjS2NGs2jQmboaUHw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kpegGZJNXaqvRebW/P5zH0F+LFBxcoFPWpQiZGUK0MjkjjDRWJjT83vyttOLZ21l98hI9EafYakAzDz0GuaEK/VfB21GZf9oOw/0oljgv2vw26DW9d2rjptHxKLafBeVPS5mLoWg6wg784WaN3R3nIVJ8REJfm70iUIhUKHEIhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=QGc97Ajk; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=u+SyevXVQJcn5bSJUPuT1Ku7yV2otGHkrFVHkNQhKvA1/EWVQdBxaFRWVd3D4kZF580u3hBOQr/tt07oUozAa6ES+dopk50c/W33P2UdXOTDO644lAZmaYICVw4gZblOUxKJZSEUrrcIEJzW5R4rD7PSLBl2vQ+rREuLRht0wVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f19CBwJC; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QGc97Ajk"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=6vN1RWTuulRIgIW2oChoUe8GtsBgQxYoedNj7Pzt7AE=; b=QGc97Ajk7Z48fswQIVyboXj00U
-	WkWv3qOAM/7w0wkw2TBIJYfcgeZb3FMAxSo3lGTN9bviwxp2ZpBYLooV03qWGXqH+JV0s2xsK8cJp
-	hKkOy2YuUJTl0irMFLDZHQZvhFNOiCtliSfRsQf/BgmnL1QlXu3kOdDKjGIDPAWag1ycgxkvUrhrY
-	xRFLabG865iG0mz8PELDa3tqKMLoc2PTKxN8JvGmO9RjYiiqpdyjwn85i4W/TGcttv4Ty3HJuIL5L
-	8iu7MxghoAW4HwFR+lzXBhZlCZ1Yu6YNNBaNrz1BPPVX4J9SpFN/vtzC3RUfdTL8TVAjnGvSfGcuw
-	X3jxOcwA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1t3VJz-0000000DI0U-2rax;
-	Wed, 23 Oct 2024 06:58:19 +0000
-Date: Tue, 22 Oct 2024 23:58:19 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-	Srujana Challa <schalla@marvell.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"eperezma@redhat.com" <eperezma@redhat.com>,
-	Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
-	Jerin Jacob <jerinj@marvell.com>
-Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Message-ID: <ZxieizC7zeS7zyrd@infradead.org>
-References: <20240920140530.775307-1-schalla@marvell.com>
- <Zvu3HktM4imgHpUw@infradead.org>
- <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
- <Zw3mC3Ej7m0KyZVv@infradead.org>
- <20241016134127-mutt-send-email-mst@kernel.org>
- <ZxCrqPPbidzZb6w1@infradead.org>
- <20241019201059-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f19CBwJC"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49N0N3UD016719;
+	Wed, 23 Oct 2024 07:42:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=wXo43uDtjC7AWD0EX+yzMqBe11KZsQ
+	BWpM2baTsQIq0=; b=f19CBwJCe/YpMADqjM8IM4JHazG+LF3ZoULXe9LwM55mTA
+	ySSmBfacZFfV7Th2W6cdx2mW286qOrShf+WS/B3jIKsB5VarOYtmJUmVW25aKWTK
+	vVhMGzD+xn/NYyTuwUJWZXeNBztZ1dk6qz3EC1xyJGuxgCqujOgm9vMZvx9tSIjU
+	v/yAMhMmzGKlB4EfRORrgMzLi79M4N+2bxHTvMFYQQgZbzwgehYkmxQWv0e5+pr+
+	vmaqr0SMDtOyJ/5UT8l7L5C6+5Mv/b2dlbVkvW/imNxHItIr0+weJjGtmCvt4NlF
+	1CsloGnPisq/tIx//XwtSupHXsla1J6/Ol7uQppA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emajhug0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Oct 2024 07:42:45 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49N7dkuX031287;
+	Wed, 23 Oct 2024 07:42:44 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emajhufx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Oct 2024 07:42:44 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49N7UPss012603;
+	Wed, 23 Oct 2024 07:42:44 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 42emhf9tfe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Oct 2024 07:42:43 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49N7geZ334472700
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 23 Oct 2024 07:42:40 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 48BE42004B;
+	Wed, 23 Oct 2024 07:42:40 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2532820043;
+	Wed, 23 Oct 2024 07:42:39 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 23 Oct 2024 07:42:39 +0000 (GMT)
+Date: Wed, 23 Oct 2024 09:42:37 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Alexander Egorenkov <egorenar@linux.ibm.com>, agordeev@linux.ibm.com,
+        akpm@linux-foundation.org, borntraeger@linux.ibm.com,
+        cohuck@redhat.com, corbet@lwn.net, eperezma@redhat.com,
+        frankja@linux.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com,
+        jasowang@redhat.com, kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, mcasquer@redhat.com, mst@redhat.com,
+        svens@linux.ibm.com, thuth@redhat.com, virtualization@lists.linux.dev,
+        xuanzhuo@linux.alibaba.com, zaslonko@linux.ibm.com
+Subject: Re: [PATCH v2 1/7] s390/kdump: implement is_kdump_kernel()
+Message-ID: <20241023074237.8013-B-hca@linux.ibm.com>
+References: <87ed4g5fwk.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+ <76f4ed45-5a40-4ac4-af24-a40effe7725c@redhat.com>
+ <87sespfwtt.fsf@li-0ccc18cc-2c67-11b2-a85c-a193851e4c5d.ibm.com>
+ <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -58,13 +85,32 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241019201059-mutt-send-email-mst@kernel.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <64db4a88-4f2d-4d1d-8f7c-37c797d15529@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: kv4ZkB2-Mf5jHWjN5aziPIG7M60YrAaq
+X-Proofpoint-GUID: xdOQijmQwUZDsrA_f6jHNlHs_qGV4-Kl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ mlxscore=0 phishscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
+ lowpriorityscore=0 spamscore=0 mlxlogscore=643 bulkscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410230042
 
-On Sat, Oct 19, 2024 at 08:16:44PM -0400, Michael S. Tsirkin wrote:
-> Because people want to move from some vendor specific solution with vfio
-> to a standard vdpa compatible one with vdpa.
+On Mon, Oct 21, 2024 at 04:45:59PM +0200, David Hildenbrand wrote:
+> For my purpose (virtio-mem), it's sufficient to only support "kexec
+> triggered kdump" either way, so I don't care.
+> 
+> So for me it's good enough to have
+> 
+> bool is_kdump_kernel(void)
+> {
+> 	return oldmem_data.start;
+> }
+> 
+> And trying to document the situation in a comment like powerpc does :)
 
-So now you have a want for new use cases and you turn that into a must
-for supporting completely insecure and dangerous crap.
-
+Then let's go forward with this, since as Alexander wrote, this is returning
+what is actually happening. If this is not sufficient or something breaks we
+can still address this.
