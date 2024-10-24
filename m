@@ -1,459 +1,215 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155F249652
-	for <virtualization@lists.linux.dev>; Thu, 24 Oct 2024 16:47:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20BE61F76A3
+	for <virtualization@lists.linux.dev>; Thu, 24 Oct 2024 17:56:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729788465; cv=none; b=RwW6fimJa/XofUpXMWYwkxbKpbhlC8Mmh392kZ4lAfMvQRxjutS/gRKyE0ZNxztKQn6CPLv28BIIqMGHryBFW8036PqiySLYqt2ixZ20/0KxPUsIg27Ov7FaNBi5WKTN+ju/BYMRo4aJTwfOllXzxPZRaPwe2LNkNtIw48iZ3HU=
+	t=1729792578; cv=none; b=pRphrqiD7va/TcpsrlNFvPBi1oL4G9S8Tvr+z+vdpL/kjQcVM3H415Kbz0kwBliVUyvwuY7tN6meoRIvr2u64s1LGXZQ6bbKjy6T942wwdKbKBBjFRxP4ZmAowm5QKiOepY05kOzrw43+ybB+zAj5vUXE8nB6GBwwDqeVBAUOA4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729788465; c=relaxed/simple;
-	bh=aIvLjn3rOlgO5kyHARTds1WHTCY8VeelPcVbk96WdUc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=HHj1TSe1RfE43bACliDhIlj6YNOJKG2I+Zz4BWYK1kJEhwAHkiEf66HMBnkeLc9kT9XRNujKDYK/c/efs0WmyEGSubJGUVn2P2BI7+npwgOl0sB+LfsjD9JiuXN5/v8vh8hTbij4FJrzWI+r0NOQ8O7tI+l2UnD4i3X+W6Hdiz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Uk/03dJt; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729792578; c=relaxed/simple;
+	bh=dwa97Zv3mMxp89DjOwcC74hl8WXFjK0hXQS5Qkk1N/M=;
+	h=From:Subject:Date:Message-Id:Content-Type:To:Cc:MIME-Version; b=GdyOz0BSLsBfeU9XSBrkc9edS857BOAnbYOKmfjM2UhuTRdZXRcCp8ZYRDPrqvJvQ3C9ewU1v9/L3m/aThKGmetB5T1gZsRP7UMyUS7MoQqAeMj8ilqaRjyPumQdIwEv1VKsavqQDlqjCyZO2WhDP8hJ1HDXvVhEQ277pY9V1cU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=D5Lv+pQ7; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Uk/03dJt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729788460;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=/JTZR9cb5cIdJfIIUCqp1j5ZogzOe/S5Pl1mQcHwweA=;
-	b=Uk/03dJtMRM5IQD2KBP5/odsISGgu3VDCHQXSYvuz7FxzvnePLPDHA59avpHz1phBJwG4i
-	+HFB2IKHguOQnilW8qsAk5rL0jz+n0m1YlKi7ZczcQwVR1pce17xJY/LV/xMIeOvOozdBS
-	e/+sG7TfLVFbyYI7ZaCoIqvaTKFAQM8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-683-bPztLoe2PKCzvT752QS2DQ-1; Thu, 24 Oct 2024 12:47:39 -0400
-X-MC-Unique: bPztLoe2PKCzvT752QS2DQ-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4315d98a75fso9150035e9.2
-        for <virtualization@lists.linux.dev>; Thu, 24 Oct 2024 09:47:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729788458; x=1730393258;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/JTZR9cb5cIdJfIIUCqp1j5ZogzOe/S5Pl1mQcHwweA=;
-        b=PJrW8GDWiqATAS9H1OPzA2ssBGOSJtxElEafuGrx5a1fkCNJSMlhm/4ASJXVi5uwxc
-         v+QwH35b0+t+WIoWDPrLeG5g9p+I4PADTd/tF4JTtnbG6Plg6ifcp3v47x1mK8rybisF
-         w2XsIAHxYsZkYoqOF8KPbuapBdRVWUBmGhdIH+3S1a1eCcwVOM3crAtcupes9q3u6XQU
-         RnZmZTTBQ8YMTjj+FwFYOIeKotjPGI04NRgcbFwzdiKhtqNL+Qu3WwIq2IOUdO8ht1bV
-         7pTtREr8xLbKF2BVh7nVgelFD2fsrPXwhsAFvBhic13ODRDjIhWOD4DWnjMarCM7OhL8
-         VMAg==
-X-Forwarded-Encrypted: i=1; AJvYcCVlIzyfOIg4RbyD1BcPEID5Y9AAuNy9iIPNEAaJgrIM7t1h9EjoYFHabT1whoOOwmbdRwVCqwDAqyd/5ES7oQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxwPeo77z0YIy1mXmwQyzvNyg6/6a8XwSohGccAVXI/UIVe35hC
-	a6vmGa+jARY/o8Fir8RJGjW9yqNbqt4+9SsWPEmNNGVnW6aSabcsbQ2I4hZAZsJqOUWNk2n65R9
-	hMHVOXNjt/FxZ7DOi2aFcFEvgt1kl/00GexFPvWxoNLkpH5q1SzJnxLqpaxOTmrZ2
-X-Received: by 2002:a05:600c:1552:b0:42c:b750:1a1e with SMTP id 5b1f17b1804b1-4318beb62e6mr23540815e9.0.1729788457820;
-        Thu, 24 Oct 2024 09:47:37 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH8xUNh7GrXyQK8HUgeXdRxCTth5F82XB1Lm2v2D9E3I4zBK+iNWsA7VZ8jlV1lWVrXQcR0yg==
-X-Received: by 2002:a05:600c:1552:b0:42c:b750:1a1e with SMTP id 5b1f17b1804b1-4318beb62e6mr23540585e9.0.1729788457304;
-        Thu, 24 Oct 2024 09:47:37 -0700 (PDT)
-Received: from localhost (p200300cfd711bbb70201b57cf9d739d5.dip0.t-ipconnect.de. [2003:cf:d711:bbb7:201:b57c:f9d7:39d5])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43186bd68c7sm51480805e9.7.2024.10.24.09.47.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2024 09:47:36 -0700 (PDT)
-From: Hanna Czenczek <hreitz@redhat.com>
-To: linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: Hanna Czenczek <hreitz@redhat.com>,
-	Miklos Szeredi <mszeredi@redhat.com>,
-	German Maglione <gmaglione@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH] virtio-fs: Query rootmode during mount
-Date: Thu, 24 Oct 2024 18:47:24 +0200
-Message-ID: <20241024164726.77485-1-hreitz@redhat.com>
-X-Mailer: git-send-email 2.47.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="D5Lv+pQ7"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49OEUgn4025218;
+	Thu, 24 Oct 2024 17:55:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=xnEGdyTnpg4xM+QjkDVMi2R9voLU
+	vQJVrDKuSvjiRtc=; b=D5Lv+pQ7rewYUy72gB3EE0/NM8xN1S8kqgsBD2M8c31t
+	X4AoKRl21BtN5j3SlHYHcpT7CtZwlwaiOJOuLr4XTp3jrsNnqH7Ail+31H2LWEpz
+	OggWto5gr21gA6ajFGQzOWurjCsQOB/vdhdl8wn6OOoCiOc5lVhc+kFTxVhjBSrz
+	LKJdnDSZDw2DV8YtrTMWhVrdJTXnQvZyf18YGkwWvPmf2VWSmQhKdlI9Dfy54X8E
+	xC5GryC4OijXnJprAGkdQThVUXQoQjcm+17uoT8ZyAI0caUfbYru5XNUTA6P4g1r
+	40jG/xK1b/56EbWF6KcC+P6rvSchWr6eQOKL60mt+Q==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emaf21r2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 17:55:56 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49OHttc3019270;
+	Thu, 24 Oct 2024 17:55:55 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emaf21qw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 17:55:55 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49OHsDxE014565;
+	Thu, 24 Oct 2024 17:55:55 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emk81pbp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 17:55:55 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49OHtrAN49021382
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 24 Oct 2024 17:55:53 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A12885805D;
+	Thu, 24 Oct 2024 17:55:53 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ECE5A5805C;
+	Thu, 24 Oct 2024 17:55:48 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 24 Oct 2024 17:55:48 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH v9 0/5] treewide: Remove I/O port accessors for
+ HAS_IOPORT=n
+Date: Thu, 24 Oct 2024 19:54:39 +0200
+Message-Id: <20241024-b4-has_ioport-v9-0-6a6668593f71@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+X-B4-Tracking: v=1; b=H4sIAN+JGmcC/33M0QqCMBiG4VuRHTeZurbZUfcREXP7zR/SyWZii
+ PfeFIKQ6PD94HtmEsAjBHJKZuJhxICui1EeEmIa3d2Boo1NcpbzjDFOK04bHW7oeucHKpg2wkB
+ moRIkfnoPNU6bd7nGbjAMzr82fhTr+pHkThoFZZQVtcw5s1rA8fzA7jmlWLWpcS1ZtVF+C2ovy
+ CgokXPDSs2tlL8E9VdQUZBlAUJp0NbqvbAsyxuhkJDsMgEAAA==
+X-Change-ID: 20241004-b4-has_ioport-60ac6ce1deb6
+To: Brian Cain <bcain@quicinc.com>, Marcel Holtmann <marcel@holtmann.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-bluetooth@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+        intel-xe@lists.freedesktop.org, linux-serial@vger.kernel.org,
+        linux-arch@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
+        Arnd Bergmann <arnd@kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3956;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=dwa97Zv3mMxp89DjOwcC74hl8WXFjK0hXQS5Qkk1N/M=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNKlOn/9Tc23s9+Ytnn2beaQUpMX53o17DdMPuE2uUGgZ
+ bHY3IvNHaUsDGJcDLJiiiyLupz91hVMMd0T1N8BM4eVCWQIAxenAEzEXIThf/Zd8bd1jy8tTfGt
+ P9MY+cfvW5DanO1/VpzuKCkyE/JMSWJkmKYevFJimtD5l0cvW2x349jvJy1859+vPwUzL3xxElx
+ 1hAsA
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ZzK5_Bh6ZhzA52n2zOUZDhguzOYUudTo
+X-Proofpoint-ORIG-GUID: oNqOtwFfRbanHLYgT_LLYcqw484r7CU5
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 phishscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ priorityscore=1501 suspectscore=0 clxscore=1011 impostorscore=0
+ bulkscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410240145
 
-During mount, receive the root inode's mode (e.g. whether it is a
-directory or a regular file) via GETATTR.
+Hi All,
 
-Currently, the only way to set this mode to anything but S_IFDIR is by
-passing the mode's numerical value via the 'rootmode' mount option.
-This is done automatically by libfuse, so users generally do not need to
-worry about it.
+This is a follow up in my long running effort of making inb()/outb() and
+similar I/O port accessors compile-time optional. After initially
+sending this as a treewide series with the latest revision at[0]
+we switched to per subsystem series. Now though as we're left with only
+5 patches left I'm going back to a single series with Arnd planning
+to take this via the the asm-generic tree.
 
-For virtio-fs, no such option exists.  We could add it, but then users
-would need to manually set it: In case of virtio-fs, the server runs on
-a separate system, so it cannot issue mount() itself, leaving it a
-manual operation for the user.  So instead, Miklos suggested to simply
-ask the virtio-fs server (virtiofsd) for this rootmode.
+This series may also be viewed for your convenience on my git.kernel.org
+tree[1] under the b4/has_ioport branch. As for compile-time vs runtime
+see Linus' reply to my first attempt[2].
 
-We can do this via a GETATTR call during mount(): virtio_fs_fill_super()
-currently submits INIT in the background.  To do a GETATTR, we need to
-instead await the INIT reply (i.e. do a synchronous request), and then
-do GETATTR afterwards on the root inode.
+Thanks,
+Niklas
 
-To be able to issue INIT (and GETATTR), we need to at least partially
-initialize the super_block structure, which is currently done via
-fuse_fill_super_common().  However, the last part of that function sets
-up the root inode, which we will now have to delay until we have the
-GETATTR result.  Therefore, we split fuse_fill_super_common() in two:
-One part (initializing the super_block) we run before INIT+GETATTR, the
-other (setting up the root inode) we run afterwards.
+[0] https://lore.kernel.org/all/20230522105049.1467313-1-schnelle@linux.ibm.com/
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git
+[2] https://lore.kernel.org/lkml/CAHk-=wg80je=K7madF4e7WrRNp37e3qh6y10Svhdc7O8SZ_-8g@mail.gmail.com/
 
-Note that this patch only changes virtio-fs's behavior.  For other FUSE
-filesystems, we will continue to rely on the 'rootmode' mount option
-instead of issuing GETATTR during mount(): It is reasonable for a FUSE
-server to issue the mount() system call in the same thread that will
-later process FUSE requests.  Blocking on a FUSE request (INIT and
-GETATTR) during mount() would then cause a deadlock.
-
-Also, using the 'rootmode' mount option in case of non-virtio-fs FUSE
-filesystems just works well, there is no need to change it.
-
-Suggested-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Hanna Czenczek <hreitz@redhat.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
-Sorry for the delay, I wanted to find out whether I could come up with a
-good way of testing that all non-virtio-fs filesystems will be
-unaffected.  Unfortunately I didn't, so I really only tested manually
-that e.g. sshfs works as before (also qemu's FUSE export as an example
-for an S_IFREG root node).
----
- fs/fuse/fuse_i.h    | 35 +++++++++++++++++++++--
- fs/fuse/dir.c       | 28 ++++++++++++++++++
- fs/fuse/inode.c     | 70 ++++++++++++++++++++++++++++++++++-----------
- fs/fuse/virtio_fs.c | 38 +++++++++++++++++++++---
- 4 files changed, 148 insertions(+), 23 deletions(-)
+Changes in v9:
+- In drm patch sort includes and reformat if (Thomas). Use IS_ENABELD()
+  and add a helper instead of #ifdef (Arnd, Thomas)
+- Rebased on v6.12-rc4
+- Compile tested applied to next. There are a few conflicts with drm
+  next but they're all just context changes
+- Link to v8: https://lore.kernel.org/r/20241008-b4-has_ioport-v8-0-793e68aeadda@linux.ibm.com
 
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index e6cc3d552b13..1312705ecb16 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -936,6 +936,9 @@ struct fuse_mount {
- 	/* Entry on fc->mounts */
- 	struct list_head fc_entry;
- 	struct rcu_head rcu;
-+
-+	/* Whether this is a submount */
-+	bool submount;
- };
- 
- static inline struct fuse_mount *get_fuse_mount_super(struct super_block *sb)
-@@ -1219,15 +1222,43 @@ struct fuse_dev *fuse_dev_alloc_install(struct fuse_conn *fc);
- struct fuse_dev *fuse_dev_alloc(void);
- void fuse_dev_install(struct fuse_dev *fud, struct fuse_conn *fc);
- void fuse_dev_free(struct fuse_dev *fud);
--void fuse_send_init(struct fuse_mount *fm);
- 
- /**
-- * Fill in superblock and initialize fuse connection
-+ * Send INIT request
-+ * @fm: FUSE mount
-+ * @await_reply: If true, send a synchronous request, awaiting the server's
-+ *		 reply.  Otherwise, just submit the request, not awaiting a
-+ *		 reply; it will then be processed in the background once it
-+ *		 arrives.
-+ */
-+void fuse_send_init(struct fuse_mount *fm, bool await_reply);
-+
-+/**
-+ * Query the root inode's mode via GETATTR from the server; for use with
-+ * fuse_make_root_inode()
-+ * @fm: FUSE mount
-+ * @rootmode: on success, receives the root inode's mode
-+ */
-+int fuse_get_rootmode(struct fuse_mount *fm, unsigned int *rootmode);
-+
-+/**
-+ * Fill in superblock, without creating the root inode
-  * @sb: partially-initialized superblock to fill in
-  * @ctx: mount context
-  */
- int fuse_fill_super_common(struct super_block *sb, struct fuse_fs_context *ctx);
- 
-+/**
-+ * Create the root inode and initialize fuse connection, completing
-+ * initialization of the superblock
-+ * @sb: almost-initialized superblock (from fuse_fill_super_common()) to
-+ *	complete
-+ * @ctx: mount context
-+ * @mode: inode mode of the root inode
-+ */
-+int fuse_make_root_inode(struct super_block *sb, struct fuse_fs_context *ctx,
-+			 unsigned int mode);
-+
- /*
-  * Remove the mount from the connection
-  *
-diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 54104dd48af7..36fc899c5acc 100644
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -1297,6 +1297,34 @@ static int fuse_do_getattr(struct mnt_idmap *idmap, struct inode *inode,
- 	return err;
- }
- 
-+int fuse_get_rootmode(struct fuse_mount *fm, unsigned int *rootmode)
-+{
-+	int res;
-+	struct fuse_getattr_in inarg;
-+	struct fuse_attr_out outarg;
-+	FUSE_ARGS(args);
-+
-+	memset(&inarg, 0, sizeof(inarg));
-+	memset(&outarg, 0, sizeof(outarg));
-+	args.opcode = FUSE_GETATTR;
-+	args.nodeid = FUSE_ROOT_ID;
-+	args.in_numargs = 1;
-+	args.in_args[0].size = sizeof(inarg);
-+	args.in_args[0].value = &inarg;
-+	args.out_numargs = 1;
-+	args.out_args[0].size = sizeof(outarg);
-+	args.out_args[0].value = &outarg;
-+	res = fuse_simple_request(fm, &args);
-+	if (!res) {
-+		if (fuse_invalid_attr(&outarg.attr))
-+			res = -EIO;
-+		else
-+			*rootmode = outarg.attr.mode;
-+	}
-+	return res;
-+}
-+EXPORT_SYMBOL_GPL(fuse_get_rootmode);
-+
- static int fuse_update_get_attr(struct mnt_idmap *idmap, struct inode *inode,
- 				struct file *file, struct kstat *stat,
- 				u32 request_mask, unsigned int flags)
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index fd3321e29a3e..3e19b92928ad 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -1378,10 +1378,11 @@ static void process_init_reply(struct fuse_mount *fm, struct fuse_args *args,
- 	wake_up_all(&fc->blocked_waitq);
- }
- 
--void fuse_send_init(struct fuse_mount *fm)
-+void fuse_send_init(struct fuse_mount *fm, bool await_reply)
- {
- 	struct fuse_init_args *ia;
- 	u64 flags;
-+	ssize_t ret;
- 
- 	ia = kzalloc(sizeof(*ia), GFP_KERNEL | __GFP_NOFAIL);
- 
-@@ -1431,7 +1432,18 @@ void fuse_send_init(struct fuse_mount *fm)
- 	ia->args.nocreds = true;
- 	ia->args.end = process_init_reply;
- 
--	if (fuse_simple_background(fm, &ia->args, GFP_KERNEL) != 0)
-+	if (await_reply)
-+		ret = fuse_simple_request(fm, &ia->args);
-+	else
-+		ret = fuse_simple_background(fm, &ia->args, GFP_KERNEL);
-+
-+	/*
-+	 * Errors from fuse_simple_request() may mean that we failed to submit
-+	 * the request, or may be error codes from the server, which would have
-+	 * been processed already.  Either way, ensure that we always call
-+	 * process_init_reply() at least once.
-+	 */
-+	if (ret < 0)
- 		process_init_reply(fm, &ia->args, -ENOTCONN);
- }
- EXPORT_SYMBOL_GPL(fuse_send_init);
-@@ -1653,6 +1665,7 @@ static int fuse_get_tree_submount(struct fs_context *fsc)
- 	if (!fm)
- 		return -ENOMEM;
- 
-+	fm->submount = true;
- 	fm->fc = fuse_conn_get(fc);
- 	fsc->s_fs_info = fm;
- 	sb = sget_fc(fsc, NULL, set_anon_super_fc);
-@@ -1694,8 +1707,6 @@ int fuse_fill_super_common(struct super_block *sb, struct fuse_fs_context *ctx)
- 	struct fuse_dev *fud = NULL;
- 	struct fuse_mount *fm = get_fuse_mount_super(sb);
- 	struct fuse_conn *fc = fm->fc;
--	struct inode *root;
--	struct dentry *root_dentry;
- 	int err;
- 
- 	err = -EINVAL;
-@@ -1752,8 +1763,36 @@ int fuse_fill_super_common(struct super_block *sb, struct fuse_fs_context *ctx)
- 	fc->no_control = ctx->no_control;
- 	fc->no_force_umount = ctx->no_force_umount;
- 
-+	err = -EINVAL;
-+	if (ctx->fudptr) {
-+		if (*ctx->fudptr)
-+			goto err_dev_free;
-+		*ctx->fudptr = fud;
-+	}
-+	return 0;
-+
-+ err_dev_free:
-+	if (fud)
-+		fuse_dev_free(fud);
-+ err_free_dax:
-+	if (IS_ENABLED(CONFIG_FUSE_DAX))
-+		fuse_dax_conn_free(fc);
-+ err:
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(fuse_fill_super_common);
-+
-+int fuse_make_root_inode(struct super_block *sb, struct fuse_fs_context *ctx,
-+			 unsigned int mode)
-+{
-+	struct fuse_mount *fm = get_fuse_mount_super(sb);
-+	struct fuse_conn *fc = fm->fc;
-+	struct inode *root;
-+	struct dentry *root_dentry;
-+	int err;
-+
- 	err = -ENOMEM;
--	root = fuse_get_root_inode(sb, ctx->rootmode);
-+	root = fuse_get_root_inode(sb, mode);
- 	sb->s_d_op = &fuse_root_dentry_operations;
- 	root_dentry = d_make_root(root);
- 	if (!root_dentry)
-@@ -1762,18 +1801,12 @@ int fuse_fill_super_common(struct super_block *sb, struct fuse_fs_context *ctx)
- 	sb->s_d_op = &fuse_dentry_operations;
- 
- 	mutex_lock(&fuse_mutex);
--	err = -EINVAL;
--	if (ctx->fudptr && *ctx->fudptr)
--		goto err_unlock;
--
- 	err = fuse_ctl_add_conn(fc);
- 	if (err)
- 		goto err_unlock;
- 
- 	list_add_tail(&fc->entry, &fuse_conn_list);
- 	sb->s_root = root_dentry;
--	if (ctx->fudptr)
--		*ctx->fudptr = fud;
- 	mutex_unlock(&fuse_mutex);
- 	return 0;
- 
-@@ -1781,15 +1814,15 @@ int fuse_fill_super_common(struct super_block *sb, struct fuse_fs_context *ctx)
- 	mutex_unlock(&fuse_mutex);
- 	dput(root_dentry);
-  err_dev_free:
--	if (fud)
--		fuse_dev_free(fud);
-- err_free_dax:
-+	if (ctx->fudptr && *ctx->fudptr) {
-+		fuse_dev_free(*ctx->fudptr);
-+		*ctx->fudptr = NULL;
-+	}
- 	if (IS_ENABLED(CONFIG_FUSE_DAX))
- 		fuse_dax_conn_free(fc);
-- err:
- 	return err;
- }
--EXPORT_SYMBOL_GPL(fuse_fill_super_common);
-+EXPORT_SYMBOL_GPL(fuse_make_root_inode);
- 
- static int fuse_fill_super(struct super_block *sb, struct fs_context *fsc)
- {
-@@ -1810,11 +1843,14 @@ static int fuse_fill_super(struct super_block *sb, struct fs_context *fsc)
- 	ctx->fudptr = &ctx->file->private_data;
- 
- 	err = fuse_fill_super_common(sb, ctx);
-+	if (err)
-+		return err;
-+	err = fuse_make_root_inode(sb, ctx, ctx->rootmode);
- 	if (err)
- 		return err;
- 	/* file->private_data shall be visible on all CPUs after this */
- 	smp_mb();
--	fuse_send_init(get_fuse_mount_super(sb));
-+	fuse_send_init(get_fuse_mount_super(sb), false);
- 	return 0;
- }
- 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 6404a189e989..ae6e9ee15556 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -1541,6 +1541,7 @@ static int virtio_fs_fill_super(struct super_block *sb, struct fs_context *fsc)
- 	struct virtio_fs *fs = fc->iq.priv;
- 	struct fuse_fs_context *ctx = fsc->fs_private;
- 	unsigned int i;
-+	unsigned int rootmode;
- 	int err;
- 
- 	virtio_fs_ctx_set_defaults(ctx);
-@@ -1577,6 +1578,12 @@ static int virtio_fs_fill_super(struct super_block *sb, struct fs_context *fsc)
- 		}
- 		ctx->dax_dev = fs->dax_dev;
- 	}
-+
-+	/*
-+	 * Begin sb initialization, fuse_send_init() and process_init_reply()
-+	 * need it.  Cannot create the root inode yet, we need to wait for the
-+	 * INIT reply to know its inode mode.
-+	 */
- 	err = fuse_fill_super_common(sb, ctx);
- 	if (err < 0)
- 		goto err_free_fuse_devs;
-@@ -1589,12 +1596,27 @@ static int virtio_fs_fill_super(struct super_block *sb, struct fs_context *fsc)
- 
- 	/* Previous unmount will stop all queues. Start these again */
- 	virtio_fs_start_all_queues(fs);
--	fuse_send_init(fm);
-+	fuse_send_init(fm, true);
-+
-+	err = fuse_get_rootmode(fm, &rootmode);
-+	/* On error, fall back to the default (probably S_IFDIR) */
-+	if (err < 0)
-+		rootmode = ctx->rootmode;
-+
-+	err = fuse_make_root_inode(sb, ctx, rootmode);
-+	if (err < 0)
-+		goto err_free_fuse_devs;
-+
- 	mutex_unlock(&virtio_fs_mutex);
- 	return 0;
- 
- err_free_fuse_devs:
--	virtio_fs_free_devs(fs);
-+	/*
-+	 * After INIT, virtio_fs_conn_destroy() will be called by
-+	 * virtio_kill_sb(), so there is no need to clean up here
-+	 */
-+	if (!fc->initialized)
-+		virtio_fs_free_devs(fs);
- err:
- 	mutex_unlock(&virtio_fs_mutex);
- 	return err;
-@@ -1635,8 +1657,16 @@ static void virtio_kill_sb(struct super_block *sb)
- 	struct fuse_mount *fm = get_fuse_mount_super(sb);
- 	bool last;
- 
--	/* If mount failed, we can still be called without any fc */
--	if (sb->s_root) {
-+	/*
-+	 * Only destroy the connection after full initialization, i.e.
-+	 * once s_root is set (see commit d534d31d6a45d).
-+	 * One exception: For virtio-fs, we call INIT before s_root is
-+	 * set so we can determine the root node's mode.  We must call
-+	 * DESTROY after INIT.  So if an error occurs during that time
-+	 * window (specifically in fuse_make_root_inode()), we still
-+	 * need to call virtio_fs_conn_destroy() here.
-+	 */
-+	if (sb->s_root || (fm->fc && fm->fc->initialized && !fm->submount)) {
- 		last = fuse_mount_remove(fm);
- 		if (last)
- 			virtio_fs_conn_destroy(fm);
+Changes in v8:
+- Don't remove "depends on !S390" for SERIAL_8250
+- Link to v7: https://lore.kernel.org/r/20241008-b4-has_ioport-v7-0-8624c09a4d77@linux.ibm.com
+
+Changes in v7:
+- Renamed serial_8250_need_ioport() helper to
+  serial_8250_warn_need_ioport() and move it to 8250_pcilib.c so it can
+  be used in serial8250_pci_setup_port()
+- Flattened if in serial8250_pci_setup_port() (Maciej)
+- Removed gratuituous changes (Maciej)
+- Removed is_upf_fourport() helper in favor of zeroing UPF_FOURPORT
+  if CONFIG_HAS_IOPORT is not set (Maciej)
+- Link to v6: https://lore.kernel.org/r/20241007-b4-has_ioport-v6-0-03f7240da6e5@linux.ibm.com
+
+Changes since v5 / per subsystem patches:
+
+drm:
+- Add HAS_IOPORT dependency for GMA500
+tty: serial:
+- Make 8250 PCI driver emit an error message when trying to use devices
+  which require I/O ports without CONFIG_HAS_IOPORT (Maciej)
+- Use early returns + dead code elimination to skip inb()/outb() uses
+  in quirks (Arnd)
+- In 8250 PCI driver also handle fintek and moxi quirks
+- In 8250 ports code handle um's defined(__i385__) &&
+  defined(CONFIG_HAS_IOPORT) case
+- Use IS_ENABLED() early return also in is_upf_fourport()
+  __always_inline to force constant folding
+
+---
+Niklas Schnelle (5):
+      hexagon: Don't select GENERIC_IOMAP without HAS_IOPORT support
+      Bluetooth: add HAS_IOPORT dependencies
+      drm: handle HAS_IOPORT dependencies
+      tty: serial: handle HAS_IOPORT dependencies
+      asm-generic/io.h: Remove I/O port accessors for HAS_IOPORT=n
+
+ arch/hexagon/Kconfig                  |  1 -
+ drivers/bluetooth/Kconfig             |  6 ++--
+ drivers/gpu/drm/gma500/Kconfig        |  2 +-
+ drivers/gpu/drm/qxl/Kconfig           |  2 +-
+ drivers/gpu/drm/tiny/bochs.c          | 19 ++++++++---
+ drivers/gpu/drm/tiny/cirrus.c         |  2 ++
+ drivers/gpu/drm/xe/Kconfig            |  2 +-
+ drivers/tty/Kconfig                   |  4 +--
+ drivers/tty/serial/8250/8250_early.c  |  4 +++
+ drivers/tty/serial/8250/8250_pci.c    | 40 +++++++++++++++++++++++
+ drivers/tty/serial/8250/8250_pcilib.c | 12 ++++++-
+ drivers/tty/serial/8250/8250_pcilib.h |  2 ++
+ drivers/tty/serial/8250/8250_port.c   | 27 +++++++++++++---
+ drivers/tty/serial/8250/Kconfig       |  4 +--
+ drivers/tty/serial/Kconfig            |  2 +-
+ include/asm-generic/io.h              | 60 +++++++++++++++++++++++++++++++++++
+ include/linux/serial_core.h           |  4 +++
+ 17 files changed, 171 insertions(+), 22 deletions(-)
+---
+base-commit: 42f7652d3eb527d03665b09edac47f85fb600924
+change-id: 20241004-b4-has_ioport-60ac6ce1deb6
+
+Best regards,
 -- 
-2.47.0
+Niklas Schnelle
 
