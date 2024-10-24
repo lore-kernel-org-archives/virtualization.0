@@ -1,67 +1,67 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64F163D69
-	for <virtualization@lists.linux-foundation.org>; Thu, 24 Oct 2024 02:19:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15A1C145B16
+	for <virtualization@lists.linux-foundation.org>; Thu, 24 Oct 2024 02:23:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729736359; cv=fail; b=LDBQqk9qKQxGTpJ3RATRGq5zUYMw+kVV7qXFdXuIXLxDVUBVVZO1+FBFEBAWZLsg3VAJyeiTG15Glt3bqVYg6NnUmyd0d1ICdI7B8eWV7sVNYI8AlAhRoGZTVLpU6j4prVcLFaqAcsP9KIHrBcUosSKABEbJJ6KNUoV8aUdOOWs=
+	t=1729736629; cv=fail; b=idyWM2OPr1mdLSmwev9ZbLQInEi5oNF6CNQcgBr7+u3qyBCoKt6bv65PtQkItZM1irX53TaQAuUaaLxRNXH6gJPqx1PSt04ZdhwG8dRjQ2iLM6wdjUFphPT7WyQCBZ4X5BJgRDC5w9xG9lF2ukLJGj/2UxTT8/bsJPlTDkmXUFY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729736359; c=relaxed/simple;
-	bh=wyNheO2cMpsESEfyURt8tonIryNKtnnlNiVkfUmiBcA=;
+	s=arc-20240116; t=1729736629; c=relaxed/simple;
+	bh=/+d06qGvzcjQZLV3N/bI3K0sdUnFO7GGCWAGRo13ORU=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=IZLpI/FK5kq2KFxJ9uxes+ctZM/ryItLmmOtzzFpQaJd51mA35Y7Q/wcAbRqB7o7/ztzEqyu7IbHr4GrXlbqcKCKxalhtDsVn3KBHdywXHn9KQrJt6Wy5Po45C6jOCrG92r2t7jk8UJHLzSiyHFQQSqvjhOhEWZ0N3yNk/oplQ4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=XuHx4UhM; arc=fail smtp.client-ip=140.211.166.136
+	 Content-Type:MIME-Version; b=nG0O4t7bdPLHGwiS91gBSSOqE0BIVj7GVBd4jTDaXc+KKxOMyX258PHMzRMZIlIB+CSzX/2uAr3saN4ymE+KvdzBvRjD68/MJt4rA9oj7E6Q81cg+Ei4jXJ31hIQrbt8ZYrKJDCURrXXPcFUs82xWYT7ks3RpKDzSEeFWpuA2dM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qxs0buJP; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="XuHx4UhM"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qxs0buJP"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0D3316072B
-	for <virtualization@lists.linux-foundation.org>; Thu, 24 Oct 2024 02:19:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 978ED405EB
+	for <virtualization@lists.linux-foundation.org>; Thu, 24 Oct 2024 02:23:47 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id gxicclC5YEgL for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Oct 2024 02:19:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2407::600; helo=nam02-bn1-obe.outbound.protection.outlook.com; envelope-from=parav@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C5E666064E
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C5E666064E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=XuHx4UhM
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2407::600])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C5E666064E
-	for <virtualization@lists.linux-foundation.org>; Thu, 24 Oct 2024 02:19:15 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Ity5CPJBtDB6 for <virtualization@lists.linux-foundation.org>;
+ Thu, 24 Oct 2024 02:23:46 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:200a::604; helo=nam12-mw2-obe.outbound.protection.outlook.com; envelope-from=parav@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 63CC1405E8
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 63CC1405E8
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=qxs0buJP
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on20604.outbound.protection.outlook.com [IPv6:2a01:111:f403:200a::604])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 63CC1405E8
+	for <virtualization@lists.linux-foundation.org>; Thu, 24 Oct 2024 02:23:46 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=YuD78S4PqcSbPtk/oBu2PQswYYUuyZIHRK9/1irBwv6BOTGTd1FBIgnUXC311NyeA96JdTWGH+mZzJNC95tAEe+iGsGVU+CQWlH1yxlsijOM++43bQnFpLRC6PIZ+9H2SsIDgGatGXAwna1J/XEmYIFhtVQ2sUBG6Gp5JsWf9LSLijJo4tpMrVek0zx7BmrE5NCbsEwhr0C9/HL8WdaaldIJoNhbPGsRY74GIUU244XN6yheM9KxJvHLQWJCPFvv5eNJhzlq9VFKe5z++NAroiV2B/OdmqNMwT/WTfVHc48O1YiieZcElwD7KHfFupyRFf9bvsvFS6Mq/ryFGEmLLg==
+ b=SulH28Tz6xguQ7LXgnb8nNug6QbPslkjIKnMbO8l5TnyX0QKpwdyVGq6UG51G301Vr7JXAkcEXa2rt18lLXVMvvUtA0luRnySpmlZzHO2ag2+512UhS3WFHPITv995KNKuTj4anKZZF/fZDEVnJDcG5pyBLe11j6PfidOsenNEzHtU92+AkHLfy3FEDgmxONbPNs2a2KawOmx0ssuqp5hoSfPxmNekBQ+vuRnEPdEC7G3/0suCvfm8mYGnIizfZncZSImgAy+t9NIwMykEt4NcsM0iItUfNaUr7rSjb3Nu97CD/CECrXRuWTrBjoqNVKJxKonG+wapBell7Sb+Cjcw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=B2t4whE7rcCP+Riyj646Iih1KKVz0zhO9++3dpfWSsA=;
- b=jc3x3Yv8Zq8GRRiwPpXbHMpSPnSvKxSprR6ePUKf4jquHmhOIr4caM33kjb+3SX9E1ocDETi4MDekiCoEUzzFrzTDJauaJ0BwIzebETwwBb7MZHjs7ftvub02qL6WNEandQdeWAqlZ/TNVgu5h4CDv7+9nQS4DRf58HBOnD/9FoUNgVneoV6c69UdTIVtXO0VEag3nuYdDQRYDz/tDajyfYaOH97OA07gs0fOIxlmLGgk6StB2uHaI4VgAIlgiOSNC3SWdc6hAzZmWQC01JFzGGD7l/qCb+D6N3PF2JgfGRN2jgXSbIYZvAZksOWQomIwX26nD/yLm+USj3nxJQ4sA==
+ bh=zPGTA3n5RicsQok/J4N0PnkgzAHcR2A53GxYJQHyq+o=;
+ b=vuE0LAtxwRoi1ICpIMdSfdntsdE1+IZKtx14+oJzRY8yfAPiMaV9M0QZMU33BWAX1PihgJ0HDGclQKrPX2Ht2j6ifTpIAqzJBf6CTLpS0C4zfd3h/1opC4ZOqppBR94+CIDjAMdX5nN6ujvRTNR+VbvphwCkN0oLVZB9vn8/mkt6oLN2NQ/e0hgocqKRaopzz3qer6TXJKjKr9LEA0cguWiNopW4HFAwc5e342Eyei9zlD4khtEROX67DkTTz2J8twFY4sV1pjlr0DYyEoZDcviLC2LEbnpQBGdeosIPkR/nveuwux3NexGfX2ip4NoPwENeojbX0eAdZVc0NDpZSg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=B2t4whE7rcCP+Riyj646Iih1KKVz0zhO9++3dpfWSsA=;
- b=XuHx4UhMOPA/5mVWon2VO6gQ0PnUUzBwVyCNyejRyPUwPbtz4ZTt1BlgI3hN+gLj1VkPtWMGDSF57NiUhD/kG5Rc7ZYqJbAxy+UFlNa9lIzz5iq4qttBfNUtbx6a3HFDXVPMSnj7vegl093JuLhFOcY5TF0+sBlN9Wo6W0coH3d3ZKE5v45Yp5Z+HbuYZB3O1m+6GZsEeU0tNVNNLwBhTOi7eEH6oyO4NcEX+OoJRnmml1NPn1MCmFIVjxFgl25kCn5X2xmlCpI9MFkNT2XCQCqpMa+i6pT32jWflQyqW/wf6gjtrgte8hz+IxvOjb39QpI3g0kcmWSUDBDkksyMkg==
+ bh=zPGTA3n5RicsQok/J4N0PnkgzAHcR2A53GxYJQHyq+o=;
+ b=qxs0buJP3QgmolRohCksHmbpiyhJgIZVWPs8Ib7xf0Ytv1M8d/oSGtT/jQSsUFuRSuUiCD6mqnGUzjaQujIZNM3HzMYbj6xrH0ojYqlaSgH2EcXtdSnH+ffBQ9yp9wEMv3srHDuZRLifRkBtIOayHHZf665rCp7OckArv/j+Gjv7uzUQthMwJrbPurEXaGlbMtUjjZ2ZnEdR/lbUY75D6fic2XLdhi9gcNRs5sY6n5WEOVll1c+hx8AxrCyO1qNAoYek33v2efzkZvO8BYYeSyk9Cv8nhzLv9TbqejeLlSdrCiJAdXiECWzkuby/BIkGoxqvQkZS5q3LBXHLygEVyQ==
 Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by PH0PR12MB8824.namprd12.prod.outlook.com (2603:10b6:510:26f::10) with
+ by SN7PR12MB6789.namprd12.prod.outlook.com (2603:10b6:806:26b::22) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8069.30; Thu, 24 Oct
- 2024 02:19:08 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8093.21; Thu, 24 Oct
+ 2024 02:23:39 +0000
 Received: from CY8PR12MB7195.namprd12.prod.outlook.com
  ([fe80::c06c:905a:63f8:9cd]) by CY8PR12MB7195.namprd12.prod.outlook.com
  ([fe80::c06c:905a:63f8:9cd%6]) with mapi id 15.20.8069.027; Thu, 24 Oct 2024
- 02:19:08 +0000
+ 02:23:39 +0000
 From: Parav Pandit <parav@nvidia.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>, "dverkamp@chromium.org"
-	<dverkamp@chromium.org>, "mst@redhat.com" <mst@redhat.com>,
-	"virtualization@lists.linux-foundation.org"
+To: Parav Pandit <parav@nvidia.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
+	"dverkamp@chromium.org" <dverkamp@chromium.org>, "mst@redhat.com"
+	<mst@redhat.com>, "virtualization@lists.linux-foundation.org"
 	<virtualization@lists.linux-foundation.org>, "mvaralar@redhat.com"
 	<mvaralar@redhat.com>, "stefanha@redhat.com" <stefanha@redhat.com>,
 	"virtio-dev@lists.linux.dev" <virtio-dev@lists.linux.dev>
@@ -69,12 +69,14 @@ CC: Oren Duer <oren@nvidia.com>, Nitzan Carmi <nitzanc@nvidia.com>, Ben Walker
 	<benwalker@nvidia.com>
 Subject: RE: [PATCH v5 1/1] virtio-blk: Add description for blk_size field
 Thread-Topic: [PATCH v5 1/1] virtio-blk: Add description for blk_size field
-Thread-Index: AQHbJNmbwr9LZ7Et0Ey+Z8Qo57DBgbKVKwnA
-Date: Thu, 24 Oct 2024 02:19:08 +0000
+Thread-Index: AQHbJNmbwr9LZ7Et0Ey+Z8Qo57DBgbKVKwnAgAACBPA=
+Date: Thu, 24 Oct 2024 02:23:39 +0000
 Message-ID:
- <CY8PR12MB71956ACE2D3290FA267B060BDC4E2@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <CY8PR12MB71958F66F325688051E93BE0DC4E2@CY8PR12MB7195.namprd12.prod.outlook.com>
 References: <20241022232435.20799-1-mgurtovoy@nvidia.com>
-In-Reply-To: <20241022232435.20799-1-mgurtovoy@nvidia.com>
+ <CY8PR12MB71956ACE2D3290FA267B060BDC4E2@CY8PR12MB7195.namprd12.prod.outlook.com>
+In-Reply-To:
+ <CY8PR12MB71956ACE2D3290FA267B060BDC4E2@CY8PR12MB7195.namprd12.prod.outlook.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach:
@@ -82,67 +84,67 @@ X-MS-TNEF-Correlator:
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|PH0PR12MB8824:EE_
-x-ms-office365-filtering-correlation-id: 8a8ab3ee-e127-40c8-d4ac-08dcf3d23dc1
+x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|SN7PR12MB6789:EE_
+x-ms-office365-filtering-correlation-id: 5db10ad1-2688-4292-75a7-08dcf3d2df74
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|38070700018;
 x-microsoft-antispam-message-info:
- =?us-ascii?Q?c4JSfsWUGUh/kDqCWnRXjbSUSHjkI6hCIHkPmE4aN0zOAwMw1t2+pAsmGKMp?=
- =?us-ascii?Q?IEEIPF61tc3+wScKkr3a/qvr/LhaElLl9/WPBxPSc1SD4BgsWgF9ftNpSr3e?=
- =?us-ascii?Q?xtP42012qHVNSSJPcXKuGQSw309eAjFQnURp4i4hZSEZ8Sz8DKzSFn9D7YQC?=
- =?us-ascii?Q?7YsaCpJVg+a6LsV2TZlKenKcD5mRAtChixFprIz0DTcvFG+sZyuwFSp+RjJD?=
- =?us-ascii?Q?SVOplex7qsAjet2gz3HJ/w2p+banLmbUg22HHs7MDynpKQ84VWhpTawcheIx?=
- =?us-ascii?Q?kxlN79mu2b5svybt+Ovfub1M6seAsD/XUYxzJiG5FoGxazlQ5VRR8eS1VsyG?=
- =?us-ascii?Q?TNXUvIJMjQWw7f12RHdRDfeiNcDivOCVIIGSglHOP+IIU6C6Q7TaBtavzs6H?=
- =?us-ascii?Q?1FPSqUNDBihnzo71oUtufG0T/Q78Uw+NgjEQjb2LBoR8uUjp+u7HjReawPHs?=
- =?us-ascii?Q?QDNqT9VhbMkVdumXcZ41yuZK/azc9ybuwpxgt0Zlf20fE//X31fs7+Wmvnip?=
- =?us-ascii?Q?gMOb/vHUvYd3fyeO0+mqeSnFQWMk21OrmXsspFFayW7v2iZwuX+CjvHu4Gc6?=
- =?us-ascii?Q?hfs6G4QFNGlTQGdsC1Tg9tIz/fM3rMbR1U6SlxOARFnJ/fc3qYoTDqu97LbQ?=
- =?us-ascii?Q?GNwfLQ4dGIm09JZfGJfCD8bKChrUGUHHWIlMv1I6eGygkQ8iyjGaKTRCpery?=
- =?us-ascii?Q?OFte3oNvIf85ABIvK5RzTT8tgohQ9hleqEVeaO6v/kObUx8uaOY9nxaHeO5D?=
- =?us-ascii?Q?HEokksBWgXiahdUAl4ZCpIxG9yeKgeuX9LqNuhgzZDCDTq8iFxvxJnxFpO7E?=
- =?us-ascii?Q?ramEiCbWQRjvl/EHPiBXvSB4ISioi/EcdL5jqw9xiWfkzH+PLPtXa0HKD6X2?=
- =?us-ascii?Q?jjzavpdLfGU6RArECcI/zvXenX7zEiEl0wZyeIFwU2Eo9aGAi+SWV5pL4/6X?=
- =?us-ascii?Q?LmoEv129OjU+xLmBhR6vefQOC6VMEwbvRR92NQb7z1Cb7gmN4J4DlUD38F3P?=
- =?us-ascii?Q?NPq+IaA/uBsP8mVoAUW/BWd7xKe/3cYQ/Txyf0mUX54iFLzm9/2MitLPQZoS?=
- =?us-ascii?Q?O8uzbf+zBo20WnHtftAGIVPKLMpVDjCdSawvO/xBwo2F2i1alid3KrYG7l9q?=
- =?us-ascii?Q?I6Gr3QwnaJKNXqNGzsxb5VKF5raLmh6jtoSqftquxci0faO5cpgIgC/Dg0p6?=
- =?us-ascii?Q?hGo0TNXz7Kk0rHlLrehqPrakh1Vh6qRH7Fmk0wbCloU/d/3LOozd+/Qk3Tmg?=
- =?us-ascii?Q?FsZmqfhoP/fHLO6AdKQGRLorUvNeUz+pUpV9amk5AmcT3ngvvrfYKgkEG8Up?=
- =?us-ascii?Q?R4vEs7QzfTD1E+5mJYeGL8kLNUt7IX6FylobsFIvVz322uIRRrX1391GeLWA?=
- =?us-ascii?Q?L1YME98QinkAMhrLro8OCNg6Zggb?=
+ =?us-ascii?Q?ieqMrh6rOQRtl1m6APaI0GS9SDhmfMq6XSZh0iecY5g/CB8yLJYEN7txj/Sm?=
+ =?us-ascii?Q?GxbkrzNp/oTPHSGRPTWPI40pspz/cIXMGYaFmqNtBfkoN8Njj6MqBJUEER0M?=
+ =?us-ascii?Q?jkc8FjA1FUqeT5MTM09YIaweCI7rlpFkTiEZlgKvi0mjBy37NjEqk6dLMD6d?=
+ =?us-ascii?Q?zL5tb27/AXy26gSbCp2I47EKk/I+Kpi8DMSRKNVrNQNEdZhpj9oQUaZbLbav?=
+ =?us-ascii?Q?JcAouubg9Q9RKwzJ75Q5k+Zjbhk9+XLxuvgBVp3hB5wowEvQBq2+nRsE0+ix?=
+ =?us-ascii?Q?5dhob2GCG1C7728+mWNuaDRfDdft3t0oI651BepafSHROxq3E/wzR8zWKPoI?=
+ =?us-ascii?Q?CKB5fd3uU7+rif9TGLHj3GiQQ1AeDK89DVbDVmCG1ZkrGZN/Xx8rZK0DMR+l?=
+ =?us-ascii?Q?pMznbgBRGNEY2+jPLj4NsfBxoma2nC6bK2dqea/EuAWIVRwwDlIha3VwEHAf?=
+ =?us-ascii?Q?AkB3hyI7wjkr2QIWo+xg67WLl4xNMMU1gqjN4pXbd6+YLP87hBW3wb0kyFw7?=
+ =?us-ascii?Q?W7T0YUczAVSuyLmnYNVfJWJF+OeWFsmKZiC7eOYF3IIJnQSpDQiLDhpuM/jF?=
+ =?us-ascii?Q?hNF6165Y5oJg3xJX/jAylxjFfYw68Z9ncsOEGtfvsFi1PREHaqnV7LI01hdf?=
+ =?us-ascii?Q?3x3ekzNYyFST31lfHpwycyrA1LZc5U1cI8hoBW93NioJQBHBeEiEWa7p3Igt?=
+ =?us-ascii?Q?DuJqxTW1ugh7OCkstWqzxhh5EroELB1GWOTPTeh4V1Jntqz2r0DRxSZBEQbu?=
+ =?us-ascii?Q?8pavab2OVc+q1WbdzfEAIqKDhyhBcFqNROZRWIqUBV8QaiteickjQbfwdPgq?=
+ =?us-ascii?Q?AA1s/xRPvU7IF1FSjMm0ZpfXuFRfLJvZ+8F7JCkY72GmeAnosrkAqO2nbTvZ?=
+ =?us-ascii?Q?yl43w77MPE2MW37IXOkYFDei6BUwkFtKRR9vSMMbiBsFaBzoNOjNnCfZ/dFL?=
+ =?us-ascii?Q?UJnpU2tyu5dC3Nqh7dxX0/afaIoxogRgLe2I5jPtFsmmxwFpaCHnn1VQKgtY?=
+ =?us-ascii?Q?6dS2b9UMBhsxze2QxJD3GSAEz3KdO+F8GGkuDZIGY5tiahOtX6xxYIQJNV47?=
+ =?us-ascii?Q?lgqsRC9zbfXscq04gUDDfh7ScNpU1AiUTEkRKU+retZmBkv9Oue83ONQw70M?=
+ =?us-ascii?Q?o4qll6Fo8j+D/Bxv98IBbVgT84j93Dyh4eCEUhV4hy6kxOQwJGQIdRyBggMe?=
+ =?us-ascii?Q?A9Mx+UIWcZfR6rHetcv4jdbMNPO7EjnYdGjMsZNgSrQLjEj+1NdP4kziyDjL?=
+ =?us-ascii?Q?i0n9xelQU+NYlmrjux7KzJnGQ6+mqW9fHhXQgyVe/9pboOSK22oay9NeQ+d9?=
+ =?us-ascii?Q?d0vozsYlH+F0zHEgtHVJlWKRm/9afYaxpZlr+ZHaCyagT8xk0Aa9jLQFvuxb?=
+ =?us-ascii?Q?ycjr+cGzyCJmtu9QdjM4/NZzZ9oH?=
 x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(38070700018);DIR:OUT;SFP:1101;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
 x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?y/Hc3HtAtbkhUAZjYVkZJrDWvcXiIbLVI9X1AHbH9ccYBOmIfE8UowsHvN4I?=
- =?us-ascii?Q?a2vHrdGxvx95tQa4etXSEFaMU31V68dAnbWwbSkn4XdQdzdwbLv5+KplHHVj?=
- =?us-ascii?Q?K27KROJiyBNjnSks/AwQzlSVQBzeDxwMjDMCEXmnNY0faNgYZMr7ipvDlxzi?=
- =?us-ascii?Q?Cn2voqgXYZNLAQpdhBRGN+3OLfUhlyhUoizVy/iK+sfWMxqRFIvrwNsk/SnI?=
- =?us-ascii?Q?mLDMEa+Qo74q5LSIWU7EE25nodkHWg5nLMUxmxc/3/iht3hn97nSxpN60Gti?=
- =?us-ascii?Q?zf9RtQnHXS+Hk+owVdkJnqnrDevRItigqtnrGNtiddN1pvFa4lKZv5g7DRG7?=
- =?us-ascii?Q?1l8op8DQ5WUfRFyIvTjDgr8La0NRJPuTnqRp0C5KfGo8plJXeBwnwGW50VVQ?=
- =?us-ascii?Q?I88Ex6t0znUIzTyiSOxDd3NbAsoWFj8zUIMBLBgODAHymkh5UTdMDaCK1wqF?=
- =?us-ascii?Q?UIZb9tEuHtfvgX281OyaIBA6PAerJFZ5WJQq9AJ21kn3PIE4Pp+61LIvWgv2?=
- =?us-ascii?Q?hLMnqX1CfssrFf5E/q+sEJq69mH9XfLapL6wp3NuIE/vXUxzkT14uPFxFFmZ?=
- =?us-ascii?Q?ZTO6MEeGnLTt199rPp6knqQi8ejVorCKOwJRhoUBZqQHWsvuzB8HladfTnYo?=
- =?us-ascii?Q?GtSQquqlIV4+Sg/3mTEy7P7rOeJUtl4GNInyj6YT+SouFYlLtI+CagPNK4zO?=
- =?us-ascii?Q?Tn2T2OrrF6jN0m7I1kW8s4JnCrjJvWG4QmYeIv3KboBG/FOLj7QpMeToOx0A?=
- =?us-ascii?Q?zmBCqAuzaYE/cFiOLgUxlhIvEy4T+sr2m8KPrbDN8ePssaV7tLBUM4ai7ARf?=
- =?us-ascii?Q?P5HszxQqdMsfHlXcEG46wMgu5r+m3PY4NYKDvIAdO6yn0nI2vGei/7XGXfU4?=
- =?us-ascii?Q?HA16ZCWHFx4jKkMRrqQJliXOO7Wv4Us8DO9yCxA53dX+CPBkWuSC11k04jmj?=
- =?us-ascii?Q?HjjrUwBAVjGGvTPgkWQqr7Z57SWe9fxjjd+3afo1K8XJ+yxtK9KOQ95JKPBQ?=
- =?us-ascii?Q?slwrFYGxeu+/IzAbg0go/uXmFaxDSxUwtfpxLM3ZUWweFi1u/ISNVXfLj9eG?=
- =?us-ascii?Q?w17nz1+D7DRnyxaObzk2snifpkgSXg5oe888W6HppCDf8Jqhfc5jV0nP3X67?=
- =?us-ascii?Q?FuCFpsPnRJ/6k8psu3GzQgUR7jsgP6+//GSgmyc3GSd6IG+OgbG7YAzyFjBe?=
- =?us-ascii?Q?CDrgWg0UPyFG+3LC0SRIKAdMrurZJ+Q/QAqDAk5W1QYRNyapOqJbQ6rN8IDJ?=
- =?us-ascii?Q?KEPsOp31PByrKl+pv7El+C+FOTVUVuT8YxVKLW2+4TdbHAcow0GjYHeyGEQc?=
- =?us-ascii?Q?wcQKdRJs7vC79f3kFq3uKy9fYbTEvKHXLEyDsYkE50owuMOobTDABC9rlwRR?=
- =?us-ascii?Q?Hi67K8LEJJ5zkF/AVZ2Fhv4XKnbNh+BJYzZA+wyoCd88TpQrHn3O37BMVSWU?=
- =?us-ascii?Q?+QSTkNXRU1/INsYDyd2oMYi7zfkPFIRWu3WTmffZxkNVA55vwDrVluCnbocA?=
- =?us-ascii?Q?dUKqJR0Ka0qroRDURXexvPZD0/8RAPU8cSbEk+fGPAwDsFIw7Ck30qHuAAFZ?=
- =?us-ascii?Q?7CiUoKV1zbO6//hI8GI=3D?=
+ =?us-ascii?Q?QFRyAFRoeJAsx/kXlY6sesSr9fdne5R6pmHa0s6O0SphqYRvTbfSpoJ9czjM?=
+ =?us-ascii?Q?XGqZ3Jl7L9n//kHSF4vIPMP90I2rggdSjoDvnH6Hm+F+92pRT3NCz+OHjuoT?=
+ =?us-ascii?Q?XlP73koegSLIZTu7mBcIgXZzipdxdvKItmlqLD1zGLtZYiv1Uuvb/PLZ+2dy?=
+ =?us-ascii?Q?lPagPUXpY4/u6v0yw2qVZKWnptubJ1fwOJYbE3HDrduN5dlIKvW1h6n2lcvi?=
+ =?us-ascii?Q?k718qH4brqv0SDh+MoZYQWENLaKTSk4eyjtciN/gdVoQ5qgZriIUVVn8ppZc?=
+ =?us-ascii?Q?TZc04LckIqYFKzbjZNfI84hWTE/DR3J9rH2RTZ+d0tlgam615j+Pzdyp8/d0?=
+ =?us-ascii?Q?fNhrJhz73SbxE38gUGCEZcKaY8wMGBZprU+77Vq1+P6FEAP2SJ7hyyRWVlfF?=
+ =?us-ascii?Q?kydIJ8871y5jdtbNxjCoUpkJa/r+whTD2Mvq+fn/LF9XN6S9TbNObmRV+QMi?=
+ =?us-ascii?Q?s6OT50bgMXL85LBaQ2Ip2STsUmal13lYZ1q7ZcFsVkzocH7kRv+46gFWpODG?=
+ =?us-ascii?Q?oWaOdCHss1NTq/ni7vnTEEf3G1JHbVYqj/0v9FqcyJZrq2weElpiqtbwrzzI?=
+ =?us-ascii?Q?Bsa9pko1NYistnW/yspnQrJtJhG/B4vQuFFgWPl9QCpz/VODWJZBv3lsjqA3?=
+ =?us-ascii?Q?2iR6aRonV0ce3W+4J/EzAj/kubIZoQGpnIE8yKi6Hwz8wC4kCjlp2lVZAVb5?=
+ =?us-ascii?Q?gLmMLlrkeR5SkQ0G287aRUv79eA6bZqevdII/WAOKMDDJv/RyUGz6VMLdtSd?=
+ =?us-ascii?Q?T2g/QKSjA+Lx9ADsMtuldcJ4Wzgujygzw6Bi4ISdbyESWPQRgIwDvuYyRt1O?=
+ =?us-ascii?Q?d2Z3hFEeE2ud51mPo8dR4WSFlgg19iyFKMVG11UWVf3T7hzsmlhhhjOx0knO?=
+ =?us-ascii?Q?qVuEvszZXmGlHkVy6DxxVvZb77GoU08/SlO5Jqdhn7UOguslRJ9soEzZtqQC?=
+ =?us-ascii?Q?SrOzB+1tW9arEwl96xQjo48xBb6EHcGYNskyl5ZSqS0EBpLfZaO2u73JScwV?=
+ =?us-ascii?Q?S+piKmCy4iZ84hcimOKJq/zbidDoLUJvZx9yRMWDiGYh3JqylAe2fa5bRnY8?=
+ =?us-ascii?Q?A8a0g8C4DevWGKvxat0slvFlsNaCwiRYVJFDtEDpUQRxDrtoJQMyAG7jIvY3?=
+ =?us-ascii?Q?2JH3OgfC+NoJGrmN9zbQ5dIhJci1dck2tudBBG20lNq9YOqL8is0oNl7CKZO?=
+ =?us-ascii?Q?7pt1jlu2SUXtqctrwwjQxxfRBoosC4BILngap9Plbrqrvtd9yvocZw15x70e?=
+ =?us-ascii?Q?4pJENJwsK3POz4/hI+pVfAIWI6FBkqBmhHW7iJzBv8jrCMI9uRzhEkvLJJZ8?=
+ =?us-ascii?Q?xHjva80xPbNRhxKMUTHe7+VmkZXI9Hhvch7InAVBU3DE5oWnCJzrWZPak4li?=
+ =?us-ascii?Q?94FagukYTlDpvZA6Dy6MFmcd2JAVGXgiCIusoB2YFhukgG2iNJkiAB3lu/qt?=
+ =?us-ascii?Q?SlgnI4kEUoVyfRt023P7W3i0GmNoYDlHXM0DAXejioiAMJzgjr6zW3/VKmER?=
+ =?us-ascii?Q?y1Dk8cza+K4JqcrCT96vU9DRnMajXLzidHThmFHlXTFfGGIYkLsPVmgg6Gnv?=
+ =?us-ascii?Q?2GW0DTmwg3fx1UzKDDA=3D?=
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -154,145 +156,37 @@ MIME-Version: 1.0
 X-OriginatorOrg: Nvidia.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8a8ab3ee-e127-40c8-d4ac-08dcf3d23dc1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Oct 2024 02:19:08.3978
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5db10ad1-2688-4292-75a7-08dcf3d2df74
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Oct 2024 02:23:39.7059
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: q3yBLCK3zTY4BM6oWglVjDOWoMusFJtxWOkf1jElR3y2MsPh4OweZqqnqSznXsHD9NDMikJuiYc7P3SXFDkcFg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB8824
+X-MS-Exchange-CrossTenant-userprincipalname: fKmJ1/VX1CeAo5VTx/i3NVyygtnaD9Qv8tj9XeJf2UNxNSD3RwsiJIXs/wm8zpFkvnUbEE8FFfzLhkLcL2pZww==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6789
 
-
-
-> From: Max Gurtovoy <mgurtovoy@nvidia.com>
-> Sent: Wednesday, October 23, 2024 4:55 AM
->=20
-> This field is only valid when the VIRTIO_BLK_F_BLK_SIZE feature bit is of=
-fered
-> by the device.
->=20
-> The blk_size field actually represents the logical block size of the devi=
-ce. It is
-> always a power of two and typically ranges from 512 bytes to larger value=
-s
-> such as 4 KB.
->=20
-> Add description for this field to provide clarity on its constraints.
->=20
-> Fixes: https://github.com/oasis-tcs/virtio-spec/issues/208
-> Reviewed-by: Daniel Verkamp <dverkamp@chromium.org>
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> ---
->=20
-> changes from v4:
->  - reorder paragraphs (MST, Matias)
->=20
-> ---
->  device-types/blk/description.tex | 33 ++++++++++++++++++++++++++++++++
->  1 file changed, 33 insertions(+)
->=20
-> diff --git a/device-types/blk/description.tex b/device-
-> types/blk/description.tex
-> index 2712ada..093a139 100644
-> --- a/device-types/blk/description.tex
-> +++ b/device-types/blk/description.tex
-> @@ -135,6 +135,10 @@ \subsection{Device configuration
-> layout}\label{sec:Device Types / Block Device /  present. The availabilit=
-y of
-> the others all depend on various feature  bits as indicated above.
->=20
-> +The field \field{blk_size} reports the block size of the device,
-> +expressed in bytes. This field exists only if VIRTIO_BLK_F_BLK_SIZE is
-> +offered by the device.
-> +
->  The field \field{num_queues} only exists if VIRTIO_BLK_F_MQ is set. This
-> field specifies  the number of queues.
->=20
-> @@ -282,6 +286,13 @@ \subsection{Device Initialization}\label{sec:Device
-> Types / Block Device / Devic
->=20
->  \drivernormative{\subsubsection}{Device Initialization}{Device Types / B=
-lock
-> Device / Device Initialization}
->=20
-> +Drivers SHOULD negotiate VIRTIO_BLK_F_BLK_SIZE if the feature is
-> +offered by the device. When negotiated, drivers SHOULD interpret the
-> +\field{blk_size} as the logical block size.
-> +
-s/Drivers/The driver
-
-No need for plural. This will be consistent to rest of the spec requirement=
- sections.
-Some existing requirements are using plural in blk and other places, but sh=
-ould not be used as base line.
-=20
-> +If the VIRTIO_BLK_F_BLK_SIZE feature is not offered by the device, then
-> +drivers MAY assume that the logical block size is 512 bytes.
-s/then drivers/then the driver/
-
-> +
->  Drivers SHOULD NOT negotiate VIRTIO_BLK_F_FLUSH if they are incapable of
-> sending VIRTIO_BLK_T_FLUSH commands.
->=20
-> @@ -319,6 +330,10 @@ \subsection{Device Initialization}\label{sec:Device
-> Types / Block Device / Devic
->=20
->  \devicenormative{\subsubsection}{Device Initialization}{Device Types / B=
-lock
-> Device / Device Initialization}
->=20
-> +Devices SHOULD offer VIRTIO_BLK_F_BLK_SIZE. When this feature is
-> +offered, devices MUST initialize \field{blk_size} to a power of two
-> +greater than or equal to 512.
-> +
-s/Devices/The device/
-
->  Devices SHOULD always offer VIRTIO_BLK_F_FLUSH, and MUST offer it  if
-> they offer VIRTIO_BLK_F_CONFIG_WCE.
+> From: Parav Pandit <parav@nvidia.com>
+> Sent: Thursday, October 24, 2024 7:49 AM
+> To: Max Gurtovoy <mgurtovoy@nvidia.com>; dverkamp@chromium.org;
+> mst@redhat.com; virtualization@lists.linux-foundation.org;
+> mvaralar@redhat.com; stefanha@redhat.com; virtio-dev@lists.linux.dev
+> Cc: Oren Duer <oren@nvidia.com>; Nitzan Carmi <nitzanc@nvidia.com>; Ben
+> Walker <benwalker@nvidia.com>
+> Subject: RE: [PATCH v5 1/1] virtio-blk: Add description for blk_size fiel=
+d
 >
-Fixing above will be separate editorial patch unrelated to current in revie=
-w.
-=20
-> @@ -879,6 +894,14 @@ \subsection{Device Operation}\label{sec:Device
-> Types / Block Device / Device Ope  The length of \field{data} MUST be a
-> multiple of 512 bytes for VIRTIO_BLK_T_IN  and VIRTIO_BLK_T_OUT
-> requests.
->=20
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the
-> +length of \field{data} SHOULD be a multiple of \field{blk_size} for
-> +VIRTIO_BLK_T_IN and VIRTIO_BLK_T_OUT requests.
-> +
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, the
-> +value of \field{sector} (multiplied by 512) SHOULD be a multiple of
-> +\field{blk_size} for VIRTIO_BLK_T_IN and VIRTIO_BLK_T_OUT requests.
-> +
->  The length of \field{data} MUST be a multiple of the size of struct
-> virtio_blk_discard_write_zeroes for VIRTIO_BLK_T_DISCARD,
-> VIRTIO_BLK_T_SECURE_ERASE and VIRTIO_BLK_T_WRITE_ZEROES requests.
-> @@ -966,6 +989,16 @@ \subsection{Device Operation}\label{sec:Device
-> Types / Block Device / Device Ope  for a write request if the
-> VIRTIO_BLK_F_RO feature if offered, and MUST NOT  write any data.
->=20
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, and
-> +the requested \field{sector} (multiplied by 512) is not an integer
-> +multiple of the device's \field{blk_size}, the device MAY set the
-> +\field{status} to VIRTIO_BLK_S_IOERR for both VIRTIO_BLK_T_IN and
-> VIRTIO_BLK_T_OUT requests.
-> +
-> +When the VIRTIO_BLK_F_BLK_SIZE feature is offered by the device, and
-> +the length of the requested \field{data} is not an integer multiple of
-> +the device's \field{blk_size}, the device MAY set the \field{status} to
-> +VIRTIO_BLK_S_IOERR for both VIRTIO_BLK_T_IN and VIRTIO_BLK_T_OUT
-> requests.
-> +
->  The device MUST set the \field{status} byte to VIRTIO_BLK_S_UNSUPP for
-> discard, secure erase and write zeroes commands if any unknown flag is se=
-t.
->  Furthermore, the device MUST set the \field{status} byte to
-> --
-> 2.18.1
 
-Apart from other small edits:
-Reviewed-by: Parav Pandit <parav@nvidia.com>
+Hi Max,
+
+The patch is posted to wrong mailing lists.
+It should be posted to virtio-comment@lists.linux.dev only.
+Please drop virtio-dev list.
+
+This is already described at https://github.com/oasis-tcs/virtio-spec
+Snippet:
+" When not to use the virtio-dev mailing list:
+    questions and change proposals for the Virtio specification, including =
+the specification of basic functionality, transports and devices (please us=
+e the virtio-comment mailing list for this)."
+
+Parav
