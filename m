@@ -1,87 +1,201 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1073B1B3933;
-	Thu, 24 Oct 2024 09:05:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F71757FC
+	for <virtualization@lists.linux.dev>; Thu, 24 Oct 2024 09:44:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729760745; cv=none; b=b/B56qZgOlyMtzeP9w1ELzvl5jQfpUON4+mSIwMeQqknTbhvmUQApK0nYhsGKcU/SFpN69phvjPttdPadJrmfgyZQXqOCWYehhgtMvr+cYIeykj5Nwx+wkJd2sp3GoPmGwuzbF3+Ce089xDPNJawvV7ZRoQ59IpGfs9G63JIVEI=
+	t=1729763055; cv=none; b=l2m1G0J0sp2hOhAqLkm6hU30/sTAX1XR8Ic1cHKXfa1nqO90jD1Gcs4J2YMKHg5YeDyUH8z1b7/5A1V1HV7MtWrV7Ld0CwB34otD8Q/EEEr73wOdJ84s/plofHwbuwRdOqnQMp3Y/SzEE9thAGHVtwfMkXQ7xO8uWZWhYH+yJ3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729760745; c=relaxed/simple;
-	bh=iLBl2uqkzw7TXsj+7GQ+KZq3Axo7bQMOS0R0jqOfu60=;
+	s=arc-20240116; t=1729763055; c=relaxed/simple;
+	bh=iJgps4A6Dt6TDZzBkBksjB0r8OfSsAkmp6iYgjJBW4U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pw8DyCoV40wELXTX+xmNTBdoazBtoNfWFwUYrsU0aLM7pf3tE8Ept8wzV+EnQb577i3Sjslk0F+ejqBbyHgy1xNAk81Q9SgiTcpd9GfafYnNO8LqU9BXj+DnnUKX4D5lEqvVQCjIFmGKiJdNpUuMgPSN63LLbw+9MCjWVBJxLG4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Rx+c0tEI; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=i9LJze6gajIWl/Gnz6I0t5QuXsRXQumHDY3XobFOF8e08cGD5wT2bMZGHL0bbhi+81luxCJnNhCKTv65Dhq9OvHQIWriyYsbtNs5h/+Q722AkvsNQZUpwDFIy8Zhw2+PgLkkrcMgvxzshx1MrrId5LXcUiAmYPNPX/oimggamzw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JSoqJntJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Rx+c0tEI"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=W+xcl40+d2Ufw9544YoSrmVFDCb6kVciErHqMFvT+8c=; b=Rx+c0tEIZxo7coLNsWBdyt0SWq
-	UKGh9Mf9mkwwzY/XdGBBjiIh2maXLa+oLD4E6yxVWQhkpUYHSvrX4BDjgqWcJ9OW+wXcJ4vWJJSqm
-	HBqy4/bBKWYI/EkO9fJ45cQ9kc4lT7UjhsmnXAP7wmXwJcf8HCk4W1xSka3nFy0SGal812vASUJh5
-	hplj0b0Wm+++l2Xzd947aSXrLbR72c7BOS4k+AAIt7nvcTYynSmZRDS7HNQZQ/vMYLMQo3WaMOXwQ
-	VcVGsJ1klkqJqXlVn2nycljCNgmPmobO2/Y+EC6bXbO0RaYR+wmV+TIOjZV/rtLC0qFqyjHnExA/5
-	f2NBrMtg==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1t3tmp-0000000HOMu-2RXX;
-	Thu, 24 Oct 2024 09:05:43 +0000
-Date: Thu, 24 Oct 2024 02:05:43 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-	Srujana Challa <schalla@marvell.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"eperezma@redhat.com" <eperezma@redhat.com>,
-	Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
-	Jerin Jacob <jerinj@marvell.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Message-ID: <ZxoN57kleWecXejY@infradead.org>
-References: <20240920140530.775307-1-schalla@marvell.com>
- <Zvu3HktM4imgHpUw@infradead.org>
- <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
- <Zw3mC3Ej7m0KyZVv@infradead.org>
- <20241016134127-mutt-send-email-mst@kernel.org>
- <ZxCrqPPbidzZb6w1@infradead.org>
- <20241019201059-mutt-send-email-mst@kernel.org>
- <ZxieizC7zeS7zyrd@infradead.org>
- <20241023041739-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JSoqJntJ"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49O7X44G026963;
+	Thu, 24 Oct 2024 09:30:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ad3G7t
+	gT1LngrbCIX5zxplfREJhzCNpOY81vO9NiHaw=; b=JSoqJntJJMYj6dZwqdaVVU
+	020F4AtcQvGN330K1KOAPMVgEeu+nDHuiJh5VgYMiIyIWfYxydU5vejx4VeEhicx
+	ywEHKuPTrN/VxW9AsAlrfnkw+I8BJVgWo9qdLOykjrNhWK7BdewaDaVNTu+5zEzv
+	/OUATsvFRaMqVDccpfSYGmSfhtCdcV0gQEnoWKJV6rRx7DSsShbCPprVX5U7Q7kC
+	K60ljMe4HsbX69v7Hf5jvRo2tFHMK6sKJgEjtYQJEe3UP9LiNGRLFBQOnv/unHUS
+	Sap4hmsjcpSkjGbE+LIaaFaZggd2kHmA4m3ZR+5XiQg8Y1EBqjHSQOMH30i385yg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42fhxnrjmq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 09:30:52 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49O9UqU1015425;
+	Thu, 24 Oct 2024 09:30:52 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42fhxnrjmg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 09:30:52 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49O6otaq014287;
+	Thu, 24 Oct 2024 09:30:50 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emhfqptj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 09:30:50 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49O9UmIP12452224
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 24 Oct 2024 09:30:48 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8D14C2004B;
+	Thu, 24 Oct 2024 09:30:48 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 42C3E20043;
+	Thu, 24 Oct 2024 09:30:48 +0000 (GMT)
+Received: from oc-fedora.boeblingen.de.ibm.com (unknown [9.152.212.119])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 24 Oct 2024 09:30:48 +0000 (GMT)
+Date: Thu, 24 Oct 2024 11:30:40 +0200
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, Arnd Bergmann <arnd@arndb.de>,
+        Brian Cain <bcain@quicinc.com>, Marcel Holtmann <marcel@holtmann.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>, Dave Airlie <airlied@gmail.com>,
+        Simona Vetter <simona@ffwll.ch>, Dave Airlie <airlied@redhat.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-bluetooth@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+        intel-xe@lists.freedesktop.org, linux-serial@vger.kernel.org,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        Arnd Bergmann <arnd@kernel.org>
+Subject: Re: [PATCH v8 3/5] drm: handle HAS_IOPORT dependencies
+Message-ID: <eptfarsehuuiulqz5523xu7h26jvb365rd3u5mx3mmubw74uld@53ebnpkpq6sc>
+References: <20241008-b4-has_ioport-v8-0-793e68aeadda@linux.ibm.com>
+ <20241008-b4-has_ioport-v8-3-793e68aeadda@linux.ibm.com>
+ <64cc9c8f-fff3-4845-bb32-d7f1046ef619@suse.de>
+ <a25086c4-e2fc-4ffc-bc20-afa50e560d96@app.fastmail.com>
+ <aa679655-290e-4d19-9195-1a581431b9e6@suse.de>
+ <892ba1e2f94a278813621a4872e841d66456e2f7.camel@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20241023041739-mutt-send-email-mst@kernel.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <892ba1e2f94a278813621a4872e841d66456e2f7.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: wJpB2cynEZVL7E3mkIzZ2ArKfrNnIlDQ
+X-Proofpoint-GUID: Fwu-J5BH5WGsugJjHbEIa2RHlaLwjr2D
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 adultscore=0
+ mlxlogscore=999 malwarescore=0 impostorscore=0 bulkscore=0
+ priorityscore=1501 mlxscore=0 suspectscore=0 lowpriorityscore=0
+ phishscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410240073
 
-On Wed, Oct 23, 2024 at 04:19:02AM -0400, Michael S. Tsirkin wrote:
-> On Tue, Oct 22, 2024 at 11:58:19PM -0700, Christoph Hellwig wrote:
-> > On Sat, Oct 19, 2024 at 08:16:44PM -0400, Michael S. Tsirkin wrote:
-> > > Because people want to move from some vendor specific solution with vfio
-> > > to a standard vdpa compatible one with vdpa.
+On Mon, Oct 21, 2024 at 01:18:20PM +0200, Niklas Schnelle wrote:
+> On Mon, 2024-10-21 at 12:58 +0200, Thomas Zimmermann wrote:
+> > Hi
 > > 
-> > So now you have a want for new use cases and you turn that into a must
-> > for supporting completely insecure and dangerous crap.
+> > Am 21.10.24 um 12:08 schrieb Arnd Bergmann:
+> > > On Mon, Oct 21, 2024, at 07:52, Thomas Zimmermann wrote:
+> > > > Am 08.10.24 um 14:39 schrieb Niklas Schnelle:
+> > > d 100644
+> > > > > --- a/drivers/gpu/drm/qxl/Kconfig
+> > > > > +++ b/drivers/gpu/drm/qxl/Kconfig
+> > > > > @@ -2,6 +2,7 @@
+> > > > >    config DRM_QXL
+> > > > >    	tristate "QXL virtual GPU"
+> > > > >    	depends on DRM && PCI && MMU
+> > > > > +	depends on HAS_IOPORT
+> > > > Is there a difference between this style (multiple 'depends on') and the
+> > > > one used for gma500 (&& && &&)?
+> > > No, it's the same. Doing it in one line is mainly useful
+> > > if you have some '||' as well.
+> > > 
+> > > > > @@ -105,7 +106,9 @@ static void bochs_vga_writeb(struct bochs_device *bochs, u16 ioport, u8 val)
+> > > > >    
+> > > > >    		writeb(val, bochs->mmio + offset);
+> > > > >    	} else {
+> > > > > +#ifdef CONFIG_HAS_IOPORT
+> > > > >    		outb(val, ioport);
+> > > > > +#endif
+> > > > Could you provide empty defines for the out() interfaces at the top of
+> > > > the file?
+> > > That no longer works since there are now __compiletime_error()
+> > > versions of these funcitons. However we can do it more nicely like:
+> > > 
+> > > diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+> > > index 9b337f948434..034af6e32200 100644
+> > > --- a/drivers/gpu/drm/tiny/bochs.c
+> > > +++ b/drivers/gpu/drm/tiny/bochs.c
+> > > @@ -112,14 +112,12 @@ static void bochs_vga_writeb(struct bochs_device *bochs, u16 ioport, u8 val)
+> > >   	if (WARN_ON(ioport < 0x3c0 || ioport > 0x3df))
+> > >   		return;
+> > >   
+> > > -	if (bochs->mmio) {
+> > > +	if (!IS_DEFINED(CONFIG_HAS_IOPORT) || bochs->mmio) {
+> > >   		int offset = ioport - 0x3c0 + 0x400;
+> > >   
+> > >   		writeb(val, bochs->mmio + offset);
+> > >   	} else {
+> > > -#ifdef CONFIG_HAS_IOPORT
+> > >   		outb(val, ioport);
+> > > -#endif
+> > >   	}
+> > 
+> > For all functions with such a pattern, could we use:
+> > 
+> > bool bochs_uses_mmio(bochs)
+> > {
+> >      return !IS_DEFINED(CONFIG_HAS_IOPORT) || bochs->mmio
+> > }
+> > 
+> > void writeb_func()
+> > {
+> >      if (bochs_uses_mmio()) {
+> >        writeb()
+> > #if CONFIG_HAS_IOPORT
+> >      } else {
+> >        outb()
+> > #endif
+> >      }
+> > }
+> > 
 > 
-> Nope.
-> 
-> kernel is tainted -> unsupported
-> 
-> whoever supports tainted kernels is already in dangerous waters.
+> I think if the helper were __always_inline we could still take
+> advantage of the dead code elimination and combine this with Arnd's
+> approach. Though I feel like it is a bit odd to try to do the MMIO
+> approach despite bochs->mmio being false on !HAS_IOPORT systems.
+> Is that what you wanted to correct by keeping the #ifdef
+> CONFIG_HAS_IOPORT around the else? And yes the warning makes sense to
+> me too.
 
-That's not a carte blanche for doing whatever crazy stuff you
-want.
+Working on this now, I think we don't need a warning in the bochs_uses_mmio()
+helper because we should never get here with !IS_ENABLED(CONFIG_HAS_IOPORT)
+at runtime thanks to the check added in bochs_hw_init(). This also takes
+care of my original worry that we might try writeb()/readb() with an invalid
+bochs->mmio value. I'll sent a v9 with the helper added and #ifdefs's removed.
 
-And if you don't trust me I'll add Greg who has a very clear opinion
-on IOMMU-bypassing user I/O hooks in the style of the uio driver as
-well I think :)
+Thanks,
+Niklas
