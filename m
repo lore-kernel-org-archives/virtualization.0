@@ -1,106 +1,129 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FAD11E3788
-	for <virtualization@lists.linux.dev>; Thu, 24 Oct 2024 15:21:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA4F61F666D
+	for <virtualization@lists.linux.dev>; Thu, 24 Oct 2024 16:11:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729783296; cv=none; b=ECXOFenoGkm2FJ6bnqmpbyHslRtWPmmZ9uHf6RH+3wHuvxTUHWcd3tZPmDiyrz01bvWm9zxgg8O3l23aj8iowQf6JiY2JIHikTU4YWNwwRaQ+R3LJPn4PxGmtzNOKNj5+FNL91ipnDfnwt9uv3UBduBLZv0e9u6PfdkbZTBvNZU=
+	t=1729786306; cv=none; b=sTWAGn6zfi31tMviKMYmYKmqVHBYCRKXNF2G9mBSo74tVK4fIKirAkhcG1xcXk1Lm2paQy1PaR2JriA30vkx0GYWVQ/C4fl9kpXhr0RUsk+zu1HdGGCQVagCUlylbs8Y0X0BZJJ7e+x/RcnqL7u0xV3n5N8iwYw36j7/S3nw6uM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729783296; c=relaxed/simple;
-	bh=nW0TWG7Fc0VNjERMXMTr1agpaawOY2IgT9uj4bNwY54=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dTAn0EfW8tCWpLha+Ocgst8BBhSGOkiYV0ef9sE/WwZ/CAB6cOQKrO2yGKPTsM7SmP2FohVdN1EgrKaPfAHqxp+VdiR3l+GaCizmaS7eXaMN93dUisoPgJzK+KvvWKV3G4L262aCHDnvyPdSi+dEX9JZS5HsZSBd7Tzc0+ttK6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EBJi7pJ2; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729786306; c=relaxed/simple;
+	bh=NKpEWZqAF/Dy/vUCLRqDWShtGWbDcafcntb+ACzuvIE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bADXloymhQdrMWr4Aa/VEECX2GGV42kuMh6wu09Nz9k/tdM4/HE0HYxag4GBEvq9wY8HW2y9CsJ2TCzw012i+KONoU7IY6MrrJ1c4LjY06n4eHUTC3zC5jdxfJL1wWjC4XN2q5y5ptJMbxtI23tilKCp/AytjXJwk6vX68rglHY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IEL8GPA+; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EBJi7pJ2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729783293;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Qrw2RqXMP78nGKg8Lpv1jq5anNPyVA6VfKNmhQikqx0=;
-	b=EBJi7pJ2gPJY+vR2c0iNk8BHJrvcfmHo4kyKtk9H3KnTa7NVEio+tdnRFGA0JIJC906O1g
-	ASpv+AVUKt35EuN/4Es2MNF0yZ/7rJYCHWp5I6dfOU3w0U+A4ggE8cuu3Ju4sYy4AfWpci
-	gc8IeRRf88cw2I3Bhq8yf3GdwAP0yKg=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-686-tvtUDzLAPO-QBZRsUUvG5g-1; Thu, 24 Oct 2024 11:21:32 -0400
-X-MC-Unique: tvtUDzLAPO-QBZRsUUvG5g-1
-Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-460aca6cd0bso16766641cf.0
-        for <virtualization@lists.linux.dev>; Thu, 24 Oct 2024 08:21:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729783291; x=1730388091;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Qrw2RqXMP78nGKg8Lpv1jq5anNPyVA6VfKNmhQikqx0=;
-        b=PoCT/zkq+ztPzDCsfcvxJFPXKbGRZRt3FMTUvYIn6e2z4ROvO5w5SF1C9qkvSVS9ah
-         B96mFUFh1jA8LfJHcD9GNYT728x5vTTVhabdjmX891dAqsZcDnBCn6jBD51008dX8L3z
-         k44Lm65EuoYwi4fqBNvt1kkhtICZL4veXpE86i802nJJmLaKejszDEgOvFJYmaCT68mE
-         yPYlLRgr+dErw4tilwttPGoLCBNSNOQjXcuIzwjlRsWqvSXDGQYS9wR0sXxYYLrGi0CX
-         7cZae1dutL+xMslO+mcYigUSLxQ2SdPf+p3trojAVsbJgwLT9larewTfRQOe1HloyY8T
-         MIAw==
-X-Gm-Message-State: AOJu0YxvbrEJbiMrmRsudRxlu2Q83hCEIWPw1A1MXE31xRGr0xIe6cce
-	ozqP63E3tEtrNtCsqvBe3sFAXIEc8ETpfSbkcmKZov2hBuOcw2wKlPf4JfnQs2iLHmvF/thoQmF
-	Lxn8wNxcRg7gxT9+O/7P1LCeiC+7EhG+uXkFeBoij7TegoQp3vTFCJlgH/UKw86VL
-X-Received: by 2002:ac8:498c:0:b0:461:2bbd:f96c with SMTP id d75a77b69052e-4612bbdfa90mr11593141cf.6.1729783291634;
-        Thu, 24 Oct 2024 08:21:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IENeP1TLULS4yPvQaHG4+jzlT08mwB6uRKJpkFnJDnX+eZo+AoJiFHON/m2ibWFVUzxSQuMdg==
-X-Received: by 2002:ac8:498c:0:b0:461:2bbd:f96c with SMTP id d75a77b69052e-4612bbdfa90mr11592771cf.6.1729783291124;
-        Thu, 24 Oct 2024 08:21:31 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-460d3dab83fsm52808871cf.88.2024.10.24.08.21.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2024 08:21:30 -0700 (PDT)
-Date: Thu, 24 Oct 2024 17:21:24 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Konstantin Shkolnyy <kshk@linux.ibm.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
-Subject: Re: [PATCH] vsock/test: fix failures due to wrong SO_RCVLOWAT
- parameter
-Message-ID: <4xfrphsdl7p2aqu6w7diow5shsnjq263lhfudi4yiqxvkvcmkq@ti2hcdbkthok>
-References: <20241023210031.274017-1-kshk@linux.ibm.com>
- <k5otzhemrqeau7iilr6j42ytasddatbx53godcm2fm6zckevti@nqnetgj6odmb>
- <ca6702e0-bdd9-4ab7-8fbc-e8b0404c9ed5@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IEL8GPA+"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49OElnNL016718;
+	Thu, 24 Oct 2024 16:11:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=cjShAnZwpuDy1jrqifitN/jWZ/9nldAQHa2uMuir6
+	uk=; b=IEL8GPA+GJejxMEDQj7xFZSqyDKvdIV++Nxu7VORzaoyJJ5SFlWJVgbdW
+	uwTX7i4cfAtC2k9G6RfcA6UZXB3BXhwlsdu23HC9RguClM6qQKXE3rjoQ7ZaalcC
+	rMt4pTGdxGgf/WbpzZwW2etg4M96FhFT9RlE4sCwbiBu/MKlK+xdrvExgEMOT3Jh
+	Q8P4IY5EquwtQIdSY6zB/N65Ziehwih8XdnwMJL8OtGTojpcxebu7KdLyJVXg6pX
+	OMh1eEcBTFLuF+GYCRt1SEvgwFQQ5JTmIOaKeEsrXbwpKvl1s93fEQ8zGAlR+Lqi
+	nxLfCfokw0O+MfFc6PAv+rseVez8w==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42emajshkd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 16:11:42 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49OEWTYW008796;
+	Thu, 24 Oct 2024 16:11:22 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 42emkas89u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Oct 2024 16:11:22 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49OGBLqu15794782
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 24 Oct 2024 16:11:21 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 14FA65805A;
+	Thu, 24 Oct 2024 16:11:21 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D0EE458063;
+	Thu, 24 Oct 2024 16:11:20 +0000 (GMT)
+Received: from WIN-DU0DFC9G5VV.austin.ibm.com (unknown [9.41.105.143])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 24 Oct 2024 16:11:20 +0000 (GMT)
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+To: sgarzare@redhat.com
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+Subject: [PATCH v2] vsock/test: fix failures due to wrong SO_RCVLOWAT parameter
+Date: Thu, 24 Oct 2024 11:10:58 -0500
+Message-Id: <20241024161058.435469-1-kshk@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ca6702e0-bdd9-4ab7-8fbc-e8b0404c9ed5@linux.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: o4xWv7fO9kP9QVrkwJLQ6NMNRSaMhM4K
+X-Proofpoint-GUID: o4xWv7fO9kP9QVrkwJLQ6NMNRSaMhM4K
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ mlxscore=0 phishscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
+ lowpriorityscore=0 spamscore=0 mlxlogscore=999 bulkscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2409260000
+ definitions=main-2410240133
 
-On Thu, Oct 24, 2024 at 10:00:47AM -0500, Konstantin Shkolnyy wrote:
->On 10/24/2024 03:43, Stefano Garzarella wrote:
->>Other setsockopt() in the tests where we use unsigned long are
->>SO_VM_SOCKETS_* but they are expected to be unsigned, so we should be
->>fine.
->
->It's actually not "signed vs unsigned", but a "size + endianess" problem.
+This happens on 64-bit big-endian machines.
+SO_RCVLOWAT requires an int parameter. However, instead of int, the test
+uses unsigned long in one place and size_t in another. Both are 8 bytes
+long on 64-bit machines. The kernel, having received the 8 bytes, doesn't
+test for the exact size of the parameter, it only cares that it's >=
+sizeof(int), and casts the 4 lower-addressed bytes to an int, which, on
+a big-endian machine, contains 0. 0 doesn't trigger an error, SO_RCVLOWAT
+returns with success and the socket stays with the default SO_RCVLOWAT = 1,
+which results in test failures.
 
-I see, thanks!
+Fixes: b1346338fbae ("vsock_test: POLLIN + SO_RCVLOWAT test")
+Fixes: 542e893fbadc ("vsock/test: two tests to check credit update logic")
+Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+---
 
->
->Also, looking at SO_VM_SOCKETS_* code in the test, it uses unsigned 
->long and size_t which (I believe) will both shrink to 4 bytes on 32-bit 
->machines, while the corresponding kernel code in af_vsock.c uses u64.  
->It looks to me that this kernel code will be unhappy to receive just 4 
->bytes when it expects 8.
->
+Notes:
+    The problem was found on s390 (big endian), while x86-64 didn't show it. After this fix, all tests pass on s390.
+Changes for v2:
+- add "Fixes:" lines to the commit message
 
-In include/uapi/linux/vm_sockets.h we talk about unsigned long long for 
-SO_VM_SOCKETS_*, that IIUC also on 32-bit machines should be on 64bit, 
-so the kernel code looks okay, but the tests should be improved, right?
+ tools/testing/vsock/vsock_test.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-Stefano
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index 8d38dbf8f41f..7fd25b814b4b 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -835,7 +835,7 @@ static void test_stream_poll_rcvlowat_server(const struct test_opts *opts)
+ 
+ static void test_stream_poll_rcvlowat_client(const struct test_opts *opts)
+ {
+-	unsigned long lowat_val = RCVLOWAT_BUF_SIZE;
++	int lowat_val = RCVLOWAT_BUF_SIZE;
+ 	char buf[RCVLOWAT_BUF_SIZE];
+ 	struct pollfd fds;
+ 	short poll_flags;
+@@ -1357,7 +1357,7 @@ static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opt
+ static void test_stream_credit_update_test(const struct test_opts *opts,
+ 					   bool low_rx_bytes_test)
+ {
+-	size_t recv_buf_size;
++	int recv_buf_size;
+ 	struct pollfd fds;
+ 	size_t buf_size;
+ 	void *buf;
+-- 
+2.34.1
 
