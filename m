@@ -1,46 +1,46 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 106D8202F63
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 14:15:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 434C21FB8B5
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 14:15:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729865751; cv=none; b=Hz8rN+QjgFfQTdcDGBN2vmvDMDkWyyh4xqsrtRr2SxCLjvPe7d0WH0a/40AowJmb3DUQRXNh8Jx3+UEABUvVr/LRZWisguB14v35247QQ4HOj2QsLhUEUIgHn8+AyNuPweWjtJ5E1CgTAHE1UBd7hcY0D9d2u/xNXAALa2B+8Bo=
+	t=1729865761; cv=none; b=R9nLmebqwBwBViysyTfhADr9C8sSwxIRT4TIcbvO1CRuljCEMIpNsAOQkdmeIk1QL1rjo7C1e4LOLLTgStgWLyssu+sjAYgWQK9ekp7zMgwkkd5yOkqxBAjVT59zvIqvXHWGYfR8XrPEMMYWm/FuNWZOVATuU3UBInUhlWE2M60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729865751; c=relaxed/simple;
-	bh=qP5BOMx+AFbuaOmNrHq+eACIGSsG+WF/uxJ1INUuM2o=;
+	s=arc-20240116; t=1729865761; c=relaxed/simple;
+	bh=2GXCUlyOi24cr84KtLR76IrFQ4bDh/2Fz1VgOJWs5Ks=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DpMLOkUW3EaRC+dDGdlhMQaCwI9rteY2Ts5u5/weJ3iso/Z7KQe4HWTp66pmHY3TvLiVtYSIOEamXymq5hVlnZBeZnvA/5Xf11KtUCEwEmJ/KFNxi0i+C3FDExAKKCsxZbIUEBgr0U2Cl8xoAalGsNgPEmOfYDsUld0K4Ads7UA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cEDhe00H; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version; b=SdJc5WGX57Dtn/4fAHqiH31zCcH+zB8gxlbQJ/uP2A8lVNZ0bjXMRU8Rs1+f4wgSvtmsyXUyffYin4s4BVjBAHlJScij42pvq1VlVE9fm+MyoqL9Q2NKD5JxH/ju2DIDC5Xq6WDEO9FE5BEyQM9fXgBeRHDhxvQz7cChtPQ6pjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jAxaVpoP; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cEDhe00H"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jAxaVpoP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729865748;
+	s=mimecast20190719; t=1729865758;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=dV9SC24YC4T4aWYHNQCxY+WbG2Bhk/i+Kj0AtdnRckY=;
-	b=cEDhe00HXmJZl+m+L29VjX96XiHVTe9gCnjtuFBwEtxKyzunfVxLp6NcI04BJj16fKWeFl
-	szPCWQfK2OoxcccXKNEi3KJ0KBbXfOeIuuyYpgJCd91l4jwjW+SFDT5QDyIMZYqof4IeRl
-	LTiS1ZLtqgbxkdKZ+ZZeWG3fMx/ghv4=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+	bh=minQPvjcAw7BmTU59AI15v5UYV4aItz4WqTTQMtatbA=;
+	b=jAxaVpoPKUhFuhlAh/INnfj0a4L+32X5hs5myu0Vea2LisTakoHdtI+K7iKwQtuOZzsbPM
+	yKDlZBfxt6EFMnXm1UgUpzkdWUAJFcO6xaki/MBg4DgrbuKb+O2I5BC/nxJKClDuA5i7dd
+	CFvFkRXBULbU+Zdt2UpOpOwmSyZeX28=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-427-hNG7DXsQMK2z95OHSVmGKQ-1; Fri,
- 25 Oct 2024 10:15:44 -0400
-X-MC-Unique: hNG7DXsQMK2z95OHSVmGKQ-1
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-604-cIntWAoSP6e3AMrL0U5dWA-1; Fri,
+ 25 Oct 2024 10:15:54 -0400
+X-MC-Unique: cIntWAoSP6e3AMrL0U5dWA-1
 Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8C14C1955DCD;
-	Fri, 25 Oct 2024 14:15:42 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8804419560B5;
+	Fri, 25 Oct 2024 14:15:50 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.22.65.27])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 499AE1955F30;
-	Fri, 25 Oct 2024 14:15:35 +0000 (UTC)
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2754819560A2;
+	Fri, 25 Oct 2024 14:15:42 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -66,9 +66,9 @@ Cc: linux-mm@kvack.org,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Mario Casquero <mcasquer@redhat.com>
-Subject: [PATCH v3 5/7] lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390
-Date: Fri, 25 Oct 2024 16:14:50 +0200
-Message-ID: <20241025141453.1210600-6-david@redhat.com>
+Subject: [PATCH v3 6/7] s390/sparsemem: reduce section size to 128 MiB
+Date: Fri, 25 Oct 2024 16:14:51 +0200
+Message-ID: <20241025141453.1210600-7-david@redhat.com>
 In-Reply-To: <20241025141453.1210600-1-david@redhat.com>
 References: <20241025141453.1210600-1-david@redhat.com>
 Precedence: bulk
@@ -80,33 +80,54 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-virtio-mem currently depends on !DEVMEM | STRICT_DEVMEM. Let's default
-STRICT_DEVMEM to "y" just like we do for arm64 and x86.
+Ever since commit 421c175c4d609 ("[S390] Add support for memory hot-add.")
+we've been using a section size of 256 MiB on s390 and 32 MiB on s390.
+Before that, we were using a section size of 32 MiB on both
+architectures.
 
-There could be ways in the future to filter access to virtio-mem device
-memory even without STRICT_DEVMEM, but for now let's just keep it
-simple.
+Now that we have a new mechanism to expose additional memory to a VM --
+virtio-mem -- reduce the section size to 128 MiB to allow for more
+flexibility and reduce the metadata overhead when dealing with hot(un)plug
+granularity smaller than 256 MiB.
+
+128 MiB has been used by x86-64 since the very beginning. arm64 with 4k
+base pages switched to 128 MiB as well: it's just big enough on these
+architectures to allows for using a huge page (2 MiB) in the vmemmap in
+sane setups with sizeof(struct page) == 64 bytes and a huge page mapping
+in the direct mapping, while still allowing for small hot(un)plug
+granularity.
+
+For s390, we could even switch to a 64 MiB section size, as our huge page
+size is 1 MiB: but the smaller the section size, the more sections we'll
+have to manage especially on bigger machines. Making it consistent with
+x86-64 and arm64 feels like the right thing for now.
+
+Note that the smallest memory hot(un)plug granularity is also limited by
+the memory block size, determined by extracting the memory increment
+size from SCLP. Under QEMU/KVM, implementing virtio-mem, we expose 0;
+therefore, we'll end up with a memory block size of 128 MiB with a
+128 MiB section size.
 
 Tested-by: Mario Casquero <mcasquer@redhat.com>
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- lib/Kconfig.debug | 2 +-
+ arch/s390/include/asm/sparsemem.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 7312ae7c3cc5..fcad505e7c8b 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1905,7 +1905,7 @@ config STRICT_DEVMEM
- 	bool "Filter access to /dev/mem"
- 	depends on MMU && DEVMEM
- 	depends on ARCH_HAS_DEVMEM_IS_ALLOWED || GENERIC_LIB_DEVMEM_IS_ALLOWED
--	default y if PPC || X86 || ARM64
-+	default y if PPC || X86 || ARM64 || S390
- 	help
- 	  If this option is disabled, you allow userspace (root) access to all
- 	  of memory, including kernel and userspace memory. Accidental
+diff --git a/arch/s390/include/asm/sparsemem.h b/arch/s390/include/asm/sparsemem.h
+index c549893602ea..ff628c50afac 100644
+--- a/arch/s390/include/asm/sparsemem.h
++++ b/arch/s390/include/asm/sparsemem.h
+@@ -2,7 +2,7 @@
+ #ifndef _ASM_S390_SPARSEMEM_H
+ #define _ASM_S390_SPARSEMEM_H
+ 
+-#define SECTION_SIZE_BITS	28
++#define SECTION_SIZE_BITS	27
+ #define MAX_PHYSMEM_BITS	CONFIG_MAX_PHYSMEM_BITS
+ 
+ #endif /* _ASM_S390_SPARSEMEM_H */
 -- 
 2.46.1
 
