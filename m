@@ -1,165 +1,132 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E141021A4AA
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 15:41:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729870912; cv=none; b=jyxz7FeBJW3GBetL5yk1WsZjFyaMm7/bSoSXmV09Q0L4FC8EgfzTqSUV9xCLOBk/ttfl4ynPZghVPWR69RXRg8f1iDS8ayk/X0pZaF/Vu+85g5PAxviIwPnXJWZoX3zLM/lcwk4dmP9/wUcZsMnFoFKwja/qxQ962xg2emKtapM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729870912; c=relaxed/simple;
-	bh=NQrucM9x+saoFF0bKhfOtTTsmlsmJGDQESQbN+cJ5T8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=g9S+AI0+YkUUvVym1+Gyg4GCCPVpDBWYBw59Pc1AMiadD7jTqnxYv4g8kN2aJRUA/Oita+kPoDPZZoffQOZEOw+Oarn8QQuOoMVLlOSF3DpvsTG7aBdtW7pHkd1j/KbQjn5GgkaPtWZWIb9Ii+lKek/+1ZfW2jCYRIGV4vBgNxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s88mfr5N; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9282D1F754F
+	for <virtualization@lists.linux-foundation.org>; Fri, 25 Oct 2024 17:59:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1729879188; cv=pass; b=ZJ1PcEaUEzSYjvsaN7HHUcKs6nF49OjT6sykfO74EQINC6Qb+423mHhwP/OVLUNHk+Z9fhf5JvdcdAZa2vshTb1lz3zTM3ImeOyLraRXlBmYL4WDZXqypZBn4PdQciBwhp1u4pMa0N5sMoIMJlG6Y23HzC/XvrXVc8z/zhmdAmo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1729879188; c=relaxed/simple;
+	bh=hKFUCTWT0BkFYd3KtDUY9k1SzReqA9ctSD2OwdkCiGE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YqO8ILpzq1ijmnOeEn2vn6u0mSELE0/h18ZlZNXbYf2OQxC/ECqbtSEtNg0EHyPHPsNCyPNk+8ELEpkTs6g+9IlrgZ33J3yy1wGHiSqRvIEE4PMYL2dcI82tHPuK6tclPlkavFHlXrU9MfurtmJef9nCxWQ/CL/qoG40fV1ofoM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=UFU6Hiib; arc=pass smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s88mfr5N"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49PDpA4b021561;
-	Fri, 25 Oct 2024 15:41:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=5LJ+VKt8Wb3JvYVN3+XmhS5GVyUE5yneVa6dfImU/
-	6Q=; b=s88mfr5NqxxZLp2ghjviqDWcV4e7B7+RkZ9hCrVxF1rkJle8jAXdvYrFq
-	5WkbRV6UQ/o9sv/Ne5SPD19QfoUUveP3X4BfuSVYgkoh+q0S7xAObhVXgvYefKff
-	hTft4M9xuR9dbOnqINJm4CHzhHfmq3Va2jrvRQzIM7vP0bvK9WrpPnrU/JNlr0DV
-	gPZAur1aBtDiV7RT5ctIir4fgLS0tfxCl9d2fnGFxe2wG5HQ07iWIF0IxGOTT+/G
-	vL9KQAzS3jMwdHfu0z7ilNs5WeciMS6OOKdah7s5B+bVGSUDEGjBFBQm8SdBjvgN
-	sIvYvhHYnOuyZdEeWD47ZDwGifQjw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42fbw494td-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:41:48 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49PEDICt014571;
-	Fri, 25 Oct 2024 15:41:48 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emk86cj4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:41:48 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49PFfkUM64946464
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Oct 2024 15:41:47 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A4CCA58056;
-	Fri, 25 Oct 2024 15:41:46 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6ED6258052;
-	Fri, 25 Oct 2024 15:41:46 +0000 (GMT)
-Received: from WIN-DU0DFC9G5VV.ibm.com (unknown [9.61.242.95])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 25 Oct 2024 15:41:46 +0000 (GMT)
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
-To: sgarzare@redhat.com
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
-        Konstantin Shkolnyy <kshk@linux.ibm.com>
-Subject: [PATCH v3] vsock/test: fix failures due to wrong SO_RCVLOWAT parameter
-Date: Fri, 25 Oct 2024 10:41:24 -0500
-Message-Id: <20241025154124.732008-1-kshk@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="UFU6Hiib"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3241B40BEB
+	for <virtualization@lists.linux-foundation.org>; Fri, 25 Oct 2024 17:59:46 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.789
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 4MLkQ6xoJ0Jf for <virtualization@lists.linux-foundation.org>;
+ Fri, 25 Oct 2024 17:59:45 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=136.143.188.112; helo=sender4-pp-f112.zoho.com; envelope-from=dmitry.osipenko@collabora.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2DFC840159
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2DFC840159
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=UFU6Hiib
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2DFC840159
+	for <virtualization@lists.linux-foundation.org>; Fri, 25 Oct 2024 17:59:44 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; t=1729879175; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=YotU0suanNeLwfdlee4TTl/JSM8MRVMfMZH6cawJ7PepI697YKjEdj6tJPqRT/CN0KU3kKZM9sK6oMmFUsrOtKr+k29XgOJ0ixsIi3Pfp3rB/8LFmb2R1ckwvLDYtFqzxW81eMUSZaxLaNm/75LNHgic73ENG0D2xS+KkktmiWI=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1729879175; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=SDR/2walgN8msRG3na8ZVPKgJth6f+dq/ymHTRdWh1g=; 
+	b=YZbOFTQ2bqUoKPz1inD0p3qU6GWaygJMWMty7Too31Z3ysdW9xCtKc5VLKTA60inJTMJYSXS+Feube2sAn2TVGZwZaofBTmx86Xv4BiwqaH2vsBS7jju8GO0PsQ2/MGFQ+0CE5iipNMHv7ykUq3fTqfNCjku85c2ZmjAIoS8bsY=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1729879175;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=SDR/2walgN8msRG3na8ZVPKgJth6f+dq/ymHTRdWh1g=;
+	b=UFU6HiibijfIbCD3IgoIt0i8YZbW5LaS1WebHtNo7TPkCyVedvSnE2F8lUG84mMb
+	sXm/JaTxBbNRK1Ut4k2F68JEotcYd3C2SR91vhY94a556+DaMvPYnHmotmQdikym6Dz
+	X86udJP/SpFN1QDvMdRTA9b45iC42fPrbU3FVZy0=
+Received: by mx.zohomail.com with SMTPS id 1729879172868517.0244715513983;
+	Fri, 25 Oct 2024 10:59:32 -0700 (PDT)
+Message-ID: <18415279-39d3-4ce3-bef2-58566276799b@collabora.com>
+Date: Fri, 25 Oct 2024 20:59:27 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PJJO1tMEtrrwJ16oFZKthF54PSAHqkis
-X-Proofpoint-GUID: PJJO1tMEtrrwJ16oFZKthF54PSAHqkis
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- bulkscore=0 suspectscore=0 spamscore=0 phishscore=0 adultscore=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 malwarescore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410250122
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/2] drm/virtio: New fence for every plane update
+To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Rob Clark <robdclark@gmail.com>,
+ Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+ "Kim, Dongwon" <dongwon.kim@intel.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "kernel@collabora.com" <kernel@collabora.com>
+References: <20241020230803.247419-1-dmitry.osipenko@collabora.com>
+ <20241020230803.247419-2-dmitry.osipenko@collabora.com>
+ <IA0PR11MB7185FA36BD2988FD75239C5EF84C2@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <IA0PR11MB7185FA36BD2988FD75239C5EF84C2@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-This happens on 64-bit big-endian machines.
-SO_RCVLOWAT requires an int parameter. However, instead of int, the test
-uses unsigned long in one place and size_t in another. Both are 8 bytes
-long on 64-bit machines. The kernel, having received the 8 bytes, doesn't
-test for the exact size of the parameter, it only cares that it's >=
-sizeof(int), and casts the 4 lower-addressed bytes to an int, which, on
-a big-endian machine, contains 0. 0 doesn't trigger an error, SO_RCVLOWAT
-returns with success and the socket stays with the default SO_RCVLOWAT = 1,
-which results in vsock_test failures, while vsock_perf doesn't even notice
-that it's failed to change it.
+On 10/22/24 07:44, Kasireddy, Vivek wrote:
+>>  		virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle,
+>> x, y,
+>> -					      width, height, objs, vgfb->fence);
+>> +					      width, height, objs,
+>> +					      vgplane_st->fence);
+>>  		virtio_gpu_notify(vgdev);
+>> -
+>> -		dma_fence_wait_timeout(&vgfb->fence->f, true,
+>> +		dma_fence_wait_timeout(&vgplane_st->fence->f, true,
+>>  				       msecs_to_jiffies(50));
+>> -		dma_fence_put(&vgfb->fence->f);
+>> -		vgfb->fence = NULL;
+> Not sure if it makes any difference but would there be a problem if you unref
+> the fence here (existing behavior) instead of deferring it until cleanup?
 
-Fixes: b1346338fbae ("vsock_test: POLLIN + SO_RCVLOWAT test")
-Fixes: 542e893fbadc ("vsock/test: two tests to check credit update logic")
-Fixes: 8abbffd27ced ("test/vsock: vsock_perf utility")
-Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
----
+Previously fence was a part of virtio-gpu framebuffer, which was kind of
+a hack. Maybe there was no better option back then, when this code was
+written initially.
 
-Notes:
-    The problem was found on s390 (big endian), while x86-64 didn't show it. After this fix, all tests pass on s390.
-Changes for v3:
-- fix the same problem in vsock_perf and update commit message
-Changes for v2:
-- add "Fixes:" lines to the commit message
+Now fence is a part of plane's atomic state, like it should be. We
+shouldn't change atomic state at the commit time.
 
- tools/testing/vsock/vsock_perf.c | 6 +++---
- tools/testing/vsock/vsock_test.c | 4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+...
+>> @@ -326,11 +348,9 @@ static void virtio_gpu_cursor_plane_update(struct
+>> drm_plane *plane,
+>>  			(vgdev, 0,
+>>  			 plane->state->crtc_w,
+>>  			 plane->state->crtc_h,
+>> -			 0, 0, objs, vgfb->fence);
+>> +			 0, 0, objs, vgplane_st->fence);
+>>  		virtio_gpu_notify(vgdev);
+>> -		dma_fence_wait(&vgfb->fence->f, true);
+>> -		dma_fence_put(&vgfb->fence->f);
+>> -		vgfb->fence = NULL;
+> Same comment as above.
+> Regardless, the patch LGTM.
+> 
+> Acked-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
 
-diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
-index 4e8578f815e0..22633c2848cc 100644
---- a/tools/testing/vsock/vsock_perf.c
-+++ b/tools/testing/vsock/vsock_perf.c
-@@ -133,7 +133,7 @@ static float get_gbps(unsigned long bits, time_t ns_delta)
- 	       ((float)ns_delta / NSEC_PER_SEC);
- }
- 
--static void run_receiver(unsigned long rcvlowat_bytes)
-+static void run_receiver(int rcvlowat_bytes)
- {
- 	unsigned int read_cnt;
- 	time_t rx_begin_ns;
-@@ -163,7 +163,7 @@ static void run_receiver(unsigned long rcvlowat_bytes)
- 	printf("Listen port %u\n", port);
- 	printf("RX buffer %lu bytes\n", buf_size_bytes);
- 	printf("vsock buffer %lu bytes\n", vsock_buf_bytes);
--	printf("SO_RCVLOWAT %lu bytes\n", rcvlowat_bytes);
-+	printf("SO_RCVLOWAT %d bytes\n", rcvlowat_bytes);
- 
- 	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
- 
-@@ -439,7 +439,7 @@ static long strtolx(const char *arg)
- int main(int argc, char **argv)
- {
- 	unsigned long to_send_bytes = DEFAULT_TO_SEND_BYTES;
--	unsigned long rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
-+	int rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
- 	int peer_cid = -1;
- 	bool sender = false;
- 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index f851f8961247..30857dd4ca97 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -833,7 +833,7 @@ static void test_stream_poll_rcvlowat_server(const struct test_opts *opts)
- 
- static void test_stream_poll_rcvlowat_client(const struct test_opts *opts)
- {
--	unsigned long lowat_val = RCVLOWAT_BUF_SIZE;
-+	int lowat_val = RCVLOWAT_BUF_SIZE;
- 	char buf[RCVLOWAT_BUF_SIZE];
- 	struct pollfd fds;
- 	short poll_flags;
-@@ -1282,7 +1282,7 @@ static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opt
- static void test_stream_credit_update_test(const struct test_opts *opts,
- 					   bool low_rx_bytes_test)
- {
--	size_t recv_buf_size;
-+	int recv_buf_size;
- 	struct pollfd fds;
- 	size_t buf_size;
- 	void *buf;
+Thanks for the review :)
+
 -- 
-2.34.1
-
+Best regards,
+Dmitry
