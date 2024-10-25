@@ -1,273 +1,176 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EBD51D8E10
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 09:59:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A8001F5825
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 10:52:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729850365; cv=none; b=LYPS18cty9wlFj0R+IxLBw+FdOj4bKruij/ATuVLLyl3i7Vs6xaKYCu1SN31Yy15zlehE/g0sV8aZxmwH9ZM95pkpzAuGUuvom7LyrpFZ+Vyy1pfmVff4euji7BdPL6XkObUjv9iy27h/l04RCAVolcyjHhC8sYTQzea6ZbKtYI=
+	t=1729853533; cv=none; b=dAhAZj7QTDC8PVhgQegXKY6mEOtd9KM6Kn0J0SJF+V/bQpAeDVj//oNRBNe6U8RLcIxFr2mYlPmGUZ2Yq41YDtiYbj9+kTjjIfZpAsbRsAt+Ygy2qK6N19ynFGUvixCId0QeWqaPTmrxz5TXf7E1Dgl85Ct7GidldfhsFOhUb+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729850365; c=relaxed/simple;
-	bh=A0tbIubMUPu1KmNaFfOkWkedtaj9BPGHl5YSsFJzW4A=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=M4saM+8XItMBUwEto1JjQxW6q1cAtZ0K7dNmpCiiGef6Qw0ydodssxxJLdq2NPCzdWFBsnhWVqIwIKC2ZtS+DnfIIFTsosidzUGoOfwqCu2k28I3cTyYr+PO/b0YvGgoVtYWdXqKOafyNuG5LSAF/2oUwfrnTFt06BeOo655WD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SHGfTg6o; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1729853533; c=relaxed/simple;
+	bh=kp2DJSQcz5F9ITrB7GXc5frB5yJiuuHNUVJHR6XpcF0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DJMcXkFEgUlEQZ8+fSZv5JSRFv4T9e6XMbI8whz6FF5qwtHFHTnkWqV3LeaXVJSBNrwVfyxdGimFhOa81iHqn6nN/Pg3kB/8OdVdbaVoyagNAIc89rVCPl5VObGfNZ2x/IzTHpODAzHujPfhTZPj0hO8JG0H1is36eUiFzhlEiU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G+HwVTYD; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SHGfTg6o"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1729850362; x=1761386362;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version:content-transfer-encoding;
-  bh=A0tbIubMUPu1KmNaFfOkWkedtaj9BPGHl5YSsFJzW4A=;
-  b=SHGfTg6o08APtG9u5QA5fjsCnGoXzwXtIrXWxZRA6uegLR05yUeISCRG
-   zgo9EqNuw47rtHHFRhSQKAnwYvsZWp6uXcwjqluuE7YvRx4VqOshoCgaT
-   i411d4LAmr/CE4G7fwaN3nPC64YL/K/jGEKmAN/N8MknVz22Oi9UEMIuL
-   dVeyp59a/cOsLYAl4xhf/GS2Qjq8X/AjH96S8W7aAg5mLpJ9SZGjv9cau
-   LhiSYACIfHoyaj7jga4Kdhq9rcsGzefMnkjb0xVpAyH0O1xJc6fdM9G9B
-   jV/7od4cnYWODu6uhPG1yCg+EkZ7rspfCKUhGpSxrvf1JQwGG0W/3hIPQ
-   Q==;
-X-CSE-ConnectionGUID: nIdIYUDeT4OpK1FyMoNuxg==
-X-CSE-MsgGUID: qv1kM4mqSkq10KcE6Z765A==
-X-IronPort-AV: E=McAfee;i="6700,10204,11235"; a="17145364"
-X-IronPort-AV: E=Sophos;i="6.11,231,1725346800"; 
-   d="scan'208";a="17145364"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2024 02:59:21 -0700
-X-CSE-ConnectionGUID: J/nzwOZxRuCCiipRaURsrA==
-X-CSE-MsgGUID: 0oumuCcWRtKOGTxyvWihhg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,231,1725346800"; 
-   d="scan'208";a="80980898"
-Received: from zzombora-mobl1.ti.intel.com (HELO localhost) ([10.245.246.193])
-  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2024 02:59:09 -0700
-From: Jani Nikula <jani.nikula@linux.intel.com>
-To: Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
- dri-devel@lists.freedesktop.org
-Cc: intel-gfx@lists.freedesktop.org, Abhinav Kumar
- <quic_abhinavk@quicinc.com>, Alain Volmat <alain.volmat@foss.st.com>, Alex
- Deucher <alexander.deucher@amd.com>, Alexey Brodkin
- <abrodkin@synopsys.com>, amd-gfx@lists.freedesktop.org, Andy Yan
- <andy.yan@rock-chips.com>, Christian =?utf-8?Q?K=C3=B6nig?=
- <christian.koenig@amd.com>,
- Danilo Krummrich <dakr@redhat.com>, Dmitry Baryshkov
- <dmitry.baryshkov@linaro.org>, freedreno@lists.freedesktop.org, Hans de
- Goede <hdegoede@redhat.com>, Heiko =?utf-8?Q?St=C3=BCbner?=
- <heiko@sntech.de>, Inki Dae
- <inki.dae@samsung.com>, Jyri Sarha <jyri.sarha@iki.fi>, Karol Herbst
- <kherbst@redhat.com>, linux-amlogic@lists.infradead.org,
- linux-arm-msm@vger.kernel.org, linux-arm-msm@vger.kernel.orga,
- linux-mediatek@lists.infradead.org, linux-renesas-soc@vger.kernel.org,
- Liviu Dudau <liviu.dudau@arm.com>, Lyude Paul <lyude@redhat.com>,
- =?utf-8?Q?Ma=C3=ADra?=
- Canal <mairacanal@riseup.net>, Marijn Suijten
- <marijn.suijten@somainline.org>, nouveau@lists.freedesktop.org,
- nouveau@lists.freedesktop.orga, Patrik Jakobsson
- <patrik.r.jakobsson@gmail.com>, Rob Clark <robdclark@gmail.com>, Russell
- King <linux@armlinux.org.uk>, Sandy Huang <hjc@rock-chips.com>, Sean Paul
- <sean@poorly.run>, spice-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, Xinhui Pan
- <Xinhui.Pan@amd.com>, Zack Rusin <zack.rusin@broadcom.com>
-Subject: Re: [PATCH 0/2] drm: Treewide plane/crtc legacy state sweeping
-In-Reply-To: <ZxtMz8JP3DbzpMew@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20241002182200.15363-1-ville.syrjala@linux.intel.com>
- <ZxtMz8JP3DbzpMew@intel.com>
-Date: Fri, 25 Oct 2024 12:59:05 +0300
-Message-ID: <8734kkqz9y.fsf@intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G+HwVTYD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729853530;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=e4r2NzZfPv+Z+xS0CZlcU7ZKIzf4wqWDmUdEIeMKIBk=;
+	b=G+HwVTYD3EDgcZCiuq5Dr77QqaXNNeaNQGrG84BC7zlXBDOATRzuFNobwN9fsrL1nEFEM4
+	3AnbxXaiUyg5fTfaNQBM9oVjsFo+tE27iTI79RcaL/1mAi4XurKzYO4EoAnLf5Y3Kr77Bd
+	5w8F/xv36PwFgOXqF4bFQviqbGAtKaE=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-404-Ax-Wjxx_PuWvIqwcdMZ0HQ-1; Fri, 25 Oct 2024 06:52:09 -0400
+X-MC-Unique: Ax-Wjxx_PuWvIqwcdMZ0HQ-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2fcae3fa9dcso8043881fa.0
+        for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 03:52:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729853527; x=1730458327;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=e4r2NzZfPv+Z+xS0CZlcU7ZKIzf4wqWDmUdEIeMKIBk=;
+        b=kklLFd1B7UTVm80/42C+d7ZJTpG/wv3xCPS6IzNldt0Ivt13cL3/CoyItFxja0bQxP
+         svJWIFVms93F69R1qFqaBM4abjA8W3O6lICbYTosYjiVJLYOtAxRLJjeuPqxCAxT9nLN
+         VvRh3ikhlYw8rQvERTsiBXQU3XvyTrpeIm7ClE58v7XIqFM1bdJRfv7s90KbRLppVq3Z
+         UL0UonP6Ezfn1ZrmQVWwK+/ebj/pZX8UL0Xf+E/NvZ5T3WCoSs5kM+hs2pFu/75nYdqh
+         5TWf0S+BRqioHrTdl9T3uL9mq9YbxCmTXyrdx11FLVDfxfuNK1Bee10V009R1YrHBqNw
+         J1Ww==
+X-Forwarded-Encrypted: i=1; AJvYcCUiwxg8HTkqG4+Rh/LtrsZcXAYT2Mgd6nGDB43Z/dFuWGiHex9bZe47BIls3W1Bj/x0gHpmvVey3+yX1Z49Cw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwB92i0+QbS8BFJoVDB1YBDgjAFUpg2v0otVFIxNxSbvjMhMuhn
+	uRLazBuy75y0axxGYEkgAtELM4sRzk5enQ3yP0+an/bGlG7T5PA2Gk1DP9W3mpYirIBRYg2PURs
+	fxIui6sqgkuI+I8jqMiBbmGjzzWedvyHpWrMvlTrOmHhLAVFnuaVwEebMVb9AUG1G
+X-Received: by 2002:a2e:741:0:b0:2fb:5014:8eb9 with SMTP id 38308e7fff4ca-2fc9d2f1a2cmr38426851fa.10.1729853527302;
+        Fri, 25 Oct 2024 03:52:07 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEcmLZmu7afPuuZ9o9QyvzZjgc+xVg74UVePptJdhAFYX1KPdNcPvjRw2LvDcGh5gFxxydkeQ==
+X-Received: by 2002:a2e:741:0:b0:2fb:5014:8eb9 with SMTP id 38308e7fff4ca-2fc9d2f1a2cmr38426451fa.10.1729853526804;
+        Fri, 25 Oct 2024 03:52:06 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c70d:d800:499c:485a:c734:f290? (p200300cbc70dd800499c485ac734f290.dip0.t-ipconnect.de. [2003:cb:c70d:d800:499c:485a:c734:f290])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4318b5431ecsm45473185e9.5.2024.10.25.03.52.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Oct 2024 03:52:06 -0700 (PDT)
+Message-ID: <e6ca25ae-52dc-40d0-acc6-fd65bd36d00c@redhat.com>
+Date: Fri, 25 Oct 2024 12:52:05 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT) to
+ support QEMU/KVM memory devices
+To: Heiko Carstens <hca@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
+References: <20241014144622.876731-1-david@redhat.com>
+ <20241014144622.876731-5-david@redhat.com>
+ <20241014184339.10447-E-hca@linux.ibm.com>
+ <8131b905c61a7baf4bd09ec4a08e1ace84d36754.camel@linux.ibm.com>
+ <20241015152008.7641-P-hca@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20241015152008.7641-P-hca@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 25 Oct 2024, Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com=
-> wrote:
-> On Wed, Oct 02, 2024 at 09:21:58PM +0300, Ville Syrjala wrote:
->> From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
->>=20
->> An attempt to hide the drm_plane/crtc legacy state better.
->>=20
->> This also highlights the fact that a lot of supposedly
->> atomic drivers are poking around in the legacy crtc state,
->> which is rather questionable. For planes we did force the
->> legacy state to NULL already to force drivers to behave.
->> But even then it seems capable of confusing people with
->> its high profile location directly under drm_plane.
->>=20
->> This might end up as some kind of conflict
->> galore, but the alternative would involve trying
->> to wean the atomic drivers off one by one,
->> which would probably take forever. At least with
->> this the issue becomes visible and shouldn't be
->> forgotten as easily.
->
-> Ping, anyone have thoughts on this? I'd like to get something
-> like this in at some point to make the legacy state (ab)users
-> easily visible...
+On 15.10.24 17:20, Heiko Carstens wrote:
+> On Tue, Oct 15, 2024 at 11:01:44AM -0400, Eric Farman wrote:
+>> On Mon, 2024-10-14 at 20:43 +0200, Heiko Carstens wrote:
+>>> On Mon, Oct 14, 2024 at 04:46:16PM +0200, David Hildenbrand wrote:
+> ...
+>>> +#define DIAG500_SC_STOR_LIMIT 4
+> ...
+>> I like the idea of a defined constant here instead of hardcoded, but maybe it should be placed
+>> somewhere in include/uapi so that QEMU can pick it up with update-linux-headers.sh and be in sync
+>> with the kernel, instead of just an equivalent definition in [1] ?
+>>
+>> [1] https://lore.kernel.org/qemu-devel/20241008105455.2302628-8-david@redhat.com/
+> 
+> It is already a mess; we have already subcode 3 defined:
+> 
+> #define KVM_S390_VIRTIO_CCW_NOTIFY 3
+> 
+> in
+> 
+> arch/s390/include/uapi/asm/virtio-ccw.h
+> 
+> which for some reason is uapi. But it doesn't make sense to put the
+> new subcode 4 there too. So what is the end result?
+> 
+> Another uapi file? I think resolving this would be a project on its own.
 
-On the approach,
+Agreed, thanks all!
 
-Acked-by: Jani Nikula <jani.nikula@intel.com>
+-- 
+Cheers,
 
-with or without converting legacy into a pointer, up to you.
+David / dhildenb
 
->
->>=20
->> The cc list was getting way out of hand, so I had
->> to trim it a bit. Hopefully I didn't chop off too
->> many names...
->>=20
->> Cc: Abhinav Kumar <quic_abhinavk@quicinc.com>
->> Cc: Alain Volmat <alain.volmat@foss.st.com>
->> Cc: Alex Deucher <alexander.deucher@amd.com>
->> Cc: Alexey Brodkin <abrodkin@synopsys.com>
->> Cc: amd-gfx@lists.freedesktop.org
->> Cc: Andy Yan <andy.yan@rock-chips.com>
->> Cc: "Christian K=C3=B6nig" <christian.koenig@amd.com>
->> Cc: Danilo Krummrich <dakr@redhat.com>
->> Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
->> Cc: freedreno@lists.freedesktop.org
->> Cc: Hans de Goede <hdegoede@redhat.com>
->> Cc: "Heiko St=C3=BCbner" <heiko@sntech.de>
->> Cc: Inki Dae <inki.dae@samsung.com>
->> Cc: Jyri Sarha <jyri.sarha@iki.fi>
->> Cc: Karol Herbst <kherbst@redhat.com>
->> Cc: linux-amlogic@lists.infradead.org
->> Cc: linux-arm-msm@vger.kernel.org
->> Cc: linux-arm-msm@vger.kernel.orga
->> Cc: linux-mediatek@lists.infradead.org
->> Cc: linux-renesas-soc@vger.kernel.org
->> Cc: Liviu Dudau <liviu.dudau@arm.com>
->> Cc: Lyude Paul <lyude@redhat.com>
->> Cc: "Ma=C3=ADra Canal" <mairacanal@riseup.net>
->> Cc: Marijn Suijten <marijn.suijten@somainline.org>
->> Cc: nouveau@lists.freedesktop.org
->> Cc: nouveau@lists.freedesktop.orga
->> Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
->> Cc: Rob Clark <robdclark@gmail.com>
->> Cc: Russell King <linux@armlinux.org.uk>
->> Cc: Sandy Huang <hjc@rock-chips.com>
->> Cc: Sean Paul <sean@poorly.run>
->> Cc: spice-devel@lists.freedesktop.org
->> Cc: virtualization@lists.linux.dev
->> Cc: xen-devel@lists.xenproject.org
->> Cc: Xinhui Pan <Xinhui.Pan@amd.com>
->> Cc: Zack Rusin <zack.rusin@broadcom.com>
->>=20
->> Ville Syrj=C3=A4l=C3=A4 (2):
->>   drm: Move plane->{fb,old_fb,crtc} to legacy sub-structure
->>   drm: Move crtc->{x,y,mode,enabled} to legacy sub-structure
->>=20
->>  .../gpu/drm/amd/amdgpu/amdgpu_connectors.c    |  7 +-
->>  drivers/gpu/drm/amd/amdgpu/amdgpu_display.c   | 20 ++---
->>  drivers/gpu/drm/amd/amdgpu/amdgpu_pll.c       |  2 +-
->>  drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c      |  2 +-
->>  drivers/gpu/drm/amd/amdgpu/dce_v10_0.c        | 35 ++++----
->>  drivers/gpu/drm/amd/amdgpu/dce_v11_0.c        | 35 ++++----
->>  drivers/gpu/drm/amd/amdgpu/dce_v6_0.c         | 37 ++++-----
->>  drivers/gpu/drm/amd/amdgpu/dce_v8_0.c         | 35 ++++----
->>  .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 ++--
->>  .../amd/display/amdgpu_dm/amdgpu_dm_crtc.c    |  2 +-
->>  drivers/gpu/drm/amd/pm/amdgpu_dpm_internal.c  |  4 +-
->>  drivers/gpu/drm/arm/hdlcd_drv.c               |  2 +-
->>  drivers/gpu/drm/arm/malidp_hw.c               |  2 +-
->>  drivers/gpu/drm/armada/armada_crtc.c          | 12 ++-
->>  drivers/gpu/drm/ast/ast_dp.c                  |  8 +-
->>  drivers/gpu/drm/drm_atomic.c                  |  6 +-
->>  drivers/gpu/drm/drm_atomic_helper.c           |  8 +-
->>  drivers/gpu/drm/drm_client_modeset.c          | 10 +--
->>  drivers/gpu/drm/drm_crtc.c                    | 31 +++----
->>  drivers/gpu/drm/drm_crtc_helper.c             | 80 ++++++++++---------
->>  drivers/gpu/drm/drm_fb_helper.c               | 12 +--
->>  drivers/gpu/drm/drm_framebuffer.c             |  4 +-
->>  drivers/gpu/drm/drm_plane.c                   | 69 ++++++++--------
->>  drivers/gpu/drm/drm_plane_helper.c            |  6 +-
->>  drivers/gpu/drm/drm_vblank.c                  |  2 +-
->>  drivers/gpu/drm/exynos/exynos5433_drm_decon.c |  4 +-
->>  drivers/gpu/drm/gma500/cdv_intel_display.c    |  2 +-
->>  drivers/gpu/drm/gma500/cdv_intel_dp.c         |  6 +-
->>  drivers/gpu/drm/gma500/cdv_intel_hdmi.c       |  3 +-
->>  drivers/gpu/drm/gma500/cdv_intel_lvds.c       |  6 +-
->>  drivers/gpu/drm/gma500/gma_display.c          | 22 ++---
->>  drivers/gpu/drm/gma500/oaktrail_crtc.c        |  2 +-
->>  drivers/gpu/drm/gma500/psb_intel_display.c    |  2 +-
->>  drivers/gpu/drm/gma500/psb_intel_lvds.c       |  6 +-
->>  drivers/gpu/drm/gma500/psb_intel_sdvo.c       |  8 +-
->>  drivers/gpu/drm/i2c/ch7006_drv.c              |  7 +-
->>  drivers/gpu/drm/i2c/sil164_drv.c              |  2 +-
->>  .../drm/i915/display/intel_modeset_setup.c    |  4 +-
->>  drivers/gpu/drm/imx/lcdc/imx-lcdc.c           | 31 ++++---
->>  drivers/gpu/drm/mediatek/mtk_crtc.c           |  6 +-
->>  drivers/gpu/drm/meson/meson_overlay.c         |  2 +-
->>  drivers/gpu/drm/meson/meson_plane.c           |  8 +-
->>  drivers/gpu/drm/msm/disp/dpu1/dpu_core_perf.c | 18 +++--
->>  drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c       |  6 +-
->>  drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c     | 16 ++--
->>  drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c     |  4 +-
->>  drivers/gpu/drm/nouveau/dispnv04/crtc.c       | 25 +++---
->>  drivers/gpu/drm/nouveau/dispnv04/cursor.c     |  2 +-
->>  drivers/gpu/drm/nouveau/dispnv04/dfp.c        |  2 +-
->>  drivers/gpu/drm/nouveau/dispnv04/disp.c       |  4 +-
->>  .../gpu/drm/nouveau/dispnv04/tvmodesnv17.c    |  4 +-
->>  drivers/gpu/drm/nouveau/dispnv04/tvnv17.c     |  7 +-
->>  drivers/gpu/drm/nouveau/nouveau_connector.c   |  6 +-
->>  drivers/gpu/drm/qxl/qxl_display.c             |  6 +-
->>  drivers/gpu/drm/radeon/atombios_crtc.c        | 28 +++----
->>  drivers/gpu/drm/radeon/cik.c                  | 12 +--
->>  drivers/gpu/drm/radeon/evergreen.c            | 16 ++--
->>  drivers/gpu/drm/radeon/r100.c                 | 16 ++--
->>  drivers/gpu/drm/radeon/r600_cs.c              |  2 +-
->>  drivers/gpu/drm/radeon/r600_dpm.c             |  4 +-
->>  drivers/gpu/drm/radeon/radeon_connectors.c    |  7 +-
->>  drivers/gpu/drm/radeon/radeon_cursor.c        | 29 +++----
->>  drivers/gpu/drm/radeon/radeon_device.c        |  2 +-
->>  drivers/gpu/drm/radeon/radeon_display.c       | 26 +++---
->>  drivers/gpu/drm/radeon/radeon_drv.c           |  2 +-
->>  drivers/gpu/drm/radeon/radeon_legacy_crtc.c   | 16 ++--
->>  .../gpu/drm/radeon/radeon_legacy_encoders.c   |  2 +-
->>  drivers/gpu/drm/radeon/radeon_pm.c            |  2 +-
->>  drivers/gpu/drm/radeon/rs600.c                | 10 +--
->>  drivers/gpu/drm/radeon/rs690.c                | 22 ++---
->>  drivers/gpu/drm/radeon/rs780_dpm.c            |  6 +-
->>  drivers/gpu/drm/radeon/rv515.c                | 30 +++----
->>  drivers/gpu/drm/radeon/rv770.c                |  2 +-
->>  drivers/gpu/drm/radeon/si.c                   | 14 ++--
->>  .../gpu/drm/renesas/rcar-du/rcar_du_crtc.c    |  2 +-
->>  .../gpu/drm/renesas/shmobile/shmob_drm_crtc.c |  2 +-
->>  drivers/gpu/drm/rockchip/rockchip_drm_vop.c   |  6 +-
->>  drivers/gpu/drm/sti/sti_crtc.c                |  4 +-
->>  drivers/gpu/drm/sti/sti_cursor.c              |  2 +-
->>  drivers/gpu/drm/sti/sti_gdp.c                 |  2 +-
->>  drivers/gpu/drm/sti/sti_hqvdp.c               |  2 +-
->>  drivers/gpu/drm/sti/sti_tvout.c               |  6 +-
->>  drivers/gpu/drm/sti/sti_vid.c                 |  2 +-
->>  drivers/gpu/drm/tilcdc/tilcdc_crtc.c          | 10 +--
->>  drivers/gpu/drm/tiny/arcpgu.c                 |  2 +-
->>  drivers/gpu/drm/vboxvideo/vbox_mode.c         |  2 +-
->>  drivers/gpu/drm/vc4/vc4_dpi.c                 |  2 +-
->>  drivers/gpu/drm/vc4/vc4_plane.c               |  4 +-
->>  drivers/gpu/drm/virtio/virtgpu_display.c      |  4 +-
->>  drivers/gpu/drm/vkms/vkms_composer.c          |  4 +-
->>  drivers/gpu/drm/vkms/vkms_crtc.c              |  2 +-
->>  drivers/gpu/drm/vkms/vkms_writeback.c         |  4 +-
->>  drivers/gpu/drm/vmwgfx/vmwgfx_kms.c           |  8 +-
->>  drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c           | 18 +++--
->>  drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c          |  9 ++-
->>  drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c          |  4 +-
->>  drivers/gpu/drm/vmwgfx/vmwgfx_vkms.c          |  2 +-
->>  drivers/gpu/drm/xen/xen_drm_front_kms.c       |  2 +-
->>  include/drm/drm_crtc.h                        | 75 ++++++++---------
->>  include/drm/drm_plane.h                       | 52 ++++++------
->>  100 files changed, 599 insertions(+), 547 deletions(-)
->>=20
->> --=20
->> 2.45.2
-
---=20
-Jani Nikula, Intel
