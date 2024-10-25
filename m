@@ -1,32 +1,32 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E71AC33FE
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 02:51:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B366433FE
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 02:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729824681; cv=none; b=XuJhJqJq1aJYXIaB8bOJHdlI+Rjx3jKuqlDZtdGYxIZtEHeX5geJakbO1ZztuAAZs/5obJHKVvwNjIsb1LDrwu9xOlqjujGaWZzgq5Y2BEB62NF3EN63P/sqBa10bflKQZJ3WFlo++Ugv4y3T/8yI28hWZYsTA6foy9WbwJh4/M=
+	t=1729824811; cv=none; b=fKI0z0jJDeimLTFSQyxTUls2iqPNlo8irvco+ggD46SpTXxPIR3b/3HZsmwdp1BtiIOQSUIN6ApSHMVk6qlKZDrYrf1mQtBNKAlcsxhLA67YbeqPTo/kGVo8W2lLgg9LbGhGqv7ziMHGOeiD53JipoDebXQ9zl4wie4F5Gtc7T0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729824681; c=relaxed/simple;
-	bh=w9pcyUc5pF/PQmOmRHoh4Nt3toT9SxYtiGyodDbujyQ=;
+	s=arc-20240116; t=1729824811; c=relaxed/simple;
+	bh=01ja3VxmKAoxjUC0k6Rh3DSiApD+tqj/Wdidko8XOL4=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=K9FrZpBmN9tDAgOhaMpM6iKRdrWItXdAP4AtPd4dxJrdMf+tP0qtWPfI/bWk/t6qAtmFeeyxFtVgb3Cz1lQJ8CVebOc3Gz6gq5VZe7WcMwVxsQ578OJCrLZuf++G3zGB/Wbasphf6SIBCNTFOLCx8//wuNkN6JyEkHoB0IOpElM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aQuuBMR/; arc=none smtp.client-ip=115.124.30.118
+	 Content-Type; b=d15ecAsyAoy03MHuG3h4gbdwHjVJUK0/nLnq9dH24wZb5b7a73jZ8B+wVKimtCRXaovdxJ3Lt/gjJ9nFh0p8vlSre1F6H3cC8sxUAzbVmh6IHtszIvpIyFhJiHf17MFYDbYM4+nAXiXPivmFV/g9mwVc1RScMdWnxebR4inolsc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CbsE8j7w; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aQuuBMR/"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CbsE8j7w"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1729824675; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=07UWTBkzM2yiRN/O7Q6tLoUyU1iy6xWp8IdG2zScB4I=;
-	b=aQuuBMR/YprPL9icklRKKHzcjwBTdHETojhgpGEVBP6UtWtaLsuFayJ42NbBR9Q3geQThRtSice9WrS+faT98hEco9/0buyEZGiAar9AsTR9CTIHvP9dLFgGsuZCOBh6NxnqbDxFgdjv/Qtf9f+HgDFSDJE3GqAPdDlk2myq9uE=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WHqp3hH_1729824673 cluster:ay36)
+	t=1729824800; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=wBjxChu0evej7N1IPnz96lN6iBGaYIPef7wMuoMoiyQ=;
+	b=CbsE8j7wOOxJJpEzIjRsW4vIU34cW4uJwkoRDiflRoF5sEV050HteRyAKbMa/tS50d+olXqhcBx0XK25zVwU0ycoCT1jwBeyxFCfDAwx/5ddIWTNzl1cKAnBrEk++iFcOscttz4WHBaMmicrrcpGfDYgCbeVFinIlJCuTuuMipA=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WHqqBOb_1729824799 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Fri, 25 Oct 2024 10:51:14 +0800
-Message-ID: <1729824434.8051903-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 2/5] virtio_net: introduce vi->mode
-Date: Fri, 25 Oct 2024 10:47:14 +0800
+          Fri, 25 Oct 2024 10:53:20 +0800
+Message-ID: <1729824783.098598-5-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 4/5] virtio_net: enable premapped mode for merge and small by default
+Date: Fri, 25 Oct 2024 10:53:03 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org,
@@ -38,9 +38,9 @@ Cc: netdev@vger.kernel.org,
  Paolo Abeni <pabeni@redhat.com>,
  virtualization@lists.linux.dev
 References: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
- <20241014031234.7659-3-xuanzhuo@linux.alibaba.com>
- <CACGkMEvP99H0qEUsgkznS6brMbJcwV8BP37Fht28G2KtP-PLow@mail.gmail.com>
-In-Reply-To: <CACGkMEvP99H0qEUsgkznS6brMbJcwV8BP37Fht28G2KtP-PLow@mail.gmail.com>
+ <20241014031234.7659-5-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvPn2QUOdxhCk=efiGj+wT2yGv4wmUGpbXH-QGGToNMLw@mail.gmail.com>
+In-Reply-To: <CACGkMEvPn2QUOdxhCk=efiGj+wT2yGv4wmUGpbXH-QGGToNMLw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -49,87 +49,85 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Fri, 18 Oct 2024 15:48:38 +0800, Jason Wang <jasowang@redhat.com> wrote:
+On Fri, 18 Oct 2024 16:00:07 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > On Mon, Oct 14, 2024 at 11:12=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
 a.com> wrote:
 > >
-> > Now, if we want to judge the rx work mode, we have to use such codes:
+> > Currently, the virtio core will perform a dma operation for each
+> > buffer. Although, the same page may be operated multiple times.
 > >
-> > 1. merge mode: vi->mergeable_rx_bufs
-> > 2. big mode:   vi->big_packets && !vi->mergeable_rx_bufs
-> > 3. small:     !vi->big_packets && !vi->mergeable_rx_bufs
+> > In premapped mod, we can perform only one dma operation for the pages of
+> > the alloc frag. This is beneficial for the iommu device.
 > >
-> > This is inconvenient and abstract, and we also have this use case:
+> > kernel command line: intel_iommu=3Don iommu.passthrough=3D0
 > >
-> > if (vi->mergeable_rx_bufs)
-> >     ....
-> > else if (vi->big_packets)
-> >     ....
-> > else
+> >        |  strict=3D0  | strict=3D1
+> > Before |  775496pps | 428614pps
+> > After  | 1109316pps | 742853pps
 > >
-> > For this case, I think switch-case is the better choice.
+> > In the 6.11, we disabled this feature because a regress [1].
 > >
-> > So here I introduce vi->mode to record the virtio-net work mode.
-> > That is helpful to judge the work mode and choose the branches.
+> > Now, we fix the problem and re-enable it.
+> >
+> > [1]: http://lore.kernel.org/all/8b20cc28-45a9-4643-8e87-ba164a540c0a@or=
+acle.com
 > >
 > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > > ---
-> >  drivers/net/virtio_net.c | 61 +++++++++++++++++++++++++++++++---------
-> >  1 file changed, 47 insertions(+), 14 deletions(-)
+> >  drivers/net/virtio_net.c | 17 +++++++++++++++++
+> >  1 file changed, 17 insertions(+)
 > >
 > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 59a99bbaf852..14809b614d62 100644
+> > index cd90e77881df..8cf24b7b58bd 100644
 > > --- a/drivers/net/virtio_net.c
 > > +++ b/drivers/net/virtio_net.c
-> > @@ -385,6 +385,12 @@ struct control_buf {
-> >         virtio_net_ctrl_ack status;
-> >  };
+> > @@ -6133,6 +6133,21 @@ static int virtnet_alloc_queues(struct virtnet_i=
+nfo *vi)
+> >         return -ENOMEM;
+> >  }
 > >
-> > +enum virtnet_mode {
-> > +       VIRTNET_MODE_SMALL,
-> > +       VIRTNET_MODE_MERGE,
-> > +       VIRTNET_MODE_BIG
-> > +};
->
-> I'm not sure if this can ease or not.
->
-> [...]
->
-> > +       if (vi->mergeable_rx_bufs)
-> > +               vi->mode =3D VIRTNET_MODE_MERGE;
-> > +       else if (vi->big_packets)
-> > +               vi->mode =3D VIRTNET_MODE_BIG;
->
-> Maybe we can just say big_packets doesn't mean big mode.
->
-> > +       else
-> > +               vi->mode =3D VIRTNET_MODE_SMALL;
+> > +static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+> > +{
+> > +       int i;
 > > +
-> >         if (vi->any_header_sg)
-> >                 dev->needed_headroom =3D vi->hdr_len;
+> > +       /* disable for big mode */
+> > +       if (vi->mode =3D=3D VIRTNET_MODE_BIG)
+> > +               return;
 >
-> Anyhow this seems not a fix so it should be a separate series than patch =
-1?
+> Nitpick: I would like such a check to be done at the caller.
 
-
-
-I think this series is not about fixing the problem, the feature was disabl=
-ed in
-the last Linux version. This series is about turning the pre-mapped mode of=
- rx
-back on.
-
-This commit tries to make things easier. The current code is very unintuiti=
-ve
-when we try to switch or check the virtio-net rx mode
+I am ok, if you like.
 
 Thanks.
 
 
 >
+> But anyhow the patch looks good
+>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+>
 > Thanks
 >
+> > +
+> > +       for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> > +               /* error should never happen */
+> > +               BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
+> > +               vi->rq[i].do_dma =3D true;
+> > +       }
+> > +}
+> > +
+> >  static int init_vqs(struct virtnet_info *vi)
+> >  {
+> >         int ret;
+> > @@ -6146,6 +6161,8 @@ static int init_vqs(struct virtnet_info *vi)
+> >         if (ret)
+> >                 goto err_free;
 > >
+> > +       virtnet_rq_set_premapped(vi);
+> > +
+> >         cpus_read_lock();
+> >         virtnet_set_affinity(vi);
+> >         cpus_read_unlock();
 > > --
 > > 2.32.0.3.g01195cf9f
 > >
