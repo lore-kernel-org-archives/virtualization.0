@@ -1,46 +1,46 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CE191741C6
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 15:12:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8013521745F
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 15:12:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729869156; cv=none; b=KX6UkqPrxBeTq0+EHgrfex0UIoCSZPLo/7RwbeN0xd6l85lXCNJCamscHmz04SnVFnOdCSJ/EyL3/n2YcyDZ/KVqz82jEWAKBRP7btfNehCwrPGtNl6g6QgSH1ojgSB8pYrulZQXdjSz/Td+z6ZaVSd0fD8Ms3De3dqyrwm8LK8=
+	t=1729869163; cv=none; b=kb7ck9owSZhwB5y90BhtKc52VwiTxh2vz/FshCwh1O/b6uM3RGexbaVi1Xg3Do2529vsu/9PPvmcOZQvlauM4bAgiP7Ydq/RDIpGnhUP0AWoN0fzPi/giCwE3oKZ3LThDIo0Vzt2bZe0pG1rl7ET2TKGg9QTZWPvufbR55rexS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729869156; c=relaxed/simple;
-	bh=wzqFyeRzIbZYPQzh5xeryisiS+GCyWq3rwgwt2g7Hdo=;
+	s=arc-20240116; t=1729869163; c=relaxed/simple;
+	bh=XgE5h5JSsM45B+HHXH3XDv6/wR/fgvzuwnpVaJQjZ6c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AjB8uENajRegLaP+5Vt+Zz+y8ri2MkWFh4GzAqKKeBd1JeV/XvvCRFGdASONtXLh8jDFrjn3bRit6b0ubn91ooD2hl6jTuqAlqjJYmd42E82eVYr/ICDsd9wUXKxmL+vcL/mfxVFX44AuOYeVCwvnFpo3hPy+T2wT+JZmOa5Jj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hs0sm+pj; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=qr+WY0czvKrK49oAoN59fMiiaCiSyiFZfG0CJ3cXPn3AExBcnUdXavCRBoPv11IyhxS4bHnv1FCjfjrex0NWqYcXTZMGr26DuT81LEmeUjNA0NbLn+ym1BQLWLHGmq070txw+e6YRl9zD+vhpIm0N4NwPpECEz/DMLWc7aThdLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ESc6emvN; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hs0sm+pj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ESc6emvN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729869153;
+	s=mimecast20190719; t=1729869160;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UerumhmGRgSm1AsU/ieQ+gWT/mqI7oI1n5V7Kl7Bfao=;
-	b=Hs0sm+pjoDif+jLDFQB0WXqEMspTwAjosfHFHTLGOeAnr7Xm+VHfrlWPtjS45kUSVbjXFT
-	86pb0Uwte+1k34f7izulhFbnVAUNF3rZgAwqZCi2OkoJmyykt4UkwlAMnntlBXhkA+69Wk
-	StMg1/jvpHzE3XCfwzfRsGOSXmUUwTY=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+	bh=gIFNVFgavkgVE76rylQBcYDoA1k/9BPXcVZSMfOlsww=;
+	b=ESc6emvNv5zBO8RLWcCPLBrWVXy/H4Lt25GJvuBxtON8DuO7b5oul9HHQEcSvdmhwSGo4f
+	urpoMFKQh8smWpxuQNVUrRI6gXoAfhPvu9j/n/saSQrLSiazS/E6zxk53psW123+FALGfa
+	FAmhSjOO5XW3WYYsA2Snbi4tN2P73kk=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-520-8XrGVJi3OyGjKDZHuJgcSw-1; Fri,
- 25 Oct 2024 11:12:30 -0400
-X-MC-Unique: 8XrGVJi3OyGjKDZHuJgcSw-1
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-271-KbkSjjO5MweDNtywRObLgg-1; Fri,
+ 25 Oct 2024 11:12:38 -0400
+X-MC-Unique: KbkSjjO5MweDNtywRObLgg-1
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 98ACF1955E70;
-	Fri, 25 Oct 2024 15:12:27 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B1FBE1955F25;
+	Fri, 25 Oct 2024 15:12:36 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.22.65.27])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 006CD30001A9;
-	Fri, 25 Oct 2024 15:12:19 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2F05A300018D;
+	Fri, 25 Oct 2024 15:12:27 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -68,9 +68,9 @@ Cc: linux-mm@kvack.org,
 	Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	Eric Farman <farman@linux.ibm.com>,
 	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v1 05/11] fs/proc/vmcore: factor out allocating a vmcore memory node
-Date: Fri, 25 Oct 2024 17:11:27 +0200
-Message-ID: <20241025151134.1275575-6-david@redhat.com>
+Subject: [PATCH v1 06/11] fs/proc/vmcore: factor out freeing a list of vmcore ranges
+Date: Fri, 25 Oct 2024 17:11:28 +0200
+Message-ID: <20241025151134.1275575-7-david@redhat.com>
 In-Reply-To: <20241025151134.1275575-1-david@redhat.com>
 References: <20241025151134.1275575-1-david@redhat.com>
 Precedence: bulk
@@ -87,92 +87,47 @@ use it also outside of vmcore.c later.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- fs/proc/vmcore.c           | 21 ++-------------------
- include/linux/crash_dump.h | 14 ++++++++++++++
- 2 files changed, 16 insertions(+), 19 deletions(-)
+ fs/proc/vmcore.c           |  9 +--------
+ include/linux/crash_dump.h | 11 +++++++++++
+ 2 files changed, 12 insertions(+), 8 deletions(-)
 
 diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 47652df95202..76fdc3fb8c0e 100644
+index 76fdc3fb8c0e..3e90416ee54e 100644
 --- a/fs/proc/vmcore.c
 +++ b/fs/proc/vmcore.c
-@@ -683,11 +683,6 @@ static const struct proc_ops vmcore_proc_ops = {
- 	.proc_mmap	= mmap_vmcore,
- };
+@@ -1568,14 +1568,7 @@ void vmcore_cleanup(void)
+ 		proc_vmcore = NULL;
+ 	}
  
--static struct vmcore_mem_node * __init get_new_element(void)
--{
--	return kzalloc(sizeof(struct vmcore_mem_node), GFP_KERNEL);
--}
+-	/* clear the vmcore list. */
+-	while (!list_empty(&vmcore_list)) {
+-		struct vmcore_mem_node *m;
 -
- static u64 get_vmcore_size(size_t elfsz, size_t elfnotesegsz,
- 			   struct list_head *vc_list)
- {
-@@ -1090,7 +1085,6 @@ static int __init process_ptload_program_headers_elf64(char *elfptr,
- 						size_t elfnotes_sz,
- 						struct list_head *vc_list)
- {
--	struct vmcore_mem_node *new;
- 	int i;
- 	Elf64_Ehdr *ehdr_ptr;
- 	Elf64_Phdr *phdr_ptr;
-@@ -1113,13 +1107,8 @@ static int __init process_ptload_program_headers_elf64(char *elfptr,
- 		end = roundup(paddr + phdr_ptr->p_memsz, PAGE_SIZE);
- 		size = end - start;
+-		m = list_first_entry(&vmcore_list, struct vmcore_mem_node, list);
+-		list_del(&m->list);
+-		kfree(m);
+-	}
++	vmcore_free_mem_nodes(&vmcore_list);
+ 	free_elfcorebuf();
  
--		/* Add this contiguous chunk of memory to vmcore list.*/
--		new = get_new_element();
--		if (!new)
-+		if (vmcore_alloc_add_mem_node(vc_list, start, size))
- 			return -ENOMEM;
--		new->paddr = start;
--		new->size = size;
--		list_add_tail(&new->list, vc_list);
- 
- 		/* Update the program header offset. */
- 		phdr_ptr->p_offset = vmcore_off + (paddr - start);
-@@ -1133,7 +1122,6 @@ static int __init process_ptload_program_headers_elf32(char *elfptr,
- 						size_t elfnotes_sz,
- 						struct list_head *vc_list)
- {
--	struct vmcore_mem_node *new;
- 	int i;
- 	Elf32_Ehdr *ehdr_ptr;
- 	Elf32_Phdr *phdr_ptr;
-@@ -1156,13 +1144,8 @@ static int __init process_ptload_program_headers_elf32(char *elfptr,
- 		end = roundup(paddr + phdr_ptr->p_memsz, PAGE_SIZE);
- 		size = end - start;
- 
--		/* Add this contiguous chunk of memory to vmcore list.*/
--		new = get_new_element();
--		if (!new)
-+		if (vmcore_alloc_add_mem_node(vc_list, start, size))
- 			return -ENOMEM;
--		new->paddr = start;
--		new->size = size;
--		list_add_tail(&new->list, vc_list);
- 
- 		/* Update the program header offset */
- 		phdr_ptr->p_offset = vmcore_off + (paddr - start);
+ 	/* clear vmcore device dump list */
 diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
-index 5e48ab12c12b..ae77049fc023 100644
+index ae77049fc023..722dbcff7371 100644
 --- a/include/linux/crash_dump.h
 +++ b/include/linux/crash_dump.h
-@@ -121,6 +121,20 @@ struct vmcore_mem_node {
- 	loff_t offset;
- };
+@@ -135,6 +135,17 @@ static inline int vmcore_alloc_add_mem_node(struct list_head *list,
+ 	return 0;
+ }
  
-+/* Allocate a vmcore memory node and add it to the list. */
-+static inline int vmcore_alloc_add_mem_node(struct list_head *list,
-+		unsigned long long paddr, unsigned long long size)
++/* Free a list of vmcore memory nodes. */
++static inline void vmcore_free_mem_nodes(struct list_head *list)
 +{
-+	struct vmcore_mem_node *m = kzalloc(sizeof(*m), GFP_KERNEL);
++	struct vmcore_mem_node *m, *tmp;
 +
-+	if (!m)
-+		return -ENOMEM;
-+	m->paddr = paddr;
-+	m->size = size;
-+	list_add_tail(&m->list, list);
-+	return 0;
++	list_for_each_entry_safe(m, tmp, list, list) {
++		list_del(&m->list);
++		kfree(m);
++	}
 +}
 +
  #else /* !CONFIG_CRASH_DUMP */
