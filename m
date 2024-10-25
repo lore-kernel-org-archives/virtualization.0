@@ -1,32 +1,32 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B6D217CA1D
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 02:44:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E71AC33FE
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 02:51:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729824301; cv=none; b=EXE72mCO6C+AIYPmQEZIx8jcQjcXLCoCxoeLPFK6Um3flVhiEsrYULyBcU+EzcLDJIGswBV28mM+HbX2c0qziNkPUmA8avSna7HxWUnHwMm+Qsf6A/jCGz/atGplRV38sF7qq7THsIivdmMit7iFD5knP6KZZh63i/QvPHyHz3Q=
+	t=1729824681; cv=none; b=XuJhJqJq1aJYXIaB8bOJHdlI+Rjx3jKuqlDZtdGYxIZtEHeX5geJakbO1ZztuAAZs/5obJHKVvwNjIsb1LDrwu9xOlqjujGaWZzgq5Y2BEB62NF3EN63P/sqBa10bflKQZJ3WFlo++Ugv4y3T/8yI28hWZYsTA6foy9WbwJh4/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729824301; c=relaxed/simple;
-	bh=BQWhKiWlILV4IJTS1RbaBnUS/ecDkJwXH+RM+Pn6y28=;
+	s=arc-20240116; t=1729824681; c=relaxed/simple;
+	bh=w9pcyUc5pF/PQmOmRHoh4Nt3toT9SxYtiGyodDbujyQ=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=KbAG2KdeaMWOZ1TDVeGaiZWDrFJfB8/GTfGDzVw6+x4w+WIrmaZl6+qKdZD+n5c811BhjjExl08jFl++/YJZDdH7oWsD4PcnI/4jqvvuTkxuxQ5Kv/cTU/vqNdCdBePM05H4PhokfyFJ0dRYQ25hPXu5Xl/b3fCToBhtrHJkOoI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dQLwleq0; arc=none smtp.client-ip=115.124.30.119
+	 Content-Type; b=K9FrZpBmN9tDAgOhaMpM6iKRdrWItXdAP4AtPd4dxJrdMf+tP0qtWPfI/bWk/t6qAtmFeeyxFtVgb3Cz1lQJ8CVebOc3Gz6gq5VZe7WcMwVxsQ578OJCrLZuf++G3zGB/Wbasphf6SIBCNTFOLCx8//wuNkN6JyEkHoB0IOpElM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aQuuBMR/; arc=none smtp.client-ip=115.124.30.118
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dQLwleq0"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aQuuBMR/"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1729824296; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=jjqfRn2+8EBuwasZ9vNJuIxk7DlUiV+pkN4rH5G/Yy8=;
-	b=dQLwleq0JLYy4fwUelW/6Ofc7Ti5/Qj5kTjk1knwTxj358jeeq6qu0e7+N4ZYGmEPQ02YJpUrMJqzNn1SFNhrzmGODAO8XfvRox1IEE8/MOPv1UjY3LJQPiXvrfhG8GJVTWuV/cn5/Rjc5TdzLvaA2Zh1JbSf0HvZ+07I4q1H9Y=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WHqkyuW_1729824293 cluster:ay36)
+	t=1729824675; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=07UWTBkzM2yiRN/O7Q6tLoUyU1iy6xWp8IdG2zScB4I=;
+	b=aQuuBMR/YprPL9icklRKKHzcjwBTdHETojhgpGEVBP6UtWtaLsuFayJ42NbBR9Q3geQThRtSice9WrS+faT98hEco9/0buyEZGiAar9AsTR9CTIHvP9dLFgGsuZCOBh6NxnqbDxFgdjv/Qtf9f+HgDFSDJE3GqAPdDlk2myq9uE=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WHqp3hH_1729824673 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Fri, 25 Oct 2024 10:44:53 +0800
-Message-ID: <1729824026.1486967-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 1/5] virtio-net: fix overflow inside virtnet_rq_alloc
-Date: Fri, 25 Oct 2024 10:40:26 +0800
+          Fri, 25 Oct 2024 10:51:14 +0800
+Message-ID: <1729824434.8051903-4-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 2/5] virtio_net: introduce vi->mode
+Date: Fri, 25 Oct 2024 10:47:14 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org,
@@ -36,12 +36,11 @@ Cc: netdev@vger.kernel.org,
  Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev,
- "Si-Wei Liu" <si-wei.liu@oracle.com>
+ virtualization@lists.linux.dev
 References: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
- <20241014031234.7659-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEv-TYVqjP3GYx_4SmWRGMtYDFZY3s3QpV3nkgXNXhk7kQ@mail.gmail.com>
-In-Reply-To: <CACGkMEv-TYVqjP3GYx_4SmWRGMtYDFZY3s3QpV3nkgXNXhk7kQ@mail.gmail.com>
+ <20241014031234.7659-3-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvP99H0qEUsgkznS6brMbJcwV8BP37Fht28G2KtP-PLow@mail.gmail.com>
+In-Reply-To: <CACGkMEvP99H0qEUsgkznS6brMbJcwV8BP37Fht28G2KtP-PLow@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -50,134 +49,88 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Fri, 18 Oct 2024 15:41:41 +0800, Jason Wang <jasowang@redhat.com> wrote:
+On Fri, 18 Oct 2024 15:48:38 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > On Mon, Oct 14, 2024 at 11:12=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
 a.com> wrote:
 > >
-> > When the frag just got a page, then may lead to regression on VM.
-> > Specially if the sysctl net.core.high_order_alloc_disable value is 1,
-> > then the frag always get a page when do refill.
+> > Now, if we want to judge the rx work mode, we have to use such codes:
 > >
-> > Which could see reliable crashes or scp failure (scp a file 100M in size
-> > to VM):
+> > 1. merge mode: vi->mergeable_rx_bufs
+> > 2. big mode:   vi->big_packets && !vi->mergeable_rx_bufs
+> > 3. small:     !vi->big_packets && !vi->mergeable_rx_bufs
 > >
-> > The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> > of a new frag. When the frag size is larger than PAGE_SIZE,
-> > everything is fine. However, if the frag is only one page and the
-> > total size of the buffer and virtnet_rq_dma is larger than one page, an
-> > overflow may occur.
+> > This is inconvenient and abstract, and we also have this use case:
 > >
-> > Here, when the frag size is not enough, we reduce the buffer len to fix
-> > this problem.
+> > if (vi->mergeable_rx_bufs)
+> >     ....
+> > else if (vi->big_packets)
+> >     ....
+> > else
 > >
-> > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_d=
-ma_api")
-> > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> > For this case, I think switch-case is the better choice.
+> >
+> > So here I introduce vi->mode to record the virtio-net work mode.
+> > That is helpful to judge the work mode and choose the branches.
+> >
 > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->
-> Though this may fix the problem and we need it now, I would like to
-> have some tweaks in the future. Basically because of the security
-> implication for sharing driver metadata with the device (most IOMMU
-> can only do protection at the granule at the page). So we may end up
-> with device-triggerable behaviour. For safety, we should use driver
-> private memory for DMA metadata.
->
 > > ---
-> >  drivers/net/virtio_net.c | 12 +++++++++---
-> >  1 file changed, 9 insertions(+), 3 deletions(-)
+> >  drivers/net/virtio_net.c | 61 +++++++++++++++++++++++++++++++---------
+> >  1 file changed, 47 insertions(+), 14 deletions(-)
 > >
 > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index f8131f92a392..59a99bbaf852 100644
+> > index 59a99bbaf852..14809b614d62 100644
 > > --- a/drivers/net/virtio_net.c
 > > +++ b/drivers/net/virtio_net.c
-> > @@ -926,9 +926,6 @@ static void *virtnet_rq_alloc(struct receive_queue =
-*rq, u32 size, gfp_t gfp)
-> >         void *buf, *head;
-> >         dma_addr_t addr;
+> > @@ -385,6 +385,12 @@ struct control_buf {
+> >         virtio_net_ctrl_ack status;
+> >  };
 > >
-> > -       if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
-> > -               return NULL;
-> > -
-> >         head =3D page_address(alloc_frag->page);
-> >
-> >         if (rq->do_dma) {
-> > @@ -2423,6 +2420,9 @@ static int add_recvbuf_small(struct virtnet_info =
-*vi, struct receive_queue *rq,
-> >         len =3D SKB_DATA_ALIGN(len) +
-> >               SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> >
-> > +       if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-> > +               return -ENOMEM;
+> > +enum virtnet_mode {
+> > +       VIRTNET_MODE_SMALL,
+> > +       VIRTNET_MODE_MERGE,
+> > +       VIRTNET_MODE_BIG
+> > +};
+>
+> I'm not sure if this can ease or not.
+>
+> [...]
+>
+> > +       if (vi->mergeable_rx_bufs)
+> > +               vi->mode =3D VIRTNET_MODE_MERGE;
+> > +       else if (vi->big_packets)
+> > +               vi->mode =3D VIRTNET_MODE_BIG;
+>
+> Maybe we can just say big_packets doesn't mean big mode.
+>
+> > +       else
+> > +               vi->mode =3D VIRTNET_MODE_SMALL;
 > > +
-> >         buf =3D virtnet_rq_alloc(rq, len, gfp);
-> >         if (unlikely(!buf))
-> >                 return -ENOMEM;
-> > @@ -2525,6 +2525,12 @@ static int add_recvbuf_mergeable(struct virtnet_=
-info *vi,
-> >          */
-> >         len =3D get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+> >         if (vi->any_header_sg)
+> >                 dev->needed_headroom =3D vi->hdr_len;
+>
+> Anyhow this seems not a fix so it should be a separate series than patch =
+1?
+
+
+
+I think this series is not about fixing the problem, the feature was disabl=
+ed in
+the last Linux version. This series is about turning the pre-mapped mode of=
+ rx
+back on.
+
+This commit tries to make things easier. The current code is very unintuiti=
+ve
+when we try to switch or check the virtio-net rx mode
+
+Thanks.
+
+
+>
+> Thanks
+>
 > >
-> > +       if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)=
-))
-> > +               return -ENOMEM;
->
-> This makes me think of another question, how could we guarantee len +
-> room is less or equal to PAGE_SIZE. Especially considering we need
-> extra head and tailroom for XDP? If we can't it is a bug:
-
-get_mergeable_buf_len() do this.
-
->
-> """
-> /**
->  * skb_page_frag_refill - check that a page_frag contains enough room
->  * @sz: minimum size of the fragment we want to get
->  * @pfrag: pointer to page_frag
->  * @gfp: priority for memory allocation
->  *
->  * Note: While this allocator tries to use high order pages, there is
->  * no guarantee that allocations succeed. Therefore, @sz MUST be
->  * less or equal than PAGE_SIZE.
->  */
-> """
->
-> > +
-> > +       if (!alloc_frag->offset && len + room + sizeof(struct virtnet_r=
-q_dma) > alloc_frag->size)
-> > +               len -=3D sizeof(struct virtnet_rq_dma);
->
-> Any reason we need to check alloc_frag->offset?
-
-We just need to check when the page of the alloc frag is new.
-In this case, we need to allocate space to store dma meta.
-If the offset > 0, then we do not need to allocate extra space,
-so it is safe.
-
-
->
-> > +
-> >         buf =3D virtnet_rq_alloc(rq, len + room, gfp);
->
-> Btw, as pointed out in previous review, we should have a consistent API:
->
-> 1) hide the alloc_frag like virtnet_rq_alloc()
->
-> or
->
-> 2) pass the alloc_frag to virtnet_rq_alloc()
-
-
-Now we need to check len+room before calling skb_page_frag_refill()
-so we must move  virtnet_rq_alloc() outside virtnet_rq_alloc().
-
-Thanks
-
->
-> >         if (unlikely(!buf))
-> >                 return -ENOMEM;
 > > --
 > > 2.32.0.3.g01195cf9f
 > >
->
-> Thanks
 >
