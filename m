@@ -1,105 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from flow-b6-smtp.messagingengine.com (flow-b6-smtp.messagingengine.com [202.12.124.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61D8C70805;
-	Fri, 25 Oct 2024 13:22:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88560212178
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 13:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729862530; cv=none; b=NDNuzqbgRRULG89keWOrQYd1fVP7UQKoxHDkJEOYv5qVowqtzfXtLiCAfDBx/BbMMM+n/VJc9JpHaJqRyc69Vr8Q/8ctLIsMFQqnIpiEK0MbiNI0fNk5T/SSl2epfUz4mUFzjRHUmfvUJaQ2o/FhCwH/Z6SzzFXdqAJ2mtpPMAA=
+	t=1729863705; cv=none; b=S39IZ4HRqnBnPHNSDPoohe/OchSyFGTUJsdfPFVV8nZTDjiPiSyBAYZrItQRe1Fp+f1jojiBTEzUMigGw43fcEIGcQKVjOe8HSAAI9y+zqQtvrS9GKogbniOAL//xthqRQvyxr8vTxxvOwcCLuULFYmkUTZL9M0kWiyT4XJ7TRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729862530; c=relaxed/simple;
-	bh=QPqqSjrdF74cbCCgzunNlradUj1JeN6blhSF2wB3w18=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GB9hfFOrsVNxGEOpQDGq0lFM/+eMzlMgfJmiXtSJEejkRzh7n2WPwU93eh5mVb06dq9h3tVYYPH+el0DhgSGWIwPpRNAXG7t3rEmtamkIjpcPe3M3tMr/esMOUn1lQ8NRlYWcUlz0+57ZMEyxF5ENJsi7JZ2+5iIQeHTqDLXA8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Plagur32; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1729863705; c=relaxed/simple;
+	bh=Wm3muLnceJyby21UvU1uoDEPNrI5UR+r2idw9Fs/ibI=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=HBasVTG77by/41+mknCR0UdSinxFmnmctSWO/u1UctWLZ0nRExIo3MHnQtszZRz0uYc7mFRnxticXhKiKfsvNWA+kVoSVTpY9xRI3dusAMKwWwwfdCBXr1q4wAmZY6L+IUHe5BfNSnBDrQGGYMn2zbxYVGWd1MZQ2KmWpkpIeq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=pjD28qXy; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=SBPgG+xz; arc=none smtp.client-ip=202.12.124.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Plagur32"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5B37C4CEC3;
-	Fri, 25 Oct 2024 13:22:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1729862530;
-	bh=QPqqSjrdF74cbCCgzunNlradUj1JeN6blhSF2wB3w18=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Plagur326hve2OtUBnqZI0FuD6Rf24ndozohanzuGWG27qh5ChrknZI18FVYwsPrT
-	 xqNIzkKD5VqPsgBp1GkbqnowL4tEj148HXRY6zraG5fyrwY4JDqtlSzQsr+R4i4jE2
-	 97SHI98JvbjFjlM/KEbwCULPQ0EXafHT55//T+ddGeGVzjuG49iGUCTbratXzVLnpX
-	 g3m4UTQp1o51OAyDL94Tn73kmW0hA/0Y5o8PLArmAIPU3zAEM6pX5JSQr2/RuyzhH+
-	 4Y2vuFmQTpor2PM0icKBLyrhyeW42/JJhnOCJIDirUHLlZOBFyJVzfxCJkF0+NjaPb
-	 pdS5Y/MbDJZxA==
-Date: Fri, 25 Oct 2024 14:22:05 +0100
-From: Simon Horman <horms@kernel.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
-	Si-Wei Liu <si-wei.liu@oracle.com>, netdev@vger.kernel.org
-Subject: Re: [PATCH 1/5] virtio-net: fix overflow inside virtnet_rq_alloc
-Message-ID: <20241025132205.GV1202098@kernel.org>
-References: <20241014031234.7659-1-xuanzhuo@linux.alibaba.com>
- <20241014031234.7659-2-xuanzhuo@linux.alibaba.com>
- <6aaee824-a5df-42a4-b35e-e89756471084@redhat.com>
- <1729823753.4548287-2-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="pjD28qXy";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="SBPgG+xz"
+Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
+	by mailflow.stl.internal (Postfix) with ESMTP id EC6081D400AF;
+	Fri, 25 Oct 2024 09:41:41 -0400 (EDT)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-10.internal (MEProxy); Fri, 25 Oct 2024 09:41:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1729863701;
+	 x=1729870901; bh=gtfk2cbRSvuRRxrihIJOvS/KfF1nzk8xhMXUtPvsUnI=; b=
+	pjD28qXyOpY/LIxXbSbERv3rie6/Izt8nvJXnVFFhB2PBxXkVUlWs06gqvKSF3J4
+	naLVGH1RomAtn/gp9CuMI8EIoAlYiaARGr18Pppe828HCdbHX+IPCIo+Kq0a3kUD
+	XUHerAmJ7z5Wfe8LdM7h/sEseQIvCeVk7Eqf4nNILcsdoN5A4YJze79/h+cR8DXF
+	LN6Me7jKhh6hXhlD7+XjQiQX336Rzs9bWxJUxcL3CmRaBu6fIt4OFg9Rj0oof8Fy
+	2Hd4UT/koWG2vrqcsgoXfZBX8PaHAI9MlyvDefw/q3pLVHq9wV4+fwWD8fnQFp9N
+	EIl+GmX/SPA5dZSq1NSrAA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1729863701; x=
+	1729870901; bh=gtfk2cbRSvuRRxrihIJOvS/KfF1nzk8xhMXUtPvsUnI=; b=S
+	BPgG+xzhv1g2MYdU4AZF7hh9UMShquw74Z2eAmwVsl2zTSrUguBWZiYF2CNJbhVW
+	imRzugNw5phZ8dbUbOS+2l11wuRzI4RK8JEfycORiMx1Wjd/N3zbClZF6IYdPoCv
+	70H++0tO9R/xvoaocFnUU0dOeEm4xjxQ0t/TcRz44iQN/qES7ajUC+nSaImy5ZoI
+	aDjcNYZMl/a1abMv/y2N8EExnl9YVgZJsTNWPEFJ7wzXRt8MvFsRozWE7M9siYN/
+	NJ7RKs6+MpyHhXfHOwxuBt57qZyK11UzBWw5nK9tA8QFODDFPdrmJCmYaeInDdjq
+	VOyF9a6tluJZZZ3s4Zn6A==
+X-ME-Sender: <xms:FKAbZ3qJFUGpbpsUW9_fereCvIhEuKomff311XueYsVaFQRy9hSq5A>
+    <xme:FKAbZxpBHeAYEXwZR4XB1HB-FDE_GiaX8VYvGhuwBQsZh3PYIkiRPI7I_ZaQPSHRe
+    1oH-bPesLZArVAW_c4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvdejvddgieejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
+    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
+    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddt
+    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
+    guvgeqnecuggftrfgrthhtvghrnhepfefhheetffduvdfgieeghfejtedvkeetkeejfeek
+    keelffejteevvdeghffhiefhnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlh
+    hushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghr
+    nhgusgdruggvpdhnsggprhgtphhtthhopedvledpmhhouggvpehsmhhtphhouhhtpdhrtg
+    hpthhtohepshhimhhonhgrsehffhiflhhlrdgthhdprhgtphhtthhopegrihhrlhhivggu
+    sehgmhgrihhlrdgtohhmpdhrtghpthhtoheplhhuihiirdguvghnthiisehgmhgrihhlrd
+    gtohhmpdhrtghpthhtohepphgrthhrihhkrdhrrdhjrghkohgsshhsohhnsehgmhgrihhl
+    rdgtohhmpdhrtghpthhtohepmhgrrhgtvghlsehhohhlthhmrghnnhdrohhrghdprhgtph
+    htthhopehluhgtrghsrdguvghmrghrtghhihesihhnthgvlhdrtghomhdprhgtphhtthho
+    pehrohgurhhighhordhvihhvihesihhnthgvlhdrtghomhdprhgtphhtthhopegrrhhnug
+    eskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhirhhishhlrggshieskhgvrhhnvghl
+    rdhorhhg
+X-ME-Proxy: <xmx:FKAbZ0NsSjwocGY-XDJ1P7KQXGP_qoc3vqROaN1LyW6uNN_DS-vB2A>
+    <xmx:FKAbZ662m7W6ZMDHKtvgoeDpUmD9Vpl0KgD5uqQpI1MQxmzY8ecOjg>
+    <xmx:FKAbZ27gGML-ufU0a_1Y8OiNjEgKf5iqUggzFXgiBV1uP9QZr-BUkQ>
+    <xmx:FKAbZyj_iMh9pE2a6JJFbCNnnMpSyGii9q8Iu8GGvaTegKT49w4jBA>
+    <xmx:FaAbZ5wrMkfCwMUJK-_yw-HtdhtVOFf66SdycleW6ivOtc1nCpOXItmP>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id B8BF82220071; Fri, 25 Oct 2024 09:41:40 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1729823753.4548287-2-xuanzhuo@linux.alibaba.com>
+Date: Fri, 25 Oct 2024 13:41:10 +0000
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Niklas Schnelle" <schnelle@linux.ibm.com>,
+ "Brian Cain" <bcain@quicinc.com>, "Marcel Holtmann" <marcel@holtmann.org>,
+ "Luiz Augusto von Dentz" <luiz.dentz@gmail.com>,
+ "Patrik Jakobsson" <patrik.r.jakobsson@gmail.com>,
+ "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
+ "Maxime Ripard" <mripard@kernel.org>,
+ "Thomas Zimmermann" <tzimmermann@suse.de>, "Dave Airlie" <airlied@gmail.com>,
+ "Simona Vetter" <simona@ffwll.ch>, "Dave Airlie" <airlied@redhat.com>,
+ "Gerd Hoffmann" <kraxel@redhat.com>,
+ "Lucas De Marchi" <lucas.demarchi@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ "Rodrigo Vivi" <rodrigo.vivi@intel.com>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "Jiri Slaby" <jirislaby@kernel.org>, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+ "Heiko Carstens" <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-bluetooth@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, linux-serial@vger.kernel.org,
+ Linux-Arch <linux-arch@vger.kernel.org>, "Arnd Bergmann" <arnd@kernel.org>
+Message-Id: <72b75acf-743d-4fe7-9246-aa5a4efabb58@app.fastmail.com>
+In-Reply-To: <20241024-b4-has_ioport-v9-0-6a6668593f71@linux.ibm.com>
+References: <20241024-b4-has_ioport-v9-0-6a6668593f71@linux.ibm.com>
+Subject: Re: [PATCH v9 0/5] treewide: Remove I/O port accessors for HAS_IOPORT=n
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Fri, Oct 25, 2024 at 10:35:53AM +0800, Xuan Zhuo wrote:
-> On Thu, 17 Oct 2024 15:42:59 +0200, Paolo Abeni <pabeni@redhat.com> wrote:
-> >
-> >
-> > On 10/14/24 05:12, Xuan Zhuo wrote:
-> > > When the frag just got a page, then may lead to regression on VM.
-> > > Specially if the sysctl net.core.high_order_alloc_disable value is 1,
-> > > then the frag always get a page when do refill.
-> > >
-> > > Which could see reliable crashes or scp failure (scp a file 100M in size
-> > > to VM):
-> > >
-> > > The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-> > > of a new frag. When the frag size is larger than PAGE_SIZE,
-> > > everything is fine. However, if the frag is only one page and the
-> > > total size of the buffer and virtnet_rq_dma is larger than one page, an
-> > > overflow may occur.
-> > >
-> > > Here, when the frag size is not enough, we reduce the buffer len to fix
-> > > this problem.
-> > >
-> > > Fixes: f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api")
-> > > Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> >
-> > This looks like a fix that should target the net tree, but the following
-> > patches looks like net-next material. Any special reason to bundle them
-> > together?
-> 
-> Sorry, I forgot to add net-next as a target tree.
-> 
-> This may look like a fix. But the feature was disabled in the last Linux
-> version. So the bug cannot be triggered, so we don't need to push to the net
-> tree.
+On Thu, Oct 24, 2024, at 17:54, Niklas Schnelle wrote:
+> Hi All,
+>
+> This is a follow up in my long running effort of making inb()/outb() and
+> similar I/O port accessors compile-time optional. After initially
+> sending this as a treewide series with the latest revision at[0]
+> we switched to per subsystem series. Now though as we're left with only
+> 5 patches left I'm going back to a single series with Arnd planning
+> to take this via the the asm-generic tree.
+>
+> This series may also be viewed for your convenience on my git.kernel.org
+> tree[1] under the b4/has_ioport branch. As for compile-time vs runtime
+> see Linus' reply to my first attempt[2].
 
-I think it would be useful to be clear in the commit message, use of tags,
-and target tree regarding fixes and non-fixes.
+Hi Niklas,
 
-Please describe in the commit message why this is not fixing a bug, as you
-have described above. And please do not include Fixes tags in patches that
-are not bug fixes, which seems to be the case here.
+Thanks for your endless work on this. I have now pulled it into
+the asm-generic tree as I want to ensure we get enough time to
+test this as part of linux-next before the merge window.
 
-If you want to refer to the patch that introduced the problem, you can use
-the following syntax, in the commit message, before the tags. Unlike Fixes
-tags, this may be line wrapped.
+If minor issues still come up, I would try to fix those as
+add-on patches to avoid rebasing my tree.
 
-  This problem is not a bug fix for net because... It was was introduced by
-  commit f9dac92ba908 ("virtio_ring: enable premapped mode whatever use_dma_api").
+I also expect that we will continue with add-on patches in
+the future, in particular I hope to make HAS_IOPORT optional
+on arm, arm64 and powerpc, and only enabled for
+configurations that actually want it.
 
-  Reported-by: ...
-  ...
+     Arnd
