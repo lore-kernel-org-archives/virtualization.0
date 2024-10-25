@@ -1,226 +1,244 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3463170A31
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 15:12:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EB8021217F
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 15:12:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729869147; cv=none; b=t+yVnm78XI0QdCaKAXnzQQvRPhkOtdhJGna1rD4avMisYKUXjIEi5rHzlI60UxnZ0sGbOcM0xyYy4e3VM185C2OuKe6yeW3fwDCZcl+2OzjXA2JHPi+/RJUWP+qS9xWBix4jXX5kx2OrhR69xoLsxHtCq+Nx/NYUByU2fc84VgY=
+	t=1729869148; cv=none; b=RYii5rJO1yN3B6UU0Q23t36+YuUOe/O6un4Apeej3lc1b0k6ZIgdT5B4EWj0RHNssFOBjG0WqK23bzNXYGtv9vzNzrUVmDuufQ0wniqSfaLj4vQsFW7altERi5zzeB4rTvUinmRZtp+mfk1VRQYT2UQp+xCd4YH+yw15rhEpsIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729869147; c=relaxed/simple;
-	bh=U5XCcEF5XLs/X/F1G9Vtw8oTRVMVa5jZydxRQ5begIM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=sg5SQ8QR70haxQ7aiIHMQQFTYeu+R4ErhiTCVqkfd2asd1NPM6V9wwHsWbcWouGoKZYt5XHtsVVPP6HBLvizABFp3XpuZqawnrIMnsuZYq9UkeFKsE0rItlDgPC1UfdFeZTFwCkhJ9LG7bM/GaiYxz3NhPOo20ydOQmt0fWVQu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gGQZIIm+; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1729869148; c=relaxed/simple;
+	bh=OKuCXCkQYhPRRPyz3j97T+8ZrBgA9TgHLuBXidwiR8I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=OLwXvkLDMCtOOLEZTScBPnLSyX+8DIRhdVnIOhf2JjUadp5F8TxZkEBaQRqUpXJM3brug4Zo/ZwiKh4wjOCIHqF9oxlVHUebWQuXG+pt+x63rczw3rH7Kdl29KVGgfrgS+Bn8LhEKP01ABZv9DP8fQRmEEqhBCr34mHqHVqis9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gQva7K9X; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gGQZIIm+"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49P5tWvG003118;
-	Fri, 25 Oct 2024 15:12:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CNoupa
-	qRZoqspI2s9XTJ5wvSIB28jbpBWhCey039E+o=; b=gGQZIIm+mtx4tV3rnt0Pqj
-	i8f712e11oZOsooj/2uEu0bkbBmxRGeBXrQLlLKF8k8+KQX1e7g67Ospqcwaz824
-	kBneAjAdaLzW+JhwkDbaAmBvfOc4o6mr5TubO5A/tRwlGp60hK7JYPLT6V7aJfkq
-	Vc0mzV6QYQVTudIBG18wGdQUHSQtE2vpHS9E+LM2JBYeJcgHV7nibV/rO9ldagIp
-	IjuJV0Rd578OF0kbYh78TW1q1CXXbIuOfzbzjZG3mM2XAK1VRafktm9EQgAkxG3l
-	HGe8NFs5FRtI/D5zX5Uae5jElPP5amWzV05yf0FOwhbByEZVkjbR2WwARZEOZFyw
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42g5kxjj98-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:12:06 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49PFC5F4024991;
-	Fri, 25 Oct 2024 15:12:05 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42g5kxjj92-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:12:05 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49PEWj6t014325;
-	Fri, 25 Oct 2024 15:12:04 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emhfx8cr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:12:04 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49PFC3nf43385122
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Oct 2024 15:12:03 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 557A15805E;
-	Fri, 25 Oct 2024 15:12:03 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 454145805D;
-	Fri, 25 Oct 2024 15:11:57 +0000 (GMT)
-Received: from oc-fedora.boeblingen.de.ibm.com (unknown [9.152.212.119])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 25 Oct 2024 15:11:57 +0000 (GMT)
-Message-ID: <5321f536893fd99ffe43bd49c9d26dec1c745193.camel@linux.ibm.com>
-Subject: Re: [PATCH v9 0/5] treewide: Remove I/O port accessors for
- HAS_IOPORT=n
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@quicinc.com>,
-        Marcel
- Holtmann <marcel@holtmann.org>,
-        Luiz Augusto von Dentz
- <luiz.dentz@gmail.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard
- <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Dave Airlie
- <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Dave Airlie
- <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
-        Lucas De Marchi
- <lucas.demarchi@intel.com>,
-        Thomas =?ISO-8859-1?Q?Hellstr=F6m?=
- <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby
- <jirislaby@kernel.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Heiko
- Carstens <hca@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-bluetooth@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
-        intel-xe@lists.freedesktop.org, linux-serial@vger.kernel.org,
-        Linux-Arch
-	 <linux-arch@vger.kernel.org>,
-        Arnd Bergmann <arnd@kernel.org>
-Date: Fri, 25 Oct 2024 17:11:56 +0200
-In-Reply-To: <72b75acf-743d-4fe7-9246-aa5a4efabb58@app.fastmail.com>
-References: <20241024-b4-has_ioport-v9-0-6a6668593f71@linux.ibm.com>
-	 <72b75acf-743d-4fe7-9246-aa5a4efabb58@app.fastmail.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
- /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
- 3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/
- 2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVS
- XQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9a
- UlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1d
- w75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakY
- tK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19
- /N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZ
- dVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQ
- JXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/Fej
- CYJAFAmWVooIFCQWP+TMACgkQr+Q/FejCYJCmLg/+OgZD6wTjooE77/ZHmW6Egb5nUH6DU+2nMHMH
- UupkE3dKuLcuzI4aEf/6wGG2xF/LigMRrbb1iKRVk/VG/swyLh/OBOTh8cJnhdmURnj3jhaefzslA
- 1wTHcxeH4wMGJWVRAhOfDUpMMYV2J5XoroiA1+acSuppelmKAK5voVn9/fNtrVr6mgBXT5RUnmW60
- UUq5z6a1zTMOe8lofwHLVvyG9zMgv6Z9IQJc/oVnjR9PWYDUX4jqFL3yO6DDt5iIQCN8WKaodlNP6
- 1lFKAYujV8JY4Ln+IbMIV2h34cGpIJ7f76OYt2XR4RANbOd41+qvlYgpYSvIBDml/fT2vWEjmncm7
- zzpVyPtCZlijV3npsTVerGbh0Ts/xC6ERQrB+rkUqN/fx+dGnTT9I7FLUQFBhK2pIuD+U1K+A+Egw
- UiTyiGtyRMqz12RdWzerRmWFo5Mmi8N1jhZRTs0yAUn3MSCdRHP1Nu3SMk/0oE+pVeni3ysdJ69Sl
- kCAZoaf1TMRdSlF71oT/fNgSnd90wkCHUK9pUJGRTUxgV9NjafZy7sx1Gz11s4QzJE6JBelClBUiF
- 6QD4a+MzFh9TkUcpG0cPNsFfEGyxtGzuoeE86sL1tk3yO6ThJSLZyqFFLrZBIJvYK2UiD+6E7VWRW
- 9y1OmPyyFBPBosOvmrkLlDtAtyfYInO0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQ
- GlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y
- 3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJB7oxAAksHYU+myhSZD0YSuYZl3oLDUEFP
- 3fm9m6N9zgtiOg/GGI0jHc+Tt8qiQaLEtVeP/waWKgQnje/emHJOEDZTb0AdeXZk+T5/ydrKRLmYC
- 6rPge3ue1yQUCiA+T72O3WfjZILI2yOstNwd1f0epQ32YaAvM+QbKDloJSmKhGWZlvdVUDXWkS6/m
- aUtUwZpddFY8InXBxsYCbJsqiKF3kPVD515/6keIZmZh1cTIFQ+Kc+UZaz0MxkhiCyWC4cH6HZGKR
- fiXLhPlmmAyW9FiZK9pwDocTLemfgMR6QXOiB0uisdoFnjhXNfp6OHSy7w7LTIHzCsJoHk+vsyvSp
- +fxkjCXgFzGRQaJkoX33QZwQj1mxeWl594QUfR4DIZ2KERRNI0OMYjJVEtB5jQjnD/04qcTrSCpJ5
- ZPtiQ6Umsb1c9tBRIJnL7gIslo/OXBe/4q5yBCtCZOoD6d683XaMPGhi/F6+fnGvzsi6a9qDBgVvt
- arI8ybayhXDuS6/StR8qZKCyzZ/1CUofxGVIdgkseDhts0dZ4AYwRVCUFQULeRtyoT4dKfEot7hPE
- /4wjm9qZf2mDPRvJOqss6jObTNuw1YzGlpe9OvDYtGeEfHgcZqEmHbiMirwfGLaTG2xKDx4g2jd2z
- Ocf83TCERFKJEhvZxB3tRiUQTd3dZ1TIaisv/o+y0K05pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNj
- aG5lbGxlQGdtYWlsLmNvbT6JAlQEEwEIAD4CGwEFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQSds
- ACy0nUgMKX3Ldyv5D8V6MJgkAUCZZWiiwUJBY/5MwAKCRCv5D8V6MJgkNVuEACo12niyoKhnXLQFt
- NaqxNZ+8p/MGA7g2XcVJ1bYMPoZ2Wh8zwX0sKX/dLlXVHIAeqelL5hIv6GoTykNqQGUN2Kqf0h/z7
- b85o3tHiqMAQV0dAB0y6qdIwdiB69SjpPNK5KKS1+AodLzosdIVKb+LiOyqUFKhLnablni1hiKlqY
- yDeD4k5hePeQdpFixf1YZclGZLFbKlF/A/0Q13USOHuAMYoA/iSgJQDMSUWkuC0mNxdhfVt/gVJnu
- Kq+uKUghcHflhK+yodqezlxmmRxg6HrPVqRG4pZ6YNYO7YXuEWy9JiEH7MmFYcjNdgjn+kxx4IoYU
- O0MJ+DjLpVCV1QP1ZvMy8qQxScyEn7pMpQ0aW6zfJBsvoV3EHCR1emwKYO6rJOfvtu1rElGCTe3sn
- sScV9Z1oXlvo8pVNH5a2SlnsuEBQe0RXNXNJ4RAls8VraGdNSHi4MxcsYEgAVHVaAdTLfJcXZNCIU
- cZejkOE+U2talW2n5sMvx+yURAEVsT/50whYcvomt0y81ImvCgUz4xN1axZ3PCjkgyhNiqLe+vzge
- xq7B2Kx2++hxIBDCKLUTn8JUAtQ1iGBZL9RuDrBy2rR7xbHcU2424iSbP0zmnpav5KUg4F1JVYG12
- vDCi5tq5lORCL28rjOQqE0aLHU1M1D2v51kjkmNuc2pgLDFzpvgLQhTmlrbGFzIFNjaG5lbGxlIDx
- uaWtzQGtlcm5lbC5vcmc+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAA
- stJ1IDCl9y3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJAglRAAihbDxiGLOWhJed5cF
- kOwdTZz6MyYgazbr+2sFrfAhX3hxPFoG4ogY/BzsjkN0cevWpSigb2I8Y1sQD7BFWJ2OjpEpVQd0D
- sk5VbJBXEWIVDBQ4VMoACLUKgfrb0xiwMRg9C2h6KlwrPBlfgctfvrWWLBq7+oqx73CgxqTcGpfFy
- tD87R4ovR9W1doZbh7pjsH5Ae9xX5PnQFHruib3y35zC8+tvSgvYWv3Eg/8H4QWlrjLHHy2AfZDVl
- 9F5t5RfGL8NRsiTdVg9VFYg/GDdck9WPEgdO3L/qoq3Iuk0SZccGl+Nj8vtWYPKNlu2UvgYEbB8cl
- UoWhg+SjjYQka7/p6tc+CCPZ8JUpkgkAdt7yXt6370wP1gct2VztS6SEGcmAE1qxtGhi5Kuln4ZJ/
- UO2yxhPHgoW99OuZw3IRHe0+mNR67JbIpSuFWDFNjZ0nckQcU1taSEUi0euWs7i4MEkm0NsOsVhbs
- 4D2vMiC6kO/FqWOPmWZeAjyJw/KRUG4PaJAr5zJUx57nhKWgeTniW712n4DwCUh77D/PHY0nqBTG/
- B+QQCR/FYGpTFkO4DRVfapT8njDrsWyVpP9o64VNZP42S+DuRGWfUKCMAXsM/wPzRiDEVfnZMcUR9
- vwLSHeoV7MiIFC0xIrp5ES9R00t4UFgqtGc36DV71qjR+66Im0=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gQva7K9X"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729869145;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D6QGok1SHO7tWBONbTK+qNFzpgcjUP8FVLCibVkMqhw=;
+	b=gQva7K9XGz+oR8s9WP+3kkPAwKcD4XlfTEeduDYEGgS7WxwtbiZtpo+9ZWHmr5f9LZRZ2O
+	Qa8ldBJwRvo2ztWpvAJjq2pw2zvFyMmWasQhuWI+AckRUJkGMxBBKRwQZEbC6cRB2rpBmy
+	WERYLwkTb5GR5d7dBHZA9t8UOfOGj+o=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-64-m7d72Gv7PTyqbx3Zkb-x3g-1; Fri,
+ 25 Oct 2024 11:12:21 -0400
+X-MC-Unique: m7d72Gv7PTyqbx3Zkb-x3g-1
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 65E1F1956077;
+	Fri, 25 Oct 2024 15:12:19 +0000 (UTC)
+Received: from t14s.redhat.com (unknown [10.22.65.27])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E93DA300018D;
+	Fri, 25 Oct 2024 15:12:10 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
+	linux-s390@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org,
+	David Hildenbrand <david@redhat.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Baoquan He <bhe@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH v1 04/11] fs/proc/vmcore: move vmcore definitions from kcore.h to crash_dump.h
+Date: Fri, 25 Oct 2024 17:11:26 +0200
+Message-ID: <20241025151134.1275575-5-david@redhat.com>
+In-Reply-To: <20241025151134.1275575-1-david@redhat.com>
+References: <20241025151134.1275575-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: o-2P43DkpjzVooDT6zZJkQd463bBz0Qa
-X-Proofpoint-GUID: Eo_HVSAU11wlfAmnIHCCIw-ydI3dRvVf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- malwarescore=0 spamscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
- suspectscore=0 phishscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410250118
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Fri, 2024-10-25 at 13:41 +0000, Arnd Bergmann wrote:
-> On Thu, Oct 24, 2024, at 17:54, Niklas Schnelle wrote:
-> > Hi All,
-> >=20
-> > This is a follow up in my long running effort of making inb()/outb() an=
-d
-> > similar I/O port accessors compile-time optional. After initially
-> > sending this as a treewide series with the latest revision at[0]
-> > we switched to per subsystem series. Now though as we're left with only
-> > 5 patches left I'm going back to a single series with Arnd planning
-> > to take this via the the asm-generic tree.
-> >=20
-> > This series may also be viewed for your convenience on my git.kernel.or=
-g
-> > tree[1] under the b4/has_ioport branch. As for compile-time vs runtime
-> > see Linus' reply to my first attempt[2].
->=20
-> Hi Niklas,
->=20
-> Thanks for your endless work on this. I have now pulled it into
-> the asm-generic tree as I want to ensure we get enough time to
-> test this as part of linux-next before the merge window.
->=20
-> If minor issues still come up, I would try to fix those as
-> add-on patches to avoid rebasing my tree.
->=20
-> I also expect that we will continue with add-on patches in
-> the future, in particular I hope to make HAS_IOPORT optional
-> on arm, arm64 and powerpc, and only enabled for
-> configurations that actually want it.
->=20
->      Arnd
->=20
+These defines are not related to /proc/kcore, move them to crash_dump.h
+instead. While at it, rename "struct vmcore" to "struct
+vmcore_mem_node", which is a more fitting name.
 
-Thanks for taking it and sticking by my side through this! Now let's
-just hope there won't be too much fallout but I will be here to help if
-needed. As for arm, arm64, and powerpc I like it, having more
-!HAS_IOPORT targets will help to share the load of new inb()/outb()
-which "worked for me on x86". I definitely learned a lot in the
-process. Of course I wished and originally expected it to go a lot
-faster but hey looks like we might persevere in the end. And yes, I
-will pour myself a drink when this finally made it into Linus' tree :-)
-And then when we meet at some conference in the future we can laugh
-about how this turned from a 5 line patch into at least 53 commits over
-3 years.
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ fs/proc/vmcore.c           | 20 ++++++++++----------
+ include/linux/crash_dump.h | 13 +++++++++++++
+ include/linux/kcore.h      | 13 -------------
+ 3 files changed, 23 insertions(+), 23 deletions(-)
 
-Thanks,
-Niklas
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 6371dbaa21be..47652df95202 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -304,10 +304,10 @@ static int vmcoredd_mmap_dumps(struct vm_area_struct *vma, unsigned long dst,
+  */
+ static ssize_t __read_vmcore(struct iov_iter *iter, loff_t *fpos)
+ {
++	struct vmcore_mem_node *m = NULL;
+ 	ssize_t acc = 0, tmp;
+ 	size_t tsz;
+ 	u64 start;
+-	struct vmcore *m = NULL;
+ 
+ 	if (!iov_iter_count(iter) || *fpos >= vmcore_size)
+ 		return 0;
+@@ -560,8 +560,8 @@ static int vmcore_remap_oldmem_pfn(struct vm_area_struct *vma,
+ static int mmap_vmcore(struct file *file, struct vm_area_struct *vma)
+ {
+ 	size_t size = vma->vm_end - vma->vm_start;
++	struct vmcore_mem_node *m;
+ 	u64 start, end, len, tsz;
+-	struct vmcore *m;
+ 
+ 	start = (u64)vma->vm_pgoff << PAGE_SHIFT;
+ 	end = start + size;
+@@ -683,16 +683,16 @@ static const struct proc_ops vmcore_proc_ops = {
+ 	.proc_mmap	= mmap_vmcore,
+ };
+ 
+-static struct vmcore* __init get_new_element(void)
++static struct vmcore_mem_node * __init get_new_element(void)
+ {
+-	return kzalloc(sizeof(struct vmcore), GFP_KERNEL);
++	return kzalloc(sizeof(struct vmcore_mem_node), GFP_KERNEL);
+ }
+ 
+ static u64 get_vmcore_size(size_t elfsz, size_t elfnotesegsz,
+ 			   struct list_head *vc_list)
+ {
++	struct vmcore_mem_node *m;
+ 	u64 size;
+-	struct vmcore *m;
+ 
+ 	size = elfsz + elfnotesegsz;
+ 	list_for_each_entry(m, vc_list, list) {
+@@ -1090,11 +1090,11 @@ static int __init process_ptload_program_headers_elf64(char *elfptr,
+ 						size_t elfnotes_sz,
+ 						struct list_head *vc_list)
+ {
++	struct vmcore_mem_node *new;
+ 	int i;
+ 	Elf64_Ehdr *ehdr_ptr;
+ 	Elf64_Phdr *phdr_ptr;
+ 	loff_t vmcore_off;
+-	struct vmcore *new;
+ 
+ 	ehdr_ptr = (Elf64_Ehdr *)elfptr;
+ 	phdr_ptr = (Elf64_Phdr*)(elfptr + sizeof(Elf64_Ehdr)); /* PT_NOTE hdr */
+@@ -1133,11 +1133,11 @@ static int __init process_ptload_program_headers_elf32(char *elfptr,
+ 						size_t elfnotes_sz,
+ 						struct list_head *vc_list)
+ {
++	struct vmcore_mem_node *new;
+ 	int i;
+ 	Elf32_Ehdr *ehdr_ptr;
+ 	Elf32_Phdr *phdr_ptr;
+ 	loff_t vmcore_off;
+-	struct vmcore *new;
+ 
+ 	ehdr_ptr = (Elf32_Ehdr *)elfptr;
+ 	phdr_ptr = (Elf32_Phdr*)(elfptr + sizeof(Elf32_Ehdr)); /* PT_NOTE hdr */
+@@ -1175,8 +1175,8 @@ static int __init process_ptload_program_headers_elf32(char *elfptr,
+ static void set_vmcore_list_offsets(size_t elfsz, size_t elfnotes_sz,
+ 				    struct list_head *vc_list)
+ {
++	struct vmcore_mem_node *m;
+ 	loff_t vmcore_off;
+-	struct vmcore *m;
+ 
+ 	/* Skip ELF header, program headers and ELF note segment. */
+ 	vmcore_off = elfsz + elfnotes_sz;
+@@ -1587,9 +1587,9 @@ void vmcore_cleanup(void)
+ 
+ 	/* clear the vmcore list. */
+ 	while (!list_empty(&vmcore_list)) {
+-		struct vmcore *m;
++		struct vmcore_mem_node *m;
+ 
+-		m = list_first_entry(&vmcore_list, struct vmcore, list);
++		m = list_first_entry(&vmcore_list, struct vmcore_mem_node, list);
+ 		list_del(&m->list);
+ 		kfree(m);
+ 	}
+diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
+index acc55626afdc..5e48ab12c12b 100644
+--- a/include/linux/crash_dump.h
++++ b/include/linux/crash_dump.h
+@@ -114,10 +114,23 @@ struct vmcore_cb {
+ extern void register_vmcore_cb(struct vmcore_cb *cb);
+ extern void unregister_vmcore_cb(struct vmcore_cb *cb);
+ 
++struct vmcore_mem_node {
++	struct list_head list;
++	unsigned long long paddr;
++	unsigned long long size;
++	loff_t offset;
++};
++
+ #else /* !CONFIG_CRASH_DUMP */
+ static inline bool is_kdump_kernel(void) { return false; }
+ #endif /* CONFIG_CRASH_DUMP */
+ 
++struct vmcoredd_node {
++	struct list_head list;	/* List of dumps */
++	void *buf;		/* Buffer containing device's dump */
++	unsigned int size;	/* Size of the buffer */
++};
++
+ /* Device Dump information to be filled by drivers */
+ struct vmcoredd_data {
+ 	char dump_name[VMCOREDD_MAX_NAME_BYTES]; /* Unique name of the dump */
+diff --git a/include/linux/kcore.h b/include/linux/kcore.h
+index 86c0f1d18998..9a2fa013c91d 100644
+--- a/include/linux/kcore.h
++++ b/include/linux/kcore.h
+@@ -20,19 +20,6 @@ struct kcore_list {
+ 	int type;
+ };
+ 
+-struct vmcore {
+-	struct list_head list;
+-	unsigned long long paddr;
+-	unsigned long long size;
+-	loff_t offset;
+-};
+-
+-struct vmcoredd_node {
+-	struct list_head list;	/* List of dumps */
+-	void *buf;		/* Buffer containing device's dump */
+-	unsigned int size;	/* Size of the buffer */
+-};
+-
+ #ifdef CONFIG_PROC_KCORE
+ void __init kclist_add(struct kcore_list *, void *, size_t, int type);
+ 
+-- 
+2.46.1
+
