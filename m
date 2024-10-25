@@ -1,78 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EBC12036FC
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 15:13:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E141021A4AA
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 15:41:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729869207; cv=none; b=dnwd/b0nG2vu5lFm0yVnSeoOERxdI2z/hndRG2SBrxKjfLPNxnYGzBFxQasCRSFsFxDIXGja4uA8C5w2zwmmWW2lQEwNPjLBHZWlU8lsZTc9IHjjmiLWcI2o8337t5iBEQQpRmdGeK8TiQg4fk05f2DE50T972u9sjm42zMiyEY=
+	t=1729870912; cv=none; b=jyxz7FeBJW3GBetL5yk1WsZjFyaMm7/bSoSXmV09Q0L4FC8EgfzTqSUV9xCLOBk/ttfl4ynPZghVPWR69RXRg8f1iDS8ayk/X0pZaF/Vu+85g5PAxviIwPnXJWZoX3zLM/lcwk4dmP9/wUcZsMnFoFKwja/qxQ962xg2emKtapM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729869207; c=relaxed/simple;
-	bh=l8Vke+v1qJcY3Kdt2qKC4wrsbTNgJAV880fY1X1hrJ8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cqFQE4PRmdS3oTAF48hT4X1yqygG0LoMckAe4SUyZ2CucNhXWyjxjHHqKQyXq97D0W02DVB2f9jSYafxX60mPFqq+ZWlpEg0t5GnD034A3qnmBD43akcHgU1G6MJPutcNqDhHWlAUNU0gXoxifQAojgLv6wprciimH5IeEdwt5g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Py6SXWnR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729870912; c=relaxed/simple;
+	bh=NQrucM9x+saoFF0bKhfOtTTsmlsmJGDQESQbN+cJ5T8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=g9S+AI0+YkUUvVym1+Gyg4GCCPVpDBWYBw59Pc1AMiadD7jTqnxYv4g8kN2aJRUA/Oita+kPoDPZZoffQOZEOw+Oarn8QQuOoMVLlOSF3DpvsTG7aBdtW7pHkd1j/KbQjn5GgkaPtWZWIb9Ii+lKek/+1ZfW2jCYRIGV4vBgNxY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s88mfr5N; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Py6SXWnR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729869204;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=duV64aDOzPCg70Erai+k0MR4CZFFfLJs/Tny3PQhGqo=;
-	b=Py6SXWnRRaYj5YfdQ32q1Yz4tx1KceUdfrsMSo9rXb1hCRYtJuxPMeU8ELBtJ32Aby/wK/
-	mhlU3WLXKkd5ykcpAKH66baagvhntNHGedC+8wnLT5i+WVsKHJCChIoKylnhv0UHfOpJHn
-	o6afDZvZNqmL17RURTtHktZCkTVDDUw=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-44-_q3EKHFQNEmGt7K_9EZzAQ-1; Fri,
- 25 Oct 2024 11:13:19 -0400
-X-MC-Unique: _q3EKHFQNEmGt7K_9EZzAQ-1
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 750F61956096;
-	Fri, 25 Oct 2024 15:13:17 +0000 (UTC)
-Received: from t14s.redhat.com (unknown [10.22.65.27])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 27021300018D;
-	Fri, 25 Oct 2024 15:13:08 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org,
-	linux-s390@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	kexec@lists.infradead.org,
-	David Hildenbrand <david@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Baoquan He <bhe@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Dave Young <dyoung@redhat.com>,
-	Thomas Huth <thuth@redhat.com>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v1 11/11] s390/kdump: virtio-mem kdump support (CONFIG_PROC_VMCORE_DEVICE_RAM)
-Date: Fri, 25 Oct 2024 17:11:33 +0200
-Message-ID: <20241025151134.1275575-12-david@redhat.com>
-In-Reply-To: <20241025151134.1275575-1-david@redhat.com>
-References: <20241025151134.1275575-1-david@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s88mfr5N"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49PDpA4b021561;
+	Fri, 25 Oct 2024 15:41:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=5LJ+VKt8Wb3JvYVN3+XmhS5GVyUE5yneVa6dfImU/
+	6Q=; b=s88mfr5NqxxZLp2ghjviqDWcV4e7B7+RkZ9hCrVxF1rkJle8jAXdvYrFq
+	5WkbRV6UQ/o9sv/Ne5SPD19QfoUUveP3X4BfuSVYgkoh+q0S7xAObhVXgvYefKff
+	hTft4M9xuR9dbOnqINJm4CHzhHfmq3Va2jrvRQzIM7vP0bvK9WrpPnrU/JNlr0DV
+	gPZAur1aBtDiV7RT5ctIir4fgLS0tfxCl9d2fnGFxe2wG5HQ07iWIF0IxGOTT+/G
+	vL9KQAzS3jMwdHfu0z7ilNs5WeciMS6OOKdah7s5B+bVGSUDEGjBFBQm8SdBjvgN
+	sIvYvhHYnOuyZdEeWD47ZDwGifQjw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42fbw494td-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Oct 2024 15:41:48 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49PEDICt014571;
+	Fri, 25 Oct 2024 15:41:48 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emk86cj4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Oct 2024 15:41:48 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49PFfkUM64946464
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 25 Oct 2024 15:41:47 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A4CCA58056;
+	Fri, 25 Oct 2024 15:41:46 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6ED6258052;
+	Fri, 25 Oct 2024 15:41:46 +0000 (GMT)
+Received: from WIN-DU0DFC9G5VV.ibm.com (unknown [9.61.242.95])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 25 Oct 2024 15:41:46 +0000 (GMT)
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+To: sgarzare@redhat.com
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+Subject: [PATCH v3] vsock/test: fix failures due to wrong SO_RCVLOWAT parameter
+Date: Fri, 25 Oct 2024 10:41:24 -0500
+Message-Id: <20241025154124.732008-1-kshk@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,96 +67,99 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: PJJO1tMEtrrwJ16oFZKthF54PSAHqkis
+X-Proofpoint-GUID: PJJO1tMEtrrwJ16oFZKthF54PSAHqkis
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ bulkscore=0 suspectscore=0 spamscore=0 phishscore=0 adultscore=0
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410250122
 
-Let's add support for including virtio-mem device RAM in the crash dump,
-setting NEED_PROC_VMCORE_DEVICE_RAM, and implementing
-elfcorehdr_fill_device_ram_ptload_elf64().
+This happens on 64-bit big-endian machines.
+SO_RCVLOWAT requires an int parameter. However, instead of int, the test
+uses unsigned long in one place and size_t in another. Both are 8 bytes
+long on 64-bit machines. The kernel, having received the 8 bytes, doesn't
+test for the exact size of the parameter, it only cares that it's >=
+sizeof(int), and casts the 4 lower-addressed bytes to an int, which, on
+a big-endian machine, contains 0. 0 doesn't trigger an error, SO_RCVLOWAT
+returns with success and the socket stays with the default SO_RCVLOWAT = 1,
+which results in vsock_test failures, while vsock_perf doesn't even notice
+that it's failed to change it.
 
-To avoid code duplication, factor out the code to fill a PT_LOAD entry.
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Fixes: b1346338fbae ("vsock_test: POLLIN + SO_RCVLOWAT test")
+Fixes: 542e893fbadc ("vsock/test: two tests to check credit update logic")
+Fixes: 8abbffd27ced ("test/vsock: vsock_perf utility")
+Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
 ---
- arch/s390/Kconfig             |  1 +
- arch/s390/kernel/crash_dump.c | 39 ++++++++++++++++++++++++++++-------
- 2 files changed, 32 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index d339fe4fdedf..d80450d957a9 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -230,6 +230,7 @@ config S390
- 	select MODULES_USE_ELF_RELA
- 	select NEED_DMA_MAP_STATE	if PCI
- 	select NEED_PER_CPU_EMBED_FIRST_CHUNK
-+	select NEED_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
- 	select NEED_SG_DMA_LENGTH	if PCI
- 	select OLD_SIGACTION
- 	select OLD_SIGSUSPEND3
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index edae13416196..97b9e71b734d 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -497,6 +497,19 @@ static int get_mem_chunk_cnt(void)
- 	return cnt;
+Notes:
+    The problem was found on s390 (big endian), while x86-64 didn't show it. After this fix, all tests pass on s390.
+Changes for v3:
+- fix the same problem in vsock_perf and update commit message
+Changes for v2:
+- add "Fixes:" lines to the commit message
+
+ tools/testing/vsock/vsock_perf.c | 6 +++---
+ tools/testing/vsock/vsock_test.c | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
+index 4e8578f815e0..22633c2848cc 100644
+--- a/tools/testing/vsock/vsock_perf.c
++++ b/tools/testing/vsock/vsock_perf.c
+@@ -133,7 +133,7 @@ static float get_gbps(unsigned long bits, time_t ns_delta)
+ 	       ((float)ns_delta / NSEC_PER_SEC);
  }
  
-+static void fill_ptload(Elf64_Phdr *phdr, unsigned long paddr,
-+		unsigned long vaddr, unsigned long size)
-+{
-+	phdr->p_type = PT_LOAD;
-+	phdr->p_vaddr = vaddr;
-+	phdr->p_offset = paddr;
-+	phdr->p_paddr = paddr;
-+	phdr->p_filesz = size;
-+	phdr->p_memsz = size;
-+	phdr->p_flags = PF_R | PF_W | PF_X;
-+	phdr->p_align = PAGE_SIZE;
-+}
-+
- /*
-  * Initialize ELF loads (new kernel)
-  */
-@@ -509,14 +522,8 @@ static void loads_init(Elf64_Phdr *phdr, bool os_info_has_vm)
- 	if (os_info_has_vm)
- 		old_identity_base = os_info_old_value(OS_INFO_IDENTITY_BASE);
- 	for_each_physmem_range(idx, &oldmem_type, &start, &end) {
--		phdr->p_type = PT_LOAD;
--		phdr->p_vaddr = old_identity_base + start;
--		phdr->p_offset = start;
--		phdr->p_paddr = start;
--		phdr->p_filesz = end - start;
--		phdr->p_memsz = end - start;
--		phdr->p_flags = PF_R | PF_W | PF_X;
--		phdr->p_align = PAGE_SIZE;
-+		fill_ptload(phdr, start, old_identity_base + start,
-+			    end - start);
- 		phdr++;
- 	}
- }
-@@ -526,6 +533,22 @@ static bool os_info_has_vm(void)
- 	return os_info_old_value(OS_INFO_KASLR_OFFSET);
- }
+-static void run_receiver(unsigned long rcvlowat_bytes)
++static void run_receiver(int rcvlowat_bytes)
+ {
+ 	unsigned int read_cnt;
+ 	time_t rx_begin_ns;
+@@ -163,7 +163,7 @@ static void run_receiver(unsigned long rcvlowat_bytes)
+ 	printf("Listen port %u\n", port);
+ 	printf("RX buffer %lu bytes\n", buf_size_bytes);
+ 	printf("vsock buffer %lu bytes\n", vsock_buf_bytes);
+-	printf("SO_RCVLOWAT %lu bytes\n", rcvlowat_bytes);
++	printf("SO_RCVLOWAT %d bytes\n", rcvlowat_bytes);
  
-+#ifdef CONFIG_PROC_VMCORE_DEVICE_RAM
-+/*
-+ * Fill PT_LOAD for a physical memory range owned by a device and detected by
-+ * its device driver.
-+ */
-+void elfcorehdr_fill_device_ram_ptload_elf64(Elf64_Phdr *phdr,
-+		unsigned long long paddr, unsigned long long size)
-+{
-+	unsigned long old_identity_base = 0;
-+
-+	if (os_info_has_vm())
-+		old_identity_base = os_info_old_value(OS_INFO_IDENTITY_BASE);
-+	fill_ptload(phdr, paddr, old_identity_base + paddr, size);
-+}
-+#endif
-+
- /*
-  * Prepare PT_LOAD type program header for kernel image region
-  */
+ 	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
+ 
+@@ -439,7 +439,7 @@ static long strtolx(const char *arg)
+ int main(int argc, char **argv)
+ {
+ 	unsigned long to_send_bytes = DEFAULT_TO_SEND_BYTES;
+-	unsigned long rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
++	int rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
+ 	int peer_cid = -1;
+ 	bool sender = false;
+ 
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index f851f8961247..30857dd4ca97 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -833,7 +833,7 @@ static void test_stream_poll_rcvlowat_server(const struct test_opts *opts)
+ 
+ static void test_stream_poll_rcvlowat_client(const struct test_opts *opts)
+ {
+-	unsigned long lowat_val = RCVLOWAT_BUF_SIZE;
++	int lowat_val = RCVLOWAT_BUF_SIZE;
+ 	char buf[RCVLOWAT_BUF_SIZE];
+ 	struct pollfd fds;
+ 	short poll_flags;
+@@ -1282,7 +1282,7 @@ static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opt
+ static void test_stream_credit_update_test(const struct test_opts *opts,
+ 					   bool low_rx_bytes_test)
+ {
+-	size_t recv_buf_size;
++	int recv_buf_size;
+ 	struct pollfd fds;
+ 	size_t buf_size;
+ 	void *buf;
 -- 
-2.46.1
+2.34.1
 
