@@ -1,97 +1,90 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF7E01D26E7
-	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 08:42:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1F171CFED9
+	for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 09:07:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729845774; cv=none; b=b4UVkyBaGOabYiSfrTvU/8aB3wEZkz9rmeR/4rd7TN8xtHmVLR7BEh25dzBGm1+t6lrOxAfEm3pcwSNhxt0H5zWOmid5cVW7U9Ud6YgtMRUkEkPdecsV9oICJW5RSYLAtuSjYDYZq4NtrX+OnS6bRFHDFuV58gjorn0cCHb6qv0=
+	t=1729847251; cv=none; b=S4u7ONw/oCWz7wLjTC/ZZ7WrW2jeRelu3XNzAdZxK8vKjTyovr1pKoAqcahLlAVjTUoJnphm62KU7EGA6NrT4BSlw5btqw6IgkcUY9Aede68epaAJ1ZmvOrOxNL9HdKOS3p7QqcnFQFCN/tDqCzqyWdsK6dlg+BiIXr+4y2xttk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729845774; c=relaxed/simple;
-	bh=ESF8HNfQuBgJctBd8Wbfrf3fbvtN7SVW+NouVhQec20=;
+	s=arc-20240116; t=1729847251; c=relaxed/simple;
+	bh=MjaRFk1Boxo8P6hdY50yu0DYYNPmnQY1ff3H1sDc0B0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y5zgxbqcXW8KLKY/qiETDnCA9RncEc9e3Fmg1yvY8GklJflicqTmrtSutxQLoFqGHuXH/SLtXNgRzQ2DkmyJJ0nVDdwL4/iks16V8u0OAUdFIgCGU2+k/Xl1BdMOKVip7Fm5mcYUTxTanpna+IcS3LP9oKAd+CnPlAxcfW+s6s0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KzzJda0S; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=GFJwv1GVNMck6CNCQrIqM/dTsU8/vjOu8sliOCGQXm9SWIcuoTFkQzsFC9THPlZpvID5bbkqIHoZDGpmL4VllPHpwsgm7p5x1oRf/YI696KPGAd0wm+28me8UWliDaBexIZsxaZWDMtPmLap4BQO/BFI6KzAyQHKvYbwhpv+1A0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AFvGhKIZ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KzzJda0S"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AFvGhKIZ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729845771;
+	s=mimecast20190719; t=1729847247;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ESF8HNfQuBgJctBd8Wbfrf3fbvtN7SVW+NouVhQec20=;
-	b=KzzJda0SOxflAGlkD0nx4646oDmTkylVt3d4UwyFtFcwA1hp949yCKdP+kOyEsH/TyS0rf
-	RHLfZF8lkQQKZj4Ter+WAR4ZY1AQN5iXtBXOYRhfcP2jn9vhqyL2nM+jL/UWQPqrbABZHx
-	hWLdrXN3RNbdbIzB3ZSMf5sv6koiYgU=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=MjaRFk1Boxo8P6hdY50yu0DYYNPmnQY1ff3H1sDc0B0=;
+	b=AFvGhKIZwH6cKClzVkSRzM7XsZrc2S4bvSOQPj9XJDNSuXTcey8eOJlDLkW1ESdAcyUEVB
+	epYzqO9ilv7cmH3GxHuB1tvxW4bRfoPz/X8NAY+uAHnQ/DrmbZX29JFOZETpDISSn8S53R
+	vL2yR0nZp7pX0XhSUpfKNWRXJ6VUPfo=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-335-aW_aqUCgMJeUtlstnG9w3A-1; Fri, 25 Oct 2024 04:42:50 -0400
-X-MC-Unique: aW_aqUCgMJeUtlstnG9w3A-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-71e5a1eefeeso2096107b3a.3
-        for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 01:42:50 -0700 (PDT)
+ us-mta-412-4X3qXQunMhWroKAUdrz62Q-1; Fri, 25 Oct 2024 05:07:25 -0400
+X-MC-Unique: 4X3qXQunMhWroKAUdrz62Q-1
+Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-71e6ee02225so2802307b3a.0
+        for <virtualization@lists.linux.dev>; Fri, 25 Oct 2024 02:07:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729845769; x=1730450569;
+        d=1e100.net; s=20230601; t=1729847245; x=1730452045;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ESF8HNfQuBgJctBd8Wbfrf3fbvtN7SVW+NouVhQec20=;
-        b=nl+XyCRsHHXpmhD18AUEIksXezPadNzbRVa1z8j1Kibr2RuTx4G8yFfugKQvwfNWWB
-         RQ3ck19ZKJhhoKukRWTUREPiIFdQufADfPLuBbpikIjj8c5B1vORFSxxQ/SyTxKGyTVN
-         bLt9nw5zqxALperbGqwiVTNFVQlm2k7W41AmYq5btP1OsQTLjvrdhVvI6ihTGOcgTC8Z
-         y6z2I0gLFCE6xFihY3+3OF9RS2oQ6Jc7924TJ/pz6nGy5Pk/4L17hTTzhc/MB6I+HqOz
-         oSa244RsjmJiLYENbmpcfimn0PMtg+gDQc3QwF9VzpwwS5IipPGSxuALaaywyWtkxeF1
-         N/fw==
-X-Forwarded-Encrypted: i=1; AJvYcCXySkwQVnpb5Fe76WWHEXXyLIzsmAR7DMLQiO6UieF0hIzGezwAh1neqLUzI/vIhYEFgBltLYu8yOp8MZdK1g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzKBrtterXXTSjwPJz8CjdrzhaQYifSWaDNCDBb+g89coGNX9XC
-	yWpgtEGGmSkI4QWq8t+8F1EMnjm73KdbcY2auUkUDzsS98MBBcyKhmXmo4xu3SmlGvABwisI814
-	rIH5chh11Fh4m/7sX1lk+1i28x+gf5ZunscNQxsL/9EZi/B6PHEYkQExYDTWRre1OHYPa1nSp76
-	Wiv9wJTuH6fBDI5dkP3s2k4WcilA+JbAvOqTSql/8=
-X-Received: by 2002:a05:6a21:1698:b0:1d9:9b2:8c2a with SMTP id adf61e73a8af0-1d978bae307mr12136711637.34.1729845769455;
-        Fri, 25 Oct 2024 01:42:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHqWP1hxccUA1MVos/H7lZp0gFmu6rQMfRQw9i+PiAUNz6qgFFpbHPa8aaG7pIBJG1XwjsjvD0LL1HzXXPt6VY=
-X-Received: by 2002:a05:6a21:1698:b0:1d9:9b2:8c2a with SMTP id
- adf61e73a8af0-1d978bae307mr12136687637.34.1729845769020; Fri, 25 Oct 2024
- 01:42:49 -0700 (PDT)
+        bh=MjaRFk1Boxo8P6hdY50yu0DYYNPmnQY1ff3H1sDc0B0=;
+        b=sVyU7hE6jDH3c3aL+Q6eQPO6ZMiFfcb/yKMnFEtnikn2XH4DxkI56tHxVyrJ4njtNl
+         ttvBZUaJLTOSTiEJxNnbc3mF+QyZp07shJo/skMQhLidUpuA4mmYv0fvM10uzd5t053F
+         v74eYLBWfPcooRj7nW6RQoPfkhwUwfczDOujRTVga0RpwqqfKiiwmL2GpW6UeYGmP8Ma
+         FlLuqm/qzeHzBAM0hiQtGP7ix/aHxK6e3kzwSyhCf6t6CN/DVubpDqEoR3B7hfPQv7E3
+         ViZVbqyYwB5paWCFs9XtKBn3UgAWDe7Ai1PnE8w8acgeu2DVwHE1Lnzaw1eRUG/N//SS
+         4zPw==
+X-Forwarded-Encrypted: i=1; AJvYcCUsaK6L1DM2/uekqkgo+wRdTI3J0G6Ft0xvpVAhxwhw10hwYGzDbL/+SRYHt+9e7SXtPxvoDW9+eweEYBcH/A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzgboCz5D2FFX7GsclfQpiENvsrGNaCnmpTqsg/AvtQaorrYIX4
+	wp19m2DIoX/tXVdC/367dWa+3r5NsGowXPi/pHWqDVSnHbcVCrGoGpNIBJWkPxYCvCtsfdbI6ic
+	ybfzJQU5HGJb2FspevmJOt/NTcmg/aO1Bgo1YH6Sm4RQROUj+tZYlQPrIkOjm0x4pgsTxdPQyas
+	RDW11W+g26CwV3tRNYse7LT9SY5Ab13nLAe+KsQeE=
+X-Received: by 2002:a05:6a20:d526:b0:1d9:1fac:7257 with SMTP id adf61e73a8af0-1d978bae453mr9708029637.32.1729847244773;
+        Fri, 25 Oct 2024 02:07:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGzm9XIV+b509V+3GLeghUV+i/VsJ2ey2JtmN7aeUp/k8VVTwMbhlUV4fpMutg66Dalz6b6Cf67HYDB5jwMFio=
+X-Received: by 2002:a05:6a20:d526:b0:1d9:1fac:7257 with SMTP id
+ adf61e73a8af0-1d978bae453mr9708013637.32.1729847244384; Fri, 25 Oct 2024
+ 02:07:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241021134040.975221-1-dtatulea@nvidia.com> <20241021134040.975221-3-dtatulea@nvidia.com>
-In-Reply-To: <20241021134040.975221-3-dtatulea@nvidia.com>
+References: <20241013033233.65026-1-huangwenyu1998@gmail.com>
+In-Reply-To: <20241013033233.65026-1-huangwenyu1998@gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 25 Oct 2024 16:42:37 +0800
-Message-ID: <CACGkMEsOpz1S4Dhx2PPb1kdYc4f2SxX-55QT6px2TF1g9R_A+g@mail.gmail.com>
-Subject: Re: [PATCH vhost 2/2] vdpa/mlx5: Fix suboptimal range on iotlb iteration
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, Eugenio Perez Martin <eperezma@redhat.com>, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date: Fri, 25 Oct 2024 17:07:13 +0800
+Message-ID: <CACGkMEuMANCHFSCHCPtcQ4L-qT0uz+B7bWL8gxT46Fyj18fVMQ@mail.gmail.com>
+Subject: Re: [PATCH v4] virtio: Make vring_new_virtqueue support for packed vring
+To: huangwenyu1998@gmail.com
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, sgarzare@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 21, 2024 at 9:41=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
+On Sun, Oct 13, 2024 at 11:32=E2=80=AFAM <huangwenyu1998@gmail.com> wrote:
 >
-> From: Si-Wei Liu <si-wei.liu@oracle.com>
+> From: Wenyu Huang <huangwenyu1998@gmail.com>
 >
-> The starting iova address to iterate iotlb map entry within a range
-> was set to an irrelevant value when passing to the itree_next()
-> iterator, although luckily it doesn't affect the outcome of finding
-> out the granule of the smallest iotlb map size. Fix the code to make
-> it consistent with the following for-loop.
+> It used for testing in tools/virtio/vringh_test.c.
+> If vring_new_virtqueue supports packed vring, we can add support for
+> packed vring to vringh and test it.
 >
-> Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
-> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Signed-off-by: Wenyu Huang <huangwenyu1998@gmail.com>
 > ---
 
 Acked-by: Jason Wang <jasowang@redhat.com>
