@@ -1,139 +1,98 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D64401DED79
-	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 16:13:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1302D052;
+	Mon, 28 Oct 2024 16:18:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730132038; cv=none; b=nB52WJym9atS3Dx1TVBK+ukSDGBxukD03ZaTc/ljD/HJvedZQCJ74pb5dbL6QrGOvV/uei/6axQ1nUtAw3C1UsldWlT99R1zCRL7rgrps2Gsfpks8ZUfPYxCyvZuvpY2cbJdlS7mgyTGS6WVDJQavazel8stluE8dFBnQh4MwFY=
+	t=1730132317; cv=none; b=tT4CqQ08IE6C7Rt1iN3tYJEuCSrMSTywccTmK8V/Suco1eGXy8Mo4OifZwytLHCyFQUsDSD8JpmcJCXCDyO4nP3ymn/rqGfdljyWydpitNZmKNcFMl78FdbIW4ZXuEzYXFaBqaweW0RWfEea89sWG3G5LiFsTG2mCn74ldbZS44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730132038; c=relaxed/simple;
-	bh=dK8AQpVKB21DbhsoIQW9s6DlG17ZojcnqNzJw+AtTTk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AY53QDfohFCGezd98jKanAPdtXCuPV25810IHnkXqfkKs75pb6F/FlbinPyAWfQSyvIWlOO5IWHcovRVGS0A2OagvDMGqan3JY6TvDh/lAMI29dMe0L1X5gWvayrzbqEhRnnVNLaQUzmrwj461YV9CfEffH1AamyJ70DYYBniUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gJkdZIrp; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1730132317; c=relaxed/simple;
+	bh=C8mX4PXEjoqXMUGgb5Mn9KAI5YZMFTWUiBiXo2pQxEU=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=IoPgvxpHPldRokZWGeAsOYHSWuX4+7NGnggjaZNIyPmV5cg4nnNUcfpXnCUhiAFtdYxngAe+kruZJsrsjWxbqH69lm4ISdNSuc3yvrR+s4tLXdZXVTnbcMLRv23Is73LKhxgZoOeThF0zR3wm699mlF//+wqTQChtiUYbzZoXB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=CSixJc9K; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gJkdZIrp"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8DEE3409B3
-	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 16:13:56 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id JslNWiP6rY35 for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Oct 2024 16:13:55 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 7D8E2409A8
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7D8E2409A8
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gJkdZIrp
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7D8E2409A8
-	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 16:13:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730132033;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=MtWJL992p0JNzFg6tkj4TLPGZxbfATTHqwcgArlMt9E=;
-	b=gJkdZIrpBpCGZZNgl1AE+H4jILQlGZ6EhAFGbmazTVcfTHrNjIzfir1t7X1Z3w3HQ/4+85
-	CYsAp7uP9sLcc/GCR1rUPN1iLZQCcz+jX9NItmR0O27DXk2xMh6EfZ4CsIrhIO2S4t/5cN
-	wsbfFX/1HAV2nH51Sz7+mDx/kxwvzXU=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-671-9PLJkjleMWqkLqJQ2cbkZg-1; Mon, 28 Oct 2024 12:13:52 -0400
-X-MC-Unique: 9PLJkjleMWqkLqJQ2cbkZg-1
-Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-837875efdbeso51112539f.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 09:13:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730132031; x=1730736831;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MtWJL992p0JNzFg6tkj4TLPGZxbfATTHqwcgArlMt9E=;
-        b=aCppfkyTQhyAPnXLZXDFcynJ3p3TKT5Xu/5+QIAgmG49fQ9MbUgCXu+V7S2jYTfc4b
-         rkn9jMVEq8sGQFrzptavkolfZ6wsnR59My0PXS/vZYlX1MaAcxCo65rmpZ9u0cWqcUBe
-         RrEVKrcFVzVvkTNsF43X6bOMrxyIHLVHR0Vvw1GNtutxuXqApwfnR4fMtoZlO4VzgU4+
-         oBC+fm6euw7Ae7Gjqxb5E8L9uwRHuWkRZ2nsnJR4N8Bz3osc120FcziMXeG6kIJfgh0j
-         8XhS5+XEv2NSJblD48HUdDPKnxHSvFooY/Ku+jgPZ0BjO1GNComr1Xlw5cOq5M14TAdX
-         X7Kw==
-X-Forwarded-Encrypted: i=1; AJvYcCUWat7Nq5Ss45TRkGd/JSSUDZAaUIBDQ2hQRrN1DtaEUaYHMFmEOlVs+X0vKmVo8pZi12jrSJCtFKnLjm1VGA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yw199lhlSR9mWF2ZbIp9RG8qXCouSvNcVW+xJKSo4Y1xE0J2/q+
-	c06Z+3CmFF7BE2hJNNxy+5TdTrvA2sDPrdKrjIh2NFybziO1Sm03ePoIVv+YITUVly+e5+fZdmJ
-	H6IlXVCz/k2yO/ROs9mBncEp1zmOn7Nldrdb5orkHQljpElnd06SLdHVMA2YcFsiDPquxDH2sPb
-	CmWa4=
-X-Received: by 2002:a05:6e02:1fc1:b0:39a:f126:9d86 with SMTP id e9e14a558f8ab-3a4ed1c7c60mr17996415ab.0.1730132030976;
-        Mon, 28 Oct 2024 09:13:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEa5XaZPju6ifo8jMYf5zEpUlSd3TWgjqJVomkmU2miBGhP7PkMhDxDpdF+6n2OQvmwdKH1TQ==
-X-Received: by 2002:a05:6e02:1fc1:b0:39a:f126:9d86 with SMTP id e9e14a558f8ab-3a4ed1c7c60mr17996335ab.0.1730132030568;
-        Mon, 28 Oct 2024 09:13:50 -0700 (PDT)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4dc72784e31sm1757568173.152.2024.10.28.09.13.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Oct 2024 09:13:50 -0700 (PDT)
-Date: Mon, 28 Oct 2024 10:13:48 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Yishai Hadas <yishaih@nvidia.com>
-Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
- <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
- <parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
- <joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
-Subject: Re: [PATCH vfio 0/7] Enhances the vfio-virtio driver to support
- live migration
-Message-ID: <20241028101348.37727579.alex.williamson@redhat.com>
-In-Reply-To: <20241027100751.219214-1-yishaih@nvidia.com>
-References: <20241027100751.219214-1-yishaih@nvidia.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="CSixJc9K"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
+	:MIME-Version:Message-ID:References:In-Reply-To:Subject:CC:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description;
+	bh=C8mX4PXEjoqXMUGgb5Mn9KAI5YZMFTWUiBiXo2pQxEU=; b=CSixJc9KbGoYLDfMbDpJHLrYeW
+	aeqSc6UBpwLif9DvpVrg/Kg9xn2TRK3rAuUoDII7dSly1eXME5mL2ZMwuFA+twED1xRHK5Xyj8jE3
+	PB1J6eq1bxEYglvPRauXsodP5jp+wcoUCpULXLVnsekUjdTUXxyfzI12GHSHVxQDctVyEjUmYlyjC
+	a7BWHea/obZJrLtPXkdC6Daj+AEl52k1zVOzqV8U11nC4JNIrUbzjZkGZrdpp2aSMheR9OJnXRUE2
+	NMXhOoN5ws6i7ZrvSC3bUOBf+5jdQBKOtrFCVUHooMo0YpdQEy/v/H2uPF/O6t7WAU9GABJvcqCVp
+	XZjdmJaA==;
+Received: from [78.133.40.109] (helo=[127.0.0.1])
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1t5SRi-00000009hqM-19H1;
+	Mon, 28 Oct 2024 16:18:22 +0000
+Date: Mon, 28 Oct 2024 17:17:14 +0100
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jakub Kicinski <kuba@kernel.org>
+CC: Richard Cochran <richardcochran@gmail.com>,
+ Peter Hilber <peter.hilber@opensynergy.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-rtc@vger.kernel.org, "Ridoux, Julien" <ridouxj@amazon.com>,
+ virtio-dev@lists.linux.dev, "Luu, Ryan" <rluu@amazon.com>,
+ "Chashper, David" <chashper@amazon.com>,
+ "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
+ Paolo Abeni <pabeni@redhat.com>,
+ "Christopher S . Hall" <christopher.s.hall@intel.com>,
+ Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Stephen Boyd <sboyd@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marc Zyngier <maz@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Alessandro Zummo <a.zummo@towertech.it>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ qemu-devel <qemu-devel@nongnu.org>, Simon Horman <horms@kernel.org>
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_net-next_v7=5D_ptp=3A_Add_supp?=
+ =?US-ASCII?Q?ort_for_the_AMZNC10C_=27vmclock=27_device?=
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20241028091256.1b0752b4@kernel.org>
+References: <78969a39b51ec00e85551b752767be65f6794b46.camel@infradead.org> <20241009173253.5eb545db@kernel.org> <c20d5f27c9106f3cb49e2d8467ade680f0092f91.camel@infradead.org> <20241014131238.405c1e58@kernel.org> <c1eb33ffd66d45af77dea58db8bdca3dcd2468c4.camel@infradead.org> <20241028091256.1b0752b4@kernel.org>
+Message-ID: <5077F160-52F0-4E76-B2B9-F0EA9DA76FB4@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
 
-On Sun, 27 Oct 2024 12:07:44 +0200
-Yishai Hadas <yishaih@nvidia.com> wrote:
-> 
-> - According to the Virtio specification, a device has only two states:
->   RUNNING and STOPPED. Consequently, certain VFIO transitions (e.g.,
->   RUNNING_P2P->STOP, STOP->RUNNING_P2P) are treated as no-ops. When
->   transitioning to RUNNING_P2P, the device state is set to STOP and
->   remains STOPPED until it transitions back from RUNNING_P2P->RUNNING, at
->   which point it resumes its RUNNING state.
+On 28 October 2024 17:12:56 CET, Jakub Kicinski <kuba@kernel=2Eorg> wrote:
+>On Sat, 19 Oct 2024 18:49:24 +0100 David Woodhouse wrote:
+>> > Yes please and thank you! We gotta straighten it out before=20
+>> > the merge window=2E =20
+>>=20
+>> Hm, as I (finally) come to do that, I realise that many of the others
+>> defined in drivers/ptp/Kconfig are also 'default y'=2E Which is only
+>> really 'default PTP_1588_CLOCK' in practice since they all depend on
+>> that=2E
+>
+>AFAICT nothing defaulted to enabled since 2017, so I'd chalk it up
+>to us getting better at catching mistakes over time=2E
+>
+>> Most importantly, PTP_1588_CLOCK_KVM is 'default y'=2E And that one is
+>> fundamentally broken (at least in the presence of live migration if
+>> guests care about their clock suddenly being wrong) which is why it's
+>> being superseded by the new VMCLOCK thing=2E We absolutely don't want t=
+o
+>> leave the _KVM one enabled by default and not its _VMCLOCK replacement=
+=2E
+>
+>You can default to =2E=2E_CLOCK_KVM, and provide the explanation in
+>the commit message and Kconfig help=2E
 
-Does this assume the virtio device is not a DMA target for another
-device?  If so, how can we make such an assumption?  Otherwise, what
-happens on a DMA write to the stopped virtio device?
-
-> - Furthermore, the Virtio specification does not support reading partial
->   or incremental device contexts. This means that during the PRE_COPY
->   state, the vfio-virtio driver reads the full device state. This step is
->   beneficial because it allows the device to send some "initial data"
->   before moving to the STOP_COPY state, thus reducing downtime by
->   preparing early. To avoid an infinite number of device calls during
->   PRE_COPY, the vfio-virtio driver limits this flow to a maximum of 128
->   calls. After reaching this limit, the driver will report zero bytes
->   remaining in PRE_COPY, signaling to QEMU to transition to STOP_COPY.
-
-If the virtio spec doesn't support partial contexts, what makes it
-beneficial here?  Can you qualify to what extent this initial data
-improves the overall migration performance?
-
-If it is beneficial, why is it beneficial to send initial data more than
-once?  In particular, what heuristic supports capping iterations at 128?
-The code also only indicates this is to prevent infinite iterations.
-Would it be better to rate-limit calls, by reporting no data available
-for some time interval after the previous call?  Thanks,
-
-Alex
+That works for me=2E But now it's my vacation time so it'll be at least Th=
+ursday before I can do that=2E I'll offer a preemptive Acked-by: David Wood=
+house <dwmw@amazon=2Eco=2Euk> to anyone who beats me to it :)
 
