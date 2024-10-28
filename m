@@ -1,211 +1,168 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D87611D79B3
-	for <virtualization@lists.linux.dev>; Mon, 28 Oct 2024 12:00:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE19B1D86DC
+	for <virtualization@lists.linux.dev>; Mon, 28 Oct 2024 13:45:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730116820; cv=none; b=BYY6Zz7Bm29i0uWQjsMS7j2sp8iVyRO6TjIrOihIJWd9rPMdMmDtBnLhoFPokBgEKVaxL+91cBVIQHcpJtX45EHesSX9gKuAUhUwo9rx3Zt40+9zp5qBTySswHqdnkVVpHsk3ywmRnQtlRNhaVxc7GGmUi2ZmY17lZnGYfhK6hM=
+	t=1730123107; cv=none; b=TphdZmpr4YBpst8na8SxeCQRdNximahZTlkTpRWImg0mHMwpJYfucQ2UCEieQvgJbYooJByUTuPpPa9UDW5CS0aFZCLcf4MmOHvMf8X+7sYmH6xx3hzXxNi+6oIVpsCMX5FQK96rzKYXoW/LXamNQA48LzmUHPbMID7cfnVi1IY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730116820; c=relaxed/simple;
-	bh=PTtl3vHHavXNuidH+4B+1gkl8S+AjoLyG03UtKhiitU=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=E7BgjRgTYqZnhBijnHWv/0Wch2EqALUrUWwBLwBkkeaZMN5PHfDK2tjpsXstB+OXI09aGA7/SJ1nJh5lP5KwKkLh7kRQyZ1UKL+k16z66i2zaOZ/AoBFAxXrRHgfya9cg7jzDL4mSiwTUm3Yp2MB3R/kQlacFWuRI4j1g5F38Ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4XcX2x4VNKzpXPb;
-	Mon, 28 Oct 2024 19:58:17 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 92E7D1800DE;
-	Mon, 28 Oct 2024 20:00:13 +0800 (CST)
-Received: from localhost.localdomain (10.90.30.45) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Mon, 28 Oct 2024 20:00:13 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>, Andrew
- Morton <akpm@linux-foundation.org>, Linux-MM <linux-mm@kvack.org>, Alexander
- Duyck <alexanderduyck@fb.com>, Chuck Lever <chuck.lever@oracle.com>, "Michael
- S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Eric Dumazet
-	<edumazet@google.com>, Simon Horman <horms@kernel.org>, David Howells
-	<dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Jeff Layton
-	<jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia
-	<okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
-	<tom@talpey.com>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
-	<anna@kernel.org>, Shuah Khan <shuah@kernel.org>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <linux-afs@lists.infradead.org>,
-	<linux-nfs@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
-Subject: [PATCH net-next v23 4/7] mm: page_frag: avoid caller accessing 'page_frag_cache' directly
-Date: Mon, 28 Oct 2024 19:53:39 +0800
-Message-ID: <20241028115343.3405838-5-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20241028115343.3405838-1-linyunsheng@huawei.com>
-References: <20241028115343.3405838-1-linyunsheng@huawei.com>
+	s=arc-20240116; t=1730123107; c=relaxed/simple;
+	bh=aEs7wkOs/9Tmtuzmg6k86fkOGprpHMB9+QFgot8mjSE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=XmEIeuZ4wncfl6XuqBGed0O6V3HdaB9P73mplrWssMUbbslE/tfMATMH65P/jUco7jJ09sjZj7AkgMbtM63g1mJpjEBqRAQR+7LUz3UUA3T3ZnBbGgOPdUM6/o5aIs2VbKwLEwbbEFjoYVYg5Vv15xvrkRZMqrQme77ZWSVDlGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R8E/nrLd; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R8E/nrLd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730123104;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2vGL1SVZq+LgfXtvaR3j6jeveiqx6XHBU95MSTDGVg4=;
+	b=R8E/nrLdNWpdV4zj5A+b01n1WtNxzPvYWT0w8DJxryUSrDHKRCKjRPgoTzTbkUnq678iCs
+	RMulzLpsadg7SEfvUt/ODJq19pp7HBxojqi9Q395xdeYs1rxh9ck6i4fKpju95oAjYaSaW
+	WJsQTqA7Ukb4ODOmOFXtPKxszaoV1qo=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-632-6e0NEZ0WN6Kt6VFNlIRATA-1; Mon, 28 Oct 2024 09:44:58 -0400
+X-MC-Unique: 6e0NEZ0WN6Kt6VFNlIRATA-1
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-7b15d3cd6dcso823414285a.0
+        for <virtualization@lists.linux.dev>; Mon, 28 Oct 2024 06:44:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730123098; x=1730727898;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2vGL1SVZq+LgfXtvaR3j6jeveiqx6XHBU95MSTDGVg4=;
+        b=qHH0qSCFkRuIkQRBV4y8KTb2PoxZqb6oscQRTyPn9I6BiUEB11toDdcNYpRC8vSRMn
+         ZJjefQmTRuu17YkjdjKo7mtHbsC7dESzrSpqel/eEZqUlWD7j0kXP8cQvHP7eThvR1dG
+         IWYma8Op6u8/7dwGoDlU6E3Nj1jH+IHIDQP6tj6TAH282lNLVUDl+zwToey0nOWaamWD
+         dinsQEts8JXs3MwmMamTPuqTyYc9y4N1pOIuo/zVxfjT+HMS9iUwn+on2r/2JEHlXgsh
+         5Vf9TPb7BOIFKLfYbrmFnsNPteq7BWmO1cFrGl5hZCB7xc/OhzZ63zVOrhooKimPYs/h
+         a8lQ==
+X-Gm-Message-State: AOJu0Yz2J8ItXBIx0Y1uP6JvuzMaTsmKAm6Jw0mzuiblH/K+JMMhIPKv
+	kmsDHOwVm+oK0Ce3tbkyOi9marDqtaKvhIkrl27kpBLDO6LohHBRm9DTz8njB61EJkVwgKBRlnJ
+	Ejf7AfeOS9mld5E33CETqR/MB4dUxqr0ASy9udJwvRKWFO1aMI2kYXYRp5CKrtbS7
+X-Received: by 2002:a05:620a:1a1c:b0:7b1:44f1:cb6d with SMTP id af79cd13be357-7b193f3f2d4mr1447474985a.42.1730123097798;
+        Mon, 28 Oct 2024 06:44:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGYDCoi09rdBp6AbuPJnFmwQMjbUbwDykG7M6wD0fUANXJfHN4wHVrUUk5Lqyj/Lt6o3xbXOQ==
+X-Received: by 2002:a05:620a:1a1c:b0:7b1:44f1:cb6d with SMTP id af79cd13be357-7b193f3f2d4mr1447469985a.42.1730123097245;
+        Mon, 28 Oct 2024 06:44:57 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-231.retail.telecomitalia.it. [79.46.200.231])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6d17973d8bdsm32521456d6.18.2024.10.28.06.44.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Oct 2024 06:44:56 -0700 (PDT)
+Date: Mon, 28 Oct 2024 14:44:53 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v3] vsock/test: fix failures due to wrong SO_RCVLOWAT
+ parameter
+Message-ID: <s5mhlz5szowwse52t6u44u3despluqb2ucudmmolx55vmtvs2l@eptqoed2qwmv>
+References: <20241025154124.732008-1-kshk@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+In-Reply-To: <20241025154124.732008-1-kshk@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Use appropriate frag_page API instead of caller accessing
-'page_frag_cache' directly.
+On Fri, Oct 25, 2024 at 10:41:24AM -0500, Konstantin Shkolnyy wrote:
+>This happens on 64-bit big-endian machines.
+>SO_RCVLOWAT requires an int parameter. However, instead of int, the test
+>uses unsigned long in one place and size_t in another. Both are 8 bytes
+>long on 64-bit machines. The kernel, having received the 8 bytes, doesn't
+>test for the exact size of the parameter, it only cares that it's >=
+>sizeof(int), and casts the 4 lower-addressed bytes to an int, which, on
+>a big-endian machine, contains 0. 0 doesn't trigger an error, SO_RCVLOWAT
+>returns with success and the socket stays with the default SO_RCVLOWAT = 1,
+>which results in vsock_test failures, while vsock_perf doesn't even notice
+>that it's failed to change it.
+>
+>Fixes: b1346338fbae ("vsock_test: POLLIN + SO_RCVLOWAT test")
+>Fixes: 542e893fbadc ("vsock/test: two tests to check credit update logic")
+>Fixes: 8abbffd27ced ("test/vsock: vsock_perf utility")
+>Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+>---
+>
+>Notes:
+>    The problem was found on s390 (big endian), while x86-64 didn't show it. After this fix, all tests pass on s390.
+>Changes for v3:
+>- fix the same problem in vsock_perf and update commit message
+>Changes for v2:
+>- add "Fixes:" lines to the commit message
 
-CC: Alexander Duyck <alexander.duyck@gmail.com>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: Linux-MM <linux-mm@kvack.org>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
----
- drivers/vhost/net.c                                   |  2 +-
- include/linux/page_frag_cache.h                       | 10 ++++++++++
- net/core/skbuff.c                                     |  6 +++---
- net/rxrpc/conn_object.c                               |  4 +---
- net/rxrpc/local_object.c                              |  4 +---
- net/sunrpc/svcsock.c                                  |  6 ++----
- tools/testing/selftests/mm/page_frag/page_frag_test.c |  2 +-
- 7 files changed, 19 insertions(+), 15 deletions(-)
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f16279351db5..9ad37c012189 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1325,7 +1325,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->pf_cache.va = NULL;
-+	page_frag_cache_init(&n->pf_cache);
- 
- 	return 0;
- }
-diff --git a/include/linux/page_frag_cache.h b/include/linux/page_frag_cache.h
-index 67ac8626ed9b..0a52f7a179c8 100644
---- a/include/linux/page_frag_cache.h
-+++ b/include/linux/page_frag_cache.h
-@@ -7,6 +7,16 @@
- #include <linux/mm_types_task.h>
- #include <linux/types.h>
- 
-+static inline void page_frag_cache_init(struct page_frag_cache *nc)
-+{
-+	nc->va = NULL;
-+}
-+
-+static inline bool page_frag_cache_is_pfmemalloc(struct page_frag_cache *nc)
-+{
-+	return !!nc->pfmemalloc;
-+}
-+
- void page_frag_cache_drain(struct page_frag_cache *nc);
- void __page_frag_cache_drain(struct page *page, unsigned int count);
- void *__page_frag_alloc_align(struct page_frag_cache *nc, unsigned int fragsz,
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 00afeb90c23a..6841e61a6bd0 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -753,14 +753,14 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
- 	if (in_hardirq() || irqs_disabled()) {
- 		nc = this_cpu_ptr(&netdev_alloc_cache);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 	} else {
- 		local_bh_disable();
- 		local_lock_nested_bh(&napi_alloc_cache.bh_lock);
- 
- 		nc = this_cpu_ptr(&napi_alloc_cache.page);
- 		data = page_frag_alloc(nc, len, gfp_mask);
--		pfmemalloc = nc->pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(nc);
- 
- 		local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 		local_bh_enable();
-@@ -850,7 +850,7 @@ struct sk_buff *napi_alloc_skb(struct napi_struct *napi, unsigned int len)
- 		len = SKB_HEAD_ALIGN(len);
- 
- 		data = page_frag_alloc(&nc->page, len, gfp_mask);
--		pfmemalloc = nc->page.pfmemalloc;
-+		pfmemalloc = page_frag_cache_is_pfmemalloc(&nc->page);
- 	}
- 	local_unlock_nested_bh(&napi_alloc_cache.bh_lock);
- 
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 1539d315afe7..694c4df7a1a3 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -337,9 +337,7 @@ static void rxrpc_clean_up_connection(struct work_struct *work)
- 	 */
- 	rxrpc_purge_queue(&conn->rx_queue);
- 
--	if (conn->tx_data_alloc.va)
--		__page_frag_cache_drain(virt_to_page(conn->tx_data_alloc.va),
--					conn->tx_data_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&conn->tx_data_alloc);
- 	call_rcu(&conn->rcu, rxrpc_rcu_free_connection);
- }
- 
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index f9623ace2201..2792d2304605 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -452,9 +452,7 @@ void rxrpc_destroy_local(struct rxrpc_local *local)
- #endif
- 	rxrpc_purge_queue(&local->rx_queue);
- 	rxrpc_purge_client_connections(local);
--	if (local->tx_alloc.va)
--		__page_frag_cache_drain(virt_to_page(local->tx_alloc.va),
--					local->tx_alloc.pagecnt_bias);
-+	page_frag_cache_drain(&local->tx_alloc);
- }
- 
- /*
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 825ec5357691..b785425c3315 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1608,7 +1608,6 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
- static void svc_sock_free(struct svc_xprt *xprt)
- {
- 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
--	struct page_frag_cache *pfc = &svsk->sk_frag_cache;
- 	struct socket *sock = svsk->sk_sock;
- 
- 	trace_svcsock_free(svsk, sock);
-@@ -1618,8 +1617,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
- 		sockfd_put(sock);
- 	else
- 		sock_release(sock);
--	if (pfc->va)
--		__page_frag_cache_drain(virt_to_head_page(pfc->va),
--					pfc->pagecnt_bias);
-+
-+	page_frag_cache_drain(&svsk->sk_frag_cache);
- 	kfree(svsk);
- }
-diff --git a/tools/testing/selftests/mm/page_frag/page_frag_test.c b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-index 13c44133e009..e806c1866e36 100644
---- a/tools/testing/selftests/mm/page_frag/page_frag_test.c
-+++ b/tools/testing/selftests/mm/page_frag/page_frag_test.c
-@@ -126,7 +126,7 @@ static int __init page_frag_test_init(void)
- 	u64 duration;
- 	int ret;
- 
--	test_nc.va = NULL;
-+	page_frag_cache_init(&test_nc);
- 	atomic_set(&nthreads, 2);
- 	init_completion(&wait);
- 
--- 
-2.33.0
+>
+> tools/testing/vsock/vsock_perf.c | 6 +++---
+> tools/testing/vsock/vsock_test.c | 4 ++--
+> 2 files changed, 5 insertions(+), 5 deletions(-)
+>
+>diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
+>index 4e8578f815e0..22633c2848cc 100644
+>--- a/tools/testing/vsock/vsock_perf.c
+>+++ b/tools/testing/vsock/vsock_perf.c
+>@@ -133,7 +133,7 @@ static float get_gbps(unsigned long bits, time_t ns_delta)
+> 	       ((float)ns_delta / NSEC_PER_SEC);
+> }
+>
+>-static void run_receiver(unsigned long rcvlowat_bytes)
+>+static void run_receiver(int rcvlowat_bytes)
+> {
+> 	unsigned int read_cnt;
+> 	time_t rx_begin_ns;
+>@@ -163,7 +163,7 @@ static void run_receiver(unsigned long rcvlowat_bytes)
+> 	printf("Listen port %u\n", port);
+> 	printf("RX buffer %lu bytes\n", buf_size_bytes);
+> 	printf("vsock buffer %lu bytes\n", vsock_buf_bytes);
+>-	printf("SO_RCVLOWAT %lu bytes\n", rcvlowat_bytes);
+>+	printf("SO_RCVLOWAT %d bytes\n", rcvlowat_bytes);
+>
+> 	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
+>
+>@@ -439,7 +439,7 @@ static long strtolx(const char *arg)
+> int main(int argc, char **argv)
+> {
+> 	unsigned long to_send_bytes = DEFAULT_TO_SEND_BYTES;
+>-	unsigned long rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
+>+	int rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
+> 	int peer_cid = -1;
+> 	bool sender = false;
+>
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index f851f8961247..30857dd4ca97 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -833,7 +833,7 @@ static void test_stream_poll_rcvlowat_server(const struct test_opts *opts)
+>
+> static void test_stream_poll_rcvlowat_client(const struct test_opts *opts)
+> {
+>-	unsigned long lowat_val = RCVLOWAT_BUF_SIZE;
+>+	int lowat_val = RCVLOWAT_BUF_SIZE;
+> 	char buf[RCVLOWAT_BUF_SIZE];
+> 	struct pollfd fds;
+> 	short poll_flags;
+>@@ -1282,7 +1282,7 @@ static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opt
+> static void test_stream_credit_update_test(const struct test_opts *opts,
+> 					   bool low_rx_bytes_test)
+> {
+>-	size_t recv_buf_size;
+>+	int recv_buf_size;
+> 	struct pollfd fds;
+> 	size_t buf_size;
+> 	void *buf;
+>-- 
+>2.34.1
+>
 
