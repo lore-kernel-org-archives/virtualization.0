@@ -1,149 +1,153 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70F84175D25
-	for <virtualization@lists.linux-foundation.org>; Sun, 27 Oct 2024 14:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD6F41BDAA2
+	for <virtualization@lists.linux.dev>; Mon, 28 Oct 2024 07:45:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730039173; cv=none; b=UnQ3Gk6GaYPo/5rWOfB+ciAXsiszPuPfPMDC4qxRUxL79aIROJNRqG2AcyqeQ9RwKHETfIkMauPd45p3uFqOobbjdmfyyBZhDmri27uB58AVjgCU14BajZebuvhSIMBcSgwlQOKTLHvllE6MpTqe89YYghIb44EKbEX4CI1qtw0=
+	t=1730101503; cv=none; b=d+Nszm3tHzWDs2hwqjsZcpB7HNqpGOcl869U2SUG91kT65txHXCZ1VsaNMSgIf8tn4XfUnWUC9J5KrhayuwlYwLmpxmHesh80J47nvi5hUO0rtF6bmnGnWOPAmlrC6LEF0jghtkdVwCmS02kQzLLKy0hTHyYH3nKEfi4CoGgOFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730039173; c=relaxed/simple;
-	bh=F3T/AAYdoHuTTV/VVVzRbtlg/svgZJGhDsfrjIIQP8E=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=TccCcm1KvCylNqtCzzXVVjVRviEewQV647z53IM1djG+wnkUxRST4aDclus3LqbIronAtNtTPqhFOU5lA7E09+7SMTiTpxpHNf12TKF0lYnPPkrlUbjPbxcHrDeUEhLvk/DoX/LSmADwGfTBgkrewe5MvH+3FpXCAdGsS1/4QFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JVZjIlPE; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1730101503; c=relaxed/simple;
+	bh=PEZr0dlQokSOg0EnOX8DNbTQF91ffCeHj6qA1SGw03M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=PfDUxVHyUCI8RbqVLXcI/nt6ZViy+cq6NpOVbvm5v454Z6th9o3tQXiW8DsQThYMlcltylc/p8WMXEGd9ZJI3rsF7kO37GogmQcnS03zKFjhXo9G+8MtncyblRLDByf9h9hsWSVdg3nmOnyCcUigTXzl31cs+RLBgx0a8Cmpi+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FNcGqcHF; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JVZjIlPE"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 096D080DC5
-	for <virtualization@lists.linux-foundation.org>; Sun, 27 Oct 2024 14:26:11 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -7.99
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id xnTPcF0UVT11 for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Oct 2024 14:26:10 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.10; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org E799680BDB
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E799680BDB
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=JVZjIlPE
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E799680BDB
-	for <virtualization@lists.linux-foundation.org>; Sun, 27 Oct 2024 14:26:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1730039170; x=1761575170;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=F3T/AAYdoHuTTV/VVVzRbtlg/svgZJGhDsfrjIIQP8E=;
-  b=JVZjIlPE5ToezgzJfQ0twZmqY21PnKnfWGqgDsVrxMiwpvYTtGYYRwUh
-   P5R1Q3H6KLZHz13NDCUtW0+K9olaoZUzAtuVtSaKJt4MPPad6DGsAkXN8
-   9a4TcUPX1l+tp8wa0yjVZ2r/E7J4OETj7wmRw/ag9Guwb0XrTQbkjT/Wj
-   qPxmyxJuKkgVAhm4F0XZCeL150QRKhLBzCM3qtE38PCnWx7lOMPSoGKaj
-   UVFG6L9m6qFU23J8+AsBazZ+fa4FS7FmuipGogGTWqnnGyR4prNeLp+hS
-   6yppAWxTvOLyOGST/iJ50zKsyGeUWx5J2mqnwOsTeTUsA025RWJNz9r5U
-   g==;
-X-CSE-ConnectionGUID: ZQfpgscrThu/sx0RS7qphQ==
-X-CSE-MsgGUID: CXELwFA4RvmkfPbSTkoOdA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11238"; a="41019067"
-X-IronPort-AV: E=Sophos;i="6.11,237,1725346800"; 
-   d="scan'208";a="41019067"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2024 07:26:08 -0700
-X-CSE-ConnectionGUID: DfJI0M8vRpu4hdIaqKiwRQ==
-X-CSE-MsgGUID: 8Jp4mR4jSKighrximlALbw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,237,1725346800"; 
-   d="scan'208";a="81002937"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.124.240.228]) ([10.124.240.228])
-  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2024 07:26:05 -0700
-Message-ID: <e030bf31-330c-4734-be13-634174c7b099@linux.intel.com>
-Date: Sun, 27 Oct 2024 22:26:03 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FNcGqcHF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730101499;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=hbIQ/VhVhZ0OvUIRysIuQ3OzP1NdlYynlJ50dCrgjTU=;
+	b=FNcGqcHF7Y5DjrML054wbzxnWi1ukZO3Okv8JN7oDf3X9NHDxWXsUSAGpz/Ds+yXlgykVL
+	i382p8jA4n661TjqQtWXngoujxLl0uhB+/j8uFURJeNPi7/5v3moQAcrz8uBrbpVklWQ0K
+	P38jykbx6o2X5tD4hZYLCBpQ/L3NocU=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-30-GDsRQ0zDN22PF-jDv45yuQ-1; Mon, 28 Oct 2024 03:44:57 -0400
+X-MC-Unique: GDsRQ0zDN22PF-jDv45yuQ-1
+Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6cbe933e877so73143026d6.1
+        for <virtualization@lists.linux.dev>; Mon, 28 Oct 2024 00:44:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730101496; x=1730706296;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=hbIQ/VhVhZ0OvUIRysIuQ3OzP1NdlYynlJ50dCrgjTU=;
+        b=ojbKObjeVLA47ki+rphlMVV4e6/SOsjdif/D+rpFmBS22ROYczYF6xErDDIqVSCLCq
+         H8n7GHYN6eJX0mA1NVKDLYrOYCSJIc6HD89ISxVHsWSlVugq8VExCjOTvws+FWUZSwUz
+         gUb6VxMkacQseynzfQNtmptHmO6kqPCBAAyKDEAo29B2UvGesqQWAZwfaDGkvli4t3oH
+         8gBzoIsuO6lUE+Gy172Q/dE0UkxSpefnp0GMCyrU/QtBJDml9zBG6DlTeDUGEoBZFfh7
+         tha0dsp6x3IqSqisZyYBhp99rbEidbyaPaiONVwkhTdDWymnp3MwBBNnPZkkVEXrP4QL
+         fZSQ==
+X-Gm-Message-State: AOJu0YxBn+les9Ui95r/VeUZHzz2sbSem3hq92rJHqWqdZJDOcaJl+Yz
+	76o6KtrNbUIAE8lkfm0swhsjsy3b1MYEKSgIZG+STHyLRe1xtUbWTHhLyRg3md1GpelAtbKctfo
+	d189eCxizWfwHkE5SPSgtQy0PcDTFbjH2ztdvY01iaiZSkUBukeoMgQETXf1+mpHS
+X-Received: by 2002:a05:6214:2dc6:b0:6cb:cee6:d834 with SMTP id 6a1803df08f44-6d18585e762mr121038886d6.45.1730101496508;
+        Mon, 28 Oct 2024 00:44:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEYrXXTQPuJOobZASjIKDFRnHrChhHyjJipSBygd3ZhctAHecyDi+Abnul9u/vpmNdW1daW7Q==
+X-Received: by 2002:a05:6214:2dc6:b0:6cb:cee6:d834 with SMTP id 6a1803df08f44-6d18585e762mr121038756d6.45.1730101496220;
+        Mon, 28 Oct 2024 00:44:56 -0700 (PDT)
+Received: from eisenberg.redhat.com (nat-pool-muc-t.redhat.com. [149.14.88.26])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6d17972f566sm30237716d6.13.2024.10.28.00.44.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Oct 2024 00:44:55 -0700 (PDT)
+From: Philipp Stanner <pstanner@redhat.com>
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Philipp Stanner <pstanner@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	Andy Shevchenko <andy@kernel.org>
+Subject: [PATCH v2] vdpa: solidrun: Fix UB bug with devres
+Date: Mon, 28 Oct 2024 08:43:59 +0100
+Message-ID: <20241028074357.9104-3-pstanner@redhat.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Jason Gunthorpe <jgg@ziepe.ca>,
- Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Subject: Re: [PATCH v8 07/10] iommufd: Fault-capable hwpt
- attach/detach/replace
-To: Zhangfei Gao <zhangfei.gao@linaro.org>
-References: <20240702063444.105814-1-baolu.lu@linux.intel.com>
- <20240702063444.105814-8-baolu.lu@linux.intel.com>
- <CABQgh9EeKtYuu+vTTM0fwaKrLxdyC355MQxN8o8_OL9Y1NkE8A@mail.gmail.com>
- <20241015125420.GK1825128@ziepe.ca>
- <CABQgh9E+AnuyJgcM9tf1gEOUqcC_QSrA__Xha9sKYZp=NVRwhQ@mail.gmail.com>
- <20241016152503.GB4020792@ziepe.ca>
- <CABQgh9FCJcOa0G0Kj__NUm-Q8C9uH4ud04XcHv+3c48T2qEnug@mail.gmail.com>
- <20241017120518.GI4020792@ziepe.ca>
- <CABQgh9EnEqDKkxg3VUgjSqBzz27h8B3Ct4w=A0vR6JK=d7fXHQ@mail.gmail.com>
- <20241017130805.GA926121@ziepe.ca>
- <f218230c-ae01-4168-b36e-5e502de6b3db@linux.intel.com>
- <CABQgh9GU4xp=7Svs_Ni=bvNKECKKUjHgq4d-FjT5Y_4wu44kDA@mail.gmail.com>
- <CABQgh9HYDRVOYtL=jgc4CqX0XhNmCtBDOCm8S6_mgBzBtZVk7Q@mail.gmail.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <CABQgh9HYDRVOYtL=jgc4CqX0XhNmCtBDOCm8S6_mgBzBtZVk7Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
-On 2024/10/27 22:12, Zhangfei Gao wrote:
-> On Fri, 18 Oct 2024 at 10:45, Zhangfei Gao<zhangfei.gao@linaro.org> wrote:
->> Hi, Baolu
->>
->> On Fri, 18 Oct 2024 at 09:58, Baolu Lu<baolu.lu@linux.intel.com> wrote:
->>> On 2024/10/17 21:08, Jason Gunthorpe wrote:
->>>> On Thu, Oct 17, 2024 at 08:35:24PM +0800, Zhangfei Gao wrote:
->>>>
->>>>> Yes, you are right
->>>>>    I am using SRIOV vf and stall feature, so is_virtfn == true
->>>>>
->>>>> Our ACC devices are fake pci endpoint devices which supports stall,
->>>>> And they also supports sriov
->>>>>
->>>>> So I have to ignore the limitation.
->>>> I see, so that is more complicated.
->>>>
->>>> Lu, what do you think about also checking if the PCI function has PRI
->>>> ? If not PRI assume the fault is special and doesn't follow PRI rules?
->>>>
->>>> Or maybe we can have the iommu driver tag the event as a PRI/not-PRI
->>>> fault?
->>> This limitation applies to PRI on PCI/SRIOV VFs because the PRI might be
->>> a shared resource and current iommu subsystem is not ready to support
->>> enabling/disabling PRI on a VF without any impact on others.
->>>
->>> In my understanding, it's fine to remove this limitation from the use
->>> case of non-PRI on SRIOV VFs. Perhaps something like below?
->>>
->> #include <linux/pci-ats.h>
->>>          if (dev_is_pci(dev)) {
->>>                  struct pci_dev *pdev = to_pci_dev(dev);
->>>                  if (pdev->is_virtfn && pci_pri_supported(pdev))
->>>                          return -EINVAL;
->>>          }
->> Yes, this works on our platform.
-> Will you send this patch?
-> 
-> Tested-by: Zhangfei Gao<zhangfei.gao@linaro.org>
+In psnet_open_pf_bar() and snet_open_vf_bar() a string later passed to
+pcim_iomap_regions() is placed on the stack. Neither
+pcim_iomap_regions() nor the functions it calls copy that string.
 
-Can you please make this change a formal patch by yourself? As I don't
-have hardware in hand, I'm not confident to accurately describe the
-requirement or verify the new version during the upstream process.
+Should the string later ever be used, this, consequently, causes
+undefined behavior since the stack frame will by then have disappeared.
 
-Thanks,
-baolu
+Fix the bug by allocating the strings on the heap through
+devm_kasprintf().
+
+Cc: stable@vger.kernel.org	# v6.3
+Fixes: 51a8f9d7f587 ("virtio: vdpa: new SolidNET DPU driver.")
+Reported-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Closes: https://lore.kernel.org/all/74e9109a-ac59-49e2-9b1d-d825c9c9f891@wanadoo.fr/
+Suggested-by: Andy Shevchenko <andy@kernel.org>
+Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+Changes in v2:
+  - Add Stefano's RB
+---
+ drivers/vdpa/solidrun/snet_main.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+index 99428a04068d..c8b74980dbd1 100644
+--- a/drivers/vdpa/solidrun/snet_main.c
++++ b/drivers/vdpa/solidrun/snet_main.c
+@@ -555,7 +555,7 @@ static const struct vdpa_config_ops snet_config_ops = {
+ 
+ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+ {
+-	char name[50];
++	char *name;
+ 	int ret, i, mask = 0;
+ 	/* We don't know which BAR will be used to communicate..
+ 	 * We will map every bar with len > 0.
+@@ -573,7 +573,10 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+ 		return -ENODEV;
+ 	}
+ 
+-	snprintf(name, sizeof(name), "psnet[%s]-bars", pci_name(pdev));
++	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-bars", pci_name(pdev));
++	if (!name)
++		return -ENOMEM;
++
+ 	ret = pcim_iomap_regions(pdev, mask, name);
+ 	if (ret) {
+ 		SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
+@@ -590,10 +593,13 @@ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+ 
+ static int snet_open_vf_bar(struct pci_dev *pdev, struct snet *snet)
+ {
+-	char name[50];
++	char *name;
+ 	int ret;
+ 
+-	snprintf(name, sizeof(name), "snet[%s]-bar", pci_name(pdev));
++	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-bars", pci_name(pdev));
++	if (!name)
++		return -ENOMEM;
++
+ 	/* Request and map BAR */
+ 	ret = pcim_iomap_regions(pdev, BIT(snet->psnet->cfg.vf_bar), name);
+ 	if (ret) {
+-- 
+2.47.0
+
