@@ -1,235 +1,117 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3192C1DF73A
-	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 17:47:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730137626; cv=fail; b=oCzfV1Efr62bRqMISXgAGDjbHXZrxO2D9KZS2ylDvUR9M676i7FCJ/wwI1xeIwP1bubH6wgfqJi01fp5DWPNz9h7Iq+VV6uUO+74inpGeI2nyifEw9tBODp2N+ktjk5qwwTvnADrVwEZJteQneUFNLiMDLYWEygJ07rVmUHA9ec=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730137626; c=relaxed/simple;
-	bh=ncQfRTa2y3N/So0I6nAuk4GkcxsYbA14tITF0h45AVY=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=BJqoB3Tqj6OD6Uj+pO0sFaHgLLm9LRZO5I0RRTlRxKliQOH01Am1T25yt9b9fyW3e0t+rvGtfYphuU0pCTWMUP2lXdYptiEgyrmoXXCYumRIcsVIf+hZ0ndicoLLNtTqdTtQpnCO1iQnTaLPcGXve+HhYuZ0QpWYHkYn0mAAx6w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=VrRLaINo; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27841DEFD2
+	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 18:17:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730139474; cv=none; b=CewvoDgKNjLlATSvuyeZvJx4ODBXO03lXuJgiII1Ml0i6yblC9MyR5djBH2N450rDe6xwRZgW2VvUzGw8cRs0DsqNppC8aOs3RS5D7dlTIehObW9kdXk8cFWKcx7dhVkjcUBjzYKsPizFLcprkA/G9dtCZ7+KPXo7BdaOdPzxGU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730139474; c=relaxed/simple;
+	bh=BI0TiyriFR9sBLWv0MTNVLSTtiBR6zB5VM599YILyhE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mfgVeGXUzB8c3oOkb5E2SaaoBgi+HXrimTi/UIo0SZnI6UeBN6jqBtP0QAbBY6Np0BE/eIksH17JBNQghhElZcwMpdFyxusFObJO3hAoN+mRJk0ZavWzXiV18AUAXJm30fSdetZBj39Aph8n2SbrdG4oagOsJB+i92/0LugR/VY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JeaUMXhd; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="VrRLaINo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JeaUMXhd"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CD82F81080
-	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 17:47:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4B7BC4097C
+	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 18:17:52 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 88mJPWpU0AJM for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Oct 2024 17:47:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:200a::618; helo=nam12-mw2-obe.outbound.protection.outlook.com; envelope-from=parav@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A589980DA6
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A589980DA6
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=VrRLaINo
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on20618.outbound.protection.outlook.com [IPv6:2a01:111:f403:200a::618])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A589980DA6
-	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 17:47:02 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=v9CJgIWIBad25JZeexUhHdM3z4PQnoNlbKt9c+/dFD2w1XhIweyfwJRb1MC4b36o1uWSrEtGcrInNvZE7fh5JcBaKCAruhg+QHEq/98XTkPTZTg6jPXtkI3HRbqP5MR2Ou0ihXkisgySMorpFUfKmjXuMdeXegZZXWDubepn9wfUA6aGgwQoZGjZEKOqNwmJJPnuIILOGNkWp7fH3ISVAwgybIjGTKpVp4E6H5B4JgPQrUtrvQFpGnv/oAiZSNdysE8DXcFKbZGpHda8ueHUnfSX0dd8yIv8eb/cLCCUnPthgCqA7vsuvKOzIVyGNs3xOGu87m1ZMQj39QSwoqLRIQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MuSkJGoNqhVvuKVkAaoGQJ8AcxBp1PmC3DfsFDPu48Y=;
- b=BcPQUc2ajepUOUfCUjJ1e6DDAHXpioHtN0+jY8ZobMc/1KMqtTuFBfRBjSS62c3kI1NKZr6BTjKWZQoztjCBPhThWYUVSZoVDY/vynd6bG2xFeIp0zFTrHNWZ/I4fneiqaHfR44glH85BCurOEh8fq9FsjByDjy7jijahhs+lnuu+bcbaj/nZuxxka4sxabElTUehgjY4SpkrgD+o4/8xqTQie/fIXZ13JPJ/JC9eorZ9dMrsQS4QuaTdrZ49NGxnKdWxH4nr1cZzDVEBDf3tLrHC3tZ2dX+Lp/P9LuwcMf0SH/Tq1XSvcm/BPLUB45o3Ksmu94LckNM1TU/HUaqbA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MuSkJGoNqhVvuKVkAaoGQJ8AcxBp1PmC3DfsFDPu48Y=;
- b=VrRLaINo+MnEmpmD0jjLCnU+3JC1KkUGTXwDNVeRLnQfdovzJGZL7kwFpwCBK8OEsocnlctfnudXRECJ82OouZXAOeGT/CvorG+lNuai4gVQrF9NGz4ydFATt2GCj/Y705u/UPuqIi6bpY29jTKiVwvpQlKAGGzqPNZae0ds7RQbAFAXVrl/1naHF7mr6+pokh/nW3yOuDqlyGPjS3cN3PuRU7jUZCVRFYBMNdG8CvD5RthEJAien7u8ElJlZHxay1lOqArnTRFHKJFVfQZQ4wFASXu1C+Xap+RzEO0igZOY+pfw827JSSqlhgLPvLawfCQ+JRUyOLoIBs250shsOA==
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by BY5PR12MB4244.namprd12.prod.outlook.com (2603:10b6:a03:204::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8093.24; Mon, 28 Oct
- 2024 17:46:58 +0000
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::c06c:905a:63f8:9cd]) by CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::c06c:905a:63f8:9cd%6]) with mapi id 15.20.8093.018; Mon, 28 Oct 2024
- 17:46:58 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Alex Williamson <alex.williamson@redhat.com>, Jason Gunthorpe
-	<jgg@nvidia.com>
-CC: Yishai Hadas <yishaih@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>, "kvm@vger.kernel.org"
-	<kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, Feng Liu <feliu@nvidia.com>,
-	"kevin.tian@intel.com" <kevin.tian@intel.com>, "joao.m.martins@oracle.com"
-	<joao.m.martins@oracle.com>, Leon Romanovsky <leonro@nvidia.com>, Maor
- Gottlieb <maorg@nvidia.com>
-Subject: RE: [PATCH vfio 0/7] Enhances the vfio-virtio driver to support live
- migration
-Thread-Topic: [PATCH vfio 0/7] Enhances the vfio-virtio driver to support live
- migration
-Thread-Index: AQHbKFgwmMFKDidgeUS806gohYGFpbKcWAwAgAAC0wCAAAhuAIAACAsg
-Date: Mon, 28 Oct 2024 17:46:57 +0000
-Message-ID:
- <CY8PR12MB7195FCA5172D7829B1ABC773DC4A2@CY8PR12MB7195.namprd12.prod.outlook.com>
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id OzXXofM2UXgK for <virtualization@lists.linux-foundation.org>;
+ Mon, 28 Oct 2024 18:17:51 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 640F2409A8
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 640F2409A8
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JeaUMXhd
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 640F2409A8
+	for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 18:17:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730139469;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ow6yg5EfDFU7n7Pa/d9u/odwnb2QoL21BBF3d5MTEfc=;
+	b=JeaUMXhdP+SIk4w6v9LI6vM8VaJ3n7hdZ45QJytk7yGMC3wgI+Oo7S5hME9j5eSFXmrVXc
+	IbTX9sQlax++nKA0LbWt7I7dZ8nkOZMEGZ+5ZSRfuD+priWRTVYCjeKsOy3M3HBkT8VTc4
+	iY/Wb8/1e1Mczfc/PX1tOTLLSmY+mXE=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-508-XX_LQ8WFPKG1pc7V_cWVdg-1; Mon, 28 Oct 2024 14:17:48 -0400
+X-MC-Unique: XX_LQ8WFPKG1pc7V_cWVdg-1
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-83aaad1b050so50965639f.1
+        for <virtualization@lists.linux-foundation.org>; Mon, 28 Oct 2024 11:17:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730139468; x=1730744268;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ow6yg5EfDFU7n7Pa/d9u/odwnb2QoL21BBF3d5MTEfc=;
+        b=YfFSC8Dl6mm5MBB0nzZjYLQfcu9WzeTkxkz5ofN9438GexziG/Jt22YHUFEpIynURL
+         d7IBJBrY7dXkGqRWX661mDmDR4PnFwjAPFCIylA8kS+X79FOhK+Fh6HxB+1yAdCA5R8B
+         Dm5l9xTo+bvD49Ne6ISxeD6d7ZKO97Atm2wSkQ0dJ4Ao3LjdeJ5qPLto+7vJggpwvoBf
+         LuKG0WLThaVHnAYA3WJiokT+jHq7ZE0p940mVFyOhfnOkO06WHn9T+ckoPxlQETgJmjy
+         jbnAXQ4nNM7npQ2ICZ9KtOBeq9B17qnynEmxYPdY7C/6tj7wS7bOaDmqgu2y2PT7Okfj
+         Z8cA==
+X-Forwarded-Encrypted: i=1; AJvYcCWCnMqB/baCFCymGauWPqybWeQCe0PD+zENmoSr0J/xzIY44uGdtW2nmtiHN0UmweT8oesdRD8n/7ko5Yt42A==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yzymx8AovjikctrVb07mYYXVyrpCHJ5plucVNzkLTAZeTnATwpu
+	qYHNUXGZZYJ/FgVeJXiiyEYKbvrQvhmVkdt9CpIYwbE1ul270qhX2kjiqXhkTs+LfgCWc3L0eSc
+	PcBbu7Egz8Grw9d0s4obh3V/Fv8csg3/qZTY6NHms91BFz7R69Kh7IdQiSOJTu39cmhiLu981JD
+	ID6UA=
+X-Received: by 2002:a05:6e02:1d19:b0:3a2:6cd7:3255 with SMTP id e9e14a558f8ab-3a4ed30c266mr22182745ab.6.1730139467888;
+        Mon, 28 Oct 2024 11:17:47 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFyaCZsOb3OubpwLQK2tvyyyBnC7J+AwIr3XfWRoJc04SSKzCg6MWaZngCwZ2ehfEY79ESAGQ==
+X-Received: by 2002:a05:6e02:1d19:b0:3a2:6cd7:3255 with SMTP id e9e14a558f8ab-3a4ed30c266mr22182605ab.6.1730139467445;
+        Mon, 28 Oct 2024 11:17:47 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4dc725eb673sm1826022173.16.2024.10.28.11.17.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Oct 2024 11:17:47 -0700 (PDT)
+Date: Mon, 28 Oct 2024 12:17:45 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+ <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+ <parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
+ <joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+Subject: Re: [PATCH vfio 0/7] Enhances the vfio-virtio driver to support
+ live migration
+Message-ID: <20241028121745.17d4d18c.alex.williamson@redhat.com>
+In-Reply-To: <20241027100751.219214-1-yishaih@nvidia.com>
 References: <20241027100751.219214-1-yishaih@nvidia.com>
-	<20241028101348.37727579.alex.williamson@redhat.com>
-	<20241028162354.GS6956@nvidia.com>
- <20241028105404.4858dcc2.alex.williamson@redhat.com>
-In-Reply-To: <20241028105404.4858dcc2.alex.williamson@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|BY5PR12MB4244:EE_
-x-ms-office365-filtering-correlation-id: a2b0fac8-d4a5-4ba7-fce9-08dcf778850a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|376014|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?2s2irh5muw8LJexxeJjTBqLpvRPHVsIMeUItkGooqHMjmLBOxwYRaHk6CixO?=
- =?us-ascii?Q?NWDM8yA8CdbqU7vFbbsrRpz9GyKyg/wSa0w6kb8hqL4tDQ8LWnf8NyNngxYB?=
- =?us-ascii?Q?p1zpSWHwpIEMdQKmVRu46dTK77xqgclVqDaO6STq/tUZDlsKc+0vvgWkPxKl?=
- =?us-ascii?Q?cO+de+OghnlQWqdMXfZnJyS8ndmaWvbJz6RUmqOxtz9mt5fSjUeokHY0+cHf?=
- =?us-ascii?Q?MZDirwyPWkDbzqVpju2cWh9EOL7rOC9KL4cilu2Y/gzQ/ZeFfvXn/sU66RPo?=
- =?us-ascii?Q?nscNplvoWKtX31yrfi+YnV76Eoh8gpH6Mdnpl/uG+FiEEBUwW7stXppEKYtv?=
- =?us-ascii?Q?kxEXfgfjJRRpxyrqTE6DXiBB5j5Pnh1jEMaIHHStoQm3cbF5yvquz8wyPo8h?=
- =?us-ascii?Q?47OwdXyr7Uj9o6fRvosjrfIrGQwVEytNQ/E3X8eLvduwSIE3Hlici5GtOX5/?=
- =?us-ascii?Q?LFirfBqsC9OKGnUz214VaV3I4Ypgn8Vy8+CBD9wZQMH0w8AP8LtIp5d7hdlv?=
- =?us-ascii?Q?FbBHz7iqsojST4buObNXlLLwrBtabftTGGdJSHOb2Y1KidAiO1LrQEpPO7O7?=
- =?us-ascii?Q?OoR5voXiVIILOTiNTTEF5/ksvmzmlFFdeKCol/PhSldt1b8evGMWzylnUW0O?=
- =?us-ascii?Q?fNb4Zm3OayPl+0Wf8ngnu8aHYN+0vtkeAJT3ZjonRKXw3FehYJqlzsz4Sc31?=
- =?us-ascii?Q?tA5MyWrDTEJrWJvedOpPltLBWWgT5t9YS5TA993SpJspM72JRPN5DG6rW3cx?=
- =?us-ascii?Q?mmzTlIoQa4dIw4u1hi42OXMESFi69FnJ5hgM+HGyaLACJvcwi7muj2qkHkRG?=
- =?us-ascii?Q?mcn+/E2vw1Mh0HE3JNInQxAv8A1QFyxTS7vFdqQNBH293ijOVCfOBMNS4FVa?=
- =?us-ascii?Q?Mx2ol8EmGIJ1PeP1PuHC6Lw+PTtMIbqi1RV+a1Dw6SMKJ6Y9qedoygOgBTmU?=
- =?us-ascii?Q?DWzSWlToB9N0lOdaKQf8L+49lV2npEgdX6X4hyzbcnepY8CT64/3q4La3VUj?=
- =?us-ascii?Q?49an7T/NmSz3s8Tcwmr81X4rfT/+tq5duoQl8QGHMVU9KRJNUDLjwknrkKDU?=
- =?us-ascii?Q?I5/ObIrpHHgtTTvBEz9jHOgJUq/jc4kqozTnT9+Ai4EhZsPlzSthAulvFUn1?=
- =?us-ascii?Q?jbymjE7XiV+YAfanCL8bUjf2+t7RzGkCMVh9gQc2DG1DISv+icK8pyVu4vp9?=
- =?us-ascii?Q?2YFjLYQkQ9srv6oQGN3YNiRgEh21CgbFCTe/q3X8a1XdLf4XEyzH2WLhtlRh?=
- =?us-ascii?Q?oW+dLCexdsexCsERHIPvMVL3pP/H6bAHLrSgb8j77BlQ36yP1n0JTKRanveT?=
- =?us-ascii?Q?1d+R4Kn1idRMvMUJOnG32G87a1TtFu77lmVhMtXlTJFkCb5fPBoUqu9uiJ2+?=
- =?us-ascii?Q?08ac0t8saqtuMlG4Cyukgh/QG7iu?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?OZ/nGCJS+OiY0dJ0Z4sv1swguGaN7HmzcDQkmDSWCsJ/Wtvz6CEYNWYxuySL?=
- =?us-ascii?Q?MiXAEdw6EjfC5hoBPdA2I0xfw+0a92uly6i0A/AVGZr0kuUO+ra715eO0hBm?=
- =?us-ascii?Q?5e/drPfGwuVyn0XwWcjTL9tjFslyTcTrnVWTp6LV9K281XyLArJsr4wxBPIm?=
- =?us-ascii?Q?ygbhlG+ADzGs3g2HYniNqqULHuJWa7HZhmCgs7+yeI9r9p0XJ+KVd6nOj+Sv?=
- =?us-ascii?Q?0XylJXdJnp9JYkQVhM1Yph2W1jBdq/B4fCwfYGaKOy3v31DVcujtCbHMRWXn?=
- =?us-ascii?Q?ydQ77HJyBFl1EbCgojtk57lMFFMepT5QRtj+I0sUhlvUy265x581kgzBSZsy?=
- =?us-ascii?Q?U8tKuvRsvGVEw8lbMVeol2sB/ndzM7t4LKwUQxVFK1oNTLvHRnyZRSHvTp0C?=
- =?us-ascii?Q?HXcIesrqqBDpX5I11LGajUXaK86ZxTZSWc6jViY/NIKjnvbCBeYDMWk1tDvG?=
- =?us-ascii?Q?q3+q7l+2blb/QKLhSAk8c70zySM47Mt8wioHZ6uUlal4imK9EQO7nnez0WQg?=
- =?us-ascii?Q?iqC0fQ/OiE3XSrEYkbt+ANuHotEqER8xsiBVUteZ4mLbpxsGU2Lfb4uEEyR+?=
- =?us-ascii?Q?eUpdfDqYWDBMCRSarSe37Jcx2uIrUxSvLt/xn3hXnGVCJEVxdGKc13Nzlay0?=
- =?us-ascii?Q?oNNq25k6Ab9FyEqyk/NnrWcw9Risg25JJm3tgEKdeFNIeLorfRvwLxk9DYKM?=
- =?us-ascii?Q?bNlceuAr1p3Ppre8tySWPXRiy3wIa7wcqhYpwIiOzr1A8h89xwxDPZ4Et7R4?=
- =?us-ascii?Q?rBQvHicwqFdG0Db4wPj5eSFEkeHmx99VRb2vfsOT6SIqE2DT9RGKZ22l7Gtr?=
- =?us-ascii?Q?EKozoMpLdMcJE5zjAY7+n+1BRI6nIap8A09PYUMBnWIz9mXRVtPkQukCCgLL?=
- =?us-ascii?Q?+VTGfi2NYjI3Hl58j7UIdWsZNVVK01enSEKMb5b+Wu+vjMW729XCQxyrlpqU?=
- =?us-ascii?Q?nU3gvB7mgXFIdSE1Yt7C5MDZfFpj30y6dkitPHUf/ZARe1PB2KbbrIyn+vD9?=
- =?us-ascii?Q?CyFrnmv5SrRur8Yy8z+dvp6cvFUsphrhuLHFEbEwnQYjecHKAald1FsLYGH2?=
- =?us-ascii?Q?fx0TfAA6ZdK1/ItbgCPRrgyddUeqGtv8eoGgmHPv5P6CDZZbiMqyvmCmXPna?=
- =?us-ascii?Q?/QPWMY0feRAuq7U84xN1a+ek+tqZutSUSYyEpJJBLrpOFm7IoIeV2YrdeeEa?=
- =?us-ascii?Q?TB5FwKBx9dvg9/rTgDIrJA771xVx0RrUCMfgRm3gF3ESoNxDh3tUUuhp3EjL?=
- =?us-ascii?Q?I94TNnYZ2iNDmSj0wVc4P5zP0aAYAtRqgv3W496HnHfPbK13BUzPVGUiaGeJ?=
- =?us-ascii?Q?fakvYCF278EBJYf2b6FGn9rEkq0y5SINkW5mh9eeGOQPyM4UOSv16ewwbIHJ?=
- =?us-ascii?Q?WuHPZXONrRMD+68ToqdzOcVeMIdcjBWTfKVsc5Qq2qGGw0foxCi/H5RHS4Rh?=
- =?us-ascii?Q?fLFrdBL05ZZA9/zQIsKiKepOB+WPNjeB/KhW3gAXOeOy/Qd6s6rj5cmUGRkV?=
- =?us-ascii?Q?ycA29QHKrcMIG+kbBTXLxQDIqlv0g8+RDLACK2bdnl/B15U+5US1fx7OWGGq?=
- =?us-ascii?Q?HU78wNwq7GRPA9GW8Fk=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a2b0fac8-d4a5-4ba7-fce9-08dcf778850a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Oct 2024 17:46:57.9735
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: fDhARjwHuwc9bMMrSB3ZLnaxZkoiBuzykLV8kBTAZ21G/ujuxF8j4ulQyVXkqIwVoEJqt2w18GEZ3dwJwy7EMg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4244
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+On Sun, 27 Oct 2024 12:07:44 +0200
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-> From: Alex Williamson <alex.williamson@redhat.com>
-> Sent: Monday, October 28, 2024 10:24 PM
->=20
-> On Mon, 28 Oct 2024 13:23:54 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
->=20
-> > On Mon, Oct 28, 2024 at 10:13:48AM -0600, Alex Williamson wrote:
-> >
-> > > If the virtio spec doesn't support partial contexts, what makes it
-> > > beneficial here?
-> >
-> > It stil lets the receiver 'warm up', like allocating memory and
-> > approximately sizing things.
-> >
-> > > If it is beneficial, why is it beneficial to send initial data more t=
-han
-> > > once?
-> >
-> > I guess because it is allowed to change and the benefit is highest
-> > when the pre copy data closely matches the final data..
->=20
-> It would be useful to see actual data here.  For instance, what is the la=
-tency
-> advantage to allocating anything in the warm-up and what's the probabilit=
-y
-> that allocation is simply refreshed versus starting over?
->=20
+> This series enhances the vfio-virtio driver to support live migration
+> for virtio-net Virtual Functions (VFs) that are migration-capable.
 
-Allocating everything during the warm-up phase, compared to no allocation, =
-reduced the total VM downtime from 439 ms to 128 ms.
-This was tested using two PCI VF hardware devices per VM.
+What's the status of making virtio-net VFs in QEMU migration capable?
 
-The benefit comes from the device state staying mostly the same.
+There would be some obvious benefits for the vfio migration ecosystem
+if we could validate migration of a functional device (ie. not mtty) in
+an L2 guest with no physical hardware dependencies.  Thanks,
 
-We tested with different configurations from 1 to 4 devices per VM, varied =
-with vcpus and memory.
-Also, more detailed test results are captured in Figure-2 on page 6 at [1].
+Alex
 
-The commit log for patch-7 should have captured the perf summary table for =
-the value of the 7th patch.
-
-Yishai,
-If you are planning to send next revision, please add it.
-
-> Re-sending the initial data up to some arbitrary cap sounds more like we'=
-re
-> making a policy decision in the driver to consume more migration bandwidt=
-h
-> for some unknown latency trade-off at stop-copy.  I wonder if that advant=
-age
-> disappears if the pre-copy data is at all stale relative to the current d=
-evice
-> state.  Thanks,
->=20
-
-You're right. If the pre-copy data differs significantly from the current d=
-evice state, the benefits might be lost.
-However, this can also depend on the device's design. A more advanced devic=
-e could apply a low-pass filter to avoid unnecessary refreshes.
-
-> Alex
-
-[1] https://netdevconf.info/0x18/docs/netdev-0x18-paper22-talk-paper.pdf
