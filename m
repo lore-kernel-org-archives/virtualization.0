@@ -1,90 +1,65 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C708206E98
-	for <virtualization@lists.linux.dev>; Tue, 29 Oct 2024 14:39:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0AA92AE7F
+	for <virtualization@lists.linux.dev>; Tue, 29 Oct 2024 14:50:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730212781; cv=none; b=KP5YBJxhwXXgTWPf/aOFoqICXCl50RtmRlzyBCMZqlXg+1xIjQpM23yxRU4dC+3tCoVm0V2KZxRkJ81jFsTcr1U4QW+xVOHOAUTuBhX5zSGJFLJHasdy8D8Bt+Tixi6pPmInooRXSMTqIGMIpdUlt6yXt6WYA9UvV9teHwT1wlY=
+	t=1730213404; cv=none; b=Yq6vv1Q82FfQ9iQXyDVZUx76fpqEjhfK4MLjiPoBsvqyczOiHxLnw3+k5CD3qNdVEYH7wFiolHS05FM5tcjzNwdYY6Dz+zkNGMU/gm+asq7g1GfyzRf1S46o+s3K7Nx9AJc8oP3lSHdywBrSqb1kLpNRy5f3RKknh4YTaikvGi0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730212781; c=relaxed/simple;
-	bh=xWOHK/rR+Ha2AyHGLoPIgn1J/6XYc2UsPmB4Hd8QAFI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ChW116kUnWBKjlk/NQUjudPWuOp0ZvT/07OngTmoIMxlo2PEPIful6tCetFxRPmtIzR2keHt75fVKoADSozzMT2ZyRMvRVBp0cW2FI0ta3bk7QTO7hd9N3/djOEJjUidGTxpfObYGaR5KVs2QPCHnPeUNLjN7gEncIHN7Mr4Vx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tQIxGhXw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=AwH2Lf7j; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tQIxGhXw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=AwH2Lf7j; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1730213404; c=relaxed/simple;
+	bh=2k4cNoC0Yt3oGGSTj+0MFs58TqVQZupKEkfrWb3TrZI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=JGH/YF0CtVOwSP05dDgiB5sCQEKsu6HVfljudBA9KbDRQ4suxdK931Zzc+uet9BcYmPOfAl46kwAn69ClV9HuK/LqCJ1d6psYfoaoboMVADqRRAC2zXWgpWr9jWT8Yi+JNF74cx8YvyLEiKf9apuc0IhyJh+U1udt9QDoDFyrjE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CYbIgjsG; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tQIxGhXw";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="AwH2Lf7j";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tQIxGhXw";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="AwH2Lf7j"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 1B90B21DDB;
-	Tue, 29 Oct 2024 14:39:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1730212776; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qSKbhgth91NRXcWkfjmNyr0PKQIfXJamt7p3UcfKghc=;
-	b=tQIxGhXwB8B5gqj6tUFbasqCMA+zrVby/FbzNb+0aK/tRAYlBeB4e9sPqlhqtphGDczuA+
-	VhtRxUp1sLAwHFJQyatwJvoRWCPgbd/CP0XcZTIM/6zL2qdU5s/FZawwkgUmDdkZuXyOTN
-	8mW665yhAjChdS/ZMOvnupl9vd7WeJY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1730212776;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qSKbhgth91NRXcWkfjmNyr0PKQIfXJamt7p3UcfKghc=;
-	b=AwH2Lf7jC+gTn6POhunQrIp5JjF/sVb55P65X4NaQ4+AuIPLiIV1U7jdA0o0bWG1nTiR7K
-	PxCgVVgWvky9waDw==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1730212776; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qSKbhgth91NRXcWkfjmNyr0PKQIfXJamt7p3UcfKghc=;
-	b=tQIxGhXwB8B5gqj6tUFbasqCMA+zrVby/FbzNb+0aK/tRAYlBeB4e9sPqlhqtphGDczuA+
-	VhtRxUp1sLAwHFJQyatwJvoRWCPgbd/CP0XcZTIM/6zL2qdU5s/FZawwkgUmDdkZuXyOTN
-	8mW665yhAjChdS/ZMOvnupl9vd7WeJY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1730212776;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qSKbhgth91NRXcWkfjmNyr0PKQIfXJamt7p3UcfKghc=;
-	b=AwH2Lf7jC+gTn6POhunQrIp5JjF/sVb55P65X4NaQ4+AuIPLiIV1U7jdA0o0bWG1nTiR7K
-	PxCgVVgWvky9waDw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E1487136A5;
-	Tue, 29 Oct 2024 14:39:35 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 6PG4NafzIGd/AwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 29 Oct 2024 14:39:35 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: airlied@redhat.com,
-	kraxel@redhat.com
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 2/2] drm/cirrus: Rename to cirrus-qemu
-Date: Tue, 29 Oct 2024 15:34:24 +0100
-Message-ID: <20241029143928.208349-3-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20241029143928.208349-1-tzimmermann@suse.de>
-References: <20241029143928.208349-1-tzimmermann@suse.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CYbIgjsG"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49TCEx5O020847;
+	Tue, 29 Oct 2024 14:49:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=LGK46D4yZoUGlWOLYSoeV90M1yByksROdFffs258M
+	Q8=; b=CYbIgjsGMomX3h5pErjzD1cu92vxjukQ0Q76HJa3OZyd4D2JW8IScZ5uh
+	zPaXlI+T8TUisTZTVI1XsT9AsEGTA0r1h6nC1rXwBZ5wERCSTPe9JJidUYO/uFKE
+	zCtk7b5aHP5dP2DcASFPmNQXIRzau4wAks2XPgtw9jhKOjktiaGiooFNvjRZj3wH
+	Z3yYX+WawyzoAjbU74I38Q84JYLqXIYQg2DGu1Z7jy4xmLzn7ogHIC8ACS91IPB4
+	7n34afT/oSF4PMvBNWNgYknjUoxOekBLAffTPlr/HqDn0hcJqOBbdLegh9QdY6Z7
+	B3ydS4gTGmVJU9KHBh6NOxS8I73UQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42jyhbgpns-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 29 Oct 2024 14:49:59 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49TDSIpo028193;
+	Tue, 29 Oct 2024 14:49:59 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hb4xuk92-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 29 Oct 2024 14:49:59 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49TEnv5544499328
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 29 Oct 2024 14:49:57 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 84F4258062;
+	Tue, 29 Oct 2024 14:49:57 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4EA4658058;
+	Tue, 29 Oct 2024 14:49:57 +0000 (GMT)
+Received: from WIN-DU0DFC9G5VV.austin.ibm.com (unknown [9.41.105.143])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 29 Oct 2024 14:49:57 +0000 (GMT)
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+To: sgarzare@redhat.com
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+Subject: [PATCH v4 0/2] vsock/test: fix wrong setsockopt() parameters
+Date: Tue, 29 Oct 2024 09:49:52 -0500
+Message-Id: <20241029144954.285279-1-kshk@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -92,84 +67,43 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -6.80
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[5];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Level: 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VzJyLPUuHR2m0CDfgw2UWRbZ0X2H0lwo
+X-Proofpoint-ORIG-GUID: VzJyLPUuHR2m0CDfgw2UWRbZ0X2H0lwo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ malwarescore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 phishscore=0 impostorscore=0 mlxlogscore=751 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410290110
 
-This driver is only for Qemu's emulated Cirrus hardware. Name it
-accordingly.
+Parameters were created using wrong C types, which caused them to be of
+wrong size on some architectures, causing problems.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- MAINTAINERS                                      | 2 +-
- drivers/gpu/drm/tiny/Makefile                    | 2 +-
- drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
- rename drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} (99%)
+The problem with SO_RCVLOWAT was found on s390 (big endian), while x86-64
+didn't show it. After the fix, all tests pass on s390.
+Then Stefano Garzarella pointed out that SO_VM_SOCKETS_* calls might have
+a similar problem, which turned out to be true, hence, the second patch.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index ccf87fa14cf7..33ba56fe322c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7312,7 +7312,7 @@ L:	virtualization@lists.linux.dev
- S:	Obsolete
- W:	https://www.kraxel.org/blog/2014/10/qemu-using-cirrus-considered-harmful/
- T:	git https://gitlab.freedesktop.org/drm/misc/kernel.git
--F:	drivers/gpu/drm/tiny/cirrus.c
-+F:	drivers/gpu/drm/tiny/cirrus-qemu.c
- 
- DRM DRIVER FOR QXL VIRTUAL GPU
- M:	Dave Airlie <airlied@redhat.com>
-diff --git a/drivers/gpu/drm/tiny/Makefile b/drivers/gpu/drm/tiny/Makefile
-index 4aaf56f8707d..60816d2eb4ff 100644
---- a/drivers/gpu/drm/tiny/Makefile
-+++ b/drivers/gpu/drm/tiny/Makefile
-@@ -2,7 +2,7 @@
- 
- obj-$(CONFIG_DRM_ARCPGU)		+= arcpgu.o
- obj-$(CONFIG_DRM_BOCHS)			+= bochs.o
--obj-$(CONFIG_DRM_CIRRUS_QEMU)		+= cirrus.o
-+obj-$(CONFIG_DRM_CIRRUS_QEMU)		+= cirrus-qemu.o
- obj-$(CONFIG_DRM_GM12U320)		+= gm12u320.o
- obj-$(CONFIG_DRM_OFDRM)			+= ofdrm.o
- obj-$(CONFIG_DRM_PANEL_MIPI_DBI)	+= panel-mipi-dbi.o
-diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
-similarity index 99%
-rename from drivers/gpu/drm/tiny/cirrus.c
-rename to drivers/gpu/drm/tiny/cirrus-qemu.c
-index 0231bdf94b8a..eaae559dc431 100644
---- a/drivers/gpu/drm/tiny/cirrus.c
-+++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
-@@ -46,7 +46,7 @@
- #include <drm/drm_module.h>
- #include <drm/drm_probe_helper.h>
- 
--#define DRIVER_NAME "cirrus"
-+#define DRIVER_NAME "cirrus-qemu"
- #define DRIVER_DESC "qemu cirrus vga"
- #define DRIVER_DATE "2019"
- #define DRIVER_MAJOR 2
+Changes for v4:
+- add "Reviewed-by:" to the first patch, and add a second patch fixing
+SO_VM_SOCKETS_* calls, which depends on the first one (hence, it's now
+a patch series.)
+Changes for v3:
+- fix the same problem in vsock_perf and update commit message
+Changes for v2:
+- add "Fixes:" lines to the commit message
+
+Konstantin Shkolnyy (2):
+  vsock/test: fix failures due to wrong SO_RCVLOWAT parameter
+  vsock/test: fix parameter types in SO_VM_SOCKETS_* calls
+
+ tools/testing/vsock/vsock_perf.c |  8 ++++----
+ tools/testing/vsock/vsock_test.c | 23 ++++++++++++++++-------
+ 2 files changed, 20 insertions(+), 11 deletions(-)
+
 -- 
-2.46.0
+2.34.1
 
