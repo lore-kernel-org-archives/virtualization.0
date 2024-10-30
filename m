@@ -1,65 +1,65 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D33E0192D79
-	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 09:24:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F18C54BD4
+	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 09:30:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730280294; cv=none; b=itVhWNc8aKja49ragXY3qYXE1/i5offjBXAA6UErucGYaG7tb9/JwcrZVS7OtAc7K+OTC3w7Dtz6XbREf+s5+EOpLMYlWvnAPSq9EAVImj3+HXd2nm0UW+IRYsEyrTmBFQLpW/PHJWAIvoBloPZksvol+FETWfFs8q8dS5JJqLs=
+	t=1730280637; cv=none; b=hEHmHZT+S97uAMORqu9FQMzNfX6T0rzErcdvNHOYugKknbt/woAQesQ8Jv5A5WKXwlD/3JT5ZPCq2WiqetOTDBG+c0JxlVAuu+CV65wq+21PVbOZL2rwccmwrCAYI8LN8PhnMyC3Vqk/0mZ0g8M1nj2t3mc9yC6O6r3pPyUiRDA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730280294; c=relaxed/simple;
-	bh=PsMyFeg6/U0b2+gD623nmXACdY70+h3lkmnj3WrdUUs=;
+	s=arc-20240116; t=1730280637; c=relaxed/simple;
+	bh=E8XocLVaBm4vpPCQMIH8vrzt3TugyPkWTEMWKAAVU7I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JX+SQqeE44UtH63ZrDuQCe8o0sbNq5AxFDrveL2q735FPHHtG9EG9/tvg6C9mxNvKQxMQegfbIysmucWWdAZiFvwGdQK9rsid+GR2WLn0ob9nAnU6NKknOg0zZ3RGSuljubyKFRpKEJ+cPNkLMp/vTRYOHrP6Caq9wk2V05cKDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EyZLJpl9; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZTXZ0qw66Sv+NFAeJzOkP2u6O/aA24oEhsXfKqWPvJlSAji8R0Htcy/xP6n6fzUc8OEPaGFGBUIBp8HM3F0E2lOZVOmoTo7Hyu/GAouZfPP0QksJH4WXQ0bszVfoexNhT/kt1IiPAIwC1q+WK7GCIyDDK43IHImotZiqvAqf48U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SKauxu8J; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EyZLJpl9"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SKauxu8J"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49U2d2SO003165;
-	Wed, 30 Oct 2024 09:24:48 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49U2d4GX003254;
+	Wed, 30 Oct 2024 09:30:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=ohlJFpPJgUYvXIuurbOsvgXkgiWtRk
-	SjKlQbI1R20O0=; b=EyZLJpl9QwWL/QRyQeIwpXbX2xfFA5lFkfq3AZWz9zZ0zg
-	RTvKkCpCggMM3DSgSM5ziAY5de2EASoS5DQcs0U+D5ciEKLJ9teaXIVq+xwYnnsW
-	m6bnWAptp8r3OI0+eBM4nDTeS2V71FMOJeO6LTZXXgdoZRkUs6728DOMKloMlX+w
-	xmjv/uR/6OMNq+PahBoHGFrpsUcR5hSBN5a/DR4wTrvdlgWmMv8ZCDiOpfFvlB/x
-	xd/QmFC/sgiKfznA/ano8te606UHTtUXv3iIVttmond4C9xOz5TGdkRjLmOIf4/e
-	O169NfvE/HewhXIjVxhkya0+l/ccvtM6pdq1KUBw==
+	:references:subject:to; s=pp1; bh=ynyclhhbgRfDHStF+YBUgdBncEbAoS
+	gsFp83z+7rLMA=; b=SKauxu8J6NwxObko2XflkjLEsNLzMCaRu7csK7NZ+Z1x2W
+	QjGquG5vhbqdeCZrJpqPezewGPkds+IaDgY5Uu/LvSHhlbU+dhVQozYZOneNzBWE
+	NyPsdsl8mwe2fhD6x9sjlbZ66f/jvXocWEBoQs+qmfKVlNPbTM7dlI1tEltPPkm0
+	C9pgPsvOKPTUNWOL2K7MoVEjiumFT+uVU4y4CKvE8GPhrFjPlWH992+Gp3DwIk0E
+	5ua/pUC4VEqWviIWpJLjpfInJ5c0a8gi0bzKQ9ub0dOZdfoXhSsQLq+qdBCjYNHv
+	ro9vmu5fMumyb/95+hUC5Yank7AIysKYFXMdkk/Q==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nsx97f-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nsxa4b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 09:24:47 +0000 (GMT)
+	Wed, 30 Oct 2024 09:30:29 +0000 (GMT)
 Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49U9OlDM017220;
-	Wed, 30 Oct 2024 09:24:47 GMT
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49U9UTxt027922;
+	Wed, 30 Oct 2024 09:30:29 GMT
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nsx979-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nsxa42-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 09:24:47 +0000 (GMT)
+	Wed, 30 Oct 2024 09:30:29 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49U7kAo5013506;
-	Wed, 30 Oct 2024 09:24:45 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hbrmybsg-1
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49U77mvw013589;
+	Wed, 30 Oct 2024 09:30:27 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hbrmyc9r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 09:24:45 +0000
+	Wed, 30 Oct 2024 09:30:27 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49U9Og0w55902590
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49U9UONX32899720
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 30 Oct 2024 09:24:42 GMT
+	Wed, 30 Oct 2024 09:30:24 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0DDD82004B;
-	Wed, 30 Oct 2024 09:24:42 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E18CF20043;
+	Wed, 30 Oct 2024 09:30:23 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 25E2420040;
-	Wed, 30 Oct 2024 09:24:39 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2FA7420040;
+	Wed, 30 Oct 2024 09:30:21 +0000 (GMT)
 Received: from osiris (unknown [9.152.212.60])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 30 Oct 2024 09:24:39 +0000 (GMT)
-Date: Wed, 30 Oct 2024 10:24:36 +0100
+	Wed, 30 Oct 2024 09:30:21 +0000 (GMT)
+Date: Wed, 30 Oct 2024 10:30:17 +0100
 From: Heiko Carstens <hca@linux.ibm.com>
 To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -78,11 +78,12 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
         Eric Farman <farman@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-Subject: Re: [PATCH v3 4/7] virtio-mem: s390 support
-Message-ID: <20241030092436.6264-F-hca@linux.ibm.com>
+        Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v3 7/7] s390/sparsemem: provide
+ memory_add_physaddr_to_nid() with CONFIG_NUMA
+Message-ID: <20241030093017.6264-G-hca@linux.ibm.com>
 References: <20241025141453.1210600-1-david@redhat.com>
- <20241025141453.1210600-5-david@redhat.com>
+ <20241025141453.1210600-8-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -91,29 +92,59 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241025141453.1210600-5-david@redhat.com>
+In-Reply-To: <20241025141453.1210600-8-david@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WS_zGOBJrHz8SogXKaAacCCgWcwYITJ_
-X-Proofpoint-GUID: p4PFsiyfxJufSPBaNiEv4h9-crDaOym7
+X-Proofpoint-ORIG-GUID: KANImo9SxKQni0nP7uMhU3bAxJm1G1xZ
+X-Proofpoint-GUID: h1PsrlS2Uz19eKGx8RjTRA0zXxFEnG3d
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- bulkscore=0 mlxlogscore=642 clxscore=1015 priorityscore=1501
+ bulkscore=0 mlxlogscore=758 clxscore=1015 priorityscore=1501
  suspectscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0
  malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2409260000 definitions=main-2410300072
 
-On Fri, Oct 25, 2024 at 04:14:49PM +0200, David Hildenbrand wrote:
-> Now that s390 code is prepared for memory devices that reside above the
-> maximum storage increment exposed through SCLP, everything is in place
-> to unlock virtio-mem support.
-...
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Tested-by: Mario Casquero <mcasquer@redhat.com>
+On Fri, Oct 25, 2024 at 04:14:52PM +0200, David Hildenbrand wrote:
+> virtio-mem uses memory_add_physaddr_to_nid() to determine the NID to use
+> for memory it adds.
+> 
+> We currently fallback to the dummy implementation in mm/numa.c with
+> CONFIG_NUMA, which will end up triggering an undesired pr_info_once():
+> 
+> 	Unknown online node for memory at 0x100000000, assuming node 0
+> 
+> On s390, we map all cpus and memory to node 0, so let's add a simple
+> memory_add_physaddr_to_nid() implementation that does exactly that,
+> but without complaining.
+> 
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
->  drivers/virtio/Kconfig | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+>  arch/s390/include/asm/sparsemem.h | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+...
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> diff --git a/arch/s390/include/asm/sparsemem.h b/arch/s390/include/asm/sparsemem.h
+> index ff628c50afac..6377b7ea8a40 100644
+> --- a/arch/s390/include/asm/sparsemem.h
+> +++ b/arch/s390/include/asm/sparsemem.h
+> @@ -5,4 +5,12 @@
+>  #define SECTION_SIZE_BITS	27
+>  #define MAX_PHYSMEM_BITS	CONFIG_MAX_PHYSMEM_BITS
+>  
+> +#ifdef CONFIG_NUMA
+> +static inline int memory_add_physaddr_to_nid(u64 addr)
+> +{
+> +	return 0;
+> +}
+> +#define memory_add_physaddr_to_nid memory_add_physaddr_to_nid
+> +#endif /* CONFIG_NUMA */
+> +
+
+We would need to have the same for phys_to_target_node(), even though
+it looks like this won't be used on s390 currently.
+
+Anyway, I'll add that, if I don't forget about it :)
+
+For this patch:
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
