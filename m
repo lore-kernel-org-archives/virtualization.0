@@ -1,88 +1,122 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA8381E3DC9
-	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 08:25:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4985194A73
+	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 09:18:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730276717; cv=none; b=fcw5iwQiJPfF0f154oUDQz8sbT41gdy/iUv63TqiLco9d6kuQDsCQSn4PRi5mgT3NZI8qx21ooTT7FzeKkbkP84f+XCZ86ugydXIcT8n/v4hznt2EvsYzlhcRuleLQnwiYKFE+qLSIyxLOE8USlEdyq7fkfZrAX5xs047yWnJH4=
+	t=1730279906; cv=none; b=FRF26aKZuVTd7xHJUdBSs+2KocEmXKd4bOLE6875X/CmeQ7MAkzIEXpXQwT4EvNUg2u8PEMRG1SyUUf8BgocHNOOggzJ/BJxyUAVJcnQVmT5cKs+gdb3qOsvT8mpE4vpdd99N1gVR0Bqo5mY/3GHK81Qh8hlmFaDjfKedWgCnnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730276717; c=relaxed/simple;
-	bh=suz4/wIUjvCp2KxBQ9i/vB6ENzm2A0f6k0//N6jEHF8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=FYNsk5UfLF9zG+lPp4A1LtqKoRK3qDqoY+CA9jkbsAvlKZWhLks4Q0IiyqKWd72BSH4ph8hWHeodlzlMJ5WeICqSHVGo18gRT/nL/jOZ9Zu1ism3K57/aofMlHy0lDpuYeMKL/hC0M8BkGEeESFeMBLpDdt1Z/+kSAb4X+doseo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=PRIkdCcm; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1730279906; c=relaxed/simple;
+	bh=mrzUihUwK1kLG+bYYOGkwULFloc6lD3FUZNPd5rYjSk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nBH6UfGDOa4mfrVkQLnRG6xRr74OEvqC2Uwiaii8Zz57IEUepQ2iz+6PJknW91TjqGwnUbfTM5IgL/DTuLNOKy2xdC0wz31Ayb8TVm54krzUKuwWIXAtWfqMSHz6LUxfSorQ+2USys3gD5FARkp2/NrXOIIBtGYnClnmbkC7PrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jj/uDHjk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="PRIkdCcm"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730276706; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=cOdJ5apOhrU/PhlRyQA/lMXJqnGIVbREsBpXXR0lajI=;
-	b=PRIkdCcmQocY6uF3SuNW5dBOn7tjXZ+fXy2g7oS/EoHRm4YQTin4Yql/zlQ0IIR3RrlUiPvzpVskfo28MvqpcbpOWKsRW8ti2i4fTjURriadau4sM3dxrRMFQa+f8Cay400Seggeq6Pere9iWcvghq+Ixg3Qg02TSQ4CEHjvNmw=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIDKNMO_1730276705 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 30 Oct 2024 16:25:06 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next v2 12/13] virtio_net: update tx timeout record
-Date: Wed, 30 Oct 2024 16:24:52 +0800
-Message-Id: <20241030082453.97310-13-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
-References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jj/uDHjk"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49U2d3BX003176;
+	Wed, 30 Oct 2024 09:18:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=jqu18WWYA7mw0ZGNsF1kdxCvtmyRwS
+	c6a2CbR1IFlB8=; b=jj/uDHjkkjLhSmhyTR5vc1Q3am/xkkBWxLTUI+Pup5Fe8V
+	WCsIq5eb6poelcJKbph8X+6byZTLeomNpyjmmx03Oroc/a4xEFD6d7JOZ13roQR0
+	Ni20wPPskTGGXGhiMYyDxGOSxqhRZ4cKAx/XhqiWKiuYjBIC2JGYcPe2ILVV0gDK
+	mb7gNAvF1SdJ+M9Fcvr3YejR3izwRI2ff9YFVvMxbJAoZTLcDnw4Aq/PvQD5FqO5
+	tJl6fZ9zj559VGoL9xWwq48oNDigLdr6OIKZGUf82JyFFP73nJ20bpsodAFr9aol
+	XzFiHn8DvyYrl4wlIQSXdqq5piMTxj4IzLDCtkKQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nsx8ee-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Oct 2024 09:18:18 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49U9IHCM006146;
+	Wed, 30 Oct 2024 09:18:17 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42j3nsx8ec-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Oct 2024 09:18:17 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49U7pooi018404;
+	Wed, 30 Oct 2024 09:18:16 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hc8k78y6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Oct 2024 09:18:16 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49U9ICFd31588748
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 30 Oct 2024 09:18:12 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8236320043;
+	Wed, 30 Oct 2024 09:18:12 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E764620040;
+	Wed, 30 Oct 2024 09:18:09 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 30 Oct 2024 09:18:09 +0000 (GMT)
+Date: Wed, 30 Oct 2024 10:18:07 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v3 1/7] Documentation: s390-diag.rst: make diag500 a
+ generic KVM hypercall
+Message-ID: <20241030091807.6264-C-hca@linux.ibm.com>
+References: <20241025141453.1210600-1-david@redhat.com>
+ <20241025141453.1210600-2-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 87bfcb32ef14
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241025141453.1210600-2-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: xbg5UVAt4jfMY0OkVx_kJRYkSZy8lNGS
+X-Proofpoint-GUID: ANSw34wLFtb4MLTfjsXS-gU2XHH8XCJ_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ bulkscore=0 mlxlogscore=440 clxscore=1015 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2410300072
 
-If send queue sent some packets, we update the tx timeout
-record to prevent the tx timeout.
+On Fri, Oct 25, 2024 at 04:14:46PM +0200, David Hildenbrand wrote:
+> Let's make it a generic KVM hypercall, allowing other subfunctions to
+> be more independent of virtio.
+> 
+> While at it, document that unsupported/unimplemented subfunctions result
+> in a SPECIFICATION exception.
+> 
+> This is a preparation for documenting a new hypercall.
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  Documentation/virt/kvm/s390/s390-diag.rst | 18 +++++++++++-------
+>  1 file changed, 11 insertions(+), 7 deletions(-)
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4d00d73d8088..091e3ed0cafa 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1490,6 +1490,13 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
- 		check_sq_full_and_disable(vi, vi->dev, sq);
- 
-+	if (sent) {
-+		struct netdev_queue *txq;
-+
-+		txq = netdev_get_tx_queue(vi->dev, sq - vi->sq);
-+		txq_trans_cond_update(txq);
-+	}
-+
- 	u64_stats_update_begin(&sq->stats.syncp);
- 	u64_stats_add(&sq->stats.packets, stats.packets);
- 	u64_stats_add(&sq->stats.bytes,   stats.bytes);
--- 
-2.32.0.3.g01195cf9f
-
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
