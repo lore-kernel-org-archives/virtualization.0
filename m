@@ -1,28 +1,29 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 159091E0DE6
-	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 08:25:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65EFB1DFE16
+	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 08:24:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730276704; cv=none; b=Heg+uj4ErbmS0A/IjVYJ3AXjlMSEdc74vVHhyDgv8P9zAS+0WB0aUBqg2t2NPnPw6mjeqjHuS+LduCrlOFiykuWuxTGLixVBXC5TYKaoADP7YKWwSXWg41lGuMrCGCfN+9uxL09EdsdzSFZnC0AVNCj2vwi/Y8zcWY9UVLmwK+A=
+	t=1730276704; cv=none; b=i3wKXAb4oLQXQ/VrtNqUQlwyFWtAeU9yFo1bt2FXq2vv7q2qJrcAr9gd3VLDBpOl+cIpqCiVDuuLB7erZMOkcwIewm3sVLAYd92zkMoMKBSk39kzTX3ywEBaH/+hBLsWZlz9hN3vsXC9YQGY5/bh9qzMbUTRv5Ww2jjgZSM9QYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1730276704; c=relaxed/simple;
-	bh=MMRebhkiS3gvjjVdCqGx3cxAqPw5rppT+QPN6VbHzH4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mtmkdukOGa0XQl4s2ANU6HoIv92liHsmfQnHwAHECUCNU1ZjdA4vvJBppLYWJqE7BqavDeOD/PiRGVSMPEU10B8m+yIybBcq/KOfbMo5O3WWCH/OdsEU0vCKAk7ClsEhYH0rw+IqVZvu0UKdECKpUAWZBUur+wFSxmTP0RWy6UQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=heqCHfMn; arc=none smtp.client-ip=115.124.30.111
+	bh=yiWFLPRChRXd7Q4pJpOR5MrAcXzX12eN9ejG+nlNCDA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=mUKvQcSbraFS8RFz7Pz6YMmHL44PK1ejH4MVQPZ61zKId9Xn0oVA/QH5wdSM5pMtEo1fqdqcb5fky9GTNXh9ifpxgCkRAYnD/0x8ncOvfnyrZeKECZyP1Q7JiWC1qgux4Jnd8ld3SiQ8Xx5H43JcUCZjblYRvqbeREaYsOVXOGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=lBTkRdiB; arc=none smtp.client-ip=115.124.30.97
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="heqCHfMn"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="lBTkRdiB"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1730276694; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=+Y/Qt8yoXhM0KLjZGcz9qLSogD/6Ml4nCyD3lSBQsJw=;
-	b=heqCHfMntSRAr4cJRe0yfu8ydZe6SkdCpfRmBZgPvg/pLFPyJVrd0555eDcQOufI7o6UxT9n0IJCczuzAO4yMnigSv8pWAv+boXlsVrkpLJqPHRPH6Aaor0p8ORzEtuht2Ppf8tUCSghLb09LsCDgehyoqOGwmAO/K18kDYSRJs=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIDHQMJ_1730276693 cluster:ay36)
+	t=1730276697; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=Kqz02xNRzPU1fvdYAqyV4YADTRoBkR+/+Bq7D9Gc2h4=;
+	b=lBTkRdiB3pwuyVqu/B7U/uAvLXkLAxa2nmTiiTj+EaYcQZV24imd9lx/4xmHcnczFNFpyp8x3DSkhgD4nMn6mVIFu/DN0bJOYwU54wytBRGM0Er2YcK22kx7dYUd54M1pWxpvCsiCJhQQTa/ptfAFFESvcyHKOO7n3p1cugxzu0=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIDQiyk_1730276696 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 30 Oct 2024 16:24:53 +0800
+          Wed, 30 Oct 2024 16:24:57 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -40,10 +41,12 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v2 00/13] virtio-net: support AF_XDP zero copy (tx)
-Date: Wed, 30 Oct 2024 16:24:40 +0800
-Message-Id: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v2 03/13] virtio_ring: packed: record extras for indirect buffers
+Date: Wed, 30 Oct 2024 16:24:43 +0800
+Message-Id: <20241030082453.97310-4-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
+References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,124 +56,146 @@ MIME-Version: 1.0
 X-Git-Hash: 87bfcb32ef14
 Content-Transfer-Encoding: 8bit
 
-v2:
-    1. use new api to submit premapped buffer instead of using sgs to pass this info
-    2. some small fixes for http://lore.kernel.org/all/20240924013204.13763-1-xuanzhuo@linux.alibaba.com
+The subsequent commit needs to know whether every indirect buffer is
+premapped or not. So we need to introduce an extra struct for every
+indirect buffer to record this info.
 
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/virtio/virtio_ring.c | 60 +++++++++++++++++++++---------------
+ 1 file changed, 36 insertions(+), 24 deletions(-)
 
-v1:
-    1. some small fixes for http://lore.kernel.org/all/20240820073330.9161-1-xuanzhuo@linux.alibaba.com
-        1. fix the title of the commit #2, #3
-        2. fix the gcc error for commit #3
-        3. use virtqueue_dma_xxxx for tx hdr
-        4. rename virtnet_ptr_to_xsk to virtnet_ptr_to_xsk_buff_len
-        5. squash #11 in last patch set to #10
-
-================================================================================
-
-## AF_XDP
-
-XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
-copy feature of xsk (XDP socket) needs to be supported by the driver. The
-performance of zero copy is very good. mlx5 and intel ixgbe already support
-this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
-feature.
-
-At present, we have completed some preparation:
-
-1. vq-reset (virtio spec and kernel code)
-2. virtio-core premapped dma
-3. virtio-net xdp refactor
-
-So it is time for Virtio-Net to complete the support for the XDP Socket
-Zerocopy.
-
-Virtio-net can not increase the queue num at will, so xsk shares the queue with
-kernel.
-
-This patch set includes some refactor to the virtio-net to let that to support
-AF_XDP.
-
-## About virtio premapped mode
-
-The current configuration sets the virtqueue (vq) to premapped mode,
-implying that all buffers submitted to this queue must be mapped ahead
-of time. This presents a challenge for the virtnet send queue (sq): the
-virtnet driver would be required to keep track of dma information for vq
-size * 17, which can be substantial. However, if the premapped mode were
-applied on a per-buffer basis, the complexity would be greatly reduced.
-With AF_XDP enabled, AF_XDP buffers would become premapped, while kernel
-skb buffers could remain unmapped.
-
-We can distinguish them by sg_page(sg), When sg_page(sg) is NULL, this
-indicates that the driver has performed DMA mapping in advance, allowing
-the Virtio core to directly utilize sg_dma_address(sg) without
-conducting any internal DMA mapping. Additionally, DMA unmap operations
-for this buffer will be bypassed.
-
-## performance
-
-ENV: Qemu with vhost-user(polling mode).
-Host CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
-
-### virtio PMD in guest with testpmd
-
-testpmd> show port stats all
-
- ######################## NIC statistics for port 0 ########################
- RX-packets: 19531092064 RX-missed: 0     RX-bytes: 1093741155584
- RX-errors: 0
- RX-nombuf: 0
- TX-packets: 5959955552 TX-errors: 0     TX-bytes: 371030645664
-
-
- Throughput (since last show)
- Rx-pps:   8861574     Rx-bps:  3969985208
- Tx-pps:   8861493     Tx-bps:  3969962736
- ############################################################################
-
-### AF_XDP PMD in guest with testpmd
-
-testpmd> show port stats all
-
-  ######################## NIC statistics for port 0  ########################
-  RX-packets: 68152727   RX-missed: 0          RX-bytes:  3816552712
-  RX-errors: 0
-  RX-nombuf:  0
-  TX-packets: 68114967   TX-errors: 33216      TX-bytes:  3814438152
-
-  Throughput (since last show)
-  Rx-pps:      6333196          Rx-bps:   2837272088
-  Tx-pps:      6333227          Tx-bps:   2837285936
-  ############################################################################
-
-But AF_XDP consumes more CPU for tx and rx napi(100% and 86%).
-
-Please review.
-
-Thanks.
-
-
-Xuan Zhuo (13):
-  virtio_ring: introduce vring_need_unmap_buffer
-  virtio_ring: split: record extras for indirect buffers
-  virtio_ring: packed: record extras for indirect buffers
-  virtio_ring: perform premapped operations based on per-buffer
-  virtio_ring: introduce add api for premapped
-  virtio-net: rq submits premapped per-buffer
-  virtio_ring: remove API virtqueue_set_dma_premapped
-  virtio_net: refactor the xmit type
-  virtio_net: xsk: bind/unbind xsk for tx
-  virtio_net: xsk: prevent disable tx napi
-  virtio_net: xsk: tx: support xmit xsk buffer
-  virtio_net: update tx timeout record
-  virtio_net: xdp_features add NETDEV_XDP_ACT_XSK_ZEROCOPY
-
- drivers/net/virtio_net.c     | 358 +++++++++++++++++++++++++++++------
- drivers/virtio/virtio_ring.c | 340 ++++++++++++++++-----------------
- include/linux/virtio.h       |  15 +-
- 3 files changed, 483 insertions(+), 230 deletions(-)
-
---
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index dca093744fe1..628e01af1c9a 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -78,7 +78,11 @@ struct vring_desc_state_split {
+ 
+ struct vring_desc_state_packed {
+ 	void *data;			/* Data for callback. */
+-	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
++
++	/* Indirect extra table and desc table, if any. These two will be
++	 * allocated together. So we won't stress more to the memory allocator.
++	 */
++	struct vring_packed_desc *indir_desc;
+ 	u16 num;			/* Descriptor list length. */
+ 	u16 last;			/* The last desc state in a list. */
+ };
+@@ -1238,27 +1242,12 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
+ 	}
+ }
+ 
+-static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
+-				    const struct vring_packed_desc *desc)
+-{
+-	u16 flags;
+-
+-	if (!vring_need_unmap_buffer(vq))
+-		return;
+-
+-	flags = le16_to_cpu(desc->flags);
+-
+-	dma_unmap_page(vring_dma_dev(vq),
+-		       le64_to_cpu(desc->addr),
+-		       le32_to_cpu(desc->len),
+-		       (flags & VRING_DESC_F_WRITE) ?
+-		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-}
+-
+ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
+ 						       gfp_t gfp)
+ {
++	struct vring_desc_extra *extra;
+ 	struct vring_packed_desc *desc;
++	int i, size;
+ 
+ 	/*
+ 	 * We require lowmem mappings for the descriptors because
+@@ -1267,7 +1256,16 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
+ 	 */
+ 	gfp &= ~__GFP_HIGHMEM;
+ 
+-	desc = kmalloc_array(total_sg, sizeof(struct vring_packed_desc), gfp);
++	size = (sizeof(*desc) + sizeof(*extra)) * total_sg;
++
++	desc = kmalloc(size, gfp);
++	if (!desc)
++		return NULL;
++
++	extra = (struct vring_desc_extra *)&desc[total_sg];
++
++	for (i = 0; i < total_sg; i++)
++		extra[i].next = i + 1;
+ 
+ 	return desc;
+ }
+@@ -1280,6 +1278,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 					 void *data,
+ 					 gfp_t gfp)
+ {
++	struct vring_desc_extra *extra;
+ 	struct vring_packed_desc *desc;
+ 	struct scatterlist *sg;
+ 	unsigned int i, n, err_idx;
+@@ -1291,6 +1290,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	if (!desc)
+ 		return -ENOMEM;
+ 
++	extra = (struct vring_desc_extra *)&desc[total_sg];
++
+ 	if (unlikely(vq->vq.num_free < 1)) {
+ 		pr_debug("Can't add buf len 1 - avail = 0\n");
+ 		kfree(desc);
+@@ -1312,6 +1313,13 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 						0 : VRING_DESC_F_WRITE);
+ 			desc[i].addr = cpu_to_le64(addr);
+ 			desc[i].len = cpu_to_le32(sg->length);
++
++			if (unlikely(vq->use_dma_api)) {
++				extra[i].addr = addr;
++				extra[i].len = sg->length;
++				extra[i].flags = n < out_sgs ?  0 : VRING_DESC_F_WRITE;
++			}
++
+ 			i++;
+ 		}
+ 	}
+@@ -1381,7 +1389,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	err_idx = i;
+ 
+ 	for (i = 0; i < err_idx; i++)
+-		vring_unmap_desc_packed(vq, &desc[i]);
++		vring_unmap_extra_packed(vq, &extra[i]);
+ 
+ free_desc:
+ 	kfree(desc);
+@@ -1617,7 +1625,8 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 	}
+ 
+ 	if (vq->indirect) {
+-		u32 len;
++		struct vring_desc_extra *extra;
++		u32 len, num;
+ 
+ 		/* Free the indirect table, if any, now that it's unmapped. */
+ 		desc = state->indir_desc;
+@@ -1626,9 +1635,12 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 
+ 		if (vring_need_unmap_buffer(vq)) {
+ 			len = vq->packed.desc_extra[id].len;
+-			for (i = 0; i < len / sizeof(struct vring_packed_desc);
+-					i++)
+-				vring_unmap_desc_packed(vq, &desc[i]);
++			num = len / sizeof(struct vring_packed_desc);
++
++			extra = (struct vring_desc_extra *)&desc[num];
++
++			for (i = 0; i < num; i++)
++				vring_unmap_extra_packed(vq, &extra[i]);
+ 		}
+ 		kfree(desc);
+ 		state->indir_desc = NULL;
+-- 
 2.32.0.3.g01195cf9f
 
