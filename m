@@ -1,115 +1,192 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E4531E7C12
-	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 14:33:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25D82215021
+	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 16:44:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730298820; cv=none; b=PDClEDpvV8T4DbbT60s4VCOXezIb7wJw4CUVN/Ori4/mz7S014FfRD/5QOXMxCjZJ2C8gScaXw2LtfJD2vqCCEmAgigagsSpNC3YWjS0w7Tq/VCBIzuBEwJZvB6ABbk7xfEgmtJBj5K1RH6ONXu2BvdsCkMx/qO4BjEY9XZP/Cw=
+	t=1730306697; cv=none; b=FVbncH1JOONv5m5WO35fowftP8xUmVoXBqp2FV1TWhthZXsrRAMdY8piwaHw4YTo/UKPajZDgF6Cey8KRckIHK3J+PEt3AJCjNdNfj4iFG2Xz8+WOe3jeHUvJOhes8fn3mQsX8MYwK6RO0v1TEY5TPlg8uXFpbzLtEynEZv85wA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730298820; c=relaxed/simple;
-	bh=nAXA1e6ereqmb3MHInQbwUXw9moQjsLdg9jJAZQQfmw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BIKYpewZsC+4eoNRaNZ3PSyC7LN7kU4fXEUblpSEFfbRK3mzLpM30m3n58fNxHqi+k+YiA8ID2YsUVD6F6kkcXTgvLx2/1OQAu+4QhWTb1+lrKfqi5x6kGlkmQ1hHWUbh2U0l9QpwxYJlpjnqRJp45UK800/HmcsyZt7NuHTXXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WyIejBet; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1730306697; c=relaxed/simple;
+	bh=m8OthHp3SAjiv0zKnDxglY8U4vs0DCMY/HHcyfT9uTQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hsyUb9gE2SGRgqGVfESiex9TeSfqqd4SH7aToxiun0la2sTUUmaSvoGQzokRRmBDhY7JAzmj1ABfH+5CRJvr9nkcrQlkHBu+B9EJMW4bh/ODb3Q5tOORpEZB5C41GNvL+vNv0vRjcb/0zcMciTiylvwmWwFz9S3XmYdV7+aFNS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H2B5AolB; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WyIejBet"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49UDw8v0012224;
-	Wed, 30 Oct 2024 14:33:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=YkQE0QbnYso+0/vqDX8+nkLt1O3VUV
-	PdnTC+wEH8KGE=; b=WyIejBetHbX0WyYb0GKLUyHBI8ejg4faUfq03iPDKQCjyC
-	i3eQ6LR/lXfw55UdBInl/1YGQxhPOjZrLTuu5WK3zQ6D+mLH6yFPsgv1UkRLhYww
-	ALuAuwUR3t/FUstC6wrPpSQRLXwPOrpdIKUQijW0H4bk6hZDZWSueEj1Rv7yh4wh
-	ZaWTgnrOwQSWDjhsVU4mbfzK/q1EXQoHseOFl4LzLYKMt7vefzsXgG5hGaekQ2lt
-	7bul14+5kPhuYmh6La4Y5kDWu4exphv0jy8OJF7lcC2YpF4qy9WVS4tQuPpT+3KK
-	1tjM8eVvRjfVGRiJ1hEK0gKbhXHg7/olgUTQ5bIw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42jyhbpbju-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 14:33:34 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49UEXX6l003381;
-	Wed, 30 Oct 2024 14:33:33 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42jyhbpbjq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 14:33:33 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49UBsOA9018383;
-	Wed, 30 Oct 2024 14:33:32 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42hc8k8ba4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Oct 2024 14:33:32 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49UEXSsL57475502
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 30 Oct 2024 14:33:28 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C983E20043;
-	Wed, 30 Oct 2024 14:33:28 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA4C62004B;
-	Wed, 30 Oct 2024 14:33:27 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 30 Oct 2024 14:33:27 +0000 (GMT)
-Date: Wed, 30 Oct 2024 15:33:25 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>, Mario Casquero <mcasquer@redhat.com>
-Subject: Re: [PATCH v2 4/7] s390/physmem_info: query diag500(STORAGE LIMIT)
- to support QEMU/KVM memory devices
-Message-ID: <ZyJDtdElqCCwjcW+@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20241014144622.876731-1-david@redhat.com>
- <20241014144622.876731-5-david@redhat.com>
- <ZyJC+s5L6JI3xO44@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H2B5AolB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730306694;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=2prj1vBARz2TRWE6oRBlqTY8pIpwqPBns44dk5+Rnd4=;
+	b=H2B5AolBoQDh0Ngx+/g+9jn4xlbaqTt8jamkTcPx+kgpvqghDYWkoyDY2SW0z1xbsrsh2G
+	qExQ8XUfDYW0yI7WeYryxgtzxIocDBh/uinJPawZfHyHr3w/xuUO4CHBugabjcpTa3Fx5Z
+	5ZHEpek+H+qk4Qqu8TnrdHQXQ6KXIHg=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-449-KAUey0IVMyiJ87ji3SFjtA-1; Wed, 30 Oct 2024 12:43:58 -0400
+X-MC-Unique: KAUey0IVMyiJ87ji3SFjtA-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-37d603515cfso37621f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 09:43:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730306637; x=1730911437;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=2prj1vBARz2TRWE6oRBlqTY8pIpwqPBns44dk5+Rnd4=;
+        b=DGZ+puXvbvoVpea9gHn4QUAUNPqtttEcvM+DlF062+SYpXmmiUl82Smn4cqiuDCR/X
+         nHUyGz68WsyvD/QtqRYG8xulxoP6hBKBfxv/T9tVZG/jEMufZxvCDPVOk6p0me85cdXL
+         7g94x3nLACyatBCWaylxtf+dv/MmzQUl02PDq8n8vI4MWiCSo3cw1or32/YIgABp6qZU
+         k1whbnlnLBKMNG5KVfZvT9B9+rZKmbDy7qs0bYphZ/1RNR8W22oG7hB2G5uwZ2NfnkGM
+         udKRCVXBkucajLP1m48E0PuXTaPNXQDRLVlyOy+7oUhvxoxuEDLQkpdwH2lGqPPnlgyd
+         69Sw==
+X-Forwarded-Encrypted: i=1; AJvYcCVgLnDgAJ1Nk5zgfg/qPns7YPFDNJ/Gt0sSUI8yWlKVrzNL1Y4/ODAiyBrEyBjRu81T4QuqEvKwtuXuekvM1A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxay1R8S4Qf7x89XWRRzWHbIxibP6k4itxv7yoe74oc/MX00NmJ
+	YQOsrVRcE0hAA6FJ2eyj/G9tuUO+YrRX/7AJ+y1Rn1mH09m68MZz6TkWThMfjVr+aOC6QTvbtlb
+	HzaaqwT8tUreOoZlQ5N94KvWuso6+g1KLsqbMs6hX1If+5woM+tKpemY1Si3eQk49
+X-Received: by 2002:a5d:6082:0:b0:37d:4937:c9eb with SMTP id ffacd0b85a97d-3806113de46mr11924114f8f.21.1730306637501;
+        Wed, 30 Oct 2024 09:43:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEvMaXZ4qwwVX8gPGZNbj4VQFicDJ4FE9uDfYitKw51Mvh8VbNoR2SY8GR2Eucf8hZZ4r+X1w==
+X-Received: by 2002:a5d:6082:0:b0:37d:4937:c9eb with SMTP id ffacd0b85a97d-3806113de46mr11924097f8f.21.1730306637117;
+        Wed, 30 Oct 2024 09:43:57 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c733:7c00:d067:e327:4f99:7546? (p200300cbc7337c00d067e3274f997546.dip0.t-ipconnect.de. [2003:cb:c733:7c00:d067:e327:4f99:7546])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38058b712cbsm15866975f8f.77.2024.10.30.09.43.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Oct 2024 09:43:56 -0700 (PDT)
+Message-ID: <e97e01dc-7db6-4d14-b5e6-40fb306489ce@redhat.com>
+Date: Wed, 30 Oct 2024 17:43:55 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZyJC+s5L6JI3xO44@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pyTitmUaMPipLM8LFiCgngkB-xj0DyYQ
-X-Proofpoint-ORIG-GUID: LU3TDk4DyvFKwduroN5_L-gXPQpICUT5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- malwarescore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 phishscore=0 impostorscore=0 mlxlogscore=623 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410300111
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 3/7] s390/physmem_info: query diag500(STORAGE LIMIT) to
+ support QEMU/KVM memory devices
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
+ Mario Casquero <mcasquer@redhat.com>
+References: <20241025141453.1210600-1-david@redhat.com>
+ <20241025141453.1210600-4-david@redhat.com>
+ <ZyJDelNH7bvo/TnO@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <ZyJDelNH7bvo/TnO@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> >  arch/s390/boot/physmem_info.c        | 46 ++++++++++++++++++++++++++--
-> >  arch/s390/include/asm/physmem_info.h |  3 ++
-> >  2 files changed, 46 insertions(+), 3 deletions(-)
+On 30.10.24 15:32, Alexander Gordeev wrote:
+> On Fri, Oct 25, 2024 at 04:14:48PM +0200, David Hildenbrand wrote:
+>> To support memory devices under QEMU/KVM, such as virtio-mem,
+>> we have to prepare our kernel virtual address space accordingly and
+>> have to know the highest possible physical memory address we might see
+>> later: the storage limit. The good old SCLP interface is not suitable for
+>> this use case.
+>>
+>> In particular, memory owned by memory devices has no relationship to
+>> storage increments, it is always detected using the device driver, and
+>> unaware OSes (no driver) must never try making use of that memory.
+>> Consequently this memory is located outside of the "maximum storage
+>> increment"-indicated memory range.
+>>
+>> Let's use our new diag500 STORAGE_LIMIT subcode to query this storage
+>> limit that can exceed the "maximum storage increment", and use the
+>> existing interfaces (i.e., SCLP) to obtain information about the initial
+>> memory that is not owned+managed by memory devices.
+>>
+>> If a hypervisor does not support such memory devices, the address exposed
+>> through diag500 STORAGE_LIMIT will correspond to the maximum storage
+>> increment exposed through SCLP.
+>>
+>> To teach kdump on s390 to include memory owned by memory devices, there
+>> will be ways to query the relevant memory ranges from the device via a
+>> driver running in special kdump mode (like virtio-mem already implements
+>> to filter /proc/vmcore access so we don't end up reading from unplugged
+>> device blocks).
+>>
+>> Update setup_ident_map_size(), to clarify that there can be more than
+>> just online and standby memory.
+>>
+>> Tested-by: Mario Casquero <mcasquer@redhat.com>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   arch/s390/boot/physmem_info.c        | 47 +++++++++++++++++++++++++++-
+>>   arch/s390/boot/startup.c             |  7 +++--
+>>   arch/s390/include/asm/physmem_info.h |  3 ++
+>>   3 files changed, 54 insertions(+), 3 deletions(-)
 > 
 > Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> 
 
-Sorry, it supposed to be for v3, so please dismiss this one.
+Thanks Alexander!
 
-> Thanks!
+-- 
+Cheers,
+
+David / dhildenb
+
