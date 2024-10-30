@@ -1,118 +1,344 @@
-Received: from mail-pj1-f66.google.com (mail-pj1-f66.google.com [209.85.216.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C29001D27A5
-	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 06:49:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95A791E0E0E
+	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 08:24:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730270999; cv=none; b=CdmTBVfYLtxPk6wOFizcPjH1e0SWfdeccZ/fhpkNjHaFyMWwbmPl27yYUYT/EaDlo8stDcWzJZzlpQDUvWn0hqermcH9/O0tJzS3oiqWxLP+3KbEixoHnpmb53sLTrt/HYETFNzqf6lrZgb5cYlB5VNgTVj1G0UHoORQPx3z0hM=
+	t=1730276703; cv=none; b=ateny4o/9oIA1SnNILGCRqCSROYA2nBuLvtsCb9kNzID8G1LTlxu/OcPFc2PZSr2MYFGr6zyvV1ZkPfyxcs3k4HrmxQKl8KLsD31ZxPTZpFBPth4M8ON9GjJJi3dFNPqGpQeHr3FvBYiHsslQSSLXstpL+wV/G3eBYvPv2u59Ms=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730270999; c=relaxed/simple;
-	bh=zJw3UJbl3CQMX8ZV+7LJ0VvBC/OyJZT7GPijwALV71Y=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SpYfbn2ItKYPgrgQuVpAMlW14NKUaVjNriaNyrCz0BQnfebK+PK9yo2bQvYlvvxHRKxU2b5NNgKbkKYXGpvXO9IBnr58K5pwoQYd9utD2XYfVnQ633Voo0E/nzgOAxhAyRapSrXMHY/BHB4S25g2ZtOYeo9v1vSHaQagZXLWWA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hui6aJfi; arc=none smtp.client-ip=209.85.216.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1730276703; c=relaxed/simple;
+	bh=CbHMBqw850ia131N9WDdBA8spBlsXrmrZnvsEWh1O2M=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=OZiSJJUH5N4ofxBjygtGvIoUsLVUMIMXMpDuhNunvrHaYpjsIQiOqQWxfudHup2tzS6mgKbBxJpfZpmz4qqLgfC+Ol95hYC3a8q6PtaTXFYsUW/yp1gZlxw0KssqSTibNXQq1e3CEzcFzL3fCNIHPwKrPMgTBcMDaIJ086XvcOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=LlLX9oGu; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hui6aJfi"
-Received: by mail-pj1-f66.google.com with SMTP id 98e67ed59e1d1-2e2ed2230d8so4804332a91.0
-        for <virtualization@lists.linux.dev>; Tue, 29 Oct 2024 23:49:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1730270996; x=1730875796; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9htrK+K47j7plwDzFY6/YbL058OrTTXAWjNvqdUBAiM=;
-        b=hui6aJfiyhHsvfRcTRW+vKY6SN0eyJoeI2OUr+3HfuGAgJH1IoqPPhvfA9/ZVkWXVB
-         f1ItEn67nEXYCHYHda2k6t8agdyX8nJBofP0cNUkz6owaHA1Lfb02ERDoynOS3W78A+w
-         SDCikLYnKIh2GdtmIOdW63WJIFhqRh8quZhzncyP5gRx+y+Gcx0cIEqYqmMhTC+WgEvJ
-         XSgyBCN5MfhA7k++UxO0/Zv+sL2fOmSBV1H/6+4uwRX25COZvf432dxyC3aQV7MPd6rw
-         KOgjVg/Q3GWXSd44hwSA0J5a0mAfpQa4f074WAqBaf6jL8FxQAm23jvYAtrzkNpHG6a5
-         YbIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730270996; x=1730875796;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9htrK+K47j7plwDzFY6/YbL058OrTTXAWjNvqdUBAiM=;
-        b=KOEaMMgfe/TOSgdGf3jBfEjkvvG0+RO4DnL0bViuaPiebt/R+tnLinKDk9m4JTkZ87
-         uIlnIVbqv1MkVWDRJ25G8ZMu208b9wHpzGlmOFCLzpkb9Hlp1L6eZfZ/VcVPd7FjjvHu
-         /QBeYvMiDMNECiuMGC5o5kPjuteE0zDGiaY+rnqeDvEHm8+ZG9k1TwzELfnm6lCzQUpb
-         VZtUlGqodC838DdN+xXtP28HTcJhUplwDC3VsmhwXO7CyaL4FXCW9IA+HQ6Luh+H9Hl/
-         39wO8QxU9ewNXZ44+2Cvh4UU7Ygpji5is5RLki9yBkoOPjm/9oEFbtKwbzFpDlDt5Yit
-         20/g==
-X-Gm-Message-State: AOJu0YzXKKwnoOVzp4pDYC/iseEAqiFghLGuJQy0yFzuMsBUgUjJIaYL
-	E3LpUOI8dXCGL03X//4hsG8Mrh3w6RdzKfkqp863gxHebo+M+oHn
-X-Google-Smtp-Source: AGHT+IG1g9EtCsXxXn/Kg/bVUnlmd7QEjXsIawXwB5EKSR6LpuCF6dIPqV971MOh+qh6EqqNoSYruw==
-X-Received: by 2002:a17:90b:300c:b0:2e2:bd32:f60 with SMTP id 98e67ed59e1d1-2e8f11ac92fmr15554606a91.32.1730270996173;
-        Tue, 29 Oct 2024 23:49:56 -0700 (PDT)
-Received: from tom-QiTianM540-A739.. ([106.39.42.118])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e92f90c6ddsm885993a91.0.2024.10.29.23.49.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Oct 2024 23:49:55 -0700 (PDT)
-From: Qiu-ji Chen <chenqiuji666@gmail.com>
-To: amit@kernel.org,
-	arnd@arndb.de,
-	gregkh@linuxfoundation.org
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	baijiaju1990@gmail.com,
-	Qiu-ji Chen <chenqiuji666@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH v2] virtio: console: Fix atomicity violation in fill_readbuf()
-Date: Wed, 30 Oct 2024 14:49:49 +0800
-Message-Id: <20241030064949.6255-1-chenqiuji666@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="LlLX9oGu"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1730276696; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=Kx/CkeS1T6c8wEvUV86zioF6oFiy8uBlfoeRpgD/EfA=;
+	b=LlLX9oGuksB+17IqWmpce6FF0Vvg8rKndRLa0bFTVFFQs+/IErEqO5VP2WL8r55Tss25xED7uOkE48f2Hv3KPzsknGw3dqj/NguOB3UMGBDsPVsMuR4xdtSDrrF8ZED7Sq8dLXks2+82dJQ7dzzQ5dNRy/waGNuC1bMhydYE+kI=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIDOTi1_1730276695 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 30 Oct 2024 16:24:56 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org
+Subject: [PATCH net-next v2 02/13] virtio_ring: split: record extras for indirect buffers
+Date: Wed, 30 Oct 2024 16:24:42 +0800
+Message-Id: <20241030082453.97310-3-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
+References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Git-Hash: 87bfcb32ef14
 Content-Transfer-Encoding: 8bit
 
-The atomicity violation issue is due to the invalidation of the function 
-port_has_data()'s check caused by concurrency. Imagine a scenario where a 
-port that contains data passes the validity check but is simultaneously 
-assigned a value with no data. This could result in an empty port passing 
-the validity check, potentially leading to a null pointer dereference 
-error later in the program, which is inconsistent.
+The subsequent commit needs to know whether every indirect buffer is
+premapped or not. So we need to introduce an extra struct for every
+indirect buffer to record this info.
 
-To address this issue, we added a separate validity check for the variable 
-buf after its assignment. This ensures that an invalid buf does not proceed
-further into the program, thereby preventing a null pointer dereference 
-error.
-
-This possible bug is found by an experimental static analysis tool
-developed by our team. This tool analyzes the locking APIs
-to extract function pairs that can be concurrently executed, and then
-analyzes the instructions in the paired functions to identify possible
-concurrency bugs including data races and atomicity violations.
-
-Fixes: 203baab8ba31 ("virtio: console: Introduce function to hand off data from host to readers")
-Cc: stable@vger.kernel.org
-Signed-off-by: Qiu-ji Chen <chenqiuji666@gmail.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
-V2: 
-The logic of the fix has been modified.
----
- drivers/char/virtio_console.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/virtio/virtio_ring.c | 112 ++++++++++++++++-------------------
+ 1 file changed, 52 insertions(+), 60 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index c62b208b42f1..54fee192d93c 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -660,6 +660,10 @@ static ssize_t fill_readbuf(struct port *port, u8 __user *out_buf,
- 		return 0;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 97590c201aa2..dca093744fe1 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -69,7 +69,11 @@
  
- 	buf = port->inbuf;
+ struct vring_desc_state_split {
+ 	void *data;			/* Data for callback. */
+-	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
 +
-+	if (!buf)
-+		return 0;
-+
- 	out_count = min(out_count, buf->len - buf->offset);
++	/* Indirect extra table and desc table, if any. These two will be
++	 * allocated together. So we won't stress more to the memory allocator.
++	 */
++	struct vring_desc *indir_desc;
+ };
  
- 	if (to_user) {
+ struct vring_desc_state_packed {
+@@ -440,38 +444,20 @@ static void virtqueue_init(struct vring_virtqueue *vq, u32 num)
+  * Split ring specific functions - *_split().
+  */
+ 
+-static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
+-					   const struct vring_desc *desc)
+-{
+-	u16 flags;
+-
+-	if (!vring_need_unmap_buffer(vq))
+-		return;
+-
+-	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
+-
+-	dma_unmap_page(vring_dma_dev(vq),
+-		       virtio64_to_cpu(vq->vq.vdev, desc->addr),
+-		       virtio32_to_cpu(vq->vq.vdev, desc->len),
+-		       (flags & VRING_DESC_F_WRITE) ?
+-		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-}
+-
+ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+-					  unsigned int i)
++					  struct vring_desc_extra *extra)
+ {
+-	struct vring_desc_extra *extra = vq->split.desc_extra;
+ 	u16 flags;
+ 
+-	flags = extra[i].flags;
++	flags = extra->flags;
+ 
+ 	if (flags & VRING_DESC_F_INDIRECT) {
+ 		if (!vq->use_dma_api)
+ 			goto out;
+ 
+ 		dma_unmap_single(vring_dma_dev(vq),
+-				 extra[i].addr,
+-				 extra[i].len,
++				 extra->addr,
++				 extra->len,
+ 				 (flags & VRING_DESC_F_WRITE) ?
+ 				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 	} else {
+@@ -479,22 +465,23 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+ 			goto out;
+ 
+ 		dma_unmap_page(vring_dma_dev(vq),
+-			       extra[i].addr,
+-			       extra[i].len,
++			       extra->addr,
++			       extra->len,
+ 			       (flags & VRING_DESC_F_WRITE) ?
+ 			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 	}
+ 
+ out:
+-	return extra[i].next;
++	return extra->next;
+ }
+ 
+ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+ 					       unsigned int total_sg,
+ 					       gfp_t gfp)
+ {
++	struct vring_desc_extra *extra;
+ 	struct vring_desc *desc;
+-	unsigned int i;
++	unsigned int i, size;
+ 
+ 	/*
+ 	 * We require lowmem mappings for the descriptors because
+@@ -503,40 +490,41 @@ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+ 	 */
+ 	gfp &= ~__GFP_HIGHMEM;
+ 
+-	desc = kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
++	size = sizeof(*desc) * total_sg + sizeof(*extra) * total_sg;
++
++	desc = kmalloc(size, gfp);
+ 	if (!desc)
+ 		return NULL;
+ 
++	extra = (struct vring_desc_extra *)&desc[total_sg];
++
+ 	for (i = 0; i < total_sg; i++)
+-		desc[i].next = cpu_to_virtio16(_vq->vdev, i + 1);
++		extra[i].next = i + 1;
++
+ 	return desc;
+ }
+ 
+ static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq,
+ 						    struct vring_desc *desc,
++						    struct vring_desc_extra *extra,
+ 						    unsigned int i,
+ 						    dma_addr_t addr,
+ 						    unsigned int len,
+-						    u16 flags,
+-						    bool indirect)
++						    u16 flags)
+ {
+-	struct vring_virtqueue *vring = to_vvq(vq);
+-	struct vring_desc_extra *extra = vring->split.desc_extra;
+ 	u16 next;
+ 
+ 	desc[i].flags = cpu_to_virtio16(vq->vdev, flags);
+ 	desc[i].addr = cpu_to_virtio64(vq->vdev, addr);
+ 	desc[i].len = cpu_to_virtio32(vq->vdev, len);
+ 
+-	if (!indirect) {
+-		next = extra[i].next;
+-		desc[i].next = cpu_to_virtio16(vq->vdev, next);
++	extra[i].addr = addr;
++	extra[i].len = len;
++	extra[i].flags = flags;
++
++	next = extra[i].next;
+ 
+-		extra[i].addr = addr;
+-		extra[i].len = len;
+-		extra[i].flags = flags;
+-	} else
+-		next = virtio16_to_cpu(vq->vdev, desc[i].next);
++	desc[i].next = cpu_to_virtio16(vq->vdev, next);
+ 
+ 	return next;
+ }
+@@ -551,6 +539,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 				      gfp_t gfp)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
++	struct vring_desc_extra *extra;
+ 	struct scatterlist *sg;
+ 	struct vring_desc *desc;
+ 	unsigned int i, n, avail, descs_used, prev, err_idx;
+@@ -586,9 +575,11 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 		/* Set up rest to use this indirect table. */
+ 		i = 0;
+ 		descs_used = 1;
++		extra = (struct vring_desc_extra *)&desc[total_sg];
+ 	} else {
+ 		indirect = false;
+ 		desc = vq->split.vring.desc;
++		extra = vq->split.desc_extra;
+ 		i = head;
+ 		descs_used = total_sg;
+ 	}
+@@ -618,9 +609,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 			/* Note that we trust indirect descriptor
+ 			 * table since it use stream DMA mapping.
+ 			 */
+-			i = virtqueue_add_desc_split(_vq, desc, i, addr, sg->length,
+-						     VRING_DESC_F_NEXT,
+-						     indirect);
++			i = virtqueue_add_desc_split(_vq, desc, extra, i, addr, sg->length,
++						     VRING_DESC_F_NEXT);
+ 		}
+ 	}
+ 	for (; n < (out_sgs + in_sgs); n++) {
+@@ -634,11 +624,10 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 			/* Note that we trust indirect descriptor
+ 			 * table since it use stream DMA mapping.
+ 			 */
+-			i = virtqueue_add_desc_split(_vq, desc, i, addr,
++			i = virtqueue_add_desc_split(_vq, desc, extra, i, addr,
+ 						     sg->length,
+ 						     VRING_DESC_F_NEXT |
+-						     VRING_DESC_F_WRITE,
+-						     indirect);
++						     VRING_DESC_F_WRITE);
+ 		}
+ 	}
+ 	/* Last one doesn't continue. */
+@@ -660,10 +649,10 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 		}
+ 
+ 		virtqueue_add_desc_split(_vq, vq->split.vring.desc,
++					 vq->split.desc_extra,
+ 					 head, addr,
+ 					 total_sg * sizeof(struct vring_desc),
+-					 VRING_DESC_F_INDIRECT,
+-					 false);
++					 VRING_DESC_F_INDIRECT);
+ 	}
+ 
+ 	/* We're using some buffers from the free list. */
+@@ -716,11 +705,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 	for (n = 0; n < total_sg; n++) {
+ 		if (i == err_idx)
+ 			break;
+-		if (indirect) {
+-			vring_unmap_one_split_indirect(vq, &desc[i]);
+-			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
+-		} else
+-			i = vring_unmap_one_split(vq, i);
++
++		i = vring_unmap_one_split(vq, &extra[i]);
+ 	}
+ 
+ free_indirect:
+@@ -765,22 +751,25 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 			     void **ctx)
+ {
++	struct vring_desc_extra *extra;
+ 	unsigned int i, j;
+ 	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+ 
+ 	/* Clear data ptr. */
+ 	vq->split.desc_state[head].data = NULL;
+ 
++	extra = vq->split.desc_extra;
++
+ 	/* Put back on free list: unmap first-level descriptors and find end */
+ 	i = head;
+ 
+ 	while (vq->split.vring.desc[i].flags & nextflag) {
+-		vring_unmap_one_split(vq, i);
++		vring_unmap_one_split(vq, &extra[i]);
+ 		i = vq->split.desc_extra[i].next;
+ 		vq->vq.num_free++;
+ 	}
+ 
+-	vring_unmap_one_split(vq, i);
++	vring_unmap_one_split(vq, &extra[i]);
+ 	vq->split.desc_extra[i].next = vq->free_head;
+ 	vq->free_head = head;
+ 
+@@ -790,21 +779,24 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 	if (vq->indirect) {
+ 		struct vring_desc *indir_desc =
+ 				vq->split.desc_state[head].indir_desc;
+-		u32 len;
++		u32 len, num;
+ 
+ 		/* Free the indirect table, if any, now that it's unmapped. */
+ 		if (!indir_desc)
+ 			return;
+-
+ 		len = vq->split.desc_extra[head].len;
+ 
+ 		BUG_ON(!(vq->split.desc_extra[head].flags &
+ 				VRING_DESC_F_INDIRECT));
+ 		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
+ 
++		num = len / sizeof(struct vring_desc);
++
++		extra = (struct vring_desc_extra *)&indir_desc[num];
++
+ 		if (vring_need_unmap_buffer(vq)) {
+-			for (j = 0; j < len / sizeof(struct vring_desc); j++)
+-				vring_unmap_one_split_indirect(vq, &indir_desc[j]);
++			for (j = 0; j < num; j++)
++				vring_unmap_one_split(vq, &extra[j]);
+ 		}
+ 
+ 		kfree(indir_desc);
 -- 
-2.34.1
+2.32.0.3.g01195cf9f
 
