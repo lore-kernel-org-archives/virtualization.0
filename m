@@ -1,217 +1,118 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f66.google.com (mail-pj1-f66.google.com [209.85.216.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F81920967E
-	for <virtualization@lists.linux-foundation.org>; Tue, 29 Oct 2024 20:28:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C29001D27A5
+	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 06:49:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730233717; cv=none; b=GkEoIwhqXZF6DqTmAPNpefDSM5iaognGz5UJHK8u+FmgmJfsiYHeytC60zf2bacgqjv580macTsDzetU/zOXLJPug3LemgCRJ8yo5Uuz9aUisZvbW9KuSW7lzQUjwHVMlX81uNik8bgxYz0ZfRmTS2YA+dCJB+0yuypq7E1h3x0=
+	t=1730270999; cv=none; b=CdmTBVfYLtxPk6wOFizcPjH1e0SWfdeccZ/fhpkNjHaFyMWwbmPl27yYUYT/EaDlo8stDcWzJZzlpQDUvWn0hqermcH9/O0tJzS3oiqWxLP+3KbEixoHnpmb53sLTrt/HYETFNzqf6lrZgb5cYlB5VNgTVj1G0UHoORQPx3z0hM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730233717; c=relaxed/simple;
-	bh=a5xIuAZIag/sepN5E+3EBOahr5lBoxT2h56exTpk7kM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nrZSXOaAAEDhGDLk68l15HehjsSdPdFSS1slk6Pawb3ulsmsWkDaDkC1jcpRhu5iklPbB5oX2d+n/BHbk2ptHu3hL27Q3GOUgyEl0fgS+wvbn3WLkT+kh4bXIwAa44t4uUw6kZSEKJFq06gZZnRAp+2JbxGkP2EZGa09PQLU4Nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NlD7fXcO; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1730270999; c=relaxed/simple;
+	bh=zJw3UJbl3CQMX8ZV+7LJ0VvBC/OyJZT7GPijwALV71Y=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SpYfbn2ItKYPgrgQuVpAMlW14NKUaVjNriaNyrCz0BQnfebK+PK9yo2bQvYlvvxHRKxU2b5NNgKbkKYXGpvXO9IBnr58K5pwoQYd9utD2XYfVnQ633Voo0E/nzgOAxhAyRapSrXMHY/BHB4S25g2ZtOYeo9v1vSHaQagZXLWWA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hui6aJfi; arc=none smtp.client-ip=209.85.216.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NlD7fXcO"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 77D60606CE
-	for <virtualization@lists.linux-foundation.org>; Tue, 29 Oct 2024 20:28:34 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id AwDYziaQBh6K for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Oct 2024 20:28:33 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4B3926058D
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4B3926058D
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NlD7fXcO
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4B3926058D
-	for <virtualization@lists.linux-foundation.org>; Tue, 29 Oct 2024 20:28:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730233712;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=851Ps5eN/WBcnZzS5QtOPdUJ2Lt5cNuaFi9PFnOegbw=;
-	b=NlD7fXcOcLDTTmPgz20rqYHlYLXKQHy1xS8bOszwosYRKZuj/Zscl60EUSArR6QxaScMcX
-	UpSmYdliz5iKLmKL/X48rlCFUSHBl3v8tqNFi+3jVOdepXhEloiX7iKiBJN+H8Gl/oBJ6x
-	KAFUk+Ho60tV2bI6Zd5SOn2qpy2xWpY=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-643-R0xUciM4O6OeCzVTJdJU4Q-1; Tue, 29 Oct 2024 16:28:30 -0400
-X-MC-Unique: R0xUciM4O6OeCzVTJdJU4Q-1
-Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-83ab67710b5so70672239f.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 29 Oct 2024 13:28:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hui6aJfi"
+Received: by mail-pj1-f66.google.com with SMTP id 98e67ed59e1d1-2e2ed2230d8so4804332a91.0
+        for <virtualization@lists.linux.dev>; Tue, 29 Oct 2024 23:49:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1730270996; x=1730875796; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=9htrK+K47j7plwDzFY6/YbL058OrTTXAWjNvqdUBAiM=;
+        b=hui6aJfiyhHsvfRcTRW+vKY6SN0eyJoeI2OUr+3HfuGAgJH1IoqPPhvfA9/ZVkWXVB
+         f1ItEn67nEXYCHYHda2k6t8agdyX8nJBofP0cNUkz6owaHA1Lfb02ERDoynOS3W78A+w
+         SDCikLYnKIh2GdtmIOdW63WJIFhqRh8quZhzncyP5gRx+y+Gcx0cIEqYqmMhTC+WgEvJ
+         XSgyBCN5MfhA7k++UxO0/Zv+sL2fOmSBV1H/6+4uwRX25COZvf432dxyC3aQV7MPd6rw
+         KOgjVg/Q3GWXSd44hwSA0J5a0mAfpQa4f074WAqBaf6jL8FxQAm23jvYAtrzkNpHG6a5
+         YbIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730233710; x=1730838510;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=851Ps5eN/WBcnZzS5QtOPdUJ2Lt5cNuaFi9PFnOegbw=;
-        b=WrzUU8/XhFjrlxUPii161dIhCIPTH0Ca8Ke2xHFri9Feoy+1/6eKSxS4kc/svDNmGm
-         nPA/wJBRpifYEPZhi0QIglZdfQbWM9i8CY/N2DsAYeT3qo1EtKVLVYoVXywCbfJE9Ltn
-         Ary/X0id0glxgiL3l1cctGHIebEj6jLSjM6ybafX8zoFnReaBVdHsR//G5JkjW47w6Pn
-         5Wsq55z5yX0vrXyVMb4V2QPCZyB4LoYuWU9Jmo7NBVxXTJ2/8bQZ177EOyPozTcpA9UJ
-         KJE+8B4BaOfD8DU3IVXurXR9fHicpKib5iMswwvNWqy6aqN8KnjAHHoeGHJfxOsGMRo2
-         oklQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVWDXZNi9SkyvAZtfblsNuhYA5YnQs/Ulwt0fkZT2OkLx6I2/W5jv+IG+HgHAx8HljybqJooA5Km39v3AIHzw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwI/MlEHe4+g+W12iTvjU/iHsOOi+gdO461xLBA8FItfJo7NFao
-	ReBC75Fp4t5VhQmr07D07NNxVedSgXE/rQ8GnR2gIoBGBikCCOmlOzMe3btvkereo/p5ohn8NW+
-	JwuAW6kDMEJpJu5vN9C/i8FS1c9rp5z80p+rEF6WN1tta5gexuQ3LDIWTPesXz5U/KqlA/NrKDM
-	D1ALg=
-X-Received: by 2002:a5d:959a:0:b0:83a:acf9:fa03 with SMTP id ca18e2360f4ac-83b1c612559mr299146539f.5.1730233709986;
-        Tue, 29 Oct 2024 13:28:29 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHKReZAi6oCptitalNpW1MwvdgSb9EBWSdrx7SCMBV57J4vGIb8mYpE47sABKEVBNSy5GseDw==
-X-Received: by 2002:a5d:959a:0:b0:83a:acf9:fa03 with SMTP id ca18e2360f4ac-83b1c612559mr299145339f.5.1730233709552;
-        Tue, 29 Oct 2024 13:28:29 -0700 (PDT)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id ca18e2360f4ac-83b13891df4sm221458139f.46.2024.10.29.13.28.28
+        d=1e100.net; s=20230601; t=1730270996; x=1730875796;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9htrK+K47j7plwDzFY6/YbL058OrTTXAWjNvqdUBAiM=;
+        b=KOEaMMgfe/TOSgdGf3jBfEjkvvG0+RO4DnL0bViuaPiebt/R+tnLinKDk9m4JTkZ87
+         uIlnIVbqv1MkVWDRJ25G8ZMu208b9wHpzGlmOFCLzpkb9Hlp1L6eZfZ/VcVPd7FjjvHu
+         /QBeYvMiDMNECiuMGC5o5kPjuteE0zDGiaY+rnqeDvEHm8+ZG9k1TwzELfnm6lCzQUpb
+         VZtUlGqodC838DdN+xXtP28HTcJhUplwDC3VsmhwXO7CyaL4FXCW9IA+HQ6Luh+H9Hl/
+         39wO8QxU9ewNXZ44+2Cvh4UU7Ygpji5is5RLki9yBkoOPjm/9oEFbtKwbzFpDlDt5Yit
+         20/g==
+X-Gm-Message-State: AOJu0YzXKKwnoOVzp4pDYC/iseEAqiFghLGuJQy0yFzuMsBUgUjJIaYL
+	E3LpUOI8dXCGL03X//4hsG8Mrh3w6RdzKfkqp863gxHebo+M+oHn
+X-Google-Smtp-Source: AGHT+IG1g9EtCsXxXn/Kg/bVUnlmd7QEjXsIawXwB5EKSR6LpuCF6dIPqV971MOh+qh6EqqNoSYruw==
+X-Received: by 2002:a17:90b:300c:b0:2e2:bd32:f60 with SMTP id 98e67ed59e1d1-2e8f11ac92fmr15554606a91.32.1730270996173;
+        Tue, 29 Oct 2024 23:49:56 -0700 (PDT)
+Received: from tom-QiTianM540-A739.. ([106.39.42.118])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e92f90c6ddsm885993a91.0.2024.10.29.23.49.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Oct 2024 13:28:28 -0700 (PDT)
-Date: Tue, 29 Oct 2024 14:28:26 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
- "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com"
- <jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Feng Liu <feliu@nvidia.com>,
- "kevin.tian@intel.com" <kevin.tian@intel.com>, "joao.m.martins@oracle.com"
- <joao.m.martins@oracle.com>, Leon Romanovsky <leonro@nvidia.com>, Maor
- Gottlieb <maorg@nvidia.com>
-Subject: Re: [PATCH vfio 0/7] Enhances the vfio-virtio driver to support
- live migration
-Message-ID: <20241029142826.1b148685.alex.williamson@redhat.com>
-In-Reply-To: <CY8PR12MB7195FCA5172D7829B1ABC773DC4A2@CY8PR12MB7195.namprd12.prod.outlook.com>
-References: <20241027100751.219214-1-yishaih@nvidia.com>
-	<20241028101348.37727579.alex.williamson@redhat.com>
-	<20241028162354.GS6956@nvidia.com>
-	<20241028105404.4858dcc2.alex.williamson@redhat.com>
-	<CY8PR12MB7195FCA5172D7829B1ABC773DC4A2@CY8PR12MB7195.namprd12.prod.outlook.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+        Tue, 29 Oct 2024 23:49:55 -0700 (PDT)
+From: Qiu-ji Chen <chenqiuji666@gmail.com>
+To: amit@kernel.org,
+	arnd@arndb.de,
+	gregkh@linuxfoundation.org
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	baijiaju1990@gmail.com,
+	Qiu-ji Chen <chenqiuji666@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] virtio: console: Fix atomicity violation in fill_readbuf()
+Date: Wed, 30 Oct 2024 14:49:49 +0800
+Message-Id: <20241030064949.6255-1-chenqiuji666@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Mon, 28 Oct 2024 17:46:57 +0000
-Parav Pandit <parav@nvidia.com> wrote:
+The atomicity violation issue is due to the invalidation of the function 
+port_has_data()'s check caused by concurrency. Imagine a scenario where a 
+port that contains data passes the validity check but is simultaneously 
+assigned a value with no data. This could result in an empty port passing 
+the validity check, potentially leading to a null pointer dereference 
+error later in the program, which is inconsistent.
 
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Monday, October 28, 2024 10:24 PM
-> > 
-> > On Mon, 28 Oct 2024 13:23:54 -0300
-> > Jason Gunthorpe <jgg@nvidia.com> wrote:
-> >   
-> > > On Mon, Oct 28, 2024 at 10:13:48AM -0600, Alex Williamson wrote:
-> > >  
-> > > > If the virtio spec doesn't support partial contexts, what makes it
-> > > > beneficial here?  
-> > >
-> > > It stil lets the receiver 'warm up', like allocating memory and
-> > > approximately sizing things.
-> > >  
-> > > > If it is beneficial, why is it beneficial to send initial data more than
-> > > > once?  
-> > >
-> > > I guess because it is allowed to change and the benefit is highest
-> > > when the pre copy data closely matches the final data..  
-> > 
-> > It would be useful to see actual data here.  For instance, what is the latency
-> > advantage to allocating anything in the warm-up and what's the probability
-> > that allocation is simply refreshed versus starting over?
-> >   
-> 
-> Allocating everything during the warm-up phase, compared to no
-> allocation, reduced the total VM downtime from 439 ms to 128 ms. This
-> was tested using two PCI VF hardware devices per VM.
->
-> The benefit comes from the device state staying mostly the same.
-> 
-> We tested with different configurations from 1 to 4 devices per VM,
-> varied with vcpus and memory. Also, more detailed test results are
-> captured in Figure-2 on page 6 at [1].
+To address this issue, we added a separate validity check for the variable 
+buf after its assignment. This ensures that an invalid buf does not proceed
+further into the program, thereby preventing a null pointer dereference 
+error.
 
-Those numbers seems to correspond to column 1 of Figure 2 in the
-referenced document, but that's looking only at downtime.  To me that
-chart seems to show a step function where there's ~400ms of downtime
-per device, which suggests we're serializing device resume in the
-stop-copy phase on the target without pre-copy.
+This possible bug is found by an experimental static analysis tool
+developed by our team. This tool analyzes the locking APIs
+to extract function pairs that can be concurrently executed, and then
+analyzes the instructions in the paired functions to identify possible
+concurrency bugs including data races and atomicity violations.
 
-Figure 3 appears to look at total VM migration time, where pre-copy
-tends to show marginal improvements in smaller configurations, but up
-to 60% worse overall migration time as the vCPU, device, and VM memory
-size increase.  The paper comes to the conclusion:
+Fixes: 203baab8ba31 ("virtio: console: Introduce function to hand off data from host to readers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Qiu-ji Chen <chenqiuji666@gmail.com>
+---
+V2: 
+The logic of the fix has been modified.
+---
+ drivers/char/virtio_console.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-	It can be concluded that either of increasing the VM memory or
-	device configuration has equal effect on the VM total migration
-	time, but no effect on the VM downtime due to pre-copy
-	enablement.
-
-Noting specifically "downtime" here ignores that the overall migration
-time actually got worse with pre-copy.
-
-Between columns 10 & 11 the device count is doubled.  With pre-copy
-enabled, the migration time increases by 135% while with pre-copy
-disabled we only only see a 113% increase.  Between columns 11 & 12 the
-VM memory is further doubled.  This results in another 33% increase in
-migration time with pre-copy enabled and only a 3% increase with
-pre-copy disabled.  For the most part this entire figure shows that
-overall migration time with pre-copy enabled is either on par with or
-worse than the same with pre-copy disabled.
-
-We then move on to Tables 1 & 2, which are again back to specifically
-showing timing of operations related to downtime rather than overall
-migration time.  The notable thing here seems to be that we've
-amortized the 300ms per device load time across the pre-copy phase,
-leaving only 11ms per device contributing to downtime.
-
-However, the paper also goes into this tangent:
-
-	Our observations indicate that enabling device-level pre-copy
-	results in more pre-copy operations of the system RAM and
-	device state. This leads to a 50% reduction in memory (RAM)
-	copy time in the device pre-copy method in the micro-benchmark
-	results, saving 100 milliseconds of downtime.
-
-I'd argue that this is an anti-feature.  A less generous interpretation
-is that pre-copy extended the migration time, likely resulting in more
-RAM transfer during pre-copy, potentially to the point that the VM
-undershot its prescribed downtime.  Further analysis should also look
-at the total data transferred for the migration and adherence to the
-configured VM downtime, rather than just the absolute downtime.
-
-At the end of the paper, I think we come to the same conclusion shown
-in Figure 1, where device load seems to be serialized and therefore
-significantly limits scalability.  That could be parallelized, but
-even 300-400ms for loading all devices is still too much contribution to
-downtime.  I'd therefore agree that pre-loading the device during
-pre-copy improves the scaling by an order of magnitude, but it doesn't
-solve the scaling problem.  Also, it should not come with the cost of
-drawing out pre-copy and thus the overall migration time to this
-extent.  The reduction in downtime related to RAM copy time should be
-evidence that the pre-copy behavior here has exceeded its scope and is
-interfering with the balance between pre- and post- copy elsewhere.
-Thanks,
-
-Alex
-
-> 
-> [1] https://netdevconf.info/0x18/docs/netdev-0x18-paper22-talk-paper.pdf
-> 
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index c62b208b42f1..54fee192d93c 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -660,6 +660,10 @@ static ssize_t fill_readbuf(struct port *port, u8 __user *out_buf,
+ 		return 0;
+ 
+ 	buf = port->inbuf;
++
++	if (!buf)
++		return 0;
++
+ 	out_count = min(out_count, buf->len - buf->offset);
+ 
+ 	if (to_user) {
+-- 
+2.34.1
 
