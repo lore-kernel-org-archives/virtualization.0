@@ -1,29 +1,29 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7DF51E130D
-	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 08:25:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70DF81E1C06
+	for <virtualization@lists.linux.dev>; Wed, 30 Oct 2024 08:25:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730276707; cv=none; b=C/kv25bit1xL+8fM1uzD2BMQYU/xPjXcRCSdMU7bC5CGQcJZlBTPYTLZDzUpWzSySvPP5qJUpl4WBKgI53xcLLNM7KNgmndqSs390g36NzVXZXmqK/KXih4IqU2SxoGpnq6NsylbD6fgRfoTVxwr6By0mQkacMeHryq3w6RJHpY=
+	t=1730276708; cv=none; b=mNvwEKglh+WDjyl4/beK0M2HQsR0A9USJj0MTkgIHG+17mG+t1yAElWTTKtTh2J8NF1zL+lacnnuruUZEDIQ8U7AVtHsRfu8sok2IquRMIejS3/0LiIdJ39OPB+rbk7cYfQoSukAATzOI+C96+AsJoEvXbclzM8JoQ4gCJxBzN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730276707; c=relaxed/simple;
-	bh=KhTAe/lRtyEIDr7cN8FsaWuMEvCDcUBbLUgDo5HNyeo=;
+	s=arc-20240116; t=1730276708; c=relaxed/simple;
+	bh=kEGfIjeXQr0v+Tit9Ms5/f/Wn4GKquaKQOBthIrf1Ic=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=RyePSmW3EDhL1rQLydJnXYLrSJMIvJVOmmgytW0STDBBOudWV5j7mWKeeGgjMjBIMiv8pOeJ4D7luSqlC/N/awkq5wpDQiU00WVXgtEWTg/SW9//waRkDZzHipQXxKAEEozXAaWZQciFn+Ao0zn2FrPEwLK/irVIp1ZwnjunwT0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=nS9LaykQ; arc=none smtp.client-ip=115.124.30.132
+	 MIME-Version; b=mg1WMaWCAuFDWW9wsfSkpZgC5mtOSmW4BCe1EXM8W4w/fvA8IcfrmaF8xjz7KZnbyviQZh5Css9VJunBvae/Pq9OoIDg9+dH7ofN1vH2T4JgdhlD3sfceXLYTADt1Wp7ky8p+Jjy6T1kCAczo4XNEwf767p0HwP4xAKus+zLpaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=R4x1J/IL; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="nS9LaykQ"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="R4x1J/IL"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1730276701; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=AwJI5xb/R/ouaxTo/m6B+dTZQr+oPsH0APB+pzG7M0U=;
-	b=nS9LaykQ8HTiy+vDsXZq6YvlfervnKak71Pb6OX/gMf3dvcY9/XYgcbtU/hsG1k0qe7A/QEccEi+S7hvOpQqT8DH4F63LSR/bf3i6I0ynbPNw6WQYiidjpU7Mdg+hQAnbwJMp7O9mpaNugT7DWXWOb7D+AweNr8B5f6kyqfa32s=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIDQizY_1730276698 cluster:ay36)
+	t=1730276702; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=crJSwD/Qm8hhmC5AxXbd1FqTa2S83hUr2tP6ia6viQI=;
+	b=R4x1J/ILnwxO/PJFdawKRzmft2sU15czxUULLKOGbw+xYu+AUqu4rRhDsHcnjLs8Nk+HAKMVR4xT5nw6OtkXObZY1UGfhW8aTSboiATfDwFh11E4uzXv6O0kS0gCZ+6CSRy2WXqN11F+Usb0jRWivf0Hwpqz8FgiGpqVVMyCbA0=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIDOTko_1730276701 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 30 Oct 2024 16:24:58 +0800
+          Wed, 30 Oct 2024 16:25:02 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -41,9 +41,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v2 05/13] virtio_ring: introduce add api for premapped
-Date: Wed, 30 Oct 2024 16:24:45 +0800
-Message-Id: <20241030082453.97310-6-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v2 08/13] virtio_net: refactor the xmit type
+Date: Wed, 30 Oct 2024 16:24:48 +0800
+Message-Id: <20241030082453.97310-9-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
 References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
@@ -56,117 +56,189 @@ MIME-Version: 1.0
 X-Git-Hash: 87bfcb32ef14
 Content-Transfer-Encoding: 8bit
 
-Two APIs are introduced to submit premapped per-buffers.
+Because the af-xdp will introduce a new xmit type, so I refactor the
+xmit type mechanism first.
 
-int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
-                                 struct scatterlist *sg, unsigned int num,
-                                 void *data,
-                                 void *ctx,
-                                 bool premapped,
-                                 gfp_t gfp);
+We know both xdp_frame and sk_buff are at least 4 bytes aligned.
+For the xdp tx, we do not pass any pointer to virtio core as data,
+we just need to pass the len of the packet. So we will push len
+to the void pointer. We can make sure the pointer is 4 bytes aligned.
 
-int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
-                                  struct scatterlist *sg, unsigned int num,
-                                  void *data,
-                                  bool premapped,
-                                  gfp_t gfp);
+And the data structure of AF_XDP also is at least 4 bytes aligned.
+
+So the last two bits of the pointers are free, we can't use these to
+distinguish them.
+
+    00 for skb
+    01 for SKB_ORPHAN
+    10 for XDP
+    11 for AF-XDP tx
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 48 ++++++++++++++++++++++++++++++++++++
- include/linux/virtio.h       | 13 ++++++++++
- 2 files changed, 61 insertions(+)
+ drivers/net/virtio_net.c | 90 +++++++++++++++++++++++-----------------
+ 1 file changed, 51 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index a89295b79e66..525308d82728 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2272,6 +2272,29 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 09757fa408bd..37e86e0a1d8e 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -45,9 +45,6 @@ module_param(napi_tx, bool, 0644);
+ #define VIRTIO_XDP_TX		BIT(0)
+ #define VIRTIO_XDP_REDIR	BIT(1)
+ 
+-#define VIRTIO_XDP_FLAG		BIT(0)
+-#define VIRTIO_ORPHAN_FLAG	BIT(1)
+-
+ /* RX packet size EWMA. The average packet size is used to determine the packet
+  * buffer size when refilling RX rings. As the entire RX ring may be refilled
+  * at once, the weight is chosen so that the EWMA will be insensitive to short-
+@@ -512,34 +509,35 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
+ 					       struct page *page, void *buf,
+ 					       int len, int truesize);
+ 
+-static bool is_xdp_frame(void *ptr)
+-{
+-	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+-}
++enum virtnet_xmit_type {
++	VIRTNET_XMIT_TYPE_SKB,
++	VIRTNET_XMIT_TYPE_SKB_ORPHAN,
++	VIRTNET_XMIT_TYPE_XDP,
++};
+ 
+-static void *xdp_to_ptr(struct xdp_frame *ptr)
+-{
+-	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
+-}
++/* We use the last two bits of the pointer to distinguish the xmit type. */
++#define VIRTNET_XMIT_TYPE_MASK (BIT(0) | BIT(1))
+ 
+-static struct xdp_frame *ptr_to_xdp(void *ptr)
++static enum virtnet_xmit_type virtnet_xmit_ptr_unpack(void **ptr)
+ {
+-	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+-}
++	unsigned long p = (unsigned long)*ptr;
+ 
+-static bool is_orphan_skb(void *ptr)
+-{
+-	return (unsigned long)ptr & VIRTIO_ORPHAN_FLAG;
++	*ptr = (void *)(p & ~VIRTNET_XMIT_TYPE_MASK);
++
++	return p & VIRTNET_XMIT_TYPE_MASK;
  }
- EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
  
-+/**
-+ * virtqueue_add_outbuf_premapped - expose output buffers to other end
-+ * @vq: the struct virtqueue we're talking about.
-+ * @sg: scatterlist (must be well-formed and terminated!)
-+ * @num: the number of entries in @sg readable by other side
-+ * @data: the token identifying the buffer.
-+ * @gfp: how to do memory allocations (if necessary).
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-+ */
-+int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
-+				   struct scatterlist *sg, unsigned int num,
-+				   void *data,
-+				   bool premapped,
-+				   gfp_t gfp)
-+{
-+	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, premapped, gfp);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_premapped);
-+
- /**
-  * virtqueue_add_inbuf - expose input buffers to other end
-  * @vq: the struct virtqueue we're talking about.
-@@ -2318,6 +2341,31 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+-static void *skb_to_ptr(struct sk_buff *skb, bool orphan)
++static void *virtnet_xmit_ptr_pack(void *ptr, enum virtnet_xmit_type type)
+ {
+-	return (void *)((unsigned long)skb | (orphan ? VIRTIO_ORPHAN_FLAG : 0));
++	return (void *)((unsigned long)ptr | type);
  }
- EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
  
-+/**
-+ * virtqueue_add_inbuf_premapped - expose input buffers to other end
-+ * @vq: the struct virtqueue we're talking about.
-+ * @sg: scatterlist (must be well-formed and terminated!)
-+ * @num: the number of entries in @sg writable by other side
-+ * @data: the token identifying the buffer.
-+ * @ctx: extra context for the token
-+ * @gfp: how to do memory allocations (if necessary).
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-+ */
-+int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
-+				  struct scatterlist *sg, unsigned int num,
-+				  void *data,
-+				  void *ctx,
-+				  bool premapped,
-+				  gfp_t gfp)
-+{
-+	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, premapped, gfp);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
-+
- /**
-  * virtqueue_dma_dev - get the dma dev
-  * @_vq: the struct virtqueue we're talking about.
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 306137a15d07..19afa49b92d0 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -56,6 +56,19 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
- 			    void *ctx,
- 			    gfp_t gfp);
+-static struct sk_buff *ptr_to_skb(void *ptr)
++static int virtnet_add_outbuf(struct send_queue *sq, int num, void *data,
++			      enum virtnet_xmit_type type)
+ {
+-	return (struct sk_buff *)((unsigned long)ptr & ~VIRTIO_ORPHAN_FLAG);
++	return virtqueue_add_outbuf(sq->vq, sq->sg, num,
++				    virtnet_xmit_ptr_pack(data, type),
++				    GFP_ATOMIC);
+ }
  
-+int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
-+				  struct scatterlist *sg, unsigned int num,
-+				  void *data,
-+				  void *ctx,
-+				  bool premapped,
-+				  gfp_t gfp);
+ static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
+@@ -551,29 +549,37 @@ static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
+ static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
+ 			    bool in_napi, struct virtnet_sq_free_stats *stats)
+ {
++	struct xdp_frame *frame;
++	struct sk_buff *skb;
+ 	unsigned int len;
+ 	void *ptr;
+ 
+ 	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+-		if (!is_xdp_frame(ptr)) {
+-			struct sk_buff *skb = ptr_to_skb(ptr);
++		switch (virtnet_xmit_ptr_unpack(&ptr)) {
++		case VIRTNET_XMIT_TYPE_SKB:
++			skb = ptr;
+ 
+ 			pr_debug("Sent skb %p\n", skb);
++			stats->napi_packets++;
++			stats->napi_bytes += skb->len;
++			napi_consume_skb(skb, in_napi);
++			break;
+ 
+-			if (is_orphan_skb(ptr)) {
+-				stats->packets++;
+-				stats->bytes += skb->len;
+-			} else {
+-				stats->napi_packets++;
+-				stats->napi_bytes += skb->len;
+-			}
++		case VIRTNET_XMIT_TYPE_SKB_ORPHAN:
++			skb = ptr;
 +
-+int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
-+				   struct scatterlist *sg, unsigned int num,
-+				   void *data,
-+				   bool premapped,
-+				   gfp_t gfp);
++			stats->packets++;
++			stats->bytes += skb->len;
+ 			napi_consume_skb(skb, in_napi);
+-		} else {
+-			struct xdp_frame *frame = ptr_to_xdp(ptr);
++			break;
 +
- int virtqueue_add_sgs(struct virtqueue *vq,
- 		      struct scatterlist *sgs[],
- 		      unsigned int out_sgs,
++		case VIRTNET_XMIT_TYPE_XDP:
++			frame = ptr;
+ 
+ 			stats->packets++;
+ 			stats->bytes += xdp_get_frame_len(frame);
+ 			xdp_return_frame(frame);
++			break;
+ 		}
+ 	}
+ 	netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi_bytes);
+@@ -1431,8 +1437,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+ 			    skb_frag_size(frag), skb_frag_off(frag));
+ 	}
+ 
+-	err = virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
+-				   xdp_to_ptr(xdpf), GFP_ATOMIC);
++	err = virtnet_add_outbuf(sq, nr_frags + 1, xdpf, VIRTNET_XMIT_TYPE_XDP);
+ 	if (unlikely(err))
+ 		return -ENOSPC; /* Caller handle free/refcnt */
+ 
+@@ -3048,8 +3053,9 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+ 			return num_sg;
+ 		num_sg++;
+ 	}
+-	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg,
+-				    skb_to_ptr(skb, orphan), GFP_ATOMIC);
++
++	return virtnet_add_outbuf(sq, num_sg, skb,
++				  orphan ? VIRTNET_XMIT_TYPE_SKB_ORPHAN : VIRTNET_XMIT_TYPE_SKB);
+ }
+ 
+ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+@@ -5926,10 +5932,16 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 
+ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
+ {
+-	if (!is_xdp_frame(buf))
++	switch (virtnet_xmit_ptr_unpack(&buf)) {
++	case VIRTNET_XMIT_TYPE_SKB:
++	case VIRTNET_XMIT_TYPE_SKB_ORPHAN:
+ 		dev_kfree_skb(buf);
+-	else
+-		xdp_return_frame(ptr_to_xdp(buf));
++		break;
++
++	case VIRTNET_XMIT_TYPE_XDP:
++		xdp_return_frame(buf);
++		break;
++	}
+ }
+ 
+ static void free_unused_bufs(struct virtnet_info *vi)
 -- 
 2.32.0.3.g01195cf9f
 
