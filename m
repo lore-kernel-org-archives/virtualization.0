@@ -1,140 +1,222 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from APC01-TYZ-obe.outbound.protection.outlook.com (mail-tyzapc01on2091.outbound.protection.outlook.com [40.107.117.91])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A75B19993C
-	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 10:51:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730371869; cv=none; b=a8Hr5Y30P1nlc95lFaE14vQcBlmdE6c2hWwFMtAZ2MkHF2oQytPs9M+3Q9lEmIcWXke25wy25NHTyrzDpbsugxTeTFYtenUgU75XBzMGMIjb17/n28qRG+IwU+mmd7Lg8Z536/4ebO9KAb2WK95FG7ouUUQLaUf0u8S+gL9Gi2c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730371869; c=relaxed/simple;
-	bh=uh9+w29J7T5ImrWhnSAaEfztZF7N3Bb4bZAX+Lkmx1M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cSnnoL0SWngkzhs9VLz6emCNBDdCaq+dtAa7QptM3gn8ESW1m/FihO8vQaI1whI+Zl+xl2DUTbjK/9WSqULvmLVrPXILc18O4kqn0bukc0zwuVr1TwS3AlezIn6RlGerA5FKpDqUP0i0C5b3k1EYSZBaCcrT2cK5RwQdTN2DJoE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dKF1OA+j; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57A4F19E83D
+	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 12:39:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.117.91
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730378360; cv=fail; b=b6FdYipt43guoNR/lXKmnJAEsBx/HL8C/CJz4gY+L7o6LnUFDxQRTXVHVEV+Z+wNE50wxQhSaySJWeWxExCGo+ToFqpHKeDnsLC++v4YAsf6OW4e9HSElLTmIW4VnNteix2TVnO9BMZH1i1UJ0vhk0x0MSspjVFGCcVCUTQ9meI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730378360; c=relaxed/simple;
+	bh=/CG87DMV9A0JkPd7iT8zMgZ9BSAZjc/OdF+DvJ5ym2I=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=dj/XQ3gLY7n+lQu5lK5tribLzF/6rRTIPlR93ZR7PqzE7ZSP3JYD7moH/d1qbH6B+1hfP44gmD5UbMY0XJYXDf2hUIhMZzxS3A4TImz/rNHBO4aY+Cp4EzK0oVw4aLb4IKafgiZnYMPzUAhn33UN2PqSFxWyF8FbiNA1Kn4fYuA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=Xrd+EB4O; arc=fail smtp.client-ip=40.107.117.91
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dKF1OA+j"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730371866;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/AXLe6BNzWvyIS2X556SHcAm5RhCKXQ2/dARiTIO1wE=;
-	b=dKF1OA+jVKImLzoO93mlteGO8sAnZp8eKtln6P0Z0EmbkIrz/o+ONZu6UVCd1UHyHB7sSU
-	7ExB7uVRrCxn706A2wWclkNYUlHQEpiGiiKFZN4nAEFC69+3YMN5zC2/0JgGq8AompGWsI
-	XF6J3hc98rtIQjh74rYERjnJaQ8C/RU=
-Received: from mail-ua1-f72.google.com (mail-ua1-f72.google.com
- [209.85.222.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-613--JPeSA2uOHOiRlak6egAng-1; Thu, 31 Oct 2024 06:51:04 -0400
-X-MC-Unique: -JPeSA2uOHOiRlak6egAng-1
-Received: by mail-ua1-f72.google.com with SMTP id a1e0cc1a2514c-84ff1850a9dso168309241.3
-        for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 03:51:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730371864; x=1730976664;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/AXLe6BNzWvyIS2X556SHcAm5RhCKXQ2/dARiTIO1wE=;
-        b=eavOkOwtfLUsX9g+pRgcYStg2wsS87cZWMgw7+OIs5y9kgTbWUMYL/pEPxqIfI67hB
-         F54mjANvg+wRz+/32sLHk7zdHUyPa73erPgE88iFduK3ZWviCeCoI72rFUdM5uCp2AEN
-         FQ0D8DIPWEAz5DBKWUeCu6/S2AKFXT9YSm+UVw7poWsiX4MsAarPHepX2mW94INEB39W
-         m7WAgnD6U2ROG9wVw6QI/5yrpJ6/5Bjp7uz2eP8aOt/qDhPTIcdhC7/GGvdfWsLP5cAI
-         60TX+4NVLPSUrb70w12iulAfrRgo9i/4hmFtSjY9ptqgSCe2pxERm3n98+sl8/E5LDI0
-         XOjA==
-X-Forwarded-Encrypted: i=1; AJvYcCXgEPf7PYPkfh46Rky/DR3tcPHMI+mNm7dfhEiN46QcHT9EeRwnWe1Y9ZnKqz5aD+wG41iHQREKiNW9VmuXZQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwT000018Y+UOrR1TTwK/Im9ku6jKItSbdKHp+JiSwyNNPNlVts
-	pImng2/Oa6il9upsPaslI1p9MMl2wU95sq3nLt96wuGB1fqq3AgvmG4UzSv6Wcg8DQ7vMRXXB2T
-	wGcwybHzFUG9ZPZyxaZke0Tf2/8LSsxHGjWf1OK4EJBdE+HLWSfAlbk66Tqp7c8usEvSNKsO9Ei
-	WnMdIVhRsuoDR/N1/bDZq7uR4xhLoBJl9yi6kT49k=
-X-Received: by 2002:a05:6102:e0e:b0:4a4:72f0:793e with SMTP id ada2fe7eead31-4a95437210amr3812156137.20.1730371864240;
-        Thu, 31 Oct 2024 03:51:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHwfzEyODsd5Ja8ZyzC6TH+ukrerObDa1tg1mi7WbgzDduWTc2C+QNy9WoO6WjMViQRFfbhvhDuBNxMti+84S8=
-X-Received: by 2002:a05:6102:e0e:b0:4a4:72f0:793e with SMTP id
- ada2fe7eead31-4a95437210amr3812123137.20.1730371863840; Thu, 31 Oct 2024
- 03:51:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="Xrd+EB4O"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=PhVAizifzT/4yPSaAOXb3RVgx4i7+AQmeoy8spMl09YR5oitZsAJz5/Jjp83gpOVPwyxCr5U4OO/c2G4QEidjVdGhl7Ua/LBfVX3AMLT1iBg1RVSpzLaIV4L6hdGWlBCj0QGZ6MMVn23Io64rHMGF06AZmTtWsq42ki93UBqGJ2IzJR2kz8OglHchszNA99KYuhL7RGQu+61YwtMjp/tWTE0nppn1shZpPOeK9wIuC+IR675QY+UuQ421kUYTgHMg4khHIpQcWfAFce5t9qirLy8jkWm5Z04m+e9sxX6hPG4jpeeBsOWy7btN6Hr2QT67/iQx1v/OZ9nsmR9CuCxCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TO2WhqASzfkiVWXkPHkjZTI/yUeQ52VZORNeIzkGoTI=;
+ b=nEiig32eyNcU8pEL8h9TcVSZSnXPmuVTxCFvHZzTY+EVJLCkSi9z2OQ3Zx52c95baMhprSJsPYxgKWb5MJ1yVFZVskipEEz10zKt8nYREEDufs1naXePgzlCAiyUALzFdfNqsd8PdnVr8j/VW2lZSa6wMI+ft6C5LqbN/3w7bRu5RUyxKBqEbCeGah3tB8XnPbkkvzJ/VQPiB2rrdfjxvUJOshTo/BGHcgc0HLoZVtcUyIKUtLPM76Px2Blxy6FD2VJOqXkZH/+E5DmKEiZR02kJ1xZ2Zyzc03LEzPna5fX1XbEc4lsqwuywC8/get4ulqSFuQpXdoM3rmHx5k5JJg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TO2WhqASzfkiVWXkPHkjZTI/yUeQ52VZORNeIzkGoTI=;
+ b=Xrd+EB4OQAy/HGGgs0E0kctzlOvkLXN3eaxmAnIyB/CsquDoGbfvCFeZ0Zy3GFaJHudLDL+RAcLJeizUHY0R2khveDPson/53q+tnii91+kJzCBdLEx8Mh9tLFdNzijHX4xESUUi25muc3KLnKoAzQwNllYIvIcONCbvoB1skz0yTHi8WfdWivIxRIzZ2EahirvarDIJu3uTh3RNbx5MhMUhy5fMZfSK7xltJomHqY9NdQY0+Rt4pon0eBazsv2H8itVSfrMkME7b44HpIDqDXi5cfkoXADvDIrPdlHokDVbqmCYHHJz9MPEzLRSxDmLYaNLShe50ibvi/bOf2v6Gg==
+Received: from SI2PR06MB5385.apcprd06.prod.outlook.com (2603:1096:4:1ec::12)
+ by TYSPR06MB6471.apcprd06.prod.outlook.com (2603:1096:400:480::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.20; Thu, 31 Oct
+ 2024 12:39:10 +0000
+Received: from SI2PR06MB5385.apcprd06.prod.outlook.com
+ ([fe80::967d:afda:6f4:33dd]) by SI2PR06MB5385.apcprd06.prod.outlook.com
+ ([fe80::967d:afda:6f4:33dd%4]) with mapi id 15.20.8137.008; Thu, 31 Oct 2024
+ 12:39:10 +0000
+From: Lege Wang <lege.wang@jaguarmicro.com>
+To: Parav Pandit <parav@nvidia.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>
+CC: "stable@vger.kernel.org" <stable@vger.kernel.org>, "mst@redhat.com"
+	<mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>
+Subject: RE: [PATCH] vp_vdpa: fix id_table array not null terminated error
+Thread-Topic: [PATCH] vp_vdpa: fix id_table array not null terminated error
+Thread-Index: AQHbK0ogafT92RUoPEyaCu0bwt0L57KgQDKAgACFXqA=
+Date: Thu, 31 Oct 2024 12:39:10 +0000
+Message-ID:
+ <SI2PR06MB53853CBC1C23E04D009B04B0FF552@SI2PR06MB5385.apcprd06.prod.outlook.com>
+References: <20241031040514.597-1-lege.wang@jaguarmicro.com>
+ <CY8PR12MB719540F6E6CC0A6AAC2FAA5DDC552@CY8PR12MB7195.namprd12.prod.outlook.com>
+In-Reply-To:
+ <CY8PR12MB719540F6E6CC0A6AAC2FAA5DDC552@CY8PR12MB7195.namprd12.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SI2PR06MB5385:EE_|TYSPR06MB6471:EE_
+x-ms-office365-filtering-correlation-id: f329c8f7-b8aa-4d4b-fbfc-08dcf9a904ca
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
+x-microsoft-antispam-message-info:
+ =?Windows-1252?Q?KAv42ze2VdvZaMdQhUF6JCkTfdLGyJc8OSe8KnalauaBTYxrMSCt3IRB?=
+ =?Windows-1252?Q?APejXiPw559xFJpG2rdXHN0oDyEiKm8nV1xN64XNl99hsS5GfB+d0Vyr?=
+ =?Windows-1252?Q?sdQBqrSpc0hd0r0IqWTIK+xBn45hMdHtGu2KRCE9GkfRdNE1q62OoWj4?=
+ =?Windows-1252?Q?gS1m8xRoy2uiaZTOeXdhQvqnH1w+7IzrpXi7unS6JsJAS70LaDEoTYWJ?=
+ =?Windows-1252?Q?ucEPutFb+17/QQqj20pHslBEBWE67RhmKXAFos2rlkovcLmrezb96xff?=
+ =?Windows-1252?Q?HbUPdgGOpF1ZhxU7F/p2sPeGI5rdTsRgvPS7y4OpnyOuPArcATAje/72?=
+ =?Windows-1252?Q?MFjXhU5IHc/SHe3pTWIw6R9z7WSMX7dhx7kqljLYhIbXeimZ6iv4nEBf?=
+ =?Windows-1252?Q?+GbgM5l4bJ4AefDg/DH1z/JdQiPWNkcnQBFgbIDuNZY0I0FBUYfo2wkA?=
+ =?Windows-1252?Q?ZCtTtVNjwHFMepJIrPv86jLTe04EoCzmsT2P8KyG6lHWyNLaqEFykLeP?=
+ =?Windows-1252?Q?MfkzHL4yW/S8voqK8AjCT/rTJlabbgHuDMMX38Ij2DupKa4DiWieOX9w?=
+ =?Windows-1252?Q?kR9+c98yYbAiKQXvdtlYnt/mNvnF82bDlU7I3ccEmXrDTPPHetO+DLlW?=
+ =?Windows-1252?Q?NzZhTIsXirQ46YYNaRnrH/J1ikku3JwMHd+gOdxhCwAuFxJlcHmHV596?=
+ =?Windows-1252?Q?F2X4T/KMwoBw+5P2K2bwS+rQFCuHMpV5W9FTZ1q3QH5ToT7epLuR1Q2d?=
+ =?Windows-1252?Q?I4YE66OoN37c6/0guHsEwsn17gPKweWj32cwhbWIv+UXqafIVdOVHC5u?=
+ =?Windows-1252?Q?H3/aaWvrSOcyXUFGibCO2n4tPxznndnUfBt/eBcIE041Bdy7cHf0JqKQ?=
+ =?Windows-1252?Q?sipiLB+O4u/js4sn8RXO7jFCs644CM3BXYkHQVsYQ1r3poZ7nNFXnlZz?=
+ =?Windows-1252?Q?/l8DQwWfhmE258cEvZX8g0tNSwv+Ido8RoEsEJiFPvJnGUMXp+gcWuhT?=
+ =?Windows-1252?Q?5nSkcsdE19Kb9LTSXET7SWNmogLXhiZbkMSZgqq7RsEJ5US3JitQA7GG?=
+ =?Windows-1252?Q?2jmC7nsZLD1OQr3+U0FQzMdy7cjlfZJ8LClxV7UPVyPEFEFIJUXMBhhu?=
+ =?Windows-1252?Q?PszwY1Uw7tZz0G0bw1Ry52o5EujAi6nriekO4ySMp7C9Qfw+5pQ50cNo?=
+ =?Windows-1252?Q?u/AupzmMvroZFfXSMnTTKNobuf9dAZanhevvfBj/y/xOBLMKFu2LxpOg?=
+ =?Windows-1252?Q?kuWZTfhksIwHzHDrMPzUs00AD69NOe9ncsDzMG0r32CL8chIzzbsuh+P?=
+ =?Windows-1252?Q?GGlj5XILf9Ogwc7gSbNddnff0TvCcT+/WbjdxKst64F5EW3OwkVBSLj+?=
+ =?Windows-1252?Q?UcOdEgq8eTYUrwPJxQ8Kn1g+dsuDJ0HSx1cjMmk6yZ1U5tBBZoucXbMh?=
+ =?Windows-1252?Q?G5zGvi/IxlRVd/IxgqScoe9lFCRBVvdreqLI3Kc5HtA=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:zh-cn;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SI2PR06MB5385.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?Windows-1252?Q?GaJkeORXUOmE0QtMwYJ7TO3HxW+fiwGj9BpNGR7Uk7MigtrLLbX9NIg4?=
+ =?Windows-1252?Q?0eEY3ygmbISbfEKHZQ9FUG9bVqwsjJe8i/Mmm2F15p1ASQIt40uQsfo1?=
+ =?Windows-1252?Q?SJHuc4myMbE5s4G5f9Zu32rEWde7LL7wNlps8VogMTtgoe+TflBUXxwO?=
+ =?Windows-1252?Q?DUv27JbbQmTI4VlgF8GeYLT4ygSY6pxh9zddPJwd12x5t5Theru/DNSu?=
+ =?Windows-1252?Q?1uvU7n2M/wyobbaoZQpEUZCZJ3PzciUzuDk8cOhjSzwsqIpu+ysEF0ds?=
+ =?Windows-1252?Q?/D4HHpM79b4Y5XZOJamIc/IBadWzsIvs37bonHRSJBnEEV20nmdvukHY?=
+ =?Windows-1252?Q?2GFN4ozAxxQDmzclj3yWxTv72ZGVn4wlKQUNEkK6yqIOxLs9ho2BkFkP?=
+ =?Windows-1252?Q?vOVIPEeUY7o8T/28oMCucwrMxWXodOU4YTy5Zj5r5sXeD1wj6dr8QLCg?=
+ =?Windows-1252?Q?0T94c5MddXGkiQSBdcrcNuBoaEpyBwVokSz1gCmJkvGeBUKafupzfzDx?=
+ =?Windows-1252?Q?0cU/2zXGyHAXSWLKjptGnfHfXTOl3qae7g/3TRkM17+Jfm3aQHMxNuQN?=
+ =?Windows-1252?Q?AbpZd6xGgrFXl2w0/sSCwxNcdQXpQBQ9UCjqEuZDULihNYZiJ1waaa+s?=
+ =?Windows-1252?Q?/17L8K6idcQtjfbQ1+yFbfXQ61O+NappOdHCdYLK6UMO6vW61MNKp4IJ?=
+ =?Windows-1252?Q?fnT1OQCh6m6xkJzqkNAUcelL2W2DzU61KztRi4yBatddexAg6wTkwIAz?=
+ =?Windows-1252?Q?/qOEj7t0T8HMfFIhEnPIJvc/fJAblHM6mNRGjWsyuhVYN5U6ZeQzUMG9?=
+ =?Windows-1252?Q?SkhWi73gGZRbCAPmQhrZ1jGFuD9tYkpzC39MbWVsHr8wNdLgvNWWbNLx?=
+ =?Windows-1252?Q?WMMXkzBfDNHuTamzkUuge6e7Wy/+xGj+OyT64sSKTNuspqu5g8xlmP7F?=
+ =?Windows-1252?Q?0NW9ucLUz9Fhw583f4PwhPUKHX8wVo285kGO2BT6I/4/v1FS/afZBAfR?=
+ =?Windows-1252?Q?1OeZW93aqG/BCVjKmryitahegwigzejdGQCQMdAIIzy64RkTcUCUC34k?=
+ =?Windows-1252?Q?m079Su8YQdOR2zSlqVJbEld3QjjX4tZfpeajgLRX1T0/Yi/cBVoWcDv3?=
+ =?Windows-1252?Q?EbGEfIUqVNwraMcl3dGxLgHyqwRrch85f0FlDYqzvzpu2T2LPrGt9IBw?=
+ =?Windows-1252?Q?xYztk2wamcJ/0a916NeSPNltOOO1fE6rWIN8MsdoXrUHnddDRz4O4D3z?=
+ =?Windows-1252?Q?UPp76GUCALr/kpfaSG6wjAKeEXXm6ZDNCE+JLdxn9RENAl86eJYMVLB7?=
+ =?Windows-1252?Q?wkaS6TA3Uw/c9sBlqVZRueACv82aqTs96BY0sVEbNRqCFfOi/o8nFkJ1?=
+ =?Windows-1252?Q?dwX5jobH0VnbFkQSsIS3sIxdLJvs+Iu+wf2u5oibumiNDaeMfFZQ17VH?=
+ =?Windows-1252?Q?NnuoFMgZ8zvsi6jKYY8rb0ZW8S9WIc/jQ0kn5sb/xwOtWHcB65bolXGe?=
+ =?Windows-1252?Q?efPgIXV4F5p9Lx807JPUaYPvaPGUS6K8uxMfonaM45hWLSauQI9pfRAl?=
+ =?Windows-1252?Q?lFW2jHjzJBHewPDILCxKLI9R36Kb5UBxLLdtvdGg9USNX1qBHtD78brl?=
+ =?Windows-1252?Q?/CuHKdurRM3RKosuar3ENTPW8xNMfw8rNCbVpeUV4HPh+hqUC3cOtOqi?=
+ =?Windows-1252?Q?Asp+6N0uNqTDEC/1bB2PRM7Z355qjMwj?=
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241031074618.3585491-1-guanjun@linux.alibaba.com>
- <20241031074618.3585491-2-guanjun@linux.alibaba.com> <87v7x8woeq.ffs@tglx>
-In-Reply-To: <87v7x8woeq.ffs@tglx>
-From: Ming Lei <ming.lei@redhat.com>
-Date: Thu, 31 Oct 2024 18:50:51 +0800
-Message-ID: <CAFj5m9KZRjupM+bsuc-r_kTu1h8+wtc_fdmkHWS=cNbg4aU03g@mail.gmail.com>
-Subject: Re: [PATCH RFC v1 1/2] genirq/affinity: add support for limiting
- managed interrupts
-To: Thomas Gleixner <tglx@linutronix.de>, Christoph Hellwig <hch@lst.de>
-Cc: Guanjun <guanjun@linux.alibaba.com>, corbet@lwn.net, axboe@kernel.dk, 
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, vgoyal@redhat.com, stefanha@redhat.com, 
-	miklos@szeredi.hu, peterz@infradead.org, akpm@linux-foundation.org, 
-	paulmck@kernel.org, thuth@redhat.com, rostedt@goodmis.org, bp@alien8.de, 
-	xiongwei.song@windriver.com, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SI2PR06MB5385.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f329c8f7-b8aa-4d4b-fbfc-08dcf9a904ca
+X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Oct 2024 12:39:10.4827
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: RF2Q0iaJFdqQ9q6zYZeYRIP2zro6NxpPhfX6Ej2CvaVbm/dXQXV0o7TLaH32VtatHaUoAvBijsUgukUvKoqy4uq+xg1WBSxTSicPT0LIUJw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYSPR06MB6471
 
-On Thu, Oct 31, 2024 at 6:35=E2=80=AFPM Thomas Gleixner <tglx@linutronix.de=
-> wrote:
->
-> On Thu, Oct 31 2024 at 15:46, guanjun@linux.alibaba.com wrote:
-> >  #ifdef CONFIG_SMP
+hi,
+
+> -----Original Message-----
+> From: Parav Pandit <parav@nvidia.com>
+> Sent: Thursday, October 31, 2024 12:15 PM
+> To: Lege Wang <lege.wang@jaguarmicro.com>; virtualization@lists.linux.dev
+> Cc: stable@vger.kernel.org; mst@redhat.com; jasowang@redhat.com
+> Subject: RE: [PATCH] vp_vdpa: fix id_table array not null terminated erro=
+r
+>=20
+> External Mail: This email originated from OUTSIDE of the organization!
+> Do not click links, open attachments or provide ANY information unless yo=
+u
+> recognize the sender and know the content is safe.
+>=20
+>=20
+> > From: Xiaoguang Wang <lege.wang@jaguarmicro.com>
+> > Sent: Thursday, October 31, 2024 9:35 AM
 > >
-> > +static unsigned int __read_mostly managed_irqs_per_node;
-> > +static struct cpumask managed_irqs_cpumsk[MAX_NUMNODES] __cacheline_al=
-igned_in_smp =3D {
-> > +     [0 ... MAX_NUMNODES-1] =3D {CPU_BITS_ALL}
-> > +};
+> > Allocate one extra virtio_device_id as null terminator, otherwise
+> > vdpa_mgmtdev_get_classes() may iterate multiple times and visit undefin=
+ed
+> > memory.
 > >
-> > +static void __group_prepare_affinity(struct cpumask *premask,
-> > +                                  cpumask_var_t *node_to_cpumask)
-> > +{
-> > +     nodemask_t nodemsk =3D NODE_MASK_NONE;
-> > +     unsigned int ncpus, n;
-> > +
-> > +     get_nodes_in_cpumask(node_to_cpumask, premask, &nodemsk);
-> > +
-> > +     for_each_node_mask(n, nodemsk) {
-> > +             cpumask_and(&managed_irqs_cpumsk[n], &managed_irqs_cpumsk=
-[n], premask);
-> > +             cpumask_and(&managed_irqs_cpumsk[n], &managed_irqs_cpumsk=
-[n], node_to_cpumask[n]);
->
-> How is this managed_irqs_cpumsk array protected against concurrency?
->
-> > +             ncpus =3D cpumask_weight(&managed_irqs_cpumsk[n]);
-> > +             if (ncpus < managed_irqs_per_node) {
-> > +                     /* Reset node n to current node cpumask */
-> > +                     cpumask_copy(&managed_irqs_cpumsk[n], node_to_cpu=
-mask[n]);
->
-> This whole logic is incomprehensible and aside of the concurrency
-> problem it's broken when CPUs are made present at run-time because these
-> cpu masks are static and represent the stale state of the last
-> invocation.
->
-> Given the limitations of the x86 vector space, which is not going away
-> anytime soon, there are only two options IMO to handle such a scenario.
->
->    1) Tell the nvme/block layer to disable queue affinity management
+> > Fixes: ffbda8e9df10 ("vdpa/vp_vdpa : add vdpa tool support in vp_vdpa")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Xiaoguang Wang <lege.wang@jaguarmicro.com>
+> > ---
+> >  drivers/vdpa/virtio_pci/vp_vdpa.c | 6 +++++-
+> >  1 file changed, 5 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > index ac4ab22f7d8b..74cc4ed77cc4 100644
+> > --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > @@ -612,7 +612,11 @@ static int vp_vdpa_probe(struct pci_dev *pdev,
+> > const struct pci_device_id *id)
+> >               goto mdev_err;
+> >       }
+> >
+> > -     mdev_id =3D kzalloc(sizeof(struct virtio_device_id), GFP_KERNEL);
+> > +     /*
+> > +      * id_table should be a null terminated array.
+> > +      * See vdpa_mgmtdev_get_classes().
+> > +      */
+> > +     mdev_id =3D kzalloc(sizeof(struct virtio_device_id) * 2, GFP_KERN=
+EL);
+> Only one additional entry is needed for null termination. No need to allo=
+cate
+> 2x memory.
+> Even though you have only two entries. Reading code as +1 is better to
+> understand null termination.
+Sorry, I don't get your point here, vp_vdpa_probe only needs one struct vir=
+tio_device_id, plus
+one null termination, "sizeof(struct virtio_device_id) * 2 " should be enou=
+gh here?
 
-+1
+>=20
+> And for array, you should use,
+> array =3D kcalloc(2, sizeof(mdev_id), GFP_KERNEL);
+OK, thanks for your suggestion.
 
-There are other use cases, such as cpu isolation, which can benefit from
-this way too.
+Regards,
+Xiaoguang Wang
 
-https://lore.kernel.org/linux-nvme/20240702104112.4123810-1-ming.lei@redhat=
-.com/
-
-Thanks,
+>=20
+> >       if (!mdev_id) {
+> >               err =3D -ENOMEM;
+> >               goto mdev_id_err;
+> > --
+> > 2.40.1
+> >
 
