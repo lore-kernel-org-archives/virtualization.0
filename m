@@ -1,28 +1,29 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274B314D6E1
-	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 07:46:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8D45145335
+	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 07:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730360786; cv=none; b=VpTAdWG4WWDZTIhsC62J3Ju3YjFJ1p8mD8pusx+iwkjCvEOBfc4SSInWNATGsHfKE9zl3thP1qIiFAHDtAoDQw17H7DnN3uqW07v2+I80BJpSmbiphqbJxXbogvKhPZyZbSSJUCnJvleSmV8aURVslyhYM5+7sQW6W97MzCKGNc=
+	t=1730360789; cv=none; b=iiuSMdLMuT/kZhPZYwDTXYS8kg8nj4eBTyE6vRvPd7FEasxsUU7iKU/5njliysivn9ot6rWs1d/H21dJXskRCAMArnleAa8rDY5jBU7hRiq7aOD2IK7Pk5kfKR05OoRaHooOKt+g2V3aVn3Xl2pB7fNxUzFJeZAmaY8Z/knuIts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730360786; c=relaxed/simple;
-	bh=LO8Ci0ae9Y8Y0UdUGzx5luX8NEoGnj562SvJpkzsmdg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=b3GnuVYzSHwl+8rybdLv7VkC6wlsHDPh3gVrWMogba8iqVA1tWVS65NN6BqxrvrFdg0oaZVyvH6ckzG3Z8ZxsvAWiTrzfJyvmUlYaV8AQYcu6IIGtr8aa6UFHGOJ5WYWGFQlGf5q8gjSLaHR/iWs+sx/ON5+kCvCildAHeXYvqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=IfMtY89E; arc=none smtp.client-ip=115.124.30.101
+	s=arc-20240116; t=1730360789; c=relaxed/simple;
+	bh=JKc11Y/ePIV67BpUqe03La6lQoNdPNKgkDTdLM6TL6Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qmHaEeH9ZVhEhNhoAffkmUjnE2ymWFxjSpKgIcY1iD7jg95PlSEBPkAp79NNfN7h0lxjG4QWUEC5DMuLjrQ3EVxXyEBcX0EdZGN/6vwzXffYMM5WeMvrJVScF9L/OAB6SG1dEfM1pFxYiOMH6wbtlHczCEkHrqW7FBlbWc4jeLs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Fi1u8QeM; arc=none smtp.client-ip=115.124.30.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="IfMtY89E"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Fi1u8QeM"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1730360780; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=HcJhglacALWuErvFcSYaoS/PumrISEPMTBp9tpEVtaY=;
-	b=IfMtY89EdttRY0iD36c+oTWNhJKn3WwS2MpHxv5LlV0t1gleIwp0h7mZCdnz+fkNip6NSMT0BEtPGD/kN2fAlTgQ7tkprB5PyNzMUMf2O2AgCezu7iwyFyodBgpGjW1ZFgBu7fXXJwDBV6NpwUF32F4jHRhO76YabVH4hSpumag=
-Received: from localhost(mailfrom:guanjun@linux.alibaba.com fp:SMTPD_---0WIHa4Ov_1730360778 cluster:ay36)
+	t=1730360783; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=WwNO7n6jnbJ4T0oonR+GBHNN3lnAN99Ng6tUZqHMNRg=;
+	b=Fi1u8QeMR+jpbZPemfR4nVjCpNxyZqG6agobcwMykIjNtvKH/h5TF74jUVwnAExODh+ZW/Chg1xQTTfdSXgWvj1DUxMFy6iE0Hqitl+eltcQtDXvFIsxnp+DAeXFk5ZYRapTLlPVbRjV83qjTZyIlxqm8f06CnKgD2F01IWys44=
+Received: from localhost(mailfrom:guanjun@linux.alibaba.com fp:SMTPD_---0WIHewyR_1730360780 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 31 Oct 2024 15:46:19 +0800
+          Thu, 31 Oct 2024 15:46:20 +0800
 From: 'Guanjun' <guanjun@linux.alibaba.com>
 To: corbet@lwn.net,
 	axboe@kernel.dk,
@@ -47,10 +48,12 @@ To: corbet@lwn.net,
 	virtualization@lists.linux.dev,
 	linux-fsdevel@vger.kernel.org
 Cc: guanjun@linux.alibaba.com
-Subject: [PATCH RFC v1 0/2] Support for limiting the number of managed interrupts on every node per allocation.
-Date: Thu, 31 Oct 2024 15:46:16 +0800
-Message-ID: <20241031074618.3585491-1-guanjun@linux.alibaba.com>
+Subject: [PATCH RFC v1 1/2] genirq/affinity: add support for limiting managed interrupts
+Date: Thu, 31 Oct 2024 15:46:17 +0800
+Message-ID: <20241031074618.3585491-2-guanjun@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20241031074618.3585491-1-guanjun@linux.alibaba.com>
+References: <20241031074618.3585491-1-guanjun@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,37 +64,228 @@ Content-Transfer-Encoding: 8bit
 
 From: Guanjun <guanjun@linux.alibaba.com>
 
-We found that in scenarios with a large number of devices on the system,
-for example, 256 NVMe block devices, each with 2 I/O queues, about a few
-dozen of interrupts cannot be allocated, and get the error code -ENOSPC.
-The reason for this issue is that the io queue interrupts are set to managed
-interrupts (i.e., affinity is managed by the kernel), which leads to a
-excessive number of the IRQ matrix bits being reserved.
+Commit c410abbbacb9 (genirq/affinity: Add is_managed to struct irq_affinity_desc)
+introduced is_managed bit to struct irq_affinity_desc. Due to queue interrupts
+treated as managed interrupts, in scenarios where a large number of
+devices are present (using massive msix queue interrupts), an excessive number
+of IRQ matrix bits (about num_online_cpus() * nvecs) are reserved during
+interrupt allocation. This sequently leads to the situation where interrupts
+for some devices cannot be properly allocated.
 
-This patch series support for limiting the number of managed interrupt
-per allocation to address this issue.
+Support for limiting the number of managed interrupts on every node per allocation.
 
-Thanks,
-Guanjun
-
-
-Guanjun (2):
-  genirq/affinity: add support for limiting managed interrupts
-  genirq/cpuhotplug: Handle managed IRQs when the last CPU hotplug out
-    in the affinity
-
- .../admin-guide/kernel-parameters.txt         | 12 ++++
+Signed-off-by: Guanjun <guanjun@linux.alibaba.com>
+---
+ .../admin-guide/kernel-parameters.txt         |  9 +++
  block/blk-mq-cpumap.c                         |  2 +-
  drivers/virtio/virtio_vdpa.c                  |  2 +-
  fs/fuse/virtio_fs.c                           |  2 +-
  include/linux/group_cpus.h                    |  2 +-
- include/linux/irq.h                           |  2 +
- kernel/cpu.c                                  |  2 +-
  kernel/irq/affinity.c                         | 11 ++--
- kernel/irq/cpuhotplug.c                       | 51 +++++++++++++++++
  lib/group_cpus.c                              | 55 ++++++++++++++++++-
- 10 files changed, 130 insertions(+), 11 deletions(-)
+ 7 files changed, 73 insertions(+), 10 deletions(-)
 
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 9b61097a6448..ac80f35d04c9 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -3238,6 +3238,15 @@
+ 			different yeeloong laptops.
+ 			Example: machtype=lemote-yeeloong-2f-7inch
+ 
++	managed_irqs_per_node=
++			[KNL,SMP] Support for limiting the number of managed
++			interrupts on every node to prevent the case that
++			interrupts cannot be properly allocated where a large
++			number of devices are present. The default number is 0,
++			that means no limit to the number of managed irqs.
++			Format: integer between 0 and num_possible_cpus() / num_possible_nodes()
++			Default: 0
++
+ 	maxcpus=	[SMP,EARLY] Maximum number of processors that an SMP kernel
+ 			will bring up during bootup.  maxcpus=n : n >= 0 limits
+ 			the kernel to bring up 'n' processors. Surely after
+diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
+index 9638b25fd521..481c81318e00 100644
+--- a/block/blk-mq-cpumap.c
++++ b/block/blk-mq-cpumap.c
+@@ -20,7 +20,7 @@ void blk_mq_map_queues(struct blk_mq_queue_map *qmap)
+ 	const struct cpumask *masks;
+ 	unsigned int queue, cpu;
+ 
+-	masks = group_cpus_evenly(qmap->nr_queues);
++	masks = group_cpus_evenly(qmap->nr_queues, true);
+ 	if (!masks) {
+ 		for_each_possible_cpu(cpu)
+ 			qmap->mq_map[cpu] = qmap->queue_offset;
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index 7364bd53e38d..cd303ac64046 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -330,7 +330,7 @@ create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
+ 	for (i = 0, usedvecs = 0; i < affd->nr_sets; i++) {
+ 		unsigned int this_vecs = affd->set_size[i];
+ 		int j;
+-		struct cpumask *result = group_cpus_evenly(this_vecs);
++		struct cpumask *result = group_cpus_evenly(this_vecs, true);
+ 
+ 		if (!result) {
+ 			kfree(masks);
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index f68527891929..41b3bcc03f9c 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -881,7 +881,7 @@ static void virtio_fs_map_queues(struct virtio_device *vdev, struct virtio_fs *f
+ 	return;
+ fallback:
+ 	/* Attempt to map evenly in groups over the CPUs */
+-	masks = group_cpus_evenly(fs->num_request_queues);
++	masks = group_cpus_evenly(fs->num_request_queues, true);
+ 	/* If even this fails we default to all CPUs use queue zero */
+ 	if (!masks) {
+ 		for_each_possible_cpu(cpu)
+diff --git a/include/linux/group_cpus.h b/include/linux/group_cpus.h
+index e42807ec61f6..10a12b9a7ed4 100644
+--- a/include/linux/group_cpus.h
++++ b/include/linux/group_cpus.h
+@@ -9,6 +9,6 @@
+ #include <linux/kernel.h>
+ #include <linux/cpu.h>
+ 
+-struct cpumask *group_cpus_evenly(unsigned int numgrps);
++struct cpumask *group_cpus_evenly(unsigned int numgrps, bool is_managed);
+ 
+ #endif
+diff --git a/kernel/irq/affinity.c b/kernel/irq/affinity.c
+index 44a4eba80315..775ab8537ddc 100644
+--- a/kernel/irq/affinity.c
++++ b/kernel/irq/affinity.c
+@@ -64,6 +64,10 @@ irq_create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
+ 	for (curvec = 0; curvec < affd->pre_vectors; curvec++)
+ 		cpumask_copy(&masks[curvec].mask, irq_default_affinity);
+ 
++	/* Mark the managed interrupts */
++	for (i = curvec; i < nvecs - affd->post_vectors; i++)
++		masks[i].is_managed = 1;
++
+ 	/*
+ 	 * Spread on present CPUs starting from affd->pre_vectors. If we
+ 	 * have multiple sets, build each sets affinity mask separately.
+@@ -71,7 +75,8 @@ irq_create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
+ 	for (i = 0, usedvecs = 0; i < affd->nr_sets; i++) {
+ 		unsigned int this_vecs = affd->set_size[i];
+ 		int j;
+-		struct cpumask *result = group_cpus_evenly(this_vecs);
++		struct cpumask *result = group_cpus_evenly(this_vecs,
++				masks[curvec].is_managed);
+ 
+ 		if (!result) {
+ 			kfree(masks);
+@@ -94,10 +99,6 @@ irq_create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
+ 	for (; curvec < nvecs; curvec++)
+ 		cpumask_copy(&masks[curvec].mask, irq_default_affinity);
+ 
+-	/* Mark the managed interrupts */
+-	for (i = affd->pre_vectors; i < nvecs - affd->post_vectors; i++)
+-		masks[i].is_managed = 1;
+-
+ 	return masks;
+ }
+ 
+diff --git a/lib/group_cpus.c b/lib/group_cpus.c
+index ee272c4cefcc..769a139491bc 100644
+--- a/lib/group_cpus.c
++++ b/lib/group_cpus.c
+@@ -11,6 +11,30 @@
+ 
+ #ifdef CONFIG_SMP
+ 
++static unsigned int __read_mostly managed_irqs_per_node;
++static struct cpumask managed_irqs_cpumsk[MAX_NUMNODES] __cacheline_aligned_in_smp = {
++	[0 ... MAX_NUMNODES-1] = {CPU_BITS_ALL}
++};
++
++static int __init irq_managed_setup(char *str)
++{
++	int ret;
++
++	ret = kstrtouint(str, 10, &managed_irqs_per_node);
++	if (ret < 0) {
++		pr_warn("managed_irqs_per_node= cannot parse, ignored\n");
++		return 0;
++	}
++
++	if (managed_irqs_per_node * num_possible_nodes() > num_possible_cpus()) {
++		managed_irqs_per_node = num_possible_cpus() / num_possible_nodes();
++		pr_warn("managed_irqs_per_node= cannot be larger than %u\n",
++			managed_irqs_per_node);
++	}
++	return 1;
++}
++__setup("managed_irqs_per_node=", irq_managed_setup);
++
+ static void grp_spread_init_one(struct cpumask *irqmsk, struct cpumask *nmsk,
+ 				unsigned int cpus_per_grp)
+ {
+@@ -246,6 +270,30 @@ static void alloc_nodes_groups(unsigned int numgrps,
+ 	}
+ }
+ 
++static void __group_prepare_affinity(struct cpumask *premask,
++				     cpumask_var_t *node_to_cpumask)
++{
++	nodemask_t nodemsk = NODE_MASK_NONE;
++	unsigned int ncpus, n;
++
++	get_nodes_in_cpumask(node_to_cpumask, premask, &nodemsk);
++
++	for_each_node_mask(n, nodemsk) {
++		cpumask_and(&managed_irqs_cpumsk[n], &managed_irqs_cpumsk[n], premask);
++		cpumask_and(&managed_irqs_cpumsk[n], &managed_irqs_cpumsk[n], node_to_cpumask[n]);
++
++		ncpus = cpumask_weight(&managed_irqs_cpumsk[n]);
++		if (ncpus < managed_irqs_per_node) {
++			/* Reset node n to current node cpumask */
++			cpumask_copy(&managed_irqs_cpumsk[n], node_to_cpumask[n]);
++			continue;
++		}
++
++		grp_spread_init_one(premask, &managed_irqs_cpumsk[n], managed_irqs_per_node);
++	}
++}
++
++
+ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+ 			       cpumask_var_t *node_to_cpumask,
+ 			       const struct cpumask *cpu_mask,
+@@ -332,6 +380,7 @@ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+ /**
+  * group_cpus_evenly - Group all CPUs evenly per NUMA/CPU locality
+  * @numgrps: number of groups
++ * @is_managed: if these groups managed by kernel
+  *
+  * Return: cpumask array if successful, NULL otherwise. And each element
+  * includes CPUs assigned to this group
+@@ -344,7 +393,7 @@ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+  * We guarantee in the resulted grouping that all CPUs are covered, and
+  * no same CPU is assigned to multiple groups
+  */
+-struct cpumask *group_cpus_evenly(unsigned int numgrps)
++struct cpumask *group_cpus_evenly(unsigned int numgrps, bool is_managed)
+ {
+ 	unsigned int curgrp = 0, nr_present = 0, nr_others = 0;
+ 	cpumask_var_t *node_to_cpumask;
+@@ -382,6 +431,10 @@ struct cpumask *group_cpus_evenly(unsigned int numgrps)
+ 	 */
+ 	cpumask_copy(npresmsk, data_race(cpu_present_mask));
+ 
++	/* Limit the count of managed interrupts on every node */
++	if (is_managed && managed_irqs_per_node)
++		__group_prepare_affinity(npresmsk, node_to_cpumask);
++
+ 	/* grouping present CPUs first */
+ 	ret = __group_cpus_evenly(curgrp, numgrps, node_to_cpumask,
+ 				  npresmsk, nmsk, masks);
 -- 
 2.43.5
 
