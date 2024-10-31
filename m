@@ -1,299 +1,190 @@
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2116.outbound.protection.outlook.com [40.107.243.116])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CAFD1BDE6
-	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 12:49:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.116
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730378978; cv=fail; b=chqh0tFWYwJS0lkp1lhIyu+MV2Sf790sy803z3Uf/bt79pPeDv4rbX+Ck4BZ3sfjexIKm5qGtBbyY+nKjc//1CfbQvdKuc6UeIiLiNjDFdiL9XNumAriVPhSjEhzgZBjVYmulxQIMCB+mQFDVrRXZDJfqtnPSvxv9FnFeXgCSLo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730378978; c=relaxed/simple;
-	bh=GWUwJTjpK78e2ch1vbqsK3sDIgc7mCKvcI1beEWSpv4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=qPgFkVgVd3uK2I0wvEN2qp3S3iIXNsx4iSuXevcR4eJaGU0okwfbgw+LtZ2+d2WLRTI4ixI/dliMu+eBEFJX8kzo+H3x1hqx2VNacQqC/RmtQNcyQfaEfMSL/Pk40ohp36caFC7AgBwgYVKZgvOu7zhPhJBetIO3qTZG6k9m0rQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=corigine.com; spf=pass smtp.mailfrom=corigine.com; dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.b=VlNzCXWx; arc=fail smtp.client-ip=40.107.243.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=corigine.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=corigine.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07558156CF
+	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 14:16:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730384214; cv=none; b=Qu6R3noznB/AK646Q5P4cgXAKM6Gdikx80rLBJ8cwVAnNGlfXN8Qk0v+BLhJ+COBSi8uOXH92uN9T77khIKglbSj5xc4YVfxBXasAY6APqN3ipNnGi1OFP1MhWrQBInSX34uAO0p3+YSwnS4PjSj4FhkWWowQtltYAbAtAn6+aw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730384214; c=relaxed/simple;
+	bh=cKLbfvOMqKQEtZ5qclELN1TR2T2jcygPLOGOX/rPHAo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=DIEWXC2Z0fAABCHFZosovCvPjgvKiUdQTi2hUFGhngZYE7dFIkqx5QqATtTJDbyA79zVKd8XaqBNmGvbKXB2+gNyfTKYYJuFtogVpEThZrdeLo1pM0GbWi26zJXGSAlgFZcH2zBFAsFLZemtprZO5xS+LjdccpYuf7coVcEiR9c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=atALYINk; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.b="VlNzCXWx"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=DZjHI1FvPSv5cooUrudqbiCqI6Vvh5e+sYVhIJHhzuKhInAIUAOP8lGJliGMLoujxgLYuF0E5PcSf0XszAlA6pmxyn/ec9NAZriAWrxpeiNogOWJGO+bZ2nIlpiBRDZYGeASiDRmWWhe5E+hK3Kx+j4fHc/83UTwiZoVETJA6On2TZ/iJ7a9+IbMAq5ZdWy6k/5wO3q8FAg5FG7nN/ZixJgdp5WH/K/8jFn4xcDg2kBO4gBTlDIog8FV+5RnCQEEYvXubB/92D0fYcnkAkww29+itII8BiY9nrF9vu6Jvn/BDUGFavUkz4y6bGlg/tVJAt75oJE4CZdq6fu8bTwShg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hdLzqf/yTk55heKa4L26mVR5RIL4KsJIu5JPiJiDxC8=;
- b=LM4+K1qKLlq6+MN2U7iQZzfTMDZ3V3UjfA9PTgVXlvPDCxAn8Eg/t58gocrZGruMJzTow/tgxIldJgL51VBW57z1T86KB4EYvkTRaZUva6B/Daihhs6WDsxyoO6Il25A3m44I751jrRLr+10vrm0lQUWPOH3DCNEX9jGDYb/j1+mJFcdUgK8AvmPe4F2JH+vyh2sHlDeGRaZ1W7eMI9PmwVxmzMWiS70hCvAaZiBUd1V8PX65uFPCJJJvbyObqWRg1xTcXvWcvC6fU1j7npjp7l6CLvef/HNv2y7RrwX20tX1UpVfc2WyhFx5F78VpPoRxJSnIt3rvFZ+2ZPOQK9Ig==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hdLzqf/yTk55heKa4L26mVR5RIL4KsJIu5JPiJiDxC8=;
- b=VlNzCXWx3K5bDL+6v2udxSkE5ZadCwXCXbfxFi0qxBFVRXwYwCwyIkrXLIxMK8pPguxoSDwTlrZ2B7M7+CtuRfcwKBv3BbHJgooclb7TXLlpqLA/fKFPthCsfaiRIELDLBCRzdOmHH/qT9i8SrgSuMbG2bTjRw4+quFe90oH+VM=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from BL0PR13MB4403.namprd13.prod.outlook.com (2603:10b6:208:1c4::8)
- by MW5PR13MB5414.namprd13.prod.outlook.com (2603:10b6:303:195::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8093.24; Thu, 31 Oct
- 2024 12:49:31 +0000
-Received: from BL0PR13MB4403.namprd13.prod.outlook.com
- ([fe80::bbcb:1c13:7639:bdc0]) by BL0PR13MB4403.namprd13.prod.outlook.com
- ([fe80::bbcb:1c13:7639:bdc0%6]) with mapi id 15.20.8114.020; Thu, 31 Oct 2024
- 12:49:31 +0000
-Date: Thu, 31 Oct 2024 14:49:10 +0200
-From: Louis Peens <louis.peens@corigine.com>
-To: Caleb Sander Mateos <csander@purestorage.com>
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Arthur Kiyanovski <akiyano@amazon.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Claudiu Manoil <claudiu.manoil@nxp.com>,
-	David Arinzon <darinzon@amazon.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Doug Berger <opendmb@gmail.com>, Eric Dumazet <edumazet@google.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Felix Fietkau <nbd@nbd.name>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Geetha sowjanya <gakula@marvell.com>,
-	hariprasad <hkelam@marvell.com>, Jakub Kicinski <kuba@kernel.org>,
-	Jason Wang <jasowang@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
-	Leon Romanovsky <leon@kernel.org>,
-	Lorenzo Bianconi <lorenzo@kernel.org>,
-	Mark Lee <Mark-MC.Lee@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Michael Chan <michael.chan@broadcom.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Noam Dagan <ndagan@amazon.com>, Paolo Abeni <pabeni@redhat.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	Roy Pledge <Roy.Pledge@nxp.com>, Saeed Bishara <saeedb@amazon.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Shannon Nelson <shannon.nelson@amd.com>,
-	Shay Agroskin <shayagr@amazon.com>, Simon Horman <horms@kernel.org>,
-	Subbaraya Sundeep <sbhatta@marvell.com>,
-	Sunil Goutham <sgoutham@marvell.com>, Tal Gilboa <talgi@nvidia.com>,
-	Tariq Toukan <tariqt@nvidia.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	intel-wired-lan@lists.osuosl.org,
-	linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, linux-rdma@vger.kernel.org,
-	netdev@vger.kernel.org, oss-drivers@corigine.com,
-	virtualization@lists.linux.dev
-Subject: Re: [resend PATCH 2/2] dim: pass dim_sample to net_dim() by reference
-Message-ID: <ZyN8xpq5C36Tg9rz@LouisNoVo>
-References: <20241031002326.3426181-1-csander@purestorage.com>
- <20241031002326.3426181-2-csander@purestorage.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241031002326.3426181-2-csander@purestorage.com>
-X-ClientProxiedBy: JNAP275CA0002.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:4c::7)
- To BL0PR13MB4403.namprd13.prod.outlook.com (2603:10b6:208:1c4::8)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="atALYINk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730384210;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ovEB1StOJ3pznvYEcRDlXSyCfUgSPoZbfcLdse6q8W8=;
+	b=atALYINknt7RqpmCCZwAq7BMbWnVZnUlyUd2sRLL4jIw3O0pM0kW6/bEHZpTIn1p2cvXxI
+	Wfc9FpTx25MK65A+ABjNp4FXMpThId1xMYRLCURND6v8YxNsn913VZFb9l6qMLd6jZQQ2q
+	tzZ5+HoPovI0Fhbak9uMLF62tjIvE28=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-374-fOJEvg6JMEyaKJmAXQEFlA-1; Thu, 31 Oct 2024 10:16:49 -0400
+X-MC-Unique: fOJEvg6JMEyaKJmAXQEFlA-1
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-460b46cf23cso14803921cf.3
+        for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 07:16:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730384209; x=1730989009;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ovEB1StOJ3pznvYEcRDlXSyCfUgSPoZbfcLdse6q8W8=;
+        b=B72sZtUhid1PglQrVW6VMK4OOxUaTPWahuM3mo2kbOWpgziP3CMdAm6EQAc9p+2N7O
+         1K/OzIFCBSyie0TQzKTbt/BJToHc8Scb6TA8l+21eVkX6cbddCtE5ErujDdLAMLJneP5
+         EDFzwVZc6pVCa/Kut56J51TYCOXpY8TmhJA7husgO4gE7bABBjqJjue4yfTW0G4Z9ZPP
+         u86GEXx/rsrkmFdOmOmdw5C99iFY7P71C9LigmXCwUvI2HR1EVdpkd7BzhflVrHliDGw
+         0z+nIpt5UAA/p0MWywxl5bTw+HdiI6sh06462C2pG1/1+aGN9yr5HFK/CMR/YgzYFc6Y
+         BhSA==
+X-Gm-Message-State: AOJu0YytCAtVft05vws4qrW22Gj1RFc+g/r8tMrqaEuSRmXLuIfV80Vn
+	S2QVwfULChd+r8LtS761zLX/AuR5UsOkvKoOpjVbe6bN5Wrb1o9zDkN1w1tJ3BPfPvI1XDEABRF
+	+hhAIb8rQt+58WOj9Zr3J12G7n/v1gv8yTiU+U/FyYwyZdwD+wmtyayh26NhRKjn0
+X-Received: by 2002:ac8:5f54:0:b0:447:e769:76fc with SMTP id d75a77b69052e-462ab281dd7mr38992651cf.34.1730384208844;
+        Thu, 31 Oct 2024 07:16:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE3kzGANbJFLZsZsBNtKFVvhMspBrZjxm8HkCv2R3gtqqOdYfj7lK8iIiAbmNobSSw7VhuhVA==
+X-Received: by 2002:ac8:5f54:0:b0:447:e769:76fc with SMTP id d75a77b69052e-462ab281dd7mr38991981cf.34.1730384208150;
+        Thu, 31 Oct 2024 07:16:48 -0700 (PDT)
+Received: from sgarzare-redhat ([5.179.173.225])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-462ad1b42ffsm7879231cf.93.2024.10.31.07.16.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Oct 2024 07:16:47 -0700 (PDT)
+Date: Thu, 31 Oct 2024 15:16:43 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v4 2/2] vsock/test: fix parameter types in
+ SO_VM_SOCKETS_* calls
+Message-ID: <7o2b3ggh7ojcoiyh5dcgu5y6436tqjarvmvavxmbm2id3fggdu@46rhdjnyqdpr>
+References: <20241029144954.285279-1-kshk@linux.ibm.com>
+ <20241029144954.285279-3-kshk@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL0PR13MB4403:EE_|MW5PR13MB5414:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7a7b7130-47b6-4d73-28b3-08dcf9aa76a5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?c/Ftqv0wIKpMdlsyPPggGsb7wRuRQa5trC96IOtdxBDmhGFKAbqcQFqvaIb7?=
- =?us-ascii?Q?2JuP/PgXEEe7fxfG3TffUAgUUL8uVS+6enUYEUNoIVFfuf8Edc8W/AeEA0qf?=
- =?us-ascii?Q?4FhtWceoFK8LwnuxSu+La3ElbEvF7o25uAfHUG2skCqZi1c3Rq75B8JbVtRs?=
- =?us-ascii?Q?gbhTeac4/lI/fI4Zu9aI+cdm8fvgi6Axt3LmlLHw7a1yepsnky/WfUNCh3qz?=
- =?us-ascii?Q?1Abfurf4eGHrOjmO/mWXCZKsZAbmv9F6eEzKqgV0/U8mvHqQDypxjEw5yVN0?=
- =?us-ascii?Q?GqHv8n3/+MpgatBQb2P0a25thp3OfTcN0f3u6klat32WmuRojJj3Nghh3Gnq?=
- =?us-ascii?Q?1guUQ2QW9LEBMF6vIpTrpBj9JesUupj/9HgQ5WT8pMTkBdRwCtKIsrFUfCFt?=
- =?us-ascii?Q?JQJQtLZeshuoDJLkfIPRvoB+p9Plev/QetAN5k/Fewi9D+cI0+mmIiiHL5Vr?=
- =?us-ascii?Q?v4VkMdFfs2+0aBY2TXK+EfHo9z6wPMYzRHoaaYP8sH9+Ac4xWqGWrqLPfU9i?=
- =?us-ascii?Q?cmH2iCOvV6kN/PXLUpwCWJDtNnslD74sV4mEU/B0+1DaBYD/DbPUbufjtIba?=
- =?us-ascii?Q?qY7Jt6JkIZ3ULH65TAs5wJ7bAbmp17SaFdMV7aT7hmwML56+WxOWuYRas+kO?=
- =?us-ascii?Q?llPNkHjgL74PC9GS8I7ZIAeY/q94kz7zA1YbE0Kj/QJhvsSnc9B4XvhSeb7+?=
- =?us-ascii?Q?X5DX6zDxuoLaXJ7+G77IDuovN8l+7ue3RvPZu81z9jBWuay6V7rK6It3p+Zo?=
- =?us-ascii?Q?D6JzsHz4VWpBihU8aV/yRRLcfsBvD2XcaP1zM837SOUEj2zyQcL73bpNFivp?=
- =?us-ascii?Q?68JxdWnL6bXYDPsb7XiUJUB/ECEfUs2XYEg+v0+/e0uUNGg8o2CEZNGc8eSS?=
- =?us-ascii?Q?LXPe7Cv2TBYnw7J7Ynyie3tZjX82+Zph5ezss8WECOu+nL+BNJp9RksMy246?=
- =?us-ascii?Q?X/TS18JRy0kieeQtfwQh9UNP2VgVmpaX9vA+7/vmoqjf1Z8yia6RQLtYT3RP?=
- =?us-ascii?Q?BnX6PB5HSaF/uJtwfVZAq2Rlci/EmnRLoFkeR/Iz8YEJOR67kLnRLdh0cHvL?=
- =?us-ascii?Q?n8UH3ZAodeASBDLvP47H/A1RJGqZPUCrDaylKPYuJgNdcv6xuUSHTUvIQekO?=
- =?us-ascii?Q?oVYW+CXydXd/ryUmj3yixSCQdPirWtdKv/rWTDFU2+G8EV7Ayo+JDbXjv39n?=
- =?us-ascii?Q?ZCaDUjddukJpvnAAYkqazPyU7s+1+nl7Cvw+olLboqcOBLG+Aoluf1jaWpgB?=
- =?us-ascii?Q?3I8Xlh0E/lJNLqQZs/C9f+CD3AOvGIp+zoFaaQJGjPXNqd5yVRu4d2ng0NEq?=
- =?us-ascii?Q?AmpDEnTdN15ux5rXqlRlJIzp?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR13MB4403.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?V6yYCgQPIOt5l6NIDak0QlxNjmeokJDdNd8W5TbwD9NnrRZWDia2NrDrAUlb?=
- =?us-ascii?Q?vf7eSGPXFj9xlf+cA5KtmTCW7hCY6p1f+Cr6I6NOVA7A9b9hukA2GSrrzeKk?=
- =?us-ascii?Q?mtcFEAsGZJ46tvJGs9snHGyMb2/2Lk+WVEgYLbf+KMHK9bq9kuXkGo/shQUx?=
- =?us-ascii?Q?hTJTzTMAFYAvMllI014CKVK3ATgYCxUwlLEf5p93n7zSuGLQs90oPWQ3uBrS?=
- =?us-ascii?Q?LMO3VlwFi8OlrnkUwA1QLm6zZMFeZ2qbg0+PmuEXmHqJ6GQ9/qCSRCNPvakt?=
- =?us-ascii?Q?CCw4wAFmNgOEbd7YCs1xUX+po0XEX2gBUk4s/Z9pTzOAWfSFqaznrxkB3Mhm?=
- =?us-ascii?Q?JUIMxrnmCo7jzyIybyeAzFx3WUMMz7v6R2KebePcPa9w2GkMV1IiHYUncKfn?=
- =?us-ascii?Q?zbQpHtjvsgE5xvCm5/m6NDhZWKmBxXcjo05Lyr5n1o/6vGbb/CXThgCsUQzw?=
- =?us-ascii?Q?IT9IxPe3Sk1VayWf9kVOIjEgJoxJp0QG/GpWhHS4g8S5n4WYvCEHG/lq5YUH?=
- =?us-ascii?Q?zEfhKTvuQYyY5OcZu4cejQo62vY6NFtCfvtTCtRU6vqQWy1+Awu/cWp3W/4L?=
- =?us-ascii?Q?XXEoDNW8phtt4XxOOadjxHE/hAQvabPyI75MLjbD9LvFknhac+UKY5ELBqHO?=
- =?us-ascii?Q?ckGoTsKKvE8bcMIQhbznl42LIZDzm2wFEjIRZWUzJGro3O628zvnlnDyo8ao?=
- =?us-ascii?Q?oaQEPkUgE9WSeW8FULciCNUD9majMrLUy4dwg/PSEXod5vCoQ9ka+FUpWHsR?=
- =?us-ascii?Q?EF7m45FRiW1MdMonshPaZzP4JMZKNtopj2sfXY26pnIpPekkj/D0uC+M5Ih3?=
- =?us-ascii?Q?t95i3rLOB5spGs/2S6i8Or19a/jGReuQHPKdV0jfdux5B7pMjeZNBX9Ko3Jb?=
- =?us-ascii?Q?DM9To0sP8dqSgJmG6GP5VUEj9qLmF1jgW+eYfN4xptGmcqkxPonmuhqjzVJL?=
- =?us-ascii?Q?NxIMErde+YdvHNegDN+1hUGlEI3LBIDDVBkH5b1PDlQA3+ZOtZSuD7GowVp2?=
- =?us-ascii?Q?iFDXmZjdsmM/TrC3cd+ILsP8BRL/aZroPkylnGq3vd9z5p58TLEAD/w01Ok/?=
- =?us-ascii?Q?HA/FDZTeiFXHfNBdhnmGgmixWqNIRODsMB+kRmGwZzlhhcaW2UrG9zUeCH2t?=
- =?us-ascii?Q?wByWzsuHLdduL+76v4rlcuCd8WleD64WHnSJOW2W/iapVjZ0RksVIBZdQxsH?=
- =?us-ascii?Q?8+r9EF3eREYvQGdVxiOlyToNXFww10VQYiMFEnsMJufwHn581HENn8a+yy2l?=
- =?us-ascii?Q?aZ/GPcHfTvNRo7bAE9+PjGOdR0JnTOZbjYTglx+7Mz+lAKoC1yybHKt0PSPJ?=
- =?us-ascii?Q?DkO435CeQKN0RnER30EFnnWeNbJRtg0YdyaeMglBVkbZHUVNBQcheuS1WkRi?=
- =?us-ascii?Q?lpyTw66qSZkUwH/MHojlrhtSPAoWWzG5l+4CeU+6419s7rBgy4mc1xqfKZAJ?=
- =?us-ascii?Q?eIJOT5Ng+0aTJsp4USvy9fW0UIHOs4ochHEUaPIy+1IlSxiew2ckONSgk7v+?=
- =?us-ascii?Q?oXoDWXI2PG3kGT+Yp2zXOoet4vjN5ANXwCBbIrAZ8qFAeLgI8EQQ4VLk/1FU?=
- =?us-ascii?Q?jOwyhvuHMsx9WtQXdD2kU2G2F/0M5rumEagjMTfBycz7uTwNv1vfo/L2Da40?=
- =?us-ascii?Q?lw=3D=3D?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7a7b7130-47b6-4d73-28b3-08dcf9aa76a5
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR13MB4403.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Oct 2024 12:49:31.6106
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: R9f61Zk4LrodHYoH2hHLXBcixOq58vk40qQ75o2Z67QVpoPEmysiKuVpUjaKTeNU0uQYc1oZCHX12oWVdAigbTquI/oSQF4t1w1aQgWQvy0=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW5PR13MB5414
+In-Reply-To: <20241029144954.285279-3-kshk@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Wed, Oct 30, 2024 at 06:23:26PM -0600, Caleb Sander Mateos wrote:
-> net_dim() is currently passed a struct dim_sample argument by value.
-> struct dim_sample is 24 bytes. Since this is greater 16 bytes, x86-64
-> passes it on the stack. All callers have already initialized dim_sample
-> on the stack, so passing it by value requires pushing a duplicated copy
-> to the stack. Either witing to the stack and immediately reading it, or
-> perhaps dereferencing addresses relative to the stack pointer in a chain
-> of push instructions, seems to perform quite poorly.
-> 
-> In a heavy TCP workload, mlx5e_handle_rx_dim() consumes 3% of CPU time,
-> 94% of which is attributed to the first push instruction to copy
-> dim_sample on the stack for the call to net_dim():
-> // Call ktime_get()
->   0.26 |4ead2:   call   4ead7 <mlx5e_handle_rx_dim+0x47>
-> // Pass the address of struct dim in %rdi
->        |4ead7:   lea    0x3d0(%rbx),%rdi
-> // Set dim_sample.pkt_ctr
->        |4eade:   mov    %r13d,0x8(%rsp)
-> // Set dim_sample.byte_ctr
->        |4eae3:   mov    %r12d,0xc(%rsp)
-> // Set dim_sample.event_ctr
->   0.15 |4eae8:   mov    %bp,0x10(%rsp)
-> // Duplicate dim_sample on the stack
->  94.16 |4eaed:   push   0x10(%rsp)
->   2.79 |4eaf1:   push   0x10(%rsp)
->   0.07 |4eaf5:   push   %rax
-> // Call net_dim()
->   0.21 |4eaf6:   call   4eafb <mlx5e_handle_rx_dim+0x6b>
-> 
-> To allow the caller to reuse the struct dim_sample already on the stack,
-> pass the struct dim_sample by reference to net_dim().
-> 
-> Signed-off-by: Caleb Sander Mateos <csander@purestorage.com>
-> ---
->  Documentation/networking/net_dim.rst                   |  2 +-
->  drivers/net/ethernet/amazon/ena/ena_netdev.c           |  2 +-
->  drivers/net/ethernet/broadcom/bcmsysport.c             |  2 +-
->  drivers/net/ethernet/broadcom/bnxt/bnxt.c              |  4 ++--
->  drivers/net/ethernet/broadcom/genet/bcmgenet.c         |  2 +-
->  drivers/net/ethernet/freescale/enetc/enetc.c           |  2 +-
->  drivers/net/ethernet/hisilicon/hns3/hns3_enet.c        |  4 ++--
->  drivers/net/ethernet/intel/ice/ice_txrx.c              |  4 ++--
->  drivers/net/ethernet/intel/idpf/idpf_txrx.c            |  4 ++--
->  drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c |  2 +-
->  drivers/net/ethernet/mediatek/mtk_eth_soc.c            |  4 ++--
->  drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c      |  4 ++--
->  drivers/net/ethernet/netronome/nfp/nfd3/dp.c           |  4 ++--
->  drivers/net/ethernet/netronome/nfp/nfdk/dp.c           |  4 ++--
->  drivers/net/ethernet/pensando/ionic/ionic_txrx.c       |  2 +-
->  drivers/net/virtio_net.c                               |  2 +-
->  drivers/soc/fsl/dpio/dpio-service.c                    |  2 +-
->  include/linux/dim.h                                    |  2 +-
->  lib/dim/net_dim.c                                      | 10 +++++-----
->  19 files changed, 31 insertions(+), 31 deletions(-)
-> 
---- snip --
+On Tue, Oct 29, 2024 at 09:49:54AM -0500, Konstantin Shkolnyy wrote:
+>Change parameters of SO_VM_SOCKETS_* to uint64_t so that they are always
 
-> diff --git a/drivers/net/ethernet/netronome/nfp/nfd3/dp.c b/drivers/net/ethernet/netronome/nfp/nfd3/dp.c
-> index d215efc6cad0..f1c6c47564b1 100644
-> --- a/drivers/net/ethernet/netronome/nfp/nfd3/dp.c
-> +++ b/drivers/net/ethernet/netronome/nfp/nfd3/dp.c
-> @@ -1177,11 +1177,11 @@ int nfp_nfd3_poll(struct napi_struct *napi, int budget)
->  			pkts = r_vec->rx_pkts;
->  			bytes = r_vec->rx_bytes;
->  		} while (u64_stats_fetch_retry(&r_vec->rx_sync, start));
->  
->  		dim_update_sample(r_vec->event_ctr, pkts, bytes, &dim_sample);
-> -		net_dim(&r_vec->rx_dim, dim_sample);
-> +		net_dim(&r_vec->rx_dim, &dim_sample);
->  	}
->  
->  	if (r_vec->nfp_net->tx_coalesce_adapt_on && r_vec->tx_ring) {
->  		struct dim_sample dim_sample = {};
->  		unsigned int start;
-> @@ -1192,11 +1192,11 @@ int nfp_nfd3_poll(struct napi_struct *napi, int budget)
->  			pkts = r_vec->tx_pkts;
->  			bytes = r_vec->tx_bytes;
->  		} while (u64_stats_fetch_retry(&r_vec->tx_sync, start));
->  
->  		dim_update_sample(r_vec->event_ctr, pkts, bytes, &dim_sample);
-> -		net_dim(&r_vec->tx_dim, dim_sample);
-> +		net_dim(&r_vec->tx_dim, &dim_sample);
->  	}
->  
->  	return pkts_polled;
->  }
->  
-> diff --git a/drivers/net/ethernet/netronome/nfp/nfdk/dp.c b/drivers/net/ethernet/netronome/nfp/nfdk/dp.c
-> index dae5af7d1845..ebeb6ab4465c 100644
-> --- a/drivers/net/ethernet/netronome/nfp/nfdk/dp.c
-> +++ b/drivers/net/ethernet/netronome/nfp/nfdk/dp.c
-> @@ -1287,11 +1287,11 @@ int nfp_nfdk_poll(struct napi_struct *napi, int budget)
->  			pkts = r_vec->rx_pkts;
->  			bytes = r_vec->rx_bytes;
->  		} while (u64_stats_fetch_retry(&r_vec->rx_sync, start));
->  
->  		dim_update_sample(r_vec->event_ctr, pkts, bytes, &dim_sample);
-> -		net_dim(&r_vec->rx_dim, dim_sample);
-> +		net_dim(&r_vec->rx_dim, &dim_sample);
->  	}
->  
->  	if (r_vec->nfp_net->tx_coalesce_adapt_on && r_vec->tx_ring) {
->  		struct dim_sample dim_sample = {};
->  		unsigned int start;
-> @@ -1302,11 +1302,11 @@ int nfp_nfdk_poll(struct napi_struct *napi, int budget)
->  			pkts = r_vec->tx_pkts;
->  			bytes = r_vec->tx_bytes;
->  		} while (u64_stats_fetch_retry(&r_vec->tx_sync, start));
->  
->  		dim_update_sample(r_vec->event_ctr, pkts, bytes, &dim_sample);
-> -		net_dim(&r_vec->tx_dim, dim_sample);
-> +		net_dim(&r_vec->tx_dim, &dim_sample);
->  	}
->  
->  	return pkts_polled;
->  }
---- snip ---
+In include/uapi/linux/vm_sockets.h we talk about "unsigned long long",
+but in the kernel code we use u64. IIUC "unsigned long long" should be 
+u64 on every architecture, at least till we will have some 128-bit cpu, 
+right?
 
-Hi Caleb. Looks like a fair enough update to me in general, but I am not an
-expert on 'dim'. For the corresponding nfp driver changes feel free to add:
+>64-bit, because the corresponding kernel code requires them to be at 
+>least
+>that large, no matter what architecture.
+>
+>Fixes: 5c338112e48a ("test/vsock: rework message bounds test")
+>Fixes: 685a21c314a8 ("test/vsock: add big message test")
+>Fixes: 542e893fbadc ("vsock/test: two tests to check credit update logic")
+>Fixes: 8abbffd27ced ("test/vsock: vsock_perf utility")
+>Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+>---
+> tools/testing/vsock/vsock_perf.c |  2 +-
+> tools/testing/vsock/vsock_test.c | 19 ++++++++++++++-----
+> 2 files changed, 15 insertions(+), 6 deletions(-)
+>
+>diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
+>index 22633c2848cc..88f6be4162a6 100644
+>--- a/tools/testing/vsock/vsock_perf.c
+>+++ b/tools/testing/vsock/vsock_perf.c
+>@@ -33,7 +33,7 @@
+>
+> static unsigned int port = DEFAULT_PORT;
+> static unsigned long buf_size_bytes = DEFAULT_BUF_SIZE_BYTES;
+>-static unsigned long vsock_buf_bytes = DEFAULT_VSOCK_BUF_BYTES;
+>+static uint64_t vsock_buf_bytes = DEFAULT_VSOCK_BUF_BYTES;
 
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
+What about using `unsigned long long` as documented in the vm_sockets.h?
+
+Thanks,
+Stefano
+
+> static bool zerocopy;
+>
+> static void error(const char *s)
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index 7fd25b814b4b..49a32515886f 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -429,7 +429,7 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
+>
+> static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
+> {
+>-	unsigned long sock_buf_size;
+>+	uint64_t sock_buf_size;
+> 	unsigned long remote_hash;
+> 	unsigned long curr_hash;
+> 	int fd;
+>@@ -634,7 +634,8 @@ static void test_seqpacket_timeout_server(const struct test_opts *opts)
+>
+> static void test_seqpacket_bigmsg_client(const struct test_opts *opts)
+> {
+>-	unsigned long sock_buf_size;
+>+	uint64_t sock_buf_size;
+>+	size_t buf_size;
+> 	socklen_t len;
+> 	void *data;
+> 	int fd;
+>@@ -655,13 +656,19 @@ static void test_seqpacket_bigmsg_client(const struct test_opts *opts)
+>
+> 	sock_buf_size++;
+>
+>-	data = malloc(sock_buf_size);
+>+	buf_size = (size_t) sock_buf_size; /* size_t can be < uint64_t */
+>+	if (buf_size != sock_buf_size) {
+>+		fprintf(stderr, "Returned BUFFER_SIZE too large\n");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	data = malloc(buf_size);
+> 	if (!data) {
+> 		perror("malloc");
+> 		exit(EXIT_FAILURE);
+> 	}
+>
+>-	send_buf(fd, data, sock_buf_size, 0, -EMSGSIZE);
+>+	send_buf(fd, data, buf_size, 0, -EMSGSIZE);
+>
+> 	control_writeln("CLISENT");
+>
+>@@ -1360,6 +1367,7 @@ static void test_stream_credit_update_test(const struct test_opts *opts,
+> 	int recv_buf_size;
+> 	struct pollfd fds;
+> 	size_t buf_size;
+>+	uint64_t sock_buf_size;
+> 	void *buf;
+> 	int fd;
+>
+>@@ -1370,9 +1378,10 @@ static void test_stream_credit_update_test(const struct test_opts *opts,
+> 	}
+>
+> 	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE;
+>+	sock_buf_size = buf_size; /* size_t can be < uint64_t */
+>
+> 	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
+>-		       &buf_size, sizeof(buf_size))) {
+>+		       &sock_buf_size, sizeof(sock_buf_size))) {
+> 		perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
+> 		exit(EXIT_FAILURE);
+> 	}
+>-- 
+>2.34.1
+>
+
