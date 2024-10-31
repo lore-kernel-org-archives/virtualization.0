@@ -1,66 +1,32 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C35A1922F1
-	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 21:41:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 479D61E1A37;
+	Thu, 31 Oct 2024 22:59:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730410887; cv=none; b=aJB79jn5FlIxPgZcN9w9ZmS0lRDRyrmjPmtG3WmSBKo4i0uNhMzTmFs70O9X35GZXQuasEubOiQXwNf3Q8plL20JLhVkExAIxBQM0SgidCPVTUictKBEYDbfHIEqfVbMw3m5FE/+xlXzeNhr0SHGd0tD8RJPWRjtJI3dCeJJ9rU=
+	t=1730415561; cv=none; b=Sa7rUBj/pkolj19GqIiTg3l0rTC7aEvex+Pmvg2YfLCqiGpSkP3uapjep8JDh6oJeUQKKmnW8zV0znhmhNRnobwypUe2CMG7cKIrMnjKDN/jurFmPOS7w8cYsJLvTwT+pNJEnyfS0LY7DcyvTHuJtjoPcq69Uzsjc75486ZfHx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730410887; c=relaxed/simple;
-	bh=pPG5DR7tU5m6fxnN1y22SMUllbZm0Wi5JXNaJguSXTQ=;
+	s=arc-20240116; t=1730415561; c=relaxed/simple;
+	bh=YhlhvI2YQgj/7M+uXnhLz4j5eWdRPCwjq4xSWx40Aro=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JuGJla9nKhjyCsNu5sQUNpO7PKvhGuyB22+1FEZx3V3MvPQRjJIE8Hfec6cDnxklViVGLlj1a10r/nIMhFA87bCzjS3wQAocbkFJxTDXsgv8KYC9b1aJ2W2epH41xavAhMQxnWA/4YLzcnWf9HCgflNv8alof1/TpNhquYYs/Dw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WbzH1DAX; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=u19QSlVf25N/xXNb4pNtuCKfz9vLUfopF/mtPgG01czmV/uGjc1o9NVSraUv0cHSEDxbPYrve/wF9LWGpZRy26cJhHAQhxLQzJ4Vk1Fed82cOvHQ5+S/6HLYPhpLA8CL5YTNu1LrSKyQ+pOlfcovUS49G/CQ2TNVmu9ED4D6RtY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=CA42Pkd8; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WbzH1DAX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730410880;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=V9qGJfnpN/vTVlVkacjjN4O4qiIfHH6/DqVZDAH06eM=;
-	b=WbzH1DAXsZJx6gdqiNlj3qHDRrekZPlyYV7L7+GlHnoZCJp1SrdQcxW3OVxNLZesWuQdcG
-	hmg0vq+c80wlrr/MgjDd0YfwzGnOnxWPNU9O/1De0S7K1Nf08StV0Br1zUglYBAav2xsyh
-	bB0tOpZ7UH7bPelmwtE2k3zPyH75Cc8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-365-yHQxZqcMN5OOyRZPuiNiOA-1; Thu, 31 Oct 2024 17:41:18 -0400
-X-MC-Unique: yHQxZqcMN5OOyRZPuiNiOA-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4315b7b0c16so9128845e9.1
-        for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 14:41:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730410878; x=1731015678;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=V9qGJfnpN/vTVlVkacjjN4O4qiIfHH6/DqVZDAH06eM=;
-        b=dz8e4M/H8QNdNoCafWw3pL/c/LNH83PVUBEFlqfnItr+/VRp2cfPQRTJZWjnvqXgGu
-         exf9IUgwgTYUpQGuMwK7l4ScpI/P6uxNSHKKrqSwAOMYy5peJYxNMHUNNqbn3nD2TTHc
-         bdt0yPCbKVT3S8KYn/g32ZxIcfA4l0E12lkpuZoQHXXvC0gJmJHOG1+jKOE/wgT9OlTB
-         v0kCnOmoDHQ82sXFEEkC2lyV6PrxkUPkNjDYDlDoU5V2Wyt++quVTHquUQT8frCfRl48
-         UJzazAoykE1Nh6d20g89GEM0rzVFo5Vsvwvzekm0rhyHhG+QzEkJj8JCKsJ6m20vwUUh
-         YGsw==
-X-Forwarded-Encrypted: i=1; AJvYcCXr2lly43djtTS29e8TKLZ0W640th6CeLGsjVKQ3UWkk/judX8B1p85WrVhDn/dR8tPiX1tJLkDqdxSZLMeNA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzMrcIIXTCCwX2M6F/Hi4f0UBUoGO8pQjfdKtiO7Ltv51zBHuHk
-	q0FR6Rj0zO2TKdAQcz4gZ5/sO5hx/S5CFoUu2hkRntaAJ4l2nQI4VxPznrxieVTUsF077+Rl7e5
-	XdKbBleivsRWXLkP46Q8wPgpkeHQWPubbsBYH0IyW5vUfS/yOsP0k4LzFnONjx9DR
-X-Received: by 2002:a05:600c:1c03:b0:42c:af2a:dcf4 with SMTP id 5b1f17b1804b1-4319ad141admr155838605e9.27.1730410877695;
-        Thu, 31 Oct 2024 14:41:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHgYJ10fn9ESbtPdeY06XEy8OXmxVaFJq+0h5FOBwp7ViWvcQ1J3QhNm3ZTRU5cp7NnKCHnKQ==
-X-Received: by 2002:a05:600c:1c03:b0:42c:af2a:dcf4 with SMTP id 5b1f17b1804b1-4319ad141admr155838355e9.27.1730410877318;
-        Thu, 31 Oct 2024 14:41:17 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe? (p200300cbc70aed007ddf1ea94f7a91fe.dip0.t-ipconnect.de. [2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-431bd9a99d3sm69456625e9.38.2024.10.31.14.41.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 31 Oct 2024 14:41:16 -0700 (PDT)
-Message-ID: <148489cc-50cd-42a5-b813-969c6c61ff1e@redhat.com>
-Date: Thu, 31 Oct 2024 22:41:15 +0100
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="CA42Pkd8"
+Received: from [10.0.0.114] (c-67-182-156-199.hsd1.wa.comcast.net [67.182.156.199])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 0DC1F20C08A6;
+	Thu, 31 Oct 2024 15:59:15 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0DC1F20C08A6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1730415555;
+	bh=Igl9G1C4hOVKzBEFno2MrS2ZBovfo3EzzSumDWDVDac=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=CA42Pkd8gk+aW8coxUfcz9FnbFPOm4DNzDPCYaaqMeDNXZyjHbYFoVBqFM2ra2QA0
+	 gQ3Ywty+9jx/fcSph8pm89kL2on5UwnczZAJca3EIIJcEGpMxIV/b5GDAGfOiBWB5W
+	 0uF5JXHULaaK+8SPYeqwgllQxC7n/jWbNL2sYcio=
+Message-ID: <aecdc98c-1f12-4f17-b145-9f02aebc01c2@linux.microsoft.com>
+Date: Thu, 31 Oct 2024 15:59:14 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,106 +34,111 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/7] Documentation: s390-diag.rst: make diag500 a
- generic KVM hypercall
-To: Eric Farman <farman@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org,
- virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
- kvm@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
- Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>
-References: <20241025141453.1210600-1-david@redhat.com>
- <20241025141453.1210600-2-david@redhat.com>
- <7aa84534df1a6637bebd60e628500f6dbad47c05.camel@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <7aa84534df1a6637bebd60e628500f6dbad47c05.camel@linux.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+Subject: Re: [PATCH 0/5] Add new headers for Hyper-V Dom0
+To: Easwar Hariharan <eahariha@linux.microsoft.com>,
+ linux-hyperv@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, iommu@lists.linux.dev,
+ netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-arch@vger.kernel.org, virtualization@lists.linux.dev
+Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+ decui@microsoft.com, catalin.marinas@arm.com, will@kernel.org,
+ luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+ seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org,
+ daniel.lezcano@linaro.org, joro@8bytes.org, robin.murphy@arm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, lpieralisi@kernel.org, kw@linux.com, robh@kernel.org,
+ bhelgaas@google.com, arnd@arndb.de, sgarzare@redhat.com,
+ jinankjain@linux.microsoft.com, muminulrussell@gmail.com,
+ skinsburskii@linux.microsoft.com, mukeshrathor@microsoft.com,
+ tyhicks@linux.microsoft.com
+References: <1727985064-18362-1-git-send-email-nunodasneves@linux.microsoft.com>
+ <fc47d535-ed52-4ca5-80cc-30003efdd464@linux.microsoft.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+In-Reply-To: <fc47d535-ed52-4ca5-80cc-30003efdd464@linux.microsoft.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 31.10.24 15:56, Eric Farman wrote:
-> On Fri, 2024-10-25 at 16:14 +0200, David Hildenbrand wrote:
->> Let's make it a generic KVM hypercall, allowing other subfunctions to
->> be more independent of virtio.
+On 10/31/2024 12:05 PM, Easwar Hariharan wrote:
+> On 10/3/2024 12:50 PM, Nuno Das Neves wrote:
+>> To support Hyper-V Dom0 (aka Linux as root partition), many new
+>> definitions are required.
 >>
->> While at it, document that unsupported/unimplemented subfunctions result
->> in a SPECIFICATION exception.
+>> The plan going forward is to directly import headers from
+>> Hyper-V. This is a more maintainable way to import definitions
+>> rather than via the TLFS doc. This patch series introduces
+>> new headers (hvhdk.h, hvgdk.h, etc, see patch #3) directly
+>> derived from Hyper-V code.
 >>
->> This is a preparation for documenting a new hypercall.
-> 
-> s/hypercall/subfunction/ ?
-
-Indeed, thanks! I assume this can be fixed up when applying, unless I 
-have to resend for other reasons.
-
-> 
+>> This patch series replaces hyperv-tlfs.h with hvhdk.h, but only
+>> in Microsoft-maintained Hyper-V code where they are needed. This
+>> leaves the existing hyperv-tlfs.h in use elsewhere - notably for
+>> Hyper-V enlightenments on KVM guests.
 >>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   Documentation/virt/kvm/s390/s390-diag.rst | 18 +++++++++++-------
->>   1 file changed, 11 insertions(+), 7 deletions(-)
+>> An intermediary header "hv_defs.h" is introduced to conditionally
+>> include either hyperv-tlfs.h or hvhdk.h. This is required because
+>> several headers which today include hyperv-tlfs.h, are shared
+>> between Hyper-V and KVM code (e.g. mshyperv.h).
+>>
+>> Summary:
+>> Patch 1-2: Cleanup patches
+>> Patch 3: Add the new headers (hvhdk.h, etc..) in include/hyperv/
+>> Patch 4: Add hv_defs.h and use it in mshyperv.h, svm.h,
+>>          hyperv_timer.h
+>> Patch 5: Switch to the new headers, only in Hyper-V code
+>>
+>> Nuno Das Neves (5):
+>>   hyperv: Move hv_connection_id to hyperv-tlfs.h
+>>   hyperv: Remove unnecessary #includes
+>>   hyperv: Add new Hyper-V headers
+>>   hyperv: Add hv_defs.h to conditionally include hyperv-tlfs.h or
+>>     hvhdk.h
+>>   hyperv: Use hvhdk.h instead of hyperv-tlfs.h in Hyper-V code
+>>
+
+Hi Easwar, thanks for the questions. I will attempt to clarify.
 > 
-> Reviewed-by: Eric Farman <farman@linux.ibm.com>
+> What is the model for Hyper-V code that has both guest and host roles
+> where the corresponding hypercalls are available for both? As I
+> understand it, those are supposed to be in hvgdk*.h.
+>
+
+It's true that the naming of the files implies hvgdk*.h is for guests,
+and hvhdk*.h (which includes hvgdk*.h), is for hosts/dom0. But I would
+only take that as a rough guide.
+
+The real reason for keeping these names is to make it a easier to copy
+and maintain the definitions from the Windows code into Linux, by
+keeping the provenance of exactly where they came from.
+
+> For a specific example, IOMMU hypercalls can operate on stage 2 or stage
+> 1 translations depending on the role of the (hyper) caller and the input
+> values provided. Should a driver using these hypercalls import both
+> hvhdk* and hvgdk*? What about hyperv-tlfs?
+>
+
+I'd recommend importing hvhdk.h since it contains everything you need
+(including hvgdk*.h).
+
+The goal of this patchset is to move away from hyperv-tlfs.h, because by
+definition it should only contain definitions from the TLFS document.
+
+> Patches 4 and 5 seem to draw a bright line between host and guest roles
+> while the reality is more gray. Please do correct me if I'm wrong here,
+> perhaps the picture would be clearer if Stas' suggestion of a new header
+> file is implemented.
 > 
 
-Thanks!
+Patches 4 and 5 introduce the new headers in a way that avoids any
+potential impact on KVM and other non-Microsoft-maintained code.
 
--- 
-Cheers,
+The 'line' is not between guest and host, but between Microsoft-maintained
+and non-Microsoft-maintained code.
 
-David / dhildenb
+Thanks,
+Nuno
+
+> Thanks,
+> Easwar
 
