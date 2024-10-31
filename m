@@ -1,251 +1,200 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFA221B3727
-	for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 17:30:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730395851; cv=none; b=GbCkdokg514h3aPsYR+R9BKJIjb/uWxnt/IOQL09yewqmX8iYOqwsXhQ8brjSQjVjU/GWBpZAszgiVTP2Za8j0Gm3nmXFeDISlbZXSaMNQTXTVXImEyWDNZFFXvnLYHTtQlUpS82e5//kNtdnyX218WTLy5oeaNrYrNrrvO7oBs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730395851; c=relaxed/simple;
-	bh=pZ0/4MtkFUVPvfV/ywB73HL1pJJdQCYJdUGMpDz4N6Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZOK91NTbJ/4MHYaB8zAqp1xiFCNrXEmxoQvXTkHY/fj6Yu6LG+eDYIfi+AUpE7MTXCvM18WNa7YT+8Vz3aVatlnvaKsfbH9ciYCG3f1R0fCruyn1MK7QCFqMQiJjWBeHFlIk33EHTUhKAmPChWkUXOEkJFDtIdORpQhSxnqF+F4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bwJV3oEU; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F26961A0BD1
+	for <virtualization@lists.linux-foundation.org>; Thu, 31 Oct 2024 17:42:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730396523; cv=fail; b=szsLWG5vKgbhvRaWSM6lP4CjEPqc0FrN8q9riWXCxAvdNAib+amW81mYqe3MCPv0U6KGH41wNhzE4HlX+uuRewcb1sv4eVxJrZFuJuMy9OM93Ld2bB5iVusYmZNqqnAN1wSn1JU2zl19OSHbWnNwNfwPfyBOJ9pphmF607Tm2KU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730396523; c=relaxed/simple;
+	bh=LZecrbSTYuN1bhHDYmIi6McQCSpSBF5gtCuF5PjDc3U=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=beayYIsaPkT7eBiXBofAsYo6vIyWGpXaSNVjfNI54012V5RA4uE/y0OaqllBKdN9nyoO2/1cB1cN1uumNlOBopglwWQqD9FzhNxecR0QJRiKdHd1v7B/bHIp2ldgTmwlsy10gFr06s1YBO87Yjqk3EXHD8TXCnqQEXGoUS4wxr8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=P/5p+Bm5; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bwJV3oEU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730395847;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=po4aGjAZdOMFvGy5VxwhLDYTRzbKRpxyFH4vyJU9YZ4=;
-	b=bwJV3oEUzF8+WoPZtZGE49UIwb6DvifhGXTN9JDbojwDyUH73A4qk10hf5FMX5LA4AwwtX
-	R291ffZ3fGOmwkj5TCoXsAY+j7ba50WfYTJhhbOo4WMxzx79kQzZm33b/IULpGH3oGc2uV
-	/STZIXPy6n1V4AJfn6j6W0rIVVZK14g=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-303-8OG75b0fNTqq4ykksfpd-Q-1; Thu, 31 Oct 2024 13:30:40 -0400
-X-MC-Unique: 8OG75b0fNTqq4ykksfpd-Q-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4315d98a75fso7941665e9.2
-        for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 10:30:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730395840; x=1731000640;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=po4aGjAZdOMFvGy5VxwhLDYTRzbKRpxyFH4vyJU9YZ4=;
-        b=cvG85nztrgByz2HePXmt6ztW7ZtBwNoCZUjaohtMI4nbHm9DaAscedOYwwI17V2S4J
-         FvQ8oUoxWb5CuU2qhnIWmv5GMkI+tb3oXwtu2Ar9PFyrItW3B4/dg4oZBeuziz/aUqcs
-         psRB+BYARoch1oKxsPHkL4oiDw7Mqolrgv+mC+ohqdK8NZKfLFCx8bc6S3ibl2Iknxe4
-         65n3vbwyXjZQ01wbU9U4sGXrICf8SaKTlBHG7Q7GhoFkdN98yJ5kVa36Z3JElWIEhB0h
-         Bk+JW0wL/tLrZsme15CoQ+YVi39Mk+oegJ2VR2zkiYkz44zfHH9cHAswyEOgyAZRo4MZ
-         FHmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV/0iopchIjGy1w/L1SeVfTnREyv0UwZJuHejDhxilYifnB4ezJeW4WkewQfWAW6OmCjDA2jOkvzXpm8Tqz0Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyt8cnknd48austfL4H8UYg1Kuc40YzO9yXWVwxHUOwYRotBgW3
-	gtOwmRCbBFGWY7C1ORrPQVwlAudxrZm//0obysAKMaxqIk0EgpdPZwR7H+m1D1+5q5YwWolOXWc
-	VpQj2VGdm9k2oXaTaHMW4V99fFhUOwBsQvSB9SQHmP8C9Xo6Dd9bnOorkuPr/VCBe
-X-Received: by 2002:adf:ce89:0:b0:37d:476d:2d58 with SMTP id ffacd0b85a97d-380611e56aemr13825435f8f.45.1730395839710;
-        Thu, 31 Oct 2024 10:30:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEEi4RPqd4a5QbOU7yDumOOtBgboxiLYO1zuyID1truLpjoe27PGIaeDpB/SPHnzDghbR46aA==
-X-Received: by 2002:adf:ce89:0:b0:37d:476d:2d58 with SMTP id ffacd0b85a97d-380611e56aemr13825396f8f.45.1730395839298;
-        Thu, 31 Oct 2024 10:30:39 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe? (p200300cbc70aed007ddf1ea94f7a91fe.dip0.t-ipconnect.de. [2003:cb:c70a:ed00:7ddf:1ea9:4f7a:91fe])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c10e7280sm2745874f8f.59.2024.10.31.10.30.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 31 Oct 2024 10:30:38 -0700 (PDT)
-Message-ID: <3b5d2bf2-2d27-43a1-86fe-076878823edf@redhat.com>
-Date: Thu, 31 Oct 2024 18:30:37 +0100
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="P/5p+Bm5"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id ADBEF80D69
+	for <virtualization@lists.linux-foundation.org>; Thu, 31 Oct 2024 17:42:01 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.104
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id We4yfVqZbJJz for <virtualization@lists.linux-foundation.org>;
+ Thu, 31 Oct 2024 17:42:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2405::623; helo=nam02-dm3-obe.outbound.protection.outlook.com; envelope-from=feliu@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DC1E980F5D
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DC1E980F5D
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=P/5p+Bm5
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on20623.outbound.protection.outlook.com [IPv6:2a01:111:f403:2405::623])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DC1E980F5D
+	for <virtualization@lists.linux-foundation.org>; Thu, 31 Oct 2024 17:42:00 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=eTlf1x+VMc7Ox8OQOFTf2GjvITJyu7hknH613EG5rJm20W+Sq7xCXCpBQz+soFWKy5UpW6TyYbdxsLpbl6xYAfHO49GSRLFjE8Cr3fUZNS+3p+KhOyb3speAGySOzYnOEZTt/f9nA14AeYkTkUXxXMhR0abLTtQUUJH8Tf/815SzITqg8NWwQlJ21H+VPDsuMWuCrOiVAPaS1lcni4kkMBLb+H1k+tK5pbK9kXi12sWN6il1hHfoaG61zR77gq3NvKCrBKMAVHg/gQe3koX7USfdeFzol3l/1unq5NT78O/NpHwWEniA7BUIu08+Yb0Rt1oVU01dU9feU6V3RieKXQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=FhkD6L4yL+o23ClxHRy6QYFGw/06nFWIvy5nBfH6AV8=;
+ b=XafAEY5Xk4ohFylZLuFi08xiKm9tEDU7Q2KirRKOh+WE+lXNQIFXBOOnIzsmEkTI/c5jeJpn9oSfvVAVxZ5Jhdi9YXoLijG4aZap69InH81ruJkEKVqDC2J509TEVbG862h4rvP3LH3i5FrknuCL77wbzQw1IhNiJsXVAV0oW8rvIaBUQYZAlOMacmJp3V+GODlKaPjH20PmNKDhI4iWrXxboJLP4uquXjtHL4tVD2LUIaRE0VW2t2gmhEmtlN796HXxIQf9YcJH6AmvOcnE0eLCMeOnJgdjT0d6dL46zfYWBMP5jyAxXyIIZo19zc7xW8RaPonEkSoeM52+ah48MQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=FhkD6L4yL+o23ClxHRy6QYFGw/06nFWIvy5nBfH6AV8=;
+ b=P/5p+Bm5ANJPStoXnufrB9WWl7h0aSHPXQDn5oLwqiTG7NgRacbGjCPbMU25OqPaLI2C0bm3unwiEAyn99u4ghhuGjDY7J+ZJ0MJqAj2mJwS1PwsoS0LznE0hO3XuBaC60Hu7q9ZQpq59X/Xgfrrv9SHIM9vr0LzO58id7v5SkfD22NIdHUQZIPRlHAnmKcxQeQADSC0lkgCUB0X9z0M8SdLzgrWJeJxIfg+a7vQMK3fhCDfHWdodPYv/hB5rnxBbYB+dsWAsn1Z/EqeTmkVvNuJTV8zVBu1OYeJxJez/o1iieZTE8mO/VOSvP9Xq8MRbrRjBFUgXa2Qwy8TfJKyHg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from BL1PR12MB5825.namprd12.prod.outlook.com (2603:10b6:208:394::20)
+ by SA1PR12MB6800.namprd12.prod.outlook.com (2603:10b6:806:25c::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.18; Thu, 31 Oct
+ 2024 17:41:56 +0000
+Received: from BL1PR12MB5825.namprd12.prod.outlook.com
+ ([fe80::547e:4121:7ab1:9065]) by BL1PR12MB5825.namprd12.prod.outlook.com
+ ([fe80::547e:4121:7ab1:9065%7]) with mapi id 15.20.8114.015; Thu, 31 Oct 2024
+ 17:41:56 +0000
+Message-ID: <0c96bb82-c638-aac1-2ee9-cb3c79302b4f@nvidia.com>
+Date: Thu, 31 Oct 2024 13:41:53 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.0
+Subject: Re: [PATCH] virtio_pci: Fix admin vq cleanup by using correct info
+ pointer
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Jason Wang
+ <jasowang@redhat.com>, Bodong Wang <bodong@nvidia.com>,
+ Jiri Pirko <jiri@nvidia.com>, Parav Pandit <parav@nvidia.com>
+References: <20241024135406.81388-1-feliu@nvidia.com>
+ <39714b40-28d4-91d8-774e-9c8d91461d28@nvidia.com>
+ <5045b28d-32e9-349a-fc4d-ae2a995437a9@nvidia.com>
+ <20241031125215-mutt-send-email-mst@kernel.org>
+From: Feng Liu <feliu@nvidia.com>
+In-Reply-To: <20241031125215-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SN6PR2101CA0016.namprd21.prod.outlook.com
+ (2603:10b6:805:106::26) To BL1PR12MB5825.namprd12.prod.outlook.com
+ (2603:10b6:208:394::20)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 0/7] virtio-mem: s390 support
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
- Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Eric Farman <farman@linux.ibm.com>,
- Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>
-References: <20241025141453.1210600-1-david@redhat.com>
- <ZyOv2E-WEcppbf3G@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <ZyO0lPkLPGnpDKrr@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <ZyO0lPkLPGnpDKrr@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5825:EE_|SA1PR12MB6800:EE_
+X-MS-Office365-Filtering-Correlation-Id: 34c83b53-6fdc-4cf3-8bb2-08dcf9d3504f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?ZFErZk5xZjNoZ1dIOHR5OWo2SjFIUis1L0wra3ZrQ21oVWFpR0IyODFSM1Vo?=
+ =?utf-8?B?a1l3Q0pDZFJ4M09sNythOFMycENvTU9XVkZmemNxZXJPcnZleXhJOUdoQXEv?=
+ =?utf-8?B?aTIvdlhSLzZFcUhQeFV1dlFVREFyQngzNkNDZjJ6U0dxamNidzhJTlBzK2hv?=
+ =?utf-8?B?VE1jMnllWWJ3UTd6UjhHM2RQaFpzTDRrZytDbG9ZY0tmdEQxNEJnQUNzU2l3?=
+ =?utf-8?B?R0QrM2dYNk9ySjVvQW05QTNRMUhPNFVuZVBYREgxRjBaUDlmV2pOL09HZTBB?=
+ =?utf-8?B?RVdHc1lNbHdyb01QcDdjbm9LNnRhV3BmNTE2VExlZ2NiZ2N5Zmh3ZFF6LzRE?=
+ =?utf-8?B?Q3VjRzJSZnFDR2gyMmpORXFqNW1Vb3pIQnJHTFZaUWJPb0kxUldJS0NSYVVy?=
+ =?utf-8?B?L0FPK25lSmtHUXNoWkErQnR5Q3UzSm1CeVMvQ1RSV1krYjgyVmVVSE41SVJT?=
+ =?utf-8?B?bHlYV1RXY291dTJoN0dZRHVzM1BBQkpZK3doY3I0M0pRNGIxRVgzNWpyNTMr?=
+ =?utf-8?B?TEtHeExRQ05STlUxZHZPZXgxSXJWWTRVTVFnKzVxL2xNQmk5RGlSeURPQlpl?=
+ =?utf-8?B?NlhFcnVFazIzSDJ4ejNBMFR6RnE4SnNpd1plU3dBVk0zbDZZbUVPL0ptWmlk?=
+ =?utf-8?B?NGNXcHJMVHkzZnMzcm01bEk3OWphb1lXSmd0RFFUSmdmLzUzQUN2UmFZNVNG?=
+ =?utf-8?B?Z25mc2FvLzVlbUtvR2hHMXdlRjQwblJ2TWV3aWltZk9SQ3ExNU4rSVNJQjN0?=
+ =?utf-8?B?V0dvTGl5TTlNWGErUDFtU0hYeFBkTmhEbW1jdnYzTDE0YTlVeElIZUhwWlRm?=
+ =?utf-8?B?Z0J5OXR0ZXFaUnBoVXZyM2VmMmhHTVJMTm50VzJDV2xWQWdNV3JpUWpqMkM5?=
+ =?utf-8?B?aEJTbVErNloxTzQzVkt5alBVV1lLNUJtOFZYMURKOXVEZTN5S25JbExkbTNh?=
+ =?utf-8?B?V2ttOXhiS0xaNVpZYkE3NzljZTk5bnpIekxhSTRHT3hFR290WjJvRzdpTWk0?=
+ =?utf-8?B?WDRqZHhlaEdOL1duKzdibG03ZVVPeFM2NitiMUp3VHMrcExhSWw4Tm9vZk85?=
+ =?utf-8?B?dVpqa0kwSkRQYVQ4aWZjV2ZQdjBTSVVUS1dxWUpTK0VXcERJeUFUODNUSHNk?=
+ =?utf-8?B?ekltYnptV3F5YmVVUEpRWmMxUEFtZlpSQm0ra043TEFMcGZ2ZUV1NWFmSW4r?=
+ =?utf-8?B?K2Y4SVFOcGRNMlRFT0RVZVRmZUNrRkhGenEydHRXSGFHWlBhNmwrdTA3VEdy?=
+ =?utf-8?B?Qm5ZZzNLZFZFNnVYUnBLWGhtTGRwVTBBdTQ4b0YxZ0I4aHp2amhiVVhRcVJt?=
+ =?utf-8?B?WVdsZVRzVzM1dkpESVRGNnpvczBndll1bFZLQ21NZG9qWmZVeXVxNGZhZ20v?=
+ =?utf-8?B?bG1SVEk2Y2dsZXczY0VvakIrdWVMeTQ5UWt2VmljMWYzakMxa05FMWQ0S3lw?=
+ =?utf-8?B?WmQ0MENURXlmYVRRYnVHZW1yVjNENWVkWSt5eWRjUURleFArRVFrS29DbjRZ?=
+ =?utf-8?B?bWZVQlpkQnd5SnpnaExyTXhFUXZ2YTVqVjdBOGFCQnU4a3FQQTQvc1VhVzMy?=
+ =?utf-8?B?d01XanJ4T1AvSXRLU3RMVXhXeGFaMlFmcSswRTN3VmoyNnRwVGhrQVdyaGcy?=
+ =?utf-8?B?MjQvMHVybkM4S0dvR3lnR1UrblMyVUIxdlN5VWhabmxWMURyTVlkRFBGTDQ2?=
+ =?utf-8?B?bzdYM0djVHFaWUUzdFVUYzBSRXd6RXBrMWhVa0kzTVAxU0FWUTUwbXVqSkth?=
+ =?utf-8?Q?a75wYzYOOqjWa/7L0VQAt1eUf4YP0Ku6lvYp8jQ?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR12MB5825.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?citFOEYvazdmclJpcjlUOHlWdWFsRklUSjZXWmFSR3ViamNyak5tcFhKUmtT?=
+ =?utf-8?B?OWVYbUl3bVJSRXFGMUdZU1ZuM0I3ZG5SMVRjOTN0U2hHbVNzanBhVVV3WHA3?=
+ =?utf-8?B?VFhjanNyNXZhL1hXWHNRQTVTVU5qNm4reWE4VFY2YWE3RHhMOCtSdElWQ2NJ?=
+ =?utf-8?B?dUNkMDFtVTkxcnJ4eWxWUjZTNjlLUHAwTU94dTZibU9mQm1oWmwrdFJjbnlp?=
+ =?utf-8?B?Q0xXc0N2NlpyTkUvZ2lsdkFnVXpjSThQVy9oNEhZVExSaXhUaTI1blhEQW11?=
+ =?utf-8?B?RWRWanN6b0x0T2Q2TjQ3NTYzU2lBSmVTMW43SGNrcU1MNktYYkQ2Ty8yWldJ?=
+ =?utf-8?B?bDZNTnc2bEY3dHVwenRkOHVIU1RTNDUvekxWcFBTVEVUMnB3Mit1VXUzcEkz?=
+ =?utf-8?B?YTRSSmdaUFNEcHFnUEYwNklqOWd5c2hKM2JnTmRaVWNiTlZjNEQ3RTN1eDlI?=
+ =?utf-8?B?ZXZ6NERNQU5SeUR3Z1pIQWwvQzhYaUVJZUx1T254WVQzNDVCeHI0UFZIMlky?=
+ =?utf-8?B?SGlkZ1AwWjc5SFkvZUFtejFDSXNVUWs5QlZhQk5qbmlDY2VTZlZMZ0hQSUhU?=
+ =?utf-8?B?bWgrN3NyMFpsYWlSSkV5ZGwwemRTcFB2WU95dVBhcXJpRVl4UFFIRGcyVkNn?=
+ =?utf-8?B?SGFZdFZ0RE1vaEo3bUVhV0FEeDl5RnVHRkJpTS8ycnI1dEdXSUtONnBESDdh?=
+ =?utf-8?B?bERaaDU4NnRjOS9mUStPa2ZhR21PUjlCTW84cVlEWnhCSENuNnpsdUQ0MmJW?=
+ =?utf-8?B?ZjZRa3c3V25XQlRzNmF3T3pJTXg5eVlPbHJ0a1hoSUdvcFBXcUVkZ3VlMnZa?=
+ =?utf-8?B?cGF1cGtNSmJDcGtjSzQxTElMS0pQUEtNY3N0bkRralVKVGpXR2trSmNaMnNJ?=
+ =?utf-8?B?REhydG5GM3kzbk1taG1wY0czdXRjSEhXaXdTR3M1ZExkQXlhd0RBNWJKSDZI?=
+ =?utf-8?B?TTgxeHRjYkcxRUpjOXY3aFF1YzlkaUxsQWtBK2tLdXFZN0I0a3ZoY0FFT1B5?=
+ =?utf-8?B?N2x0emI5YW00b3ZiWGt3aXhNMHEvcHFBNTlQQ3MyaTBFeEMwczdzNVY3NDlR?=
+ =?utf-8?B?Z0RscmhGMFpoMFdtemtrcHc3ZzVUK3JoS2RWUlUwRzZFLytLSkR3M0pzdnhY?=
+ =?utf-8?B?SkdzRWo0dDQyMWN5dzJHVUcyN2FTQkVUU0xxVEEzQnpZR3hFam9QNjgrSVJY?=
+ =?utf-8?B?SEZQZGI1bWRBUWkxbXNzeitILzcyKzRJZlJTOGRIcW5HdXcrdVQ1Z0p2MEZx?=
+ =?utf-8?B?Y3d3dDIrRUUwaFZ1cnZ0VGRYdnlzeWx4VVcvVnErbDIwdUErQXhTc0Jhamto?=
+ =?utf-8?B?dWFzcGJtTlMwc3U2U0FwNHRhRXRCU3RjZzVmQXNqbzZPdkRZdWRvOFRRcURX?=
+ =?utf-8?B?VVhITVFmeEFpWkM2dTBRdEMyaGMwdEQ2Rzk3b0JCbVVJUUFIZGNVdmI0Y1FB?=
+ =?utf-8?B?Q01tcWRlWDF6NkZVaHBpSVJEdHhUYmR3T0VQdHZIcVVaSmQwKzk0T1BKbnNW?=
+ =?utf-8?B?YThaVUhYK0E4dzVXSFkzY0xvU29hZ1EwLzl4TzlpUWU5a0ZwNk9pQTkwLzlp?=
+ =?utf-8?B?Q2tTWmpmaGViQjRCUnBSV1ZmalBmY2U0bnhhK2VESDFjVzBTOUhnY3J4RXpM?=
+ =?utf-8?B?aWxISEVsRWV5dG04amQyUUNoKzJWeVNzTm5OL3grWjNROXJXcXpIRGN2bFpP?=
+ =?utf-8?B?L1Q4K0Vzb2pDNzJnNnBxOXc4aTBBWVoxcUdqVDBCWWlQQUtlQWVXWHBJV3NL?=
+ =?utf-8?B?OFBLYVZGSjNBRXdwbk51RzJOcWN1V2s4RTQvM2Q4bms4VHdhUWxnNDdRUUNB?=
+ =?utf-8?B?bnZ0Y21GZFpwZE12eVZhT29ERVQzUC9tMXVneTFtRVZwbXRxOXV2elh2NUVC?=
+ =?utf-8?B?Q212c2NLZVhQc2I4a0thSUdFenNjTzQ0UHZMOWNHZU9STTJHN3AwT1hBYmxq?=
+ =?utf-8?B?Z1dkTncvbStoNWxPa3Zmck9JeVdTNENUOVpoTXV4T2RRbm00MlRKcWVLa3Ji?=
+ =?utf-8?B?TjdMTkRhby83d2dNaXQ4ampnM2FnZlZ6amJaZzFqcVdkc2s4dTdpbUJTbWEx?=
+ =?utf-8?B?bVQ0RTFrN0tzdTZBditweU02VXpwa2pWRldCYmMzNnFKaGM1MGpNRG5zSk55?=
+ =?utf-8?Q?PAd50GOBLL8UNGVHUxXjDKTZP?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 34c83b53-6fdc-4cf3-8bb2-08dcf9d3504f
+X-MS-Exchange-CrossTenant-AuthSource: BL1PR12MB5825.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Oct 2024 17:41:56.2545
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GphR0HX4B6n0lCCppaNV060KIhpA5MXG3nPBDisccBXBulGg8OQ7IYu6pvL5mwY3Pf9XfqL/J1tx5jQPHHr7wA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6800
 
-On 31.10.24 17:47, Sumanth Korikkar wrote:
-> On Thu, Oct 31, 2024 at 05:27:06PM +0100, Sumanth Korikkar wrote:
->> On Fri, Oct 25, 2024 at 04:14:45PM +0200, David Hildenbrand wrote:
->>> Let's finally add s390 support for virtio-mem; my last RFC was sent
->>> 4 years ago, and a lot changed in the meantime.
->>>
->>> The latest QEMU series is available at [1], which contains some more
->>> details and a usage example on s390 (last patch).
->>>
->>> There is not too much in here: The biggest part is querying a new diag(500)
->>> STORAGE_LIMIT hypercall to obtain the proper "max_physmem_end".
->>>
->>> The last three patches are not strictly required but certainly nice-to-have.
->>>
->>> Note that -- in contrast to standby memory -- virtio-mem memory must be
->>> configured to be automatically onlined as soon as hotplugged. The easiest
->>> approach is using the "memhp_default_state=" kernel parameter or by using
->>> proper udev rules. More details can be found at [2].
->>>
->>> I have reviving+upstreaming a systemd service to handle configuring
->>> that on my todo list, but for some reason I keep getting distracted ...
->>>
->>> I tested various things, including:
->>>   * Various memory hotplug/hotunplug combinations
->>>   * Device hotplug/hotunplug
->>>   * /proc/iomem output
->>>   * reboot
->>>   * kexec
->>>   * kdump: make sure we properly enter the "kdump mode" in the virtio-mem
->>>     driver
->>>
->>> kdump support for virtio-mem memory on s390 will be sent out separately.
->>>
->>> v2 -> v3
->>> * "s390/kdump: make is_kdump_kernel() consistently return "true" in kdump
->>>     environments only"
->>>   -> Sent out separately [3]
->>> * "s390/physmem_info: query diag500(STORAGE LIMIT) to support QEMU/KVM memory
->>>     devices"
->>>   -> No query function for diag500 for now.
->>>   -> Update comment above setup_ident_map_size().
->>>   -> Optimize/rewrite diag500_storage_limit() [Heiko]
->>>   -> Change handling in detect_physmem_online_ranges [Alexander]
->>>   -> Improve documentation.
->>> * "s390/sparsemem: provide memory_add_physaddr_to_nid() with CONFIG_NUMA"
->>>   -> Added after testing on systems with CONFIG_NUMA=y
->>>
->>> v1 -> v2:
->>> * Document the new diag500 subfunction
->>> * Use "s390" instead of "s390x" consistently
->>>
->>> [1] https://lkml.kernel.org/r/20241008105455.2302628-1-david@redhat.com
->>> [2] https://virtio-mem.gitlab.io/user-guide/user-guide-linux.html
->>> [3] https://lkml.kernel.org/r/20241023090651.1115507-1-david@redhat.com
->>>
->>> Cc: Heiko Carstens <hca@linux.ibm.com>
->>> Cc: Vasily Gorbik <gor@linux.ibm.com>
->>> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
->>> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
->>> Cc: Sven Schnelle <svens@linux.ibm.com>
->>> Cc: Thomas Huth <thuth@redhat.com>
->>> Cc: Cornelia Huck <cohuck@redhat.com>
->>> Cc: Janosch Frank <frankja@linux.ibm.com>
->>> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->>> Cc: Jason Wang <jasowang@redhat.com>
->>> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->>> Cc: "Eugenio P?rez" <eperezma@redhat.com>
->>> Cc: Eric Farman <farman@linux.ibm.com>
->>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>> Cc: Jonathan Corbet <corbet@lwn.net>
->>>
->>> David Hildenbrand (7):
->>>    Documentation: s390-diag.rst: make diag500 a generic KVM hypercall
->>>    Documentation: s390-diag.rst: document diag500(STORAGE LIMIT)
->>>      subfunction
->>>    s390/physmem_info: query diag500(STORAGE LIMIT) to support QEMU/KVM
->>>      memory devices
->>>    virtio-mem: s390 support
->>>    lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390
->>>    s390/sparsemem: reduce section size to 128 MiB
->>>    s390/sparsemem: provide memory_add_physaddr_to_nid() with CONFIG_NUMA
->>>
->>>   Documentation/virt/kvm/s390/s390-diag.rst | 35 +++++++++++++----
->>>   arch/s390/boot/physmem_info.c             | 47 ++++++++++++++++++++++-
->>>   arch/s390/boot/startup.c                  |  7 +++-
->>>   arch/s390/include/asm/physmem_info.h      |  3 ++
->>>   arch/s390/include/asm/sparsemem.h         | 10 ++++-
->>>   drivers/virtio/Kconfig                    | 12 +++---
->>>   lib/Kconfig.debug                         |  2 +-
->>>   7 files changed, 98 insertions(+), 18 deletions(-)
->>>
->>>
->>> base-commit: ae90f6a6170d7a7a1aa4fddf664fbd093e3023bc
->>> -- 
->>> 2.46.1
->>>
+
+
+On 2024-10-31 p.m.12:52, Michael S. Tsirkin wrote:
+> External email: Use caution opening links or attachments
+> 
+> 
+> On Thu, Oct 31, 2024 at 10:17:00AM -0400, Feng Liu wrote:
+>> Hi,
 >>
->> Tested successfully various memory hotplug operations on lpar.
+>> Excuse me. Have any comments for this patch?
 >>
-> Just to be more precise, tested memory hotplug/hotunplug combinations +
-> Device hotplug/hotunplug operations on guest.
+>> Thanks
+>> Feng
+> 
+> it's tagged, will be in the next pull. Thanks!
+> 
 
-Thanks a bunch!
+Thanks Michael.
 
--- 
-Cheers,
-
-David / dhildenb
-
+BR
+Feng
