@@ -1,136 +1,139 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63E9136338
-	for <virtualization@lists.linux.dev>; Fri,  1 Nov 2024 02:15:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1363813CF8E
+	for <virtualization@lists.linux.dev>; Fri,  1 Nov 2024 03:03:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730427322; cv=none; b=TmCU/xrQgWpftOwXQNyM19ls3O9Kw5LjpXhOwsOpc/hj/vJeMBM6n4gvDydY6ke06TQ7DtJIBoyJaQc0qsOo79hN/LTlOzRNmop51R5n6YzL2qnmGdkD7mJtmJDln9V4UucJ35rZLzePpsgbucUiwnVemSP8d0Z7Tt3IQ+veU2Q=
+	t=1730430206; cv=none; b=Cn2PjA1Aqx9TAPM7EcenPoM1vVH/V+VDnf7dZxyskraxZF099ZmGl45W8q4NIk1tLcsI1F9xdg+2DziaS1yMGxZIPxg0RtNugf/HomwPtLYt+3eWzgbuY4wxZxPrMncqOjFk9s3rQuCmF3FZC5ZtImZjkh7YJBpg25FgWI8BiPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730427322; c=relaxed/simple;
-	bh=yJdGIwUEYPOmEs8ij3kiy6zzV0QYlQFlQfm8YmlYIbg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fP0smNJukbm+vBLrCQWgcMWeR7Q63m+GWBBnmvyWcfpEewitKpaFxJ6jo2YeDHH/jcMltrM124jRnTytwEnVhIBns/hdgjGYAmwJq0jeGoR4IOOFuN9VYjPrn9ls+xY7TYtmb3TNyhM0hEhmdt5AJGSLY7h6NiG3Bdp2hvuOw4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EV3sOP6l; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1730430206; c=relaxed/simple;
+	bh=y8yW7zcDDjfMePg5zhO73d5G3dBGBJ+0ZlV2Vk5qn0o=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=qYCky0mHKgeHpihTxDqxYkvNqrHSZ8lFsyPn+kn9gi9LiV8vMOBZgx63ya5dfU89Y0QFWTWezWsazQwXbOWejptPYaayaiorYE3044pWtTE+KQmHl4BdGh7MBXkIDOHBbd9Xh2xU5WSxkJm4I8vlf7N4BBPI4RlcvnkljEosVAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cGhmaTsb; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EV3sOP6l"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730427314;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yJdGIwUEYPOmEs8ij3kiy6zzV0QYlQFlQfm8YmlYIbg=;
-	b=EV3sOP6lowtne1+EkhjTwKTQl/4VJxSqhA4kb83dl3NzBgvY4aT0SbjOacOfXoNrgZXlBI
-	uW89e+oabvEonSh6Cd1BdLfecj4spWBZBK8vpeDDfc250OgcJvZA4RmJ3EwCvIlvzRvLLm
-	HX4Y9Ctqlw/tmUGI8+K0fbNqeoK9qb8=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-663-MtjUtHW1PvGF__asAPKXlw-1; Thu, 31 Oct 2024 22:15:10 -0400
-X-MC-Unique: MtjUtHW1PvGF__asAPKXlw-1
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-7ec0d56d624so1693961a12.1
-        for <virtualization@lists.linux.dev>; Thu, 31 Oct 2024 19:15:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730427310; x=1731032110;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yJdGIwUEYPOmEs8ij3kiy6zzV0QYlQFlQfm8YmlYIbg=;
-        b=DZ5Hm7PCcapWL42pxnrPBOwIPktCp6ZZrSv3MBbIloC5ltt4S5k8abp2AAWYicWFnS
-         kVFfmysxJ6w0jfPunjJbzrk2mDJ078TR3kCj259Io9en0Pv53GD5T2bD07ITC9DS8kYK
-         Pj/8bX6cKLTIW6fzV5Ng3fDlNA1qkk2cogVilk3aEW/pBg5jjJil1RqrAZiEMd/BRqXt
-         bB+lrtbo84xFmGANpMpaH00d/Mb7cqCIXFzsFtRankwJnFfByGCBl6V1fVE8KQGDLUYC
-         fqZDFT58MbfJ59tzoE754VEBuHZ0t2lApXIyteuysO2sZ5JjePe2X0cLJ4JPEGuLyK4g
-         iKhw==
-X-Forwarded-Encrypted: i=1; AJvYcCX3v5i/3rJ8HTIGu2wtNXObIjAgcZvyCoYsaPSFCPG5qLX5PFvIP9Nqk0Smd6IjozXogr83W4OPgWujzKhVbw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxI7Gb+CG8KQ53Oa+nBKgHSd3kQ6HT0yWYAjzjQMXLZM/e2Ki6Z
-	n2Hr9W2m+qbcKnYZ6SQA2uOJzSentkCtpuRgZhPc277dRCFsd7O6Bmm4VX4P2A76lyD2uZ+1YsE
-	4wrcuOwclZjk9kT4bR1m7sOAM1pN9gZ+K5fAgCXSQZMax1q+xz7zDOTG4nxHRwPwZIQJBjMgPSz
-	f4C+1QIJq+U0Ucd15wxVDbhlyxHQ4qSyAISWGFXq4=
-X-Received: by 2002:a17:90b:2d92:b0:2e2:e159:8f7b with SMTP id 98e67ed59e1d1-2e94c29f2cemr2655465a91.3.1730427309722;
-        Thu, 31 Oct 2024 19:15:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHy16t0It8M5wuxzMCN0u7b3KxhGxysg7D6J/QWKdLqLpcbAtWiRV69Dq4QwYxCS/HPdiOkYmqXnbjdd/QPCCE=
-X-Received: by 2002:a17:90b:2d92:b0:2e2:e159:8f7b with SMTP id
- 98e67ed59e1d1-2e94c29f2cemr2655410a91.3.1730427309206; Thu, 31 Oct 2024
- 19:15:09 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cGhmaTsb"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1730430201; h=Content-Type:Mime-Version:Subject:From:Date:Message-Id:To;
+	bh=lHTFluFn91Zgm50b/7m57y+ytTEX564G7atSqw12Uyc=;
+	b=cGhmaTsb8/XMusaCd7fl8mpaoKg3/Lh/ZeUojnSnkfvmilMgHf8/rV+IV0BDL4RCjphDNiLoE0ex7OtqQnnOtswIEmGmGCJiV9A0NP8aO2/XhQXhlzSUdJwjrzYxOvnVDOry3t6eSlbLSDtLLDAb44vyfUsgEe7bF89lP7bYis0=
+Received: from smtpclient.apple(mailfrom:guanjun@linux.alibaba.com fp:SMTPD_---0WIKwQpa_1730430199 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 01 Nov 2024 11:03:20 +0800
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20241031030847.3253873-1-qiang4.zhang@linux.intel.com> <20241101015101.98111-1-qiang4.zhang@linux.intel.com>
-In-Reply-To: <20241101015101.98111-1-qiang4.zhang@linux.intel.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 1 Nov 2024 10:11:11 +0800
-Message-ID: <CACGkMEtvrBRd8BaeUiR6bm1xVX4KUGa83s03tPWPHB2U0mYfLA@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio: only reset device and restore status if needed
- in device resume
-To: qiang4.zhang@linux.intel.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>, 
-	Olivia Mackall <olivia@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
-	Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Gonglei <arei.gonglei@huawei.com>, 
-	"David S. Miller" <davem@davemloft.net>, Viresh Kumar <viresh.kumar@linaro.org>, 
-	"Chen, Jian Jun" <jian.jun.chen@intel.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, David Hildenbrand <david@redhat.com>, 
-	Gerd Hoffmann <kraxel@redhat.com>, Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Qiang Zhang <qiang4.zhang@intel.com>, 
-	virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, netdev@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-sound@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.300.61.1.2\))
+Subject: Re: [PATCH RFC v1 1/2] genirq/affinity: add support for limiting
+ managed interrupts
+From: mapicccy <guanjun@linux.alibaba.com>
+In-Reply-To: <87v7x8woeq.ffs@tglx>
+Date: Fri, 1 Nov 2024 11:03:08 +0800
+Cc: corbet@lwn.net,
+ axboe@kernel.dk,
+ mst@redhat.com,
+ jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com,
+ vgoyal@redhat.com,
+ stefanha@redhat.com,
+ miklos@szeredi.hu,
+ peterz@infradead.org,
+ akpm@linux-foundation.org,
+ paulmck@kernel.org,
+ thuth@redhat.com,
+ rostedt@goodmis.org,
+ bp@alien8.de,
+ xiongwei.song@windriver.com,
+ linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ linux-block@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
+Message-Id: <9847EC49-8F55-486A-985D-C3EDD168762D@linux.alibaba.com>
+References: <20241031074618.3585491-1-guanjun@linux.alibaba.com>
+ <20241031074618.3585491-2-guanjun@linux.alibaba.com> <87v7x8woeq.ffs@tglx>
+To: Thomas Gleixner <tglx@linutronix.de>
+X-Mailer: Apple Mail (2.3774.300.61.1.2)
 
-On Fri, Nov 1, 2024 at 9:54=E2=80=AFAM <qiang4.zhang@linux.intel.com> wrote=
-:
->
-> From: Qiang Zhang <qiang4.zhang@intel.com>
->
-> Virtio core unconditionally reset and restore status for all virtio
-> devices before calling restore method. This breaks some virtio drivers
-> which don't need to do anything in suspend and resume because they
-> just want to keep device state retained.
 
-The challenge is how can driver know device doesn't need rest.
 
-For example, PCI has no_soft_reset which has been done in the commit
-"virtio: Add support for no-reset virtio PCI PM".
+> 2024=E5=B9=B410=E6=9C=8831=E6=97=A5 18:35=EF=BC=8CThomas Gleixner =
+<tglx@linutronix.de> =E5=86=99=E9=81=93=EF=BC=9A
+>=20
+> On Thu, Oct 31 2024 at 15:46, guanjun@linux.alibaba.com wrote:
+>> #ifdef CONFIG_SMP
+>>=20
+>> +static unsigned int __read_mostly managed_irqs_per_node;
+>> +static struct cpumask managed_irqs_cpumsk[MAX_NUMNODES] =
+__cacheline_aligned_in_smp =3D {
+>> +	[0 ... MAX_NUMNODES-1] =3D {CPU_BITS_ALL}
+>> +};
+>>=20
+>> +static void __group_prepare_affinity(struct cpumask *premask,
+>> +				     cpumask_var_t *node_to_cpumask)
+>> +{
+>> +	nodemask_t nodemsk =3D NODE_MASK_NONE;
+>> +	unsigned int ncpus, n;
+>> +
+>> +	get_nodes_in_cpumask(node_to_cpumask, premask, &nodemsk);
+>> +
+>> +	for_each_node_mask(n, nodemsk) {
+>> +		cpumask_and(&managed_irqs_cpumsk[n], =
+&managed_irqs_cpumsk[n], premask);
+>> +		cpumask_and(&managed_irqs_cpumsk[n], =
+&managed_irqs_cpumsk[n], node_to_cpumask[n]);
+>=20
+> How is this managed_irqs_cpumsk array protected against concurrency?
 
-And there's a ongoing long discussion of adding suspend support in the
-virtio spec, then driver know it's safe to suspend/resume without
-reset.
+My intention was to allocate up to `managed_irq_per_node` cpu bits from =
+`managed_irqs_cpumask[n]`,
+even if another task modifies some of the bits in the =
+`managed_irqs_cpumask[n]` at the same time.
 
->
-> Virtio GPIO is a typical example. GPIO states should be kept unchanged
-> after suspend and resume (e.g. output pins keep driving the output) and
-> Virtio GPIO driver does nothing in freeze and restore methods. But the
-> reset operation in virtio_device_restore breaks this.
+>=20
+>> +		ncpus =3D cpumask_weight(&managed_irqs_cpumsk[n]);
+>> +		if (ncpus < managed_irqs_per_node) {
+>> +			/* Reset node n to current node cpumask */
+>> +			cpumask_copy(&managed_irqs_cpumsk[n], =
+node_to_cpumask[n]);
+>=20
+> This whole logic is incomprehensible and aside of the concurrency
+> problem it's broken when CPUs are made present at run-time because =
+these
+> cpu masks are static and represent the stale state of the last
+> invocation.
 
-Is this mandated by GPIO or virtio spec? If yes, let's quote the revelant p=
-art.
+Sorry, I realize there is indeed a logic issue here (caused by =
+developing on 5.10 LTS and rebase to the latest linux-next).
 
->
-> Since some devices need reset in suspend and resume while some needn't,
-> create a new helper function for the original reset and status restore
-> logic so that virtio drivers can invoke it in their restore method
-> if necessary.
+>=20
+> Given the limitations of the x86 vector space, which is not going away
+> anytime soon, there are only two options IMO to handle such a =
+scenario.
+>=20
+>   1) Tell the nvme/block layer to disable queue affinity management
+>=20
+>   2) Restrict the devices and queues to the nodes they sit on
 
-How are those drivers classified?
+I have tried fixing this issue through nvme driver, but later discovered =
+that the same issue exists with virtio net.
+Therefore, I want to address this with a more general solution.
 
->
-> Signed-off-by: Qiang Zhang <qiang4.zhang@intel.com>
+Thanks,
+Guanjun
 
-Thanks
+>=20
+> Thanks,
+>=20
+>        tglx
 
