@@ -1,59 +1,91 @@
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2071.outbound.protection.outlook.com [40.107.244.71])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59BC854673
-	for <virtualization@lists.linux.dev>; Sun,  3 Nov 2024 03:08:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D298516FF5F
+	for <virtualization@lists.linux-foundation.org>; Sun,  3 Nov 2024 14:39:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730603298; cv=fail; b=hbvc6XsjqjsXFUFuX8mM+5n0XNbAmTPrGR0yBq2bOdSuxu9wqArCjeAAxhApnmGWWunNPEqoz36ACtQwb6DSzSLiINxOUhApqU3dozRdklasAdLXArYNjirinsIrPYzL7hP0gYPztkMOpXoqIbc6a9BJ6e7PS4Hq1Yr9nh9ODW8=
+	t=1730644755; cv=fail; b=uh3ItAwmc51eQVhZvjep7G/yzqiyRXPpkUJqhTEJld/zA5mv2gbKH6+SjbY4QpURazUtQEr5pkUlymna3/9oItuIj5pyhM9fCDg2cur454ybmpQDIIlQ2pUK+uK3XFbgeO9FDZ58A0gTdd8Dyak/uMBUXBnvtM91d6GLFN7jt9Q=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730603298; c=relaxed/simple;
-	bh=1EkmQRs2FshsmZ9NTtEWx0sylNG/b9nMHKDIBq5yg50=;
+	s=arc-20240116; t=1730644755; c=relaxed/simple;
+	bh=994glwTw24j2yvA0isbVgcXqB406PG2Y9VxeopRQ0jM=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=SrrQn0Wjybq52a6N7eedVUf4tSv0pPYRvbnPix2ylDBZhOzWSo/prznaaQimRFvWG0sV5sVjhsfF10Nr1ULcvpUnTiWUAfkRhNcSr7JbdLgwcVSNKMbNkgnoFtzV5YhCRKBoexE02N+OQ7p5TIY0RtT+jz26l//LDiQ94UCtOYE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=p0TBSFJL; arc=fail smtp.client-ip=40.107.244.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	 Content-Type:MIME-Version; b=IJOqX50ZFDlpvxJr94lAvuYiCJBMr4W4iEdm4DpyDUH3GieYBxfxhRcba/DBBWDvAD682YOEgRTfc87FNCggCubTZ2kJgTewe5KCXF50vHA9I9K5DvUqZx9iTO3NFqlCF4Qe18+g5XtM5xi+Tr/mUzH/l85ocVbytsC0JZlYzYk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=nlFRhgfw; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="p0TBSFJL"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="nlFRhgfw"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6750981E55
+	for <virtualization@lists.linux-foundation.org>; Sun,  3 Nov 2024 14:39:13 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Go9SD2etuQUJ for <virtualization@lists.linux-foundation.org>;
+ Sun,  3 Nov 2024 14:39:12 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2415::605; helo=nam11-dm6-obe.outbound.protection.outlook.com; envelope-from=parav@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1479781E64
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1479781E64
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=nlFRhgfw
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on20605.outbound.protection.outlook.com [IPv6:2a01:111:f403:2415::605])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1479781E64
+	for <virtualization@lists.linux-foundation.org>; Sun,  3 Nov 2024 14:39:10 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=m6eTR2ISlMnT+JiUQeH/q7Ekib4OZDV5TJ5qGuhy3Tq7UvwSvwGAH8c6ctU5rM6AZERxxAhXiTmJj80WVuPH/6HcoIbq1pgLAfNpP7MLh/QTuaLkE2lPa97kD5K2GF8/6kQ/3xJoAadQbzYSOv5LZ33SzjMizkyuTbcNH3BWK6sjgLM75Tt+5srd3QBHmb3BMBmgf3BlzXOjfLjMHW8wFlSFCUvrjVPPVvXUZJ2t8wcdB1MKMjhnzZqtKkNOWlOamqOOHwedHLjJwatST6N9AXzpOLRRRToGEUGvq9kndE1Y6Fin6Q12EsSHRV7y2OmRBHk/UtkgzGzeh8cFVRKMYQ==
+ b=Gn2Yr2/55BgZaRbAc9WOcuePrgRKAwBl3J5FF7eGCMkejDz0YnmESN7ZWGfcmaiY1Fyqf5QX4T/y2OGGVahYk3ZrB1ojtEMvq94mhj57vMjKDnVV74DD1NvQmuLvq0IsxnNO78XRxxjLLMXYFYpCRoh0QP9ehvBgzshS+Wo7T90JjPA0C9zaqrTqrLbaumqV+Suyz1Ksuz2GIJCGC1Eq35orPm4f+6Fs4WXiZ5i+r2O3kI+msVfGW+UivwZg5ZFYkqF2XWyhO/1co3cUPlSvZ69/eOFgf39YdzETJoGM7UoHzQ2xKq4NWh3cDo5Hr6WPqxFAtR9URm36vhfepMgHXA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=b66mJkgMq023KK4R1ZbstL7081QSnB8Eg3mZd63Hcuc=;
- b=BNCvOXruWQK8ibs7jFyI7wP1ldCu1x+7/AnxbgowWd2tkYy6TAH1wsoPxGAnjpwOODrNwi+BCsd8VkiviU8OE4eBy8gqrRPvJ0mf+7OQltAx454GOd1AKUW4DkNypWmFNMvwhac/JKMCVh1p/tPvFNz4AqDnNuFLqDPmzFMzpzkqqZcmUk11bDG+8Wx9QLv2Wd35i5M81VLyR8jKbO8VQVhBm65s2d5e5P+6PR654fKvYDPGD8ozbOulksWravIZF7v/hovonmTsV6Kdhk6UYznytCBJDRr896kN6URK072BFCl0PMB7JCIKk/0PuXWhsb7cp69qgLmIAf2bB9ZNUg==
+ bh=Mr7HbPQ2yMRruyWnn7SdKskRwMhGGF7deSZ44YMs6GY=;
+ b=wOIRrBC4el4gJFqBbJhmtr12V3/OrVoN+swqV1x4Ynod0EiA14uV3fbymxiKBEUK15/86dysh8xpJiAjsWheFGHnnP9d/aL5Bx7uZKB1GFyAoNtF4B4wmlfuLbZqTQsVCIAhDfEyvrRkObQ7+GAgL8mCWRI6TYOzrqoHgWx5s6DDfK2K5AzjJ7zvN/kL2HFfqWTmjpcKxJEN4DBeWEuULfioXWl40BKxyY1vVtdV/Glqywy688cy5afNRJObjHq5tkkl3GOGWFI9KaV4tgEgt4E+55dFpKydzHi9glXa1dB0ZJIU+kJ9eNcTKcw/brX1jt6/Q8N+yCBlViJ6v2iqjA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=b66mJkgMq023KK4R1ZbstL7081QSnB8Eg3mZd63Hcuc=;
- b=p0TBSFJLugapgk7gYpiw0vlfgXYbxdI1z2A9WtaHF0jzCrUu+ksh3VLCiud+UQphWVgcMLE0cw0ZfOUUFYxrPeHoO4LhRq4jHaC/bwPiwBGz0c0tA6uEn0RQyszfPcRuYqjFfJEXNdoFWCGyBMRayycdAQqkk27J1V9mWbr0p1hqa7KP48tJ8GmPy/OteUalvtpGMZDaZuzkAz4wC10gNkEPoO0t4JO3d40aFwFA1NaTN7S+ehobIBv5dxpwIeHRMGyb+Up2Gb0Iw9ZelunNEWog84V2TCBY7etL0CYaVff//aG8aikwaYc2NO4+wPg3R0Z2mF9LnqPuV1Qq171Lfw==
+ bh=Mr7HbPQ2yMRruyWnn7SdKskRwMhGGF7deSZ44YMs6GY=;
+ b=nlFRhgfwcPpiqSkbuoX60Z6MNIozGAl0iOWIEovZ0Wi3K2bWv2voCEkjXSeFGoY98Zj6eTyMqGpj9b8pWmj9RAo7MK1OCRr/y7uuOU/y+HmUgArTTCiex51SuCOfvroD/aksWzYpH+WQScAZX7NFzIN8+dsmRtdZNZrPqxtk9DzC5tlbAob3Iu8gciXZd9V7As6WQubn7B8olj0xpMsImVGxcI7W5BAASxm1285GgovOmvt3j37+j9GvbuSEzW/tihmlPFwp3cezGv6GC74SMAkgtRCj6a/KLOobh0r9CG9oECs9GDEcMDYbmvaYtQeeZxODKftT39bopZf3/4HQqQ==
 Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by SA3PR12MB7858.namprd12.prod.outlook.com (2603:10b6:806:306::17) with
+ by CH3PR12MB8878.namprd12.prod.outlook.com (2603:10b6:610:17e::21) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.29; Sun, 3 Nov
- 2024 03:08:13 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Sun, 3 Nov
+ 2024 14:38:55 +0000
 Received: from CY8PR12MB7195.namprd12.prod.outlook.com
  ([fe80::c06c:905a:63f8:9cd]) by CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::c06c:905a:63f8:9cd%6]) with mapi id 15.20.8093.027; Sun, 3 Nov 2024
- 03:08:12 +0000
+ ([fe80::c06c:905a:63f8:9cd%6]) with mapi id 15.20.8114.028; Sun, 3 Nov 2024
+ 14:38:55 +0000
 From: Parav Pandit <parav@nvidia.com>
-To: Xiaoguang Wang <lege.wang@jaguarmicro.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-CC: "stable@vger.kernel.org" <stable@vger.kernel.org>, "mst@redhat.com"
-	<mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>, Angus Chen
-	<angus.chen@jaguarmicro.com>
-Subject: RE: [PATCH V2] vp_vdpa: fix id_table array not null terminated error
-Thread-Topic: [PATCH V2] vp_vdpa: fix id_table array not null terminated error
-Thread-Index: AQHbLDj9dV2zjYIBME2V8y6xnYdFRbKk4jTQ
-Date: Sun, 3 Nov 2024 03:08:12 +0000
+To: Alex Williamson <alex.williamson@redhat.com>
+CC: Jason Gunthorpe <jgg@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
+	"mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, Feng Liu <feliu@nvidia.com>,
+	"kevin.tian@intel.com" <kevin.tian@intel.com>, "joao.m.martins@oracle.com"
+	<joao.m.martins@oracle.com>, Leon Romanovsky <leonro@nvidia.com>, Maor
+ Gottlieb <maorg@nvidia.com>
+Subject: RE: [PATCH vfio 0/7] Enhances the vfio-virtio driver to support live
+ migration
+Thread-Topic: [PATCH vfio 0/7] Enhances the vfio-virtio driver to support live
+ migration
+Thread-Index:
+ AQHbKFgwmMFKDidgeUS806gohYGFpbKcWAwAgAAC0wCAAAhuAIAACAsggAHGLgCAAr86QIABs9YAgAMFipA=
+Date: Sun, 3 Nov 2024 14:38:55 +0000
 Message-ID:
- <CY8PR12MB71952095F06EA9B9B301C39CDC502@CY8PR12MB7195.namprd12.prod.outlook.com>
-References: <20241101083448.960-1-lege.wang@jaguarmicro.com>
-In-Reply-To: <20241101083448.960-1-lege.wang@jaguarmicro.com>
+ <CY8PR12MB71955EF583F601E8ECEE3C71DC502@CY8PR12MB7195.namprd12.prod.outlook.com>
+References: <20241027100751.219214-1-yishaih@nvidia.com>
+	<20241028101348.37727579.alex.williamson@redhat.com>
+	<20241028162354.GS6956@nvidia.com>
+	<20241028105404.4858dcc2.alex.williamson@redhat.com>
+	<CY8PR12MB7195FCA5172D7829B1ABC773DC4A2@CY8PR12MB7195.namprd12.prod.outlook.com>
+	<20241029142826.1b148685.alex.williamson@redhat.com>
+	<CY8PR12MB719511470E1E0BAD06CFFBD2DC552@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20241101102518.1bf2c6e6.alex.williamson@redhat.com>
+In-Reply-To: <20241101102518.1bf2c6e6.alex.williamson@redhat.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach:
@@ -61,67 +93,67 @@ X-MS-TNEF-Correlator:
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|SA3PR12MB7858:EE_
-x-ms-office365-filtering-correlation-id: 6c11f8a3-fe04-4a47-2096-08dcfbb4c0e3
+x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|CH3PR12MB8878:EE_
+x-ms-office365-filtering-correlation-id: dce81984-8253-4c0d-38c2-08dcfc153e77
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|366016|376014|38070700018;
 x-microsoft-antispam-message-info:
- =?us-ascii?Q?9GvcT9Zat9Wt0N/k3vFR82W1M1E2wCwhlY2wzdQmeQ4Oi6DYlqo6dED5aRyZ?=
- =?us-ascii?Q?k6s1mcE3Vg2TWCWTuHmFrT5NYIoWp3Ly4aZnMkNQACVl411OB5YdQJXVSAea?=
- =?us-ascii?Q?Yaw4mLUalXnJPg4nsznSOTEzdNjLMo5GVZtnsKnbGL0QTpayqjg5kL9hVQO9?=
- =?us-ascii?Q?V8SVF/MBjpRV/Wd17c2+f6FmRqDMne6k/lLaoOac9dheqGk3vW4epXNmNH3v?=
- =?us-ascii?Q?Byp3aSJwBk7Gu2MJOygAdwtnCtIsG+QesLPnge/bTSKJqNRZqH5mLyqLTxaJ?=
- =?us-ascii?Q?9G3KZEH2BaPJ9KDKNes6/oC/avaBFPgvpLT+pZDFR2uCWSXBWBOdqWmP83xL?=
- =?us-ascii?Q?pmCOLmrVCoyVf3DWo8dboVLwEirAfFHrh+T+BZKNYcfTBTTCO7zMHo8GPQm2?=
- =?us-ascii?Q?EJJkU0AGMKbXFDw+JWVU7Piq09Tn0ONC64M8Bb9f88+DuFHgYhZoma5jIRQC?=
- =?us-ascii?Q?Q+uVsTE+aJFgY65tsz2FEUMeeZkaqbCsP7WTgAF9hGObS6MKX4feB8dHqbkL?=
- =?us-ascii?Q?SoFfFiIEGBXCfJ5HcLJaX67VJVgUA+wLa7o94Oj5xvCzxjb9ZtI4ZJ+AYogm?=
- =?us-ascii?Q?wbn3QTx6Dn6JmHfICJcCwrVSWJuYvullR5MsW/xFJ8iLYYaoT4JiE9bUoroB?=
- =?us-ascii?Q?xvZX+M4q8m2HJtvjwrxx71MNIwAt4a9sKGSMsSQ5Qsj43UL1ACFk+pDPqPWe?=
- =?us-ascii?Q?f714Hf0ZzzsT3hSEEmBQpdHOFnsrdM69hw8WuVqrXuQ22fFf4FWSh/xBASl+?=
- =?us-ascii?Q?uHeu6Bf0Cq2QOMPwinESkA/nSLkHqJW2/cV3N37Ro1S3OSl8H6utxa26N8KL?=
- =?us-ascii?Q?bbO76hlW+LFOxvz8Jv0H4GZMG9pv3qxaA8oSSlv4iHMiiNg7/7brxK7mErsv?=
- =?us-ascii?Q?ztd6gWQoL703OCZXwOh7YNYypA/1wKdTAnxduKbxf/O4zw2a3WlHHvUDVbKF?=
- =?us-ascii?Q?obrKJRIX8AF01ZD3+uMsmBg8Ua/xbvaylWFQN0w6hPodEHKeSM+hoj/To0k4?=
- =?us-ascii?Q?e5j67sMNFJEaDSOuZrGG9YiFyXD9kPvTL7QlJJ3io3Y8gkNc4BquGVlDtgDx?=
- =?us-ascii?Q?C7b9WKC3slp60YMiYH5bFLTaAVNN+XCNPO9KmFO/XMbEkY5O86SANx3W8DSn?=
- =?us-ascii?Q?sLcQRUksscEpbiPUOY6udxSblfLRg6ctsTd4svZLaghotFIqvE6kLszJUlVu?=
- =?us-ascii?Q?iSH6jmPWYsJIJoVaFBCDv2ErjCmupQ6eJTB+h1XrcbJh6/H37qRvb0985Jkg?=
- =?us-ascii?Q?8ayqvvLnTj0SbJRw1u7YRsO2o8yg3YD74T4qxkPYR5HP0+FkOG2JieL6dxR9?=
- =?us-ascii?Q?9t5r2OFStEhJMtOL5mqblTf8sU0JE2w52DdjJ8WWhByJcJhHixZRAtC/G/Ls?=
- =?us-ascii?Q?r1146ws=3D?=
+ =?us-ascii?Q?tN2NgA8656aaqTi8AuAfuXej0HJ4K2JvcVGCvBMeQv8S6LRuHWJQqxuP/O1F?=
+ =?us-ascii?Q?1gIEzL4p4K5vHFuME1pjA/q9SbK01WU7xO1fD+o5aYaY3OEWEFKgxeGHfJNg?=
+ =?us-ascii?Q?j7I9WA9gpsgnDOtlEsLb4b2E/bFl1cXwiuXk1epEizjFVXx31AT9yDsRyMo9?=
+ =?us-ascii?Q?tYTmdO5J3YmK0lIgsRaFgA6Tu08xmJWn3HnTrphHuFPvsxJ3+qe35R5N+fQj?=
+ =?us-ascii?Q?G2B7N/R7+w1SSlpF+04gaQ1wElN1ATC5jtnkK2cBBMV7zYx68/HGqhV9wLKt?=
+ =?us-ascii?Q?RuwOeYg8k4WARtx15yryn5GzdEyIjF3p+Rq9Pb4mWiLAJdhzM1v7THAk/YxJ?=
+ =?us-ascii?Q?2llzQxV0R7MrWEAI73tCVnQ2qm4Dq1s1KBZj/WlGBObQHyUpXwP5Q+OMCRYD?=
+ =?us-ascii?Q?9YPPSGqzF+m/jpZtpwtYSz3HFJmPza4VpiNBoNDEPq1X6JTvHWYYX+YlS+0e?=
+ =?us-ascii?Q?OvF+n7scrS89nPiUDu2n4B4GgAU3G7NFdyMKJBvWM+wnBaFyqKCJV3I/4Cxg?=
+ =?us-ascii?Q?JDi2hltJkkM6mRD4rzwOv3bj22AHPImro0nhK8+KeO/SEweOv2ILbhPzctvW?=
+ =?us-ascii?Q?qgGzbUnwtfkjHY/xKG/gEsPJizSoqPRoN4fwd6GTsKyHvMudgDd86uV9vjW1?=
+ =?us-ascii?Q?0z4eL2nwszIygeBAJ6u9way5x45ptBTnwLcnzwMfklwtwp3wspRL2NRnCkpm?=
+ =?us-ascii?Q?B43aHVhD85IlRumPop/zE9KvR1fAZZ3vPBpxZwNkYK0SlPEreA86tEEAg6t/?=
+ =?us-ascii?Q?PeMIWQvc36KEkK2bmfieP32bUYQov2Kz6eqJA3OcKEWN4LN3C+SK0h0cd7Am?=
+ =?us-ascii?Q?WgwJkDF4l8kF4sqihigYBQ1DWf2U9jaL5jwOFvwgpyoq+FyLPxOWLBBsdNSl?=
+ =?us-ascii?Q?USoSdQlv7Dd7r+cEPl+22TMWQgh9kbiPvWBhhsPQaijOx1Hhnn7Z6ECDqybH?=
+ =?us-ascii?Q?QDtBpU0s0sPnlzzHzfaV9nfVQJR5LpwMtwM5i5TuoBuJML0pIKuQjw2tvvVh?=
+ =?us-ascii?Q?P9fWXN6bdMsy+3QYPH9jNTwKCBVUDGQ+J6ooVXU4ojEgKKGsWjDtxoBqH/gs?=
+ =?us-ascii?Q?bQCfb671ApFZ4zPyJLOSFcEt6df5xzCCl99fNKk6jfY6ML7sG+xmGUsETFCm?=
+ =?us-ascii?Q?WtlvlHZeNqCXGZYSZNKOFS+uA2e+8paxVjWbq3yoH8d4vUSeIF5BlS/mM8jW?=
+ =?us-ascii?Q?2E+JUXlqPZP1sV09KwH8axU2KCbQgsRIaaI2pLDPQxI6kDsn/3q37cw4DBgw?=
+ =?us-ascii?Q?K+BOzalGtp4/xLG/5AS0/QRVvBEA5R2dLtOMG/Kaq69oe6ixpueGIw3Nnuw/?=
+ =?us-ascii?Q?RriKhz66m3lHHUqtdoNeFMA8RDt+/xfjy0ancAIjktqNg8ZabvK2tv01FXGD?=
+ =?us-ascii?Q?x8+CjWA=3D?=
 x-forefront-antispam-report:
  CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(38070700018);DIR:OUT;SFP:1101;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
 x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?eoO+Prga+qUew1AMF1R28XKSPxJ+esXflGi3m2W9lTwIYEZxYB/vJY0oQCKZ?=
- =?us-ascii?Q?cqTaVt9GkOSZi2fw5hA0YNH5Ov+1trM4X8qwM6QMwS/InYqfmXT6O8tjvs1c?=
- =?us-ascii?Q?N/XemD6YFAlpGFYqZ1AylQk76kL5PRY5lzk/0YrKoj0EbqTjf9E0oqLmLpMC?=
- =?us-ascii?Q?onSdpRLpJStPMN4aJlNyLInpMD6J7ZYw+8MLgIGqViX4djQYzXvq5edXPZKd?=
- =?us-ascii?Q?f8STVoieSkOTyEW4pQxOFxwP9njZ6kVxW2SK/S2lRLJH6oV5TmCl8t168L79?=
- =?us-ascii?Q?8DoUTc0tWIxNNAoMzQMcG87lzZdtYOK5T0uZyTi6QiU9pJ9HYmfAXFBFd3nS?=
- =?us-ascii?Q?SD1SSwuPfKR7MqwLozKgAqFSNkt+zXU6BnAAJYb7c5K0zTl5wbZNsgA1cZRW?=
- =?us-ascii?Q?y4Kk9zqgZBn7DnSby/xoPX6CUkTJxr1aMpwqq7rhJUvgK+1l1x/zYFbW0Lki?=
- =?us-ascii?Q?ccj+iQq6vo1Qyrpke6dvG7YekWogQTCbUpgetOkKw4t/1mppTcbTdndEYvwC?=
- =?us-ascii?Q?dQrf2s/qZTrKJEmRK5DLW+K2i+ND9CdKfD5own4YBQI92RPlCldevGf8kmjM?=
- =?us-ascii?Q?HamTMbJl9SUCjGHFv1s9CoOJQFiHFaulcE4mXfqOosYpRjBUtHWC4LtReU6m?=
- =?us-ascii?Q?zd7SOJ2DnjM3Hb7qMYA71PKCRTc8nWiQi33GttxRAVanps+QpssLSgtnCHHp?=
- =?us-ascii?Q?2s6qVmW6C4Vvu85cUv3PqkJaio+ceLDkpkcFsLKFvn58UZXyErrlpzyFgHmy?=
- =?us-ascii?Q?M/o3KpZ0ZLxGvni14/zPc1pL0BWMyt6MQNLJ+tzSTthXklBMvgJbUnnyBp0V?=
- =?us-ascii?Q?AWinK0hpIMHfNPVNJsHc9nancuau+csmC67tor9p+Ol/TROf8yGaHCPj9EdN?=
- =?us-ascii?Q?t1pr7Rv9rcYvHz+rvXq8amQsIehuALGLCRK5Qt2YIVyd9c+J/IK9ZaP22oMY?=
- =?us-ascii?Q?+/QGDbVt06deIe5yXGtmX7Q0Zxbt/q7jVrppmygx04wzeqB2bM5bf6BhQA6D?=
- =?us-ascii?Q?rMjKBHTJqm5ZOJa51OBZgzzREnxVpq9YC/idQkirsluDfE8kj0BuubhdJYL3?=
- =?us-ascii?Q?yp063/y5Mj9SA+TY4Wzs/2pbq7fxuwfIVtL9OV+yv2Xb21ML4gwyTb0xT0yC?=
- =?us-ascii?Q?yiMkmu9XKOUdzt6i/sMn7qVx4Ll/nuVvAY+VRMinkNqvikDo0ezZFGiUNKs2?=
- =?us-ascii?Q?vL5ZuTZ7QgkpbAHBe2Prs81U2bT65S8ns6pZsUwpDKoQQZbOw7RdGfLmBcXA?=
- =?us-ascii?Q?/jiC7Bjm2YImALxVmLY/t0yRx3sGOKoYeUGtUvm0VunI4JUJFy7jyrxm1lBa?=
- =?us-ascii?Q?zrqxEP7ATdeJer1fkGHjC2C2g5KQtz9AY2ZbLdelGYlKzgEp7xWgoApRYdsA?=
- =?us-ascii?Q?WVXE3oAfQUuCyIgiOXxNxFQyUUAjtNXQSpo7vBzOe1M0d17Y/GkxBIoIrfOR?=
- =?us-ascii?Q?nDrwXjIBRokk4XqaOUrEcSrD+dHR/3kj5TAXTws5XHg0bDhqGtI5lK20drWd?=
- =?us-ascii?Q?EFtxVKqbi0G4K8zrWSo2ukYTfCGrGo1JNqzwoD1nT1y6N8RtO6M6Rg8KMTji?=
- =?us-ascii?Q?PDfS9dETNzfTiKpqFoE=3D?=
+ =?us-ascii?Q?Lqi+3gspl3YlsKvAEm8aT6FFLkSw6WDWWau2Hm8uoiSZCpJcJCjX//ejLlVh?=
+ =?us-ascii?Q?hTMqaMaqoq5Dh3xsgIHHynnh4TrFGU+RhOSZqJqjCKnjTv0LebfLfFkIW6fA?=
+ =?us-ascii?Q?K2kI8tiaoMQG0HIDMPtFj24qDmuqkGXUhFOq2bRXic+6wn1dbE9ZYSt4/MLq?=
+ =?us-ascii?Q?MorwSM/K+A7yqWI76LPJF4NYDmf4NWuSElWLbcP6WLThm1UdXpmBPmUDWH/j?=
+ =?us-ascii?Q?HSaG6W3Gp8/9cqXFAxca6x+GslZ+lnbEjWHGQbl4FkkXpwFXkGiFPbD+OcLj?=
+ =?us-ascii?Q?40JOmIfR2U+ybypGAYNuEkHM4B++zv2hKnkBEYF6mz9KWkeR30F8sJ5xJuhN?=
+ =?us-ascii?Q?26s1+MhKuM1M1u3Ql291KH/H4TQIWbohpsaxfhQUZzyJSnLWLXg1bk1bEBO1?=
+ =?us-ascii?Q?2oUDFX4neGkOBD+1klG9agv17dGY+eZ+gBGHLVenhmLF6nBX4nm4MUxd4QBu?=
+ =?us-ascii?Q?kzl8xjNGhLNraOndRDWwjAXmaHvewx4D5rbDYIQC0hZKZ3ZJ7Ab+oQzMCSCp?=
+ =?us-ascii?Q?1Y/xpdlEbSUz+thxP6Ff5ILH7jKM7PJmHWCyc0OoGzXEc8/iTRjNBo6ywTKj?=
+ =?us-ascii?Q?dgRPZj8/55UXzuN18JhQ816TNUaAxoYWqIPD0Hlz8DD0fNerKAmhzJqNBVSb?=
+ =?us-ascii?Q?11nuKnn9EPkVZf4Smpcc7+nNkoZEKpvN01XTeukjvNs0Uh+eG4EgJwL7SdRF?=
+ =?us-ascii?Q?NoY1Qu+9TlAMA2nmpyNnFDz+5ZY33N9PPzozhb18P+PeDOSVtTGG4NTn/ovJ?=
+ =?us-ascii?Q?Lt3qXG+atpmnu3jDYiTM6tBJWEbdW4ml50vQLmE1tm0OPAlrPloIQn5DxYDC?=
+ =?us-ascii?Q?MDrEMb3TMQzxuGK2Q1iuNfMK2k5+pL9twIrT3k7ioBPuexmT2/8JMxO0cKLz?=
+ =?us-ascii?Q?V5rzi972j5DOvVnXJIjQmhItFWuBetEqIQvThWkZMaihESdrk14NgRUpjO72?=
+ =?us-ascii?Q?VCR9vv7dG9W2Ey5c/fdfDUX4ENYcVrgf6B9JdlMIXQG5zWK8PVdDQXSRdwTA?=
+ =?us-ascii?Q?YAQyYh1jkyEU8RvwuOXCcUXmcfA9lakDOAXQHwz7nG/kP/gjjvgg4VKNzJDj?=
+ =?us-ascii?Q?ByT02UUz8sWsmb3FzVeq+5TT7JZU/wHdzvp/LTGtfcn1Hr5ivI1R7N8eVS5v?=
+ =?us-ascii?Q?cMh/AErBy06/Fv6oWTVBP2wS0ZNSeIvSfYKXclXcpjDxOvg2CBkLBddt2Kq6?=
+ =?us-ascii?Q?B2/dCgXfAirj4sFrxpkr6EYHKX0xGaT3XEkvPaPYVO569iM4zOjvtN5UJ8lW?=
+ =?us-ascii?Q?2u0jnIDzuZIHdQK526MveyuE5Gh4P6j/3xWD20B7OVUUdfQR3IToi2s+q3sy?=
+ =?us-ascii?Q?8XRfcya4ZJOOH4EJjq4x2PAy5mXvC8uFvYHOdrSVa411T63PGf7/VphQg4uK?=
+ =?us-ascii?Q?xsDXS0DL5zNdrbTQ9Oetvqfx+8MR6O32aIGwO4/7lJDfM2wpnqzvWjZev7DK?=
+ =?us-ascii?Q?AIOV0uhItzhKsH9uRk1XbHVM1CEK9pje1dPi+BHXh5rLHdxZfInqNAjyA8ha?=
+ =?us-ascii?Q?EPeBXH23PC9f4qi7dXxgs/0vaT6KBaiSga2+yzmySEUo2JDdZcr224e4wQHj?=
+ =?us-ascii?Q?+QLFTQzwpiQ0r4sGCQ8=3D?=
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -133,68 +165,252 @@ MIME-Version: 1.0
 X-OriginatorOrg: Nvidia.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6c11f8a3-fe04-4a47-2096-08dcfbb4c0e3
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Nov 2024 03:08:12.8409
+X-MS-Exchange-CrossTenant-Network-Message-Id: dce81984-8253-4c0d-38c2-08dcfc153e77
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Nov 2024 14:38:55.1767
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: UtaHk/RRfUGtqYVsm7RX8XivGfHj+r3K3l7EtW+GBaIHZlBj3ua3im6rGGLqDh5Pml+m3VPnaZ56qU8PRd9YHQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7858
+X-MS-Exchange-CrossTenant-userprincipalname: VyA8BvrzmDNvdDZSgyCfBQwOq4dgWIR45de/h3REeSFtdpmiPhFAU1yzj49K+GK+aYKOHtzGSd0qhsG6OntpNw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8878
 
-
-
-> From: Xiaoguang Wang <lege.wang@jaguarmicro.com>
-> Sent: Friday, November 1, 2024 2:05 PM
+> From: Alex Williamson <alex.williamson@redhat.com>
+> Sent: Friday, November 1, 2024 9:55 PM
 >=20
-> Allocate one extra virtio_device_id as null terminator, otherwise
-> vdpa_mgmtdev_get_classes() may iterate multiple times and visit undefined
-> memory.
+> On Thu, 31 Oct 2024 15:04:51 +0000
+> Parav Pandit <parav@nvidia.com> wrote:
 >=20
-> Fixes: ffbda8e9df10 ("vdpa/vp_vdpa : add vdpa tool support in vp_vdpa")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Parav Pandit <parav@nvidia.com>
-> Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-> Signed-off-by: Xiaoguang Wang <lege.wang@jaguarmicro.com>
+> > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > Sent: Wednesday, October 30, 2024 1:58 AM
+> > >
+> > > On Mon, 28 Oct 2024 17:46:57 +0000
+> > > Parav Pandit <parav@nvidia.com> wrote:
+> > >
+> > > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > > Sent: Monday, October 28, 2024 10:24 PM
+> > > > >
+> > > > > On Mon, 28 Oct 2024 13:23:54 -0300 Jason Gunthorpe
+> > > > > <jgg@nvidia.com> wrote:
+> > > > >
+> > > > > > On Mon, Oct 28, 2024 at 10:13:48AM -0600, Alex Williamson wrote=
+:
+> > > > > >
+> > > > > > > If the virtio spec doesn't support partial contexts, what
+> > > > > > > makes it beneficial here?
+> > > > > >
+> > > > > > It stil lets the receiver 'warm up', like allocating memory
+> > > > > > and approximately sizing things.
+> > > > > >
+> > > > > > > If it is beneficial, why is it beneficial to send initial
+> > > > > > > data more than once?
+> > > > > >
+> > > > > > I guess because it is allowed to change and the benefit is
+> > > > > > highest when the pre copy data closely matches the final data..
+> > > > >
+> > > > > It would be useful to see actual data here.  For instance, what
+> > > > > is the latency advantage to allocating anything in the warm-up
+> > > > > and what's the probability that allocation is simply refreshed
+> > > > > versus starting
+> > > over?
+> > > > >
+> > > >
+> > > > Allocating everything during the warm-up phase, compared to no
+> > > > allocation, reduced the total VM downtime from 439 ms to 128 ms.
+> > > > This was tested using two PCI VF hardware devices per VM.
+> > > >
+> > > > The benefit comes from the device state staying mostly the same.
+> > > >
+> > > > We tested with different configurations from 1 to 4 devices per
+> > > > VM, varied with vcpus and memory. Also, more detailed test results
+> > > > are captured in Figure-2 on page 6 at [1].
+> > >
+> > > Those numbers seems to correspond to column 1 of Figure 2 in the
+> > > referenced document, but that's looking only at downtime.
+> > Yes.
+> > What do you mean by only looking at the downtime?
 >=20
-> ---
-> V2:
->   Use kcalloc() api.
-> ---
->  drivers/vdpa/virtio_pci/vp_vdpa.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+> It's just a prelude to my interpretation that the paper is focusing mostl=
+y on the
+> benefits to downtime and downplaying the apparent longer overall migratio=
+n
+> time while rationalizing the effect on RAM migration downtime.
 >=20
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> index ac4ab22f7d8b..b6410a984f29 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -612,7 +612,11 @@ static int vp_vdpa_probe(struct pci_dev *pdev,
-> const struct pci_device_id *id)
->  		goto mdev_err;
->  	}
+Now after the new debug we shared, we know the other areas too.
+
+> > The intention was to measure the downtime in various configurations.
+> > Do you mean, we should have looked at migration bandwidth, migration
+> amount of data, migration time too?
+> > If so, yes, some of them were not considered as the focus was on two
+> things:
+> > a. total VM downtime
+> > b. total migration time
+> >
+> > But with recent tests, we looked at more things. Explained more below.
 >=20
-> -	mdev_id =3D kzalloc(sizeof(struct virtio_device_id), GFP_KERNEL);
-> +	/*
-> +	 * id_table should be a null terminated array, so allocate one
-> additional
-> +	 * entry here, see vdpa_mgmtdev_get_classes().
-> +	 */
-> +	mdev_id =3D kcalloc(2, sizeof(struct virtio_device_id), GFP_KERNEL);
->  	if (!mdev_id) {
->  		err =3D -ENOMEM;
->  		goto mdev_id_err;
+> Good.  Yes, there should be a more holistic approach, improving the thing=
+ we
+> intend to improve without degrading other aspects.
+>=20
+Yes.
+> > > To me that chart
+> > > seems to show a step function where there's ~400ms of downtime per
+> > > device, which suggests we're serializing device resume in the
+> > > stop-copy phase on the target without pre-copy.
+> > >
+> > Yes. even without serialization, when there is single device, same bott=
+leneck
+> can be observed.
+> > And your orthogonal suggestion of using parallelism is very useful.
+> > The paper captures this aspect in text on page 7 after the Table 2.
+> >
+> > > Figure 3 appears to look at total VM migration time, where pre-copy
+> > > tends to show marginal improvements in smaller configurations, but
+> > > up to 60% worse overall migration time as the vCPU, device, and VM
+> memory size increase.
+> > > The paper comes to the conclusion:
+> > >
+> > > 	It can be concluded that either of increasing the VM memory or
+> > > 	device configuration has equal effect on the VM total migration
+> > > 	time, but no effect on the VM downtime due to pre-copy
+> > > 	enablement.
+> > >
+> > > Noting specifically "downtime" here ignores that the overall
+> > > migration time actually got worse with pre-copy.
+> > >
+> > > Between columns 10 & 11 the device count is doubled.  With pre-copy
+> > > enabled, the migration time increases by 135% while with pre-copy
+> > > disabled we only only see a 113% increase.  Between columns 11 & 12
+> > > the VM memory is further doubled.  This results in another 33%
+> > > increase in migration time with pre-copy enabled and only a 3%
+> > > increase with pre-copy disabled.  For the most part this entire
+> > > figure shows that overall migration time with pre-copy enabled is
+> > > either on par with or worse than the same with pre-copy disabled.
+> > >
+> > I will answer this part in more detail towards the end of the email.
+> >
+> > > We then move on to Tables 1 & 2, which are again back to
+> > > specifically showing timing of operations related to downtime rather =
+than
+> overall
+> > > migration time.
+> > Yes, because the objective was to analyze the effects and improvements =
+on
+> downtime of various configurations of device, VM, pre-copy.
+> >
+> > > The notable thing here seems to be that we've amortized the 300ms
+> > > per device load time across the pre-copy phase, leaving only 11ms
+> > > per device contributing to downtime.
+> > >
+> > Correct.
+> >
+> > > However, the paper also goes into this tangent:
+> > >
+> > > 	Our observations indicate that enabling device-level pre-copy
+> > > 	results in more pre-copy operations of the system RAM and
+> > > 	device state. This leads to a 50% reduction in memory (RAM)
+> > > 	copy time in the device pre-copy method in the micro-benchmark
+> > > 	results, saving 100 milliseconds of downtime.
+> > >
+> > > I'd argue that this is an anti-feature.  A less generous
+> > > interpretation is that pre-copy extended the migration time, likely
+> > > resulting in more RAM transfer during pre-copy, potentially to the po=
+int
+> that the VM undershot its
+> > > prescribed downtime.
+> > VM downtime was close to the configured downtime, on slightly higher si=
+de.
+> >
+> > > Further analysis should also look at the total data transferred for
+> > > the migration and adherence to the configured VM downtime, rather
+> > > than just the absolute downtime.
+> > >
+> > We did look the device side total data transferred to see how many iter=
+ations
+> of pre-copy done.
+> >
+> > > At the end of the paper, I think we come to the same conclusion
+> > > shown in Figure 1, where device load seems to be serialized and
+> > > therefore significantly limits scalability.  That could be
+> > > parallelized, but even 300-400ms for loading all devices is still
+> > > too much contribution to downtime.  I'd therefore agree that pre-load=
+ing
+> the device during pre-copy improves the scaling by an order
+> > > of magnitude,
+> > Yep.
+> > > but it doesn't solve the scaling problem.
+> > Yes, your suggestion is very valid.
+> > Parallel operation from the qemu would make the downtime even smaller.
+> > The paper also highlighted this in page 7 after Table-2.
+> >
+> > > Also, it should not
+> > > come with the cost of drawing out pre-copy and thus the overall migra=
+tion
+> > > time to this extent.
+> > Right. You pointed out rightly.
+> > So we did several more tests in last 2 days for insights you provided.
+> > And found an interesting outcome.
+> >
+> > In 30+ samples, we collected for each,
+> > (a) pre-copy enabled and
+> > (b) pre-copy disabled.
+> >
+> > This was done for column 10 and 11.
+> >
+> > The VM total migration time varied in range of 13 seconds to 60 seconds=
+.
+> > Most noticeably with pre-copy off also it varied in such large range.
+> >
+> > In the paper it was pure co-incidence that every time pre-copy=3Don had
+> > higher migration time compared to pre-copy=3Don. This led us to
+>=20
+> Assuming typo here, =3Don vs =3Doff.
+>=20
+Correct it is pre-copy=3Doff.
 
-Now that mdev_id is an array,=20
-please change the id assignment as below. Even though existing code works i=
-s confusing to read it without an array.
+> > misguide that pre-copy influenced the higher migration time.
+> >
+> > After some reason, we found the QEMU anomaly which was fixed/overcome
+> > by the knob " avail-switchover-bandwidth". Basically the bandwidth
+> > calculation was not accurate, due to which the migration time
+> > fluctuated a lot. This problem and solution are described in [2].
+> >
+> > Following the solution_2,
+> > We ran exact same tests of column 10 and 11, with "
+> > avail-switchover-bandwidth" configured. With that for both the modes
+> > pre-copy=3Don and off the total migration time stayed constant to 14-15
+> > seconds.
+> >
+> > And this conclusion aligns with your analysis that "pre-copy should
+> > not extent the migration time to this much". Great finding, proving
+> > that figure_3 was incomplete in the paper.
+>=20
+> Great!  So with this the difference in downtime related to RAM migration =
+in the
+> trailing tables of the paper becomes negligible? =20
+Yes.
+> Is this using the originally
+> proposed algorithm of migrating device data up to 128 consecutive times o=
+r is
+> it using rate-limiting of device data in pre-copy? =20
+Both. Yishai has new rate limiting based algorithm which also has similar r=
+esults.
 
--	mdev_id->device =3D mdev->id.device;
--	mdev_id->vendor =3D mdev->id.vendor;
+> Any notable differences
+> between those algorithms?
+>=20
+No significant differences.
+Vfio level data transfer size is less now, as the frequency is reduced with=
+ your suggested algorithm.
 
-+	mdev_id[0].device =3D mdev->id.device;
-+	mdev_id[0].vendor =3D mdev->id.vendor;
-
-> --
-> 2.40.1
+> > > The reduction in downtime related to RAM copy time should be
+> > > evidence that the pre-copy behavior here has exceeded its scope and
+> > > is interfering with the balance between pre- and post- copy
+> > > elsewhere.
+> > As I explained above, pre-copy did its job, it didn't interfere. It
+> > was just not enough and right samples to analyze back then. Now it is
+> > resolved. Thanks a lot for the direction.
+>=20
+> Glad we could arrive at a better understanding overall.  Thanks,
+>=20
+> Alex
 
