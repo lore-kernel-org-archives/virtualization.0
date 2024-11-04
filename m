@@ -1,165 +1,132 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACBB81AE017
-	for <virtualization@lists.linux.dev>; Mon,  4 Nov 2024 08:57:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4E2018BC0E
+	for <virtualization@lists.linux.dev>; Mon,  4 Nov 2024 10:14:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730710638; cv=none; b=c1apXKfII84AUAy8BxeyA4RspMtceu5u3eFSekVtyYYNFJURxfcdMFfX0zTNV7fWJbRtVRzzrkbPg5n4hPEOg2hZPeuizXTxqRz77TpeT+j/3V5Ss22lyHmN2mol4nt2hTzqxy2Zw9Eyf2nolTI6UlQcnJ3L0qTV8zXlVlpyN8k=
+	t=1730715300; cv=none; b=g9OHsMf/zpT2ODM9Noe06UKTM0Jh+H5G/YaK5azYLGp5bd8U3TkkxFMcVGXQxw+y6xXVS14VvR2hfN5ySvpwNuYSOMAYpyjXW9p2V/ApHKYx5GcXGX6v4zAa1XfDWbiJgmozRA0FUfa3DeYHe6i9lIhHjlX0MtwRLvu7pP2OKdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730710638; c=relaxed/simple;
-	bh=V0vrMzecjWvIpMgfph0nBk8GvqOF2Yh7vCTbp9INH8A=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=uJSqHyzDtThaTXx6YsJTTqrBrzlVZsuHoB8lrptCOKQcZGCDvcRCNAl6z0/t0NmFmzIYvJF36y6OTW0fN2oSGdS6fL7Amb/RiB+8FGVSiectT+eZTKi2Gq2QcP57jV9eIIN5AIo/DzxP6wOJJsre+nFHpn8lF1qed3yzon1aFeg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZOWnFvD+; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1730715300; c=relaxed/simple;
+	bh=mcIce5Fq/hEFHVI7AkWHxaRExFRL0bAcIhE1CoWgubY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QhLpor2xIxJg/GNYh7nzVPXelyhSkY6Mo9ltH5KYS/hnuTLYNJIyIb/PQjbagwMX2BBl4MK3PKom+DJFlfovdbCQJEuS6exAJYAe8B12l8Fzj9i8m/naM/am9sc9GEjVvAcEfrd7SlzxxQTCkFF+LwDbROn9hOqReVxdciuffTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bc2GFbbO; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZOWnFvD+"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730710628; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=lnK0M8sGNi7Ztg3Tp3oZ1uuQpBKHXJRvIdF7FPbRKQ0=;
-	b=ZOWnFvD+wmZb1T8oMvx2HXFchIY8MS9jV24REYRvLTqbe/+mqKx/dZ8H5jsVlJt/wDkMQr63fTXjc9uiA2+8IxKliS/JGsIkO8uTWGUbN5wlRQxdp8kD8J0+imVkQsyYqTnYrRCQjn2x+NWF8V6fK6++rHlKZEMKuFlOc5tkLu0=
-Received: from localhost(mailfrom:lulie@linux.alibaba.com fp:SMTPD_---0WIdoIds_1730710627 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 04 Nov 2024 16:57:08 +0800
-From: Philo Lu <lulie@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	andrew@daynix.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net 1/4] virtio_net: Support dynamic rss indirection table size
-Date: Mon,  4 Nov 2024 16:57:03 +0800
-Message-Id: <20241104085706.13872-2-lulie@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20241104085706.13872-1-lulie@linux.alibaba.com>
-References: <20241104085706.13872-1-lulie@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bc2GFbbO"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A4AAXVT016625;
+	Mon, 4 Nov 2024 10:14:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=0pvu1h2wXjRKNrgWewAcE0S2SfJqBR
+	QG0tc62qAKP1Q=; b=bc2GFbbOrUg75hb8XWifBlNgNziOkjtTBeEn/bsEhj4I45
+	ELj+3HePqnGj2/YkyqgACqS+hWhpOjncwtFu1Mlc5bvFDsKSnBB8ye+hFW3l8f1d
+	dK0IITttHJwU6DpIWhHFXYZEUGSKf3f2X6Os52VbjyqfVaJGUGWUUI3Qyya+mAx9
+	/jCPOJhhfall7WT56KGgt6yqFTtbDbMZS+WZMcv/PDrUpUBy1f4653UbX4DqF7uZ
+	zeu12fyHgh9mTOyV6AsonE3drxfFpXk+w+51ESoCVhgd+Gdl+k5lpnbaWKrvhQQq
+	OVWrjYn8ABEmtULhfmBxnsiCdQrSvBJCAcyBdm5A==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42pv9b80e5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Nov 2024 10:14:54 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4A4ABm80018784;
+	Mon, 4 Nov 2024 10:14:53 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42pv9b80e1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Nov 2024 10:14:53 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A49iji3008453;
+	Mon, 4 Nov 2024 10:14:53 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42nywk3mwx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Nov 2024 10:14:53 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A4AEn4J35062488
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 4 Nov 2024 10:14:49 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 15E3B20076;
+	Mon,  4 Nov 2024 10:14:49 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DA99820073;
+	Mon,  4 Nov 2024 10:14:47 +0000 (GMT)
+Received: from osiris (unknown [9.171.95.25])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  4 Nov 2024 10:14:47 +0000 (GMT)
+Date: Mon, 4 Nov 2024 11:14:46 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v3 0/7] virtio-mem: s390 support
+Message-ID: <20241104101446.9483-B-hca@linux.ibm.com>
+References: <20241025141453.1210600-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241025141453.1210600-1-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VHeFIyuzTNW6zfc61Cu-HEnOAgIKsDwU
+X-Proofpoint-ORIG-GUID: sEYZz5grUf9yUrSKVVfQ3jI2KcH0p6Ka
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ impostorscore=0 phishscore=0 malwarescore=0 priorityscore=1501
+ suspectscore=0 spamscore=0 mlxlogscore=647 mlxscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411040089
 
-When reading/writing virtio_net_ctrl_rss, we get the indirection table
-size from vi->rss_indir_table_size, which is initialized in
-virtnet_probe(). However, the actual size of indirection_table was set
-as VIRTIO_NET_RSS_MAX_TABLE_LEN=128. This collision may cause issues if
-the vi->rss_indir_table_size exceeds 128.
+On Fri, Oct 25, 2024 at 04:14:45PM +0200, David Hildenbrand wrote:
+> Let's finally add s390 support for virtio-mem; my last RFC was sent
+> 4 years ago, and a lot changed in the meantime.
 
-This patch instead uses dynamic indirection table, allocated with
-vi->rss after vi->rss_indir_table_size initialized. And free it in
-virtnet_remove().
+...
 
-In virtnet_commit_rss_command(), sgs for rss is initialized differently
-with hash_report. So indirection_table is not used if !vi->has_rss, and
-then we don't need to alloc indirection_table for hash_report only uses.
+> David Hildenbrand (7):
+>   Documentation: s390-diag.rst: make diag500 a generic KVM hypercall
+>   Documentation: s390-diag.rst: document diag500(STORAGE LIMIT)
+>     subfunction
+>   s390/physmem_info: query diag500(STORAGE LIMIT) to support QEMU/KVM
+>     memory devices
+>   virtio-mem: s390 support
+>   lib/Kconfig.debug: default STRICT_DEVMEM to "y" on s390
+>   s390/sparsemem: reduce section size to 128 MiB
+>   s390/sparsemem: provide memory_add_physaddr_to_nid() with CONFIG_NUMA
+> 
+>  Documentation/virt/kvm/s390/s390-diag.rst | 35 +++++++++++++----
+>  arch/s390/boot/physmem_info.c             | 47 ++++++++++++++++++++++-
+>  arch/s390/boot/startup.c                  |  7 +++-
+>  arch/s390/include/asm/physmem_info.h      |  3 ++
+>  arch/s390/include/asm/sparsemem.h         | 10 ++++-
+>  drivers/virtio/Kconfig                    | 12 +++---
+>  lib/Kconfig.debug                         |  2 +-
+>  7 files changed, 98 insertions(+), 18 deletions(-)
 
-Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
-Signed-off-by: Philo Lu <lulie@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 869586c17ffd..75c1ff4efd13 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -368,15 +368,16 @@ struct receive_queue {
-  * because table sizes may be differ according to the device configuration.
-  */
- #define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
--#define VIRTIO_NET_RSS_MAX_TABLE_LEN    128
- struct virtio_net_ctrl_rss {
- 	u32 hash_types;
- 	u16 indirection_table_mask;
- 	u16 unclassified_queue;
--	u16 indirection_table[VIRTIO_NET_RSS_MAX_TABLE_LEN];
-+	u16 hash_cfg_reserved; /* for HASH_CONFIG (see virtio_net_hash_config for details) */
- 	u16 max_tx_vq;
- 	u8 hash_key_length;
- 	u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
-+
-+	u16 *indirection_table;
- };
- 
- /* Control VQ buffers: protected by the rtnl lock */
-@@ -512,6 +513,25 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
- 					       struct page *page, void *buf,
- 					       int len, int truesize);
- 
-+static int rss_indirection_table_alloc(struct virtio_net_ctrl_rss *rss, u16 indir_table_size)
-+{
-+	if (!indir_table_size) {
-+		rss->indirection_table = NULL;
-+		return 0;
-+	}
-+
-+	rss->indirection_table = kmalloc_array(indir_table_size, sizeof(u16), GFP_KERNEL);
-+	if (!rss->indirection_table)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+static void rss_indirection_table_free(struct virtio_net_ctrl_rss *rss)
-+{
-+	kfree(rss->indirection_table);
-+}
-+
- static bool is_xdp_frame(void *ptr)
- {
- 	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-@@ -3828,11 +3848,15 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
- 	/* prepare sgs */
- 	sg_init_table(sgs, 4);
- 
--	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, indirection_table);
-+	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, hash_cfg_reserved);
- 	sg_set_buf(&sgs[0], &vi->rss, sg_buf_size);
- 
--	sg_buf_size = sizeof(uint16_t) * (vi->rss.indirection_table_mask + 1);
--	sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
-+	if (vi->has_rss) {
-+		sg_buf_size = sizeof(uint16_t) * vi->rss_indir_table_size;
-+		sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
-+	} else {
-+		sg_set_buf(&sgs[1], &vi->rss.hash_cfg_reserved, sizeof(uint16_t));
-+	}
- 
- 	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, key)
- 			- offsetof(struct virtio_net_ctrl_rss, max_tx_vq);
-@@ -6420,6 +6444,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
- 				rss_max_indirection_table_length));
- 	}
-+	err = rss_indirection_table_alloc(&vi->rss, vi->rss_indir_table_size);
-+	if (err)
-+		goto free;
- 
- 	if (vi->has_rss || vi->has_rss_hash_report) {
- 		vi->rss_key_size =
-@@ -6674,6 +6701,8 @@ static void virtnet_remove(struct virtio_device *vdev)
- 
- 	remove_vq_common(vi);
- 
-+	rss_indirection_table_free(&vi->rss);
-+
- 	free_netdev(vi->dev);
- }
- 
--- 
-2.32.0.3.g01195cf9f
-
+Series applied. Thanks a lot!
