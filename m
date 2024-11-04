@@ -1,130 +1,75 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92E0517D896
-	for <virtualization@lists.linux.dev>; Mon,  4 Nov 2024 06:21:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 758FE1AC458
+	for <virtualization@lists.linux.dev>; Mon,  4 Nov 2024 08:57:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730701283; cv=none; b=Fd8F9r0fCtjq9N/bAUzyZPMAfUZWWWWxof3xDsN4neFWtaGC3gfDXUjPQZ7/jXqTT8I2xLBgnN3q2sWpZR/nWKFh6D/3SFbSZpexbOOzHVfrNyhKGcfD7qI0HBrz65iluh6jAE/pncXloGdYjU5CVRMA/npMg2sK0LGlGq5ynOc=
+	t=1730710633; cv=none; b=KimuD2LOk7XN53gYTFA29v3zQXQNMYFMA4RgEHd30BSLLf8U2+ctAR1/3GFrHUNbn2Dq87lDEHhSR7mJ0nMdVvmWN0xT2BKhxrvdN8f44zFv+hidxpJikVIF9LTuSOQ1QJbOrSHQYUPSthAnx2R5b3+fJZCC+5+vKoJkRhMjznQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730701283; c=relaxed/simple;
-	bh=lDpSsq7UijUNAks9mue3LanPLcT5oA2uO4ieCjRuamc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qqZQCzyGt4y/9l8QeO6TTO5asPEcdJZPYJNqOU49FHxxOCoz2Wh7Bh5At00biaKbKCHqqfTUtbL9/igJyDNTR4b95wbaVlkRE1D/kzu8JwUEKKw4EseNgWJO265TO8xdsP1R50RMs35IeFxCXmI2+FzWxizZX9tjpleEWjk9jPI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C5nfLtGx; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1730710633; c=relaxed/simple;
+	bh=f7BTja9oKOZtYZkvpN8Dt89RsQJtgfIyZkdIpLDN0KY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=qX9xzm07UuBMBMIKoDIeZQvH20lhrQILsJyN8cJBAgjUAoYKITZEz50XzMNwZ5EIovtqRVTgGgU02QLVz192X1ijj7/k8pE66kidHJBIthG9zvtzZq13K5Msz5oZapUerG5px8GfsyiGTnLcyTagzufl3dZHMCPolNBr6vwJG8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iO89sIld; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C5nfLtGx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730701280;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/Yt6e01JiHs6xDUFc4KUXQd8i1elq2u0nXKuucFyQGQ=;
-	b=C5nfLtGxsFHw+kCR4Io+aPSPNXA28rScFPcj4q+oa91Snmr4y5FMvfG5XImTGPkgV284JT
-	R2hJCqOCUjttUjZ1atgBQDsfMDmc/EIuH6Mxc2tznvZ7+0EjoPn4yht0UtiY2Z95kcWiA6
-	2f6EQdmcR1PKOeUcYq613TEbo3rqZMQ=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-49-b2Wj_TLPNE6Ox6N8IQMnvg-1; Mon,
- 04 Nov 2024 01:21:16 -0500
-X-MC-Unique: b2Wj_TLPNE6Ox6N8IQMnvg-1
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A026619560B4;
-	Mon,  4 Nov 2024 06:21:13 +0000 (UTC)
-Received: from localhost (unknown [10.72.112.78])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DA7C11956052;
-	Mon,  4 Nov 2024 06:21:10 +0000 (UTC)
-Date: Mon, 4 Nov 2024 14:21:06 +0800
-From: Baoquan He <bhe@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
-	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v1 00/11] fs/proc/vmcore: kdump support for virtio-mem on
- s390
-Message-ID: <Zyhn0oz+ze0xY2AR@MiWiFi-R3L-srv>
-References: <20241025151134.1275575-1-david@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iO89sIld"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1730710627; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=9T27x571qL2VW+tYc6sKeCTtuwJS10Bq4YWjUFrRQ4w=;
+	b=iO89sIld6WBRFdrhbf4GUl9uNApGsQvkwYRw/+8R9TMx3dHx9f1BZawEbW/8wuK1BGrAJae7SFcapzCu90bbTvwaRHajwSgCf8gU7x0zWUApC55WUV2KRZl/lRIs1X5mmBSBd3P3FYd2vQ/UaVDsxCWqkWlmOKpW5EbCDSaOnnE=
+Received: from localhost(mailfrom:lulie@linux.alibaba.com fp:SMTPD_---0WIdkVm2_1730710626 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 04 Nov 2024 16:57:07 +0800
+From: Philo Lu <lulie@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	andrew@daynix.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net 0/4] virtio_net: Make RSS interact properly with queue number
+Date: Mon,  4 Nov 2024 16:57:02 +0800
+Message-Id: <20241104085706.13872-1-lulie@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241025151134.1275575-1-david@redhat.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Transfer-Encoding: 8bit
 
-On 10/25/24 at 05:11pm, David Hildenbrand wrote:
-> This is based on "[PATCH v3 0/7] virtio-mem: s390 support" [1], which adds
-> virtio-mem support on s390.
-> 
-> The only "different than everything else" thing about virtio-mem on s390
-> is kdump: The crash (2nd) kernel allocates+prepares the elfcore hdr
-> during fs_init()->vmcore_init()->elfcorehdr_alloc(). Consequently, the
-> crash kernel must detect memory ranges of the crashed/panicked kernel to
-> include via PT_LOAD in the vmcore.
-> 
-> On other architectures, all RAM regions (boot + hotplugged) can easily be
-> observed on the old (to crash) kernel (e.g., using /proc/iomem) to create
-> the elfcore hdr.
-> 
-> On s390, information about "ordinary" memory (heh, "storage") can be
-> obtained by querying the hypervisor/ultravisor via SCLP/diag260, and
-> that information is stored early during boot in the "physmem" memblock
-> data structure.
-> 
-> But virtio-mem memory is always detected by as device driver, which is
-> usually build as a module. So in the crash kernel, this memory can only be
-> properly detected once the virtio-mem driver started up.
-> 
-> The virtio-mem driver already supports the "kdump mode", where it won't
-> hotplug any memory but instead queries the device to implement the
-> pfn_is_ram() callback, to avoid reading unplugged memory holes when reading
-> the vmcore.
-> 
-> With this series, if the virtio-mem driver is included in the kdump
-> initrd -- which dracut already takes care of under Fedora/RHEL -- it will
-> now detect the device RAM ranges on s390 once it probes the devices, to add
-> them to the vmcore using the same callback mechanism we already have for
-> pfn_is_ram().
-> 
-> To add these device RAM ranges to the vmcore ("patch the vmcore"), we will
-> add new PT_LOAD entries that describe these memory ranges, and update
-> all offsets vmcore size so it is all consistent.
-> 
-> Note that makedumfile is shaky with v6.12-rcX, I made the "obvious" things
-> (e.g., free page detection) work again while testing as documented in [2].
-> 
-> Creating the dumps using makedumpfile seems to work fine, and the
-> dump regions (PT_LOAD) are as expected. I yet have to check in more detail
-> if the created dumps are good (IOW, the right memory was dumped, but it
-> looks like makedumpfile reads the right memory when interpreting the
-> kernel data structures, which is promising).
-> 
-> Patch #1 -- #6 are vmcore preparations and cleanups
+With this patch set, RSS updates with queue_pairs changing:
+- When virtnet_probe, init default rss and commit
+- When queue_pairs changes _without_ user rss configuration, update rss
+  with the new queue number
+- When queue_pairs changes _with_ user rss configuration, keep rss as user
+  configured
 
-Thanks for CC-ing me, I will review the patch 1-6, vmcore part next
-week.
+Patch 1 and 2 fix possible out of bound errors for indir_table and key.
+Patch 3 and 4 add RSS update in probe() and set_queues().
+
+Please review, thanks.
+
+Philo Lu (4):
+  virtio_net: Support dynamic rss indirection table size
+  virtio_net: Add hash_key_length check
+  virtio_net: Sync rss config to device when virtnet_probe
+  virtio_net: Update rss when set queue
+
+ drivers/net/virtio_net.c | 119 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 100 insertions(+), 19 deletions(-)
+
+--
+2.32.0.3.g01195cf9f
 
