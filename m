@@ -1,29 +1,29 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 754F81B0F0E
-	for <virtualization@lists.linux.dev>; Mon,  4 Nov 2024 08:57:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACBB81AE017
+	for <virtualization@lists.linux.dev>; Mon,  4 Nov 2024 08:57:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730710637; cv=none; b=Hcw+NMI51f1fVIToqZCGEEqLaGZrk7j9uUngCJVrU5wDLdji+AanRm9NcfMAHcuiGxzItIEP7MPLXY9J0S7qJlqFQd1P+w7Q19j0/pdbA7HOeX3k3Cmg9ki6/isUVuXnS0CZKXSF8SLQu0bznNToR4QqRSA7gYriefVEZw3WnKQ=
+	t=1730710638; cv=none; b=c1apXKfII84AUAy8BxeyA4RspMtceu5u3eFSekVtyYYNFJURxfcdMFfX0zTNV7fWJbRtVRzzrkbPg5n4hPEOg2hZPeuizXTxqRz77TpeT+j/3V5Ss22lyHmN2mol4nt2hTzqxy2Zw9Eyf2nolTI6UlQcnJ3L0qTV8zXlVlpyN8k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730710637; c=relaxed/simple;
-	bh=0FLFfBSAK6sU4ebwfJfJ/l+kivNg1Idp2rGw8Bmwh0U=;
+	s=arc-20240116; t=1730710638; c=relaxed/simple;
+	bh=V0vrMzecjWvIpMgfph0nBk8GvqOF2Yh7vCTbp9INH8A=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=o0zazis+pBNlNdYvXpzKrFJgEYLzdpiMuMermGNeuOegN0HxClU04mDRrFuVWa27Rbcn34Cy26qjGqtdW+oMGA3KW1b1u652RJeUCdAAUdsej/Rg1M22Vsn/q6Q/soH0COyBQ26AftDJX7/Dn/6j8Myniu4lO0PYUPx2cUABCio=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=poZJLFpZ; arc=none smtp.client-ip=115.124.30.118
+	 MIME-Version; b=uJSqHyzDtThaTXx6YsJTTqrBrzlVZsuHoB8lrptCOKQcZGCDvcRCNAl6z0/t0NmFmzIYvJF36y6OTW0fN2oSGdS6fL7Amb/RiB+8FGVSiectT+eZTKi2Gq2QcP57jV9eIIN5AIo/DzxP6wOJJsre+nFHpn8lF1qed3yzon1aFeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZOWnFvD+; arc=none smtp.client-ip=115.124.30.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="poZJLFpZ"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZOWnFvD+"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1730710633; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=aDKj9+4ZrQzwmLfshFCpLQjvnEMoj1w8tVLqhzceXe8=;
-	b=poZJLFpZjTp6uNdcL54nJ9iQZt6bWJr+ymyCLJ1IqGcxA8HbARMQUf5StoQN3to2I8YkPNUlU1coqvzB2+e0G41i33D5/Jp0ukaJbElEDrjWRB3sPc/GhLkCKKOKjEbLjKp8ZHM/XNRYICh6CkL+oUa6gqNnQAONEZwhJtmV/v8=
-Received: from localhost(mailfrom:lulie@linux.alibaba.com fp:SMTPD_---0WIdkVoT_1730710630 cluster:ay36)
+	t=1730710628; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=lnK0M8sGNi7Ztg3Tp3oZ1uuQpBKHXJRvIdF7FPbRKQ0=;
+	b=ZOWnFvD+wmZb1T8oMvx2HXFchIY8MS9jV24REYRvLTqbe/+mqKx/dZ8H5jsVlJt/wDkMQr63fTXjc9uiA2+8IxKliS/JGsIkO8uTWGUbN5wlRQxdp8kD8J0+imVkQsyYqTnYrRCQjn2x+NWF8V6fK6++rHlKZEMKuFlOc5tkLu0=
+Received: from localhost(mailfrom:lulie@linux.alibaba.com fp:SMTPD_---0WIdoIds_1730710627 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 04 Nov 2024 16:57:11 +0800
+          Mon, 04 Nov 2024 16:57:08 +0800
 From: Philo Lu <lulie@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: mst@redhat.com,
@@ -38,9 +38,9 @@ Cc: mst@redhat.com,
 	andrew@daynix.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net 4/4] virtio_net: Update rss when set queue
-Date: Mon,  4 Nov 2024 16:57:06 +0800
-Message-Id: <20241104085706.13872-5-lulie@linux.alibaba.com>
+Subject: [PATCH net 1/4] virtio_net: Support dynamic rss indirection table size
+Date: Mon,  4 Nov 2024 16:57:03 +0800
+Message-Id: <20241104085706.13872-2-lulie@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20241104085706.13872-1-lulie@linux.alibaba.com>
 References: <20241104085706.13872-1-lulie@linux.alibaba.com>
@@ -52,131 +52,114 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-RSS configuration should be updated with queue number. In particular, it
-should be updated when (1) rss enabled and (2) default rss configuration
-is used without user modification.
+When reading/writing virtio_net_ctrl_rss, we get the indirection table
+size from vi->rss_indir_table_size, which is initialized in
+virtnet_probe(). However, the actual size of indirection_table was set
+as VIRTIO_NET_RSS_MAX_TABLE_LEN=128. This collision may cause issues if
+the vi->rss_indir_table_size exceeds 128.
 
-During rss command processing, device updates queue_pairs using
-rss.max_tx_vq. That is, the device updates queue_pairs together with
-rss, so we can skip the sperate queue_pairs update
-(VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
+This patch instead uses dynamic indirection table, allocated with
+vi->rss after vi->rss_indir_table_size initialized. And free it in
+virtnet_remove().
 
-Also remove the `vi->has_rss ?` check when setting vi->rss.max_tx_vq,
-because this is not used in the other hash_report case.
+In virtnet_commit_rss_command(), sgs for rss is initialized differently
+with hash_report. So indirection_table is not used if !vi->has_rss, and
+then we don't need to alloc indirection_table for hash_report only uses.
 
 Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
 Signed-off-by: Philo Lu <lulie@linux.alibaba.com>
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio_net.c | 65 +++++++++++++++++++++++++++++++---------
- 1 file changed, 51 insertions(+), 14 deletions(-)
+ drivers/net/virtio_net.c | 39 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 34 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 59d9fdf562e0..189afad3ffaa 100644
+index 869586c17ffd..75c1ff4efd13 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -3394,15 +3394,59 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
- 		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
- }
+@@ -368,15 +368,16 @@ struct receive_queue {
+  * because table sizes may be differ according to the device configuration.
+  */
+ #define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
+-#define VIRTIO_NET_RSS_MAX_TABLE_LEN    128
+ struct virtio_net_ctrl_rss {
+ 	u32 hash_types;
+ 	u16 indirection_table_mask;
+ 	u16 unclassified_queue;
+-	u16 indirection_table[VIRTIO_NET_RSS_MAX_TABLE_LEN];
++	u16 hash_cfg_reserved; /* for HASH_CONFIG (see virtio_net_hash_config for details) */
+ 	u16 max_tx_vq;
+ 	u8 hash_key_length;
+ 	u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
++
++	u16 *indirection_table;
+ };
  
-+static bool virtnet_commit_rss_command(struct virtnet_info *vi);
-+
-+static void virtnet_rss_update_by_qpairs(struct virtnet_info *vi, u16 queue_pairs)
+ /* Control VQ buffers: protected by the rtnl lock */
+@@ -512,6 +513,25 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
+ 					       struct page *page, void *buf,
+ 					       int len, int truesize);
+ 
++static int rss_indirection_table_alloc(struct virtio_net_ctrl_rss *rss, u16 indir_table_size)
 +{
-+	u32 indir_val = 0;
-+	int i = 0;
-+
-+	for (; i < vi->rss_indir_table_size; ++i) {
-+		indir_val = ethtool_rxfh_indir_default(i, queue_pairs);
-+		vi->rss.indirection_table[i] = indir_val;
++	if (!indir_table_size) {
++		rss->indirection_table = NULL;
++		return 0;
 +	}
-+	vi->rss.max_tx_vq = queue_pairs;
++
++	rss->indirection_table = kmalloc_array(indir_table_size, sizeof(u16), GFP_KERNEL);
++	if (!rss->indirection_table)
++		return -ENOMEM;
++
++	return 0;
 +}
 +
- static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
++static void rss_indirection_table_free(struct virtio_net_ctrl_rss *rss)
++{
++	kfree(rss->indirection_table);
++}
++
+ static bool is_xdp_frame(void *ptr)
  {
- 	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
--	struct scatterlist sg;
-+	struct virtio_net_ctrl_rss old_rss;
- 	struct net_device *dev = vi->dev;
-+	struct scatterlist sg;
+ 	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+@@ -3828,11 +3848,15 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+ 	/* prepare sgs */
+ 	sg_init_table(sgs, 4);
  
- 	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
- 		return 0;
+-	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, indirection_table);
++	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, hash_cfg_reserved);
+ 	sg_set_buf(&sgs[0], &vi->rss, sg_buf_size);
  
-+	/* Firstly check if we need update rss. Do updating if both (1) rss enabled and
-+	 * (2) no user configuration.
-+	 *
-+	 * During rss command processing, device updates queue_pairs using rss.max_tx_vq. That is,
-+	 * the device updates queue_pairs together with rss, so we can skip the sperate queue_pairs
-+	 * update (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
-+	 */
-+	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
-+		memcpy(&old_rss, &vi->rss, sizeof(old_rss));
-+		if (rss_indirection_table_alloc(&vi->rss, vi->rss_indir_table_size)) {
-+			vi->rss.indirection_table = old_rss.indirection_table;
-+			return -ENOMEM;
-+		}
-+
-+		virtnet_rss_update_by_qpairs(vi, queue_pairs);
-+
-+		if (!virtnet_commit_rss_command(vi)) {
-+			/* restore ctrl_rss if commit_rss_command failed */
-+			rss_indirection_table_free(&vi->rss);
-+			memcpy(&vi->rss, &old_rss, sizeof(old_rss));
-+
-+			dev_warn(&dev->dev, "Fail to set num of queue pairs to %d, because committing RSS failed\n",
-+				 queue_pairs);
-+			return -EINVAL;
-+		}
-+		rss_indirection_table_free(&old_rss);
-+		goto succ;
+-	sg_buf_size = sizeof(uint16_t) * (vi->rss.indirection_table_mask + 1);
+-	sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
++	if (vi->has_rss) {
++		sg_buf_size = sizeof(uint16_t) * vi->rss_indir_table_size;
++		sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
++	} else {
++		sg_set_buf(&sgs[1], &vi->rss.hash_cfg_reserved, sizeof(uint16_t));
 +	}
-+
- 	mq = kzalloc(sizeof(*mq), GFP_KERNEL);
- 	if (!mq)
- 		return -ENOMEM;
-@@ -3415,12 +3459,12 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 		dev_warn(&dev->dev, "Fail to set num of queue pairs to %d\n",
- 			 queue_pairs);
- 		return -EINVAL;
--	} else {
--		vi->curr_queue_pairs = queue_pairs;
--		/* virtnet_open() will refill when device is going to up. */
--		if (dev->flags & IFF_UP)
--			schedule_delayed_work(&vi->refill, 0);
+ 
+ 	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, key)
+ 			- offsetof(struct virtio_net_ctrl_rss, max_tx_vq);
+@@ -6420,6 +6444,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
+ 				rss_max_indirection_table_length));
  	}
-+succ:
-+	vi->curr_queue_pairs = queue_pairs;
-+	/* virtnet_open() will refill when device is going to up. */
-+	if (dev->flags & IFF_UP)
-+		schedule_delayed_work(&vi->refill, 0);
++	err = rss_indirection_table_alloc(&vi->rss, vi->rss_indir_table_size);
++	if (err)
++		goto free;
  
- 	return 0;
+ 	if (vi->has_rss || vi->has_rss_hash_report) {
+ 		vi->rss_key_size =
+@@ -6674,6 +6701,8 @@ static void virtnet_remove(struct virtio_device *vdev)
+ 
+ 	remove_vq_common(vi);
+ 
++	rss_indirection_table_free(&vi->rss);
++
+ 	free_netdev(vi->dev);
  }
-@@ -3880,21 +3924,14 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
  
- static void virtnet_init_default_rss(struct virtnet_info *vi)
- {
--	u32 indir_val = 0;
--	int i = 0;
--
- 	vi->rss.hash_types = vi->rss_hash_types_supported;
- 	vi->rss_hash_types_saved = vi->rss_hash_types_supported;
- 	vi->rss.indirection_table_mask = vi->rss_indir_table_size
- 						? vi->rss_indir_table_size - 1 : 0;
- 	vi->rss.unclassified_queue = 0;
- 
--	for (; i < vi->rss_indir_table_size; ++i) {
--		indir_val = ethtool_rxfh_indir_default(i, vi->curr_queue_pairs);
--		vi->rss.indirection_table[i] = indir_val;
--	}
-+	virtnet_rss_update_by_qpairs(vi, vi->curr_queue_pairs);
- 
--	vi->rss.max_tx_vq = vi->has_rss ? vi->curr_queue_pairs : 0;
- 	vi->rss.hash_key_length = vi->rss_key_size;
- 
- 	netdev_rss_key_fill(vi->rss.key, vi->rss_key_size);
 -- 
 2.32.0.3.g01195cf9f
 
