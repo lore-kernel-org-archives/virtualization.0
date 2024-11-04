@@ -1,234 +1,278 @@
-Received: from fhigh-a4-smtp.messagingengine.com (fhigh-a4-smtp.messagingengine.com [103.168.172.155])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C97751AF4EF
-	for <virtualization@lists.linux.dev>; Mon,  4 Nov 2024 10:22:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.155
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730715758; cv=none; b=KvDAAXnj1b34J7l10CDn7OXFMog9ZupUnWSwQjhZqDV1Dx9/ztT65YVWca8DEWct9MR6YmesvIKDdi6D+dkaOMwuL6j4s5WmY2fgPmklM5aQ9M+M/B+uahbGDOM6AlW5JfidZsVu+2F9S2I1bsFcODF+kkjCG4RkMnYuupb+ht8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730715758; c=relaxed/simple;
-	bh=A0UL6T+JMBlmeQCnuqSKyXXFW6C0TYffPyTQDsuHiuY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=peF5XxrJ+SPEAmivjGT4edu+qAqDvmVi1N7N5SlebvU5Ld7fVHAEipgKx7nUnAGfmLJ5p7u6HIJjlXVw9kpw/NFKtHqBAs6pN8N95X3WyUaVMGg1huy4Y+U9ePFB1hukndQdgkmsYjsA3lThCxIOI4yIsha6TTDxMHBlZ4+91Go=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=shutemov.name; spf=pass smtp.mailfrom=shutemov.name; dkim=pass (2048-bit key) header.d=shutemov.name header.i=@shutemov.name header.b=PR37RNnU; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=oEM5LkoX; arc=none smtp.client-ip=103.168.172.155
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=shutemov.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shutemov.name
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57E821AF4EE
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Nov 2024 10:23:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730715804; cv=fail; b=JfVs0bHLTldjKYDZIytdNPfVvp57ogdaadLm0AUXBuQ6248h1SR02CS8k+r5r3nNhjoWqoKBeql/u6VFiaZsItnuTJ+mqlyW/V1lkGGbtBC53iD7VlGDyGlEBBnjnvOPg86/B63DsRRpy2n6V8XFfoPg+D5bsmdYfzs0vFIt4bg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730715804; c=relaxed/simple;
+	bh=z+Z3y9gWt6jbbvCTMElq4tSqRa74hjblB8ae1/TRk3Q=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gOhEMuhyrmqiVFgRi2WkN8Tnuabd8kgYdEPm9VFvhQBZKjI0B2MuID2FZdvH0g2wZf99oswhVm9jkQfrF6FmxtTIcYWS4b9NWMYQHQaPjB/cuC875yDHWUpExvs9oYidnWA/t13Uo5C1roM24lC4+a1FeY+/ld9FMcMEvj3/qG8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=hDWM6RDd; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shutemov.name header.i=@shutemov.name header.b="PR37RNnU";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="oEM5LkoX"
-Received: from phl-compute-05.internal (phl-compute-05.phl.internal [10.202.2.45])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id E72321140096;
-	Mon,  4 Nov 2024 05:22:34 -0500 (EST)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Mon, 04 Nov 2024 05:22:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shutemov.name;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm1; t=1730715754; x=
-	1730802154; bh=UHr/11CY5vimw/kUTbl69+FDNYXMEkNeCHZa+XkrXOk=; b=P
-	R37RNnU5KwkJMS1buoBEmY5ES4Suo5WaKshNldMIuDnNUSjYG6Ekpzhi9jgpbUGB
-	R+rUe59qdzKeyWBYzSlYb+jv9oKyu6MJ5wLJKdi9svXG2MId2CFYQU6uuoNvO0gr
-	DoCePc2RIgA08KfrKDH0tu0K22xA9rSp74+AUYQENTxjNcHrEBUAooHbciRF6JrX
-	yTpxWYHL/zaJXd6KK0+u1h1+lu0bbJehzFCSrnXKGVp5HICBKBIsRVHeb/kxFqmj
-	Xxd4up3sOjJtBrZGDuHqF6952faOw4k6Kug3GZ6AseGuooYOgElpJ8NGMcY/YGQl
-	htO+JEODDeELS5IbYZ+ZA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1730715754; x=1730802154; bh=UHr/11CY5vimw/kUTbl69+FDNYXMEkNeCHZ
-	a+XkrXOk=; b=oEM5LkoXN+sqMBZCSUsB2W1aGwf41X6sS/EQwGXOPPxc9a4PfWO
-	htfflqEXV6DNLy+OlZ70GpdrqZBtR0k9H+qAxjJjy38GfGFHR5gbqasYGufIdr8s
-	zSA1VIe1WM/K/g97s0cxoVgrRS9Xo6zKjjmiO9JrlWA0i6w93pOJw4399SO9IPIw
-	yEXbfkPb94Dq+9S7AoPxYA183G/l54WVe/hxkrLr3v5L63gOI81g8OQK5Xom5eer
-	m0BLPQc01jqLOOZQoN2+rb+Ojc6EtV8lC3qMn8hfnTJDFlORfUDw4et8Uxy9AkWw
-	xJ23O5CUAlng/5l1Zmhs14WBiy//ywzbhUg==
-X-ME-Sender: <xms:aqAoZ6KMkUYOv8OD9eGuGlCjbIPFLh-_v1Vlb0PVl-sOChBk5bX1Dw>
-    <xme:aqAoZyKJoDn6HFKLb_OZuTU42ynbyKj0KGaO6mWA7g56p574Di0ip8MZLAslebnqb
-    _2OztrlJwdU1PSRG_4>
-X-ME-Received: <xmr:aqAoZ6tHR6NOP-Mj4yaT2FCNC2KmcOcr862IEro4PLfUNdQ1hRhgacTaLnufngnPgVx1wA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvdeliedgudegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepfffhvfevuffkfhggtggujgesthdtsfdttddtvden
-    ucfhrhhomhepfdfmihhrihhllhcutedrucfuhhhuthgvmhhovhdfuceokhhirhhilhhlse
-    hshhhuthgvmhhovhdrnhgrmhgvqeenucggtffrrghtthgvrhhnpeffvdevueetudfhhfff
-    veelhfetfeevveekleevjeduudevvdduvdelteduvefhkeenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehkihhrihhllhesshhhuhhtvghmohhv
-    rdhnrghmvgdpnhgspghrtghpthhtohepkedpmhhouggvpehsmhhtphhouhhtpdhrtghpth
-    htohepkhhirhhilhhlrdhshhhuthgvmhhovheslhhinhhugidrihhnthgvlhdrtghomhdp
-    rhgtphhtthhopehmshhtsehrvgguhhgrthdrtghomhdprhgtphhtthhopehjrghsohifrg
-    hnghesrhgvughhrghtrdgtohhmpdhrtghpthhtohepgihurghniihhuhhosehlihhnuhig
-    rdgrlhhisggrsggrrdgtohhmpdhrtghpthhtohepvghpvghrvgiimhgrsehrvgguhhgrth
-    drtghomhdprhgtphhtthhopehvihhrthhurghlihiirghtihhonheslhhishhtshdrlhhi
-    nhhugidruggvvhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvg
-    hrnhgvlhdrohhrghdprhgtphhtthhopehhohhnghihuhdrnhhinhhgsehlihhnuhigrdhi
-    nhhtvghlrdgtohhm
-X-ME-Proxy: <xmx:aqAoZ_aRRDDeqN2hDj0MrG_vv1ZNltuKwPb-4PMbgCLUQ8XJAgrpvQ>
-    <xmx:aqAoZxbuYEfcBII8kSA9PHJLuqkN4cNTteGJ18O2jjS7Dp0RgZbqTw>
-    <xmx:aqAoZ7C_W4sdsgQJu0P_dDKfetQ7KGhYR8v5H7Hx9zaV3b6t2uje5Q>
-    <xmx:aqAoZ3ZPJo2-c10dHgUBq8Xyy1tY6mTOliwUw649Pi5Hvg1We_eEsw>
-    <xmx:aqAoZ_Nw09S10VgT9tfJqcMhCEJ24SL3QiI4dQ-yo7abUrDCf1qdYeFP>
-Feedback-ID: ie3994620:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 4 Nov 2024 05:22:31 -0500 (EST)
-Date: Mon, 4 Nov 2024 12:22:26 +0200
-From: "Kirill A. Shutemov" <kirill@shutemov.name>
-To: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Hongyu Ning <hongyu.ning@linux.intel.com>
-Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
-Message-ID: <witv2eh3lxidto53m2twxht4lxhfjbcjwzaggalhtnqf73wpng@tzmwda7eeiaa>
-References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
- <20240808075701-mutt-send-email-mst@kernel.org>
- <yknu4iege3drk6t2x7pvm2l2cocg4r5qk5jzmboej6dqk5ym2z@g4clogtuuibe>
- <20240808105006-mutt-send-email-mst@kernel.org>
- <lszslulefumddbqnhni55sgdfddptw3yb5vfavgnlyiv6wi3vn@44e4tttbvwaz>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="hDWM6RDd"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 034A080D92
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Nov 2024 10:23:23 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id lG5xZ21J_8CR for <virtualization@lists.linux-foundation.org>;
+ Mon,  4 Nov 2024 10:23:22 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2417::604; helo=nam12-dm6-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DA4A580D78
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DA4A580D78
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=hDWM6RDd
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20604.outbound.protection.outlook.com [IPv6:2a01:111:f403:2417::604])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DA4A580D78
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Nov 2024 10:23:21 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Ye1O9fmwhfH7tAHCcjxzpZlir54+2XiTzuUKp/CHZ/9K2lwNSNL3nNset01QG300driV7TlfdUUNuriPrD+DptqBm2EZ/zb6RT3sxCjgZ5vNbCiWZFlydC5HQs48wDtYkfmayJVYbYGTlCyUsKuO+xn/J3b+fIv9S/Dg1QORj5cvNhjEzpGF1uh9pjenJIScCfK2vmZznQCdx/3eYeskJSeC+8mPAxUlQWI11gal7nxAJk49kiPfyf3JXrlk1HA8sKikIW2lS8EkiUcZJkvmGjAbLiAKvSsXZ6c1+nog4OoVm/b7Xh26mrvKRgR4F57cUr8DHgcAKaJJIigcr6FA+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=iYENykhwxnpGV4NPoy1HdAE5Yq6nNphIEDBzUZgRoj4=;
+ b=v4YJIDrgH/se+ZDld0j9ty/4XEQEV/Hm5MhU/QEbw0ry6UMMQr3obQAK/QK2GAfirGHr1u6TvlPyzJ3qjx8MKrlRzdcGVIfFNpWtoVVgkO6GD4Obb48C4GAQlmqBA0YH/HNXp9NiZ2e+8XPTvuGY3KYLhjl+3BLl49WPyxrqd5v1cNbje7pIh+2a8vvGhiaxk3aHFqzjJEcYOE6xBjvBfICSyl+PnOC/fEmz8PO1F139uU2PVX1Nl9fjRC3OENM2mEaLk/H9aqILaj0xfkvd2URHsdKZxYi57Bre/7JjAmUcXvEx8ZnkGIas11OjjW2nNnlx7CtOTLAZQFZKVnc2LA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=iYENykhwxnpGV4NPoy1HdAE5Yq6nNphIEDBzUZgRoj4=;
+ b=hDWM6RDdhZ98Rz+0F9jeameBRfDPtvmUJwX6xrWMGDA4011w8EA+Mqk0g2yVSF/EPmIzwFefFIsxIT3mN5ulzLmc6unIaRf6XLxV1uqYHm9Te8G6HEuof11/iJrxQ/ZTnrNWa0dNKtHBRvFSIRmqnRHYda54hQIQqNUOfLHR/FsEuDrDWOAUiouWH1Q+7yyc4IPUCcsA77dlC3BTCRraLC6FBcjHc++8ydYkbN1u9h3EVGrCnFJBMFxYlur9gpU70E0SQtpJcfhB75/uVlIRzrq7PMAOvSpSvl8RqPtOvTAor4fjILvbHCDbK2uavtLtD/C2FGXoQ5XktdEgmF/uYQ==
+Received: from BN9PR03CA0765.namprd03.prod.outlook.com (2603:10b6:408:13a::20)
+ by CH3PR12MB7596.namprd12.prod.outlook.com (2603:10b6:610:14b::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Mon, 4 Nov
+ 2024 10:23:15 +0000
+Received: from BN1PEPF0000468D.namprd05.prod.outlook.com
+ (2603:10b6:408:13a:cafe::80) by BN9PR03CA0765.outlook.office365.com
+ (2603:10b6:408:13a::20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30 via Frontend
+ Transport; Mon, 4 Nov 2024 10:23:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ BN1PEPF0000468D.mail.protection.outlook.com (10.167.243.138) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8137.17 via Frontend Transport; Mon, 4 Nov 2024 10:23:15 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 4 Nov 2024
+ 02:23:03 -0800
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.4; Mon, 4 Nov 2024 02:23:02 -0800
+Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com
+ (10.126.190.181) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Mon, 4 Nov 2024 02:23:00 -0800
+From: Yishai Hadas <yishaih@nvidia.com>
+To: <alex.williamson@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<jgg@nvidia.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
+	<joao.m.martins@oracle.com>, <leonro@nvidia.com>, <yishaih@nvidia.com>,
+	<maorg@nvidia.com>
+Subject: [PATCH V1 vfio 0/7] Enhance the vfio-virtio driver to support live migration
+Date: Mon, 4 Nov 2024 12:21:24 +0200
+Message-ID: <20241104102131.184193-1-yishaih@nvidia.com>
+X-Mailer: git-send-email 2.21.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <lszslulefumddbqnhni55sgdfddptw3yb5vfavgnlyiv6wi3vn@44e4tttbvwaz>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN1PEPF0000468D:EE_|CH3PR12MB7596:EE_
+X-MS-Office365-Filtering-Correlation-Id: e44c5a25-92d4-48bf-6428-08dcfcbab1b8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|1800799024|36860700013|82310400026;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?d2Y0aE9GeWpMTDNpSWc5MGtwSU9SRGNnNFdVanV4b1I5cklBZlNBWWtheG1H?=
+ =?utf-8?B?S1drY0ZieTdmeFAvUmJSRUkwRVl2aGxodWpNSjE2N0xoTnA4R1hsV01yMTRa?=
+ =?utf-8?B?VUxOS3Zqbncyc0tIZ2hTTkkxb0d6NVh5RUQwaXVoSkYxckwxQmRJcWs5S2xY?=
+ =?utf-8?B?K0pFVzJ1Z00vbisyMFU5MWdxZi9OLytSUHZyQTdvd2IvdkY1NTN0QlpqUk9L?=
+ =?utf-8?B?aVRtOS83eGsrbzNHTU1KbkZjZjFRc0J0U0pWUDRUS2xibTd5OEZrdDZsc2Zn?=
+ =?utf-8?B?WVVqYSt3djk0WGlJOU5zUTRWcHBDc0o2VDlYdzdwWUVsby90ZU50bCtQV1FM?=
+ =?utf-8?B?YTkyMk9PRWpEbGdqYysxWlJVblc3U3YrVU9XL3pOWGlabEcrSDVNYXBzV3V2?=
+ =?utf-8?B?YzkvWlZHeUtya3FUVXRtQ1NNNnFab1NJREVXWnJ4WHE1QlVhSHhMYU5xNjhG?=
+ =?utf-8?B?L2hEb3oxcWlOOEpuU09oMmlVNTR6YnhVWGpudGFpUWdSVldNTlE3dWVaeFJp?=
+ =?utf-8?B?MEg1YTErVEZEZDIzRVJ5a2UxekhZOTYwZTY3UlNhTG5LbEZXRUxQWHZBTGNH?=
+ =?utf-8?B?NDFxaElXNCs0UVpOTVZ6S1BoZnI4aFlFWEJ0RlB1OGpvZGZ6dXVpNi9leHBL?=
+ =?utf-8?B?aFlPRjdzY1ZIQytldEpYSnZYY2Vod3BQNTBlaDFkT2dGVjJGaVpGQnV5dlJ5?=
+ =?utf-8?B?Q1lKQzRBcEFUdCtDZDJWZmlKdFBSdy85QXY5UmNkVjNCY1pjcmVycWZTSm91?=
+ =?utf-8?B?SlJKenVLNk9vUkZwRVgzSlFDL1F1WXUyRTRzNm9OSXliTzYzYkthT1hmbVh5?=
+ =?utf-8?B?Q0x3MUlhdXc0Yk4rVXZjWmpkY0ZFVFB2aGFyTlZ1bEtENW9qeUpWdHhXT0pT?=
+ =?utf-8?B?dnNCUWJ6VlMwU0krZjNVR1cyZnBmNG5YZk1SWkhOTWhIdXhnMzVEbVl2K2N5?=
+ =?utf-8?B?R0FEZXJiMjZabkVnL0VzeFJIN0VhdUhCZ1E4L2dnczRlMEVlRVpxem5xaEN4?=
+ =?utf-8?B?d2M3R3VkeFkrOWMraWsycUhZVGQzeTFPY1M4K29LcTN0UVk4YnFjTHRrR3R5?=
+ =?utf-8?B?T1JpZm1VRDR3azFpcEh5VVlCelhyT2RLVHR5WmtvY2tlbVhKZDBnU0U1WVcz?=
+ =?utf-8?B?a2lLWEpjN082RHFGcng0YzdzWXdDb1hwUDhxdk5qclVIVWdtVFQ4Mnk0MFFq?=
+ =?utf-8?B?YWdENDY1d2EvczBVZUtyUTFZRmpmaHhYU0lYN3BCUkxFWGpnUHpVcmV3a2Ry?=
+ =?utf-8?B?endveWN2QXdEandhMmJrKzNhOG85L1NGT1ZyYk5ITCtUTk9wS3VoTCtUbW1y?=
+ =?utf-8?B?UC9wSSthYkpSWUlGcncvSEdRak1UVGY4cFFYZzllMkk5SHJ4aEtkanhBM1ls?=
+ =?utf-8?B?Smh3VzJJNnArcHNRSmJNRlM3NkhVVk9qQ1Y1YVQ5UnZqcFJmcXF3TmIvdWxE?=
+ =?utf-8?B?dVFSZ3dtQ1MwYkV3UDRvaXZkQm9hVGUveDN4NEJWMFBPcEVQdEtWRFBGckFH?=
+ =?utf-8?B?WUxEOE8xcU9wQ000ZXljUE1nanlkK2N5NVRHbytXWHExRmo4QW9JZHhIeFUx?=
+ =?utf-8?B?dk5yWUxxbGxqd1pJUXNxelluZFdrRUxGZjk2ZnBSS0R3aVpZa05TZkwwb2c2?=
+ =?utf-8?B?NkE1WFA0U2k2NHRYczhSa2JRc01IbEZtT1h5T1NNSVp0aVArd1UvbWxZTmtT?=
+ =?utf-8?B?VUVhTVI2bVF6TG5hQmZRRFk0K1pYQkdZVmxKYlFmWVJQalllaWFWSitmSEJr?=
+ =?utf-8?B?b0x5VjRVZDViWVZqUzN2ekVWM2haeTliTVBoQTRxS1JwSlQ5Y2E4OGJXbCt6?=
+ =?utf-8?B?dTlWV2xLQndpSGcxUWlRcFA4QjNYMk40L1BqdU9vK2FxaDVyYmV6ZlV4OWUr?=
+ =?utf-8?B?TkJPVHgzeUhjSzlWVXFBZ0oxRFU4K3FidzlUb2UxME9yWkE9PQ==?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(1800799024)(36860700013)(82310400026);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Nov 2024 10:23:15.3504
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e44c5a25-92d4-48bf-6428-08dcfcbab1b8
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN1PEPF0000468D.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB7596
 
-On Thu, Aug 08, 2024 at 06:28:02PM +0300, Kirill A. Shutemov wrote:
-> On Thu, Aug 08, 2024 at 11:03:30AM -0400, Michael S. Tsirkin wrote:
-> > On Thu, Aug 08, 2024 at 04:15:25PM +0300, Kirill A. Shutemov wrote:
-> > > On Thu, Aug 08, 2024 at 08:10:34AM -0400, Michael S. Tsirkin wrote:
-> > > > On Thu, Aug 08, 2024 at 10:51:41AM +0300, Kirill A. Shutemov wrote:
-> > > > > Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
-> > > > > accesses during the hang.
-> > > > > 
-> > > > > 	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
-> > > > > 	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
-> > > > > 	...
-> > > > > 
-> > > > > It was traced down to virtio-console. Kexec works fine if virtio-console
-> > > > > is not in use.
-> > > > 
-> > > > virtio is not doing a lot of 16 bit reads.
-> > > > Are these the reads:
-> > > > 
-> > > >                 virtio_cread(vdev, struct virtio_console_config, cols, &cols);
-> > > >                 virtio_cread(vdev, struct virtio_console_config, rows, &rows);
-> > > > 
-> > > > ?
-> > > > 
-> > > > write is a bit puzzling too. This one?
-> > > > 
-> > > > bool vp_notify(struct virtqueue *vq)
-> > > > {       
-> > > >         /* we write the queue's selector into the notification register to
-> > > >          * signal the other end */
-> > > >         iowrite16(vq->index, (void __iomem *)vq->priv);
-> > > >         return true;
-> > > > }
-> > > 
-> > > Given that we are talking about console issue, any suggestion on how to
-> > > check?
-> > 
-> > 
-> > If you do lspci -v on the device, we'll know where the BARs are,
-> > and can compare to 0x102877002, 0x102877A44.
-> 
-> 00:01.0 Ethernet controller: Red Hat, Inc. Virtio 1.0 network device (rev 01)
-> 	Subsystem: Red Hat, Inc. Device 1100
-> 	Flags: bus master, fast devsel, latency 0, IRQ 21
-> 	Memory at 80005000 (32-bit, non-prefetchable) [size=4K]
-> 	Memory at 380000000000 (64-bit, prefetchable) [size=16K]
-> 	Capabilities: [98] MSI-X: Enable+ Count=4 Masked-
-> 	Capabilities: [84] Vendor Specific Information: VirtIO: <unknown>
-> 	Capabilities: [70] Vendor Specific Information: VirtIO: Notify
-> 	Capabilities: [60] Vendor Specific Information: VirtIO: DeviceCfg
-> 	Capabilities: [50] Vendor Specific Information: VirtIO: ISR
-> 	Capabilities: [40] Vendor Specific Information: VirtIO: CommonCfg
-> 	Kernel driver in use: virtio-pci
-> 
-> 00:02.0 Communication controller: Red Hat, Inc. Virtio 1.0 socket (rev 01)
-> 	Subsystem: Red Hat, Inc. Device 1100
-> 	Flags: bus master, fast devsel, latency 0, IRQ 22
-> 	Memory at 80004000 (32-bit, non-prefetchable) [size=4K]
-> 	Memory at 380000004000 (64-bit, prefetchable) [size=16K]
-> 	Capabilities: [98] MSI-X: Enable- Count=3 Masked-
-> 	Capabilities: [84] Vendor Specific Information: VirtIO: <unknown>
-> 	Capabilities: [70] Vendor Specific Information: VirtIO: Notify
-> 	Capabilities: [60] Vendor Specific Information: VirtIO: DeviceCfg
-> 	Capabilities: [50] Vendor Specific Information: VirtIO: ISR
-> 	Capabilities: [40] Vendor Specific Information: VirtIO: CommonCfg
-> 	Kernel driver in use: virtio-pci
-> 
-> 00:03.0 Communication controller: Red Hat, Inc. Virtio 1.0 console (rev 01)
-> 	Subsystem: Red Hat, Inc. Device 1100
-> 	Flags: bus master, fast devsel, latency 0, IRQ 23
-> 	Memory at 80003000 (32-bit, non-prefetchable) [size=4K]
-> 	Memory at 380000008000 (64-bit, prefetchable) [size=16K]
-> 	Capabilities: [98] MSI-X: Enable+ Count=2 Masked-
-> 	Capabilities: [84] Vendor Specific Information: VirtIO: <unknown>
-> 	Capabilities: [70] Vendor Specific Information: VirtIO: Notify
-> 	Capabilities: [60] Vendor Specific Information: VirtIO: DeviceCfg
-> 	Capabilities: [50] Vendor Specific Information: VirtIO: ISR
-> 	Capabilities: [40] Vendor Specific Information: VirtIO: CommonCfg
-> 	Kernel driver in use: virtio-pci
-> 
-> 00:04.0 SCSI storage controller: Red Hat, Inc. Virtio 1.0 block device (rev 01)
-> 	Subsystem: Red Hat, Inc. Device 1100
-> 	Flags: bus master, fast devsel, latency 0, IRQ 20
-> 	Memory at 80002000 (32-bit, non-prefetchable) [size=4K]
-> 	Memory at 38000000c000 (64-bit, prefetchable) [size=16K]
-> 	Capabilities: [98] MSI-X: Enable+ Count=17 Masked-
-> 	Capabilities: [84] Vendor Specific Information: VirtIO: <unknown>
-> 	Capabilities: [70] Vendor Specific Information: VirtIO: Notify
-> 	Capabilities: [60] Vendor Specific Information: VirtIO: DeviceCfg
-> 	Capabilities: [50] Vendor Specific Information: VirtIO: ISR
-> 	Capabilities: [40] Vendor Specific Information: VirtIO: CommonCfg
-> 	Kernel driver in use: virtio-pci
-> 
-> 00:05.0 SCSI storage controller: Red Hat, Inc. Virtio 1.0 block device (rev 01)
-> 	Subsystem: Red Hat, Inc. Device 1100
-> 	Flags: bus master, fast devsel, latency 0, IRQ 21
-> 	Memory at 80001000 (32-bit, non-prefetchable) [size=4K]
-> 	Memory at 380000010000 (64-bit, prefetchable) [size=16K]
-> 	Capabilities: [98] MSI-X: Enable+ Count=17 Masked-
-> 	Capabilities: [84] Vendor Specific Information: VirtIO: <unknown>
-> 	Capabilities: [70] Vendor Specific Information: VirtIO: Notify
-> 	Capabilities: [60] Vendor Specific Information: VirtIO: DeviceCfg
-> 	Capabilities: [50] Vendor Specific Information: VirtIO: ISR
-> 	Capabilities: [40] Vendor Specific Information: VirtIO: CommonCfg
-> 	Kernel driver in use: virtio-pci
-> ....
-> Invalid read at addr 0x100C37904, size 2, region '(null)', reason: rejected
-> Invalid read at addr 0x1036F9002, size 2, region '(null)', reason: rejected
-> Invalid read at addr 0x1036F9002, size 2, region '(null)', reason: rejected
-> Invalid write at addr 0x1036F9A44, size 2, region '(null)', reason: rejected
-> Invalid read at addr 0x1036F7002, size 2, region '(null)', reason: rejected
-> Invalid read at addr 0x1036F7002, size 2, region '(null)', reason: rejected
-> Invalid write at addr 0x1036F7A44, size 2, region '(null)', reason: rejected
-> ....
-> 
-> Yeah, looks like it is not BARs.
+This series enhances the vfio-virtio driver to support live migration
+for virtio-net Virtual Functions (VFs) that are migration-capable.
+ 
+This series follows the Virtio 1.4 specification to implement the
+necessary device parts commands, enabling a device to participate in the
+live migration process.
 
-Michael, can we get back to this?
+The key VFIO features implemented include: VFIO_MIGRATION_STOP_COPY,
+VFIO_MIGRATION_P2P, VFIO_MIGRATION_PRE_COPY.
+ 
+The implementation integrates with the VFIO subsystem via vfio_pci_core
+and incorporates Virtio-specific logic to handle the migration process.
+ 
+Migration functionality follows the definitions in uapi/vfio.h and uses
+the Virtio VF-to-PF admin queue command channel for executing the device
+parts related commands.
+ 
+Patch Overview:
+The first four patches focus on the Virtio layer and address the
+following:
+- Define the layout of the device parts commands required as part of the
+  migration process.
+- Provide APIs to enable upper layers (e.g., VFIO, net) to execute the
+  related device parts commands.
+ 
+The last three patches focus on the VFIO layer:
+- Extend the vfio-virtio driver to support live migration for Virtio-net
+  VFs.
+- Move legacy I/O operations to a separate file, which is compiled only
+  when VIRTIO_PCI_ADMIN_LEGACY is configured, ensuring that live
+  migration depends solely on VIRTIO_PCI.
+ 
+Additional Notes:
+- The kernel protocol between the source and target devices includes a
+  header containing metadata such as record size, tag, and flags.
+  The record size allows the target to read a complete image from the
+  source before passing device part data. This follows the Virtio
+  specification, which mandates that partial device parts are not
+  supplied. The tag and flags serve as placeholders for future extensions
+  to the kernel protocol between the source and target, ensuring backward
+  and forward compatibility.
+ 
+- Both the source and target comply with the Virtio specification by
+  using a device part object with a unique ID during the migration
+  process. As this resource is limited to a maximum of 255, its lifecycle
+  is confined to periods when live migration is active.
 
-So it looks like to be a DMA.
+- According to the Virtio specification, a device has only two states:
+  RUNNING and STOPPED. Consequently, certain VFIO transitions (e.g.,
+  RUNNING_P2P->STOP, STOP->RUNNING_P2P) are treated as no-ops. When
+  transitioning to RUNNING_P2P, the device state is set to STOP and
+  remains STOPPED until it transitions back from RUNNING_P2P->RUNNING, at
+  which point it resumes its RUNNING state. During transition to STOP,
+  the virtio device only stops initiating outgoing requests(e.g. DMA,
+  MSIx, etc.) but still must accept incoming operations.
 
-It is a TDX guest. Some TDX context: it has concept of private and shared
-memory. Private memory in only accessible to the guest. Shared memory is
-accessible by both host and guest. It is used for guest/host communication
-including DMA.
+- Furthermore, the Virtio specification does not support reading partial
+  or incremental device contexts. This means that during the PRE_COPY
+  state, the vfio-virtio driver reads the full device state. This step is
+  beneficial because it allows the device to send some "initial data"
+  before moving to the STOP_COPY state, thus reducing downtime by
+  preparing early and warming-up. As the device state can be changed and
+  the benefit is highest when the pre copy data closely matches the final
+  data we read it in a rate limiter mode and reporting no data available
+  for some time interval after the previous call. With PRE_COPY enabled,
+  we observed a downtime reduction of approximately 70-75% in various
+  scenarios compared to when PRE_COPY was disabled, while keeping the
+  total migration time nearly the same.
 
-By default all memory is private and guest kernel converts some memory to
-shared. On kexec, we convert all memory back to private, so the next
-kernel can start from a known state. This conversion makes DMA impossible.
+- Support for dirty page tracking during migration will be provided via
+  the IOMMUFD framework.
+ 
+- This series has been successfully tested on Virtio-net VF devices.
 
-I think stopping devices before doing this conversion is a reasonable
-solution.
+Changes from V0:
+https://lore.kernel.org/kvm/20241101102518.1bf2c6e6.alex.williamson@redhat.com/T/
+
+Vfio:
+Patch #5:
+- Enhance the commit log to provide a clearer explanation of P2P
+  behavior over Virtio devices, as discussed on the mailing list.
+Patch #6:
+- Implement the rate limiter mechanism as part of the PRE_COPY state,
+  following Alex’s suggestion.
+- Update the commit log to include actual data demonstrating the impact of
+  PRE_COPY, as requested by Alex.
+Patch #7:
+- Update the default driver operations (i.e., vfio_device_ops) to use
+  the live migration set, and expand it to include the legacy I/O
+  operations if they are compiled and supported.
+
+Yishai
+
+Yishai Hadas (7):
+  virtio_pci: Introduce device parts access commands
+  virtio: Extend the admin command to include the result size
+  virtio: Manage device and driver capabilities via the admin commands
+  virtio-pci: Introduce APIs to execute device parts admin commands
+  vfio/virtio: Add support for the basic live migration functionality
+  vfio/virtio: Add PRE_COPY support for live migration
+  vfio/virtio: Enable live migration once VIRTIO_PCI was configured
+
+ drivers/vfio/pci/virtio/Kconfig     |    4 +-
+ drivers/vfio/pci/virtio/Makefile    |    3 +-
+ drivers/vfio/pci/virtio/common.h    |  127 +++
+ drivers/vfio/pci/virtio/legacy_io.c |  420 +++++++++
+ drivers/vfio/pci/virtio/main.c      |  500 ++--------
+ drivers/vfio/pci/virtio/migrate.c   | 1336 +++++++++++++++++++++++++++
+ drivers/virtio/virtio_pci_common.h  |   19 +-
+ drivers/virtio/virtio_pci_modern.c  |  457 ++++++++-
+ include/linux/virtio.h              |    1 +
+ include/linux/virtio_pci_admin.h    |   11 +
+ include/uapi/linux/virtio_pci.h     |  131 +++
+ 11 files changed, 2594 insertions(+), 415 deletions(-)
+ create mode 100644 drivers/vfio/pci/virtio/common.h
+ create mode 100644 drivers/vfio/pci/virtio/legacy_io.c
+ create mode 100644 drivers/vfio/pci/virtio/migrate.c
 
 -- 
-  Kiryl Shutsemau / Kirill A. Shutemov
+2.27.0
+
