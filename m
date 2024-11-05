@@ -1,98 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A405186284
-	for <virtualization@lists.linux.dev>; Tue,  5 Nov 2024 09:23:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 856BA1D014E
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Nov 2024 09:32:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730798604; cv=none; b=VDU0/3Mzaw67I/4Xv/5xm4uXEa/dgwcZbKvCgtY+o4qLQ+6AzlJAwHQIpvDEjDQijBlA/djtbDEPoQOc1+L2IB0x24ppoPdWYl3fxVhtTxZyRrqSjfG8NB5V/hbeAAvvDBaHPE0MFpyp0n+UXtAk4WEhSP02s52qkZcgePm34a4=
+	t=1730799149; cv=none; b=Yt5pFtnXgrss2jencgd/ulkLp7vmLOIEJ3WmzDTHQ94XBrTEWN1q+g6yIb91nRs/SKbneC9rugzIoVaYjIMgvquFkPMZ2cbrGYFeSMe5dKiieEsL57saWFJZfywCFckoMNVpQKNpPbAf/B45E529XXc+cfpnLcD7KKPTK1yjw7M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730798604; c=relaxed/simple;
-	bh=CqmGDqu3YJTcoPXm3AUjz1Sm1xD34tiZKKiUWhhxzhI=;
+	s=arc-20240116; t=1730799149; c=relaxed/simple;
+	bh=3boYlIm7+ysYJZ8hI0p5HudoZgakBgOBlMRjSuXyXRI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OaPFoxECcrNjzuD7h0NmM9dakdSZMaMo4ttULttRWLI8+r/G8j3xrA9ctG6B0bahMxeDWLZtfx6biKTPN2S2qTU9qV3Wm++nm0ROOhbrXiRe1PzaC02SkGY4LPLJmoaY3UiLdImCPaugt6V3PuBgEPWzWJcpL7LIOqJzRMj4Yqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F88PUSWK; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=QbmwEspiXHfbnMQ7HJ6B/ptKdln4Ks6b97xuwzeZ/HuziNKCxxAHPDrJuyLBUOHPoeSk2kSYcuE/smNoxDGmHpdFOBYdC9GWDzjmEPqN1HtQbWGtxJF4gWe+QvbKESwmYbqVmMJnkN2eNt6GGy8YzXnDn91BznZv954IZQNg0Hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=grX96xee; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F88PUSWK"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="grX96xee"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2ACDB80D02
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Nov 2024 09:32:28 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id X-ErddUtWSUC for <virtualization@lists.linux-foundation.org>;
+ Tue,  5 Nov 2024 09:32:27 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 4774E80595
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4774E80595
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=grX96xee
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4774E80595
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Nov 2024 09:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730798602;
+	s=mimecast20190719; t=1730799145;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CqmGDqu3YJTcoPXm3AUjz1Sm1xD34tiZKKiUWhhxzhI=;
-	b=F88PUSWKHl6vABFRNU5fN5sbiJUJZKB+MV27WK5Vck18WVzutj7xVaQyUWp/H2Zp5iS3ax
-	bs5UawyAU04/jWegoYDbnqsnPo5C3GY18zNfuwdffkkFun81Tv2vnH9abEPv5Bfp6lUQUT
-	938q6trH/hoQmNk72tMy8NLGMZp++js=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CaELkgjNq5yohIp9CDpDpFO7U1TxTr29on+OWubj13o=;
+	b=grX96xee7qCq0ye4CSboji+bGs4Yh5jkzkWAwJXm637///8I9S9ts2PAGnS0OCM7s7LUz+
+	2WMfKbe2JqQwhz3DYTuePtlHB22Mvdr849Ncc61fCJFgvbsHhebhew6/ISJeRzfKCEPnMr
+	WsacZRUZ+h0u8CZNS8ryNbaYsmRp7dI=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-570-WAsUQR05Mw-tV0drJfKbVw-1; Tue, 05 Nov 2024 04:23:21 -0500
-X-MC-Unique: WAsUQR05Mw-tV0drJfKbVw-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2e583c7601fso5062447a91.2
-        for <virtualization@lists.linux.dev>; Tue, 05 Nov 2024 01:23:21 -0800 (PST)
+ us-mta-439-5vqPh-5vNoSp86hS7pnwlA-1; Tue, 05 Nov 2024 04:32:23 -0500
+X-MC-Unique: 5vqPh-5vNoSp86hS7pnwlA-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2e2e8a71e3aso6677892a91.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 05 Nov 2024 01:32:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730798600; x=1731403400;
+        d=1e100.net; s=20230601; t=1730799143; x=1731403943;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CqmGDqu3YJTcoPXm3AUjz1Sm1xD34tiZKKiUWhhxzhI=;
-        b=dlGYieUjQ7Aiz1A2X8pt6tpZLDKCwq2JgKMYCfgNeKuGxy3Zi9nnr7ddLXhl6JV3td
-         LYq+Op8IB6OYRJ9zOR9g4y91PTspX9DH9rMVw8hJxsgOhSgfF/IGXEMjX4FcpSNcpN6w
-         uBv6MtCtiDy8VAQeKXor5tSo95C6oKxJBrIMsrSXcgv7ZThH5/KLgLwpjOVmWH2VcFkC
-         3OzGzrtbKUQvLOS1AbI4PPWD0WBmTvAhydT24Q9Z8A4IERPMERzi8Xm/Hdu5lL7C1Og2
-         xwNrx+DUNLTxvofDNxluFX2gJpzqGczNhRR57gFGs6oV5uL+2yiwMyTuOJdld9gz6jYR
-         xA8A==
-X-Forwarded-Encrypted: i=1; AJvYcCWs/oZzU8EXhbQEEpbY8hcjICsCSepvi1EhmPVNWaZJ9s1RwC6dlzhs9kadxOeXExnW2AlIsXCCKoHWQ6KBnw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxiIeCF1gWmQwxPS2h+WZrvPloKQSP1C7O/Eze2ZQ439QW9NexI
-	gua1EMTJpaLjGJRgj3TCpAuS6qDA0CNAbcqXckbPvjkYROxUe8Ue7/O9/+Nsz46DeOBTk2VIMzB
-	2ef0QW6LpRcC1063ckE8rW3KN+bpU4UpmAY+8+mIaxnN94Y+y+uVLorLKis271NnJkqXBCVS4Yd
-	VolRY47HwbDgJGUkJkvccAOnzmRIdJbAsiLmWVmY0=
-X-Received: by 2002:a17:90b:1a90:b0:2e2:f044:caaa with SMTP id 98e67ed59e1d1-2e94c52a9c3mr23098569a91.37.1730798600307;
-        Tue, 05 Nov 2024 01:23:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFPtci1uxxNPh759PaVSGbZ7DqP895VpcRzq1C4wn1LN8wRlvHgQnWd4dh6rpTXmWqZ0UunppM8qq1LNUaG4hU=
-X-Received: by 2002:a17:90b:1a90:b0:2e2:f044:caaa with SMTP id
- 98e67ed59e1d1-2e94c52a9c3mr23098547a91.37.1730798599879; Tue, 05 Nov 2024
- 01:23:19 -0800 (PST)
+        bh=CaELkgjNq5yohIp9CDpDpFO7U1TxTr29on+OWubj13o=;
+        b=QhkfcksPeiP3tu+INTAYpYZNnHN8UFrHrbLKB8aI9xQRu1dR7VfzLe+svpIQZXgy02
+         BX7URvyo9H0tAylrBMxUq41ourEeSKNSB7LDOXwwC1LlCY0hbFS17lTOqBe59eoRwqtb
+         0f3739C7X2PFF6mvhaDMcH+dgznXmy1fv3ruYhAVJN4UOQQHYJj+SPPmPi4LFbc2SEN/
+         1DJVJWIOgISR7sF1kjHUpfQ0gy1HeZV6+5+edUQKkl8cbzNrSCOPKXn5VFehJstCd6FK
+         81bfgkjmZ/5dwjvSOC+7uZgNOHmbWWYxJbTrM++1tso0LHpiLxY8pp6vQ04tSX/9XDKb
+         sBiw==
+X-Forwarded-Encrypted: i=1; AJvYcCX2bsAzPh+JsWVrWMGVNAaf8AyLShB6n8shAez95X/rJ13ZDCiCIvDwLNKS92TKh4BH5HoE4nq9ptpCKVl2Vg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwWNP0+5qMi+7bfLTkg9pA0wRbsEtX2G4VJNp6zcyJNcEbsYxRV
+	KkXrzrE39DIQ8OuOZb/b6AyAbG3D6lDn3MszE+9YICkdj7Rujf0178ODO41MacnasEf8Df/u7u3
+	2L2bslqqLCnJmfsWf0Gs8DOQmOa6nQeMi1Biv6Mb4Kf4x85ABCcofVKPf0V4UqckusRCx4tGuFr
+	XvBQhhSs0xJatSsiy2TZuZj20+nHfeScZm9DeoQDOz39NPFFDuIjkNRg==
+X-Received: by 2002:a17:90b:164f:b0:2e2:bfb0:c06 with SMTP id 98e67ed59e1d1-2e94c2b086cmr21054740a91.12.1730799142813;
+        Tue, 05 Nov 2024 01:32:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFrI2dYkCr6bnvyp62rgLDstJjcAcnHOsb+T5y5D8ck5xShQL7y314TViGgIjvrllU676F8agf4RY2ewZHmgK4=
+X-Received: by 2002:a17:90b:164f:b0:2e2:bfb0:c06 with SMTP id
+ 98e67ed59e1d1-2e94c2b086cmr21054719a91.12.1730799142429; Tue, 05 Nov 2024
+ 01:32:22 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241029084615.91049-1-xuanzhuo@linux.alibaba.com> <20241029084615.91049-5-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20241029084615.91049-5-xuanzhuo@linux.alibaba.com>
+References: <20241105072642.898710-1-lulu@redhat.com> <20241105072642.898710-2-lulu@redhat.com>
+In-Reply-To: <20241105072642.898710-2-lulu@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 5 Nov 2024 17:23:08 +0800
-Message-ID: <CACGkMEsDHtT64Gi=BuB0OGoD8EJgpL9=Hb3+L4im_EUxNC-XqQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v1 4/4] virtio_net: rx remove premapped failover code
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	virtualization@lists.linux.dev, Darren Kenny <darren.kenny@oracle.com>
+Date: Tue, 5 Nov 2024 17:32:10 +0800
+Message-ID: <CACGkMEveK1uOg=Hq2WuYFW7+DbMoF_g6QjV5cUFkBHUEQXkcow@mail.gmail.com>
+Subject: Re: [PATCH v3 1/9] vhost: Add a new parameter to allow user select kthread
+To: Cindy Lu <lulu@redhat.com>
+Cc: mst@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 29, 2024 at 4:47=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
+On Tue, Nov 5, 2024 at 3:27=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
 >
-> Now, the premapped mode can be enabled unconditionally.
+> The vhost now uses vhost_task and workers as a child of the owner thread.
+> While this aligns with containerization principles,it confuses some legac=
+y
+> userspace app, Therefore, we are reintroducing kthread API support.
 >
-> So we can remove the failover code for merge and small mode.
+> Introduce a new parameter to enable users to choose between
+> kthread and task mode. This will be exposed by module_param() later.
 >
-> The virtnet_rq_xxx() helper would be only used if the mode is using pre
-> mapping. A check is added to prevent misusing of these API.
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  drivers/vhost/vhost.c | 2 ++
+>  drivers/vhost/vhost.h | 1 +
+>  2 files changed, 3 insertions(+)
 >
-> Tested-by: Darren Kenny <darren.kenny@oracle.com>
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 9ac25d08f473..eff6acbbb63b 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -41,6 +41,7 @@ static int max_iotlb_entries =3D 2048;
+>  module_param(max_iotlb_entries, int, 0444);
+>  MODULE_PARM_DESC(max_iotlb_entries,
+>         "Maximum number of iotlb entries. (default: 2048)");
+> +static bool inherit_owner_default =3D true;
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+I wonder how management can make a decision for this value.
 
 Thanks
 
