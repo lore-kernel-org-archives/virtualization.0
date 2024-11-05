@@ -1,83 +1,60 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7467D51C4A;
-	Tue,  5 Nov 2024 02:20:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA615A957;
+	Tue,  5 Nov 2024 02:46:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730773226; cv=none; b=ZDsF1PZiHp2ynsOhMjNpjh3crEvcJ7LReK0xRuVZC+ad296gx5TsYY2qb1rwyeT5aqcoH6ZxPLhc7rFnIJXz+LqEYBU2uVMTuZYN9zIVBmRwho3OG8eW82bgyZVPnaTslTq4CbH6n93gPr7S2g6kJ3BWkGCrpLDVluuprG9It0E=
+	t=1730774803; cv=none; b=q+rYO4sxt6GF8WojVs9Vev1nWnrZwWZ6Nll6p8D490pYQw7fEC/Y8dc8aCN1Gm5tRhIalMFJx3lmqq6G2VzN2+hwm6k9R0qCh7D2eVUMusqM+McKJQxNZFtmkvk/HYHpgjn3M/7EvifzfZ/rAM2JDsOCDWXtTBDiuKqGvc3Yn9E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730773226; c=relaxed/simple;
-	bh=H7DITtRwtsNLWdS6hpi1Dq1VgEaFbuMZ06KvxC6YoWs=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=SZizjX8uGeAfhaUR5RSFwRMomXAxCS5EUgpzcma/MOacr+bz1tQqJi/4XnRxydmkAgcK5mG2IyVjWGIH+rJrJe2BVAV3vmQJ6xvygUNXRV4OgYpe67hh6Crz+HEXQwdWZvCOuGoI06JR5nEAwU0bf881SpD2yGYlFCMVtM3qvxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BpFh/7Eh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1730774803; c=relaxed/simple;
+	bh=garE5ScBG/oQypGHEXwdXZbuNsKVUktLBX7i7tPlCpg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=I0zv5SPp1lsb8OQWdMuvC81XWpIixUUc3kSh1iF6c+ZajbiYpsjl8y7QUkjEbzmMTPCfnHNMZccgFKHrxvhN9I5MN+LyxzmWEi+vQo29u2twxR7AWdKx7zrTXORMT3tzKdnkSa1pWpQy6lBW6vPquOKt7A8KQjMegp1tjHlgp+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ClxqZHrl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BpFh/7Eh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49996C4CECE;
-	Tue,  5 Nov 2024 02:20:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ClxqZHrl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C50BC4CED1;
+	Tue,  5 Nov 2024 02:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1730773226;
-	bh=H7DITtRwtsNLWdS6hpi1Dq1VgEaFbuMZ06KvxC6YoWs=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=BpFh/7Ehgn9ARUYp1fdOf8SxLiBRY2aBW0N7E1q9IzeEZIOt7K4hEJdyp+pe6US8Z
-	 uIyNHtDk4FANEE6YLIIWaqyy2WSAMBucrhSdie4jQJqi5CI6+gvS2RTiEw6/2F3m5H
-	 MaUIe+x0XFTN/YfVkfHLg84xg6XCqVop8eUycfERc2fJrF05xDsfxslKnSMQoMkbYF
-	 Uxa4eZ+hJuELXSKtHaX2Jf2azkq+aC0FP8IlyixSRgqtudHMwDHXit5qi0fTWlCMpL
-	 jZo34LnPV8ZdXr1T7q8TSW1kBpNOw9XkK4noVxRP/qylQMnK1+j0r0+hO9nM1oe1LS
-	 cGZU2YX9017Fg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33F203809A80;
-	Tue,  5 Nov 2024 02:20:36 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1730774803;
+	bh=garE5ScBG/oQypGHEXwdXZbuNsKVUktLBX7i7tPlCpg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=ClxqZHrlPFog8jpemI4deI6s4Nmy6Yck7X4W5YGkuLnIMdiN2l4D+/g/tKDR+/9mc
+	 1/h+C9sOlECsmV62DiEJnoLMLCj7ZQdTVnAtgNE7k4/Lu3jSz6q/0YA0tq8r5ro7te
+	 WMblJnmW2yvKOeIU/6v6Hq0deICcHJuXlMnjyHC3ndcO1vjqF7ZDp07cfMCASiqbhF
+	 MVaOydKeXkP16Mwti3NCqDIvc4gCyYc8iLtoEVAV3xRwkrEeuTU1IC9P6oGuG13ozu
+	 YyelH4MqZSd1jHHLJznWz93i7Zolcm14Tw6ESPAPaLFVdTB8pRidWmiLYecN3KyMbL
+	 mkgDW+6ntdAxw==
+Date: Mon, 4 Nov 2024 18:46:41 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v1 0/4] virtio_net: enable premapped mode by
+ default
+Message-ID: <20241104184641.525f8cdf@kernel.org>
+In-Reply-To: <20241029084615.91049-1-xuanzhuo@linux.alibaba.com>
+References: <20241029084615.91049-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] ptp: Remove 'default y' for VMCLOCK PTP device
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173077323501.89867.2401311053737596737.git-patchwork-notify@kernel.org>
-Date: Tue, 05 Nov 2024 02:20:35 +0000
-References: <89955b74d225129d6e3d79b53aa8d81d1b50560f.camel@infradead.org>
-In-Reply-To: <89955b74d225129d6e3d79b53aa8d81d1b50560f.camel@infradead.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: kuba@kernel.org, richardcochran@gmail.com, peter.hilber@opensynergy.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
- ridouxj@amazon.com, virtio-dev@lists.linux.dev, rluu@amazon.com,
- chashper@amazon.com, abuehaze@amazon.com, pabeni@redhat.com,
- christopher.s.hall@intel.com, jasowang@redhat.com, jstultz@google.com,
- mst@redhat.com, netdev@vger.kernel.org, sboyd@kernel.org, tglx@linutronix.de,
- xuanzhuo@linux.alibaba.com, maz@kernel.org, mark.rutland@arm.com,
- daniel.lezcano@linaro.org, a.zummo@towertech.it,
- alexandre.belloni@bootlin.com, qemu-devel@nongnu.org, horms@kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Sat, 02 Nov 2024 16:52:17 -0500 you wrote:
-> From: David Woodhouse <dwmw@amazon.co.uk>
+On Tue, 29 Oct 2024 16:46:11 +0800 Xuan Zhuo wrote:
+> In the last linux version, we disabled this feature to fix the
+> regress[1].
 > 
-> The VMCLOCK device gives support for accurate timekeeping even across
-> live migration, unlike the KVM PTP clock. To help ensure that users can
-> always use ptp_vmclock where it's available in preference to ptp_kvm,
-> set it to 'default PTP_1588_CLOCK_VMCLOCK' instead of 'default y'.
+> The patch set is try to fix the problem and re-enable it.
 > 
-> [...]
+> More info: http://lore.kernel.org/all/20240820071913.68004-1-xuanzhuo@linux.alibaba.com
 
-Here is the summary with links:
-  - [net-next] ptp: Remove 'default y' for VMCLOCK PTP device
-    https://git.kernel.org/netdev/net-next/c/18ec5491a495
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Sorry to ping, Michael, Jason we're waiting to hear from you on 
+this one.
