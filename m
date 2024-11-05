@@ -1,74 +1,74 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19E9120B20
-	for <virtualization@lists.linux.dev>; Tue,  5 Nov 2024 03:42:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 747B11862B5
+	for <virtualization@lists.linux.dev>; Tue,  5 Nov 2024 04:25:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730778147; cv=none; b=oTM+LyUPZjhfGUwSMmxOsuokzo+wvZpOcVnt8Q9iNN5kucC0K7fxXmXhORcdsVqo67+WZJpdOCyuOzIeCGuuoy0Cvj9LAW5tIxAomfP171kV/24AQteHQtJkl4xdWef4eLy8EhTYNsCJiRxtCICdQP/+/u/fA6UDzUa8Foo6ltk=
+	t=1730780727; cv=none; b=kRL58Su2Qk6SCUKScdbJWvDHPNlby89agvNfV/oNCBmUbekN40QCcMzSuh8OUBOPAG6TxaG8BfpsaIUBUVta9dockPpqMlfrD1Cev4weIXwVzwuUGw9cnYj2rymsFYT9Grnbn/EFMe93mnny2p+u22EqXaJn9/G5ZQiqklIyXF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730778147; c=relaxed/simple;
-	bh=ygegP4/EZoqtocpMOZdBPIHwz+SNXnXFjP+cUm9YUVc=;
+	s=arc-20240116; t=1730780727; c=relaxed/simple;
+	bh=CS2GfzSA1JcY5j+wxnuKIbhT+wXBZrCfStyjG8HjGL4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IGtgr2uxysoxt/Ab+NiFEHxVgB6X0OGjrRLE++qIWCWLQ/f3eNW6dZh3zrxsxaEVrG3POJnZXmxwfcCEbKGGhASdlAqX7gEbFRIhl4wWY4lwLRVReLUslWRLEVkm3/9ckHLeN47ivF53eJXAdbNq5IxNomrA+8nZo5jiQtG0leg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EeqLnHPr; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=KIBJI/DaNXjxLQDK25p+WRdQVD4EmqGm5jX15eWsmuWcIT1Vmi5yTKU+aEUX4VYnDQ5c1RDb/Fd7V8AzskeN8iFYrB7LyXJfL+WjJjN5wpYZqgAERuh2bhdGSIzBEGmQciWIyW2fBTtfp6gxnH5jfdq5Uhs9ZWdrd71nt/k2arI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F6oogUQw; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EeqLnHPr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F6oogUQw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730778144;
+	s=mimecast20190719; t=1730780724;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=pyxHlyIyRzdEB3EvTChHeDLyL5KwnAWLFwDJsqk/g3Q=;
-	b=EeqLnHPr2jHJ54Rq4tfKmaocPjHmHpihuoDboJ/xZYdsDtQombd3BaQ9xUvm3MHqC/zugx
-	JcjHogHg39OrQfB7/2p+GOMkXHbOLeTg+o4D2SA3bgueMKs4gIs1dHIJ0pME8TFkorl3BM
-	8lOufUQegYfcEwcHuGhr0mN2OqF0bQE=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=4CCOot3ufdE2YqEs9xebqHSiJOdFlIQhECY/5pN1KI8=;
+	b=F6oogUQwxiTrgpSWBTbQ3qR0aM46SMIHUX+6tJCjPgEl7GNe3atovfr+Mbb6x/LjBgpuSi
+	KBPu2JEIYUf9aN6NlLyORW/yp0b0zJeqMS7CkoxoCGOJbzs2tsghEDRdhJDGMFnwqN7Kmw
+	KSTd69Inb7FoIWXOXBhiVVcscHS27lo=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-594-4ZL7uOSVOX-6_e2IOolrXA-1; Mon, 04 Nov 2024 22:42:23 -0500
-X-MC-Unique: 4ZL7uOSVOX-6_e2IOolrXA-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2e2eba0efc6so4797120a91.3
-        for <virtualization@lists.linux.dev>; Mon, 04 Nov 2024 19:42:22 -0800 (PST)
+ us-mta-78-K72C3lPhNOGo4mjpAQcDKQ-1; Mon, 04 Nov 2024 23:25:23 -0500
+X-MC-Unique: K72C3lPhNOGo4mjpAQcDKQ-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-71e64cbb445so5578353b3a.1
+        for <virtualization@lists.linux.dev>; Mon, 04 Nov 2024 20:25:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730778142; x=1731382942;
+        d=1e100.net; s=20230601; t=1730780721; x=1731385521;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pyxHlyIyRzdEB3EvTChHeDLyL5KwnAWLFwDJsqk/g3Q=;
-        b=NA3UypXK8jp4hRdagRGOMkpYhu1UvmvNO3+4CO29TfO+k+E6veF4oEFWRTdhqHeJe1
-         HdDKmXl2ZaaPGNbryIPbrk9JvPerSx9WYUTj9B4dO2e+TuOs2wzKBuJhvFJ5qvpIY2nS
-         zWpMGC71sXksGczeeoiUq4AIoRYvUCikzLM7G1/joOQv2BmFFRxTAJ050q+1HmOKgbo7
-         /sUy1MMQuTtF20BjaobfdrVMQRzXlLA4hA5Lq0L/nTXSUWtUVEDYwMdag3BRvjXqSuyH
-         mQxSfYAalkb/g2yGw54SeNVOFfrO0uxO125250Y2hllNKzZ/qXQYLLD8I66rgzk37kIE
-         TTlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVRGRCD67uXvUQN+WHm12J433MVyQBICIwTc4TmrWwvZXLW8/uvBjtEbOAGWQjhRKmgcrWJDOVJw2Dr5oR88w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzvay+eO/UeLjaoD2rL15vVVnnYjTIpBu0rHps3I0ufhaka1S+X
-	zB/A6ITE9TG2OiwzVtO60qPlqLKCd/IOaWhowk/tIBGcATILTRZF5cmMVfm0WOF6b3JVZPcpI0t
-	oTx6aji34DsKni4DeRl0TtuM9BDwFddKw2NEnWM+J5Q+Wf99yfM3KANSZ4MowHJ0NSK5KqhFYi6
-	KhgIrt1Bgc32LeGR7tXKUdLsLYKffnwdKyRMV/gE4=
-X-Received: by 2002:a17:90b:1a90:b0:2e2:f044:caaa with SMTP id 98e67ed59e1d1-2e94c52a9c3mr22236465a91.37.1730778141669;
-        Mon, 04 Nov 2024 19:42:21 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHEKKE4AkzhqLs89skeBOJ9+eTo4h/Ix2m898YS3Im1U5+6nobYHvuGr4+eAwz1uNaLTMgkDLamsWwIszH96eY=
-X-Received: by 2002:a17:90b:1a90:b0:2e2:f044:caaa with SMTP id
- 98e67ed59e1d1-2e94c52a9c3mr22236414a91.37.1730778141095; Mon, 04 Nov 2024
- 19:42:21 -0800 (PST)
+        bh=4CCOot3ufdE2YqEs9xebqHSiJOdFlIQhECY/5pN1KI8=;
+        b=RQ4BC1/kiP5GLgG56mF//OEhZoSGAiESFZlIJo83frBQUVMhnmCU7uZwcEWIoSgWVi
+         q07BUU1CQkqTeawKEydyyrSEhKpgKOUN5LdTTuNRjIgCd9l/IvVcAVCVBXLesN6pt+mE
+         Lio8P9bV1B6kKyHu0jZMwWnA9xDoARAgKdoughz6GOKdXsKEHHhnzKdoWDWaOvA88vDt
+         qwSbWwF+hedNrsueaXi7CkXuZY/u6H1GYNGrJzxabwHD7+Rl15xzo/Uj2vC3Cj7sejoN
+         lVBsexwty8dCWcly8AHOqoeFU35tC/yrHSQ0bMVsZL5a8endj0FBSLIzPXt57Zp/7ahP
+         xfBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVX43Q+CSSl8TMYBvKuKkp+GknhhMtSkBaH2lRSMZjR1AC/HhjQueHmbnhrAWGTAXAow82EQ/YAlFrSkkM9Mw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy/z6zrVO1BqXMdi1nC7MpDmrak75Uk0+Mt2INLxq6d4PywmECl
+	BJvvdNPBKv0Xv2jse+8/vz+6TTPgWp+Ai6q6R1AccxYlIs/MEpb8FSdY4YqaPOoSJR4QKtjXaJE
+	VB73EG938uJ1btblGb8ExMdJ/vWqn+QEzLEJ/gQhZaNjGk3jYeIsOCYO8LzhIkqWWn4QuxB8PRd
+	wp7p3gnlZRIT1o3VQRGMZ4fOBUKAapyQxApYD2ktTBaM6dk9XGIbLV7pA=
+X-Received: by 2002:a05:6a20:d80c:b0:1d9:261c:5943 with SMTP id adf61e73a8af0-1db91d51513mr26249513637.10.1730780721227;
+        Mon, 04 Nov 2024 20:25:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGGIiawh4nOPxgtGfheigO3w6ndNJ8vLkDOZ+trEI282rg1LwxO3aVz0cjFdSCNW8Z6F0geCbNdqYiofzWhxnw=
+X-Received: by 2002:a05:6a20:d80c:b0:1d9:261c:5943 with SMTP id
+ adf61e73a8af0-1db91d51513mr26249473637.10.1730780720674; Mon, 04 Nov 2024
+ 20:25:20 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com> <20241030082453.97310-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20241030082453.97310-3-xuanzhuo@linux.alibaba.com>
+References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com> <20241030082453.97310-5-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20241030082453.97310-5-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 5 Nov 2024 11:42:09 +0800
-Message-ID: <CACGkMEtP7tdxxLOtDArNCqO5b=A=a7X2NimK8be2aWuaKG6Xfw@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 02/13] virtio_ring: split: record extras for
- indirect buffers
+Date: Tue, 5 Nov 2024 12:25:09 +0800
+Message-ID: <CACGkMEs07CZneSg3nD41ebz8AkMJCvOikU-RmrxusVWs7B8=eg@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 04/13] virtio_ring: perform premapped
+ operations based on per-buffer
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
 	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
@@ -85,335 +85,415 @@ Content-Transfer-Encoding: quoted-printable
 On Wed, Oct 30, 2024 at 4:25=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
 >
-> The subsequent commit needs to know whether every indirect buffer is
-> premapped or not. So we need to introduce an extra struct for every
-> indirect buffer to record this info.
+> The current configuration sets the virtqueue (vq) to premapped mode,
+> implying that all buffers submitted to this queue must be mapped ahead
+> of time. This presents a challenge for the virtnet send queue (sq): the
+> virtnet driver would be required to keep track of dma information for vq
+> size * 17,
+
+Even worse as MAX_SKB_FRAGS could be even larger.
+
+> which can be substantial. However, if the premapped mode were
+> applied on a per-buffer basis, the complexity would be greatly reduced.
+> With AF_XDP enabled, AF_XDP buffers would become premapped, while kernel
+> skb buffers could remain unmapped.
 >
+> And consider that some sgs are not generated by the virtio driver,
+> that may be passed from the block stack. So we can not change the
+> sgs, new APIs are the better way.
+
+I had some new thoughts on this.
+
+Pre-mapping makes a lot of sense as it allows the us to move the
+expensive DMA mapping operations (swiotlb, IOMMU or VDUSE) out of the
+per-vq lock. I wonder what would we do if someday we want to convert
+the skb TX to be premapped (or even all virtio drivers).
+
+Considering we've already used skb_to_sgvec() in start_xmit() it looks
+like we need to allocate sg[queue_num][MAX_SKB_FRAGS + 2] and store
+the dma mapping there. Then we probably don't even need to duplicate
+the dma mapping information in the core.
+
+It means it's the driver's charge to store the dma information via sg,
+so we can simply use dma_map_sg() in add_sgs() which allows various
+optimizations in IOMMU layers.
+
+>
+> So we pass the new argument 'premapped' to indicate the buffers
+> submitted to virtio are premapped in advance. Additionally,
+> DMA unmap operations for these buffers will be bypassed.
+>
+> Suggested-by: Jason Wang <jasowang@redhat.com>
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+
+Anyhow
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+Thanks
+
 > ---
->  drivers/virtio/virtio_ring.c | 112 ++++++++++++++++-------------------
->  1 file changed, 52 insertions(+), 60 deletions(-)
-
-Do we have a performance impact for this patch?
-
+>  drivers/virtio/virtio_ring.c | 79 ++++++++++++++++++------------------
+>  1 file changed, 40 insertions(+), 39 deletions(-)
 >
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 97590c201aa2..dca093744fe1 100644
+> index 628e01af1c9a..a89295b79e66 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
-> @@ -69,7 +69,11 @@
+> @@ -300,9 +300,10 @@ static bool vring_use_dma_api(const struct virtio_de=
+vice *vdev)
+>         return false;
+>  }
 >
->  struct vring_desc_state_split {
->         void *data;                     /* Data for callback. */
-> -       struct vring_desc *indir_desc;  /* Indirect descriptor, if any. *=
-/
-> +
-> +       /* Indirect extra table and desc table, if any. These two will be
-> +        * allocated together. So we won't stress more to the memory allo=
-cator.
-> +        */
-> +       struct vring_desc *indir_desc;
-
-So it looks like we put a descriptor table after the extra table. Can
-this lead to more crossing page mappings for the indirect descriptors?
-
-If yes, it seems expensive so we probably need to make the descriptor
-table come first.
-
->  };
->
->  struct vring_desc_state_packed {
-> @@ -440,38 +444,20 @@ static void virtqueue_init(struct vring_virtqueue *=
-vq, u32 num)
->   * Split ring specific functions - *_split().
->   */
->
-> -static void vring_unmap_one_split_indirect(const struct vring_virtqueue =
-*vq,
-> -                                          const struct vring_desc *desc)
-> -{
-> -       u16 flags;
-> -
-> -       if (!vring_need_unmap_buffer(vq))
-> -               return;
-> -
-> -       flags =3D virtio16_to_cpu(vq->vq.vdev, desc->flags);
-> -
-> -       dma_unmap_page(vring_dma_dev(vq),
-> -                      virtio64_to_cpu(vq->vq.vdev, desc->addr),
-> -                      virtio32_to_cpu(vq->vq.vdev, desc->len),
-> -                      (flags & VRING_DESC_F_WRITE) ?
-> -                      DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> -}
-> -
->  static unsigned int vring_unmap_one_split(const struct vring_virtqueue *=
-vq,
-> -                                         unsigned int i)
-> +                                         struct vring_desc_extra *extra)
+> -static bool vring_need_unmap_buffer(const struct vring_virtqueue *vring)
+> +static bool vring_need_unmap_buffer(const struct vring_virtqueue *vring,
+> +                                   const struct vring_desc_extra *extra)
 >  {
-> -       struct vring_desc_extra *extra =3D vq->split.desc_extra;
->         u16 flags;
+> -       return vring->use_dma_api && !vring->premapped;
+> +       return vring->use_dma_api && (extra->addr !=3D DMA_MAPPING_ERROR)=
+;
+>  }
 >
-> -       flags =3D extra[i].flags;
-> +       flags =3D extra->flags;
+>  size_t virtio_max_dma_size(const struct virtio_device *vdev)
+> @@ -372,9 +373,10 @@ static struct device *vring_dma_dev(const struct vri=
+ng_virtqueue *vq)
 >
->         if (flags & VRING_DESC_F_INDIRECT) {
->                 if (!vq->use_dma_api)
->                         goto out;
->
->                 dma_unmap_single(vring_dma_dev(vq),
-> -                                extra[i].addr,
-> -                                extra[i].len,
-> +                                extra->addr,
-> +                                extra->len,
+>  /* Map one sg entry. */
+>  static int vring_map_one_sg(const struct vring_virtqueue *vq, struct sca=
+tterlist *sg,
+> -                           enum dma_data_direction direction, dma_addr_t=
+ *addr)
+> +                           enum dma_data_direction direction, dma_addr_t=
+ *addr,
+> +                           bool premapped)
+>  {
+> -       if (vq->premapped) {
+> +       if (premapped) {
+>                 *addr =3D sg_dma_address(sg);
+>                 return 0;
+>         }
+> @@ -465,7 +467,7 @@ static unsigned int vring_unmap_one_split(const struc=
+t vring_virtqueue *vq,
 >                                  (flags & VRING_DESC_F_WRITE) ?
 >                                  DMA_FROM_DEVICE : DMA_TO_DEVICE);
 >         } else {
-> @@ -479,22 +465,23 @@ static unsigned int vring_unmap_one_split(const str=
-uct vring_virtqueue *vq,
+> -               if (!vring_need_unmap_buffer(vq))
+> +               if (!vring_need_unmap_buffer(vq, extra))
 >                         goto out;
 >
 >                 dma_unmap_page(vring_dma_dev(vq),
-> -                              extra[i].addr,
-> -                              extra[i].len,
-> +                              extra->addr,
-> +                              extra->len,
->                                (flags & VRING_DESC_F_WRITE) ?
->                                DMA_FROM_DEVICE : DMA_TO_DEVICE);
->         }
->
->  out:
-> -       return extra[i].next;
-> +       return extra->next;
->  }
->
->  static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
->                                                unsigned int total_sg,
->                                                gfp_t gfp)
->  {
-> +       struct vring_desc_extra *extra;
->         struct vring_desc *desc;
-> -       unsigned int i;
-> +       unsigned int i, size;
->
->         /*
->          * We require lowmem mappings for the descriptors because
-> @@ -503,40 +490,41 @@ static struct vring_desc *alloc_indirect_split(stru=
-ct virtqueue *_vq,
->          */
->         gfp &=3D ~__GFP_HIGHMEM;
->
-> -       desc =3D kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
-> +       size =3D sizeof(*desc) * total_sg + sizeof(*extra) * total_sg;
-> +
-> +       desc =3D kmalloc(size, gfp);
->         if (!desc)
->                 return NULL;
->
-> +       extra =3D (struct vring_desc_extra *)&desc[total_sg];
-> +
->         for (i =3D 0; i < total_sg; i++)
-> -               desc[i].next =3D cpu_to_virtio16(_vq->vdev, i + 1);
-> +               extra[i].next =3D i + 1;
-> +
->         return desc;
->  }
->
->  static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq=
-,
->                                                     struct vring_desc *de=
-sc,
-> +                                                   struct vring_desc_ext=
-ra *extra,
+> @@ -514,7 +516,7 @@ static inline unsigned int virtqueue_add_desc_split(s=
+truct virtqueue *vq,
 >                                                     unsigned int i,
 >                                                     dma_addr_t addr,
 >                                                     unsigned int len,
-> -                                                   u16 flags,
-> -                                                   bool indirect)
-> +                                                   u16 flags)
+> -                                                   u16 flags)
+> +                                                   u16 flags, bool prema=
+pped)
 >  {
-> -       struct vring_virtqueue *vring =3D to_vvq(vq);
-> -       struct vring_desc_extra *extra =3D vring->split.desc_extra;
 >         u16 next;
 >
->         desc[i].flags =3D cpu_to_virtio16(vq->vdev, flags);
+> @@ -522,7 +524,7 @@ static inline unsigned int virtqueue_add_desc_split(s=
+truct virtqueue *vq,
 >         desc[i].addr =3D cpu_to_virtio64(vq->vdev, addr);
 >         desc[i].len =3D cpu_to_virtio32(vq->vdev, len);
 >
-> -       if (!indirect) {
-> -               next =3D extra[i].next;
-> -               desc[i].next =3D cpu_to_virtio16(vq->vdev, next);
-> +       extra[i].addr =3D addr;
-> +       extra[i].len =3D len;
-> +       extra[i].flags =3D flags;
-> +
-> +       next =3D extra[i].next;
+> -       extra[i].addr =3D addr;
+> +       extra[i].addr =3D premapped ? DMA_MAPPING_ERROR : addr;
+>         extra[i].len =3D len;
+>         extra[i].flags =3D flags;
 >
-> -               extra[i].addr =3D addr;
-> -               extra[i].len =3D len;
-> -               extra[i].flags =3D flags;
-> -       } else
-> -               next =3D virtio16_to_cpu(vq->vdev, desc[i].next);
-> +       desc[i].next =3D cpu_to_virtio16(vq->vdev, next);
->
->         return next;
->  }
-> @@ -551,6 +539,7 @@ static inline int virtqueue_add_split(struct virtqueu=
+> @@ -540,6 +542,7 @@ static inline int virtqueue_add_split(struct virtqueu=
 e *_vq,
+>                                       unsigned int in_sgs,
+>                                       void *data,
+>                                       void *ctx,
+> +                                     bool premapped,
 >                                       gfp_t gfp)
 >  {
 >         struct vring_virtqueue *vq =3D to_vvq(_vq);
-> +       struct vring_desc_extra *extra;
->         struct scatterlist *sg;
->         struct vring_desc *desc;
->         unsigned int i, n, avail, descs_used, prev, err_idx;
-> @@ -586,9 +575,11 @@ static inline int virtqueue_add_split(struct virtque=
-ue *_vq,
->                 /* Set up rest to use this indirect table. */
->                 i =3D 0;
->                 descs_used =3D 1;
-> +               extra =3D (struct vring_desc_extra *)&desc[total_sg];
->         } else {
->                 indirect =3D false;
->                 desc =3D vq->split.vring.desc;
-> +               extra =3D vq->split.desc_extra;
->                 i =3D head;
->                 descs_used =3D total_sg;
->         }
-> @@ -618,9 +609,8 @@ static inline int virtqueue_add_split(struct virtqueu=
+> @@ -606,7 +609,7 @@ static inline int virtqueue_add_split(struct virtqueu=
 e *_vq,
->                         /* Note that we trust indirect descriptor
+>                 for (sg =3D sgs[n]; sg; sg =3D sg_next(sg)) {
+>                         dma_addr_t addr;
+>
+> -                       if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr=
+))
+> +                       if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr=
+, premapped))
+>                                 goto unmap_release;
+>
+>                         prev =3D i;
+> @@ -614,14 +617,15 @@ static inline int virtqueue_add_split(struct virtqu=
+eue *_vq,
 >                          * table since it use stream DMA mapping.
 >                          */
-> -                       i =3D virtqueue_add_desc_split(_vq, desc, i, addr=
-, sg->length,
-> -                                                    VRING_DESC_F_NEXT,
-> -                                                    indirect);
-> +                       i =3D virtqueue_add_desc_split(_vq, desc, extra, =
+>                         i =3D virtqueue_add_desc_split(_vq, desc, extra, =
 i, addr, sg->length,
-> +                                                    VRING_DESC_F_NEXT);
+> -                                                    VRING_DESC_F_NEXT);
+> +                                                    VRING_DESC_F_NEXT,
+> +                                                    premapped);
 >                 }
 >         }
 >         for (; n < (out_sgs + in_sgs); n++) {
-> @@ -634,11 +624,10 @@ static inline int virtqueue_add_split(struct virtqu=
+>                 for (sg =3D sgs[n]; sg; sg =3D sg_next(sg)) {
+>                         dma_addr_t addr;
+>
+> -                       if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &ad=
+dr))
+> +                       if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &ad=
+dr, premapped))
+>                                 goto unmap_release;
+>
+>                         prev =3D i;
+> @@ -631,12 +635,13 @@ static inline int virtqueue_add_split(struct virtqu=
 eue *_vq,
->                         /* Note that we trust indirect descriptor
->                          * table since it use stream DMA mapping.
->                          */
-> -                       i =3D virtqueue_add_desc_split(_vq, desc, i, addr=
-,
-> +                       i =3D virtqueue_add_desc_split(_vq, desc, extra, =
+>                         i =3D virtqueue_add_desc_split(_vq, desc, extra, =
 i, addr,
 >                                                      sg->length,
 >                                                      VRING_DESC_F_NEXT |
-> -                                                    VRING_DESC_F_WRITE,
-> -                                                    indirect);
-> +                                                    VRING_DESC_F_WRITE);
+> -                                                    VRING_DESC_F_WRITE);
+> +                                                    VRING_DESC_F_WRITE,
+> +                                                    premapped);
 >                 }
 >         }
 >         /* Last one doesn't continue. */
-> @@ -660,10 +649,10 @@ static inline int virtqueue_add_split(struct virtqu=
+>         desc[prev].flags &=3D cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NE=
+XT);
+> -       if (!indirect && vring_need_unmap_buffer(vq))
+> +       if (!indirect && vring_need_unmap_buffer(vq, &extra[prev]))
+>                 vq->split.desc_extra[prev & (vq->split.vring.num - 1)].fl=
+ags &=3D
+>                         ~VRING_DESC_F_NEXT;
+>
+> @@ -645,18 +650,14 @@ static inline int virtqueue_add_split(struct virtqu=
 eue *_vq,
->                 }
+>                 dma_addr_t addr =3D vring_map_single(
+>                         vq, desc, total_sg * sizeof(struct vring_desc),
+>                         DMA_TO_DEVICE);
+> -               if (vring_mapping_error(vq, addr)) {
+> -                       if (vq->premapped)
+> -                               goto free_indirect;
+> -
+> +               if (vring_mapping_error(vq, addr))
+>                         goto unmap_release;
+> -               }
 >
 >                 virtqueue_add_desc_split(_vq, vq->split.vring.desc,
-> +                                        vq->split.desc_extra,
+>                                          vq->split.desc_extra,
 >                                          head, addr,
 >                                          total_sg * sizeof(struct vring_d=
 esc),
-> -                                        VRING_DESC_F_INDIRECT,
-> -                                        false);
-> +                                        VRING_DESC_F_INDIRECT);
+> -                                        VRING_DESC_F_INDIRECT);
+> +                                        VRING_DESC_F_INDIRECT, false);
 >         }
 >
 >         /* We're using some buffers from the free list. */
-> @@ -716,11 +705,8 @@ static inline int virtqueue_add_split(struct virtque=
-ue *_vq,
->         for (n =3D 0; n < total_sg; n++) {
->                 if (i =3D=3D err_idx)
->                         break;
-> -               if (indirect) {
-> -                       vring_unmap_one_split_indirect(vq, &desc[i]);
-> -                       i =3D virtio16_to_cpu(_vq->vdev, desc[i].next);
-> -               } else
-> -                       i =3D vring_unmap_one_split(vq, i);
-> +
-> +               i =3D vring_unmap_one_split(vq, &extra[i]);
+> @@ -713,7 +714,6 @@ static inline int virtqueue_add_split(struct virtqueu=
+e *_vq,
+>                 i =3D vring_unmap_one_split(vq, &extra[i]);
 >         }
 >
->  free_indirect:
-> @@ -765,22 +751,25 @@ static bool virtqueue_kick_prepare_split(struct vir=
-tqueue *_vq)
->  static void detach_buf_split(struct vring_virtqueue *vq, unsigned int he=
-ad,
->                              void **ctx)
->  {
-> +       struct vring_desc_extra *extra;
->         unsigned int i, j;
->         __virtio16 nextflag =3D cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F=
-_NEXT);
+> -free_indirect:
+>         if (indirect)
+>                 kfree(desc);
 >
->         /* Clear data ptr. */
->         vq->split.desc_state[head].data =3D NULL;
+> @@ -798,7 +798,7 @@ static void detach_buf_split(struct vring_virtqueue *=
+vq, unsigned int head,
 >
-> +       extra =3D vq->split.desc_extra;
-> +
->         /* Put back on free list: unmap first-level descriptors and find =
-end */
->         i =3D head;
+>                 extra =3D (struct vring_desc_extra *)&indir_desc[num];
 >
->         while (vq->split.vring.desc[i].flags & nextflag) {
-> -               vring_unmap_one_split(vq, i);
-> +               vring_unmap_one_split(vq, &extra[i]);
-
-Not sure if I've asked this before. But this part seems to deserve an
-independent fix for -stable.
-
->                 i =3D vq->split.desc_extra[i].next;
->                 vq->vq.num_free++;
->         }
->
-> -       vring_unmap_one_split(vq, i);
-> +       vring_unmap_one_split(vq, &extra[i]);
->         vq->split.desc_extra[i].next =3D vq->free_head;
->         vq->free_head =3D head;
->
-> @@ -790,21 +779,24 @@ static void detach_buf_split(struct vring_virtqueue=
- *vq, unsigned int head,
->         if (vq->indirect) {
->                 struct vring_desc *indir_desc =3D
->                                 vq->split.desc_state[head].indir_desc;
-> -               u32 len;
-> +               u32 len, num;
->
->                 /* Free the indirect table, if any, now that it's unmappe=
-d. */
->                 if (!indir_desc)
->                         return;
-> -
->                 len =3D vq->split.desc_extra[head].len;
->
->                 BUG_ON(!(vq->split.desc_extra[head].flags &
->                                 VRING_DESC_F_INDIRECT));
->                 BUG_ON(len =3D=3D 0 || len % sizeof(struct vring_desc));
->
-> +               num =3D len / sizeof(struct vring_desc);
-> +
-> +               extra =3D (struct vring_desc_extra *)&indir_desc[num];
-> +
->                 if (vring_need_unmap_buffer(vq)) {
-> -                       for (j =3D 0; j < len / sizeof(struct vring_desc)=
-; j++)
-> -                               vring_unmap_one_split_indirect(vq, &indir=
-_desc[j]);
-> +                       for (j =3D 0; j < num; j++)
-> +                               vring_unmap_one_split(vq, &extra[j]);
+> -               if (vring_need_unmap_buffer(vq)) {
+> +               if (vq->use_dma_api) {
+>                         for (j =3D 0; j < num; j++)
+>                                 vring_unmap_one_split(vq, &extra[j]);
 >                 }
+> @@ -1232,7 +1232,7 @@ static void vring_unmap_extra_packed(const struct v=
+ring_virtqueue *vq,
+>                                  (flags & VRING_DESC_F_WRITE) ?
+>                                  DMA_FROM_DEVICE : DMA_TO_DEVICE);
+>         } else {
+> -               if (!vring_need_unmap_buffer(vq))
+> +               if (!vring_need_unmap_buffer(vq, extra))
+>                         return;
 >
->                 kfree(indir_desc);
+>                 dma_unmap_page(vring_dma_dev(vq),
+> @@ -1276,6 +1276,7 @@ static int virtqueue_add_indirect_packed(struct vri=
+ng_virtqueue *vq,
+>                                          unsigned int out_sgs,
+>                                          unsigned int in_sgs,
+>                                          void *data,
+> +                                        bool premapped,
+>                                          gfp_t gfp)
+>  {
+>         struct vring_desc_extra *extra;
+> @@ -1306,7 +1307,8 @@ static int virtqueue_add_indirect_packed(struct vri=
+ng_virtqueue *vq,
+>         for (n =3D 0; n < out_sgs + in_sgs; n++) {
+>                 for (sg =3D sgs[n]; sg; sg =3D sg_next(sg)) {
+>                         if (vring_map_one_sg(vq, sg, n < out_sgs ?
+> -                                            DMA_TO_DEVICE : DMA_FROM_DEV=
+ICE, &addr))
+> +                                            DMA_TO_DEVICE : DMA_FROM_DEV=
+ICE,
+> +                                            &addr, premapped))
+>                                 goto unmap_release;
+>
+>                         desc[i].flags =3D cpu_to_le16(n < out_sgs ?
+> @@ -1315,7 +1317,7 @@ static int virtqueue_add_indirect_packed(struct vri=
+ng_virtqueue *vq,
+>                         desc[i].len =3D cpu_to_le32(sg->length);
+>
+>                         if (unlikely(vq->use_dma_api)) {
+> -                               extra[i].addr =3D addr;
+> +                               extra[i].addr =3D premapped ? DMA_MAPPING=
+_ERROR : addr;
+>                                 extra[i].len =3D sg->length;
+>                                 extra[i].flags =3D n < out_sgs ?  0 : VRI=
+NG_DESC_F_WRITE;
+>                         }
+> @@ -1328,12 +1330,8 @@ static int virtqueue_add_indirect_packed(struct vr=
+ing_virtqueue *vq,
+>         addr =3D vring_map_single(vq, desc,
+>                         total_sg * sizeof(struct vring_packed_desc),
+>                         DMA_TO_DEVICE);
+> -       if (vring_mapping_error(vq, addr)) {
+> -               if (vq->premapped)
+> -                       goto free_desc;
+> -
+> +       if (vring_mapping_error(vq, addr))
+>                 goto unmap_release;
+> -       }
+>
+>         vq->packed.vring.desc[head].addr =3D cpu_to_le64(addr);
+>         vq->packed.vring.desc[head].len =3D cpu_to_le32(total_sg *
+> @@ -1391,7 +1389,6 @@ static int virtqueue_add_indirect_packed(struct vri=
+ng_virtqueue *vq,
+>         for (i =3D 0; i < err_idx; i++)
+>                 vring_unmap_extra_packed(vq, &extra[i]);
+>
+> -free_desc:
+>         kfree(desc);
+>
+>         END_USE(vq);
+> @@ -1405,6 +1402,7 @@ static inline int virtqueue_add_packed(struct virtq=
+ueue *_vq,
+>                                        unsigned int in_sgs,
+>                                        void *data,
+>                                        void *ctx,
+> +                                      bool premapped,
+>                                        gfp_t gfp)
+>  {
+>         struct vring_virtqueue *vq =3D to_vvq(_vq);
+> @@ -1431,7 +1429,7 @@ static inline int virtqueue_add_packed(struct virtq=
+ueue *_vq,
+>
+>         if (virtqueue_use_indirect(vq, total_sg)) {
+>                 err =3D virtqueue_add_indirect_packed(vq, sgs, total_sg, =
+out_sgs,
+> -                                                   in_sgs, data, gfp);
+> +                                                   in_sgs, data, premapp=
+ed, gfp);
+>                 if (err !=3D -ENOMEM) {
+>                         END_USE(vq);
+>                         return err;
+> @@ -1466,7 +1464,8 @@ static inline int virtqueue_add_packed(struct virtq=
+ueue *_vq,
+>                         dma_addr_t addr;
+>
+>                         if (vring_map_one_sg(vq, sg, n < out_sgs ?
+> -                                            DMA_TO_DEVICE : DMA_FROM_DEV=
+ICE, &addr))
+> +                                            DMA_TO_DEVICE : DMA_FROM_DEV=
+ICE,
+> +                                            &addr, premapped))
+>                                 goto unmap_release;
+>
+>                         flags =3D cpu_to_le16(vq->packed.avail_used_flags=
+ |
+> @@ -1482,7 +1481,8 @@ static inline int virtqueue_add_packed(struct virtq=
+ueue *_vq,
+>                         desc[i].id =3D cpu_to_le16(id);
+>
+>                         if (unlikely(vq->use_dma_api)) {
+> -                               vq->packed.desc_extra[curr].addr =3D addr=
+;
+> +                               vq->packed.desc_extra[curr].addr =3D prem=
+apped ?
+> +                                       DMA_MAPPING_ERROR : addr;
+>                                 vq->packed.desc_extra[curr].len =3D sg->l=
+ength;
+>                                 vq->packed.desc_extra[curr].flags =3D
+>                                         le16_to_cpu(flags);
+> @@ -1633,7 +1633,7 @@ static void detach_buf_packed(struct vring_virtqueu=
+e *vq,
+>                 if (!desc)
+>                         return;
+>
+> -               if (vring_need_unmap_buffer(vq)) {
+> +               if (vq->use_dma_api) {
+>                         len =3D vq->packed.desc_extra[id].len;
+>                         num =3D len / sizeof(struct vring_packed_desc);
+>
+> @@ -2204,14 +2204,15 @@ static inline int virtqueue_add(struct virtqueue =
+*_vq,
+>                                 unsigned int in_sgs,
+>                                 void *data,
+>                                 void *ctx,
+> +                               bool premapped,
+>                                 gfp_t gfp)
+>  {
+>         struct vring_virtqueue *vq =3D to_vvq(_vq);
+>
+>         return vq->packed_ring ? virtqueue_add_packed(_vq, sgs, total_sg,
+> -                                       out_sgs, in_sgs, data, ctx, gfp) =
+:
+> +                                       out_sgs, in_sgs, data, ctx, prema=
+pped, gfp) :
+>                                  virtqueue_add_split(_vq, sgs, total_sg,
+> -                                       out_sgs, in_sgs, data, ctx, gfp);
+> +                                       out_sgs, in_sgs, data, ctx, prema=
+pped, gfp);
+>  }
+>
+>  /**
+> @@ -2245,7 +2246,7 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
+>                         total_sg++;
+>         }
+>         return virtqueue_add(_vq, sgs, total_sg, out_sgs, in_sgs,
+> -                            data, NULL, gfp);
+> +                            data, NULL, false, gfp);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+>
+> @@ -2267,7 +2268,7 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+>                          void *data,
+>                          gfp_t gfp)
+>  {
+> -       return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, gfp);
+> +       return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, false, gfp);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
+>
+> @@ -2289,7 +2290,7 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
+>                         void *data,
+>                         gfp_t gfp)
+>  {
+> -       return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, gfp);
+> +       return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, false, gfp);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
+>
+> @@ -2313,7 +2314,7 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+>                         void *ctx,
+>                         gfp_t gfp)
+>  {
+> -       return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, gfp);
+> +       return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, false, gfp);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
+>
 > --
 > 2.32.0.3.g01195cf9f
 >
-
-Thanks
 
