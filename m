@@ -1,205 +1,197 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2060.outbound.protection.outlook.com [40.107.223.60])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 056791E3796
-	for <virtualization@lists.linux.dev>; Tue,  5 Nov 2024 19:00:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.60
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730833240; cv=fail; b=b/+EGN4kCSlX1V3ivTE0v28JfbgrE1v39kr2WMatzPhYkGjq22z12/u8WcyahFBRjtLURiN48Dh0y6I3pgLdRlPwrOCkJSLh83+HrZjLT6J0DyIiNZJ+DoMUgFrmCGzXJ8W6nUiR4VIGqrRpN+11Qmdddhelfl+JKaJGxH+HiT4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730833240; c=relaxed/simple;
-	bh=Iod7SAk2fij3+keJyoA5wz3oyN5fJ2B42h4AelaFy3I=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=cIzqFYoPxe+n/gewLndPEKie04rg5YMfC+NJfyWkxwo5HhdYzetLauppxhSCxRl/m3B+BqNlQYXOOb/LRpdiWqd14HyRvAkFpI4Q2alr0pQxnr3skAqcPf0aCI7RLgsdgoxWJtaP/1MpkKan7hrnQhDDx58fzr2IbTNdZIU3F9k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=MLpsyJvu; arc=fail smtp.client-ip=40.107.223.60
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F481E766B
+	for <virtualization@lists.linux.dev>; Tue,  5 Nov 2024 20:27:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.180
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730838461; cv=none; b=UP92bEuYm3+Gkd7FHl4BK7L3PcmnR+4Y7jhAN59gXromiwdpf3SYd9s3NoF6qMPtikZtCNQCCZ1/Tc8S716Ugimn7hWljOjO2lM56bZNB/g9vc/Awu3mQDufFAG3xc8P08wj0tEJXLq54TZraOfeRFx8XzHl6uLX1uqFjWYnAGY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730838461; c=relaxed/simple;
+	bh=wUm3UIy+tb9KchoMWqBJeP61zH4wo25cypLXsNzjioI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=buo9NBsBInsvtD09rCsrNPnOrBHU+1x/PUGcXF6N/dvhCk52T8ezJYPAC0cyNGMyd853nfrHIMYNilHNC1c53IsQMHc8LySW5ek0QGz+ILgkpM74evcGUxFw6T6fCYOBq2q1O/h4p8zj1Q2qlVx4NmodP+f7wjkB3E10YPkJHSI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=PSeUiart; arc=none smtp.client-ip=209.85.167.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="MLpsyJvu"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=JEamoX3q6lobo0XbGHmNUtL+8nmtXX4cVuZhhcs6KbutU9SmoKM/LxPi1av7245hAFMP/3g7Xg/6bvD7rpAUkfEr4IP5UXzg9cf5btfZwDI/lnnrygBczSn3DWR6Z6PfOw5hwyXNDi7YrRFVJ4bd5WG9A4/KPdPzPyrST8AvjILaWYXidBzkjoy9eZDOIfUMU0qloLWUHAzU7LP5K9sYdT3D0voM6fB8DDll+20idvfvnv81Z1Ee78fGeGhdVvy9PeVrGkXslBs60UJ9nxcolPCr7mTI59ofY/6hruE8m5DdVyhIw4jJdnEcy8GOCCqf7vPPTKeJb7vOrhrs/Emh6A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=djdq4NdTsKSRS4oFCVzW8f8APlpMvKJcI5tEcczu790=;
- b=Df9ImDXQDicijtrF+INuQQCM6aTx7Ht4QXe49JuAConsMPXvlTtUJztTpZS/J0ESSwQWpcKIUsyZlth+knHovVOgRT18U+jpb/1YuSnT3HNoFsFUX2TV6cInL85ZJsqrO5lr/Hk1LfLmwyFn8jfMRzV6C8Z1wG+YMwsk0zGm6HmXrVtDbE42tdA7SrJSfmYaKk/oWqx4txrItQg0cFv8LnvLxOS4Vxr6QYSeA7oJd5PRSpJHC0yaWfHKWGbDY8Fpk9MPR26C+XSzvCpfSlrbLQk2iqpbgYglDMnzSYkmaU5Q65Rwc1wTaNAgeN6d7sNJPevwlbVwbzJ4Dqm7LIf82w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=djdq4NdTsKSRS4oFCVzW8f8APlpMvKJcI5tEcczu790=;
- b=MLpsyJvuF0Y+8Yc4+SNiaIYb4mu5LypCPm1p+Je1yQ9GzU4zVjQsIjMqvarH5zPk2bnMw4ljrP2qdU+4HUZfMUiQG5q/AIM5ooZteExDBzmsrIzfNvGRQobjVjKPvpgGfMK9xtZAcSG1tw44Gj+8FFXHYP1bFlMMp2Wo0uFIiJtbDul6XeeUT/AURr3RCK9FtLDmCDU7idnRGJKHhI5IJ7PglnHPeme1BLSZbOcg8SCefPDrU1lnUAZkT8M+bBv+3640xsx0uwqIEL4Chzj53kJtMGUg3LdaVnD/H41kA9zdhw3xowu3Ny0MQDn2hnD6oH2eep1XWKoI5yGbiWnADA==
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by IA0PR12MB7750.namprd12.prod.outlook.com (2603:10b6:208:431::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Tue, 5 Nov
- 2024 19:00:23 +0000
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::c06c:905a:63f8:9cd]) by CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::c06c:905a:63f8:9cd%6]) with mapi id 15.20.8114.028; Tue, 5 Nov 2024
- 19:00:23 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Xiaoguang Wang <lege.wang@jaguarmicro.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-CC: "stable@vger.kernel.org" <stable@vger.kernel.org>, "mst@redhat.com"
-	<mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>, Angus Chen
-	<angus.chen@jaguarmicro.com>
-Subject: RE: [PATCH V3] vp_vdpa: fix id_table array not null terminated error
-Thread-Topic: [PATCH V3] vp_vdpa: fix id_table array not null terminated error
-Thread-Index: AQHbL4eetjckcoZtvEOa+Ump8W7i9rKpCsYw
-Date: Tue, 5 Nov 2024 19:00:23 +0000
-Message-ID:
- <CY8PR12MB719589DF823E26B3C7797E43DC522@CY8PR12MB7195.namprd12.prod.outlook.com>
-References: <20241105133518.1494-1-lege.wang@jaguarmicro.com>
-In-Reply-To: <20241105133518.1494-1-lege.wang@jaguarmicro.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|IA0PR12MB7750:EE_
-x-ms-office365-filtering-correlation-id: 9c7ceed5-e8ee-4fe5-129f-08dcfdcc1a3a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|376014|1800799024|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?zLcwljZL4jbkw2VnlB1VU4oDaJmCM6dUBB9B+2hqu5zR3a2OTVvU/BuD5oDY?=
- =?us-ascii?Q?qOxOWCC6r0QYJGYW4SW0VMRP+Ltpr69sc7eUH4s3tO8cZKyK4GQyO8tqIVfU?=
- =?us-ascii?Q?iOkXEYXyUGiGRxh7hXNQLBmC8BDusrsWndRaUwISoICtyuuUQoA8CZQ9bsXS?=
- =?us-ascii?Q?7k5LQstakLzmaClJfXhvbmzjsw76sm6OYFTO5Si9x5KW7y9RvNp4Fg9Lw9JA?=
- =?us-ascii?Q?fo8yP3NszCyR1bAV8NyxewlPgoFqbiyQRzz7xu8XP0WgOvaF0qOR1hqJx2iM?=
- =?us-ascii?Q?p5KMAKKvr3BoX81qXr6xNPTZQvtMvm6+hOdrAGMbKMwrwk7iMp47dSFvY9ob?=
- =?us-ascii?Q?LSuwo/hj1fLV2xmUWEEyEH2gL5dLnTDSlp+QlDZ4CB91m8YFH3cKng46UOid?=
- =?us-ascii?Q?O0tjBYgoWN2ICvhvYXD6KyGfsFI6uxh+6znLTQqcbcHBuIz7V7f301Ipi7qi?=
- =?us-ascii?Q?nFq6v52deSSIH5jPFNtv/ytlfZFz6ehN/K7d3PXBt4Rm/ma6u00sEkzjcPI2?=
- =?us-ascii?Q?e7QNK95xiWDmwwQ7ZxcNeuOOqYdQAWq4/mTKdGhHrTcHWdpI46RRgGaW3RWs?=
- =?us-ascii?Q?8TsSOqscKiNLaLhaQHjSDF8vjHPRRvTwJgm6/yXpSWaXN+fX54SzunsnS5AY?=
- =?us-ascii?Q?1XwqD8698YmFix8Duc8HvcHY0AJsVwVba4EDmzVagEkRywsUmgnf0acm0enD?=
- =?us-ascii?Q?oTihCmZ5bU6uj6vB3dJmAR07+gQM84RC5ErXqx3iv2ALInru9IcdrHy280XU?=
- =?us-ascii?Q?X8Q4WImsLS//22By+NNXavbaNYcWmQrhhF3EPj30xoSLfsJ/WKYs5ldkv/Vq?=
- =?us-ascii?Q?r8LEVSz5t3p5gPxf6JXN5KptnHNcNug8PxPk1Sq/1ib5eRXKI3JmJku76NAu?=
- =?us-ascii?Q?oItueW9hqK3eWp2f0Uvm8rNccVMuha+AE+2WC40Ymm1Zn93h80Z3Z/xD5jLk?=
- =?us-ascii?Q?coMbyT4tlUcXftgTPttefyAoDIUYvCNxMyFO+KsrluHMJdtt1sEilnDVqdTO?=
- =?us-ascii?Q?uGXcS34UPCpKDswfQAAodin48QUv43bWg7GFbFOFcjeWPbUAiKp21zaDu9Pc?=
- =?us-ascii?Q?NH9xp1JV508J8i3dQXc2msn56NF1tDTvhg1kDxydPdqI39UfLdZAnuSkJ2Es?=
- =?us-ascii?Q?R/5X6g6R8+VyXx5TSDKijANrLNSjcuX8/QkHhKAnz/JdVbNEZfkDJE7Ug2mP?=
- =?us-ascii?Q?0ucQV9Vh9vaDpphbAvuaudxA63jQ6+A8MuC5T4suUKjQtkh/niPtfUm+HfFq?=
- =?us-ascii?Q?FKy7SEHzKPkHzSuJsWsU0dKBQ3qxPberSV/ETbkufYACSKH/4UeASsDpBFwi?=
- =?us-ascii?Q?UDDmDsK+vW7lBYp4UyNT+A9X1G00BzAqG7Y0aa2ihTM3ckKyOyotxa6SJSc0?=
- =?us-ascii?Q?LpFZfg4=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?5pXBTgDHQzeT6IkUIf3Rl7xX0/iIzt0hJOnJvKOtzWAxWbbphhEW3DITeBE/?=
- =?us-ascii?Q?T5WRjmYMDcYzoQT79wjUIKD5bLS5zAuD5aQg9hGzB8wf7YIichxocz8WCUx4?=
- =?us-ascii?Q?MKLcqIKICnGii//hNG2xDdh3Vd1sSibYcedu45SHZVfrOxfK1kSs8/b7RF+H?=
- =?us-ascii?Q?G0rCuL4pMLFigjGvvbwWZxrbzvCKIGRgEgPZvoUw9wfm64rfdTZ9FYSst29P?=
- =?us-ascii?Q?RYedjyCBcCNrixLPL3R0F66tCLz10JaJZq+Yqu44Zf3glXjDvg+FGtlciB6J?=
- =?us-ascii?Q?u77DCJBs/NrFAMJ0IfUHraqe4vCGgGqzPXHUyvc4Ua7Vze5QOEf1LGF1Go2n?=
- =?us-ascii?Q?WAIcWJqamdCpLZMQh637QdDQe+wyoVV5GZmixorZe+3OpU0PVZpOorCP/SFr?=
- =?us-ascii?Q?oIcoxTY5PJq2PxWtfMUSLsr5EV51aDVOC0fx07UCYLAVz8PH7uqcuU61tGE3?=
- =?us-ascii?Q?yEFQcuGQfZ31AbnfjwaHtRY/AmWOtaboJDdqibpryO+3d6tOYZQSSn5KZlkd?=
- =?us-ascii?Q?3owMn5rKSeHxsyg4ozZTsNsR5oSk7PLYOdoD76fF5VXc9K6yr75ti+0qJF3Y?=
- =?us-ascii?Q?CDqGifAt8pQUxu6WKPGxPZZep9xKX9KMM2uoXaK+koysFRXLYda+bOGXsSRU?=
- =?us-ascii?Q?GGQ/8kTqhQHWCqvoUXukeM1TTof64coSXLSzMvAwy5lEs/i5zvWftyiBQvSO?=
- =?us-ascii?Q?jHgl3mYI76JVMeGcVqUcnUXdfpaqlJYumaplOSvDu434CE8FBPsvPx7phyHd?=
- =?us-ascii?Q?ZpF3bFo0oE4yVsRyVRuv6raKAdK0wa0x9GoDicgLaL9BojPTOH24+4deGzc4?=
- =?us-ascii?Q?bTETDLXrIjveOEdGmIAXpYH0MRK8TGjc6Q5vzmiVov5spkBp+AyVVvnHqaD/?=
- =?us-ascii?Q?h8+a/S8GhxTwXOGDHz7+Pwr8wG4thAMBqmWGsZbWNZniNOyZbp7O6VsCYum7?=
- =?us-ascii?Q?ITf8Xwi82OyYi/E7vtdZ/Xk7Cm2L8sq6euYDg4pXRonQkca4mIBWHo0uq6zy?=
- =?us-ascii?Q?tHBI4l8rPfwqIla1VmYAdVXfYeZDvtW/WW3VBuEzvU8SyFp4BfekXikiR1Bp?=
- =?us-ascii?Q?YFiJZDsbod+bjOxwhgMxQws+aEQzgCFvUucS8XxT5EbYwyw+gEgKSxzgXEzK?=
- =?us-ascii?Q?1zyhx3zIH4T03d0KVg+FVjLyvFpJ5ky4DhwdO+G2Oqyc503eQq8oxrg8xey7?=
- =?us-ascii?Q?Di85fwPjUiotXFthUtPDgTRhaI6ekOaxcbjI6ZYV6Es/s1GMJIJu5dMPbnn8?=
- =?us-ascii?Q?J5USifLBz2v2hpVdqsqiA6aKzwpMwSzRBEuzIxBOzqP8hEQwP48JoAU9vLkd?=
- =?us-ascii?Q?5Q2/Jp5/TQbNsmULQidpX46yoY6nQ6jCADncjF6SzeujSKsiX+B+do9xVeNs?=
- =?us-ascii?Q?9HNt7W7ydYMNzBr1nIpUi3c+WHHUrNlOr3Ooi2z584+7rpQyksRHyy4iBsAv?=
- =?us-ascii?Q?hdCQo693kpu9+zDI8rYGm7bcTUNVOxRFn8C3UjPPHvmgxYJqSr1MTDKM61dQ?=
- =?us-ascii?Q?CcXsvZGQvivXN7eiyaV9deu4yKmpNPwn1OTAnha5dqrMMqJOd6KWEWx2nX0G?=
- =?us-ascii?Q?AGQbaNf4Z3Kc+0MCL7E=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="PSeUiart"
+Received: by mail-oi1-f180.google.com with SMTP id 5614622812f47-3e60e57a322so3319430b6e.3
+        for <virtualization@lists.linux.dev>; Tue, 05 Nov 2024 12:27:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1730838458; x=1731443258; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ORlEvUldMxLouCU0sT2UvkB9s0hh4uW8+652o/l7m7A=;
+        b=PSeUiartSA0Rq66tK/syXKN0wGPvgoTxQNqQF1Jpu2k2PtEtnMNslMSBkznOvJP+qD
+         +xjKc0zvqMq4UcK0YBWMQsqnPk9RiogOawsZoQj7olBXNKb3M/E3rifTRbxk7WdWkqUQ
+         N6ptJQoiWOqLN8jC7vnIEDNgeqoS9VzBFUWL0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730838458; x=1731443258;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ORlEvUldMxLouCU0sT2UvkB9s0hh4uW8+652o/l7m7A=;
+        b=s3Byhe9fTiQbWAWvykGJ2TgV+DZ0YbhMGOYNhYDyxsRKthV67Qb0yAj6/c8aTfrgEa
+         9VfkGmLlVmPGNUTF7NZqTVstXcRvzD07S4r1dZEVz77GN5T8IiUgjUzXv6JSXdtyFJjd
+         JdqNm5JnGrCd0UoauqSTcQZftyrWpHZsDXxoU99Axe0+xLeZMdrh/aygKI1RJ+oiBOqi
+         F3d0Jk9LF4EiMksop3b9uqoyLuofWR5YmzNYflUHrNOPj6Ep2r88Wbn7Dbw6KZpImQpj
+         Li9qLoot9P6MqArY30FKdLln8xzg8eN2EcrFEj7foIfXft8NZt0isf+Zt1q42bOBz5VK
+         qUrQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUo8/DKDgLPl7P7HfdPS91/FQlhRgW5sOVUORWG7q7PQHd2Sw9mFyzUxJ+aX57TvlxJ//NT1blgYtbeAB/FPQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwztW9FIImOXYPNUBnt9j21W4rY0hh4m6UZTPP5ZjPsNmRQ/8WX
+	khhasF750VLNy4iC9EQ67GdQxKmoIVJBl1l6MSXWce9wjtRUdJ9T07KfYvW4foE=
+X-Google-Smtp-Source: AGHT+IEShTsCyJSAvD86FXXBmKQCs3d6LZCjo1Br7OeDr2YgRig+JvDpF4Rs+05Ny+7E45Wr4rrU9w==
+X-Received: by 2002:a05:6808:2385:b0:3e3:c446:e5ef with SMTP id 5614622812f47-3e6384c4e2cmr34149241b6e.37.1730838458685;
+        Tue, 05 Nov 2024 12:27:38 -0800 (PST)
+Received: from LQ3V64L9R2 (c-24-6-151-244.hsd1.ca.comcast.net. [24.6.151.244])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-7ee452ac4ffsm9444684a12.25.2024.11.05.12.27.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Nov 2024 12:27:38 -0800 (PST)
+Date: Tue, 5 Nov 2024 12:27:35 -0800
+From: Joe Damato <jdamato@fastly.com>
+To: Philo Lu <lulie@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, andrew@daynix.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net 1/4] virtio_net: Support dynamic rss indirection
+ table size
+Message-ID: <Zyp_t9MqleySQR3K@LQ3V64L9R2>
+Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
+	Philo Lu <lulie@linux.alibaba.com>, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	andrew@daynix.com, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+References: <20241104085706.13872-1-lulie@linux.alibaba.com>
+ <20241104085706.13872-2-lulie@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9c7ceed5-e8ee-4fe5-129f-08dcfdcc1a3a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Nov 2024 19:00:23.4904
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 43obir+AkQNDIXs0D9+27eRfLbMRh67lDqbRIJBYKB8k9bFVcmdid+RJRKKY0vK3+CRjTtgWkifDJUcwKz0sIA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7750
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241104085706.13872-2-lulie@linux.alibaba.com>
 
-
-
-> From: Xiaoguang Wang <lege.wang@jaguarmicro.com>
-> Sent: Tuesday, November 5, 2024 7:05 PM
->=20
-> Allocate one extra virtio_device_id as null terminator, otherwise
-> vdpa_mgmtdev_get_classes() may iterate multiple times and visit undefined
-> memory.
->=20
-> Fixes: ffbda8e9df10 ("vdpa/vp_vdpa : add vdpa tool support in vp_vdpa")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Parav Pandit <parav@nvidia.com>
-> Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-> Signed-off-by: Xiaoguang Wang <lege.wang@jaguarmicro.com>
+On Mon, Nov 04, 2024 at 04:57:03PM +0800, Philo Lu wrote:
+> When reading/writing virtio_net_ctrl_rss, we get the indirection table
+> size from vi->rss_indir_table_size, which is initialized in
+> virtnet_probe(). However, the actual size of indirection_table was set
+> as VIRTIO_NET_RSS_MAX_TABLE_LEN=128. This collision may cause issues if
+> the vi->rss_indir_table_size exceeds 128.
+> 
+> This patch instead uses dynamic indirection table, allocated with
+> vi->rss after vi->rss_indir_table_size initialized. And free it in
+> virtnet_remove().
+> 
+> In virtnet_commit_rss_command(), sgs for rss is initialized differently
+> with hash_report. So indirection_table is not used if !vi->has_rss, and
+> then we don't need to alloc indirection_table for hash_report only uses.
+> 
+> Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
+> Signed-off-by: Philo Lu <lulie@linux.alibaba.com>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > ---
-> V3:
->  Use array assignment style for mdev_id.
-> V2:
->   Use kcalloc() api.
-> ---
->  drivers/vdpa/virtio_pci/vp_vdpa.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> index ac4ab22f7d8b..16380764275e 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -612,7 +612,11 @@ static int vp_vdpa_probe(struct pci_dev *pdev,
-> const struct pci_device_id *id)
->  		goto mdev_err;
+>  drivers/net/virtio_net.c | 39 ++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 34 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 869586c17ffd..75c1ff4efd13 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -368,15 +368,16 @@ struct receive_queue {
+>   * because table sizes may be differ according to the device configuration.
+>   */
+>  #define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
+> -#define VIRTIO_NET_RSS_MAX_TABLE_LEN    128
+>  struct virtio_net_ctrl_rss {
+>  	u32 hash_types;
+>  	u16 indirection_table_mask;
+>  	u16 unclassified_queue;
+> -	u16 indirection_table[VIRTIO_NET_RSS_MAX_TABLE_LEN];
+> +	u16 hash_cfg_reserved; /* for HASH_CONFIG (see virtio_net_hash_config for details) */
+>  	u16 max_tx_vq;
+>  	u8 hash_key_length;
+>  	u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
+> +
+> +	u16 *indirection_table;
+>  };
+>  
+>  /* Control VQ buffers: protected by the rtnl lock */
+> @@ -512,6 +513,25 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
+>  					       struct page *page, void *buf,
+>  					       int len, int truesize);
+>  
+> +static int rss_indirection_table_alloc(struct virtio_net_ctrl_rss *rss, u16 indir_table_size)
+> +{
+> +	if (!indir_table_size) {
+> +		rss->indirection_table = NULL;
+> +		return 0;
+> +	}
+> +
+> +	rss->indirection_table = kmalloc_array(indir_table_size, sizeof(u16), GFP_KERNEL);
+> +	if (!rss->indirection_table)
+> +		return -ENOMEM;
+> +
+> +	return 0;
+> +}
+> +
+> +static void rss_indirection_table_free(struct virtio_net_ctrl_rss *rss)
+> +{
+> +	kfree(rss->indirection_table);
+> +}
+> +
+>  static bool is_xdp_frame(void *ptr)
+>  {
+>  	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> @@ -3828,11 +3848,15 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+>  	/* prepare sgs */
+>  	sg_init_table(sgs, 4);
+>  
+> -	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, indirection_table);
+> +	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, hash_cfg_reserved);
+>  	sg_set_buf(&sgs[0], &vi->rss, sg_buf_size);
+>  
+> -	sg_buf_size = sizeof(uint16_t) * (vi->rss.indirection_table_mask + 1);
+> -	sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
+> +	if (vi->has_rss) {
+> +		sg_buf_size = sizeof(uint16_t) * vi->rss_indir_table_size;
+> +		sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
+> +	} else {
+> +		sg_set_buf(&sgs[1], &vi->rss.hash_cfg_reserved, sizeof(uint16_t));
+> +	}
+>  
+>  	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, key)
+>  			- offsetof(struct virtio_net_ctrl_rss, max_tx_vq);
+> @@ -6420,6 +6444,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  			virtio_cread16(vdev, offsetof(struct virtio_net_config,
+>  				rss_max_indirection_table_length));
 >  	}
->=20
-> -	mdev_id =3D kzalloc(sizeof(struct virtio_device_id), GFP_KERNEL);
-> +	/*
-> +	 * id_table should be a null terminated array, so allocate one
-> additional
-> +	 * entry here, see vdpa_mgmtdev_get_classes().
-> +	 */
-> +	mdev_id =3D kcalloc(2, sizeof(struct virtio_device_id), GFP_KERNEL);
->  	if (!mdev_id) {
->  		err =3D -ENOMEM;
->  		goto mdev_id_err;
-> @@ -632,8 +636,8 @@ static int vp_vdpa_probe(struct pci_dev *pdev, const
-> struct pci_device_id *id)
->  		goto probe_err;
->  	}
->=20
-> -	mdev_id->device =3D mdev->id.device;
-> -	mdev_id->vendor =3D mdev->id.vendor;
-> +	mdev_id[0].device =3D mdev->id.device;
-> +	mdev_id[0].vendor =3D mdev->id.vendor;
->  	mgtdev->id_table =3D mdev_id;
->  	mgtdev->max_supported_vqs =3D
-> vp_modern_get_num_queues(mdev);
->  	mgtdev->supported_features =3D vp_modern_get_features(mdev);
-> --
-> 2.40.1
+> +	err = rss_indirection_table_alloc(&vi->rss, vi->rss_indir_table_size);
+> +	if (err)
+> +		goto free;
+>  
+>  	if (vi->has_rss || vi->has_rss_hash_report) {
+>  		vi->rss_key_size =
+> @@ -6674,6 +6701,8 @@ static void virtnet_remove(struct virtio_device *vdev)
+>  
+>  	remove_vq_common(vi);
+>  
+> +	rss_indirection_table_free(&vi->rss);
+> +
+>  	free_netdev(vi->dev);
+>  }
+>
 
-Reviewed-by: Parav Pandit <parav@nvidia.com>
+I'm not an expert on virtio, so I don't feel comfortable giving a
+Reviewed-by, but this does seem to fix a potential out of bounds
+access in virtnet_init_default_rss if rss_indir_table_size were
+larger than VIRTIO_NET_RSS_MAX_TABLE_LEN (128).
 
+Acked-by: Joe Damato <jdamato@fastly.com>
