@@ -1,94 +1,102 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C408218871D
-	for <virtualization@lists.linux.dev>; Tue,  5 Nov 2024 04:29:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A6D476C61
+	for <virtualization@lists.linux.dev>; Tue,  5 Nov 2024 05:07:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730780971; cv=none; b=pidXMoCCUKz2fujymcCDjjFeKWgYijYNxj6CUuJ17f53VK/ycHM3D5a+GkPQzIOxyCVS2d5HF+qidl4qeKZn45NVDF/kQvkaPazZ0It9rPlVF7XN2uPiExj50IYSoVSjJOkipulJXiD3Ta/ZQIGbc4WaCfdKirdfkBL8Sd2i0eY=
+	t=1730783268; cv=none; b=PGeE0ETn0IqpnrLg3VvpNRYmyC1UwfZkotUh/thvHaK3jHdJKqEmWZ3Fou5f9DiTSJTvoJfGaa7yC9Em977yn+eoSN4hcBUQ1AG4kAgZl7gmAtTRowOJ6PvmOQ6ZBjtAqPKY1wEQBSDm65tTXTtqAX1oQkvHI6nIk5NO6UZ77/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730780971; c=relaxed/simple;
-	bh=IAFfMzzyrbRop/8uBKQSzdTM6VeUXaTo5Y0XtX+mIeY=;
+	s=arc-20240116; t=1730783268; c=relaxed/simple;
+	bh=zrl2XYPD2NvxkFXNYylZOdwMoM7HEYcPRbF5dKoLrHA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ndUEZ4lCqmnsx4G5Y68m7APXNdEEFshDLcZ9skajY/0vGbThSKqV2PkEDeOlbCX/ZzgvZ6OeN1qCM1em7sgjH0GKONTATwLzPPV7YDT5oAwj7JyeiZVejOJej1DEv/aj+L5fYIRusGrTtIez1Gr9MKrUTJ4BLe1Aec8vttrPZNs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W2N9/dQE; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=FUTOPuv7Ddnhu3APySlHwh05zf+IOx5sqxXH5tdW7eHeUj0CXPgj0vbSTKdJUXIArmdtSfXWziv9dSvAIzSnC0lKdxkibrm9uiBPAWdCDElvpk0wQU7+0McDytLpi7EsYLxawVsjefv5Vmj/jbV1gmkCAgc0WMbw7xe6QBzCW8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QvUo0dvV; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W2N9/dQE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QvUo0dvV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730780968;
+	s=mimecast20190719; t=1730783265;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=IAFfMzzyrbRop/8uBKQSzdTM6VeUXaTo5Y0XtX+mIeY=;
-	b=W2N9/dQER+kFyE9hKKAfKPmjUg7IbWFYwO+7e5fyYX/OiUgaTi2foynEUofUwFm2JvfZbk
-	DEVte+aeSqO6ZNsm3bBokFtSdVKicSfN3PnHbXC13BFEAhyvhBh1uRwCPDcGXWg/8iudjq
-	0KHu34ScMlfmuwgC62UgrfaBDOQqwr0=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=zrl2XYPD2NvxkFXNYylZOdwMoM7HEYcPRbF5dKoLrHA=;
+	b=QvUo0dvVgPGqfPNk5a4h71MdHxXZTyzGkRvMC8BEdkS+eVI/D5oB9hbiDpDulFm3JUbWlN
+	kzebijGCg6XmQwpsPaKbBuaNDUh7DIFIMIhTAmV4TpciTnvEqHXkMz87sYTN0qUzyCAhLm
+	3jqizSmYpeq/gjyuF9ZaEXH8gWzFsDQ=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-278-ML3iItgPN4ieU_yZPTIobw-1; Mon, 04 Nov 2024 23:29:27 -0500
-X-MC-Unique: ML3iItgPN4ieU_yZPTIobw-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2e5af7e33aeso5181737a91.2
-        for <virtualization@lists.linux.dev>; Mon, 04 Nov 2024 20:29:27 -0800 (PST)
+ us-mta-613-lnDDafAXPWWUPoerKGN6AQ-1; Tue, 05 Nov 2024 00:07:44 -0500
+X-MC-Unique: lnDDafAXPWWUPoerKGN6AQ-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2e2fb583e4cso6135475a91.3
+        for <virtualization@lists.linux.dev>; Mon, 04 Nov 2024 21:07:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730780966; x=1731385766;
+        d=1e100.net; s=20230601; t=1730783263; x=1731388063;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IAFfMzzyrbRop/8uBKQSzdTM6VeUXaTo5Y0XtX+mIeY=;
-        b=WoMX6QnTbW/qKT+DvhVygw99gMz++luUUxWIQS0I4c+NYzi89OndIoryibQd17rrv7
-         dUoPhjUueammprsxWYUUvjrWT/Z9FMlb+bi4hDyQpyk/deOW8Pd56N0BCW/GxC53vE79
-         MWK0NLvscSPnOuFAYpGElIAKJRmRF53mv69CB0Kvp81b9TsMpycSzhWBP6nLzwYNqTAt
-         3Vu/zzfNDC3tXWCTWBzyCZ/QS9sToSd/NQ4fe6588d9aJ/I4hefBlrrEPkpp7o7wT/FQ
-         zj49icFBEmgThWJJn8oJSzHv16rMSrCoh9gRJ5H1d5yBgM+r0HS2msZnIBSJ9HlZULzi
-         f0Xg==
-X-Forwarded-Encrypted: i=1; AJvYcCU+MZa5aklIW9+7pzFNmOn975zFohLbUq0Fpw65RVSpiaHXh7sR2xWRngiePz+6VHtzbYwd1XAkDGUPU1B3bw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyimX4g4T9c3C//GMBMZXuesl7FajYvYLMJvC8PMyZ6KrgMRj0Q
-	IzO7iSvYIj33fuaEp8yqyhluieU+gDSvVM8Atc+8zZ0d54TPT035s6fhFOc+KfaP4HYqUS/Ppfc
-	8LujNzd7zAk0SS35bGIlg2BAoan+PtFVOxi3YXsZt8bbYfgfDYwigABvwHDJdo5jGGCtUUa4Axg
-	FrmEafOa4GkDOxvx0wglxBbORZx5l5giB/VLwqgF0=
-X-Received: by 2002:a17:90b:540d:b0:2e2:d15c:1a24 with SMTP id 98e67ed59e1d1-2e93c1a6cddmr26138141a91.23.1730780966377;
-        Mon, 04 Nov 2024 20:29:26 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHlfBcjEUwY0jgicXD/Etg/7eX+icEijhUmPf3OjO6dPGL41QsO7QKLssoh6xABfMz8aXhIphYCx3Xy3KfX3CY=
-X-Received: by 2002:a17:90b:540d:b0:2e2:d15c:1a24 with SMTP id
- 98e67ed59e1d1-2e93c1a6cddmr26138115a91.23.1730780965914; Mon, 04 Nov 2024
- 20:29:25 -0800 (PST)
+        bh=zrl2XYPD2NvxkFXNYylZOdwMoM7HEYcPRbF5dKoLrHA=;
+        b=xHwJ2uMGegXUj6+lYxGANxgEJjuArflJQVyJjWj0X1AaRw9G9UI2LZTtdznXmjuDM4
+         ywpg6AQvZgShfJD9XloM/PKX2X0gOFWepkKzD05kO8f11cgphwXk6zVebaGoubJTxQZ9
+         lo4IRnkohC2+NjVV2AmLWX2ZX3TgszjaDPRKofBAASqbjNclD71w1dBp84a+fgkBcXlx
+         S4zTGv4mUXzIW5fs6C6UvlPvOQyuuTfT1PrqdzWFvqIOJoPUALoIcwCuM9pfdWVwzIyU
+         C/Ag6io5G9QwG/d5JHHoATo81zKJdJuKYx1LlYaSClyx6V6zv0TGYkkjEti3LiEGcCb/
+         KN6Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWaZN4vko/21sL4XfiF9Bau1riQXBhrFSgvDY+SEqBtIycsSYOoq9XFTSHe/hHz0kFMw4horK7KRcB8W6kn5g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyiA6NOsM98Xm83yTCq+eVUbk1iwTZNabjnWpZDQS33TwIRAq2y
+	MH28Go2NovWuol9kesiez/BZ1SPnzQpbbs4ED55abYT1TskOkoXGklNXbbP35odKdvXSMh63Cgv
+	wRuFYx42yfVVgQ5tFKJSbQGtyklc3ZpA5zYKdoCW9yuGZZBJODmupNCnR0r4Cw/d+81WusdbPz8
+	txbsdtzo9qLEL1Phjmi1naygAyJEX1yapmVCKRBos=
+X-Received: by 2002:a17:90b:360a:b0:2e2:cef9:4d98 with SMTP id 98e67ed59e1d1-2e8f10a7281mr36436630a91.25.1730783262977;
+        Mon, 04 Nov 2024 21:07:42 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHO+OdM3vh9eQqrFq+MTzxcKxDTbAL58SjGs9/5RKPSL4uG9Ecquej/Aq3fG++zjn39UQYP1k8aOuXwkCsX4kk=
+X-Received: by 2002:a17:90b:360a:b0:2e2:cef9:4d98 with SMTP id
+ 98e67ed59e1d1-2e8f10a7281mr36436614a91.25.1730783262570; Mon, 04 Nov 2024
+ 21:07:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com> <20241030082453.97310-8-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20241030082453.97310-8-xuanzhuo@linux.alibaba.com>
+References: <20241029084615.91049-1-xuanzhuo@linux.alibaba.com> <20241104184641.525f8cdf@kernel.org>
+In-Reply-To: <20241104184641.525f8cdf@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 5 Nov 2024 12:29:14 +0800
-Message-ID: <CACGkMEvh=tFAp2gXmtCgaTGn9ZTL2z6oiA47TNysqkro3etZgQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 07/13] virtio_ring: remove API virtqueue_set_dma_premapped
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+Date: Tue, 5 Nov 2024 13:07:30 +0800
+Message-ID: <CACGkMEtWrKovFgAiskOshGuP81DnAg6JjtRzNneq1tEa8gQe7A@mail.gmail.com>
+Subject: Re: [PATCH net-next v1 0/4] virtio_net: enable premapped mode by default
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org, 
 	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
 	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
-	virtualization@lists.linux.dev, bpf@vger.kernel.org
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 30, 2024 at 4:25=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> Now, this API is useless. remove it.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Hi Jakub:
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+On Tue, Nov 5, 2024 at 10:46=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> wr=
+ote:
+>
+> On Tue, 29 Oct 2024 16:46:11 +0800 Xuan Zhuo wrote:
+> > In the last linux version, we disabled this feature to fix the
+> > regress[1].
+> >
+> > The patch set is try to fix the problem and re-enable it.
+> >
+> > More info: http://lore.kernel.org/all/20240820071913.68004-1-xuanzhuo@l=
+inux.alibaba.com
+>
+> Sorry to ping, Michael, Jason we're waiting to hear from you on
+> this one.
+>
+
+Will review this today.
 
 Thanks
 
