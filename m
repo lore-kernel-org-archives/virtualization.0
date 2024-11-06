@@ -1,245 +1,198 @@
-Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B51D1FAC52
-	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 12:38:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.148.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F4CE2022F6
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 13:59:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730896703; cv=fail; b=uVo/IZgtoNrIvt+LDeLINCaSRlrJk0ImH+4MO+IeTR9cX+GmtfJH8NWOcpYxFijE2Fv8wvQlzMnY+sCUXzwsGALv7gktwAVWPfL2fCsJ5ZJOXNuepFdVcwTVI0F/im8HLFyg5Owz8C2JaSG+q5xRigMZ+fCDf5OarjZd5htsOuE=
+	t=1730901558; cv=fail; b=P0VIMet3J04Qke3fgRsopG7LLDbVVTdydqxOk3KL80jbifYRWG2OX5dIy+G65N5uuKR4+wSZR2TxcK0XFrLg9W3dqiQbAvhftdp/YShJCvOQRqa+dCAiSui5y84eCo6f9fUeK2MyMeOiBhXEWyiSFfgrl5uPjwsAUEbbkBLRX6U=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730896703; c=relaxed/simple;
-	bh=JYz1hrC2SI+4Y67UcItEkqqTrodMQcaqP9iXfPxVgVg=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=ZBCP9a7cP5A/2p4kS4PUFkUVmEGBJ8EOKfQ1KJ8nQSd2hKN22dDAf8iJGtjEfEkCnV1O1HxzvP7qiHk2QT7BKI54ny8BWdrqDzOU1aZHXVfCzfO2N5b88/koSAYooudO/JqsfJrIXAVwIn3428mHQLnyVM5t1gTqnqtBDZv9Xfs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=fail (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=LdJnzd2Y reason="signature verification failed"; arc=fail smtp.client-ip=67.231.148.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1730901558; c=relaxed/simple;
+	bh=D5asV6Xw6+jStl4LsPOwe8CfOcx66ywaLW01F1hi9UI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=SLzsDIr03ng09inzHC/z+BV7TWhdm+SUvNnnE/Nw8XjHcPxOuklckZyq3K3ism5ZtUjWqco+J+5MZbpQvglkHzBnmXlYDbF7FbHamoReIbn8fbfoTQyeNdEM+0ByjLQLZvXOZdsUjz6Q1XFE8vRWF3i9uInkNhZIBB7Js6eaYwo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=kEuHk/dA; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="LdJnzd2Y"
-Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A6AltmR013381;
-	Wed, 6 Nov 2024 04:38:10 -0800
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2045.outbound.protection.outlook.com [104.47.66.45])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 42r715r60b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Nov 2024 04:38:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="kEuHk/dA"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 135DE81156
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 13:59:17 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id VVk_Ynz-_DA4 for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Nov 2024 13:59:16 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2408::625; helo=nam04-bn8-obe.outbound.protection.outlook.com; envelope-from=jgg@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 5BB6E811AE
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5BB6E811AE
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=kEuHk/dA
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on20625.outbound.protection.outlook.com [IPv6:2a01:111:f403:2408::625])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5BB6E811AE
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 13:59:15 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=iccS0T4FqNzbQNMSi/C71Ds8IvTYY3LQ7csyrQyOut1n9BPHcSEUsYrinDaRar03eZJBH6GJ1G5E/cW7+11Q+hSU3lyMsE+w+3992j0U46bMwlWH0MOC2UGVjiAZENO+zVweeLY0GDXtKQFa76Za7xgxxZ1NlE+f2J8QqRaIqsKnycVjk4CtrYgxKWQwnN28rgQJb8DPwaYpVrrcCIq4+HV6cPmWRKKuanmc8M8zuGRdby0qrDhWADVwoY8zh2ScpKqWeu99rccMl4kgG6OkODwwmYTeOoH/kEYE7+/i5IfXdf0uIQTqP+BwBtRxeJ4/vE9SWKBpjbNk93kUKgQIzA==
+ b=D71PPLcd9P+cq5ANlxja069YCkrJcVz24669FybAhkcax/kXpKbYvrS9E4Hgc31tP3n/XSdapa3taba2xTGw6+y7VrI7IUBii2eZLV9myMxLqtQqDpIghWuyPs1V6sZnk70muVjzYOiHlPIHa9ykGpi3/r+kVz+uM/gRaIzToUS+hJAh/qo0yYFLdIt1yXtp4Bs7peW3TWmGNQU1IPLsQZkMgBJ+MdUns0T/6h292ORB180TnhTEZXxRe1XYOrqbuVJPD5Kyp4OZW2hO5StODkqHXhj3onRaNe/TsCLkVjrq4vjOH175KZ0Ni1oFzdsjvTuEEPKduO6iewcDy7S1bw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=S0zmzj4MWBMqgH+yawVSM+Y/ogiwarwGeriFgjxAhis=;
- b=LXV/E7oGxNDjn0YiJFXlY0722SaloJGvR1jCcMOR4SGnXKcZ2Dx9nEV59z1GboAZ4Lzs6Igs/4zYcK0tFNUVt3iUwMqNpR4c443PK+8iy4wamihzgjSY4Jk0DCNqe/Kmd73sIUv7VTRXM85lgg9WjkCtY309UBiS5hrEPJm7w7sJiCpGAS+Co1rzZJqWL8kGE6ix0lBeFBwAzmww2QG5/18GQm+BLVeU83eCpwCPg0vt3fYXHLFehkx5jzQQP9eRy5XkRyJJSkAhgIQ4VrW+u63tafZlbG5N2sp1jNaUEJwk5jsNIppUJIxqhXVC34Sq6Bio6QvpANdGgcJT6K+e4Q==
+ bh=bneBahdiOhu2O1gGeTrO3/mOl+3L+LdtGMzt49f8688=;
+ b=JK59RkOEgyKfxUSxdvq8VhR+ZnNuYJ6IaH6ZnkZR0RGAdSEjwM8WEbQou8qzw/9HXwmf3nYPuw4nDhUM6lo5DRxh+LJeydKX6r6Vs5SUKOgoS2mN+JLunLlt57dW4vLODntQ2+GCEymLNX6avL7oYP8AtyU2JS4T4p6Hk4VcS36N1hj4QfKnTmquCvIPYHe+E3shQBl5N43VcG3WmJjqduANgtwab1zMcDsoqUYfkHfS5i8RG6nGTD1WvxaVqu75G8FbpO6O9arm6UrxaQijQk4UbvrZWIC4T7GuMkmGaGFR4ZLxxqzokDp7L9Tt4XBtrGMXLfk9BK774SaBTCfuAw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
- dkim=pass header.d=marvell.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
- s=selector1;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=S0zmzj4MWBMqgH+yawVSM+Y/ogiwarwGeriFgjxAhis=;
- b=LdJnzd2YSc+AT9gJgE+BAIc34hxDaI+v3YTvxZ4EFZbcka+xEYbFTsFYNGoIc1Vm1mcvYfLg+gZJIJPRX0Wu8nrqB+u3sgsBhKzoj5vXcj+hjLCnRAMjxrw7ga8HKvMnsohsbIYbcyxaQQO6GgWZd3DfvuFXtW/5sn5dN2jjIG4=
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
- by CH3PR18MB5981.namprd18.prod.outlook.com (2603:10b6:610:1e2::22) with
+ bh=bneBahdiOhu2O1gGeTrO3/mOl+3L+LdtGMzt49f8688=;
+ b=kEuHk/dAoBeM5g/uHAa8iM+9C+eESsN0gyGfO5e9EgtZuXHdFYIKjc3ydC4TBOl1vTln+OyRRPwXR7VlTBoz932AU1zGz85GQLBQvIXgWxG0r4YwqBhMdpDzzD+rm3cAR6ZUzzpmNBU5nsO4n5PPuQ31gIrfdxhGhItbxPxSfTtzSoQ7JKuAE5BmNKMxxNwvoCuhkU+lk6yPaXQwc47l2JZ2y6ifDlohkaap9CFbMI2PU/n0RkLKZFSPwgkjl/DnXQh3exEXO0/azaH8zT0LAglRyu4N2fSlLEh1jmjRA7Utb2XwZ9sEN1tYzsFpaIog+qzHQTg+m1cZSaRBLJPFbQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
+ by PH0PR12MB7864.namprd12.prod.outlook.com (2603:10b6:510:26c::15) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.31; Wed, 6 Nov
- 2024 12:38:02 +0000
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac]) by DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac%5]) with mapi id 15.20.8114.028; Wed, 6 Nov 2024
- 12:38:02 +0000
-From: Srujana Challa <schalla@marvell.com>
-To: Christoph Hellwig <hch@infradead.org>,
-        "Michael S. Tsirkin"
-	<mst@redhat.com>
-CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "jasowang@redhat.com"
-	<jasowang@redhat.com>,
-        "eperezma@redhat.com" <eperezma@redhat.com>,
-        Nithin
- Kumar Dabilpuram <ndabilpuram@marvell.com>,
-        Jerin Jacob <jerinj@marvell.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: RE: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Thread-Topic: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Thread-Index:
- AQHbE96PlQaeJdnt006ohvbKHfff0rKGTA1AgAD2ZICAAnsvgIAA0r4AgARSlACABScygIAAFo4AgAGfYICAFKe0YA==
-Date: Wed, 6 Nov 2024 12:38:02 +0000
-Message-ID:
- <DS0PR18MB5368B1BCC3CFAE5D7E4EB627A0532@DS0PR18MB5368.namprd18.prod.outlook.com>
-References: <20240920140530.775307-1-schalla@marvell.com>
- <Zvu3HktM4imgHpUw@infradead.org>
- <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
- <Zw3mC3Ej7m0KyZVv@infradead.org>
- <20241016134127-mutt-send-email-mst@kernel.org>
- <ZxCrqPPbidzZb6w1@infradead.org>
- <20241019201059-mutt-send-email-mst@kernel.org>
- <ZxieizC7zeS7zyrd@infradead.org>
- <20241023041739-mutt-send-email-mst@kernel.org>
- <ZxoN57kleWecXejY@infradead.org>
-In-Reply-To: <ZxoN57kleWecXejY@infradead.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|CH3PR18MB5981:EE_
-x-ms-office365-filtering-correlation-id: 5109d832-a8ce-4c42-39ca-08dcfe5fda8a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?Y1BnQ1gyOUpVVENORWxibmtTVlRJNDRQcmtQKzFGRG96alZmMFFrZENSa2t4?=
- =?utf-8?B?QUlUMGlYQzI5QUFCeTl1VmRmc04yclZheFFiNVlNeGl2K1FCS1MrWENkeEJQ?=
- =?utf-8?B?YU1aQi9ETWFBS3VDMmVVRWMzT0lMV1FLMmRZNE10aTFyTnpRa21KQUh2dUl6?=
- =?utf-8?B?UzJyWEFkaWZlaFBrYmh3ZHhnZXdLSFBWc2EzUDNHdStGdGtKSTdCU0xvd0lX?=
- =?utf-8?B?WTZKTDRkU09ib1puT1U3VlJtbUlFbXZhWjNGdFp0d2YzUzB5N0JZMy9PYW00?=
- =?utf-8?B?cW5rNmFoSXZudkQyZkRFc3dDZXN5QlNadlJMWEI0TFYrMTdEa2U2bmo3b3FC?=
- =?utf-8?B?bnVtME0rY3VnMDhldmF0Z1lrWkZmaDBWRUdkZ2lId2R3UWJwNHRmc3JCc3Yv?=
- =?utf-8?B?SjBZVzU0WWt5MmpYdDRaVzk3SEJxbmdJOTV5a1Y4SDBCbklobERCRnFzNzZB?=
- =?utf-8?B?YVhxRzFzMGpta3p1aVhqcVF3c3JZb25SdEZxSkx6cFVuYitCWElCTUluY3I5?=
- =?utf-8?B?T0FvNXl0OWlhNWNTdUhwU2tyU1JTcVhPOVBYbG12RWk2UDJDZkhZQzFGajBy?=
- =?utf-8?B?eGJCa3ZVT2Z2amxzVE9hNVZkRDdjOC9IdFpjajJVUmJWYXNodEc0eXBwQUNx?=
- =?utf-8?B?NTFZbDFqUHVHZmF1eVJ6c3haMTVKWjJpVE5wOUhCMmZsT3VwRWR1K2RrUHla?=
- =?utf-8?B?L25YNEluTGxBV0lNbThJbkdBTmRFVTNFU2ZLK1N0bnVBdDQvSCtocGpwOVB6?=
- =?utf-8?B?cHI0bnpqckZ4bnR1YmdickdVNitGNlVpVWUxNXl1emxOWk4vaFJYMHFKUDdI?=
- =?utf-8?B?WXd4cmpsTlNqc2NaY1FjR1pDWm5ZQzM2Q3NWbHAyanpBditWRENoZjc4TVA4?=
- =?utf-8?B?RDM2dXpJTW5OTWRIVGRzTnlKdERHaU1CR2o1RjdDVUg4aXpxaWZOVldCZE5x?=
- =?utf-8?B?TFBtMWlUbFVtaXNrRFlhWm5KUDMwdVZLZG5GL0JkMG5sWWZlQ2psSG5INGpo?=
- =?utf-8?B?UDYzdGtXY2pDNmhUQnB1bWJwUXJqUFdET0ZpNjJJb0VXRkpEZWZJRlBkY0xq?=
- =?utf-8?B?TDd1UzN0dU5RUWVpRXlUUUJIalRSeE1OcHovQzVHUlpDcE5mUW41dFpWOFl3?=
- =?utf-8?B?dkxhODQ4K3VNcmtzY05kblFieDZQMXdZVGNCQUF1SnJvZFBlRDVyZE55dkZW?=
- =?utf-8?B?aXk0N2x6SytyMlRTbG1DN0M0UCtDSGEvblp2MG1kOFUvVXhwejBpbXV6TE5C?=
- =?utf-8?B?RTg4aXBpQjhwRHRjSkhQTlJHNjVyc0ZUTStlWGswMmhXV082Q2ZkMm9WVTc5?=
- =?utf-8?B?all6UVFqTkxzdEdseTlIMDBRRGYwRElITTdIeE1uSEZKR3BVMjVXd2N4ZjA2?=
- =?utf-8?B?UE9lR2VqeFdrOUl2L3IrN0pTemxyU1dlT0NDalFheDVMYms0TUR2US95QWxu?=
- =?utf-8?B?ZGdQNDJUZkJVcGM2eHB2aEVxc29QMTI5WUM4YzBBekVQODVDZUhoaVIrK21T?=
- =?utf-8?B?SUlXU3g3bE5EbFBORmtZZ1VlYXlJWm1DekVSOXQwSlNxcHVVak9IaEdNa3BB?=
- =?utf-8?B?RWZtV3RWT1Noa25HYjRUcGFubjFuaFdOM2FoZGhuM085Q2xjY2pia1V6L0NS?=
- =?utf-8?B?WHNJYmM1S2kzOERoaUM5RDJjWjNyMGp0ZXBmdkl0eUdQSmJiQkhMY292SkYx?=
- =?utf-8?B?a3h5M2NqQldSZERLVG52RjZ4N09vam8xVTZucWVKcnlXdndnNUxuNUlDT3dv?=
- =?utf-8?Q?7uta/Kn9y2pncG74JOMpPTZ6w1Ju10vzx0ymFU3?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?cW5xMENERXpWY1E0bDhYOU03Y1ZOaXY5c3lPbERmMzU3TGR2b0I0V3hDdzdv?=
- =?utf-8?B?bnVWV0JPckUyS2NadFBpVzk5VEZsL2hKNXBRUGNCYzMxU3FZSXRHakt2TEU3?=
- =?utf-8?B?cndRMC91OGFPdkNGK1daTVB5NEU1RHRMVVVQWXd2Nk8zYXlDaDVYWDQvTXFz?=
- =?utf-8?B?SzJZQWNTREQvZ1h0b0lJM2wxcUJCTTE3M3V5Zy9KbnY4ZXBMRTdXMHNTaWN5?=
- =?utf-8?B?eDk4Q1JZV0E4aGdYZVZkNlBocTUwTVUvdk84dFlhNWhDdVg3aHUwZUxaRnNJ?=
- =?utf-8?B?MTdHZFBJMXI1NGh2eEErRUxFdWp6SUZiRENuekU4djJLc0FQdHRsZStSNGFT?=
- =?utf-8?B?c25QbzhTYkVYMExydWFCUFVnaEc2L3VmdHo0Tzd2QzJjQ3o4ZnQ2T0VPVktj?=
- =?utf-8?B?SVB1RWlmOFRrOE91VHVoMG1vNmt4c3ZPaklDdGxabUdvVkIraTRJUTQ1MnhL?=
- =?utf-8?B?cUZ3aHpGQ0NJekFqTkNoU3UxTVFTUVNvd2ZCaVNKUjB5c21KZ2UydWNNM0Ux?=
- =?utf-8?B?Unp2NjBHSFJDUDh3WEx5U3M2N0oydHNja1JkaDFyZ095RFl2SS95WmdHRkU0?=
- =?utf-8?B?TDJRL1JxVkNXSFhzYWRQbHhaSERJeFIxb3RlU0VRV0R4U3VBTS9jaHBKWFNy?=
- =?utf-8?B?TlhoeW91T0EwOEh0T0Y2a3V6aFd1RXJ5SGoxaXBqNnZFRlVaRjd5eUhHUjM2?=
- =?utf-8?B?WUpBdjgxUE1JcE0xR29CQXdDdGFqRlE3Mm53VmNFUWxLK1MvMUtVak1KWklK?=
- =?utf-8?B?WWYwZU1ZdnM4VU4rdTI4cTJWMExKRjdmL2s2SEJ0b0NzRlMrbkhTSHhHODlw?=
- =?utf-8?B?bEp1S0xNc2FLWExSWnk4ZXZJcmYwK0MxeGJhWEVQMndzVXF2c2ZPZUE2eDJG?=
- =?utf-8?B?dWF4QUJkaWgwYXVnOXhqZTFEVVFHUWtBN3VVd1FhRkxkMHFFeEZpU1M0aWFJ?=
- =?utf-8?B?ZUdIT0psbjNnRHFnTXlYd3V5dkIrNVJNYllZRDJ6Z2o2Z0VMaWNqd1RLVWZT?=
- =?utf-8?B?M3V2T2srTWl1RklaMXZpNStkdlY1UjI0SkloVWpTbVJCNnlLcDRheEtOSWJY?=
- =?utf-8?B?STFrYjhpeVYrZFdKV1JqRGVxc21XbGliOUJpUzFuL3JZNHRZR2pDdFBaZStP?=
- =?utf-8?B?dmI5SEZ6eW5wY2dEbjBJTlJRcWt6V1NYVGo5UlpmYnE5VlR3czFra1Q0RHVo?=
- =?utf-8?B?T2tqcEsvWDNFUWIwUFhLQS9vWGJNZmFjSTdMMENMYXVvL3ZydjZwY1V2Y2FI?=
- =?utf-8?B?bjhmVllrVlo3aXNLdzd1dzVINWdraDhkRTgyU3k4RmlmTnlUcWJWaHNvbmU2?=
- =?utf-8?B?THlLN3VSaTJVMkc1TDA5UjNKL28xb2VzRkI3bkMwcC9QSHAxMUhXd1RWemlM?=
- =?utf-8?B?aW9Ka0ZabER0ejgyeDNycVpRdFFCSXlHU2ZITDdNODhkYXNQdi93OGZoR1Nw?=
- =?utf-8?B?RjlXNllSWnYrUVFPN1NLZmFXc0tJOVUrd3R0dzJaQ0xjVHZLazhTVnRyZjVh?=
- =?utf-8?B?SFJZTnZJdWlRak5ybDg3ZGp6RXd5cUZYY2N3ZkhmRE5kWjRsdGpwWmJhS0t5?=
- =?utf-8?B?b0NsaFVheFE5WjhIUlNRNVk0NkNQcWM3ZkRnMHZZdENXTTBNV0RURzd6Nlho?=
- =?utf-8?B?WURoQU1CSVNLR2REdXUrZHJiTVIzSU1QcnFTTmE1Q0dKTzVXQk5wdVYydGxS?=
- =?utf-8?B?Ry9uZ3dHbzhaVElzWUxob3JwZndMRlpmM1BIWFIwT2lFUXdFUXhPbmVBS0ta?=
- =?utf-8?B?QkZlditSSk9xZGUyaWtXRTRrZGYyZ1dnUExEOXFQdUdiR1Z6SkZYZTNLbTdD?=
- =?utf-8?B?Y1N0WThtRUF5TGZWemo3UGFzZHNpbzZkbzcvQ2xONDF6aEpYQXhveHR5Q2Fv?=
- =?utf-8?B?QUptUnZxR0hhakVLNE52dHBZSmFIWlkxRU5UWFczeVF1elJ1eXh0Mmh5eEpr?=
- =?utf-8?B?dzJTQlR5c3ZoaVpTMkFCcVF6TmRwSlJCdnZGMkZ2TGlZWHVwWWkwSDROci9L?=
- =?utf-8?B?WlA1YUF2QlNtUWt5UTJNOVU2eEZKREN6Z1RRRzRZWitiZ2xVeGl4RS9Sb2sz?=
- =?utf-8?B?UDZ5MC9zQjNjbi9qT3ltUFovTHhUTXljK3MxYmh3OTlwS0dma0VnWnZVNVY0?=
- =?utf-8?Q?Zor4=3D?=
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Wed, 6 Nov
+ 2024 13:59:10 +0000
+Received: from CH3PR12MB8659.namprd12.prod.outlook.com
+ ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
+ ([fe80::6eb6:7d37:7b4b:1732%4]) with mapi id 15.20.8137.018; Wed, 6 Nov 2024
+ 13:59:10 +0000
+Date: Wed, 6 Nov 2024 09:59:09 -0400
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: Yishai Hadas <yishaih@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	parav@nvidia.com, feliu@nvidia.com, kevin.tian@intel.com,
+	joao.m.martins@oracle.com, leonro@nvidia.com, maorg@nvidia.com
+Subject: Re: [PATCH V1 vfio 7/7] vfio/virtio: Enable live migration once
+ VIRTIO_PCI was configured
+Message-ID: <20241106135909.GO458827@nvidia.com>
+References: <20241104102131.184193-1-yishaih@nvidia.com>
+ <20241104102131.184193-8-yishaih@nvidia.com>
+ <20241105162904.34b2114d.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241105162904.34b2114d.alex.williamson@redhat.com>
+X-ClientProxiedBy: BLAPR05CA0038.namprd05.prod.outlook.com
+ (2603:10b6:208:335::19) To CH3PR12MB8659.namprd12.prod.outlook.com
+ (2603:10b6:610:17c::13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: marvell.com
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|PH0PR12MB7864:EE_
+X-MS-Office365-Filtering-Correlation-Id: 55749c2a-7cf5-46bb-79e6-08dcfe6b3053
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?yf4KkxZiRvmAWTDbSWYhrmevG3IMfc/ju98iswG9YMU09IM5lDYtfPhOnx2T?=
+ =?us-ascii?Q?GhWnm71TmCRoxl8HVVcH8kI3WlbWC0Ws9ocB5VKJ81cxxrXvJ+wvS9OlLe4k?=
+ =?us-ascii?Q?awLn6XBN2fACTu0of4+liHvOlS9G9zoYIQrzoIDOKINr0Qp0wvZ739sy+g6E?=
+ =?us-ascii?Q?4iP3K6fDSauwGWmTN/HNd6Y8qWGTVIxu9RLoLCsWILw7+Quaw1OdKGsWWXY3?=
+ =?us-ascii?Q?kXPhglQwa/1lC0wuO/sWBGCDcZpO8Io4hBSKD1R946Sm4g31DBxETHLxfzVe?=
+ =?us-ascii?Q?79bBWHrg5dk2EnUCWFIFNLU+Pz5kXCjizc0Fz9oTM2T5bqjSPAo1NEHBefhB?=
+ =?us-ascii?Q?GoWpRCdVaYlfp15c0EEpcnp0o4Tsvp4ZkCA68eBj2PvUWLlqMs7ZKpHi8f/0?=
+ =?us-ascii?Q?/a0iFC5e6GFH3MFmzBUN2NmDCPziOWhuTUMzbN9RULXDrK2OMMySgyQaQFuy?=
+ =?us-ascii?Q?LDFTxLPZuCJc0HgahD5D7adFutLQXUFI5w2Kvc4Smfe9bTUIBagiwTCX0EI9?=
+ =?us-ascii?Q?/ZMS6zH9IAa8/MzqQSvp+4uzPNgnw8dHHSppWsiXDZqqpORF8WIGGS71VaKQ?=
+ =?us-ascii?Q?YMY7D+iKtILF8mLnOCByw7NNphEnG2Qpfge3yUZr3d+S6ST2MS/mbu+YwXJF?=
+ =?us-ascii?Q?87I01iQ3IE3v7Dg46wknUYBytiR4RcvUgMOvrqFXADAC34M/g+DQ8uTYTzYX?=
+ =?us-ascii?Q?UGULlnZdsOZRcpkVUr9Nev1CA50pKd6c/Z/zoeLjvea1YSHJ0FtvaWbGz4k8?=
+ =?us-ascii?Q?s1kDvufd0DOch/hvOoVWfuOZsJm16l4r/OGA0/jf8T/QS+RUMafO/EYgg0Yg?=
+ =?us-ascii?Q?U0LAJGy7ZBxaYvd53XOesjA+A4SOPwDzylPyk5laCMaJ5hpZ4tT785pUlK6W?=
+ =?us-ascii?Q?qRQo+SSEFD5og5JQCNyW3lch7p8lx0O7POQhj40zSZCtrsW2I9diOTf6Cuca?=
+ =?us-ascii?Q?yJlTUnvA/KgR9Mw9KfaxshqoPkFATigoRN3/mg3+JPuJl/7FdxhP0nOUu5cj?=
+ =?us-ascii?Q?O7j855uE0xau0v7Rwm9gO8ZvNHtNTZwuroXb4Si67i/QMnCvLi8ZexexKser?=
+ =?us-ascii?Q?xp3Dv9vfOcN95COa5JQUJTI5NOI6FuSd4Z8w+HTGm5x6ro2siWGJKo4Vpzi5?=
+ =?us-ascii?Q?vMkPQHuRfeV8+RFU8UkO4EMC0M2rgtZrQff02OZ2Zi0xoXp9/UPE39x6lEKe?=
+ =?us-ascii?Q?sWyqj6XkG+Lc+XE9TQ7bTExbeDWxgEVMc7Pc72W1LL0ffcHNRPuycaoPyXSR?=
+ =?us-ascii?Q?kPn7cZtIxbASAk0IrRbbg0RR+XxB5qyRgcD5tbsz+26T0p4vXgh2dq7dzoka?=
+ =?us-ascii?Q?jCXZVy1srQDyJ9hAcczUQnDO?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?eLjaqUhicbPBCimpFNU6yL1WcfjXGfRVa5veW6PiEfcMIicOPA/otVullvkD?=
+ =?us-ascii?Q?aaWydoRuRW99S59+VCjGA/5898XAa0uVTq9UKFDZJQ3JbbuAv9WA9CQEdCqv?=
+ =?us-ascii?Q?kZG/W9mM+dFgL0SpdOxGwWU0KnXaf21g4EY5rgGf2Yrqni3QjdJ4VGBsJF6D?=
+ =?us-ascii?Q?8A909TuJ3EA4dgI2czdmE9UJhEqh+c9kGEDznsPw/BIp0pB7o3k5NsdWwcxK?=
+ =?us-ascii?Q?eJrS/oZXdTBnSBbqzHD6VOoC79aFn0fN4wnjljJamspp6JrKO7U0Z6jnw409?=
+ =?us-ascii?Q?QKFSshzXr9XT96s+fC1QZp2MAq93U9gQWorDuztMPox52bfutUYn6d1SACgz?=
+ =?us-ascii?Q?RuH6JqOf1ZhVvdLa6sfoRwSzolGIRufU2c460KxaoOEbBtdH4vccl+ZbFXnr?=
+ =?us-ascii?Q?l/mvcNpX+uICZlm4ZYbGSyr3XUt83AOlyRmjtPnjy3Y3H8zbLanSZUie0axa?=
+ =?us-ascii?Q?ncCzfv6orLpOvcxbQ4e5h0iErA1blRn68nZ2qLt1qT1qnZKZgqgN8CxtN9PY?=
+ =?us-ascii?Q?7V8iPx/2U83OB94IgpO7ZrgEbyF51mSGWgRmcw+QN8kU968HS99l8uTiUbQi?=
+ =?us-ascii?Q?yLXUxbdYfTp0nI2/T1V29ySIg62zIlkpA/XS/SmizYowfSrxHH08hlhdyz0I?=
+ =?us-ascii?Q?TW6+wIBdfsBzvwIXidRwqDElF7a5F1dTJMGwnl2YYY3mFlrDIyyRHzBQ07ME?=
+ =?us-ascii?Q?Ps1bBFGx4x+B80dCRMO4m/Izt65wTL7ZOStBgrnMf4fIcwKtbdN6qX7im8+s?=
+ =?us-ascii?Q?wZOh6agYkBgjjSwD/wWh76lilo5y4SgQ/0uSvmDsj00HhdtrRk4KSC1TxhRa?=
+ =?us-ascii?Q?H9wgELmxfwjJbuqmRcxagMronTtIizzAlVvI6P7agXiAFOXznZDekVeYfR8c?=
+ =?us-ascii?Q?o5o1UrnF1shdGERGVjx2iYrPJenD7A8VDr/vLMhQGIuTIsbQROQJJVC1Qkka?=
+ =?us-ascii?Q?qAmQGO+oLD/aub90IcxIjn7rhQ5XoRpEuirMi0qcwl2GXy49hGHQKqYbkRej?=
+ =?us-ascii?Q?KaGQVCVeHaX31882t5RK+8xr01TL/+dcbO/ypnqZ9c3Cac7v7MCM/73Ud2pO?=
+ =?us-ascii?Q?3IHyVRIJQ4mk8gRNm4o57zZFYVNSmolw4uPJHyPOq7eC3fztBPEP0p2kD+yV?=
+ =?us-ascii?Q?eeG13Iq01/O/oYdCtGlI0+WBo/FWvs6jjsTHHSyKpGKr7uqGP0huCpN7/+zt?=
+ =?us-ascii?Q?UVzKyJO2aaPaU0hoqdLy/gEaJzdbMrvqFR3qIGiCBAuKNR4N3H0xS4CaXqW3?=
+ =?us-ascii?Q?7Mwl+vHYzHL07tQ3YvFKyRvDDUIXu3HKpEbVKA6sB8pBdrjI4ldkLPn54heA?=
+ =?us-ascii?Q?/5oMlY+KC9YipBuRunLQC4iE4nCxi5ju/y+QT+MbiJ35gnPFj41W49g3oaJb?=
+ =?us-ascii?Q?JDBUamyDD+ymQ8d95rMSo/AmUQEF7U1gDihF/Nhnk3x3/Z0zSnzfBYAZJmt6?=
+ =?us-ascii?Q?PhGpodRZ4b0o66PN/p0Fbtnx+v9c7Ke8viqGlXf9Yuge4/wSIFzhiKSjbizv?=
+ =?us-ascii?Q?sGOVNj9k0qoAP6RnmpY5QU9V5+68zlRxJZDiBoIGqSM8mVSrbJVerqVkTbCu?=
+ =?us-ascii?Q?gOjBaqSt05GZNE1m5WmEzcVEMqTvQ+OrLpWo/oTf?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 55749c2a-7cf5-46bb-79e6-08dcfe6b3053
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5109d832-a8ce-4c42-39ca-08dcfe5fda8a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Nov 2024 12:38:02.1148
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2024 13:59:10.7295
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: eu2rvLciuE5KrsxiXUvMypxWWxJ1QXPIxCQ/cl9AuEUYQnh78sTs/zEn3GnMuksMfDP715bMVGKneiMm8OocTA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR18MB5981
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-GUID: XixeEORKBFJRAgomBpI5PymDgXLUGYL4
-X-Proofpoint-ORIG-GUID: XixeEORKBFJRAgomBpI5PymDgXLUGYL4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
- definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: OHLqDC7honkF+k9VXLyEaeziXzNl4yXHcy/CnOjclRCSo/uMtB7NfZCvOi4yIjl2
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7864
 
-> Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for NO-
-> IOMMU mode
->=20
-> On Wed, Oct 23, 2024 at 04:=E2=80=8A19:=E2=80=8A02AM -0400, Michael S. Ts=
-irkin wrote: > On
-> Tue, Oct 22, 2024 at 11:=E2=80=8A58:=E2=80=8A19PM -0700, Christoph Hellwi=
-g wrote: > > On Sat,
-> Oct 19, 2024 at 08:=E2=80=8A16:=E2=80=8A44PM -0400, Michael S. Tsirkin wr=
-ote: > > > Because
->=20
-> On Wed, Oct 23, 2024 at 04:19:02AM -0400, Michael S. Tsirkin wrote:
-> > On Tue, Oct 22, 2024 at 11:58:19PM -0700, Christoph Hellwig wrote:
-> > > On Sat, Oct 19, 2024 at 08:16:44PM -0400, Michael S. Tsirkin wrote:
-> > > > Because people want to move from some vendor specific solution
-> > > > with vfio to a standard vdpa compatible one with vdpa.
-> > >
-> > > So now you have a want for new use cases and you turn that into a
-> > > must for supporting completely insecure and dangerous crap.
-> >
-> > Nope.
-> >
-> > kernel is tainted -> unsupported
-> >
-> > whoever supports tainted kernels is already in dangerous waters.
->=20
-> That's not a carte blanche for doing whatever crazy stuff you want.
->=20
-> And if you don't trust me I'll add Greg who has a very clear opinion on
-> IOMMU-bypassing user I/O hooks in the style of the uio driver as well I t=
-hink
-> :)
+On Tue, Nov 05, 2024 at 04:29:04PM -0700, Alex Williamson wrote:
+> > @@ -1,7 +1,7 @@
+> >  # SPDX-License-Identifier: GPL-2.0-only
+> >  config VIRTIO_VFIO_PCI
+> >          tristate "VFIO support for VIRTIO NET PCI devices"
+> > -        depends on VIRTIO_PCI && VIRTIO_PCI_ADMIN_LEGACY
+> > +        depends on VIRTIO_PCI
+> >          select VFIO_PCI_CORE
+> >          help
+> >            This provides support for exposing VIRTIO NET VF devices which support
+> > @@ -11,5 +11,7 @@ config VIRTIO_VFIO_PCI
+> >            As of that this driver emulates I/O BAR in software to let a VF be
+> >            seen as a transitional device by its users and let it work with
+> >            a legacy driver.
+> > +          In addition, it provides migration support for VIRTIO NET VF devices
+> > +          using the VFIO framework.
+> 
+> The first half of this now describes something that may or may not be
+> enabled by this config option and the additional help text for
+> migration is vague enough relative to PF requirements to get user
+> reports that the driver doesn't work as intended.
 
-It is going in circles, let me give the summary,
-Issue: We need to address the lack of no-IOMMU support in the vhost vDPA dr=
-iver for better performance.
-Measured Performance: On the machine "13th Gen Intel(R) Core(TM) i9-13900K,=
- 32 Cores", we observed
-a performance improvement of 70 - 80% with intel_iommu=3Doff when we run hi=
-gh-throughput network
-packet processing.
-Rationale for Fix: High-end machines which gives better performance with IO=
-MMU are very expensive,
-and certain use cases, such as embedded environment and trusted application=
-s, do not require
-the security features provided by IOMMU.
-Initial Approach: We initially considered a driver-based solution, specific=
-ally integrating no-IOMMU
-support into Marvell=E2=80=99s octep-vdpa driver.
-Initial Community Feedback: The community suggested adopting a VFIO-like sc=
-heme to make the solution
-more generic and widely applicable.
-Decision Point: Should we pursue a generic approach for no-IOMMU support in=
- the vhost vDPA driver,
-or should we implement a driver-specific solution?
+Yes, I think the help should be clearer
 
-Thanks,
-Srujana.
+> For the former, maybe we still want a separate config item that's
+> optionally enabled if VIRTIO_VFIO_PCI && VFIO_PCI_ADMIN_LEGACY.
+
+If we are going to add a bunch of  #ifdefs/etc for ADMIN_LEGACY we
+may as well just use VIRTIO_PCI_ADMIN_LEGACY directly and not
+introduce another kconfig for it?
+
+Is there any reason to compile out the migration support for virtio?
+No other drivers were doing this?
+
+kconfig combinations are painful, it woudl be nice to not make too
+many..
+
+Jason
