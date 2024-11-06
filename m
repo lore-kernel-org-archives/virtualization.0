@@ -1,198 +1,240 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F4CE2022F6
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 13:59:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730901558; cv=fail; b=P0VIMet3J04Qke3fgRsopG7LLDbVVTdydqxOk3KL80jbifYRWG2OX5dIy+G65N5uuKR4+wSZR2TxcK0XFrLg9W3dqiQbAvhftdp/YShJCvOQRqa+dCAiSui5y84eCo6f9fUeK2MyMeOiBhXEWyiSFfgrl5uPjwsAUEbbkBLRX6U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730901558; c=relaxed/simple;
-	bh=D5asV6Xw6+jStl4LsPOwe8CfOcx66ywaLW01F1hi9UI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=SLzsDIr03ng09inzHC/z+BV7TWhdm+SUvNnnE/Nw8XjHcPxOuklckZyq3K3ism5ZtUjWqco+J+5MZbpQvglkHzBnmXlYDbF7FbHamoReIbn8fbfoTQyeNdEM+0ByjLQLZvXOZdsUjz6Q1XFE8vRWF3i9uInkNhZIBB7Js6eaYwo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=kEuHk/dA; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71AD62040BC
+	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 15:29:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730906989; cv=none; b=Rgp9FRJNFi73TLs+SAdKBwA2rr8x+cFw7dnub2xKUR01uhki87GAknW7lz7nEn/20gYUH8eL8vwD8n2cYoK1AqzL+DeVEgNxMnEeZ9HattqP21/MO22g291GYc1RjyI2ih52nzMqvLe45vGunmNr8eV2cCiJwEVtXE/vgryGwvc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730906989; c=relaxed/simple;
+	bh=slDITeVaZJdLWTmohyTCR5uLP4r1HBqbMUAWjzsYL20=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=b8NuQPobJJQ/gBqhVadItJPr/qeC5sTMpzAYkFELfEZ1t5+Dp/Z2XgVk9OHlPypkmT67XB45YCpIPOWLHhNtpaW2gsPn0ThG26Fdo+WYU9/Bppi2/8hkdEjUJv3QGXp346FyTl0qpOtHMKJiUDeDPi2q4h9tI1/0JiHAWSIlkQ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NwXuqDyI; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="kEuHk/dA"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 135DE81156
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 13:59:17 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id VVk_Ynz-_DA4 for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Nov 2024 13:59:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2408::625; helo=nam04-bn8-obe.outbound.protection.outlook.com; envelope-from=jgg@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 5BB6E811AE
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5BB6E811AE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=kEuHk/dA
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on20625.outbound.protection.outlook.com [IPv6:2a01:111:f403:2408::625])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5BB6E811AE
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 13:59:15 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=D71PPLcd9P+cq5ANlxja069YCkrJcVz24669FybAhkcax/kXpKbYvrS9E4Hgc31tP3n/XSdapa3taba2xTGw6+y7VrI7IUBii2eZLV9myMxLqtQqDpIghWuyPs1V6sZnk70muVjzYOiHlPIHa9ykGpi3/r+kVz+uM/gRaIzToUS+hJAh/qo0yYFLdIt1yXtp4Bs7peW3TWmGNQU1IPLsQZkMgBJ+MdUns0T/6h292ORB180TnhTEZXxRe1XYOrqbuVJPD5Kyp4OZW2hO5StODkqHXhj3onRaNe/TsCLkVjrq4vjOH175KZ0Ni1oFzdsjvTuEEPKduO6iewcDy7S1bw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=bneBahdiOhu2O1gGeTrO3/mOl+3L+LdtGMzt49f8688=;
- b=JK59RkOEgyKfxUSxdvq8VhR+ZnNuYJ6IaH6ZnkZR0RGAdSEjwM8WEbQou8qzw/9HXwmf3nYPuw4nDhUM6lo5DRxh+LJeydKX6r6Vs5SUKOgoS2mN+JLunLlt57dW4vLODntQ2+GCEymLNX6avL7oYP8AtyU2JS4T4p6Hk4VcS36N1hj4QfKnTmquCvIPYHe+E3shQBl5N43VcG3WmJjqduANgtwab1zMcDsoqUYfkHfS5i8RG6nGTD1WvxaVqu75G8FbpO6O9arm6UrxaQijQk4UbvrZWIC4T7GuMkmGaGFR4ZLxxqzokDp7L9Tt4XBtrGMXLfk9BK774SaBTCfuAw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bneBahdiOhu2O1gGeTrO3/mOl+3L+LdtGMzt49f8688=;
- b=kEuHk/dAoBeM5g/uHAa8iM+9C+eESsN0gyGfO5e9EgtZuXHdFYIKjc3ydC4TBOl1vTln+OyRRPwXR7VlTBoz932AU1zGz85GQLBQvIXgWxG0r4YwqBhMdpDzzD+rm3cAR6ZUzzpmNBU5nsO4n5PPuQ31gIrfdxhGhItbxPxSfTtzSoQ7JKuAE5BmNKMxxNwvoCuhkU+lk6yPaXQwc47l2JZ2y6ifDlohkaap9CFbMI2PU/n0RkLKZFSPwgkjl/DnXQh3exEXO0/azaH8zT0LAglRyu4N2fSlLEh1jmjRA7Utb2XwZ9sEN1tYzsFpaIog+qzHQTg+m1cZSaRBLJPFbQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
- by PH0PR12MB7864.namprd12.prod.outlook.com (2603:10b6:510:26c::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Wed, 6 Nov
- 2024 13:59:10 +0000
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732%4]) with mapi id 15.20.8137.018; Wed, 6 Nov 2024
- 13:59:10 +0000
-Date: Wed, 6 Nov 2024 09:59:09 -0400
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: Yishai Hadas <yishaih@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	parav@nvidia.com, feliu@nvidia.com, kevin.tian@intel.com,
-	joao.m.martins@oracle.com, leonro@nvidia.com, maorg@nvidia.com
-Subject: Re: [PATCH V1 vfio 7/7] vfio/virtio: Enable live migration once
- VIRTIO_PCI was configured
-Message-ID: <20241106135909.GO458827@nvidia.com>
-References: <20241104102131.184193-1-yishaih@nvidia.com>
- <20241104102131.184193-8-yishaih@nvidia.com>
- <20241105162904.34b2114d.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241105162904.34b2114d.alex.williamson@redhat.com>
-X-ClientProxiedBy: BLAPR05CA0038.namprd05.prod.outlook.com
- (2603:10b6:208:335::19) To CH3PR12MB8659.namprd12.prod.outlook.com
- (2603:10b6:610:17c::13)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NwXuqDyI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730906986;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XOPbnWiJRNPBK8Iuorno9W+gLQNQbKU697K4rUrZaZA=;
+	b=NwXuqDyIlWRs+N/YRuYh5GsjDeLcovHWeWn2W7THuO+z3BP8AMFioekN+33ry/sfzlIPkV
+	k7LzBJMp+EcgUyucDElnrCw7jdz/I2rtm/odqEBYwUOMh/9+QLfae23RGLXoYquYWfnc3j
+	O9w++R+s26dfd5sC/kvG7769h2EkL4M=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-622-Jd7L38FnNs6O31V6PRlACw-1; Wed, 06 Nov 2024 10:29:45 -0500
+X-MC-Unique: Jd7L38FnNs6O31V6PRlACw-1
+X-Mimecast-MFC-AGG-ID: Jd7L38FnNs6O31V6PRlACw
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-6ea258fe4b6so137166037b3.1
+        for <virtualization@lists.linux.dev>; Wed, 06 Nov 2024 07:29:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730906985; x=1731511785;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=XOPbnWiJRNPBK8Iuorno9W+gLQNQbKU697K4rUrZaZA=;
+        b=F7K0iidmPop/fz6oBAHZJfMFaZOyEb4pmKuEvDlUmAHf+OlgEiij0NSbMFjPLD6kNq
+         C49rwBPRM0l9j0Z3lOvjRCk+e75VUQFmGyIeqQfdCj08Vjd7lPiqOHOtvtXGYrHs229C
+         vr6dyWvzjCzpwD8Fgu6XdEXBZQa5DrmZB3AG1HLjxzMChZkoct1jr8Qhx54S9+iq0hl0
+         O3fbwg4MuBQB7rgj9jh1VvVuXI4FeY8qVbcPBbyqgkPr2PfGLgxeHNwjTtopkAxcZa7e
+         QqmIj0BC5/QMgi34Ow5YN8hYl30kBCyHu8MiJorbOROeX1kiqtC0uZJxZQHfSXPZ14g/
+         ZSqg==
+X-Forwarded-Encrypted: i=1; AJvYcCX0fu1MNB+S9hFpI5ZRkNeFQmVQBTmur4iBSL8klhKRuuGaYy/xF0EppJV11SPxJEQND+Hk9/eIJ+s+8906uw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzQc8kaZ6WO8ryCyZ1qSqSrO57NYxltEOoN8mdb9NG0fK/+9GmC
+	c4ZTwbtMTQJqSHnMGo/ozGoVfgunZnDUQpcC1U0prbWFremedNdAr+3H97me+EVexnWETjjcMOx
+	Co+pTXjeh1N7MbUXWMstItNlB1n+GwPt2mWnK+MWZA1FxJKg1QdT/34Q16QvTdiNjy0uD1yZ6ZB
+	aeoUf9lpYg7RXFalBYQDvAIkbEvgqfOAmAC9SPIpo=
+X-Received: by 2002:a05:690c:3709:b0:6de:2ae:811f with SMTP id 00721157ae682-6ea64bf4929mr214868897b3.35.1730906984673;
+        Wed, 06 Nov 2024 07:29:44 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF9nPBTHJqeZMQrOB+AjpFwft6nmjDkLsM/1siwtBJuUveAw1rOQNtWk+iPD8sPue9NKKJFYwcetid08rljtMM=
+X-Received: by 2002:a05:690c:3709:b0:6de:2ae:811f with SMTP id
+ 00721157ae682-6ea64bf4929mr214868357b3.35.1730906984105; Wed, 06 Nov 2024
+ 07:29:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|PH0PR12MB7864:EE_
-X-MS-Office365-Filtering-Correlation-Id: 55749c2a-7cf5-46bb-79e6-08dcfe6b3053
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?yf4KkxZiRvmAWTDbSWYhrmevG3IMfc/ju98iswG9YMU09IM5lDYtfPhOnx2T?=
- =?us-ascii?Q?GhWnm71TmCRoxl8HVVcH8kI3WlbWC0Ws9ocB5VKJ81cxxrXvJ+wvS9OlLe4k?=
- =?us-ascii?Q?awLn6XBN2fACTu0of4+liHvOlS9G9zoYIQrzoIDOKINr0Qp0wvZ739sy+g6E?=
- =?us-ascii?Q?4iP3K6fDSauwGWmTN/HNd6Y8qWGTVIxu9RLoLCsWILw7+Quaw1OdKGsWWXY3?=
- =?us-ascii?Q?kXPhglQwa/1lC0wuO/sWBGCDcZpO8Io4hBSKD1R946Sm4g31DBxETHLxfzVe?=
- =?us-ascii?Q?79bBWHrg5dk2EnUCWFIFNLU+Pz5kXCjizc0Fz9oTM2T5bqjSPAo1NEHBefhB?=
- =?us-ascii?Q?GoWpRCdVaYlfp15c0EEpcnp0o4Tsvp4ZkCA68eBj2PvUWLlqMs7ZKpHi8f/0?=
- =?us-ascii?Q?/a0iFC5e6GFH3MFmzBUN2NmDCPziOWhuTUMzbN9RULXDrK2OMMySgyQaQFuy?=
- =?us-ascii?Q?LDFTxLPZuCJc0HgahD5D7adFutLQXUFI5w2Kvc4Smfe9bTUIBagiwTCX0EI9?=
- =?us-ascii?Q?/ZMS6zH9IAa8/MzqQSvp+4uzPNgnw8dHHSppWsiXDZqqpORF8WIGGS71VaKQ?=
- =?us-ascii?Q?YMY7D+iKtILF8mLnOCByw7NNphEnG2Qpfge3yUZr3d+S6ST2MS/mbu+YwXJF?=
- =?us-ascii?Q?87I01iQ3IE3v7Dg46wknUYBytiR4RcvUgMOvrqFXADAC34M/g+DQ8uTYTzYX?=
- =?us-ascii?Q?UGULlnZdsOZRcpkVUr9Nev1CA50pKd6c/Z/zoeLjvea1YSHJ0FtvaWbGz4k8?=
- =?us-ascii?Q?s1kDvufd0DOch/hvOoVWfuOZsJm16l4r/OGA0/jf8T/QS+RUMafO/EYgg0Yg?=
- =?us-ascii?Q?U0LAJGy7ZBxaYvd53XOesjA+A4SOPwDzylPyk5laCMaJ5hpZ4tT785pUlK6W?=
- =?us-ascii?Q?qRQo+SSEFD5og5JQCNyW3lch7p8lx0O7POQhj40zSZCtrsW2I9diOTf6Cuca?=
- =?us-ascii?Q?yJlTUnvA/KgR9Mw9KfaxshqoPkFATigoRN3/mg3+JPuJl/7FdxhP0nOUu5cj?=
- =?us-ascii?Q?O7j855uE0xau0v7Rwm9gO8ZvNHtNTZwuroXb4Si67i/QMnCvLi8ZexexKser?=
- =?us-ascii?Q?xp3Dv9vfOcN95COa5JQUJTI5NOI6FuSd4Z8w+HTGm5x6ro2siWGJKo4Vpzi5?=
- =?us-ascii?Q?vMkPQHuRfeV8+RFU8UkO4EMC0M2rgtZrQff02OZ2Zi0xoXp9/UPE39x6lEKe?=
- =?us-ascii?Q?sWyqj6XkG+Lc+XE9TQ7bTExbeDWxgEVMc7Pc72W1LL0ffcHNRPuycaoPyXSR?=
- =?us-ascii?Q?kPn7cZtIxbASAk0IrRbbg0RR+XxB5qyRgcD5tbsz+26T0p4vXgh2dq7dzoka?=
- =?us-ascii?Q?jCXZVy1srQDyJ9hAcczUQnDO?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?eLjaqUhicbPBCimpFNU6yL1WcfjXGfRVa5veW6PiEfcMIicOPA/otVullvkD?=
- =?us-ascii?Q?aaWydoRuRW99S59+VCjGA/5898XAa0uVTq9UKFDZJQ3JbbuAv9WA9CQEdCqv?=
- =?us-ascii?Q?kZG/W9mM+dFgL0SpdOxGwWU0KnXaf21g4EY5rgGf2Yrqni3QjdJ4VGBsJF6D?=
- =?us-ascii?Q?8A909TuJ3EA4dgI2czdmE9UJhEqh+c9kGEDznsPw/BIp0pB7o3k5NsdWwcxK?=
- =?us-ascii?Q?eJrS/oZXdTBnSBbqzHD6VOoC79aFn0fN4wnjljJamspp6JrKO7U0Z6jnw409?=
- =?us-ascii?Q?QKFSshzXr9XT96s+fC1QZp2MAq93U9gQWorDuztMPox52bfutUYn6d1SACgz?=
- =?us-ascii?Q?RuH6JqOf1ZhVvdLa6sfoRwSzolGIRufU2c460KxaoOEbBtdH4vccl+ZbFXnr?=
- =?us-ascii?Q?l/mvcNpX+uICZlm4ZYbGSyr3XUt83AOlyRmjtPnjy3Y3H8zbLanSZUie0axa?=
- =?us-ascii?Q?ncCzfv6orLpOvcxbQ4e5h0iErA1blRn68nZ2qLt1qT1qnZKZgqgN8CxtN9PY?=
- =?us-ascii?Q?7V8iPx/2U83OB94IgpO7ZrgEbyF51mSGWgRmcw+QN8kU968HS99l8uTiUbQi?=
- =?us-ascii?Q?yLXUxbdYfTp0nI2/T1V29ySIg62zIlkpA/XS/SmizYowfSrxHH08hlhdyz0I?=
- =?us-ascii?Q?TW6+wIBdfsBzvwIXidRwqDElF7a5F1dTJMGwnl2YYY3mFlrDIyyRHzBQ07ME?=
- =?us-ascii?Q?Ps1bBFGx4x+B80dCRMO4m/Izt65wTL7ZOStBgrnMf4fIcwKtbdN6qX7im8+s?=
- =?us-ascii?Q?wZOh6agYkBgjjSwD/wWh76lilo5y4SgQ/0uSvmDsj00HhdtrRk4KSC1TxhRa?=
- =?us-ascii?Q?H9wgELmxfwjJbuqmRcxagMronTtIizzAlVvI6P7agXiAFOXznZDekVeYfR8c?=
- =?us-ascii?Q?o5o1UrnF1shdGERGVjx2iYrPJenD7A8VDr/vLMhQGIuTIsbQROQJJVC1Qkka?=
- =?us-ascii?Q?qAmQGO+oLD/aub90IcxIjn7rhQ5XoRpEuirMi0qcwl2GXy49hGHQKqYbkRej?=
- =?us-ascii?Q?KaGQVCVeHaX31882t5RK+8xr01TL/+dcbO/ypnqZ9c3Cac7v7MCM/73Ud2pO?=
- =?us-ascii?Q?3IHyVRIJQ4mk8gRNm4o57zZFYVNSmolw4uPJHyPOq7eC3fztBPEP0p2kD+yV?=
- =?us-ascii?Q?eeG13Iq01/O/oYdCtGlI0+WBo/FWvs6jjsTHHSyKpGKr7uqGP0huCpN7/+zt?=
- =?us-ascii?Q?UVzKyJO2aaPaU0hoqdLy/gEaJzdbMrvqFR3qIGiCBAuKNR4N3H0xS4CaXqW3?=
- =?us-ascii?Q?7Mwl+vHYzHL07tQ3YvFKyRvDDUIXu3HKpEbVKA6sB8pBdrjI4ldkLPn54heA?=
- =?us-ascii?Q?/5oMlY+KC9YipBuRunLQC4iE4nCxi5ju/y+QT+MbiJ35gnPFj41W49g3oaJb?=
- =?us-ascii?Q?JDBUamyDD+ymQ8d95rMSo/AmUQEF7U1gDihF/Nhnk3x3/Z0zSnzfBYAZJmt6?=
- =?us-ascii?Q?PhGpodRZ4b0o66PN/p0Fbtnx+v9c7Ke8viqGlXf9Yuge4/wSIFzhiKSjbizv?=
- =?us-ascii?Q?sGOVNj9k0qoAP6RnmpY5QU9V5+68zlRxJZDiBoIGqSM8mVSrbJVerqVkTbCu?=
- =?us-ascii?Q?gOjBaqSt05GZNE1m5WmEzcVEMqTvQ+OrLpWo/oTf?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 55749c2a-7cf5-46bb-79e6-08dcfe6b3053
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2024 13:59:10.7295
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: OHLqDC7honkF+k9VXLyEaeziXzNl4yXHcy/CnOjclRCSo/uMtB7NfZCvOi4yIjl2
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7864
+References: <20241105185101.1323272-2-dtatulea@nvidia.com>
+In-Reply-To: <20241105185101.1323272-2-dtatulea@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 6 Nov 2024 16:29:08 +0100
+Message-ID: <CAJaqyWeCNfq=M1JSaBjVQLq8_zTpZyMJk0_CWLXVo7v_DGRQFw@mail.gmail.com>
+Subject: Re: [PATCH] vdpa/mlx5: Fix error path during device add
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, virtualization@lists.linux.dev, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: G5srpI7eN0NrPA7WwBv0GwXesszedCkr7onTKqm2Iyc_1730906985
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 05, 2024 at 04:29:04PM -0700, Alex Williamson wrote:
-> > @@ -1,7 +1,7 @@
-> >  # SPDX-License-Identifier: GPL-2.0-only
-> >  config VIRTIO_VFIO_PCI
-> >          tristate "VFIO support for VIRTIO NET PCI devices"
-> > -        depends on VIRTIO_PCI && VIRTIO_PCI_ADMIN_LEGACY
-> > +        depends on VIRTIO_PCI
-> >          select VFIO_PCI_CORE
-> >          help
-> >            This provides support for exposing VIRTIO NET VF devices which support
-> > @@ -11,5 +11,7 @@ config VIRTIO_VFIO_PCI
-> >            As of that this driver emulates I/O BAR in software to let a VF be
-> >            seen as a transitional device by its users and let it work with
-> >            a legacy driver.
-> > +          In addition, it provides migration support for VIRTIO NET VF devices
-> > +          using the VFIO framework.
-> 
-> The first half of this now describes something that may or may not be
-> enabled by this config option and the additional help text for
-> migration is vague enough relative to PF requirements to get user
-> reports that the driver doesn't work as intended.
+On Tue, Nov 5, 2024 at 7:52=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com>=
+ wrote:
+>
+> In the error recovery path of mlx5_vdpa_dev_add(), the cleanup is
+> executed and at the end put_device() is called which ends up calling
+> mlx5_vdpa_free(). This function will execute the same cleanup all over
+> again. Most resources support being cleaned up twice, but the recent
+> mlx5_vdpa_destroy_mr_resources() doesn't.
+>
+> This change drops the explicit cleanup from within the
+> mlx5_vdpa_dev_add() and lets mlx5_vdpa_free() do its work.
+>
+> This issue was discovered while trying to add 2 vdpa devices with the
+> same name:
+> $> vdpa dev add name vdpa-0 mgmtdev auxiliary/mlx5_core.sf.2
+> $> vdpa dev add name vdpa-0 mgmtdev auxiliary/mlx5_core.sf.3
+>
+> ... yields the following dump:
+>
+>   BUG: kernel NULL pointer dereference, address: 00000000000000b8
+>   #PF: supervisor read access in kernel mode
+>   #PF: error_code(0x0000) - not-present page
+>   PGD 0 P4D 0
+>   Oops: Oops: 0000 [#1] SMP
+>   CPU: 4 UID: 0 PID: 2811 Comm: vdpa Not tainted 6.12.0-rc6 #1
+>   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-g=
+f21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+>   RIP: 0010:destroy_workqueue+0xe/0x2a0
+>   Code: ...
+>   RSP: 0018:ffff88814920b9a8 EFLAGS: 00010282
+>   RAX: 0000000000000000 RBX: ffff888105c10000 RCX: 0000000000000000
+>   RDX: 0000000000000001 RSI: ffff888100400168 RDI: 0000000000000000
+>   RBP: 0000000000000000 R08: ffff888100120c00 R09: ffffffff828578c0
+>   R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+>   R13: ffff888131fd99a0 R14: 0000000000000000 R15: ffff888105c10580
+>   FS:  00007fdfa6b4f740(0000) GS:ffff88852ca00000(0000) knlGS:00000000000=
+00000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 00000000000000b8 CR3: 000000018db09006 CR4: 0000000000372eb0
+>   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>   Call Trace:
+>    <TASK>
+>    ? __die+0x20/0x60
+>    ? page_fault_oops+0x150/0x3e0
+>    ? exc_page_fault+0x74/0x130
+>    ? asm_exc_page_fault+0x22/0x30
+>    ? destroy_workqueue+0xe/0x2a0
+>    mlx5_vdpa_destroy_mr_resources+0x2b/0x40 [mlx5_vdpa]
+>    mlx5_vdpa_free+0x45/0x150 [mlx5_vdpa]
+>    vdpa_release_dev+0x1e/0x50 [vdpa]
+>    device_release+0x31/0x90
+>    kobject_put+0x8d/0x230
+>    mlx5_vdpa_dev_add+0x328/0x8b0 [mlx5_vdpa]
+>    vdpa_nl_cmd_dev_add_set_doit+0x2b8/0x4c0 [vdpa]
+>    genl_family_rcv_msg_doit+0xd0/0x120
+>    genl_rcv_msg+0x180/0x2b0
+>    ? __vdpa_alloc_device+0x1b0/0x1b0 [vdpa]
+>    ? genl_family_rcv_msg_dumpit+0xf0/0xf0
+>    netlink_rcv_skb+0x54/0x100
+>    genl_rcv+0x24/0x40
+>    netlink_unicast+0x1fc/0x2d0
+>    netlink_sendmsg+0x1e4/0x410
+>    __sock_sendmsg+0x38/0x60
+>    ? sockfd_lookup_light+0x12/0x60
+>    __sys_sendto+0x105/0x160
+>    ? __count_memcg_events+0x53/0xe0
+>    ? handle_mm_fault+0x100/0x220
+>    ? do_user_addr_fault+0x40d/0x620
+>    __x64_sys_sendto+0x20/0x30
+>    do_syscall_64+0x4c/0x100
+>    entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>   RIP: 0033:0x7fdfa6c66b57
+>   Code: ...
+>   RSP: 002b:00007ffeace22998 EFLAGS: 00000202 ORIG_RAX: 000000000000002c
+>   RAX: ffffffffffffffda RBX: 000055a498608350 RCX: 00007fdfa6c66b57
+>   RDX: 000000000000006c RSI: 000055a498608350 RDI: 0000000000000003
+>   RBP: 00007ffeace229c0 R08: 00007fdfa6d35200 R09: 000000000000000c
+>   R10: 0000000000000000 R11: 0000000000000202 R12: 000055a4986082a0
+>   R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffeace233f3
+>    </TASK>
+>   Modules linked in: ...
+>   CR2: 00000000000000b8
+>
+> Fixes: 62111654481d ("vdpa/mlx5: Postpone MR deletion")
 
-Yes, I think the help should be clearer
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-> For the former, maybe we still want a separate config item that's
-> optionally enabled if VIRTIO_VFIO_PCI && VFIO_PCI_ADMIN_LEGACY.
+Thanks!
 
-If we are going to add a bunch of  #ifdefs/etc for ADMIN_LEGACY we
-may as well just use VIRTIO_PCI_ADMIN_LEGACY directly and not
-introduce another kconfig for it?
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 21 +++++----------------
+>  1 file changed, 5 insertions(+), 16 deletions(-)
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index dee019977716..5f581e71e201 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -3963,28 +3963,28 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev=
+ *v_mdev, const char *name,
+>         mvdev->vdev.dma_dev =3D &mdev->pdev->dev;
+>         err =3D mlx5_vdpa_alloc_resources(&ndev->mvdev);
+>         if (err)
+> -               goto err_mpfs;
+> +               goto err_alloc;
+>
+>         err =3D mlx5_vdpa_init_mr_resources(mvdev);
+>         if (err)
+> -               goto err_res;
+> +               goto err_alloc;
+>
+>         if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
+>                 err =3D mlx5_vdpa_create_dma_mr(mvdev);
+>                 if (err)
+> -                       goto err_mr_res;
+> +                       goto err_alloc;
+>         }
+>
+>         err =3D alloc_fixed_resources(ndev);
+>         if (err)
+> -               goto err_mr;
+> +               goto err_alloc;
+>
+>         ndev->cvq_ent.mvdev =3D mvdev;
+>         INIT_WORK(&ndev->cvq_ent.work, mlx5_cvq_kick_handler);
+>         mvdev->wq =3D create_singlethread_workqueue("mlx5_vdpa_wq");
+>         if (!mvdev->wq) {
+>                 err =3D -ENOMEM;
+> -               goto err_res2;
+> +               goto err_alloc;
+>         }
+>
+>         mvdev->vdev.mdev =3D &mgtdev->mgtdev;
+> @@ -4010,17 +4010,6 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev =
+*v_mdev, const char *name,
+>         _vdpa_unregister_device(&mvdev->vdev);
+>  err_reg:
+>         destroy_workqueue(mvdev->wq);
+> -err_res2:
+> -       free_fixed_resources(ndev);
+> -err_mr:
+> -       mlx5_vdpa_clean_mrs(mvdev);
+> -err_mr_res:
+> -       mlx5_vdpa_destroy_mr_resources(mvdev);
+> -err_res:
+> -       mlx5_vdpa_free_resources(&ndev->mvdev);
+> -err_mpfs:
+> -       if (!is_zero_ether_addr(config->mac))
+> -               mlx5_mpfs_del_mac(pfmdev, config->mac);
+>  err_alloc:
+>         put_device(&mvdev->vdev.dev);
+>         return err;
+> --
+> 2.47.0
+>
 
-Is there any reason to compile out the migration support for virtio?
-No other drivers were doing this?
-
-kconfig combinations are painful, it woudl be nice to not make too
-many..
-
-Jason
