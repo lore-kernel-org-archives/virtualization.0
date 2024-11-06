@@ -1,139 +1,139 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3975F18786C
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 01:27:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5F9C18A922
+	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 01:28:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730856445; cv=none; b=bLjjVag4hHJyp7faih/5toYT8OchXuzUrwItzaPBtGi4Va3oZux3TRyEu8BMtLFrgbQ+BWHmAwq9GaUeRZ2DGlk68h3Dy4qzHY067IfZPHxNlN4drLI0SLhoTHHyKupvcSCxgO2tluaBXw4nNfa+JeKjkINR+8aOqFS3ZMgASAM=
+	t=1730856493; cv=none; b=r2S+uJdpoq5JmHqtqV/1yDkPNfC2JG5KJl2zkV3sdTR1kMWYIw0k1Y7jMCLjEwWUG+dEwjv2qOv9jfszIqzQ8qBRXxA1SSfkodn7Q/WF5p3Xi/qoO/eu/I8yy85yaMvbaxlzhYn+5FScXfgYVg12gC3kb+aZd039+UtqyORrcCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730856445; c=relaxed/simple;
-	bh=njdibPXQOQM2lEaEUF7Q6OeOAyl2vAILy1ic5HJUabU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VHUsJWiWUOoFMyS0fgd5C53kjTP49kfKLLc8La6wgHxO/XAkadsXEFjR1z57Aq/t73BzN1rV8lrqFEqAHh+0xKp2s7QOhtSpen31egRRpCFTJoFqr95YQFHXY+t00deDCmIDop6QN6uqEG2hQiyEh7ytn+yOBhABDbMEkpgn3R8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jM6cVksm; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1730856493; c=relaxed/simple;
+	bh=6rRLuoCkyirYKH6QU9Cfg2hcU0erJdtH7MonQT/EvP8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=GErqiJjzlZrO1URZMS+bZiiChGDAXzGdS9c7Zg0aJoPHnL2Jm1SLLZSJM9BUIkaypLZ/V5SCi9ds1RWqL8zaUlqbY9+YcVSh5I3hP7+Rmd8T8xMgJQj098l/8R9Ur45Rgj2IpIy+rKQNg+V5HuRniCk7BbJIM1DNyzWHDHbNfCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EUbxvRTn; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jM6cVksm"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B3EC540275
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 01:27:23 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id iXQyYEyVhXdZ for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Nov 2024 01:27:23 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::12c; helo=mail-il1-x12c.google.com; envelope-from=robdclark@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C0AE240204
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C0AE240204
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=jM6cVksm
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C0AE240204
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 01:27:22 +0000 (UTC)
-Received: by mail-il1-x12c.google.com with SMTP id e9e14a558f8ab-3a4e5401636so21898125ab.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 05 Nov 2024 17:27:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1730856441; x=1731461241; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TcxC+ORh9eBt+jOnM96T6OTZbBwlinEiMNH6d9wvoUs=;
-        b=jM6cVksmtPOFH7/L+3ybvc0rioCmoTKy1EeJgRaOdOmuWOXBP1GUzcR2llBhZjMcNE
-         h54DurD6FgO21HZPcUsAFZniC61Z88lcj3JaIbIM5aMZ/ufz3pUGhr6wVcidYbENQq/j
-         tEbRP/iWqIyFU7K72OubQZ1Qj9BXlYY5kMYOC2taF2Q94z/JAQx3rbyTY4A1w7ADvYnn
-         bZh/ebpqjmMz9MC3BpboL3I994pJe3dBulC9bFj/y+gPCpMm2XGqduv/+dtYyBCNZ2rr
-         3CEGkhVmzjQS0nn1YMexMQnpf6Id7vcLKwxLP1DLM7acCUDMAFy/AT+tBxZdGaToBxBy
-         Z6SA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730856441; x=1731461241;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TcxC+ORh9eBt+jOnM96T6OTZbBwlinEiMNH6d9wvoUs=;
-        b=LcnF93a5YA699DSacoabz6a12ni+/2RXYuGEGKKGvPEe4W/Vo6gCp/8JwFUoTspT6/
-         2heS9DgFjQfpoPAHXQI6yhlmITymXgfMWznNYDgK1z4LK2253siwaUhp9rx5+XFGJ5X5
-         LI9jV6NnaT9NOMSnrFOcehAICxEd1y2cvOb+4G7uN9tQfLMx6cZKeHxYO2iG55NqLZo/
-         2gGOmAjYDgz1WeCtky+0tErck77D5AGwuKJsIWP4Hmo2jgP8IJZTa/KwAbPyKF1gBXei
-         kHkswVAA/zl37F8dKW0MUfkVJmMa2hRwBDqaE/ZSAPigl+DWSijI23TXQFPnVeMLir6H
-         NT9Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUtx7wsfa0J2dWK1+Z/Mk28LmcP0TC2eUWDkvYftTg+xpw2z2SZAn3/p7KeCAijZzABSXrZzrTEjDCixSQrQQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzbHGdOp9HdzzQGj8q7s5CWIGnoR5pvlPIhMQnlKylRSfcCmRyq
-	L03RElzEpbWTDHUBzpZv6yD72wjx9SWqLgoVle75k6ostgyf9E1f+LYqXjnKZ6QFouBlLJ6z8Ha
-	CADkKQ6mqv2yk77VJBfi4iIHIAg0=
-X-Google-Smtp-Source: AGHT+IHK8YfN0cWKU5EzbpIzvioDDX+4UjhafdKqkGFG/9144aWhyTmx/bwu2zbbifHRZEYV7AUaD/0tSb65EKVTtMs=
-X-Received: by 2002:a05:6e02:1d11:b0:3a0:bd91:3842 with SMTP id
- e9e14a558f8ab-3a6b0393b63mr187747875ab.24.1730856441515; Tue, 05 Nov 2024
- 17:27:21 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EUbxvRTn"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1730856483; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=EOPQLCJ0U/I35sZO8/7VXVQOHxamPyOdJc+BysgSvqA=;
+	b=EUbxvRTnN8tWmfzfNpZTZ0Ps94MrDnok2yPyDoZwi305XLgaWQJEGfsk5frAoHRPZV4mYqHoB8KKbLZwrqOjMVczli8kDnrOajzcYlB8b0TMat14dxMKjvzT/2GqjT2fsKMav3nY0MaxrdrQ1qJOo0/BAtAE0x7qh3FqcSdUtkE=
+Received: from 30.221.128.108(mailfrom:lulie@linux.alibaba.com fp:SMTPD_---0WIoEygd_1730856481 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 06 Nov 2024 09:28:02 +0800
+Message-ID: <a10d6eda-d03f-42ea-af89-be0d798b5608@linux.alibaba.com>
+Date: Wed, 6 Nov 2024 09:28:01 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241020230803.247419-1-dmitry.osipenko@collabora.com>
-In-Reply-To: <20241020230803.247419-1-dmitry.osipenko@collabora.com>
-From: Rob Clark <robdclark@gmail.com>
-Date: Tue, 5 Nov 2024 17:27:09 -0800
-Message-ID: <CAF6AEGv73+k4fNm-5ZXTyf5jizx=Yq=HeA5AC7K-DrDA1Edn2w@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Use drm_gem_plane_helper_prepare_fb()
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>, Kim Dongwon <dongwon.kim@intel.com>, 
-	Kasireddy Vivek <vivek.kasireddy@intel.com>, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	kernel@collabora.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 4/4] virtio_net: Update rss when set queue
+To: Joe Damato <jdamato@fastly.com>, netdev@vger.kernel.org, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, andrew@daynix.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20241104085706.13872-1-lulie@linux.alibaba.com>
+ <20241104085706.13872-5-lulie@linux.alibaba.com>
+ <ZyqAovoIOYkNvtys@LQ3V64L9R2>
+From: Philo Lu <lulie@linux.alibaba.com>
+In-Reply-To: <ZyqAovoIOYkNvtys@LQ3V64L9R2>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, Oct 20, 2024 at 4:08=E2=80=AFPM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
->
-> From: Dongwon Kim <dongwon.kim@intel.com>
->
-> Use drm_gem_plane_helper_prepare_fb() helper for explicit framebuffer
-> synchronization. We need to wait for explicit fences in a case of
-> Venus and native contexts when guest user space uses explicit fencing.
->
-> Signed-off-by: Dongwon Kim <dongwon.kim@intel.com>
-> [dmitry.osipenko@collabora.com>: Edit commit message]
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-Reviewed-by: Rob Clark <robdclark@gmail.com>
 
-> ---
->  drivers/gpu/drm/virtio/virtgpu_plane.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/vir=
-tio/virtgpu_plane.c
-> index a72a2dbda031..ab7232921cb7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -26,6 +26,7 @@
->  #include <drm/drm_atomic_helper.h>
->  #include <drm/drm_damage_helper.h>
->  #include <drm/drm_fourcc.h>
-> +#include <drm/drm_gem_atomic_helper.h>
->
->  #include "virtgpu_drv.h"
->
-> @@ -254,6 +255,9 @@ static int virtio_gpu_plane_prepare_fb(struct drm_pla=
-ne *plane,
->
->         vgfb =3D to_virtio_gpu_framebuffer(new_state->fb);
->         bo =3D gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
-> +
-> +       drm_gem_plane_helper_prepare_fb(plane, new_state);
-> +
->         if (!bo || (plane->type =3D=3D DRM_PLANE_TYPE_PRIMARY && !bo->gue=
-st_blob))
->                 return 0;
->
-> --
-> 2.47.0
->
+On 2024/11/6 04:31, Joe Damato wrote:
+> On Mon, Nov 04, 2024 at 04:57:06PM +0800, Philo Lu wrote:
+>> RSS configuration should be updated with queue number. In particular, it
+>> should be updated when (1) rss enabled and (2) default rss configuration
+>> is used without user modification.
+>>
+>> During rss command processing, device updates queue_pairs using
+>> rss.max_tx_vq. That is, the device updates queue_pairs together with
+>> rss, so we can skip the sperate queue_pairs update
+>> (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
+>>
+>> Also remove the `vi->has_rss ?` check when setting vi->rss.max_tx_vq,
+>> because this is not used in the other hash_report case.
+>>
+>> Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
+>> Signed-off-by: Philo Lu <lulie@linux.alibaba.com>
+>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>> ---
+>>   drivers/net/virtio_net.c | 65 +++++++++++++++++++++++++++++++---------
+>>   1 file changed, 51 insertions(+), 14 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 59d9fdf562e0..189afad3ffaa 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -3394,15 +3394,59 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
+>>   		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
+>>   }
+>>   
+>> +static bool virtnet_commit_rss_command(struct virtnet_info *vi);
+>> +
+>> +static void virtnet_rss_update_by_qpairs(struct virtnet_info *vi, u16 queue_pairs)
+>> +{
+>> +	u32 indir_val = 0;
+>> +	int i = 0;
+>> +
+>> +	for (; i < vi->rss_indir_table_size; ++i) {
+>> +		indir_val = ethtool_rxfh_indir_default(i, queue_pairs);
+>> +		vi->rss.indirection_table[i] = indir_val;
+>> +	}
+>> +	vi->rss.max_tx_vq = queue_pairs;
+>> +}
+>> +
+>>   static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>>   {
+>>   	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
+>> -	struct scatterlist sg;
+>> +	struct virtio_net_ctrl_rss old_rss;
+>>   	struct net_device *dev = vi->dev;
+>> +	struct scatterlist sg;
+>>   
+>>   	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
+>>   		return 0;
+>>   
+>> +	/* Firstly check if we need update rss. Do updating if both (1) rss enabled and
+>> +	 * (2) no user configuration.
+>> +	 *
+>> +	 * During rss command processing, device updates queue_pairs using rss.max_tx_vq. That is,
+>> +	 * the device updates queue_pairs together with rss, so we can skip the sperate queue_pairs
+>> +	 * update (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
+>> +	 */
+>> +	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
+> 
+> Does there need to be an error case when:
+> 
+> vi->has_rss && netif_is_rxfh_configured(dev)
+> 
+> to return EINVAL? I noted that other drivers don't let users adjust
+> the queue count and return error in this case.
+> 
+
+In fact, there are 2 possible cases if users have adjusted rss, 
+depending on the total queue pairs used in the indirection table (x), 
+and the requested new queue count (y).
+
+Case A: If y < x, it's illegal and will be rejected by
+         ethtool_check_max_channel().
+Case B: If x <= y, we only adjust the queue number without touching the
+         rss configuration set by users.
+
+So I don't think it necessary to add the check (if the above processing 
+is agreed).
+
+Thanks for your review, Joe.
+
+-- 
+Philo
+
