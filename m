@@ -1,92 +1,151 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CF3420408D;
-	Wed,  6 Nov 2024 17:52:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44154207A2C
+	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 18:11:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730915547; cv=none; b=kAVc4Yb6w/g3+0IjYFgQvBA8vDNCXY4fmAMQwtjpRzCWW7wklQwdEIfPJGyO9mOhv6JM9PUONzveG32UbQqSySZ2YBz7GqNwcDO4pqcuYF7zyeZFFZ0FmQsWG7mqPflfxRNrbiZr2GMa6d9vtBWYJi/WlBYedYv8fjLE/vZnTfM=
+	t=1730916718; cv=none; b=bZ4qXEpRC5aw8X/YZY+iGMyoKCNCPzgYPMfQmFS0GNBvF/gN/cYMi2cp60Cre5y/uuDYnIGCIOowalxVYZKFCYvJ3ezTMhIj6j0DKqqJfRMDaRYrCFiwPGhdjpnC2k22owWojt0Kcgramc5dSAFwHH8ryxo4qoqaXprpmjiImJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730915547; c=relaxed/simple;
-	bh=KtPMXe1Kaoi+D+0zuVsHi/7XVFuHe7pLT3yUgBvsPWA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=EL8hdsuglkZRwNifAAzMXMPDQqbrukWIaTVTCxSDcGOjuaow+q6QfvQ8i0FDaQQrRrromBAKAbcHvQnP9eLdpp6mUEgTbO3cFAMhm6XuKSzIBBEbsW3jcRuT7ZM7WGJSMTDn8cSigBHPFrL7bmQcPhRO3faqwpg7FkOYKALARbU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Hg2S8iU/; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1730916718; c=relaxed/simple;
+	bh=yvjQ/QwuhwWPsHSqO7QwJhd1N8vOUQjWHlUwUQg4CVM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=EYQBBO0lfZ1QmY3HrsadAEl1EON2l4S55Hw9CaMOBzcgglFVAUtJk9RefWt/L1UDwX9Zm6NEzf7PLtW5JfpnxvHpskO3LAMbYWpIkNrG+lFrf01+yRXpNHlEkWDB+PA9Fi8Dl/UO/hnt8X/eTphqRIA5tY+bPsWo2bJ2hWsSt+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ajl2tVKa; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Hg2S8iU/"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1t8kCZ-00GBfK-Fk; Wed, 06 Nov 2024 18:52:19 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
-	Message-Id:Date:Subject:From; bh=wAYzmgNEdIPQcm7RdwInLHDyAgTWgXzUWExQ3LJunH4=
-	; b=Hg2S8iU/9HTIGKTP6qhlMJhACuhDz3iPyAC2mhkLZGzyyuzkLnylkxU1m0pz+rs06mPL7D2hq
-	9kaMKgwIpd4bQ90GDA3CUg7ZiCZM4vBqhZ2ofCNpsCkvAxQLhNivSEbgIUvaVVYI0oBIQo7ig4vvB
-	jIBJDy43PJXGh547KK9Fz/q+i2+mn4YnkL/EBc2tMmrFe/M4qYE2CR7YZo7Ajte46dF7kzB1n3zrL
-	GfJW9mKA0hgyX5qSPduC7wG6NBizoYPgzE+QuMNrQRxeUNyeU8OtvyiXO1AVjQ6Ja8XOvKCamZ3TC
-	saDK4FfLzCdVfBUzWKLEsoR5AO5P1AELM1jBqQ==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1t8kCT-0001ra-VZ; Wed, 06 Nov 2024 18:52:14 +0100
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1t8kCH-002ver-47; Wed, 06 Nov 2024 18:52:01 +0100
-From: Michal Luczaj <mhal@rbox.co>
-Subject: [PATCH net 0/4] virtio/vsock: Fix memory leaks
-Date: Wed, 06 Nov 2024 18:51:17 +0100
-Message-Id: <20241106-vsock-mem-leaks-v1-0-8f4ffc3099e6@rbox.co>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ajl2tVKa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730916715;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m7akKK1ASuchRhU3ArIUdcukaaD4eINOXBlBkGEKg9U=;
+	b=ajl2tVKaCJS1cQie/su4D3LlyYe96wU7dltJ3NGoPdKdEGi+WGxJw93zhHAWaCktiwRP9T
+	c+/F0jGMv8aM9kzKbB7s3r3JRHHdpYEQal9K8jPkV9LL9NRC67igoV8vyhafVJ8boFQz2g
+	qQdYMyIFtfDl2DseESw8HxrqzJIT+EE=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-196-_vyjvX19O0GKRMMLWe5mlw-1; Wed, 06 Nov 2024 13:11:54 -0500
+X-MC-Unique: _vyjvX19O0GKRMMLWe5mlw-1
+X-Mimecast-MFC-AGG-ID: _vyjvX19O0GKRMMLWe5mlw
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-539eeb63cc3so4716153e87.2
+        for <virtualization@lists.linux.dev>; Wed, 06 Nov 2024 10:11:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730916712; x=1731521512;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=m7akKK1ASuchRhU3ArIUdcukaaD4eINOXBlBkGEKg9U=;
+        b=UFM51oEgHU37XkFOHfNIESyycS3P0F4fOon/Kf2SRbJ4hkEU97YfTrmxRLSFOCPl7a
+         +efakTkvzJXf8Ru3e1qaa0ls7q3EBk9QUe5w8LwM2jsRVH5HYfNj95zFZGarPgRydyn9
+         6XYrZ74ovwNXgiFZyg7m1mxzTChFEvpDEr+F3kN1uLVcaf8K/7/jYCb7+dtLeIqfY4rf
+         EkZKERx+ievfNojGlgN5UR1KtSjP8z+zgdqw9DuIlIEhf7bKeabjZsCgr2c0LQCNFi4N
+         7XG6u6oQoe1tAkWTjAnOZpFsSWS3o/30YT65zf/AoYlRTikTa+iBtkofHbuB0IKy+axW
+         MXwg==
+X-Forwarded-Encrypted: i=1; AJvYcCXWMFQG64nppru6ZzN6mJomR0ke3nh0UF0eZKWUU/dSF0Tm/CKkOCTm9Ymb8FM3M3sC9+H7m4z5Krk+ULpy3Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywk4CB8iFNxYBl/YlpPjjOrtlT4iPfzLOdkc7wRbm+vr/XboILY
+	R9VExRPE6th3T+d0nVuqr/OUr3ERvEgBtSQ02PSr1QKidgqm1SPzmhvRnm9+7nIZtweSit8E5jK
+	2X38PGzEDUGhDqKfmzyKgDpYDT/rcIQcTkfRfbIjjJYOYGyvDXEHNHKInSnHXsIPI
+X-Received: by 2002:a05:6512:3195:b0:53a:1a81:f006 with SMTP id 2adb3069b0e04-53b7ecf3f38mr15111909e87.31.1730916712391;
+        Wed, 06 Nov 2024 10:11:52 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGmew/gCD5Q2KsewNL/Sf4xnRDh+daCiEmYAl/vHROruwsHL9IQF+rqviyy7n0pjiNi0YbGmA==
+X-Received: by 2002:a05:6512:3195:b0:53a:1a81:f006 with SMTP id 2adb3069b0e04-53b7ecf3f38mr15111891e87.31.1730916711812;
+        Wed, 06 Nov 2024 10:11:51 -0800 (PST)
+Received: from redhat.com ([2a02:14f:179:39a6:9751:f8aa:307a:2952])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa5b5b7fsm32223565e9.4.2024.11.06.10.11.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Nov 2024 10:11:51 -0800 (PST)
+Date: Wed, 6 Nov 2024 13:11:41 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Srujana Challa <schalla@marvell.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"jasowang@redhat.com" <jasowang@redhat.com>,
+	"eperezma@redhat.com" <eperezma@redhat.com>,
+	Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
+	Jerin Jacob <jerinj@marvell.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
+ NO-IOMMU mode
+Message-ID: <20241106131108-mutt-send-email-mst@kernel.org>
+References: <Zvu3HktM4imgHpUw@infradead.org>
+ <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <Zw3mC3Ej7m0KyZVv@infradead.org>
+ <20241016134127-mutt-send-email-mst@kernel.org>
+ <ZxCrqPPbidzZb6w1@infradead.org>
+ <20241019201059-mutt-send-email-mst@kernel.org>
+ <ZxieizC7zeS7zyrd@infradead.org>
+ <20241023041739-mutt-send-email-mst@kernel.org>
+ <ZxoN57kleWecXejY@infradead.org>
+ <DS0PR18MB5368B1BCC3CFAE5D7E4EB627A0532@DS0PR18MB5368.namprd18.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAJWsK2cC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIxNDQwMz3bLi/ORs3dzUXN2c1MTsYl3LJDPjVEtDI1Mzg0QloK6CotS0zAq
- widFKeaklSrG1tQDW+Q+8ZgAAAA==
-X-Change-ID: 20241106-vsock-mem-leaks-9b63e912560a
-To: Stefan Hajnoczi <stefanha@redhat.com>, 
- Stefano Garzarella <sgarzare@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Jia He <justin.he@arm.com>, 
- Arseniy Krasnov <avkrasnov@salutedevices.com>, 
- Dmitry Torokhov <dtor@vmware.com>, Andy King <acking@vmware.com>, 
- George Zhang <georgezhang@vmware.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.2
+In-Reply-To: <DS0PR18MB5368B1BCC3CFAE5D7E4EB627A0532@DS0PR18MB5368.namprd18.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: PMkf1-LU_zr2wdHIIw8Y3-XQvU3KYKFXiITFE0gFNFk_1730916713
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Short series fixing some memory leaks that I've stumbled upon while toying
-with the selftests.
+On Wed, Nov 06, 2024 at 12:38:02PM +0000, Srujana Challa wrote:
+> > Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for NO-
+> > IOMMU mode
+> > 
+> > On Wed, Oct 23, 2024 at 04: 19: 02AM -0400, Michael S. Tsirkin wrote: > On
+> > Tue, Oct 22, 2024 at 11: 58: 19PM -0700, Christoph Hellwig wrote: > > On Sat,
+> > Oct 19, 2024 at 08: 16: 44PM -0400, Michael S. Tsirkin wrote: > > > Because
+> > 
+> > On Wed, Oct 23, 2024 at 04:19:02AM -0400, Michael S. Tsirkin wrote:
+> > > On Tue, Oct 22, 2024 at 11:58:19PM -0700, Christoph Hellwig wrote:
+> > > > On Sat, Oct 19, 2024 at 08:16:44PM -0400, Michael S. Tsirkin wrote:
+> > > > > Because people want to move from some vendor specific solution
+> > > > > with vfio to a standard vdpa compatible one with vdpa.
+> > > >
+> > > > So now you have a want for new use cases and you turn that into a
+> > > > must for supporting completely insecure and dangerous crap.
+> > >
+> > > Nope.
+> > >
+> > > kernel is tainted -> unsupported
+> > >
+> > > whoever supports tainted kernels is already in dangerous waters.
+> > 
+> > That's not a carte blanche for doing whatever crazy stuff you want.
+> > 
+> > And if you don't trust me I'll add Greg who has a very clear opinion on
+> > IOMMU-bypassing user I/O hooks in the style of the uio driver as well I think
+> > :)
+> 
+> It is going in circles, let me give the summary,
+> Issue: We need to address the lack of no-IOMMU support in the vhost vDPA driver for better performance.
+> Measured Performance: On the machine "13th Gen Intel(R) Core(TM) i9-13900K, 32 Cores", we observed
+> a performance improvement of 70 - 80% with intel_iommu=off when we run high-throughput network
+> packet processing.
+> Rationale for Fix: High-end machines which gives better performance with IOMMU are very expensive,
+> and certain use cases, such as embedded environment and trusted applications, do not require
+> the security features provided by IOMMU.
+> Initial Approach: We initially considered a driver-based solution, specifically integrating no-IOMMU
+> support into Marvell’s octep-vdpa driver.
+> Initial Community Feedback: The community suggested adopting a VFIO-like scheme to make the solution
+> more generic and widely applicable.
+> Decision Point: Should we pursue a generic approach for no-IOMMU support in the vhost vDPA driver,
+> or should we implement a driver-specific solution?
+> 
+> Thanks,
+> Srujana.
 
-The last patch is a refactoring.
+This point does not matter for Christoph.
 
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
-Michal Luczaj (4):
-      virtio/vsock: Fix accept_queue memory leak
-      virtio/vsock: Fix sk_error_queue memory leak
-      virtio/vsock: Improve MSG_ZEROCOPY error handling
-      virtio/vsock: Put vsock_connected_sockets_vsk() to use
-
- net/vmw_vsock/af_vsock.c                | 6 ++++--
- net/vmw_vsock/virtio_transport_common.c | 9 +++++++++
- 2 files changed, 13 insertions(+), 2 deletions(-)
----
-base-commit: 372ea06d6187810351ed778faf683e93f16a5de4
-change-id: 20241106-vsock-mem-leaks-9b63e912560a
-
-Best regards,
 -- 
-Michal Luczaj <mhal@rbox.co>
+MST
 
