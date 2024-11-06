@@ -1,280 +1,154 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C5371D90AC
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 09:21:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36CF2142E86
+	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 09:29:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730884916; cv=none; b=jO3P5DtOLq433MjjaSlIBgILxAqS1YFZdm8xs9dlTILvdD1rUnaY5XBY6uunrSskFfDSutkv44OyCHsXVxsT3Z3zvMR4/by8X5sr+7SPlzZCpWtmpD6yYE/4M3HJx/CtJib2EwgLD9ZyiUAQhW/PQxWL7BUgYpAr1XBtnZfN9DI=
+	t=1730885344; cv=none; b=I4vaXAiM/xIM8smdYk4mts2nrlP6nR1HkF7C1rt/Pl7bWKbaeVE4GKA604KaLlsds2MRpXtm/W3rEeSTWpcaMznU12PmBZ1OuEkrHCmPGVOJb2Efc8irnUGChoF5CMkSwsIvT3nFqDQA35J+zEnHDv9pEhUhzC1D5BUP5PvQIUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730884916; c=relaxed/simple;
-	bh=Pw+CI4bHxgFkgqeCayKSDMkesfgD/0zFa0vhtdOxMjc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Mz5sMfYy+qUvOnCofla2UVGH6taRbeqFI8vAfPidTdv308+6lcIfgAopSCTZ/h76tGGCfzjxLdqTXLMkiuiA2wTH/u7sIRCxlX/+YwVKdI3mlQ5ENUac4k9avgEFHWZ6Znvod2OeTKM3wZBLmU/j4dWbvADX27csQNwSpzHBNgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BdC6FL8n; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1730885344; c=relaxed/simple;
+	bh=gD3ymZXOf1Xp+zXbXqMleltiFT4RiaNkSbFjDmEzFhY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=dSVLwjuH/WzVxT1fsSiotJ++nD7bx4vSHZab6WdcTBzGPdKgZItng1bXAZFAPvq/t5udFqibS5+TojQMKImfmzaVdpComSGmrcaCIW/pWiINu0x5siLdIBcffgAN+v99WxqnYipb3t4ctz4I86kIWhyNFp/H3bLRPnn/JPGLLBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iB+tcl+1; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BdC6FL8n"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AB94380D24
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 09:21:54 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id V8nyLtyx7E_t for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Nov 2024 09:21:54 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org BA1B380D17
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BA1B380D17
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BdC6FL8n
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BA1B380D17
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 09:21:52 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iB+tcl+1"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730884912;
+	s=mimecast20190719; t=1730885342;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=G+/r8y82t5LpcD8J2mPdZCtNa7f1NkKmPiS7dBnIVQM=;
-	b=BdC6FL8n/r6l0YXDMFmBUlu/lDE9gZjO7ixpvRABQpHfsRdcwZ4R0qVkfzt3sctmU5F1qx
-	XD7inx2yObFcIQqRoMi0VQWtuOzLiu4uz+MXjuZxONufrun1tr28+kWQnGSGjoc6kS45+P
-	8nEw6bT9p+U2rAUUAz3XnaoHxsnWQ0I=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Ejx68tuVg9mOD/4Icv7MBobbv6b7kreS3ffjJVREaDU=;
+	b=iB+tcl+1AEaOuyaVACays+4G27L/FXGrXL2dIbuCiqxKb1V5xuW0i/yjHNXzMTcdHe1E+b
+	PWni14ixHNeddukW9H0Tzo6ukUoP646w2iZ1n9jCmyQMDM6ZDI8Swg/CEnelnZ77vfDwRN
+	1hmqSy9qpt2Y32oC5YzzpsWlc64I1u0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-498-LmypGPhjMrC6l0xYFqWMGg-1; Wed, 06 Nov 2024 04:21:50 -0500
-X-MC-Unique: LmypGPhjMrC6l0xYFqWMGg-1
-X-Mimecast-MFC-AGG-ID: LmypGPhjMrC6l0xYFqWMGg
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a99fff1ad9cso71883866b.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 06 Nov 2024 01:21:50 -0800 (PST)
+ us-mta-158-ZpThGegVPcum2FzmbteOEw-1; Wed, 06 Nov 2024 04:29:00 -0500
+X-MC-Unique: ZpThGegVPcum2FzmbteOEw-1
+X-Mimecast-MFC-AGG-ID: ZpThGegVPcum2FzmbteOEw
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43159c07193so55155175e9.0
+        for <virtualization@lists.linux.dev>; Wed, 06 Nov 2024 01:29:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730884909; x=1731489709;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=G+/r8y82t5LpcD8J2mPdZCtNa7f1NkKmPiS7dBnIVQM=;
-        b=dSZgTETcjw4rbvp2ZV70W+QUXK1igs9RbQqKhfc7mVX3wKr0RRO/rYIpCpuuBgjYT8
-         0qAWIPhDtqJt5qYyIqbZCETEHyckL8Q0eKBaqyMh+v/I+els6tR/ieMytiLFUStOmXUv
-         skyfGkCkcynVuO0vZOma+TrX0lIUKbfsBu9x2gKYWoZEOvH3fyz+l0nUBzxOa7gp5TWD
-         mnK6WpA0+JWmkEzgxm37cq8uDGRMkAqD1gwwkl/Pw6INKX4II0lpoNsIx1ZZKdI4OOTh
-         HbQBPceyfnCVK+Dpp170qHSfZO2ObiaHi0xLr4fAs9SpbxH1U6jS58lRX3Zp2JrE4IW0
-         kJjw==
-X-Forwarded-Encrypted: i=1; AJvYcCUVOvPLAO8lFJdpGXpSorvqRWKSBeRnaGSckoyj7k10HWOHl37wkBoSejb8LAg/fzPguardP/EHbZuDo8ZEKA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwSG+1CIwXTts9GkvdYXR1fOnd0S+WbP16T0U5C40XzGuy1JiLn
-	y3Pf1yV3udcm5VebZXIwSmJCtmWWn7ZLe+6DuxPCdji19EjaI+7SLzJ9pt3rp6qLwNgFb7HiakJ
-	9zrQYdn5cLSfGoKvpwmBhnCncIZy+iGwXdCULUmoEXSu8Oq9a44Cz6VeQ4YbYdsRqRIAXU6pfoy
-	HMbR+KSbrt9vVYYuGtSxfUQZQpAyuAUpFl64nvmGt+zbLpQKWgN5TzPw==
-X-Received: by 2002:a17:906:dc91:b0:a9a:4f78:c3 with SMTP id a640c23a62f3a-a9e3a5a0da3mr2632258266b.21.1730884909155;
-        Wed, 06 Nov 2024 01:21:49 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHaDNg6wSMGmRW4F0u9QWcnzmzJVMDxrKOMNX8UWkiv8lV8hKePP9x5R6DeNMjld7k4M/mJKlB64IX5d/Yhcbk=
-X-Received: by 2002:a17:906:dc91:b0:a9a:4f78:c3 with SMTP id
- a640c23a62f3a-a9e3a5a0da3mr2632249266b.21.1730884907353; Wed, 06 Nov 2024
- 01:21:47 -0800 (PST)
+        d=1e100.net; s=20230601; t=1730885339; x=1731490139;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ejx68tuVg9mOD/4Icv7MBobbv6b7kreS3ffjJVREaDU=;
+        b=vELXD4gHVHOsPj6aEil7B1+0s1nA5J2TCgFkQjhv7y0C7rPHCb0sxXdP99uDOgRUqd
+         67VuxQkAxl1OjF5YsRLT0XrygufvGTo4opmd1GDck+k9DwVCB0BxFvsu9Ge1cbMCZ85Z
+         1F9K6bPQR7+iBbgS/fpd72mnE6ub8z7Qw5hQlAZot3orUmIG2mRXyDe38LnN1YWfStS+
+         eUke9Rt3yAvUd8Fgh+ofbdq0HutnPwTCpD+tP/iDnaOgkrkcW4JMllCJZfkpnQxaW76J
+         sudZws8zxxdPE9O2eMn6amANDrRSZLfDiv0QmVK2uUYeEqWf4fuWR8RJE7LJq7hujQe/
+         PKEg==
+X-Forwarded-Encrypted: i=1; AJvYcCVO7uE8QFUU45FNMc73o0f7FG0wg9YxH+JcKdVaRuThJkq6pTStwQph3WgfrhmWa3Vey1aNugmBzS0OpPkNhQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzVL+r7BaMktG5gdXkagBrUQXoSpNxnit0rM4G5SSqvLwxAEqQe
+	e0kLLW2wdz0qLAx8LBebfhj8eQSZHRtD0K9hwAGpqZ66G7S/Dp7x0R3fVmo9Su2FXf35Pc/evBp
+	D6bpG1YYWwN3BDN7+r9FUQjM4UUQxmQ/NPPFYFQyXb5qmaYVMRlcC8yYu5tkFsf1Q
+X-Received: by 2002:a05:600c:4689:b0:431:52a3:d9d5 with SMTP id 5b1f17b1804b1-432831cb9demr222901255e9.0.1730885339663;
+        Wed, 06 Nov 2024 01:28:59 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHWjjkdr5r4V7Q+Qj0G1hCbvfLQeB4lT/9xr2DmAO0MVtWQKCdBKQf0iOb506nFA0FTNUYXlA==
+X-Received: by 2002:a05:600c:4689:b0:431:52a3:d9d5 with SMTP id 5b1f17b1804b1-432831cb9demr222900675e9.0.1730885339211;
+        Wed, 06 Nov 2024 01:28:59 -0800 (PST)
+Received: from redhat.com ([2a02:14f:178:e74:5fcf:8a69:659d:f2b2])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa5b60cfsm15505215e9.7.2024.11.06.01.28.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Nov 2024 01:28:58 -0800 (PST)
+Date: Wed, 6 Nov 2024 04:28:53 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: qiang4.zhang@linux.intel.com, Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Jens Axboe <axboe@kernel.dk>, Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Gonglei <arei.gonglei@huawei.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	"Chen, Jian Jun" <jian.jun.chen@intel.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	David Hildenbrand <david@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	Qiang Zhang <qiang4.zhang@intel.com>,
+	virtualization@lists.linux.dev, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-sound@vger.kernel.org
+Subject: Re: [PATCH v2] virtio: only reset device and restore status if
+ needed in device resume
+Message-ID: <20241106042828-mutt-send-email-mst@kernel.org>
+References: <20241031030847.3253873-1-qiang4.zhang@linux.intel.com>
+ <20241101015101.98111-1-qiang4.zhang@linux.intel.com>
+ <CACGkMEtvrBRd8BaeUiR6bm1xVX4KUGa83s03tPWPHB2U0mYfLA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241105072642.898710-1-lulu@redhat.com> <20241105072642.898710-5-lulu@redhat.com>
- <CACGkMEvwirx3C7QL_xYB_niYBYfugCR9OMWqwcPfAPX=E1Qm=Q@mail.gmail.com>
-In-Reply-To: <CACGkMEvwirx3C7QL_xYB_niYBYfugCR9OMWqwcPfAPX=E1Qm=Q@mail.gmail.com>
-From: Cindy Lu <lulu@redhat.com>
-Date: Wed, 6 Nov 2024 17:21:09 +0800
-Message-ID: <CACLfguXEc85-59966iK-aO2uzKthcv2TqGpK3VLhNs1K0pBq9w@mail.gmail.com>
-Subject: Re: [PATCH v3 4/9] vhost: Add kthread support in function vhost_worker_create
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
+In-Reply-To: <CACGkMEtvrBRd8BaeUiR6bm1xVX4KUGa83s03tPWPHB2U0mYfLA@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LPi1rEbykwDXHNgEa8FMVT4w7e0gilbZGkvswoPBHdM_1730884909
+X-Mimecast-MFC-PROC-ID: atPR9F5oDYZRi6zJxUdAVvmcspy72lJ_Ayh5w46yywQ_1730885340
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 5, 2024 at 5:36=E2=80=AFPM Jason Wang <jasowang@redhat.com> wro=
-te:
->
-> On Tue, Nov 5, 2024 at 3:27=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+On Fri, Nov 01, 2024 at 10:11:11AM +0800, Jason Wang wrote:
+> On Fri, Nov 1, 2024 at 9:54 AM <qiang4.zhang@linux.intel.com> wrote:
 > >
-> > Restored the previous functions kthread_wakeup and kthread_stop.
-> > Also add a new structure, vhost_task_fn. The function vhost_worker_crea=
-te
-> > Will initializes this structure based on the value of inherit_owner.
+> > From: Qiang Zhang <qiang4.zhang@intel.com>
 > >
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > ---
-> >  drivers/vhost/vhost.c | 71 ++++++++++++++++++++++++++++++++++++-------
-> >  drivers/vhost/vhost.h |  6 ++++
-> >  2 files changed, 66 insertions(+), 11 deletions(-)
+> > Virtio core unconditionally reset and restore status for all virtio
+> > devices before calling restore method. This breaks some virtio drivers
+> > which don't need to do anything in suspend and resume because they
+> > just want to keep device state retained.
+> 
+> The challenge is how can driver know device doesn't need rest.
+
+I actually don't remember why do we do reset on restore. Do you?
+
+
+> For example, PCI has no_soft_reset which has been done in the commit
+> "virtio: Add support for no-reset virtio PCI PM".
+> 
+> And there's a ongoing long discussion of adding suspend support in the
+> virtio spec, then driver know it's safe to suspend/resume without
+> reset.
+> 
 > >
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index e40cef3a1fa5..603b146fccc1 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -741,43 +741,92 @@ static void vhost_workers_free(struct vhost_dev *=
-dev)
-> >         xa_destroy(&dev->worker_xa);
-> >  }
+> > Virtio GPIO is a typical example. GPIO states should be kept unchanged
+> > after suspend and resume (e.g. output pins keep driving the output) and
+> > Virtio GPIO driver does nothing in freeze and restore methods. But the
+> > reset operation in virtio_device_restore breaks this.
+> 
+> Is this mandated by GPIO or virtio spec? If yes, let's quote the revelant part.
+> 
 > >
-> > +static int vhost_task_wakeup_fn(void *vtsk)
-> > +{
-> > +       vhost_task_wake((struct vhost_task *)vtsk);
-> > +       return 0;
-> > +}
->
-> Let's have a newline between two functions.
->
-will fix this
-> > +static int vhost_kthread_wakeup_fn(void *p)
-> > +{
-> > +       return wake_up_process((struct task_struct *)p);
-> > +}
-> > +static int vhost_task_stop_fn(void *vtsk)
-> > +{
-> > +       vhost_task_stop((struct vhost_task *)vtsk);
-> > +       return 0;
-> > +}
-> > +static int vhost_kthread_stop_fn(void *k)
-> > +{
-> > +       return kthread_stop((struct task_struct *)k);
-> > +}
-> > +
-> >  static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
-> >  {
-> >         struct vhost_worker *worker;
-> > -       struct vhost_task *vtsk;
-> > +       struct vhost_task *vtsk =3D NULL;
-> > +       struct task_struct *task =3D NULL;
-> >         char name[TASK_COMM_LEN];
-> >         int ret;
-> >         u32 id;
+> > Since some devices need reset in suspend and resume while some needn't,
+> > create a new helper function for the original reset and status restore
+> > logic so that virtio drivers can invoke it in their restore method
+> > if necessary.
+> 
+> How are those drivers classified?
+> 
 > >
-> > +       /* Allocate resources for the worker */
-> >         worker =3D kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
-> >         if (!worker)
-> >                 return NULL;
-> >
-> > +       worker->fn =3D kzalloc(sizeof(struct vhost_task_fn), GFP_KERNEL=
-_ACCOUNT);
-> > +       if (!worker->fn) {
-> > +               kfree(worker);
-> > +               return NULL;
-> > +       }
-> > +
-> >         worker->dev =3D dev;
-> >         snprintf(name, sizeof(name), "vhost-%d", current->pid);
-> >
-> > -       vtsk =3D vhost_task_create(vhost_run_work_list, vhost_worker_ki=
-lled,
-> > -                                worker, name);
-> > -       if (!vtsk)
-> > -               goto free_worker;
-> > -
-> >         mutex_init(&worker->mutex);
-> >         init_llist_head(&worker->work_list);
-> >         worker->kcov_handle =3D kcov_common_handle();
-> > -       worker->vtsk =3D vtsk;
-> >
-> > -       vhost_task_start(vtsk);
-> > +       if (dev->inherit_owner) {
-> > +               /* Create and start a vhost task */
-> > +               vtsk =3D vhost_task_create(vhost_run_work_list,
-> > +                                        vhost_worker_killed, worker, n=
-ame);
-> > +               if (!vtsk)
-> > +                       goto free_worker;
-> > +
-> > +               worker->vtsk =3D vtsk;
-> > +               worker->fn->wakeup =3D vhost_task_wakeup_fn;
-> > +               worker->fn->stop =3D vhost_task_stop_fn;
-> > +
-> > +               vhost_task_start(vtsk);
-> > +       } else {
-> > +               /* Create and start a kernel thread */
-> > +               task =3D kthread_create(vhost_run_work_kthread_list, wo=
-rker,
-> > +                                     "vhost-%d", current->pid);
-> > +               if (IS_ERR(task)) {
-> > +                       ret =3D PTR_ERR(task);
-> > +                       goto free_worker;
-> > +               }
-> > +               worker->task =3D task;
-> > +               worker->fn->wakeup =3D vhost_kthread_wakeup_fn;
-> > +               worker->fn->stop =3D vhost_kthread_stop_fn;
-> > +
-> > +               wake_up_process(task);
-> > +               /* Attach to the vhost cgroup */
-> > +               ret =3D vhost_attach_cgroups(dev);
-> > +               if (ret)
-> > +                       goto stop_worker;
-> > +       }
-> >
-> >         ret =3D xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GF=
-P_KERNEL);
-> >         if (ret < 0)
-> >                 goto stop_worker;
-> >         worker->id =3D id;
-> > -
-> >         return worker;
-> > -
-> >  stop_worker:
-> > -       vhost_task_stop(vtsk);
-> > +       worker->fn->stop(dev->inherit_owner ? (void *)vtsk : (void *)ta=
-sk);
-> >  free_worker:
-> > +       kfree(worker->fn);
-> >         kfree(worker);
-> >         return NULL;
-> >  }
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > index c650c4506c70..ebababa4e340 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -25,8 +25,13 @@ struct vhost_work {
-> >         vhost_work_fn_t         fn;
-> >         unsigned long           flags;
-> >  };
-> > +struct vhost_task_fn {
-> > +       int (*wakeup)(void *task);
->
-> Let's have comments to explain the semantics of each operation.
->
-sure, will fix this
-> > +       int (*stop)(void *task);
-> > +};
->
-> I think the goal is to reduce if/else, so while at this, let's
-> introduce more ops. For example the create_worker one?
->
-sure, will change this part
-thanks
-cindy
-> >
-> >  struct vhost_worker {
-> > +       struct task_struct      *task;
-> >         struct vhost_task       *vtsk;
-> >         struct vhost_dev        *dev;
-> >         /* Used to serialize device wide flushing with worker swapping.=
- */
-> > @@ -36,6 +41,7 @@ struct vhost_worker {
-> >         u32                     id;
-> >         int                     attachment_cnt;
-> >         bool                    killed;
-> > +       struct vhost_task_fn *fn;
-> >  };
-> >
-> >  /* Poll a file (eventfd or socket) */
-> > --
-> > 2.45.0
-> >
->
+> > Signed-off-by: Qiang Zhang <qiang4.zhang@intel.com>
+> 
 > Thanks
->
 
