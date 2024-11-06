@@ -1,154 +1,114 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36CF2142E86
-	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 09:29:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F1D81D27BA
+	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 09:31:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730885344; cv=none; b=I4vaXAiM/xIM8smdYk4mts2nrlP6nR1HkF7C1rt/Pl7bWKbaeVE4GKA604KaLlsds2MRpXtm/W3rEeSTWpcaMznU12PmBZ1OuEkrHCmPGVOJb2Efc8irnUGChoF5CMkSwsIvT3nFqDQA35J+zEnHDv9pEhUhzC1D5BUP5PvQIUc=
+	t=1730885494; cv=none; b=ebS6xn+jfwGCDSFRGUduUnOweDW0oeM/bwS2e+EgRGV6t+3U8rhJKbeLgs7PzRtAMdKWXegqyY7ona87tC9QhVOhxIqEnbkP/fBfsy3CAd0P/vkhOjd+MTRTTxgkHv4nza7U84IMcV0fYGSlJWLTWwoA4IekaVQBml9K4hD9Ejg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730885344; c=relaxed/simple;
-	bh=gD3ymZXOf1Xp+zXbXqMleltiFT4RiaNkSbFjDmEzFhY=;
+	s=arc-20240116; t=1730885494; c=relaxed/simple;
+	bh=JiQ4UZeYNmZjPUCdRREOzBbUPxshCp9ydNEIQdTxnkg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dSVLwjuH/WzVxT1fsSiotJ++nD7bx4vSHZab6WdcTBzGPdKgZItng1bXAZFAPvq/t5udFqibS5+TojQMKImfmzaVdpComSGmrcaCIW/pWiINu0x5siLdIBcffgAN+v99WxqnYipb3t4ctz4I86kIWhyNFp/H3bLRPnn/JPGLLBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iB+tcl+1; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=EvwOeVQZLr632Xixw973IBYTlcZlrbS31IRqZy58+JnkppqBTmxV3lnaHMtkhYY9+4o8YwTXUp5yqb54T11+nl0iu9G6ISVp1eTCAhxMxrL3CLbIiX7Sa4MBZO8+eIfUZVMYQX+O0k6g4vTDmB8SsTyn3GqUDulb2VuoHd5vz6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K9uzxNfa; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iB+tcl+1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K9uzxNfa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730885342;
+	s=mimecast20190719; t=1730885492;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Ejx68tuVg9mOD/4Icv7MBobbv6b7kreS3ffjJVREaDU=;
-	b=iB+tcl+1AEaOuyaVACays+4G27L/FXGrXL2dIbuCiqxKb1V5xuW0i/yjHNXzMTcdHe1E+b
-	PWni14ixHNeddukW9H0Tzo6ukUoP646w2iZ1n9jCmyQMDM6ZDI8Swg/CEnelnZ77vfDwRN
-	1hmqSy9qpt2Y32oC5YzzpsWlc64I1u0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=v58eFNnRCpQyAQvqQmmVaZ0uMDgtCEI/dBsjoJSUfhk=;
+	b=K9uzxNfaZtvwBfnhh1khO6ao/+vMtsQ3CVlWXc3h/D0RjoKyRi5Z1w6NqL5tzA+i5TNizT
+	sdyz5fzkL0B7UZPWh5Hj8P5zARYTFFz9hl0JX4rhBz1Zq+C2ZpfHi/+S4Gtm+3B5VW9qk7
+	G5kQlOvrHZXgWqdMVhxhMU90ogLq9hw=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-158-ZpThGegVPcum2FzmbteOEw-1; Wed, 06 Nov 2024 04:29:00 -0500
-X-MC-Unique: ZpThGegVPcum2FzmbteOEw-1
-X-Mimecast-MFC-AGG-ID: ZpThGegVPcum2FzmbteOEw
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43159c07193so55155175e9.0
-        for <virtualization@lists.linux.dev>; Wed, 06 Nov 2024 01:29:00 -0800 (PST)
+ us-mta-280-90FJf8h0ObuTb3zHkvaZWQ-1; Wed, 06 Nov 2024 04:31:30 -0500
+X-MC-Unique: 90FJf8h0ObuTb3zHkvaZWQ-1
+X-Mimecast-MFC-AGG-ID: 90FJf8h0ObuTb3zHkvaZWQ
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-539e75025f9so3678904e87.3
+        for <virtualization@lists.linux.dev>; Wed, 06 Nov 2024 01:31:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730885339; x=1731490139;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ejx68tuVg9mOD/4Icv7MBobbv6b7kreS3ffjJVREaDU=;
-        b=vELXD4gHVHOsPj6aEil7B1+0s1nA5J2TCgFkQjhv7y0C7rPHCb0sxXdP99uDOgRUqd
-         67VuxQkAxl1OjF5YsRLT0XrygufvGTo4opmd1GDck+k9DwVCB0BxFvsu9Ge1cbMCZ85Z
-         1F9K6bPQR7+iBbgS/fpd72mnE6ub8z7Qw5hQlAZot3orUmIG2mRXyDe38LnN1YWfStS+
-         eUke9Rt3yAvUd8Fgh+ofbdq0HutnPwTCpD+tP/iDnaOgkrkcW4JMllCJZfkpnQxaW76J
-         sudZws8zxxdPE9O2eMn6amANDrRSZLfDiv0QmVK2uUYeEqWf4fuWR8RJE7LJq7hujQe/
-         PKEg==
-X-Forwarded-Encrypted: i=1; AJvYcCVO7uE8QFUU45FNMc73o0f7FG0wg9YxH+JcKdVaRuThJkq6pTStwQph3WgfrhmWa3Vey1aNugmBzS0OpPkNhQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzVL+r7BaMktG5gdXkagBrUQXoSpNxnit0rM4G5SSqvLwxAEqQe
-	e0kLLW2wdz0qLAx8LBebfhj8eQSZHRtD0K9hwAGpqZ66G7S/Dp7x0R3fVmo9Su2FXf35Pc/evBp
-	D6bpG1YYWwN3BDN7+r9FUQjM4UUQxmQ/NPPFYFQyXb5qmaYVMRlcC8yYu5tkFsf1Q
-X-Received: by 2002:a05:600c:4689:b0:431:52a3:d9d5 with SMTP id 5b1f17b1804b1-432831cb9demr222901255e9.0.1730885339663;
-        Wed, 06 Nov 2024 01:28:59 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHWjjkdr5r4V7Q+Qj0G1hCbvfLQeB4lT/9xr2DmAO0MVtWQKCdBKQf0iOb506nFA0FTNUYXlA==
-X-Received: by 2002:a05:600c:4689:b0:431:52a3:d9d5 with SMTP id 5b1f17b1804b1-432831cb9demr222900675e9.0.1730885339211;
-        Wed, 06 Nov 2024 01:28:59 -0800 (PST)
+        d=1e100.net; s=20230601; t=1730885489; x=1731490289;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=v58eFNnRCpQyAQvqQmmVaZ0uMDgtCEI/dBsjoJSUfhk=;
+        b=TQroKdog3Hy0e/i0T41Rcp2kpoX1XAeIs5Uv75upkIyIPqhGCxHclyK5/AnX18SGrU
+         WfJfhKWnmCy6ZCw+eijkuF/eRMuGsHZKajMOOfzhtYzg/rIy+sKFsLHZ7lZzZvhJBB8G
+         oDKX7bfQyGYTZRmA0uPMisgdq2pKnKC2uXObkLpC16MDJFFvUyNcQlMlnX4YKA/reIoB
+         KT68zRCLBm2RZ1TFRbe4QD4F4iidqQfrmz2RvEQ7MJfRWhKbQeT9XZexwu91DTkR1NXh
+         WH3J+avdtUkLMVAwLh51nRyncLiqan0VtVWbai0D7wletsrPAb6jaW2tky1Kx8L17IqL
+         dO/w==
+X-Forwarded-Encrypted: i=1; AJvYcCXESBWw0GLfmismu9oO+/D4hgc9iqmnErqkAqpaa+9WUQtJ8B6JpeR9U6VBN/d1hp5PO0Z5PWzTlvUGZm9Z3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwpP3YI3SNaWXaQCEitMMffOxpRWd2uVAHn3dHiCTTMAbt/qC2c
+	YCP7F/6EUqbyiq8USKPzftAKVVfKVguIpQEURSJmKPctrWZxlWLwTNl2IBJzzHPRjdRlC3aZGbg
+	68NTmCgCv80pfGs7MgZslQJC3sM0pohDtnL85stdNkBCXEKk9pwYA33Q1FFsFDF0z
+X-Received: by 2002:ac2:4e06:0:b0:52c:fd46:bf07 with SMTP id 2adb3069b0e04-53b34a2e4d0mr17637557e87.49.1730885488745;
+        Wed, 06 Nov 2024 01:31:28 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGHSH1SBaQr5jBIsa52gGokkq9bGzxMCBLmYIc/MQMKZVJdyqq8Vzi2SdL9vrY12cUu256ODw==
+X-Received: by 2002:ac2:4e06:0:b0:52c:fd46:bf07 with SMTP id 2adb3069b0e04-53b34a2e4d0mr17637538e87.49.1730885488282;
+        Wed, 06 Nov 2024 01:31:28 -0800 (PST)
 Received: from redhat.com ([2a02:14f:178:e74:5fcf:8a69:659d:f2b2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa5b60cfsm15505215e9.7.2024.11.06.01.28.54
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c10eaafdsm18588441f8f.63.2024.11.06.01.31.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Nov 2024 01:28:58 -0800 (PST)
-Date: Wed, 6 Nov 2024 04:28:53 -0500
+        Wed, 06 Nov 2024 01:31:27 -0800 (PST)
+Date: Wed, 6 Nov 2024 04:31:24 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: qiang4.zhang@linux.intel.com, Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jens Axboe <axboe@kernel.dk>, Olivia Mackall <olivia@selenic.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Gonglei <arei.gonglei@huawei.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	"Chen, Jian Jun" <jian.jun.chen@intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	David Hildenbrand <david@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	Qiang Zhang <qiang4.zhang@intel.com>,
-	virtualization@lists.linux.dev, linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-sound@vger.kernel.org
-Subject: Re: [PATCH v2] virtio: only reset device and restore status if
- needed in device resume
-Message-ID: <20241106042828-mutt-send-email-mst@kernel.org>
-References: <20241031030847.3253873-1-qiang4.zhang@linux.intel.com>
- <20241101015101.98111-1-qiang4.zhang@linux.intel.com>
- <CACGkMEtvrBRd8BaeUiR6bm1xVX4KUGa83s03tPWPHB2U0mYfLA@mail.gmail.com>
+To: Philo Lu <lulie@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	andrew@daynix.com, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net 0/4] virtio_net: Make RSS interact properly with
+ queue number
+Message-ID: <20241106043106-mutt-send-email-mst@kernel.org>
+References: <20241104085706.13872-1-lulie@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtvrBRd8BaeUiR6bm1xVX4KUGa83s03tPWPHB2U0mYfLA@mail.gmail.com>
+In-Reply-To: <20241104085706.13872-1-lulie@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: atPR9F5oDYZRi6zJxUdAVvmcspy72lJ_Ayh5w46yywQ_1730885340
+X-Mimecast-MFC-PROC-ID: JPff6Tns_QJaS3lDngRR8mRBSbCXlnFcbourRPbKgEM_1730885489
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Nov 01, 2024 at 10:11:11AM +0800, Jason Wang wrote:
-> On Fri, Nov 1, 2024 at 9:54 AM <qiang4.zhang@linux.intel.com> wrote:
-> >
-> > From: Qiang Zhang <qiang4.zhang@intel.com>
-> >
-> > Virtio core unconditionally reset and restore status for all virtio
-> > devices before calling restore method. This breaks some virtio drivers
-> > which don't need to do anything in suspend and resume because they
-> > just want to keep device state retained.
+On Mon, Nov 04, 2024 at 04:57:02PM +0800, Philo Lu wrote:
+> With this patch set, RSS updates with queue_pairs changing:
+> - When virtnet_probe, init default rss and commit
+> - When queue_pairs changes _without_ user rss configuration, update rss
+>   with the new queue number
+> - When queue_pairs changes _with_ user rss configuration, keep rss as user
+>   configured
 > 
-> The challenge is how can driver know device doesn't need rest.
+> Patch 1 and 2 fix possible out of bound errors for indir_table and key.
+> Patch 3 and 4 add RSS update in probe() and set_queues().
+> 
+> Please review, thanks.
 
-I actually don't remember why do we do reset on restore. Do you?
+Looks reasonable.
 
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> For example, PCI has no_soft_reset which has been done in the commit
-> "virtio: Add support for no-reset virtio PCI PM".
+> Philo Lu (4):
+>   virtio_net: Support dynamic rss indirection table size
+>   virtio_net: Add hash_key_length check
+>   virtio_net: Sync rss config to device when virtnet_probe
+>   virtio_net: Update rss when set queue
 > 
-> And there's a ongoing long discussion of adding suspend support in the
-> virtio spec, then driver know it's safe to suspend/resume without
-> reset.
+>  drivers/net/virtio_net.c | 119 ++++++++++++++++++++++++++++++++-------
+>  1 file changed, 100 insertions(+), 19 deletions(-)
 > 
-> >
-> > Virtio GPIO is a typical example. GPIO states should be kept unchanged
-> > after suspend and resume (e.g. output pins keep driving the output) and
-> > Virtio GPIO driver does nothing in freeze and restore methods. But the
-> > reset operation in virtio_device_restore breaks this.
-> 
-> Is this mandated by GPIO or virtio spec? If yes, let's quote the revelant part.
-> 
-> >
-> > Since some devices need reset in suspend and resume while some needn't,
-> > create a new helper function for the original reset and status restore
-> > logic so that virtio drivers can invoke it in their restore method
-> > if necessary.
-> 
-> How are those drivers classified?
-> 
-> >
-> > Signed-off-by: Qiang Zhang <qiang4.zhang@intel.com>
-> 
-> Thanks
+> --
+> 2.32.0.3.g01195cf9f
 
