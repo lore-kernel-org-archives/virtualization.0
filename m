@@ -1,46 +1,46 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B3321DDC35
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 10:21:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5083F1DE3D7
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 11:17:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730888494; cv=fail; b=OABYcTiVpI3/ovCeKOHQai3dANCuJ5EGvWkySCjb4QZoeBRMBTyLt3/UNO5cCRel2YwmWA5/dX1YnzKOtEQkLmUEd8K0PEkW6btvnT+zbd0t7D9ZcJdJruoD4JX+J2d6mptAOGUFu/4uRwJ4CQvhjLFPjsmKRubZvzc7MpRP0Es=
+	t=1730891824; cv=fail; b=ajpg9Mm12FAkRJLMxs0EFyX22wQHpr1Wyiuo2SJBF4hxgAdEobeYriORYQf3Q8EBd6wVWBd040CyPftCo93sVUHUFQvihUb3dJVPTxElkggb6zgL6DHPlXQWZTxpHwKIoaH7dsLVaTUCK+f3AFCNkswEAW8LDPDWFJy0MKageBE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730888494; c=relaxed/simple;
-	bh=gUsPIO5jQaIEgyIYepSFWd18aN80GE5GiRH2T+wOdeU=;
+	s=arc-20240116; t=1730891824; c=relaxed/simple;
+	bh=JGwOvF5sV6qSNPZ6qTqlvl5qcuDwxreiXQTeUUjuWRE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=XlUkPQdplW/XaE3iObCCwMbFrBcrz+8Boq7EH56AYAH8PQ0/iulgOlwRLPnUhmKU2loacBlKMGxK16wNG2JdrQ8eSf9fZjXZxHsyHex9omzDDqYFLIeH1ExsnC9TVwSgTn+YRm9noBUX7iJOPCKKg+w2SbmIxNWuxbigyuwysaA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=arnkT7Yr; arc=fail smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type; b=IiFkFNRqXlGHHfU/jMSPHkdXcmkF48pX6ExgVekdfG+3gH6U4wQrmMqh0lgSA0M0S5ITZ0ghOUlkzO0jfNDWGvvu5s/P2ud/pFHtAs7sMlEKWYBGc/NDMwvA77YTiSLL5i/gDZtYsP9MSt0qXOjbuRuTztTcDrbzWgRtMu5ISVU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=pPRslWkQ; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="arnkT7Yr"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="pPRslWkQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3EAF0400D9
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 10:21:32 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E15F060A82
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 11:17:02 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id eeO1SHoWIwUN for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Nov 2024 10:21:31 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2408::601; helo=nam04-bn8-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9B26A400B0
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9B26A400B0
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=arnkT7Yr
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on20601.outbound.protection.outlook.com [IPv6:2a01:111:f403:2408::601])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9B26A400B0
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 10:21:30 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ZvGe9A3R9ujL for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Nov 2024 11:17:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2009::629; helo=nam10-bn7-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 8FE5760A81
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8FE5760A81
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=pPRslWkQ
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on20629.outbound.protection.outlook.com [IPv6:2a01:111:f403:2009::629])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8FE5760A81
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 11:17:01 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=LylHJ3e7XeP9UhpMCDHGABCohwcF2jFy0VVRcP6BffM3i+grnnGnJNwjHV2LrJtfN39XBQoEg51uqrgXhAEuHDNJl0u+4TDlqHWBxIAg7nHQvWqByn4kl8gdSzn5PWuEbLIV2rx0ssqXH+afS57sLHRP1CeDNHrVdgDoFy1cydvWxfBTh/EWLX8g8Fdi514997HIkdnyHquKMWXwn3sUxMT3LOAonMH24FWwHG/ead819HLQu9OVf0tcB94POcdoq8OnDYPanQIllStCwxBzCUVNr5pKT0yuetI/E36dOK3BM5OPNImjF5jh5XlGLcVIqa6AyTzRsD2w3pwq9U+TCg==
+ b=VH6D7juqkTeiXm0mi6/sI5vhL8t1BfaNPKboVHR8UsWtEvmIZH5Gy5z1YfVKbeR+c9Tf9kmdSfSbKSJW2PDZ4VQw1OyIdw+EXwpymzOIsq2yGoVmLbkhJpSKNY1hYmcTQqbe6XPwxMTds8xQ550lKcv5bTM60T36de4qzKRpDsBws6+l3WygjZYX7QwEYoJhgu1raDtMYk6xFSFxRHhlH8BaKHqCjqd9v9nBHGtHqxY92Lqos9nOgeTXjPCXSdZ7PvqZIgjcqxmpgyCvYVpUKPw5PxerQVOnpZMfCCJqAUq0xXj+5HY2PXmn4rhJgXCnVs/X5IAwCuKryuUuaroY5A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=OVRf5EpOxYDHAaIx9marpZUHLXAuuWKNebBfPC4ldtM=;
- b=KfPe//0zVLiWsk3Yf8/Hm/4urlTmrGUmlFjUGSvyFAKlw13OcCmqKZi1Op+pM70Ewnfg+1FCzH5Zq0c6gqWXhzTzHA3eCJgEu/0Gdrmi7xhFA09E/bU0ZOqTtjc4GiCYz6XrPa//6GPY9Jl2OKVw/2uXYTxeFs2ZBNvj6VG8yNveT03LGYyFkxVy2IuRgEo3FgNctvvFLYjbLhkJXf5a8p+Cdnzt6YGFJ4i1yBlqYa0CyxpZ8mH0xEjOSkuW3y9jNJMqXAq+BKI7C1OBLFKoRlQqdBbMra8OIQRnO13AdZPOQxBPoDq4zJx5JORju14iZFictuR8bldzmoJtPVyMOA==
+ bh=ky8pnsohj9DIaZakqog1e5OflPG1uBjaGxFvsmr9PE8=;
+ b=HN5YkdZad3b8XV9Qng563ChnM4fmV+B3Co6fuhUuhlRRPCfnaWValNzQ/O48Z2szFhhCgg9WMH5jWXNcQ+PZX9IU/eoOCwe0Y/KAkCUqN7iggBm+BkoC9+pVE0kwktzJD8OMnJzsTQcEpmUVliUlRO28pdTwSp0DeFtW6bO2Lu15X/5jc5Z1WxeTOiUh2acXLvdpBim7+uEbz4Uxx4BTTxxh2X7ShcQOHTqKt818E7vpRdRVLf1uzdTz+APX5eGy0NC86pWnBoPCsqnXSPSab+vqlHLlT+XUb09Qn/ksicVdcwq9vR26HhT/Re4YT+0gOVdWcVxWs+oItFU4IYMqgw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
@@ -48,18 +48,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OVRf5EpOxYDHAaIx9marpZUHLXAuuWKNebBfPC4ldtM=;
- b=arnkT7YrOFuHRh4OCrGEszIQzO9dzurJoqI75qgpvUR1pTaBlqCktyhgkua5k80IRodYiNROp7lBC/qsCL7jS/FyvILmHOQKRJ1DGkmc1fyiC7VPREYesDScZyAqfHD3w5kpYpAKVLPm2RbC8jFygaAtNh/B1oBb8tEqhwsakdj1mbe/qMLhaaVMWyJJYCSHq+8Ac37VYQtQKPk2FD8MiaaDQZrqvhR1Uty0Z6vxF7xPR0xcopUp27v1vkJxbXAunwfUbp3Id3CTNHBJzTAXuh2kDDX0GgHUEsnUcr3GfAR9QkH6wQi6Npgh/EduFXBRah02bOv0XH+CP86tYEbXwg==
-Received: from BN1PR10CA0002.namprd10.prod.outlook.com (2603:10b6:408:e0::7)
- by DM4PR12MB5841.namprd12.prod.outlook.com (2603:10b6:8:64::13) with
+ bh=ky8pnsohj9DIaZakqog1e5OflPG1uBjaGxFvsmr9PE8=;
+ b=pPRslWkQEQrIkOJCxgYrcKvA5CxL40UzLxLu4Aw0zDZRW5pb8Hy2btLWpBDfK2tHEPSPVpN8VNctdIUOKokGLm8zDfIC5/ljkB4lNYkv0bfZRrvLXr62PxLHAMw07/kfHXRgLudmxSNucbk/Cy/MU9i1A25RM0Nrlud404jso7afNoHTuYjHTjSMDjfSbn3hchT0NnekhDcnAMJBZffdz2zE/8QtRkAHsIOS6UsZ0Q0Bh3NRmomanwKm/Ngc5HrPFAT0omEDF84BzspsjWfg6DBo8tivNR9Px2deZ82zurJeJsyr7OWLS0SznCXGfn+pHi06j3HxmCafeINUhF5nqg==
+Received: from MW2PR16CA0061.namprd16.prod.outlook.com (2603:10b6:907:1::38)
+ by CH3PR12MB9342.namprd12.prod.outlook.com (2603:10b6:610:1cb::10) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.31; Wed, 6 Nov
- 2024 10:21:26 +0000
-Received: from BN3PEPF0000B36D.namprd21.prod.outlook.com
- (2603:10b6:408:e0:cafe::d7) by BN1PR10CA0002.outlook.office365.com
- (2603:10b6:408:e0::7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.18 via Frontend
- Transport; Wed, 6 Nov 2024 10:21:26 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.18; Wed, 6 Nov
+ 2024 11:16:53 +0000
+Received: from SJ5PEPF000001CE.namprd05.prod.outlook.com
+ (2603:10b6:907:1:cafe::86) by MW2PR16CA0061.outlook.office365.com
+ (2603:10b6:907:1::38) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.24 via Frontend
+ Transport; Wed, 6 Nov 2024 11:16:53 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
@@ -67,19 +67,19 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
  216.228.117.161 as permitted sender) receiver=protection.outlook.com;
  client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
 Received: from mail.nvidia.com (216.228.117.161) by
- BN3PEPF0000B36D.mail.protection.outlook.com (10.167.243.164) with Microsoft
+ SJ5PEPF000001CE.mail.protection.outlook.com (10.167.242.38) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8158.0 via Frontend Transport; Wed, 6 Nov 2024 10:21:25 +0000
+ 15.20.8137.17 via Frontend Transport; Wed, 6 Nov 2024 11:16:52 +0000
 Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
  (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 6 Nov 2024
- 02:21:11 -0800
+ 03:16:41 -0800
 Received: from [172.27.60.49] (10.126.230.35) by rnnvmail201.nvidia.com
  (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 6 Nov 2024
- 02:21:06 -0800
-Message-ID: <eebad7d5-d7c2-4910-872c-c362c246aa78@nvidia.com>
-Date: Wed, 6 Nov 2024 12:21:03 +0200
+ 03:16:37 -0800
+Message-ID: <977be8e4-e52c-41bc-8a43-31ae906e6665@nvidia.com>
+Date: Wed, 6 Nov 2024 13:16:34 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,259 +87,279 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V1 vfio 5/7] vfio/virtio: Add support for the basic live
- migration functionality
+Subject: Re: [PATCH V1 vfio 6/7] vfio/virtio: Add PRE_COPY support for live
+ migration
 To: Alex Williamson <alex.williamson@redhat.com>
 CC: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
 	<kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
 	<parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
 	<joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
 References: <20241104102131.184193-1-yishaih@nvidia.com>
- <20241104102131.184193-6-yishaih@nvidia.com>
- <20241105154746.60e06e75.alex.williamson@redhat.com>
+ <20241104102131.184193-7-yishaih@nvidia.com>
+ <20241105161845.734e777e.alex.williamson@redhat.com>
 Content-Language: en-US
 From: Yishai Hadas <yishaih@nvidia.com>
-In-Reply-To: <20241105154746.60e06e75.alex.williamson@redhat.com>
+In-Reply-To: <20241105161845.734e777e.alex.williamson@redhat.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
  rnnvmail201.nvidia.com (10.129.68.8)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN3PEPF0000B36D:EE_|DM4PR12MB5841:EE_
-X-MS-Office365-Filtering-Correlation-Id: fd7c7617-6881-4c93-825e-08dcfe4cc550
+X-MS-TrafficTypeDiagnostic: SJ5PEPF000001CE:EE_|CH3PR12MB9342:EE_
+X-MS-Office365-Filtering-Correlation-Id: 15b00d48-6501-412c-9128-08dcfe54844a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|82310400026|376014|1800799024;
+	BCL:0;ARA:13230040|82310400026|36860700013|1800799024|376014;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?SnA4UVY0RWhNYVJHck9nWDgrMUVXVlNrdHpUUjlUejkwNDRFdFFYVjVrRStu?=
- =?utf-8?B?QXplZFlQOWxlVUZIN3BLZEduUy9wNW02TEJ5bGdiZUo2cklGb2VwUVp6QlJn?=
- =?utf-8?B?OXNVaThid1FWQkM5K3BnQThJWFVPNjI4bDdtYXkzRGx4QnRKbzRzRlRXMTdM?=
- =?utf-8?B?VW5kQmhKNnZvZWsxb3YzRzZJSnFjY28zdzl0KytKNTZTRTM2QmdBOXBETlpZ?=
- =?utf-8?B?QWtVUzJYTGJiT0I5MlNrNDNXS1BHS09abU9pa2Jhb1pmVUdhZi95TllNaENG?=
- =?utf-8?B?N0RaTXdWVEM2RFlzdFpFUWRhVzVUalhLSWpNakFLQmwzdTFEYjRsWDUvSHdY?=
- =?utf-8?B?MW1zQ3owYUROaU5ZbXNSSzRYUHRIdHhNODFhU3BJRFI4Y2gvSk1nWDRkTVdj?=
- =?utf-8?B?RTMreFpUUjlYanlaakZ4TjkrNzltTlVBOG0rSjMwRDF0THE0MnNmYVVKUnE1?=
- =?utf-8?B?WGhNRkUwbFFiOThxaitPTzZGOEVTeG1KYkZWYTZDV09WbVVNUFl4VWJaWFB5?=
- =?utf-8?B?RmxrVERYUFRHNllXUTExRUtWNGFOcWZ1aTRxcEExNllxV2t2ZTdSem43VWRG?=
- =?utf-8?B?MzdyLzh1eVJETFE5U1UyVEdCZHpLdEh5b0pRVHRwWFpsOGRaQ05TVkhOUXRM?=
- =?utf-8?B?KzQ1dGlYRXg0eVB2SW90MlpSeGp3K1padC9sdVlPMk1iUkVXS3lCNk1xNmY5?=
- =?utf-8?B?a2ZqVmkwT1VxNysrYzJPdjJ3ZjRMaE1sWVVzenIyNjFLd2k4M2dHOXBzTnAz?=
- =?utf-8?B?NmFXMjRFRjVvZlFxbjVZMHhSZU9oTGlXOTNBMi8yWGJ2VWRuakZ3Y2c0L21P?=
- =?utf-8?B?NXJlbHNkTExpakxrcnZnY01PODVtZ0YxckYwMzZmUGRUbTBrd3pxdEVvTWRr?=
- =?utf-8?B?TmlxTVlKcmJ0dUFWcHpncTFuZE1kUGZQdStRQjNiY2JWM3N0YitsN29YSU00?=
- =?utf-8?B?RnZ3cnNNdDY4N1UzUmljUDJacGhNa1pKMHRhSVdhSExWcnR2Rm93QWE0WVYx?=
- =?utf-8?B?SHJsVXZ4NjNQTUtJMVpYQk9RdjlxZTZzQTVTaVZHMXField6a3ZhalJOdFlX?=
- =?utf-8?B?WEtRd2I1ck1wY2U0Uis5OFJsZHVXbVFxNi9lZ0ZKS1pCcjQwVmpHR0VvVDVp?=
- =?utf-8?B?SnlYVTM4NVVBakY4S0d6dFlPVzlhajNZNUN3bkZTSHlTWWpNT0pNZHRBZnE1?=
- =?utf-8?B?cnQ1Z2ZZSVJxQ09LUXhOUTV6RXFJK1RCZ3VXU1RRZmcveC94Ly9CV0tmdlFq?=
- =?utf-8?B?WWJLMEhHeU05V0FJVlYzbnRQTFRoc09BYmZybUFRaDBCM1NRMGh3Um9TemZW?=
- =?utf-8?B?a0htMGVVbThOSXpzU3R3L3Z2enVsa0IyU0t4ajBRcm5MRFNZUjY3RFJ6UVdT?=
- =?utf-8?B?eGJmK29UV2wxenFTaDJYdlpkcitBMGRMUklKYUc1L2ZQeEd3YWRWT3JEek0w?=
- =?utf-8?B?OU5wL0xOREorYXNDbnNwaFhwQ3RZNEJxWmRabXJQaDMrNzhmcG5NbndvYUht?=
- =?utf-8?B?cmtnRkFQNmpWd05yd3M3Qmo1K2h0QkpSem81RFYyQjFZKy9ZRmN6QkpBQjgv?=
- =?utf-8?B?WEhOUVd3bHlFUE1kQitCRmFseG85Tlh5dlQ4ajI3U1RmZ1pSMDcrZ0VvZnhG?=
- =?utf-8?B?V3lISWR4UUczWWZ3U2ozN1ZjMXdiaDJBS2lTRnZtbXFmQzE5YkNJeWpBTDBx?=
- =?utf-8?B?Ymc0a0lGSW1mZnlCekc1bnAvd1NsMDFvQjUza3pIU1JJeThCSDl6aW9VME1J?=
- =?utf-8?B?djMrbDNrWHI4MHVoRHBXTTF2VmZaLzk0VW0zeWx3TW1WVk1PZk5JcXMwQWRm?=
- =?utf-8?B?R1Zsb2N4dzZ2MjEwWVpuK1BkYm16dmtZb1Nka2xhUHMvU3hicytvdW9kOWY5?=
- =?utf-8?B?RkZmalY3eDA0bnBRV1VqSVV3R2NjRUtqRG1QcTNyNE50OXc9PQ==?=
+	=?utf-8?B?Z0pXRGRWV3FMUUtESWJXY2drWnYrQVBLdkVjTXNjYWMxdDFqM0Uxbnhsd0t4?=
+ =?utf-8?B?ZXM4RXB5blY4YmZLVnB0amc1WXpnRno5dUwwNGh4WlZXRXFoUWNJa2Z6Zjgz?=
+ =?utf-8?B?RElucDlZd1o1UkMrNFpCNDNQakxqSDZObWptVWdNOFl0R0JGUzBVa1JsM2M4?=
+ =?utf-8?B?K3ozRWZZU3hhdjM2Q0JwYmdJMmQzTm9PVHNOaVRwdEp1UkhScm9PcWM5K1A4?=
+ =?utf-8?B?TzNXMTdVUUVNdTVJQnM2ZjN6ZjdGNUZyTUpaL1dBR1V6c3QzOUIvTEk0SWZr?=
+ =?utf-8?B?UWZIWDhnNDJETzE5MVNTUm9yeU9HYUtLOXdCVU1CZUh6QW1vWjIzY2JRNG9l?=
+ =?utf-8?B?M3lZd0ptQkRxNnI4eEdLTTRSbTVjL2Fwb0ZkNVZOemZtV1dvS1ZORlpObVJi?=
+ =?utf-8?B?MzBVUy9nT2dYZXRHckFvNmVwa3VzZFlJcEJYMm1nbW9pZEo4SnBsZlpwWUhG?=
+ =?utf-8?B?anh6U2tQTjV3b09razh1ZEhtSmhuQjl6Q2hld1BNVUF0c05GK3lXUXpLellP?=
+ =?utf-8?B?bVFXTExJb2RnbFpMSSt1ZlNRcWVrV3c5ZGxod1dRVmwxWkdvZnp6bEw5WFpw?=
+ =?utf-8?B?WkVOT1RxaUY1REIydERXcDNkVmxWM3JXOG1IUTJpRXF2cldjZTJPSlRMSzg2?=
+ =?utf-8?B?Q1ZWM3l1SVFYQm8rNVhFVVVRb21GWW1UWkQwdS85UUV3WFpFZmRxNHRLbFFC?=
+ =?utf-8?B?emVOY3h2Z0wxRnpoN2VUZEJsZ1QvU0JwWWFFSU5ZRElJUTFMUW1lU3gvNXhW?=
+ =?utf-8?B?aXpkK1pjUG0rVEVrNjJrRGc4dmRCUGpsWDdSbTVBU2M0VkFING9BSE95VXZL?=
+ =?utf-8?B?RHBiVVlOVHRLSDJRZVFnaDVJbTN6TS9zUkdUT2x1NDcwNHJsNEowb001UGhp?=
+ =?utf-8?B?MjF4NjVLSG9pYkkwa1IwdWN1emMxYmNzbFJJUjhDdU9LT0VHaW9XM3JmaFNK?=
+ =?utf-8?B?NVFQS1lhd1oyR2I4U3FqVDlwb0JnRlY4Y3FaTmMrUGJVQ29vRWpHajdwQlds?=
+ =?utf-8?B?alQ3YVIrZFdodjdqNlp5S2ZxSkNaNHlBemtISm1ESzh0N3RwaWpHajZBNlVn?=
+ =?utf-8?B?UFhMMklLQjJzTmhDcmtTL0F2ZTgrVWtZaVdGYUFOZEw4dkRzTXdwS0FJYzV2?=
+ =?utf-8?B?bE5zbE5haDhnYkdCMmRWVTZBRHlkMkNJOWl5bGRUV0V5cE56ci9NWWF3cDI2?=
+ =?utf-8?B?Z0M0UTZlQ0ZpZ0tZU2FDNFJGdlhlZ2JCZ0dTV2ZIL1V2elpoNGJ1d0JSN2Ji?=
+ =?utf-8?B?eFRyVmphOHI1T2RwUkZ2dlc0NEdwd2EvcDdoZWo0WDB1NkxXUnExZmZhZlVa?=
+ =?utf-8?B?Lzd6cVM1NXA2MzBia05rOHRTdVU1TGJaZnpBZGxvUTU3czR1TEM5VGkrcVNU?=
+ =?utf-8?B?TjFwbTkyNThXVzJaS010TFdqc3gwSHMxcXBLSG1ZUzNhaXFZaXdWWndDb3JW?=
+ =?utf-8?B?Tmc3UkNGc0ZUKzhtS1BhOWt1RkRDY3AzT3FaQTl1NEVySlVvREE2RFVpOW1a?=
+ =?utf-8?B?NkJrbm5GRHJTb3lNYXQzWTR0bXZZbUZmU2ZNYTB3QVlUUDJGQ3dYUzNUZHZY?=
+ =?utf-8?B?VUNYb2FJUkQ5TWtyZzB4cFRLejVGT1pQMW1IZHZxV3NhZTVyYVB3SnYyUHVa?=
+ =?utf-8?B?MjczYkw4Z2Q5VzA5UU1FRmxIeFc4dU9WR2NvemxDaUFqbVltNjFIQzdvZGVz?=
+ =?utf-8?B?aytTR0EwM2VmYm1kMTkwbWhiZENsM2x3V3pReUFIMEk1ejRHT3JXMkhuQVpa?=
+ =?utf-8?B?WEdJbDZKY05RVTIrdW03dWc2TWU3VUJKT1VQbW52MXdEUnI3RGgyVGphZ1pi?=
+ =?utf-8?B?RkVFTFB1K1lINDJQT2ZTMDBBdzRqWmF2SGwrdUZDeE1tMU1aaFYwLzFadDdw?=
+ =?utf-8?B?UTJoTWJKaDR5MWZJbENHb1VINXU0Q3QzblNBb0tvVm9hcmc9PQ==?=
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(376014)(1800799024);DIR:OUT;SFP:1101;
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(36860700013)(1800799024)(376014);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2024 10:21:25.9093
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2024 11:16:52.9642
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: fd7c7617-6881-4c93-825e-08dcfe4cc550
+X-MS-Exchange-CrossTenant-Network-Message-Id: 15b00d48-6501-412c-9128-08dcfe54844a
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	BN3PEPF0000B36D.namprd21.prod.outlook.com
+	SJ5PEPF000001CE.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5841
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9342
 
-On 06/11/2024 0:47, Alex Williamson wrote:
-> On Mon, 4 Nov 2024 12:21:29 +0200
+On 06/11/2024 1:18, Alex Williamson wrote:
+> On Mon, 4 Nov 2024 12:21:30 +0200
 > Yishai Hadas <yishaih@nvidia.com> wrote:
->> diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
->> index b5d3a8c5bbc9..e2cdf2d48200 100644
->> --- a/drivers/vfio/pci/virtio/main.c
->> +++ b/drivers/vfio/pci/virtio/main.c
-> ...
->> @@ -485,16 +478,66 @@ static bool virtiovf_bar0_exists(struct pci_dev *pdev)
->>   	return res->flags;
->>   }
->>   
->> +static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
->> +{
->> +	struct virtiovf_pci_core_device *virtvdev = container_of(core_vdev,
->> +			struct virtiovf_pci_core_device, core_device.vdev);
->> +	struct pci_dev *pdev;
->> +	bool sup_legacy_io;
->> +	bool sup_lm;
->> +	int ret;
->> +
->> +	ret = vfio_pci_core_init_dev(core_vdev);
->> +	if (ret)
->> +		return ret;
->> +
->> +	pdev = virtvdev->core_device.pdev;
->> +	sup_legacy_io = virtio_pci_admin_has_legacy_io(pdev) &&
->> +				!virtiovf_bar0_exists(pdev);
->> +	sup_lm = virtio_pci_admin_has_dev_parts(pdev);
->> +
->> +	/*
->> +	 * If the device is not capable to this driver functionality, fallback
->> +	 * to the default vfio-pci ops
->> +	 */
->> +	if (!sup_legacy_io && !sup_lm) {
->> +		core_vdev->ops = &virtiovf_vfio_pci_ops;
->> +		return 0;
->> +	}
->> +
->> +	if (sup_legacy_io) {
->> +		ret = virtiovf_read_notify_info(virtvdev);
->> +		if (ret)
->> +			return ret;
->> +
->> +		virtvdev->bar0_virtual_buf_size = VIRTIO_PCI_CONFIG_OFF(true) +
->> +					virtiovf_get_device_config_size(pdev->device);
->> +		BUILD_BUG_ON(!is_power_of_2(virtvdev->bar0_virtual_buf_size));
->> +		virtvdev->bar0_virtual_buf = kzalloc(virtvdev->bar0_virtual_buf_size,
->> +						     GFP_KERNEL);
->> +		if (!virtvdev->bar0_virtual_buf)
->> +			return -ENOMEM;
->> +		mutex_init(&virtvdev->bar_mutex);
->> +	}
->> +
->> +	if (sup_lm)
->> +		virtiovf_set_migratable(virtvdev);
->> +
->> +	if (sup_lm && !sup_legacy_io)
->> +		core_vdev->ops = &virtiovf_vfio_pci_lm_ops;
->> +
->> +	return 0;
->> +}
->> +
->>   static int virtiovf_pci_probe(struct pci_dev *pdev,
->>   			      const struct pci_device_id *id)
->>   {
->> -	const struct vfio_device_ops *ops = &virtiovf_vfio_pci_ops;
->>   	struct virtiovf_pci_core_device *virtvdev;
->> +	const struct vfio_device_ops *ops;
->>   	int ret;
->>   
->> -	if (pdev->is_virtfn && virtio_pci_admin_has_legacy_io(pdev) &&
->> -	    !virtiovf_bar0_exists(pdev))
->> -		ops = &virtiovf_vfio_pci_tran_ops;
->> +	ops = (pdev->is_virtfn) ? &virtiovf_vfio_pci_tran_lm_ops :
->> +				  &virtiovf_vfio_pci_ops;
 > 
-> I can't figure out why we moved the more thorough ops setup to the
-> .init() callback of the ops themselves.  Clearly we can do the legacy
-> IO and BAR0 test here and the dev parts test uses the same mechanisms
-> as the legacy IO test, so it seems we could know sup_legacy_io and
-> sup_lm here.  I think we can even do virtiovf_set_migratable() here
-> after virtvdev is allocated below.
-> 
-
-Setting the 'ops' as part of the probe() seems actually doable, 
-including calling virtiovf_set_migratable() following the virtiodev 
-allocation below.
-
-The main issue with that approach will be the init part of the legacy IO 
-(i.e. virtiovf_init_legacy_io()) as part of virtiovf_pci_init_device().
-
-Assuming that we don't want to repeat calling 
-virtiovf_support_legacy_io() as part of virtiovf_pci_init_device() to 
-know whether legacy IO is supported, we can consider calling 
-virtiovf_init_legacy_io() as part of the probe() as well, which IMO 
-doesn't look clean as it's actually seems to match the init flow.
-
-Alternatively, we can consider checking inside 
-virtiovf_pci_init_device() whether the 'ops' actually equals the 'tran' 
-ones and then call it.
-
-Something like the below.
-
-static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
-{
-	...
-
-#ifdef CONFIG_VIRTIO_PCI_ADMIN_LEGACY
-	if (core_vdev->ops == &virtiovf_vfio_pci_tran_lm_ops)
-		return virtiovf_init_legacy_io(virtvdev);
-#endif
-
-	return 0;
-}
-
-Do you prefer the above approach rather than current V1 code which has a 
-  single check as part of virtiovf_init_legacy_io() ?
-
-> I think the API to vfio core also suggests we shouldn't be modifying the
-> ops pointer after the core device is allocated.
-
-Any pointer for that ?
-Do we actually see a problem with replacing the 'ops' as part of the 
-init flow ?
-
-> 
+>> Add PRE_COPY support for live migration.
+>>
+>> This functionality may reduce the downtime upon STOP_COPY as of letting
+>> the target machine to get some 'initial data' from the source once the
+>> machine is still in its RUNNING state and let it prepares itself
+>> pre-ahead to get the final STOP_COPY data.
+>>
+>> As the Virtio specification does not support reading partial or
+>> incremental device contexts. This means that during the PRE_COPY state,
+>> the vfio-virtio driver reads the full device state.
+>>
+>> As the device state can be changed and the benefit is highest when the
+>> pre copy data closely matches the final data we read it in a rate
+>> limiter mode and reporting no data available for some time interval
+>> after the previous call.
+>>
+>> With PRE_COPY enabled, we observed a downtime reduction of approximately
+>> 70-75% in various scenarios compared to when PRE_COPY was disabled,
+>> while keeping the total migration time nearly the same.
+>>
+>> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+>> ---
+>>   drivers/vfio/pci/virtio/common.h  |   4 +
+>>   drivers/vfio/pci/virtio/migrate.c | 233 +++++++++++++++++++++++++++++-
+>>   2 files changed, 229 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/vfio/pci/virtio/common.h b/drivers/vfio/pci/virtio/common.h
+>> index 3bdfb3ea1174..5704603f0f9d 100644
+>> --- a/drivers/vfio/pci/virtio/common.h
+>> +++ b/drivers/vfio/pci/virtio/common.h
+>> @@ -10,6 +10,8 @@
 >>   
->>   	virtvdev = vfio_alloc_device(virtiovf_pci_core_device, core_device.vdev,
->>   				     &pdev->dev, ops);
->> @@ -532,6 +575,7 @@ static void virtiovf_pci_aer_reset_done(struct pci_dev *pdev)
->>   	struct virtiovf_pci_core_device *virtvdev = dev_get_drvdata(&pdev->dev);
+>>   enum virtiovf_migf_state {
+>>   	VIRTIOVF_MIGF_STATE_ERROR = 1,
+>> +	VIRTIOVF_MIGF_STATE_PRECOPY = 2,
+>> +	VIRTIOVF_MIGF_STATE_COMPLETE = 3,
+>>   };
 >>   
->>   	virtvdev->pci_cmd = 0;
->> +	virtiovf_migration_reset_done(pdev);
->>   }
->>   
->>   static const struct pci_error_handlers virtiovf_err_handlers = {
+>>   enum virtiovf_load_state {
+>> @@ -57,6 +59,8 @@ struct virtiovf_migration_file {
+>>   	/* synchronize access to the file state */
+>>   	struct mutex lock;
+>>   	loff_t max_pos;
+>> +	u64 pre_copy_initial_bytes;
+>> +	struct ratelimit_state pre_copy_rl_state;
+>>   	u64 record_size;
+>>   	u32 record_tag;
+>>   	u8 has_obj_id:1;
 >> diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
->> new file mode 100644
->> index 000000000000..2a9614c2ef07
->> --- /dev/null
+>> index 2a9614c2ef07..cdb252f6fd80 100644
+>> --- a/drivers/vfio/pci/virtio/migrate.c
 >> +++ b/drivers/vfio/pci/virtio/migrate.c
 > ...
->> +static int virtiovf_pci_get_data_size(struct vfio_device *vdev,
->> +				      unsigned long *stop_copy_length)
+>> @@ -379,9 +432,104 @@ static ssize_t virtiovf_save_read(struct file *filp, char __user *buf, size_t le
+>>   	return done;
+>>   }
+>>   
+>> +static long virtiovf_precopy_ioctl(struct file *filp, unsigned int cmd,
+>> +				   unsigned long arg)
 >> +{
->> +	struct virtiovf_pci_core_device *virtvdev = container_of(
->> +		vdev, struct virtiovf_pci_core_device, core_device.vdev);
->> +	bool obj_id_exists;
->> +	u32 res_size;
->> +	u32 obj_id;
+>> +	struct virtiovf_migration_file *migf = filp->private_data;
+>> +	struct virtiovf_pci_core_device *virtvdev = migf->virtvdev;
+>> +	struct vfio_precopy_info info = {};
+>> +	loff_t *pos = &filp->f_pos;
+>> +	bool end_of_data = false;
+>> +	unsigned long minsz;
+>> +	u32 ctx_size;
 >> +	int ret;
 >> +
+>> +	if (cmd != VFIO_MIG_GET_PRECOPY_INFO)
+>> +		return -ENOTTY;
+>> +
+>> +	minsz = offsetofend(struct vfio_precopy_info, dirty_bytes);
+>> +	if (copy_from_user(&info, (void __user *)arg, minsz))
+>> +		return -EFAULT;
+>> +
+>> +	if (info.argsz < minsz)
+>> +		return -EINVAL;
+>> +
 >> +	mutex_lock(&virtvdev->state_mutex);
->> +	obj_id_exists = virtvdev->saving_migf && virtvdev->saving_migf->has_obj_id;
->> +	if (!obj_id_exists) {
->> +		ret = virtiovf_pci_alloc_obj_id(virtvdev,
->> +						VIRTIO_RESOURCE_OBJ_DEV_PARTS_TYPE_GET,
->> +						&obj_id);
->> +		if (ret)
->> +			goto end;
->> +	} else {
->> +		obj_id = virtvdev->saving_migf->obj_id;
+>> +	if (virtvdev->mig_state != VFIO_DEVICE_STATE_PRE_COPY &&
+>> +	    virtvdev->mig_state != VFIO_DEVICE_STATE_PRE_COPY_P2P) {
+>> +		ret = -EINVAL;
+>> +		goto err_state_unlock;
+>> +	}
+>> +
+>> +	/*
+>> +	 * The virtio specification does not include a PRE_COPY concept.
+>> +	 * Since we can expect the data to remain the same for a certain period,
+>> +	 * we use a rate limiter mechanism before making a call to the device.
+>> +	 */
+>> +	if (!__ratelimit(&migf->pre_copy_rl_state)) {
+>> +		/* Reporting no data available */
+>> +		ret = 0;
+>> +		goto done;
+> 
+> @ret is not used by the done: goto target.  Don't we need to zero dirty
+> bytes, or account for initial bytes not being fully read yet?
+
+The 'dirty bytes' are actually zero as we used the below line [1] of 
+code above.
+
+[1] struct vfio_precopy_info info = {};
+
+However, I agree, we may better account for the 'initial bytes' which 
+potentially might not being fully read yet.
+Same can be true for returning the actual 'dirty bytes' that we may have 
+from the previous call.
+
+So, in V2 I'll change the logic to initially set:
+u32 ctx_size = 0;
+
+Then, will call the device to get its 'ctx_size' only if time has passed 
+according to the rate limiter.
+
+Something as of the below.
+
+if (__ratelimit(&migf->pre_copy_rl_state)) {
+	ret = virtio_pci_admin_dev_parts_metadata_get(.., &ctx_size);
+	if (ret)
+		goto err_state_unlock;
+}
+
+ From that point the function will proceed with its V1 flow to return 
+the actual 'initial bytes' and 'dirty_bytes' while considering the extra 
+context size from the device to be 0.
+
+> 
 >> +	}
 >> +
 >> +	ret = virtio_pci_admin_dev_parts_metadata_get(virtvdev->core_device.pdev,
->> +				VIRTIO_RESOURCE_OBJ_DEV_PARTS, obj_id,
+>> +				VIRTIO_RESOURCE_OBJ_DEV_PARTS, migf->obj_id,
 >> +				VIRTIO_ADMIN_CMD_DEV_PARTS_METADATA_TYPE_SIZE,
->> +				&res_size);
->> +	if (!ret)
->> +		*stop_copy_length = res_size;
+>> +				&ctx_size);
+>> +	if (ret)
+>> +		goto err_state_unlock;
 >> +
->> +	/* We can't leave this obj_id alive if didn't exist before, otherwise, it might
->> +	 * stay alive, even without an active migration flow (e.g. migration was cancelled)
+>> +	mutex_lock(&migf->lock);
+>> +	if (migf->state == VIRTIOVF_MIGF_STATE_ERROR) {
+>> +		ret = -ENODEV;
+>> +		goto err_migf_unlock;
+>> +	}
+>> +
+>> +	if (migf->pre_copy_initial_bytes > *pos) {
+>> +		info.initial_bytes = migf->pre_copy_initial_bytes - *pos;
+>> +	} else {
+>> +		info.dirty_bytes = migf->max_pos - *pos;
+>> +		if (!info.dirty_bytes)
+>> +			end_of_data = true;
+>> +		info.dirty_bytes += ctx_size;
+>> +	}
+>> +
+>> +	if (!end_of_data || !ctx_size) {
+>> +		mutex_unlock(&migf->lock);
+>> +		goto done;
+>> +	}
+>> +
+>> +	mutex_unlock(&migf->lock);
+>> +	/*
+>> +	 * We finished transferring the current state and the device has a
+>> +	 * dirty state, read a new state.
 >> +	 */
+>> +	ret = virtiovf_read_device_context_chunk(migf, ctx_size);
+>> +	if (ret)
+>> +		/*
+>> +		 * The machine is running, and context size could be grow, so no reason to mark
+>> +		 * the device state as VIRTIOVF_MIGF_STATE_ERROR.
+>> +		 */
+>> +		goto err_state_unlock;
+>> +
+>> +done:
+>> +	virtiovf_state_mutex_unlock(virtvdev);
+>> +	if (copy_to_user((void __user *)arg, &info, minsz))
+>> +		return -EFAULT;
+>> +	return 0;
+>> +
+>> +err_migf_unlock:
+>> +	mutex_unlock(&migf->lock);
+>> +err_state_unlock:
+>> +	virtiovf_state_mutex_unlock(virtvdev);
+>> +	return ret;
+>> +}
+>> +
+> ...
+>> @@ -536,6 +719,17 @@ virtiovf_pci_save_device_data(struct virtiovf_pci_core_device *virtvdev)
+>>   	if (ret)
+>>   		goto out_clean;
+>>   
+>> +	if (pre_copy) {
+>> +		migf->pre_copy_initial_bytes = migf->max_pos;
+>> +		ratelimit_state_init(&migf->pre_copy_rl_state, 1 * HZ, 1);
 > 
-> Nit, multi-line comment style.
+> A comment describing the choice of this heuristic would be useful for
+> future maintenance, even if the comment is "Arbitrarily rate limit
+> pre-copy to 1s intervals."  Thanks,
 
-Sure, will change.
+Sure, I believe that we can start with your suggested comment above.
 
 Thanks,
 Yishai
-
