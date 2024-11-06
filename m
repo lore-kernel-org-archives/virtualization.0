@@ -1,141 +1,189 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B56CB42AB0
-	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 05:58:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B10051CCB22
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 07:33:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730872723; cv=none; b=MjUojgfrrmTN522QkeEN8+3gozduQXRKltGpvYKjeHmZhBlwo2fcnsHsPol1phJxVcAYtdvkZWKaEfvMBeHdv6uvim+sieU7/mYUCH811lGVMLvQToyQmpDTEogHjG4wN7OAfGLwXb4/TzRhBamyD+FQCFt82zTKuwU2uPf3+5k=
+	t=1730878384; cv=none; b=qUBkV0DqVQ4xszO8qS+EasnALI9dAwt/ApFqWeqMkTekMeAGdGTGjUdBj6ggFhJH1SSLUz74Ts0/FegiVdsIBC3vxKnl3nTWcdqLsYfNGJ1vf1i9hEJRnhWizUYFLJ19UDUUZn5XLFAadA5+Wm7Eg57dMbwydpKRF6Gr8UtWwhA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730872723; c=relaxed/simple;
-	bh=ZFPd4uY4qlGD1LwpVPc7EuzT70wT8MCerRNEpzP+EDo=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=qdf03eT0ehrlul9mbT973uB58O3cRKr0GKcYw3zFBks8Le5dks1muhrtm3QQ2U/kaAFstOav0paXfY38S/nELuAL/CAoTCmmNswKUR+8o5i89w+7lhk3Y9yqlnsG72g2lbcCC2H9aROEotF4n4nwaWzCymIYIjdR+bxXSRK5Dm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=fdCntpFZ; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1730878384; c=relaxed/simple;
+	bh=1TK5jWQmYm5lF5a0elC3Jq/CHvGV6cfz4sc++/qpT/U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Phxvzt7qgBLPVNeQia6+3CNiptIPzyGFiG0Snegbk01h/eicfmOlqFv3zm8CjHC8M6p8/9Ul0K1Vv7FnzCmLTbV8T/GTM8pYtogtfBPgOsHqextIElXrtp/M1R+zEc0IGkpIb/NgeSWvfKyO+qxgF30t2mD/aizROTlp98gSnik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b5k0dBli; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="fdCntpFZ"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730872718; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=pHbSw6p5cNfpqXOlfIALTgliunUWQloTTpF6qs8iA1I=;
-	b=fdCntpFZOeffL7+qmmEhOwJi95A9sdD0bCWkGh2CloWN6XXwTSiDaEv4yFNt9l6FO7OVKEeoHdar9PxoQxo2ju0aIm+/VWl77MRxq/w8+VxZVfwScqmMUvFA9AUy7VtfHFhYpbulV6epdaOqjLHqdyMedtHhttOUWBs+BFHo1w4=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIqALev_1730872715 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 06 Nov 2024 13:58:36 +0800
-Message-ID: <1730872686.808495-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 02/13] virtio_ring: split: record extras for indirect buffers
-Date: Wed, 6 Nov 2024 13:58:06 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-References: <20241030082453.97310-1-xuanzhuo@linux.alibaba.com>
- <20241030082453.97310-3-xuanzhuo@linux.alibaba.com>
- <CACGkMEtP7tdxxLOtDArNCqO5b=A=a7X2NimK8be2aWuaKG6Xfw@mail.gmail.com>
- <1730789499.0809722-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEt4HfEAyUGe8CL3eLJmbrcz9Uz1rhCo7_j4aShzLa4iEQ@mail.gmail.com>
-In-Reply-To: <CACGkMEt4HfEAyUGe8CL3eLJmbrcz9Uz1rhCo7_j4aShzLa4iEQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b5k0dBli"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6534F60904
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 07:33:02 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id LSgNOGq62itY for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Nov 2024 07:33:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 90BA7608F4
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90BA7608F4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=b5k0dBli
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 90BA7608F4
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 07:32:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730878378;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=I0Nl77wHyDTDBUHU8VfL2oqjen/EEFJo/J8tC1+irrs=;
+	b=b5k0dBlig2vuFj1Jqi/4N3tqWNBqFumFZl8zc5t9+r2bl2/8T/yXJVe816TeYAt7ZbeFPC
+	dit1dCwTWseWIzNE5JFw4Sf8mw6ZACn1tbtK17W1+iB/IzBnHkE2IgFezJSJWOylvHmeXT
+	LR8XB1kH7dJqCXXh+j0NhslSFjQDI2M=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-498-gczJ18q6PUS_ZkyrEUbm-A-1; Wed, 06 Nov 2024 02:32:56 -0500
+X-MC-Unique: gczJ18q6PUS_ZkyrEUbm-A-1
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-539ec1a590fso4358824e87.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 05 Nov 2024 23:32:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730878375; x=1731483175;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=I0Nl77wHyDTDBUHU8VfL2oqjen/EEFJo/J8tC1+irrs=;
+        b=BHC99WTDbz5ZVUK2w7PoNmG84onP0PoOD3hNlPwBjhFYY9tOYSeCFDylKJFCfwE2Hb
+         dxHH49+U1aE6RUMY0a5vH6TcekVwXyB5QQk7lLxf+y0DbmJKn1biwb/n8JOr2kTcYZYz
+         IUeuWZcOlHckcIBUTPgEQL2koN8dKlQ5bwWv8zWw/QOKMzNJVCoSRwpOriZAL0/usXks
+         2zlkf1TlQB7yqbQr12cPpMBijvdlnFUKBjgskLWLbsfMCEVjqQhockYGwNt+zaPGAOiV
+         J40iN6ZG1nCCzvetv+WRztEJ5i8sOsCHqBWMUOLrhKg4wu7fSgJhL2SkCqViMqOcQsuV
+         7aKQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWOOpoOLbAC7Zs38BsEUSh2HZHJnYjsRzax7z3Y9d2mLe5lYYr8BFpedLUgK3SyOdBgGEDy6+FcEYvkZnzuQQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwstMzgdIj8ufTTEh9ZO+IqRAiwkyXsEw55S+JD03M/RTb+aa10
+	CFfVC7wFcLHXnDQ+LCjFoXNPZdu54iEpKnbP71PKCe/DRgucc9rtjzu1yF/XSQrJXSdC5UTX67Q
+	uc3QU4QzIPHKrsMjLOrDz/EU9wwU7O7yYdxjUUBalHMY4H+LjbxiRxpYUDyE2QtW8JTR4AluiAa
+	NKVkw=
+X-Received: by 2002:a05:6512:3a8c:b0:539:ed5e:e226 with SMTP id 2adb3069b0e04-53b3490f0demr19783065e87.26.1730878375090;
+        Tue, 05 Nov 2024 23:32:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGjB2BJOsn+j3Y41tPwiKFVeRVoGZVa9+cut0MOvJu0SDjEm2Wp6FGY8emxABWpEuw8y0y3Bg==
+X-Received: by 2002:a05:6512:3a8c:b0:539:ed5e:e226 with SMTP id 2adb3069b0e04-53b3490f0demr19783047e87.26.1730878374648;
+        Tue, 05 Nov 2024 23:32:54 -0800 (PST)
+Received: from redhat.com ([2a02:14f:178:e74:5fcf:8a69:659d:f2b2])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa7397e4sm11883915e9.40.2024.11.05.23.32.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Nov 2024 23:32:53 -0800 (PST)
+Date: Wed, 6 Nov 2024 02:31:31 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: Re: [PATCH v3 7/9] vhost: Add new UAPI to support change to task mode
+Message-ID: <20241106022630-mutt-send-email-mst@kernel.org>
+References: <20241105072642.898710-1-lulu@redhat.com>
+ <20241105072642.898710-8-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20241105072642.898710-8-lulu@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 6 Nov 2024 09:44:39 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Nov 5, 2024 at 2:53=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
-> >
-> > On Tue, 5 Nov 2024 11:42:09 +0800, Jason Wang <jasowang@redhat.com> wro=
-te:
-> > > On Wed, Oct 30, 2024 at 4:25=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > The subsequent commit needs to know whether every indirect buffer is
-> > > > premapped or not. So we need to introduce an extra struct for every
-> > > > indirect buffer to record this info.
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > ---
-> > > >  drivers/virtio/virtio_ring.c | 112 ++++++++++++++++---------------=
-----
-> > > >  1 file changed, 52 insertions(+), 60 deletions(-)
-> > >
-> > > Do we have a performance impact for this patch?
-> > >
-> > > >
-> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_r=
-ing.c
-> > > > index 97590c201aa2..dca093744fe1 100644
-> > > > --- a/drivers/virtio/virtio_ring.c
-> > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -69,7 +69,11 @@
-> > > >
-> > > >  struct vring_desc_state_split {
-> > > >         void *data;                     /* Data for callback. */
-> > > > -       struct vring_desc *indir_desc;  /* Indirect descriptor, if =
-any. */
-> > > > +
-> > > > +       /* Indirect extra table and desc table, if any. These two w=
-ill be
-> > > > +        * allocated together. So we won't stress more to the memor=
-y allocator.
-> > > > +        */
-> > > > +       struct vring_desc *indir_desc;
-> > >
-> > > So it looks like we put a descriptor table after the extra table. Can
-> > > this lead to more crossing page mappings for the indirect descriptors?
-> > >
-> > > If yes, it seems expensive so we probably need to make the descriptor
-> > > table come first.
-> >
-> > No, the descriptors are before extra table.
->
-> Well, you need then tweak the above comment, it said
->
-> "Indirect extra table and desc table".
->
-> > So, there is not performance impact.
-> >
-> >
-> > >
-> > > >  };
-> > > >
->
-> [...]
->
-> > > >         while (vq->split.vring.desc[i].flags & nextflag) {
-> > > > -               vring_unmap_one_split(vq, i);
-> > > > +               vring_unmap_one_split(vq, &extra[i]);
-> > >
-> > > Not sure if I've asked this before. But this part seems to deserve an
-> > > independent fix for -stable.
-> >
-> > What fix?
->
-> I meant for hardening we need to check the flags stored in the extra
-> instead of the descriptor itself as it could be mangled by the device.
+On Tue, Nov 05, 2024 at 03:25:26PM +0800, Cindy Lu wrote:
+> Add a new UAPI to enable setting the vhost device to task mode.
+> The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
+> to configure the mode if necessary.
+> This setting must be applied before VHOST_SET_OWNER, as the worker
+> will be created in the VHOST_SET_OWNER function
+> 
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  drivers/vhost/vhost.c      | 15 ++++++++++++++-
+>  include/uapi/linux/vhost.h |  2 ++
+>  2 files changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index c17dc01febcc..70c793b63905 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2274,8 +2274,9 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+>  {
+>  	struct eventfd_ctx *ctx;
+>  	u64 p;
+> -	long r;
+> +	long r = 0;
+>  	int i, fd;
+> +	bool inherit_owner;
+>  
+>  	/* If you are not the owner, you can become one */
+>  	if (ioctl == VHOST_SET_OWNER) {
+> @@ -2332,6 +2333,18 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+>  		if (ctx)
+>  			eventfd_ctx_put(ctx);
+>  		break;
+> +	case VHOST_SET_INHERIT_FROM_OWNER:
+> +		/*inherit_owner can only be modified before owner is set*/
 
-I see, we can do it in future.
+bad coding style
 
-Thanks.
+> +		if (vhost_dev_has_owner(d))
+> +			break;
+
+is this silently failing? should return EBUSY or something like this.
+
+> +
+> +		if (copy_from_user(&inherit_owner, argp,
+> +				   sizeof(inherit_owner))) {
+
+not good, 
 
 
->
-> Thanks
->
+> +			r = -EFAULT;
+> +			break;
+> +		}
+> +		d->inherit_owner = inherit_owner;
+
+
+
+
+> +		break;
+>  	default:
+>  		r = -ENOIOCTLCMD;
+>  		break;
+
+
+
+This means any task can break out of jail
+and steal root group system time by setting inherit_owner to 0
+even if system is configured to inherit by default.
+
+we need a modparam to block this.
+
+
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index b95dd84eef2d..1e192038633d 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -235,4 +235,6 @@
+>   */
+>  #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
+>  					      struct vhost_vring_state)
+> +
+> +#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, bool)
+
+do not put bool in interfaces. something like u8 and validate it is 0 or
+1.
+
+>  #endif
+> -- 
+> 2.45.0
+
