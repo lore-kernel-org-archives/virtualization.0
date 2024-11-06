@@ -1,37 +1,85 @@
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C91B1DE2BA;
-	Wed,  6 Nov 2024 10:09:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.237.130.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730887764; cv=none; b=tcwXvqcS9QhloZ/VpmMumjHFN02OBEDybY/JWcLNQnY3Hd/ivtjbIHBE85pf49PK9JSJHhIzofTGWSLU4XWYKwxCaKPz3SKShHwG6/gn0pWFtU/7RTEGg4sBvPOTp120ihQqDy23L4moeNq2Ggppiua3cKHZCTV87+ddFjXiK2w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730887764; c=relaxed/simple;
-	bh=ZXjtkaFmt4U5PUsxfs5KDb85QQBjEtLWcblweYD/SMg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UqiuahcPsRo3b23k6TFQz6KULS6hJ4MPDIVNyjvniP+f5yoSZQeMlzHmthTvPcNLFmGdzV8nx1w01yxJ8ewxn2JlyVzszNAFs0rX7/jJKRmRTakjYJ9OmlvW7mCUOe25K6hRd4a6NP3FgKZ6PDtB38Hv7zIhMn4U5yBb10/JoX8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=jzs8NDcv; arc=none smtp.client-ip=80.237.130.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B3321DDC35
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 10:21:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730888494; cv=fail; b=OABYcTiVpI3/ovCeKOHQai3dANCuJ5EGvWkySCjb4QZoeBRMBTyLt3/UNO5cCRel2YwmWA5/dX1YnzKOtEQkLmUEd8K0PEkW6btvnT+zbd0t7D9ZcJdJruoD4JX+J2d6mptAOGUFu/4uRwJ4CQvhjLFPjsmKRubZvzc7MpRP0Es=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730888494; c=relaxed/simple;
+	bh=gUsPIO5jQaIEgyIYepSFWd18aN80GE5GiRH2T+wOdeU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=XlUkPQdplW/XaE3iObCCwMbFrBcrz+8Boq7EH56AYAH8PQ0/iulgOlwRLPnUhmKU2loacBlKMGxK16wNG2JdrQ8eSf9fZjXZxHsyHex9omzDDqYFLIeH1ExsnC9TVwSgTn+YRm9noBUX7iJOPCKKg+w2SbmIxNWuxbigyuwysaA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=arnkT7Yr; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="jzs8NDcv"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:
-	Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
-	In-Reply-To:References; bh=nGFeHOlSP+QwIymN7Hl23pOChbDXLiumQcA5mZ6uMxA=;
-	t=1730887762; x=1731319762; b=jzs8NDcvqsQVlZjiLrfDeAkAW9qE+LZDU4z/s7pxiD5QAkT
-	Qg4V6BnOyiChOrxLrvshtgY+ix1uTKvGpJgMe+uVNQhWjnQFcLOHWPDGy23llOmd+xtdIKpBmkB2K
-	lTQPbGP+3PqjDLQOIbkIXCJWWv+vQ+DG7CcfMMLl1O8E1cKyfa5PJA8ztsmAdc/4Lqp9qo0XBxfY2
-	og5/tK9gNaeQcrl2kOwCJO2xI7kUy3nyMM/iLc5qHLp8igB259U9BWIXIqeOTVLJoJY10JB/MBEKh
-	yt2tqYKYsdEp/9MCjaOmI22KZvX8aVSsQ6uIRaWsnLbVuE82yQU7IMG5X3NlL/yA==;
-Received: from [2a02:8108:8980:2478:87e9:6c79:5f84:367d]; authenticated
-	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-	id 1t8cyW-0002vU-4b; Wed, 06 Nov 2024 11:09:20 +0100
-Message-ID: <35b03c6d-a083-407e-a0db-85d5dedcd335@leemhuis.info>
-Date: Wed, 6 Nov 2024 11:09:17 +0100
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="arnkT7Yr"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3EAF0400D9
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 10:21:32 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id eeO1SHoWIwUN for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Nov 2024 10:21:31 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2408::601; helo=nam04-bn8-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9B26A400B0
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9B26A400B0
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=arnkT7Yr
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on20601.outbound.protection.outlook.com [IPv6:2a01:111:f403:2408::601])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9B26A400B0
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 10:21:30 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=LylHJ3e7XeP9UhpMCDHGABCohwcF2jFy0VVRcP6BffM3i+grnnGnJNwjHV2LrJtfN39XBQoEg51uqrgXhAEuHDNJl0u+4TDlqHWBxIAg7nHQvWqByn4kl8gdSzn5PWuEbLIV2rx0ssqXH+afS57sLHRP1CeDNHrVdgDoFy1cydvWxfBTh/EWLX8g8Fdi514997HIkdnyHquKMWXwn3sUxMT3LOAonMH24FWwHG/ead819HLQu9OVf0tcB94POcdoq8OnDYPanQIllStCwxBzCUVNr5pKT0yuetI/E36dOK3BM5OPNImjF5jh5XlGLcVIqa6AyTzRsD2w3pwq9U+TCg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=OVRf5EpOxYDHAaIx9marpZUHLXAuuWKNebBfPC4ldtM=;
+ b=KfPe//0zVLiWsk3Yf8/Hm/4urlTmrGUmlFjUGSvyFAKlw13OcCmqKZi1Op+pM70Ewnfg+1FCzH5Zq0c6gqWXhzTzHA3eCJgEu/0Gdrmi7xhFA09E/bU0ZOqTtjc4GiCYz6XrPa//6GPY9Jl2OKVw/2uXYTxeFs2ZBNvj6VG8yNveT03LGYyFkxVy2IuRgEo3FgNctvvFLYjbLhkJXf5a8p+Cdnzt6YGFJ4i1yBlqYa0CyxpZ8mH0xEjOSkuW3y9jNJMqXAq+BKI7C1OBLFKoRlQqdBbMra8OIQRnO13AdZPOQxBPoDq4zJx5JORju14iZFictuR8bldzmoJtPVyMOA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=OVRf5EpOxYDHAaIx9marpZUHLXAuuWKNebBfPC4ldtM=;
+ b=arnkT7YrOFuHRh4OCrGEszIQzO9dzurJoqI75qgpvUR1pTaBlqCktyhgkua5k80IRodYiNROp7lBC/qsCL7jS/FyvILmHOQKRJ1DGkmc1fyiC7VPREYesDScZyAqfHD3w5kpYpAKVLPm2RbC8jFygaAtNh/B1oBb8tEqhwsakdj1mbe/qMLhaaVMWyJJYCSHq+8Ac37VYQtQKPk2FD8MiaaDQZrqvhR1Uty0Z6vxF7xPR0xcopUp27v1vkJxbXAunwfUbp3Id3CTNHBJzTAXuh2kDDX0GgHUEsnUcr3GfAR9QkH6wQi6Npgh/EduFXBRah02bOv0XH+CP86tYEbXwg==
+Received: from BN1PR10CA0002.namprd10.prod.outlook.com (2603:10b6:408:e0::7)
+ by DM4PR12MB5841.namprd12.prod.outlook.com (2603:10b6:8:64::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.31; Wed, 6 Nov
+ 2024 10:21:26 +0000
+Received: from BN3PEPF0000B36D.namprd21.prod.outlook.com
+ (2603:10b6:408:e0:cafe::d7) by BN1PR10CA0002.outlook.office365.com
+ (2603:10b6:408:e0::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.18 via Frontend
+ Transport; Wed, 6 Nov 2024 10:21:26 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ BN3PEPF0000B36D.mail.protection.outlook.com (10.167.243.164) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8158.0 via Frontend Transport; Wed, 6 Nov 2024 10:21:25 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 6 Nov 2024
+ 02:21:11 -0800
+Received: from [172.27.60.49] (10.126.230.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 6 Nov 2024
+ 02:21:06 -0800
+Message-ID: <eebad7d5-d7c2-4910-872c-c362c246aa78@nvidia.com>
+Date: Wed, 6 Nov 2024 12:21:03 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -39,84 +87,259 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: 0010:virtnet_rq_alloc+0x8f/0x1b0 [virtio_net] with 6.10.7 and
- packed virtqueues
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Linux regressions mailing list <regressions@lists.linux.dev>,
- virtualization@lists.linux.dev,
- Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
-References: <CAK8fFZ6qVutPWxquHg7NEvFqYqDP5BwEdO81hqW8iMFxJFuLSQ@mail.gmail.com>
- <CAK8fFZ5N7EbU=uLbfyeSkQ273NSm+GELWUu1O1OBCpaSwjv6FA@mail.gmail.com>
- <422f35b3-7834-4df7-bcea-e3be12707aef@leemhuis.info>
- <1726216954.7439098-1-xuanzhuo@linux.alibaba.com>
- <565a9204-362d-458d-8b8e-11c5aada7b98@leemhuis.info>
- <CAK8fFZ6W2ZfwTa4nYz8ORTgb0mOTysg89LEEz7cHGtdqwpsvmA@mail.gmail.com>
- <20240913103753-mutt-send-email-mst@kernel.org>
- <CAK8fFZ4ONa_LYsyPN1E6QvUz4uUbzm35yfh6_dHUMDSxzySm3A@mail.gmail.com>
- <20241106035955-mutt-send-email-mst@kernel.org>
- <1730883874.818401-4-xuanzhuo@linux.alibaba.com>
- <20241106044241-mutt-send-email-mst@kernel.org>
-From: "Linux regression tracking (Thorsten Leemhuis)"
- <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-Content-Language: en-MW
-In-Reply-To: <20241106044241-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH V1 vfio 5/7] vfio/virtio: Add support for the basic live
+ migration functionality
+To: Alex Williamson <alex.williamson@redhat.com>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
+	<joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+References: <20241104102131.184193-1-yishaih@nvidia.com>
+ <20241104102131.184193-6-yishaih@nvidia.com>
+ <20241105154746.60e06e75.alex.williamson@redhat.com>
+Content-Language: en-US
+From: Yishai Hadas <yishaih@nvidia.com>
+In-Reply-To: <20241105154746.60e06e75.alex.williamson@redhat.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1730887762;7b527112;
-X-HE-SMSGID: 1t8cyW-0002vU-4b
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN3PEPF0000B36D:EE_|DM4PR12MB5841:EE_
+X-MS-Office365-Filtering-Correlation-Id: fd7c7617-6881-4c93-825e-08dcfe4cc550
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|82310400026|376014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?SnA4UVY0RWhNYVJHck9nWDgrMUVXVlNrdHpUUjlUejkwNDRFdFFYVjVrRStu?=
+ =?utf-8?B?QXplZFlQOWxlVUZIN3BLZEduUy9wNW02TEJ5bGdiZUo2cklGb2VwUVp6QlJn?=
+ =?utf-8?B?OXNVaThid1FWQkM5K3BnQThJWFVPNjI4bDdtYXkzRGx4QnRKbzRzRlRXMTdM?=
+ =?utf-8?B?VW5kQmhKNnZvZWsxb3YzRzZJSnFjY28zdzl0KytKNTZTRTM2QmdBOXBETlpZ?=
+ =?utf-8?B?QWtVUzJYTGJiT0I5MlNrNDNXS1BHS09abU9pa2Jhb1pmVUdhZi95TllNaENG?=
+ =?utf-8?B?N0RaTXdWVEM2RFlzdFpFUWRhVzVUalhLSWpNakFLQmwzdTFEYjRsWDUvSHdY?=
+ =?utf-8?B?MW1zQ3owYUROaU5ZbXNSSzRYUHRIdHhNODFhU3BJRFI4Y2gvSk1nWDRkTVdj?=
+ =?utf-8?B?RTMreFpUUjlYanlaakZ4TjkrNzltTlVBOG0rSjMwRDF0THE0MnNmYVVKUnE1?=
+ =?utf-8?B?WGhNRkUwbFFiOThxaitPTzZGOEVTeG1KYkZWYTZDV09WbVVNUFl4VWJaWFB5?=
+ =?utf-8?B?RmxrVERYUFRHNllXUTExRUtWNGFOcWZ1aTRxcEExNllxV2t2ZTdSem43VWRG?=
+ =?utf-8?B?MzdyLzh1eVJETFE5U1UyVEdCZHpLdEh5b0pRVHRwWFpsOGRaQ05TVkhOUXRM?=
+ =?utf-8?B?KzQ1dGlYRXg0eVB2SW90MlpSeGp3K1padC9sdVlPMk1iUkVXS3lCNk1xNmY5?=
+ =?utf-8?B?a2ZqVmkwT1VxNysrYzJPdjJ3ZjRMaE1sWVVzenIyNjFLd2k4M2dHOXBzTnAz?=
+ =?utf-8?B?NmFXMjRFRjVvZlFxbjVZMHhSZU9oTGlXOTNBMi8yWGJ2VWRuakZ3Y2c0L21P?=
+ =?utf-8?B?NXJlbHNkTExpakxrcnZnY01PODVtZ0YxckYwMzZmUGRUbTBrd3pxdEVvTWRr?=
+ =?utf-8?B?TmlxTVlKcmJ0dUFWcHpncTFuZE1kUGZQdStRQjNiY2JWM3N0YitsN29YSU00?=
+ =?utf-8?B?RnZ3cnNNdDY4N1UzUmljUDJacGhNa1pKMHRhSVdhSExWcnR2Rm93QWE0WVYx?=
+ =?utf-8?B?SHJsVXZ4NjNQTUtJMVpYQk9RdjlxZTZzQTVTaVZHMXField6a3ZhalJOdFlX?=
+ =?utf-8?B?WEtRd2I1ck1wY2U0Uis5OFJsZHVXbVFxNi9lZ0ZKS1pCcjQwVmpHR0VvVDVp?=
+ =?utf-8?B?SnlYVTM4NVVBakY4S0d6dFlPVzlhajNZNUN3bkZTSHlTWWpNT0pNZHRBZnE1?=
+ =?utf-8?B?cnQ1Z2ZZSVJxQ09LUXhOUTV6RXFJK1RCZ3VXU1RRZmcveC94Ly9CV0tmdlFq?=
+ =?utf-8?B?WWJLMEhHeU05V0FJVlYzbnRQTFRoc09BYmZybUFRaDBCM1NRMGh3Um9TemZW?=
+ =?utf-8?B?a0htMGVVbThOSXpzU3R3L3Z2enVsa0IyU0t4ajBRcm5MRFNZUjY3RFJ6UVdT?=
+ =?utf-8?B?eGJmK29UV2wxenFTaDJYdlpkcitBMGRMUklKYUc1L2ZQeEd3YWRWT3JEek0w?=
+ =?utf-8?B?OU5wL0xOREorYXNDbnNwaFhwQ3RZNEJxWmRabXJQaDMrNzhmcG5NbndvYUht?=
+ =?utf-8?B?cmtnRkFQNmpWd05yd3M3Qmo1K2h0QkpSem81RFYyQjFZKy9ZRmN6QkpBQjgv?=
+ =?utf-8?B?WEhOUVd3bHlFUE1kQitCRmFseG85Tlh5dlQ4ajI3U1RmZ1pSMDcrZ0VvZnhG?=
+ =?utf-8?B?V3lISWR4UUczWWZ3U2ozN1ZjMXdiaDJBS2lTRnZtbXFmQzE5YkNJeWpBTDBx?=
+ =?utf-8?B?Ymc0a0lGSW1mZnlCekc1bnAvd1NsMDFvQjUza3pIU1JJeThCSDl6aW9VME1J?=
+ =?utf-8?B?djMrbDNrWHI4MHVoRHBXTTF2VmZaLzk0VW0zeWx3TW1WVk1PZk5JcXMwQWRm?=
+ =?utf-8?B?R1Zsb2N4dzZ2MjEwWVpuK1BkYm16dmtZb1Nka2xhUHMvU3hicytvdW9kOWY5?=
+ =?utf-8?B?RkZmalY3eDA0bnBRV1VqSVV3R2NjRUtqRG1QcTNyNE50OXc9PQ==?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(376014)(1800799024);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2024 10:21:25.9093
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: fd7c7617-6881-4c93-825e-08dcfe4cc550
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN3PEPF0000B36D.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5841
 
-On 06.11.24 10:43, Michael S. Tsirkin wrote:
-> On Wed, Nov 06, 2024 at 05:04:34PM +0800, Xuan Zhuo wrote:
->> On Wed, 6 Nov 2024 04:01:43 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->>> On Mon, Sep 16, 2024 at 09:32:38AM +0200, Jaroslav Pulchart wrote:
->>>>> On Fri, Sep 13, 2024 at 11:21:11AM +0200, Jaroslav Pulchart wrote:
->>>>>>
->>>>>> 1/ I was able to "do a reproducer" and hit the "random memory
->>>>>> corruption" issue with vanila 6.10.10 in our setup in ~28m of uptime
->>>>>> see attached 6.10.10-1.gdc.el9.x86_64.log.
->>>>>> 2/ I reverted these commits
->>>>>> "virtio_net: rx remove premapped failover code":
->>>>>> defd28aa5acb0fd7c15adc6bc40a8ac277d04dea
->>>>>> "virtio_net: big mode skip the unmap check":
->>>>>> a377ae542d8d0a20a3173da3bbba72e045bea7a9
->>>>>> "virtio_ring: enable premapped mode whatever use_dma_api":
->>>>>> f9dac92ba9081062a6477ee015bd3b8c5914efc4
->>>>>> in our next build and so far the environment is stable and not
->>>>>> crashing under same conditions like the previous crash.
->>>>>
->>>>> Automated backport failed:
->>>>>
->>>>> http://lore.kernel.org/all/2024091336-family-daffodil-541d@gregkh
->>>>>
->>>>> Since you have done the revert, and actually tested it, feel free
->>>>> to post, I will ack.
->>>>
->>>> What I did is:
->>>> git checkout linux-6.10.y
->>>> git revert defd28aa5acb0fd7c15adc6bc40a8ac277d04dea
->>>> git revert a377ae542d8d0a20a3173da3bbba72e045bea7a9
->>>> git revert f9dac92ba9081062a6477ee015bd3b8c5914efc4
->>>> (no changes nor fixing conflicts was needed)
->>>>
->>>> I'm newbie in posting the changes to upstream, Can you help me with
->>>> some simple steps on how to do it?
->>>
->>> Basically in this case, I think it is enough
->>> to reply to the revert patches and CC stable.
->>
->> Oh, I am ok.
->>
->> If need me to do something, please let me know.
->>
->> Thanks.
+On 06/11/2024 0:47, Alex Williamson wrote:
+> On Mon, 4 Nov 2024 12:21:29 +0200
+> Yishai Hadas <yishaih@nvidia.com> wrote:
+>> diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
+>> index b5d3a8c5bbc9..e2cdf2d48200 100644
+>> --- a/drivers/vfio/pci/virtio/main.c
+>> +++ b/drivers/vfio/pci/virtio/main.c
+> ...
+>> @@ -485,16 +478,66 @@ static bool virtiovf_bar0_exists(struct pci_dev *pdev)
+>>   	return res->flags;
+>>   }
+>>   
+>> +static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
+>> +{
+>> +	struct virtiovf_pci_core_device *virtvdev = container_of(core_vdev,
+>> +			struct virtiovf_pci_core_device, core_device.vdev);
+>> +	struct pci_dev *pdev;
+>> +	bool sup_legacy_io;
+>> +	bool sup_lm;
+>> +	int ret;
+>> +
+>> +	ret = vfio_pci_core_init_dev(core_vdev);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	pdev = virtvdev->core_device.pdev;
+>> +	sup_legacy_io = virtio_pci_admin_has_legacy_io(pdev) &&
+>> +				!virtiovf_bar0_exists(pdev);
+>> +	sup_lm = virtio_pci_admin_has_dev_parts(pdev);
+>> +
+>> +	/*
+>> +	 * If the device is not capable to this driver functionality, fallback
+>> +	 * to the default vfio-pci ops
+>> +	 */
+>> +	if (!sup_legacy_io && !sup_lm) {
+>> +		core_vdev->ops = &virtiovf_vfio_pci_ops;
+>> +		return 0;
+>> +	}
+>> +
+>> +	if (sup_legacy_io) {
+>> +		ret = virtiovf_read_notify_info(virtvdev);
+>> +		if (ret)
+>> +			return ret;
+>> +
+>> +		virtvdev->bar0_virtual_buf_size = VIRTIO_PCI_CONFIG_OFF(true) +
+>> +					virtiovf_get_device_config_size(pdev->device);
+>> +		BUILD_BUG_ON(!is_power_of_2(virtvdev->bar0_virtual_buf_size));
+>> +		virtvdev->bar0_virtual_buf = kzalloc(virtvdev->bar0_virtual_buf_size,
+>> +						     GFP_KERNEL);
+>> +		if (!virtvdev->bar0_virtual_buf)
+>> +			return -ENOMEM;
+>> +		mutex_init(&virtvdev->bar_mutex);
+>> +	}
+>> +
+>> +	if (sup_lm)
+>> +		virtiovf_set_migratable(virtvdev);
+>> +
+>> +	if (sup_lm && !sup_legacy_io)
+>> +		core_vdev->ops = &virtiovf_vfio_pci_lm_ops;
+>> +
+>> +	return 0;
+>> +}
+>> +
+>>   static int virtiovf_pci_probe(struct pci_dev *pdev,
+>>   			      const struct pci_device_id *id)
+>>   {
+>> -	const struct vfio_device_ops *ops = &virtiovf_vfio_pci_ops;
+>>   	struct virtiovf_pci_core_device *virtvdev;
+>> +	const struct vfio_device_ops *ops;
+>>   	int ret;
+>>   
+>> -	if (pdev->is_virtfn && virtio_pci_admin_has_legacy_io(pdev) &&
+>> -	    !virtiovf_bar0_exists(pdev))
+>> -		ops = &virtiovf_vfio_pci_tran_ops;
+>> +	ops = (pdev->is_virtfn) ? &virtiovf_vfio_pci_tran_lm_ops :
+>> +				  &virtiovf_vfio_pci_ops;
 > 
-> yes, pls reply and CC stable ;)
+> I can't figure out why we moved the more thorough ops setup to the
+> .init() callback of the ops themselves.  Clearly we can do the legacy
+> IO and BAR0 test here and the dev parts test uses the same mechanisms
+> as the legacy IO test, so it seems we could know sup_legacy_io and
+> sup_lm here.  I think we can even do virtiovf_set_migratable() here
+> after virtvdev is allocated below.
+> 
 
-I see that ";)", but it seems I'm missing something here:
+Setting the 'ops' as part of the probe() seems actually doable, 
+including calling virtiovf_set_migratable() following the virtiodev 
+allocation below.
 
-Why did this thread resurface? 6.10.y is EOL since a while now, so that
-reverting ship has sailed. And the commit in question is in 6.11 afaics.
+The main issue with that approach will be the init part of the legacy IO 
+(i.e. virtiovf_init_legacy_io()) as part of virtiovf_pci_init_device().
 
-Ciao, Thorsten
+Assuming that we don't want to repeat calling 
+virtiovf_support_legacy_io() as part of virtiovf_pci_init_device() to 
+know whether legacy IO is supported, we can consider calling 
+virtiovf_init_legacy_io() as part of the probe() as well, which IMO 
+doesn't look clean as it's actually seems to match the init flow.
+
+Alternatively, we can consider checking inside 
+virtiovf_pci_init_device() whether the 'ops' actually equals the 'tran' 
+ones and then call it.
+
+Something like the below.
+
+static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
+{
+	...
+
+#ifdef CONFIG_VIRTIO_PCI_ADMIN_LEGACY
+	if (core_vdev->ops == &virtiovf_vfio_pci_tran_lm_ops)
+		return virtiovf_init_legacy_io(virtvdev);
+#endif
+
+	return 0;
+}
+
+Do you prefer the above approach rather than current V1 code which has a 
+  single check as part of virtiovf_init_legacy_io() ?
+
+> I think the API to vfio core also suggests we shouldn't be modifying the
+> ops pointer after the core device is allocated.
+
+Any pointer for that ?
+Do we actually see a problem with replacing the 'ops' as part of the 
+init flow ?
+
+> 
+>>   
+>>   	virtvdev = vfio_alloc_device(virtiovf_pci_core_device, core_device.vdev,
+>>   				     &pdev->dev, ops);
+>> @@ -532,6 +575,7 @@ static void virtiovf_pci_aer_reset_done(struct pci_dev *pdev)
+>>   	struct virtiovf_pci_core_device *virtvdev = dev_get_drvdata(&pdev->dev);
+>>   
+>>   	virtvdev->pci_cmd = 0;
+>> +	virtiovf_migration_reset_done(pdev);
+>>   }
+>>   
+>>   static const struct pci_error_handlers virtiovf_err_handlers = {
+>> diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
+>> new file mode 100644
+>> index 000000000000..2a9614c2ef07
+>> --- /dev/null
+>> +++ b/drivers/vfio/pci/virtio/migrate.c
+> ...
+>> +static int virtiovf_pci_get_data_size(struct vfio_device *vdev,
+>> +				      unsigned long *stop_copy_length)
+>> +{
+>> +	struct virtiovf_pci_core_device *virtvdev = container_of(
+>> +		vdev, struct virtiovf_pci_core_device, core_device.vdev);
+>> +	bool obj_id_exists;
+>> +	u32 res_size;
+>> +	u32 obj_id;
+>> +	int ret;
+>> +
+>> +	mutex_lock(&virtvdev->state_mutex);
+>> +	obj_id_exists = virtvdev->saving_migf && virtvdev->saving_migf->has_obj_id;
+>> +	if (!obj_id_exists) {
+>> +		ret = virtiovf_pci_alloc_obj_id(virtvdev,
+>> +						VIRTIO_RESOURCE_OBJ_DEV_PARTS_TYPE_GET,
+>> +						&obj_id);
+>> +		if (ret)
+>> +			goto end;
+>> +	} else {
+>> +		obj_id = virtvdev->saving_migf->obj_id;
+>> +	}
+>> +
+>> +	ret = virtio_pci_admin_dev_parts_metadata_get(virtvdev->core_device.pdev,
+>> +				VIRTIO_RESOURCE_OBJ_DEV_PARTS, obj_id,
+>> +				VIRTIO_ADMIN_CMD_DEV_PARTS_METADATA_TYPE_SIZE,
+>> +				&res_size);
+>> +	if (!ret)
+>> +		*stop_copy_length = res_size;
+>> +
+>> +	/* We can't leave this obj_id alive if didn't exist before, otherwise, it might
+>> +	 * stay alive, even without an active migration flow (e.g. migration was cancelled)
+>> +	 */
+> 
+> Nit, multi-line comment style.
+
+Sure, will change.
+
+Thanks,
+Yishai
+
