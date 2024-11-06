@@ -1,113 +1,280 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C5E1D61B9
-	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 09:16:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C5371D90AC
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 09:21:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730884576; cv=none; b=cNlnTySIbHa0b2zoSbP/gMiX+zMghseYnEgs5AV/jKohbwSujkOxKiMbx+/1F1aq+bxnz/R6wDBBzvPFEtnRerimRLlJroTf4kdP97Wj55+0/lq1f7R5qhwNNPkTHwB2YJ6T/6jgu24NcCqnvekSJyN8YAFB0KIqbfRGUpsd/r4=
+	t=1730884916; cv=none; b=jO3P5DtOLq433MjjaSlIBgILxAqS1YFZdm8xs9dlTILvdD1rUnaY5XBY6uunrSskFfDSutkv44OyCHsXVxsT3Z3zvMR4/by8X5sr+7SPlzZCpWtmpD6yYE/4M3HJx/CtJib2EwgLD9ZyiUAQhW/PQxWL7BUgYpAr1XBtnZfN9DI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730884576; c=relaxed/simple;
-	bh=LiWfgtP3ccuFSeeihkum3Zsw2j+Q/tBTiOLrwo9T6sU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=nghjh2KgpqAt3f+UHonMywjjb/23nQDZ+yOy1mjBM+OiYcOkxfJFT8BAas3836W7PQcpGL2rafTLbKCX6B8mDXSmvrONQLegaOc9yn8EO5f3UNTkD+5lVtp3gBWUaidvhNyE5+sMyd9PbbYGtI+2oU5utUr9jGcaxZiRNZl7RSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cJKFqEyf; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1730884916; c=relaxed/simple;
+	bh=Pw+CI4bHxgFkgqeCayKSDMkesfgD/0zFa0vhtdOxMjc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Mz5sMfYy+qUvOnCofla2UVGH6taRbeqFI8vAfPidTdv308+6lcIfgAopSCTZ/h76tGGCfzjxLdqTXLMkiuiA2wTH/u7sIRCxlX/+YwVKdI3mlQ5ENUac4k9avgEFHWZ6Znvod2OeTKM3wZBLmU/j4dWbvADX27csQNwSpzHBNgk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BdC6FL8n; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cJKFqEyf"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BdC6FL8n"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id AB94380D24
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 09:21:54 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id V8nyLtyx7E_t for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Nov 2024 09:21:54 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org BA1B380D17
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BA1B380D17
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BdC6FL8n
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BA1B380D17
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 09:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730884573;
+	s=mimecast20190719; t=1730884912;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hpGds3rrLDrDyMfb6nHlArwXd7ub7kAc2WQ+kRP5Q+E=;
-	b=cJKFqEyfKJa8485dkmJ6lCKDzM8Gc4kJ+5xAPO2FkhKcWCxWsRdDlRugMgVzYbHOhGOjxr
-	OPAzmjXdd9DYEJ6zdwGL5Y/pfhssjUhj0hNn7vuEA1keNMpdfVMhr6kx7wJjJIk+O3Q1n3
-	rkT5UlRzXDFixELxPvcidB1ujDOpHJ4=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=G+/r8y82t5LpcD8J2mPdZCtNa7f1NkKmPiS7dBnIVQM=;
+	b=BdC6FL8n/r6l0YXDMFmBUlu/lDE9gZjO7ixpvRABQpHfsRdcwZ4R0qVkfzt3sctmU5F1qx
+	XD7inx2yObFcIQqRoMi0VQWtuOzLiu4uz+MXjuZxONufrun1tr28+kWQnGSGjoc6kS45+P
+	8nEw6bT9p+U2rAUUAz3XnaoHxsnWQ0I=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-288-OVGd-mmjPSeExXjXzFTzmQ-1; Wed, 06 Nov 2024 04:16:12 -0500
-X-MC-Unique: OVGd-mmjPSeExXjXzFTzmQ-1
-X-Mimecast-MFC-AGG-ID: OVGd-mmjPSeExXjXzFTzmQ
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d609ef9f7so3482785f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 06 Nov 2024 01:16:12 -0800 (PST)
+ us-mta-498-LmypGPhjMrC6l0xYFqWMGg-1; Wed, 06 Nov 2024 04:21:50 -0500
+X-MC-Unique: LmypGPhjMrC6l0xYFqWMGg-1
+X-Mimecast-MFC-AGG-ID: LmypGPhjMrC6l0xYFqWMGg
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a99fff1ad9cso71883866b.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 06 Nov 2024 01:21:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730884571; x=1731489371;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hpGds3rrLDrDyMfb6nHlArwXd7ub7kAc2WQ+kRP5Q+E=;
-        b=s60P/mEhgxFSDkPPQECJMcb4wDzvFTRTybjfC/Q/tE4uLaVQQxxi0/jW/FVR+1Y81H
-         yHFkx/0ycRYyryKL22fvtjHMLMa6K10l5XN7t/0ZTYPp7jAZ3NA3982Kvb2/FU7ZwGC8
-         KsxruhR5P4ECV8354oDnJvDIRIo/nEXCk0brMwCwUDMUDBsG5E303Gjr+4UxiEwZ3qXf
-         /HFl2bCs+M/3QIa48J6+TvLwLco+4wQR8dkP/7kb0x7zvU//5rpu2wEJDL5RYHft7BKT
-         1u0lg9w91QY2hDGCbvNbNMUT6ha/DB/Y0gcFl0HLt5bSc41BkfMdpwTV9Wgh8FnlWGns
-         Jbvw==
-X-Forwarded-Encrypted: i=1; AJvYcCW9KCJ8Ut0LFNAKRKUj6lfvRFFGih3j9jAhQdt9XeGs/NpSeG8PgU9EZjyd0wp1ggCfT3ZTxE/pvDSJgsl4/Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzJbnBEptFeIN1EFaWpCBlpJSr3yuKWf7Dlz9mq8gv9qB9w/wZC
-	0yPALgXmApGXlyAK4Yx1wTdn2rEtdjWZZPf3FTICudn3A4VLXfPQBDECHOfODl9HqnFNt0rEOh7
-	bCaMS5LejmItIjYxuD+taQdjllNfRZ0lYSF5Z91ty11lMEXvHsotlXCIQx/x0zuCz
-X-Received: by 2002:a05:6000:178a:b0:37c:d227:d193 with SMTP id ffacd0b85a97d-381be7654bbmr19918775f8f.10.1730884571473;
-        Wed, 06 Nov 2024 01:16:11 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEzRwU2TOM2eQPF5E6Rf2mNxBpWaMzmZbkkznCCrfo7GyAOnLbimkewh0GmBs2JIyl8mHd0hQ==
-X-Received: by 2002:a05:6000:178a:b0:37c:d227:d193 with SMTP id ffacd0b85a97d-381be7654bbmr19918753f8f.10.1730884571022;
-        Wed, 06 Nov 2024 01:16:11 -0800 (PST)
-Received: from redhat.com ([2a02:14f:178:e74:5fcf:8a69:659d:f2b2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa5b5e56sm15522815e9.2.2024.11.06.01.16.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Nov 2024 01:16:10 -0800 (PST)
-Date: Wed, 6 Nov 2024 04:16:07 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH net-next v1 0/4] virtio_net: enable premapped mode by
- default
-Message-ID: <20241106041545-mutt-send-email-mst@kernel.org>
-References: <20241029084615.91049-1-xuanzhuo@linux.alibaba.com>
- <20241104184641.525f8cdf@kernel.org>
- <20241106023803-mutt-send-email-mst@kernel.org>
- <1730882783.399233-1-xuanzhuo@linux.alibaba.com>
+        d=1e100.net; s=20230601; t=1730884909; x=1731489709;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=G+/r8y82t5LpcD8J2mPdZCtNa7f1NkKmPiS7dBnIVQM=;
+        b=dSZgTETcjw4rbvp2ZV70W+QUXK1igs9RbQqKhfc7mVX3wKr0RRO/rYIpCpuuBgjYT8
+         0qAWIPhDtqJt5qYyIqbZCETEHyckL8Q0eKBaqyMh+v/I+els6tR/ieMytiLFUStOmXUv
+         skyfGkCkcynVuO0vZOma+TrX0lIUKbfsBu9x2gKYWoZEOvH3fyz+l0nUBzxOa7gp5TWD
+         mnK6WpA0+JWmkEzgxm37cq8uDGRMkAqD1gwwkl/Pw6INKX4II0lpoNsIx1ZZKdI4OOTh
+         HbQBPceyfnCVK+Dpp170qHSfZO2ObiaHi0xLr4fAs9SpbxH1U6jS58lRX3Zp2JrE4IW0
+         kJjw==
+X-Forwarded-Encrypted: i=1; AJvYcCUVOvPLAO8lFJdpGXpSorvqRWKSBeRnaGSckoyj7k10HWOHl37wkBoSejb8LAg/fzPguardP/EHbZuDo8ZEKA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwSG+1CIwXTts9GkvdYXR1fOnd0S+WbP16T0U5C40XzGuy1JiLn
+	y3Pf1yV3udcm5VebZXIwSmJCtmWWn7ZLe+6DuxPCdji19EjaI+7SLzJ9pt3rp6qLwNgFb7HiakJ
+	9zrQYdn5cLSfGoKvpwmBhnCncIZy+iGwXdCULUmoEXSu8Oq9a44Cz6VeQ4YbYdsRqRIAXU6pfoy
+	HMbR+KSbrt9vVYYuGtSxfUQZQpAyuAUpFl64nvmGt+zbLpQKWgN5TzPw==
+X-Received: by 2002:a17:906:dc91:b0:a9a:4f78:c3 with SMTP id a640c23a62f3a-a9e3a5a0da3mr2632258266b.21.1730884909155;
+        Wed, 06 Nov 2024 01:21:49 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHaDNg6wSMGmRW4F0u9QWcnzmzJVMDxrKOMNX8UWkiv8lV8hKePP9x5R6DeNMjld7k4M/mJKlB64IX5d/Yhcbk=
+X-Received: by 2002:a17:906:dc91:b0:a9a:4f78:c3 with SMTP id
+ a640c23a62f3a-a9e3a5a0da3mr2632249266b.21.1730884907353; Wed, 06 Nov 2024
+ 01:21:47 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1730882783.399233-1-xuanzhuo@linux.alibaba.com>
+References: <20241105072642.898710-1-lulu@redhat.com> <20241105072642.898710-5-lulu@redhat.com>
+ <CACGkMEvwirx3C7QL_xYB_niYBYfugCR9OMWqwcPfAPX=E1Qm=Q@mail.gmail.com>
+In-Reply-To: <CACGkMEvwirx3C7QL_xYB_niYBYfugCR9OMWqwcPfAPX=E1Qm=Q@mail.gmail.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Wed, 6 Nov 2024 17:21:09 +0800
+Message-ID: <CACLfguXEc85-59966iK-aO2uzKthcv2TqGpK3VLhNs1K0pBq9w@mail.gmail.com>
+Subject: Re: [PATCH v3 4/9] vhost: Add kthread support in function vhost_worker_create
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tHs3kpgVhObRofeK7JKBt8gv-hFS3wN4MoFYrY7gA6A_1730884571
+X-Mimecast-MFC-PROC-ID: LPi1rEbykwDXHNgEa8FMVT4w7e0gilbZGkvswoPBHdM_1730884909
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 06, 2024 at 04:46:23PM +0800, Xuan Zhuo wrote:
-> On Wed, 6 Nov 2024 02:38:40 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Mon, Nov 04, 2024 at 06:46:41PM -0800, Jakub Kicinski wrote:
-> > > On Tue, 29 Oct 2024 16:46:11 +0800 Xuan Zhuo wrote:
-> > > > In the last linux version, we disabled this feature to fix the
-> > > > regress[1].
-> > > >
-> > > > The patch set is try to fix the problem and re-enable it.
-> > > >
-> > > > More info: http://lore.kernel.org/all/20240820071913.68004-1-xuanzhuo@linux.alibaba.com
-> > >
-> > > Sorry to ping, Michael, Jason we're waiting to hear from you on
-> > > this one.
+On Tue, Nov 5, 2024 at 5:36=E2=80=AFPM Jason Wang <jasowang@redhat.com> wro=
+te:
+>
+> On Tue, Nov 5, 2024 at 3:27=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
 > >
-> > Can patch 1 be applied on net as well? Or I can take it through
-> > my tree. It's a bugfix, just for an uncommon configuration.
-> 
-> 
-> Why? That can not be triggered in net branch.
-> 
+> > Restored the previous functions kthread_wakeup and kthread_stop.
+> > Also add a new structure, vhost_task_fn. The function vhost_worker_crea=
+te
+> > Will initializes this structure based on the value of inherit_owner.
+> >
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > ---
+> >  drivers/vhost/vhost.c | 71 ++++++++++++++++++++++++++++++++++++-------
+> >  drivers/vhost/vhost.h |  6 ++++
+> >  2 files changed, 66 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index e40cef3a1fa5..603b146fccc1 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -741,43 +741,92 @@ static void vhost_workers_free(struct vhost_dev *=
+dev)
+> >         xa_destroy(&dev->worker_xa);
+> >  }
+> >
+> > +static int vhost_task_wakeup_fn(void *vtsk)
+> > +{
+> > +       vhost_task_wake((struct vhost_task *)vtsk);
+> > +       return 0;
+> > +}
+>
+> Let's have a newline between two functions.
+>
+will fix this
+> > +static int vhost_kthread_wakeup_fn(void *p)
+> > +{
+> > +       return wake_up_process((struct task_struct *)p);
+> > +}
+> > +static int vhost_task_stop_fn(void *vtsk)
+> > +{
+> > +       vhost_task_stop((struct vhost_task *)vtsk);
+> > +       return 0;
+> > +}
+> > +static int vhost_kthread_stop_fn(void *k)
+> > +{
+> > +       return kthread_stop((struct task_struct *)k);
+> > +}
+> > +
+> >  static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
+> >  {
+> >         struct vhost_worker *worker;
+> > -       struct vhost_task *vtsk;
+> > +       struct vhost_task *vtsk =3D NULL;
+> > +       struct task_struct *task =3D NULL;
+> >         char name[TASK_COMM_LEN];
+> >         int ret;
+> >         u32 id;
+> >
+> > +       /* Allocate resources for the worker */
+> >         worker =3D kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
+> >         if (!worker)
+> >                 return NULL;
+> >
+> > +       worker->fn =3D kzalloc(sizeof(struct vhost_task_fn), GFP_KERNEL=
+_ACCOUNT);
+> > +       if (!worker->fn) {
+> > +               kfree(worker);
+> > +               return NULL;
+> > +       }
+> > +
+> >         worker->dev =3D dev;
+> >         snprintf(name, sizeof(name), "vhost-%d", current->pid);
+> >
+> > -       vtsk =3D vhost_task_create(vhost_run_work_list, vhost_worker_ki=
+lled,
+> > -                                worker, name);
+> > -       if (!vtsk)
+> > -               goto free_worker;
+> > -
+> >         mutex_init(&worker->mutex);
+> >         init_llist_head(&worker->work_list);
+> >         worker->kcov_handle =3D kcov_common_handle();
+> > -       worker->vtsk =3D vtsk;
+> >
+> > -       vhost_task_start(vtsk);
+> > +       if (dev->inherit_owner) {
+> > +               /* Create and start a vhost task */
+> > +               vtsk =3D vhost_task_create(vhost_run_work_list,
+> > +                                        vhost_worker_killed, worker, n=
+ame);
+> > +               if (!vtsk)
+> > +                       goto free_worker;
+> > +
+> > +               worker->vtsk =3D vtsk;
+> > +               worker->fn->wakeup =3D vhost_task_wakeup_fn;
+> > +               worker->fn->stop =3D vhost_task_stop_fn;
+> > +
+> > +               vhost_task_start(vtsk);
+> > +       } else {
+> > +               /* Create and start a kernel thread */
+> > +               task =3D kthread_create(vhost_run_work_kthread_list, wo=
+rker,
+> > +                                     "vhost-%d", current->pid);
+> > +               if (IS_ERR(task)) {
+> > +                       ret =3D PTR_ERR(task);
+> > +                       goto free_worker;
+> > +               }
+> > +               worker->task =3D task;
+> > +               worker->fn->wakeup =3D vhost_kthread_wakeup_fn;
+> > +               worker->fn->stop =3D vhost_kthread_stop_fn;
+> > +
+> > +               wake_up_process(task);
+> > +               /* Attach to the vhost cgroup */
+> > +               ret =3D vhost_attach_cgroups(dev);
+> > +               if (ret)
+> > +                       goto stop_worker;
+> > +       }
+> >
+> >         ret =3D xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GF=
+P_KERNEL);
+> >         if (ret < 0)
+> >                 goto stop_worker;
+> >         worker->id =3D id;
+> > -
+> >         return worker;
+> > -
+> >  stop_worker:
+> > -       vhost_task_stop(vtsk);
+> > +       worker->fn->stop(dev->inherit_owner ? (void *)vtsk : (void *)ta=
+sk);
+> >  free_worker:
+> > +       kfree(worker->fn);
+> >         kfree(worker);
+> >         return NULL;
+> >  }
+> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> > index c650c4506c70..ebababa4e340 100644
+> > --- a/drivers/vhost/vhost.h
+> > +++ b/drivers/vhost/vhost.h
+> > @@ -25,8 +25,13 @@ struct vhost_work {
+> >         vhost_work_fn_t         fn;
+> >         unsigned long           flags;
+> >  };
+> > +struct vhost_task_fn {
+> > +       int (*wakeup)(void *task);
+>
+> Let's have comments to explain the semantics of each operation.
+>
+sure, will fix this
+> > +       int (*stop)(void *task);
+> > +};
+>
+> I think the goal is to reduce if/else, so while at this, let's
+> introduce more ops. For example the create_worker one?
+>
+sure, will change this part
+thanks
+cindy
+> >
+> >  struct vhost_worker {
+> > +       struct task_struct      *task;
+> >         struct vhost_task       *vtsk;
+> >         struct vhost_dev        *dev;
+> >         /* Used to serialize device wide flushing with worker swapping.=
+ */
+> > @@ -36,6 +41,7 @@ struct vhost_worker {
+> >         u32                     id;
+> >         int                     attachment_cnt;
+> >         bool                    killed;
+> > +       struct vhost_task_fn *fn;
+> >  };
+> >
+> >  /* Poll a file (eventfd or socket) */
+> > --
+> > 2.45.0
+> >
+>
 > Thanks
-
-I thought it can but can't remember why now. OK, nm then, thanks!
+>
 
