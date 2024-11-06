@@ -1,98 +1,98 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 367BC20CCF6
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 21:41:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA85620968D
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 22:27:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730929263; cv=none; b=u+Cyu+k7o1A+ZA+gan5YICBAI19MsuICmykyAs4UjSWrqxblXo7pvnUTeO2tvYf23U4A90OClZl0c2DGyuj+4JgyKs4RK9bw+4mngkvB35Hf0pxGnesL1fH3hCgxl175cQHDxE2z2XowpZk8vkCxcDLS5Mn5YtEQ4ApAVMeeFPg=
+	t=1730932064; cv=none; b=uoRlvQjPuyheutpowYBn7aTvdlUgAkRbGV1RUQCYouDjvPUHXzBuW4m1TfUmfscnnzOwT1PomRBaX6XE1TSOjReeDS9tGUC42L+9L9mhmJBG1r+HoeyfAwXv9yGR7Z2OAOi/Bqv61U9VkqTLNa1N1S8vNZKFvWJma4Va5R4kIDs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730929263; c=relaxed/simple;
-	bh=9Y+RRzsvAYCa/G23SNNKkBP82ujzZCoCFSvTIEULxsk=;
+	s=arc-20240116; t=1730932064; c=relaxed/simple;
+	bh=TfcbASzHLXOQmhUTw7B7XdgxSKt70YMSigBRGMXvYGQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bxTpi6F4txYdgnPv03eZfkC8Y262hAzC11uwHOodau5alkPy4es0GQqwVpaYGS7xS7niUfCx+QhrqLcvnozvr7kKtRCIlevdqzX0k29JgdP8afloM7TdkBhL/gy6rbKpL1dRfjnu2+cpRlptYiHz4fJcoLRvCJEUmxYRPlUDOQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=df3HFfEv; arc=none smtp.client-ip=140.211.166.138
+	 MIME-Version:Content-Type; b=H9Y67PEH/G1xQgaQUhg/p5jCUPK2nOWBPEbC5p2GhcBrdDi6Y6oqeEdu+2laQgqu1tulcom0jfiHwPVnQU4+Zx/insR5fpXfRax2nx8kF+wV9ylkxAS4Id0jX05NmyxwzYBjqiYJgWki/JG4Kh7HL0byLzq620FkwW9Wfo+LxIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RWva7UoQ; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="df3HFfEv"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RWva7UoQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E03D080C07
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 21:41:00 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 78B9540296
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 22:27:42 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.79
+X-Spam-Score: -5.793
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 44jP-sHgQLd5 for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Nov 2024 21:41:00 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 0BC0380C16
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0BC0380C16
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=df3HFfEv
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0BC0380C16
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 21:40:58 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id p6utCTNoUxrk for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Nov 2024 22:27:41 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 48C16401AF
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 48C16401AF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RWva7UoQ
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 48C16401AF
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 22:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730929257;
+	s=mimecast20190719; t=1730932059;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=LkAv1xv3L+lLwsH5N6TnynV2mpC7hr2h9WvHLXOozvM=;
-	b=df3HFfEvRirEm4HXBlo3qwtxbV9FjpzM8PrR4qAO4yyGeJkeXbb3WOn6AMq8JCjbpgPGZ/
-	62mSGG+wsWYfbiZ2T8whtUiDe0mnx1ZDvKbziONCymxsr3ujk6w0Ln/mtehwZpBmC6oSw/
-	8XnGU/n60nYt95bQnXEp2HHUO99u4qc=
-Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
- [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=go5QFFw5cefXrO1K9axgjZ1UBjNlFOTxnqSlKpShRvI=;
+	b=RWva7UoQhtExdYNzOboM3WE+RoFtbyhJ2zN5RUP9pjjoxgCGmlpXifF4KPXjIXyEOppxt5
+	tMmLolN0nf+Q7fh94YExL6VchvR3padL5b7PZId0GHfDrgqu4QayD7YJm9YOvku/m7UPMf
+	nEvIF/FE2S4QhdU7Vo8YTlxjds0zzN8=
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
+ [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-302-4Sh2_hSDNm--X06TeHWvgA-1; Wed, 06 Nov 2024 16:40:55 -0500
-X-MC-Unique: 4Sh2_hSDNm--X06TeHWvgA-1
-X-Mimecast-MFC-AGG-ID: 4Sh2_hSDNm--X06TeHWvgA
-Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3a6e4f039cfso497015ab.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 06 Nov 2024 13:40:55 -0800 (PST)
+ us-mta-635-9Gg7uOw5M4SFqMaMXic0BQ-1; Wed, 06 Nov 2024 17:27:36 -0500
+X-MC-Unique: 9Gg7uOw5M4SFqMaMXic0BQ-1
+X-Mimecast-MFC-AGG-ID: 9Gg7uOw5M4SFqMaMXic0BQ
+Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-3a6cabd39e9so788835ab.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 06 Nov 2024 14:27:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730929255; x=1731534055;
+        d=1e100.net; s=20230601; t=1730932056; x=1731536856;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LkAv1xv3L+lLwsH5N6TnynV2mpC7hr2h9WvHLXOozvM=;
-        b=bQTchmbKXl/9bmdNOZN9LgEK3UWFUXeOHfK12RHOHN7s/u/NceSxdz4o0gcZmsAI/H
-         E8MbwjEZe1ic2Wx7IjbDIW9GVQXtSIuBDqy4GDGOZ+miXIEBUozsw5Ys8EGKGFUDmpfr
-         Y735+arswzv9+KqozBiK5m9mYjk05bWax5OOIAYc8WaPBfUXRGJsVn4ZPt/0tTGwq3gj
-         1QjMmxCOJpnYTfZViLkPIu7UbMngnbEcEoGaNsBwMQ7U3m3AzPOfv1h6argEIszSYY9b
-         VUc3U+0KupTERgpb8xHFMlDj0edtv0GDZzDqswV4vXY53ZlyB+WFMeXjD5HEkebnGNK/
-         SyAg==
-X-Forwarded-Encrypted: i=1; AJvYcCW31jkK4PJJ2udY3/ixDGrt/npb7D9yFjLGy/6spkXvXOFQBY9LLsyX57KixPgEFm3OwBrvEAgqHsyWWD+3KA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz81rrpcfh1Bz+5nXRv1zlgxHTk+vbkNSqIy0L55kfhXytmLPc5
-	lyxJWg+DToJakvC1EU7svznHl/IfVD13bikR47QNzpKWJ8+EOutV9PObXTTbj0B6wm/Sux1uKhw
-	8dUgfsGOGr1F5I1Hb/cbGHntIH1J5utowZq3CZcDkCzbucsy0cYrUnBtZAcGBrvQL9a/YRErTo+
-	Ittkc=
-X-Received: by 2002:a05:6602:6423:b0:83a:abd1:6af2 with SMTP id ca18e2360f4ac-83df2442e08mr31342639f.3.1730929255173;
-        Wed, 06 Nov 2024 13:40:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFmaJCa6K1T+N21UQP7q5cHuDh9w/YU3TsQUPNVu6zTjgnwEmuBfGqqe4PZwEt0qklkr+LM9A==
-X-Received: by 2002:a05:6602:6423:b0:83a:abd1:6af2 with SMTP id ca18e2360f4ac-83df2442e08mr31341339f.3.1730929254742;
-        Wed, 06 Nov 2024 13:40:54 -0800 (PST)
+        bh=go5QFFw5cefXrO1K9axgjZ1UBjNlFOTxnqSlKpShRvI=;
+        b=aXDkfX1P+Sk9DTRBs16O4BM0IAqm5TEaLtjKDETtKjBf4hOak+hexy4OsoC7fvJOTm
+         joATIOSIOqjQxfP0HbC8yLUk2BQxQwmVPIZQJulE67lknS9ct6G1Ld6L/verJV3xe/FP
+         Wb+dh/VbWdh2h3feqsD2KrGCXxoj5Yzihdly6PZ5o/cw5/uW4R26BnU09iTUhhp+/cz7
+         oODCNc47/u80nkZWUQUaPZRGzoddCeOolWJ5XM/9IXp1CANMWNM/1uoPdq2ZGG78dQPN
+         DN9kggeuK40JrVy0XPwHV8uHprigxpk+th57+s1TvzpCf9e39WIMdr9EackO+N7Q+QLj
+         KrkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVBTHku8N1YDnAGzJeq8E1D7ryLGV6avY6lOYXkVUakvEMf/ae3AYHWTt0FCyvl9n3Fl0WeKdJ7j1E9y5i60w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yy4FgcLpkPUqb/kFmzRFtFkrapKcL8xbdxbqyCdhfeCiNZAtgkK
+	UvwRNS0AGe9f4GOb3/IB1y/j8K1Dh8+lFO7YyoZH5Z8naHTgLCs74HD4I3xVYA5Ikf2g18H6YjJ
+	Y3gsMHCO3zgwR6HLCP68VS5je0FAAxzMJnX7SMuBWezGOr3SG2rz8/OOKcdw4xBLj/rmCJLYnUA
+	lVaIM=
+X-Received: by 2002:a05:6e02:1c0f:b0:3a6:c23b:5aa9 with SMTP id e9e14a558f8ab-3a6e84cd750mr3952275ab.4.1730932056009;
+        Wed, 06 Nov 2024 14:27:36 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFHN4fi2YHJCawlF5KgLKrt4ol1xgPR4L91BiOakokLHkZ74AuOFSDy3T9be8LT9i6QdnCvUw==
+X-Received: by 2002:a05:6e02:1c0f:b0:3a6:c23b:5aa9 with SMTP id e9e14a558f8ab-3a6e84cd750mr3952155ab.4.1730932055649;
+        Wed, 06 Nov 2024 14:27:35 -0800 (PST)
 Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4de048e4f56sm3023903173.78.2024.11.06.13.40.53
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3a6bb812f95sm28024745ab.39.2024.11.06.14.27.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Nov 2024 13:40:54 -0800 (PST)
-Date: Wed, 6 Nov 2024 14:40:53 -0700
+        Wed, 06 Nov 2024 14:27:35 -0800 (PST)
+Date: Wed, 6 Nov 2024 15:27:32 -0700
 From: Alex Williamson <alex.williamson@redhat.com>
-To: Yishai Hadas <yishaih@nvidia.com>
-Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
- <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
- <parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
- <joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
-Subject: Re: [PATCH V1 vfio 6/7] vfio/virtio: Add PRE_COPY support for live
- migration
-Message-ID: <20241106144053.2f365e22.alex.williamson@redhat.com>
-In-Reply-To: <977be8e4-e52c-41bc-8a43-31ae906e6665@nvidia.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Yishai Hadas <yishaih@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
+ kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ parav@nvidia.com, feliu@nvidia.com, kevin.tian@intel.com,
+ joao.m.martins@oracle.com, leonro@nvidia.com, maorg@nvidia.com
+Subject: Re: [PATCH V1 vfio 7/7] vfio/virtio: Enable live migration once
+ VIRTIO_PCI was configured
+Message-ID: <20241106152732.16ac48d3.alex.williamson@redhat.com>
+In-Reply-To: <20241106135909.GO458827@nvidia.com>
 References: <20241104102131.184193-1-yishaih@nvidia.com>
-	<20241104102131.184193-7-yishaih@nvidia.com>
-	<20241105161845.734e777e.alex.williamson@redhat.com>
-	<977be8e4-e52c-41bc-8a43-31ae906e6665@nvidia.com>
+	<20241104102131.184193-8-yishaih@nvidia.com>
+	<20241105162904.34b2114d.alex.williamson@redhat.com>
+	<20241106135909.GO458827@nvidia.com>
 X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -101,148 +101,85 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8BOkNDh1lhjVrL79sZ793nMl-Sv7kbqmxG2fUFRRp54_1730929255
+X-Mimecast-MFC-PROC-ID: 2v42FrXV-ezBYzEApgV-C9LhjYPHkF3d4pK1fLZKjgs_1730932056
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Wed, 6 Nov 2024 13:16:34 +0200
-Yishai Hadas <yishaih@nvidia.com> wrote:
+On Wed, 6 Nov 2024 09:59:09 -0400
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> On 06/11/2024 1:18, Alex Williamson wrote:
-> > On Mon, 4 Nov 2024 12:21:30 +0200
-> > Yishai Hadas <yishaih@nvidia.com> wrote:
-> >   
-> >> Add PRE_COPY support for live migration.
-> >>
-> >> This functionality may reduce the downtime upon STOP_COPY as of letting
-> >> the target machine to get some 'initial data' from the source once the
-> >> machine is still in its RUNNING state and let it prepares itself
-> >> pre-ahead to get the final STOP_COPY data.
-> >>
-> >> As the Virtio specification does not support reading partial or
-> >> incremental device contexts. This means that during the PRE_COPY state,
-> >> the vfio-virtio driver reads the full device state.
-> >>
-> >> As the device state can be changed and the benefit is highest when the
-> >> pre copy data closely matches the final data we read it in a rate
-> >> limiter mode and reporting no data available for some time interval
-> >> after the previous call.
-> >>
-> >> With PRE_COPY enabled, we observed a downtime reduction of approximately
-> >> 70-75% in various scenarios compared to when PRE_COPY was disabled,
-> >> while keeping the total migration time nearly the same.
-> >>
-> >> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-> >> ---
-> >>   drivers/vfio/pci/virtio/common.h  |   4 +
-> >>   drivers/vfio/pci/virtio/migrate.c | 233 +++++++++++++++++++++++++++++-
-> >>   2 files changed, 229 insertions(+), 8 deletions(-)
-> >>
-> >> diff --git a/drivers/vfio/pci/virtio/common.h b/drivers/vfio/pci/virtio/common.h
-> >> index 3bdfb3ea1174..5704603f0f9d 100644
-> >> --- a/drivers/vfio/pci/virtio/common.h
-> >> +++ b/drivers/vfio/pci/virtio/common.h
-> >> @@ -10,6 +10,8 @@
-> >>   
-> >>   enum virtiovf_migf_state {
-> >>   	VIRTIOVF_MIGF_STATE_ERROR = 1,
-> >> +	VIRTIOVF_MIGF_STATE_PRECOPY = 2,
-> >> +	VIRTIOVF_MIGF_STATE_COMPLETE = 3,
-> >>   };
-> >>   
-> >>   enum virtiovf_load_state {
-> >> @@ -57,6 +59,8 @@ struct virtiovf_migration_file {
-> >>   	/* synchronize access to the file state */
-> >>   	struct mutex lock;
-> >>   	loff_t max_pos;
-> >> +	u64 pre_copy_initial_bytes;
-> >> +	struct ratelimit_state pre_copy_rl_state;
-> >>   	u64 record_size;
-> >>   	u32 record_tag;
-> >>   	u8 has_obj_id:1;
-> >> diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
-> >> index 2a9614c2ef07..cdb252f6fd80 100644
-> >> --- a/drivers/vfio/pci/virtio/migrate.c
-> >> +++ b/drivers/vfio/pci/virtio/migrate.c  
-> > ...  
-> >> @@ -379,9 +432,104 @@ static ssize_t virtiovf_save_read(struct file *filp, char __user *buf, size_t le
-> >>   	return done;
-> >>   }
-> >>   
-> >> +static long virtiovf_precopy_ioctl(struct file *filp, unsigned int cmd,
-> >> +				   unsigned long arg)
-> >> +{
-> >> +	struct virtiovf_migration_file *migf = filp->private_data;
-> >> +	struct virtiovf_pci_core_device *virtvdev = migf->virtvdev;
-> >> +	struct vfio_precopy_info info = {};
-> >> +	loff_t *pos = &filp->f_pos;
-> >> +	bool end_of_data = false;
-> >> +	unsigned long minsz;
-> >> +	u32 ctx_size;
-> >> +	int ret;
-> >> +
-> >> +	if (cmd != VFIO_MIG_GET_PRECOPY_INFO)
-> >> +		return -ENOTTY;
-> >> +
-> >> +	minsz = offsetofend(struct vfio_precopy_info, dirty_bytes);
-> >> +	if (copy_from_user(&info, (void __user *)arg, minsz))
-> >> +		return -EFAULT;
-> >> +
-> >> +	if (info.argsz < minsz)
-> >> +		return -EINVAL;
-> >> +
-> >> +	mutex_lock(&virtvdev->state_mutex);
-> >> +	if (virtvdev->mig_state != VFIO_DEVICE_STATE_PRE_COPY &&
-> >> +	    virtvdev->mig_state != VFIO_DEVICE_STATE_PRE_COPY_P2P) {
-> >> +		ret = -EINVAL;
-> >> +		goto err_state_unlock;
-> >> +	}
-> >> +
-> >> +	/*
-> >> +	 * The virtio specification does not include a PRE_COPY concept.
-> >> +	 * Since we can expect the data to remain the same for a certain period,
-> >> +	 * we use a rate limiter mechanism before making a call to the device.
-> >> +	 */
-> >> +	if (!__ratelimit(&migf->pre_copy_rl_state)) {
-> >> +		/* Reporting no data available */
-> >> +		ret = 0;
-> >> +		goto done;  
+> On Tue, Nov 05, 2024 at 04:29:04PM -0700, Alex Williamson wrote:
+> > > @@ -1,7 +1,7 @@
+> > >  # SPDX-License-Identifier: GPL-2.0-only
+> > >  config VIRTIO_VFIO_PCI
+> > >          tristate "VFIO support for VIRTIO NET PCI devices"
+> > > -        depends on VIRTIO_PCI && VIRTIO_PCI_ADMIN_LEGACY
+> > > +        depends on VIRTIO_PCI
+> > >          select VFIO_PCI_CORE
+> > >          help
+> > >            This provides support for exposing VIRTIO NET VF devices which support
+> > > @@ -11,5 +11,7 @@ config VIRTIO_VFIO_PCI
+> > >            As of that this driver emulates I/O BAR in software to let a VF be
+> > >            seen as a transitional device by its users and let it work with
+> > >            a legacy driver.
+> > > +          In addition, it provides migration support for VIRTIO NET VF devices
+> > > +          using the VFIO framework.  
 > > 
-> > @ret is not used by the done: goto target.  Don't we need to zero dirty
-> > bytes, or account for initial bytes not being fully read yet?  
+> > The first half of this now describes something that may or may not be
+> > enabled by this config option and the additional help text for
+> > migration is vague enough relative to PF requirements to get user
+> > reports that the driver doesn't work as intended.  
 > 
-> The 'dirty bytes' are actually zero as we used the below line [1] of 
-> code above.
+> Yes, I think the help should be clearer
 > 
-> [1] struct vfio_precopy_info info = {};
+> > For the former, maybe we still want a separate config item that's
+> > optionally enabled if VIRTIO_VFIO_PCI && VFIO_PCI_ADMIN_LEGACY.  
+> 
+> If we are going to add a bunch of  #ifdefs/etc for ADMIN_LEGACY we
+> may as well just use VIRTIO_PCI_ADMIN_LEGACY directly and not
+> introduce another kconfig for it?
 
-Ah, missed that.
- 
-> However, I agree, we may better account for the 'initial bytes' which 
-> potentially might not being fully read yet.
-> Same can be true for returning the actual 'dirty bytes' that we may have 
-> from the previous call.
-> 
-> So, in V2 I'll change the logic to initially set:
-> u32 ctx_size = 0;
-> 
-> Then, will call the device to get its 'ctx_size' only if time has passed 
-> according to the rate limiter.
-> 
-> Something as of the below.
-> 
-> if (__ratelimit(&migf->pre_copy_rl_state)) {
-> 	ret = virtio_pci_admin_dev_parts_metadata_get(.., &ctx_size);
-> 	if (ret)
-> 		goto err_state_unlock;
-> }
-> 
->  From that point the function will proceed with its V1 flow to return 
-> the actual 'initial bytes' and 'dirty_bytes' while considering the extra 
-> context size from the device to be 0.
+I think that's what Yishai is proposing, but as we're adding a whole
+new feature to the driver I'm concerned how the person configuring the
+kernel knows which features from the description might be available in
+the resulting driver.
 
-That appears correct to me.  Thanks,
+We could maybe solve that with a completely re-written help text that
+describes the legacy feature as X86-only and migration as a separate
+architecture independent feature, but people aren't great at reading
+and part of the audience is going to see "X86" in their peripheral
+vision and disable it, and maybe even complain that the text was
+presented to them.
+
+OR, we can just add an optional sub-config bool that makes it easier to
+describe the (new) main feature of the driver as supporting live
+migration (on supported hardware) and the sub-config option as
+providing legacy support (on supported hardware), and that sub-config
+is only presented on X86, ie. ADMIN_LEGACY.
+
+Ultimately the code already needs to support #ifdefs for the latter and
+I think it's more user friendly and versatile to have the separate
+config option.
+
+NB. The sub-config should be default on for upgrade compatibility.
+
+> Is there any reason to compile out the migration support for virtio?
+> No other drivers were doing this?
+
+No other vfio-pci variant driver provides multiple, independent
+features, so for instance to compile out migration support from the
+vfio-pci-mlx5 driver is to simply disable the driver altogether.
+
+> kconfig combinations are painful, it woudl be nice to not make too
+> many..
+
+I'm not arguing for a legacy-only, non-migration version (please speak
+up if someone wants that).  The code already needs to support the
+#ifdefs and I think reflecting that in a sub-config option helps
+clarify what the driver is providing and conveniently makes it possible
+to have a driver with exactly the same feature set across archs, if
+desired.  Thanks,
 
 Alex
 
