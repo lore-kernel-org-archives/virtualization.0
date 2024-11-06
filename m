@@ -1,118 +1,163 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F0741D0BBB
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 07:33:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAC601CF2A6
+	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 07:37:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730878411; cv=none; b=K2K8yPbuHKxQrjn/QlKI5NLTRLs7DgMw2YchDJdDJ0tCzkVI33MAU/XOO+5kfeOfvulCHnH+OYWqwCJfHbfudnQInTAEiCWHRsMqjzOD5QeIKRvotIxnk9ll7J/3V67F01yqwfB5uIQOoAOw8YyRQFEj3AB4AZE9+VSgto2lrsM=
+	t=1730878656; cv=none; b=AStrNyhtPsNxY1gFffILAc+9vHy557fmX+ef7YzEcmyMDAkOGj5drvsohP7l95Oy4nMgH00Igq28ngI3NW5MipTyeX0VfaHEM55XuyZ/joQ5+2TQbTPMbUrg8lzOw50hnvWrLl6teC8bNkKsaoSSsvsh7u9zNtLFjHqOu/DxTm4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730878411; c=relaxed/simple;
-	bh=33aKOFG3TZuLLl1fcejK3AuJF9J2u973ZT6qcLpNFXE=;
+	s=arc-20240116; t=1730878656; c=relaxed/simple;
+	bh=+CtSBqOOwTGniuZBGFfMv5NkBJPfqlQQudSVQJ8OF1I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rFByTe9BTu7FR2itkJx2CruZnGsEIkuLj7JLPXbHdiyph7RqzDRcMMoMtvwB19WMhPFV+nP6Oja6KylhmM2GekvMV1OUmkBPAVZlihAl9izO8UYGamzQiWCAZlxhaiSEIP1Eeaf3+oxkyXIuX0oXgli6fyD/NZNqfQNMvWRPszA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AzdSXh5Z; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type:Content-Disposition; b=KWz5fslcwTfr+7eErhPIHs3vpcp5YdNragNSEtB+XTib2PtpXoQ2F3cxcOOjeHSevk49IDOue8/Cd8sGkQcTyn1c3/X8uQf3ByXq2vsNGpQNZMTfRGJ2wJNmZp9L+2/Kq2BDwl6X2IPrKQ/LuR+W/8z7iGzIlIbPdoV0yXAhlYQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d3pD076H; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AzdSXh5Z"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3E39D4059F
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 07:33:30 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id jp99uK3ps0Jg for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Nov 2024 07:33:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 5BF06403D1
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5BF06403D1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AzdSXh5Z
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5BF06403D1
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 07:33:29 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d3pD076H"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730878408;
+	s=mimecast20190719; t=1730878653;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=tFJLAGQHtCF4YbMkyw4tzz7KxDHd+W5Q6WXk9sFF0eA=;
-	b=AzdSXh5Z3+lGg7+Tdw3thDxHGh2DBCbC/xmXV4tj0QgNcZjXKj1P/C+jRKa1t46Ey0fy1r
-	ZXL5QudBXFnTjmzmRsob5cXUuPDAAW/I48JL1q+yyiQSP/6W1nK/WA+8KA5TQrrPW4K3/c
-	YBNBo5uLu5LxKDnJrPAiW/067voptL4=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=3b9DjNcKsvHggFiK5mPA65X9tuneBxWXZg7PBVA6jZ0=;
+	b=d3pD076H6w687dg91cEU9QJMSnzQ/XGdNGN/uzy3IW0CMcaW2LEX51l9zc8gzEX4+Ajeqe
+	vwfBtaBWPFZG8fIeAztMAtmNIKiZb/VTTm27bE21c9W9UrWPGJuWMnfzBC/IenP+RvLBUB
+	0VfkNrKW386OB10XzwzlCXeDp+4SaS0=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-541-qfK32TJYOl-tyDv6R_PLJg-1; Wed, 06 Nov 2024 02:33:24 -0500
-X-MC-Unique: qfK32TJYOl-tyDv6R_PLJg-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43157cff1d1so46692035e9.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 05 Nov 2024 23:33:24 -0800 (PST)
+ us-mta-365-e9-06A2TMYCgHOscTqWaqQ-1; Wed, 06 Nov 2024 02:37:32 -0500
+X-MC-Unique: e9-06A2TMYCgHOscTqWaqQ-1
+Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-539ed93e08aso4119294e87.3
+        for <virtualization@lists.linux.dev>; Tue, 05 Nov 2024 23:37:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730878403; x=1731483203;
+        d=1e100.net; s=20230601; t=1730878651; x=1731483451;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tFJLAGQHtCF4YbMkyw4tzz7KxDHd+W5Q6WXk9sFF0eA=;
-        b=w/3eQOTPbXG9cTSRrqCHmjVW8LBMKlhWK/7ZZEzSO63UfGAxkOs22WXIddMth5W+oq
-         JOswvHf+WfajLbE75bsAnktxTSLTw0HN6TNCDRvY0MM6yYM8kox1Q08Q+0Zjrr4Cfyqy
-         Rbjj8TWg5DW9kK6Dy/NkoGDTqsW/eVQYa/4ikJfzM4/cZLd23cIBOzuId19Q6XkJLwU1
-         HcF0HI0V71e1RduaIq23CAU/5FI0jNW5V9WrRdgfYbphtmN9InTdhm8ZfN3iwHOfb1ut
-         cfSmXoktZ1P6GGOrQorYiMI4jF7EDZoFaT9W9KCmg84JUCh5Vm4MG98nko73jgC7rhx/
-         P+0w==
-X-Forwarded-Encrypted: i=1; AJvYcCVsZTOE8BAZ/TeTOz24Nsi+ARn420Jj0UlptTv5n6Y8e8jyrep5BkKwG+ZYoJMFxlJaZb71/5io9wb+ZwfO1w==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwrPaYm1RncPbMpCP//PkDjwToMV6b4JxAv9DEHHUYNH0xwX/fH
-	04J8RI4NlduUOakrKjLoBszcbokLOcuwbr/YijwwLmx0vByV1hO4RQkw4/moko+GMg3w6xNkVEu
-	STnfb8Fj545VVeFoFr1F0+tsyvsyXUHn+grnuQmneP5ybcm6TdGwWCkDg34UiopxY+jaf6zziX1
-	/5qUI=
-X-Received: by 2002:a05:600c:1f91:b0:426:66a2:b200 with SMTP id 5b1f17b1804b1-4327b6c79f7mr206065285e9.0.1730878403600;
-        Tue, 05 Nov 2024 23:33:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG/ntsLATwJkkyCIm9/l8825ZGF3r9/sWcOfHZUV3jZ4XNMPDEncs1UxJK3Vl0G5wdr3PGgfQ==
-X-Received: by 2002:a05:600c:1f91:b0:426:66a2:b200 with SMTP id 5b1f17b1804b1-4327b6c79f7mr206065085e9.0.1730878403275;
-        Tue, 05 Nov 2024 23:33:23 -0800 (PST)
+        bh=3b9DjNcKsvHggFiK5mPA65X9tuneBxWXZg7PBVA6jZ0=;
+        b=m+YrhHXBEN9kK3UpB2M5JzE3Qt061VjJ3YXEDWKT92VOZ+1Nmw+H6leD1Yaijw1e6u
+         06rl3k3E+VKnk7u1qsU5/NPO0cje2hu7njUH7fbZ4MNYi1ga3UYb7V80bnnDQbTz0Vor
+         bmBgccrDIe7rNnTQ6PUKbJfdzhBNzn2rmyHXRKVSHR64WkvUHxlKGS/qQNgsWh6lroap
+         CBuMXwGSvAje+tbAf8JTsNJ9EtkPTkyqHVkSzn8TquqB7T7FSr+rfaJMGqDevpCsF221
+         MlUv8U5ytQBt3MxX5M8n+sBzvN+IwM4XrrZL2pTHp0cFVccoKh8kiqBVa1F2c2J2hsYh
+         Zd1g==
+X-Forwarded-Encrypted: i=1; AJvYcCWlr5hado3mu4w/cn52qBUp8miTtC2BDcNDwhxa/EPzaAo6UjLwVDCPHLy3LiVj6PMPg7+8vqBPxa/IIqrgjw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxJwOvygF0xACogRuSMBtbfam4N+Xmkzh4+gMsjUcSFBEXiLwbi
+	4RpQisHKjvYe7vdhpF+ikDS5PDc0XhmHBLgpssTlKK3Prs2wFazhUvXN6hGna0syEkqMGB3jMpL
+	lk6A5t8dpu2pATSRnNbq2AwFKqR+PRNxvkbQkDwhWxVWehdlPkH0IvMRMztOmOB8j
+X-Received: by 2002:a05:6512:3e1a:b0:539:ff5a:7ea5 with SMTP id 2adb3069b0e04-53b7ecdea88mr14128858e87.15.1730878650721;
+        Tue, 05 Nov 2024 23:37:30 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEwCBjxiu1G/SKVTKOlKOM1yVJqE1E31OlP/gMIsuEKkuBQuCgqbk1xFr6rvbgFnjhDdmMD3g==
+X-Received: by 2002:a05:6512:3e1a:b0:539:ff5a:7ea5 with SMTP id 2adb3069b0e04-53b7ecdea88mr14128840e87.15.1730878650209;
+        Tue, 05 Nov 2024 23:37:30 -0800 (PST)
 Received: from redhat.com ([2a02:14f:178:e74:5fcf:8a69:659d:f2b2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa52e658sm12280525e9.0.2024.11.05.23.33.21
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa5b5b7fsm12425795e9.4.2024.11.05.23.37.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Nov 2024 23:33:22 -0800 (PST)
-Date: Wed, 6 Nov 2024 02:33:19 -0500
+        Tue, 05 Nov 2024 23:37:29 -0800 (PST)
+Date: Wed, 6 Nov 2024 02:37:24 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v3 7/9] vhost: Add new UAPI to support change to task mode
-Message-ID: <20241106023302-mutt-send-email-mst@kernel.org>
-References: <20241105072642.898710-1-lulu@redhat.com>
- <20241105072642.898710-8-lulu@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev, Si-Wei Liu <si-wei.liu@oracle.com>,
+	Darren Kenny <darren.kenny@oracle.com>
+Subject: Re: [PATCH net-next v1 1/4] virtio-net: fix overflow inside
+ virtnet_rq_alloc
+Message-ID: <20241106023609-mutt-send-email-mst@kernel.org>
+References: <20241029084615.91049-1-xuanzhuo@linux.alibaba.com>
+ <20241029084615.91049-2-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241105072642.898710-8-lulu@redhat.com>
+In-Reply-To: <20241029084615.91049-2-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Nov 05, 2024 at 03:25:26PM +0800, Cindy Lu wrote:
-> index b95dd84eef2d..1e192038633d 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -235,4 +235,6 @@
->   */
->  #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
->  					      struct vhost_vring_state)
+On Tue, Oct 29, 2024 at 04:46:12PM +0800, Xuan Zhuo wrote:
+> When the frag just got a page, then may lead to regression on VM.
+> Specially if the sysctl net.core.high_order_alloc_disable value is 1,
+> then the frag always get a page when do refill.
+> 
+> Which could see reliable crashes or scp failure (scp a file 100M in size
+> to VM).
+> 
+> The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
+> of a new frag. When the frag size is larger than PAGE_SIZE,
+> everything is fine. However, if the frag is only one page and the
+> total size of the buffer and virtnet_rq_dma is larger than one page, an
+> overflow may occur.
+> 
+> The commit f9dac92ba908 ("virtio_ring: enable premapped mode whatever
+> use_dma_api") introduced this problem. And we reverted some commits to
+> fix this in last linux version. Now we try to enable it and fix this
+> bug directly.
+> 
+> Here, when the frag size is not enough, we reduce the buffer len to fix
+> this problem.
+> 
+> Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+> Tested-by: Darren Kenny <darren.kenny@oracle.com>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+
+
+This one belongs in net I feel. However, patches 2 and on
+depend on it not to cause regressions. So I suggest merging it
+on both branches, git will figure out the conflict I think.
+
+
+> ---
+>  drivers/net/virtio_net.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 792e9eadbfc3..d50c1940eb23 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -926,9 +926,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+>  	void *buf, *head;
+>  	dma_addr_t addr;
+>  
+> -	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+> -		return NULL;
+> -
+>  	head = page_address(alloc_frag->page);
+>  
+>  	if (rq->do_dma) {
+> @@ -2423,6 +2420,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+>  	len = SKB_DATA_ALIGN(len) +
+>  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+>  
+> +	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
+> +		return -ENOMEM;
 > +
-> +#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, bool)
-
-
-set with no get is also not great.
-
->  #endif
+>  	buf = virtnet_rq_alloc(rq, len, gfp);
+>  	if (unlikely(!buf))
+>  		return -ENOMEM;
+> @@ -2525,6 +2525,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+>  	 */
+>  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+>  
+> +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> +		return -ENOMEM;
+> +
+> +	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
+> +		len -= sizeof(struct virtnet_rq_dma);
+> +
+>  	buf = virtnet_rq_alloc(rq, len + room, gfp);
+>  	if (unlikely(!buf))
+>  		return -ENOMEM;
 > -- 
-> 2.45.0
+> 2.32.0.3.g01195cf9f
 
