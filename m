@@ -1,139 +1,143 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5F9C18A922
-	for <virtualization@lists.linux.dev>; Wed,  6 Nov 2024 01:28:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1393D3D66
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 01:31:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730856493; cv=none; b=r2S+uJdpoq5JmHqtqV/1yDkPNfC2JG5KJl2zkV3sdTR1kMWYIw0k1Y7jMCLjEwWUG+dEwjv2qOv9jfszIqzQ8qBRXxA1SSfkodn7Q/WF5p3Xi/qoO/eu/I8yy85yaMvbaxlzhYn+5FScXfgYVg12gC3kb+aZd039+UtqyORrcCI=
+	t=1730856704; cv=none; b=cSViv5NI2MenTGVtBjyb6tx2yjEu7kwG6FNeRZpfGqb5CZ0lw+EqFYYVi7dy/1hq1sj+1L3p3Pathc/05U46qn6CF7EJm9US64DoYVAa/Q/HjYitbeufKUA3o5n721yRSInoI4pEcRIrdPPr2dCOILQ1FBQ/0GYqw8XFrpXoIMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730856493; c=relaxed/simple;
-	bh=6rRLuoCkyirYKH6QU9Cfg2hcU0erJdtH7MonQT/EvP8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=GErqiJjzlZrO1URZMS+bZiiChGDAXzGdS9c7Zg0aJoPHnL2Jm1SLLZSJM9BUIkaypLZ/V5SCi9ds1RWqL8zaUlqbY9+YcVSh5I3hP7+Rmd8T8xMgJQj098l/8R9Ur45Rgj2IpIy+rKQNg+V5HuRniCk7BbJIM1DNyzWHDHbNfCo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EUbxvRTn; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1730856704; c=relaxed/simple;
+	bh=5CmSX02hMXqC0tcwAjp+rJhnC2j0lws2C8eH6CXLVfM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YjQCOiIuVwf8uLX3VYK6brWxK/2YvH6QggKfGgRzXIjsWdTSpxHrvNFsXWRIpDBWitO9Q/PHnDf1qrXC34UGt1AV57Bsg7/oPTpRvcmZuQLJ09ymmZlKPfvJ/H475kkqW3Rym3BEDWcfor7Z1z4phxrNQeeXDGb78DWCV4Lkc8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UcVs49+R; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EUbxvRTn"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730856483; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=EOPQLCJ0U/I35sZO8/7VXVQOHxamPyOdJc+BysgSvqA=;
-	b=EUbxvRTnN8tWmfzfNpZTZ0Ps94MrDnok2yPyDoZwi305XLgaWQJEGfsk5frAoHRPZV4mYqHoB8KKbLZwrqOjMVczli8kDnrOajzcYlB8b0TMat14dxMKjvzT/2GqjT2fsKMav3nY0MaxrdrQ1qJOo0/BAtAE0x7qh3FqcSdUtkE=
-Received: from 30.221.128.108(mailfrom:lulie@linux.alibaba.com fp:SMTPD_---0WIoEygd_1730856481 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 06 Nov 2024 09:28:02 +0800
-Message-ID: <a10d6eda-d03f-42ea-af89-be0d798b5608@linux.alibaba.com>
-Date: Wed, 6 Nov 2024 09:28:01 +0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UcVs49+R"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id B8FFE40204
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 01:31:42 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id X_7fKW1HSnjm for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Nov 2024 01:31:42 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::130; helo=mail-il1-x130.google.com; envelope-from=robdclark@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C9D154013F
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C9D154013F
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=UcVs49+R
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C9D154013F
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Nov 2024 01:31:41 +0000 (UTC)
+Received: by mail-il1-x130.google.com with SMTP id e9e14a558f8ab-3a3a5cd2a3bso22135435ab.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 05 Nov 2024 17:31:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1730856701; x=1731461501; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1ZEdQ5A4rc3P9ZMICWLA+PiCJDpmRtuPvoqRfEkgQC0=;
+        b=UcVs49+RmtIXKj6WV8LJkIfwnR5rX6a/OvA7Nilp4WSgt3sn7FTnX/uPPVr6n3ftKZ
+         OjvN+T/3R/xdUeLxVNbtr+1DWL3jRUIZ9mG7e06CytPukyHAYK5eO79uPC986JvLGy+N
+         Ae7fZbepWk3dfil7PE1+x0cSuU9ifV6N8kRP80vN0A8kxvwBarHSnNIJXpjvUMx+R9OS
+         +cndX80Zg+i+dgB6a0TeGxLr64VLWa/LeGfg3HIOJaltTpjDJYU81mYimo34T6NGiYk0
+         GNu+klE4nNXYmylWBdmmxgz64Heet3o/auBnqj2lZEMkIF+VdV/slonv33Cz1lLF2KRY
+         Cm3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730856701; x=1731461501;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1ZEdQ5A4rc3P9ZMICWLA+PiCJDpmRtuPvoqRfEkgQC0=;
+        b=WIjmyfqny1riyAotxAP+PhnLbxWv/S1QcKPEyF+GjSrFk1x/M7JYVO7kj6NG1olu9w
+         6OIPy1N4eEGACMv5n97+9b8hn6qyi8B0YtfXMZcwu+0a3k2wR1H603FvVOw00BAsugnH
+         l7aGv6MsO24EZEDWyTEjCBNcjYxL9/FVfBn+8vn83bDY/z7j/R9u1pPta1Z5brOH233H
+         VDPZrh8oD6dVisEnlTPLCxheBGi56GyzJSXQUiew4tVL9kX5xnfBcp7LWS864qj6aluH
+         9sh/Vi/izLTAPTQufm9oZnCmgLdE8LnXkZoFYgH2cgdv/2ywR3tn2HgNUeSZ0Gb6a4Te
+         FbYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXIMgM/x+iNmYUVgC6c7xOZDXCeXXqZ3bTQtH7t1mZUq8t5qBxjWuB3hAg5jHb/GBzEhlZmzEpnDPrwH4k19w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzxeJzR6D2SZj4/2Vut/c4GeWa9xC2xjNY4KrnMTijblfLxE9Wp
+	izov6eZvrHZg3OSxmNkVSk2QZ8UU3JVAI3uvs20apFP2A7yB97n50nrT0tuIEY3s0LeLdi4FAfi
+	ORfdt8NijiVWGBpHYMLLvEYhgFhk=
+X-Google-Smtp-Source: AGHT+IEKU8XnaFKdqE7nB8aAs1Qbr/FQljqOuyQsSN6+XX2borSTMs1XTeUygH5VgMPHRf3Wtb671mQbzY159BQ9UUU=
+X-Received: by 2002:a05:6e02:148a:b0:3a6:b37c:6a12 with SMTP id
+ e9e14a558f8ab-3a6b37c6cc2mr189320995ab.7.1730856700682; Tue, 05 Nov 2024
+ 17:31:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 4/4] virtio_net: Update rss when set queue
-To: Joe Damato <jdamato@fastly.com>, netdev@vger.kernel.org, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, andrew@daynix.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20241104085706.13872-1-lulie@linux.alibaba.com>
- <20241104085706.13872-5-lulie@linux.alibaba.com>
- <ZyqAovoIOYkNvtys@LQ3V64L9R2>
-From: Philo Lu <lulie@linux.alibaba.com>
-In-Reply-To: <ZyqAovoIOYkNvtys@LQ3V64L9R2>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20241020224725.179937-1-dmitry.osipenko@collabora.com>
+In-Reply-To: <20241020224725.179937-1-dmitry.osipenko@collabora.com>
+From: Rob Clark <robdclark@gmail.com>
+Date: Tue, 5 Nov 2024 17:31:28 -0800
+Message-ID: <CAF6AEGs2+gPtqOw=LMwVxNkzWgYc11u0VN3DnQOyQc2MPhsJig@mail.gmail.com>
+Subject: Re: [PATCH v1] drm/virtio: Don't create a context with default param
+ if context_init is supported
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>, dri-devel@lists.freedesktop.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	kernel@collabora.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, Oct 20, 2024 at 3:49=E2=80=AFPM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
+>
+> From: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
+>
+> Xorg context creation fails for native contexts that use
+> VIRTGPU_CONTEXT_INIT because context is already initialized implicitly
+> when dumb buffer is created. Fix it by not creating default vrend context
+> if context_init is supported.
+>
+> Signed-off-by: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd=
+.com>
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
+Reviewed-by: Rob Clark <robdclark@gmail.com>
 
-On 2024/11/6 04:31, Joe Damato wrote:
-> On Mon, Nov 04, 2024 at 04:57:06PM +0800, Philo Lu wrote:
->> RSS configuration should be updated with queue number. In particular, it
->> should be updated when (1) rss enabled and (2) default rss configuration
->> is used without user modification.
->>
->> During rss command processing, device updates queue_pairs using
->> rss.max_tx_vq. That is, the device updates queue_pairs together with
->> rss, so we can skip the sperate queue_pairs update
->> (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
->>
->> Also remove the `vi->has_rss ?` check when setting vi->rss.max_tx_vq,
->> because this is not used in the other hash_report case.
->>
->> Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
->> Signed-off-by: Philo Lu <lulie@linux.alibaba.com>
->> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->> ---
->>   drivers/net/virtio_net.c | 65 +++++++++++++++++++++++++++++++---------
->>   1 file changed, 51 insertions(+), 14 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 59d9fdf562e0..189afad3ffaa 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -3394,15 +3394,59 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
->>   		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
->>   }
->>   
->> +static bool virtnet_commit_rss_command(struct virtnet_info *vi);
->> +
->> +static void virtnet_rss_update_by_qpairs(struct virtnet_info *vi, u16 queue_pairs)
->> +{
->> +	u32 indir_val = 0;
->> +	int i = 0;
->> +
->> +	for (; i < vi->rss_indir_table_size; ++i) {
->> +		indir_val = ethtool_rxfh_indir_default(i, queue_pairs);
->> +		vi->rss.indirection_table[i] = indir_val;
->> +	}
->> +	vi->rss.max_tx_vq = queue_pairs;
->> +}
->> +
->>   static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
->>   {
->>   	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
->> -	struct scatterlist sg;
->> +	struct virtio_net_ctrl_rss old_rss;
->>   	struct net_device *dev = vi->dev;
->> +	struct scatterlist sg;
->>   
->>   	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
->>   		return 0;
->>   
->> +	/* Firstly check if we need update rss. Do updating if both (1) rss enabled and
->> +	 * (2) no user configuration.
->> +	 *
->> +	 * During rss command processing, device updates queue_pairs using rss.max_tx_vq. That is,
->> +	 * the device updates queue_pairs together with rss, so we can skip the sperate queue_pairs
->> +	 * update (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
->> +	 */
->> +	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
-> 
-> Does there need to be an error case when:
-> 
-> vi->has_rss && netif_is_rxfh_configured(dev)
-> 
-> to return EINVAL? I noted that other drivers don't let users adjust
-> the queue count and return error in this case.
-> 
-
-In fact, there are 2 possible cases if users have adjusted rss, 
-depending on the total queue pairs used in the indirection table (x), 
-and the requested new queue count (y).
-
-Case A: If y < x, it's illegal and will be rejected by
-         ethtool_check_max_channel().
-Case B: If x <= y, we only adjust the queue number without touching the
-         rss configuration set by users.
-
-So I don't think it necessary to add the check (if the above processing 
-is agreed).
-
-Thanks for your review, Joe.
-
--- 
-Philo
-
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_gem.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virti=
+o/virtgpu_gem.c
+> index 7db48d17ee3a..67f557e058b4 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> @@ -127,15 +127,17 @@ int virtio_gpu_gem_object_open(struct drm_gem_objec=
+t *obj,
+>         /* the context might still be missing when the first ioctl is
+>          * DRM_IOCTL_MODE_CREATE_DUMB or DRM_IOCTL_PRIME_FD_TO_HANDLE
+>          */
+> -       virtio_gpu_create_context(obj->dev, file);
+> +       if (!vgdev->has_context_init)
+> +               virtio_gpu_create_context(obj->dev, file);
+>
+>         objs =3D virtio_gpu_array_alloc(1);
+>         if (!objs)
+>                 return -ENOMEM;
+>         virtio_gpu_array_add_obj(objs, obj);
+>
+> -       virtio_gpu_cmd_context_attach_resource(vgdev, vfpriv->ctx_id,
+> -                                              objs);
+> +       if (vfpriv->ctx_id)
+> +               virtio_gpu_cmd_context_attach_resource(vgdev, vfpriv->ctx=
+_id, objs);
+> +
+>  out_notify:
+>         virtio_gpu_notify(vgdev);
+>         return 0;
+> --
+> 2.47.0
+>
