@@ -1,139 +1,169 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E93561F6679
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 11:24:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23B22194C8B
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 11:35:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730978648; cv=none; b=HdRb9Gd2SoFpLM+XayVR2OjWrVJU4vf4XGOE0KgJJIgfg1DHf9VWdtNAPLb49JsLTLLnw/r6xt6ceR74+0UWhuO/QMCc8Q07Wcoyt4C3cWRHVgmmigV/Vd6m05CrbRkl+Fh4ON8GOGBOP+JbLarSR6FCvm7tjtPtMXplEt8e5GY=
+	t=1730979332; cv=none; b=Lau6JbMd3+0+9sKB5UL3zGbABemytW+2shouQJd87oU41uhgXImy5c5qZqb4lVD5+HwDmNC8dbCrq5mh4fHtFjOxZ7m1SCAN12S921x8WxYpiCnQ7XaE+v+J0ZfviW9NOX3iYrv7s88KOTaSeL2DxTsYrHGJHu/H+ETHYIYpTas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730978648; c=relaxed/simple;
-	bh=2GsD4FM0iXQ9ZQgHNEDuqIySpEr5mZ0z+3AwGF26ZN0=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=tBPXtIG+iDZSmMtSw9zXRuXQDaXL77a5t5wjCV7Vqhy/UxOGnPFk3gIbJ0ujh4daQbNnU4vruw0v1RThmdKTJJeuIWNggycW89iJSy5uuSkyTTtw5dDUTA5Xh2Q50j2XYV+jCh9WRHAD6m6YUJ3ApdG2es6zAscNQdEWBThvzus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=wKKS9ZVq; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1730979332; c=relaxed/simple;
+	bh=6TUO6VXDDoZXor7PGK6f24UzGQpzGPnzyYK67dbrkc8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SAH3tBPxpkPiU0wuQAgPr6wQq7d2LaLYhA39MrdueH3JKiJndo32J0YZus7MpTnXajK13uyteWBIqAgg+gIHsqlDksLZGvGyeYWH+49gXpZLqwdbTR6ffYCtTtpzbkS8tJeWhg6rlT8LcDH0+R1Zr/5MMWqZm741kyFieiIGbpQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=miB8hCrf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=K7t8FZ4H; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=miB8hCrf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=K7t8FZ4H; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="wKKS9ZVq"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8D7A380B2F
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 11:24:06 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Fem7P0X1TuDr for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Nov 2024 11:24:04 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::334; helo=mail-wm1-x334.google.com; envelope-from=dan.carpenter@linaro.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org EC43E812B2
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EC43E812B2
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=wKKS9ZVq
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EC43E812B2
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 11:24:03 +0000 (UTC)
-Received: by mail-wm1-x334.google.com with SMTP id 5b1f17b1804b1-43167ff0f91so7412165e9.1
-        for <virtualization@lists.linux-foundation.org>; Thu, 07 Nov 2024 03:24:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1730978642; x=1731583442; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YI7D6pYZ3MPTsBn2X/3v3EZ17avH4kCX3waBbepnJPk=;
-        b=wKKS9ZVqn40OcVx17bOQIaz9Ze12phDR9j5lSodrSkGiO9gNfJZMpDWpyifymIOt6s
-         eQUyTLnfobi7xHLnNl15i8/Fa5n1+aaKuLZvPiJBKESgUPn2Cz0Uc8rA1fYyz/yeCBnz
-         LIrqdnmh4SM5/pq7ISa1E/5GlGODBkHMWQgecOjXU+Sx3CdKk7TIa6PH6RdUrafCQy8Y
-         bS0dc3z6iQ4LwKBWMqS2RH+K+EA/uWKd4Qp1WW5X5vYXveGUlyQGHl+BpejMxHuKzIKY
-         r8On8S8icykycOivFDTmV9018NzZIMklGcLfo2r6cvFQ/QrIjA39swcGYVpo5JwcYBzM
-         DO5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730978642; x=1731583442;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=YI7D6pYZ3MPTsBn2X/3v3EZ17avH4kCX3waBbepnJPk=;
-        b=HO8DTY8FrFT5m7hJi2d6PK+XR8A3BpIYdGD1hQkOOY27W8k6hbM5C7J/UFBzm1zbrh
-         CgVhCsPXjfoKqxwh/WjxnmhtPaVo/XYMEzECCbWmiaARHd9lMVib5iZUPbMoFtACCJWg
-         FkN2HaxuMWTWilQtrNEapnjq+GNOIbtw8nHtqGXJ9OYhlQfK9CK6IvyBeK6kaL//xh87
-         yrZH3ZkehMXCd+chFNm0YXe3sz9lHB1Yjg5MmPDy9GXNJhAsOr1B37pPnQ6Qr7CgHvHf
-         ESHaHa+oHnyveex3FfdcCGYDLMNx5Gu3PtObeYGBn3WvLCqP++jgcAcDtDjV/oO/GHt8
-         nsHg==
-X-Forwarded-Encrypted: i=1; AJvYcCWKOumoY2ya6o7+3YDgwGB7Lv8lxM+zoiNl2X2f71sAgvuDAgaUFoZyvShi8kyewhtxIt8bsTKbkQceyUgF4g==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwyNh58vyUhsW0dneg+4skZStduBk4F/CM5qZFNiUSqGvQoMgGS
-	2nYmcNteIewC/chufIg8Gq/TjnFA1BJgceLldHSp8QLZaRTKCDtQuw4KmQAV1c4=
-X-Google-Smtp-Source: AGHT+IFBpowv+bSWYC6j4VAMIQVR8u8yrWok5kaYTtpzwW5CbfWm5qUgpBko8chZf+PgyCz8MppP4g==
-X-Received: by 2002:a05:600c:348e:b0:42c:b74c:d8c3 with SMTP id 5b1f17b1804b1-432b30a15femr7963805e9.32.1730978641744;
-        Thu, 07 Nov 2024 03:24:01 -0800 (PST)
-Received: from localhost ([154.14.63.34])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa5b5e56sm59261885e9.2.2024.11.07.03.24.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Nov 2024 03:24:01 -0800 (PST)
-Date: Thu, 7 Nov 2024 14:24:00 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: oe-kbuild@lists.linux.dev, Cindy Lu <lulu@redhat.com>,
-	jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com,
-	sgarzare@redhat.com, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH v3 6/9] vhost: Add kthread support in function
- vhost_worker_destroy()
-Message-ID: <ed23b4b1-1aa8-414a-856c-15e072541dee@suswa.mountain>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="miB8hCrf";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="K7t8FZ4H";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="miB8hCrf";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="K7t8FZ4H"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 338A621E7C;
+	Thu,  7 Nov 2024 11:35:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1730979329; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
+	b=miB8hCrfWG3WeNeZpR983Efjl1xE/bwcn3TrIXybNRc5AHgCMVG67+Akwmuf7Ok0nqQA79
+	Wjt4tUR6EC/0SsDhcXB9DiJve5YNKuAcT9RelKquSdpJlmtoz37q4CG3r0Pjya0fXH6KmX
+	CDca8RofBS1j/LqH0YeljxRBf8JzgyA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1730979329;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
+	b=K7t8FZ4H8+fUyt9BuZf55IaZI6uNq/6lXZbTbv8hSYVjKbuvj82t+Y9+rR/XKvFZtiFsIy
+	zuCoClX9SRKYArBA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1730979329; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
+	b=miB8hCrfWG3WeNeZpR983Efjl1xE/bwcn3TrIXybNRc5AHgCMVG67+Akwmuf7Ok0nqQA79
+	Wjt4tUR6EC/0SsDhcXB9DiJve5YNKuAcT9RelKquSdpJlmtoz37q4CG3r0Pjya0fXH6KmX
+	CDca8RofBS1j/LqH0YeljxRBf8JzgyA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1730979329;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
+	b=K7t8FZ4H8+fUyt9BuZf55IaZI6uNq/6lXZbTbv8hSYVjKbuvj82t+Y9+rR/XKvFZtiFsIy
+	zuCoClX9SRKYArBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 12188139B3;
+	Thu,  7 Nov 2024 11:35:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id XlP1AgGmLGdSIAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 07 Nov 2024 11:35:29 +0000
+Message-ID: <76b69861-2309-4092-b2ec-a27cfde553b3@suse.de>
+Date: Thu, 7 Nov 2024 12:35:28 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241105072642.898710-7-lulu@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/2] drm/cirrus: Don't pretend to operate hardware
+To: airlied@redhat.com, kraxel@redhat.com
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+References: <20241029143928.208349-1-tzimmermann@suse.de>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20241029143928.208349-1-tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_THREE(0.00)[4];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_NONE(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -4.30
+X-Spam-Flag: NO
 
-Hi Cindy,
+ping
 
-kernel test robot noticed the following build warnings:
 
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Cindy-Lu/vhost-Add-a-new-parameter-to-allow-user-select-kthread/20241105-153254
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20241105072642.898710-7-lulu%40redhat.com
-patch subject: [PATCH v3 6/9] vhost: Add kthread support in function vhost_worker_destroy()
-config: x86_64-randconfig-161-20241106 (https://download.01.org/0day-ci/archive/20241107/202411071945.ExiEHgoX-lkp@intel.com/config)
-compiler: clang version 19.1.3 (https://github.com/llvm/llvm-project ab51eccf88f5321e7c60591c5546b254b6afab99)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
-| Closes: https://lore.kernel.org/r/202411071945.ExiEHgoX-lkp@intel.com/
-
-New smatch warnings:
-drivers/vhost/vhost.c:721 vhost_worker_destroy() error: we previously assumed 'worker' could be null (see line 721)
-
-Old smatch warnings:
-drivers/vhost/vhost.c:241 vhost_worker_queue() error: we previously assumed 'worker' could be null (see line 241)
-
-vim +/worker +721 drivers/vhost/vhost.c
-
-1cdaafa1b8b4ef Mike Christie 2023-06-26  718  static void vhost_worker_destroy(struct vhost_dev *dev,
-1cdaafa1b8b4ef Mike Christie 2023-06-26  719  				 struct vhost_worker *worker)
-1a5f8090c6de99 Mike Christie 2023-03-10  720  {
-e4dec2edddbd54 Cindy Lu      2024-11-05 @721  	if (!worker && !worker->fn)
-
-Same thing.  && vs ||.
-
-1a5f8090c6de99 Mike Christie 2023-03-10  722  		return;
-1a5f8090c6de99 Mike Christie 2023-03-10  723  
-1cdaafa1b8b4ef Mike Christie 2023-06-26  724  	WARN_ON(!llist_empty(&worker->work_list));
-1cdaafa1b8b4ef Mike Christie 2023-06-26  725  	xa_erase(&dev->worker_xa, worker->id);
-e4dec2edddbd54 Cindy Lu      2024-11-05  726  	worker->fn->stop(dev->inherit_owner ? (void *)worker->vtsk :
-e4dec2edddbd54 Cindy Lu      2024-11-05  727  					      (void *)worker->task);
-e4dec2edddbd54 Cindy Lu      2024-11-05  728  	kfree(worker->fn);
-1cdaafa1b8b4ef Mike Christie 2023-06-26  729  	kfree(worker);
-1cdaafa1b8b4ef Mike Christie 2023-06-26  730  }
+Am 29.10.24 um 15:34 schrieb Thomas Zimmermann:
+> The cirrus driver is only for qemu's emulation of that hardware. The
+> two patches in this series update cirrus to reflect this.
+>
+> (The driver is still obsolete. Use something else if possible.)
+>
+> Thomas Zimmermann (2):
+>    drm/cirrus: Use virtual encoder and connector types
+>    drm/cirrus: Rename to cirrus-qemu
+>
+>   MAINTAINERS                                      | 2 +-
+>   drivers/gpu/drm/tiny/Makefile                    | 2 +-
+>   drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} | 6 +++---
+>   3 files changed, 5 insertions(+), 5 deletions(-)
+>   rename drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} (99%)
+>
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
