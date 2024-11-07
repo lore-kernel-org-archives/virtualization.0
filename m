@@ -1,85 +1,66 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CC961D79BB
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 09:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730972412; cv=fail; b=m70JVXD/AaWuZwfyv6w+ojDZ8MKqtPIfBGw4dbDHNBLbG1xRe3eFO0PZW0VDVDAwenFulLwIYARTBA+JFj0N1t05bNPuHlb1lLQdirxpQd7u9T00gf7mxOymjNFMF3awuiN7nXB2KtGHDZo4W9+ybLxFiySZ9z6n+0pjZBD1mTY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730972412; c=relaxed/simple;
-	bh=HxobhjuVf3J4Tg34O2gkg39DvnzQMoiPRE7ho6AYirc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=hJrnI7nN2e2iKzJXIzxK6+7iW0DQtfOM53kI8TzhUoXDdCZdiAT3GwzATR+A7eBq3670VE2kfg9BapsApgFRmHoz12NQSNfyq/0IPHRTISkiy2WPdTcTTETjgJIfrvTv/0hC5cSxheHuJj8u4qcgadUy+bkTpLnKr9jq6kj08UE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=C3sg+5o2; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 344231D5CCD
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 10:00:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730973646; cv=none; b=c977DpFzFk5SIan82zwPgcsPC0Tv08XDFsXQrmhGuTmpfo4bXEK5EFxDIaOrYRbwL4kGtnAMlOP154ibi7Scr8E7GX+HrwRthu9VQatfIz4ex6A81MGmMZAl8ouNYgtGSPHu8jT8qlg6m1tVWwek8hbL1cJgutx7/REjQ3bCIJc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730973646; c=relaxed/simple;
+	bh=aqjoNKp2S9Ndl0SDCZhvztC+Qxb1K+IZewbpE7vLWNs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=l9i6G3yXBIKjkEKLgDU85iLoIjHMzBi14llSDnaHBlt9iNiUgQn3WT/X16zftBhkj7M77iJsaTxRDFLvvzhcWxEScPs07dfgxS4gZT4nsTjKcgjGZ0gC3CCMEZ4sUdf//JkNDxicYFTCyYqt/IoGfJbAJvsphYoad62iawcJxHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L8+D/fUJ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="C3sg+5o2"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 92BFA60BD8
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 09:40:10 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id x2OgOoosxu40 for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Nov 2024 09:40:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2405::614; helo=nam02-dm3-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 90D7E60B9E
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90D7E60B9E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=C3sg+5o2
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on20614.outbound.protection.outlook.com [IPv6:2a01:111:f403:2405::614])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 90D7E60B9E
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 09:40:09 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=xIVIA741NiIf2oFRXLQNeiyBAnVRqzmiASy5tDZdIA2BwZDtrV9i2AKmi+v/8RN+5qLBBFzQvZ/NO03r/RFcYuU4csAvYSjNqb0rXRtIKZBzueFNHSLtxEctQIkM3CqjvZd43yPe2+8V/5UFB7v77qXOkKPDZVcRM4IKjOdWVqdwGVL+Yo0G4gvbRPy4WgKeWNCJWaIfL2POK8hFHzv38bpS+sxlaAw3VU4kl2Fd96zsSaCOKztxwcUcYfnHkksbznso15h9dcqsGZ3edjKKstkDaNwN+x39PYgRUsgjSAMnFKYWPEN9WlVsqDea7mtUPOQ3XqEPn+YpVPRD0Q6mSQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HisloP9eTLIIR7J0SDkwd7gQaCznTT5wwDDYxwuukeA=;
- b=x+I0dwaZV18oWVNobiDuGxOAiJHtfqCj4I6j4VGKNzN8zPlYm73R58XXjwt5CfaHTgGO9ClsCr5xGGrpes/UfqxYCGxGCz7ZU0S5EFe6GDl3J3s2wfOdbyKF8bSRO1SniHSMA8dTaDm9he6zPL8FGxHByVXkbfpY02/LoxgitG1g3QSllRViMYzJBpaf1MYqtb3c69BezDz9NXyp0CkjeAdfW9laVxg/rbaL5QCMymuE8ESmSLZTLvYTZFh4oFMbuzygS/2LJ8dyVD2E9THT6KDVLpyCXuhTUO3SSCkSuZ7deq09oMZShPDedZoHtyUbcbH3+z3elI/Pj1+z8UBxag==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HisloP9eTLIIR7J0SDkwd7gQaCznTT5wwDDYxwuukeA=;
- b=C3sg+5o2w8abSWXPc4EaECAGmIs6XsU6MgzK0XO/f6CZoo63hxdFhfyb68cB3fR8P0Tt8934RvQBu3+09FIZxBQsz/DUF04TxVtCxmC2mIWvPpgq09Da4J2kQio1UTtWDf3o3sWgJFLAjpqPRQxzzyjOSvXqRE/l9Sl927sSvhptVmqHSMzQmYtnSOD9bMfFULTb8RxHJhHabVdKGUxR3xd7nYRrZ+ncJjLdUU3xX7j3C+hQpu9NRVy00t9YqxuMFQbc898pKXrcsMJMDqrVagWt83+P8Fs4LN8pcnORtL+yXuGimIT8ioc3JOlHeZ8G6/yw4XIAsKEWEoPtsUCnfw==
-Received: from DM6PR03CA0061.namprd03.prod.outlook.com (2603:10b6:5:100::38)
- by SJ0PR12MB6806.namprd12.prod.outlook.com (2603:10b6:a03:478::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Thu, 7 Nov
- 2024 09:40:04 +0000
-Received: from DS3PEPF000099D3.namprd04.prod.outlook.com
- (2603:10b6:5:100:cafe::48) by DM6PR03CA0061.outlook.office365.com
- (2603:10b6:5:100::38) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.18 via Frontend
- Transport; Thu, 7 Nov 2024 09:40:04 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- DS3PEPF000099D3.mail.protection.outlook.com (10.167.17.4) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8137.17 via Frontend Transport; Thu, 7 Nov 2024 09:40:04 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 7 Nov 2024
- 01:39:48 -0800
-Received: from [172.27.60.49] (10.126.231.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 7 Nov 2024
- 01:39:43 -0800
-Message-ID: <863fe573-3ab2-428a-91fd-aea32d280935@nvidia.com>
-Date: Thu, 7 Nov 2024 11:39:41 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L8+D/fUJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730973644;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wMRls0F9ydo7Vi4Rq8kDlXTiyUFTrT/9Qwqc8sG653I=;
+	b=L8+D/fUJI9+1brh4sK6BzOQYu2L+KLmQgULCa20Y2sAy3DuhZiA4UF4akw0++Qu2UOFKpz
+	I9UVrK8rfRvTsCC355wnHIEok0NutTMRXnSpJwlGKhUELD9+R84/AN6SP8eSl5TKJeVtc6
+	ZVKfnonYrDvWSCDgTHAHx3lkTM90Lm8=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-77-Vt0IDxDeNWaccjDz2bK8KQ-1; Thu, 07 Nov 2024 05:00:43 -0500
+X-MC-Unique: Vt0IDxDeNWaccjDz2bK8KQ-1
+X-Mimecast-MFC-AGG-ID: Vt0IDxDeNWaccjDz2bK8KQ
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a9a2c3e75f0so56475066b.1
+        for <virtualization@lists.linux.dev>; Thu, 07 Nov 2024 02:00:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730973642; x=1731578442;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=wMRls0F9ydo7Vi4Rq8kDlXTiyUFTrT/9Qwqc8sG653I=;
+        b=Pvq+Khhu6GBXeTSK2sNnq1u6cta7T1uyYvL1ClnzSQlr9ywIuR5/w6e6xkJyWjxy2a
+         wHGF+uSl8rQMMunhbU7WLfYvPnbs+KmSIVHEHwcNxhAtSWfPhjXyB4oK4kcXc/ACC+zc
+         XjeYZGevsU2E/LbaBBSvoOj1FFH5uzTJnp+nDHoTlkeum7TL0zkWFp3Na82KDoa8mS/n
+         iQJCoBnI+k9rEMKwXceVnXPZV9sppGsKtf6wGLvQ1MGjDHBDIpcFoNfKhQrW21MU+w76
+         teNVcjlln+a3ZOd5G1Bf9RwONEfpxKXHZu41RgiOSWakaQvZRL0HW6SA455CcJBihwZO
+         mnUw==
+X-Forwarded-Encrypted: i=1; AJvYcCX9bMov+Y55qlstIsgtY4LfPIaitEkcblL9YNuZbrRD/POExrGAAp1cPZQiXLB1HXtXyxMf+KfwPXlHT36BJA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwOZeZYuQjQuQoVoNty78vqsADrozH5Kun8Sd98tniWZ1CiWuUS
+	4qcnQHe6LNNVZX3990tuoSpdJnGZ8O0w8hDFYCCEYpzzUfHoghGb+ek8l/PQbGG+nWfBGG5jE48
+	+5eyqWcnZreiZS/f/2SGhpKhfHngIfqRLVDnSp81mkDzfDgGnK9inJGizkhkgpvd/
+X-Received: by 2002:a17:907:2d8d:b0:a99:482c:b2b9 with SMTP id a640c23a62f3a-a9e654f8c64mr2022863166b.29.1730973641826;
+        Thu, 07 Nov 2024 02:00:41 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH+UiHY6KfVKme49Q9BKA6KUY4URDrdyvHhjCJaFYWZ6LZ65QWLQegd4LMhZnQOySL8p+kcuQ==
+X-Received: by 2002:a17:907:2d8d:b0:a99:482c:b2b9 with SMTP id a640c23a62f3a-a9e654f8c64mr2022860366b.29.1730973641439;
+        Thu, 07 Nov 2024 02:00:41 -0800 (PST)
+Received: from ?IPV6:2003:cf:d711:bb59:b996:2e0b:622e:25cc? (p200300cfd711bb59b9962e0b622e25cc.dip0.t-ipconnect.de. [2003:cf:d711:bb59:b996:2e0b:622e:25cc])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9ee0e2f0b5sm70060566b.192.2024.11.07.02.00.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Nov 2024 02:00:40 -0800 (PST)
+Message-ID: <ae437cf6-caa2-4f9a-9ffa-bdc7873a99eb@redhat.com>
+Date: Thu, 7 Nov 2024 11:00:39 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,228 +68,127 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V1 vfio 5/7] vfio/virtio: Add support for the basic live
- migration functionality
-To: Alex Williamson <alex.williamson@redhat.com>
-CC: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
-	<joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
-References: <20241104102131.184193-1-yishaih@nvidia.com>
- <20241104102131.184193-6-yishaih@nvidia.com>
- <20241105154746.60e06e75.alex.williamson@redhat.com>
- <eebad7d5-d7c2-4910-872c-c362c246aa78@nvidia.com>
- <20241106143341.1b23936c.alex.williamson@redhat.com>
+Subject: Re: [PATCH] virtio-fs: Query rootmode during mount
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ virtualization@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>,
+ German Maglione <gmaglione@redhat.com>, Stefan Hajnoczi
+ <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Vivek Goyal <vgoyal@redhat.com>
+References: <20241024164726.77485-1-hreitz@redhat.com>
+ <CAJfpeguWjwXtM4VJYP2+-0KK5Jkz80eKpWc-ST+yMuKL6Be0=w@mail.gmail.com>
+From: Hanna Czenczek <hreitz@redhat.com>
+In-Reply-To: <CAJfpeguWjwXtM4VJYP2+-0KK5Jkz80eKpWc-ST+yMuKL6Be0=w@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: R3k1aHGnVk6o0KVsg-Nz4mSoHFomm0HdrxhO-qfiwLQ_1730973642
+X-Mimecast-Originator: redhat.com
 Content-Language: en-US
-From: Yishai Hadas <yishaih@nvidia.com>
-In-Reply-To: <20241106143341.1b23936c.alex.williamson@redhat.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS3PEPF000099D3:EE_|SJ0PR12MB6806:EE_
-X-MS-Office365-Filtering-Correlation-Id: 60e73cc6-be3f-4fa5-0435-08dcff102890
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|1800799024|82310400026|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?RUtqQ2hlWUtsVkxVWlZFMzJjdlNsbGloSDMxZTM2UFI2WWw2M1AwL0NkOWJo?=
- =?utf-8?B?bDIxTXlHLyszNlptV1doNHIrc0l4aVA5YmIvVk12Q0JkMHFRRm16K2w0dEkx?=
- =?utf-8?B?U2p6WHlrZDg1a1BhTkQ4RVhZQmE0cG5TTkg2WkhrM0FOM1E0dUpxL2lwRXRO?=
- =?utf-8?B?Ti8walJMdkNZdHF4YWtQK1hYK0hzb29aT0JIbVhQZ1lzc3IzcDNlTTNIYlUx?=
- =?utf-8?B?SXVGaXBhaUVVYXB0Zk41UWt3K255cUt1WVBHbWtjYmJlanIyMS9yY2pMS2RE?=
- =?utf-8?B?TkVXNmlIekQzb00vVUo5R2dRSyt0SHpKeXpGVGRBazRJdGtlQStUODlYL21F?=
- =?utf-8?B?YXNTekJUUElvdEc0S0NKWklpY1VBbjIzSnJST01SOG10TWs5UmdZcmFYSTV2?=
- =?utf-8?B?TEdjM3dKSnNHV015b0VSNzZ0eEwvWUQ1QmZqT0hyRlVvYmlaZStwR2hZYzRv?=
- =?utf-8?B?Tnd4U1lJV3RrcTJsZUFveVM2Rm4wVjhvWCtGZENUQ0FXcjJMNXhNWXRrRnZ6?=
- =?utf-8?B?eVd4MjQ2YnZubkthZk1mNDlNc1hqbjhvVkFncUhSN01QdGxucGVNWkdsb2li?=
- =?utf-8?B?cEU0QnN3NkVvajBmUllQM1RIQmF0blZEWjJ4UjVIa1ZLNlFRNC95aEJTbzQy?=
- =?utf-8?B?NDErTGZKZGtMQjdOcFM3K1NYRm5FV1c4aXJDYy9Qdk9QakRqTEVCRVFUVGFF?=
- =?utf-8?B?VlcxRWVsdWZGd0x4UXpRQytKVWMwbGhGNTJheHYyNnV3bEt6cy9qTUNLam4x?=
- =?utf-8?B?ejhKaXlubUpxVXNrRTF4WU5NMlhHT0ZTSXhkN2VvWjJDVWJXeU42U0JSeTly?=
- =?utf-8?B?WnJXdGtIeDB6N3EwK2JZWWpMSTRWY0x4dTdGWGdTM2FSdWRDYUhCb3BqU1lj?=
- =?utf-8?B?QytvQ0p6dzYrMjBEL1hZdEhCUm1QT0dzR0hYalFVay9uSmVDazhYb3FGaFNq?=
- =?utf-8?B?Ly9KUmpmZENuSVhtNXc1N3lNKytwUWhEVkVFZHVFUVJtWkwxZGltMzFybFNF?=
- =?utf-8?B?dnYwSVpjaWxEMzFZR1FRUmhqRDhrenM1WVJmVmRMT2xGTzlOVmVVei9wazhy?=
- =?utf-8?B?bXF2QlZTeS92RkR1cjhtdHZnM0hsUk83aE93ay9ySlZaNmhudmR1RFAxT25a?=
- =?utf-8?B?RHA3R1F3eUU3YVBwbUh0c1BzZkVGUTIvZ1NPYUtVTGhOYlRrMjZMU1RudGdI?=
- =?utf-8?B?OENJcDVmZ21RRW1qODRLcm9KTTY0V09EZ3lkb0t1WnVOV0IxY3pMRm1mQUpo?=
- =?utf-8?B?U0Z4QUFoNWptS1lzU1F6d0c3QWw3SlVlbTAzeHV4OVZqYURid0gyMVh1bkNa?=
- =?utf-8?B?K3oxZU1DMDlEM2ZmWHE5VnIrRysxVElGbmROUlhhK3FCbmVmaGo2T2ZndnRU?=
- =?utf-8?B?YnoyRkhTZk0yTERkbUxOUEE4M0VTRVMwYzRHQ0s3L3FDWlZpQmUzVy9zckhY?=
- =?utf-8?B?US9aNlhELzZma1VyZUxkQnR6UENIUURiTzNYemJpODlOa2JYK0p6VWlDR2VY?=
- =?utf-8?B?dmliWmtlOTNFTnZJQUo0eEh3ZG9XM2ZscmRnRERJSVp3Z1grbnJKU2o1b0Qw?=
- =?utf-8?B?ZWpmR1NIZmFlcGQ2dVE4cnBVMVRmeXkybUtvd2M3WjRKNGVISi8vR0Q1YW10?=
- =?utf-8?B?SHpEWEY1dWpoVlZJNUloVXY1Z1h5RUVOZ3Y3dlhrd0psL0UyZ3ZFWmJZcSty?=
- =?utf-8?B?WUVkUjlNZzU0MVpRRUx6K1JQb3cvUkptNGdoVDhXY28ycjloV3J2T2N3eGR2?=
- =?utf-8?B?K1JTU1RNbEZ2VElRYU1ORjg4eWNHZUpuOStweVNVS2FqMmxRdnJ0ZUVUVjQz?=
- =?utf-8?B?NDRsWS93TWZkbEZkUzFQN1FXamgzczNBMkZSU2hmVmJIMFZ0RlJSbGVWUm5a?=
- =?utf-8?B?ZDZTUHdZbmNaRXYvelhxenIvTXd5bW5DRVBvcjhlT3QvVEE9PQ==?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(82310400026)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2024 09:40:04.3291
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 60e73cc6-be3f-4fa5-0435-08dcff102890
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DS3PEPF000099D3.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6806
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 06/11/2024 23:33, Alex Williamson wrote:
-> On Wed, 6 Nov 2024 12:21:03 +0200
-> Yishai Hadas <yishaih@nvidia.com> wrote:
-> 
->> On 06/11/2024 0:47, Alex Williamson wrote:
->>> On Mon, 4 Nov 2024 12:21:29 +0200
->>> Yishai Hadas <yishaih@nvidia.com> wrote:
->>>> diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
->>>> index b5d3a8c5bbc9..e2cdf2d48200 100644
->>>> --- a/drivers/vfio/pci/virtio/main.c
->>>> +++ b/drivers/vfio/pci/virtio/main.c
->>> ...
->>>> @@ -485,16 +478,66 @@ static bool virtiovf_bar0_exists(struct pci_dev *pdev)
->>>>    	return res->flags;
->>>>    }
->>>>    
->>>> +static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
->>>> +{
->>>> +	struct virtiovf_pci_core_device *virtvdev = container_of(core_vdev,
->>>> +			struct virtiovf_pci_core_device, core_device.vdev);
->>>> +	struct pci_dev *pdev;
->>>> +	bool sup_legacy_io;
->>>> +	bool sup_lm;
->>>> +	int ret;
->>>> +
->>>> +	ret = vfio_pci_core_init_dev(core_vdev);
->>>> +	if (ret)
->>>> +		return ret;
->>>> +
->>>> +	pdev = virtvdev->core_device.pdev;
->>>> +	sup_legacy_io = virtio_pci_admin_has_legacy_io(pdev) &&
->>>> +				!virtiovf_bar0_exists(pdev);
->>>> +	sup_lm = virtio_pci_admin_has_dev_parts(pdev);
->>>> +
->>>> +	/*
->>>> +	 * If the device is not capable to this driver functionality, fallback
->>>> +	 * to the default vfio-pci ops
->>>> +	 */
->>>> +	if (!sup_legacy_io && !sup_lm) {
->>>> +		core_vdev->ops = &virtiovf_vfio_pci_ops;
->>>> +		return 0;
->>>> +	}
->>>> +
->>>> +	if (sup_legacy_io) {
->>>> +		ret = virtiovf_read_notify_info(virtvdev);
->>>> +		if (ret)
->>>> +			return ret;
->>>> +
->>>> +		virtvdev->bar0_virtual_buf_size = VIRTIO_PCI_CONFIG_OFF(true) +
->>>> +					virtiovf_get_device_config_size(pdev->device);
->>>> +		BUILD_BUG_ON(!is_power_of_2(virtvdev->bar0_virtual_buf_size));
->>>> +		virtvdev->bar0_virtual_buf = kzalloc(virtvdev->bar0_virtual_buf_size,
->>>> +						     GFP_KERNEL);
->>>> +		if (!virtvdev->bar0_virtual_buf)
->>>> +			return -ENOMEM;
->>>> +		mutex_init(&virtvdev->bar_mutex);
->>>> +	}
->>>> +
->>>> +	if (sup_lm)
->>>> +		virtiovf_set_migratable(virtvdev);
->>>> +
->>>> +	if (sup_lm && !sup_legacy_io)
->>>> +		core_vdev->ops = &virtiovf_vfio_pci_lm_ops;
->>>> +
->>>> +	return 0;
->>>> +}
->>>> +
->>>>    static int virtiovf_pci_probe(struct pci_dev *pdev,
->>>>    			      const struct pci_device_id *id)
->>>>    {
->>>> -	const struct vfio_device_ops *ops = &virtiovf_vfio_pci_ops;
->>>>    	struct virtiovf_pci_core_device *virtvdev;
->>>> +	const struct vfio_device_ops *ops;
->>>>    	int ret;
->>>>    
->>>> -	if (pdev->is_virtfn && virtio_pci_admin_has_legacy_io(pdev) &&
->>>> -	    !virtiovf_bar0_exists(pdev))
->>>> -		ops = &virtiovf_vfio_pci_tran_ops;
->>>> +	ops = (pdev->is_virtfn) ? &virtiovf_vfio_pci_tran_lm_ops :
->>>> +				  &virtiovf_vfio_pci_ops;
->>>
->>> I can't figure out why we moved the more thorough ops setup to the
->>> .init() callback of the ops themselves.  Clearly we can do the legacy
->>> IO and BAR0 test here and the dev parts test uses the same mechanisms
->>> as the legacy IO test, so it seems we could know sup_legacy_io and
->>> sup_lm here.  I think we can even do virtiovf_set_migratable() here
->>> after virtvdev is allocated below.
->>>    
->>
->> Setting the 'ops' as part of the probe() seems actually doable,
->> including calling virtiovf_set_migratable() following the virtiodev
->> allocation below.
->>
->> The main issue with that approach will be the init part of the legacy IO
->> (i.e. virtiovf_init_legacy_io()) as part of virtiovf_pci_init_device().
->>
->> Assuming that we don't want to repeat calling
->> virtiovf_support_legacy_io() as part of virtiovf_pci_init_device() to
->> know whether legacy IO is supported, we can consider calling
->> virtiovf_init_legacy_io() as part of the probe() as well, which IMO
->> doesn't look clean as it's actually seems to match the init flow.
->>
->> Alternatively, we can consider checking inside
->> virtiovf_pci_init_device() whether the 'ops' actually equals the 'tran'
->> ones and then call it.
->>
->> Something like the below.
->>
->> static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
->> {
->> 	...
->>
->> #ifdef CONFIG_VIRTIO_PCI_ADMIN_LEGACY
->> 	if (core_vdev->ops == &virtiovf_vfio_pci_tran_lm_ops)
->> 		return virtiovf_init_legacy_io(virtvdev);
->> #endif
->>
->> 	return 0;
->> }
->>
->> Do you prefer the above approach rather than current V1 code which has a
->>    single check as part of virtiovf_init_legacy_io() ?
-> 
-> If ops is properly configured and set-migratable is done in probe,
-> then doesn't only the legacy ops .init callback need to init the legacy
-> setup?  The non-legacy, migration ops structure would just use
-> vfio_pci_core_init_dev.
+On 07.11.24 09:58, Miklos Szeredi wrote:
+> On Thu, 24 Oct 2024 at 18:47, Hanna Czenczek <hreitz@redhat.com> wrote:
+>
+>> To be able to issue INIT (and GETATTR), we need to at least partially
+>> initialize the super_block structure, which is currently done via
+>> fuse_fill_super_common().
+> What exactly is needed to be initialized?
 
-Correct, this seems as a clean solution, will use it as part of V2.
+It isn’t much, but I believe it’s most of fuse_fill_super_common() 
+(without restructuring the code so flags returned by INIT are put into a 
+separate structure and then re-joined into sb and fc later).
 
-> 
+fuse_send_init() reads sb->s_bdi->ra_pages, process_init_reply() writes 
+it and sb->s_time_gran, ->s_flags, ->s_stack_depth, ->s_export_op, and 
+->s_iflags.  In addition, process_init_reply() depends on several flags 
+and objects in fc being set up (among those are fc->dax and 
+fc->default_permissions), which is done by fuse_fill_super_common().
+
+So I think what we need from fuse_fill_super_common() is:
+- fuse_sb_defaults() (so these values can then be overwritten by 
+process_init_reply()),
+- fuse_dax_conn_alloc(),
+- fuse_bdi_init(),
+- fc->default_permissions at least, but I’d just take the fc->[flag] 
+setting block as a whole then.
+
+I assume we’ll also want the SB_MANDLOCK check then, and 
+rcu_assign_pointer().  Then we might as well also set the block sizes 
+and the subtype.
+
+The problem is that I don’t know the order things in 
+fuse_fill_super_common() need to be in, and fuse_dev_alloc_install() is 
+called before fuse_bdi_init(), so I didn’t want to move that.
+
+So what I understand is that calling fuse_dev_alloc_install() there 
+isn’t necessary?  I’m happy to move that to part 2, as you suggest, but 
+I’m not sure we can really omit much from part 1 without changing how 
+process_init_reply() operates.  We could in theory delay 
+process_init_reply() until after GETATTR (and thus after setting 
+s_root), but that seems kind of wrong, and would still require setting 
+up BDI and DAX for fuse_send_init().
+
+>> @@ -1762,18 +1801,12 @@ int fuse_fill_super_common(struct super_block *sb, struct fuse_fs_context *ctx)
+>>          sb->s_d_op = &fuse_dentry_operations;
 >>
->>> I think the API to vfio core also suggests we shouldn't be modifying the
->>> ops pointer after the core device is allocated.
+>>          mutex_lock(&fuse_mutex);
+>> -       err = -EINVAL;
+>> -       if (ctx->fudptr && *ctx->fudptr)
+>> -               goto err_unlock;
+>> -
+>>          err = fuse_ctl_add_conn(fc);
+>>          if (err)
+>>                  goto err_unlock;
 >>
->> Any pointer for that ?
->> Do we actually see a problem with replacing the 'ops' as part of the
->> init flow ?
-> 
-> What makes it that way to me is that it's an argument to and set by the
-> object constructor.  The ops callbacks should be considered live once
-> set.  It's probably safe to do as you've done here because the
-> constructor calls the init callback directly, so we don't have any
-> races.  However as Jason agreed, it's generally a pattern to avoid and I
-> think we can rather easily do so here.  Thanks,
-> 
+>>          list_add_tail(&fc->entry, &fuse_conn_list);
+>>          sb->s_root = root_dentry;
+>> -       if (ctx->fudptr)
+>> -               *ctx->fudptr = fud;
+> This is wrong, because we need the fuse_mutex protection for checking
+> and setting the private_data on the fuse device file.
+>
+> If this split is needed (which I'm not sure) then fud allocation
+> should probably be moved to part2 instead of moving the *ctx->fudptr
+> setup to part1.
+>
+>
+>> @@ -1635,8 +1657,16 @@ static void virtio_kill_sb(struct super_block *sb)
+>>          struct fuse_mount *fm = get_fuse_mount_super(sb);
+>>          bool last;
+>>
+>> -       /* If mount failed, we can still be called without any fc */
+>> -       if (sb->s_root) {
+>> +       /*
+>> +        * Only destroy the connection after full initialization, i.e.
+>> +        * once s_root is set (see commit d534d31d6a45d).
+>> +        * One exception: For virtio-fs, we call INIT before s_root is
+>> +        * set so we can determine the root node's mode.  We must call
+>> +        * DESTROY after INIT.  So if an error occurs during that time
+>> +        * window (specifically in fuse_make_root_inode()), we still
+>> +        * need to call virtio_fs_conn_destroy() here.
+>> +        */
+>> +       if (sb->s_root || (fm->fc && fm->fc->initialized && !fm->submount)) {
+> How could fm->submount be set if sb->s_root isn't?
 
-Yes, makes sense.
+fuse_get_tree_submount(), specifically fuse_fill_super_submount() whose 
+error path leads to deactivate_locked_super(), can fail before 
+sb->s_root is set.
 
-Thanks,
-Yishai
+Still, the idea was rather to make it clear that this condition (INIT 
+sent but s_root not set) is unique to non-submounts, so as not to mess 
+with the submount code unintentionally.
+
+> Or sb->s_root set
+> and fc->initialized isn't?
+
+That would be the non-virtio-fs non-submount case (fuse_fill_super()), 
+where s_root is set first and INIT sent after.
+
+Hanna
+
+> Seems it would be sufficient to check fm->fc->initialized, no?
+>
+> Thanks,
+> Miklos
+>
+
