@@ -1,222 +1,344 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFC58196D9D
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 07:13:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EBBC1DD543
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 08:55:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730963615; cv=none; b=BVFPYZ67XMMoPd3FGDbOjm1j8BcjesVc6W8lzOgefZnlfMzG6MMJeB0wIw8W4ykxP20/GSM9Oz56kKZBDkF+5HEZo8sWnHt/HaF3yW/0MzlSf2BdFedc6uIbVWSIkMorhwneQbJrVfjtSaBwK7UVhvHo6Dr9q44VroaBCRNjIS4=
+	t=1730969713; cv=none; b=iUcLozZgD5tO6wFzZko+IMMyKmWUn61Zx8qGcVomgZE4S896PF/TgQ/q6ogaov8KWfbgSSZ8bI201/fZaXOJfgVkBNfrMfBvP9gbmrblbQ81GzHLNQTiwFYJS/pAmlPkSO5GiSdS5DERN4V6x98vp0ZCpnfvAaWL3IfCeWo85Dc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730963615; c=relaxed/simple;
-	bh=gel4ymvhzgfyphfkOQM0eCFG3ixHvrzXAL4yolb2Iuw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bw/Pp0IpAIIU6hg0ng33vdGu+R+jy07fcb4eSTJ69YR8QVd/phpGUFhDTftxJURB6bdlHBGqMFLi8IFgHWKpMgtcPBHLyog5aeVOwVhEypnfxkYZTj7FiF6ylReVjm8TtZIpHxuczzQn4Rbi4rk7Q9g2kumt99lCUrsG1Qjxic0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NiUkv4nw; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1730969713; c=relaxed/simple;
+	bh=tqPZvO1DCpsS8CdHxAN8EY7lCgIK6YMLcSQlot2XmFw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=P9nmipepY0E9NNYqzELNnMWeVsWfQiHaWvq4uPpXzdy+a6kyHjYcumoOpbBmU+WAs8Mzk4UEAQ8wbOrPu2NibYhchluytWMZqu85bN5iU9ZLvzsJJMTBknppx/FrK4ouv6WLyHevq+NyU7gbY3DzWteztTn7H9ioYu1GC83gqoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=gxk54YzA; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NiUkv4nw"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8D281401C8
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 07:13:33 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 6mFTWqvM3j01 for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Nov 2024 07:13:32 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 6B2A7401B8
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6B2A7401B8
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NiUkv4nw
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6B2A7401B8
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 07:13:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730963609;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KNDSKfo81YRRY9Pw9UoRu7CnoYy3QfKptUrjTGh4Vds=;
-	b=NiUkv4nwFDxZBazoL+CtIahBTapjTutQJCPHeG40AX5Sj/t9odrSCKv8uPiiGrTDILXNkW
-	4jTDmdSjmt+T6bbuu2KOa5SQhWXXrqmORhet3s8Z823wkonmSmSudyhL49QAZ1m2Qj29u4
-	z2UgBwVSogypEK8u8OpHDYSVDDE4IQ0=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-407-kVBuBAwWOpWDqtbTTO6BYg-1; Thu, 07 Nov 2024 02:13:28 -0500
-X-MC-Unique: kVBuBAwWOpWDqtbTTO6BYg-1
-X-Mimecast-MFC-AGG-ID: kVBuBAwWOpWDqtbTTO6BYg
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a99fc3e2285so43968766b.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 06 Nov 2024 23:13:27 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730963607; x=1731568407;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=KNDSKfo81YRRY9Pw9UoRu7CnoYy3QfKptUrjTGh4Vds=;
-        b=IXEfH3nEp8TkhI/L28uNYSTG4W5SF7cdxzNMEM/UKvHMIuIoOotK8DVh4ayQ+WMXEC
-         R8YjPraOmUN/HfJIv/+zaK+GlkL3GJFMF0U2R7T++SiuQ7mA0bbnqHkEnd/xg4T26Puk
-         NWuD4Fg0bfrHQR5xz19/ihOdxSPZ69MIiPSI/jFGi7Cr8xPzTn6tC+9Gqq8soiro3sT2
-         Ib4fzNR+P3mspkiZYkZ6H1FExbNrVowagCds+IHSYBbfNbTbB/I27BZuIKD2LgBakmze
-         zhD11EkBzrV2YYxrAdaAhr49Klehw30ub/9v/N7X4tU+mQhaNHHeukGPJtxkO3EQrkH0
-         zpjw==
-X-Forwarded-Encrypted: i=1; AJvYcCVPF0hD9FTmMIyMJeT/BU599pGO8HeLkbD1OWdGlPEafDMWZX2G8hv1PhBHWqYY/8kbarXQI8GXivEjR8CueA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwZTw702i0UgP7vEAQwMYF0vMUZdLXMtXoVCCN/4P4J6twUdc1I
-	eSXLtnvIT3FwHSrxy7um36oB7Szg8SCrB7xDFt9DNW5Xvp9VMdX7miafZEEsr+ITfs9fbpKU0Dh
-	oH0dy6qP5722P+G21sHw0A3iSPeX+bMI6gSDqgFQ14y7hX0j6XsYvEr3f5nj792ELKNYr1RnVLb
-	u6ooptkhnewmGtdDtDSnvQg3SHDC/W2AFszAae8Z0yER58ZIu/1x5rZw==
-X-Received: by 2002:a17:906:fe41:b0:a9a:478:2ee3 with SMTP id a640c23a62f3a-a9ee2465a3dmr92173366b.40.1730963606918;
-        Wed, 06 Nov 2024 23:13:26 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF9nOjZkrUMvsk+/S/SdzmWVcuWDW5P1sCd1k6qp08zxaqsUfPOHSxDgZIsk4urxkRouosnxeAyM0eHS+o9qqo=
-X-Received: by 2002:a17:906:fe41:b0:a9a:478:2ee3 with SMTP id
- a640c23a62f3a-a9ee2465a3dmr92170966b.40.1730963606570; Wed, 06 Nov 2024
- 23:13:26 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="gxk54YzA"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1730969707; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=+Pe6mB2+NvVrQj+n92aQ/qLMgk2nwDyUd3YvqSvozyA=;
+	b=gxk54YzA7AQ3/GeVB2jsJ8zADLk6kWpcFd2AYn/A2jVTqa9lmbxko/y4ouUSUCMGKLlxsNMXJP+J+TUoPsRrWY7ldsLd2gAnvFmQdoMi5BSUtk3vmZu59ppRzbnpp+4/Rvaphtui5dkxscmQjwz7HU2scWgo0+5iz3DIAiLqVBU=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIv0uho_1730969706 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 07 Nov 2024 16:55:07 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org
+Subject: [PATCH net-next v3 02/13] virtio_ring: split: record extras for indirect buffers
+Date: Thu,  7 Nov 2024 16:54:53 +0800
+Message-Id: <20241107085504.63131-3-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
+References: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241105072642.898710-1-lulu@redhat.com> <20241105072642.898710-8-lulu@redhat.com>
- <6dtic6ld6p6kyzbjjewj4cxkc6h6r5t6y2ztazrgozdanz6gkm@vlj3ubpam6ih>
-In-Reply-To: <6dtic6ld6p6kyzbjjewj4cxkc6h6r5t6y2ztazrgozdanz6gkm@vlj3ubpam6ih>
-From: Cindy Lu <lulu@redhat.com>
-Date: Thu, 7 Nov 2024 15:12:49 +0800
-Message-ID: <CACLfguVNM_b9LdiMyj+pZH0WHu=-Nrit8-cr+QH9=f7tMLDd4w@mail.gmail.com>
-Subject: Re: [PATCH v3 7/9] vhost: Add new UAPI to support change to task mode
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 4CgZSzsbfgM-beYDA7xf-NNAbVyezTrVoNte77BgG-g_1730963607
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Git-Hash: 2634baada01d
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 5, 2024 at 6:32=E2=80=AFPM Stefano Garzarella <sgarzare@redhat.=
-com> wrote:
->
-> On Tue, Nov 05, 2024 at 03:25:26PM +0800, Cindy Lu wrote:
-> >Add a new UAPI to enable setting the vhost device to task mode.
-> >The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
-> >to configure the mode if necessary.
-> >This setting must be applied before VHOST_SET_OWNER, as the worker
-> >will be created in the VHOST_SET_OWNER function
-> >
-> >Signed-off-by: Cindy Lu <lulu@redhat.com>
-> >---
-> > drivers/vhost/vhost.c      | 15 ++++++++++++++-
-> > include/uapi/linux/vhost.h |  2 ++
-> > 2 files changed, 16 insertions(+), 1 deletion(-)
-> >
-> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> >index c17dc01febcc..70c793b63905 100644
-> >--- a/drivers/vhost/vhost.c
-> >+++ b/drivers/vhost/vhost.c
-> >@@ -2274,8 +2274,9 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned=
- int ioctl, void __user *argp)
-> > {
-> >       struct eventfd_ctx *ctx;
-> >       u64 p;
-> >-      long r;
-> >+      long r =3D 0;
->
-> I don't know if something is missing in this patch, but I am confused:
->
-> `r` is set few lines below...
->
-> >       int i, fd;
-> >+      bool inherit_owner;
-> >
-> >       /* If you are not the owner, you can become one */
-> >       if (ioctl =3D=3D VHOST_SET_OWNER) {
-> ...
->
->         /* You must be the owner to do anything else */
->         r =3D vhost_dev_check_owner(d);
->         if (r)
->                 goto done;
->
-> So, why we are now initializing it to 0?
->
-r =3D 0 mean return successfully here.
-Therefore, in the case VHOST_SET_INHERIT_FROM_OWNER function, I don't
-need to set it again and can simply return.
-....
-    if (vhost_dev_has_owner(d))
-       break;
-.....
-> >@@ -2332,6 +2333,18 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigne=
-d int ioctl, void __user *argp)
-> >               if (ctx)
-> >                       eventfd_ctx_put(ctx);
-> >               break;
-> >+      case VHOST_SET_INHERIT_FROM_OWNER:
-> >+              /*inherit_owner can only be modified before owner is set*=
-/
-> >+              if (vhost_dev_has_owner(d))
->
-> And here, how this check can be false, if at the beginning of the
-> function we call vhost_dev_check_owner()?
->
-> Maybe your intention was to add this code before the
-> `vhost_dev_check_owner()` call, so this should explain why initialize
-> `r` to 0, but I'm not sure.
->
-Yes, in the function beginning, the code is
-if (ioctl =3D=3D VHOST_SET_OWNER) {
-r =3D vhost_dev_set_owner(d);
-goto done;
-}
-if the ioctl is not VHOST_SET_OWNER,  then the  code will not run the
-function vhost_dev_set_owner.
-This ioctl is used by userspace applications, so we cannot be certain
-of the type and sequence of their calls; therefore, I added this
-check.
+The subsequent commit needs to know whether every indirect buffer is
+premapped or not. So we need to introduce an extra struct for every
+indirect buffer to record this info.
 
-> >+                      break;
->
-> Should we return an error (e.g. -EPERM) in this case?
->
-sure=EF=BC=8Cwill add this back
-thanks
-Cindy
-> >+
-> >+              if (copy_from_user(&inherit_owner, argp,
-> >+                                 sizeof(inherit_owner))) {
-> >+                      r =3D -EFAULT;
-> >+                      break;
-> >+              }
-> >+              d->inherit_owner =3D inherit_owner;
-> >+              break;
-> >       default:
-> >               r =3D -ENOIOCTLCMD;
-> >               break;
-> >diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> >index b95dd84eef2d..1e192038633d 100644
-> >--- a/include/uapi/linux/vhost.h
-> >+++ b/include/uapi/linux/vhost.h
-> >@@ -235,4 +235,6 @@
-> >  */
-> > #define VHOST_VDPA_GET_VRING_SIZE     _IOWR(VHOST_VIRTIO, 0x82,       \
-> >                                             struct vhost_vring_state)
-> >+
->
-> Please add a documentation here, this is UAPI, so the user should
-> know what this ioctl does based on the parameter.
->
-> Thanks,
-> Stefano
->
-> >+#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, bool)
-> > #endif
-> >--
-> >2.45.0
-> >
->
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/virtio/virtio_ring.c | 112 ++++++++++++++++-------------------
+ 1 file changed, 52 insertions(+), 60 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 97590c201aa2..405d5a348795 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -69,7 +69,11 @@
+ 
+ struct vring_desc_state_split {
+ 	void *data;			/* Data for callback. */
+-	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
++
++	/* Indirect desc table and extra table, if any. These two will be
++	 * allocated together. So we won't stress more to the memory allocator.
++	 */
++	struct vring_desc *indir_desc;
+ };
+ 
+ struct vring_desc_state_packed {
+@@ -440,38 +444,20 @@ static void virtqueue_init(struct vring_virtqueue *vq, u32 num)
+  * Split ring specific functions - *_split().
+  */
+ 
+-static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
+-					   const struct vring_desc *desc)
+-{
+-	u16 flags;
+-
+-	if (!vring_need_unmap_buffer(vq))
+-		return;
+-
+-	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
+-
+-	dma_unmap_page(vring_dma_dev(vq),
+-		       virtio64_to_cpu(vq->vq.vdev, desc->addr),
+-		       virtio32_to_cpu(vq->vq.vdev, desc->len),
+-		       (flags & VRING_DESC_F_WRITE) ?
+-		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-}
+-
+ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+-					  unsigned int i)
++					  struct vring_desc_extra *extra)
+ {
+-	struct vring_desc_extra *extra = vq->split.desc_extra;
+ 	u16 flags;
+ 
+-	flags = extra[i].flags;
++	flags = extra->flags;
+ 
+ 	if (flags & VRING_DESC_F_INDIRECT) {
+ 		if (!vq->use_dma_api)
+ 			goto out;
+ 
+ 		dma_unmap_single(vring_dma_dev(vq),
+-				 extra[i].addr,
+-				 extra[i].len,
++				 extra->addr,
++				 extra->len,
+ 				 (flags & VRING_DESC_F_WRITE) ?
+ 				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 	} else {
+@@ -479,22 +465,23 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+ 			goto out;
+ 
+ 		dma_unmap_page(vring_dma_dev(vq),
+-			       extra[i].addr,
+-			       extra[i].len,
++			       extra->addr,
++			       extra->len,
+ 			       (flags & VRING_DESC_F_WRITE) ?
+ 			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 	}
+ 
+ out:
+-	return extra[i].next;
++	return extra->next;
+ }
+ 
+ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+ 					       unsigned int total_sg,
+ 					       gfp_t gfp)
+ {
++	struct vring_desc_extra *extra;
+ 	struct vring_desc *desc;
+-	unsigned int i;
++	unsigned int i, size;
+ 
+ 	/*
+ 	 * We require lowmem mappings for the descriptors because
+@@ -503,40 +490,41 @@ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+ 	 */
+ 	gfp &= ~__GFP_HIGHMEM;
+ 
+-	desc = kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
++	size = sizeof(*desc) * total_sg + sizeof(*extra) * total_sg;
++
++	desc = kmalloc(size, gfp);
+ 	if (!desc)
+ 		return NULL;
+ 
++	extra = (struct vring_desc_extra *)&desc[total_sg];
++
+ 	for (i = 0; i < total_sg; i++)
+-		desc[i].next = cpu_to_virtio16(_vq->vdev, i + 1);
++		extra[i].next = i + 1;
++
+ 	return desc;
+ }
+ 
+ static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq,
+ 						    struct vring_desc *desc,
++						    struct vring_desc_extra *extra,
+ 						    unsigned int i,
+ 						    dma_addr_t addr,
+ 						    unsigned int len,
+-						    u16 flags,
+-						    bool indirect)
++						    u16 flags)
+ {
+-	struct vring_virtqueue *vring = to_vvq(vq);
+-	struct vring_desc_extra *extra = vring->split.desc_extra;
+ 	u16 next;
+ 
+ 	desc[i].flags = cpu_to_virtio16(vq->vdev, flags);
+ 	desc[i].addr = cpu_to_virtio64(vq->vdev, addr);
+ 	desc[i].len = cpu_to_virtio32(vq->vdev, len);
+ 
+-	if (!indirect) {
+-		next = extra[i].next;
+-		desc[i].next = cpu_to_virtio16(vq->vdev, next);
++	extra[i].addr = addr;
++	extra[i].len = len;
++	extra[i].flags = flags;
++
++	next = extra[i].next;
+ 
+-		extra[i].addr = addr;
+-		extra[i].len = len;
+-		extra[i].flags = flags;
+-	} else
+-		next = virtio16_to_cpu(vq->vdev, desc[i].next);
++	desc[i].next = cpu_to_virtio16(vq->vdev, next);
+ 
+ 	return next;
+ }
+@@ -551,6 +539,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 				      gfp_t gfp)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
++	struct vring_desc_extra *extra;
+ 	struct scatterlist *sg;
+ 	struct vring_desc *desc;
+ 	unsigned int i, n, avail, descs_used, prev, err_idx;
+@@ -586,9 +575,11 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 		/* Set up rest to use this indirect table. */
+ 		i = 0;
+ 		descs_used = 1;
++		extra = (struct vring_desc_extra *)&desc[total_sg];
+ 	} else {
+ 		indirect = false;
+ 		desc = vq->split.vring.desc;
++		extra = vq->split.desc_extra;
+ 		i = head;
+ 		descs_used = total_sg;
+ 	}
+@@ -618,9 +609,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 			/* Note that we trust indirect descriptor
+ 			 * table since it use stream DMA mapping.
+ 			 */
+-			i = virtqueue_add_desc_split(_vq, desc, i, addr, sg->length,
+-						     VRING_DESC_F_NEXT,
+-						     indirect);
++			i = virtqueue_add_desc_split(_vq, desc, extra, i, addr, sg->length,
++						     VRING_DESC_F_NEXT);
+ 		}
+ 	}
+ 	for (; n < (out_sgs + in_sgs); n++) {
+@@ -634,11 +624,10 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 			/* Note that we trust indirect descriptor
+ 			 * table since it use stream DMA mapping.
+ 			 */
+-			i = virtqueue_add_desc_split(_vq, desc, i, addr,
++			i = virtqueue_add_desc_split(_vq, desc, extra, i, addr,
+ 						     sg->length,
+ 						     VRING_DESC_F_NEXT |
+-						     VRING_DESC_F_WRITE,
+-						     indirect);
++						     VRING_DESC_F_WRITE);
+ 		}
+ 	}
+ 	/* Last one doesn't continue. */
+@@ -660,10 +649,10 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 		}
+ 
+ 		virtqueue_add_desc_split(_vq, vq->split.vring.desc,
++					 vq->split.desc_extra,
+ 					 head, addr,
+ 					 total_sg * sizeof(struct vring_desc),
+-					 VRING_DESC_F_INDIRECT,
+-					 false);
++					 VRING_DESC_F_INDIRECT);
+ 	}
+ 
+ 	/* We're using some buffers from the free list. */
+@@ -716,11 +705,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 	for (n = 0; n < total_sg; n++) {
+ 		if (i == err_idx)
+ 			break;
+-		if (indirect) {
+-			vring_unmap_one_split_indirect(vq, &desc[i]);
+-			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
+-		} else
+-			i = vring_unmap_one_split(vq, i);
++
++		i = vring_unmap_one_split(vq, &extra[i]);
+ 	}
+ 
+ free_indirect:
+@@ -765,22 +751,25 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 			     void **ctx)
+ {
++	struct vring_desc_extra *extra;
+ 	unsigned int i, j;
+ 	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+ 
+ 	/* Clear data ptr. */
+ 	vq->split.desc_state[head].data = NULL;
+ 
++	extra = vq->split.desc_extra;
++
+ 	/* Put back on free list: unmap first-level descriptors and find end */
+ 	i = head;
+ 
+ 	while (vq->split.vring.desc[i].flags & nextflag) {
+-		vring_unmap_one_split(vq, i);
++		vring_unmap_one_split(vq, &extra[i]);
+ 		i = vq->split.desc_extra[i].next;
+ 		vq->vq.num_free++;
+ 	}
+ 
+-	vring_unmap_one_split(vq, i);
++	vring_unmap_one_split(vq, &extra[i]);
+ 	vq->split.desc_extra[i].next = vq->free_head;
+ 	vq->free_head = head;
+ 
+@@ -790,21 +779,24 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 	if (vq->indirect) {
+ 		struct vring_desc *indir_desc =
+ 				vq->split.desc_state[head].indir_desc;
+-		u32 len;
++		u32 len, num;
+ 
+ 		/* Free the indirect table, if any, now that it's unmapped. */
+ 		if (!indir_desc)
+ 			return;
+-
+ 		len = vq->split.desc_extra[head].len;
+ 
+ 		BUG_ON(!(vq->split.desc_extra[head].flags &
+ 				VRING_DESC_F_INDIRECT));
+ 		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
+ 
++		num = len / sizeof(struct vring_desc);
++
++		extra = (struct vring_desc_extra *)&indir_desc[num];
++
+ 		if (vring_need_unmap_buffer(vq)) {
+-			for (j = 0; j < len / sizeof(struct vring_desc); j++)
+-				vring_unmap_one_split_indirect(vq, &indir_desc[j]);
++			for (j = 0; j < num; j++)
++				vring_unmap_one_split(vq, &extra[j]);
+ 		}
+ 
+ 		kfree(indir_desc);
+-- 
+2.32.0.3.g01195cf9f
 
