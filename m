@@ -1,219 +1,172 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2083.outbound.protection.outlook.com [40.107.223.83])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 642A920EA5E
-	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 15:17:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.83
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730992659; cv=fail; b=DuJnozBEZeMxb4Rz3KOo4f+QzrGqXeEtARItFsPZCkl8RB7P57Uu5adbY9i7p5DHY8YL6AgUSk4z0NN4dZxC8gSt14u+5gWJ5cX16CeZ82bnP/HTnOOEkNq/UBTmvmbnWCdUWaf8Lgh8b/25QQ3EO4fai++nOjGuSjEgnhKxi3w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730992659; c=relaxed/simple;
-	bh=6S7cZ68JZWcjnr9LadAxaejYvfBuJGytnWMz3T6foL0=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nRbilYVCnZe7TLtWikv6pDOc2KHSnHzL91el9qv6zsKXjQsxW7i2GQA9GG6SoZHElA65wRAeegbk5FHlHIggy2SS5DIhaOFK73l4kWrwOOhBK77d57wncOJ6Mj1fBu3qOTpd1ECurLbmYEDz1m01crkolkDFl5AZUdYclxZieRw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=pPIb8jiG; arc=fail smtp.client-ip=40.107.223.83
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAC1B212D2F
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 17:59:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1731002367; cv=none; b=fHzK2zS1U3RZlpKjp9edqtAe7JR6SxKPoql31BPcQdCmQlffHa1KTt1KItH+wSmFIYUohHuuPm6SbxwCzIFROqkI+i4Hjfd4KTZ1tK6O/PzY0eOpbP94j0IsazCdM+92EpqH9w1yzUvFjCw1jeLWxns7NuSROQajUDneWWcaXYQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1731002367; c=relaxed/simple;
+	bh=QlD2/t4mRIBt65kddDKgnMs/F7AlUZTCBmuyr/f1Fvc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=r1dGNNl3lLRGGwGnCJhoQ3vyuQ1RjSFrN/hi2gULyyibNBjHVJJQ0SMoT9x6Tv2bxLf9fUckM+fVXOatn4tCzOwswSGIUCnv7K+dnOTTSQ7tcBQlOSYvTfrF42qM+AEUsneKy/M+6xqJKHarA5LGc1Pr69UKtWIyWAXaV77wEx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QbtHYwpY; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="pPIb8jiG"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CSRpG/K1eZsuUaf2qrTDqJze1qYQfKNdRrxPnvDPEzPufVd3HOj6+eTa6HqJ2Fi25HQb+ppC6Goa9w4voddg+1IEZsWhSsxnXB+vNebvHESvDJeJqB6feH3q3Zzl0/k0vj/vePc7tYslzarsiLO4dgOtCKEuZPH7fwPf4+5JZnZ8S9Y06rGLv0RxwYFU5Lrc4tAtmedwXVYOuVlDFdhjjdoH0Q3c91Wcmn6paouWvbg0UBwhLC7CqDwpYxRz4rpzgwmmbOxO02sFujc/G8CPQodXaKul0/aoG+eqteELV484j5/JRGy0xEiAxSp6b2BvAdn0oXiLyc4Pgm0F7tqyNQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4nLlvH8zGminewn1ZdqNgtHvIvsqhpNug+kDkfYGJyI=;
- b=A1Wl/goZKHFrblClfWa4+/y77Ctyk84y2UyCpL5RvGXdgHVze56LhDm6GGQwoobB37bGZLtvbxZrFo2pouGiKa1i0ROPOeBT15ne15dz9tbrnq7r0s/ZsXhgvMnI2+BPjJHTACuFuAvC4IRUu2XjYNjhhUblGYrnXVhKba7yNnnYg5YTug6Yy5uA66Y4ng0mMvviegX+Hu0+A+5qX0zokR+46StMG1HOmbYXP4zgwkoKaafdNdK4GpNbMcn84ksrK0l5OQMB4b60Pq8w2E6+aQENSaixfUJnP8vA07mnCKMdrd0gh0GjBqUB+yulNoWLX5T+vyG5lLmC72m8vdgVEg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4nLlvH8zGminewn1ZdqNgtHvIvsqhpNug+kDkfYGJyI=;
- b=pPIb8jiGLw+E/aCNniztZW7fqp5eRrQuzGLqGvIrHr66/rC6Gm5PCS/SC355c8Jfjfo/dtq/5YV6UfRSO9TJDqS97EQrbQAPo/oWnrgWMyTX0ScvdJtc7Z6/cPzVqIyMm32jGERUaaG0BOaJbJYoOdB3OuRedEivbxWa4lmwSBF2CWAhni/z2EZwXES7a0xjfrbDmiRLYz9aJswysGctLyGYDDiOc5pyAr7lhCGqXIkiASbpZUsywYj3Wf0qZ0Ph6qr3Bc/YA4DpiL7/rnKOqxYs7mAlck+5W7TCG+Bmn6jMEuqeZzgSlmUBGl6Rg3K+LHZd5sFJ8uVQpKuXoMtUbw==
-Received: from DM6PR02CA0113.namprd02.prod.outlook.com (2603:10b6:5:1b4::15)
- by DM6PR12MB4418.namprd12.prod.outlook.com (2603:10b6:5:28e::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.21; Thu, 7 Nov
- 2024 15:17:30 +0000
-Received: from DS1PEPF0001708F.namprd03.prod.outlook.com
- (2603:10b6:5:1b4:cafe::41) by DM6PR02CA0113.outlook.office365.com
- (2603:10b6:5:1b4::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.19 via Frontend
- Transport; Thu, 7 Nov 2024 15:17:30 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- DS1PEPF0001708F.mail.protection.outlook.com (10.167.17.139) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8137.17 via Frontend Transport; Thu, 7 Nov 2024 15:17:30 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 7 Nov 2024
- 07:17:17 -0800
-Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 7 Nov 2024
- 07:17:17 -0800
-Received: from rsws30.mtr.labs.mlnx (10.127.8.12) by mail.nvidia.com
- (10.129.68.7) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Thu, 7 Nov 2024 07:17:14 -0800
-From: Israel Rukshin <israelr@nvidia.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>,
-	Parav Pandit <parav@nvidia.com>, <stefanha@redhat.com>,
-	<virtualization@lists.linux.dev>, <mst@redhat.com>, Linux-block
-	<linux-block@vger.kernel.org>
-CC: Nitzan Carmi <nitzanc@nvidia.com>, <kvm@vger.kernel.org>, Israel Rukshin
-	<israelr@nvidia.com>
-Subject: [PATCH 2/2] virtio_blk: Add support for transport error recovery
-Date: Thu, 7 Nov 2024 17:17:00 +0200
-Message-ID: <1730992620-201192-3-git-send-email-israelr@nvidia.com>
-X-Mailer: git-send-email 1.8.4.3
-In-Reply-To: <1730992620-201192-1-git-send-email-israelr@nvidia.com>
-References: <1730992620-201192-1-git-send-email-israelr@nvidia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QbtHYwpY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731002364;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4mRr/ado//dqpuyVTA/Mq5FxzZMBnNf5uAVrKJfSB8U=;
+	b=QbtHYwpYTVTIINSzFuHeyXl4iL6OWvxN8i9slpoq+sL0ROBHXDbz/29GQsF10TRSCpi7ZX
+	fUujpxTQJVfoWnwFz/TpztRN9RvRWsEwNnc9bMEUOAXLEPCaCJq5tMycb/sRz0CzPZZgTh
+	i3YqaQXhX6u9FLHB6fvuHKAR+b6TAs8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-504-Vzhu24HDP1uVAcPcecwnHA-1; Thu, 07 Nov 2024 12:59:23 -0500
+X-MC-Unique: Vzhu24HDP1uVAcPcecwnHA-1
+X-Mimecast-MFC-AGG-ID: Vzhu24HDP1uVAcPcecwnHA
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43151a9ea95so12583755e9.1
+        for <virtualization@lists.linux.dev>; Thu, 07 Nov 2024 09:59:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731002362; x=1731607162;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4mRr/ado//dqpuyVTA/Mq5FxzZMBnNf5uAVrKJfSB8U=;
+        b=r6t/mub2/lZeZrfrgJd7JlIBhaHdWgrsqcEtBZlfRVtD12T4JPzVRT21KB+DWC0MLp
+         4oQKfaE/KiywOuwAx1kReVb6UkT5HZKsAWp6ZE5oka2miK+QBYbIehqm/JyRAymGfgn7
+         sQqvi3xSsRYfB5cZw/29ioAzO53n8rf8bYkJI5U2kX3IpYXaEihOmbfPhCr2x84hR6pM
+         BtQUx9czlIMpd080+G3IFfBXzKG1xGZwaCfAuTvWyYODAcDq7GISRmUw92KxjwH74ONs
+         qQWRcab6R4CYZ5r8q31X+HyxpiQ8FqHlTb7Wbkjw+6/OnxrO3LFuJ+EapEATk8wbFvoW
+         NVvw==
+X-Forwarded-Encrypted: i=1; AJvYcCWsTetacqHyhnEdLH8YX17kEhnY9BwHOtbFCk73hsfUSQHigXck6xADZf2xDDDNiPVSgOLRl1H3lP7qBIDtwQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzm3zBhR/Xe74ro/NIvGxdj4LzlA+iNOixRfiXTgdHUQIVNn5nm
+	NwMDZ/xrVrRQpdxC4T6zhUK+x1gKrif6VqOEydNq9Qy0HzOsdlM9D8TYcYLX2bAc9idivwT83Ti
+	rm6+6yGq11AFw2bD6ZPRoUUrNGDV3/Iu8GTEIChresY10fSG736S9lpl4LJtrvHTX
+X-Received: by 2002:a5d:5f42:0:b0:374:cd3c:db6d with SMTP id ffacd0b85a97d-381f0f40dc1mr453558f8f.6.1731002361854;
+        Thu, 07 Nov 2024 09:59:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEodIAZG1/hqqV37r0z4nHa4TuZO197WEmrItnsoLeVMlxggBPgex4kBUzlAVvgpAzvjwpmjQ==
+X-Received: by 2002:a5d:5f42:0:b0:374:cd3c:db6d with SMTP id ffacd0b85a97d-381f0f40dc1mr453534f8f.6.1731002361458;
+        Thu, 07 Nov 2024 09:59:21 -0800 (PST)
+Received: from ?IPV6:2003:cf:d711:bb59:b57d:a166:ac57:9bc2? (p200300cfd711bb59b57da166ac579bc2.dip0.t-ipconnect.de. [2003:cf:d711:bb59:b57d:a166:ac57:9bc2])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432aa6c1205sm71883915e9.26.2024.11.07.09.59.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Nov 2024 09:59:20 -0800 (PST)
+Message-ID: <ece87ac3-71e2-4c43-a144-659d19b1e75d@redhat.com>
+Date: Thu, 7 Nov 2024 18:59:19 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS1PEPF0001708F:EE_|DM6PR12MB4418:EE_
-X-MS-Office365-Filtering-Correlation-Id: 11924f8a-a822-4743-e877-08dcff3f4c08
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|82310400026|376014|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?gfaUtsPqiHOuMJpPtDvTT1sxGelDv4l/bQHQQeslP/nkfW+V3iv7yFVKP2E2?=
- =?us-ascii?Q?0mciyWK35Lploo0UIQpFjEqkbpe2zeyWgWKOgi2GzWaWyXhoFWU95Xv8DvH8?=
- =?us-ascii?Q?by2LQy7fu2yFDETrC7fhgvqX5Q38s07PiAJEzA3Q1kzTaCCvHgGg18Ne6bxb?=
- =?us-ascii?Q?JkpKMgDg3jD/eYG3zUKil8Elc7BOxuF/pH3RX+ind2Waw8RTSaSnCG6r/Qle?=
- =?us-ascii?Q?ZdDkGEkBbAhYOWF8xyqqrz/ownGHpSzjUc4dCOh8HPE484Soy2w5BkV/aeWX?=
- =?us-ascii?Q?khEw34BcaNX1vhs4Rj7T2gmZZPJ5N5MGE6JRIwZ69/1S+9Vh8ZFud8091W07?=
- =?us-ascii?Q?xwO+M1WQh4/EIIV2lMG5T4AOaZevE4SrDY3eLWiKHE64KxZNaBeHHJHPAHG3?=
- =?us-ascii?Q?tIcQS+Q3/NzX2beBNVYVfjwo2IK4dqjKZKgCklqChzwV2zzC92+PdgxP5HOS?=
- =?us-ascii?Q?Z743tSrSXfyZvJfBZW4uGpf+bnnUVltLK0JR79nKw13BLeHDH0qbMBaFgpat?=
- =?us-ascii?Q?InrG/0S1iTA3zxxaVDBb7hR1ELLYojcFzoY024QYEF/51BDv+SJrdBkdn+ej?=
- =?us-ascii?Q?zOw+yhr4Ei8wO0DG4Hde/loRdtdrswEXj9i360lNZJnx2wnF/6sHDvcpDNAS?=
- =?us-ascii?Q?AtgDlVcAphHck5H0vrxGmKJz7kdpPjBu1x6jtgZ8kj3R3JCz05fR2AJ86hbY?=
- =?us-ascii?Q?QpqjZtQ7zFhFJ3UA4lv/B2AtzdAtmqRDGXQT9GDQyvzRMpPQ93YOjgo8QZKD?=
- =?us-ascii?Q?mOD8ZuPedNdqxmR44W6nDPQuXKFxTKpYlI2qfUfJ+tbbIFDknp5KqEz+vxso?=
- =?us-ascii?Q?e43twpCGkp5+j3UxyL2+Wg6+83YzBUmCNeM1rdiljl14nafuDJffrNbuskHd?=
- =?us-ascii?Q?LY3jcM0vkABoGi27K4hXBJqvBPjfxxQ+wr9e3xvDmNSg/E4jdw8m+d97IrHD?=
- =?us-ascii?Q?u1fTEbwO/DL6UJVFPg/4J/6Zwd5Cd67OGBE2y0uO5KkwkZSH/zs8bh6+4wfe?=
- =?us-ascii?Q?KMQ6fDJipipOZEJuYl0jKfD9g+WEM2T3RBqqAW+Ky3VsPXjVAxeq/++kFKre?=
- =?us-ascii?Q?DKQdMDP19lU9KEEB6Ia3G7DfzZyGVF/vdyM0OG8MTN7DdDbJGz8aLxJwLSPZ?=
- =?us-ascii?Q?JeRzY59wr08/rd6Rp92kEPBTtttWDFjYBAiLKHh4M0rnUvTEspLHB5Dh1MrZ?=
- =?us-ascii?Q?E6iw+L+lmJ9quay7v+w+jLz6xl/4BlCnfr/DvCxArP8AMZTn1bh9Ol9IkFTJ?=
- =?us-ascii?Q?xeYydHXDiwL0jNdIJdtRR1f1FJJc6U0y2HsNR/c4f5CKShkED/JBpWjxM4ub?=
- =?us-ascii?Q?WPOmgwpTt5ymJ3JB7F6ZGYJO0ksikcXlpqiRscEWjNciSDozsFHjle9Y1H3z?=
- =?us-ascii?Q?/FNPQmMK7K0ijLSR0poGApwf6r8NHC97MMQb2EQJJbFhO1fC+Q=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(376014)(1800799024);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2024 15:17:30.1880
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 11924f8a-a822-4743-e877-08dcff3f4c08
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DS1PEPF0001708F.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4418
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio-fs: Query rootmode during mount
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ virtualization@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>,
+ German Maglione <gmaglione@redhat.com>, Stefan Hajnoczi
+ <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Vivek Goyal <vgoyal@redhat.com>
+References: <20241024164726.77485-1-hreitz@redhat.com>
+ <CAJfpeguWjwXtM4VJYP2+-0KK5Jkz80eKpWc-ST+yMuKL6Be0=w@mail.gmail.com>
+ <ae437cf6-caa2-4f9a-9ffa-bdc7873a99eb@redhat.com>
+ <CAJfpegvfYhL4-U-4=sSkcne3MSNZk3P3jqBAPYWp5b5o4Ryk6w@mail.gmail.com>
+From: Hanna Czenczek <hreitz@redhat.com>
+In-Reply-To: <CAJfpegvfYhL4-U-4=sSkcne3MSNZk3P3jqBAPYWp5b5o4Ryk6w@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: SDIxIXSNYSn0eBW9cWSrdAUWMk9JHzZnA1jJ3SCW9GY_1731002362
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Add support for proper cleanup and re-initialization of virtio-blk devices
-during transport reset error recovery flow.
-This enhancement includes:
-- Pre-reset handler (reset_prepare) to perform device-specific cleanup
-- Post-reset handler (reset_done) to re-initialize the device
+On 07.11.24 13:18, Miklos Szeredi wrote:
+> On Thu, 7 Nov 2024 at 11:00, Hanna Czenczek <hreitz@redhat.com> wrote:
+>> It isn’t much, but I believe it’s most of fuse_fill_super_common()
+>> (without restructuring the code so flags returned by INIT are put into a
+>> separate structure and then re-joined into sb and fc later).
+> Probably not worth it.
+>
+>> fuse_send_init() reads sb->s_bdi->ra_pages, process_init_reply() writes
+>> it and sb->s_time_gran, ->s_flags, ->s_stack_depth, ->s_export_op, and
+>> ->s_iflags.  In addition, process_init_reply() depends on several flags
+>> and objects in fc being set up (among those are fc->dax and
+>> fc->default_permissions), which is done by fuse_fill_super_common().
+> Okay, got it.
+>
+>> So I think what we need from fuse_fill_super_common() is:
+>> - fuse_sb_defaults() (so these values can then be overwritten by
+>> process_init_reply()),
+>> - fuse_dax_conn_alloc(),
+>> - fuse_bdi_init(),
+>> - fc->default_permissions at least, but I’d just take the fc->[flag]
+>> setting block as a whole then.
+>>
+>> I assume we’ll also want the SB_MANDLOCK check then, and
+>> rcu_assign_pointer().  Then we might as well also set the block sizes
+>> and the subtype.
+>>
+>> The problem is that I don’t know the order things in
+>> fuse_fill_super_common() need to be in, and fuse_dev_alloc_install() is
+>> called before fuse_bdi_init(), so I didn’t want to move that.
+>>
+>> So what I understand is that calling fuse_dev_alloc_install() there
+>> isn’t necessary?  I’m happy to move that to part 2, as you suggest, but
+> Hmm, fuse_dev_install() chains the fud onto fc->devices.  This is used
+> by fuse_resend() and fuse_abort_conn().  Resending isn't really
+> interesting at this point, but aborting should work from the start, so
+> this should not be moved after sending requests.
+>
+>> I’m not sure we can really omit much from part 1 without changing how
+>> process_init_reply() operates.  We could in theory delay
+>> process_init_reply() until after GETATTR (and thus after setting
+>> s_root), but that seems kind of wrong, and would still require setting
+>> up BDI and DAX for fuse_send_init().
+> Agree, let's keep the split as is, but store the fud temporarily in
+> fuse_fs_context and leave setting *ctx->fudptr to part2.
 
-These changes allow the device to recover from various reset scenarios,
-ensuring proper functionality after a reset event occurs.
-Without this implementation, the device cannot properly recover from
-resets, potentially leading to undefined behavior or device malfunction.
+Sure!
 
-This feature has been tested using PCI transport with Function Level
-Reset (FLR) as an example reset mechanism. The reset can be triggered
-manually via sysfs (echo 1 > /sys/bus/pci/devices/$PCI_ADDR/reset).
+>>>> +       if (sb->s_root || (fm->fc && fm->fc->initialized && !fm->submount)) {
+>>> How could fm->submount be set if sb->s_root isn't?
+>> fuse_get_tree_submount(), specifically fuse_fill_super_submount() whose
+>> error path leads to deactivate_locked_super(), can fail before
+>> sb->s_root is set.
+> Right.
+>
+>> Still, the idea was rather to make it clear that this condition (INIT
+>> sent but s_root not set) is unique to non-submounts, so as not to mess
+>> with the submount code unintentionally.
+>>
+>>> Or sb->s_root set
+>>> and fc->initialized isn't?
+>> That would be the non-virtio-fs non-submount case (fuse_fill_super()),
+>> where s_root is set first and INIT sent after.
+> But this is virtiofs specific code.
 
-Signed-off-by: Israel Rukshin <israelr@nvidia.com>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
----
- drivers/block/virtio_blk.c | 28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+Ah, right…  I must have forgotten that at some point.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 194417abc105..c3c421783e2a 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1587,8 +1587,7 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	put_disk(vblk->disk);
- }
- 
--#ifdef CONFIG_PM_SLEEP
--static int virtblk_freeze(struct virtio_device *vdev)
-+static int virtblk_freeze_priv(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 
-@@ -1607,7 +1606,7 @@ static int virtblk_freeze(struct virtio_device *vdev)
- 	return 0;
- }
- 
--static int virtblk_restore(struct virtio_device *vdev)
-+static int virtblk_restore_priv(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 	int ret;
-@@ -1621,8 +1620,29 @@ static int virtblk_restore(struct virtio_device *vdev)
- 	blk_mq_unfreeze_queue(vblk->disk->queue);
- 	return 0;
- }
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int virtblk_freeze(struct virtio_device *vdev)
-+{
-+	return virtblk_freeze_priv(vdev);
-+}
-+
-+static int virtblk_restore(struct virtio_device *vdev)
-+{
-+	return virtblk_restore_priv(vdev);
-+}
- #endif
- 
-+static int virtblk_reset_prepare(struct virtio_device *vdev)
-+{
-+	return virtblk_freeze_priv(vdev);
-+}
-+
-+static int virtblk_reset_done(struct virtio_device *vdev)
-+{
-+	return virtblk_restore_priv(vdev);
-+}
-+
- static const struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_BLOCK, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
-@@ -1658,6 +1678,8 @@ static struct virtio_driver virtio_blk = {
- 	.freeze				= virtblk_freeze,
- 	.restore			= virtblk_restore,
- #endif
-+	.reset_prepare			= virtblk_reset_prepare,
-+	.reset_done			= virtblk_reset_done,
- };
- 
- static int __init virtio_blk_init(void)
--- 
-2.34.1
+> Regardless, something smells here: fuse_mount_remove() is only called
+> if sb->s_root is set (both plain fuse and virtiofs).  The top level
+> fuse_mount is added to fc->mounts in fuse_conn_init(), way before
+> sb->s_root is set...
+>
+> Will look into this.
+
+Thanks!
+
+Hanna
+
+>
+> Thanks,
+> Miklos
+>
 
