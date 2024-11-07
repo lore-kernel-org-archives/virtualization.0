@@ -1,284 +1,176 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99E011E7C1F
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 10:03:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3378192D9C
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 10:15:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730973823; cv=none; b=lxQUYQFwYxF6/q8JvNwYKvrRjAtIdg5DacZWeFVeXrRdaqXIJQEm7YBhYk/dtJW3wtPA2Fnt4L3HY6TrBhlLIRDu3vUExM0XjwMYP/kh8lFXpxYrAkfm64RFeSFs4mMF9tMgmvK4vIPZQ7RzQl7AgbySu5oNT0qvB9Xs0yCpZuk=
+	t=1730974537; cv=none; b=M1V5ClTVyh2jTWrbJYFq9Swui4E6A3JOk0FXmetaZt878Y0CkI3fMfLUVf5jfNfEQQ76s1BfD8rV1rfGQkYAXncIyNhpq/vyCNACq+LnQsB29FnkWka9jONCiSJ2HIXvC+B/FSBmlVVNqu4uyIpFoXL8TLxUnipFzzwKO3A4OIA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730973823; c=relaxed/simple;
-	bh=2+Yutr5Xglcz8V8+xc221L3KYuAq5uCZTnAUQj8Hv0g=;
+	s=arc-20240116; t=1730974537; c=relaxed/simple;
+	bh=x7ik3dUZ4qfgretMWTs0q2SwyKs1yvwePHnw90ALGms=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NjKSozxrgjKY66+1FVqJkcDCLHzuvNkOjfRDkFQK4vUzlxnEuF3ti7F0C0vQG78dYdwKK9DdrCtCOXt8oBeLJv+1du9Ul02WxZufQTasL81CjAdGT0sgMQ6RvTh4BGbaAosB4gIHyfqmKUsppIrwENA8qyCJhD2EyYgQaUb+u1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GaPNvfr6; arc=none smtp.client-ip=140.211.166.138
+	 In-Reply-To:Content-Type:Content-Disposition; b=aqXFptJcIxu6zRBCU9rMIW2sXWa7qpA1qHexsXwCmOG3iP+XlrlTJ9DE6hMNTDkT+gLsMDANRVwuMsNkjCNSBLmuet4FDnHRtslfGluc4TFf3IwCk47UUcf8HUQ1Qp7bxUlI92AvT0oaT9ymARcV7S8iC2VraEolsgoipRBrjz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JmueGdT+; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GaPNvfr6"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2B82E84137
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 10:03:42 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id U2f3NoBDugAo for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Nov 2024 10:03:41 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 0C22A84131
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0C22A84131
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GaPNvfr6
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0C22A84131
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 10:03:40 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JmueGdT+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730973819;
+	s=mimecast20190719; t=1730974534;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=An3BH6XKuTAnMBgKcn0eA2Zh2Rap4I/isdV3TdHYfCA=;
-	b=GaPNvfr6bCOO6tgu0QmO2gcaKXTssX0jdrDW8eEAsorXTybrXxSPE+xtmQNWhnpTlKdNQh
-	wmRs0oy8Rn5yKEiNzhEJgJPd4s+zTe+uC+IeR1YmZx5Hoh84FK1lTjcJ8zaEuOnvznrzby
-	0pbMyy/ZFA7oqBw3cS/KSZkHPVnx5Jc=
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
- [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Qic0KprwlmFJxdJGsLKtec/+hybwkWidV6RrLX35zxs=;
+	b=JmueGdT+9H/ARLZWcrQcGZJluPfHuTcQtYhF2LXKDOKKCMqrrsS7XOyNC/ihAc4s68BupO
+	mMw5aYP/7CBnpVxtL4f2tp8eqb7hWBdIm5oakB5TSUALQu6y3ZLzZGvwmNeXDDPpfYnDzV
+	Baj1oZOzd7iN4mdHBNoHTIZQ1InXEsQ=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-283-_6x_Ow68Obq8Y4fY8Tn10Q-1; Thu, 07 Nov 2024 05:03:37 -0500
-X-MC-Unique: _6x_Ow68Obq8Y4fY8Tn10Q-1
-X-Mimecast-MFC-AGG-ID: _6x_Ow68Obq8Y4fY8Tn10Q
-Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-3e600565aa1so846095b6e.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 07 Nov 2024 02:03:37 -0800 (PST)
+ us-mta-80-bxDeupoWOtKmRpeAxSq16A-1; Thu, 07 Nov 2024 05:15:33 -0500
+X-MC-Unique: bxDeupoWOtKmRpeAxSq16A-1
+X-Mimecast-MFC-AGG-ID: bxDeupoWOtKmRpeAxSq16A
+Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6d3729a555dso10454606d6.3
+        for <virtualization@lists.linux.dev>; Thu, 07 Nov 2024 02:15:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730973816; x=1731578616;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=An3BH6XKuTAnMBgKcn0eA2Zh2Rap4I/isdV3TdHYfCA=;
-        b=qSahrHQbqB75HkTj9eNxS15gL553YXrKo5nbhjyONcgRatcgVA2Qt4fQL28hF4+EDt
-         B2qQrwKxyR4jEtAIPdvo1cIw2lfGvNYd7YMw26jC/Rbd3a6/HILM+QZkY65mg8d3V5YM
-         8baSdSGQ3DLjLO+MM0DWy9R5SBdYcMGwA/qcrWMImNFv/xH1Qz2tef8Y1GigABdqrO3b
-         8oKyDUbJb7+KIfMwPKjIDBMAywqOGqbusr90Hqv7dHFPR5HI5DTT6CJXcBMQ/FNu4ZLX
-         yl0K5Hwfixa0gXbAIrk2qKxwcdCuUJCHMfo7NqR7D9G/iVdafMN71N07nZXic3g7t7ym
-         u1sQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU0W7PRFAIwzPrcBZ5QufQiJ0QU3RZH647cZjXJs3OXDKu41P3Q7feZtUJFL2oxx/caGmP43JoUpnbvOzxRPg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwTKPIVCbsudBca8Y3iRhphw2eU9Xb89SMDvIC+ZwmHLu9xuca6
-	BlwvQTtjI2Men1UCsUcKLoybJUemNKDkl5QpuyDgiMGUfbQddeSDPCkxJAs/Q1wwmCIDb4OWezV
-	QUHVYFkGoY1TrOoQ/Z3GyE9RoWG6Tu5XqEhUeyVU3aqXy806aPi47Rs4Od9vw1RmuNUtL2/Kn7z
-	7cJEU=
-X-Received: by 2002:a05:6808:1587:b0:3e6:61ed:d62 with SMTP id 5614622812f47-3e78fc71ebfmr482173b6e.6.1730973816632;
-        Thu, 07 Nov 2024 02:03:36 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGh9cwaUN0Ba6FgiawQwL1+eLsqHmCIJp1Eq590jb/9RX+uJ0m1Iu3AL2UUAklxiLKOlF6EEw==
-X-Received: by 2002:a05:6808:1587:b0:3e6:61ed:d62 with SMTP id 5614622812f47-3e78fc71ebfmr482139b6e.6.1730973816142;
-        Thu, 07 Nov 2024 02:03:36 -0800 (PST)
+        d=1e100.net; s=20230601; t=1730974533; x=1731579333;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Qic0KprwlmFJxdJGsLKtec/+hybwkWidV6RrLX35zxs=;
+        b=W7IIWTc4mNzSif1kh1knnZmQKHOvdLlip7mAEzt0g4kUU8mq9aPLkdkt92h9fxQUS0
+         brmzTW0E0/XTibBI1SONlhmPVNTMRD/FvxjhuhqBv48SiwyKi/rJ5idSdm0g9iq5VwIG
+         fmcUIyfajx1RGEf6W+FW89sfcl28AuwFooHnFTNPjmOXiPoNqLPSLqW8/QRpqvW7BZhX
+         KbRwtCSUPZ2bs/vjlMOFy/rVNub8Sq2Lils+Hx/qFYdzznYXjaQIiFNdOZOa+VdAiPTK
+         Cu0uwiPYXt7U6gbZw+cCXVZv/eTh+R3MlSfHLHJEFGdiifeOxoXKDKnn9SD0UQ4yr9+t
+         b0Jw==
+X-Forwarded-Encrypted: i=1; AJvYcCWru/t7motQhXJMELGSgyYliXqTWHLs9wudl/J7PDxMkTO6eqBwxd9y77aOiumOQGmaQ9ZCdYWq8LN08U39cw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwTI6dfzK5K0rUb5fdJtDRTuZbVbiLUaFLDQgfDDnyOvitAnaHn
+	2iNE+Y8Kl6ozdAsDs5CsXKi274whR9T1gNy3V4RNu6/xLCBAvKvjO4GkKfLo0+9JlTfclF6i2Rq
+	0G1z5NaK8PgJngQpqFV7pRPRnCLnmO3BDHrYMEkm9WfHHLLPhpSvafueufo3wdiVY
+X-Received: by 2002:a05:6214:3f8d:b0:6cd:3a49:34e8 with SMTP id 6a1803df08f44-6d39a525c00mr7104696d6.20.1730974533183;
+        Thu, 07 Nov 2024 02:15:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHFQWBdcj0fFKhWjLh9ILVMNEnmMAKMSoYgq0CTrZlBpSg2wx5nk5hVOaqP6XnuB6b/bKS9cQ==
+X-Received: by 2002:a05:6214:3f8d:b0:6cd:3a49:34e8 with SMTP id 6a1803df08f44-6d39a525c00mr7104366d6.20.1730974532720;
+        Thu, 07 Nov 2024 02:15:32 -0800 (PST)
 Received: from sgarzare-redhat ([5.77.70.124])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6d396637613sm5750286d6.116.2024.11.07.02.03.34
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6d3961df223sm5932806d6.5.2024.11.07.02.15.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Nov 2024 02:03:35 -0800 (PST)
-Date: Thu, 7 Nov 2024 11:03:28 +0100
+        Thu, 07 Nov 2024 02:15:32 -0800 (PST)
+Date: Thu, 7 Nov 2024 11:15:20 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+To: Michal Luczaj <mhal@rbox.co>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Jia He <justin.he@arm.com>, Arseniy Krasnov <avkrasnov@salutedevices.com>, 
+	Dmitry Torokhov <dtor@vmware.com>, Andy King <acking@vmware.com>, 
+	George Zhang <georgezhang@vmware.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
 	netdev@vger.kernel.org
-Subject: Re: [PATCH v3 7/9] vhost: Add new UAPI to support change to task mode
-Message-ID: <zkamzruq5e3diahm7vyjansnaowkw42toh5evwgq6vqal7h4pk@3w4e47ggogyr>
-References: <20241105072642.898710-1-lulu@redhat.com>
- <20241105072642.898710-8-lulu@redhat.com>
- <6dtic6ld6p6kyzbjjewj4cxkc6h6r5t6y2ztazrgozdanz6gkm@vlj3ubpam6ih>
- <CACLfguVNM_b9LdiMyj+pZH0WHu=-Nrit8-cr+QH9=f7tMLDd4w@mail.gmail.com>
+Subject: Re: [PATCH net 1/4] virtio/vsock: Fix accept_queue memory leak
+Message-ID: <dcboxomaif7b3qt3ofls4wvnobclv3onb32ynnq5uchzqoz6kg@5htm6qcbvmpg>
+References: <20241106-vsock-mem-leaks-v1-0-8f4ffc3099e6@rbox.co>
+ <20241106-vsock-mem-leaks-v1-1-8f4ffc3099e6@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACLfguVNM_b9LdiMyj+pZH0WHu=-Nrit8-cr+QH9=f7tMLDd4w@mail.gmail.com>
+In-Reply-To: <20241106-vsock-mem-leaks-v1-1-8f4ffc3099e6@rbox.co>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: o3tESnarVwOlx6hIMN1PXn9R4i0llLAf1H6scdXm_Eo_1730973817
+X-Mimecast-MFC-PROC-ID: 3aD-tg8WyjYrzTSdtbBmb40yD8G2SOmn9-MxW0On6fQ_1730974533
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Thu, Nov 07, 2024 at 03:12:49PM +0800, Cindy Lu wrote:
->On Tue, Nov 5, 2024 at 6:32 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
->>
->> On Tue, Nov 05, 2024 at 03:25:26PM +0800, Cindy Lu wrote:
->> >Add a new UAPI to enable setting the vhost device to task mode.
->> >The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
->> >to configure the mode if necessary.
->> >This setting must be applied before VHOST_SET_OWNER, as the worker
->> >will be created in the VHOST_SET_OWNER function
->> >
->> >Signed-off-by: Cindy Lu <lulu@redhat.com>
->> >---
->> > drivers/vhost/vhost.c      | 15 ++++++++++++++-
->> > include/uapi/linux/vhost.h |  2 ++
->> > 2 files changed, 16 insertions(+), 1 deletion(-)
->> >
->> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> >index c17dc01febcc..70c793b63905 100644
->> >--- a/drivers/vhost/vhost.c
->> >+++ b/drivers/vhost/vhost.c
->> >@@ -2274,8 +2274,9 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->> > {
->> >       struct eventfd_ctx *ctx;
->> >       u64 p;
->> >-      long r;
->> >+      long r = 0;
->>
->> I don't know if something is missing in this patch, but I am confused:
->>
->> `r` is set few lines below...
->>
->> >       int i, fd;
->> >+      bool inherit_owner;
->> >
->> >       /* If you are not the owner, you can become one */
->> >       if (ioctl == VHOST_SET_OWNER) {
->> ...
->>
->>         /* You must be the owner to do anything else */
->>         r = vhost_dev_check_owner(d);
->>         if (r)
->>                 goto done;
->>
->> So, why we are now initializing it to 0?
->>
->r = 0 mean return successfully here.
->Therefore, in the case VHOST_SET_INHERIT_FROM_OWNER function, I don't
->need to set it again and can simply return.
->....
->    if (vhost_dev_has_owner(d))
->       break;
->.....
-
-Okay, but vhost_dev_check_owner() already set it to 0, so we can avoid 
-that, no?
-
->> >@@ -2332,6 +2333,18 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->> >               if (ctx)
->> >                       eventfd_ctx_put(ctx);
->> >               break;
->> >+      case VHOST_SET_INHERIT_FROM_OWNER:
->> >+              /*inherit_owner can only be modified before owner is set*/
->> >+              if (vhost_dev_has_owner(d))
->>
->> And here, how this check can be false, if at the beginning of the
->> function we call vhost_dev_check_owner()?
->>
->> Maybe your intention was to add this code before the
->> `vhost_dev_check_owner()` call, so this should explain why initialize
->> `r` to 0, but I'm not sure.
->>
->Yes, in the function beginning, the code is
->if (ioctl == VHOST_SET_OWNER) {
->r = vhost_dev_set_owner(d);
->goto done;
->}
->if the ioctl is not VHOST_SET_OWNER,  then the  code will not run the
->function vhost_dev_set_owner.
-
-Sorry, I meant vhost_dev_check_owner(), not vhost_dev_set_owner().
-
-I'll try to explain again.
-
-After applying this series we have this code:
-
-long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
-{
-	struct eventfd_ctx *ctx;
-	u64 p;
-	long r = 0;
-	int i, fd;
-	bool inherit_owner;
-
-	/* If you are not the owner, you can become one */
-	if (ioctl == VHOST_SET_OWNER) {
-		r = vhost_dev_set_owner(d);
-		goto done;
-	}
-
-	/* You must be the owner to do anything else */
-	r = vhost_dev_check_owner(d);
-	if (r)
-		goto done;
-
-	switch (ioctl) {
-	...
-     	case VHOST_SET_INHERIT_FROM_OWNER:
-		/*inherit_owner can only be modified before owner is 
-		 * set*/
-		if (vhost_dev_has_owner(d))
-			break;
-
-IIUC this check is always true, so we always call `break` because at
-the beginning of this function we call vhost_dev_check_owner() which
-if `dev->mm != current->mm` (so it can't be null I guess) jumps directly
-into `done`, returning an error.
-
-So I still don't understand in which condition we can run the code after
-this check.
-
-Thanks,
-Stefano
-
-		if (copy_from_user(&inherit_owner, argp,
-				   sizeof(inherit_owner))) {
-			r = -EFAULT;
-			break;
-		}
-		d->inherit_owner = inherit_owner;
-		break;
-
-
->This ioctl is used by userspace applications, so we cannot be certain
->of the type and sequence of their calls; therefore, I added this
->check.
+On Wed, Nov 06, 2024 at 06:51:18PM +0100, Michal Luczaj wrote:
+>As the final stages of socket destruction may be delayed, it is possible
+>that virtio_transport_recv_listen() will be called after the accept_queue
+>has been flushed, but before the SOCK_DONE flag has been set. As a result,
+>sockets enqueued after the flush would remain unremoved, leading to a
+>memory leak.
 >
->> >+                      break;
->>
->> Should we return an error (e.g. -EPERM) in this case?
->>
->sure，will add this back
->thanks
->Cindy
->> >+
->> >+              if (copy_from_user(&inherit_owner, argp,
->> >+                                 sizeof(inherit_owner))) {
->> >+                      r = -EFAULT;
->> >+                      break;
->> >+              }
->> >+              d->inherit_owner = inherit_owner;
->> >+              break;
->> >       default:
->> >               r = -ENOIOCTLCMD;
->> >               break;
->> >diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
->> >index b95dd84eef2d..1e192038633d 100644
->> >--- a/include/uapi/linux/vhost.h
->> >+++ b/include/uapi/linux/vhost.h
->> >@@ -235,4 +235,6 @@
->> >  */
->> > #define VHOST_VDPA_GET_VRING_SIZE     _IOWR(VHOST_VIRTIO, 0x82,       \
->> >                                             struct vhost_vring_state)
->> >+
->>
->> Please add a documentation here, this is UAPI, so the user should
->> know what this ioctl does based on the parameter.
->>
->> Thanks,
->> Stefano
->>
->> >+#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, bool)
->> > #endif
->> >--
->> >2.45.0
->> >
->>
+>vsock_release
+>  __vsock_release
+>    lock
+>    virtio_transport_release
+>      virtio_transport_close
+>        schedule_delayed_work(close_work)
+>    sk_shutdown = SHUTDOWN_MASK
+>(!) flush accept_queue
+>    release
+>                                        virtio_transport_recv_pkt
+>                                          vsock_find_bound_socket
+>                                          lock
+>                                          if flag(SOCK_DONE) return
+>                                          virtio_transport_recv_listen
+>                                            child = vsock_create_connected
+>                                      (!)   vsock_enqueue_accept(child)
+>                                          release
+>close_work
+>  lock
+>  virtio_transport_do_close
+>    set_flag(SOCK_DONE)
+>    virtio_transport_remove_sock
+>      vsock_remove_sock
+>        vsock_remove_bound
+>  release
+>
+>Introduce a sk_shutdown check to disallow vsock_enqueue_accept() during
+>socket destruction.
+>
+>unreferenced object 0xffff888109e3f800 (size 2040):
+>  comm "kworker/5:2", pid 371, jiffies 4294940105
+>  hex dump (first 32 bytes):
+>    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+>    28 00 0b 40 00 00 00 00 00 00 00 00 00 00 00 00  (..@............
+>  backtrace (crc 9e5f4e84):
+>    [<ffffffff81418ff1>] kmem_cache_alloc_noprof+0x2c1/0x360
+>    [<ffffffff81d27aa0>] sk_prot_alloc+0x30/0x120
+>    [<ffffffff81d2b54c>] sk_alloc+0x2c/0x4b0
+>    [<ffffffff81fe049a>] __vsock_create.constprop.0+0x2a/0x310
+>    [<ffffffff81fe6d6c>] virtio_transport_recv_pkt+0x4dc/0x9a0
+>    [<ffffffff81fe745d>] vsock_loopback_work+0xfd/0x140
+>    [<ffffffff810fc6ac>] process_one_work+0x20c/0x570
+>    [<ffffffff810fce3f>] worker_thread+0x1bf/0x3a0
+>    [<ffffffff811070dd>] kthread+0xdd/0x110
+>    [<ffffffff81044fdd>] ret_from_fork+0x2d/0x50
+>    [<ffffffff8100785a>] ret_from_fork_asm+0x1a/0x30
+>
+>Fixes: 3fe356d58efa ("vsock/virtio: discard packets only when socket is really closed")
+>Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>---
+> net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
+> 1 file changed, 8 insertions(+)
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+>
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index ccbd2bc0d2109aea4f19e79a0438f85893e1d89c..cd075f608d4f6f48f894543e5e9c966d3e5f22df 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -1512,6 +1512,14 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+> 		return -ENOMEM;
+> 	}
+>
+>+	/* __vsock_release() might have already flushed accept_queue.
+>+	 * Subsequent enqueues would lead to a memory leak.
+>+	 */
+>+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
+>+		virtio_transport_reset_no_sock(t, skb);
+>+		return -ESHUTDOWN;
+>+	}
+>+
+> 	child = vsock_create_connected(sk);
+> 	if (!child) {
+> 		virtio_transport_reset_no_sock(t, skb);
+>
+>-- 
+>2.46.2
 >
 
