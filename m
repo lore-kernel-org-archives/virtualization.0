@@ -1,124 +1,217 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2132D268;
-	Thu,  7 Nov 2024 02:27:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730946425; cv=none; b=ReRH9fbi6FQ8xulrMWMmuNrDbcb/lnno4U5scuJvT2QlRvGwJfOhsgZWyOjiisBDJNnTbD4Dm5NoZpGIK1vM+2WydEjo/vZkzG7yioaxws+ffwkLe5qyt5zr4lM0ZkKP3eiy5ADiiDr5y9y8ALTK93nzb4W+kja4qg17hP14nQs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730946425; c=relaxed/simple;
-	bh=b5NLqH4D6TJxOOfKQVO3eHJieaGxINQW1ZIF+j+Coyc=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=bZXVZ00Nja8Z3sg6Ol2g8acoNK71AgxLfXxtONxRBLn3HgUK82BAyuyPizbYMw2oI1LsGvDafSZXCFG3LGRZAbFzGl+bWqlfS9bi4wICwL78I9ZoUO7JO0q62pLhhPpKXyUqKAF0tapQiU8PnilW47R1O9jTJk9a7ew/kLHSWEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NjKz4aad; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3261BE4A
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 06:08:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.156.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730959729; cv=fail; b=cR4RdZHUPXcomsLrpueXSM/jBqlp4wUGbOl22H5OxMSoV18iefEp2sPuQkCzzHVTMzMiAS63mVEZ8nvykCSDYI5rpqPiY+QjDX5DzXOktK63Ryk9v4ojLCdYarUfKQKunaCszNq5ECo9nApBRcKf4jCPA9KtC6Mf5daSzrV5VLo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730959729; c=relaxed/simple;
+	bh=RPmRQDsdRd2WJT3pR6sDjWmIs7BctGhTNyrsAWdhLbc=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 MIME-Version:Content-Type; b=khF3kO9jVvWOol7Wy5IV6IgQn6eHeFtB3dzb+sEbuYt5YJMQcx7YP2JdcN1P0N24A/kiL4/UAKOQiLRx2OPXeZN6fwLhFPXM9s7q+pmbU786/wRwXc5dJj1u5IWv5ESF0y2Mpesn97ZFyxBoG52C11wcJWimW9W5ASMBhTm5BQc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=fail (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=j0u8UUdP reason="signature verification failed"; arc=fail smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NjKz4aad"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730946420; h=Message-ID:Subject:Date:From:To;
-	bh=b5NLqH4D6TJxOOfKQVO3eHJieaGxINQW1ZIF+j+Coyc=;
-	b=NjKz4aadSM1YDDLvYOHAGj12YSOfiJgbdmnKwVq/GYmkwkiC0C5fgMdjPjos4MvQwn1XY6eth2Gkt2UKJ/49+A+lXFywovz4XCbATUcWaXHsjW6oTLH0y2EsVIA540uHIo44KoIBqzdD9+Nrug1KUxYfPXXUSyjfSxRc9cgrdB0=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WItv5jJ_1730946418 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 07 Nov 2024 10:26:59 +0800
-Message-ID: <1730946100.0197623-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: 0010:virtnet_rq_alloc+0x8f/0x1b0 [virtio_net] with 6.10.7 and packed virtqueues
-Date: Thu, 7 Nov 2024 10:21:40 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Linux regression tracking (Thorsten Leemhuis)" <regressions@leemhuis.info>
-Cc: Linux regressions mailing list <regressions@lists.linux.dev>,
- virtualization@lists.linux.dev,
- Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <CAK8fFZ6qVutPWxquHg7NEvFqYqDP5BwEdO81hqW8iMFxJFuLSQ@mail.gmail.com>
- <CAK8fFZ5N7EbU=uLbfyeSkQ273NSm+GELWUu1O1OBCpaSwjv6FA@mail.gmail.com>
- <422f35b3-7834-4df7-bcea-e3be12707aef@leemhuis.info>
- <1726216954.7439098-1-xuanzhuo@linux.alibaba.com>
- <565a9204-362d-458d-8b8e-11c5aada7b98@leemhuis.info>
- <CAK8fFZ6W2ZfwTa4nYz8ORTgb0mOTysg89LEEz7cHGtdqwpsvmA@mail.gmail.com>
- <20240913103753-mutt-send-email-mst@kernel.org>
- <CAK8fFZ4ONa_LYsyPN1E6QvUz4uUbzm35yfh6_dHUMDSxzySm3A@mail.gmail.com>
- <20241106035955-mutt-send-email-mst@kernel.org>
- <1730883874.818401-4-xuanzhuo@linux.alibaba.com>
- <20241106044241-mutt-send-email-mst@kernel.org>
- <35b03c6d-a083-407e-a0db-85d5dedcd335@leemhuis.info>
-In-Reply-To: <35b03c6d-a083-407e-a0db-85d5dedcd335@leemhuis.info>
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="j0u8UUdP"
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A75b3hm006197;
+	Wed, 6 Nov 2024 22:08:35 -0800
+Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2168.outbound.protection.outlook.com [104.47.55.168])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 42rqj8r1ud-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Nov 2024 22:08:35 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=udFhxycDFlB5FsC2KCWPVi6mzKWM4nbBmttOE2UKBBX6y6dE2bK7a/sTiUAw4VINI1dp21U4J4Qnl0wsXTVRN93dmntYp65BMihA3eSJizxcGP0TQW41D0bsGFJX9K/fI/Eet2xibbL4JYwc7i3IWPfVtXbAuGFnxeKu9gVGU0Cz7cYSyFrBtwRZurwxAryS/nn6wXlw750S1EbKop9tB2k9LYx7803B0v8yPXYUxbv6VvC6iYZNHLoOxNY9hFmsXzfTlIrj0itM14gfNd3t1lG0NRILNL7SN7An+2XVzBHVqbYnC2oJJwmhY+KAHN9PcheOrOHcWsEsItPbX6qvig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=NdEIoozjTuknpRqjPzM98og4NOn4q92mIsMhT0Nykpo=;
+ b=Z0SS91NBOPMOM2IUe3DuMHMclUYWoIFJxZYgh7C2PWhn1A7fBCl5ByZHwJkZNP+mR3Sa3Yd/YS+t5vl7vQyPGTzqfFBazsijp83P0JgHzHBHZ6weYS0eK/6ZHGqzpjaByfae1vPDR4x2KHJqqFQWD+SPfB0bP0Jjryas2JETohfJSiXL7F/P6mEdlTlu91mWe2D5TBIYqxWNF946tXBALUIoVoEfYxDgbl/ZCojudt7ubQlvfUSFdfvd8cssIBtVVRi8dZEkzWqu2fbxDu3zEyt3psa8hCxU2albctOEH4ABeIwzf938zm4/kmUU1DJ8PWqhso9W+yAe8ACPt0XkuQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
+ dkim=pass header.d=marvell.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NdEIoozjTuknpRqjPzM98og4NOn4q92mIsMhT0Nykpo=;
+ b=j0u8UUdPSFIlgNe4I69BDqnFN61GRL4xRzNKhtJ3Zf+dDe8LUl1Jkv8Tieehd48G1WeJPBFrhwg65bWAjHLEP/8ZBvr9R+I4/PW2fQp5EKUdGTv758d7/Z581zBj2NSmnQPB+UaFILEX/31shXjKjnODsIE0gcn3ByX40l7uWuQ=
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
+ by DM4PR18MB5425.namprd18.prod.outlook.com (2603:10b6:8:17e::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.18; Thu, 7 Nov
+ 2024 06:08:32 +0000
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::ad53:bef2:cc17:13ac]) by DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::ad53:bef2:cc17:13ac%5]) with mapi id 15.20.8137.019; Thu, 7 Nov 2024
+ 06:08:32 +0000
+From: Srujana Challa <schalla@marvell.com>
+To: Christoph Hellwig <hch@infradead.org>
+CC: "Michael S. Tsirkin" <mst@redhat.com>,
+        "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>,
+        "kvm@vger.kernel.org"
+	<kvm@vger.kernel.org>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "eperezma@redhat.com" <eperezma@redhat.com>,
+        Nithin Kumar Dabilpuram
+	<ndabilpuram@marvell.com>,
+        Jerin Jacob <jerinj@marvell.com>,
+        Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: RE: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
+ NO-IOMMU mode
+Thread-Topic: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
+ NO-IOMMU mode
+Thread-Index:
+ AQHbE96PlQaeJdnt006ohvbKHfff0rKGTA1AgAD2ZICAAnsvgIAA0r4AgARSlACABScygIAAFo4AgAGfYICAFKe0YIAANmcAgADs0JA=
+Date: Thu, 7 Nov 2024 06:08:32 +0000
+Message-ID:
+ <DS0PR18MB5368A3903841BDE3BF8C0234A05C2@DS0PR18MB5368.namprd18.prod.outlook.com>
+References: <Zvu3HktM4imgHpUw@infradead.org>
+ <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <Zw3mC3Ej7m0KyZVv@infradead.org>
+ <20241016134127-mutt-send-email-mst@kernel.org>
+ <ZxCrqPPbidzZb6w1@infradead.org>
+ <20241019201059-mutt-send-email-mst@kernel.org>
+ <ZxieizC7zeS7zyrd@infradead.org>
+ <20241023041739-mutt-send-email-mst@kernel.org>
+ <ZxoN57kleWecXejY@infradead.org>
+ <DS0PR18MB5368B1BCC3CFAE5D7E4EB627A0532@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <ZyuPMI-VOp8eK-dP@infradead.org>
+In-Reply-To: <ZyuPMI-VOp8eK-dP@infradead.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|DM4PR18MB5425:EE_
+x-ms-office365-filtering-correlation-id: 15901e7a-9e2c-410c-5142-08dcfef29b48
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?K21rcmprQ0Q5N3M4NGViRjMxcExiU0xPRGtUWlZkMG1CT0t6SEFJcWFIZWZ5?=
+ =?utf-8?B?eGcrRndhZnovU2xCWDUyaU9iSlVUOE1lOE9ubzFSSGVDSnVHOEpIbjRMbTNq?=
+ =?utf-8?B?clMvUTlZT011WGhPdkV4U3lnNTljQkExMmRmWWxrZDdrQXFLanZLMjdoLytM?=
+ =?utf-8?B?VjVEdkhSdjFDSUZHU3lYN2lMWUNXREpiNmd3TW1rbUVmNGhNSG01M0lKeWIw?=
+ =?utf-8?B?MTM3ZWRwM3ZVamk3NUIvQVBqWGtVRTR6eDh0dFpIQmxQU3J3ZHVtVjhXYjlo?=
+ =?utf-8?B?NFNMWkcwSHJoYVBYcEFRU1V3SXZsdGdJUmYxM3g5eXEzTlpmRWY1TzQ3eVZ1?=
+ =?utf-8?B?cHJPZXAyUGVJRjhNQTJsQWl3ajlhdzdsdlRINXFyRzhnbFhGbUo2U3lobG9a?=
+ =?utf-8?B?bGF2Qkl2djZmMDQ0SE5SZlBQMmxPc0J4TGVwTFlSVTJpdlVCSjE5STNxbThp?=
+ =?utf-8?B?OXVzQnVpakRZSFFJWVZ3cGVYVE44Q2U1WUhsOHB5ajl4eDBtZ3lSdW1iM2F2?=
+ =?utf-8?B?MHJNUm5HZjM5aU9tN2VoazZPeWNoRmhhRzBrRldMTjJjTjlVOXlNWTI5VUJZ?=
+ =?utf-8?B?VkFYM0FkRUJQYU1jMEhXd1F2QVV6NnA1Yk92bkZKNVBqYkZ5eWE4SlZGNUJR?=
+ =?utf-8?B?Q0h6Q1RiSjFIeStVU1NMeUFkanNheFJyM2REcmFMQUptZGhLb1JRdUlndXJT?=
+ =?utf-8?B?VmhaVGxhVHI1QkZ1dlllNUhGNndCT2h6dUdDcUxCdlA4bHpGenZtSmlBQ0ND?=
+ =?utf-8?B?R0JLMG0xcUZWYmpZQmtkSTdTMlNQc3RIODkrR0h4c1VsVjdmTFBrOHdtb0tB?=
+ =?utf-8?B?ZzRaM3kycW1SenlvdU55RndISXZBT2FLMlBuZWVYakMyais2SnFFMWo0RzBX?=
+ =?utf-8?B?ZzhZeUh2bzcrOWxtSTA0SW9KSlR0d0psaUxGV0lUaHZMOEs1VDV5dWV6OFNW?=
+ =?utf-8?B?YzR5c0tzR1QyL094amhsNTIxUU1NNFFhcjAwaElUaHZoS3d6QVNtU2tTVHQy?=
+ =?utf-8?B?MGR3SXJ6U25Yd2NEaVUrUEN1eXRrVHBiOUZ1UThUQ3d2cmtLcldkMExhdXRz?=
+ =?utf-8?B?QU9taEJjNWxnL21CZXNiZ1VGaTNYNkRFQnp4V0hCVDQ5T1ZHUzlGV21qUnlD?=
+ =?utf-8?B?dXBiRmJiUjIrZGxlZ0JObFhZdk5BYlViT1lEcjZRc0VNa3NTQ2l5YjcxSzYy?=
+ =?utf-8?B?MjRsWkcrb25lamJ2Vm02UnIxNjNLcDREYmRRWHFQNWhnMVVqbjVpT1RMZDJ5?=
+ =?utf-8?B?dkZRNU45QnBwTk9ldll6NEVpZXNpQ2lXVmxTYTJ2U0xQRnpLS0hmOVU1K2pZ?=
+ =?utf-8?B?MW9ESE0zdHZsSis3aUx5UDJHbEpLUU83SHovblBROFRtQ1NQOUJqZlk0d1Qr?=
+ =?utf-8?B?MHFScW1oRmZLNndqSGF0ZVp4TmtMaHZzVHQzdExCVFpQY2s2QnM5WXBzUXpl?=
+ =?utf-8?B?U2w2czN3bXpuakxjclJaQWxnZ2Q4L3pyRlpzblZ0aW9jaUpack5ReEovcW1n?=
+ =?utf-8?B?UEZoaEFsdTBTVi8xUDNPOVRuVVhZeVVwWTExcjU5WmxMMmFpTU9LZXkrcTBj?=
+ =?utf-8?B?R2N5Y2ZtZmhHdlNXZWVhQ0hXU3ZWaUxZc3Nyd3RRSkJ1aVNuKzFpM0JraFlG?=
+ =?utf-8?B?MzBPcnVYMGpMazVMTEFacGFMMGMwTjNZdlM0M1pMbEwvcnEyc1dud29PWVlk?=
+ =?utf-8?B?YUdVNDErZzF2SGJIUWdLRThSS2FvUUswUW5vR2J3bmR5eVloWUhlTXV4N3A5?=
+ =?utf-8?Q?LLLdfK25cBhvT8/SNtqdWIaBM2wh47L88UYac9v?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?NE1QUjY5ZklxejRrVUZiMnlwZENsbENkKytrK0dFay9IdEpRMTB3djFsRTF1?=
+ =?utf-8?B?aWtjVllmMkZ5L2ZPamFkUVJUWXJ5ODNVWFd2TW9WZXhQVktJVnhnaFRxM2Va?=
+ =?utf-8?B?R0xMVHJxbmNnSnV3dnJEZndwVW1XOGtRb3NHSEZyWWFaWVZnVVpKRThVK0tG?=
+ =?utf-8?B?bkdJeTd5ZUtSanRrRHJQQVBSTk9IMExoRGRCTUdCN0phbGNydlFYdVFXclhD?=
+ =?utf-8?B?T0N0bERjTWRKTUFwMktYZGhyemo2eWVPandYL2xLRVRSdUJwL210UUUyanJY?=
+ =?utf-8?B?VUE2K0FVM1hyL3dpRWhKV3pQbmFoRStESDRlYmEvbWJ4aVowNnNDMndaYmNJ?=
+ =?utf-8?B?ZmZRd1gyMU1OaWc3UzMzbjl6Y1RwTk9EZENocVVXNStSbi83WkhOU2Z0TXls?=
+ =?utf-8?B?RDZzM1FQMmlMZXg0a3AvWG0xcWRoSWZhS2lkTGNyV1J5QTh3WkhKR01hSkJz?=
+ =?utf-8?B?WVIvbnE0QzNoRm9OOG9GYlpBUzVoZlFHZjZwdm1TN1hRcElxdlR2K2QwMnEw?=
+ =?utf-8?B?c21NVkVESS91OFhqcFZDbUQwdWdzalhLc05mN1ZXcE5QOUwxd0dEYVIvNDNp?=
+ =?utf-8?B?NFcra00wZDVSam1uMnN4dXV2K1ZGc29CYWVob3lvMXlVellWSi9qcjRBcmo2?=
+ =?utf-8?B?VitHbHBTUTVZcmVkekhNVjl0NWNNbGtTV0tUbVZUbWJYRzkrcXR1YlMrazhs?=
+ =?utf-8?B?NmQ3M3p2T0xmUHB5WkdLWDFvR3hEcEZXZUNRTzJpdUk1TVFFSm1qcjIyV25T?=
+ =?utf-8?B?RFRCa0dGNTdVT3BpQ09GbjhRck9CRlo4ZEFqWGc4NWRjVUFhaXFNcWpGL2NF?=
+ =?utf-8?B?VVJ3dmcwbEVtQml3N25HaytmOUEyZ0pCS21XeEV1dmxiRHZab09ueUNKSmpJ?=
+ =?utf-8?B?VGtGM2lZSVhrMzllRnlueFg0RDVXSzEvNWVqVGVGNmJ1cTFXT2l6TDJsUGt0?=
+ =?utf-8?B?S0t6c3J0cXcwVllWckdDaGl5M2ZTUVlCdzNQY1J0TXI1cHR0U0VvM3JMcUdK?=
+ =?utf-8?B?QU9VU3NzZjIwTWFERmE3SmxhY05HUC9NYkI2STR0dldtSHlBM1dlVmxDN0N3?=
+ =?utf-8?B?MkZCSEJJNUdxMVNkS1lPcStUbENZM1p3blJXODY3cnBZeElUOG9uYnhsdmo2?=
+ =?utf-8?B?a0hiZjVzcCs4K1FhdWZydS95SmJlUVRqaE8yN3NiQlcxZE1UNVJWQXdDV0pW?=
+ =?utf-8?B?VVE5ZWJoU29QTlEyaktOZDlUMk9uUGdJR0FjWTlqMXloYk1TcGZINTRUZ3V5?=
+ =?utf-8?B?eTRidUZrcWhPOTdBek5hVXIzYkNmSXJYWnF4YWdkcGJFdjF6QTJucDlTSkU5?=
+ =?utf-8?B?RGxUS3NnMHVpSEg3RnRqWlJ2M0NteDZFVFMxRFg4bXpMWUdQcDRTNnlacnB2?=
+ =?utf-8?B?QituWE5Db0NxOUZtQVNXOTRwNm9qRVJ1Sk5jWWFaWlVGUFdwdGo4MzNoT1hO?=
+ =?utf-8?B?R0F1dVFSZjlxc1poeDRZWHhjUU4yOXJZd1JIWW5xZTJvUjlHVHF4UURwQ0ZW?=
+ =?utf-8?B?U2k1V29pQzExTkh3TDBzZXVvVVhIQmc1ZkFoVjhXSWVobzQ4ZkFLeGhQYm5Q?=
+ =?utf-8?B?enYwWUJWV3JWNHlPcmRKRWVLTWd6TzhxYlBkMmoxb0c2MS9nczc0bzEybGt3?=
+ =?utf-8?B?NHd1SmRPbnQ4S2JOQ2lHTWIyU0FlMkRpM3BvTHB1bC9qSitRNHVheE9uZklG?=
+ =?utf-8?B?QjJpMUdqVlM5N1VaM1IrVnFuL1ZuRVh6dm1HT2MxZWJWOXNod3hNZXdoOHNo?=
+ =?utf-8?B?d2IvUVBDcXZ2c0tCUjcyaEJyWE5DUjg5ZHUrQVpHN0pLTXJBYk95YW9IMndJ?=
+ =?utf-8?B?Tk9MaE40V0VETDloRUdERytsTFFGQ3NmRlhxU0M3SFc5ZUdNVkZ3K3FlZjh5?=
+ =?utf-8?B?NGJYajhOOFNzUmg2M0hzZWlZNWZkN1ZVcGErWVE4eHlWZFgvSFZYV3BMdUVK?=
+ =?utf-8?B?YTNjRGRKZFd5U05BTE9Cdk1GSTd2aFdXeWZUUXJuOTQxd2ZVZnl6TXFDN004?=
+ =?utf-8?B?YW1HVDI5U2ZUMzBKcVNrd2czQVAwV3dkZ2xSRFduTW1TZG5PTi9xeS90SjFW?=
+ =?utf-8?B?TThBNFNGem1DZW9wb3V0TDlFNEhPSUVISEZGbDVVS3h6RTNIa2NKeDhVT1d3?=
+ =?utf-8?Q?6ldE=3D?=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-OriginatorOrg: marvell.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 15901e7a-9e2c-410c-5142-08dcfef29b48
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Nov 2024 06:08:32.0376
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 0DEVTV1wCc1wAjSJw8gSmHIYAt7h79zPgTgXs9GTEbhC5CiQaThzcxoXV4KEUpmR1U7DxBtRfmCRfkAePuz3Bw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR18MB5425
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-GUID: fwa-NHDJLmAQBK0e9ZraNZBQjbGHVmxm
+X-Proofpoint-ORIG-GUID: fwa-NHDJLmAQBK0e9ZraNZBQjbGHVmxm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
 
-On Wed, 6 Nov 2024 11:09:17 +0100, "Linux regression tracking (Thorsten Leemhuis)" <regressions@leemhuis.info> wrote:
-> On 06.11.24 10:43, Michael S. Tsirkin wrote:
-> > On Wed, Nov 06, 2024 at 05:04:34PM +0800, Xuan Zhuo wrote:
-> >> On Wed, 6 Nov 2024 04:01:43 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >>> On Mon, Sep 16, 2024 at 09:32:38AM +0200, Jaroslav Pulchart wrote:
-> >>>>> On Fri, Sep 13, 2024 at 11:21:11AM +0200, Jaroslav Pulchart wrote:
-> >>>>>>
-> >>>>>> 1/ I was able to "do a reproducer" and hit the "random memory
-> >>>>>> corruption" issue with vanila 6.10.10 in our setup in ~28m of uptime
-> >>>>>> see attached 6.10.10-1.gdc.el9.x86_64.log.
-> >>>>>> 2/ I reverted these commits
-> >>>>>> "virtio_net: rx remove premapped failover code":
-> >>>>>> defd28aa5acb0fd7c15adc6bc40a8ac277d04dea
-> >>>>>> "virtio_net: big mode skip the unmap check":
-> >>>>>> a377ae542d8d0a20a3173da3bbba72e045bea7a9
-> >>>>>> "virtio_ring: enable premapped mode whatever use_dma_api":
-> >>>>>> f9dac92ba9081062a6477ee015bd3b8c5914efc4
-> >>>>>> in our next build and so far the environment is stable and not
-> >>>>>> crashing under same conditions like the previous crash.
-> >>>>>
-> >>>>> Automated backport failed:
-> >>>>>
-> >>>>> http://lore.kernel.org/all/2024091336-family-daffodil-541d@gregkh
-> >>>>>
-> >>>>> Since you have done the revert, and actually tested it, feel free
-> >>>>> to post, I will ack.
-> >>>>
-> >>>> What I did is:
-> >>>> git checkout linux-6.10.y
-> >>>> git revert defd28aa5acb0fd7c15adc6bc40a8ac277d04dea
-> >>>> git revert a377ae542d8d0a20a3173da3bbba72e045bea7a9
-> >>>> git revert f9dac92ba9081062a6477ee015bd3b8c5914efc4
-> >>>> (no changes nor fixing conflicts was needed)
-> >>>>
-> >>>> I'm newbie in posting the changes to upstream, Can you help me with
-> >>>> some simple steps on how to do it?
-> >>>
-> >>> Basically in this case, I think it is enough
-> >>> to reply to the revert patches and CC stable.
-> >>
-> >> Oh, I am ok.
-> >>
-> >> If need me to do something, please let me know.
-> >>
-> >> Thanks.
-> >
-> > yes, pls reply and CC stable ;)
->
-> I see that ";)", but it seems I'm missing something here:
->
-> Why did this thread resurface? 6.10.y is EOL since a while now, so that
-> reverting ship has sailed. And the commit in question is in 6.11 afaics.
->
+> Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for NO-
+> IOMMU mode
+>=20
+> On Wed, Nov 06, 2024 at 12:=E2=80=8A38:=E2=80=8A02PM +0000, Srujana Chall=
+a wrote: > It is
+> going in circles, let me give the summary, > Issue: We need to address th=
+e lack
+> of no-IOMMU support in the vhost vDPA driver for better performance. >
+> Measured=20
+> On Wed, Nov 06, 2024 at 12:38:02PM +0000, Srujana Challa wrote:
+> > It is going in circles, let me give the summary,
+> > Issue: We need to address the lack of no-IOMMU support in the vhost vDPA
+> driver for better performance.
+> > Measured Performance: On the machine "13th Gen Intel(R) Core(TM)
+> > i9-13900K, 32 Cores", we observed
+>=20
+> Looks ike you are going in circles indeed.  Lack of performance is never a
+> reason to disable the basic memoy safety for userspace drivers.
+If security is a priority, the IOMMU should stay enabled. In that case,
+this patch wouldn=E2=80=99t cause any issues, right?
+>=20
+> The (also quite bad) reason why vfio-nummu was added was to support
+> hardware entirely with an iommu.
+>=20
+> There is absolutely no reason to add krnel code for new methods of unsafer
+> userspace I/O without an IOMMU ever.
 
-
-I did a simple research that the only version was affected is 6.10.y.
-
-6.9 does not include the problem commits.
-6.11 is fixed by reverting the problem commits.
-
-6.10.y failed on the backport.
-
-But the 6.10.y is EOL, so the fix commit to 6.10.y is still needed?
-
-If yes, I can post a fix commit.
-
-
-Thanks.
-
-
-> Ciao, Thorsten
