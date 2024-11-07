@@ -1,135 +1,127 @@
-Received: from erminea.space (erminea.space [51.250.125.203])
-	by smtp.subspace.kernel.org (Postfix) with SMTP id 6F1E820FA8F
-	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 14:18:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.250.125.203
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F109212EF7
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 14:52:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730989125; cv=none; b=Xygt3fUH5PaHTcXAjicbOfudeo/h52wwZKbveIUac3/y2OLpWxiOv86jwFb2IwtGlZoANri3MbqmEhe/hL1p0Qn8CmcAsEdwxqfWn8SQvoBaTS/V5CbLmACVIdTwS3Ecub8HqOn2Dt2jlBSBl7NIgvDLkqzB1x9832KwT1imf5M=
+	t=1730991153; cv=none; b=HsxjVgAbFio0NYlkQH34cDryYfMNH+3mC7iu7VVS2HQc6ptC3TELauWL7YluRaydtGwBfaM9h+6NQV2tXjRMpo+a3H3GX1fKwMJwNk9QlBL3x4ZSShUan+O/Zwif5bJZC6LWcZDDTJLC356P5DNB0UnqXHG8X8s2c5EqWgrAlRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730989125; c=relaxed/simple;
-	bh=fBOgAUdNDCZWG3KGA0hLFJBosJCirNqqo8lEj6awgt8=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=kFwZOAv0DwpCumdMxlO3wcfZvdUtWvMbfll7n69TX6ULU69DeKLyFTW3G1EX6Mv6Dp7Fz3a9u/8+bcyVR4HRVkPmVjVWd0ilH8z+5y7acSDkcMMwMsWZnawosidI1gbvbUDfKLFW3z/u4s2IHB52H/YL1yN7VDIzFvJ8sgojbls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space; spf=pass smtp.mailfrom=erminea.space; arc=none smtp.client-ip=51.250.125.203
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=erminea.space
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=erminea.space
-Received: (qmail 14816 invoked from network); 7 Nov 2024 14:12:00 -0000
-Received: from localhost. (HELO erminea.space) (127.0.0.1)
-  by 0.0.0.0 with SMTP; 7 Nov 2024 14:12:00 -0000
-Received: from localhost.localdomain ([37.204.49.201])
-	by erminea.space with ESMTPSA
-	id aeT3M7DKLGfcOQAAH+dm7w
-	(envelope-from <mustela@erminea.space>); Thu, 07 Nov 2024 17:12:00 +0300
-From: Peter Shkenev <mustela@erminea.space>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 RESEND] drm/virtio: use generic dumb_map_offset implementation
-Date: Thu,  7 Nov 2024 17:10:05 +0300
-Message-ID: <20241107141133.13624-1-mustela@erminea.space>
-X-Mailer: git-send-email 2.47.0
+	s=arc-20240116; t=1730991153; c=relaxed/simple;
+	bh=XVF/x0LDlBb9yXRs1bVbTtLmrXmFrENkF+22J4yL8ps=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sQylKlfR9ezK2N/fr9Odo/tVUnd7cbvOvp08BjxqCY3m0hTo6o2I/gs5Wi39j3H2bMyxQ4q/Q2MCUn0fDjj8wCsUbtyHad5ZfCwTReMDPh7uGZkOJCQBzJPwS74v4PdAfP4o/Zmyzm+VeFeqquGW2X1TwtXnV5O/MYej9Hb7H0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=crhZTEyD; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="crhZTEyD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730991150;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8Ff04YcLV8SPdoJxeVSiu4v58xp2P44LYVgJtEbYZ2A=;
+	b=crhZTEyDa69Fh/WYoVhBGAteI5MYHphmFLkJ9/w8Np02X8Z3H4gn+9qP7CbfxVS6uuzGWt
+	T0AVz/QZSaGwQtyGRSKuBW2zyFf/F6+GNn6oBK1nSt5sumemd3e8CETzTokX43wjb2Uq04
+	kOo1RCFhskEe/5oqYsIYS9JJcBy6yhs=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-588-p6qpUojuP2G_nbaBxeLmsA-1; Thu, 07 Nov 2024 09:52:29 -0500
+X-MC-Unique: p6qpUojuP2G_nbaBxeLmsA-1
+X-Mimecast-MFC-AGG-ID: p6qpUojuP2G_nbaBxeLmsA
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6ea95f530fdso19070437b3.1
+        for <virtualization@lists.linux.dev>; Thu, 07 Nov 2024 06:52:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730991149; x=1731595949;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8Ff04YcLV8SPdoJxeVSiu4v58xp2P44LYVgJtEbYZ2A=;
+        b=O59nSgg1VSeq42JPlvANBQ8g5avsLpeKCmM4NLXI0SipS4X28DMZfIH7QbW9mQnMLl
+         pDVIM3tEYzowOmlACinyeIt1qrvRT6luiQes49Y/8AnP98XdrpkCaR8aFhHwOyAezAik
+         19jdffcOb/1540rdC+YJEkt/qR0BaYa7DZGH7U7KJALVt476uElvpLY+jxWCnZbsuIIK
+         7axYvq0u8D7rQqi+rPKAkjE6o33folIMrgtVOqcvia1BqEdxMmjOc94TZjSvNVsu4SkR
+         rWmRS7I+WiY3FVapc5u2rta8aR3WilgHQFJbIb5Dd7wfJayjmLhl+N9Snn0y+NMiUmyu
+         6v9Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXzwPaEbM8MV8IyHaf6FT7B682FOyRCb5cctXyA8ugvkfOrheQzN7mo7GHDQnNoIucM5TIHtgnwBR2YgT26dg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzYvS9O43KX8NIS1cJEvlabRjFVtFscvrDrEax0IvZ9LbQsJUlw
+	qT4bMIV007bp4Gn65IRARH238UU4xcyanVWijc6rBU19B+ynpDxl2zb7qk5BUYMRWIzyeGlQbIp
+	HzqnwiRT74+0uzEMPPEx0lkKhJr92+p2alN9j7yrG0mtz9HuWZTPjg+DfmBhrUz8unVO6qDncCU
+	bHvCwY3SsztS0WVty7VY2iuhz92yuFQGuAEr8PZAU=
+X-Received: by 2002:a05:690c:460e:b0:6e2:c13e:20e9 with SMTP id 00721157ae682-6e9d8b056ddmr313422957b3.38.1730991148929;
+        Thu, 07 Nov 2024 06:52:28 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEYqvt7/lT13XxcBmf4h4l8ghmjNiRZf2d8+XdMbFjM2u7ezJTrQtXi3YGHHMc7lpnFy6cI9XHQYWgxd3fJnwI=
+X-Received: by 2002:a05:690c:460e:b0:6e2:c13e:20e9 with SMTP id
+ 00721157ae682-6e9d8b056ddmr313422887b3.38.1730991148691; Thu, 07 Nov 2024
+ 06:52:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20241107132114.22188-1-colin.i.king@gmail.com>
+In-Reply-To: <20241107132114.22188-1-colin.i.king@gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 7 Nov 2024 15:51:52 +0100
+Message-ID: <CAJaqyWcp2kbm9uwzqPXi-M3AUT3P54az8SLHv0Ex7HpM7zHHhA@mail.gmail.com>
+Subject: Re: [PATCH][next] virtio_vdpa: remove redundant check on desc
+To: Colin Ian King <colin.i.king@gmail.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: NI_3Fa-T71Hxi8TT98lEH63R3Nm-InzJTCExHS0vpVw_1730991149
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Currently, virtio uses its own dumb_map_offset implementation,
-virtio_gpu_mode_dumb_mmap. It works similarly to generic implementation,
-drm_gem_dumb_map_offset, and using the generic implementation is
-preferable (and making drivers to do so is a task stated on the DRM
-subsystem's TODO list).
+On Thu, Nov 7, 2024 at 2:21=E2=80=AFPM Colin Ian King <colin.i.king@gmail.c=
+om> wrote:
+>
+> The boolean variable has_affinity is true when desc is non-null and
+> ops->set_vq_affinity is non-null. Hence the call to create_affinity_masks
+> does not need to check for desc being non-null is redundant when
+> has_affinity is true, so it can be removed as well as the now unused
+> default_affd.
+>
 
-Thus, make driver use the generic implementation. This includes
-VIRTGPU_MAP ioctl so it cannot be used to circumvent rules imposed by
-drm_gem_dumb_map_offset (imported objects cannot be mapped).
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Signed-off-by: Peter Shkenev <mustela@erminea.space>
----
-Changes in v2:
-  - Remove excessive include of drm_gem.h from virtgpu_ioctl.h
-  - Remove obsoleted virtio_gpu_mode_dumb_mmap prototype from
-    virtgpu_drv.h
+Thanks!
 
- drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 -
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 ---
- drivers/gpu/drm/virtio/virtgpu_gem.c   | 15 ---------------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  2 +-
- 4 files changed, 1 insertion(+), 20 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index ffca6e2e1c9a..909808398d66 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -184,7 +184,6 @@ static const struct drm_driver driver = {
- 	.postclose = virtio_gpu_driver_postclose,
- 
- 	.dumb_create = virtio_gpu_mode_dumb_create,
--	.dumb_map_offset = virtio_gpu_mode_dumb_mmap,
- 
- 	DRM_FBDEV_SHMEM_DRIVER_OPS,
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 64c236169db8..76f6f29f819a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -301,9 +301,6 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
- int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 				struct drm_device *dev,
- 				struct drm_mode_create_dumb *args);
--int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
--			      struct drm_device *dev,
--			      uint32_t handle, uint64_t *offset_p);
- 
- struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
- struct virtio_gpu_object_array*
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 7db48d17ee3a..aefbb49481f1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -99,21 +99,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	return ret;
- }
- 
--int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
--			      struct drm_device *dev,
--			      uint32_t handle, uint64_t *offset_p)
--{
--	struct drm_gem_object *gobj;
--
--	BUG_ON(!offset_p);
--	gobj = drm_gem_object_lookup(file_priv, handle);
--	if (gobj == NULL)
--		return -ENOENT;
--	*offset_p = drm_vma_node_offset_addr(&gobj->vma_node);
--	drm_gem_object_put(gobj);
--	return 0;
--}
--
- int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
- 			       struct drm_file *file)
- {
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index e4f76f315550..112142f4b618 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -80,7 +80,7 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct drm_virtgpu_map *virtio_gpu_map = data;
- 
--	return virtio_gpu_mode_dumb_mmap(file, vgdev->ddev,
-+	return drm_gem_dumb_map_offset(file, vgdev->ddev,
- 					 virtio_gpu_map->handle,
- 					 &virtio_gpu_map->offset);
- }
--- 
-2.47.0
+> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+> ---
+>  drivers/virtio/virtio_vdpa.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index 7364bd53e38d..1f60c9d5cb18 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -364,14 +364,13 @@ static int virtio_vdpa_find_vqs(struct virtio_devic=
+e *vdev, unsigned int nvqs,
+>         struct virtio_vdpa_device *vd_dev =3D to_virtio_vdpa_device(vdev)=
+;
+>         struct vdpa_device *vdpa =3D vd_get_vdpa(vdev);
+>         const struct vdpa_config_ops *ops =3D vdpa->config;
+> -       struct irq_affinity default_affd =3D { 0 };
+>         struct cpumask *masks;
+>         struct vdpa_callback cb;
+>         bool has_affinity =3D desc && ops->set_vq_affinity;
+>         int i, err, queue_idx =3D 0;
+>
+>         if (has_affinity) {
+> -               masks =3D create_affinity_masks(nvqs, desc ? desc : &defa=
+ult_affd);
+> +               masks =3D create_affinity_masks(nvqs, desc);
+>                 if (!masks)
+>                         return -ENOMEM;
+>         }
+> --
+> 2.39.5
+>
 
