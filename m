@@ -1,217 +1,222 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3261BE4A
-	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 06:08:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.156.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730959729; cv=fail; b=cR4RdZHUPXcomsLrpueXSM/jBqlp4wUGbOl22H5OxMSoV18iefEp2sPuQkCzzHVTMzMiAS63mVEZ8nvykCSDYI5rpqPiY+QjDX5DzXOktK63Ryk9v4ojLCdYarUfKQKunaCszNq5ECo9nApBRcKf4jCPA9KtC6Mf5daSzrV5VLo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730959729; c=relaxed/simple;
-	bh=RPmRQDsdRd2WJT3pR6sDjWmIs7BctGhTNyrsAWdhLbc=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=khF3kO9jVvWOol7Wy5IV6IgQn6eHeFtB3dzb+sEbuYt5YJMQcx7YP2JdcN1P0N24A/kiL4/UAKOQiLRx2OPXeZN6fwLhFPXM9s7q+pmbU786/wRwXc5dJj1u5IWv5ESF0y2Mpesn97ZFyxBoG52C11wcJWimW9W5ASMBhTm5BQc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=fail (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=j0u8UUdP reason="signature verification failed"; arc=fail smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFC58196D9D
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 07:13:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730963615; cv=none; b=BVFPYZ67XMMoPd3FGDbOjm1j8BcjesVc6W8lzOgefZnlfMzG6MMJeB0wIw8W4ykxP20/GSM9Oz56kKZBDkF+5HEZo8sWnHt/HaF3yW/0MzlSf2BdFedc6uIbVWSIkMorhwneQbJrVfjtSaBwK7UVhvHo6Dr9q44VroaBCRNjIS4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730963615; c=relaxed/simple;
+	bh=gel4ymvhzgfyphfkOQM0eCFG3ixHvrzXAL4yolb2Iuw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bw/Pp0IpAIIU6hg0ng33vdGu+R+jy07fcb4eSTJ69YR8QVd/phpGUFhDTftxJURB6bdlHBGqMFLi8IFgHWKpMgtcPBHLyog5aeVOwVhEypnfxkYZTj7FiF6ylReVjm8TtZIpHxuczzQn4Rbi4rk7Q9g2kumt99lCUrsG1Qjxic0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NiUkv4nw; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="j0u8UUdP"
-Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A75b3hm006197;
-	Wed, 6 Nov 2024 22:08:35 -0800
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2168.outbound.protection.outlook.com [104.47.55.168])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 42rqj8r1ud-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Nov 2024 22:08:35 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=udFhxycDFlB5FsC2KCWPVi6mzKWM4nbBmttOE2UKBBX6y6dE2bK7a/sTiUAw4VINI1dp21U4J4Qnl0wsXTVRN93dmntYp65BMihA3eSJizxcGP0TQW41D0bsGFJX9K/fI/Eet2xibbL4JYwc7i3IWPfVtXbAuGFnxeKu9gVGU0Cz7cYSyFrBtwRZurwxAryS/nn6wXlw750S1EbKop9tB2k9LYx7803B0v8yPXYUxbv6VvC6iYZNHLoOxNY9hFmsXzfTlIrj0itM14gfNd3t1lG0NRILNL7SN7An+2XVzBHVqbYnC2oJJwmhY+KAHN9PcheOrOHcWsEsItPbX6qvig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NdEIoozjTuknpRqjPzM98og4NOn4q92mIsMhT0Nykpo=;
- b=Z0SS91NBOPMOM2IUe3DuMHMclUYWoIFJxZYgh7C2PWhn1A7fBCl5ByZHwJkZNP+mR3Sa3Yd/YS+t5vl7vQyPGTzqfFBazsijp83P0JgHzHBHZ6weYS0eK/6ZHGqzpjaByfae1vPDR4x2KHJqqFQWD+SPfB0bP0Jjryas2JETohfJSiXL7F/P6mEdlTlu91mWe2D5TBIYqxWNF946tXBALUIoVoEfYxDgbl/ZCojudt7ubQlvfUSFdfvd8cssIBtVVRi8dZEkzWqu2fbxDu3zEyt3psa8hCxU2albctOEH4ABeIwzf938zm4/kmUU1DJ8PWqhso9W+yAe8ACPt0XkuQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
- dkim=pass header.d=marvell.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NdEIoozjTuknpRqjPzM98og4NOn4q92mIsMhT0Nykpo=;
- b=j0u8UUdPSFIlgNe4I69BDqnFN61GRL4xRzNKhtJ3Zf+dDe8LUl1Jkv8Tieehd48G1WeJPBFrhwg65bWAjHLEP/8ZBvr9R+I4/PW2fQp5EKUdGTv758d7/Z581zBj2NSmnQPB+UaFILEX/31shXjKjnODsIE0gcn3ByX40l7uWuQ=
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
- by DM4PR18MB5425.namprd18.prod.outlook.com (2603:10b6:8:17e::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.18; Thu, 7 Nov
- 2024 06:08:32 +0000
-Received: from DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac]) by DS0PR18MB5368.namprd18.prod.outlook.com
- ([fe80::ad53:bef2:cc17:13ac%5]) with mapi id 15.20.8137.019; Thu, 7 Nov 2024
- 06:08:32 +0000
-From: Srujana Challa <schalla@marvell.com>
-To: Christoph Hellwig <hch@infradead.org>
-CC: "Michael S. Tsirkin" <mst@redhat.com>,
-        "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>,
-        "kvm@vger.kernel.org"
-	<kvm@vger.kernel.org>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        "eperezma@redhat.com" <eperezma@redhat.com>,
-        Nithin Kumar Dabilpuram
-	<ndabilpuram@marvell.com>,
-        Jerin Jacob <jerinj@marvell.com>,
-        Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: RE: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Thread-Topic: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for
- NO-IOMMU mode
-Thread-Index:
- AQHbE96PlQaeJdnt006ohvbKHfff0rKGTA1AgAD2ZICAAnsvgIAA0r4AgARSlACABScygIAAFo4AgAGfYICAFKe0YIAANmcAgADs0JA=
-Date: Thu, 7 Nov 2024 06:08:32 +0000
-Message-ID:
- <DS0PR18MB5368A3903841BDE3BF8C0234A05C2@DS0PR18MB5368.namprd18.prod.outlook.com>
-References: <Zvu3HktM4imgHpUw@infradead.org>
- <DS0PR18MB5368BC2C0778D769C4CAC835A0442@DS0PR18MB5368.namprd18.prod.outlook.com>
- <Zw3mC3Ej7m0KyZVv@infradead.org>
- <20241016134127-mutt-send-email-mst@kernel.org>
- <ZxCrqPPbidzZb6w1@infradead.org>
- <20241019201059-mutt-send-email-mst@kernel.org>
- <ZxieizC7zeS7zyrd@infradead.org>
- <20241023041739-mutt-send-email-mst@kernel.org>
- <ZxoN57kleWecXejY@infradead.org>
- <DS0PR18MB5368B1BCC3CFAE5D7E4EB627A0532@DS0PR18MB5368.namprd18.prod.outlook.com>
- <ZyuPMI-VOp8eK-dP@infradead.org>
-In-Reply-To: <ZyuPMI-VOp8eK-dP@infradead.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|DM4PR18MB5425:EE_
-x-ms-office365-filtering-correlation-id: 15901e7a-9e2c-410c-5142-08dcfef29b48
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?K21rcmprQ0Q5N3M4NGViRjMxcExiU0xPRGtUWlZkMG1CT0t6SEFJcWFIZWZ5?=
- =?utf-8?B?eGcrRndhZnovU2xCWDUyaU9iSlVUOE1lOE9ubzFSSGVDSnVHOEpIbjRMbTNq?=
- =?utf-8?B?clMvUTlZT011WGhPdkV4U3lnNTljQkExMmRmWWxrZDdrQXFLanZLMjdoLytM?=
- =?utf-8?B?VjVEdkhSdjFDSUZHU3lYN2lMWUNXREpiNmd3TW1rbUVmNGhNSG01M0lKeWIw?=
- =?utf-8?B?MTM3ZWRwM3ZVamk3NUIvQVBqWGtVRTR6eDh0dFpIQmxQU3J3ZHVtVjhXYjlo?=
- =?utf-8?B?NFNMWkcwSHJoYVBYcEFRU1V3SXZsdGdJUmYxM3g5eXEzTlpmRWY1TzQ3eVZ1?=
- =?utf-8?B?cHJPZXAyUGVJRjhNQTJsQWl3ajlhdzdsdlRINXFyRzhnbFhGbUo2U3lobG9a?=
- =?utf-8?B?bGF2Qkl2djZmMDQ0SE5SZlBQMmxPc0J4TGVwTFlSVTJpdlVCSjE5STNxbThp?=
- =?utf-8?B?OXVzQnVpakRZSFFJWVZ3cGVYVE44Q2U1WUhsOHB5ajl4eDBtZ3lSdW1iM2F2?=
- =?utf-8?B?MHJNUm5HZjM5aU9tN2VoazZPeWNoRmhhRzBrRldMTjJjTjlVOXlNWTI5VUJZ?=
- =?utf-8?B?VkFYM0FkRUJQYU1jMEhXd1F2QVV6NnA1Yk92bkZKNVBqYkZ5eWE4SlZGNUJR?=
- =?utf-8?B?Q0h6Q1RiSjFIeStVU1NMeUFkanNheFJyM2REcmFMQUptZGhLb1JRdUlndXJT?=
- =?utf-8?B?VmhaVGxhVHI1QkZ1dlllNUhGNndCT2h6dUdDcUxCdlA4bHpGenZtSmlBQ0ND?=
- =?utf-8?B?R0JLMG0xcUZWYmpZQmtkSTdTMlNQc3RIODkrR0h4c1VsVjdmTFBrOHdtb0tB?=
- =?utf-8?B?ZzRaM3kycW1SenlvdU55RndISXZBT2FLMlBuZWVYakMyais2SnFFMWo0RzBX?=
- =?utf-8?B?ZzhZeUh2bzcrOWxtSTA0SW9KSlR0d0psaUxGV0lUaHZMOEs1VDV5dWV6OFNW?=
- =?utf-8?B?YzR5c0tzR1QyL094amhsNTIxUU1NNFFhcjAwaElUaHZoS3d6QVNtU2tTVHQy?=
- =?utf-8?B?MGR3SXJ6U25Yd2NEaVUrUEN1eXRrVHBiOUZ1UThUQ3d2cmtLcldkMExhdXRz?=
- =?utf-8?B?QU9taEJjNWxnL21CZXNiZ1VGaTNYNkRFQnp4V0hCVDQ5T1ZHUzlGV21qUnlD?=
- =?utf-8?B?dXBiRmJiUjIrZGxlZ0JObFhZdk5BYlViT1lEcjZRc0VNa3NTQ2l5YjcxSzYy?=
- =?utf-8?B?MjRsWkcrb25lamJ2Vm02UnIxNjNLcDREYmRRWHFQNWhnMVVqbjVpT1RMZDJ5?=
- =?utf-8?B?dkZRNU45QnBwTk9ldll6NEVpZXNpQ2lXVmxTYTJ2U0xQRnpLS0hmOVU1K2pZ?=
- =?utf-8?B?MW9ESE0zdHZsSis3aUx5UDJHbEpLUU83SHovblBROFRtQ1NQOUJqZlk0d1Qr?=
- =?utf-8?B?MHFScW1oRmZLNndqSGF0ZVp4TmtMaHZzVHQzdExCVFpQY2s2QnM5WXBzUXpl?=
- =?utf-8?B?U2w2czN3bXpuakxjclJaQWxnZ2Q4L3pyRlpzblZ0aW9jaUpack5ReEovcW1n?=
- =?utf-8?B?UEZoaEFsdTBTVi8xUDNPOVRuVVhZeVVwWTExcjU5WmxMMmFpTU9LZXkrcTBj?=
- =?utf-8?B?R2N5Y2ZtZmhHdlNXZWVhQ0hXU3ZWaUxZc3Nyd3RRSkJ1aVNuKzFpM0JraFlG?=
- =?utf-8?B?MzBPcnVYMGpMazVMTEFacGFMMGMwTjNZdlM0M1pMbEwvcnEyc1dud29PWVlk?=
- =?utf-8?B?YUdVNDErZzF2SGJIUWdLRThSS2FvUUswUW5vR2J3bmR5eVloWUhlTXV4N3A5?=
- =?utf-8?Q?LLLdfK25cBhvT8/SNtqdWIaBM2wh47L88UYac9v?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?NE1QUjY5ZklxejRrVUZiMnlwZENsbENkKytrK0dFay9IdEpRMTB3djFsRTF1?=
- =?utf-8?B?aWtjVllmMkZ5L2ZPamFkUVJUWXJ5ODNVWFd2TW9WZXhQVktJVnhnaFRxM2Va?=
- =?utf-8?B?R0xMVHJxbmNnSnV3dnJEZndwVW1XOGtRb3NHSEZyWWFaWVZnVVpKRThVK0tG?=
- =?utf-8?B?bkdJeTd5ZUtSanRrRHJQQVBSTk9IMExoRGRCTUdCN0phbGNydlFYdVFXclhD?=
- =?utf-8?B?T0N0bERjTWRKTUFwMktYZGhyemo2eWVPandYL2xLRVRSdUJwL210UUUyanJY?=
- =?utf-8?B?VUE2K0FVM1hyL3dpRWhKV3pQbmFoRStESDRlYmEvbWJ4aVowNnNDMndaYmNJ?=
- =?utf-8?B?ZmZRd1gyMU1OaWc3UzMzbjl6Y1RwTk9EZENocVVXNStSbi83WkhOU2Z0TXls?=
- =?utf-8?B?RDZzM1FQMmlMZXg0a3AvWG0xcWRoSWZhS2lkTGNyV1J5QTh3WkhKR01hSkJz?=
- =?utf-8?B?WVIvbnE0QzNoRm9OOG9GYlpBUzVoZlFHZjZwdm1TN1hRcElxdlR2K2QwMnEw?=
- =?utf-8?B?c21NVkVESS91OFhqcFZDbUQwdWdzalhLc05mN1ZXcE5QOUwxd0dEYVIvNDNp?=
- =?utf-8?B?NFcra00wZDVSam1uMnN4dXV2K1ZGc29CYWVob3lvMXlVellWSi9qcjRBcmo2?=
- =?utf-8?B?VitHbHBTUTVZcmVkekhNVjl0NWNNbGtTV0tUbVZUbWJYRzkrcXR1YlMrazhs?=
- =?utf-8?B?NmQ3M3p2T0xmUHB5WkdLWDFvR3hEcEZXZUNRTzJpdUk1TVFFSm1qcjIyV25T?=
- =?utf-8?B?RFRCa0dGNTdVT3BpQ09GbjhRck9CRlo4ZEFqWGc4NWRjVUFhaXFNcWpGL2NF?=
- =?utf-8?B?VVJ3dmcwbEVtQml3N25HaytmOUEyZ0pCS21XeEV1dmxiRHZab09ueUNKSmpJ?=
- =?utf-8?B?VGtGM2lZSVhrMzllRnlueFg0RDVXSzEvNWVqVGVGNmJ1cTFXT2l6TDJsUGt0?=
- =?utf-8?B?S0t6c3J0cXcwVllWckdDaGl5M2ZTUVlCdzNQY1J0TXI1cHR0U0VvM3JMcUdK?=
- =?utf-8?B?QU9VU3NzZjIwTWFERmE3SmxhY05HUC9NYkI2STR0dldtSHlBM1dlVmxDN0N3?=
- =?utf-8?B?MkZCSEJJNUdxMVNkS1lPcStUbENZM1p3blJXODY3cnBZeElUOG9uYnhsdmo2?=
- =?utf-8?B?a0hiZjVzcCs4K1FhdWZydS95SmJlUVRqaE8yN3NiQlcxZE1UNVJWQXdDV0pW?=
- =?utf-8?B?VVE5ZWJoU29QTlEyaktOZDlUMk9uUGdJR0FjWTlqMXloYk1TcGZINTRUZ3V5?=
- =?utf-8?B?eTRidUZrcWhPOTdBek5hVXIzYkNmSXJYWnF4YWdkcGJFdjF6QTJucDlTSkU5?=
- =?utf-8?B?RGxUS3NnMHVpSEg3RnRqWlJ2M0NteDZFVFMxRFg4bXpMWUdQcDRTNnlacnB2?=
- =?utf-8?B?QituWE5Db0NxOUZtQVNXOTRwNm9qRVJ1Sk5jWWFaWlVGUFdwdGo4MzNoT1hO?=
- =?utf-8?B?R0F1dVFSZjlxc1poeDRZWHhjUU4yOXJZd1JIWW5xZTJvUjlHVHF4UURwQ0ZW?=
- =?utf-8?B?U2k1V29pQzExTkh3TDBzZXVvVVhIQmc1ZkFoVjhXSWVobzQ4ZkFLeGhQYm5Q?=
- =?utf-8?B?enYwWUJWV3JWNHlPcmRKRWVLTWd6TzhxYlBkMmoxb0c2MS9nczc0bzEybGt3?=
- =?utf-8?B?NHd1SmRPbnQ4S2JOQ2lHTWIyU0FlMkRpM3BvTHB1bC9qSitRNHVheE9uZklG?=
- =?utf-8?B?QjJpMUdqVlM5N1VaM1IrVnFuL1ZuRVh6dm1HT2MxZWJWOXNod3hNZXdoOHNo?=
- =?utf-8?B?d2IvUVBDcXZ2c0tCUjcyaEJyWE5DUjg5ZHUrQVpHN0pLTXJBYk95YW9IMndJ?=
- =?utf-8?B?Tk9MaE40V0VETDloRUdERytsTFFGQ3NmRlhxU0M3SFc5ZUdNVkZ3K3FlZjh5?=
- =?utf-8?B?NGJYajhOOFNzUmg2M0hzZWlZNWZkN1ZVcGErWVE4eHlWZFgvSFZYV3BMdUVK?=
- =?utf-8?B?YTNjRGRKZFd5U05BTE9Cdk1GSTd2aFdXeWZUUXJuOTQxd2ZVZnl6TXFDN004?=
- =?utf-8?B?YW1HVDI5U2ZUMzBKcVNrd2czQVAwV3dkZ2xSRFduTW1TZG5PTi9xeS90SjFW?=
- =?utf-8?B?TThBNFNGem1DZW9wb3V0TDlFNEhPSUVISEZGbDVVS3h6RTNIa2NKeDhVT1d3?=
- =?utf-8?Q?6ldE=3D?=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NiUkv4nw"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8D281401C8
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 07:13:33 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 6mFTWqvM3j01 for <virtualization@lists.linux-foundation.org>;
+ Thu,  7 Nov 2024 07:13:32 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 6B2A7401B8
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6B2A7401B8
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NiUkv4nw
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6B2A7401B8
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 07:13:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730963609;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KNDSKfo81YRRY9Pw9UoRu7CnoYy3QfKptUrjTGh4Vds=;
+	b=NiUkv4nwFDxZBazoL+CtIahBTapjTutQJCPHeG40AX5Sj/t9odrSCKv8uPiiGrTDILXNkW
+	4jTDmdSjmt+T6bbuu2KOa5SQhWXXrqmORhet3s8Z823wkonmSmSudyhL49QAZ1m2Qj29u4
+	z2UgBwVSogypEK8u8OpHDYSVDDE4IQ0=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-407-kVBuBAwWOpWDqtbTTO6BYg-1; Thu, 07 Nov 2024 02:13:28 -0500
+X-MC-Unique: kVBuBAwWOpWDqtbTTO6BYg-1
+X-Mimecast-MFC-AGG-ID: kVBuBAwWOpWDqtbTTO6BYg
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a99fc3e2285so43968766b.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 06 Nov 2024 23:13:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730963607; x=1731568407;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KNDSKfo81YRRY9Pw9UoRu7CnoYy3QfKptUrjTGh4Vds=;
+        b=IXEfH3nEp8TkhI/L28uNYSTG4W5SF7cdxzNMEM/UKvHMIuIoOotK8DVh4ayQ+WMXEC
+         R8YjPraOmUN/HfJIv/+zaK+GlkL3GJFMF0U2R7T++SiuQ7mA0bbnqHkEnd/xg4T26Puk
+         NWuD4Fg0bfrHQR5xz19/ihOdxSPZ69MIiPSI/jFGi7Cr8xPzTn6tC+9Gqq8soiro3sT2
+         Ib4fzNR+P3mspkiZYkZ6H1FExbNrVowagCds+IHSYBbfNbTbB/I27BZuIKD2LgBakmze
+         zhD11EkBzrV2YYxrAdaAhr49Klehw30ub/9v/N7X4tU+mQhaNHHeukGPJtxkO3EQrkH0
+         zpjw==
+X-Forwarded-Encrypted: i=1; AJvYcCVPF0hD9FTmMIyMJeT/BU599pGO8HeLkbD1OWdGlPEafDMWZX2G8hv1PhBHWqYY/8kbarXQI8GXivEjR8CueA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwZTw702i0UgP7vEAQwMYF0vMUZdLXMtXoVCCN/4P4J6twUdc1I
+	eSXLtnvIT3FwHSrxy7um36oB7Szg8SCrB7xDFt9DNW5Xvp9VMdX7miafZEEsr+ITfs9fbpKU0Dh
+	oH0dy6qP5722P+G21sHw0A3iSPeX+bMI6gSDqgFQ14y7hX0j6XsYvEr3f5nj792ELKNYr1RnVLb
+	u6ooptkhnewmGtdDtDSnvQg3SHDC/W2AFszAae8Z0yER58ZIu/1x5rZw==
+X-Received: by 2002:a17:906:fe41:b0:a9a:478:2ee3 with SMTP id a640c23a62f3a-a9ee2465a3dmr92173366b.40.1730963606918;
+        Wed, 06 Nov 2024 23:13:26 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF9nOjZkrUMvsk+/S/SdzmWVcuWDW5P1sCd1k6qp08zxaqsUfPOHSxDgZIsk4urxkRouosnxeAyM0eHS+o9qqo=
+X-Received: by 2002:a17:906:fe41:b0:a9a:478:2ee3 with SMTP id
+ a640c23a62f3a-a9ee2465a3dmr92170966b.40.1730963606570; Wed, 06 Nov 2024
+ 23:13:26 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: marvell.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 15901e7a-9e2c-410c-5142-08dcfef29b48
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Nov 2024 06:08:32.0376
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 0DEVTV1wCc1wAjSJw8gSmHIYAt7h79zPgTgXs9GTEbhC5CiQaThzcxoXV4KEUpmR1U7DxBtRfmCRfkAePuz3Bw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR18MB5425
-Content-Type: text/plain; charset="utf-8"
+References: <20241105072642.898710-1-lulu@redhat.com> <20241105072642.898710-8-lulu@redhat.com>
+ <6dtic6ld6p6kyzbjjewj4cxkc6h6r5t6y2ztazrgozdanz6gkm@vlj3ubpam6ih>
+In-Reply-To: <6dtic6ld6p6kyzbjjewj4cxkc6h6r5t6y2ztazrgozdanz6gkm@vlj3ubpam6ih>
+From: Cindy Lu <lulu@redhat.com>
+Date: Thu, 7 Nov 2024 15:12:49 +0800
+Message-ID: <CACLfguVNM_b9LdiMyj+pZH0WHu=-Nrit8-cr+QH9=f7tMLDd4w@mail.gmail.com>
+Subject: Re: [PATCH v3 7/9] vhost: Add new UAPI to support change to task mode
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 4CgZSzsbfgM-beYDA7xf-NNAbVyezTrVoNte77BgG-g_1730963607
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-GUID: fwa-NHDJLmAQBK0e9ZraNZBQjbGHVmxm
-X-Proofpoint-ORIG-GUID: fwa-NHDJLmAQBK0e9ZraNZBQjbGHVmxm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
 
-> Subject: Re: [EXTERNAL] Re: [PATCH v2 0/2] vhost-vdpa: Add support for NO-
-> IOMMU mode
->=20
-> On Wed, Nov 06, 2024 at 12:=E2=80=8A38:=E2=80=8A02PM +0000, Srujana Chall=
-a wrote: > It is
-> going in circles, let me give the summary, > Issue: We need to address th=
-e lack
-> of no-IOMMU support in the vhost vDPA driver for better performance. >
-> Measured=20
-> On Wed, Nov 06, 2024 at 12:38:02PM +0000, Srujana Challa wrote:
-> > It is going in circles, let me give the summary,
-> > Issue: We need to address the lack of no-IOMMU support in the vhost vDPA
-> driver for better performance.
-> > Measured Performance: On the machine "13th Gen Intel(R) Core(TM)
-> > i9-13900K, 32 Cores", we observed
->=20
-> Looks ike you are going in circles indeed.  Lack of performance is never a
-> reason to disable the basic memoy safety for userspace drivers.
-If security is a priority, the IOMMU should stay enabled. In that case,
-this patch wouldn=E2=80=99t cause any issues, right?
->=20
-> The (also quite bad) reason why vfio-nummu was added was to support
-> hardware entirely with an iommu.
->=20
-> There is absolutely no reason to add krnel code for new methods of unsafer
-> userspace I/O without an IOMMU ever.
+On Tue, Nov 5, 2024 at 6:32=E2=80=AFPM Stefano Garzarella <sgarzare@redhat.=
+com> wrote:
+>
+> On Tue, Nov 05, 2024 at 03:25:26PM +0800, Cindy Lu wrote:
+> >Add a new UAPI to enable setting the vhost device to task mode.
+> >The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
+> >to configure the mode if necessary.
+> >This setting must be applied before VHOST_SET_OWNER, as the worker
+> >will be created in the VHOST_SET_OWNER function
+> >
+> >Signed-off-by: Cindy Lu <lulu@redhat.com>
+> >---
+> > drivers/vhost/vhost.c      | 15 ++++++++++++++-
+> > include/uapi/linux/vhost.h |  2 ++
+> > 2 files changed, 16 insertions(+), 1 deletion(-)
+> >
+> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> >index c17dc01febcc..70c793b63905 100644
+> >--- a/drivers/vhost/vhost.c
+> >+++ b/drivers/vhost/vhost.c
+> >@@ -2274,8 +2274,9 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned=
+ int ioctl, void __user *argp)
+> > {
+> >       struct eventfd_ctx *ctx;
+> >       u64 p;
+> >-      long r;
+> >+      long r =3D 0;
+>
+> I don't know if something is missing in this patch, but I am confused:
+>
+> `r` is set few lines below...
+>
+> >       int i, fd;
+> >+      bool inherit_owner;
+> >
+> >       /* If you are not the owner, you can become one */
+> >       if (ioctl =3D=3D VHOST_SET_OWNER) {
+> ...
+>
+>         /* You must be the owner to do anything else */
+>         r =3D vhost_dev_check_owner(d);
+>         if (r)
+>                 goto done;
+>
+> So, why we are now initializing it to 0?
+>
+r =3D 0 mean return successfully here.
+Therefore, in the case VHOST_SET_INHERIT_FROM_OWNER function, I don't
+need to set it again and can simply return.
+....
+    if (vhost_dev_has_owner(d))
+       break;
+.....
+> >@@ -2332,6 +2333,18 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigne=
+d int ioctl, void __user *argp)
+> >               if (ctx)
+> >                       eventfd_ctx_put(ctx);
+> >               break;
+> >+      case VHOST_SET_INHERIT_FROM_OWNER:
+> >+              /*inherit_owner can only be modified before owner is set*=
+/
+> >+              if (vhost_dev_has_owner(d))
+>
+> And here, how this check can be false, if at the beginning of the
+> function we call vhost_dev_check_owner()?
+>
+> Maybe your intention was to add this code before the
+> `vhost_dev_check_owner()` call, so this should explain why initialize
+> `r` to 0, but I'm not sure.
+>
+Yes, in the function beginning, the code is
+if (ioctl =3D=3D VHOST_SET_OWNER) {
+r =3D vhost_dev_set_owner(d);
+goto done;
+}
+if the ioctl is not VHOST_SET_OWNER,  then the  code will not run the
+function vhost_dev_set_owner.
+This ioctl is used by userspace applications, so we cannot be certain
+of the type and sequence of their calls; therefore, I added this
+check.
+
+> >+                      break;
+>
+> Should we return an error (e.g. -EPERM) in this case?
+>
+sure=EF=BC=8Cwill add this back
+thanks
+Cindy
+> >+
+> >+              if (copy_from_user(&inherit_owner, argp,
+> >+                                 sizeof(inherit_owner))) {
+> >+                      r =3D -EFAULT;
+> >+                      break;
+> >+              }
+> >+              d->inherit_owner =3D inherit_owner;
+> >+              break;
+> >       default:
+> >               r =3D -ENOIOCTLCMD;
+> >               break;
+> >diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> >index b95dd84eef2d..1e192038633d 100644
+> >--- a/include/uapi/linux/vhost.h
+> >+++ b/include/uapi/linux/vhost.h
+> >@@ -235,4 +235,6 @@
+> >  */
+> > #define VHOST_VDPA_GET_VRING_SIZE     _IOWR(VHOST_VIRTIO, 0x82,       \
+> >                                             struct vhost_vring_state)
+> >+
+>
+> Please add a documentation here, this is UAPI, so the user should
+> know what this ioctl does based on the parameter.
+>
+> Thanks,
+> Stefano
+>
+> >+#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, bool)
+> > #endif
+> >--
+> >2.45.0
+> >
+>
 
