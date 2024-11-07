@@ -1,80 +1,66 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23B22194C8B
-	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 11:35:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34ADD20EA28
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 11:39:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730979332; cv=none; b=Lau6JbMd3+0+9sKB5UL3zGbABemytW+2shouQJd87oU41uhgXImy5c5qZqb4lVD5+HwDmNC8dbCrq5mh4fHtFjOxZ7m1SCAN12S921x8WxYpiCnQ7XaE+v+J0ZfviW9NOX3iYrv7s88KOTaSeL2DxTsYrHGJHu/H+ETHYIYpTas=
+	t=1730979603; cv=none; b=FX98WeXP+e4KpshiaMcKtYg6xuJZdtns8XKlCWTcKWfEN5fOOH91X+eSyn5dzxWLcuZOx/xDiVrn1bFa01TOE4u5GxCZ19wLBJZSrBCkEENmMhLjgZwhC5ryucMHoJZ8+AA1/GdUe5Z0PRdqSANtRDoy4gye4+hrt5v7+Vv9IiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730979332; c=relaxed/simple;
-	bh=6TUO6VXDDoZXor7PGK6f24UzGQpzGPnzyYK67dbrkc8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SAH3tBPxpkPiU0wuQAgPr6wQq7d2LaLYhA39MrdueH3JKiJndo32J0YZus7MpTnXajK13uyteWBIqAgg+gIHsqlDksLZGvGyeYWH+49gXpZLqwdbTR6ffYCtTtpzbkS8tJeWhg6rlT8LcDH0+R1Zr/5MMWqZm741kyFieiIGbpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=miB8hCrf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=K7t8FZ4H; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=miB8hCrf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=K7t8FZ4H; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1730979603; c=relaxed/simple;
+	bh=Dr1wnbMAcJ85mpqEQLLTPIf5QuKyNUdsjtKtaj8po5o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=gWSaWRtl97umSfiJAYNr7vbmaO0uJR2xjGDUqe1OxGn9JH97SaqeuCgDIl39zmFlhSNJnnDLMk/3H1VlqaAWkzLDmuVPWQa59ApoTDLcFVntSKcguiw28iW9E0PpV4bhyH2pmDfj3zygNU0YUZ29PqCAh35+MAxGzwGBvYD6O5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gG+DmtcU; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="miB8hCrf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="K7t8FZ4H";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="miB8hCrf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="K7t8FZ4H"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 338A621E7C;
-	Thu,  7 Nov 2024 11:35:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1730979329; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gG+DmtcU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730979599;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
-	b=miB8hCrfWG3WeNeZpR983Efjl1xE/bwcn3TrIXybNRc5AHgCMVG67+Akwmuf7Ok0nqQA79
-	Wjt4tUR6EC/0SsDhcXB9DiJve5YNKuAcT9RelKquSdpJlmtoz37q4CG3r0Pjya0fXH6KmX
-	CDca8RofBS1j/LqH0YeljxRBf8JzgyA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1730979329;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
-	b=K7t8FZ4H8+fUyt9BuZf55IaZI6uNq/6lXZbTbv8hSYVjKbuvj82t+Y9+rR/XKvFZtiFsIy
-	zuCoClX9SRKYArBA==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1730979329; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
-	b=miB8hCrfWG3WeNeZpR983Efjl1xE/bwcn3TrIXybNRc5AHgCMVG67+Akwmuf7Ok0nqQA79
-	Wjt4tUR6EC/0SsDhcXB9DiJve5YNKuAcT9RelKquSdpJlmtoz37q4CG3r0Pjya0fXH6KmX
-	CDca8RofBS1j/LqH0YeljxRBf8JzgyA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1730979329;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=p08uo22Qg0r88ea/3BCQb6QN8AGSLQzio1h/K1A2Gm8=;
-	b=K7t8FZ4H8+fUyt9BuZf55IaZI6uNq/6lXZbTbv8hSYVjKbuvj82t+Y9+rR/XKvFZtiFsIy
-	zuCoClX9SRKYArBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 12188139B3;
-	Thu,  7 Nov 2024 11:35:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id XlP1AgGmLGdSIAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 07 Nov 2024 11:35:29 +0000
-Message-ID: <76b69861-2309-4092-b2ec-a27cfde553b3@suse.de>
-Date: Thu, 7 Nov 2024 12:35:28 +0100
+	 in-reply-to:in-reply-to:references:references;
+	bh=sU82hUgjAkYityCy1/Sw+2BlAMEi+LklRUiq4lsDGRk=;
+	b=gG+DmtcUeVBgKP7GCruSWKAcPZaCPcq0SWNfjhigFS7qBcRmZ2PgXp2dCfb0n7lg6g+A/V
+	gvgB41mOUyem2eFH9JTWNNMBsLT6xKmKJPFG44WFB5ypZRbbstyansDklz8oYgalzRvwmQ
+	LtuFNnX62ML+tu6Hynh8uUJbsGFOdto=
+Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
+ [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-134-Yxa0gYL-O3OxmOPhAeeybA-1; Thu, 07 Nov 2024 06:39:58 -0500
+X-MC-Unique: Yxa0gYL-O3OxmOPhAeeybA-1
+X-Mimecast-MFC-AGG-ID: Yxa0gYL-O3OxmOPhAeeybA
+Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-288ba66682dso828129fac.2
+        for <virtualization@lists.linux.dev>; Thu, 07 Nov 2024 03:39:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730979597; x=1731584397;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sU82hUgjAkYityCy1/Sw+2BlAMEi+LklRUiq4lsDGRk=;
+        b=jzJWs7vm+Z6RpzQkg8ExowbRBjAqbu4qWoERq86iI9C57UB5tjK5ssQoQh9VcsHF4O
+         7R1szU5YqQ/v4osCaD8l/AnTUTiiVAWYq7SFlyfoPXJhBmYzVw2QWR6SFkxD0+D5ccRK
+         EYYCPBAF5oYeYyLyOhGKZeBq1kzGG4nKUjtFQZQ2kWtRk3KpnQHphGAW1TqdTCCWahhQ
+         rZwpPpk+TP5SGqCAi7xeo7c4QkgyJ7E/bHXRkvlgd3TGUxTHTSmmTve/JBg9DeVw88+S
+         JRwqg/FuyNbHkMMYASYJBYQwXo91QIISRqD+4yyDnbthIAuKYVXq+EpLF2VJ8DxTRru1
+         BfMQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX4SMCLGWoOFUN4SPAOBKCWEICG4G5IMO7nn41IfpImi0aHWkmZXwFLd8WivqFtf/WKjVQ8r0FwS70mLg66kQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy71hMlvhuyB7BmwIIUA4eMCbXiJwIOdsOrVuB3izsKwnnYybRf
+	TQ5uPwI/d3tWdN8n1O7jJh+HsK0gC0pWMIWSeum2PzxdUOy+qTUuCWqj2D4bN6fzltVA/Y3lJIn
+	KEf8b3iCkXvcXWbOoNVXR9pxZm87jSjUZhKMajR+ylGbA0v/qxxQXeWrLX5K4LQhR
+X-Received: by 2002:a05:6871:5308:b0:261:1f7d:cf71 with SMTP id 586e51a60fabf-2949effac5dmr21562498fac.34.1730979597365;
+        Thu, 07 Nov 2024 03:39:57 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFDq5fRIg01uNlVXiEtEZlPbiE6ggdZh6AZ5Ace6mGwQwi7O64CogCmEIHArE+Zd2OoFSmPhA==
+X-Received: by 2002:a05:6871:5308:b0:261:1f7d:cf71 with SMTP id 586e51a60fabf-2949effac5dmr21562466fac.34.1730979596959;
+        Thu, 07 Nov 2024 03:39:56 -0800 (PST)
+Received: from [192.168.88.24] (146-241-44-112.dyn.eolo.it. [146.241.44.112])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-29546c3d9cdsm296879fac.1.2024.11.07.03.39.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Nov 2024 03:39:56 -0800 (PST)
+Message-ID: <41b0155f-bec4-4563-a92c-b30b0f5f9997@redhat.com>
+Date: Thu, 7 Nov 2024 12:39:51 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,88 +68,101 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] drm/cirrus: Don't pretend to operate hardware
-To: airlied@redhat.com, kraxel@redhat.com
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
-References: <20241029143928.208349-1-tzimmermann@suse.de>
+Subject: Re: [PATCH net 4/4] virtio_net: Update rss when set queue
+To: Joe Damato <jdamato@fastly.com>, Philo Lu <lulie@linux.alibaba.com>,
+ netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ andrew@daynix.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20241104085706.13872-1-lulie@linux.alibaba.com>
+ <20241104085706.13872-5-lulie@linux.alibaba.com>
+ <ZyqAovoIOYkNvtys@LQ3V64L9R2>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <ZyqAovoIOYkNvtys@LQ3V64L9R2>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: RzClUO0CeqVg7_ERSPy9m6sp8HuVkuPEJqe2phdK0Fs_1730979597
+X-Mimecast-Originator: redhat.com
 Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20241029143928.208349-1-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_THREE(0.00)[4];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_DN_NONE(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Score: -4.30
-X-Spam-Flag: NO
 
-ping
+On 11/5/24 21:31, Joe Damato wrote:
+> On Mon, Nov 04, 2024 at 04:57:06PM +0800, Philo Lu wrote:
+>> RSS configuration should be updated with queue number. In particular, it
+>> should be updated when (1) rss enabled and (2) default rss configuration
+>> is used without user modification.
+>>
+>> During rss command processing, device updates queue_pairs using
+>> rss.max_tx_vq. That is, the device updates queue_pairs together with
+>> rss, so we can skip the sperate queue_pairs update
+>> (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
+>>
+>> Also remove the `vi->has_rss ?` check when setting vi->rss.max_tx_vq,
+>> because this is not used in the other hash_report case.
+>>
+>> Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
+>> Signed-off-by: Philo Lu <lulie@linux.alibaba.com>
+>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>> ---
+>>  drivers/net/virtio_net.c | 65 +++++++++++++++++++++++++++++++---------
+>>  1 file changed, 51 insertions(+), 14 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 59d9fdf562e0..189afad3ffaa 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -3394,15 +3394,59 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
+>>  		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
+>>  }
+>>  
+>> +static bool virtnet_commit_rss_command(struct virtnet_info *vi);
+>> +
+>> +static void virtnet_rss_update_by_qpairs(struct virtnet_info *vi, u16 queue_pairs)
+>> +{
+>> +	u32 indir_val = 0;
+>> +	int i = 0;
+>> +
+>> +	for (; i < vi->rss_indir_table_size; ++i) {
+>> +		indir_val = ethtool_rxfh_indir_default(i, queue_pairs);
+>> +		vi->rss.indirection_table[i] = indir_val;
+>> +	}
+>> +	vi->rss.max_tx_vq = queue_pairs;
+>> +}
+>> +
+>>  static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>>  {
+>>  	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
+>> -	struct scatterlist sg;
+>> +	struct virtio_net_ctrl_rss old_rss;
+>>  	struct net_device *dev = vi->dev;
+>> +	struct scatterlist sg;
+>>  
+>>  	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
+>>  		return 0;
+>>  
+>> +	/* Firstly check if we need update rss. Do updating if both (1) rss enabled and
+>> +	 * (2) no user configuration.
+>> +	 *
+>> +	 * During rss command processing, device updates queue_pairs using rss.max_tx_vq. That is,
+>> +	 * the device updates queue_pairs together with rss, so we can skip the sperate queue_pairs
+>> +	 * update (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
+>> +	 */
+>> +	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
+> 
+> Does there need to be an error case when:
+> 
+> vi->has_rss && netif_is_rxfh_configured(dev)
+> 
+> to return EINVAL? I noted that other drivers don't let users adjust
+> the queue count and return error in this case.
 
+AFAICS the above is orthogonal to this patch - i.e. lack of check is
+pre-existing and not introduced here. I'm not 110% sure the lack of
+check is illegit, but I think it should eventually handled with a
+separate patch/series.
 
-Am 29.10.24 um 15:34 schrieb Thomas Zimmermann:
-> The cirrus driver is only for qemu's emulation of that hardware. The
-> two patches in this series update cirrus to reflect this.
->
-> (The driver is still obsolete. Use something else if possible.)
->
-> Thomas Zimmermann (2):
->    drm/cirrus: Use virtual encoder and connector types
->    drm/cirrus: Rename to cirrus-qemu
->
->   MAINTAINERS                                      | 2 +-
->   drivers/gpu/drm/tiny/Makefile                    | 2 +-
->   drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} | 6 +++---
->   3 files changed, 5 insertions(+), 5 deletions(-)
->   rename drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} (99%)
->
+Thanks,
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+Paolo
 
