@@ -1,297 +1,154 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC1FE212165
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 11:50:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 473F51DE4E9
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 12:18:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730980258; cv=none; b=WnXFNZGiZyvWO6Q5QcCB+UHzvGWeYrlblN5UGDTi/eF3SiaX7IGZXhRipR4PzdDCyj80ALiFXY/W+67Um4sNJQURycPaia49+eAlVO9CKJ+5rlCXqN+53Fw5ZoKAynzFwmcs/mk6MOm9bQpC8KFYkEblecOSb3C3sbrLTQwweEU=
+	t=1730981939; cv=none; b=KoA9CrD7xBu6a29x0ycLv2rOBZ0f0eyBwa1lN3e6h9w3SIcjU9TuCiiqKRl9p2Aqrejwq4HjZKvbEWmThD+YDjM4IwtXlh0o+n85bne4e18/8tRqU/u3SzGXRXJsm9h88li+F6ArD7jeoQo/ouBwqWs5E7h2n0ZcjbbrEBW/Ris=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730980258; c=relaxed/simple;
-	bh=n0QCEHl2jaF3c2bkOmUtYZCm3S+xz14biBzyHvcU+EQ=;
+	s=arc-20240116; t=1730981939; c=relaxed/simple;
+	bh=QF2oNzITxX0gOBS8zn5XFRN+IaelJLPihLi4DtBISKA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=q9mAQ+8oyZigVlA2kXOO3tIAiVo9igfLQG5JCjJ15OIMkLuDZcGOumxomSNCbXFDRh+awGv6g30TLXqsqEOK/cAMiTeXkkFcF50AEN/kZjfyZ0/XWelIeBUtAdACPw1iykhUZ0/QLd54sEA7L87Pe3Z+A45njtjvI/pmNb8PZm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HAOhShBF; arc=none smtp.client-ip=140.211.166.136
+	 To:Cc:Content-Type; b=HusVzXO7VA46PZBE5UNsgZJbO45KtUzeL8K0u+89nBTe5iJAFFuz2j4ghWMbLzFVklOi0/h9SElAhVnv3QQe1rV4fdxkRvsbGRajgk3Vi6MDSbs0c33FDPtWdmakBjJQd59eAfYwIxc8jgeK9yfUWjHrzlPPtOxerws5CVe6KeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=PcpJX6ab; arc=none smtp.client-ip=209.85.160.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HAOhShBF"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6A6A3610B2
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 11:50:56 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id afBbOEnbTfOK for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Nov 2024 11:50:54 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 447C0610B3
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 447C0610B3
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HAOhShBF
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 447C0610B3
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 11:50:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730980252;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=648oAdh71ykdlsYI2PO1sVV/3rqyVjApi3Xls/dCZBk=;
-	b=HAOhShBF9rLeBZnIcvzXxb+R9JMwTMmHjPs1Ceus8dKLHYxmNSOJicEdmJxPCcl1nlXrIc
-	DZWKlfUbyhClynG1DUFWpYUxzAr1rp7SoQkCiQlV9roADMt99QJ81QdhTAqs0sBaBAqsMF
-	PakSyBfXcxqIz5kyEBqq76rH3V9cCGg=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-617-X-CIDrtsNOeu9--WxEf1IA-1; Thu, 07 Nov 2024 06:50:51 -0500
-X-MC-Unique: X-CIDrtsNOeu9--WxEf1IA-1
-X-Mimecast-MFC-AGG-ID: X-CIDrtsNOeu9--WxEf1IA
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a9adb271de7so72092366b.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 07 Nov 2024 03:50:51 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="PcpJX6ab"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-460d1145cd8so5510611cf.3
+        for <virtualization@lists.linux.dev>; Thu, 07 Nov 2024 04:18:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google; t=1730981937; x=1731586737; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GegbHPmHJ/jq3f0zR1yfgP7svIbKhdwG6vm6VMTRCyY=;
+        b=PcpJX6abwX+8m50uBVZEdFuIjqnw2lHieFbvnxOd3PuI0GBt1DDEHspkMhyWpJ6Kqs
+         h0jRiPb2mCiwF8ffJYj5dJyVn+b+zMDuTMGI7uCgAcmLhaYSrM3eaMt+76qXAPH6StvA
+         pO31YdH65hcRT+QxCoOLLbEwMROv99uUBvP8Y=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730980250; x=1731585050;
+        d=1e100.net; s=20230601; t=1730981937; x=1731586737;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=648oAdh71ykdlsYI2PO1sVV/3rqyVjApi3Xls/dCZBk=;
-        b=Ah0wzc6oN7h09FBTUvv+g19kTI2P5hmnJvcFLjbConwJG8nCHogSKB7pP8FCZzl5ij
-         64Ll4r1vscE+fswYOSBW8bsvwQpKYtJpu1q97PUDGcmsiy4GXWtChhPomA7jWuq8Fmki
-         XevshKQ9xfaE4oZzH1CKED7VmeB9VH6hbUDfZ4IlA2Jia9rfd0Q+eNi7K7OZms5BLMek
-         NSjcH/P2Ih9gR1tFbHXG8d0GvqUudMciV3LxpLe23nP5mVoC9bwdKSEESVdzjRMK0svr
-         f4L5Td6Fhs5anBxdj7q3t6P7kOFyK1/C6h/b6wXZetfWXSZR82Z3L/mhGgbOTSj48I+I
-         Ic3Q==
-X-Forwarded-Encrypted: i=1; AJvYcCW1V6WzyhjlCGLJMSVlUFEFaXfSr+PstStt2avQLsA0v7ODrYrtbidJIeHZBdirjPvAoK2xNGZaBYvidcEImw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyFVlpd5Ti1iCiXcieQlAaYJUqJNjtfGfX0VgEUlphgpa+MFkKq
-	OGTcsODZGcJeI3u/GWGvDshmyYR5vKQlRT/HqVcZSM8LqCOhbv21UOJydkgHkwlCWNInStscsHP
-	8ooUlDc1n1QuFAQdvNhFzaJBatRSuhbxA7GOT3PYyW7oN8WPgxtKty5boCphzbJUuTOhPkd8mG4
-	/tgTyQMuoTLE9dbzoX9nHB+smbaROaQVKXi8VU4g/D57kPcRp5Y/cgISAWdMtJeWy1
-X-Received: by 2002:a17:907:728d:b0:a86:8e3d:86e2 with SMTP id a640c23a62f3a-a9de5d6e1f2mr4840611466b.11.1730980249889;
-        Thu, 07 Nov 2024 03:50:49 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFPfRWKKC2Mmw7qsLwNWsUWk9YcB3oP04KpCrk49fXxZ1eFzL9rc53cMZIp1x03OUPvMyR3Ccw7QTwYX9l0OHc=
-X-Received: by 2002:a17:907:728d:b0:a86:8e3d:86e2 with SMTP id
- a640c23a62f3a-a9de5d6e1f2mr4840608566b.11.1730980249462; Thu, 07 Nov 2024
- 03:50:49 -0800 (PST)
+        bh=GegbHPmHJ/jq3f0zR1yfgP7svIbKhdwG6vm6VMTRCyY=;
+        b=uoMI+u5UqhFu7sEIALmEqJPiGxI9fRM24ofhOnGyYmsHqxzfaOa/SqTC9RINh1IqBH
+         HeqDWai05ZfVk3X76AU0kRqATrqLODV/PwIShoDtlA7uxeCV4cUkkRLAWhKlfsp3X+44
+         nlj0vtonOVvUf9GRScIapBv008+ePvgOxAaKhMviTtCu/emsOFu+WKu5DnQJU9SlPUd3
+         OYmPuvK4GNC4SuAjwo8EPLFs0GWpoFzEVURO4Ylh7xRBV5caTYfDeG8NDBQnyuvnmYXU
+         BOJSx3ZxUy4l61C6yqd1j+e6zChqfx0i6eD+1R32IkS4/c4t2boZLOMIDnIhI6Lrm4q9
+         iEUA==
+X-Forwarded-Encrypted: i=1; AJvYcCV3MI/yKUAI3yRjCiKAEGYnjKIWJDixkSH06Wk/t4djwbwm/NIimuQzV+hCPQn/GdN5tfI4ONyem3loeGWoXg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwemwFE9anC9YXLDKu1ZEhgxfusSEbvNvXsk5d0o+wg06i0PXtt
+	hVKUU1SVEyoCTGbpf/R6CS2vdY7BytyvieqIZxqAEWeKMDSsKKnZ4gXwFewDr0Ojumuc3MW5rWF
+	i4ZU74y52tHIB7DMXeixOQAKFLXVp3UVH1L7phA==
+X-Google-Smtp-Source: AGHT+IFtv+GKUc4iD29o482ZbZY0XQcQSZGjqKz3tbmzgRu+YI6K2L6XRRlAB3NCQn9LUZKr4SQIt4pCMC+npRWgFFg=
+X-Received: by 2002:a05:622a:4814:b0:463:16e:c5d2 with SMTP id
+ d75a77b69052e-463016ed03amr18210951cf.11.1730981937210; Thu, 07 Nov 2024
+ 04:18:57 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241105072642.898710-1-lulu@redhat.com> <20241105072642.898710-8-lulu@redhat.com>
- <6dtic6ld6p6kyzbjjewj4cxkc6h6r5t6y2ztazrgozdanz6gkm@vlj3ubpam6ih>
- <CACLfguVNM_b9LdiMyj+pZH0WHu=-Nrit8-cr+QH9=f7tMLDd4w@mail.gmail.com> <zkamzruq5e3diahm7vyjansnaowkw42toh5evwgq6vqal7h4pk@3w4e47ggogyr>
-In-Reply-To: <zkamzruq5e3diahm7vyjansnaowkw42toh5evwgq6vqal7h4pk@3w4e47ggogyr>
-From: Cindy Lu <lulu@redhat.com>
-Date: Thu, 7 Nov 2024 19:50:12 +0800
-Message-ID: <CACLfguXH7oEgjaOYWC05742n0dsUGaFWM-i7Fykuzbxv9xQ9HA@mail.gmail.com>
-Subject: Re: [PATCH v3 7/9] vhost: Add new UAPI to support change to task mode
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uW8zTYt9fTuGRx0zlJN9_0O0Ut8SuAfhQu5D03ZlhJg_1730980251
-X-Mimecast-Originator: redhat.com
+References: <20241024164726.77485-1-hreitz@redhat.com> <CAJfpeguWjwXtM4VJYP2+-0KK5Jkz80eKpWc-ST+yMuKL6Be0=w@mail.gmail.com>
+ <ae437cf6-caa2-4f9a-9ffa-bdc7873a99eb@redhat.com>
+In-Reply-To: <ae437cf6-caa2-4f9a-9ffa-bdc7873a99eb@redhat.com>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 7 Nov 2024 13:18:46 +0100
+Message-ID: <CAJfpegvfYhL4-U-4=sSkcne3MSNZk3P3jqBAPYWp5b5o4Ryk6w@mail.gmail.com>
+Subject: Re: [PATCH] virtio-fs: Query rootmode during mount
+To: Hanna Czenczek <hreitz@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	virtualization@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>, 
+	German Maglione <gmaglione@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Vivek Goyal <vgoyal@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 7, 2024 at 6:03=E2=80=AFPM Stefano Garzarella <sgarzare@redhat.=
-com> wrote:
->
-> On Thu, Nov 07, 2024 at 03:12:49PM +0800, Cindy Lu wrote:
-> >On Tue, Nov 5, 2024 at 6:32=E2=80=AFPM Stefano Garzarella <sgarzare@redh=
-at.com> wrote:
-> >>
-> >> On Tue, Nov 05, 2024 at 03:25:26PM +0800, Cindy Lu wrote:
-> >> >Add a new UAPI to enable setting the vhost device to task mode.
-> >> >The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
-> >> >to configure the mode if necessary.
-> >> >This setting must be applied before VHOST_SET_OWNER, as the worker
-> >> >will be created in the VHOST_SET_OWNER function
-> >> >
-> >> >Signed-off-by: Cindy Lu <lulu@redhat.com>
-> >> >---
-> >> > drivers/vhost/vhost.c      | 15 ++++++++++++++-
-> >> > include/uapi/linux/vhost.h |  2 ++
-> >> > 2 files changed, 16 insertions(+), 1 deletion(-)
-> >> >
-> >> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> >> >index c17dc01febcc..70c793b63905 100644
-> >> >--- a/drivers/vhost/vhost.c
-> >> >+++ b/drivers/vhost/vhost.c
-> >> >@@ -2274,8 +2274,9 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsig=
-ned int ioctl, void __user *argp)
-> >> > {
-> >> >       struct eventfd_ctx *ctx;
-> >> >       u64 p;
-> >> >-      long r;
-> >> >+      long r =3D 0;
-> >>
-> >> I don't know if something is missing in this patch, but I am confused:
-> >>
-> >> `r` is set few lines below...
-> >>
-> >> >       int i, fd;
-> >> >+      bool inherit_owner;
-> >> >
-> >> >       /* If you are not the owner, you can become one */
-> >> >       if (ioctl =3D=3D VHOST_SET_OWNER) {
-> >> ...
-> >>
-> >>         /* You must be the owner to do anything else */
-> >>         r =3D vhost_dev_check_owner(d);
-> >>         if (r)
-> >>                 goto done;
-> >>
-> >> So, why we are now initializing it to 0?
-> >>
-> >r =3D 0 mean return successfully here.
-> >Therefore, in the case VHOST_SET_INHERIT_FROM_OWNER function, I don't
-> >need to set it again and can simply return.
-> >....
-> >    if (vhost_dev_has_owner(d))
-> >       break;
-> >.....
->
-> Okay, but vhost_dev_check_owner() already set it to 0, so we can avoid
-> that, no?
->
-> >> >@@ -2332,6 +2333,18 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsi=
-gned int ioctl, void __user *argp)
-> >> >               if (ctx)
-> >> >                       eventfd_ctx_put(ctx);
-> >> >               break;
-> >> >+      case VHOST_SET_INHERIT_FROM_OWNER:
-> >> >+              /*inherit_owner can only be modified before owner is s=
-et*/
-> >> >+              if (vhost_dev_has_owner(d))
-> >>
-> >> And here, how this check can be false, if at the beginning of the
-> >> function we call vhost_dev_check_owner()?
-> >>
-> >> Maybe your intention was to add this code before the
-> >> `vhost_dev_check_owner()` call, so this should explain why initialize
-> >> `r` to 0, but I'm not sure.
-> >>
-> >Yes, in the function beginning, the code is
-> >if (ioctl =3D=3D VHOST_SET_OWNER) {
-> >r =3D vhost_dev_set_owner(d);
-> >goto done;
-> >}
-> >if the ioctl is not VHOST_SET_OWNER,  then the  code will not run the
-> >function vhost_dev_set_owner.
->
-> Sorry, I meant vhost_dev_check_owner(), not vhost_dev_set_owner().
->
-> I'll try to explain again.
->
-> After applying this series we have this code:
->
-> long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user=
- *argp)
-> {
->         struct eventfd_ctx *ctx;
->         u64 p;
->         long r =3D 0;
->         int i, fd;
->         bool inherit_owner;
->
->         /* If you are not the owner, you can become one */
->         if (ioctl =3D=3D VHOST_SET_OWNER) {
->                 r =3D vhost_dev_set_owner(d);
->                 goto done;
->         }
->
->         /* You must be the owner to do anything else */
->         r =3D vhost_dev_check_owner(d);
->         if (r)
->                 goto done;
->
->         switch (ioctl) {
->         ...
->         case VHOST_SET_INHERIT_FROM_OWNER:
->                 /*inherit_owner can only be modified before owner is
->                  * set*/
->                 if (vhost_dev_has_owner(d))
->                         break;
->
-> IIUC this check is always true, so we always call `break` because at
-> the beginning of this function we call vhost_dev_check_owner() which
-> if `dev->mm !=3D current->mm` (so it can't be null I guess) jumps directl=
-y
-> into `done`, returning an error.
->
-> So I still don't understand in which condition we can run the code after
-> this check.
->
-oh sorry I missed that check. I will move the new case back to the top
-of function,
-I didn't think it through before making this change; I just wanted to
-clean up the code but forgot about the status.
-Thanks
-cindy
-> Thanks,
-> Stefano
->
->                 if (copy_from_user(&inherit_owner, argp,
->                                    sizeof(inherit_owner))) {
->                         r =3D -EFAULT;
->                         break;
->                 }
->                 d->inherit_owner =3D inherit_owner;
->                 break;
->
->
-> >This ioctl is used by userspace applications, so we cannot be certain
-> >of the type and sequence of their calls; therefore, I added this
-> >check.
-> >
-> >> >+                      break;
-> >>
-> >> Should we return an error (e.g. -EPERM) in this case?
-> >>
-> >sure=EF=BC=8Cwill add this back
-> >thanks
-> >Cindy
-> >> >+
-> >> >+              if (copy_from_user(&inherit_owner, argp,
-> >> >+                                 sizeof(inherit_owner))) {
-> >> >+                      r =3D -EFAULT;
-> >> >+                      break;
-> >> >+              }
-> >> >+              d->inherit_owner =3D inherit_owner;
-> >> >+              break;
-> >> >       default:
-> >> >               r =3D -ENOIOCTLCMD;
-> >> >               break;
-> >> >diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> >> >index b95dd84eef2d..1e192038633d 100644
-> >> >--- a/include/uapi/linux/vhost.h
-> >> >+++ b/include/uapi/linux/vhost.h
-> >> >@@ -235,4 +235,6 @@
-> >> >  */
-> >> > #define VHOST_VDPA_GET_VRING_SIZE     _IOWR(VHOST_VIRTIO, 0x82,     =
-  \
-> >> >                                             struct vhost_vring_state=
-)
-> >> >+
-> >>
-> >> Please add a documentation here, this is UAPI, so the user should
-> >> know what this ioctl does based on the parameter.
-> >>
-> >> Thanks,
-> >> Stefano
-> >>
-> >> >+#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, bool)
-> >> > #endif
-> >> >--
-> >> >2.45.0
-> >> >
-> >>
-> >
->
+On Thu, 7 Nov 2024 at 11:00, Hanna Czenczek <hreitz@redhat.com> wrote:
+> It isn=E2=80=99t much, but I believe it=E2=80=99s most of fuse_fill_super=
+_common()
+> (without restructuring the code so flags returned by INIT are put into a
+> separate structure and then re-joined into sb and fc later).
 
+Probably not worth it.
+
+> fuse_send_init() reads sb->s_bdi->ra_pages, process_init_reply() writes
+> it and sb->s_time_gran, ->s_flags, ->s_stack_depth, ->s_export_op, and
+> ->s_iflags.  In addition, process_init_reply() depends on several flags
+> and objects in fc being set up (among those are fc->dax and
+> fc->default_permissions), which is done by fuse_fill_super_common().
+
+Okay, got it.
+
+> So I think what we need from fuse_fill_super_common() is:
+> - fuse_sb_defaults() (so these values can then be overwritten by
+> process_init_reply()),
+> - fuse_dax_conn_alloc(),
+> - fuse_bdi_init(),
+> - fc->default_permissions at least, but I=E2=80=99d just take the fc->[fl=
+ag]
+> setting block as a whole then.
+>
+> I assume we=E2=80=99ll also want the SB_MANDLOCK check then, and
+> rcu_assign_pointer().  Then we might as well also set the block sizes
+> and the subtype.
+>
+> The problem is that I don=E2=80=99t know the order things in
+> fuse_fill_super_common() need to be in, and fuse_dev_alloc_install() is
+> called before fuse_bdi_init(), so I didn=E2=80=99t want to move that.
+>
+> So what I understand is that calling fuse_dev_alloc_install() there
+> isn=E2=80=99t necessary?  I=E2=80=99m happy to move that to part 2, as yo=
+u suggest, but
+
+Hmm, fuse_dev_install() chains the fud onto fc->devices.  This is used
+by fuse_resend() and fuse_abort_conn().  Resending isn't really
+interesting at this point, but aborting should work from the start, so
+this should not be moved after sending requests.
+
+> I=E2=80=99m not sure we can really omit much from part 1 without changing=
+ how
+> process_init_reply() operates.  We could in theory delay
+> process_init_reply() until after GETATTR (and thus after setting
+> s_root), but that seems kind of wrong, and would still require setting
+> up BDI and DAX for fuse_send_init().
+
+Agree, let's keep the split as is, but store the fud temporarily in
+fuse_fs_context and leave setting *ctx->fudptr to part2.
+
+> >> +       if (sb->s_root || (fm->fc && fm->fc->initialized && !fm->submo=
+unt)) {
+> > How could fm->submount be set if sb->s_root isn't?
+>
+> fuse_get_tree_submount(), specifically fuse_fill_super_submount() whose
+> error path leads to deactivate_locked_super(), can fail before
+> sb->s_root is set.
+
+Right.
+
+> Still, the idea was rather to make it clear that this condition (INIT
+> sent but s_root not set) is unique to non-submounts, so as not to mess
+> with the submount code unintentionally.
+>
+> > Or sb->s_root set
+> > and fc->initialized isn't?
+>
+> That would be the non-virtio-fs non-submount case (fuse_fill_super()),
+> where s_root is set first and INIT sent after.
+
+But this is virtiofs specific code.
+
+Regardless, something smells here: fuse_mount_remove() is only called
+if sb->s_root is set (both plain fuse and virtiofs).  The top level
+fuse_mount is added to fc->mounts in fuse_conn_init(), way before
+sb->s_root is set...
+
+Will look into this.
+
+Thanks,
+Miklos
