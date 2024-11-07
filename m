@@ -1,29 +1,29 @@
 Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 34BE92194A9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3492521949A;
 	Thu,  7 Nov 2024 22:32:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731018758; cv=none; b=uPOtl/wld1s5Dhv+i+HAnu261v4eZ8py3jByhbhOKCJEy/o1TbDjAKYb5TnX2EwWqcEex8bs0PmACp90Py0zmmy+2s1xrvNgeCYNB6ebow6WbB7gOIpyuvIiQY3BZtJoUwjYExcY1Cb5HhNq1pC20icaFqfjIsF9/9rIFFZZPCs=
+	t=1731018758; cv=none; b=REh/NBozbuEi0uHKGyQva56nK+H7cNN2iu2aE1yZ7rBQPQ64D/usSaqbxC/x0wS1kmQGhzUygIwWi75PSAJMKJsoGs0EwVBRbSZV3FNAIQQmQfjgUDEQXRsTpzbaZNtNOx9sUnVtNU7QsUJhSHI7SSTEO2u4fam+wyHaN0pSB1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1731018758; c=relaxed/simple;
-	bh=LMDh14ZVuEDDj9KjM/woVD1TMEMiDTWNs9r6gQAkaTI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=fzaN46zRyZ1jGV7uNwZ/9lxizH4sVTlOCLOv8yBHlFKk3EFTswAoqzZDCA4XQ1QFWvuinUWx8w4IfXzGC0S7SiD/My/9OJy4o45DbSoOPdbgZDajf7Pfi+Sc3E6YDuxxPBjmUTYs/1+1F1BWa0XTBeWVlBwdBnCAoC0O8Bm1qLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=JlK+Amog; arc=none smtp.client-ip=13.77.154.182
+	bh=3axHTgWvPaJXU6x/HwYNyCImPTdzE7DJqPuDZ6F6AzE=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=TcnatGobUVD5b9Nk2hMXIDhZapSJgDL11Y/dCbJa2nzhNAx0zU5WZXtdvNfODZqlWf99G4C6HVHx8WT+7L//aHNdnxnpxjBlW51LVX5Ysbq2Tz7btRQvtE0qGCcjJW11VPkM+sgSZl1fy0pHK21phlA4PhoJq7XdNRszQAckzrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=E85Vpx1X; arc=none smtp.client-ip=13.77.154.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="JlK+Amog"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="E85Vpx1X"
 Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (linux.microsoft.com [13.77.154.182])
-	by linux.microsoft.com (Postfix) with ESMTPSA id C9160212D513;
+	by linux.microsoft.com (Postfix) with ESMTPSA id A7369212C4BF;
 	Thu,  7 Nov 2024 14:32:30 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C9160212D513
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A7369212C4BF
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
 	s=default; t=1731018750;
-	bh=GO6EHAy3E9oBRQofog/8t22FjdLbKxZK6Scdg3HvYTs=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=JlK+Amog/eo8deK1brnPwFK7BzPdCUlxv5PoSoR0bOlZ+eutGjTvuM7QKNc3/YMsb
-	 JE2rGjnMrDYBhWluzoDDlibGNdpaBh93qQDgcogeVcxGCsebr76N6JTBiwMJcRCbp1
-	 pdpwlPJxHlHYH7Rlgx3jRKPU3t/AUOL+6DtGYhDU=
+	bh=dXEOtZcKhs1OyrLOGbwwuM7yb0GGsFy0HJU2nlATJVM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=E85Vpx1XKF/7gIXBsoZOI6XnWD4pHDLIv62Hmm0sqgJpnOf8/Cgg8V/QCKee3Vppr
+	 ry4FPI40feJ1miQYl+Dx+/AvjsAcrxqUrJygt4jVjT3OJnYKE30CU4CoZ3KZny5GG9
+	 XD4lpSNQQEk/X8UUGLdqFqJ/fa8hg8d9V2jWrOLw=
 From: Nuno Das Neves <nunodasneves@linux.microsoft.com>
 To: linux-hyperv@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -71,65 +71,99 @@ Cc: kys@microsoft.com,
 	vkuznets@redhat.com,
 	ssengar@linux.microsoft.com,
 	apais@linux.microsoft.com
-Subject: [PATCH v2 1/4] hyperv: Move hv_connection_id to hyperv-tlfs.h
-Date: Thu,  7 Nov 2024 14:32:23 -0800
-Message-Id: <1731018746-25914-2-git-send-email-nunodasneves@linux.microsoft.com>
+Subject: [PATCH v2 0/4] Add new headers for Hyper-V Dom0
+Date: Thu,  7 Nov 2024 14:32:22 -0800
+Message-Id: <1731018746-25914-1-git-send-email-nunodasneves@linux.microsoft.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1731018746-25914-1-git-send-email-nunodasneves@linux.microsoft.com>
-References: <1731018746-25914-1-git-send-email-nunodasneves@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-This definition is in the wrong file; it is part of the TLFS doc.
+To support Hyper-V Dom0 (aka Linux as root partition), many new
+definitions are required.
 
-Acked-by: Wei Liu <wei.liu@kernel.org>
+The plan going forward is to directly import definitions from
+Hyper-V code without waiting for them to land in the TLFS document.
+This is a quicker and more maintainable way to import definitions,
+and is a step toward the eventual goal of exporting headers directly
+from Hyper-V for use in Linux.
+
+This patch series introduces new headers (hvhdk.h, hvgdk.h, etc,
+see patch #3) derived directly from Hyper-V code. hyperv-tlfs.h is
+replaced with hvhdk.h (which includes the other new headers)
+everywhere.
+
+No functional change is expected.
+
+Summary:
+Patch 1-2: Minor cleanup patches
+Patch 3: Add the new headers (hvhdk.h, etc..) in include/hyperv/
+Patch 4: Switch to the new headers
+
 Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
 ---
- include/asm-generic/hyperv-tlfs.h | 9 +++++++++
- include/linux/hyperv.h            | 9 ---------
- 2 files changed, 9 insertions(+), 9 deletions(-)
+Changelog:
+v2:
+- Rework the series to simply use the new headers everywhere
+  instead of fiddling around to keep hyperv-tlfs.h used in some
+  places, suggested by Michael Kelley and Easwar Hariharan
+- Fix compilation errors with some configs by adding missing
+  definitions and changing some names, thanks to Simon Horman for
+  catching those
+- Add additional definitions to the new headers to support them now
+  replacing hyperv-tlfs.h everywhere
+- Add additional context in the commit messages for patches #3 and #4
+- In patch #2, don't remove indirect includes. Only remove includes
+  which truly aren't used, suggested by Michael Kelley
 
-diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
-index 814207e7c37f..52274c9aefef 100644
---- a/include/asm-generic/hyperv-tlfs.h
-+++ b/include/asm-generic/hyperv-tlfs.h
-@@ -871,4 +871,13 @@ struct hv_mmio_write_input {
- 	u8 data[HV_HYPERCALL_MMIO_MAX_DATA_LENGTH];
- } __packed;
- 
-+/* Define connection identifier type. */
-+union hv_connection_id {
-+	u32 asu32;
-+	struct {
-+		u32 id:24;
-+		u32 reserved:8;
-+	} u;
-+};
-+
- #endif
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index 22c22fb91042..d0893ec488ae 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -768,15 +768,6 @@ struct vmbus_close_msg {
- 	struct vmbus_channel_close_channel msg;
- };
- 
--/* Define connection identifier type. */
--union hv_connection_id {
--	u32 asu32;
--	struct {
--		u32 id:24;
--		u32 reserved:8;
--	} u;
--};
--
- enum vmbus_device_type {
- 	HV_IDE = 0,
- 	HV_SCSI,
+---
+Nuno Das Neves (4):
+  hyperv: Move hv_connection_id to hyperv-tlfs.h
+  hyperv: Clean up unnecessary #includes
+  hyperv: Add new Hyper-V headers in include/hyperv
+  hyperv: Switch from hyperv-tlfs.h to hyperv/hvhdk.h
+
+ arch/arm64/hyperv/hv_core.c        |    3 +-
+ arch/arm64/hyperv/mshyperv.c       |    4 +-
+ arch/arm64/include/asm/mshyperv.h  |    2 +-
+ arch/x86/hyperv/hv_apic.c          |    1 -
+ arch/x86/hyperv/hv_init.c          |   21 +-
+ arch/x86/hyperv/hv_proc.c          |    3 +-
+ arch/x86/hyperv/ivm.c              |    1 -
+ arch/x86/hyperv/mmu.c              |    1 -
+ arch/x86/hyperv/nested.c           |    2 +-
+ arch/x86/include/asm/kvm_host.h    |    3 +-
+ arch/x86/include/asm/mshyperv.h    |    3 +-
+ arch/x86/include/asm/svm.h         |    2 +-
+ arch/x86/kernel/cpu/mshyperv.c     |    2 +-
+ arch/x86/kvm/vmx/hyperv_evmcs.h    |    2 +-
+ arch/x86/kvm/vmx/vmx_onhyperv.h    |    2 +-
+ arch/x86/mm/pat/set_memory.c       |    2 -
+ drivers/clocksource/hyperv_timer.c |    2 +-
+ drivers/hv/hv_balloon.c            |    4 +-
+ drivers/hv/hv_common.c             |    2 +-
+ drivers/hv/hv_kvp.c                |    2 +-
+ drivers/hv/hv_snapshot.c           |    2 +-
+ drivers/hv/hyperv_vmbus.h          |    2 +-
+ include/asm-generic/hyperv-tlfs.h  |    9 +
+ include/asm-generic/mshyperv.h     |    2 +-
+ include/clocksource/hyperv_timer.h |    2 +-
+ include/hyperv/hvgdk.h             |  303 +++++++
+ include/hyperv/hvgdk_ext.h         |   46 +
+ include/hyperv/hvgdk_mini.h        | 1295 ++++++++++++++++++++++++++++
+ include/hyperv/hvhdk.h             |  733 ++++++++++++++++
+ include/hyperv/hvhdk_mini.h        |  310 +++++++
+ include/linux/hyperv.h             |   11 +-
+ net/vmw_vsock/hyperv_transport.c   |    2 +-
+ 32 files changed, 2729 insertions(+), 52 deletions(-)
+ create mode 100644 include/hyperv/hvgdk.h
+ create mode 100644 include/hyperv/hvgdk_ext.h
+ create mode 100644 include/hyperv/hvgdk_mini.h
+ create mode 100644 include/hyperv/hvhdk.h
+ create mode 100644 include/hyperv/hvhdk_mini.h
+
 -- 
 2.34.1
 
