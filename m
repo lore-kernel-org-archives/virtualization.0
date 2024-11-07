@@ -1,84 +1,135 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9045218929;
-	Thu,  7 Nov 2024 21:52:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 34BE92194A9;
+	Thu,  7 Nov 2024 22:32:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731016355; cv=none; b=uhVemMbeyDcmRk6ZgREw3bP8mN7GmGEMu27tRa8i3toeOqVq/fvjIIHUbtcxFaDLvrveldq8wjc3ZHl80LV1b+j3L7BcSTvQ7Z6CKNBZt6zrV2bINUyAPJbw8SXiIhUnMVCT5f+Wzgbm0Xpy+ED8L3d2W0WGYUlsOz9NVg1EZNE=
+	t=1731018758; cv=none; b=uPOtl/wld1s5Dhv+i+HAnu261v4eZ8py3jByhbhOKCJEy/o1TbDjAKYb5TnX2EwWqcEex8bs0PmACp90Py0zmmy+2s1xrvNgeCYNB6ebow6WbB7gOIpyuvIiQY3BZtJoUwjYExcY1Cb5HhNq1pC20icaFqfjIsF9/9rIFFZZPCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731016355; c=relaxed/simple;
-	bh=p4XepiPlWotLLCpbltRXA5eCLxtJn/9N8T34r+FpzmU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tHKZctMBfbbsjUPdHdX9EDF5wNDgiknzviHD7RT4wDGJFNdybUF/xvy8dSHx4NQWfx3MUKTdYMf+VzFfstH/GBju0w1lq+m9RaFiH1Ud5Fm1Fg2dIjxAS/V3Cze+ZLvH4qj/s1yBbVUGXvRklue7iX5X+HKBFruDB9PHuL3RKZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IplPLXIA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1731018758; c=relaxed/simple;
+	bh=LMDh14ZVuEDDj9KjM/woVD1TMEMiDTWNs9r6gQAkaTI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=fzaN46zRyZ1jGV7uNwZ/9lxizH4sVTlOCLOv8yBHlFKk3EFTswAoqzZDCA4XQ1QFWvuinUWx8w4IfXzGC0S7SiD/My/9OJy4o45DbSoOPdbgZDajf7Pfi+Sc3E6YDuxxPBjmUTYs/1+1F1BWa0XTBeWVlBwdBnCAoC0O8Bm1qLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=JlK+Amog; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IplPLXIA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301A6C4CED2;
-	Thu,  7 Nov 2024 21:52:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731016354;
-	bh=p4XepiPlWotLLCpbltRXA5eCLxtJn/9N8T34r+FpzmU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=IplPLXIAkoGRbVp0WqClSi7wzLJybTD1WZvkCKK+N0pQMscqteCyK08P5A7u8ICQv
-	 uSDfpNqYhkPVpa2UpHYH5MUSzLK0nHnLRlw9Y/l0FWSxX7Iv973zyA0sGMpT7w2svW
-	 RQuI8VXnstH/Vuchbc5lcFUwCC8CLOHRYI7Wc+aBVs0vZE+ADtpo9cH0MCMeng0sU3
-	 M78SoXhyaUU7K/+JUOyfDAjw7vAA4LNUtGsG/QBt2iY499Ea6ISZkXpnnUhFptSs0m
-	 KimAJ5AHDB8rBBfyvveaPF6IjoAADigdyT4LzNTVE4/Civ20ip+UvtQkDL17zNRfwT
-	 e6hgqSFZqdx+w==
-Date: Thu, 7 Nov 2024 13:52:33 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Hyunwoo Kim <v4bel@theori.io>, "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Stefano Garzarella <sgarzare@redhat.com>,
- jasowang@redhat.com, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
- <horms@kernel.org>, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- gregkh@linuxfoundation.org, imv4bel@gmail.com
-Subject: Re: [PATCH v2] hv_sock: Initializing vsk->trans to NULL to prevent
- a dangling pointer
-Message-ID: <20241107135233.225de6d6@kernel.org>
-In-Reply-To: <20241107163942-mutt-send-email-mst@kernel.org>
-References: <Zys4hCj61V+mQfX2@v4bel-B760M-AORUS-ELITE-AX>
-	<20241107112942.0921eb65@kernel.org>
-	<20241107163942-mutt-send-email-mst@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="JlK+Amog"
+Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (linux.microsoft.com [13.77.154.182])
+	by linux.microsoft.com (Postfix) with ESMTPSA id C9160212D513;
+	Thu,  7 Nov 2024 14:32:30 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C9160212D513
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1731018750;
+	bh=GO6EHAy3E9oBRQofog/8t22FjdLbKxZK6Scdg3HvYTs=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=JlK+Amog/eo8deK1brnPwFK7BzPdCUlxv5PoSoR0bOlZ+eutGjTvuM7QKNc3/YMsb
+	 JE2rGjnMrDYBhWluzoDDlibGNdpaBh93qQDgcogeVcxGCsebr76N6JTBiwMJcRCbp1
+	 pdpwlPJxHlHYH7Rlgx3jRKPU3t/AUOL+6DtGYhDU=
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+To: linux-hyperv@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org,
+	iommu@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: kys@microsoft.com,
+	haiyangz@microsoft.com,
+	wei.liu@kernel.org,
+	mhklinux@outlook.com,
+	decui@microsoft.com,
+	catalin.marinas@arm.com,
+	will@kernel.org,
+	luto@kernel.org,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	hpa@zytor.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	peterz@infradead.org,
+	daniel.lezcano@linaro.org,
+	joro@8bytes.org,
+	robin.murphy@arm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	lpieralisi@kernel.org,
+	kw@linux.com,
+	robh@kernel.org,
+	bhelgaas@google.com,
+	arnd@arndb.de,
+	sgarzare@redhat.com,
+	jinankjain@linux.microsoft.com,
+	muminulrussell@gmail.com,
+	skinsburskii@linux.microsoft.com,
+	mukeshrathor@microsoft.com,
+	vkuznets@redhat.com,
+	ssengar@linux.microsoft.com,
+	apais@linux.microsoft.com
+Subject: [PATCH v2 1/4] hyperv: Move hv_connection_id to hyperv-tlfs.h
+Date: Thu,  7 Nov 2024 14:32:23 -0800
+Message-Id: <1731018746-25914-2-git-send-email-nunodasneves@linux.microsoft.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1731018746-25914-1-git-send-email-nunodasneves@linux.microsoft.com>
+References: <1731018746-25914-1-git-send-email-nunodasneves@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Thu, 7 Nov 2024 16:41:02 -0500 Michael S. Tsirkin wrote:
-> On Thu, Nov 07, 2024 at 11:29:42AM -0800, Jakub Kicinski wrote:
-> > On Wed, 6 Nov 2024 04:36:04 -0500 Hyunwoo Kim wrote:  
-> > > When hvs is released, there is a possibility that vsk->trans may not
-> > > be initialized to NULL, which could lead to a dangling pointer.
-> > > This issue is resolved by initializing vsk->trans to NULL.
-> > > 
-> > > Fixes: ae0078fcf0a5 ("hv_sock: implements Hyper-V transport for Virtual Sockets (AF_VSOCK)")
-> > > Cc: stable@vger.kernel.org  
-> > 
-> > I don't see the v1 on netdev@, nor a link to it in the change log
-> > so I may be missing the context, but the commit message is a bit
-> > sparse.
-> > 
-> > The stable and Fixes tags indicate this is a fix. But the commit
-> > message reads like currently no such crash is observed, quote:
-> > 
-> >                           which could lead to a dangling pointer.
-> >                                 ^^^^^
-> >                                      ?
-> > 
-> > Could someone clarify?  
-> 
-> I think it's just an accent, in certain languages/cultures expressing
-> uncertainty is considered polite. Should be "can".
+This definition is in the wrong file; it is part of the TLFS doc.
 
-You're probably right, the issue perhaps isn't the phrasing as much 
-as the lack of pointing out the code path in which the dangling pointer
-would be deferenced.  Hyunwoo Kim, can you provide one?
+Acked-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+---
+ include/asm-generic/hyperv-tlfs.h | 9 +++++++++
+ include/linux/hyperv.h            | 9 ---------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
+index 814207e7c37f..52274c9aefef 100644
+--- a/include/asm-generic/hyperv-tlfs.h
++++ b/include/asm-generic/hyperv-tlfs.h
+@@ -871,4 +871,13 @@ struct hv_mmio_write_input {
+ 	u8 data[HV_HYPERCALL_MMIO_MAX_DATA_LENGTH];
+ } __packed;
+ 
++/* Define connection identifier type. */
++union hv_connection_id {
++	u32 asu32;
++	struct {
++		u32 id:24;
++		u32 reserved:8;
++	} u;
++};
++
+ #endif
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 22c22fb91042..d0893ec488ae 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -768,15 +768,6 @@ struct vmbus_close_msg {
+ 	struct vmbus_channel_close_channel msg;
+ };
+ 
+-/* Define connection identifier type. */
+-union hv_connection_id {
+-	u32 asu32;
+-	struct {
+-		u32 id:24;
+-		u32 reserved:8;
+-	} u;
+-};
+-
+ enum vmbus_device_type {
+ 	HV_IDE = 0,
+ 	HV_SCSI,
+-- 
+2.34.1
+
