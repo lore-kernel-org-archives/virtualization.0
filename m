@@ -1,45 +1,44 @@
 Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37CAF322E;
-	Thu,  7 Nov 2024 20:46:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B05218928
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 20:46:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731012413; cv=none; b=CbJo2+29B7Ln+WKwNgqtsiCxDqdlSnu2htOYv7x20P8x1GRsOwvux80lf0Tl4yuGrdyPXkg4/YvXBY4bLABBec+4XKXS205QNc0gEf2G7AfEUEOkWcc/0FB2hh7vAj+rMZ3XHu7WE7xxAcqF4c3kvnP6QLYFl7oUi33rcPrE0Lw=
+	t=1731012416; cv=none; b=oF2wjNfARPZA1Uug49X7qjYs7uaB//o7tPGDmLqkFfl637D2ShLPdzrsrauXPVCuTKk9Xnhd42G6fGZWIP0U2ybJAuaC8JZrOTGK5Mr5L+ABYQzjSUPZ5oVapuzlsYMa5IJVoSdssf28K+VTMqtxjNW4vSICH1kRIPBB7pNx+e4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731012413; c=relaxed/simple;
-	bh=e5IKfunyoGb0Ek5V916MuqEwrlPLdy6g8yrqoCFGBok=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OiiwSIq53O+UcgQ/exuz8hGILl21RVvpetYVS9vniD7ky4A41xv0kri1ZsqsyzUIFqhLV7wS9zp4it6lU+9FmdE7d63Dn/H0qXjlDTdih1zD/rTIU6b8Mq28wLcMrUWgc/X69KxCFT3NtC/mnGp7wqs0iGFF1t5UF8PNsaWnLS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=P96u32QF; arc=none smtp.client-ip=185.226.149.38
+	s=arc-20240116; t=1731012416; c=relaxed/simple;
+	bh=mhU9jxgV9z83Hv+GVH2dKHtzgraCtM5ha8gUXXnGMKc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=V9u9Q8viAq9SPaJATsBcSGBRWRwDS7mVqfkIQdYVN9rY0oTSGAq+S+VTa6+/2DaSLQUbD//jT3MqyrQs5ATmlFux7UkJJknMBlPnPvKVhUbvFxlkZWe5wkE7Xts81Rjeo5KahtCp8QU6flSLW60VPaPaq0ANPHVp6uXUZm/vuOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=JaLsUXbY; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="P96u32QF"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="JaLsUXbY"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
 	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1t99Oo-001am5-De; Thu, 07 Nov 2024 21:46:38 +0100
+	id 1t99Oo-001am4-AD; Thu, 07 Nov 2024 21:46:38 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=HRZX8buQz6RmBI2DZF8lqBqN9e2vWZHgaP9nDHLV7tM=; b=P96u32QFvgzjiFL+52Wvb5uwZA
-	uPOPISdQuotLj7aDj93t6BIcJ3yYGJjRX2N9X1zZHF/sEu1AyKXQND4uYGctPxG4mj2qE5HCGReIf
-	6yLVm5c/6s4an7+8zm5qMXRv0GmfCuKavFkCUYY09OZ4qZc6uZ2nFBAZTmsagxmtUkYBF9W95bgKs
-	vsjykjLvhQXzCuCbt/A5+EHac9U5csKbji6XTvjmC7PQMwfShCYMbgd9GsMQR0AbyimU2kU4++kI0
-	Jed8FgrPU3fb0E1nJ6wQFOUQqX+f+7PCFlBqwvPrynwc7uamFboPfObT6tpRKzFuDJJ1Dlf39a92V
-	KZb5Es+g==;
+	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=Gv34US8GRBXtP87nryXTAC5SJFGYHzg1EnEJGs1AL7c=
+	; b=JaLsUXbYo1BLPH5dPn7t3I2nPNXUpR6T63/pWZMSytcC/nf2gecrpBqNWQ0206nGzmGDFbKdd
+	0+4YQyR2ykkTOWNc1TGWiujY2QdgiMZQlGijDO2t3fWHg38eJQMbAZPbDfmdSyB2XkKD9A3Cod4XW
+	S5Tu6icjDQRfXCKFP68ozbJ7E27qiPbFhMrBrvPz1Bv9qZdc709iazkq5/A4wa0ZV3xRxAZKOc+hV
+	guy9eJSCLGcLvUgbnfvR5Gkl+tP/GbIwMcYldXSY3XNTZWnLVQT6LWyQXZLqzq1m9j5p/5SJsViqc
+	sMrWTyPjetKYGEbhKP0wE1ecdOzAQTxmtijjOw==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1t99Oi-0003Ew-FY; Thu, 07 Nov 2024 21:46:32 +0100
+	id 1t99Oh-0002fi-47; Thu, 07 Nov 2024 21:46:31 +0100
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1t99Oh-00303e-9I; Thu, 07 Nov 2024 21:46:31 +0100
+	id 1t99Of-00303e-44; Thu, 07 Nov 2024 21:46:29 +0100
 From: Michal Luczaj <mhal@rbox.co>
-Date: Thu, 07 Nov 2024 21:46:13 +0100
-Subject: [PATCH net v2 2/3] vsock: Fix sk_error_queue memory leak
+Subject: [PATCH net v2 0/3] virtio/vsock: Fix memory leaks
+Date: Thu, 07 Nov 2024 21:46:11 +0100
+Message-Id: <20241107-vsock-mem-leaks-v2-0-4e21bfcfc818@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,9 +47,10 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241107-vsock-mem-leaks-v2-2-4e21bfcfc818@rbox.co>
-References: <20241107-vsock-mem-leaks-v2-0-4e21bfcfc818@rbox.co>
-In-Reply-To: <20241107-vsock-mem-leaks-v2-0-4e21bfcfc818@rbox.co>
+X-B4-Tracking: v=1; b=H4sIABMnLWcC/3WNQQ7CIBREr9L8td8ArURceQ/TBcWPJbVgoCE1D
+ XeXsHf5ZjJvDkgUHSW4dQdEyi654CuIUwdm1v5F6J6VQTAxcM4k5hTMgiut+Ca9JFST7ElxcZF
+ MQ119Ilm3N+MDPG0w1nB2aQvx214yb9VfYebI8GoHa03PlCJ5j1PYzybAWEr5ASJqsVyxAAAA
+X-Change-ID: 20241106-vsock-mem-leaks-9b63e912560a
 To: Stefan Hajnoczi <stefanha@redhat.com>, 
  Stefano Garzarella <sgarzare@redhat.com>, 
  "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
@@ -66,50 +66,31 @@ Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
  netdev@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-Kernel queues MSG_ZEROCOPY completion notifications on the error queue.
-Where they remain, until explicitly recv()ed. To prevent memory leaks,
-clean up the queue when the socket is destroyed.
+Short series fixing some memory leaks that I've stumbled upon while toying
+with the selftests.
 
-unreferenced object 0xffff8881028beb00 (size 224):
-  comm "vsock_test", pid 1218, jiffies 4294694897
-  hex dump (first 32 bytes):
-    90 b0 21 17 81 88 ff ff 90 b0 21 17 81 88 ff ff  ..!.......!.....
-    00 00 00 00 00 00 00 00 00 b0 21 17 81 88 ff ff  ..........!.....
-  backtrace (crc 6c7031ca):
-    [<ffffffff81418ef7>] kmem_cache_alloc_node_noprof+0x2f7/0x370
-    [<ffffffff81d35882>] __alloc_skb+0x132/0x180
-    [<ffffffff81d2d32b>] sock_omalloc+0x4b/0x80
-    [<ffffffff81d3a8ae>] msg_zerocopy_realloc+0x9e/0x240
-    [<ffffffff81fe5cb2>] virtio_transport_send_pkt_info+0x412/0x4c0
-    [<ffffffff81fe6183>] virtio_transport_stream_enqueue+0x43/0x50
-    [<ffffffff81fe0813>] vsock_connectible_sendmsg+0x373/0x450
-    [<ffffffff81d233d5>] ____sys_sendmsg+0x365/0x3a0
-    [<ffffffff81d246f4>] ___sys_sendmsg+0x84/0xd0
-    [<ffffffff81d26f47>] __sys_sendmsg+0x47/0x80
-    [<ffffffff820d3df3>] do_syscall_64+0x93/0x180
-    [<ffffffff8220012b>] entry_SYSCALL_64_after_hwframe+0x76/0x7e
-
-Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- net/vmw_vsock/af_vsock.c | 3 +++
- 1 file changed, 3 insertions(+)
+Changes in v2:
+- Remove the refactoring patch from the series [Stefano]
+- PATCH 2: Drop "virtio" from the commit title [Stefano]
+- Collect Reviewed-by [Stefano]
+- Link to v1: https://lore.kernel.org/r/20241106-vsock-mem-leaks-v1-0-8f4ffc3099e6@rbox.co
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 35681adedd9aaec3565495158f5342b8aa76c9bc..dfd29160fe11c4675f872c1ee123d65b2da0dae6 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -836,6 +836,9 @@ static void vsock_sk_destruct(struct sock *sk)
- {
- 	struct vsock_sock *vsk = vsock_sk(sk);
- 
-+	/* Flush MSG_ZEROCOPY leftovers. */
-+	__skb_queue_purge(&sk->sk_error_queue);
-+
- 	vsock_deassign_transport(vsk);
- 
- 	/* When clearing these addresses, there's no need to set the family and
+---
+Michal Luczaj (3):
+      virtio/vsock: Fix accept_queue memory leak
+      vsock: Fix sk_error_queue memory leak
+      virtio/vsock: Improve MSG_ZEROCOPY error handling
 
+ net/vmw_vsock/af_vsock.c                | 3 +++
+ net/vmw_vsock/virtio_transport_common.c | 9 +++++++++
+ 2 files changed, 12 insertions(+)
+---
+base-commit: 71712cf519faeed529549a79559c06c7fc250a15
+change-id: 20241106-vsock-mem-leaks-9b63e912560a
+
+Best regards,
 -- 
-2.46.2
+Michal Luczaj <mhal@rbox.co>
 
