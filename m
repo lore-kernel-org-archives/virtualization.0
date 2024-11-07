@@ -1,29 +1,29 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86FDA1DFD98
-	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 08:55:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98D391DD543
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 08:55:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730969721; cv=none; b=e8UUT+8fzyGOxQYTdgutOBT35wArG0dgXBo6pERY4pXwGKoVuwfQeQplUloTSVdfSFGXsm0iYJrh0NjrTcdyy7wwJrBNJBYgfzZ2PQaOPSVTm85+Kqiyy0Dxlnlnd4dOcLGdn3abmDbzZaGugLrSz8CE5g1JcmzTsq8yuqEXhqQ=
+	t=1730969722; cv=none; b=B72DlbTImNS6HGclEU3IW5jEaJuyawkbOsK3JaRe93uI/5e0fEezo3q1s6lDrjztVu8m96fNjHVWfQSqWulNK8gAZ/dgVcj0ERB+130rB3kVuTULNPQ3+z6iJcY3d/5e1AXggcvsmqHGCn49mOWw4syqcZKSLZDpgZelMHPMDhw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730969721; c=relaxed/simple;
-	bh=tYUpUMepL8g3xLEKnwfyJW63bgd+WSzKy6LlhDXLJOU=;
+	s=arc-20240116; t=1730969722; c=relaxed/simple;
+	bh=zcwV1cbs653FORh8F+uUYyLHezYFoQKvxW5n5jEby2Y=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=hn5IK/68wawn0yeIPTtJh1Vxfhc/buQV/dTYacDQ6Bk48o/xf5viukmZf6+p+uPyoeWZfjRmyBl2L5K5oJLzDUHNkmzmuwm7ghL8tfI3/OF2jvzqtmwekaJ/ANAuXm3/VoEgRMLdrerBBh4tVc9juPA8xvRHfVd5kVDuvP5Hll0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=STvTHmlZ; arc=none smtp.client-ip=115.124.30.110
+	 MIME-Version; b=sHBmEeJqkb6H/Q6wHB6JubOxYJSiOJiNbotyjyma1bAaTFW8F1LSPM1z0klklUO1dLIqEw5SURakEbrhqabecZwRDefjwcdVhMoIG4rokqaEqHvTx3OW/szkCGb1rcCXKFlcvnX31f3cYv9kD8dLBfwEf3NVl8n6TmqQgaPfnGk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=INc5Imu8; arc=none smtp.client-ip=115.124.30.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="STvTHmlZ"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="INc5Imu8"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1730969715; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=4KGUXzxzW+IjEN+VFcH1aOBn0GRSlPDc0U3O+l2wGFY=;
-	b=STvTHmlZwK9f8O2j1ka62Xu2vxEAlXQTQdwiMGtZyvaH+dhZpAAX3gAzL5QRuds55UugCUFrQoOZt/1K6la905lvl1GPstd7rqmkRVn8o1GckBEUG4/MwOnEv5XaGGT3r27n91HSwPSJW2KLrwGcTiZzWxVnd2bpbva0RldIt08=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIux-9C_1730969714 cluster:ay36)
+	t=1730969718; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=DV0mEbsZYImcQa5ZTtKTa8NA7pu7BOGfp6nImSXbi0A=;
+	b=INc5Imu8Yarpf32ANBUIz745IeHAa2aG/h7im8kW8ihC6aSgy0HtwveNEQgI79m1bEQrl2mz2Nby5r5u3SiUq3IZusghwCOcNKtDpmL796cclzfcfgQXoeOzGuxbFxIIwgQyg+mTgpoygko7SIyOHrRhn44frIN7/XpIvBLsdK8=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIv3VWn_1730969716 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 07 Nov 2024 16:55:15 +0800
+          Thu, 07 Nov 2024 16:55:17 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -41,9 +41,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v3 10/13] virtio_net: xsk: prevent disable tx napi
-Date: Thu,  7 Nov 2024 16:55:01 +0800
-Message-Id: <20241107085504.63131-11-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v3 12/13] virtio_net: update tx timeout record
+Date: Thu,  7 Nov 2024 16:55:03 +0800
+Message-Id: <20241107085504.63131-13-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
 References: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
@@ -56,43 +56,33 @@ MIME-Version: 1.0
 X-Git-Hash: 2634baada01d
 Content-Transfer-Encoding: 8bit
 
-Since xsk's TX queue is consumed by TX NAPI, if sq is bound to xsk, then
-we must stop tx napi from being disabled.
+If send queue sent some packets, we update the tx timeout
+record to prevent the tx timeout.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a6becdc762cd..3fc8e71cfba9 100644
+index 67d33cc913cc..7cd6f1d74710 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -5029,7 +5029,7 @@ static int virtnet_set_coalesce(struct net_device *dev,
- 				struct netlink_ext_ack *extack)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int ret, queue_number, napi_weight;
-+	int ret, queue_number, napi_weight, i;
- 	bool update_napi = false;
+@@ -1489,6 +1489,13 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+ 	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
+ 		check_sq_full_and_disable(vi, vi->dev, sq);
  
- 	/* Can't change NAPI weight if the link is up */
-@@ -5058,6 +5058,14 @@ static int virtnet_set_coalesce(struct net_device *dev,
- 		return ret;
- 
- 	if (update_napi) {
-+		/* xsk xmit depends on the tx napi. So if xsk is active,
-+		 * prevent modifications to tx napi.
-+		 */
-+		for (i = queue_number; i < vi->max_queue_pairs; i++) {
-+			if (vi->sq[i].xsk_pool)
-+				return -EBUSY;
-+		}
++	if (sent) {
++		struct netdev_queue *txq;
 +
- 		for (; queue_number < vi->max_queue_pairs; queue_number++)
- 			vi->sq[queue_number].napi.weight = napi_weight;
- 	}
++		txq = netdev_get_tx_queue(vi->dev, sq - vi->sq);
++		txq_trans_cond_update(txq);
++	}
++
+ 	u64_stats_update_begin(&sq->stats.syncp);
+ 	u64_stats_add(&sq->stats.packets, stats.packets);
+ 	u64_stats_add(&sq->stats.bytes,   stats.bytes);
 -- 
 2.32.0.3.g01195cf9f
 
