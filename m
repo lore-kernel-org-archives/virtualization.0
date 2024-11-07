@@ -1,304 +1,118 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D09A21CF7BB
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 21:26:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D11E21858A
+	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 21:41:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731014767; cv=none; b=ErcdKYYU68m8L23q2Z6BeZFcMKTX2LZmbMihsMTQmBVPCdWHU4hqLMpjBntg8j1FXwez82SucjfU6zwhTsBxNwQUbpdSyoUWIoDtHXOtR4aMrj4uMrlV27UayNJvL6mU4XZSyDfwwTtSFS4H70gpQEj/aCZM2gYlEWOm8RD4ahc=
+	t=1731015678; cv=none; b=TKzOGxFczieGFgfI17NgfvFjC65MenzCCQaJf3hsosk5D1DOBOCdCMnxs3k5oZml+31gIkt2BX14EtHE48fdOvzTvjceD5Ea8ZOdGLSgCJWJsdq3lX309TaR/5oPnZQG2xZMua6NcuT/pqHFmjeTwnbyWh0xboP93BisW7ufSdM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731014767; c=relaxed/simple;
-	bh=7mNr472skOMI05DZeL7/dwZKVuuOev3mLuFJV5f60Os=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=n5kdLSGpZP7eAuxYAZZzXiQHI1TL3yeYRNC9wQOhMeGJUwh4POzNO+tbYQDX4VySaYc58thhoCmSEXHLSPbJLeyNGfkphmbi6EClkHZizx5IbQJuCmamqulP2QePSE07bXux/7daXxygdcsZ1Gti+j3UjX7ZZvHSxSF9N9WSIDw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=As+LWmPw; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1731015678; c=relaxed/simple;
+	bh=fLdfZzo90PzNEL/By0BCWrAEgq+8ZAKgcUTa2z6seJo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=nQP8gG5TG2YowATfiAM/XqUoFvYGEkS+wNuCLFpzDvly+ZW/2RW6HVFya/bMLjHPSjDwh1seeJ9vb7O1/k2ZAQacxuWfLSpmCvLvMM78mqVuTt+8o0A/BYcLPJMgO/JBS/9l6KO3sMGhUKv3dGV2srX33x5HRQHA7t/dU2f8gI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OVTSsouT; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="As+LWmPw"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6556543116
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 21:26:05 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.69
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id LAHYix4sxt9L for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Nov 2024 21:26:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org CFE5D43038
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CFE5D43038
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=As+LWmPw
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CFE5D43038
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 21:26:00 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OVTSsouT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731014759;
+	s=mimecast20190719; t=1731015676;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hmsOWfwsziCzZJBNX81X+q9iuqLz9aGWKvYC2tUlck4=;
-	b=As+LWmPw3KRM7b1Ov4WqKpGQH8Qnj0/67Z6kjV4YUS2YEwl107fNjHs3KjZLP7Pm6nVTCg
-	Wu+vGOaa3cR3z5pW9FK+grbIDrnODSuk9HTOsJphqUclSz+xIkJQ2xJmolVRZZiKHQxDGd
-	EqNVvtkCl87y/zubOul5WyZLHNarcWs=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=wKXsXIJ6+wujZXZvZ8iEGuUegjY8zfalZM3UvgSSNaI=;
+	b=OVTSsouTRQkALc8BNAQy59w/ykd72OMDhzwT+ovrmuhyqrewzEDFGmrFEQb7HdnlbMddjr
+	VQW0GFM3C1Fsm/BCJXfSbYU8KPEW6EcrD67T/9fIa2h9oiZYiHIHCujnsU4UuoIAZpZZZm
+	9kfni7HXTrAJPPQg5W0oKrPZ/XBx4vI=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-642-EIHLHmfvNwqSLUMaeQFMHA-1; Thu, 07 Nov 2024 16:25:58 -0500
-X-MC-Unique: EIHLHmfvNwqSLUMaeQFMHA-1
-X-Mimecast-MFC-AGG-ID: EIHLHmfvNwqSLUMaeQFMHA
-Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-83ab67710b5so30013139f.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 07 Nov 2024 13:25:58 -0800 (PST)
+ us-mta-49-4nKHxOrBPT2T6auM_sD05Q-1; Thu, 07 Nov 2024 16:41:12 -0500
+X-MC-Unique: 4nKHxOrBPT2T6auM_sD05Q-1
+X-Mimecast-MFC-AGG-ID: 4nKHxOrBPT2T6auM_sD05Q
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5c95b050667so1681099a12.2
+        for <virtualization@lists.linux.dev>; Thu, 07 Nov 2024 13:41:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731014758; x=1731619558;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vrUNH9vtPlvjlTDQFOqG7/QZPSEZTHrrvLFCVTsPcHI=;
-        b=h5szJL4FscYdlR76+nbtwvsdKO3LH1RTqLoxFRQHMmDcIfkj1xh5i3X3QMBf7iKugS
-         KrI4KB/P4X2Hy3668z1hxC4jGfaUJtIRaI1ByXZnBdipp6N9nYBVtR48OaNjcDd6Guy6
-         7UoWRaE+j8J14HMeRAIUxASHgOt5p1bnd0x7Z7oEPjHNG8VdEVIgosA9ptY8m3ursFDi
-         ssZ4XlvGcNU347YyL/IUpUv2dF2uJZ5QYhT95G03KsRL0RxG7mSVGBioFVUaba1MFXim
-         RnesOQIyGtO/p5AsMJKRJPqUrcjB6oDC1nJzDrBTFS48adfBi/9+MYx7aKSinP/w80aq
-         zDkg==
-X-Forwarded-Encrypted: i=1; AJvYcCU8DU51AzxL2JP0leXBwdHXJnOmPavfr2OGDO4E/YZ14ioF79LLuvwFkHF3MfjGSzMt1n6ibOP93/UoPGoltw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyREGjl8enRr2WSNxmZJnHHpojz3CN5eevE4hGU10G5ICnhGkQ8
-	4x4DhG736sUgecpKzj73D58fZ5ERdGDZUy2XiXnV8B0yi0kYfqur7FKeBVuDsHGUsiUCP0w793C
-	bcKXuirGIVfwdNuqRzNfHm4LKZBnPSEYClV36dcvGhp379bZ90ryGyqrrKZz+Emwnhx2lP4GqAn
-	ljdeo=
-X-Received: by 2002:a05:6602:1550:b0:83a:92e5:7eeb with SMTP id ca18e2360f4ac-83e03082657mr15267639f.0.1731014757793;
-        Thu, 07 Nov 2024 13:25:57 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEp7eXeRbz62660yxPzQ0ijKk6KzJLsBL0eubgfdPA83fTKv0fV4hT1Cus63N4TbXPmff2OIQ==
-X-Received: by 2002:a05:6602:1550:b0:83a:92e5:7eeb with SMTP id ca18e2360f4ac-83e03082657mr15266239f.0.1731014757262;
-        Thu, 07 Nov 2024 13:25:57 -0800 (PST)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4de5f8e2acesm477481173.113.2024.11.07.13.25.56
+        d=1e100.net; s=20230601; t=1731015671; x=1731620471;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wKXsXIJ6+wujZXZvZ8iEGuUegjY8zfalZM3UvgSSNaI=;
+        b=RT/J7Qb+BgukHbxW9c20atWy/+uIL7RdCuYfMyh79bXhy3qA/TXEVZjRKxyMdVV6Z/
+         rmTsDCUz8dJDWMb6wiGu8dXq0HR/CCRZteQtlKrWdFKTJf61yW3cNkrqHOeZzpBDkikO
+         iv04RFLGvNRvRWfJAzX6fQYS4JIyu6y3FKebLnLoLQqPRO5uTEq8USdhmBuhW6EsGiMT
+         U07XECzuOnHdPBnPFK2CQKfHNx4jrf2V7U2qvJSp7XDRvLsVYz2oyhbOvWEJ4+kldB1w
+         anZOjLKb1qD5Q2Kk6fZP9a1ng38OTYjxR9IOOtjDqTFKDM94CxueeK+8w97G+UD6JAYf
+         PP4A==
+X-Forwarded-Encrypted: i=1; AJvYcCVJ3gT07bh/MI9/gmhy3uBFFN/etTIekEBR1mrLW9/vJnFvuMG9KCwk7X4DJLAlgUqphHat/XMW1af4wjWwng==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwyPfFYaNjj7U+SPW6o/98Nfz2X78z33cIRRi1XtAm7L6RZPoWd
+	3odqtWw5ydsPRXwU+xgs/GL5dwuUGMWWZnBzXOI23aGMn0BAW8dIudHcoL5ilJjXIPtqzysrvVP
+	/DGvYl5ObujnK1ICdZV+2w37bt2lmvAV34BWkKCP/Ej7tgayZ/wxjK7sYJZ8bN6zl
+X-Received: by 2002:a05:6402:2790:b0:5cf:9ec:168e with SMTP id 4fb4d7f45d1cf-5cf0a30b0c1mr242461a12.2.1731015671451;
+        Thu, 07 Nov 2024 13:41:11 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGnySyRq03iGTzTmiBoPn4BtW/0y8BdTVR3G/Nk4eaBwgb/hSu3uiHSIE0b1E3DZtVksWsI4w==
+X-Received: by 2002:a05:6402:2790:b0:5cf:9ec:168e with SMTP id 4fb4d7f45d1cf-5cf0a30b0c1mr242438a12.2.1731015671068;
+        Thu, 07 Nov 2024 13:41:11 -0800 (PST)
+Received: from redhat.com ([2a02:14f:179:39a6:9751:f8aa:307a:2952])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5cf03bb6dc1sm1292372a12.42.2024.11.07.13.41.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Nov 2024 13:25:56 -0800 (PST)
-Date: Thu, 7 Nov 2024 14:25:54 -0700
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Yishai Hadas <yishaih@nvidia.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>, <mst@redhat.com>,
- <jasowang@redhat.com>, <kvm@vger.kernel.org>,
- <virtualization@lists.linux-foundation.org>, <parav@nvidia.com>,
- <feliu@nvidia.com>, <kevin.tian@intel.com>, <joao.m.martins@oracle.com>,
- <leonro@nvidia.com>, <maorg@nvidia.com>
-Subject: Re: [PATCH V1 vfio 7/7] vfio/virtio: Enable live migration once
- VIRTIO_PCI was configured
-Message-ID: <20241107142554.1c38f347.alex.williamson@redhat.com>
-In-Reply-To: <af8886fd-ec75-45fa-b627-2cd3c2ce905c@nvidia.com>
-References: <20241104102131.184193-1-yishaih@nvidia.com>
-	<20241104102131.184193-8-yishaih@nvidia.com>
-	<20241105162904.34b2114d.alex.williamson@redhat.com>
-	<20241106135909.GO458827@nvidia.com>
-	<20241106152732.16ac48d3.alex.williamson@redhat.com>
-	<af8886fd-ec75-45fa-b627-2cd3c2ce905c@nvidia.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+        Thu, 07 Nov 2024 13:41:09 -0800 (PST)
+Date: Thu, 7 Nov 2024 16:41:02 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Hyunwoo Kim <v4bel@theori.io>, "K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Stefano Garzarella <sgarzare@redhat.com>, jasowang@redhat.com,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	gregkh@linuxfoundation.org, imv4bel@gmail.com
+Subject: Re: [PATCH v2] hv_sock: Initializing vsk->trans to NULL to prevent a
+ dangling pointer
+Message-ID: <20241107163942-mutt-send-email-mst@kernel.org>
+References: <Zys4hCj61V+mQfX2@v4bel-B760M-AORUS-ELITE-AX>
+ <20241107112942.0921eb65@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20241107112942.0921eb65@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fGNkebEaxP7tMINHtlXgritGzgYTozuNlq9E5h9Vei0_1731014758
+X-Mimecast-MFC-PROC-ID: id5WyEcp4au1_UQNl6DneJnx3sbdnN36qzlhLGyWCqk_1731015671
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 7 Nov 2024 14:57:39 +0200
-Yishai Hadas <yishaih@nvidia.com> wrote:
+On Thu, Nov 07, 2024 at 11:29:42AM -0800, Jakub Kicinski wrote:
+> On Wed, 6 Nov 2024 04:36:04 -0500 Hyunwoo Kim wrote:
+> > When hvs is released, there is a possibility that vsk->trans may not
+> > be initialized to NULL, which could lead to a dangling pointer.
+> > This issue is resolved by initializing vsk->trans to NULL.
+> > 
+> > Fixes: ae0078fcf0a5 ("hv_sock: implements Hyper-V transport for Virtual Sockets (AF_VSOCK)")
+> > Cc: stable@vger.kernel.org
+> 
+> I don't see the v1 on netdev@, nor a link to it in the change log
+> so I may be missing the context, but the commit message is a bit
+> sparse.
+> 
+> The stable and Fixes tags indicate this is a fix. But the commit
+> message reads like currently no such crash is observed, quote:
+> 
+>                           which could lead to a dangling pointer.
+>                                 ^^^^^
+>                                      ?
+> 
+> Could someone clarify?
 
-> On 07/11/2024 0:27, Alex Williamson wrote:
-> > On Wed, 6 Nov 2024 09:59:09 -0400
-> > Jason Gunthorpe <jgg@nvidia.com> wrote:
-> >  =20
-> >> On Tue, Nov 05, 2024 at 04:29:04PM -0700, Alex Williamson wrote: =20
-> >>>> @@ -1,7 +1,7 @@
-> >>>>   # SPDX-License-Identifier: GPL-2.0-only
-> >>>>   config VIRTIO_VFIO_PCI
-> >>>>           tristate "VFIO support for VIRTIO NET PCI devices"
-> >>>> -        depends on VIRTIO_PCI && VIRTIO_PCI_ADMIN_LEGACY
-> >>>> +        depends on VIRTIO_PCI
-> >>>>           select VFIO_PCI_CORE
-> >>>>           help
-> >>>>             This provides support for exposing VIRTIO NET VF devices=
- which support
-> >>>> @@ -11,5 +11,7 @@ config VIRTIO_VFIO_PCI
-> >>>>             As of that this driver emulates I/O BAR in software to l=
-et a VF be
-> >>>>             seen as a transitional device by its users and let it wo=
-rk with
-> >>>>             a legacy driver.
-> >>>> +          In addition, it provides migration support for VIRTIO NET=
- VF devices
-> >>>> +          using the VFIO framework. =20
-> >>>
-> >>> The first half of this now describes something that may or may not be
-> >>> enabled by this config option and the additional help text for
-> >>> migration is vague enough relative to PF requirements to get user
-> >>> reports that the driver doesn't work as intended. =20
-> >>
-> >> Yes, I think the help should be clearer
-> >> =20
-> >>> For the former, maybe we still want a separate config item that's
-> >>> optionally enabled if VIRTIO_VFIO_PCI && VFIO_PCI_ADMIN_LEGACY. =20
-> >>
-> >> If we are going to add a bunch of  #ifdefs/etc for ADMIN_LEGACY we
-> >> may as well just use VIRTIO_PCI_ADMIN_LEGACY directly and not
-> >> introduce another kconfig for it? =20
-> >=20
-> > I think that's what Yishai is proposing, but as we're adding a whole
-> > new feature to the driver I'm concerned how the person configuring the
-> > kernel knows which features from the description might be available in
-> > the resulting driver.
-> >=20
-> > We could maybe solve that with a completely re-written help text that
-> > describes the legacy feature as X86-only and migration as a separate
-> > architecture independent feature, but people aren't great at reading
-> > and part of the audience is going to see "X86" in their peripheral
-> > vision and disable it, and maybe even complain that the text was
-> > presented to them.
-> >=20
-> > OR, we can just add an optional sub-config bool that makes it easier to
-> > describe the (new) main feature of the driver as supporting live
-> > migration (on supported hardware) and the sub-config option as
-> > providing legacy support (on supported hardware), and that sub-config
-> > is only presented on X86, ie. ADMIN_LEGACY.
-> >=20
-> > Ultimately the code already needs to support #ifdefs for the latter and
-> > I think it's more user friendly and versatile to have the separate
-> > config option.
-> >=20
-> > NB. The sub-config should be default on for upgrade compatibility.
-> >  =20
-> >> Is there any reason to compile out the migration support for virtio?
-> >> No other drivers were doing this? =20
-> >=20
-> > No other vfio-pci variant driver provides multiple, independent
-> > features, so for instance to compile out migration support from the
-> > vfio-pci-mlx5 driver is to simply disable the driver altogether.
-> >  =20
-> >> kconfig combinations are painful, it woudl be nice to not make too
-> >> many.. =20
-> >=20
-> > I'm not arguing for a legacy-only, non-migration version (please speak
-> > up if someone wants that).  The code already needs to support the
-> > #ifdefs and I think reflecting that in a sub-config option helps
-> > clarify what the driver is providing and conveniently makes it possible
-> > to have a driver with exactly the same feature set across archs, if
-> > desired.  Thanks,
-> >  =20
->=20
-> Since the live migration functionality is not architecture-dependent=20
-> (unlike legacy access, which requires X86) and is likely to be the=20
-> primary use of the driver, I would suggest keeping it outside of any=20
-> #ifdef directives, as initially introduced in V1.
->=20
-> To address the description issue and provide control for customers who=20
-> may need the legacy access functionality, we could introduce a bool=20
-> configuration option as a submenu under the driver=E2=80=99s main live mi=
-gration=20
-> feature.
->=20
-> This approach will keep things simple and align with the typical use=20
-> case of the driver.
->=20
-> Something like the below [1] can do the job for that.
->=20
-> Alex,
-> Can that work for you ?
->=20
-> By the way, you have suggested calling the config entry=20
-> VFIO_PCI_ADMIN_LEGACY, don't we need to add here also the VIRTIO as a=20
-> prefix ? (i.e. VIRTIO_VFIO_PCI_ADMIN_LEGACY)
+I think it's just an accent, in certain languages/cultures expressing
+uncertainty is considered polite. Should be "can".
 
-I think that was just a typo referring to VIRTIO_PCI_ADMIN_LEGACY.
-Yes, appending _ADMIN_LEGACY to the main config option is fine.
-
-> [1]
-> # SPDX-License-Identifier: GPL-2.0-only
->=20
-> config VIRTIO_VFIO_PCI
->          tristate "VFIO support for live migration over VIRTIO NET PCI
->                    devices"
-
-Looking at other variant drivers, I think this should just be:
-
-=09"VFIO support for VIRTIO NET PCI VF devices"
-
->          depends on VIRTIO_PCI
->          select VFIO_PCI_CORE
->          select IOMMUFD_DRIVER
-
-IIUC, this is not a dependency, the device will just lack dirty page
-tracking with either the type1 backend or when using iommufd when the
-IOMMU hardware doesn't have dirty page tracking, therefore all VM
-memory is perpetually dirty.  Do I have that right?
-
->          help
->            This provides migration support for VIRTIO NET PCI VF devices
->            using the VFIO framework.
-
-This is still too open ended for me, there is specific PF support
-required in the device to make this work.  Maybe...
-
-=09This provides migration support for VIRTIO NET PCI VF devices
-=09using the VFIO framework.  Migration support requires the
-=09SR-IOV PF device to support specific VIRTIO extensions,
-=09otherwise this driver provides no additional functionality
-=09beyond vfio-pci.
-
-=09Migration support in this driver relies on dirty page tracking
-=09provided by the IOMMU hardware and exposed through IOMMUFD, any
-=09other use cases are dis-recommended.
-
->            If you don't know what to do here, say N.
->=20
-> config VFIO_PCI_ADMIN_LEGACY
-
-VIRTIO_VFIO_PCI_ADMIN_LEGACY
-
->          bool "VFIO support for legacy I/O access for VIRTIO NET PCI
->                devices"
-
-Maybe:
-
-=09"Legacy I/O support for VIRTIO NET PCI VF devices"
-
->          depends on VIRTIO_VFIO_PCI && VIRTIO_PCI_ADMIN_LEGACY
->          default y
->          help
->            This provides support for exposing VIRTIO NET VF devices which
->            support legacy IO access, using the VFIO framework that can
->            work with a legacy virtio driver in the guest.
->            Based on PCIe spec, VFs do not support I/O Space.
->            As of that this driver emulates I/O BAR in software to let a
->            VF be seen as a transitional device by its users and let it
->            work with a legacy driver.
-
-Maybe:
-
-=09This extends the virtio-vfio-pci driver to support legacy I/O
-=09access, allowing use of legacy virtio drivers with VIRTIO NET
-=09PCI VF devices.  Legacy I/O support requires the SR-IOV PF
-=09device to support and enable specific VIRTIO extensions,
-=09otherwise this driver provides no additional functionality
-=09beyond vfio-pci.
-
-IMO, noting the PF requirement in each is important (feel free to
-elaborate on specific VIRTIO extension requirements).  It doesn't seem
-necessary to explain how the legacy compatibility works, only that this
-driver makes the VF compatible with the legacy driver.
-
-Are both of these options configurable at the PF in either firmware or
-software?  I used "support and enable" in the legacy section assuming
-that there is such a knob, but for migration it seems less necessary
-that there's an enable step.  Please correct based on the actual
-device behavior.  Thanks,
-
-Alex
+-- 
+MST
 
