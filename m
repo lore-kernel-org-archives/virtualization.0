@@ -1,195 +1,314 @@
-Received: from out199-11.us.a.mail.aliyun.com (out199-11.us.a.mail.aliyun.com [47.90.199.11])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76CC11DF75E
-	for <virtualization@lists.linux.dev>; Thu,  7 Nov 2024 09:00:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.199.11
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730970036; cv=none; b=V6pPdQ3IVYS6iuX0GwgxkZEtHRRP07w22U8SZAVdkRXxQH3OkDGANqxweE/4Ba+VvKQ1D3RcqZwhCeXXaZiYKbWFEDP8ygRPCsrABWzv1VFj/AWNWgtvk69q/Rv9yMcLJhi2Mg+Ugh5ZFe6Ca35CmbgACgkCKHdkJt4+Sb/PsME=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730970036; c=relaxed/simple;
-	bh=2wrVsnJkmIFjBWYbByhcEgEpjPaTXUOPsoNSKAsOXPo=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=j/bxTriRIb2vgwUkY7XXU2au3nAbOImruVn9PEO17M2Oo1O7SAcpR8HN48o+bBMaPZE6Mbm140IXBl67WjHgKEQxiICPJzvIertzhtRKX4qmej2M/xlRRaPD8SkYTsEauqiSOBS5ICjRFr+CDCsJN0aNg2DqMcbV2XU4NokizC8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=H0MmwFPM; arc=none smtp.client-ip=47.90.199.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CC961D79BB
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 09:40:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730972412; cv=fail; b=m70JVXD/AaWuZwfyv6w+ojDZ8MKqtPIfBGw4dbDHNBLbG1xRe3eFO0PZW0VDVDAwenFulLwIYARTBA+JFj0N1t05bNPuHlb1lLQdirxpQd7u9T00gf7mxOymjNFMF3awuiN7nXB2KtGHDZo4W9+ybLxFiySZ9z6n+0pjZBD1mTY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730972412; c=relaxed/simple;
+	bh=HxobhjuVf3J4Tg34O2gkg39DvnzQMoiPRE7ho6AYirc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=hJrnI7nN2e2iKzJXIzxK6+7iW0DQtfOM53kI8TzhUoXDdCZdiAT3GwzATR+A7eBq3670VE2kfg9BapsApgFRmHoz12NQSNfyq/0IPHRTISkiy2WPdTcTTETjgJIfrvTv/0hC5cSxheHuJj8u4qcgadUy+bkTpLnKr9jq6kj08UE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=C3sg+5o2; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="H0MmwFPM"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1730970029; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=LHfNUJKLWIQvJsxY7ytRb+qS1OX+a03H1JK3ekZWhSk=;
-	b=H0MmwFPMxY6tXk0sqBVYERRHC4uEn9NB533cBbMHh3nynV6HyccswhyBhNMGM39SX0cxSYaXnWamZgJjMl2d+V4SePTPHhlFhef1LPWG8bDfYB7vR4/5L3qSGeECtCSFzhqhTiHNlXUlzTFZTTFuGUBw0GU4kIo/qmMxz0+79QU=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WIv0ukX_1730969711 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 07 Nov 2024 16:55:12 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next v3 07/13] virtio_ring: remove API virtqueue_set_dma_premapped
-Date: Thu,  7 Nov 2024 16:54:58 +0800
-Message-Id: <20241107085504.63131-8-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
-References: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="C3sg+5o2"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 92BFA60BD8
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 09:40:10 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id x2OgOoosxu40 for <virtualization@lists.linux-foundation.org>;
+ Thu,  7 Nov 2024 09:40:09 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2405::614; helo=nam02-dm3-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 90D7E60B9E
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90D7E60B9E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=C3sg+5o2
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on20614.outbound.protection.outlook.com [IPv6:2a01:111:f403:2405::614])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 90D7E60B9E
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Nov 2024 09:40:09 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=xIVIA741NiIf2oFRXLQNeiyBAnVRqzmiASy5tDZdIA2BwZDtrV9i2AKmi+v/8RN+5qLBBFzQvZ/NO03r/RFcYuU4csAvYSjNqb0rXRtIKZBzueFNHSLtxEctQIkM3CqjvZd43yPe2+8V/5UFB7v77qXOkKPDZVcRM4IKjOdWVqdwGVL+Yo0G4gvbRPy4WgKeWNCJWaIfL2POK8hFHzv38bpS+sxlaAw3VU4kl2Fd96zsSaCOKztxwcUcYfnHkksbznso15h9dcqsGZ3edjKKstkDaNwN+x39PYgRUsgjSAMnFKYWPEN9WlVsqDea7mtUPOQ3XqEPn+YpVPRD0Q6mSQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HisloP9eTLIIR7J0SDkwd7gQaCznTT5wwDDYxwuukeA=;
+ b=x+I0dwaZV18oWVNobiDuGxOAiJHtfqCj4I6j4VGKNzN8zPlYm73R58XXjwt5CfaHTgGO9ClsCr5xGGrpes/UfqxYCGxGCz7ZU0S5EFe6GDl3J3s2wfOdbyKF8bSRO1SniHSMA8dTaDm9he6zPL8FGxHByVXkbfpY02/LoxgitG1g3QSllRViMYzJBpaf1MYqtb3c69BezDz9NXyp0CkjeAdfW9laVxg/rbaL5QCMymuE8ESmSLZTLvYTZFh4oFMbuzygS/2LJ8dyVD2E9THT6KDVLpyCXuhTUO3SSCkSuZ7deq09oMZShPDedZoHtyUbcbH3+z3elI/Pj1+z8UBxag==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HisloP9eTLIIR7J0SDkwd7gQaCznTT5wwDDYxwuukeA=;
+ b=C3sg+5o2w8abSWXPc4EaECAGmIs6XsU6MgzK0XO/f6CZoo63hxdFhfyb68cB3fR8P0Tt8934RvQBu3+09FIZxBQsz/DUF04TxVtCxmC2mIWvPpgq09Da4J2kQio1UTtWDf3o3sWgJFLAjpqPRQxzzyjOSvXqRE/l9Sl927sSvhptVmqHSMzQmYtnSOD9bMfFULTb8RxHJhHabVdKGUxR3xd7nYRrZ+ncJjLdUU3xX7j3C+hQpu9NRVy00t9YqxuMFQbc898pKXrcsMJMDqrVagWt83+P8Fs4LN8pcnORtL+yXuGimIT8ioc3JOlHeZ8G6/yw4XIAsKEWEoPtsUCnfw==
+Received: from DM6PR03CA0061.namprd03.prod.outlook.com (2603:10b6:5:100::38)
+ by SJ0PR12MB6806.namprd12.prod.outlook.com (2603:10b6:a03:478::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Thu, 7 Nov
+ 2024 09:40:04 +0000
+Received: from DS3PEPF000099D3.namprd04.prod.outlook.com
+ (2603:10b6:5:100:cafe::48) by DM6PR03CA0061.outlook.office365.com
+ (2603:10b6:5:100::38) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.18 via Frontend
+ Transport; Thu, 7 Nov 2024 09:40:04 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ DS3PEPF000099D3.mail.protection.outlook.com (10.167.17.4) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8137.17 via Frontend Transport; Thu, 7 Nov 2024 09:40:04 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 7 Nov 2024
+ 01:39:48 -0800
+Received: from [172.27.60.49] (10.126.231.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 7 Nov 2024
+ 01:39:43 -0800
+Message-ID: <863fe573-3ab2-428a-91fd-aea32d280935@nvidia.com>
+Date: Thu, 7 Nov 2024 11:39:41 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 2634baada01d
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V1 vfio 5/7] vfio/virtio: Add support for the basic live
+ migration functionality
+To: Alex Williamson <alex.williamson@redhat.com>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
+	<joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+References: <20241104102131.184193-1-yishaih@nvidia.com>
+ <20241104102131.184193-6-yishaih@nvidia.com>
+ <20241105154746.60e06e75.alex.williamson@redhat.com>
+ <eebad7d5-d7c2-4910-872c-c362c246aa78@nvidia.com>
+ <20241106143341.1b23936c.alex.williamson@redhat.com>
+Content-Language: en-US
+From: Yishai Hadas <yishaih@nvidia.com>
+In-Reply-To: <20241106143341.1b23936c.alex.williamson@redhat.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS3PEPF000099D3:EE_|SJ0PR12MB6806:EE_
+X-MS-Office365-Filtering-Correlation-Id: 60e73cc6-be3f-4fa5-0435-08dcff102890
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|1800799024|82310400026|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?RUtqQ2hlWUtsVkxVWlZFMzJjdlNsbGloSDMxZTM2UFI2WWw2M1AwL0NkOWJo?=
+ =?utf-8?B?bDIxTXlHLyszNlptV1doNHIrc0l4aVA5YmIvVk12Q0JkMHFRRm16K2w0dEkx?=
+ =?utf-8?B?U2p6WHlrZDg1a1BhTkQ4RVhZQmE0cG5TTkg2WkhrM0FOM1E0dUpxL2lwRXRO?=
+ =?utf-8?B?Ti8walJMdkNZdHF4YWtQK1hYK0hzb29aT0JIbVhQZ1lzc3IzcDNlTTNIYlUx?=
+ =?utf-8?B?SXVGaXBhaUVVYXB0Zk41UWt3K255cUt1WVBHbWtjYmJlanIyMS9yY2pMS2RE?=
+ =?utf-8?B?TkVXNmlIekQzb00vVUo5R2dRSyt0SHpKeXpGVGRBazRJdGtlQStUODlYL21F?=
+ =?utf-8?B?YXNTekJUUElvdEc0S0NKWklpY1VBbjIzSnJST01SOG10TWs5UmdZcmFYSTV2?=
+ =?utf-8?B?TEdjM3dKSnNHV015b0VSNzZ0eEwvWUQ1QmZqT0hyRlVvYmlaZStwR2hZYzRv?=
+ =?utf-8?B?Tnd4U1lJV3RrcTJsZUFveVM2Rm4wVjhvWCtGZENUQ0FXcjJMNXhNWXRrRnZ6?=
+ =?utf-8?B?eVd4MjQ2YnZubkthZk1mNDlNc1hqbjhvVkFncUhSN01QdGxucGVNWkdsb2li?=
+ =?utf-8?B?cEU0QnN3NkVvajBmUllQM1RIQmF0blZEWjJ4UjVIa1ZLNlFRNC95aEJTbzQy?=
+ =?utf-8?B?NDErTGZKZGtMQjdOcFM3K1NYRm5FV1c4aXJDYy9Qdk9QakRqTEVCRVFUVGFF?=
+ =?utf-8?B?VlcxRWVsdWZGd0x4UXpRQytKVWMwbGhGNTJheHYyNnV3bEt6cy9qTUNLam4x?=
+ =?utf-8?B?ejhKaXlubUpxVXNrRTF4WU5NMlhHT0ZTSXhkN2VvWjJDVWJXeU42U0JSeTly?=
+ =?utf-8?B?WnJXdGtIeDB6N3EwK2JZWWpMSTRWY0x4dTdGWGdTM2FSdWRDYUhCb3BqU1lj?=
+ =?utf-8?B?QytvQ0p6dzYrMjBEL1hZdEhCUm1QT0dzR0hYalFVay9uSmVDazhYb3FGaFNq?=
+ =?utf-8?B?Ly9KUmpmZENuSVhtNXc1N3lNKytwUWhEVkVFZHVFUVJtWkwxZGltMzFybFNF?=
+ =?utf-8?B?dnYwSVpjaWxEMzFZR1FRUmhqRDhrenM1WVJmVmRMT2xGTzlOVmVVei9wazhy?=
+ =?utf-8?B?bXF2QlZTeS92RkR1cjhtdHZnM0hsUk83aE93ay9ySlZaNmhudmR1RFAxT25a?=
+ =?utf-8?B?RHA3R1F3eUU3YVBwbUh0c1BzZkVGUTIvZ1NPYUtVTGhOYlRrMjZMU1RudGdI?=
+ =?utf-8?B?OENJcDVmZ21RRW1qODRLcm9KTTY0V09EZ3lkb0t1WnVOV0IxY3pMRm1mQUpo?=
+ =?utf-8?B?U0Z4QUFoNWptS1lzU1F6d0c3QWw3SlVlbTAzeHV4OVZqYURid0gyMVh1bkNa?=
+ =?utf-8?B?K3oxZU1DMDlEM2ZmWHE5VnIrRysxVElGbmROUlhhK3FCbmVmaGo2T2ZndnRU?=
+ =?utf-8?B?YnoyRkhTZk0yTERkbUxOUEE4M0VTRVMwYzRHQ0s3L3FDWlZpQmUzVy9zckhY?=
+ =?utf-8?B?US9aNlhELzZma1VyZUxkQnR6UENIUURiTzNYemJpODlOa2JYK0p6VWlDR2VY?=
+ =?utf-8?B?dmliWmtlOTNFTnZJQUo0eEh3ZG9XM2ZscmRnRERJSVp3Z1grbnJKU2o1b0Qw?=
+ =?utf-8?B?ZWpmR1NIZmFlcGQ2dVE4cnBVMVRmeXkybUtvd2M3WjRKNGVISi8vR0Q1YW10?=
+ =?utf-8?B?SHpEWEY1dWpoVlZJNUloVXY1Z1h5RUVOZ3Y3dlhrd0psL0UyZ3ZFWmJZcSty?=
+ =?utf-8?B?WUVkUjlNZzU0MVpRRUx6K1JQb3cvUkptNGdoVDhXY28ycjloV3J2T2N3eGR2?=
+ =?utf-8?B?K1JTU1RNbEZ2VElRYU1ORjg4eWNHZUpuOStweVNVS2FqMmxRdnJ0ZUVUVjQz?=
+ =?utf-8?B?NDRsWS93TWZkbEZkUzFQN1FXamgzczNBMkZSU2hmVmJIMFZ0RlJSbGVWUm5a?=
+ =?utf-8?B?ZDZTUHdZbmNaRXYvelhxenIvTXd5bW5DRVBvcjhlT3QvVEE9PQ==?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(82310400026)(376014);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2024 09:40:04.3291
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 60e73cc6-be3f-4fa5-0435-08dcff102890
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS3PEPF000099D3.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6806
 
-Now, this API is useless. remove it.
+On 06/11/2024 23:33, Alex Williamson wrote:
+> On Wed, 6 Nov 2024 12:21:03 +0200
+> Yishai Hadas <yishaih@nvidia.com> wrote:
+> 
+>> On 06/11/2024 0:47, Alex Williamson wrote:
+>>> On Mon, 4 Nov 2024 12:21:29 +0200
+>>> Yishai Hadas <yishaih@nvidia.com> wrote:
+>>>> diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
+>>>> index b5d3a8c5bbc9..e2cdf2d48200 100644
+>>>> --- a/drivers/vfio/pci/virtio/main.c
+>>>> +++ b/drivers/vfio/pci/virtio/main.c
+>>> ...
+>>>> @@ -485,16 +478,66 @@ static bool virtiovf_bar0_exists(struct pci_dev *pdev)
+>>>>    	return res->flags;
+>>>>    }
+>>>>    
+>>>> +static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
+>>>> +{
+>>>> +	struct virtiovf_pci_core_device *virtvdev = container_of(core_vdev,
+>>>> +			struct virtiovf_pci_core_device, core_device.vdev);
+>>>> +	struct pci_dev *pdev;
+>>>> +	bool sup_legacy_io;
+>>>> +	bool sup_lm;
+>>>> +	int ret;
+>>>> +
+>>>> +	ret = vfio_pci_core_init_dev(core_vdev);
+>>>> +	if (ret)
+>>>> +		return ret;
+>>>> +
+>>>> +	pdev = virtvdev->core_device.pdev;
+>>>> +	sup_legacy_io = virtio_pci_admin_has_legacy_io(pdev) &&
+>>>> +				!virtiovf_bar0_exists(pdev);
+>>>> +	sup_lm = virtio_pci_admin_has_dev_parts(pdev);
+>>>> +
+>>>> +	/*
+>>>> +	 * If the device is not capable to this driver functionality, fallback
+>>>> +	 * to the default vfio-pci ops
+>>>> +	 */
+>>>> +	if (!sup_legacy_io && !sup_lm) {
+>>>> +		core_vdev->ops = &virtiovf_vfio_pci_ops;
+>>>> +		return 0;
+>>>> +	}
+>>>> +
+>>>> +	if (sup_legacy_io) {
+>>>> +		ret = virtiovf_read_notify_info(virtvdev);
+>>>> +		if (ret)
+>>>> +			return ret;
+>>>> +
+>>>> +		virtvdev->bar0_virtual_buf_size = VIRTIO_PCI_CONFIG_OFF(true) +
+>>>> +					virtiovf_get_device_config_size(pdev->device);
+>>>> +		BUILD_BUG_ON(!is_power_of_2(virtvdev->bar0_virtual_buf_size));
+>>>> +		virtvdev->bar0_virtual_buf = kzalloc(virtvdev->bar0_virtual_buf_size,
+>>>> +						     GFP_KERNEL);
+>>>> +		if (!virtvdev->bar0_virtual_buf)
+>>>> +			return -ENOMEM;
+>>>> +		mutex_init(&virtvdev->bar_mutex);
+>>>> +	}
+>>>> +
+>>>> +	if (sup_lm)
+>>>> +		virtiovf_set_migratable(virtvdev);
+>>>> +
+>>>> +	if (sup_lm && !sup_legacy_io)
+>>>> +		core_vdev->ops = &virtiovf_vfio_pci_lm_ops;
+>>>> +
+>>>> +	return 0;
+>>>> +}
+>>>> +
+>>>>    static int virtiovf_pci_probe(struct pci_dev *pdev,
+>>>>    			      const struct pci_device_id *id)
+>>>>    {
+>>>> -	const struct vfio_device_ops *ops = &virtiovf_vfio_pci_ops;
+>>>>    	struct virtiovf_pci_core_device *virtvdev;
+>>>> +	const struct vfio_device_ops *ops;
+>>>>    	int ret;
+>>>>    
+>>>> -	if (pdev->is_virtfn && virtio_pci_admin_has_legacy_io(pdev) &&
+>>>> -	    !virtiovf_bar0_exists(pdev))
+>>>> -		ops = &virtiovf_vfio_pci_tran_ops;
+>>>> +	ops = (pdev->is_virtfn) ? &virtiovf_vfio_pci_tran_lm_ops :
+>>>> +				  &virtiovf_vfio_pci_ops;
+>>>
+>>> I can't figure out why we moved the more thorough ops setup to the
+>>> .init() callback of the ops themselves.  Clearly we can do the legacy
+>>> IO and BAR0 test here and the dev parts test uses the same mechanisms
+>>> as the legacy IO test, so it seems we could know sup_legacy_io and
+>>> sup_lm here.  I think we can even do virtiovf_set_migratable() here
+>>> after virtvdev is allocated below.
+>>>    
+>>
+>> Setting the 'ops' as part of the probe() seems actually doable,
+>> including calling virtiovf_set_migratable() following the virtiodev
+>> allocation below.
+>>
+>> The main issue with that approach will be the init part of the legacy IO
+>> (i.e. virtiovf_init_legacy_io()) as part of virtiovf_pci_init_device().
+>>
+>> Assuming that we don't want to repeat calling
+>> virtiovf_support_legacy_io() as part of virtiovf_pci_init_device() to
+>> know whether legacy IO is supported, we can consider calling
+>> virtiovf_init_legacy_io() as part of the probe() as well, which IMO
+>> doesn't look clean as it's actually seems to match the init flow.
+>>
+>> Alternatively, we can consider checking inside
+>> virtiovf_pci_init_device() whether the 'ops' actually equals the 'tran'
+>> ones and then call it.
+>>
+>> Something like the below.
+>>
+>> static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
+>> {
+>> 	...
+>>
+>> #ifdef CONFIG_VIRTIO_PCI_ADMIN_LEGACY
+>> 	if (core_vdev->ops == &virtiovf_vfio_pci_tran_lm_ops)
+>> 		return virtiovf_init_legacy_io(virtvdev);
+>> #endif
+>>
+>> 	return 0;
+>> }
+>>
+>> Do you prefer the above approach rather than current V1 code which has a
+>>    single check as part of virtiovf_init_legacy_io() ?
+> 
+> If ops is properly configured and set-migratable is done in probe,
+> then doesn't only the legacy ops .init callback need to init the legacy
+> setup?  The non-legacy, migration ops structure would just use
+> vfio_pci_core_init_dev.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c     | 13 ----------
- drivers/virtio/virtio_ring.c | 48 ------------------------------------
- include/linux/virtio.h       |  2 --
- 3 files changed, 63 deletions(-)
+Correct, this seems as a clean solution, will use it as part of V2.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 862beacef5d7..e4ebf3ffbf02 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -6107,15 +6107,6 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 	return -ENOMEM;
- }
- 
--static void virtnet_rq_set_premapped(struct virtnet_info *vi)
--{
--	int i;
--
--	for (i = 0; i < vi->max_queue_pairs; i++)
--		/* error should never happen */
--		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
--}
--
- static int init_vqs(struct virtnet_info *vi)
- {
- 	int ret;
-@@ -6129,10 +6120,6 @@ static int init_vqs(struct virtnet_info *vi)
- 	if (ret)
- 		goto err_free;
- 
--	/* disable for big mode */
--	if (!vi->big_packets || vi->mergeable_rx_bufs)
--		virtnet_rq_set_premapped(vi);
--
- 	cpus_read_lock();
- 	virtnet_set_affinity(vi);
- 	cpus_read_unlock();
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 26d218f6235d..38bea08f0469 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -180,9 +180,6 @@ struct vring_virtqueue {
- 	/* Host publishes avail event idx */
- 	bool event;
- 
--	/* Do DMA mapping by driver */
--	bool premapped;
--
- 	/* Head of free buffer list. */
- 	unsigned int free_head;
- 	/* Number we've added since last sync. */
-@@ -2098,7 +2095,6 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->packed_ring = true;
- 	vq->dma_dev = dma_dev;
- 	vq->use_dma_api = vring_use_dma_api(vdev);
--	vq->premapped = false;
- 
- 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
- 		!context;
-@@ -2689,7 +2685,6 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- #endif
- 	vq->dma_dev = dma_dev;
- 	vq->use_dma_api = vring_use_dma_api(vdev);
--	vq->premapped = false;
- 
- 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
- 		!context;
-@@ -2816,49 +2811,6 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- }
- EXPORT_SYMBOL_GPL(virtqueue_resize);
- 
--/**
-- * virtqueue_set_dma_premapped - set the vring premapped mode
-- * @_vq: the struct virtqueue we're talking about.
-- *
-- * Enable the premapped mode of the vq.
-- *
-- * The vring in premapped mode does not do dma internally, so the driver must
-- * do dma mapping in advance. The driver must pass the dma_address through
-- * dma_address of scatterlist. When the driver got a used buffer from
-- * the vring, it has to unmap the dma address.
-- *
-- * This function must be called immediately after creating the vq, or after vq
-- * reset, and before adding any buffers to it.
-- *
-- * Caller must ensure we don't call this with other virtqueue operations
-- * at the same time (except where noted).
-- *
-- * Returns zero or a negative error.
-- * 0: success.
-- * -EINVAL: too late to enable premapped mode, the vq already contains buffers.
-- */
--int virtqueue_set_dma_premapped(struct virtqueue *_vq)
--{
--	struct vring_virtqueue *vq = to_vvq(_vq);
--	u32 num;
--
--	START_USE(vq);
--
--	num = vq->packed_ring ? vq->packed.vring.num : vq->split.vring.num;
--
--	if (num != vq->vq.num_free) {
--		END_USE(vq);
--		return -EINVAL;
--	}
--
--	vq->premapped = true;
--
--	END_USE(vq);
--
--	return 0;
--}
--EXPORT_SYMBOL_GPL(virtqueue_set_dma_premapped);
--
- /**
-  * virtqueue_reset - detach and recycle all unused buffers
-  * @_vq: the struct virtqueue we're talking about.
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 13b3f55abca3..338e0f5efb4b 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -93,8 +93,6 @@ bool virtqueue_enable_cb(struct virtqueue *vq);
- 
- unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
- 
--int virtqueue_set_dma_premapped(struct virtqueue *_vq);
--
- bool virtqueue_poll(struct virtqueue *vq, unsigned);
- 
- bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
--- 
-2.32.0.3.g01195cf9f
+> 
+>>
+>>> I think the API to vfio core also suggests we shouldn't be modifying the
+>>> ops pointer after the core device is allocated.
+>>
+>> Any pointer for that ?
+>> Do we actually see a problem with replacing the 'ops' as part of the
+>> init flow ?
+> 
+> What makes it that way to me is that it's an argument to and set by the
+> object constructor.  The ops callbacks should be considered live once
+> set.  It's probably safe to do as you've done here because the
+> constructor calls the init callback directly, so we don't have any
+> races.  However as Jason agreed, it's generally a pattern to avoid and I
+> think we can rather easily do so here.  Thanks,
+> 
 
+Yes, makes sense.
+
+Thanks,
+Yishai
