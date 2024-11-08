@@ -1,130 +1,170 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AF681EF0B9
-	for <virtualization@lists.linux.dev>; Fri,  8 Nov 2024 14:11:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DD2F1A9B53
+	for <virtualization@lists.linux.dev>; Fri,  8 Nov 2024 23:44:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731075082; cv=none; b=YTMwvOGXLK4FfbfVpzW0R85658WKybUCQNkDoYrWCrjO76X/J2clmpyxStDBbto3AesKyjGPKO7dl7p2jbtO7+4z359jr/WHyFkTtp6B4NYT4qIOXVMNclTazwHmLuzjII57iqeWQiO/57F1v7M7RjfjY7NvU2AsNk4Y8OYSuw4=
+	t=1731109489; cv=none; b=j3HZR6jnInwCe0V4I8GlAJy8oDgYkc7+W8fayoD/NNYMIwjI1oGNB5elffGV3/1Au+ilKxAKYehtUNlAP7sesHtRvHXJI6aWSokWD60t7buiSY2/AMwYg6U6NUB52BYiQDq/UKE0/+7pbxIuLzkQWlEMvuCEZbrLS5thIvwdPsk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731075082; c=relaxed/simple;
-	bh=geipAEp7Iny0knzgJN0trsMJLnXKvldNQshwvVzOt24=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kmRG7jeo2Mtno/BwmJtIZFKR4cGRCu8v3jrY0DSzd7O/SdM8DFfNHko+cqYuu4xYkPc0W+RR8je8bM/Zqh8DDLMiMrBJ1W0th8cWscnvlxtGyLMEnXr+ELGSRh9QjrOVDVPUq63QFnQJR9Dbl+xhOWsISN3/heS/TKbbxSj3BqM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=q2H7UEXJ; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+	s=arc-20240116; t=1731109489; c=relaxed/simple;
+	bh=ExUMXG6FhgrKWAiklD9tM+a73nAXl3Qf+VUQQugGkzQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bO1eb+XJUGWHXAFagFOb1Kv3sJQrXpTqaD8WxaJzeBr9igcU6PG+dc6Q3oDV3d3Z/K0cDU0Me8KC/pca1SUPsuqAnaxkjcPl9Elf+ic2Oi9qAM+v/qH8xQwcONUrODSAnztpwpZ/OXn9oo35ZF/CDyyZtDrBs8FQXaPQsIc9dVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com; spf=pass smtp.mailfrom=digitalocean.com; dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b=IaR3VKzK; arc=none smtp.client-ip=209.85.167.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=digitalocean.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digitalocean.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="q2H7UEXJ"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-460c0f9c13eso19578601cf.0
-        for <virtualization@lists.linux.dev>; Fri, 08 Nov 2024 06:11:18 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=digitalocean.com header.i=@digitalocean.com header.b="IaR3VKzK"
+Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-3e60966297fso1473067b6e.1
+        for <virtualization@lists.linux.dev>; Fri, 08 Nov 2024 15:44:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1731075077; x=1731679877; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=PKrXMfJU3Q1zGCXveeHgzpUc2RHjdnafoKeLdo/+mG0=;
-        b=q2H7UEXJYmlChbLlPN399Gb1cM3FnZNDARoL4fGLUUf26rShhaesGjvB9fBRJ+MIwE
-         2Q5QhdqOIN/8w/o+OEgCCBZg8Z1zHxcP7BIvug1CcgEsSAh0iEOl8RMWJbHVB9guPXTk
-         Ltm76CzYApV23s2DQKu59qosU1wlmyIdWle/I=
+        d=digitalocean.com; s=google; t=1731109486; x=1731714286; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZXbMh2FWVPnoribRVM7nCxASoiz/7gphLz9Rpu66roc=;
+        b=IaR3VKzKwVrQsE7/9CxAGgUIt0r2FimX0ai1709PWwj3ilcDX8t6dXLF0IwnOi1vPh
+         vlXkHTN85MDqZlau/DgcpfVQxsO73IzgJj2y4dURiHNvgCMyiLLQE7VsYRZodoOhJCvw
+         60XWZ89yvxN4Tujvdo3vQmysk7n2ihtoiMnno=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731075077; x=1731679877;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=PKrXMfJU3Q1zGCXveeHgzpUc2RHjdnafoKeLdo/+mG0=;
-        b=vQURRKlJ4tQV0X5EASZURL0UJhAY72ZTB+zMQx6Zuke8fCyDFl25oItcx0I0vw1dq4
-         NczNcDpT5Deqf0YJEC4JMk1B9WeBic+6u4eB1d1x8ODks//rrjqLsquh8yLQtwKLsW5e
-         CguknBN4ST6JSLuqbKjHp5W2QH/DMHsrG38JJDrRNtxLcPGAvQeKEosqRmZPx4mLrdQw
-         vmRK2DWIyy0MrW43PeT7Ppeu1qYLKe2WjAQwrHr6qO/fI/sOjsIC8EOAlBSqdM0pd0pC
-         NLhY3g30JPzbJT/X7Cb/119SJ3LCmJKLl+frRuIhslILM4REc75DqCXnmvd8U+kePYTR
-         S+bA==
-X-Forwarded-Encrypted: i=1; AJvYcCUs3EH+jf6FoOnf8WvjXfeUb4x8liBfSWU2K+ytdNbMT0ODqLl0MDoXMToW/1pMEOFL/SuLHcdfNpQ37Tv9tQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxidpOwpZjPYLEN8KDt7bNu7c6HjrVZUbu92861mi8aZaqUQMvW
-	DtANMYBXjJF/pQFrewY+TRD+EmE7fOqmYFktdyrgQZpebzuPCgA+Ivrm5TEcr5C/okqa3O0pDqy
-	lrMo7SBCyQGUG2I9KdYHBBXcpp5S+znYEnM3mag==
-X-Google-Smtp-Source: AGHT+IFlDnPeo/Bb8HEj42CD758Mq3MxIyeUubE4knE5l2tFQ+A4Td9GiYRSx26ULv1fdh0YLMjkT1FpbjFuz+Wxc6k=
-X-Received: by 2002:ac8:690e:0:b0:461:1679:9062 with SMTP id
- d75a77b69052e-46309a6de7emr59383801cf.9.1731075077202; Fri, 08 Nov 2024
- 06:11:17 -0800 (PST)
+        d=1e100.net; s=20230601; t=1731109486; x=1731714286;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZXbMh2FWVPnoribRVM7nCxASoiz/7gphLz9Rpu66roc=;
+        b=ZpJ9s2owC2v4KFiy0Tf7ZcTjqK15dB4D2HLGh4eJ6UwbmTpbAo9J1qrX3LNJgx8nc8
+         BRZK0Zxba249Fq5otxBrRNefghLvKtoA33H63+5CyXVP4WVHmPeNKFAgfAO9UsupbDXz
+         P5nV6Ji60ap5y1i32jpG6BrXBiMhu58jN8QIz9AH6Um4m4KdKpLkFvjhe1qRCiDxXx2J
+         Gv1em9UoiIdesAbxzIqhtJoNoBD1QBChmiGGx38j4HwLBJKrh3Q2M4lb/3vOc83VSt/S
+         AANvFJRw5urNii734bFrK4ePAUCfjMCiLncSNli92OlRdzXZuLRDIHHyjQxL1oR+LP6i
+         WbLA==
+X-Forwarded-Encrypted: i=1; AJvYcCWLQLz5pXpRoE8oKFWvaz0edeJ9XCtTN9w7nWuhDHUw+jo/10LgToHonkY+0MdtNUOj3LQAcWvdoAqOQg0BEQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyPmlqdnmeIoHc3uJp0yX1PFy9rWWofeLADAu2R/pQvGfzD9/Nz
+	3rDYq2okBKHKpZL+tA0DeJbVJF/0g23d0199VDosA3JjPZeO/mXX77FMDGq9gfg=
+X-Google-Smtp-Source: AGHT+IG+H1FYbgbfbVNVGwbagbKbs0uGKWVICE1ilxxQpWr7EmkKOvo2KKLljNXMkuaHIGL4cbLpWg==
+X-Received: by 2002:a05:6808:13c8:b0:3e6:5580:6667 with SMTP id 5614622812f47-3e79475cf8cmr5606582b6e.40.1731109486620;
+        Fri, 08 Nov 2024 15:44:46 -0800 (PST)
+Received: from ?IPV6:2603:8080:7400:36da:c10e:e419:c908:c818? ([2603:8080:7400:36da:c10e:e419:c908:c818])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-3e78cc6748fsm943945b6e.2.2024.11.08.15.44.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 Nov 2024 15:44:45 -0800 (PST)
+Message-ID: <bb010d16-a083-44da-8a72-3ada4c6f8056@digitalocean.com>
+Date: Fri, 8 Nov 2024 17:44:44 -0600
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241024164726.77485-1-hreitz@redhat.com> <CAJfpeguWjwXtM4VJYP2+-0KK5Jkz80eKpWc-ST+yMuKL6Be0=w@mail.gmail.com>
- <ae437cf6-caa2-4f9a-9ffa-bdc7873a99eb@redhat.com> <CAJfpegvfYhL4-U-4=sSkcne3MSNZk3P3jqBAPYWp5b5o4Ryk6w@mail.gmail.com>
- <ece87ac3-71e2-4c43-a144-659d19b1e75d@redhat.com>
-In-Reply-To: <ece87ac3-71e2-4c43-a144-659d19b1e75d@redhat.com>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 8 Nov 2024 15:11:06 +0100
-Message-ID: <CAJfpegtuVxtf9xoyJPveqA=uXb-wnzPcqD_rXNOV4LMahWqxEQ@mail.gmail.com>
-Subject: Re: [PATCH] virtio-fs: Query rootmode during mount
-To: Hanna Czenczek <hreitz@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	virtualization@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>, 
-	German Maglione <gmaglione@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Vivek Goyal <vgoyal@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/2] vdpa/mlx5: Set speed and duplex of vDPA devices to
+ UNKNOWN
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+ Dragos Tatulea <dtatulea@nvidia.com>
+Cc: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>, jasowang@redhat.com,
+ shannon.nelson@amd.com, sashal@kernel.org, alvaro.karsz@solid-run.com,
+ christophe.jaillet@wanadoo.fr, steven.sistare@oracle.com, bilbao@vt.edu,
+ xuanzhuo@linux.alibaba.com, johnah.palmer@oracle.com, eperezma@redhat.com,
+ cratiu@nvidia.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
+References: <20240904151115.205622-1-carlos.bilbao.osdev@gmail.com>
+ <20240904151115.205622-2-carlos.bilbao.osdev@gmail.com>
+ <20241107164932-mutt-send-email-mst@kernel.org>
+ <f1d671ff-0429-4cb5-a6e8-309a8567924c@nvidia.com>
+ <20241108065046-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Carlos Bilbao <cbilbao@digitalocean.com>
+In-Reply-To: <20241108065046-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, 7 Nov 2024 at 18:59, Hanna Czenczek <hreitz@redhat.com> wrote:
+Hello,
 
-> > Regardless, something smells here: fuse_mount_remove() is only called
-> > if sb->s_root is set (both plain fuse and virtiofs).  The top level
-> > fuse_mount is added to fc->mounts in fuse_conn_init(), way before
-> > sb->s_root is set...
-> >
-> > Will look into this.
+On 11/8/24 5:51 AM, Michael S. Tsirkin wrote:
+> On Fri, Nov 08, 2024 at 10:31:58AM +0100, Dragos Tatulea wrote:
+>>
+>> On 07.11.24 22:50, Michael S. Tsirkin wrote:
+>>> On Wed, Sep 04, 2024 at 10:11:14AM -0500, Carlos Bilbao wrote:
+>>>> From: Carlos Bilbao <cbilbao@digitalocean.com>
+>>>>
+>>>> Initialize the speed and duplex fields in virtio_net_config to UNKNOWN.
+>>>> This is needed because mlx5_vdpa vDPA devices currently do not support the
+>>>> VIRTIO_NET_F_SPEED_DUPLEX feature which reports speed and duplex.
+>>> I see no logic here. Without this feature bit, guests will not read
+>>> this field, why do we suddenly need to initialize it?
+>>>
+>> IIRC, Carlos was reading data via ioctl VHOST_VDPA_GET_CONFIG which calls
+>> .get_config() directly, always exposing the speed and duplex config fields [0].
+>> Carlos, was this the case?
+>>
+>> [0] https://lore.kernel.org/lkml/afcbf041-7613-48e6-8088-9d52edd907ff@nvidia.com/T/
+>>
+>> Thanks,
+>> Dragos
+> Basically, driver should ignore these if feature is not set.
 
-This is the deal:
 
-1) When the top sb is created the fm->fc_entry is chained on
-fc->mounts in fuse_conn_init() which is called near the top of
-fuse_get_tree() and virtio_fs_get_tree(). If things fail during
-->get_tree() or an existing fc is used instead of the newly allocated
-one, then fuse_mount_destroy() is called, which frees the fm and
-fm->fc, ignoring the mounts list.  This is okay, though a bit
-confusing.
+There _is_ a chance the guest could read this field; As Dragos mentioned, I
+was using the VHOST_VDPA_GET_CONFIG ioctl from userspace, and the incorrect
+field initialization led me to believe I was in half-duplex mode --
+something people told me they hadn't seen since the 80s. But as Andrew
+(CCed) mentioned, "If the speed is 0, does duplex even matter?".
 
-2) When a submount is created, then fm is only chained onto fc->mounts
-towards the end of fuse_get_tree_submount() in the success case.
+I also tried to remove the pointless ioctl call altogether to avoid further
+confusion [0] but that wasn't viable due to spec compliance.
 
-There should be no way for fuse_mount_destroy() to see fm chained onto
-fc yet fc having other fuse mounts.  The below patch reflects this
-with a WARN_ON().  Not tested yet, but there would be memory
-corruption if it wasn't the case.
+Initializing the fields seems the simple solution here (and, IMHO, more
+generally, it's as a good programming practice)
 
-As for your patch, the condition (sb->s_root || (fm &&
-fm->fc->initialized)) should work AFAICS.
+Thanks for looking into this!
 
-Thanks,
-Miklos
+Best,
+Carlos
 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index fd3321e29a3e..0c4eb5b89e71 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -1653,6 +1653,7 @@ static int fuse_get_tree_submount(struct fs_context *fsc)
-        if (!fm)
-                return -ENOMEM;
+[0] https://lore.kernel.org/lkml/CACGkMEvfdUYLjx-Z+oB11XW-54ErJsQMKcnu2p=dsj5N_BiEKw@mail.gmail.com/
 
-+       INIT_LIST_HEAD(&fm->fc_entry);
-        fm->fc = fuse_conn_get(fc);
-        fsc->s_fs_info = fm;
-        sb = sget_fc(fsc, NULL, set_anon_super_fc);
-@@ -1976,6 +1977,13 @@ static void fuse_sb_destroy(struct super_block *sb)
 
- void fuse_mount_destroy(struct fuse_mount *fm)
- {
-+       /*
-+        * We can get here in case of an error before the top sb is fully set
-+        * up.  The sole reference to the fc must come from fm in that case
-+        * otherwise may end up with corruption on fc->mounts list.
-+        */
-+       WARN_ON(!list_empty(&fm->fc_entry) &&
-refcount_read(&fm->fc->count) != 1);
-+
-        fuse_conn_put(fm->fc);
-        kfree_rcu(fm, rcu);
- }
+>
+>
+>>>> Add
+>>>> needed helper cpu_to_mlx5vdpa32() to convert endianness of speed.
+>>>>
+>>>> Signed-off-by: Carlos Bilbao <cbilbao@digitalocean.com>
+>>>> Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+>>>> ---
+>>>>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 12 ++++++++++++
+>>>>  1 file changed, 12 insertions(+)
+>>>>
+>>>> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>>>> index b56aae3f7be3..41ca268d43ff 100644
+>>>> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>>>> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>>>> @@ -173,6 +173,11 @@ static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
+>>>>  	return __cpu_to_virtio16(mlx5_vdpa_is_little_endian(mvdev), val);
+>>>>  }
+>>>>  
+>>>> +static __virtio32 cpu_to_mlx5vdpa32(struct mlx5_vdpa_dev *mvdev, u32 val)
+>>>> +{
+>>>> +	return __cpu_to_virtio32(mlx5_vdpa_is_little_endian(mvdev), val);
+>>>> +}
+>>>> +
+>>>>  static u16 ctrl_vq_idx(struct mlx5_vdpa_dev *mvdev)
+>>>>  {
+>>>>  	if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
+>>>> @@ -3433,6 +3438,13 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>>>>  	init_rwsem(&ndev->reslock);
+>>>>  	config = &ndev->config;
+>>>>  
+>>>> +	/*
+>>>> +	 * mlx5_vdpa vDPA devices currently don't support reporting or
+>>>> +	 * setting the speed or duplex.
+>>>> +	 */
+>>>> +	config->speed  = cpu_to_mlx5vdpa32(mvdev, SPEED_UNKNOWN);
+>>>> +	config->duplex = DUPLEX_UNKNOWN;
+>>>> +
+>>>>  	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
+>>>>  		err = config_func_mtu(mdev, add_config->net.mtu);
+>>>>  		if (err)
+>>>> -- 
+>>>> 2.34.1
