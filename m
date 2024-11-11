@@ -1,82 +1,112 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D505714B962
-	for <virtualization@lists.linux.dev>; Mon, 11 Nov 2024 12:18:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731327517; cv=pass; b=gFpGUMcT7jCfjsqcW6204bRkN6a8e1Uk/qFRdw6REbBIye4BDoZQoxGVqA3bqHXHBjYNp0crzQGcEHl83sVtvGdHErCktqH+I6TWeJogL8/583IQE2G5FPg5E3zd9/Q6Cdj0+Lx1r2GHsvlQrqUlZc4/yvw2V6P+U6EUb3W9BXA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731327517; c=relaxed/simple;
-	bh=4rzGbqBNpaeP73Dj14iZHeWJ0X5KI/kVdKi6xAoRiWk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YbXKNmKKG75JzmeRWIyT3l7VJDNz/yeZhlBeX6kb9UbG7rYjPvwauhbpyhpUL8L3+PfyBx/WjCDtSUgdrHLbqFi05AynR2L2P2xvK0iGtJLzkfdfGzqgX6EHR152713vU9Q6lzWavAuLxxcOfucuayRb2KFee5H4nUb5w+hd1do=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Tdk0hYFk; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBD3D14F126
+	for <virtualization@lists.linux.dev>; Mon, 11 Nov 2024 13:50:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=37.18.73.165
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1731333016; cv=none; b=aBP7k2QgsZmjAV9uWCoBHuzUa+s4OMaT/Gf1LXqSWSPxZWJ7JrcKz8Uopnjz25Y23SBMbrElHPTBmPZZnTPq5FscHPNffijV0FxymHBzbCdOm8vpgaPzGNJ3NZ1sAubPNRywP+J6KOZHYGxLU+dvS150r1PPCEBeyffKqTwfT0o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1731333016; c=relaxed/simple;
+	bh=sJVpMYEIzB9SFeNfXS1EZPH02Rwcl8iCgMdd51bIvlM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=PTVjUD+t1zK6NofL489e+rEm8qEqFms39gBPTgQ/53hgY3v5G9GQtVSoOAKfwWI+xEhF9DTGCVHlwTT0bgC5fHDGUKbVpIUmd/g5HpxJeX9Y8kb2rbydbQZP6tBbHoRIM4GrDkrzEqYozjxjQShFmXAeuTlcdLK93243uuDC1bs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=CHXPUy6E; arc=none smtp.client-ip=37.18.73.165
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Tdk0hYFk"
-ARC-Seal: i=1; a=rsa-sha256; t=1731327508; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=GtBLxRb0/a/pGnZBdkapmI8yoYQ6aIy0iSqSGE+OJbDvYmqNFq4BJV6uhJmF8O9Mwu9YeB0Itf7wfxpYzxjbW3GpHnuoU5BQXlGlb14STfS1QesEcGFTRU1NQJxgyJlSK32SFo0In10l9Vnmfcm5o0sGsyIBsYjJvFCgYUbKLN8=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1731327508; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=WmK2xlQ+zyobePquUkVhqfJy16+HvtgT370hP1XsPfo=; 
-	b=fIVsWDdJsO7HkZtBDDPaD1ml90vOxjbbqwmc2fIEAFvcGijjN5ZOJhy/wkDCtKascZtTsLsNom9QxisZmW4x4z3lb7XTa2iVAMPXqOR/+C6qgIuHPgjfhyB01HHGV5EktDGel4hiXj5Q2Ma921NNeNIKnUH8NUBZHygG8Yy4Vs0=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1731327508;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=WmK2xlQ+zyobePquUkVhqfJy16+HvtgT370hP1XsPfo=;
-	b=Tdk0hYFkM+heWlAhdQat/RUTeeOnYjfXp+GxYl0UBJFOcLFS9Ta8uvs50MjSWhRe
-	EJxLrNFpfOKUyVEudlqbjPPVxaAkfePbGRFnjheySt9F1gjUA9BlTEG009FmWmHCdKd
-	rXnmRUkNZ/fR7Z4jreUNEdVsRS0I0TVp48LOD3dE=
-Received: by mx.zohomail.com with SMTPS id 1731327496153595.5978690443898;
-	Mon, 11 Nov 2024 04:18:16 -0800 (PST)
-Message-ID: <09d9815c-9d5b-464b-9362-5b8232d36de1@collabora.com>
-Date: Mon, 11 Nov 2024 15:18:11 +0300
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="CHXPUy6E"
+Received: from p-infra-ksmg-sc-msk01.sberdevices.ru (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 4C40E100007;
+	Mon, 11 Nov 2024 16:49:57 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 4C40E100007
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1731332997;
+	bh=g0pytZrpgBh3guU1TbfOEDaDMwQNAGs2S0K7Jt+304I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
+	b=CHXPUy6Ekmyj0Zq/tZxfwosjmYBVkjpe5vjmTfbW1r/4bZQA0GVC/Yasss/h79rCG
+	 QWfexo/NDWPrrlU7aMdOoE5lziwSpFZgQMP7gunVJFqgoYF8O+rLdxFgubsR4xVU83
+	 LSB4N6fTRISFcx9FlEyDYMs6AMTaAg18xn77JI1FHAaImJf198T+Bql3jMeEaA7xcU
+	 x0hEM9tLo3KqDx7LokNx8MkaUEGcEBwpYkD7IqDWiJdTw+F0GGVVSNKuW9ctqP8NFK
+	 V4ZQYn8C6elL+rj+7/nJocOBV05gUgJk8bMaaZi72WQ8vBAUkg13U8Mh3aPHWzpV3a
+	 wU7eT+l5G/PXQ==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Mon, 11 Nov 2024 16:49:57 +0300 (MSK)
+Message-ID: <5d9cc8ba-ba60-cf37-5ffd-1e6bacf773c3@salutedevices.com>
+Date: Mon, 11 Nov 2024 16:49:51 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] drm/virtio: Add drm_panic support
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>, airlied@redhat.com,
- kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
- simona@ffwll.ch
-Cc: Jocelyn Falempe <jfalempe@redhat.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20241108032603.3164570-1-ryasuoka@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH net 3/4] virtio/vsock: Improve MSG_ZEROCOPY error handling
 Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20241108032603.3164570-1-ryasuoka@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+To: Michal Luczaj <mhal@rbox.co>, Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=c3=a9rez?=
+	<eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Jia He
+	<justin.he@arm.com>, Dmitry Torokhov <dtor@vmware.com>, Andy King
+	<acking@vmware.com>, George Zhang <georgezhang@vmware.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<netdev@vger.kernel.org>
+References: <20241106-vsock-mem-leaks-v1-0-8f4ffc3099e6@rbox.co>
+ <20241106-vsock-mem-leaks-v1-3-8f4ffc3099e6@rbox.co>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+In-Reply-To: <20241106-vsock-mem-leaks-v1-3-8f4ffc3099e6@rbox.co>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+X-ClientProxiedBy: p-i-exch-a-m2.sberdevices.ru (172.24.196.120) To
+ p-i-exch-a-m1.sberdevices.ru (172.24.196.116)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 189084 [Nov 11 2024]
+X-KSMG-AntiSpam-Version: 6.1.1.7
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 41 0.3.41 623e98d5198769c015c72f45fabbb9f77bdb702b, {Tracking_from_domain_doesnt_match_to}, smtp.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1, FromAlignment: s
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/11/11 06:58:00 #26843820
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On 11/8/24 06:26, Ryosuke Yasuoka wrote:
-> +struct virtio_gpu_panic_object_array {
-> +	struct ww_acquire_ctx ticket;
-> +	struct list_head next;
-> +	u32 nents, total;
-> +	struct drm_gem_object *objs;
-> +};
-> +
-> +static void *virtio_panic_buffer;
 
-This won't work well if there is more than one virtio-gpu device in the
-system. Please make it private to the virtio-gpu dev.
 
-Otherwise looks okay. I've tested v3 on QEMU, panic screen works.
-Looking forward to v4, thanks.
+On 06.11.2024 20:51, Michal Luczaj wrote:
+> Add a missing kfree_skb() to prevent memory leaks.
+> 
+> Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
+> Signed-off-by: Michal Luczaj <mhal@rbox.co>
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 1 +
+>  1 file changed, 1 insertion(+)
 
--- 
-Best regards,
-Dmitry
+Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index cd075f608d4f6f48f894543e5e9c966d3e5f22df..e2e6a30b759bdc6371bb0d63ee2e77c0ba148fd2 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -400,6 +400,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  			if (virtio_transport_init_zcopy_skb(vsk, skb,
+>  							    info->msg,
+>  							    can_zcopy)) {
+> +				kfree_skb(skb);
+>  				ret = -ENOMEM;
+>  				break;
+>  			}
+> 
