@@ -1,155 +1,114 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C233199939
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Nov 2024 13:51:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77F9B14F126
+	for <virtualization@lists.linux.dev>; Mon, 11 Nov 2024 13:54:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.89.224.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731333097; cv=none; b=jdLoIpTLt/I0RKze8M6dOjdmAfc8nAqgmooEp49F8X6P/GlENG1naAzsUpO1J3GVhtI5SGH8+cO+gxzOYjpyH3CCn8ykhU9kqjZEzjgwvvQohiyEOLRcONOjKMv4YhSzy19a8Y5+ckXKDP8KyQeDz4emDwx7BZY5svvZ8Qpv7M0=
+	t=1731333290; cv=none; b=Oeets562mXKaRMU0vIoYduTnclr4B5vT177MAeIoKSTwh+Fx3S8x0/o/j+iOuq45ZW+btsSmFPiPq+e/b+KzA+ZIWEia40anHzdTbDe9amqmoO0k6ese9ek4PqOBo4EfecZpNSI5SdOHawJ9ublHAwqsqAGXlFL8OyfKvZHKowI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731333097; c=relaxed/simple;
-	bh=Czawgg0eHQCiBa/n9H4yWNVg6iyINBKzS2rt+c5jO0Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=j4IXozmJeScIBarvAn2VaWaQ/HoTx64m3u+bCTTX5cGklfkieXdHSWUIB98hJxCqCck5zHBOgdYIpdLLcO0xc29NWlSxFk4/j/MgSBtz00LcCuJWRXYqjOVHqKyxNDjM3jdSrCnQKkAN7ge9HstoV8uNHptTte3PQ3h+zky27DM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bHKzzv/p; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1731333290; c=relaxed/simple;
+	bh=To4Ng8I3roAF+xOZUz5oVZlbkp04BFvmLmbeIlXb85U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=UQl7lwS8wUsJo8QI8w6EvmObeJx6h2/n6RH/Zv8Zj4XaUhk5d8KXJj9bFMOr6tQqzxyjR9Uh2/jeXlel8LvlGeb7GaFIWNTx7DBzeRHWGjTrlxNjEdJhtxf0XPawkQe9UZlR1hqXgxGGyMgc62RnM+7UTJ94jwaqi6Zp23yc9k4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=fRakcPYQ; arc=none smtp.client-ip=45.89.224.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bHKzzv/p"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 168294024D
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Nov 2024 13:51:36 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id AwyMlknOm6hQ for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Nov 2024 13:51:33 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 45AAA400D6
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 45AAA400D6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bHKzzv/p
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 45AAA400D6
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Nov 2024 13:51:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731333091;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=SDgcf2zjsNemccSJG3/V1OaS/z5L3BgNHfGxAIvuYes=;
-	b=bHKzzv/p9EgPBx1pBGbH7C31N4WXJVm+iubb4X2y3d+p4CDoUQZfrf45UuQNZ5e2/f4gmd
-	KTg6pTHzupA1MQWGKnhNagpo21k8SpdCCQ9q7d+P+6Az4dZtzN1Rdp8mEPRTCl07JjoieJ
-	R2dkraxbvHEWSaf/nY+lfr/TBqpYr04=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-H8LtLpcgOZagN5Q16TIqSA-1; Mon, 11 Nov 2024 08:51:24 -0500
-X-MC-Unique: H8LtLpcgOZagN5Q16TIqSA-1
-X-Mimecast-MFC-AGG-ID: H8LtLpcgOZagN5Q16TIqSA
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4315af466d9so32175495e9.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 11 Nov 2024 05:51:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731333084; x=1731937884;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SDgcf2zjsNemccSJG3/V1OaS/z5L3BgNHfGxAIvuYes=;
-        b=sx54XdHPidFSBSspKqZt54DjV8YzEov8FGhicQwSVtfOk9BXwZh0cWUZyHlpS91Q1V
-         tQXRXHo6/W0hGLgtZt98jTT3uTNGxz4Kt2tcrfU/mOHGub04t750zSyK1VBsNOZVqJc/
-         mtPehDBAuhgV9GGHGUl1f6ehXTeynt/Qv0iuG48XY1rLCYU3jE/aIrHaM6+aWnQE353V
-         mIqxkKLsJFZQFhWXQVq0SiRZvnfNva+NruuWGnLXtRAKGCMEeqsB7sacuNMkck7Mfp6N
-         q2nVVWz/Kdy6NMZGTlXJeLPZUjH2r+fMqQFX0CJFWeWYPrtJXphdFA/dzOHR2tmFw5wX
-         XxbQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV6KQfbBGnlJJxDnXzD1VcGWsFUdYOD3TZcNf8FH639M5bTqUi6x0XTdtnVodW9f8IOpawee1bLxXee0WPjBw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxdSmLjnMD3j4PS3h/pneYsgd2fDn7dXRj9cb1XKkU4OdhpHGJs
-	IV9p/tjhV0eyByLpxPW6qYEUluSlJWwaxKrgi4Q8hzRjmskD1EAjh8KkI2EJYNHlDVHOZvUdsgP
-	1J2rzzWeH2UrCrc/wWVWnvPmUdPm1RimhT3OkVEjweIU6Xl8LGhebBUp4k+zYce1YWc0A8YfmDq
-	5a+iw=
-X-Received: by 2002:a05:600c:524d:b0:431:5465:807b with SMTP id 5b1f17b1804b1-432b751dcc3mr97623555e9.32.1731333083662;
-        Mon, 11 Nov 2024 05:51:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGdl1MVOk6cXvoplWf4kpAyP0Q0PfmfJirwFRy6M9tNvfOSuKn0TM0JJ3TMSOe/6ZyakDUOBA==
-X-Received: by 2002:a05:600c:524d:b0:431:5465:807b with SMTP id 5b1f17b1804b1-432b751dcc3mr97611965e9.32.1731333055694;
-        Mon, 11 Nov 2024 05:50:55 -0800 (PST)
-Received: from redhat.com ([2a02:14f:17a:7c39:766b:279:9fac:c5c8])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432bc468d94sm68340235e9.0.2024.11.11.05.50.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Nov 2024 05:50:54 -0800 (PST)
-Date: Mon, 11 Nov 2024 08:50:50 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	angus.chen@jaguarmicro.com, christophe.jaillet@wanadoo.fr,
-	cvam0000@gmail.com, dtatulea@nvidia.com, eperezma@redhat.com,
-	feliu@nvidia.com, gregkh@linuxfoundation.org, jasowang@redhat.com,
-	jiri@nvidia.com, lege.wang@jaguarmicro.com, lingshan.zhu@kernel.org,
-	mst@redhat.com, pstanner@redhat.com, qwerty@theori.io,
-	v4bel@theori.io, yuancan@huawei.com
-Subject: [GIT PULL] virtio: bugfixes
-Message-ID: <20241111085050-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="fRakcPYQ"
+Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id A5B2B120004;
+	Mon, 11 Nov 2024 16:54:36 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru A5B2B120004
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1731333276;
+	bh=wG9GJftNEn9P2eUQzPGTJwlvGfDRgfnCYXn/04LGPHA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
+	b=fRakcPYQAS8KGUIkck3q/wKYodijRNeAz6OWjTyJ2gWS5gGqIDFTK+xkw0rrnqaT4
+	 9JKg6gT9HYPOI9ARZgzljWSDXcIbtinvbNdkhSQ54abTxPQMvq3myzIeYWeMnMfbLF
+	 NLegoYZz3cJeoZEYaTwsYBRgkPf9m7P5x/jvTkJxJzdkdyncQAYTbu57vWgpEI7O2+
+	 iF3htMBT+Y/LarsqQjn+7sqOS7TNG/V3shmJkvbeCwMYb3WP5jROz92Cg1RO/oiAX0
+	 /SmRTGXwZ8VxNDnzMgnOyjIBg7LPd5v07jq+ih5JHkl1Ei4A/vaVHJho2hQupGUbdu
+	 lUk1ay3tICF2Q==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Mon, 11 Nov 2024 16:54:36 +0300 (MSK)
+Message-ID: <39067785-6f2c-91fa-8d05-50ebe78f0151@salutedevices.com>
+Date: Mon, 11 Nov 2024 16:54:35 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ArAgCAfKXNOWfVR7QiRZ4m0SNWvqff4dhVi6yYVLpE4_1731333084
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH net v2 3/3] virtio/vsock: Improve MSG_ZEROCOPY error
+ handling
+Content-Language: en-US
+To: Michal Luczaj <mhal@rbox.co>, Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=c3=a9rez?=
+	<eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Jia He
+	<justin.he@arm.com>, Dmitry Torokhov <dtor@vmware.com>, Andy King
+	<acking@vmware.com>, George Zhang <georgezhang@vmware.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<netdev@vger.kernel.org>
+References: <20241107-vsock-mem-leaks-v2-0-4e21bfcfc818@rbox.co>
+ <20241107-vsock-mem-leaks-v2-3-4e21bfcfc818@rbox.co>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+In-Reply-To: <20241107-vsock-mem-leaks-v2-3-4e21bfcfc818@rbox.co>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: p-i-exch-a-m2.sberdevices.ru (172.24.196.120) To
+ p-i-exch-a-m1.sberdevices.ru (172.24.196.116)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 189084 [Nov 11 2024]
+X-KSMG-AntiSpam-Version: 6.1.1.7
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 41 0.3.41 623e98d5198769c015c72f45fabbb9f77bdb702b, {Tracking_from_domain_doesnt_match_to}, smtp.sberdevices.ru:5.0.1,7.1.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;salutedevices.com:7.1.1, FromAlignment: s
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/11/11 06:58:00 #26843820
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-The following changes since commit 59b723cd2adbac2a34fc8e12c74ae26ae45bf230:
 
-  Linux 6.12-rc6 (2024-11-03 14:05:52 -1000)
 
-are available in the Git repository at:
+On 07.11.2024 23:46, Michal Luczaj wrote:
+> Add a missing kfree_skb() to prevent memory leaks.
+> 
+> Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> Signed-off-by: Michal Luczaj <mhal@rbox.co>
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 
-for you to fetch changes up to 83e445e64f48bdae3f25013e788fcf592f142576:
-
-  vdpa/mlx5: Fix error path during device add (2024-11-07 16:51:16 -0500)
-
-----------------------------------------------------------------
-virtio: bugfixes
-
-Several small bugfixes all over the place.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Dragos Tatulea (1):
-      vdpa/mlx5: Fix error path during device add
-
-Feng Liu (1):
-      virtio_pci: Fix admin vq cleanup by using correct info pointer
-
-Hyunwoo Kim (1):
-      vsock/virtio: Initialization of the dangling pointer occurring in vsk->trans
-
-Philipp Stanner (1):
-      vdpa: solidrun: Fix UB bug with devres
-
-Shivam Chaudhary (1):
-      Fix typo in vringh_test.c
-
-Xiaoguang Wang (1):
-      vp_vdpa: fix id_table array not null terminated error
-
-Yuan Can (1):
-      vDPA/ifcvf: Fix pci_read_config_byte() return code handling
-
- drivers/vdpa/ifcvf/ifcvf_base.c         |  2 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.c       | 21 +++++----------------
- drivers/vdpa/solidrun/snet_main.c       | 14 ++++++++++----
- drivers/vdpa/virtio_pci/vp_vdpa.c       | 10 +++++++---
- drivers/virtio/virtio_pci_common.c      | 24 ++++++++++++++++++------
- drivers/virtio/virtio_pci_common.h      |  1 +
- drivers/virtio/virtio_pci_modern.c      | 12 +-----------
- net/vmw_vsock/virtio_transport_common.c |  1 +
- tools/virtio/vringh_test.c              |  2 +-
- 9 files changed, 45 insertions(+), 42 deletions(-)
-
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index cd075f608d4f6f48f894543e5e9c966d3e5f22df..e2e6a30b759bdc6371bb0d63ee2e77c0ba148fd2 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -400,6 +400,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  			if (virtio_transport_init_zcopy_skb(vsk, skb,
+>  							    info->msg,
+>  							    can_zcopy)) {
+> +				kfree_skb(skb);
+>  				ret = -ENOMEM;
+>  				break;
+>  			}
+> 
