@@ -1,97 +1,99 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE3681B960
-	for <virtualization@lists.linux.dev>; Mon, 11 Nov 2024 01:30:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B59D51EA65
+	for <virtualization@lists.linux.dev>; Mon, 11 Nov 2024 01:31:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731288645; cv=none; b=iyy8E204vgWdLEJ15HzfcY90ad0JBwiBJqTx+hIFzMab3TOsF1icS8B3pwVSP5b0oJ0XuCgtWZ35+QzQCky6pZ4Mx4cJKjAF1ktYB3LzJ0ebrQm2h0MIUPqixG4srn6EUJDu904RxpiG2XKJINplStqvZzpZzBbpWtCTu6c1xQ4=
+	t=1731288709; cv=none; b=ipPa94ePNx3IwNkcfnNNtAorTXpVUIIaOVQ/8yiFkrLOaiavyXnQDsPK4a2syuzPTv8vNGsHhPhkx7T4qwkJkjSPhn6qze9NZ/xKFB+548Ix1gRvMVr96DYRBuPNZ7QvySDDoO4YekhCm3z3Y9Ii6XbaNf/9z1OMa7iju6qaelA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731288645; c=relaxed/simple;
-	bh=pf9PTbGNPjVHsdQ4Eg1yKfu4ucndzhUiZGAnz9ecS9Y=;
+	s=arc-20240116; t=1731288709; c=relaxed/simple;
+	bh=8RjtmP7zVZrflkjuPVjKxGfngY1SABY3DdXeQA3BEpE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ur+zzZ4kkZiyFkIbiQOuE8tB9jY9H2nEAJAFK3crYNghOtwQjEg1GRo6GMo3HLmVoIejT6zWhUaxb651SzvWKPhl61zP1bJWKkFcV2/a8xR7d+/lwfiR+tk45gb9TDa+TeXH29JO2dY41vgrUYRHUGXowXeggjokL/6o6Bqjipk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UMirI1iU; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=b+putoK8iF081VHHcDsrFkbrG9JnrNl7QtVxiTbackRDRXpFwu44Uj0Ro/74PPCjel550RrM4QJOjcEUgk+mn1Krl3j/eKO0lk8DtWy7KKtVG1q/GCdNw5zvuA0eWfS86Jbp0wGQ0jQQC+7ta3QhFunk2jFG8L4hS/WUNNSoIUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Wd3KrFZA; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UMirI1iU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wd3KrFZA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731288642;
+	s=mimecast20190719; t=1731288706;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=pf9PTbGNPjVHsdQ4Eg1yKfu4ucndzhUiZGAnz9ecS9Y=;
-	b=UMirI1iUq0bEwjOXCS1iRYYaGkm/TlX73RjZHmFhZ/LXEL771N++0tzt0e3SDEwRlcqyNR
-	pJGeVkAPwDWxdzsOTABgFtAEfMkgRl2pqGX/e4ch9MFXYYG4UfD+VjndR643pdKKgmkViO
-	h0dT1IcVGf8jE9tKmzLGVC54GPZWm8E=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8RjtmP7zVZrflkjuPVjKxGfngY1SABY3DdXeQA3BEpE=;
+	b=Wd3KrFZA17kblj0bGv2Wrp1H7WPrw5nHjzOof1I8BnAyeIk4XOLORbE/yTALUh/o7ZscKP
+	D1ShCd4BoogWp1qsQzon9QrllsSaW/MCSJwjX2c01vqy+El6lNDTJ6kv/PRqMZUeDDfX6K
+	2lO0PM3zPJxgAkojSFviBzJTixDkicA=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-607-KMZiBt_PM6K7WLXufpkhvw-1; Sun, 10 Nov 2024 20:30:41 -0500
-X-MC-Unique: KMZiBt_PM6K7WLXufpkhvw-1
-X-Mimecast-MFC-AGG-ID: KMZiBt_PM6K7WLXufpkhvw
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-21159b15562so57070645ad.0
-        for <virtualization@lists.linux.dev>; Sun, 10 Nov 2024 17:30:41 -0800 (PST)
+ us-mta-588-bnfzK7JWOhGbODgCP5i2cQ-1; Sun, 10 Nov 2024 20:31:45 -0500
+X-MC-Unique: bnfzK7JWOhGbODgCP5i2cQ-1
+X-Mimecast-MFC-AGG-ID: bnfzK7JWOhGbODgCP5i2cQ
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2e5bd595374so3201936a91.0
+        for <virtualization@lists.linux.dev>; Sun, 10 Nov 2024 17:31:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731288640; x=1731893440;
+        d=1e100.net; s=20230601; t=1731288704; x=1731893504;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pf9PTbGNPjVHsdQ4Eg1yKfu4ucndzhUiZGAnz9ecS9Y=;
-        b=im5EFz74cqiVR6AeMSUadO5iz8h9pntcIymrQgJ60k8uvjD43z77PLLGMSsLYriDOs
-         GZT0HDqyapWCYWTjqyOb+4O5z7xe/a3PijBeFQ5xVtoul9NLfNdZUDGr8Ye1rBmS6kkt
-         tKjhs47X19buiYB3rIp0M4RknY/gvlA3earngmMxHXrf+uwFp5xJt3BlsjRu1XHVB1eO
-         Jsxz6F3JLfxbY60kqvlgJBbBCZ/nUYZEn9N281mGPBtd3NIT09D8DviOIeG2ttox8QpV
-         UX9+ecext57crD0RVWfeQiq9uH+4Ygs2YHrHCZZF7tncuYaLh/ZeV6urp/Jl4y+Ixk4k
-         Z/tg==
-X-Forwarded-Encrypted: i=1; AJvYcCVfBQPuvQHHL0prRmh3IB+8i5HfaKITHt4I9A8mgMa4IACX4DIaDZ7jRIiykq/O7iODK3os/keHlo2fiDFefA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw7IRlm77mngTF2T0Z79sbKeWrdhsFC+4cRtpFEU2WftSlM1t6X
-	GgJJg6wb0skJb/niKjlfF41zvxipdlwEK8eqMPKwAdg8LX2XFBZQLpj6G452IPhYDCOiTvMCF4a
-	JPsjRFSzUI+Z8R9Z2ysh4k2OS13Qgm9ykN9gjTgadSAdyUv5xeapIOaV9rOO8dNI+B8jaLA6QQ+
-	qSGrMQqogabgqlP9OwNA3133lUb0+Ujoz6eqQSZ1Q=
-X-Received: by 2002:a17:902:cec7:b0:20b:b7b2:b6c5 with SMTP id d9443c01a7336-211835cd1a9mr142109775ad.54.1731288640282;
-        Sun, 10 Nov 2024 17:30:40 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFZRBnvWh5GWrgUU3+bWrELT9eUGDwENrtwgxF8fs2ll6MrUvLLBsrBK0BTbf9dHmzIUgOcdwoSUpYFkpBBW3M=
-X-Received: by 2002:a17:902:cec7:b0:20b:b7b2:b6c5 with SMTP id
- d9443c01a7336-211835cd1a9mr142109475ad.54.1731288639882; Sun, 10 Nov 2024
- 17:30:39 -0800 (PST)
+        bh=8RjtmP7zVZrflkjuPVjKxGfngY1SABY3DdXeQA3BEpE=;
+        b=jZQgB7YElMLf1vtlZRhj1y6elhi6Lrt5K008rAT9zvkmq91e+2oBu0c+aVwkjw2yjM
+         r8102wvHy67RITJyZkknwK8HBIhEjDasNEbH3JtzVIJEXCDWU//AdMnJEXjitnUNt5kI
+         j5KFEwDEh1YdnLT1Ri7vD7GZ/x1w+AV0Juqa238ajVkJUP9+GlVYZMTcr90xuM6dNRL6
+         pGffiuh4iOY/UGZ1fUEe4A6iD/2dXC+lVuECBDjyRzLiJNsnC/nqy+FJA+4/E9mfugfs
+         RN7uqnNwgTNP2arCACa/wV1NusQ+tjFD5e2EckgHjnfemy9AN/tSuXbp+kXiS0zWD7EE
+         iFqg==
+X-Forwarded-Encrypted: i=1; AJvYcCUXd1hYEZQdnUCRDotzRvkRRiQJD2wY7yaJtIXychAFIGkpjxt8a2lcmOWwU3eIS8525meLU6IaR1QjldZXjg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw3AEaZ2P9yNok4IUqvDi+9D2fcAnluTj6FdraASDAEE7aCABIH
+	0w9nixLP9A85PIp7NMgNBWQ72Dh5IN7LzpCEQDqBNG464N1m8+xYLrVwn0hhKBdplZOf8O956U8
+	kr40QsFcI1ndrXbmfMxSGN9t5QIFhrKMja1ktAfTkJ+HXMM4Jxt2oGWw5QHDaPQS1qMbP+aSmVv
+	A5nzwqERiSXHIbZURyox8D98mUnwfkta9IAQECJ8c=
+X-Received: by 2002:a17:90b:4b88:b0:2e0:f035:8027 with SMTP id 98e67ed59e1d1-2e9b1ec3ad9mr15212829a91.2.1731288704289;
+        Sun, 10 Nov 2024 17:31:44 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHJ45A0a7VJ+rtoKCuZ3Xjxf3vbO+kpA+QpYKgLnefQ2pNNeyLQuJUHLmrx4bENZUF5kjBfviP3ZWmPxNU8h7c=
+X-Received: by 2002:a17:90b:4b88:b0:2e0:f035:8027 with SMTP id
+ 98e67ed59e1d1-2e9b1ec3ad9mr15212803a91.2.1731288703869; Sun, 10 Nov 2024
+ 17:31:43 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241104085706.13872-1-lulie@linux.alibaba.com> <1730883538.0293355-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1730883538.0293355-3-xuanzhuo@linux.alibaba.com>
+References: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com> <20241107085504.63131-3-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20241107085504.63131-3-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 11 Nov 2024 09:30:28 +0800
-Message-ID: <CACGkMEundAnfw9mHY64xTGtrwB6TcZkfmVQc3K2L7vBy6SWSnA@mail.gmail.com>
-Subject: Re: [PATCH net 0/4] virtio_net: Make RSS interact properly with queue number
+Date: Mon, 11 Nov 2024 09:31:32 +0800
+Message-ID: <CACGkMEtj=D7OPL8hAxJumhVL8AwLS51tm42t0qCxzGhMa+psMg@mail.gmail.com>
+Subject: Re: [PATCH net-next v3 02/13] virtio_ring: split: record extras for
+ indirect buffers
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Philo Lu <lulie@linux.alibaba.com>, mst@redhat.com, eperezma@redhat.com, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, andrew@daynix.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	virtualization@lists.linux.dev, bpf@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: D7_uLfn2c6G0r1QV_UXqVK993Ooh28IUrXB9SY5o-zc_1731288640
+X-Mimecast-MFC-PROC-ID: R-Y1CYx2e73SzEoKrD2QbS_1B4ChHqY-1uSTUJRweZM_1731288704
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 6, 2024 at 5:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
+On Thu, Nov 7, 2024 at 4:55=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
 m> wrote:
 >
-> Hi Jason, could you review this firstly?
+> The subsequent commit needs to know whether every indirect buffer is
+> premapped or not. So we need to introduce an extra struct for every
+> indirect buffer to record this info.
 >
-> Thanks.
->
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-It looks like the series has been merged.
-
-Anyhow it looks good to me.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
