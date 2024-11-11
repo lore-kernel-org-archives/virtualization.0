@@ -1,207 +1,108 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46048184F
-	for <virtualization@lists.linux.dev>; Mon, 11 Nov 2024 03:53:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BE4B14A4D6
+	for <virtualization@lists.linux.dev>; Mon, 11 Nov 2024 04:11:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731297198; cv=none; b=sQlskq41RLrinU1AKBTECweU9DRJDk9Xkmn/eD6pBhYfbtx7GlWMLyjWaPxa4gcihgYJ93ydR78XVwI2i3idpPKjUjbFaxNtE9+ZBD85iGpHQdBbMatE9YarSP035XG8LRari6r7czgSAdFV+NGot4tSr7afKfwpLSiNwNLq6K0=
+	t=1731298314; cv=none; b=PDKcekCOW4f7Yx6VqnlozNDMWzfbObJnaZC5ySeIowzFyWk1u6k98ItPNq4sAmMHx2u3G1ILNvOVUFztaodNrwJZ9PmW8zQAfwRNEQzBtYmnuNl+GxdOr5OlT4x+EX69RctCOXgw0qW5XKT6/rBkrNOVncDpaZRCsNR1m6vooNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731297198; c=relaxed/simple;
-	bh=MXP4MxR6uhD+Ii9oT9Dgn40/1r74AbUSf+e55oRH7Z4=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=RpJ/72exRg/5460xVaDa4lFdUxYHh5GmZDaNple6yigZInmI8HLzE1Hfm+ONgqBFaQYyQgFrWNxEYgmCyl7ITfJ31/PAbXFEwVe11qrMsSQ6r4yuzAsXT1hs5oKuL05c2+hFJQF490ZVTAsKCyR5ef0uVdxYVyJb4dGBlIRrsV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UAJPcwyt; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1731298314; c=relaxed/simple;
+	bh=DLATnqdMGEF0WqdmHPcRRNdo+OHNczLANGm8ldMNdG4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BSjF1cU2JlZA+eZhgn4Xw9Kycdqfu/EPhR+m10SPKGKVyJpz9QW9XYgquplv89olG8PMh67fPPdNy/hHiRMVGCmVW9CKFNt2VNXFVAz0QcWlifLOfUQz6+g/66P4DPpGOhYdiimBlf/0S7H0BIausXiciT10XFjvmmbYuI+mEho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=am2+lfkf; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UAJPcwyt"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1731297193; h=Message-ID:Subject:Date:From:To;
-	bh=Zru2MKPBj3bdPD1mWHlnrAibhlLUG/ytSzXYA4plMeM=;
-	b=UAJPcwytyz/HahmZ3qveEIgTNedt6SUEn8qG7sQXGmgERooWErsGLXNqKuAazueyXH1CCPXGCsO/SmskS2Fbvq1tnY+4Z0jaGMPw8RiS+goQHPPVt246IlQWMhscxpQZAP3JrJXe+/ZGsn7IEUVJpuZCxWD2eCqin2Xf0vi/O6Y=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WJ4PoeW_1731297191 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 11 Nov 2024 11:53:12 +0800
-Message-ID: <1731293994.9676225-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v3 03/13] virtio_ring: packed: record extras for indirect buffers
-Date: Mon, 11 Nov 2024 10:59:54 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
- <20241107085504.63131-4-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20241107085504.63131-4-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="am2+lfkf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731298312;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=w2GV+7EwQ9ZLkRfoZhE0lui517nfX5U3dHrCpkmZzho=;
+	b=am2+lfkf8c4JKLxvp8Rxp+YI8sYYmxR3JFFbGvHZllkj2SMlIbBeTPhJoywWpjhvzHhWdA
+	pH3CNHWpjVjVfFZMKmt8BBfC3oHFmydzlDUg8UYP6fQ/ed3n6p0NtDSntyoBwshSeXeIku
+	t+Y4WsMnhUzjIOSoLmNG8+aZAOVLZ+Q=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-325-SGteHgYGOeqW2pAKqArycA-1; Sun, 10 Nov 2024 23:11:49 -0500
+X-MC-Unique: SGteHgYGOeqW2pAKqArycA-1
+X-Mimecast-MFC-AGG-ID: SGteHgYGOeqW2pAKqArycA
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2e9b5535940so1893287a91.1
+        for <virtualization@lists.linux.dev>; Sun, 10 Nov 2024 20:11:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731298308; x=1731903108;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=w2GV+7EwQ9ZLkRfoZhE0lui517nfX5U3dHrCpkmZzho=;
+        b=LNDkPI5Y1g1sR2UWkFnLW2cWkwTHPZqvpIoSkpm2kuJHjM6tHjpUjpTAGZt689B2eb
+         qxAo9bivegxK4vuilqaze12w6dmTaaX9i8TiGqKqRSWWZZCQGf4ECIH5XXl5vK1omGSg
+         AcSTKr0YvsLNiSrreAKmeSuqNo5KZWkCFWbxuHMcyS8nNASJIHTXYs6DwAT1EgrrsjGh
+         QxJDRfI9GDZYsfbGX//9bP9R4/9UDzjQfUWZeiE70OQj9d9N4X3+9kLz1J9hpCGFTeLq
+         L4TdNd331oqse4MDsIQRN501ZB4O9+o6zFDmnAySxVqwT+rlHl041+gq8zgACVymW/Vp
+         nimQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWoLadSjnwzJWHX6QTV+GGDX0hbkkbWW2lq1zPUIE8uW5WeazZBLLE0UViSGcuTdYkSsU4mVNDMFM8NB1z+bw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwcpNUf5bYxjoBLgRJxy/TD5GDCHB0Z4beibMA9Kmz4FUk2bAUE
+	/wxn78NkM9Q23UKxiEQX2FvdblDZK87f/AX09wfr188dtixoPDS5JExCNFf7oahdyHrZjX2yISR
+	eAVMxXiK9a0fFjb5Musn24C6lBSqMsMI2gcL2ALRXHi0lavRoeAcUQv59NwhumtiIOadMhWEn6b
+	V/do8cOpISsyxj2dnwn+zXSBm6gLBK+nPp9NQEAso=
+X-Received: by 2002:a17:90b:2d4e:b0:2e2:bdaa:baad with SMTP id 98e67ed59e1d1-2e9b1edc2e4mr17018410a91.7.1731298307830;
+        Sun, 10 Nov 2024 20:11:47 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEc7ZYwHnxrg0FC/Z799Zoc1i4Spe4Nhk9xnNGMzEBDcw/KeGeVkU4qh3S2hfEgAgRusgumV+PhOR6e3ykmQ5M=
+X-Received: by 2002:a17:90b:2d4e:b0:2e2:bdaa:baad with SMTP id
+ 98e67ed59e1d1-2e9b1edc2e4mr17018376a91.7.1731298307416; Sun, 10 Nov 2024
+ 20:11:47 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20241107085504.63131-1-xuanzhuo@linux.alibaba.com>
+ <20241107085504.63131-4-xuanzhuo@linux.alibaba.com> <1731293994.9676225-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1731293994.9676225-2-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 11 Nov 2024 12:11:36 +0800
+Message-ID: <CACGkMEt8wd=tq0Va=BwmZu20LFv59oegpAD2VzfLM8vaZJw+NA@mail.gmail.com>
+Subject: Re: [PATCH net-next v3 03/13] virtio_ring: packed: record extras for
+ indirect buffers
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	virtualization@lists.linux.dev, bpf@vger.kernel.org, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: HUS5EW1g0nNhRg2bgiev6InNQqIYWMgEfGHbRvNjTy8_1731298308
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu,  7 Nov 2024 16:54:54 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> The subsequent commit needs to know whether every indirect buffer is
-> premapped or not. So we need to introduce an extra struct for every
-> indirect buffer to record this info.
+On Mon, Nov 11, 2024 at 11:53=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
 >
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> On Thu,  7 Nov 2024 16:54:54 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com=
+> wrote:
+> > The subsequent commit needs to know whether every indirect buffer is
+> > premapped or not. So we need to introduce an extra struct for every
+> > indirect buffer to record this info.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>
+>
+> Hi, Jason
+>
+> This also needs a review.
 
+Sorry, I miss this.
 
-Hi, Jason
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-This also needs a review.
+Thanks
 
-Thanks.
-
-
-> ---
->  drivers/virtio/virtio_ring.c | 60 +++++++++++++++++++++---------------
->  1 file changed, 36 insertions(+), 24 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 405d5a348795..cfe70c40f630 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -78,7 +78,11 @@ struct vring_desc_state_split {
->
->  struct vring_desc_state_packed {
->  	void *data;			/* Data for callback. */
-> -	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
-> +
-> +	/* Indirect desc table and extra table, if any. These two will be
-> +	 * allocated together. So we won't stress more to the memory allocator.
-> +	 */
-> +	struct vring_packed_desc *indir_desc;
->  	u16 num;			/* Descriptor list length. */
->  	u16 last;			/* The last desc state in a list. */
->  };
-> @@ -1238,27 +1242,12 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
->  	}
->  }
->
-> -static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
-> -				    const struct vring_packed_desc *desc)
-> -{
-> -	u16 flags;
-> -
-> -	if (!vring_need_unmap_buffer(vq))
-> -		return;
-> -
-> -	flags = le16_to_cpu(desc->flags);
-> -
-> -	dma_unmap_page(vring_dma_dev(vq),
-> -		       le64_to_cpu(desc->addr),
-> -		       le32_to_cpu(desc->len),
-> -		       (flags & VRING_DESC_F_WRITE) ?
-> -		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> -}
-> -
->  static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
->  						       gfp_t gfp)
->  {
-> +	struct vring_desc_extra *extra;
->  	struct vring_packed_desc *desc;
-> +	int i, size;
->
->  	/*
->  	 * We require lowmem mappings for the descriptors because
-> @@ -1267,7 +1256,16 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
->  	 */
->  	gfp &= ~__GFP_HIGHMEM;
->
-> -	desc = kmalloc_array(total_sg, sizeof(struct vring_packed_desc), gfp);
-> +	size = (sizeof(*desc) + sizeof(*extra)) * total_sg;
-> +
-> +	desc = kmalloc(size, gfp);
-> +	if (!desc)
-> +		return NULL;
-> +
-> +	extra = (struct vring_desc_extra *)&desc[total_sg];
-> +
-> +	for (i = 0; i < total_sg; i++)
-> +		extra[i].next = i + 1;
->
->  	return desc;
->  }
-> @@ -1280,6 +1278,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  					 void *data,
->  					 gfp_t gfp)
->  {
-> +	struct vring_desc_extra *extra;
->  	struct vring_packed_desc *desc;
->  	struct scatterlist *sg;
->  	unsigned int i, n, err_idx;
-> @@ -1291,6 +1290,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  	if (!desc)
->  		return -ENOMEM;
->
-> +	extra = (struct vring_desc_extra *)&desc[total_sg];
-> +
->  	if (unlikely(vq->vq.num_free < 1)) {
->  		pr_debug("Can't add buf len 1 - avail = 0\n");
->  		kfree(desc);
-> @@ -1312,6 +1313,13 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  						0 : VRING_DESC_F_WRITE);
->  			desc[i].addr = cpu_to_le64(addr);
->  			desc[i].len = cpu_to_le32(sg->length);
-> +
-> +			if (unlikely(vq->use_dma_api)) {
-> +				extra[i].addr = addr;
-> +				extra[i].len = sg->length;
-> +				extra[i].flags = n < out_sgs ?  0 : VRING_DESC_F_WRITE;
-> +			}
-> +
->  			i++;
->  		}
->  	}
-> @@ -1381,7 +1389,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  	err_idx = i;
->
->  	for (i = 0; i < err_idx; i++)
-> -		vring_unmap_desc_packed(vq, &desc[i]);
-> +		vring_unmap_extra_packed(vq, &extra[i]);
->
->  free_desc:
->  	kfree(desc);
-> @@ -1617,7 +1625,8 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
->  	}
->
->  	if (vq->indirect) {
-> -		u32 len;
-> +		struct vring_desc_extra *extra;
-> +		u32 len, num;
->
->  		/* Free the indirect table, if any, now that it's unmapped. */
->  		desc = state->indir_desc;
-> @@ -1626,9 +1635,12 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
->
->  		if (vring_need_unmap_buffer(vq)) {
->  			len = vq->packed.desc_extra[id].len;
-> -			for (i = 0; i < len / sizeof(struct vring_packed_desc);
-> -					i++)
-> -				vring_unmap_desc_packed(vq, &desc[i]);
-> +			num = len / sizeof(struct vring_packed_desc);
-> +
-> +			extra = (struct vring_desc_extra *)&desc[num];
-> +
-> +			for (i = 0; i < num; i++)
-> +				vring_unmap_extra_packed(vq, &extra[i]);
->  		}
->  		kfree(desc);
->  		state->indir_desc = NULL;
-> --
-> 2.32.0.3.g01195cf9f
->
