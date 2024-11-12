@@ -1,117 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AC051FBCB4;
-	Tue, 12 Nov 2024 13:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFB66200121
+	for <virtualization@lists.linux.dev>; Tue, 12 Nov 2024 15:18:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731419927; cv=none; b=nGKQxcDwLhY7e8scpc7lv1FQYweY+jP45s65S5T7/vUhO9kZyb6VzxZNByRSSmv0Gl/THUd1yvmBNYUwMTITcizbfcjmr8y31XL1+qR6uG3RaL3KotL6pGKYTF4kPSahHunUDXN9fiK2WcKypX9HmoAFf8xEGwwDg0QEFdXGpK0=
+	t=1731424732; cv=none; b=aUMRCeD04n7IYHr1TFM2FNjejTdM+9oGOujrlwHlYe96yiWUGz69HFXgf8YK5+Yk1SscuugxWbPw8BQEdq+6MyXGi1A/38LVYGTMfsN82GZAEMGJydxkeYMfh34NyKKgmhVR2T2YF7XEWYLrMaJ8p1TxCQ43WAomdrGoEBry7BI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731419927; c=relaxed/simple;
-	bh=4pQscTrEU5vmK5o46Z8CwGup1txTZg9HfKzeFdSrbS8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EYVU88uyHi62isQ5CP1SEscHXoNC26YU2OjtubkkaWn5cPXUC24/T5qT0Uga8onY0pGegbNqi3VOEsYsPYJNazYnCoVFqQUiCVzDWIMPaoVr12ODvFCp1hM0MwRT3FgdKvTFs0FNRO8CTUDUa5XsveVkiCJLUCnLRnSjQjcmaxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=AEVL3aiL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1731424732; c=relaxed/simple;
+	bh=afmbmlqFcLrOAU7ve7A4Q8S3Gx5MaqFvD1hecGB7rZE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hlM+COkdhwDKE4D3Ia7yTLgD9xAwdM2dN1fugu0dLnpDX871ECAti9MP8k1YlWUInpEK+8PTEhfW5sFr+Y3KFxg7c0e6ji/778suiCk+oCgy/+Mp0NyT4wqVR5sKg9U+X8t15S5+6iNMisXHiAWlGiTkvoacTOzcB9OuBxOouEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Rfn8N77g; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="AEVL3aiL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 341EAC4CECD;
-	Tue, 12 Nov 2024 13:58:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1731419926;
-	bh=4pQscTrEU5vmK5o46Z8CwGup1txTZg9HfKzeFdSrbS8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=AEVL3aiL8wTkbdWnNSbzgcdNk3RQPWC313AxWLqPSQ8lsIHiJyIIQ+a1+0brKoEv7
-	 KUUta4ZAheLRxq/dXvj3W5IPp6XNi2jYXbYffK6aebTP7RStJ8pz1CsuOdvXtnlcum
-	 RimsoDVR8th5qGmtSlee4+rtTASaMD19tU6j829U=
-Date: Tue, 12 Nov 2024 14:58:43 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Daniel Wagner <wagi@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
-	Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
-	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
-	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
-	linux-nvme@lists.infradead.org
-Subject: Re: [PATCH v3 4/8] blk-mp: introduce blk_mq_hctx_map_queues
-Message-ID: <2024111202-parish-prowess-78bc@gregkh>
-References: <20241112-refactor-blk-affinity-helpers-v3-0-573bfca0cbd8@kernel.org>
- <20241112-refactor-blk-affinity-helpers-v3-4-573bfca0cbd8@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Rfn8N77g"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4ACEex09008433;
+	Tue, 12 Nov 2024 15:18:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=MOb0mH
+	pw2LkyIaErpZMtj9sw/+stYEKTQoIOJtGWeOw=; b=Rfn8N77gOfrVLnIdVkcnLe
+	rPHVkaS3y65RelUbvTpSrRq6fqvp3NHR01MymySIaJetL91S/C9bdrPse7y7Jqc8
+	ohfnZjHjL83uqxktPto6mWecKAhXvC1US3m4iXOsPxvZYCij2mxJgFaMZcSnnFZV
+	OK9tmhI6AYQyAmPqfrroF/G0VOu/1P8ByB0D8NdqSZOJlSSC+I9CKRncNGTSr/I0
+	c+mhfGZPjQPPnCtAHtPzEoAl5KQ1xT+k8LvMLUPtB/ZVto0g8eDOqyDWPF4X5s5K
+	5UdDZmY7JF10/r45loiG7wqADTWSnlMZQ6iwKCIhs5Q2zMyCpzvFE0exZn12XbDw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42v9020755-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Nov 2024 15:18:49 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4ACE607V029698;
+	Tue, 12 Nov 2024 15:18:49 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42tkjkt62t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Nov 2024 15:18:49 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4ACFImLI55902522
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 12 Nov 2024 15:18:48 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5DE6C58056;
+	Tue, 12 Nov 2024 15:18:48 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 30A9158060;
+	Tue, 12 Nov 2024 15:18:48 +0000 (GMT)
+Received: from [9.41.105.143] (unknown [9.41.105.143])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 12 Nov 2024 15:18:48 +0000 (GMT)
+Message-ID: <20ebaf65-503f-40a3-b8f3-ac1e649e2fac@linux.ibm.com>
+Date: Tue, 12 Nov 2024 09:18:48 -0600
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241112-refactor-blk-affinity-helpers-v3-4-573bfca0cbd8@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 3/3] vsock/test: verify socket options after setting
+ them
+Content-Language: en-US
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
+References: <20241108011726.213948-1-kshk@linux.ibm.com>
+ <20241108011726.213948-4-kshk@linux.ibm.com>
+ <bltkmoxf6xsknimf6ccrxuritfc3ipxhbqkibq7jzddg6yewcv@ijcc44qmqsm3>
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+In-Reply-To: <bltkmoxf6xsknimf6ccrxuritfc3ipxhbqkibq7jzddg6yewcv@ijcc44qmqsm3>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZHas1wz7eyCTrodpZGt3KSa4wFbzx7el
+X-Proofpoint-GUID: ZHas1wz7eyCTrodpZGt3KSa4wFbzx7el
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ phishscore=0 suspectscore=0 spamscore=0 malwarescore=0 adultscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411120121
 
-On Tue, Nov 12, 2024 at 02:26:19PM +0100, Daniel Wagner wrote:
-> blk_mq_pci_map_queues and blk_mq_virtio_map_queues will create a CPU to
-> hardware queue mapping based on affinity information. These two function
-> share common code and only differ on how the affinity information is
-> retrieved. Also, those functions are located in the block subsystem
-> where it doesn't really fit in. They are virtio and pci subsystem
-> specific.
+On 11/12/2024 02:58, Stefano Garzarella wrote:
+> On Thu, Nov 07, 2024 at 07:17:26PM -0600, Konstantin Shkolnyy wrote:
+>> Replace setsockopt() calls with calls to functions that follow
+>> setsockopt() with getsockopt() and check that the returned value and its
+>> size are the same as have been set.
+>>
+>> Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+>> ---
+>> tools/testing/vsock/Makefile              |   8 +-
+>> tools/testing/vsock/control.c             |   8 +-
+>> tools/testing/vsock/msg_zerocopy_common.c |   8 +-
+>> tools/testing/vsock/util_socket.c         | 149 ++++++++++++++++++++++
+>> tools/testing/vsock/util_socket.h         |  19 +++
+>> tools/testing/vsock/vsock_perf.c          |  24 ++--
+>> tools/testing/vsock/vsock_test.c          |  40 +++---
+>> 7 files changed, 208 insertions(+), 48 deletions(-)
+>> create mode 100644 tools/testing/vsock/util_socket.c
+>> create mode 100644 tools/testing/vsock/util_socket.h
+>>
+>> diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+>> index 6e0b4e95e230..1ec0b3a67aa4 100644
+>> --- a/tools/testing/vsock/Makefile
+>> +++ b/tools/testing/vsock/Makefile
+>> @@ -1,12 +1,12 @@
+>> # SPDX-License-Identifier: GPL-2.0-only
+>> all: test vsock_perf
+>> test: vsock_test vsock_diag_test vsock_uring_test
+>> -vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o 
+>> util.o msg_zerocopy_common.o
+>> -vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
+>> -vsock_perf: vsock_perf.o msg_zerocopy_common.o
+>> +vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o 
+>> util.o msg_zerocopy_common.o util_socket.o
+>> +vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o 
+>> util_socket.o
+>> +vsock_perf: vsock_perf.o msg_zerocopy_common.o util_socket.o
 > 
-> Thus introduce provide a generic mapping function which uses the
-> irq_get_affinity callback from bus_type.
+> I would add the new functions to check setsockopt in util.c
 > 
-> Originally idea from Ming Lei <ming.lei@redhat.com>
-> 
-> Signed-off-by: Daniel Wagner <wagi@kernel.org>
-> ---
->  block/blk-mq-cpumap.c  | 37 +++++++++++++++++++++++++++++++++++++
->  include/linux/blk-mq.h |  2 ++
->  2 files changed, 39 insertions(+)
-> 
-> diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
-> index 9638b25fd52124f0173e968ebdca5f1fe0b42ad9..db22a7d523a2762b76398fdd768f55efd1d6d669 100644
-> --- a/block/blk-mq-cpumap.c
-> +++ b/block/blk-mq-cpumap.c
-> @@ -11,6 +11,7 @@
->  #include <linux/smp.h>
->  #include <linux/cpu.h>
->  #include <linux/group_cpus.h>
-> +#include <linux/device/bus.h>
->  
->  #include "blk.h"
->  #include "blk-mq.h"
-> @@ -54,3 +55,39 @@ int blk_mq_hw_queue_to_node(struct blk_mq_queue_map *qmap, unsigned int index)
->  
->  	return NUMA_NO_NODE;
->  }
-> +
-> +/**
-> + * blk_mq_hctx_map_queues - Create CPU to hardware queue mapping
-> + * @qmap:	CPU to hardware queue map.
-> + * @dev:	The device to map queues.
-> + * @offset:	Queue offset to use for the device.
-> + *
-> + * Create a CPU to hardware queue mapping in @qmap. The struct bus_type
-> + * irq_get_affinity callback will be used to retrieve the affinity.
-> + */
-> +void blk_mq_hctx_map_queues(struct blk_mq_queue_map *qmap,
-> +			    struct device *dev, unsigned int offset)
-> +
-> +{
-> +	const struct cpumask *mask;
-> +	unsigned int queue, cpu;
-> +
-> +	if (!dev->bus->irq_get_affinity)
-> +		goto fallback;
+> vsock_perf is more of a tool to measure performance than a test, so
+> we can avoid calling these checks there, tests should cover all
+> cases regardless of vsock_perf.
 
-I think this is better than hard-coding it, but are you sure that the
-bus will always be bound to the device here so that you have a valid
-bus-> pointer?
+The problem is that vsock_perf calls enable_so_zerocopy() which has to
+call the new setsockopt_int_check() because it's also called by 
+vsock_test. Do you prefer to give vsock_perf its own version of
+enable_so_zerocopy() which doesn't call setsockopt_int_check()?
 
-thanks,
-
-greg k-h
