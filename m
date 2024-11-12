@@ -1,184 +1,276 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FF92219E58
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 21:02:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 903372038A3;
+	Tue, 12 Nov 2024 21:19:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731445322; cv=none; b=qat4T1GKaXRztugVLpd6ssMjwBukCK5Qq3yU2zo11rfjMYEMd1a76rE+7CbGg5uSAVuJn6feAqIOPHOk/DbzirQGw5Xz+tu9X70zPwsNWuc8/J6T3K6qcVUS6tF4/1vUHlTK8G67DY0rWurqxl5UvC7mlbE6O1VBgQK1aoa9rEg=
+	t=1731446356; cv=none; b=ruICzK6q/VdxpB8fFoxSFwSrj04kzs/ljIcNE9qLp0F7uPLEFVsMWM1y48PI5E4Fv/iKuMBO+mrNut63p/HfEnCvFPelxdRd3OM0aXDu1EshIXH038PGNkM6DTz3aZJqGd75Ry9OlEsMKCigF+3bQDkzZFyw1ACtc0NeFWDGmvQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731445322; c=relaxed/simple;
-	bh=lE8+hKVXI3533LUYOTxuSIVIhh77vHJWphzhjamaQlk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jpT08S0w63+UL7D3Kp2I7wv3Ig/LmmdiQxQuj1xZyTDq/zalMkMnxMQSUDRi/Lpxzm/Q8sC1auC/m0diKcXGTdr1qaUpJl7N9BtTohbFfryuXkIhazOhWAvT0QX+K/3feevXuIFLwMlefxksDt/tIt6mDPdQo3gzFYv8/Vd4w/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gJT9L+T9; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1731446356; c=relaxed/simple;
+	bh=BG2JxPbCUCWaiiKELo3CFr6HHWr+Xlxip5RIevEPmkE=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=NLC5OUtyFfXAftI/TK8jrriakZl6gQpqpv0vC8yof95HLDp5etJUbbQvD+wuIJtbfHYT+6eAyleo6aK177sTGJpmbMujWRIWHSYv+Hv57IIRPpij+I9Fk4D8CKlRlUvp5RrvUggtzFJzRVPSfc0yMFTf0LmAjAemxxkK+GynQyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LEdfckXx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gJT9L+T9"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 198614025F
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 21:02:01 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id lPPQ5HfiAxfo for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Nov 2024 21:02:00 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 000C240189
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 000C240189
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gJT9L+T9
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 000C240189
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 21:01:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731445317;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QdtsPtEgy/GqbYpllDqET8ibZDA5+N3hhfAC0l8hEiQ=;
-	b=gJT9L+T9zXEGaSye+c9sxVIAbsXAG2W0d4BUQEfQnp831T5OvZfoDjupwvGHFaT8cg0pF/
-	U6tv7Kzg3rkz/spaVDy4wYilIosQWwtr30bKFH+4Ho9ZUuze449g77NejCJnM++z5Ak5l8
-	1ad4PrpVE9o20OjRUF2t6Mj32FlrcK8=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-344-ZB1R7mrsOtmwcpe1g9st-Q-1; Tue, 12 Nov 2024 16:01:56 -0500
-X-MC-Unique: ZB1R7mrsOtmwcpe1g9st-Q-1
-X-Mimecast-MFC-AGG-ID: ZB1R7mrsOtmwcpe1g9st-Q
-Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-7180cdce4cbso208669a34.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 13:01:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731445315; x=1732050115;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QdtsPtEgy/GqbYpllDqET8ibZDA5+N3hhfAC0l8hEiQ=;
-        b=gi3jcXVB4iGXGUqeOGIxD2RQFZn8br4URUeVd5AYz64brUDGTvEt+IkKNJNHobnZw7
-         JAPzjvj3MCA6L9/BfzrJlM2swtEdffSNwRkV/gWTh5xLUPQwTDcbFyDe9HXAu+GvpobH
-         cx5sWbicLr2BhtTiC1i2aBHoo65FImncQqCcmVll2vwAqVFrhxq4UjuKBhEgxkkFgBkO
-         6xb2WP+EwSq9gsatyptlBqIa+HhSzapTqbQ/R/TXd9A+uURszIyHrlqRKxA1LjjRiLwq
-         UaY8VBTr0/jbmdBfIN3X9HJwMIBWDhc5/BQ2dF8DFaROrcvkOUbzROuG+chV9gHDjm4S
-         pluA==
-X-Forwarded-Encrypted: i=1; AJvYcCUcILxP5CWd2BCPV9dp4nukylAgMdlKjdnkJUWE/bvCRjY4tARxBNwTiPV8iE6QdOLSVKmXEsp3emLb5tl89g==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxgQoL6RO0Q7U0VUIGbcfuo/cVK5/xGr6MK1dS3F4y5VqhqVXfC
-	ra6Q6gPixkSzlLhDZ0WHfEMqcFo9EcexBPVzU/iICPYE06fCNkvoYrDeiT995GhC310yO1Bf2V6
-	gSnfWUSd8zgoN09VRJrzkS1uqKft/eAI4pxJwRjc9XH5xKv+JAd3OOm8sb9/p6ChVTyspadxaJy
-	TXn4I=
-X-Received: by 2002:a05:6830:6dc5:b0:718:83f7:9875 with SMTP id 46e09a7af769-71a1c1c73ebmr3765381a34.1.1731445315243;
-        Tue, 12 Nov 2024 13:01:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFP6e69f0/gmTt/8CcCYYQyUpNYOQNiDkqnm2OdfCSY9FzVz9MST8wwnENJwdpKjXTonJjqTQ==
-X-Received: by 2002:a05:6830:6dc5:b0:718:83f7:9875 with SMTP id 46e09a7af769-71a1c1c73ebmr3765370a34.1.1731445314909;
-        Tue, 12 Nov 2024 13:01:54 -0800 (PST)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-71a5fe6381bsm69536a34.15.2024.11.12.13.01.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Nov 2024 13:01:54 -0800 (PST)
-Date: Tue, 12 Nov 2024 14:01:51 -0700
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Yishai Hadas <yishaih@nvidia.com>
-Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
- <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
- <parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
- <joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
-Subject: Re: [PATCH V3 vfio 5/7] vfio/virtio: Add support for the basic live
- migration functionality
-Message-ID: <20241112140151.3c03ff98.alex.williamson@redhat.com>
-In-Reply-To: <20241112083729.145005-6-yishaih@nvidia.com>
-References: <20241112083729.145005-1-yishaih@nvidia.com>
-	<20241112083729.145005-6-yishaih@nvidia.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LEdfckXx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E79C4CECD;
+	Tue, 12 Nov 2024 21:19:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1731446356;
+	bh=BG2JxPbCUCWaiiKELo3CFr6HHWr+Xlxip5RIevEPmkE=;
+	h=From:Date:To:cc:Subject:In-Reply-To:References:From;
+	b=LEdfckXxMeEAhOKUMmr/+q+siJdebJM9AJ9vFUuUx6PTNpPRf0eA0RwTvu+GJKHkk
+	 eBIgU3iTwWeRm9k9y2szKiGSnvgZ1MyOzXarGpHnAx7nOsvqwo4XrhKCtIMRZgbjbm
+	 jBClTSULk9VehpCwoalejExbrplGUsNUAz7jXgnkp5KQ1VR3QHZ1Jp3+Dpd1iDM2H1
+	 wRTdI+kIpnGYeTQVM7ULvgezcsf66Ta2/gLCUJynA7EsdffrJa0vGmuUeTj2/YWXN8
+	 KyvMTk5n6Gd+zMTk0OgXP3cDZqbCE0sJbzcFyHDinFw0eNANsnd0tk4x5xibXdGfyM
+	 dHdt/9ozQyirg==
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ij@kernel.org>
+Date: Tue, 12 Nov 2024 23:19:09 +0200 (EET)
+To: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>, 
+    "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+    virtualization@lists.linux.dev
+cc: Eric Dumazet <edumazet@google.com>, 
+    "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+    "dsahern@gmail.com" <dsahern@gmail.com>, 
+    "davem@davemloft.net" <davem@davemloft.net>, 
+    "dsahern@kernel.org" <dsahern@kernel.org>, 
+    "pabeni@redhat.com" <pabeni@redhat.com>, 
+    "joel.granados@kernel.org" <joel.granados@kernel.org>, 
+    "kuba@kernel.org" <kuba@kernel.org>, 
+    "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, 
+    "horms@kernel.org" <horms@kernel.org>, 
+    "pablo@netfilter.org" <pablo@netfilter.org>, 
+    "kadlec@netfilter.org" <kadlec@netfilter.org>, 
+    "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, 
+    "coreteam@netfilter.org" <coreteam@netfilter.org>, 
+    "ncardwell@google.com" <ncardwell@google.com>, 
+    "Koen De Schepper (Nokia)" <koen.de_schepper@nokia-bell-labs.com>, 
+    "g.white@cablelabs.com" <g.white@cablelabs.com>, 
+    "ingemar.s.johansson@ericsson.com" <ingemar.s.johansson@ericsson.com>, 
+    "mirja.kuehlewind@ericsson.com" <mirja.kuehlewind@ericsson.com>, 
+    "cheshire@apple.com" <cheshire@apple.com>, 
+    "rs.ietf@gmx.at" <rs.ietf@gmx.at>, 
+    "Jason_Livingood@comcast.com" <Jason_Livingood@comcast.com>, 
+    "vidhi_goel@apple.com" <vidhi_goel@apple.com>
+Subject: RE: [PATCH v5 net-next 09/13] gro: prevent ACE field corruption &
+ better AccECN handling
+In-Reply-To:  <PAXPR07MB7984717B290B1BC250429D2BA3592@PAXPR07MB7984.eurprd07.prod.outlook.com>
+Message-ID: <6c6aced9-7543-b195-93e9-17e824538c55@kernel.org>
+References: <20241105100647.117346-1-chia-yu.chang@nokia-bell-labs.com> <20241105100647.117346-10-chia-yu.chang@nokia-bell-labs.com> <CANn89i+9USaOthY3yaJPT-cbfAcP0re2bbGbWU7SqOSYEW2CMw@mail.gmail.com> <37429ace-59c0-21d2-bcc8-54033794e789@kernel.org> 
+ <PAXPR07MB7984717B290B1BC250429D2BA3592@PAXPR07MB7984.eurprd07.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _5ctKO7tdZSPOj8CJTroT-o5ZrMIs0O6UephhrFr7a4_1731445315
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="8323328-2005147231-1731446349=:1016"
 
-On Tue, 12 Nov 2024 10:37:27 +0200
-Yishai Hadas <yishaih@nvidia.com> wrote:
-> diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
-> new file mode 100644
-> index 000000000000..3d5eaa1cbcdb
-> --- /dev/null
-> +++ b/drivers/vfio/pci/virtio/migrate.c
-...
-> +static int virtiovf_add_migration_pages(struct virtiovf_data_buffer *buf,
-> +					unsigned int npages)
-> +{
-> +	unsigned int to_alloc = npages;
-> +	struct page **page_list;
-> +	unsigned long filled;
-> +	unsigned int to_fill;
-> +	int ret;
-> +
-> +	to_fill = min_t(unsigned int, npages, PAGE_SIZE / sizeof(*page_list));
-> +	page_list = kvzalloc(to_fill * sizeof(*page_list), GFP_KERNEL_ACCOUNT);
-> +	if (!page_list)
-> +		return -ENOMEM;
-> +
-> +	do {
-> +		filled = alloc_pages_bulk_array(GFP_KERNEL_ACCOUNT, to_fill,
-> +						page_list);
-> +		if (!filled) {
-> +			ret = -ENOMEM;
-> +			goto err;
-> +		}
-> +		to_alloc -= filled;
-> +		ret = sg_alloc_append_table_from_pages(&buf->table, page_list,
-> +			filled, 0, filled << PAGE_SHIFT, UINT_MAX,
-> +			SG_MAX_SINGLE_ALLOC, GFP_KERNEL_ACCOUNT);
-> +
-> +		if (ret)
-> +			goto err;
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Cleanup here has me a bit concerned.  I see this pattern in
-mlx5vf_add_migration_pages() as well.  IIUC, if we hit the previous
-ENOMEM condition we simply free page_list and return error because any
-pages we've already added to the sg table will be freed in the next
-function below.  But what happens here?  It looks like we've allocated
-a bunch of pages, failed to added them to the sg table and we drop them
-on the floor.  Am I wrong?
+--8323328-2005147231-1731446349=:1016
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> +		buf->allocated_length += filled * PAGE_SIZE;
-> +		/* clean input for another bulk allocation */
-> +		memset(page_list, 0, filled * sizeof(*page_list));
-> +		to_fill = min_t(unsigned int, to_alloc,
-> +				PAGE_SIZE / sizeof(*page_list));
-> +	} while (to_alloc > 0);
-> +
-> +	kvfree(page_list);
-> +	return 0;
-> +
-> +err:
-> +	kvfree(page_list);
-> +	return ret;
+Adding a few virtio people. Please see the virtio spec/flag question=20
+below.
 
-If ret were initialized to zero it looks like we wouldn't need
-duplicate code for the success path, but that might change if we need
-more unwind for the above.  Thanks,
+On Tue, 12 Nov 2024, Chia-Yu Chang (Nokia) wrote:
 
-Alex
+> >From: Ilpo J=C3=A4rvinen <ij@kernel.org>=20
+> >Sent: Thursday, November 7, 2024 8:28 PM
+> >To: Eric Dumazet <edumazet@google.com>
+> >Cc: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>; netdev@vg=
+er.kernel.org; dsahern@gmail.com; davem@davemloft.net; dsahern@kernel.org; =
+pabeni@redhat.com; joel.granados@kernel.org; kuba@kernel.org; andrew+netdev=
+@lunn.ch; horms@kernel.org; pablo@netfilter.org; kadlec@netfilter.org; netf=
+ilter-devel@vger.kernel.org; coreteam@netfilter.org; ncardwell@google.com; =
+Koen De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>; g.white@ca=
+blelabs.com; ingemar.s.johansson@ericsson.com; mirja.kuehlewind@ericsson.co=
+m; cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com; vidhi_g=
+oel@apple.com
+> >Subject: Re: [PATCH v5 net-next 09/13] gro: prevent ACE field corruption=
+ & better AccECN handling
+> >
+> >
+> >CAUTION: This is an external email. Please be very careful when clicking=
+ links or opening attachments. See the URL nok.it/ext for additional inform=
+ation.
+> >
+> >
+> >
+> >On Thu, 7 Nov 2024, Eric Dumazet wrote:
+> >
+> >>On Tue, Nov 5, 2024 at 11:07=E2=80=AFAM <chia-yu.chang@nokia-bell-labs.=
+com> wrote:
+> >>>
+> >>> From: Ilpo J=C3=A4rvinen <ij@kernel.org>
+> >>>
+> >>> There are important differences in how the CWR field behaves in=20
+> >>> RFC3168 and AccECN. With AccECN, CWR flag is part of the ACE counter=
+=20
+> >>> and its changes are important so adjust the flags changed mask=20
+> >>> accordingly.
+> >>>
+> >>> Also, if CWR is there, set the Accurate ECN GSO flag to avoid=20
+> >>> corrupting CWR flag somewhere.
+> >>>
+> >>> Signed-off-by: Ilpo J=C3=A4rvinen <ij@kernel.org>
+> >>> Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> >>> ---
+> >>>  net/ipv4/tcp_offload.c | 4 ++--
+> >>>  1 file changed, 2 insertions(+), 2 deletions(-)
+> >>>
+> >>> diff --git a/net/ipv4/tcp_offload.c b/net/ipv4/tcp_offload.c index=20
+> >>> 0b05f30e9e5f..f59762d88c38 100644
+> >>> --- a/net/ipv4/tcp_offload.c
+> >>> +++ b/net/ipv4/tcp_offload.c
+> >>> @@ -329,7 +329,7 @@ struct sk_buff *tcp_gro_receive(struct list_head =
+*head, struct sk_buff *skb,
+> >>>         th2 =3D tcp_hdr(p);
+> >>>         flush =3D (__force int)(flags & TCP_FLAG_CWR);
+> >>>         flush |=3D (__force int)((flags ^ tcp_flag_word(th2)) &
+> >>> -                 ~(TCP_FLAG_CWR | TCP_FLAG_FIN | TCP_FLAG_PSH));
+> >>> +                 ~(TCP_FLAG_FIN | TCP_FLAG_PSH));
+> >>>         flush |=3D (__force int)(th->ack_seq ^ th2->ack_seq);
+> >>>         for (i =3D sizeof(*th); i < thlen; i +=3D 4)
+> >>>                 flush |=3D *(u32 *)((u8 *)th + i) ^ @@ -405,7 +405,7=
+=20
+> >>> @@ void tcp_gro_complete(struct sk_buff *skb)
+> >>>         shinfo->gso_segs =3D NAPI_GRO_CB(skb)->count;
+> >>>
+> >>>         if (th->cwr)
+> >>> -               shinfo->gso_type |=3D SKB_GSO_TCP_ECN;
+> >>> +               shinfo->gso_type |=3D SKB_GSO_TCP_ACCECN;
+> >>>  }
+> >>>  EXPORT_SYMBOL(tcp_gro_complete);
+> >>>
+> >>
+> >> I do not really understand this patch. How a GRO engine can know which=
+=20
+> >> ECN variant the peers are using ?
+> >
+> >Hi Eric,
+> >
+> >Thanks for taking a look.
+> >
+> >GRO doesn't know. Setting SKB_GSO_TCP_ECN in case of not knowing can res=
+ult in header change that corrupts ACE field. Thus, GRO has to assume the R=
+FC3168 CWR offloading trick cannot be used anymore (unless it tracks the co=
+nnection and knows the bits are used for RFC3168 which is something nobody =
+is going to do).
+> >
+> >The main point of SKB_GSO_TCP_ACCECN is to prevent SKB_GSO_TCP_ECN or NE=
+TIF_F_TSO_ECN offloading to be used for the skb as it would corrupt ACE fie=
+ld value.
+>=20
+> Hi Eric and Ilpo,
+>=20
+> From my understanding of another email thread (patch 08/13), it seems the=
+ conclusions that SKB_GSO_TCP_ACCECN will still be needed.
+>=20
+> >
+> >SKB_GSO_TCP_ACCECN doesn't allow CWR bits change within a super-skb but =
+the same CWR flag should be repeated for all segments. In a sense, it's sim=
+pler than RFC3168 offloading.
+> >
+> >> SKB_GSO_TCP_ECN is also used from other points, what is your plan ?
+> >>
+> >> git grep -n SKB_GSO_TCP_ECN
+> >> drivers/net/ethernet/hisilicon/hns3/hns3_enet.c:3888:
+> >> skb_shinfo(skb)->gso_type |=3D SKB_GSO_TCP_ECN;
+> >> drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:1291:
+> >> skb_shinfo(skb)->gso_type |=3D SKB_GSO_TCP_ECN;
+> >> drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:1312:
+> >> skb_shinfo(skb)->gso_type |=3D SKB_GSO_TCP_ECN;
+> >
+> >These looked like they should be just changed to set SKB_GSO_TCP_ACCECN =
+instead.
+>=20
+> I agree with these changes and will apply them in the next version.
+>=20
+> >
+> >I don't anymore recall why I didn't change those when I made this patch =
+long time ago, perhaps it was just an oversight or things have changed some=
+how since then.
+> >
+> >> include/linux/netdevice.h:5061: BUILD_BUG_ON(SKB_GSO_TCP_ECN !=3D=20
+> >> (NETIF_F_TSO_ECN >> NETIF_F_GSO_SHIFT));
+> >> include/linux/skbuff.h:664:     SKB_GSO_TCP_ECN =3D 1 << 2,
+> >
+> >Not relevant.
+> >
+> >> include/linux/virtio_net.h:88:                  gso_type |=3D SKB_GSO_=
+TCP_ECN;
+> >> include/linux/virtio_net.h:161:         switch (gso_type & ~SKB_GSO_TC=
+P_ECN) {
+> >> include/linux/virtio_net.h:226:         if (sinfo->gso_type & SKB_GSO_=
+TCP_ECN)
+> >
+> >These need to be looked further what's going on as UAPI is also=20
+> > involved here.=20
+>=20
+> I had a look at these parts, and only the 1st and 3rd ones are relevant.
+> Related to the 1st one, I propose to change
+> from
+>=20
+>                 if (hdr->gso_type & VIRTIO_NET_HDR_GSO_ECN)
+>                         gso_type |=3D SKB_GSO_TCP_ECN;
+>=20
+> to
+>=20
+>                 if (hdr->gso_type & VIRTIO_NET_HDR_GSO_ECN)
+>                         gso_type |=3D SKB_GSO_TCP_ACCECN;
+>=20
+> The reason behind this proposed change is similar as the above changes=20
+> in en_rx.c.
 
-> +}
-> +
-> +static void virtiovf_free_data_buffer(struct virtiovf_data_buffer *buf)
-> +{
-> +	struct sg_page_iter sg_iter;
-> +
-> +	/* Undo alloc_pages_bulk_array() */
-> +	for_each_sgtable_page(&buf->table.sgt, &sg_iter, 0)
-> +		__free_page(sg_page_iter_page(&sg_iter));
-> +	sg_free_append_table(&buf->table);
-> +	kfree(buf);
-> +}
+But en_rx.c is based one CWR flag, there's no similar check here.
 
+> For the 3rd one, I suggest to change from
+>=20
+>                 if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+>                         hdr->gso_type |=3D VIRTIO_NET_HDR_GSO_ECN;
+>
+> to
+>=20
+>                 if (sinfo->gso_type & (SKB_GSO_TCP_ECN | SKB_GSO_TCP_ACCE=
+CN))
+>                         hdr->gso_type |=3D VIRTIO_NET_HDR_GSO_ECN;
+>=20
+> This proposed change is because VIRTIO_NET_HDR_GSO_ECN must be set to=20
+> allow TCP packets requiring segmentation offload which have ECN bit set.
+> So, no matter whether skb gso_type have GSO_TCP_ECN flag or=20
+> GSO_TCP_ACCECN flag, the corresponding hdr gso_type shall be set.
+>=20
+> But, I wonder what would the driver do when with VIRTIO_NET_HDR_GSO_ECN=
+=20
+> flag. Will it corrupts CWR or not?
+
+I'm starting to heavily question what is the meaning of that=20
+VIRTIO_NET_HDR_GSO_ECN flag and if it's even consistent...
+
+https://github.com/qemu/qemu/blob/master/net/eth.c
+
+That sets VIRTIO_NET_HDR_GSO_ECN based on CE?? (Whereas kernel associates=
+=20
+the related SKB_GSO_TCP_ECN to CWR offloading.)
+
+The virtio spec is way too vague to be useful so it would not be=20
+surprising if there are diverging interpretations from implementers:
+
+"If the driver negotiated the VIRTIO_NET_F_HOST_ECN feature, the=20
+VIRTIO_NET_HDR_GSO_ECN bit in gso_type indicates that the TCP packet has=20
+the ECN bit set."
+
+What is "the ECN bit" in terms used by TCP (or IP)? Could some virtio=20
+folks please explain?
+
+
+--=20
+ i.
+
+--8323328-2005147231-1731446349=:1016--
