@@ -1,53 +1,86 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4CC314E2CC
-	for <virtualization@lists.linux.dev>; Tue, 12 Nov 2024 16:56:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BCF0215028
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 18:07:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731430610; cv=none; b=Zni70L9RwogWFZRzRq8DE208Itq13zhLG1BGCOpMkApRnCFpWn0JdCO17zKbvDSWHe7Quy3x70l5TrxznQ9XIA2Bkzg7Wzyr9039O2qLvbn9Cj7h7Jab3Nv88pm9JhuEStqyWQNlBGYcyonLjoXe7bjqyVmR7pydmknR4TcgIMw=
+	t=1731434847; cv=none; b=R2kZSh1Gi8yhaW7GwL3nU1GNagWrWWMGciFQF9TSiJmuX8EdjrSKUhVQya33ww0A6MZtQyKrfOBOsCrf0NXawItserpGsCBmv9NNeZDmZK6w/9Su/X8gj/6IHJZlHyaE/HbY8mCX9tRVyOJSwUiARQqlrlCaHNj+Z5hoqzps4ks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731430610; c=relaxed/simple;
-	bh=M7NmYC/Iylm9myghHwqILim55SAUt9QrM+UZYk0eJlw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BB4C4gJquGbGF3nzna+CWBhGsAlPUmM1MafYRORzPHb5FTGRbQUlf3pWuHVN2Ds7Odr8H/PK/QZkQTnG/Q4qB0PWaFCXJ1cdI7x3yAQDyxKFQATRLZthiwS7G25xsh5a7in0DM3yaqjASAd0pO8Dd3+CSCCHYrA/rNsa0KPN/ms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id DE04068AFE; Tue, 12 Nov 2024 17:56:45 +0100 (CET)
-Date: Tue, 12 Nov 2024 17:56:45 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Daniel Wagner <wagi@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com,
-	storagedev@microchip.com, linux-nvme@lists.infradead.org
-Subject: Re: [PATCH v3 4/8] blk-mp: introduce blk_mq_hctx_map_queues
-Message-ID: <20241112165645.GD20057@lst.de>
-References: <20241112-refactor-blk-affinity-helpers-v3-0-573bfca0cbd8@kernel.org> <20241112-refactor-blk-affinity-helpers-v3-4-573bfca0cbd8@kernel.org>
+	s=arc-20240116; t=1731434847; c=relaxed/simple;
+	bh=YfH1GvXFKsdKUR7M0E2fxAHJRtaL1PPV2LsMW7nnb7E=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=ne6A0S2T2Z04lEVglJarzM1unsPwQZaYOdavBK04+Ij/SOfA+4x4im1I4eTY4pHrknC6JziDmjeT8k+mYa789WZvoQusuerMIh7oQqdoZt9mPOu/yK3cnzd16jXgoiPVxL1mINGZ93AgbiGcfC6PkkijVIQvJ4Z1WjRERxgaGfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A8N1juX8; arc=none smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A8N1juX8"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id D3E91400F1
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 18:07:25 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 5MaJynU6AGKT for <virtualization@lists.linux-foundation.org>;
+ Tue, 12 Nov 2024 18:07:25 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DD25240143
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DD25240143
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=A8N1juX8
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DD25240143
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 18:07:24 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 3B6F15C57EB;
+	Tue, 12 Nov 2024 18:06:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE40C4CECD;
+	Tue, 12 Nov 2024 18:07:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1731434843;
+	bh=YfH1GvXFKsdKUR7M0E2fxAHJRtaL1PPV2LsMW7nnb7E=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=A8N1juX8oS7mci0uA1LWmOIwJnYN/dTzG7Xl1GwrLgifbW4vnChXbb4imPHknhp6E
+	 IzK2dguEDPAKvHiVkJ86/WfF2u5Wv3yGcT71EBQdrsWp2au17o9wbOmvI32XKIA2yw
+	 7McP/jgLmFZUWMaK0vQKQkfXBjcx/8cSywdxJ8uD3sEP8Rhv5u69WeJCbvGzrSd8+0
+	 wNMlHHRGie2AIauCb+Q4pcIzzj4XdX2/8ctZqo3GUfTV7DtvdPgQLiS6/DaBRimYPs
+	 QU2ZPgizTgpRidU17FJ6wHWcwNWC1BvyBz8Q/pYAXneItnP/WCYbN+JDGOQ57wMSin
+	 AFPjQUCHK81Bw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 71DFB3809A80;
+	Tue, 12 Nov 2024 18:07:34 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio: bugfixes
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20241111085050-mutt-send-email-mst@kernel.org>
+References: <20241111085050-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20241111085050-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: 83e445e64f48bdae3f25013e788fcf592f142576
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 0ccd733ac99edc473aaee90c8f6adc346d82befb
+Message-Id: <173143485302.621786.7229515238200918820.pr-tracker-bot@kernel.org>
+Date: Tue, 12 Nov 2024 18:07:33 +0000
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, angus.chen@jaguarmicro.com, christophe.jaillet@wanadoo.fr, cvam0000@gmail.com, dtatulea@nvidia.com, eperezma@redhat.com, feliu@nvidia.com, gregkh@linuxfoundation.org, jasowang@redhat.com, jiri@nvidia.com, lege.wang@jaguarmicro.com, lingshan.zhu@kernel.org, mst@redhat.com, pstanner@redhat.com, qwerty@theori.io, v4bel@theori.io, yuancan@huawei.com
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241112-refactor-blk-affinity-helpers-v3-4-573bfca0cbd8@kernel.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
 
-Looks good:
+The pull request you sent on Mon, 11 Nov 2024 08:50:50 -0500:
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/0ccd733ac99edc473aaee90c8f6adc346d82befb
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
