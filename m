@@ -1,28 +1,29 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C773D1AA1EB
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EE93205125
 	for <virtualization@lists.linux.dev>; Tue, 12 Nov 2024 01:29:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731374979; cv=none; b=RoCfkGWdbHGvCM2PfG7ye98cHcmC8A7k0J0+EiVGbEuZ5J+Ua9fnPzWBXi0z7+tmLSpxVGemoPnVbxkQMwlV/JAmOUyfhsM6Wvy4yTF5KBOszePV58TaT0XMe1LLmCK2qhFwDYCbFig0IR9B4VIAwkeRG0LJCV2Ymx+VZaNWW98=
+	t=1731374980; cv=none; b=hleP5XqY2gdWv2W6Hotnk8Ar5gxuJyKsLR+xH9We911BAx/UGFBapoNYGapaViWoOZeWhdOI5d9py/YxSnmLYJ3imwBCgJdnSXYXg7TdUQeRUKt0oGL9ApIp5+a4evUKZ5TUpsTh6IQ17ZwVPClr/fuHgMj6teN1TjNgbI+oMJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731374979; c=relaxed/simple;
-	bh=51UECk28dV15zIq3POGflUXGPV5B5IFZ/GPDdueH+Wo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=AOCBGZjI/i1Zr5KGp81CTqbUGqLRFTeyIzuKPNvsXJQXqEldQRk9XYZh8ygRqUrFtotZ4jj35n6gqhhopvlKlhVJIdX+23aacv8A2zGHwJxuWHU+j2aAEeFhzH7MlYbDGpI/Pq8vOqGyvJpAMHR06StAhcpvhYZmqm+IGFfeT7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=XEWpS2xG; arc=none smtp.client-ip=115.124.30.98
+	s=arc-20240116; t=1731374980; c=relaxed/simple;
+	bh=oCk2bVUFA80jcN8pFvgMFpUaQsCcZ0uuN66m6pjzcqE=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=uWL/lWA47YPiaoTm1uqCvKTrGp90eKGKJkqORGb6E7Q0Ve98hfNqUJbrqN8OSJzrkwQUG64mdeE+SK1tdNYLqqNf29ualPWOfpmRP5Po6t4vSkNUIoqNwje+7UhKA3boShKhI6XU3xDqHNLJxKeYL3M3CawiQp24413sAJDjzzU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=komrtlGk; arc=none smtp.client-ip=115.124.30.97
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="XEWpS2xG"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="komrtlGk"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1731374969; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=24nPIwKKsU+tzcVmELJ3VnjLe54hrnQQxWsvNlefg7k=;
-	b=XEWpS2xGzrLsg7BAfJhbsn45SUNAVYdQEc2WwfdLgmyfgecZN4l+KPEBGr4rQPru/xrs0aYZ1mHgiToBEd9Alspv5VlA0e6gE54AOZ0mirXwO8xCwQcC+pIICqhf0VSAJMvpeM1Eusgpll41yx3nw21jLgh/sLtMVUW1VVAtYiY=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WJF8T7F_1731374968 cluster:ay36)
+	t=1731374975; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=P2sKNOH/t68GirPzwwed7ITZs+MsxtSCxJBgVGe9vb4=;
+	b=komrtlGkbUSz+GN9abw/7flVtJRDN6VW9p7E8f2q/h3tjCqz1N6AKPBFMwMk0iOe0owXKTAr4T7kIgJIuaTXxrNZ0sxhID/giJTK6DtToIWXHToVqxSdxrCaHV/r0LBUVffLS0wzqyKYZCpQM8YTfs6Pk2FVJ61reS++0ple4k4=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WJF5q-V_1731374974 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 12 Nov 2024 09:29:29 +0800
+          Tue, 12 Nov 2024 09:29:35 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -40,10 +41,12 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v4 00/13] virtio-net: support AF_XDP zero copy (tx)
-Date: Tue, 12 Nov 2024 09:29:15 +0800
-Message-Id: <20241112012928.102478-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v4 05/13] virtio_ring: introduce add api for premapped
+Date: Tue, 12 Nov 2024 09:29:20 +0800
+Message-Id: <20241112012928.102478-6-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20241112012928.102478-1-xuanzhuo@linux.alibaba.com>
+References: <20241112012928.102478-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,135 +56,114 @@ MIME-Version: 1.0
 X-Git-Hash: ee9bd377a389
 Content-Transfer-Encoding: 8bit
 
-v4:
-    1. rebase net-next
-    2. update the kdoc for the new APIs
+Two APIs are introduced to submit premapped per-buffers.
 
-v3:
-    1. use sg_dma_address/length api to set the premapped sg
-    2. remove 'premapped' parameter from the new APIs
-    3. tweak the comment of commit #2,#3
+int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
+                                 struct scatterlist *sg, unsigned int num,
+                                 void *data,
+                                 void *ctx,
+                                 gfp_t gfp);
 
-v2:
-    1. use new api to submit premapped buffer instead of using sgs to pass this info
-    2. some small fixes for http://lore.kernel.org/all/20240924013204.13763-1-xuanzhuo@linux.alibaba.com
+int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
+                                  struct scatterlist *sg, unsigned int num,
+                                  void *data,
+                                  gfp_t gfp);
 
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_ring.c | 48 ++++++++++++++++++++++++++++++++++++
+ include/linux/virtio.h       | 11 +++++++++
+ 2 files changed, 59 insertions(+)
 
-v1:
-    1. some small fixes for http://lore.kernel.org/all/20240820073330.9161-1-xuanzhuo@linux.alibaba.com
-        1. fix the title of the commit #2, #3
-        2. fix the gcc error for commit #3
-        3. use virtqueue_dma_xxxx for tx hdr
-        4. rename virtnet_ptr_to_xsk to virtnet_ptr_to_xsk_buff_len
-        5. squash #11 in last patch set to #10
-
-================================================================================
-
-## AF_XDP
-
-XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
-copy feature of xsk (XDP socket) needs to be supported by the driver. The
-performance of zero copy is very good. mlx5 and intel ixgbe already support
-this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
-feature.
-
-At present, we have completed some preparation:
-
-1. vq-reset (virtio spec and kernel code)
-2. virtio-core premapped dma
-3. virtio-net xdp refactor
-
-So it is time for Virtio-Net to complete the support for the XDP Socket
-Zerocopy.
-
-Virtio-net can not increase the queue num at will, so xsk shares the queue with
-kernel.
-
-This patch set includes some refactor to the virtio-net to let that to support
-AF_XDP.
-
-## About virtio premapped mode
-
-The current configuration sets the virtqueue (vq) to premapped mode,
-implying that all buffers submitted to this queue must be mapped ahead
-of time. This presents a challenge for the virtnet send queue (sq): the
-virtnet driver would be required to keep track of dma information for vq
-size * 17, which can be substantial. However, if the premapped mode were
-applied on a per-buffer basis, the complexity would be greatly reduced.
-With AF_XDP enabled, AF_XDP buffers would become premapped, while kernel
-skb buffers could remain unmapped.
-
-We can distinguish them by sg_page(sg), When sg_page(sg) is NULL, this
-indicates that the driver has performed DMA mapping in advance, allowing
-the Virtio core to directly utilize sg_dma_address(sg) without
-conducting any internal DMA mapping. Additionally, DMA unmap operations
-for this buffer will be bypassed.
-
-## performance
-
-ENV: Qemu with vhost-user(polling mode).
-Host CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
-
-### virtio PMD in guest with testpmd
-
-testpmd> show port stats all
-
- ######################## NIC statistics for port 0 ########################
- RX-packets: 19531092064 RX-missed: 0     RX-bytes: 1093741155584
- RX-errors: 0
- RX-nombuf: 0
- TX-packets: 5959955552 TX-errors: 0     TX-bytes: 371030645664
-
-
- Throughput (since last show)
- Rx-pps:   8861574     Rx-bps:  3969985208
- Tx-pps:   8861493     Tx-bps:  3969962736
- ############################################################################
-
-### AF_XDP PMD in guest with testpmd
-
-testpmd> show port stats all
-
-  ######################## NIC statistics for port 0  ########################
-  RX-packets: 68152727   RX-missed: 0          RX-bytes:  3816552712
-  RX-errors: 0
-  RX-nombuf:  0
-  TX-packets: 68114967   TX-errors: 33216      TX-bytes:  3814438152
-
-  Throughput (since last show)
-  Rx-pps:      6333196          Rx-bps:   2837272088
-  Tx-pps:      6333227          Tx-bps:   2837285936
-  ############################################################################
-
-But AF_XDP consumes more CPU for tx and rx napi(100% and 86%).
-
-Please review.
-
-Thanks.
-
-
-
-
-Xuan Zhuo (13):
-  virtio_ring: introduce vring_need_unmap_buffer
-  virtio_ring: split: record extras for indirect buffers
-  virtio_ring: packed: record extras for indirect buffers
-  virtio_ring: perform premapped operations based on per-buffer
-  virtio_ring: introduce add api for premapped
-  virtio-net: rq submits premapped per-buffer
-  virtio_ring: remove API virtqueue_set_dma_premapped
-  virtio_net: refactor the xmit type
-  virtio_net: xsk: bind/unbind xsk for tx
-  virtio_net: xsk: prevent disable tx napi
-  virtio_net: xsk: tx: support xmit xsk buffer
-  virtio_net: update tx timeout record
-  virtio_net: xdp_features add NETDEV_XDP_ACT_XSK_ZEROCOPY
-
- drivers/net/virtio_net.c     | 369 ++++++++++++++++++++++++++++-------
- drivers/virtio/virtio_ring.c | 356 ++++++++++++++++-----------------
- include/linux/virtio.h       |  13 +-
- 3 files changed, 489 insertions(+), 249 deletions(-)
-
---
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index fefa85a5e6b6..0842d27886e5 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2276,6 +2276,29 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
+ 
++/**
++ * virtqueue_add_outbuf_premapped - expose output buffers to other end
++ * @vq: the struct virtqueue we're talking about.
++ * @sg: scatterlist (must be well-formed and terminated!)
++ * @num: the number of entries in @sg readable by other side
++ * @data: the token identifying the buffer.
++ * @gfp: how to do memory allocations (if necessary).
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ *
++ * Return:
++ * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
++ */
++int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
++				   struct scatterlist *sg, unsigned int num,
++				   void *data,
++				   gfp_t gfp)
++{
++	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, true, gfp);
++}
++EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_premapped);
++
+ /**
+  * virtqueue_add_inbuf - expose input buffers to other end
+  * @vq: the struct virtqueue we're talking about.
+@@ -2322,6 +2345,31 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
+ 
++/**
++ * virtqueue_add_inbuf_premapped - expose input buffers to other end
++ * @vq: the struct virtqueue we're talking about.
++ * @sg: scatterlist (must be well-formed and terminated!)
++ * @num: the number of entries in @sg writable by other side
++ * @data: the token identifying the buffer.
++ * @ctx: extra context for the token
++ * @gfp: how to do memory allocations (if necessary).
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ *
++ * Return:
++ * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
++ */
++int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
++				  struct scatterlist *sg, unsigned int num,
++				  void *data,
++				  void *ctx,
++				  gfp_t gfp)
++{
++	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, true, gfp);
++}
++EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
++
+ /**
+  * virtqueue_dma_dev - get the dma dev
+  * @_vq: the struct virtqueue we're talking about.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 306137a15d07..13b3f55abca3 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -56,6 +56,17 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+ 			    void *ctx,
+ 			    gfp_t gfp);
+ 
++int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
++				  struct scatterlist *sg, unsigned int num,
++				  void *data,
++				  void *ctx,
++				  gfp_t gfp);
++
++int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
++				   struct scatterlist *sg, unsigned int num,
++				   void *data,
++				   gfp_t gfp);
++
+ int virtqueue_add_sgs(struct virtqueue *vq,
+ 		      struct scatterlist *sgs[],
+ 		      unsigned int out_sgs,
+-- 
 2.32.0.3.g01195cf9f
 
