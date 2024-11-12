@@ -1,86 +1,142 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BCF0215028
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 18:07:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DCCE21744A
+	for <virtualization@lists.linux.dev>; Tue, 12 Nov 2024 18:10:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731434847; cv=none; b=R2kZSh1Gi8yhaW7GwL3nU1GNagWrWWMGciFQF9TSiJmuX8EdjrSKUhVQya33ww0A6MZtQyKrfOBOsCrf0NXawItserpGsCBmv9NNeZDmZK6w/9Su/X8gj/6IHJZlHyaE/HbY8mCX9tRVyOJSwUiARQqlrlCaHNj+Z5hoqzps4ks=
+	t=1731435034; cv=none; b=S1hm+N1lR2L/V5RVUtP2Zgq3+FtyImE566LOJtGqXufXey37z/nq7u41vjYNuMeD68Q/wJjzgIbLxlVCYULg/rCA7GbwYx9KETKUtXl/HIGt7eUYHeLSG/r/5glba8t1SwqpEb0rifOM334Ums1oHTsIv5M00Zr0xlbv2U7qFzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731434847; c=relaxed/simple;
-	bh=YfH1GvXFKsdKUR7M0E2fxAHJRtaL1PPV2LsMW7nnb7E=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=ne6A0S2T2Z04lEVglJarzM1unsPwQZaYOdavBK04+Ij/SOfA+4x4im1I4eTY4pHrknC6JziDmjeT8k+mYa789WZvoQusuerMIh7oQqdoZt9mPOu/yK3cnzd16jXgoiPVxL1mINGZ93AgbiGcfC6PkkijVIQvJ4Z1WjRERxgaGfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A8N1juX8; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1731435034; c=relaxed/simple;
+	bh=U3/I+P/PE+eG7brE4N+kfK95FsISeERGixMLe9GatDc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=g9W3BKeMWw/nVx2uSmXib7hbQdxsnPo0HH5Inq/2XBjtR2g0suOodlsTB6m2kHEBl1gThNjhExeAqtJu0umiRB4UykqVEgY9TAt+ifUT2jhG6CDktH4kJh5rXaPuNOgki3AZc2cyhW5AgoRIneyKgHCMuWtVrHpfxJwncbC0HRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cl0vogcq; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A8N1juX8"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D3E91400F1
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 18:07:25 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 5MaJynU6AGKT for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Nov 2024 18:07:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DD25240143
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DD25240143
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=A8N1juX8
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DD25240143
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Nov 2024 18:07:24 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 3B6F15C57EB;
-	Tue, 12 Nov 2024 18:06:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE40C4CECD;
-	Tue, 12 Nov 2024 18:07:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731434843;
-	bh=YfH1GvXFKsdKUR7M0E2fxAHJRtaL1PPV2LsMW7nnb7E=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=A8N1juX8oS7mci0uA1LWmOIwJnYN/dTzG7Xl1GwrLgifbW4vnChXbb4imPHknhp6E
-	 IzK2dguEDPAKvHiVkJ86/WfF2u5Wv3yGcT71EBQdrsWp2au17o9wbOmvI32XKIA2yw
-	 7McP/jgLmFZUWMaK0vQKQkfXBjcx/8cSywdxJ8uD3sEP8Rhv5u69WeJCbvGzrSd8+0
-	 wNMlHHRGie2AIauCb+Q4pcIzzj4XdX2/8ctZqo3GUfTV7DtvdPgQLiS6/DaBRimYPs
-	 QU2ZPgizTgpRidU17FJ6wHWcwNWC1BvyBz8Q/pYAXneItnP/WCYbN+JDGOQ57wMSin
-	 AFPjQUCHK81Bw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 71DFB3809A80;
-	Tue, 12 Nov 2024 18:07:34 +0000 (UTC)
-Subject: Re: [GIT PULL] virtio: bugfixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20241111085050-mutt-send-email-mst@kernel.org>
-References: <20241111085050-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20241111085050-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 83e445e64f48bdae3f25013e788fcf592f142576
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 0ccd733ac99edc473aaee90c8f6adc346d82befb
-Message-Id: <173143485302.621786.7229515238200918820.pr-tracker-bot@kernel.org>
-Date: Tue, 12 Nov 2024 18:07:33 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, angus.chen@jaguarmicro.com, christophe.jaillet@wanadoo.fr, cvam0000@gmail.com, dtatulea@nvidia.com, eperezma@redhat.com, feliu@nvidia.com, gregkh@linuxfoundation.org, jasowang@redhat.com, jiri@nvidia.com, lege.wang@jaguarmicro.com, lingshan.zhu@kernel.org, mst@redhat.com, pstanner@redhat.com, qwerty@theori.io, v4bel@theori.io, yuancan@huawei.com
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cl0vogcq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731435032;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NeywyyUZkRoekulWeZDAITBA2HHSqAwL/dbKA87lTw4=;
+	b=Cl0vogcqTpiAUges7KkqttACc+aqCS1cmMKn3vv1ogl6ldFHq4yw6eRxy71yAlsocrV7bb
+	gie3sAXB2w7h78DnG8gS2+XZdvDxFC4THgO9OcqI2spYT5Haz73sFrhXwtQbgSg4KCrXmD
+	atTY6bhZ2K+fwRtzqiJxGKRuf+Iy4Mo=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-83-cYdBb93kMUGI2QZX2WyzOA-1; Tue, 12 Nov 2024 13:10:30 -0500
+X-MC-Unique: cYdBb93kMUGI2QZX2WyzOA-1
+X-Mimecast-MFC-AGG-ID: cYdBb93kMUGI2QZX2WyzOA
+Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-460ba83c83fso97501321cf.2
+        for <virtualization@lists.linux.dev>; Tue, 12 Nov 2024 10:10:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731435030; x=1732039830;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NeywyyUZkRoekulWeZDAITBA2HHSqAwL/dbKA87lTw4=;
+        b=r0sl+6Pp9vS7GXxXz6pRQwqHhX/ZxHxQdfLUN+cY6OPDj8HNqBnOTMZDLfPYs9SrMA
+         /6nWfmc0TrBRp5v0AqVlLXAaRm3zShdB/fIt+1+3M91zsOuEO0+qcE2A5IA5dWECE9JA
+         jaevIcTt0gXc/KHpCUDDvRV1FAtofjCxCVaE0JnstTDi59kRl7RzEssWQFS6MNdQq68O
+         dfElK2BcYNc9toaMLEWAO1/RQKzn/OU2gGSz+jQtqF46PfgQGB2/3ClN/1Un+1HNN0eu
+         fR0UPCI8gMzRHI3Gr2/WKlISpbXpI6NkORgj59vMXem7YkKPAe8SSyBWt2t1SoT7jJ5t
+         IzYA==
+X-Gm-Message-State: AOJu0Ywkd1cQRC4xjnC47NEPnKKfsVwlNDXsR08yEd/lmn75/NfQ62xS
+	OG9Sm1h2bE+qKDx+WPX5UZz/I4ngV2nmuBfivEigQcOdTJ8HEUx7RPaTbkZ7B955iUoF/Y6vimo
+	UBT+5nBMzLNr6E4II4QZo7ZAuf/54IumuUVupuD+cPPm59+00YndiYXvpwqtdQemc
+X-Received: by 2002:a05:622a:1e0d:b0:461:1895:d9f with SMTP id d75a77b69052e-4630933b0e5mr289369571cf.15.1731435030244;
+        Tue, 12 Nov 2024 10:10:30 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG2Qp7c2NiUDCWdk07hfTKmombDRkdlfJtECCErL4H/pgBQu/FzPw04LHhOd38aCVokx1KvdA==
+X-Received: by 2002:a05:622a:1e0d:b0:461:1895:d9f with SMTP id d75a77b69052e-4630933b0e5mr289369061cf.15.1731435029722;
+        Tue, 12 Nov 2024 10:10:29 -0800 (PST)
+Received: from sgarzare-redhat (host-79-46-200-129.retail.telecomitalia.it. [79.46.200.129])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-462ff41d949sm77813861cf.25.2024.11.12.10.10.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Nov 2024 10:10:29 -0800 (PST)
+Date: Tue, 12 Nov 2024 19:10:21 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v5 3/3] vsock/test: verify socket options after setting
+ them
+Message-ID: <jjplqknxiasru7oukfrz66eryfhtviukwchxkh4yq6woj3m7qw@augnv6adwrgc>
+References: <20241108011726.213948-1-kshk@linux.ibm.com>
+ <20241108011726.213948-4-kshk@linux.ibm.com>
+ <bltkmoxf6xsknimf6ccrxuritfc3ipxhbqkibq7jzddg6yewcv@ijcc44qmqsm3>
+ <20ebaf65-503f-40a3-b8f3-ac1e649e2fac@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20ebaf65-503f-40a3-b8f3-ac1e649e2fac@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: LX0aZioZs-xTz8zSfRTjs-G6xLKzhIv8ABrw2vjTOqk_1731435030
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-The pull request you sent on Mon, 11 Nov 2024 08:50:50 -0500:
+On Tue, Nov 12, 2024 at 09:18:48AM -0600, Konstantin Shkolnyy wrote:
+>On 11/12/2024 02:58, Stefano Garzarella wrote:
+>>On Thu, Nov 07, 2024 at 07:17:26PM -0600, Konstantin Shkolnyy wrote:
+>>>Replace setsockopt() calls with calls to functions that follow
+>>>setsockopt() with getsockopt() and check that the returned value and its
+>>>size are the same as have been set.
+>>>
+>>>Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+>>>---
+>>>tools/testing/vsock/Makefile              |   8 +-
+>>>tools/testing/vsock/control.c             |   8 +-
+>>>tools/testing/vsock/msg_zerocopy_common.c |   8 +-
+>>>tools/testing/vsock/util_socket.c         | 149 ++++++++++++++++++++++
+>>>tools/testing/vsock/util_socket.h         |  19 +++
+>>>tools/testing/vsock/vsock_perf.c          |  24 ++--
+>>>tools/testing/vsock/vsock_test.c          |  40 +++---
+>>>7 files changed, 208 insertions(+), 48 deletions(-)
+>>>create mode 100644 tools/testing/vsock/util_socket.c
+>>>create mode 100644 tools/testing/vsock/util_socket.h
+>>>
+>>>diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+>>>index 6e0b4e95e230..1ec0b3a67aa4 100644
+>>>--- a/tools/testing/vsock/Makefile
+>>>+++ b/tools/testing/vsock/Makefile
+>>>@@ -1,12 +1,12 @@
+>>># SPDX-License-Identifier: GPL-2.0-only
+>>>all: test vsock_perf
+>>>test: vsock_test vsock_diag_test vsock_uring_test
+>>>-vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o 
+>>>control.o util.o msg_zerocopy_common.o
+>>>-vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
+>>>-vsock_perf: vsock_perf.o msg_zerocopy_common.o
+>>>+vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o 
+>>>control.o util.o msg_zerocopy_common.o util_socket.o
+>>>+vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o 
+>>>util_socket.o
+>>>+vsock_perf: vsock_perf.o msg_zerocopy_common.o util_socket.o
+>>
+>>I would add the new functions to check setsockopt in util.c
+>>
+>>vsock_perf is more of a tool to measure performance than a test, so
+>>we can avoid calling these checks there, tests should cover all
+>>cases regardless of vsock_perf.
+>
+>The problem is that vsock_perf calls enable_so_zerocopy() which has to
+>call the new setsockopt_int_check() because it's also called by 
+>vsock_test. Do you prefer to give vsock_perf its own version of
+>enable_so_zerocopy() which doesn't call setsockopt_int_check()?
+>
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Yeah, maybe we can move the old enable_so_zerocopy() in vsock_perf.c
+and implement another enable_so_zerocopy() in util.c for the tests.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/0ccd733ac99edc473aaee90c8f6adc346d82befb
+Thanks,
+Stefano
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
