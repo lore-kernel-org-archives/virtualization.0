@@ -1,22 +1,22 @@
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 331424C91
-	for <virtualization@lists.linux.dev>; Tue, 12 Nov 2024 04:47:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D2751F81B5
+	for <virtualization@lists.linux.dev>; Tue, 12 Nov 2024 04:48:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731386863; cv=none; b=d9NBgq2BB0ZJxpFsPvMyRJ2yAio/qzaqbbH61NDr5LBoXxinHXghHwdX6xOeb3v9mitXxAK+eoWMMvac4hV1AKWvgnMr+ROhT7HVrBp8JgsOHQxX3irQsPRUDZ8nQ2LNIWZmtlLKzAoqIQCH8faKonfwk/Pz6qUC76z91ehkKPc=
+	t=1731386889; cv=none; b=k9OS3UmlBQ1p5YmI3AgjhjIv0xVfQfzIfQKGE3VcwUBfIt7+F7FjXI/n5vpBUabpYMnOxfe7aDleh/f74uBYB5GkxKvqqoIqloI1hLxIq3P8o6Y1YfbGIKrV+5z69Bxk9WO/JWRU+JGvDxrGwu8Q8g3qcUlpe+HiCMkuya2Vjck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731386863; c=relaxed/simple;
-	bh=LEqqJ4nFtPDR80cCFpUujkkjo5vD242bVGicW1R9Uwc=;
+	s=arc-20240116; t=1731386889; c=relaxed/simple;
+	bh=M7NmYC/Iylm9myghHwqILim55SAUt9QrM+UZYk0eJlw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Gf3m5mSdDR/dkZvZjsl+JapLdT8SDry4st3G+NQ+PJSSaVOOvEforXPhk8KX+tAzq1VAgRZIMdODbTdJOIE9H5PNubK0suxQW3SCCwdMMsXUTDXhgi8pGyN05rGRdoVVXis3befXgpf0Dxb3MFV7sAzEF2VcdAxKkd8d09TMJ3s=
+	 Content-Type:Content-Disposition:In-Reply-To; b=fn1tdwuHPC/24gxur77/I7omfwT4c4oML5jQMxzgfJp2LvJ40BqlvjoD79eSTZW2mrFgtMLUjfS+aHt+GSOuvcvrl71TfL+lwcMj7EEHPAv1XF+1B78OiMudG1VahOrmNuDUTKihyZP7s1syLUVBA67v/y6IQi8Em319wOSzqJ0=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
 Received: by verein.lst.de (Postfix, from userid 2407)
-	id 95CAB68D09; Tue, 12 Nov 2024 05:47:36 +0100 (CET)
-Date: Tue, 12 Nov 2024 05:47:36 +0100
+	id BF77868D09; Tue, 12 Nov 2024 05:48:04 +0100 (CET)
+Date: Tue, 12 Nov 2024 05:48:04 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: Daniel Wagner <wagi@kernel.org>
 Cc: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>,
@@ -30,9 +30,10 @@ Cc: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>,
 	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
 	MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com,
 	linux-nvme@lists.infradead.org, Daniel Wagner <dwagner@suse.de>
-Subject: Re: [PATCH v2 1/6] blk-mq: introduce blk_mq_hctx_map_queues
-Message-ID: <20241112044736.GA8883@lst.de>
-References: <20241111-refactor-blk-affinity-helpers-v2-0-f360ddad231a@kernel.org> <20241111-refactor-blk-affinity-helpers-v2-1-f360ddad231a@kernel.org>
+Subject: Re: [PATCH v2 2/6] scsi: replace blk_mq_pci_map_queues with
+ blk_mq_hctx_map_queues
+Message-ID: <20241112044804.GB8883@lst.de>
+References: <20241111-refactor-blk-affinity-helpers-v2-0-f360ddad231a@kernel.org> <20241111-refactor-blk-affinity-helpers-v2-2-f360ddad231a@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,66 +42,10 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241111-refactor-blk-affinity-helpers-v2-1-f360ddad231a@kernel.org>
+In-Reply-To: <20241111-refactor-blk-affinity-helpers-v2-2-f360ddad231a@kernel.org>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Mon, Nov 11, 2024 at 07:02:09PM +0100, Daniel Wagner wrote:
-> blk_mq_pci_map_queues and blk_mq_virtio_map_queues will create a CPU to
-> hardware queue mapping based on affinity information. These two function
-> share common code and only differ on how the affinity information is
-> retrieved. Also, those functions are located in the block subsystem
-> where it doesn't really fit in. They are virtio and pci subsystem
-> specific.
-> 
-> Introduce a new callback in struct bus_type to get the affinity mask.
-> The callbacks can then be populated by the subsystem directly.
-> 
-> All but one driver use the subsystem default affinity masks. hisi_sas v2
-> depends on a driver specific mapping, thus use the optional argument
-> get_queue_affinity to retrieve the mapping.
+Looks good:
 
-This seems to mix up a few different things:
-
- 1) adding a new bus operation
- 2) implementations of that operation for PCI and virtio
- 3) a block layer consumer of the operation
-
-all these really should be separate per-subsystem patches.
-
-You'll also need to Cc the driver model maintainers.
-
-> +void blk_mq_hctx_map_queues(struct blk_mq_queue_map *qmap,
-> +			    struct device *dev, unsigned int offset,
-> +			    get_queue_affinity_fn *get_irq_affinity)
-> +{
-> +	const struct cpumask *mask = NULL;
-> +	unsigned int queue, cpu;
-> +
-> +	for (queue = 0; queue < qmap->nr_queues; queue++) {
-> +		if (get_irq_affinity)
-> +			mask = get_irq_affinity(dev, queue + offset);
-> +		else if (dev->bus->irq_get_affinity)
-> +			mask = dev->bus->irq_get_affinity(dev, queue + offset);
-> +
-> +		if (!mask)
-> +			goto fallback;
-> +
-> +		for_each_cpu(cpu, mask)
-> +			qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> +	}
-
-This does different things with a NULL argument vs not.  Please split it
-into two separate helpers.  The non-NULL case is only uses in hisi_sas,
-so it might be worth just open coding it there as well.
-
-> +static const struct cpumask *pci_device_irq_get_affinity(struct device *dev,
-> +					unsigned int irq_vec)
-> +{
-> +	struct pci_dev *pdev = to_pci_dev(dev);
-> +
-> +	return pci_irq_get_affinity(pdev, irq_vec);
-
-Nit: this could be shortened to:
-
-	return pci_irq_get_affinity(to_pci_dev(dev), irq_vec);
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 
