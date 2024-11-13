@@ -1,84 +1,142 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from 009.lax.mailroute.net (009.lax.mailroute.net [199.89.1.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25F3E70835;
-	Wed, 13 Nov 2024 15:21:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88C731FAC53
+	for <virtualization@lists.linux.dev>; Wed, 13 Nov 2024 18:34:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731511275; cv=none; b=gjhP5c/8wmYtWcJb/UY7BG92Eea6J+ewP+UrIEaTvdi1jQTvQILk+NEn5l277agnqbwo3eWTXfc7MUXoMMR2PKr5fORUuQZXof3JNeBqn+4IV+fDddAsAdrp2Weh5QY7JjctVota/tacrEwdaSP+eYXKtAvJaQuQzqJdTo0RKLs=
+	t=1731522848; cv=none; b=INmkkFS+zl7ffodB4fPszO+u5lGbpSlOmDhGcNz52c9EOVyhSkwwG9VPqQD97053dxaYS1w6SkI8MMW8g2JrswPMwUEIqRS/NYZ+t/ywN5C4VAv0WE19m9Me5G9fF2cLW7LqC8q3ZywM4lhX9GjJd2TTS8u2MyBvLyTamtJ3ZUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731511275; c=relaxed/simple;
-	bh=ecvWJqsRiB/VRI5B56crQpyOWmaLA93kDwgOG2jJ2ZE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UlX81WjKAGX2nYbinF4jLl55ME2RwmC4Tb0E0jp2oKJZJhZasZQd3rvEqeKs7mvlYjRFla4529xWV5+hdX8TzKTWlBwz0bk2vK96yqMBPUxEwnJJeAlyon1RlpR0cSgDo3oM+Cq8IZbests2ZeX9gT7t6BHk1rfMmZJ9w2ev6+o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=AlIa+7s8; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1731522848; c=relaxed/simple;
+	bh=R58aAayO/VeQk1q0vJIBfxPUfnWgTtg4dAWrLhvyCYY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WLJrHsYP39VJfLS3eANFdoiK7awo5XW75mclgqO2TMwpLClHC2nIJEk334kg0qXNj08j6/OnfDPfYJcFZaNKZHtZlBs4Q9sAc32TK+YZL1tBYXYv6kvtsHEJrPV6IKBT+Lz5xx5c4mbdlq3ZyodYVmazj75oY1CDpz4LtdgnGGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=t5TC81VQ; arc=none smtp.client-ip=199.89.1.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="AlIa+7s8"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=AULfdb3WZgUO3JCKZ2NM+vw/f0W+uRYWQJj+bN/yryk=; b=AlIa+7s8bcByfyT4pi1KwnL8zm
-	EyYjDJyy1S8BoGAb7pG0NE6DrmQhIVIngymlzbjZxbZOmFoWEEevcSRM25SrwCDGfibYKG6UG47ca
-	nASGpl3qb3Mv5SBYhtj1Kj7QZVnBcv+Q8wPjaXDpnldK69NIhFtan7293NDNeOd5mbiOCutokx3D5
-	vg5qSuHVR761erPoNGsVr21TWJ9avGW5oHqErUG/RjgXAZ+0F6WFs3e/Mk3F5sAZAQR4J6ADXiixP
-	PuCwqkTtsxUdK+aIz+mMJ0xdEJ1qgHr3dfj0Uu3lpKHfkswLKI6oSJb3oUyI2d0r9HOdDACRH6/Mb
-	5jkNDTgg==;
-Received: from 2a02-8389-2341-5b80-9e61-c6cf-2f07-a796.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:9e61:c6cf:2f07:a796] helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1tBFB9-00000007HS5-2HE3;
-	Wed, 13 Nov 2024 15:21:12 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Keith Busch <kbusch@kernel.org>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Pavel Begunkov <asml.silence@gmail.com>,
-	linux-block@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org,
-	io-uring@vger.kernel.org
-Subject: [PATCH 6/6] block: don't reorder requests in blk_mq_add_to_batch
-Date: Wed, 13 Nov 2024 16:20:46 +0100
-Message-ID: <20241113152050.157179-7-hch@lst.de>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20241113152050.157179-1-hch@lst.de>
-References: <20241113152050.157179-1-hch@lst.de>
+	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="t5TC81VQ"
+Received: from localhost (localhost [127.0.0.1])
+	by 009.lax.mailroute.net (Postfix) with ESMTP id 4XpX482BvSzlgMW8;
+	Wed, 13 Nov 2024 18:34:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
+	content-transfer-encoding:content-type:content-type:in-reply-to
+	:from:from:content-language:references:subject:subject
+	:user-agent:mime-version:date:date:message-id:received:received;
+	 s=mr01; t=1731522834; x=1734114835; bh=Md60i28ukD0lfEvSKguY2NCj
+	5Myaq2rhrhoA+wvIl/A=; b=t5TC81VQjnB8GAslWw8CoD8HnR0PTQEdw4KyrAnr
+	3ZdxAALr5CfnWY5q6VhnCYEBxskYnaBBIL2qVomJgbI0w0FMMkqIQCiYsTfcXJCx
+	VseAWXjH84iobkJdq6qNiYZ/N08t5YongPQ8AdGsVTtIT6geT50CXotFvPLXFsx2
+	Jt+u5g3VtQh8tFhOALgCKfD3W6yLNYYZ3SXfYliuBUpFGiZ7O2fVvyulBP+OvYWm
+	AUw1fylbCy+O/ERktudWo5rdWtTL236zEiPYeD2iPatUudiuinhsKtw9iB8Uz4b1
+	LEpcXOr0PcwiFAzyXBn/7QwG3sB7kER5L+scK6y2ZEDlAw==
+X-Virus-Scanned: by MailRoute
+Received: from 009.lax.mailroute.net ([127.0.0.1])
+ by localhost (009.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
+ id i5ZJ0PUIqGhn; Wed, 13 Nov 2024 18:33:54 +0000 (UTC)
+Received: from [172.19.178.167] (217.sub-174-194-198.myvzw.com [174.194.198.217])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bvanassche@acm.org)
+	by 009.lax.mailroute.net (Postfix) with ESMTPSA id 4XpX3x1MtPzlgMVx;
+	Wed, 13 Nov 2024 18:33:48 +0000 (UTC)
+Message-ID: <92954431-349d-4b75-b63f-948b1df9a3fc@acm.org>
+Date: Wed, 13 Nov 2024 10:33:46 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+User-Agent: Mozilla Thunderbird
+Subject: Re: don't reorder requests passed to ->queue_rqs
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
+ Pavel Begunkov <asml.silence@gmail.com>, linux-block@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+ io-uring@vger.kernel.org
+References: <20241113152050.157179-1-hch@lst.de>
+Content-Language: en-US
+From: Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20241113152050.157179-1-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-LIFO ordering for batched completions is a bit unexpected and also
-defeats some merging optimizations in e.g. the XFS buffered write
-code.  Now that we can easily add the request to the tail of the list
-do that.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/blk-mq.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 11/13/24 7:20 AM, Christoph Hellwig wrote:
+> currently blk-mq reorders requests when adding them to the plug because
+> the request list can't do efficient tail appends.  When the plug is
+> directly issued using ->queue_rqs that means reordered requests are
+> passed to the driver, which can lead to very bad I/O patterns when
+> not corrected, especially on rotational devices (e.g. NVMe HDD) or
+> when using zone append.
+> 
+> This series first adds two easily backportable workarounds to reverse
+> the reording in the virtio_blk and nvme-pci ->queue_rq implementations
+> similar to what the non-queue_rqs path does, and then adds a rq_list
+> type that allows for efficient tail insertions and uses that to fix
+> the reordering for real and then does the same for I/O completions as
+> well.
 
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index c61e04365677..c596e0e4cb75 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -884,7 +884,7 @@ static inline bool blk_mq_add_to_batch(struct request *req,
- 	else if (iob->complete != complete)
- 		return false;
- 	iob->need_ts |= blk_mq_need_time_stamp(req);
--	rq_list_add_head(&iob->req_list, req);
-+	rq_list_add_tail(&iob->req_list, req);
- 	return true;
- }
- 
--- 
-2.45.2
+Hi Christoph,
+
+Could something like the patch below replace this patch series? I don't 
+have a strong opinion about which approach to select.
+I'm sharing this patch because this is what I came up while looking into
+how to support QD>1 for zoned devices with a storage controller that
+preserves the request order (UFS).
+
+Thanks,
+
+Bart.
+
+
+block: Make the plugging mechanism preserve the request order
+
+Requests are added to the front of the plug list and dispatching happens
+in list order. Hence, dispatching happens in reverse order. Dispatch in
+order by reversing the plug list before dispatching. This patch is a
+modified version of a patch from Jens
+(https://lore.kernel.org/linux-block/1872ae0a-6ba6-45f5-9f3d-8451ce06eb14@kernel.dk/).
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 3533bd808072..bf2ea421b2e8 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2868,6 +2868,22 @@ static void blk_mq_dispatch_plug_list(struct 
+blk_plug *plug, bool from_sched)
+  	percpu_ref_put(&this_hctx->queue->q_usage_counter);
+  }
+
++/* See also llist_reverse_order(). */
++static void blk_plug_reverse_order(struct blk_plug *plug)
++{
++	struct request *rq = plug->mq_list, *new_head = NULL;
++
++	while (rq) {
++		struct request *tmp = rq;
++
++		rq = rq->rq_next;
++		tmp->rq_next = new_head;
++		new_head = tmp;
++	}
++
++	plug->mq_list = new_head;
++}
++
+  void blk_mq_flush_plug_list(struct blk_plug *plug, bool from_schedule)
+  {
+  	struct request *rq;
+@@ -2885,6 +2901,8 @@ void blk_mq_flush_plug_list(struct blk_plug *plug, 
+bool from_schedule)
+  	depth = plug->rq_count;
+  	plug->rq_count = 0;
+
++	blk_plug_reverse_order(plug);
++
+  	if (!plug->multiple_queues && !plug->has_elevator && !from_schedule) {
+  		struct request_queue *q;
+
 
