@@ -1,48 +1,59 @@
-Received: from 009.lax.mailroute.net (009.lax.mailroute.net [199.89.1.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88C731FAC53
-	for <virtualization@lists.linux.dev>; Wed, 13 Nov 2024 18:34:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D75402036EE
+	for <virtualization@lists.linux.dev>; Wed, 13 Nov 2024 18:39:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731522848; cv=none; b=INmkkFS+zl7ffodB4fPszO+u5lGbpSlOmDhGcNz52c9EOVyhSkwwG9VPqQD97053dxaYS1w6SkI8MMW8g2JrswPMwUEIqRS/NYZ+t/ywN5C4VAv0WE19m9Me5G9fF2cLW7LqC8q3ZywM4lhX9GjJd2TTS8u2MyBvLyTamtJ3ZUE=
+	t=1731523199; cv=none; b=F+1bO3Z2gv944JHwriTNQWAFF3nQZgVeCuJpkiXjJyBJYLY/QpZtgbIY4z2xoyDrgh9mPph3ZHc6DVgIwi8E1/lzCU9DNl6bj6Ol/6fiXDpBy/wGONuzBq6xDgXOgeD+d8PJgggKHdNzdDAg0MHhX+3yuhqkBdZ/fLNZBryhpbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731522848; c=relaxed/simple;
-	bh=R58aAayO/VeQk1q0vJIBfxPUfnWgTtg4dAWrLhvyCYY=;
+	s=arc-20240116; t=1731523199; c=relaxed/simple;
+	bh=2oozyG9UXwFWfpyRebPhngHz207nrqCB7dySSeD1/u4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WLJrHsYP39VJfLS3eANFdoiK7awo5XW75mclgqO2TMwpLClHC2nIJEk334kg0qXNj08j6/OnfDPfYJcFZaNKZHtZlBs4Q9sAc32TK+YZL1tBYXYv6kvtsHEJrPV6IKBT+Lz5xx5c4mbdlq3ZyodYVmazj75oY1CDpz4LtdgnGGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=t5TC81VQ; arc=none smtp.client-ip=199.89.1.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
+	 In-Reply-To:Content-Type; b=hvjMmGAELj+QaHR/MdE163vHLrmGTZ1v7ZbDdTuwB5RfaGh64DwioYQZIXnb9ZfG/VWac8JC5QgmFnSulzx+bIwZmXunh176ECqQXjV8nDWmp57eSkqWtsB7gDpksa5o7ffF4eGVSdKjfG+NB0moKo31zBt0tOLdeMfgeXICCjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=sFh3oiIs; arc=none smtp.client-ip=209.85.161.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="t5TC81VQ"
-Received: from localhost (localhost [127.0.0.1])
-	by 009.lax.mailroute.net (Postfix) with ESMTP id 4XpX482BvSzlgMW8;
-	Wed, 13 Nov 2024 18:34:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
-	content-transfer-encoding:content-type:content-type:in-reply-to
-	:from:from:content-language:references:subject:subject
-	:user-agent:mime-version:date:date:message-id:received:received;
-	 s=mr01; t=1731522834; x=1734114835; bh=Md60i28ukD0lfEvSKguY2NCj
-	5Myaq2rhrhoA+wvIl/A=; b=t5TC81VQjnB8GAslWw8CoD8HnR0PTQEdw4KyrAnr
-	3ZdxAALr5CfnWY5q6VhnCYEBxskYnaBBIL2qVomJgbI0w0FMMkqIQCiYsTfcXJCx
-	VseAWXjH84iobkJdq6qNiYZ/N08t5YongPQ8AdGsVTtIT6geT50CXotFvPLXFsx2
-	Jt+u5g3VtQh8tFhOALgCKfD3W6yLNYYZ3SXfYliuBUpFGiZ7O2fVvyulBP+OvYWm
-	AUw1fylbCy+O/ERktudWo5rdWtTL236zEiPYeD2iPatUudiuinhsKtw9iB8Uz4b1
-	LEpcXOr0PcwiFAzyXBn/7QwG3sB7kER5L+scK6y2ZEDlAw==
-X-Virus-Scanned: by MailRoute
-Received: from 009.lax.mailroute.net ([127.0.0.1])
- by localhost (009.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
- id i5ZJ0PUIqGhn; Wed, 13 Nov 2024 18:33:54 +0000 (UTC)
-Received: from [172.19.178.167] (217.sub-174-194-198.myvzw.com [174.194.198.217])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bvanassche@acm.org)
-	by 009.lax.mailroute.net (Postfix) with ESMTPSA id 4XpX3x1MtPzlgMVx;
-	Wed, 13 Nov 2024 18:33:48 +0000 (UTC)
-Message-ID: <92954431-349d-4b75-b63f-948b1df9a3fc@acm.org>
-Date: Wed, 13 Nov 2024 10:33:46 -0800
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="sFh3oiIs"
+Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-5ee53b30470so2957700eaf.3
+        for <virtualization@lists.linux.dev>; Wed, 13 Nov 2024 10:39:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1731523196; x=1732127996; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=WgXDWP6uTO9OvPO11ONSGz0dajsnDJA8Ia+wd76L1pU=;
+        b=sFh3oiIsIyRm9L/ZOevAsvigwSkOhF4OgYpa3YShoHYCGeQaajgvZ/7xxmiZmVMgI4
+         tNKEfpAOWS5zR/7tLhBk7ZqCz+EDtpJvaOnVqMEsIAw+8ElsDC3Y0n7rwr5gCBS2rRi1
+         sbZ7dlzAIhPhzHsEojxi2p/vZF0oDVFJ+GJlgHFUagPUhh/4PmgEpfPyTku+28MBZHaG
+         wzCvrCgTdCebfT6/glSqNjUxH2ZzI9precDbMzJnZWF1No4v7K/dOiCjF+cbMEwPW86k
+         Y6Ysm9MVN62zGaSqe0+x7CioFB7AJ3heZQiPopvSO1IrVo7FwRYLarOUEQef50ADMm2D
+         hEQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731523196; x=1732127996;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=WgXDWP6uTO9OvPO11ONSGz0dajsnDJA8Ia+wd76L1pU=;
+        b=g414ApAkyvBLfvdTEVJ1cBNb6u/7QcTG8Yfc4kKh/I6+0iGJ4wzqRLgwRE28t9SMDJ
+         DPaUrKv2OH/ZjaVud7aBpUW0A0OxKlG8D0bIuCRL9uXyBSrRKp4dMQxjt1c9V/zG01vs
+         QgakNJEUAPP41We9ca/Br/nx169yEMhBXnwf9LCTZS3jNKufQFWhLUTjFg5FmUE100Ld
+         zzyb1fD34KdOy5lK+hFg/tegUIQG1eEutlnAMUS7TyXswQSeEk15zJS13w+2ZGswQgLN
+         vmjQNGN3Mpt+EfGpltr+DDdxeAQ1zlGErXvM0mZQCIptyhJZsbNqCMwuS80s0K+DgM6m
+         +oEw==
+X-Forwarded-Encrypted: i=1; AJvYcCWq/Kh3GfaU6ri2iTqGZqEzBhRoAJce1HnxAtAMUy8IkOniFwl4FB93HPwxxZSmOoTwyKTUuz+vfhIg3pr07Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwN18Z3SAB/tgc+2J9GAJpTqoD53WWb0JD3xPzllnMFqYr4zYME
+	yN970ZMYZ03xUKkhtEAyfk3do83N0XiaLOcVJhfsG2hJA4xPe25Ccl+7mTokdNY=
+X-Google-Smtp-Source: AGHT+IESBxgtKu/tqS069ieokYdQsF86VTGk5XXSX9JBOM6NYNLoE/FOQHmxs2aJ76kIzJOEXUf+Gw==
+X-Received: by 2002:a4a:ec4c:0:b0:5e1:cd24:c19c with SMTP id 006d021491bc7-5ee868b0bf0mr6129208eaf.0.1731523194524;
+        Wed, 13 Nov 2024 10:39:54 -0800 (PST)
+Received: from [192.168.1.116] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-5ee4950edfesm3141888eaf.14.2024.11.13.10.39.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Nov 2024 10:39:54 -0800 (PST)
+Message-ID: <ffe1f8e9-5484-43f9-a410-2927d0c63659@kernel.dk>
+Date: Wed, 13 Nov 2024 11:39:52 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -51,92 +62,44 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: don't reorder requests passed to ->queue_rqs
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+To: Bart Van Assche <bvanassche@acm.org>, Christoph Hellwig <hch@lst.de>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
  Pavel Begunkov <asml.silence@gmail.com>, linux-block@vger.kernel.org,
  virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
  io-uring@vger.kernel.org
 References: <20241113152050.157179-1-hch@lst.de>
+ <92954431-349d-4b75-b63f-948b1df9a3fc@acm.org>
 Content-Language: en-US
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20241113152050.157179-1-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <92954431-349d-4b75-b63f-948b1df9a3fc@acm.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-
-On 11/13/24 7:20 AM, Christoph Hellwig wrote:
-> currently blk-mq reorders requests when adding them to the plug because
-> the request list can't do efficient tail appends.  When the plug is
-> directly issued using ->queue_rqs that means reordered requests are
-> passed to the driver, which can lead to very bad I/O patterns when
-> not corrected, especially on rotational devices (e.g. NVMe HDD) or
-> when using zone append.
+On 11/13/24 11:33 AM, Bart Van Assche wrote:
 > 
-> This series first adds two easily backportable workarounds to reverse
-> the reording in the virtio_blk and nvme-pci ->queue_rq implementations
-> similar to what the non-queue_rqs path does, and then adds a rq_list
-> type that allows for efficient tail insertions and uses that to fix
-> the reordering for real and then does the same for I/O completions as
-> well.
+> On 11/13/24 7:20 AM, Christoph Hellwig wrote:
+>> currently blk-mq reorders requests when adding them to the plug because
+>> the request list can't do efficient tail appends.  When the plug is
+>> directly issued using ->queue_rqs that means reordered requests are
+>> passed to the driver, which can lead to very bad I/O patterns when
+>> not corrected, especially on rotational devices (e.g. NVMe HDD) or
+>> when using zone append.
+>>
+>> This series first adds two easily backportable workarounds to reverse
+>> the reording in the virtio_blk and nvme-pci ->queue_rq implementations
+>> similar to what the non-queue_rqs path does, and then adds a rq_list
+>> type that allows for efficient tail insertions and uses that to fix
+>> the reordering for real and then does the same for I/O completions as
+>> well.
+> 
+> Hi Christoph,
+> 
+> Could something like the patch below replace this patch series? I
+> don't have a strong opinion about which approach to select.
 
-Hi Christoph,
+I mean it obviously could, but it'd be a terrible way to go as we're now
+iterating the full list just to reverse it...
 
-Could something like the patch below replace this patch series? I don't 
-have a strong opinion about which approach to select.
-I'm sharing this patch because this is what I came up while looking into
-how to support QD>1 for zoned devices with a storage controller that
-preserves the request order (UFS).
-
-Thanks,
-
-Bart.
-
-
-block: Make the plugging mechanism preserve the request order
-
-Requests are added to the front of the plug list and dispatching happens
-in list order. Hence, dispatching happens in reverse order. Dispatch in
-order by reversing the plug list before dispatching. This patch is a
-modified version of a patch from Jens
-(https://lore.kernel.org/linux-block/1872ae0a-6ba6-45f5-9f3d-8451ce06eb14@kernel.dk/).
-
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 3533bd808072..bf2ea421b2e8 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2868,6 +2868,22 @@ static void blk_mq_dispatch_plug_list(struct 
-blk_plug *plug, bool from_sched)
-  	percpu_ref_put(&this_hctx->queue->q_usage_counter);
-  }
-
-+/* See also llist_reverse_order(). */
-+static void blk_plug_reverse_order(struct blk_plug *plug)
-+{
-+	struct request *rq = plug->mq_list, *new_head = NULL;
-+
-+	while (rq) {
-+		struct request *tmp = rq;
-+
-+		rq = rq->rq_next;
-+		tmp->rq_next = new_head;
-+		new_head = tmp;
-+	}
-+
-+	plug->mq_list = new_head;
-+}
-+
-  void blk_mq_flush_plug_list(struct blk_plug *plug, bool from_schedule)
-  {
-  	struct request *rq;
-@@ -2885,6 +2901,8 @@ void blk_mq_flush_plug_list(struct blk_plug *plug, 
-bool from_schedule)
-  	depth = plug->rq_count;
-  	plug->rq_count = 0;
-
-+	blk_plug_reverse_order(plug);
-+
-  	if (!plug->multiple_queues && !plug->has_elevator && !from_schedule) {
-  		struct request_queue *q;
-
-
+-- 
+Jens Axboe
