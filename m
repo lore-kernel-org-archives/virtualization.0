@@ -1,193 +1,156 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2ECC18CC10
-	for <virtualization@lists.linux.dev>; Wed, 13 Nov 2024 23:25:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86D1F18C01F
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Nov 2024 23:28:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731540325; cv=none; b=XxRK6w1pQEO/iZS6Nkyk+DcuAsIc7q/UDewR7k5XPGbWk997UvuvNMphVy33jgcKT6KBiPWI49bt1ZD4RDwvvEZa8BWgyhTdlk3ikN3fPuCnu5OK95tdqKxTwRgq757ZoysrNs/H3rItgX503jWsmcyl9Dg/pEJkdTZUrIL/tG4=
+	t=1731540509; cv=none; b=rwz14gfoVn4ThU2b7QMhJsUdTLpRRVlCVow9T9MOZhOjMdloSVfQST2O+qkxD14PFCp7YXuuko4wKFj2OhB7F+s2roxk4W3kHuWwXqqf8ACuvGdE/kxDNlybVg6MnDRqC0tvX32wv9qeJpr3rFcYqBkv/+mIMCXK8o9E2euGZ28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731540325; c=relaxed/simple;
-	bh=c5dYtWrY11OG4lgQlqIZVJE4vP5JPLMTqoyIrqudnWI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=nheu7IiO/qdU6DQk8mp5U6LoCiKbkwgZDqn8hYbXifKh/VKtNAb5UOGubCt242P4Uk8sKN1DSDFM25Mm7c1CoGMwevB5e6ovUe44neOoKS/w/O9Deo5/l38Y80/egQQb2t9XrRbaHFm/x+ZnSxYJMaHUjksfTBBUWAh00tOtrWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JrOojgLJ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1731540509; c=relaxed/simple;
+	bh=YjU9s9ZaDbxHYGeaV2C6N8/SfLJnNYOE0SEesrqDb04=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=g32h2RiuPHzckp0qYUigGp2IoObmwvnVn12JW9Sd7QsWW7EOaLoJ2F5qDF5NK594nsiq47P4/UihZI8Eor3C5dzRI3pnzqFLWYC1e0cHC7lA+I+sAWIJ/yh4S68zNMBXD0WaWA9iVoaO/F4jYbCp8RcOlc+qWw7cxOUGoeQJ0Rs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OtYPUXVZ; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JrOojgLJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OtYPUXVZ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 065AA4028D
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Nov 2024 23:28:28 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 2fOmuRZOJHNP for <virtualization@lists.linux-foundation.org>;
+ Wed, 13 Nov 2024 23:28:27 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E73A4400C7
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E73A4400C7
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OtYPUXVZ
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E73A4400C7
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Nov 2024 23:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731540322;
+	s=mimecast20190719; t=1731540503;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RzPWmh0C8RYeAeZIKKXP7q682GlgR+SBS+qZzgFuwNs=;
-	b=JrOojgLJc48x9O04lakp0xc7Rrdy/gaRUhbkOdSI7xaFHmZZ0LVcZah1tvHeKrSc8b8Thl
-	1NMWPDC008PyWMMaS2ubThucJ2QiiZMRcvBVlPhcPS2AS82Q2ZlMz5rGvvnJ+g+08aInZl
-	XksBSnPVc2Oly/rTurZRRg/IhN1tENY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CByKMOgU0eVBz2mkNWqRqmAJAX+dEHJdylhbZFnmBaU=;
+	b=OtYPUXVZNSXA3hHJYAzRy53gGVd39Iq8Moyk8mAzsfvPFD8Fm0P1ZnXqjWk5/Rxs8vCjGi
+	mW8h1aa5Px6HD0GpFts/z5PrlgY68nbMBEiCW90TkoOGSbjgX3Sz6p3bvZQq9kSj+NPVjd
+	Vfes/Ia6kykDiJugG+0Rgv7Rtydc6RE=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-208-tKbQbcCCM22FUjYW1qd1QA-1; Wed, 13 Nov 2024 18:25:21 -0500
-X-MC-Unique: tKbQbcCCM22FUjYW1qd1QA-1
-X-Mimecast-MFC-AGG-ID: tKbQbcCCM22FUjYW1qd1QA
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4316e2dde9eso283375e9.2
-        for <virtualization@lists.linux.dev>; Wed, 13 Nov 2024 15:25:21 -0800 (PST)
+ us-mta-124-zQ5HWaQTPd6XxaCVRnI_4g-1; Wed, 13 Nov 2024 18:28:22 -0500
+X-MC-Unique: zQ5HWaQTPd6XxaCVRnI_4g-1
+X-Mimecast-MFC-AGG-ID: zQ5HWaQTPd6XxaCVRnI_4g
+Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-3a71d04b04cso18365ab.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 13 Nov 2024 15:28:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731540320; x=1732145120;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RzPWmh0C8RYeAeZIKKXP7q682GlgR+SBS+qZzgFuwNs=;
-        b=oG5P+A4zgnaNOndkG/wmuBn+AAb4096+mh5iqqXxZp/IYMUH0ZGFnsoq1SNJj6CC6M
-         sgRst8NU1GPAfZ95G0UVh2NxaaL1bsekLOMbpNXRdW5jUiMRYVseU4BaayZu5MMyn1S3
-         v8Rc4UEQwSb5pLwW9qrvRoo+BZGufnp0q4a5TdDVIg7aA/LvO13Y27c5gBeLMm95qsIT
-         8ZWeO1IKQ21XlDTWNNpTiM8XIBYb92k7iN3Z03agePaNFH98vbYlLAwbvM5p0QZGhuuo
-         j935bLFZAGVAgD3ZlU/ORjxvBs08rMep4/lUAEZVLcK1VpKYF98kOGvezvQxqo5bKasR
-         qepg==
-X-Forwarded-Encrypted: i=1; AJvYcCXIUkcLn59bKiRnFaZWEOzto1HcNco7KGG1Z1CUb8x7JoZBRbZk9+RN45qFptMvYw+YQpM1wpLPwKa83v5oxw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy47DaMwS8WaNt0wEai+v3tewYLDLJ5+W/TDgKQMnlZ732+oR/A
-	6RsCl8gQj4X5hwNvIGah4yFdXY/XITtGxl24TknNBm1lTbb3AJ1faf4X2wRgZ43Ptkkj08XVSkm
-	dLqjsaveoyCwhtAVkYa9y0vLe+knswHo7gOzs+v+5TDSdTtg2I967QCYj0/QN0Waw
-X-Received: by 2002:a05:600c:3d8d:b0:431:4847:47c0 with SMTP id 5b1f17b1804b1-432da76ec4amr935405e9.7.1731540320198;
-        Wed, 13 Nov 2024 15:25:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHDNE+4rEsYxD1YNYi7V9qyaFYVxzcxTW8otS2BtZTbP6JFcM1ds70h/SDQ68r3Vw5bW0apPw==
-X-Received: by 2002:a05:600c:3d8d:b0:431:4847:47c0 with SMTP id 5b1f17b1804b1-432da76ec4amr935285e9.7.1731540319813;
-        Wed, 13 Nov 2024 15:25:19 -0800 (PST)
-Received: from redhat.com ([2.55.171.177])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-432d9d0a4absm4692895e9.24.2024.11.13.15.25.15
+        d=1e100.net; s=20230601; t=1731540502; x=1732145302;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CByKMOgU0eVBz2mkNWqRqmAJAX+dEHJdylhbZFnmBaU=;
+        b=KGN/UhDAeffoGV8J8kYAfF8MW6jpv6pck3uIMmZCngfxDBEwCir+n+5xAnO+od0tl8
+         ++UAX4LL7u4i54Ye42CfXCaKH1GVEpbO2jOkOC1g690dtK/IjWlG2wRbD56RISBtNEgP
+         sn00EC+rQgq2VYh4H7ZHi+EDOwMbiXgoPHKN9W4kJvRB7oHEVdr3qw621SEEqtRPTPIS
+         jPtJvLskfhyBlAyha4gjRdhMxKJxphAcgfP30oUEQUBOxWrhkhO3T620bV+n4P6CEQju
+         nwajs1REpzOL7yg2cLpa3B0+lx63JXqMlBuBBkA0fwWe4JVjhg7AXWXx9CHa4gwc5Koo
+         w9kQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVOsZtuQI4hMyxIItl2uq+LF9do1/rAxAjQJBXaZoAVc95AVOMat6VT5rjAbDslZuPlkZ4nHqKNa43FqGj21Q==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyFtdM08PkXQ35+ApaWUd2O7FeDmNy2sVkvrR7JuagWVqrL36RM
+	YvD9lcCjRX09jUP1hbRjeYBecCmak+u5iGVsocUn6dhQn3c2Ob86mnxk5e7lhGrVHMaj2E8rMKa
+	tv++4Ov/AayWXoPs8PS4IKsSeKtivKuBeVOwSsJqpVJqud51gILx3IxXykkK/qIe6dXlQdGq4QO
+	CFXPI=
+X-Gm-Gg: ASbGncvQfLh2ErPPFCTOoNJhbShrPECxKMpdsDJNMqcqfUAWFv2c80fh9jDqDJs0f/8
+	Hew4X/znH5yHimdzJqpJS0NURevpIAo5ChMVz4Fkj64hL0Wg2NDpSKBWxDFMBN9ooWguo73jCiy
+	WxabA6RHKOJOJFPlsbumFRlcvaCKmj8gLtK8lH0SWytLedimB3gS8IbBhle6Gf03GsmSey8HpOU
+	0JGkclG6djhwKXZB22K9I73UVpVKTWIaTkZzjZofOSYo3pw/72GSQ==
+X-Received: by 2002:a05:6602:1355:b0:82a:249e:bdfd with SMTP id ca18e2360f4ac-83e0336c2d5mr666722439f.3.1731540501881;
+        Wed, 13 Nov 2024 15:28:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEQTrkqTWB+qDVFYGCr8R0nJM12ERLnPB/kUAvT+bqN4as4eTVubwQThRFN253QDhFxM2PlMw==
+X-Received: by 2002:a05:6602:1355:b0:82a:249e:bdfd with SMTP id ca18e2360f4ac-83e0336c2d5mr666720939f.3.1731540501430;
+        Wed, 13 Nov 2024 15:28:21 -0800 (PST)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4deacf3013dsm1296353173.122.2024.11.13.15.28.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Nov 2024 15:25:18 -0800 (PST)
-Date: Wed, 13 Nov 2024 18:25:13 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Jason Wang <jasowang@redhat.com>,
-	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
-	Pavel Begunkov <asml.silence@gmail.com>,
-	linux-block@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org, io-uring@vger.kernel.org
-Subject: Re: [PATCH 2/6] virtio_blk: reverse request order in virtio_queue_rqs
-Message-ID: <20241113182448-mutt-send-email-mst@kernel.org>
-References: <20241113152050.157179-1-hch@lst.de>
- <20241113152050.157179-3-hch@lst.de>
+        Wed, 13 Nov 2024 15:28:20 -0800 (PST)
+Date: Wed, 13 Nov 2024 16:28:19 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+ <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+ <parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
+ <joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+Subject: Re: [PATCH V4 vfio 5/7] vfio/virtio: Add support for the basic live
+ migration functionality
+Message-ID: <20241113162819.698fd35a.alex.williamson@redhat.com>
+In-Reply-To: <20241113115200.209269-6-yishaih@nvidia.com>
+References: <20241113115200.209269-1-yishaih@nvidia.com>
+	<20241113115200.209269-6-yishaih@nvidia.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241113152050.157179-3-hch@lst.de>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XDnlp8omaHaNOVp5IamRr__09oNceRr_sap_8M3YfOk_1731540320
+X-Mimecast-MFC-PROC-ID: i5InRhResGXu2EgQrJP7iE7hLFTZVK6IEep7KL1D1gY_1731540502
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 13, 2024 at 04:20:42PM +0100, Christoph Hellwig wrote:
-> blk_mq_flush_plug_list submits requests in the reverse order that they
-> were submitted, which leads to a rather suboptimal I/O pattern especially
-> in rotational devices.  Fix this by rewriting nvme_queue_rqs so that it
-> always pops the requests from the passed in request list, and then adds
-> them to the head of a local submit list.  This actually simplifies the
-> code a bit as it removes the complicated list splicing, at the cost of
-> extra updates of the rq_next pointer.  As that should be cache hot
-> anyway it should be an easy price to pay.
-> 
-> Fixes: 0e9911fa768f ("virtio-blk: support mq_ops->queue_rqs()")
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/block/virtio_blk.c | 46 +++++++++++++++++---------------------
->  1 file changed, 21 insertions(+), 25 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 0e99a4714928..b25f7c06a28e 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -471,18 +471,18 @@ static bool virtblk_prep_rq_batch(struct request *req)
->  	return virtblk_prep_rq(req->mq_hctx, vblk, req, vbr) == BLK_STS_OK;
->  }
->  
-> -static bool virtblk_add_req_batch(struct virtio_blk_vq *vq,
-> +static void virtblk_add_req_batch(struct virtio_blk_vq *vq,
->  					struct request **rqlist)
->  {
-> +	struct request *req;
->  	unsigned long flags;
-> -	int err;
->  	bool kick;
->  
->  	spin_lock_irqsave(&vq->lock, flags);
->  
-> -	while (!rq_list_empty(*rqlist)) {
-> -		struct request *req = rq_list_pop(rqlist);
-> +	while ((req = rq_list_pop(rqlist))) {
->  		struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
-> +		int err;
->  
->  		err = virtblk_add_req(vq->vq, vbr);
->  		if (err) {
-> @@ -495,37 +495,33 @@ static bool virtblk_add_req_batch(struct virtio_blk_vq *vq,
->  	kick = virtqueue_kick_prepare(vq->vq);
->  	spin_unlock_irqrestore(&vq->lock, flags);
->  
-> -	return kick;
-> +	if (kick)
-> +		virtqueue_notify(vq->vq);
->  }
->  
->  static void virtio_queue_rqs(struct request **rqlist)
->  {
-> -	struct request *req, *next, *prev = NULL;
-> +	struct request *submit_list = NULL;
->  	struct request *requeue_list = NULL;
-> +	struct request **requeue_lastp = &requeue_list;
-> +	struct virtio_blk_vq *vq = NULL;
-> +	struct request *req;
->  
-> -	rq_list_for_each_safe(rqlist, req, next) {
-> -		struct virtio_blk_vq *vq = get_virtio_blk_vq(req->mq_hctx);
-> -		bool kick;
-> -
-> -		if (!virtblk_prep_rq_batch(req)) {
-> -			rq_list_move(rqlist, &requeue_list, req, prev);
-> -			req = prev;
-> -			if (!req)
-> -				continue;
-> -		}
-> +	while ((req = rq_list_pop(rqlist))) {
-> +		struct virtio_blk_vq *this_vq = get_virtio_blk_vq(req->mq_hctx);
->  
-> -		if (!next || req->mq_hctx != next->mq_hctx) {
-> -			req->rq_next = NULL;
-> -			kick = virtblk_add_req_batch(vq, rqlist);
-> -			if (kick)
-> -				virtqueue_notify(vq->vq);
-> +		if (vq && vq != this_vq)
-> +			virtblk_add_req_batch(vq, &submit_list);
-> +		vq = this_vq;
->  
-> -			*rqlist = next;
-> -			prev = NULL;
-> -		} else
-> -			prev = req;
-> +		if (virtblk_prep_rq_batch(req))
-> +			rq_list_add(&submit_list, req); /* reverse order */
-> +		else
-> +			rq_list_add_tail(&requeue_lastp, req);
->  	}
->  
-> +	if (vq)
-> +		virtblk_add_req_batch(vq, &submit_list);
->  	*rqlist = requeue_list;
->  }
+On Wed, 13 Nov 2024 13:51:58 +0200
+Yishai Hadas <yishaih@nvidia.com> wrote:
+> diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
+> new file mode 100644
+> index 000000000000..a0ce3ec2c734
+> --- /dev/null
+> +++ b/drivers/vfio/pci/virtio/migrate.c
+...
+> +static int virtiovf_add_migration_pages(struct virtiovf_data_buffer *buf,
+> +					unsigned int npages)
+> +{
+> +	unsigned int to_alloc = npages;
+> +	struct page **page_list;
+> +	unsigned long filled;
+> +	unsigned int to_fill;
+> +	int ret;
+> +	int i;
+> +
+> +	to_fill = min_t(unsigned int, npages, PAGE_SIZE / sizeof(*page_list));
+> +	page_list = kvzalloc(to_fill * sizeof(*page_list), GFP_KERNEL_ACCOUNT);
+
+checkpatch spots the following:
+
+WARNING: Prefer kvcalloc over kvzalloc with multiply
+#416: FILE: drivers/vfio/pci/virtio/migrate.c:71:
++	page_list = kvzalloc(to_fill * sizeof(*page_list), GFP_KERNEL_ACCOUNT);
 
 
+With your approval I'll update with the following on commit:
 
-looks ok from virtio POV
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-> -- 
-> 2.45.2
+diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
+index a0ce3ec2c734..4fdf6ca17a3a 100644
+--- a/drivers/vfio/pci/virtio/migrate.c
++++ b/drivers/vfio/pci/virtio/migrate.c
+@@ -68,7 +68,7 @@ static int virtiovf_add_migration_pages(struct virtiovf_data_buffer *buf,
+ 	int i;
+ 
+ 	to_fill = min_t(unsigned int, npages, PAGE_SIZE / sizeof(*page_list));
+-	page_list = kvzalloc(to_fill * sizeof(*page_list), GFP_KERNEL_ACCOUNT);
++	page_list = kvcalloc(to_fill, sizeof(*page_list), GFP_KERNEL_ACCOUNT);
+ 	if (!page_list)
+ 		return -ENOMEM;
+ 
+Thanks,
+Alex
 
