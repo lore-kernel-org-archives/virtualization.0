@@ -1,401 +1,188 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BFEF183098
-	for <virtualization@lists.linux.dev>; Thu, 14 Nov 2024 15:30:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731598234; cv=none; b=bJ0g9hWRDP7T44KvNzNSbo2SgfdnYfBn1RPT0YgBbCp9g+wW4T4YKT8hy4sInBZL93ZYGIC/lAlIOB0DehcsfA/mLVNN2XR2BA8RMBaJfLG10rbPdAOLzj0tUGgWq8iC0SJx2R0RLyLl2Ma5sv6WXN9Y8ajjGQ8NPO0Alj5A0D4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731598234; c=relaxed/simple;
-	bh=BXTNu/DgYQwb3mQTyYM9GN5tMwARjWYTaYmEpFQFXew=;
-	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IJn2LKMazgsC/z3bN4Soxz4YGm/gigWmuh+SLkuv/wCYazBE5xZNxJkV/OGvsl+n8rzZvKtx3MlGGFh0MqXNlwvmPyWEwIbnq9KOxnUnZFK9BUM3W6qQeGTaO6MbxnCkDkyn4R0USM41t1xUiPlcDdF7b8BuiXKHvhhXmsKNIDA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k/K9iVx0; arc=none smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D01166F29
+	for <virtualization@lists.linux.dev>; Thu, 14 Nov 2024 17:32:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.8
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1731605522; cv=fail; b=rKT8vOgPQmrVD7y/gKOhyJSPIi/6G0sOVAj6j2rR9tFmQGwGJ6nHgnYkbX1GUuCHGXDmvMVyk5ULr6Uxbo9C0Jf/lXT4LPXIJqussUuCVKEkUlV8GzjZ/CT9csFVQrpCvVnuyJfl0j+6aqsaGZZeCKFA6rzWp6wNdmp+QzeK2U8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1731605522; c=relaxed/simple;
+	bh=T9BgjJVpW1pQHyOCaAkceGxZn3lMaWfwmJCwJL14QR8=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=gjZjQhNqUqn+C2QAdvGG8O23oTSHMFgh1Te2jej5JvkqsOdC6uvg496QQeI86k6gGwyKN5J1GhrMDiquDn/myddQO75OvfViE49PZBdjCluEE0YSBpheXisxUawhdNAUKqqVc3ET691YdNqp7m3eIa12o6IPpKnLGWEPiH7YmC4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mz3SZ+gZ; arc=fail smtp.client-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k/K9iVx0"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a9a0c7abaa6so91931166b.2
-        for <virtualization@lists.linux.dev>; Thu, 14 Nov 2024 07:30:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1731598230; x=1732203030; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ETDe7un/JWIbuM3P/iFQm3j6qLUZiVYIWE/wIZIF+UQ=;
-        b=k/K9iVx0jz6ypWlvBN28b1pkVMJyhdHI2NF0HcZzB2IlD7NfjCAyJO8F6JVAZcA4Gz
-         k+25ZINkrmbIu3rgdHt3Bt18YBxNQexeQYckH2CVYhFXb39K1ShwBlnPGnNCQtgSVANC
-         0Neyy0O8eQClENdpqa/bxqnEK0bgQj0thW1WLpgODpx5hXnI6q/YKGEsxSWFvPgLeF62
-         ovEpmW0ZMNef0PPtOIq2XcNWFFaYYfObPpQ0veq65Ee3EBafWlYul4+ol7IZXDcnrttB
-         iQ5OV5VV5x+CRFcEmryTmIrrq5O1y/8tTJovecXvLfiFv222U0XG3F1qppdUBw9sVb7H
-         MHXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731598230; x=1732203030;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ETDe7un/JWIbuM3P/iFQm3j6qLUZiVYIWE/wIZIF+UQ=;
-        b=TQvllEihBITwgz9wRWhDU8T0wKTUij4SGpueaiV0kKx0/IoelSkCUJiXpnwM/UX6FW
-         UTc442URKEEx+ObGNkdZ0lKfLOS/caLjLkMnvwJFURIRqhCo038spnWTWRo6Xp2ItgTM
-         SUNT6PelIX0svDGVRzbNkTeN3xDaL99o7HzlyrmUBxdmc/h+vzbHMmA/2jhK6p0yfGlY
-         tg2keq8pswzNUvaX51wLpggHfdnanUsGQO294GVfcMtY7r87qR62JgGHVFM0SXSlPxCw
-         6hwdCOOnyMS2nOpEJ6O01ZbHBMetCyCKIDOn4LeGMKIn+ISwLyFkkB26Oc4UFCuChtdG
-         Tnqg==
-X-Forwarded-Encrypted: i=1; AJvYcCXZIGT8du5zIvbyDLaVeatCPihE8xSgBgFiIEuf/5Dzf6f0uvToMg56Z5idWB7YTh2UrH8sI31PG4VSZswOEg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyAe54kIlRuMzgdf45TVPDE3rRbHRplDfuWIB8Ii6Zxe2b5bj1y
-	eX27xKWyMtkuehuRkxBH1GmXy2Xo/XZQEqMZ4nvhSpSa7RPFAf/Ss83tVe4L7LA=
-X-Google-Smtp-Source: AGHT+IHMJ32RN2lfwiWsru/LwaWKk6ticRANDC7RG1vXcvThsUFNdNXUsMhAHyN7Z0gz/veli4lJ8A==
-X-Received: by 2002:a17:907:3f07:b0:a9a:82e2:e8ce with SMTP id a640c23a62f3a-aa20cdc555cmr258205666b.40.1731598230245;
-        Thu, 14 Nov 2024 07:30:30 -0800 (PST)
-Received: from able.fritz.box ([2a00:e180:15c9:2500:bb23:40f5:fe29:201])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa20e046919sm74063266b.156.2024.11.14.07.30.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Nov 2024 07:30:29 -0800 (PST)
-From: "=?UTF-8?q?Christian=20K=C3=B6nig?=" <ckoenig.leichtzumerken@gmail.com>
-X-Google-Original-From: =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-To: kraxel@redhat.com,
-	airlied@redhat.com,
-	alexander.deucher@amd.com,
-	zack.rusin@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	amd-gfx@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org
-Subject: [PATCH 7/7] drm/ttm: remove ttm_execbug_util
-Date: Thu, 14 Nov 2024 16:30:20 +0100
-Message-Id: <20241114153020.6209-8-christian.koenig@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20241114153020.6209-1-christian.koenig@amd.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mz3SZ+gZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1731605520; x=1763141520;
+  h=date:from:to:cc:subject:message-id:references:
+   content-transfer-encoding:in-reply-to:mime-version;
+  bh=T9BgjJVpW1pQHyOCaAkceGxZn3lMaWfwmJCwJL14QR8=;
+  b=mz3SZ+gZfRKzYFnDuCOg5nI+wJwtPhOCqEX3TSAiBBL+rkkW4cdyFFxT
+   UPQdGCDNYPwb8+ijN1nXZ9FB4wIe+qjxHFkDqK9yJNxOh/dXm9/lYevdf
+   gnbhAFeXn2Lh0GILdRLxqNb+rl9R4muhNv51fuGawa5aqdocvCVv3Q7RS
+   noUwv1rBvbk0w9zlucxAfxP0QJuOZVGAVtkTsA9tGMX5Jsqc3S6McWQbr
+   xvAW1zcw074ztQnp7FYAuqOvN8w5PbRS3ZTswNFLOQwz7dK0jdHTVmVdi
+   rmip0/IuFQI41vzh+NY7Y+G48j/Cl7NJCKY5pOim7AiIBB8ZTPp61xcqs
+   g==;
+X-CSE-ConnectionGUID: yGIYTDotRwWpOCepGWbNbQ==
+X-CSE-MsgGUID: 7d0W0CPvRSWEdTn9nZHlBQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11256"; a="49092552"
+X-IronPort-AV: E=Sophos;i="6.12,154,1728975600"; 
+   d="scan'208";a="49092552"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Nov 2024 09:31:56 -0800
+X-CSE-ConnectionGUID: 8uH9baBGSi2MlmIhI3JWBQ==
+X-CSE-MsgGUID: KcIoPoqPTxiuUmf60LIPIw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,154,1728975600"; 
+   d="scan'208";a="89048210"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by orviesa008.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 14 Nov 2024 09:31:54 -0800
+Received: from fmsmsx603.amr.corp.intel.com (10.18.126.83) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Thu, 14 Nov 2024 09:31:53 -0800
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Thu, 14 Nov 2024 09:31:53 -0800
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (104.47.58.176)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Thu, 14 Nov 2024 09:31:53 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=TZgQUJtlYDNkQOOFwcKuawReqLM0xqI7FAtTqSVb+u7cqbtG4FAVbtBPxeqZXlWgLknPZns4OcYdpcxKjfFnoJFJ6LBLHruJr5aKUlSIic3wVDD+aftJU3xCr6akn9EgE99WbpU8Oe3XJWzBHf2TPpQ0Uz/kw3Jch1jvE7xywv3wXuYvMpS1UeO2Oe8yBLEVvuvhMh3QNRAG2q+MdrOUQ0zxleHPDEpk+uhhChLst9GT8xvIKOWaqWaQpKAqwMVALdSn8Suon+46FrFjsfoNC4C6tncyfVQanCoZeq7VwybW8+xDE44y/0qcEVtFFc5iULl02LmlDM4FEcphrsXIJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=sMetLVadpkGCTvYTXGnsDWpQxnK4X1oZbTEzPE8IVoU=;
+ b=VpwWdqkEbAHKrrv0DBBqo4x+EytU4fE7DmJVOtxcUa1tva9zDfkvj7A3y1HiTenKc8cH+1BYta4V+veto19MGKZ7CFGTFEP8RgA66xpp4C3PPTgp3huQNXEU6kouxWPd075HWepdePeFvDvyGWx7sAJlvgMKNJTomKwWY9coq+IodhyDvhgV14oIc/BxAWxpCreUZzagPQKOIEBe0T8VJDykmVM2DuLCHvBe+j8biLUhOXY0hj8BMiR2b+bfKeR9CqsZ36zsA1w36LGZFoTqkOgv9iib142lItNctoypYOBa4oxOy7g7qwbeQJ1jCxqNguewAdZ+aX58phUEx+/ofg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from CY5PR11MB6139.namprd11.prod.outlook.com (2603:10b6:930:29::17)
+ by DS0PR11MB7357.namprd11.prod.outlook.com (2603:10b6:8:136::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.28; Thu, 14 Nov
+ 2024 17:31:49 +0000
+Received: from CY5PR11MB6139.namprd11.prod.outlook.com
+ ([fe80::7141:316f:77a0:9c44]) by CY5PR11MB6139.namprd11.prod.outlook.com
+ ([fe80::7141:316f:77a0:9c44%6]) with mapi id 15.20.8158.013; Thu, 14 Nov 2024
+ 17:31:49 +0000
+Date: Thu, 14 Nov 2024 11:31:45 -0600
+From: Lucas De Marchi <lucas.demarchi@intel.com>
+To: Christian =?utf-8?B?S8O2bmln?= <ckoenig.leichtzumerken@gmail.com>
+CC: <kraxel@redhat.com>, <airlied@redhat.com>, <alexander.deucher@amd.com>,
+	<zack.rusin@broadcom.com>, <bcm-kernel-feedback-list@broadcom.com>,
+	<virtualization@lists.linux.dev>, <dri-devel@lists.freedesktop.org>,
+	<amd-gfx@lists.freedesktop.org>, <intel-xe@lists.freedesktop.org>
+Subject: Re: [PATCH 6/7] drm/xe: drop unused component dependencies
+Message-ID: <ozyt6iipkdnapd5kzs7szta7m6ddhpaukhjqxpkym5dqad6w7s@6iyixhrzaxny>
 References: <20241114153020.6209-1-christian.koenig@amd.com>
+ <20241114153020.6209-7-christian.koenig@amd.com>
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241114153020.6209-7-christian.koenig@amd.com>
+X-ClientProxiedBy: MW4PR03CA0093.namprd03.prod.outlook.com
+ (2603:10b6:303:b7::8) To CY5PR11MB6139.namprd11.prod.outlook.com
+ (2603:10b6:930:29::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR11MB6139:EE_|DS0PR11MB7357:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1b4f4ab1-4807-428a-cf50-08dd04d23879
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info: =?iso-8859-1?Q?O1EHe4gkofTnWpXPwVgkiemgRT6tq1mtDZhRb3lJMPd6ke9d5BKq0V/HNo?=
+ =?iso-8859-1?Q?1MseBAz/yASM94U7Z2XAYvAesRifJKFJZuupohqG/rgOh4CIy/yBtUN7Qr?=
+ =?iso-8859-1?Q?KNvyy1pfNzOaTzk2i033z8AE3KLFlONU/FhepHngJtorqfWFDZxsxk6afl?=
+ =?iso-8859-1?Q?PurSMFDJDQf+KcD62zd4GqAoFADmzn0u0HLI871M+tX2u4T9swfP2e7LWm?=
+ =?iso-8859-1?Q?01QcED98KlpN2wrZ9orjUefapqS/Op7YPJFel9PvtcodW0pmkW27kTHvMS?=
+ =?iso-8859-1?Q?GMUMERgn8yw4AKAoX3y59qF3hVVpwJlHy0jJRQDYvLKwI0hhlJHB7lohH1?=
+ =?iso-8859-1?Q?x/Rx9TT5wwnN1mUr2apsmLPpwWSSge0KNyOpmVY8couQYYNjXupcMC+8QN?=
+ =?iso-8859-1?Q?ELymJOs0o1Myh31tzKH5M/a5okDkOfJ+cQE1DFcXKfgsGNUl36RfL5YNzy?=
+ =?iso-8859-1?Q?6K7JYosg8+hCzy2Zi8bBp5ofQKqeyISRpuM1eBdSdAA/4EXYqp+O/AMCVb?=
+ =?iso-8859-1?Q?5nY3SsqxWRT17r7CqWexsFxZQYRn5wSpznYxh+B79+9Qe4RVetvCa8ug8w?=
+ =?iso-8859-1?Q?TAOOIymJObtogBPYDFWk/T985UgbNc9R6UoyKpP22b8UYcLWtNCVEklYxI?=
+ =?iso-8859-1?Q?IpiwtKb2agNaxhXZIAPhokzNuE8WMMR4EFS6euoKrNWSjyMLbawPk6V33V?=
+ =?iso-8859-1?Q?UI2lbji2zqpCoV28XQN90aRGul/SyCcu8+gEjUApFkFinooacvpZZyE8/y?=
+ =?iso-8859-1?Q?VunvPtx0n5soDgh8WscHX7zK7FwEdegAZ8txf6XpnsnNr83o4WPlI43ULT?=
+ =?iso-8859-1?Q?UYPqLLSPQSWBP/gOUhHQ+6vtbx1ZaI35RQAhMjbrr+mxH7Zs+mrmhjP6lw?=
+ =?iso-8859-1?Q?t8HijVmaKu2//BtC/ixaOUQTh9gMmRkt3+SsE6QjF5C0u7tiTSKdPfVu8m?=
+ =?iso-8859-1?Q?FT9YcgNK/k3pgYEX/1F3Sj9YfKO65CcieWX1s3t5RQfeXhhmiikqkmvuDE?=
+ =?iso-8859-1?Q?j0DQsCyphBj7xuQSVs/QLg2qa5gdlEzRy/KrDuQqthgaFouwDDWhYvHZ24?=
+ =?iso-8859-1?Q?vNuPP9nk/1aSucRBwzrlbvUnGEYNFv7LrJIoxM37B87scMq6AKjhHhnbg5?=
+ =?iso-8859-1?Q?hueWx/bI5GHEDI7Iua1NBfx0V+AQLdiqbF1UdMY6cp2U5+5me12QC9iN0w?=
+ =?iso-8859-1?Q?3iLjBvPZQN9SKy+E+7TILXuPS30jM/OTAeXDgKbBW0TG+ZD7IWKGX0F69w?=
+ =?iso-8859-1?Q?wGX+haWLb7RuA/YpGY3kUYLeFNFdiiYjruUdqna72qzDOWdkt6CjKPC/6r?=
+ =?iso-8859-1?Q?IYJI/twBRseI/yhGTLR9vOZKKvYKaq+Bnk56BzXFgRyCURV3o3jNjbsFvI?=
+ =?iso-8859-1?Q?adFaCubYsS?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR11MB6139.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?jbf3sPjqevfs6LYpjbrOm/tMf1iVdZgA3eQZZuof4jGVmlE/nbo7JSMfP2?=
+ =?iso-8859-1?Q?keUH0F0QCGX6MRYazBDnqzb9tOkUcE2k4BC7uI3GG330E1JQTkVQhLfuwj?=
+ =?iso-8859-1?Q?7jPj4w8cwv+geFvsf32Mxu7zSo6crzno8qzt4A8X1dVQ7lM9zw95PbFNgY?=
+ =?iso-8859-1?Q?mrX+vScGHaJA1h3bPnzliL5D4S/9l6s2HJOn9+0/3zKkWBJakrv4g7kaMY?=
+ =?iso-8859-1?Q?0k+ZsIAVDd/YZxdEwsv/XO7mcVK0sJPl37xIBigF5TgfX0lJs29omxmksH?=
+ =?iso-8859-1?Q?Y1ebc/BrqfFBGLdP9XZrzxRjEdrAFvEzgIt6CaNOEGxcAwp0IvikgijGgv?=
+ =?iso-8859-1?Q?lvMkdl+tP4ygHvVXK5YibWBft/QviRWwPZz3+H9hnXT5SxskPg8Tgbmxeh?=
+ =?iso-8859-1?Q?XUvVq3mukz5xsBXppGtl+5ABcM8jZ9RH3hOY4rAWnNrDMV+cOJh6qPZiJa?=
+ =?iso-8859-1?Q?fubFTNAQOZ2TcW4iRqksp+PztUNxVG//qfsgLK8j4tsFy0Y8QeccvQp5cl?=
+ =?iso-8859-1?Q?GiGVtsNmtQFkz0pFA/j6MCcQPHbliMXhZw2y8SOSIm/7EQX2oQHoOm6kxR?=
+ =?iso-8859-1?Q?eClsXvGvJ6SgzKve7/jx9eBd/7hkVWvkAwV4USZ2gY7ogbzyo5wQroKMCd?=
+ =?iso-8859-1?Q?Jn0xIJPX3501MI/FzRmL45SWLZUw+PLsoCQFl/Oqb5JIA2VIewEnEdfWi/?=
+ =?iso-8859-1?Q?/alZROJQLiGVWrOGLcbTWPyBpRNm57sz9dzkpZF6KObHdZaepc/ytzGBW+?=
+ =?iso-8859-1?Q?wxTezsFnxdZxEa76THMWH2vUb5Hy/s/sDf4hunsDxLbl7QY+89dAX1p4HW?=
+ =?iso-8859-1?Q?SHx6T7nsEyMT1eqprhNWr66C8PhqQlI1lOOet8NDI6/Ay9Oqc0i6euE6qh?=
+ =?iso-8859-1?Q?qmxuXEutxwtAFBdqfTaDr8/lb7YN74B23Lt48+BxPoJ42WcavEixI56XGI?=
+ =?iso-8859-1?Q?rd87BFnVd/UzHyLN4WrstYFT5wI99dIX/uSx5McA0/TwRK4ZKA+Z3+iIos?=
+ =?iso-8859-1?Q?NFE1NWQqD9jvRe9XWZX0gg5wopV7BtQUgWKOxBL43M/N3VqWv20XjcF6Si?=
+ =?iso-8859-1?Q?XFlpK0e7M0rwX/XwpiMrc8QR5z2SYqUMgZSdA4YDDJ6XwqiDlLolBk/6OJ?=
+ =?iso-8859-1?Q?Zyz1csrm/i5m7eORGnEA/gXoO48V7Qc9HccxzQxbeimetN/wBV3m6bRPtx?=
+ =?iso-8859-1?Q?KJWTEPbwxrIVVdJ3wcU9iVRAxt9IiFHDwrWJ+92mcxGxsgzDzX9h4GpPkn?=
+ =?iso-8859-1?Q?2qpqAIFPEOouM7haI2vG8C4BKt67yfEFS578+sfIdIm6uqDkEXTfvZNUHs?=
+ =?iso-8859-1?Q?1zQRPIxLd8Uo8SYmHVvHUETfG3znrWkG+xGi3bm1nAHpq9cjTn7K074d5+?=
+ =?iso-8859-1?Q?rJnuXDDpdCnIByuFQe4x4tSpzMN0gZj7ZbO7WeM9ACaKiNHAE8/TsQVRmQ?=
+ =?iso-8859-1?Q?Fy0TWFqwP4JXLxgv7hkHyc8jL8bH7xGY7vr1LQI5aqWHkRCpvlpp5Lfh9D?=
+ =?iso-8859-1?Q?dm7wBYMPsplF1xiOIST8gBaCIwH62VkijTlbK00AdnHhxFAI6HRF6R2j+o?=
+ =?iso-8859-1?Q?obgb6mz0GOkQYOyVvfvqDUf+E7R+eXnnmBfKQ2Q8KkGzTlW+WeJWXe/2ol?=
+ =?iso-8859-1?Q?+GcTfvrvYLl/WlXEh0D9F2YOZgWQjaMtNhBgt4KzuFz6XfDoIDXy1jfQ?=
+ =?iso-8859-1?Q?=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1b4f4ab1-4807-428a-cf50-08dd04d23879
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR11MB6139.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Nov 2024 17:31:49.5207
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: F11u1X7QkymQPsaCH5m7redrAmFoIOq2+7CqnSRQaF+XCLHw8MdYLezhjuJDIwTMAQNxjxk3ZofUyMZu9bUCALDuUPpel5vKjgecNszoBrA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7357
+X-OriginatorOrg: intel.com
 
-Replaced by drm_exec and not used any more.
+On Thu, Nov 14, 2024 at 04:30:19PM +0100, Christian König wrote:
+>XE switched over to drm_exec quite some time ago.
+>
+>Signed-off-by: Christian König <christian.koenig@amd.com>
 
-Signed-off-by: Christian KÃ¶nig <christian.koenig@amd.com>
----
- drivers/gpu/drm/ttm/Makefile           |   4 +-
- drivers/gpu/drm/ttm/ttm_execbuf_util.c | 161 -------------------------
- include/drm/ttm/ttm_execbuf_util.h     | 119 ------------------
- 3 files changed, 2 insertions(+), 282 deletions(-)
- delete mode 100644 drivers/gpu/drm/ttm/ttm_execbuf_util.c
- delete mode 100644 include/drm/ttm/ttm_execbuf_util.h
 
-diff --git a/drivers/gpu/drm/ttm/Makefile b/drivers/gpu/drm/ttm/Makefile
-index dad298127226..25937e4ad91a 100644
---- a/drivers/gpu/drm/ttm/Makefile
-+++ b/drivers/gpu/drm/ttm/Makefile
-@@ -3,8 +3,8 @@
- # Makefile for the drm device driver.  This driver provides support for the
- 
- ttm-y := ttm_tt.o ttm_bo.o ttm_bo_util.o ttm_bo_vm.o ttm_module.o \
--	ttm_execbuf_util.o ttm_range_manager.o ttm_resource.o ttm_pool.o \
--	ttm_device.o ttm_sys_manager.o
-+	ttm_range_manager.o ttm_resource.o ttm_pool.o ttm_device.o \
-+	ttm_sys_manager.o
- ttm-$(CONFIG_AGP) += ttm_agp_backend.o
- 
- obj-$(CONFIG_DRM_TTM) += ttm.o
-diff --git a/drivers/gpu/drm/ttm/ttm_execbuf_util.c b/drivers/gpu/drm/ttm/ttm_execbuf_util.c
-deleted file mode 100644
-index f1c60fa80c2d..000000000000
---- a/drivers/gpu/drm/ttm/ttm_execbuf_util.c
-+++ /dev/null
-@@ -1,161 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 OR MIT */
--/**************************************************************************
-- *
-- * Copyright (c) 2006-2009 VMware, Inc., Palo Alto, CA., USA
-- * All Rights Reserved.
-- *
-- * Permission is hereby granted, free of charge, to any person obtaining a
-- * copy of this software and associated documentation files (the
-- * "Software"), to deal in the Software without restriction, including
-- * without limitation the rights to use, copy, modify, merge, publish,
-- * distribute, sub license, and/or sell copies of the Software, and to
-- * permit persons to whom the Software is furnished to do so, subject to
-- * the following conditions:
-- *
-- * The above copyright notice and this permission notice (including the
-- * next paragraph) shall be included in all copies or substantial portions
-- * of the Software.
-- *
-- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
-- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
-- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-- * USE OR OTHER DEALINGS IN THE SOFTWARE.
-- *
-- **************************************************************************/
--
--#include <drm/ttm/ttm_execbuf_util.h>
--#include <drm/ttm/ttm_bo.h>
--
--static void ttm_eu_backoff_reservation_reverse(struct list_head *list,
--					      struct ttm_validate_buffer *entry)
--{
--	list_for_each_entry_continue_reverse(entry, list, head) {
--		struct ttm_buffer_object *bo = entry->bo;
--
--		dma_resv_unlock(bo->base.resv);
--	}
--}
--
--void ttm_eu_backoff_reservation(struct ww_acquire_ctx *ticket,
--				struct list_head *list)
--{
--	struct ttm_validate_buffer *entry;
--
--	if (list_empty(list))
--		return;
--
--	list_for_each_entry(entry, list, head) {
--		struct ttm_buffer_object *bo = entry->bo;
--
--		ttm_bo_move_to_lru_tail_unlocked(bo);
--		dma_resv_unlock(bo->base.resv);
--	}
--
--	if (ticket)
--		ww_acquire_fini(ticket);
--}
--EXPORT_SYMBOL(ttm_eu_backoff_reservation);
--
--/*
-- * Reserve buffers for validation.
-- *
-- * If a buffer in the list is marked for CPU access, we back off and
-- * wait for that buffer to become free for GPU access.
-- *
-- * If a buffer is reserved for another validation, the validator with
-- * the highest validation sequence backs off and waits for that buffer
-- * to become unreserved. This prevents deadlocks when validating multiple
-- * buffers in different orders.
-- */
--
--int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
--			   struct list_head *list, bool intr,
--			   struct list_head *dups)
--{
--	struct ttm_validate_buffer *entry;
--	int ret;
--
--	if (list_empty(list))
--		return 0;
--
--	if (ticket)
--		ww_acquire_init(ticket, &reservation_ww_class);
--
--	list_for_each_entry(entry, list, head) {
--		struct ttm_buffer_object *bo = entry->bo;
--		unsigned int num_fences;
--
--		ret = ttm_bo_reserve(bo, intr, (ticket == NULL), ticket);
--		if (ret == -EALREADY && dups) {
--			struct ttm_validate_buffer *safe = entry;
--			entry = list_prev_entry(entry, head);
--			list_del(&safe->head);
--			list_add(&safe->head, dups);
--			continue;
--		}
--
--		num_fences = max(entry->num_shared, 1u);
--		if (!ret) {
--			ret = dma_resv_reserve_fences(bo->base.resv,
--						      num_fences);
--			if (!ret)
--				continue;
--		}
--
--		/* uh oh, we lost out, drop every reservation and try
--		 * to only reserve this buffer, then start over if
--		 * this succeeds.
--		 */
--		ttm_eu_backoff_reservation_reverse(list, entry);
--
--		if (ret == -EDEADLK) {
--			ret = ttm_bo_reserve_slowpath(bo, intr, ticket);
--		}
--
--		if (!ret)
--			ret = dma_resv_reserve_fences(bo->base.resv,
--						      num_fences);
--
--		if (unlikely(ret != 0)) {
--			if (ticket) {
--				ww_acquire_done(ticket);
--				ww_acquire_fini(ticket);
--			}
--			return ret;
--		}
--
--		/* move this item to the front of the list,
--		 * forces correct iteration of the loop without keeping track
--		 */
--		list_del(&entry->head);
--		list_add(&entry->head, list);
--	}
--
--	return 0;
--}
--EXPORT_SYMBOL(ttm_eu_reserve_buffers);
--
--void ttm_eu_fence_buffer_objects(struct ww_acquire_ctx *ticket,
--				 struct list_head *list,
--				 struct dma_fence *fence)
--{
--	struct ttm_validate_buffer *entry;
--
--	if (list_empty(list))
--		return;
--
--	list_for_each_entry(entry, list, head) {
--		struct ttm_buffer_object *bo = entry->bo;
--
--		dma_resv_add_fence(bo->base.resv, fence, entry->num_shared ?
--				   DMA_RESV_USAGE_READ : DMA_RESV_USAGE_WRITE);
--		ttm_bo_move_to_lru_tail_unlocked(bo);
--		dma_resv_unlock(bo->base.resv);
--	}
--	if (ticket)
--		ww_acquire_fini(ticket);
--}
--EXPORT_SYMBOL(ttm_eu_fence_buffer_objects);
-diff --git a/include/drm/ttm/ttm_execbuf_util.h b/include/drm/ttm/ttm_execbuf_util.h
-deleted file mode 100644
-index fac1e3e57ebd..000000000000
---- a/include/drm/ttm/ttm_execbuf_util.h
-+++ /dev/null
-@@ -1,119 +0,0 @@
--/**************************************************************************
-- *
-- * Copyright (c) 2006-2009 VMware, Inc., Palo Alto, CA., USA
-- * All Rights Reserved.
-- *
-- * Permission is hereby granted, free of charge, to any person obtaining a
-- * copy of this software and associated documentation files (the
-- * "Software"), to deal in the Software without restriction, including
-- * without limitation the rights to use, copy, modify, merge, publish,
-- * distribute, sub license, and/or sell copies of the Software, and to
-- * permit persons to whom the Software is furnished to do so, subject to
-- * the following conditions:
-- *
-- * The above copyright notice and this permission notice (including the
-- * next paragraph) shall be included in all copies or substantial portions
-- * of the Software.
-- *
-- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
-- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
-- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-- * USE OR OTHER DEALINGS IN THE SOFTWARE.
-- *
-- **************************************************************************/
--/*
-- * Authors: Thomas Hellstrom <thellstrom-at-vmware-dot-com>
-- */
--
--#ifndef _TTM_EXECBUF_UTIL_H_
--#define _TTM_EXECBUF_UTIL_H_
--
--#include <linux/list.h>
--
--struct ww_acquire_ctx;
--struct dma_fence;
--struct ttm_buffer_object;
--
--/**
-- * struct ttm_validate_buffer
-- *
-- * @head:           list head for thread-private list.
-- * @bo:             refcounted buffer object pointer.
-- * @num_shared:     How many shared fences we want to add.
-- */
--
--struct ttm_validate_buffer {
--	struct list_head head;
--	struct ttm_buffer_object *bo;
--	unsigned int num_shared;
--};
--
--/**
-- * ttm_eu_backoff_reservation
-- *
-- * @ticket:   ww_acquire_ctx from reserve call
-- * @list:     thread private list of ttm_validate_buffer structs.
-- *
-- * Undoes all buffer validation reservations for bos pointed to by
-- * the list entries.
-- */
--void ttm_eu_backoff_reservation(struct ww_acquire_ctx *ticket,
--				struct list_head *list);
--
--/**
-- * ttm_eu_reserve_buffers
-- *
-- * @ticket:  [out] ww_acquire_ctx filled in by call, or NULL if only
-- *           non-blocking reserves should be tried.
-- * @list:    thread private list of ttm_validate_buffer structs.
-- * @intr:    should the wait be interruptible
-- * @dups:    [out] optional list of duplicates.
-- *
-- * Tries to reserve bos pointed to by the list entries for validation.
-- * If the function returns 0, all buffers are marked as "unfenced",
-- * taken off the lru lists and are not synced for write CPU usage.
-- *
-- * If the function detects a deadlock due to multiple threads trying to
-- * reserve the same buffers in reverse order, all threads except one will
-- * back off and retry. This function may sleep while waiting for
-- * CPU write reservations to be cleared, and for other threads to
-- * unreserve their buffers.
-- *
-- * If intr is set to true, this function may return -ERESTARTSYS if the
-- * calling process receives a signal while waiting. In that case, no
-- * buffers on the list will be reserved upon return.
-- *
-- * If dups is non NULL all buffers already reserved by the current thread
-- * (e.g. duplicates) are added to this list, otherwise -EALREADY is returned
-- * on the first already reserved buffer and all buffers from the list are
-- * unreserved again.
-- *
-- * Buffers reserved by this function should be unreserved by
-- * a call to either ttm_eu_backoff_reservation() or
-- * ttm_eu_fence_buffer_objects() when command submission is complete or
-- * has failed.
-- */
--int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
--			   struct list_head *list, bool intr,
--			   struct list_head *dups);
--
--/**
-- * ttm_eu_fence_buffer_objects
-- *
-- * @ticket:      ww_acquire_ctx from reserve call
-- * @list:        thread private list of ttm_validate_buffer structs.
-- * @fence:       The new exclusive fence for the buffers.
-- *
-- * This function should be called when command submission is complete, and
-- * it will add a new sync object to bos pointed to by entries on @list.
-- * It also unreserves all buffers, putting them on lru lists.
-- *
-- */
--void ttm_eu_fence_buffer_objects(struct ww_acquire_ctx *ticket,
--				 struct list_head *list,
--				 struct dma_fence *fence);
--
--#endif
--- 
-2.34.1
+Acked-by: Lucas De Marchi <lucas.demarchi@intel.com>
 
+I guess you will want to apply this through drm-misc so you can merge
+the last commit. Otherwise let me know and I can push it to drm-xe-next.
+
+Thanks
+Lucas De Marchi
