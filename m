@@ -1,188 +1,115 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D01166F29
-	for <virtualization@lists.linux.dev>; Thu, 14 Nov 2024 17:32:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.8
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731605522; cv=fail; b=rKT8vOgPQmrVD7y/gKOhyJSPIi/6G0sOVAj6j2rR9tFmQGwGJ6nHgnYkbX1GUuCHGXDmvMVyk5ULr6Uxbo9C0Jf/lXT4LPXIJqussUuCVKEkUlV8GzjZ/CT9csFVQrpCvVnuyJfl0j+6aqsaGZZeCKFA6rzWp6wNdmp+QzeK2U8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731605522; c=relaxed/simple;
-	bh=T9BgjJVpW1pQHyOCaAkceGxZn3lMaWfwmJCwJL14QR8=;
-	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=gjZjQhNqUqn+C2QAdvGG8O23oTSHMFgh1Te2jej5JvkqsOdC6uvg496QQeI86k6gGwyKN5J1GhrMDiquDn/myddQO75OvfViE49PZBdjCluEE0YSBpheXisxUawhdNAUKqqVc3ET691YdNqp7m3eIa12o6IPpKnLGWEPiH7YmC4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mz3SZ+gZ; arc=fail smtp.client-ip=192.198.163.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E86351A0AFB
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Nov 2024 19:12:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1731611558; cv=none; b=OKbOV+zulx+Uk44MfZiVKs03yg7x8yvw2iSXx8m4Y0DwM/UolY4JQoQKGqJs0S8Husla4uaXVrWJEUCtrbF1r/BZTf0gNZ5n7rmy43g3dHb8WpHeoSwdb+G4R0DbbFhzY6BO3Fqc8ai8KhwGdUlFmIwV95xGXN0O97Qyv+ahWf4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1731611558; c=relaxed/simple;
+	bh=R2rfevJVocBUENusDjBfdBGn56SIQn8+tISCCPh0Ajw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=iYSBlzZU9g01GXL9qxEfqUrcZwxkO1eGByHUtmyxrtZB5WT7KEJt6Fqs+NyGDdM/G8SadEuVzQ0QPVs1F+Jj6nnnB1ONU+EO3dSkbXH5b1o4OGtp7MnzCaIZ4PyBD31U+m2+RywywXEKoit+0oqqa4NIUMyF2QgN5xAud0r6Kzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L4LRg5Ss; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mz3SZ+gZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1731605520; x=1763141520;
-  h=date:from:to:cc:subject:message-id:references:
-   content-transfer-encoding:in-reply-to:mime-version;
-  bh=T9BgjJVpW1pQHyOCaAkceGxZn3lMaWfwmJCwJL14QR8=;
-  b=mz3SZ+gZfRKzYFnDuCOg5nI+wJwtPhOCqEX3TSAiBBL+rkkW4cdyFFxT
-   UPQdGCDNYPwb8+ijN1nXZ9FB4wIe+qjxHFkDqK9yJNxOh/dXm9/lYevdf
-   gnbhAFeXn2Lh0GILdRLxqNb+rl9R4muhNv51fuGawa5aqdocvCVv3Q7RS
-   noUwv1rBvbk0w9zlucxAfxP0QJuOZVGAVtkTsA9tGMX5Jsqc3S6McWQbr
-   xvAW1zcw074ztQnp7FYAuqOvN8w5PbRS3ZTswNFLOQwz7dK0jdHTVmVdi
-   rmip0/IuFQI41vzh+NY7Y+G48j/Cl7NJCKY5pOim7AiIBB8ZTPp61xcqs
-   g==;
-X-CSE-ConnectionGUID: yGIYTDotRwWpOCepGWbNbQ==
-X-CSE-MsgGUID: 7d0W0CPvRSWEdTn9nZHlBQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11256"; a="49092552"
-X-IronPort-AV: E=Sophos;i="6.12,154,1728975600"; 
-   d="scan'208";a="49092552"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Nov 2024 09:31:56 -0800
-X-CSE-ConnectionGUID: 8uH9baBGSi2MlmIhI3JWBQ==
-X-CSE-MsgGUID: KcIoPoqPTxiuUmf60LIPIw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,154,1728975600"; 
-   d="scan'208";a="89048210"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by orviesa008.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 14 Nov 2024 09:31:54 -0800
-Received: from fmsmsx603.amr.corp.intel.com (10.18.126.83) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Thu, 14 Nov 2024 09:31:53 -0800
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39 via Frontend Transport; Thu, 14 Nov 2024 09:31:53 -0800
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (104.47.58.176)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Thu, 14 Nov 2024 09:31:53 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TZgQUJtlYDNkQOOFwcKuawReqLM0xqI7FAtTqSVb+u7cqbtG4FAVbtBPxeqZXlWgLknPZns4OcYdpcxKjfFnoJFJ6LBLHruJr5aKUlSIic3wVDD+aftJU3xCr6akn9EgE99WbpU8Oe3XJWzBHf2TPpQ0Uz/kw3Jch1jvE7xywv3wXuYvMpS1UeO2Oe8yBLEVvuvhMh3QNRAG2q+MdrOUQ0zxleHPDEpk+uhhChLst9GT8xvIKOWaqWaQpKAqwMVALdSn8Suon+46FrFjsfoNC4C6tncyfVQanCoZeq7VwybW8+xDE44y/0qcEVtFFc5iULl02LmlDM4FEcphrsXIJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=sMetLVadpkGCTvYTXGnsDWpQxnK4X1oZbTEzPE8IVoU=;
- b=VpwWdqkEbAHKrrv0DBBqo4x+EytU4fE7DmJVOtxcUa1tva9zDfkvj7A3y1HiTenKc8cH+1BYta4V+veto19MGKZ7CFGTFEP8RgA66xpp4C3PPTgp3huQNXEU6kouxWPd075HWepdePeFvDvyGWx7sAJlvgMKNJTomKwWY9coq+IodhyDvhgV14oIc/BxAWxpCreUZzagPQKOIEBe0T8VJDykmVM2DuLCHvBe+j8biLUhOXY0hj8BMiR2b+bfKeR9CqsZ36zsA1w36LGZFoTqkOgv9iib142lItNctoypYOBa4oxOy7g7qwbeQJ1jCxqNguewAdZ+aX58phUEx+/ofg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from CY5PR11MB6139.namprd11.prod.outlook.com (2603:10b6:930:29::17)
- by DS0PR11MB7357.namprd11.prod.outlook.com (2603:10b6:8:136::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8137.28; Thu, 14 Nov
- 2024 17:31:49 +0000
-Received: from CY5PR11MB6139.namprd11.prod.outlook.com
- ([fe80::7141:316f:77a0:9c44]) by CY5PR11MB6139.namprd11.prod.outlook.com
- ([fe80::7141:316f:77a0:9c44%6]) with mapi id 15.20.8158.013; Thu, 14 Nov 2024
- 17:31:49 +0000
-Date: Thu, 14 Nov 2024 11:31:45 -0600
-From: Lucas De Marchi <lucas.demarchi@intel.com>
-To: Christian =?utf-8?B?S8O2bmln?= <ckoenig.leichtzumerken@gmail.com>
-CC: <kraxel@redhat.com>, <airlied@redhat.com>, <alexander.deucher@amd.com>,
-	<zack.rusin@broadcom.com>, <bcm-kernel-feedback-list@broadcom.com>,
-	<virtualization@lists.linux.dev>, <dri-devel@lists.freedesktop.org>,
-	<amd-gfx@lists.freedesktop.org>, <intel-xe@lists.freedesktop.org>
-Subject: Re: [PATCH 6/7] drm/xe: drop unused component dependencies
-Message-ID: <ozyt6iipkdnapd5kzs7szta7m6ddhpaukhjqxpkym5dqad6w7s@6iyixhrzaxny>
-References: <20241114153020.6209-1-christian.koenig@amd.com>
- <20241114153020.6209-7-christian.koenig@amd.com>
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20241114153020.6209-7-christian.koenig@amd.com>
-X-ClientProxiedBy: MW4PR03CA0093.namprd03.prod.outlook.com
- (2603:10b6:303:b7::8) To CY5PR11MB6139.namprd11.prod.outlook.com
- (2603:10b6:930:29::17)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L4LRg5Ss"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9D14784679
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Nov 2024 19:12:36 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id OxeIp0BLLZS4 for <virtualization@lists.linux-foundation.org>;
+ Thu, 14 Nov 2024 19:12:36 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org D52A384677
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D52A384677
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L4LRg5Ss
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D52A384677
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Nov 2024 19:12:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731611552;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sTnUxHM1YFnozAVamOxNzXSxfyUECp/LxnWayVqEvyY=;
+	b=L4LRg5Ss2giENYA9fdd124okLknWFqD/nwrk7rR5MNnY++H4GpZPuTvBB1wCXJ7AiYbTs8
+	AMQwxoLuvE7dx1IPyEEv7KWHxqyAx/WyOfvFlqj8aOhOgyD+T/a0SXmTTs2d7ZfmQo4p0/
+	301EOdmgsTPjx/Bq9MymaZAUNyYTrV4=
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
+ [209.85.167.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-457-pBcLAAdEMK6uPx4OlG8gBg-1; Thu, 14 Nov 2024 14:12:31 -0500
+X-MC-Unique: pBcLAAdEMK6uPx4OlG8gBg-1
+X-Mimecast-MFC-AGG-ID: pBcLAAdEMK6uPx4OlG8gBg
+Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-3e6069ec8fbso176099b6e.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 14 Nov 2024 11:12:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731611550; x=1732216350;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sTnUxHM1YFnozAVamOxNzXSxfyUECp/LxnWayVqEvyY=;
+        b=v1d+hm6zk5vmC+wTETE8rYXrTd9KLNYuX9Orm2CrJrWyIe7Ui/+9G1nqs2beP0fXZH
+         XL43A0/s4Sia9VCncLG3V5GzSdfIhUMjKIGoMEfDBYRf78rVO37kHWqmZ945TyOGDzBj
+         jl8Gt8aFXEcSfNPYfRO9oVFhdnVKrjVSTVi2eLkztcyDg8IofPNDErXUw2w2hsVwhAj+
+         KFwtSaHnu2LsO6L3mZeGJcMoL3Ge6Le38hbetUesdweuJF6X9gAJWVd9R3b2Zg8qZi8D
+         AERBg3FISt7MvWjDXbU2Fk/XGlLBIg+g50BXelRECsSeK2b2CGzDyZijZznuNQNIPqIS
+         j9Jw==
+X-Forwarded-Encrypted: i=1; AJvYcCW7CbeU8nLw/5DftSqxLaABfdY8ELYetvKG7NTErJ7YiaVlbpJnwwboLxajw4ogmZy9SnJ+EXJD9aH6AjDZXQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxNwUD53ea+j4SLDVDbEDJHjYQP8Ma/JJb1rG5W8Y8NGU3o+zbO
+	90zjlKmYcLKCBHgdstyKBD/gRYEMpl2wWl6vEAqYjzLf78Af9rDKKtl+4SyKXr335vSygZkOHst
+	FFe0WHL2b19rKmmo4ilQR2DEKDc8yNsZ5cjaNNnOnJM9EQ9VtDNX5cGPq0qLncmlaPUrlZQlESK
+	/Pqf8=
+X-Received: by 2002:a05:6808:13d0:b0:3e5:e889:771b with SMTP id 5614622812f47-3e7bc7c2ca1mr20341b6e.3.1731611550696;
+        Thu, 14 Nov 2024 11:12:30 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF+DBkcVdN3ZW4HYLNxmp9MfrNu93H5W+Q6GJnjy0KMRC+hmdn6+ZBLCKzeuJzDXmsT4DAl9w==
+X-Received: by 2002:a05:6808:13d0:b0:3e5:e889:771b with SMTP id 5614622812f47-3e7bc7c2ca1mr20330b6e.3.1731611550297;
+        Thu, 14 Nov 2024 11:12:30 -0800 (PST)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-3e7b85bb8e6sm551264b6e.24.2024.11.14.11.12.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Nov 2024 11:12:29 -0800 (PST)
+Date: Thu, 14 Nov 2024 12:12:28 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+ <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+ <parav@nvidia.com>, <feliu@nvidia.com>, <kevin.tian@intel.com>,
+ <joao.m.martins@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+Subject: Re: [PATCH V4 vfio 0/7] Enhance the vfio-virtio driver to support
+ live migration
+Message-ID: <20241114121228.7d89fc1d.alex.williamson@redhat.com>
+In-Reply-To: <20241113115200.209269-1-yishaih@nvidia.com>
+References: <20241113115200.209269-1-yishaih@nvidia.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR11MB6139:EE_|DS0PR11MB7357:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1b4f4ab1-4807-428a-cf50-08dd04d23879
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info: =?iso-8859-1?Q?O1EHe4gkofTnWpXPwVgkiemgRT6tq1mtDZhRb3lJMPd6ke9d5BKq0V/HNo?=
- =?iso-8859-1?Q?1MseBAz/yASM94U7Z2XAYvAesRifJKFJZuupohqG/rgOh4CIy/yBtUN7Qr?=
- =?iso-8859-1?Q?KNvyy1pfNzOaTzk2i033z8AE3KLFlONU/FhepHngJtorqfWFDZxsxk6afl?=
- =?iso-8859-1?Q?PurSMFDJDQf+KcD62zd4GqAoFADmzn0u0HLI871M+tX2u4T9swfP2e7LWm?=
- =?iso-8859-1?Q?01QcED98KlpN2wrZ9orjUefapqS/Op7YPJFel9PvtcodW0pmkW27kTHvMS?=
- =?iso-8859-1?Q?GMUMERgn8yw4AKAoX3y59qF3hVVpwJlHy0jJRQDYvLKwI0hhlJHB7lohH1?=
- =?iso-8859-1?Q?x/Rx9TT5wwnN1mUr2apsmLPpwWSSge0KNyOpmVY8couQYYNjXupcMC+8QN?=
- =?iso-8859-1?Q?ELymJOs0o1Myh31tzKH5M/a5okDkOfJ+cQE1DFcXKfgsGNUl36RfL5YNzy?=
- =?iso-8859-1?Q?6K7JYosg8+hCzy2Zi8bBp5ofQKqeyISRpuM1eBdSdAA/4EXYqp+O/AMCVb?=
- =?iso-8859-1?Q?5nY3SsqxWRT17r7CqWexsFxZQYRn5wSpznYxh+B79+9Qe4RVetvCa8ug8w?=
- =?iso-8859-1?Q?TAOOIymJObtogBPYDFWk/T985UgbNc9R6UoyKpP22b8UYcLWtNCVEklYxI?=
- =?iso-8859-1?Q?IpiwtKb2agNaxhXZIAPhokzNuE8WMMR4EFS6euoKrNWSjyMLbawPk6V33V?=
- =?iso-8859-1?Q?UI2lbji2zqpCoV28XQN90aRGul/SyCcu8+gEjUApFkFinooacvpZZyE8/y?=
- =?iso-8859-1?Q?VunvPtx0n5soDgh8WscHX7zK7FwEdegAZ8txf6XpnsnNr83o4WPlI43ULT?=
- =?iso-8859-1?Q?UYPqLLSPQSWBP/gOUhHQ+6vtbx1ZaI35RQAhMjbrr+mxH7Zs+mrmhjP6lw?=
- =?iso-8859-1?Q?t8HijVmaKu2//BtC/ixaOUQTh9gMmRkt3+SsE6QjF5C0u7tiTSKdPfVu8m?=
- =?iso-8859-1?Q?FT9YcgNK/k3pgYEX/1F3Sj9YfKO65CcieWX1s3t5RQfeXhhmiikqkmvuDE?=
- =?iso-8859-1?Q?j0DQsCyphBj7xuQSVs/QLg2qa5gdlEzRy/KrDuQqthgaFouwDDWhYvHZ24?=
- =?iso-8859-1?Q?vNuPP9nk/1aSucRBwzrlbvUnGEYNFv7LrJIoxM37B87scMq6AKjhHhnbg5?=
- =?iso-8859-1?Q?hueWx/bI5GHEDI7Iua1NBfx0V+AQLdiqbF1UdMY6cp2U5+5me12QC9iN0w?=
- =?iso-8859-1?Q?3iLjBvPZQN9SKy+E+7TILXuPS30jM/OTAeXDgKbBW0TG+ZD7IWKGX0F69w?=
- =?iso-8859-1?Q?wGX+haWLb7RuA/YpGY3kUYLeFNFdiiYjruUdqna72qzDOWdkt6CjKPC/6r?=
- =?iso-8859-1?Q?IYJI/twBRseI/yhGTLR9vOZKKvYKaq+Bnk56BzXFgRyCURV3o3jNjbsFvI?=
- =?iso-8859-1?Q?adFaCubYsS?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR11MB6139.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?jbf3sPjqevfs6LYpjbrOm/tMf1iVdZgA3eQZZuof4jGVmlE/nbo7JSMfP2?=
- =?iso-8859-1?Q?keUH0F0QCGX6MRYazBDnqzb9tOkUcE2k4BC7uI3GG330E1JQTkVQhLfuwj?=
- =?iso-8859-1?Q?7jPj4w8cwv+geFvsf32Mxu7zSo6crzno8qzt4A8X1dVQ7lM9zw95PbFNgY?=
- =?iso-8859-1?Q?mrX+vScGHaJA1h3bPnzliL5D4S/9l6s2HJOn9+0/3zKkWBJakrv4g7kaMY?=
- =?iso-8859-1?Q?0k+ZsIAVDd/YZxdEwsv/XO7mcVK0sJPl37xIBigF5TgfX0lJs29omxmksH?=
- =?iso-8859-1?Q?Y1ebc/BrqfFBGLdP9XZrzxRjEdrAFvEzgIt6CaNOEGxcAwp0IvikgijGgv?=
- =?iso-8859-1?Q?lvMkdl+tP4ygHvVXK5YibWBft/QviRWwPZz3+H9hnXT5SxskPg8Tgbmxeh?=
- =?iso-8859-1?Q?XUvVq3mukz5xsBXppGtl+5ABcM8jZ9RH3hOY4rAWnNrDMV+cOJh6qPZiJa?=
- =?iso-8859-1?Q?fubFTNAQOZ2TcW4iRqksp+PztUNxVG//qfsgLK8j4tsFy0Y8QeccvQp5cl?=
- =?iso-8859-1?Q?GiGVtsNmtQFkz0pFA/j6MCcQPHbliMXhZw2y8SOSIm/7EQX2oQHoOm6kxR?=
- =?iso-8859-1?Q?eClsXvGvJ6SgzKve7/jx9eBd/7hkVWvkAwV4USZ2gY7ogbzyo5wQroKMCd?=
- =?iso-8859-1?Q?Jn0xIJPX3501MI/FzRmL45SWLZUw+PLsoCQFl/Oqb5JIA2VIewEnEdfWi/?=
- =?iso-8859-1?Q?/alZROJQLiGVWrOGLcbTWPyBpRNm57sz9dzkpZF6KObHdZaepc/ytzGBW+?=
- =?iso-8859-1?Q?wxTezsFnxdZxEa76THMWH2vUb5Hy/s/sDf4hunsDxLbl7QY+89dAX1p4HW?=
- =?iso-8859-1?Q?SHx6T7nsEyMT1eqprhNWr66C8PhqQlI1lOOet8NDI6/Ay9Oqc0i6euE6qh?=
- =?iso-8859-1?Q?qmxuXEutxwtAFBdqfTaDr8/lb7YN74B23Lt48+BxPoJ42WcavEixI56XGI?=
- =?iso-8859-1?Q?rd87BFnVd/UzHyLN4WrstYFT5wI99dIX/uSx5McA0/TwRK4ZKA+Z3+iIos?=
- =?iso-8859-1?Q?NFE1NWQqD9jvRe9XWZX0gg5wopV7BtQUgWKOxBL43M/N3VqWv20XjcF6Si?=
- =?iso-8859-1?Q?XFlpK0e7M0rwX/XwpiMrc8QR5z2SYqUMgZSdA4YDDJ6XwqiDlLolBk/6OJ?=
- =?iso-8859-1?Q?Zyz1csrm/i5m7eORGnEA/gXoO48V7Qc9HccxzQxbeimetN/wBV3m6bRPtx?=
- =?iso-8859-1?Q?KJWTEPbwxrIVVdJ3wcU9iVRAxt9IiFHDwrWJ+92mcxGxsgzDzX9h4GpPkn?=
- =?iso-8859-1?Q?2qpqAIFPEOouM7haI2vG8C4BKt67yfEFS578+sfIdIm6uqDkEXTfvZNUHs?=
- =?iso-8859-1?Q?1zQRPIxLd8Uo8SYmHVvHUETfG3znrWkG+xGi3bm1nAHpq9cjTn7K074d5+?=
- =?iso-8859-1?Q?rJnuXDDpdCnIByuFQe4x4tSpzMN0gZj7ZbO7WeM9ACaKiNHAE8/TsQVRmQ?=
- =?iso-8859-1?Q?Fy0TWFqwP4JXLxgv7hkHyc8jL8bH7xGY7vr1LQI5aqWHkRCpvlpp5Lfh9D?=
- =?iso-8859-1?Q?dm7wBYMPsplF1xiOIST8gBaCIwH62VkijTlbK00AdnHhxFAI6HRF6R2j+o?=
- =?iso-8859-1?Q?obgb6mz0GOkQYOyVvfvqDUf+E7R+eXnnmBfKQ2Q8KkGzTlW+WeJWXe/2ol?=
- =?iso-8859-1?Q?+GcTfvrvYLl/WlXEh0D9F2YOZgWQjaMtNhBgt4KzuFz6XfDoIDXy1jfQ?=
- =?iso-8859-1?Q?=3D=3D?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1b4f4ab1-4807-428a-cf50-08dd04d23879
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR11MB6139.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Nov 2024 17:31:49.5207
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: F11u1X7QkymQPsaCH5m7redrAmFoIOq2+7CqnSRQaF+XCLHw8MdYLezhjuJDIwTMAQNxjxk3ZofUyMZu9bUCALDuUPpel5vKjgecNszoBrA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7357
-X-OriginatorOrg: intel.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: LR11_-FS6CG_HDAvGOuHDV18HXhfNUcr9U_9A27iQd0_1731611551
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Nov 14, 2024 at 04:30:19PM +0100, Christian König wrote:
->XE switched over to drm_exec quite some time ago.
->
->Signed-off-by: Christian König <christian.koenig@amd.com>
+On Wed, 13 Nov 2024 13:51:53 +0200
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
+> This series enhances the vfio-virtio driver to support live migration
+> for virtio-net Virtual Functions (VFs) that are migration-capable.
 
-Acked-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Applied to vfio next branch for v6.13.  Thanks,
 
-I guess you will want to apply this through drm-misc so you can merge
-the last commit. Otherwise let me know and I can push it to drm-xe-next.
+Alex
 
-Thanks
-Lucas De Marchi
