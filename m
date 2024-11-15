@@ -1,84 +1,129 @@
-Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80AF51C07C3
-	for <virtualization@lists.linux.dev>; Fri, 15 Nov 2024 15:24:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32E851D63F3
+	for <virtualization@lists.linux.dev>; Fri, 15 Nov 2024 15:49:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=99.78.197.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731684301; cv=none; b=NaZO3aJS2PA2sQ2Ajr28ZYv+skWiewmnSm/VyTUAGaJxa2/iyMvUoPpMu/wGswWTaOfbg+cwetyz3LIo/uUz5UMC5zLtEz1CzlR2Btj/soJKdyqMKj+k3l5GC8SDzKq/l85ZALQJv059J16+4QC3n7kPVoteh+TQ5y0tM8kqj8Q=
+	t=1731685763; cv=none; b=eDFtyKVdM/hcPmTUzTk2tyOIz7lxqIdFdpQzAzj2Q9qX2mXQxqPy3p5hIbmYr14z8KX/B/2qy3oQSmafPzw8kk0I7sXfVsjyizPMctdLURUAE8FKRyK3i59sTSo2bP3kKoU7UsTrlltgDmBjkxV/hlBjPejGc/8l4Y6flDsoCis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731684301; c=relaxed/simple;
-	bh=TIZ7Z0awf5cXcxUiF+IISaAkoCwhIcEsKazphLnlfYU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oUlupuoWpOWmY2RqustItfvg+A/MXlow+KURvnLigrniwX8eabsUKmuDso8Ghiyo116q/qUawVGQFi8IdgbPkViE2jDVYeVXz+rLAzTXj+SFw3HHFLMeRwVLx2WAB0pcnQ1UjAXSvRyD2U3R2ou7o8TEKB7NVp8GEBy0DEog2m4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=qjPI29ci; arc=none smtp.client-ip=209.85.160.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+	s=arc-20240116; t=1731685763; c=relaxed/simple;
+	bh=iYOACs9xMrVgXBW4uhPq/UxYJunN8tuucmBnvwbczaY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=CU9l5pj0Jx8az9uO00ldpddRCG9/bMlnxAdp8x+RbcMSNPnm43ICYq5BjZD/emJ4EYREg0T5TrNtGJQ9CdjsH2bIOlOjCEbBMirM0U9ud56TCZK3+4Pis5N7LAJYIQdVc5PAk6TL7j7/Z5dp6hwqMSxe8Akd2lhmPRYipDFElPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=KxoVDOkt; arc=none smtp.client-ip=99.78.197.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="qjPI29ci"
-Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-4609e784352so13070311cf.0
-        for <virtualization@lists.linux.dev>; Fri, 15 Nov 2024 07:24:59 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="KxoVDOkt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1731684298; x=1732289098; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MhWRL4SgdQsRHwF3zYRHfFkkTS6N6p8eTQwmpFKTViw=;
-        b=qjPI29ci2cfQ9JDgbPkFgVIu1Jje+dxeC5P980AmsOSsBQkXyOTPJNmflSi7G3ZAUL
-         jdsDELtfqS8aCNNJhidGv148d8Kwzy7/0cC3lk4YLmtt0slIYjHiCGU8YkdB4cxJmbFz
-         LdNOBPdsr9ltPcxBKbPdWWy/SGNNkTtRI1T9g=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731684298; x=1732289098;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MhWRL4SgdQsRHwF3zYRHfFkkTS6N6p8eTQwmpFKTViw=;
-        b=sjizcX+PaDw9/FGmqVK17To4jyouyHIqnD4Om+3Wc6mdlnNzfvEztutEyCdo3+ByLZ
-         jqz2qWMNVRdtH3Mrwyk37x+E+GpnqLBs9mJpVnXUKpbiNTzgycI4fOHZ04ICBVBmur3K
-         wUO0KWyjUc0Wc8KLKoPp79nkjfijOYWKSD1CQY2IZfEAyPXfvN5jXWkc/D2HId9913K/
-         3NhSCZ/A8hSD/6X+UKJ85vJdJjY0NE5TTKftN0npqUDmx/PgBongx66ZVO4h4SS1KYHQ
-         edDN1+zyc2/jerxD/XH/gs5fRQVcdP6F3Rk50LMs/MPvuvVW31y/P1st16PWsUhOc2nn
-         FkHw==
-X-Forwarded-Encrypted: i=1; AJvYcCUD4qDrUJ6DS4WLmw/hUJv2K1eZFDGt2FL9BC+yxOm8H0ayZShfgldgo/SB23c4kYMH1HsPeyXKKcIEK5BLuQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyJMnNFAW3JWC0XX36GwzUDeC814vDX6EiEVNXIFg+l2skfI2tP
-	8mveIVb+KFG+lqRl/DAaAMysiz4pmltdFuADmftcuBXMBKnK//V6liLhKQItlv2MHTyRBERHixw
-	YYaheb1Tb53vQgRqa4omsv5eV62C3XRDNmybWng==
-X-Google-Smtp-Source: AGHT+IEo2rr0odYMw2XFght516xGACmkLA4n6BjOW0bN/+TMAiU5Xyo127jU/d8oAwXbYktURA2Q6cq1rbAEop0XL8I=
-X-Received: by 2002:a05:622a:5c8d:b0:460:a9da:42b8 with SMTP id
- d75a77b69052e-46363e11f32mr36945911cf.22.1731684298435; Fri, 15 Nov 2024
- 07:24:58 -0800 (PST)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1731685762; x=1763221762;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=iYOACs9xMrVgXBW4uhPq/UxYJunN8tuucmBnvwbczaY=;
+  b=KxoVDOkt/Ros62msaODMBWd8vdZimCliTFEgvVwOvsxTgyPwUn/8l54a
+   FG/SvZmIMqGMhpouC76ztbrmW8Yd/AKXsJp6HS/2R3A5E35ycq+yVBuaK
+   ppixYuANU9mfrDDROMo2YUlpdfRh7v3SppVdbCroporjqXvC2f7D4xBFj
+   Y=;
+X-IronPort-AV: E=Sophos;i="6.12,157,1728950400"; 
+   d="scan'208";a="352876872"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.210])
+  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2024 15:49:21 +0000
+Received: from EX19MTAUWA001.ant.amazon.com [10.0.21.151:9895]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.22.41:2525] with esmtp (Farcaster)
+ id 5c780039-7119-452e-a90f-ea79eb363424; Fri, 15 Nov 2024 15:49:19 +0000 (UTC)
+X-Farcaster-Flow-ID: 5c780039-7119-452e-a90f-ea79eb363424
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWA001.ant.amazon.com (10.250.64.218) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34;
+ Fri, 15 Nov 2024 15:49:19 +0000
+Received: from [0.0.0.0] (10.253.83.51) by EX19D020UWC004.ant.amazon.com
+ (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.34; Fri, 15 Nov 2024
+ 15:49:16 +0000
+Message-ID: <dca2f6ff-b586-461d-936d-e0b9edbe7642@amazon.com>
+Date: Fri, 15 Nov 2024 16:49:14 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241024164726.77485-1-hreitz@redhat.com> <CAJfpeguWjwXtM4VJYP2+-0KK5Jkz80eKpWc-ST+yMuKL6Be0=w@mail.gmail.com>
- <ae437cf6-caa2-4f9a-9ffa-bdc7873a99eb@redhat.com> <CAJfpegvfYhL4-U-4=sSkcne3MSNZk3P3jqBAPYWp5b5o4Ryk6w@mail.gmail.com>
- <ece87ac3-71e2-4c43-a144-659d19b1e75d@redhat.com> <CAJfpegtuVxtf9xoyJPveqA=uXb-wnzPcqD_rXNOV4LMahWqxEQ@mail.gmail.com>
- <2fe45430-a07d-45bb-89b7-1e4a08d1818f@redhat.com>
-In-Reply-To: <2fe45430-a07d-45bb-89b7-1e4a08d1818f@redhat.com>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 15 Nov 2024 16:24:47 +0100
-Message-ID: <CAJfpegtQhcGNaH8k1XKTSV_9=T4Ayx8oDLUK-0X8CRg6Rhb1vg@mail.gmail.com>
-Subject: Re: [PATCH] virtio-fs: Query rootmode during mount
-To: Hanna Czenczek <hreitz@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	virtualization@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>, 
-	German Maglione <gmaglione@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Vivek Goyal <vgoyal@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vsock/virtio: Remove queued_replies pushback logic
+To: Stefano Garzarella <sgarzare@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <kvm@vger.kernel.org>, Asias He
+	<asias@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni
+	<pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet
+	<edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, "Stefan
+ Hajnoczi" <stefanha@redhat.com>
+References: <20241115103016.86461-1-graf@amazon.com>
+ <yjhfe5bsnfpqbnibxl2urrnuowzitxnrbodlihz4y5csig7e7p@drgxxxxgokfo>
+Content-Language: en-US
+From: Alexander Graf <graf@amazon.com>
+In-Reply-To: <yjhfe5bsnfpqbnibxl2urrnuowzitxnrbodlihz4y5csig7e7p@drgxxxxgokfo>
+X-ClientProxiedBy: EX19D038UWB001.ant.amazon.com (10.13.139.148) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 
-On Fri, 15 Nov 2024 at 15:51, Hanna Czenczek <hreitz@redhat.com> wrote:
+SGkgU3RlZmFubywKCk9uIDE1LjExLjI0IDEyOjU5LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6
+Cj4KPiBPbiBGcmksIE5vdiAxNSwgMjAyNCBhdCAxMDozMDoxNkFNICswMDAwLCBBbGV4YW5kZXIg
+R3JhZiB3cm90ZToKPj4gRXZlciBzaW5jZSB0aGUgaW50cm9kdWN0aW9uIG9mIHRoZSB2aXJ0aW8g
+dnNvY2sgZHJpdmVyLCBpdCBpbmNsdWRlZAo+PiBwdXNoYmFjayBsb2dpYyB0aGF0IGJsb2NrcyBp
+dCBmcm9tIHRha2luZyBhbnkgbmV3IFJYIHBhY2tldHMgdW50aWwgdGhlCj4+IFRYIHF1ZXVlIGJh
+Y2tsb2cgYmVjb21lcyBzaGFsbG93ZXIgdGhhbiB0aGUgdmlydHF1ZXVlIHNpemUuCj4+Cj4+IFRo
+aXMgbG9naWMgd29ya3MgZmluZSB3aGVuIHlvdSBjb25uZWN0IGEgdXNlciBzcGFjZSBhcHBsaWNh
+dGlvbiBvbiB0aGUKPj4gaHlwZXJ2aXNvciB3aXRoIGEgdmlydGlvLXZzb2NrIHRhcmdldCwgYmVj
+YXVzZSB0aGUgZ3Vlc3Qgd2lsbCBzdG9wCj4+IHJlY2VpdmluZyBkYXRhIHVudGlsIHRoZSBob3N0
+IHB1bGxlZCBhbGwgb3V0c3RhbmRpbmcgZGF0YSBmcm9tIHRoZSBWTS4KPgo+IFNvLCB3aHkgbm90
+IHNraXBwaW5nIHRoaXMgb25seSB3aGVuIHRhbGtpbmcgd2l0aCBhIHNpYmxpbmcgVk0/CgoKSSBk
+b24ndCB0aGluayB0aGVyZSBpcyBhIHdheSB0byBrbm93LCBpcyB0aGVyZT8KCgo+Cj4+Cj4+IFdp
+dGggTml0cm8gRW5jbGF2ZXMgaG93ZXZlciwgd2UgY29ubmVjdCAyIFZNcyBkaXJlY3RseSB2aWEg
+dnNvY2s6Cj4+Cj4+IMKgUGFyZW50wqDCoMKgwqDCoCBFbmNsYXZlCj4+Cj4+IMKgwqAgUlggLS0t
+LS0tLS0gVFgKPj4gwqDCoCBUWCAtLS0tLS0tLSBSWAo+Pgo+PiBUaGlzIG1lYW5zIHdlIG5vdyBo
+YXZlIDIgdmlydGlvLXZzb2NrIGJhY2tlbmRzIHRoYXQgYm90aCBoYXZlIHRoZSAKPj4gcHVzaGJh
+Y2sKPj4gbG9naWMuIElmIHRoZSBwYXJlbnQncyBUWCBxdWV1ZSBydW5zIGZ1bGwgYXQgdGhlIHNh
+bWUgdGltZSBhcyB0aGUKPj4gRW5jbGF2ZSdzLCBib3RoIHZpcnRpby12c29jayBkcml2ZXJzIGZh
+bGwgaW50byB0aGUgcHVzaGJhY2sgcGF0aCBhbmQKPj4gbm8gbG9uZ2VyIGFjY2VwdCBSWCB0cmFm
+ZmljLiBIb3dldmVyLCB0aGF0IFJYIHRyYWZmaWMgaXMgVFggdHJhZmZpYyBvbgo+PiB0aGUgb3Ro
+ZXIgc2lkZSB3aGljaCBibG9ja3MgdGhhdCBkcml2ZXIgZnJvbSBtYWtpbmcgYW55IGZvcndhcmQK
+Pj4gcHJvZ3Jlc3MuIFdlJ3JlIG5vdCBpbiBhIGRlYWRsb2NrLgo+Pgo+PiBUbyByZXNvbHZlIHRo
+aXMsIGxldCdzIHJlbW92ZSB0aGF0IHB1c2hiYWNrIGxvZ2ljIGFsdG9nZXRoZXIgYW5kIHJlbHkg
+b24KPj4gaGlnaGVyIGxldmVscyAobGlrZSBjcmVkaXRzKSB0byBlbnN1cmUgd2UgZG8gbm90IGNv
+bnN1bWUgdW5ib3VuZGVkCj4+IG1lbW9yeS4KPgo+IEkgc3Bva2UgcXVpY2tseSB3aXRoIFN0ZWZh
+biB3aG8gaGFzIGJlZW4gZm9sbG93aW5nIHRoZSBkZXZlbG9wbWVudCBmcm9tCj4gdGhlIGJlZ2lu
+bmluZyBhbmQgYWN0dWFsbHkgcG9pbnRlZCBvdXQgdGhhdCB0aGVyZSBtaWdodCBiZSBwcm9ibGVt
+cwo+IHdpdGggdGhlIGNvbnRyb2wgcGFja2V0cywgc2luY2UgY3JlZGl0cyBvbmx5IGNvdmVycyBk
+YXRhIHBhY2tldHMsIHNvCj4gaXQgZG9lc24ndCBzZWVtIGxpa2UgYSBnb29kIGlkZWEgcmVtb3Zl
+IHRoaXMgbWVjaGFuaXNtIGNvbXBsZXRlbHkuCgoKQ2FuIHlvdSBoZWxwIG1lIHVuZGVyc3RhbmQg
+d2hpY2ggc2l0dWF0aW9ucyB0aGUgY3VycmVudCBtZWNoYW5pc20gcmVhbGx5IApoZWxwcyB3aXRo
+LCBzbyB3ZSBjYW4gbG9vayBhdCBhbHRlcm5hdGl2ZXM/CgoKPgo+Pgo+PiBGaXhlczogMGVhOWUx
+ZDNhOWUzICgiVlNPQ0s6IEludHJvZHVjZSB2aXJ0aW9fdHJhbnNwb3J0LmtvIikKPgo+IEknbSBu
+b3Qgc3VyZSB3ZSBzaG91bGQgYWRkIHRoaXMgRml4ZXMgdGFnLCB0aGlzIHNlZW1zIHZlcnkgcmlz
+a3kKPiBiYWNrcG9ydGluZyBvbiBzdGFibGUgYnJhbmNoZXMgSU1ITy4KCgpXaGljaCBzaXR1YXRp
+b25zIGRvIHlvdSBiZWxpZXZlIGl0IHdpbGwgZ2VudWluZWx5IGJyZWFrIGFueXRoaW5nIGluPyBB
+cyAKaXQgc3RhbmRzIHRvZGF5LCBpZiB5b3UgcnVuIHVwc3RyZWFtIHBhcmVudCBhbmQgZW5jbGF2
+ZSBhbmQgaGFtbWVyIHRoZW0gCndpdGggdnNvY2sgdHJhZmZpYywgeW91IGdldCBpbnRvIGEgZGVh
+ZGxvY2suIEV2ZW4gd2l0aG91dCB0aGUgZmxvdyAKY29udHJvbCwgeW91IHdpbGwgbmV2ZXIgaGl0
+IGEgZGVhZGxvY2suIEJ1dCB5b3UgbWF5IGdldCBhIGJyb3duLW91dCBsaWtlIApzaXR1YXRpb24g
+d2hpbGUgTGludXggaXMgZmx1c2hpbmcgaXRzIGJ1ZmZlcnMuCgpJZGVhbGx5IHdlIHdhbnQgdG8g
+aGF2ZSBhY3R1YWwgZmxvdyBjb250cm9sIHRvIG1pdGlnYXRlIHRoZSBwcm9ibGVtIAphbHRvZ2V0
+aGVyLiBCdXQgSSdtIG5vdCBxdWl0ZSBzdXJlIGhvdyBhbmQgd2hlcmUuIEp1c3QgYmxvY2tpbmcg
+YWxsIApyZWNlaXZpbmcgdHJhZmZpYyBjYXVzZXMgcHJvYmxlbXMuCgoKPiBJZiB3ZSBjYW5ub3Qg
+ZmluZCBhIGJldHRlciBtZWNoYW5pc20gdG8gcmVwbGFjZSB0aGlzIHdpdGggc29tZXRoaW5nCj4g
+dGhhdCB3b3JrcyBib3RoIGd1ZXN0IDwtPiBob3N0IGFuZCBndWVzdCA8LT4gZ3Vlc3QsIEkgd291
+bGQgcHJlZmVyCj4gdG8gZG8gdGhpcyBqdXN0IGZvciBndWVzdCA8LT4gZ3Vlc3QgY29tbXVuaWNh
+dGlvbi4KPiBCZWNhdXNlIHJlbW92aW5nIHRoaXMgY29tcGxldGVseSBzZWVtcyB0b28gcmlza3kg
+Zm9yIG1lLCBhdCBsZWFzdAo+IHdpdGhvdXQgYSBwcm9vZiB0aGF0IGNvbnRyb2wgcGFja2V0cyBh
+cmUgZmluZS4KCgpTbyB5b3VyIGNvbmNlcm4gaXMgdGhhdCBjb250cm9sIHBhY2tldHMgd291bGQg
+bm90IHJlY2VpdmUgcHVzaGJhY2ssIHNvIAp3ZSB3b3VsZCBhbGxvdyB1bmJvdW5kZWQgdHJhZmZp
+YyB0byBnZXQgcXVldWVkIHVwPyBDYW4geW91IHN1Z2dlc3QgCm9wdGlvbnMgdG8gaGVscCB3aXRo
+IHRoYXQ/CgoKQWxleAoKCgoKQW1hem9uIFdlYiBTZXJ2aWNlcyBEZXZlbG9wbWVudCBDZW50ZXIg
+R2VybWFueSBHbWJICktyYXVzZW5zdHIuIDM4CjEwMTE3IEJlcmxpbgpHZXNjaGFlZnRzZnVlaHJ1
+bmc6IENocmlzdGlhbiBTY2hsYWVnZXIsIEpvbmF0aGFuIFdlaXNzCkVpbmdldHJhZ2VuIGFtIEFt
+dHNnZXJpY2h0IENoYXJsb3R0ZW5idXJnIHVudGVyIEhSQiAyNTc3NjQgQgpTaXR6OiBCZXJsaW4K
+VXN0LUlEOiBERSAzNjUgNTM4IDU5Nwo=
 
-> Now that I look at it once again (because I was wondering why to check fm=
-, and not fm->fc), do we even need to check fm or fm->fc?  fuse_mount_destr=
-oy() assumes both are non-NULL, so I assume sb->s_root || fm->fc->initializ=
-ed should be OK, too=E2=80=A6
-
-You're right, fm can't be NULL.  Not sure why I thought it can.
-
-Thanks,
-Miklos
