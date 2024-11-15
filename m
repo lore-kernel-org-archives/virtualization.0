@@ -1,1125 +1,503 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 932631EF926
-	for <virtualization@lists.linux.dev>; Fri, 15 Nov 2024 21:09:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 309A61D5CD4;
+	Fri, 15 Nov 2024 21:15:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731704997; cv=none; b=eX8FqAEtmi3FjfS2iV8gayPxERkiLLr2Hp3ZQs5Bt6nNUhfZ09ayTOilGJtHRtGXH6xgkpOrdHVW4WDNE4At0y69wz1ZiUipl3HqeZ5Ph0wnIgLuVnjZT86yoXjoKSWYD5yG0VKt33fY2aLacjkcw7dZw2Gx+oWR5giQnI1CEgo=
+	t=1731705302; cv=none; b=ERdEzuuh8I+PPKP0gWrLUxC5w0GmLzZZLcLOXlAEM0mKZPfx3iQ2IpTTwcclWQl8YSBWJiJey9zVSsiVRHIygViYn2I1r+g0cMYQlqVHQnJQ48dJf73gJUkN1hxQR6h5Cvt7xSU8s+KKuIBjk70rONgwLQQjafL/OAOt4D+/M6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731704997; c=relaxed/simple;
-	bh=v8aJE9Wa4ZWRQmtZTJUR8Oawd8mzp1KBeUyMr52nIaw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=lByIbCgl7B7Nw6jewyzDARnZuUg28ZpQKpa1s8B4P5frqapE1kbizCdgiJgStbdly7pUsAdTe4Bqm3uF30MMg2J26zxZ5afxkMMq90Sg9q9UqFSJJEKI3hT17mnyQaIb+e+9pX6Ube3qN96LK1boMw0J33YZgjiDJLtH/s+iq6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=SqtHrnPV; arc=none smtp.client-ip=209.85.218.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1731705302; c=relaxed/simple;
+	bh=hmZyID0xTDejqUdHbnNnIfCcRfkvqbnrZ7rK8Oz9WJk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LzbFWSdGFv5mZy+j1Z+XhYXHIcM/R5j/AQ/WrS/l+MrDZhnrWkmpAxWs3GArWjndxieZgO7as7Tc4xIcyZR8ItTRrmKAePYdiDcKv183Xcs1awrve/8lz0r8QFcnZQtX9c7ssY0wiuyItF7kvtIme3PLeuD5msLF70Pr99QMhuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=Vx946PRA; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="SqtHrnPV"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-aa3a79d4d59so360613566b.3
-        for <virtualization@lists.linux.dev>; Fri, 15 Nov 2024 13:09:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1731704991; x=1732309791; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Nu64AEZrjbknvhhTh6WFsfM0fkcdr4a9mTjzq6Bqf6s=;
-        b=SqtHrnPVmH2+cB9Wvj+wQW23fBNnnSLKHqyDIcQ5uMz26dWPKOK7jyoEtQGR1kXT5e
-         DwsyKk/4QByoCAGm4ul/Qe5QBwC89uQXci9oCGyfFtYLqiCqmGhcdJGfXqedH5qTRKM/
-         08FD04kXq8z+cNW8Y8TFJJRt+ERv1UShF98O7cuKq6QtJkzIY5etk6RypyXrNTGQODjW
-         3Rj7u1iNALHw7xx25imNkSqaSvuiCa+R7C8NoMAT2jFqdTJ9o28g4WD0OTWDzcHzOB8d
-         j1X7jI3XB9f5xfrMaW7Oefbd5qnEESjFxJqFXAhqVg99p3n37Izt6SZgBX5zEwpebPdl
-         NrTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731704991; x=1732309791;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Nu64AEZrjbknvhhTh6WFsfM0fkcdr4a9mTjzq6Bqf6s=;
-        b=cYWt9v98feZMRAVCN91mTfoQalmOM12Nu9FS6Vy+DUqIhRQV7OM41B5///MOS5yfPd
-         jXhjaZAiflfBAQFfnGks7JxK15gNb7OUDX8pePjtGVOviP4HUHOacIHkR2I+37uEGikW
-         4CyVxcYQKEA6VMgkPRuLi6f6PwD2tqI62X3n3Us6/DqPghMs6TXNuHSF9W8Mya/AkQJb
-         PZNyiF1Ju/fmXJPTbrI3644UaLp5B3kzotdvTAIr4tvjNdvwmBFo6YdUQWK16LFCVuWf
-         T2+sYSlckjPWb/PcpB8J6GI7GzJi/DgshForqWlozt58x2fcuGe+yX9GNzLnlPZPBc4B
-         bHMQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVRzt4zPF7d2iKbg3YP9h5/Vlihf9/TK5jZGR08mDQ97YTGio2HZUU6RZihZAG/iWKqklXCvzS3e/+SF3HQcg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxzGI8c4dcvU10E9Yinav/vwmPyeWWomPjqKS6qh58Gvzge6EuD
-	r/d3r71ST8+p/VJM85899zzgqWZlV+CKNUR/L5y3eSkoYiEsuhKBjDa0N027WD4=
-X-Google-Smtp-Source: AGHT+IGo1PFlokT/XwCwFaL9cUfoDPKZYKDvZS3UAJXbF1dVGLOXgZscGaImMexCpnSZXSj8Dc4OWQ==
-X-Received: by 2002:a17:906:fd88:b0:a9a:55dd:bc23 with SMTP id a640c23a62f3a-aa4833f6558mr326157866b.8.1731704990580;
-        Fri, 15 Nov 2024 13:09:50 -0800 (PST)
-Received: from umbar.lan ([192.130.178.90])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa20df51648sm219626366b.62.2024.11.15.13.09.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Nov 2024 13:09:50 -0800 (PST)
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Date: Fri, 15 Nov 2024 23:09:30 +0200
-Subject: [PATCH 5/5] drm/connector: make mode_valid accept const struct
- drm_display_mode
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Vx946PRA"
+Received: from [10.0.0.115] (c-67-182-156-199.hsd1.wa.comcast.net [67.182.156.199])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 6AE7820BEBD0;
+	Fri, 15 Nov 2024 13:14:53 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 6AE7820BEBD0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1731705294;
+	bh=IOtJqBKEB6hW5aqrE09EdKHehH+hQljR82pxvDiFOrU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Vx946PRAHZaunNzhrBN6r6Eunx0XJSwCvezU7p34uq8bmwkx0jTPCzMuPBGb2qBPT
+	 A8LE/xwEbQJ+NzGbNgrWZCTjrkQQVzzzg2vG5xZdBjRK88CM1qYOR49k0z4NdpInur
+	 6MRDszJnBx80i9qdoXbBprb9zFmFTUmTZOmbumlQ=
+Message-ID: <e832dd94-04f3-413a-a1a9-870849b4bc53@linux.microsoft.com>
+Date: Fri, 15 Nov 2024 13:14:52 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/4] hyperv: Switch from hyperv-tlfs.h to
+ hyperv/hvhdk.h
+To: Michael Kelley <mhklinux@outlook.com>,
+ "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+ "linux-arm-kernel@lists.infradead.org"
+ <linux-arm-kernel@lists.infradead.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+ "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Cc: "kys@microsoft.com" <kys@microsoft.com>,
+ "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
+ "wei.liu@kernel.org" <wei.liu@kernel.org>,
+ "decui@microsoft.com" <decui@microsoft.com>,
+ "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+ "will@kernel.org" <will@kernel.org>, "luto@kernel.org" <luto@kernel.org>,
+ "tglx@linutronix.de" <tglx@linutronix.de>,
+ "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
+ "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+ "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
+ "seanjc@google.com" <seanjc@google.com>,
+ "pbonzini@redhat.com" <pbonzini@redhat.com>,
+ "peterz@infradead.org" <peterz@infradead.org>,
+ "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
+ "joro@8bytes.org" <joro@8bytes.org>,
+ "robin.murphy@arm.com" <robin.murphy@arm.com>,
+ "davem@davemloft.net" <davem@davemloft.net>,
+ "edumazet@google.com" <edumazet@google.com>,
+ "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com"
+ <pabeni@redhat.com>, "lpieralisi@kernel.org" <lpieralisi@kernel.org>,
+ "kw@linux.com" <kw@linux.com>, "robh@kernel.org" <robh@kernel.org>,
+ "bhelgaas@google.com" <bhelgaas@google.com>, "arnd@arndb.de"
+ <arnd@arndb.de>, "sgarzare@redhat.com" <sgarzare@redhat.com>,
+ "jinankjain@linux.microsoft.com" <jinankjain@linux.microsoft.com>,
+ "muminulrussell@gmail.com" <muminulrussell@gmail.com>,
+ "skinsburskii@linux.microsoft.com" <skinsburskii@linux.microsoft.com>,
+ "mukeshrathor@microsoft.com" <mukeshrathor@microsoft.com>,
+ "vkuznets@redhat.com" <vkuznets@redhat.com>,
+ "ssengar@linux.microsoft.com" <ssengar@linux.microsoft.com>,
+ "apais@linux.microsoft.com" <apais@linux.microsoft.com>
+References: <1731018746-25914-1-git-send-email-nunodasneves@linux.microsoft.com>
+ <1731018746-25914-5-git-send-email-nunodasneves@linux.microsoft.com>
+ <BN7PR02MB4148513F8ABA50392E11C616D4582@BN7PR02MB4148.namprd02.prod.outlook.com>
+Content-Language: en-US
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+In-Reply-To: <BN7PR02MB4148513F8ABA50392E11C616D4582@BN7PR02MB4148.namprd02.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241115-drm-connector-mode-valid-const-v1-5-b1b523156f71@linaro.org>
-References: <20241115-drm-connector-mode-valid-const-v1-0-b1b523156f71@linaro.org>
-In-Reply-To: <20241115-drm-connector-mode-valid-const-v1-0-b1b523156f71@linaro.org>
-To: Jani Nikula <jani.nikula@linux.intel.com>, 
- Rodrigo Vivi <rodrigo.vivi@intel.com>, 
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
- Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
- Simona Vetter <simona@ffwll.ch>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Karol Herbst <kherbst@redhat.com>, Lyude Paul <lyude@redhat.com>, 
- Danilo Krummrich <dakr@redhat.com>, Harry Wentland <harry.wentland@amd.com>, 
- Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>, 
- Alex Deucher <alexander.deucher@amd.com>, 
- =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
- Xinhui Pan <Xinhui.Pan@amd.com>, Alain Volmat <alain.volmat@foss.st.com>, 
- Raphael Gallais-Pou <rgallaispou@gmail.com>, 
- Liviu Dudau <liviu.dudau@arm.com>, Andrzej Hajda <andrzej.hajda@intel.com>, 
- Neil Armstrong <neil.armstrong@linaro.org>, Robert Foss <rfoss@kernel.org>, 
- Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, 
- Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
- Peter Senna Tschudin <peter.senna@gmail.com>, Ian Ray <ian.ray@ge.com>, 
- Martyn Welch <martyn.welch@collabora.co.uk>, 
- Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, 
- Kyungmin Park <kyungmin.park@samsung.com>, 
- Krzysztof Kozlowski <krzk@kernel.org>, 
- Alim Akhtar <alim.akhtar@samsung.com>, Stefan Agner <stefan@agner.ch>, 
- Alison Wang <alison.wang@nxp.com>, 
- Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, 
- Philipp Zabel <p.zabel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, 
- Sascha Hauer <s.hauer@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Fabio Estevam <festevam@gmail.com>, Rob Clark <robdclark@gmail.com>, 
- Abhinav Kumar <quic_abhinavk@quicinc.com>, Sean Paul <sean@poorly.run>, 
- Marijn Suijten <marijn.suijten@somainline.org>, 
- Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Sandy Huang <hjc@rock-chips.com>, 
- =?utf-8?q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, 
- Andy Yan <andy.yan@rock-chips.com>, Chen-Yu Tsai <wens@csie.org>, 
- Samuel Holland <samuel@sholland.org>, 
- Thierry Reding <thierry.reding@gmail.com>, 
- Mikko Perttunen <mperttunen@nvidia.com>, 
- Jonathan Hunter <jonathanh@nvidia.com>, 
- Dave Stevenson <dave.stevenson@raspberrypi.com>, 
- =?utf-8?q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>, 
- Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
- nouveau@lists.freedesktop.org, amd-gfx@lists.freedesktop.org, 
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
- imx@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
- freedreno@lists.freedesktop.org, virtualization@lists.linux.dev, 
- spice-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org, 
- linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=50179;
- i=dmitry.baryshkov@linaro.org; h=from:subject:message-id;
- bh=v8aJE9Wa4ZWRQmtZTJUR8Oawd8mzp1KBeUyMr52nIaw=;
- b=owEBbQGS/pANAwAKAYs8ij4CKSjVAcsmYgBnN7iI5v1llqOC2ZCnWFn6k+wqR0lZQHTTmbiip
- UcdENqJ4sOJATMEAAEKAB0WIQRMcISVXLJjVvC4lX+LPIo+Aiko1QUCZze4iAAKCRCLPIo+Aiko
- 1SNGB/9BohqY9mklOEwMPyWRFxTQcpiAyfIovmVsrWPOnmZ3gtiRvYRGmRQlvzE07YorCaiWBRa
- UrrKXc6Xh4qEZy0jso1fxvyXugz+Gy3lTzXFUH/UqYJ0Y3b79fEOC+ApLZOZnZY5GwIYZxuGeEP
- ryQygRJMNhs4aydkCezbmuO7dkpV8koiqtA4rEa4aCIJEHjXLC/WGZN4PVd8C528Khp3A5HG5Dz
- lvrP9tDG3WKkOKH8KcYiAdpEpEgm0hEx3BdqdNBVqpuJAPy2uK+/GtzCIKTxrYIKSGN+hPiQBLS
- YKmI2xSyLmlGSEy3pXK78HpUgwPgpyVArJbj/Vz6p75T2D8S
-X-Developer-Key: i=dmitry.baryshkov@linaro.org; a=openpgp;
- fpr=8F88381DD5C873E4AE487DA5199BF1243632046A
 
-The mode_valid() callbacks of drm_encoder, drm_crtc and drm_bridge
-accept const struct drm_display_mode argument. Change the mode_valid
-callback of drm_connector to also accept const argument.
+On 11/10/2024 8:13 PM, Michael Kelley wrote:
+> From: Nuno Das Neves <nunodasneves@linux.microsoft.com> Sent: Thursday, November 7, 2024 2:32 PM
+>>
+>> Switch to using hvhdk.h everywhere in the kernel. This header includes
+>> all the new Hyper-V headers in include/hyperv, which form a superset of
+>> the definitions found in hyperv-tlfs.h.
+>>
+>> This makes it easier to add new Hyper-V interfaces without being
+>> restricted to those in the TLFS doc (reflected in hyperv-tlfs.h).
+>>
+>> To be more consistent with the original Hyper-V code, the names of some
+>> definitions are changed slightly. Update those where needed.
+>>
+>> hyperv-tlfs.h is no longer included anywhere - hvhdk.h can serve
+>> the same role, but with an easier path for adding new definitions.
+> 
+> Is hyperv-tlfs.h and friends being deleted? If not, the risk is that
+> someone adds a new #include of it without realizing that it has been
+> superseded by hvhdk.h.
+> 
 
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c           |  8 ++++----
- drivers/gpu/drm/amd/amdgpu/atombios_dp.c                 |  2 +-
- drivers/gpu/drm/amd/amdgpu/atombios_dp.h                 |  2 +-
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c        |  2 +-
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h        |  2 +-
- drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c |  2 +-
- drivers/gpu/drm/arm/malidp_mw.c                          |  2 +-
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c             |  2 +-
- drivers/gpu/drm/bridge/cadence/cdns-mhdp8546-core.c      |  2 +-
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c |  7 -------
- drivers/gpu/drm/drm_crtc_helper_internal.h               |  2 +-
- drivers/gpu/drm/drm_probe_helper.c                       |  2 +-
- drivers/gpu/drm/exynos/exynos_hdmi.c                     |  2 +-
- drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c                |  2 +-
- drivers/gpu/drm/gma500/cdv_intel_crt.c                   |  2 +-
- drivers/gpu/drm/gma500/cdv_intel_dp.c                    |  2 +-
- drivers/gpu/drm/gma500/cdv_intel_hdmi.c                  |  2 +-
- drivers/gpu/drm/gma500/cdv_intel_lvds.c                  |  2 +-
- drivers/gpu/drm/gma500/oaktrail_hdmi.c                   |  2 +-
- drivers/gpu/drm/gma500/psb_intel_drv.h                   |  2 +-
- drivers/gpu/drm/gma500/psb_intel_lvds.c                  |  2 +-
- drivers/gpu/drm/gma500/psb_intel_sdvo.c                  |  2 +-
- drivers/gpu/drm/i915/display/dvo_ch7017.c                |  2 +-
- drivers/gpu/drm/i915/display/dvo_ch7xxx.c                |  2 +-
- drivers/gpu/drm/i915/display/dvo_ivch.c                  |  2 +-
- drivers/gpu/drm/i915/display/dvo_ns2501.c                |  2 +-
- drivers/gpu/drm/i915/display/dvo_sil164.c                |  2 +-
- drivers/gpu/drm/i915/display/dvo_tfp410.c                |  2 +-
- drivers/gpu/drm/i915/display/icl_dsi.c                   |  2 +-
- drivers/gpu/drm/i915/display/intel_crt.c                 |  2 +-
- drivers/gpu/drm/i915/display/intel_dp.c                  |  2 +-
- drivers/gpu/drm/i915/display/intel_dsi.c                 |  2 +-
- drivers/gpu/drm/i915/display/intel_dsi.h                 |  2 +-
- drivers/gpu/drm/i915/display/intel_dvo.c                 |  2 +-
- drivers/gpu/drm/i915/display/intel_dvo_dev.h             |  2 +-
- drivers/gpu/drm/i915/display/intel_hdmi.c                |  2 +-
- drivers/gpu/drm/i915/display/intel_lvds.c                |  2 +-
- drivers/gpu/drm/i915/display/intel_sdvo.c                |  2 +-
- drivers/gpu/drm/i915/display/intel_tv.c                  |  2 +-
- drivers/gpu/drm/i915/display/vlv_dsi.c                   |  2 +-
- drivers/gpu/drm/imx/ipuv3/imx-tve.c                      |  2 +-
- drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c      |  2 +-
- drivers/gpu/drm/nouveau/dispnv50/disp.c                  |  2 +-
- drivers/gpu/drm/nouveau/nouveau_connector.c              |  2 +-
- drivers/gpu/drm/qxl/qxl_display.c                        |  2 +-
- drivers/gpu/drm/radeon/atombios_dp.c                     |  2 +-
- drivers/gpu/drm/radeon/radeon_connectors.c               | 10 +++++-----
- drivers/gpu/drm/radeon/radeon_mode.h                     |  2 +-
- drivers/gpu/drm/rockchip/cdn-dp-core.c                   |  2 +-
- drivers/gpu/drm/rockchip/inno_hdmi.c                     |  4 ++--
- drivers/gpu/drm/rockchip/rk3066_hdmi.c                   |  2 +-
- drivers/gpu/drm/sti/sti_dvo.c                            |  2 +-
- drivers/gpu/drm/sti/sti_hda.c                            |  2 +-
- drivers/gpu/drm/sti/sti_hdmi.c                           |  2 +-
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c                   |  2 +-
- drivers/gpu/drm/tegra/dsi.c                              |  2 +-
- drivers/gpu/drm/tegra/hdmi.c                             |  2 +-
- drivers/gpu/drm/tegra/sor.c                              |  2 +-
- drivers/gpu/drm/vc4/vc4_txp.c                            |  2 +-
- drivers/gpu/drm/virtio/virtgpu_display.c                 |  2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.c                      |  2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.h                      |  2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c                     |  2 +-
- include/drm/drm_modeset_helper_vtables.h                 |  2 +-
- 64 files changed, 71 insertions(+), 78 deletions(-)
+I was hesitant to delete it because I thought someone may still have
+a use for a header file that (mostly) reflects the TLFS document and
+nothing more.
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 344e0a9ee08a99a7e874e4ed31c28901b7ea25b0..5e375e9c4f5de3883797f06a0c4bea26bf3d1795 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -674,7 +674,7 @@ static int amdgpu_connector_lvds_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status amdgpu_connector_lvds_mode_valid(struct drm_connector *connector,
--					     struct drm_display_mode *mode)
-+					     const struct drm_display_mode *mode)
- {
- 	struct drm_encoder *encoder = amdgpu_connector_best_single_encoder(connector);
- 
-@@ -839,7 +839,7 @@ static int amdgpu_connector_vga_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status amdgpu_connector_vga_mode_valid(struct drm_connector *connector,
--					    struct drm_display_mode *mode)
-+					    const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct amdgpu_device *adev = drm_to_adev(dev);
-@@ -1196,7 +1196,7 @@ static void amdgpu_connector_dvi_force(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status amdgpu_connector_dvi_mode_valid(struct drm_connector *connector,
--					    struct drm_display_mode *mode)
-+					    const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct amdgpu_device *adev = drm_to_adev(dev);
-@@ -1464,7 +1464,7 @@ amdgpu_connector_dp_detect(struct drm_connector *connector, bool force)
- }
- 
- static enum drm_mode_status amdgpu_connector_dp_mode_valid(struct drm_connector *connector,
--					   struct drm_display_mode *mode)
-+					   const struct drm_display_mode *mode)
- {
- 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
- 	struct amdgpu_connector_atom_dig *amdgpu_dig_connector = amdgpu_connector->con_priv;
-diff --git a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-index 622634c08c7b56dce527b37c2d8b479abc58420c..521b9faab18059ed92ebb1dc9a9847e8426e7403 100644
---- a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-@@ -430,7 +430,7 @@ void amdgpu_atombios_dp_set_link_config(struct drm_connector *connector,
- }
- 
- int amdgpu_atombios_dp_mode_valid_helper(struct drm_connector *connector,
--				  struct drm_display_mode *mode)
-+				  const struct drm_display_mode *mode)
- {
- 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
- 	struct amdgpu_connector_atom_dig *dig_connector;
-diff --git a/drivers/gpu/drm/amd/amdgpu/atombios_dp.h b/drivers/gpu/drm/amd/amdgpu/atombios_dp.h
-index f59d85eaddf022d5b227e33bc8d3af418781f6d6..3e24acf8133f3a7f2d86f07048b1a8c67a4a8263 100644
---- a/drivers/gpu/drm/amd/amdgpu/atombios_dp.h
-+++ b/drivers/gpu/drm/amd/amdgpu/atombios_dp.h
-@@ -32,7 +32,7 @@ int amdgpu_atombios_dp_get_panel_mode(struct drm_encoder *encoder,
- void amdgpu_atombios_dp_set_link_config(struct drm_connector *connector,
- 				 const struct drm_display_mode *mode);
- int amdgpu_atombios_dp_mode_valid_helper(struct drm_connector *connector,
--				  struct drm_display_mode *mode);
-+				  const struct drm_display_mode *mode);
- bool amdgpu_atombios_dp_needs_link_train(struct amdgpu_connector *amdgpu_connector);
- void amdgpu_atombios_dp_set_rx_power_state(struct drm_connector *connector,
- 				    u8 power_state);
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index d0ca905e91eafe6c53f3f2ebdf3f2ae9589d7f89..260426ba680c9e8120edfe36a28e6e6c34cd9a3a 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -7377,7 +7377,7 @@ create_validate_stream_for_sink(struct amdgpu_dm_connector *aconnector,
- }
- 
- enum drm_mode_status amdgpu_dm_connector_mode_valid(struct drm_connector *connector,
--				   struct drm_display_mode *mode)
-+				   const struct drm_display_mode *mode)
- {
- 	int result = MODE_ERROR;
- 	struct dc_sink *dc_sink;
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-index 25e95775c45c10ec1fb72f062204109d3b2e5efa..32856b848052efba0b26e257cc823ceae8c066c8 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -945,7 +945,7 @@ void amdgpu_dm_connector_init_helper(struct amdgpu_display_manager *dm,
- 				     int link_index);
- 
- enum drm_mode_status amdgpu_dm_connector_mode_valid(struct drm_connector *connector,
--				   struct drm_display_mode *mode);
-+				   const struct drm_display_mode *mode);
- 
- void dm_restore_drm_connector_state(struct drm_device *dev,
- 				    struct drm_connector *connector);
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c b/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c
-index ebccb74306a765d524401c5fbbad32439366fbcb..e075a6b317cc23122238a79b1eb62f68a5074e81 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c
-@@ -88,7 +88,7 @@ komeda_wb_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- komeda_wb_connector_mode_valid(struct drm_connector *connector,
--			       struct drm_display_mode *mode)
-+			       const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct drm_mode_config *mode_config = &dev->mode_config;
-diff --git a/drivers/gpu/drm/arm/malidp_mw.c b/drivers/gpu/drm/arm/malidp_mw.c
-index 2577f0cef8fcda497efa91ed5dbce9c2a40587c7..600af5ad81b15d0c30f9f79588f40cca07437ed8 100644
---- a/drivers/gpu/drm/arm/malidp_mw.c
-+++ b/drivers/gpu/drm/arm/malidp_mw.c
-@@ -43,7 +43,7 @@ static int malidp_mw_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- malidp_mw_connector_mode_valid(struct drm_connector *connector,
--			       struct drm_display_mode *mode)
-+			       const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct drm_mode_config *mode_config = &dev->mode_config;
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index eb5919b382635e5e0b8fb70bcc2cc6de1a059187..fda66e7876b86f6dfc1ed0f781cd9c184e380090 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -847,7 +847,7 @@ static int adv7511_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- adv7511_connector_mode_valid(struct drm_connector *connector,
--			     struct drm_display_mode *mode)
-+			     const struct drm_display_mode *mode)
- {
- 	struct adv7511 *adv = connector_to_adv7511(connector);
- 
-diff --git a/drivers/gpu/drm/bridge/cadence/cdns-mhdp8546-core.c b/drivers/gpu/drm/bridge/cadence/cdns-mhdp8546-core.c
-index 41f72d458487fb27a34f2fa475c51de55725bc23..3b9e265e874719a3a8d21ea735bd7a877b47c7a7 100644
---- a/drivers/gpu/drm/bridge/cadence/cdns-mhdp8546-core.c
-+++ b/drivers/gpu/drm/bridge/cadence/cdns-mhdp8546-core.c
-@@ -1619,7 +1619,7 @@ bool cdns_mhdp_bandwidth_ok(struct cdns_mhdp_device *mhdp,
- 
- static
- enum drm_mode_status cdns_mhdp_mode_valid(struct drm_connector *conn,
--					  struct drm_display_mode *mode)
-+					  const struct drm_display_mode *mode)
- {
- 	struct cdns_mhdp_device *mhdp = connector_to_mhdp(conn);
- 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index 37f1acf5c0f83ded2fb3d83150dc05cb6cfd2432..3760ccfe54d0826053eb899c5b14f9c8026702a2 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -115,16 +115,9 @@ static int ge_b850v3_lvds_get_modes(struct drm_connector *connector)
- 	return num_modes;
- }
- 
--static enum drm_mode_status ge_b850v3_lvds_mode_valid(
--		struct drm_connector *connector, struct drm_display_mode *mode)
--{
--	return MODE_OK;
--}
--
- static const struct
- drm_connector_helper_funcs ge_b850v3_lvds_connector_helper_funcs = {
- 	.get_modes = ge_b850v3_lvds_get_modes,
--	.mode_valid = ge_b850v3_lvds_mode_valid,
- };
- 
- static enum drm_connector_status ge_b850v3_lvds_bridge_detect(struct drm_bridge *bridge)
-diff --git a/drivers/gpu/drm/drm_crtc_helper_internal.h b/drivers/gpu/drm/drm_crtc_helper_internal.h
-index 8059f65c5d6c46014a3b510069730c6ac079f7bc..bae73936acf9bae97acb0d4f9554f963303907ca 100644
---- a/drivers/gpu/drm/drm_crtc_helper_internal.h
-+++ b/drivers/gpu/drm/drm_crtc_helper_internal.h
-@@ -43,7 +43,7 @@ enum drm_mode_status drm_encoder_mode_valid(struct drm_encoder *encoder,
- 					    const struct drm_display_mode *mode);
- int
- drm_connector_mode_valid(struct drm_connector *connector,
--			 struct drm_display_mode *mode,
-+			 const struct drm_display_mode *mode,
- 			 struct drm_modeset_acquire_ctx *ctx,
- 			 enum drm_mode_status *status);
- 
-diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
-index 96b266b37ba49539dfc9b1af13b5e803526ee40a..080b552006141489d8d3fd985f737714820aa3a6 100644
---- a/drivers/gpu/drm/drm_probe_helper.c
-+++ b/drivers/gpu/drm/drm_probe_helper.c
-@@ -202,7 +202,7 @@ enum drm_mode_status drm_encoder_mode_valid(struct drm_encoder *encoder,
- 
- int
- drm_connector_mode_valid(struct drm_connector *connector,
--			 struct drm_display_mode *mode,
-+			 const struct drm_display_mode *mode,
- 			 struct drm_modeset_acquire_ctx *ctx,
- 			 enum drm_mode_status *status)
- {
-diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
-index c9d4b9146df95bb46cb6bea4849c331616c2b463..683409f7abafa9ee95b25d37f74724de2477a4c1 100644
---- a/drivers/gpu/drm/exynos/exynos_hdmi.c
-+++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
-@@ -931,7 +931,7 @@ static int hdmi_find_phy_conf(struct hdmi_context *hdata, u32 pixel_clock)
- }
- 
- static enum drm_mode_status hdmi_mode_valid(struct drm_connector *connector,
--					    struct drm_display_mode *mode)
-+					    const struct drm_display_mode *mode)
- {
- 	struct hdmi_context *hdata = connector_to_hdmi(connector);
- 	int ret;
-diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-index 2c2b92324a2e90fe13dcfa889986f00419c4be60..048b747d6871400ffa748458762b0721a5c1cad6 100644
---- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-+++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-@@ -62,7 +62,7 @@ static int fsl_dcu_drm_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
--				 struct drm_display_mode *mode)
-+				 const struct drm_display_mode *mode)
- {
- 	if (mode->hdisplay & 0xf)
- 		return MODE_ERROR;
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_crt.c b/drivers/gpu/drm/gma500/cdv_intel_crt.c
-index 5a0acd914f769a970f3be12176dfd0bcbd8cee17..06fe7480e7afd1d67ee2be45b872604830913aff 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_crt.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_crt.c
-@@ -69,7 +69,7 @@ static void cdv_intel_crt_dpms(struct drm_encoder *encoder, int mode)
- }
- 
- static enum drm_mode_status cdv_intel_crt_mode_valid(struct drm_connector *connector,
--				struct drm_display_mode *mode)
-+				const struct drm_display_mode *mode)
- {
- 	if (mode->flags & DRM_MODE_FLAG_DBLSCAN)
- 		return MODE_NO_DBLESCAN;
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-index cc2ed9b3fd2d22aa9d02983cf7059823f80ef366..53990d27c39faca906e960f4ad5a9e614c002990 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
-@@ -505,7 +505,7 @@ static void cdv_intel_edp_backlight_off (struct gma_encoder *intel_encoder)
- 
- static enum drm_mode_status
- cdv_intel_dp_mode_valid(struct drm_connector *connector,
--		    struct drm_display_mode *mode)
-+		    const struct drm_display_mode *mode)
- {
- 	struct gma_encoder *encoder = gma_attached_encoder(connector);
- 	struct cdv_intel_dp *intel_dp = encoder->dev_priv;
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
-index 2d95e04712911afcb2a1c03ce88428daf71dbb74..f2a3e37ef63289876182821f688348e05b7e224e 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
-@@ -222,7 +222,7 @@ static int cdv_hdmi_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status cdv_hdmi_mode_valid(struct drm_connector *connector,
--				 struct drm_display_mode *mode)
-+				 const struct drm_display_mode *mode)
- {
- 	if (mode->clock > 165000)
- 		return MODE_CLOCK_HIGH;
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_lvds.c b/drivers/gpu/drm/gma500/cdv_intel_lvds.c
-index f3a4517bdf27cef18041d2c533bc3543a0cc371e..9276e3676ba0503e4ed50e67efd51c6fc2311669 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_lvds.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_lvds.c
-@@ -153,7 +153,7 @@ static void cdv_intel_lvds_restore(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status cdv_intel_lvds_mode_valid(struct drm_connector *connector,
--			      struct drm_display_mode *mode)
-+			      const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct drm_psb_private *dev_priv = to_drm_psb_private(dev);
-diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi.c b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
-index ed8626c73541c13b1c04da26c096cf94f80524a6..1cf3943691277660d1d376a1894a5523362f0808 100644
---- a/drivers/gpu/drm/gma500/oaktrail_hdmi.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
-@@ -514,7 +514,7 @@ static void oaktrail_hdmi_dpms(struct drm_encoder *encoder, int mode)
- }
- 
- static enum drm_mode_status oaktrail_hdmi_mode_valid(struct drm_connector *connector,
--				struct drm_display_mode *mode)
-+				const struct drm_display_mode *mode)
- {
- 	if (mode->clock > 165000)
- 		return MODE_CLOCK_HIGH;
-diff --git a/drivers/gpu/drm/gma500/psb_intel_drv.h b/drivers/gpu/drm/gma500/psb_intel_drv.h
-index 2499fd6a80c9d81541a0a137e85fd5e974c7b021..9dc9dcd1b09f79b3e7a7d1c28e48afd82cd60da3 100644
---- a/drivers/gpu/drm/gma500/psb_intel_drv.h
-+++ b/drivers/gpu/drm/gma500/psb_intel_drv.h
-@@ -212,7 +212,7 @@ extern bool psb_intel_lvds_mode_fixup(struct drm_encoder *encoder,
- 				      const struct drm_display_mode *mode,
- 				      struct drm_display_mode *adjusted_mode);
- extern enum drm_mode_status psb_intel_lvds_mode_valid(struct drm_connector *connector,
--				     struct drm_display_mode *mode);
-+				     const struct drm_display_mode *mode);
- extern int psb_intel_lvds_set_property(struct drm_connector *connector,
- 					struct drm_property *property,
- 					uint64_t value);
-diff --git a/drivers/gpu/drm/gma500/psb_intel_lvds.c b/drivers/gpu/drm/gma500/psb_intel_lvds.c
-index 138f153d38ba354b2632eb39f559e1dad003ebf8..9ad611b5956eb4a289f7ba7f86ee94c0068ef5f1 100644
---- a/drivers/gpu/drm/gma500/psb_intel_lvds.c
-+++ b/drivers/gpu/drm/gma500/psb_intel_lvds.c
-@@ -331,7 +331,7 @@ static void psb_intel_lvds_restore(struct drm_connector *connector)
- }
- 
- enum drm_mode_status psb_intel_lvds_mode_valid(struct drm_connector *connector,
--				 struct drm_display_mode *mode)
-+				 const struct drm_display_mode *mode)
- {
- 	struct drm_psb_private *dev_priv = to_drm_psb_private(connector->dev);
- 	struct gma_encoder *gma_encoder = gma_attached_encoder(connector);
-diff --git a/drivers/gpu/drm/gma500/psb_intel_sdvo.c b/drivers/gpu/drm/gma500/psb_intel_sdvo.c
-index 8dafff963ca8bc169706c283fa1504958d69a72e..afda40fc449470b1ba3244b3d236db12ee61d452 100644
---- a/drivers/gpu/drm/gma500/psb_intel_sdvo.c
-+++ b/drivers/gpu/drm/gma500/psb_intel_sdvo.c
-@@ -1159,7 +1159,7 @@ static void psb_intel_sdvo_dpms(struct drm_encoder *encoder, int mode)
- }
- 
- static enum drm_mode_status psb_intel_sdvo_mode_valid(struct drm_connector *connector,
--				 struct drm_display_mode *mode)
-+				 const struct drm_display_mode *mode)
- {
- 	struct psb_intel_sdvo *psb_intel_sdvo = intel_attached_sdvo(connector);
- 
-diff --git a/drivers/gpu/drm/i915/display/dvo_ch7017.c b/drivers/gpu/drm/i915/display/dvo_ch7017.c
-index 493e730c685b80055ad81a615a4a36d30d00cd17..206818f9ad49e6a6876d4e179f34ce7d8369fd06 100644
---- a/drivers/gpu/drm/i915/display/dvo_ch7017.c
-+++ b/drivers/gpu/drm/i915/display/dvo_ch7017.c
-@@ -247,7 +247,7 @@ static enum drm_connector_status ch7017_detect(struct intel_dvo_device *dvo)
- }
- 
- static enum drm_mode_status ch7017_mode_valid(struct intel_dvo_device *dvo,
--					      struct drm_display_mode *mode)
-+					      const struct drm_display_mode *mode)
- {
- 	if (mode->clock > 160000)
- 		return MODE_CLOCK_HIGH;
-diff --git a/drivers/gpu/drm/i915/display/dvo_ch7xxx.c b/drivers/gpu/drm/i915/display/dvo_ch7xxx.c
-index 534b8544e0a41ddd5761610f63f890d6d42ac6bd..10ab3cc73e586492aa7bc0d767d7fcd57f72db25 100644
---- a/drivers/gpu/drm/i915/display/dvo_ch7xxx.c
-+++ b/drivers/gpu/drm/i915/display/dvo_ch7xxx.c
-@@ -276,7 +276,7 @@ static enum drm_connector_status ch7xxx_detect(struct intel_dvo_device *dvo)
- }
- 
- static enum drm_mode_status ch7xxx_mode_valid(struct intel_dvo_device *dvo,
--					      struct drm_display_mode *mode)
-+					      const struct drm_display_mode *mode)
- {
- 	if (mode->clock > 165000)
- 		return MODE_CLOCK_HIGH;
-diff --git a/drivers/gpu/drm/i915/display/dvo_ivch.c b/drivers/gpu/drm/i915/display/dvo_ivch.c
-index 0d5cce6051b1b8451a6da38e54da5e1cd6cd7eaf..d9c3152d4338fbf3ba97ac69c3bd11a285c10c4e 100644
---- a/drivers/gpu/drm/i915/display/dvo_ivch.c
-+++ b/drivers/gpu/drm/i915/display/dvo_ivch.c
-@@ -314,7 +314,7 @@ static enum drm_connector_status ivch_detect(struct intel_dvo_device *dvo)
- }
- 
- static enum drm_mode_status ivch_mode_valid(struct intel_dvo_device *dvo,
--					    struct drm_display_mode *mode)
-+					    const struct drm_display_mode *mode)
- {
- 	if (mode->clock > 112000)
- 		return MODE_CLOCK_HIGH;
-diff --git a/drivers/gpu/drm/i915/display/dvo_ns2501.c b/drivers/gpu/drm/i915/display/dvo_ns2501.c
-index 9d47f8a93e94b5da3dd7afaa9cd268c8b1260751..cb619ffc974f28c2ed931e8ace2cda1eab6c84c7 100644
---- a/drivers/gpu/drm/i915/display/dvo_ns2501.c
-+++ b/drivers/gpu/drm/i915/display/dvo_ns2501.c
-@@ -524,7 +524,7 @@ static enum drm_connector_status ns2501_detect(struct intel_dvo_device *dvo)
- }
- 
- static enum drm_mode_status ns2501_mode_valid(struct intel_dvo_device *dvo,
--					      struct drm_display_mode *mode)
-+					      const struct drm_display_mode *mode)
- {
- 	DRM_DEBUG_KMS
- 	    ("is mode valid (hdisplay=%d,htotal=%d,vdisplay=%d,vtotal=%d)\n",
-diff --git a/drivers/gpu/drm/i915/display/dvo_sil164.c b/drivers/gpu/drm/i915/display/dvo_sil164.c
-index a8dd40c0099703484b3ed6154fa9df948c5f9128..b42c717085f316a1e887340a36b5bd6090099789 100644
---- a/drivers/gpu/drm/i915/display/dvo_sil164.c
-+++ b/drivers/gpu/drm/i915/display/dvo_sil164.c
-@@ -189,7 +189,7 @@ static enum drm_connector_status sil164_detect(struct intel_dvo_device *dvo)
- }
- 
- static enum drm_mode_status sil164_mode_valid(struct intel_dvo_device *dvo,
--					      struct drm_display_mode *mode)
-+					      const struct drm_display_mode *mode)
- {
- 	return MODE_OK;
- }
-diff --git a/drivers/gpu/drm/i915/display/dvo_tfp410.c b/drivers/gpu/drm/i915/display/dvo_tfp410.c
-index d9a0cd753a878db8fda9fb537dd8f7ca4036c7e8..280699438526790b76f0bbf7a5d73aa109546558 100644
---- a/drivers/gpu/drm/i915/display/dvo_tfp410.c
-+++ b/drivers/gpu/drm/i915/display/dvo_tfp410.c
-@@ -217,7 +217,7 @@ static enum drm_connector_status tfp410_detect(struct intel_dvo_device *dvo)
- }
- 
- static enum drm_mode_status tfp410_mode_valid(struct intel_dvo_device *dvo,
--					      struct drm_display_mode *mode)
-+					      const struct drm_display_mode *mode)
- {
- 	return MODE_OK;
- }
-diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
-index 87a27d91d15dc9e28fe95548942a17a5ad1bb0b4..644efaa89c855beae30abb7b9a78c5d167dab27b 100644
---- a/drivers/gpu/drm/i915/display/icl_dsi.c
-+++ b/drivers/gpu/drm/i915/display/icl_dsi.c
-@@ -1451,7 +1451,7 @@ static void gen11_dsi_post_disable(struct intel_atomic_state *state,
- }
- 
- static enum drm_mode_status gen11_dsi_mode_valid(struct drm_connector *connector,
--						 struct drm_display_mode *mode)
-+						 const struct drm_display_mode *mode)
- {
- 	struct drm_i915_private *i915 = to_i915(connector->dev);
- 	enum drm_mode_status status;
-diff --git a/drivers/gpu/drm/i915/display/intel_crt.c b/drivers/gpu/drm/i915/display/intel_crt.c
-index fd78adbaadbe82ae7dbaaee1f4a1175ede81932d..2cda689a8f4f5a677aade0ac6b705be9ca62bf64 100644
---- a/drivers/gpu/drm/i915/display/intel_crt.c
-+++ b/drivers/gpu/drm/i915/display/intel_crt.c
-@@ -344,7 +344,7 @@ static void intel_enable_crt(struct intel_atomic_state *state,
- 
- static enum drm_mode_status
- intel_crt_mode_valid(struct drm_connector *connector,
--		     struct drm_display_mode *mode)
-+		     const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct drm_i915_private *dev_priv = to_i915(dev);
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index fbb096be02ade5e4bb36e65f197705d90dfa8a55..66ec69ee73b370d67d1da21b71f42fa326dcfa15 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -1366,7 +1366,7 @@ bool intel_dp_has_dsc(const struct intel_connector *connector)
- 
- static enum drm_mode_status
- intel_dp_mode_valid(struct drm_connector *_connector,
--		    struct drm_display_mode *mode)
-+		    const struct drm_display_mode *mode)
- {
- 	struct intel_connector *connector = to_intel_connector(_connector);
- 	struct intel_dp *intel_dp = intel_attached_dp(connector);
-diff --git a/drivers/gpu/drm/i915/display/intel_dsi.c b/drivers/gpu/drm/i915/display/intel_dsi.c
-index 0be46c6c9611f7c386a052ad8b79f4924727b892..c93a3cf75c52cc2bf2f4ba85b0cdef9e3a8ebd76 100644
---- a/drivers/gpu/drm/i915/display/intel_dsi.c
-+++ b/drivers/gpu/drm/i915/display/intel_dsi.c
-@@ -58,7 +58,7 @@ int intel_dsi_get_modes(struct drm_connector *connector)
- }
- 
- enum drm_mode_status intel_dsi_mode_valid(struct drm_connector *connector,
--					  struct drm_display_mode *mode)
-+					  const struct drm_display_mode *mode)
- {
- 	struct drm_i915_private *dev_priv = to_i915(connector->dev);
- 	struct intel_connector *intel_connector = to_intel_connector(connector);
-diff --git a/drivers/gpu/drm/i915/display/intel_dsi.h b/drivers/gpu/drm/i915/display/intel_dsi.h
-index e8ba4ccd99d3c76e220415a3bb638c87689f6dca..89c7166a3860bb76b19e0afac1ce047f70cc0630 100644
---- a/drivers/gpu/drm/i915/display/intel_dsi.h
-+++ b/drivers/gpu/drm/i915/display/intel_dsi.h
-@@ -165,7 +165,7 @@ enum drm_panel_orientation
- intel_dsi_get_panel_orientation(struct intel_connector *connector);
- int intel_dsi_get_modes(struct drm_connector *connector);
- enum drm_mode_status intel_dsi_mode_valid(struct drm_connector *connector,
--					  struct drm_display_mode *mode);
-+					  const struct drm_display_mode *mode);
- struct intel_dsi_host *intel_dsi_host_init(struct intel_dsi *intel_dsi,
- 					   const struct mipi_dsi_host_ops *funcs,
- 					   enum port port);
-diff --git a/drivers/gpu/drm/i915/display/intel_dvo.c b/drivers/gpu/drm/i915/display/intel_dvo.c
-index 9508ceae0d846c3a8255653b38ebbcb5dc4bc233..2ecbad6f41a5ad64f7aa7fab50cbf20eda4efde2 100644
---- a/drivers/gpu/drm/i915/display/intel_dvo.c
-+++ b/drivers/gpu/drm/i915/display/intel_dvo.c
-@@ -217,7 +217,7 @@ static void intel_enable_dvo(struct intel_atomic_state *state,
- 
- static enum drm_mode_status
- intel_dvo_mode_valid(struct drm_connector *_connector,
--		     struct drm_display_mode *mode)
-+		     const struct drm_display_mode *mode)
- {
- 	struct intel_connector *connector = to_intel_connector(_connector);
- 	struct drm_i915_private *i915 = to_i915(connector->base.dev);
-diff --git a/drivers/gpu/drm/i915/display/intel_dvo_dev.h b/drivers/gpu/drm/i915/display/intel_dvo_dev.h
-index 4bf476656b8cd2eb6c401fbc2101006c0927df24..d20667870e50f00356b5c1cf6f87c481916d23f0 100644
---- a/drivers/gpu/drm/i915/display/intel_dvo_dev.h
-+++ b/drivers/gpu/drm/i915/display/intel_dvo_dev.h
-@@ -71,7 +71,7 @@ struct intel_dvo_dev_ops {
- 	 * \return MODE_OK if the mode is valid, or another MODE_* otherwise.
- 	 */
- 	enum drm_mode_status (*mode_valid)(struct intel_dvo_device *dvo,
--					   struct drm_display_mode *mode);
-+					   const struct drm_display_mode *mode);
- 
- 	/*
- 	 * Callback for setting up a video mode after fixups have been made.
-diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.c b/drivers/gpu/drm/i915/display/intel_hdmi.c
-index 72ac910bf6ec4baf440e24d91e43b2217e67451e..848aebaa6b08bbb8b1defaede7aa5ae98a2c35f3 100644
---- a/drivers/gpu/drm/i915/display/intel_hdmi.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
-@@ -2000,7 +2000,7 @@ intel_hdmi_mode_clock_valid(struct drm_connector *connector, int clock,
- 
- static enum drm_mode_status
- intel_hdmi_mode_valid(struct drm_connector *connector,
--		      struct drm_display_mode *mode)
-+		      const struct drm_display_mode *mode)
- {
- 	struct intel_display *display = to_intel_display(connector->dev);
- 	struct intel_hdmi *hdmi = intel_attached_hdmi(to_intel_connector(connector));
-diff --git a/drivers/gpu/drm/i915/display/intel_lvds.c b/drivers/gpu/drm/i915/display/intel_lvds.c
-index 5f753ee743c610cd2408fcc926a3cda178ef4c00..6928ae41a36f359cf920df284b128ade7e653368 100644
---- a/drivers/gpu/drm/i915/display/intel_lvds.c
-+++ b/drivers/gpu/drm/i915/display/intel_lvds.c
-@@ -388,7 +388,7 @@ static void intel_lvds_shutdown(struct intel_encoder *encoder)
- 
- static enum drm_mode_status
- intel_lvds_mode_valid(struct drm_connector *_connector,
--		      struct drm_display_mode *mode)
-+		      const struct drm_display_mode *mode)
- {
- 	struct intel_connector *connector = to_intel_connector(_connector);
- 	struct drm_i915_private *i915 = to_i915(connector->base.dev);
-diff --git a/drivers/gpu/drm/i915/display/intel_sdvo.c b/drivers/gpu/drm/i915/display/intel_sdvo.c
-index b83bf813677d53194af97dcbccaf10bd00fa0147..03a3b83c5dbac9c4b7a458b65c066072e856b08f 100644
---- a/drivers/gpu/drm/i915/display/intel_sdvo.c
-+++ b/drivers/gpu/drm/i915/display/intel_sdvo.c
-@@ -1938,7 +1938,7 @@ static void intel_enable_sdvo(struct intel_atomic_state *state,
- 
- static enum drm_mode_status
- intel_sdvo_mode_valid(struct drm_connector *connector,
--		      struct drm_display_mode *mode)
-+		      const struct drm_display_mode *mode)
- {
- 	struct drm_i915_private *i915 = to_i915(connector->dev);
- 	struct intel_sdvo *intel_sdvo = intel_attached_sdvo(to_intel_connector(connector));
-diff --git a/drivers/gpu/drm/i915/display/intel_tv.c b/drivers/gpu/drm/i915/display/intel_tv.c
-index e40aff490486336c8f7399c9e81795aff40b5e40..104a928b8249064bd77fe65f81c1332254656d21 100644
---- a/drivers/gpu/drm/i915/display/intel_tv.c
-+++ b/drivers/gpu/drm/i915/display/intel_tv.c
-@@ -957,7 +957,7 @@ static const struct tv_mode *intel_tv_mode_find(const struct drm_connector_state
- 
- static enum drm_mode_status
- intel_tv_mode_valid(struct drm_connector *connector,
--		    struct drm_display_mode *mode)
-+		    const struct drm_display_mode *mode)
- {
- 	struct intel_display *display = to_intel_display(connector->dev);
- 	struct drm_i915_private *i915 = to_i915(connector->dev);
-diff --git a/drivers/gpu/drm/i915/display/vlv_dsi.c b/drivers/gpu/drm/i915/display/vlv_dsi.c
-index 32d15bd9a358350694503cee5f4c0632c4d6cd6e..3a9332f2c91300183709e14286e509d7a8d22f55 100644
---- a/drivers/gpu/drm/i915/display/vlv_dsi.c
-+++ b/drivers/gpu/drm/i915/display/vlv_dsi.c
-@@ -1541,7 +1541,7 @@ static const struct drm_encoder_funcs intel_dsi_funcs = {
- };
- 
- static enum drm_mode_status vlv_dsi_mode_valid(struct drm_connector *connector,
--					       struct drm_display_mode *mode)
-+					       const struct drm_display_mode *mode)
- {
- 	struct drm_i915_private *i915 = to_i915(connector->dev);
- 
-diff --git a/drivers/gpu/drm/imx/ipuv3/imx-tve.c b/drivers/gpu/drm/imx/ipuv3/imx-tve.c
-index d46d07d25f51795b1a569adafb51b9896e0b77d4..bdebd11cb7b1f534ac9f5a6613ded195c789e132 100644
---- a/drivers/gpu/drm/imx/ipuv3/imx-tve.c
-+++ b/drivers/gpu/drm/imx/ipuv3/imx-tve.c
-@@ -217,7 +217,7 @@ static int imx_tve_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- imx_tve_connector_mode_valid(struct drm_connector *connector,
--			     struct drm_display_mode *mode)
-+			     const struct drm_display_mode *mode)
- {
- 	struct imx_tve *tve = con_to_tve(connector);
- 	unsigned long rate;
-diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c
-index 7444b75c4215794f544553d7dee552718dad947d..52e728181b523cc3380d7718b5956e7e2dbd4cad 100644
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c
-@@ -58,7 +58,7 @@ static int mdp4_lvds_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- mdp4_lvds_connector_mode_valid(struct drm_connector *connector,
--			       struct drm_display_mode *mode)
-+			       const struct drm_display_mode *mode)
- {
- 	struct mdp4_lvds_connector *mdp4_lvds_connector =
- 			to_mdp4_lvds_connector(connector);
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-index eed579a6c858b658e0ce4c90670c057bd05d27e4..ad88041a1c75e1bc4872b64c219d375a47deda74 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -1142,7 +1142,7 @@ nv50_mstc_atomic_best_encoder(struct drm_connector *connector,
- 
- static enum drm_mode_status
- nv50_mstc_mode_valid(struct drm_connector *connector,
--		     struct drm_display_mode *mode)
-+		     const struct drm_display_mode *mode)
- {
- 	struct nv50_mstc *mstc = nv50_mstc(connector);
- 	struct nouveau_encoder *outp = mstc->mstm->outp;
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
-index 8d5c9c74cbb90927036cee75f173f687617f14ec..2d26784bde74c0909ad69af61166821a7f3c114d 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -1074,7 +1074,7 @@ get_tmds_link_bandwidth(struct drm_connector *connector)
- 
- static enum drm_mode_status
- nouveau_connector_mode_valid(struct drm_connector *connector,
--			     struct drm_display_mode *mode)
-+			     const struct drm_display_mode *mode)
- {
- 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
- 	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index bc24af08dfcd559e77e0e48aef140b714a992976..70aff64ced87a09fd6f678ad9d794e875d2c8353 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1044,7 +1044,7 @@ static int qxl_conn_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status qxl_conn_mode_valid(struct drm_connector *connector,
--			       struct drm_display_mode *mode)
-+			       const struct drm_display_mode *mode)
- {
- 	struct drm_device *ddev = connector->dev;
- 	struct qxl_device *qdev = to_qxl(ddev);
-diff --git a/drivers/gpu/drm/radeon/atombios_dp.c b/drivers/gpu/drm/radeon/atombios_dp.c
-index 6328627b7c342cefb2f0b2c3aafcb688f2db4482..fa78824931cc428b1f9e23fe8f98867136ef9883 100644
---- a/drivers/gpu/drm/radeon/atombios_dp.c
-+++ b/drivers/gpu/drm/radeon/atombios_dp.c
-@@ -467,7 +467,7 @@ void radeon_dp_set_link_config(struct drm_connector *connector,
- }
- 
- int radeon_dp_mode_valid_helper(struct drm_connector *connector,
--				struct drm_display_mode *mode)
-+				const struct drm_display_mode *mode)
- {
- 	struct radeon_connector *radeon_connector = to_radeon_connector(connector);
- 	struct radeon_connector_atom_dig *dig_connector;
-diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
-index f9c73c55f04f76ed5c78e9169004f8a7dea6004e..3ec58df0f534afcad09a161fe643bd47c3ca1c7a 100644
---- a/drivers/gpu/drm/radeon/radeon_connectors.c
-+++ b/drivers/gpu/drm/radeon/radeon_connectors.c
-@@ -806,7 +806,7 @@ static int radeon_lvds_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status radeon_lvds_mode_valid(struct drm_connector *connector,
--				  struct drm_display_mode *mode)
-+				  const struct drm_display_mode *mode)
- {
- 	struct drm_encoder *encoder = radeon_best_single_encoder(connector);
- 
-@@ -968,7 +968,7 @@ static int radeon_vga_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status radeon_vga_mode_valid(struct drm_connector *connector,
--				  struct drm_display_mode *mode)
-+				  const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct radeon_device *rdev = dev->dev_private;
-@@ -1116,7 +1116,7 @@ static int radeon_tv_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status radeon_tv_mode_valid(struct drm_connector *connector,
--				struct drm_display_mode *mode)
-+				const struct drm_display_mode *mode)
- {
- 	if ((mode->hdisplay > 1024) || (mode->vdisplay > 768))
- 		return MODE_CLOCK_RANGE;
-@@ -1457,7 +1457,7 @@ static void radeon_dvi_force(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status radeon_dvi_mode_valid(struct drm_connector *connector,
--				  struct drm_display_mode *mode)
-+				  const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct radeon_device *rdev = dev->dev_private;
-@@ -1733,7 +1733,7 @@ radeon_dp_detect(struct drm_connector *connector, bool force)
- }
- 
- static enum drm_mode_status radeon_dp_mode_valid(struct drm_connector *connector,
--				  struct drm_display_mode *mode)
-+				  const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct radeon_device *rdev = dev->dev_private;
-diff --git a/drivers/gpu/drm/radeon/radeon_mode.h b/drivers/gpu/drm/radeon/radeon_mode.h
-index 4063d3801e819ba2726b63225e5f3f7d85eb760f..3102f6c2d0556210c10feff93f2a7103b10beea4 100644
---- a/drivers/gpu/drm/radeon/radeon_mode.h
-+++ b/drivers/gpu/drm/radeon/radeon_mode.h
-@@ -706,7 +706,7 @@ extern int radeon_get_monitor_bpc(struct drm_connector *connector);
- 
- extern void radeon_connector_hotplug(struct drm_connector *connector);
- extern int radeon_dp_mode_valid_helper(struct drm_connector *connector,
--				       struct drm_display_mode *mode);
-+				       const struct drm_display_mode *mode);
- extern void radeon_dp_set_link_config(struct drm_connector *connector,
- 				      const struct drm_display_mode *mode);
- extern void radeon_dp_link_train(struct drm_encoder *encoder,
-diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-index f576b1aa86d1434d75b3770e08d91537aca4f5c4..573b84dbea49bb1071bb704560424ed8fad524ea 100644
---- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
-+++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-@@ -275,7 +275,7 @@ static int cdn_dp_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- cdn_dp_connector_mode_valid(struct drm_connector *connector,
--			    struct drm_display_mode *mode)
-+			    const struct drm_display_mode *mode)
- {
- 	struct cdn_dp_device *dp = connector_to_dp(connector);
- 	struct drm_display_info *display_info = &dp->connector.display_info;
-diff --git a/drivers/gpu/drm/rockchip/inno_hdmi.c b/drivers/gpu/drm/rockchip/inno_hdmi.c
-index 42ef62aa0a1e078d4b1db93eb20c7cc21054df28..a43cd7953bceb3ad8b179bf1cb952c601988018e 100644
---- a/drivers/gpu/drm/rockchip/inno_hdmi.c
-+++ b/drivers/gpu/drm/rockchip/inno_hdmi.c
-@@ -471,7 +471,7 @@ static int inno_hdmi_setup(struct inno_hdmi *hdmi,
- }
- 
- static enum drm_mode_status inno_hdmi_display_mode_valid(struct inno_hdmi *hdmi,
--							 struct drm_display_mode *mode)
-+							 const struct drm_display_mode *mode)
- {
- 	unsigned long mpixelclk, max_tolerance;
- 	long rounded_refclk;
-@@ -577,7 +577,7 @@ static int inno_hdmi_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- inno_hdmi_connector_mode_valid(struct drm_connector *connector,
--			       struct drm_display_mode *mode)
-+			       const struct drm_display_mode *mode)
- {
- 	struct inno_hdmi *hdmi = connector_to_inno_hdmi(connector);
- 
-diff --git a/drivers/gpu/drm/rockchip/rk3066_hdmi.c b/drivers/gpu/drm/rockchip/rk3066_hdmi.c
-index 784de990da1b2c076a7067dcebb6c4a1273a5d5c..fa9da55949a3376fc3df11bd84e4c5f72d6a9063 100644
---- a/drivers/gpu/drm/rockchip/rk3066_hdmi.c
-+++ b/drivers/gpu/drm/rockchip/rk3066_hdmi.c
-@@ -482,7 +482,7 @@ static int rk3066_hdmi_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- rk3066_hdmi_connector_mode_valid(struct drm_connector *connector,
--				 struct drm_display_mode *mode)
-+				 const struct drm_display_mode *mode)
- {
- 	u32 vic = drm_match_cea_mode(mode);
- 
-diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
-index 68b8197b3dd16713a49d97f91498b686fdda21ec..96913232479bbccaf77dd2b35c1eb615d074689d 100644
---- a/drivers/gpu/drm/sti/sti_dvo.c
-+++ b/drivers/gpu/drm/sti/sti_dvo.c
-@@ -349,7 +349,7 @@ static int sti_dvo_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- sti_dvo_connector_mode_valid(struct drm_connector *connector,
--			     struct drm_display_mode *mode)
-+			     const struct drm_display_mode *mode)
- {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
-diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
-index 829dc4b034e8a79a908bda60485c2b94ef96890c..5ab42574e919faa0b643c4f43a8f1100f98e3b93 100644
---- a/drivers/gpu/drm/sti/sti_hda.c
-+++ b/drivers/gpu/drm/sti/sti_hda.c
-@@ -603,7 +603,7 @@ static int sti_hda_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- sti_hda_connector_mode_valid(struct drm_connector *connector,
--			     struct drm_display_mode *mode)
-+			     const struct drm_display_mode *mode)
- {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
-diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
-index 847470f747c0efad61c2ebdc3fb3746a7a13a863..58962e8675a8d5860f725b8a17a7d0268f23168c 100644
---- a/drivers/gpu/drm/sti/sti_hdmi.c
-+++ b/drivers/gpu/drm/sti/sti_hdmi.c
-@@ -1011,7 +1011,7 @@ static int sti_hdmi_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- sti_hdmi_connector_mode_valid(struct drm_connector *connector,
--			      struct drm_display_mode *mode)
-+			      const struct drm_display_mode *mode)
- {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-index b3649449de3026784ae2f3466906403a0b6e3b47..523d32f31e4e1d45ad33e52b22e88900248d0810 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-@@ -207,7 +207,7 @@ static int sun4i_hdmi_connector_atomic_check(struct drm_connector *connector,
- 
- static enum drm_mode_status
- sun4i_hdmi_connector_mode_valid(struct drm_connector *connector,
--				struct drm_display_mode *mode)
-+				const struct drm_display_mode *mode)
- {
- 	unsigned long long rate = drm_hdmi_compute_mode_clock(mode, 8,
- 							      HDMI_COLORSPACE_RGB);
-diff --git a/drivers/gpu/drm/tegra/dsi.c b/drivers/gpu/drm/tegra/dsi.c
-index db606e151afc81e26eaacb36a90389acc3b5a1aa..a4f1ba189baa90d15e84de83e8a9f170459bf07c 100644
---- a/drivers/gpu/drm/tegra/dsi.c
-+++ b/drivers/gpu/drm/tegra/dsi.c
-@@ -812,7 +812,7 @@ static const struct drm_connector_funcs tegra_dsi_connector_funcs = {
- 
- static enum drm_mode_status
- tegra_dsi_connector_mode_valid(struct drm_connector *connector,
--			       struct drm_display_mode *mode)
-+			       const struct drm_display_mode *mode)
- {
- 	return MODE_OK;
- }
-diff --git a/drivers/gpu/drm/tegra/hdmi.c b/drivers/gpu/drm/tegra/hdmi.c
-index 6bf2dae82ca0510ae36304c077946114fb570390..c4f9a86460dda25891aeb1eddde1d517cf7f44ad 100644
---- a/drivers/gpu/drm/tegra/hdmi.c
-+++ b/drivers/gpu/drm/tegra/hdmi.c
-@@ -1137,7 +1137,7 @@ static const struct drm_connector_funcs tegra_hdmi_connector_funcs = {
- 
- static enum drm_mode_status
- tegra_hdmi_connector_mode_valid(struct drm_connector *connector,
--				struct drm_display_mode *mode)
-+				const struct drm_display_mode *mode)
- {
- 	struct tegra_output *output = connector_to_output(connector);
- 	struct tegra_hdmi *hdmi = to_hdmi(output);
-diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index bad3b8fcc72692eaf89fe82e1a0c70abc00a6b79..f85ab0eeeb5f46995323e5c57be0c1bb267cae79 100644
---- a/drivers/gpu/drm/tegra/sor.c
-+++ b/drivers/gpu/drm/tegra/sor.c
-@@ -1789,7 +1789,7 @@ static int tegra_sor_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- tegra_sor_connector_mode_valid(struct drm_connector *connector,
--			       struct drm_display_mode *mode)
-+			       const struct drm_display_mode *mode)
- {
- 	return MODE_OK;
- }
-diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
-index ffe1f7d1b911d35b0b3d50f4ae55634786b8bebd..6059e32b86d16263a5425d0f30a4d86ad571f3ed 100644
---- a/drivers/gpu/drm/vc4/vc4_txp.c
-+++ b/drivers/gpu/drm/vc4/vc4_txp.c
-@@ -192,7 +192,7 @@ static int vc4_txp_connector_get_modes(struct drm_connector *connector)
- 
- static enum drm_mode_status
- vc4_txp_connector_mode_valid(struct drm_connector *connector,
--			     struct drm_display_mode *mode)
-+			     const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct drm_mode_config *mode_config = &dev->mode_config;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 64baf2f22d9f0566511b38f49a6e3225f2acd9ee..59a45e74a64126e8c7b99462111565499fcd12b0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -189,7 +189,7 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
- }
- 
- static enum drm_mode_status virtio_gpu_conn_mode_valid(struct drm_connector *connector,
--				      struct drm_display_mode *mode)
-+				      const struct drm_display_mode *mode)
- {
- 	struct virtio_gpu_output *output =
- 		drm_connector_to_virtio_gpu_output(connector);
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-index f39bf992364da4c264dbff4d56aeb078ca16be29..9cfaa2c5f096127ac10829a5cef0ac81a89be5a7 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-@@ -2658,7 +2658,7 @@ int vmw_du_helper_plane_update(struct vmw_du_update_plane *update)
-  * Returns MODE_OK on success, or a drm_mode_status error code.
-  */
- enum drm_mode_status vmw_connector_mode_valid(struct drm_connector *connector,
--					      struct drm_display_mode *mode)
-+					      const struct drm_display_mode *mode)
- {
- 	enum drm_mode_status ret;
- 	struct drm_device *dev = connector->dev;
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-index 2a6c6d6581e02bb51c9d70cef3ddce1a0f9ecd1a..4eab581883e26d339298fb0fb4386e7dc90c1e6e 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-@@ -435,7 +435,7 @@ int vmw_kms_helper_dirty(struct vmw_private *dev_priv,
- 			 int increment,
- 			 struct vmw_kms_dirty *dirty);
- enum drm_mode_status vmw_connector_mode_valid(struct drm_connector *connector,
--					      struct drm_display_mode *mode);
-+					      const struct drm_display_mode *mode);
- int vmw_connector_get_modes(struct drm_connector *connector);
- 
- void vmw_kms_helper_validation_finish(struct vmw_private *dev_priv,
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c b/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-index 82d18b88f4a7e7aaff2d7123fce1af05754e34d9..cbec3b244eb5483f678f7711d56eeedfed47841b 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-@@ -839,7 +839,7 @@ static void vmw_stdu_connector_destroy(struct drm_connector *connector)
- 
- static enum drm_mode_status
- vmw_stdu_connector_mode_valid(struct drm_connector *connector,
--			      struct drm_display_mode *mode)
-+			      const struct drm_display_mode *mode)
- {
- 	enum drm_mode_status ret;
- 	struct drm_device *dev = connector->dev;
-diff --git a/include/drm/drm_modeset_helper_vtables.h b/include/drm/drm_modeset_helper_vtables.h
-index fa9ee6a128bec0205f501df6f7634757f5fcb9ee..b62f41f489625e5177bdc05eef950e6c18c219fd 100644
---- a/include/drm/drm_modeset_helper_vtables.h
-+++ b/include/drm/drm_modeset_helper_vtables.h
-@@ -967,7 +967,7 @@ struct drm_connector_helper_funcs {
- 	 * drm_mode_status.
- 	 */
- 	enum drm_mode_status (*mode_valid)(struct drm_connector *connector,
--					   struct drm_display_mode *mode);
-+					   const struct drm_display_mode *mode);
- 
- 	/**
- 	 * @mode_valid_ctx:
+But in practical terms, this patchset makes it much more difficult to
+use because all the helper code (i.e. mshyperv.h) now uses hvhdk.h.
+So, maybe there is no point keeping it.
 
--- 
-2.39.5
+> Note also that this patch does not apply cleanly to 6.12 rc's, or to
+> current linux-next trees. There's an unrelated #include added to
+> arch/x86/include/asm/kvm_host.h that causes a merge failure
+> in that file.
+> 
+
+I've been developing this series based on hyperv-next. Should I be
+basing it on linux-next?
+
+> Michael
+> 
+>>
+>> Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+>> ---
+>>  arch/arm64/hyperv/hv_core.c        |  2 +-
+>>  arch/arm64/hyperv/mshyperv.c       |  4 ++--
+>>  arch/arm64/include/asm/mshyperv.h  |  2 +-
+>>  arch/x86/hyperv/hv_init.c          | 20 ++++++++++----------
+>>  arch/x86/hyperv/hv_proc.c          |  2 +-
+>>  arch/x86/hyperv/nested.c           |  2 +-
+>>  arch/x86/include/asm/kvm_host.h    |  2 +-
+>>  arch/x86/include/asm/mshyperv.h    |  2 +-
+>>  arch/x86/include/asm/svm.h         |  2 +-
+>>  arch/x86/kernel/cpu/mshyperv.c     |  2 +-
+>>  arch/x86/kvm/vmx/hyperv_evmcs.h    |  2 +-
+>>  arch/x86/kvm/vmx/vmx_onhyperv.h    |  2 +-
+>>  drivers/clocksource/hyperv_timer.c |  2 +-
+>>  drivers/hv/hv_balloon.c            |  4 ++--
+>>  drivers/hv/hv_common.c             |  2 +-
+>>  drivers/hv/hv_kvp.c                |  2 +-
+>>  drivers/hv/hv_snapshot.c           |  2 +-
+>>  drivers/hv/hyperv_vmbus.h          |  2 +-
+>>  include/asm-generic/mshyperv.h     |  2 +-
+>>  include/clocksource/hyperv_timer.h |  2 +-
+>>  include/linux/hyperv.h             |  2 +-
+>>  net/vmw_vsock/hyperv_transport.c   |  2 +-
+>>  22 files changed, 33 insertions(+), 33 deletions(-)
+>>
+>> diff --git a/arch/arm64/hyperv/hv_core.c b/arch/arm64/hyperv/hv_core.c
+>> index 7a746a5a6b42..69004f619c57 100644
+>> --- a/arch/arm64/hyperv/hv_core.c
+>> +++ b/arch/arm64/hyperv/hv_core.c
+>> @@ -14,7 +14,7 @@
+>>  #include <linux/arm-smccc.h>
+>>  #include <linux/module.h>
+>>  #include <asm-generic/bug.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>  #include <asm/mshyperv.h>
+>>
+>>  /*
+>> diff --git a/arch/arm64/hyperv/mshyperv.c b/arch/arm64/hyperv/mshyperv.c
+>> index b1a4de4eee29..fc49949b7df6 100644
+>> --- a/arch/arm64/hyperv/mshyperv.c
+>> +++ b/arch/arm64/hyperv/mshyperv.c
+>> @@ -49,12 +49,12 @@ static int __init hyperv_init(void)
+>>  	hv_set_vpreg(HV_REGISTER_GUEST_OS_ID, guest_id);
+>>
+>>  	/* Get the features and hints from Hyper-V */
+>> -	hv_get_vpreg_128(HV_REGISTER_FEATURES, &result);
+>> +	hv_get_vpreg_128(HV_REGISTER_PRIVILEGES_AND_FEATURES_INFO, &result);
+>>  	ms_hyperv.features = result.as32.a;
+>>  	ms_hyperv.priv_high = result.as32.b;
+>>  	ms_hyperv.misc_features = result.as32.c;
+>>
+>> -	hv_get_vpreg_128(HV_REGISTER_ENLIGHTENMENTS, &result);
+>> +	hv_get_vpreg_128(HV_REGISTER_FEATURES_INFO, &result);
+>>  	ms_hyperv.hints = result.as32.a;
+>>
+>>  	pr_info("Hyper-V: privilege flags low 0x%x, high 0x%x, hints 0x%x, misc
+>> 0x%x\n",
+>> diff --git a/arch/arm64/include/asm/mshyperv.h
+>> b/arch/arm64/include/asm/mshyperv.h
+>> index a975e1a689dd..7595fb35fae6 100644
+>> --- a/arch/arm64/include/asm/mshyperv.h
+>> +++ b/arch/arm64/include/asm/mshyperv.h
+>> @@ -20,7 +20,7 @@
+>>
+>>  #include <linux/types.h>
+>>  #include <linux/arm-smccc.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  /*
+>>   * Declare calls to get and set Hyper-V VP register values on ARM64, which
+>> diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+>> index 1a6354b3e582..3f9aef157c88 100644
+>> --- a/arch/x86/hyperv/hv_init.c
+>> +++ b/arch/x86/hyperv/hv_init.c
+>> @@ -19,7 +19,7 @@
+>>  #include <asm/sev.h>
+>>  #include <asm/ibt.h>
+>>  #include <asm/hypervisor.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>  #include <asm/mshyperv.h>
+>>  #include <asm/idtentry.h>
+>>  #include <asm/set_memory.h>
+>> @@ -416,24 +416,24 @@ static void __init hv_get_partition_id(void)
+>>  static u8 __init get_vtl(void)
+>>  {
+>>  	u64 control = HV_HYPERCALL_REP_COMP_1 | HVCALL_GET_VP_REGISTERS;
+>> -	struct hv_get_vp_registers_input *input;
+>> -	struct hv_get_vp_registers_output *output;
+>> +	struct hv_input_get_vp_registers *input;
+>> +	struct hv_register_assoc *output;
+>>  	unsigned long flags;
+>>  	u64 ret;
+>>
+>>  	local_irq_save(flags);
+>>  	input = *this_cpu_ptr(hyperv_pcpu_input_arg);
+>> -	output = (struct hv_get_vp_registers_output *)input;
+>> +	output = (struct hv_register_assoc *)input;
+>>
+>> -	memset(input, 0, struct_size(input, element, 1));
+>> -	input->header.partitionid = HV_PARTITION_ID_SELF;
+>> -	input->header.vpindex = HV_VP_INDEX_SELF;
+>> -	input->header.inputvtl = 0;
+>> -	input->element[0].name0 = HV_X64_REGISTER_VSM_VP_STATUS;
+>> +	memset(input, 0, struct_size(input, names, 1));
+>> +	input->partition_id = HV_PARTITION_ID_SELF;
+>> +	input->vp_index = HV_VP_INDEX_SELF;
+>> +	input->input_vtl.as_uint8 = 0;
+>> +	input->names[0] = HV_X64_REGISTER_VSM_VP_STATUS;
+>>
+>>  	ret = hv_do_hypercall(control, input, output);
+>>  	if (hv_result_success(ret)) {
+>> -		ret = output->as64.low & HV_X64_VTL_MASK;
+>> +		ret = output->value.reg8 & HV_X64_VTL_MASK;
+>>  	} else {
+>>  		pr_err("Failed to get VTL(error: %lld) exiting...\n", ret);
+>>  		BUG();
+>> diff --git a/arch/x86/hyperv/hv_proc.c b/arch/x86/hyperv/hv_proc.c
+>> index b74c06c04ff1..ac4c834d4435 100644
+>> --- a/arch/x86/hyperv/hv_proc.c
+>> +++ b/arch/x86/hyperv/hv_proc.c
+>> @@ -176,7 +176,7 @@ int hv_call_create_vp(int node, u64 partition_id, u32 vp_index,
+>> u32 flags)
+>>  		input->partition_id = partition_id;
+>>  		input->vp_index = vp_index;
+>>  		input->flags = flags;
+>> -		input->subnode_type = HvSubnodeAny;
+>> +		input->subnode_type = HV_SUBNODE_ANY;
+>>  		input->proximity_domain_info = hv_numa_node_to_pxm_info(node);
+>>  		status = hv_do_hypercall(HVCALL_CREATE_VP, input, NULL);
+>>  		local_irq_restore(irq_flags);
+>> diff --git a/arch/x86/hyperv/nested.c b/arch/x86/hyperv/nested.c
+>> index 9dc259fa322e..1083dc8646f9 100644
+>> --- a/arch/x86/hyperv/nested.c
+>> +++ b/arch/x86/hyperv/nested.c
+>> @@ -11,7 +11,7 @@
+>>
+>>
+>>  #include <linux/types.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>  #include <asm/mshyperv.h>
+>>  #include <asm/tlbflush.h>
+>>
+>> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+>> index 3627eab994a3..38cd609f37c7 100644
+>> --- a/arch/x86/include/asm/kvm_host.h
+>> +++ b/arch/x86/include/asm/kvm_host.h
+>> @@ -34,7 +34,7 @@
+>>  #include <asm/asm.h>
+>>  #include <asm/kvm_page_track.h>
+>>  #include <asm/kvm_vcpu_regs.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #define __KVM_HAVE_ARCH_VCPU_DEBUGFS
+>>
+>> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+>> index 47ca48062547..f0564e599b7f 100644
+>> --- a/arch/x86/include/asm/mshyperv.h
+>> +++ b/arch/x86/include/asm/mshyperv.h
+>> @@ -6,9 +6,9 @@
+>>  #include <linux/nmi.h>
+>>  #include <linux/msi.h>
+>>  #include <linux/io.h>
+>> -#include <asm/hyperv-tlfs.h>
+>>  #include <asm/nospec-branch.h>
+>>  #include <asm/paravirt.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  /*
+>>   * Hyper-V always provides a single IO-APIC at this MMIO address.
+>> diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
+>> index f0dea3750ca9..913af68ad660 100644
+>> --- a/arch/x86/include/asm/svm.h
+>> +++ b/arch/x86/include/asm/svm.h
+>> @@ -5,7 +5,7 @@
+>>  #include <uapi/asm/svm.h>
+>>  #include <uapi/asm/kvm.h>
+>>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  /*
+>>   * 32-bit intercept words in the VMCB Control Area, starting
+>> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+>> index e0fd57a8ba84..be0d1f4491d9 100644
+>> --- a/arch/x86/kernel/cpu/mshyperv.c
+>> +++ b/arch/x86/kernel/cpu/mshyperv.c
+>> @@ -20,7 +20,7 @@
+>>  #include <linux/random.h>
+>>  #include <asm/processor.h>
+>>  #include <asm/hypervisor.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>  #include <asm/mshyperv.h>
+>>  #include <asm/desc.h>
+>>  #include <asm/idtentry.h>
+>> diff --git a/arch/x86/kvm/vmx/hyperv_evmcs.h b/arch/x86/kvm/vmx/hyperv_evmcs.h
+>> index a543fccfc574..6536290f4274 100644
+>> --- a/arch/x86/kvm/vmx/hyperv_evmcs.h
+>> +++ b/arch/x86/kvm/vmx/hyperv_evmcs.h
+>> @@ -6,7 +6,7 @@
+>>  #ifndef __KVM_X86_VMX_HYPERV_EVMCS_H
+>>  #define __KVM_X86_VMX_HYPERV_EVMCS_H
+>>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #include "capabilities.h"
+>>  #include "vmcs12.h"
+>> diff --git a/arch/x86/kvm/vmx/vmx_onhyperv.h
+>> b/arch/x86/kvm/vmx/vmx_onhyperv.h
+>> index eb48153bfd73..2b94ff301712 100644
+>> --- a/arch/x86/kvm/vmx/vmx_onhyperv.h
+>> +++ b/arch/x86/kvm/vmx/vmx_onhyperv.h
+>> @@ -3,7 +3,7 @@
+>>  #ifndef __ARCH_X86_KVM_VMX_ONHYPERV_H__
+>>  #define __ARCH_X86_KVM_VMX_ONHYPERV_H__
+>>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>  #include <asm/mshyperv.h>
+>>
+>>  #include <linux/jump_label.h>
+>> diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+>> index b2a080647e41..c1cc96a168c7 100644
+>> --- a/drivers/clocksource/hyperv_timer.c
+>> +++ b/drivers/clocksource/hyperv_timer.c
+>> @@ -23,7 +23,7 @@
+>>  #include <linux/acpi.h>
+>>  #include <linux/hyperv.h>
+>>  #include <clocksource/hyperv_timer.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>  #include <asm/mshyperv.h>
+>>
+>>  static struct clock_event_device __percpu *hv_clock_event;
+>> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+>> index c38dcdfcb914..d792df113962 100644
+>> --- a/drivers/hv/hv_balloon.c
+>> +++ b/drivers/hv/hv_balloon.c
+>> @@ -28,7 +28,7 @@
+>>  #include <linux/sizes.h>
+>>
+>>  #include <linux/hyperv.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #include <asm/mshyperv.h>
+>>
+>> @@ -1585,7 +1585,7 @@ static int hv_free_page_report(struct
+>> page_reporting_dev_info *pr_dev_info,
+>>  		return -ENOSPC;
+>>  	}
+>>
+>> -	hint->type = HV_EXT_MEMORY_HEAT_HINT_TYPE_COLD_DISCARD;
+>> +	hint->heat_type = HV_EXTMEM_HEAT_HINT_COLD_DISCARD;
+>>  	hint->reserved = 0;
+>>  	for_each_sg(sgl, sg, nents, i) {
+>>  		union hv_gpa_page_range *range;
+>> diff --git a/drivers/hv/hv_common.c b/drivers/hv/hv_common.c
+>> index 9c452bfbd571..9ea05cbbf50d 100644
+>> --- a/drivers/hv/hv_common.c
+>> +++ b/drivers/hv/hv_common.c
+>> @@ -28,7 +28,7 @@
+>>  #include <linux/slab.h>
+>>  #include <linux/dma-map-ops.h>
+>>  #include <linux/set_memory.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>  #include <asm/mshyperv.h>
+>>
+>>  /*
+>> diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
+>> index d35b60c06114..bfb7a518b4ed 100644
+>> --- a/drivers/hv/hv_kvp.c
+>> +++ b/drivers/hv/hv_kvp.c
+>> @@ -27,7 +27,7 @@
+>>  #include <linux/connector.h>
+>>  #include <linux/workqueue.h>
+>>  #include <linux/hyperv.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #include "hyperv_vmbus.h"
+>>  #include "hv_utils_transport.h"
+>> diff --git a/drivers/hv/hv_snapshot.c b/drivers/hv/hv_snapshot.c
+>> index 0d2184be1691..097ebd58f14e 100644
+>> --- a/drivers/hv/hv_snapshot.c
+>> +++ b/drivers/hv/hv_snapshot.c
+>> @@ -12,7 +12,7 @@
+>>  #include <linux/connector.h>
+>>  #include <linux/workqueue.h>
+>>  #include <linux/hyperv.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #include "hyperv_vmbus.h"
+>>  #include "hv_utils_transport.h"
+>> diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+>> index 76ac5185a01a..2bea654858e3 100644
+>> --- a/drivers/hv/hyperv_vmbus.h
+>> +++ b/drivers/hv/hyperv_vmbus.h
+>> @@ -15,10 +15,10 @@
+>>  #include <linux/list.h>
+>>  #include <linux/bitops.h>
+>>  #include <asm/sync_bitops.h>
+>> -#include <asm/hyperv-tlfs.h>
+>>  #include <linux/atomic.h>
+>>  #include <linux/hyperv.h>
+>>  #include <linux/interrupt.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #include "hv_trace.h"
+>>
+>> diff --git a/include/asm-generic/mshyperv.h b/include/asm-generic/mshyperv.h
+>> index 8fe7aaab2599..138e416a0f9c 100644
+>> --- a/include/asm-generic/mshyperv.h
+>> +++ b/include/asm-generic/mshyperv.h
+>> @@ -25,7 +25,7 @@
+>>  #include <linux/cpumask.h>
+>>  #include <linux/nmi.h>
+>>  #include <asm/ptrace.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #define VTPM_BASE_ADDRESS 0xfed40000
+>>
+>> diff --git a/include/clocksource/hyperv_timer.h b/include/clocksource/hyperv_timer.h
+>> index 6cdc873ac907..a4c81a60f53d 100644
+>> --- a/include/clocksource/hyperv_timer.h
+>> +++ b/include/clocksource/hyperv_timer.h
+>> @@ -15,7 +15,7 @@
+>>
+>>  #include <linux/clocksource.h>
+>>  #include <linux/math64.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #define HV_MAX_MAX_DELTA_TICKS 0xffffffff
+>>  #define HV_MIN_DELTA_TICKS 1
+>> diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+>> index d0893ec488ae..ed65b20defea 100644
+>> --- a/include/linux/hyperv.h
+>> +++ b/include/linux/hyperv.h
+>> @@ -24,7 +24,7 @@
+>>  #include <linux/mod_devicetable.h>
+>>  #include <linux/interrupt.h>
+>>  #include <linux/reciprocal_div.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  #define MAX_PAGE_BUFFER_COUNT				32
+>>  #define MAX_MULTIPAGE_BUFFER_COUNT			32 /* 128K */
+>> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+>> index e2157e387217..152b6ed8877d 100644
+>> --- a/net/vmw_vsock/hyperv_transport.c
+>> +++ b/net/vmw_vsock/hyperv_transport.c
+>> @@ -13,7 +13,7 @@
+>>  #include <linux/hyperv.h>
+>>  #include <net/sock.h>
+>>  #include <net/af_vsock.h>
+>> -#include <asm/hyperv-tlfs.h>
+>> +#include <hyperv/hvhdk.h>
+>>
+>>  /* Older (VMBUS version 'VERSION_WIN10' or before) Windows hosts have some
+>>   * stricter requirements on the hv_sock ring buffer size of six 4K pages.
+>> --
+>> 2.34.1
 
