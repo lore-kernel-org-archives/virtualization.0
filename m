@@ -1,32 +1,32 @@
 Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D9F41DD86C;
-	Sun, 17 Nov 2024 21:02:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 224AE1DA61E;
+	Sun, 17 Nov 2024 21:19:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731877326; cv=none; b=iXNUmwdAI+7f4osTxA8a0BR2BWk7AB5upm/LJ5CUvlrk/QhJIVaKU6HcEUqig6agVKt1Lnfswfvckf1WNgyYvj+Y9rf2sn1/KPKuiff60NkfJZJeDhxIqmGMMVbuIHu8y3KruARYn8c97I+5PzSDvnsgQQSvL9JVoPdGi5ebB+0=
+	t=1731878386; cv=none; b=FTIjNcKTgwnKcYOdUMBuX26NF4dH/FrXYN647kE5l9dN7dnBQrLT2YeaszxUObc0gBck2n+JAsp+l9uZewcHVjq42xlzPzM27SZSkVJjCyyQ5iTkt2Lq5d8kAtqWUUxUT+44ahS6RpqdFTA7ESG8OmHbEAQ8u+li8sw15kLWhvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731877326; c=relaxed/simple;
-	bh=gn60uRI7cPoOu0aZqxhm0cizQyiIvGbnUSQmXYtqG/g=;
+	s=arc-20240116; t=1731878386; c=relaxed/simple;
+	bh=LCxOYDveABxYci6xcGPLQzoY5X2ur4NiEvJHNv8MSqc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OkN6fWUQcEzxeNK3Vh0CMsHOZdAIe+2Nrh14tY+XmoX43o25WZCVqo09KbJPYyg8bbeIlMQh/Jmzqa8fzN3EY40HvlfbavZ2eoeuEhA/DR84gNjZG24gFouHD4uLFp+wIT82fjIKXG+K5UbJTTn8dHomJAPGkKAf+PRMoAvWpDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=nuFuE4AM; arc=none smtp.client-ip=213.167.242.64
+	 Content-Type:Content-Disposition:In-Reply-To; b=RaQs+m1BzrcRD/n7LIknUR4oPQdX4Dm2+f8WYTT9KEfnmMTx9Fyy9Wr0Z191be8yOgTfyWN2mrtfpUlzFLcLvlLf6t9CzloOhJYMEXHh1BCGq6bIvaFq5G8S2pQ3P/9Orml+4KLCGeim0xu6Et2IiDGuZG1RDcaJuPxqx5De3DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=i1ESlBtd; arc=none smtp.client-ip=213.167.242.64
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="nuFuE4AM"
+	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="i1ESlBtd"
 Received: from pendragon.ideasonboard.com (81-175-209-231.bb.dnainternet.fi [81.175.209.231])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id A71AC7CA;
-	Sun, 17 Nov 2024 22:01:45 +0100 (CET)
+	by perceval.ideasonboard.com (Postfix) with ESMTPSA id C67007CA;
+	Sun, 17 Nov 2024 22:19:25 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1731877305;
-	bh=gn60uRI7cPoOu0aZqxhm0cizQyiIvGbnUSQmXYtqG/g=;
+	s=mail; t=1731878366;
+	bh=LCxOYDveABxYci6xcGPLQzoY5X2ur4NiEvJHNv8MSqc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nuFuE4AMBPsFBGqHFQd4ggjkJ+QzgBQXXkXgyRh2K8mqddIBNVuq2ZOYkN5jrTPyP
-	 0WX5eUs1aOXhoq+JyTrup3B+WxggSFrP1A9YGQlL7Qrf7yElE6n/eQNleyHUg4vja4
-	 xktQSbx1VHUUMaFQHwFRkF+ZmnHJ73iJ+P2eE6pc=
-Date: Sun, 17 Nov 2024 23:01:53 +0200
+	b=i1ESlBtdKSP8T3VJsiyviRYpYYbIEmbGaQmDPwC+LZ2O7kjbwJns8m16yNh8iQgt0
+	 tJWzm+lcCtnLT6dw2MHxLrrP3j4E4ME5dwLNZw/bOqw3GIPpRMke3fcNRpRBPuYmsh
+	 pEOpUxNtWT/SrQqwxbZe8h+iAv0MPMGJe6JswldA=
+Date: Sun, 17 Nov 2024 23:19:33 +0200
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Cc: Jani Nikula <jani.nikula@linux.intel.com>,
@@ -93,11 +93,11 @@ Cc: Jani Nikula <jani.nikula@linux.intel.com>,
 	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
 	linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev,
 	linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 2/5] drm/amdgpu: don't change mode in
- amdgpu_dm_connector_mode_valid()
-Message-ID: <20241117210153.GF12409@pendragon.ideasonboard.com>
+Subject: Re: [PATCH 3/5] drm/sti: hda: pass const struct drm_display_mode* to
+ hda_get_mode_idx()
+Message-ID: <20241117211933.GG12409@pendragon.ideasonboard.com>
 References: <20241115-drm-connector-mode-valid-const-v1-0-b1b523156f71@linaro.org>
- <20241115-drm-connector-mode-valid-const-v1-2-b1b523156f71@linaro.org>
+ <20241115-drm-connector-mode-valid-const-v1-3-b1b523156f71@linaro.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -106,61 +106,72 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20241115-drm-connector-mode-valid-const-v1-2-b1b523156f71@linaro.org>
+In-Reply-To: <20241115-drm-connector-mode-valid-const-v1-3-b1b523156f71@linaro.org>
 
 Hi Dmitry,
 
 Thank you for the patch.
 
-On Fri, Nov 15, 2024 at 11:09:27PM +0200, Dmitry Baryshkov wrote:
-> Make amdgpu_dm_connector_mode_valid() duplicate the mode during the
-> test rather than modifying the passed mode. This is a preparation to
+On Fri, Nov 15, 2024 at 11:09:28PM +0200, Dmitry Baryshkov wrote:
+> Make hda_get_mode_idx() accept const struct drm_display_mode pointer
+> instead of just raw struct drm_display_mode.  This is a preparation to
 > converting the mode_valid() callback of drm_connector to accept const
 > struct drm_display_mode argument.
 > 
 > Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> ---
->  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> index 75d6b90104f8fe196df06383b20ee88196a700bf..d0ca905e91eafe6c53f3f2ebdf3f2ae9589d7f89 100644
-> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> @@ -7381,6 +7381,7 @@ enum drm_mode_status amdgpu_dm_connector_mode_valid(struct drm_connector *connec
->  {
->  	int result = MODE_ERROR;
->  	struct dc_sink *dc_sink;
-> +	struct drm_display_mode *test_mode;
->  	/* TODO: Unhardcode stream count */
->  	struct dc_stream_state *stream;
->  	struct amdgpu_dm_connector *aconnector = to_amdgpu_dm_connector(connector);
-> @@ -7405,11 +7406,16 @@ enum drm_mode_status amdgpu_dm_connector_mode_valid(struct drm_connector *connec
->  		goto fail;
->  	}
->  
-> -	drm_mode_set_crtcinfo(mode, 0);
-> +	test_mode = drm_mode_duplicate(connector->dev, mode);
-> +	if (!test_mode)
-> +		goto fail;
-> +
-> +	drm_mode_set_crtcinfo(test_mode, 0);
-
-I wonder if things could be refactored further to avoid the need to
-duplicate the mode here, but that seems out of scope for this patch
-series.
 
 Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
+> ---
+>  drivers/gpu/drm/sti/sti_hda.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
+> index f18faad974aa2eda58c1e49537f8337db119d4b7..829dc4b034e8a79a908bda60485c2b94ef96890c 100644
+> --- a/drivers/gpu/drm/sti/sti_hda.c
+> +++ b/drivers/gpu/drm/sti/sti_hda.c
+> @@ -280,12 +280,12 @@ static void hda_write(struct sti_hda *hda, u32 val, int offset)
+>   *
+>   * Return true if mode is found
+>   */
+> -static bool hda_get_mode_idx(struct drm_display_mode mode, int *idx)
+> +static bool hda_get_mode_idx(const struct drm_display_mode *mode, int *idx)
+>  {
+>  	unsigned int i;
 >  
-> -	stream = create_validate_stream_for_sink(aconnector, mode,
-> +	stream = create_validate_stream_for_sink(aconnector, test_mode,
->  						 to_dm_connector_state(connector->state),
->  						 NULL);
-> +	drm_mode_destroy(connector->dev, test_mode);
->  	if (stream) {
->  		dc_stream_release(stream);
->  		result = MODE_OK;
+>  	for (i = 0; i < ARRAY_SIZE(hda_supported_modes); i++)
+> -		if (drm_mode_equal(&hda_supported_modes[i].mode, &mode)) {
+> +		if (drm_mode_equal(&hda_supported_modes[i].mode, mode)) {
+>  			*idx = i;
+>  			return true;
+>  		}
+> @@ -443,7 +443,7 @@ static void sti_hda_pre_enable(struct drm_bridge *bridge)
+>  	if (clk_prepare_enable(hda->clk_hddac))
+>  		DRM_ERROR("Failed to prepare/enable hda_hddac clk\n");
+>  
+> -	if (!hda_get_mode_idx(hda->mode, &mode_idx)) {
+> +	if (!hda_get_mode_idx(&hda->mode, &mode_idx)) {
+>  		DRM_ERROR("Undefined mode\n");
+>  		return;
+>  	}
+> @@ -526,7 +526,7 @@ static void sti_hda_set_mode(struct drm_bridge *bridge,
+>  
+>  	drm_mode_copy(&hda->mode, mode);
+>  
+> -	if (!hda_get_mode_idx(hda->mode, &mode_idx)) {
+> +	if (!hda_get_mode_idx(&hda->mode, &mode_idx)) {
+>  		DRM_ERROR("Undefined mode\n");
+>  		return;
+>  	}
+> @@ -614,7 +614,7 @@ sti_hda_connector_mode_valid(struct drm_connector *connector,
+>  		= to_sti_hda_connector(connector);
+>  	struct sti_hda *hda = hda_connector->hda;
+>  
+> -	if (!hda_get_mode_idx(*mode, &idx)) {
+> +	if (!hda_get_mode_idx(mode, &idx)) {
+>  		return MODE_BAD;
+>  	} else {
+>  		result = clk_round_rate(hda->clk_pix, target);
 > 
 
 -- 
