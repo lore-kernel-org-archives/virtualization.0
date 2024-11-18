@@ -1,230 +1,178 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FF8F1990C1
-	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 14:08:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FD518EFDE
+	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 15:17:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731938885; cv=none; b=AtSBONWfJGJ0OtkAPPywHhR03KnLIq/eDoZD7pahduTurlKtHQWiQEBIW5kl3Fzhi8mPTzpKOwK4flnwEnK5UBwzeCJraOCwAOK3mUMSSYZn/IQXr5tnylofTiEIRqcEYMsS93QODh2k52i2K6gsLxqhNdxr9WM2rv7aqXYN3qI=
+	t=1731943052; cv=none; b=bLTeFo63rpqeEbZ044NMA3KmFRLxDr4wQpVs88uWbHnAwFH4BqEhijMW4Bt6iCnRk0zHJBYMevga+1YJhDgeHvMwgiloUt3WymJOrSfa5M9l5+xUBsXhL62cTjnH32WBSm82huaGBrjDJ3mUX0veToJPSodfJKkrGzQTj4nRSbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731938885; c=relaxed/simple;
-	bh=SL4Y1eNf3axA4/FlExJQffOT+e+k7+y6DPFaDWJm9qA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dnk5WRLA108k/7ASxpmmy1wEx4aLga5golEVZZXyM/esW81bk7RAxto1e+JPkTX1StdLw7330WyEU+3LBa+m5nvzt+J7nEU7fpiZ/o8PP8NSChT/EtUN341yJlAEMRPyZ3EaM1s/VUT8NZA8CvRPYyJGYXFywI9JOw/qzpT6PRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YYFko4Wz; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YYFko4Wz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1731938882;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ls0eS4Y3YVz07IP+EhoUsET0PplclqIr8lu3ktk+u5k=;
-	b=YYFko4WzCA0HG3gA+n2Pe4tI+TNaNJahhDuOKqEbETCyp1G50FDeyQhxe7Cci8yl/odXrH
-	bGzfd1cZnmiIe1cHSvVDMce1PIyCduKT3Qw/MQa+Y2VMHS7PN70GXr6S3jc8tAFL2lolmJ
-	C5fFcVZlJfGr7Bp0dcLT8rmqTQqkeOw=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-127-6MQdpijjPuqQ519iq-0lCw-1; Mon, 18 Nov 2024 09:07:56 -0500
-X-MC-Unique: 6MQdpijjPuqQ519iq-0lCw-1
-X-Mimecast-MFC-AGG-ID: 6MQdpijjPuqQ519iq-0lCw
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6ea8794f354so24899727b3.2
-        for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 06:07:56 -0800 (PST)
+	s=arc-20240116; t=1731943052; c=relaxed/simple;
+	bh=qRdu+W3MecDQXrO1b1xbVvcFFHBRaRg27GrWOgzU93w=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Td82SEtR/dWuzXWLLKtiGuwLvmq9NjAMlv6Zf9AGrhbcli8kKfCgAk3H1VN4aEze6DTsZ8ywgLhBD0VyP7K570x3wziLjFvdeph8ZEBxu0agiN8KuGTCjWNtL07gtVrdIK8eVqW8nmUYB60GwJvxZvBP2lq1ZGtuiwPwqDWuddo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3a71bdd158aso47699855ab.1
+        for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 07:17:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731938876; x=1732543676;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ls0eS4Y3YVz07IP+EhoUsET0PplclqIr8lu3ktk+u5k=;
-        b=m8lLMT406EAOdoYjO8xSW0TDE93uOkRwAjtYHbDzADQaKYCnQ6DuOntKbzLLhl2j2I
-         Do/MmnY0xyHDl7i97zDn1T5qHGWQer7mF3YSpwTM+DqfogKngSYULYqQGtfgbvELuk8t
-         odbc8wAuwN0ca0+T74w1YjKWjcA+FX8NhTyh6nfUbafNY0ehaGdpHbOAdl/TKXv9qDAh
-         0LHUZ4kZ7RKMgWgn/l4nDBBV4UXu9S0PLHOyA9IecFQusLfQMlxX/LWGTJ56v3pZi+BL
-         NVCdte1l8NA9JzVI54jKtRahAZeNPCF6UBx8fZ0vpHbbaQxBxHllAX/DIq+Yh52sUNbz
-         fPkw==
-X-Forwarded-Encrypted: i=1; AJvYcCWPb1J9d9DAf4E/7k1HfNq7gYO7VG2SRzqEb8VatgSLwxWI/eTdcIrexDO83uotr4/591bYbcuFeJfC7KWo9w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YybMbr5Xxo/WayfEqjAk9v0jhn7kWpXAy1IMOv0H5ynLZs517RC
-	vMEDn9qJdr2r35nJXWRe5xjoVCnRNzNprJFHjDvfQynkrk/68D1utNciEpE1IR9vcP2l3zbaXTx
-	QSG1tpuzU+g7QjIENfJijyWfZMAw+3pDPTFzgQJM6jl4/pbhgBvP67FRrmYMvP5XKc5Yy9Ppkmc
-	MZAqeZ35zZUssMF+eWUtufWmGzMYE45T7HNXiH0ns=
-X-Received: by 2002:a05:690c:6802:b0:6ee:87f2:d23e with SMTP id 00721157ae682-6ee87f2d39bmr43332727b3.22.1731938875694;
-        Mon, 18 Nov 2024 06:07:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFiqpbTcWqehqFgM8ZzDzeKjZvPeGxXveks1ivMQC2hfyk0PbNu/4N9hBB3ApxvIxF0JoJLwcnAe9iB6nd1xJo=
-X-Received: by 2002:a05:690c:6802:b0:6ee:87f2:d23e with SMTP id
- 00721157ae682-6ee87f2d39bmr43332237b3.22.1731938875266; Mon, 18 Nov 2024
- 06:07:55 -0800 (PST)
+        d=1e100.net; s=20230601; t=1731943050; x=1732547850;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MMrFntecqL6JFmwjB+HrMvBdRfZbPU+p3Yo/qXqmg/Q=;
+        b=duM7IOUIGisIl50o+t+0tyrzn/Lj6gXQPDMSYPulyaZi+kHPka6Wr0NcSLpAWz67Dh
+         XzYbNqTTEILoCuCwFpemRWray7BZ1hwmxl7HU1shPmcrwWybGL4ABWwV6GO2IMg7jC4J
+         5rkojk3sQBUZDyx9SEqJkudQgqe3pNWEj9Sg6qUSI6qoBbpGNxReSarOvvozkB4mifPC
+         PqftP+j/fUiqV3Qe/fHgdHwC9E1XAzb182rwJ9s8ixaODqkglWiLuVXTsmKbMVq7WwQN
+         Gm6rPPDjfZxnOUpU6G/QQnyji2YZR+7f282k3YwPRZPjoDHok1neW5rR5osiuY9GMUWc
+         9LwA==
+X-Forwarded-Encrypted: i=1; AJvYcCUlpNh/CUwbYgRQvfbRXd7qGemBgatqw2R/XXFa7SFKMjWpHICdHQZVFA5slr/hnERtiFzw453z7KlqN78vrQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzrjzE6r6WceTQfVW5wiPa3ZKDMKo+HlrksVyAAhJGF1rTuUdQt
+	t6HrG7xpBTlyAvlIU3LThrjgCfJ6agQnHIUcrJ5EJLfYdDQHJen9ugP1fzKKOLI6Ed2L8v5eot2
+	O9XQWOqsCeugIEIDxCj9EaQgYXDxJCBo7LC6pvj2TGQfsAgp+xWp9Ju8=
+X-Google-Smtp-Source: AGHT+IGPIsq6/yaP7fwU8ausne4uz0KbEqvEiQQi+jkfH2FRE8pytf9PPBxQPun5r1JkEi+SBQAE/soq4BdR/qAsBcCuxo945xjQ
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241115103016.86461-1-graf@amazon.com> <yjhfe5bsnfpqbnibxl2urrnuowzitxnrbodlihz4y5csig7e7p@drgxxxxgokfo>
- <dca2f6ff-b586-461d-936d-e0b9edbe7642@amazon.com>
-In-Reply-To: <dca2f6ff-b586-461d-936d-e0b9edbe7642@amazon.com>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Mon, 18 Nov 2024 15:07:43 +0100
-Message-ID: <CAGxU2F6eJA+vpYVbE0HNW794pF6wLL+o=92NYMQVvmFWnpNPaA@mail.gmail.com>
-Subject: Re: [PATCH] vsock/virtio: Remove queued_replies pushback logic
-To: Alexander Graf <graf@amazon.com>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	Asias He <asias@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, 
-	"David S. Miller" <davem@davemloft.net>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bI2-sEzqMlksyucgdWEWu10GlDmmcFkd3RF5BzfBxQU_1731938876
-X-Mimecast-Originator: redhat.com
+X-Received: by 2002:a92:cda3:0:b0:3a6:b0a3:5400 with SMTP id
+ e9e14a558f8ab-3a748087603mr105580875ab.16.1731943050158; Mon, 18 Nov 2024
+ 07:17:30 -0800 (PST)
+Date: Mon, 18 Nov 2024 07:17:30 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <673b5a8a.050a0220.87769.0043.GAE@google.com>
+Subject: [syzbot] [virt?] INFO: trying to register non-static key in stats_request
+From: syzbot <syzbot+f303608297c771a7de35@syzkaller.appspotmail.com>
+To: david@redhat.com, eperezma@redhat.com, jasowang@redhat.com, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 15, 2024 at 4:49=E2=80=AFPM Alexander Graf <graf@amazon.com> wr=
-ote:
->
-> Hi Stefano,
->
-> On 15.11.24 12:59, Stefano Garzarella wrote:
-> >
-> > On Fri, Nov 15, 2024 at 10:30:16AM +0000, Alexander Graf wrote:
-> >> Ever since the introduction of the virtio vsock driver, it included
-> >> pushback logic that blocks it from taking any new RX packets until the
-> >> TX queue backlog becomes shallower than the virtqueue size.
-> >>
-> >> This logic works fine when you connect a user space application on the
-> >> hypervisor with a virtio-vsock target, because the guest will stop
-> >> receiving data until the host pulled all outstanding data from the VM.
-> >
-> > So, why not skipping this only when talking with a sibling VM?
->
->
-> I don't think there is a way to know, is there?
->
+Hello,
 
-I thought about looking into the header and check the dst_cid.
-If it's > VMADDR_CID_HOST, we are talking with a sibling VM.
+syzbot found the following issue on:
 
->
-> >
-> >>
-> >> With Nitro Enclaves however, we connect 2 VMs directly via vsock:
-> >>
-> >>  Parent      Enclave
-> >>
-> >>    RX -------- TX
-> >>    TX -------- RX
-> >>
-> >> This means we now have 2 virtio-vsock backends that both have the
-> >> pushback
-> >> logic. If the parent's TX queue runs full at the same time as the
-> >> Enclave's, both virtio-vsock drivers fall into the pushback path and
-> >> no longer accept RX traffic. However, that RX traffic is TX traffic on
-> >> the other side which blocks that driver from making any forward
-> >> progress. We're not in a deadlock.
-> >>
-> >> To resolve this, let's remove that pushback logic altogether and rely =
-on
-> >> higher levels (like credits) to ensure we do not consume unbounded
-> >> memory.
-> >
-> > I spoke quickly with Stefan who has been following the development from
-> > the beginning and actually pointed out that there might be problems
-> > with the control packets, since credits only covers data packets, so
-> > it doesn't seem like a good idea remove this mechanism completely.
->
->
-> Can you help me understand which situations the current mechanism really
-> helps with, so we can look at alternatives?
+HEAD commit:    0a9b9d17f3a7 Merge tag 'pm-6.12-rc8' of git://git.kernel.o..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=17bf6ce8580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=d2aeec8c0b2e420c
+dashboard link: https://syzkaller.appspot.com/bug?extid=f303608297c771a7de35
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
 
-Good question!
-I didn't participate in the initial development, so what I'm telling
-you is my understanding.
-@Stefan feel free to correct me!
+Unfortunately, I don't have any reproducer for this issue yet.
 
-The driver uses a single workqueue (virtio_vsock_workqueue) where it
-queues several workers. The ones we are interested in are:
-1. the one to handle avail buffers in the TX virtqueue (send_pkt_work)
-2. the one for used buffers in the RX virtqueue (rx_work)
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/8a8c49f7786f/disk-0a9b9d17.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/0f9c24f45e74/vmlinux-0a9b9d17.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/b1f469ce7e16/bzImage-0a9b9d17.xz
 
-Assuming that the same kthread executes the different workers, it
-seems to be more about making sure that the RX worker (i.e. rx_work)
-does not consume all the execution time, leaving no room for TX
-(send_pkt_work). Especially when there are a lot of messages queued in
-the TX queue that are considered as response for the host. (The
-threshold seems to be the size of the virtqueue).
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+f303608297c771a7de35@syzkaller.appspotmail.com
 
-That said, perhaps just adopting a technique like the one in vhost
-(byte_weight in vhost_dev_init(), vhost_exceeds_weight(), etc.) where
-after a certain number of packets/bytes handled, the worker terminates
-its work and reschedules, could give us the same guarantees, in a
-simpler way.
-
->
->
-> >
-> >>
-> >> Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
-> >
-> > I'm not sure we should add this Fixes tag, this seems very risky
-> > backporting on stable branches IMHO.
->
->
-> Which situations do you believe it will genuinely break anything in?
-
-The situation for which it was introduced (which I don't know
-precisely because I wasn't following vsock yet).
-Removing it completely without being sure that what it was developed
-for is okay is risky to me.
-
-Support for sibling VMs has only recently been introduced, so I'd be
-happier making these changes just for that kind of communication.
-
-That said, the idea of doing like vhost might solve all our problems,
-so in that case maybe it might be okay.
-
-> As
-> it stands today, if you run upstream parent and enclave and hammer them
-> with vsock traffic, you get into a deadlock. Even without the flow
-> control, you will never hit a deadlock. But you may get a brown-out like
-> situation while Linux is flushing its buffers.
->
-> Ideally we want to have actual flow control to mitigate the problem
-> altogether. But I'm not quite sure how and where. Just blocking all
-> receiving traffic causes problems.
->
->
-> > If we cannot find a better mechanism to replace this with something
-> > that works both guest <-> host and guest <-> guest, I would prefer
-> > to do this just for guest <-> guest communication.
-> > Because removing this completely seems too risky for me, at least
-> > without a proof that control packets are fine.
->
->
-> So your concern is that control packets would not receive pushback, so
-> we would allow unbounded traffic to get queued up?
-
-Right, most of `reply` are control packets (reset and response IIUC)
-that are not part of the credit mechanism, so I think this confirms
-what Stefan was telling me.
-
-> Can you suggest
-> options to help with that?
-
-Maybe mimic vhost approach should help, or something similar.
-
-That said, did you really encounter a real problem or is it more of a
-patch to avoid future problems.
-
-Because it would be nice to have a test that emphasizes this problem
-that we can use to check that everything is okay if we adopt something
-different. The same goes for the problem that this mechanism wants to
-avoid, I'll try to see if I have time to write a test so we can use
-it.
+INFO: trying to register non-static key.
+The code is fine but needs lockdep annotation, or maybe
+you didn't initialize this object before use?
+turning off the locking correctness validator.
+CPU: 0 UID: 0 PID: 1 Comm: swapper/0 Not tainted 6.12.0-rc7-syzkaller-00070-g0a9b9d17f3a7 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/30/2024
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x241/0x360 lib/dump_stack.c:120
+ assign_lock_key+0x241/0x280 kernel/locking/lockdep.c:981
+ register_lock_class+0x1cf/0x980 kernel/locking/lockdep.c:1295
+ __lock_acquire+0xf0/0x2050 kernel/locking/lockdep.c:5077
+ lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5825
+ __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+ _raw_spin_lock_irqsave+0xd5/0x120 kernel/locking/spinlock.c:162
+ start_wakeup_event drivers/virtio/virtio_balloon.c:150 [inline]
+ stats_request+0xb3/0x230 drivers/virtio/virtio_balloon.c:440
+ vring_interrupt+0x21d/0x380 drivers/virtio/virtio_ring.c:2595
+ vp_vring_interrupt drivers/virtio/virtio_pci_common.c:92 [inline]
+ vp_interrupt+0x192/0x200 drivers/virtio/virtio_pci_common.c:123
+ __handle_irq_event_percpu+0x29a/0xa80 kernel/irq/handle.c:158
+ handle_irq_event_percpu kernel/irq/handle.c:193 [inline]
+ handle_irq_event+0x89/0x1f0 kernel/irq/handle.c:210
+ handle_fasteoi_irq+0x48a/0xae0 kernel/irq/chip.c:720
+ generic_handle_irq_desc include/linux/irqdesc.h:173 [inline]
+ handle_irq arch/x86/kernel/irq.c:247 [inline]
+ call_irq_handler arch/x86/kernel/irq.c:259 [inline]
+ __common_interrupt+0x136/0x230 arch/x86/kernel/irq.c:285
+ common_interrupt+0xb4/0xd0 arch/x86/kernel/irq.c:278
+ </IRQ>
+ <TASK>
+ asm_common_interrupt+0x26/0x40 arch/x86/include/asm/idtentry.h:693
+RIP: 0010:lock_acquire+0x264/0x550 kernel/locking/lockdep.c:5829
+Code: 2b 00 74 08 4c 89 f7 e8 ea 6c 8e 00 f6 44 24 61 02 0f 85 85 01 00 00 41 f7 c7 00 02 00 00 74 01 fb 48 c7 44 24 40 0e 36 e0 45 <4b> c7 44 25 00 00 00 00 00 43 c7 44 25 09 00 00 00 00 43 c7 44 25
+RSP: 0000:ffffc90000067360 EFLAGS: 00000206
+RAX: 0000000000000001 RBX: 1ffff9200000ce78 RCX: c155c4d26c75e500
+RDX: dffffc0000000000 RSI: ffffffff8c0adc40 RDI: ffffffff8c610b20
+RBP: ffffc900000674a8 R08: ffffffff942d0857 R09: 1ffffffff285a10a
+R10: dffffc0000000000 R11: fffffbfff285a10b R12: 1ffff9200000ce74
+R13: dffffc0000000000 R14: ffffc900000673c0 R15: 0000000000000246
+ down_write+0x99/0x220 kernel/locking/rwsem.c:1577
+ __blocking_notifier_chain_register kernel/notifier.c:271 [inline]
+ blocking_notifier_chain_register+0x50/0xc0 kernel/notifier.c:290
+ virtballoon_probe+0x551/0xf60 drivers/virtio/virtio_balloon.c:1015
+ virtio_dev_probe+0x931/0xc80 drivers/virtio/virtio.c:341
+ really_probe+0x2b8/0xad0 drivers/base/dd.c:658
+ __driver_probe_device+0x1a2/0x390 drivers/base/dd.c:800
+ driver_probe_device+0x50/0x430 drivers/base/dd.c:830
+ __driver_attach+0x45f/0x710 drivers/base/dd.c:1216
+ bus_for_each_dev+0x239/0x2b0 drivers/base/bus.c:370
+ bus_add_driver+0x346/0x670 drivers/base/bus.c:675
+ driver_register+0x23a/0x320 drivers/base/driver.c:246
+ do_one_initcall+0x248/0x880 init/main.c:1269
+ do_initcall_level+0x157/0x210 init/main.c:1331
+ do_initcalls+0x3f/0x80 init/main.c:1347
+ kernel_init_freeable+0x435/0x5d0 init/main.c:1580
+ kernel_init+0x1d/0x2b0 init/main.c:1469
+ ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
+ </TASK>
+----------------
+Code disassembly (best guess):
+   0:	2b 00                	sub    (%rax),%eax
+   2:	74 08                	je     0xc
+   4:	4c 89 f7             	mov    %r14,%rdi
+   7:	e8 ea 6c 8e 00       	call   0x8e6cf6
+   c:	f6 44 24 61 02       	testb  $0x2,0x61(%rsp)
+  11:	0f 85 85 01 00 00    	jne    0x19c
+  17:	41 f7 c7 00 02 00 00 	test   $0x200,%r15d
+  1e:	74 01                	je     0x21
+  20:	fb                   	sti
+  21:	48 c7 44 24 40 0e 36 	movq   $0x45e0360e,0x40(%rsp)
+  28:	e0 45
+* 2a:	4b c7 44 25 00 00 00 	movq   $0x0,0x0(%r13,%r12,1) <-- trapping instruction
+  31:	00 00
+  33:	43 c7 44 25 09 00 00 	movl   $0x0,0x9(%r13,%r12,1)
+  3a:	00 00
+  3c:	43                   	rex.XB
+  3d:	c7                   	.byte 0xc7
+  3e:	44                   	rex.R
+  3f:	25                   	.byte 0x25
 
 
-Thanks,
-Stefano
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
