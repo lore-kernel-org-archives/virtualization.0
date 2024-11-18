@@ -1,159 +1,230 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3917A19ABB6
-	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 13:17:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FF8F1990C1
+	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 14:08:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731935859; cv=none; b=eg5GwZR08nYewAfF0NmtfQbuoLQrgO1C+sO/smlgI2FzKLHKDH2c5MXr2sGN/Vsm+L3ywjKhz4lUln03UhhM0ql1c4dEMvj5TCENIuZl1GcOAQB6Ne7SZ0RuwBHIk1vkcp9NBruBBOqsJ18951J8Y4K6eMSBlsLdl6NzcXYkGkY=
+	t=1731938885; cv=none; b=AtSBONWfJGJ0OtkAPPywHhR03KnLIq/eDoZD7pahduTurlKtHQWiQEBIW5kl3Fzhi8mPTzpKOwK4flnwEnK5UBwzeCJraOCwAOK3mUMSSYZn/IQXr5tnylofTiEIRqcEYMsS93QODh2k52i2K6gsLxqhNdxr9WM2rv7aqXYN3qI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731935859; c=relaxed/simple;
-	bh=KU3s6sJpBDjOPdSAnNRqs2xLSFXNnDngXBG6k3abAzs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=In8JJq7cwn5OtLneVqtcKGm+nz1AxS6rJAmBhQCeVkOoWDuxeKOU/Q/3JNnxFftPwHmx1si6UgdXhWdL62XhWDBhbmadlsqXweiPpPnhHrNRwvwcgYJQqy7rd2CV+WShkXe86rVGD3Mv+vhyrMKWnG3hLTCcqd3nUafz+QPKJlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=adUuNvoV; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1731938885; c=relaxed/simple;
+	bh=SL4Y1eNf3axA4/FlExJQffOT+e+k7+y6DPFaDWJm9qA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dnk5WRLA108k/7ASxpmmy1wEx4aLga5golEVZZXyM/esW81bk7RAxto1e+JPkTX1StdLw7330WyEU+3LBa+m5nvzt+J7nEU7fpiZ/o8PP8NSChT/EtUN341yJlAEMRPyZ3EaM1s/VUT8NZA8CvRPYyJGYXFywI9JOw/qzpT6PRo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YYFko4Wz; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="adUuNvoV"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-53b34ed38easo4182520e87.0
-        for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 05:17:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1731935855; x=1732540655; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QEQ0UnPHgL8X1IzKLkITrqLzsus1TunLlu+R1N5lrJc=;
-        b=adUuNvoV7IjXEHzV+S6jY0wasNoalG35qUcvy33YDFJ9YHYMFpgjSZC8YxgzxcbM0f
-         wdEfSS0Mk1PuI4BCu0JcVR+MSIgCzPVEO9idFwVtGGFBOjPdDDFBHiBaC2NK3i0hm5Tr
-         ChKuFRpkEHDPy9lqC5lgiaACS3jLIwGZyTUwbnlGSJfxWVl2vgxKNFqAV4bs2pVqkeO4
-         E5Kkm61nYyK4NzA6AVoHTlsHUH1O/AVbLM3y0WQ14huhndHqkcNNv7if46BGbDyVGUkM
-         12423ZncF4CEUVD1fmsZ4f4k1lDtMp/N2ydozBeKtgr5eXjmvbeMAygQlbhb+e0HIrZ7
-         4diQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YYFko4Wz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731938882;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ls0eS4Y3YVz07IP+EhoUsET0PplclqIr8lu3ktk+u5k=;
+	b=YYFko4WzCA0HG3gA+n2Pe4tI+TNaNJahhDuOKqEbETCyp1G50FDeyQhxe7Cci8yl/odXrH
+	bGzfd1cZnmiIe1cHSvVDMce1PIyCduKT3Qw/MQa+Y2VMHS7PN70GXr6S3jc8tAFL2lolmJ
+	C5fFcVZlJfGr7Bp0dcLT8rmqTQqkeOw=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-127-6MQdpijjPuqQ519iq-0lCw-1; Mon, 18 Nov 2024 09:07:56 -0500
+X-MC-Unique: 6MQdpijjPuqQ519iq-0lCw-1
+X-Mimecast-MFC-AGG-ID: 6MQdpijjPuqQ519iq-0lCw
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-6ea8794f354so24899727b3.2
+        for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 06:07:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731935855; x=1732540655;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QEQ0UnPHgL8X1IzKLkITrqLzsus1TunLlu+R1N5lrJc=;
-        b=Wq19jjuBL7Q8M2oaYkE/mjzrFyVnWRD0bm47W/fvXKHlottZpsvDWX8v6zVArsIy1l
-         2+LTD0RnVb2YIvEzZL5B8KC+ecR0gAsTCZrd6OYucGXeI2f6JsCDyZV+ZxjlYBacFrJx
-         fEjTz+MVRS0635JXH9NTWJ7qKhk3cbuuRujbtpz7PFkol6mB/6i9S34ReV3tLs1wuw5u
-         rVH3BMQl+El8wUYFhiPI9g0tg6Ky9Hg1sfSgiATT3h6/rtgbVwPzm+P5G4m9sQc+qjBZ
-         FEXInlVQ8xNSwYgXOBhn8AGPE3g1wydjmsbOup9riZP6iyd5NyYw7oIZz5TzGjHmdtYG
-         f/6A==
-X-Forwarded-Encrypted: i=1; AJvYcCX/BFRS1JOeP3+rDUDOrvIk9njjrluTo1FMQOat9DfuCt04+fHskfMRZ9Ij4r+hqauLD/3/Rs6k3z23K5KKyQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw1yZg5iMD1khe+olXFnW2A6JdaBXZlvF/M+CHhjWmDzwGffpgV
-	8sKaQEIiWk7MU5i1Pgc2svp+j5sTcXH9a7BmaEpEZuUPI+nABy/1ZEqanqxPnaQ=
-X-Google-Smtp-Source: AGHT+IGdzRCE2acExYOAR/Q1TPJs2CyZISyIMx5j4q3L/H9VxSQ26s/Ffm8H90fecvqfEbJsuGZxrw==
-X-Received: by 2002:a05:6512:3e07:b0:536:55a9:caf0 with SMTP id 2adb3069b0e04-53dab25f7c9mr4511337e87.0.1731935855301;
-        Mon, 18 Nov 2024 05:17:35 -0800 (PST)
-Received: from eriador.lumag.spb.ru (2001-14ba-a0c3-3a00--7a1.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::7a1])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-53da64f8cafsm1591434e87.54.2024.11.18.05.17.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Nov 2024 05:17:33 -0800 (PST)
-Date: Mon, 18 Nov 2024 15:17:31 +0200
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Karol Herbst <kherbst@redhat.com>, Lyude Paul <lyude@redhat.com>, 
-	Danilo Krummrich <dakr@redhat.com>, Harry Wentland <harry.wentland@amd.com>, 
-	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>, 
-	Alex Deucher <alexander.deucher@amd.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
-	Xinhui Pan <Xinhui.Pan@amd.com>, Alain Volmat <alain.volmat@foss.st.com>, 
-	Raphael Gallais-Pou <rgallaispou@gmail.com>, Liviu Dudau <liviu.dudau@arm.com>, 
-	Andrzej Hajda <andrzej.hajda@intel.com>, Neil Armstrong <neil.armstrong@linaro.org>, 
-	Robert Foss <rfoss@kernel.org>, Jonas Karlman <jonas@kwiboo.se>, 
-	Jernej Skrabec <jernej.skrabec@gmail.com>, Peter Senna Tschudin <peter.senna@gmail.com>, 
-	Ian Ray <ian.ray@ge.com>, Martyn Welch <martyn.welch@collabora.co.uk>, 
-	Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, 
-	Kyungmin Park <kyungmin.park@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	Alim Akhtar <alim.akhtar@samsung.com>, Stefan Agner <stefan@agner.ch>, 
-	Alison Wang <alison.wang@nxp.com>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Rob Clark <robdclark@gmail.com>, 
-	Abhinav Kumar <quic_abhinavk@quicinc.com>, Sean Paul <sean@poorly.run>, 
-	Marijn Suijten <marijn.suijten@somainline.org>, Dave Airlie <airlied@redhat.com>, 
-	Gerd Hoffmann <kraxel@redhat.com>, Sandy Huang <hjc@rock-chips.com>, 
-	Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, Andy Yan <andy.yan@rock-chips.com>, Chen-Yu Tsai <wens@csie.org>, 
-	Samuel Holland <samuel@sholland.org>, Thierry Reding <thierry.reding@gmail.com>, 
-	Mikko Perttunen <mperttunen@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	Dave Stevenson <dave.stevenson@raspberrypi.com>, =?utf-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>, 
-	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
-	Chia-I Wu <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org, 
-	amd-gfx@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
-	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	freedreno@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev, 
-	linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 1/5] drm/encoder_slave: make mode_valid accept const
- struct drm_display_mode
-Message-ID: <4prwsjl7nhg4u4tgyqdmgt6am5ryewslosmbezkfmyxgh2oket@zglhp7zqhfwe>
-References: <20241115-drm-connector-mode-valid-const-v1-0-b1b523156f71@linaro.org>
- <20241115-drm-connector-mode-valid-const-v1-1-b1b523156f71@linaro.org>
- <20241117205426.GE12409@pendragon.ideasonboard.com>
- <CAA8EJpr=4AQVRKbtR2MaCQfguGW0a=3ay-ttew-mFR4f086Uyg@mail.gmail.com>
- <20241117233250.GK12409@pendragon.ideasonboard.com>
- <CAA8EJpq6Gkp4W=rGbpY6ASPgoDt=64HTFDk4_OZsTmbSUxhhGw@mail.gmail.com>
- <87plms51w4.fsf@intel.com>
+        d=1e100.net; s=20230601; t=1731938876; x=1732543676;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ls0eS4Y3YVz07IP+EhoUsET0PplclqIr8lu3ktk+u5k=;
+        b=m8lLMT406EAOdoYjO8xSW0TDE93uOkRwAjtYHbDzADQaKYCnQ6DuOntKbzLLhl2j2I
+         Do/MmnY0xyHDl7i97zDn1T5qHGWQer7mF3YSpwTM+DqfogKngSYULYqQGtfgbvELuk8t
+         odbc8wAuwN0ca0+T74w1YjKWjcA+FX8NhTyh6nfUbafNY0ehaGdpHbOAdl/TKXv9qDAh
+         0LHUZ4kZ7RKMgWgn/l4nDBBV4UXu9S0PLHOyA9IecFQusLfQMlxX/LWGTJ56v3pZi+BL
+         NVCdte1l8NA9JzVI54jKtRahAZeNPCF6UBx8fZ0vpHbbaQxBxHllAX/DIq+Yh52sUNbz
+         fPkw==
+X-Forwarded-Encrypted: i=1; AJvYcCWPb1J9d9DAf4E/7k1HfNq7gYO7VG2SRzqEb8VatgSLwxWI/eTdcIrexDO83uotr4/591bYbcuFeJfC7KWo9w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YybMbr5Xxo/WayfEqjAk9v0jhn7kWpXAy1IMOv0H5ynLZs517RC
+	vMEDn9qJdr2r35nJXWRe5xjoVCnRNzNprJFHjDvfQynkrk/68D1utNciEpE1IR9vcP2l3zbaXTx
+	QSG1tpuzU+g7QjIENfJijyWfZMAw+3pDPTFzgQJM6jl4/pbhgBvP67FRrmYMvP5XKc5Yy9Ppkmc
+	MZAqeZ35zZUssMF+eWUtufWmGzMYE45T7HNXiH0ns=
+X-Received: by 2002:a05:690c:6802:b0:6ee:87f2:d23e with SMTP id 00721157ae682-6ee87f2d39bmr43332727b3.22.1731938875694;
+        Mon, 18 Nov 2024 06:07:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFiqpbTcWqehqFgM8ZzDzeKjZvPeGxXveks1ivMQC2hfyk0PbNu/4N9hBB3ApxvIxF0JoJLwcnAe9iB6nd1xJo=
+X-Received: by 2002:a05:690c:6802:b0:6ee:87f2:d23e with SMTP id
+ 00721157ae682-6ee87f2d39bmr43332237b3.22.1731938875266; Mon, 18 Nov 2024
+ 06:07:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87plms51w4.fsf@intel.com>
+References: <20241115103016.86461-1-graf@amazon.com> <yjhfe5bsnfpqbnibxl2urrnuowzitxnrbodlihz4y5csig7e7p@drgxxxxgokfo>
+ <dca2f6ff-b586-461d-936d-e0b9edbe7642@amazon.com>
+In-Reply-To: <dca2f6ff-b586-461d-936d-e0b9edbe7642@amazon.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Mon, 18 Nov 2024 15:07:43 +0100
+Message-ID: <CAGxU2F6eJA+vpYVbE0HNW794pF6wLL+o=92NYMQVvmFWnpNPaA@mail.gmail.com>
+Subject: Re: [PATCH] vsock/virtio: Remove queued_replies pushback logic
+To: Alexander Graf <graf@amazon.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
+	Asias He <asias@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, 
+	"David S. Miller" <davem@davemloft.net>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: bI2-sEzqMlksyucgdWEWu10GlDmmcFkd3RF5BzfBxQU_1731938876
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 18, 2024 at 11:26:03AM +0200, Jani Nikula wrote:
-> On Mon, 18 Nov 2024, Dmitry Baryshkov <dmitry.baryshkov@linaro.org> wrote:
-> > On Mon, 18 Nov 2024 at 01:33, Laurent Pinchart
-> > <laurent.pinchart@ideasonboard.com> wrote:
-> >>
-> >> On Mon, Nov 18, 2024 at 01:22:12AM +0200, Dmitry Baryshkov wrote:
-> >> > On Sun, 17 Nov 2024 at 22:54, Laurent Pinchart wrote:
-> >> > > On Fri, Nov 15, 2024 at 11:09:26PM +0200, Dmitry Baryshkov wrote:
-> >> > > > The mode_valid() callbacks of drm_encoder, drm_crtc and drm_bridge
-> >> > > > accept const struct drm_display_mode argument. Change the mode_valid
-> >> > > > callback of drm_encoder_slave to also accept const argument.
-> >> > > >
-> >> > > > Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> >> > >
-> >> > > Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-> >> > >
-> >> > > On a side note, there's only two I2C slave encoder drivers left... I
-> >> > > wonder if we could so something about them. The ch7006 and sil164
-> >> > > drivers seem to be used by nouveau only, could they be moved to
-> >> > > drivers/gpu/drm/nouveau/ ? We would move the whole drm_encoder_slave
-> >> > > implementation there too, and leave it to die (or get taken out of limbo
-> >> > > and fixed) with dispnv04.
-> >> >
-> >> > Or it might be better to switch to drm_bridge. Currently we also have
-> >> > sil164 (sub)drivers in ast and i915 drivers. I don't know if there is
-> >> > any common code to share or not. If there is some, it might be nice to
-> >> > use common framework.
-> >>
-> >> That would require porting nouveau and i915 to drm_bridge. As much as
-> >> I'd love to see that happening, I won't hold my breath.
+On Fri, Nov 15, 2024 at 4:49=E2=80=AFPM Alexander Graf <graf@amazon.com> wr=
+ote:
+>
+> Hi Stefano,
+>
+> On 15.11.24 12:59, Stefano Garzarella wrote:
 > >
-> > Me neither. Probably moving those two and drm_encoder_slave to nouveau
-> > is really the best course for now.
-> 
-> Granted, the dvo part of i915 is ugly, but it's also only relevant for
-> the oldest hardware i915 supports. Like 20 years old. Not sure there's
-> much return on investment in big refactoring, more risk that it breaks
-> without nobody noticing. Just let it be in i915?
+> > On Fri, Nov 15, 2024 at 10:30:16AM +0000, Alexander Graf wrote:
+> >> Ever since the introduction of the virtio vsock driver, it included
+> >> pushback logic that blocks it from taking any new RX packets until the
+> >> TX queue backlog becomes shallower than the virtqueue size.
+> >>
+> >> This logic works fine when you connect a user space application on the
+> >> hypervisor with a virtio-vsock target, because the guest will stop
+> >> receiving data until the host pulled all outstanding data from the VM.
+> >
+> > So, why not skipping this only when talking with a sibling VM?
+>
+>
+> I don't think there is a way to know, is there?
+>
 
-Agreed
+I thought about looking into the header and check the dst_cid.
+If it's > VMADDR_CID_HOST, we are talking with a sibling VM.
+
+>
+> >
+> >>
+> >> With Nitro Enclaves however, we connect 2 VMs directly via vsock:
+> >>
+> >>  Parent      Enclave
+> >>
+> >>    RX -------- TX
+> >>    TX -------- RX
+> >>
+> >> This means we now have 2 virtio-vsock backends that both have the
+> >> pushback
+> >> logic. If the parent's TX queue runs full at the same time as the
+> >> Enclave's, both virtio-vsock drivers fall into the pushback path and
+> >> no longer accept RX traffic. However, that RX traffic is TX traffic on
+> >> the other side which blocks that driver from making any forward
+> >> progress. We're not in a deadlock.
+> >>
+> >> To resolve this, let's remove that pushback logic altogether and rely =
+on
+> >> higher levels (like credits) to ensure we do not consume unbounded
+> >> memory.
+> >
+> > I spoke quickly with Stefan who has been following the development from
+> > the beginning and actually pointed out that there might be problems
+> > with the control packets, since credits only covers data packets, so
+> > it doesn't seem like a good idea remove this mechanism completely.
+>
+>
+> Can you help me understand which situations the current mechanism really
+> helps with, so we can look at alternatives?
+
+Good question!
+I didn't participate in the initial development, so what I'm telling
+you is my understanding.
+@Stefan feel free to correct me!
+
+The driver uses a single workqueue (virtio_vsock_workqueue) where it
+queues several workers. The ones we are interested in are:
+1. the one to handle avail buffers in the TX virtqueue (send_pkt_work)
+2. the one for used buffers in the RX virtqueue (rx_work)
+
+Assuming that the same kthread executes the different workers, it
+seems to be more about making sure that the RX worker (i.e. rx_work)
+does not consume all the execution time, leaving no room for TX
+(send_pkt_work). Especially when there are a lot of messages queued in
+the TX queue that are considered as response for the host. (The
+threshold seems to be the size of the virtqueue).
+
+That said, perhaps just adopting a technique like the one in vhost
+(byte_weight in vhost_dev_init(), vhost_exceeds_weight(), etc.) where
+after a certain number of packets/bytes handled, the worker terminates
+its work and reschedules, could give us the same guarantees, in a
+simpler way.
+
+>
+>
+> >
+> >>
+> >> Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
+> >
+> > I'm not sure we should add this Fixes tag, this seems very risky
+> > backporting on stable branches IMHO.
+>
+>
+> Which situations do you believe it will genuinely break anything in?
+
+The situation for which it was introduced (which I don't know
+precisely because I wasn't following vsock yet).
+Removing it completely without being sure that what it was developed
+for is okay is risky to me.
+
+Support for sibling VMs has only recently been introduced, so I'd be
+happier making these changes just for that kind of communication.
+
+That said, the idea of doing like vhost might solve all our problems,
+so in that case maybe it might be okay.
+
+> As
+> it stands today, if you run upstream parent and enclave and hammer them
+> with vsock traffic, you get into a deadlock. Even without the flow
+> control, you will never hit a deadlock. But you may get a brown-out like
+> situation while Linux is flushing its buffers.
+>
+> Ideally we want to have actual flow control to mitigate the problem
+> altogether. But I'm not quite sure how and where. Just blocking all
+> receiving traffic causes problems.
+>
+>
+> > If we cannot find a better mechanism to replace this with something
+> > that works both guest <-> host and guest <-> guest, I would prefer
+> > to do this just for guest <-> guest communication.
+> > Because removing this completely seems too risky for me, at least
+> > without a proof that control packets are fine.
+>
+>
+> So your concern is that control packets would not receive pushback, so
+> we would allow unbounded traffic to get queued up?
+
+Right, most of `reply` are control packets (reset and response IIUC)
+that are not part of the credit mechanism, so I think this confirms
+what Stefan was telling me.
+
+> Can you suggest
+> options to help with that?
+
+Maybe mimic vhost approach should help, or something similar.
+
+That said, did you really encounter a real problem or is it more of a
+patch to avoid future problems.
+
+Because it would be nice to have a test that emphasizes this problem
+that we can use to check that everything is okay if we adopt something
+different. The same goes for the problem that this mechanism wants to
+avoid, I'll try to see if I have time to write a test so we can use
+it.
 
 
--- 
-With best wishes
-Dmitry
+Thanks,
+Stefano
+
