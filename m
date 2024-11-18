@@ -1,167 +1,121 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F11819AD7E
-	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 15:24:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A62512EBE7
+	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 15:54:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731943444; cv=none; b=P0qbHzL6Q9LVDXEQRnZRH2MV3xQeT71rbFC5W5cspOh70HRKhyHa7IVBmkIfTP+hWkSB8qB1pJvWezuC3GBrp8c2XawuyJ8MSYR47Afb2Z8StYgoTEkHllIFEoUqWHWUVcatiwuSWydcffJzhQ9ZpA/kpAzGNJwa3OiPGyYRYbs=
+	t=1731945249; cv=none; b=WYbDkvM5RE/yoJLydnZ9suqcit6u+WWUsZMbvH0n5KkA4HTsiCVXkgTVYHZnM7eFhY6PN13RmN49zaITGGcZPLPy3in0RoSn2U1mDahC2wnxKUMvXhbwfKW3LYHMujLCsPVhkbNy2A1wzHbTZk51p8gU+zaamj3NMesBoqsYlu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731943444; c=relaxed/simple;
-	bh=p3iN8DZuOevOGnMI17kwOFArRNlkmk9v/MRI3sg5Upo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=b7AukAQaIqTAUiSDjRFW/5fXFW8pmjSuTOKXNEIn3HDB4NXKWcBtRdh7U9OygWCLKYR2/HYoduxI5ZxlLzTtaBIA3duKWU1UHhnfEhPV9zNWyPLbYl9E8Z104fiPSsB9SDD/FkknuShTk7AIPRwwhsyjee/IRW+tKDae1Lfkqtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 5CDE968D31; Mon, 18 Nov 2024 16:23:57 +0100 (CET)
-Date: Mon, 18 Nov 2024 16:23:57 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Christoph Hellwig <hch@lst.de>,
-	Chaitanya Kulkarni <chaitanyak@nvidia.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, Keith Busch <kbusch@kernel.org>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Pavel Begunkov <asml.silence@gmail.com>,
-	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
-	"io-uring@vger.kernel.org" <io-uring@vger.kernel.org>
-Subject: Re: don't reorder requests passed to ->queue_rqs
-Message-ID: <20241118152357.GA7513@lst.de>
-References: <20241113152050.157179-1-hch@lst.de> <eb2faaba-c261-48de-8316-c8e34fdb516c@nvidia.com> <2f7fa13a-71d9-4a8d-b8f4-5f657fdaab60@kernel.dk> <20241114041603.GA8971@lst.de> <0236980b-b892-460c-802e-a87a79b7ac0b@kernel.dk>
+	s=arc-20240116; t=1731945249; c=relaxed/simple;
+	bh=4lpYUs5Dbj0T8zn97A2VEybvGIFft2BYYoXxSpx3bHU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RsTKz8u+ID405oPtD2dOOvN8HiShgCOZX/g0z9zeFdmrkYoawBxUGJjXbvrhCfcCqt7Pk7fDLEO+h9JqoYB6rWLcfohY8OrZ6mHZPvRfDfzdby+waJAS1zIduAspHTNwdceWTFAgpMQr4j9tx9ZIBZAoF5TCqO5rs8WYhXJ3Swc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qQ7Lv+2L; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qQ7Lv+2L"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AIB4gaS022969;
+	Mon, 18 Nov 2024 15:54:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=SaDWlb
+	2kKaad3gP5OleofzMuysniJvB4P5iWE1Qjlb8=; b=qQ7Lv+2LJ5CnumzBzjAqxr
+	GunvUxdms9jNHeolIbO6z6aKh067VjHkVP3ahBhYvHTsC0FoTbCVPuVbDo0jQPws
+	uFOg+wTrZJuIOxe37ARIo74U1IvBaH65//fUuTGz+znTfWZl2XKRZqE7cIrL9n2G
+	rtP/32HvBwIWlMKNXR7H5c1ccTH9aVMc0tD0ATvlNh1AMH6lEFwHdHtbwdwm5gUZ
+	i2bgjKhbSq+M3CqZMjB4vPqUu/7xqLxo2tQ+rMDiGrUHO94/V19ez/Z0+mDj/aTC
+	iOZWlgetz8eejMwzRGRSBDbAmWJu8jlfW1ckA5c3h1VwotX2cvs+VBWWp9Z3JLBw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42xyu1gpwd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 18 Nov 2024 15:54:07 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AIEogGR021983;
+	Mon, 18 Nov 2024 15:54:06 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42y6qmtv09-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 18 Nov 2024 15:54:06 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4AIFs55p47972750
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 18 Nov 2024 15:54:05 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4345F58050;
+	Mon, 18 Nov 2024 15:54:05 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E27F158045;
+	Mon, 18 Nov 2024 15:54:04 +0000 (GMT)
+Received: from [9.61.240.76] (unknown [9.61.240.76])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 18 Nov 2024 15:54:04 +0000 (GMT)
+Message-ID: <542cb6ed-8e2b-407e-9f9d-037144740b93@linux.ibm.com>
+Date: Mon, 18 Nov 2024 09:54:04 -0600
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 3/3] vsock/test: verify socket options after setting
+ them
+Content-Language: en-US
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
+References: <20241113143557.1000843-1-kshk@linux.ibm.com>
+ <20241113143557.1000843-4-kshk@linux.ibm.com>
+ <yo2qj7psn3sqtyqgsfn6y2qtwcmyb4j7gwuffg34gwqwkrsyox@4aff3wvdrdgu>
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+In-Reply-To: <yo2qj7psn3sqtyqgsfn6y2qtwcmyb4j7gwuffg34gwqwkrsyox@4aff3wvdrdgu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <0236980b-b892-460c-802e-a87a79b7ac0b@kernel.dk>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KY8lgYHVVl13F8Rj2DQbSA6JJs9h1IRC
+X-Proofpoint-ORIG-GUID: KY8lgYHVVl13F8Rj2DQbSA6JJs9h1IRC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
+ bulkscore=0 spamscore=0 mlxlogscore=999 adultscore=0 mlxscore=0
+ clxscore=1015 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411180128
 
-On Thu, Nov 14, 2024 at 08:14:11AM -0700, Jens Axboe wrote:
-> > that goes back to the scheme currently used upstream in nvme and virtio
-> > that just cuts of the list at a hctx change instead of moving the
-> > requests one by one now that the block layer doesn't mess up the order.
+On 11/14/2024 04:28, Stefano Garzarella wrote:
+> On Wed, Nov 13, 2024 at 08:35:57AM -0600, Konstantin Shkolnyy wrote:
+[...]
+>> diff --git a/tools/testing/vsock/msg_zerocopy_common.c b/tools/ 
+>> testing/vsock/msg_zerocopy_common.c
+>> index 5a4bdf7b5132..8622e5a0f8b7 100644
+>> --- a/tools/testing/vsock/msg_zerocopy_common.c
+>> +++ b/tools/testing/vsock/msg_zerocopy_common.c
+>> @@ -14,16 +14,6 @@
+>>
+>> #include "msg_zerocopy_common.h"
+>>
+>> -void enable_so_zerocopy(int fd)
+>> -{
+>> -    int val = 1;
+>> -
+>> -    if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &val, sizeof(val))) {
+>> -        perror("setsockopt");
+>> -        exit(EXIT_FAILURE);
+>> -    }
+>> -}
+>> -
 > 
-> I think that would be useful. I can test.
+> Since the new API has a different name (i.e.
+> `enable_so_zerocopy_check()`), this `enable_so_zerocopy()` could stay
+> here, anyway I don't want to be too picky, I'm totally fine with this
+> change since it's now only used by vsock_perf ;-)
+> 
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> 
 
-I played with this a bit, and I really hate keeping prev for the
-unlinking.  So this version uses a slightly different approach:
-
- ‐ a first pass that just rolls through all requests and does the prep
-   checks.  If they fail that is recorded in a new field in the iod
-   (could also become a request flag)
- - the submission loop inside sq_lock becomes a bit more complex
-   as it handles breaking out of the inner loop for hctx changes,
-   and to move the previously failed commands to the resubmit list.
-
-But this completely gets rid of the prev tracking and all list
-manipulation except for the final list_pop.
-
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 5f2e3ad2cc52..3470dae73a8c 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -233,6 +233,7 @@ struct nvme_iod {
- 	struct nvme_request req;
- 	struct nvme_command cmd;
- 	bool aborted;
-+	bool batch_failed;
- 	s8 nr_allocations;	/* PRP list pool allocations. 0 means small
- 				   pool in use */
- 	unsigned int dma_len;	/* length of single DMA segment mapping */
-@@ -843,6 +844,7 @@ static blk_status_t nvme_prep_rq(struct nvme_dev *dev, struct request *req)
- 	blk_status_t ret;
- 
- 	iod->aborted = false;
-+	iod->batch_failed = false;
- 	iod->nr_allocations = -1;
- 	iod->sgt.nents = 0;
- 
-@@ -904,54 +906,51 @@ static blk_status_t nvme_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	return BLK_STS_OK;
- }
- 
--static void nvme_submit_cmds(struct nvme_queue *nvmeq, struct rq_list *rqlist)
-+static void nvme_submit_cmds(struct rq_list *rqlist,
-+		struct rq_list *requeue_list)
- {
--	struct request *req;
-+	struct request *req = rq_list_peek(rqlist);
-+	struct nvme_queue *nvmeq = req->mq_hctx->driver_data;
- 
- 	spin_lock(&nvmeq->sq_lock);
- 	while ((req = rq_list_pop(rqlist))) {
- 		struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
- 
--		nvme_sq_copy_cmd(nvmeq, &iod->cmd);
-+		if (iod->batch_failed)
-+			rq_list_add_tail(requeue_list, req);
-+		else
-+			nvme_sq_copy_cmd(nvmeq, &iod->cmd);
-+
-+		if (!req->rq_next || req->mq_hctx != req->rq_next->mq_hctx)
-+			break;
- 	}
- 	nvme_write_sq_db(nvmeq, true);
- 	spin_unlock(&nvmeq->sq_lock);
- }
- 
--static bool nvme_prep_rq_batch(struct nvme_queue *nvmeq, struct request *req)
--{
--	/*
--	 * We should not need to do this, but we're still using this to
--	 * ensure we can drain requests on a dying queue.
--	 */
--	if (unlikely(!test_bit(NVMEQ_ENABLED, &nvmeq->flags)))
--		return false;
--	if (unlikely(!nvme_check_ready(&nvmeq->dev->ctrl, req, true)))
--		return false;
--
--	return nvme_prep_rq(nvmeq->dev, req) == BLK_STS_OK;
--}
--
- static void nvme_queue_rqs(struct rq_list *rqlist)
- {
--	struct rq_list submit_list = { };
- 	struct rq_list requeue_list = { };
--	struct nvme_queue *nvmeq = NULL;
- 	struct request *req;
- 
--	while ((req = rq_list_pop(rqlist))) {
--		if (nvmeq && nvmeq != req->mq_hctx->driver_data)
--			nvme_submit_cmds(nvmeq, &submit_list);
--		nvmeq = req->mq_hctx->driver_data;
-+	rq_list_for_each(rqlist, req) {
-+		struct nvme_queue *nvmeq = req->mq_hctx->driver_data;
-+		struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
- 
--		if (nvme_prep_rq_batch(nvmeq, req))
--			rq_list_add_tail(&submit_list, req);
--		else
--			rq_list_add_tail(&requeue_list, req);
-+		/*
-+		 * We should not need to do this, but we're still using this to
-+		 * ensure we can drain requests on a dying queue.
-+		 */
-+		if (unlikely(!test_bit(NVMEQ_ENABLED, &nvmeq->flags)) ||
-+		    unlikely(!nvme_check_ready(&nvmeq->dev->ctrl, req, true)) ||
-+		    unlikely(nvme_prep_rq(nvmeq->dev, req) != BLK_STS_OK))
-+			iod->batch_failed = true;
- 	}
- 
--	if (nvmeq)
--		nvme_submit_cmds(nvmeq, &submit_list);
-+	do {
-+		nvme_submit_cmds(rqlist, &requeue_list);
-+	} while (!rq_list_empty(rqlist));
-+
- 	*rqlist = requeue_list;
- }
- 
+Ok, let's keep it static then - it's simpler :-)
