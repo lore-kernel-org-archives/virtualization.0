@@ -1,169 +1,159 @@
-Received: from HK2PR02CU002.outbound.protection.outlook.com (mail-eastasiaazon11020086.outbound.protection.outlook.com [52.101.128.86])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC47F199EAD
-	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 12:41:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.128.86
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731933677; cv=fail; b=QVIHnTxlPj7wCvZ4HOeoOY/H8YiVhegTcAx1AkSTBSSpXJr5JL60ExUgP2McFpLw8bUSfqr94UZHYDAUi/jzoWxneQrqXW2I2Q05CVmyrYe5ed+q3O1zMn21qCUkiHajQOrvuXTW7V/nTkXbjkhlFmYervcF3u6HYZadAdIlysE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731933677; c=relaxed/simple;
-	bh=I1NKEzrh6tmvdd58m6h1Uti0ggnIYBYod1NKHn6Lzls=;
-	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=sifOqEFrJt6DeEps7KgXFUY/k7S92riIEp18JM5hw+CwhMimFuV5uKe7dEMo1W2TlxioJ/I0orNcThXnaLkLUSdyIqIBK3XEYfNOrTa8ag29oz4LfqI/VjACl6PsydrtyOc3zxp+pTn2gzU+eUhQatTZBjc65br4DMq/VMoc6XM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=g1iAkkNT; arc=fail smtp.client-ip=52.101.128.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3917A19ABB6
+	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 13:17:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1731935859; cv=none; b=eg5GwZR08nYewAfF0NmtfQbuoLQrgO1C+sO/smlgI2FzKLHKDH2c5MXr2sGN/Vsm+L3ywjKhz4lUln03UhhM0ql1c4dEMvj5TCENIuZl1GcOAQB6Ne7SZ0RuwBHIk1vkcp9NBruBBOqsJ18951J8Y4K6eMSBlsLdl6NzcXYkGkY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1731935859; c=relaxed/simple;
+	bh=KU3s6sJpBDjOPdSAnNRqs2xLSFXNnDngXBG6k3abAzs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=In8JJq7cwn5OtLneVqtcKGm+nz1AxS6rJAmBhQCeVkOoWDuxeKOU/Q/3JNnxFftPwHmx1si6UgdXhWdL62XhWDBhbmadlsqXweiPpPnhHrNRwvwcgYJQqy7rd2CV+WShkXe86rVGD3Mv+vhyrMKWnG3hLTCcqd3nUafz+QPKJlI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=adUuNvoV; arc=none smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="g1iAkkNT"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=RhJBMramj1aog5sd1KR6TGm9TYEnm3koIgKBVtHQFn0medWbsFE9i/Ddk1Aw8w56n2hGL+wPExqilVOGRAFyhhqATHw3RVLq16DHNExm/e3WN5gup/oAonkzqBPMUIFy37iGvVaGWRJJS39QNVomdsBWj5xqWQgkBfyqOgLOilutQVeQ+8b+T0hZ6yuDDWZOhWjz9eq8+ilAf1xcmbBcZdLOSCk3F4+DZ9FtJSxVuZdIR0tJ0Ho3Y44/ll4iq0SRFEmOHtEuRbXVLnP0RIT4lYYjvSD3joOEZ/Xj10Cu/3EsAn8kReKgcsBhhwLE8Y0a1sPSBEC/KLRGK5m+rw4AYg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jYYbED5raF2ITXAQ/FGisO9jOkPzZbraZjF5Tvi5alg=;
- b=a11wXEAByou9Z8ba1c6NRjzABOUBHyCzeQ/x7KZFhC/jyxDZnosasX3tsDjB4qkBLEuax5PS+vuGMczqmnZ+LDIhTtdltEu8Fl1wJl2Gd1iyfAlVN2xwLEwiBdbrY/1IyEidITdpVDNnBGtUVfFmqgemwCt5+prEDY3T4EnfxDGYQDxPCua8HoGrCWyQRze4ISFncxpDx0mCkSXqSeewbRVQOkD9rp0VFkE8scPXk4khCCIcs+qvguLoSvcPCgundtFNuWjdZmYC2ltTH4aoKnJ2A2l6InJBjs0Sw0NQBryNwKASW4YlgRB2yvj6Vs72K+htXpXixF+ioky7rySxdA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
- header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jYYbED5raF2ITXAQ/FGisO9jOkPzZbraZjF5Tvi5alg=;
- b=g1iAkkNTohP/0+jGJP3hrcbCTXrDuU756paPZnYwuSVY4SHH0kAYo+SZBP83WVZhhstGPv9fVduWEzPqltdF/wBHB1O9ectqbO0QjmcPURSo6CI4HkWLx6D9JnncaDz04WOxVL7hNReTNvThediZ5aLkA7wyFrfao7/erbIhv0ZL33dxNHaO1wibMy0cFJDfTwhmW3TJm9x1UXexjbADrtz0UkoymyVSEmlsxGnx5ukRw5K1jlCd6UFD8slhEZhyE4dlKuGvs0CTIoLVre8/zXxMs1kAfn2IfFS0XqcQWI3bNEcdaDY4ZwINBaxvBDQFWfTRfII0qZD+dWUlyh5awg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
-Received: from JH0PR06MB6800.apcprd06.prod.outlook.com (2603:1096:990:39::13)
- by SG2PR06MB5408.apcprd06.prod.outlook.com (2603:1096:4:1dc::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8182.10; Mon, 18 Nov
- 2024 12:41:09 +0000
-Received: from JH0PR06MB6800.apcprd06.prod.outlook.com
- ([fe80::816c:b02a:441e:950]) by JH0PR06MB6800.apcprd06.prod.outlook.com
- ([fe80::816c:b02a:441e:950%4]) with mapi id 15.20.8182.004; Mon, 18 Nov 2024
- 12:41:09 +0000
-From: xiaowuding_jaguarmicro <xiaowu.ding@jaguarmicro.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	angus.chen@jaguarmicro.com,
-	Xiaowu Ding <xiaowu.ding@jaguarmicro.com>
-Subject: [PATCH] virtio: remove the duplicate might_sleep()
-Date: Mon, 18 Nov 2024 20:40:56 +0800
-Message-Id: <20241118124056.1038-1-xiaowu.ding@jaguarmicro.com>
-X-Mailer: git-send-email 2.34.1.windows.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SI2PR02CA0050.apcprd02.prod.outlook.com
- (2603:1096:4:196::11) To JH0PR06MB6800.apcprd06.prod.outlook.com
- (2603:1096:990:39::13)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="adUuNvoV"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-53b34ed38easo4182520e87.0
+        for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 05:17:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1731935855; x=1732540655; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QEQ0UnPHgL8X1IzKLkITrqLzsus1TunLlu+R1N5lrJc=;
+        b=adUuNvoV7IjXEHzV+S6jY0wasNoalG35qUcvy33YDFJ9YHYMFpgjSZC8YxgzxcbM0f
+         wdEfSS0Mk1PuI4BCu0JcVR+MSIgCzPVEO9idFwVtGGFBOjPdDDFBHiBaC2NK3i0hm5Tr
+         ChKuFRpkEHDPy9lqC5lgiaACS3jLIwGZyTUwbnlGSJfxWVl2vgxKNFqAV4bs2pVqkeO4
+         E5Kkm61nYyK4NzA6AVoHTlsHUH1O/AVbLM3y0WQ14huhndHqkcNNv7if46BGbDyVGUkM
+         12423ZncF4CEUVD1fmsZ4f4k1lDtMp/N2ydozBeKtgr5eXjmvbeMAygQlbhb+e0HIrZ7
+         4diQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731935855; x=1732540655;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QEQ0UnPHgL8X1IzKLkITrqLzsus1TunLlu+R1N5lrJc=;
+        b=Wq19jjuBL7Q8M2oaYkE/mjzrFyVnWRD0bm47W/fvXKHlottZpsvDWX8v6zVArsIy1l
+         2+LTD0RnVb2YIvEzZL5B8KC+ecR0gAsTCZrd6OYucGXeI2f6JsCDyZV+ZxjlYBacFrJx
+         fEjTz+MVRS0635JXH9NTWJ7qKhk3cbuuRujbtpz7PFkol6mB/6i9S34ReV3tLs1wuw5u
+         rVH3BMQl+El8wUYFhiPI9g0tg6Ky9Hg1sfSgiATT3h6/rtgbVwPzm+P5G4m9sQc+qjBZ
+         FEXInlVQ8xNSwYgXOBhn8AGPE3g1wydjmsbOup9riZP6iyd5NyYw7oIZz5TzGjHmdtYG
+         f/6A==
+X-Forwarded-Encrypted: i=1; AJvYcCX/BFRS1JOeP3+rDUDOrvIk9njjrluTo1FMQOat9DfuCt04+fHskfMRZ9Ij4r+hqauLD/3/Rs6k3z23K5KKyQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw1yZg5iMD1khe+olXFnW2A6JdaBXZlvF/M+CHhjWmDzwGffpgV
+	8sKaQEIiWk7MU5i1Pgc2svp+j5sTcXH9a7BmaEpEZuUPI+nABy/1ZEqanqxPnaQ=
+X-Google-Smtp-Source: AGHT+IGdzRCE2acExYOAR/Q1TPJs2CyZISyIMx5j4q3L/H9VxSQ26s/Ffm8H90fecvqfEbJsuGZxrw==
+X-Received: by 2002:a05:6512:3e07:b0:536:55a9:caf0 with SMTP id 2adb3069b0e04-53dab25f7c9mr4511337e87.0.1731935855301;
+        Mon, 18 Nov 2024 05:17:35 -0800 (PST)
+Received: from eriador.lumag.spb.ru (2001-14ba-a0c3-3a00--7a1.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::7a1])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-53da64f8cafsm1591434e87.54.2024.11.18.05.17.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Nov 2024 05:17:33 -0800 (PST)
+Date: Mon, 18 Nov 2024 15:17:31 +0200
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+To: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Karol Herbst <kherbst@redhat.com>, Lyude Paul <lyude@redhat.com>, 
+	Danilo Krummrich <dakr@redhat.com>, Harry Wentland <harry.wentland@amd.com>, 
+	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>, 
+	Alex Deucher <alexander.deucher@amd.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
+	Xinhui Pan <Xinhui.Pan@amd.com>, Alain Volmat <alain.volmat@foss.st.com>, 
+	Raphael Gallais-Pou <rgallaispou@gmail.com>, Liviu Dudau <liviu.dudau@arm.com>, 
+	Andrzej Hajda <andrzej.hajda@intel.com>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Robert Foss <rfoss@kernel.org>, Jonas Karlman <jonas@kwiboo.se>, 
+	Jernej Skrabec <jernej.skrabec@gmail.com>, Peter Senna Tschudin <peter.senna@gmail.com>, 
+	Ian Ray <ian.ray@ge.com>, Martyn Welch <martyn.welch@collabora.co.uk>, 
+	Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, 
+	Kyungmin Park <kyungmin.park@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	Alim Akhtar <alim.akhtar@samsung.com>, Stefan Agner <stefan@agner.ch>, 
+	Alison Wang <alison.wang@nxp.com>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Rob Clark <robdclark@gmail.com>, 
+	Abhinav Kumar <quic_abhinavk@quicinc.com>, Sean Paul <sean@poorly.run>, 
+	Marijn Suijten <marijn.suijten@somainline.org>, Dave Airlie <airlied@redhat.com>, 
+	Gerd Hoffmann <kraxel@redhat.com>, Sandy Huang <hjc@rock-chips.com>, 
+	Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, Andy Yan <andy.yan@rock-chips.com>, Chen-Yu Tsai <wens@csie.org>, 
+	Samuel Holland <samuel@sholland.org>, Thierry Reding <thierry.reding@gmail.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Dave Stevenson <dave.stevenson@raspberrypi.com>, =?utf-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>, 
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
+	Chia-I Wu <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
+	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
+	freedreno@lists.freedesktop.org, virtualization@lists.linux.dev, 
+	spice-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev, 
+	linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 1/5] drm/encoder_slave: make mode_valid accept const
+ struct drm_display_mode
+Message-ID: <4prwsjl7nhg4u4tgyqdmgt6am5ryewslosmbezkfmyxgh2oket@zglhp7zqhfwe>
+References: <20241115-drm-connector-mode-valid-const-v1-0-b1b523156f71@linaro.org>
+ <20241115-drm-connector-mode-valid-const-v1-1-b1b523156f71@linaro.org>
+ <20241117205426.GE12409@pendragon.ideasonboard.com>
+ <CAA8EJpr=4AQVRKbtR2MaCQfguGW0a=3ay-ttew-mFR4f086Uyg@mail.gmail.com>
+ <20241117233250.GK12409@pendragon.ideasonboard.com>
+ <CAA8EJpq6Gkp4W=rGbpY6ASPgoDt=64HTFDk4_OZsTmbSUxhhGw@mail.gmail.com>
+ <87plms51w4.fsf@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: JH0PR06MB6800:EE_|SG2PR06MB5408:EE_
-X-MS-Office365-Filtering-Correlation-Id: 11008fae-23a4-47da-e947-08dd07ce46ef
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|52116014|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?Lje/lU5Ozy05TmN2sl0EB7QLubzG70H7M+e/sMVsowwXSTCz0MYZ1Q0BMU5l?=
- =?us-ascii?Q?aVsp2vLgYWZ3EuM13R08A7n/8efNjypfS428QHt4Xz9cqpBbi2eD+QkOQ1iN?=
- =?us-ascii?Q?kQY76T997n7DO15WqZ7m1WwVjMWUmZMof5nAY18VRhKQu8pgn8A9Jb41xerK?=
- =?us-ascii?Q?rzJ2Jskf1k4/gIGXcQp3U7fcjcMWncX5tpk0cN7iy/+FjioyeVZ7dVlGE3s9?=
- =?us-ascii?Q?DqhoLC3UHbBmse7BkRD3qEsnHS98NKY1UrEsnh6pU7PNCxAWnRl9qEEfVhii?=
- =?us-ascii?Q?fCHt4Yn6oCM0YE1/mT4ea7JC01g3v2SbVCXpmD3tVJx+DjZBwoENC3/x/VMU?=
- =?us-ascii?Q?nRsz8AuO7fpuuo83Laeh8JojOrV+uxRO8jTIssdzVVcqWx+dmEiIGiGmXHtV?=
- =?us-ascii?Q?l28cllxHqaLFBRwtfTMTgY1VV3RfxFdrLhkDeVFuBdSKQcOnTVoRw1AtX2lR?=
- =?us-ascii?Q?igCo8jseGdrQUf0F/G30DSu3g23z7bK0BEehg/Qrhba+2H9do9bWnzwS8fdq?=
- =?us-ascii?Q?q9P2j1JqStLDwrfvYG/zichwaHdbW0MlTu5CCBFd7v613GE82E4xuU7+tqoQ?=
- =?us-ascii?Q?GdlGgj5lLM3/jziBB10LqpFXYTkLUQxDUqSIWs9j8n3l+Wc43XUhtMsVhXa7?=
- =?us-ascii?Q?GPXB1cK57dmMEg2Dx0JAT0tjvpBbp2zT+OQo4AUEiiAB+NJTr2csmbFrP2x5?=
- =?us-ascii?Q?brfljUK0MNw6D3KIrGYrSQnvFk28nnzXJDCYm4Er5n5YOZ1ta4WSaVW6jwIi?=
- =?us-ascii?Q?Tz32ARA+pnWDlEY7XiRxEHWA4V7jtqDMgQEDKcQEH41pWEr5lgUrw0U3kxC/?=
- =?us-ascii?Q?OEAhBLj4EEXXjjOmTiskAzVE+XPqOnM9s33qopYd7GTFyPW0f2NacOCyOBHQ?=
- =?us-ascii?Q?CiwgHcq2vYq5M35B79Whajs6WtS7DWj1nV4yIA8vhbKMKJ1lzTL1xglMYeio?=
- =?us-ascii?Q?92YBkUHBuGoipWNCgJzXBUpJavmXxBvtESeRGW6GOq7plvJScEiA597e0DtJ?=
- =?us-ascii?Q?L9qoIfnK62gV1bzsSpANqH84odoYQ67BjrcoyxS6XecPHchUuRBlii1fDG99?=
- =?us-ascii?Q?H29yqLNyXL8CZ84KRthVrdhB2nwHHQhe0Rq9dzsxbZww2CvtG6pu2h++DvSF?=
- =?us-ascii?Q?MLfDs3xY4ZykVPcG98qfRfBdsgXvZxsEMDRhOYTPmJX9f3vbdk5mvT5V071Z?=
- =?us-ascii?Q?6Yu8wHvzPwXi4RqqhmwPnUrJoYE8ThpeH5lsI4yWBxxBZ4FnJI6eYD0NoOBJ?=
- =?us-ascii?Q?E7TZ+4oh9O/aTZnLvBrDTPYvEv/GmpRXeSvEq5C/DmXZQ5i0FS3kRHKj5DAu?=
- =?us-ascii?Q?vtvdwjCptPP0sYNjwDdlfiwi4KSGRiBDa/bCN09A/DqqdNep9r+SiV0XGVxF?=
- =?us-ascii?Q?qVa24rE=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:JH0PR06MB6800.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(52116014)(38350700014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?J4iNhCy26arTmIvDjey2UmylB7JGcMDmjKgDxabxhLbzC76M0v3V32ixzaOu?=
- =?us-ascii?Q?aSzgLpWt0+nDxUI3hxibMEdBZn74HWhyPZwPaEhY3yBpf4iz6Mpy+cQO24wV?=
- =?us-ascii?Q?5BltEZqMfKJ23TmCTEpW04ayJWoc6zzVTgcjZBFv4zoYn+mwn9x46HWsonP2?=
- =?us-ascii?Q?qVbDaQbhjjyRGcs9x6bLPSBgsyS4KY5BHM783DwYG12J+qOLUw5S8wE8eqCE?=
- =?us-ascii?Q?jq7DBrQsFaShxCJFFObYViGQUlIWvK7AeV4vQiwdwXi3gtTjQ3PRhqFuiE1X?=
- =?us-ascii?Q?wGbOBlCCBfsXIQI0hCfZK4cr+X2la472ohMxilyMc2/tILsPoPU/x2Zowqvu?=
- =?us-ascii?Q?EnxNAyBCjwxj8AZ+sFjLdKh1iP2k2+8ecM5LpIA1b06FhH+Wd9uzIEq5CYbD?=
- =?us-ascii?Q?fy/txqS/d38i0CAi43y2nibbcLPf0evjZyz91oP9qW//ez0OWjCD9Utx0hhv?=
- =?us-ascii?Q?kaotqURRWNmEW3Bly1FjQszFULHTsLnzdvkzcxtnK91PlRKjSCqy3o/af7Md?=
- =?us-ascii?Q?RphoSGp+0GS4ql8I4sRgw1ut2PYI+OZ+ySnykroDff90nFD0rz6/yIByJSXr?=
- =?us-ascii?Q?XjXZz4YvCv97Efdsz3XzZ6t6KOnUZRbmBXy5FlUp3dICjS3FQXV9fwddMSad?=
- =?us-ascii?Q?Zrg1eoY74nlY/jLLLa4Zx5c7S9W3PgKoMzDa5ki6YEK2tuWNHlhhzKgnR/p2?=
- =?us-ascii?Q?sRnoWV6PV3z8UFHHIFDJZqEPIFTnQ7c4Mo7Pg8wCb502SLbJpSm1Bk8W0TgX?=
- =?us-ascii?Q?GuCwseT5hkH0nbRpguLs8WLC5ElbFCZ96RYxP+jy/xxdDlklDxH9kCbI19y3?=
- =?us-ascii?Q?TbOAtqcq7QKR4729ofkhaYWq7gLN8/GFQ4yuo0ypuUPSS83aOhUm8EHg3WuI?=
- =?us-ascii?Q?EQP420opeQtEDkNLjYZRP/bi4cETxnS+Z0mwsya/fHYx7IESdTOe4uz285i+?=
- =?us-ascii?Q?EUSvfjso+oKHrObnemxTw+aHqxQQwBZAa9SPG/9y8UqyHFaudOR5rXbN2eD/?=
- =?us-ascii?Q?Oc66eOrE2Xc1GCyNutdTKXX463ckzFB2DYBf+g0nWSx+jGDjL/RAGIzMgIp3?=
- =?us-ascii?Q?6bLX3utDE27yjWfFpe6a2f9IFZyXlF1iA+zC4T+aEaIeESf6P97m448UUBqU?=
- =?us-ascii?Q?b2T+P2t9iK0ljbJ47mgF4IF94zWyjeKKSs5qaQx8z/ZdU9jVnXI3H/mQu3Vs?=
- =?us-ascii?Q?+PNSdxUgCj60XsqAZeKZcQ19MFRyuBusbsCcCV/VJmJzkOFSvZWKU+DduD8C?=
- =?us-ascii?Q?td0q7thQGxWIvvjkXOEYdji2Hhs/jfRf5BrG/hWF3OqS2GJtwV+liVxmWYd1?=
- =?us-ascii?Q?QG9TfEcDR4m7SMYXhi6qF86kGyL9eqBG10Z7wHfFeF76sFT4g0CAYrGJg9vU?=
- =?us-ascii?Q?XHEi2YcsndpeK4KS+rEVLSVfEHUJTCir1/AFRUVzJ6tN3S47d4Q4a8Drrd3X?=
- =?us-ascii?Q?icGZ5tB0nKuxUjaznx5qN8IQQNqZzVV5rZyxnHQkKaBhdShuaDfzm8Ks4Mx1?=
- =?us-ascii?Q?N5On4snRXkfcNCpTqo/a5zUEy8Zm7VojWJ3RtNiNjXcQ5aGe0B0vky3d0Tv5?=
- =?us-ascii?Q?EL99WuPod6/6HBZEuguZubUUF4IRPyBP0i+F5RofHH8wwPQ54YUliHMxc4yI?=
- =?us-ascii?Q?XA=3D=3D?=
-X-OriginatorOrg: jaguarmicro.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 11008fae-23a4-47da-e947-08dd07ce46ef
-X-MS-Exchange-CrossTenant-AuthSource: JH0PR06MB6800.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Nov 2024 12:41:09.3621
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Kzc2gC++nszLbfwP2NxS84jSrpxwvzRnRVBZ5gTmLYi6SVkLIJVQrWzCHDVhmLvPlarx/MKDM1HGvTeiYAWzrJf5EqnSNsU9ggKFcXjLQZU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SG2PR06MB5408
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87plms51w4.fsf@intel.com>
 
-From: Xiaowu Ding <xiaowu.ding@jaguarmicro.com>
+On Mon, Nov 18, 2024 at 11:26:03AM +0200, Jani Nikula wrote:
+> On Mon, 18 Nov 2024, Dmitry Baryshkov <dmitry.baryshkov@linaro.org> wrote:
+> > On Mon, 18 Nov 2024 at 01:33, Laurent Pinchart
+> > <laurent.pinchart@ideasonboard.com> wrote:
+> >>
+> >> On Mon, Nov 18, 2024 at 01:22:12AM +0200, Dmitry Baryshkov wrote:
+> >> > On Sun, 17 Nov 2024 at 22:54, Laurent Pinchart wrote:
+> >> > > On Fri, Nov 15, 2024 at 11:09:26PM +0200, Dmitry Baryshkov wrote:
+> >> > > > The mode_valid() callbacks of drm_encoder, drm_crtc and drm_bridge
+> >> > > > accept const struct drm_display_mode argument. Change the mode_valid
+> >> > > > callback of drm_encoder_slave to also accept const argument.
+> >> > > >
+> >> > > > Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> >> > >
+> >> > > Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+> >> > >
+> >> > > On a side note, there's only two I2C slave encoder drivers left... I
+> >> > > wonder if we could so something about them. The ch7006 and sil164
+> >> > > drivers seem to be used by nouveau only, could they be moved to
+> >> > > drivers/gpu/drm/nouveau/ ? We would move the whole drm_encoder_slave
+> >> > > implementation there too, and leave it to die (or get taken out of limbo
+> >> > > and fixed) with dispnv04.
+> >> >
+> >> > Or it might be better to switch to drm_bridge. Currently we also have
+> >> > sil164 (sub)drivers in ast and i915 drivers. I don't know if there is
+> >> > any common code to share or not. If there is some, it might be nice to
+> >> > use common framework.
+> >>
+> >> That would require porting nouveau and i915 to drm_bridge. As much as
+> >> I'd love to see that happening, I won't hold my breath.
+> >
+> > Me neither. Probably moving those two and drm_encoder_slave to nouveau
+> > is really the best course for now.
+> 
+> Granted, the dvo part of i915 is ugly, but it's also only relevant for
+> the oldest hardware i915 supports. Like 20 years old. Not sure there's
+> much return on investment in big refactoring, more risk that it breaks
+> without nobody noticing. Just let it be in i915?
 
-The virtio_add_status function have done might_sleep(),so we can remove
-the duplicate calls.
+Agreed
 
-Signed-off-by: Xiaowu Ding <xiaowu.ding@jaguarmicro.com>
----
- drivers/virtio/virtio.c | 2 --
- 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index b9095751e..8352dfc1a 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -205,8 +205,6 @@ static int virtio_features_ok(struct virtio_device *dev)
- {
- 	unsigned int status;
- 
--	might_sleep();
--
- 	if (virtio_check_mem_acc_cb(dev)) {
- 		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
- 			dev_warn(&dev->dev,
 -- 
-2.27.0
-
+With best wishes
+Dmitry
