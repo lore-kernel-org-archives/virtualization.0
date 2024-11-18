@@ -1,60 +1,43 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A62512EBE7
-	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 15:54:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731945249; cv=none; b=WYbDkvM5RE/yoJLydnZ9suqcit6u+WWUsZMbvH0n5KkA4HTsiCVXkgTVYHZnM7eFhY6PN13RmN49zaITGGcZPLPy3in0RoSn2U1mDahC2wnxKUMvXhbwfKW3LYHMujLCsPVhkbNy2A1wzHbTZk51p8gU+zaamj3NMesBoqsYlu0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731945249; c=relaxed/simple;
-	bh=4lpYUs5Dbj0T8zn97A2VEybvGIFft2BYYoXxSpx3bHU=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26524199EBB
+	for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 16:17:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1731946630; cv=pass; b=PtXUlvJ79vQLdsQ7c8G1cf7iWvrLjFBGZsFDasb+eBPSSMHRCyuzYJnqO3oR6DQk5bazySloCBea+xTsy9mIKGiz9WiCw07PJLn5xPx+93Hhw2w8EvvJujety6O5GGefmAF03Pd2bC0AZU4+GSdCUwYQgh+h1E3VUYBAg/jxzpg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1731946630; c=relaxed/simple;
+	bh=t2FERUmmplHerJE3dPry6Oygn7sB5iMF085SUB3CI6g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RsTKz8u+ID405oPtD2dOOvN8HiShgCOZX/g0z9zeFdmrkYoawBxUGJjXbvrhCfcCqt7Pk7fDLEO+h9JqoYB6rWLcfohY8OrZ6mHZPvRfDfzdby+waJAS1zIduAspHTNwdceWTFAgpMQr4j9tx9ZIBZAoF5TCqO5rs8WYhXJ3Swc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qQ7Lv+2L; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=KgMdyzUfQY/DhfY9eRWipSJe7sNKgKmHYv8AGferbEDwKlJjHRhrjRTVOqWK7UONgkRvc92wI3RTcQJN4yO+4t3D5Jj7Sa5kH7kVGBYF/Ku8TdHoihCeCeCcepgiKV8Qfp7JFvq0ZyoV5qpPvNwoKsDLUfJrD3Uy9daoNc+v22I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=EWpPVUO0; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qQ7Lv+2L"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AIB4gaS022969;
-	Mon, 18 Nov 2024 15:54:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=SaDWlb
-	2kKaad3gP5OleofzMuysniJvB4P5iWE1Qjlb8=; b=qQ7Lv+2LJ5CnumzBzjAqxr
-	GunvUxdms9jNHeolIbO6z6aKh067VjHkVP3ahBhYvHTsC0FoTbCVPuVbDo0jQPws
-	uFOg+wTrZJuIOxe37ARIo74U1IvBaH65//fUuTGz+znTfWZl2XKRZqE7cIrL9n2G
-	rtP/32HvBwIWlMKNXR7H5c1ccTH9aVMc0tD0ATvlNh1AMH6lEFwHdHtbwdwm5gUZ
-	i2bgjKhbSq+M3CqZMjB4vPqUu/7xqLxo2tQ+rMDiGrUHO94/V19ez/Z0+mDj/aTC
-	iOZWlgetz8eejMwzRGRSBDbAmWJu8jlfW1ckA5c3h1VwotX2cvs+VBWWp9Z3JLBw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42xyu1gpwd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 18 Nov 2024 15:54:07 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4AIEogGR021983;
-	Mon, 18 Nov 2024 15:54:06 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42y6qmtv09-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 18 Nov 2024 15:54:06 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4AIFs55p47972750
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 18 Nov 2024 15:54:05 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4345F58050;
-	Mon, 18 Nov 2024 15:54:05 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E27F158045;
-	Mon, 18 Nov 2024 15:54:04 +0000 (GMT)
-Received: from [9.61.240.76] (unknown [9.61.240.76])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 18 Nov 2024 15:54:04 +0000 (GMT)
-Message-ID: <542cb6ed-8e2b-407e-9f9d-037144740b93@linux.ibm.com>
-Date: Mon, 18 Nov 2024 09:54:04 -0600
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="EWpPVUO0"
+ARC-Seal: i=1; a=rsa-sha256; t=1731946619; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=EjX99rYKMKpe+4qAyaiz4WV0Y0y43xMQCqt60IlX4Jt3IoHhaGLaIuSMvPKEuLAKM1dC2PX9sBfJfXIuu/jru/imqXKMdURtrheUYTSDsRjdsw7y1fpkcJysdHtIvWfyPOUbo948KudjhHNgGWcjUTg7gRYOnfcR0JEQPNSARco=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1731946619; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=Zd6CgBIQAUUeDjZPP0+TxMRYrOx8gekX99SnHY/7F0s=; 
+	b=F+IYG8VpfdffTRgbAkWDKi96Le3yR5sBcyXBpRQQPOhwjnMMRkXLtf3Ky8v3zxxHkPwI3FouciK7b5F4Mqc/CuisGDKnEObWyiM3SLZdJJQQBz3XXuC03GSOxkc6bLEd3v3x333cZFRwNHW5XCbDiFOo/r0JmSc7Fl2ukBC89kY=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1731946619;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=Zd6CgBIQAUUeDjZPP0+TxMRYrOx8gekX99SnHY/7F0s=;
+	b=EWpPVUO0guR8h6fnQiFBveB2eWQ2v1H2WZvIT0WU9EzLerq55b0ALMHf+7384wxC
+	jmT1OBSsd113l3F8Dcd0x7k8ryHggWZs39O6sekK828q1mSDAPylxHAOkvJH0m38iXL
+	YwAHgJ0ihW5Px51JBLlsQq322PmlpgRh3DfGOPyo=
+Received: by mx.zohomail.com with SMTPS id 1731946618743272.2388897538434;
+	Mon, 18 Nov 2024 08:16:58 -0800 (PST)
+Message-ID: <f31a8d1f-73d5-424e-ad09-2ae39712e230@collabora.com>
+Date: Mon, 18 Nov 2024 19:16:54 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,60 +45,240 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 3/3] vsock/test: verify socket options after setting
- them
+Subject: Re: [PATCH v4] drm/virtio: Add drm_panic support
+To: Ryosuke Yasuoka <ryasuoka@redhat.com>, airlied@redhat.com,
+ kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
+ simona@ffwll.ch
+Cc: Jocelyn Falempe <jfalempe@redhat.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20241113084438.3283737-1-ryasuoka@redhat.com>
 Content-Language: en-US
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
-References: <20241113143557.1000843-1-kshk@linux.ibm.com>
- <20241113143557.1000843-4-kshk@linux.ibm.com>
- <yo2qj7psn3sqtyqgsfn6y2qtwcmyb4j7gwuffg34gwqwkrsyox@4aff3wvdrdgu>
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
-In-Reply-To: <yo2qj7psn3sqtyqgsfn6y2qtwcmyb4j7gwuffg34gwqwkrsyox@4aff3wvdrdgu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KY8lgYHVVl13F8Rj2DQbSA6JJs9h1IRC
-X-Proofpoint-ORIG-GUID: KY8lgYHVVl13F8Rj2DQbSA6JJs9h1IRC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- lowpriorityscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
- bulkscore=0 spamscore=0 mlxlogscore=999 adultscore=0 mlxscore=0
- clxscore=1015 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2411180128
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20241113084438.3283737-1-ryasuoka@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On 11/14/2024 04:28, Stefano Garzarella wrote:
-> On Wed, Nov 13, 2024 at 08:35:57AM -0600, Konstantin Shkolnyy wrote:
-[...]
->> diff --git a/tools/testing/vsock/msg_zerocopy_common.c b/tools/ 
->> testing/vsock/msg_zerocopy_common.c
->> index 5a4bdf7b5132..8622e5a0f8b7 100644
->> --- a/tools/testing/vsock/msg_zerocopy_common.c
->> +++ b/tools/testing/vsock/msg_zerocopy_common.c
->> @@ -14,16 +14,6 @@
->>
->> #include "msg_zerocopy_common.h"
->>
->> -void enable_so_zerocopy(int fd)
->> -{
->> -    int val = 1;
->> -
->> -    if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &val, sizeof(val))) {
->> -        perror("setsockopt");
->> -        exit(EXIT_FAILURE);
->> -    }
->> -}
->> -
+On 11/13/24 11:44, Ryosuke Yasuoka wrote:
+> From: Jocelyn Falempe <jfalempe@redhat.com>
 > 
-> Since the new API has a different name (i.e.
-> `enable_so_zerocopy_check()`), this `enable_so_zerocopy()` could stay
-> here, anyway I don't want to be too picky, I'm totally fine with this
-> change since it's now only used by vsock_perf ;-)
+> Virtio gpu supports the drm_panic module, which displays a message to
+> the screen when a kernel panic occurs.
 > 
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> 
+> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+> ---
 
-Ok, let's keep it static then - it's simpler :-)
+On a second look, I spotted few problems, see them below:
+
+...
+> +/* For drm_panic */
+> +static int virtio_gpu_panic_resource_flush(struct drm_plane *plane,
+> +					   struct virtio_gpu_vbuffer *vbuf,
+> +					   uint32_t x, uint32_t y,
+> +					   uint32_t width, uint32_t height)
+> +{
+> +	int ret;
+> +	struct drm_device *dev = plane->dev;
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
+> +	struct virtio_gpu_framebuffer *vgfb;
+> +	struct virtio_gpu_object *bo;
+> +
+> +	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
+> +	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
+> +
+> +	ret = virtio_gpu_panic_cmd_resource_flush(vgdev, vbuf, bo->hw_res_handle, x, y,
+> +						  width, height);
+> +	return ret;
+
+Nit: return directly directly in such cases, dummy ret variable not needed
+
+> +}
+> +
+>  static void virtio_gpu_resource_flush(struct drm_plane *plane,
+>  				      uint32_t x, uint32_t y,
+>  				      uint32_t width, uint32_t height)
+> @@ -359,11 +406,128 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+>  	virtio_gpu_cursor_ping(vgdev, output);
+>  }
+>  
+> +static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
+> +					 struct drm_scanout_buffer *sb)
+> +{
+> +	struct virtio_gpu_object *bo;
+> +
+> +	if (!plane->state || !plane->state->fb || !plane->state->visible)
+> +		return -ENODEV;
+> +
+> +	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
+
+VRAM BOs aren't vmappable and should be rejected.
+
+In the virtio_panic_flush() below,
+virtio_gpu_panic_cmd_transfer_to_host_2d() is invoked only for dumb BOs.
+Thus, only dumb BO supports panic output and should be accepted by
+get_scanout_buffer(), other should be rejected with ENODEV here, AFAICT.
+Correct?
+
+> +	/* try to vmap it if possible */
+> +	if (!bo->base.vaddr) {
+> +		int ret;
+> +
+> +		ret = drm_gem_shmem_vmap(&bo->base, &sb->map[0]);
+> +		if (ret)
+> +			return ret;
+> +	} else {
+> +		iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
+> +	}
+> +
+> +	sb->format = plane->state->fb->format;
+> +	sb->height = plane->state->fb->height;
+> +	sb->width = plane->state->fb->width;
+> +	sb->pitch[0] = plane->state->fb->pitches[0];
+> +	return 0;
+> +}
+> +
+> +struct virtio_gpu_panic_object_array {
+> +	struct ww_acquire_ctx ticket;
+> +	struct list_head next;
+> +	u32 nents, total;
+> +	struct drm_gem_object *objs;
+> +};
+
+This virtio_gpu_panic_object_array struct is a hack, use
+virtio_gpu_array_alloc(). Maybe add atomic variant of the array_alloc().
+
+> +static void virtio_gpu_panic_put_vbuf(struct virtqueue *vq,
+> +				      struct virtio_gpu_vbuffer *vbuf,
+> +				      struct virtio_gpu_object_array *objs)
+> +{
+> +	unsigned int len;
+> +	int i;
+> +
+> +	/* waiting vbuf to be used */
+> +	for (i = 0; i < 500; i++) {
+> +		if (vbuf == virtqueue_get_buf(vq, &len)) {
+
+Is it guaranteed that virtio_gpu_dequeue_ctrl_func() never runs in
+parallel here?
+
+> +			if (objs != NULL && vbuf->objs)
+> +				drm_gem_object_put(objs->objs[0]);
+
+This drm_gem_object_put(objs->objs) is difficult to follow. Why
+vbuf->objs can't be used directly?
+
+Better to remove all error handlings for simplicity. It's not important
+if a bit of memory leaked on panic.
+
+> +			break;
+> +		}
+> +		udelay(1);
+> +	}
+> +}
+> +
+> +static void virtio_panic_flush(struct drm_plane *plane)
+> +{
+> +	int ret;
+> +	struct virtio_gpu_object *bo;
+> +	struct drm_device *dev = plane->dev;
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
+> +	struct drm_rect rect;
+> +	void *vp_buf = vgdev->virtio_panic_buffer;
+> +	struct virtio_gpu_vbuffer *vbuf_dumb_bo = vp_buf;
+> +	struct virtio_gpu_vbuffer *vbuf_resource_flush = vp_buf + VBUFFER_SIZE;
+> +
+> +	rect.x1 = 0;
+> +	rect.y1 = 0;
+> +	rect.x2 = plane->state->fb->width;
+> +	rect.y2 = plane->state->fb->height;
+> +
+> +	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
+> +
+> +	struct drm_gem_object obj;
+> +	struct virtio_gpu_panic_object_array objs = {
+> +		.next = { NULL, NULL },
+> +		.nents = 0,
+> +		.total = 1,
+> +		.objs = &obj
+> +	};
+
+This &obj is unitialized stack data. The .objs points to an array of obj
+pointers and you pointing it to object. Like I suggested above, let's
+remove this hack and use proper virtio_gpu_array_alloc().
+
+> +	if (bo->dumb) {
+> +		ret = virtio_gpu_panic_update_dumb_bo(vgdev,
+> +						      plane->state,
+> +						      &rect,
+> +						      (struct virtio_gpu_object_array *)&objs,
+> +						      vbuf_dumb_bo);
+> +		if (ret) {
+> +			if (vbuf_dumb_bo->objs)
+> +				drm_gem_object_put(&objs.objs[0]);
+> +			return;
+> +		}
+> +	}
+> +
+> +	ret = virtio_gpu_panic_resource_flush(plane, vbuf_resource_flush,
+> +					      plane->state->src_x >> 16,
+> +					      plane->state->src_y >> 16,
+> +					      plane->state->src_w >> 16,
+> +					      plane->state->src_h >> 16);
+> +	if (ret) {
+> +		virtio_gpu_panic_put_vbuf(vgdev->ctrlq.vq,
+> +					  vbuf_dumb_bo,
+> +					  (struct virtio_gpu_object_array *)&objs);
+
+The virtio_gpu_panic_notify() hasn't been invoked here, thus this
+put_vbuf should always time out because vq hasn't been kicked. Again,
+best to leak resources on error than to have broken/untested error
+handling code paths.
+
+> +		return;
+> +	}
+> +
+> +	virtio_gpu_panic_notify(vgdev);
+> +
+> +	virtio_gpu_panic_put_vbuf(vgdev->ctrlq.vq,
+> +				  vbuf_dumb_bo,
+> +				  (struct virtio_gpu_object_array *)&objs);
+> +	virtio_gpu_panic_put_vbuf(vgdev->ctrlq.vq,
+> +				  vbuf_resource_flush,
+> +				  NULL);
+> +}
+> +
+>  static const struct drm_plane_helper_funcs virtio_gpu_primary_helper_funcs = {
+>  	.prepare_fb		= virtio_gpu_plane_prepare_fb,
+>  	.cleanup_fb		= virtio_gpu_plane_cleanup_fb,
+>  	.atomic_check		= virtio_gpu_plane_atomic_check,
+>  	.atomic_update		= virtio_gpu_primary_plane_update,
+> +	.get_scanout_buffer	= virtio_drm_get_scanout_buffer,
+> +	.panic_flush		= virtio_panic_flush,
+>  };
+>  
+>  static const struct drm_plane_helper_funcs virtio_gpu_cursor_helper_funcs = {
+> @@ -383,6 +547,13 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+>  	const uint32_t *formats;
+>  	int nformats;
+>  
+> +	/* allocate panic buffers */
+> +	if (index == 0 && type == DRM_PLANE_TYPE_PRIMARY) {
+> +		vgdev->virtio_panic_buffer = drmm_kzalloc(dev, 2 * VBUFFER_SIZE, GFP_KERNEL);
+> +		if (!vgdev->virtio_panic_buffer)
+> +			return ERR_PTR(-ENOMEM);
+> +	}
+
+If there is more than one virtio-gpu display, then this panic buffer is
+reused by other displays. It seems to work okay, but potential
+implications are unclear. Won't it be more robust to have a panic buffer
+per CRTC?
+
+Also, please rename vgdev->virtio_panic_buffer to vgdev->panic_vbuf for
+brevity.
+
+-- 
+Best regards,
+Dmitry
+
