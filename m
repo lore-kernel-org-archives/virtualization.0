@@ -1,78 +1,93 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C34D78C76
-	for <virtualization@lists.linux.dev>; Tue, 19 Nov 2024 02:38:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8643C1482F3
+	for <virtualization@lists.linux.dev>; Tue, 19 Nov 2024 07:42:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731983921; cv=none; b=gMeCGUQT+P6tlrz5IQyL69wRRsY69vJ38RC2r6TyRRVRN2bqLLEIrwlc8l39gNv1AyrUZPLF06JaRqp5EpAJqmS5SII3B8WFWr09lqUIfRtDPHDfQSdX3UqNtScjpt0+KKbgJI8wEJgho5J3x2yF/HkhmTd1OA8i8MIuyMSE+qo=
+	t=1732002179; cv=none; b=IDKAR4VsT8kohYnCeerSjhZoZA5evovTOnnds6jIBK3vqAG75ooIQ97DKV1M1Ei4XGf4Eqvo7yBLmkgZQwYyYOGVj6NHzsQklvrt8/larderacmUP6r/CBxKa4mZCFnkcF2ADlSW0eTvO0YwOwLhTWr/wIul02aBoBU1z4mBjDo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731983921; c=relaxed/simple;
-	bh=h88T5LRHfoxZhHhEif4Sh07cXOaKAeS9POEAI5tcdEk=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=TkUYWP0tYHPgj3yaSSI/Io2EqQZ1MXL2WrFUAJ4qMcRBdJ65L7txH5zUEJIwdrHuIMFEg/7TCaF2BAAuJ6RAabdv6cJzwmdc3K9W9NdL4r2YXpnnyZcOBbz70EffEUu/MRvioJ8itlXPMwQshGaaZLKZ7aW7pScQV8eK6Ub32NI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=qt5Z4fe8; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1732002179; c=relaxed/simple;
+	bh=MK1mRBvffaxWaWW0lCYjKmPrzl8K+sbcDqiVDd0556I=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=lnABL2YsTYDROhkU4iZGn+VOSkIBTTAjuo7CIGXhmmoRd7kdL9NouhgtnizLveeiDKX29GVVZvbqk++ZAYj6WkkT++b7QOg6KMZIkNzxFtjHzj1u1bUuqGdxQNwHow+KWzgeztvWz9kF8bnMJ8eVxaxdzyQOxBuBLr7fItIh754=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=f75YYl5P; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="qt5Z4fe8"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1731983910; h=Message-ID:Subject:Date:From:To;
-	bh=BnlWL8nhE0ODFU1d/mjsNaaQOY7POexgc8mjipuLhaY=;
-	b=qt5Z4fe8jjjOhzyVDK9m2Kctz2S93oCukadIb/OHPIs0f3kQ8nAq+dc1xaBF/v9X0whXX5bTFcup0CeWM2P9mANEsFKt+b7i0UqIwSiciaJQObpR4qKdj7amKDjlHrSnfXbeSCjPyz7nhIAzdnNgfrt6kNSgsqipwEqcZJ/VjO8=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WJmXkAK_1731983907 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 19 Nov 2024 10:38:28 +0800
-Message-ID: <1731983829.623387-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio: remove the duplicate might_sleep()
-Date: Tue, 19 Nov 2024 10:37:09 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "xiaowuding_jaguarmicro" <xiaowu.ding@jaguarmicro.com>
-Cc: eperezma@redhat.com,
- virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,
- angus.chen@jaguarmicro.com,
- Xiaowu Ding <xiaowu.ding@jaguarmicro.com>,
- mst@redhat.com,
- jasowang@redhat.com
-References: <20241118124056.1038-1-xiaowu.ding@jaguarmicro.com>
-In-Reply-To: <20241118124056.1038-1-xiaowu.ding@jaguarmicro.com>
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="f75YYl5P"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-72041ff06a0so1996086b3a.2
+        for <virtualization@lists.linux.dev>; Mon, 18 Nov 2024 23:42:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1732002177; x=1732606977; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rHWWXvo/zk8M+CGH2I3FftTehJA8J+eqWoqCr9hesl4=;
+        b=f75YYl5PiGcVoAj5ru75ke0v3PhkqJkLYo8mtE2MX1EUMhAEJQBZElwODdl3PFb34t
+         L75LcEOW/1NnVEMIIKRWPmfv7Uf8+pxhc9Rp/fpBeJ9Dme3T4u0UKYtD4pNq7SFi06/p
+         jMSw40OBmrWxeq8nz8WBpYDIaipHp0yY9vBvI7VrDM3nnjz9C1KiLruFzxjJWxIVGQNH
+         ZRTrPodbBwh0OY7W0vxya1KmtHc8HznTRH2cEx/WJOoLtCb+xYkr7gJ+3GmEaoP+iT4k
+         y5QhM+x1uJ7Hz5VBQcVVfWzK1PeBGJTFjN89xdT/NEVXl/xEZG62FrQ/TUZnv8qNHWep
+         9cAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1732002177; x=1732606977;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rHWWXvo/zk8M+CGH2I3FftTehJA8J+eqWoqCr9hesl4=;
+        b=griG65VP7aMhdGsPKuBaL8CMf8cQfP9ZIMx4dvoJIYpG2Fva+y5K1UiYZah17UN9h0
+         HlVKEwfM3bZax2/fpyb8fsdzCOn6x+HKIjwxjcXGeKTaWTGN6Nm/KZgnHH0u6YSlPpHt
+         dfXVPyryuk0fctd5EKbub2qDAiCeQgkb6mNx7xAyisEvp7dkXbO9Q6+LEEHJBuw/SESy
+         8jhsXw91kYXTyEWMP8W7Kt2+WTiewTiFhqpkB80YNybNW2S9fFi4vtJf/j1Bbr8gPGp8
+         VihGXhEdAlgsLVXc4KQHzl0gWG8eGP+bcRLy5HiRn7naw2auj7vpv8PplJcxyUDIt17z
+         GGrg==
+X-Gm-Message-State: AOJu0YzKx1hkQ3SQbivVchKKf+RrSkfLTpXKCLyiSes6FQMxQRHPETuL
+	EUxSqeNX65BdFn8HuS4OORzT5HnfzvbGxhhtB2ZSQRX7ZFjr9FN2L5PxZbz5+Q==
+X-Google-Smtp-Source: AGHT+IHXZvtTF/LYtsNOFe/pkAQ3byRvJRiS2/xU3quIwdhkPrqMzJ5N1wzpXuwG6lnYMnziCuq9Qg==
+X-Received: by 2002:a05:6a00:194d:b0:71e:4ba:f389 with SMTP id d2e1a72fcca58-72476b98496mr19972325b3a.10.1732002176830;
+        Mon, 18 Nov 2024 23:42:56 -0800 (PST)
+Received: from QYWQT0394W.bytedance.net ([61.213.176.56])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72477200a99sm7664609b3a.182.2024.11.18.23.42.54
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 18 Nov 2024 23:42:56 -0800 (PST)
+From: Yongji Xie <xieyongji@bytedance.com>
+To: maxime.coquelin@redhat.com,
+	hemant.agrawal@nxp.com,
+	mst@redhat.com,
+	jasowang@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vduse: relicense under GPL-2.0 OR BSD-3-Clause
+Date: Tue, 19 Nov 2024 15:42:38 +0800
+Message-Id: <20241119074238.38299-1-xieyongji@bytedance.com>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Mon, 18 Nov 2024 20:40:56 +0800, "xiaowuding_jaguarmicro" <xiaowu.ding@jaguarmicro.com> wrote:
-> From: Xiaowu Ding <xiaowu.ding@jaguarmicro.com>
->
-> The virtio_add_status function have done might_sleep(),so we can remove
-> the duplicate calls.
+Dual-license the vduse kernel header file to dual
+GPL-2.0 OR BSD-3-Clause license to make it possible
+to ship it with DPDK (under BSD-3-Clause) for older
+distros.
 
+Signed-off-by: Yongji Xie <xieyongji@bytedance.com>
+---
+ include/uapi/linux/vduse.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Is there any problem here? If not, I think we can keep it.
+diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+index 11bd48c72c6c..68a627d04afa 100644
+--- a/include/uapi/linux/vduse.h
++++ b/include/uapi/linux/vduse.h
+@@ -1,4 +1,4 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
+ #ifndef _UAPI_VDUSE_H_
+ #define _UAPI_VDUSE_H_
+ 
+-- 
+2.39.3 (Apple Git-146)
 
-Thanks.
-
->
-> Signed-off-by: Xiaowu Ding <xiaowu.ding@jaguarmicro.com>
-> ---
->  drivers/virtio/virtio.c | 2 --
->  1 file changed, 2 deletions(-)
->
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index b9095751e..8352dfc1a 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -205,8 +205,6 @@ static int virtio_features_ok(struct virtio_device *dev)
->  {
->  	unsigned int status;
->
-> -	might_sleep();
-> -
->  	if (virtio_check_mem_acc_cb(dev)) {
->  		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
->  			dev_warn(&dev->dev,
-> --
-> 2.27.0
->
