@@ -1,181 +1,246 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D3991A4F02
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Nov 2024 13:12:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62851174EDB
+	for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 14:05:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732108334; cv=none; b=mvbj5JnyPdrIerBeBCR5D0K30s+rkHoBvsRNIPCHz8cQNTxHs0y9Aqku9njUIWF8W/3uiYfWQYE9/3pm5d6xzQ9lHeO0q7rgFUaEFz1/zjLX+M36bXYXNNaL4smMKh2e95VIBAzcTr+pWcTQzSRF1wV8QoIDb5D5LCKE7X6vGvc=
+	t=1732111535; cv=none; b=fPrPoZgTjJkcZkGGeOdMbX5e3RUPDSbeBAIVCLcoNe4AjRuHNoaHEpi+px5GhB9T1k62DZm5WJE/F4UcdZiNzrlDXk54WdQ4YPmh1OMRi919LQ605qEsMAgxkunTnhg8Kj78PEixiqZaLMpY3JfO6zsDcM26U0z+/bU2Uze6FXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732108334; c=relaxed/simple;
-	bh=k+5dEYh0Wx0gYDwBov9cnbkAU6CMVjt/gVpf33OC/N8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Oej8EBZaIKsPH9jqQt8sxSQqb8aes6Vr3y5aFw8v7WxQZVNj02iVcCx0zvUHym/O2Di19AFMyb2IeppYMoBUnkWjZKgjiahVhSgRqDM19r5OvQqvtkA5BJykinToacoDrfq8+jchWmuwJXKQVfc3ZmTybaXC6drw2GIw83LE6G4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jGZhu9Dw; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1732111535; c=relaxed/simple;
+	bh=ZG2agr9YKv9vY6LK3VsO2Cz9sA6qKnnMQJv1p7D1KC8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iwwGpK43Y5zITI9Uhr8CCdu3gdDcjFQmimRqbcPGei/fkRJvTEc656fS7calt0iBrNMVEnUDm3ghvuI5w6Peka5et/6hmYnFjqu2ovqEOeJb7SZH5LCNygdu60JeOWV1KjZsD3qa4uz6OBDShxGMhXuV93v5dIs69c6vDSds3r4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UrMlR0i6; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jGZhu9Dw"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B1ED340814
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Nov 2024 13:12:12 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id UlB1wD4SvNXF for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Nov 2024 13:12:11 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9F0F34070F
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F0F34070F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=jGZhu9Dw
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F0F34070F
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Nov 2024 13:12:11 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 66B385C4C65;
-	Wed, 20 Nov 2024 13:11:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB08CC4CECD;
-	Wed, 20 Nov 2024 13:12:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732108330;
-	bh=k+5dEYh0Wx0gYDwBov9cnbkAU6CMVjt/gVpf33OC/N8=;
-	h=From:To:Cc:Subject:Date:From;
-	b=jGZhu9Dwi+lGk9ZsjijKZtKKmfps855+KQDnqkWJagaRykvm2OPjoa3N7MXkOMafs
-	 TE+QWilPmnA3oHJchvWXEJw1WePCqb4iEZzbli7EjPOJcdSJGkR7Pl9HO21Q2LWteL
-	 eAwdFkF+dvkwEOJ2xB+30+nVCbEYibc1HqmsSgV7/nIoBve5Db+l6ZIACcoiViKHcT
-	 cccKAxYjyGLTsGykPjnZ4z1n8KFZXypqjklh5YxiP+OM3MzFg21y6pHacUYDc1qedp
-	 H6ayz5UPejtY03knpY4awE4AgRy3FByrk7wJdPB4tmtz0/3GEmcJTYBrmhvSGk1mN+
-	 a9rDfMwo0nRnw==
-From: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>
-To: Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	David Hildenbrand <david@redhat.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	linux-riscv@lists.infradead.org,
-	Oscar Salvador <osalvador@suse.de>
-Cc: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-	Andrew Bresticker <abrestic@rivosinc.com>,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	virtualization@lists.linux-foundation.org
-Subject: [PATCH fixes] riscv: mm: Do not call pmd dtor on vmemmap page table teardown
-Date: Wed, 20 Nov 2024 14:12:02 +0100
-Message-ID: <20241120131203.1859787-1-bjorn@kernel.org>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UrMlR0i6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732111532;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lZ8zkxd9i0HO8zyxRsaMmA5VwckXIWnTVoItJwHtzes=;
+	b=UrMlR0i62GILMhlqTz3jes8+jeEyDgfKqj3DNnAmmCg0aieFqhsoWQ729MCyeDJcLPlIn9
+	3raQVkgN+K6EwBcTa3uDMcrO3seI3kegRq8d31qQaKCvu90q+WEThrZnnGuL7G7TeFgvwP
+	zhVc8VI6oyxtuC9/bSiDECdCLycvYyI=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-128-fEP9m0A0NhyClwF0cvKrGQ-1; Wed,
+ 20 Nov 2024 09:05:28 -0500
+X-MC-Unique: fEP9m0A0NhyClwF0cvKrGQ-1
+X-Mimecast-MFC-AGG-ID: fEP9m0A0NhyClwF0cvKrGQ
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 307F91953944;
+	Wed, 20 Nov 2024 14:05:25 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.10])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CFA9230001A0;
+	Wed, 20 Nov 2024 14:05:22 +0000 (UTC)
+Date: Wed, 20 Nov 2024 22:05:15 +0800
+From: Baoquan He <bhe@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v1 07/11] fs/proc/vmcore: introduce
+ PROC_VMCORE_DEVICE_RAM to detect device RAM ranges in 2nd kernel
+Message-ID: <Zz3sm+BhCrTO3bId@MiWiFi-R3L-srv>
+References: <20241025151134.1275575-1-david@redhat.com>
+ <20241025151134.1275575-8-david@redhat.com>
+ <Zz22ZidsMqkafYeg@MiWiFi-R3L-srv>
+ <4b07a3eb-aad6-4436-9591-289c6504bb92@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4b07a3eb-aad6-4436-9591-289c6504bb92@redhat.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-From: Björn Töpel <bjorn@rivosinc.com>
+On 11/20/24 at 11:48am, David Hildenbrand wrote:
+> On 20.11.24 11:13, Baoquan He wrote:
+> > On 10/25/24 at 05:11pm, David Hildenbrand wrote:
+> > > s390 allocates+prepares the elfcore hdr in the dump (2nd) kernel, not in
+> > > the crashed kernel.
+> > > 
+> > > RAM provided by memory devices such as virtio-mem can only be detected
+> > > using the device driver; when vmcore_init() is called, these device
+> > > drivers are usually not loaded yet, or the devices did not get probed
+> > > yet. Consequently, on s390 these RAM ranges will not be included in
+> > > the crash dump, which makes the dump partially corrupt and is
+> > > unfortunate.
+> > > 
+> > > Instead of deferring the vmcore_init() call, to an (unclear?) later point,
+> > > let's reuse the vmcore_cb infrastructure to obtain device RAM ranges as
+> > > the device drivers probe the device and get access to this information.
+> > > 
+> > > Then, we'll add these ranges to the vmcore, adding more PT_LOAD
+> > > entries and updating the offsets+vmcore size.
+> > > 
+> > > Use Kconfig tricks to include this code automatically only if (a) there is
+> > > a device driver compiled that implements the callback
+> > > (PROVIDE_PROC_VMCORE_DEVICE_RAM) and; (b) the architecture actually needs
+> > > this information (NEED_PROC_VMCORE_DEVICE_RAM).
+> > > 
+> > > The current target use case is s390, which only creates an elf64
+> > > elfcore, so focusing on elf64 is sufficient.
+> > > 
+> > > Signed-off-by: David Hildenbrand <david@redhat.com>
+> > > ---
+> > >   fs/proc/Kconfig            |  25 ++++++
+> > >   fs/proc/vmcore.c           | 156 +++++++++++++++++++++++++++++++++++++
+> > >   include/linux/crash_dump.h |   9 +++
+> > >   3 files changed, 190 insertions(+)
+> > > 
+> > > diff --git a/fs/proc/Kconfig b/fs/proc/Kconfig
+> > > index d80a1431ef7b..1e11de5f9380 100644
+> > > --- a/fs/proc/Kconfig
+> > > +++ b/fs/proc/Kconfig
+> > > @@ -61,6 +61,31 @@ config PROC_VMCORE_DEVICE_DUMP
+> > >   	  as ELF notes to /proc/vmcore. You can still disable device
+> > >   	  dump using the kernel command line option 'novmcoredd'.
+> > > +config PROVIDE_PROC_VMCORE_DEVICE_RAM
+> > > +	def_bool n
+> > > +
+> > > +config NEED_PROC_VMCORE_DEVICE_RAM
+> > > +	def_bool n
+> > > +
+> > > +config PROC_VMCORE_DEVICE_RAM
+> > > +	def_bool y
+> > > +	depends on PROC_VMCORE
+> > > +	depends on NEED_PROC_VMCORE_DEVICE_RAM
+> > > +	depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
+> > 
+> > Kconfig item is always a thing I need learn to master.
+> 
+> Yes, it's usually a struggle to get it right. It took me a couple of
+> iterations to get to this point :)
+> 
+> > When I checked
+> > this part, I have to write them down to deliberate. I am wondering if
+> > below 'simple version' works too and more understandable. Please help
+> > point out what I have missed.
+> > 
+> > ===========simple version======
+> > config PROC_VMCORE_DEVICE_RAM
+> >          def_bool y
+> >          depends on PROC_VMCORE && VIRTIO_MEM
+> >          depends on NEED_PROC_VMCORE_DEVICE_RAM
+> > 
+> > config S390
+> >          select NEED_PROC_VMCORE_DEVICE_RAM
+> > ============
 
-The vmemmap's, which is used for RV64 with SPARSEMEM_VMEMMAP, page
-tables are populated using pmd (page middle directory) hugetables.
-However, the pmd allocation is not using the generic mechanism used by
-the VMA code (e.g. pmd_alloc()), or the RISC-V specific
-create_pgd_mapping()/alloc_pmd_late(). Instead, the vmemmap page table
-code allocates a page, and calls vmemmap_set_pmd(). This results in
-that the pmd ctor is *not* called, nor would it make sense to do so.
+Sorry, things written down didn't correctly reflect them in my mind. 
 
-Now, when tearing down a vmemmap page table pmd, the cleanup code
-would unconditionally, and incorrectly call the pmd dtor, which
-results in a crash (best case).
+===========simple version======
+fs/proc/Kconfig:
+config PROC_VMCORE_DEVICE_RAM
+        def_bool y
+        depends on PROC_VMCORE && VIRTIO_MEM
+        depends on NEED_PROC_VMCORE_DEVICE_RAM
 
-This issue was found when running the HMM selftests:
+arch/s390/Kconfig:
+config NEED_PROC_VMCORE_DEVICE_RAM
+        def y
+==================================
 
-  | tools/testing/selftests/mm# ./test_hmm.sh smoke
-  | ... # when unloading the test_hmm.ko module
-  | page: refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10915b
-  | flags: 0x1000000000000000(node=0|zone=1)
-  | raw: 1000000000000000 0000000000000000 dead000000000122 0000000000000000
-  | raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
-  | page dumped because: VM_BUG_ON_PAGE(ptdesc->pmd_huge_pte)
-  | ------------[ cut here ]------------
-  | kernel BUG at include/linux/mm.h:3080!
-  | Kernel BUG [#1]
-  | Modules linked in: test_hmm(-) sch_fq_codel fuse drm drm_panel_orientation_quirks backlight dm_mod
-  | CPU: 1 UID: 0 PID: 514 Comm: modprobe Tainted: G        W          6.12.0-00982-gf2a4f1682d07 #2
-  | Tainted: [W]=WARN
-  | Hardware name: riscv-virtio qemu/qemu, BIOS 2024.10 10/01/2024
-  | epc : remove_pgd_mapping+0xbec/0x1070
-  |  ra : remove_pgd_mapping+0xbec/0x1070
-  | epc : ffffffff80010a68 ra : ffffffff80010a68 sp : ff20000000a73940
-  |  gp : ffffffff827b2d88 tp : ff6000008785da40 t0 : ffffffff80fbce04
-  |  t1 : 0720072007200720 t2 : 706d756420656761 s0 : ff20000000a73a50
-  |  s1 : ff6000008915cff8 a0 : 0000000000000039 a1 : 0000000000000008
-  |  a2 : ff600003fff0de20 a3 : 0000000000000000 a4 : 0000000000000000
-  |  a5 : 0000000000000000 a6 : c0000000ffffefff a7 : ffffffff824469b8
-  |  s2 : ff1c0000022456c0 s3 : ff1ffffffdbfffff s4 : ff6000008915c000
-  |  s5 : ff6000008915c000 s6 : ff6000008915c000 s7 : ff1ffffffdc00000
-  |  s8 : 0000000000000001 s9 : ff1ffffffdc00000 s10: ffffffff819a31f0
-  |  s11: ffffffffffffffff t3 : ffffffff8000c950 t4 : ff60000080244f00
-  |  t5 : ff60000080244000 t6 : ff20000000a73708
-  | status: 0000000200000120 badaddr: ffffffff80010a68 cause: 0000000000000003
-  | [<ffffffff80010a68>] remove_pgd_mapping+0xbec/0x1070
-  | [<ffffffff80fd238e>] vmemmap_free+0x14/0x1e
-  | [<ffffffff8032e698>] section_deactivate+0x220/0x452
-  | [<ffffffff8032ef7e>] sparse_remove_section+0x4a/0x58
-  | [<ffffffff802f8700>] __remove_pages+0x7e/0xba
-  | [<ffffffff803760d8>] memunmap_pages+0x2bc/0x3fe
-  | [<ffffffff02a3ca28>] dmirror_device_remove_chunks+0x2ea/0x518 [test_hmm]
-  | [<ffffffff02a3e026>] hmm_dmirror_exit+0x3e/0x1018 [test_hmm]
-  | [<ffffffff80102c14>] __riscv_sys_delete_module+0x15a/0x2a6
-  | [<ffffffff80fd020c>] do_trap_ecall_u+0x1f2/0x266
-  | [<ffffffff80fde0a2>] _new_vmalloc_restore_context_a0+0xc6/0xd2
-  | Code: bf51 7597 0184 8593 76a5 854a 4097 0029 80e7 2c00 (9002) 7597
-  | ---[ end trace 0000000000000000 ]---
-  | Kernel panic - not syncing: Fatal exception in interrupt
 
-Add a check to avoid calling the pmd dtor, if the calling context is
-vmemmap_free().
+> 
+> So the three changes you did are
+> 
+> (a) Remove the config option but select/depend on them.
+> 
+> (b) Remove the "depends on PROC_VMCORE" from PROC_VMCORE_DEVICE_RAM,
+>     and the "if PROC_VMCORE" from s390.
+> 
+> (c) Remove the PROVIDE_PROC_VMCORE_DEVICE_RAM
+> 
+> 
+> Regarding (a), that doesn't work. If you select a config option that doesn't
+> exist, it is silently dropped. It's always treated as if it wouldn't be set.
+> 
+> Regarding (b), I think that's an anti-pattern (having config options enabled
+> that are completely ineffective) and I don't see a benefit dropping them.
+> 
+> Regarding (c), it would mean that s390x unconditionally includes that code
+> even if virtio-mem is not configured in.
+> 
+> So while we could drop PROVIDE_PROC_VMCORE_DEVICE_RAM -- (c), it would that
+> we end up including code in configurations that don't possibly need it.
+> That's why I included that part.
+> 
+> > 
+> > 
+> > ======= config items extracted from this patchset====
+> > config PROVIDE_PROC_VMCORE_DEVICE_RAM
+> >          def_bool n
+> > 
+> > config NEED_PROC_VMCORE_DEVICE_RAM
+> >          def_bool n
+> > 
+> > config PROC_VMCORE_DEVICE_RAM
+> >          def_bool y
+> >          depends on PROC_VMCORE
+> >          depends on NEED_PROC_VMCORE_DEVICE_RAM
+> >          depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
+> > 
+> > config VIRTIO_MEM
+> > 	depends on X86_64 || ARM64 || RISCV
+> >           ~~~~~ I don't get why VIRTIO_MEM dones't depend on S390 if
+> >                 s390 need PROC_VMCORE_DEVICE_RAM.
+> 
+> This series depends on s390 support for virtio-mem, which just went
+> upstream.
 
-Fixes: c75a74f4ba19 ("riscv: mm: Add memory hotplugging support")
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
----
- arch/riscv/mm/init.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Got It, I just applied this series on top of the latest mainline's
+master branch. Thanks for telling.
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 0e8c20adcd98..fc53ce748c80 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -1566,7 +1566,7 @@ static void __meminit free_pte_table(pte_t *pte_start, pmd_t *pmd)
- 	pmd_clear(pmd);
- }
- 
--static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
-+static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud, bool is_vmemmap)
- {
- 	struct page *page = pud_page(*pud);
- 	struct ptdesc *ptdesc = page_ptdesc(page);
-@@ -1579,7 +1579,8 @@ static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
- 			return;
- 	}
- 
--	pagetable_pmd_dtor(ptdesc);
-+	if (!is_vmemmap)
-+		pagetable_pmd_dtor(ptdesc);
- 	if (PageReserved(page))
- 		free_reserved_page(page);
- 	else
-@@ -1703,7 +1704,7 @@ static void __meminit remove_pud_mapping(pud_t *pud_base, unsigned long addr, un
- 		remove_pmd_mapping(pmd_base, addr, next, is_vmemmap, altmap);
- 
- 		if (pgtable_l4_enabled)
--			free_pmd_table(pmd_base, pudp);
-+			free_pmd_table(pmd_base, pudp, is_vmemmap);
- 	}
- }
- 
-
-base-commit: 57f7c7dc78cd09622b12920d92b40c1ce11b234e
--- 
-2.45.2
+> 
+> 
+> commit 38968bcdcc1d46f2fdcd3a72599d5193bf8baf84
+> Author: David Hildenbrand <david@redhat.com>
+> Date:   Fri Oct 25 16:14:49 2024 +0200
+> 
+>     virtio-mem: s390 support
+> 
+> 
+> >          ......
+> >          select PROVIDE_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
+> > 
+> > config S390
+> >          select NEED_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
+> > =================================================
+> > 
+> 
+> Thanks for having a look!
+> 
+> -- 
+> Cheers,
+> 
+> David / dhildenb
+> 
 
