@@ -1,290 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1609519C569
-	for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 10:48:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D3991A4F02
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Nov 2024 13:12:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732099732; cv=none; b=qKJwx8QTyi4BItb3Ql1qjpzAOJ7d77kMjZNX4ZczdEGW/NB7dpg2RLrZKxuwDsPgYYF+pnHGTUjCLFnbW8KjzCOwL0Xwkmn+Jx9GxQu4S076AftxTcQA178y56IN0aptJl4gZBfcv2kFwVKNrficEaN2HTLMu7jY0Bd1MOCr7+I=
+	t=1732108334; cv=none; b=mvbj5JnyPdrIerBeBCR5D0K30s+rkHoBvsRNIPCHz8cQNTxHs0y9Aqku9njUIWF8W/3uiYfWQYE9/3pm5d6xzQ9lHeO0q7rgFUaEFz1/zjLX+M36bXYXNNaL4smMKh2e95VIBAzcTr+pWcTQzSRF1wV8QoIDb5D5LCKE7X6vGvc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732099732; c=relaxed/simple;
-	bh=XC8Mm92Ij6nVgJE1Djy3NtQ0fZS7oZmrFjKmK4b17TM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Knox9Wxe83orYMu9anwhT6/7B6OX/mNF0hm54gK/E1Z/SpyFULb2v1VmhScuTKnfF1hkV1f0d7XtxH73MMZAIiwjfO4QSPRt9mLt6QTjEttCTwrcULeHAE3Sep5gTcum0hJtoPJfig6+1d3V6DLbegY++8QiPAdojZ8J8dVZUp4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ia5U++k1; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1732108334; c=relaxed/simple;
+	bh=k+5dEYh0Wx0gYDwBov9cnbkAU6CMVjt/gVpf33OC/N8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Oej8EBZaIKsPH9jqQt8sxSQqb8aes6Vr3y5aFw8v7WxQZVNj02iVcCx0zvUHym/O2Di19AFMyb2IeppYMoBUnkWjZKgjiahVhSgRqDM19r5OvQqvtkA5BJykinToacoDrfq8+jchWmuwJXKQVfc3ZmTybaXC6drw2GIw83LE6G4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jGZhu9Dw; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ia5U++k1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732099729;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=TYJiOMspK7IsPxdhCdCDQF9p6uoKVIA0MyWnICkfAEs=;
-	b=Ia5U++k1NyLjhBvG2BVz8wifMzq87E6nWOC837s9M+r7ZBWZuybn5kuL1yEYqmX+hakP9v
-	bUJtq7Tvg3S9cQGjHxA2nonAzQMCrTgi3Z2FXKdtHMt767PyR+2PhV8cqMRsDhZwlotbiJ
-	sL9aNNhaujGYwkWui9PVEHKWi0sHdI0=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-669-EycF9m0qOfG2Vyd91lhu6w-1; Wed, 20 Nov 2024 05:48:47 -0500
-X-MC-Unique: EycF9m0qOfG2Vyd91lhu6w-1
-X-Mimecast-MFC-AGG-ID: EycF9m0qOfG2Vyd91lhu6w
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43159c07193so40016155e9.0
-        for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 02:48:47 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732099726; x=1732704526;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=TYJiOMspK7IsPxdhCdCDQF9p6uoKVIA0MyWnICkfAEs=;
-        b=ZjGtZigAFuiX6R/6Xnqgm8FuBpgY2TCAkuaQMbinv9Zjqllk7q6xQLFDfLNho69X7W
-         BbmaJjIMVcTDK54MRNp3cAZu9xxP2LVkv067eTqXXURV2pSLxcPXCXN+RP8i+RRZSNqH
-         XUNnxm01BUba3WB3Jn1oy3YRq/No/Zv7WcqmKJoUUWQS3DkAeL6D7zy0bJTQb6igaAbR
-         M4NKJgjSaYs86/fY6TAZRlGlS+sLmARWhsTVdJ4eiidFmZZfu2uAqoqKEKq1a7VyEvWV
-         XRmx63+MFscuOVegYGWczd6V/G/3+x46gzF05boVi33t2sanw20zfxbw09rZ6wjbjD/M
-         +bDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUO32yTiz3WfQXuiXEjOahpj1VQc2f6CDxD1+0utp6iqXRpT8Z1eUKdVdLdJrxQ1j2WENA/kQgCjRcuq8R4sQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyPH5MVpdHQkF8CCkyugAipHeE6zxr0lHheqhND7O/DgokBIB3C
-	1S6+kZF080Z0lwCHe8qPuxIo36FBd11G1PWg3R7R5waHWlHJFLewfPkmdCOwrbUpV+DaWxxxfy/
-	hb/Io7ZJIfUQNhw53jINNsCW5/aH3BNgIvGG4U0MyFgKVX+fETmwa2bDcwHXRTxnu
-X-Received: by 2002:a05:600c:4ed2:b0:431:52a3:d9d5 with SMTP id 5b1f17b1804b1-43348903e9dmr25118745e9.0.1732099726048;
-        Wed, 20 Nov 2024 02:48:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH5ri0Ctyn0tsKk21xv1/ls13TeHxIMZx0VuvaIyqn9RF2BrSvePdGve47YAO822hbBk4iZ7Q==
-X-Received: by 2002:a05:600c:4ed2:b0:431:52a3:d9d5 with SMTP id 5b1f17b1804b1-43348903e9dmr25118425e9.0.1732099725605;
-        Wed, 20 Nov 2024 02:48:45 -0800 (PST)
-Received: from ?IPV6:2003:cb:c705:4200:ce79:acf6:d832:60df? (p200300cbc7054200ce79acf6d83260df.dip0.t-ipconnect.de. [2003:cb:c705:4200:ce79:acf6:d832:60df])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-433b45fa728sm14606045e9.14.2024.11.20.02.48.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Nov 2024 02:48:44 -0800 (PST)
-Message-ID: <4b07a3eb-aad6-4436-9591-289c6504bb92@redhat.com>
-Date: Wed, 20 Nov 2024 11:48:42 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jGZhu9Dw"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id B1ED340814
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Nov 2024 13:12:12 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id UlB1wD4SvNXF for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Nov 2024 13:12:11 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=bjorn@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9F0F34070F
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F0F34070F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=jGZhu9Dw
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F0F34070F
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Nov 2024 13:12:11 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 66B385C4C65;
+	Wed, 20 Nov 2024 13:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB08CC4CECD;
+	Wed, 20 Nov 2024 13:12:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1732108330;
+	bh=k+5dEYh0Wx0gYDwBov9cnbkAU6CMVjt/gVpf33OC/N8=;
+	h=From:To:Cc:Subject:Date:From;
+	b=jGZhu9Dwi+lGk9ZsjijKZtKKmfps855+KQDnqkWJagaRykvm2OPjoa3N7MXkOMafs
+	 TE+QWilPmnA3oHJchvWXEJw1WePCqb4iEZzbli7EjPOJcdSJGkR7Pl9HO21Q2LWteL
+	 eAwdFkF+dvkwEOJ2xB+30+nVCbEYibc1HqmsSgV7/nIoBve5Db+l6ZIACcoiViKHcT
+	 cccKAxYjyGLTsGykPjnZ4z1n8KFZXypqjklh5YxiP+OM3MzFg21y6pHacUYDc1qedp
+	 H6ayz5UPejtY03knpY4awE4AgRy3FByrk7wJdPB4tmtz0/3GEmcJTYBrmhvSGk1mN+
+	 a9rDfMwo0nRnw==
+From: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>
+To: Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	David Hildenbrand <david@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	linux-riscv@lists.infradead.org,
+	Oscar Salvador <osalvador@suse.de>
+Cc: =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
+	Andrew Bresticker <abrestic@rivosinc.com>,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	virtualization@lists.linux-foundation.org
+Subject: [PATCH fixes] riscv: mm: Do not call pmd dtor on vmemmap page table teardown
+Date: Wed, 20 Nov 2024 14:12:02 +0100
+Message-ID: <20241120131203.1859787-1-bjorn@kernel.org>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/11] fs/proc/vmcore: introduce PROC_VMCORE_DEVICE_RAM
- to detect device RAM ranges in 2nd kernel
-To: Baoquan He <bhe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
- Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
- <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-References: <20241025151134.1275575-1-david@redhat.com>
- <20241025151134.1275575-8-david@redhat.com> <Zz22ZidsMqkafYeg@MiWiFi-R3L-srv>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <Zz22ZidsMqkafYeg@MiWiFi-R3L-srv>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1Xhg4L48XB85EF4k19yC9lULnqVbEK5bBqDxr6T5pIw_1732099726
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 20.11.24 11:13, Baoquan He wrote:
-> On 10/25/24 at 05:11pm, David Hildenbrand wrote:
->> s390 allocates+prepares the elfcore hdr in the dump (2nd) kernel, not in
->> the crashed kernel.
->>
->> RAM provided by memory devices such as virtio-mem can only be detected
->> using the device driver; when vmcore_init() is called, these device
->> drivers are usually not loaded yet, or the devices did not get probed
->> yet. Consequently, on s390 these RAM ranges will not be included in
->> the crash dump, which makes the dump partially corrupt and is
->> unfortunate.
->>
->> Instead of deferring the vmcore_init() call, to an (unclear?) later point,
->> let's reuse the vmcore_cb infrastructure to obtain device RAM ranges as
->> the device drivers probe the device and get access to this information.
->>
->> Then, we'll add these ranges to the vmcore, adding more PT_LOAD
->> entries and updating the offsets+vmcore size.
->>
->> Use Kconfig tricks to include this code automatically only if (a) there is
->> a device driver compiled that implements the callback
->> (PROVIDE_PROC_VMCORE_DEVICE_RAM) and; (b) the architecture actually needs
->> this information (NEED_PROC_VMCORE_DEVICE_RAM).
->>
->> The current target use case is s390, which only creates an elf64
->> elfcore, so focusing on elf64 is sufficient.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   fs/proc/Kconfig            |  25 ++++++
->>   fs/proc/vmcore.c           | 156 +++++++++++++++++++++++++++++++++++++
->>   include/linux/crash_dump.h |   9 +++
->>   3 files changed, 190 insertions(+)
->>
->> diff --git a/fs/proc/Kconfig b/fs/proc/Kconfig
->> index d80a1431ef7b..1e11de5f9380 100644
->> --- a/fs/proc/Kconfig
->> +++ b/fs/proc/Kconfig
->> @@ -61,6 +61,31 @@ config PROC_VMCORE_DEVICE_DUMP
->>   	  as ELF notes to /proc/vmcore. You can still disable device
->>   	  dump using the kernel command line option 'novmcoredd'.
->>   
->> +config PROVIDE_PROC_VMCORE_DEVICE_RAM
->> +	def_bool n
->> +
->> +config NEED_PROC_VMCORE_DEVICE_RAM
->> +	def_bool n
->> +
->> +config PROC_VMCORE_DEVICE_RAM
->> +	def_bool y
->> +	depends on PROC_VMCORE
->> +	depends on NEED_PROC_VMCORE_DEVICE_RAM
->> +	depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
-> 
-> Kconfig item is always a thing I need learn to master.
+From: Björn Töpel <bjorn@rivosinc.com>
 
-Yes, it's usually a struggle to get it right. It took me a couple of 
-iterations to get to this point :)
+The vmemmap's, which is used for RV64 with SPARSEMEM_VMEMMAP, page
+tables are populated using pmd (page middle directory) hugetables.
+However, the pmd allocation is not using the generic mechanism used by
+the VMA code (e.g. pmd_alloc()), or the RISC-V specific
+create_pgd_mapping()/alloc_pmd_late(). Instead, the vmemmap page table
+code allocates a page, and calls vmemmap_set_pmd(). This results in
+that the pmd ctor is *not* called, nor would it make sense to do so.
 
-> When I checked
-> this part, I have to write them down to deliberate. I am wondering if
-> below 'simple version' works too and more understandable. Please help
-> point out what I have missed.
-> 
-> ===========simple version======
-> config PROC_VMCORE_DEVICE_RAM
->          def_bool y
->          depends on PROC_VMCORE && VIRTIO_MEM
->          depends on NEED_PROC_VMCORE_DEVICE_RAM
-> 
-> config S390
->          select NEED_PROC_VMCORE_DEVICE_RAM
- > ============
+Now, when tearing down a vmemmap page table pmd, the cleanup code
+would unconditionally, and incorrectly call the pmd dtor, which
+results in a crash (best case).
 
-So the three changes you did are
+This issue was found when running the HMM selftests:
 
-(a) Remove the config option but select/depend on them.
+  | tools/testing/selftests/mm# ./test_hmm.sh smoke
+  | ... # when unloading the test_hmm.ko module
+  | page: refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10915b
+  | flags: 0x1000000000000000(node=0|zone=1)
+  | raw: 1000000000000000 0000000000000000 dead000000000122 0000000000000000
+  | raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
+  | page dumped because: VM_BUG_ON_PAGE(ptdesc->pmd_huge_pte)
+  | ------------[ cut here ]------------
+  | kernel BUG at include/linux/mm.h:3080!
+  | Kernel BUG [#1]
+  | Modules linked in: test_hmm(-) sch_fq_codel fuse drm drm_panel_orientation_quirks backlight dm_mod
+  | CPU: 1 UID: 0 PID: 514 Comm: modprobe Tainted: G        W          6.12.0-00982-gf2a4f1682d07 #2
+  | Tainted: [W]=WARN
+  | Hardware name: riscv-virtio qemu/qemu, BIOS 2024.10 10/01/2024
+  | epc : remove_pgd_mapping+0xbec/0x1070
+  |  ra : remove_pgd_mapping+0xbec/0x1070
+  | epc : ffffffff80010a68 ra : ffffffff80010a68 sp : ff20000000a73940
+  |  gp : ffffffff827b2d88 tp : ff6000008785da40 t0 : ffffffff80fbce04
+  |  t1 : 0720072007200720 t2 : 706d756420656761 s0 : ff20000000a73a50
+  |  s1 : ff6000008915cff8 a0 : 0000000000000039 a1 : 0000000000000008
+  |  a2 : ff600003fff0de20 a3 : 0000000000000000 a4 : 0000000000000000
+  |  a5 : 0000000000000000 a6 : c0000000ffffefff a7 : ffffffff824469b8
+  |  s2 : ff1c0000022456c0 s3 : ff1ffffffdbfffff s4 : ff6000008915c000
+  |  s5 : ff6000008915c000 s6 : ff6000008915c000 s7 : ff1ffffffdc00000
+  |  s8 : 0000000000000001 s9 : ff1ffffffdc00000 s10: ffffffff819a31f0
+  |  s11: ffffffffffffffff t3 : ffffffff8000c950 t4 : ff60000080244f00
+  |  t5 : ff60000080244000 t6 : ff20000000a73708
+  | status: 0000000200000120 badaddr: ffffffff80010a68 cause: 0000000000000003
+  | [<ffffffff80010a68>] remove_pgd_mapping+0xbec/0x1070
+  | [<ffffffff80fd238e>] vmemmap_free+0x14/0x1e
+  | [<ffffffff8032e698>] section_deactivate+0x220/0x452
+  | [<ffffffff8032ef7e>] sparse_remove_section+0x4a/0x58
+  | [<ffffffff802f8700>] __remove_pages+0x7e/0xba
+  | [<ffffffff803760d8>] memunmap_pages+0x2bc/0x3fe
+  | [<ffffffff02a3ca28>] dmirror_device_remove_chunks+0x2ea/0x518 [test_hmm]
+  | [<ffffffff02a3e026>] hmm_dmirror_exit+0x3e/0x1018 [test_hmm]
+  | [<ffffffff80102c14>] __riscv_sys_delete_module+0x15a/0x2a6
+  | [<ffffffff80fd020c>] do_trap_ecall_u+0x1f2/0x266
+  | [<ffffffff80fde0a2>] _new_vmalloc_restore_context_a0+0xc6/0xd2
+  | Code: bf51 7597 0184 8593 76a5 854a 4097 0029 80e7 2c00 (9002) 7597
+  | ---[ end trace 0000000000000000 ]---
+  | Kernel panic - not syncing: Fatal exception in interrupt
 
-(b) Remove the "depends on PROC_VMCORE" from PROC_VMCORE_DEVICE_RAM,
-     and the "if PROC_VMCORE" from s390.
+Add a check to avoid calling the pmd dtor, if the calling context is
+vmemmap_free().
 
-(c) Remove the PROVIDE_PROC_VMCORE_DEVICE_RAM
+Fixes: c75a74f4ba19 ("riscv: mm: Add memory hotplugging support")
+Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
+---
+ arch/riscv/mm/init.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 0e8c20adcd98..fc53ce748c80 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -1566,7 +1566,7 @@ static void __meminit free_pte_table(pte_t *pte_start, pmd_t *pmd)
+ 	pmd_clear(pmd);
+ }
+ 
+-static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
++static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud, bool is_vmemmap)
+ {
+ 	struct page *page = pud_page(*pud);
+ 	struct ptdesc *ptdesc = page_ptdesc(page);
+@@ -1579,7 +1579,8 @@ static void __meminit free_pmd_table(pmd_t *pmd_start, pud_t *pud)
+ 			return;
+ 	}
+ 
+-	pagetable_pmd_dtor(ptdesc);
++	if (!is_vmemmap)
++		pagetable_pmd_dtor(ptdesc);
+ 	if (PageReserved(page))
+ 		free_reserved_page(page);
+ 	else
+@@ -1703,7 +1704,7 @@ static void __meminit remove_pud_mapping(pud_t *pud_base, unsigned long addr, un
+ 		remove_pmd_mapping(pmd_base, addr, next, is_vmemmap, altmap);
+ 
+ 		if (pgtable_l4_enabled)
+-			free_pmd_table(pmd_base, pudp);
++			free_pmd_table(pmd_base, pudp, is_vmemmap);
+ 	}
+ }
+ 
 
-Regarding (a), that doesn't work. If you select a config option that 
-doesn't exist, it is silently dropped. It's always treated as if it 
-wouldn't be set.
-
-Regarding (b), I think that's an anti-pattern (having config options 
-enabled that are completely ineffective) and I don't see a benefit 
-dropping them.
-
-Regarding (c), it would mean that s390x unconditionally includes that 
-code even if virtio-mem is not configured in.
-
-So while we could drop PROVIDE_PROC_VMCORE_DEVICE_RAM -- (c), it would 
-that we end up including code in configurations that don't possibly need 
-it. That's why I included that part.
-
-> 
-> 
-> ======= config items extracted from this patchset====
-> config PROVIDE_PROC_VMCORE_DEVICE_RAM
->          def_bool n
-> 
-> config NEED_PROC_VMCORE_DEVICE_RAM
->          def_bool n
-> 
-> config PROC_VMCORE_DEVICE_RAM
->          def_bool y
->          depends on PROC_VMCORE
->          depends on NEED_PROC_VMCORE_DEVICE_RAM
->          depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
-> 
-> config VIRTIO_MEM
-> 	depends on X86_64 || ARM64 || RISCV
->           ~~~~~ I don't get why VIRTIO_MEM dones't depend on S390 if
->                 s390 need PROC_VMCORE_DEVICE_RAM.
-
-This series depends on s390 support for virtio-mem, which just went 
-upstream.
-
-See
-
-commit 38968bcdcc1d46f2fdcd3a72599d5193bf8baf84
-Author: David Hildenbrand <david@redhat.com>
-Date:   Fri Oct 25 16:14:49 2024 +0200
-
-     virtio-mem: s390 support
-
-
->          ......
->          select PROVIDE_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
-> 
-> config S390
->          select NEED_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
-> =================================================
-> 
-
-Thanks for having a look!
-
+base-commit: 57f7c7dc78cd09622b12920d92b40c1ce11b234e
 -- 
-Cheers,
-
-David / dhildenb
+2.45.2
 
