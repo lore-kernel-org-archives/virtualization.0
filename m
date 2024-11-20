@@ -1,174 +1,118 @@
-Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F7CD15B99E
-	for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 07:07:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B8C3200CB
+	for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 07:26:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732086442; cv=none; b=i4nmL50xqpJssJtnvWRLU7gVjDgxdnaYhU7gFhWxA+XoF3H2sKM0nJFgqS7WiaHSdSBCwUAZPuPGpaRTHb+PatnEbpYN8ZTO4NtY9WIblIGLAAO0ZHC40XXjEAH563hzKwaYXWUwH7AwJ8wo09J3av3t+GwcyVXrq4F3ICHG4Mw=
+	t=1732087611; cv=none; b=eJpe7Xt2H+pSahjSEolgVIJmGDFaVZzurFTKIwrMVfsoyDQWHb6NH2POANOxAn6KqFoHRRYAE30UD+Gc/Yt15GCF3CAzF6+7A4vly3qKVelHkkISPlNElawfrNzrBDBxDj6oD1Bf4KM+VqgkAtO+CGQCT+nMKGVnvvozHoHQAVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732086442; c=relaxed/simple;
-	bh=QjpJbq013nostxLse9Lh8wIY37svrRC5Caf3PObOb+A=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cv/fkHXF/SLGekgSLbr8x2zQMoW10TUMxcAdyUbsqFVVNJDh8KdLAQ91dTvGTs7c9Z9nHP59zFWC1tfTimp+oJrDoYpCS1S/42DBQRjmf9123g0aKiV9M47o+XQJMsx/U6gLkYdlO8qLrAkZGwZ0yNgXLPjp6H27hj9pN1ND3Ik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=IdWXlVOY; arc=none smtp.client-ip=67.231.148.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1732087611; c=relaxed/simple;
+	bh=biP9Dvrhc+G0qDx7cODYLf6RQAzvBJDKrAIMDhqkKjo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LUzsCDUz7C3UWXEsEBIFP3/F4kPalxGczLk4/ZyDKLqp6XAER3hGujRXVOoBmLixcnYLyKJrsR8M+sYjgeq2vXIXft3GsPJ35Ga4DPpH0Y8SbhTRt/AvOlrNw1DHWRuFa2mVZgnhgCv5nq/+wb2LzU0QIE0UiYoaPOyYvUlAbag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=MgLUepzk; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="IdWXlVOY"
-Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AJMmeed003104;
-	Tue, 19 Nov 2024 23:07:16 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=K
-	FXD3AS2KBH6vnHmuro+c0L6OCeD3n8FHywMgLoBwR8=; b=IdWXlVOYey5bn1KE1
-	yWeIfgPITuxJLrEDdunNJzfSTCP5F3jNHsU6VH9WxE4JG5hmk2U8I1hAYdF7rmpJ
-	ZkphJI7bn3xhFtsvUMiQGfka/ql0u1kUZadM77jR1yibyna66AzN/pYmENX6JeME
-	sE002vMxxpN/3NJJvTaDWIjx/zdP1OlnY9T+3Sid/Yh7J5UBwX+HAo7BIPnKjqtE
-	AXkIBM+rnGMrGKFaHdtc41LLKWM4WaocpsnPA6W4c/QsrFsWcXfAxJJoia0JG3TJ
-	KO3ZjZd7z1MSxqoX/X5p3+SdmAdkyiaHAU4Pjvam8rWDjsN0IOMjiFEwckzaQnEh
-	O8TgQ==
-Received: from dc5-exch05.marvell.com ([199.233.59.128])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4313t10xjr-2
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Nov 2024 23:07:16 -0800 (PST)
-Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
- DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Tue, 19 Nov 2024 23:07:07 -0800
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
- (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Tue, 19 Nov 2024 23:07:07 -0800
-Received: from localhost.localdomain (unknown [10.28.34.29])
-	by maili.marvell.com (Postfix) with ESMTP id 76AC13F7062;
-	Tue, 19 Nov 2024 23:07:03 -0800 (PST)
-From: Shijith Thotton <sthotton@marvell.com>
-To: <virtualization@lists.linux.dev>, <mst@redhat.com>, <jasowang@redhat.com>
-CC: Shijith Thotton <sthotton@marvell.com>, <schalla@marvell.com>,
-        <vattunuru@marvell.com>, <ndabilpuram@marvell.com>,
-        <jerinj@marvell.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>,
-        Satha Rao <skoteshwar@marvell.com>,
-        open list
-	<linux-kernel@vger.kernel.org>
-Subject: [PATCH 4/4] vdpa/octeon_ep: add interrupt handler for virtio crypto device
-Date: Wed, 20 Nov 2024 12:34:53 +0530
-Message-ID: <20241120070508.789508-4-sthotton@marvell.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20241120070508.789508-1-sthotton@marvell.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="MgLUepzk"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-37ed3bd6114so2334704f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 19 Nov 2024 23:26:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1732087608; x=1732692408; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=JIPtm7b8Gz8+1qEAQ0SdnpTPbujFoftQyLLRu5cTOkc=;
+        b=MgLUepzkfM6om31bV8EwAgR8nLtGj+uoEAcouLPdveU9K+YbwhPpnZkhc6genj7ERL
+         UWBNLJiX4GjCG/ytjIHhOq6+PBh42RANt8/2Q0Y+U3kX9MdfxTUurahW+5aEF2+rjt2F
+         G5Apnuw5ynKjzmI62cbdLtAMuMxYqRZuvNqhqNs1O9tRJt7qW2Ziw/f/HVAT4C+vfwJq
+         GdAaBZOI00pI/5nDaSTjF8XQnGpvPqjn5rtzmEaW9jGcaPodm5MBt1kzuRhkShBU0s5b
+         dPfPGT659Se261SC72Pjj0NpNEh2pAkJ29WMlF0QCkMSc7y81BDDTnwECEq+qQsqFz1H
+         4mKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1732087608; x=1732692408;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JIPtm7b8Gz8+1qEAQ0SdnpTPbujFoftQyLLRu5cTOkc=;
+        b=c2FJgADyPOTvIz1C5RUIvCXkul1nUANBcg7JEyMqm63RWaP+tZib/tGy1D1lTzGGEL
+         E7ygV1QBDRBpOBKFVudQn+QZjxWx5yarvol6p0tVBr7CchFQnzYalEaLFeYasKM9ug3s
+         Y+KE2jo5u7YDpEiHxTD04m9MMB1J5zBzsvlxNAjtS9NrLp5nDOW1G2IaKYIexnpSMJVu
+         LW3W+UJpcVflhfOqmRU7q2l8qn3qf9R0e9w7SCNxok5YLeQKY7H4Bo9jbdeAKtgnG9n4
+         jO066jFIttO1ajzXeKKQSWptVIBShqqJRfPsEV92PThe703TUcUWzIJ4IBaNn1NpyclR
+         zcxg==
+X-Gm-Message-State: AOJu0YwxCQD5R8k+yp0OzpZuhGWaXy47mTksoAuFsFDC71mSzkykqduU
+	aehoDgNFZ4nLXcNvafvRPd+yPCx/bbDt4ACSoBFmyoagKxhXJB19/wqw/XMsm0E=
+X-Google-Smtp-Source: AGHT+IE4o51sEx8SfAWBLWFg+1eVtkYzjlvSdvNDJErKDfiQXG6P7uoQ+i1al4onHerpPjh2jAqQUA==
+X-Received: by 2002:a05:6000:2a8:b0:382:4a45:15ed with SMTP id ffacd0b85a97d-38254b1625cmr806374f8f.41.1732087607953;
+        Tue, 19 Nov 2024 23:26:47 -0800 (PST)
+Received: from localhost ([196.207.164.177])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38254911220sm1266335f8f.60.2024.11.19.23.26.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Nov 2024 23:26:47 -0800 (PST)
+Date: Wed, 20 Nov 2024 10:26:43 +0300
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: Shijith Thotton <sthotton@marvell.com>
+Cc: virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
+	Satha Rao <skoteshwar@marvell.com>, schalla@marvell.com,
+	vattunuru@marvell.com, ndabilpuram@marvell.com, jerinj@marvell.com,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/4] vdpa/octeon_ep: handle device config change events
+Message-ID: <e939fa9f-fedf-4097-8dbe-45d3bc2523d9@stanley.mountain>
 References: <20241120070508.789508-1-sthotton@marvell.com>
+ <20241120070508.789508-2-sthotton@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: m3W3Ereg19Xt5hLzETEOPamsCbsT3a_k
-X-Proofpoint-GUID: m3W3Ereg19Xt5hLzETEOPamsCbsT3a_k
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
- definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241120070508.789508-2-sthotton@marvell.com>
 
-Introduced an interrupt handler for the virtio crypto device, as its
-queue usage differs from that of network devices. While virtio network
-device receives packets only on even-indexed queues, virtio crypto
-device utilize all available queues for processing data.
+On Wed, Nov 20, 2024 at 12:34:51PM +0530, Shijith Thotton wrote:
+> From: Satha Rao <skoteshwar@marvell.com>
+> 
+> The first interrupt of the device is used to notify the host about
+> device configuration changes, such as link status updates. The ISR
+> configuration area is updated to indicate a config change event when
+> triggered.
+> 
+> Signed-off-by: Satha Rao <skoteshwar@marvell.com>
+> Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+> ---
+>  drivers/vdpa/octeon_ep/octep_vdpa_main.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> index 482c178a5221..6db951c6cb92 100644
+> --- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> @@ -74,6 +74,14 @@ static irqreturn_t octep_vdpa_intr_handler(int irq, void *data)
+>  		}
+>  	}
+>  
+> +	/* Check for config interrupt. Config uses the first interrupt */
+> +	if (unlikely(ring_start == 0 && ioread8(oct_hw->isr))) {
+> +		iowrite8(0, oct_hw->isr);
+> +
+> +		if (likely(oct_hw->config_cb.callback))
 
-Signed-off-by: Shijith Thotton <sthotton@marvell.com>
----
- drivers/vdpa/octeon_ep/octep_vdpa_main.c | 51 +++++++++++++++++++++++-
- 1 file changed, 49 insertions(+), 2 deletions(-)
+Adding unlikely() and likey() hurts readability.  It adds noise.  You should do
+it if it makes a difference on a benchmark but that seems unlikely here.
 
-diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-index 6ead42d76415..1b65cb697fa5 100644
---- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-+++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-@@ -44,7 +44,35 @@ static struct octep_hw *vdpa_to_octep_hw(struct vdpa_device *vdpa_dev)
- 	return oct_vdpa->oct_hw;
- }
- 
--static irqreturn_t octep_vdpa_intr_handler(int irq, void *data)
-+static irqreturn_t octep_vdpa_crypto_irq_handler(int irq, void *data)
-+{
-+	struct octep_hw *oct_hw = data;
-+	int i;
-+
-+	/* Each device interrupt (nb_irqs) maps to specific receive rings
-+	 * (nr_vring) in a round-robin fashion.
-+	 *
-+	 * For example, if nb_irqs = 8 and nr_vring = 64:
-+	 * 0 -> 0, 8, 16, 24, 32, 40, 48, 56;
-+	 * 1 -> 1, 9, 17, 25, 33, 41, 49, 57;
-+	 * ...
-+	 * 7 -> 7, 15, 23, 31, 39, 47, 55, 63;
-+	 */
-+	for (i = irq - oct_hw->irqs[0]; i < oct_hw->nr_vring; i += oct_hw->nb_irqs) {
-+		if (ioread32(oct_hw->vqs[i].cb_notify_addr)) {
-+			/* Acknowledge the per ring notification to the device */
-+			iowrite32(0, oct_hw->vqs[i].cb_notify_addr);
-+
-+			if (likely(oct_hw->vqs[i].cb.callback))
-+				oct_hw->vqs[i].cb.callback(oct_hw->vqs[i].cb.private);
-+			break;
-+		}
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t octep_vdpa_net_irq_handler(int irq, void *data)
- {
- 	struct octep_hw *oct_hw = data;
- 	int i, ring_start, ring_stride;
-@@ -85,6 +113,18 @@ static irqreturn_t octep_vdpa_intr_handler(int irq, void *data)
- 	return IRQ_HANDLED;
- }
- 
-+static irqreturn_t (*octep_vdpa_get_irq_handler(u32 dev_id))(int, void *)
-+{
-+	switch (dev_id) {
-+	case VIRTIO_ID_NET:
-+		return octep_vdpa_net_irq_handler;
-+	case VIRTIO_ID_CRYPTO:
-+		return octep_vdpa_crypto_irq_handler;
-+	default:
-+		return NULL;
-+	}
-+}
-+
- static void octep_free_irqs(struct octep_hw *oct_hw)
- {
- 	struct pci_dev *pdev = oct_hw->pdev;
-@@ -103,6 +143,7 @@ static void octep_free_irqs(struct octep_hw *oct_hw)
- 
- static int octep_request_irqs(struct octep_hw *oct_hw)
- {
-+	irqreturn_t (*irq_handler)(int irq, void *data);
- 	struct pci_dev *pdev = oct_hw->pdev;
- 	int ret, irq, idx;
- 
-@@ -119,10 +160,16 @@ static int octep_request_irqs(struct octep_hw *oct_hw)
- 	}
- 
- 	memset(oct_hw->irqs, -1, sizeof(oct_hw->irqs));
-+	irq_handler = octep_vdpa_get_irq_handler(oct_hw->dev_id);
-+	if (!irq_handler) {
-+		dev_err(&pdev->dev, "Invalid device id %d\n", oct_hw->dev_id);
-+		ret = -EINVAL;
-+		goto free_irqs;
-+	}
- 
- 	for (idx = 0; idx < oct_hw->nb_irqs; idx++) {
- 		irq = pci_irq_vector(pdev, idx);
--		ret = devm_request_irq(&pdev->dev, irq, octep_vdpa_intr_handler, 0,
-+		ret = devm_request_irq(&pdev->dev, irq, irq_handler, 0,
- 				       dev_name(&pdev->dev), oct_hw);
- 		if (ret) {
- 			dev_err(&pdev->dev, "Failed to register interrupt handler\n");
--- 
-2.25.1
+regards,
+dan carpenter
 
+> +			oct_hw->config_cb.callback(oct_hw->config_cb.private);
+> +	}
+> +
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -- 
+> 2.25.1
+> 
