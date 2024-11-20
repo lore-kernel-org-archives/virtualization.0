@@ -1,68 +1,74 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8195B15E5DC
-	for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 08:05:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61B9A16DC3C
+	for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 08:15:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732089910; cv=none; b=sgdv9lE0NsG9WSPjmHg34rJUgcbP0IaM6SD5Ge/tH4byTdgP23/pdvGMtlqa6aM5yjoUIBRbSahova4njB5Jnofkl/z/b1dkRdgIW2u4uAq4fPHYDG6VmMSOMzuW9fh9MQpoeXMNlkwcGIPXNtPC11Kgqr3Y0a0iCqjtHrPVRhs=
+	t=1732090505; cv=none; b=eRIdnvWvLRhgOo2+tJxvaRfuP8MT7VttEna28DhBRtOpwwS+WjEhhxOf6By2kqaf7u+h19KikPi2zI8L2HSzyvHa1uNMigMabsQ0GXevru+LRU/2mSnvtZjlIgd/S3aevJniE6qsx4IKsb50rshQ4/nM2dMRRbGdEHJ2+zUtRnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732089910; c=relaxed/simple;
-	bh=8c4RY0owHoz5An/7xGsvontCEb/FG4VsXHaUAG4EBZ0=;
+	s=arc-20240116; t=1732090505; c=relaxed/simple;
+	bh=+fkx++0GLLxsDzLbfCega13ttZUztcy2M1kwpi034Q8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hgtjnY8FM+OMMm0l1DL0C1+i2PzQYz/LPwpssv7TYYBqwemUWz8/JcVCtyjwn+tN8TdCq7vMW6WmxXABQ7tq8dxeKGZDAuIPL318RlAqa845cKlTo2794I5wH6ANaXH8x5BYELONd5yTG1ZV2zHc3+hd6Pt4BjWbN1WBdBWMQUU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=eBwXd0gB; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=BZfvWSffRvRYMV9/uZ5t9bMs/H8s/kVOrkW28iHdvU8Baonm2PRgbduts7CVcaai5jKQCWgSxLADEo3SbbmN0EqpcNQ5XMGcb9gqdwdGVkPfw6WhRSKxLSvUfZcx+5Lc1hg38CoG+0CFaNNjrIN7Jkx49Og1GVflE44stKXNGag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AxTXJX7s; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="eBwXd0gB"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4315eeb2601so55217725e9.2
-        for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 00:05:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1732089907; x=1732694707; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=jRgDfoaQT9KNI5x6/6yzE+UnJrhXzmTHlyAUFtH2BlU=;
-        b=eBwXd0gBM31cF1wwgS12LJ4kyRe21XIQDLhmYJl3tLeXHrNvSsPAf6yCnmB9rpQ3na
-         Cpmdu7gwNZtXJB/1WWMMJkM29mdCe7TycDXLEGOFrg81gANb8u6xl4f3C+RUFlXC+82x
-         QRl9vUQIwKjMANM5okWOItHwmV72Ow3e9Zfxlip275InDGGeOpMa2XnwkmVBMjbIYaiE
-         PTwggOLu6rYzH3dxDxvWSshhuWHjBBGQHgHo6CIx1oUWvRJX2zQ7XbnEkjJyLu2PnM6j
-         FER9WNrHOJoQs6wFlLSOKnhQw0WbHs2I0YjqJN2laxNXzuQM2braLV3u2Sxns9FUQr4Z
-         Zadw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732089907; x=1732694707;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jRgDfoaQT9KNI5x6/6yzE+UnJrhXzmTHlyAUFtH2BlU=;
-        b=qZ6BDNMGZ6wC6XvRdhmj4iTwwJl0rfVhqkQLLkFuHDzxg9E7Vq90lfC92mWHAnXe6k
-         MldjwshBOQFldi7ahh/vZU+mBeKO9enBsSRohHi154k9D9JTMA73QHNXdqlP0AWw643g
-         ovpIfnbSQE5M7nOKl9mjC8bSX4sSZJMq5Cik1UtkC2flnf2Wd+vspE7SXj6VFxGE77uj
-         acOqIRVorzgQ4pkGAembbOMFD7Ks14ZcaFi/jjiCEvWZk9kKABkatD5vXFErcofdx8uM
-         QHQL0kraWvHx7AhnMPF0D4YCTQsH97hb18zVTg4S2SFGK1yEdvlmb/aT97iG5ot+NcE8
-         0nqw==
-X-Gm-Message-State: AOJu0YwM0iW3xS1OK9BITQ//fkegVdPHDW3/15HsLYkJLr7vBuoLrBfb
-	TzwR7CYFYCbF+bjD+EKvOW6GYsyPntT2v4uoH2kDS6oGgoqXCE8DG9RnUobuGmQ=
-X-Google-Smtp-Source: AGHT+IEFny7M03Y934XV3HYBrb4ejakxQGcLpkJMphiZM1V77YWoi33QS9ejQpOi9Dvb73myIts4lQ==
-X-Received: by 2002:a05:600c:1d93:b0:42b:ac3d:3abc with SMTP id 5b1f17b1804b1-4334f01548dmr15750715e9.24.1732089906850;
-        Wed, 20 Nov 2024 00:05:06 -0800 (PST)
-Received: from localhost ([196.207.164.177])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-433b4643100sm10021045e9.39.2024.11.20.00.05.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Nov 2024 00:05:06 -0800 (PST)
-Date: Wed, 20 Nov 2024 11:05:02 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: Shijith Thotton <sthotton@marvell.com>
-Cc: virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
-	schalla@marvell.com, vattunuru@marvell.com, ndabilpuram@marvell.com,
-	jerinj@marvell.com, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AxTXJX7s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732090503;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Gh6m/YaiQcWez3DW3gpI7yQKGyz075BISLGCEYs6JIY=;
+	b=AxTXJX7sFRjPxKptNgJpKUiZdPvNvaZnBXdt78lybn9GvMFz5+/ltTl0jFL21tYRNdqtyo
+	um60Jp1nNKrnILjUJwba6QUUOkJ0qH2QW1yvyHipO27F3D8qEn+mXKquVSO+9XItCElpeZ
+	FLIDC4lhCSF0onQG8T2UOdmGZ25Ps2Q=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-589-pqFBDy8RM8a5-PwqnLhryw-1; Wed,
+ 20 Nov 2024 03:14:59 -0500
+X-MC-Unique: pqFBDy8RM8a5-PwqnLhryw-1
+X-Mimecast-MFC-AGG-ID: pqFBDy8RM8a5-PwqnLhryw
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1D3F9195608B;
+	Wed, 20 Nov 2024 08:14:57 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.10])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C9E9B19560A3;
+	Wed, 20 Nov 2024 08:14:54 +0000 (UTC)
+Date: Wed, 20 Nov 2024 16:14:50 +0800
+From: Baoquan He <bhe@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Satha Rao <skoteshwar@marvell.com>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/4] vdpa/octeon_ep: enable support for multiple
- interrupts per device
-Message-ID: <b799bf24-876a-41da-b297-d2323c314674@stanley.mountain>
-References: <20241120070508.789508-1-sthotton@marvell.com>
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v1 02/11] fs/proc/vmcore: replace vmcoredd_mutex by
+ vmcore_mutex
+Message-ID: <Zz2aekArHaIT4JU5@MiWiFi-R3L-srv>
+References: <20241025151134.1275575-1-david@redhat.com>
+ <20241025151134.1275575-3-david@redhat.com>
+ <ZzcVGrUcgNMXPkqw@MiWiFi-R3L-srv>
+ <9160c6b4-f8a0-431d-8a21-ead510a887a1@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -71,105 +77,25 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241120070508.789508-1-sthotton@marvell.com>
+In-Reply-To: <9160c6b4-f8a0-431d-8a21-ead510a887a1@redhat.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Wed, Nov 20, 2024 at 12:34:50PM +0530, Shijith Thotton wrote:
-> @@ -63,44 +80,53 @@ static irqreturn_t octep_vdpa_intr_handler(int irq, void *data)
->  static void octep_free_irqs(struct octep_hw *oct_hw)
->  {
->  	struct pci_dev *pdev = oct_hw->pdev;
-> +	int irq;
-> +
-> +	for (irq = 0; irq < oct_hw->nb_irqs && oct_hw->irqs; irq++) {
-> +		if (oct_hw->irqs[irq] < 0)
-> +			continue;
->  
-> -	if (oct_hw->irq != -1) {
-> -		devm_free_irq(&pdev->dev, oct_hw->irq, oct_hw);
-> -		oct_hw->irq = -1;
-> +		devm_free_irq(&pdev->dev, oct_hw->irqs[irq], oct_hw);
->  	}
-> +
->  	pci_free_irq_vectors(pdev);
-> +	kfree(oct_hw->irqs);
+On 11/15/24 at 11:04am, David Hildenbrand wrote:
+> On 15.11.24 10:32, Baoquan He wrote:
+> > On 10/25/24 at 05:11pm, David Hildenbrand wrote:
+> > > Let's use our new mutex instead.
+> > 
+> > Is there reason vmcoredd_mutex need be replaced and integrated with the
+> > vmcore_mutex? Is it the reason the concurrent opening of vmcore could
+> > happen with the old vmcoredd_mutex?
+> 
+> Yes, see the next patch in this series. But I consider this valuable on its
+> own: there is no need to have two mutexes.
+> 
+> I can make that clearer in the patch description.
 
-You should add:
+That would be great and more helpful. Because I didn't find the reason
+about the lock integration and avoid concurrent opening of vmcore in
+cover-letter and logs of the first few patches, I thought there have
+been potential problems and the first few patches are used to fix them.
 
-	oct_hw->nb_irqs = 0;
-	oct_hw->irqs = NULL;
-
-Otherwise if reset is called twice in a row, before re-initializing the IRQs it
-results in a use after free.
-
->  }
->  
->  static int octep_request_irqs(struct octep_hw *oct_hw)
->  {
->  	struct pci_dev *pdev = oct_hw->pdev;
-> -	int ret, irq;
-> +	int ret, irq, idx;
->  
-> -	/* Currently HW device provisions one IRQ per VF, hence
-> -	 * allocate one IRQ for all virtqueues call interface.
-> -	 */
-> -	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSIX);
-> +	ret = pci_alloc_irq_vectors(pdev, 1, oct_hw->nb_irqs, PCI_IRQ_MSIX);
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "Failed to alloc msix vector");
->  		return ret;
->  	}
->  
-> -	snprintf(oct_hw->vqs->msix_name, sizeof(oct_hw->vqs->msix_name),
-> -		 OCTEP_VDPA_DRIVER_NAME "-vf-%d", pci_iov_vf_id(pdev));
-> +	oct_hw->irqs = kcalloc(oct_hw->nb_irqs, sizeof(int), GFP_KERNEL);
-
-This isn't free on the ->release() path or whatever.  octep_free_irqs() is
-called on reset() but we rely on devm_ to free the IRQs on ->release().  Use
-devm_kcalloc() here as well, probably.
-
-> +	if (!oct_hw->irqs) {
-> +		ret = -ENOMEM;
-> +		goto free_irqs;
-> +	}
->  
-> -	irq = pci_irq_vector(pdev, 0);
-> -	ret = devm_request_irq(&pdev->dev, irq, octep_vdpa_intr_handler, 0,
-> -			       oct_hw->vqs->msix_name, oct_hw);
-> -	if (ret) {
-> -		dev_err(&pdev->dev, "Failed to register interrupt handler\n");
-> -		goto free_irq_vec;
-> +	memset(oct_hw->irqs, -1, sizeof(oct_hw->irqs));
-
-This works, but it would be more normal to just leave it zeroed and check for
-zero instead of checking for negatives.  There is never a zero IRQ.  See my blog
-for more details:
-https://staticthinking.wordpress.com/2023/08/07/writing-a-check-for-zero-irq-error-codes/
-
-regards,
-dan carpenter
-
-> +
-> +	for (idx = 0; idx < oct_hw->nb_irqs; idx++) {
-> +		irq = pci_irq_vector(pdev, idx);
-> +		ret = devm_request_irq(&pdev->dev, irq, octep_vdpa_intr_handler, 0,
-> +				       dev_name(&pdev->dev), oct_hw);
-> +		if (ret) {
-> +			dev_err(&pdev->dev, "Failed to register interrupt handler\n");
-> +			goto free_irqs;
-> +		}
-> +		oct_hw->irqs[idx] = irq;
->  	}
-> -	oct_hw->irq = irq;
->  
->  	return 0;
->  
-> -free_irq_vec:
-> -	pci_free_irq_vectors(pdev);
-> +free_irqs:
-> +	octep_free_irqs(oct_hw);
->  	return ret;
->  }
->  
-
-regards,
-dan carpenter
