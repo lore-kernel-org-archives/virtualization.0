@@ -1,80 +1,81 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CC7812FB1B
-	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 08:23:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B28E21AB512
+	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 08:25:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732177440; cv=none; b=Ah8hPA07ijoUcwGZqsJ4/tcZdQG8sSk3HfM4Ppz5L124EANKrvJZgN1z8KnVyJKABqQ3L7P2liqW8Uq4EKWDD95ri9qLFtZcES9uIY7W4bFycrD2mweGTbeW/M3jMj8op7k/cxF2ET5CyBzMjSq9Lh1bYTHoJ1QAaHf3WBnMYAc=
+	t=1732177516; cv=none; b=WqgEBMtGmppQkiGaW5/UnwYkNVMlXg1OwKsfqCpU1oShqZUSNpJRR8t0HYPp2EFrnBkPeThKWG1xkHvaw9GbqQ96SO72j5YMW3Y9pxr09sDhtrYzg4xQXJpeEMB20rvs2G3siF2sXxtcaROHCx98B4AGy0TMPqZZPVqOyjMaNtI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732177440; c=relaxed/simple;
-	bh=FxU/NDdwXsyL33hiVJkZBvnoW2YLJX/z+/IYSZnzCLo=;
+	s=arc-20240116; t=1732177516; c=relaxed/simple;
+	bh=+DbLhewRCTr1vsid9+Hu60ZOM4PEcinQNV5oAJcRPa4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RnvNP07cJcyWVO5jWJ2qVmR5Tc7pY0EQlmCshfaxW3RbPOfKhf6TJkJjgdbtqn7CoelSFra9/ktjaLva82S5n3XXCaCDazl0fc1T9cayKeTdRqvsmjBMBE8xp5SFJ5AaApRhBA+Gwh8yORr5xuV9/Etox5l/omE5Fp0jO6K/Was=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zzXGB22I; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=CRhSU64O; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zzXGB22I; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=CRhSU64O; arc=none smtp.client-ip=195.135.223.131
+	 In-Reply-To:Content-Type; b=eUrdUWzYoF/7ZhR/xh9nOOV+/UsUd5HQFbi8NCKV9j9aFVytFMnsMseaBvXvJO70drOMhGUobebZzVvZYMRHue2Km5SmVazkOLu7sn+3eJx602UwnBTzCjb2TiRZ+gsIuW4HPvtzvtCNM+i8FE8GB2CEZhcIF17h4KBH/E/XmF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=V8s71tgl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=8VQgBLDT; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cLVYVGO2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=2cRvjT7f; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zzXGB22I";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="CRhSU64O";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zzXGB22I";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="CRhSU64O"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="V8s71tgl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="8VQgBLDT";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cLVYVGO2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="2cRvjT7f"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 9E0F71F7D8;
-	Thu, 21 Nov 2024 08:23:55 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id F2ED41F449;
+	Thu, 21 Nov 2024 08:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1732177435; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1732177513; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hapMj94p5n4VecB364V9o9nfcdpBCu+iA+vUnN+Vee0=;
-	b=zzXGB22ISV9jSYVXL7n5KqN9nqwidwS+yZIYTUgCN5wFwTu/TIV6xXxXIiBuFxpTqxKIR+
-	nMTZBt0KVxnssQ5Cr2fGZgGYjiEGQV7m/kFO9WIGpOzw86QwWGaEDtbvl88U1BgIn1SvsY
-	3pB6qkDxN4wAnDkpY2JD1plPmtSvtOM=
+	bh=5sbR0FynI1sPjAXw9txvh9RACOysoy6Ys7AxikOlUTU=;
+	b=V8s71tglJ9aTLxmRSayOW3VP0OFFu9yd6dg4gHVrChCUPTRlCL1t3uB2p1jShIQoF634ii
+	LAGel85wXofpDdm7p3stPuEyZA9GWDfzFZT7PGttaVuok8px8xAGrr9pM6YpzotUlfjyg9
+	VrGb/AFIlg58ELa1b9VsEFruUfk1Awc=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1732177435;
+	s=susede2_ed25519; t=1732177513;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hapMj94p5n4VecB364V9o9nfcdpBCu+iA+vUnN+Vee0=;
-	b=CRhSU64Odzom7yfwcra/4y2FiyHzfCM7Qw+r1glorcFaNE0fPyp8/For4bPGdNxptz11hY
-	q1IOBtCHhMGVwBCg==
+	bh=5sbR0FynI1sPjAXw9txvh9RACOysoy6Ys7AxikOlUTU=;
+	b=8VQgBLDTEraeys3XKJdPLpnR6KkMSYc4w1MVD1URRT4ksAFK2+o64jOQydnKIuCBLzUgiq
+	/D31FHGgJ9C6FLAQ==
 Authentication-Results: smtp-out2.suse.de;
-	none
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=cLVYVGO2;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=2cRvjT7f
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1732177435; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1732177512; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hapMj94p5n4VecB364V9o9nfcdpBCu+iA+vUnN+Vee0=;
-	b=zzXGB22ISV9jSYVXL7n5KqN9nqwidwS+yZIYTUgCN5wFwTu/TIV6xXxXIiBuFxpTqxKIR+
-	nMTZBt0KVxnssQ5Cr2fGZgGYjiEGQV7m/kFO9WIGpOzw86QwWGaEDtbvl88U1BgIn1SvsY
-	3pB6qkDxN4wAnDkpY2JD1plPmtSvtOM=
+	bh=5sbR0FynI1sPjAXw9txvh9RACOysoy6Ys7AxikOlUTU=;
+	b=cLVYVGO2pjR0ppIizfGiJWcMRi8YbAfWlbA7CXfr5FdRor7cOjuk960hHQ/zr7qgzhKXJ5
+	vER805n35sEIKQ2TmkvU625sFfiAOnu5/DXOt/yRUK3Crd88EYPM13RCsR4LCdreVKB8dv
+	nR3V2hyYZuxFxsH5rrevU6ZPXmeRNgQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1732177435;
+	s=susede2_ed25519; t=1732177512;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hapMj94p5n4VecB364V9o9nfcdpBCu+iA+vUnN+Vee0=;
-	b=CRhSU64Odzom7yfwcra/4y2FiyHzfCM7Qw+r1glorcFaNE0fPyp8/For4bPGdNxptz11hY
-	q1IOBtCHhMGVwBCg==
+	bh=5sbR0FynI1sPjAXw9txvh9RACOysoy6Ys7AxikOlUTU=;
+	b=2cRvjT7f92u36pbM+YcEK5A5pUh3o6X18E6lcShjCoWfH6QGUWl657r+gK8pCmibS4Wzav
+	hYXO1eEqHsGwoPCQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6177E137CF;
-	Thu, 21 Nov 2024 08:23:55 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D1290137CF;
+	Thu, 21 Nov 2024 08:25:11 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 8g2GFhvuPmfuRQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 21 Nov 2024 08:23:55 +0000
-Message-ID: <826cbef6-2e58-4800-85af-a78c8bf90dbc@suse.de>
-Date: Thu, 21 Nov 2024 09:23:55 +0100
+	id xgN5MWfuPmdRRgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 21 Nov 2024 08:25:11 +0000
+Message-ID: <c7c3d747-c142-446b-95dc-2e25874d2643@suse.de>
+Date: Thu, 21 Nov 2024 09:25:11 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,15 +83,10 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/bochs: Replace deprecated PCI implicit devres
-To: Philipp Stanner <pstanner@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>
-Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org
-References: <20241017125145.34729-2-pstanner@redhat.com>
- <67f6b7e9ff32593bf66f72ff1269458c3733ecae.camel@redhat.com>
+Subject: Re: [PATCH 0/2] drm/cirrus: Don't pretend to operate hardware
+To: airlied@redhat.com, kraxel@redhat.com
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+References: <20241029143928.208349-1-tzimmermann@suse.de>
 Content-Language: en-US
 From: Thomas Zimmermann <tzimmermann@suse.de>
 Autocrypt: addr=tzimmermann@suse.de; keydata=
@@ -117,107 +113,61 @@ Autocrypt: addr=tzimmermann@suse.de; keydata=
  SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
  Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
  4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <67f6b7e9ff32593bf66f72ff1269458c3733ecae.camel@redhat.com>
+In-Reply-To: <20241029143928.208349-1-tzimmermann@suse.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.30
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: F2ED41F449
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.997];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
 	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_TO(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
+	MX_GOOD(-0.01)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
 	ARC_NA(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[9];
 	MIME_TRACE(0.00)[0:+];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
 	MID_RHS_MATCH_FROM(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RCPT_COUNT_THREE(0.00)[4];
+	RCVD_COUNT_TWO(0.00)[2];
 	FROM_EQ_ENVFROM(0.00)[];
 	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
+	TO_DN_NONE(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
 	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo]
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -4.51
 X-Spam-Flag: NO
-X-Spam-Level: 
 
-Hi
+ping ping
 
 
-Am 20.11.24 um 15:30 schrieb Philipp Stanner:
-> On Thu, 2024-10-17 at 14:51 +0200, Philipp Stanner wrote:
->> bochs uses pcim_enable_device(), which causes pci_request_region() to
->> implicitly set up devres callbacks which will release the region on
->> driver detach. Despite this, the driver calls pci_release_regions()
->> manually on driver teardown.
->>
->> Implicit devres has been deprecated in PCI in commit 81fcf28e74a3
->> ("PCI:
->> Document hybrid devres hazards").
->>
->> Replace the calls to pci_request_region() with ones to always-managed
->> pcim_request_region(). Remove the unnecessary call to
->> pci_release_regions().
-> Just saw that this patch is still floating around. Anyone feeling
-> responsible for bochs who could review this?
-
-It looks like this patch is already outdated. There's been
-
-https://gitlab.freedesktop.org/drm/misc/kernel/-/commit/58e980c16815ce4ff8a5e036a126358afceca538
-
-in drm-misc-next for some time.
-
-Best regards
-Thomas
-
+Am 29.10.24 um 15:34 schrieb Thomas Zimmermann:
+> The cirrus driver is only for qemu's emulation of that hardware. The
+> two patches in this series update cirrus to reflect this.
 >
+> (The driver is still obsolete. Use something else if possible.)
 >
-> P.
+> Thomas Zimmermann (2):
+>    drm/cirrus: Use virtual encoder and connector types
+>    drm/cirrus: Rename to cirrus-qemu
 >
+>   MAINTAINERS                                      | 2 +-
+>   drivers/gpu/drm/tiny/Makefile                    | 2 +-
+>   drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} | 6 +++---
+>   3 files changed, 5 insertions(+), 5 deletions(-)
+>   rename drivers/gpu/drm/tiny/{cirrus.c => cirrus-qemu.c} (99%)
 >
->> Signed-off-by: Philipp Stanner <pstanner@redhat.com>
->> ---
->>   drivers/gpu/drm/tiny/bochs.c | 6 +++---
->>   1 file changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/tiny/bochs.c
->> b/drivers/gpu/drm/tiny/bochs.c
->> index 31fc5d839e10..888f12a67470 100644
->> --- a/drivers/gpu/drm/tiny/bochs.c
->> +++ b/drivers/gpu/drm/tiny/bochs.c
->> @@ -217,7 +217,7 @@ static int bochs_hw_init(struct drm_device *dev)
->>   
->>   	if (pdev->resource[2].flags & IORESOURCE_MEM) {
->>   		/* mmio bar with vga and bochs registers present */
->> -		if (pci_request_region(pdev, 2, "bochs-drm") != 0) {
->> +		if (pcim_request_region(pdev, 2, "bochs-drm") != 0)
->> {
->>   			DRM_ERROR("Cannot request mmio region\n");
->>   			return -EBUSY;
->>   		}
->> @@ -258,7 +258,7 @@ static int bochs_hw_init(struct drm_device *dev)
->>   		size = min(size, mem);
->>   	}
->>   
->> -	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
->> +	if (pcim_request_region(pdev, 0, "bochs-drm") != 0)
->>   		DRM_WARN("Cannot request framebuffer, boot fb still
->> active?\n");
->>   
->>   	bochs->fb_map = ioremap(addr, size);
->> @@ -302,7 +302,7 @@ static void bochs_hw_fini(struct drm_device *dev)
->>   		release_region(VBE_DISPI_IOPORT_INDEX, 2);
->>   	if (bochs->fb_map)
->>   		iounmap(bochs->fb_map);
->> -	pci_release_regions(to_pci_dev(dev->dev));
->> +
->>   	drm_edid_free(bochs->drm_edid);
->>   }
->>   
 
 -- 
 --
