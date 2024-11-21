@@ -1,143 +1,82 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D57C4126C05
-	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 09:44:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8729A1C6F76
+	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 12:46:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732182277; cv=none; b=Q5NxbZJyQSYbDdnAH2wZE8IxWW2tFfbW/mZOSr9I68PDSuiZjJgxRnHLXv+lRYzctNDiRrEp5vier01jX4SGyqZVVUW88AeSiJJwFVQeQ2xDccl0RZz94Ia2Ccbd8pl5beYIb4f75jfp+TNPc5ckupmi3YdzENTqV+MMINeQtW4=
+	t=1732193168; cv=none; b=EH4ebagH1OhYBugXGmbK0JhLEEgPuztZt02ifuHC+M6nIK4sl38zte2LbTHmgTYLFEvbb6LKkjdM7EKktj7v/jdZo3qfTwe9ZH1be35KsG6QyfTQekXWfBpRxNnjis7e01Xq8sNzMyupvV5FDTRTT5KPuRa4Vk36Qq1GPloCj3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732182277; c=relaxed/simple;
-	bh=CWXEmTiuxTm1gnZyIlscNfEmNCI3QzblDQH3eyHM5nA=;
+	s=arc-20240116; t=1732193168; c=relaxed/simple;
+	bh=db3hTdn6zRmsV0fCCRpLf+k67ayow+kR2BbM6/e5q7o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DwkUIARVXnsAugwxOMMfJuG40uUJIUlhLL4meKvOD4lZaczmdaDvCZ6EkXXT3NJYF8Y1BA7TopylL0VQEvXm9RZSQJYNgQWD/RLel7iYYc0eqDhtkmh++Op/GWNnYe2QPv99Y5yqOYqkX5bCillPblKi6BX+mkCNG64/Du9rrxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hiJpjGUm; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=p09axkX1; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=deNrSzzs; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4ylzFtLw; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	 In-Reply-To:Content-Type:Content-Disposition; b=T+n72xMiP5T0WVshH3NnF6k8M3vxoRV2zb3jLqa3Dt5iOxqObttcXRlVb0TThoeVHRc+zXua/HJeDsWpDx0zupEEFUolk6FYE73iPPwssVV8m8PnBzwgDH0Z84FhIq3JhR7rbc9Fnz7TANFy55F9j8larBdOlxFX11Z48x4BY/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O1ZZUKdm; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hiJpjGUm";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="p09axkX1";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="deNrSzzs";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4ylzFtLw"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O1ZZUKdm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732193165;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=IFClpgALPZSSTKDulZ/u/muYW6GUhkLPXSWL+/+/Pyc=;
+	b=O1ZZUKdmCYd7RzWDuvv44LP5q2lMO2+hMvzsgl8GZbtZTlC/SCyOCSe3UlEbLf1dgGDYew
+	ia4QjhmUveekTo3FwwAVBIY+uWjSyVnuvXDrkxsqlyf9vARO1Sid0++LltbhNgNFEODrKc
+	PPKFcZhOvMjCZlFgro/uUe+nmkOYT7I=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-517-1drq5v3GNiesiVtylc82ew-1; Thu,
+ 21 Nov 2024 07:46:04 -0500
+X-MC-Unique: 1drq5v3GNiesiVtylc82ew-1
+X-Mimecast-MFC-AGG-ID: 1drq5v3GNiesiVtylc82ew
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id DB6DA211CA;
-	Thu, 21 Nov 2024 09:44:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1732182274; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Bqjqjo6BeiVlXwbN7PTqQaBDzTD5jQsIbQrGvlF++tQ=;
-	b=hiJpjGUm8ogVrODQNPmQIO5MB3ah7hl2QrKIV86gMUAbYwhKDQyYipSUm1C/SmkrBxrHAR
-	KAYw1tNwQJ3QjttQOuzGyHR2RRwL7+OmkVHQUldV/2FvXCgSau+/TCasp45nlJX7lUwDUk
-	f4DpIGpHzi03I0eod6QBIJvg8J3+1EY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1732182274;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Bqjqjo6BeiVlXwbN7PTqQaBDzTD5jQsIbQrGvlF++tQ=;
-	b=p09axkX1mUAAWJ72FOOLxepeR/y01fTuv2w3A7qiqBL6qN0WuKtMgpGIdbfu0u+qYD7t7H
-	J1SmAKMd84rsJIAQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=deNrSzzs;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=4ylzFtLw
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1732182272; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Bqjqjo6BeiVlXwbN7PTqQaBDzTD5jQsIbQrGvlF++tQ=;
-	b=deNrSzzszLXj7e2zlJNVCUm8l0E5oaKmQiZWmlo4h3ADER+hm8NpTcv514HN50obLbFUnb
-	yA7OMixvGzU69SI3zoJGcdhJOGJ8ytzV4aDaurv6V2ckSDwrJoSxlYPnfIYM1xKW2LOAiz
-	5468b3aUrdAn7GlH9Fp3KEWiHsSBRCY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1732182272;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Bqjqjo6BeiVlXwbN7PTqQaBDzTD5jQsIbQrGvlF++tQ=;
-	b=4ylzFtLwSW2Q2dhX0IypXlzfPNdeRVmQ85OClmNaqdRg6RC+vW+g0fNc9MSyAs6sAQyYGu
-	4XdPA31qqKF9zCDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B74DC13927;
-	Thu, 21 Nov 2024 09:44:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id +eS3LAABP2e5XQAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Thu, 21 Nov 2024 09:44:32 +0000
-Date: Thu, 21 Nov 2024 10:44:32 +0100
-From: Daniel Wagner <dwagner@suse.de>
-To: John Garry <john.g.garry@oracle.com>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Bjorn Helgaas <bhelgaas@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com, 
-	linux-nvme@lists.infradead.org
-Subject: Re: [PATCH v5 3/8] virtio: hookup irq_get_affinity callback
-Message-ID: <ffe464b8-5991-49f0-9053-4f0a52af4fe7@flourine.local>
-References: <20241115-refactor-blk-affinity-helpers-v5-0-c472afd84d9f@kernel.org>
- <20241115-refactor-blk-affinity-helpers-v5-3-c472afd84d9f@kernel.org>
- <eae15480-403a-45c8-a8d0-4a34339d6b36@oracle.com>
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 249901953943;
+	Thu, 21 Nov 2024 12:46:03 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.194.164])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9FBD3195E480;
+	Thu, 21 Nov 2024 12:46:02 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+	id 41A8218010BF; Thu, 21 Nov 2024 13:45:59 +0100 (CET)
+Date: Thu, 21 Nov 2024 13:45:59 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@redhat.com, dri-devel@lists.freedesktop.org, 
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH 0/2] drm/cirrus: Don't pretend to operate hardware
+Message-ID: <c2x3wtnks5elcieyfydireaadozqx3qojvxb2rdqhgciocakxs@xniq2fao63nj>
+References: <20241029143928.208349-1-tzimmermann@suse.de>
+ <c7c3d747-c142-446b-95dc-2e25874d2643@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <c7c3d747-c142-446b-95dc-2e25874d2643@suse.de>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 56RjvfELm4HEophvELL_7sF1ZV9Giu31gOtf1nq7PEo_1732193163
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <eae15480-403a-45c8-a8d0-4a34339d6b36@oracle.com>
-X-Rspamd-Queue-Id: DB6DA211CA
-X-Spam-Score: -4.51
-X-Rspamd-Action: no action
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[25];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,flourine.local:mid,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Flag: NO
-X-Spam-Level: 
 
-On Thu, Nov 21, 2024 at 09:01:49AM +0000, John Garry wrote:
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -377,6 +377,24 @@ static void virtio_dev_remove(struct device *_d)
-> >   	of_node_put(dev->dev.of_node);
-> >   }
-> > +/**
-> 
-> nit: does this really need to be kerneldoc, as it is static?
+On Thu, Nov 21, 2024 at 09:25:11AM +0100, Thomas Zimmermann wrote:
+> ping ping
 
-No, it's not necessary, I didn't know what the rules for static
-functions are. I'll update it accordingly.
+> >    drm/cirrus: Use virtual encoder and connector types
+> >    drm/cirrus: Rename to cirrus-qemu
+
+Hmm, matter of taste.  I would not have invested that effort, but I have
+no objections either.  So:
+
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+take care,
+  Gerd
+
