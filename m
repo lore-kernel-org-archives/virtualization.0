@@ -1,269 +1,204 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAA10433B3
-	for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 14:39:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732113575; cv=none; b=S4SJwrwNXVQFwKXdcfMBaVPNLMBoYO/DKpyfWC/HYediroHn323dAl9m1soj4+fb9ErDZHQ7IHoSXd5IXoOUANLxS8wXyUEJARBLUQX/KB5kTkcHQhwC3l3ZTFx9Nb7oOjHr3VJA1wN5juxwT8+g5T7r+Zj/x4eVWjqhYnd3cWc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732113575; c=relaxed/simple;
-	bh=btSNVYwlC8RJUtn0GBIme5+bVVj7TfwEc6LV82NkhM0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SryjtIhx7FV6myVsgETzC0FcgN6xzlMyMfQExcLsAk0D+SKNGdB8y41sYhqrxgpWvlfOrxDEkCoiZIzW6+Ve0enI5hayzYErjLFQ/LfFyUG577zoBSjT5JJFSMQkwYq4LRsITPljnzja8hyL8CDOHYBVkr9x0TWlekOIvuR+b/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d3LrzOMm; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC38B5FEE6
+	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 02:37:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1732156658; cv=fail; b=Zd29CMKZ1P0Gjd16sph3Qz6ycW+iqHvmTFTjLQyj11ketzXFV6j5VujarPU90pjOyZXTbU3gTCaQgWEhls7QlvQ9dI+cZ/1CKnQIeqxkAGmJhbTfZMMvkEchGZhB6DuNOxMumigmfAZDuUXWv0wdtlvGjqKKpxxQsouVka51IP8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1732156658; c=relaxed/simple;
+	bh=cscdQtJA5Ovp9PhjqgSnJfpXtYKamHG9Q4SkrjYNW18=;
+	h=To:Cc:Subject:From:In-Reply-To:Message-ID:References:Date:
+	 Content-Type:MIME-Version; b=FoPBMp1y/JrWgz8KUKdFX9CQoH6x2tQnByHbwFZMFeQFDg7PiASZr9iOZlCEgBYNyWr7hlCsGPfubDq7EudKAfAC2VPhGRgisDwSDr2eBuqBPUWxPjrvPDzE1+RZgEcRz1oBKx4ekvg+1Ys7p5TphahwYiIwqmord0Wf7RtqibI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=NmRX2iaQ; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=FtWBDTtd; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d3LrzOMm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732113572;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=h3VNC3b6pyuHC0GRlERPYXF58+ZikMBaiQzrtXGN3kc=;
-	b=d3LrzOMmrndhAPAoqKzn9HM4E7e8sBXiIKxsyaKAvTTtQ3Cq3Uu93pcIpiJRD0wMRIbZsd
-	Tf5M6vj1zLCTu9G2YX3KYM+cDEnrsP13PECWBBhcQZF3vhWBZDRVZAlsiqifcr5RcdijNf
-	fo8Ccl/qqekfvd2WhB55+Q/I7iZ1HGY=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-251-PrIphJN3O8SLBY2A3xEDJw-1; Wed, 20 Nov 2024 09:39:31 -0500
-X-MC-Unique: PrIphJN3O8SLBY2A3xEDJw-1
-X-Mimecast-MFC-AGG-ID: PrIphJN3O8SLBY2A3xEDJw
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-382342b66f5so2525057f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 20 Nov 2024 06:39:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732113570; x=1732718370;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=h3VNC3b6pyuHC0GRlERPYXF58+ZikMBaiQzrtXGN3kc=;
-        b=kWeQxpB0OOblGUX9PBesP57HX227ElkFHqH69Hl/GVAK9K46hsMUFsrWjkKigPiVdx
-         DCf8LQNMcaXTUjMZ8eIv8musyVIJs0f47Baj4+euxEGJpP0Ror5NNWx3HeVTl6N+LZgh
-         GqSgyffR+QhU8BPtQmJ3ZUx51VPdjs78XOJzFqc2RkCz15f08hqPrW4U41sNkaLDcCmy
-         kPQfaL9pZYJQFZ+7F8f1vuVlazlhs1LLs8MJ23XtHupzNRnDXjBnZlG4dZ9zF2iihmJR
-         7kaRLc+i83qbQNG7kU6G0mZUsqU9dOk1AvcsiuD1XeudALHCvnSpzsZ/U83185m8jE7o
-         sx7g==
-X-Forwarded-Encrypted: i=1; AJvYcCXTb0/bvhxr3t6SgUYKIO0FqSJ+bjm5VIPTN76q+ta5gpYIVErAtZ7FHvDcH4fO8iH+IXhp2OVpkTTRZ72R/g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx24FxdgYWehH9ooAyA2ozWQnInMueu8UECYyyzMAk0VinjG8Ys
-	/zjpMnecbE4mKmc7HBOQVzdXtyaIbZamPj2/Ubv8C40fqDAYnoh0Cb90+IG5hoyaRT4dxxTXDjW
-	8R4Q99DRxqzv824/j7V/MdqNuRAlq0Nx73MZjGaI1wLHylv9Re8a+CLrQgBlSESKu
-X-Received: by 2002:a05:6000:2d01:b0:382:5284:995 with SMTP id ffacd0b85a97d-38254af52edmr1741462f8f.16.1732113570636;
-        Wed, 20 Nov 2024 06:39:30 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF3PCfqnU0zEBWkF3nAGnG0ftAq5fWrullBMMZxuX6xEoDVnbaIbozVyZf2Yd0u6zKlmX8E6w==
-X-Received: by 2002:a05:6000:2d01:b0:382:5284:995 with SMTP id ffacd0b85a97d-38254af52edmr1741442f8f.16.1732113570280;
-        Wed, 20 Nov 2024 06:39:30 -0800 (PST)
-Received: from ?IPV6:2003:cb:c705:4200:ce79:acf6:d832:60df? (p200300cbc7054200ce79acf6d83260df.dip0.t-ipconnect.de. [2003:cb:c705:4200:ce79:acf6:d832:60df])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-433b45d4c68sm21058255e9.22.2024.11.20.06.39.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Nov 2024 06:39:29 -0800 (PST)
-Message-ID: <3ed18ba1-e4b1-461e-a3a7-5de2df59ca60@redhat.com>
-Date: Wed, 20 Nov 2024 15:39:27 +0100
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="NmRX2iaQ";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="FtWBDTtd"
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AL1gccM010291;
+	Thu, 21 Nov 2024 02:37:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2023-11-20; bh=TOH7UqwYnf/1P2VtEE
+	APzilRa95gfwbaW6NyHszWra0=; b=NmRX2iaQFmGgFWKUgTGpXEFGBz9hVbpi5K
+	IFXFTmcvhWYx1LlnFSbca3+U77qunUSVc8v2M+wrxGWqUtHDNYQH5H13PayiQoxN
+	aWay0ybafw3HIaZO16dGu44udqZh9vrlj9lLBJShWV/OzxxXHoYcm+S+sRlqxOd2
+	MC/5PnUm6kt6fV1+Z1vsB26ZUalWZGBI4xPv30BlTHj+ZdjBzQ7GOPATvDag39VL
+	q1uKDMJDvJNZQe16Z8iT1andCeSl81QwfkSX7zy6/SabqbS8gAG9p2ekWFaZ1jYy
+	WNaavn43cyqL2bfGKvSIPaArFaMG0XOlC3NaoqX+MuMBbq9YglLg==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 42xk0srrek-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 21 Nov 2024 02:37:15 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4AL1b0gr037121;
+	Thu, 21 Nov 2024 02:37:15 GMT
+Received: from nam02-sn1-obe.outbound.protection.outlook.com (mail-sn1nam02lp2049.outbound.protection.outlook.com [104.47.57.49])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 42xhub1wkf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 21 Nov 2024 02:37:15 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=SEvitaBDcJLomx5j9itsJS+Pa71i4DM7qBXdkYKOtBn5Q19GIMAH4OQEQfh7MocSVPDAH4xuHd8qrPIQOp10nlHouk8vhqkod32NAUFZyl18EkiDoa45xY9nTg+EdXspiSqs7iM8jOA2QEqMIlYkWO1ztsmYcw+REaLooRAB+vUsIUmEr6FMJZyneariULGpqE/zgalZePKcu1R4gXLiKIP59G58WAWVErF8CIbwASwpzqW6v6IenJP/Kc9XAYy+cJsWzf9gRJtlhU9Ogaa1T6tVLHYqDEfBupkOB6KqosxbEH9S4TOI+xE9ZOJ+24U0dcZackvhbbp/sf8z/hcnGQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TOH7UqwYnf/1P2VtEEAPzilRa95gfwbaW6NyHszWra0=;
+ b=WVhKeTSr7brZQnJaHdRm+wMWr8HtUMuKlzFx4nZoB49GYB3VjXPbnuyDzJVEgbApuAkNUMmUZslT4OCHhZ8MbEg2HO8BOScVxfkJhILBN0wt8qWObIzGY2oVnnL4I7HDi+R/WoKRvUSvEKAgWciLP5GcIKIeIsBX1F77gYHyQWzrzJuJUn0MMHvC4YV796bAGOEebj68X51DqP3H67UcIO07isLR1raMncdafdrhVONi7FQEjuMeip53DioXkqKMG4Upa5AkPpZO7DqMgKqq1CW0GvrqlzZ4ycNT6PRwb3yIbAC/FB28VvTI/R3uKRDJqE6aOfhmzf4ZFCb6akVrrA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TOH7UqwYnf/1P2VtEEAPzilRa95gfwbaW6NyHszWra0=;
+ b=FtWBDTtd+VS0SybCDzfQb05QaiTo6lNhq/J/tBwrmNNpWg5YvUsZQGm8RXRiFSdQALJYXkh33FVfChy6uRJ0RkUtFgvCiKCPl4ndCOG6+bqx0Ah7IxFG/Vg2Le1wE51IVcVJ1Gtf9rsFuo6cGJF1HWIb2NL4DVaGtOCctccvNyE=
+Received: from SN6PR10MB2957.namprd10.prod.outlook.com (2603:10b6:805:cb::19)
+ by BL3PR10MB6089.namprd10.prod.outlook.com (2603:10b6:208:3b5::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8158.23; Thu, 21 Nov
+ 2024 02:37:07 +0000
+Received: from SN6PR10MB2957.namprd10.prod.outlook.com
+ ([fe80::72ff:b8f4:e34b:18c]) by SN6PR10MB2957.namprd10.prod.outlook.com
+ ([fe80::72ff:b8f4:e34b:18c%5]) with mapi id 15.20.8158.023; Thu, 21 Nov 2024
+ 02:37:07 +0000
+To: Daniel Wagner <wagi@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?utf-8?Q?P=C3=A9rez?=
+ <eperezma@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Sagi
+ Grimberg <sagi@grimberg.me>,
+        John Garry <john.g.garry@oracle.com>,
+        Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Hannes Reinecke
+ <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+        mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com,
+        storagedev@microchip.com, linux-nvme@lists.infradead.org
+Subject: Re: [PATCH v5 5/8] scsi: replace blk_mq_pci_map_queues with
+ blk_mq_map_hw_queues
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+In-Reply-To: <20241115-refactor-blk-affinity-helpers-v5-5-c472afd84d9f@kernel.org>
+	(Daniel Wagner's message of "Fri, 15 Nov 2024 17:37:49 +0100")
+Organization: Oracle Corporation
+Message-ID: <yq1frnlqpn8.fsf@ca-mkp.ca.oracle.com>
+References: <20241115-refactor-blk-affinity-helpers-v5-0-c472afd84d9f@kernel.org>
+	<20241115-refactor-blk-affinity-helpers-v5-5-c472afd84d9f@kernel.org>
+Date: Wed, 20 Nov 2024 21:37:05 -0500
+Content-Type: text/plain
+X-ClientProxiedBy: LV3P220CA0004.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:408:234::16) To SN6PR10MB2957.namprd10.prod.outlook.com
+ (2603:10b6:805:cb::19)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/11] fs/proc/vmcore: introduce PROC_VMCORE_DEVICE_RAM
- to detect device RAM ranges in 2nd kernel
-To: Baoquan He <bhe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
- Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
- <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-References: <20241025151134.1275575-1-david@redhat.com>
- <20241025151134.1275575-8-david@redhat.com> <Zz22ZidsMqkafYeg@MiWiFi-R3L-srv>
- <4b07a3eb-aad6-4436-9591-289c6504bb92@redhat.com>
- <Zz3sm+BhCrTO3bId@MiWiFi-R3L-srv>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
- AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
- 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
- rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
- wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
- 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
- pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
- KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
- BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
- 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
- 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
- M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
- Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
- T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
- 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
- CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
- NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
- 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
- 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
- lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
- AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
- N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
- AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
- boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
- 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
- XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
- a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
- Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
- 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
- kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
- th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
- jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <Zz3sm+BhCrTO3bId@MiWiFi-R3L-srv>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gUskcegDguxCHSigAQ849H0vpurQ0_tBbRjAvRItzig_1732113571
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-On 20.11.24 15:05, Baoquan He wrote:
-> On 11/20/24 at 11:48am, David Hildenbrand wrote:
->> On 20.11.24 11:13, Baoquan He wrote:
->>> On 10/25/24 at 05:11pm, David Hildenbrand wrote:
->>>> s390 allocates+prepares the elfcore hdr in the dump (2nd) kernel, not in
->>>> the crashed kernel.
->>>>
->>>> RAM provided by memory devices such as virtio-mem can only be detected
->>>> using the device driver; when vmcore_init() is called, these device
->>>> drivers are usually not loaded yet, or the devices did not get probed
->>>> yet. Consequently, on s390 these RAM ranges will not be included in
->>>> the crash dump, which makes the dump partially corrupt and is
->>>> unfortunate.
->>>>
->>>> Instead of deferring the vmcore_init() call, to an (unclear?) later point,
->>>> let's reuse the vmcore_cb infrastructure to obtain device RAM ranges as
->>>> the device drivers probe the device and get access to this information.
->>>>
->>>> Then, we'll add these ranges to the vmcore, adding more PT_LOAD
->>>> entries and updating the offsets+vmcore size.
->>>>
->>>> Use Kconfig tricks to include this code automatically only if (a) there is
->>>> a device driver compiled that implements the callback
->>>> (PROVIDE_PROC_VMCORE_DEVICE_RAM) and; (b) the architecture actually needs
->>>> this information (NEED_PROC_VMCORE_DEVICE_RAM).
->>>>
->>>> The current target use case is s390, which only creates an elf64
->>>> elfcore, so focusing on elf64 is sufficient.
->>>>
->>>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>>> ---
->>>>    fs/proc/Kconfig            |  25 ++++++
->>>>    fs/proc/vmcore.c           | 156 +++++++++++++++++++++++++++++++++++++
->>>>    include/linux/crash_dump.h |   9 +++
->>>>    3 files changed, 190 insertions(+)
->>>>
->>>> diff --git a/fs/proc/Kconfig b/fs/proc/Kconfig
->>>> index d80a1431ef7b..1e11de5f9380 100644
->>>> --- a/fs/proc/Kconfig
->>>> +++ b/fs/proc/Kconfig
->>>> @@ -61,6 +61,31 @@ config PROC_VMCORE_DEVICE_DUMP
->>>>    	  as ELF notes to /proc/vmcore. You can still disable device
->>>>    	  dump using the kernel command line option 'novmcoredd'.
->>>> +config PROVIDE_PROC_VMCORE_DEVICE_RAM
->>>> +	def_bool n
->>>> +
->>>> +config NEED_PROC_VMCORE_DEVICE_RAM
->>>> +	def_bool n
->>>> +
->>>> +config PROC_VMCORE_DEVICE_RAM
->>>> +	def_bool y
->>>> +	depends on PROC_VMCORE
->>>> +	depends on NEED_PROC_VMCORE_DEVICE_RAM
->>>> +	depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
->>>
->>> Kconfig item is always a thing I need learn to master.
->>
->> Yes, it's usually a struggle to get it right. It took me a couple of
->> iterations to get to this point :)
->>
->>> When I checked
->>> this part, I have to write them down to deliberate. I am wondering if
->>> below 'simple version' works too and more understandable. Please help
->>> point out what I have missed.
->>>
->>> ===========simple version======
->>> config PROC_VMCORE_DEVICE_RAM
->>>           def_bool y
->>>           depends on PROC_VMCORE && VIRTIO_MEM
->>>           depends on NEED_PROC_VMCORE_DEVICE_RAM
->>>
->>> config S390
->>>           select NEED_PROC_VMCORE_DEVICE_RAM
->>> ============
-> 
-> Sorry, things written down didn't correctly reflect them in my mind.
-> 
-> ===========simple version======
-> fs/proc/Kconfig:
-> config PROC_VMCORE_DEVICE_RAM
->          def_bool y
->          depends on PROC_VMCORE && VIRTIO_MEM
->          depends on NEED_PROC_VMCORE_DEVICE_RAM
-> 
-> arch/s390/Kconfig:
-> config NEED_PROC_VMCORE_DEVICE_RAM
->          def y
-> ==================================
-
-That would work, but I don't completely like it.
-
-(a) I want s390x to select NEED_PROC_VMCORE_DEVICE_RAM instead. Staring 
-at a bunch of similar cases (git grep "config NEED" | grep Kconfig, git 
-grep "config ARCH_WANTS" | grep Kconfig), "select" is the common way to 
-do it.
-
-So unless there is a pretty good reason, I'll keep 
-NEED_PROC_VMCORE_DEVICE_RAM as is.
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN6PR10MB2957:EE_|BL3PR10MB6089:EE_
+X-MS-Office365-Filtering-Correlation-Id: e5c8af01-b096-430f-328f-08dd09d56437
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016|7416014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?K80QMJbLYi/gIAwJDdvV2NA+C7wVvzaoNv5IcE9MAiIKB2+zhy1rlh+caOzF?=
+ =?us-ascii?Q?LSV8X3EA+8gxEXupWDmIlcOQusgVYxCwaM03KR/2En4ahWPUBWDUrGWzDVUV?=
+ =?us-ascii?Q?TcVidvMN0atfW/DU/D7b0Nt8t28aWvb/xWAhUp/c+so3AD4yQhwDmY++HnyN?=
+ =?us-ascii?Q?oQyZ0QIE1dx0PzKk67OGMy+Yrf78cBzt6DudeXJFHtT/6GB5KgcnQTqHyN22?=
+ =?us-ascii?Q?mW/iKkqpfeTi5kKzn1ZtRJUc9i9ik894w6jbgdWvSpC37bWjDzYdaCTieox4?=
+ =?us-ascii?Q?GLy7x/RBFVzbhbOnNNAjaOXA5W8B5V/aALLQrz7gOPwExK54Ohd1HzjSHZNz?=
+ =?us-ascii?Q?k+Sa1oURYsHzUV2aF9eifsmZja0SHZDeonU3HRezLVQFj8icyOMVjXC3Ghib?=
+ =?us-ascii?Q?T3mayVfQt/N0MKg673MoZt0jeoAGQfHIkBJPTdOg1FSsw4ydChQmgDyrl9+d?=
+ =?us-ascii?Q?LbbrHQOPL33CgsVdj2Y4B3piR0ndlN7KQ8jid4j3/tV5QaabwtyU4yvOSHwk?=
+ =?us-ascii?Q?HT1UZgzu3wSD6p+vEkTK7PL4e4swjtU6dfEIpHPetKSAaoHTqLX3Y1cYD1jD?=
+ =?us-ascii?Q?zuqebmI91LCiToPxfnIkZdCUhmVlSTDsDb3zfWDRfYonFulVj3sd+vKs+jpi?=
+ =?us-ascii?Q?06TSP70AbnAPSl+lj4YRWIaifCgD/M2RZCB9uSvwoEqyjaejPBfxfUuvSW/i?=
+ =?us-ascii?Q?I0JSUYdxiYrV0DRZUdnoNJ3tnU/btGWuWrPZ7EDJ7HNxbgfavmBuIjC+ok2z?=
+ =?us-ascii?Q?zdLKZX314PLDlWBF/k33Lax7dlOfI9NMZwr5XDXArDLsN6+GaYIyxqyGrl5M?=
+ =?us-ascii?Q?gVbGRsNz9mjnjYPHnL6xmh2sBvKrUc2w5qihaJOwEpxMha4aU2UNK1qWUgCQ?=
+ =?us-ascii?Q?6IsQ0vdHsEoRzAghPoueXchSZGYYBrrVKE8Zn+Y0IBjTrHLX8o1T+FRjcpDt?=
+ =?us-ascii?Q?5gRmNoskv0s0KrEOEzj87lbN9hBVfNgXFt1W3vt0fjZ9kYCKbUBvGMjH9L2N?=
+ =?us-ascii?Q?+XVIamBWs/w7DAuXjsNu+Ew7GfygXsxT1ucjnX7sfCY3a8zXUN4Z/dLugpiI?=
+ =?us-ascii?Q?eTkJkchj0LVkHT62JQE//ToK8NAHFRidoudjjRC/5XMUGl/DkmND43WMMSBF?=
+ =?us-ascii?Q?VeVo+PnSNGdj4xREN2KIcEw7gv3ERG4s7dyLLcmzYglIGls9IMgKfmq72DJY?=
+ =?us-ascii?Q?bXmsNMloBWss1xQ4QSlPlP8NSUVWkc6ot+AOkiOSp1zHnZuLnP8NuuOsTwPx?=
+ =?us-ascii?Q?AyHdwaiaFsEzQzo0KR3jxiYTmnMwj+uyDObDFq/a4qm0yRBuAcSFV01CVQnb?=
+ =?us-ascii?Q?Oqe3nhBvvtj/e966j970QBns?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR10MB2957.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(7416014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?AZNldehEejLni92LQcaiECcWV4tFEShNMbVl1ffH62GKOvdP3bXJHNwWEQya?=
+ =?us-ascii?Q?SH295WWmmFjyDNlti46VDs0Txuf5ikAzoS3b8zNOjEHWSB7uyqYcLDkYij1G?=
+ =?us-ascii?Q?dbbjOUCQV25re1fhXSMsjI4XkwIrLVRvR1G06Vd8skTBQw6AD8yGsApyrpt7?=
+ =?us-ascii?Q?Ahb2ZdUQcBPr2MgrxBnJbi9PK9q46sdViSCzs0XSEyaqmtREEJB5PzwyVQ9U?=
+ =?us-ascii?Q?c4cQTBnF0gDBGXy2eYZn4/h0C/syNAZej6CG0mg3OLQ/RKUerkoSz/ApYaeu?=
+ =?us-ascii?Q?Fu0aT0RVTyCEN0GDrxm23UT3GPinvYa2CGOiXbWdjgwWgI79NuEwXajSwiwi?=
+ =?us-ascii?Q?cJ2G3YyV9R5YsY4ouscnJ9MJj1rolSgoAitsHbQGL9O5jgmPewfaCLuADTgp?=
+ =?us-ascii?Q?NLza4v++uWf1miozD2stCxZxFbbwubXTDAAkqufKTw2VOa60+CVwZN5CBmLI?=
+ =?us-ascii?Q?m3BU0Bi+rFDpi2zfsr9sVzFkQ1e8L37HUjLAh374m1mrqVZIXTFTV32Qo1XT?=
+ =?us-ascii?Q?jcfSp2XQlM616YPf224S1rMwfZpvdJKEYJNHo/GQO4jcQxYjFL6ht8pAV0Ig?=
+ =?us-ascii?Q?tbaYKqkXAtbwizbK+FvQEOimgINhLMncIgEHrHSlxzK8fi6zKpuzfmQ3SaDB?=
+ =?us-ascii?Q?T4lODQOxDpESMEMMj1sQ8yIRrXzi2q6Z//zM+AbKekelGw3Zu6zTSU4DjwJc?=
+ =?us-ascii?Q?gR1g6qRsUg4tuFcnmKbu3ElsHndRqjhgBToTCnNqRr5mDjL2XFU4TddJJQck?=
+ =?us-ascii?Q?0+Zm6xCq6/L6UOmjJFqGguQtrSSHhtDy8E4JCwDxAxXDFNrZoHsazt2T2SB/?=
+ =?us-ascii?Q?ZMnTZAKfoI0dxNj5xsrHYWHmOzRZ0cyINNgETcWohugq6lZSM+pakL4tRtzY?=
+ =?us-ascii?Q?nXEb1pZ7devvcrR64ebW1KgOzrGTslpa37RBiloS13EQBEq3cG7u2IERVhJ/?=
+ =?us-ascii?Q?D3W252afgc2LmyaQCLqe91w9CpO6+F9GSesyV4foywkfAiQ4jpXdEAdUU5Vx?=
+ =?us-ascii?Q?8crI3aqmbTU5MGNqLydukbW3mi91JZuv2tpiOIvrTfGnxC0t+jfxIifj1iHV?=
+ =?us-ascii?Q?Gi+SkJEPilRtWTxvcBQvZ9OZqFkAuZbR3l/c+8tGExgoqHyUF7AC1khkWiZa?=
+ =?us-ascii?Q?Z9Iet7xWe1KPMUM3t493z55qD9bqypnfAY8RitxHYrTILyshoyI5YuP30+W8?=
+ =?us-ascii?Q?45inZKViHLkGvtmfdMMHFE8PAJEB92z2IwkeXDwPGN/sg8lHfiiXaTkla46s?=
+ =?us-ascii?Q?6PPnsP+1SVNPQasI/fCpUN+m5N2LkLOck73gyiCqiaWrkAmyooTOyeIxATw1?=
+ =?us-ascii?Q?erKkCCk2jHyUPNLu8rNNvYS6tw4KzFOpkcu08qgLlvjR0rVeUb6MJBtHIFqG?=
+ =?us-ascii?Q?iPNgdHw0O2sdk0Vk5QkCnC/M/3gHBFnzHpdMpqvo28F2TMkYfovfrZpcuxCc?=
+ =?us-ascii?Q?hpE5NguBFgoYlf5iXUNG334e91jawb+YlUsTvxTtoj5PTZQ0JHiHkd5GLFVp?=
+ =?us-ascii?Q?x8EjYd1xAvLlRXaPlYOZpj0xJxfYX7TNauPkMYY3X3LcV7piQVO6yw/zpH6M?=
+ =?us-ascii?Q?axqPuhy7qPv/2evsqfNsuA5US9QQcS6PtBh/JFJiwYmNmNlOBYpOZhSnXfXn?=
+ =?us-ascii?Q?hQ=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	oCmVnxtBlGrYIll92bWCAPCQUxVQGRGF14Cf1vA3c4wmNOhfrOOU+rnwrYqbnT/XDEpOd4MU/yBmE2muLIh6udkfXQZsn0r6uQQ/7tOrefHoheyoDc6/7eO3940yblG9XV04xmYntRvrH6hBXgUBepxsKcAKMlyG+IGpPjwLZ/Dn2GuCThrBv/9fj1L3H6H42V2KJ4afkT4Dw0uF3NCrMtOmTXYsiIveDI8w6zKk2UdlezYxu7y/nYoVV1H1jvLORljSlgExw35EK7fxV1y+oVRrsC8ZXN6k81eBfGAk+WC8YdX8zT9ZFpWI6wjKWrgEO3kH9JZpmcmzGlHXEsqDiQ8drbu8Zbp7izKwyikP12KnO+x+FXPqh9jW2IBo5B+EvikHSVXXVokOV7d035Evj2+KZzprWb4dXHfMW7OFQBiqXkfkCABbFf/I2K9TLNbYmaT4h/1loNbqH3AvdNm9i5aKyNkKS1a/EAzvGsBsbJBx7cfDiH8RMVs7DinSR73XgMPTjIattAT8oAJmsr2209Q0kMYwuleL27BEmXAM+bjrSn/AM/4GAGUqdmbqciwFJO2+3D8OAIo5qXvxw1tyfV9r6omkaSE6SK/G+isjJQA=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e5c8af01-b096-430f-328f-08dd09d56437
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR10MB2957.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Nov 2024 02:37:07.1404
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 4iXQUYtUTA9W678QAUkRoFdgYsmFMDVKtP4QaAHQ0IQBofOnQsBaEeHZu+FTEQhDWLd6EoxGwPCDC4ApYhs1hYbMRwYd4jEr4X7cEtqbnfM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR10MB6089
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-11-21_01,2024-11-20_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 adultscore=0 mlxlogscore=999
+ phishscore=0 spamscore=0 suspectscore=0 malwarescore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2409260000
+ definitions=main-2411210020
+X-Proofpoint-ORIG-GUID: UgJ3T-83Q1KSqrHHpqdtyRTLHIHhmjB2
+X-Proofpoint-GUID: UgJ3T-83Q1KSqrHHpqdtyRTLHIHhmjB2
 
 
-(b) In the context of this patch, "depends on VIRTIO_MEM" does not make 
-sense. We could have an intermediate:
+Daniel,
 
-config PROC_VMCORE_DEVICE_RAM
-          def_bool n
-          depends on PROC_VMCORE
-          depends on NEED_PROC_VMCORE_DEVICE_RAM
+> Replace all users of blk_mq_pci_map_queues with the more generic
+> blk_mq_map_hw_queues. This in preparation to retire
+> blk_mq_pci_map_queues.
 
-And change that with VIRTIO_MEM support in the relevant patch.
-
-
-I faintly remember that we try avoiding such dependencies and prefer 
-selecting Kconfigs instead. Just look at the SPLIT_PTE_PTLOCKS mess we 
-still have to clean up. But as we don't expect that many providers for 
-now, I don't care.
-
-Thanks!
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
 
 -- 
-Cheers,
-
-David / dhildenb
-
+Martin K. Petersen	Oracle Linux Engineering
