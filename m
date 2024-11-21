@@ -1,82 +1,214 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8729A1C6F76
-	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 12:46:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96AC91D5CCD
+	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 13:43:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732193168; cv=none; b=EH4ebagH1OhYBugXGmbK0JhLEEgPuztZt02ifuHC+M6nIK4sl38zte2LbTHmgTYLFEvbb6LKkjdM7EKktj7v/jdZo3qfTwe9ZH1be35KsG6QyfTQekXWfBpRxNnjis7e01Xq8sNzMyupvV5FDTRTT5KPuRa4Vk36Qq1GPloCj3o=
+	t=1732196616; cv=none; b=kYYWTqDrX1GEzBb79c1Qwa5MrLwG8H+fSJeW56siT0vHW1Ir6GSnpesHlD3xy/SsPXF1tuQgKQJYuTa00T3DKgTAIsvSJnntUXSZqHId3p0itc3LgQvSbFeRiFc/dxUk0rnHyaM6hdeXL1z8kFbLSmuCKPiCGRQZEDOkVT1uE2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732193168; c=relaxed/simple;
-	bh=db3hTdn6zRmsV0fCCRpLf+k67ayow+kR2BbM6/e5q7o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=T+n72xMiP5T0WVshH3NnF6k8M3vxoRV2zb3jLqa3Dt5iOxqObttcXRlVb0TThoeVHRc+zXua/HJeDsWpDx0zupEEFUolk6FYE73iPPwssVV8m8PnBzwgDH0Z84FhIq3JhR7rbc9Fnz7TANFy55F9j8larBdOlxFX11Z48x4BY/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O1ZZUKdm; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1732196616; c=relaxed/simple;
+	bh=J3MquSgXO3goBTSqef77dAIkb9s9v/qO5+sStyg8YEE=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HZFJUFTxEibzVgSwVqMmqXTMpZMQNcTC2NslwMDIeegHgBQCurek1b73/B9mDcvsAt1WMzxKiEMiuOMaZnMVG4Kv+MFYNwH9/aimBttfNfQM2Ko1vXXhJLbt7kz1EkkpaTsjeXjNPYqFbo6hM/vBxL43clihCBDBdRU9GtN1H5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=KaB2rgF7; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O1ZZUKdm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732193165;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=IFClpgALPZSSTKDulZ/u/muYW6GUhkLPXSWL+/+/Pyc=;
-	b=O1ZZUKdmCYd7RzWDuvv44LP5q2lMO2+hMvzsgl8GZbtZTlC/SCyOCSe3UlEbLf1dgGDYew
-	ia4QjhmUveekTo3FwwAVBIY+uWjSyVnuvXDrkxsqlyf9vARO1Sid0++LltbhNgNFEODrKc
-	PPKFcZhOvMjCZlFgro/uUe+nmkOYT7I=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-517-1drq5v3GNiesiVtylc82ew-1; Thu,
- 21 Nov 2024 07:46:04 -0500
-X-MC-Unique: 1drq5v3GNiesiVtylc82ew-1
-X-Mimecast-MFC-AGG-ID: 1drq5v3GNiesiVtylc82ew
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 249901953943;
-	Thu, 21 Nov 2024 12:46:03 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.194.164])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9FBD3195E480;
-	Thu, 21 Nov 2024 12:46:02 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
-	id 41A8218010BF; Thu, 21 Nov 2024 13:45:59 +0100 (CET)
-Date: Thu, 21 Nov 2024 13:45:59 +0100
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@redhat.com, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 0/2] drm/cirrus: Don't pretend to operate hardware
-Message-ID: <c2x3wtnks5elcieyfydireaadozqx3qojvxb2rdqhgciocakxs@xniq2fao63nj>
-References: <20241029143928.208349-1-tzimmermann@suse.de>
- <c7c3d747-c142-446b-95dc-2e25874d2643@suse.de>
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="KaB2rgF7"
+Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4AL7ToYj011643;
+	Thu, 21 Nov 2024 05:43:30 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=O
+	EsTuCR9/vJcvdB5Vh6WARS4L/+V6goN6WGi1f/0gwo=; b=KaB2rgF7z1Cff+peR
+	cgBxDQydhSPowVD6/QNg1Fjvn4kAc36Vrz2ldWpol2+wYx8n6hnjiii7IsaKENOJ
+	bmvk69kLYzeqzoGFk6wxJzusk3t9uKp+Xmu7uDeozFZM3c9QRy9HCnQ3B5atyRtf
+	ZUSmCWUgfzf1CrK2gJddL76kvIzK9k5+sbpiD0vewJBED/xK5N50GY2RcAoJAkLW
+	u4Yx8muxWV0Xnkqqh2MTUvzjCU45RsYkAE1djcVWjzjz3XGnQJzRvwbcrQA1o3jg
+	8/a/71KNq31iYGq+0sjgXyQnTkq2EjNCdVBXtqy7FBf4I3Z0VYfjWuTF4kz6nJMS
+	ejigQ==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4320h5gk46-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 21 Nov 2024 05:43:30 -0800 (PST)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.4; Thu, 21 Nov 2024 05:43:29 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Thu, 21 Nov 2024 05:43:29 -0800
+Received: from localhost.localdomain (unknown [10.28.34.29])
+	by maili.marvell.com (Postfix) with ESMTP id 7E0193F7068;
+	Thu, 21 Nov 2024 05:43:25 -0800 (PST)
+From: Shijith Thotton <sthotton@marvell.com>
+To: <virtualization@lists.linux.dev>, <mst@redhat.com>, <jasowang@redhat.com>,
+        <dan.carpenter@linaro.org>
+CC: Shijith Thotton <sthotton@marvell.com>, <schalla@marvell.com>,
+        <vattunuru@marvell.com>, <ndabilpuram@marvell.com>,
+        <jerinj@marvell.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>,
+        Satha Rao <skoteshwar@marvell.com>,
+        open list
+	<linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 3/4] vdpa/octeon_ep: read vendor-specific PCI capability
+Date: Thu, 21 Nov 2024 19:09:45 +0530
+Message-ID: <20241121134002.990285-3-sthotton@marvell.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20241121134002.990285-1-sthotton@marvell.com>
+References: <20241121134002.990285-1-sthotton@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <c7c3d747-c142-446b-95dc-2e25874d2643@suse.de>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 56RjvfELm4HEophvELL_7sF1ZV9Giu31gOtf1nq7PEo_1732193163
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: J5f19QGnt2FopcTDGrXtYNQVP0bT73on
+X-Proofpoint-ORIG-GUID: J5f19QGnt2FopcTDGrXtYNQVP0bT73on
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
 
-On Thu, Nov 21, 2024 at 09:25:11AM +0100, Thomas Zimmermann wrote:
-> ping ping
+Added support to read the vendor-specific PCI capability to identify the
+type of device being emulated.
 
-> >    drm/cirrus: Use virtual encoder and connector types
-> >    drm/cirrus: Rename to cirrus-qemu
+Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+---
+ drivers/vdpa/octeon_ep/octep_vdpa.h      | 24 +++++++++++++++++
+ drivers/vdpa/octeon_ep/octep_vdpa_hw.c   | 34 +++++++++++++++++++++++-
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c |  4 ++-
+ 3 files changed, 60 insertions(+), 2 deletions(-)
 
-Hmm, matter of taste.  I would not have invested that effort, but I have
-no objections either.  So:
-
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-
-take care,
-  Gerd
+diff --git a/drivers/vdpa/octeon_ep/octep_vdpa.h b/drivers/vdpa/octeon_ep/octep_vdpa.h
+index 2d4bb07f91b3..0f83a1eca408 100644
+--- a/drivers/vdpa/octeon_ep/octep_vdpa.h
++++ b/drivers/vdpa/octeon_ep/octep_vdpa.h
+@@ -8,6 +8,7 @@
+ #include <linux/pci_regs.h>
+ #include <linux/vdpa.h>
+ #include <linux/virtio_pci_modern.h>
++#include <uapi/linux/virtio_crypto.h>
+ #include <uapi/linux/virtio_net.h>
+ #include <uapi/linux/virtio_blk.h>
+ #include <uapi/linux/virtio_config.h>
+@@ -52,6 +53,28 @@ struct octep_vring_info {
+ 	phys_addr_t notify_pa;
+ };
+ 
++enum octep_pci_vndr_cfg_type {
++	OCTEP_PCI_VNDR_CFG_TYPE_VIRTIO_ID,
++	OCTEP_PCI_VNDR_CFG_TYPE_MAX,
++};
++
++struct octep_pci_vndr_data {
++	u8 cap_vndr;
++	u8 cap_next;
++	u8 cap_len;
++	u8 cfg_type;
++	u16 vendor_id;
++	u8 id;
++	u8 bar;
++	union {
++		u64 data;
++		struct {
++			u32 offset;
++			u32 length;
++		};
++	};
++};
++
+ struct octep_hw {
+ 	struct pci_dev *pdev;
+ 	u8 __iomem *base[PCI_STD_NUM_BARS];
+@@ -69,6 +92,7 @@ struct octep_hw {
+ 	u32 config_size;
+ 	int nb_irqs;
+ 	int *irqs;
++	u8 dev_id;
+ };
+ 
+ u8 octep_hw_get_status(struct octep_hw *oct_hw);
+diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+index d5a599f87e18..2f4849e90525 100644
+--- a/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
++++ b/drivers/vdpa/octeon_ep/octep_vdpa_hw.c
+@@ -358,7 +358,14 @@ u16 octep_get_vq_size(struct octep_hw *oct_hw)
+ 
+ static u32 octep_get_config_size(struct octep_hw *oct_hw)
+ {
+-	return sizeof(struct virtio_net_config);
++	switch (oct_hw->dev_id) {
++	case VIRTIO_ID_NET:
++		return sizeof(struct virtio_net_config);
++	case VIRTIO_ID_CRYPTO:
++		return sizeof(struct virtio_crypto_config);
++	default:
++		return 0;
++	}
+ }
+ 
+ static void __iomem *octep_get_cap_addr(struct octep_hw *oct_hw, struct virtio_pci_cap *cap)
+@@ -416,8 +423,24 @@ static int octep_pci_signature_verify(struct octep_hw *oct_hw)
+ 	return 0;
+ }
+ 
++static void octep_vndr_data_process(struct octep_hw *oct_hw,
++				    struct octep_pci_vndr_data *vndr_data)
++{
++	switch (vndr_data->id) {
++	case OCTEP_PCI_VNDR_CFG_TYPE_VIRTIO_ID:
++		oct_hw->dev_id = (u8)vndr_data->data;
++		break;
++	default:
++		dev_err(&oct_hw->pdev->dev, "Invalid vendor data id %u\n",
++			vndr_data->id);
++		break;
++	}
++}
++
++#define VIRTIO_PCI_CAP_VENDOR_CFG	9
+ int octep_hw_caps_read(struct octep_hw *oct_hw, struct pci_dev *pdev)
+ {
++	struct octep_pci_vndr_data vndr_data;
+ 	struct octep_mbox __iomem *mbox;
+ 	struct device *dev = &pdev->dev;
+ 	struct virtio_pci_cap cap;
+@@ -466,6 +489,15 @@ int octep_hw_caps_read(struct octep_hw *oct_hw, struct pci_dev *pdev)
+ 		case VIRTIO_PCI_CAP_ISR_CFG:
+ 			oct_hw->isr = octep_get_cap_addr(oct_hw, &cap);
+ 			break;
++		case VIRTIO_PCI_CAP_VENDOR_CFG:
++			octep_pci_caps_read(oct_hw, &vndr_data, sizeof(vndr_data), pos);
++			if (vndr_data.vendor_id != PCI_VENDOR_ID_CAVIUM) {
++				dev_err(dev, "Invalid vendor data\n");
++				return -EINVAL;
++			}
++
++			octep_vndr_data_process(oct_hw, &vndr_data);
++			break;
+ 		}
+ 
+ 		pos = cap.cap_next;
+diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+index b060df57bb59..d674b9678428 100644
+--- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
++++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+@@ -305,7 +305,9 @@ static u32 octep_vdpa_get_generation(struct vdpa_device *vdpa_dev)
+ 
+ static u32 octep_vdpa_get_device_id(struct vdpa_device *vdpa_dev)
+ {
+-	return VIRTIO_ID_NET;
++	struct octep_hw *oct_hw = vdpa_to_octep_hw(vdpa_dev);
++
++	return oct_hw->dev_id;
+ }
+ 
+ static u32 octep_vdpa_get_vendor_id(struct vdpa_device *vdpa_dev)
+-- 
+2.25.1
 
