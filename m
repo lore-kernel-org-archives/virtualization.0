@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3960F17333A
-	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 15:37:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FEC51C7B69
+	for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 19:47:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732203451; cv=none; b=LzJrS/ln/vFPEpaOr+fTAI1PerQdYJy+CfLLZe7wW/GuJ5SAoiEeo2ut5gR9VSLjX0eEoJnbbAr/FfajCvU3OeeqBJUw/t3baMjZji6CJX3OEo+WRzGS5e1H86Wp4rJPYU+MeRyIyX+wjf9NT8f9YJ2of7ogjZlvN+6q/k91hqU=
+	t=1732218432; cv=none; b=heSMt6Dt0kAnPFbcJLjxwdZtTyWooY2ID/vhlpD0qTtMCMKhenE60IxcE7NCHk5gd25UpT6A3cfQiXk6QCYmvFvzFxCyBQjO09ein4nX4zQkz/PVXmFQGini2L5YinoU6YC4U+fBSAFftOEJi1ewcvnOcaukdzuycuuNON/6m8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732203451; c=relaxed/simple;
-	bh=eckblXHkSvhd8BGyR9du0j4hp1Pb4lGIxwfEguEklLI=;
+	s=arc-20240116; t=1732218432; c=relaxed/simple;
+	bh=ZPZ4NJrHHFgFldF9xJpRUGhlUNMn8yOOLL2KR/VZ50s=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=u7oHSUuxSlxjQS7MtPTieIU0hoVlJME8KY1x9BIQYVmT+oqdYitH4zveCtU6hOS1UkMx2H/m5JT4Cc3gWwM4Ddn8yYz9QAar9Ox4RquQVDalZeEB+r88ldZoqN2o9bL1FWoK/GzBJjuYitNLTNeIzEUwXARQHF7i1FkfyUQkork=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TXwchD/K; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=S+xGAcG7wS5GxvDXYlQO6YPTX7QKt7bNWAWf0qzzn6cqLZp7EWPZ+jALPgKVNrJDkBYNco4bk78CdvOdBoV/NJGxnnt0Ua0fg43dNrAPDYfDuADd2vm59XozpsUuQN/gHH5uUNPe4EOVHDtbkLiPAOcOM/+0D4BJkoB2TrXIAik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A5QDVCEo; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TXwchD/K"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A5QDVCEo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732203447;
+	s=mimecast20190719; t=1732218429;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=eS7bGCy5YRnQF1VVX3hqmSIuG3NddVnWmPFA2i7JUNM=;
-	b=TXwchD/KzN46d1G+/g4jbKHpLh2Npeue3sEkSuggG4UJsw4mxMkn1MjUh+B8PzFakfTUrj
-	LaW0jAZt5E39OK6PZYuoc3pbWYmxCk0hgBQJvMbqOn4gCs0JPbPmPPCtuHQ1XrCrZu4nCw
-	23HFZWyoUskg5jdQIuiBTp/Sjx7KxJQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=9vPjFHjh3yXhS4HZP/mZR+2x681KUbGOAjt5WUat2I0=;
+	b=A5QDVCEojWnEZbYpwLojvX7985d4ZTRKF9vDpnraKi9emBiATsW8DHUe23UzSOlb5Dd3zM
+	R2e/2CAktV2nvaFwKP8hmMaUuH2fGSjVssooTsAOxJmU0wt5FzrjF65jbhnhX38jTsNbh3
+	KoENYOHb05ZVUmX7rVAp0NSQVIbqSUM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-271-Lav04CTVNZi9yl47qIdKhw-1; Thu, 21 Nov 2024 10:37:26 -0500
-X-MC-Unique: Lav04CTVNZi9yl47qIdKhw-1
-X-Mimecast-MFC-AGG-ID: Lav04CTVNZi9yl47qIdKhw
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4315eaa3189so9339535e9.1
-        for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 07:37:26 -0800 (PST)
+ us-mta-425-IycuuHAqNCWfmw1QZ96qVA-1; Thu, 21 Nov 2024 14:47:06 -0500
+X-MC-Unique: IycuuHAqNCWfmw1QZ96qVA-1
+X-Mimecast-MFC-AGG-ID: IycuuHAqNCWfmw1QZ96qVA
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-382450d158fso726663f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 21 Nov 2024 11:47:06 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732203445; x=1732808245;
+        d=1e100.net; s=20230601; t=1732218425; x=1732823225;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=eS7bGCy5YRnQF1VVX3hqmSIuG3NddVnWmPFA2i7JUNM=;
-        b=Pck1+9qII0Elx1ezqwgn+RCXwoPWmAK2x1i1NikMnQ3S88Zv5Zj/BF8QUDk0Ul/ynV
-         +GcKlXD5fEkwwGxmL/mL1UTQlyOM/50+/eR3BOMwMBvgyM0ZsM+/IEuGcdbAVxe+h5Se
-         D6DRZ15kqGYY3TAQ+V6LdAweiV4phnGxJbtINW/liQcNyrrTPsubNloEZ0hWbg2+DKoJ
-         w08SGF3sYHsMOe/YOPn/oFcHhTRKXr/myrO3Gg0jjL3kjoKt9YLt4e70DdUJ/EiHE0FM
-         pQ5MJNxr2umvtjnovmASWHRkkIpYUI8DufE2ZWvY/IOe2upNmUuycE/9AM0s9NPklT39
-         EWQw==
-X-Forwarded-Encrypted: i=1; AJvYcCXo3mK+tkXnEGsfHYQx3X84ZEs5R6hAHOfKtM9heefZ8HWWKRaF0bhL4OJ5Omtd1Di4SHznZ382bSqK064l8Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzuYfXfQkgp7PSibhx2bSpfNI1e04hxfFXvf8w254moNJdUMVUR
-	2o91AGRltQeZDdhNx5jYNhIrZwbF1tBGXei5R+889lw5bktHIAYf2FCIbGOhPOF0qTDSgHT8nB8
-	gVlONXjC43bSSzKGRnwtSDLtuqMNb6sPJWYlQ3BjEncPz2hLZ23oPdo07aLb0Xfr/
-X-Gm-Gg: ASbGncuswwigHDhvnKxStjSaFytwYHSSRSFJZanxvwwFb3Hj4X61zAG+gEsmJ89SJeR
-	bkg01U5JpO9xBso0ga7sjvHhUiM0Gy9CRW0q8EgeTJjN8GBkns9w48hp/xlWe8OeljNOj0YGYtI
-	VBSH811KFrpVQdwn+FYIUOw5Y9gW7EbIraWODIgLV/AuV5vhFBQe5z8A1EmE/1lNzYJy7BrgqD5
-	RLERW4bcMqt+xSBtWqP3q6i1I9KNW3KKWLQmdBcEskJNY7k4UfDVEAIHyFPYOtMfyjsxg/+qzUy
-	syBrjFebLedaHuYcXMp9clPr+8O4FoHuOtecDj+rCCm/YEchgCNwmAsweZPx8zGw85m1pm3oBuE
+        bh=9vPjFHjh3yXhS4HZP/mZR+2x681KUbGOAjt5WUat2I0=;
+        b=VrSDL0diQRxrjuVl77eL8rke+6gY+6NKZjg3eoRYgFD7xdGpHzL5PvbbA99of0JdV5
+         wDvTdZCjXVXRQr5yXUsjPgfdq43A6Ay9jiNNoASvoTVB/jQne7odc4zMHSIS1z5LUcEb
+         QAkVhI6Fq/5AeN3VZbdY+1HoQ562mhb8leGFdUy1RR5gUCt0NSuQvfm/NQcEFFOGzFUo
+         Rt9U/dL4RVoV6+1RPsvEwsxEM0y9eNIrQvXPEwPQL+KhRaLRomynyHwj2UmNX+IKVoiz
+         xx1SohVLhBcmZ6M3T5k+BpGZeNpqVHiOGAvG52uyAs++HIbe1PyQC+7IjeCvGgyH7U6D
+         fvaA==
+X-Forwarded-Encrypted: i=1; AJvYcCVWMTWDOuRZ/QrxpxuZ8T6Ch6u6L5dVYrlM7wW+yJiikQGfFdlWA5UAUYdJv72GSgIHdpRTDjqtFRbMXFGkcQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx8mZQK5phGkEiJGVDpLN5B+jtUl1KyxxQ8GF502Hc66u2Dq4K3
+	pvw2AceexATOO+MS/HV/8VogHGPH1NMzitcpLDvf7zF2JfAhOOKDkU2R/YlDth1F6JTGh6PYGJR
+	IkvYiqsDJrG93+qs4w0e856wW29k8gln7nw/POGrfNe0Nc/mbqwNqknmg2CH0ji/a
+X-Gm-Gg: ASbGncsYDxCNRl63X/XB4niOkyPXKOso4T8dSlPqifN3G9tnPefXla0u450HZeAkkXa
+	AijgJvqOLEtKiyks3pzKD0e+hMwxT5O8kyQ9kWEELjMJ39zb/IHnVjs+O9E4q97laPMfCrlqJ90
+	XIp4CaZZ3rV3hvXZe0WplFVArfr7hN1gho26DXAlRPCKC41EiNGRVrESsl9d+4U7y46B3r+/aUy
+	ggn6JbnMCXxwjWMb2UrNEBB1uSIlHCWVA8IoA/6Cze/0Fxan0tGJmUsxTOtE5OxrWWvhuEBhSEQ
+	0va2Rh7/94NOccGh3f15auiQ2DI9s/O1fvjprhVMwZfQxOhSJAq1JXWO0idoYCm4RPsdPoero8E
 	=
-X-Received: by 2002:a05:600c:1d93:b0:42b:ac3d:3abc with SMTP id 5b1f17b1804b1-4334f01548dmr68139685e9.24.1732203445506;
-        Thu, 21 Nov 2024 07:37:25 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFcWfaRMIf30Hgg52d+hIlcLWUuMutdNfVmMqgbxuJi7boGn2lsfYZzyLLvkfHTbZQW2nzANQ==
-X-Received: by 2002:a05:600c:1d93:b0:42b:ac3d:3abc with SMTP id 5b1f17b1804b1-4334f01548dmr68139385e9.24.1732203445201;
-        Thu, 21 Nov 2024 07:37:25 -0800 (PST)
+X-Received: by 2002:a5d:64a4:0:b0:382:4978:2ab9 with SMTP id ffacd0b85a97d-38260b50178mr280901f8f.5.1732218425149;
+        Thu, 21 Nov 2024 11:47:05 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEwjpMyfPMDn7yzJZGj2fN3hdUzm6pJror1oFSbaD9p3e5FF3gpDG0hGN0f8NMCUBM9HBDVYw==
+X-Received: by 2002:a5d:64a4:0:b0:382:4978:2ab9 with SMTP id ffacd0b85a97d-38260b50178mr280863f8f.5.1732218424718;
+        Thu, 21 Nov 2024 11:47:04 -0800 (PST)
 Received: from ?IPV6:2003:cb:c70c:de00:1200:8636:b63b:f43? (p200300cbc70cde0012008636b63b0f43.dip0.t-ipconnect.de. [2003:cb:c70c:de00:1200:8636:b63b:f43])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-433b45d16f8sm58469525e9.2.2024.11.21.07.37.23
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3825fb537d4sm390281f8f.61.2024.11.21.11.47.01
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Nov 2024 07:37:24 -0800 (PST)
-Message-ID: <b778d6d2-729b-4416-bc12-78a2e85b08f3@redhat.com>
-Date: Thu, 21 Nov 2024 16:37:23 +0100
+        Thu, 21 Nov 2024 11:47:03 -0800 (PST)
+Message-ID: <c353466b-6860-4ca2-a4fa-490648246ddc@redhat.com>
+Date: Thu, 21 Nov 2024 20:47:01 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,8 +75,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 04/11] fs/proc/vmcore: move vmcore definitions from
- kcore.h to crash_dump.h
+Subject: Re: [PATCH v1 07/11] fs/proc/vmcore: introduce PROC_VMCORE_DEVICE_RAM
+ to detect device RAM ranges in 2nd kernel
 To: Baoquan He <bhe@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -93,11 +93,11 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
  <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
 References: <20241025151134.1275575-1-david@redhat.com>
- <20241025151134.1275575-5-david@redhat.com> <ZzcYEQwLuLnGQM1y@MiWiFi-R3L-srv>
- <ca0dd4a7-e007-4092-8f46-446fba26c672@redhat.com>
- <Zz2u+2abswlwVcer@MiWiFi-R3L-srv>
- <120bc3d9-2993-47eb-a532-eb3a5f6c4116@redhat.com>
- <Zz64efFyFstyDdN8@MiWiFi-R3L-srv>
+ <20241025151134.1275575-8-david@redhat.com> <Zz22ZidsMqkafYeg@MiWiFi-R3L-srv>
+ <4b07a3eb-aad6-4436-9591-289c6504bb92@redhat.com>
+ <Zz3sm+BhCrTO3bId@MiWiFi-R3L-srv>
+ <3ed18ba1-e4b1-461e-a3a7-5de2df59ca60@redhat.com>
+ <Zz63aGL7NcrONk+p@MiWiFi-R3L-srv>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -144,39 +144,132 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <Zz64efFyFstyDdN8@MiWiFi-R3L-srv>
+In-Reply-To: <Zz63aGL7NcrONk+p@MiWiFi-R3L-srv>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Dk5u6dYb6exnM0XAs43OlZTR7nu63ckI3KyKNqG-C8k_1732203445
+X-Mimecast-MFC-PROC-ID: ATrP3qndp_KubdjGCeFPlFwS_djPI8SVf3IwB_GJ5gg_1732218425
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
->>>> If there are strong feelings I can use a different name, but
->>>
->>> Yes, I would suggest we better keep the old name or take a more
->>> appropriate one if have to change.
 >>
->> In light of patch #5 and #6, really only something like "vmcore_mem_node"
->> makes sense. Alternatively "vmcore_range" or "vmcore_mem_range".
+>> That would work, but I don't completely like it.
 >>
->> Leaving it as "struct vmcore" would mean that we had to do in #5 and #6:
+>> (a) I want s390x to select NEED_PROC_VMCORE_DEVICE_RAM instead. Staring at a
+>> bunch of similar cases (git grep "config NEED" | grep Kconfig, git grep
+>> "config ARCH_WANTS" | grep Kconfig), "select" is the common way to do it.
 >>
->> * vmcore_alloc_add_mem_node() -> vmcore_alloc_add()
->> * vmcore_free_mem_nodes() -> vmcore_free()
->>
->> Which would *really* be misleading, because we are not "freeing" the vmcore.
->>
->> Would "vmcore_range" work for you? Then we could do:
->>
->> * vmcore_alloc_add_mem_node() -> vmcore_alloc_add_range()
->> * vmcore_free_mem_nodes() -> vmcore_free_ranges()
+>> So unless there is a pretty good reason, I'll keep
+>> NEED_PROC_VMCORE_DEVICE_RAM as is.
 > 
-> Yeah, vmcore_range is better, which won't cause misunderstanding.
-> Thanks.
-> 
+> That's easy to satify, see below:
 
-Thanks, I'll use that and adjust patch #5 and #6, keeping your ACKs.
+Yes, this is mostly what I have right now, except
+
+> 
+> ============simple version=====
+> fs/proc/Kconfig:
+> config NEED_PROC_VMCORE_DEVICE_RAM
+>          def n
+
+using "bool" here like other code. (I assume you meant "def_bool n", 
+"bool" seems to achieve the same thing)
+
+> 
+> config PROC_VMCORE_DEVICE_RAM
+>          def_bool y
+>          depends on PROC_VMCORE && VIRTIO_MEM
+>          depends on NEED_PROC_VMCORE_DEVICE_RAM
+> 
+> arch/s390/Kconfig:
+> config S390
+>          select NEED_PROC_VMCORE_DEVICE_RAM
+> ==============================
+> 
+>>
+>> (b) In the context of this patch, "depends on VIRTIO_MEM" does not make
+>> sense. We could have an intermediate:
+>>
+>> config PROC_VMCORE_DEVICE_RAM
+>>           def_bool n
+>>           depends on PROC_VMCORE
+>>           depends on NEED_PROC_VMCORE_DEVICE_RAM
+>>
+>> And change that with VIRTIO_MEM support in the relevant patch.
+> 
+> Oh, it's not comment for this patch, I made the simple version based on
+> the whole patchset. When I had a glance at this patch, I also took
+> several iterations to get it after I applied the whole patchset and
+> tried to understand the whole code.
+
+Makes sense, I'm figuring out how I can split that up.
+
+If we can avoid the PROVIDE_* thing for now, great. Not a big fan of 
+that myself.
+
+> 
+>>
+>>
+>> I faintly remember that we try avoiding such dependencies and prefer
+>> selecting Kconfigs instead. Just look at the SPLIT_PTE_PTLOCKS mess we still
+>> have to clean up. But as we don't expect that many providers for now, I
+>> don't care.
+> 
+> With the simple version, Kconfig learner as me can easily understand what
+> they are doing. If it took you a couple of iterations to make them as
+> you had mentioned earlier, and it took me several iterations to
+> understand them, I believe there must be room to improve the presented
+> ones in this patchset. These are only my humble opinion, and I am not
+> aware of virtio-mem at all, I'll leave this to you and other virtio-mem
+> dev to decide what should be taken. Thanks for your patience and
+> provided information, I learned a lot from this discussion.
+
+I hope I didn't express myself poorly: thanks a lot for the review and 
+the discussion! It helped to make the Kconfig stuff better. I'll get rid 
+of the PROVIDE_* thing for now and just depend on virtio-mem.
+
+> 
+> ===================
+> fs/proc/Kconfig:
+> config PROVIDE_PROC_VMCORE_DEVICE_RAM
+>          def_bool n
+> 
+> config NEED_PROC_VMCORE_DEVICE_RAM
+>          def_bool n
+> 
+> config PROC_VMCORE_DEVICE_RAM
+>          def_bool y
+>          depends on PROC_VMCORE
+>          depends on NEED_PROC_VMCORE_DEVICE_RAM
+>          depends on PROVIDE_PROC_VMCORE_DEVICE_RAM
+> 
+> drivers/virtio/Kconfig:
+> config VIRTIO_MEM
+>          select PROVIDE_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
+>                                                ~~~~~~~~~~~~~~
+> 
+> arch/s390/Kconfig:
+> config S390
+>          select NEED_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
+>                                             ~~~~~~~~~~~~~~
+> ========================
+> 
+> One last thing I haven't got well, If PROC_VMCORE_DEVICE_RAM has had
+> dependency on PROC_VMCORE, can we take off the ' if PROC_VMCORE' when
+> select PROVIDE_PROC_VMCORE_DEVICE_RAM and NEED_PROC_VMCORE_DEVICE_RAM?
+
+We could; it would mean that in a .config file you would end up with
+"NEED_PROC_VMCORE_DEVICE_RAM=y" with "#PROC_VMCORE" and no notion of 
+"PROC_VMCORE_DEVICE_RAM".
+
+I don't particularly like that -- needing something that apparently does 
+not exist. Not sure if there is a best practice here, staring at some 
+examples I don't seem to find a consistent rule. I can just drop it, not 
+the end of the world.
+
+
+Did you get to look at the other code changes in this patch set? Your 
+feedback would be highly appreciated!
 
 -- 
 Cheers,
