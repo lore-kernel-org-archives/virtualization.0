@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C823920ADF6;
-	Sun, 24 Nov 2024 13:44:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EF981F6839;
+	Sun, 24 Nov 2024 13:48:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732455887; cv=none; b=fgMOp+EOoi2IXNcQWxbThWQJ8iXePwaI7l4Lj5I0gAfM8chGzxW+SCbhCaj7eWgLaXE5sIPfCIf9j3391y8s8k6ObCvOtdIQnF3hdKM7omYO+F3UFJbbgC3xsxZ0LtcLoz95E74/Ova92Cgf5kfIfXgYRI77KVNJp7RMUIa12jo=
+	t=1732456112; cv=none; b=judBS2rQ3oavlGPI5+epUAYiMhJ0SvttPVtM0GVi/SAqXbt9l3M14VIN3MTy6rnZc+er3L7jZaVik4bU1lywKOq+KelEaakTNGz/+3XkxQyxp+qFdvm9h4d1YofC3cHBB9AJ9xAUW01J3pMC4kr9m/pbKzH19bnr3MTETbmfq8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732455887; c=relaxed/simple;
-	bh=uVOIo4cIj+9dGmsfKgijLyCuIznJYHDWuOrwvOYj2OE=;
+	s=arc-20240116; t=1732456112; c=relaxed/simple;
+	bh=d/oaVToFaQ3XnfSkmEkiZVd5HHZp6POrGkvZQ2oeGIM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EJIsbGBXrufwsHMXGC04Q6aL+1QXvDxoQBYA2N/QoWOg5iocvSbknMLpdU704Iw+jDTqVvquIbvl506ph7x2uSvEq3mO4FD2zHjhFri4isdsWzAGCwExlSHR34KMYxxSGo14W1HnL1KAtXdm3hRN2a/CS0xR8yiGOx1Jt9woQu4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Oww4n/PC; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=guSOeUiato2gOD+ghMBGsqPrDMQDTDFOabnvnWZD7nOr/PqNLnNWtCyhdqQ8e1lKXuxLUQLhvCZ2TS4d+ma761okJSTig85jg/IUy20IsnazAQz/y3Rl6CM/Uzuh7oEwYuv+NYNFoCW9BnF7wuc8kyYS6yz9PpoFSsqlPDb/vm8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eWyj8lc5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Oww4n/PC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3259C4CED1;
-	Sun, 24 Nov 2024 13:44:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eWyj8lc5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F5D8C4CECC;
+	Sun, 24 Nov 2024 13:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732455887;
-	bh=uVOIo4cIj+9dGmsfKgijLyCuIznJYHDWuOrwvOYj2OE=;
+	s=k20201202; t=1732456111;
+	bh=d/oaVToFaQ3XnfSkmEkiZVd5HHZp6POrGkvZQ2oeGIM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Oww4n/PCt1Y5QOxS/zUZbYXNaOoq1FO4d/iK/+hoWK4tI7mh7MtLmIONccACOg7qz
-	 9fYFxkyWMh74J+zUPEFLLQWHESJ+525wD/BYdV9/+EpcNBV3O9hIbIbFVloPrLPnvj
-	 yuKGjCfxXCv8g8sL14LL14TO4EY2RHmxwVfks9q1fWoaQymDSykYojop9cFeGfVg/N
-	 WD2hhTRlA02lj/UVh0mL9VFyDpTTIC4Wf8oPT6If3RqJAIgvhA6NmCDJdELWfylrAD
-	 5E0V5Av2zJCqNvIRmZy2BVrKj6bfaeWYT8g6Uv9nQuoZnuBnHUB1nazZgoh+H+0FJ5
-	 0/o3b3EvfixjQ==
+	b=eWyj8lc5smi0PYHAQh7MFUUVU7A/58VMfo/RmCvMTAPwFMMNkherRItxRbx+HjCJo
+	 15ynOilVBnjW2BB8cQU+EMkvwB6Rxi7yOgsbvi1eXP8DO5pbdiw+meA1O8WdADYW9X
+	 ohgz+2gWI1cDmHfuoBH7cumhfL4lcIUCve8vLuaRa36KxsLoqgbD8HIkqYC6hJlBzN
+	 47SX/H9/tFNnaO1Q6Uoju697JLj987hN51Wo6HTfDtqXuPdPFM/kGxhgzHaDsUqw4Y
+	 6feaERKgB9dZaX++jKHVh16CQTxmdawQQpfsxTbkDxtoGp2UXBix7p/OeWyhnRxF/P
+	 NUn0uwjqSIe3Q==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -42,12 +42,12 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	kuba@kernel.org,
 	virtualization@lists.linux.dev,
 	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.11 67/87] virtio-net: fix overflow inside virtnet_rq_alloc
-Date: Sun, 24 Nov 2024 08:38:45 -0500
-Message-ID: <20241124134102.3344326-67-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 46/61] virtio-net: fix overflow inside virtnet_rq_alloc
+Date: Sun, 24 Nov 2024 08:45:21 -0500
+Message-ID: <20241124134637.3346391-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241124134102.3344326-1-sashal@kernel.org>
-References: <20241124134102.3344326-1-sashal@kernel.org>
+In-Reply-To: <20241124134637.3346391-1-sashal@kernel.org>
+References: <20241124134637.3346391-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,7 +56,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.11.10
+X-stable-base: Linux 6.6.63
 Content-Transfer-Encoding: 8bit
 
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
@@ -95,10 +95,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 53a038fcbe991..c897afef0b414 100644
+index 426c05d5b1381..3bf394b24d971 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -946,9 +946,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+@@ -676,9 +676,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
  	void *buf, *head;
  	dma_addr_t addr;
  
@@ -108,7 +108,7 @@ index 53a038fcbe991..c897afef0b414 100644
  	head = page_address(alloc_frag->page);
  
  	if (rq->do_dma) {
-@@ -2443,6 +2440,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+@@ -1860,6 +1857,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
  	len = SKB_DATA_ALIGN(len) +
  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
  
@@ -118,7 +118,7 @@ index 53a038fcbe991..c897afef0b414 100644
  	buf = virtnet_rq_alloc(rq, len, gfp);
  	if (unlikely(!buf))
  		return -ENOMEM;
-@@ -2545,6 +2545,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+@@ -1962,6 +1962,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
  	 */
  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
  
