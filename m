@@ -1,118 +1,136 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1835C3C466
-	for <virtualization@lists.linux.dev>; Sat, 23 Nov 2024 16:28:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D681E47D6;
+	Sun, 24 Nov 2024 13:38:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732379317; cv=none; b=ip6AXvz7pBp6xKXuc/TbQtgoLvU3uo2pT+qV9Yj8YXR7VrhJb8RmBRkfAAAuuH9Zt6c8Ci4DGKtViT8Z1Z0flMbpH0jVbgJgqjk8F+TbFE6iPlLz8gPChPF7ES7HBXjyuTPFd8A77Ebm3Ls3+YsojzHGg3y1mrvYOMO4GlxLyLc=
+	t=1732455490; cv=none; b=EaP/fRlIGQGIjAPmwsDuRkytf21o/amu1nj3sY5FBwcQ5++xryZAKZsHB4A3RBcPfzzOV1gsHw/MunYUroy6V6YpsT5luRD76KzV5QJdfHTP00meAyAqVXdo2/LUQtyquZRpg4N2UcbxxAipIZ/YfpWAAlnrsIrAOFxhR7Vlm8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732379317; c=relaxed/simple;
-	bh=vdx1suno17IuHcCGvmAN0knP6K0z8ynfDrFJblEl1Tk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M0LxKaZGbNtxjdkDCR7J1TdM4cvFyEIUXYyxL4T9XcHeqvHLZT1zi3eTaDYuTomN87wswovW6SbNs6J5oU/Smur7qpkQXTJ8hHjbZkr61Hzl54ZRrbwGNAkUs7J/mhiLM6HvX5mezjYySfCv+Ki7yslmXEkGfl+U1MTbqPbIsMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=XyJFiQU8; arc=none smtp.client-ip=209.85.167.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1732455490; c=relaxed/simple;
+	bh=uVOIo4cIj+9dGmsfKgijLyCuIznJYHDWuOrwvOYj2OE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=p6AtzL06ph2tmXnuw0Bi05MJzUZ5vOzznMTup4B/vTzqrrJf6vbKuGXVSYXmoJR9TgZ9ew/dxNfFGFDkKKP8lzif8HVD++p3JS+Y3JpUyG7W5kYskrDwAkibuYzd73gGW5g4ZtFp2Cbow4cm8Oas+JPO5AWlltzuU/6CdvYpaRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aiso16q9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="XyJFiQU8"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-53a007743e7so3503418e87.1
-        for <virtualization@lists.linux.dev>; Sat, 23 Nov 2024 08:28:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1732379314; x=1732984114; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=h/Pl08QUPuKL5fWRHLnSBBIgiCofcCWFTEDw/7LzjT8=;
-        b=XyJFiQU84WG2HsYwM2DBH4nGjtM6Dln1sbtWk2WpemcOOv8lBgSgzlMJs7mpceHX0D
-         im9hBNerXnm9EDUMU/OSqSG1kBtTQ6Ibog1gx9YDAmVhWld7epHNh7F0Xw/mJRY8ZvER
-         pc3QaM+2mOfXPL1AOxzWruCArsFMDGFtVVHntwxyasQM6OPDqVYPMdEbjiGMbrBxBTuH
-         VScQpy9E9LBZpqpL8F8+YRnDexxhxu6M14QXUKWs4rFknGLLgIVzhgpSlk+8uEzSW3Qv
-         LNkrzZbQQcOp0t7L81H+/4Q241prWmP2NK7BO3HuvLyWj+opKVwfmA3LD+sdwr+Cr1oh
-         p09g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732379314; x=1732984114;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=h/Pl08QUPuKL5fWRHLnSBBIgiCofcCWFTEDw/7LzjT8=;
-        b=LCQ51HZWATLox7rDnULU5d0I3TVRr4dIx1loQ17y16M7FVPNyfwp392IZhGe5zUyEc
-         Iojd90qBsn1f8VSdO7xLfy8j+qHfSEU3cohb0l0xqsMLvFcfoXz0OlrZBtFeYUpaesgM
-         QiMjWo/HvNEqdeulYvO7c3JeXbqNmIfuyDVWngxD8Nb9z4mWF+3PteIaXWyySgl7QQOP
-         d1vXrKGK1B+nrnBzEeaycz1VgH1GqK/F/W0IDxnTBGeHzwOiuil8Qt9moqRUSDM18bRU
-         opvwj4UXrmQIqNk2rZvC6GHSEPYrTJ2n6IFnSaIVyjM1+B4XHafKbJ2AMZsS8Ar27GOf
-         oH3A==
-X-Forwarded-Encrypted: i=1; AJvYcCXl3ozZo5PwJsMmYylf7Tbdsw6jfxJBQtQDInXQ442miTyLeTGkhw3JyYssTwTPHlrSr2S3Aam5+f7Y+0LKag==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZ9UMxwO1pUR7PzjIqvGJYx5kaS+cTOjykW+e4PWWvBJLjaOvT
-	TUkDdukeHRn+b3+BxG4Tn8xTeqvrt4e8LQf6L2NpP3VWk6WNAgCRq84is2MSsio=
-X-Gm-Gg: ASbGncvpYJ5xizL9xXPcCbLKa707CZZ6ogtGaKkk98w1wVKrGDC/NlbrPUKCuw//SgA
-	7UymVCaJFCsG5IrlAe8NIEm1mAi5+F4M5EOKXhE+/3mAL4P2w0FVsgS1okF4znR+gQopBzBTEIb
-	tn248nwjPTE/hJ7Gzk4+VQYSmM5R+WPGR5Wfh0z5wy6h0EjjZJBlErrPkO9TU8K+iFknlkFQx+l
-	GohbX0BQz1BsbRdSQ+UUDUUPzOSv6onUuQWeCQ8HxR1cfBCm9N8c+Rdc1nEcP6x9zHTL8aoXspM
-	MIlFKF2pasoaAVKxv913ZLI6iQvIIQ==
-X-Google-Smtp-Source: AGHT+IFvAsLUXPoRNkWhRpJryldr2ECx/WRa6OPlTabGGwJsNBFlz2rBkajwmVrME7jHv4HZvi5yzA==
-X-Received: by 2002:a05:6512:a90:b0:539:f8c7:4211 with SMTP id 2adb3069b0e04-53dd37a5c34mr3004585e87.26.1732379314192;
-        Sat, 23 Nov 2024 08:28:34 -0800 (PST)
-Received: from eriador.lumag.spb.ru (2001-14ba-a0c3-3a00--b8c.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::b8c])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-53dd2497f04sm963206e87.254.2024.11.23.08.28.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Nov 2024 08:28:32 -0800 (PST)
-Date: Sat, 23 Nov 2024 18:28:30 +0200
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@redhat.com, kraxel@redhat.com, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 1/2] drm/cirrus: Use virtual encoder and connector types
-Message-ID: <y74662j6zqvocvpa3zbig5owhqu2o43xdrwkeswgwd5mak2cx7@esgliauvzkh5>
-References: <20241029143928.208349-1-tzimmermann@suse.de>
- <20241029143928.208349-2-tzimmermann@suse.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aiso16q9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FDBC4CED1;
+	Sun, 24 Nov 2024 13:38:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1732455489;
+	bh=uVOIo4cIj+9dGmsfKgijLyCuIznJYHDWuOrwvOYj2OE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=aiso16q9uRG2Pc3TYXpZxXJ+2g8JiYhApDJKoAqFfswD4pQ1M5KieQjAZnuo+DVMi
+	 8oFRtMh7iiGXM3bTXhMP+mvWj5MXFWUeYXfWIaGlMFZfC0Oh7JzooPzAQe6w5x9DMx
+	 gxnlqLSdKBweukWcFCD8hQOS6qu7kYoR30PlSkNbCNdGUgLo/1rOaxzxQ6x0pdRLby
+	 REw/vD7BxN9tYITssuboSBD0FgytExdtvgunmme12CIbDUcAgexaLt9OtZ4yGXXkjn
+	 FpgKdJwu/Go6Ca+WD59uhOWd/HyTdWoeMG4Iaf36hoHq6d2bc0gk+oGpnBxYleCLhi
+	 Ct+S6JV+A1vTA==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"Si-Wei Liu" <si-wei.liu@oracle.com>,
+	Darren Kenny <darren.kenny@oracle.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Sasha Levin <sashal@kernel.org>,
+	mst@redhat.com,
+	andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.12 084/107] virtio-net: fix overflow inside virtnet_rq_alloc
+Date: Sun, 24 Nov 2024 08:29:44 -0500
+Message-ID: <20241124133301.3341829-84-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20241124133301.3341829-1-sashal@kernel.org>
+References: <20241124133301.3341829-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241029143928.208349-2-tzimmermann@suse.de>
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.12.1
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 29, 2024 at 03:34:23PM +0100, Thomas Zimmermann wrote:
-> The cirrus driver only works on emulated Cirrus hardware. Use the
-> correct types for encoder and connector.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
->  drivers/gpu/drm/tiny/cirrus.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-> index f06a2be71f60..0231bdf94b8a 100644
-> --- a/drivers/gpu/drm/tiny/cirrus.c
-> +++ b/drivers/gpu/drm/tiny/cirrus.c
-> @@ -587,14 +587,14 @@ static int cirrus_pipe_init(struct cirrus_device *cirrus)
->  
->  	encoder = &cirrus->encoder;
->  	ret = drm_encoder_init(dev, encoder, &cirrus_encoder_funcs,
-> -			       DRM_MODE_ENCODER_DAC, NULL);
-> +			       DRM_MODE_ENCODER_VIRTUAL, NULL);
->  	if (ret)
->  		return ret;
->  	encoder->possible_crtcs = drm_crtc_mask(crtc);
->  
->  	connector = &cirrus->connector;
->  	ret = drm_connector_init(dev, connector, &cirrus_connector_funcs,
-> -				 DRM_MODE_CONNECTOR_VGA);
-> +				 DRM_MODE_CONNECTOR_VIRTUAL);
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-This will also remove the EDID property from this connector. I'm not
-sore if that is an expected behaviour or not.
+[ Upstream commit 6aacd1484468361d1d04badfe75f264fa5314864 ]
 
->  	if (ret)
->  		return ret;
->  	drm_connector_helper_add(connector, &cirrus_connector_helper_funcs);
-> -- 
-> 2.46.0
-> 
+When the frag just got a page, then may lead to regression on VM.
+Specially if the sysctl net.core.high_order_alloc_disable value is 1,
+then the frag always get a page when do refill.
 
+Which could see reliable crashes or scp failure (scp a file 100M in size
+to VM).
+
+The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
+of a new frag. When the frag size is larger than PAGE_SIZE,
+everything is fine. However, if the frag is only one page and the
+total size of the buffer and virtnet_rq_dma is larger than one page, an
+overflow may occur.
+
+The commit f9dac92ba908 ("virtio_ring: enable premapped mode whatever
+use_dma_api") introduced this problem. And we reverted some commits to
+fix this in last linux version. Now we try to enable it and fix this
+bug directly.
+
+Here, when the frag size is not enough, we reduce the buffer len to fix
+this problem.
+
+Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
+Tested-by: Darren Kenny <darren.kenny@oracle.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/virtio_net.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 53a038fcbe991..c897afef0b414 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -946,9 +946,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+ 	void *buf, *head;
+ 	dma_addr_t addr;
+ 
+-	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+-		return NULL;
+-
+ 	head = page_address(alloc_frag->page);
+ 
+ 	if (rq->do_dma) {
+@@ -2443,6 +2440,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+ 	len = SKB_DATA_ALIGN(len) +
+ 	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 
++	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
++		return -ENOMEM;
++
+ 	buf = virtnet_rq_alloc(rq, len, gfp);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
+@@ -2545,6 +2545,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+ 	 */
+ 	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+ 
++	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
++		return -ENOMEM;
++
++	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
++		len -= sizeof(struct virtnet_rq_dma);
++
+ 	buf = virtnet_rq_alloc(rq, len + room, gfp);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
 -- 
-With best wishes
-Dmitry
+2.43.0
+
