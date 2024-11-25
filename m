@@ -1,136 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EF981F6839;
-	Sun, 24 Nov 2024 13:48:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732456112; cv=none; b=judBS2rQ3oavlGPI5+epUAYiMhJ0SvttPVtM0GVi/SAqXbt9l3M14VIN3MTy6rnZc+er3L7jZaVik4bU1lywKOq+KelEaakTNGz/+3XkxQyxp+qFdvm9h4d1YofC3cHBB9AJ9xAUW01J3pMC4kr9m/pbKzH19bnr3MTETbmfq8o=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732456112; c=relaxed/simple;
-	bh=d/oaVToFaQ3XnfSkmEkiZVd5HHZp6POrGkvZQ2oeGIM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=guSOeUiato2gOD+ghMBGsqPrDMQDTDFOabnvnWZD7nOr/PqNLnNWtCyhdqQ8e1lKXuxLUQLhvCZ2TS4d+ma761okJSTig85jg/IUy20IsnazAQz/y3Rl6CM/Uzuh7oEwYuv+NYNFoCW9BnF7wuc8kyYS6yz9PpoFSsqlPDb/vm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eWyj8lc5; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24753291E
+	for <virtualization@lists.linux.dev>; Mon, 25 Nov 2024 02:27:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1732501637; cv=pass; b=CW/0s0r10onaBZnYHS65cZSjfBGm0K9KkwlE9pIXaddsGiijTIjOb30NMT321GQFuGyvhxpzWz6xfTCfIqk/zUFMTybhxTCQ6VuiVUKF+6PKxFKIMUYYOsOrbAZWGV3vqJMzXCvlYKWo8x3XbfJSiq0VAIKStDJKCYiuEgSSVsg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1732501637; c=relaxed/simple;
+	bh=OsngzhzwuGgioRorZyPbkDs5oV3AqcAeX2CKASGQjZ4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Lfvine81Pd824KdoIDtWVzKj9JcmK2C8u/a7ZVvG1G1FHAWE5RCVLI7y4ta4P2ze+uY7SA3lquRQ6trrhFICE+UVeiOgM2Duz8YYPZjRDTF+oNd2xpvWd7GT11l0TvSIiPIa+xVngacUFb/kW2lOE1XvgH4TkwzVhgOLZ0ajsV0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=knt0YtML; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eWyj8lc5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F5D8C4CECC;
-	Sun, 24 Nov 2024 13:48:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732456111;
-	bh=d/oaVToFaQ3XnfSkmEkiZVd5HHZp6POrGkvZQ2oeGIM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=eWyj8lc5smi0PYHAQh7MFUUVU7A/58VMfo/RmCvMTAPwFMMNkherRItxRbx+HjCJo
-	 15ynOilVBnjW2BB8cQU+EMkvwB6Rxi7yOgsbvi1eXP8DO5pbdiw+meA1O8WdADYW9X
-	 ohgz+2gWI1cDmHfuoBH7cumhfL4lcIUCve8vLuaRa36KxsLoqgbD8HIkqYC6hJlBzN
-	 47SX/H9/tFNnaO1Q6Uoju697JLj987hN51Wo6HTfDtqXuPdPFM/kGxhgzHaDsUqw4Y
-	 6feaERKgB9dZaX++jKHVh16CQTxmdawQQpfsxTbkDxtoGp2UXBix7p/OeWyhnRxF/P
-	 NUn0uwjqSIe3Q==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"Si-Wei Liu" <si-wei.liu@oracle.com>,
-	Darren Kenny <darren.kenny@oracle.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	mst@redhat.com,
-	andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 46/61] virtio-net: fix overflow inside virtnet_rq_alloc
-Date: Sun, 24 Nov 2024 08:45:21 -0500
-Message-ID: <20241124134637.3346391-46-sashal@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241124134637.3346391-1-sashal@kernel.org>
-References: <20241124134637.3346391-1-sashal@kernel.org>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="knt0YtML"
+ARC-Seal: i=1; a=rsa-sha256; t=1732501627; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=fJpivCCVoYfEfffjpL5apbvH9/uGwDpZrfE1Z95icqqsOh3sr6NLOXUjbhMt0p49ceePTw9flsVshEQFGWCrELPHymLWtQxdrF+I4cf+lth90yT95jfUKUr5Rt6ciswQnfPqGjISGY5mMeHDTZDlr3x0JNtp0hRmzISOQejlvDk=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1732501627; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=2nk6VSWF+Iuc9RGMA/OqxVUYgtDe0wGGIq2xy5toCOw=; 
+	b=ntHwh4YHAk+ltg6f7AAqWE6Kqrc1vmOb3DL3HODcHZGEJQ4EbONybNtZ3BOxXsrMVZYGejzfKQLSSEO/kZNsPPOLyimtXIRGG3GgeENOab+S130pg0uhOGD7R1UtfdaT+tsk7lxxtfgA/GIN1vXXHMDS/O2RAIdo/tsxGdLOJjg=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1732501627;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=2nk6VSWF+Iuc9RGMA/OqxVUYgtDe0wGGIq2xy5toCOw=;
+	b=knt0YtMLsB5Wn2ILz721uHiTxSOBY9AcO6z19mNZH6z96I8Gam24DpmYQVZCj+2Z
+	2U5zS8UVv/kySLWBgyhGsuAUYtuz806P56cOgdg7ykW2rtLIuEQ6AkdXc2Fuw1GaiTM
+	MSzqZ+3GNLB2gzAvCzrp6K55Qvata4cozwiXyKGQ=
+Received: by mx.zohomail.com with SMTPS id 173250162485169.82787247272529;
+	Sun, 24 Nov 2024 18:27:04 -0800 (PST)
+Message-ID: <4ba9da71-535d-4579-907f-8ff2ccc505e5@collabora.com>
+Date: Mon, 25 Nov 2024 05:27:00 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.63
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] drm/virtio: Add drm_panic support
+To: Jocelyn Falempe <jfalempe@redhat.com>,
+ Ryosuke Yasuoka <ryasuoka@redhat.com>, airlied@redhat.com,
+ kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
+ simona@ffwll.ch
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20241113084438.3283737-1-ryasuoka@redhat.com>
+ <f31a8d1f-73d5-424e-ad09-2ae39712e230@collabora.com>
+ <ec721548-0d47-4c40-9e9d-59f58e2181ae@redhat.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <ec721548-0d47-4c40-9e9d-59f58e2181ae@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+On 11/19/24 13:21, Jocelyn Falempe wrote:
+...
+>> In the virtio_panic_flush() below,
+>> virtio_gpu_panic_cmd_transfer_to_host_2d() is invoked only for dumb BOs.
+>> Thus, only dumb BO supports panic output and should be accepted by
+>> get_scanout_buffer(), other should be rejected with ENODEV here, AFAICT.
+>> Correct?
+> 
+> Yes, it's correct
 
-[ Upstream commit 6aacd1484468361d1d04badfe75f264fa5314864 ]
+Please fix in v5.
 
-When the frag just got a page, then may lead to regression on VM.
-Specially if the sysctl net.core.high_order_alloc_disable value is 1,
-then the frag always get a page when do refill.
+...
+>>> +struct virtio_gpu_panic_object_array {
+>>> +    struct ww_acquire_ctx ticket;
+>>> +    struct list_head next;
+>>> +    u32 nents, total;
+>>> +    struct drm_gem_object *objs;
+>>> +};
+>>
+>> This virtio_gpu_panic_object_array struct is a hack, use
+>> virtio_gpu_array_alloc(). Maybe add atomic variant of the array_alloc().
+> 
+> We can't allocate memory in the panic handler, but maybe it can be pre-
+> allocated, like the virtio_panic_buffer ?
 
-Which could see reliable crashes or scp failure (scp a file 100M in size
-to VM).
+We certainly can allocate memory from any context using GFP_ATOMIC flag
+for the allocation. You already doing that in
+virtio_gpu_panic_queue_ctrl_sgs().
 
-The issue is that the virtnet_rq_dma takes up 16 bytes at the beginning
-of a new frag. When the frag size is larger than PAGE_SIZE,
-everything is fine. However, if the frag is only one page and the
-total size of the buffer and virtnet_rq_dma is larger than one page, an
-overflow may occur.
+>>> +static void virtio_gpu_panic_put_vbuf(struct virtqueue *vq,
+>>> +                      struct virtio_gpu_vbuffer *vbuf,
+>>> +                      struct virtio_gpu_object_array *objs)
+>>> +{
+>>> +    unsigned int len;
+>>> +    int i;
+>>> +
+>>> +    /* waiting vbuf to be used */
+>>> +    for (i = 0; i < 500; i++) {
+>>> +        if (vbuf == virtqueue_get_buf(vq, &len)) {
+>>
+>> Is it guaranteed that virtio_gpu_dequeue_ctrl_func() never runs in
+>> parallel here?
+> 
+> Yes, in the panic handler, only one CPU remains active, and no other
+> task can be scheduled.
 
-The commit f9dac92ba908 ("virtio_ring: enable premapped mode whatever
-use_dma_api") introduced this problem. And we reverted some commits to
-fix this in last linux version. Now we try to enable it and fix this
-bug directly.
+Awesome. thanks for the clarification.
 
-Here, when the frag size is not enough, we reduce the buffer len to fix
-this problem.
+...
+>>> +    ret = virtio_gpu_panic_resource_flush(plane, vbuf_resource_flush,
+>>> +                          plane->state->src_x >> 16,
+>>> +                          plane->state->src_y >> 16,
+>>> +                          plane->state->src_w >> 16,
+>>> +                          plane->state->src_h >> 16);
+>>> +    if (ret) {
+>>> +        virtio_gpu_panic_put_vbuf(vgdev->ctrlq.vq,
+>>> +                      vbuf_dumb_bo,
+>>> +                      (struct virtio_gpu_object_array *)&objs);
+>>
+>> The virtio_gpu_panic_notify() hasn't been invoked here, thus this
+>> put_vbuf should always time out because vq hasn't been kicked. Again,
+>> best to leak resources on error than to have broken/untested error
+>> handling code paths.
+> 
+> agreed
 
-Reported-by: "Si-Wei Liu" <si-wei.liu@oracle.com>
-Tested-by: Darren Kenny <darren.kenny@oracle.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/virtio_net.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+Please change it in v5.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 426c05d5b1381..3bf394b24d971 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -676,9 +676,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
- 	void *buf, *head;
- 	dma_addr_t addr;
- 
--	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
--		return NULL;
--
- 	head = page_address(alloc_frag->page);
- 
- 	if (rq->do_dma) {
-@@ -1860,6 +1857,9 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
- 	len = SKB_DATA_ALIGN(len) +
- 	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 
-+	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-+		return -ENOMEM;
-+
- 	buf = virtnet_rq_alloc(rq, len, gfp);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
-@@ -1962,6 +1962,12 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
- 	 */
- 	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
- 
-+	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
-+		return -ENOMEM;
-+
-+	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
-+		len -= sizeof(struct virtnet_rq_dma);
-+
- 	buf = virtnet_rq_alloc(rq, len + room, gfp);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
+...
+>> If there is more than one virtio-gpu display, then this panic buffer is
+>> reused by other displays. It seems to work okay, but potential
+>> implications are unclear. Won't it be more robust to have a panic buffer
+>> per CRTC?
+> 
+> The drm panic handler call each plane sequentially, so it's not a
+> problem. Having one buffer per CRTC would just add more complexity.
+
+Please add a clarifying comment for that to the code.
+
 -- 
-2.43.0
-
+Best regards,
+Dmitry
