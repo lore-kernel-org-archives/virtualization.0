@@ -1,43 +1,80 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24753291E
-	for <virtualization@lists.linux.dev>; Mon, 25 Nov 2024 02:27:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732501637; cv=pass; b=CW/0s0r10onaBZnYHS65cZSjfBGm0K9KkwlE9pIXaddsGiijTIjOb30NMT321GQFuGyvhxpzWz6xfTCfIqk/zUFMTybhxTCQ6VuiVUKF+6PKxFKIMUYYOsOrbAZWGV3vqJMzXCvlYKWo8x3XbfJSiq0VAIKStDJKCYiuEgSSVsg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732501637; c=relaxed/simple;
-	bh=OsngzhzwuGgioRorZyPbkDs5oV3AqcAeX2CKASGQjZ4=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BABC41426C
+	for <virtualization@lists.linux.dev>; Mon, 25 Nov 2024 10:39:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1732531200; cv=none; b=YdTSS5ZFzwkEGgBBTG+AdqVQL04qZD4dnMApQQEqkH+ZMoDttK4LnzmadjmAf2DZaJzNDej4xrkdUtNZu/ZyxJEq36fppoefY1aUcwAkNXFdBwjKFrRQ5cLtVyN2YvCH2K62Z91JT4pbkkGkqcsrCmMySGwr04Ij6XT6K3PxE7E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1732531200; c=relaxed/simple;
+	bh=9xS52vYa8qP7MwzpxIQpWiHifz/sLzCnVdPAnUriFI8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Lfvine81Pd824KdoIDtWVzKj9JcmK2C8u/a7ZVvG1G1FHAWE5RCVLI7y4ta4P2ze+uY7SA3lquRQ6trrhFICE+UVeiOgM2Duz8YYPZjRDTF+oNd2xpvWd7GT11l0TvSIiPIa+xVngacUFb/kW2lOE1XvgH4TkwzVhgOLZ0ajsV0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=knt0YtML; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	 In-Reply-To:Content-Type; b=Bt6zL1ekxJuH9sqBYG64iyzUf622RwBOAfNUTnnT6taJ/pWAHLt1zGvMAalX9q/pl5k1QOJ/hUOQfbgLoUFJBmTGzJ/bxvMf5l2SuKjp/l+xxXPaAtXz1qEmXnMWSqY0rgXJE9PvI5wctojLHs9B0pnBjth37T09MamvXrWRHyM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YQ8G6Lzl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dW3qv35q; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YQ8G6Lzl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dW3qv35q; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="knt0YtML"
-ARC-Seal: i=1; a=rsa-sha256; t=1732501627; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=fJpivCCVoYfEfffjpL5apbvH9/uGwDpZrfE1Z95icqqsOh3sr6NLOXUjbhMt0p49ceePTw9flsVshEQFGWCrELPHymLWtQxdrF+I4cf+lth90yT95jfUKUr5Rt6ciswQnfPqGjISGY5mMeHDTZDlr3x0JNtp0hRmzISOQejlvDk=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1732501627; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=2nk6VSWF+Iuc9RGMA/OqxVUYgtDe0wGGIq2xy5toCOw=; 
-	b=ntHwh4YHAk+ltg6f7AAqWE6Kqrc1vmOb3DL3HODcHZGEJQ4EbONybNtZ3BOxXsrMVZYGejzfKQLSSEO/kZNsPPOLyimtXIRGG3GgeENOab+S130pg0uhOGD7R1UtfdaT+tsk7lxxtfgA/GIN1vXXHMDS/O2RAIdo/tsxGdLOJjg=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1732501627;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=2nk6VSWF+Iuc9RGMA/OqxVUYgtDe0wGGIq2xy5toCOw=;
-	b=knt0YtMLsB5Wn2ILz721uHiTxSOBY9AcO6z19mNZH6z96I8Gam24DpmYQVZCj+2Z
-	2U5zS8UVv/kySLWBgyhGsuAUYtuz806P56cOgdg7ykW2rtLIuEQ6AkdXc2Fuw1GaiTM
-	MSzqZ+3GNLB2gzAvCzrp6K55Qvata4cozwiXyKGQ=
-Received: by mx.zohomail.com with SMTPS id 173250162485169.82787247272529;
-	Sun, 24 Nov 2024 18:27:04 -0800 (PST)
-Message-ID: <4ba9da71-535d-4579-907f-8ff2ccc505e5@collabora.com>
-Date: Mon, 25 Nov 2024 05:27:00 +0300
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YQ8G6Lzl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dW3qv35q";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YQ8G6Lzl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dW3qv35q"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C80C71F381;
+	Mon, 25 Nov 2024 10:39:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1732531196; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6KZQGGboR1jU1WlTkMsW24bcGWVCT37J1TXj+3zjC5w=;
+	b=YQ8G6LzlraUlyuWdsPXKdppLdumZvhpUj4g0ADWEQp4t9cF2q2I2lafTHOQPDs8yVT6CjC
+	fwktaZSNZOfk8MXeobuZutgoudFATBeGno/1xQpXNjDkHT93W7dHIfMd3uvXJh93Xhqhcb
+	srqaRP/OMsyEJHvyduG3qu8s4dKy6lI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1732531196;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6KZQGGboR1jU1WlTkMsW24bcGWVCT37J1TXj+3zjC5w=;
+	b=dW3qv35qDx5lCzoej7tE3CloPgq6X7N+n3w3DMwDkZryXlpwemBS+bNyt7Zvc3jQVN+Dgr
+	9hohpP3YnTAdIQCA==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1732531196; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6KZQGGboR1jU1WlTkMsW24bcGWVCT37J1TXj+3zjC5w=;
+	b=YQ8G6LzlraUlyuWdsPXKdppLdumZvhpUj4g0ADWEQp4t9cF2q2I2lafTHOQPDs8yVT6CjC
+	fwktaZSNZOfk8MXeobuZutgoudFATBeGno/1xQpXNjDkHT93W7dHIfMd3uvXJh93Xhqhcb
+	srqaRP/OMsyEJHvyduG3qu8s4dKy6lI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1732531196;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6KZQGGboR1jU1WlTkMsW24bcGWVCT37J1TXj+3zjC5w=;
+	b=dW3qv35qDx5lCzoej7tE3CloPgq6X7N+n3w3DMwDkZryXlpwemBS+bNyt7Zvc3jQVN+Dgr
+	9hohpP3YnTAdIQCA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9C16B137D4;
+	Mon, 25 Nov 2024 10:39:56 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id lNMuJPxTRGc0egAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 25 Nov 2024 10:39:56 +0000
+Message-ID: <496c1351-3a74-4dc5-8cb9-bf4749378b1c@suse.de>
+Date: Mon, 25 Nov 2024 11:39:56 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,104 +82,121 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] drm/virtio: Add drm_panic support
-To: Jocelyn Falempe <jfalempe@redhat.com>,
- Ryosuke Yasuoka <ryasuoka@redhat.com>, airlied@redhat.com,
- kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
- simona@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20241113084438.3283737-1-ryasuoka@redhat.com>
- <f31a8d1f-73d5-424e-ad09-2ae39712e230@collabora.com>
- <ec721548-0d47-4c40-9e9d-59f58e2181ae@redhat.com>
+Subject: Re: [PATCH 1/2] drm/cirrus: Use virtual encoder and connector types
+To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: airlied@redhat.com, kraxel@redhat.com, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev
+References: <20241029143928.208349-1-tzimmermann@suse.de>
+ <20241029143928.208349-2-tzimmermann@suse.de>
+ <y74662j6zqvocvpa3zbig5owhqu2o43xdrwkeswgwd5mak2cx7@esgliauvzkh5>
 Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <ec721548-0d47-4c40-9e9d-59f58e2181ae@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <y74662j6zqvocvpa3zbig5owhqu2o43xdrwkeswgwd5mak2cx7@esgliauvzkh5>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.30
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[5];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email]
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-On 11/19/24 13:21, Jocelyn Falempe wrote:
-...
->> In the virtio_panic_flush() below,
->> virtio_gpu_panic_cmd_transfer_to_host_2d() is invoked only for dumb BOs.
->> Thus, only dumb BO supports panic output and should be accepted by
->> get_scanout_buffer(), other should be rejected with ENODEV here, AFAICT.
->> Correct?
-> 
-> Yes, it's correct
+Hi
 
-Please fix in v5.
 
-...
->>> +struct virtio_gpu_panic_object_array {
->>> +    struct ww_acquire_ctx ticket;
->>> +    struct list_head next;
->>> +    u32 nents, total;
->>> +    struct drm_gem_object *objs;
->>> +};
+Am 23.11.24 um 17:28 schrieb Dmitry Baryshkov:
+> On Tue, Oct 29, 2024 at 03:34:23PM +0100, Thomas Zimmermann wrote:
+>> The cirrus driver only works on emulated Cirrus hardware. Use the
+>> correct types for encoder and connector.
 >>
->> This virtio_gpu_panic_object_array struct is a hack, use
->> virtio_gpu_array_alloc(). Maybe add atomic variant of the array_alloc().
-> 
-> We can't allocate memory in the panic handler, but maybe it can be pre-
-> allocated, like the virtio_panic_buffer ?
-
-We certainly can allocate memory from any context using GFP_ATOMIC flag
-for the allocation. You already doing that in
-virtio_gpu_panic_queue_ctrl_sgs().
-
->>> +static void virtio_gpu_panic_put_vbuf(struct virtqueue *vq,
->>> +                      struct virtio_gpu_vbuffer *vbuf,
->>> +                      struct virtio_gpu_object_array *objs)
->>> +{
->>> +    unsigned int len;
->>> +    int i;
->>> +
->>> +    /* waiting vbuf to be used */
->>> +    for (i = 0; i < 500; i++) {
->>> +        if (vbuf == virtqueue_get_buf(vq, &len)) {
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> ---
+>>   drivers/gpu/drm/tiny/cirrus.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
 >>
->> Is it guaranteed that virtio_gpu_dequeue_ctrl_func() never runs in
->> parallel here?
-> 
-> Yes, in the panic handler, only one CPU remains active, and no other
-> task can be scheduled.
+>> diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+>> index f06a2be71f60..0231bdf94b8a 100644
+>> --- a/drivers/gpu/drm/tiny/cirrus.c
+>> +++ b/drivers/gpu/drm/tiny/cirrus.c
+>> @@ -587,14 +587,14 @@ static int cirrus_pipe_init(struct cirrus_device *cirrus)
+>>   
+>>   	encoder = &cirrus->encoder;
+>>   	ret = drm_encoder_init(dev, encoder, &cirrus_encoder_funcs,
+>> -			       DRM_MODE_ENCODER_DAC, NULL);
+>> +			       DRM_MODE_ENCODER_VIRTUAL, NULL);
+>>   	if (ret)
+>>   		return ret;
+>>   	encoder->possible_crtcs = drm_crtc_mask(crtc);
+>>   
+>>   	connector = &cirrus->connector;
+>>   	ret = drm_connector_init(dev, connector, &cirrus_connector_funcs,
+>> -				 DRM_MODE_CONNECTOR_VGA);
+>> +				 DRM_MODE_CONNECTOR_VIRTUAL);
+> This will also remove the EDID property from this connector. I'm not
+> sore if that is an expected behaviour or not.
 
-Awesome. thanks for the clarification.
+Indeed. That's a positive side effect IMHO. The cirrus emulation nor 
+driver provides an EDID. By removing the property, we stop pretending 
+that there could be one. I'll mention this in the changelog before 
+committing.
 
-...
->>> +    ret = virtio_gpu_panic_resource_flush(plane, vbuf_resource_flush,
->>> +                          plane->state->src_x >> 16,
->>> +                          plane->state->src_y >> 16,
->>> +                          plane->state->src_w >> 16,
->>> +                          plane->state->src_h >> 16);
->>> +    if (ret) {
->>> +        virtio_gpu_panic_put_vbuf(vgdev->ctrlq.vq,
->>> +                      vbuf_dumb_bo,
->>> +                      (struct virtio_gpu_object_array *)&objs);
+Best regards
+Thomas
+
+>
+>>   	if (ret)
+>>   		return ret;
+>>   	drm_connector_helper_add(connector, &cirrus_connector_helper_funcs);
+>> -- 
+>> 2.46.0
 >>
->> The virtio_gpu_panic_notify() hasn't been invoked here, thus this
->> put_vbuf should always time out because vq hasn't been kicked. Again,
->> best to leak resources on error than to have broken/untested error
->> handling code paths.
-> 
-> agreed
-
-Please change it in v5.
-
-...
->> If there is more than one virtio-gpu display, then this panic buffer is
->> reused by other displays. It seems to work okay, but potential
->> implications are unclear. Won't it be more robust to have a panic buffer
->> per CRTC?
-> 
-> The drm panic handler call each plane sequentially, so it's not a
-> problem. Having one buffer per CRTC would just add more complexity.
-
-Please add a clarifying comment for that to the code.
 
 -- 
-Best regards,
-Dmitry
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
+
