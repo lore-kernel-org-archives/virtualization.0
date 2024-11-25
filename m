@@ -1,109 +1,217 @@
-Received: from mail-qk1-f193.google.com (mail-qk1-f193.google.com [209.85.222.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42B5D1B415F
-	for <virtualization@lists.linux.dev>; Mon, 25 Nov 2024 17:25:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.193
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D9A05194ACA;
+	Mon, 25 Nov 2024 23:24:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732555544; cv=none; b=T5l5A5yLOUUQboeQ0isBqwTxlTF/9NeR0mNT8GcStEwV/iS24n7RER4DAY5OmHLE3DGEOH30ZrbGtV5hNTnSd9HG2lSCs5mW7IZqeawa4Xtpaf/QUhnOETSHy8DmpkJ0X5YW5XDe7+H0cZlgkTVf+XLM7CwbPkhbDLoccTv0XPA=
+	t=1732577090; cv=none; b=mQ8lyKWfk1rS91dRuwVfGpKWh5QFCyD8FHPZGJDDt+C15Ifb8+7P1r7l6tezz6IqWtLGjOBwCXNvWwU7xd0vMUHEBjWmt7JAYJAHMXPkfWYl+1wmVfUljbDyFPZMPlWZLVvfkFma/RA2UwTo96oNFF5A6Bda+Hlvo9iZ/7jDjQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732555544; c=relaxed/simple;
-	bh=3NsJgxiTqriz6qQDXCK8JEP22fKawrWmvmPgO4GF5zo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=sd2Z3fMkLag7jRP22C1KYASVCwotlRDlgaS7YteDxDQYfuBPkLLDMhSTqU7MwcX/4rkkL5D/YtVNgZ9yZmDa1Rvt8f8YS10VmJE8L/UoJcEhfJIdnt4zZSINfGOBnJULo+BRGL2+FaRRSfck7rLCZjsGdPh5j3j1p05zgcaoGVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MQWXshNs; arc=none smtp.client-ip=209.85.222.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1732577090; c=relaxed/simple;
+	bh=UVWJMNMJnOI1SS0qcTDTj8boSwJyZB4CTpRaJODuI4s=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=QeYZ5s1yZl2F1YkrCpiI3dO9Hkf1DAeMJmSSC7R0IppYmd4bMEQcRhKGZG3I5QZS+oAvGfTEbZqGtTsQpBeIxWMg5jO0Obe/Eaqq6UTk7DV1LKCwKuyrix9Jr99trdmJ5KiskLRFgrDKBzZqJJLPHRO7jaJq6YfpH7MMWf6PIIg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=s2arBio/; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MQWXshNs"
-Received: by mail-qk1-f193.google.com with SMTP id af79cd13be357-7b65d1c707aso153515585a.0
-        for <virtualization@lists.linux.dev>; Mon, 25 Nov 2024 09:25:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1732555542; x=1733160342; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=UVDQspBi0nK52468djjhcLsHS6suKDvQYTgpSTpGaWI=;
-        b=MQWXshNsBma+puNnuolglRb4MUCPqz5GE8+XqqceL1savDwNj8IkzkqOoow3Pq5gPy
-         FoDrjkRmwjHDXlG5IEY5MzgKY/Zy77Wr9knx3DhWF2DmkAEBhxe5C/JkMO2F6yDch7gZ
-         CWOssOlKAXBt4AzoC9A8yrEua26YNhAy/911v0p/GAIpFSlJnmAzaUDVnV2UdPcrXBKW
-         DFyyZrPgBvUuxRLUJhv6L1zpX/15X9F+5xF6MfkYTB8Tg5qkfr7omZ7MFnwywaGSmkVj
-         TgyBaEsO67q25EL3SxpBXJZR3iQb4YEarAY9xI+dk80/5JcYhjsKfBMKsAZOCaknQ1Ez
-         1Rfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732555542; x=1733160342;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UVDQspBi0nK52468djjhcLsHS6suKDvQYTgpSTpGaWI=;
-        b=jZsHzKHEwnhhYAK6J07UdLdZv5fdWy7aHf3KTugf3GhzPCPAH5fXsQimo+PNZuaPsa
-         yX18tN97NB5dZJKGpqgWnoQr0b6711AMrV0StL9fsLF7qLO0RKEPpm6Iw99vDKDHdz5p
-         dJpaAraEYSbdwcEWaWqUvWzqOJdCm1bzN6xbRAhVxX0mguRDsB/NO+jNZ4fhx6RrxrvF
-         vPqosR18rNH5v5ovcQkL1Aoo5JNkeA6qhpJXOl2WlA5wCLPdk6yBkfQBGe74PoHEEGC0
-         wLJi7Auc+GNV9ltGbAgikjIQvwnmnOZisXHjlUsI3HI4bEIuJ7/27vjNKTkzhh8Hqoyv
-         FiXg==
-X-Gm-Message-State: AOJu0YzwWtJERt0hGZ3MbPj9GNv+t/BW3fopY6+Lsak+jzwkMrY+mjkU
-	FZNd87ENgyoMQJNtP6g4lj2n/CEphT96pqrTlGM3IILCpFNcB3xt
-X-Gm-Gg: ASbGncv/6RpxDsRNnpQkfwmAdQLsMGHzeTCB70YCU7Qpfc38TBLh3tYBKc4eSp4t+US
-	SBSbuzPpQsPUj6H7jLrBAN/jqIOEaJmjK3ISk438rHODjQzUZNCWglu6cN13+U0UvypiibBscrn
-	D/LIIxANI4JcnvyYhNDS3fsHuI0F9xjMY46C3h9xqoJ6lB0Byycfxpw4xiOXpYgpKYZENke08Ha
-	rNVcayxNZYxpGNLxxV0voJsfY6B+7geOH/IfncYJ2x6I2IuvRpRVvh1G+hriqBjZ85ijNAFYGBo
-	In49T98SZQsDsnRg+coFwrZOVX7m/BWnEZnh
-X-Google-Smtp-Source: AGHT+IFGvdFBb55MfpIRzxnpds3EDnlB90XnfhZ3sDfgc1tgDF7Qn6XtKH/y7aitBCCp0Ukgox6SIQ==
-X-Received: by 2002:a05:6214:1d0a:b0:6cb:d4e6:2507 with SMTP id 6a1803df08f44-6d450e871f7mr221611656d6.22.1732555542124;
-        Mon, 25 Nov 2024 09:25:42 -0800 (PST)
-Received: from localhost.localdomain (mobile-130-126-255-54.near.illinois.edu. [130.126.255.54])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6d451ab4d8esm44702576d6.54.2024.11.25.09.25.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2024 09:25:41 -0800 (PST)
-From: Gax-c <zichenxie0106@gmail.com>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	simona@ffwll.ch,
-	matthias.bgg@gmail.com,
-	angelogioacchino.delregno@collabora.com
-Cc: virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	Zichen Xie <zichenxie0106@gmail.com>
-Subject: [PATCH] drm: cast calculation to __u64 in qxl_mode_dumb_create()
-Date: Mon, 25 Nov 2024 11:25:17 -0600
-Message-Id: <20241125172516.9622-1-zichenxie0106@gmail.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="s2arBio/"
+Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (linux.microsoft.com [13.77.154.182])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 0CC61205459E;
+	Mon, 25 Nov 2024 15:24:48 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0CC61205459E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1732577088;
+	bh=OHKKLJ+dashHMTJsp9vYfQeMGkpF69ZLXCLtBTMnDzQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=s2arBio/1XcnR749uDCDchArPfFvUxhCSHHEkyoBSIL+JQ8zHFCsQen1n17O64fcA
+	 NhmiZDm03zTPnKFT7d2uP07+kK8JLm3sNmmrvbjSfpSWtxbSJJ+8taobUCEuaqfp3G
+	 eO+EX/Et4oTU+9o4kDY3NLxunUGOGcm6X5L5bwNw=
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+To: linux-hyperv@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org,
+	iommu@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: kys@microsoft.com,
+	haiyangz@microsoft.com,
+	wei.liu@kernel.org,
+	mhklinux@outlook.com,
+	decui@microsoft.com,
+	catalin.marinas@arm.com,
+	will@kernel.org,
+	luto@kernel.org,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	hpa@zytor.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	peterz@infradead.org,
+	daniel.lezcano@linaro.org,
+	joro@8bytes.org,
+	robin.murphy@arm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	lpieralisi@kernel.org,
+	kw@linux.com,
+	robh@kernel.org,
+	bhelgaas@google.com,
+	arnd@arndb.de,
+	sgarzare@redhat.com,
+	jinankjain@linux.microsoft.com,
+	muminulrussell@gmail.com,
+	skinsburskii@linux.microsoft.com,
+	mukeshrathor@microsoft.com,
+	vkuznets@redhat.com,
+	ssengar@linux.microsoft.com,
+	apais@linux.microsoft.com,
+	eahariha@linux.microsoft.com,
+	horms@kernel.org
+Subject: [PATCH v3 2/5] hyperv: Clean up unnecessary #includes
+Date: Mon, 25 Nov 2024 15:24:41 -0800
+Message-Id: <1732577084-2122-3-git-send-email-nunodasneves@linux.microsoft.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1732577084-2122-1-git-send-email-nunodasneves@linux.microsoft.com>
+References: <1732577084-2122-1-git-send-email-nunodasneves@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Zichen Xie <zichenxie0106@gmail.com>
+Remove includes of linux/hyperv.h, mshyperv.h, and hyperv-tlfs.h where
+they are not used.
 
-Like commit b0b0d811eac6 ("drm/mediatek: Fix coverity issue with
-unintentional integer overflow"), directly multiply pitch and
-args->height may lead to integer overflow. Add a cast to avoid it.
-
-Signed-off-by: Zichen Xie <zichenxie0106@gmail.com>
+Acked-by: Wei Liu <wei.liu@kernel.org>
+Reviewed-by: Michael Kelley <mhklinux@outlook.com>
+Reviewed-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
 ---
- drivers/gpu/drm/qxl/qxl_dumb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/hyperv/hv_core.c     | 1 -
+ arch/x86/hyperv/hv_apic.c       | 1 -
+ arch/x86/hyperv/hv_init.c       | 1 -
+ arch/x86/hyperv/hv_proc.c       | 1 -
+ arch/x86/hyperv/ivm.c           | 1 -
+ arch/x86/hyperv/mmu.c           | 1 -
+ arch/x86/include/asm/kvm_host.h | 1 -
+ arch/x86/include/asm/mshyperv.h | 1 -
+ arch/x86/mm/pat/set_memory.c    | 2 --
+ 9 files changed, 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
-index 17df5c7ccf69..74076c87a002 100644
---- a/drivers/gpu/drm/qxl/qxl_dumb.c
-+++ b/drivers/gpu/drm/qxl/qxl_dumb.c
-@@ -41,7 +41,7 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
- 	uint32_t pitch, format;
+diff --git a/arch/arm64/hyperv/hv_core.c b/arch/arm64/hyperv/hv_core.c
+index f1ebc025e1df..7a746a5a6b42 100644
+--- a/arch/arm64/hyperv/hv_core.c
++++ b/arch/arm64/hyperv/hv_core.c
+@@ -11,7 +11,6 @@
+ #include <linux/types.h>
+ #include <linux/export.h>
+ #include <linux/mm.h>
+-#include <linux/hyperv.h>
+ #include <linux/arm-smccc.h>
+ #include <linux/module.h>
+ #include <asm-generic/bug.h>
+diff --git a/arch/x86/hyperv/hv_apic.c b/arch/x86/hyperv/hv_apic.c
+index 0569f579338b..f022d5f64fb6 100644
+--- a/arch/x86/hyperv/hv_apic.c
++++ b/arch/x86/hyperv/hv_apic.c
+@@ -23,7 +23,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/mm.h>
+ #include <linux/clockchips.h>
+-#include <linux/hyperv.h>
+ #include <linux/slab.h>
+ #include <linux/cpuhotplug.h>
+ #include <asm/hypervisor.h>
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+index 95eada2994e1..3562826915f9 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -27,7 +27,6 @@
+ #include <linux/version.h>
+ #include <linux/vmalloc.h>
+ #include <linux/mm.h>
+-#include <linux/hyperv.h>
+ #include <linux/slab.h>
+ #include <linux/kernel.h>
+ #include <linux/cpuhotplug.h>
+diff --git a/arch/x86/hyperv/hv_proc.c b/arch/x86/hyperv/hv_proc.c
+index 3fa1f2ee7b0d..b74c06c04ff1 100644
+--- a/arch/x86/hyperv/hv_proc.c
++++ b/arch/x86/hyperv/hv_proc.c
+@@ -3,7 +3,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/mm.h>
+ #include <linux/clockchips.h>
+-#include <linux/hyperv.h>
+ #include <linux/slab.h>
+ #include <linux/cpuhotplug.h>
+ #include <linux/minmax.h>
+diff --git a/arch/x86/hyperv/ivm.c b/arch/x86/hyperv/ivm.c
+index 60fc3ed72830..b56d70612734 100644
+--- a/arch/x86/hyperv/ivm.c
++++ b/arch/x86/hyperv/ivm.c
+@@ -7,7 +7,6 @@
+  */
  
- 	pitch = args->width * ((args->bpp + 1) / 8);
--	args->size = pitch * args->height;
-+	args->size = (__u64)pitch * args->height;
- 	args->size = ALIGN(args->size, PAGE_SIZE);
+ #include <linux/bitfield.h>
+-#include <linux/hyperv.h>
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <asm/svm.h>
+diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
+index 1cc113200ff5..cc8c3bd0e7c2 100644
+--- a/arch/x86/hyperv/mmu.c
++++ b/arch/x86/hyperv/mmu.c
+@@ -1,6 +1,5 @@
+ #define pr_fmt(fmt)  "Hyper-V: " fmt
  
- 	switch (args->bpp) {
+-#include <linux/hyperv.h>
+ #include <linux/log2.h>
+ #include <linux/slab.h>
+ #include <linux/types.h>
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index e159e44a6a1b..46f354b12488 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -24,7 +24,6 @@
+ #include <linux/pvclock_gtod.h>
+ #include <linux/clocksource.h>
+ #include <linux/irqbypass.h>
+-#include <linux/hyperv.h>
+ #include <linux/kfifo.h>
+ #include <linux/sched/vhost_task.h>
+ 
+diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+index 5f0bc6a6d025..6f866fb9ffee 100644
+--- a/arch/x86/include/asm/mshyperv.h
++++ b/arch/x86/include/asm/mshyperv.h
+@@ -9,7 +9,6 @@
+ #include <asm/hyperv-tlfs.h>
+ #include <asm/nospec-branch.h>
+ #include <asm/paravirt.h>
+-#include <asm/mshyperv.h>
+ 
+ /*
+  * Hyper-V always provides a single IO-APIC at this MMIO address.
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index 069e421c2247..128e3448ae4f 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -32,8 +32,6 @@
+ #include <asm/pgalloc.h>
+ #include <asm/proto.h>
+ #include <asm/memtype.h>
+-#include <asm/hyperv-tlfs.h>
+-#include <asm/mshyperv.h>
+ 
+ #include "../mm_internal.h"
+ 
 -- 
 2.34.1
 
