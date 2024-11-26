@@ -1,339 +1,202 @@
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11olkn2058.outbound.protection.outlook.com [40.92.18.58])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C4484D0E
-	for <virtualization@lists.linux.dev>; Tue, 26 Nov 2024 04:44:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732596289; cv=none; b=GfvZ1axX4lfEJgIivo1da4rNb8hAN7KNY2p3Qs3T+9/eLITe0lsxcSadKs4TaXi+OVr6QrOyQcRccJWttScJLqCTF6AWX4WoA/OWkOcpbSoHYftiAH/4A/qz55rCABYv1gKFpbQP11w483x/YBWcQn7jQBBqg9ZFyh2mdGwcphQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732596289; c=relaxed/simple;
-	bh=5xu23pM3J7TjXbDK+iD7KZuCiqNXczcMohXATfe8JGs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FqtLij2GUsQvZ9XBFdQQE/EzgKvZfDLGOA5PWVvKe2J1FOSpHsgK5lLUmQUOALIi/+yzYMVXkcVRbvcxGc5gocJEz8EB3Ftm/+EEZUWpVO+JpA47ayMuUO3UlSwws0GU5fPZcPQtrWBiV13Y7BCtExwaMgZQKKZiOKGeZRxGIxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=FHy/7aBI; arc=none smtp.client-ip=185.125.188.123
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB2A77EF09;
+	Tue, 26 Nov 2024 05:58:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.18.58
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1732600687; cv=fail; b=h2J2lc06gqwJdHfmOfO1BfBnu1Mm9KdC76aI+4aDEnjADeF58+cDKt6aaJxjGacImKiW7H5j0p4ByQwxLypj5Gz8JWSKElpmSWEcwaSxq+L4N0/S+MCa+lTzXhEvN7ODOUQ74jwr4fc4+X4nqv+X+O7R49YIlLcKViGNM8+kNdE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1732600687; c=relaxed/simple;
+	bh=vEJQD7gnRK0X6oMIojf0rEZryTWP7uC2vA40v45Qroo=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=MH0MQK5K/mwmzpCcb3GaesLukiTnCu8SlZHNzRNTbTHpSLM16+ORON1mgNb5NxqguAUMXPmgBah4TEzVSuX45sAEX1TnlmpWwn8JftI15iBNm8rj02O/dr2rE2M/+b7p1QFw8t8lLNCYJrGMRNTBjAB2sggXqwASY69eQhn9n2Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=feC9fWYW; arc=fail smtp.client-ip=40.92.18.58
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="FHy/7aBI"
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id B30993F767
-	for <virtualization@lists.linux.dev>; Tue, 26 Nov 2024 04:44:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1732596284;
-	bh=CmJQBBuyURj+L9uAMaK3mSd1blB3fTXQ75okrNhw1dE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:In-Reply-To;
-	b=FHy/7aBIRUMWsDi/yiviWTra7vYDzuYp8C/gzZXaC5mwHKzP6IU0rdGtArcXNZcEP
-	 j2PTtEZS7BP7bXwD7JbNXJFiJhFmpNi/brzshjWhj0XnlpvoI2I+FwDFdqPBcthcpo
-	 ekQiM99y3YOSANUBwpuk9pD3JXuIJQ4rBQXOGY8BKcIHt2+xbbm1yuq0AWXnplKHE9
-	 modeE0hM2/pK2FAVL8phz0xehUM8YMdAQwBN0EuTAWslpgpy5Iu+6ixOP5062p4qJb
-	 bkc8O+7ATdGlXpfy8dF/qPlDQHwEaSLyFE3KgAR2w8cGwQWzUT5q5zUYKSh59pPwcl
-	 s2LMf47NVjofg==
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-7eaa7b24162so5273688a12.1
-        for <virtualization@lists.linux.dev>; Mon, 25 Nov 2024 20:44:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732596282; x=1733201082;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CmJQBBuyURj+L9uAMaK3mSd1blB3fTXQ75okrNhw1dE=;
-        b=hz28X+B0IfZH4J+ZnVcA0DfRsCJZtBmtU+YOG1Er3z3EXoZrQfjssK/CEbJBPy7Yxd
-         nX57C/gLi+SZgPd4IHlvxt16dIPLT9LSYcuwWilc2ia+llimOpA8qKB74NYzcXhDkSqA
-         cWfJlr+KJ6xI9bZsd+vHqlN1EUKQkIQ3bYKhqk/JErg2WyreFXc/kRMj9Cqk/5UMZQj5
-         kQ/ZGeXV3AIP5IdrbXRkP9ikPPQOmnIfXTA/77pPzwRaHKRVuh7hvE5XKPl73PxPhUu4
-         TlyIA2VAaPArI6l2dlSEyvbv3xwGXR7DO7p6Ff98byyXHx3+upkRF+RxS1nyswRduKRH
-         O45Q==
-X-Gm-Message-State: AOJu0Yxw4TkiPdpAYdthuch1K/t1z6cNOgXMXU2yQMU+0lbBxEYdFAqf
-	vw2d3af2fisxxFZvthWyXZatmNYJf1y9dRBEIH/p5TrruXZG/q+qE5Vomn54PjPX6fZoBe01zHt
-	QwMGzh8GSAr3B5hH5z+P1FX9gsVCV8ZADlan2uLJbqZgiN6/t2vHK5Vz5gRlXx2Ik+/McMEvpJ6
-	0GXOmi
-X-Gm-Gg: ASbGncsUyWxL/783e4UR3dzPxJu4GagIvD2LdbHS52soT0wcedw8VJqdMkWqQNJB2GI
-	/CX3jveJAZG1SqzJQsiLiV8vj1xvXD2OCkQpYkKFJH37yAXQIn33ZWLoX2LlbOhT1UcSyza8N5y
-	UGwEeNulgicfqgP2Y9ZyBe+qM1xe2sVyxw9kPuHGfKE8TaOT31Zr5CQ998uAkxFiyf522/nRYs2
-	DY/ENYwVImQHh0r8DeToaSvhpfqI9lM7YwqeJMfuhId5yvKDiJs
-X-Received: by 2002:a05:6a21:9986:b0:1e0:da81:dca5 with SMTP id adf61e73a8af0-1e0da81de6emr173070637.10.1732596282404;
-        Mon, 25 Nov 2024 20:44:42 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHxQ09ECREKTvKmpjfz51X2ifZj+NrRefIgF1SDBOeDUzZd2fmVeLMS610289n9jXb3mvOI9g==
-X-Received: by 2002:a05:6a21:9986:b0:1e0:da81:dca5 with SMTP id adf61e73a8af0-1e0da81de6emr173040637.10.1732596281872;
-        Mon, 25 Nov 2024 20:44:41 -0800 (PST)
-Received: from localhost ([240f:74:7be:1:d0ce:70aa:e9cc:688d])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-724ed17f9c9sm6162969b3a.122.2024.11.25.20.44.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2024 20:44:41 -0800 (PST)
-Date: Tue, 26 Nov 2024 13:44:40 +0900
-From: Koichiro Den <koichiro.den@canonical.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev, mst@redhat.com, 
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] virtio_net: drain unconsumed tx completions if any
- before dql_reset
-Message-ID: <6lkdqvbnlntx3cno5qi7c4nks2ub3bkaycsuq7p433c4vemcmf@fwnhqbo5ehaw>
-References: <20241126024200.2371546-1-koichiro.den@canonical.com>
- <CACGkMEsJ1X-u=djO2=kJzZdpZH5SX560V9osdpDuySXtfBMpuw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="feC9fWYW"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=i0vaj0UdhIvbzRTIWjBXRaOS/rSbVeY1DjYXoKhSMLeC9oMFOaWpVHZEVNTXGGEnb7tJb0tZnkBpjlwezKU6B0BDpSWx2/Odhn8AAgyc74oRjnVe9TQVwNS5gzxo5jDAIP5rH6n+D/eWA1fL/fuk+KY3wTMBw9REuThcOnQMFiFWtr9G4YD7nm52ifYCuFXZ2wNBYkNPFwDHRvH2qsSXdTZJ2XDhWwwP7kGgIIuMA1AJPLcfCbhv3cSwffFK9bUlyesw1uN0ODYY0UTKsXksvLUu1O6F9rKHL6pfmw0b20KssvrdxY5gaPM2p+moWd4eBtMho3BOFivYXS7ALL0uIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=vEJQD7gnRK0X6oMIojf0rEZryTWP7uC2vA40v45Qroo=;
+ b=rq+naTg6+fHS7b+Y6xkYkxmit9rp6MbsV3Exz+XivdqRfEB14FHIhCpXtI7iVOxbOwGwAYmJNtWS81/bau71M7Q2FmpIO9nhG1lp1BX0aTqAhF7+UKFgYhGM/ncqOAd+5Ni1y1fSMZXMBjpMLnF/ANoBGHScbBpG48RV+l1vkYNJY+xTiCMu+Wwd0b7yOG6tbM2mlRFtmP3e+2n91JcQWJk0E3HrsHkfbENaZERuro736mpRsAa3tVmTl1pVTlyJyDG0bZ+O2Xg5W8GEitKEJ1O800E5aQHyCqLtD6XCniUDtv/87OpjoFf7iPndLEzZcXjmeayPpW7acWdPHbqtxg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=vEJQD7gnRK0X6oMIojf0rEZryTWP7uC2vA40v45Qroo=;
+ b=feC9fWYWkseCXCM5P3yM5fSJ2mDP2vL3PPNMOj7gxCwSlDaNG7y66oSLWfUaorc9eLLaUHSjcpzChraBcrJ8azcxlGhgAuPxBlafNXL2xe6R3Tdrxp8AxTXQrv9/zkY/ciqRjBzj05ShTF9ILg4Sig5erG0fag9Cn7BEtBJlcY/Uj987dG+FC+T6LLvcuc9/OfpTCVzAbhwpIEUez75EmeajmDymeay02V4Td1mydJIF101owiSQA3TIZUnyHGjpaor9TFE+IINtwP/hJ7OAbKd4x2RUEXowf/d+dtdGvpvRXaVsYFzxGEnczbGT62/XBjIkpxd49Iqh2Y5wOZUDMg==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by PH7PR02MB10038.namprd02.prod.outlook.com (2603:10b6:510:2ec::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8182.21; Tue, 26 Nov
+ 2024 05:57:56 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::cedd:1e64:8f61:b9df]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::cedd:1e64:8f61:b9df%7]) with mapi id 15.20.8182.018; Tue, 26 Nov 2024
+ 05:57:56 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"iommu@lists.linux.dev" <iommu@lists.linux.dev>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "linux-pci@vger.kernel.org"
+	<linux-pci@vger.kernel.org>, "linux-arch@vger.kernel.org"
+	<linux-arch@vger.kernel.org>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>
+CC: "kys@microsoft.com" <kys@microsoft.com>, "haiyangz@microsoft.com"
+	<haiyangz@microsoft.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
+	"decui@microsoft.com" <decui@microsoft.com>, "catalin.marinas@arm.com"
+	<catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>,
+	"luto@kernel.org" <luto@kernel.org>, "tglx@linutronix.de"
+	<tglx@linutronix.de>, "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de"
+	<bp@alien8.de>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+	"x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
+	"seanjc@google.com" <seanjc@google.com>, "pbonzini@redhat.com"
+	<pbonzini@redhat.com>, "peterz@infradead.org" <peterz@infradead.org>,
+	"daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, "joro@8bytes.org"
+	<joro@8bytes.org>, "robin.murphy@arm.com" <robin.murphy@arm.com>,
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
+	<edumazet@google.com>, "kuba@kernel.org" <kuba@kernel.org>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "lpieralisi@kernel.org"
+	<lpieralisi@kernel.org>, "kw@linux.com" <kw@linux.com>, "robh@kernel.org"
+	<robh@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>,
+	"arnd@arndb.de" <arnd@arndb.de>, "sgarzare@redhat.com" <sgarzare@redhat.com>,
+	"jinankjain@linux.microsoft.com" <jinankjain@linux.microsoft.com>,
+	"muminulrussell@gmail.com" <muminulrussell@gmail.com>,
+	"skinsburskii@linux.microsoft.com" <skinsburskii@linux.microsoft.com>,
+	"mukeshrathor@microsoft.com" <mukeshrathor@microsoft.com>,
+	"vkuznets@redhat.com" <vkuznets@redhat.com>, "ssengar@linux.microsoft.com"
+	<ssengar@linux.microsoft.com>, "apais@linux.microsoft.com"
+	<apais@linux.microsoft.com>, "eahariha@linux.microsoft.com"
+	<eahariha@linux.microsoft.com>, "horms@kernel.org" <horms@kernel.org>
+Subject: RE: [PATCH v3 3/5] hyperv: Add new Hyper-V headers in include/hyperv
+Thread-Topic: [PATCH v3 3/5] hyperv: Add new Hyper-V headers in include/hyperv
+Thread-Index: AQHbP5E7/ROxYXFz4E+K2Z49rTwvKbLJELyw
+Date: Tue, 26 Nov 2024 05:57:56 +0000
+Message-ID:
+ <SN6PR02MB415765AAE0196AD2147DFAECD42F2@SN6PR02MB4157.namprd02.prod.outlook.com>
+References:
+ <1732577084-2122-1-git-send-email-nunodasneves@linux.microsoft.com>
+ <1732577084-2122-4-git-send-email-nunodasneves@linux.microsoft.com>
+In-Reply-To:
+ <1732577084-2122-4-git-send-email-nunodasneves@linux.microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|PH7PR02MB10038:EE_
+x-ms-office365-filtering-correlation-id: f582bbbd-5b5e-4c8a-bf0c-08dd0ddf461d
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|8062599003|19110799003|8060799006|461199028|15080799006|3412199025|440099028|102099032;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?mfeu8OCbSE1Y1cQyBAF6Vx29Ycq8+7+5BzQo/JK4JqA9556D3E0HNea0YvE1?=
+ =?us-ascii?Q?nBLE1xzyC8YC2lSXtO7d5cTKPniWqMkc5RsB5eGVUgyNYuEBXqHBCxn1PZqg?=
+ =?us-ascii?Q?kGuPXb0OpMMmuUdD/zYKnQmYeMYo4wFwKeK7zVoBmNECakCclE3QHIlAbVqM?=
+ =?us-ascii?Q?wLF5FVktnJ2Mk+L52jP0ZvZ1tf0QFYeFk1nYlkIOV3EybzyJgBSu/R3u1Zg6?=
+ =?us-ascii?Q?kFXcqZfl6cVWySBOuvHrp+vS6r7o+iUzFDsN8E4N5j/Bnckhu/iLTHEwTPm8?=
+ =?us-ascii?Q?hKdiJQf1Xar2iWE2pCd4ueDJ2uYlypw1opEChLIVw70sC27eGJXGyyqeUQDt?=
+ =?us-ascii?Q?v/Pn62ERWd0/mMeZGKpsSpeBJgCR/I5ksUKDA1wb7ef3zQSa5Bvp1XtEj7Ek?=
+ =?us-ascii?Q?HXBJXN0Ak1NmzXDRhvxzZSRT8lZ9fXYm9ISc3zh72qNQJKkgjLnuviVwTyG3?=
+ =?us-ascii?Q?JMEvTXWAzRthLRCB96jfZfQjfS275DgqwF1rncvSikhFNBj0aaDQVk1vYahh?=
+ =?us-ascii?Q?6D51oPouCwbg6ahQz52ARgA0POmy+wb+23OBk8HG4doQjL8rUmolmDvjxhbV?=
+ =?us-ascii?Q?qMNRC0EcSP2X1Vz4F2Bcf+rk7M5jNv/JJmd4LpFJTgwZmOeuyHGpHoKjYrFP?=
+ =?us-ascii?Q?6XLvUK3ZOYdPfU0J2t5oonG8ppEx+a4ogxWdxxOSrvFKeRd9nAgpmr3FVpbL?=
+ =?us-ascii?Q?8UAmgAkQ/BT+O2YPuKzkhugpy3MOBym14V872FoT4MBA9eJtOIGLdWrDWupX?=
+ =?us-ascii?Q?UW1YnmIzYCA+XvDyNUxklDSRhH/V14lDcs/pBewnjoaQ/jNPsrMxUGLordYS?=
+ =?us-ascii?Q?FxYrEGxFjbgAb8lA6HnHBqcFuzoXoSUhnvnW4sfmXDE3SPPCBfIOZgu09Fln?=
+ =?us-ascii?Q?JONOoBcAYYQ86A76CJoFC2D7CKNvBm7dwApwJBWECzgIR87dCXWuxruMIqAV?=
+ =?us-ascii?Q?/LaVEDPz1QQbceQ1X7kk1o9xWMHrRpENFtGlU8v9qnvZsFrzvwjyMLCmcDih?=
+ =?us-ascii?Q?Es+/74j/5U54LivMxHgNbtvV5g=3D=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?BCSpfi8G3HJXusTIn/mJcx9aMp3NURESwks5sBIub2TdzIwfX18mU9n5c6pG?=
+ =?us-ascii?Q?ynNwXNYzAXiBQuQht9xAQcWC89aw9p6T4wBSa0Mt4kQ5/rhvqE6OXZGIDAnu?=
+ =?us-ascii?Q?2TNF24sXlpp8zgbeVaCGdchHZEyvCHyi9toH0jr779Yxp2MAu44234fTL354?=
+ =?us-ascii?Q?hxxJCG3zXxugpsk+JHZLthq1b83O8wKJzXrjSceUcU6oVj0bhlJ+vT8ZaY41?=
+ =?us-ascii?Q?0HAvAmaUU2Tqg01QZl3Kpw46d1P170UhZMEuTNhISzeAfNJJT1LZoHioOdPZ?=
+ =?us-ascii?Q?gAMp9zsCE786al9t+b/OKaUtqg/y4aUlHrIWYCZYa0T0qF6vkY/YJeKbHix+?=
+ =?us-ascii?Q?iIgN80iO+P5YluaZu2vGe+5t6EBMv3znmMJK7K1mC8LR99Hfuy8AiSl9XMmu?=
+ =?us-ascii?Q?jA5UAnaE5waOQbwyKt8PNjYlaDorrtqW0dW+Sx8aVXeFzBzDA07Y5ukwMzPV?=
+ =?us-ascii?Q?HpOPavqRD37ItTpUrXFePSVCXwM6/JVO4WwrOVwfXqZQNwvflQsEAm7AqeUw?=
+ =?us-ascii?Q?A5Rkyr+LT1E7kv29ukIexGvh1uTZDG1V6om+VIcGV0WVjjFokUJnKWPuNKvV?=
+ =?us-ascii?Q?oPolq1n2nT1vh04zaEuNbZjnZddquyRlg+AECXiUS9UDi1pJRJAgPmRAB3+K?=
+ =?us-ascii?Q?R0gwM0aDtN2JTWHqR4pbuDPF8pjHsB24IYnTUayxwDIb3b3e+YEm6KZCv1A5?=
+ =?us-ascii?Q?cQPNYFeYF9Xg4p5aMXBCE5pp4IXdK34BRTPXKiEPOBODR2WEJxzcaN0B6X8q?=
+ =?us-ascii?Q?1PP3K7ugx67i+n8alPLX+e2vHIFcXtkExyA2NKNmjcIBVh3yNl/ucgVSL+s1?=
+ =?us-ascii?Q?OOLq1f538rUrAaAQRy+EpShTJ6CCUhij+w9f0YrSaGNi+Abz/7wFwUZFg3iV?=
+ =?us-ascii?Q?M48mRlwiRIYdrpYyA8LX2yDXc2S6pyeXhcmO76aguPHyIM40VPKhjCeujH+c?=
+ =?us-ascii?Q?VJGrhmQtR1kbDP2+BUNUYMF222PE3Ze3gixWFHUGYX0ifZPcRHVbnEBqBNyl?=
+ =?us-ascii?Q?nndeI5eBgy2fMLOiqFwBVNY7kDsG7OdkQ6FaHc//C/pU2m+StRHMJvrPj5MA?=
+ =?us-ascii?Q?GOqcXpji5Lycpe0gA2H6qPEyXlc6e1xKTacx8UbJ9Bh+iV9vY5AtkN6X3vX8?=
+ =?us-ascii?Q?ZMOQYcbCFIV1bvCjOoQfv5M+VPjKo/zl3wcNWl3I+sK5iNstAeDyHg/kCYQ3?=
+ =?us-ascii?Q?FU+6mvFNgZdsE7TLw83yRZ2+N+s0V7nA63ptz2olbUpPwGsuVplrwldy/PQ?=
+ =?us-ascii?Q?=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEsJ1X-u=djO2=kJzZdpZH5SX560V9osdpDuySXtfBMpuw@mail.gmail.com>
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: f582bbbd-5b5e-4c8a-bf0c-08dd0ddf461d
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Nov 2024 05:57:56.1365
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR02MB10038
 
-On Tue, Nov 26, 2024 at 11:50:17AM +0800, Jason Wang wrote:
-> On Tue, Nov 26, 2024 at 10:42 AM Koichiro Den
-> <koichiro.den@canonical.com> wrote:
-> >
-> > When virtnet_close is followed by virtnet_open, there is a slight chance
-> > that some TX completions remain unconsumed. Those are handled during the
-> > first NAPI poll, but since dql_reset occurs just beforehand, it can lead
-> > to a crash [1].
-> >
-> > This issue can be reproduced by running: `while :; do ip l set DEV down;
-> > ip l set DEV up; done` under heavy network TX load from inside of the
-> > machine.
-> >
-> > To fix this, drain unconsumed TX completions if any before dql_reset,
-> > allowing BQL to start cleanly.
-> >
-> > ------------[ cut here ]------------
-> > kernel BUG at lib/dynamic_queue_limits.c:99!
-> > Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-> > CPU: 7 UID: 0 PID: 1598 Comm: ip Tainted: G    N 6.12.0net-next_main+ #2
-> > Tainted: [N]=TEST
-> > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), \
-> > BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
-> > RIP: 0010:dql_completed+0x26b/0x290
-> > Code: b7 c2 49 89 e9 44 89 da 89 c6 4c 89 d7 e8 ed 17 47 00 58 65 ff 0d
-> > 4d 27 90 7e 0f 85 fd fe ff ff e8 ea 53 8d ff e9 f3 fe ff ff <0f> 0b 01
-> > d2 44 89 d1 29 d1 ba 00 00 00 00 0f 48 ca e9 28 ff ff ff
-> > RSP: 0018:ffffc900002b0d08 EFLAGS: 00010297
-> > RAX: 0000000000000000 RBX: ffff888102398c80 RCX: 0000000080190009
-> > RDX: 0000000000000000 RSI: 000000000000006a RDI: 0000000000000000
-> > RBP: ffff888102398c00 R08: 0000000000000000 R09: 0000000000000000
-> > R10: 00000000000000ca R11: 0000000000015681 R12: 0000000000000001
-> > R13: ffffc900002b0d68 R14: ffff88811115e000 R15: ffff8881107aca40
-> > FS:  00007f41ded69500(0000) GS:ffff888667dc0000(0000)
-> > knlGS:0000000000000000
-> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > CR2: 0000556ccc2dc1a0 CR3: 0000000104fd8003 CR4: 0000000000772ef0
-> > PKRU: 55555554
-> > Call Trace:
-> >  <IRQ>
-> >  ? die+0x32/0x80
-> >  ? do_trap+0xd9/0x100
-> >  ? dql_completed+0x26b/0x290
-> >  ? dql_completed+0x26b/0x290
-> >  ? do_error_trap+0x6d/0xb0
-> >  ? dql_completed+0x26b/0x290
-> >  ? exc_invalid_op+0x4c/0x60
-> >  ? dql_completed+0x26b/0x290
-> >  ? asm_exc_invalid_op+0x16/0x20
-> >  ? dql_completed+0x26b/0x290
-> >  __free_old_xmit+0xff/0x170 [virtio_net]
-> >  free_old_xmit+0x54/0xc0 [virtio_net]
-> >  virtnet_poll+0xf4/0xe30 [virtio_net]
-> >  ? __update_load_avg_cfs_rq+0x264/0x2d0
-> >  ? update_curr+0x35/0x260
-> >  ? reweight_entity+0x1be/0x260
-> >  __napi_poll.constprop.0+0x28/0x1c0
-> >  net_rx_action+0x329/0x420
-> >  ? enqueue_hrtimer+0x35/0x90
-> >  ? trace_hardirqs_on+0x1d/0x80
-> >  ? kvm_sched_clock_read+0xd/0x20
-> >  ? sched_clock+0xc/0x30
-> >  ? kvm_sched_clock_read+0xd/0x20
-> >  ? sched_clock+0xc/0x30
-> >  ? sched_clock_cpu+0xd/0x1a0
-> >  handle_softirqs+0x138/0x3e0
-> >  do_softirq.part.0+0x89/0xc0
-> >  </IRQ>
-> >  <TASK>
-> >  __local_bh_enable_ip+0xa7/0xb0
-> >  virtnet_open+0xc8/0x310 [virtio_net]
-> >  __dev_open+0xfa/0x1b0
-> >  __dev_change_flags+0x1de/0x250
-> >  dev_change_flags+0x22/0x60
-> >  do_setlink.isra.0+0x2df/0x10b0
-> >  ? rtnetlink_rcv_msg+0x34f/0x3f0
-> >  ? netlink_rcv_skb+0x54/0x100
-> >  ? netlink_unicast+0x23e/0x390
-> >  ? netlink_sendmsg+0x21e/0x490
-> >  ? ____sys_sendmsg+0x31b/0x350
-> >  ? avc_has_perm_noaudit+0x67/0xf0
-> >  ? cred_has_capability.isra.0+0x75/0x110
-> >  ? __nla_validate_parse+0x5f/0xee0
-> >  ? __pfx___probestub_irq_enable+0x3/0x10
-> >  ? __create_object+0x5e/0x90
-> >  ? security_capable+0x3b/0x70
-> >  rtnl_newlink+0x784/0xaf0
-> >  ? avc_has_perm_noaudit+0x67/0xf0
-> >  ? cred_has_capability.isra.0+0x75/0x110
-> >  ? stack_depot_save_flags+0x24/0x6d0
-> >  ? __pfx_rtnl_newlink+0x10/0x10
-> >  rtnetlink_rcv_msg+0x34f/0x3f0
-> >  ? do_syscall_64+0x6c/0x180
-> >  ? entry_SYSCALL_64_after_hwframe+0x76/0x7e
-> >  ? __pfx_rtnetlink_rcv_msg+0x10/0x10
-> >  netlink_rcv_skb+0x54/0x100
-> >  netlink_unicast+0x23e/0x390
-> >  netlink_sendmsg+0x21e/0x490
-> >  ____sys_sendmsg+0x31b/0x350
-> >  ? copy_msghdr_from_user+0x6d/0xa0
-> >  ___sys_sendmsg+0x86/0xd0
-> >  ? __pte_offset_map+0x17/0x160
-> >  ? preempt_count_add+0x69/0xa0
-> >  ? __call_rcu_common.constprop.0+0x147/0x610
-> >  ? preempt_count_add+0x69/0xa0
-> >  ? preempt_count_add+0x69/0xa0
-> >  ? _raw_spin_trylock+0x13/0x60
-> >  ? trace_hardirqs_on+0x1d/0x80
-> >  __sys_sendmsg+0x66/0xc0
-> >  do_syscall_64+0x6c/0x180
-> >  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-> > RIP: 0033:0x7f41defe5b34
-> > Code: 15 e1 12 0f 00 f7 d8 64 89 02 b8 ff ff ff ff eb bf 0f 1f 44 00 00
-> > f3 0f 1e fa 80 3d 35 95 0f 00 00 74 13 b8 2e 00 00 00 0f 05 <48> 3d 00
-> > f0 ff ff 77 4c c3 0f 1f 00 55 48 89 e5 48 83 ec 20 89 55
-> > RSP: 002b:00007ffe5336ecc8 EFLAGS: 00000202 ORIG_RAX: 000000000000002e
-> > RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f41defe5b34
-> > RDX: 0000000000000000 RSI: 00007ffe5336ed30 RDI: 0000000000000003
-> > RBP: 00007ffe5336eda0 R08: 0000000000000010 R09: 0000000000000001
-> > R10: 00007ffe5336f6f9 R11: 0000000000000202 R12: 0000000000000003
-> > R13: 0000000067452259 R14: 0000556ccc28b040 R15: 0000000000000000
-> >  </TASK>
-> > [...]
-> > ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
-> >
-> > Fixes: c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits")
-> > Cc: <stable@vger.kernel.org> # v6.11+
-> > Signed-off-by: Koichiro Den <koichiro.den@canonical.com>
-> > ---
-> >  drivers/net/virtio_net.c | 37 +++++++++++++++++++++++++++++--------
-> >  1 file changed, 29 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 64c87bb48a41..3e36c0470600 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -513,7 +513,7 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
-> >                                                struct sk_buff *curr_skb,
-> >                                                struct page *page, void *buf,
-> >                                                int len, int truesize);
-> > -static void virtnet_xsk_completed(struct send_queue *sq, int num);
-> > +static void virtnet_xsk_completed(struct send_queue *sq, int num, bool drain);
-> >
-> >  enum virtnet_xmit_type {
-> >         VIRTNET_XMIT_TYPE_SKB,
-> > @@ -580,7 +580,8 @@ static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
-> >  }
-> >
-> >  static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
-> > -                           bool in_napi, struct virtnet_sq_free_stats *stats)
-> > +                           bool in_napi, struct virtnet_sq_free_stats *stats,
-> > +                           bool drain)
-> >  {
-> >         struct xdp_frame *frame;
-> >         struct sk_buff *skb;
-> > @@ -620,7 +621,8 @@ static void __free_old_xmit(struct send_queue *sq, struct netdev_queue *txq,
-> >                         break;
-> >                 }
-> >         }
-> > -       netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi_bytes);
-> > +       if (!drain)
-> > +               netdev_tx_completed_queue(txq, stats->napi_packets, stats->napi_bytes);
-> >  }
-> >
-> >  static void virtnet_free_old_xmit(struct send_queue *sq,
-> > @@ -628,10 +630,21 @@ static void virtnet_free_old_xmit(struct send_queue *sq,
-> >                                   bool in_napi,
-> >                                   struct virtnet_sq_free_stats *stats)
-> >  {
-> > -       __free_old_xmit(sq, txq, in_napi, stats);
-> > +       __free_old_xmit(sq, txq, in_napi, stats, false);
-> >
-> >         if (stats->xsk)
-> > -               virtnet_xsk_completed(sq, stats->xsk);
-> > +               virtnet_xsk_completed(sq, stats->xsk, false);
-> > +}
-> > +
-> > +static void virtnet_drain_old_xmit(struct send_queue *sq,
-> > +                                  struct netdev_queue *txq)
-> > +{
-> > +       struct virtnet_sq_free_stats stats = {0};
-> > +
-> > +       __free_old_xmit(sq, txq, false, &stats, true);
-> > +
-> > +       if (stats.xsk)
-> > +               virtnet_xsk_completed(sq, stats.xsk, true);
-> >  }
-> 
-> Are we sure this can drain the queue? Note that the device is not stopped.
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com> Sent: Monday, Novem=
+ber 25, 2024 3:25 PM
+>=20
+> These headers contain definitions for regular Hyper-V guests (as in
+> hyperv-tlfs.h), as well as interfaces for more privileged guests like
+> the root partition (aka Dom0).
+>=20
+> These files are derived from headers exported from Hyper-V, rather than
+> being derived from the TLFS document. (Although, to preserve
+> compatibility with existing Linux code, some definitions are copied
+> directly from hyperv-tlfs.h too).
+>=20
+> The new files follow a naming convention according to their original
+> use:
+> - hdk "host development kit"
+> - gdk "guest development kit"
+> With postfix "_mini" implying userspace-only headers, and "_ext" for
+> extended hypercalls.
+>=20
+> The use of multiple files and their original names is primarily to
+> keep the provenance of exactly where they came from in Hyper-V
+> code, which is helpful for manual maintenance and extension
+> of these definitions. Microsoft maintainers importing new definitions
+> should take care to put them in the right file. However, Linux kernel
+> code that uses any of the definitions need not be aware of the multiple
+> files or assign any meaning to the new names. Linux kernel code should
+> always just include hvhdk.h
+>=20
+> Note the new headers contain both arm64 and x86_64 definitions. Some are
+> guarded by #ifdefs, and some are instead prefixed with the architecture,
+> e.g. hv_x64_*. These conventions are kept from Hyper-V code as another
+> tactic to simplify the process of importing and maintaining the
+> definitions, rather than splitting them up into their own files in
+> arch/x86/ and arch/arm64/.
+>=20
+> These headers are a step toward importing headers directly from Hyper-V
+> in the future, similar to Xen public files in include/xen/interface/.
+>=20
+> Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
 
-Thanks for reviewing. netif_tx_wake_queue can be invoked before the "drain"
-point I added e.g. via virtnet_config_changed_work, so it seems that I need
-to ensure it's stopped (DRV_XOFF) before the "drain" and wake it afterwards.
-Please let me know if I’m mistaken.
-
-> 
-> >
-> >  /* Converting between virtqueue no. and kernel tx/rx queue no.
-> > @@ -1499,7 +1512,8 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
-> >         /* Avoid to wakeup napi meanless, so call __free_old_xmit instead of
-> >          * free_old_xmit().
-> >          */
-> > -       __free_old_xmit(sq, netdev_get_tx_queue(dev, sq - vi->sq), true, &stats);
-> > +       __free_old_xmit(sq, netdev_get_tx_queue(dev, sq - vi->sq), true,
-> > +                       &stats, false);
-> >
-> >         if (stats.xsk)
-> >                 xsk_tx_completed(sq->xsk_pool, stats.xsk);
-> > @@ -1556,10 +1570,13 @@ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
-> >         return 0;
-> >  }
-> >
-> > -static void virtnet_xsk_completed(struct send_queue *sq, int num)
-> > +static void virtnet_xsk_completed(struct send_queue *sq, int num, bool drain)
-> >  {
-> >         xsk_tx_completed(sq->xsk_pool, num);
-> >
-> > +       if (drain)
-> > +               return;
-> > +
-> >         /* If this is called by rx poll, start_xmit and xdp xmit we should
-> >          * wakeup the tx napi to consume the xsk tx queue, because the tx
-> >          * interrupt may not be triggered.
-> > @@ -3041,6 +3058,7 @@ static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
-> >
-> >  static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-> >  {
-> > +       struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, qp_index);
-> >         struct net_device *dev = vi->dev;
-> >         int err;
-> >
-> > @@ -3054,7 +3072,10 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-> >         if (err < 0)
-> >                 goto err_xdp_reg_mem_model;
-> >
-> > -       netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
-> > +       /* Drain any unconsumed TX skbs transmitted before the last virtnet_close */
-> > +       virtnet_drain_old_xmit(&vi->sq[qp_index], txq);
-> > +
-> > +       netdev_tx_reset_queue(txq);
-> >         virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
-> >         virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
-> >
-> > --
-> > 2.43.0
-> >
-> >
-> 
-> Thanks
-> 
+Reviewed-by: Michael Kelley <mhklinux@outlook.com>
