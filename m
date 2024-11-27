@@ -1,137 +1,168 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2081.outbound.protection.outlook.com [40.107.220.81])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89FF2149E1A
-	for <virtualization@lists.linux-foundation.org>; Wed, 27 Nov 2024 06:45:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732689937; cv=none; b=Unf85zSi3QpX4aRv5I3qxUOCIG20bBbyPvmLYk3RwLHxYOp1ilpkysHDajRudBArQqramvk6LzRrcflkeTgkhtBNe5kScS++8D2u/krgfy3p6V114ZUvP11Ks5D9G6Q8OV+qMok4hKqPefMcp7Uv9U3J9uRxfwONvA6fvNqZdZk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732689937; c=relaxed/simple;
-	bh=RNmNT70ps+kx7slfSFuJ9G/H2xuAhJkWrfXMq+752EE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ih8oNzklUKp599Vz4qM+mX1El9e/aUdHct9Q2B7MG2qmzdOrrbRXu4AGDOMRcvOKu7Qt0Mf03IMnPyDHinVlcoO7nf7oi9y1MmwTxP2m5mON/vurExxRHj+M/wD8tYkZfFax4uPL8hOeb9RKZ450QXkuAZmroO+gX626Y6Xl9us=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Kg20+Lpv; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3F72146580
+	for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 06:58:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.81
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1732690685; cv=fail; b=ApV8MeI3Hh7jIppoGyrUEDWwEa3uv1+7mY1SE8LiRsj4DJoQS8NGfS4afA/Zn9qrzeEL38hvi3ukHP6bwDJdX+cTcOBxdD6LSZXRhZOR8QThR/FBW4Psn3xZXPa/KbxXktQZB6oEIrZyEYjRDOHtM7oKrFSTgsJ8sOdehK2PHCI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1732690685; c=relaxed/simple;
+	bh=h/x0zBH3knirxknkmi4iQqxmZlYM9Ib7JBNedART4rc=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=om6jJuhsTfnNoO48iLWQm8E+ujPkm6Lojn0ocUwADsZ54nt5GsxZ3Rj8JDB3kOR8b2yKTU5aT85KGILNogcjglb2FmUeIY6P4+NoL8Sceginpw7bQri0cMhonbecgpGMrCAjWpP2FKxP0tk0jMUWd3ZkBwrPsxNGQW4kagbxPpY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=KrGwgalo; arc=fail smtp.client-ip=40.107.220.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kg20+Lpv"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2DCE440993
-	for <virtualization@lists.linux-foundation.org>; Wed, 27 Nov 2024 06:45:36 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id aLbIa3EtNveS for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Nov 2024 06:45:35 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 585174098C
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 585174098C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Kg20+Lpv
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 585174098C
-	for <virtualization@lists.linux-foundation.org>; Wed, 27 Nov 2024 06:45:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732689933;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8/rI2EY7Ph6b3KZhYxy9/j/W0i2aqaLJSO/nDcTsMvA=;
-	b=Kg20+LpvVR7ZZ/T2BQ2xaa9/rNRkfcO2ej3XoGvGzsPERVwXv7Mvtk0p9hBrUARt5wx/Bx
-	PpA35R9/pJkVXu8RD9BH4rsBeQVBa3BHu4qmLJKbX4YkzhVwu9ci+3DChdkNEOQaP0pMc2
-	SSc3Ka2SvuhiZiwnRY5cDVAee5B4JTY=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-176-WGulXHftN0-hKsSa__-0cg-1; Wed, 27 Nov 2024 01:45:31 -0500
-X-MC-Unique: WGulXHftN0-hKsSa__-0cg-1
-X-Mimecast-MFC-AGG-ID: WGulXHftN0-hKsSa__-0cg
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-aa53f3b3256so224379066b.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 26 Nov 2024 22:45:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732689930; x=1733294730;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8/rI2EY7Ph6b3KZhYxy9/j/W0i2aqaLJSO/nDcTsMvA=;
-        b=fD3LtQOtj5/7/Pb4b1U85wlArTjNaAMmUjudCQyBLk0MwGnkeu9HmYx9zMN6EP4cP7
-         gC37JQBqo8TgrIahFQ5h8+28D6AUU3YyBTBnusCv38B1u4QHLfCyYmIHiWNvmOsx1P8K
-         ZjSTo7Y5O/Yul8LqKXG6Ka4ygX4ZhUMs8cCLGaD+nX62qPdAZHUkxvyNYQ3R0LBYW235
-         1LkeDKtFXRGY9CYBSj0bMKZ0yh8DOn36gZ+ebGZ468uZouz3yYHjSYeYc9Wtykcb56Sg
-         KHgfaQc2ryqbyEpgZwQvlnMidv6Vr4GukMXwkEablTxoguBatSeyHIz4s62gfSPFKHmp
-         0Zrw==
-X-Forwarded-Encrypted: i=1; AJvYcCVEgRzgCNyUnt07kho65cEZBY8GxFThB+dmz2oBhMDkSKohsaFqqgIbpZMCEzjxBysDs4oKnP/e97ZJdQZWcw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyMa4OqTtK+LQlqKnEEZB1NGPJ52AgwKIByMz8n6mrl5pVfpq1U
-	pxylgnWjztS289P5gutTqAWwq6wZ98LPkQ9eWHjv58f/lKW7l+darBt+W6W0emQAN5hQDBVsYBW
-	WUQ8rU19ff3PoZoeJs7gSG5Zk9Fljfyl+2Mq+gnThYrTO40h2DSe3WvvWve4GB+J6o1I55sZDue
-	CKTmkPih10X49ZkudjwztIY9K8BSX5pvgaB23EEYotvEtYxvQLdqsAGQ==
-X-Gm-Gg: ASbGncsvcyiF8QP15oJ1o6lyCJoPrgkNWc/JqpKPg4Hm7RsylZbVvVda+wode0m1weO
-	m8EV5EJwdo7JCyZpFEmh5TNgIj/27co8D
-X-Received: by 2002:a17:906:1ba2:b0:aa5:2f8a:b952 with SMTP id a640c23a62f3a-aa58106613bmr111618266b.54.1732689930421;
-        Tue, 26 Nov 2024 22:45:30 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEUP0/KWUbb7Co3AncLRdOmYqmNvbV+nqgWBTGrmbeqC5ZOJ62cFI33uH+j5QLWBacrMzgyNp/kkRsf6zhWK3M=
-X-Received: by 2002:a17:906:1ba2:b0:aa5:2f8a:b952 with SMTP id
- a640c23a62f3a-aa58106613bmr111616966b.54.1732689930058; Tue, 26 Nov 2024
- 22:45:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="KrGwgalo"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=nV9gno8zWQ67OyMjB0ksBunORG4mM81SKh2rZPcklwa0unItz9ywFQdh1Iv/pTE6RjB393WSiHmnmh8wM6WlDMzWm6obAQR47KuQ7cWui7Dac0QgV4rf2ak9mgv5qxW5gWSt4syMNM2vb4lWn6jhIHZr/wFMLwPmUa1tXXPN0io2ZIw2NlKhwMlG0gafkRGvNV6j6NDpD1Ej5DQI5gPyjHriMYj6sDklqHhv8syYt9FDFCndRNTgMesPYH5T8S/bee83nUOrsPXTSM+wSqRKFdD0YD9bghyhRc3C34xmnCBl64qJGuIyLCaOGVzVnNrORMaWJNv9U05KLMf7Fsc3Hw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=jl3IONCamXUtS7y2nZsgMI0OKErmM6CveO+VJa96eLg=;
+ b=RWoE5mjXEGIMLaUWijfOZo32wNQF5ziVr7kE2/MAkTGG1CXzZBEzpXGs0u6R8dhGU4SybjQg9DhNdr6L2njxB0/txqdmA2DdB+0HeK41JrDsI+Y3pyKOntH/VVDWfGmJDhXn4EmPoK1v25TF3bZ7x5UCx319dZXIC228E483tq/SU0mTdItJG7x8p66kuupxk1qow8FSLXN6ezjz27tEr4W3I/rndo4SX8dgGte9OJbf/47PTFNbkhyvNv4uRzdZF/7vubGG6vwIuNiYv0WFdAxz5eQJFlPOg2M6hbm6mNvPulQEmw7k37swlnpEzXk9pQjozKm7yuwycGrAQqezNg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jl3IONCamXUtS7y2nZsgMI0OKErmM6CveO+VJa96eLg=;
+ b=KrGwgalovUT3Ba7v6wX/gnYl5t7Oe5tsup5kG5dtb9ttLFwdn+YIziydofqxkXAGiwWhAg6pchU/iPR1vZkCG0cRFVhGugsazhkm5ttX+wxZ6uTNEF4gUd2d73nrEhQKmaQuZKL5Fx0LH74i9774quPd/MX6SHepPeyoIHQj4SoVj+HIA0Bs2AnIv2/gczrBF/o5bLA+YXy1KuYuuJ9V0YnwiY/1PQQSIoIXbq7JwHwJzrB+FxoZr6Utvfa+oIbziUZJgPu5k5L/os5rULvr4YrRf8q5/yFP8IOv7YkfTJiGu+/qVy099UBjsvI5EGHtFHHGgKh3iyusbf0jJ3DOCA==
+Received: from CH2PR19CA0024.namprd19.prod.outlook.com (2603:10b6:610:4d::34)
+ by SA3PR12MB7784.namprd12.prod.outlook.com (2603:10b6:806:317::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8158.27; Wed, 27 Nov
+ 2024 06:57:56 +0000
+Received: from CH2PEPF0000014A.namprd02.prod.outlook.com
+ (2603:10b6:610:4d:cafe::8f) by CH2PR19CA0024.outlook.office365.com
+ (2603:10b6:610:4d::34) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8182.20 via Frontend Transport; Wed,
+ 27 Nov 2024 06:57:56 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ CH2PEPF0000014A.mail.protection.outlook.com (10.167.244.107) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8207.12 via Frontend Transport; Wed, 27 Nov 2024 06:57:56 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 26 Nov
+ 2024 22:57:38 -0800
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 26 Nov
+ 2024 22:57:38 -0800
+Received: from rsws30.mtr.labs.mlnx (10.127.8.12) by mail.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Tue, 26 Nov 2024 22:57:35 -0800
+From: Israel Rukshin <israelr@nvidia.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>,
+	Parav Pandit <parav@nvidia.com>, <stefanha@redhat.com>,
+	<virtualization@lists.linux.dev>, <mst@redhat.com>, Linux-block
+	<linux-block@vger.kernel.org>
+CC: Nitzan Carmi <nitzanc@nvidia.com>, <kvm@vger.kernel.org>, Israel Rukshin
+	<israelr@nvidia.com>
+Subject: [PATCH v2 0/2] Add Error Recovery support for Virtio PCI devices
+Date: Wed, 27 Nov 2024 08:57:30 +0200
+Message-ID: <1732690652-3065-1-git-send-email-israelr@nvidia.com>
+X-Mailer: git-send-email 1.8.4.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241105072642.898710-1-lulu@redhat.com> <20241105072642.898710-4-lulu@redhat.com>
- <c6975912-4205-4c75-976a-f68dd6dcaf1c@oracle.com>
-In-Reply-To: <c6975912-4205-4c75-976a-f68dd6dcaf1c@oracle.com>
-From: Cindy Lu <lulu@redhat.com>
-Date: Wed, 27 Nov 2024 14:44:53 +0800
-Message-ID: <CACLfguWGxNX1PgTCgH2NbBZoJhRSNnvVKzUzq2=cYY60+-kReQ@mail.gmail.com>
-Subject: Re: [PATCH v3 3/9] vhost: Add the cgroup related function
-To: Mike Christie <michael.christie@oracle.com>
-Cc: jasowang@redhat.com, mst@redhat.com, sgarzare@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _g_9jebX4n4-hqm_JIk1hgczRNOkNpNz22BMOcVfvJg_1732689930
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH2PEPF0000014A:EE_|SA3PR12MB7784:EE_
+X-MS-Office365-Filtering-Correlation-Id: 01f8a800-edb8-4395-81d7-08dd0eb0d25d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|376014|1800799024|36860700013;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?apnjGK4m9cfEHKKq0A2QWWRTn5mWLi5tKrHYWdRcvdNnSpcR7B0eb0H14nm4?=
+ =?us-ascii?Q?1QkoxkG1Q6gLkoCCaTcvYgfnWi74ED9I1WEhQjYKnEGW7YCJfAoHJ4oSbfFW?=
+ =?us-ascii?Q?RBruWemEtSVlqqwFb8b1YLR4C6eRDgkyEejSN7m3Js9zMLzxRS9aauHVur2B?=
+ =?us-ascii?Q?pb+lDs+nUFE1RCJdb7NkYU0Ci4rzkm+LIglkmKFN9L1jh4EvHbKNeO3GMJQi?=
+ =?us-ascii?Q?1k0brLVdFFifKQcJF2BveQV+niN9S/yuhtuSU6wZXg/GSJxHO/yNQEnqjO8H?=
+ =?us-ascii?Q?KkWhUz4Bb7/v5eIFD7o8KaFv40LuIDXy4eXHBL2Uy+A0dYwC+FbEngdj/y7h?=
+ =?us-ascii?Q?R3Elo6W8OH2Vj80rMw840jE9LzRuG5WcGe1I163XP955JMYBOi6h5Rdu7BpD?=
+ =?us-ascii?Q?L0AqNxeuoaExMBNq2HGnfyHznvN/ngwKY3bkiUUvm6XjUPXxZUuaqDcJunRv?=
+ =?us-ascii?Q?Qbf8UbnAT4mlsx0XoHL8w9zdC5txedFl66EPDorkRJZF5zrsVqguCOTXVdfR?=
+ =?us-ascii?Q?F5T9kGsEWdHQs2HV6oZZkgtCfmwZvmyEGrBg8divkTKwOFOSBI3W4K/5bp1F?=
+ =?us-ascii?Q?Pma39728rBNjZ/foAZYyiHs224TaF4Erj1/WQcxLdU9PL81rr9THYWMsnMRv?=
+ =?us-ascii?Q?G7+mWpZi3K+VM7JzlKc0HokSzeTB7S3dISrPQpkmT0S2QybW1xHfFpLsld/7?=
+ =?us-ascii?Q?gZSusNRWyacynV7o5r9CZpMO2MdlSfS6jpZ3axtaRM1jvGru6baCQUINPHjb?=
+ =?us-ascii?Q?hJ1tKU7u56EwEh6aeG/J+lU8bv7nXF4ujkd5uegvBcwQTEA3bPEBXG6Bq+aY?=
+ =?us-ascii?Q?/nILuARxn1ycQnQuHa7lmeRTsfW7N+AQ5dkLgmqFmkW8XpdHgWF2td6CV3vM?=
+ =?us-ascii?Q?Ql9XbCZktqiKm1sPZ01mDPL7AJ53RgifMhCp/rzi632ESETKi1iTBNxIONZ8?=
+ =?us-ascii?Q?lOXEPmkmVf2AxgdsPG8S6t3EdV3hprjUor4pSCCx7ZB6cl6ZX6nreOkLue6k?=
+ =?us-ascii?Q?RvFWcfB67C/5NEwZoIOat1Vf6ob5m+VnyQW2r3rcF0ViN/2CPPi2w0OWbYNX?=
+ =?us-ascii?Q?jvWMtxReNe5fGN2O64HE4eWaI8hdEKMv53jn6wxwiY4n3h1sOq82gXudZEP7?=
+ =?us-ascii?Q?CLRGu/Na3C6Jq93TYkLvzZWNNinLDtJSSjXDGxUioCNsDjZjmGa6fQsP/Ij+?=
+ =?us-ascii?Q?EbnsZ8O8D3miGfmolddCA4UiEbCqOIySYUptjakqjW6RSzYcL/6xQFVkzmNO?=
+ =?us-ascii?Q?J5CBrqF8tfVfrq3kOpcxzKLHiZ0FQosjVGP1/uOLQUQmuMIAzG45KULo2STA?=
+ =?us-ascii?Q?Oa9up5xYJSjGjYMQ5APnMWAXBfVQP8X9VlNULpKUl1fleqskEuc0d5Vp0PUu?=
+ =?us-ascii?Q?MDJitu6VEownzPDN8sa8+CNRgNuF2GxfddJS3HrJgK0RtomTfcxxFBLCZ7Uz?=
+ =?us-ascii?Q?HlALgxS56Wrm7iy7NgHLJh/GOgm/rmCz?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(376014)(1800799024)(36860700013);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Nov 2024 06:57:56.1292
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 01f8a800-edb8-4395-81d7-08dd0eb0d25d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH2PEPF0000014A.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7784
 
-On Mon, Nov 25, 2024 at 11:22=E2=80=AFPM Mike Christie
-<michael.christie@oracle.com> wrote:
->
-> On 11/5/24 1:25 AM, Cindy Lu wrote:
-> > +static int vhost_attach_cgroups(struct vhost_dev *dev)
-> > +{
-> > +     struct vhost_worker *worker;
-> > +     unsigned long i;
-> > +     int ret;
-> > +
-> > +     /*
-> > +      * Free the default worker we created and cleanup workers userspa=
-ce
-> > +      * created but couldn't clean up (it forgot or crashed).
-> > +      */
->
-> I think this comment got added here by accident.
->
-will remove this
-Thanks
-Cindy
-> > +
-> > +     xa_for_each(&dev->worker_xa, i, worker) {
-> > +             ret =3D vhost_worker_cgroups_kthread(worker);
-> > +             if (ret)
-> > +                     return ret;
-> > +     }
-> > +     return ret;
-> > +}
-> > +
-> >  /* Caller should have device mutex */
-> >  bool vhost_dev_has_owner(struct vhost_dev *dev)
-> >  {
->
+This patch series introduces an initial PCI Error Recovery support for
+Virtio PCI devices, focusing on Function Level Reset (FLR) recovery.
+The implementation aligns with the existing PCI error recovery
+framework,
+which provides a mechanism for coordinating between affected device
+drivers and PCI controllers during reset and recovery phases.
+
+By integrating Virtio PCI devices into this framework, we enhance the
+system's ability to handle and recover from PCI errors, particularly
+those requiring FLR (this patch set). This capability was previously
+unavailable for Virtio PCI devices post-probe, and its addition
+significantly improves system reliability and resiliency.
+
+The series consists of two main patches:
+
+1. Virtio PCI: implement the necessary infrastructure and callbacks
+   in the virtio_pci driver to handle FLR events properly.
+
+2. Virtio Block: Implement proper cleanup and recovery procedures upon
+   FLR events.
+
+Changes from v1 to v2:
+ - Don't print warning with -EOPNOTSUPP error.
+
+Israel Rukshin (2):
+  virtio_pci: Add support for PCIe Function Level Reset
+  virtio_blk: Add support for transport error recovery
+
+ drivers/block/virtio_blk.c         | 28 ++++++++-
+ drivers/virtio/virtio.c            | 94 ++++++++++++++++++++++--------
+ drivers/virtio/virtio_pci_common.c | 41 +++++++++++++
+ include/linux/virtio.h             |  8 +++
+ 4 files changed, 143 insertions(+), 28 deletions(-)
+
+-- 
+2.34.1
 
