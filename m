@@ -1,153 +1,284 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 997121DDA24
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Nov 2024 21:31:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6351F45028
+	for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 02:57:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732656717; cv=none; b=s/ikiSuLq66PvncO61/ulNF8+ZcKKeR+69bVTsDPZh6hLwpa/e32JY9855jPRSxik1wvFJ5/puhTy0yw4UEJLm0laus15u3l4MTTDSz9IMWTtAZwxpnLDpEQ/VVGsFax0hHzLb+fGFOiQ6nH5FgSwiuF6/QTynD7PpeheodfKUk=
+	t=1732676265; cv=none; b=GYfGn9RX5Igu6Yx1WrHFDqnlLJDqtRyXEwaUMxI9ip1QtMUeoRR1u2NU+kP3iFPWxAEH540fkMzKzWv9eDwfb6xpttRK4IZZUojX9TnPBgumHA/KJR9+lN0WtZ5nt6t2VZNZoKS2WCbtce4Ctef7Kea4+GXlIczgrOe1KveT2uw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732656717; c=relaxed/simple;
-	bh=8OMHRkiCi97ruiJcLVrr97YdpLfrt/TPA63KIH/nLmc=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=ZUnoCgntBFmqA48ThQ3ANgCr2xF1J6AiNpoXxmnArTcJDGO1BLBx1qq6YMJf48B4iCLRYokZCRAq3X9slxvnuFWHmFQDLmBL1DBvRw3S31030KymWIH6LDW3BVRQPAmHPTxS6/hXdFN9ZS4Vws6EWc1LgdJZvPMWYJuX3KbhmPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TH+I7DPX; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1732676265; c=relaxed/simple;
+	bh=J+/Huvhsfc118Oam0hQkPuciIgmlsWd1BaZaWzY7JbY=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=PPwZpm3DPT6+AmtS5roRlsJ57O0Qca9mw/XF1UJvTGrqgtyFwWmPG3NTT5PgJvAwYSd87qlxXzbq/3cKpLcleeo9rULjF8Y5eYBtNEozVh5OCv7Q5sBM+r5TGxdtI4S3mhPSrQGH20Gg/Y8dCvIDdUTJ0pV3GK+rdZrjKIVW39k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=3XJezEOg; arc=none smtp.client-ip=209.85.216.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--yuanchu.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TH+I7DPX"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3273E854DE
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Nov 2024 21:31:56 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Fj8VCea1RZE5 for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Nov 2024 21:31:55 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 3DFE8854DA
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3DFE8854DA
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TH+I7DPX
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3DFE8854DA
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Nov 2024 21:31:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732656713;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=xkqp9/xR3kyxpno6c2H9dhk0sKgUGZ+r9W/EPsgXUW8=;
-	b=TH+I7DPXfI/L3L2ujyi1K1Ldz4qWOJbRRIaHA89c0qDBLTeeBtQYbwl+oZo7QQPMC0xTUS
-	hi8xwpjV6AbrohHzHV/nMvEI5Z9fJ/9+rByaQGZjYTpVO0Gn8eM9xkW7KNu/RWRD2BTD6W
-	hGSD6bl+f8G4iRWbOMtl56XUAmc/y1U=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-279-RkeMPI1ZPkWRX5Oval8BUw-1; Tue, 26 Nov 2024 16:31:52 -0500
-X-MC-Unique: RkeMPI1ZPkWRX5Oval8BUw-1
-X-Mimecast-MFC-AGG-ID: RkeMPI1ZPkWRX5Oval8BUw
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-434a4ad4798so11552855e9.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 26 Nov 2024 13:31:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="3XJezEOg"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2e9ff7aa7eeso333219a91.1
+        for <virtualization@lists.linux.dev>; Tue, 26 Nov 2024 18:57:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1732676263; x=1733281063; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=DOATy7sDz8DTD8Z4AoICwdWQAcaTwjKHPvi099XhNks=;
+        b=3XJezEOgg+auIvGF3sRSQGc9gmd2H40jY6HDGO0aUt9RClf1vn74dZ6Ym+hsu3xWwB
+         7LYC60tOI7A3XOMGP3JO+hZsjXJ97eD6Jb6IQem39PCgA55M2zudTD08lpjDEe6p529A
+         hefQsp5WLcqeoZLc7vYoppjcmzfT2U1g/BBuUQyHiDwj3LS+c34FV8GqSwUHceB1mTsR
+         Cl/dJVzRf2ywnUF/V6IZ0LIJ5VIg0oN77cJrV4qv0LLjmsRzySbYxn/kkmHO984YY62B
+         aJ9gdetMMlCo2TWI1Zu7XoZgPwKZstqAelPamoGxGylp6QyXKGNw77xcq0+NUPHDUOIw
+         Sing==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732656711; x=1733261511;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xkqp9/xR3kyxpno6c2H9dhk0sKgUGZ+r9W/EPsgXUW8=;
-        b=sCjbcujLwIrPoaEJFv9HF4Hzl8Bx6X0KAcbg/OdV+Xy0D+9pNwRjZ6p/LSiUM0UTu+
-         dFHRpaU/VBvJS72T9oabQHuoUrxt11bsPUDkM8JuI0fETRnXnXGUNGUZV/W7yt/sLU8a
-         q4JNI0ybU4aBx3F/xWnSrBpbZ+jCju2NqoA8WMkT5aBNyqnq7FrjeS+pzqlhN9BhBeQm
-         rPZ8bQ/dewNIvXMeIpE/j5aNa/ug7O56PJlEFwg/kq5vRWhderARAKbtCnxav24v6Mfk
-         xuc+c642RaktbsgdxHKqSk3THvlz9x3LIFWsXEjerRv2ntDzt5GWQUbTFs4EQONWz6BT
-         0hmA==
-X-Forwarded-Encrypted: i=1; AJvYcCXFnqeaQcUf2GggSbRUIJMPgGB575ES/UPh0JShkx7ct+anqLnO83FqOav9m1SunB1QGf0SJ8QEB4H3kqCVng==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwFuKQk/al+NHBRALVKV9TmGeilarCOTFF9Q0+tOOiAOPpWiI1g
-	CUKM1zUXDmQ1zCwLjvV+pOui4HPfDIgR1atgbrCMCMHaXfq9LnqKuNN1gIiLRopX16tHW7blV8Q
-	0sKWryWQhFnKS7mJ8vjDiqzPeVitxVyi8gD0ZEMATTwn+J3xxQaDFKBswMsdjc5VmocQGul//GX
-	PqOwo=
-X-Gm-Gg: ASbGncuHJxJqkRZK+iD3UtImuGTkjjcViH9xTJnBnBLkVtWbPdTHwHgGqabktf4Pqaj
-	xpNQaU/OttJIjTBRG9HyXGLJHFoEZeLsArf5XoCMVYxF06uUh4gvY5WyCwNVU7ip2QNNo9v0sPA
-	vaYR/+D6qp1+PySCF/Nv6uY8gW3W0qT5Hi89YsBevTAg/mLfdRIsvruJlcX98+F2LQ7PQbKSx5O
-	rvMACyL42QjFOk9F0yEwMTILJCfmQaQfW+ZM5mAdA==
-X-Received: by 2002:a05:600c:5253:b0:434:9da3:602b with SMTP id 5b1f17b1804b1-434a9dbc410mr6492355e9.5.1732656711120;
-        Tue, 26 Nov 2024 13:31:51 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG5nabcDgZfdqXrFryICIVujIiggOe3vuLNf1LLX2fotJEhYc502dQloNv4ULPkl7YTJzP9XA==
-X-Received: by 2002:a05:600c:5253:b0:434:9da3:602b with SMTP id 5b1f17b1804b1-434a9dbc410mr6492185e9.5.1732656710752;
-        Tue, 26 Nov 2024 13:31:50 -0800 (PST)
-Received: from redhat.com ([2a02:14f:1f0:4654:4e59:b33:d0e:9273])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-434aa78c202sm90855e9.26.2024.11.26.13.31.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2024 13:31:49 -0800 (PST)
-Date: Tue, 26 Nov 2024 16:31:44 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	colin.i.king@gmail.com, dtatulea@nvidia.com, eperezma@redhat.com,
-	huangwenyu1998@gmail.com, jasowang@redhat.com, mgurtovoy@nvidia.com,
-	mst@redhat.com, philipchen@chromium.org, si-wei.liu@oracle.com
-Subject: [GIT PULL] virtio: features, fixes, cleanups
-Message-ID: <20241126163144-mutt-send-email-mst@kernel.org>
+        d=1e100.net; s=20230601; t=1732676263; x=1733281063;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=DOATy7sDz8DTD8Z4AoICwdWQAcaTwjKHPvi099XhNks=;
+        b=g2OM0cgkE3/IiSLhxvchVvHfNxt9H76tMTEZIwQnY7Z8qC2VexjJ3D63w2Sp7dBCRJ
+         8GBZ/hFMgH3Xttq/7qSeus8J9l92r65QJ2MwtQfi05MD3tXTMeraN9LGHlT66+zCwGYt
+         cYjUlM0Y5NghnlhnzHisXrlY+mGMRkpjT1q2nW141EWibhupRyLFagjRy/qpCFWye2O7
+         JezU56285ZTfDP+JnDdvEGja9KsdYJTGFkvaBjMBw0P9wpo/w723xob/6XDufTaAOKGR
+         1bJvL7vTj5nW0gm1DWqegFRU54vuGS8jmI/B6C7JbPHZ6avl+9X6J7ZW1f420NnKKY8c
+         cmkw==
+X-Forwarded-Encrypted: i=1; AJvYcCUkt3G7poQ/NzlqZGHplyE01C8etstf2T2TKsbugTEjOgkovfCOJ23EFoNSUVNd3Tm02oekkmfFwBC4iNmU1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyUkoaJBZkB0ZXVsOF9r3JGl0W4M3xy4NAK5eahP5tPTKonb0v9
+	igzYq3TKLN2hhWpdbnOP9EFAAz7CMz+FTy+MJnTJNLvin91iPNQdsmEmpSQAJkPulitnsqwSxAA
+	iye7XPw==
+X-Google-Smtp-Source: AGHT+IGwtdBa6yhIuRJSWPEXoNp2VYNlKPrafpXUgul1cMSxbPMT+mgSuRvlqTMnr3isKES25GDLRo275izi
+X-Received: from pjbnd9.prod.google.com ([2002:a17:90b:4cc9:b0:2ea:5fc2:b503])
+ (user=yuanchu job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:1004:b0:2ea:9f3a:7d9
+ with SMTP id 98e67ed59e1d1-2edeb68cff8mr8628929a91.3.1732676262751; Tue, 26
+ Nov 2024 18:57:42 -0800 (PST)
+Date: Tue, 26 Nov 2024 18:57:19 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: sa-foHCffE7s7EyKxhXqrG2f-Lnc8H3OVlX4mG-DRG8_1732656711
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
+Message-ID: <20241127025728.3689245-1-yuanchu@google.com>
+Subject: [PATCH v4 0/9] mm: workingset reporting
+From: Yuanchu Xie <yuanchu@google.com>
+To: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Khalid Aziz <khalid.aziz@oracle.com>, 
+	Henry Huang <henry.hj@antgroup.com>, Yu Zhao <yuzhao@google.com>, 
+	Dan Williams <dan.j.williams@intel.com>, Gregory Price <gregory.price@memverge.com>, 
+	Huang Ying <ying.huang@intel.com>, Lance Yang <ioworker0@gmail.com>, 
+	Randy Dunlap <rdunlap@infradead.org>, Muhammad Usama Anjum <usama.anjum@collabora.com>
+Cc: Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+	"=?UTF-8?q?Michal=20Koutn=C3=BD?=" <mkoutny@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Michal Hocko <mhocko@kernel.org>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Muchun Song <muchun.song@linux.dev>, Mike Rapoport <rppt@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+	Christian Brauner <brauner@kernel.org>, Daniel Watson <ozzloy@each.do>, Yuanchu Xie <yuanchu@google.com>, 
+	cgroups@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-mm@kvack.org, linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
+This patch series provides workingset reporting of user pages in
+lruvecs, of which coldness can be tracked by accessed bits and fd
+references. However, the concept of workingset applies generically to
+all types of memory, which could be kernel slab caches, discardable
+userspace caches (databases), or CXL.mem. Therefore, data sources might
+come from slab shrinkers, device drivers, or the userspace.
+Another interesting idea might be hugepage workingset, so that we can
+measure the proportion of hugepages backing cold memory. However, with
+architectures like arm, there may be too many hugepage sizes leading to
+a combinatorial explosion when exporting stats to the userspace.
+Nonetheless, the kernel should provide a set of workingset interfaces
+that is generic enough to accommodate the various use cases, and extensible
+to potential future use cases.
 
-I was hoping to get vhost threading compat fixes in but no luck.
-A very quiet merge cycle - I guess it's a sign we got a lot merged
-last time, and everyone is busy testing. Right, guys?
+Use cases
+==========
+Job scheduling
+On overcommitted hosts, workingset information improves efficiency and
+reliability by allowing the job scheduler to have better stats on the
+exact memory requirements of each job. This can manifest in efficiency by
+landing more jobs on the same host or NUMA node. On the other hand, the
+job scheduler can also ensure each node has a sufficient amount of memory
+and does not enter direct reclaim or the kernel OOM path. With workingset
+information and job priority, the userspace OOM killing or proactive
+reclaim policy can kick in before the system is under memory pressure.
+If the job shape is very different from the machine shape, knowing the
+workingset per-node can also help inform page allocation policies.
 
-The following changes since commit 83e445e64f48bdae3f25013e788fcf592f142576:
+Proactive reclaim
+Workingset information allows the a container manager to proactively
+reclaim memory while not impacting a job's performance. While PSI may
+provide a reactive measure of when a proactive reclaim has reclaimed too
+much, workingset reporting allows the policy to be more accurate and
+flexible.
 
-  vdpa/mlx5: Fix error path during device add (2024-11-07 16:51:16 -0500)
+Ballooning (similar to proactive reclaim)
+The last patch of the series extends the virtio-balloon device to report
+the guest workingset.
+Balloon policies benefit from workingset to more precisely determine the
+size of the memory balloon. On end-user devices where memory is scarce and
+overcommitted, the balloon sizing in multiple VMs running on the same
+device can be orchestrated with workingset reports from each one.
+On the server side, workingset reporting allows the balloon controller to
+inflate the balloon without causing too much file cache to be reclaimed in
+the guest.
 
-are available in the Git repository at:
+Promotion/Demotion
+If different mechanisms are used for promition and demotion, workingset
+information can help connect the two and avoid pages being migrated back
+and forth.
+For example, given a promotion hot page threshold defined in reaccess
+distance of N seconds (promote pages accessed more often than every N
+seconds). The threshold N should be set so that ~80% (e.g.) of pages on
+the fast memory node passes the threshold. This calculation can be done
+with workingset reports.
+To be directly useful for promotion policies, the workingset report
+interfaces need to be extended to report hotness and gather hotness
+information from the devices[1].
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+[1]
+https://www.opencompute.org/documents/ocp-cms-hotness-tracking-requirements-white-paper-pdf-1
 
-for you to fetch changes up to 6a39bb15b3d1c355ab198d41f9590379d734f0bb:
+Sysfs and Cgroup Interfaces
+==========
+The interfaces are detailed in the patches that introduce them. The main
+idea here is we break down the workingset per-node per-memcg into time
+intervals (ms), e.g.
 
-  virtio_vdpa: remove redundant check on desc (2024-11-12 18:07:46 -0500)
+1000 anon=137368 file=24530
+20000 anon=34342 file=0
+30000 anon=353232 file=333608
+40000 anon=407198 file=206052
+9223372036854775807 anon=4925624 file=892892
 
-----------------------------------------------------------------
-virtio: features, fixes, cleanups
+Implementation
+==========
+The reporting of user pages is based off of MGLRU, and therefore requires
+CONFIG_LRU_GEN=y. We would benefit from more MGLRU generations for a more
+fine-grained workingset report, but we can already gather a lot of data
+with just four generations. The workingset reporting mechanism is gated
+behind CONFIG_WORKINGSET_REPORT, and the aging thread is behind
+CONFIG_WORKINGSET_REPORT_AGING.
 
-A small number of improvements all over the place.
+Benchmarks
+==========
+Ghait Ouled Amar Ben Cheikh has implemented a simple policy and ran Linux
+compile and redis benchmarks from openbenchmarking.org. The policy and
+runner is referred to as WMO (Workload Memory Optimization).
+The results were based on v3 of the series, but v4 doesn't change the core
+of the working set reporting and just adds the ballooning counterpart.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+The timed Linux kernel compilation benchmark shows improvements in peak
+memory usage with a policy of "swap out all bytes colder than 10 seconds
+every 40 seconds". A swapfile is configured on SSD.
+--------------------------------------------
+peak memory usage (with WMO): 4982.61328 MiB
+peak memory usage (control): 9569.1367 MiB
+peak memory reduction: 47.9%
+--------------------------------------------
+Benchmark                                           | Experimental     |Control         | Experimental_Std_Dev | Control_Std_Dev
+Timed Linux Kernel Compilation - allmodconfig (sec) | 708.486 (95.91%) | 679.499 (100%) | 0.6%                 | 0.1%
+--------------------------------------------
+Seconds, fewer is better
 
-----------------------------------------------------------------
-Colin Ian King (1):
-      virtio_vdpa: remove redundant check on desc
+The redis benchmark shows employs the same policy:
+--------------------------------------------
+peak memory usage (with WMO): 375.9023 MiB
+peak memory usage (control): 509.765 MiB
+peak memory reduction: 26%
+--------------------------------------------
+Benchmark               | Experimental     | Control          | Experimental_Std_Dev | Control_Std_Dev
+Redis - LPOP (Reqs/sec) | 2023130 (98.22%) | 2059849 (100%)   | 1.2%                 | 2%
+Redis - SADD (Reqs/sec) | 2539662 (98.63%) | 2574811 (100%)   | 2.3%                 | 1.4%
+Redis - LPUSH (Reqs/sec)| 2024880 (100%)   | 2000884 (98.81%) | 1.1%                 | 0.8%
+Redis - GET (Reqs/sec)  | 2835764 (100%)   | 2763722 (97.46%) | 2.7%                 | 1.6%
+Redis - SET (Reqs/sec)  | 2340723 (100%)   | 2327372 (99.43%) | 2.4%                 | 1.8%
+--------------------------------------------
+Reqs/sec, more is better
 
-Max Gurtovoy (2):
-      virtio_fs: add informative log for new tag discovery
-      virtio_fs: store actual queue index in mq_map
+The detailed report and benchmarking results are in Ghait's repo:
+https://github.com/miloudi98/WMO
 
-Philip Chen (1):
-      virtio_pmem: Add freeze/restore callbacks
+Changelog
+==========
 
-Si-Wei Liu (2):
-      vdpa/mlx5: Fix PA offset with unaligned starting iotlb map
-      vdpa/mlx5: Fix suboptimal range on iotlb iteration
+Changes from PATCH v3 -> v4:
+- Added documentation for cgroup-v2
+  (Waiman Long)
+- Fixed types in documentation
+  (Randy Dunlap)
+- Added implementation for the ballooning use case
+- Added detailed description of benchmark results
+  (Andrew Morton)
 
-Wenyu Huang (1):
-      virtio: Make vring_new_virtqueue support packed vring
+Changes from PATCH v2 -> v3:
+- Fixed typos in commit messages and documentation
+  (Lance Yang, Randy Dunlap)
+- Split out the force_scan patch to be reviewed separately
+- Added benchmarks from Ghait Ouled Amar Ben Cheikh
+- Fixed reported compile error without CONFIG_MEMCG
 
- drivers/nvdimm/virtio_pmem.c |  24 +++++
- drivers/vdpa/mlx5/core/mr.c  |  12 +--
- drivers/virtio/virtio_ring.c | 227 +++++++++++++++++++++++--------------------
- drivers/virtio/virtio_vdpa.c |   3 +-
- fs/fuse/virtio_fs.c          |  13 +--
- 5 files changed, 159 insertions(+), 120 deletions(-)
+Changes from PATCH v1 -> v2:
+- Updated selftest to use ksft_test_result_code instead of switch-case
+  (Muhammad Usama Anjum)
+- Included more use cases in the cover letter
+  (Huang, Ying)
+- Added documentation for sysfs and memcg interfaces
+- Added an aging-specific struct lru_gen_mm_walk in struct pglist_data
+  to avoid allocating for each lruvec.
+
+[v1] https://lore.kernel.org/linux-mm/20240504073011.4000534-1-yuanchu@google.com/
+[v2] https://lore.kernel.org/linux-mm/20240604020549.1017540-1-yuanchu@google.com/
+[v3] https://lore.kernel.org/linux-mm/20240813165619.748102-1-yuanchu@google.com/
+
+Yuanchu Xie (9):
+  mm: aggregate workingset information into histograms
+  mm: use refresh interval to rate-limit workingset report aggregation
+  mm: report workingset during memory pressure driven scanning
+  mm: extend workingset reporting to memcgs
+  mm: add kernel aging thread for workingset reporting
+  selftest: test system-wide workingset reporting
+  Docs/admin-guide/mm/workingset_report: document sysfs and memcg
+    interfaces
+  Docs/admin-guide/cgroup-v2: document workingset reporting
+  virtio-balloon: add workingset reporting
+
+ Documentation/admin-guide/cgroup-v2.rst       |  35 +
+ Documentation/admin-guide/mm/index.rst        |   1 +
+ .../admin-guide/mm/workingset_report.rst      | 105 +++
+ drivers/base/node.c                           |   6 +
+ drivers/virtio/virtio_balloon.c               | 390 ++++++++++-
+ include/linux/balloon_compaction.h            |   1 +
+ include/linux/memcontrol.h                    |  21 +
+ include/linux/mmzone.h                        |  13 +
+ include/linux/workingset_report.h             | 167 +++++
+ include/uapi/linux/virtio_balloon.h           |  30 +
+ mm/Kconfig                                    |  15 +
+ mm/Makefile                                   |   2 +
+ mm/internal.h                                 |  19 +
+ mm/memcontrol.c                               | 162 ++++-
+ mm/mm_init.c                                  |   2 +
+ mm/mmzone.c                                   |   2 +
+ mm/vmscan.c                                   |  56 +-
+ mm/workingset_report.c                        | 653 ++++++++++++++++++
+ mm/workingset_report_aging.c                  | 127 ++++
+ tools/testing/selftests/mm/.gitignore         |   1 +
+ tools/testing/selftests/mm/Makefile           |   3 +
+ tools/testing/selftests/mm/run_vmtests.sh     |   5 +
+ .../testing/selftests/mm/workingset_report.c  | 306 ++++++++
+ .../testing/selftests/mm/workingset_report.h  |  39 ++
+ .../selftests/mm/workingset_report_test.c     | 330 +++++++++
+ 25 files changed, 2482 insertions(+), 9 deletions(-)
+ create mode 100644 Documentation/admin-guide/mm/workingset_report.rst
+ create mode 100644 include/linux/workingset_report.h
+ create mode 100644 mm/workingset_report.c
+ create mode 100644 mm/workingset_report_aging.c
+ create mode 100644 tools/testing/selftests/mm/workingset_report.c
+ create mode 100644 tools/testing/selftests/mm/workingset_report.h
+ create mode 100644 tools/testing/selftests/mm/workingset_report_test.c
+
+-- 
+2.47.0.338.g60cca15819-goog
 
