@@ -1,266 +1,136 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4F4D14D2B7
-	for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 07:26:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76EC814A60A
+	for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 08:01:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732692379; cv=none; b=gEUCzcbSMAzIOMqgPcaG9uaWm37s2BUaW1yUtwLbFrHDPuBWB0q8UTOL6FSmRiNkbnFk6pXqtOqRWpj5pan2nISlwdtXSieLHZ6TMCDx9+dzsF8Egfzoop6QMzycDXxn6jg+Hwk3IA+1qb41y5erX3GAMQnzdZyIzBjGUsGuOTs=
+	t=1732694474; cv=none; b=iQU5n3/xRGtWAaB5IcZrRYNMUyAfiCr9QML6oLjLqOZcABs/lhnKDnqq//XAoG5CuWTkFWc5b/CcveDnA1K+r3kkaGjXRp/VJFuzABxTu7+4mwBY3ZQCerfPjh7gKrnIqWojgz6yVDCwof5ESewaAgwcoiWGZvYdyDNlcDMgOJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732692379; c=relaxed/simple;
-	bh=LaCgO/1I3Ht7VzxrqJNIKq5AGQ9WB0sRXb58RNW5hlw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o0epsFt+rNfr634gWQosbruYmGaJwKg1xzifolXjbhCge89vjDLrwh9r+PVOWrMF2DoyqRFoYas5uSczIkNaTezZhIjbz6LqwkzsWYLrYmmL/pz9OH6FYZdUDPSCUVFjMVFltlLkVAm2FiKYEi65iSNmjg4mvWyrOjFuHb4Ufbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmpxchg.org; spf=pass smtp.mailfrom=cmpxchg.org; dkim=pass (2048-bit key) header.d=cmpxchg-org.20230601.gappssmtp.com header.i=@cmpxchg-org.20230601.gappssmtp.com header.b=FF4qpAtI; arc=none smtp.client-ip=209.85.160.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmpxchg.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmpxchg.org
+	s=arc-20240116; t=1732694474; c=relaxed/simple;
+	bh=AbkDYsis4owsrh1UCJvHba4T0vyQ/Nv1EmYIBX04NUM=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=CNgOEXPF8K/wn7JfA4wWa9Wc0wC5pjXVixzklnTXU7Q3bJhtf0d5y5Fur28kKjTX1KIB8X3uJ2I08BBLEJ31yUeCnQi5TFFHCzzz5cJefasrRYv+95QjbD3wXXcCw8/2iog1MsCIvK56++Y1WC4xurmXqbRwmK1YL6qYHoYuzVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=h0xcV5Vp; arc=none smtp.client-ip=209.85.167.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cmpxchg-org.20230601.gappssmtp.com header.i=@cmpxchg-org.20230601.gappssmtp.com header.b="FF4qpAtI"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-4669eecd88dso17932831cf.0
-        for <virtualization@lists.linux.dev>; Tue, 26 Nov 2024 23:26:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="h0xcV5Vp"
+Received: by mail-oi1-f171.google.com with SMTP id 5614622812f47-3ea5f158138so818061b6e.0
+        for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 00:01:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cmpxchg-org.20230601.gappssmtp.com; s=20230601; t=1732692375; x=1733297175; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Oki+SLMP3RV96wUZX5TvrU7XbLUfwG8p5rgWcxa7qog=;
-        b=FF4qpAtI8P0QnXJptP7RFPi61PD/oS7OP09LZZ0zIMCy2eKF6A0VbMWKDwA2PqrfLv
-         7qQK9Vmx7JihrNA7sUPSo/1/2SNvs5B/R5b5e1AYXJEkqUOj7+kYlT+MsOftRM4odU/H
-         lwWRyXJSd3lOjBobQTK2vZuh2TlltYe+JWXW0VoHiIbVBfrpr+nKeSb3pqtOMScvLoJe
-         0LX++LEIrQYsfmG3EZmKSUlVkY9qR6BMiIjE4wnWeRbTs8i+PQGQqsb9kVVMFEJCcLvs
-         FFrU3MHtWB+O8M4ReLMz+aE68NceJU8NVDIPiP74JDJWS50N8YIjXb2FHUbKAMaCyyn+
-         4ObA==
+        d=linaro.org; s=google; t=1732694471; x=1733299271; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hYdfHihuwL6Ju6kDqZ75VBX+k7CPPQhvCWcMy8zyxAs=;
+        b=h0xcV5VpC+RtXz+ZUbq+jTk4LIkOHq5qtEK8h0POK3ztfovHLyfox+4oJlxBLnjl83
+         UqpeXH7EpNBnighw+rzBDgzuEZ+kcPxqZjbpNiGV1VrKW5CZUUITUUOXJSP7oy1uQKuK
+         RJMe6mjdlIfcEUXOcj7aS3gQNROUbu1yd6InuFx9c6Atlpt3dSifYmrpf3y/ijdSKTUh
+         NFz1mNTLP2bEMUHMeqarr8cgL6ZMKG94GUElVokqBJsoo3Rb/UYefjqSOD7R9SJ/kcSm
+         g5Omq73rw/MSrRUIuGUrMx88FmRaKHvP4uG6ujv3xD1w8vhUQybXO3htEYW2NiOstEqV
+         nbGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732692375; x=1733297175;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Oki+SLMP3RV96wUZX5TvrU7XbLUfwG8p5rgWcxa7qog=;
-        b=kQp93v/mDGFBqzWgHiQH393Lvgptq+AJk6UaSoyGp3y9oXtjqkYuF1pmyKCBGkO1Ni
-         xxcjokuaINpjsa+FpVVieoMDwIG/hrspgv5CetH8B9Gpv47Ov0kpSmtgVIkzNPKOy8eA
-         KWSMSOoRlHA+ZSU89c5UBi2C2PlZEo9JQewueUIoEy0oo7LNtWfVL09ZS/f0Y5D73037
-         7M52IAK+0kaBrbBpKI2gl9ty1miPuGZj4JS3Vp7YnYYiWo0k6oij9L5+3yi2sJU5mfQo
-         KiAGuXs4+ICqG1/9Efxm1Dqx0JbviZS/fT9nE0jG16eXU4NlWd+fUxXDpviV2NGIbI1h
-         uuJg==
-X-Forwarded-Encrypted: i=1; AJvYcCVMWIat3Xbs056b3h4gUQrdeJTaZYzonsFYYHaASwkjJdakcZq3QJDHLOvfyuAx+TF4XTltwonRDjPmwgKrTg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyGt1zRHgpekA6RQLTZHgM08UHAI8JDUDy5TQsUSoml4yypzWi0
-	3UK9x1s124lqOckvgIjX+88JIG5c6aPkm+HhC4pLLZdUKr21GyalntQEg+IcJ4g=
-X-Gm-Gg: ASbGncsuS26lfhfQ4Vb5D6gb3rA/iCDZ2Wmbnxu4Hk34xkrFjfEDQj4J+KRlab8BORt
-	JGW9ds4Fupmaxz1Gd2CnTQdu4ihNNpKdcebgVfQE8DOcZzT51E6iywjZ7URpwyKVeZnpL6Z6YgG
-	YQ6+22xkQLgRAbU06993nrq9ZX6otAx04i5ljnw0QQ/JbBED7p+bJdPlIP+FgbBM6Hrmg2BgExG
-	/jtqSjanVuDrkxRSkpJFQHOIhmqrts9kfbK6h7vqKYDqMe8
-X-Google-Smtp-Source: AGHT+IFJX0yoGf3rx43xtnjD4i0P7b6zQwuz1COBccsUFDJEwvH0o2DEs2dB0wnhyvUHM+XIFAHoZg==
-X-Received: by 2002:a05:622a:19a2:b0:460:aa51:840a with SMTP id d75a77b69052e-466b366240emr26501991cf.45.1732692375403;
-        Tue, 26 Nov 2024 23:26:15 -0800 (PST)
-Received: from localhost ([2603:7000:c01:2716:da5e:d3ff:fee7:26e7])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b666fd9999sm324018785a.23.2024.11.26.23.26.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2024 23:26:13 -0800 (PST)
-Date: Wed, 27 Nov 2024 02:26:04 -0500
-From: Johannes Weiner <hannes@cmpxchg.org>
-To: Yuanchu Xie <yuanchu@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@redhat.com>,
-	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-	Khalid Aziz <khalid.aziz@oracle.com>,
-	Henry Huang <henry.hj@antgroup.com>, Yu Zhao <yuzhao@google.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Gregory Price <gregory.price@memverge.com>,
-	Huang Ying <ying.huang@intel.com>, Lance Yang <ioworker0@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Muhammad Usama Anjum <usama.anjum@collabora.com>,
-	Tejun Heo <tj@kernel.org>,
-	Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Michal Hocko <mhocko@kernel.org>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Muchun Song <muchun.song@linux.dev>,
-	Mike Rapoport <rppt@kernel.org>, Shuah Khan <shuah@kernel.org>,
-	Christian Brauner <brauner@kernel.org>,
-	Daniel Watson <ozzloy@each.do>, cgroups@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	linux-kselftest@vger.kernel.org, SeongJae Park <sj@kernel.org>
-Subject: Re: [PATCH v4 0/9] mm: workingset reporting
-Message-ID: <20241127072604.GA2501036@cmpxchg.org>
-References: <20241127025728.3689245-1-yuanchu@google.com>
+        d=1e100.net; s=20230601; t=1732694471; x=1733299271;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=hYdfHihuwL6Ju6kDqZ75VBX+k7CPPQhvCWcMy8zyxAs=;
+        b=hZkC4gRFemb8I7MR5+98IeYoYnfXcocLE9VF1hQwn72dpXQksBznH8S+XV1koA/mEB
+         WOeTiE8mDwhsopnLXWoUl2QoMyLIqDOdBu2+lunczyW+XNxbRgoBHayP8xSCz+iKk6bV
+         PWO5a6az5XB7IdPny9YbVvR8xmetomJrCWsl3fchZauJ2SDB0f1W41uzcSrQUeasUFqq
+         TQuv6e1m2bBPFu2YUouFEreC89+hTxfyvXqjaxMvLpF3KqpWeQtsw6u1ecOn1EpZ++so
+         c17KlS0bUSHb8m8xLAZmJpmPLJm9i+hwR2oMOLp4h5hNZrBRhqDGbXn1H866liuRlTgN
+         gh+Q==
+X-Gm-Message-State: AOJu0YzaS6yG8nzRyGGH1qDDera13+hyP6CDRuYFICO594spGS9tTL2H
+	/44ed7lPzeo8IrbMBJGi6A+azEV4yrnZEZrBUQFHtVocGzks/DUWzvub5CHxi1urdxUQ7sNMF8a
+	pLZCZzzcfFE6+5cBzvboVyBBBU6RdZuBBsVLEMysZ8Z5/miuMaho=
+X-Gm-Gg: ASbGncuOIK77oBfkgsJwdm7Bo36e5nabe+3Z2XnHBw7O7/54mk4MIEv3MzCFW+cPt7q
+	+RpT9aPyDUrR/9yU3NBUgOJiuZU4ab8bi
+X-Google-Smtp-Source: AGHT+IEkxgFBqTgSvpO8yYB0IKDotz+aNBc7IBovLs4xngUKDxA0NRMInMSF3uQ1HnkNvQWdMO6Y8oP8iwyFQF4i8lk=
+X-Received: by 2002:a05:6808:18a5:b0:3ea:5e04:23ef with SMTP id
+ 5614622812f47-3ea6dda02edmr1747674b6e.37.1732694471292; Wed, 27 Nov 2024
+ 00:01:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241127025728.3689245-1-yuanchu@google.com>
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Wed, 27 Nov 2024 13:30:59 +0530
+Message-ID: <CA+G9fYsF3x+ZXURQmgA1yQj-eiobr378HbodpJf4ncng7QYXmg@mail.gmail.com>
+Subject: drivers/virtio/virtio_ring.c:1162:11: error: 'struct vring_virtqueue'
+ has no member named 'premapped'
+To: virtualization@lists.linux.dev, open list <linux-kernel@vger.kernel.org>, 
+	lkft-triage@lists.linaro.org, Linux Regressions <regressions@lists.linux.dev>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, eperezma@redhat.com, 
+	Sasha Levin <sashal@kernel.org>, Dan Carpenter <dan.carpenter@linaro.org>, 
+	Anders Roxell <anders.roxell@linaro.org>, Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Nov 26, 2024 at 06:57:19PM -0800, Yuanchu Xie wrote:
-> This patch series provides workingset reporting of user pages in
-> lruvecs, of which coldness can be tracked by accessed bits and fd
-> references. However, the concept of workingset applies generically to
-> all types of memory, which could be kernel slab caches, discardable
-> userspace caches (databases), or CXL.mem. Therefore, data sources might
-> come from slab shrinkers, device drivers, or the userspace.
-> Another interesting idea might be hugepage workingset, so that we can
-> measure the proportion of hugepages backing cold memory. However, with
-> architectures like arm, there may be too many hugepage sizes leading to
-> a combinatorial explosion when exporting stats to the userspace.
-> Nonetheless, the kernel should provide a set of workingset interfaces
-> that is generic enough to accommodate the various use cases, and extensible
-> to potential future use cases.
+The following build errors were noticed for arm64, arm, x86_64 and riscv.
 
-Doesn't DAMON already provide this information?
+First seen on Sasha Linus-next 441d2975754ad94f3ce2e29f672824bc2dc5120c.
+  Good: 07e98e730a08081b6d0b5c3a173b0487c36ed27f
+  Bad:  441d2975754ad94f3ce2e29f672824bc2dc5120c
 
-CCing SJ.
+arm64, arm, riscv and x86_64:
+  build:
+    * clang-19-defconfig
+    * gcc-13-defconfig
+    * clang-19-lkftconfig
+    * gcc-13-lkftconfig
 
-> Use cases
-> ==========
-> Job scheduling
-> On overcommitted hosts, workingset information improves efficiency and
-> reliability by allowing the job scheduler to have better stats on the
-> exact memory requirements of each job. This can manifest in efficiency by
-> landing more jobs on the same host or NUMA node. On the other hand, the
-> job scheduler can also ensure each node has a sufficient amount of memory
-> and does not enter direct reclaim or the kernel OOM path. With workingset
-> information and job priority, the userspace OOM killing or proactive
-> reclaim policy can kick in before the system is under memory pressure.
-> If the job shape is very different from the machine shape, knowing the
-> workingset per-node can also help inform page allocation policies.
-> 
-> Proactive reclaim
-> Workingset information allows the a container manager to proactively
-> reclaim memory while not impacting a job's performance. While PSI may
-> provide a reactive measure of when a proactive reclaim has reclaimed too
-> much, workingset reporting allows the policy to be more accurate and
-> flexible.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I'm not sure about more accurate.
+Build error:
+---------
+drivers/virtio/virtio_ring.c: In function '__vring_new_virtqueue_split':
+drivers/virtio/virtio_ring.c:1162:11: error: 'struct vring_virtqueue'
+has no member named 'premapped'
+ 1162 |         vq->premapped = false;
+      |           ^~
+drivers/virtio/virtio_ring.c:1163:11: error: 'struct vring_virtqueue'
+has no member named 'do_unmap'
+ 1163 |         vq->do_unmap = vq->use_dma_api;
+      |           ^~
+make[5]: *** [scripts/Makefile.build:229: drivers/virtio/virtio_ring.o] Error 1
 
-Access frequency is only half the picture. Whether you need to keep
-memory with a given frequency resident depends on the speed of the
-backing device.
+Build image:
+-----------
+- https://qa-reports.linaro.org/lkft/sashal-linus-next/build/v6.11-25212-gbe03d2e1a06f/testrun/26081256/suite/build/test/gcc-13-lkftconfig-rcutorture/log
+- https://qa-reports.linaro.org/lkft/sashal-linus-next/build/v6.11-25212-gbe03d2e1a06f/testrun/26081256/suite/build/test/gcc-13-lkftconfig-rcutorture/history/
+- https://qa-reports.linaro.org/lkft/sashal-linus-next/build/v6.11-25212-gbe03d2e1a06f/testrun/26081256/suite/build/test/gcc-13-defconfig/history/
+- https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/
 
-There is memory compression; there is swap on flash; swap on crappy
-flash; swapfiles that share IOPS with co-located filesystems. There is
-zswap+writeback, where avg refault speed can vary dramatically.
+$ git log --oneline
+07e98e730a08081b6d0b5c3a173b0487c36ed27f..441d2975754ad94f3ce2e29f672824bc2dc5120c
+ -- drivers/virtio/virtio_ring.c
+   441d2975754ad Merge tag 'for_linus' of
+https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost into
+linus-next
+   a49c26f761d2b virtio: Make vring_new_virtqueue support packed vring
 
-You can of course offload much more to a fast zswap backend than to a
-swapfile on a struggling flashdrive, with comparable app performance.
+Steps to reproduce:
+------------
+- tuxsuite build \
+    --git-repo https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linus-next.git
+\
+    --git-sha be03d2e1a06f7bd4be131c48f1c5555e83470a4d \
+    --target-arch arm64 \
+    --toolchain gcc-13 \
+    --kconfig https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/config
 
-So I think you'd be hard pressed to achieve a high level of accuracy
-in the usecases you list without taking the (often highly dynamic)
-cost of paging / memory transfer into account.
+metadata:
+----
+  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linus-next.git
+  git sha: ed9a4ad6e5bd3a443e81446476718abebee47e82
+  kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/config
+  build url: https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/
+  toolchain: gcc-13, clang-19 and clang-nightly
+  config: defconfig, lkftconfig
+  arch: arm64, arm, x86_64 and riscv
 
-There is a more detailed discussion of this in a paper we wrote on
-proactive reclaim/offloading - in 2.5 Hardware Heterogeneity:
-
-https://www.cs.cmu.edu/~dskarlat/publications/tmo_asplos22.pdf
-
-> Ballooning (similar to proactive reclaim)
-> The last patch of the series extends the virtio-balloon device to report
-> the guest workingset.
-> Balloon policies benefit from workingset to more precisely determine the
-> size of the memory balloon. On end-user devices where memory is scarce and
-> overcommitted, the balloon sizing in multiple VMs running on the same
-> device can be orchestrated with workingset reports from each one.
-> On the server side, workingset reporting allows the balloon controller to
-> inflate the balloon without causing too much file cache to be reclaimed in
-> the guest.
-> 
-> Promotion/Demotion
-> If different mechanisms are used for promition and demotion, workingset
-> information can help connect the two and avoid pages being migrated back
-> and forth.
-> For example, given a promotion hot page threshold defined in reaccess
-> distance of N seconds (promote pages accessed more often than every N
-> seconds). The threshold N should be set so that ~80% (e.g.) of pages on
-> the fast memory node passes the threshold. This calculation can be done
-> with workingset reports.
-> To be directly useful for promotion policies, the workingset report
-> interfaces need to be extended to report hotness and gather hotness
-> information from the devices[1].
-> 
-> [1]
-> https://www.opencompute.org/documents/ocp-cms-hotness-tracking-requirements-white-paper-pdf-1
->
-> Sysfs and Cgroup Interfaces
-> ==========
-> The interfaces are detailed in the patches that introduce them. The main
-> idea here is we break down the workingset per-node per-memcg into time
-> intervals (ms), e.g.
-> 
-> 1000 anon=137368 file=24530
-> 20000 anon=34342 file=0
-> 30000 anon=353232 file=333608
-> 40000 anon=407198 file=206052
-> 9223372036854775807 anon=4925624 file=892892
->
-> Implementation
-> ==========
-> The reporting of user pages is based off of MGLRU, and therefore requires
-> CONFIG_LRU_GEN=y. We would benefit from more MGLRU generations for a more
-> fine-grained workingset report, but we can already gather a lot of data
-> with just four generations. The workingset reporting mechanism is gated
-> behind CONFIG_WORKINGSET_REPORT, and the aging thread is behind
-> CONFIG_WORKINGSET_REPORT_AGING.
-> 
-> Benchmarks
-> ==========
-> Ghait Ouled Amar Ben Cheikh has implemented a simple policy and ran Linux
-> compile and redis benchmarks from openbenchmarking.org. The policy and
-> runner is referred to as WMO (Workload Memory Optimization).
-> The results were based on v3 of the series, but v4 doesn't change the core
-> of the working set reporting and just adds the ballooning counterpart.
-> 
-> The timed Linux kernel compilation benchmark shows improvements in peak
-> memory usage with a policy of "swap out all bytes colder than 10 seconds
-> every 40 seconds". A swapfile is configured on SSD.
-> --------------------------------------------
-> peak memory usage (with WMO): 4982.61328 MiB
-> peak memory usage (control): 9569.1367 MiB
-> peak memory reduction: 47.9%
-> --------------------------------------------
-> Benchmark                                           | Experimental     |Control         | Experimental_Std_Dev | Control_Std_Dev
-> Timed Linux Kernel Compilation - allmodconfig (sec) | 708.486 (95.91%) | 679.499 (100%) | 0.6%                 | 0.1%
-> --------------------------------------------
-> Seconds, fewer is better
-
-You can do this with a recent (>2018) upstream kernel and ~100 lines
-of python [1]. It also works on both LRU implementations.
-
-[1] https://github.com/facebookincubator/senpai
-
-We use this approach in virtually the entire Meta fleet, to offload
-unneeded memory, estimate available capacity for job scheduling, plan
-future capacity needs, and provide accurate memory usage feedback to
-application developers.
-
-It works over a wide variety of CPU and storage configurations with no
-specific tuning.
-
-The paper I referenced above provides a detailed breakdown of how it
-all works together.
-
-I would be curious to see a more in-depth comparison to the prior art
-in this space. At first glance, your proposal seems more complex and
-less robust/versatile, at least for offloading and capacity gauging.
-
-It does provide more detailed insight into userspace memory behavior,
-which could be helpful when trying to make sense of applications that
-sit on a rich layer of libraries and complicated runtimes. But here a
-comparison to DAMON would be helpful.
-
->  25 files changed, 2482 insertions(+), 9 deletions(-)
->  create mode 100644 Documentation/admin-guide/mm/workingset_report.rst
->  create mode 100644 include/linux/workingset_report.h
->  create mode 100644 mm/workingset_report.c
->  create mode 100644 mm/workingset_report_aging.c
->  create mode 100644 tools/testing/selftests/mm/workingset_report.c
->  create mode 100644 tools/testing/selftests/mm/workingset_report.h
->  create mode 100644 tools/testing/selftests/mm/workingset_report_test.c
+--
+Linaro LKFT
+https://lkft.linaro.org
