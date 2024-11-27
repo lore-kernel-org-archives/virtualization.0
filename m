@@ -1,220 +1,266 @@
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2061.outbound.protection.outlook.com [40.107.101.61])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5137E14A604
-	for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 06:58:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.101.61
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732690688; cv=fail; b=q6TGXB8VwnIbUUJ4sozqA2OwUKy/Puptj1LzxiefVI1Nv7O8wFL68LlmlMromOPvVOEVViGypzUSZyvGR3hadTmYsAiFJ4ERpr4jEPCnXf1yHZ55eeeoyaO9wIACfApkbtCImPk9wdQlZpp+Stzhmjj1jaP6QirCOh+L/7hd/DE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732690688; c=relaxed/simple;
-	bh=wzxZDe+zI465W2fzP3+4FzGureVXw3fXylzPc55FzjA=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mga9udCvYbZXlm838ovJjqpwNt8a3Sj4S1E3frBR+TM8J950ZdlhKPXjgNrbb9klmOlW/s6PkMLMeFHAdqV+3vot5/6XrxkdL17PT0ieR8gjaFMpss+URqOfL81cqbmYObYNB9Aw1w1H22V8pjqGDFSo0vGde3ELZvQdpq1eWoM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=kB6uw8U9; arc=fail smtp.client-ip=40.107.101.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4F4D14D2B7
+	for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 07:26:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1732692379; cv=none; b=gEUCzcbSMAzIOMqgPcaG9uaWm37s2BUaW1yUtwLbFrHDPuBWB0q8UTOL6FSmRiNkbnFk6pXqtOqRWpj5pan2nISlwdtXSieLHZ6TMCDx9+dzsF8Egfzoop6QMzycDXxn6jg+Hwk3IA+1qb41y5erX3GAMQnzdZyIzBjGUsGuOTs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1732692379; c=relaxed/simple;
+	bh=LaCgO/1I3Ht7VzxrqJNIKq5AGQ9WB0sRXb58RNW5hlw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o0epsFt+rNfr634gWQosbruYmGaJwKg1xzifolXjbhCge89vjDLrwh9r+PVOWrMF2DoyqRFoYas5uSczIkNaTezZhIjbz6LqwkzsWYLrYmmL/pz9OH6FYZdUDPSCUVFjMVFltlLkVAm2FiKYEi65iSNmjg4mvWyrOjFuHb4Ufbg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmpxchg.org; spf=pass smtp.mailfrom=cmpxchg.org; dkim=pass (2048-bit key) header.d=cmpxchg-org.20230601.gappssmtp.com header.i=@cmpxchg-org.20230601.gappssmtp.com header.b=FF4qpAtI; arc=none smtp.client-ip=209.85.160.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmpxchg.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmpxchg.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="kB6uw8U9"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=FgivVYK7Bq1iN8yHY6iWFZ82WyhyutA9C/20wA+SjUZhjDzLueA1RQxke6isdhWd69WjZaSX2WGPupUHPSIjNZyUmHgOpU9xQqPRlJ41aiQXEFTwBrk8gn46sLAfXtua1twEmRFA/oUIX85NSAJ7SCxikT4FhJdHtryMtn9fqQLxdMWpe/w8xJagy3V1zngjP1k6308vSR7eH6UbgVnmAi6zTPjRZjQ+Zh/pyxnNrnSR1/vMW8GZF+T78G6goEMN7d+SA+xWd81r3P/yh6/fkL1cVtajTeZ7Ul3pM/v9JdjZynCe/0bNrjP/YIGHfDpa4Q1Lg6f6FtlFI3BaxEe1Lg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=q7dQWmQOjRujgZ7Au6bkJ/LChGdiBPSJIi+snuzt+KA=;
- b=K32oQuOM5RHQbeqIB65PckJzBC5CpQlCdcLmlAy7YPPEFDlhUkiKX7zTcYzsfi3LRvCxj7ActylIMgJW6Zg/8WWfjKvmFyHdbACD3X4y7HwIqcQQW0ClTsz1rONw2s6kHHggD1mCE68K/54fdkAayH5Jwco7BslhMYHbHV6/pvL4ew7A8FgLkks6L9f5BITSMKhxGquKz3ebYpyVVzD/pDOwJgAGCw8t2EBhBrahkCTGdQJG/RX6FP1t0aSLVVS11b00HrfUMU0iVg0hezR0+uzUaxB5diJQB6tEEE1LKfEqtTicxgFDRiSb0FxW7zFiK6csOONgJl5Ey99KVr2E/A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=q7dQWmQOjRujgZ7Au6bkJ/LChGdiBPSJIi+snuzt+KA=;
- b=kB6uw8U95m6zOcmER5V0X3jCvxhwaUyL+dGBbs5/BNE1F8ivZ/d3eWcO/NG9/l0J+dpCrdMEKTmKVNWp4x1/K9+VGl9KSQZJxphKd4BYItxTYa+PhjOwMmU6ngxnMlqlsUWFiL+MKcBT4ip+yffmdSne6FyjyqUQ++LB00PdPlr2r2fELk1ltBtFfJv8RFTPoQIGop/y8wvr6bSjIVJa7u4FBpodqXNg2hpCY6HUU0c0OzPLLdwmjS8whQvQ+icwz0Spx937QKn27ws3FIjlR9iea4oLliOd7jnMUoizLbGqsVN4BG+wUS1gcw9347R3E+BvJnGLL1E7ePIq3BRZaQ==
-Received: from CH2PR19CA0016.namprd19.prod.outlook.com (2603:10b6:610:4d::26)
- by MN2PR12MB4224.namprd12.prod.outlook.com (2603:10b6:208:1dd::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8207.13; Wed, 27 Nov
- 2024 06:58:02 +0000
-Received: from CH2PEPF0000014A.namprd02.prod.outlook.com
- (2603:10b6:610:4d:cafe::8f) by CH2PR19CA0016.outlook.office365.com
- (2603:10b6:610:4d::26) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8207.12 via Frontend Transport; Wed,
- 27 Nov 2024 06:58:02 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- CH2PEPF0000014A.mail.protection.outlook.com (10.167.244.107) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8207.12 via Frontend Transport; Wed, 27 Nov 2024 06:58:02 +0000
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 26 Nov
- 2024 22:57:44 -0800
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail203.nvidia.com
- (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 26 Nov
- 2024 22:57:44 -0800
-Received: from rsws30.mtr.labs.mlnx (10.127.8.12) by mail.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Tue, 26 Nov 2024 22:57:41 -0800
-From: Israel Rukshin <israelr@nvidia.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>,
-	Parav Pandit <parav@nvidia.com>, <stefanha@redhat.com>,
-	<virtualization@lists.linux.dev>, <mst@redhat.com>, Linux-block
-	<linux-block@vger.kernel.org>
-CC: Nitzan Carmi <nitzanc@nvidia.com>, <kvm@vger.kernel.org>, Israel Rukshin
-	<israelr@nvidia.com>
-Subject: [PATCH 2/2] virtio_blk: Add support for transport error recovery
-Date: Wed, 27 Nov 2024 08:57:32 +0200
-Message-ID: <1732690652-3065-3-git-send-email-israelr@nvidia.com>
-X-Mailer: git-send-email 1.8.4.3
-In-Reply-To: <1732690652-3065-1-git-send-email-israelr@nvidia.com>
-References: <1732690652-3065-1-git-send-email-israelr@nvidia.com>
+	dkim=pass (2048-bit key) header.d=cmpxchg-org.20230601.gappssmtp.com header.i=@cmpxchg-org.20230601.gappssmtp.com header.b="FF4qpAtI"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-4669eecd88dso17932831cf.0
+        for <virtualization@lists.linux.dev>; Tue, 26 Nov 2024 23:26:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cmpxchg-org.20230601.gappssmtp.com; s=20230601; t=1732692375; x=1733297175; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Oki+SLMP3RV96wUZX5TvrU7XbLUfwG8p5rgWcxa7qog=;
+        b=FF4qpAtI8P0QnXJptP7RFPi61PD/oS7OP09LZZ0zIMCy2eKF6A0VbMWKDwA2PqrfLv
+         7qQK9Vmx7JihrNA7sUPSo/1/2SNvs5B/R5b5e1AYXJEkqUOj7+kYlT+MsOftRM4odU/H
+         lwWRyXJSd3lOjBobQTK2vZuh2TlltYe+JWXW0VoHiIbVBfrpr+nKeSb3pqtOMScvLoJe
+         0LX++LEIrQYsfmG3EZmKSUlVkY9qR6BMiIjE4wnWeRbTs8i+PQGQqsb9kVVMFEJCcLvs
+         FFrU3MHtWB+O8M4ReLMz+aE68NceJU8NVDIPiP74JDJWS50N8YIjXb2FHUbKAMaCyyn+
+         4ObA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1732692375; x=1733297175;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Oki+SLMP3RV96wUZX5TvrU7XbLUfwG8p5rgWcxa7qog=;
+        b=kQp93v/mDGFBqzWgHiQH393Lvgptq+AJk6UaSoyGp3y9oXtjqkYuF1pmyKCBGkO1Ni
+         xxcjokuaINpjsa+FpVVieoMDwIG/hrspgv5CetH8B9Gpv47Ov0kpSmtgVIkzNPKOy8eA
+         KWSMSOoRlHA+ZSU89c5UBi2C2PlZEo9JQewueUIoEy0oo7LNtWfVL09ZS/f0Y5D73037
+         7M52IAK+0kaBrbBpKI2gl9ty1miPuGZj4JS3Vp7YnYYiWo0k6oij9L5+3yi2sJU5mfQo
+         KiAGuXs4+ICqG1/9Efxm1Dqx0JbviZS/fT9nE0jG16eXU4NlWd+fUxXDpviV2NGIbI1h
+         uuJg==
+X-Forwarded-Encrypted: i=1; AJvYcCVMWIat3Xbs056b3h4gUQrdeJTaZYzonsFYYHaASwkjJdakcZq3QJDHLOvfyuAx+TF4XTltwonRDjPmwgKrTg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyGt1zRHgpekA6RQLTZHgM08UHAI8JDUDy5TQsUSoml4yypzWi0
+	3UK9x1s124lqOckvgIjX+88JIG5c6aPkm+HhC4pLLZdUKr21GyalntQEg+IcJ4g=
+X-Gm-Gg: ASbGncsuS26lfhfQ4Vb5D6gb3rA/iCDZ2Wmbnxu4Hk34xkrFjfEDQj4J+KRlab8BORt
+	JGW9ds4Fupmaxz1Gd2CnTQdu4ihNNpKdcebgVfQE8DOcZzT51E6iywjZ7URpwyKVeZnpL6Z6YgG
+	YQ6+22xkQLgRAbU06993nrq9ZX6otAx04i5ljnw0QQ/JbBED7p+bJdPlIP+FgbBM6Hrmg2BgExG
+	/jtqSjanVuDrkxRSkpJFQHOIhmqrts9kfbK6h7vqKYDqMe8
+X-Google-Smtp-Source: AGHT+IFJX0yoGf3rx43xtnjD4i0P7b6zQwuz1COBccsUFDJEwvH0o2DEs2dB0wnhyvUHM+XIFAHoZg==
+X-Received: by 2002:a05:622a:19a2:b0:460:aa51:840a with SMTP id d75a77b69052e-466b366240emr26501991cf.45.1732692375403;
+        Tue, 26 Nov 2024 23:26:15 -0800 (PST)
+Received: from localhost ([2603:7000:c01:2716:da5e:d3ff:fee7:26e7])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b666fd9999sm324018785a.23.2024.11.26.23.26.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Nov 2024 23:26:13 -0800 (PST)
+Date: Wed, 27 Nov 2024 02:26:04 -0500
+From: Johannes Weiner <hannes@cmpxchg.org>
+To: Yuanchu Xie <yuanchu@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@redhat.com>,
+	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+	Khalid Aziz <khalid.aziz@oracle.com>,
+	Henry Huang <henry.hj@antgroup.com>, Yu Zhao <yuzhao@google.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Gregory Price <gregory.price@memverge.com>,
+	Huang Ying <ying.huang@intel.com>, Lance Yang <ioworker0@gmail.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Muhammad Usama Anjum <usama.anjum@collabora.com>,
+	Tejun Heo <tj@kernel.org>,
+	Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Michal Hocko <mhocko@kernel.org>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Shakeel Butt <shakeel.butt@linux.dev>,
+	Muchun Song <muchun.song@linux.dev>,
+	Mike Rapoport <rppt@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Christian Brauner <brauner@kernel.org>,
+	Daniel Watson <ozzloy@each.do>, cgroups@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org, SeongJae Park <sj@kernel.org>
+Subject: Re: [PATCH v4 0/9] mm: workingset reporting
+Message-ID: <20241127072604.GA2501036@cmpxchg.org>
+References: <20241127025728.3689245-1-yuanchu@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH2PEPF0000014A:EE_|MN2PR12MB4224:EE_
-X-MS-Office365-Filtering-Correlation-Id: b4c87cf3-cd60-4a36-cfee-08dd0eb0d614
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|1800799024|36860700013;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?r2HgcPyy97tdytraFNWpwqgA2fc4jqOelrLIWzOzSxOtEDQz4U+gpvlMDUAH?=
- =?us-ascii?Q?xJdQQj+slMhbZ2hqmDRb0vvAUz2z6P9+srceT4XlB5HlGk2T+WqHkdmxXXkC?=
- =?us-ascii?Q?fruq/ovmdp4b+pezD2XayL2gpkY7PRLZGfZkqsyepu947wLy2M2cVlzyMedW?=
- =?us-ascii?Q?YjOAuJcpW8p/FrJtGleN6tUSMgVMIGms9l9issQ85fuJmvvHhI7wbDai94XK?=
- =?us-ascii?Q?bJ3zeVbQSAFFnBPFZgx3+LI3L+jfrzdtDFkKAcrJfnAM32hR9aCSQHWl5oBw?=
- =?us-ascii?Q?N9M2agCPe3ImX9/dCQaEm6+LVQYvMM5TIQ1n8QvOvrdURaLkeJtBvUBWRfI7?=
- =?us-ascii?Q?Q+WNQAo9EkrkgJTYX6/YAPwQthyJsnDNFE4HRKtVqGLBS8kLgSbU+XzrK/bs?=
- =?us-ascii?Q?KsOPN/UMVxPKhvUwEjerv8a3hhKVMcWjo7j4wHv1QUvd8JnXtJGfmJr1knVh?=
- =?us-ascii?Q?UAGUTiP6iQZniu/Ttq6WCu6JSrgdkpWWhtiTQZ++TKnL7qL9s59BHaSQQSAP?=
- =?us-ascii?Q?YYhely5xH+D0SiQWQJf0qTYczjGPXY7Sw1oa9C3L396h5wEFZiwIU3axg4Tg?=
- =?us-ascii?Q?i6qogdAyYeuBWcN/xV7wi9bZTi+Fcnqi68QhCWCYpCiudsWrNSrYvYT9xovs?=
- =?us-ascii?Q?+ErwvYtHe/NuKSohHrdJVxUrMN3lPWbjARqyW3uh3irLLJ73ju+ntS1mmEVP?=
- =?us-ascii?Q?XRoWmHG0JNw2n+Q9Bp5mxawH7pG6zv1TwKunVQmWZTW3zWsyLvetfCfE/ScM?=
- =?us-ascii?Q?H9zurnj5+kg7bUKD4OtrWKEyEkS2dXJAuzU+5+VfrMVOO3ELl1BTqPUNWm/q?=
- =?us-ascii?Q?DD+Gtpdh/dGQFw6j9jnpghRn6p+Ah+i9cJddrnZxsUsqUsYGhZgGuddFXWTO?=
- =?us-ascii?Q?aezwf3V2kqlWdXakEzt1p/I1hRwC5ETZPOI/vboqnuo/olZdT9U8hchzXUKC?=
- =?us-ascii?Q?nmPfNl2/UqkkspDFpGn2d/uEFnnIi28JMPqAAxzLHLrdSv5AwEIoEZpNCvNM?=
- =?us-ascii?Q?vgUgYFfH5cTeUIj2AtIQ//qm2YDkdgUTmTeiC8lKssXzPwK+LRAgreJt2iVO?=
- =?us-ascii?Q?cK2kprDBdPnydVFVlmmt07hwZExK4As78XxRhVBrlBGkeWchIavnQRLPNPws?=
- =?us-ascii?Q?1LSCSRslBjagm+yDo5JUARy3V5fV/zeF5kpriKu5xhvliFbfwg0FKqX5RWec?=
- =?us-ascii?Q?Hv58Aq/G4FDuVO1BLefU0QERuybiQxeqwx2p2N6MW+ZO5d2Z31hQPOSmG6b5?=
- =?us-ascii?Q?TovtXHKvek4VzJ7m1VnRKMNe6vOULwqvobugYuJDgyUwNxdT3LXFzpv8lLY2?=
- =?us-ascii?Q?NsYB8xk7kCN0nWJwWYn/RkHrzFzu+1vPJHEpvdo5SUw+oF0EsRy9Hyd/RvRx?=
- =?us-ascii?Q?JkfQWftQSiXT+G2CnDPHNqf8V+ZeRfEsaaup+BvwftHIsJUBV05G2/z36acZ?=
- =?us-ascii?Q?4UMuodk77Y4jYCVTwMh35FdvYO5vHjwy?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(376014)(1800799024)(36860700013);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Nov 2024 06:58:02.3637
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b4c87cf3-cd60-4a36-cfee-08dd0eb0d614
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH2PEPF0000014A.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4224
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241127025728.3689245-1-yuanchu@google.com>
 
-Add support for proper cleanup and re-initialization of virtio-blk devices
-during transport reset error recovery flow.
-This enhancement includes:
-- Pre-reset handler (reset_prepare) to perform device-specific cleanup
-- Post-reset handler (reset_done) to re-initialize the device
+On Tue, Nov 26, 2024 at 06:57:19PM -0800, Yuanchu Xie wrote:
+> This patch series provides workingset reporting of user pages in
+> lruvecs, of which coldness can be tracked by accessed bits and fd
+> references. However, the concept of workingset applies generically to
+> all types of memory, which could be kernel slab caches, discardable
+> userspace caches (databases), or CXL.mem. Therefore, data sources might
+> come from slab shrinkers, device drivers, or the userspace.
+> Another interesting idea might be hugepage workingset, so that we can
+> measure the proportion of hugepages backing cold memory. However, with
+> architectures like arm, there may be too many hugepage sizes leading to
+> a combinatorial explosion when exporting stats to the userspace.
+> Nonetheless, the kernel should provide a set of workingset interfaces
+> that is generic enough to accommodate the various use cases, and extensible
+> to potential future use cases.
 
-These changes allow the device to recover from various reset scenarios,
-ensuring proper functionality after a reset event occurs.
-Without this implementation, the device cannot properly recover from
-resets, potentially leading to undefined behavior or device malfunction.
+Doesn't DAMON already provide this information?
 
-This feature has been tested using PCI transport with Function Level
-Reset (FLR) as an example reset mechanism. The reset can be triggered
-manually via sysfs (echo 1 > /sys/bus/pci/devices/$PCI_ADDR/reset).
+CCing SJ.
 
-Signed-off-by: Israel Rukshin <israelr@nvidia.com>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
----
- drivers/block/virtio_blk.c | 28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+> Use cases
+> ==========
+> Job scheduling
+> On overcommitted hosts, workingset information improves efficiency and
+> reliability by allowing the job scheduler to have better stats on the
+> exact memory requirements of each job. This can manifest in efficiency by
+> landing more jobs on the same host or NUMA node. On the other hand, the
+> job scheduler can also ensure each node has a sufficient amount of memory
+> and does not enter direct reclaim or the kernel OOM path. With workingset
+> information and job priority, the userspace OOM killing or proactive
+> reclaim policy can kick in before the system is under memory pressure.
+> If the job shape is very different from the machine shape, knowing the
+> workingset per-node can also help inform page allocation policies.
+> 
+> Proactive reclaim
+> Workingset information allows the a container manager to proactively
+> reclaim memory while not impacting a job's performance. While PSI may
+> provide a reactive measure of when a proactive reclaim has reclaimed too
+> much, workingset reporting allows the policy to be more accurate and
+> flexible.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index c0cdba71f436..e1ab97251275 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1582,8 +1582,7 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	put_disk(vblk->disk);
- }
- 
--#ifdef CONFIG_PM_SLEEP
--static int virtblk_freeze(struct virtio_device *vdev)
-+static int virtblk_freeze_priv(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 
-@@ -1602,7 +1601,7 @@ static int virtblk_freeze(struct virtio_device *vdev)
- 	return 0;
- }
- 
--static int virtblk_restore(struct virtio_device *vdev)
-+static int virtblk_restore_priv(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 	int ret;
-@@ -1616,8 +1615,29 @@ static int virtblk_restore(struct virtio_device *vdev)
- 	blk_mq_unfreeze_queue(vblk->disk->queue);
- 	return 0;
- }
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int virtblk_freeze(struct virtio_device *vdev)
-+{
-+	return virtblk_freeze_priv(vdev);
-+}
-+
-+static int virtblk_restore(struct virtio_device *vdev)
-+{
-+	return virtblk_restore_priv(vdev);
-+}
- #endif
- 
-+static int virtblk_reset_prepare(struct virtio_device *vdev)
-+{
-+	return virtblk_freeze_priv(vdev);
-+}
-+
-+static int virtblk_reset_done(struct virtio_device *vdev)
-+{
-+	return virtblk_restore_priv(vdev);
-+}
-+
- static const struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_BLOCK, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
-@@ -1653,6 +1673,8 @@ static struct virtio_driver virtio_blk = {
- 	.freeze				= virtblk_freeze,
- 	.restore			= virtblk_restore,
- #endif
-+	.reset_prepare			= virtblk_reset_prepare,
-+	.reset_done			= virtblk_reset_done,
- };
- 
- static int __init virtio_blk_init(void)
--- 
-2.34.1
+I'm not sure about more accurate.
 
+Access frequency is only half the picture. Whether you need to keep
+memory with a given frequency resident depends on the speed of the
+backing device.
+
+There is memory compression; there is swap on flash; swap on crappy
+flash; swapfiles that share IOPS with co-located filesystems. There is
+zswap+writeback, where avg refault speed can vary dramatically.
+
+You can of course offload much more to a fast zswap backend than to a
+swapfile on a struggling flashdrive, with comparable app performance.
+
+So I think you'd be hard pressed to achieve a high level of accuracy
+in the usecases you list without taking the (often highly dynamic)
+cost of paging / memory transfer into account.
+
+There is a more detailed discussion of this in a paper we wrote on
+proactive reclaim/offloading - in 2.5 Hardware Heterogeneity:
+
+https://www.cs.cmu.edu/~dskarlat/publications/tmo_asplos22.pdf
+
+> Ballooning (similar to proactive reclaim)
+> The last patch of the series extends the virtio-balloon device to report
+> the guest workingset.
+> Balloon policies benefit from workingset to more precisely determine the
+> size of the memory balloon. On end-user devices where memory is scarce and
+> overcommitted, the balloon sizing in multiple VMs running on the same
+> device can be orchestrated with workingset reports from each one.
+> On the server side, workingset reporting allows the balloon controller to
+> inflate the balloon without causing too much file cache to be reclaimed in
+> the guest.
+> 
+> Promotion/Demotion
+> If different mechanisms are used for promition and demotion, workingset
+> information can help connect the two and avoid pages being migrated back
+> and forth.
+> For example, given a promotion hot page threshold defined in reaccess
+> distance of N seconds (promote pages accessed more often than every N
+> seconds). The threshold N should be set so that ~80% (e.g.) of pages on
+> the fast memory node passes the threshold. This calculation can be done
+> with workingset reports.
+> To be directly useful for promotion policies, the workingset report
+> interfaces need to be extended to report hotness and gather hotness
+> information from the devices[1].
+> 
+> [1]
+> https://www.opencompute.org/documents/ocp-cms-hotness-tracking-requirements-white-paper-pdf-1
+>
+> Sysfs and Cgroup Interfaces
+> ==========
+> The interfaces are detailed in the patches that introduce them. The main
+> idea here is we break down the workingset per-node per-memcg into time
+> intervals (ms), e.g.
+> 
+> 1000 anon=137368 file=24530
+> 20000 anon=34342 file=0
+> 30000 anon=353232 file=333608
+> 40000 anon=407198 file=206052
+> 9223372036854775807 anon=4925624 file=892892
+>
+> Implementation
+> ==========
+> The reporting of user pages is based off of MGLRU, and therefore requires
+> CONFIG_LRU_GEN=y. We would benefit from more MGLRU generations for a more
+> fine-grained workingset report, but we can already gather a lot of data
+> with just four generations. The workingset reporting mechanism is gated
+> behind CONFIG_WORKINGSET_REPORT, and the aging thread is behind
+> CONFIG_WORKINGSET_REPORT_AGING.
+> 
+> Benchmarks
+> ==========
+> Ghait Ouled Amar Ben Cheikh has implemented a simple policy and ran Linux
+> compile and redis benchmarks from openbenchmarking.org. The policy and
+> runner is referred to as WMO (Workload Memory Optimization).
+> The results were based on v3 of the series, but v4 doesn't change the core
+> of the working set reporting and just adds the ballooning counterpart.
+> 
+> The timed Linux kernel compilation benchmark shows improvements in peak
+> memory usage with a policy of "swap out all bytes colder than 10 seconds
+> every 40 seconds". A swapfile is configured on SSD.
+> --------------------------------------------
+> peak memory usage (with WMO): 4982.61328 MiB
+> peak memory usage (control): 9569.1367 MiB
+> peak memory reduction: 47.9%
+> --------------------------------------------
+> Benchmark                                           | Experimental     |Control         | Experimental_Std_Dev | Control_Std_Dev
+> Timed Linux Kernel Compilation - allmodconfig (sec) | 708.486 (95.91%) | 679.499 (100%) | 0.6%                 | 0.1%
+> --------------------------------------------
+> Seconds, fewer is better
+
+You can do this with a recent (>2018) upstream kernel and ~100 lines
+of python [1]. It also works on both LRU implementations.
+
+[1] https://github.com/facebookincubator/senpai
+
+We use this approach in virtually the entire Meta fleet, to offload
+unneeded memory, estimate available capacity for job scheduling, plan
+future capacity needs, and provide accurate memory usage feedback to
+application developers.
+
+It works over a wide variety of CPU and storage configurations with no
+specific tuning.
+
+The paper I referenced above provides a detailed breakdown of how it
+all works together.
+
+I would be curious to see a more in-depth comparison to the prior art
+in this space. At first glance, your proposal seems more complex and
+less robust/versatile, at least for offloading and capacity gauging.
+
+It does provide more detailed insight into userspace memory behavior,
+which could be helpful when trying to make sense of applications that
+sit on a rich layer of libraries and complicated runtimes. But here a
+comparison to DAMON would be helpful.
+
+>  25 files changed, 2482 insertions(+), 9 deletions(-)
+>  create mode 100644 Documentation/admin-guide/mm/workingset_report.rst
+>  create mode 100644 include/linux/workingset_report.h
+>  create mode 100644 mm/workingset_report.c
+>  create mode 100644 mm/workingset_report_aging.c
+>  create mode 100644 tools/testing/selftests/mm/workingset_report.c
+>  create mode 100644 tools/testing/selftests/mm/workingset_report.h
+>  create mode 100644 tools/testing/selftests/mm/workingset_report_test.c
