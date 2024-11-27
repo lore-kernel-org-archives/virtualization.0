@@ -1,136 +1,162 @@
-Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76EC814A60A
-	for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 08:01:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AFD81527AC
+	for <virtualization@lists.linux-foundation.org>; Wed, 27 Nov 2024 08:30:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732694474; cv=none; b=iQU5n3/xRGtWAaB5IcZrRYNMUyAfiCr9QML6oLjLqOZcABs/lhnKDnqq//XAoG5CuWTkFWc5b/CcveDnA1K+r3kkaGjXRp/VJFuzABxTu7+4mwBY3ZQCerfPjh7gKrnIqWojgz6yVDCwof5ESewaAgwcoiWGZvYdyDNlcDMgOJc=
+	t=1732696251; cv=none; b=UPIJQtyEsFjJn32L9uIlB3y2+DsEXGx8SXLk1c0BIG8RQoAOlq04hTN3dnUUU7PKMu//6kQgaVrAya3Tp09EUapSI5uzxC5LumiMPj9LYD20ZDUV5J0yj1A3FAHNXHuYzK/sxBBa8hkO4QP7by/8oMiQLc+wxAISvLhX71vPw5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732694474; c=relaxed/simple;
-	bh=AbkDYsis4owsrh1UCJvHba4T0vyQ/Nv1EmYIBX04NUM=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=CNgOEXPF8K/wn7JfA4wWa9Wc0wC5pjXVixzklnTXU7Q3bJhtf0d5y5Fur28kKjTX1KIB8X3uJ2I08BBLEJ31yUeCnQi5TFFHCzzz5cJefasrRYv+95QjbD3wXXcCw8/2iog1MsCIvK56++Y1WC4xurmXqbRwmK1YL6qYHoYuzVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=h0xcV5Vp; arc=none smtp.client-ip=209.85.167.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1732696251; c=relaxed/simple;
+	bh=Eoz0Q8Mkl/Pr7C3Gb8h9/rvKIVaHswPcRREVkWgCHFc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=iIIk5fpyNX0KGtISvpeBeG8keeerTmJMMF6Tn5wdStzTuK6Jbly8L1VIclV0+nz7lbpyWpeP+z0GXhekzpXsqM4q3o2FZIXi1X8c/VgBd5BaN+x6QQqiSUoYsGYfIqRX1d15CJgejsz8FsI99VMJFwZv0xTYJ+SAic7UGh6YYJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IF/06pkh; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="h0xcV5Vp"
-Received: by mail-oi1-f171.google.com with SMTP id 5614622812f47-3ea5f158138so818061b6e.0
-        for <virtualization@lists.linux.dev>; Wed, 27 Nov 2024 00:01:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1732694471; x=1733299271; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=hYdfHihuwL6Ju6kDqZ75VBX+k7CPPQhvCWcMy8zyxAs=;
-        b=h0xcV5VpC+RtXz+ZUbq+jTk4LIkOHq5qtEK8h0POK3ztfovHLyfox+4oJlxBLnjl83
-         UqpeXH7EpNBnighw+rzBDgzuEZ+kcPxqZjbpNiGV1VrKW5CZUUITUUOXJSP7oy1uQKuK
-         RJMe6mjdlIfcEUXOcj7aS3gQNROUbu1yd6InuFx9c6Atlpt3dSifYmrpf3y/ijdSKTUh
-         NFz1mNTLP2bEMUHMeqarr8cgL6ZMKG94GUElVokqBJsoo3Rb/UYefjqSOD7R9SJ/kcSm
-         g5Omq73rw/MSrRUIuGUrMx88FmRaKHvP4uG6ujv3xD1w8vhUQybXO3htEYW2NiOstEqV
-         nbGg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IF/06pkh"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id A3BC260706
+	for <virtualization@lists.linux-foundation.org>; Wed, 27 Nov 2024 08:30:49 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 6LpWC7ySOI8f for <virtualization@lists.linux-foundation.org>;
+ Wed, 27 Nov 2024 08:30:48 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org A67B860707
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A67B860707
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IF/06pkh
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A67B860707
+	for <virtualization@lists.linux-foundation.org>; Wed, 27 Nov 2024 08:30:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1732696246;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4MUFVXWBRckkMqy36xXoK5Hu73zQLVLWkWdXnXLcAfI=;
+	b=IF/06pkh6e8uwno2Nff7uHrkz+VbYdK24xuRMD/SSFuGEQxSQIuWJG8vRUvVzB8Xa6vhGR
+	4+mXL+ImxaaojxIFtjpymIouXY+/x6jTJqsrx2QSK7mJuIdj++sKIKES+1eJ6K/OHqFzFs
+	ii0ZGRpl2IYjA2IZhnnf4Oxc7VzA4yg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-623-uoCy_LrROr2rbFLKrV-k1Q-1; Wed, 27 Nov 2024 03:30:45 -0500
+X-MC-Unique: uoCy_LrROr2rbFLKrV-k1Q-1
+X-Mimecast-MFC-AGG-ID: uoCy_LrROr2rbFLKrV-k1Q
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-434a6483514so13948245e9.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 27 Nov 2024 00:30:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732694471; x=1733299271;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hYdfHihuwL6Ju6kDqZ75VBX+k7CPPQhvCWcMy8zyxAs=;
-        b=hZkC4gRFemb8I7MR5+98IeYoYnfXcocLE9VF1hQwn72dpXQksBznH8S+XV1koA/mEB
-         WOeTiE8mDwhsopnLXWoUl2QoMyLIqDOdBu2+lunczyW+XNxbRgoBHayP8xSCz+iKk6bV
-         PWO5a6az5XB7IdPny9YbVvR8xmetomJrCWsl3fchZauJ2SDB0f1W41uzcSrQUeasUFqq
-         TQuv6e1m2bBPFu2YUouFEreC89+hTxfyvXqjaxMvLpF3KqpWeQtsw6u1ecOn1EpZ++so
-         c17KlS0bUSHb8m8xLAZmJpmPLJm9i+hwR2oMOLp4h5hNZrBRhqDGbXn1H866liuRlTgN
-         gh+Q==
-X-Gm-Message-State: AOJu0YzaS6yG8nzRyGGH1qDDera13+hyP6CDRuYFICO594spGS9tTL2H
-	/44ed7lPzeo8IrbMBJGi6A+azEV4yrnZEZrBUQFHtVocGzks/DUWzvub5CHxi1urdxUQ7sNMF8a
-	pLZCZzzcfFE6+5cBzvboVyBBBU6RdZuBBsVLEMysZ8Z5/miuMaho=
-X-Gm-Gg: ASbGncuOIK77oBfkgsJwdm7Bo36e5nabe+3Z2XnHBw7O7/54mk4MIEv3MzCFW+cPt7q
-	+RpT9aPyDUrR/9yU3NBUgOJiuZU4ab8bi
-X-Google-Smtp-Source: AGHT+IEkxgFBqTgSvpO8yYB0IKDotz+aNBc7IBovLs4xngUKDxA0NRMInMSF3uQ1HnkNvQWdMO6Y8oP8iwyFQF4i8lk=
-X-Received: by 2002:a05:6808:18a5:b0:3ea:5e04:23ef with SMTP id
- 5614622812f47-3ea6dda02edmr1747674b6e.37.1732694471292; Wed, 27 Nov 2024
- 00:01:11 -0800 (PST)
+        d=1e100.net; s=20230601; t=1732696244; x=1733301044;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4MUFVXWBRckkMqy36xXoK5Hu73zQLVLWkWdXnXLcAfI=;
+        b=iZlw8YdOJPIl+NKHqWMbn0OHXxzvvJeSHZnV3H2qIcvkUebzOn3uhuNASl10aP0Jo/
+         WCsIEt2EINTlY8F1PFKcxcrDvBt++3WB/xJwl/PXxFtfPjNbflNGBdS8n7WPo33aNjb5
+         51AXdPcjcoIHG7MFYux8oblZuIbuLXgcQ1AxzxzsbLuGy6vB0BA8JVfgHsTJaCdiqTi9
+         mugEVyHkvPkrB/O0gGskvTaoP7NIpdKRu7Uoep+vBRGwIXfe2RIHSpNOBOJH4H1FYBg6
+         pJ7B72g7hF+/0lSkH+vJc+XcwOhq7DVqUQPcnhQ+dlM5sbX6gdHU1tImbgEtCHBOZNJo
+         CzxA==
+X-Forwarded-Encrypted: i=1; AJvYcCVKZMMSTqrYP51BRAm3wR6aGvatEEdt7qOmuELy8uQjTt2WF4Ukn9M5it/VY8iWgi6JTGEDND6uy3zI4qaeCg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YycmOLyqw6XzilMbDY5iH2z0BeEY4vsKOAlPHW5kMADYJ/G7G6M
+	z7dd7WDET+TwWQIpWw1jctjMM4LXFgVj12uHYcjzzH9HCXZchv2heOaQSe3ilrYQdEv0XwHmXbV
+	J5xQxgO9xR4JkDwR0Zn8m7AwPescHQRHs4TAzfp05kc9iGTGiN0tMrJ/8wkWZW5I265vTSYo82d
+	1r+7w=
+X-Gm-Gg: ASbGncvflJnUt45vnMKr6b1BTlBd9JDWJaKDw01hT1oJB0Dd/GpsKmNBej9Rl1CyB6A
+	8WmI9yx4Curlo1+L7oxzcdGI/jZ3yZmovz3JvZfK1zWwt64j2qzY5DkKWWUqumHtdaspBLGVuM3
+	SOWYUas5RcuE713jIDuWHKjJasV4wXPvoWc+HxIQkSdQ/SCvo3fUar7NHVWeGB01250nafVM+qH
+	ATuhfbQKxWkV2tbvvHPatOL6bx+CdAIAu3Njc3gWySF
+X-Received: by 2002:a05:600c:198c:b0:434:a386:6ae with SMTP id 5b1f17b1804b1-434a9db7cf7mr17738185e9.7.1732696244300;
+        Wed, 27 Nov 2024 00:30:44 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH2ADNx1yo7XqVN38+hjrq+uT0dwvOn8CIAZOqDBS7VnrgJbvD/98tIaKuZzdGb8T2i4UE1fg==
+X-Received: by 2002:a05:600c:198c:b0:434:a386:6ae with SMTP id 5b1f17b1804b1-434a9db7cf7mr17737925e9.7.1732696243978;
+        Wed, 27 Nov 2024 00:30:43 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1f6:a902:b9b1:2d24:8c60:30dd])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-434aa74ea95sm13552115e9.5.2024.11.27.00.30.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Nov 2024 00:30:43 -0800 (PST)
+Date: Wed, 27 Nov 2024 03:30:39 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	colin.i.king@gmail.com, dtatulea@nvidia.com, eperezma@redhat.com,
+	huangwenyu1998@gmail.com, jasowang@redhat.com, mgurtovoy@nvidia.com,
+	philipchen@chromium.org, si-wei.liu@oracle.com
+Subject: Re: [GIT PULL] virtio: features, fixes, cleanups
+Message-ID: <20241127032948-mutt-send-email-mst@kernel.org>
+References: <20241126163144-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Wed, 27 Nov 2024 13:30:59 +0530
-Message-ID: <CA+G9fYsF3x+ZXURQmgA1yQj-eiobr378HbodpJf4ncng7QYXmg@mail.gmail.com>
-Subject: drivers/virtio/virtio_ring.c:1162:11: error: 'struct vring_virtqueue'
- has no member named 'premapped'
-To: virtualization@lists.linux.dev, open list <linux-kernel@vger.kernel.org>, 
-	lkft-triage@lists.linaro.org, Linux Regressions <regressions@lists.linux.dev>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, eperezma@redhat.com, 
-	Sasha Levin <sashal@kernel.org>, Dan Carpenter <dan.carpenter@linaro.org>, 
-	Anders Roxell <anders.roxell@linaro.org>, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20241126163144-mutt-send-email-mst@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: UVWAshHGjMvD9_3l87fNuqYUhFcXCN0Pe2vzrh2njiI_1732696244
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The following build errors were noticed for arm64, arm, x86_64 and riscv.
+On Tue, Nov 26, 2024 at 04:31:51PM -0500, Michael S. Tsirkin wrote:
+> 
+> I was hoping to get vhost threading compat fixes in but no luck.
+> A very quiet merge cycle - I guess it's a sign we got a lot merged
+> last time, and everyone is busy testing. Right, guys?
 
-First seen on Sasha Linus-next 441d2975754ad94f3ce2e29f672824bc2dc5120c.
-  Good: 07e98e730a08081b6d0b5c3a173b0487c36ed27f
-  Bad:  441d2975754ad94f3ce2e29f672824bc2dc5120c
+You will get a merge conflict with net, resolution is here:
 
-arm64, arm, riscv and x86_64:
-  build:
-    * clang-19-defconfig
-    * gcc-13-defconfig
-    * clang-19-lkftconfig
-    * gcc-13-lkftconfig
+https://lore.kernel.org/all/20241118172605.19ee6f25@canb.auug.org.au/
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Build error:
----------
-drivers/virtio/virtio_ring.c: In function '__vring_new_virtqueue_split':
-drivers/virtio/virtio_ring.c:1162:11: error: 'struct vring_virtqueue'
-has no member named 'premapped'
- 1162 |         vq->premapped = false;
-      |           ^~
-drivers/virtio/virtio_ring.c:1163:11: error: 'struct vring_virtqueue'
-has no member named 'do_unmap'
- 1163 |         vq->do_unmap = vq->use_dma_api;
-      |           ^~
-make[5]: *** [scripts/Makefile.build:229: drivers/virtio/virtio_ring.o] Error 1
+> The following changes since commit 83e445e64f48bdae3f25013e788fcf592f142576:
+> 
+>   vdpa/mlx5: Fix error path during device add (2024-11-07 16:51:16 -0500)
+> 
+> are available in the Git repository at:
+> 
+>   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> 
+> for you to fetch changes up to 6a39bb15b3d1c355ab198d41f9590379d734f0bb:
+> 
+>   virtio_vdpa: remove redundant check on desc (2024-11-12 18:07:46 -0500)
+> 
+> ----------------------------------------------------------------
+> virtio: features, fixes, cleanups
+> 
+> A small number of improvements all over the place.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ----------------------------------------------------------------
+> Colin Ian King (1):
+>       virtio_vdpa: remove redundant check on desc
+> 
+> Max Gurtovoy (2):
+>       virtio_fs: add informative log for new tag discovery
+>       virtio_fs: store actual queue index in mq_map
+> 
+> Philip Chen (1):
+>       virtio_pmem: Add freeze/restore callbacks
+> 
+> Si-Wei Liu (2):
+>       vdpa/mlx5: Fix PA offset with unaligned starting iotlb map
+>       vdpa/mlx5: Fix suboptimal range on iotlb iteration
+> 
+> Wenyu Huang (1):
+>       virtio: Make vring_new_virtqueue support packed vring
+> 
+>  drivers/nvdimm/virtio_pmem.c |  24 +++++
+>  drivers/vdpa/mlx5/core/mr.c  |  12 +--
+>  drivers/virtio/virtio_ring.c | 227 +++++++++++++++++++++++--------------------
+>  drivers/virtio/virtio_vdpa.c |   3 +-
+>  fs/fuse/virtio_fs.c          |  13 +--
+>  5 files changed, 159 insertions(+), 120 deletions(-)
 
-Build image:
------------
-- https://qa-reports.linaro.org/lkft/sashal-linus-next/build/v6.11-25212-gbe03d2e1a06f/testrun/26081256/suite/build/test/gcc-13-lkftconfig-rcutorture/log
-- https://qa-reports.linaro.org/lkft/sashal-linus-next/build/v6.11-25212-gbe03d2e1a06f/testrun/26081256/suite/build/test/gcc-13-lkftconfig-rcutorture/history/
-- https://qa-reports.linaro.org/lkft/sashal-linus-next/build/v6.11-25212-gbe03d2e1a06f/testrun/26081256/suite/build/test/gcc-13-defconfig/history/
-- https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/
-
-$ git log --oneline
-07e98e730a08081b6d0b5c3a173b0487c36ed27f..441d2975754ad94f3ce2e29f672824bc2dc5120c
- -- drivers/virtio/virtio_ring.c
-   441d2975754ad Merge tag 'for_linus' of
-https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost into
-linus-next
-   a49c26f761d2b virtio: Make vring_new_virtqueue support packed vring
-
-Steps to reproduce:
-------------
-- tuxsuite build \
-    --git-repo https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linus-next.git
-\
-    --git-sha be03d2e1a06f7bd4be131c48f1c5555e83470a4d \
-    --target-arch arm64 \
-    --toolchain gcc-13 \
-    --kconfig https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/config
-
-metadata:
-----
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linus-next.git
-  git sha: ed9a4ad6e5bd3a443e81446476718abebee47e82
-  kernel config:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/config
-  build url: https://storage.tuxsuite.com/public/linaro/lkft/builds/2pPghaTDWgXtaR5FXfFS4Ay3d4C/
-  toolchain: gcc-13, clang-19 and clang-nightly
-  config: defconfig, lkftconfig
-  arch: arm64, arm, x86_64 and riscv
-
---
-Linaro LKFT
-https://lkft.linaro.org
