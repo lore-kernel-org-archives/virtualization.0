@@ -1,419 +1,614 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 193EB155345
-	for <virtualization@lists.linux.dev>; Fri, 29 Nov 2024 10:38:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D996F19C54C
+	for <virtualization@lists.linux.dev>; Fri, 29 Nov 2024 12:24:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732876702; cv=none; b=TJtPscC9xQmL+/QHPqsO6Qyocnnj6HJdpSt5+MBUQ7THs9LkJ6JzlazB938RtL54Qd3Np7VUsnBoFN11lq481Or4iR2ZI+ltr/ATft+cfsTOsH+bGybOOUIZPOK+Hpv/lnttcNa4Qh8gjT3Ymj3UJ4hpYWxJzH9pptizq3skC8Q=
+	t=1732883084; cv=none; b=BiUKDjyyM76SymxHfmIjoUCCIwxkxMqmgPsaeNIS8r2nk89py+4n/e/obsBoGRYX+GLPDzz3ZWla8VW17CiUm94sEkVoXO/0xtWT3iDk+Pp6XAmNAcWVTMsOkNmDmjBqVQlzEhtK9+/Jr5EzEgfY4NfzER6X83GAgYN5ISQTPzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732876702; c=relaxed/simple;
-	bh=SsUZyudyCyMmcAMe34mYJ0U6H1gcKuMllez6Hd3Y17A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TRBcbPsD+gDHstQT1/bL4i5zPwcEIPH8Bn3iwvy2teAY2UY1Tgkz0QrmEf8PqK/0ock6JwzA5j9mmPosgDwzY1Z2NXTYmVXKjACDgkxzDjlmt9bEIDiE1Z55Knk/9uyoXeGrvak0c98SEuL9lKNE/wvB2pRts/CbiR2kf6H5sKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NL6C1OXN; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1732883084; c=relaxed/simple;
+	bh=xXxBWUDnN4qD9ul34g1IsYjS2JXVp5rKWjaxiOLRsd0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=UUC4IDWTWfl3CCO5TyGDG7F1sW5hpNvWBXNRK5CApnNuT4CPfpRkIzig/S6P+6U1Ix4jp3ncc12Ug1nCKJPt7j71elHOQFtYvrUD7rfq2R6AaYQFM6+B/2az4f0GbT4PKZzpUA8eCSXQ5xYy2t4sRtIb1Daap4cCu3hqtVqLl1U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=InStkQDA; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NL6C1OXN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="InStkQDA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732876699;
+	s=mimecast20190719; t=1732883079;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=5l5BKI0l4LZnnlOw9f9778HU6B8mn/V5T9U5nE1GYbQ=;
-	b=NL6C1OXNyaZ/JPMUP1P3b7qrqVrKt1aAljrqHiahZm6JdbggrYRg/O3rEsgm2iOgp9Q+lE
-	phHWdxjl4w0TbScyuLE116DjEnNDmq79KTbhvOUajthq1TP06vc9o+f5E6kJr6OZ+Ye3nV
-	iOmh1BSze+YVPj0ABeKycccCFieQD9g=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=14a+rrF2ezR8BXSB3DKE6BH2pxXCd/wc6PV2N9A6dLs=;
+	b=InStkQDA+w2B9E71WJFKNyRd4rC0dHxeH9eoEtvNb2oodTyksVA/h/FfTD+vj3JKZYfF7J
+	tzLPAo4bNY8Z95Uc71V/b/AglzxnJ3hGMLjlCiyZncH3vWJfxXIxXv5bDGWZhxdo9dVnGU
+	5LSlizomtdOOdIXJVAIdASYpf2e7knY=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-504-CkyacISNN8GLEasbuTAaqA-1; Fri, 29 Nov 2024 05:38:17 -0500
-X-MC-Unique: CkyacISNN8GLEasbuTAaqA-1
-X-Mimecast-MFC-AGG-ID: CkyacISNN8GLEasbuTAaqA
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3823326e95aso969852f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 29 Nov 2024 02:38:17 -0800 (PST)
+ us-mta-318-K9kz6PrTOEy89PJBUhxOiQ-1; Fri, 29 Nov 2024 07:24:38 -0500
+X-MC-Unique: K9kz6PrTOEy89PJBUhxOiQ-1
+X-Mimecast-MFC-AGG-ID: K9kz6PrTOEy89PJBUhxOiQ
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2127bdb3eafso21204955ad.0
+        for <virtualization@lists.linux.dev>; Fri, 29 Nov 2024 04:24:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732876696; x=1733481496;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=5l5BKI0l4LZnnlOw9f9778HU6B8mn/V5T9U5nE1GYbQ=;
-        b=B/n/nAcGg/PPK/lzywwpfHlrvmOuYros0c74es1O+dX0HhqbkgLUQkrs3Zre+1y6vs
-         uKCgc4CtJn2bLXzfMdY37iezIehyfjdHvOyAngESOZKYL+n+++AGkrjoKE7EvsQXBXVG
-         ym+Nurt0QtjPCmyOdePSdAupXy1ofJeY/1PQx40gNGhNi5nzxL7pqB00pbkDdvzQrEmt
-         1AVGJX8lNWglgaEy4zQId+kbeP0UvLI0XOZF/LH5m0WJdvXy88xDzMm2ELutiZ/g1MBU
-         XnX/PrxEBUIj+B49TzD4CVnQYWCFC5FEeJH5u2MigToppI6VRttRwF+32z1D6jzE72cl
-         dlDw==
-X-Forwarded-Encrypted: i=1; AJvYcCXTfZ2aq7QIVD78eUYWPUqxxpsFoShdhf8Tcd5yu3v2ITDBCvlDdwAW2xirwJCQHz97IRK82UnQMHsu+TCBjw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxw5OR/5c5LPtL7W4otY8KHKtDYsudu/1yTMLtVx7Z9/UY6B704
-	GZ8XBQ5EA3Trg1qxOgxqXiR0HmBCefgJg2IRTY8YJ3w36NGejc0iKZfADy5jdmCaQjyUINJ/BZI
-	nPhQWwdhj2bT6rY1I9f1yM++Nma6opMhCzb+2FzeJfRWMGfKmJmzMlM/qrQf4eGmF
-X-Gm-Gg: ASbGncud0Wi/Ky3cXdc3kXIo7L3ClRKfGFVhOqaVy/Zb3PwUrG8tAj0Zs4SvSVamWVj
-	9u01p2hl6thiwFGammJJRjVkhePrZL/W+4ALzVX110P0mzo+eeftZed9ML+299gixAqtyoFNCZO
-	cWf2TgGEtot+XwNosgBAiTUxfOgxY+D+EoZiEPd5rGLi+RFK9y+8g/7mGOmoOdlavjcY4+IgBea
-	lkMCZBjqE/Id73kETBcwmlAJtGadIaywmswnxSuYXyfJCb+CARZhwT7lPCg/7cf1G8nd5yA4ift
-	3nz/kRPXlGIGMz/52k9YQWIiVbccDAxB8s04HX9FwUpvh2/piokpjmamiNhWuRLJix0QK6xw/8w
-	CHg==
-X-Received: by 2002:a05:6000:1541:b0:37e:f8a1:596e with SMTP id ffacd0b85a97d-385c6eb6aeemr7845869f8f.11.1732876695617;
-        Fri, 29 Nov 2024 02:38:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHOsw1An7Q/meUEBvvXObJL5Eak2wen/FF0/RDLBz/ZjxjAoncCEhZrXues5Tm5dbfallRPbw==
-X-Received: by 2002:a05:6000:1541:b0:37e:f8a1:596e with SMTP id ffacd0b85a97d-385c6eb6aeemr7845840f8f.11.1732876695042;
-        Fri, 29 Nov 2024 02:38:15 -0800 (PST)
-Received: from ?IPV6:2003:cb:c71c:a700:bba7:849a:ecf1:5404? (p200300cbc71ca700bba7849aecf15404.dip0.t-ipconnect.de. [2003:cb:c71c:a700:bba7:849a:ecf1:5404])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-385ccd7fc33sm4045579f8f.94.2024.11.29.02.38.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 29 Nov 2024 02:38:14 -0800 (PST)
-Message-ID: <a7ccbd86-2a62-4191-8742-ce45b6e8f73c@redhat.com>
-Date: Fri, 29 Nov 2024 11:38:13 +0100
+        d=1e100.net; s=20230601; t=1732883077; x=1733487877;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=14a+rrF2ezR8BXSB3DKE6BH2pxXCd/wc6PV2N9A6dLs=;
+        b=Wdcb2iIvsde8yp1lNfErBBd1NbqL8AmAxtYGLl3tRqYcsZ/aF+hvTTRGOoTwBSk9zy
+         uHk5ZKCwYdXC07zcMpQ5f00rP/1TjAtkEuAKcEsFlI7zDvm0MTHUU1h/CkvXinmUmXRs
+         2lbJL8Hh9csZBlUtEuzEIYbzzncaCPAiFhkgXVqaNbSiilNmzKRuiC7JYneHlmWWStQf
+         nL8luLx5mtZ1gc9Uoa2ZsF1g7VLVtvnko0grqXgV6toLhSLTO2p/S0YlsGf0D6CFkUzP
+         HqqZKzLNQhpIh3znnvBSZhidPQfX8pgpfDDEz1lsoOQHOMkjpe1vOy+8TyrVKtm1AF21
+         b0yQ==
+X-Gm-Message-State: AOJu0Yw6fVmjGMmedKsPwkjL6YY3BjIH1rXhNxc/KkucdXqZAwcjCooB
+	/yarxd3hfRFjCfHM+eAZuQCdnFRTSQYgoh7BYM0/Xje4E9f0xPThiioLef5THaGTfVRyzox4C2s
+	nWZUojEUrSsucvb2xU9Tu2CBcJpLd3YB0YyMvTo2/rm7FJDSQHuCvKUoQey8NsF9X
+X-Gm-Gg: ASbGncuRLT6Sw5dA23c9xRyEk4Dd/ckE1x0khKR6sWhamh6W4FD3bqsJdrCdcCSTpi9
+	qEa4H4icpISL5AwTXtoZaqdi5tapI3wO2mOhWAZ4MiMoVY5bTbDMs6dFeeSRXjaQyAztOsgCM8o
+	PYSQJO2b18M5gSj9hmLfGzQPltr4y2CfEr46i5sKQ83Vnn7aXIaDreoCzbkTxX9fWU+QAAYRP/B
+	bcVXkDBnCfnqVbVoOGbt+eTbgyNYXdsN4vkiopzjluMKcJZ5SU=
+X-Received: by 2002:a17:903:2346:b0:213:1f66:7a0 with SMTP id d9443c01a7336-2151d2e865cmr127599595ad.5.1732883077217;
+        Fri, 29 Nov 2024 04:24:37 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHUUHOZlXxine/HC1v0K7tHwqDwNkhuR/8aRVF8qDNKkrQ93pMhVzsOkHcmFwN4NMnrPROz6A==
+X-Received: by 2002:a17:903:2346:b0:213:1f66:7a0 with SMTP id d9443c01a7336-2151d2e865cmr127599025ad.5.1732883076752;
+        Fri, 29 Nov 2024 04:24:36 -0800 (PST)
+Received: from zeus.elecom ([240b:10:83a2:bd00:6e35:f2f5:2e21:ae3a])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-215219d2ed0sm29425625ad.273.2024.11.29.04.24.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Nov 2024 04:24:36 -0800 (PST)
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	daniel@ffwll.ch,
+	jfalempe@redhat.com,
+	christophe.jaillet@wanadoo.fr
+Cc: virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	Ryosuke Yasuoka <ryasuoka@redhat.com>
+Subject: [PATCH v5] drm/virtio: Add drm_panic support
+Date: Fri, 29 Nov 2024 21:24:07 +0900
+Message-ID: <20241129122408.4167150-1-ryasuoka@redhat.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/11] fs/proc/vmcore: disallow vmcore modifications
- after the vmcore was opened
-To: Baoquan He <bhe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
- Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
- <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-References: <20241025151134.1275575-1-david@redhat.com>
- <20241025151134.1275575-4-david@redhat.com> <Z0BL/UopaH5Xg5jS@MiWiFi-R3L-srv>
- <d29d7816-a3e5-4f34-bb0c-dd427931efb4@redhat.com>
- <Z0SMqYX8gMvdiU4T@MiWiFi-R3L-srv>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <Z0SMqYX8gMvdiU4T@MiWiFi-R3L-srv>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: umueYE98GnHK6TrtXO_LkliCB__Ey0zhzDXB8wV9AyY_1732876696
+X-Mimecast-MFC-PROC-ID: 4kt8rjweCi7QANrL80ILHD4fTbi7-hLfY1BgCCPf4sQ_1732883077
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On 25.11.24 15:41, Baoquan He wrote:
-> On 11/22/24 at 10:30am, David Hildenbrand wrote:
->> On 22.11.24 10:16, Baoquan He wrote:
->>> On 10/25/24 at 05:11pm, David Hildenbrand wrote:
->>> ......snip...
->>>> @@ -1482,6 +1470,10 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
->>>>    		return -EINVAL;
->>>>    	}
->>>> +	/* We'll recheck under lock later. */
->>>> +	if (data_race(vmcore_opened))
->>>> +		return -EBUSY;
->>>
->>
->> Hi,
->>
->>> As I commented to patch 7, if vmcore is opened and closed after
->>> checking, do we need to give up any chance to add device dumping
->>> as below?
->>>
->>> fd = open(/proc/vmcore);
->>> ...do checking;
->>> close(fd);
->>>
->>> quit any device dump adding;
->>>
->>> run makedumpfile on s390;
->>>     ->fd = open(/proc/vmcore);
->>>       -> try to dump;
->>>     ->close(fd);
->>
->> The only reasonable case where this could happen (with virtio_mem) would be
->> when you hotplug a virtio-mem device into a VM that is currently in the
->> kdump kernel. However, in this case, the device would not provide any memory
->> we want to dump:
->>
->> (1) The memory was not available to the 1st (crashed) kernel, because
->>      the device got hotplugged later.
->> (2) Hotplugged virtio-mem devices show up with "no plugged memory",
->>      meaning there wouldn't be even something to dump.
->>
->> Drivers will be loaded (as part of the kernel or as part of the initrd)
->> before any kdump action is happening. Similarly, just imagine your NIC
->> driver not being loaded when you start dumping to a network share ...
->>
->> This should similarly apply to vmcoredd providers.
->>
->> There is another concern I had at some point with changing the effective
->> /proc/vmcore size after someone already opened it, and might assume the size
->> will stay unmodified (IOW, the file was completely static before vmcoredd
->> showed up).
->>
->> So unless there is a real use case that requires tracking whether the file
->> is no longer open, to support modifying the vmcore afterwards, we should
->> keep it simple.
->>
->> I am not aware of any such cases, and my experiments with virtio_mem showed
->> that the driver get loaded extremely early from the initrd, compared to when
->> we actually start messing with /proc/vmcore from user space.
-> 
-> Hmm, thanks for sharing your thoughts.
+From: Jocelyn Falempe <jfalempe@redhat.com>
 
-To assist the discussion, here is the kdump dmesg output on s390x with the
-virtio-mem driver as part of the initrd:
+Virtio gpu supports the drm_panic module, which displays a message to
+the screen when a kernel panic occurs.
+
+Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+---
+v5:
+Based on Dmitry's comment, fix the followings
+- Rename virtio_panic_buffer to panic_vbuf
+- Remove some unnecessary dummy ret and return directly.
+- Reject if the bo is VRAM BO
+- Remove virtio_gpu_panic_put_vbuf() before notify
+- Add description for panic buffer allocation
+- Remove virtio_gpu_panic_object_array and use
+  virtio_gpu_panic_array_alloc() to allocate objs instead of static
+  allocation in stack.
+
+v4:
+https://lkml.org/lkml/2024/11/13/346
+
+- As per Dmitry's comment, make virtio_panic_buffer private to
+  virtio_gpu_device.
+
+v3:
+https://lkml.org/lkml/2024/11/8/155
+
+- As per Jocelyn's comment, add a finite timeout 500usec in
+  virtio_gpu_panic_put_vbuf() to avoid infinite loop
+
+v2:
+https://lkml.org/lkml/2024/11/6/668
+
+- Remove unnecessary virtio_gpu_vbuffer_inline
+- Remove reclaim_list and just call drm_gem_object_put() if there is an
+   obj
+- Don't wait for an event in virtio_gpu_panic_queue_ctrl_sgs and just
+   return -ENOMEM. Also add error handlers for this error.
+- Use virtio_gpu_panic_queue_fenced_ctrl_buffer() in
+virtio_gpu_panic_cmd_resource_flush
+- Remove fence and objs arguments because these are always NULL in panic
+   handler.
+- Rename virtio_gpu_panic_queue_fenced_ctrl_buffer to
+   ..._queue_ctrl_buffer
+- Rename virtio_gpu_panic_alloc_cmd to ..._panic_init_cmd
+
+v1:
+https://lkml.org/lkml/2024/10/31/154
 
 
-[Fri Nov 29 04:55:28 2024] Run /init as init process
-[Fri Nov 29 04:55:28 2024]   with arguments:
-[Fri Nov 29 04:55:28 2024]     /init
-[Fri Nov 29 04:55:28 2024]   with environment:
-[Fri Nov 29 04:55:28 2024]     HOME=/
-[Fri Nov 29 04:55:28 2024]     TERM=linux
-[Fri Nov 29 04:55:28 2024]     numa=off
-[Fri Nov 29 04:55:28 2024]     cma=0
-[Fri Nov 29 04:55:28 2024] loop: module loaded
-[Fri Nov 29 04:55:28 2024] squashfs: version 4.0 (2009/01/31) Phillip Lougher
-[Fri Nov 29 04:55:28 2024] loop0: detected capacity change from 0 to 45280
-[Fri Nov 29 04:55:28 2024] overlayfs: upper fs does not support RENAME_WHITEOUT.
-[Fri Nov 29 04:55:28 2024] overlayfs: failed to set xattr on upper
-[Fri Nov 29 04:55:28 2024] overlayfs: ...falling back to uuid=null.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Successfully made /usr/ read-only.
-[Fri Nov 29 04:55:28 2024] systemd[1]: systemd 256.8-1.fc41 running in system mode [...]
-[Fri Nov 29 04:55:28 2024] systemd[1]: Detected virtualization kvm.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Detected architecture s390x.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Running in initrd.
-[Fri Nov 29 04:55:28 2024] systemd[1]: No hostname configured, using default hostname.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Hostname set to <localhost>.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Queued start job for default target initrd.target.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Started systemd-ask-password-console.path - Dispatch Password Requests to Console Directory Watch.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Expecting device dev-mapper-sysvg\x2droot.device - /dev/mapper/sysvg-root...
-[Fri Nov 29 04:55:28 2024] systemd[1]: Reached target initrd-usr-fs.target - Initrd /usr File System.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Reached target paths.target - Path Units.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Reached target slices.target - Slice Units.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Reached target swap.target - Swaps.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Reached target timers.target - Timer Units.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
-[Fri Nov 29 04:55:28 2024] systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Reached target sockets.target - Socket Units.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
-[Fri Nov 29 04:55:28 2024] systemd[1]: memstrack.service - Memstrack Anylazing Service was skipped because no trigger condition checks were met.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Starting systemd-journald.service - Journal Service...
-[Fri Nov 29 04:55:28 2024] systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
-[Fri Nov 29 04:55:28 2024] systemd[1]: Starting systemd-vconsole-setup.service - Virtual Console Setup...
-[Fri Nov 29 04:55:28 2024] systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
-[Fri Nov 29 04:55:28 2024] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
-[Fri Nov 29 04:55:28 2024] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Starting systemd-sysusers.service - Create System Users...
-[Fri Nov 29 04:55:28 2024] systemd-journald[205]: Collecting audit messages is disabled.
-[Fri Nov 29 04:55:28 2024] systemd[1]: Started systemd-journald.service - Journal Service.
-[Fri Nov 29 04:55:28 2024] evm: overlay not supported
-[Fri Nov 29 04:55:29 2024] device-mapper: core: CONFIG_IMA_DISABLE_HTABLE is disabled. Duplicate IMA measurements will not be recorded in the IMA log.
-[Fri Nov 29 04:55:29 2024] device-mapper: uevent: version 1.0.3
-[Fri Nov 29 04:55:29 2024] device-mapper: ioctl: 4.48.0-ioctl (2023-03-01) initialised: dm-devel@lists.linux.dev
-[Fri Nov 29 04:55:29 2024] VFIO - User Level meta-driver version: 0.3
-[Fri Nov 29 04:55:29 2024] virtio_blk virtio1: 1/0/0 default/read/poll queues
-[Fri Nov 29 04:55:29 2024] virtio_blk virtio1: [vda] 35651584 512-byte logical blocks (18.3 GB/17.0 GiB)
-[Fri Nov 29 04:55:29 2024] virtio_mem virtio2: start address: 0x100000000
-[Fri Nov 29 04:55:29 2024] virtio_mem virtio2: region size: 0x400000000
-[Fri Nov 29 04:55:29 2024] virtio_mem virtio2: device block size: 0x100000
-[Fri Nov 29 04:55:29 2024] virtio_mem virtio2: nid: 0
-[Fri Nov 29 04:55:29 2024] virtio_mem virtio2: memory hot(un)plug disabled in kdump kernel
-[Fri Nov 29 04:55:29 2024] GPT:Primary header thinks Alt. header is not at the end of the disk.
-[Fri Nov 29 04:55:29 2024] GPT:14680063 != 35651583
-[Fri Nov 29 04:55:29 2024] GPT:Alternate GPT header not at the end of the disk.
-[Fri Nov 29 04:55:29 2024] GPT:14680063 != 35651583
-[Fri Nov 29 04:55:29 2024] GPT: Use GNU Parted to correct GPT errors.
-[Fri Nov 29 04:55:29 2024]  vda: vda1 vda2
-[Fri Nov 29 04:55:29 2024] SGI XFS with ACLs, security attributes, scrub, quota, no debug enabled
-[Fri Nov 29 04:55:29 2024] XFS: attr2 mount option is deprecated.
-[Fri Nov 29 04:55:29 2024] XFS (dm-0): Mounting V5 Filesystem 4171e972-6865-4c47-ba7f-20bd52628650
-[Fri Nov 29 04:55:29 2024] XFS (dm-0): Starting recovery (logdev: internal)
-[Fri Nov 29 04:55:29 2024] XFS (dm-0): Ending recovery (logdev: internal)
-Nov 29 04:55:28 localhost systemd-journald[205]: Journal started
-Nov 29 04:55:28 localhost systemd-journald[205]: Runtime Journal (/run/log/journal/1377b7cdca054edd8904cb6f80695a23) is 1.4M, max 11.2M, 9.8M free.
-Nov 29 04:55:28 localhost systemd-vconsole-setup[207]: /usr/bin/setfont failed with a "system error" (EX_OSERR), ignoring.
-Nov 29 04:55:28 localhost systemd-modules-load[206]: Inserted module 'pkey'
-Nov 29 04:55:28 localhost systemd-modules-load[206]: Module 'scsi_dh_alua' is built in
-Nov 29 04:55:28 localhost systemd-modules-load[206]: Module 'scsi_dh_emc' is built in
-Nov 29 04:55:28 localhost systemd-vconsole-setup[210]: setfont: ERROR kdfontop.c:183 put_font_kdfontop: Unable to load such font with such kernel version
-Nov 29 04:55:28 localhost systemd-modules-load[206]: Module 'scsi_dh_rdac' is built in
-Nov 29 04:55:28 localhost systemd-sysusers[216]: Creating group 'systemd-journal' with GID 190.
-Nov 29 04:55:28 localhost systemd[1]: Finished systemd-sysusers.service - Create System Users.
-Nov 29 04:55:28 localhost systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
-Nov 29 04:55:28 localhost systemd[1]: Finished systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev.
-Nov 29 04:55:28 localhost systemd[1]: Reached target local-fs-pre.target - Preparation for Local File Systems.
-Nov 29 04:55:28 localhost systemd[1]: Reached target local-fs.target - Local File Systems.
-Nov 29 04:55:28 localhost systemd[1]: Starting systemd-tmpfiles-setup.service - Create System Files and Directories...
-Nov 29 04:55:28 localhost systemd-tmpfiles[227]: /usr/lib/tmpfiles.d/var.conf:14: Duplicate line for path "/var/log", ignoring.
-Nov 29 04:55:28 localhost systemd[1]: Finished systemd-tmpfiles-setup.service - Create System Files and Directories.
-Nov 29 04:55:28 localhost systemd-vconsole-setup[207]: Setting source virtual console failed, ignoring remaining ones.
-Nov 29 04:55:28 localhost systemd[1]: Finished systemd-vconsole-setup.service - Virtual Console Setup.
-Nov 29 04:55:28 localhost systemd[1]: Starting dracut-cmdline-ask.service - dracut ask for additional cmdline parameters...
-Nov 29 04:55:28 localhost systemd[1]: Finished dracut-cmdline-ask.service - dracut ask for additional cmdline parameters.
-Nov 29 04:55:28 localhost systemd[1]: Starting dracut-cmdline.service - dracut cmdline hook...
-Nov 29 04:55:28 localhost dracut-cmdline[244]: dracut-102-3.fc41
-Nov 29 04:55:28 localhost dracut-cmdline[244]: Using kernel command line parameters:  rd.zfcp.conf=0 rd.lvm.lv=sysvg/root   console=tty1 console=ttyS0,115200n8 memhp_default_state=online_movable nr_cpus=1 cgroup_disable=memory numa=off udev.children-max=2 panic=10 transparent_hugepage=never novmcoredd vmcp_cma=0 cma=0 hugetlb_cma=0
-Nov 29 04:55:29 localhost dracut-cmdline[244]: cio_ignored disabled on commandline
-Nov 29 04:55:29 localhost dracut-cmdline[338]: rm: cannot remove '/etc/zfcp.conf': No such file or directory
-Nov 29 04:55:29 localhost systemd[1]: Finished dracut-cmdline.service - dracut cmdline hook.
-Nov 29 04:55:29 localhost systemd[1]: Starting dracut-pre-udev.service - dracut pre-udev hook...
-Nov 29 04:55:29 localhost systemd[1]: Finished dracut-pre-udev.service - dracut pre-udev hook.
-Nov 29 04:55:29 localhost systemd[1]: Starting systemd-udevd.service - Rule-based Manager for Device Events and Files...
-Nov 29 04:55:29 localhost systemd-udevd[394]: Using default interface naming scheme 'v255'.
-Nov 29 04:55:29 localhost systemd[1]: Started systemd-udevd.service - Rule-based Manager for Device Events and Files.
-Nov 29 04:55:29 localhost systemd[1]: dracut-pre-trigger.service - dracut pre-trigger hook was skipped because no trigger condition checks were met.
-Nov 29 04:55:29 localhost systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
-Nov 29 04:55:29 localhost systemd[1]: Finished systemd-udev-trigger.service - Coldplug All udev Devices.
-Nov 29 04:55:29 localhost systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
-Nov 29 04:55:29 localhost systemd[1]: Starting dracut-initqueue.service - dracut initqueue hook...
-Nov 29 04:55:29 localhost systemd[1]: Starting modprobe@configfs.service - Load Kernel Module configfs...
-Nov 29 04:55:29 localhost systemd[1]: modprobe@configfs.service: Deactivated successfully.
-Nov 29 04:55:29 localhost systemd[1]: Finished modprobe@configfs.service - Load Kernel Module configfs.
-Nov 29 04:55:29 localhost systemd[1]: systemd-vconsole-setup.service: Deactivated successfully.
-Nov 29 04:55:29 localhost systemd[1]: Stopped systemd-vconsole-setup.service - Virtual Console Setup.
-Nov 29 04:55:29 localhost systemd[1]: Stopping systemd-vconsole-setup.service - Virtual Console Setup...
-Nov 29 04:55:29 localhost systemd[1]: Starting systemd-vconsole-setup.service - Virtual Console Setup...
-Nov 29 04:55:29 localhost systemd[1]: Finished systemd-vconsole-setup.service - Virtual Console Setup.
-Nov 29 04:55:29 localhost dracut-initqueue[485]: Scanning devices vda2  for LVM logical volumes sysvg/root
-Nov 29 04:55:29 localhost dracut-initqueue[485]:   sysvg/root linear
-Nov 29 04:55:29 localhost systemd[1]: Found device dev-mapper-sysvg\x2droot.device - /dev/mapper/sysvg-root.
-Nov 29 04:55:29 localhost systemd[1]: Reached target initrd-root-device.target - Initrd Root Device.
-Nov 29 04:55:29 localhost systemd[1]: Finished dracut-initqueue.service - dracut initqueue hook.
-Nov 29 04:55:29 localhost systemd[1]: Reached target remote-fs-pre.target - Preparation for Remote File Systems.
-Nov 29 04:55:29 localhost systemd[1]: Reached target remote-fs.target - Remote File Systems.
-Nov 29 04:55:29 localhost systemd[1]: Starting dracut-pre-mount.service - dracut pre-mount hook...
-Nov 29 04:55:29 localhost systemd[1]: Finished dracut-pre-mount.service - dracut pre-mount hook.
-Nov 29 04:55:29 localhost systemd[1]: Starting systemd-fsck-root.service - File System Check on /dev/mapper/sysvg-root...
-Nov 29 04:55:29 localhost systemd-fsck[531]: /usr/sbin/fsck.xfs: XFS file system.
-Nov 29 04:55:29 localhost systemd[1]: Finished systemd-fsck-root.service - File System Check on /dev/mapper/sysvg-root.
-Nov 29 04:55:29 localhost systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
-Nov 29 04:55:29 localhost systemd[1]: Mounting sysroot.mount - /sysroot...
-Nov 29 04:55:29 localhost systemd[1]: Mounted sys-kernel-config.mount - Kernel Configuration File System.
-Nov 29 04:55:29 localhost systemd[1]: Reached target sysinit.target - System Initialization.
-Nov 29 04:55:29 localhost systemd[1]: Reached target basic.target - Basic System.
-Nov 29 04:55:29 localhost systemd[1]: System is tainted: unmerged-bin
-Nov 29 04:55:29 localhost systemd[1]: Mounted sysroot.mount - /sysroot.
-Nov 29 04:55:29 localhost systemd[1]: Reached target initrd-root-fs.target - Initrd Root File System.
-Nov 29 04:55:29 localhost systemd[1]: initrd-parse-etc.service - Mountpoints Configured in the Real Root was skipped because of an unmet condition check (ConditionPathExists=!/proc/vmcore).
-Nov 29 04:55:29 localhost systemd[1]: Reached target initrd-fs.target - Initrd File Systems.
-Nov 29 04:55:29 localhost systemd[1]: Reached target initrd.target - Initrd Default Target.
-Nov 29 04:55:29 localhost systemd[1]: dracut-mount.service - dracut mount hook was skipped because no trigger condition checks were met.
-Nov 29 04:55:29 localhost systemd[1]: Starting dracut-pre-pivot.service - dracut pre-pivot and cleanup hook...
-Nov 29 04:55:29 localhost systemd[1]: Finished dracut-pre-pivot.service - dracut pre-pivot and cleanup hook.
-Nov 29 04:55:29 localhost systemd[1]: Starting kdump-capture.service - Kdump Vmcore Save Service...
-Nov 29 04:55:29 localhost kdump[574]: Kdump is using the default log level(3).
-Nov 29 04:55:30 localhost kdump[618]: saving to /sysroot/var/crash/127.0.0.1-2024-11-29-04:55:29/
-Nov 29 04:55:30 localhost kdump[623]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2024-11-29-04:55:29/
-Nov 29 04:55:30 localhost kdump[629]: saving vmcore-dmesg.txt complete
-Nov 29 04:55:30 localhost kdump[631]: saving vmcore
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  20 ++++
+ drivers/gpu/drm/virtio/virtgpu_gem.c   |  14 +++
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 139 ++++++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 143 +++++++++++++++++++++++--
+ 4 files changed, 310 insertions(+), 6 deletions(-)
 
-
-Observe how the virtio_mem driver is loaded along with the other drivers that are essential for
-any kdump activity.
-
-> I personally think if we could,
-> we had better make code as robust as possible.
-
-And that's where we disagree. We will make is less robust if we don't warn the user that something
-very unexpected is happening, treating it like it would be normal.
-
-It isn't normal.
-
-> Here, since we have
-> already integrated the lock with one vmcore_mutex, whether the vmcoredd
-> is added before or after /proc/vmcore opening/closing, it won't harm.
-> The benefit is it works well with the current kwown case, virtio-mem
-> probing, makedumpfile running. And it also works well with other
-> possible cases, e.g if you doubt virtio-mem dumping and want to debug,
-> you set rd.break or take any way to drop into emengency shell of kdump
-> kernel, you can play it to poke virtio-mem module again and run makedumpfile
-> manually or reversing the order or taking any testing. 
-
-Intercepting kdump to trigger it manually will just work as it used to.
-
-Having developed and debugged the virtio_mem driver in kdump mode, I did not once even
-were tempted to do any of that, and looking back it would not have been any helpful ;)
-
-Crashing in a VM is easy+cheap, rebooting in a VM is easy+cheap, recompiling virtio_mem +
-rebuilding the kdump initrd is easy and cheap.
-
-> Then kernel
-> implementation should not preset that user space have to run the
-> makedumpfile after the much earlier virtio-mem probing. If we implement
-> codes according to preset userspace scenario, that limit the future
-> adapttion, IMHO.
-
-It limits the userspace scenario to something that is reasonable and future proof:
-start working on the vmcore once the system is sufficiently initialized
-(basic driver loaded).
-
-Then have it be immutable, just like it always was before we started allowing to patch it.
-
-
-The only "alterantive" I see is allow modifying the vmcore after it was closed again,
-but still issue a warning if that happens.
-
-But again,  I don't really see any reasonable use case for that.
-
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 64c236169db8..b82950ce75ba 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -125,6 +125,12 @@ struct virtio_gpu_object_array {
+ 	struct drm_gem_object *objs[] __counted_by(total);
+ };
+ 
++#define MAX_INLINE_CMD_SIZE   96
++#define MAX_INLINE_RESP_SIZE  24
++#define VBUFFER_SIZE	      (sizeof(struct virtio_gpu_vbuffer) \
++			      + MAX_INLINE_CMD_SIZE		 \
++			      + MAX_INLINE_RESP_SIZE)
++
+ struct virtio_gpu_vbuffer;
+ struct virtio_gpu_device;
+ 
+@@ -267,6 +273,7 @@ struct virtio_gpu_device {
+ 	spinlock_t resource_export_lock;
+ 	/* protects map state and host_visible_mm */
+ 	spinlock_t host_visible_lock;
++	void *panic_vbuf;
+ };
+ 
+ struct virtio_gpu_fpriv {
+@@ -305,6 +312,7 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+ 			      struct drm_device *dev,
+ 			      uint32_t handle, uint64_t *offset_p);
+ 
++struct virtio_gpu_object_array *virtio_gpu_panic_array_alloc(void);
+ struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
+ struct virtio_gpu_object_array*
+ virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents);
+@@ -329,12 +337,23 @@ void virtio_gpu_cmd_create_resource(struct virtio_gpu_device *vgdev,
+ 				    struct virtio_gpu_fence *fence);
+ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
+ 				   struct virtio_gpu_object *bo);
++int virtio_gpu_panic_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
++					     uint64_t offset,
++					     uint32_t width, uint32_t height,
++					     uint32_t x, uint32_t y,
++					     struct virtio_gpu_object_array *objs,
++					     struct virtio_gpu_vbuffer *vbuf);
+ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 					uint64_t offset,
+ 					uint32_t width, uint32_t height,
+ 					uint32_t x, uint32_t y,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence);
++int virtio_gpu_panic_cmd_resource_flush(struct virtio_gpu_device *vgdev,
++					struct virtio_gpu_vbuffer *vbuf,
++					uint32_t resource_id,
++					uint32_t x, uint32_t y,
++					uint32_t width, uint32_t height);
+ void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
+ 				   uint32_t resource_id,
+ 				   uint32_t x, uint32_t y,
+@@ -399,6 +418,7 @@ void virtio_gpu_ctrl_ack(struct virtqueue *vq);
+ void virtio_gpu_cursor_ack(struct virtqueue *vq);
+ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work);
+ void virtio_gpu_dequeue_cursor_func(struct work_struct *work);
++void virtio_gpu_panic_notify(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_notify(struct virtio_gpu_device *vgdev);
+ 
+ int
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 7db48d17ee3a..9f2b47222e0f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -161,6 +161,20 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+ 	virtio_gpu_notify(vgdev);
+ }
+ 
++/* For drm panic */
++struct virtio_gpu_object_array *virtio_gpu_panic_array_alloc(void)
++{
++	struct virtio_gpu_object_array *objs;
++
++	objs = kmalloc(sizeof(struct virtio_gpu_object_array), GFP_ATOMIC);
++	if (!objs)
++		return NULL;
++
++	objs->nents = 0;
++	objs->total = 1;
++	return objs;
++}
++
+ struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents)
+ {
+ 	struct virtio_gpu_object_array *objs;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a72a2dbda031..42079169fb69 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -26,6 +26,9 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_damage_helper.h>
+ #include <drm/drm_fourcc.h>
++#include <drm/drm_managed.h>
++#include <drm/drm_panic.h>
++#include <linux/delay.h>
+ 
+ #include "virtgpu_drv.h"
+ 
+@@ -108,6 +111,31 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 	return ret;
+ }
+ 
++/* For drm panic */
++static int virtio_gpu_panic_update_dumb_bo(struct virtio_gpu_device *vgdev,
++					   struct drm_plane_state *state,
++					   struct drm_rect *rect,
++					   struct virtio_gpu_vbuffer *vbuf)
++{
++	struct virtio_gpu_object *bo =
++		gem_to_virtio_gpu_obj(state->fb->obj[0]);
++	struct virtio_gpu_object_array *objs;
++	uint32_t w = rect->x2 - rect->x1;
++	uint32_t h = rect->y2 - rect->y1;
++	uint32_t x = rect->x1;
++	uint32_t y = rect->y1;
++	uint32_t off = x * state->fb->format->cpp[0] +
++		y * state->fb->pitches[0];
++
++	objs = virtio_gpu_panic_array_alloc();
++	if (!objs)
++		return -ENOMEM;
++	virtio_gpu_array_add_obj(objs, &bo->base.base);
++
++	return virtio_gpu_panic_cmd_transfer_to_host_2d(vgdev, off, w, h, x, y,
++							objs, vbuf);
++}
++
+ static void virtio_gpu_update_dumb_bo(struct virtio_gpu_device *vgdev,
+ 				      struct drm_plane_state *state,
+ 				      struct drm_rect *rect)
+@@ -131,6 +159,24 @@ static void virtio_gpu_update_dumb_bo(struct virtio_gpu_device *vgdev,
+ 					   objs, NULL);
+ }
+ 
++/* For drm_panic */
++static int virtio_gpu_panic_resource_flush(struct drm_plane *plane,
++					   struct virtio_gpu_vbuffer *vbuf,
++					   uint32_t x, uint32_t y,
++					   uint32_t width, uint32_t height)
++{
++	struct drm_device *dev = plane->dev;
++	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_framebuffer *vgfb;
++	struct virtio_gpu_object *bo;
++
++	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
++	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
++
++	return virtio_gpu_panic_cmd_resource_flush(vgdev, vbuf, bo->hw_res_handle, x, y,
++						   width, height);
++}
++
+ static void virtio_gpu_resource_flush(struct drm_plane *plane,
+ 				      uint32_t x, uint32_t y,
+ 				      uint32_t width, uint32_t height)
+@@ -359,11 +405,95 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 	virtio_gpu_cursor_ping(vgdev, output);
+ }
+ 
++static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
++					 struct drm_scanout_buffer *sb)
++{
++	struct virtio_gpu_object *bo;
++
++	if (!plane->state || !plane->state->fb || !plane->state->visible)
++		return -ENODEV;
++
++	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
++	if (virtio_gpu_is_vram(bo))
++		return -ENODEV;
++
++	/* try to vmap it if possible */
++	if (!bo->base.vaddr) {
++		int ret;
++
++		ret = drm_gem_shmem_vmap(&bo->base, &sb->map[0]);
++		if (ret)
++			return ret;
++	} else {
++		iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
++	}
++
++	sb->format = plane->state->fb->format;
++	sb->height = plane->state->fb->height;
++	sb->width = plane->state->fb->width;
++	sb->pitch[0] = plane->state->fb->pitches[0];
++	return 0;
++}
++
++static void virtio_gpu_panic_put_vbuf(struct virtqueue *vq,
++				      struct virtio_gpu_vbuffer *vbuf)
++{
++	unsigned int len;
++	int i;
++
++	/* waiting vbuf to be used */
++	for (i = 0; i < 500; i++) {
++		if (vbuf == virtqueue_get_buf(vq, &len))
++			break;
++		udelay(1);
++	}
++}
++
++static void virtio_panic_flush(struct drm_plane *plane)
++{
++	struct virtio_gpu_object *bo;
++	struct drm_device *dev = plane->dev;
++	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct drm_rect rect;
++	void *p_vbuf = vgdev->panic_vbuf;
++	struct virtio_gpu_vbuffer *vbuf_dumb_bo = p_vbuf;
++	struct virtio_gpu_vbuffer *vbuf_resource_flush = p_vbuf + VBUFFER_SIZE;
++
++	rect.x1 = 0;
++	rect.y1 = 0;
++	rect.x2 = plane->state->fb->width;
++	rect.y2 = plane->state->fb->height;
++
++	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
++
++	if (bo->dumb) {
++		if (virtio_gpu_panic_update_dumb_bo(vgdev,
++						    plane->state,
++						    &rect,
++						    vbuf_dumb_bo))
++			return;
++	}
++
++	virtio_gpu_panic_resource_flush(plane, vbuf_resource_flush,
++					plane->state->src_x >> 16,
++					plane->state->src_y >> 16,
++					plane->state->src_w >> 16,
++					plane->state->src_h >> 16);
++	virtio_gpu_panic_notify(vgdev);
++
++	virtio_gpu_panic_put_vbuf(vgdev->ctrlq.vq,
++				  vbuf_dumb_bo);
++	virtio_gpu_panic_put_vbuf(vgdev->ctrlq.vq,
++				  vbuf_resource_flush);
++}
++
+ static const struct drm_plane_helper_funcs virtio_gpu_primary_helper_funcs = {
+ 	.prepare_fb		= virtio_gpu_plane_prepare_fb,
+ 	.cleanup_fb		= virtio_gpu_plane_cleanup_fb,
+ 	.atomic_check		= virtio_gpu_plane_atomic_check,
+ 	.atomic_update		= virtio_gpu_primary_plane_update,
++	.get_scanout_buffer	= virtio_drm_get_scanout_buffer,
++	.panic_flush		= virtio_panic_flush,
+ };
+ 
+ static const struct drm_plane_helper_funcs virtio_gpu_cursor_helper_funcs = {
+@@ -383,6 +513,15 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+ 	const uint32_t *formats;
+ 	int nformats;
+ 
++	/* Allocate panic buffers. Each plane is handled sequentially by the drm
++	 * panic handler, so we can re-use this buffer for all planes safely.
++	 */
++	if (index == 0 && type == DRM_PLANE_TYPE_PRIMARY) {
++		vgdev->panic_vbuf = drmm_kzalloc(dev, 2 * VBUFFER_SIZE, GFP_KERNEL);
++		if (!vgdev->panic_vbuf)
++			return ERR_PTR(-ENOMEM);
++	}
++
+ 	if (type == DRM_PLANE_TYPE_CURSOR) {
+ 		formats = virtio_gpu_cursor_formats;
+ 		nformats = ARRAY_SIZE(virtio_gpu_cursor_formats);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 0d3d0d09f39b..450cfa937f80 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -36,12 +36,6 @@
+ #include "virtgpu_drv.h"
+ #include "virtgpu_trace.h"
+ 
+-#define MAX_INLINE_CMD_SIZE   96
+-#define MAX_INLINE_RESP_SIZE  24
+-#define VBUFFER_SIZE          (sizeof(struct virtio_gpu_vbuffer) \
+-			       + MAX_INLINE_CMD_SIZE		 \
+-			       + MAX_INLINE_RESP_SIZE)
+-
+ static void convert_to_hw_box(struct virtio_gpu_box *dst,
+ 			      const struct drm_virtgpu_3d_box *src)
+ {
+@@ -311,6 +305,34 @@ static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
+ 	return sgt;
+ }
+ 
++/* For drm_panic */
++static int virtio_gpu_panic_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
++					   struct virtio_gpu_vbuffer *vbuf,
++					   int elemcnt,
++					   struct scatterlist **sgs,
++					   int outcnt,
++					   int incnt)
++{
++	struct virtqueue *vq = vgdev->ctrlq.vq;
++	int ret;
++
++	if (vgdev->has_indirect)
++		elemcnt = 1;
++
++	if (vq->num_free < elemcnt)
++		return -ENOMEM;
++
++	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
++	WARN_ON(ret);
++
++	vbuf->seqno = ++vgdev->ctrlq.seqno;
++	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
++
++	atomic_inc(&vgdev->pending_commands);
++
++	return 0;
++}
++
+ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 				     struct virtio_gpu_vbuffer *vbuf,
+ 				     struct virtio_gpu_fence *fence,
+@@ -368,6 +390,32 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 	return 0;
+ }
+ 
++/* For drm_panic */
++static int virtio_gpu_panic_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
++					      struct virtio_gpu_vbuffer *vbuf)
++{
++	struct scatterlist *sgs[3], vcmd, vresp;
++	int elemcnt = 0, outcnt = 0, incnt = 0;
++
++	/* set up vcmd */
++	sg_init_one(&vcmd, vbuf->buf, vbuf->size);
++	elemcnt++;
++	sgs[outcnt] = &vcmd;
++	outcnt++;
++
++	/* set up vresp */
++	if (vbuf->resp_size) {
++		sg_init_one(&vresp, vbuf->resp_buf, vbuf->resp_size);
++		elemcnt++;
++		sgs[outcnt + incnt] = &vresp;
++		incnt++;
++	}
++
++	return virtio_gpu_panic_queue_ctrl_sgs(vgdev, vbuf,
++					       elemcnt, sgs,
++					       outcnt, incnt);
++}
++
+ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 					       struct virtio_gpu_vbuffer *vbuf,
+ 					       struct virtio_gpu_fence *fence)
+@@ -422,6 +470,21 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 	return ret;
+ }
+ 
++/* For drm_panic */
++void virtio_gpu_panic_notify(struct virtio_gpu_device *vgdev)
++{
++	bool notify;
++
++	if (!atomic_read(&vgdev->pending_commands))
++		return;
++
++	atomic_set(&vgdev->pending_commands, 0);
++	notify = virtqueue_kick_prepare(vgdev->ctrlq.vq);
++
++	if (notify)
++		virtqueue_notify(vgdev->ctrlq.vq);
++}
++
+ void virtio_gpu_notify(struct virtio_gpu_device *vgdev)
+ {
+ 	bool notify;
+@@ -567,6 +630,42 @@ void virtio_gpu_cmd_set_scanout(struct virtio_gpu_device *vgdev,
+ 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+ }
+ 
++/* For drm_panic */
++static void virtio_gpu_panic_init_cmd(struct virtio_gpu_device *vgdev,
++				      struct virtio_gpu_vbuffer *vbuf,
++				      int cmd_size)
++{
++	vbuf->buf = (void *)vbuf + sizeof(*vbuf);
++	vbuf->size = cmd_size;
++	vbuf->resp_cb = NULL;
++	vbuf->resp_size = sizeof(struct virtio_gpu_ctrl_hdr);
++	vbuf->resp_buf = (void *)vbuf->buf + cmd_size;
++}
++
++/* For drm_panic */
++int virtio_gpu_panic_cmd_resource_flush(struct virtio_gpu_device *vgdev,
++					struct virtio_gpu_vbuffer *vbuf,
++					uint32_t resource_id,
++					uint32_t x, uint32_t y,
++					uint32_t width, uint32_t height)
++{
++	struct virtio_gpu_resource_flush *cmd_p;
++
++	virtio_gpu_panic_init_cmd(vgdev, vbuf,
++				  sizeof(struct virtio_gpu_resource_flush));
++	cmd_p = (void *)vbuf->buf;
++	vbuf->objs = NULL;
++
++	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_FLUSH);
++	cmd_p->resource_id = cpu_to_le32(resource_id);
++	cmd_p->r.width = cpu_to_le32(width);
++	cmd_p->r.height = cpu_to_le32(height);
++	cmd_p->r.x = cpu_to_le32(x);
++	cmd_p->r.y = cpu_to_le32(y);
++
++	return virtio_gpu_panic_queue_ctrl_buffer(vgdev, vbuf);
++}
++
+ void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
+ 				   uint32_t resource_id,
+ 				   uint32_t x, uint32_t y,
+@@ -591,6 +690,38 @@ void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
+ 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
+ }
+ 
++/* For drm_panic */
++int virtio_gpu_panic_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
++					     uint64_t offset,
++					     uint32_t width, uint32_t height,
++					     uint32_t x, uint32_t y,
++					     struct virtio_gpu_object_array *objs,
++					     struct virtio_gpu_vbuffer *vbuf)
++{
++	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
++	struct virtio_gpu_transfer_to_host_2d *cmd_p;
++	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
++
++	if (virtio_gpu_is_shmem(bo) && use_dma_api)
++		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
++					    bo->base.sgt, DMA_TO_DEVICE);
++
++	virtio_gpu_panic_init_cmd(vgdev, vbuf,
++				  sizeof(struct virtio_gpu_transfer_to_host_2d));
++	cmd_p = (void *)vbuf->buf;
++	vbuf->objs = objs;
++
++	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_TO_HOST_2D);
++	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
++	cmd_p->offset = cpu_to_le64(offset);
++	cmd_p->r.width = cpu_to_le32(width);
++	cmd_p->r.height = cpu_to_le32(height);
++	cmd_p->r.x = cpu_to_le32(x);
++	cmd_p->r.y = cpu_to_le32(y);
++
++	return virtio_gpu_panic_queue_ctrl_buffer(vgdev, vbuf);
++}
++
+ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 					uint64_t offset,
+ 					uint32_t width, uint32_t height,
 -- 
-Cheers,
-
-David / dhildenb
+2.47.0
 
