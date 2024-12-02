@@ -1,249 +1,183 @@
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+Received: from HK3PR03CU002.outbound.protection.outlook.com (mail-eastasiaazon11021091.outbound.protection.outlook.com [52.101.129.91])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 586B91DFF7
-	for <virtualization@lists.linux.dev>; Sat, 30 Nov 2024 18:17:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732990682; cv=none; b=vBIjVDKCEN7o8ZveapwF1DEGjeRlbFpgwGduI21/p1zAHcLg6lYjfpODTquSE/OujkSD8IXD4/KqKDINWKom5mOYWzisNoUXSDeFrOB3GazeinI9diLgyFq3TwM52S1J53g166DAL0YglbIyrw/1RmENscAT8FgCieqnlPqdU6c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732990682; c=relaxed/simple;
-	bh=pNhhp1g57LN3bGgz1bZ4j7QLiz9CDBq+DBuEGkIBlEo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rde3mROWRGprw651EtG5WIozhE3Z3N527+EVatJGPAHLU/EADaOagEQrVBVYXETf6L4zlCcEuQjTiD1orTRWKQ7Eg5qMxpVrXVdVRujzoFoL6qOjo/dZ3rnAfrTqhXEVioup0jVtNU68u7M8PtahPeoGjwKPIlwSq9S8zu8TOss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=R42FobvT; arc=none smtp.client-ip=185.125.188.122
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11DFB26AE4
+	for <virtualization@lists.linux.dev>; Mon,  2 Dec 2024 03:36:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.129.91
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733110583; cv=fail; b=k88Fm6GywVSyljQbjJ9J0jyz/rTmBzK28RonVKP5LtygJz0e7/yhKoEGMe/IPTz3VMmpY3YchoAfXZW4VTozZ9iI0CJjS3IVkdTdQnJ762ExZhzvZORnWISMfoUssExYgvEVBIehStMFCnutDl4zPrS1qxtss6+YyB9Y8OIs4b8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733110583; c=relaxed/simple;
+	bh=stYkUNE/uWNx9ucNJOZYJlTq2jYAXLSlmFeCO0jsMnE=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=rZ6WibtuwCCykWnJuKZrhh4K5cCiEiYmbwHn0gVAoPdpH9OGOL2aJqkKyCr5DnPDgIEeHeNkmLnVXMJCSvBLvURLwRidO8Mggi5BOLPBOMMeGW8PkSwsfz2UwNxN6MLlc0POMAxvTUwmGbWDaFWxVxtskXw+5iMe+ch3oQUTon4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=EmUx3CaB; arc=fail smtp.client-ip=52.101.129.91
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="R42FobvT"
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 139ED3F185
-	for <virtualization@lists.linux.dev>; Sat, 30 Nov 2024 18:17:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1732990675;
-	bh=FrQ7uouEuWWp1deBNDeofRuJWSQLAs5SkX0OO5v31jE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version;
-	b=R42FobvTcJGBTBnb0A75GP0NwP3/K8oHcLqK7iTgXuxACc4buLU7nbcCW9TTghQ9k
-	 ZsWwviQDcqMdhi8ykrNtJXv0sJEo9zz47jRivECDqk3CDnX+Dbvc/BvR27fdBB+qof
-	 O3NA6K6txtkmc5CvXQYAgNFviLdRms9XMSg2iQ3uxZ+VCWmamLNGK/tze4+p/T8ctZ
-	 MRPpguJYitr3OxsLtDjQyASmezj773jxFNTTe1eIsEQzd+3tuVrFg1lZCfYlwgNL0O
-	 eip088C+ErfNbAdLQpPKz0d57AgI3LcXsAlyTiGoc4FyggH+Tu23GAGf/tbE3oikwe
-	 RA1GuX39Ukdbg==
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-724e7c48678so2314113b3a.1
-        for <virtualization@lists.linux.dev>; Sat, 30 Nov 2024 10:17:54 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732990673; x=1733595473;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=FrQ7uouEuWWp1deBNDeofRuJWSQLAs5SkX0OO5v31jE=;
-        b=G+m9HITqO+f9C/P8LKnzDtQkNTmdnn0HmGKD3zpfboMjynCHqncIi9cdXbce3Wp6x/
-         /FFzu1W7HdGAbpFyk3S/zZpHQ9MFtpNiuNesKatZQZYQQgE4kdNmIhzbD4NHcNTBxlzF
-         kbFX5NlDQwLrMYgOTIKMsxa6MrD+ayXjBGfssnIzoMzdgvkHIfNWchDvqI/1XN+Hqeyd
-         4jRI+z7GU3WRiGfpftgqeUCVznPdKkWsuDNpZcfnD+/1JQwRhs6x0dfIAphWrTzHTpFk
-         p/+x8S8gVgMMJyLUFo9fFcmhpyhWnNtr1Gl3tjAHuHrQMPuw4d6gjg6Ayu7vGUk8QXIU
-         v1AQ==
-X-Gm-Message-State: AOJu0YwFuqqs1cLSTHcwDlm/ozx1tMsYO0p+Olyo29YZO8olLIPcy29E
-	92r7uz4HYbyrOOxpjKUWY3UkZOTh1OtFsRgwLAYyCv9eB0Q2G3DnYm9lr1guvPpBNkMIqYvPP9O
-	xIaIjzTOMttO65mbw0znP/kEqdMBx9TP5C3MgDZlLLbvGlpdUNcr5lI0cBG5rnbx7wX5xD1fRKv
-	+HI2Ls/hnjcBl5
-X-Gm-Gg: ASbGnctLdH9GPE+CLPAHhucE82N2Y22J3hhxkcNgdK0Tgh4kh6T7G6LdEzpa3cT4AeJ
-	DMbhjRzR2tFTxXE0yxJCLva5kVAoMtjOvHexKGttUeSnrF8gOhO/IsS3TuFnTaAsLXjpPpfxLGv
-	Qo4CCISRyRF6BKCuP84IkFLrsVZilF+XsZ5RHTE3p86aXrKU608+f+K/UQdcDLR+ULL8ej/MuMm
-	hbBdg4iDFRvm/LZmH92jl6rhiP3Gb1YiOpvTC6K5O3YtX6cKzU=
-X-Received: by 2002:a05:6a00:84c:b0:724:db17:f975 with SMTP id d2e1a72fcca58-7253f369c37mr21113834b3a.12.1732990673220;
-        Sat, 30 Nov 2024 10:17:53 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEwdDQ+gsR4GC4ZUk+6aVeHc8PqayTTKVhNF98puQsrpYaFddakCLMXg4SFQoZWkpsBFGhGpw==
-X-Received: by 2002:a05:6a00:84c:b0:724:db17:f975 with SMTP id d2e1a72fcca58-7253f369c37mr21113801b3a.12.1732990672864;
-        Sat, 30 Nov 2024 10:17:52 -0800 (PST)
-Received: from z790sl.. ([240f:74:7be:1:1e0d:5d21:fd85:275b])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-725417fbf52sm5447869b3a.119.2024.11.30.10.17.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 Nov 2024 10:17:52 -0800 (PST)
-From: Koichiro Den <koichiro.den@canonical.com>
-To: virtualization@lists.linux.dev
-Cc: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	jiri@resnulli.us,
-	netdev@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="EmUx3CaB"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=u4GVM3TNtD251mBpDMocQ4DfAiGS41KwlhU3Uc08JxYw27sDN46JOEBsI0nm5V/UCLWoc2clw+d9Vz+MeiI1Ybiv5vwpUQPBOX45AMc827AECc6DuLAAnr40IksKw2NujuBmCUvgDqeltXACWOfoJr3Sde1IsSTEdIjrcBOI4qXvIiYgEoV+YCdnJjm1cPsgiTmF4KcnSuE0eiSZof3Ru02eqSTfgCRNxgh+sxMeqhmNgwzLhQPf5j9tR+HpOW+5eqUECuVm4R18DKE5iuhsVZ325sGQQz+q7t4uFB46C5pg1hVWCiannoB2Wkk9H2g9IxpGA1++v4UAOq9JteimAQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CTbGhTzA9PIqumDiOOsZt+VgovZgw7gJtT9M0R4Z2Fo=;
+ b=aWhbK7NfYCgJjropI7r6OmZ3SfWgO88GpjRWOiFZuUW7fMnJW1GJT8M6mwjGTGaRqCe63X4wavyZnpfJG0wzyne6Tb+sIwMa5kRFeAOodOBQQgd6gSmQblT7TZb8IDXidV65KdsSoirAW9Qz0dh5hLp/0KzcSjetZTP+VIXDo8uXno4/R7EW7iiCaO3lB3SjnBuT7R0uXhGlsfzbox5Miz1L69cFiMOgxThgF863a+I9HRVhvGqzsToWAvny+7+WO680OTIBJHk9/qiEMMeH/tOb/GFL0F7esRK17lRT76PIe+JobWfc4XtUbKBuRiC9lnBTfHF7cij4IHVbq1X5jQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CTbGhTzA9PIqumDiOOsZt+VgovZgw7gJtT9M0R4Z2Fo=;
+ b=EmUx3CaBwn9hBUp82HkUfA3/0BlnzAI7ote5JuwFq5TVXirSmp1N0VBwiP6KF5dKQKd9PUrzFl6MDDcry4sNJf+zkg8hrGymHAalrMDYak04PD0QNwbjv/efriF1PvAf6vXXGhng7BocN9stF2xx6H8Ru3XdfML54AYOXXFVy69nNTeKW2myPhusv7sR9maENeB6qEKGB/cGL3Sdy5crxm6z71unZsguU4qHC3O+Su+LiOmUf7zoZVSO2fN21VIzvDRaAqwZPlNtKDWF8Z4hrYlwoG5QGgWlOFROWi/+qeSdrYlW7DhqLaydvIllRqb77uIrHiknmgiPiDlPx/TcRg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com (2603:1096:101:165::11)
+ by SEYPR06MB6681.apcprd06.prod.outlook.com (2603:1096:101:16e::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8230.8; Mon, 2 Dec
+ 2024 03:36:10 +0000
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::922f:a649:adbf:6634]) by SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::922f:a649:adbf:6634%5]) with mapi id 15.20.8230.008; Mon, 2 Dec 2024
+ 03:36:10 +0000
+From: "Yuxue Liu yuxue.liu@jaguarmicro.com" <yuxue.liu@jaguarmicro.com>
+To: jasowang@redhat.com,
+	mst@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH net-next] virtio_net: drop netdev_tx_reset_queue() from virtnet_enable_queue_pair()
-Date: Sun,  1 Dec 2024 03:17:44 +0900
-Message-ID: <20241130181744.3772632-1-koichiro.den@canonical.com>
-X-Mailer: git-send-email 2.43.0
+	yuxue.liu@jaguarmicro.com,
+	angus.chen@jaguarmicro.com
+Subject: [PATCH] vdpa/vp_vdpa: implement kick_vq_with_data callback
+Date: Mon,  2 Dec 2024 11:36:11 +0800
+Message-Id: <20241202033611.1374-1-yuxue.liu@jaguarmicro.com>
+X-Mailer: git-send-email 2.33.0.windows.2
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SI1PR02CA0021.apcprd02.prod.outlook.com
+ (2603:1096:4:1f4::14) To SEYPR06MB6756.apcprd06.prod.outlook.com
+ (2603:1096:101:165::11)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SEYPR06MB6756:EE_|SEYPR06MB6681:EE_
+X-MS-Office365-Filtering-Correlation-Id: 965a7b23-570a-4f89-08b8-08dd128276c5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|52116014|1800799024|366016|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?P950BQMev3HK0hEoZX8XhSzERIVjk4DE0s9LMhhSpQT9aimNTwePi+xsHiUW?=
+ =?us-ascii?Q?Ths3ULYQxdsCFlS0MNAWvxUhYDwQ9g4RGh21DmsPIWNN/XXnCpyuBl8ih3Um?=
+ =?us-ascii?Q?vgiRxHEQKxxe/4/SU6rom1DUiVUpZZ/tkZPRzyv4RuvXV6Vt6gxVQg/YTIUS?=
+ =?us-ascii?Q?sKALfW5Twq/E+j2QkWHVqF6VZWWZmZbrVDxV2SEdocUj8TuNj/j2WR352iG+?=
+ =?us-ascii?Q?fXjkvq9MURCokJY1NdCEBE+HkoOdsIizHUQT7JICb/I2nkmLaDQEv6CKuBwN?=
+ =?us-ascii?Q?ltK/kpMmyDd0F8Gv6CJtpHbyqICestXMRvmuZvf9U7voSipISFZ+epyDNA33?=
+ =?us-ascii?Q?Ogb14iCM2F1rscb6OzvBc6RQ22ZO91ekWzRFMHZNeJYJgBomUJBYV16tDpDU?=
+ =?us-ascii?Q?0LMDBcQA9xzk8HXF189uVuBxU9uy+TMLW+g5GqptCvMLj7oAydgmT7Puz5YP?=
+ =?us-ascii?Q?snW2vry9jJlEC4fUc0R9zxprw/juzCCYDUIB9J9pZ5SdIYIs9HSnSotP/AYH?=
+ =?us-ascii?Q?xHNvOmDbW1gPdkCPnA3ZanAUt8tsHkjUZ3203bEpyd9Jz35R4mMdaAVN7BUQ?=
+ =?us-ascii?Q?c4DuQcIeiblN+RL4ozn+Xl4QbXoSjTTknE8sI0MORh9OiQooZ1DNUQZReHhv?=
+ =?us-ascii?Q?VBoKHMM9cW86Zbn+xbtEuJWxDu7AfcshAw2P5PeQmhFMuZwPTCNZKzSIhq9n?=
+ =?us-ascii?Q?FiPYlZYxK7RSMSbHWJVbNAt6TL3XLYmpBh85mv5TKPp8onJi8sQ2SdqrIRPS?=
+ =?us-ascii?Q?vtoclL1nTedntu8mRyltfdcin78RBdGrkAVYyAM8zoS95jVbVHjH3tYhMq1z?=
+ =?us-ascii?Q?AhTBJLXBas9QGrFCnIkipNNd5tvDADrqzcHR2d6MCykKWSeAhvQFaHoVipNM?=
+ =?us-ascii?Q?SKC0PTDuaudMwBqXFfpSxGk6CAh1wHNkN5ppNF5ns0JwAqjQcXEMo9f6EbNE?=
+ =?us-ascii?Q?UNOAfEbgdp4r3iyURpWLPnSnREnZ8BEqQnDcWS1v6ylGXs8t+TmdGgPFTSAH?=
+ =?us-ascii?Q?rxVBnFpqidIND3KIgGVBer4432PWqZ6FGVW0ETkVgAwzTWGmjC2TRSRBJiYN?=
+ =?us-ascii?Q?8h+68UZINOA5RvbT3Hpe1QiKV+iZ/OSsbywsaCyBD4ct57XWdOQ4z1Sd2DXH?=
+ =?us-ascii?Q?Oo4FpK9vXKm9ND/ws3WkSh8jH84mlvjkVqMBfVBZRQMAb4dM7w30DV6xLhqn?=
+ =?us-ascii?Q?YZJxUd/AvCsw+owrhXRwXAIfKlAC8JTp+Kkg8+OP+PO39HIfOyWk3Z8UxEo5?=
+ =?us-ascii?Q?/F5URflWfiWP6nGRWK38Y01FdfGpcSxdCAcxI3PrXoHJZshGTG8EjXMf2z/F?=
+ =?us-ascii?Q?A1IcmJysDIFUSU9UNQY4K9twb2FO2IYVPHCpnYNqYi5lsD96VXodKeG70yix?=
+ =?us-ascii?Q?ujAwujO0tox2wUeLuVJci+g+p8pOuq0WviJHG3FlTZIwjXOIXQ=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEYPR06MB6756.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(52116014)(1800799024)(366016)(38350700014);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?5JbmZ44DNV/wdYYtpG0tYlmieeQVmFPsK/H9u0yn0+LUxUwx4Py2ln8HzMDS?=
+ =?us-ascii?Q?QHhc68zTT8kTT3p+5k42a31Odlqg5wEXYiGS2tjbgC38yiHipLSQm2PqmwRa?=
+ =?us-ascii?Q?xQY+YDZw5p4L848JFG8NVvkLo8OXGQg/SQOPdmJO3WOpuOdLqzbmmEEf7F1K?=
+ =?us-ascii?Q?NG+Zh1EibtFpJi2wmREcQ7k15ADh1D/yvOFTmNzrOHFP+5q0XE5v6uHirF9h?=
+ =?us-ascii?Q?HTx8Is2kWUh+LuVmYK2c6soJHsvaGNrYVPCtqOvkENP6U/fRt2ioBfxV1ZB7?=
+ =?us-ascii?Q?YHmYXPJ6ghQGhIEJy/6sIH1fyCWaiYYzb2g25QGlxRo7zsiqLnX8jz2VOpB7?=
+ =?us-ascii?Q?K26khaskmX8T61Sog77whCD7MyQR2pJg1VPM63SbfsdK3UF9yr3p0WW7ZdM1?=
+ =?us-ascii?Q?i+Z8AKUfoXDgU/BtfM0fHb8B5FsysbX3nZjkYNXssaCU5YlFl0bFFSZBbHDI?=
+ =?us-ascii?Q?jUCNIJqwWjXxzzTQk3GoYQlnD6Su1VI+LwFDfr421t5FbbT51GV7jEsQhq8b?=
+ =?us-ascii?Q?tYA41qZ5PUhhUP62cOpXo9E+VFPcf3K59TngDFy0QSTVd99OrzKQT+cGawfN?=
+ =?us-ascii?Q?CoaUminv0bb0L1JUIIGSyOhgo/Bwl4vwpH/vfH5iCJYJAR5VQ/3zKCiamzB4?=
+ =?us-ascii?Q?+J0FSb0rabHfwJ0oqFDG2fgW7Bzgee7twHLeZrre9WAGNl782IMBuC/8v4IA?=
+ =?us-ascii?Q?ZoipY2a+J9T3Z0w5qEjLlCK0pr12yhWCgVr7dn1Yptw9ENkm0ZWnoIa2Tw9i?=
+ =?us-ascii?Q?GU8ogm61kHvNUOaEExgJEZ2OZxH/4uKBN6vXTlSc05ont2wm0uPrdB0mOz6T?=
+ =?us-ascii?Q?ER0XPiLVtyX8ODw5ABlw0he0530+MwGSOXo7OG/DoghX0bdXjVRQRz0JQaok?=
+ =?us-ascii?Q?ykMZ3b4o7lwDsYWXsUD1lx+t6qAdw4vfRrXw+FBu7/A2hT8uRFw8cZdYhYe/?=
+ =?us-ascii?Q?h7yv1cJAw8ii02PdmR1pBOMSl68N2aJifm/6wxxGWHvUQ+yzaQYSqq7vpPHi?=
+ =?us-ascii?Q?48rbqc60tG2hciPf9F3dLlAhnVCHXi2q/3coerE/JJpbS2LFmCVMVYvET7Ka?=
+ =?us-ascii?Q?YJvW+WraTRcKXZMiBWOmsjpP89jqyVU7TpTIlMJ/liMj+aanX5D6qk4IocWe?=
+ =?us-ascii?Q?vYvZBgrbF5LZKQ1zrORwVnCmkwsi3LzfV1xj7BoFxfxacAIIKjgLLi2g5Ulk?=
+ =?us-ascii?Q?TDD1ltzojZ78TiCMYKL66k+AcBDXud8o/cLb87PqfY0Bt0XThx5Cu0+a/l3t?=
+ =?us-ascii?Q?4inmfil7/cSs0OEj2hV7z7k56REEkMJ+yYw4xpkPnYvHBjzB9bmVTymgtKg9?=
+ =?us-ascii?Q?NqHlaoAevo9w53ES7F6srung8kpPBU+65Zj4ys2MmZ83Ic2FU+xGS7EVt0hT?=
+ =?us-ascii?Q?d9NQ7CuJnKddGWsURYGpKnmyhtNSKPDJ3PV4L4w44fO4kIzobgS/P7DCw3rX?=
+ =?us-ascii?Q?QcQkKUSYl5FZ2nxvcPnetub15KoX3Q71IxAqv6hf5X39wtrHeMxdVaGSzEfS?=
+ =?us-ascii?Q?p4SB7C55q7LqpURvSCy2FEtd/Kxcm1AEpQpKA4g/vgLmaNdgkIPWjgQSNhHR?=
+ =?us-ascii?Q?nWkeWOFXwmCmCp/ndUOoPMcBcdMwWjfIC9EndILi/EAozCY+TR/yoacMyjJx?=
+ =?us-ascii?Q?WQ=3D=3D?=
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 965a7b23-570a-4f89-08b8-08dd128276c5
+X-MS-Exchange-CrossTenant-AuthSource: SEYPR06MB6756.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2024 03:36:10.6142
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: upCJCPUDPFQZSelF8u+JSx28NxD03qKoEk6qOSMDj3LZwxW2Ahqjg1OrUeWcgcynMgyIiKu+6Q7bjai1ECfowYTKjiWHXraXhoG3sgzifR0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEYPR06MB6681
 
-When virtnet_close is followed by virtnet_open, some TX completions can
-possibly remain unconsumed, until they are finally processed during the
-first NAPI poll after the netdev_tx_reset_queue(), resulting in a crash
-[1]. Commit b96ed2c97c79 ("virtio_net: move netdev_tx_reset_queue() call
-before RX napi enable") seems not sufficient to eliminate all BQL crash
-scenarios for virtio-net.
+From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
 
-This issue can be reproduced with the latest net-next master by running:
-`while :; do ip l set DEV down; ip l set DEV up; done` under heavy network
-TX load from inside the machine.
+Implement the kick_vq_with_data vDPA callback.
+On kick, we pass the next available data to the hardware by writing it in
+the kick offset.
 
-netdev_tx_reset_queue() can actually be dropped from virtnet_open path;
-the device is not stopped in any case. For BQL core part, it's just like
-traffic nearly ceases to exist for some period. For stall detector added
-to BQL, even if virtnet_close could somehow lead to some TX completions
-delayed for long, followed by virtnet_open, we can just take it as stall
-as mentioned in commit 6025b9135f7a ("net: dqs: add NIC stall detector
-based on BQL"). Note also that users can still reset stall_max via sysfs.
-
-So, drop netdev_tx_reset_queue() from virtnet_enable_queue_pair(). This
-eliminates the BQL crashes. With this patch, virtio-net performs only
-one dql_reset() per probe.
-
-[1]:
-------------[ cut here ]------------
-kernel BUG at lib/dynamic_queue_limits.c:99!
-Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-CPU: 7 UID: 0 PID: 1598 Comm: ip Tainted: G    N 6.12.0net-next_main+ #2
-Tainted: [N]=TEST
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), \
-BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
-RIP: 0010:dql_completed+0x26b/0x290
-Code: b7 c2 49 89 e9 44 89 da 89 c6 4c 89 d7 e8 ed 17 47 00 58 65 ff 0d
-4d 27 90 7e 0f 85 fd fe ff ff e8 ea 53 8d ff e9 f3 fe ff ff <0f> 0b 01
-d2 44 89 d1 29 d1 ba 00 00 00 00 0f 48 ca e9 28 ff ff ff
-RSP: 0018:ffffc900002b0d08 EFLAGS: 00010297
-RAX: 0000000000000000 RBX: ffff888102398c80 RCX: 0000000080190009
-RDX: 0000000000000000 RSI: 000000000000006a RDI: 0000000000000000
-RBP: ffff888102398c00 R08: 0000000000000000 R09: 0000000000000000
-R10: 00000000000000ca R11: 0000000000015681 R12: 0000000000000001
-R13: ffffc900002b0d68 R14: ffff88811115e000 R15: ffff8881107aca40
-FS:  00007f41ded69500(0000) GS:ffff888667dc0000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000556ccc2dc1a0 CR3: 0000000104fd8003 CR4: 0000000000772ef0
-PKRU: 55555554
-Call Trace:
- <IRQ>
- ? die+0x32/0x80
- ? do_trap+0xd9/0x100
- ? dql_completed+0x26b/0x290
- ? dql_completed+0x26b/0x290
- ? do_error_trap+0x6d/0xb0
- ? dql_completed+0x26b/0x290
- ? exc_invalid_op+0x4c/0x60
- ? dql_completed+0x26b/0x290
- ? asm_exc_invalid_op+0x16/0x20
- ? dql_completed+0x26b/0x290
- __free_old_xmit+0xff/0x170 [virtio_net]
- free_old_xmit+0x54/0xc0 [virtio_net]
- virtnet_poll+0xf4/0xe30 [virtio_net]
- ? __update_load_avg_cfs_rq+0x264/0x2d0
- ? update_curr+0x35/0x260
- ? reweight_entity+0x1be/0x260
- __napi_poll.constprop.0+0x28/0x1c0
- net_rx_action+0x329/0x420
- ? enqueue_hrtimer+0x35/0x90
- ? trace_hardirqs_on+0x1d/0x80
- ? kvm_sched_clock_read+0xd/0x20
- ? sched_clock+0xc/0x30
- ? kvm_sched_clock_read+0xd/0x20
- ? sched_clock+0xc/0x30
- ? sched_clock_cpu+0xd/0x1a0
- handle_softirqs+0x138/0x3e0
- do_softirq.part.0+0x89/0xc0
- </IRQ>
- <TASK>
- __local_bh_enable_ip+0xa7/0xb0
- virtnet_open+0xc8/0x310 [virtio_net]
- __dev_open+0xfa/0x1b0
- __dev_change_flags+0x1de/0x250
- dev_change_flags+0x22/0x60
- do_setlink.isra.0+0x2df/0x10b0
- ? rtnetlink_rcv_msg+0x34f/0x3f0
- ? netlink_rcv_skb+0x54/0x100
- ? netlink_unicast+0x23e/0x390
- ? netlink_sendmsg+0x21e/0x490
- ? ____sys_sendmsg+0x31b/0x350
- ? avc_has_perm_noaudit+0x67/0xf0
- ? cred_has_capability.isra.0+0x75/0x110
- ? __nla_validate_parse+0x5f/0xee0
- ? __pfx___probestub_irq_enable+0x3/0x10
- ? __create_object+0x5e/0x90
- ? security_capable+0x3b/0x70
- rtnl_newlink+0x784/0xaf0
- ? avc_has_perm_noaudit+0x67/0xf0
- ? cred_has_capability.isra.0+0x75/0x110
- ? stack_depot_save_flags+0x24/0x6d0
- ? __pfx_rtnl_newlink+0x10/0x10
- rtnetlink_rcv_msg+0x34f/0x3f0
- ? do_syscall_64+0x6c/0x180
- ? entry_SYSCALL_64_after_hwframe+0x76/0x7e
- ? __pfx_rtnetlink_rcv_msg+0x10/0x10
- netlink_rcv_skb+0x54/0x100
- netlink_unicast+0x23e/0x390
- netlink_sendmsg+0x21e/0x490
- ____sys_sendmsg+0x31b/0x350
- ? copy_msghdr_from_user+0x6d/0xa0
- ___sys_sendmsg+0x86/0xd0
- ? __pte_offset_map+0x17/0x160
- ? preempt_count_add+0x69/0xa0
- ? __call_rcu_common.constprop.0+0x147/0x610
- ? preempt_count_add+0x69/0xa0
- ? preempt_count_add+0x69/0xa0
- ? _raw_spin_trylock+0x13/0x60
- ? trace_hardirqs_on+0x1d/0x80
- __sys_sendmsg+0x66/0xc0
- do_syscall_64+0x6c/0x180
- entry_SYSCALL_64_after_hwframe+0x76/0x7e
-RIP: 0033:0x7f41defe5b34
-Code: 15 e1 12 0f 00 f7 d8 64 89 02 b8 ff ff ff ff eb bf 0f 1f 44 00 00
-f3 0f 1e fa 80 3d 35 95 0f 00 00 74 13 b8 2e 00 00 00 0f 05 <48> 3d 00
-f0 ff ff 77 4c c3 0f 1f 00 55 48 89 e5 48 83 ec 20 89 55
-RSP: 002b:00007ffe5336ecc8 EFLAGS: 00000202 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f41defe5b34
-RDX: 0000000000000000 RSI: 00007ffe5336ed30 RDI: 0000000000000003
-RBP: 00007ffe5336eda0 R08: 0000000000000010 R09: 0000000000000001
-R10: 00007ffe5336f6f9 R11: 0000000000000202 R12: 0000000000000003
-R13: 0000000067452259 R14: 0000556ccc28b040 R15: 0000000000000000
- </TASK>
-[...]
----[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
-
-Fixes: c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits")
-Cc: <stable@vger.kernel.org> # v6.11+
-Signed-off-by: Koichiro Den <koichiro.den@canonical.com>
+Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
 ---
-Previous attempt:
-https://lore.kernel.org/netdev/20241126024200.2371546-1-koichiro.den@canonical.com/
----
- drivers/net/virtio_net.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 64c87bb48a41..35a36d1289db 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3054,7 +3054,6 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
- 	if (err < 0)
- 		goto err_xdp_reg_mem_model;
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index 16380764275e..a9034c59b020 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -367,6 +367,14 @@ static void vp_vdpa_kick_vq(struct vdpa_device *vdpa, u16 qid)
+ 	vp_iowrite16(qid, vp_vdpa->vring[qid].notify);
+ }
  
--	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
- 	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
- 	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
- 
++static void vp_vdpa_kick_vq_with_data(struct vdpa_device *vdpa_dev, u32 data)
++{
++	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
++	u16 qid = data & 0xFFFF;
++
++	vp_iowrite32(data, vp_vdpa->vring[qid].notify);
++}
++
+ static u32 vp_vdpa_get_generation(struct vdpa_device *vdpa)
+ {
+ 	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
+@@ -472,6 +480,7 @@ static const struct vdpa_config_ops vp_vdpa_ops = {
+ 	.get_vq_size	= vp_vdpa_get_vq_size,
+ 	.set_vq_address	= vp_vdpa_set_vq_address,
+ 	.kick_vq	= vp_vdpa_kick_vq,
++	.kick_vq_with_data      = vp_vdpa_kick_vq_with_data,
+ 	.get_generation	= vp_vdpa_get_generation,
+ 	.get_device_id	= vp_vdpa_get_device_id,
+ 	.get_vendor_id	= vp_vdpa_get_vendor_id,
 -- 
-2.43.0
+2.34.1
 
