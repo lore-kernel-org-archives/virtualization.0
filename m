@@ -1,136 +1,116 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A444F9E4
-	for <virtualization@lists.linux.dev>; Mon,  2 Dec 2024 05:40:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733118050; cv=pass; b=Qzz+HA9EAnGiBeJQ6bxlhKiZ3BCnulryjef1V3Ty4i2ySvOSPqXB9kn84E0Qn3qrSlefNnL7nifGHWkbhHP1seWNkqld6oqUBJunX+5pXCqSOanwWnkKlN6FAntu9KQtq/SEnOlHT+aTkPYg9BEDYt1FKqHGCMADSlG4jr/PDns=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733118050; c=relaxed/simple;
-	bh=ueYq26d8VcgSnoH9pMABrnnvVoaABggyG41X2QtW8zA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dPu7yzLKzs8u1e1nlwJTvYWgha7aXHC/tU58An4I8AmuUYZEfaAV22ug7zrmAGH7WCwC2DQ20LQp7FyeZD2t99Mksj2fPDMWSO4nhZMhUgu+PqPje0WRdZjXUgzoUVdy3R8tXi/g/92cNI+5vb1bKNnth9oJJYeepCv/V9R05Tc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=S5MuBhtz; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777E31D86C4;
+	Mon,  2 Dec 2024 12:20:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733142059; cv=none; b=GP5F8YL0mp2VaBTnutp6+IN1g8V2V05vQirxb4bk6tpeJhIgtpTg5PQ5zAX5foL6bXnSO/CJwT1qOxtrlfJpZOpGhr9RL/KjFuqglw74RDfjJZssApF6pnve1+geqd71CvXulw8wnKuoyCo/jb3NPc6NIMUVrOfS4Xk6Oygg8EQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733142059; c=relaxed/simple;
+	bh=M9jrGH7mf0KPVz/vzoJ7jmtDIAbubSGjZKxT5qvrcdg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oLUSw9WVcBJB9UtB3zxbj/IpWi/ZP7ckcJGtvvwaR6/7Sy+IINrTydPowxsvYUnOX8X9ORRO0NEOYuJ1EyWTn4ZVVC1Uzbm03eDBvJeoYms9vQzNBYWOgdDA9bSYF/dRqRksZpWA2IZleInSBTmodrFier8dGCYD8HIdhHr4dFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PQazveK4; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="S5MuBhtz"
-ARC-Seal: i=1; a=rsa-sha256; t=1733118009; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=QAR6JFgo/352+alNXmaqH77g8AC1yEWIsCmeUkAhX/mOrWpqY9VrsUOt7tg41Jk9aggN90Aoagr3SzPBpUrllKeE+lqfEh+3KxiL/p926ArIS7h7GDgPyzIFQ7Wtq0P8EAlz7Ge2E3q+9/sqqa5IHlhxB6UAabjv5YDQWNKgfak=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1733118009; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=/aDX0tKRf8MVvlCU/V5j9pdtLu3K1ygfZJBPnvcrZeU=; 
-	b=g0zC5/OaIo+hCCMZhgLVMi2gdh/WyUF345STIKVnTrgXtEuMCkCAstlkmM/lr7bOqAuJ/YITJPj9ORl5y4ndhCwdy2t1JKVhKjym6zhS40ZSAaPVyy3HkSfTV/qDSlwGps62xgFE1+pNnWH5XKf152NP33bfq+m6G9EOv0X8RTU=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1733118009;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=/aDX0tKRf8MVvlCU/V5j9pdtLu3K1ygfZJBPnvcrZeU=;
-	b=S5MuBhtzZybZlYXo9aaVZdZ6YDl7V/H3kjWbb8JlKAsQzCrKqNVa+87RPjOF6KMl
-	tVCvOLoKlaFVDuPGddWdzSm+UY/18YpNorKNWq6nRvzwXmC+0yUn6bozRQurQtvO069
-	LA6Ezb9ftBDjCF9ITS1KaRatRnW4zFj6bpPWDu48=
-Received: by mx.zohomail.com with SMTPS id 1733118006843134.69938473813932;
-	Sun, 1 Dec 2024 21:40:06 -0800 (PST)
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Kim Dongwon <dongwon.kim@intel.com>,
-	Kasireddy Vivek <vivek.kasireddy@intel.com>
-Cc: Rob Clark <robdclark@gmail.com>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	kernel@collabora.com
-Subject: [PATCH v1] drm/virtio: Factor out common dmabuf unmapping code
-Date: Mon,  2 Dec 2024 08:39:55 +0300
-Message-ID: <20241202053955.2451321-1-dmitry.osipenko@collabora.com>
-X-Mailer: git-send-email 2.47.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PQazveK4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1733142057; x=1764678057;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=M9jrGH7mf0KPVz/vzoJ7jmtDIAbubSGjZKxT5qvrcdg=;
+  b=PQazveK449e2bxYbRfGIlUa1I9xCIdbfNg1yiUF/RyPfMUNjA+DFIVhc
+   6QBxmnef41GPkRmC97QMwsKsxGymcL8lmjr+BIY+L9RmHnGz1LztNntRc
+   aUx220R9pRRXdJ11a73SskirtE7I2iDcnOPg77BonGdNaW1AhNITUYKNL
+   0uRdWTJkGYKAaOh3C7rBALdqBXt0s1HR+fIq+mtRcnrpXyoN8q3SBghuV
+   BmNqjCUMLAHPmTFoaSl8+2I5DmszTCcTIVWXnjiUnKzrN+aYCapv9N6vi
+   jorWU9KYlbr0jPihpyqAXvTAnVn4oLkMnplOGyk0RngpSiL3I/JRpR99o
+   w==;
+X-CSE-ConnectionGUID: cS0mM+acSPKV5oBCSkYCrg==
+X-CSE-MsgGUID: ysiXF89DRxWpGXVspnnkRA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11274"; a="33435386"
+X-IronPort-AV: E=Sophos;i="6.12,202,1728975600"; 
+   d="scan'208";a="33435386"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2024 04:20:56 -0800
+X-CSE-ConnectionGUID: 9tHCy+sMSIeQw0RvfqmjRQ==
+X-CSE-MsgGUID: Uaw84SIISKObS45VYFAo2g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,202,1728975600"; 
+   d="scan'208";a="93263235"
+Received: from lkp-server02.sh.intel.com (HELO 36a1563c48ff) ([10.239.97.151])
+  by fmviesa008.fm.intel.com with ESMTP; 02 Dec 2024 04:20:55 -0800
+Received: from kbuild by 36a1563c48ff with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tI5Q4-0002Of-21;
+	Mon, 02 Dec 2024 12:20:52 +0000
+Date: Mon, 2 Dec 2024 20:20:43 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Yuxue Liu yuxue.liu@jaguarmicro.com" <yuxue.liu@jaguarmicro.com>,
+	jasowang@redhat.com, mst@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	yuxue.liu@jaguarmicro.com, angus.chen@jaguarmicro.com
+Subject: Re: [PATCH] vdpa/vp_vdpa: implement kick_vq_with_data callback
+Message-ID: <202412021926.Sg38msHn-lkp@intel.com>
+References: <20241202033611.1374-1-yuxue.liu@jaguarmicro.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241202033611.1374-1-yuxue.liu@jaguarmicro.com>
 
-Move out dmabuf detachment and unmapping into separate function. This
-removes duplicated code and there is no need to check the GEM's kref now,
-since both bo->attached and bo->sgt are unset under held reservation lock.
+Hi Yuxue,
 
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
----
- drivers/gpu/drm/virtio/virtgpu_prime.c | 35 ++++++++++++++------------
- 1 file changed, 19 insertions(+), 16 deletions(-)
+kernel test robot noticed the following build errors:
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-index 33084ce1d01d..101d1a6517ae 100644
---- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-@@ -184,22 +184,33 @@ int virtgpu_dma_buf_import_sgt(struct virtio_gpu_mem_entry **ents,
- 	return 0;
- }
- 
--static void virtgpu_dma_buf_free_obj(struct drm_gem_object *obj)
-+static void virtgpu_dma_buf_unmap(struct virtio_gpu_object *bo)
- {
--	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
--	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
--	struct dma_buf_attachment *attach = obj->import_attach;
--	struct dma_resv *resv = attach->dmabuf->resv;
-+	struct dma_buf_attachment *attach = bo->base.base.import_attach;
- 
--	if (attach) {
--		dma_resv_lock(resv, NULL);
-+	dma_resv_assert_held(attach->dmabuf->resv);
- 
-+	if (bo->created) {
- 		virtio_gpu_detach_object_fenced(bo);
- 
- 		if (bo->sgt)
- 			dma_buf_unmap_attachment(attach, bo->sgt,
- 						 DMA_BIDIRECTIONAL);
- 
-+		bo->sgt = NULL;
-+	}
-+}
-+
-+static void virtgpu_dma_buf_free_obj(struct drm_gem_object *obj)
-+{
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-+	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
-+	struct dma_buf_attachment *attach = obj->import_attach;
-+	struct dma_resv *resv = attach->dmabuf->resv;
-+
-+	if (attach) {
-+		dma_resv_lock(resv, NULL);
-+		virtgpu_dma_buf_unmap(bo);
- 		dma_resv_unlock(resv);
- 
- 		dma_buf_detach(attach->dmabuf, attach);
-@@ -272,15 +283,7 @@ static void virtgpu_dma_buf_move_notify(struct dma_buf_attachment *attach)
- 	struct drm_gem_object *obj = attach->importer_priv;
- 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
- 
--	if (bo->created && kref_read(&obj->refcount)) {
--		virtio_gpu_detach_object_fenced(bo);
--
--		if (bo->sgt)
--			dma_buf_unmap_attachment(attach, bo->sgt,
--						 DMA_BIDIRECTIONAL);
--
--		bo->sgt = NULL;
--	}
-+	virtgpu_dma_buf_unmap(bo);
- }
- 
- static const struct dma_buf_attach_ops virtgpu_dma_buf_attach_ops = {
+[auto build test ERROR on linus/master]
+[also build test ERROR on v6.13-rc1 next-20241128]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Yuxue-Liu-yuxue-liu-jaguarmicro-com/vdpa-vp_vdpa-implement-kick_vq_with_data-callback/20241202-114053
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20241202033611.1374-1-yuxue.liu%40jaguarmicro.com
+patch subject: [PATCH] vdpa/vp_vdpa: implement kick_vq_with_data callback
+config: loongarch-allyesconfig (https://download.01.org/0day-ci/archive/20241202/202412021926.Sg38msHn-lkp@intel.com/config)
+compiler: loongarch64-linux-gcc (GCC) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241202/202412021926.Sg38msHn-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202412021926.Sg38msHn-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   drivers/vdpa/virtio_pci/vp_vdpa.c: In function 'vp_vdpa_kick_vq_with_data':
+>> drivers/vdpa/virtio_pci/vp_vdpa.c:372:46: error: 'vdpa' undeclared (first use in this function)
+     372 |         struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
+         |                                              ^~~~
+   drivers/vdpa/virtio_pci/vp_vdpa.c:372:46: note: each undeclared identifier is reported only once for each function it appears in
+
+
+vim +/vdpa +372 drivers/vdpa/virtio_pci/vp_vdpa.c
+
+   369	
+   370	static void vp_vdpa_kick_vq_with_data(struct vdpa_device *vdpa_dev, u32 data)
+   371	{
+ > 372		struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
+   373		u16 qid = data & 0xFFFF;
+   374	
+   375		vp_iowrite32(data, vp_vdpa->vring[qid].notify);
+   376	}
+   377	
+
 -- 
-2.47.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
