@@ -1,230 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08458208974;
-	Mon,  2 Dec 2024 14:00:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733148047; cv=none; b=mQ9hTsvRluI5H/S9pBILLogXlAMdWboY1UVdsBSF+HmGKXI/n80TbdR3ZDUl3KupO5vRRbhp+D9AyFXgr5MPUUXtaZ5rJtPuTxRmivY90rF2WshldgQIZxth81PwP1yFZRSOjyZi0C1fUou+c/pNaRCFb6hngzZInYRZpMUgSpc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733148047; c=relaxed/simple;
-	bh=GgBXOt/yTNJCKGurhv9gWr0yQvLzy+TZ2LlXcvom+9s=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=h/0ysymXHharu7IlyvNVdfZVV4G1bBJz2CwQfvLvklofE1b7qaAm17lM6Ik/I7CBkeZcbeNi/URwjLJ7l4hZncAC0qAQpfVFG03Wxv2hcfGJeg/HivuMonYhsfxUgxSxh2Y6DDtZ3GvQPqno3pBsQL3n4FM7DSWRQt0TG79jNg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lJFxR3ey; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF891FDE2E
+	for <virtualization@lists.linux.dev>; Mon,  2 Dec 2024 14:30:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733149849; cv=pass; b=hDJi4uXzR8+ovYv73lCtEl5gonbvGmMNogcYUNwYPtU4h+S8PocG0kExsYpENehpXqJOVlvfb9qUGjLtsUqtp+9SIIzVrCbp8a2vOocv8+SfXBtnN539cFkNR45c+w69+QHbxVLYLxLrSvtd5hBLuVQADlBWPL2AqtepIarwDBM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733149849; c=relaxed/simple;
+	bh=xtiMcPADpe6XmrkUCNGOHKfreJgp+DoymHBJsDvFu1I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pJhyv2Li5vztmub4wr2r/GLnG5ks+vqf6zsr95qcqhEvxDDdA6PK/hQou1LkuJb5OlgoDcfF5sHHTAeeIfWn1Ybnte8lS2miP2BbTmd7soxfLGrvgg/6QF/OmeaqYUxHbDSWJjFH/7IDYvHeUQ6Cb2p5sFMCpL6SpgWzn0IQ9eE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=QgpXgil8; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lJFxR3ey"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC0AC4CED1;
-	Mon,  2 Dec 2024 14:00:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733148046;
-	bh=GgBXOt/yTNJCKGurhv9gWr0yQvLzy+TZ2LlXcvom+9s=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=lJFxR3eyMIUSBNjOr5Qk7RXrDNutHXUb+GQd/pL/xAmrg1N81vj+j00HXpvQo75e4
-	 JIOzDPoourZKz87zKFPXBhx3M8zr8sCYR3x+T0kAMfU8AQlDXT/GuQN4STpjfWtYZT
-	 0g+LjsLTU9ooOXXxhNd6+TybvftS8ENh1Nz9wzhCqDwVOSiCxsWsc/gowY7Giap9uE
-	 gYrKHLuf4EAxCLuDKdWESxy7T5n/+jQ2JhLWrnrsQIqtxVwGE4uOtukXkyYrM2uafA
-	 T15kogr+0BSU5l54et6cfwy3HhkcoyJZol699sGMqsfQszXkOkEH4jdRfcKb1nRRrv
-	 N5dihk7Je5h3A==
-From: Daniel Wagner <wagi@kernel.org>
-Date: Mon, 02 Dec 2024 15:00:16 +0100
-Subject: [PATCH v6 8/8] blk-mq: remove unused queue mapping helpers
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="QgpXgil8"
+ARC-Seal: i=1; a=rsa-sha256; t=1733149838; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=KAYJ+SVldCKeFbNKK5my8RDHpbsYSjygxFmX+ZtQnxzFoypxjZRJ0/vG62Fdd15fIEN+dT5G7jTE+BzfweAoUr8jqfSQaELQPuAGuGHK5j1whvLtsvrQluufP1H3nvAsAj16aPCf2aIjRj8M60Cnm1ps6kYShPirVbZE2Ld5EC4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1733149838; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=Gurws+fL4kEYTQO93cSI4aYvOGLDtpvlUfKwFkPIM3Y=; 
+	b=gzTgrAfc67S/jbf4VWZrLvVQ3WOuDp98nYroK+At/ZwY4+5Rphk66VWa3K8NXrA9ne3NWc7L/MVReLF3ku4rWXA635hVU3C9WNvmN9FIi/x9dliU1drFrXjIMgyzQ/A5QSEnOBM3gpQ9IqVOInzZXGzr65H1Q//2e2hW538MMoY=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1733149838;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=Gurws+fL4kEYTQO93cSI4aYvOGLDtpvlUfKwFkPIM3Y=;
+	b=QgpXgil8+lczGYWgdKRNH4Y8MhkES3bEPK9VjAAdbva9a8WlAVkjkIqIwyLkzeCN
+	kLewsF89IReNkLIL+5sVdwCULCGIESLOJl4/6ZLK5F1bC7St11pqiaQG/52TOUcak+v
+	eZ9li+CzozbGtmV3YPQ+Ean/pvdeQGkgLppGTeyI=
+Received: by mx.zohomail.com with SMTPS id 1733149751274486.1128506514832;
+	Mon, 2 Dec 2024 06:29:11 -0800 (PST)
+Message-ID: <be01d2f7-8423-4e10-b65b-a84a7bc7c99e@collabora.com>
+Date: Mon, 2 Dec 2024 17:29:05 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5] drm/virtio: Add drm_panic support
+To: Ryosuke Yasuoka <ryasuoka@redhat.com>, airlied@redhat.com,
+ kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+ tzimmermann@suse.de, daniel@ffwll.ch, jfalempe@redhat.com,
+ christophe.jaillet@wanadoo.fr
+Cc: virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+References: <20241129122408.4167150-1-ryasuoka@redhat.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20241129122408.4167150-1-ryasuoka@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241202-refactor-blk-affinity-helpers-v6-8-27211e9c2cd5@kernel.org>
-References: <20241202-refactor-blk-affinity-helpers-v6-0-27211e9c2cd5@kernel.org>
-In-Reply-To: <20241202-refactor-blk-affinity-helpers-v6-0-27211e9c2cd5@kernel.org>
-To: Jens Axboe <axboe@kernel.dk>, Bjorn Helgaas <bhelgaas@google.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- "Martin K. Petersen" <martin.petersen@oracle.com>, 
- Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, 
- Sagi Grimberg <sagi@grimberg.me>, John Garry <john.g.garry@oracle.com>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>
-Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-pci@vger.kernel.org, virtualization@lists.linux.dev, 
- linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
- mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, 
- storagedev@microchip.com, linux-nvme@lists.infradead.org, 
- Daniel Wagner <wagi@kernel.org>
-X-Mailer: b4 0.14.2
+X-ZohoMailClient: External
 
-There are no users left of the pci and virtio queue mapping helpers.
-Thus remove them.
+On 11/29/24 15:24, Ryosuke Yasuoka wrote:
+....
+> +static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
+> +					 struct drm_scanout_buffer *sb)
+> +{
+> +	struct virtio_gpu_object *bo;
+> +
+> +	if (!plane->state || !plane->state->fb || !plane->state->visible)
+> +		return -ENODEV;
+> +
+> +	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
+> +	if (virtio_gpu_is_vram(bo))
+> +		return -ENODEV;
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: John Garry <john.g.garry@oracle.com>
-Signed-off-by: Daniel Wagner <wagi@kernel.org>
----
- block/Makefile                |  2 --
- block/blk-mq-pci.c            | 46 -------------------------------------------
- block/blk-mq-virtio.c         | 46 -------------------------------------------
- include/linux/blk-mq-pci.h    | 11 -----------
- include/linux/blk-mq-virtio.h | 11 -----------
- 5 files changed, 116 deletions(-)
+VirtIO-GPU now supports importing external dmabufs, we should reject
+bo->base.base.import_attach here now too.
 
-diff --git a/block/Makefile b/block/Makefile
-index ddfd21c1a9ffc9c4f49efca9875bd8a1cbf81e4d..33748123710b368a1a3a7b099bbd90d27b24c69b 100644
---- a/block/Makefile
-+++ b/block/Makefile
-@@ -27,8 +27,6 @@ bfq-y				:= bfq-iosched.o bfq-wf2q.o bfq-cgroup.o
- obj-$(CONFIG_IOSCHED_BFQ)	+= bfq.o
- 
- obj-$(CONFIG_BLK_DEV_INTEGRITY) += bio-integrity.o blk-integrity.o t10-pi.o
--obj-$(CONFIG_BLK_MQ_PCI)	+= blk-mq-pci.o
--obj-$(CONFIG_BLK_MQ_VIRTIO)	+= blk-mq-virtio.o
- obj-$(CONFIG_BLK_DEV_ZONED)	+= blk-zoned.o
- obj-$(CONFIG_BLK_WBT)		+= blk-wbt.o
- obj-$(CONFIG_BLK_DEBUG_FS)	+= blk-mq-debugfs.o
-diff --git a/block/blk-mq-pci.c b/block/blk-mq-pci.c
-deleted file mode 100644
-index d47b5c73c9eb715be7627a2952ad0ef921dd5bc6..0000000000000000000000000000000000000000
---- a/block/blk-mq-pci.c
-+++ /dev/null
-@@ -1,46 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * Copyright (c) 2016 Christoph Hellwig.
-- */
--#include <linux/kobject.h>
--#include <linux/blkdev.h>
--#include <linux/blk-mq-pci.h>
--#include <linux/pci.h>
--#include <linux/module.h>
--
--#include "blk-mq.h"
--
--/**
-- * blk_mq_pci_map_queues - provide a default queue mapping for PCI device
-- * @qmap:	CPU to hardware queue map.
-- * @pdev:	PCI device associated with @set.
-- * @offset:	Offset to use for the pci irq vector
-- *
-- * This function assumes the PCI device @pdev has at least as many available
-- * interrupt vectors as @set has queues.  It will then query the vector
-- * corresponding to each queue for it's affinity mask and built queue mapping
-- * that maps a queue to the CPUs that have irq affinity for the corresponding
-- * vector.
-- */
--void blk_mq_pci_map_queues(struct blk_mq_queue_map *qmap, struct pci_dev *pdev,
--			   int offset)
--{
--	const struct cpumask *mask;
--	unsigned int queue, cpu;
--
--	for (queue = 0; queue < qmap->nr_queues; queue++) {
--		mask = pci_irq_get_affinity(pdev, queue + offset);
--		if (!mask)
--			goto fallback;
--
--		for_each_cpu(cpu, mask)
--			qmap->mq_map[cpu] = qmap->queue_offset + queue;
--	}
--
--	return;
--
--fallback:
--	WARN_ON_ONCE(qmap->nr_queues > 1);
--	blk_mq_clear_mq_map(qmap);
--}
--EXPORT_SYMBOL_GPL(blk_mq_pci_map_queues);
-diff --git a/block/blk-mq-virtio.c b/block/blk-mq-virtio.c
-deleted file mode 100644
-index 68d0945c0b08a2be116125f46c3a56fcdb02aea8..0000000000000000000000000000000000000000
---- a/block/blk-mq-virtio.c
-+++ /dev/null
-@@ -1,46 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * Copyright (c) 2016 Christoph Hellwig.
-- */
--#include <linux/device.h>
--#include <linux/blk-mq-virtio.h>
--#include <linux/virtio_config.h>
--#include <linux/module.h>
--#include "blk-mq.h"
--
--/**
-- * blk_mq_virtio_map_queues - provide a default queue mapping for virtio device
-- * @qmap:	CPU to hardware queue map.
-- * @vdev:	virtio device to provide a mapping for.
-- * @first_vec:	first interrupt vectors to use for queues (usually 0)
-- *
-- * This function assumes the virtio device @vdev has at least as many available
-- * interrupt vectors as @set has queues.  It will then query the vector
-- * corresponding to each queue for it's affinity mask and built queue mapping
-- * that maps a queue to the CPUs that have irq affinity for the corresponding
-- * vector.
-- */
--void blk_mq_virtio_map_queues(struct blk_mq_queue_map *qmap,
--		struct virtio_device *vdev, int first_vec)
--{
--	const struct cpumask *mask;
--	unsigned int queue, cpu;
--
--	if (!vdev->config->get_vq_affinity)
--		goto fallback;
--
--	for (queue = 0; queue < qmap->nr_queues; queue++) {
--		mask = vdev->config->get_vq_affinity(vdev, first_vec + queue);
--		if (!mask)
--			goto fallback;
--
--		for_each_cpu(cpu, mask)
--			qmap->mq_map[cpu] = qmap->queue_offset + queue;
--	}
--
--	return;
--
--fallback:
--	blk_mq_map_queues(qmap);
--}
--EXPORT_SYMBOL_GPL(blk_mq_virtio_map_queues);
-diff --git a/include/linux/blk-mq-pci.h b/include/linux/blk-mq-pci.h
-deleted file mode 100644
-index ca544e1d3508f34ab6e198b0bb17efe88de4d14d..0000000000000000000000000000000000000000
---- a/include/linux/blk-mq-pci.h
-+++ /dev/null
-@@ -1,11 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _LINUX_BLK_MQ_PCI_H
--#define _LINUX_BLK_MQ_PCI_H
--
--struct blk_mq_queue_map;
--struct pci_dev;
--
--void blk_mq_pci_map_queues(struct blk_mq_queue_map *qmap, struct pci_dev *pdev,
--			   int offset);
--
--#endif /* _LINUX_BLK_MQ_PCI_H */
-diff --git a/include/linux/blk-mq-virtio.h b/include/linux/blk-mq-virtio.h
-deleted file mode 100644
-index 13226e9b22dd53e4289d506d49c52671de036ee8..0000000000000000000000000000000000000000
---- a/include/linux/blk-mq-virtio.h
-+++ /dev/null
-@@ -1,11 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _LINUX_BLK_MQ_VIRTIO_H
--#define _LINUX_BLK_MQ_VIRTIO_H
--
--struct blk_mq_queue_map;
--struct virtio_device;
--
--void blk_mq_virtio_map_queues(struct blk_mq_queue_map *qmap,
--		struct virtio_device *vdev, int first_vec);
--
--#endif /* _LINUX_BLK_MQ_VIRTIO_H */
+> +
+> +	/* try to vmap it if possible */
+> +	if (!bo->base.vaddr) {
+> +		int ret;
+> +
+> +		ret = drm_gem_shmem_vmap(&bo->base, &sb->map[0]);
+> +		if (ret)
+> +			return ret;
+
+I've now noticed that drm_gem_shmem_vmap() expects BO reservation lock
+to be held and we can't take lock it at a panic time.
+
+https://elixir.bootlin.com/linux/v6.12.1/source/drivers/gpu/drm/drm_gem_shmem_helper.c#L330
+
+This resv warning isn't triggered because bo->base.vaddr is set for VT
+framebufffer BO when panic happens.
+
+We actually should reject all BOs that don't have bo->base.vaddr set at
+the panic time. Please correct it in v6 and rebase on top of a recent
+drm-next tree.
+
+> +	} else {
+> +		iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
+> +	}
+> +
+> +	sb->format = plane->state->fb->format;
+> +	sb->height = plane->state->fb->height;
+> +	sb->width = plane->state->fb->width;
+> +	sb->pitch[0] = plane->state->fb->pitches[0];
+> +	return 0;
+> +}
+...
+> +static void virtio_panic_flush(struct drm_plane *plane)
+> +{
+> +	struct virtio_gpu_object *bo;
+> +	struct drm_device *dev = plane->dev;
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
+> +	struct drm_rect rect;
+> +	void *p_vbuf = vgdev->panic_vbuf;
+> +	struct virtio_gpu_vbuffer *vbuf_dumb_bo = p_vbuf;
+> +	struct virtio_gpu_vbuffer *vbuf_resource_flush = p_vbuf + VBUFFER_SIZE;
+
+This p_vbuf + VBUFFER_SIZE looks suspicious. The VBUFFER_SIZE macro
+isn't guarded with parentheses (), hence this vbuf_resource_flush is
+pointing at the CMD part of the vbuf_dumb_bo?
+
+Won't be using kmem_cache_zalloc(vgdev->vbufs, GFP_ATOMIC) to
+dynamically allocate both buffers make everything cleaner?
+
+...
+> -#define MAX_INLINE_CMD_SIZE   96
+> -#define MAX_INLINE_RESP_SIZE  24
+> -#define VBUFFER_SIZE          (sizeof(struct virtio_gpu_vbuffer) \
+> -			       + MAX_INLINE_CMD_SIZE		 \
+> -			       + MAX_INLINE_RESP_SIZE)...
 
 -- 
-2.47.0
-
+Best regards,
+Dmitry
