@@ -1,110 +1,150 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D5AB17BB25
-	for <virtualization@lists.linux.dev>; Mon,  2 Dec 2024 16:19:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733156390; cv=pass; b=kh2t2O0a/R1zsnotaiMJn5WngTZLm5/VJCKeOdpiM89pAcffOQGVs2fF65QwICVRaID5s/Xa02SikN9QQy3TOAfdogzB666ZMfWifx4PS1xH9DBYhoQODjlsaY1ftaR19O6Gne7d61aZVBckUD7jfkDkgZBeIfBpRGJot1Efw+I=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733156390; c=relaxed/simple;
-	bh=9886ePHFbFwZswns+3r4oLgWrrfQmqFqiN9QAho9evs=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=bNB2ru4SlBi7Cv3/1Pzq5o4+l5zpGyeMMEvP5KUVapJ0rRCzMbli6Ru+myiPBNw1WctGxjWF+9Hn0j78Z+dk5Vf5nTumSZJ1WONodOFXMk04ZyNAknSWi42GJh7hl+r4v3kUFB86MLFN9eIrgpk4hEbcHrIDf+HTRgCVrrJJ3BY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=bAr+Jd6G; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 260B81632F2;
+	Mon,  2 Dec 2024 17:18:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733159891; cv=none; b=GFhBKrDq5p2nwXITUvGEE+4AwjkaKP5LtzVi6QozSJLgnEMYZ/stVjjbKEHAtmu1i2KvLJGzEnTdcfPs4bGnd0DlKGXGjbtHLOJnWlBABrABnZoKUWhDYuSWboA+/thO21s9VEB8d+hDtF4KccTTcRGqwHoMnnUYv9pS460hInE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733159891; c=relaxed/simple;
+	bh=E4Wm8kHlwPbdu6uDbIxqGDvMZJfMPRLvglVdRMcYHQU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=l4a7SyYtf6XLuPnFfEmWU9XYlGbu30tUDu0DyL6EncZH2RvNiusJRzoDzoLEV8/syiMFlwsa6Fw//oy+OgNSEl7D+6r4Fw25//68CF3kz9ehCTmNwlsD38pmVRR4+KBzYd6DYhcFIt0zQHlCXdEAsTLu5zWetRzdS9qLbKGUbos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=emGFCmIv; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="bAr+Jd6G"
-ARC-Seal: i=1; a=rsa-sha256; t=1733156379; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=LsoCdLeq6EYAL0wGIbReDDAK55iGJwXrJzzxm7ZidOpcezLJGFZKfL/d3TG8G+SVynIdLf7lRfmhGgZ+RADg/coOpMbX/XDX0Qk02MYMxn7G31NTJLLaInn0GNPNS12nSd1X8dr+kz2P2NGBYpb8RCmJUTiE3VLalCLb/isD3Q4=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1733156379; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=hvTFZp9I5yxeN/zmCcaf6GmfmPRKl/MYvUNTRFeSrLM=; 
-	b=WSfN/Rh7++k8NNm2ncrESO7z2L2wgmCOZH17152ecS5cnOOGdqDKsaGfKmx3Zz0jfuDTx34gRhAe883d2n7DuQd4QuTc36oqDxQXjaXjpCTMBEetaxZM4CUf8jr8cvnIX9FCfRGiOQvxMxlI1hTxcgacOGixp29lIl5RcfZax6c=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1733156379;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:From:From:To:To:Cc:Cc:References:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=hvTFZp9I5yxeN/zmCcaf6GmfmPRKl/MYvUNTRFeSrLM=;
-	b=bAr+Jd6GAH1T2eEsUIUiuZTUdIGB3mM0D3njEbgVJhEs/3IQEe+erVDdEQBXnjnw
-	zwzNeMoSAykhD8B1NlkNeAzdWEkI/b/PYHqyMn8OUaQvr5Vrp6bfIxjhKLUxcdKd+9H
-	glhk6HKRKKDvviq4/e6viyL4QrvPbjFpgmRqONj8=
-Received: by mx.zohomail.com with SMTPS id 1733156377347547.5350538930811;
-	Mon, 2 Dec 2024 08:19:37 -0800 (PST)
-Message-ID: <3ca0382c-a410-4424-a5a4-7c1b8be7ebed@collabora.com>
-Date: Mon, 2 Dec 2024 19:19:31 +0300
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="emGFCmIv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1733159888; x=1764695888;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=E4Wm8kHlwPbdu6uDbIxqGDvMZJfMPRLvglVdRMcYHQU=;
+  b=emGFCmIvbQmr7TEGSQ26hA50FmjCNHCy4yH+QMLz68ayoMAyahYaqe8s
+   z95pYM1v7q2GQapRnBrFybiuMv3RNCaq5ty223CJfo/noFqxAXu/r9DfN
+   +htFDexrmcx+v4XWbfIn3/QyV4UFG6273BGYXEND0Fg6xf4fSfYdxruPw
+   dbyRiYBqQUQc3NThaIwYlPqzgvZLCNnLA+cpWvMehiagokITRCfxhi5kl
+   vqIAy30R+S11HGD2Gy8tkUCvCT4XpnDx2+0dHIJyu/DIkeXVueg0jPhRh
+   fTscuKD12uogqiQOS3BIU3rTF+kYUfbD3ELxSRX7QFnS0u8bp3v/sc8ah
+   Q==;
+X-CSE-ConnectionGUID: 8hnak2BXRAWNZiJtAdOaIg==
+X-CSE-MsgGUID: BZN4ioW5Tn6/YDhBFGirOQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11274"; a="37006574"
+X-IronPort-AV: E=Sophos;i="6.12,203,1728975600"; 
+   d="scan'208";a="37006574"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2024 09:18:07 -0800
+X-CSE-ConnectionGUID: yI8Xm0+kTE6bLjDZFVP2dQ==
+X-CSE-MsgGUID: KMW8ZvaESh6n8SQ3F16E6w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,203,1728975600"; 
+   d="scan'208";a="93492240"
+Received: from lkp-server02.sh.intel.com (HELO 36a1563c48ff) ([10.239.97.151])
+  by fmviesa010.fm.intel.com with ESMTP; 02 Dec 2024 09:18:04 -0800
+Received: from kbuild by 36a1563c48ff with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tIA3d-0002ej-0N;
+	Mon, 02 Dec 2024 17:18:01 +0000
+Date: Tue, 3 Dec 2024 01:17:37 +0800
+From: kernel test robot <lkp@intel.com>
+To: Philipp Stanner <pstanner@redhat.com>,
+	Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?unknown-8bit?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Cc: oe-kbuild-all@lists.linux.dev, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vdpa: solidrun: Replace deprecated PCI functions
+Message-ID: <202412030150.SVZbOVDL-lkp@intel.com>
+References: <20241202122353.9793-2-pstanner@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] drm/virtio: Add drm_panic support
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>, airlied@redhat.com,
- kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
- tzimmermann@suse.de, daniel@ffwll.ch, jfalempe@redhat.com,
- christophe.jaillet@wanadoo.fr
-Cc: virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
-References: <20241129122408.4167150-1-ryasuoka@redhat.com>
- <be01d2f7-8423-4e10-b65b-a84a7bc7c99e@collabora.com>
-Content-Language: en-US
-In-Reply-To: <be01d2f7-8423-4e10-b65b-a84a7bc7c99e@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241202122353.9793-2-pstanner@redhat.com>
 
-On 12/2/24 17:29, Dmitry Osipenko wrote:
-> On 11/29/24 15:24, Ryosuke Yasuoka wrote:
-> ....
->> +static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
->> +					 struct drm_scanout_buffer *sb)
->> +{
->> +	struct virtio_gpu_object *bo;
->> +
->> +	if (!plane->state || !plane->state->fb || !plane->state->visible)
->> +		return -ENODEV;
->> +
->> +	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
->> +	if (virtio_gpu_is_vram(bo))
->> +		return -ENODEV;
-> 
-> VirtIO-GPU now supports importing external dmabufs, we should reject
-> bo->base.base.import_attach here now too.
-> 
->> +
->> +	/* try to vmap it if possible */
->> +	if (!bo->base.vaddr) {
->> +		int ret;
->> +
->> +		ret = drm_gem_shmem_vmap(&bo->base, &sb->map[0]);
->> +		if (ret)
->> +			return ret;
-> 
-> I've now noticed that drm_gem_shmem_vmap() expects BO reservation lock
-> to be held and we can't take lock it at a panic time.
-> 
-> https://elixir.bootlin.com/linux/v6.12.1/source/drivers/gpu/drm/drm_gem_shmem_helper.c#L330
-> 
-> This resv warning isn't triggered because bo->base.vaddr is set for VT
-> framebufffer BO when panic happens.
-> 
-> We actually should reject all BOs that don't have bo->base.vaddr set at
-> the panic time. Please correct it in v6 and rebase on top of a recent
-> drm-next tree.
+Hi Philipp,
 
-Think ideally we need to have a pre-allocated and pre-mapped BO. Then
-when panic happens, use that BO and tell host to display it, i.e. not to
-reuse currently displayed BO. This will make panic display work in all
-conditions. WDYT?
+kernel test robot noticed the following build warnings:
+
+[auto build test WARNING on linus/master]
+[also build test WARNING on v6.13-rc1 next-20241128]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Philipp-Stanner/vdpa-solidrun-Replace-deprecated-PCI-functions/20241202-202728
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20241202122353.9793-2-pstanner%40redhat.com
+patch subject: [PATCH] vdpa: solidrun: Replace deprecated PCI functions
+config: loongarch-allyesconfig (https://download.01.org/0day-ci/archive/20241203/202412030150.SVZbOVDL-lkp@intel.com/config)
+compiler: loongarch64-linux-gcc (GCC) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241203/202412030150.SVZbOVDL-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202412030150.SVZbOVDL-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   drivers/vdpa/solidrun/snet_main.c: In function 'psnet_open_pf_bar':
+>> drivers/vdpa/solidrun/snet_main.c:559:13: warning: unused variable 'ret' [-Wunused-variable]
+     559 |         int ret;
+         |             ^~~
+
+
+vim +/ret +559 drivers/vdpa/solidrun/snet_main.c
+
+   555	
+   556	static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+   557	{
+   558		char *name;
+ > 559		int ret;
+   560		unsigned short i, bars_found = 0;
+   561		void __iomem *io;
+   562	
+   563		name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-bars", pci_name(pdev));
+   564		if (!name)
+   565			return -ENOMEM;
+   566	
+   567		/* We don't know which BAR will be used to communicate..
+   568		 * We will map every bar with len > 0.
+   569		 *
+   570		 * Later, we will discover the BAR and unmap all other BARs.
+   571		 */
+   572		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+   573			if (pci_resource_len(pdev, i) == 0)
+   574				continue;
+   575	
+   576			io = pcim_iomap_region(pdev, i, name);
+   577			if (IS_ERR(io)) {
+   578				SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
+   579				return PTR_ERR(io);
+   580			}
+   581	
+   582			psnet->bars[i] = io;
+   583			bars_found++;
+   584		}
+   585	
+   586		/* No BAR can be used.. */
+   587		if (bars_found == 0) {
+   588			SNET_ERR(pdev, "Failed to find a PCI BAR\n");
+   589			return -ENODEV;
+   590		}
+   591	
+   592		return 0;
+   593	}
+   594	
 
 -- 
-Best regards,
-Dmitry
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
