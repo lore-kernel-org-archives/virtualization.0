@@ -1,87 +1,68 @@
-Received: from mail-qt1-f194.google.com (mail-qt1-f194.google.com [209.85.160.194])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70BF914A088
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 16:02:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BFAD13B2B8
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733241743; cv=none; b=QpNjwPmeS4c///M/3pb+vRXPxI5rmU7R1b9qbXgnuQizF/cQ42oWrPoCpvH9GCqhoAkx72xOD3MJltGd5S7NQnlZqRI3iTwTgYtcCXIoHffzq9lbosh2MgyT+4NzC3vQQjMiqAyB8C9sdubraqLq3X6QYLY9LxFLxU17ei/I7cg=
+	t=1733253432; cv=none; b=GA8BPfQhmH325bgz9bs/JbJVu1i4TORSm46KJtJQ0Z4lhWPJsSXEHOqumaO1JkB14knLhOl1R1OYx4XaHypbDu7QUQdF7V4hW2mC06/lm1VkwgXeaUTmVpxCknJlCt6JnLgN2dYXH56Wg2gBwdau6x9WUkNnWZWzBIMHnHZTttQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733241743; c=relaxed/simple;
-	bh=GChH/jFCdkIBNyblvULtWTux4IPlCojVUfqnBTARLcg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bcr5ODsN4cZEhpTOe/cobaZU53OofknViEX9VB+nXq0eZa0OO6DryzHgZrw5Yb6Sw2KNLHJzVe0t5TXA4C2dsMoEOS0EruCuJN4LH9UNotAirTex4w9U10q1OenyKVLsQPf4BLxxICJvJUEgMdyQnNfsQy6IGQILrYSXMjbe380=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hgiHt+9o; arc=none smtp.client-ip=209.85.160.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1733253432; c=relaxed/simple;
+	bh=k5O7DAp6vfkbonZQML+9XMYQ0zCC34xZlufUGtqimW0=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=DXDuyMZd38t9d/kpqwCCV4Nv0SVTLslxsds1tTTKaEgLxDdCRflKLdt2mFXe5wNkBEdN5MO5Vw0XvIInmR5ffNGrfEh2qxAGpWTH1joaDG1oUaSKlSltWAbFU5OGvOBo+fF7g1N6MbY9xe2xOTh/eT1Am6B1bGUnQsA0YPhQws0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UGQNHDkV; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hgiHt+9o"
-Received: by mail-qt1-f194.google.com with SMTP id d75a77b69052e-46686a258c2so49137601cf.2
-        for <virtualization@lists.linux.dev>; Tue, 03 Dec 2024 08:02:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733241739; x=1733846539; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+WTzDeex6MvV2fYh0DDtmM+R3bGWHPFsxwrTc0tB2Uk=;
-        b=hgiHt+9oUJXTxkIaJ7F0YEL5FGxQwKUfSPmSx3gbhma/7mqoOzycY/ODCW8Ud2VsnZ
-         1dWrAUhHfYHeJlYeUaFzjiHb7zPV6cGKZ+1DigKLttOjGN/aPeV0Z5wDEvXm8pxXVT2O
-         nNCwOUZEVAeHbPzd3cje68bpS1U5uv3VTGdVyn3To06nYUP4rPWV9RRWAnhhHA8eimr0
-         swboCH3UNB46IfiYxxa3nt+15/0BbK1ZaL9tRmmkMy/Moe8kk1B5PBeBYaMXnOaSF5ni
-         EEYUu29CiXBGknT8NRfiTem1TrdRwXIz2JzqoXzilm8UzM7WNSW8r8Rq3Vpraidt5/BP
-         bI5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733241739; x=1733846539;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+WTzDeex6MvV2fYh0DDtmM+R3bGWHPFsxwrTc0tB2Uk=;
-        b=MkUpw5kGaE7Uo/nvok2Y23sKKhU57wonabF95DOkKqvlxSuGbekWhIXizfJ6cUrSRs
-         QgB/4gynQM9m8dZoczlO28fIFb/DUg1IA8KmNP+b92CVXV8O6sl0eXrGGW9rfBfzLExk
-         4tDSMvQdUmMDWldvICrnVpaZcas9UXGgit8Ww1OjseKhI+ucy7Bk+1g5FDSnKKfYwLd5
-         jl8AdgPUEQxM/X5eWBEKv8X5l1+q9iJ5LFdAuuOQ+6NsW5lBsTfbHX2sMIC7hNMIXzs1
-         EZuJZb+3H1c3Vqndzsp9lvnjDGakN/fEeDoP3Dt4PuE5+tYYkJWyJfFSnBbYw8nHQ/3V
-         UkYg==
-X-Forwarded-Encrypted: i=1; AJvYcCXzn3B1lL+cWLF3m5Tg+fUjzLJfLMdyAJKoSPrF4derVTpp8zRnKkB/cgqs5Zrg1Nm867jz2i/6j96vEgYTPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzIVCM7bP3Qd2epKSLDuEPuaKCgLlVw7aB7jdckmiSK+5XupZmB
-	Vr7x2tn84hWWHc2tnF23VNymOagKycAIFmWprHHOqR3k63bRUw4E
-X-Gm-Gg: ASbGncshrNE1V1QXUttSDvgjpns1qXy32soS+m1dNTj6eRX8RcoWZR4iMAF+v/4Rwp0
-	onOh3P5BeEUnxZocaSIjrW+VMpKfOIkA8xx2kNXog8qfNAVySOqS2UwTw6rnTeYSWz0z4Xz2jQT
-	RYq0mYv7trSK6dMBGVqXZmPCyAeUCYBIB6QezD7x7WDPKwRwYy6P8SQsPBXlSaMEH212jfu9d07
-	ifGuiSZAoyGQP0xQ/DL4yOzs0oYTycyKwfAYp33vE3uMf9UW20pc2PHyJivrR66LwEBbvNiuCYM
-	dE7hhgGVcu0vszOCK6loodjnlijFILwpYJm8c1sMoIgP6wSZ+IY6Gg46/T8=
-X-Google-Smtp-Source: AGHT+IGDeeGWcRCTKyUCOq7c8fevpRJKKIBDhzv1JtFZuhU7+1av0GGQHLhd5L0WUnUDcgzYEzYebw==
-X-Received: by 2002:ac8:5a8b:0:b0:466:ad0d:f0ca with SMTP id d75a77b69052e-4670c6c5432mr40809661cf.50.1733241739116;
-        Tue, 03 Dec 2024 08:02:19 -0800 (PST)
-Received: from localhost.localdomain (host-36-26.ilcul54.champaign.il.us.clients.pavlovmedia.net. [68.180.36.26])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-466c42319b6sm62809341cf.77.2024.12.03.08.02.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Dec 2024 08:02:18 -0800 (PST)
-From: Gax-c <zichenxie0106@gmail.com>
-To: maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	simona@ffwll.ch,
-	thierry.reding@gmail.com,
-	mperttunen@nvidia.com,
-	jonathanh@nvidia.com,
-	kraxel@redhat.com,
-	gurchetansingh@chromium.org,
-	olvaffe@gmail.com,
-	matthias.bgg@gmail.com,
-	angelogioacchino.delregno@collabora.com,
-	mst@redhat.com,
-	airlied@redhat.com
-Cc: dri-devel@lists.freedesktop.org,
-	linux-tegra@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	Zichen Xie <zichenxie0106@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] drm: cast calculation to __u64 to fix potential integer overflow
-Date: Tue,  3 Dec 2024 10:02:00 -0600
-Message-Id: <20241203160159.8129-1-zichenxie0106@gmail.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UGQNHDkV"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1886A6159A
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:11 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -6.49
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id IvgKmWi-WF61 for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Dec 2024 19:17:10 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 44DD06158B
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 44DD06158B
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=UGQNHDkV
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 44DD06158B
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:09 +0000 (UTC)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3HtZfR030203;
+	Tue, 3 Dec 2024 19:17:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
+	content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=corp-2023-11-20; bh=k5O7DAp6vfkbonZQML+9XMYQ0zCC3
+	4xZlufUGtqimW0=; b=UGQNHDkVVABqcZKGtwWDc2d0IkgXvZXt+hit+iyFip6hi
+	QvleE/3OV6EwkEAs6SV9AZRo0wTWFfY/C1rVqJ+pEJ+UDlRDaXUI1r9ksbBetdpP
+	WyOfyJQoZ/l+j7bBEtL0rc/dRe5BkesOY7t9uYfx55Ng3HqCAnd3DOcvPtVD/5my
+	+WCA382Bn6AF7MQ4aiKSiLJ9sWH3smD+tAqtMbpZRVeWHO8JB6knGgVRya9u6obT
+	VMjIK0av8ZfKoW2dkwP2zmNNA7SWOjUb1KUgQho3Bdt8DvlL6/N7FUXrGyVyvlv9
+	tVNaRdjkdKbOtqNSVU2fbHMpLzectOAejrnKZRXwA==
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 437tas6sar-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 03 Dec 2024 19:17:08 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3I0jN5000822;
+	Tue, 3 Dec 2024 19:17:08 GMT
+Received: from mnc-mac.us.oracle.com (dhcp-10-65-163-31.vpn.oracle.com [10.65.163.31])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 437s58ak94-1;
+	Tue, 03 Dec 2024 19:17:08 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        sgarzare@redhat.com, pbonzini@redhat.com, target-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH v2 0/8] vhost-scsi: Memory reduction patches
+Date: Tue,  3 Dec 2024 13:15:07 -0600
+Message-ID: <20241203191705.19431-1-michael.christie@oracle.com>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -89,74 +70,27 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2024-12-03_08,2024-12-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=770
+ adultscore=0 mlxscore=0 spamscore=0 suspectscore=0 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2411120000 definitions=main-2412030159
+X-Proofpoint-GUID: wS9Lbh5xAnCYp_cQcufmP-WT-iWpUr0q
+X-Proofpoint-ORIG-GUID: wS9Lbh5xAnCYp_cQcufmP-WT-iWpUr0q
 
-From: Zichen Xie <zichenxie0106@gmail.com>
+The following patches were made over Linus's tree and also apply over
+the mst vhost branch. They reduce the memory use for vhost-scsi.
 
-Like commit b0b0d811eac6 ("drm/mediatek: Fix coverity issue with
-unintentional integer overflow"), directly multiply pitch and
-height may lead to integer overflow. Add a cast to avoid it.
+For a simple device with 1 queue and 128 cmds we use around 25 MB. These
+patches allow us to reduce that to 8.2 MB when supporting up to 128 8 MB
+IOs (the current passthrough max size).
 
-Fixes: 6d1782919dc9 ("drm/cma: Introduce drm_gem_cma_dumb_create_internal()")
-Fixes: dc5698e80cf7 ("Add virtio gpu driver.")
-Fixes: dc6057ecb39e ("drm/tegra: gem: dumb: pitch and size are outputs")
-Signed-off-by: Zichen Xie <zichenxie0106@gmail.com>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/drm_gem_dma_helper.c | 6 +++---
- drivers/gpu/drm/tegra/gem.c          | 2 +-
- drivers/gpu/drm/virtio/virtgpu_gem.c | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+For a more complex device with 16 queues we use around 2.5 GB. These
+patches allow us to reduce that to 77.1 MB when supporting 1024 8 MB IOs.
 
-diff --git a/drivers/gpu/drm/drm_gem_dma_helper.c b/drivers/gpu/drm/drm_gem_dma_helper.c
-index 870b90b78bc4..020c3b17fc02 100644
---- a/drivers/gpu/drm/drm_gem_dma_helper.c
-+++ b/drivers/gpu/drm/drm_gem_dma_helper.c
-@@ -272,8 +272,8 @@ int drm_gem_dma_dumb_create_internal(struct drm_file *file_priv,
- 	if (args->pitch < min_pitch)
- 		args->pitch = min_pitch;
- 
--	if (args->size < args->pitch * args->height)
--		args->size = args->pitch * args->height;
-+	if (args->size < (__u64)args->pitch * args->height)
-+		args->size = (__u64)args->pitch * args->height;
- 
- 	dma_obj = drm_gem_dma_create_with_handle(file_priv, drm, args->size,
- 						 &args->handle);
-@@ -306,7 +306,7 @@ int drm_gem_dma_dumb_create(struct drm_file *file_priv,
- 	struct drm_gem_dma_object *dma_obj;
- 
- 	args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
--	args->size = args->pitch * args->height;
-+	args->size = (__u64)args->pitch * args->height;
- 
- 	dma_obj = drm_gem_dma_create_with_handle(file_priv, drm, args->size,
- 						 &args->handle);
-diff --git a/drivers/gpu/drm/tegra/gem.c b/drivers/gpu/drm/tegra/gem.c
-index d275404ad0e9..a84acdbbbe3f 100644
---- a/drivers/gpu/drm/tegra/gem.c
-+++ b/drivers/gpu/drm/tegra/gem.c
-@@ -548,7 +548,7 @@ int tegra_bo_dumb_create(struct drm_file *file, struct drm_device *drm,
- 	struct tegra_bo *bo;
- 
- 	args->pitch = round_up(min_pitch, tegra->pitch_align);
--	args->size = args->pitch * args->height;
-+	args->size = (__u64)args->pitch * args->height;
- 
- 	bo = tegra_bo_create_with_handle(file, drm, args->size, 0,
- 					 &args->handle);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 7db48d17ee3a..d5407316b12e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -72,7 +72,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 		return -EINVAL;
- 
- 	pitch = args->width * 4;
--	args->size = pitch * args->height;
-+	args->size = (__u64)pitch * args->height;
- 	args->size = ALIGN(args->size, PAGE_SIZE);
- 
- 	params.format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
--- 
-2.34.1
+v2
+- Rebase against current trees/branches.
+- Fix email threading.
 
