@@ -1,29 +1,28 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A7481E6DEE
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 12:14:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0E01E5717
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 12:14:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733228080; cv=none; b=I278co+QWhADox/fYJJeOGgE+4t8WRN3WSUqtBlRcbonGz99sGlJrvG/oS4igJiUw8atmNy5huwB8jtYcD7DkgHoYX8+LqQM/DOAqLAHDmkdphiz/PDSBUMJdvNXwL97alxdMJRnweuE/j4Q+kNCjNUmeh2Csk020vLkMhPQ36g=
+	t=1733228080; cv=none; b=pzVKflN43SI7LjjzeUgPq6ge/ppR1x5hlsxZ9ZzSTgpZS/A2555rHBrYO72p7QiPVTlr8Xq0icY6rwO9oQsLEvuWfLUThfKPfgCIJPv1bj7jLOKVkvzwLUeFznjzkIGwke1nVe/q2SAxoHFY3Vv9zKGMz2jQX0lAYiM8pNVZT4U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1733228080; c=relaxed/simple;
-	bh=hmgTYvyKwTUsLw4N96/c501UhYL9t4E16VnIBneOYok=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Xo+CJNtydUT5wcpxNg65cAtkEtFbqMa5EWUfYYUEI3XFmkDPp9aRa6zJgoKuZkZBhtmIGa6F2+X5XHv6VUpwAwEHAzNvtJLhZGYY5Gkg9gYfF6AEBnigXC8xpSOt/rg/mKzrona8+AzyVt5tFFElJac7yuYEdVsmUEfDUfcAh+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mWXi5YFr; arc=none smtp.client-ip=115.124.30.133
+	bh=QdBxzNQs/JcMK80Dvkj/Snot7CWTforQH5lu/RdEUjs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=jtue72+lBBTH6f+w0UpTdMC59USZV9C3vlN2TBYvAR1z6gBGs6PmHlgsNpPZMsvaS3Dr6107Y4B7Ft3BVQmz70Fv2D3pHt/WuYWbPkCNHk+yhCaz5mRPGD9MnmPLy7VHzTRen2bSimL7WHc6/mNddMTTbpmsYfzezbYNNV0TwXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NlGZAjfV; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mWXi5YFr"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NlGZAjfV"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1733228076; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=7qI5Tpti/q7G+Vv+zck9DF1myBpIVdZteXJ2iz09tI4=;
-	b=mWXi5YFr0qIWNmqAwdG3j7zscPkEei5kfG3NP01Bd54fNhRiisEibnC9DaanfOTrMbRnkSwKwofYX8mQsNOHXFNUinyIuiaSM+1+Gm137jZonFeCtBSUhiUr6vCCEc926OaTQ0jLu1phPXIea/jt7SYjblCQUxI+0FRjy7imgEU=
-Received: from j66c13357.sqa.eu95.tbsite.net(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0WKmboUw_1733228074 cluster:ay36)
+	t=1733228074; h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type;
+	bh=HuqGAvbN2L/LVkbTrKAfpTJN10lUOcd/PL9tmLaFQ8g=;
+	b=NlGZAjfV5YqUdQ2Dju/QcLIgN2Xyx+TSPhYiEEF7pm9QiJYd6iH2n9nxX/aDkSRrWK0flChp6aIvMm4aw1lu8RzF3syrBRMxkphZ9+ZPmSlIlrs8M4YdRMK67j6yePPZ1Wo6N8ZXHK3v2FjQ7FmolWnQgwUQV8vP8r9zsyCw3Ok=
+Received: from j66c13357.sqa.eu95.tbsite.net(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0WKmboQr_1733228066 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 03 Dec 2024 20:14:34 +0800
+          Tue, 03 Dec 2024 20:14:33 +0800
 From: Ferry Meng <mengferry@linux.alibaba.com>
 To: "Michael S . Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
@@ -35,59 +34,73 @@ Cc: linux-kernel@vger.kernel.org,
 	Joseph Qi <joseph.qi@linux.alibaba.com>,
 	Jeffle Xu <jefflexu@linux.alibaba.com>,
 	Ferry Meng <mengferry@linux.alibaba.com>
-Subject: [PATCH 3/3] virtio-blk: add uring_cmd iopoll support.
-Date: Tue,  3 Dec 2024 20:14:24 +0800
-Message-Id: <20241203121424.19887-4-mengferry@linux.alibaba.com>
+Subject: [PATCH 0/3][RFC] virtio-blk: add io_uring passthrough support for virtio-blk
+Date: Tue,  3 Dec 2024 20:14:21 +0800
+Message-Id: <20241203121424.19887-1-mengferry@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20241203121424.19887-1-mengferry@linux.alibaba.com>
-References: <20241203121424.19887-1-mengferry@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add polling support for uring_cmd polling support for virtblk, which
-will be called during completion-polling.
+We seek to develop a more flexible way to use virtio-blk and bypass the block
+layer logic in order to accomplish certain performance optimizations. As a
+result, we referred to the implementation of io_uring passthrough in NVMe
+and implemented it in the virtio-blk driver. This patch series adds io_uring
+passthrough support for virtio-blk devices, resulting in lower submit latency
+and increased flexibility when utilizing virtio-blk.
 
-Signed-off-by: Ferry Meng <mengferry@linux.alibaba.com>
----
- drivers/block/virtio_blk.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+To test this patch series, I changed fio's code: 
+1. Added virtio-blk support to engines/io_uring.c.
+2. Added virtio-blk support to the t/io_uring.c testing tool.
+Link: https://github.com/jdmfr/fio 
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 1a4bac3dc044..7888789a3eb8 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1469,6 +1469,18 @@ static int virtblk_chr_uring_cmd(struct io_uring_cmd *ioucmd, unsigned int issue
- 	return virtblk_uring_cmd(vblk, ioucmd, issue_flags);
- }
- 
-+static int virtblk_chr_uring_cmd_iopoll(struct io_uring_cmd *ioucmd,
-+				 struct io_comp_batch *iob,
-+				 unsigned int poll_flags)
-+{
-+	struct virtblk_uring_cmd_pdu *pdu = virtblk_get_uring_cmd_pdu(ioucmd);
-+	struct request *req = pdu->req;
-+
-+	if (req && blk_rq_is_poll(req))
-+		return blk_rq_poll(req, iob, poll_flags);
-+	return 0;
-+}
-+
- static void virtblk_cdev_rel(struct device *dev)
- {
- 	ida_free(&vd_chr_minor_ida, MINOR(dev->devt));
-@@ -1517,6 +1529,7 @@ static int virtblk_cdev_add(struct virtio_blk *vblk,
- static const struct file_operations virtblk_chr_fops = {
- 	.owner		= THIS_MODULE,
- 	.uring_cmd	= virtblk_chr_uring_cmd,
-+	.uring_cmd_iopoll = virtblk_chr_uring_cmd_iopoll,
- };
- 
- static unsigned int virtblk_queue_depth;
+Using t/io_uring-vblk, the performance of virtio-blk based on uring-cmd
+scales better than block device access. (such as below, Virtio-Blk with QEMU,
+1-depth fio) 
+(passthru) read: IOPS=17.2k, BW=67.4MiB/s (70.6MB/s) 
+slat (nsec): min=2907, max=43592, avg=3981.87, stdev=595.10 
+clat (usec): min=38, max=285,avg=53.47, stdev= 8.28 
+lat (usec): min=44, max=288, avg=57.45, stdev= 8.28
+(block) read: IOPS=15.3k, BW=59.8MiB/s (62.7MB/s) 
+slat (nsec): min=3408, max=35366, avg=5102.17, stdev=790.79 
+clat (usec): min=35, max=343, avg=59.63, stdev=10.26 
+lat (usec): min=43, max=349, avg=64.73, stdev=10.21
+
+Testing the virtio-blk device with fio using 'engines=io_uring_cmd'
+and 'engines=io_uring' also demonstrates improvements in submit latency.
+(passthru) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u1 /dev/vdcc0 
+IOPS=189.80K, BW=741MiB/s, IOS/call=4/3
+IOPS=187.68K, BW=733MiB/s, IOS/call=4/3 
+(block) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u0 /dev/vdc 
+IOPS=101.51K, BW=396MiB/s, IOS/call=4/3
+IOPS=100.01K, BW=390MiB/s, IOS/call=4/4
+
+The performance overhead of submitting IO can be decreased by 25% overall
+with this patch series. The implementation primarily references 'nvme io_uring
+passthrough', supporting io_uring_cmd through a separate character interface
+(temporarily named /dev/vdXc0). Since this is an early version, many
+details need to be taken into account and redesigned, like:
+● Currently, it only considers READ/WRITE scenarios, some more complex operations 
+not included like discard or zone ops.(Normal sqe64 is sufficient, in my opinion;
+following upgrades, sqe128 and cqe32 might not be needed).
+● ......
+
+I would appreciate any useful recommendations.
+
+Ferry Meng (3):
+  virtio-blk: add virtio-blk chardev support.
+  virtio-blk: add uring_cmd support for I/O passthru on chardev.
+  virtio-blk: add uring_cmd iopoll support.
+
+ drivers/block/virtio_blk.c      | 325 +++++++++++++++++++++++++++++++-
+ include/uapi/linux/virtio_blk.h |  16 ++
+ 2 files changed, 336 insertions(+), 5 deletions(-)
+
 -- 
 2.43.5
 
