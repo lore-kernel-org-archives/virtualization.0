@@ -1,109 +1,159 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 316FA1A01B9
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 08:11:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BF0D1E261D
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 10:42:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733213492; cv=none; b=rYPziLsbxZToYwx2aJDY03KFmOu7NOBSUnvpe3hRUHH1Z4JfZA0tKpClRNwhFHhV8Bv3rcS1Q25vMjquOLsUCJrfDkj00RLd2nf3V4hrYX6gn/NKIk6ySryYoeRb1084P1sRyFwWZ1BelMbQu8Zl8cYiKgm5suJbRbB1iiFrrNs=
+	t=1733222562; cv=none; b=cSG1TObXbZUA+Mza4aZPrTioSJlmvvf26qMLXF0BdKdrViQDVf/vKUVqaJ09XB7Z8HeIDaAW4HRZ8U4eP9sZQQEinglihwyiLlsysp1QgS9JV1rHsr1PZoLQt+Z6Eb38cl0YFXXov5PtX8c/w4imypwPEsYeprqEBGjbnEToudA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733213492; c=relaxed/simple;
-	bh=m5GhP1bzWZ9wJC300ZM+pNgqKcYbjarnymd9a0nvJz8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IWDQKnLWh3SzcNtI80tD8LPwS+D4v1LV4jE2F1HsfXZCHjN7n1UWmtfwhSEiHELm3KJdOpk4/2OQfcGFXbzdKv4JFemX6ZU2Klu9a/acH7orsc0XhpRZIaDpuA0XxKusD8qtRSEKOWX6I5nHhCJ2Fdrz4lB70T9AVplNhluWlyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=NJVWnyoh; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1733222562; c=relaxed/simple;
+	bh=GClxry7kOfIsY1EQO6Rm5I2oCXDUT6JUC3Wc7LhTng0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OutJCr/Q+QV0CVHcUcdQBH3WQa8VBPEGqoeqGIkSqa9xiBWkMoVwFy4q+cx5ebHFgSODRQm/4l+5LkMcfPg9BpS4KvPoxaGsiu+0bTsRVCSKmYdRrQ2fr/0MoF9NTo39IwTs9jNvwDBRzu+pbcDq9ZfkC2Ua+HS9/PRpA48TO/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H8Sk6ytT; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="NJVWnyoh"
-Received: from [192.168.7.205] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 4B38AqJi322558
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Tue, 3 Dec 2024 00:10:52 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 4B38AqJi322558
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2024111601; t=1733213454;
-	bh=Gjt29Xyz+OZvO528TtflAd8fuc5YuSz5FuvYYAukkjY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=NJVWnyohYxxPHKawzE2PaIJShfBzSYY3l6rvK/K94gmRO32nSvFn5vdb/0lD1IN3W
-	 BLOprK8yii/5+vEloY+ObAHpkivASlubGMQyPO9LWvh/13JJD0BrhrnZeLdIZlE95S
-	 wB3UaFxWOBbWQ9U/7bLejiu7cPyPQ5tM1T+18KuIqrAdGjX+LiR6TJcCWCELXEIkBQ
-	 DN0CYc2ouYU4ThmU5gqBDG41+egL3BpPL8T22pdH3Tal8O0VMKQuFwwKSis8Tdx5mA
-	 zmgeFXrRsTjnWIuF9Jj5o1eVpGEUsAbDnSYWkC/2HqkJaFlpH3lNec8fWHlK/dkep/
-	 ABs6l+vOD/WlQ==
-Message-ID: <25fa8746-3b36-4d43-86cd-37aadaacdf2e@zytor.com>
-Date: Tue, 3 Dec 2024 00:10:46 -0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H8Sk6ytT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1733222559;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D5AHi0uk+oN+zpkzvh/QNmG2L3UPAKNwXGcHrJAQaZM=;
+	b=H8Sk6ytTS4IFg0JTv0MhJmAEQkXT7h8ytnQqFORdPMTSslAe/OXh6IJ5Xdyde7euLA7Nf8
+	ZnP3fmAigX229yVlp5whxTiDRH1nFTZPa8IgIEbh8G7/Qg2wO7nnDeh8w6MM2eYw/YcTif
+	DgaTJ1L4Yw38IJvm43ZBi634ldGwO1E=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-300-P5838zgdOW6m0hg0rLlvbA-1; Tue,
+ 03 Dec 2024 05:42:36 -0500
+X-MC-Unique: P5838zgdOW6m0hg0rLlvbA-1
+X-Mimecast-MFC-AGG-ID: P5838zgdOW6m0hg0rLlvbA
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DE7BF19560BD;
+	Tue,  3 Dec 2024 10:42:32 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.10])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9A28330000DF;
+	Tue,  3 Dec 2024 10:42:29 +0000 (UTC)
+Date: Tue, 3 Dec 2024 18:42:25 +0800
+From: Baoquan He <bhe@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v1 03/11] fs/proc/vmcore: disallow vmcore modifications
+ after the vmcore was opened
+Message-ID: <Z07gkXQDrNfL10hu@MiWiFi-R3L-srv>
+References: <20241025151134.1275575-1-david@redhat.com>
+ <20241025151134.1275575-4-david@redhat.com>
+ <Z0BL/UopaH5Xg5jS@MiWiFi-R3L-srv>
+ <d29d7816-a3e5-4f34-bb0c-dd427931efb4@redhat.com>
+ <Z0SMqYX8gMvdiU4T@MiWiFi-R3L-srv>
+ <a7ccbd86-2a62-4191-8742-ce45b6e8f73c@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/2] x86, lib, xenpv: Add WBNOINVD helper functions
-To: Juergen Gross <jgross@suse.com>,
-        Kevin Loughlin
- <kevinloughlin@google.com>,
-        Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: linux-kernel@vger.kernel.org, seanjc@google.com, pbonzini@redhat.com,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        kvm@vger.kernel.org, thomas.lendacky@amd.com, pgonda@google.com,
-        sidtelang@google.com, mizhang@google.com,
-        virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
-        bcm-kernel-feedback-list@broadcom.com
-References: <20241203005921.1119116-1-kevinloughlin@google.com>
- <20241203005921.1119116-2-kevinloughlin@google.com>
- <a9560e97-478d-4e03-b936-cf6f663279a4@citrix.com>
- <CAGdbjmLRA5g+Rgiq-fRbWaNqXK51+naNBi0b3goKxsN-79wpaw@mail.gmail.com>
- <bc4a4095-d8bd-4d97-a623-be35ef81aad0@zytor.com>
- <24b80006-dcea-4a76-b5c8-e147d9191ed2@suse.com>
-Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- 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
- l75w1xInsg==
-In-Reply-To: <24b80006-dcea-4a76-b5c8-e147d9191ed2@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a7ccbd86-2a62-4191-8742-ce45b6e8f73c@redhat.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On 12/2/2024 10:47 PM, Juergen Gross wrote:
-> P.S.: As the paravirt maintainer I would have preferred to be Cc-ed in the
->        initial patch mail.
+On 11/29/24 at 11:38am, David Hildenbrand wrote:
+> On 25.11.24 15:41, Baoquan He wrote:
+> > On 11/22/24 at 10:30am, David Hildenbrand wrote:
+> > > On 22.11.24 10:16, Baoquan He wrote:
+> > > > On 10/25/24 at 05:11pm, David Hildenbrand wrote:
+> > > > ......snip...
+> > > > > @@ -1482,6 +1470,10 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
+> > > > >    		return -EINVAL;
+> > > > >    	}
+> > > > > +	/* We'll recheck under lock later. */
+> > > > > +	if (data_race(vmcore_opened))
+> > > > > +		return -EBUSY;
+> > > > 
+> > > 
+> > > Hi,
+> > > 
+> > > > As I commented to patch 7, if vmcore is opened and closed after
+> > > > checking, do we need to give up any chance to add device dumping
+> > > > as below?
+> > > > 
+> > > > fd = open(/proc/vmcore);
+> > > > ...do checking;
+> > > > close(fd);
+> > > > 
+> > > > quit any device dump adding;
+> > > > 
+> > > > run makedumpfile on s390;
+> > > >     ->fd = open(/proc/vmcore);
+> > > >       -> try to dump;
+> > > >     ->close(fd);
+> > > 
+> > > The only reasonable case where this could happen (with virtio_mem) would be
+> > > when you hotplug a virtio-mem device into a VM that is currently in the
+> > > kdump kernel. However, in this case, the device would not provide any memory
+> > > we want to dump:
+> > > 
+> > > (1) The memory was not available to the 1st (crashed) kernel, because
+> > >      the device got hotplugged later.
+> > > (2) Hotplugged virtio-mem devices show up with "no plugged memory",
+> > >      meaning there wouldn't be even something to dump.
+> > > 
+> > > Drivers will be loaded (as part of the kernel or as part of the initrd)
+> > > before any kdump action is happening. Similarly, just imagine your NIC
+> > > driver not being loaded when you start dumping to a network share ...
+> > > 
+> > > This should similarly apply to vmcoredd providers.
+> > > 
+> > > There is another concern I had at some point with changing the effective
+> > > /proc/vmcore size after someone already opened it, and might assume the size
+> > > will stay unmodified (IOW, the file was completely static before vmcoredd
+> > > showed up).
+> > > 
+> > > So unless there is a real use case that requires tracking whether the file
+> > > is no longer open, to support modifying the vmcore afterwards, we should
+> > > keep it simple.
+> > > 
+> > > I am not aware of any such cases, and my experiments with virtio_mem showed
+> > > that the driver get loaded extremely early from the initrd, compared to when
+> > > we actually start messing with /proc/vmcore from user space.
 
-Looks that Kevin didn't run './scripts/get_maintainer.pl'?
+It's OK, David, I don't have strong opinion about the current
+implementation. I raised this concern because
 
-Thanks!
-     Xin
+1) I saw the original vmcoredd only warn when doing register if
+vmcore_opened is true;
+
+2) in patch 1, it says vmcore_mutex is introduced to protect vmcore
+modifications from concurrent opening. If we are confident, the old
+vmcoredd_mutex can guarantee it, I could be wrong here.
+
+Anyway, it's just a tiny concern, I believe it won't cause issue at
+present. So it's up to you. 
+
+Thanks
+
