@@ -1,68 +1,80 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BFAD13B2B8
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1B4F1FDE05
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733253432; cv=none; b=GA8BPfQhmH325bgz9bs/JbJVu1i4TORSm46KJtJQ0Z4lhWPJsSXEHOqumaO1JkB14knLhOl1R1OYx4XaHypbDu7QUQdF7V4hW2mC06/lm1VkwgXeaUTmVpxCknJlCt6JnLgN2dYXH56Wg2gBwdau6x9WUkNnWZWzBIMHnHZTttQ=
+	t=1733253435; cv=none; b=gJbOWNhyLpPI/FfPHeISdYxKzB6CKdAcrCK59EtxsWsUUFiAlCoNg2GDig6aWxiNCAXffoGwplJaWyfqn4+QG2JSQAfey0wmWa1u+1KVeKke9HeK6+C00rUzn/eLVimOiEoddJp8u+lc8SsUXdG5o84QOGW8EB1kHXnT7fnnLs8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733253432; c=relaxed/simple;
-	bh=k5O7DAp6vfkbonZQML+9XMYQ0zCC34xZlufUGtqimW0=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=DXDuyMZd38t9d/kpqwCCV4Nv0SVTLslxsds1tTTKaEgLxDdCRflKLdt2mFXe5wNkBEdN5MO5Vw0XvIInmR5ffNGrfEh2qxAGpWTH1joaDG1oUaSKlSltWAbFU5OGvOBo+fF7g1N6MbY9xe2xOTh/eT1Am6B1bGUnQsA0YPhQws0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UGQNHDkV; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1733253435; c=relaxed/simple;
+	bh=QokEUW6jFjALosvRfXDIgClFWVfgHvC8I5add993bYY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=eatEj4v+qR0tZpKH0uqEV2kIog8teD82sfQn1TnnXVFCwoftIuL0I/w7EVUCmPm3WUVyjW0JrwP6YGD9wyneCI2kkpBVHhRnj14q4AHfc0UDspJaWNG9KtMDlNUyNelydtbDyjLBxBYfabBEZSuz1OK74FI2fPyIlQxziMPkmoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=HD5cxWqZ; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UGQNHDkV"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="HD5cxWqZ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1886A6159A
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:11 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 44BB3433A4
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:13 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -6.49
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id IvgKmWi-WF61 for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Dec 2024 19:17:10 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id mWY_sM25HAOj for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Dec 2024 19:17:12 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 44DD06158B
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 44DD06158B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=UGQNHDkV
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 141454339A
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 141454339A
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=HD5cxWqZ
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 44DD06158B
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:09 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3HtZfR030203;
-	Tue, 3 Dec 2024 19:17:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
-	content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=corp-2023-11-20; bh=k5O7DAp6vfkbonZQML+9XMYQ0zCC3
-	4xZlufUGtqimW0=; b=UGQNHDkVVABqcZKGtwWDc2d0IkgXvZXt+hit+iyFip6hi
-	QvleE/3OV6EwkEAs6SV9AZRo0wTWFfY/C1rVqJ+pEJ+UDlRDaXUI1r9ksbBetdpP
-	WyOfyJQoZ/l+j7bBEtL0rc/dRe5BkesOY7t9uYfx55Ng3HqCAnd3DOcvPtVD/5my
-	+WCA382Bn6AF7MQ4aiKSiLJ9sWH3smD+tAqtMbpZRVeWHO8JB6knGgVRya9u6obT
-	VMjIK0av8ZfKoW2dkwP2zmNNA7SWOjUb1KUgQho3Bdt8DvlL6/N7FUXrGyVyvlv9
-	tVNaRdjkdKbOtqNSVU2fbHMpLzectOAejrnKZRXwA==
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 141454339A
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:11 +0000 (UTC)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3HtYLl012301;
+	Tue, 3 Dec 2024 19:17:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=corp-2023-11-20; bh=dHMQ/
+	4M31YkAY++Pi7oJHwSQm9yN22AJZWV+XCEOW/U=; b=HD5cxWqZWwfH66936OvmB
+	XsfsMUwWr7zNEOIljR71QIQ+CfOOLztbDfl7aeFiFZMcxgkGIzYAWLQkzetb4Urq
+	TDa57RFFoXyXx3va8mIycOrFyIQTkDFTBzMA+FHe6gGf0XlQnupBsh2CxZI05gFL
+	8ksxAbI7jwzvATzwim6SxaGHAmdpFTRPRgd4KOPcZt5V6qq2wQ2Qp2eOIyN0Vsjb
+	eEIXGjyVVGSnd4vlEvmjIrU3hHthq7RmB3cB41omWjo/4mX58DnRqSi1m0cEy0za
+	vK6V2o5SbF1Mc1RZYMkqa/vcHfi5NML8A4m4ZRlG270N7gazUVMgMD5mmAYixvx8
+	w==
 Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 437tas6sar-1
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 437s4c6sxa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 03 Dec 2024 19:17:08 +0000 (GMT)
+	Tue, 03 Dec 2024 19:17:10 +0000 (GMT)
 Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3I0jN5000822;
-	Tue, 3 Dec 2024 19:17:08 GMT
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3Ij1q9001088;
+	Tue, 3 Dec 2024 19:17:10 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 437s58akbh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 03 Dec 2024 19:17:10 +0000
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4B3JH9MA021603;
+	Tue, 3 Dec 2024 19:17:09 GMT
 Received: from mnc-mac.us.oracle.com (dhcp-10-65-163-31.vpn.oracle.com [10.65.163.31])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 437s58ak94-1;
-	Tue, 03 Dec 2024 19:17:08 +0000
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 437s58ak94-2;
+	Tue, 03 Dec 2024 19:17:09 +0000
 From: Mike Christie <michael.christie@oracle.com>
 To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
         sgarzare@redhat.com, pbonzini@redhat.com, target-devel@vger.kernel.org,
         virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 0/8] vhost-scsi: Memory reduction patches
-Date: Tue,  3 Dec 2024 13:15:07 -0600
-Message-ID: <20241203191705.19431-1-michael.christie@oracle.com>
+Cc: Mike Christie <michael.christie@oracle.com>
+Subject: [PATCH v2 1/8] vhost-scsi: Reduce mem use by moving upages to per queue
+Date: Tue,  3 Dec 2024 13:15:08 -0600
+Message-ID: <20241203191705.19431-2-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.44.0
+In-Reply-To: <20241203191705.19431-1-michael.christie@oracle.com>
+References: <20241203191705.19431-1-michael.christie@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,24 +85,121 @@ Content-Transfer-Encoding: 8bit
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2024-12-03_08,2024-12-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=770
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999
  adultscore=0 mlxscore=0 spamscore=0 suspectscore=0 malwarescore=0
  phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2411120000 definitions=main-2412030159
-X-Proofpoint-GUID: wS9Lbh5xAnCYp_cQcufmP-WT-iWpUr0q
-X-Proofpoint-ORIG-GUID: wS9Lbh5xAnCYp_cQcufmP-WT-iWpUr0q
+X-Proofpoint-ORIG-GUID: MsT47_LYhVpfZ8_Cpn9k26PTVITq6Bel
+X-Proofpoint-GUID: MsT47_LYhVpfZ8_Cpn9k26PTVITq6Bel
 
-The following patches were made over Linus's tree and also apply over
-the mst vhost branch. They reduce the memory use for vhost-scsi.
+Each worker thread can process 1 command at a time so there's no need to
+allocate a upages array per cmd. This patch moves it to per queue. Even a
+small device with 128 cmds and 1 queue this brings mem use for the array
+from
 
-For a simple device with 1 queue and 128 cmds we use around 25 MB. These
-patches allow us to reduce that to 8.2 MB when supporting up to 128 8 MB
-IOs (the current passthrough max size).
+2 MB = 8 bytes per page pointer * 2048 pointers * 128 cmds
 
-For a more complex device with 16 queues we use around 2.5 GB. These
-patches allow us to reduce that to 77.1 MB when supporting 1024 8 MB IOs.
+to
 
-v2
-- Rebase against current trees/branches.
-- Fix email threading.
+16K = 8 bytes per pointer * 2048 * 1 queue
+
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+---
+ drivers/vhost/scsi.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 718fa4e0b31e..adb3cd47b4e3 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -83,7 +83,6 @@ struct vhost_scsi_cmd {
+ 	/* Pointer to the SGL formatted memory from virtio-scsi */
+ 	struct scatterlist *tvc_sgl;
+ 	struct scatterlist *tvc_prot_sgl;
+-	struct page **tvc_upages;
+ 	/* Pointer to response header iovec */
+ 	struct iovec *tvc_resp_iov;
+ 	/* Pointer to vhost_scsi for our device */
+@@ -187,6 +186,7 @@ struct vhost_scsi_virtqueue {
+ 	struct vhost_scsi_cmd *scsi_cmds;
+ 	struct sbitmap scsi_tags;
+ 	int max_cmds;
++	struct page **upages;
+ 
+ 	struct vhost_work completion_work;
+ 	struct llist_head completion_list;
+@@ -619,7 +619,6 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+ 	struct vhost_scsi_nexus *tv_nexus;
+ 	struct scatterlist *sg, *prot_sg;
+ 	struct iovec *tvc_resp_iov;
+-	struct page **pages;
+ 	int tag;
+ 
+ 	tv_nexus = tpg->tpg_nexus;
+@@ -637,12 +636,10 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+ 	cmd = &svq->scsi_cmds[tag];
+ 	sg = cmd->tvc_sgl;
+ 	prot_sg = cmd->tvc_prot_sgl;
+-	pages = cmd->tvc_upages;
+ 	tvc_resp_iov = cmd->tvc_resp_iov;
+ 	memset(cmd, 0, sizeof(*cmd));
+ 	cmd->tvc_sgl = sg;
+ 	cmd->tvc_prot_sgl = prot_sg;
+-	cmd->tvc_upages = pages;
+ 	cmd->tvc_se_cmd.map_tag = tag;
+ 	cmd->tvc_tag = scsi_tag;
+ 	cmd->tvc_lun = lun;
+@@ -669,7 +666,9 @@ vhost_scsi_map_to_sgl(struct vhost_scsi_cmd *cmd,
+ 		      struct scatterlist *sgl,
+ 		      bool is_prot)
+ {
+-	struct page **pages = cmd->tvc_upages;
++	struct vhost_scsi_virtqueue *svq = container_of(cmd->tvc_vq,
++					struct vhost_scsi_virtqueue, vq);
++	struct page **pages = svq->upages;
+ 	struct scatterlist *sg = sgl;
+ 	ssize_t bytes, mapped_bytes;
+ 	size_t offset, mapped_offset;
+@@ -1598,11 +1597,11 @@ static void vhost_scsi_destroy_vq_cmds(struct vhost_virtqueue *vq)
+ 
+ 		kfree(tv_cmd->tvc_sgl);
+ 		kfree(tv_cmd->tvc_prot_sgl);
+-		kfree(tv_cmd->tvc_upages);
+ 		kfree(tv_cmd->tvc_resp_iov);
+ 	}
+ 
+ 	sbitmap_free(&svq->scsi_tags);
++	kfree(svq->upages);
+ 	kfree(svq->scsi_cmds);
+ 	svq->scsi_cmds = NULL;
+ }
+@@ -1628,6 +1627,11 @@ static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
+ 		return -ENOMEM;
+ 	}
+ 
++	svq->upages = kcalloc(VHOST_SCSI_PREALLOC_UPAGES, sizeof(struct page *),
++			      GFP_KERNEL);
++	if (!svq->upages)
++		goto out;
++
+ 	for (i = 0; i < max_cmds; i++) {
+ 		tv_cmd = &svq->scsi_cmds[i];
+ 
+@@ -1639,14 +1643,6 @@ static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
+ 			goto out;
+ 		}
+ 
+-		tv_cmd->tvc_upages = kcalloc(VHOST_SCSI_PREALLOC_UPAGES,
+-					     sizeof(struct page *),
+-					     GFP_KERNEL);
+-		if (!tv_cmd->tvc_upages) {
+-			pr_err("Unable to allocate tv_cmd->tvc_upages\n");
+-			goto out;
+-		}
+-
+ 		tv_cmd->tvc_resp_iov = kcalloc(UIO_MAXIOV,
+ 					       sizeof(struct iovec),
+ 					       GFP_KERNEL);
+-- 
+2.34.1
 
