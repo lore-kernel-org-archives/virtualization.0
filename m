@@ -1,483 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com [209.85.221.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B51A4C60B
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 01:37:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 028D2664C6
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 01:45:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733189857; cv=none; b=mbWokLSWYQ1oXAMekNfnhNGgpHXqhiJE+1MsQq6CC53UA7TviTuq1F0rifcVMRn3tHgehMSxarmx33W88nw61K3LxEMSfeBLSmDBCRnH706ulxARPW3kZFPV2PY3Gzsj+SR3nhlNxbtLZfFL7FWKm9HsPy3MfWL/pQ96fzVyfno=
+	t=1733190308; cv=none; b=IrhsgDul9zQ8uzXp3QsoblgmI1raX8Dj8UmcJtCEpnlIXQ8Pd+RoSeM27+Co9uI4o7k5Ter6LYbF1OAHRlzOEN4k+XiZrH4q7aJBh9/IpeTxfoy6FosS41Ywhd9RSH4CN57sLBuPvqskNhbFZ5nq2DTcCBKEwd2KkQGDfHI3Eks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733189857; c=relaxed/simple;
-	bh=q1Bu8EgavZfOPLmlTzctDFnHeqoFr1v3VG7Dkgv/gcg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=gCVIHU/n8RQbFDsh7LV7cOVwUDwyqaO6521gSj9EH5q/1tiy3paBCoWpeLee7lmg+zd5UCHSZxNFxdPItMpyA8PkNW6wt+k2v3jlpKd0l4nznMqkWmKPVPsdcicHAPraQCUQnSH9ZzU2xQGFNwLIa/VLATkiV0LFfR4Sy4b5Uuo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TlGIYTN1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1733190308; c=relaxed/simple;
+	bh=HbuFI/riZulpFH9oeFjnjmTcBp+J3kMI3l1dSbEdv+8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JOTgz0JPgn7+1eqwt5XqzMySvIp0qxw+uUUS3X/HuaIv2/7oYs6zvahQYTmHDdKCGZexL9qDt+tiWZat0E1Uv+TFnxgX+140Ft81dsyZ8hXI0SnMYaDzjfqL23pBRta0mabdTvc80oBNXK/ULLZM/Y0JJgY1spf8rVtGvoWMBnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=HGSrFENI; arc=none smtp.client-ip=209.85.221.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TlGIYTN1"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B2LaMNc002570;
-	Tue, 3 Dec 2024 01:37:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=LYNIwsfPamPOlVEPJ
-	kO6MBAqxhgjkkcJATSFQHd2Pwc=; b=TlGIYTN1q/ehMYOeKNZU09ApB1LBWDuvn
-	L6umun0RVoWZMn5omXH3Sruu1MC+5gMdeLUx4kJOkc3cTc/iY75yqMT769+weNfO
-	+9NFTp+sDI+RXK0GvgHGhJv2lqTDhPCbHYyd21RKvV1gnXyShcYMVdRvK/ImhYAe
-	QAx1mit4KaONvqkKg4Ub0eoB7dMbOmV1P2g3g9BW21uo6PuxFXdvyW/Rfs6sfh+P
-	U9C9gX9E7addhQXvCd9gxydPEh2TGtCA23+AlAN6uZ0LIF+yimxEpPYSEuOJKJ7J
-	H0RgxczuPAlWqFil1hq8yt0nLxCycUpAXElh7p5QJ1fDNwYgKz5Qg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437r4pbrdp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Dec 2024 01:37:34 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B2Hgq0K012745;
-	Tue, 3 Dec 2024 01:37:33 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 438d1s3aqw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Dec 2024 01:37:33 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B31bWUn58261996
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Dec 2024 01:37:32 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D8A6D5805A;
-	Tue,  3 Dec 2024 01:37:31 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9A9455805F;
-	Tue,  3 Dec 2024 01:37:31 +0000 (GMT)
-Received: from WIN-DU0DFC9G5VV.ibm.com (unknown [9.61.255.118])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  3 Dec 2024 01:37:31 +0000 (GMT)
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
-To: sgarzare@redhat.com
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
-        Konstantin Shkolnyy <kshk@linux.ibm.com>
-Subject: [PATCH net v7 3/3] vsock/test: verify socket options after setting them
-Date: Mon,  2 Dec 2024 19:37:09 -0600
-Message-Id: <20241203013709.232045-4-kshk@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20241203013709.232045-1-kshk@linux.ibm.com>
-References: <20241203013709.232045-1-kshk@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HGSrFENI"
+Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-5152377321cso1262572e0c.2
+        for <virtualization@lists.linux.dev>; Mon, 02 Dec 2024 17:45:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1733190305; x=1733795105; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wscqKrTwFb9sgoc/UfAh+DpARa9frP273Npy3sEJYN8=;
+        b=HGSrFENIaCSf5vpGl+ukmG2z8fkF2WgGYM3TzdfKgHh08yZh1B9cJFPf13sIH95jlC
+         cZTOjJ06MT0y4zH8wQ7yVVj/fV1v9tUrWcF3AwRee5UF20lCyiFZ50dq5BLhhuHGlG9w
+         71yVjPKE81Gl1WTfjhIOD8lfMnoOVY4YfpvohGGitDMle6rIlx1QIRNx3mw4YwL9V+QC
+         RurCSGMeB72IhN5hs7m+zJTrgHwBAjgNZpH14xENFS71rBfCqUXh8TcPqad1rOk99r3w
+         CO8QeW+EoeTvJkp8RxR8RSlYVfPEon/shx/btJAaaciuWU1UBCsbO+XYTfadkHL4zmVd
+         hkRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733190305; x=1733795105;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wscqKrTwFb9sgoc/UfAh+DpARa9frP273Npy3sEJYN8=;
+        b=DJHSJkMCOcAZYk1T4hvIKjIM0WVzxjdrcIzp+HWM8LIoGRHTgpw76H8g7fxd/TH6Sx
+         x3QUc4Yx/zo1jP9/A/AFmPuHYiwmdD2S8vPpzzkfvA11iTltXaxb3VLOgxsNgLxNCe1k
+         AJveJf/+bMqAa3Lo9aaEF/gVGGBed18gQtk8Ay6KuMwWZK6ICsJ7NlDUzsPMLspwzi9n
+         aj8eeBSp1evJajVPPeZEk2sVceC9NM+nXPWc+bK1Ir6dsOCb1P+ghCmMHuHeL2b7srYZ
+         gClb6bj58xAxBbUuPKem/lgm3IO3nQ6gwxUStBNdh7hPrUd2toELchTYTBQfYaBjjtJI
+         qV2A==
+X-Forwarded-Encrypted: i=1; AJvYcCWyRGrPU4rYvKx5fP06kTYgYke6e6sk4HiROT88CSGh+Wf4AqOlp4WMfZU7hHe+dOT/8Ci01bQV6F5luxXzCA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzgFysdmtMVmTq3UIYCctTrrlNaVrGABeLJ7ZLWroM4B/EDfFeu
+	TdvRD7BW8bx3Nm6HVwGajeMgEOcKYsnsZGEOxv0cz6fhbnMiuUsA6gWbZyeX8kn3AnYJjYBcxCk
+	I/zyKn2pVICV+KGVkTz3lsbxEB56u21LL2WK5
+X-Gm-Gg: ASbGncsMLFCgVXlHrXkYQhamflFlcIaN935mTuV1HSAMUgMikNhLpTkAHZEdsEtAT4J
+	5gSomGDmNu7AV1yWCqRupNmPeO6ulVCy6
+X-Google-Smtp-Source: AGHT+IEp0cLLV0HS2GVNv35k+CB8WVNUZpet9fwmVxa/fQluHk3o8PZV+wDlJqqbk9+pA1JRUyjCGBWE6ek73EZak9c=
+X-Received: by 2002:a05:6122:169a:b0:515:4fab:2e53 with SMTP id
+ 71dfb90a1353d-515bf56cea7mr1114649e0c.7.1733190304632; Mon, 02 Dec 2024
+ 17:45:04 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YdJQ8PL7_M2lRtcBrJq1_QHpCwy-XROH
-X-Proofpoint-ORIG-GUID: YdJQ8PL7_M2lRtcBrJq1_QHpCwy-XROH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 clxscore=1015 phishscore=0 malwarescore=0
- suspectscore=0 mlxscore=0 bulkscore=0 mlxlogscore=999 adultscore=0
- lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2412030011
+References: <20241203005921.1119116-1-kevinloughlin@google.com>
+ <20241203005921.1119116-2-kevinloughlin@google.com> <a9560e97-478d-4e03-b936-cf6f663279a4@citrix.com>
+In-Reply-To: <a9560e97-478d-4e03-b936-cf6f663279a4@citrix.com>
+From: Kevin Loughlin <kevinloughlin@google.com>
+Date: Mon, 2 Dec 2024 17:44:53 -0800
+Message-ID: <CAGdbjmLRA5g+Rgiq-fRbWaNqXK51+naNBi0b3goKxsN-79wpaw@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/2] x86, lib, xenpv: Add WBNOINVD helper functions
+To: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: linux-kernel@vger.kernel.org, seanjc@google.com, pbonzini@redhat.com, 
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+	kvm@vger.kernel.org, thomas.lendacky@amd.com, pgonda@google.com, 
+	sidtelang@google.com, mizhang@google.com, virtualization@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, bcm-kernel-feedback-list@broadcom.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Replace setsockopt() calls with calls to functions that follow
-setsockopt() with getsockopt() and check that the returned value and its
-size are the same as have been set. (Except in vsock_perf.)
+On Mon, Dec 2, 2024 at 5:28=E2=80=AFPM Andrew Cooper <andrew.cooper3@citrix=
+.com> wrote:
+>
+> On 03/12/2024 12:59 am, Kevin Loughlin wrote:
+> > diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/par=
+avirt.h
+> > index d4eb9e1d61b8..c040af2d8eff 100644
+> > --- a/arch/x86/include/asm/paravirt.h
+> > +++ b/arch/x86/include/asm/paravirt.h
+> > @@ -187,6 +187,13 @@ static __always_inline void wbinvd(void)
+> >       PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ALT_NOT_XEN);
+> >  }
+> >
+> > +extern noinstr void pv_native_wbnoinvd(void);
+> > +
+> > +static __always_inline void wbnoinvd(void)
+> > +{
+> > +     PVOP_ALT_VCALL0(cpu.wbnoinvd, "wbnoinvd", ALT_NOT_XEN);
+> > +}
+>
+> Given this, ...
+>
+> > diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+> > index fec381533555..a66b708d8a1e 100644
+> > --- a/arch/x86/kernel/paravirt.c
+> > +++ b/arch/x86/kernel/paravirt.c
+> > @@ -149,6 +154,7 @@ struct paravirt_patch_template pv_ops =3D {
+> >       .cpu.write_cr0          =3D native_write_cr0,
+> >       .cpu.write_cr4          =3D native_write_cr4,
+> >       .cpu.wbinvd             =3D pv_native_wbinvd,
+> > +     .cpu.wbnoinvd           =3D pv_native_wbnoinvd,
+> >       .cpu.read_msr           =3D native_read_msr,
+> >       .cpu.write_msr          =3D native_write_msr,
+> >       .cpu.read_msr_safe      =3D native_read_msr_safe,
+>
+> this, and ...
+>
+> > diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+> > index d6818c6cafda..a5c76a6f8976 100644
+> > --- a/arch/x86/xen/enlighten_pv.c
+> > +++ b/arch/x86/xen/enlighten_pv.c
+> > @@ -1162,6 +1162,7 @@ static const typeof(pv_ops) xen_cpu_ops __initcon=
+st =3D {
+> >               .write_cr4 =3D xen_write_cr4,
+> >
+> >               .wbinvd =3D pv_native_wbinvd,
+> > +             .wbnoinvd =3D pv_native_wbnoinvd,
+> >
+> >               .read_msr =3D xen_read_msr,
+> >               .write_msr =3D xen_write_msr,
+>
+> this, what is the point having a paravirt hook which is wired to
+> native_wbnoinvd() in all cases?
+>
+> That just seems like overhead for overhead sake.
 
-Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
----
- tools/testing/vsock/control.c             |   9 +-
- tools/testing/vsock/msg_zerocopy_common.c |  10 --
- tools/testing/vsock/msg_zerocopy_common.h |   1 -
- tools/testing/vsock/util.c                | 144 ++++++++++++++++++++++
- tools/testing/vsock/util.h                |   7 ++
- tools/testing/vsock/vsock_perf.c          |  10 ++
- tools/testing/vsock/vsock_test.c          |  49 +++-----
- tools/testing/vsock/vsock_test_zerocopy.c |   2 +-
- tools/testing/vsock/vsock_uring_test.c    |   2 +-
- 9 files changed, 181 insertions(+), 53 deletions(-)
-
-diff --git a/tools/testing/vsock/control.c b/tools/testing/vsock/control.c
-index d2deb4b15b94..875ef0cfa415 100644
---- a/tools/testing/vsock/control.c
-+++ b/tools/testing/vsock/control.c
-@@ -27,6 +27,7 @@
- 
- #include "timeout.h"
- #include "control.h"
-+#include "util.h"
- 
- static int control_fd = -1;
- 
-@@ -50,7 +51,6 @@ void control_init(const char *control_host,
- 
- 	for (ai = result; ai; ai = ai->ai_next) {
- 		int fd;
--		int val = 1;
- 
- 		fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
- 		if (fd < 0)
-@@ -65,11 +65,8 @@ void control_init(const char *control_host,
- 			break;
- 		}
- 
--		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
--			       &val, sizeof(val)) < 0) {
--			perror("setsockopt");
--			exit(EXIT_FAILURE);
--		}
-+		setsockopt_int_check(fd, SOL_SOCKET, SO_REUSEADDR, 1,
-+				"setsockopt SO_REUSEADDR");
- 
- 		if (bind(fd, ai->ai_addr, ai->ai_addrlen) < 0)
- 			goto next;
-diff --git a/tools/testing/vsock/msg_zerocopy_common.c b/tools/testing/vsock/msg_zerocopy_common.c
-index 5a4bdf7b5132..8622e5a0f8b7 100644
---- a/tools/testing/vsock/msg_zerocopy_common.c
-+++ b/tools/testing/vsock/msg_zerocopy_common.c
-@@ -14,16 +14,6 @@
- 
- #include "msg_zerocopy_common.h"
- 
--void enable_so_zerocopy(int fd)
--{
--	int val = 1;
--
--	if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &val, sizeof(val))) {
--		perror("setsockopt");
--		exit(EXIT_FAILURE);
--	}
--}
--
- void vsock_recv_completion(int fd, const bool *zerocopied)
- {
- 	struct sock_extended_err *serr;
-diff --git a/tools/testing/vsock/msg_zerocopy_common.h b/tools/testing/vsock/msg_zerocopy_common.h
-index 3763c5ccedb9..ad14139e93ca 100644
---- a/tools/testing/vsock/msg_zerocopy_common.h
-+++ b/tools/testing/vsock/msg_zerocopy_common.h
-@@ -12,7 +12,6 @@
- #define VSOCK_RECVERR	1
- #endif
- 
--void enable_so_zerocopy(int fd);
- void vsock_recv_completion(int fd, const bool *zerocopied);
- 
- #endif /* MSG_ZEROCOPY_COMMON_H */
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index a3d448a075e3..e79534b52477 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -651,3 +651,147 @@ void free_test_iovec(const struct iovec *test_iovec,
- 
- 	free(iovec);
- }
-+
-+/* Set "unsigned long long" socket option and check that it's indeed set */
-+void setsockopt_ull_check(int fd, int level, int optname,
-+	unsigned long long val, char const *errmsg)
-+{
-+	unsigned long long chkval;
-+	socklen_t chklen;
-+	int err;
-+
-+	err = setsockopt(fd, level, optname, &val, sizeof(val));
-+	if (err) {
-+		fprintf(stderr, "setsockopt err: %s (%d)\n",
-+				strerror(errno), errno);
-+		goto fail;
-+	}
-+
-+	chkval = ~val; /* just make storage != val */
-+	chklen = sizeof(chkval);
-+
-+	err = getsockopt(fd, level, optname, &chkval, &chklen);
-+	if (err) {
-+		fprintf(stderr, "getsockopt err: %s (%d)\n",
-+				strerror(errno), errno);
-+		goto fail;
-+	}
-+
-+	if (chklen != sizeof(chkval)) {
-+		fprintf(stderr, "size mismatch: set %zu got %d\n", sizeof(val),
-+				chklen);
-+		goto fail;
-+	}
-+
-+	if (chkval != val) {
-+		fprintf(stderr, "value mismatch: set %llu got %llu\n", val,
-+				chkval);
-+		goto fail;
-+	}
-+	return;
-+fail:
-+	fprintf(stderr, "%s  val %llu\n", errmsg, val);
-+	exit(EXIT_FAILURE);
-+;
-+}
-+
-+/* Set "int" socket option and check that it's indeed set */
-+void setsockopt_int_check(int fd, int level, int optname, int val,
-+		char const *errmsg)
-+{
-+	int chkval;
-+	socklen_t chklen;
-+	int err;
-+
-+	err = setsockopt(fd, level, optname, &val, sizeof(val));
-+	if (err) {
-+		fprintf(stderr, "setsockopt err: %s (%d)\n",
-+				strerror(errno), errno);
-+		goto fail;
-+	}
-+
-+	chkval = ~val; /* just make storage != val */
-+	chklen = sizeof(chkval);
-+
-+	err = getsockopt(fd, level, optname, &chkval, &chklen);
-+	if (err) {
-+		fprintf(stderr, "getsockopt err: %s (%d)\n",
-+				strerror(errno), errno);
-+		goto fail;
-+	}
-+
-+	if (chklen != sizeof(chkval)) {
-+		fprintf(stderr, "size mismatch: set %zu got %d\n", sizeof(val),
-+				chklen);
-+		goto fail;
-+	}
-+
-+	if (chkval != val) {
-+		fprintf(stderr, "value mismatch: set %d got %d\n",
-+				val, chkval);
-+		goto fail;
-+	}
-+	return;
-+fail:
-+	fprintf(stderr, "%s val %d\n", errmsg, val);
-+	exit(EXIT_FAILURE);
-+}
-+
-+static void mem_invert(unsigned char *mem, size_t size)
-+{
-+	size_t i;
-+
-+	for (i = 0; i < size; i++)
-+		mem[i] = ~mem[i];
-+}
-+
-+/* Set "timeval" socket option and check that it's indeed set */
-+void setsockopt_timeval_check(int fd, int level, int optname,
-+		struct timeval val, char const *errmsg)
-+{
-+	struct timeval chkval;
-+	socklen_t chklen;
-+	int err;
-+
-+	err = setsockopt(fd, level, optname, &val, sizeof(val));
-+	if (err) {
-+		fprintf(stderr, "setsockopt err: %s (%d)\n",
-+				strerror(errno), errno);
-+		goto fail;
-+	}
-+
-+	 /* just make storage != val */
-+	chkval = val;
-+	mem_invert((unsigned char *) &chkval, sizeof(chkval));
-+	chklen = sizeof(chkval);
-+
-+	err = getsockopt(fd, level, optname, &chkval, &chklen);
-+	if (err) {
-+		fprintf(stderr, "getsockopt err: %s (%d)\n",
-+				strerror(errno), errno);
-+		goto fail;
-+	}
-+
-+	if (chklen != sizeof(chkval)) {
-+		fprintf(stderr, "size mismatch: set %zu got %d\n", sizeof(val),
-+				chklen);
-+		goto fail;
-+	}
-+
-+	if (memcmp(&chkval, &val, sizeof(val)) != 0) {
-+		fprintf(stderr, "value mismatch: set %ld:%ld got %ld:%ld\n",
-+				val.tv_sec, val.tv_usec,
-+				chkval.tv_sec, chkval.tv_usec);
-+		goto fail;
-+	}
-+	return;
-+fail:
-+	fprintf(stderr, "%s val %ld:%ld\n", errmsg, val.tv_sec, val.tv_usec);
-+	exit(EXIT_FAILURE);
-+}
-+
-+void enable_so_zerocopy_check(int fd)
-+{
-+	setsockopt_int_check(fd, SOL_SOCKET, SO_ZEROCOPY, 1,
-+			"setsockopt SO_ZEROCOPY");
-+}
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index fff22d4a14c0..f189334591df 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -68,4 +68,11 @@ unsigned long iovec_hash_djb2(const struct iovec *iov, size_t iovnum);
- struct iovec *alloc_test_iovec(const struct iovec *test_iovec, int iovnum);
- void free_test_iovec(const struct iovec *test_iovec,
- 		     struct iovec *iovec, int iovnum);
-+void setsockopt_ull_check(int fd, int level, int optname,
-+		unsigned long long val, char const *errmsg);
-+void setsockopt_int_check(int fd, int level, int optname, int val,
-+		char const *errmsg);
-+void setsockopt_timeval_check(int fd, int level, int optname,
-+		struct timeval val, char const *errmsg);
-+void enable_so_zerocopy_check(int fd);
- #endif /* UTIL_H */
-diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
-index 8e0a6c0770d3..75971ac708c9 100644
---- a/tools/testing/vsock/vsock_perf.c
-+++ b/tools/testing/vsock/vsock_perf.c
-@@ -251,6 +251,16 @@ static void run_receiver(int rcvlowat_bytes)
- 	close(fd);
- }
- 
-+static void enable_so_zerocopy(int fd)
-+{
-+	int val = 1;
-+
-+	if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &val, sizeof(val))) {
-+		perror("setsockopt");
-+		exit(EXIT_FAILURE);
-+	}
-+}
-+
- static void run_sender(int peer_cid, unsigned long to_send_bytes)
- {
- 	time_t tx_begin_ns;
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index c7af23332e57..0b514643a9a5 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -444,17 +444,12 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
- 
- 	sock_buf_size = SOCK_BUF_SIZE;
- 
--	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
--		       &sock_buf_size, sizeof(sock_buf_size))) {
--		perror("setsockopt(SO_VM_SOCKETS_BUFFER_MAX_SIZE)");
--		exit(EXIT_FAILURE);
--	}
-+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
-+			sock_buf_size,
-+			"setsockopt(SO_VM_SOCKETS_BUFFER_MAX_SIZE)");
- 
--	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
--		       &sock_buf_size, sizeof(sock_buf_size))) {
--		perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
--		exit(EXIT_FAILURE);
--	}
-+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
-+		       sock_buf_size, "setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
- 
- 	/* Ready to receive data. */
- 	control_writeln("SRVREADY");
-@@ -586,10 +581,8 @@ static void test_seqpacket_timeout_client(const struct test_opts *opts)
- 	tv.tv_sec = RCVTIMEO_TIMEOUT_SEC;
- 	tv.tv_usec = 0;
- 
--	if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (void *)&tv, sizeof(tv)) == -1) {
--		perror("setsockopt(SO_RCVTIMEO)");
--		exit(EXIT_FAILURE);
--	}
-+	setsockopt_timeval_check(fd, SOL_SOCKET, SO_RCVTIMEO, tv,
-+			"setsockopt(SO_RCVTIMEO)");
- 
- 	read_enter_ns = current_nsec();
- 
-@@ -855,11 +848,8 @@ static void test_stream_poll_rcvlowat_client(const struct test_opts *opts)
- 		exit(EXIT_FAILURE);
- 	}
- 
--	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
--		       &lowat_val, sizeof(lowat_val))) {
--		perror("setsockopt(SO_RCVLOWAT)");
--		exit(EXIT_FAILURE);
--	}
-+	setsockopt_int_check(fd, SOL_SOCKET, SO_RCVLOWAT,
-+		       lowat_val, "setsockopt(SO_RCVLOWAT)");
- 
- 	control_expectln("SRVSENT");
- 
-@@ -1383,11 +1373,8 @@ static void test_stream_credit_update_test(const struct test_opts *opts,
- 	/* size_t can be < unsigned long long */
- 	sock_buf_size = buf_size;
- 
--	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
--		       &sock_buf_size, sizeof(sock_buf_size))) {
--		perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
--		exit(EXIT_FAILURE);
--	}
-+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
-+		       sock_buf_size, "setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
- 
- 	if (low_rx_bytes_test) {
- 		/* Set new SO_RCVLOWAT here. This enables sending credit
-@@ -1396,11 +1383,8 @@ static void test_stream_credit_update_test(const struct test_opts *opts,
- 		 */
- 		recv_buf_size = 1 + VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
- 
--		if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
--			       &recv_buf_size, sizeof(recv_buf_size))) {
--			perror("setsockopt(SO_RCVLOWAT)");
--			exit(EXIT_FAILURE);
--		}
-+		setsockopt_int_check(fd, SOL_SOCKET, SO_RCVLOWAT,
-+			       recv_buf_size, "setsockopt(SO_RCVLOWAT)");
- 	}
- 
- 	/* Send one dummy byte here, because 'setsockopt()' above also
-@@ -1442,11 +1426,8 @@ static void test_stream_credit_update_test(const struct test_opts *opts,
- 		recv_buf_size++;
- 
- 		/* Updating SO_RCVLOWAT will send credit update. */
--		if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
--			       &recv_buf_size, sizeof(recv_buf_size))) {
--			perror("setsockopt(SO_RCVLOWAT)");
--			exit(EXIT_FAILURE);
--		}
-+		setsockopt_int_check(fd, SOL_SOCKET, SO_RCVLOWAT,
-+			       recv_buf_size, "setsockopt(SO_RCVLOWAT)");
- 	}
- 
- 	fds.fd = fd;
-diff --git a/tools/testing/vsock/vsock_test_zerocopy.c b/tools/testing/vsock/vsock_test_zerocopy.c
-index 04c376b6937f..9d9a6cb9614a 100644
---- a/tools/testing/vsock/vsock_test_zerocopy.c
-+++ b/tools/testing/vsock/vsock_test_zerocopy.c
-@@ -162,7 +162,7 @@ static void test_client(const struct test_opts *opts,
- 	}
- 
- 	if (test_data->so_zerocopy)
--		enable_so_zerocopy(fd);
-+		enable_so_zerocopy_check(fd);
- 
- 	iovec = alloc_test_iovec(test_data->vecs, test_data->vecs_cnt);
- 
-diff --git a/tools/testing/vsock/vsock_uring_test.c b/tools/testing/vsock/vsock_uring_test.c
-index 6c3e6f70c457..5c3078969659 100644
---- a/tools/testing/vsock/vsock_uring_test.c
-+++ b/tools/testing/vsock/vsock_uring_test.c
-@@ -73,7 +73,7 @@ static void vsock_io_uring_client(const struct test_opts *opts,
- 	}
- 
- 	if (msg_zerocopy)
--		enable_so_zerocopy(fd);
-+		enable_so_zerocopy_check(fd);
- 
- 	iovec = alloc_test_iovec(test_data->vecs, test_data->vecs_cnt);
- 
--- 
-2.34.1
-
+I'm mirroring what's done for WBINVD here, which was changed to a
+paravirt hook in 10a099405fdf ("cpuidle, xenpv: Make more PARAVIRT_XXL
+noinstr clean") in order to avoid calls out to instrumented code as
+described in the commit message in more detail. I believe a hook is
+similarly required for WBNOINVD, but please let me know if you
+disagree. Thanks!
