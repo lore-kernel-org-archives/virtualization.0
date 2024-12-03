@@ -1,67 +1,69 @@
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 584B213F43A
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 07:30:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2DBA18BC0F
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 07:30:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733211058; cv=none; b=Xb2GAtHLAn5O4XvDf0wY0fDpdZjhSVPVEDUXX/zf9vvATQxbMf2b9W+m5iOYrz2He/UmdXCFION4KZZx5sqp9aURUji70eXHgSmidDLYAR48p54Zh+eGPxxgTYD+ilp8j8gYdcMWAXTGFZ7XmiEz0o3ZQTRJt11sYHqtwJ7BlOk=
+	t=1733211063; cv=none; b=thLvZzPunRl5/PMc4GsK9sXotKxpHmDyCRNqi/yXeJiWfjyLYik4F3Dq6F/H5A9MOmJnXAnMCr9x+/C/aUnSkcPH6sgNd+oFzLP64dA/33XsZOeCPvvVGLOMUSC2TDbVBiYG+sHzXFdDaRAWwIGy49b7kVZfeUWnQZl/xnm9voo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733211058; c=relaxed/simple;
-	bh=w5PVXTCRaDAfP69h6XQKxdU+wqKsnZ41X/UVyvp0+6Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KbK36J8Hpo+BUb0GskE6Ss8yZySSpPwoftWm0x8RV2bvORellRPgR3kJq79d38kHP8EtH9APMij3IznNWzr/0lVKC1xf/0cs+Zi/6D/ZuciNj0/4Bsf1YOwwnynPyztZBe9ykQQglfci4zWSwXup9DzTD43nz3w8GHoHGewjYu4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=nG8nEpP/; arc=none smtp.client-ip=185.125.188.123
+	s=arc-20240116; t=1733211063; c=relaxed/simple;
+	bh=hM3TSWI+eWAZK1GQuQ4ljeW5GtUNvTvSlHAiQfkse1Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=AmMw/kU2oHJ1pCB/mibj4K9QWWqaNciOO1ozDULagkqvUiVTkptul0yRFGZqoNLYsSse5GJlcTTQHdNEth5+8HizJtIr4uGhlcn0VIa6Asful3O2IbEsv+27zL77gpuW/zHcceH9/0WwHZYfjvF+o140dRO22gi7+SqEczo1AfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=H/AroOl6; arc=none smtp.client-ip=185.125.188.122
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="nG8nEpP/"
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="H/AroOl6"
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 3337640D76
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 07:30:54 +0000 (UTC)
+	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 1E6AE40C4B
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 07:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1733211054;
-	bh=sJwi0UaQ+bRbBkXFMHPGydEM4a/idPMJJL4GYObxAII=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version;
-	b=nG8nEpP/s6wj9m+V5GY8vREDpZHP6OrtjVtVHpK/gZOZ5q8rJv+wtthJFD7xSLPGw
-	 DM5VVkoohU42S/w8xuH48yBhuFouhXLXB4Vg3H0KBJSr+2ZZTI5cnxDeVBxTXaW3Ry
-	 sgNs+9Qaz25tSiLfejk5BN+ceUcKUAc/K+evRDmJlkN2rddv1NHYMmSkXX0HdvdBAG
-	 AP3gdLc7HzCvyajFjNKWWWhQ42vSyGrEZJa3xrfaUr+ALE0ip8PAgySi62+43vwUao
-	 AcOwJqKWuHHU8xHof239yFtrJ89o4BO/WAKkBCALQH4LLAOlEXySaOdDAPCdwOyhjd
-	 JBgzRP1u/mDxg==
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-20d15285c87so52165935ad.3
-        for <virtualization@lists.linux.dev>; Mon, 02 Dec 2024 23:30:54 -0800 (PST)
+	s=20210705; t=1733211058;
+	bh=rn0yafvxR+rgXFWM/3BvoQL8ErZXVisWsjUhy9aKjNw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version;
+	b=H/AroOl60rE8XvEHn+GjTV6awt+rlyxhqA0IJxu3m9SGcJVNNiytfUwmjbGPJbvQL
+	 8+6CzX9sA3RbDB1sFHSfa9d2bz1rI2/JuQz5+T9E1jY+ECkK9BaJVWTGEc0W5GA1x+
+	 oloGd/eg47oLmyWvdMeqfUfPQDMdl5jk2by+CAIQ7BpDtv0/lsBi7r2oLrVT7ipjOX
+	 iEpK9ezKvmrIupsSia7v5RwMGwmOTFoQnhDJdV5jbEnfeSfzMI9y13JoJ3fqCR0OPe
+	 rj9CIezhFTnXka+OVln9J2I7aErZbss3ulIeMy5aoQZEj+IUH3t5wYC+rK+JiO/K8J
+	 WqixcdNWrNJjg==
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2150e4a9f3cso45215455ad.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Dec 2024 23:30:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733211052; x=1733815852;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=sJwi0UaQ+bRbBkXFMHPGydEM4a/idPMJJL4GYObxAII=;
-        b=OLrOf4pfuQx9t7VSyJexRbvNtzMNaGLSoonwgw/Ef+a3uevlffLZEseC29qarrgN5o
-         W6rL2f/HtlOTUg71vHiHp0SDWghy80iX3AReyJMHUubyrf1FIR/XC3RMzqJcuRW7s1IS
-         36TKbszaubG9U+GVgQ+JEj5KpCiBuX9a3DzUWU03UrBIS1AjPb1D6lmVEw7J36V3ifxZ
-         QfkbzmvMIss5zVmhwyjenBeh1I5AB9xe7+9gfIeHg3MznIsXyzxF2pBTK7L2MaUx2SWX
-         P5HRojpR1vxd2NW7eulcrp9uhiFmBzBw3fxpKsIyPJX0MpFg03GjNRE54cLAdt+4GoOV
-         YDAw==
-X-Gm-Message-State: AOJu0YwvqYUVPPqjrqy6HXVPhvPZmtt8Q2vPwC85YUA74f+BgzBn3h5j
-	kznClEvWTvqQiIdF+ngqMN5ttot2HgNsJ5tr3wBnleJvD24bt+K/tqFlFBsjwCTgCvXB5QHXCza
-	NvV3S4pNuz1b3UKrWBm9OnAJUVfqbkQJvSPZvuMCE+ZW57lm5F/aOHgaOA8ej1l76QuaQr+ohq5
-	gBXKVJUQU9x5Nz
-X-Gm-Gg: ASbGncvzv4DmeSDrAi7dWmSLHFLyC/J2F3Iw4KDHmRVLIcVLUKwyX7NnBXnrYvl5pEH
-	npN8MIWrd/UlkUbkBNTAsJ4AMm2u1yPgzVIESlqSeR2qZyiqahQhfX7aTNSUaOeHchTSJ1nFLqp
-	tWwP3Uaq27BE3uFogbsjQ4pFJmmKZFmyw1Q55XXZddHNPD6XNQR7cQkuiUYfjSubuyU2R3B05nL
-	dnDB428PZwNUQkiPcoEv+J75St/YZPRNxvWcnocRehgNsXamEk7m2cun/Jd5TzPAL9N
-X-Received: by 2002:a17:902:e743:b0:214:f87b:9dfb with SMTP id d9443c01a7336-215bd21460bmr21475205ad.30.1733211052534;
-        Mon, 02 Dec 2024 23:30:52 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF17YleowmZjFXa6F1AEvPi0Shn5zlI9KQ7K0jww9WCbRYjy1aiG2U/S1fUbvvqXxrXVFsH3g==
-X-Received: by 2002:a17:902:e743:b0:214:f87b:9dfb with SMTP id d9443c01a7336-215bd21460bmr21474855ad.30.1733211052117;
-        Mon, 02 Dec 2024 23:30:52 -0800 (PST)
+        d=1e100.net; s=20230601; t=1733211056; x=1733815856;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rn0yafvxR+rgXFWM/3BvoQL8ErZXVisWsjUhy9aKjNw=;
+        b=sO/UADbh3ClgWzAKKf98dtRIPeSZ6ytue+tGwA/lPgUvUrTWttDW+9psyUTTwfIJTJ
+         jAVfiTsh7tfMdc+gO5RA/2is11ke63Vno79Ljv2U9PVCRNsLnd/2K2WpS9iBraw3IQLm
+         CZfCXCm/vcV+qdFVnUZDI7QkH1g1hJD4mFU3djDhMIP2DWCKFkwZWmc/TuLzA4yzPP6g
+         3F65U6FCRHjcZBbO3DJWnzxLzAmPObJqwsbMHQQZix/1xpJARetq8Uw+S/qCA38+eek2
+         eyB1vomXsMZRjuAniI44IC5CeSbupPDttNZJ9e9YZ2s0FFErZRkieaXkiZcxRZ9qO15B
+         AzIA==
+X-Gm-Message-State: AOJu0YyPwEQcHUF7gAhy84f6sgway3aomWDvHoti2Tf4czIcKx0FZcLQ
+	4fh8QP+6t4X7/HfWR+fZLQQxaDI6x3FxTGQCTIidLrUcIiQqI9PmnfMqA1R0ynSbYfa6E93ljMv
+	xU4l67TkUgk+HmBx33x7D2Si8TIuqtXJAXgRIauXust2yaF8wGDBMyqzo3tgW/0Cg7eYV0cCzoG
+	eQAFXUP06XRW+g
+X-Gm-Gg: ASbGncslY60BQxggDJ4jBwvD8+vVXAUwXN1vpPVO/MbCEP85kIgmciFFV2jqn4t0ron
+	jGKeSuyG4AuIjogm8/QfnUNbTO4vJPpLTcZXfwSSWnZUiSAMB+dK7FDpFy2lm1yxLJ/htSw0q//
+	I0i2nn1AbcfcvZ+/XrgwdLWhfl33duLVE+5PHbrrMMIc3GJ8/UHAgFUHhc0N+ALtSTRQ1LDzKn9
+	O2zQ4YhY5xIJOGri674IAnbERQPx7wBsukIUdj2GQVHbJwwiTyP3yPfi0v+ji8NdzyY
+X-Received: by 2002:a17:903:191:b0:215:7cd2:1132 with SMTP id d9443c01a7336-215bd0e7d81mr19717785ad.29.1733211056502;
+        Mon, 02 Dec 2024 23:30:56 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG7gi3gIAf+lQKauh1LZNO6nUm9eJREawvVeJIpAEFisTXFFb5l8sD9JG8LDx7etuoxazJyYg==
+X-Received: by 2002:a17:903:191:b0:215:7cd2:1132 with SMTP id d9443c01a7336-215bd0e7d81mr19717435ad.29.1733211056018;
+        Mon, 02 Dec 2024 23:30:56 -0800 (PST)
 Received: from localhost.localdomain ([240f:74:7be:1:b2b6:e8c2:50d0:c558])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21586d40afasm35735165ad.270.2024.12.02.23.30.48
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21586d40afasm35735165ad.270.2024.12.02.23.30.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2024 23:30:51 -0800 (PST)
+        Mon, 02 Dec 2024 23:30:55 -0800 (PST)
 From: Koichiro Den <koichiro.den@canonical.com>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -77,10 +79,12 @@ Cc: mst@redhat.com,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH net-next v2 0/5] virtio_net: correct netdev_tx_reset_queue() invocation points
-Date: Tue,  3 Dec 2024 16:30:20 +0900
-Message-ID: <20241203073025.67065-1-koichiro.den@canonical.com>
+Subject: [PATCH net-next v2 1/5] virtio_net: correct netdev_tx_reset_queue() invocation point
+Date: Tue,  3 Dec 2024 16:30:21 +0900
+Message-ID: <20241203073025.67065-2-koichiro.den@canonical.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20241203073025.67065-1-koichiro.den@canonical.com>
+References: <20241203073025.67065-1-koichiro.den@canonical.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -100,37 +104,18 @@ This issue can be reproduced with the latest net-next master by running:
 `while :; do ip l set DEV down; ip l set DEV up; done` under heavy network
 TX load from inside the machine.
 
-This patch series resolves the issue and also addresses similar existing
-problems:
+netdev_tx_reset_queue() can actually be dropped from virtnet_open path;
+the device is not stopped in any case. For BQL core part, it's just like
+traffic nearly ceases to exist for some period. For stall detector added
+to BQL, even if virtnet_close could somehow lead to some TX completions
+delayed for long, followed by virtnet_open, we can just take it as stall
+as mentioned in commit 6025b9135f7a ("net: dqs: add NIC stall detector
+based on BQL"). Note also that users can still reset stall_max via sysfs.
 
-(a). Drop netdev_tx_reset_queue() from open/close path. This eliminates the
-     BQL crashes due to the problematic open/close path.
-
-(b). As a result of (a), netdev_tx_reset_queue() is now explicitly required
-     in freeze/restore path. Add netdev_tx_reset_queue() to
-     free_unused_bufs().
-
-(c). Fix missing resetting in virtnet_tx_resize().
-     virtnet_tx_resize() has lacked proper resetting since commit
-     c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits").
-
-(d). Fix missing resetting in the XDP_SETUP_XSK_POOL path.
-     Similar to (c), this path lacked proper resetting. Call
-     netdev_tx_reset_queue() when virtqueue_reset() has actually recycled
-     unused buffers.
-
-This patch series consists of five commits:
-  [1/5]: Resolves (a) and (b).
-  [2/5]: Prerequisite for (c).
-  [3/5]: Resolves (c).
-  [4/5]: Preresuisite for (d).
-  [5/5]: Resolves (d).
-
-Changes for v2:
-  - add tx queue resetting for (b) to (d) above
-
-v1: https://lore.kernel.org/all/20241130181744.3772632-1-koichiro.den@canonical.com/
-
+So, drop netdev_tx_reset_queue() from virtnet_enable_queue_pair(). This
+eliminates the BQL crashes. Note that netdev_tx_reset_queue() is now
+explicitly required in freeze/restore path, so this patch adds it to
+free_unused_bufs().
 
 [1]:
 ------------[ cut here ]------------
@@ -202,7 +187,7 @@ Call Trace:
  ? __nla_validate_parse+0x5f/0xee0
  ? __pfx___probestub_irq_enable+0x3/0x10
  ? __create_object+0x5e/0x90
- ? security_capable+0x3b/0x7[I0
+ ? security_capable+0x3b/0x70
  rtnl_newlink+0x784/0xaf0
  ? avc_has_perm_noaudit+0x67/0xf0
  ? cred_has_capability.isra.0+0x75/0x110
@@ -242,20 +227,33 @@ R13: 0000000067452259 R14: 0000556ccc28b040 R15: 0000000000000000
 [...]
 ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
 
+Fixes: c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits")
+Cc: <stable@vger.kernel.org> # v6.11+
+Signed-off-by: Koichiro Den <koichiro.den@canonical.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Koichiro Den (5):
-  virtio_net: correct netdev_tx_reset_queue() invocation point
-  virtio_ring: add 'flushed' as an argument to virtqueue_resize()
-  virtio_net: add missing netdev_tx_reset_queue() to virtnet_tx_resize()
-  virtio_ring: add 'flushed' as an argument to virtqueue_reset()
-  virtio_net: add missing netdev_tx_reset_queue to
-    virtnet_sq_bind_xsk_pool()
-
- drivers/net/virtio_net.c     | 18 +++++++++++++-----
- drivers/virtio/virtio_ring.c | 13 +++++++++++--
- include/linux/virtio.h       |  6 ++++--
- 3 files changed, 28 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 64c87bb48a41..48ce8b3881b6 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3054,7 +3054,6 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+ 	if (err < 0)
+ 		goto err_xdp_reg_mem_model;
+ 
+-	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
+ 	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+ 	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+ 
+@@ -6243,6 +6242,7 @@ static void free_unused_bufs(struct virtnet_info *vi)
+ 		struct virtqueue *vq = vi->sq[i].vq;
+ 		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+ 			virtnet_sq_free_unused_buf(vq, buf);
++		netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, i));
+ 		cond_resched();
+ 	}
+ 
 -- 
 2.43.0
 
