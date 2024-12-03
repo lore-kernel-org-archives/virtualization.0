@@ -1,243 +1,93 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D8F01E25EE
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 10:51:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A7481E6DEE
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 12:14:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733223107; cv=none; b=RRgqCNECrxQoKUdnm2LeLny5sr+CZzr8MbkOn2SF7JrgkQI/8v8E3OYfNh/Ewe1OcdFw9aWKIiS2UWpW7q7GZasti9y/G3GJ5KTuKGp5K2jlcHncJEbN4aSAKm7wdY1KA/3JwE1KK7fJDu9MWkxeNjTqDLcLa3tANGKzrzms9KQ=
+	t=1733228080; cv=none; b=I278co+QWhADox/fYJJeOGgE+4t8WRN3WSUqtBlRcbonGz99sGlJrvG/oS4igJiUw8atmNy5huwB8jtYcD7DkgHoYX8+LqQM/DOAqLAHDmkdphiz/PDSBUMJdvNXwL97alxdMJRnweuE/j4Q+kNCjNUmeh2Csk020vLkMhPQ36g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733223107; c=relaxed/simple;
-	bh=Ce7eqkBn1WuMrJkw0TRcBg7fUgpKz6dkNrAf3moL5Y0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tEvEdc6amGgR0/r4ATrgKOg131wIB0mEuEgIde12YccfQbUerogTXRLNgGHq8ILAKADtncuC/aZ3oFOYZvECncF3baVkIDtt9gN0lCnIeM9cCyA0/1kC20NGDQKCuMyEWYOF6dNxXcqTMI49Zdstk55p2ch3y3mOjBBSLSa+XAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P+1u4pEX; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1733228080; c=relaxed/simple;
+	bh=hmgTYvyKwTUsLw4N96/c501UhYL9t4E16VnIBneOYok=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Xo+CJNtydUT5wcpxNg65cAtkEtFbqMa5EWUfYYUEI3XFmkDPp9aRa6zJgoKuZkZBhtmIGa6F2+X5XHv6VUpwAwEHAzNvtJLhZGYY5Gkg9gYfF6AEBnigXC8xpSOt/rg/mKzrona8+AzyVt5tFFElJac7yuYEdVsmUEfDUfcAh+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mWXi5YFr; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P+1u4pEX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733223104;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GqDYXPSGry8fvFKf3Y6FQQzvxwwFWyLPiSnjxx0zMng=;
-	b=P+1u4pEXfMgEquLRyJ5+RAUXv1EoKJLxsTNcvF9DJm/dAhjcUEKXqp69d9WfJEPToM4KTF
-	o50YPB8T5jUmQ9X3j4WRK1Z1MB1kQHCK2yPSK7vnXmZpRYxmq4A8Xlp0YGU+TltSkbokUQ
-	Is5SVYbStHeARg8NX8ljPewP5wr9YyI=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-70-mENDCjiLPraTsfMakRjpJg-1; Tue, 03 Dec 2024 05:51:43 -0500
-X-MC-Unique: mENDCjiLPraTsfMakRjpJg-1
-X-Mimecast-MFC-AGG-ID: mENDCjiLPraTsfMakRjpJg
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-385d123aa38so2695719f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 03 Dec 2024 02:51:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733223102; x=1733827902;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=GqDYXPSGry8fvFKf3Y6FQQzvxwwFWyLPiSnjxx0zMng=;
-        b=Xu+Vs5KQr1yTggK75pyPA/pxImHAD/Q6v3SbBaqBL6DrW7uZ/Q6Quaj+IaB+iup+6D
-         c4lRPkoULcyNbP2LHChZSVYr/T3mf+Z58G7zvsfMj0EFesQTKJIa27Ahd0egXa8G5jSe
-         AsqYfIDOqtKcLkSDjNww0MHoV+Nbf6MkdTxKE/sOB7IpffZnQoVWkTMRZ3mdWYmyt9/J
-         fcgTXEbPEbVQv+EjNXAhzWpDocVchAET7g4tGKAv/kGsUBGneS0gxCqyoy3LsXnyRc+q
-         R1mHOKwiwrbaX6dQht/Ze/hSHSg76ozfhHciBajBLCEo5bBYyNxXeaXtITGH5ZzK1oiW
-         wm5g==
-X-Forwarded-Encrypted: i=1; AJvYcCXAEb2wEJtewrnuPqsXRcMw+brstJPj5rcXHM2MjEjpfgkMjyCgdhxVUjbQJV8u/NVgLwraUfetCRV343r5nQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwXlaJ4YmlNsATMfPWe2CbNwvRwtGLIlGSZUKVuMbVuTSGuFWNj
-	U2V2ksccPnxWM4ldQ0TKAoJxcbJKcxddHii/SuyvXAok70NYcyH/6Qz9Uxj8RnLpIaRwrUgI4US
-	MmYEWuQf+k3LvSELSjWnyl4UjBlNNtO1vGvGg2VLfrG2VdxNL/RkWAQ3X78pI5V9S
-X-Gm-Gg: ASbGnct0+1dPZAZImXZvlrxI4DjgiamWxlijS2SRbAxAqFDbRgLtwVOpeVmg8vNxcJ9
-	eDYpe0Xt11lXzg4Tu2Ll4505k+HrMONBPI0sygJRbyg7vZ7yA9oFMWTgiCa//MIDLoPB/aoEeVX
-	RDwT/s6jZDgRkjd6gu2N0O1xxxBl2jQyscVsNJNHNd7rlt1Ma/8mn8cdqSS9GQpO+/Y+4XUbW6X
-	pK6Pe2S3C1D/CYURf3eaXuxpsy35bNCFykeJ8oyvfrCjbkKCDtQv1T/mXl8E6VSDmu/4Kt17eLJ
-	D/9Aft1VNFPJkKOKr+pX3YhMSxsVgQeakgC9FKfny8dNhisDjsVbAzOJCP/nzniB9RhVSYkiHHI
-	olA==
-X-Received: by 2002:a05:6000:698:b0:385:de8d:c0f5 with SMTP id ffacd0b85a97d-385fd3ce003mr1805473f8f.16.1733223101987;
-        Tue, 03 Dec 2024 02:51:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHsiHmkxMqZNYBRMic15i3J+xhBUi5IkfKnDUhcGUpt0ArEviRKcEDiXtnq3XnP9doeeDQT1Q==
-X-Received: by 2002:a05:6000:698:b0:385:de8d:c0f5 with SMTP id ffacd0b85a97d-385fd3ce003mr1805453f8f.16.1733223101624;
-        Tue, 03 Dec 2024 02:51:41 -0800 (PST)
-Received: from ?IPV6:2003:cb:c746:1b00:fd9e:c26c:c552:1de7? (p200300cbc7461b00fd9ec26cc5521de7.dip0.t-ipconnect.de. [2003:cb:c746:1b00:fd9e:c26c:c552:1de7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-385ccd2e1bdsm15556376f8f.9.2024.12.03.02.51.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Dec 2024 02:51:40 -0800 (PST)
-Message-ID: <29dfdbf6-e356-4555-a421-e4926610c32b@redhat.com>
-Date: Tue, 3 Dec 2024 11:51:38 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mWXi5YFr"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1733228076; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=7qI5Tpti/q7G+Vv+zck9DF1myBpIVdZteXJ2iz09tI4=;
+	b=mWXi5YFr0qIWNmqAwdG3j7zscPkEei5kfG3NP01Bd54fNhRiisEibnC9DaanfOTrMbRnkSwKwofYX8mQsNOHXFNUinyIuiaSM+1+Gm137jZonFeCtBSUhiUr6vCCEc926OaTQ0jLu1phPXIea/jt7SYjblCQUxI+0FRjy7imgEU=
+Received: from j66c13357.sqa.eu95.tbsite.net(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0WKmboUw_1733228074 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 03 Dec 2024 20:14:34 +0800
+From: Ferry Meng <mengferry@linux.alibaba.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	linux-block@vger.kernel.org,
+	Jens Axboe <axboe@kernel.dk>,
+	virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org,
+	io-uring@vger.kernel.org,
+	Joseph Qi <joseph.qi@linux.alibaba.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>,
+	Ferry Meng <mengferry@linux.alibaba.com>
+Subject: [PATCH 3/3] virtio-blk: add uring_cmd iopoll support.
+Date: Tue,  3 Dec 2024 20:14:24 +0800
+Message-Id: <20241203121424.19887-4-mengferry@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20241203121424.19887-1-mengferry@linux.alibaba.com>
+References: <20241203121424.19887-1-mengferry@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/11] fs/proc/vmcore: disallow vmcore modifications
- after the vmcore was opened
-To: Baoquan He <bhe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- kexec@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
- Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
- <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-References: <20241025151134.1275575-1-david@redhat.com>
- <20241025151134.1275575-4-david@redhat.com> <Z0BL/UopaH5Xg5jS@MiWiFi-R3L-srv>
- <d29d7816-a3e5-4f34-bb0c-dd427931efb4@redhat.com>
- <Z0SMqYX8gMvdiU4T@MiWiFi-R3L-srv>
- <a7ccbd86-2a62-4191-8742-ce45b6e8f73c@redhat.com>
- <Z07gkXQDrNfL10hu@MiWiFi-R3L-srv>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <Z07gkXQDrNfL10hu@MiWiFi-R3L-srv>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8DlsgYSwrkj0_nwC4kBrOYXMAjbdBpt8Z6DVe819pIU_1733223102
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 03.12.24 11:42, Baoquan He wrote:
-> On 11/29/24 at 11:38am, David Hildenbrand wrote:
->> On 25.11.24 15:41, Baoquan He wrote:
->>> On 11/22/24 at 10:30am, David Hildenbrand wrote:
->>>> On 22.11.24 10:16, Baoquan He wrote:
->>>>> On 10/25/24 at 05:11pm, David Hildenbrand wrote:
->>>>> ......snip...
->>>>>> @@ -1482,6 +1470,10 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
->>>>>>     		return -EINVAL;
->>>>>>     	}
->>>>>> +	/* We'll recheck under lock later. */
->>>>>> +	if (data_race(vmcore_opened))
->>>>>> +		return -EBUSY;
->>>>>
->>>>
->>>> Hi,
->>>>
->>>>> As I commented to patch 7, if vmcore is opened and closed after
->>>>> checking, do we need to give up any chance to add device dumping
->>>>> as below?
->>>>>
->>>>> fd = open(/proc/vmcore);
->>>>> ...do checking;
->>>>> close(fd);
->>>>>
->>>>> quit any device dump adding;
->>>>>
->>>>> run makedumpfile on s390;
->>>>>      ->fd = open(/proc/vmcore);
->>>>>        -> try to dump;
->>>>>      ->close(fd);
->>>>
->>>> The only reasonable case where this could happen (with virtio_mem) would be
->>>> when you hotplug a virtio-mem device into a VM that is currently in the
->>>> kdump kernel. However, in this case, the device would not provide any memory
->>>> we want to dump:
->>>>
->>>> (1) The memory was not available to the 1st (crashed) kernel, because
->>>>       the device got hotplugged later.
->>>> (2) Hotplugged virtio-mem devices show up with "no plugged memory",
->>>>       meaning there wouldn't be even something to dump.
->>>>
->>>> Drivers will be loaded (as part of the kernel or as part of the initrd)
->>>> before any kdump action is happening. Similarly, just imagine your NIC
->>>> driver not being loaded when you start dumping to a network share ...
->>>>
->>>> This should similarly apply to vmcoredd providers.
->>>>
->>>> There is another concern I had at some point with changing the effective
->>>> /proc/vmcore size after someone already opened it, and might assume the size
->>>> will stay unmodified (IOW, the file was completely static before vmcoredd
->>>> showed up).
->>>>
->>>> So unless there is a real use case that requires tracking whether the file
->>>> is no longer open, to support modifying the vmcore afterwards, we should
->>>> keep it simple.
->>>>
->>>> I am not aware of any such cases, and my experiments with virtio_mem showed
->>>> that the driver get loaded extremely early from the initrd, compared to when
->>>> we actually start messing with /proc/vmcore from user space.
-> 
-> It's OK, David, I don't have strong opinion about the current
-> implementation. I raised this concern because
-> 
-> 1) I saw the original vmcoredd only warn when doing register if
-> vmcore_opened is true;
-> 
-> 2) in patch 1, it says vmcore_mutex is introduced to protect vmcore
-> modifications from concurrent opening. If we are confident, the old
-> vmcoredd_mutex can guarantee it, I could be wrong here.
+Add polling support for uring_cmd polling support for virtblk, which
+will be called during completion-polling.
 
-I don't see how. We're protecting the list, but not the 
-vmcoredd_update_size(), which modifies sizes, offsets and all that.
+Signed-off-by: Ferry Meng <mengferry@linux.alibaba.com>
+---
+ drivers/block/virtio_blk.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-> 
-> Anyway, it's just a tiny concern, I believe it won't cause issue at
-> present. So it's up to you.
-
-I can keep allowing to add stuff after the vmcore was opened and closed 
-again (but not while it is open). It doesn't make any sense IMHO, but it 
-seems to be easy to add.
-
-Thanks!
-
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 1a4bac3dc044..7888789a3eb8 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1469,6 +1469,18 @@ static int virtblk_chr_uring_cmd(struct io_uring_cmd *ioucmd, unsigned int issue
+ 	return virtblk_uring_cmd(vblk, ioucmd, issue_flags);
+ }
+ 
++static int virtblk_chr_uring_cmd_iopoll(struct io_uring_cmd *ioucmd,
++				 struct io_comp_batch *iob,
++				 unsigned int poll_flags)
++{
++	struct virtblk_uring_cmd_pdu *pdu = virtblk_get_uring_cmd_pdu(ioucmd);
++	struct request *req = pdu->req;
++
++	if (req && blk_rq_is_poll(req))
++		return blk_rq_poll(req, iob, poll_flags);
++	return 0;
++}
++
+ static void virtblk_cdev_rel(struct device *dev)
+ {
+ 	ida_free(&vd_chr_minor_ida, MINOR(dev->devt));
+@@ -1517,6 +1529,7 @@ static int virtblk_cdev_add(struct virtio_blk *vblk,
+ static const struct file_operations virtblk_chr_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.uring_cmd	= virtblk_chr_uring_cmd,
++	.uring_cmd_iopoll = virtblk_chr_uring_cmd_iopoll,
+ };
+ 
+ static unsigned int virtblk_queue_depth;
 -- 
-Cheers,
-
-David / dhildenb
+2.43.5
 
