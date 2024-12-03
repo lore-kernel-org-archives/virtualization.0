@@ -1,77 +1,77 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 630EE13B2B8
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E7E200120
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733253438; cv=none; b=DZ0mm0SoX6HCsYl5cFByugpWEsNk7muD3DkUubRlbl+LaRp+SQntpPVkthIZ8A+zYsVAeFJhHKOKWX3YCpgzZsnr7pPLg1zRRCNyzUfWJw/hK1GK/5JhegsVnuZFVAvHU4Uux1TlceHVVBC89Nm1RCr3G9BDE3o/+/HpE4TxEcc=
+	t=1733253443; cv=none; b=Psux4DaGOOG8u8wPTC1h17lFP2OVUbYxGkvalwjKkXwJ/R3kK12C6synoeVVuPVOqq0Gvo7jva8Vb3hcXv22IPCA0ZCWisB1N1WiIfa0T5W4nt4UGx9TdzVNl2qIRPv7XHB4VIRY9G50EcKZouD1EVhMcmZ5cCacHdWfqyrUajc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733253438; c=relaxed/simple;
-	bh=zpLyMeqw+tfBFC4EwfdSli1uN+ElNLiJtRsWOc27860=;
+	s=arc-20240116; t=1733253443; c=relaxed/simple;
+	bh=yYy36V2Jrpf0yuVAWHCYqLEL1Rh2/1EGu+9PihKdVuY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=D3pplR73jaiMetJ8tCF7yNPXddCZdccslfLpJu5KOZaFTb3dQoHOUknfJRYtOjIe3s8Qf3RWR216cY+N4wFSRMkh18taFon6dD/fO9guLjTir2+gLMp3mQILBGU2vWUWf734V0jV3i9yW0OwQ0BBMr3DXHcBBzXsIbRx15xABeE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=PZFVKCGO; arc=none smtp.client-ip=140.211.166.137
+	 MIME-Version; b=M7byBQXLAb+Cn+bUnzLOtmovjXTI6oDhYEy5r+0IyaOaB2CSjrYaOmmEVoMDBubeHPv55hKSYP98waxy+FeRDYvkJXx53FQa9ebRcXLMSRabIvatZfWen7d8XyELU35nXYjKmuCeNMJ10ntj6MLJ1ocETU8ZTiZgfQZHVRd1oDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=LBMaWazN; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="PZFVKCGO"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="LBMaWazN"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 623AF42D29
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:16 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6A24A433AD
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:21 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -6.49
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id IaZgs79djGxd for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Dec 2024 19:17:15 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ewKw4aLLsdfH for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Dec 2024 19:17:20 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 55BE142D1E
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 55BE142D1E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=PZFVKCGO
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6955343362
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6955343362
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=LBMaWazN
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 55BE142D1E
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:15 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3HtaP6012461;
-	Tue, 3 Dec 2024 19:17:14 GMT
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6955343362
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:20 +0000 (UTC)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3HtYvw030173;
+	Tue, 3 Dec 2024 19:17:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=corp-2023-11-20; bh=P2BAh
-	ZdACeXaj+1Ef20ces3JOwurWxqNdeMM2D5u+yg=; b=PZFVKCGO5Ey6sMuOPzrlR
-	RIW3Gg2BSXY3GaRqAlhvxerVj2pE7LTlpUV4r9Xn37qfdd+gAOGo6KPsacuRQC0b
-	pffJXSzUApQhMwac6cqb0hPKILhDlEbMlOQG9UQZ2gfadcUAbdLhgGvx+QVdgZ2Z
-	UNYJDYgbNcCR78Y6AQu7APVfL5Bf6bW9W9p7GufXVhGMcCr6MCqKcYCUcw2u5wwr
-	gCVy79RZea8k9U+nacOKsgZ4UGfUdBCTd8w9HSs2aQ6cG9SoW4vGhqRTRVw8NkHU
-	uJIfJMNsZ+oXQySSEsjweM7enOQVKwoZklAHPrcC6WcjJNoL8ZSVolgIS9Rm4Nms
+	:mime-version:references:subject:to; s=corp-2023-11-20; bh=ievkg
+	iQ4SKLIGHsZtSVQ374YHSgxmyvMxfrI60k79xk=; b=LBMaWazNsfUyuLH5J3S2v
+	cdmTCSeicpaLw5UBs1mqWuUv55aSaKxkmXqjATahRbDyXVX7s38LN52uO+4F55He
+	DOAgb0U7w3M2UHAJn9wufYVrzybExDBNL3X0P4SUj9+IUJWtWld7u+K56FiQ3QOz
+	6JtRKv4sRSyGK1wm4akBDRrl5n/N8Yx6nx4TSvBOMduyr513FHRCTTx0zeF2C0TI
+	63+pt4qu9yLuM3hFgSrLfcV/Ku+3YCPsnFhF35Im1KIdUjvIYlH9XyID4pQHA7Ui
+	AbJ6tR5RqTBLI1f9SB6dAXyNltfFXhB0M2SglrBysftGu9hH8TH0H2kLeHelNU1N
 	A==
 Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 437s4c6sxn-1
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 437tas6sbq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 03 Dec 2024 19:17:14 +0000 (GMT)
+	Tue, 03 Dec 2024 19:17:19 +0000 (GMT)
 Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3J65mF001214;
-	Tue, 3 Dec 2024 19:17:13 GMT
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3Hp0QS001813;
+	Tue, 3 Dec 2024 19:17:18 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 437s58akdh-1
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 437s58akge-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 03 Dec 2024 19:17:13 +0000
+	Tue, 03 Dec 2024 19:17:18 +0000
 Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4B3JH9ME021603;
-	Tue, 3 Dec 2024 19:17:12 GMT
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4B3JH9MM021603;
+	Tue, 3 Dec 2024 19:17:18 GMT
 Received: from mnc-mac.us.oracle.com (dhcp-10-65-163-31.vpn.oracle.com [10.65.163.31])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 437s58ak94-4;
-	Tue, 03 Dec 2024 19:17:12 +0000
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 437s58ak94-8;
+	Tue, 03 Dec 2024 19:17:18 +0000
 From: Mike Christie <michael.christie@oracle.com>
 To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
         sgarzare@redhat.com, pbonzini@redhat.com, target-devel@vger.kernel.org,
         virtualization@lists.linux-foundation.org
 Cc: Mike Christie <michael.christie@oracle.com>
-Subject: [PATCH v2 3/8] vhost-scsi: Add better resource allocation failure handling
-Date: Tue,  3 Dec 2024 13:15:10 -0600
-Message-ID: <20241203191705.19431-4-michael.christie@oracle.com>
+Subject: [PATCH v2 7/8] vhost-scsi: Allocate iov_iter used for unaligned copies when needed
+Date: Tue,  3 Dec 2024 13:15:14 -0600
+Message-ID: <20241203191705.19431-8-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20241203191705.19431-1-michael.christie@oracle.com>
 References: <20241203191705.19431-1-michael.christie@oracle.com>
@@ -89,86 +89,95 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlo
  adultscore=0 mlxscore=0 spamscore=0 suspectscore=0 malwarescore=0
  phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2411120000 definitions=main-2412030159
-X-Proofpoint-ORIG-GUID: 9fbUM6AojZCIvsmJ0Ou9sFzj1ueXOVj0
-X-Proofpoint-GUID: 9fbUM6AojZCIvsmJ0Ou9sFzj1ueXOVj0
+X-Proofpoint-GUID: -Cv4rMDr94G-2HdOZriF0o5riMWHNSUX
+X-Proofpoint-ORIG-GUID: -Cv4rMDr94G-2HdOZriF0o5riMWHNSUX
 
-If we can't allocate mem to map in data for a request or can't find
-a tag for a command, we currently drop the command. This leads to the
-error handler running to clean it up. Instead of dropping the command
-this has us return an error telling the initiator that it queued more
-commands than we can handle. The initiator will then reduce how many
-commands it will send us and retry later.
+It's extremely rare that we get unaligned requests that need to drop
+down to the data copy code path. However, the iov_iter is almost 5% of
+the mem used for the vhost_scsi_cmd. This patch has us allocate the
+iov_iter only when needed since it's not a perf path that uses the
+struct. This along with the patches that removed the duplicated fields on
+the vhost_scsd_cmd allow us to reduce mem use by 1 MB in mid size setups
+where we have 16 virtqueues and are doing 1024 cmds per queue.
 
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 ---
- drivers/vhost/scsi.c | 28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/vhost/scsi.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 99e008219e6c..ad7c778632f9 100644
+index 97b0c3fc1fb2..ca93089c9f8e 100644
 --- a/drivers/vhost/scsi.c
 +++ b/drivers/vhost/scsi.c
-@@ -629,7 +629,7 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+@@ -112,8 +112,8 @@ struct vhost_scsi_cmd {
+ 	u32 tvc_sgl_count;
+ 	u32 tvc_prot_sgl_count;
+ 	u32 copied_iov:1;
+-	const void *saved_iter_addr;
+-	struct iov_iter saved_iter;
++	const void *read_iov;
++	struct iov_iter *read_iter;
+ 	struct scatterlist *sgl;
+ 	struct sg_table table;
+ 	struct scatterlist *prot_sgl;
+@@ -378,7 +378,8 @@ static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
+ 			else
+ 				put_page(page);
+ 		}
+-		kfree(tv_cmd->saved_iter_addr);
++		kfree(tv_cmd->read_iter);
++		kfree(tv_cmd->read_iov);
+ 		sg_free_table_chained(&tv_cmd->table, vs->inline_sg_cnt);
+ 	}
+ 	if (tv_cmd->tvc_prot_sgl_count) {
+@@ -576,7 +577,7 @@ static void vhost_scsi_evt_work(struct vhost_work *work)
  
- 	tag = sbitmap_get(&svq->scsi_tags);
- 	if (tag < 0) {
--		pr_err("Unable to obtain tag for vhost_scsi_cmd\n");
-+		pr_warn_once("Guest sent too many cmds. Returning TASK_SET_FULL.\n");
- 		return ERR_PTR(-ENOMEM);
+ static int vhost_scsi_copy_sgl_to_iov(struct vhost_scsi_cmd *cmd)
+ {
+-	struct iov_iter *iter = &cmd->saved_iter;
++	struct iov_iter *iter = cmd->read_iter;
+ 	struct scatterlist *sg;
+ 	struct page *page;
+ 	size_t len;
+@@ -624,7 +625,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+ 			cmd, se_cmd->residual_count, se_cmd->scsi_status);
+ 		memset(&v_rsp, 0, sizeof(v_rsp));
+ 
+-		if (cmd->saved_iter_addr && vhost_scsi_copy_sgl_to_iov(cmd)) {
++		if (cmd->read_iter && vhost_scsi_copy_sgl_to_iov(cmd)) {
+ 			v_rsp.response = VIRTIO_SCSI_S_BAD_TARGET;
+ 		} else {
+ 			v_rsp.resid = cpu_to_vhost32(cmd->tvc_vq,
+@@ -808,10 +809,15 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+ 	int i, ret;
+ 
+ 	if (data_dir == DMA_FROM_DEVICE) {
+-		cmd->saved_iter_addr = dup_iter(&cmd->saved_iter, iter,
+-						GFP_KERNEL);
+-		if (!cmd->saved_iter_addr)
++		cmd->read_iter = kzalloc(sizeof(*cmd->read_iter), GFP_KERNEL);
++		if (!cmd->read_iter)
+ 			return -ENOMEM;
++
++		cmd->read_iov = dup_iter(cmd->read_iter, iter, GFP_KERNEL);
++		if (!cmd->read_iov) {
++			ret = -ENOMEM;
++			goto free_iter;
++		}
  	}
  
-@@ -928,6 +928,24 @@ static void vhost_scsi_target_queue_cmd(struct vhost_scsi_cmd *cmd)
- 	target_submit(se_cmd);
+ 	for_each_sgtable_sg(sg_table, sg, i) {
+@@ -845,7 +851,9 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+ 		if (page)
+ 			__free_page(page);
+ 	}
+-	kfree(cmd->saved_iter_addr);
++	kfree(cmd->read_iov);
++free_iter:
++	kfree(cmd->read_iter);
+ 	return ret;
  }
  
-+static void
-+vhost_scsi_send_status(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
-+		       int head, unsigned int out, u8 status)
-+{
-+	struct virtio_scsi_cmd_resp __user *resp;
-+	struct virtio_scsi_cmd_resp rsp;
-+	int ret;
-+
-+	memset(&rsp, 0, sizeof(rsp));
-+	rsp.status = status;
-+	resp = vq->iov[out].iov_base;
-+	ret = __copy_to_user(resp, &rsp, sizeof(rsp));
-+	if (!ret)
-+		vhost_add_used_and_signal(&vs->dev, vq, head, 0);
-+	else
-+		pr_err("Faulted on virtio_scsi_cmd_resp\n");
-+}
-+
- static void
- vhost_scsi_send_bad_target(struct vhost_scsi *vs,
- 			   struct vhost_virtqueue *vq,
-@@ -1215,8 +1233,8 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 					 exp_data_len + prot_bytes,
- 					 data_direction);
- 		if (IS_ERR(cmd)) {
--			vq_err(vq, "vhost_scsi_get_cmd failed %ld\n",
--			       PTR_ERR(cmd));
-+			ret = PTR_ERR(cmd);
-+			vq_err(vq, "vhost_scsi_get_tag failed %dd\n", ret);
- 			goto err;
- 		}
- 		cmd->tvc_vhost = vs;
-@@ -1253,11 +1271,15 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 		 * EINVAL: Invalid response buffer, drop the request
- 		 * EIO:    Respond with bad target
- 		 * EAGAIN: Pending request
-+		 * ENOMEM: Could not allocate resources for request
- 		 */
- 		if (ret == -ENXIO)
- 			break;
- 		else if (ret == -EIO)
- 			vhost_scsi_send_bad_target(vs, vq, vc.head, vc.out);
-+		else if (ret == -ENOMEM)
-+			vhost_scsi_send_status(vs, vq, vc.head, vc.out,
-+					       SAM_STAT_TASK_SET_FULL);
- 	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
- out:
- 	mutex_unlock(&vq->mutex);
 -- 
 2.34.1
 
