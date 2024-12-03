@@ -1,310 +1,103 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85FDB1FC100
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2DED154BEE
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 23:43:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733253451; cv=none; b=iqy2Y4iov8XPdVfyY9FvGcGleu5dTIUtBhjrdEHAsDbddLjvUa5dShlAg5gv0LhWkxNqNfK8jsRo7fMJpoDCGY7yv82S5uQsfcMn2R7aI8rib5sMB7tT4iXbQvj8jaK4u2oNiepDz+48vseFuhIUwy62pErh298KQiv/U6/5QJ8=
+	t=1733269387; cv=none; b=fLQtKVShOt3cv2+QSaPf1leQn4ndzU3MU/kIXoduBsy3zlW47gtQrtbHFW6DRsm1ONQlcZaYTjAaA0jbuRvONHyoKVd3scDuOI6US1wTLFxfEg0KV3uCdjQKAHVMbbyAGDXbFUYo3u1KWjEPYGj96lbF4aboXC0T3m0lL56+Z9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733253451; c=relaxed/simple;
-	bh=g5KAPpaVIq6iI5mLGXo4f1TQI4CCX9dFFZ8275I9w90=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JpL2DpOTmZU+Ly7eP0/Cl9ciYT+bN0F+ale63zLr3XxKyuyDZMXnXLk2dL1FTcRt8Lk8tOxCUVeIloKC/1RlIAzGo995o877sR5/8027QAjuzXEANDgnJkouAi/xJ5it7eiTiYNzbVyErU0Og+CcMEmX87xpQ874eBxV7QFxxVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=OdgkzgCm; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1733269387; c=relaxed/simple;
+	bh=/CZ2yNFlNF/WOHHJXMK+Nyg+piMw6SzQPGnPsKv0u+c=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=S+xo1ja9ipPD83XB1SJZ3s3h5uwVoL9C9V5Wrn6KlRMB3lSl9Wt5vb4OCqrOYIjuzL8pkenWwNRiFOH0SeMfT9va0yG81hMcHMfB5LGnAfB6k9vxjeh7RXa5KYwTsEVvE/fpoXHGqwMMj6ijH4N/rWDeDHa2FMu1GG5TWsVXCHw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DEsQtIA/; arc=none smtp.client-ip=209.85.222.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="OdgkzgCm"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 15C4C42D3B
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:23 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -6.49
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 8pZKR8VnMCxl for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Dec 2024 19:17:22 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B4B7342D38
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B4B7342D38
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=OdgkzgCm
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B4B7342D38
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Dec 2024 19:17:21 +0000 (UTC)
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3HtXWQ006127;
-	Tue, 3 Dec 2024 19:17:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=corp-2023-11-20; bh=S6kl/
-	Ro/QOX5/UZ2gQNW2GNyiNg+zdzde9cm+ggPlw4=; b=OdgkzgCmb+h2+PmUHQV8k
-	uiqEFeuwKY5JOHuQffYUcidVJDeosppN+YyCJxaoOFCATMWdZvsV8/0LC1PpfRRE
-	5TLILzbsZOAAnqx1vwmXzXc/4WiqmMobH5x/X2jSFtkbUer7VK5sC9E/Y/7KgObJ
-	ir2kgogrQWxcS+IbXZH+jjWV7+tpeYnq7JIcIKyLO2HDBdWrgDF+yViMc3MEodJZ
-	YahfXiSMDZ9EiM8byxCoLsIX8yjLX+jmb3RHhxaZFlTgcE4y4vh6TMntR4MsoqzV
-	MxWT5X71ukIQw1h+doUOTd2fxqyOQLZuK/cuyc6aTqPKFexIkm6nwAvqfIrZjP/8
-	A==
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 437trbpw2s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 03 Dec 2024 19:17:20 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3HYaM6001920;
-	Tue, 3 Dec 2024 19:17:20 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 437s58akh3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 03 Dec 2024 19:17:19 +0000
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4B3JH9MO021603;
-	Tue, 3 Dec 2024 19:17:19 GMT
-Received: from mnc-mac.us.oracle.com (dhcp-10-65-163-31.vpn.oracle.com [10.65.163.31])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 437s58ak94-9;
-	Tue, 03 Dec 2024 19:17:19 +0000
-From: Mike Christie <michael.christie@oracle.com>
-To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
-        sgarzare@redhat.com, pbonzini@redhat.com, target-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Cc: Mike Christie <michael.christie@oracle.com>
-Subject: [PATCH v2 8/8] vhost-scsi: Reduce response iov mem use
-Date: Tue,  3 Dec 2024 13:15:15 -0600
-Message-ID: <20241203191705.19431-9-michael.christie@oracle.com>
-X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20241203191705.19431-1-michael.christie@oracle.com>
-References: <20241203191705.19431-1-michael.christie@oracle.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DEsQtIA/"
+Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-85bafa89d73so615596241.2
+        for <virtualization@lists.linux.dev>; Tue, 03 Dec 2024 15:43:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1733269385; x=1733874185; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=efxAKMGIsYtsJH1TfFadrRu53b/jP4XGduoqdQKfUDs=;
+        b=DEsQtIA/Osg3hhjHeFLuceQdqnwEegQdxYLlSkGNLuxy5bBCdQ5v0mGS1Zv1KjXI7f
+         XdjQTlYmInJsvYWOoKC916gjxmW3vikfqXfL50Ne2p4GTmNx4yWTBUOEBoobmL8a61MJ
+         ZFqwfJH0xRxdPNEJYJ7G4OeLPI+/+mT5uzwMzlIpXDhZPZ6swMIbABhyGX+e09YLsv4Z
+         J0/7qCrsuIChab3qQRvLfq69T6+e2O+dH07HjrWgBJaK8zpWqKIJjW2H/4p8UlMIN/Bf
+         +VdpNr0KqxIwnY2j0knlY8I61qzGvcK6ilHvcSNe4rj6GJAalmtRFAa0W5PSW889Q2Xd
+         z9fA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733269385; x=1733874185;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=efxAKMGIsYtsJH1TfFadrRu53b/jP4XGduoqdQKfUDs=;
+        b=HrdBikcJVVeLRZnDjML9hTquiZn/76PhO56tMJoFbnnOvkaMYG1YH/WSS0bcToAgBg
+         ugokjqjo2yNovPhbvj5h9sxTyRNQQwabEtuc0fJgZFEOoZkEBrToivOmzQLUrwzvoHUT
+         v1oxHrLQ+7joVbV6Wi1EgrK0KopOYosE+SlMTmLAZlbMlrEoAaDacmFrSxETWRU6eV2C
+         5z2wiCK12+Qaoa8eLfoybvIu0E2l2peRuUx/CiPcsm6fpORoZZh1pZA/9T0EvT20mwgO
+         swvrWHQKVpNIlLo3ebu7auGr7zgkVzRRbAg0nMFimcYLPJm9OCgdoy8113k9sAt4bavE
+         OboQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVnilYOPgrZrEe9JjSbWz7p42WFE726gODMCWo7pnE6XXIPLjr0AQNtdNMwhwdYrQwwy9by0A5z6bk6sKnIaw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz1Awfa4KgoDfQlaxwEWnVsEJ82OsGSEon3EDCNGmWlV30Grak1
+	OSJNB6/3GeotKU/uC6VXNtEHHo4sgtvtg7zV5EJ7hjCuuzDvQjHAamyaF3eY597VcPFFfDp8Xv1
+	u24ljQArCW2OiRt4VRSpYzAdl7kIXfBEVZRlF
+X-Gm-Gg: ASbGnct9aPA9KrIp/JcCNzJKIjVUqu3MZIFNLNTujlMJZvxSqLYfS1zvca172j+JMFT
+	Cit47NgY0yfaP2vShBiGQD8XbvozwJE145sGdE696ctk3ii6+9bXeyhmFHD13
+X-Google-Smtp-Source: AGHT+IFnoxNObCnxOJ19RTHQOfy3IS0mP97qq1D+ZXM9Cr4w6i9KeiYqycIxeXsC6V041VYgYczgtjNRhEyAzhN1RZQ=
+X-Received: by 2002:a05:6102:548e:b0:4af:ab78:f383 with SMTP id
+ ada2fe7eead31-4afab78f4b5mr933855137.24.1733269384628; Tue, 03 Dec 2024
+ 15:43:04 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2024-12-03_08,2024-12-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999
- adultscore=0 mlxscore=0 spamscore=0 suspectscore=0 malwarescore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2411120000 definitions=main-2412030159
-X-Proofpoint-GUID: oEZQfg7-4mWY3P5-6oNmkOvrg92PMkEG
-X-Proofpoint-ORIG-GUID: oEZQfg7-4mWY3P5-6oNmkOvrg92PMkEG
+References: <20241203005921.1119116-1-kevinloughlin@google.com>
+ <20241203005921.1119116-2-kevinloughlin@google.com> <a9560e97-478d-4e03-b936-cf6f663279a4@citrix.com>
+ <CAGdbjmLRA5g+Rgiq-fRbWaNqXK51+naNBi0b3goKxsN-79wpaw@mail.gmail.com>
+ <bc4a4095-d8bd-4d97-a623-be35ef81aad0@zytor.com> <24b80006-dcea-4a76-b5c8-e147d9191ed2@suse.com>
+ <25fa8746-3b36-4d43-86cd-37aadaacdf2e@zytor.com>
+In-Reply-To: <25fa8746-3b36-4d43-86cd-37aadaacdf2e@zytor.com>
+From: Kevin Loughlin <kevinloughlin@google.com>
+Date: Tue, 3 Dec 2024 15:42:53 -0800
+Message-ID: <CAGdbjmKwMrioAq1b1v_UhhOxU6R2xPztZ9Q3ZizC9iMA84s+ag@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/2] x86, lib, xenpv: Add WBNOINVD helper functions
+To: Xin Li <xin@zytor.com>
+Cc: Juergen Gross <jgross@suse.com>, Andrew Cooper <andrew.cooper3@citrix.com>, 
+	linux-kernel@vger.kernel.org, seanjc@google.com, pbonzini@redhat.com, 
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+	kvm@vger.kernel.org, thomas.lendacky@amd.com, pgonda@google.com, 
+	sidtelang@google.com, mizhang@google.com, virtualization@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, bcm-kernel-feedback-list@broadcom.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-We have to save N iov entries to copy the virtio_scsi_cmd_resp struct
-back to the guest's buffer. The difficulty is that we can't assume the
-virtio_scsi_cmd_resp will be in 1 iov because older virtio specs allowed
-you to break it up.
+On Tue, Dec 3, 2024 at 12:11=E2=80=AFAM Xin Li <xin@zytor.com> wrote:
+>
+> On 12/2/2024 10:47 PM, Juergen Gross wrote:
+> > P.S.: As the paravirt maintainer I would have preferred to be Cc-ed in =
+the
+> >        initial patch mail.
+>
+> Looks that Kevin didn't run './scripts/get_maintainer.pl'?
 
-The worst case is that the guest was doing something like breaking up
-the virtio_scsi_cmd_resp struct into 108 (the struct is 108 bytes)
-byte sized vecs like:
+Woops, my bad. I somehow ended up with the full maintainer list for
+patch 2/2 from the script but not this one (1/2). Apologies and thanks
+for the heads up.
 
-iov[0].iov_base = ((unsigned char *)virtio_scsi_cmd_resp)[0]
-iov[0].iov_len = 1
-iov[1].iov_base =  ((unsigned char *)virtio_scsi_cmd_resp)[1]
-iov[1].iov_len = 1
-....
-iov[107].iov_base = ((unsigned char *)virtio_scsi_cmd_resp)[107]
-iov[1].iov_len = 1
+I saw Juergen's patch [0] ("x86/paravirt: remove the wbinvd hook") to
+remove the WBINVD hook, so I'll do the same for WBNOINVD in the next
+version (meaning I shouldn't need to update xenpv code anymore).
 
-Right now we allocate UIO_MAXIOV vecs which is 1024 and so for a small
-device with just 1 queue and 128 commands per queue, we are wasting
+[0] https://lore.kernel.org/lkml/20241203071550.26487-1-jgross@suse.com/
 
-1.8 MB = (1024 current entries - 108) * 16 bytes per entry * 128 cmds
+Thanks!
 
-The most common case is going to be where the initiator puts the entire
-virtio_scsi_cmd_resp in the first iov and does not split it. We've
-always done it this way for Linux and the windows driver looks like
-it's always done the same. It's highly unlikely anyone has ever split
-the response and if they did it might just be where they have the
-sense in a second iov but that doesn't seem likely as well.
-
-So to optimize for the common implementation, this has us only
-pre-allocate the single iovec. If we do hit the split up response case
-this has us allocate the needed iovec when needed.
-
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
----
- drivers/vhost/scsi.c | 82 ++++++++++++++++++++++++++++++++------------
- 1 file changed, 60 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index ca93089c9f8e..9a4cbdc607fa 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -45,6 +45,11 @@
- #define VHOST_SCSI_PREALLOC_SGLS 2048
- #define VHOST_SCSI_PREALLOC_UPAGES 2048
- #define VHOST_SCSI_PREALLOC_PROT_SGLS 2048
-+/*
-+ * For the legacy descriptor case we allocate an iov per byte in the
-+ * virtio_scsi_cmd_resp struct.
-+ */
-+#define VHOST_SCSI_MAX_RESP_IOVS sizeof(struct virtio_scsi_cmd_resp)
- 
- static unsigned int vhost_scsi_inline_sg_cnt = VHOST_SCSI_PREALLOC_SGLS;
- 
-@@ -106,8 +111,6 @@ struct vhost_scsi_inflight {
- struct vhost_scsi_cmd {
- 	/* Descriptor from vhost_get_vq_desc() for virt_queue segment */
- 	int tvc_vq_desc;
--	/* virtio-scsi response incoming iovecs */
--	int tvc_in_iovs;
- 	/* The number of scatterlists associated with this cmd */
- 	u32 tvc_sgl_count;
- 	u32 tvc_prot_sgl_count;
-@@ -118,8 +121,12 @@ struct vhost_scsi_cmd {
- 	struct sg_table table;
- 	struct scatterlist *prot_sgl;
- 	struct sg_table prot_table;
--	/* Pointer to response header iovec */
--	struct iovec *tvc_resp_iov;
-+	/* Fast path response header iovec used when only one vec is needed */
-+	struct iovec tvc_resp_iov;
-+	/* Number of iovs for response */
-+	unsigned int tvc_resp_iovs_cnt;
-+	/* Pointer to response header iovecs if more than one is needed */
-+	struct iovec *tvc_resp_iovs;
- 	/* Pointer to vhost_virtqueue for the cmd */
- 	struct vhost_virtqueue *tvc_vq;
- 	/* The TCM I/O descriptor that is accessed via container_of() */
-@@ -391,6 +398,8 @@ static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
- 		sg_free_table_chained(&tv_cmd->prot_table, vs->inline_sg_cnt);
- 	}
- 
-+	if (tv_cmd->tvc_resp_iovs != &tv_cmd->tvc_resp_iov)
-+		kfree(tv_cmd->tvc_resp_iovs);
- 	sbitmap_clear_bit(&svq->scsi_tags, se_cmd->map_tag);
- 	vhost_scsi_put_inflight(inflight);
- }
-@@ -638,8 +647,8 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 			       se_cmd->scsi_sense_length);
- 		}
- 
--		iov_iter_init(&iov_iter, ITER_DEST, cmd->tvc_resp_iov,
--			      cmd->tvc_in_iovs, sizeof(v_rsp));
-+		iov_iter_init(&iov_iter, ITER_DEST, cmd->tvc_resp_iovs,
-+			      cmd->tvc_resp_iovs_cnt, sizeof(v_rsp));
- 		ret = copy_to_iter(&v_rsp, sizeof(v_rsp), &iov_iter);
- 		if (likely(ret == sizeof(v_rsp))) {
- 			signal = true;
-@@ -662,7 +671,6 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, u64 scsi_tag)
- 					struct vhost_scsi_virtqueue, vq);
- 	struct vhost_scsi_cmd *cmd;
- 	struct scatterlist *sgl, *prot_sgl;
--	struct iovec *tvc_resp_iov;
- 	int tag;
- 
- 	tag = sbitmap_get(&svq->scsi_tags);
-@@ -674,13 +682,11 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, u64 scsi_tag)
- 	cmd = &svq->scsi_cmds[tag];
- 	sgl = cmd->sgl;
- 	prot_sgl = cmd->prot_sgl;
--	tvc_resp_iov = cmd->tvc_resp_iov;
- 	memset(cmd, 0, sizeof(*cmd));
- 	cmd->sgl = sgl;
- 	cmd->prot_sgl = prot_sgl;
- 	cmd->tvc_se_cmd.map_tag = tag;
- 	cmd->inflight = vhost_scsi_get_inflight(vq);
--	cmd->tvc_resp_iov = tvc_resp_iov;
- 
- 	return cmd;
- }
-@@ -1124,6 +1130,43 @@ vhost_scsi_get_req(struct vhost_virtqueue *vq, struct vhost_scsi_ctx *vc,
- 	return ret;
- }
- 
-+static int
-+vhost_scsi_setup_resp_iovs(struct vhost_scsi_cmd *cmd, struct iovec *in_iovs,
-+			   unsigned int in_iovs_cnt)
-+{
-+	int i, cnt;
-+
-+	if (!in_iovs_cnt)
-+		return 0;
-+	/*
-+	 * Initiator's normally just put the virtio_scsi_cmd_resp in the first
-+	 * iov, but just in case they wedged in some data with it we check for
-+	 * greater than or equal to the response struct.
-+	 */
-+	if (in_iovs[0].iov_len >= sizeof(struct virtio_scsi_cmd_resp)) {
-+		cmd->tvc_resp_iovs = &cmd->tvc_resp_iov;
-+		cmd->tvc_resp_iovs_cnt = 1;
-+	} else {
-+		/*
-+		 * Legacy descriptor layouts didn't specify that we must put
-+		 * the entire response in one iov. Worst case we have a
-+		 * iov per byte.
-+		 */
-+		cnt = min(VHOST_SCSI_MAX_RESP_IOVS, in_iovs_cnt);
-+		cmd->tvc_resp_iovs = kcalloc(cnt, sizeof(struct iovec),
-+					     GFP_KERNEL);
-+		if (!cmd->tvc_resp_iovs)
-+			return -ENOMEM;
-+
-+		cmd->tvc_resp_iovs_cnt = cnt;
-+	}
-+
-+	for (i = 0; i < cmd->tvc_resp_iovs_cnt; i++)
-+		cmd->tvc_resp_iovs[i] = in_iovs[i];
-+
-+	return 0;
-+}
-+
- static u16 vhost_buf_to_lun(u8 *lun_buf)
- {
- 	return ((lun_buf[2] << 8) | lun_buf[3]) & 0x3FFF;
-@@ -1141,7 +1184,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 	struct iov_iter in_iter, prot_iter, data_iter;
- 	u64 tag;
- 	u32 exp_data_len, data_direction;
--	int ret, prot_bytes, i, c = 0;
-+	int ret, prot_bytes, c = 0;
- 	u16 lun;
- 	u8 task_attr;
- 	bool t10_pi = vhost_has_feature(vq, VIRTIO_SCSI_F_T10_PI);
-@@ -1303,9 +1346,13 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 			goto err;
- 		}
- 		cmd->tvc_vq = vq;
--		for (i = 0; i < vc.in ; i++)
--			cmd->tvc_resp_iov[i] = vq->iov[vc.out + i];
--		cmd->tvc_in_iovs = vc.in;
-+
-+		ret = vhost_scsi_setup_resp_iovs(cmd, &vq->iov[vc.out], vc.in);
-+		if (ret) {
-+			vq_err(vq, "Failed to alloc recv iovs\n");
-+			vhost_scsi_release_cmd_res(&cmd->tvc_se_cmd);
-+			goto err;
-+		}
- 
- 		pr_debug("vhost_scsi got command opcode: %#02x, lun: %d\n",
- 			 cdb[0], lun);
-@@ -1686,7 +1733,6 @@ static void vhost_scsi_destroy_vq_cmds(struct vhost_virtqueue *vq)
- 
- 		kfree(tv_cmd->sgl);
- 		kfree(tv_cmd->prot_sgl);
--		kfree(tv_cmd->tvc_resp_iov);
- 	}
- 
- 	sbitmap_free(&svq->scsi_tags);
-@@ -1735,14 +1781,6 @@ static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
- 			}
- 		}
- 
--		tv_cmd->tvc_resp_iov = kcalloc(UIO_MAXIOV,
--					       sizeof(struct iovec),
--					       GFP_KERNEL);
--		if (!tv_cmd->tvc_resp_iov) {
--			pr_err("Unable to allocate tv_cmd->tvc_resp_iov\n");
--			goto out;
--		}
--
- 		if (vhost_has_feature(vq, VIRTIO_SCSI_F_T10_PI) &&
- 		    vs->inline_sg_cnt) {
- 			tv_cmd->prot_sgl = kcalloc(vs->inline_sg_cnt,
--- 
-2.34.1
-
+Kevin
