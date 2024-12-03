@@ -1,176 +1,128 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 832577DA67
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 01:28:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7586B15E8B
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 01:37:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733189340; cv=none; b=JKbMlm+seTC2QYZ0y+jhF3i0Qa4q8Ygk5f5k/coNaxP38jrFf1eX96exkbZz0W8AEpF0WGLpzbfp/SVU5QsoH6tbLiVRdo+Vp69o/VEADS7YJ+k/iPMogNplgfpOWxwVF2VzC+rDb74ISHdonrjQUm8w06G2vPv9sAoE9ALXoCQ=
+	t=1733189854; cv=none; b=B+4kk4GA4uzXdpHYqtlCIJM+NEu1wzpazV4aSDO3z9FF2GfwpjFRtYyAcrKms3RXEOUfh/+HWu405Q2ZRKWP5lXlkvrOiVxamAN6Jg9Y8WKQBsK4KoZuFr3aJifvmKWgaz8W8Xb8ni+b6cdmz4aLPD9N1QqglrYYzGJlTBOAvHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733189340; c=relaxed/simple;
-	bh=WDixq/MIa40Q47q+L2Fe0gz1ziSNqRoxkhPQvLpZWTA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sUXOCkrkzLzkn0tX2OdWf/oCh0frhxhJJOIBoO5z/3PPhXe9oGCJxpVX731MoEX9K/PRrn9Z7zm13Jq7zj4sLKjUxavVFaBr/Yy2hRG+EX7BZdZMr2i0GbkAy+rDgbX1VxEDPk82akbI7jQOClyWpSq0Gz962x60ZVwFcBwo5CM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com; spf=pass smtp.mailfrom=cloud.com; dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b=cOkGgo6f; arc=none smtp.client-ip=209.85.218.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloud.com
+	s=arc-20240116; t=1733189854; c=relaxed/simple;
+	bh=KvuUWvtZzcGRoFiwHZn+yzfmeEcZFfzxZucwdSWIYAo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=JBvelpZeD0MOWFXyLvnRT393lwqrX1rMNCqs9qw2/EHGFi5b/FJShp7Px/1kbytPH/Mc0VhhPBGJtiAmDj0MRw55v+RDzzACNzCb0//LV47fSId66210zcmZsajmtgCQkxse8FI1jfAN5FJXRb+femSlZIK8qg6xbtI4HcWtTco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QEehivrn; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b="cOkGgo6f"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-aa53ebdf3caso157111766b.2
-        for <virtualization@lists.linux.dev>; Mon, 02 Dec 2024 17:28:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=citrix.com; s=google; t=1733189336; x=1733794136; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=uq0J8rWPM2r7OFPHUCmfWJUZ2yRsTZhEnzsRvPF/O2A=;
-        b=cOkGgo6fsrEkvampwacbKEgwtJKUYIcqGGKLj/GGERtqSSvvCEjd6gWrmuZR5vHZhU
-         x+wNJ849iszjX+7depAlJ6JI/KxOHxGPSPtu8xqO7nXmyVhF9mPWPqhz/uEwNtMMsoCi
-         MsnRS2x8JsFN7rpQa4vdcqrHhnCBgTjblmjTw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733189336; x=1733794136;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uq0J8rWPM2r7OFPHUCmfWJUZ2yRsTZhEnzsRvPF/O2A=;
-        b=KsP+dVaslrlSd+g2YspDtIijTbt6NCo7LDmCv1eWda1rxTXyea7GbgsJMwcn8vgV0V
-         4m6kPwF0cSNo+NxyH24iw0+kcRmzLBbX7IM6DWg4jCh7VfapY3pxgktClf971U0u2Uye
-         vTy1+t+F9/k3Bi4JV5JiLDf32qlHn1JTcFx2mQhjowuQ9JHpv8zFd+Ha/flJ/rhvtMIw
-         jGpN9hc8JFP2GNa7jXPf7/jspfQAypX/qN7SiHlj5NPD39PGYh1RUtR7OfPoWZlBrJif
-         6AHg51Ofd6w7FNgKa4sHf4ROtxH+xCBumYq4Ahr+lhS2IGyluSAu0B8W8P4cPkQDfPwp
-         poEw==
-X-Forwarded-Encrypted: i=1; AJvYcCXp7hOC9hUEe+s7kARqTRczwcGP5lUGCp3kGdBqPrd+kShXLYS2eWl35tlM96RqVTxtbtI8U9hm8Jkv/pPJxQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yznu+RBdyMi1aygtZKYFuVVmAEDob3pRVEgGj+HOFbe+AtdIYAK
-	8AtBIv4Q25JBPcRCLEP76f9PapXNOtr4JjbVaeBoHHWHwODtq5yB9JL6a/xPs1k=
-X-Gm-Gg: ASbGncuEQox9YJR3NUiX1u+M6jLL7L+CFe+ShJWoMmema4lzvfYsDO3UjpGq2HZRrfq
-	GOq+GRC6PHXCyLshiDNLOtLyR982ointGUKVfFPTNEowwBLQ55rPnUWSMhFlfmvhOQqIJrWqbCI
-	MqJYaRoQ4FlMVQwbVeW1PDmSYqnQSyqOB6qJgrhXZOyrVj7igYIRw8BPNFcUK3oIYJoBTPHDw+A
-	2RI53MhqTS2uxwV/e7BVljT1BYYpVUA4HnBnH9HVyZRMz4/pnMHyYmGgJJSN5Y=
-X-Google-Smtp-Source: AGHT+IGU7jxH5mfvqjUzNNO+cJvYRC6zia50akRFOhFPYVPqR473ZqGd/ljEGbus5kELxvRnJrn/Pw==
-X-Received: by 2002:a17:907:3f96:b0:aa5:4ea6:fcae with SMTP id a640c23a62f3a-aa5f7daba68mr38700666b.28.1733189335776;
-        Mon, 02 Dec 2024 17:28:55 -0800 (PST)
-Received: from [192.168.86.29] ([90.240.255.120])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa5997d560asm563452966b.61.2024.12.02.17.28.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 02 Dec 2024 17:28:55 -0800 (PST)
-Message-ID: <a9560e97-478d-4e03-b936-cf6f663279a4@citrix.com>
-Date: Tue, 3 Dec 2024 01:28:54 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QEehivrn"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B2II5MR004750;
+	Tue, 3 Dec 2024 01:37:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ttPRFtlh9tOm7IOEYokU/ryAJRa/3UU0IUWzaxKLJ
+	SQ=; b=QEehivrnURJqyrDvVDIMAh6yElks0ywkq3H3AtcIVLD01Oa6AVqqT5Egh
+	FVqTjANHGDy7PchCoy4W9ikUGysL8XBvzsNMmOnr9EnXGayNPImIDijtQOh80lVc
+	eB5tkBAoHLOonG2HILtuj6wsm4RrLZmVwcgEODqCLZWD7J6tEY6vSUxFXhl2saJm
+	ekSjHFhjDriDrjn6a28vfK+n/itJ4Ez6Jud4kbsHlmK+7od21EPzvK9/OevoSodH
+	GL5GIt3A86e9oCanYqPy5mbBtkW8GzSrJSRHecBzcJQ5f2vZMbjMVTjhU216KrHG
+	RXpdBeNJyeIl8mhEdAfkFeLL1B/WQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 437s4hun5w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Dec 2024 01:37:31 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4B3194Gx029465;
+	Tue, 3 Dec 2024 01:37:30 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 438ddybj12-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Dec 2024 01:37:30 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4B31bTdp27984612
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 3 Dec 2024 01:37:29 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EE17A5805A;
+	Tue,  3 Dec 2024 01:37:28 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B3CCC58051;
+	Tue,  3 Dec 2024 01:37:28 +0000 (GMT)
+Received: from WIN-DU0DFC9G5VV.ibm.com (unknown [9.61.255.118])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Dec 2024 01:37:28 +0000 (GMT)
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+To: sgarzare@redhat.com
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+Subject: [PATCH net v7 0/3] vsock/test: fix wrong setsockopt() parameters
+Date: Mon,  2 Dec 2024 19:37:06 -0600
+Message-Id: <20241203013709.232045-1-kshk@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/2] x86, lib, xenpv: Add WBNOINVD helper functions
-To: Kevin Loughlin <kevinloughlin@google.com>, linux-kernel@vger.kernel.org
-Cc: seanjc@google.com, pbonzini@redhat.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, kvm@vger.kernel.org, thomas.lendacky@amd.com,
- pgonda@google.com, sidtelang@google.com, mizhang@google.com,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
- bcm-kernel-feedback-list@broadcom.com
-References: <20241203005921.1119116-1-kevinloughlin@google.com>
- <20241203005921.1119116-2-kevinloughlin@google.com>
-Content-Language: en-GB
-From: Andrew Cooper <andrew.cooper3@citrix.com>
-Autocrypt: addr=andrew.cooper3@citrix.com; keydata=
- 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
- 6+ahAA==
-In-Reply-To: <20241203005921.1119116-2-kevinloughlin@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6T1AEGEvCiWmjrj4M_soyXgm4Iypfx17
+X-Proofpoint-ORIG-GUID: 6T1AEGEvCiWmjrj4M_soyXgm4Iypfx17
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ adultscore=0 mlxscore=0 mlxlogscore=999 lowpriorityscore=0 bulkscore=0
+ impostorscore=0 phishscore=0 spamscore=0 malwarescore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2412030011
 
-On 03/12/2024 12:59 am, Kevin Loughlin wrote:
-> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index d4eb9e1d61b8..c040af2d8eff 100644
-> --- a/arch/x86/include/asm/paravirt.h
-> +++ b/arch/x86/include/asm/paravirt.h
-> @@ -187,6 +187,13 @@ static __always_inline void wbinvd(void)
->  	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ALT_NOT_XEN);
->  }
->  
-> +extern noinstr void pv_native_wbnoinvd(void);
-> +
-> +static __always_inline void wbnoinvd(void)
-> +{
-> +	PVOP_ALT_VCALL0(cpu.wbnoinvd, "wbnoinvd", ALT_NOT_XEN);
-> +}
+Parameters were created using wrong C types, which caused them to be of
+wrong size on some architectures, causing problems.
 
-Given this, ...
+The problem with SO_RCVLOWAT was found on s390 (big endian), while x86-64
+didn't show it. After the fix, all tests pass on s390.
+Then Stefano Garzarella pointed out that SO_VM_SOCKETS_* calls might have
+a similar problem, which turned out to be true, hence, the second patch.
 
-> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> index fec381533555..a66b708d8a1e 100644
-> --- a/arch/x86/kernel/paravirt.c
-> +++ b/arch/x86/kernel/paravirt.c
-> @@ -149,6 +154,7 @@ struct paravirt_patch_template pv_ops = {
->  	.cpu.write_cr0		= native_write_cr0,
->  	.cpu.write_cr4		= native_write_cr4,
->  	.cpu.wbinvd		= pv_native_wbinvd,
-> +	.cpu.wbnoinvd		= pv_native_wbnoinvd,
->  	.cpu.read_msr		= native_read_msr,
->  	.cpu.write_msr		= native_write_msr,
->  	.cpu.read_msr_safe	= native_read_msr_safe,
+Changes for v7:
+- Rebase on top of https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git
+- Add the "net" tags to the subjects
+Changes for v6:
+- rework the patch #3 to avoid creating a new file for new functions,
+and exclude vsock_perf from calling the new functions.
+- add "Reviewed-by:" to the patch #2.
+Changes for v5:
+- in the patch #2 replace the introduced uint64_t with unsigned long long
+to match documentation
+- add a patch #3 that verifies every setsockopt() call.
+Changes for v4:
+- add "Reviewed-by:" to the first patch, and add a second patch fixing
+SO_VM_SOCKETS_* calls, which depends on the first one (hence, it's now
+a patch series.)
+Changes for v3:
+- fix the same problem in vsock_perf and update commit message
+Changes for v2:
+- add "Fixes:" lines to the commit message
 
-this, and ...
+Konstantin Shkolnyy (3):
+  vsock/test: fix failures due to wrong SO_RCVLOWAT parameter
+  vsock/test: fix parameter types in SO_VM_SOCKETS_* calls
+  vsock/test: verify socket options after setting them
 
-> diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-> index d6818c6cafda..a5c76a6f8976 100644
-> --- a/arch/x86/xen/enlighten_pv.c
-> +++ b/arch/x86/xen/enlighten_pv.c
-> @@ -1162,6 +1162,7 @@ static const typeof(pv_ops) xen_cpu_ops __initconst = {
->  		.write_cr4 = xen_write_cr4,
->  
->  		.wbinvd = pv_native_wbinvd,
-> +		.wbnoinvd = pv_native_wbnoinvd,
->  
->  		.read_msr = xen_read_msr,
->  		.write_msr = xen_write_msr,
+ tools/testing/vsock/control.c             |   9 +-
+ tools/testing/vsock/msg_zerocopy_common.c |  10 --
+ tools/testing/vsock/msg_zerocopy_common.h |   1 -
+ tools/testing/vsock/util.c                | 144 ++++++++++++++++++++++
+ tools/testing/vsock/util.h                |   7 ++
+ tools/testing/vsock/vsock_perf.c          |  20 ++-
+ tools/testing/vsock/vsock_test.c          |  73 +++++------
+ tools/testing/vsock/vsock_test_zerocopy.c |   2 +-
+ tools/testing/vsock/vsock_uring_test.c    |   2 +-
+ 9 files changed, 204 insertions(+), 64 deletions(-)
 
-this, what is the point having a paravirt hook which is wired to
-native_wbnoinvd() in all cases?
+-- 
+2.34.1
 
-That just seems like overhead for overhead sake.
-
-~Andrew
