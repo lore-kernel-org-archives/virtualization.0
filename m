@@ -1,232 +1,176 @@
-Received: from mail-oo1-f74.google.com (mail-oo1-f74.google.com [209.85.161.74])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D5CF126BEE
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 01:00:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 832577DA67
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 01:28:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733187637; cv=none; b=uWcSdfhQUxhJH/ck4NMatKW4vDabUHm+fKailxdnz0kYj0fyVCJjR2JE7lqFLI8csi21cLDLjDD+HnEnmtpb3vOezRb1FBcx7U0agaPvHr36v1tH7eMIuWOURqhyIll1kifULsKrxk1GMsMFWnZvzSPUrNeJpmAL3radN26drYc=
+	t=1733189340; cv=none; b=JKbMlm+seTC2QYZ0y+jhF3i0Qa4q8Ygk5f5k/coNaxP38jrFf1eX96exkbZz0W8AEpF0WGLpzbfp/SVU5QsoH6tbLiVRdo+Vp69o/VEADS7YJ+k/iPMogNplgfpOWxwVF2VzC+rDb74ISHdonrjQUm8w06G2vPv9sAoE9ALXoCQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733187637; c=relaxed/simple;
-	bh=ST360jAFSalxvsspokUYZryLYZwouzKdgllkKmYC1PE=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=RQoxJnt8a7JnAfopBdveKQdQrW4DU2AfxpZ8v4xKFjSspQ/kZHfjwRdzPRjcytGW6Aa7NMvSrJtRCtu0i9rsbwCvH8un4TECHLI5ppgCdL08zyp8g21FD+lkOL+p9BX7TZi/J4TsNgp36CIZrMuriL82lINgfO977oJW4iDmHJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kevinloughlin.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4Bha/Fjb; arc=none smtp.client-ip=209.85.161.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kevinloughlin.bounces.google.com
+	s=arc-20240116; t=1733189340; c=relaxed/simple;
+	bh=WDixq/MIa40Q47q+L2Fe0gz1ziSNqRoxkhPQvLpZWTA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sUXOCkrkzLzkn0tX2OdWf/oCh0frhxhJJOIBoO5z/3PPhXe9oGCJxpVX731MoEX9K/PRrn9Z7zm13Jq7zj4sLKjUxavVFaBr/Yy2hRG+EX7BZdZMr2i0GbkAy+rDgbX1VxEDPk82akbI7jQOClyWpSq0Gz962x60ZVwFcBwo5CM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com; spf=pass smtp.mailfrom=cloud.com; dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b=cOkGgo6f; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloud.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4Bha/Fjb"
-Received: by mail-oo1-f74.google.com with SMTP id 006d021491bc7-5f21cb68157so2857488eaf.3
-        for <virtualization@lists.linux.dev>; Mon, 02 Dec 2024 17:00:36 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b="cOkGgo6f"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-aa53ebdf3caso157111766b.2
+        for <virtualization@lists.linux.dev>; Mon, 02 Dec 2024 17:28:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1733187635; x=1733792435; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=d+a3eBnHKvD8AQod1gMB/LKTW1oN3to08D39Docv/eQ=;
-        b=4Bha/FjbC86yhMWgWL2IewBVmQdJzbDE+vaF3r6xZ6c1hfoQMBipRxCPbNWtttfQz/
-         eRy2homchXKCdI9bOuxx/ZlCu9eZNBQnKiYFAHz+yPWJwLR1PZbIdc+gTmJb/PAbt9Iw
-         vRNxipQ/LtR7i8w2NjVsFdRgTVhdDQ+CXgSiOcmCPDXuvOjCqc1QzeIgy3WiSH9tMQlq
-         3TjWf78HZ+FC9cJmQSYQY6LX++z2ZLoryLJcdwNrTnWLMpMB4SQFYK+iHYOFF/tZkPf0
-         qRuecFWWO0BfMcLt/nSjvnr9w+OPEU1xRTL2iUj4ysew4lwE0cJbIpebO6FryLoEaiWE
-         waFw==
+        d=citrix.com; s=google; t=1733189336; x=1733794136; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=uq0J8rWPM2r7OFPHUCmfWJUZ2yRsTZhEnzsRvPF/O2A=;
+        b=cOkGgo6fsrEkvampwacbKEgwtJKUYIcqGGKLj/GGERtqSSvvCEjd6gWrmuZR5vHZhU
+         x+wNJ849iszjX+7depAlJ6JI/KxOHxGPSPtu8xqO7nXmyVhF9mPWPqhz/uEwNtMMsoCi
+         MsnRS2x8JsFN7rpQa4vdcqrHhnCBgTjblmjTw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733187635; x=1733792435;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=d+a3eBnHKvD8AQod1gMB/LKTW1oN3to08D39Docv/eQ=;
-        b=JtGQN7b+UYUPK0en6EFgYN1CHkE3l5ax3aMpb7YUpzrVyPcWyeBEnDf2TKYCMjSRwh
-         Edskx3Gjb01e0sQgWrprrnAP0EVjQvVX4jwPUrGTHDwzh5plnnXEN49nVAoimR+1umC+
-         zBERP1vO1wSphO+J7ppYQpQ5TbY9cy8t0mfJ18jAZXcuizr5Mvz3txqUO0AzgHLMF/Xm
-         IE3FK7JOCkQ3q96SkziHahES0Bfi+7o/SN7HrG2PAA5sTNwOb8IT5EdhXyx81AlaA1Gz
-         XtQWwzTpxfW0jmDKsaBc+MuNi8Rd3Irvnb3R8R3ZTB3C2zBkZx2Dkaz3bzwcKiGZyeic
-         XZuw==
-X-Forwarded-Encrypted: i=1; AJvYcCV8pVnJl0Ji2ZRcj4uzxDKXvaiAIkSqWzhwiUlfIiXllpB4z+c85NqtiwTtS+QkUwAVM0jrpLYWm3EwiVce0Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxcBW65BCndB152wPtCym0YCGS0dZTS6tGd76lT40B1Klx9D3hq
-	gQc+lMnihNT3VgEorXJtA2M7w6XdHXpyRGAE8B+LohaQXbW6LMuys/+Sw/PpGhUcVSZwNz+mcCM
-	YySp9yMZTFxRK9GNe1kF9pi9kOKf96g==
-X-Google-Smtp-Source: AGHT+IHlAWUl/6xhfzZLqge5+mtkzOWOXTSZQKntjfye63eE/1sMNIDsJdEGUh7DCOLnVMK90ja1kBMWTjMKXb6+Bxua
-X-Received: from ioay19.prod.google.com ([2002:a6b:c413:0:b0:841:802b:8e24])
- (user=kevinloughlin job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6602:2b85:b0:83a:872f:4b98 with SMTP id ca18e2360f4ac-8445b53e7d6mr104251439f.2.1733187625111;
- Mon, 02 Dec 2024 17:00:25 -0800 (PST)
-Date: Tue,  3 Dec 2024 00:59:20 +0000
-In-Reply-To: <20241203005921.1119116-1-kevinloughlin@google.com>
+        d=1e100.net; s=20230601; t=1733189336; x=1733794136;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uq0J8rWPM2r7OFPHUCmfWJUZ2yRsTZhEnzsRvPF/O2A=;
+        b=KsP+dVaslrlSd+g2YspDtIijTbt6NCo7LDmCv1eWda1rxTXyea7GbgsJMwcn8vgV0V
+         4m6kPwF0cSNo+NxyH24iw0+kcRmzLBbX7IM6DWg4jCh7VfapY3pxgktClf971U0u2Uye
+         vTy1+t+F9/k3Bi4JV5JiLDf32qlHn1JTcFx2mQhjowuQ9JHpv8zFd+Ha/flJ/rhvtMIw
+         jGpN9hc8JFP2GNa7jXPf7/jspfQAypX/qN7SiHlj5NPD39PGYh1RUtR7OfPoWZlBrJif
+         6AHg51Ofd6w7FNgKa4sHf4ROtxH+xCBumYq4Ahr+lhS2IGyluSAu0B8W8P4cPkQDfPwp
+         poEw==
+X-Forwarded-Encrypted: i=1; AJvYcCXp7hOC9hUEe+s7kARqTRczwcGP5lUGCp3kGdBqPrd+kShXLYS2eWl35tlM96RqVTxtbtI8U9hm8Jkv/pPJxQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yznu+RBdyMi1aygtZKYFuVVmAEDob3pRVEgGj+HOFbe+AtdIYAK
+	8AtBIv4Q25JBPcRCLEP76f9PapXNOtr4JjbVaeBoHHWHwODtq5yB9JL6a/xPs1k=
+X-Gm-Gg: ASbGncuEQox9YJR3NUiX1u+M6jLL7L+CFe+ShJWoMmema4lzvfYsDO3UjpGq2HZRrfq
+	GOq+GRC6PHXCyLshiDNLOtLyR982ointGUKVfFPTNEowwBLQ55rPnUWSMhFlfmvhOQqIJrWqbCI
+	MqJYaRoQ4FlMVQwbVeW1PDmSYqnQSyqOB6qJgrhXZOyrVj7igYIRw8BPNFcUK3oIYJoBTPHDw+A
+	2RI53MhqTS2uxwV/e7BVljT1BYYpVUA4HnBnH9HVyZRMz4/pnMHyYmGgJJSN5Y=
+X-Google-Smtp-Source: AGHT+IGU7jxH5mfvqjUzNNO+cJvYRC6zia50akRFOhFPYVPqR473ZqGd/ljEGbus5kELxvRnJrn/Pw==
+X-Received: by 2002:a17:907:3f96:b0:aa5:4ea6:fcae with SMTP id a640c23a62f3a-aa5f7daba68mr38700666b.28.1733189335776;
+        Mon, 02 Dec 2024 17:28:55 -0800 (PST)
+Received: from [192.168.86.29] ([90.240.255.120])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa5997d560asm563452966b.61.2024.12.02.17.28.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Dec 2024 17:28:55 -0800 (PST)
+Message-ID: <a9560e97-478d-4e03-b936-cf6f663279a4@citrix.com>
+Date: Tue, 3 Dec 2024 01:28:54 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/2] x86, lib, xenpv: Add WBNOINVD helper functions
+To: Kevin Loughlin <kevinloughlin@google.com>, linux-kernel@vger.kernel.org
+Cc: seanjc@google.com, pbonzini@redhat.com, tglx@linutronix.de,
+ mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+ hpa@zytor.com, kvm@vger.kernel.org, thomas.lendacky@amd.com,
+ pgonda@google.com, sidtelang@google.com, mizhang@google.com,
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+ bcm-kernel-feedback-list@broadcom.com
 References: <20241203005921.1119116-1-kevinloughlin@google.com>
-X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
-Message-ID: <20241203005921.1119116-2-kevinloughlin@google.com>
-Subject: [RFC PATCH 1/2] x86, lib, xenpv: Add WBNOINVD helper functions
-From: Kevin Loughlin <kevinloughlin@google.com>
-To: linux-kernel@vger.kernel.org
-Cc: seanjc@google.com, pbonzini@redhat.com, tglx@linutronix.de, 
-	mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, 
-	hpa@zytor.com, kvm@vger.kernel.org, thomas.lendacky@amd.com, 
-	pgonda@google.com, sidtelang@google.com, mizhang@google.com, 
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, 
-	bcm-kernel-feedback-list@broadcom.com, 
-	Kevin Loughlin <kevinloughlin@google.com>
-Content-Type: text/plain; charset="UTF-8"
+ <20241203005921.1119116-2-kevinloughlin@google.com>
+Content-Language: en-GB
+From: Andrew Cooper <andrew.cooper3@citrix.com>
+Autocrypt: addr=andrew.cooper3@citrix.com; keydata=
+ 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
+ 6+ahAA==
+In-Reply-To: <20241203005921.1119116-2-kevinloughlin@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-In line with WBINVD usage, add WBONINVD helper functions, accounting
-for kernels built with and without CONFIG_PARAVIRT_XXL.
+On 03/12/2024 12:59 am, Kevin Loughlin wrote:
+> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+> index d4eb9e1d61b8..c040af2d8eff 100644
+> --- a/arch/x86/include/asm/paravirt.h
+> +++ b/arch/x86/include/asm/paravirt.h
+> @@ -187,6 +187,13 @@ static __always_inline void wbinvd(void)
+>  	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ALT_NOT_XEN);
+>  }
+>  
+> +extern noinstr void pv_native_wbnoinvd(void);
+> +
+> +static __always_inline void wbnoinvd(void)
+> +{
+> +	PVOP_ALT_VCALL0(cpu.wbnoinvd, "wbnoinvd", ALT_NOT_XEN);
+> +}
 
-Signed-off-by: Kevin Loughlin <kevinloughlin@google.com>
----
- arch/x86/include/asm/paravirt.h       |  7 +++++++
- arch/x86/include/asm/paravirt_types.h |  1 +
- arch/x86/include/asm/smp.h            |  7 +++++++
- arch/x86/include/asm/special_insns.h  | 12 +++++++++++-
- arch/x86/kernel/paravirt.c            |  6 ++++++
- arch/x86/lib/cache-smp.c              | 12 ++++++++++++
- arch/x86/xen/enlighten_pv.c           |  1 +
- 7 files changed, 45 insertions(+), 1 deletion(-)
+Given this, ...
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index d4eb9e1d61b8..c040af2d8eff 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -187,6 +187,13 @@ static __always_inline void wbinvd(void)
- 	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ALT_NOT_XEN);
- }
- 
-+extern noinstr void pv_native_wbnoinvd(void);
-+
-+static __always_inline void wbnoinvd(void)
-+{
-+	PVOP_ALT_VCALL0(cpu.wbnoinvd, "wbnoinvd", ALT_NOT_XEN);
-+}
-+
- static inline u64 paravirt_read_msr(unsigned msr)
- {
- 	return PVOP_CALL1(u64, cpu.read_msr, msr);
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 8d4fbe1be489..9a3f38ad1958 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -87,6 +87,7 @@ struct pv_cpu_ops {
- #endif
- 
- 	void (*wbinvd)(void);
-+	void (*wbnoinvd)(void);
- 
- 	/* cpuid emulation, mostly so that caps bits can be disabled */
- 	void (*cpuid)(unsigned int *eax, unsigned int *ebx,
-diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
-index ca073f40698f..ecf93a243b83 100644
---- a/arch/x86/include/asm/smp.h
-+++ b/arch/x86/include/asm/smp.h
-@@ -112,6 +112,7 @@ void native_play_dead(void);
- void play_dead_common(void);
- void wbinvd_on_cpu(int cpu);
- int wbinvd_on_all_cpus(void);
-+int wbnoinvd_on_all_cpus(void);
- 
- void smp_kick_mwait_play_dead(void);
- 
-@@ -160,6 +161,12 @@ static inline int wbinvd_on_all_cpus(void)
- 	return 0;
- }
- 
-+static inline int wbnoinvd_on_all_cpus(void)
-+{
-+	wbnoinvd();
-+	return 0;
-+}
-+
- static inline struct cpumask *cpu_llc_shared_mask(int cpu)
- {
- 	return (struct cpumask *)cpumask_of(0);
-diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
-index aec6e2d3aa1d..c2d16ddcd79b 100644
---- a/arch/x86/include/asm/special_insns.h
-+++ b/arch/x86/include/asm/special_insns.h
-@@ -117,7 +117,12 @@ static inline void wrpkru(u32 pkru)
- 
- static __always_inline void native_wbinvd(void)
- {
--	asm volatile("wbinvd": : :"memory");
-+	asm volatile("wbinvd" : : : "memory");
-+}
-+
-+static __always_inline void native_wbnoinvd(void)
-+{
-+	asm volatile("wbnoinvd" : : : "memory");
- }
- 
- static inline unsigned long __read_cr4(void)
-@@ -173,6 +178,11 @@ static __always_inline void wbinvd(void)
- 	native_wbinvd();
- }
- 
-+static __always_inline void wbnoinvd(void)
-+{
-+	native_wbnoinvd();
-+}
-+
- #endif /* CONFIG_PARAVIRT_XXL */
- 
- static __always_inline void clflush(volatile void *__p)
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index fec381533555..a66b708d8a1e 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -121,6 +121,11 @@ noinstr void pv_native_wbinvd(void)
- 	native_wbinvd();
- }
- 
-+noinstr void pv_native_wbnoinvd(void)
-+{
-+	native_wbnoinvd();
-+}
-+
- static noinstr void pv_native_safe_halt(void)
- {
- 	native_safe_halt();
-@@ -149,6 +154,7 @@ struct paravirt_patch_template pv_ops = {
- 	.cpu.write_cr0		= native_write_cr0,
- 	.cpu.write_cr4		= native_write_cr4,
- 	.cpu.wbinvd		= pv_native_wbinvd,
-+	.cpu.wbnoinvd		= pv_native_wbnoinvd,
- 	.cpu.read_msr		= native_read_msr,
- 	.cpu.write_msr		= native_write_msr,
- 	.cpu.read_msr_safe	= native_read_msr_safe,
-diff --git a/arch/x86/lib/cache-smp.c b/arch/x86/lib/cache-smp.c
-index 7af743bd3b13..7ac5cca53031 100644
---- a/arch/x86/lib/cache-smp.c
-+++ b/arch/x86/lib/cache-smp.c
-@@ -20,3 +20,15 @@ int wbinvd_on_all_cpus(void)
- 	return 0;
- }
- EXPORT_SYMBOL(wbinvd_on_all_cpus);
-+
-+static void __wbnoinvd(void *dummy)
-+{
-+	wbnoinvd();
-+}
-+
-+int wbnoinvd_on_all_cpus(void)
-+{
-+	on_each_cpu(__wbnoinvd, NULL, 1);
-+	return 0;
-+}
-+EXPORT_SYMBOL(wbnoinvd_on_all_cpus);
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index d6818c6cafda..a5c76a6f8976 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1162,6 +1162,7 @@ static const typeof(pv_ops) xen_cpu_ops __initconst = {
- 		.write_cr4 = xen_write_cr4,
- 
- 		.wbinvd = pv_native_wbinvd,
-+		.wbnoinvd = pv_native_wbnoinvd,
- 
- 		.read_msr = xen_read_msr,
- 		.write_msr = xen_write_msr,
--- 
-2.47.0.338.g60cca15819-goog
+> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+> index fec381533555..a66b708d8a1e 100644
+> --- a/arch/x86/kernel/paravirt.c
+> +++ b/arch/x86/kernel/paravirt.c
+> @@ -149,6 +154,7 @@ struct paravirt_patch_template pv_ops = {
+>  	.cpu.write_cr0		= native_write_cr0,
+>  	.cpu.write_cr4		= native_write_cr4,
+>  	.cpu.wbinvd		= pv_native_wbinvd,
+> +	.cpu.wbnoinvd		= pv_native_wbnoinvd,
+>  	.cpu.read_msr		= native_read_msr,
+>  	.cpu.write_msr		= native_write_msr,
+>  	.cpu.read_msr_safe	= native_read_msr_safe,
 
+this, and ...
+
+> diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+> index d6818c6cafda..a5c76a6f8976 100644
+> --- a/arch/x86/xen/enlighten_pv.c
+> +++ b/arch/x86/xen/enlighten_pv.c
+> @@ -1162,6 +1162,7 @@ static const typeof(pv_ops) xen_cpu_ops __initconst = {
+>  		.write_cr4 = xen_write_cr4,
+>  
+>  		.wbinvd = pv_native_wbinvd,
+> +		.wbnoinvd = pv_native_wbnoinvd,
+>  
+>  		.read_msr = xen_read_msr,
+>  		.write_msr = xen_write_msr,
+
+this, what is the point having a paravirt hook which is wired to
+native_wbnoinvd() in all cases?
+
+That just seems like overhead for overhead sake.
+
+~Andrew
