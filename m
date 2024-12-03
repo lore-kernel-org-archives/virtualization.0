@@ -1,120 +1,109 @@
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7A331B85EB
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 07:31:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 316FA1A01B9
+	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 08:11:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733211077; cv=none; b=gTR7ZBtAgHYu4mfJhQNr7RZslT06IWijqG+zGdG6RoojSCL4ZCI6Hzjf/5c7PoxIVgWo2mnoucUACHV0LdtCm/cYywt39N48wnQda8jbVR/mbtlerJRhBs6pBsn/X3Pgbz28VOd4bUfnvQCKaMAw8gOa1Z4xRKZpjqd6B3hwDrw=
+	t=1733213492; cv=none; b=rYPziLsbxZToYwx2aJDY03KFmOu7NOBSUnvpe3hRUHH1Z4JfZA0tKpClRNwhFHhV8Bv3rcS1Q25vMjquOLsUCJrfDkj00RLd2nf3V4hrYX6gn/NKIk6ySryYoeRb1084P1sRyFwWZ1BelMbQu8Zl8cYiKgm5suJbRbB1iiFrrNs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733211077; c=relaxed/simple;
-	bh=Hk5ke9nzypkJaxk8bCoKEHSofdwMIA0X2l10CVp/tS8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h8/ZyxvIppFPKDw65aqwrHRc1OdYa9Gkn2UD701aw3RoViJlEMvEdlpsRRuG6LzRgT01vfeucvm2O10doytKWL//ODBRTWY+F14+JFTEjRnDEbSaCWvwuBYDiC9SxIhS/SbuSDe1yVGQNdYkP81ARsXE8q+AY+Jo9qcCPxw8r7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=Sual1XW9; arc=none smtp.client-ip=185.125.188.123
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	s=arc-20240116; t=1733213492; c=relaxed/simple;
+	bh=m5GhP1bzWZ9wJC300ZM+pNgqKcYbjarnymd9a0nvJz8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IWDQKnLWh3SzcNtI80tD8LPwS+D4v1LV4jE2F1HsfXZCHjN7n1UWmtfwhSEiHELm3KJdOpk4/2OQfcGFXbzdKv4JFemX6ZU2Klu9a/acH7orsc0XhpRZIaDpuA0XxKusD8qtRSEKOWX6I5nHhCJ2Fdrz4lB70T9AVplNhluWlyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=NJVWnyoh; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="Sual1XW9"
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com [209.85.210.198])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 4965340B01
-	for <virtualization@lists.linux.dev>; Tue,  3 Dec 2024 07:31:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1733211072;
-	bh=pP1rcV8yFT6KeAKHqqLHhUue0tX/F8YDnxUvKh8M2mo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version;
-	b=Sual1XW9VZaDPoADr+Z59NUqD4MCuqrdgobTZKXtFq+pRw34V1JGkKTa+cOrSWEzH
-	 3yp81bDvCrYb0d8mRXBsAPzF+ZXsqRBlc/m54xOsgTQrSrYIuUCeZ1ew9eyQGtOlR1
-	 f7ro3cRfW79HrkK3uD0KyvX+bZonYMvUqRd+ia6wjfNAaWUC8JBwSwteudwXFGHJYO
-	 7OwxxHxmdRd5nUGHpHzuJw/G8Xim+N/61l9OP4cSjLpg7adrt7XilXNq33AP8pQIEk
-	 2/lfwOK/ZAwhhl6cD993XEV0h9WMNRhnt2QrbAusc53bMMY8awze1z77i1l8E4iN/f
-	 4u8WFP6i1l+Qg==
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-724e2c587b1so4871277b3a.3
-        for <virtualization@lists.linux.dev>; Mon, 02 Dec 2024 23:31:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733211070; x=1733815870;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pP1rcV8yFT6KeAKHqqLHhUue0tX/F8YDnxUvKh8M2mo=;
-        b=qhkOIdcr2QDiLV43zoxaVbJXa2TmJ977iEAQlmCGolQ5ndfrDy9tKVIQMk4rZeMZNy
-         GcGMBuVIz2XR5d1n1lcR94dGe1sMYhPuY0rQEnY59ZG7is+4ziC/wU1uRmGNLxkpCLcb
-         3T1tmgvKoRu6z36OEEQu3AEUZksetp6iVX6Ats0VF4gCckf8fwOGqR6ho2gLZRu1gz7U
-         bap9OKmVesrIaSy+LNThfAGgrETloEIm8poQ1RC/cTvjwsZy09kx8CDjpCPHCbNQrcYC
-         Nxcwtggm/mI71psf3Vpax7HcX71rwgId12HGHxCpBdbD769MJdSnwqUIGCYfbFY3jk2U
-         8CXw==
-X-Gm-Message-State: AOJu0YwwTr/aYXhB/Q/d+lxXMiVyVe1wj1HX34biFMMAY86+Od0bzANx
-	81sFgTVtzXARY0oYml7lRiM2t1nblEg7GSCQzaLzhQaMnurpIQYYmiA7Cs1CbwcR0YId4urhXET
-	D4ETm+GjYnVd8jAEZTLlb8D8duCYq7O5GdOfqLp0RGO/aUq88P0hXtV0/Kr2b88CcVjwc8WlcDp
-	C7bkGutG0Kx1rI
-X-Gm-Gg: ASbGncu1NyETjL37Gcc3Cy0mjvOqlTDbwS8NRDKncN07e3ORlIOoSMgjVqvrdxkGNNN
-	FZPpb4M9oXasm1q9d11dgeoHd/Eps5AvJTo2Ub+aO4+W19Yzks+Bfiyr6fmQE6PuRktQbTkTka3
-	BCj5VasaekkgHo6ouZ2hPC4IsTbzM8YofP/0pj9Iuz/khAbgQjYjw+jx0wX8uU/oehpYP1ItGgP
-	9rNJzTqTnNOqhQxRlgDgjjALxdrhrk/iM5/MP0d5UwyES4d8EuSKUV44qzGG7gNx4D/
-X-Received: by 2002:a17:902:e88b:b0:215:6816:6333 with SMTP id d9443c01a7336-215bd1c4a4cmr18393825ad.15.1733211070587;
-        Mon, 02 Dec 2024 23:31:10 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEND0UzhbAQRYul9CwlhlE8NsG8OZop+RaB8RyNyzhSiQjfU17kWK9qXqZeOdr2+snjte5ZcQ==
-X-Received: by 2002:a17:902:e88b:b0:215:6816:6333 with SMTP id d9443c01a7336-215bd1c4a4cmr18393625ad.15.1733211070289;
-        Mon, 02 Dec 2024 23:31:10 -0800 (PST)
-Received: from localhost.localdomain ([240f:74:7be:1:b2b6:e8c2:50d0:c558])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21586d40afasm35735165ad.270.2024.12.02.23.31.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2024 23:31:10 -0800 (PST)
-From: Koichiro Den <koichiro.den@canonical.com>
-To: virtualization@lists.linux.dev
-Cc: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	jiri@resnulli.us,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH net-next v2 5/5] virtio_net: add missing netdev_tx_reset_queue to virtnet_sq_bind_xsk_pool()
-Date: Tue,  3 Dec 2024 16:30:25 +0900
-Message-ID: <20241203073025.67065-6-koichiro.den@canonical.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241203073025.67065-1-koichiro.den@canonical.com>
-References: <20241203073025.67065-1-koichiro.den@canonical.com>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="NJVWnyoh"
+Received: from [192.168.7.205] ([71.202.166.45])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 4B38AqJi322558
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Tue, 3 Dec 2024 00:10:52 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 4B38AqJi322558
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2024111601; t=1733213454;
+	bh=Gjt29Xyz+OZvO528TtflAd8fuc5YuSz5FuvYYAukkjY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=NJVWnyohYxxPHKawzE2PaIJShfBzSYY3l6rvK/K94gmRO32nSvFn5vdb/0lD1IN3W
+	 BLOprK8yii/5+vEloY+ObAHpkivASlubGMQyPO9LWvh/13JJD0BrhrnZeLdIZlE95S
+	 wB3UaFxWOBbWQ9U/7bLejiu7cPyPQ5tM1T+18KuIqrAdGjX+LiR6TJcCWCELXEIkBQ
+	 DN0CYc2ouYU4ThmU5gqBDG41+egL3BpPL8T22pdH3Tal8O0VMKQuFwwKSis8Tdx5mA
+	 zmgeFXrRsTjnWIuF9Jj5o1eVpGEUsAbDnSYWkC/2HqkJaFlpH3lNec8fWHlK/dkep/
+	 ABs6l+vOD/WlQ==
+Message-ID: <25fa8746-3b36-4d43-86cd-37aadaacdf2e@zytor.com>
+Date: Tue, 3 Dec 2024 00:10:46 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/2] x86, lib, xenpv: Add WBNOINVD helper functions
+To: Juergen Gross <jgross@suse.com>,
+        Kevin Loughlin
+ <kevinloughlin@google.com>,
+        Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: linux-kernel@vger.kernel.org, seanjc@google.com, pbonzini@redhat.com,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        kvm@vger.kernel.org, thomas.lendacky@amd.com, pgonda@google.com,
+        sidtelang@google.com, mizhang@google.com,
+        virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+        bcm-kernel-feedback-list@broadcom.com
+References: <20241203005921.1119116-1-kevinloughlin@google.com>
+ <20241203005921.1119116-2-kevinloughlin@google.com>
+ <a9560e97-478d-4e03-b936-cf6f663279a4@citrix.com>
+ <CAGdbjmLRA5g+Rgiq-fRbWaNqXK51+naNBi0b3goKxsN-79wpaw@mail.gmail.com>
+ <bc4a4095-d8bd-4d97-a623-be35ef81aad0@zytor.com>
+ <24b80006-dcea-4a76-b5c8-e147d9191ed2@suse.com>
+Content-Language: en-US
+From: Xin Li <xin@zytor.com>
+Autocrypt: addr=xin@zytor.com; keydata=
+ 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
+ l75w1xInsg==
+In-Reply-To: <24b80006-dcea-4a76-b5c8-e147d9191ed2@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-virtnet_sq_bind_xsk_pool() flushes tx skbs and then resets tx queue, so
-DQL counters need to be reset.
+On 12/2/2024 10:47 PM, Juergen Gross wrote:
+> P.S.: As the paravirt maintainer I would have preferred to be Cc-ed in the
+>        initial patch mail.
 
-Fixes: 21a4e3ce6dc7 ("virtio_net: xsk: bind/unbind xsk for tx")
-Signed-off-by: Koichiro Den <koichiro.den@canonical.com>
----
- drivers/net/virtio_net.c | 2 ++
- 1 file changed, 2 insertions(+)
+Looks that Kevin didn't run './scripts/get_maintainer.pl'?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d5240a03b7d6..27d58fb47b07 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5749,6 +5749,8 @@ static int virtnet_sq_bind_xsk_pool(struct virtnet_info *vi,
- 		netdev_err(vi->dev, "reset tx fail: tx queue index: %d err: %d\n", qindex, err);
- 		pool = NULL;
- 	}
-+	if (flushed)
-+		netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qindex));
- 
- 	sq->xsk_pool = pool;
- 
--- 
-2.43.0
-
+Thanks!
+     Xin
