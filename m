@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C18341BD51B
-	for <virtualization@lists.linux.dev>; Wed,  4 Dec 2024 12:55:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 501961BF804
+	for <virtualization@lists.linux.dev>; Wed,  4 Dec 2024 12:55:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733316905; cv=none; b=lqRi4UAiqKJCkek0ZU9UZphA1i+V4E56O5LxtVHVHgZxTlgEtVFBiebC7JKwNX9Vd8m44CZNreb+OcGvC65nZo2WRhZnbOWHs80IJZuOeGnq4TCwDiLccU4CGnSRVnarKPyhRB8xl3SFq8SgTg/XTgzxpDL+dNSaUpBW57cDpB8=
+	t=1733316907; cv=none; b=kGNdoiywilwePA8oI6+/QNTmakWdZknXwEg9jqvjkkPa5Bs8FrBh+FXa24nv4Zx00tRtLb+rlwD8+cBHy4s/jv7ZW9r/EmfDO4EmSvfJ+mFhq358lAAdZhW12ron4V+hb718aVO1wFK8+09OqfsKbLGD48H0UgVmORZvfLno9/U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733316905; c=relaxed/simple;
-	bh=BgMJzD3uvTJhEKjQ1/IdIeY2entK2KsTWNxYBemJ1qE=;
+	s=arc-20240116; t=1733316907; c=relaxed/simple;
+	bh=xNCoAGkL25Y87LMlQW3va8oiEgJuCLqo1bQEZDQgP2o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=LIHBd2qsmFrKokyJXeKQFEQCmFQoH/4X5XR+3gBj51uJNfABn0r+PklU2b17aZNoqLpWhqEtFBIUTRtgxnukSrWpleCLjC/GyNTRVzno36OckyPGq4qzqs394X2cbiWIc7dEnPruC2D6bynRRxLRHzbdNpT4fO2Df8JqQc/GsTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gdSp76W2; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:content-type; b=OEHEpHV4jmFkzX85vqyNKEXmv46AT4WVowyTnsUSAQDcd8L3/WdPE+l5Q4Ex41n8DIm5ycLttWYabzou7gXA0lac/IZrS4zq21JMCltwoAsTy5VcTHEyvwVe8tLRhEGR1TVsqCzXs8canAq8fYvh+k2u3zLrrXAfk/y/v22T9as=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IR8xXLF9; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gdSp76W2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IR8xXLF9"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733316902;
+	s=mimecast20190719; t=1733316905;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=WYRTkbcHet+ClCO8Q7Li/qxr/6/P0nWlLIIrfww7Knk=;
-	b=gdSp76W2fMZxWBw7IyXVva167tl5xVwilwJeCdz3Xpm3xFoa4T9RUV1ZjkKRye6UW5Oirs
-	XqN09QK0AiM+jmrF7IUcewXOil4TcYu5AlHcHq6WHGiUCHWdxERJITBQzyLSDjuVc1AP3j
-	Fj1duaBuMWbTU+ZDLsuqN4+jLpS8fB0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=9g+9cVRXvhHLgxGSqrQTBE7Bw6RR/sxdLnnaInZE9Y8=;
+	b=IR8xXLF9j2uAOJJhltO4g2RMp+AOj1N03h2OEbwOjDhHAWUMtLOa0b0SkTqf8rT0YpV+d+
+	6JVIO5kUcjvaDIbxIXWk94PUXmWNme5u6572cNQCLGQabRJbV/QIqmPTzENbbu7SgZtns7
+	ZlBaOgSDlOM2FoDbYJmgBzue31FGHP0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-192-kWGshhfdOUadgLU9PIpAnw-1; Wed, 04 Dec 2024 07:55:01 -0500
-X-MC-Unique: kWGshhfdOUadgLU9PIpAnw-1
-X-Mimecast-MFC-AGG-ID: kWGshhfdOUadgLU9PIpAnw
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43499c1342aso47971165e9.1
-        for <virtualization@lists.linux.dev>; Wed, 04 Dec 2024 04:55:01 -0800 (PST)
+ us-mta-270-qLli5878O_-iFzvO55q9Sg-1; Wed, 04 Dec 2024 07:55:01 -0500
+X-MC-Unique: qLli5878O_-iFzvO55q9Sg-1
+X-Mimecast-MFC-AGG-ID: qLli5878O_-iFzvO55q9Sg
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-434a90febb8so38583765e9.1
+        for <virtualization@lists.linux.dev>; Wed, 04 Dec 2024 04:55:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733316900; x=1733921700;
+        d=1e100.net; s=20230601; t=1733316899; x=1733921699;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=WYRTkbcHet+ClCO8Q7Li/qxr/6/P0nWlLIIrfww7Knk=;
-        b=Bn8sTtT9QciZjtMJWUk0woV5wax9fVgABq6oQezQ/+hmKJ/ip1DywWOSJ2bkeBZAoT
-         iWNHmmEkPV5iWIWpCjZK0ZV8GIAL/F41nBHenp/QTbDXGzvalr6XFyJVPiEhaXo5RHGB
-         YEjLEnnFCzNc3xMUAfbg3EzUqoy6KCHH6q0tl4EPqTheQKCy0WI+jQ6K0XieyXvwJ6iG
-         XV20O86V76OGI2Rhe4dV57KEJ1ibuA93zp11uK/oglnaPzuL5kMTcA4hyHRWlq+cfU1Z
-         930OZmYk67jJYJJ9UbjX+z0NXh5MmScFfsgUxDwKm9uYbTo6QvScQShW03nIYAYGc0U7
-         oVUw==
-X-Forwarded-Encrypted: i=1; AJvYcCUqY40jFb8s5p5PC6jPzWIsLSGX5r/wsgjs2GH+XeznA5sclHkikFz8hf7iOXlNgj0E4btO1Z8kUcRumFqw1g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyc9CBIS5wTMM3lUitOr3qH6ETKolseZiq+wy5kRVG5qo7RlT2x
-	N5J3+EchQpymPHEEK5DpGjW6Chxbl2BZMPSiPXwOgBmYlRsNY1wRjIuz1+mchuvsoAyQ13LBuEo
-	GMXPs/+hhRZ9jaZHjPA9e6AcjjmUV5I1lw5SEQeWpI1nL2ZQmVl4MOBprEikQh+0V
-X-Gm-Gg: ASbGncsBn5MwQyyHmv6/8O4F/Ra8GbDQM2Y0csRdEcfXF+73tALiGhrfqkPR2LGK1t0
-	1t0ueP4kCu2ZGAXaU8juzc+2/vjOW+ESD6vwOwKnKH9jE181wKR8lUpghBClOC7ipA1vL58BokW
-	2BHLmUdpeo+FgAjZDggpsk6LrSZTYX9eWec3OGoUcNJmdh5ZZf0GQCIACGFp6bHzKjPeSXbFmqn
-	A3K/MU0zb5Dpfx1Z7qFIKqaxXEAI51EGdMbXR2YI68Ysv91NBpEO/fFl2duRbdhL8myeReGESDO
-	q+EFVzYxqUppFvyZ3HrADmOf5K1YU4wEy4I=
-X-Received: by 2002:a5d:6c62:0:b0:385:f677:85af with SMTP id ffacd0b85a97d-385fd53ee5fmr5431760f8f.47.1733316900240;
-        Wed, 04 Dec 2024 04:55:00 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGkIZLfFS9dd4mzise8YhuqVkFTd47qC7aw9US3336mGUo5e0+UH/rIIT1Petk2to7fPbudFQ==
-X-Received: by 2002:a5d:6c62:0:b0:385:f677:85af with SMTP id ffacd0b85a97d-385fd53ee5fmr5431725f8f.47.1733316899810;
+        bh=9g+9cVRXvhHLgxGSqrQTBE7Bw6RR/sxdLnnaInZE9Y8=;
+        b=ttmnl2BYn57OrcJjxD28VmOywXlDT70YsnpNplxdkFAGIT409PAeLKwCJaW9sDMQ/l
+         Gw64jUc8BvFqJoqoPQQ9aMTzwtKzYKPdX4IBIXLHmBjmEvbZJFz6Bqv2HqDmVrJXMO9Q
+         RM87M33pbVFQS7p6/zbdZGxAjNsw+J6vA6DpkXw2UVQyKo6t/Y+HK1d0SBV9TcJqoBA3
+         L09aGX2Ceg7zcqSVLDOjKlEZbe+gi9UR2FKtQwuMJCRmUjYREdJlCYdD/t8zYs0aKS/M
+         cnq2w1UPPf9xMZYiM1ml7ZU1ht8cZmfcq33wBRmWuhGXijLeyQUt4Q3BaHYCEnUIVkj6
+         N5RA==
+X-Forwarded-Encrypted: i=1; AJvYcCWItrtMn5zncS9Sj1t1GmR3CxNw3sSPBUvQe1Hpo4V/NkJaGgeDy3Kn14QdHZs3/d8TjqUVynFxGG6hDGGj1w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyaeVod87aMiG4sccKl6I9QnklgefT838YdAKr+WqdKe2I9H5Di
+	B91lpOA+DGLrQhGIC1U0c9E0cLWcOWV1XIdGG0iy4AGjbAWhgHkyFGzZfOchJKgX2rv8sITcWI3
+	ewHjylU2Ne+iiVmu6vuLaJGIJYFC+HXGST9SNcD5cqumhHlUYGobi23Bt7y0z2sPf
+X-Gm-Gg: ASbGncsid+OJKKVpJ1bPL37M00F72LalfOTAwE9rlM7vulCl2fcMxM6z/u7dpOKQAbe
+	C2BfZA9kFvFHASmqiOS07swmBSq27VhYFCDOg8eaTaFh22buME8UtK3JGWqCdDMABIpLcTWXn/M
+	g89tuDtdBGybBZb6zFL8FzQPKqbjoNe1MV7QCbg0aBjblP5CWpuf3RESksaGyi1VGyVHRZnqbSI
+	RXH7hIprPDDxW0OSkY5KwUteSUNm1OibMm8KP3HNRwYBgUlnK9xwhL1IZhTl2hqAquwoKB+v+AE
+	gfQX+Jf6AQnMn4hw4Ho7nwAhrUYc4jiP4aU=
+X-Received: by 2002:a05:600c:a46:b0:434:9e17:18e5 with SMTP id 5b1f17b1804b1-434d3f015c9mr39711615e9.0.1733316899001;
         Wed, 04 Dec 2024 04:54:59 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHeFWcM8kn1L8FVMwX9bQLaSRcl3tsS9Ol6XIyBOc2az2VjBMSNXd7wAhtLStmYUmhz8yBnag==
+X-Received: by 2002:a05:600c:a46:b0:434:9e17:18e5 with SMTP id 5b1f17b1804b1-434d3f015c9mr39710705e9.0.1733316897137;
+        Wed, 04 Dec 2024 04:54:57 -0800 (PST)
 Received: from localhost (p200300cbc70be10038d68aa111b0a20a.dip0.t-ipconnect.de. [2003:cb:c70b:e100:38d6:8aa1:11b0:a20a])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-385ccd2e1bdsm18785865f8f.9.2024.12.04.04.54.57
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-434d52c0dc8sm23581375e9.27.2024.12.04.04.54.54
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Dec 2024 04:54:58 -0800 (PST)
+        Wed, 04 Dec 2024 04:54:55 -0800 (PST)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -91,9 +91,9 @@ Cc: linux-mm@kvack.org,
 	Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	Eric Farman <farman@linux.ibm.com>,
 	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v2 04/12] fs/proc/vmcore: prefix all pr_* with "vmcore:"
-Date: Wed,  4 Dec 2024 13:54:35 +0100
-Message-ID: <20241204125444.1734652-5-david@redhat.com>
+Subject: [PATCH v2 03/12] fs/proc/vmcore: disallow vmcore modifications while the vmcore is open
+Date: Wed,  4 Dec 2024 13:54:34 +0100
+Message-ID: <20241204125444.1734652-4-david@redhat.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20241204125444.1734652-1-david@redhat.com>
 References: <20241204125444.1734652-1-david@redhat.com>
@@ -104,41 +104,181 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: KNiYsKPNLCzzsTVojGAWsXlLZMZ4fUGiAJASIscnBgk_1733316900
+X-Mimecast-MFC-PROC-ID: 6j0nrhsY5a0KJuMmzOl66Mq6SWGKnqOjq3MrfzsuDXc_1733316899
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Let's use "vmcore: " as a prefix, converting the single "Kdump:
-vmcore not initialized" one to effectively be "vmcore: not initialized".
+The vmcoredd_update_size() call and its effects (size/offset changes) are
+currently completely unsynchronized, and will cause trouble when
+performed concurrently, or when done while someone is already reading the
+vmcore.
+
+Let's protect all vmcore modifications by the vmcore_mutex, disallow vmcore
+modifications while the vmcore is open, and warn on vmcore
+modifications after the vmcore was already opened once: modifications
+while the vmcore is open are unsafe, and modifications after the vmcore
+was opened indicates trouble. Properly synchronize against concurrent
+opening of the vmcore.
+
+No need to grab the mutex during mmap()/read(): after we opened the
+vmcore, modifications are impossible.
+
+It's worth noting that modifications after the vmcore was opened are
+completely unexpected, so failing if open, and warning if already opened
+(+closed again) is good enough.
+
+This change not only handles concurrent adding of device dumps +
+concurrent reading of the vmcore properly, it also prepares for other
+mechanisms that will modify the vmcore.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- fs/proc/vmcore.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/proc/vmcore.c | 57 +++++++++++++++++++++++++++++-------------------
+ 1 file changed, 34 insertions(+), 23 deletions(-)
 
 diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 16faabe5ea30..13dfc128d07e 100644
+index e5a7e302f91f..16faabe5ea30 100644
 --- a/fs/proc/vmcore.c
 +++ b/fs/proc/vmcore.c
-@@ -8,6 +8,8 @@
-  *
-  */
+@@ -68,6 +68,8 @@ DEFINE_STATIC_SRCU(vmcore_cb_srcu);
+ static LIST_HEAD(vmcore_cb_list);
+ /* Whether the vmcore has been opened once. */
+ static bool vmcore_opened;
++/* Whether the vmcore is currently open. */
++static unsigned int vmcore_open;
  
-+#define pr_fmt(fmt) "vmcore: " fmt
+ void register_vmcore_cb(struct vmcore_cb *cb)
+ {
+@@ -122,6 +124,20 @@ static int open_vmcore(struct inode *inode, struct file *file)
+ {
+ 	mutex_lock(&vmcore_mutex);
+ 	vmcore_opened = true;
++	if (vmcore_open + 1 == 0) {
++		mutex_unlock(&vmcore_mutex);
++		return -EBUSY;
++	}
++	vmcore_open++;
++	mutex_unlock(&vmcore_mutex);
 +
- #include <linux/mm.h>
- #include <linux/kcore.h>
- #include <linux/user.h>
-@@ -1580,7 +1582,7 @@ static int __init vmcore_init(void)
- 	rc = parse_crash_elf_headers();
- 	if (rc) {
- 		elfcorehdr_free(elfcorehdr_addr);
--		pr_warn("Kdump: vmcore not initialized\n");
-+		pr_warn("not initialized\n");
- 		return rc;
++	return 0;
++}
++
++static int release_vmcore(struct inode *inode, struct file *file)
++{
++	mutex_lock(&vmcore_mutex);
++	vmcore_open--;
+ 	mutex_unlock(&vmcore_mutex);
+ 
+ 	return 0;
+@@ -243,33 +259,27 @@ static int vmcoredd_copy_dumps(struct iov_iter *iter, u64 start, size_t size)
+ {
+ 	struct vmcoredd_node *dump;
+ 	u64 offset = 0;
+-	int ret = 0;
+ 	size_t tsz;
+ 	char *buf;
+ 
+-	mutex_lock(&vmcore_mutex);
+ 	list_for_each_entry(dump, &vmcoredd_list, list) {
+ 		if (start < offset + dump->size) {
+ 			tsz = min(offset + (u64)dump->size - start, (u64)size);
+ 			buf = dump->buf + start - offset;
+-			if (copy_to_iter(buf, tsz, iter) < tsz) {
+-				ret = -EFAULT;
+-				goto out_unlock;
+-			}
++			if (copy_to_iter(buf, tsz, iter) < tsz)
++				return -EFAULT;
+ 
+ 			size -= tsz;
+ 			start += tsz;
+ 
+ 			/* Leave now if buffer filled already */
+ 			if (!size)
+-				goto out_unlock;
++				return 0;
+ 		}
+ 		offset += dump->size;
  	}
- 	elfcorehdr_free(elfcorehdr_addr);
+ 
+-out_unlock:
+-	mutex_unlock(&vmcore_mutex);
+-	return ret;
++	return 0;
+ }
+ 
+ #ifdef CONFIG_MMU
+@@ -278,20 +288,16 @@ static int vmcoredd_mmap_dumps(struct vm_area_struct *vma, unsigned long dst,
+ {
+ 	struct vmcoredd_node *dump;
+ 	u64 offset = 0;
+-	int ret = 0;
+ 	size_t tsz;
+ 	char *buf;
+ 
+-	mutex_lock(&vmcore_mutex);
+ 	list_for_each_entry(dump, &vmcoredd_list, list) {
+ 		if (start < offset + dump->size) {
+ 			tsz = min(offset + (u64)dump->size - start, (u64)size);
+ 			buf = dump->buf + start - offset;
+ 			if (remap_vmalloc_range_partial(vma, dst, buf, 0,
+-							tsz)) {
+-				ret = -EFAULT;
+-				goto out_unlock;
+-			}
++							tsz))
++				return -EFAULT;
+ 
+ 			size -= tsz;
+ 			start += tsz;
+@@ -299,14 +305,12 @@ static int vmcoredd_mmap_dumps(struct vm_area_struct *vma, unsigned long dst,
+ 
+ 			/* Leave now if buffer filled already */
+ 			if (!size)
+-				goto out_unlock;
++				return 0;
+ 		}
+ 		offset += dump->size;
+ 	}
+ 
+-out_unlock:
+-	mutex_unlock(&vmcore_mutex);
+-	return ret;
++	return 0;
+ }
+ #endif /* CONFIG_MMU */
+ #endif /* CONFIG_PROC_VMCORE_DEVICE_DUMP */
+@@ -691,6 +695,7 @@ static int mmap_vmcore(struct file *file, struct vm_area_struct *vma)
+ 
+ static const struct proc_ops vmcore_proc_ops = {
+ 	.proc_open	= open_vmcore,
++	.proc_release	= release_vmcore,
+ 	.proc_read_iter	= read_vmcore,
+ 	.proc_lseek	= default_llseek,
+ 	.proc_mmap	= mmap_vmcore,
+@@ -1516,12 +1521,18 @@ int vmcore_add_device_dump(struct vmcoredd_data *data)
+ 	dump->buf = buf;
+ 	dump->size = data_size;
+ 
+-	/* Add the dump to driver sysfs list */
++	/* Add the dump to driver sysfs list and update the elfcore hdr */
+ 	mutex_lock(&vmcore_mutex);
+-	list_add_tail(&dump->list, &vmcoredd_list);
+-	mutex_unlock(&vmcore_mutex);
++	if (vmcore_opened)
++		pr_warn_once("Unexpected adding of device dump\n");
++	if (vmcore_open) {
++		ret = -EBUSY;
++		goto out_err;
++	}
+ 
++	list_add_tail(&dump->list, &vmcoredd_list);
+ 	vmcoredd_update_size(data_size);
++	mutex_unlock(&vmcore_mutex);
+ 	return 0;
+ 
+ out_err:
 -- 
 2.47.1
 
