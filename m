@@ -1,203 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F67A20C019
-	for <virtualization@lists.linux.dev>; Wed,  4 Dec 2024 12:55:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAE7F1F7589
+	for <virtualization@lists.linux.dev>; Wed,  4 Dec 2024 14:10:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733316931; cv=none; b=bsNb6VQNI5SNb9NHh7FSwMCMIyC/qxj+Xw8++LZAYhOlrG1dBsHcexHX7xYQEFK+aXBZx8axQEvuDMoGzNKm+3gMZCNrxR/sZeOkB29mbeqP6OhxmBe+8pqyLHmbW1EBNPn/mcPfT59qk5E4W3hvVGnBypr0ZwpBpA9OFhJyfSk=
+	t=1733321408; cv=none; b=T+sOBSXhJIb8m5nBLrVf7ccx09uiEoVsqQTEa0CESmBrYzj4XwFCXJzBv9YHP3A5epU3YRWfhZeG3tu7ReEAxRtvzq3osaTGEBXzkWlADelfMDZIYlSbullja03zD+yTWk33/0AV/nW2QxAax92cqe9Wb+/7cnk6o7uNv1b5U3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733316931; c=relaxed/simple;
-	bh=uRjaOZTjHUvybJWAv9vGsJi33hCxx6hpGz/B8OQ605Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=fR4YR8mHeF1qe2ciRZqeVtwrTT5FBB2mNaPE+hR5yuw0m1Aj1aOYocw0nWcbhdfbf2ZDWuy2tZEKn9CgF28xAsnnOS5Fwu6WgaNVMlnwTLGP/+15z1pSNE53zcQmckQO6RtnMgqRxQbST1gcb462vbZtQCRPyi9JoZEXFTGT/To=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HVHNXWLg; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1733321408; c=relaxed/simple;
+	bh=uxvU4fSRyWue5vxc3QNX7F/+NrrOhVfNfqhWAGT2lK4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=B/JcVs9gVAklyrtNiyA76Rz7L40cfgRnsdoC+Q0UcX9TAmts1fH9/c2lCOeAMYK3hsx724OEXrBz/5qi/lmBjBx2zayiq6aDrwWCo+08hcpc5DtksnxiwM6IRr9Czjmt27LSMTVPrGI5UzEgGcBXfJY3BmIBYNQVzOlR7MH3lWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KDYOZqrC; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HVHNXWLg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733316928;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QMLpjiP43p31BywTFNffjh3NzCBHssnVGTYWU2BwGcs=;
-	b=HVHNXWLg28CUVSBTgso70CcMvkUKmVgDFMOSKArAG01ljUYnAhe9JG7XQP4nALYWKnekD6
-	Ub5p8xdxbV00XAwvioBWZ0PWtkKJSiq9/54mAMtL9x3zLgeyHJRKE2qWaWKWLTE5rElE3U
-	hnC47l+FWqfZd2hTVWNZLut369qnWmE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-692-GRoL1jXzMwuF-nwy3pjE_w-1; Wed, 04 Dec 2024 07:55:25 -0500
-X-MC-Unique: GRoL1jXzMwuF-nwy3pjE_w-1
-X-Mimecast-MFC-AGG-ID: GRoL1jXzMwuF-nwy3pjE_w
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-434a37a57dfso55382425e9.0
-        for <virtualization@lists.linux.dev>; Wed, 04 Dec 2024 04:55:25 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KDYOZqrC"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-385deda28b3so3443245f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 04 Dec 2024 06:10:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733321405; x=1733926205; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=mrFMLc/jdh5p8JybRnIahA1b8Q2rxGK6wJh2KFAKrwU=;
+        b=KDYOZqrCHdw3Fe+QgLvLmpbhkMke6FiTZ6Ldi2LvNsdgecaVGC3Qc4Grwby0Geetlb
+         d07+RRNouTr7ZyHT0qYpl2QKasZCIUEDO0Lizqpf90ADOgKJOTaOtCDtf6OiBQpIgENb
+         UFkiKQ0CeR2lp4AlZG3h3TpjGcY4aWYSCAaP8kgUST+zL7mPE48lZ2mA69JBw2Y5e3Tr
+         rtIzV3ddGz2Pj9u26uRSWAHKbMA7aZ+8k+ItkM8mf3yt4QRJKtfCNn4yo+T4aq1JCO1R
+         O+o5rqEh/AtbaKMZ3PBLV0FqvnneJDB4TVqSUlYZqVEdAjxfW1eVNnb9q+5voWXsLAEu
+         9hSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733316924; x=1733921724;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QMLpjiP43p31BywTFNffjh3NzCBHssnVGTYWU2BwGcs=;
-        b=Nn8zEwGZjrlHc2+TmeFanzMKqQ7L6zifbDPfBKpXrz6jEHlvklA9QoLMnaawNYEGdD
-         JnkRDOsFkIZtvn/74AY55/FzaGa/zElNeYtQf/LM0qAmg1+uU06iLaLZEzxvoiLVuslM
-         iv1KlCCgvOUoOwrRS1dYqpEwC3P3N2wMlItsl/wIVgNctMMsKVCZycPmdTeszo5Gid6t
-         QkEm8MvJrWJMkdRtuVsf7TqiJ3AgMv9Jb4y2Mg3UMVrRIksuzy//cjAPXCh1ySM37f2l
-         3gOR5YluO957sxZeSC4pmaU+K2YyHEx0IOqv/SaHcoUIUpvyvhSntRnRBu9aJmQf6NpW
-         g0oQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUNpmBFc7uiHS4WuRCvQE1v3T+PFYvMKnAUo40S8mhzrzu2mMAIC4Y+9AWMyXAirKwhpiF9ZFPFk0qEQQHdgQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yywy+mIZ1O6ezb3rSXBh5h5UazUMYCwOxrEP0u+RHcdmMDQQaEF
-	fImegW/jYQiLEyIwhNd733lpYUPDIjdSTbN7aI0EY1QqGt5r7ggWjihqUKL3/sfNnxQNSwlJd4d
-	8XqHpOjTwWTotzivIhvgpbEqauZbpzzsVIbeyphrTSiKdmkcxJt49EWby8UPPEfKZuF1Cq0OrVe
-	o=
-X-Gm-Gg: ASbGncsk7Da0cx7dI31RS3otV08XIYqJbiuxqkXFy5f3DgC2tq7ekY5Ep8efV3JEs50
-	eVH5Z62CjDxVVxEsR5j4ixUEP4O+rvrXWsmjr2eM/+Cc7VsXonRXvBLD54wvQEb0um9hEhXUyZN
-	S2rBS4apHRqYtrZIAJqBLciFyndoIkz/aVBpn5Qoyb+NHhu9HvbdlVGaYVwmNDyEuiq1C0+CkDA
-	4qAe2Uu4upq/lbWNpLykIHM9Jw/oydRJYFnWHQ6sE4QTDbNNPIt2MZTRnkqQ4htQ6hyZ2spcuBj
-	3gZhol/BJGKExY7a4mGColM6FX88iL1TU+M=
-X-Received: by 2002:a05:600c:1910:b0:434:a962:2aa2 with SMTP id 5b1f17b1804b1-434d0a178d4mr49286445e9.33.1733316924449;
-        Wed, 04 Dec 2024 04:55:24 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFFzA2SYKI5zve6AhLcTcIqYEQR+M/xeFfejA5VMHPdifDyO5ycBtXVIAK8EC4IQe7u0N0Ewg==
-X-Received: by 2002:a05:600c:1910:b0:434:a962:2aa2 with SMTP id 5b1f17b1804b1-434d0a178d4mr49286335e9.33.1733316924087;
-        Wed, 04 Dec 2024 04:55:24 -0800 (PST)
-Received: from localhost (p200300cbc70be10038d68aa111b0a20a.dip0.t-ipconnect.de. [2003:cb:c70b:e100:38d6:8aa1:11b0:a20a])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-434d52c0bc7sm23531055e9.35.2024.12.04.04.55.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Dec 2024 04:55:22 -0800 (PST)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org,
-	linux-s390@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	kexec@lists.infradead.org,
-	David Hildenbrand <david@redhat.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Baoquan He <bhe@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Dave Young <dyoung@redhat.com>,
-	Thomas Huth <thuth@redhat.com>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v2 12/12] s390/kdump: virtio-mem kdump support (CONFIG_PROC_VMCORE_DEVICE_RAM)
-Date: Wed,  4 Dec 2024 13:54:43 +0100
-Message-ID: <20241204125444.1734652-13-david@redhat.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20241204125444.1734652-1-david@redhat.com>
-References: <20241204125444.1734652-1-david@redhat.com>
+        d=1e100.net; s=20230601; t=1733321405; x=1733926205;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mrFMLc/jdh5p8JybRnIahA1b8Q2rxGK6wJh2KFAKrwU=;
+        b=niDgvw4iolzKgPxLn1qjKVgdSuGTwxRy7/f+y4lVlUy78fTw3damiXkx4cfXRPFYiI
+         CRME544Z2X1S+IFcjRXyBhHHj8G0T77dUz8T2J9RphKPqUN2L9tl2KsM9zckT0ZcaIiM
+         6wWvLhFcr/acxHgK2xo9T9L4RquJmBhrj6ug6gygVYLBelZhvpmULm11FrYyY08DRH9V
+         eaWrvOsaDfWQA4KbITL0d9IfkBSMWx1t+4JGmohltCT5Vg8TExWxudCZw6qu2n1QZ3Ga
+         UCIsW6T9qDt82Q8erPWcFJC0+c/731AUO9Eoc5sOKdhUSuy7sCZgCDnFHin2mSuhkOF7
+         fvgw==
+X-Forwarded-Encrypted: i=1; AJvYcCWChCp+Ast9FnByIdb0GXcigAqZ4IJYAu67TSnGJMokLW6WXFcyTAzvCW2EvkjM3AzvMZsO8Ypw86srPb0Q2Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzPSHgc8Ga3IyqA82yMtfY+MHz9TiH2g4ydb3asIMEFHOEqXsN+
+	kDzTQnG7HZNEFqBON8Fx9FRGgASb1KNqRZ59iR76ojJC/UY0ScYJ
+X-Gm-Gg: ASbGncu4QTdeqcS7DLKFg6JNApdASfewfPayRnqUb3+DTAb8gi2So4SCKgoS1FKfV1h
+	FXe8s1gSDsq53sUxFlqw2lw8vmuQySkgge9ans53fP6U+yOJ2dPS7ydIDBP3PiNA3ptQScfHpom
+	3MvPf3vuC37nobJb3HJCeu65ZoWKmZc/T2Is7JL7HvOJqjtb2IQc1gGbIgJGjSx41PBrN90LQEM
+	4a4DwJnLYh5FxLdK5tJKCpYtU/dwigyuI3YFSmr7N8Z/nsDOmS3Jz9S3KTx/kV8ROWbFsiKJ+F0
+	OouBE4iJsvJSoWr1zmydZJ0/yrJbdxeaTSQR
+X-Google-Smtp-Source: AGHT+IG17qKjHP7hajsb1NqDKGf26pPgtY+u2y2Irx0Mpfq+Bk5d1g+9CG/Zi2mBLwUCzK6vQKtkSA==
+X-Received: by 2002:a5d:598c:0:b0:385:ea2b:12cc with SMTP id ffacd0b85a97d-385fd3e779bmr6188036f8f.13.1733321404995;
+        Wed, 04 Dec 2024 06:10:04 -0800 (PST)
+Received: from orome (p200300e41f281900f22f74fffe1f3a53.dip0.t-ipconnect.de. [2003:e4:1f28:1900:f22f:74ff:fe1f:3a53])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-434d527257dsm26885385e9.1.2024.12.04.06.10.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Dec 2024 06:10:04 -0800 (PST)
+Date: Wed, 4 Dec 2024 15:10:02 +0100
+From: Thierry Reding <thierry.reding@gmail.com>
+To: Gax-c <zichenxie0106@gmail.com>
+Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org, 
+	tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch, mperttunen@nvidia.com, 
+	jonathanh@nvidia.com, kraxel@redhat.com, gurchetansingh@chromium.org, 
+	olvaffe@gmail.com, matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com, 
+	mst@redhat.com, airlied@redhat.com, dri-devel@lists.freedesktop.org, 
+	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH] drm: cast calculation to __u64 to fix potential integer
+ overflow
+Message-ID: <xlmfl2rhjgczu6oycgogchqi2gc65w7s3qy33yxzsrf6mbri3q@7onulkroaa7z>
+References: <20241203160159.8129-1-zichenxie0106@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XI9Pohf8tsGr4PbiGupqSanfvUKFr3ak7Tg76_fvKow_1733316924
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="magv3qwbnz55o6h7"
+Content-Disposition: inline
+In-Reply-To: <20241203160159.8129-1-zichenxie0106@gmail.com>
 
-Let's add support for including virtio-mem device RAM in the crash dump,
-setting NEED_PROC_VMCORE_DEVICE_RAM, and implementing
-elfcorehdr_fill_device_ram_ptload_elf64().
 
-To avoid code duplication, factor out the code to fill a PT_LOAD entry.
+--magv3qwbnz55o6h7
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] drm: cast calculation to __u64 to fix potential integer
+ overflow
+MIME-Version: 1.0
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/Kconfig             |  1 +
- arch/s390/kernel/crash_dump.c | 39 ++++++++++++++++++++++++++++-------
- 2 files changed, 32 insertions(+), 8 deletions(-)
+On Tue, Dec 03, 2024 at 10:02:00AM -0600, Gax-c wrote:
+> From: Zichen Xie <zichenxie0106@gmail.com>
+>=20
+> Like commit b0b0d811eac6 ("drm/mediatek: Fix coverity issue with
+> unintentional integer overflow"), directly multiply pitch and
+> height may lead to integer overflow. Add a cast to avoid it.
+>=20
+> Fixes: 6d1782919dc9 ("drm/cma: Introduce drm_gem_cma_dumb_create_internal=
+()")
+> Fixes: dc5698e80cf7 ("Add virtio gpu driver.")
+> Fixes: dc6057ecb39e ("drm/tegra: gem: dumb: pitch and size are outputs")
+> Signed-off-by: Zichen Xie <zichenxie0106@gmail.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/gpu/drm/drm_gem_dma_helper.c | 6 +++---
+>  drivers/gpu/drm/tegra/gem.c          | 2 +-
+>  drivers/gpu/drm/virtio/virtgpu_gem.c | 2 +-
+>  3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 0077969170e8..c230bad7f5cc 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -240,6 +240,7 @@ config S390
- 	select MODULES_USE_ELF_RELA
- 	select NEED_DMA_MAP_STATE	if PCI
- 	select NEED_PER_CPU_EMBED_FIRST_CHUNK
-+	select NEED_PROC_VMCORE_DEVICE_RAM if PROC_VMCORE
- 	select NEED_SG_DMA_LENGTH	if PCI
- 	select OLD_SIGACTION
- 	select OLD_SIGSUSPEND3
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index cd0c93a8fb8b..f699df2a2b11 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -508,6 +508,19 @@ static int get_mem_chunk_cnt(void)
- 	return cnt;
- }
- 
-+static void fill_ptload(Elf64_Phdr *phdr, unsigned long paddr,
-+		unsigned long vaddr, unsigned long size)
-+{
-+	phdr->p_type = PT_LOAD;
-+	phdr->p_vaddr = vaddr;
-+	phdr->p_offset = paddr;
-+	phdr->p_paddr = paddr;
-+	phdr->p_filesz = size;
-+	phdr->p_memsz = size;
-+	phdr->p_flags = PF_R | PF_W | PF_X;
-+	phdr->p_align = PAGE_SIZE;
-+}
-+
- /*
-  * Initialize ELF loads (new kernel)
-  */
-@@ -520,14 +533,8 @@ static void loads_init(Elf64_Phdr *phdr, bool os_info_has_vm)
- 	if (os_info_has_vm)
- 		old_identity_base = os_info_old_value(OS_INFO_IDENTITY_BASE);
- 	for_each_physmem_range(idx, &oldmem_type, &start, &end) {
--		phdr->p_type = PT_LOAD;
--		phdr->p_vaddr = old_identity_base + start;
--		phdr->p_offset = start;
--		phdr->p_paddr = start;
--		phdr->p_filesz = end - start;
--		phdr->p_memsz = end - start;
--		phdr->p_flags = PF_R | PF_W | PF_X;
--		phdr->p_align = PAGE_SIZE;
-+		fill_ptload(phdr, start, old_identity_base + start,
-+			    end - start);
- 		phdr++;
- 	}
- }
-@@ -537,6 +544,22 @@ static bool os_info_has_vm(void)
- 	return os_info_old_value(OS_INFO_KASLR_OFFSET);
- }
- 
-+#ifdef CONFIG_PROC_VMCORE_DEVICE_RAM
-+/*
-+ * Fill PT_LOAD for a physical memory range owned by a device and detected by
-+ * its device driver.
-+ */
-+void elfcorehdr_fill_device_ram_ptload_elf64(Elf64_Phdr *phdr,
-+		unsigned long long paddr, unsigned long long size)
-+{
-+	unsigned long old_identity_base = 0;
-+
-+	if (os_info_has_vm())
-+		old_identity_base = os_info_old_value(OS_INFO_IDENTITY_BASE);
-+	fill_ptload(phdr, paddr, old_identity_base + paddr, size);
-+}
-+#endif
-+
- /*
-  * Prepare PT_LOAD type program header for kernel image region
-  */
--- 
-2.47.1
+I don't think this can ever happen. All of these functions should only
+ever be called via drm_mode_create_dumb(), which already ensures that
+these won't overflow.
 
+Thierry
+
+--magv3qwbnz55o6h7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmdQYrcACgkQ3SOs138+
+s6HXsxAAtQJlAEOMdgNNQBcnlKziuLGEV6eDn2I2ZMbyfdflAwfxU1IZem8HHolu
+Uf8rl4/XAETFBzeMup8SZ+DvspOCUSQY6kf8Dh+25/5NDTEf50vjBA/TXcws/ced
+6pRImbXzulFvz7kEm/fOaTXdk9w7mKnNDpFj86FUBcuz5kIQm1Qo4uhEYZRR9BSs
+C5c6m77m/4N3Iw7mkJoKW1U0jDJpfgw/iCdUpZrNh2buoKaRhe3WasizYdpXcbIn
+ImHPVPKV7MUgLrlYjdqOlxninIKhRMB9n5hcbvHD2YQcv9Y3pj1XA9YzXu3+4pir
+Sq6HLJFoHy+vmeLdTJZsMEljM25tBtkXkIUVEiWUb4BTbjJHLikCT4IYvfm9wByx
+OKCLKtdAiKyC1mh3aswnmeHb9tHBTt2Zj++nl2u/oUJyUncmBeboX7Wh+C9aCWF3
+cjT8OzvzTFX0bTLWyO9n0hwM9n84di0kuVmN8Bm7erXZcFAQyJfQpVB8lqiXokYA
+iw+IZX7DQQ8oKnxYpXy+V+gxSD19e4fed6jzgGpn7s+JYRuH1SiBSA4iaIQ8OCze
+7FPuGM5WT1d92OgNUU+jC3gjM58QHwLiEFhJgV2Oj6/sOi5fs1JY9uGKlMbxynlF
+PQm2NJU7k9lZXI2hxYRY6AmtikgF4NSYiz5zgglZvHpLoeLItpo=
+=dkp1
+-----END PGP SIGNATURE-----
+
+--magv3qwbnz55o6h7--
