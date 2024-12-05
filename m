@@ -1,67 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5D9A218AC2
-	for <virtualization@lists.linux.dev>; Thu,  5 Dec 2024 15:14:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BB8B1DB346
+	for <virtualization@lists.linux.dev>; Thu,  5 Dec 2024 15:18:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733411670; cv=none; b=mB7vJEc/iiJ0sziKmlXQt0VNvNGv4nu7yXpEv59SOdgTNxRbKV1KUfJKW0tKBpUkhERqxzu5yoNVFOo7icdkyqGU8tU2WCTOqq8ooFx2d2eG5IM/vRtIMpbc4nME5tyM/p9VKurGbpVAm/VlurQZENRvzZDjqhoHbe7TvHIxsP0=
+	t=1733411889; cv=none; b=QOGgfPqiwrxia/JjY/uLbJlfYQidSW6i5nmyfYpsl0Z/V43wwapiUcHCjgoxaKBfP3G9zh3LdgpV4X8PPTASiJVCJoIyNbvgL/vtIFDEuB0idn2rjd751Wq2SPb9Qm4voffFqsehEHNW11ygy17OzCZRYrQrpqGr2/eaXbrXxdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733411670; c=relaxed/simple;
-	bh=7qfp1k43H9fVwZssZV48w2s2pgARIgGzmBQHqyjuHyg=;
+	s=arc-20240116; t=1733411889; c=relaxed/simple;
+	bh=ubhbPtzBn8syqYBtLvmidYf4WZHhwRkbUJb61pjNjr0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=JCoj5YUwCRePzaCnl40NXP4f5TKzTbxdbGN+wnci0rxXojZP7lwuUO5C8wy12l57qRF1YcMhUbpwqXjahnWVifSwmtqZzhDVeJ3sehXRQLfUCYyyMNq7pPkGzUnIgxINJUaig2Qi1SW4J2texm1go2A6QgBTvXmBELdXngdEqos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ivpA0Ove; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=SN9O0I3eTsdDDvptpnu+yZoiiNUtIOurZAHWgI7Ls2smAvPormTLwZQTf4/VyiawzulJNhWd8ydYdQgo9qFoPsw4AAlQm0MMXVbqt/z4G0B9NWiRItd5/Z5mqHt9z1fRJRUt3/tFzLofAqxHBJaA857n5Vi2HMwV16cQkr4Cksk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GmN9FxfQ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ivpA0Ove"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GmN9FxfQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733411667;
+	s=mimecast20190719; t=1733411886;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=yZeKHaiPUwdz1Uez2rF+6KJO4fqDMNiUK6EU+5R9bYY=;
-	b=ivpA0OveGsP8ul+5Qu1rFneySdCMbGrqvdTvktgDGiLTvcZmsM80aXNGA0Rfe9wsaj37pt
-	Fnsz5FfN39gX2BUYp396mJiDYtrbepLA+Ox84NorpslDxnAYziobWdZhYA0c/G85UfXgIV
-	Di3EJ3RGwpJzvo4tQWv23fvjE6BD+V8=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=JdSji3NGlMnQ1jXsJVZOGl9L1qIEshri+ASXsE86GnI=;
+	b=GmN9FxfQm1JfosRvoSDYZcB9VG1jayfOd1ZhqgCPiHpsentq1NtgK6u0e7ha3rkkbheUwF
+	82/wBOoV9R/uhK1gXELoJskaYJwaR/QuKPMUrgA79kUz2ZD4MzN2qh2rpLAZpXqqcFLc2x
+	HGWvHdr6I1dhDPJlA86e9hkleX9zSEQ=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-691-8Q7f9u19M2avnrTbdM5lKw-1; Thu, 05 Dec 2024 10:14:26 -0500
-X-MC-Unique: 8Q7f9u19M2avnrTbdM5lKw-1
-X-Mimecast-MFC-AGG-ID: 8Q7f9u19M2avnrTbdM5lKw
-Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-5d2b712fe08so403994a12.3
-        for <virtualization@lists.linux.dev>; Thu, 05 Dec 2024 07:14:26 -0800 (PST)
+ us-mta-358-clhONybmPLiibSZ_lbu0PQ-1; Thu, 05 Dec 2024 10:18:05 -0500
+X-MC-Unique: clhONybmPLiibSZ_lbu0PQ-1
+X-Mimecast-MFC-AGG-ID: clhONybmPLiibSZ_lbu0PQ
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-381d0582ad3so891838f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 05 Dec 2024 07:18:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733411665; x=1734016465;
+        d=1e100.net; s=20230601; t=1733411884; x=1734016684;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yZeKHaiPUwdz1Uez2rF+6KJO4fqDMNiUK6EU+5R9bYY=;
-        b=lF5CLdaRS3rPriALGMUAgwWMKuONVy5j0yUWUSmXQel1QfWz+SIsPfKtWh+ZnVQ6zz
-         Xd8w95DQFqMYFKvsPB1vd4jip12wzhZ61RVjdbnETnOIcNnXzH3ihiTV3qLYrzyyIitI
-         L3XyLXMuo9wMMbYGBwZ7qn9j0uchSfXP0/ie/lmbkfa1R57sqe2py6QkaR2mu617kGen
-         caB8ZNlp0NCdE2O/XY/YtlXRicj6kS1aWh3ab8dvpx/AXe89ff3dv/seJgw6JxQFONvA
-         6Q8X+RlpSiKe62m8VkstdTbq961KMOrzKgKvxuYL5PNwV4SAnrYAEX++P81juYG0mqXU
-         McKw==
-X-Gm-Message-State: AOJu0YyOU7NzVADt53X8/i/0XKWhPN2W9OA44n1LuOQIN1vJ2ZGZpiHJ
-	4t9ap5S4ckdzqCnL39Dxk+l52124laF5D6QTbdgtZUTxaATNlDltvut3H7TxsVvE952uUXOCexG
-	pd0w+Hw9Q/CNCtRY3cemG1Ag0XD3fiY1xNEisvhULZNqtu9CqII3SIpsHuBKIEJc2
-X-Gm-Gg: ASbGncvuZjFg1Csqful3n2hINl6s+C73MzQbReR/j00T++rczwajwJ1uugl7DJcgSsR
-	5iNqvvXLJGjSda8abc7NK+Hqxz+eTyEJndsh9ButmNspQ+3P2BguXkUiAAETvihGUlqzsDuAhGj
-	lOCc1YQkytALAXTK3ILBWwNUaIUGmtWhM6+E44W8Wrd8s+Zt/TGOwwhj0TmJEvg2/JfUaYnCCoX
-	m5d7k8knDwS3AkIHkwfMh/bY84t2aByp80X7Kw=
-X-Received: by 2002:a17:907:da6:b0:aa4:a3be:28dd with SMTP id a640c23a62f3a-aa5f7f2ac81mr1129713366b.55.1733411665184;
-        Thu, 05 Dec 2024 07:14:25 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFSaGMrvT1KxkOVkf0k5RNkdCEfFTYsGnhtOTkVXAHsDKc3mjlQMnj61cXOR/TqS7hnkMPHpQ==
-X-Received: by 2002:a17:907:da6:b0:aa4:a3be:28dd with SMTP id a640c23a62f3a-aa5f7f2ac81mr1129707566b.55.1733411664680;
-        Thu, 05 Dec 2024 07:14:24 -0800 (PST)
+        bh=JdSji3NGlMnQ1jXsJVZOGl9L1qIEshri+ASXsE86GnI=;
+        b=VAMf9YfJUwOpBn4DBYOxqtqb1C6H052XCnHhU/7rfdm/Ycc+ufCvKWWYDPJzit6MkU
+         lv1L2FzQEEwDSnmEKWwCOjutZn0t86mp+QWrZaftie3nnCFHQuP+BOt/ZUrh0GUbY3Ba
+         Qpr5YjX12x70/wZC4DKZMjGteakY4wv8ldhh8GcudTrXv/1xAHdfappAzyh8TENpM1hD
+         oIyFVtGw72bJIyPGglPmDOih+Qcil7QudHhpmdVe0eJLoVT17QfSPBDPerz3pjr6dNqf
+         Ndx2wOq87LAEUkJT35zFYSDNtsirxYEtCuyKLlvVx7adCL4vl0Fw4Kiun04DETTRCwA7
+         IAIg==
+X-Gm-Message-State: AOJu0Yx9SqGMCfy1qIOZYHCa6KlO4OfWvOSfSnaw9Rs/+E1PfJ1K/eOq
+	suc0G+JADVoa4MNK8+YpaPoV4mVPAyNrUA+2bQ+YnnDD5Nz39TGAGk9TG9oDxKurLGIihBvnpR0
+	jQS04FgDVr1MhonslaZu5/L+DwmVv4n5N2X1tKXidejXeM5Yx6fjNQCZ3X1Fv0q30
+X-Gm-Gg: ASbGncvcYlmepPA35YVefCPJXVuF+8aXa4hnNLbB3h0tmjg+rCmKYoZ0Hhk8Zqg8chq
+	MA5PChtjbySA3yRBxeb8dnFF16RRPyd2OOPQoFuVbqmnxlTKkYXGYdIMFGlaeeMPuiYSxDBXws1
+	EBoRhnnF9VD9ZHwsoDMtBf4rOrYwJ9E6blWNnE4rIIAD+P4ngmeHOb10mf2lFf5xuxJ61XifWbx
+	P7qpR3jmh2X6eU5mB6KqltFb9Vjobpka0+e/hk=
+X-Received: by 2002:a5d:6d03:0:b0:37d:4833:38f5 with SMTP id ffacd0b85a97d-385fd3f2c0emr10797893f8f.30.1733411883948;
+        Thu, 05 Dec 2024 07:18:03 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGYWGJEpkIfFGXIzPlV7ZnY+sjcPxgdHQ0cw9usI/E0FiDiz746U+r28+u6h6camWH6r8h8KA==
+X-Received: by 2002:a5d:6d03:0:b0:37d:4833:38f5 with SMTP id ffacd0b85a97d-385fd3f2c0emr10797856f8f.30.1733411883555;
+        Thu, 05 Dec 2024 07:18:03 -0800 (PST)
 Received: from redhat.com ([2.55.188.248])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa625e96ab6sm105853266b.60.2024.12.05.07.14.21
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa625e96c2fsm104968066b.62.2024.12.05.07.18.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Dec 2024 07:14:23 -0800 (PST)
-Date: Thu, 5 Dec 2024 10:14:19 -0500
+        Thu, 05 Dec 2024 07:18:02 -0800 (PST)
+Date: Thu, 5 Dec 2024 10:17:59 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Koichiro Den <koichiro.den@canonical.com>
 Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
@@ -72,7 +72,7 @@ Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
 	stable@vger.kernel.org
 Subject: Re: [PATCH net-next v3 1/7] virtio_net: correct
  netdev_tx_reset_queue() invocation point
-Message-ID: <20241205101351-mutt-send-email-mst@kernel.org>
+Message-ID: <20241205101611-mutt-send-email-mst@kernel.org>
 References: <20241204050724.307544-1-koichiro.den@canonical.com>
  <20241204050724.307544-2-koichiro.den@canonical.com>
  <20241205052729-mutt-send-email-mst@kernel.org>
@@ -86,7 +86,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <cv7ph7yna6d5a37k7hoxplyzrbmrdxrcjd67nrttevsta3r54h@35ztxhqaczqd>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: A6got5PXRDBRks0VKr9zexnccUfxWxYGas-lJdffuVM_1733411665
+X-Mimecast-MFC-PROC-ID: UQkNblDC3myB516Gkf34Vwi3OkCadtvZVXs_SJbPOiA_1733411884
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -137,7 +137,17 @@ On Thu, Dec 05, 2024 at 10:16:35PM +0900, Koichiro Den wrote:
 > 
 > Hmm, as Jacob pointed out in v1
 > (https://lore.kernel.org/all/20241202181445.0da50076@kernel.org/),
-> it looks better to follow the rule of thumb. Taking both suggestions
+> it looks better to follow the rule of thumb.
+
+OK then. I'm fine with keeping your code as is, just a squash,
+and add a comment
+
+	/*
+	 * Rule of thumb is netdev_tx_reset_queue() should follow any
+	 * skb freeing not followed by netdev_tx_completed_queue()
+	 */
+
+> Taking both suggestions
 > from Jacob and you, adding a loop to remove_vq_common(), just after
 > free_unused_bufs(), seems more fitting now, like this:
 > 
@@ -161,9 +171,7 @@ On Thu, Dec 05, 2024 at 10:16:35PM +0900, Koichiro Den wrote:
 > Thanks,
 > 
 > -Koichiro Den
-
-why in remove_vq_common? It's only used on freeze/restore.
-
+> 
 > > 
 > > > 
 > > > 
