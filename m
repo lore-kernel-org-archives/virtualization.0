@@ -1,147 +1,267 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A461D63E2
-	for <virtualization@lists.linux.dev>; Thu,  5 Dec 2024 09:51:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32B932F56
+	for <virtualization@lists.linux.dev>; Thu,  5 Dec 2024 10:33:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733392285; cv=none; b=DztkgkOd/8ybyH/WOHs8CrV04SFEd42fSWRvfEfZUWsBjTUaMBb6+Vti2YOLz+4Aujp+9mRi18+M4C4aLfbSFXSjUBxnCWEKsqfTaPDjZGvUUXSVAMbRWA6pg8XpGz9OCET/KrYw0gZypx6iLLxugBhCtV/UfJjJuy0hDxdV754=
+	t=1733394827; cv=none; b=eYgS6pW+CS20wrcogPmOQFClS3J+dhICicWWA0wdwzUNkt+OUTQ8wPP69epGGtq5mmGeSJLd7uN5+GOjADNgeRcCreWCs2vA6ez8pNf8tD7vGEjUD+3U1BnerZawykrX7UmqPkJpY2+CJ46HW45uaA/WU7LDji1JXybx4VhqiJ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733392285; c=relaxed/simple;
-	bh=g3ivnEGoj7MuCN0XQRgeZ0FBwp3k/UVGaiGzSKJevkk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ku1jtjs0E/vXDP7E6yW5JLGAcGkRS41D+YNovUHOXDCJc79ZK7JRfZREsSvp95IipSKENm/CTSfjZuJMlKIoa9luhf5p806cdvyoWAObsZFfMcJIC681ZeGipl997J+L+tOgSNDKrg6s5XSpGno/TUsBGsKk3JabAPL9R4YjLdk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=n62mLkR1; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1733394827; c=relaxed/simple;
+	bh=JboJADF6b1EAs0jWvSOXCGMlWc6fWXMLiA+EwVSWcnM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=JY+vQExvSjBdM2tkidsdUzr4cwgrvFHp8DZ2grQqoUejOR9+MP7pyftWQ141dGmi/Rhx0KKrNqYQ0H0lWfDjlQMUeXFDlmqpflkHertXRe2Xc7zqKZsoRQm3zOATYxkND7EQTXyhlIA1gDStHkSJz9/qsHUXnB+XUGs863vy/XA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bvHsIjJM; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="n62mLkR1"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1733392280; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=dHHiaBL2W4K1IrTHv1zJkvtT7SdDflWxgl7A3CZWZQ4=;
-	b=n62mLkR1Cx6aP1WRsAeCGDO/J1HyN4zN5wkaTZsqesEFQfDFuIedX+/YBKqLpf48wpT/tXZ/REf9HnlZKGaUWQri7EiBUyN7I+Sw0MU7COHGMhDKdI5m4QOZSAZb1lsX+vfRSk9s6vKXMgNtpZ1jhHWYmeC2UghtSqZeVZBTaMo=
-Received: from 30.221.128.181(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0WKswRxE_1733392279 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 05 Dec 2024 17:51:19 +0800
-Message-ID: <6ba6247e-82dd-4e58-8a6b-ecf8247a234c@linux.alibaba.com>
-Date: Thu, 5 Dec 2024 17:51:18 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bvHsIjJM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1733394824;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3qA5KTv0TwbxYvMIa93TigatP3kdKgmJVpi9u4V+22Q=;
+	b=bvHsIjJMcx5FkgmMFnHlYCqAKS1fKuWp+YHIIDrrucCrQ3CRHnzz5riXxp9vBl6k1kXnpX
+	pvtN2m+mMR8OvOgAP7IY/86MDos7M3joHk+R/qkKYo/Q7b4fW0TcGGyrkjPwen7cbhl3u2
+	x0m32hTdSoz1dv+VZTDkiJyRl/v24DU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-573-PjtxqEQ7P5uh7a2Pe9fcIA-1; Thu, 05 Dec 2024 05:33:43 -0500
+X-MC-Unique: PjtxqEQ7P5uh7a2Pe9fcIA-1
+X-Mimecast-MFC-AGG-ID: PjtxqEQ7P5uh7a2Pe9fcIA
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4349fd2965fso7219135e9.1
+        for <virtualization@lists.linux.dev>; Thu, 05 Dec 2024 02:33:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733394822; x=1733999622;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3qA5KTv0TwbxYvMIa93TigatP3kdKgmJVpi9u4V+22Q=;
+        b=aTq0hFkTVbFUCCGOzn7QuBCtL6A39IfwcVFCWFoLFqTMDrQ0nuPqTF0GugGelGohf9
+         PApVyxIjJCbd5UvC3/jpJmtmAYnuhbGSk47LRiWbgNufRNGVoxAZfvUDgH4PIPk0jTp0
+         R5z2pZzueQ2gaGwzBbe+El6hzBS99SD+dmOlaoPdxrw/UZtKp+gRf87fomNtRXzPIMgd
+         SIun8xO2tosXDpFMMOKxqj1EEMnBUxIkuEpF11q1nzJ3+1SVvvwnBlL390u++SRxBR3J
+         8VX14BiuKPJ/2iChGUq88gNrG8twJ28SLcX201VUl0SpTKktibC+4186IkgsGg216yV9
+         wbsQ==
+X-Gm-Message-State: AOJu0YzemsvaGCdSaObA9/cSFUJTPuCPoqMS8uqLV5kbGHrhgTQpaZad
+	qYy2Wj/mmchyyTWcSxD3gKmGoGE/QMiFo2G7HQz4Kc6ctdBaTiWiJI3afk7P8j6zV9JBvMCw899
+	4rPmByWByLQUNUpzvkDqg0szEBdEEH9hXk16dwrEDudBwxOjbADwdf4UZ8le/Dicm
+X-Gm-Gg: ASbGncsZXqxeADoq1gc09R7F5zYN/4WP972cctkt+fHJ0e8kn17dickRZa+aHUqqZqw
+	HIl4IF6tonHe4P3OFdTB1krFnBx1gwvo8kpu2fBKN8RJd2IVjh4xuCd3GffCBhPuK+vHy8IFC7w
+	tfucWOUoyoJxmldbbyVBr1HLU/JG8E31bAmdoowMBrZAGu6Gh+5LbLeEajWaA0I20oabDOkNgUw
+	yTpDWPU3gqf/sG47HBLPjX7QZDP+zWtaSp4NQg=
+X-Received: by 2002:a05:6000:705:b0:385:db0f:332e with SMTP id ffacd0b85a97d-385fd3eb2aamr9934126f8f.22.1733394821675;
+        Thu, 05 Dec 2024 02:33:41 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEMbU6OtZMq9xGuDlW8YmGtmQMg0F7RGS/8UAysj6KnNVmsA/VeEyBoaZKDnTnkZe7q0XK9Mw==
+X-Received: by 2002:a05:6000:705:b0:385:db0f:332e with SMTP id ffacd0b85a97d-385fd3eb2aamr9934094f8f.22.1733394821243;
+        Thu, 05 Dec 2024 02:33:41 -0800 (PST)
+Received: from redhat.com ([2.55.188.248])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-434d5280497sm55449415e9.23.2024.12.05.02.33.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Dec 2024 02:33:40 -0800 (PST)
+Date: Thu, 5 Dec 2024 05:33:36 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Koichiro Den <koichiro.den@canonical.com>
+Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, jiri@resnulli.us,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH net-next v3 1/7] virtio_net: correct
+ netdev_tx_reset_queue() invocation point
+Message-ID: <20241205052729-mutt-send-email-mst@kernel.org>
+References: <20241204050724.307544-1-koichiro.den@canonical.com>
+ <20241204050724.307544-2-koichiro.den@canonical.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [Resend]Re: [PATCH 0/3][RFC] virtio-blk: add io_uring passthrough
- support for virtio-blk
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
- Jeffle Xu <jefflexu@linux.alibaba.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Kevin Wolf <kwolf@redhat.com>,
- Ming Lei <ming.lei@redhat.com>
-References: <20241203121424.19887-1-mengferry@linux.alibaba.com>
- <CAJSP0QW2GWNCtekar68bniwB6xX=ADsh7YjFjq_bQvExRNxnyA@mail.gmail.com>
-Content-Language: en-US
-From: Ferry Meng <mengferry@linux.alibaba.com>
-In-Reply-To: <CAJSP0QW2GWNCtekar68bniwB6xX=ADsh7YjFjq_bQvExRNxnyA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241204050724.307544-2-koichiro.den@canonical.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: WdiGxEgmhoIhMCwsLu7yaFPwEIbqZrW2rLOsrMcZIVU_1733394822
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Resend after change this into plain text.
+On Wed, Dec 04, 2024 at 02:07:18PM +0900, Koichiro Den wrote:
+> When virtnet_close is followed by virtnet_open, some TX completions can
+> possibly remain unconsumed, until they are finally processed during the
+> first NAPI poll after the netdev_tx_reset_queue(), resulting in a crash
+> [1].
 
-On 12/5/24 5:47 AM, Stefan Hajnoczi wrote:
-> On Tue, 3 Dec 2024 at 07:17, Ferry Meng <mengferry@linux.alibaba.com> wrote:
->> We seek to develop a more flexible way to use virtio-blk and bypass the block
->> layer logic in order to accomplish certain performance optimizations. As a
->> result, we referred to the implementation of io_uring passthrough in NVMe
->> and implemented it in the virtio-blk driver. This patch series adds io_uring
->> passthrough support for virtio-blk devices, resulting in lower submit latency
->> and increased flexibility when utilizing virtio-blk.
-> First I thought this was similar to Stefano Garzarella's previous
-> virtio-blk io_uring passthrough work where a host io_uring was passed
-> through into the guest:
-> https://static.sched.com/hosted_files/kvmforum2020/9c/KVMForum_2020_io_uring_passthrough_Stefano_Garzarella.pdf
->
-> But now I see this is a uring_cmd interface for sending virtio_blk
-> commands from userspace like the one offered by the NVMe driver.
->
-> Unlike NVMe, the virtio-blk command set is minimal and does not offer
-> a rich set of features. Is the motivation really virtio-blk command
-> passthrough or is the goal just to create a fast path for I/O?
-Sure, this series only works with guest os, not between host and guest. 
-Well, 'io_uring passthrough'
-gives a 'fast path for I/O' , and is ideal for our use case --- like 
-using virtio-blk with command directly
-from userspace scales better.
-> If the goal is just a fast path for I/O, then maybe Jens would
-> consider a generic command set that is not device-specific? That way
-> any driver (NVMe, virtio-blk, etc) can implement this uring_cmd
-> interface and any application can use it without worrying about the
-> underlying command set. I think a generic fast path would be much more
-> useful to applications than driver-specific interfaces.
-If I understand correctly, io_uring passthrough is already a complete 
-abstract framework for I/O request dispatch.
-Its aim is to allow driver to handle commands on its own with bypass 
-unused logic. Thus I chose this method of
-implementation. I really agreed that the command set of virtio-blk is 
-sufficient and minimal enough, but I also believe
-that this makes it more convenient for us to adapt all command types 
-with fewer modifications, so that virtio-blk
-can use io_uring passthrough.
 
-Of course, we can wait for Jens' view on the preceding discussion.
->> To test this patch series, I changed fio's code:
->> 1. Added virtio-blk support to engines/io_uring.c.
->> 2. Added virtio-blk support to the t/io_uring.c testing tool.
->> Link: https://github.com/jdmfr/fio
->>
->> Using t/io_uring-vblk, the performance of virtio-blk based on uring-cmd
->> scales better than block device access. (such as below, Virtio-Blk with QEMU,
->> 1-depth fio)
->> (passthru) read: IOPS=17.2k, BW=67.4MiB/s (70.6MB/s)
->> slat (nsec): min=2907, max=43592, avg=3981.87, stdev=595.10
->> clat (usec): min=38, max=285,avg=53.47, stdev= 8.28
->> lat (usec): min=44, max=288, avg=57.45, stdev= 8.28
->> (block) read: IOPS=15.3k, BW=59.8MiB/s (62.7MB/s)
->> slat (nsec): min=3408, max=35366, avg=5102.17, stdev=790.79
->> clat (usec): min=35, max=343, avg=59.63, stdev=10.26
->> lat (usec): min=43, max=349, avg=64.73, stdev=10.21
->>
->> Testing the virtio-blk device with fio using 'engines=io_uring_cmd'
->> and 'engines=io_uring' also demonstrates improvements in submit latency.
->> (passthru) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u1 /dev/vdcc0
->> IOPS=189.80K, BW=741MiB/s, IOS/call=4/3
->> IOPS=187.68K, BW=733MiB/s, IOS/call=4/3
->> (block) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u0 /dev/vdc
->> IOPS=101.51K, BW=396MiB/s, IOS/call=4/3
->> IOPS=100.01K, BW=390MiB/s, IOS/call=4/4
->>
->> The performance overhead of submitting IO can be decreased by 25% overall
->> with this patch series. The implementation primarily references 'nvme io_uring
->> passthrough', supporting io_uring_cmd through a separate character interface
->> (temporarily named /dev/vdXc0). Since this is an early version, many
->> details need to be taken into account and redesigned, like:
->> ● Currently, it only considers READ/WRITE scenarios, some more complex operations
->> not included like discard or zone ops.(Normal sqe64 is sufficient, in my opinion;
->> following upgrades, sqe128 and cqe32 might not be needed).
->> ● ......
->>
->> I would appreciate any useful recommendations.
->>
->> Ferry Meng (3):
->>    virtio-blk: add virtio-blk chardev support.
->>    virtio-blk: add uring_cmd support for I/O passthru on chardev.
->>    virtio-blk: add uring_cmd iopoll support.
->>
->>   drivers/block/virtio_blk.c      | 325 +++++++++++++++++++++++++++++++-
->>   include/uapi/linux/virtio_blk.h |  16 ++
->>   2 files changed, 336 insertions(+), 5 deletions(-)
->>
->> --
->> 2.43.5
->>
->>
+So it's a bugfix. Why net-next not net?
+
+> Commit b96ed2c97c79 ("virtio_net: move netdev_tx_reset_queue() call
+> before RX napi enable") was not sufficient to eliminate all BQL crash
+> cases for virtio-net.
+> 
+> This issue can be reproduced with the latest net-next master by running:
+> `while :; do ip l set DEV down; ip l set DEV up; done` under heavy network
+> TX load from inside the machine.
+> 
+> netdev_tx_reset_queue() can actually be dropped from virtnet_open path;
+> the device is not stopped in any case. For BQL core part, it's just like
+> traffic nearly ceases to exist for some period. For stall detector added
+> to BQL, even if virtnet_close could somehow lead to some TX completions
+> delayed for long, followed by virtnet_open, we can just take it as stall
+> as mentioned in commit 6025b9135f7a ("net: dqs: add NIC stall detector
+> based on BQL"). Note also that users can still reset stall_max via sysfs.
+> 
+> So, drop netdev_tx_reset_queue() from virtnet_enable_queue_pair(). This
+> eliminates the BQL crashes. Note that netdev_tx_reset_queue() is now
+> explicitly required in freeze/restore path, so this patch adds it to
+> free_unused_bufs().
+
+I don't much like that free_unused_bufs now has this side effect.
+I think would be better to just add a loop in virtnet_restore.
+Or if you want to keep it there, pls rename the function
+to hint it does more.
+
+
+> 
+> [1]:
+> ------------[ cut here ]------------
+> kernel BUG at lib/dynamic_queue_limits.c:99!
+> Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+> CPU: 7 UID: 0 PID: 1598 Comm: ip Tainted: G    N 6.12.0net-next_main+ #2
+> Tainted: [N]=TEST
+> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), \
+> BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
+> RIP: 0010:dql_completed+0x26b/0x290
+> Code: b7 c2 49 89 e9 44 89 da 89 c6 4c 89 d7 e8 ed 17 47 00 58 65 ff 0d
+> 4d 27 90 7e 0f 85 fd fe ff ff e8 ea 53 8d ff e9 f3 fe ff ff <0f> 0b 01
+> d2 44 89 d1 29 d1 ba 00 00 00 00 0f 48 ca e9 28 ff ff ff
+> RSP: 0018:ffffc900002b0d08 EFLAGS: 00010297
+> RAX: 0000000000000000 RBX: ffff888102398c80 RCX: 0000000080190009
+> RDX: 0000000000000000 RSI: 000000000000006a RDI: 0000000000000000
+> RBP: ffff888102398c00 R08: 0000000000000000 R09: 0000000000000000
+> R10: 00000000000000ca R11: 0000000000015681 R12: 0000000000000001
+> R13: ffffc900002b0d68 R14: ffff88811115e000 R15: ffff8881107aca40
+> FS:  00007f41ded69500(0000) GS:ffff888667dc0000(0000)
+> knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000556ccc2dc1a0 CR3: 0000000104fd8003 CR4: 0000000000772ef0
+> PKRU: 55555554
+> Call Trace:
+>  <IRQ>
+>  ? die+0x32/0x80
+>  ? do_trap+0xd9/0x100
+>  ? dql_completed+0x26b/0x290
+>  ? dql_completed+0x26b/0x290
+>  ? do_error_trap+0x6d/0xb0
+>  ? dql_completed+0x26b/0x290
+>  ? exc_invalid_op+0x4c/0x60
+>  ? dql_completed+0x26b/0x290
+>  ? asm_exc_invalid_op+0x16/0x20
+>  ? dql_completed+0x26b/0x290
+>  __free_old_xmit+0xff/0x170 [virtio_net]
+>  free_old_xmit+0x54/0xc0 [virtio_net]
+>  virtnet_poll+0xf4/0xe30 [virtio_net]
+>  ? __update_load_avg_cfs_rq+0x264/0x2d0
+>  ? update_curr+0x35/0x260
+>  ? reweight_entity+0x1be/0x260
+>  __napi_poll.constprop.0+0x28/0x1c0
+>  net_rx_action+0x329/0x420
+>  ? enqueue_hrtimer+0x35/0x90
+>  ? trace_hardirqs_on+0x1d/0x80
+>  ? kvm_sched_clock_read+0xd/0x20
+>  ? sched_clock+0xc/0x30
+>  ? kvm_sched_clock_read+0xd/0x20
+>  ? sched_clock+0xc/0x30
+>  ? sched_clock_cpu+0xd/0x1a0
+>  handle_softirqs+0x138/0x3e0
+>  do_softirq.part.0+0x89/0xc0
+>  </IRQ>
+>  <TASK>
+>  __local_bh_enable_ip+0xa7/0xb0
+>  virtnet_open+0xc8/0x310 [virtio_net]
+>  __dev_open+0xfa/0x1b0
+>  __dev_change_flags+0x1de/0x250
+>  dev_change_flags+0x22/0x60
+>  do_setlink.isra.0+0x2df/0x10b0
+>  ? rtnetlink_rcv_msg+0x34f/0x3f0
+>  ? netlink_rcv_skb+0x54/0x100
+>  ? netlink_unicast+0x23e/0x390
+>  ? netlink_sendmsg+0x21e/0x490
+>  ? ____sys_sendmsg+0x31b/0x350
+>  ? avc_has_perm_noaudit+0x67/0xf0
+>  ? cred_has_capability.isra.0+0x75/0x110
+>  ? __nla_validate_parse+0x5f/0xee0
+>  ? __pfx___probestub_irq_enable+0x3/0x10
+>  ? __create_object+0x5e/0x90
+>  ? security_capable+0x3b/0x70
+>  rtnl_newlink+0x784/0xaf0
+>  ? avc_has_perm_noaudit+0x67/0xf0
+>  ? cred_has_capability.isra.0+0x75/0x110
+>  ? stack_depot_save_flags+0x24/0x6d0
+>  ? __pfx_rtnl_newlink+0x10/0x10
+>  rtnetlink_rcv_msg+0x34f/0x3f0
+>  ? do_syscall_64+0x6c/0x180
+>  ? entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>  ? __pfx_rtnetlink_rcv_msg+0x10/0x10
+>  netlink_rcv_skb+0x54/0x100
+>  netlink_unicast+0x23e/0x390
+>  netlink_sendmsg+0x21e/0x490
+>  ____sys_sendmsg+0x31b/0x350
+>  ? copy_msghdr_from_user+0x6d/0xa0
+>  ___sys_sendmsg+0x86/0xd0
+>  ? __pte_offset_map+0x17/0x160
+>  ? preempt_count_add+0x69/0xa0
+>  ? __call_rcu_common.constprop.0+0x147/0x610
+>  ? preempt_count_add+0x69/0xa0
+>  ? preempt_count_add+0x69/0xa0
+>  ? _raw_spin_trylock+0x13/0x60
+>  ? trace_hardirqs_on+0x1d/0x80
+>  __sys_sendmsg+0x66/0xc0
+>  do_syscall_64+0x6c/0x180
+>  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+> RIP: 0033:0x7f41defe5b34
+> Code: 15 e1 12 0f 00 f7 d8 64 89 02 b8 ff ff ff ff eb bf 0f 1f 44 00 00
+> f3 0f 1e fa 80 3d 35 95 0f 00 00 74 13 b8 2e 00 00 00 0f 05 <48> 3d 00
+> f0 ff ff 77 4c c3 0f 1f 00 55 48 89 e5 48 83 ec 20 89 55
+> RSP: 002b:00007ffe5336ecc8 EFLAGS: 00000202 ORIG_RAX: 000000000000002e
+> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f41defe5b34
+> RDX: 0000000000000000 RSI: 00007ffe5336ed30 RDI: 0000000000000003
+> RBP: 00007ffe5336eda0 R08: 0000000000000010 R09: 0000000000000001
+> R10: 00007ffe5336f6f9 R11: 0000000000000202 R12: 0000000000000003
+> R13: 0000000067452259 R14: 0000556ccc28b040 R15: 0000000000000000
+>  </TASK>
+> [...]
+> ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+> 
+> Fixes: c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits")
+> Cc: <stable@vger.kernel.org> # v6.11+
+> Signed-off-by: Koichiro Den <koichiro.den@canonical.com>
+> ---
+>  drivers/net/virtio_net.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 64c87bb48a41..48ce8b3881b6 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3054,7 +3054,6 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>  	if (err < 0)
+>  		goto err_xdp_reg_mem_model;
+>  
+> -	netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, qp_index));
+>  	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+>  	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+>  
+> @@ -6243,6 +6242,7 @@ static void free_unused_bufs(struct virtnet_info *vi)
+>  		struct virtqueue *vq = vi->sq[i].vq;
+>  		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+>  			virtnet_sq_free_unused_buf(vq, buf);
+> +		netdev_tx_reset_queue(netdev_get_tx_queue(vi->dev, i));
+>  		cond_resched();
+>  	}
+>  
+> -- 
+> 2.43.0
+
