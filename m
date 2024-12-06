@@ -1,154 +1,116 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C33A61552F5
-	for <virtualization@lists.linux.dev>; Fri,  6 Dec 2024 02:38:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E7713190470;
+	Fri,  6 Dec 2024 05:13:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733452714; cv=none; b=gMVTropMC+fA98Mq9aMShkGLyDRlHR2Vn0ybtc5yQEin2PY5IuxY29jUw2x830oFsmtEQb547R4pvIfwS2vZ9ZakJ384YJgUCi6FbcKf9zFzK7KPYXbFf6v8VI1kZe/xULpHIv2FFnYV1AtAivJi194BMYFku+I+XwzseB7FZ20=
+	t=1733461982; cv=none; b=t+XkeTyEkfCnBrmzDbCFQt8rECLPs2bOJeYNblLS6oQn2XTWOH43lfv+xsxQ+CRoHwucsz9EgJbADjKkkkdFoMWSW8HeMFHc/5zjx4nSXFM495BbUTM3SBRIN5hQnCVo7cprVPISlIUi3YjdOww00H8PjvdMgH5tMOjprYAsvTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733452714; c=relaxed/simple;
-	bh=wNgTPz8AgRVXV6HrZhY9Nb41hj2wBW/WH3xQZRZYaMc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eqH8KNE1CnRrCFQqSlF3ttKagzHnAcm4IfeJ2UOQ7v/WnzeDfoZAbd+CorwuLq/TdpjGvI2ssdBZ983o0aDKpO+l/akgP8Id7cq1+bPaofE6/3aCp2/Ca4g5CWYsd++UrhefJtlc0SDpw3DjQgsaf8zdVR3k6fqgLvSG71IdYKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YHNRCVGt; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1733461982; c=relaxed/simple;
+	bh=VSTof/Uj6masKJoLaAu/3mhUUtoihlT9CA4iZ2vzN2Q=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=SiMH161YNpyUe7uK/2nevn+K4TSGymIdqfrCbhZnJH9Ra8TXMQvek/isOuMKZJlatAYxMkuLjBbgoRv0RatgkQQddke+Ca2t3x73VM1ibUgE8jCm/KEuxfgUr4vp9F27YgeqXa3oiZAfrWo2LAzrfmnd6XRHuOGHEYcwmPzwLqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=evohsIOa; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YHNRCVGt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733452709;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6nT0DV9JByo+6iUSRQFf0u5MMGCTCWwzLaVplVJHUzA=;
-	b=YHNRCVGtTCOrs5MIaarewlJsBpArRaX6LXRoLIorj8QeSPaoaXFdQ4S06Lq2j0GZH1QWQU
-	4ojlm76CW5q5e09Ym9Wmi/JEmkJfskLlYWZrkmfHoyMgoaBJYS80So6y14gSS/U0TtXum5
-	/o8vvc50/ndGOUV5xqMejIZ0UQ2qh38=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-301-QHjGXTqbM8CsLo5zTFNfMw-1; Thu, 05 Dec 2024 21:38:28 -0500
-X-MC-Unique: QHjGXTqbM8CsLo5zTFNfMw-1
-X-Mimecast-MFC-AGG-ID: QHjGXTqbM8CsLo5zTFNfMw
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2ee4f3785f6so1554081a91.2
-        for <virtualization@lists.linux.dev>; Thu, 05 Dec 2024 18:38:28 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733452707; x=1734057507;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6nT0DV9JByo+6iUSRQFf0u5MMGCTCWwzLaVplVJHUzA=;
-        b=HRe0cY/N8Z8somEcdzcSeGo1qXOblgEB5lPy7dxc+4ltq2JtHQUMIbxxknxlVWGNN0
-         TZMzpoAJ05fiAXN8MkAZEuMYOCXnbBBSum+M+KLAzmKiXqdxmTnjzWBNmbQBaDdISqgV
-         XIY4DSqEsTdmq59lkUf04z69J/VaFJEthoZyNog5+hfVeqvZ+Z+oX6QHvxUYtY0hVJuD
-         LkrN28S38vikn4uZd4VMHhO4zSoaObQKB6/Lrk5+d6tyBcBQI3S2Hju7r/qOJdSVrgZX
-         OsKLRG8HaPP5KeRlN3K3s1PVTn8GFgasmCDigb5ZipGelNxQRnEjHVzkJwcrY4CSYxJ8
-         GM9g==
-X-Gm-Message-State: AOJu0YzNLb8wFhFqwQkOYOkfj0bpPsnWSqNq40OMF93CG0PM9XFGoGJE
-	AIRwhkG0+o722xnAlG9hrnpHQ87Dy/h4mllCPv7pyEAIUVgaBjfceZy8KuACo73uoPNBKIVNXCb
-	jNPzLhFVvl+NFqZA5X+H0CoVFrG/qHKVIUlmg7dunlnNtyfB+wlluSYYtHWVlOJ6vKpU/SsEYo4
-	iH3NLTD/Sp/qIe5M8ua1SaWw3mQjQyGjDwH/2kg/U=
-X-Gm-Gg: ASbGnctNgXnAY49dd1QbCGvntbDhb08X+oHBT6+EdjYS2sdGCjoeVBkeCE+qQ03ZvDG
-	FVgNjmnj+3uiLii5LImdU9bNwApZp+ZFjSQ==
-X-Received: by 2002:a17:90b:3a48:b0:2ee:c9d8:d01a with SMTP id 98e67ed59e1d1-2ef69e12847mr2282974a91.11.1733452707516;
-        Thu, 05 Dec 2024 18:38:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGxVsjXZwpAnmXEbhbW5Xn3qF8C7Ogv9ErnhY0q29NJY1JfEkb/9EFOVWWxh5R9GTjTFyGFd6YK0d2Wj4RnD0o=
-X-Received: by 2002:a17:90b:3a48:b0:2ee:c9d8:d01a with SMTP id
- 98e67ed59e1d1-2ef69e12847mr2282945a91.11.1733452707116; Thu, 05 Dec 2024
- 18:38:27 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="evohsIOa"
+Received: from [100.65.0.192] (unknown [20.236.11.42])
+	by linux.microsoft.com (Postfix) with ESMTPSA id DB58D20ACD8D;
+	Thu,  5 Dec 2024 21:12:58 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com DB58D20ACD8D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1733461980;
+	bh=UeJKj87W9UR5iJRJm8EOVLO3pStgIR+TvO1cTQt7BXk=;
+	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
+	b=evohsIOaYFfQe1eCWrL35euPbFbUcU8YiFIo4DvXuomC5z7qvwnPVNWkVkvtyTO46
+	 Yn0Oy0b5pR4/G+4koxJ9PiOD5s1K5XjZ34R/WB69cjeMhwcBdjYJtzQxfZiLMnvung
+	 JyqqH7VS1El1YbPoIX5fiIB9chqShvN25PcFIgO8=
+Message-ID: <3c5ec65e-93a9-48a2-a18f-f5b89e83e999@linux.microsoft.com>
+Date: Thu, 5 Dec 2024 21:12:56 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241121134002.990285-1-sthotton@marvell.com> <20241121134002.990285-4-sthotton@marvell.com>
-In-Reply-To: <20241121134002.990285-4-sthotton@marvell.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 6 Dec 2024 10:38:15 +0800
-Message-ID: <CACGkMEtydc4q5Dc1wwN52na37uWLf24e-Tmp6rYmKyg0TDgXUg@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] vdpa/octeon_ep: add interrupt handler for virtio
- crypto device
-To: Shijith Thotton <sthotton@marvell.com>
-Cc: virtualization@lists.linux.dev, mst@redhat.com, dan.carpenter@linaro.org, 
-	schalla@marvell.com, vattunuru@marvell.com, ndabilpuram@marvell.com, 
-	jerinj@marvell.com, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Satha Rao <skoteshwar@marvell.com>, open list <linux-kernel@vger.kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: s3_wVZOYT923k8j41dtwfqk-0OK6MkA8SHLDRgcxyOY_1733452707
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Cc: linux-hyperv@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, iommu@lists.linux.dev,
+ netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-arch@vger.kernel.org, virtualization@lists.linux.dev,
+ eahariha@linux.microsoft.com, kys@microsoft.com, haiyangz@microsoft.com,
+ wei.liu@kernel.org, mhklinux@outlook.com, decui@microsoft.com,
+ catalin.marinas@arm.com, will@kernel.org, luto@kernel.org,
+ tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+ seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org,
+ daniel.lezcano@linaro.org, joro@8bytes.org, robin.murphy@arm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, lpieralisi@kernel.org, kw@linux.com, robh@kernel.org,
+ bhelgaas@google.com, arnd@arndb.de, sgarzare@redhat.com,
+ jinankjain@linux.microsoft.com, muminulrussell@gmail.com,
+ skinsburskii@linux.microsoft.com, mukeshrathor@microsoft.com,
+ vkuznets@redhat.com, ssengar@linux.microsoft.com, apais@linux.microsoft.com,
+ horms@kernel.org
+Subject: Re: [PATCH v3 3/5] hyperv: Add new Hyper-V headers in include/hyperv
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+References: <1732577084-2122-1-git-send-email-nunodasneves@linux.microsoft.com>
+ <1732577084-2122-4-git-send-email-nunodasneves@linux.microsoft.com>
+From: Easwar Hariharan <eahariha@linux.microsoft.com>
+Content-Language: en-US
+In-Reply-To: <1732577084-2122-4-git-send-email-nunodasneves@linux.microsoft.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Nov 21, 2024 at 9:43=E2=80=AFPM Shijith Thotton <sthotton@marvell.c=
-om> wrote:
->
-> Introduced an interrupt handler for the virtio crypto device, as its
-> queue usage differs from that of network devices. While virtio network
-> device receives packets only on even-indexed queues, virtio crypto
-> device utilize all available queues for processing data.
-
-I'm not sure I will get here but the recent kernel depends heavily on
-the tx interrupt for skb post processing as well.
-
->
-> Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+On 11/25/2024 3:24 PM, Nuno Das Neves wrote:
+> These headers contain definitions for regular Hyper-V guests (as in
+> hyperv-tlfs.h), as well as interfaces for more privileged guests like
+> the root partition (aka Dom0).
+> 
+> These files are derived from headers exported from Hyper-V, rather than
+> being derived from the TLFS document. (Although, to preserve
+> compatibility with existing Linux code, some definitions are copied
+> directly from hyperv-tlfs.h too).
+> 
+> The new files follow a naming convention according to their original
+> use:
+> - hdk "host development kit"
+> - gdk "guest development kit"
+> With postfix "_mini" implying userspace-only headers, and "_ext" for
+> extended hypercalls.
+> 
+> The use of multiple files and their original names is primarily to
+> keep the provenance of exactly where they came from in Hyper-V
+> code, which is helpful for manual maintenance and extension
+> of these definitions. Microsoft maintainers importing new definitions
+> should take care to put them in the right file. However, Linux kernel
+> code that uses any of the definitions need not be aware of the multiple
+> files or assign any meaning to the new names. Linux kernel code should
+> always just include hvhdk.h
+> 
+> Note the new headers contain both arm64 and x86_64 definitions. Some are
+> guarded by #ifdefs, and some are instead prefixed with the architecture,
+> e.g. hv_x64_*. These conventions are kept from Hyper-V code as another
+> tactic to simplify the process of importing and maintaining the
+> definitions, rather than splitting them up into their own files in
+> arch/x86/ and arch/arm64/.
+> 
+> These headers are a step toward importing headers directly from Hyper-V
+> in the future, similar to Xen public files in include/xen/interface/.
+> 
+> Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
 > ---
->  drivers/vdpa/octeon_ep/octep_vdpa_main.c | 52 +++++++++++++++++++++++-
->  1 file changed, 50 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octe=
-on_ep/octep_vdpa_main.c
-> index d674b9678428..1bdf7a8111ce 100644
-> --- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> @@ -44,7 +44,35 @@ static struct octep_hw *vdpa_to_octep_hw(struct vdpa_d=
-evice *vdpa_dev)
->         return oct_vdpa->oct_hw;
->  }
->
-> -static irqreturn_t octep_vdpa_intr_handler(int irq, void *data)
-> +static irqreturn_t octep_vdpa_crypto_irq_handler(int irq, void *data)
-> +{
-> +       struct octep_hw *oct_hw =3D data;
-> +       int i;
-> +
-> +       /* Each device interrupt (nb_irqs) maps to specific receive rings
-> +        * (nr_vring) in a round-robin fashion.
-> +        *
-> +        * For example, if nb_irqs =3D 8 and nr_vring =3D 64:
-> +        * 0 -> 0, 8, 16, 24, 32, 40, 48, 56;
-> +        * 1 -> 1, 9, 17, 25, 33, 41, 49, 57;
-> +        * ...
-> +        * 7 -> 7, 15, 23, 31, 39, 47, 55, 63;
-> +        */
+>  MAINTAINERS                 |    5 +
+>  include/hyperv/hvgdk.h      |  308 +++++++++
+>  include/hyperv/hvgdk_ext.h  |   46 ++
+>  include/hyperv/hvgdk_mini.h | 1306 +++++++++++++++++++++++++++++++++++
+>  include/hyperv/hvhdk.h      |  733 ++++++++++++++++++++
+>  include/hyperv/hvhdk_mini.h |  311 +++++++++
+>  6 files changed, 2709 insertions(+)
+>  create mode 100644 include/hyperv/hvgdk.h
+>  create mode 100644 include/hyperv/hvgdk_ext.h
+>  create mode 100644 include/hyperv/hvgdk_mini.h
+>  create mode 100644 include/hyperv/hvhdk.h
+>  create mode 100644 include/hyperv/hvhdk_mini.h
 
-So this algorithm is mandated by the device?
-
-I'm asking since it's better to not have type specific policy in the
-vDPA layer. As the behaviour of the guest might change.
-
-For example, for networking devices, in the future we may switch to
-use a single interrupt/NAPI to handle both RX and TX. And note that
-this is only the behaviour of Linux, not other drivers like DPDK or
-other OSes.
-
-> +       for (i =3D irq - oct_hw->irqs[0]; i < oct_hw->nr_vring; i +=3D oc=
-t_hw->nb_irqs) {
-> +               if (ioread32(oct_hw->vqs[i].cb_notify_addr)) {
-> +                       /* Acknowledge the per ring notification to the d=
-evice */
-> +                       iowrite32(0, oct_hw->vqs[i].cb_notify_addr);
-> +
-> +                       if (likely(oct_hw->vqs[i].cb.callback))
-> +                               oct_hw->vqs[i].cb.callback(oct_hw->vqs[i]=
-.cb.private);
-> +                       break;
-> +               }
-> +       }
-
-Thanks
-
+Reviewed-by: Easwar Hariharan <eahariha@linux.microsoft.com>
