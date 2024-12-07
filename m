@@ -1,260 +1,178 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E12631D6DBC
-	for <virtualization@lists.linux.dev>; Fri,  6 Dec 2024 19:58:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733515094; cv=none; b=VB6Kzfzbbhq8F0IUPR0sGcXtzscE8D5P8vsBPsxMYyfQCHABxvGBzJQGfWrHFq1pW9PdpHCUORrw3VlT9c8iGYhjllqeyXs15UwxpHpk0kDrGxbRNCpOZGYaAOvXaC7+X3ZgXcHk1YmvjeH8C/j05foFSWkWLJ87Fdqcx6k8CYc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733515094; c=relaxed/simple;
-	bh=8gWvy5zGQ4r6v8YrdHYM6ddRzdaCisV+xhxtXzwPYYs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jzws+72KaZc22iW8st7h/G3bb1gSO8e55WqRqTt5Qhax7YS6qqdl7+ugjsPhbm5NoXZO+rVjMgTgd2jmKql1ZO5jwr8JfVx0ChAq1wyhbnPnUgiA12yGyQ0tr+tjjpiGm+cmh1manJp9mO+cY/OhIO4GpYbp1YfEACSMFA6ipZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=zHICFRT5; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5158228FC
+	for <virtualization@lists.linux-foundation.org>; Sat,  7 Dec 2024 10:51:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733568682; cv=fail; b=BSb5CSqX/65DVjdVuBlK782klkRtFfolvwr+5AjTyCJH3fv1+2CCk08nMBhWknAdxmu74hT7EpoNizEM3H3IEbBkN61PayKEoi7MpUlZLun44OLwij8y/t1J3tLOHLGZb9UwHJmfe7QtCQDbDlY9334vSyxEFhxTfgpu6X+/Rgg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733568682; c=relaxed/simple;
+	bh=9Rkw6xb11yR5nlxAlHKKM7A/JkGL7FETkyu4Z0RO6Lc=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=seEe4mzuBNHzQ4PNzph/z+zAMMOqfydyFkUVddh7f8UfCPKJjjQQhi4t5Fq6jMn03dl77u9U9azWI+mS6gkv3vI1jPd0X3QwFHy/ULIRv0nrB/jejGbUxc+re2ZhXztwNv5IJNr9uvN8POxwbdrrtmhxcWjmWcS4fkHtcMaOBig=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=BDusMLbw; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="zHICFRT5"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-21625b4f978so19835ad.0
-        for <virtualization@lists.linux.dev>; Fri, 06 Dec 2024 11:58:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1733515092; x=1734119892; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=A82gvr7sDzCugWZNh93f0M6gJn7XxjisLQmLnxRt2mE=;
-        b=zHICFRT5ZRoydLwbG9axye+of1fx7YmT7JmieMDAfIHlXc8fo4cpurqj0Mqh3Yycsa
-         7/vtUDykUPm1X8ExPfX01dCjRi0TeDTfT/2biwgNy2XErUiwBwdissA6EzznhvQ0Nh7n
-         0vSpxZJafeG9YjDY5oqJZ4MXPsVItq3AtURfoqtX9TxjG04LnKHjH75Nb9oSLGTriP/6
-         fLvIBK0vuxTvpX+i+lsqfoISWfwx/MX70rr9j+F3MNCSB6f6D8sXnIEggOFCdu2NYKc4
-         hkueqlKXUcRg/kl19HHsWFVxf4odIJ8tbD9TwMrHEz2IZ5TzUguRCH7dgxxdMRoezdN2
-         3mmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733515092; x=1734119892;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=A82gvr7sDzCugWZNh93f0M6gJn7XxjisLQmLnxRt2mE=;
-        b=S60zdv89xP0GBV0zs1TyZ52IWrnYj727rbRd5H9SOGAU34d7Apv8cmdwWXb2PuIP9c
-         BmXJWAy1KYbzTXMNYsqKB8l0pzTvwUDGQxEJxed2CCg7taeVov7AdCXxMA7zQPmwzrgc
-         J9cyU95OoucxXyWq/3lOm4PD/wtL478pAzpVNvrJMIebqL6C/NN3Why33utAbyFHaSrs
-         mtZ4P+bNe9/VxfNq4B0ge2CoL1jABAzaRjGCjYQ/M4x4rU3UqXwqzRN0JmbIeDkq52X7
-         hhW0au6TWt1wwfW+28y3Kp1dO9r2JnGX2cyutN5+G8LieDxVdjZ5+8n0PcF+ETbQGo9f
-         2LoQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXmm2V5S7l61KpXKzrHDKH+z4rL5UZ4PrUpAYOF4FOsnyubPaz37Gl7yoKYqVdJS2XAFYUgenlCgaiNluPWPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxWUMWSfUToNMv8PsyNyTPfQAon9dfDefy5oK8qs9jLj13OYjkH
-	tPCpm+1RIDx7Nzjq8bfGSrgDDWnLJL5/G1A5FC1cfkh55tmWh/y57iWhifZSI0hNZyp83XqTRX+
-	+sIWRuL72ThPpu4izhWCLQkLLjREBzcWc1Me6
-X-Gm-Gg: ASbGncs1TL9QG6aTKW8dDmTrTcbrgo+E7M1cMNRAN6A+44mgLSzc2Slt6A/8T0O0DSe
-	kXLepv/WDJ/Y7jnpgt/+/UoCQ1ma0E3d1n5xOfhqxTdRqjZue6lezC0HnhO8=
-X-Google-Smtp-Source: AGHT+IHZdlpKcu54llf+M0CD9QkcB0RHZTeLren1vYJvc90nzNmtuhq9YRRgqZ68LMma3iPfL32X7Vz6IZrABpYfBzY=
-X-Received: by 2002:a17:902:ce06:b0:215:3e48:2b17 with SMTP id
- d9443c01a7336-2162ad6a092mr200125ad.5.1733515091991; Fri, 06 Dec 2024
- 11:58:11 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="BDusMLbw"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id DB29B40632
+	for <virtualization@lists.linux-foundation.org>; Sat,  7 Dec 2024 10:51:19 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id nQZpNgMA62W4 for <virtualization@lists.linux-foundation.org>;
+ Sat,  7 Dec 2024 10:51:19 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2416::612; helo=nam11-co1-obe.outbound.protection.outlook.com; envelope-from=julia.zhang@amd.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DA176404ED
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DA176404ED
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=BDusMLbw
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on20612.outbound.protection.outlook.com [IPv6:2a01:111:f403:2416::612])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DA176404ED
+	for <virtualization@lists.linux-foundation.org>; Sat,  7 Dec 2024 10:51:18 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=mZLARswOq4vxTYQ5L/ALSx77d9uZfmI6AbW6OR4Er8WLOArUXFO0hX5DU9facAqstLizPTHp5VwQcxdc13/sgoRr/O9ButblsETIM5FjoJmbIFS+v/v6MTF5GnVI2CA85rOvUizSpUjKDOP0ZelfOiyZ9SoOlCdCeVELJXTq8/VWfq6nKvdrgq8vCWdidkvPXNcwC9m6aHjmw1Ge0eNygotFl7ZpRCKkPd5W39bEBUPydqObQRkVk07vIbuvvGL93l56lVK2wOXym6zwh2DU6LcpzIB2AVjvVgr+ucWgzAebMCCByAEukGGUFHb/Hujuemb+Kjl9dddUHGrVmRT1ig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=j3NJSEdVo5KlzEiay2XUDjqLBYgfkv1hWCm9vS9ugrs=;
+ b=XQbXfEQnMn0L+hqWbQVA+i1IDB+h2VQrfxIbPokL/Q0lShXSJhAvuHgx5RYdEiGpuI94oBlxPKkLeRndjwbha9F/JogRHIKChNbZLKeNg1ZaPouD6kA81gWMADB45AIyuv9kyybfzhwHB1GPMmQWMZaAd3dIO5YmUUyPhGQQGw8DHCQI0hqfXIwNSQ20RTctnX5+eDnf0P9Rt3dSCqgCK4++hR1Wjfw5e5M6INdxd5t/HrsTjU+W1LpUo5b2BxVtBjtNlp5tZFDT4oVf61VX8F7A0xa3Zokhn908A+issxIxeEaKhlj2US4Vp0qOoeU+q9/n2R2kJNJSDyQb2upbPA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=j3NJSEdVo5KlzEiay2XUDjqLBYgfkv1hWCm9vS9ugrs=;
+ b=BDusMLbwmyovvjH3FCjJApxWII0hXqBuGEqabqQq33Wa0NK7pp5hFPLUFYAg1MG/cdu0CDTvcRuBQwGTbyVjrR61Ti7ylC85G9dgMKx9vnDTh+jlycaxCAQhSnAWMast48IKDpgvZ+veYZDaUv7fJRkr3HhJYwbmRxYeMROrpa0=
+Received: from CH5PR05CA0024.namprd05.prod.outlook.com (2603:10b6:610:1f0::29)
+ by BY5PR12MB4148.namprd12.prod.outlook.com (2603:10b6:a03:208::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8230.11; Sat, 7 Dec
+ 2024 10:51:14 +0000
+Received: from CH2PEPF0000013D.namprd02.prod.outlook.com
+ (2603:10b6:610:1f0:cafe::d5) by CH5PR05CA0024.outlook.office365.com
+ (2603:10b6:610:1f0::29) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8251.11 via Frontend Transport; Sat,
+ 7 Dec 2024 10:51:14 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CH2PEPF0000013D.mail.protection.outlook.com (10.167.244.69) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.8230.7 via Frontend Transport; Sat, 7 Dec 2024 10:51:13 +0000
+Received: from jenkins-julia.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Sat, 7 Dec
+ 2024 04:51:08 -0600
+From: Julia Zhang <julia.zhang@amd.com>
+To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>,
+	<dri-devel@lists.freedesktop.org>,
+	<virtualization@lists.linux-foundation.org>, Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>, Oleksandr Tyshchenko
+	<oleksandr_tyshchenko@epam.com>, <xen-devel@lists.xenproject.org>
+CC: Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Daniel Vetter
+	<daniel@ffwll.ch>, Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui
+	<ray.huang@amd.com>, Penny Zheng <penny.zheng@amd.com>, Zhu Lingshan
+	<Lingshan.Zhu@amd.com>, Anthony PERARD <anthony.perard@citrix.com>,
+	=?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>, Jan Beulich
+	<jbeulich@suse.com>, Paul Durrant <paul@xen.org>, Julia Zhang
+	<julia.zhang@amd.com>
+Subject: [PATCH 0/3] virtgpu: check if P2P is possiable or not
+Date: Sat, 7 Dec 2024 18:50:20 +0800
+Message-ID: <20241207105023.542399-1-julia.zhang@amd.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241127025728.3689245-1-yuanchu@google.com> <20241127072604.GA2501036@cmpxchg.org>
-In-Reply-To: <20241127072604.GA2501036@cmpxchg.org>
-From: Yuanchu Xie <yuanchu@google.com>
-Date: Fri, 6 Dec 2024 11:57:55 -0800
-Message-ID: <CAJj2-QFdP6DKVQJ4Tw6rdV+XtgDihe=UOnvm4cm-q61K0hq6CQ@mail.gmail.com>
-Subject: Re: [PATCH v4 0/9] mm: workingset reporting
-To: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Khalid Aziz <khalid.aziz@oracle.com>, 
-	Henry Huang <henry.hj@antgroup.com>, Yu Zhao <yuzhao@google.com>, 
-	Dan Williams <dan.j.williams@intel.com>, Gregory Price <gregory.price@memverge.com>, 
-	Huang Ying <ying.huang@intel.com>, Lance Yang <ioworker0@gmail.com>, 
-	Randy Dunlap <rdunlap@infradead.org>, Muhammad Usama Anjum <usama.anjum@collabora.com>, 
-	Tejun Heo <tj@kernel.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
-	Mike Rapoport <rppt@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Christian Brauner <brauner@kernel.org>, Daniel Watson <ozzloy@each.do>, cgroups@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-mm@kvack.org, 
-	linux-kselftest@vger.kernel.org, SeongJae Park <sj@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH2PEPF0000013D:EE_|BY5PR12MB4148:EE_
+X-MS-Office365-Filtering-Correlation-Id: e51dea4b-ee44-41df-ebbf-08dd16ad11c8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|1800799024|82310400026|7416014|376014|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?YFw/sjdbC4eGfb4g5dXVndGFO2L7uImwUJh7oHYCsJsfdwT79Q9INuj3739D?=
+ =?us-ascii?Q?V/Pa8HVNLZY8szM8uwH1ZwMqywy2B5I8HTE0AWiMws2A8r+ICBNq7QBBmiVO?=
+ =?us-ascii?Q?xbe1tqagwffnN0DZvHszJRZvqPxMZEVXgihgdhwGoVCziMf7c8AYBlPvWANc?=
+ =?us-ascii?Q?7KbyiLzoYgUSPHafUYOJeoFb0/Za3HjMy3PoqzBteHqJrp6xE+3TvAQSBFyE?=
+ =?us-ascii?Q?EwisEZFQTkMLIb//N2CJvr856XTijzc0NB4u0zccr2fw6wteXEK279gh/uUz?=
+ =?us-ascii?Q?Z//6Qpb9EMu4Wg53Fuyd8VG9tdrwNH+EK1mtGuu5gAYkoUt3mOpb+KQJttzH?=
+ =?us-ascii?Q?ql/9PpvSXAjMlPLnz+KnFcff9hmnDrCrSO9TuGmuUUl/WHu/GsujrEO98M3H?=
+ =?us-ascii?Q?TnPyypJpsghiFhJfq1jzU22dLhUFdVfRSu+Pzb/YkzG/scZjsraKqUQJhzZv?=
+ =?us-ascii?Q?uxmUzI5DptNq/6aLO0QrClZ1sTh+g4QZNavIPbcbyngdzamnMq5j8zIg+Fed?=
+ =?us-ascii?Q?t3Zd04IsldfNnp0UxIHOY33wzTXOrOz3Y/ipIEBu+Ci2oh4INR5CS3hqzDDA?=
+ =?us-ascii?Q?GGSveS3NAimtp1tYz3WDVnVT0F9DjXiAOnVH9MW43xkzbfhOpadXSSE5k2kH?=
+ =?us-ascii?Q?jb0dpuDWswG9x1m/1futWep5fJD7zDwNrY4WZVo8YLFQm7uWwMHKebIX7lKe?=
+ =?us-ascii?Q?g/nl24KGV1E+OtV4dvwG8asmZUHtkq50Lw1djYhVy9RplmOSDPEPPp5p0E9w?=
+ =?us-ascii?Q?P8mesnyC5hVssTrw+Rj1dsn+aYqaxoozJVc8LdS7mE39U14Q8TgH6xZ0OeJE?=
+ =?us-ascii?Q?DK6AECVmvDq5yPomM5RqHJBjvyXYdqIHLhHwQ3cJO4cv7XEfXu9i0aYOtVJv?=
+ =?us-ascii?Q?f5+HoS+UECkT481tmb7UrbnyiTMvRDElpEEPdNxpJmBoU0yHGxxwvrgOd6ef?=
+ =?us-ascii?Q?g7kKrsxY43n64exIJZZTtU/cPFMxExrttK1cCVtIS59+h7L2FL0zxEji4Gbb?=
+ =?us-ascii?Q?t+dCeWYuOFKokLSlTe2x211ZOXXNOiVCFLUyB52cKhRnjrCZum2PzA3DwmI5?=
+ =?us-ascii?Q?Krp6SvYUL6KMODM5g2BmEWLmo7reU373MD6qrI4zvsZMzDhM4dkkbr3RJIsg?=
+ =?us-ascii?Q?AyyX4VhRzOHCUI8pdPgR38VTaOQN6r6vfPgc5v1b3BAAHL7DizpQGSYtBbfQ?=
+ =?us-ascii?Q?1fKRTdAS6OtcDpFknWDUb6c9+RVXvuAetzj4wcHXGAJsnetkufGtNijoOJJB?=
+ =?us-ascii?Q?4dWmH7rT2yjvYuR70DQoTeQTyF5ZtzZW6NDcqJ7qQzG06y+kEbj9UGGDIpkr?=
+ =?us-ascii?Q?TQ89nkMXlyqKk8AkdXXtKRnec8HyBU7tmZr7NnUFi0MkhwgAgiHHvtNAXUNe?=
+ =?us-ascii?Q?UBMaIrkqTcRkxvbmW0F21JTfbwEixNfXchqhP6qc+Dj4oMmu9uojn3tE8+tW?=
+ =?us-ascii?Q?vwjqtZSqhAIh72urGZHbcJBybq9UngI+axNsetqo8p4msM5YPSJ1gg=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(82310400026)(7416014)(376014)(921020);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Dec 2024 10:51:13.9074
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e51dea4b-ee44-41df-ebbf-08dd16ad11c8
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH2PEPF0000013D.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4148
 
-Thanks for the response Johannes. Some replies inline.
+To implement dGPU prime feature, virtgpu needs to import/export buffer
+between virtio iGPU and passthrough dGPU. Before that, virtgpu should
+check if P2P is possible or not. But calling function pci_p2pdma_distance
+in guest VM will only get virtual p2pdma_distance instead of real physical
+p2pdma_distance.
+ 
+So this series introduce an implementation of virtgpu device_attach
+callback to get p2pdma_distance. And also adds a new virtgpu command to
+pass PCI notations from guest to host and a new xen privcmd to get physical
+p2pdma_distance according to the PCI notations in host.
 
-On Tue, Nov 26, 2024 at 11:26=E2=80=AFPM Johannes Weiner <hannes@cmpxchg.or=
-g> wrote:
->
-> On Tue, Nov 26, 2024 at 06:57:19PM -0800, Yuanchu Xie wrote:
-> > This patch series provides workingset reporting of user pages in
-> > lruvecs, of which coldness can be tracked by accessed bits and fd
-> > references. However, the concept of workingset applies generically to
-> > all types of memory, which could be kernel slab caches, discardable
-> > userspace caches (databases), or CXL.mem. Therefore, data sources might
-> > come from slab shrinkers, device drivers, or the userspace.
-> > Another interesting idea might be hugepage workingset, so that we can
-> > measure the proportion of hugepages backing cold memory. However, with
-> > architectures like arm, there may be too many hugepage sizes leading to
-> > a combinatorial explosion when exporting stats to the userspace.
-> > Nonetheless, the kernel should provide a set of workingset interfaces
-> > that is generic enough to accommodate the various use cases, and extens=
-ible
-> > to potential future use cases.
->
-> Doesn't DAMON already provide this information?
->
-> CCing SJ.
-Thanks for the CC. DAMON was really good at visualizing the memory
-access frequencies last time I tried it out! For server use cases,
-DAMON would benefit from integrations with cgroups. The key then would
-be a standard interface for exporting a cgroup's working set to the
-user. It would be good to have something that will work for different
-backing implementations, DAMON, MGLRU, or active/inactive LRU.
+Julia Zhang (3):
+  xen:get p2pdma_distance
+  virtgpu: get p2pdma_distance
+  drm/virtio: Implement device_attach
 
->
-> > Use cases
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > Job scheduling
-> > On overcommitted hosts, workingset information improves efficiency and
-> > reliability by allowing the job scheduler to have better stats on the
-> > exact memory requirements of each job. This can manifest in efficiency =
-by
-> > landing more jobs on the same host or NUMA node. On the other hand, the
-> > job scheduler can also ensure each node has a sufficient amount of memo=
-ry
-> > and does not enter direct reclaim or the kernel OOM path. With workings=
-et
-> > information and job priority, the userspace OOM killing or proactive
-> > reclaim policy can kick in before the system is under memory pressure.
-> > If the job shape is very different from the machine shape, knowing the
-> > workingset per-node can also help inform page allocation policies.
-> >
-> > Proactive reclaim
-> > Workingset information allows the a container manager to proactively
-> > reclaim memory while not impacting a job's performance. While PSI may
-> > provide a reactive measure of when a proactive reclaim has reclaimed to=
-o
-> > much, workingset reporting allows the policy to be more accurate and
-> > flexible.
->
-> I'm not sure about more accurate.
->
-> Access frequency is only half the picture. Whether you need to keep
-> memory with a given frequency resident depends on the speed of the
-> backing device.
->
-> There is memory compression; there is swap on flash; swap on crappy
-> flash; swapfiles that share IOPS with co-located filesystems. There is
-> zswap+writeback, where avg refault speed can vary dramatically.
->
-> You can of course offload much more to a fast zswap backend than to a
-> swapfile on a struggling flashdrive, with comparable app performance.
->
-> So I think you'd be hard pressed to achieve a high level of accuracy
-> in the usecases you list without taking the (often highly dynamic)
-> cost of paging / memory transfer into account.
->
-> There is a more detailed discussion of this in a paper we wrote on
-> proactive reclaim/offloading - in 2.5 Hardware Heterogeneity:
->
-> https://www.cs.cmu.edu/~dskarlat/publications/tmo_asplos22.pdf
->
-Yes, PSI takes into account the paging cost. I'm not claiming that
-Workingset reporting provides a superset of information, but rather it
-can complement PSI. Sorry for the bad wording here.
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 17 ++++++++
+ drivers/gpu/drm/virtio/virtgpu_prime.c | 59 +++++++++++++++++++++++++-
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 53 +++++++++++++++++++++++
+ drivers/xen/privcmd.c                  | 42 ++++++++++++++++++
+ include/uapi/linux/virtio_gpu.h        | 19 +++++++++
+ include/uapi/xen/privcmd.h             | 12 ++++++
+ 6 files changed, 201 insertions(+), 1 deletion(-)
 
-> > Ballooning (similar to proactive reclaim)
-> > The last patch of the series extends the virtio-balloon device to repor=
-t
-> > the guest workingset.
-> > Balloon policies benefit from workingset to more precisely determine th=
-e
-> > size of the memory balloon. On end-user devices where memory is scarce =
-and
-> > overcommitted, the balloon sizing in multiple VMs running on the same
-> > device can be orchestrated with workingset reports from each one.
-> > On the server side, workingset reporting allows the balloon controller =
-to
-> > inflate the balloon without causing too much file cache to be reclaimed=
- in
-> > the guest.
-The ballooning use case is an important one. Having working set
-information would allow us to inflate a balloon of the right size in
-the guest.
+-- 
+2.34.1
 
-> >
-> > Promotion/Demotion
-> > If different mechanisms are used for promition and demotion, workingset
-> > information can help connect the two and avoid pages being migrated bac=
-k
-> > and forth.
-> > For example, given a promotion hot page threshold defined in reaccess
-> > distance of N seconds (promote pages accessed more often than every N
-> > seconds). The threshold N should be set so that ~80% (e.g.) of pages on
-> > the fast memory node passes the threshold. This calculation can be done
-> > with workingset reports.
-> > To be directly useful for promotion policies, the workingset report
-> > interfaces need to be extended to report hotness and gather hotness
-> > information from the devices[1].
-> >...
-> >
-> > Benchmarks
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > Ghait Ouled Amar Ben Cheikh has implemented a simple policy and ran Lin=
-ux
-> > compile and redis benchmarks from openbenchmarking.org. The policy and
-> > runner is referred to as WMO (Workload Memory Optimization).
-> > The results were based on v3 of the series, but v4 doesn't change the c=
-ore
-> > of the working set reporting and just adds the ballooning counterpart.
-> >
-> > The timed Linux kernel compilation benchmark shows improvements in peak
-> > memory usage with a policy of "swap out all bytes colder than 10 second=
-s
-> > every 40 seconds". A swapfile is configured on SSD.
-> > --------------------------------------------
-> > peak memory usage (with WMO): 4982.61328 MiB
-> > peak memory usage (control): 9569.1367 MiB
-> > peak memory reduction: 47.9%
-> > --------------------------------------------
-> > Benchmark                                           | Experimental     =
-|Control         | Experimental_Std_Dev | Control_Std_Dev
-> > Timed Linux Kernel Compilation - allmodconfig (sec) | 708.486 (95.91%) =
-| 679.499 (100%) | 0.6%                 | 0.1%
-> > --------------------------------------------
-> > Seconds, fewer is better
->
-> You can do this with a recent (>2018) upstream kernel and ~100 lines
-> of python [1]. It also works on both LRU implementations.
->
-> [1] https://github.com/facebookincubator/senpai
->
-> We use this approach in virtually the entire Meta fleet, to offload
-> unneeded memory, estimate available capacity for job scheduling, plan
-> future capacity needs, and provide accurate memory usage feedback to
-> application developers.
->
-> It works over a wide variety of CPU and storage configurations with no
-> specific tuning.
->
-> The paper I referenced above provides a detailed breakdown of how it
-> all works together.
->
-> I would be curious to see a more in-depth comparison to the prior art
-> in this space. At first glance, your proposal seems more complex and
-> less robust/versatile, at least for offloading and capacity gauging.
-We have implemented TMO PSI-based proactive reclaim and compared it to
-a kstaled-based reclaimer (reclaiming based on 2 minute working set
-and refaults). The PSI-based reclaimer was able to save more memory,
-but it also caused spikes of refaults and a lot higher
-decompressions/second. Overall the test workloads had better
-performance with the kstaled-based reclaimer. The conclusion was that
-it was a trade-off. Since we have some app classes that we don't want
-to induce pressure but still want to proactively reclaim from, there's
-a missing piece. I do agree there's not a good in-depth comparison
-with prior art though.
