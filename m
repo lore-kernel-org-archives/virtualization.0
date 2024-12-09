@@ -1,200 +1,89 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB1628FC
-	for <virtualization@lists.linux-foundation.org>; Sat,  7 Dec 2024 10:53:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733568833; cv=fail; b=K2WEmti/eHnLYfVvKJ+n2lmP7/YNmiuASFtkJLILEpmp09/8HfIN3M4C/oRND+esTaK8pQQ8fXRP6d4ljvDOB1wj+3KVf3Ivibe6oTM/cLKkqzk6Hqz1KbNMFQVNHcDEzy+LxUvgaMhajm80ywWDH7EEXtchFMZGXa3XrPXCJIw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733568833; c=relaxed/simple;
-	bh=dWyvlSt7nZZjvtmK+EhzlwRL+lpuzyFWAjK1PxYeokA=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=s0jV7ZLGv+t1G8isqrtjuAwYKnQR+ch9fKrI6lGscG3Z/aKijAsUh11HwS12K7G7YCP3gAwsbg5yo7MrbDoqLyTLDZ099skLoLSOgCVCHF2BGZI/K80dxHNgH+TqVzZYOqQpKE498BpXNlP4AYzbp9rmTeJEitNJ3ckEoXovrmo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=YuZrRdDw; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAEF819A;
+	Mon,  9 Dec 2024 00:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733702759; cv=none; b=kJoSIN6jyKo3rqmpk43AN7pXMXgkUz9ENlC8Q+/QVlLWPnqO6bkQU8NU1UrYwmbo8/wH//uu50vbOkxwzdv2hdrBE9WXh1Ju5qdy2G2w/1nOPfenLEnfUBfC/seKq11IKcgfNvKZYTk6hsSGqxnT5iTc0GEpDq3aRFt26Fa2GgM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733702759; c=relaxed/simple;
+	bh=KOSE2+0IJQr/pu3UWE4qE1sa7hIxtXcxZxP8jtFM2qk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=O44FhUi3NBsGKpbYlXx+pMb/lC4bcqmu2NkHl1E1415n925OZKLKz2PTWEa3q1W4hSb2RRPnfv0+V5w//nM+diDtFXIm4aghEC0NJMP5P66+5sd/OP+SRvSLc0cVtLTc/0IwPYroVlXijaJXbNthQEqpSFPDBWVmRxCoN+pgZLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DXF9NPn9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="YuZrRdDw"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D7F0B80D86
-	for <virtualization@lists.linux-foundation.org>; Sat,  7 Dec 2024 10:53:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Ddjh-_C_4lpY for <virtualization@lists.linux-foundation.org>;
- Sat,  7 Dec 2024 10:53:51 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2409::61d; helo=nam04-dm6-obe.outbound.protection.outlook.com; envelope-from=julia.zhang@amd.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 0CF1280D84
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0CF1280D84
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=YuZrRdDw
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2061d.outbound.protection.outlook.com [IPv6:2a01:111:f403:2409::61d])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0CF1280D84
-	for <virtualization@lists.linux-foundation.org>; Sat,  7 Dec 2024 10:53:50 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=p0ySH/xYkkF4lPN3bgTVsYZ/pjYLaN59aqVfBy34DJt1UJSAoe8lZpePXZAyZP3ZLtJIYACtJUgLf8Fd/SjiMjS4f4Cdw2+FQQ910r7hW2Mt1JAyYUyk3T+UI8HXxCfxMcddWP9wow/NpfGHPSXjIhG7IfEcTp16U4TpVL2vnnEsyP2AJH5ifTJSDloLYdzJ5mRWwC2ZE7xe2Xw4TLCLp6mWdW9fU19CcMXiUfgd23fykpya5J60X+y6lGkjcsKDXe0S+UGXIUDgdNajOWiEV3/KzA3JmpMkV9rNdd7+uInd0yLOckylnhr4Nc+nOytaKLTIm2I965pHpas5qoHoGA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4ZkFtwcnYM2i/536XZMFv1NpvRLzNT6/8HZOgNw9APU=;
- b=IYYvzvc5qsR9GbQ0hGPfhNvHnebbOO5yTGBEPN1VZOqoGS8Nxw21XxNAmaVy+BqHlA6qnRCyMe9DD0z0cPEZaPrryUtEXUkdQKc9F6XFQDuVrWMSjcEuiZ0ykCxuN7oFd8au6/JPasHHzVXmzD8+NqNUzqyLBa7ZgBE9jshWQlwatA6jQIYYy/PYcq8t53Xijkx5vAOXR8w+EsSTAFDBARV+43DTHIvhGsXt5/WE8EvQUcERDuvuwhZCeJ7zJi2hgzpf2IKrb24sgdsNYiySnnbGoiATWBjgcssBQua9RHnhbgwQ556/ZX4RZGb7jgcA36C2v5sij/JiQWeJhPU+uQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4ZkFtwcnYM2i/536XZMFv1NpvRLzNT6/8HZOgNw9APU=;
- b=YuZrRdDw32Gd5l4UpvOeTbHLgD56QTO10INg3o3T+Ac2L8srAH9J9EgJYQKOSpetZbPfpsvwu5jfTVlQ6KyyK+2knrpfzwW/ggvR0tKcfKrhGeIWpIg6foCzqs5e/Qv+tPzCRsfAdLUqXGZFCnMiYhUmv2kSdzfqdIBxPFJ1d9c=
-Received: from CH0P223CA0030.NAMP223.PROD.OUTLOOK.COM (2603:10b6:610:116::6)
- by CH3PR12MB7572.namprd12.prod.outlook.com (2603:10b6:610:144::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8230.11; Sat, 7 Dec
- 2024 10:53:45 +0000
-Received: from CH2PEPF0000013C.namprd02.prod.outlook.com
- (2603:10b6:610:116:cafe::4) by CH0P223CA0030.outlook.office365.com
- (2603:10b6:610:116::6) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8230.12 via Frontend Transport; Sat,
- 7 Dec 2024 10:53:45 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CH2PEPF0000013C.mail.protection.outlook.com (10.167.244.73) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.8230.7 via Frontend Transport; Sat, 7 Dec 2024 10:53:44 +0000
-Received: from jenkins-julia.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Sat, 7 Dec
- 2024 04:53:39 -0600
-From: Julia Zhang <julia.zhang@amd.com>
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>,
-	<dri-devel@lists.freedesktop.org>,
-	<virtualization@lists.linux-foundation.org>, Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>, Oleksandr Tyshchenko
-	<oleksandr_tyshchenko@epam.com>, <xen-devel@lists.xenproject.org>
-CC: Alex Deucher <alexander.deucher@amd.com>,
-	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Daniel Vetter
-	<daniel@ffwll.ch>, Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui
-	<ray.huang@amd.com>, Penny Zheng <penny.zheng@amd.com>, Zhu Lingshan
-	<Lingshan.Zhu@amd.com>, Anthony PERARD <anthony.perard@citrix.com>,
-	=?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>, Jan Beulich
-	<jbeulich@suse.com>, Paul Durrant <paul@xen.org>, Julia Zhang
-	<julia.zhang@amd.com>
-Subject: [PATCH 3/3] drm/virtio: Implement device_attach
-Date: Sat, 7 Dec 2024 18:50:26 +0800
-Message-ID: <20241207105023.542399-4-julia.zhang@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20241207105023.542399-1-julia.zhang@amd.com>
-References: <20241207105023.542399-1-julia.zhang@amd.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DXF9NPn9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F2CC4CED2;
+	Mon,  9 Dec 2024 00:05:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1733702758;
+	bh=KOSE2+0IJQr/pu3UWE4qE1sa7hIxtXcxZxP8jtFM2qk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DXF9NPn9POFP50emVFrAtfIHqq4k8Ait3jzAckDzNP4bGmUk6T8lv6B0EIk7fxs1U
+	 u7pjIv1BdHmbkxLaCyDrqJ4fAw2qD+sefOnHMs79XCU1/ccDaVEsY8F86kazyBJr6M
+	 PjJunvWrVykhl/mhPfkYR2UxjUex+regGgNhtDqxdKH+urlUjGi4XqeldagYnbQSxW
+	 lSxM+nTE2m+KYy1gibCaV6aXWA2i8NfGqXbAcVKwqmjgyBrs7oKccYOETeAQKZYlwH
+	 3qilQ0Q/zFmyj3DBqfn5svbmu/EaZbdsza73DiOz60mE4GWluNMmHLT061A3r4GXK8
+	 TI1wK055FK+iQ==
+Date: Mon, 9 Dec 2024 00:05:56 +0000
+From: Wei Liu <wei.liu@kernel.org>
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+Cc: linux-hyperv@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	iommu@lists.linux.dev, netdev@vger.kernel.org,
+	linux-pci@vger.kernel.org, linux-arch@vger.kernel.org,
+	virtualization@lists.linux.dev, kys@microsoft.com,
+	haiyangz@microsoft.com, wei.liu@kernel.org, mhklinux@outlook.com,
+	decui@microsoft.com, catalin.marinas@arm.com, will@kernel.org,
+	luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+	seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org,
+	daniel.lezcano@linaro.org, joro@8bytes.org, robin.murphy@arm.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, lpieralisi@kernel.org, kw@linux.com,
+	robh@kernel.org, bhelgaas@google.com, arnd@arndb.de,
+	sgarzare@redhat.com, jinankjain@linux.microsoft.com,
+	muminulrussell@gmail.com, skinsburskii@linux.microsoft.com,
+	mukeshrathor@microsoft.com, vkuznets@redhat.com,
+	ssengar@linux.microsoft.com, apais@linux.microsoft.com,
+	eahariha@linux.microsoft.com, horms@kernel.org
+Subject: Re: [PATCH v3 0/5] Introduce new headers for Hyper-V
+Message-ID: <Z1Y0ZB0J16oeHBbK@liuwe-devbox-debian-v2>
+References: <1732577084-2122-1-git-send-email-nunodasneves@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH2PEPF0000013C:EE_|CH3PR12MB7572:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4d46a6a5-b8b5-453d-7fe6-08dd16ad6bca
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|7416014|376014|82310400026|36860700013|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?2wKtCKDtVexDsiIbKn+FuNmPsOgS/VWMc7nExyLAuNnJpD3SY7ed/9JncehJ?=
- =?us-ascii?Q?6IdZKDAdUrpX5RYeoDxcH44yYhMIdXsiZsfmxyhgZ11iAPX7+xhOsID0fRHW?=
- =?us-ascii?Q?hJyqKRHEvmGrHuacbZSDD6kPJV8vSDstb5R/E+TpelwgR5KfiDJflDiln8aC?=
- =?us-ascii?Q?vqFtEMxKjsQNX+bd6DaeMySzF8SMQQ/mcHJCeKcgDxx0aUH/5GNUWA+cOzw8?=
- =?us-ascii?Q?hBD5uZ3sWgPI1+xfXp5/US5etcK8wmltdyCo3lO/VyhK87kDdjhQbsLXHSzW?=
- =?us-ascii?Q?Q45utifk9uwOZijqvhPX7WIUqjERhzRif9sUKveJCdYi8SHHz+hFtjfVSyn8?=
- =?us-ascii?Q?FZATHaOzMrOggUqP2cu0QIxQD3WHlDu97C3+G1cR6wKHrjaxNXebycCF+BM9?=
- =?us-ascii?Q?WLv8WjqU5R6C6efWVntpdZ4xg9VwVMdXmR3XA8Rcm7bF8Hwij1Be2k8rrN7W?=
- =?us-ascii?Q?l58ZUjsZZLcBIuc+JO3TxEWvozHQFRn7BuEhLHjyViAqcqcdfIaq3VcVifS3?=
- =?us-ascii?Q?udlMf3ddm/jedtiQE8GlqPzL9d5A1rpphCCe/0KqaJF6u8RUGuwbBwT7B7Q9?=
- =?us-ascii?Q?bG6LjM6tPZCIyc4ySjyrRLvtFN1fgB5bln+0xo2eXjKheNlRPgvijXYO2QIm?=
- =?us-ascii?Q?EqALGPzaGXJ1HwkuDVobUDAOiVhP+HfeNX7C2TSPPNYasyke4PeSH4YPziRr?=
- =?us-ascii?Q?8qud9WGAH3znX9fna8cgh7kv0oS88jTLVhDxMhGN2bRTZbqkM8LoRM2vgXNd?=
- =?us-ascii?Q?XSaNPsg9fgMN7szZKLvCWS7+EMzAofbz6IRxgnAz+btmRldbEM9AnkCVbrWa?=
- =?us-ascii?Q?96pb+BrqDkL4uArbTtyunSHZS8tg/XAaasIi/W0wzpfuHVlO1+7SvEr2e8c3?=
- =?us-ascii?Q?ZmgNqslEmEYHVR6zxDJU1mgef2fk09dxj3iKKkLVWlq7ZGFYZ8tK9z6Xcexr?=
- =?us-ascii?Q?1I8v9VPBEGBtKBbPDsdOp/z7L6Zd3G0mKbJqRXtB9Qxc/URS3l3p3w3MlPY2?=
- =?us-ascii?Q?bdLWA8XfrEIqe3OZk2giSz4QReRDYCr+wPU8d8fZoDFrJ2xSg+0G/AqWxRpj?=
- =?us-ascii?Q?krPIlJSWhsnjCcd3mXcDOnvcD7B5jg4OmGFjemxk7gV9I5DYQ/yZivTlTb+M?=
- =?us-ascii?Q?JP+yIGEWc1KM5R3dBN+Qz6o4cRJKfWoai9oFov5JkMzWlpuaxjkH6Bmkas6O?=
- =?us-ascii?Q?uJdoVV9oAVDvsl/4Gg2X7Xk3f8gysiLhHO0+xzyIbMdfGPRow8Y/J+bfGzAN?=
- =?us-ascii?Q?+/3f4+y8eKBqx8/YiAOhZQD9ncEf5gab0SVypE8wdn2fQYebptIu3li5xaXF?=
- =?us-ascii?Q?lVNQI6ImNixFGnwoBYhc0P4QPCPBSYtKqiyms6kaamKIxZUcuAwYxe+ap1bP?=
- =?us-ascii?Q?+5tF5C3lZsCcWnQKkHUIGhdW2V8qFh6zJ5Rg7gy9WrQLAFAW6hc17QrVXe1Z?=
- =?us-ascii?Q?jQYEyBNF6aJiyaPrhy3TesM1ApUIpwKfaf6htWdFE4hAcItYfuKM5Q=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(82310400026)(36860700013)(921020);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Dec 2024 10:53:44.9127
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4d46a6a5-b8b5-453d-7fe6-08dd16ad6bca
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH2PEPF0000013C.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB7572
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1732577084-2122-1-git-send-email-nunodasneves@linux.microsoft.com>
 
-As vram objects may be imported by other gpu drivers, peer2peer flag
-should be checked in dma_buf_ops->attach(). This reimplement virtio gpu
-dma_buf_ops->attach by adding a device_attach() function for virtio gpu.
-This function will get pci_p2pdma_distance and check attach->peer2peer
-before calling drm_gem_map_attach().
+On Mon, Nov 25, 2024 at 03:24:39PM -0800, Nuno Das Neves wrote:
+> To support Linux as root partition[1] on Hyper-V many new definitions
+> are required.
+> 
+> The plan going forward is to directly import definitions from
+> Hyper-V code without waiting for them to land in the TLFS document.
+> This is a quicker and more maintainable way to import definitions,
+> and is a step toward the eventual goal of exporting the headers
+> directly from Hyper-V for use in Linux.
+> 
+> This patch series introduces new headers (hvhdk.h, hvgdk.h, etc,
+> see patch #3) derived directly from Hyper-V code. hyperv-tlfs.h is
+> replaced with hvhdk.h (which includes the other new headers)
+> everywhere.
+> 
+> No functional change is expected.
+> 
+> Summary:
+> Patch 1-2: Minor cleanup patches
+> Patch 3: Add the new headers (hvhdk.h, etc..) in include/hyperv/
+> Patch 4: Switch to the new headers
+> Patch 5: Delete hyperv-tlfs.h files
+> 
+> Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
 
-Signed-off-by: Julia Zhang <julia.zhang@amd.com>
----
- drivers/gpu/drm/virtio/virtgpu_prime.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-index 4960620eba02..4f6bce79e10e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-@@ -116,6 +116,18 @@ static int virtgpu_get_p2pdma_distance(struct dma_buf *dma_buf,
- 	return 0;
- }
- 
-+static int virtgpu_gem_device_attach(struct dma_buf *dma_buf,
-+				     struct dma_buf_attachment *attach)
-+{
-+	int ret = virtgpu_get_p2pdma_distance(dma_buf, attach);
-+	if (ret)
-+		return ret;
-+	if (!attach->peer2peer)
-+		return -EBUSY;
-+
-+	return drm_gem_map_attach(dma_buf, attach);
-+}
-+
- static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
- 	.ops = {
- 		.cache_sgt_mapping = true,
-@@ -128,7 +140,7 @@ static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
- 		.vmap = drm_gem_dmabuf_vmap,
- 		.vunmap = drm_gem_dmabuf_vunmap,
- 	},
--	.device_attach = drm_gem_map_attach,
-+	.device_attach = virtgpu_gem_device_attach,
- 	.get_uuid = virtgpu_virtio_get_uuid,
- };
- 
--- 
-2.34.1
-
+Applied to hyperv-next. Thanks.
