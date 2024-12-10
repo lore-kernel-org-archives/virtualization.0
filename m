@@ -1,177 +1,236 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BCD919B3EE
-	for <virtualization@lists.linux.dev>; Mon,  9 Dec 2024 23:42:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DECE418E3F
+	for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 01:28:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733787757; cv=none; b=Y/IJOAtam0kYHH4FgLwYJFMB4Qd1kec2wNCwsJSI8TvOCOXd5YFybJZWo3Nq6U+OToNqOuAdv+DxPUnq6uRzX7NO5gzSu3YAv9B8aaq6FSjeLhZXtK63ZzyZ0VD9wCHcjYjm4CZpM2ctsHguhm8Y+CYuq4qHglRgmvunxbr3o+Y=
+	t=1733794097; cv=none; b=JrzYwFA68rjidrD9JCE2qqre7VbA1G7M1Kv/KKuOpe0rdm3Kv/kmsVOBxRcdqxHrjqdKbrhIcpWraqxn9BwpDXFXVwwG6DKVNQVfX3oR9KC+j9FavdrI/DGn+ffthAQEBBUDDwEUklPY7nPRXDdg6glF7PVntw9POn6XLof1AnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733787757; c=relaxed/simple;
-	bh=nimOTSL9Znrxib3tUb9L8vYX6gPSgfgZq9pRGBWeHhI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YavVyNZ0CbLw/Sl0K1Q1LSYsEV2SOcoKo5iomAWUSq79boLWS1myqIUROSnv6sHWoxL2zhMOYEb5LbhLfbm/D7TmMOX+/T+/tvg8ybwdZWiLMSbv+khlNgsSqFnf7pWvY939b67SYIuoRmTRkjPENgD9a5FlHF3Z1HKd6ArifjQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=BUh5b7a6; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1733794097; c=relaxed/simple;
+	bh=0WGDEIBUdYzdvcU7vz5nQuOkZ6/HgJBnZUPutGdPLls=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=rrpFXRq+opPlhr7EmWzVFnHjrktGzzIu1G2AWkzIq8LChSuoMGdWDk/0WropqbvYJKdMu03Imqp8ysElInESBLGKreajDkxbObmIRkTQ+QlV3s1K43wPuRo4RKOGQMV0G60jKqJpkwqWIWt8p8hEYykJakFoyRnotMb03y4S89I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JxsS4ehI; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="BUh5b7a6"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4B9E6nEJ006957
-	for <virtualization@lists.linux.dev>; Mon, 9 Dec 2024 23:42:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	yjDjYNmyOQCEyuW9Wcn0o22htAiKyRiMSInFe9Mx5HM=; b=BUh5b7a6MnDoDe6k
-	OEmrpdpGV+SKCMuKsV9eJ4InwLNHIsWagBL97IjYZ5fCq7OocOw4dAV7eKCLdYfq
-	+6T5VrI2e8HJ8PWBvYVS4+rTh8XxB93++3WqkCmgM3s8FEoHcAIhA9g/wcrZGzin
-	tUVgQ/GpwIPGmdjqjLgFoLgRijWDBlfBM006jfoXk/gcyAVxxAHtKaAN3xl6Sjy2
-	VTNK3liSIGZ1FhvjDd/ruRWnD4atRn5vsA8LcxyaqrS5H2tk3VK1AGbFRaA3xSZz
-	4SbN12TKaNa0j5DaXSXoezNZXefhUjH9yt+YWSW0V5qv921c90mTva3ZfV90Q+Lv
-	//F48Q==
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 43e21bhf4f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Mon, 09 Dec 2024 23:42:35 +0000 (GMT)
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-7fd48914d9bso1274546a12.2
-        for <virtualization@lists.linux.dev>; Mon, 09 Dec 2024 15:42:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733787754; x=1734392554;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yjDjYNmyOQCEyuW9Wcn0o22htAiKyRiMSInFe9Mx5HM=;
-        b=ToIz19UY6SpoWvPsz4cBDGvnWiyMb1CE/KT7j2x1k7lOBb/ob/RSi8lyidntp9hD0j
-         KLlVZ0L6yoVzgS4kwVanzCXTJ6UCT0u07vT8yw8aPet62omnmidiOakmuV4OCiow/Hxt
-         Bjf5nvuIYu9l5z2eFsO/4W5hyK4upIr2WaIbW1LCrDen0/bVqLmGQ9cR3wPAxJCUf50t
-         Om9SjFOIKdLNEjFkiMJGYRjMTrVFjq2y8hvSj9HdCSJrEEETkdY/oBb87RGl2q7Rbb2M
-         x9WrXnBKb7/+C2eiDzKfEa3Yk48ekUMZfIgjWYwjAvaK9VTENrBai51L6GzbFZrsDEUZ
-         R1hA==
-X-Forwarded-Encrypted: i=1; AJvYcCUJv3Eke+GqsvYi9PUfg8/QNjKjmiIo3827XkIe9aZjWHeFtUGdJ3bRDPqxKQcfLBMrnMNeXBCbtY3ZnxVqkw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YykCafi4y25ViaygrOuZxhXZEC0/HpUxi5+mhlfLM1GvSoxLhnZ
-	tFFXGV0WwRgF8UW5CkPNT1QdVTQzrt9PiP3y5HUAH5S6DgffOAEppvUbnjtAa4ly43kt91Eu878
-	EvoznVWKf8/gEfUrdTSDt0aZziJiRM03FtlPzNHHSE6sQX5wDy0m0y9d93lz88xPlvw==
-X-Gm-Gg: ASbGnct05KCr5werjFH5OQYaPvWNIEY+7lvOiKxy/kTW2Do7jVv87l1HPNhi5Jf3Fpx
-	TK9OF/QbZiSmGrePEKztEE9qh+0JvRlbGgGU+CrknjlrwvR+iZMAzfjd7UDPP2ZzUDgY+9rLuUR
-	XtGuFOFjb02Gmgo/bheyWTtYC13Vc475v5eUjBj9WbNsRIPecUjdydPtYg/luD677wi5mdgkjCg
-	4YZLZVa9kdS8xT0JdQFKf3w9KgjaeOK2z51+WvMAvHaxTWus3hAXQ5V1obx1Umtcy3oCJVCYDVt
-	sE5BDV7KpOYg718=
-X-Received: by 2002:a17:903:1206:b0:20c:5533:36da with SMTP id d9443c01a7336-21614db26d0mr213662075ad.42.1733787754155;
-        Mon, 09 Dec 2024 15:42:34 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEL+hsnLEHYE+knt2cKrrAlXNVWaFMj8osQa0ggexhJ4SCwXZKtZ+f6KtDQjEKHmm2LNIcxoA==
-X-Received: by 2002:a17:903:1206:b0:20c:5533:36da with SMTP id d9443c01a7336-21614db26d0mr213661755ad.42.1733787753794;
-        Mon, 09 Dec 2024 15:42:33 -0800 (PST)
-Received: from [10.81.24.74] (Global_NAT1.qualcomm.com. [129.46.96.20])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21631117c6dsm42869045ad.158.2024.12.09.15.42.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Dec 2024 15:42:33 -0800 (PST)
-Message-ID: <365f763b-5985-4dcd-a526-185aa49bf47d@oss.qualcomm.com>
-Date: Mon, 9 Dec 2024 15:42:32 -0800
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JxsS4ehI"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1733794087; h=Message-ID:Subject:Date:From:To;
+	bh=yBYoMTDeCXIFbr2CWMfboyCFY2eYGLTga/HAl0c5j54=;
+	b=JxsS4ehIVreAytoj6UDvYRG1tuqp07ZAhjwZTVOTxmYmYRMBp35hDLQWshH1TEaOPpwglv3ioHzVEs+XoREt12/edL0MuOcI+9mKl/hcr46QS5CBTJViie+U4TN+ahBe9Rc77W4H9AQJbCy8I6iIMaTEKkDc0XeAqctCk/yjdCA=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WLCv2v2_1733794085 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 10 Dec 2024 09:28:06 +0800
+Message-ID: <1733794074.144948-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v4 0/6] virtio_net: correct netdev_tx_reset_queue() invocation points
+Date: Tue, 10 Dec 2024 09:27:54 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Koichiro Den <koichiro.den@canonical.com>
+Cc: mst@redhat.com,
+ jasowang@redhat.com,
+ eperezma@redhat.com,
+ andrew+netdev@lunn.ch,
+ davem@davemloft.net,
+ edumazet@google.com,
+ kuba@kernel.org,
+ pabeni@redhat.com,
+ jiri@resnulli.us,
+ netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20241206011047.923923-1-koichiro.den@canonical.com>
+In-Reply-To: <20241206011047.923923-1-koichiro.den@canonical.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [virtio-dev] [RFC PATCH 1/1] VirtIO: Add platform bus driver for
- loopback virtio device
-To: t.ampelikiotis@virtualopensystems.com, virtio-dev@lists.oasis-open.org
-Cc: anna@virtualopensystems.com, a.rigo@virtualopensystems.com,
-        m.paolino@virtualopensystems.com, s.raho@virtualopensystems.com,
-        chou.kensou@jp.panasonic.com, wminer@linuxfoundation.org,
-        jsmoeller@linuxfoundation.org, virtualization@lists.linux.dev,
-        stefanha@redhat.com, xuanzhuo@linux.alibaba.com, sgarzare@redhat.com,
-        jasowang@redhat.com
-References: <20241204153811.126028-1-t.ampelikiotis@virtualopensystems.com>
- <20241204153811.126028-2-t.ampelikiotis@virtualopensystems.com>
-From: Jeff Johnson <jeff.johnson@oss.qualcomm.com>
-Content-Language: en-US
-In-Reply-To: <20241204153811.126028-2-t.ampelikiotis@virtualopensystems.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-GUID: 6OGNuVR8dpXVJ2aY7NEiV9QD8l5I9PX8
-X-Proofpoint-ORIG-GUID: 6OGNuVR8dpXVJ2aY7NEiV9QD8l5I9PX8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1011
- malwarescore=0 lowpriorityscore=0 mlxlogscore=999 priorityscore=1501
- spamscore=0 impostorscore=0 adultscore=0 bulkscore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2412090184
 
-On 12/4/24 07:38, t.ampelikiotis@virtualopensystems.com wrote:
-> From: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
-> 
-> This commit, is based on virtio MMIO driver, adds support
-> for dynamic allocated (platform) virtio devices. This
-> allows applications running in native environments to use
-> virtio drivers as a HAL and eventually communicate with
-> user-space drivers (implementing the vhost-user protocol).
-> 
-> Signed-off-by: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
-> ---
->  MAINTAINERS                                |  10 +
->  drivers/virtio/Kconfig                     |  20 +
->  drivers/virtio/Makefile                    |   2 +
->  drivers/virtio/virtio_loopback.c           | 780 +++++++++++++++++
->  drivers/virtio/virtio_loopback_transport.c | 924 +++++++++++++++++++++
->  include/uapi/linux/virtio_loopback.h       | 259 ++++++
->  6 files changed, 1995 insertions(+)
->  create mode 100644 drivers/virtio/virtio_loopback.c
->  create mode 100644 drivers/virtio/virtio_loopback_transport.c
->  create mode 100644 include/uapi/linux/virtio_loopback.h
 
-...
+For the series,
 
-> diff --git a/drivers/virtio/virtio_loopback.c b/drivers/virtio/virtio_loopback.c
-> new file mode 100644
-> index 000000000000..a3013f0e1109
-> --- /dev/null
-> +++ b/drivers/virtio/virtio_loopback.c
-> @@ -0,0 +1,780 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Virtio loopback device driver
-> + *
-> + * Copyright 2022-2024 Virtual Open Systems SAS
-> + *
-> + * Authors:
-> + *  Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
-> + *  Anna Panagopoulou <anna@virtualopensystems.com>
-> + *  Alvise Rigo <a.rigo@virtualopensystems.com>
-> + *
-> + * This module allows virtio devices to be used in a non-virtualized
-> + * environment, coupled with vhost-user device (user-space drivers).
-> + *
-> + * This module is responsible to assign the virtio-loopback transport driver
-> + * to a group of virtio drivers in order to be able to share notifications and
-> + * the vrings (without copies) with the corresponding vhost-user devices in
-> + * the user-space.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#define pr_fmt(fmt) "virtio-loopback: " fmt
-> +
-> +/* Loopback header file */
-> +#include <uapi/linux/virtio_loopback.h>
-> +
-> +/* Features */
-> +MODULE_LICENSE("GPL");
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-Since commit 1fffe7a34c89 ("script: modpost: emit a warning when the
-description is missing"), a module without a MODULE_DESCRIPTION() will
-result in a warning with make W=1. Not sure if this issue is applicable
-to virtio, but if so, please add a MODULE_DESCRIPTION().
+Thanks
 
-/jeff
+
+On Fri,  6 Dec 2024 10:10:41 +0900, Koichiro Den <koichiro.den@canonical.com> wrote:
+> When virtnet_close is followed by virtnet_open, some TX completions can
+> possibly remain unconsumed, until they are finally processed during the
+> first NAPI poll after the netdev_tx_reset_queue(), resulting in a crash
+> [1]. Commit b96ed2c97c79 ("virtio_net: move netdev_tx_reset_queue() call
+> before RX napi enable") was not sufficient to eliminate all BQL crash
+> scenarios for virtio-net.
+>
+> This issue can be reproduced with the latest net-next master by running:
+> `while :; do ip l set DEV down; ip l set DEV up; done` under heavy network
+> TX load from inside the machine.
+>
+> This patch series resolves the issue and also addresses similar existing
+> problems:
+>
+> (a). Drop netdev_tx_reset_queue() from open/close path. This eliminates the
+>      BQL crashes due to the problematic open/close path.
+>
+> (b). As a result of (a), netdev_tx_reset_queue() is now explicitly required
+>      in freeze/restore path. Add netdev_tx_reset_queue() immediately after
+>      free_unused_bufs() invocation.
+>
+> (c). Fix missing resetting in virtnet_tx_resize().
+>      virtnet_tx_resize() has lacked proper resetting since commit
+>      c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits").
+>
+> (d). Fix missing resetting in the XDP_SETUP_XSK_POOL path.
+>      Similar to (c), this path lacked proper resetting. Call
+>      netdev_tx_reset_queue() when virtqueue_reset() has actually recycled
+>      unused buffers.
+>
+> This patch series consists of six commits:
+>   [1/6]: Resolves (a) and (b).                      # also -stable 6.11.y
+>   [2/6]: Minor fix to make [4/6] streamlined.
+>   [3/6]: Prerequisite for (c).                      # also -stable 6.11.y
+>   [4/6]: Resolves (c) (incl. Prerequisite for (d))  # also -stable 6.11.y
+>   [5/6]: Preresuisite for (d).
+>   [6/6]: Resolves (d).
+>
+> Changes for v4:
+>   - move netdev_tx_reset_queue() out of free_unused_bufs()
+>   - submit to net, not net-next
+> Changes for v3:
+>   - replace 'flushed' argument with 'recycle_done'
+> Changes for v2:
+>   - add tx queue resetting for (b) to (d) above
+>
+> v3: https://lore.kernel.org/all/20241204050724.307544-1-koichiro.den@canonical.com/
+> v2: https://lore.kernel.org/all/20241203073025.67065-1-koichiro.den@canonical.com/
+> v1: https://lore.kernel.org/all/20241130181744.3772632-1-koichiro.den@canonical.com/
+>
+> [1]:
+> ------------[ cut here ]------------
+> kernel BUG at lib/dynamic_queue_limits.c:99!
+> Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+> CPU: 7 UID: 0 PID: 1598 Comm: ip Tainted: G    N 6.12.0net-next_main+ #2
+> Tainted: [N]=TEST
+> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), \
+> BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
+> RIP: 0010:dql_completed+0x26b/0x290
+> Code: b7 c2 49 89 e9 44 89 da 89 c6 4c 89 d7 e8 ed 17 47 00 58 65 ff 0d
+> 4d 27 90 7e 0f 85 fd fe ff ff e8 ea 53 8d ff e9 f3 fe ff ff <0f> 0b 01
+> d2 44 89 d1 29 d1 ba 00 00 00 00 0f 48 ca e9 28 ff ff ff
+> RSP: 0018:ffffc900002b0d08 EFLAGS: 00010297
+> RAX: 0000000000000000 RBX: ffff888102398c80 RCX: 0000000080190009
+> RDX: 0000000000000000 RSI: 000000000000006a RDI: 0000000000000000
+> RBP: ffff888102398c00 R08: 0000000000000000 R09: 0000000000000000
+> R10: 00000000000000ca R11: 0000000000015681 R12: 0000000000000001
+> R13: ffffc900002b0d68 R14: ffff88811115e000 R15: ffff8881107aca40
+> FS:  00007f41ded69500(0000) GS:ffff888667dc0000(0000)
+> knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000556ccc2dc1a0 CR3: 0000000104fd8003 CR4: 0000000000772ef0
+> PKRU: 55555554
+> Call Trace:
+>  <IRQ>
+>  ? die+0x32/0x80
+>  ? do_trap+0xd9/0x100
+>  ? dql_completed+0x26b/0x290
+>  ? dql_completed+0x26b/0x290
+>  ? do_error_trap+0x6d/0xb0
+>  ? dql_completed+0x26b/0x290
+>  ? exc_invalid_op+0x4c/0x60
+>  ? dql_completed+0x26b/0x290
+>  ? asm_exc_invalid_op+0x16/0x20
+>  ? dql_completed+0x26b/0x290
+>  __free_old_xmit+0xff/0x170 [virtio_net]
+>  free_old_xmit+0x54/0xc0 [virtio_net]
+>  virtnet_poll+0xf4/0xe30 [virtio_net]
+>  ? __update_load_avg_cfs_rq+0x264/0x2d0
+>  ? update_curr+0x35/0x260
+>  ? reweight_entity+0x1be/0x260
+>  __napi_poll.constprop.0+0x28/0x1c0
+>  net_rx_action+0x329/0x420
+>  ? enqueue_hrtimer+0x35/0x90
+>  ? trace_hardirqs_on+0x1d/0x80
+>  ? kvm_sched_clock_read+0xd/0x20
+>  ? sched_clock+0xc/0x30
+>  ? kvm_sched_clock_read+0xd/0x20
+>  ? sched_clock+0xc/0x30
+>  ? sched_clock_cpu+0xd/0x1a0
+>  handle_softirqs+0x138/0x3e0
+>  do_softirq.part.0+0x89/0xc0
+>  </IRQ>
+>  <TASK>
+>  __local_bh_enable_ip+0xa7/0xb0
+>  virtnet_open+0xc8/0x310 [virtio_net]
+>  __dev_open+0xfa/0x1b0
+>  __dev_change_flags+0x1de/0x250
+>  dev_change_flags+0x22/0x60
+>  do_setlink.isra.0+0x2df/0x10b0
+>  ? rtnetlink_rcv_msg+0x34f/0x3f0
+>  ? netlink_rcv_skb+0x54/0x100
+>  ? netlink_unicast+0x23e/0x390
+>  ? netlink_sendmsg+0x21e/0x490
+>  ? ____sys_sendmsg+0x31b/0x350
+>  ? avc_has_perm_noaudit+0x67/0xf0
+>  ? cred_has_capability.isra.0+0x75/0x110
+>  ? __nla_validate_parse+0x5f/0xee0
+>  ? __pfx___probestub_irq_enable+0x3/0x10
+>  ? __create_object+0x5e/0x90
+>  ? security_capable+0x3b/0x7[I0
+>  rtnl_newlink+0x784/0xaf0
+>  ? avc_has_perm_noaudit+0x67/0xf0
+>  ? cred_has_capability.isra.0+0x75/0x110
+>  ? stack_depot_save_flags+0x24/0x6d0
+>  ? __pfx_rtnl_newlink+0x10/0x10
+>  rtnetlink_rcv_msg+0x34f/0x3f0
+>  ? do_syscall_64+0x6c/0x180
+>  ? entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>  ? __pfx_rtnetlink_rcv_msg+0x10/0x10
+>  netlink_rcv_skb+0x54/0x100
+>  netlink_unicast+0x23e/0x390
+>  netlink_sendmsg+0x21e/0x490
+>  ____sys_sendmsg+0x31b/0x350
+>  ? copy_msghdr_from_user+0x6d/0xa0
+>  ___sys_sendmsg+0x86/0xd0
+>  ? __pte_offset_map+0x17/0x160
+>  ? preempt_count_add+0x69/0xa0
+>  ? __call_rcu_common.constprop.0+0x147/0x610
+>  ? preempt_count_add+0x69/0xa0
+>  ? preempt_count_add+0x69/0xa0
+>  ? _raw_spin_trylock+0x13/0x60
+>  ? trace_hardirqs_on+0x1d/0x80
+>  __sys_sendmsg+0x66/0xc0
+>  do_syscall_64+0x6c/0x180
+>  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+> RIP: 0033:0x7f41defe5b34
+> Code: 15 e1 12 0f 00 f7 d8 64 89 02 b8 ff ff ff ff eb bf 0f 1f 44 00 00
+> f3 0f 1e fa 80 3d 35 95 0f 00 00 74 13 b8 2e 00 00 00 0f 05 <48> 3d 00
+> f0 ff ff 77 4c c3 0f 1f 00 55 48 89 e5 48 83 ec 20 89 55
+> RSP: 002b:00007ffe5336ecc8 EFLAGS: 00000202 ORIG_RAX: 000000000000002e
+> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f41defe5b34
+> RDX: 0000000000000000 RSI: 00007ffe5336ed30 RDI: 0000000000000003
+> RBP: 00007ffe5336eda0 R08: 0000000000000010 R09: 0000000000000001
+> R10: 00007ffe5336f6f9 R11: 0000000000000202 R12: 0000000000000003
+> R13: 0000000067452259 R14: 0000556ccc28b040 R15: 0000000000000000
+>  </TASK>
+> [...]
+> ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+>
+> Koichiro Den (6):
+>   virtio_net: correct netdev_tx_reset_queue() invocation point
+>   virtio_net: replace vq2rxq with vq2txq where appropriate
+>   virtio_ring: add a func argument 'recycle_done' to virtqueue_resize()
+>   virtio_net: ensure netdev_tx_reset_queue is called on tx ring resize
+>   virtio_ring: add a func argument 'recycle_done' to virtqueue_reset()
+>   virtio_net: ensure netdev_tx_reset_queue is called on bind xsk for tx
+>
+>  drivers/net/virtio_net.c     | 31 +++++++++++++++++++++++++------
+>  drivers/virtio/virtio_ring.c | 12 ++++++++++--
+>  include/linux/virtio.h       |  6 ++++--
+>  3 files changed, 39 insertions(+), 10 deletions(-)
+>
+> --
+> 2.43.0
+>
