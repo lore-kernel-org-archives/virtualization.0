@@ -1,141 +1,148 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF091A76BB
-	for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 12:24:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A54A022FDF6
+	for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 15:51:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733833460; cv=none; b=sF14vqoTxmR4pOeoGebx3acYFb8at08FhUMl2jqRUnu2Nbz+CW4Lpxryl+OAiV7VYHE/lsmEH78fG/WAsWtm8E2KVN7WHuhdcJRMnsN8xCe3stAv8Gyvo/rE+tQEFEpMI5Z/R8MysKKIKK+6g+hoadT4yW+DtxXoCDywd+zCYNM=
+	t=1733845891; cv=none; b=V1eyrrwhNxrl5xsVHxNLvstLIMd7s9RIbLN8MbP1bIa+ETU2cFjPNfUMh3+8RweUu6zRCmOvOML1hnKrF4yqb/TB3/hIVtLzzgqOFb6Qcddkn97CbH88scjASI0dn6kotypa7U3pP+p9P14oEsoX//s5HbtaykMCKsT7diKoj38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733833460; c=relaxed/simple;
-	bh=YwG3Q0LwST/Krkoga8Nxp9uoO7p3NLysRaEVDcRad3Y=;
+	s=arc-20240116; t=1733845891; c=relaxed/simple;
+	bh=Ar1hMyO0wyxaPu8Q24vK58601T1l650o4aMs1l59DaA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nx+xKG2akAc78/3mNn0XxfWJUGU4vE4518VxnWZ98+6HdZwSZVWrImNuOBNpGyvy8H8h2ga6C7wZQHBQbwLzgIqZNiuSR7o+0WCr13QJ6DpqSKlpa14zD+abRMbTZZJ4yDc9niUPD2Ig5cY7re61emyaGFiDm9H6EYVtkKjCRb4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Sfs8oyCm; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=erfcldzhR3+s5+Xky0yPHzteNgZotEIb5cz7AVwXNwTUIrkmrHIqCMHRTkjhigv607EAeTALIhLPXtOFyuYTLYD0eTnvjpJhT9tTiuZB8OENdgfZoTVsO6VET1Ey1YV46BtucwQ4wQidEio2lK2PfFgdcrljzwUtwjWiYxLnF6M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S0z3eQL/; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Sfs8oyCm"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S0z3eQL/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733833457;
+	s=mimecast20190719; t=1733845887;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=aSecLXEIEH9VAnhyNAFzRJvrLm7yztvw8Khy2pOpSMo=;
-	b=Sfs8oyCmrW7yhWNaM/d8H2372G6wYY4J4OKdM722WbQ3msHbrdGFilVmiOHSQeeCsX+foV
-	3q/GT5/S56yvVb5JlFxJiF/F5psO7uXdOS6Uic5+JG6YxBSN9biQgzlrsxX9NJ6iQTDjmE
-	+WqKjhhD+khcd9EyoTygDk+b0ei54Kg=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Ar1hMyO0wyxaPu8Q24vK58601T1l650o4aMs1l59DaA=;
+	b=S0z3eQL/d9Z9wyFaLCym1JvofYtmzPH3uRVZZAB/750dXx9faTzudiB0wm2oFFVW2H/OaS
+	a1IUs7RiEMIgf/uE7KikIO9WmMgItzKZO8ST9Y3AlaVSoQV/Y4U6DSWr4s1HTJfMeiNd4V
+	KsMmqJ5TyrYdHjMjBOShhvO7fJ0cU9g=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-422-JZlo4QRRN_aLTE3XJN4hIw-1; Tue, 10 Dec 2024 07:24:16 -0500
-X-MC-Unique: JZlo4QRRN_aLTE3XJN4hIw-1
-X-Mimecast-MFC-AGG-ID: JZlo4QRRN_aLTE3XJN4hIw
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-aa67855b3deso79152166b.1
-        for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 04:24:16 -0800 (PST)
+ us-mta-652-ALOjKKovNnaVDnvCNDfK6A-1; Tue, 10 Dec 2024 10:51:26 -0500
+X-MC-Unique: ALOjKKovNnaVDnvCNDfK6A-1
+X-Mimecast-MFC-AGG-ID: ALOjKKovNnaVDnvCNDfK6A
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-6ef18fc27f6so73417027b3.0
+        for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 07:51:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733833455; x=1734438255;
+        d=1e100.net; s=20230601; t=1733845886; x=1734450686;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=aSecLXEIEH9VAnhyNAFzRJvrLm7yztvw8Khy2pOpSMo=;
-        b=TOSDvHSCH6oNgJsVLJ1UGdywzaxUko7++R7c24bB+2NmdqY0cBE0ON9ZPxgp0eXO/K
-         2OqzPRgWYqVElMQKnJkjiXr94pHm9zhIqL1FfBkyqnkq6pQaGDHvdhLeWPe28Loamx9E
-         D4Bkm/0YrptkfWuJ7taXzGuKwEbe6bLobdB0N92StBb9TUA2l58+mgW0Fm31i+w3PiWd
-         5qOxXny1fjaNZsUMrzE0K2EhKirdk5FpZ3fr3nBVFzgv+OEokYFI24eAWoSv7RkW7VbK
-         gW6K+hgh9Mggep7cXWhZOhZv1OP5xVLF6zlsDif/Y5Sqfz6V1bn8FwgkpIcKIyj+f39d
-         LgUA==
-X-Forwarded-Encrypted: i=1; AJvYcCU8AN01Ii15ui+tuHmhFYgod42c+E5dycaNq8Cnl8Pv/4Grt536iiAXNYJWm056KLmVqX5vSFIJSGFIqxF/Rg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyGD0K7FG+RDsHQ4AshfyL5KSs2DiaiOgQtPO828gXyDB/IFwnC
-	/LWN1G2JjlEKIwwPQLe5Ej1Kq4ktyNqpiCdQSp6T6ql6Yq9Lb+OXiT23WJvFyaBA71ufBJEan/J
-	1jpNHzV4SRLHQIGkJo+fuppaGZMWtbkCSs4hbeU5KvUEaKvUfXbd+ywbKeYZkrE4WxFINC7CFwH
-	NZ7hVymi8eaTWREEc6MJd+KdyS9i8Au593+L/WdVw=
-X-Gm-Gg: ASbGncssb5SMdL0RVhLeTQVne/27AF0gHv9ytvHY0a13E92Iku8GmN7OH+F8paODoD2
-	CoSELBiYuWs33OSykSAG1t49Wcd5cpnE+bIR0BOOLlBgfWWRe2Y4WkBgRs8n60CXT/uM=
-X-Received: by 2002:a17:906:18a9:b0:aa6:8a1b:8b7c with SMTP id a640c23a62f3a-aa68a1b8e98mr630993166b.2.1733833455446;
-        Tue, 10 Dec 2024 04:24:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEcgyA52HfEjey88Kb6EsuqPIgVlks8Qpk8hL6qKkV1dFhRyyCd5ELr+Iz6VA2G2PWuz4gd34tfvQzS/RzCBTs=
-X-Received: by 2002:a17:906:18a9:b0:aa6:8a1b:8b7c with SMTP id
- a640c23a62f3a-aa68a1b8e98mr630989266b.2.1733833455085; Tue, 10 Dec 2024
- 04:24:15 -0800 (PST)
+        bh=Ar1hMyO0wyxaPu8Q24vK58601T1l650o4aMs1l59DaA=;
+        b=T43+f5M8RkEqTd2804vO3Q0gxIgkZfeoBRk7bQi++C8UUqkh3gNupGvEi0kIOhIyoY
+         j9/lr2zOemLnJqftiZSNDrNe/wP/uIgkFwhMWBcGo2Y5Z5FAx0fQ2RPgU2r+cYjUJlw6
+         k2ufPfi495W0iuaD2EKRO7Qwaxr6j/xbvz8iHvdykhgD3IqSOWi33d2W9AV/7DfWmUpp
+         hNe3K4fnWDcJg6J0yRtWAvwskEmctQx5nDXzva26/Orw2HSVjF/SZTT3xe5TQAwM9VVz
+         AJULOkN2/dbsccYEXcTefHIoF2NMavkdOX6bgVdc/E3bDRKHM+hDdXV03F3mfwn5o81c
+         UXWQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWXusNbo4XK/mDzm+fCCAR/+CV5D9CxboAXSeqzktPKesbFErKq30gf81ArJcNiHjZF0maeW+98/uVtHLSUDg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx7Ns0bOcsPpZi/v5K2HcRmqF2w4H5/z5r1OWnrVZfa4ALw/8w6
+	qIux3xSDebdPAlhGLuxK74shys7am5bZiyZV5YCTUQe23b0kHMRhHsHIAy1JFymmqJiC02oI1WO
+	fzfhct5s2r4GHlGrQe5P9EBjgNhu/KypmtAqmcb4a7T7qRxgJl2g0LuPiCYf8vldVvWgWSC6ZCD
+	NLhxOjZGGEr8GIkk8t6jd78erm2NrzDESczy0ocy8=
+X-Gm-Gg: ASbGncue1+eT6ni8FVUzoUGh6mJI+Jphg3VShSBsEEF+sDevv4BZQZENSuzabNR1FIv
+	XH6GqeNdl/xz9lUxhg4AmjoUYyyYMfy7Q7CM=
+X-Received: by 2002:a05:690c:45c2:b0:6ef:8e0b:8c63 with SMTP id 00721157ae682-6efe3bfaf08mr164554227b3.14.1733845884761;
+        Tue, 10 Dec 2024 07:51:24 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG93Iqn4vCwDlWoINxZxWF91ItaNdcRuR3eeU1hcdT6Lm/nDvSRopILfRvocx9lUW31iVebaOyj7OLS6zITn5A=
+X-Received: by 2002:a05:690c:45c2:b0:6ef:8e0b:8c63 with SMTP id
+ 00721157ae682-6efe3bfaf08mr164552727b3.14.1733845883042; Tue, 10 Dec 2024
+ 07:51:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241129122408.4167150-1-ryasuoka@redhat.com> <be01d2f7-8423-4e10-b65b-a84a7bc7c99e@collabora.com>
-In-Reply-To: <be01d2f7-8423-4e10-b65b-a84a7bc7c99e@collabora.com>
-From: Ryosuke Yasuoka <ryasuoka@redhat.com>
-Date: Tue, 10 Dec 2024 21:24:03 +0900
-Message-ID: <CAHpthZrZ6DjsCQ4baQ80b2vOTdkR=vHDx=10W7DTS4ohxb6=pg@mail.gmail.com>
-Subject: Re: [PATCH v5] drm/virtio: Add drm_panic support
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: airlied@redhat.com, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, 
-	mripard@kernel.org, tzimmermann@suse.de, daniel@ffwll.ch, jfalempe@redhat.com, 
-	christophe.jaillet@wanadoo.fr, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org
+References: <20241204153811.126028-1-t.ampelikiotis@virtualopensystems.com> <CACGkMEtPs5O25KVxN3UJX8RD5f0EhNqrqdVqt28FZSMX_W6GTg@mail.gmail.com>
+In-Reply-To: <CACGkMEtPs5O25KVxN3UJX8RD5f0EhNqrqdVqt28FZSMX_W6GTg@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 10 Dec 2024 16:50:47 +0100
+Message-ID: <CAJaqyWe0BHkhJWKw93tTu0iMakMqhix0DOHfhQxxU49vnXQALQ@mail.gmail.com>
+Subject: Re: [virtio-dev] [RFC PATCH 0/1] Virtio-loopback: a virtio based HAL
+ for non-virtualized environments
+To: Jason Wang <jasowang@redhat.com>
+Cc: t.ampelikiotis@virtualopensystems.com, virtio-dev@lists.oasis-open.org, 
+	anna@virtualopensystems.com, a.rigo@virtualopensystems.com, 
+	m.paolino@virtualopensystems.com, s.raho@virtualopensystems.com, 
+	chou.kensou@jp.panasonic.com, wminer@linuxfoundation.org, 
+	jsmoeller@linuxfoundation.org, virtualization@lists.linux.dev, 
+	stefanha@redhat.com, xuanzhuo@linux.alibaba.com, sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 2LMEEZXuCB5jv9Y-3M5EfcP2MYOiNN223HVccC7gXKI_1733833455
+X-Mimecast-MFC-PROC-ID: yLOlwUpUhWie53VucPu2C_pLm0dzSNh9X3pZmk2QYlo_1733845886
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 2, 2024 at 11:30=E2=80=AFPM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
+On Thu, Dec 5, 2024 at 9:17=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
+te:
 >
-> On 11/29/24 15:24, Ryosuke Yasuoka wrote:
-> ....
-> > +     } else {
-> > +             iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
-> > +     }
-> > +
-> > +     sb->format =3D plane->state->fb->format;
-> > +     sb->height =3D plane->state->fb->height;
-> > +     sb->width =3D plane->state->fb->width;
-> > +     sb->pitch[0] =3D plane->state->fb->pitches[0];
-> > +     return 0;
-> > +}
-> ...
-> > +static void virtio_panic_flush(struct drm_plane *plane)
-> > +{
-> > +     struct virtio_gpu_object *bo;
-> > +     struct drm_device *dev =3D plane->dev;
-> > +     struct virtio_gpu_device *vgdev =3D dev->dev_private;
-> > +     struct drm_rect rect;
-> > +     void *p_vbuf =3D vgdev->panic_vbuf;
-> > +     struct virtio_gpu_vbuffer *vbuf_dumb_bo =3D p_vbuf;
-> > +     struct virtio_gpu_vbuffer *vbuf_resource_flush =3D p_vbuf + VBUFF=
-ER_SIZE;
+> Adding Eugenio and YongJi.
 >
-> This p_vbuf + VBUFFER_SIZE looks suspicious. The VBUFFER_SIZE macro
-> isn't guarded with parentheses (), hence this vbuf_resource_flush is
-> pointing at the CMD part of the vbuf_dumb_bo?
-
-No. I intend vbuf_resource_flush to point to a different vbuf than
-vbuf_dumb_bo. I allocate 2 vbufs in virtio_gpu_plane_init() so that
-vbuf_dumb_bo points to the first vbuf and vbuf_resource_flush points
-to the second one.
-
-> Won't be using kmem_cache_zalloc(vgdev->vbufs, GFP_ATOMIC) to
-> dynamically allocate both buffers make everything cleaner?
+> On Wed, Dec 4, 2024 at 11:38=E2=80=AFPM <t.ampelikiotis@virtualopensystem=
+s.com> wrote:
+> >
+> > From: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
+> >
+> > We would like to share with you an RFC for the Virtio-loopback
+> > technology which we have been working on at Virtual Open Systems in
+> > the context of the Automotive Grade Linux community (Software defined
+> > Vehicles expert group)
+> >
+> > We previously presented this activity (see [1]) and now we come back
+> > to you with latest development and updates.
+> >
+> > We believe that the technology is more mature today and we would like
+> > to assess the community interest in the technology itself and in
+> > merging the code.
+> >
+> > Below we provide a brief description of the technology, recent
+> > updates and a short comparison with vDUSE that might be seen as a
+> > similar technology.
+> >
+> > 1. Overview:
+> > -------
+> >
+> > Virtio-loopback is a hardware abstraction layer (HAL) designed for
+> > non-virtualized environments based on virtio. The main objective is
+> > to enable applications communication with vhost-user devices in a
+> > non-virtualized environment.
+> >
+> > More in details, Virtio-loopback architecture consists of a new
+> > transport (Virtio-loopback), a user-space application (Adapter) and
+> > the vhost-user devices.
+> >
+> > The data path has been implemented using the "zero-copy" principle,
 >
-> ...
-> > -#define MAX_INLINE_CMD_SIZE   96
-> > -#define MAX_INLINE_RESP_SIZE  24
-> > -#define VBUFFER_SIZE          (sizeof(struct virtio_gpu_vbuffer) \
-> > -                            + MAX_INLINE_CMD_SIZE             \
-> > -                            + MAX_INLINE_RESP_SIZE)...
+> [ ... ]
+>
+> > where vhost-user devices access virtqueues directly in the kernel
+> > space.
+>
+> Eugenio used to work on a POC to bridge vhost-user to vDPA via a
+> dedicated userspace application. He might share more thoughts about
+> this.
 >
 
-Yes, it is feasible.
+Right, it worked well with DPDK and net. It could work as long as
+vhost-user device supported iotlb messages.
 
-Thank you for your review.
-Ryosuke
+The current kernel vdpa framework does not send the memory map until
+the device asks for it. If we modify the kernel vdpa so it always
+sends the memory map, and only waits for the userland device iotlb if
+a given feature flag is negotiated, it can be compatible with all the
+vhost-user devices.
 
-> Best regards,
-> Dmitry
->
+I can post the code if it is useful for sure.
 
