@@ -1,148 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A54A022FDF6
-	for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 15:51:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6A4E2343A3
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Dec 2024 16:45:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733845891; cv=none; b=V1eyrrwhNxrl5xsVHxNLvstLIMd7s9RIbLN8MbP1bIa+ETU2cFjPNfUMh3+8RweUu6zRCmOvOML1hnKrF4yqb/TB3/hIVtLzzgqOFb6Qcddkn97CbH88scjASI0dn6kotypa7U3pP+p9P14oEsoX//s5HbtaykMCKsT7diKoj38=
+	t=1733849115; cv=none; b=H72cuIj7/bju7wK7BzMLDKCXUr7AUVpbVMiYd4ftv0z7qeMas5/qjOFMf+Aq2Pg4pjfNnEUPw0xeZpdh/xY8hYZG+1hvZMW7m8T0m0aGgOtZo1mSz89QiKkGprLXpgz1xbhga5DYQ/6Q0NsxQyY70phSz/fdiM8NLRv6Mw00o3k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733845891; c=relaxed/simple;
-	bh=Ar1hMyO0wyxaPu8Q24vK58601T1l650o4aMs1l59DaA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=erfcldzhR3+s5+Xky0yPHzteNgZotEIb5cz7AVwXNwTUIrkmrHIqCMHRTkjhigv607EAeTALIhLPXtOFyuYTLYD0eTnvjpJhT9tTiuZB8OENdgfZoTVsO6VET1Ey1YV46BtucwQ4wQidEio2lK2PfFgdcrljzwUtwjWiYxLnF6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S0z3eQL/; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1733849115; c=relaxed/simple;
+	bh=JdLNXbXLVVNZXlqcZZ5mTL4fFReWTKrSXq/RNIRxekk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=L+NMTfmd/F2RjjbkrcALHZuQMJHi/n7+9oiSoa2rrftovxV/OJK7kA5rFM4cUDCkQH4JKm9S5scYpS3zRfnjBrpPNf7Tu9DH+CSuujQa7hjed21tq6eCwT9Cg89yp2GE7Gnn3Xsk5Fs8ywYtNuMc/PHHQhZous1ZWabSZFzZHWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dZaGV9eI; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S0z3eQL/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dZaGV9eI"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5471240BCF
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Dec 2024 16:45:13 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id cFTcE3qkKBR8 for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 Dec 2024 16:45:12 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 4DD2E40BCC
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4DD2E40BCC
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dZaGV9eI
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4DD2E40BCC
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Dec 2024 16:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733845887;
+	s=mimecast20190719; t=1733849110;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Ar1hMyO0wyxaPu8Q24vK58601T1l650o4aMs1l59DaA=;
-	b=S0z3eQL/d9Z9wyFaLCym1JvofYtmzPH3uRVZZAB/750dXx9faTzudiB0wm2oFFVW2H/OaS
-	a1IUs7RiEMIgf/uE7KikIO9WmMgItzKZO8ST9Y3AlaVSoQV/Y4U6DSWr4s1HTJfMeiNd4V
-	KsMmqJ5TyrYdHjMjBOShhvO7fJ0cU9g=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-652-ALOjKKovNnaVDnvCNDfK6A-1; Tue, 10 Dec 2024 10:51:26 -0500
-X-MC-Unique: ALOjKKovNnaVDnvCNDfK6A-1
-X-Mimecast-MFC-AGG-ID: ALOjKKovNnaVDnvCNDfK6A
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-6ef18fc27f6so73417027b3.0
-        for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 07:51:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733845886; x=1734450686;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Ar1hMyO0wyxaPu8Q24vK58601T1l650o4aMs1l59DaA=;
-        b=T43+f5M8RkEqTd2804vO3Q0gxIgkZfeoBRk7bQi++C8UUqkh3gNupGvEi0kIOhIyoY
-         j9/lr2zOemLnJqftiZSNDrNe/wP/uIgkFwhMWBcGo2Y5Z5FAx0fQ2RPgU2r+cYjUJlw6
-         k2ufPfi495W0iuaD2EKRO7Qwaxr6j/xbvz8iHvdykhgD3IqSOWi33d2W9AV/7DfWmUpp
-         hNe3K4fnWDcJg6J0yRtWAvwskEmctQx5nDXzva26/Orw2HSVjF/SZTT3xe5TQAwM9VVz
-         AJULOkN2/dbsccYEXcTefHIoF2NMavkdOX6bgVdc/E3bDRKHM+hDdXV03F3mfwn5o81c
-         UXWQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWXusNbo4XK/mDzm+fCCAR/+CV5D9CxboAXSeqzktPKesbFErKq30gf81ArJcNiHjZF0maeW+98/uVtHLSUDg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx7Ns0bOcsPpZi/v5K2HcRmqF2w4H5/z5r1OWnrVZfa4ALw/8w6
-	qIux3xSDebdPAlhGLuxK74shys7am5bZiyZV5YCTUQe23b0kHMRhHsHIAy1JFymmqJiC02oI1WO
-	fzfhct5s2r4GHlGrQe5P9EBjgNhu/KypmtAqmcb4a7T7qRxgJl2g0LuPiCYf8vldVvWgWSC6ZCD
-	NLhxOjZGGEr8GIkk8t6jd78erm2NrzDESczy0ocy8=
-X-Gm-Gg: ASbGncue1+eT6ni8FVUzoUGh6mJI+Jphg3VShSBsEEF+sDevv4BZQZENSuzabNR1FIv
-	XH6GqeNdl/xz9lUxhg4AmjoUYyyYMfy7Q7CM=
-X-Received: by 2002:a05:690c:45c2:b0:6ef:8e0b:8c63 with SMTP id 00721157ae682-6efe3bfaf08mr164554227b3.14.1733845884761;
-        Tue, 10 Dec 2024 07:51:24 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG93Iqn4vCwDlWoINxZxWF91ItaNdcRuR3eeU1hcdT6Lm/nDvSRopILfRvocx9lUW31iVebaOyj7OLS6zITn5A=
-X-Received: by 2002:a05:690c:45c2:b0:6ef:8e0b:8c63 with SMTP id
- 00721157ae682-6efe3bfaf08mr164552727b3.14.1733845883042; Tue, 10 Dec 2024
- 07:51:23 -0800 (PST)
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=7Kp+7Z3nNLIcj1z6tn9P0/hb1TnLvUena0MeRSjLsfA=;
+	b=dZaGV9eItz7KHv2d8AAdqxem1BjmIj9gnOMM2dsNIoGb791NHhX7D6nhDoQoVXQYyzb7yJ
+	nBveaNUv2ELErvDyCSv4FFe0+bd9ZK6tz0nHoSdqOha7nuGMXbf0aNHl5L8PmJ+qrKFplM
+	tmt+mJANL2Btdv6K7CDo6hpBLqhaC38=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-553-uNW6YTPAOPybW7l6F610Jw-1; Tue,
+ 10 Dec 2024 11:45:05 -0500
+X-MC-Unique: uNW6YTPAOPybW7l6F610Jw-1
+X-Mimecast-MFC-AGG-ID: uNW6YTPAOPybW7l6F610Jw
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 964831955F42;
+	Tue, 10 Dec 2024 16:45:04 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.152])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id DA98E19560AA;
+	Tue, 10 Dec 2024 16:44:59 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	jasowang@redhat.com,
+	mst@redhat.com,
+	michael.christie@oracle.com,
+	sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v4 0/8] vhost: Add support of kthread API
+Date: Wed, 11 Dec 2024 00:41:39 +0800
+Message-ID: <20241210164456.925060-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241204153811.126028-1-t.ampelikiotis@virtualopensystems.com> <CACGkMEtPs5O25KVxN3UJX8RD5f0EhNqrqdVqt28FZSMX_W6GTg@mail.gmail.com>
-In-Reply-To: <CACGkMEtPs5O25KVxN3UJX8RD5f0EhNqrqdVqt28FZSMX_W6GTg@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 10 Dec 2024 16:50:47 +0100
-Message-ID: <CAJaqyWe0BHkhJWKw93tTu0iMakMqhix0DOHfhQxxU49vnXQALQ@mail.gmail.com>
-Subject: Re: [virtio-dev] [RFC PATCH 0/1] Virtio-loopback: a virtio based HAL
- for non-virtualized environments
-To: Jason Wang <jasowang@redhat.com>
-Cc: t.ampelikiotis@virtualopensystems.com, virtio-dev@lists.oasis-open.org, 
-	anna@virtualopensystems.com, a.rigo@virtualopensystems.com, 
-	m.paolino@virtualopensystems.com, s.raho@virtualopensystems.com, 
-	chou.kensou@jp.panasonic.com, wminer@linuxfoundation.org, 
-	jsmoeller@linuxfoundation.org, virtualization@lists.linux.dev, 
-	stefanha@redhat.com, xuanzhuo@linux.alibaba.com, sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: yLOlwUpUhWie53VucPu2C_pLm0dzSNh9X3pZmk2QYlo_1733845886
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Thu, Dec 5, 2024 at 9:17=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
-te:
->
-> Adding Eugenio and YongJi.
->
-> On Wed, Dec 4, 2024 at 11:38=E2=80=AFPM <t.ampelikiotis@virtualopensystem=
-s.com> wrote:
-> >
-> > From: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
-> >
-> > We would like to share with you an RFC for the Virtio-loopback
-> > technology which we have been working on at Virtual Open Systems in
-> > the context of the Automotive Grade Linux community (Software defined
-> > Vehicles expert group)
-> >
-> > We previously presented this activity (see [1]) and now we come back
-> > to you with latest development and updates.
-> >
-> > We believe that the technology is more mature today and we would like
-> > to assess the community interest in the technology itself and in
-> > merging the code.
-> >
-> > Below we provide a brief description of the technology, recent
-> > updates and a short comparison with vDUSE that might be seen as a
-> > similar technology.
-> >
-> > 1. Overview:
-> > -------
-> >
-> > Virtio-loopback is a hardware abstraction layer (HAL) designed for
-> > non-virtualized environments based on virtio. The main objective is
-> > to enable applications communication with vhost-user devices in a
-> > non-virtualized environment.
-> >
-> > More in details, Virtio-loopback architecture consists of a new
-> > transport (Virtio-loopback), a user-space application (Adapter) and
-> > the vhost-user devices.
-> >
-> > The data path has been implemented using the "zero-copy" principle,
->
-> [ ... ]
->
-> > where vhost-user devices access virtqueues directly in the kernel
-> > space.
->
-> Eugenio used to work on a POC to bridge vhost-user to vDPA via a
-> dedicated userspace application. He might share more thoughts about
-> this.
->
+In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),
 
-Right, it worked well with DPDK and net. It could work as long as
-vhost-user device supported iotlb messages.
+The vhost now uses vhost_task and operates as a child of the owner thread.
+This aligns with containerization principles, But it has confused some legacy
+userspace applications. Therefore, we are reintroducing support
+for the kthread API.
 
-The current kernel vdpa framework does not send the memory map until
-the device asks for it. If we modify the kernel vdpa so it always
-sends the memory map, and only waits for the userland device iotlb if
-a given feature flag is negotiated, it can be compatible with all the
-vhost-user devices.
+In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),
+The vhost now use vhost_task and workers working as a child of the owner thread,
+which aligns with containerization principles. However, this change has caused
+confusion for some legacy userspace applications. 
+Therefore, we are reintroducing support for the kthread API.
 
-I can post the code if it is useful for sure.
+In this patch, a new User API is implemented to allow userspace applications to
+configure their request mode.
+
+Changelog v2: 
+ 1. Change the module_param's name to enforce_inherit_owner, and the default value is true.
+ 2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
+ 
+Changelog v3: 
+ 1. Change the module_param's name to inherit_owner_default, and the default value is true.
+ 2. Add a structure for task function; the worker will select a different mode based on the value inherit_owner.
+ 3. device will have their own inherit_owner in struct vhost_dev
+ 4. Address other comments
+ 
+Changelog v4: 
+ 1. remove the module_param, only keep the UAPI
+ 2. remove the structure for task function; change to use the function pointer in vhost_worker
+ 3. fix the issue in vhost_worker_create and vhost_dev_ioctl
+ 4. Address other comments
+ 
+Tested with QEMU with kthread mode/task mode/kthread+task mode
+
+Cindy Lu (8):
+  vhost: Add a new parameter in vhost_dev to allow user select kthread
+  vhost: Add the vhost_worker to support kthread
+  vhost: Add the cgroup related function
+  vhost: Add kthread support in function vhost_worker_create
+  vhost: Add kthread support in function vhost_worker_queue()
+  vhost: Add kthread support in function vhost_worker_destroy()
+  vhost: Add new UAPI to support change to task mode
+  vhost_scsi: Add check for inherit_owner status
+
+ drivers/vhost/scsi.c       |   8 ++
+ drivers/vhost/vhost.c      | 185 +++++++++++++++++++++++++++++++++----
+ drivers/vhost/vhost.h      |   4 +
+ include/uapi/linux/vhost.h |  18 ++++
+ 4 files changed, 198 insertions(+), 17 deletions(-)
+
+-- 
+2.45.0
 
