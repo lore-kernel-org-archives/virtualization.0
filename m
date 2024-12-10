@@ -1,65 +1,65 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F2864964F
-	for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 08:02:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDCF1D0F7D
+	for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 08:34:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733817744; cv=none; b=WScNid4OkFXOL7Qpl2tJGbE6zvZQfzkKHdfHi3ZgY3nDHjYeDD4kxrjrod6Hye4h0W/hfSTc7Z72UlSJqDYtYx8eDuPZDszrUa36/rAsi3XOALX2JtCbajinE4qMXCBer1peGirK3q8YCgWW+d2EH6Vvr9hrVdm0aMjqIyacsn0=
+	t=1733819701; cv=none; b=uOZ7Qrs6pXClgEY2mdM+MYFBxbnd7q4vzS9O59C6sIgFIJseCw+i7RIpJuZ9aHZU9e3+ll2d/R5pTT/CjEIar3m3vCxSi+NmRHjmF+pbjoz2C77dYhvmO+X5w6MuOYSN4MRO5EMSBhjyL3jCjt1UR7SlnYWL+/zYWuTQYeiQXug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733817744; c=relaxed/simple;
-	bh=SMAjA3L/4WYwyx0pAW/Iv4MwRYBgg0ahnkvULcykFrc=;
+	s=arc-20240116; t=1733819701; c=relaxed/simple;
+	bh=wtEErwm73cQ2rOGj9k9xrv4m4nhthfX4sbNep7CqSEQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=OkboYh3W+E+x+YQ5m23xpciYXj/Ej8e7ipU5y2KnN7Vi5gFVExMfmY/VgQDiwrYle509ksh5epenbWJCYhV3GmyWkpZhn5fSnRWeNEUu2SRwRNAVLjBY4qZqwAu4jHhNEPETEoFfvlG8DxjW1HRKyy1+ZLKplU7KBTZ5BoE1E84=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=fnCFZFmM; arc=none smtp.client-ip=209.85.128.49
+	 Content-Disposition; b=iR9rmQmd059M3w5mGBxrE73/3vHNALjQ3NU66xIYjfmW0NHDo9DSWgvvRxZbY1tU24UyT5GEHZHi9x9844WvH0V65t1jnU+OTy373ABZ/WDS48gGmn9jc7njBBrpOLwsu7a0MuoJ/zFRT2r0HpK5NZYV0VoiXjZnqb3u937OgwQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ngcqqcDt; arc=none smtp.client-ip=209.85.128.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="fnCFZFmM"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-434b3e32e9dso57092745e9.2
-        for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 00:02:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ngcqqcDt"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-434fa6bf744so10742935e9.2
+        for <virtualization@lists.linux.dev>; Tue, 10 Dec 2024 00:34:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1733817740; x=1734422540; darn=lists.linux.dev;
+        d=linaro.org; s=google; t=1733819698; x=1734424498; darn=lists.linux.dev;
         h=content-disposition:mime-version:message-id:subject:cc:to:from:date
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=FMNvaQhF85IRdaxsabk7cfCz+/okcwJXbBF4MVtbU6c=;
-        b=fnCFZFmMemFGuoVAZywrhC0HjwGkriOZ/kuEbQKbNwcvf97jMYfcyJohy3WGnXNvo0
-         oQmwqLCEG8PYKQfTLKfFySr6lbXhoEmIua+nBEASK1swMWdPyJyhSytz3COrY5/BE9HD
-         ZFtiIx0ew+0rudku6KXKEhtS7QACvsoDZV7iqSynAiWhXAbeu2cRMq7+qNWs2q/0Ww9t
-         AFo5ofY9S8pMPPp8eQysVLRD/4Q2tCrq9PE0311Ps51rLlzJWsmMBxXM7c3H33esmb64
-         9yWhWUSXVVJhlkn5sshgvK80BXibR1jpupiruvFIM/XxT0sfkA5eDgbj3M2fXH/VS9zk
-         UDnQ==
+        bh=Yrf+WvkOKiGkMqw3dviA29flRd+xELZ0zbYVi2hrty8=;
+        b=ngcqqcDtADDBJgjoR28q3gsZ5r95y4XEHbf81hKKAsGViwQboTsIa6uu9Qzksxoos/
+         e2+krEwEKwwoPvCexH+SIPmMQ/D5WqN9D8CVEIw5qF26Asb22N4P/TqZHjFltYX+W2yw
+         OeXoXXzt3SC0DDRzjMFWzKxs6aysJpFabQ4/SMtRKSFSdj+0JJLbbiRQgI77Q2qRxmPv
+         KiiRJKcbN9wsIlxTIRprvWWiw4/u9MVmEgR3roFWJtlgeM3ONZWzsdoPXq0ugyanOqxC
+         vhmyyScHcOsPtUTMwzvSWDbiCV1KEm3SN03s3xR2HPKFmEdSW53ZsQqXaAfM6KuCtLMO
+         Bawg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733817740; x=1734422540;
+        d=1e100.net; s=20230601; t=1733819698; x=1734424498;
         h=content-disposition:mime-version:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FMNvaQhF85IRdaxsabk7cfCz+/okcwJXbBF4MVtbU6c=;
-        b=AnjzhSIHrfTeiR4TGcc9zhF9fs+UPpnXdwLYazixkYnEdr4gq4NLWGPBagIRIjHJcl
-         wK4i1jW2SBlsBPhJYa6WDnYotn4TdQKstEyvV99oeOEHlSJtfV8qMIp/YQ6gpp/vcC+x
-         vxDENszcOhXAuxQnLJIS9JFrzsgjUW+f3Y4xdt2b44muDs5XXMQc1YwwPYRgxNBpsuLx
-         sQtxGrQNjeIznmyoYszOjPjZrjqW1kWs0CARsRHTQYcI1n8bOgzwM84Gsd9eArf6Xp7H
-         JGToh7dmbW/prh7KeZje14rXkRhlQNcTlS2NeW0rHEqKjcMWo+z95vp5uB62CK2BxIQm
-         H5PA==
-X-Gm-Message-State: AOJu0YynXxkSH8p4EdIJbqdNP7W/92jMD3o6SBOk5rSiKQeV69c+YW78
-	EKLFsZQvWP9Mi+pTjbQ58ETDhEBWdFYkI/G7u8hpPFE0gwidNaM8p1xQS82hheo=
-X-Gm-Gg: ASbGncsoqsq3ICZ3wUUR92Zd7Z5PZvReZ7ric64nY9qoGZ3SmxpUKjBvlRHaEuYEkz8
-	TKBSWEPUw6yK//Rh3qOqcLXm30li6jH/yxEIqI1dypGJLKiyGSaPF4p70oeJVf4iUSw7Gz6eU2b
-	p7FuuXjUfcMNv6FxTHRZHTyVByVngDDrt4DeSCgJvCZ7YyLBS+fjmWskHKtlBUR5l33FV1QNqqQ
-	WOzZGuIyiMeRy5hxrTbgaNTb1juZT+V48r7QhZSoymT359f5qOutqnEOMU=
-X-Google-Smtp-Source: AGHT+IHoJCGnZcpH364kY34DuQ9eVyRcQssFYqY5hZKtaQcLF9VHClBx0fV9kETu+7nQMARDsCinBw==
-X-Received: by 2002:a05:6000:400c:b0:386:3560:477f with SMTP id ffacd0b85a97d-386356049e3mr8059990f8f.23.1733817740474;
-        Tue, 10 Dec 2024 00:02:20 -0800 (PST)
+        bh=Yrf+WvkOKiGkMqw3dviA29flRd+xELZ0zbYVi2hrty8=;
+        b=HpeopUCXUjp05ZuJaX5clNXIFsX/t4mxZwNL14eUp9iWFTxprZ/+72dCl/03M4r73V
+         YGP0IzB8d54vqLUEuCi317AxSR2RFahClZa6DSNri8OpueiI2fVX7FGrJanDS9bk5Ad7
+         xqDht7FchOgpxUX6o+jqlSY8bl+DdqE9KO6mvz9wTggFnAZWXZjGnAx6aVCIwkdB29ZE
+         KKZ7Yod9l9h7V3VFFU4OCHNZVQTlekMXcUS4UcKjxzDlWP2N3TSp+pKogQdP6TafR3tx
+         kVbMBmYpxnGmdu0xYqA9MhJS3LFe1sdM5b3ptWkxqOH6Vp9izgqO3bgn+aTK+aNfRXnV
+         XPYA==
+X-Gm-Message-State: AOJu0YwjlJaVeir6qH0oVBqpTdDk3ZfbeTNK8VFLxqqhv6UP7/iwpPaq
+	Ey+IPkXYw1OGBo+H5vMzzCacq/fuclh6FIxTQP0hQ0vbtoDrYh4GIBDrlGP+dL8=
+X-Gm-Gg: ASbGnct+PGiTqGoIWNiZ99/Lk0TStObf69H/7v8b7Wr0itUa8IZv/Xq+0pVsk/Q221G
+	34rYTlRzPi22DjhLc+W4WeI4+J79tftnjAa5+Pgzl7TFZuhSbcw1369Anss1HccYlu+iKLMf/uB
+	1DciH6pavxobooYNGFxG2gUPuj0YqeYrAdjbWIEPboFwgf5ucBX2omjlxo6H1tH6b7PmrbFlBc/
+	3vVAsjWdx2mwadMrs0VKtawepBops2n6j77HqzVgrNaMlND2jSNeN8ssx8=
+X-Google-Smtp-Source: AGHT+IG1S1xDlXh/m0/nFP593nGognxwAcIzU/2L7kz1te4essYbZdEnexsjXA/jdQwiAiRSDcIaew==
+X-Received: by 2002:a05:600c:3503:b0:434:a902:97cd with SMTP id 5b1f17b1804b1-434fff6f8c0mr30408055e9.12.1733819697763;
+        Tue, 10 Dec 2024 00:34:57 -0800 (PST)
 Received: from localhost ([196.207.164.177])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3862190975fsm15065581f8f.68.2024.12.10.00.02.15
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-434f7ec35b0sm52265315e9.1.2024.12.10.00.34.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Dec 2024 00:02:20 -0800 (PST)
-Date: Tue, 10 Dec 2024 11:02:09 +0300
+        Tue, 10 Dec 2024 00:34:57 -0800 (PST)
+Date: Tue, 10 Dec 2024 11:34:53 +0300
 From: Dan Carpenter <dan.carpenter@linaro.org>
 To: Vivek Kasireddy <vivek.kasireddy@intel.com>
 Cc: virtualization@lists.linux.dev
-Subject: [bug report] drm/virtio: Import prime buffers from other devices as
- guest blobs
-Message-ID: <886902b7-d573-4c0a-8b3d-43f37b8f385f@stanley.mountain>
+Subject: [bug report] drm/virtio: Add helpers to initialize and free the
+ imported object
+Message-ID: <11eadf70-bba1-45ee-8d28-8d40b196a442@stanley.mountain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -71,28 +71,49 @@ Content-Disposition: inline
 
 Hello Vivek Kasireddy,
 
-This is a semi-automatic email about new static checker warnings.
+Commit 2885e575abc7 ("drm/virtio: Add helpers to initialize and free
+the imported object") from Nov 25, 2024 (linux-next), leads to the
+following Smatch static checker warning:
 
-Commit ca77f27a2665 ("drm/virtio: Import prime buffers from other
-devices as guest blobs") from Nov 25, 2024, leads to the following
-Smatch complaint:
-
-    drivers/gpu/drm/virtio/virtgpu_prime.c:194 virtgpu_dma_buf_free_obj()
-    warn: variable dereferenced before check 'attach' (see line 192)
+	drivers/gpu/drm/virtio/virtgpu_prime.c:206 virtgpu_dma_buf_free_obj()
+	error: dereferencing freed memory 'attach' (line 205)
 
 drivers/gpu/drm/virtio/virtgpu_prime.c
-   191		struct dma_buf_attachment *attach = obj->import_attach;
-   192		struct dma_resv *resv = attach->dmabuf->resv;
-                                        ^^^^^^^^^^^^^^^
-The patch adds an unchecked dereference
+    187 static void virtgpu_dma_buf_free_obj(struct drm_gem_object *obj)
+    188 {
+    189         struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+    190         struct virtio_gpu_device *vgdev = obj->dev->dev_private;
+    191         struct dma_buf_attachment *attach = obj->import_attach;
+    192         struct dma_resv *resv = attach->dmabuf->resv;
+    193 
+    194         if (attach) {
+    195                 dma_resv_lock(resv, NULL);
+    196 
+    197                 virtio_gpu_detach_object_fenced(bo);
+    198 
+    199                 if (bo->sgt)
+    200                         dma_buf_unmap_attachment(attach, bo->sgt,
+    201                                                  DMA_BIDIRECTIONAL);
+    202 
+    203                 dma_resv_unlock(resv);
+    204 
+    205                 dma_buf_detach(attach->dmabuf, attach);
+                                                       ^^^^^^
+attach is kfreed here
 
-   193	
-   194		if (attach) {
-                    ^^^^^^
-The older code assumes attach can be NULL
+--> 206                 dma_buf_put(attach->dmabuf);
+                                    ^^^^^^
+use after free
 
-   195			dma_resv_lock(resv, NULL);
-   196	
+    207         }
+    208 
+    209         if (bo->created) {
+    210                 virtio_gpu_cmd_unref_resource(vgdev, bo);
+    211                 virtio_gpu_notify(vgdev);
+    212                 return;
+    213         }
+    214         virtio_gpu_cleanup_object(bo);
+    215 }
 
 regards,
 dan carpenter
