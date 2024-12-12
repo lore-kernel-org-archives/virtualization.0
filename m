@@ -1,220 +1,280 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EC5017C230
-	for <virtualization@lists.linux.dev>; Thu, 12 Dec 2024 06:06:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 466C1204F66
+	for <virtualization@lists.linux.dev>; Thu, 12 Dec 2024 07:05:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733983603; cv=none; b=CqeW+ypYVlwYsAMz3j+cfOyPKbcRoEE3K94vUCy0IowNZZnFaJ6TxGs+1iBmzv/QNgwIjSP72xz3CkRS+LMklCdi+ot3TWvYWWvoWCg61nO/BGxTvcJcphM/DR/p71RZQAlp2BmQ8hwEDLgXyoQ7IlJEh4GitQC2qZqddWr2b7U=
+	t=1733987154; cv=none; b=A+qN77O8O48Z0pP+P8u4XleFDkp2en1Xky1fqtoklS/4rAZctw/hCnYFPRw9fJHlZ/dY8fij6hB16EA+4yIsm2U8FPhWU3xn8d+8uSE8zK1ijksL70VOZC9gwzy4ELTXMxLx7yl9hdxCKH8oQkPjKDySg/0QHzMPx0XKGPDjXu4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733983603; c=relaxed/simple;
-	bh=gQg/SM6BaV0O6607W1vHe3GKWdp7ZsBXFCJWNiK9SFw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=plRot80LRQPPQ/znTeWDhRj1BDr6LbZIvm8L6Eg43rku118XPDdLO+8gfd0mI5AC7PibPjHBRZ+Lkse2/AK9IQ1B7EA0YJcMFignTHFhWAwA/EGudfVs3Vmm1+X3fXnekOEP+21BJ4ledGEH+yHnJca7DKNG6+szHH2X8hUmk6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=NpefOtj8; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1733987154; c=relaxed/simple;
+	bh=DSZ+IehQJhmlPIR9/gNF3ubk68Lm13DfgD6eA2ic+cg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=dzIbl59bX4i+brqNKluLgP5c4aBEne7ILHoIRPhtph0QMxALHMPe4ssd2f9V0tR6+cbU0AfVrSVpYXNhNdD3yj92lsTzYoQ1MqY6ah1Zog2CJDBKbIkEqaZ41Xi0MDNEKe57uD2wUtSma4++wWZK8DMgPSNJKMxnEG7T0SBmEeI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HMa8wNY0; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="NpefOtj8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1733983599;
-	bh=gQg/SM6BaV0O6607W1vHe3GKWdp7ZsBXFCJWNiK9SFw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=NpefOtj8iRu+DwDxM1asoHnH6dziH2LfwLXKHmxJwjyTK2JN3w24yG15L61xz/p4E
-	 1Q1hNWZSfjRGmpsMMSTs9jLtwssefNOSG/RM9//dKBgGoAZsPgvidKcKcmYdqNDckT
-	 DvXj7srS8GjxNG82ITA2ZyObZDMr+FKJHnPXJ2eCGa/aPO9skbkJH1KUiy92L5TrrG
-	 xe21GkQQE1jht1xTcoxCHfDQkpM7JcmrU5YdJUw6tiO4zFjK2H8i7k5fb5KgqX2LQ0
-	 4RGQwkIzVXHI/rHmuP57LGp8g4Zw2YWtHmYQD+Vb8T5wcqhADpRO9HVMDW86ncn8wZ
-	 iSdqcwuU72+UQ==
-Received: from [192.168.50.250] (unknown [171.76.86.135])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id B8F6917E11E2;
-	Thu, 12 Dec 2024 07:06:32 +0100 (CET)
-Message-ID: <3e719a95-5b84-4530-9afe-c742e5c6eff7@collabora.com>
-Date: Thu, 12 Dec 2024 11:36:29 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HMa8wNY0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1733987151;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wPeg3BTCLY7xnzRULcn3ix+0YqKjZBn4RoFU3T2fZgc=;
+	b=HMa8wNY0mSTZ9dotnQJcux2UvhDJgcBTuVAvVoQs2xO2uTKS1dUG8TSUHuqSjz3yr3WJe9
+	CypDfX5cnhqSYsTt2MJYk3pUPmcg5ZsDc72wJYEosdOx6Ghh1r2q8MHk63B6uLvjn38YG9
+	LVG9g2p49FFk5VZst48KLYYVD/vOQ2I=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-423-AwFRdQ9JMImpnMkIX7uC5A-1; Thu, 12 Dec 2024 02:05:49 -0500
+X-MC-Unique: AwFRdQ9JMImpnMkIX7uC5A-1
+X-Mimecast-MFC-AGG-ID: AwFRdQ9JMImpnMkIX7uC5A
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43619b135bcso1414475e9.1
+        for <virtualization@lists.linux.dev>; Wed, 11 Dec 2024 23:05:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733987148; x=1734591948;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rti03MdrVXI/elGajytboAaA+i7ZN4OIWBTI355So04=;
+        b=i6vCwqF12OSCBvVEsPsqhl52R2nxvnHU0o+NbPVRcoPLkUT3zKgAZrRLekmddhtZGZ
+         PljEERUFCoT3Cq4ePQHafIc6l3vI+dL8pP39DeZR3QiGFFARRaHMulV7jpATYsL4B0Hx
+         EZXmTP/NLxcOIqx3Z7QjWrXN/r9TbqhtnUZKlciO5ictgah/fO/LJrotYDVqUiHb9SLh
+         Nyv+ALq8uvqpew/Si3in7ElnK/FurnCFQm4E80UYCZWWG9ZRKNNpU0cUIAi6wnQIyDaF
+         ciK8gyccIPKZi1TANyLQ5OiNKqlhzNubBhcHHlQ/N8CeGmpIsRC2047l+W4ehBWGYcEw
+         brew==
+X-Gm-Message-State: AOJu0Yw3d/FGpvvn6VLEX7AZD1JHhfQbfRInLEfCKWBfzR4ddiqk5CbD
+	WoKwZUVoChHvGFdtD13ns2SFIhuZJu4KkPo8Y6W7X/fuu0dX31yhD5OIWI8AjJXs8bY6dTRG7jY
+	ZbieVBT6zjpnUb20jLxQsYw4W6vyJumYVEwc2enlbgmdRse+I5/pS3U0SwvDVbE+C
+X-Gm-Gg: ASbGncs4piq7Yc1I+zDoqrgsq1/IZMjfcLJDOstqadK3XhKPZHBhcucmCjT45rTbP7F
+	eDQeZCcWLv0DlFEYJN1Oore4qVyoYc+VntzYdlPagdsLiY3Fvp6nk+BE6v0I/IE44EHrUI1Q83C
+	sFaJ/3FpKMwOLL+5fC7PSkBUcvGqq/+RO4AiBa5WfkqVD3An1Ql8HpUMz2KwCvjVqJRuHMOUfZE
+	usI6PTJWe9fVtrBg8v2paiVgjR40zMzt29aB9FvxG8HXnvibw==
+X-Received: by 2002:a05:600c:1c85:b0:434:fdbc:5cf7 with SMTP id 5b1f17b1804b1-4361c416003mr39047775e9.27.1733987148533;
+        Wed, 11 Dec 2024 23:05:48 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHM80JCEN7MZoecTSwl2bXnHH1Ct9tE9wGDfZGHrSJBXJKgu6o9wF6yCI7CnMl4kLTpHYS1ew==
+X-Received: by 2002:a05:600c:1c85:b0:434:fdbc:5cf7 with SMTP id 5b1f17b1804b1-4361c416003mr39047425e9.27.1733987148104;
+        Wed, 11 Dec 2024 23:05:48 -0800 (PST)
+Received: from redhat.com ([2a02:14f:179:603a:6ff0:d430:c1c2:5bc9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43625553208sm7354775e9.9.2024.12.11.23.05.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2024 23:05:47 -0800 (PST)
+Date: Thu, 12 Dec 2024 02:05:42 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Koichiro Den <koichiro.den@canonical.com>
+Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, jiri@resnulli.us,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH net v4 0/6] virtio_net: correct netdev_tx_reset_queue()
+ invocation points
+Message-ID: <20241212020531-mutt-send-email-mst@kernel.org>
+References: <20241206011047.923923-1-koichiro.den@canonical.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] drm/ci: uprev IGT
-To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
- robdclark@gmail.com, guilherme.gallo@collabora.com,
- sergi.blanch.torne@collabora.com, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20241211142806.1824961-1-vignesh.raman@collabora.com>
- <f2dac4eatkajw633ksnnb3nfq7zop2l4ux2euj6jqg4hg3soqt@sv7p2r6xk7fz>
-Content-Language: en-US
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <f2dac4eatkajw633ksnnb3nfq7zop2l4ux2euj6jqg4hg3soqt@sv7p2r6xk7fz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20241206011047.923923-1-koichiro.den@canonical.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ssKaiwXx4JPKzfdHJ0wnMGZJ-BLTsyl0_T7Kdl4eKq4_1733987149
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
-
-On 12/12/24 03:09, Dmitry Baryshkov wrote:
-> On Wed, Dec 11, 2024 at 07:58:05PM +0530, Vignesh Raman wrote:
->> Uprev IGT to the latest version and update expectation files.
->>
->> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->> ---
->>
->> v1:
->>    - Pipeline link - https://gitlab.freedesktop.org/vigneshraman/linux/-/pipelines/1327810
->>      Will update the flake bug report link after v1 is reviewed.
->>
->> ---
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
->> index 066d24ee3e08..7752adff05c1 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
->> @@ -1,4 +1,7 @@
->>   kms_3d,Fail
->> +kms_cursor_legacy@forked-bo,Fail
->> +kms_cursor_legacy@forked-move,Fail
->> +kms_cursor_legacy@single-bo,Fail
->>   kms_cursor_legacy@torture-bo,Fail
-> 
-> Interesting, DRM_MODE_CURSOR_BO tests fail
-> 
->>   kms_force_connector_basic@force-edid,Fail
->>   kms_hdmi_inject@inject-4k,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
->> index 6dbc2080347d..581d0aa33b4f 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
->> @@ -8,6 +8,8 @@ kms_color@ctm-red-to-blue,Fail
->>   kms_color@ctm-signed,Fail
->>   kms_cursor_legacy@cursor-vs-flip-toggle,Fail
->>   kms_cursor_legacy@cursor-vs-flip-varying-size,Fail
->> +kms_display_modes@extended-mode-basic,Fail
->> +kms_display_modes@mst-extended-mode-negative,Fail
-> 
-> This is a bug in 5f7cde6a9878 ("tests/kms_display_modes: Skip test if
-> joiner display is connected"), the driver unconditionally calls
-> is_joiner_mode(), or in 88abc2d2c646 ("lib/igt_kms: Add is_joiner_mode
-> function"), the is_joiner_mode() should return false for non-Intel
-> hardware. Please fix it in the IGT instead.
-
-Can we add this in skips mentioning the IGT gitab issue link?
-
-> 
->>   kms_flip@flip-vs-modeset-vs-hang,Fail
->>   kms_flip@flip-vs-panning-vs-hang,Fail
->>   kms_lease@lease-uevent,Fail
->> @@ -15,4 +17,3 @@ kms_pipe_crc_basic@compare-crc-sanitycheck-nv12,Fail
->>   kms_plane_alpha_blend@alpha-7efc,Fail
->>   kms_plane_alpha_blend@coverage-7efc,Fail
->>   kms_plane_alpha_blend@coverage-vs-premult-vs-constant,Fail
->> -kms_rmfb@close-fd,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
->> index d74e04405e65..5122233b9941 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
->> @@ -18,3 +18,10 @@ msm/msm_shrink@copy-gpu-oom-32
->>   # IGT Version: 1.28-g0df7b9b97
->>   # Linux Version: 6.9.0-rc7
->>   msm/msm_shrink@copy-gpu-oom-8
->> +
->> +# Board Name: sc7180-trogdor-kingoftown
->> +# Bug Report:
->> +# Failure Rate: 50
->> +# IGT Version: 1.29-g33adea9eb
->> +# Linux Version: 6.13.0-rc2
->> +kms_lease@page-flip-implicit-plane
-> 
-> Do you have a failure log?
+On Fri, Dec 06, 2024 at 10:10:41AM +0900, Koichiro Den wrote:
+> When virtnet_close is followed by virtnet_open, some TX completions can
+> possibly remain unconsumed, until they are finally processed during the
+> first NAPI poll after the netdev_tx_reset_queue(), resulting in a crash
+> [1]. Commit b96ed2c97c79 ("virtio_net: move netdev_tx_reset_queue() call
+> before RX napi enable") was not sufficient to eliminate all BQL crash
+> scenarios for virtio-net.
+>=20
+> This issue can be reproduced with the latest net-next master by running:
+> `while :; do ip l set DEV down; ip l set DEV up; done` under heavy networ=
+k
+> TX load from inside the machine.
+>=20
+> This patch series resolves the issue and also addresses similar existing
+> problems:
+>=20
+> (a). Drop netdev_tx_reset_queue() from open/close path. This eliminates t=
+he
+>      BQL crashes due to the problematic open/close path.
+>=20
+> (b). As a result of (a), netdev_tx_reset_queue() is now explicitly requir=
+ed
+>      in freeze/restore path. Add netdev_tx_reset_queue() immediately afte=
+r
+>      free_unused_bufs() invocation.
+>=20
+> (c). Fix missing resetting in virtnet_tx_resize().
+>      virtnet_tx_resize() has lacked proper resetting since commit
+>      c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits").
+>=20
+> (d). Fix missing resetting in the XDP_SETUP_XSK_POOL path.
+>      Similar to (c), this path lacked proper resetting. Call
+>      netdev_tx_reset_queue() when virtqueue_reset() has actually recycled
+>      unused buffers.
 
 
-https://gitlab.freedesktop.org/vigneshraman/linux/-/jobs/68026461#L3262
+thanks
 
-Let me know if I can create a gitlab issue for this.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Regards,
-Vginesh
+> This patch series consists of six commits:
+>   [1/6]: Resolves (a) and (b).                      # also -stable 6.11.y
+>   [2/6]: Minor fix to make [4/6] streamlined.
+>   [3/6]: Prerequisite for (c).                      # also -stable 6.11.y
+>   [4/6]: Resolves (c) (incl. Prerequisite for (d))  # also -stable 6.11.y
+>   [5/6]: Preresuisite for (d).
+>   [6/6]: Resolves (d).
+>=20
+> Changes for v4:
+>   - move netdev_tx_reset_queue() out of free_unused_bufs()
+>   - submit to net, not net-next
+> Changes for v3:
+>   - replace 'flushed' argument with 'recycle_done'
+> Changes for v2:
+>   - add tx queue resetting for (b) to (d) above
+>=20
+> v3: https://lore.kernel.org/all/20241204050724.307544-1-koichiro.den@cano=
+nical.com/
+> v2: https://lore.kernel.org/all/20241203073025.67065-1-koichiro.den@canon=
+ical.com/
+> v1: https://lore.kernel.org/all/20241130181744.3772632-1-koichiro.den@can=
+onical.com/
+>=20
+> [1]:
+> ------------[ cut here ]------------
+> kernel BUG at lib/dynamic_queue_limits.c:99!
+> Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+> CPU: 7 UID: 0 PID: 1598 Comm: ip Tainted: G    N 6.12.0net-next_main+ #2
+> Tainted: [N]=3DTEST
+> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), \
+> BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
+> RIP: 0010:dql_completed+0x26b/0x290
+> Code: b7 c2 49 89 e9 44 89 da 89 c6 4c 89 d7 e8 ed 17 47 00 58 65 ff 0d
+> 4d 27 90 7e 0f 85 fd fe ff ff e8 ea 53 8d ff e9 f3 fe ff ff <0f> 0b 01
+> d2 44 89 d1 29 d1 ba 00 00 00 00 0f 48 ca e9 28 ff ff ff
+> RSP: 0018:ffffc900002b0d08 EFLAGS: 00010297
+> RAX: 0000000000000000 RBX: ffff888102398c80 RCX: 0000000080190009
+> RDX: 0000000000000000 RSI: 000000000000006a RDI: 0000000000000000
+> RBP: ffff888102398c00 R08: 0000000000000000 R09: 0000000000000000
+> R10: 00000000000000ca R11: 0000000000015681 R12: 0000000000000001
+> R13: ffffc900002b0d68 R14: ffff88811115e000 R15: ffff8881107aca40
+> FS:  00007f41ded69500(0000) GS:ffff888667dc0000(0000)
+> knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000556ccc2dc1a0 CR3: 0000000104fd8003 CR4: 0000000000772ef0
+> PKRU: 55555554
+> Call Trace:
+>  <IRQ>
+>  ? die+0x32/0x80
+>  ? do_trap+0xd9/0x100
+>  ? dql_completed+0x26b/0x290
+>  ? dql_completed+0x26b/0x290
+>  ? do_error_trap+0x6d/0xb0
+>  ? dql_completed+0x26b/0x290
+>  ? exc_invalid_op+0x4c/0x60
+>  ? dql_completed+0x26b/0x290
+>  ? asm_exc_invalid_op+0x16/0x20
+>  ? dql_completed+0x26b/0x290
+>  __free_old_xmit+0xff/0x170 [virtio_net]
+>  free_old_xmit+0x54/0xc0 [virtio_net]
+>  virtnet_poll+0xf4/0xe30 [virtio_net]
+>  ? __update_load_avg_cfs_rq+0x264/0x2d0
+>  ? update_curr+0x35/0x260
+>  ? reweight_entity+0x1be/0x260
+>  __napi_poll.constprop.0+0x28/0x1c0
+>  net_rx_action+0x329/0x420
+>  ? enqueue_hrtimer+0x35/0x90
+>  ? trace_hardirqs_on+0x1d/0x80
+>  ? kvm_sched_clock_read+0xd/0x20
+>  ? sched_clock+0xc/0x30
+>  ? kvm_sched_clock_read+0xd/0x20
+>  ? sched_clock+0xc/0x30
+>  ? sched_clock_cpu+0xd/0x1a0
+>  handle_softirqs+0x138/0x3e0
+>  do_softirq.part.0+0x89/0xc0
+>  </IRQ>
+>  <TASK>
+>  __local_bh_enable_ip+0xa7/0xb0
+>  virtnet_open+0xc8/0x310 [virtio_net]
+>  __dev_open+0xfa/0x1b0
+>  __dev_change_flags+0x1de/0x250
+>  dev_change_flags+0x22/0x60
+>  do_setlink.isra.0+0x2df/0x10b0
+>  ? rtnetlink_rcv_msg+0x34f/0x3f0
+>  ? netlink_rcv_skb+0x54/0x100
+>  ? netlink_unicast+0x23e/0x390
+>  ? netlink_sendmsg+0x21e/0x490
+>  ? ____sys_sendmsg+0x31b/0x350
+>  ? avc_has_perm_noaudit+0x67/0xf0
+>  ? cred_has_capability.isra.0+0x75/0x110
+>  ? __nla_validate_parse+0x5f/0xee0
+>  ? __pfx___probestub_irq_enable+0x3/0x10
+>  ? __create_object+0x5e/0x90
+>  ? security_capable+0x3b/0x7=1B[I0
+>  rtnl_newlink+0x784/0xaf0
+>  ? avc_has_perm_noaudit+0x67/0xf0
+>  ? cred_has_capability.isra.0+0x75/0x110
+>  ? stack_depot_save_flags+0x24/0x6d0
+>  ? __pfx_rtnl_newlink+0x10/0x10
+>  rtnetlink_rcv_msg+0x34f/0x3f0
+>  ? do_syscall_64+0x6c/0x180
+>  ? entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>  ? __pfx_rtnetlink_rcv_msg+0x10/0x10
+>  netlink_rcv_skb+0x54/0x100
+>  netlink_unicast+0x23e/0x390
+>  netlink_sendmsg+0x21e/0x490
+>  ____sys_sendmsg+0x31b/0x350
+>  ? copy_msghdr_from_user+0x6d/0xa0
+>  ___sys_sendmsg+0x86/0xd0
+>  ? __pte_offset_map+0x17/0x160
+>  ? preempt_count_add+0x69/0xa0
+>  ? __call_rcu_common.constprop.0+0x147/0x610
+>  ? preempt_count_add+0x69/0xa0
+>  ? preempt_count_add+0x69/0xa0
+>  ? _raw_spin_trylock+0x13/0x60
+>  ? trace_hardirqs_on+0x1d/0x80
+>  __sys_sendmsg+0x66/0xc0
+>  do_syscall_64+0x6c/0x180
+>  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+> RIP: 0033:0x7f41defe5b34
+> Code: 15 e1 12 0f 00 f7 d8 64 89 02 b8 ff ff ff ff eb bf 0f 1f 44 00 00
+> f3 0f 1e fa 80 3d 35 95 0f 00 00 74 13 b8 2e 00 00 00 0f 05 <48> 3d 00
+> f0 ff ff 77 4c c3 0f 1f 00 55 48 89 e5 48 83 ec 20 89 55
+> RSP: 002b:00007ffe5336ecc8 EFLAGS: 00000202 ORIG_RAX: 000000000000002e
+> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f41defe5b34
+> RDX: 0000000000000000 RSI: 00007ffe5336ed30 RDI: 0000000000000003
+> RBP: 00007ffe5336eda0 R08: 0000000000000010 R09: 0000000000000001
+> R10: 00007ffe5336f6f9 R11: 0000000000000202 R12: 0000000000000003
+> R13: 0000000067452259 R14: 0000556ccc28b040 R15: 0000000000000000
+>  </TASK>
+> [...]
+> ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+>=20
+> Koichiro Den (6):
+>   virtio_net: correct netdev_tx_reset_queue() invocation point
+>   virtio_net: replace vq2rxq with vq2txq where appropriate
+>   virtio_ring: add a func argument 'recycle_done' to virtqueue_resize()
+>   virtio_net: ensure netdev_tx_reset_queue is called on tx ring resize
+>   virtio_ring: add a func argument 'recycle_done' to virtqueue_reset()
+>   virtio_net: ensure netdev_tx_reset_queue is called on bind xsk for tx
+>=20
+>  drivers/net/virtio_net.c     | 31 +++++++++++++++++++++++++------
+>  drivers/virtio/virtio_ring.c | 12 ++++++++++--
+>  include/linux/virtio.h       |  6 ++++--
+>  3 files changed, 39 insertions(+), 10 deletions(-)
+>=20
+> --=20
+> 2.43.0
 
-> 
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
->> index 6dbc2080347d..581d0aa33b4f 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
->> @@ -8,6 +8,8 @@ kms_color@ctm-red-to-blue,Fail
->>   kms_color@ctm-signed,Fail
->>   kms_cursor_legacy@cursor-vs-flip-toggle,Fail
->>   kms_cursor_legacy@cursor-vs-flip-varying-size,Fail
->> +kms_display_modes@extended-mode-basic,Fail
->> +kms_display_modes@mst-extended-mode-negative,Fail
-> 
-> Again, the same IGT issue.
-> 
->>   kms_flip@flip-vs-modeset-vs-hang,Fail
->>   kms_flip@flip-vs-panning-vs-hang,Fail
->>   kms_lease@lease-uevent,Fail
->> @@ -15,4 +17,3 @@ kms_pipe_crc_basic@compare-crc-sanitycheck-nv12,Fail
->>   kms_plane_alpha_blend@alpha-7efc,Fail
->>   kms_plane_alpha_blend@coverage-7efc,Fail
->>   kms_plane_alpha_blend@coverage-vs-premult-vs-constant,Fail
->> -kms_rmfb@close-fd,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt
->> index fa8c7e663858..69076751af24 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt
->> @@ -1,4 +1,3 @@
->> -drm_read@invalid-buffer,Fail
->>   kms_color@ctm-0-25,Fail
->>   kms_color@ctm-0-50,Fail
->>   kms_color@ctm-0-75,Fail
->> @@ -19,6 +18,8 @@ kms_cursor_legacy@flip-vs-cursor-atomic,Fail
->>   kms_cursor_legacy@flip-vs-cursor-crc-atomic,Fail
->>   kms_cursor_legacy@flip-vs-cursor-crc-legacy,Fail
->>   kms_cursor_legacy@flip-vs-cursor-legacy,Fail
->> +kms_display_modes@extended-mode-basic,Fail
->> +kms_display_modes@mst-extended-mode-negative,Fail
-> 
-> The same IGT error
-> 
->>   kms_flip@flip-vs-modeset-vs-hang,Fail
->>   kms_flip@flip-vs-panning-vs-hang,Fail
->>   kms_lease@lease-uevent,Fail
->> @@ -28,4 +29,3 @@ kms_plane_alpha_blend@coverage-7efc,Fail
->>   kms_plane_alpha_blend@coverage-vs-premult-vs-constant,Fail
->>   kms_plane_cursor@overlay,Fail
->>   kms_plane_cursor@viewport,Fail
->> -kms_rmfb@close-fd,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
->> index 4892c0c70a6d..8d26b23133aa 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
->> @@ -7,9 +7,4 @@ kms_cursor_legacy@torture-bo,Fail
->>   kms_cursor_legacy@torture-move,Fail
->>   kms_hdmi_inject@inject-4k,Fail
->>   kms_lease@lease-uevent,Fail
->> -kms_plane_alpha_blend@alpha-7efc,Fail
->> -kms_plane_alpha_blend@alpha-basic,Fail
->> -kms_plane_alpha_blend@alpha-opaque-fb,Fail
->> -kms_plane_alpha_blend@alpha-transparent-fb,Fail
->> -kms_plane_alpha_blend@constant-alpha-max,Fail
->>   msm/msm_recovery@gpu-fault-parallel,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-flakes.txt b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-flakes.txt
->> deleted file mode 100644
->> index c1859d9b165f..000000000000
->> --- a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-flakes.txt
->> +++ /dev/null
->> @@ -1,6 +0,0 @@
->> -# Board Name: sm8350-hdk
->> -# Bug Report: https://gitlab.freedesktop.org/drm/msm/-/issues/65
->> -# Failure Rate: 100
->> -# IGT Version: 1.28-ga73311079
->> -# Linux Version: 6.12.0-rc1
->> -msm/msm_recovery@gpu-fault
-> 
