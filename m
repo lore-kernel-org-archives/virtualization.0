@@ -1,280 +1,327 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 466C1204F66
-	for <virtualization@lists.linux.dev>; Thu, 12 Dec 2024 07:05:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1ADA2010F2
+	for <virtualization@lists.linux-foundation.org>; Thu, 12 Dec 2024 07:53:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733987154; cv=none; b=A+qN77O8O48Z0pP+P8u4XleFDkp2en1Xky1fqtoklS/4rAZctw/hCnYFPRw9fJHlZ/dY8fij6hB16EA+4yIsm2U8FPhWU3xn8d+8uSE8zK1ijksL70VOZC9gwzy4ELTXMxLx7yl9hdxCKH8oQkPjKDySg/0QHzMPx0XKGPDjXu4=
+	t=1733989989; cv=none; b=d95dxQGEv4tY/iddurYFBrsW9WwTK1SD3BHmOcQt1yngx21kjlRLwv4iJmgijxxwvXdF1WxOp9rolQlP98oUT/Pt15DTCrzgMvxeHX4VhjyKm7IKHtdyMmUV1vVZR5fZGjk3ZTAP8nIXKjJ4dbd9ll+QlrF4rk6DvDDvFqO5B+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733987154; c=relaxed/simple;
-	bh=DSZ+IehQJhmlPIR9/gNF3ubk68Lm13DfgD6eA2ic+cg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dzIbl59bX4i+brqNKluLgP5c4aBEne7ILHoIRPhtph0QMxALHMPe4ssd2f9V0tR6+cbU0AfVrSVpYXNhNdD3yj92lsTzYoQ1MqY6ah1Zog2CJDBKbIkEqaZ41Xi0MDNEKe57uD2wUtSma4++wWZK8DMgPSNJKMxnEG7T0SBmEeI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HMa8wNY0; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1733989989; c=relaxed/simple;
+	bh=eQb9M3J4JrPlPfisqjk4yxpyO+3HjWmcIFpGgd4fxtc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=c39UV4erB2fukhuxZKGebDoEuLA2S+1fW2nZ81xLWdnXdAkwSRVDj5tPcwympkW+htlT5gOMPcO1shiDtBHfpX+yTNFxuKfI8whjL2FJiYQx2vjC1rKRxlNUNCr5vCvvyqUQxJZZ8EI3O/StpF9Qc1yMaJdn+VjxHlsUa6Sw3ac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=nFc5Pe8t; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=K9GnkQpk; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HMa8wNY0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733987151;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wPeg3BTCLY7xnzRULcn3ix+0YqKjZBn4RoFU3T2fZgc=;
-	b=HMa8wNY0mSTZ9dotnQJcux2UvhDJgcBTuVAvVoQs2xO2uTKS1dUG8TSUHuqSjz3yr3WJe9
-	CypDfX5cnhqSYsTt2MJYk3pUPmcg5ZsDc72wJYEosdOx6Ghh1r2q8MHk63B6uLvjn38YG9
-	LVG9g2p49FFk5VZst48KLYYVD/vOQ2I=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-423-AwFRdQ9JMImpnMkIX7uC5A-1; Thu, 12 Dec 2024 02:05:49 -0500
-X-MC-Unique: AwFRdQ9JMImpnMkIX7uC5A-1
-X-Mimecast-MFC-AGG-ID: AwFRdQ9JMImpnMkIX7uC5A
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43619b135bcso1414475e9.1
-        for <virtualization@lists.linux.dev>; Wed, 11 Dec 2024 23:05:49 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733987148; x=1734591948;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rti03MdrVXI/elGajytboAaA+i7ZN4OIWBTI355So04=;
-        b=i6vCwqF12OSCBvVEsPsqhl52R2nxvnHU0o+NbPVRcoPLkUT3zKgAZrRLekmddhtZGZ
-         PljEERUFCoT3Cq4ePQHafIc6l3vI+dL8pP39DeZR3QiGFFARRaHMulV7jpATYsL4B0Hx
-         EZXmTP/NLxcOIqx3Z7QjWrXN/r9TbqhtnUZKlciO5ictgah/fO/LJrotYDVqUiHb9SLh
-         Nyv+ALq8uvqpew/Si3in7ElnK/FurnCFQm4E80UYCZWWG9ZRKNNpU0cUIAi6wnQIyDaF
-         ciK8gyccIPKZi1TANyLQ5OiNKqlhzNubBhcHHlQ/N8CeGmpIsRC2047l+W4ehBWGYcEw
-         brew==
-X-Gm-Message-State: AOJu0Yw3d/FGpvvn6VLEX7AZD1JHhfQbfRInLEfCKWBfzR4ddiqk5CbD
-	WoKwZUVoChHvGFdtD13ns2SFIhuZJu4KkPo8Y6W7X/fuu0dX31yhD5OIWI8AjJXs8bY6dTRG7jY
-	ZbieVBT6zjpnUb20jLxQsYw4W6vyJumYVEwc2enlbgmdRse+I5/pS3U0SwvDVbE+C
-X-Gm-Gg: ASbGncs4piq7Yc1I+zDoqrgsq1/IZMjfcLJDOstqadK3XhKPZHBhcucmCjT45rTbP7F
-	eDQeZCcWLv0DlFEYJN1Oore4qVyoYc+VntzYdlPagdsLiY3Fvp6nk+BE6v0I/IE44EHrUI1Q83C
-	sFaJ/3FpKMwOLL+5fC7PSkBUcvGqq/+RO4AiBa5WfkqVD3An1Ql8HpUMz2KwCvjVqJRuHMOUfZE
-	usI6PTJWe9fVtrBg8v2paiVgjR40zMzt29aB9FvxG8HXnvibw==
-X-Received: by 2002:a05:600c:1c85:b0:434:fdbc:5cf7 with SMTP id 5b1f17b1804b1-4361c416003mr39047775e9.27.1733987148533;
-        Wed, 11 Dec 2024 23:05:48 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHM80JCEN7MZoecTSwl2bXnHH1Ct9tE9wGDfZGHrSJBXJKgu6o9wF6yCI7CnMl4kLTpHYS1ew==
-X-Received: by 2002:a05:600c:1c85:b0:434:fdbc:5cf7 with SMTP id 5b1f17b1804b1-4361c416003mr39047425e9.27.1733987148104;
-        Wed, 11 Dec 2024 23:05:48 -0800 (PST)
-Received: from redhat.com ([2a02:14f:179:603a:6ff0:d430:c1c2:5bc9])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43625553208sm7354775e9.9.2024.12.11.23.05.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Dec 2024 23:05:47 -0800 (PST)
-Date: Thu, 12 Dec 2024 02:05:42 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Koichiro Den <koichiro.den@canonical.com>
-Cc: virtualization@lists.linux.dev, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, jiri@resnulli.us,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH net v4 0/6] virtio_net: correct netdev_tx_reset_queue()
- invocation points
-Message-ID: <20241212020531-mutt-send-email-mst@kernel.org>
-References: <20241206011047.923923-1-koichiro.den@canonical.com>
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="nFc5Pe8t";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="K9GnkQpk"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 469C6401FB
+	for <virtualization@lists.linux-foundation.org>; Thu, 12 Dec 2024 07:53:07 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.091
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 5IbIQpS71KyY for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Dec 2024 07:53:06 +0000 (UTC)
+X-Greylist: delayed 571 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 12 Dec 2024 07:53:05 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org DF01C4026D
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DF01C4026D
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=nFc5Pe8t;
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=K9GnkQpk
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=195.135.223.130; helo=smtp-out1.suse.de; envelope-from=jgross@suse.com; receiver=<UNKNOWN> 
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DF01C4026D
+	for <virtualization@lists.linux-foundation.org>; Thu, 12 Dec 2024 07:53:05 +0000 (UTC)
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id EEC7A210F4;
+	Thu, 12 Dec 2024 07:43:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1733989412; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=eQb9M3J4JrPlPfisqjk4yxpyO+3HjWmcIFpGgd4fxtc=;
+	b=nFc5Pe8tA8WUdjVlGn3G567JI1jWpBZRpG52eWaH/OW93W9SG2BTQ6D2A5M8aD7H5ax+Nt
+	ywVrehPlJlL7j/9jjCCsij9X3S+wS6mannZCgPBsOmvsfDmzwiVWDJpWWGQjezGVXv2qN0
+	3Y77Wq1oFLHrUjeldr57bK6fgA0zgJE=
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.com header.s=susede1 header.b=K9GnkQpk
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1733989411; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=eQb9M3J4JrPlPfisqjk4yxpyO+3HjWmcIFpGgd4fxtc=;
+	b=K9GnkQpkWDlhA2aSJ9be+bTGb9Ch3e9dhWN0Pdcplg1yZoLkaYiQyhiUcOxPI0B756roxG
+	JgMJYLqj0LZWnHyHhDkwbMEgDO0T/qcnOqXSUPI07oBCRvUQlkd9MEVK/2gm0rg3H6SbjQ
+	jwjAimMs0DCA9+F6gxSqiyGqhDHdLyA=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4F9FD13508;
+	Thu, 12 Dec 2024 07:43:31 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id qxHuESOUWmfYbAAAD6G6ig
+	(envelope-from <jgross@suse.com>); Thu, 12 Dec 2024 07:43:31 +0000
+Message-ID: <1b557096-6527-4aea-a8c2-d72ecf0a31e8@suse.com>
+Date: Thu, 12 Dec 2024 08:43:30 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241206011047.923923-1-koichiro.den@canonical.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ssKaiwXx4JPKzfdHJ0wnMGZJ-BLTsyl0_T7Kdl4eKq4_1733987149
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/3] virtgpu: check if P2P is possiable or not
+To: Julia Zhang <julia.zhang@amd.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ xen-devel@lists.xenproject.org
+Cc: Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Chen Jiqian <Jiqian.Chen@amd.com>,
+ Huang Rui <ray.huang@amd.com>, Penny Zheng <penny.zheng@amd.com>,
+ Zhu Lingshan <Lingshan.Zhu@amd.com>,
+ Anthony PERARD <anthony.perard@citrix.com>,
+ =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
+ Jan Beulich <jbeulich@suse.com>, Paul Durrant <paul@xen.org>
+References: <20241207105023.542399-1-julia.zhang@amd.com>
+Content-Language: en-US
+From: Juergen Gross <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <20241207105023.542399-1-julia.zhang@amd.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------FORJHIzhj36aBxYHJVPo4KVg"
+X-Rspamd-Queue-Id: EEC7A210F4
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-5.41 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SIGNED_PGP(-2.00)[];
+	MIME_BASE64_TEXT_BOGUS(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MIME_GOOD(-0.20)[multipart/signed,multipart/mixed,text/plain];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
+	MIME_UNKNOWN(0.10)[application/pgp-keys];
+	MIME_BASE64_TEXT(0.10)[];
+	MX_GOOD(-0.01)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FREEMAIL_TO(0.00)[amd.com,redhat.com,chromium.org,gmail.com,lists.freedesktop.org,lists.linux-foundation.org,kernel.org,epam.com,lists.xenproject.org];
+	ARC_NA(0.00)[];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	RCPT_COUNT_TWELVE(0.00)[21];
+	MIME_TRACE(0.00)[0:+,1:+,2:+,3:+,4:~,5:~];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	HAS_ATTACHMENT(0.00)[];
+	DKIM_TRACE(0.00)[suse.com:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:mid,suse.com:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------FORJHIzhj36aBxYHJVPo4KVg
+Content-Type: multipart/mixed; boundary="------------lJn20Kef0EmCQeBJ5lwj106a";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Julia Zhang <julia.zhang@amd.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ xen-devel@lists.xenproject.org
+Cc: Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Chen Jiqian <Jiqian.Chen@amd.com>,
+ Huang Rui <ray.huang@amd.com>, Penny Zheng <penny.zheng@amd.com>,
+ Zhu Lingshan <Lingshan.Zhu@amd.com>,
+ Anthony PERARD <anthony.perard@citrix.com>,
+ =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
+ Jan Beulich <jbeulich@suse.com>, Paul Durrant <paul@xen.org>
+Message-ID: <1b557096-6527-4aea-a8c2-d72ecf0a31e8@suse.com>
+Subject: Re: [PATCH 0/3] virtgpu: check if P2P is possiable or not
+References: <20241207105023.542399-1-julia.zhang@amd.com>
+In-Reply-To: <20241207105023.542399-1-julia.zhang@amd.com>
+Autocrypt-Gossip: addr=jbeulich@suse.com; keydata=
+ xsDiBFk3nEQRBADAEaSw6zC/EJkiwGPXbWtPxl2xCdSoeepS07jW8UgcHNurfHvUzogEq5xk
+ hu507c3BarVjyWCJOylMNR98Yd8VqD9UfmX0Hb8/BrA+Hl6/DB/eqGptrf4BSRwcZQM32aZK
+ 7Pj2XbGWIUrZrd70x1eAP9QE3P79Y2oLrsCgbZJfEwCgvz9JjGmQqQkRiTVzlZVCJYcyGGsD
+ /0tbFCzD2h20ahe8rC1gbb3K3qk+LpBtvjBu1RY9drYk0NymiGbJWZgab6t1jM7sk2vuf0Py
+ O9Hf9XBmK0uE9IgMaiCpc32XV9oASz6UJebwkX+zF2jG5I1BfnO9g7KlotcA/v5ClMjgo6Gl
+ MDY4HxoSRu3i1cqqSDtVlt+AOVBJBACrZcnHAUSuCXBPy0jOlBhxPqRWv6ND4c9PH1xjQ3NP
+ nxJuMBS8rnNg22uyfAgmBKNLpLgAGVRMZGaGoJObGf72s6TeIqKJo/LtggAS9qAUiuKVnygo
+ 3wjfkS9A3DRO+SpU7JqWdsveeIQyeyEJ/8PTowmSQLakF+3fote9ybzd880fSmFuIEJldWxp
+ Y2ggPGpiZXVsaWNoQHN1c2UuY29tPsJ3BBMRAgAgBQJZN5xEAhsDBgsJCAcDAgQVAggDBBYC
+ AwECHgECF4AAIQkQoDSui/t3IH4WIQQ+pJkfkcoLMCa4X6CgNK6L+3cgfgn7AJ9DmMd0SMJE
+ ePbc7/m22D2v04iu7ACffXTdZQhNl557tJuDXZSBxDmW/tLOwU0EWTecRBAIAIK5OMKMU5R2
+ Lk2bbjgX7vyQuCFFyKf9rC/4itNwhYWFSlKzVj3WJBDsoi2KvPm7AI+XB6NIkNAkshL5C0kd
+ pcNd5Xo0jRR5/WE/bT7LyrJ0OJWS/qUit5eNNvsO+SxGAk28KRa1ieVLeZi9D03NL0+HIAtZ
+ tecfqwgl3Y72UpLUyt+r7LQhcI/XR5IUUaD4C/chB4Vq2QkDKO7Q8+2HJOrFIjiVli4lU+Sf
+ OBp64m//Y1xys++Z4ODoKh7tkh5DxiO3QBHG7bHK0CSQsJ6XUvPVYubAuy1XfSDzSeSBl//C
+ v78Fclb+gi9GWidSTG/4hsEzd1fY5XwCZG/XJJY9M/sAAwUH/09Ar9W2U1Qm+DwZeP2ii3Ou
+ 14Z9VlVVPhcEmR/AFykL9dw/OV2O/7cdi52+l00reUu6Nd4Dl8s4f5n8b1YFzmkVVIyhwjvU
+ jxtPyUgDOt6DRa+RaDlXZZmxQyWcMv2anAgYWGVszeB8Myzsw8y7xhBEVV1S+1KloCzw4V8Z
+ DSJrcsZlyMDoiTb7FyqxwQnM0f6qHxWbmOOnbzJmBqpNpFuDcz/4xNsymJylm6oXiucHQBAP
+ Xb/cE1YNHpuaH4SRhIxwQilCYEznWowQphNAbJtEKOmcocY7EbSt8VjXTzmYENkIfkrHRyXQ
+ dUm5AoL51XZljkCqNwrADGkTvkwsWSvCSQQYEQIACQUCWTecRAIbDAAKCRCgNK6L+3cgfuef
+ AJ9wlZQNQUp0KwEf8Tl37RmcxCL4bQCcC5alCSMzUBJ5DBIcR4BY+CyQFAs=
+
+--------------lJn20Kef0EmCQeBJ5lwj106a
+Content-Type: multipart/mixed; boundary="------------vDc3tXiv0Jc0gS4fx4LN4O6V"
+
+--------------vDc3tXiv0Jc0gS4fx4LN4O6V
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+T24gMDcuMTIuMjQgMTE6NTAsIEp1bGlhIFpoYW5nIHdyb3RlOg0KPiBUbyBpbXBsZW1lbnQg
+ZEdQVSBwcmltZSBmZWF0dXJlLCB2aXJ0Z3B1IG5lZWRzIHRvIGltcG9ydC9leHBvcnQgYnVm
+ZmVyDQo+IGJldHdlZW4gdmlydGlvIGlHUFUgYW5kIHBhc3N0aHJvdWdoIGRHUFUuIEJlZm9y
+ZSB0aGF0LCB2aXJ0Z3B1IHNob3VsZA0KPiBjaGVjayBpZiBQMlAgaXMgcG9zc2libGUgb3Ig
+bm90LiBCdXQgY2FsbGluZyBmdW5jdGlvbiBwY2lfcDJwZG1hX2Rpc3RhbmNlDQo+IGluIGd1
+ZXN0IFZNIHdpbGwgb25seSBnZXQgdmlydHVhbCBwMnBkbWFfZGlzdGFuY2UgaW5zdGVhZCBv
+ZiByZWFsIHBoeXNpY2FsDQo+IHAycGRtYV9kaXN0YW5jZS4NCj4gICANCj4gU28gdGhpcyBz
+ZXJpZXMgaW50cm9kdWNlIGFuIGltcGxlbWVudGF0aW9uIG9mIHZpcnRncHUgZGV2aWNlX2F0
+dGFjaA0KPiBjYWxsYmFjayB0byBnZXQgcDJwZG1hX2Rpc3RhbmNlLiBBbmQgYWxzbyBhZGRz
+IGEgbmV3IHZpcnRncHUgY29tbWFuZCB0bw0KPiBwYXNzIFBDSSBub3RhdGlvbnMgZnJvbSBn
+dWVzdCB0byBob3N0IGFuZCBhIG5ldyB4ZW4gcHJpdmNtZCB0byBnZXQgcGh5c2ljYWwNCj4g
+cDJwZG1hX2Rpc3RhbmNlIGFjY29yZGluZyB0byB0aGUgUENJIG5vdGF0aW9ucyBpbiBob3N0
+Lg0KDQpJdCBpcyBoYXJkIHRvIHJldmlldyB0aGlzIHNlcmllcyB3aXRob3V0IGhhdmluZyBh
+IGNsZWFyIHBpY3R1cmUgaG93DQp0aGlzIGFsbCBpcyBjb21pbmcgdG9nZXRoZXIuDQoNCkkg
+Z3Vlc3MgdGhlIHZpcnRncHUgZnJvbnRlbmQgd2lsbCBzZW5kIGEgcDJwZG1hX2Rpc3RhbmNl
+IHJlcXVlc3QgdG8NCnRoZSBiYWNrZW5kLCB3aGljaCBpcyBydW5uaW5nIGluIHVzZXIgbW9k
+ZSBvZiBkb20wLiBUaGlzIGJhY2tlbmQgd2lsbA0KdGhlbiBjYWxsIGludG8gdGhlIHByaXZj
+bWQgZHJpdmVyIHRvIG9idGFpbiB0aGUgbmVlZGVkIGluZm9ybWF0aW9uIGFuZA0Kc2VuZHMg
+aXQgYmFjayB0byB0aGUgZnJvbnRlbmQuDQoNCkNhbiB5b3UgcGxlYXNlIGNvbmZpcm0gbXkg
+c3VzcGljaW9uIGlzIGNvcnJlY3Q/DQoNCg0KSnVlcmdlbg0K
+--------------vDc3tXiv0Jc0gS4fx4LN4O6V
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 06, 2024 at 10:10:41AM +0900, Koichiro Den wrote:
-> When virtnet_close is followed by virtnet_open, some TX completions can
-> possibly remain unconsumed, until they are finally processed during the
-> first NAPI poll after the netdev_tx_reset_queue(), resulting in a crash
-> [1]. Commit b96ed2c97c79 ("virtio_net: move netdev_tx_reset_queue() call
-> before RX napi enable") was not sufficient to eliminate all BQL crash
-> scenarios for virtio-net.
->=20
-> This issue can be reproduced with the latest net-next master by running:
-> `while :; do ip l set DEV down; ip l set DEV up; done` under heavy networ=
-k
-> TX load from inside the machine.
->=20
-> This patch series resolves the issue and also addresses similar existing
-> problems:
->=20
-> (a). Drop netdev_tx_reset_queue() from open/close path. This eliminates t=
-he
->      BQL crashes due to the problematic open/close path.
->=20
-> (b). As a result of (a), netdev_tx_reset_queue() is now explicitly requir=
-ed
->      in freeze/restore path. Add netdev_tx_reset_queue() immediately afte=
-r
->      free_unused_bufs() invocation.
->=20
-> (c). Fix missing resetting in virtnet_tx_resize().
->      virtnet_tx_resize() has lacked proper resetting since commit
->      c8bd1f7f3e61 ("virtio_net: add support for Byte Queue Limits").
->=20
-> (d). Fix missing resetting in the XDP_SETUP_XSK_POOL path.
->      Similar to (c), this path lacked proper resetting. Call
->      netdev_tx_reset_queue() when virtqueue_reset() has actually recycled
->      unused buffers.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-thanks
+--------------vDc3tXiv0Jc0gS4fx4LN4O6V--
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+--------------lJn20Kef0EmCQeBJ5lwj106a--
 
-> This patch series consists of six commits:
->   [1/6]: Resolves (a) and (b).                      # also -stable 6.11.y
->   [2/6]: Minor fix to make [4/6] streamlined.
->   [3/6]: Prerequisite for (c).                      # also -stable 6.11.y
->   [4/6]: Resolves (c) (incl. Prerequisite for (d))  # also -stable 6.11.y
->   [5/6]: Preresuisite for (d).
->   [6/6]: Resolves (d).
->=20
-> Changes for v4:
->   - move netdev_tx_reset_queue() out of free_unused_bufs()
->   - submit to net, not net-next
-> Changes for v3:
->   - replace 'flushed' argument with 'recycle_done'
-> Changes for v2:
->   - add tx queue resetting for (b) to (d) above
->=20
-> v3: https://lore.kernel.org/all/20241204050724.307544-1-koichiro.den@cano=
-nical.com/
-> v2: https://lore.kernel.org/all/20241203073025.67065-1-koichiro.den@canon=
-ical.com/
-> v1: https://lore.kernel.org/all/20241130181744.3772632-1-koichiro.den@can=
-onical.com/
->=20
-> [1]:
-> ------------[ cut here ]------------
-> kernel BUG at lib/dynamic_queue_limits.c:99!
-> Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-> CPU: 7 UID: 0 PID: 1598 Comm: ip Tainted: G    N 6.12.0net-next_main+ #2
-> Tainted: [N]=3DTEST
-> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), \
-> BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
-> RIP: 0010:dql_completed+0x26b/0x290
-> Code: b7 c2 49 89 e9 44 89 da 89 c6 4c 89 d7 e8 ed 17 47 00 58 65 ff 0d
-> 4d 27 90 7e 0f 85 fd fe ff ff e8 ea 53 8d ff e9 f3 fe ff ff <0f> 0b 01
-> d2 44 89 d1 29 d1 ba 00 00 00 00 0f 48 ca e9 28 ff ff ff
-> RSP: 0018:ffffc900002b0d08 EFLAGS: 00010297
-> RAX: 0000000000000000 RBX: ffff888102398c80 RCX: 0000000080190009
-> RDX: 0000000000000000 RSI: 000000000000006a RDI: 0000000000000000
-> RBP: ffff888102398c00 R08: 0000000000000000 R09: 0000000000000000
-> R10: 00000000000000ca R11: 0000000000015681 R12: 0000000000000001
-> R13: ffffc900002b0d68 R14: ffff88811115e000 R15: ffff8881107aca40
-> FS:  00007f41ded69500(0000) GS:ffff888667dc0000(0000)
-> knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000556ccc2dc1a0 CR3: 0000000104fd8003 CR4: 0000000000772ef0
-> PKRU: 55555554
-> Call Trace:
->  <IRQ>
->  ? die+0x32/0x80
->  ? do_trap+0xd9/0x100
->  ? dql_completed+0x26b/0x290
->  ? dql_completed+0x26b/0x290
->  ? do_error_trap+0x6d/0xb0
->  ? dql_completed+0x26b/0x290
->  ? exc_invalid_op+0x4c/0x60
->  ? dql_completed+0x26b/0x290
->  ? asm_exc_invalid_op+0x16/0x20
->  ? dql_completed+0x26b/0x290
->  __free_old_xmit+0xff/0x170 [virtio_net]
->  free_old_xmit+0x54/0xc0 [virtio_net]
->  virtnet_poll+0xf4/0xe30 [virtio_net]
->  ? __update_load_avg_cfs_rq+0x264/0x2d0
->  ? update_curr+0x35/0x260
->  ? reweight_entity+0x1be/0x260
->  __napi_poll.constprop.0+0x28/0x1c0
->  net_rx_action+0x329/0x420
->  ? enqueue_hrtimer+0x35/0x90
->  ? trace_hardirqs_on+0x1d/0x80
->  ? kvm_sched_clock_read+0xd/0x20
->  ? sched_clock+0xc/0x30
->  ? kvm_sched_clock_read+0xd/0x20
->  ? sched_clock+0xc/0x30
->  ? sched_clock_cpu+0xd/0x1a0
->  handle_softirqs+0x138/0x3e0
->  do_softirq.part.0+0x89/0xc0
->  </IRQ>
->  <TASK>
->  __local_bh_enable_ip+0xa7/0xb0
->  virtnet_open+0xc8/0x310 [virtio_net]
->  __dev_open+0xfa/0x1b0
->  __dev_change_flags+0x1de/0x250
->  dev_change_flags+0x22/0x60
->  do_setlink.isra.0+0x2df/0x10b0
->  ? rtnetlink_rcv_msg+0x34f/0x3f0
->  ? netlink_rcv_skb+0x54/0x100
->  ? netlink_unicast+0x23e/0x390
->  ? netlink_sendmsg+0x21e/0x490
->  ? ____sys_sendmsg+0x31b/0x350
->  ? avc_has_perm_noaudit+0x67/0xf0
->  ? cred_has_capability.isra.0+0x75/0x110
->  ? __nla_validate_parse+0x5f/0xee0
->  ? __pfx___probestub_irq_enable+0x3/0x10
->  ? __create_object+0x5e/0x90
->  ? security_capable+0x3b/0x7=1B[I0
->  rtnl_newlink+0x784/0xaf0
->  ? avc_has_perm_noaudit+0x67/0xf0
->  ? cred_has_capability.isra.0+0x75/0x110
->  ? stack_depot_save_flags+0x24/0x6d0
->  ? __pfx_rtnl_newlink+0x10/0x10
->  rtnetlink_rcv_msg+0x34f/0x3f0
->  ? do_syscall_64+0x6c/0x180
->  ? entry_SYSCALL_64_after_hwframe+0x76/0x7e
->  ? __pfx_rtnetlink_rcv_msg+0x10/0x10
->  netlink_rcv_skb+0x54/0x100
->  netlink_unicast+0x23e/0x390
->  netlink_sendmsg+0x21e/0x490
->  ____sys_sendmsg+0x31b/0x350
->  ? copy_msghdr_from_user+0x6d/0xa0
->  ___sys_sendmsg+0x86/0xd0
->  ? __pte_offset_map+0x17/0x160
->  ? preempt_count_add+0x69/0xa0
->  ? __call_rcu_common.constprop.0+0x147/0x610
->  ? preempt_count_add+0x69/0xa0
->  ? preempt_count_add+0x69/0xa0
->  ? _raw_spin_trylock+0x13/0x60
->  ? trace_hardirqs_on+0x1d/0x80
->  __sys_sendmsg+0x66/0xc0
->  do_syscall_64+0x6c/0x180
->  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-> RIP: 0033:0x7f41defe5b34
-> Code: 15 e1 12 0f 00 f7 d8 64 89 02 b8 ff ff ff ff eb bf 0f 1f 44 00 00
-> f3 0f 1e fa 80 3d 35 95 0f 00 00 74 13 b8 2e 00 00 00 0f 05 <48> 3d 00
-> f0 ff ff 77 4c c3 0f 1f 00 55 48 89 e5 48 83 ec 20 89 55
-> RSP: 002b:00007ffe5336ecc8 EFLAGS: 00000202 ORIG_RAX: 000000000000002e
-> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f41defe5b34
-> RDX: 0000000000000000 RSI: 00007ffe5336ed30 RDI: 0000000000000003
-> RBP: 00007ffe5336eda0 R08: 0000000000000010 R09: 0000000000000001
-> R10: 00007ffe5336f6f9 R11: 0000000000000202 R12: 0000000000000003
-> R13: 0000000067452259 R14: 0000556ccc28b040 R15: 0000000000000000
->  </TASK>
-> [...]
-> ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
->=20
-> Koichiro Den (6):
->   virtio_net: correct netdev_tx_reset_queue() invocation point
->   virtio_net: replace vq2rxq with vq2txq where appropriate
->   virtio_ring: add a func argument 'recycle_done' to virtqueue_resize()
->   virtio_net: ensure netdev_tx_reset_queue is called on tx ring resize
->   virtio_ring: add a func argument 'recycle_done' to virtqueue_reset()
->   virtio_net: ensure netdev_tx_reset_queue is called on bind xsk for tx
->=20
->  drivers/net/virtio_net.c     | 31 +++++++++++++++++++++++++------
->  drivers/virtio/virtio_ring.c | 12 ++++++++++--
->  include/linux/virtio.h       |  6 ++++--
->  3 files changed, 39 insertions(+), 10 deletions(-)
->=20
-> --=20
-> 2.43.0
+--------------FORJHIzhj36aBxYHJVPo4KVg
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmdalCIFAwAAAAAACgkQsN6d1ii/Ey8N
+iQf/fpPw/+amQAbgmNByT3LMIV97FgTh8OXjfnM6WH2D9tHqHzDkjMsTsf3dGuJH2Y1ZGhk2+9lp
+nRSA5DMwJ0ew94xJGNvcKrURfucWpj7jFQNOLV9S0yLfMtaIxAIh7Q6K/YkXsjf0feYe2msAPc6j
+paLxDFuW8KatUcD8upTK3li0hJULnQecGWqCBXu/JN/yffernuIrJ7pjQJXVyz4cQg2Sx3Pqq1+R
+St/4PNP6Zx1CRIhgre42HfcC5LtUaknuJ+JdRy5Nhqif5sPyYhpJC5uEAs2VSPCPZRorklNOYtpT
+Hbq/jJD8wbu5O4ZO2puFpU7VjJgj2krW+vMawLIgzg==
+=X6gv
+-----END PGP SIGNATURE-----
+
+--------------FORJHIzhj36aBxYHJVPo4KVg--
