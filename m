@@ -1,159 +1,144 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C6B37DA62
-	for <virtualization@lists.linux.dev>; Fri, 13 Dec 2024 03:52:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C70C15B97D
+	for <virtualization@lists.linux.dev>; Fri, 13 Dec 2024 03:56:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734061948; cv=none; b=ovYHW5l3r46pyEEVN+cFBv771iQOw/R4QqHRf0w0+4zysqbXcGSZESntEFdvvvFYUcrcGOsU2f62zLimbhHatzuOvC7mhlECbNu334yppG8X9zZdx316tfU5e2reNiFFUFNBhnCUggB/r/G6m85eZgTzqgomDcATWO5mJnfSxRk=
+	t=1734062164; cv=none; b=kEZsLOZFBgpp0G8/j5qG0a5OVv+/bh/MxM74vpzD19KTiaXzEJoNm+2L9+1PnautdtXNTAgpQEwuXnMdfHfezzdjVB0vkoDMstGsWprVzQErDuZPwqJzCSjE29UrSFeElpZg9A4qHMUPmkHCDppQsZhj77abUYDARZ0ruVephrw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734061948; c=relaxed/simple;
-	bh=2Xg1zg0VoQPrH7fNdLbQ3qFxJxO+tFJ2FifDLe4GcmE=;
+	s=arc-20240116; t=1734062164; c=relaxed/simple;
+	bh=U4lhy29Z8mWIZhXRxJyY/aLJFxrOaq/vlhjoFQPjVqs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lnSH69HwAnyi40RP+DA7hsHt+OBmbi8JnG+5s8UUjbjqdl/C3KA2NcduoR12ZdN+tPUWoO1UBH/VBxQs/brSpF4FgBDXbLdAeINY2FrEcLyjoooqEKMYM00I+3GCiR+fRoOPiWy6kQSqH3P0lNxogPSuZkq0rqt845A/SMqwJtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OeDW7eXc; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=mxhRchqmNekhg6AGSomE7h/S8OIHMitV27S/HIMu60AHmx/5mKmfSFmkLixg1By2reEjw3rBKOBnmx1Ae0E7Cv6r0ZVLF2UWwBYR2HvzQnh8T0KMhdQOuRtf5S4mmc5hmC1ejG6ZhsGMBy/xxpY2OFpU1g4sDLTBWH5hjSLGSTc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f4haocp3; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OeDW7eXc"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f4haocp3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734061944;
+	s=mimecast20190719; t=1734062161;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=2Xg1zg0VoQPrH7fNdLbQ3qFxJxO+tFJ2FifDLe4GcmE=;
-	b=OeDW7eXciJYQ6TBjerlo4HYe9xmruaY/10BaZ2ghRgjUhQ5XRtruZp0/9mfrG9+Fotwf2v
-	SwJ89nMs00rAVsXNA51RADNVjk+8kEP2g58W7z9MuGQwCZFRDlO+xtFdPdo6r7BH3tJi9y
-	xltg84IL3zr5TLdkFUIfUoxEziSHrR0=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=hohhC+HKp9CnfbKmvLDDIi1grr9DkV90ygzzybVd/UU=;
+	b=f4haocp3NgyZh/hl/CDs3Q4GTebA4b9BgYwGUrsZdx4v3phLABkWvwDX0CM6PgeV7V0YlC
+	Lf8t8Gx+us2zhqqh4MMXIjdWvEtqy4z1lDJYdHRsCTNU+KzUJuEdpstyqh1aCKefDGSq4X
+	lSRo1aNKLntYlbpMRj+LhQ5yjPnTgMM=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-652-l3uTbKarNAKBR3LI9eQ7Hg-1; Thu, 12 Dec 2024 22:52:21 -0500
-X-MC-Unique: l3uTbKarNAKBR3LI9eQ7Hg-1
-X-Mimecast-MFC-AGG-ID: l3uTbKarNAKBR3LI9eQ7Hg
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2ef6ef9ba3fso1272976a91.2
-        for <virtualization@lists.linux.dev>; Thu, 12 Dec 2024 19:52:21 -0800 (PST)
+ us-mta-681-Px2SCvjIOPu1nEH8TX3fYw-1; Thu, 12 Dec 2024 22:55:59 -0500
+X-MC-Unique: Px2SCvjIOPu1nEH8TX3fYw-1
+X-Mimecast-MFC-AGG-ID: Px2SCvjIOPu1nEH8TX3fYw
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2ef9e4c5343so1901736a91.0
+        for <virtualization@lists.linux.dev>; Thu, 12 Dec 2024 19:55:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734061940; x=1734666740;
+        d=1e100.net; s=20230601; t=1734062159; x=1734666959;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2Xg1zg0VoQPrH7fNdLbQ3qFxJxO+tFJ2FifDLe4GcmE=;
-        b=KcozbG2fvDxAK0VcMHUHkWLgDU0QEyVyPzPBpeoK6eAh3WFTfwy8Hih+TyZaMcMuHn
-         0C+yV9NTlsy9hWSbKgMta7gs4FpSUC2yRygwUNJQDSJHnQkZn803NYp4itikLI/fxGod
-         Lw//5vxVimAxtFJCt60UT0wCfXdjUtjDl05gwZRSsKICskI6EPMLnJZEcIuorOU+ojue
-         NJSMWcz96QrxZHTUNKUk6evssl1tvV/OkJeKkQ+hC7D0qGLaeRpcsCy8mKG0jlPT/6Kd
-         neXfQDy28+/tnBvkhzDkEdX2AJgCUWOPS9iUbUhS0byypx2UOnjIzEbfXNvwp6CI8+Ii
-         E9qg==
-X-Forwarded-Encrypted: i=1; AJvYcCXnmtD78zfsgZRDXNOOwOh0XBqOruQtL/eRyN+KU8fUcz5K7F6psTU3fKbig+uSLowEMpF5v80yoSCbQrIMiQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/G9cyQ0pznQ2RpOqVgJtgeOjaxcR1bV1mXUnwQMOp1Ov4ymC2
-	ai8rP9Tjo6EBaFskXewsEvzU1ziMLy9jpO+wEvw0sA/AjBpi0g3AvJL8kAOFxu8fobWAfXjwpTd
-	xm26RmBFPzXFQ+hBwAPKS2q2JyNxZzOUaKAZ8Kap0rzFJgBSx8EVcOFzGdjsy1BBpZ7V1h6ubJq
-	/i85/0sSDvcLtqpyuGdKuizYqegOLw0iG2Ez46isM=
-X-Gm-Gg: ASbGncvExrg9kRUdLHTpkSEyiCCaDSIdRZBwLj/6dDaCZki/kOEDtdfbhLVIitShOch
-	GC7AJPdr/x3z9hHwXW2xhU+Lz6/+MVj8aMM8Jkp8=
-X-Received: by 2002:a17:90a:d406:b0:2ea:3f34:f194 with SMTP id 98e67ed59e1d1-2f28fb66637mr2037667a91.10.1734061940422;
-        Thu, 12 Dec 2024 19:52:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE+tqAqa5yLuoILqImlqyWlZwFRiojaB1R2mePNo7f66bmgmADVDIFHo/BlHpZaUTvDx9UcXIgqd62x9+kXS14=
-X-Received: by 2002:a17:90a:d406:b0:2ea:3f34:f194 with SMTP id
- 98e67ed59e1d1-2f28fb66637mr2037643a91.10.1734061939994; Thu, 12 Dec 2024
- 19:52:19 -0800 (PST)
+        bh=hohhC+HKp9CnfbKmvLDDIi1grr9DkV90ygzzybVd/UU=;
+        b=tt4yQghicH+bzpFxl3lyLzm3xLzBqb9ASBF7S+Kdx2vAsP3RtQVs6grrkcU2r6qwnS
+         HNVZ6lDzo/GHYGM06B2AQ/0BtpuXQ9Jhf7fy3aanTTNrDBNpYPw/jEQ/9qLS3Y4y8JOd
+         atLj48ABstXLXAbh58QEfLNvTjKDcuvlymfdEK15ydaI8Ee+OoBC8Af96yv/I8RXjFnR
+         mV1ui+3R/xJJJY+6a13ttC+hUbsyPO9H/aSShF0Ntq80dLZzAd0WH4g1sS+4LyVRYwnG
+         wPulBlhqtMqvZaPCIxmdg8wx7uQAV8cXrMI35yyjxA8hdfUVfI0oQxzM0IUBlW5bWBqD
+         UiAA==
+X-Gm-Message-State: AOJu0YzRRIlxKFAqE1mpZYQ8UNl3QtQ3RQz5j/JqIQ9Ycrr020zEMJG+
+	iII2a19R/w1cOozU+UfP4vefbxYS9osVQZCqqcILM9IszSYsuEml0Ar78wPFg6F147JsE38PPgJ
+	47KE6A9wd+fG/5KSkVhdwE0sla2coriVcEl83Hg2YTeYI+2OMCuH50jpSjGBdU7Z6/AukkjQW1G
+	FNdn+xig6qQsPdsfd7A73f71ftEhBRzAoT7BETPrU=
+X-Gm-Gg: ASbGnctwEfvo2D1qxKViSqTqWvGA9pDrAUGxTrb7llLZ49DEG+limLuK7uWWV1iSvjx
+	IWJG14kl9vM+xlDZk6thMJwfBnDPiKSGKDTNlFkM=
+X-Received: by 2002:a17:90b:53c6:b0:2ee:4982:e59f with SMTP id 98e67ed59e1d1-2f28fd733f2mr2137662a91.17.1734062158958;
+        Thu, 12 Dec 2024 19:55:58 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEafW2iox6ODPxu6qNDR+J2ks4Wa7nnNcsBTsO7vNPjs+72V/eu9MzyQy/i6saU+9tuWkzkyrbFKZ5asDGbRf8=
+X-Received: by 2002:a17:90b:53c6:b0:2ee:4982:e59f with SMTP id
+ 98e67ed59e1d1-2f28fd733f2mr2137631a91.17.1734062158559; Thu, 12 Dec 2024
+ 19:55:58 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241204153811.126028-1-t.ampelikiotis@virtualopensystems.com>
- <CACGkMEtPs5O25KVxN3UJX8RD5f0EhNqrqdVqt28FZSMX_W6GTg@mail.gmail.com> <CAJaqyWe0BHkhJWKw93tTu0iMakMqhix0DOHfhQxxU49vnXQALQ@mail.gmail.com>
-In-Reply-To: <CAJaqyWe0BHkhJWKw93tTu0iMakMqhix0DOHfhQxxU49vnXQALQ@mail.gmail.com>
+References: <20241209151427.3720026-1-sthotton@marvell.com> <20241209151427.3720026-3-sthotton@marvell.com>
+In-Reply-To: <20241209151427.3720026-3-sthotton@marvell.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 13 Dec 2024 11:52:09 +0800
-Message-ID: <CACGkMEvnJ5BCir6ymg50Xweno_sgyA0YxdnqKyEj8EwqMxzadg@mail.gmail.com>
-Subject: Re: [virtio-dev] [RFC PATCH 0/1] Virtio-loopback: a virtio based HAL
- for non-virtualized environments
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: t.ampelikiotis@virtualopensystems.com, virtio-dev@lists.oasis-open.org, 
-	anna@virtualopensystems.com, a.rigo@virtualopensystems.com, 
-	m.paolino@virtualopensystems.com, s.raho@virtualopensystems.com, 
-	chou.kensou@jp.panasonic.com, wminer@linuxfoundation.org, 
-	jsmoeller@linuxfoundation.org, virtualization@lists.linux.dev, 
-	stefanha@redhat.com, xuanzhuo@linux.alibaba.com, sgarzare@redhat.com
+Date: Fri, 13 Dec 2024 11:55:47 +0800
+Message-ID: <CACGkMEsmU4LjUzKFfyoY1ao8pRCETHRqPM3X8uK9KO-TCN8Trg@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] virtio-pci: define type and header for PCI vendor data
+To: Shijith Thotton <sthotton@marvell.com>
+Cc: virtualization@lists.linux.dev, mst@redhat.com, dan.carpenter@linaro.org, 
+	schalla@marvell.com, vattunuru@marvell.com, ndabilpuram@marvell.com, 
+	jerinj@marvell.com, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	open list <linux-kernel@vger.kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: po3PbhgoobI-2GyblkdWNPg7duUCE-hmez5aPzszrVg_1734061940
+X-Mimecast-MFC-PROC-ID: 7-nJ7exphDxvZsRQCEBzGWjIOIKK7IsGO6O3A-oTCCk_1734062159
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 10, 2024 at 11:51=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
+On Mon, Dec 9, 2024 at 11:16=E2=80=AFPM Shijith Thotton <sthotton@marvell.c=
+om> wrote:
 >
-> On Thu, Dec 5, 2024 at 9:17=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > Adding Eugenio and YongJi.
-> >
-> > On Wed, Dec 4, 2024 at 11:38=E2=80=AFPM <t.ampelikiotis@virtualopensyst=
-ems.com> wrote:
-> > >
-> > > From: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
-> > >
-> > > We would like to share with you an RFC for the Virtio-loopback
-> > > technology which we have been working on at Virtual Open Systems in
-> > > the context of the Automotive Grade Linux community (Software defined
-> > > Vehicles expert group)
-> > >
-> > > We previously presented this activity (see [1]) and now we come back
-> > > to you with latest development and updates.
-> > >
-> > > We believe that the technology is more mature today and we would like
-> > > to assess the community interest in the technology itself and in
-> > > merging the code.
-> > >
-> > > Below we provide a brief description of the technology, recent
-> > > updates and a short comparison with vDUSE that might be seen as a
-> > > similar technology.
-> > >
-> > > 1. Overview:
-> > > -------
-> > >
-> > > Virtio-loopback is a hardware abstraction layer (HAL) designed for
-> > > non-virtualized environments based on virtio. The main objective is
-> > > to enable applications communication with vhost-user devices in a
-> > > non-virtualized environment.
-> > >
-> > > More in details, Virtio-loopback architecture consists of a new
-> > > transport (Virtio-loopback), a user-space application (Adapter) and
-> > > the vhost-user devices.
-> > >
-> > > The data path has been implemented using the "zero-copy" principle,
-> >
-> > [ ... ]
-> >
-> > > where vhost-user devices access virtqueues directly in the kernel
-> > > space.
-> >
-> > Eugenio used to work on a POC to bridge vhost-user to vDPA via a
-> > dedicated userspace application. He might share more thoughts about
-> > this.
-> >
+> Added macro definition for VIRTIO_PCI_CAP_VENDOR_CFG to identify the PCI
+> vendor data type in the virtio_pci_cap structure. Defined a new struct
+> virtio_pci_vndr_data for the vendor data capability header as per the
+> specification.
 >
-> Right, it worked well with DPDK and net. It could work as long as
-> vhost-user device supported iotlb messages.
+> Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+> ---
+>  include/uapi/linux/virtio_pci.h | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 >
-> The current kernel vdpa framework does not send the memory map until
-> the device asks for it. If we modify the kernel vdpa so it always
-> sends the memory map, and only waits for the userland device iotlb if
-> a given feature flag is negotiated, it can be compatible with all the
-> vhost-user devices.
+> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_=
+pci.h
+> index a8208492e822..1f3ea5d2a6af 100644
+> --- a/include/uapi/linux/virtio_pci.h
+> +++ b/include/uapi/linux/virtio_pci.h
+> @@ -115,6 +115,8 @@
+>  #define VIRTIO_PCI_CAP_PCI_CFG         5
+>  /* Additional shared memory capability */
+>  #define VIRTIO_PCI_CAP_SHARED_MEMORY_CFG 8
+> +/* PCI vendor data configuration */
+> +#define VIRTIO_PCI_CAP_VENDOR_CFG      9
+>
+>  /* This is the PCI capability header: */
+>  struct virtio_pci_cap {
+> @@ -129,6 +131,15 @@ struct virtio_pci_cap {
+>         __le32 length;          /* Length of the structure, in bytes. */
+>  };
+>
+> +/* This is the PCI vendor data capability header: */
+> +struct virtio_pci_vndr_data {
+> +       __u8 cap_vndr;          /* Generic PCI field: PCI_CAP_ID_VNDR */
+> +       __u8 cap_next;          /* Generic PCI field: next ptr. */
+> +       __u8 cap_len;           /* Generic PCI field: capability length *=
+/
+> +       __u8 cfg_type;          /* Identifies the structure. */
+> +       __u16 vendor_id;        /* Identifies the vendor-specific format.=
+ */
+> +};
 
-This seems feasible and not very hard, and we can only allow such
-notification while userspace wants it by a new flag probably.
+Nit: I would have the following comments from the virtio spec:
 
->
-> I can post the code if it is useful for sure.
->
+"""
+ /* For Vendor Definition */
+  /* Pads structure to a multiple of 4 bytes */
+  /* Reads must not have side effects */
+"""
 
 Thanks
+
+> +
+>  struct virtio_pci_cap64 {
+>         struct virtio_pci_cap cap;
+>         __le32 offset_hi;             /* Most sig 32 bits of offset */
+> --
+> 2.25.1
+>
 
