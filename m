@@ -1,62 +1,60 @@
 Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDE1A80038
-	for <virtualization@lists.linux.dev>; Sat, 14 Dec 2024 07:12:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A0A31474DA
+	for <virtualization@lists.linux.dev>; Sat, 14 Dec 2024 07:12:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734160344; cv=none; b=OoYQKyOMw0yFQNUVoVE6TvESEM+77V1o+FN+6Y5MiQdT43Fr5jo9+q1kp8DGXqKpVsTS1sRwygNoriXJTGg76r9NIgOWvxo5sCIBmD/bMsc8fgZ1g7kIw/sozhoROAwaogO6NaPyFMev/jPAPF4+1BQQWt9LHgXgebwkC0SC17w=
+	t=1734160346; cv=none; b=RNixuKXCBv4A1+EfrZbHr5uM4pAWoYqCfxHrLdKwNKKBq4lAniUDo/M1kFwVk2XmBT1cEaymhEhJK3DthwBNMkzFSMeTRIy3pfSn7+7MzCqhjUX6LVgtxcRD5cdNAR2xbUix+QC7eFHMJ6fnx4epv7a7Uw3s30S8cfKfP7lvhHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734160344; c=relaxed/simple;
-	bh=Vujdt7DLhHGDbGg1QEYGcYzP1OPkNagvuJCtpYffJmE=;
+	s=arc-20240116; t=1734160346; c=relaxed/simple;
+	bh=Ez13Kjp/L9qNV3BdePMl6QoKVEsXkDnV2UMb/Ltp2Jw=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VsWoYlqqCDSTabHrajXxKxpw1NWmZQzd23H/7pW3HW71JUtzBm2N19kDeSiPGJYkvideyCgsQacPLHtLYWciuwJ0Lhkz8Edyqu+mrd/Ca2cRfaP34C49AEenPSFSOGSTPgRsslvTaQ9726IcTVgugMav97yx/fqnPFLG+HyT76c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=iX2p25R1; arc=none smtp.client-ip=67.231.148.174
+	 MIME-Version:Content-Type; b=nqTNh/fBxR0SCWFl80wtyWScoec6VLMgrRS83v1eQ0DehttGZR6A3cGnsSnIbMLiESZFVmP4yMNcfAofXCJtTKEi/MafhtmXuCV3WOFRcPO1LLHCB4d+zQNQ6KnA1v11d79ZorxD71OHOGc1NeYFFkBmN8IK2xJuwIHGY0LP5IE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=Y801rhnU; arc=none smtp.client-ip=67.231.148.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="iX2p25R1"
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="Y801rhnU"
 Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BE6nhrM020988;
+	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BE6w9vr001670;
 	Fri, 13 Dec 2024 23:12:17 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=t
-	o92DuOs6mj35zWcZ0o3G87DATI8fAkn6M9jAusN56o=; b=iX2p25R1iE8+c4+KS
-	w6+jAHI4MwiaOHdZmGd3k4qwia9/hEL7H1wsqbYLSlwVoHec6fu91SdztWb9oROM
-	+DAIkfwo+C0Lx2nKO5gWxgZ+fkPh7tCemXgcC5dcMpQpli2f5/gvRIBzqqmEV+1j
-	Yvby3tK2m9Ap4rHKTh96Ot5ISbeQypblkzB36LP+FT/5VjLSe9yjqM9wng4lGSs+
-	rxSSEeJwY+AOhriC87OLuvEITgBhsK5V+8G+X56jJpBjMmso3WLBJFnxLHahPvQv
-	FN5h+BhG0PnzAnrFU7YeG33ajfIw8UCHM4Gw5nXJk8E03LyYCfYvadWscbEx96qa
-	PZ8bQ==
-Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 43h2y8g9t5-1
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=T
+	VJVwveGkARNTy76ixv6f9ER/XHuBSXiqQd8oSqG+kg=; b=Y801rhnUTRQ+AdrTn
+	LqfC7apLrPx1Lyxl7XR2PnOlTKBRZAIhPDgmLZJxgOGk8GKG3WbSo+ViLRjnD8St
+	oSdAB/QAZKsAIz2CMgolW2QEi/9dyV49ukIE7ErPvN1xENGB+MyI+h7+/I9ACWnN
+	+bxKF5vaGv+tyBzPZU+SsqqFdC3SXdWhFcNIxYHMHV88h6B5mTY1QkuYWPCM7Vn2
+	Pg8DDTn/SlusrUhZJ1qaNRb6YDQV86EsBMELsDhyGWbUtkx2NT/Z9fmH2GTZK6bn
+	75j+K7ZsL51S4SzNmuONSJaxbWKhst/XYr4+wlK6nPPqO6en6QER06SSYyQyKcE7
+	G492g==
+Received: from dc5-exch05.marvell.com ([199.233.59.128])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 43h2y8g9t0-3
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 13 Dec 2024 23:12:17 -0800 (PST)
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
+ DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Fri, 13 Dec 2024 23:12:04 -0800
-Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
- (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Fri, 13 Dec 2024 23:12:04 -0800
+ 15.2.1544.4; Fri, 13 Dec 2024 23:12:08 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
+ (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Fri, 13 Dec 2024 23:12:08 -0800
 Received: from localhost.localdomain (unknown [10.28.34.29])
-	by maili.marvell.com (Postfix) with ESMTP id E794E3F704C;
-	Fri, 13 Dec 2024 23:12:00 -0800 (PST)
+	by maili.marvell.com (Postfix) with ESMTP id 54CB43F704C;
+	Fri, 13 Dec 2024 23:12:05 -0800 (PST)
 From: Shijith Thotton <sthotton@marvell.com>
 To: <virtualization@lists.linux.dev>, <mst@redhat.com>, <jasowang@redhat.com>,
         <dan.carpenter@linaro.org>
-CC: Satha Rao <skoteshwar@marvell.com>, <schalla@marvell.com>,
+CC: Shijith Thotton <sthotton@marvell.com>, <schalla@marvell.com>,
         <vattunuru@marvell.com>, <ndabilpuram@marvell.com>,
-        <jerinj@marvell.com>, Shijith Thotton <sthotton@marvell.com>,
-        Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>,
+        <jerinj@marvell.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         =?UTF-8?q?Eugenio=20P=C3=A9rez?=
 	<eperezma@redhat.com>,
         open list <linux-kernel@vger.kernel.org>
-Subject: [PATCH v4 2/4] vdpa/octeon_ep: handle device config change events
-Date: Sat, 14 Dec 2024 12:36:05 +0530
-Message-ID: <20241214070835.568818-2-sthotton@marvell.com>
+Subject: [PATCH v4 3/4] virtio-pci: define type and header for PCI vendor data
+Date: Sat, 14 Dec 2024 12:36:06 +0530
+Message-ID: <20241214070835.568818-3-sthotton@marvell.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20241214070835.568818-1-sthotton@marvell.com>
 References: <20241214070835.568818-1-sthotton@marvell.com>
@@ -68,46 +66,54 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Proofpoint-GUID: W9VOWutDvcFb8mz3Ky2EHIm87t93xDRl
-X-Proofpoint-ORIG-GUID: W9VOWutDvcFb8mz3Ky2EHIm87t93xDRl
+X-Proofpoint-GUID: SciZh_vIe-G5eMmQyKLBaRSCgMqW4yuI
+X-Proofpoint-ORIG-GUID: SciZh_vIe-G5eMmQyKLBaRSCgMqW4yuI
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
  definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
 
-From: Satha Rao <skoteshwar@marvell.com>
+Added macro definition for VIRTIO_PCI_CAP_VENDOR_CFG to identify the PCI
+vendor data type in the virtio_pci_cap structure. Defined a new struct
+virtio_pci_vndr_data for the vendor data capability header as per the
+specification.
 
-The first interrupt of the device is used to notify the host about
-device configuration changes, such as link status updates. The ISR
-configuration area is updated to indicate a config change event when
-triggered.
-
-Signed-off-by: Satha Rao <skoteshwar@marvell.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@linaro.org>
-Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Shijith Thotton <sthotton@marvell.com>
 ---
- drivers/vdpa/octeon_ep/octep_vdpa_main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/uapi/linux/virtio_pci.h | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-index e9c3e57b321f..4d56be64ae56 100644
---- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-+++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-@@ -71,6 +71,14 @@ static irqreturn_t octep_vdpa_intr_handler(int irq, void *data)
- 		}
- 	}
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index a8208492e822..20b4cd401887 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -115,6 +115,8 @@
+ #define VIRTIO_PCI_CAP_PCI_CFG		5
+ /* Additional shared memory capability */
+ #define VIRTIO_PCI_CAP_SHARED_MEMORY_CFG 8
++/* PCI vendor data configuration */
++#define VIRTIO_PCI_CAP_VENDOR_CFG	9
  
-+	/* Check for config interrupt. Config uses the first interrupt */
-+	if (unlikely(irq == oct_hw->irqs[0] && ioread8(oct_hw->isr))) {
-+		iowrite8(0, oct_hw->isr);
-+
-+		if (oct_hw->config_cb.callback)
-+			oct_hw->config_cb.callback(oct_hw->config_cb.private);
-+	}
-+
- 	return IRQ_HANDLED;
- }
+ /* This is the PCI capability header: */
+ struct virtio_pci_cap {
+@@ -129,6 +131,18 @@ struct virtio_pci_cap {
+ 	__le32 length;		/* Length of the structure, in bytes. */
+ };
  
++/* This is the PCI vendor data capability header: */
++struct virtio_pci_vndr_data {
++	__u8 cap_vndr;		/* Generic PCI field: PCI_CAP_ID_VNDR */
++	__u8 cap_next;		/* Generic PCI field: next ptr. */
++	__u8 cap_len;		/* Generic PCI field: capability length */
++	__u8 cfg_type;		/* Identifies the structure. */
++	__u16 vendor_id;	/* Identifies the vendor-specific format. */
++	/* For Vendor Definition */
++	/* Pads structure to a multiple of 4 bytes */
++	/* Reads must not have side effects */
++};
++
+ struct virtio_pci_cap64 {
+ 	struct virtio_pci_cap cap;
+ 	__le32 offset_hi;             /* Most sig 32 bits of offset */
 -- 
 2.25.1
 
