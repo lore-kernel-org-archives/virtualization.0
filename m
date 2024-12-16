@@ -1,288 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7249ABA49
-	for <virtualization@lists.linux.dev>; Mon, 16 Dec 2024 09:52:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D2ED38FA6
+	for <virtualization@lists.linux.dev>; Mon, 16 Dec 2024 12:07:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734342735; cv=none; b=jzMmW+w5ISuSbdNm1HVtXPw+hOUoSg+9t51i5Gi5dWfXpCAa7moHKh6mNYuGPGL/IhdlZD2tt1XTM9j7vOco5L7qbJiuBrPTUaunlBuWe5YEqymewwqyvOWZQpL3h5p+al18/B4w5Dc7kuEFwXNy6Fl/yzfxo9CUfYsa9HoKchQ=
+	t=1734350838; cv=none; b=cOgIL5fzoh20v6z9RZvu2FYsv97OIO5nMEggnfqR5qo/xbYsRCZNgaSvspy1zQCIZTtk5p9ms4HIPwZWqvpQYmbBbHMEz3PPPsEyt0nnK66kbmS6vW/WRW/37bnIl89kMRFoiVZaRWKeZ2/0gcqnUj4lJWKfAvapi7oI4H+ufvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734342735; c=relaxed/simple;
-	bh=6M7zgRahWi9BaMVg3H/Es7ufS+weRIaW8/ZvlIZSMJY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YnFvqOHHMb9nBs5aNtw/Bsi7hgDQPGoxca+OxXCIATkVI3p+RBKj9XcuX0g6jvKHXzE2BOtb8KPnm0NMT/h0h9J+xu98dZ2cS/vxYyXRta6WRp1KBEQoNG0EitVMD3kJB31wefYVQcvUY+sLeiODo2Fm13OhdHrK547Q4WhBbFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dwVMeEBD; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1734350838; c=relaxed/simple;
+	bh=iqh5XOjrIPBtDSeYr9JPy6x0FGs3THMaULE0vFFzThQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rZfnGfoyGwbKcHjfNiWnCyCfMS6PR9bYSXqP8ph14dmlbiJJ0GTkrMkjzxlKmaQByO6fHJf6bSu7xsMoxbsDoe44Zx2jJkuRHLR4rrzY4t7aMSdkc7wAGqTxU2C5VvTuRVTuHY16m6hGf5bDk8RD/qM509iY7D77LUfa3k8mY7Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=B0m6Ufqb; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dwVMeEBD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734342732;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RmSjD0XkZmqY+fXEbPDuflTWR35GHKak2Nr2YDS7T5o=;
-	b=dwVMeEBDxtMtCnqYmijrp0er4w3Ye+Rg9W8Fc4hBXIbJvJARwu3a76gmA1d8vR6xBj8rzB
-	sqMvum/jrAUsg/VB3oXMuVDXYc8iytZaEfI0wTCJ5HZnlAMwrxXNEx7+rFQnm2KctgClCS
-	WWQNLX1hzPtz9wpaU1qUD49dJXPQHD0=
-Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
- [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-590-x5yhfGqiMvOyUlMiMpzf4w-1; Mon, 16 Dec 2024 04:52:11 -0500
-X-MC-Unique: x5yhfGqiMvOyUlMiMpzf4w-1
-X-Mimecast-MFC-AGG-ID: x5yhfGqiMvOyUlMiMpzf4w
-Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-467ae19e34bso85093381cf.2
-        for <virtualization@lists.linux.dev>; Mon, 16 Dec 2024 01:52:11 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734342730; x=1734947530;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RmSjD0XkZmqY+fXEbPDuflTWR35GHKak2Nr2YDS7T5o=;
-        b=oOBG0Bc8PF68tuXUUGcYE0M+SOvBk3pf23ydoc9xF+EYPc0rTpdEipAOE3y3bH4FPd
-         W7sn/DzRtcJVEQIjv67VU5jmbaVp59sjxW+bIUkrnlzd2dLNeRlcPfFgzsfpsEa4QGfi
-         N3Z5QLPuQa3jQlKa14U9y+XKE9pmCdP4VlwYeoIo6CaGZOCZO+6Te/jHEnvCuTTLFX+a
-         6qrBkjVT8NYaWC60etS1XrraaK6kmyy1kaVj1BgCxzB43RT9s/0xmzsVg07wy1DDQE6j
-         XH/z3isK/j/vV6UW/dVJvAiap9i2pWphnjksPR2flQnRT1qWiNR/V1HbKMFgr5i3y2hK
-         OVow==
-X-Forwarded-Encrypted: i=1; AJvYcCVQRFB7Y1jA7Gqj+lAP0uKihN3ruK+A2HXTiIjDMjPzoFRn88MIk7vd3PJYDHnvDEU57Gfq4ijyGEYLe85xBA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzd+ji+M8KiuVrDBA9D5IEZa4T+EpVpQg7JG8fxB+275Hb++IQe
-	TK3PBqA2ny2p/d+lOtjRDnu1xaRGosdSTZpjO/MhR7SUWKt43YAYo+Tuwgp9amAzBRGISL7TdbO
-	wVkNMJD+PwN+oP2xldGUWAcw/XXlZJ7/QobaA8WpxhzGzsZVihg/A/mfv+JRuwO+k
-X-Gm-Gg: ASbGnct22QKiuhGGTg1186e04/WZrlk3mB8w0ishcqfZEqB+NO3Cl6eN/66WjJ8VY67
-	md5bBymrn5g2UmuNAEulFGjVrx5e4kJcGwyM5tdM+Zb0oz1d+tWy4ZwHS0665VFKIKQRhVePClr
-	fA5prqXVB8wdSAbhAZReVParl6KHTDcmBEapj/2xkE/pSEnrzTDITSI/ZHIfvOS+wTJBd8inXLP
-	zgou+fJiHyK6ia63jlqfUkSYdOtFwOiBEiEImH6mcIX8T+RGNeTI7YJgqvgqptUdN71WI5x4X4L
-	gJmNCxqt3nQe6e1RhfMUyRBp0baaatt1
-X-Received: by 2002:ac8:5a51:0:b0:467:6a0c:9c76 with SMTP id d75a77b69052e-467a5823693mr191620761cf.47.1734342730603;
-        Mon, 16 Dec 2024 01:52:10 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGdYI6GT63sqttTS043tIllhpF3MOhkRaFOGgKJjJ/HmG+lPxr2aPmilTBr1aod4rP2ULthwQ==
-X-Received: by 2002:ac8:5a51:0:b0:467:6a0c:9c76 with SMTP id d75a77b69052e-467a5823693mr191620541cf.47.1734342730240;
-        Mon, 16 Dec 2024 01:52:10 -0800 (PST)
-Received: from sgarzare-redhat (host-87-12-185-21.business.telecomitalia.it. [87.12.185.21])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-467b2c6fd59sm26096621cf.11.2024.12.16.01.52.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Dec 2024 01:52:09 -0800 (PST)
-Date: Mon, 16 Dec 2024 10:52:04 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Philipp Stanner <pstanner@redhat.com>
-Cc: Alvaro Karsz <alvaro.karsz@solid-run.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] vdpa: solidrun: Replace deprecated PCI functions
-Message-ID: <itatpahlgullmutoxdwybzcpxvg3xklyeqnq7wjztr36xeuon6@4owugtmenlaj>
-References: <20241211104704.208354-2-pstanner@redhat.com>
- <vr7gh5y7ooomyj6hazju7khcuyvw5qs2xjsybj33ztcim3vtc4@gdbozbxlcsi3>
- <08e922383c726a72574ea24eb2db520d40de4c47.camel@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="B0m6Ufqb"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1734350832; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=1OmVpZqZxthyjz0j/R+PbOfKwTbA3aCpAvSvnBaqQIs=;
+	b=B0m6UfqbZvOm6pH/oHifyK8Cuqod1lUEKNN7L7R0PgpptP9LXuThSg4okyO3zVvImDFNzD+llOaCEcO65fYaGINp/kG9h0GGtjrCSAncp4PO5CQYQ9WgDCezfyDDTIkZkIjE7sLvhKSYVFBFRFcROD4hatRLTHoBSGwkx9t0zIk=
+Received: from 30.221.131.67(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0WLazs5j_1734350830 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 16 Dec 2024 20:07:11 +0800
+Message-ID: <60fd6f1a-ddf5-4b53-8353-18dcd8f6f93c@linux.alibaba.com>
+Date: Mon, 16 Dec 2024 20:07:09 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <08e922383c726a72574ea24eb2db520d40de4c47.camel@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: RPpd_WCLX2Kiv1yMgRYsPW5x5Q7a3A_r0e5kIANu98w_1734342730
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/3][RFC] virtio-blk: add io_uring passthrough support for
+ virtio-blk
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, linux-block@vger.kernel.org,
+ Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
+ Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Jeffle Xu <jefflexu@linux.alibaba.com>
+References: <20241203121424.19887-1-mengferry@linux.alibaba.com>
+ <2d4ad724-f9da-4502-9079-432935f5719d@linux.alibaba.com>
+ <CACGkMEuAgAcCDrCMhNHr7gcRB6NtMPPLdSFAOGdt4dXGoQr4Yg@mail.gmail.com>
+Content-Language: en-US
+From: Ferry Meng <mengferry@linux.alibaba.com>
+In-Reply-To: <CACGkMEuAgAcCDrCMhNHr7gcRB6NtMPPLdSFAOGdt4dXGoQr4Yg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On Fri, Dec 13, 2024 at 07:39:46PM +0100, Philipp Stanner wrote:
->On Fri, 2024-12-13 at 16:10 +0100, Stefano Garzarella wrote:
->> On Wed, Dec 11, 2024 at 11:47:05AM +0100, Philipp Stanner wrote:
->> > The PCI functions
->> >
->> > 	pcim_iomap_regions()
->> > 	pcim_iounmap_regions()
->> > 	pcim_iomap_table()
->> >
->> > have been deprecated by the PCI subsystem.
->> >
->> > Replace these functions with their successors pcim_iomap_region()
->> > and
->> > pcim_iounmap_region().
->> >
->> > Signed-off-by: Philipp Stanner <pstanner@redhat.com>
->> > ---
->> > Changes in v3:
->> >  - Move __iomem *io declaration into the loop. (Stefano)
->> >
->> > Changes in v2:
->> >  - Fix build warning because of dead variable.
->> >  - Make "bars_found" a boolean, since only true or false are
->> > relevant.
->> > ---
->> > drivers/vdpa/solidrun/snet_main.c | 56 ++++++++++++++--------------
->> > ---
->> > 1 file changed, 26 insertions(+), 30 deletions(-)
->> >
->> > diff --git a/drivers/vdpa/solidrun/snet_main.c
->> > b/drivers/vdpa/solidrun/snet_main.c
->> > index c8b74980dbd1..643e335f00f1 100644
->> > --- a/drivers/vdpa/solidrun/snet_main.c
->> > +++ b/drivers/vdpa/solidrun/snet_main.c
->> > @@ -556,59 +556,58 @@ static const struct vdpa_config_ops
->> > snet_config_ops = {
->> > static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet
->> > *psnet)
->> > {
->> > 	char *name;
->> > -	int ret, i, mask = 0;
->> > +	unsigned short i;
->> > +	bool bars_found = false;
->> > +
->> > +	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
->> > bars", pci_name(pdev));
->> > +	if (!name)
->> > +		return -ENOMEM;
->> > +
->> > 	/* We don't know which BAR will be used to communicate..
->> > 	 * We will map every bar with len > 0.
->> > 	 *
->> > 	 * Later, we will discover the BAR and unmap all other
->> > BARs.
->> > 	 */
->> > 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
->> > -		if (pci_resource_len(pdev, i))
->> > -			mask |= (1 << i);
->> > +		void __iomem *io;
->> > +
->> > +		if (pci_resource_len(pdev, i) == 0)
->> > +			continue;
->> > +
->> > +		io = pcim_iomap_region(pdev, i, name);
->> > +		if (IS_ERR(io)) {
->> > +			SNET_ERR(pdev, "Failed to request and map
->> > PCI BARs\n");
->> > +			return PTR_ERR(io);
->> > +		}
->> > +
->> > +		psnet->bars[i] = io;
->> > +		bars_found = true;
->> > 	}
->> >
->> > 	/* No BAR can be used.. */
->> > -	if (!mask) {
->> > +	if (!bars_found) {
->> > 		SNET_ERR(pdev, "Failed to find a PCI BAR\n");
->> > 		return -ENODEV;
->> > 	}
->> >
->> > -	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
->> > bars", pci_name(pdev));
->> > -	if (!name)
->> > -		return -ENOMEM;
->> > -
->> > -	ret = pcim_iomap_regions(pdev, mask, name);
->> > -	if (ret) {
->> > -		SNET_ERR(pdev, "Failed to request and map PCI
->> > BARs\n");
->> > -		return ret;
->> > -	}
->> > -
->> > -	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
->> > -		if (mask & (1 << i))
->> > -			psnet->bars[i] =
->> > pcim_iomap_table(pdev)[i];
->> > -	}
->> > -
->> > 	return 0;
->> > }
->> >
->> > static int snet_open_vf_bar(struct pci_dev *pdev, struct snet
->> > *snet)
->> > {
->> > 	char *name;
->> > -	int ret;
->> >
->> > 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-
->> > bars", pci_name(pdev));
->> > 	if (!name)
->> > 		return -ENOMEM;
->> >
->> > 	/* Request and map BAR */
->> > -	ret = pcim_iomap_regions(pdev, BIT(snet->psnet-
->> > >cfg.vf_bar), name);
->> > -	if (ret) {
->> > +	snet->bar = pcim_iomap_region(pdev, snet->psnet-
->> > >cfg.vf_bar, name);
+
+On 12/16/24 3:38 PM, Jason Wang wrote:
+> On Mon, Dec 16, 2024 at 10:01â€¯AM Ferry Meng <mengferry@linux.alibaba.com> wrote:
 >>
->> Could we also use a temporary variable here as we did in
->> psnet_open_pf_bar()?
->
->We can. Some maintainers want it so, others so
->
+>> On 12/3/24 8:14 PM, Ferry Meng wrote:
+>>> We seek to develop a more flexible way to use virtio-blk and bypass the block
+>>> layer logic in order to accomplish certain performance optimizations. As a
+>>> result, we referred to the implementation of io_uring passthrough in NVMe
+>>> and implemented it in the virtio-blk driver. This patch series adds io_uring
+>>> passthrough support for virtio-blk devices, resulting in lower submit latency
+>>> and increased flexibility when utilizing virtio-blk.
+>>>
+>>> To test this patch series, I changed fio's code:
+>>> 1. Added virtio-blk support to engines/io_uring.c.
+>>> 2. Added virtio-blk support to the t/io_uring.c testing tool.
+>>> Link: https://github.com/jdmfr/fio
+>>>
+>>> Using t/io_uring-vblk, the performance of virtio-blk based on uring-cmd
+>>> scales better than block device access. (such as below, Virtio-Blk with QEMU,
+>>> 1-depth fio)
+>>> (passthru) read: IOPS=17.2k, BW=67.4MiB/s (70.6MB/s)
+>>> slat (nsec): min=2907, max=43592, avg=3981.87, stdev=595.10
+>>> clat (usec): min=38, max=285,avg=53.47, stdev= 8.28
+>>> lat (usec): min=44, max=288, avg=57.45, stdev= 8.28
+>>> (block) read: IOPS=15.3k, BW=59.8MiB/s (62.7MB/s)
+>>> slat (nsec): min=3408, max=35366, avg=5102.17, stdev=790.79
+>>> clat (usec): min=35, max=343, avg=59.63, stdev=10.26
+>>> lat (usec): min=43, max=349, avg=64.73, stdev=10.21
+>>>
+>>> Testing the virtio-blk device with fio using 'engines=io_uring_cmd'
+>>> and 'engines=io_uring' also demonstrates improvements in submit latency.
+>>> (passthru) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u1 /dev/vdcc0
+>>> IOPS=189.80K, BW=741MiB/s, IOS/call=4/3
+>>> IOPS=187.68K, BW=733MiB/s, IOS/call=4/3
+>>> (block) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u0 /dev/vdc
+>>> IOPS=101.51K, BW=396MiB/s, IOS/call=4/3
+>>> IOPS=100.01K, BW=390MiB/s, IOS/call=4/4
+>>>
+>>> The performance overhead of submitting IO can be decreased by 25% overall
+>>> with this patch series. The implementation primarily references 'nvme io_uring
+>>> passthrough', supporting io_uring_cmd through a separate character interface
+>>> (temporarily named /dev/vdXc0). Since this is an early version, many
+>>> details need to be taken into account and redesigned, like:
+>>> â— Currently, it only considers READ/WRITE scenarios, some more complex operations
+>>> not included like discard or zone ops.(Normal sqe64 is sufficient, in my opinion;
+>>> following upgrades, sqe128 and cqe32 might not be needed).
+>>> â— ......
+>>>
+>>> I would appreciate any useful recommendations.
+>>>
+>>> Ferry Meng (3):
+>>>     virtio-blk: add virtio-blk chardev support.
+>>>     virtio-blk: add uring_cmd support for I/O passthru on chardev.
+>>>     virtio-blk: add uring_cmd iopoll support.
+>>>
+>>>    drivers/block/virtio_blk.c      | 325 +++++++++++++++++++++++++++++++-
+>>>    include/uapi/linux/virtio_blk.h |  16 ++
+>>>    2 files changed, 336 insertions(+), 5 deletions(-)
+>> Hi, Micheal & Jason :
 >>
->> It seems to me that no one uses `!snet->bar` for now to check whether
->> they are configured or not, but maybe better to prevent, WDYT?
->
->So it seems that this driver is a bit special as its probe() function
->can take different paths running into one of the respective request
->functions.
->Doesn't look to me as if pcim_iomap_region() could fail and the driver
->would still load?
-
-yeah, it's not super clear to me how physical and virtual functions are
-managed.
-
->
->Anyways, better safe than sorry. If you think it's safer I can modify
->it so those pointers are valid or NULL.
-
-Just because this way we leave the behavior the same as before this 
-change, but I don't have a strong opinion, actually it's the error path 
-of the probe, so maybe the device is completely deallocated.
-
-Thanks,
-Stefano
-
->
->
->P.
->
+>> What about yours' opinion? As virtio-blk maintainer. Looking forward to
+>> your reply.
 >>
->> Thanks,
->> Stefano
->>
->> > +	if (IS_ERR(snet->bar)) {
->> > 		SNET_ERR(pdev, "Failed to request and map PCI BAR
->> > for a VF\n");
->> > -		return ret;
->> > +		return PTR_ERR(snet->bar);
->> > 	}
->> >
->> > -	snet->bar = pcim_iomap_table(pdev)[snet->psnet-
->> > >cfg.vf_bar];
->> > -
->> > 	return 0;
->> > }
->> >
->> > @@ -656,15 +655,12 @@ static int psnet_detect_bar(struct psnet
->> > *psnet, u32 off)
->> >
->> > static void psnet_unmap_unused_bars(struct pci_dev *pdev, struct
->> > psnet *psnet)
->> > {
->> > -	int i, mask = 0;
->> > +	unsigned short i;
->> >
->> > 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
->> > 		if (psnet->bars[i] && i != psnet->barno)
->> > -			mask |= (1 << i);
->> > +			pcim_iounmap_region(pdev, i);
->> > 	}
->> > -
->> > -	if (mask)
->> > -		pcim_iounmap_regions(pdev, mask);
->> > }
->> >
->> > /* Read SNET config from PCI BAR */
->> > --
->> > 2.47.1
->> >
->>
+>> Thanks
+> If I understand this correctly, this proposal wants to make io_uring a
+> transport of the virito-blk command. So the application doesn't need
+> to worry about compatibility etc. This seems to be fine.
 >
+> But I wonder what's the security consideration, for example do we
+> allow all virtio-blk commands to be passthroughs and why.
 
+About 'security consideration', the generic char-dev belongs to root, so 
+only root can use this passthrough path.
+
+On the other hand, to what I know, virtio-blk commands are all related 
+to 'I/O operations', so we can support all those opcodes with bypassing 
+vfs&block layer (if we want). I just realized the mostÂ  basic read/write 
+in this RFC patch series, others will be considered later.
+
+> Thanks
+>
