@@ -1,288 +1,288 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B411FFC41
-	for <virtualization@lists.linux.dev>; Mon, 16 Dec 2024 08:41:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7249ABA49
+	for <virtualization@lists.linux.dev>; Mon, 16 Dec 2024 09:52:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734338516; cv=none; b=csnSIZvga/6o3B1jPmQ4eNkm13DXd9jaoI7uyxFqe1BY5kVOcZ75TklGGsOtstgszSmNcwgh4fQnNvOV5PmxX4+tLIi+QJfo00JoI3qrl7sEQcQPuPMofW/7wwiivqkbIdDINub1d6x7EiEWnLVWEdIYHIZ86QtUYrO/sYPiA2U=
+	t=1734342735; cv=none; b=jzMmW+w5ISuSbdNm1HVtXPw+hOUoSg+9t51i5Gi5dWfXpCAa7moHKh6mNYuGPGL/IhdlZD2tt1XTM9j7vOco5L7qbJiuBrPTUaunlBuWe5YEqymewwqyvOWZQpL3h5p+al18/B4w5Dc7kuEFwXNy6Fl/yzfxo9CUfYsa9HoKchQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734338516; c=relaxed/simple;
-	bh=xQqjRxboCqWTs80uZUYr6aSHbcRAQXM+gTP+2Q85kY8=;
-	h=Content-Type:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To; b=oNfVBFBumVIFovxSHiPJC8IjRm6LOoowZ1+UqR1QZ+tX705n9hiB4XeA/FGkWtnYrV5CewZHL+CRKkDDzjcsHTDPJI6AfABTJzW9eQeAbWacHiLc6QYqpkcO0xiiEMmR/KjRpOwq2r9dlV+XshIY6GDh2Fav099DNKK5Yy+vqgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=xMYfq8Np; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=acQh/99b; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=xMYfq8Np; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=acQh/99b; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1734342735; c=relaxed/simple;
+	bh=6M7zgRahWi9BaMVg3H/Es7ufS+weRIaW8/ZvlIZSMJY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=YnFvqOHHMb9nBs5aNtw/Bsi7hgDQPGoxca+OxXCIATkVI3p+RBKj9XcuX0g6jvKHXzE2BOtb8KPnm0NMT/h0h9J+xu98dZ2cS/vxYyXRta6WRp1KBEQoNG0EitVMD3kJB31wefYVQcvUY+sLeiODo2Fm13OhdHrK547Q4WhBbFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dwVMeEBD; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="xMYfq8Np";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="acQh/99b";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="xMYfq8Np";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="acQh/99b"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id A6ABD211EB;
-	Mon, 16 Dec 2024 08:41:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1734338512; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=5iJTX+uBOOIrqY9gF4wXjiiRiStJDPA3P+Sh39Hv26I=;
-	b=xMYfq8NpsIp/UY9hi7XaKmo9QpfSFmqmyUbBKodLVbIyqrrEoyJfBKPIFJExZCpTS+uukg
-	g9olKJl1E/zlUfDbK3//P+WiWP1BySEWkkHz6+hSB+O3wWvX6+iN7FtMOuxoYjXyd7n91a
-	f/Z2+UjStnEjAOYqyMFnmdy9bWeqmXI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1734338512;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=5iJTX+uBOOIrqY9gF4wXjiiRiStJDPA3P+Sh39Hv26I=;
-	b=acQh/99bgFAPREN8i6Q3dZY+Vp/1OTmMiNZ83Ur7Gd+Sixh61SpgX2J4kLq7w0VK2Fs6T6
-	iZkyQ9+P8NepoPDQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=xMYfq8Np;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="acQh/99b"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1734338512; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=5iJTX+uBOOIrqY9gF4wXjiiRiStJDPA3P+Sh39Hv26I=;
-	b=xMYfq8NpsIp/UY9hi7XaKmo9QpfSFmqmyUbBKodLVbIyqrrEoyJfBKPIFJExZCpTS+uukg
-	g9olKJl1E/zlUfDbK3//P+WiWP1BySEWkkHz6+hSB+O3wWvX6+iN7FtMOuxoYjXyd7n91a
-	f/Z2+UjStnEjAOYqyMFnmdy9bWeqmXI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1734338512;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=5iJTX+uBOOIrqY9gF4wXjiiRiStJDPA3P+Sh39Hv26I=;
-	b=acQh/99bgFAPREN8i6Q3dZY+Vp/1OTmMiNZ83Ur7Gd+Sixh61SpgX2J4kLq7w0VK2Fs6T6
-	iZkyQ9+P8NepoPDQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7BB09137CF;
-	Mon, 16 Dec 2024 08:41:52 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id UA+eHNDnX2eudgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 16 Dec 2024 08:41:52 +0000
-Content-Type: multipart/mixed; boundary="------------ySx5PJpNBY0nl1rIzyRJJvkM"
-Message-ID: <b2e2a217-dced-472f-9084-9822f7e6803c@suse.de>
-Date: Mon, 16 Dec 2024 09:41:52 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dwVMeEBD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1734342732;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RmSjD0XkZmqY+fXEbPDuflTWR35GHKak2Nr2YDS7T5o=;
+	b=dwVMeEBDxtMtCnqYmijrp0er4w3Ye+Rg9W8Fc4hBXIbJvJARwu3a76gmA1d8vR6xBj8rzB
+	sqMvum/jrAUsg/VB3oXMuVDXYc8iytZaEfI0wTCJ5HZnlAMwrxXNEx7+rFQnm2KctgClCS
+	WWQNLX1hzPtz9wpaU1qUD49dJXPQHD0=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-590-x5yhfGqiMvOyUlMiMpzf4w-1; Mon, 16 Dec 2024 04:52:11 -0500
+X-MC-Unique: x5yhfGqiMvOyUlMiMpzf4w-1
+X-Mimecast-MFC-AGG-ID: x5yhfGqiMvOyUlMiMpzf4w
+Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-467ae19e34bso85093381cf.2
+        for <virtualization@lists.linux.dev>; Mon, 16 Dec 2024 01:52:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734342730; x=1734947530;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RmSjD0XkZmqY+fXEbPDuflTWR35GHKak2Nr2YDS7T5o=;
+        b=oOBG0Bc8PF68tuXUUGcYE0M+SOvBk3pf23ydoc9xF+EYPc0rTpdEipAOE3y3bH4FPd
+         W7sn/DzRtcJVEQIjv67VU5jmbaVp59sjxW+bIUkrnlzd2dLNeRlcPfFgzsfpsEa4QGfi
+         N3Z5QLPuQa3jQlKa14U9y+XKE9pmCdP4VlwYeoIo6CaGZOCZO+6Te/jHEnvCuTTLFX+a
+         6qrBkjVT8NYaWC60etS1XrraaK6kmyy1kaVj1BgCxzB43RT9s/0xmzsVg07wy1DDQE6j
+         XH/z3isK/j/vV6UW/dVJvAiap9i2pWphnjksPR2flQnRT1qWiNR/V1HbKMFgr5i3y2hK
+         OVow==
+X-Forwarded-Encrypted: i=1; AJvYcCVQRFB7Y1jA7Gqj+lAP0uKihN3ruK+A2HXTiIjDMjPzoFRn88MIk7vd3PJYDHnvDEU57Gfq4ijyGEYLe85xBA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzd+ji+M8KiuVrDBA9D5IEZa4T+EpVpQg7JG8fxB+275Hb++IQe
+	TK3PBqA2ny2p/d+lOtjRDnu1xaRGosdSTZpjO/MhR7SUWKt43YAYo+Tuwgp9amAzBRGISL7TdbO
+	wVkNMJD+PwN+oP2xldGUWAcw/XXlZJ7/QobaA8WpxhzGzsZVihg/A/mfv+JRuwO+k
+X-Gm-Gg: ASbGnct22QKiuhGGTg1186e04/WZrlk3mB8w0ishcqfZEqB+NO3Cl6eN/66WjJ8VY67
+	md5bBymrn5g2UmuNAEulFGjVrx5e4kJcGwyM5tdM+Zb0oz1d+tWy4ZwHS0665VFKIKQRhVePClr
+	fA5prqXVB8wdSAbhAZReVParl6KHTDcmBEapj/2xkE/pSEnrzTDITSI/ZHIfvOS+wTJBd8inXLP
+	zgou+fJiHyK6ia63jlqfUkSYdOtFwOiBEiEImH6mcIX8T+RGNeTI7YJgqvgqptUdN71WI5x4X4L
+	gJmNCxqt3nQe6e1RhfMUyRBp0baaatt1
+X-Received: by 2002:ac8:5a51:0:b0:467:6a0c:9c76 with SMTP id d75a77b69052e-467a5823693mr191620761cf.47.1734342730603;
+        Mon, 16 Dec 2024 01:52:10 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGdYI6GT63sqttTS043tIllhpF3MOhkRaFOGgKJjJ/HmG+lPxr2aPmilTBr1aod4rP2ULthwQ==
+X-Received: by 2002:ac8:5a51:0:b0:467:6a0c:9c76 with SMTP id d75a77b69052e-467a5823693mr191620541cf.47.1734342730240;
+        Mon, 16 Dec 2024 01:52:10 -0800 (PST)
+Received: from sgarzare-redhat (host-87-12-185-21.business.telecomitalia.it. [87.12.185.21])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-467b2c6fd59sm26096621cf.11.2024.12.16.01.52.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Dec 2024 01:52:09 -0800 (PST)
+Date: Mon, 16 Dec 2024 10:52:04 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Philipp Stanner <pstanner@redhat.com>
+Cc: Alvaro Karsz <alvaro.karsz@solid-run.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] vdpa: solidrun: Replace deprecated PCI functions
+Message-ID: <itatpahlgullmutoxdwybzcpxvg3xklyeqnq7wjztr36xeuon6@4owugtmenlaj>
+References: <20241211104704.208354-2-pstanner@redhat.com>
+ <vr7gh5y7ooomyj6hazju7khcuyvw5qs2xjsybj33ztcim3vtc4@gdbozbxlcsi3>
+ <08e922383c726a72574ea24eb2db520d40de4c47.camel@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: a bochs-drm (?) oops on head
-To: "Dr. David Alan Gilbert" <dave@treblig.org>, kraxel@redhat.com
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- dri-devel <dri-devel@lists.freedesktop.org>
-References: <Z18dbfDAiFadsSdg@gallifrey>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <Z18dbfDAiFadsSdg@gallifrey>
-X-Rspamd-Queue-Id: A6ABD211EB
-X-Spam-Level: 
-X-Spamd-Result: default: False [-3.41 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MIME_BASE64_TEXT_BOGUS(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[multipart/mixed,text/plain,text/x-patch];
-	MIME_BASE64_TEXT(0.10)[];
-	MX_GOOD(-0.01)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+,1:+,2:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,suse.de:mid];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[5];
-	MID_RHS_MATCH_FROM(0.00)[];
-	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	HAS_ATTACHMENT(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	SUBJECT_HAS_QUESTION(0.00)[]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -3.41
-X-Spam-Flag: NO
+In-Reply-To: <08e922383c726a72574ea24eb2db520d40de4c47.camel@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: RPpd_WCLX2Kiv1yMgRYsPW5x5Q7a3A_r0e5kIANu98w_1734342730
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-This is a multi-part message in MIME format.
---------------ySx5PJpNBY0nl1rIzyRJJvkM
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Hi
-
-Am 15.12.24 um 19:18 schrieb Dr. David Alan Gilbert:
-> Hey Gerd, Thomas,
->    I've got the following oops that looks bochs-drm related on the current
-> HEAD ( 4800575d8c0b2f354ab05ab1c4749e45e213bf73 ) and it's been there
-> for at least a few days; this is
-[...]
+On Fri, Dec 13, 2024 at 07:39:46PM +0100, Philipp Stanner wrote:
+>On Fri, 2024-12-13 at 16:10 +0100, Stefano Garzarella wrote:
+>> On Wed, Dec 11, 2024 at 11:47:05AM +0100, Philipp Stanner wrote:
+>> > The PCI functions
+>> >
+>> > 	pcim_iomap_regions()
+>> > 	pcim_iounmap_regions()
+>> > 	pcim_iomap_table()
+>> >
+>> > have been deprecated by the PCI subsystem.
+>> >
+>> > Replace these functions with their successors pcim_iomap_region()
+>> > and
+>> > pcim_iounmap_region().
+>> >
+>> > Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+>> > ---
+>> > Changes in v3:
+>> >  - Move __iomem *io declaration into the loop. (Stefano)
+>> >
+>> > Changes in v2:
+>> >  - Fix build warning because of dead variable.
+>> >  - Make "bars_found" a boolean, since only true or false are
+>> > relevant.
+>> > ---
+>> > drivers/vdpa/solidrun/snet_main.c | 56 ++++++++++++++--------------
+>> > ---
+>> > 1 file changed, 26 insertions(+), 30 deletions(-)
+>> >
+>> > diff --git a/drivers/vdpa/solidrun/snet_main.c
+>> > b/drivers/vdpa/solidrun/snet_main.c
+>> > index c8b74980dbd1..643e335f00f1 100644
+>> > --- a/drivers/vdpa/solidrun/snet_main.c
+>> > +++ b/drivers/vdpa/solidrun/snet_main.c
+>> > @@ -556,59 +556,58 @@ static const struct vdpa_config_ops
+>> > snet_config_ops = {
+>> > static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet
+>> > *psnet)
+>> > {
+>> > 	char *name;
+>> > -	int ret, i, mask = 0;
+>> > +	unsigned short i;
+>> > +	bool bars_found = false;
+>> > +
+>> > +	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
+>> > bars", pci_name(pdev));
+>> > +	if (!name)
+>> > +		return -ENOMEM;
+>> > +
+>> > 	/* We don't know which BAR will be used to communicate..
+>> > 	 * We will map every bar with len > 0.
+>> > 	 *
+>> > 	 * Later, we will discover the BAR and unmap all other
+>> > BARs.
+>> > 	 */
+>> > 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>> > -		if (pci_resource_len(pdev, i))
+>> > -			mask |= (1 << i);
+>> > +		void __iomem *io;
+>> > +
+>> > +		if (pci_resource_len(pdev, i) == 0)
+>> > +			continue;
+>> > +
+>> > +		io = pcim_iomap_region(pdev, i, name);
+>> > +		if (IS_ERR(io)) {
+>> > +			SNET_ERR(pdev, "Failed to request and map
+>> > PCI BARs\n");
+>> > +			return PTR_ERR(io);
+>> > +		}
+>> > +
+>> > +		psnet->bars[i] = io;
+>> > +		bars_found = true;
+>> > 	}
+>> >
+>> > 	/* No BAR can be used.. */
+>> > -	if (!mask) {
+>> > +	if (!bars_found) {
+>> > 		SNET_ERR(pdev, "Failed to find a PCI BAR\n");
+>> > 		return -ENODEV;
+>> > 	}
+>> >
+>> > -	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
+>> > bars", pci_name(pdev));
+>> > -	if (!name)
+>> > -		return -ENOMEM;
+>> > -
+>> > -	ret = pcim_iomap_regions(pdev, mask, name);
+>> > -	if (ret) {
+>> > -		SNET_ERR(pdev, "Failed to request and map PCI
+>> > BARs\n");
+>> > -		return ret;
+>> > -	}
+>> > -
+>> > -	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>> > -		if (mask & (1 << i))
+>> > -			psnet->bars[i] =
+>> > pcim_iomap_table(pdev)[i];
+>> > -	}
+>> > -
+>> > 	return 0;
+>> > }
+>> >
+>> > static int snet_open_vf_bar(struct pci_dev *pdev, struct snet
+>> > *snet)
+>> > {
+>> > 	char *name;
+>> > -	int ret;
+>> >
+>> > 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-
+>> > bars", pci_name(pdev));
+>> > 	if (!name)
+>> > 		return -ENOMEM;
+>> >
+>> > 	/* Request and map BAR */
+>> > -	ret = pcim_iomap_regions(pdev, BIT(snet->psnet-
+>> > >cfg.vf_bar), name);
+>> > -	if (ret) {
+>> > +	snet->bar = pcim_iomap_region(pdev, snet->psnet-
+>> > >cfg.vf_bar, name);
+>>
+>> Could we also use a temporary variable here as we did in
+>> psnet_open_pf_bar()?
 >
-> The oops has :
-> [   78.463760][    T1]  bochs_pci_driver_init+0x8a/0xc0
+>We can. Some maintainers want it so, others so
 >
-> in it, hence why I'm blaming that.
-> (Other odd observation, the Tuxen flicker heavily during booting!)
+>>
+>> It seems to me that no one uses `!snet->bar` for now to check whether
+>> they are configured or not, but maybe better to prevent, WDYT?
 >
-> [   72.756014][    T1] bochs-drm 0000:00:02.0: vgaarb: deactivate vga console
-> [   72.758258][    T1] [drm] Found bochs VGA, ID 0xb0c5.
-> [   72.758793][    T1] [drm] Framebuffer size 16384 kB @ 0xfd000000, mmio @ 0xfebf0000.
-> [   72.767777][    T1] [drm] Initialized bochs-drm 1.0.0 for 0000:00:02.0 on minor 2
-> [   72.839222][    T1] fbcon: bochs-drmdrmfb (fb1) is primary device
-> [   72.839311][    T1] fbcon: Remapping primary device, fb1, to tty 1-63
-> [   78.402163][    T1] bochs-drm 0000:00:02.0: [drm] fb1: bochs-drmdrmfb frame buffer device
-> [   78.459984][    T1] BUG: unable to handle page fault for address: ffff8dd345604004
-> [   78.463246][    T1] #PF: supervisor write access in kernel mode
-> [   78.463760][    T1] #PF: error_code(0x0002) - not-present page
-> [   78.463760][    T1] PGD 72001067 P4D 72001067 PUD 72002067 PMD 7fbe1067 PTE 800ffffffa9fb060
-> [   78.463760][    T1] Oops: Oops: 0002 [#1] PREEMPT SMP DEBUG_PAGEALLOC NOPTI
-> [   78.463760][    T1] CPU: 2 UID: 0 PID: 1 Comm: swapper/0 Tainted: G        W        N 6.13.0-rc2+ #363 6c653a430ed30aae3dac648429c492a2726da3d7
-> [   78.463760][    T1] Tainted: [W]=WARN, [N]=TEST
-> [   78.463760][    T1] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.3-3.fc41 04/01/2014
-> [   78.463760][    T1] RIP: 0010:devm_drm_dev_init_release+0x4e/0x140
-[...]
->
-> [   78.463760][    T1] ---[ end Kernel panic - not syncing: Fatal exception ]---
->
->
-> The config is a fairly full yes-config ish; see attached.
+>So it seems that this driver is a bit special as its probe() function
+>can take different paths running into one of the respective request
+>functions.
+>Doesn't look to me as if pcim_iomap_region() could fail and the driver
+>would still load?
 
-Thanks for reporting. I've been able to reproduce the problem by setting 
-CONFIG_DEBUG_TEST_DRIVER_REMOVE 
-<https://elixir.bootlin.com/linux/v6.13-rc2/K/ident/CONFIG_DEBUG_TEST_DRIVER_REMOVE>=y. 
-The attached patch fixes the problem for me. Could you please test and 
-report back the results.
-
-Best regards
-Thomas
-
+yeah, it's not super clear to me how physical and virtual functions are
+managed.
 
 >
-> Dave
+>Anyways, better safe than sorry. If you think it's safer I can modify
+>it so those pointers are valid or NULL.
+
+Just because this way we leave the behavior the same as before this 
+change, but I don't have a strong opinion, actually it's the error path 
+of the probe, so maybe the device is completely deallocated.
+
+Thanks,
+Stefano
+
+>
+>
+>P.
+>
+>>
+>> Thanks,
+>> Stefano
+>>
+>> > +	if (IS_ERR(snet->bar)) {
+>> > 		SNET_ERR(pdev, "Failed to request and map PCI BAR
+>> > for a VF\n");
+>> > -		return ret;
+>> > +		return PTR_ERR(snet->bar);
+>> > 	}
+>> >
+>> > -	snet->bar = pcim_iomap_table(pdev)[snet->psnet-
+>> > >cfg.vf_bar];
+>> > -
+>> > 	return 0;
+>> > }
+>> >
+>> > @@ -656,15 +655,12 @@ static int psnet_detect_bar(struct psnet
+>> > *psnet, u32 off)
+>> >
+>> > static void psnet_unmap_unused_bars(struct pci_dev *pdev, struct
+>> > psnet *psnet)
+>> > {
+>> > -	int i, mask = 0;
+>> > +	unsigned short i;
+>> >
+>> > 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>> > 		if (psnet->bars[i] && i != psnet->barno)
+>> > -			mask |= (1 << i);
+>> > +			pcim_iounmap_region(pdev, i);
+>> > 	}
+>> > -
+>> > -	if (mask)
+>> > -		pcim_iounmap_regions(pdev, mask);
+>> > }
+>> >
+>> > /* Read SNET config from PCI BAR */
+>> > --
+>> > 2.47.1
+>> >
+>>
 >
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
-
---------------ySx5PJpNBY0nl1rIzyRJJvkM
-Content-Type: text/x-patch; charset=UTF-8;
- name="0001-drm-bochs-Do-not-put-DRM-device-in-PCI-remove-callba.patch"
-Content-Disposition: attachment;
- filename*0="0001-drm-bochs-Do-not-put-DRM-device-in-PCI-remove-callba.pa";
- filename*1="tch"
-Content-Transfer-Encoding: base64
-
-RnJvbSBiZWJiYTNiMzRkNWRmNWFhN2M4ODJmMDgwNjMzYjQzZGRiODdmNGFkIE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBUaG9tYXMgWmltbWVybWFubiA8dHppbW1lcm1hbm5A
-c3VzZS5kZT4KRGF0ZTogTW9uLCAxNiBEZWMgMjAyNCAwOToyMTo0NiArMDEwMApTdWJqZWN0
-OiBbUEFUQ0hdIGRybS9ib2NoczogRG8gbm90IHB1dCBEUk0gZGV2aWNlIGluIFBDSSByZW1v
-dmUgY2FsbGJhY2sKClJlbW92aW5nIHRoZSBib2NocyBQQ0kgZGV2aWNlIHNob3VsZCBtYXJr
-IHRoZSBEUk0gZGV2aWNlIGFzIHVucGx1Z2dlZAp3aXRob3V0IHJlbW92aW5nIGl0LiBIZW5j
-ZSBjbGVhciB0aGUgcmVzcGVjdGl2ZSBjYWxsIHRvIGRybV9kZXZfcHV0KCkKZnJvbSBib2No
-c19wY2lfcmVtb3ZlKCkuCgpGaXhlcyBhIGRvdWJsZSB1bnJlZiBpbiBkZXZtX2RybV9kZXZf
-aW5pdF9yZWxlYXNlKCkuIEFuIGV4YW1wbGUgZXJyb3IKbWVzc2FnZSBpcyBzaG93biBiZWxv
-dzoKClsgICAzMi45NTgzMzhdIEJVRzogS0FTQU46IHVzZS1hZnRlci1mcmVlIGluIGRybV9k
-ZXZfcHV0LnBhcnQuMCsweDFiLzB4OTAKWyAgIDMyLjk1ODg1MF0gV3JpdGUgb2Ygc2l6ZSA0
-IGF0IGFkZHIgZmZmZjg4ODE1MjEzNDAwNCBieSB0YXNrICh1ZGV2LXdvcmtlcikvNTkxClsg
-ICAzMi45NTk1NzRdIENQVTogMyBVSUQ6IDAgUElEOiA1OTEgQ29tbTogKHVkZXYtd29ya2Vy
-KSBUYWludGVkOiBHICAgICAgICAgICAgRSAgICAgIDYuMTMuMC1yYzItMS1kZWZhdWx0KyAj
-MzQxNwpbICAgMzIuOTYwMzE2XSBUYWludGVkOiBbRV09VU5TSUdORURfTU9EVUxFClsgICAz
-Mi45NjA2MzddIEhhcmR3YXJlIG5hbWU6IFFFTVUgU3RhbmRhcmQgUEMgKFEzNSArIElDSDks
-IDIwMDkpLCBCSU9TIHJlbC0xLjE2LjMtMi1nYzEzZmYyY2QtcHJlYnVpbHQucWVtdS5vcmcg
-MDQvMDEvMjAxNApbICAgMzIuOTYxNDI5XSBDYWxsIFRyYWNlOgpbICAgMzIuOTYxNDMzXSAg
-PFRBU0s+ClsgICAzMi45NjE0MzldICBkdW1wX3N0YWNrX2x2bCsweDY4LzB4OTAKWyAgIDMy
-Ljk2MTQ1Ml0gIHByaW50X2FkZHJlc3NfZGVzY3JpcHRpb24uY29uc3Rwcm9wLjArMHg4OC8w
-eDMzMApbICAgMzIuOTYxNDYxXSAgPyBwcmVlbXB0X2NvdW50X3N1YisweDE0LzB4YzAKWyAg
-IDMyLjk2MTQ3M10gIHByaW50X3JlcG9ydCsweGUyLzB4MWQwClsgICAzMi45NjE0NzldICA/
-IHNyc29fYWxpYXNfcmV0dXJuX3RodW5rKzB4NS8weGZiZWY1ClsgICAzMi45NjM3MjVdICA/
-IF9fdmlydF9hZGRyX3ZhbGlkKzB4MTQzLzB4MzIwClsgICAzMi45NjQwNzddICA/IHNyc29f
-YWxpYXNfcmV0dXJuX3RodW5rKzB4NS8weGZiZWY1ClsgICAzMi45NjQ0NjNdICA/IGRybV9k
-ZXZfcHV0LnBhcnQuMCsweDFiLzB4OTAKWyAgIDMyLjk2NDgxN10gIGthc2FuX3JlcG9ydCsw
-eGNlLzB4MWEwClsgICAzMi45NjUxMjNdICA/IGRybV9kZXZfcHV0LnBhcnQuMCsweDFiLzB4
-OTAKWyAgIDMyLjk2NTQ3NF0gIGthc2FuX2NoZWNrX3JhbmdlKzB4ZmYvMHgxYzAKWyAgIDMy
-Ljk2NTgwNl0gIGRybV9kZXZfcHV0LnBhcnQuMCsweDFiLzB4OTAKWyAgIDMyLjk2NjEzOF0g
-IHJlbGVhc2Vfbm9kZXMrMHg4NC8weGMwClsgICAzMi45NjY0NDddICBkZXZyZXNfcmVsZWFz
-ZV9hbGwrMHhkMi8weDExMApbICAgMzIuOTY2Nzg4XSAgPyBfX3BmeF9kZXZyZXNfcmVsZWFz
-ZV9hbGwrMHgxMC8weDEwClsgICAzMi45NjcxNzddICA/IHByZWVtcHRfY291bnRfc3ViKzB4
-MTQvMHhjMApbICAgMzIuOTY3NTIzXSAgZGV2aWNlX3VuYmluZF9jbGVhbnVwKzB4MTYvMHhj
-MApbICAgMzIuOTY3ODg2XSAgcmVhbGx5X3Byb2JlKzB4MWI3LzB4NTcwClsgICAzMi45Njgy
-MDddICBfX2RyaXZlcl9wcm9iZV9kZXZpY2UrMHhjYS8weDFiMApbICAgMzIuOTY4NTY4XSAg
-ZHJpdmVyX3Byb2JlX2RldmljZSsweDRhLzB4ZjAKWyAgIDMyLjk2ODkwN10gIF9fZHJpdmVy
-X2F0dGFjaCsweDEwYi8weDI5MApbICAgMzIuOTY5MjM5XSAgPyBfX3BmeF9fX2RyaXZlcl9h
-dHRhY2grMHgxMC8weDEwClsgICAzMi45Njk1OThdICBidXNfZm9yX2VhY2hfZGV2KzB4YzAv
-MHgxMTAKWyAgIDMyLjk2OTkyM10gID8gX19wZnhfYnVzX2Zvcl9lYWNoX2RldisweDEwLzB4
-MTAKWyAgIDMyLjk3MDI5MV0gID8gYnVzX2FkZF9kcml2ZXIrMHgxN2EvMHgyYjAKWyAgIDMy
-Ljk3MDYyMl0gID8gc3Jzb19hbGlhc19yZXR1cm5fdGh1bmsrMHg1LzB4ZmJlZjUKWyAgIDMy
-Ljk3MTAxMV0gIGJ1c19hZGRfZHJpdmVyKzB4MTlhLzB4MmIwClsgICAzMi45NzEzMzVdICBk
-cml2ZXJfcmVnaXN0ZXIrMHhkOC8weDE2MApbICAgMzIuOTcxNjcxXSAgPyBfX3BmeF9ib2No
-c19wY2lfZHJpdmVyX2luaXQrMHgxMC8weDEwIFtib2Noc10KWyAgIDMyLjk3MjEzMF0gIGRv
-X29uZV9pbml0Y2FsbCsweGJhLzB4MzkwClsuLi5dCgpBZnRlciB1bnBsdWdnaW5nIHRoZSBE
-Uk0gZGV2aWNlLCBjbGllbnRzIHdpbGwgY2xvc2UgdGhlaXIgcmVmZXJlbmNlcy4KQ2xvc2lu
-ZyB0aGUgZmluYWwgcmVmZXJlbmNlIHdpbGwgYWxzbyByZWxlYXNlIHRoZSBEUk0gZGV2aWNl
-LgoKUmVwb3J0ZWQtYnk6IERyLiBEYXZpZCBBbGFuIEdpbGJlcnQgPGRhdmVAdHJlYmxpZy5v
-cmc+CkNsb3NlczogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGttbC9aMThkYmZEQWlGYWRz
-U2RnQGdhbGxpZnJleS8KRml4ZXM6IDA0ODI2ZjU4ODY4MiAoImRybS9ib2NoczogQWxsb2Nh
-dGUgRFJNIGRldmljZSBpbiBzdHJ1Y3QgYm9jaHNfZGV2aWNlIikKQ2M6IFRob21hcyBaaW1t
-ZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPgpDYzogR2VyZCBIb2ZmbWFubiA8a3JheGVs
-QHJlZGhhdC5jb20+CkNjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC5kZXYKU2lnbmVk
-LW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+Ci0tLQog
-ZHJpdmVycy9ncHUvZHJtL3RpbnkvYm9jaHMuYyB8IDEgLQogMSBmaWxlIGNoYW5nZWQsIDEg
-ZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vdGlueS9ib2Nocy5j
-IGIvZHJpdmVycy9ncHUvZHJtL3RpbnkvYm9jaHMuYwppbmRleCA4OWE2OTkzNzBhNTkuLmM2
-N2UxZjkwNjc4NSAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL3RpbnkvYm9jaHMuYwor
-KysgYi9kcml2ZXJzL2dwdS9kcm0vdGlueS9ib2Nocy5jCkBAIC03NTcsNyArNzU3LDYgQEAg
-c3RhdGljIHZvaWQgYm9jaHNfcGNpX3JlbW92ZShzdHJ1Y3QgcGNpX2RldiAqcGRldikKIAog
-CWRybV9kZXZfdW5wbHVnKGRldik7CiAJZHJtX2F0b21pY19oZWxwZXJfc2h1dGRvd24oZGV2
-KTsKLQlkcm1fZGV2X3B1dChkZXYpOwogfQogCiBzdGF0aWMgdm9pZCBib2Noc19wY2lfc2h1
-dGRvd24oc3RydWN0IHBjaV9kZXYgKnBkZXYpCi0tIAoyLjQ3LjEKCg==
-
---------------ySx5PJpNBY0nl1rIzyRJJvkM--
