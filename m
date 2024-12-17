@@ -1,80 +1,146 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4EE7E3FD4
-	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 03:55:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 567A014601C;
+	Tue, 17 Dec 2024 03:59:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734407730; cv=none; b=WDrIcImMCgj7hwidJfm7oA7zcG+PiXpMZGV5VLJ3zggWdpjLeMVwloKIZM+sOZjphWvW6sROwfYmmjgHa2OENVhp+rSBOidqwzc3ns6Bwo1gychzJyav61IyIJVTSMSpxiVLzDGwX9HcTf78OETzMXsjfHgfOk3jjMLCGQZB5io=
+	t=1734407994; cv=none; b=rci/S5DNstgyawDn3N/A9qTDdj+4yF/AHabAVCHd9SteaNOB9cIEfZBOYje+CSHPqZ+BfWaLGi8nXXR7ZWy9tgBSAgTqX4OKrQpFTWZNEsqTLbjM2usmK3GTh1qSmatVdIGH3yKN9dwBev3Gkrc9GWgQk3c0GwDEsNt1CIpa4SA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734407730; c=relaxed/simple;
-	bh=PBIqoh0+ItZyIgHirEJhgwbzuTx438a3eeqecHpANFI=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=PC968edT0mWtqeKVP06hnmwpGwwfEPjzbGhgbvBUya5axPFuX4X5Rbvx8iiTxFGN//K7XwnVZnSIOdruIy08fuxgzmrxnBU0fLV86PTzUJ20pfyHUczlzbtgUooh/rfYcDN+lH+P95FYO2CT4fFOZ/CPEmmO9U/+kO58WClhPGc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=cn5USNwK; arc=none smtp.client-ip=220.197.31.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="cn5USNwK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=ap3cS
-	3JlynQ5mnXUthOMr7ekp9nV+5QCIucFh5o9xqw=; b=cn5USNwK+JTQUrMSOojQt
-	SsJkf9GD+MdjrB2jnTGq9IJeCf5UoH/OY0hJ7yJfxXaGOsYjparv8S4Ku9BJb3WF
-	nhB4mzox+yw9kGGy+CD6IKJMmnqgPKQIJcgI7LPS8L1q9APm1X+z6WsWa9EjJVuP
-	xg4v/A/gHBv1lL02oWTQIg=
-Received: from icess-ProLiant-DL380-Gen10.. (unknown [])
-	by gzga-smtp-mtada-g1-2 (Coremail) with SMTP id _____wD3l_P89WBnqKpaBA--.3706S4;
-	Tue, 17 Dec 2024 11:54:39 +0800 (CST)
-From: Ma Ke <make_ruc2021@163.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	arnd@arndb.de,
-	viresh.kumar@linaro.org
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Ma Ke <make_ruc2021@163.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] virtio: fix reference leak in register_virtio_device()
-Date: Tue, 17 Dec 2024 11:54:32 +0800
-Message-Id: <20241217035432.2892059-1-make_ruc2021@163.com>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1734407994; c=relaxed/simple;
+	bh=GXKY4ibAqf+fScHyj3FgJPIYI3um2k9fkI7luLsdvHI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=W/FQa5LBZnCi381+LD7PIyCSPL553ldAh7xG24nFDLuNzHmQfQvV3BXkToEiiz4lT+S+W88naskrgtmWT3dHG4sYig6WRnJNn1Zqf0hWqBBQxBvuUiXYi5iJnxBKigt5wPHkWvu+1qa4Hg3B2uK2mqtbCRwhTzB1QrAswP9RLl4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 8E68768C4E; Tue, 17 Dec 2024 04:59:43 +0100 (CET)
+Date: Tue, 17 Dec 2024 04:59:43 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Kees Cook <kees@kernel.org>
+Cc: Jakub Kicinski <kuba@kernel.org>, Cheng Xu <chengyou@linux.alibaba.com>,
+	Kai Shen <kaishen@linux.alibaba.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+	Christian Benvenuti <benve@cisco.com>,
+	Nelson Escobar <neescoba@cisco.com>,
+	Bernard Metzler <bmt@zurich.ibm.com>,
+	Karsten Keil <isdn@linux-pingi.de>,
+	Michal Ostrowski <mostrows@earthlink.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+	Chaitanya Kulkarni <kch@nvidia.com>, Lee Duncan <lduncan@suse.com>,
+	Chris Leech <cleech@redhat.com>,
+	Mike Christie <michael.christie@oracle.com>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Alexander Aring <aahringo@redhat.com>,
+	David Teigland <teigland@redhat.com>,
+	Trond Myklebust <trondmy@kernel.org>,
+	Anna Schumaker <anna@kernel.org>, Mark Fasheh <mark@fasheh.com>,
+	Joel Becker <jlbec@evilplan.org>,
+	Joseph Qi <joseph.qi@linux.alibaba.com>,
+	Namjae Jeon <linkinjeon@kernel.org>,
+	Steve French <sfrench@samba.org>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Tom Talpey <tom@talpey.com>, Simon Horman <horms@kernel.org>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
+	Olga Kornievskaia <okorniev@redhat.com>,
+	Dai Ngo <Dai.Ngo@oracle.com>, David Ahern <dsahern@kernel.org>,
+	Joerg Reuter <jreuter@yaina.de>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Johan Hedberg <johan.hedberg@gmail.com>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Oliver Hartkopp <socketcan@hartkopp.net>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Robin van der Gracht <robin@protonic.nl>,
+	Oleksij Rempel <o.rempel@pengutronix.de>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	James Chapman <jchapman@katalix.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	Remi Denis-Courmont <courmisch@gmail.com>,
+	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+	Allison Henderson <allison.henderson@oracle.com>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>,
+	Ying Xue <ying.xue@windriver.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Martin Schiller <ms@dev.tdt.de>,
+	Kentaro Takeda <takedakn@nttdata.co.jp>,
+	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Guillaume Nault <gnault@redhat.com>,
+	Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Wu Yunchuan <yunchuan@nfschina.com>,
+	Max Gurtovoy <mgurtovoy@nvidia.com>,
+	Maurizio Lombardi <mlombard@redhat.com>,
+	David Howells <dhowells@redhat.com>,
+	Atte =?iso-8859-1?Q?Heikkil=E4?= <atteh.mailbox@gmail.com>,
+	Vincent Duvert <vincent.ldev@duvert.net>,
+	Denis Kirjanov <kirjanov@gmail.com>,
+	Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>, Thomas Huth <thuth@redhat.com>,
+	Andrew Waterman <waterman@eecs.berkeley.edu>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Andrej Shadura <andrew.shadura@collabora.co.uk>,
+	Ying Hsu <yinghsu@chromium.org>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Tom Parkin <tparkin@katalix.com>,
+	Jason Xing <kernelxing@tencent.com>,
+	Dan Carpenter <error27@gmail.com>, Hyunwoo Kim <v4bel@theori.io>,
+	Bernard Pidoux <f6bvp@free.fr>,
+	Sangsoo Lee <constant.lee@samsung.com>,
+	Doug Brown <doug@schmorgal.com>,
+	Ignat Korchagin <ignat@cloudflare.com>,
+	Gou Hao <gouhao@uniontech.com>,
+	Mina Almasry <almasrymina@google.com>,
+	Abhishek Chauhan <quic_abchauha@quicinc.com>,
+	Yajun Deng <yajun.deng@linux.dev>, Michal Luczaj <mhal@rbox.co>,
+	Jiri Pirko <jiri@resnulli.us>, syzbot <syzkaller@googlegroups.com>,
+	linux-kernel@vger.kernel.org, kernel@pengutronix.de,
+	linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+	linux-nvme@lists.infradead.org, open-iscsi@googlegroups.com,
+	linux-scsi@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	target-devel@vger.kernel.org, gfs2@lists.linux.dev,
+	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+	linux-cifs@vger.kernel.org, linux-hams@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
+	linux-s390@vger.kernel.org, rds-devel@oss.oracle.com,
+	linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+	virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	syzbot+d7ce59b06b3eb14fd218@syzkaller.appspotmail.com,
+	linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
+Message-ID: <20241217035943.GB14719@lst.de>
+References: <20241217023417.work.145-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wD3l_P89WBnqKpaBA--.3706S4
-X-Coremail-Antispam: 1Uf129KBjvdXoWrZFWxCF1rXr47Ar43Zr4kCrg_yoW3urgEka
-	109rZ2qF1UGF40yrW5Ar4Svrnaka4qqFs5ZF45tFyfA343ArsrXr17Xrn8WF15uw17Cr4D
-	AFs5Krs5Zw1fujkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRMbyCDUUUUU==
-X-CM-SenderInfo: 5pdnvshuxfjiisr6il2tof0z/xtbBXw24C2dg7nnCZQAAsW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241217023417.work.145-kees@kernel.org>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-When device_add(&dev->dev) failed, calling put_device() to explicitly
-release dev->dev. Otherwise, it could cause double free problem.
+Would be nice to avoid a bunch of the overly long lines, but the
+fundamental changes looks good:
 
-Found by code review.
-
-Cc: stable@vger.kernel.org
-Fixes: 694a1116b405 ("virtio: Bind virtio device to device-tree node")
-Signed-off-by: Ma Ke <make_ruc2021@163.com>
----
- drivers/virtio/virtio.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index b9095751e43b..ac721b5597e8 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -503,6 +503,7 @@ int register_virtio_device(struct virtio_device *dev)
- 
- out_of_node_put:
- 	of_node_put(dev->dev.of_node);
-+	put_device(&dev->dev);
- out_ida_remove:
- 	ida_free(&virtio_index_ida, dev->index);
- out:
--- 
-2.25.1
-
+Reviewed-by: Christoph Hellwig <hch@lst.de>
