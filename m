@@ -1,1754 +1,2163 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C764C1F5402;
-	Tue, 17 Dec 2024 14:39:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734446381; cv=fail; b=uln6PoOMD41Q9EpWtSNZx3inREsXjrfNHfk0v6htpfemWERqUtQYjlqgMA89FmHj0+IKiftsxfYivoTOKYvPNjasPSVlYjGmYAjhZ+jekAJzceTyDMjdRzN9ueWNkMc8GCiqiMwPoBZj73ZQ8iqf6YIyphqR+wBxva9gtjYGfH0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734446381; c=relaxed/simple;
-	bh=AlqSc70vwAHSMQ80I9HqfpHwDncA1V85xvmRZWrfs44=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=uBM1/fcGdbEQOTjT5hSTDICxuRTNZTj+8wgyLDzx2WshHg5uZeFe9OUxQoy3Jg90Ey8syicdn4ighsU1sOMvYmc7zb46B62K6sXcmPY5fZQkRyEfscFng3bUzxClOXSSrR1WNklhKq2Y/1GK+MPFck+iqLeygX3TZi+TWxP5/XA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=L6Ki56XG; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=xpjAIck+; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F42B1F4E50
+	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 16:07:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1734451650; cv=none; b=p0bcxHZus399LYz6ai6vYjuZ+wdeFNNsmyJ8Zj1EhoLcVAvblVZrQ1cO+PJ77YDykHBKUqYGm/WbssbCnP5uTg9J5i10g/hN+NpiZ51is7qKG/SwU/9vJapntUndF0QmJuREUvKFSmFbB+AJFaINoPbouPN5rM2ZNVp0DQGRJoA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1734451650; c=relaxed/simple;
+	bh=eTwYPTCgnv7BbHWY5Z9CkBPZ7b0O3ql0FQSXbGqS7/g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BjS+b9YmpRjoHHI4zJXtyi8EQazzoa5I/P6Nkz7ttCJoc76aW6Onjqyu1oAEKNM/KGOHwjrOwDpeCKmtuybAdTfSYkZy8L5F2aFzW4BauXE0Tw9Uz4jpejjzgvTtEr3vt4N5pED8mn3Xos3rN/eKYdSHJY/X2wvptByVDrGIQCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=n0GDUQAX; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="L6Ki56XG";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="xpjAIck+"
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BHCtvvQ023565;
-	Tue, 17 Dec 2024 14:38:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2023-11-20; bh=2cYHeZlceoT9qSzUq1vdCtGU+iZMM6uz47bls4Seu6U=; b=
-	L6Ki56XGYJSuvASykZY0wiRqd63wYkeMXhCLmYOuth6Xmaikb1uP8pVQ0t/CWYpE
-	1zrpfkvx82gaE5tPNH3XVuRrvfLrWeX7B+Q80mSvjcoCWmD5FHKAsg4JkoslKv2B
-	pcVtXIk22mN9Gw5MuoD80LFRpGESf5UcE749OMz9vIaTLtbm36srVTf7IHmUsz6r
-	EjbMg/rkhH4ZOEszuqeZeEECaCVE+756CrxzeLLrltAF0fv92PVfold6lwh3P2wp
-	8UEFJpktKLsdPMdWTsPvsS8OHq2llpGGJxWH28up3sQ3p39FKhKDH4phYT6oJfm2
-	3DxZz7DvN+Ulf5a2azf7ug==
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 43h22cp7bq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Dec 2024 14:38:57 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 4BHEaPvE032638;
-	Tue, 17 Dec 2024 14:38:56 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2041.outbound.protection.outlook.com [104.47.70.41])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 43h0ferwkt-2
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Dec 2024 14:38:56 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CYcWsir/qmY1ElLGAbIRPEuLWbMGzqaenzuIsk3GTr2LpRmoFsBx6v4mALLQ4nF+fvSOSFWpEgYmicO5AU9MXH7CmmaKYUs/ivY0gbMnlJXM52gyZGMAauIGNDSS6GI27psYydcXCKer23VCI3TZhoGK/MmTKqoi6RthI0swjv7TZqEkoFwT6hcx+VUMcVlIWmTXB4louDdGegZ4QTPnotJ7LK9Eo/wcXXdee7yAIHjDeeQ3tn2eN7B6LpJo4P84dpZEUT7piNSBHOqj5vg3fpP6AyCsEDcDSgrwe6v5pksl8tSf01eUffTOe/jqmgdg2g1LNGXnKklLNgugL36bDA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2cYHeZlceoT9qSzUq1vdCtGU+iZMM6uz47bls4Seu6U=;
- b=ZtQpksYICaTXNv/HFeYP5uovhY+4mwKjhDWzEN/9JUV0fon0BUu0T6jE0RfoeNV1eXneCiXtxf8efx7gbgl0v7rnCoVBoJXrTSdMbOQ5E/zD2gGconnfLwIWgoertIYoZ+GYG1wKBbFkCQ3APFPv1qsCDub+uCi4Z5PogAE3KS3cghH2+6m0swVqP0wMlA2T3Cl4mlgSkGIBwPDT9ZGi8dzjT8zpVKLdIpScFdLjlENXk3xBcyUKRWf1GXBd+JrNYHF2/J2HdaOuQeL7cjNjLjq2yqQ+quGYgsxhS7ziMwKTss/z5i9erz38Z1wUdbhA/NNNN/plZJLHXixV0/5pOQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2cYHeZlceoT9qSzUq1vdCtGU+iZMM6uz47bls4Seu6U=;
- b=xpjAIck+7WgrhC5BaXtjWYpBdL+sTLHXiVh1TlSu2eK1WdEO0/98gL8EZrYGoL/3cq0VejfsrtPG3f7RSFkDKvi20Ldh/pHWVMjcmez6GksvnYx3MSsZb6j+Jv4q+CdI1lzgg5MXUpAD1l5H0ApvH9tDDhwxCjOTo7apoJZZfuw=
-Received: from BN0PR10MB5128.namprd10.prod.outlook.com (2603:10b6:408:117::24)
- by PH7PR10MB5830.namprd10.prod.outlook.com (2603:10b6:510:127::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8251.21; Tue, 17 Dec
- 2024 14:38:50 +0000
-Received: from BN0PR10MB5128.namprd10.prod.outlook.com
- ([fe80::743a:3154:40da:cf90]) by BN0PR10MB5128.namprd10.prod.outlook.com
- ([fe80::743a:3154:40da:cf90%7]) with mapi id 15.20.8272.005; Tue, 17 Dec 2024
- 14:38:50 +0000
-Message-ID: <c9d012bb-a411-4f39-b5ce-d39c7f19fa6b@oracle.com>
-Date: Tue, 17 Dec 2024 09:38:40 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
-To: Kees Cook <kees@kernel.org>, Jakub Kicinski <kuba@kernel.org>
-Cc: Cheng Xu <chengyou@linux.alibaba.com>,
-        Kai Shen <kaishen@linux.alibaba.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Leon Romanovsky <leon@kernel.org>,
-        Christian Benvenuti <benve@cisco.com>,
-        Nelson Escobar <neescoba@cisco.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Karsten Keil <isdn@linux-pingi.de>,
-        Michal Ostrowski
- <mostrows@earthlink.net>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>, Lee Duncan <lduncan@suse.com>,
-        Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Alexander Aring
- <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
-        Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Namjae Jeon
- <linkinjeon@kernel.org>, Steve French <sfrench@samba.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Tom Talpey <tom@talpey.com>, Simon Horman <horms@kernel.org>,
-        Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
-        Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>,
-        David Ahern <dsahern@kernel.org>, Joerg Reuter <jreuter@yaina.de>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Robin van der Gracht <robin@protonic.nl>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        James Chapman <jchapman@katalix.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        Remi Denis-Courmont <courmisch@gmail.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Allison Henderson <allison.henderson@oracle.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        Jon Maloy <jmaloy@redhat.com>, Ying Xue <ying.xue@windriver.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        =?UTF-8?Q?Ahelenia_Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Wu Yunchuan <yunchuan@nfschina.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Maurizio Lombardi <mlombard@redhat.com>,
-        David Howells
- <dhowells@redhat.com>,
-        =?UTF-8?Q?Atte_Heikkil=C3=A4?=
- <atteh.mailbox@gmail.com>,
-        Vincent Duvert <vincent.ldev@duvert.net>,
-        Denis Kirjanov <kirjanov@gmail.com>,
-        Lukas Bulwahn
- <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Thomas Huth <thuth@redhat.com>,
-        Andrew Waterman
- <waterman@eecs.berkeley.edu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Andrej Shadura <andrew.shadura@collabora.co.uk>,
-        Ying Hsu <yinghsu@chromium.org>, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Tom Parkin <tparkin@katalix.com>, Jason Xing <kernelxing@tencent.com>,
-        Dan Carpenter <error27@gmail.com>, Hyunwoo Kim <v4bel@theori.io>,
-        Bernard Pidoux <f6bvp@free.fr>, Sangsoo Lee <constant.lee@samsung.com>,
-        Doug Brown <doug@schmorgal.com>,
-        Ignat Korchagin <ignat@cloudflare.com>, Gou Hao <gouhao@uniontech.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Abhishek Chauhan <quic_abchauha@quicinc.com>,
-        Yajun Deng <yajun.deng@linux.dev>, Michal Luczaj <mhal@rbox.co>,
-        Jiri Pirko <jiri@resnulli.us>, syzbot <syzkaller@googlegroups.com>,
-        linux-kernel@vger.kernel.org, kernel@pengutronix.de,
-        linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
-        linux-nvme@lists.infradead.org, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        target-devel@vger.kernel.org, gfs2@lists.linux.dev,
-        linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
-        linux-cifs@vger.kernel.org, linux-hams@vger.kernel.org,
-        linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-s390@vger.kernel.org, rds-devel@oss.oracle.com,
-        linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
-        virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        syzbot+d7ce59b06b3eb14fd218@syzkaller.appspotmail.com,
-        linux-hardening@vger.kernel.org
-References: <20241217023417.work.145-kees@kernel.org>
-Content-Language: en-US
-From: Chuck Lever <chuck.lever@oracle.com>
-In-Reply-To: <20241217023417.work.145-kees@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: CH0PR03CA0392.namprd03.prod.outlook.com
- (2603:10b6:610:11b::31) To BN0PR10MB5128.namprd10.prod.outlook.com
- (2603:10b6:408:117::24)
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="n0GDUQAX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1734451641;
+	bh=eTwYPTCgnv7BbHWY5Z9CkBPZ7b0O3ql0FQSXbGqS7/g=;
+	h=From:To:Cc:Subject:Date:From;
+	b=n0GDUQAXf3YAZVo8UYHxqAJP+On0gWPWKKmLexWgiSZTU5KyLHt3yitwvXv1ahjKl
+	 uN7zqX1JZP3flVjF8e592n/sXDFQ6sSeLK+mAZ31QVqX+8KkllSIjJPO8iKARwOXA0
+	 1wP7T7mQ7Q0kdQuSUGFn4XLe0IE6twzY87f9rXk5Q/BK01z7/lnv/yWtt5WJbaYhXQ
+	 e7qFiVhC1AX8+mDGoNOERyYUigFtpXmDz4qFaLQfz7eLLRVqUrxguhmJZPd8pviLcT
+	 gsz+5hxFZ1W+3Ro36tvXbDD4oXlZBhG8Ymrs4bPQMqZ/tIT6SmFWD+wap6cN2d9voG
+	 f8XCxx51xHUgg==
+Received: from localhost.localdomain (unknown [171.76.86.135])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 5DAA917E1270;
+	Tue, 17 Dec 2024 17:07:12 +0100 (CET)
+From: Vignesh Raman <vignesh.raman@collabora.com>
+To: dri-devel@lists.freedesktop.org
+Cc: daniels@collabora.com,
+	helen.koike@collabora.com,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	robdclark@gmail.com,
+	guilherme.gallo@collabora.com,
+	sergi.blanch.torne@collabora.com,
+	dmitry.baryshkov@linaro.org,
+	linux-mediatek@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] drm/ci: uprev IGT
+Date: Tue, 17 Dec 2024 21:36:52 +0530
+Message-ID: <20241217160655.2371138-1-vignesh.raman@collabora.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN0PR10MB5128:EE_|PH7PR10MB5830:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5fed875f-0eda-452d-188f-08dd1ea8859a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|7053199007|41080700001;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?alNYS2JUNEhPdllGaGdaWXN2bHo0ekFjd0VpcUU5b29GczNEK0s2aU5FQkFq?=
- =?utf-8?B?a2ZUMGgzWnJRYllXTldBazdFeWsyMDRRSCtHR0hCN3lpSGJlUFFlZVJnNmFm?=
- =?utf-8?B?OEh2U1loWlEyZzVUZC9rQWdRZ1VRTm9DK25oVXRKcFdpSk9KRnZMZ3VNRm80?=
- =?utf-8?B?UmkwYy9mQjZldXU5ZmlLRGQycmJ4emk5NWthVUlrL1pYamF0a0IvVHhTazli?=
- =?utf-8?B?b1hYZEFES3JIblpYSVdmY1plNTdJZEtGUHRSeHZsaHRocXF2RURjSUJSZmNJ?=
- =?utf-8?B?R2JHUUMvdDJpeFRzYmRUMkdtaUtuNUkzMFVsdHQwMnk1ZTdDV1lWR054T3Zm?=
- =?utf-8?B?M0dkeFNCZXJmZS9zYkFNUEpWNXNMdEd0bXZZTGdlQS81NWxkK3ZnQTlUcmtv?=
- =?utf-8?B?amVuaTh5Y0FHR0dUWlFkM3pyaGFkbHN1SEhPTXEwbExhVFN5cE13bGoyZ1hC?=
- =?utf-8?B?aGVyR1AxZjVBcy9wUzI2SWdXWmlnV1VJWTJ1cENicHluTDd6dUY1N3dTZzZq?=
- =?utf-8?B?UTBEeWJGc3Z5RG1CbUlrdUJnRHpONmlqcWhiZ0dCTnh6bFlSbDRuWWZLZ3ZB?=
- =?utf-8?B?azRVUGZJdDJKMHpVWlVKMGpYeUdTTTVmMWdLVC9laGFBSXRkMkU2aGtUbVM4?=
- =?utf-8?B?eml0RGtWaUV0eC9WK25QMWx6T0JoRHBoZVVIeFVZTG9EaXY0ZnRhYXFtdkUy?=
- =?utf-8?B?VmpabGhBK1RGc2dycnBUU1dpVzVMamNMdUYrREFDQVg0Qm0vWThoT2pPcUxs?=
- =?utf-8?B?bThIT0ZtczFtcmVLeVFpSUM4d2FnQkpaSUloTlZXc1FGTXNqaHF5OWliRmIy?=
- =?utf-8?B?dzlpKzcxek1pd3Z5RmVCMjRFUkJHSG9HdytjWFpxYWVzbFM2Z3hxTTFOSzJn?=
- =?utf-8?B?V0VqL2dTQ2xVYzBiWGlUSy8wdWx2Tkk3cTI2dHo5Q29pZ0hFTzdCVklLaXlU?=
- =?utf-8?B?VXlSRzNNU2VYdHRMVGxjMWFhUFova2R5cDJaYnEvQnpDenhVWmtFSVZ2MElE?=
- =?utf-8?B?eERmRW1raG5HOEg5dTJHOWFKMG1NalU4ZUlVVjNMN1pDem5FVWxTVkYyLzZ0?=
- =?utf-8?B?MDhvalR6ODZIRkxoVVBzWkpvQUlSeHZqWTYrUFhjUXZWTHY4RzluTG9PQXJq?=
- =?utf-8?B?TEllWFlES2VNaDZtNUU4S2JrMUpSY2NpWlpFWDNMWmgydlpnTC9wNXluNStS?=
- =?utf-8?B?QXJVa1I2RVd0dURWcjBzNmd6UU1lTHJELys0b0xsK0N1eGVQZEh0V29MWUt6?=
- =?utf-8?B?R0tmdDlmMVpsVWx5WG9hd1FHYkR6ejQ4OVB2bnVPSk1xZllIRWxpVFVEdDZW?=
- =?utf-8?B?eXNBUUh6OVUvUFE5dmRER1RzTE5xWGxSaVNEWG9vZ0pOS1UxT3hWNk10RjRI?=
- =?utf-8?B?SFhIeDVjYS8yckFyY284TEh6QklZNVVZNHFHeFVyZHZNS25kNWJtSE9MOUhT?=
- =?utf-8?B?QzVUSS9RWU9waEoxczBaU1VRUEhIcGVESkRaaHViaE5yU0tORUp6TldONldS?=
- =?utf-8?B?ZUY3dzJhYzJJS3BORkJ1WVFsUldDS0xBQThORnBFbkp4NWVDcFprSmE5clFF?=
- =?utf-8?B?emI0VE9jS09QbmRsMnZ0Zm1laTl3czBuakh6dE9VZm55MnFVeFdFYzFsajU3?=
- =?utf-8?B?L1ozdVp4N3JiSEZENmxLalJmODhUQTVydGZxWEFkdUJZWEVmUHRUOGdhVUQ1?=
- =?utf-8?B?QUxtZis5eDAxTUlKMUx2cVE2Rkx0TjdVQXVvb2lGN3dmUzZpVFlvU1diRGlQ?=
- =?utf-8?B?SllmQm5GYlU3bjVkYTZkNFRvcmFFc2tKTVVMS284Y1Y3RXE4ZmY1czMvQU1H?=
- =?utf-8?B?ZjdxbDQ5ZTA0VFdJSDE5QkRtWURaSUVqcDhvSGt1WURiTjlTcU5wTkZ6anRS?=
- =?utf-8?B?dUhOc0VOdE9KYjc5S2owQnlObUpPUUZGeEhhVlJNRlNJMW9mY1ovZi9obHBO?=
- =?utf-8?Q?Qgyvn6UIdoN/miagVy4h/0Pj9+0B0KsX?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN0PR10MB5128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(7053199007)(41080700001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?U3hDQXhpbkdkN3c2ekR1bmRGTlBQci9HbTR3RTdiUXVyLzdVRE1USTQvNlUx?=
- =?utf-8?B?anQxZ0FPOGlsZC9kS0w0dFlJS3VHZmUrUW1NakF3Vjl3U0JWSjl2V2YrMGhn?=
- =?utf-8?B?bFBHbTgxa1JJWkxnWmY0Um5xc0xvVUdBVjZNdEF2aGY4UDJDOFJkMU9KWTFW?=
- =?utf-8?B?ZG1TcEt1NEVCdkdiUWVDT3hreStsa2swcFdDVWpTajJqc0tLTUdjeTEvM0pN?=
- =?utf-8?B?cXN1MTZXTnlpb2hpTHNjazdtWHJBaVQzTDNRS3dMeWVnV2hmRlR4U0ZINmth?=
- =?utf-8?B?S3FsbXc2dVJ5TXJPdEZSMVBQbnlXMXRHbGtUa2RPdTFWRzd0Q1RsNEN2Yjgv?=
- =?utf-8?B?SHlqeGh6S1paWGd1S2cwbzB3bjI3Tlh5aWhFMjBXL25yQjZpdzBXajB1dlov?=
- =?utf-8?B?MUJMTXA1c1V4NFZDNWxiMUwrNmk1cEo0T0ZyQzNWcm5abXZRZVRHaDUyTU4z?=
- =?utf-8?B?akhoZU1IcGVFcXF5RTJlMXRJSXZUUDJhK0c3U2NtVFEyVGpNS1NzZHhucnZD?=
- =?utf-8?B?RGFxazdyeDNwRlk2bXp0WXpuNVk1THRRK2RpUGt6eEpuNEZ1OWVwWFpRRm1p?=
- =?utf-8?B?TWtzZmkwa1JRbU5FMzZVdmxDVisxWWFuVWtGSGtpRDl0OVB5UGt2NkFkcEI3?=
- =?utf-8?B?OVlCcHpCN2IrakFXZFNhSjFaZ2NXbExEK0RaZDNhUFoyL1FVT3ZEeGtzdzZL?=
- =?utf-8?B?aStlVnY5OTQ0NUhySVdvR2xUSWY0SDAwbklDSFppdkoyMjJRTkRuZUpzYXJk?=
- =?utf-8?B?eWsyYjBaK1ZGbnZrd0h0VkdvQnlyTnZIVEVBRkJmdENsbTZkbmdVdytIUWh3?=
- =?utf-8?B?MTcyUEdyNWE5MGtkS2VvSjBmR2JzUml6aHJTdE1BYXBUbGd6YUE3Y25QMVRn?=
- =?utf-8?B?ZU5hQmhNbzVzQjhUdURmSEV3dThKM2NBMVMwdHRTUUdZUEx3MmZnMjhpT0k4?=
- =?utf-8?B?elB1UitMMnFMMW5NSFkrKzFQUldIcy9UaytOS1VpY2V0UUxYdmRHalovR3lO?=
- =?utf-8?B?ck93Vm5nUVArejFBalVpc2F6ZW9iVVA3cnhCQ29GQUZ4czVCbGdxSTlNMVhu?=
- =?utf-8?B?bE5CNVNaYVdnSnVlUnhTY2RpOUV5QnBHT1BRUmk3MFR4VDBiS3ZrTzVpTFVX?=
- =?utf-8?B?ZnU4ckNKTHBBVjUxQ3dSUVRHT0YwUWRiSVBxYTdZakxhU3QydnNJbjVqNmNn?=
- =?utf-8?B?NlBZNUl4cm1YZW9yOGVDZ0hPWGlzZjFKdUJKSFBlZzhxYXRQSXhZeXcyWGJY?=
- =?utf-8?B?NUh1RUFtZ2x6SVlOMkhDRmllR1BlVXdweTV6c291ZVRCcWMwckpqM2dldU9F?=
- =?utf-8?B?OTEwUnNkR0hLUGNSeUtrSERFU2ZQUTA3ak54Yzh1WS9rUTM1UUpIN0U4S096?=
- =?utf-8?B?Vk5Sd2hMc0JNZzE4emQ1RUdmeGNWT2owazZ6aUJ4OFFtd3V4TFFRcE9lRWpK?=
- =?utf-8?B?SXBHejRvRFRHVUVxQ09tSlM3Mnowd2tETU5taU5zNUNTcnJ3N3RTcUxLNndG?=
- =?utf-8?B?MlJUV3lSQm5SOTJQQUozQUlFTXQ1dEZBNVh1MkxNZ0lNVVF5WkdUSEVDaWtX?=
- =?utf-8?B?SVJlYVJVZnZib2ZlUzQvNjV2dFNjTXliVE44UmFXSzNaT1FEd1paakRJa3JW?=
- =?utf-8?B?Mm1CUFo3cjRFbnkzVHdRaXZ2NEVRZE1hS1BOWjVHZTV2QnNXMlhwT2xXM211?=
- =?utf-8?B?T2liT0NEaHlGS2crNDgzbUN5QStIMmZid3FUK21kWnNBbzJoS0VpUDRvaFEw?=
- =?utf-8?B?MFNMeHhHc0hTMTZ0THNML2R3TWVZQnlmYU5HdjFxZE00S2k0ZEU4cUZkODZn?=
- =?utf-8?B?TGRXcUJkSXdGcFZxZlFMWDZxaWVEbjNGeVh2K3VNWFZzZHBwQ01Da3pSSCtH?=
- =?utf-8?B?MmI4TzVPdWlEYXM0NkJmeDdMWjBCSTIxR3Qva25MSCt5Qmw3NTcwOGdDTXRU?=
- =?utf-8?B?UDJJUmxqR1BnT1dSUUkvS0c4SmQ5RjJJckYxajlzbzNNcTVjaFVVNmJVMElw?=
- =?utf-8?B?U0FkTStIUFFJYndBUFEySlNUdG5kYkV0L3FFWGsrR0JWQ0JzS0RLOHE0WWtM?=
- =?utf-8?B?VTZSKzNsOVhBMFBlVy9NYWhuT3Y1SFl4NnVMQ0ZlSnVJYisxMzFLMGNIUG51?=
- =?utf-8?Q?h77oELC4yPYwOMJTv6CDGbTd8?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	gj9llAYkUC+576a/pBBuqV8DYK4YQ1/zSxmM0YKZn2zO3VnCcoXmFUz/NlE9SkVXrD/hyaqzlWFDm51b/i+2MfTW7QV9LAg1IXRCMR/7w505IWeiWC8QKew0K/hL/A0gEPZKGBqG0HINVaH9fF0zyULwaur/eT36JFAUwtuDlqm0D7Oc6K2bkEzG9/Y2eBH9F4aw4uEY0350Pim1xcQm/3nox5NIsEFR4tP1j95qsWcSWqdnHMnKhHqbzMbvpbeeXQ7mTzTMODY+3SHm49NrPRSI+U3yz+rEVFWzmjp3rKbrT1Xtu9Wfu9pU05SFtVDP2eA55TJxpmwCfilIYNUkfxlxIc6evHXXxUgtYwM/RqhMcdiKvEU38jeO4O3jNLDd8y3CetJk4QKxtJ3DezO0wcr6AGEYK852pKLMqoOF90KBNr+LTMlte+c+/GSw8JwXff2ZWolrbPviYblsmfZ1Sggugy5qeCIPNTrMZeNl6s8L+EjlCpH7LT1wv1w4Gumrq9n3C/X4h/5hvE30mPbOJWfXomJFiLuGcR3UUyUdUijcBIbgK8TguA2pdF+x0rehbpzAaTaeb/WvIuR8PodBgq5IqX0NfrFQIr9LWMk3Ltc=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5fed875f-0eda-452d-188f-08dd1ea8859a
-X-MS-Exchange-CrossTenant-AuthSource: BN0PR10MB5128.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2024 14:38:50.4472
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: D4ejlxxnBvwqYQIHlHVRZqw/DglCMVntVBnDkO0lSSEXjodX0V1yVKjMiNg869s7aEJ90UguvL48ifh/8fyb1A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR10MB5830
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2024-12-17_08,2024-12-17_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0 suspectscore=0
- adultscore=0 bulkscore=0 mlxscore=0 mlxlogscore=999 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2411120000
- definitions=main-2412170116
-X-Proofpoint-GUID: fkWNKu90w-dSLixZ6FWvP8wRegZOBEdV
-X-Proofpoint-ORIG-GUID: fkWNKu90w-dSLixZ6FWvP8wRegZOBEdV
+Content-Transfer-Encoding: 8bit
 
-On 12/16/24 9:34 PM, Kees Cook wrote:
-> The proto_ops::getname callback was long ago backed by sockaddr_storage,
-> but the replacement of it for sockaddr was never done. Plumb it through
-> all the getname() callbacks, adjust prototypes, and fix casts.
-> 
-> There are a few cases where the backing object is _not_ a sockaddr_storage
-> and converting it looks painful. In those cases, they use a cast to
-> struct sockaddr_storage. They appear well bounds-checked, so the risk
-> is no worse that we have currently.
-> 
-> Other casts to sockaddr are removed, though to avoid spilling this
-> change into BPF (which becomes a much larger set of changes), cast the
-> sockaddr_storage instances there to sockaddr for the time being.
-> 
-> In theory this could be split up into per-caller patches that add more
-> casts that all later get removed, but it seemed like there are few
-> enough callers that it seems feasible to do this in a single patch. Most
-> conversions are mechanical, so review should be fairly easy. (Famous
-> last words.)
-> 
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
->   drivers/infiniband/hw/erdma/erdma_cm.h        |  4 +-
->   drivers/infiniband/hw/usnic/usnic_transport.c | 16 +++---
->   drivers/infiniband/sw/siw/siw_cm.h            |  4 +-
->   drivers/isdn/mISDN/socket.c                   |  2 +-
->   drivers/net/ppp/pppoe.c                       |  4 +-
->   drivers/net/ppp/pptp.c                        |  4 +-
->   drivers/nvme/host/tcp.c                       |  2 +-
->   drivers/nvme/target/tcp.c                     |  6 +--
->   drivers/scsi/iscsi_tcp.c                      | 18 +++----
->   drivers/soc/qcom/qmi_interface.c              |  2 +-
->   drivers/target/iscsi/iscsi_target_login.c     | 51 +++++++++----------
->   fs/dlm/lowcomms.c                             |  2 +-
->   fs/nfs/nfs4client.c                           |  4 +-
->   fs/ocfs2/cluster/tcp.c                        | 26 +++++-----
->   fs/smb/server/connection.h                    |  2 +-
->   fs/smb/server/mgmt/tree_connect.c             |  2 +-
->   fs/smb/server/transport_ipc.c                 |  4 +-
->   fs/smb/server/transport_ipc.h                 |  4 +-
->   fs/smb/server/transport_tcp.c                 |  6 +--
->   include/linux/net.h                           |  6 +--
->   include/linux/sunrpc/clnt.h                   |  4 +-
->   include/net/inet_common.h                     |  2 +-
->   include/net/ipv6.h                            |  2 +-
->   include/net/sock.h                            |  3 +-
->   net/appletalk/ddp.c                           |  2 +-
->   net/atm/pvc.c                                 |  2 +-
->   net/atm/svc.c                                 |  2 +-
->   net/ax25/af_ax25.c                            |  4 +-
->   net/bluetooth/hci_sock.c                      |  2 +-
->   net/bluetooth/iso.c                           |  6 +--
->   net/bluetooth/l2cap_sock.c                    |  6 +--
->   net/bluetooth/rfcomm/sock.c                   |  3 +-
->   net/bluetooth/sco.c                           |  6 +--
->   net/can/isotp.c                               |  3 +-
->   net/can/j1939/socket.c                        |  2 +-
->   net/can/raw.c                                 |  2 +-
->   net/core/sock.c                               |  4 +-
->   net/ipv4/af_inet.c                            |  2 +-
->   net/ipv6/af_inet6.c                           |  2 +-
->   net/iucv/af_iucv.c                            |  6 +--
->   net/l2tp/l2tp_ip.c                            |  2 +-
->   net/l2tp/l2tp_ip6.c                           |  2 +-
->   net/l2tp/l2tp_ppp.c                           |  2 +-
->   net/llc/af_llc.c                              |  2 +-
->   net/netlink/af_netlink.c                      |  4 +-
->   net/netrom/af_netrom.c                        |  4 +-
->   net/nfc/llcp_sock.c                           |  4 +-
->   net/packet/af_packet.c                        | 15 +++---
->   net/phonet/socket.c                           | 10 ++--
->   net/qrtr/af_qrtr.c                            |  2 +-
->   net/qrtr/ns.c                                 |  2 +-
->   net/rds/af_rds.c                              |  2 +-
->   net/rose/af_rose.c                            |  4 +-
->   net/sctp/ipv6.c                               |  2 +-
->   net/smc/af_smc.c                              |  2 +-
->   net/smc/smc.h                                 |  2 +-
->   net/smc/smc_clc.c                             |  2 +-
->   net/socket.c                                  | 10 ++--
->   net/sunrpc/clnt.c                             |  9 ++--
->   net/sunrpc/svcsock.c                          |  8 +--
->   net/sunrpc/xprtsock.c                         |  4 +-
->   net/tipc/socket.c                             |  2 +-
->   net/unix/af_unix.c                            |  9 ++--
->   net/vmw_vsock/af_vsock.c                      |  2 +-
->   net/x25/af_x25.c                              |  2 +-
->   security/tomoyo/network.c                     |  3 +-
->   66 files changed, 173 insertions(+), 173 deletions(-)
-> 
-> diff --git a/drivers/infiniband/hw/erdma/erdma_cm.h b/drivers/infiniband/hw/erdma/erdma_cm.h
-> index a26d80770188..4e46ba491d5c 100644
-> --- a/drivers/infiniband/hw/erdma/erdma_cm.h
-> +++ b/drivers/infiniband/hw/erdma/erdma_cm.h
-> @@ -141,12 +141,12 @@ struct erdma_cm_work {
->   
->   static inline int getname_peer(struct socket *s, struct sockaddr_storage *a)
->   {
-> -	return s->ops->getname(s, (struct sockaddr *)a, 1);
-> +	return s->ops->getname(s, a, 1);
->   }
->   
->   static inline int getname_local(struct socket *s, struct sockaddr_storage *a)
->   {
-> -	return s->ops->getname(s, (struct sockaddr *)a, 0);
-> +	return s->ops->getname(s, a, 0);
->   }
->   
->   int erdma_connect(struct iw_cm_id *id, struct iw_cm_conn_param *param);
-> diff --git a/drivers/infiniband/hw/usnic/usnic_transport.c b/drivers/infiniband/hw/usnic/usnic_transport.c
-> index dc37066900a5..7c38abc25671 100644
-> --- a/drivers/infiniband/hw/usnic/usnic_transport.c
-> +++ b/drivers/infiniband/hw/usnic/usnic_transport.c
-> @@ -174,24 +174,24 @@ int usnic_transport_sock_get_addr(struct socket *sock, int *proto,
->   					uint32_t *addr, uint16_t *port)
->   {
->   	int err;
-> -	struct sockaddr_in sock_addr;
-> +	union {
-> +		struct sockaddr_storage storage;
-> +		struct sockaddr_in sock_addr;
-> +	} u;
->   
-> -	err = sock->ops->getname(sock,
-> -				(struct sockaddr *)&sock_addr,
-> -				0);
-> +	err = sock->ops->getname(sock, &u.storage, 0);
->   	if (err < 0)
->   		return err;
->   
-> -	if (sock_addr.sin_family != AF_INET)
-> +	if (u.sock_addr.sin_family != AF_INET)
->   		return -EINVAL;
->   
->   	if (proto)
->   		*proto = sock->sk->sk_protocol;
->   	if (port)
-> -		*port = ntohs(((struct sockaddr_in *)&sock_addr)->sin_port);
-> +		*port = ntohs(u.sock_addr.sin_port);
->   	if (addr)
-> -		*addr = ntohl(((struct sockaddr_in *)
-> -					&sock_addr)->sin_addr.s_addr);
-> +		*addr = ntohl(u.sock_addr.sin_addr.s_addr);
->   
->   	return 0;
->   }
-> diff --git a/drivers/infiniband/sw/siw/siw_cm.h b/drivers/infiniband/sw/siw/siw_cm.h
-> index 7011c8a8ee7b..804559be83d4 100644
-> --- a/drivers/infiniband/sw/siw/siw_cm.h
-> +++ b/drivers/infiniband/sw/siw/siw_cm.h
-> @@ -94,12 +94,12 @@ struct siw_cm_work {
->   
->   static inline int getname_peer(struct socket *s, struct sockaddr_storage *a)
->   {
-> -	return s->ops->getname(s, (struct sockaddr *)a, 1);
-> +	return s->ops->getname(s, a, 1);
->   }
->   
->   static inline int getname_local(struct socket *s, struct sockaddr_storage *a)
->   {
-> -	return s->ops->getname(s, (struct sockaddr *)a, 0);
-> +	return s->ops->getname(s, a, 0);
->   }
->   
->   static inline int ksock_recv(struct socket *sock, char *buf, size_t size,
-> diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
-> index b215b28cad7b..2a3bcbf6d15b 100644
-> --- a/drivers/isdn/mISDN/socket.c
-> +++ b/drivers/isdn/mISDN/socket.c
-> @@ -549,7 +549,7 @@ data_sock_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
->   }
->   
->   static int
-> -data_sock_getname(struct socket *sock, struct sockaddr *addr,
-> +data_sock_getname(struct socket *sock, struct sockaddr_storage *addr,
->   		  int peer)
->   {
->   	struct sockaddr_mISDN	*maddr = (struct sockaddr_mISDN *) addr;
-> diff --git a/drivers/net/ppp/pppoe.c b/drivers/net/ppp/pppoe.c
-> index 2ea4f4890d23..139def6a7128 100644
-> --- a/drivers/net/ppp/pppoe.c
-> +++ b/drivers/net/ppp/pppoe.c
-> @@ -717,8 +717,8 @@ static int pppoe_connect(struct socket *sock, struct sockaddr *uservaddr,
->   	goto end;
->   }
->   
-> -static int pppoe_getname(struct socket *sock, struct sockaddr *uaddr,
-> -		  int peer)
-> +static int pppoe_getname(struct socket *sock, struct sockaddr_storage *uaddr,
-> +			 int peer)
->   {
->   	int len = sizeof(struct sockaddr_pppox);
->   	struct sockaddr_pppox sp;
-> diff --git a/drivers/net/ppp/pptp.c b/drivers/net/ppp/pptp.c
-> index 689687bd2574..6d090008a34e 100644
-> --- a/drivers/net/ppp/pptp.c
-> +++ b/drivers/net/ppp/pptp.c
-> @@ -479,8 +479,8 @@ static int pptp_connect(struct socket *sock, struct sockaddr *uservaddr,
->   	return error;
->   }
->   
-> -static int pptp_getname(struct socket *sock, struct sockaddr *uaddr,
-> -	int peer)
-> +static int pptp_getname(struct socket *sock, struct sockaddr_storage *uaddr,
-> +			int peer)
->   {
->   	int len = sizeof(struct sockaddr_pppox);
->   	struct sockaddr_pppox sp;
-> diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-> index 28c76a3e1bd2..06853bf1ee8c 100644
-> --- a/drivers/nvme/host/tcp.c
-> +++ b/drivers/nvme/host/tcp.c
-> @@ -2642,7 +2642,7 @@ static int nvme_tcp_get_address(struct nvme_ctrl *ctrl, char *buf, int size)
->   
->   	mutex_lock(&queue->queue_lock);
->   
-> -	ret = kernel_getsockname(queue->sock, (struct sockaddr *)&src_addr);
-> +	ret = kernel_getsockname(queue->sock, &src_addr);
->   	if (ret > 0) {
->   		if (len > 0)
->   			len--; /* strip trailing newline */
-> diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-> index df24244fb820..87324c723ed4 100644
-> --- a/drivers/nvme/target/tcp.c
-> +++ b/drivers/nvme/target/tcp.c
-> @@ -1689,13 +1689,11 @@ static int nvmet_tcp_set_queue_sock(struct nvmet_tcp_queue *queue)
->   	struct inet_sock *inet = inet_sk(sock->sk);
->   	int ret;
->   
-> -	ret = kernel_getsockname(sock,
-> -		(struct sockaddr *)&queue->sockaddr);
-> +	ret = kernel_getsockname(sock, &queue->sockaddr);
->   	if (ret < 0)
->   		return ret;
->   
-> -	ret = kernel_getpeername(sock,
-> -		(struct sockaddr *)&queue->sockaddr_peer);
-> +	ret = kernel_getpeername(sock, &queue->sockaddr_peer);
->   	if (ret < 0)
->   		return ret;
->   
-> diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-> index c708e1059638..0a457f8a5062 100644
-> --- a/drivers/scsi/iscsi_tcp.c
-> +++ b/drivers/scsi/iscsi_tcp.c
-> @@ -794,7 +794,7 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
->   	struct iscsi_conn *conn = cls_conn->dd_data;
->   	struct iscsi_sw_tcp_conn *tcp_sw_conn;
->   	struct iscsi_tcp_conn *tcp_conn;
-> -	struct sockaddr_in6 addr;
-> +	struct sockaddr_storage addr;
->   	struct socket *sock;
->   	int rc;
->   
-> @@ -825,19 +825,16 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
->   		}
->   
->   		if (param == ISCSI_PARAM_LOCAL_PORT)
-> -			rc = kernel_getsockname(sock,
-> -						(struct sockaddr *)&addr);
-> +			rc = kernel_getsockname(sock, &addr);
->   		else
-> -			rc = kernel_getpeername(sock,
-> -						(struct sockaddr *)&addr);
-> +			rc = kernel_getpeername(sock, &addr);
->   sock_unlock:
->   		mutex_unlock(&tcp_sw_conn->sock_lock);
->   		iscsi_put_conn(conn->cls_conn);
->   		if (rc < 0)
->   			return rc;
->   
-> -		return iscsi_conn_get_addr_param((struct sockaddr_storage *)
-> -						 &addr, param, buf);
-> +		return iscsi_conn_get_addr_param(&addr, param, buf);
->   	default:
->   		return iscsi_conn_get_param(cls_conn, param, buf);
->   	}
-> @@ -853,7 +850,7 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
->   	struct iscsi_conn *conn;
->   	struct iscsi_tcp_conn *tcp_conn;
->   	struct iscsi_sw_tcp_conn *tcp_sw_conn;
-> -	struct sockaddr_in6 addr;
-> +	struct sockaddr_storage addr;
->   	struct socket *sock;
->   	int rc;
->   
-> @@ -883,14 +880,13 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
->   		if (!sock)
->   			rc = -ENOTCONN;
->   		else
-> -			rc = kernel_getsockname(sock, (struct sockaddr *)&addr);
-> +			rc = kernel_getsockname(sock, &addr);
->   		mutex_unlock(&tcp_sw_conn->sock_lock);
->   		iscsi_put_conn(conn->cls_conn);
->   		if (rc < 0)
->   			return rc;
->   
-> -		return iscsi_conn_get_addr_param((struct sockaddr_storage *)
-> -						 &addr,
-> +		return iscsi_conn_get_addr_param(&addr,
->   						 (enum iscsi_param)param, buf);
->   	default:
->   		return iscsi_host_get_param(shost, param, buf);
-> diff --git a/drivers/soc/qcom/qmi_interface.c b/drivers/soc/qcom/qmi_interface.c
-> index bc6d6379d8b1..977cdf0f6598 100644
-> --- a/drivers/soc/qcom/qmi_interface.c
-> +++ b/drivers/soc/qcom/qmi_interface.c
-> @@ -593,7 +593,7 @@ static struct socket *qmi_sock_create(struct qmi_handle *qmi,
->   	if (ret < 0)
->   		return ERR_PTR(ret);
->   
-> -	ret = kernel_getsockname(sock, (struct sockaddr *)sq);
-> +	ret = kernel_getsockname(sock, (struct sockaddr_storage *)sq);
->   	if (ret < 0) {
->   		sock_release(sock);
->   		return ERR_PTR(ret);
-> diff --git a/drivers/target/iscsi/iscsi_target_login.c b/drivers/target/iscsi/iscsi_target_login.c
-> index 90b870f234f0..9fcbfba43035 100644
-> --- a/drivers/target/iscsi/iscsi_target_login.c
-> +++ b/drivers/target/iscsi/iscsi_target_login.c
-> @@ -907,8 +907,11 @@ int iscsi_target_setup_login_socket(
->   int iscsit_accept_np(struct iscsi_np *np, struct iscsit_conn *conn)
->   {
->   	struct socket *new_sock, *sock = np->np_socket;
-> -	struct sockaddr_in sock_in;
-> -	struct sockaddr_in6 sock_in6;
-> +	union {
-> +		struct sockaddr_storage storage;
-> +		struct sockaddr_in sock_in;
-> +		struct sockaddr_in6 sock_in6;
-> +	} u;
->   	int rc;
->   
->   	rc = kernel_accept(sock, &new_sock, 0);
-> @@ -919,47 +922,43 @@ int iscsit_accept_np(struct iscsi_np *np, struct iscsit_conn *conn)
->   	conn->login_family = np->np_sockaddr.ss_family;
->   
->   	if (np->np_sockaddr.ss_family == AF_INET6) {
-> -		memset(&sock_in6, 0, sizeof(struct sockaddr_in6));
-> +		memset(&u.sock_in6, 0, sizeof(struct sockaddr_in6));
->   
-> -		rc = conn->sock->ops->getname(conn->sock,
-> -				(struct sockaddr *)&sock_in6, 1);
-> +		rc = conn->sock->ops->getname(conn->sock, &u.storage, 1);
->   		if (rc >= 0) {
-> -			if (!ipv6_addr_v4mapped(&sock_in6.sin6_addr)) {
-> -				memcpy(&conn->login_sockaddr, &sock_in6, sizeof(sock_in6));
-> +			if (!ipv6_addr_v4mapped(&u.sock_in6.sin6_addr)) {
-> +				memcpy(&conn->login_sockaddr, &u.sock_in6, sizeof(u.sock_in6));
->   			} else {
->   				/* Pretend to be an ipv4 socket */
-> -				sock_in.sin_family = AF_INET;
-> -				sock_in.sin_port = sock_in6.sin6_port;
-> -				memcpy(&sock_in.sin_addr, &sock_in6.sin6_addr.s6_addr32[3], 4);
-> -				memcpy(&conn->login_sockaddr, &sock_in, sizeof(sock_in));
-> +				u.sock_in.sin_family = AF_INET;
-> +				u.sock_in.sin_port = u.sock_in6.sin6_port;
-> +				memcpy(&u.sock_in.sin_addr, &u.sock_in6.sin6_addr.s6_addr32[3], 4);
-> +				memcpy(&conn->login_sockaddr, &u.sock_in, sizeof(u.sock_in));
->   			}
->   		}
->   
-> -		rc = conn->sock->ops->getname(conn->sock,
-> -				(struct sockaddr *)&sock_in6, 0);
-> +		rc = conn->sock->ops->getname(conn->sock, &u.storage, 0);
->   		if (rc >= 0) {
-> -			if (!ipv6_addr_v4mapped(&sock_in6.sin6_addr)) {
-> -				memcpy(&conn->local_sockaddr, &sock_in6, sizeof(sock_in6));
-> +			if (!ipv6_addr_v4mapped(&u.sock_in6.sin6_addr)) {
-> +				memcpy(&conn->local_sockaddr, &u.sock_in6, sizeof(u.sock_in6));
->   			} else {
->   				/* Pretend to be an ipv4 socket */
-> -				sock_in.sin_family = AF_INET;
-> -				sock_in.sin_port = sock_in6.sin6_port;
-> -				memcpy(&sock_in.sin_addr, &sock_in6.sin6_addr.s6_addr32[3], 4);
-> -				memcpy(&conn->local_sockaddr, &sock_in, sizeof(sock_in));
-> +				u.sock_in.sin_family = AF_INET;
-> +				u.sock_in.sin_port = u.sock_in6.sin6_port;
-> +				memcpy(&u.sock_in.sin_addr, &u.sock_in6.sin6_addr.s6_addr32[3], 4);
-> +				memcpy(&conn->local_sockaddr, &u.sock_in, sizeof(u.sock_in));
->   			}
->   		}
->   	} else {
-> -		memset(&sock_in, 0, sizeof(struct sockaddr_in));
-> +		memset(&u.sock_in, 0, sizeof(struct sockaddr_in));
->   
-> -		rc = conn->sock->ops->getname(conn->sock,
-> -				(struct sockaddr *)&sock_in, 1);
-> +		rc = conn->sock->ops->getname(conn->sock, &u.storage, 1);
->   		if (rc >= 0)
-> -			memcpy(&conn->login_sockaddr, &sock_in, sizeof(sock_in));
-> +			memcpy(&conn->login_sockaddr, &u.sock_in, sizeof(u.sock_in));
->   
-> -		rc = conn->sock->ops->getname(conn->sock,
-> -				(struct sockaddr *)&sock_in, 0);
-> +		rc = conn->sock->ops->getname(conn->sock, &u.storage, 0);
->   		if (rc >= 0)
-> -			memcpy(&conn->local_sockaddr, &sock_in, sizeof(sock_in));
-> +			memcpy(&conn->local_sockaddr, &u.sock_in, sizeof(u.sock_in));
->   	}
->   
->   	return 0;
-> diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-> index df40c3fd1070..7f232936e73c 100644
-> --- a/fs/dlm/lowcomms.c
-> +++ b/fs/dlm/lowcomms.c
-> @@ -993,7 +993,7 @@ static int accept_from_sock(void)
->   
->   	/* Get the connected socket's peer */
->   	memset(&peeraddr, 0, sizeof(peeraddr));
-> -	len = newsock->ops->getname(newsock, (struct sockaddr *)&peeraddr, 2);
-> +	len = newsock->ops->getname(newsock, &peeraddr, 2);
->   	if (len < 0) {
->   		result = -ECONNABORTED;
->   		goto accept_err;
-> diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-> index 83378f69b35e..a7428367a526 100644
-> --- a/fs/nfs/nfs4client.c
-> +++ b/fs/nfs/nfs4client.c
-> @@ -248,7 +248,7 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
->   		struct sockaddr_storage cb_addr;
->   		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
->   
-> -		err = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
-> +		err = rpc_localaddr(clp->cl_rpcclient, &cb_addr, sizeof(cb_addr));
->   		if (err < 0)
->   			goto error;
->   		err = rpc_ntop(sap, buf, sizeof(buf));
-> @@ -1352,7 +1352,7 @@ int nfs4_update_server(struct nfs_server *server, const char *hostname,
->   	if (error != 0)
->   		return error;
->   
-> -	error = rpc_localaddr(clnt, localaddr, sizeof(address));
-> +	error = rpc_localaddr(clnt, &address, sizeof(address));
->   	if (error != 0)
->   		return error;
->   
-> diff --git a/fs/ocfs2/cluster/tcp.c b/fs/ocfs2/cluster/tcp.c
-> index 2b8fa3e782fb..bb8ccd3a222f 100644
-> --- a/fs/ocfs2/cluster/tcp.c
-> +++ b/fs/ocfs2/cluster/tcp.c
-> @@ -1779,7 +1779,10 @@ int o2net_register_hb_callbacks(void)
->   static int o2net_accept_one(struct socket *sock, int *more)
->   {
->   	int ret;
-> -	struct sockaddr_in sin;
-> +	union {
-> +		struct sockaddr_storage storage;
-> +		struct sockaddr_in sin;
-> +	} u;
->   	struct socket *new_sock = NULL;
->   	struct o2nm_node *node = NULL;
->   	struct o2nm_node *local_node = NULL;
-> @@ -1815,15 +1818,14 @@ static int o2net_accept_one(struct socket *sock, int *more)
->   	tcp_sock_set_nodelay(new_sock->sk);
->   	tcp_sock_set_user_timeout(new_sock->sk, O2NET_TCP_USER_TIMEOUT);
->   
-> -	ret = new_sock->ops->getname(new_sock, (struct sockaddr *) &sin, 1);
-> +	ret = new_sock->ops->getname(new_sock, &u.storage, 1);
->   	if (ret < 0)
->   		goto out;
->   
-> -	node = o2nm_get_node_by_ip(sin.sin_addr.s_addr);
-> +	node = o2nm_get_node_by_ip(u.sin.sin_addr.s_addr);
->   	if (node == NULL) {
-> -		printk(KERN_NOTICE "o2net: Attempt to connect from unknown "
-> -		       "node at %pI4:%d\n", &sin.sin_addr.s_addr,
-> -		       ntohs(sin.sin_port));
-> +		printk(KERN_NOTICE "o2net: Attempt to connect from unknown node at %pI4:%d\n",
-> +		       &u.sin.sin_addr.s_addr, ntohs(u.sin.sin_port));
->   		ret = -EINVAL;
->   		goto out;
->   	}
-> @@ -1838,8 +1840,8 @@ static int o2net_accept_one(struct socket *sock, int *more)
->   					&(local_node->nd_ipv4_address),
->   					ntohs(local_node->nd_ipv4_port),
->   					node->nd_name,
-> -					node->nd_num, &sin.sin_addr.s_addr,
-> -					ntohs(sin.sin_port));
-> +					node->nd_num, &u.sin.sin_addr.s_addr,
-> +					ntohs(u.sin.sin_port));
->   		ret = -EINVAL;
->   		goto out;
->   	}
-> @@ -1849,8 +1851,8 @@ static int o2net_accept_one(struct socket *sock, int *more)
->   	if (!o2hb_check_node_heartbeating_from_callback(node->nd_num)) {
->   		mlog(ML_CONN, "attempt to connect from node '%s' at "
->   		     "%pI4:%d but it isn't heartbeating\n",
-> -		     node->nd_name, &sin.sin_addr.s_addr,
-> -		     ntohs(sin.sin_port));
-> +		     node->nd_name, &u.sin.sin_addr.s_addr,
-> +		     ntohs(u.sin.sin_port));
->   		ret = -EINVAL;
->   		goto out;
->   	}
-> @@ -1866,8 +1868,8 @@ static int o2net_accept_one(struct socket *sock, int *more)
->   	if (ret) {
->   		printk(KERN_NOTICE "o2net: Attempt to connect from node '%s' "
->   		       "at %pI4:%d but it already has an open connection\n",
-> -		       node->nd_name, &sin.sin_addr.s_addr,
-> -		       ntohs(sin.sin_port));
-> +		       node->nd_name, &u.sin.sin_addr.s_addr,
-> +		       ntohs(u.sin.sin_port));
->   		goto out;
->   	}
->   
-> diff --git a/fs/smb/server/connection.h b/fs/smb/server/connection.h
-> index 8ddd5a3c7baf..35fc9f7cd0b2 100644
-> --- a/fs/smb/server/connection.h
-> +++ b/fs/smb/server/connection.h
-> @@ -141,7 +141,7 @@ struct ksmbd_transport {
->   
->   #define KSMBD_TCP_RECV_TIMEOUT	(7 * HZ)
->   #define KSMBD_TCP_SEND_TIMEOUT	(5 * HZ)
-> -#define KSMBD_TCP_PEER_SOCKADDR(c)	((struct sockaddr *)&((c)->peer_addr))
-> +#define KSMBD_TCP_PEER_SOCKADDR(c)	(&((c)->peer_addr))
->   
->   extern struct list_head conn_list;
->   extern struct rw_semaphore conn_list_lock;
-> diff --git a/fs/smb/server/mgmt/tree_connect.c b/fs/smb/server/mgmt/tree_connect.c
-> index ecfc57508671..06a59fb8d25b 100644
-> --- a/fs/smb/server/mgmt/tree_connect.c
-> +++ b/fs/smb/server/mgmt/tree_connect.c
-> @@ -22,7 +22,7 @@ ksmbd_tree_conn_connect(struct ksmbd_work *work, const char *share_name)
->   	struct ksmbd_tree_connect_response *resp = NULL;
->   	struct ksmbd_share_config *sc;
->   	struct ksmbd_tree_connect *tree_conn = NULL;
-> -	struct sockaddr *peer_addr;
-> +	struct sockaddr_storage *peer_addr;
->   	struct ksmbd_conn *conn = work->conn;
->   	struct ksmbd_session *sess = work->sess;
->   	int ret;
-> diff --git a/fs/smb/server/transport_ipc.c b/fs/smb/server/transport_ipc.c
-> index 48cda3350e5a..b279f8f75eeb 100644
-> --- a/fs/smb/server/transport_ipc.c
-> +++ b/fs/smb/server/transport_ipc.c
-> @@ -644,7 +644,7 @@ struct ksmbd_tree_connect_response *
->   ksmbd_ipc_tree_connect_request(struct ksmbd_session *sess,
->   			       struct ksmbd_share_config *share,
->   			       struct ksmbd_tree_connect *tree_conn,
-> -			       struct sockaddr *peer_addr)
-> +			       struct sockaddr_storage *peer_addr)
->   {
->   	struct ksmbd_ipc_msg *msg;
->   	struct ksmbd_tree_connect_request *req;
-> @@ -671,7 +671,7 @@ ksmbd_ipc_tree_connect_request(struct ksmbd_session *sess,
->   	strscpy(req->share, share->name, KSMBD_REQ_MAX_SHARE_NAME);
->   	snprintf(req->peer_addr, sizeof(req->peer_addr), "%pIS", peer_addr);
->   
-> -	if (peer_addr->sa_family == AF_INET6)
-> +	if (peer_addr->ss_family == AF_INET6)
->   		req->flags |= KSMBD_TREE_CONN_FLAG_REQUEST_IPV6;
->   	if (test_session_flag(sess, CIFDS_SESSION_FLAG_SMB2))
->   		req->flags |= KSMBD_TREE_CONN_FLAG_REQUEST_SMB2;
-> diff --git a/fs/smb/server/transport_ipc.h b/fs/smb/server/transport_ipc.h
-> index d9b6737f8cd0..840b9b1c56f6 100644
-> --- a/fs/smb/server/transport_ipc.h
-> +++ b/fs/smb/server/transport_ipc.h
-> @@ -18,13 +18,13 @@ ksmbd_ipc_login_request_ext(const char *account);
->   struct ksmbd_session;
->   struct ksmbd_share_config;
->   struct ksmbd_tree_connect;
-> -struct sockaddr;
-> +struct __kernel_sockaddr_storage;
->   
->   struct ksmbd_tree_connect_response *
->   ksmbd_ipc_tree_connect_request(struct ksmbd_session *sess,
->   			       struct ksmbd_share_config *share,
->   			       struct ksmbd_tree_connect *tree_conn,
-> -			       struct sockaddr *peer_addr);
-> +			       struct __kernel_sockaddr_storage *peer_addr);
->   int ksmbd_ipc_tree_disconnect_request(unsigned long long session_id,
->   				      unsigned long long connect_id);
->   int ksmbd_ipc_logout_request(const char *account, int flags);
-> diff --git a/fs/smb/server/transport_tcp.c b/fs/smb/server/transport_tcp.c
-> index 0d9007285e30..7ab1031e554b 100644
-> --- a/fs/smb/server/transport_tcp.c
-> +++ b/fs/smb/server/transport_tcp.c
-> @@ -160,9 +160,9 @@ static struct kvec *get_conn_iovec(struct tcp_transport *t, unsigned int nr_segs
->   	return new_iov;
->   }
->   
-> -static unsigned short ksmbd_tcp_get_port(const struct sockaddr *sa)
-> +static unsigned short ksmbd_tcp_get_port(const struct sockaddr_storage *sa)
->   {
-> -	switch (sa->sa_family) {
-> +	switch (sa->ss_family) {
->   	case AF_INET:
->   		return ntohs(((struct sockaddr_in *)sa)->sin_port);
->   	case AF_INET6:
-> @@ -182,7 +182,7 @@ static unsigned short ksmbd_tcp_get_port(const struct sockaddr *sa)
->    */
->   static int ksmbd_tcp_new_connection(struct socket *client_sk)
->   {
-> -	struct sockaddr *csin;
-> +	struct sockaddr_storage *csin;
->   	int rc = 0;
->   	struct tcp_transport *t;
->   	struct task_struct *handler;
-> diff --git a/include/linux/net.h b/include/linux/net.h
-> index b75bc534c1b3..e31baa3fb360 100644
-> --- a/include/linux/net.h
-> +++ b/include/linux/net.h
-> @@ -175,7 +175,7 @@ struct proto_ops {
->   				      struct socket *newsock,
->   				      struct proto_accept_arg *arg);
->   	int		(*getname)   (struct socket *sock,
-> -				      struct sockaddr *addr,
-> +				      struct sockaddr_storage *addr,
->   				      int peer);
->   	__poll_t	(*poll)	     (struct file *file, struct socket *sock,
->   				      struct poll_table_struct *wait);
-> @@ -353,8 +353,8 @@ int kernel_listen(struct socket *sock, int backlog);
->   int kernel_accept(struct socket *sock, struct socket **newsock, int flags);
->   int kernel_connect(struct socket *sock, struct sockaddr *addr, int addrlen,
->   		   int flags);
-> -int kernel_getsockname(struct socket *sock, struct sockaddr *addr);
-> -int kernel_getpeername(struct socket *sock, struct sockaddr *addr);
-> +int kernel_getsockname(struct socket *sock, struct sockaddr_storage *addr);
-> +int kernel_getpeername(struct socket *sock, struct sockaddr_storage *addr);
->   int kernel_sock_shutdown(struct socket *sock, enum sock_shutdown_cmd how);
->   
->   /* Routine returns the IP overhead imposed by a (caller-protected) socket. */
-> diff --git a/include/linux/sunrpc/clnt.h b/include/linux/sunrpc/clnt.h
-> index 5321585c778f..8f29cede4ff3 100644
-> --- a/include/linux/sunrpc/clnt.h
-> +++ b/include/linux/sunrpc/clnt.h
-> @@ -223,8 +223,8 @@ unsigned int	rpc_num_bc_slots(struct rpc_clnt *);
->   void		rpc_force_rebind(struct rpc_clnt *);
->   size_t		rpc_peeraddr(struct rpc_clnt *, struct sockaddr *, size_t);
->   const char	*rpc_peeraddr2str(struct rpc_clnt *, enum rpc_display_format_t);
-> -int		rpc_localaddr(struct rpc_clnt *, struct sockaddr *, size_t);
-> -
-> +int		rpc_localaddr(struct rpc_clnt *clnt, struct sockaddr_storage *buf,
-> +			      size_t buflen);
->   int 		rpc_clnt_iterate_for_each_xprt(struct rpc_clnt *clnt,
->   			int (*fn)(struct rpc_clnt *, struct rpc_xprt *, void *),
->   			void *data);
-> diff --git a/include/net/inet_common.h b/include/net/inet_common.h
-> index c17a6585d0b0..2bc95e0171e7 100644
-> --- a/include/net/inet_common.h
-> +++ b/include/net/inet_common.h
-> @@ -54,7 +54,7 @@ int inet_bind_sk(struct sock *sk, struct sockaddr *uaddr, int addr_len);
->   #define BIND_NO_CAP_NET_BIND_SERVICE	(1 << 3)
->   int __inet_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
->   		u32 flags);
-> -int inet_getname(struct socket *sock, struct sockaddr *uaddr,
-> +int inet_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   		 int peer);
->   int inet_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
->   int inet_ctl_sock_create(struct sock **sk, unsigned short family,
-> diff --git a/include/net/ipv6.h b/include/net/ipv6.h
-> index 248bfb26e2af..e0ee07a8486e 100644
-> --- a/include/net/ipv6.h
-> +++ b/include/net/ipv6.h
-> @@ -1214,7 +1214,7 @@ void inet6_sock_destruct(struct sock *sk);
->   int inet6_release(struct socket *sock);
->   int inet6_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len);
->   int inet6_bind_sk(struct sock *sk, struct sockaddr *uaddr, int addr_len);
-> -int inet6_getname(struct socket *sock, struct sockaddr *uaddr,
-> +int inet6_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   		  int peer);
->   int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
->   int inet6_compat_ioctl(struct socket *sock, unsigned int cmd,
-> diff --git a/include/net/sock.h b/include/net/sock.h
-> index 7464e9f9f47c..647edced2a51 100644
-> --- a/include/net/sock.h
-> +++ b/include/net/sock.h
-> @@ -1837,7 +1837,8 @@ int sock_no_bind(struct socket *, struct sockaddr *, int);
->   int sock_no_connect(struct socket *, struct sockaddr *, int, int);
->   int sock_no_socketpair(struct socket *, struct socket *);
->   int sock_no_accept(struct socket *, struct socket *, struct proto_accept_arg *);
-> -int sock_no_getname(struct socket *, struct sockaddr *, int);
-> +int sock_no_getname(struct socket *sock, struct sockaddr_storage *saddr,
-> +		    int peer);
->   int sock_no_ioctl(struct socket *, unsigned int, unsigned long);
->   int sock_no_listen(struct socket *, int);
->   int sock_no_shutdown(struct socket *, int);
-> diff --git a/net/appletalk/ddp.c b/net/appletalk/ddp.c
-> index b068651984fe..b0a5137e9dce 100644
-> --- a/net/appletalk/ddp.c
-> +++ b/net/appletalk/ddp.c
-> @@ -1258,7 +1258,7 @@ static int atalk_connect(struct socket *sock, struct sockaddr *uaddr,
->    * Find the name of an AppleTalk socket. Just copy the right
->    * fields into the sockaddr.
->    */
-> -static int atalk_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int atalk_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			 int peer)
->   {
->   	struct sockaddr_at sat;
-> diff --git a/net/atm/pvc.c b/net/atm/pvc.c
-> index 66d9a9bd5896..897b82de7a5b 100644
-> --- a/net/atm/pvc.c
-> +++ b/net/atm/pvc.c
-> @@ -86,7 +86,7 @@ static int pvc_getsockopt(struct socket *sock, int level, int optname,
->   	return error;
->   }
->   
-> -static int pvc_getname(struct socket *sock, struct sockaddr *sockaddr,
-> +static int pvc_getname(struct socket *sock, struct sockaddr_storage *sockaddr,
->   		       int peer)
->   {
->   	struct sockaddr_atmpvc *addr;
-> diff --git a/net/atm/svc.c b/net/atm/svc.c
-> index f8137ae693b0..b02f5833cc9a 100644
-> --- a/net/atm/svc.c
-> +++ b/net/atm/svc.c
-> @@ -423,7 +423,7 @@ static int svc_accept(struct socket *sock, struct socket *newsock,
->   	return error;
->   }
->   
-> -static int svc_getname(struct socket *sock, struct sockaddr *sockaddr,
-> +static int svc_getname(struct socket *sock, struct sockaddr_storage *sockaddr,
->   		       int peer)
->   {
->   	struct sockaddr_atmsvc *addr;
-> diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-> index d6f9fae06a9d..82edd9d8a8f6 100644
-> --- a/net/ax25/af_ax25.c
-> +++ b/net/ax25/af_ax25.c
-> @@ -1447,8 +1447,8 @@ static int ax25_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int ax25_getname(struct socket *sock, struct sockaddr *uaddr,
-> -	int peer)
-> +static int ax25_getname(struct socket *sock, struct sockaddr_storage *uaddr,
-> +			int peer)
->   {
->   	struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)uaddr;
->   	struct sock *sk = sock->sk;
-> diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-> index 2272e1849ebd..3fe844460fc4 100644
-> --- a/net/bluetooth/hci_sock.c
-> +++ b/net/bluetooth/hci_sock.c
-> @@ -1478,7 +1478,7 @@ static int hci_sock_bind(struct socket *sock, struct sockaddr *addr,
->   	return err;
->   }
->   
-> -static int hci_sock_getname(struct socket *sock, struct sockaddr *addr,
-> +static int hci_sock_getname(struct socket *sock, struct sockaddr_storage *addr,
->   			    int peer)
->   {
->   	struct sockaddr_hci *haddr = (struct sockaddr_hci *)addr;
-> diff --git a/net/bluetooth/iso.c b/net/bluetooth/iso.c
-> index 1b40fd2b2f02..37696247b9a8 100644
-> --- a/net/bluetooth/iso.c
-> +++ b/net/bluetooth/iso.c
-> @@ -1273,15 +1273,15 @@ static int iso_sock_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int iso_sock_getname(struct socket *sock, struct sockaddr *addr,
-> -			    int peer)
-> +static int iso_sock_getname(struct socket *sock,
-> +			    struct sockaddr_storage *addr, int peer)
->   {
->   	struct sockaddr_iso *sa = (struct sockaddr_iso *)addr;
->   	struct sock *sk = sock->sk;
->   
->   	BT_DBG("sock %p, sk %p", sock, sk);
->   
-> -	addr->sa_family = AF_BLUETOOTH;
-> +	sa->iso_family = AF_BLUETOOTH;
->   
->   	if (peer) {
->   		bacpy(&sa->iso_bdaddr, &iso_pi(sk)->dst);
-> diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-> index 18e89e764f3b..799b2991ab17 100644
-> --- a/net/bluetooth/l2cap_sock.c
-> +++ b/net/bluetooth/l2cap_sock.c
-> @@ -382,8 +382,8 @@ static int l2cap_sock_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int l2cap_sock_getname(struct socket *sock, struct sockaddr *addr,
-> -			      int peer)
-> +static int l2cap_sock_getname(struct socket *sock,
-> +			      struct sockaddr_storage *addr, int peer)
->   {
->   	struct sockaddr_l2 *la = (struct sockaddr_l2 *) addr;
->   	struct sock *sk = sock->sk;
-> @@ -397,7 +397,7 @@ static int l2cap_sock_getname(struct socket *sock, struct sockaddr *addr,
->   		return -ENOTCONN;
->   
->   	memset(la, 0, sizeof(struct sockaddr_l2));
-> -	addr->sa_family = AF_BLUETOOTH;
-> +	la->l2_family = AF_BLUETOOTH;
->   
->   	la->l2_psm = chan->psm;
->   
-> diff --git a/net/bluetooth/rfcomm/sock.c b/net/bluetooth/rfcomm/sock.c
-> index 40766f8119ed..167a95f446da 100644
-> --- a/net/bluetooth/rfcomm/sock.c
-> +++ b/net/bluetooth/rfcomm/sock.c
-> @@ -529,7 +529,8 @@ static int rfcomm_sock_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int rfcomm_sock_getname(struct socket *sock, struct sockaddr *addr, int peer)
-> +static int rfcomm_sock_getname(struct socket *sock, struct sockaddr_storage *addr,
-> +			       int peer)
->   {
->   	struct sockaddr_rc *sa = (struct sockaddr_rc *) addr;
->   	struct sock *sk = sock->sk;
-> diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-> index 78f7bca24487..a828bc2990d0 100644
-> --- a/net/bluetooth/sco.c
-> +++ b/net/bluetooth/sco.c
-> @@ -750,15 +750,15 @@ static int sco_sock_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int sco_sock_getname(struct socket *sock, struct sockaddr *addr,
-> -			    int peer)
-> +static int sco_sock_getname(struct socket *sock,
-> +			    struct sockaddr_storage *addr, int peer)
->   {
->   	struct sockaddr_sco *sa = (struct sockaddr_sco *) addr;
->   	struct sock *sk = sock->sk;
->   
->   	BT_DBG("sock %p, sk %p", sock, sk);
->   
-> -	addr->sa_family = AF_BLUETOOTH;
-> +	sa->sco_family = AF_BLUETOOTH;
->   
->   	if (peer)
->   		bacpy(&sa->sco_bdaddr, &sco_pi(sk)->dst);
-> diff --git a/net/can/isotp.c b/net/can/isotp.c
-> index 16046931542a..5afb88885548 100644
-> --- a/net/can/isotp.c
-> +++ b/net/can/isotp.c
-> @@ -1352,7 +1352,8 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
->   	return err;
->   }
->   
-> -static int isotp_getname(struct socket *sock, struct sockaddr *uaddr, int peer)
-> +static int isotp_getname(struct socket *sock, struct sockaddr_storage *uaddr,
-> +			 int peer)
->   {
->   	struct sockaddr_can *addr = (struct sockaddr_can *)uaddr;
->   	struct sock *sk = sock->sk;
-> diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-> index 305dd72c844c..66ea829811ab 100644
-> --- a/net/can/j1939/socket.c
-> +++ b/net/can/j1939/socket.c
-> @@ -598,7 +598,7 @@ static void j1939_sk_sock2sockaddr_can(struct sockaddr_can *addr,
->   	}
->   }
->   
-> -static int j1939_sk_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int j1939_sk_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			    int peer)
->   {
->   	struct sockaddr_can *addr = (struct sockaddr_can *)uaddr;
-> diff --git a/net/can/raw.c b/net/can/raw.c
-> index 255c0a8f39d6..551aec0e321e 100644
-> --- a/net/can/raw.c
-> +++ b/net/can/raw.c
-> @@ -530,7 +530,7 @@ static int raw_bind(struct socket *sock, struct sockaddr *uaddr, int len)
->   	return err;
->   }
->   
-> -static int raw_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int raw_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   		       int peer)
->   {
->   	struct sockaddr_can *addr = (struct sockaddr_can *)uaddr;
-> diff --git a/net/core/sock.c b/net/core/sock.c
-> index 74729d20cd00..fd6d42512530 100644
-> --- a/net/core/sock.c
-> +++ b/net/core/sock.c
-> @@ -1909,7 +1909,7 @@ int sk_getsockopt(struct sock *sk, int level, int optname,
->   	{
->   		struct sockaddr_storage address;
->   
-> -		lv = READ_ONCE(sock->ops)->getname(sock, (struct sockaddr *)&address, 2);
-> +		lv = READ_ONCE(sock->ops)->getname(sock, &address, 2);
->   		if (lv < 0)
->   			return -ENOTCONN;
->   		if (lv < len)
-> @@ -3348,7 +3348,7 @@ int sock_no_accept(struct socket *sock, struct socket *newsock,
->   }
->   EXPORT_SYMBOL(sock_no_accept);
->   
-> -int sock_no_getname(struct socket *sock, struct sockaddr *saddr,
-> +int sock_no_getname(struct socket *sock, struct sockaddr_storage *saddr,
->   		    int peer)
->   {
->   	return -EOPNOTSUPP;
-> diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-> index 8095e82de808..1ebe2ebe9f22 100644
-> --- a/net/ipv4/af_inet.c
-> +++ b/net/ipv4/af_inet.c
-> @@ -792,7 +792,7 @@ EXPORT_SYMBOL(inet_accept);
->   /*
->    *	This does both peername and sockname.
->    */
-> -int inet_getname(struct socket *sock, struct sockaddr *uaddr,
-> +int inet_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   		 int peer)
->   {
->   	struct sock *sk		= sock->sk;
-> diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-> index f60ec8b0f8ea..78d29dbeda1c 100644
-> --- a/net/ipv6/af_inet6.c
-> +++ b/net/ipv6/af_inet6.c
-> @@ -518,7 +518,7 @@ EXPORT_SYMBOL_GPL(inet6_cleanup_sock);
->   /*
->    *	This does both peername and sockname.
->    */
-> -int inet6_getname(struct socket *sock, struct sockaddr *uaddr,
-> +int inet6_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   		  int peer)
->   {
->   	struct sockaddr_in6 *sin = (struct sockaddr_in6 *)uaddr;
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index 7929df08d4e0..2612382e1a48 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -848,14 +848,14 @@ static int iucv_sock_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int iucv_sock_getname(struct socket *sock, struct sockaddr *addr,
-> -			     int peer)
-> +static int iucv_sock_getname(struct socket *sock,
-> +			     struct sockaddr_storage *addr, int peer)
->   {
->   	DECLARE_SOCKADDR(struct sockaddr_iucv *, siucv, addr);
->   	struct sock *sk = sock->sk;
->   	struct iucv_sock *iucv = iucv_sk(sk);
->   
-> -	addr->sa_family = AF_IUCV;
-> +	siucv->sa_family = AF_IUCV;
->   
->   	if (peer) {
->   		memcpy(siucv->siucv_user_id, iucv->dst_user_id, 8);
-> diff --git a/net/l2tp/l2tp_ip.c b/net/l2tp/l2tp_ip.c
-> index 4bc24fddfd52..ed92eabb8552 100644
-> --- a/net/l2tp/l2tp_ip.c
-> +++ b/net/l2tp/l2tp_ip.c
-> @@ -373,7 +373,7 @@ static int l2tp_ip_disconnect(struct sock *sk, int flags)
->   	return __udp_disconnect(sk, flags);
->   }
->   
-> -static int l2tp_ip_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int l2tp_ip_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			   int peer)
->   {
->   	struct sock *sk		= sock->sk;
-> diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-> index f4c1da070826..59a5e74b2561 100644
-> --- a/net/l2tp/l2tp_ip6.c
-> +++ b/net/l2tp/l2tp_ip6.c
-> @@ -443,7 +443,7 @@ static int l2tp_ip6_disconnect(struct sock *sk, int flags)
->   	return __udp_disconnect(sk, flags);
->   }
->   
-> -static int l2tp_ip6_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int l2tp_ip6_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			    int peer)
->   {
->   	struct sockaddr_l2tpip6 *lsa = (struct sockaddr_l2tpip6 *)uaddr;
-> diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
-> index 53baf2dd5d5d..ae1536ed5a5b 100644
-> --- a/net/l2tp/l2tp_ppp.c
-> +++ b/net/l2tp/l2tp_ppp.c
-> @@ -886,7 +886,7 @@ static int pppol2tp_session_create(struct net *net, struct l2tp_tunnel *tunnel,
->   
->   /* getname() support.
->    */
-> -static int pppol2tp_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int pppol2tp_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			    int peer)
->   {
->   	int len = 0;
-> diff --git a/net/llc/af_llc.c b/net/llc/af_llc.c
-> index 0259cde394ba..12c0b14e1ef6 100644
-> --- a/net/llc/af_llc.c
-> +++ b/net/llc/af_llc.c
-> @@ -1023,7 +1023,7 @@ static int llc_ui_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
->    *
->    *	Return the address information of a socket.
->    */
-> -static int llc_ui_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int llc_ui_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			  int peer)
->   {
->   	struct sockaddr_llc sllc;
-> diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-> index f4e7b5e4bb59..64ec9293136f 100644
-> --- a/net/netlink/af_netlink.c
-> +++ b/net/netlink/af_netlink.c
-> @@ -1113,8 +1113,8 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
->   	return err;
->   }
->   
-> -static int netlink_getname(struct socket *sock, struct sockaddr *addr,
-> -			   int peer)
-> +static int netlink_getname(struct socket *sock,
-> +			   struct sockaddr_storage *addr, int peer)
->   {
->   	struct sock *sk = sock->sk;
->   	struct netlink_sock *nlk = nlk_sk(sk);
-> diff --git a/net/netrom/af_netrom.c b/net/netrom/af_netrom.c
-> index 6ee148f0e6d0..f845c0a56b75 100644
-> --- a/net/netrom/af_netrom.c
-> +++ b/net/netrom/af_netrom.c
-> @@ -835,8 +835,8 @@ static int nr_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int nr_getname(struct socket *sock, struct sockaddr *uaddr,
-> -	int peer)
-> +static int nr_getname(struct socket *sock, struct sockaddr_storage *uaddr,
-> +		      int peer)
->   {
->   	struct full_sockaddr_ax25 *sax = (struct full_sockaddr_ax25 *)uaddr;
->   	struct sock *sk = sock->sk;
-> diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c
-> index 57a2f97004e1..1ba19e542320 100644
-> --- a/net/nfc/llcp_sock.c
-> +++ b/net/nfc/llcp_sock.c
-> @@ -500,8 +500,8 @@ static int llcp_sock_accept(struct socket *sock, struct socket *newsock,
->   	return ret;
->   }
->   
-> -static int llcp_sock_getname(struct socket *sock, struct sockaddr *uaddr,
-> -			     int peer)
-> +static int llcp_sock_getname(struct socket *sock,
-> +			     struct sockaddr_storage *uaddr, int peer)
->   {
->   	struct sock *sk = sock->sk;
->   	struct nfc_llcp_sock *llcp_sock = nfc_llcp_sock(sk);
-> diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-> index 886c0dd47b66..3661476920af 100644
-> --- a/net/packet/af_packet.c
-> +++ b/net/packet/af_packet.c
-> @@ -3640,27 +3640,28 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
->   	return err;
->   }
->   
-> -static int packet_getname_spkt(struct socket *sock, struct sockaddr *uaddr,
-> -			       int peer)
-> +static int packet_getname_spkt(struct socket *sock,
-> +			       struct sockaddr_storage *uaddr, int peer)
->   {
-> +	struct sockaddr *addr = (struct sockaddr *)uaddr;
->   	struct net_device *dev;
->   	struct sock *sk	= sock->sk;
->   
->   	if (peer)
->   		return -EOPNOTSUPP;
->   
-> -	uaddr->sa_family = AF_PACKET;
-> -	memset(uaddr->sa_data, 0, sizeof(uaddr->sa_data_min));
-> +	addr->sa_family = AF_PACKET;
-> +	memset(addr->sa_data, 0, sizeof(addr->sa_data_min));
->   	rcu_read_lock();
->   	dev = dev_get_by_index_rcu(sock_net(sk), READ_ONCE(pkt_sk(sk)->ifindex));
->   	if (dev)
-> -		strscpy(uaddr->sa_data, dev->name, sizeof(uaddr->sa_data_min));
-> +		strscpy(addr->sa_data, dev->name, sizeof(addr->sa_data_min));
->   	rcu_read_unlock();
->   
-> -	return sizeof(*uaddr);
-> +	return sizeof(*addr);
->   }
->   
-> -static int packet_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int packet_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			  int peer)
->   {
->   	struct net_device *dev;
-> diff --git a/net/phonet/socket.c b/net/phonet/socket.c
-> index 5ce0b3ee5def..711c70cc110a 100644
-> --- a/net/phonet/socket.c
-> +++ b/net/phonet/socket.c
-> @@ -311,17 +311,17 @@ static int pn_socket_accept(struct socket *sock, struct socket *newsock,
->   	return 0;
->   }
->   
-> -static int pn_socket_getname(struct socket *sock, struct sockaddr *addr,
-> -				int peer)
-> +static int pn_socket_getname(struct socket *sock,
-> +			     struct sockaddr_storage *uaddr, int peer)
->   {
-> +	struct sockaddr_pn *addr = (struct sockaddr_pn *)uaddr;
->   	struct sock *sk = sock->sk;
->   	struct pn_sock *pn = pn_sk(sk);
->   
->   	memset(addr, 0, sizeof(struct sockaddr_pn));
-> -	addr->sa_family = AF_PHONET;
-> +	addr->spn_family = AF_PHONET;
->   	if (!peer) /* Race with bind() here is userland's problem. */
-> -		pn_sockaddr_set_object((struct sockaddr_pn *)addr,
-> -					pn->sobject);
-> +		pn_sockaddr_set_object(addr, pn->sobject);
->   
->   	return sizeof(struct sockaddr_pn);
->   }
-> diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
-> index 00c51cf693f3..836c9a4a2119 100644
-> --- a/net/qrtr/af_qrtr.c
-> +++ b/net/qrtr/af_qrtr.c
-> @@ -1115,7 +1115,7 @@ static int qrtr_connect(struct socket *sock, struct sockaddr *saddr,
->   	return 0;
->   }
->   
-> -static int qrtr_getname(struct socket *sock, struct sockaddr *saddr,
-> +static int qrtr_getname(struct socket *sock, struct sockaddr_storage *saddr,
->   			int peer)
->   {
->   	struct qrtr_sock *ipc = qrtr_sk(sock->sk);
-> diff --git a/net/qrtr/ns.c b/net/qrtr/ns.c
-> index 3de9350cbf30..0409983eb9fb 100644
-> --- a/net/qrtr/ns.c
-> +++ b/net/qrtr/ns.c
-> @@ -697,7 +697,7 @@ int qrtr_ns_init(void)
->   	if (ret < 0)
->   		return ret;
->   
-> -	ret = kernel_getsockname(qrtr_ns.sock, (struct sockaddr *)&sq);
-> +	ret = kernel_getsockname(qrtr_ns.sock, (struct sockaddr_storage *)&sq);
->   	if (ret < 0) {
->   		pr_err("failed to get socket name\n");
->   		goto err_sock;
-> diff --git a/net/rds/af_rds.c b/net/rds/af_rds.c
-> index 8435a20968ef..6d0cef028454 100644
-> --- a/net/rds/af_rds.c
-> +++ b/net/rds/af_rds.c
-> @@ -111,7 +111,7 @@ void rds_wake_sk_sleep(struct rds_sock *rs)
->   	read_unlock_irqrestore(&rs->rs_recv_lock, flags);
->   }
->   
-> -static int rds_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int rds_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   		       int peer)
->   {
->   	struct rds_sock *rs = rds_sk_to_rs(sock->sk);
-> diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
-> index 59050caab65c..0260a5862cf7 100644
-> --- a/net/rose/af_rose.c
-> +++ b/net/rose/af_rose.c
-> @@ -984,8 +984,8 @@ static int rose_accept(struct socket *sock, struct socket *newsock,
->   	return err;
->   }
->   
-> -static int rose_getname(struct socket *sock, struct sockaddr *uaddr,
-> -	int peer)
-> +static int rose_getname(struct socket *sock, struct sockaddr_storage *uaddr,
-> +			int peer)
->   {
->   	struct full_sockaddr_rose *srose = (struct full_sockaddr_rose *)uaddr;
->   	struct sock *sk = sock->sk;
-> diff --git a/net/sctp/ipv6.c b/net/sctp/ipv6.c
-> index a9ed2ccab1bd..2d8decaae609 100644
-> --- a/net/sctp/ipv6.c
-> +++ b/net/sctp/ipv6.c
-> @@ -1065,7 +1065,7 @@ static int sctp_inet6_supported_addrs(const struct sctp_sock *opt,
->   }
->   
->   /* Handle SCTP_I_WANT_MAPPED_V4_ADDR for getpeername() and getsockname() */
-> -static int sctp_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int sctp_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			int peer)
->   {
->   	int rc;
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 9e6c69d18581..5d44d2392268 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -2741,7 +2741,7 @@ int smc_accept(struct socket *sock, struct socket *new_sock,
->   	return rc;
->   }
->   
-> -int smc_getname(struct socket *sock, struct sockaddr *addr,
-> +int smc_getname(struct socket *sock, struct sockaddr_storage *addr,
->   		int peer)
->   {
->   	struct smc_sock *smc;
-> diff --git a/net/smc/smc.h b/net/smc/smc.h
-> index 78ae10d06ed2..24260f4e6830 100644
-> --- a/net/smc/smc.h
-> +++ b/net/smc/smc.h
-> @@ -48,7 +48,7 @@ int smc_connect(struct socket *sock, struct sockaddr *addr,
->   		int alen, int flags);
->   int smc_accept(struct socket *sock, struct socket *new_sock,
->   	       struct proto_accept_arg *arg);
-> -int smc_getname(struct socket *sock, struct sockaddr *addr,
-> +int smc_getname(struct socket *sock, struct sockaddr_storage *addr,
->   		int peer);
->   __poll_t smc_poll(struct file *file, struct socket *sock,
->   		  poll_table *wait);
-> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-> index 33fa787c28eb..6eeb5decc51e 100644
-> --- a/net/smc/smc_clc.c
-> +++ b/net/smc/smc_clc.c
-> @@ -571,7 +571,7 @@ static int smc_clc_prfx_set(struct socket *clcsock,
->   		goto out_rel;
->   	}
->   	/* get address to which the internal TCP socket is bound */
-> -	if (kernel_getsockname(clcsock, (struct sockaddr *)&addrs) < 0)
-> +	if (kernel_getsockname(clcsock, &addrs) < 0)
->   		goto out_rel;
->   	/* analyze IP specific data of net_device belonging to TCP socket */
->   	addr6 = (struct sockaddr_in6 *)&addrs;
-> diff --git a/net/socket.c b/net/socket.c
-> index 9a117248f18f..b10f2b3f4054 100644
-> --- a/net/socket.c
-> +++ b/net/socket.c
-> @@ -1943,7 +1943,7 @@ struct file *do_accept(struct file *file, struct proto_accept_arg *arg,
->   		goto out_fd;
->   
->   	if (upeer_sockaddr) {
-> -		len = ops->getname(newsock, (struct sockaddr *)&address, 2);
-> +		len = ops->getname(newsock, &address, 2);
->   		if (len < 0) {
->   			err = -ECONNABORTED;
->   			goto out_fd;
-> @@ -2103,7 +2103,7 @@ int __sys_getsockname(int fd, struct sockaddr __user *usockaddr,
->   	if (err)
->   		return err;
->   
-> -	err = READ_ONCE(sock->ops)->getname(sock, (struct sockaddr *)&address, 0);
-> +	err = READ_ONCE(sock->ops)->getname(sock, &address, 0);
->   	if (err < 0)
->   		return err;
->   
-> @@ -2140,7 +2140,7 @@ int __sys_getpeername(int fd, struct sockaddr __user *usockaddr,
->   	if (err)
->   		return err;
->   
-> -	err = READ_ONCE(sock->ops)->getname(sock, (struct sockaddr *)&address, 1);
-> +	err = READ_ONCE(sock->ops)->getname(sock, &address, 1);
->   	if (err < 0)
->   		return err;
->   
-> @@ -3636,7 +3636,7 @@ EXPORT_SYMBOL(kernel_connect);
->    *	Returns the length of the address in bytes or an error code.
->    */
->   
-> -int kernel_getsockname(struct socket *sock, struct sockaddr *addr)
-> +int kernel_getsockname(struct socket *sock, struct sockaddr_storage *addr)
->   {
->   	return READ_ONCE(sock->ops)->getname(sock, addr, 0);
->   }
-> @@ -3651,7 +3651,7 @@ EXPORT_SYMBOL(kernel_getsockname);
->    *	Returns the length of the address in bytes or an error code.
->    */
->   
-> -int kernel_getpeername(struct socket *sock, struct sockaddr *addr)
-> +int kernel_getpeername(struct socket *sock, struct sockaddr_storage *addr)
->   {
->   	return READ_ONCE(sock->ops)->getname(sock, addr, 1);
->   }
-> diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-> index 0090162ee8c3..8af253f5ad08 100644
-> --- a/net/sunrpc/clnt.c
-> +++ b/net/sunrpc/clnt.c
-> @@ -1445,7 +1445,7 @@ static const struct sockaddr_in6 rpc_in6addr_loopback = {
->    * negative errno is returned.
->    */
->   static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
-> -			struct sockaddr *buf)
-> +			struct sockaddr_storage *buf)
->   {
->   	struct socket *sock;
->   	int err;
-> @@ -1490,7 +1490,7 @@ static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
->   	}
->   
->   	err = 0;
-> -	if (buf->sa_family == AF_INET6) {
-> +	if (buf->ss_family == AF_INET6) {
->   		struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)buf;
->   		sin6->sin6_scope_id = 0;
->   	}
-> @@ -1510,7 +1510,7 @@ static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
->    * Returns zero and fills in "buf" if successful; otherwise, a
->    * negative errno is returned.
->    */
-> -static int rpc_anyaddr(int family, struct sockaddr *buf, size_t buflen)
-> +static int rpc_anyaddr(int family, struct sockaddr_storage *buf, size_t buflen)
->   {
->   	switch (family) {
->   	case AF_INET:
-> @@ -1550,7 +1550,8 @@ static int rpc_anyaddr(int family, struct sockaddr *buf, size_t buflen)
->    * succession may give different results, depending on how local
->    * networking configuration changes over time.
->    */
-> -int rpc_localaddr(struct rpc_clnt *clnt, struct sockaddr *buf, size_t buflen)
-> +int rpc_localaddr(struct rpc_clnt *clnt, struct sockaddr_storage *buf,
-> +		  size_t buflen)
->   {
->   	struct sockaddr_storage address;
->   	struct sockaddr *sap = (struct sockaddr *)&address;
-> diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-> index 95397677673b..b062fadb2e6b 100644
-> --- a/net/sunrpc/svcsock.c
-> +++ b/net/sunrpc/svcsock.c
-> @@ -903,7 +903,7 @@ static struct svc_xprt *svc_tcp_accept(struct svc_xprt *xprt)
->   
->   	set_bit(XPT_CONN, &svsk->sk_xprt.xpt_flags);
->   
-> -	err = kernel_getpeername(newsock, sin);
-> +	err = kernel_getpeername(newsock, &addr);
->   	if (err < 0) {
->   		trace_svcsock_getpeername_err(xprt, serv->sv_name, err);
->   		goto failed;		/* aborted connection or whatever */
-> @@ -925,7 +925,7 @@ static struct svc_xprt *svc_tcp_accept(struct svc_xprt *xprt)
->   	if (IS_ERR(newsvsk))
->   		goto failed;
->   	svc_xprt_set_remote(&newsvsk->sk_xprt, sin, slen);
-> -	err = kernel_getsockname(newsock, sin);
-> +	err = kernel_getsockname(newsock, &addr);
->   	slen = err;
->   	if (unlikely(err < 0))
->   		slen = offsetof(struct sockaddr, sa_data);
-> @@ -1478,7 +1478,7 @@ int svc_addsock(struct svc_serv *serv, struct net *net, const int fd,
->   		err = PTR_ERR(svsk);
->   		goto out;
->   	}
-> -	salen = kernel_getsockname(svsk->sk_sock, sin);
-> +	salen = kernel_getsockname(svsk->sk_sock, &addr);
->   	if (salen >= 0)
->   		svc_xprt_set_local(&svsk->sk_xprt, sin, salen);
->   	svsk->sk_xprt.xpt_cred = get_cred(cred);
-> @@ -1545,7 +1545,7 @@ static struct svc_xprt *svc_create_socket(struct svc_serv *serv,
->   	if (error < 0)
->   		goto bummer;
->   
-> -	error = kernel_getsockname(sock, newsin);
-> +	error = kernel_getsockname(sock, &addr);
->   	if (error < 0)
->   		goto bummer;
->   	newlen = error;
-> diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-> index c60936d8cef7..735c3c1d2bdf 100644
-> --- a/net/sunrpc/xprtsock.c
-> +++ b/net/sunrpc/xprtsock.c
-> @@ -1710,7 +1710,7 @@ static unsigned short xs_sock_getport(struct socket *sock)
->   	struct sockaddr_storage buf;
->   	unsigned short port = 0;
->   
-> -	if (kernel_getsockname(sock, (struct sockaddr *)&buf) < 0)
-> +	if (kernel_getsockname(sock, &buf) < 0)
->   		goto out;
->   	switch (buf.ss_family) {
->   	case AF_INET6:
-> @@ -1779,7 +1779,7 @@ static int xs_sock_srcaddr(struct rpc_xprt *xprt, char *buf, size_t buflen)
->   
->   	mutex_lock(&sock->recv_mutex);
->   	if (sock->sock) {
-> -		ret = kernel_getsockname(sock->sock, &saddr.sa);
-> +		ret = kernel_getsockname(sock->sock, &saddr.st);
->   		if (ret >= 0)
->   			ret = snprintf(buf, buflen, "%pISc", &saddr.sa);
->   	}
-> diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-> index 65dcbb54f55d..56f609c7f2a6 100644
-> --- a/net/tipc/socket.c
-> +++ b/net/tipc/socket.c
-> @@ -741,7 +741,7 @@ static int tipc_bind(struct socket *sock, struct sockaddr *skaddr, int alen)
->    *       accesses socket information that is unchanging (or which changes in
->    *       a completely predictable manner).
->    */
-> -static int tipc_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int tipc_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   			int peer)
->   {
->   	struct sockaddr_tipc *addr = (struct sockaddr_tipc *)uaddr;
-> diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-> index 001ccc55ef0f..0f71ed2f35e7 100644
-> --- a/net/unix/af_unix.c
-> +++ b/net/unix/af_unix.c
-> @@ -813,7 +813,7 @@ static int unix_stream_connect(struct socket *, struct sockaddr *,
->   			       int addr_len, int flags);
->   static int unix_socketpair(struct socket *, struct socket *);
->   static int unix_accept(struct socket *, struct socket *, struct proto_accept_arg *arg);
-> -static int unix_getname(struct socket *, struct sockaddr *, int);
-> +static int unix_getname(struct socket *, struct sockaddr_storage *, int);
->   static __poll_t unix_poll(struct file *, struct socket *, poll_table *);
->   static __poll_t unix_dgram_poll(struct file *, struct socket *,
->   				    poll_table *);
-> @@ -1789,7 +1789,8 @@ static int unix_accept(struct socket *sock, struct socket *newsock,
->   }
->   
->   
-> -static int unix_getname(struct socket *sock, struct sockaddr *uaddr, int peer)
-> +static int unix_getname(struct socket *sock, struct sockaddr_storage *uaddr,
-> +			int peer)
->   {
->   	struct sock *sk = sock->sk;
->   	struct unix_address *addr;
-> @@ -1817,10 +1818,10 @@ static int unix_getname(struct socket *sock, struct sockaddr *uaddr, int peer)
->   		memcpy(sunaddr, addr->name, addr->len);
->   
->   		if (peer)
-> -			BPF_CGROUP_RUN_SA_PROG(sk, uaddr, &err,
-> +			BPF_CGROUP_RUN_SA_PROG(sk, (struct sockaddr *)uaddr, &err,
->   					       CGROUP_UNIX_GETPEERNAME);
->   		else
-> -			BPF_CGROUP_RUN_SA_PROG(sk, uaddr, &err,
-> +			BPF_CGROUP_RUN_SA_PROG(sk, (struct sockaddr *)uaddr, &err,
->   					       CGROUP_UNIX_GETSOCKNAME);
->   	}
->   	sock_put(sk);
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 5cf8109f672a..6b51ee9cb8d3 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -943,7 +943,7 @@ vsock_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
->   }
->   
->   static int vsock_getname(struct socket *sock,
-> -			 struct sockaddr *addr, int peer)
-> +			 struct sockaddr_storage *addr, int peer)
->   {
->   	int err;
->   	struct sock *sk;
-> diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-> index 8dda4178497c..f97876d30935 100644
-> --- a/net/x25/af_x25.c
-> +++ b/net/x25/af_x25.c
-> @@ -913,7 +913,7 @@ static int x25_accept(struct socket *sock, struct socket *newsock,
->   	return rc;
->   }
->   
-> -static int x25_getname(struct socket *sock, struct sockaddr *uaddr,
-> +static int x25_getname(struct socket *sock, struct sockaddr_storage *uaddr,
->   		       int peer)
->   {
->   	struct sockaddr_x25 *sx25 = (struct sockaddr_x25 *)uaddr;
-> diff --git a/security/tomoyo/network.c b/security/tomoyo/network.c
-> index 8dc61335f65e..450fd7a37ca4 100644
-> --- a/security/tomoyo/network.c
-> +++ b/security/tomoyo/network.c
-> @@ -658,8 +658,7 @@ int tomoyo_socket_listen_permission(struct socket *sock)
->   	if (!family || (type != SOCK_STREAM && type != SOCK_SEQPACKET))
->   		return 0;
->   	{
-> -		const int error = sock->ops->getname(sock, (struct sockaddr *)
-> -						     &addr, 0);
-> +		const int error = sock->ops->getname(sock, &addr, 0);
->   
->   		if (error < 0)
->   			return error;
+Uprev IGT to the latest version and update expectation files.
 
-For the net/sunrpc/svcsock.c hunks:
+Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+---
 
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
+v1:
+  - Pipeline link - https://gitlab.freedesktop.org/vigneshraman/linux/-/pipelines/1327810
+    Will update the flake bug report link after v1 is reviewed.
 
+v2:
+  - Pipeline link - https://gitlab.freedesktop.org/vigneshraman/linux/-/pipelines/1331363
+    Updated flake test bug report links.
 
+---
+ drivers/gpu/drm/ci/gitlab-ci.yml              |   2 +-
+ .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |   8 +-
+ .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |  21 +-
+ .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt |   5 +
+ drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |  20 +-
+ .../gpu/drm/ci/xfails/i915-amly-flakes.txt    |  14 +
+ drivers/gpu/drm/ci/xfails/i915-amly-skips.txt |   1 +
+ drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  |   8 +-
+ drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |  22 +-
+ drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |   7 +
+ drivers/gpu/drm/ci/xfails/i915-cml-skips.txt  |   1 +
+ drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |  31 +-
+ drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt |   7 +
+ drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  | 298 ++++++++++
+ drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt  |  18 +-
+ drivers/gpu/drm/ci/xfails/i915-jsl-flakes.txt |  15 +-
+ drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt  | 112 ++++
+ drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |  55 +-
+ drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt  |  13 +
+ drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |  15 +-
+ drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt |   7 +
+ .../drm/ci/xfails/mediatek-mt8173-fails.txt   |   7 +-
+ .../drm/ci/xfails/mediatek-mt8173-flakes.txt  |   7 +
+ .../drm/ci/xfails/mediatek-mt8173-skips.txt   |   5 +
+ .../drm/ci/xfails/mediatek-mt8183-fails.txt   |  12 +-
+ .../drm/ci/xfails/mediatek-mt8183-skips.txt   |   5 +
+ .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |   3 +
+ .../msm-sc7180-trogdor-kingoftown-fails.txt   |   1 -
+ .../msm-sc7180-trogdor-kingoftown-flakes.txt  |  14 +
+ .../msm-sc7180-trogdor-kingoftown-skips.txt   |   5 +
+ ...sm-sc7180-trogdor-lazor-limozeen-fails.txt |   1 -
+ ...sm-sc7180-trogdor-lazor-limozeen-skips.txt |   5 +
+ .../gpu/drm/ci/xfails/msm-sdm845-fails.txt    |   2 -
+ .../gpu/drm/ci/xfails/msm-sdm845-skips.txt    |   5 +
+ .../drm/ci/xfails/msm-sm8350-hdk-fails.txt    |   5 -
+ .../drm/ci/xfails/rockchip-rk3288-fails.txt   |  26 +-
+ .../drm/ci/xfails/rockchip-rk3399-fails.txt   |  13 +-
+ .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  56 ++
+ .../drm/ci/xfails/rockchip-rk3399-skips.txt   |   5 +
+ .../drm/ci/xfails/virtio_gpu-none-skips.txt   |   5 +
+ drivers/gpu/drm/ci/xfails/vkms-none-fails.txt |   8 -
+ drivers/gpu/drm/ci/xfails/vkms-none-skips.txt | 543 +++++++++++++++++-
+ 42 files changed, 1202 insertions(+), 211 deletions(-)
+
+diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml b/drivers/gpu/drm/ci/gitlab-ci.yml
+index 90bde9f00cc3..b7214718723c 100644
+--- a/drivers/gpu/drm/ci/gitlab-ci.yml
++++ b/drivers/gpu/drm/ci/gitlab-ci.yml
+@@ -5,7 +5,7 @@ variables:
+   UPSTREAM_REPO: https://gitlab.freedesktop.org/drm/kernel.git
+   TARGET_BRANCH: drm-next
+ 
+-  IGT_VERSION: a73311079a5d8ac99eb25336a8369a2c3c6b519b
++  IGT_VERSION: 33adea9ebafd059ac88a5ccfec60536394f36c7c
+ 
+   DEQP_RUNNER_GIT_URL: https://gitlab.freedesktop.org/mesa/deqp-runner.git
+   DEQP_RUNNER_GIT_TAG: v0.20.0
+diff --git a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-fails.txt b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-fails.txt
+index f44dbce3151a..75374085f40f 100644
+--- a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-fails.txt
+@@ -14,10 +14,16 @@ amdgpu/amd_plane@mpo-scale-nv12,Fail
+ amdgpu/amd_plane@mpo-scale-p010,Fail
+ amdgpu/amd_plane@mpo-scale-rgb,Crash
+ amdgpu/amd_plane@mpo-swizzle-toggle,Fail
+-amdgpu/amd_uvd_dec@amdgpu_uvd_decode,Fail
++amdgpu/amd_uvd_dec@amdgpu_uvd_decode,Crash
+ kms_addfb_basic@bad-pitch-65536,Fail
+ kms_addfb_basic@bo-too-small,Fail
+ kms_addfb_basic@too-high,Fail
++kms_async_flips@alternate-sync-async-flip,Fail
++kms_async_flips@alternate-sync-async-flip-atomic,Fail
++kms_async_flips@test-cursor,Fail
++kms_async_flips@test-cursor-atomic,Fail
++kms_async_flips@test-time-stamp,Fail
++kms_async_flips@test-time-stamp-atomic,Fail
+ kms_atomic_transition@plane-all-modeset-transition-internal-panels,Fail
+ kms_atomic_transition@plane-all-transition,Fail
+ kms_atomic_transition@plane-all-transition-nonblocking,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-flakes.txt b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-flakes.txt
+index e70bd9d447ca..adffb011298a 100644
+--- a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-flakes.txt
+@@ -1,10 +1,3 @@
+-# Board Name: hp-11A-G6-EE-grunt
+-# Bug Report: https://lore.kernel.org/amd-gfx/3542730f-b8d7-404d-a947-b7a5e95d661c@collabora.com/T/#u
+-# Failure Rate: 50
+-# IGT Version: 1.28-g0df7b9b97
+-# Linux Version: 6.9.0-rc7
+-kms_async_flips@async-flip-with-page-flip-events
+-
+ # Board Name: hp-11A-G6-EE-grunt
+ # Bug Report: https://lore.kernel.org/amd-gfx/3542730f-b8d7-404d-a947-b7a5e95d661c@collabora.com/T/#u
+ # Failure Rate: 50
+@@ -25,3 +18,17 @@ kms_plane@pixel-format-source-clamping
+ # IGT Version: 1.28-ga73311079
+ # Linux Version: 6.11.0-rc2
+ kms_async_flips@async-flip-with-page-flip-events
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://gitlab.freedesktop.org/drm/amd/-/issues/3835
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_async_flips@async-flip-with-page-flip-events-atomic
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://gitlab.freedesktop.org/drm/amd/-/issues/3836
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_async_flips@crc-atomic
+diff --git a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt
+index f41b3e112976..3879c4812a22 100644
+--- a/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/amdgpu-stoney-skips.txt
+@@ -32,3 +32,8 @@ amdgpu/amd_pci_unplug@amdgpu_hotunplug_with_exported_bo
+ amdgpu/amd_pci_unplug@amdgpu_hotunplug_with_exported_fence
+ amdgpu/amd_vrr_range@freesync-parsing
+ device_reset.*
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/i915-amly-fails.txt b/drivers/gpu/drm/ci/xfails/i915-amly-fails.txt
+index 0907cb0f6d9e..a29cea4f234c 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-amly-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-amly-fails.txt
+@@ -1,16 +1,14 @@
+ core_setmaster@master-drop-set-shared-fd,Fail
+-core_setmaster@master-drop-set-user,Fail
+-core_setmaster_vs_auth,Fail
+ i915_module_load@load,Fail
+ i915_module_load@reload,Fail
+ i915_module_load@reload-no-display,Fail
+ i915_module_load@resize-bar,Fail
+ i915_pm_rpm@gem-execbuf-stress,Timeout
+ i915_pm_rpm@module-reload,Fail
+-kms_cursor_legacy@short-flip-before-cursor-atomic-transitions,Timeout
+-kms_fb_coherency@memset-crc,Crash
+-kms_flip@busy-flip,Timeout
+-kms_flip@single-buffer-flip-vs-dpms-off-vs-modeset-interruptible,Fail
++kms_async_flips@test-time-stamp,Timeout
++kms_ccs@crc-sprite-planes-basic-y-tiled-ccs,Timeout
++kms_flip@dpms-off-confusion-interruptible,Timeout
++kms_flip@wf_vblank-ts-check-interruptible,Fail
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-downscaling,Fail
+@@ -33,20 +31,12 @@ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilegen12rcccs-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilercccs-downscaling,Fail
+-kms_frontbuffer_tracking@fbc-rgb565-draw-mmap-cpu,Timeout
+ kms_lease@lease-uevent,Fail
++kms_lease@page-flip-implicit-plane,Timeout
+ kms_plane_alpha_blend@alpha-basic,Fail
+ kms_plane_alpha_blend@alpha-opaque-fb,Fail
+ kms_plane_alpha_blend@alpha-transparent-fb,Fail
+ kms_plane_alpha_blend@constant-alpha-max,Fail
+-kms_plane_scaling@plane-scaler-with-clipping-clamping-rotation,Timeout
+-kms_plane_scaling@planes-upscale-factor-0-25-downscale-factor-0-5,Timeout
+-kms_pm_rpm@modeset-stress-extra-wait,Timeout
+-kms_pm_rpm@universal-planes,Timeout
+-kms_pm_rpm@universal-planes-dpms,Timeout
+-kms_prop_blob@invalid-set-prop,Fail
+-kms_rotation_crc@primary-rotation-180,Timeout
+-kms_vblank@query-forked-hang,Timeout
+ perf@i915-ref-count,Fail
+ perf_pmu@module-unload,Fail
+ perf_pmu@rc6,Crash
+diff --git a/drivers/gpu/drm/ci/xfails/i915-amly-flakes.txt b/drivers/gpu/drm/ci/xfails/i915-amly-flakes.txt
+index 0207c9807bee..fee246c25b9a 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-amly-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-amly-flakes.txt
+@@ -53,3 +53,17 @@ kms_pm_rpm@modeset-lpsp-stress
+ # IGT Version: 1.28-ga73311079
+ # Linux Version: 6.11.0-rc2
+ kms_pm_rpm@drm-resources-equal
++
++# Board Name: asus-C433TA-AJ0005-rammus
++# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/13346
++# Failure Rate: 60
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++i915_hangman@gt-engine-error
++
++# Board Name: asus-C433TA-AJ0005-rammus
++# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/13345
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++gen9_exec_parse@unaligned-access
+diff --git a/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt b/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt
+index 5186ba3dbbc6..2ef1dc35a7fa 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-amly-skips.txt
+@@ -20,6 +20,7 @@ i915_pm_rc6_residency.*
+ i915_suspend.*
+ kms_scaling_modes.*
+ i915_pm_rpm.*
++i915_module_load@reload-with-fault-injection
+ 
+ # Kernel panic
+ drm_fdinfo.*
+diff --git a/drivers/gpu/drm/ci/xfails/i915-apl-fails.txt b/drivers/gpu/drm/ci/xfails/i915-apl-fails.txt
+index 64772fedaed5..ee11999e3da1 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-apl-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-apl-fails.txt
+@@ -1,3 +1,4 @@
++core_setmaster@master-drop-set-user,Fail
+ i915_module_load@load,Fail
+ i915_module_load@reload,Fail
+ i915_module_load@reload-no-display,Fail
+@@ -8,13 +9,13 @@ kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytile-to-64bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytile-to-64bpp-ytile-upscaling,Fail
++kms_flip_scaled_crc@flip-32bpp-ytileccs-to-64bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytileccs-to-64bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-16bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-16bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-32bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-32bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-16bpp-xtile-downscaling,Fail
+-kms_flip_scaled_crc@flip-64bpp-xtile-to-16bpp-xtile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-32bpp-xtile-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-32bpp-xtile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-16bpp-ytile-downscaling,Fail
+@@ -29,13 +30,10 @@ kms_plane_alpha_blend@alpha-opaque-fb,Fail
+ kms_plane_alpha_blend@alpha-transparent-fb,Fail
+ kms_plane_alpha_blend@constant-alpha-max,Fail
+ kms_pm_backlight@basic-brightness,Fail
++kms_pm_backlight@brightness-with-dpms,Crash
+ kms_pm_backlight@fade,Fail
+ kms_pm_backlight@fade-with-dpms,Fail
+-kms_pm_rpm@legacy-planes,Timeout
+-kms_pm_rpm@legacy-planes-dpms,Timeout
+ kms_pm_rpm@modeset-stress-extra-wait,Timeout
+-kms_pm_rpm@universal-planes,Timeout
+-kms_pm_rpm@universal-planes-dpms,Timeout
+ kms_sysfs_edid_timing,Fail
+ perf@i915-ref-count,Fail
+ perf@non-zero-reason,Timeout
+diff --git a/drivers/gpu/drm/ci/xfails/i915-cml-fails.txt b/drivers/gpu/drm/ci/xfails/i915-cml-fails.txt
+index f352b719cf7d..47b3f1d42bb6 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-cml-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-cml-fails.txt
+@@ -1,5 +1,4 @@
+ core_setmaster@master-drop-set-shared-fd,Fail
+-core_setmaster@master-drop-set-user,Fail
+ i915_module_load@load,Fail
+ i915_module_load@reload,Fail
+ i915_module_load@reload-no-display,Fail
+@@ -9,9 +8,8 @@ i915_pipe_stress@stress-xrgb8888-ytiled,Fail
+ i915_pm_rpm@gem-execbuf-stress,Timeout
+ i915_pm_rpm@module-reload,Fail
+ i915_pm_rpm@system-suspend-execbuf,Timeout
+-i915_pm_rps@engine-order,Fail
+-kms_big_fb@linear-16bpp-rotate-180,Timeout
+-kms_fb_coherency@memset-crc,Crash
++kms_async_flips@test-time-stamp,Timeout
++kms_ccs@crc-sprite-planes-basic-y-tiled-ccs,Timeout
+ kms_flip@busy-flip,Timeout
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-upscaling,Fail
+@@ -36,25 +34,29 @@ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilegen12rcccs-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilercccs-downscaling,Fail
+ kms_lease@lease-uevent,Fail
++kms_lease@page-flip-implicit-plane,Timeout
+ kms_plane_alpha_blend@alpha-basic,Fail
+ kms_plane_alpha_blend@alpha-opaque-fb,Fail
+ kms_plane_alpha_blend@alpha-transparent-fb,Fail
+ kms_plane_alpha_blend@constant-alpha-max,Fail
+-kms_plane_scaling@planes-upscale-factor-0-25-downscale-factor-0-5,Timeout
+-kms_pm_rpm@modeset-stress-extra-wait,Timeout
+-kms_pm_rpm@universal-planes,Timeout
+-kms_pm_rpm@universal-planes-dpms,Timeout
+ kms_psr2_sf@cursor-plane-update-sf,Fail
+ kms_psr2_sf@overlay-plane-update-continuous-sf,Fail
+ kms_psr2_sf@overlay-plane-update-sf-dmg-area,Fail
+ kms_psr2_sf@overlay-primary-update-sf-dmg-area,Fail
+ kms_psr2_sf@plane-move-sf-dmg-area,Fail
++kms_psr2_sf@pr-cursor-plane-update-sf,Timeout
+ kms_psr2_sf@primary-plane-update-sf-dmg-area,Fail
+ kms_psr2_sf@primary-plane-update-sf-dmg-area-big-fb,Fail
++kms_psr2_sf@psr2-cursor-plane-update-sf,Fail
++kms_psr2_sf@psr2-overlay-plane-update-continuous-sf,Fail
++kms_psr2_sf@psr2-overlay-plane-update-sf-dmg-area,Fail
++kms_psr2_sf@psr2-overlay-primary-update-sf-dmg-area,Fail
++kms_psr2_sf@psr2-plane-move-sf-dmg-area,Fail
++kms_psr2_sf@psr2-primary-plane-update-sf-dmg-area,Fail
++kms_psr2_sf@psr2-primary-plane-update-sf-dmg-area-big-fb,Fail
+ kms_psr2_su@page_flip-NV12,Fail
+-kms_rotation_crc@primary-rotation-180,Timeout
++kms_psr2_su@page_flip-P010,Fail
+ kms_setmode@basic,Fail
+-kms_vblank@query-forked-hang,Timeout
+ perf@i915-ref-count,Fail
+ perf_pmu@module-unload,Fail
+ perf_pmu@rc6,Crash
+diff --git a/drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt b/drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt
+index d8401251e5f4..5343cc1c8696 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt
+@@ -25,3 +25,10 @@ kms_plane_alpha_blend@constant-alpha-min
+ # IGT Version: 1.28-ga73311079
+ # Linux Version: 6.11.0-rc2
+ kms_async_flips@crc
++
++# Board Name: asus-C436FA-Flip-hatch
++# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/13347
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++gen9_exec_parse@unaligned-access
+diff --git a/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt b/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt
+index 9d753d97c9ab..c87ff8b40e99 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-cml-skips.txt
+@@ -20,6 +20,7 @@ xe_module_load.*
+ api_intel_allocator.*
+ kms_cursor_legacy.*
+ i915_pm_rpm.*
++kms_flip.*
+ 
+ # Kernel panic
+ drm_fdinfo.*
+diff --git a/drivers/gpu/drm/ci/xfails/i915-glk-fails.txt b/drivers/gpu/drm/ci/xfails/i915-glk-fails.txt
+index 6eb64c672f7d..843c363b42f5 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-glk-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-glk-fails.txt
+@@ -1,61 +1,35 @@
++core_setmaster@master-drop-set-shared-fd,Fail
+ core_setmaster@master-drop-set-user,Fail
+-core_setmaster_vs_auth,Fail
++gen9_exec_parse@unaligned-access,Fail
+ i915_module_load@load,Fail
+ i915_module_load@reload,Fail
+ i915_module_load@reload-no-display,Fail
+ i915_module_load@resize-bar,Fail
+-kms_cursor_legacy@short-flip-before-cursor-atomic-transitions,Timeout
+ kms_dirtyfb@default-dirtyfb-ioctl,Fail
+ kms_dirtyfb@drrs-dirtyfb-ioctl,Fail
+ kms_dirtyfb@fbc-dirtyfb-ioctl,Fail
+-kms_flip@blocking-wf_vblank,Fail
+-kms_flip@busy-flip,Timeout
+-kms_flip@single-buffer-flip-vs-dpms-off-vs-modeset-interruptible,Fail
+-kms_flip@wf_vblank-ts-check,Fail
+ kms_flip@wf_vblank-ts-check-interruptible,Fail
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-downscaling,Fail
+-kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-downscaling,Fail
+-kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytile-to-64bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytile-to-64bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytileccs-to-64bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytileccs-to-64bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-16bpp-linear-downscaling,Fail
+-kms_flip_scaled_crc@flip-64bpp-linear-to-16bpp-linear-upscaling,Fail
+-kms_flip_scaled_crc@flip-64bpp-linear-to-32bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-32bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-16bpp-xtile-downscaling,Fail
+-kms_flip_scaled_crc@flip-64bpp-xtile-to-16bpp-xtile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-32bpp-xtile-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-32bpp-xtile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-16bpp-ytile-downscaling,Fail
+-kms_flip_scaled_crc@flip-64bpp-ytile-to-16bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilegen12rcccs-upscaling,Fail
+-kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilercccs-downscaling,Fail
+-kms_frontbuffer_tracking@fbc-rgb565-draw-mmap-cpu,Timeout
+-kms_frontbuffer_tracking@fbc-tiling-linear,Fail
+ kms_frontbuffer_tracking@fbcdrrs-tiling-linear,Fail
+ kms_lease@lease-uevent,Fail
+ kms_plane_alpha_blend@alpha-opaque-fb,Fail
+-kms_plane_scaling@plane-scaler-with-clipping-clamping-rotation,Timeout
+-kms_plane_scaling@planes-upscale-factor-0-25-downscale-factor-0-5,Timeout
+-kms_pm_rpm@legacy-planes,Timeout
+-kms_pm_rpm@legacy-planes-dpms,Timeout
+-kms_pm_rpm@modeset-stress-extra-wait,Timeout
+-kms_pm_rpm@universal-planes,Timeout
+-kms_pm_rpm@universal-planes-dpms,Timeout
+-kms_prop_blob@invalid-set-prop,Fail
+-kms_rotation_crc@multiplane-rotation,Fail
+-kms_rotation_crc@multiplane-rotation-cropping-bottom,Fail
+ kms_rotation_crc@multiplane-rotation-cropping-top,Fail
+-kms_rotation_crc@primary-rotation-180,Timeout
+-kms_vblank@query-forked-hang,Timeout
+ perf@non-zero-reason,Timeout
+ sysfs_heartbeat_interval@long,Timeout
+-sysfs_heartbeat_interval@off,Timeout
+ sysfs_preempt_timeout@off,Timeout
+ sysfs_timeslice_duration@off,Timeout
+ xe_module_load@force-load,Fail
+@@ -63,4 +37,3 @@ xe_module_load@load,Fail
+ xe_module_load@many-reload,Fail
+ xe_module_load@reload,Fail
+ xe_module_load@reload-no-display,Fail
+-core_setmaster@master-drop-set-shared-fd,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt b/drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt
+index 077886b76093..2a909c657343 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-glk-flakes.txt
+@@ -11,3 +11,10 @@ core_hotunplug@unplug-rescan
+ # IGT Version: 1.28-g0df7b9b97
+ # Linux Version: 6.9.0-rc7
+ kms_fb_coherency@memset-crc
++
++# Board Name: hp-x360-12b-ca0010nr-n4020-octopus
++# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/13348
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_flip@dpms-off-confusion-interruptible
+diff --git a/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt b/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt
+index 9c64146aed90..219ae839323a 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-glk-skips.txt
+@@ -27,3 +27,301 @@ perf.*
+ # Kernel panic
+ drm_fdinfo.*
+ kms_plane_alpha_blend.*
++
++kms_async_flips.*
++# [IGT] kms_async_flips: executing
++# ------------[ cut here ]------------
++# i915 0000:00:02.0: [drm] drm_WARN_ON(intel_dp->pps.vdd_wakeref)
++# WARNING: CPU: 0 PID: 1253 at drivers/gpu/drm/i915/display/intel_pps.c:760 intel_pps_vdd_on_unlocked+0x351/0x360
++# Modules linked in:
++# CPU: 0 UID: 0 PID: 1253 Comm: kms_async_flips Tainted: G        W          6.13.0-rc2-ge95c88d68ac3 #1
++# Tainted: [W]=WARN
++# Hardware name: HP Bloog/Bloog, BIOS  09/19/2019
++# RIP: 0010:intel_pps_vdd_on_unlocked+0x351/0x360
++# Code: 8b 77 50 4d 85 f6 75 03 4c 8b 37 e8 19 98 03 00 48 c7 c1 10 d3 61 84 4c 89 f2 48 c7 c7 67 56 69 84 48 89 c6 e8 a0 22 63 ff 90 <0f> 0b 90 90 e9 5f fd ff ff e8 81 94 69 00 90 90 90 90 90 90 90 90
++# RSP: 0018:ffff9573c0dcfad8 EFLAGS: 00010286
++# RAX: 0000000000000000 RBX: ffff93498148e238 RCX: 00000000ffffdfff
++# RDX: 0000000000000000 RSI: ffff9573c0dcf988 RDI: 0000000000000001
++# RBP: ffff934980d80000 R08: 0000000000009ffb R09: 00000000ffffdfff
++# R10: 00000000ffffdfff R11: ffffffff8488c8a0 R12: ffff934980d80d68
++# R13: 0000000000000000 R14: ffff93498093c9b0 R15: 0000000000000000
++# FS:  00007fbf1f4486c0(0000) GS:ffff9349fbc00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000055f260419028 CR3: 0000000106594000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  intel_pps_vdd_on+0x78/0x150
++#  intel_dp_detect+0xb9/0x7c0
++#  drm_helper_probe_detect+0x47/0xb0
++#  drm_helper_probe_single_connector_modes+0x40b/0x660
++#  drm_mode_getconnector+0x369/0x490
++#  drm_ioctl_kernel+0xad/0x110
++#  drm_ioctl+0x235/0x4b0
++#  __x64_sys_ioctl+0x8f/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7fbf208e4cdb
++# Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
++# RSP: 002b:00007ffe061f6c60 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fbf208e4cdb
++# RDX: 00007ffe061f6d00 RSI: 00000000c05064a7 RDI: 0000000000000003
++# RBP: 00007ffe061f6d00 R08: 0000000000000007 R09: 000055f260410cb0
++# R10: 650094cf40322201 R11: 0000000000000246 R12: 00000000c05064a7
++# R13: 0000000000000003 R14: 00000000c05064a7 R15: 00007ffe061f6d00
++#  </TASK>
++# irq event stamp: 0
++# hardirqs last  enabled at (0): [<0000000000000000>] 0x0
++# hardirqs last disabled at (0): [<ffffffff82d0a283>] copy_process+0xaf3/0x2eb0
++# softirqs last  enabled at (0): [<ffffffff82d0a283>] copy_process+0xaf3/0x2eb0
++# softirqs last disabled at (0): [<0000000000000000>] 0x0
++# ---[ end trace 0000000000000000 ]---
++# i915 0000:00:02.0: [drm] *ERROR* PPS state mismatch
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* Failed to read DPCD register 0x92
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# [IGT] kms_async_flips: starting subtest test-time-stamp
++# i915 0000:00:02.0: [drm] *ERROR* [CRTC:70:pipe A] flip_done timed out
++# i915 0000:00:02.0: [drm] *ERROR* flip_done timed out
++# i915 0000:00:02.0: [drm] *ERROR* [CRTC:70:pipe A] commit wait timed out
++# INFO: task kms_async_flips:1253 blocked for more than 122 seconds.
++#       Tainted: G        W          6.13.0-rc2-ge95c88d68ac3 #1
++# "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
++# task:kms_async_flips state:D stack:12720 pid:1253  tgid:1253  ppid:164    flags:0x00004006
++# Call Trace:
++#  <TASK>
++#  __schedule+0x495/0xd20
++#  schedule+0x35/0x120
++#  drm_vblank_work_flush+0x91/0xf0
++#  intel_wait_for_vblank_workers+0x58/0x90
++#  intel_atomic_commit_tail+0xa86/0x15f0
++#  intel_atomic_commit+0x257/0x2a0
++#  drm_atomic_commit+0xac/0xe0
++#  set_property_atomic+0x91/0x160
++#  drm_mode_obj_set_property_ioctl+0xc1/0x110
++#  drm_ioctl_kernel+0xad/0x110
++#  drm_ioctl+0x235/0x4b0
++#  __x64_sys_ioctl+0x8f/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7fbf208e4cdb
++# RSP: 002b:00007ffe061f6c50 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 000055f24e272330 RCX: 00007fbf208e4cdb
++# RDX: 00007ffe061f6ce0 RSI: 00000000c01864ba RDI: 0000000000000003
++# RBP: 00007ffe061f6ce0 R08: 0000000000000000 R09: 000055f2604184f0
++# R10: 00007fbf209ca310 R11: 0000000000000246 R12: 00000000c01864ba
++# R13: 0000000000000003 R14: 0000000000000000 R15: 000055f26040ab90
++#  </TASK>
++# INFO: lockdep is turned off.
++
++kms_lease.*
++# [IGT] kms_lease: executing
++# ------------[ cut here ]------------
++# i915 0000:00:02.0: [drm] drm_WARN_ON(intel_dp->pps.vdd_wakeref)
++# WARNING: CPU: 1 PID: 1271 at drivers/gpu/drm/i915/display/intel_pps.c:760 intel_pps_vdd_on_unlocked+0x351/0x360
++# Modules linked in:
++# CPU: 1 UID: 0 PID: 1271 Comm: kms_lease Tainted: G        W          6.13.0-rc2-gfb6fd142a8eb #1
++# Tainted: [W]=WARN
++# Hardware name: HP Bloog/Bloog, BIOS  09/19/2019
++# RIP: 0010:intel_pps_vdd_on_unlocked+0x351/0x360
++# Code: 8b 77 50 4d 85 f6 75 03 4c 8b 37 e8 19 98 03 00 48 c7 c1 10 d3 61 a1 4c 89 f2 48 c7 c7 67 56 69 a1 48 89 c6 e8 a0 22 63 ff 90 <0f> 0b 90 90 e9 5f fd ff ff e8 81 94 69 00 90 90 90 90 90 90 90 90
++# RSP: 0018:ffffb26500ddfad8 EFLAGS: 00010286
++# RAX: 0000000000000000 RBX: ffff988580dc6238 RCX: 00000000ffffdfff
++# RDX: 0000000000000000 RSI: ffffb26500ddf988 RDI: 0000000000000001
++# RBP: ffff988580d90000 R08: 0000000000009ffb R09: 00000000ffffdfff
++# R10: 00000000ffffdfff R11: ffffffffa188c8a0 R12: ffff988580d90d68
++# R13: 0000000000000000 R14: ffff98858093c9b0 R15: 0000000000000000
++# FS:  00007f6b0c60d6c0(0000) GS:ffff9885fbd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000055eea27460a8 CR3: 0000000105ac6000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  intel_pps_vdd_on+0x78/0x150
++#  intel_dp_detect+0xb9/0x7c0
++#  drm_helper_probe_detect+0x47/0xb0
++#  drm_helper_probe_single_connector_modes+0x40b/0x660
++#  drm_mode_getconnector+0x369/0x490
++#  drm_ioctl_kernel+0xad/0x110
++#  drm_ioctl+0x235/0x4b0
++#  __x64_sys_ioctl+0x8f/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f6b0d637c5b
++# Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
++# RSP: 002b:00007ffc42b13670 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f6b0d637c5b
++# RDX: 00007ffc42b13710 RSI: 00000000c05064a7 RDI: 0000000000000003
++# RBP: 00007ffc42b13710 R08: 0000000000000007 R09: 000055eea2741720
++# R10: 9fb9be4e118bfa43 R11: 0000000000000246 R12: 00000000c05064a7
++# R13: 0000000000000003 R14: 00000000c05064a7 R15: 00007ffc42b13710
++#  </TASK>
++# irq event stamp: 0
++# hardirqs last  enabled at (0): [<0000000000000000>] 0x0
++# hardirqs last disabled at (0): [<ffffffff9fd0a283>] copy_process+0xaf3/0x2eb0
++# softirqs last  enabled at (0): [<ffffffff9fd0a283>] copy_process+0xaf3/0x2eb0
++# softirqs last disabled at (0): [<0000000000000000>] 0x0
++# ---[ end trace 0000000000000000 ]---
++# i915 0000:00:02.0: [drm] *ERROR* PPS state mismatch
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* Failed to read DPCD register 0x92
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# i915 0000:00:02.0: [drm] *ERROR* AUX A/DDI A/PHY A: not done (status 0x00000000)
++# [IGT] kms_lease: starting subtest page-flip-implicit-plane
++# [IGT] kms_lease: starting dynamic subtest pipe-A-eDP-1
++# i915 0000:00:02.0: [drm] *ERROR* [CRTC:70:pipe A] flip_done timed out
++# i915 0000:00:02.0: [drm] *ERROR* flip_done timed out
++# i915 0000:00:02.0: [drm] *ERROR* [CRTC:70:pipe A] commit wait timed out
++# INFO: task kms_lease:1271 blocked for more than 122 seconds.
++#       Tainted: G        W          6.13.0-rc2-gfb6fd142a8eb #1
++# "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
++# task:kms_lease       state:D stack:12720 pid:1271  tgid:1271  ppid:184    flags:0x00004006
++# Call Trace:
++#  <TASK>
++#  __schedule+0x495/0xd20
++#  schedule+0x35/0x120
++#  drm_vblank_work_flush+0x91/0xf0
++#  intel_wait_for_vblank_workers+0x58/0x90
++#  intel_atomic_commit_tail+0xa86/0x15f0
++#  intel_atomic_commit+0x257/0x2a0
++#  drm_atomic_commit+0xac/0xe0
++#  set_property_atomic+0x91/0x160
++#  drm_mode_obj_set_property_ioctl+0xc1/0x110
++#  drm_ioctl_kernel+0xad/0x110
++#  drm_ioctl+0x235/0x4b0
++#  __x64_sys_ioctl+0x8f/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f6b0d637c5b
++# RSP: 002b:00007ffc42b13650 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 00007ffc42b14270 RCX: 00007f6b0d637c5b
++# RDX: 00007ffc42b136e0 RSI: 00000000c01864ba RDI: 0000000000000003
++# RBP: 00007ffc42b136e0 R08: 0000000000000000 R09: 000055eea2741750
++# R10: 00007f6b0d71d310 R11: 0000000000000246 R12: 00000000c01864ba
++# R13: 0000000000000003 R14: 0000000000000000 R15: 000055eea27378d0
++#  </TASK>
++# INFO: lockdep is turned off.
++
++# The test alternates between failing and timing out on reruns, causing the pipeline to fail
++gen9_exec_parse@unaligned-access
+diff --git a/drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt b/drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt
+index ed9f7b576843..0e08fff741aa 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt
+@@ -1,15 +1,16 @@
+-core_setmaster@master-drop-set-user,Fail
++drm_fdinfo@busy-check-all,Fail
+ i915_module_load@load,Fail
+ i915_module_load@reload,Fail
+ i915_module_load@reload-no-display,Fail
+ i915_module_load@resize-bar,Fail
+-i915_pm_rpm@gem-execbuf-stress,Timeout
+-i915_pm_rpm@module-reload,Fail
+-kms_flip@plain-flip-fb-recreate,Fail
++kms_flip@dpms-off-confusion,Fail
++kms_flip@single-buffer-flip-vs-dpms-off-vs-modeset,Fail
++kms_flip@single-buffer-flip-vs-dpms-off-vs-modeset-interruptible,Fail
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-upscaling,Fail
++kms_flip_scaled_crc@flip-32bpp-ytile-to-64bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytile-to-64bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytileccs-to-64bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-ytileccs-to-64bpp-ytile-upscaling,Fail
+@@ -17,6 +18,7 @@ kms_flip_scaled_crc@flip-64bpp-linear-to-16bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-16bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-32bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-linear-to-32bpp-linear-upscaling,Fail
++kms_flip_scaled_crc@flip-64bpp-xtile-to-16bpp-xtile-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-16bpp-xtile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-32bpp-xtile-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-xtile-to-32bpp-xtile-upscaling,Fail
+@@ -26,19 +28,15 @@ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-downscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilegen12rcccs-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilercccs-downscaling,Fail
++kms_frontbuffer_tracking@fbc-rgb565-draw-blt,Timeout
+ kms_lease@lease-uevent,Fail
+-kms_pm_rpm@legacy-planes,Timeout
+-kms_pm_rpm@legacy-planes-dpms,Timeout
+ kms_pm_rpm@modeset-stress-extra-wait,Timeout
+-kms_pm_rpm@universal-planes,Timeout
+-kms_pm_rpm@universal-planes-dpms,Timeout
++kms_rotation_crc@bad-pixel-format,Fail
+ kms_rotation_crc@multiplane-rotation,Fail
+ kms_rotation_crc@multiplane-rotation-cropping-bottom,Fail
+ kms_rotation_crc@multiplane-rotation-cropping-top,Fail
+ perf@i915-ref-count,Fail
+-perf_pmu@busy-accuracy-50,Fail
+ perf_pmu@module-unload,Fail
+-perf_pmu@most-busy-idle-check-all,Fail
+ perf_pmu@rc6,Crash
+ sysfs_heartbeat_interval@long,Timeout
+ sysfs_heartbeat_interval@off,Timeout
+diff --git a/drivers/gpu/drm/ci/xfails/i915-jsl-flakes.txt b/drivers/gpu/drm/ci/xfails/i915-jsl-flakes.txt
+index 5c3ef4486b9d..8b2aefd1cc52 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-jsl-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-jsl-flakes.txt
+@@ -1,13 +1,6 @@
+ # Board Name: acer-cb317-1h-c3z6-dedede
+-# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/12475
++# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/13349
+ # Failure Rate: 100
+-# IGT Version: 1.28-ga73311079
+-# Linux Version: 6.12.0-rc1
+-kms_flip@flip-vs-panning-interruptible
+-
+-# Board Name: acer-cb317-1h-c3z6-dedede
+-# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/12476
+-# Failure Rate: 100
+-# IGT Version: 1.28-ga73311079
+-# Linux Version: 6.12.0-rc1
+-kms_universal_plane@cursor-fb-leak
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_flip@flip-vs-fences-interruptible
+diff --git a/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt b/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt
+index 6ec2f83ffe13..dc722d6a774e 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt
+@@ -37,3 +37,115 @@ tools_test.*
+ # GPU hang
+ sysfs_timeslice_.*
+ sysfs_heartbeat_.*
++
++device_reset@unbind-reset-rebind
++# [IGT] device_reset: starting subtest unbind-reset-rebind
++# i915 0000:00:02.0: [drm] Found kabylake (device ID 5917) display version 9.00 stepping C0
++# i915 0000:00:02.0: vgaarb: deactivate vga console
++# i915 0000:00:02.0: [drm] *ERROR* DPLL0 not locked
++# ------------[ cut here ]------------
++# i915 0000:00:02.0: [drm] drm_WARN_ON((val & (1 << 30)) == 0)
++# WARNING: CPU: 4 PID: 472 at drivers/gpu/drm/i915/display/intel_cdclk.c:944 skl_get_cdclk+0x1ca/0x360
++# Modules linked in:
++# CPU: 4 UID: 0 PID: 472 Comm: device_reset Not tainted 6.13.0-rc2-ge95c88d68ac3 #1
++# Hardware name: HP Nami/Nami, BIOS  09/19/2019
++# RIP: 0010:skl_get_cdclk+0x1ca/0x360
++# Code: 67 50 4d 85 e4 0f 84 89 01 00 00 e8 e0 16 13 00 48 c7 c1 a0 71 5f 9a 4c 89 e2 48 c7 c7 67 56 69 9a 48 89 c6 e8 67 a1 72 ff 90 <0f> 0b 90 90 8b 43 08 8b 53 04 89 43 0c 89 03 85 d2 0f 85 26 ff ff
++# RSP: 0018:ffffacba40f5fbd0 EFLAGS: 00010282
++# RAX: 0000000000000000 RBX: ffff953182571058 RCX: 00000000ffffdfff
++# RDX: 0000000000000000 RSI: ffffacba40f5fa80 RDI: 0000000000000001
++# RBP: ffff953182570d68 R08: 0000000000009ffb R09: 00000000ffffdfff
++# R10: 00000000ffffdfff R11: ffffffff9a88c8a0 R12: ffff953180d3f4a0
++# R13: 0000000000000000 R14: ffff953182570d68 R15: 0000000000000000
++# FS:  00007f74989c46c0(0000) GS:ffff9534eed00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 00007f1df530eff8 CR3: 0000000102302002 CR4: 00000000003706f0
++# DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
++# DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
++# Call Trace:
++#  <TASK>
++#  intel_update_cdclk+0x1c/0x90
++#  intel_cdclk_init_hw+0x46e/0x4c0
++#  intel_power_domains_init_hw+0x3eb/0x770
++#  intel_display_driver_probe_noirq+0x85/0x230
++#  i915_driver_probe+0x66d/0xc60
++#  local_pci_probe+0x3a/0x90
++#  pci_device_probe+0xb5/0x180
++#  really_probe+0xc9/0x2b0
++#  __driver_probe_device+0x6e/0x110
++#  device_driver_attach+0x42/0xa0
++#  bind_store+0x71/0xc0
++#  kernfs_fop_write_iter+0x121/0x1c0
++#  vfs_write+0x2a8/0x530
++#  ksys_write+0x6f/0xf0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f7499e662c0
++# Code: 40 00 48 8b 15 41 9b 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 80 3d 21 23 0e 00 00 74 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 48 89
++# RSP: 002b:00007ffffaf36a68 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
++# RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7499e662c0
++# RDX: 000000000000000c RSI: 00007ffffaf36b50 RDI: 0000000000000003
++# RBP: 000000000000000c R08: 0000000000000007 R09: 000055b37d0964a0
++# R10: 0000000000000000 R11: 0000000000000202 R12: 00007ffffaf36b50
++# R13: 0000000000000003 R14: 000055b3526a7220 R15: 00007f749a0dc020
++#  </TASK>
++# irq event stamp: 28591
++# hardirqs last  enabled at (28625): [<ffffffff98da3e4d>] __up_console_sem+0x4d/0x60
++# hardirqs last disabled at (28658): [<ffffffff98da3e32>] __up_console_sem+0x32/0x60
++# softirqs last  enabled at (28688): [<ffffffff98d17980>] handle_softirqs+0x310/0x3f0
++# softirqs last disabled at (28701): [<ffffffff98d17bc1>] __irq_exit_rcu+0xa1/0xc0
++# ---[ end trace 0000000000000000 ]---
++# ------------[ cut here ]------------
++# i915 0000:00:02.0: [drm] drm_WARN_ON((val & (1 << 30)) == 0)
++# WARNING: CPU: 1 PID: 472 at drivers/gpu/drm/i915/display/intel_cdclk.c:944 skl_get_cdclk+0x1ca/0x360
++# Modules linked in:
++# CPU: 1 UID: 0 PID: 472 Comm: device_reset Tainted: G        W          6.13.0-rc2-ge95c88d68ac3 #1
++# Tainted: [W]=WARN
++# Hardware name: HP Nami/Nami, BIOS  09/19/2019
++# RIP: 0010:skl_get_cdclk+0x1ca/0x360
++# Code: 67 50 4d 85 e4 0f 84 89 01 00 00 e8 e0 16 13 00 48 c7 c1 a0 71 5f 9a 4c 89 e2 48 c7 c7 67 56 69 9a 48 89 c6 e8 67 a1 72 ff 90 <0f> 0b 90 90 8b 43 08 8b 53 04 89 43 0c 89 03 85 d2 0f 85 26 ff ff
++# RSP: 0018:ffffacba40f5fb98 EFLAGS: 00010286
++# RAX: 0000000000000000 RBX: ffffacba40f5fbbc RCX: 00000000ffffdfff
++# RDX: 0000000000000000 RSI: ffffacba40f5fa48 RDI: 0000000000000001
++# RBP: ffff953182570d68 R08: 0000000000009ffb R09: 00000000ffffdfff
++# R10: 00000000ffffdfff R11: ffffffff9a88c8a0 R12: ffff953180d3f4a0
++# R13: ffff953182573208 R14: ffff953182570d68 R15: 0000000000000000
++# FS:  00007f74989c46c0(0000) GS:ffff9534eec40000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 00007f2b6598ee00 CR3: 0000000102302001 CR4: 00000000003706f0
++# DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
++# DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
++# Call Trace:
++#  <TASK>
++#  gen9_disable_dc_states+0x86/0x300
++#  intel_power_well_enable+0x56/0x70
++#  __intel_display_power_get_domain.part.0+0x4d/0x70
++#  intel_power_domains_init_hw+0x95/0x770
++#  intel_display_driver_probe_noirq+0x85/0x230
++#  i915_driver_probe+0x66d/0xc60
++#  local_pci_probe+0x3a/0x90
++#  pci_device_probe+0xb5/0x180
++#  really_probe+0xc9/0x2b0
++#  __driver_probe_device+0x6e/0x110
++#  device_driver_attach+0x42/0xa0
++#  bind_store+0x71/0xc0
++#  kernfs_fop_write_iter+0x121/0x1c0
++#  vfs_write+0x2a8/0x530
++#  ksys_write+0x6f/0xf0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f7499e662c0
++# Code: 40 00 48 8b 15 41 9b 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 80 3d 21 23 0e 00 00 74 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 48 89
++# RSP: 002b:00007ffffaf36a68 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
++# RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7499e662c0
++# RDX: 000000000000000c RSI: 00007ffffaf36b50 RDI: 0000000000000003
++# RBP: 000000000000000c R08: 0000000000000007 R09: 000055b37d0964a0
++# R10: 0000000000000000 R11: 0000000000000202 R12: 00007ffffaf36b50
++# R13: 0000000000000003 R14: 000055b3526a7220 R15: 00007f749a0dc020
++#  </TASK>
++# irq event stamp: 29605
++# hardirqs last  enabled at (29617): [<ffffffff98da3e4d>] __up_console_sem+0x4d/0x60
++# hardirqs last disabled at (29634): [<ffffffff98da3e32>] __up_console_sem+0x32/0x60
++# softirqs last  enabled at (29630): [<ffffffff98d17980>] handle_softirqs+0x310/0x3f0
++# softirqs last disabled at (29625): [<ffffffff98d17bc1>] __irq_exit_rcu+0xa1/0xc0
++# ---[ end trace 0000000000000000 ]---
+diff --git a/drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt b/drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt
+index 461ef69ef08a..93d42b146df9 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt
+@@ -1,64 +1,24 @@
+-api_intel_allocator@fork-simple-stress-signal,Timeout
+-api_intel_allocator@open-vm,Timeout
+-api_intel_allocator@simple-allocator,Timeout
+-api_intel_bb@lot-of-buffers,Timeout
+-api_intel_bb@object-reloc-keep-cache,Timeout
+-api_intel_bb@offset-control,Timeout
+-api_intel_bb@render-ccs,Timeout
+-api_intel_bb@reset-bb,Timeout
+-core_auth@basic-auth,Timeout
+-core_hotunplug@hotrebind,Timeout
+-core_setmaster@master-drop-set-user,Fail
+-debugfs_test@read_all_entries_display_on,Timeout
+-drm_read@empty-block,Timeout
+-dumb_buffer@create-clear,Timeout
+-dumb_buffer@invalid-bpp,Timeout
+-gen3_render_tiledx_blits,Timeout
+-gen7_exec_parse@basic-allocation,Timeout
+-gen9_exec_parse@batch-invalid-length,Timeout
+-gen9_exec_parse@bb-secure,Timeout
+-gen9_exec_parse@secure-batches,Timeout
+-gen9_exec_parse@shadow-peek,Timeout
+-gen9_exec_parse@unaligned-jump,Timeout
+-i915_getparams_basic@basic-subslice-total,Timeout
+-i915_hangman@gt-engine-hang,Timeout
++api_intel_allocator@reopen,Timeout
++api_intel_bb@destroy-bb,Timeout
++core_hotunplug@hotrebind-lateclose,Timeout
++drm_read@short-buffer-block,Timeout
++dumb_buffer@map-valid,Timeout
+ i915_module_load@load,Fail
+ i915_module_load@reload,Fail
+ i915_module_load@reload-no-display,Fail
+ i915_module_load@resize-bar,Fail
+-i915_pciid,Timeout
+-i915_pipe_stress@stress-xrgb8888-ytiled,Timeout
+-i915_pm_rpm@gem-execbuf-stress,Timeout
+ i915_pm_rps@engine-order,Timeout
+-i915_pm_rps@thresholds-idle-park,Timeout
+-i915_query@engine-info,Timeout
+-i915_query@query-topology-kernel-writes,Timeout
+-i915_query@test-query-geometry-subslices,Timeout
+ kms_lease@lease-uevent,Fail
+ kms_rotation_crc@multiplane-rotation,Fail
+ perf@i915-ref-count,Fail
+ perf_pmu@busy,Timeout
+ perf_pmu@enable-race,Timeout
+-perf_pmu@event-wait,Timeout
+-perf_pmu@faulting-read,Timeout
+-perf_pmu@gt-awake,Timeout
+-perf_pmu@interrupts,Timeout
+ perf_pmu@module-unload,Fail
+-perf_pmu@most-busy-idle-check-all,Timeout
+ perf_pmu@rc6,Crash
+-perf_pmu@render-node-busy-idle,Fail
+ perf_pmu@semaphore-wait-idle,Timeout
+-prime_busy@after,Timeout
+-prime_mmap@test_aperture_limit,Timeout
+-prime_mmap@test_map_unmap,Timeout
+ prime_mmap@test_refcounting,Timeout
+-prime_self_import@basic-with_one_bo,Timeout
+-sriov_basic@enable-vfs-autoprobe-off,Timeout
+-syncobj_basic@bad-destroy,Timeout
+-syncobj_basic@bad-flags-fd-to-handle,Timeout
+-syncobj_basic@create-signaled,Timeout
+-syncobj_eventfd@invalid-bad-pad,Timeout
+-syncobj_eventfd@timeline-wait-before-signal,Timeout
++sriov_basic@enable-vfs-bind-unbind-each-numvfs-all,Timeout
++syncobj_basic@illegal-fd-to-handle,Timeout
+ syncobj_wait@invalid-multi-wait-unsubmitted-signaled,Timeout
+ syncobj_wait@invalid-signal-illegal-handle,Timeout
+ syncobj_wait@invalid-single-wait-all-unsubmitted,Timeout
+@@ -66,7 +26,6 @@ syncobj_wait@multi-wait-all-submitted,Timeout
+ syncobj_wait@multi-wait-for-submit-submitted-signaled,Timeout
+ syncobj_wait@wait-any-complex,Timeout
+ syncobj_wait@wait-delayed-signal,Timeout
+-template@A,Timeout
+ xe_module_load@force-load,Fail
+ xe_module_load@load,Fail
+ xe_module_load@many-reload,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt b/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt
+index b47df5855e8d..938377896841 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt
+@@ -35,3 +35,16 @@ syncobj_wait.*
+ 
+ # Kernel panic and test hangs with multiple kms tests
+ kms_.*
++
++# The test alternates between failing and timing out on reruns, causing the pipeline to fail
++api_intel_allocator@reopen
++api_intel_bb@destroy-bb
++core_hotunplug@hotrebind-lateclose
++dumb_buffer@map-valid
++i915_pm_rps@engine-order
++perf_pmu@busy
++perf_pmu@enable-race
++perf_pmu@semaphore-wait-idle
++prime_mmap@test_refcounting
++sriov_basic@enable-vfs-bind-unbind-each-numvfs-all
++syncobj_basic@illegal-fd-to-handle
+diff --git a/drivers/gpu/drm/ci/xfails/i915-whl-fails.txt b/drivers/gpu/drm/ci/xfails/i915-whl-fails.txt
+index 0ce240e3aa07..1cb6978c86dc 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-whl-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-whl-fails.txt
+@@ -1,5 +1,4 @@
+ core_setmaster@master-drop-set-shared-fd,Fail
+-core_setmaster@master-drop-set-user,Fail
+ i915_module_load@load,Fail
+ i915_module_load@reload,Fail
+ i915_module_load@reload-no-display,Fail
+@@ -7,12 +6,10 @@ i915_module_load@resize-bar,Fail
+ i915_pm_rpm@gem-execbuf-stress,Timeout
+ i915_pm_rpm@module-reload,Fail
+ i915_pm_rpm@system-suspend-execbuf,Timeout
+-i915_pm_rps@engine-order,Fail
+-kms_big_fb@linear-16bpp-rotate-180,Timeout
+-kms_cursor_legacy@short-flip-before-cursor-atomic-transitions,Timeout
++kms_async_flips@test-time-stamp,Timeout
++kms_ccs@crc-sprite-planes-basic-y-tiled-ccs,Timeout
+ kms_dirtyfb@default-dirtyfb-ioctl,Fail
+ kms_dirtyfb@fbc-dirtyfb-ioctl,Fail
+-kms_fb_coherency@memset-crc,Crash
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-downscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-linear-to-64bpp-linear-upscaling,Fail
+ kms_flip_scaled_crc@flip-32bpp-xtile-to-64bpp-xtile-downscaling,Fail
+@@ -34,18 +31,12 @@ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytile-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilegen12rcccs-upscaling,Fail
+ kms_flip_scaled_crc@flip-64bpp-ytile-to-32bpp-ytilercccs-downscaling,Fail
+ kms_frontbuffer_tracking@fbc-tiling-linear,Fail
+-kms_frontbuffer_tracking@fbc-1p-indfb-fliptrack-mmap-gtt,Timeout
+ kms_lease@lease-uevent,Fail
++kms_lease@page-flip-implicit-plane,Timeout
+ kms_plane_alpha_blend@alpha-basic,Fail
+ kms_plane_alpha_blend@alpha-opaque-fb,Fail
+ kms_plane_alpha_blend@alpha-transparent-fb,Fail
+ kms_plane_alpha_blend@constant-alpha-max,Fail
+-kms_plane_scaling@planes-upscale-factor-0-25-downscale-factor-0-5,Timeout
+-kms_pm_rpm@modeset-stress-extra-wait,Timeout
+-kms_pm_rpm@universal-planes,Timeout
+-kms_pm_rpm@universal-planes-dpms,Timeout
+-kms_rotation_crc@primary-rotation-180,Timeout
+-kms_vblank@query-forked-hang,Timeout
+ perf@i915-ref-count,Fail
+ perf_pmu@module-unload,Fail
+ perf_pmu@rc6,Crash
+diff --git a/drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt b/drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt
+index 60b8d1c64e70..19a289617080 100644
+--- a/drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/i915-whl-flakes.txt
+@@ -4,3 +4,10 @@
+ # IGT Version: 1.28-g0df7b9b97
+ # Linux Version: 6.9.0-rc7
+ kms_pm_rpm@modeset-lpsp-stress
++
++# Board Name: dell-latitude-5400-8665U-sarien
++# Bug Report: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/13351
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++gen9_exec_parse@unaligned-access
+diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt
+index 8e0efc80d510..4f176c04ec4e 100644
+--- a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt
+@@ -1,8 +1,5 @@
+-fbdev@eof,Fail
+-fbdev@read,Fail
+ kms_3d,Fail
+ kms_bw@connected-linear-tiling-1-displays-1920x1080p,Fail
+-kms_bw@connected-linear-tiling-1-displays-2160x1440p,Fail
+ kms_bw@connected-linear-tiling-1-displays-2560x1440p,Fail
+ kms_bw@connected-linear-tiling-1-displays-3840x2160p,Fail
+ kms_bw@connected-linear-tiling-2-displays-1920x1080p,Fail
+@@ -22,6 +19,6 @@ kms_cursor_legacy@cursor-vs-flip-atomic,Fail
+ kms_cursor_legacy@cursor-vs-flip-legacy,Fail
+ kms_flip@flip-vs-modeset-vs-hang,Fail
+ kms_flip@flip-vs-panning-vs-hang,Fail
+-kms_lease@lease-uevent,Fail
+-kms_rmfb@close-fd,Fail
++kms_flip@flip-vs-suspend,Fail
+ kms_flip@flip-vs-suspend-interruptible,Fail
++kms_lease@lease-uevent,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-flakes.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-flakes.txt
+index 2e5bf6ae25f2..2956567c3048 100644
+--- a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-flakes.txt
+@@ -39,3 +39,10 @@ kms_cursor_legacy@cursor-vs-flip-atomic-transitions
+ # IGT Version: 1.28-g0df7b9b97
+ # Linux Version: 6.9.0-rc7
+ kms_prop_blob@invalid-set-prop
++
++# Board Name: mt8173-elm-hana
++# Bug Report: https://lore.kernel.org/dri-devel/c0b4cded-0971-4abb-9965-2acf4602d7cd@collabora.com/T/#u
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_bw@connected-linear-tiling-1-displays-2160x1440p
+diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
+index 8198e06344a3..d0db51874aef 100644
+--- a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
+@@ -15,3 +15,8 @@ tools_test.*
+ # Currently fails and causes coverage loss for other tests
+ # since core_getversion also fails.
+ core_hotunplug.*
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8183-fails.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8183-fails.txt
+index 845f852bb4a0..5a063361d7f2 100644
+--- a/drivers/gpu/drm/ci/xfails/mediatek-mt8183-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8183-fails.txt
+@@ -1,16 +1,12 @@
+-core_setmaster@master-drop-set-shared-fd,Fail
++core_setmaster@master-drop-set-user,Fail
+ dumb_buffer@create-clear,Crash
+-fbdev@eof,Fail
+-fbdev@pan,Fail
+-fbdev@read,Fail
+-fbdev@unaligned-read,Fail
+ kms_bw@connected-linear-tiling-1-displays-1920x1080p,Fail
+-kms_bw@connected-linear-tiling-1-displays-2160x1440p,Fail
+ kms_bw@connected-linear-tiling-1-displays-2560x1440p,Fail
++kms_bw@connected-linear-tiling-1-displays-3840x2160p,Fail
+ kms_bw@linear-tiling-1-displays-1920x1080p,Fail
++kms_bw@linear-tiling-1-displays-2160x1440p,Fail
+ kms_bw@linear-tiling-1-displays-3840x2160p,Fail
+-kms_color@invalid-gamma-lut-sizes,Fail
++kms_cursor_legacy@cursor-vs-flip-atomic,Fail
+ kms_flip@flip-vs-panning-vs-hang,Fail
+ kms_flip@flip-vs-suspend,Fail
+ kms_lease@lease-uevent,Fail
+-kms_rmfb@close-fd,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
+index 8198e06344a3..d0db51874aef 100644
+--- a/drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
+@@ -15,3 +15,8 @@ tools_test.*
+ # Currently fails and causes coverage loss for other tests
+ # since core_getversion also fails.
+ core_hotunplug.*
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
+index 066d24ee3e08..7752adff05c1 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
+@@ -1,4 +1,7 @@
+ kms_3d,Fail
++kms_cursor_legacy@forked-bo,Fail
++kms_cursor_legacy@forked-move,Fail
++kms_cursor_legacy@single-bo,Fail
+ kms_cursor_legacy@torture-bo,Fail
+ kms_force_connector_basic@force-edid,Fail
+ kms_hdmi_inject@inject-4k,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
+index 6dbc2080347d..e4a8f8352cd6 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
+@@ -15,4 +15,3 @@ kms_pipe_crc_basic@compare-crc-sanitycheck-nv12,Fail
+ kms_plane_alpha_blend@alpha-7efc,Fail
+ kms_plane_alpha_blend@coverage-7efc,Fail
+ kms_plane_alpha_blend@coverage-vs-premult-vs-constant,Fail
+-kms_rmfb@close-fd,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
+index d74e04405e65..8910afb6acf2 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
+@@ -18,3 +18,17 @@ msm/msm_shrink@copy-gpu-oom-32
+ # IGT Version: 1.28-g0df7b9b97
+ # Linux Version: 6.9.0-rc7
+ msm/msm_shrink@copy-gpu-oom-8
++
++# Board Name: sc7180-trogdor-kingoftown
++# Bug Report: https://gitlab.freedesktop.org/drm/msm/-/issues/68
++# Failure Rate: 40
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_lease@page-flip-implicit-plane
++
++# Board Name: sc7180-trogdor-kingoftown
++# Bug Report: https://gitlab.freedesktop.org/drm/msm/-/issues/69
++# Failure Rate: 20
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_plane@plane-position-hole-dpms
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt
+index c2833eee1c4b..478d7c161616 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-skips.txt
+@@ -23,3 +23,8 @@ kms_flip@2x-wf_vblank-ts-check
+ 
+ # Hangs the machine
+ kms_cursor_crc@cursor-random-max-size
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
+index 6dbc2080347d..e4a8f8352cd6 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
+@@ -15,4 +15,3 @@ kms_pipe_crc_basic@compare-crc-sanitycheck-nv12,Fail
+ kms_plane_alpha_blend@alpha-7efc,Fail
+ kms_plane_alpha_blend@coverage-7efc,Fail
+ kms_plane_alpha_blend@coverage-vs-premult-vs-constant,Fail
+-kms_rmfb@close-fd,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt
+index 7c69c1f1d55b..ef9318afcd89 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-skips.txt
+@@ -17,3 +17,8 @@ tools_test.*
+ # Currently fails and causes coverage loss for other tests
+ # since core_getversion also fails.
+ core_hotunplug.*
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt
+index fa8c7e663858..7a2ab58b706f 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sdm845-fails.txt
+@@ -1,4 +1,3 @@
+-drm_read@invalid-buffer,Fail
+ kms_color@ctm-0-25,Fail
+ kms_color@ctm-0-50,Fail
+ kms_color@ctm-0-75,Fail
+@@ -28,4 +27,3 @@ kms_plane_alpha_blend@coverage-7efc,Fail
+ kms_plane_alpha_blend@coverage-vs-premult-vs-constant,Fail
+ kms_plane_cursor@overlay,Fail
+ kms_plane_cursor@viewport,Fail
+-kms_rmfb@close-fd,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt b/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt
+index 94783cafc21a..2ce7f7e23a01 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt
+@@ -30,3 +30,8 @@ kms_cursor_crc.*
+ # IGT Version: 1.28-ga73311079
+ # Linux Version: 6.11.0-rc2
+ kms_content_protection@uevent
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
+index 4892c0c70a6d..8d26b23133aa 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
+@@ -7,9 +7,4 @@ kms_cursor_legacy@torture-bo,Fail
+ kms_cursor_legacy@torture-move,Fail
+ kms_hdmi_inject@inject-4k,Fail
+ kms_lease@lease-uevent,Fail
+-kms_plane_alpha_blend@alpha-7efc,Fail
+-kms_plane_alpha_blend@alpha-basic,Fail
+-kms_plane_alpha_blend@alpha-opaque-fb,Fail
+-kms_plane_alpha_blend@alpha-transparent-fb,Fail
+-kms_plane_alpha_blend@constant-alpha-max,Fail
+ msm/msm_recovery@gpu-fault-parallel,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt
+index 90282dfa19f4..ba9160d4d8eb 100644
+--- a/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt
+@@ -1,24 +1,10 @@
++core_setmaster@master-drop-set-root,Crash
++core_setmaster@master-drop-set-shared-fd,Crash
+ core_setmaster@master-drop-set-user,Crash
++core_setmaster_vs_auth,Crash
+ dumb_buffer@create-clear,Crash
+ fbdev@pan,Crash
+-kms_bw@linear-tiling-2-displays-1920x1080p,Fail
+-kms_cursor_crc@cursor-onscreen-32x10,Crash
+-kms_cursor_crc@cursor-onscreen-32x32,Crash
+-kms_cursor_crc@cursor-onscreen-64x64,Crash
+-kms_cursor_crc@cursor-random-32x10,Crash
+-kms_cursor_crc@cursor-sliding-32x10,Crash
+-kms_cursor_crc@cursor-sliding-32x32,Crash
+-kms_cursor_crc@cursor-sliding-64x21,Crash
+-kms_cursor_legacy@basic-flip-before-cursor-atomic,Fail
+-kms_cursor_legacy@cursor-vs-flip-legacy,Fail
+-kms_cursor_legacy@flip-vs-cursor-crc-atomic,Crash
+-kms_flip@flip-vs-panning-vs-hang,Crash
+-kms_invalid_mode@int-max-clock,Crash
+-kms_lease@invalid-create-leases,Fail
+-kms_pipe_crc_basic@read-crc-frame-sequence,Crash
+-kms_plane@pixel-format,Crash
+-kms_plane@pixel-format-source-clamping,Crash
++kms_cursor_legacy@basic-flip-before-cursor-legacy,Fail
++kms_flip@flip-vs-modeset-vs-hang,Crash
+ kms_prop_blob@invalid-set-prop,Crash
+-kms_properties@get_properties-sanity-atomic,Crash
+-kms_properties@get_properties-sanity-non-atomic,Crash
+-kms_rmfb@close-fd,Crash
++kms_prop_blob@invalid-set-prop-any,Crash
+diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt
+index 83a38853b4af..2803d0d80192 100644
+--- a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-fails.txt
+@@ -2,6 +2,7 @@ dumb_buffer@create-clear,Crash
+ kms_atomic_transition@modeset-transition,Fail
+ kms_atomic_transition@modeset-transition-fencing,Fail
+ kms_atomic_transition@plane-toggle-modeset-transition,Fail
++kms_bw@connected-linear-tiling-1-displays-2160x1440p,Fail
+ kms_color@gamma,Fail
+ kms_color@legacy-gamma,Fail
+ kms_cursor_crc@cursor-alpha-opaque,Fail
+@@ -24,6 +25,7 @@ kms_cursor_crc@cursor-rapid-movement-32x32,Fail
+ kms_cursor_crc@cursor-rapid-movement-64x21,Fail
+ kms_cursor_crc@cursor-rapid-movement-64x64,Fail
+ kms_cursor_crc@cursor-size-change,Fail
++kms_cursor_crc@cursor-size-hints,Fail
+ kms_cursor_crc@cursor-sliding-32x10,Fail
+ kms_cursor_crc@cursor-sliding-32x32,Fail
+ kms_cursor_crc@cursor-sliding-64x21,Fail
+@@ -32,6 +34,7 @@ kms_cursor_edge_walk@64x64-left-edge,Fail
+ kms_cursor_legacy@basic-flip-before-cursor-atomic,Fail
+ kms_cursor_legacy@basic-flip-before-cursor-legacy,Fail
+ kms_cursor_legacy@cursor-vs-flip-atomic,Fail
++kms_cursor_legacy@cursor-vs-flip-atomic-transitions,Fail
+ kms_cursor_legacy@cursor-vs-flip-legacy,Fail
+ kms_cursor_legacy@cursor-vs-flip-toggle,Fail
+ kms_cursor_legacy@flip-vs-cursor-atomic,Fail
+@@ -41,14 +44,11 @@ kms_cursor_legacy@flip-vs-cursor-legacy,Fail
+ kms_cursor_legacy@long-nonblocking-modeset-vs-cursor-atomic,Fail
+ kms_flip@basic-flip-vs-wf_vblank,Fail
+ kms_flip@blocking-wf_vblank,Fail
+-kms_flip@flip-vs-absolute-wf_vblank,Fail
+-kms_flip@flip-vs-blocking-wf-vblank,Fail
+ kms_flip@flip-vs-modeset-vs-hang,Fail
+ kms_flip@flip-vs-panning,Fail
+ kms_flip@flip-vs-panning-interruptible,Fail
+ kms_flip@flip-vs-panning-vs-hang,Fail
+ kms_flip@modeset-vs-vblank-race,Fail
+-kms_flip@modeset-vs-vblank-race-interruptible,Fail
+ kms_flip@plain-flip-fb-recreate,Fail
+ kms_flip@plain-flip-fb-recreate-interruptible,Fail
+ kms_flip@plain-flip-ts-check,Fail
+@@ -64,14 +64,11 @@ kms_pipe_crc_basic@nonblocking-crc,Fail
+ kms_pipe_crc_basic@nonblocking-crc-frame-sequence,Fail
+ kms_pipe_crc_basic@read-crc,Fail
+ kms_pipe_crc_basic@read-crc-frame-sequence,Fail
+-kms_plane@pixel-format,Crash
+-kms_plane@pixel-format-source-clamping,Crash
++kms_plane@pixel-format,Fail
++kms_plane@pixel-format-source-clamping,Fail
+ kms_plane@plane-panning-bottom-right,Fail
+ kms_plane@plane-panning-top-left,Fail
+ kms_plane@plane-position-covered,Fail
+ kms_plane@plane-position-hole,Fail
+-kms_plane@plane-position-hole-dpms,Fail
+ kms_plane_cursor@primary,Fail
+-kms_plane_multiple@tiling-none,Fail
+-kms_rmfb@close-fd,Fail
+ kms_universal_plane@universal-plane-functional,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt
+index 56f7d4f1ed15..348b4ce7eb4b 100644
+--- a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt
++++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt
+@@ -74,3 +74,59 @@ kms_bw@linear-tiling-2-displays-2160x1440p
+ # IGT Version: 1.28-ga73311079
+ # Linux Version: 6.11.0-rc5
+ kms_flip@flip-vs-expired-vblank
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/f944dd08-c88c-49ae-aff0-274374550a93@collabora.com/T/#u
++# Failure Rate: 40
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_bw@linear-tiling-1-displays-2160x1440p
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/afa2d3bf-29f2-488d-8cc9-f30d461444b0@collabora.com/T/#u
++# Failure Rate: 80
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_plane_multiple@tiling-none
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/6fdaa97f-c1a5-4216-831f-dbb7c5f90498@collabora.com/T/#u
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_bw@linear-tiling-1-displays-1920x1080p
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/616aa015-9574-4527-9d07-d8d698bbcc3c@collabora.com/T/#u
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_plane@plane-position-hole-dpms
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/7a1b888f-d7db-4ed7-96cd-3975ace837fb@collabora.com/T/#u
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_flip@flip-vs-absolute-wf_vblank
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/f17fffb6-abc4-464e-8465-395311b01f6a@collabora.com/T/#u
++# Failure Rate: 100
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_flip@flip-vs-blocking-wf-vblank
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/9b590b26-1bf9-4951-b6a3-ef6c67e6a1c6@collabora.com/T/#u
++# Failure Rate: 60
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_bw@linear-tiling-2-displays-1920x1080p
++
++# Board Name: hp-11A-G6-EE-grunt
++# Bug Report: https://lore.kernel.org/dri-devel/059545fa-65b1-4f5c-a13e-4d2898679f51@collabora.com/T/#u
++# Failure Rate: 20
++# IGT Version: 1.29-g33adea9eb
++# Linux Version: 6.13.0-rc2
++kms_flip@modeset-vs-vblank-race-interruptible
+diff --git a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
+index eb16b29dee48..e8e994d92557 100644
+--- a/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/rockchip-rk3399-skips.txt
+@@ -18,3 +18,8 @@ tools_test.*
+ # Currently fails and causes coverage loss for other tests
+ # since core_getversion also fails.
+ core_hotunplug.*
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt
+index 9c9e048725f8..adbcdd0f28d2 100644
+--- a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-skips.txt
+@@ -23,3 +23,8 @@ tools_test.*
+ # Currently fails and causes coverage loss for other tests
+ # since core_getversion also fails.
+ core_hotunplug.*
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
+diff --git a/drivers/gpu/drm/ci/xfails/vkms-none-fails.txt b/drivers/gpu/drm/ci/xfails/vkms-none-fails.txt
+index 71c02104a683..85647eca4e55 100644
+--- a/drivers/gpu/drm/ci/xfails/vkms-none-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/vkms-none-fails.txt
+@@ -1,12 +1,5 @@
+-kms_cursor_crc@cursor-rapid-movement-128x128,Fail
+-kms_cursor_crc@cursor-rapid-movement-128x42,Fail
+-kms_cursor_crc@cursor-rapid-movement-256x256,Fail
+ kms_cursor_crc@cursor-rapid-movement-256x85,Fail
+ kms_cursor_crc@cursor-rapid-movement-32x10,Fail
+-kms_cursor_crc@cursor-rapid-movement-32x32,Fail
+-kms_cursor_crc@cursor-rapid-movement-512x170,Fail
+-kms_cursor_crc@cursor-rapid-movement-512x512,Fail
+-kms_cursor_crc@cursor-rapid-movement-64x21,Fail
+ kms_cursor_crc@cursor-rapid-movement-64x64,Fail
+ kms_cursor_legacy@basic-flip-before-cursor-atomic,Fail
+ kms_cursor_legacy@basic-flip-before-cursor-legacy,Fail
+@@ -21,7 +14,6 @@ kms_cursor_legacy@flip-vs-cursor-legacy,Fail
+ kms_flip@flip-vs-modeset-vs-hang,Fail
+ kms_flip@flip-vs-panning-vs-hang,Fail
+ kms_lease@lease-uevent,Fail
+-kms_pipe_crc_basic@nonblocking-crc,Fail
+ kms_writeback@writeback-check-output,Fail
+ kms_writeback@writeback-check-output-XRGB2101010,Fail
+ kms_writeback@writeback-fb-id,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/vkms-none-skips.txt b/drivers/gpu/drm/ci/xfails/vkms-none-skips.txt
+index b3d16e82e9a2..319789806271 100644
+--- a/drivers/gpu/drm/ci/xfails/vkms-none-skips.txt
++++ b/drivers/gpu/drm/ci/xfails/vkms-none-skips.txt
+@@ -1,8 +1,9 @@
+ # keeps printing vkms_vblank_simulate: vblank timer overrun and never ends
+ kms_invalid_mode@int-max-clock
+ 
+-# Kernel panic
+-kms_cursor_crc@cursor-rapid-movement-32x10
++# kernel panic seen with kms_cursor_crc tests
++kms_cursor_crc.*
++# kms_cursor_crc@cursor-rapid-movement-32x10
+ # Oops: 0000 [#1] PREEMPT SMP NOPTI
+ # CPU: 0 PID: 2635 Comm: kworker/u8:13 Not tainted 6.9.0-rc7-g40935263a1fd #1
+ # Hardware name: ChromiumOS crosvm, BIOS 0
+@@ -52,7 +53,7 @@ kms_cursor_crc@cursor-rapid-movement-32x10
+ # FS:  0000000000000000(0000) GS:ffffa2ad2bc00000(0000) knlGS:0000000000000000
+ # CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ 
+-kms_cursor_crc@cursor-rapid-movement-256x85
++#kms_cursor_crc@cursor-rapid-movement-256x85
+ # [drm:drm_crtc_add_crc_entry] *ERROR* Overflow of CRC buffer, userspace reads too slow.
+ # Oops: 0000 [#1] PREEMPT SMP NOPTI
+ # CPU: 1 PID: 10 Comm: kworker/u8:0 Not tainted 6.9.0-rc7-g646381cde463 #1
+@@ -104,7 +105,7 @@ kms_cursor_crc@cursor-rapid-movement-256x85
+ # CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ # CR2: 0000000000000078 CR3: 0000000109b38000 CR4: 0000000000350ef0
+ 
+-kms_cursor_crc@cursor-onscreen-256x256
++#kms_cursor_crc@cursor-onscreen-256x256
+ # Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
+ # CPU: 1 PID: 1913 Comm: kworker/u8:6 Not tainted 6.10.0-rc5-g8a28e73ebead #1
+ # Hardware name: ChromiumOS crosvm, BIOS 0
+@@ -258,6 +259,535 @@ kms_cursor_edge_walk@128x128-left-edge
+ # CR2: 0000000000000018 CR3: 0000000101710000 CR4: 0000000000350ef0
+ # vkms_vblank_simulate: vblank timer overrun
+ 
++# DEBUG - Begin test kms_cursor_crc@cursor-rapid-movement-64x64
++# ------------[ cut here ]------------
++# WARNING: CPU: 1 PID: 1250 at drivers/gpu/drm/vkms/vkms_crtc.c:139 vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Modules linked in: vkms
++# CPU: 1 UID: 0 PID: 1250 Comm: kms_cursor_crc Not tainted 6.13.0-rc2-ge95c88d68ac3 #1
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# RIP: 0010:vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Code: f7 48 89 f3 e8 d0 bf ee ec 48 8b 83 50 01 00 00 a8 01 75 15 48 8b bb a0 01 00 00 e8 59 05 95 ec 48 89 df 5b e9 50 05 95 ec 90 <0f> 0b 90 eb e5 66 2e 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90
++# RSP: 0018:ffff9fb640aafb08 EFLAGS: 00010202
++# RAX: ffff8e7240859e05 RBX: ffff8e7241cd6400 RCX: ffffffffae496b65
++# RDX: ffffffffad2d1f80 RSI: 0000000000000000 RDI: 0000000000000000
++# RBP: 0000000000000000 R08: 0000000000000034 R09: 0000000000000002
++# R10: 0000000047dd15a5 R11: 00000000547dd15a R12: ffff8e72590cc000
++# R13: 0000000000000000 R14: 00000000ffffffff R15: 0000000000000000
++# FS:  00007f0942ad56c0(0000) GS:ffff8e726bd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 00007f0942ad0008 CR3: 0000000118d1e000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __warn+0x8c/0x190
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? report_bug+0x164/0x190
++#  ? handle_bug+0x54/0x90
++#  ? exc_invalid_op+0x17/0x70
++#  ? asm_exc_invalid_op+0x1a/0x20
++#  ? __pfx_drm_property_free_blob+0x10/0x10
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? vkms_atomic_crtc_destroy_state+0x10/0x40 [vkms]
++#  drm_atomic_state_default_clear+0x137/0x2f0
++#  __drm_atomic_state_free+0x6c/0xb0
++#  drm_atomic_helper_update_plane+0x100/0x150
++#  drm_mode_cursor_universal+0x10e/0x270
++#  drm_mode_cursor_common+0x115/0x240
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  drm_mode_cursor_ioctl+0x4a/0x70
++#  drm_ioctl_kernel+0xb0/0x110
++#  drm_ioctl+0x235/0x4b0
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  __x64_sys_ioctl+0x92/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f0943a84cdb
++# Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
++# RSP: 002b:00007fff267d68d0 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 000000000000005a RCX: 00007f0943a84cdb
++# RDX: 00007fff267d6960 RSI: 00000000c01c64a3 RDI: 0000000000000005
++# RBP: 00007fff267d6960 R08: 0000000000000007 R09: 00005619a60f3450
++# R10: fe95a83851609dee R11: 0000000000000246 R12: 00000000c01c64a3
++# R13: 0000000000000005 R14: 00005619a3cd2c68 R15: 00005619a608c830
++#  </TASK>
++# irq event stamp: 57793
++# hardirqs last  enabled at (57799): [<ffffffffacba3e4d>] __up_console_sem+0x4d/0x60
++# hardirqs last disabled at (57804): [<ffffffffacba3e32>] __up_console_sem+0x32/0x60
++# softirqs last  enabled at (45586): [<ffffffffacb17980>] handle_softirqs+0x310/0x3f0
++# softirqs last disabled at (45569): [<ffffffffacb17bc1>] __irq_exit_rcu+0xa1/0xc0
++# ---[ end trace 0000000000000000 ]---
++# Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
++# CPU: 0 UID: 0 PID: 119 Comm: kworker/u8:6 Tainted: G        W          6.13.0-rc2-ge95c88d68ac3 #1
++# Tainted: [W]=WARN
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# Workqueue: vkms_composer vkms_composer_worker [vkms]
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffff9fb640efbd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff8e7241926000 RSI: ffff8e7241927ffc RDI: 000000000b7fb767
++# RBP: ffff9fb640efbde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff8e7241b09a80 R11: 0000000000000000 R12: ffff8e7241cd6200
++# R13: 0000000000000013 R14: 0000000000000000 R15: ffff8e7241b09a80
++# FS:  0000000000000000(0000) GS:ffff8e726bc00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000118d1e000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __die+0x1e/0x60
++#  ? page_fault_oops+0x17b/0x4a0
++#  ? srso_return_thunk+0x5/0x5f
++#  ? exc_page_fault+0x6d/0x230
++#  ? asm_exc_page_fault+0x26/0x30
++#  ? compose_active_planes+0x1a3/0x760 [vkms]
++#  vkms_composer_worker+0x205/0x240 [vkms]
++#  process_one_work+0x201/0x6c0
++#  ? lock_is_held_type+0x9e/0x110
++#  worker_thread+0x17e/0x320
++#  ? __pfx_worker_thread+0x10/0x10
++#  kthread+0xce/0x100
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork+0x2f/0x50
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork_asm+0x1a/0x30
++#  </TASK>
++# Modules linked in: vkms
++# CR2: 000000000000001c
++# ---[ end trace 0000000000000000 ]---
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffff9fb640efbd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff8e7241926000 RSI: ffff8e7241927ffc RDI: 000000000b7fb767
++# RBP: ffff9fb640efbde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff8e7241b09a80 R11: 0000000000000000 R12: ffff8e7241cd6200
++# R13: 0000000000000013 R14: 0000000000000000 R15: ffff8e7241b09a80
++# FS:  0000000000000000(0000) GS:ffff8e726bc00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000118d1e000 CR4: 0000000000350ef0
++
++# DEBUG - Begin test kms_cursor_crc@cursor-rapid-movement-128x42
++# ------------[ cut here ]------------
++# WARNING: CPU: 0 PID: 2933 at drivers/gpu/drm/vkms/vkms_crtc.c:139 vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Modules linked in: vkms
++# CPU: 0 UID: 0 PID: 2933 Comm: kms_cursor_crc Not tainted 6.13.0-rc2-g5219242748c8 #1
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# RIP: 0010:vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Code: f7 48 89 f3 e8 d0 bf 6e d0 48 8b 83 50 01 00 00 a8 01 75 15 48 8b bb a0 01 00 00 e8 59 05 15 d0 48 89 df 5b e9 50 05 15 d0 90 <0f> 0b 90 eb e5 66 2e 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90
++# RSP: 0018:ffffa14cc08b3b08 EFLAGS: 00010202
++# RAX: ffff9b864084b605 RBX: ffff9b8641ba4600 RCX: ffffffff91c96b65
++# RDX: ffffffff90ad1f80 RSI: 0000000000000000 RDI: 0000000000000000
++# RBP: 0000000000000000 R08: 0000000000000034 R09: 0000000000000002
++# R10: 0000000047dd15a5 R11: 00000000547dd15a R12: ffff9b864099c000
++# R13: 0000000000000000 R14: 00000000ffffffff R15: 0000000000000000
++# FS:  00007f4f437ab6c0(0000) GS:ffff9b866bc00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 00007f4f44c3cd40 CR3: 0000000108c14000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __warn+0x8c/0x190
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? report_bug+0x164/0x190
++#  ? handle_bug+0x54/0x90
++#  ? exc_invalid_op+0x17/0x70
++#  ? asm_exc_invalid_op+0x1a/0x20
++#  ? __pfx_drm_property_free_blob+0x10/0x10
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? vkms_atomic_crtc_destroy_state+0x10/0x40 [vkms]
++#  drm_atomic_state_default_clear+0x137/0x2f0
++#  __drm_atomic_state_free+0x6c/0xb0
++#  drm_atomic_helper_update_plane+0x100/0x150
++#  drm_mode_cursor_universal+0x10e/0x270
++#  drm_mode_cursor_common+0x115/0x240
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  drm_mode_cursor_ioctl+0x4a/0x70
++#  drm_ioctl_kernel+0xb0/0x110
++#  drm_ioctl+0x235/0x4b0
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  __x64_sys_ioctl+0x92/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f4f44960c5b
++# Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
++# RSP: 002b:00007ffcdfb0b560 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 0000000000000060 RCX: 00007f4f44960c5b
++# RDX: 00007ffcdfb0b5f0 RSI: 00000000c01c64a3 RDI: 0000000000000005
++# RBP: 00007ffcdfb0b5f0 R08: 0000000000000007 R09: 000055c3a5801a30
++# R10: 3107764f00e1f281 R11: 0000000000000246 R12: 00000000c01c64a3
++# R13: 0000000000000005 R14: 000055c38b7e42c8 R15: 000055c3a579aab0
++#  </TASK>
++# irq event stamp: 58747
++# hardirqs last  enabled at (58753): [<ffffffff903a3e4d>] __up_console_sem+0x4d/0x60
++# hardirqs last disabled at (58758): [<ffffffff903a3e32>] __up_console_sem+0x32/0x60
++# softirqs last  enabled at (47324): [<ffffffff90317980>] handle_softirqs+0x310/0x3f0
++# softirqs last disabled at (47307): [<ffffffff90317bc1>] __irq_exit_rcu+0xa1/0xc0
++# ---[ end trace 0000000000000000 ]---
++# Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
++# CPU: 1 UID: 0 PID: 11 Comm: kworker/u8:0 Tainted: G        W          6.13.0-rc2-g5219242748c8 #1
++# Tainted: [W]=WARN
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# Workqueue: vkms_composer vkms_composer_worker [vkms]
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa14cc005fd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff9b8669626000 RSI: ffff9b8669627ffc RDI: 00000000348d6c39
++# RBP: ffffa14cc005fde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff9b8645650eb0 R11: 0000000000000000 R12: ffff9b8641ba5800
++# R13: 0000000000000028 R14: 0000000000000000 R15: ffff9b8645650eb0
++# FS:  0000000000000000(0000) GS:ffff9b866bd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000108c14000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __die+0x1e/0x60
++#  ? page_fault_oops+0x17b/0x4a0
++#  ? __kvmalloc_node_noprof+0x3e/0xc0
++#  ? exc_page_fault+0x6d/0x230
++#  ? asm_exc_page_fault+0x26/0x30
++#  ? compose_active_planes+0x1a3/0x760 [vkms]
++#  vkms_composer_worker+0x205/0x240 [vkms]
++#  process_one_work+0x201/0x6c0
++#  ? lock_is_held_type+0x9e/0x110
++#  worker_thread+0x17e/0x320
++#  ? __pfx_worker_thread+0x10/0x10
++#  kthread+0xce/0x100
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork+0x2f/0x50
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork_asm+0x1a/0x30
++#  </TASK>
++# Modules linked in: vkms
++# CR2: 000000000000001c
++# ---[ end trace 0000000000000000 ]---
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa14cc005fd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff9b8669626000 RSI: ffff9b8669627ffc RDI: 00000000348d6c39
++# RBP: ffffa14cc005fde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff9b8645650eb0 R11: 0000000000000000 R12: ffff9b8641ba5800
++# R13: 0000000000000028 R14: 0000000000000000 R15: ffff9b8645650eb0
++# FS:  0000000000000000(0000) GS:ffff9b866bd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000108c14000 CR4: 0000000000350ef0
++
++# DEBUG - Begin test kms_cursor_crc@cursor-rapid-movement-32x32
++# ------------[ cut here ]------------
++# WARNING: CPU: 0 PID: 2933 at drivers/gpu/drm/vkms/vkms_crtc.c:139 vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Modules linked in: vkms
++# CPU: 0 UID: 0 PID: 2933 Comm: kms_cursor_crc Not tainted 6.13.0-rc2-g5219242748c8 #1
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# RIP: 0010:vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Code: f7 48 89 f3 e8 d0 bf 6e d0 48 8b 83 50 01 00 00 a8 01 75 15 48 8b bb a0 01 00 00 e8 59 05 15 d0 48 89 df 5b e9 50 05 15 d0 90 <0f> 0b 90 eb e5 66 2e 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90
++# RSP: 0018:ffffa14cc08b3b08 EFLAGS: 00010202
++# RAX: ffff9b864084b605 RBX: ffff9b8641ba4600 RCX: ffffffff91c96b65
++# RDX: ffffffff90ad1f80 RSI: 0000000000000000 RDI: 0000000000000000
++# RBP: 0000000000000000 R08: 0000000000000034 R09: 0000000000000002
++# R10: 0000000047dd15a5 R11: 00000000547dd15a R12: ffff9b864099c000
++# R13: 0000000000000000 R14: 00000000ffffffff R15: 0000000000000000
++# FS:  00007f4f437ab6c0(0000) GS:ffff9b866bc00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 00007f4f44c3cd40 CR3: 0000000108c14000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __warn+0x8c/0x190
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? report_bug+0x164/0x190
++#  ? handle_bug+0x54/0x90
++#  ? exc_invalid_op+0x17/0x70
++#  ? asm_exc_invalid_op+0x1a/0x20
++#  ? __pfx_drm_property_free_blob+0x10/0x10
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? vkms_atomic_crtc_destroy_state+0x10/0x40 [vkms]
++#  drm_atomic_state_default_clear+0x137/0x2f0
++#  __drm_atomic_state_free+0x6c/0xb0
++#  drm_atomic_helper_update_plane+0x100/0x150
++#  drm_mode_cursor_universal+0x10e/0x270
++#  drm_mode_cursor_common+0x115/0x240
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  drm_mode_cursor_ioctl+0x4a/0x70
++#  drm_ioctl_kernel+0xb0/0x110
++#  drm_ioctl+0x235/0x4b0
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  __x64_sys_ioctl+0x92/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f4f44960c5b
++# Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
++# RSP: 002b:00007ffcdfb0b560 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 0000000000000060 RCX: 00007f4f44960c5b
++# RDX: 00007ffcdfb0b5f0 RSI: 00000000c01c64a3 RDI: 0000000000000005
++# RBP: 00007ffcdfb0b5f0 R08: 0000000000000007 R09: 000055c3a5801a30
++# R10: 3107764f00e1f281 R11: 0000000000000246 R12: 00000000c01c64a3
++# R13: 0000000000000005 R14: 000055c38b7e42c8 R15: 000055c3a579aab0
++#  </TASK>
++# irq event stamp: 58747
++# hardirqs last  enabled at (58753): [<ffffffff903a3e4d>] __up_console_sem+0x4d/0x60
++# hardirqs last disabled at (58758): [<ffffffff903a3e32>] __up_console_sem+0x32/0x60
++# softirqs last  enabled at (47324): [<ffffffff90317980>] handle_softirqs+0x310/0x3f0
++# softirqs last disabled at (47307): [<ffffffff90317bc1>] __irq_exit_rcu+0xa1/0xc0
++# ---[ end trace 0000000000000000 ]---
++# Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
++# CPU: 1 UID: 0 PID: 11 Comm: kworker/u8:0 Tainted: G        W          6.13.0-rc2-g5219242748c8 #1
++# Tainted: [W]=WARN
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# Workqueue: vkms_composer vkms_composer_worker [vkms]
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa14cc005fd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff9b8669626000 RSI: ffff9b8669627ffc RDI: 00000000348d6c39
++# RBP: ffffa14cc005fde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff9b8645650eb0 R11: 0000000000000000 R12: ffff9b8641ba5800
++# R13: 0000000000000028 R14: 0000000000000000 R15: ffff9b8645650eb0
++# FS:  0000000000000000(0000) GS:ffff9b866bd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000108c14000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __die+0x1e/0x60
++#  ? page_fault_oops+0x17b/0x4a0
++#  ? __kvmalloc_node_noprof+0x3e/0xc0
++#  ? exc_page_fault+0x6d/0x230
++#  ? asm_exc_page_fault+0x26/0x30
++#  ? compose_active_planes+0x1a3/0x760 [vkms]
++#  vkms_composer_worker+0x205/0x240 [vkms]
++#  process_one_work+0x201/0x6c0
++#  ? lock_is_held_type+0x9e/0x110
++#  worker_thread+0x17e/0x320
++#  ? __pfx_worker_thread+0x10/0x10
++#  kthread+0xce/0x100
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork+0x2f/0x50
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork_asm+0x1a/0x30
++#  </TASK>
++# Modules linked in: vkms
++# CR2: 000000000000001c
++# ---[ end trace 0000000000000000 ]---
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa14cc005fd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff9b8669626000 RSI: ffff9b8669627ffc RDI: 00000000348d6c39
++# RBP: ffffa14cc005fde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff9b8645650eb0 R11: 0000000000000000 R12: ffff9b8641ba5800
++# R13: 0000000000000028 R14: 0000000000000000 R15: ffff9b8645650eb0
++# FS:  0000000000000000(0000) GS:ffff9b866bd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000108c14000 CR4: 0000000000350ef0
++
++# DEBUG - Begin test kms_cursor_crc@cursor-rapid-movement-32x32
++# ------------[ cut here ]------------
++# WARNING: CPU: 0 PID: 2933 at drivers/gpu/drm/vkms/vkms_crtc.c:139 vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Modules linked in: vkms
++# CPU: 0 UID: 0 PID: 2933 Comm: kms_cursor_crc Not tainted 6.13.0-rc2-g5219242748c8 #1
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# RIP: 0010:vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Code: f7 48 89 f3 e8 d0 bf 6e d0 48 8b 83 50 01 00 00 a8 01 75 15 48 8b bb a0 01 00 00 e8 59 05 15 d0 48 89 df 5b e9 50 05 15 d0 90 <0f> 0b 90 eb e5 66 2e 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90
++# RSP: 0018:ffffa14cc08b3b08 EFLAGS: 00010202
++# RAX: ffff9b864084b605 RBX: ffff9b8641ba4600 RCX: ffffffff91c96b65
++# RDX: ffffffff90ad1f80 RSI: 0000000000000000 RDI: 0000000000000000
++# RBP: 0000000000000000 R08: 0000000000000034 R09: 0000000000000002
++# R10: 0000000047dd15a5 R11: 00000000547dd15a R12: ffff9b864099c000
++# R13: 0000000000000000 R14: 00000000ffffffff R15: 0000000000000000
++# FS:  00007f4f437ab6c0(0000) GS:ffff9b866bc00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 00007f4f44c3cd40 CR3: 0000000108c14000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __warn+0x8c/0x190
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? report_bug+0x164/0x190
++#  ? handle_bug+0x54/0x90
++#  ? exc_invalid_op+0x17/0x70
++#  ? asm_exc_invalid_op+0x1a/0x20
++#  ? __pfx_drm_property_free_blob+0x10/0x10
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? vkms_atomic_crtc_destroy_state+0x10/0x40 [vkms]
++#  drm_atomic_state_default_clear+0x137/0x2f0
++#  __drm_atomic_state_free+0x6c/0xb0
++#  drm_atomic_helper_update_plane+0x100/0x150
++#  drm_mode_cursor_universal+0x10e/0x270
++#  drm_mode_cursor_common+0x115/0x240
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  drm_mode_cursor_ioctl+0x4a/0x70
++#  drm_ioctl_kernel+0xb0/0x110
++#  drm_ioctl+0x235/0x4b0
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  __x64_sys_ioctl+0x92/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f4f44960c5b
++# Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
++# RSP: 002b:00007ffcdfb0b560 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 0000000000000060 RCX: 00007f4f44960c5b
++# RDX: 00007ffcdfb0b5f0 RSI: 00000000c01c64a3 RDI: 0000000000000005
++# RBP: 00007ffcdfb0b5f0 R08: 0000000000000007 R09: 000055c3a5801a30
++# R10: 3107764f00e1f281 R11: 0000000000000246 R12: 00000000c01c64a3
++# R13: 0000000000000005 R14: 000055c38b7e42c8 R15: 000055c3a579aab0
++#  </TASK>
++# irq event stamp: 58747
++# hardirqs last  enabled at (58753): [<ffffffff903a3e4d>] __up_console_sem+0x4d/0x60
++# hardirqs last disabled at (58758): [<ffffffff903a3e32>] __up_console_sem+0x32/0x60
++# softirqs last  enabled at (47324): [<ffffffff90317980>] handle_softirqs+0x310/0x3f0
++# softirqs last disabled at (47307): [<ffffffff90317bc1>] __irq_exit_rcu+0xa1/0xc0
++# ---[ end trace 0000000000000000 ]---
++# Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
++# CPU: 1 UID: 0 PID: 11 Comm: kworker/u8:0 Tainted: G        W          6.13.0-rc2-g5219242748c8 #1
++# Tainted: [W]=WARN
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# Workqueue: vkms_composer vkms_composer_worker [vkms]
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa14cc005fd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff9b8669626000 RSI: ffff9b8669627ffc RDI: 00000000348d6c39
++# RBP: ffffa14cc005fde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff9b8645650eb0 R11: 0000000000000000 R12: ffff9b8641ba5800
++# R13: 0000000000000028 R14: 0000000000000000 R15: ffff9b8645650eb0
++# FS:  0000000000000000(0000) GS:ffff9b866bd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000108c14000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __die+0x1e/0x60
++#  ? page_fault_oops+0x17b/0x4a0
++#  ? __kvmalloc_node_noprof+0x3e/0xc0
++#  ? exc_page_fault+0x6d/0x230
++#  ? asm_exc_page_fault+0x26/0x30
++#  ? compose_active_planes+0x1a3/0x760 [vkms]
++#  vkms_composer_worker+0x205/0x240 [vkms]
++#  process_one_work+0x201/0x6c0
++#  ? lock_is_held_type+0x9e/0x110
++#  worker_thread+0x17e/0x320
++#  ? __pfx_worker_thread+0x10/0x10
++#  kthread+0xce/0x100
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork+0x2f/0x50
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork_asm+0x1a/0x30
++#  </TASK>
++# Modules linked in: vkms
++# CR2: 000000000000001c
++# ---[ end trace 0000000000000000 ]---
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa14cc005fd20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff9b8669626000 RSI: ffff9b8669627ffc RDI: 00000000348d6c39
++# RBP: ffffa14cc005fde0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff9b8645650eb0 R11: 0000000000000000 R12: ffff9b8641ba5800
++# R13: 0000000000000028 R14: 0000000000000000 R15: ffff9b8645650eb0
++# FS:  0000000000000000(0000) GS:ffff9b866bd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000108c14000 CR4: 0000000000350ef0
++
++# DEBUG - Begin test kms_cursor_crc@cursor-rapid-movement-128x128
++# ------------[ cut here ]------------
++# WARNING: CPU: 0 PID: 2898 at drivers/gpu/drm/vkms/vkms_crtc.c:139 vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Modules linked in: vkms
++# CPU: 0 UID: 0 PID: 2898 Comm: kms_cursor_crc Not tainted 6.13.0-rc2-g1f006005ebf8 #1
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# RIP: 0010:vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++# Code: f7 48 89 f3 e8 d0 bf 6e e1 48 8b 83 50 01 00 00 a8 01 75 15 48 8b bb a0 01 00 00 e8 59 05 15 e1 48 89 df 5b e9 50 05 15 e1 90 <0f> 0b 90 eb e5 66 2e 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90
++# RSP: 0018:ffffa35c4082fb08 EFLAGS: 00010202
++# RAX: ffff8b02c1c0f005 RBX: ffff8b02d4509600 RCX: ffffffffa2c96b65
++# RDX: ffffffffa1ad1f80 RSI: 0000000000000000 RDI: 0000000000000000
++# RBP: 0000000000000000 R08: 0000000000000034 R09: 0000000000000002
++# R10: 0000000030f11ddf R11: 00000000f30f11dd R12: ffff8b02d2528000
++# R13: 0000000000000000 R14: 00000000ffffffff R15: 0000000000000000
++# FS:  00007f4b071ab6c0(0000) GS:ffff8b02efc00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000055f7f8384b48 CR3: 0000000104ef0000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __warn+0x8c/0x190
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? report_bug+0x164/0x190
++#  ? handle_bug+0x54/0x90
++#  ? exc_invalid_op+0x17/0x70
++#  ? asm_exc_invalid_op+0x1a/0x20
++#  ? __pfx_drm_property_free_blob+0x10/0x10
++#  ? vkms_atomic_crtc_destroy_state+0x31/0x40 [vkms]
++#  ? vkms_atomic_crtc_destroy_state+0x10/0x40 [vkms]
++#  drm_atomic_state_default_clear+0x137/0x2f0
++#  __drm_atomic_state_free+0x6c/0xb0
++#  drm_atomic_helper_update_plane+0x100/0x150
++#  drm_mode_cursor_universal+0x10e/0x270
++#  drm_mode_cursor_common+0x115/0x240
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  drm_mode_cursor_ioctl+0x4a/0x70
++#  drm_ioctl_kernel+0xb0/0x110
++#  drm_ioctl+0x235/0x4b0
++#  ? __pfx_drm_mode_cursor_ioctl+0x10/0x10
++#  __x64_sys_ioctl+0x92/0xc0
++#  do_syscall_64+0xbb/0x1d0
++#  entry_SYSCALL_64_after_hwframe+0x77/0x7f
++# RIP: 0033:0x7f4b0815ac5b
++# Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
++# RSP: 002b:00007ffd726f75e0 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
++# RAX: ffffffffffffffda RBX: 000000000000005d RCX: 00007f4b0815ac5b
++# RDX: 00007ffd726f7670 RSI: 00000000c01c64a3 RDI: 0000000000000005
++# RBP: 00007ffd726f7670 R08: 0000000000000007 R09: 000055f7f83e30c0
++# R10: 2b16893c03bd381a R11: 0000000000000246 R12: 00000000c01c64a3
++# R13: 0000000000000005 R14: 000055f7dbee72c8 R15: 000055f7f837bab0
++#  </TASK>
++# irq event stamp: 58921
++# hardirqs last  enabled at (58927): [<ffffffffa13a3e4d>] __up_console_sem+0x4d/0x60
++# hardirqs last disabled at (58932): [<ffffffffa13a3e32>] __up_console_sem+0x32/0x60
++# softirqs last  enabled at (46140): [<ffffffffa1317980>] handle_softirqs+0x310/0x3f0
++# softirqs last disabled at (46135): [<ffffffffa1317bc1>] __irq_exit_rcu+0xa1/0xc0
++# ---[ end trace 0000000000000000 ]---
++# Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
++# CPU: 1 UID: 0 PID: 1657 Comm: kworker/u8:14 Tainted: G        W          6.13.0-rc2-g1f006005ebf8 #1
++# Tainted: [W]=WARN
++# Hardware name: ChromiumOS crosvm, BIOS 0
++# Workqueue: vkms_composer vkms_composer_worker [vkms]
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa35c40c43d20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff8b02c52c8000 RSI: ffff8b02c52c9ffc RDI: 00000000fa4761c9
++# RBP: ffffa35c40c43de0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff8b02c1c87840 R11: 0000000000000000 R12: ffff8b02d4508800
++# R13: 0000000000000021 R14: 0000000000000000 R15: ffff8b02c1c87840
++# FS:  0000000000000000(0000) GS:ffff8b02efd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++# CR2: 000000000000001c CR3: 0000000104ef0000 CR4: 0000000000350ef0
++# Call Trace:
++#  <TASK>
++#  ? __die+0x1e/0x60
++#  ? page_fault_oops+0x17b/0x4a0
++#  ? srso_return_thunk+0x5/0x5f
++#  ? exc_page_fault+0x6d/0x230
++#  ? asm_exc_page_fault+0x26/0x30
++#  ? compose_active_planes+0x1a3/0x760 [vkms]
++#  vkms_composer_worker+0x205/0x240 [vkms]
++#  process_one_work+0x201/0x6c0
++#  ? lock_is_held_type+0x9e/0x110
++#  worker_thread+0x17e/0x320
++#  ? __pfx_worker_thread+0x10/0x10
++#  kthread+0xce/0x100
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork+0x2f/0x50
++#  ? __pfx_kthread+0x10/0x10
++#  ret_from_fork_asm+0x1a/0x30
++#  </TASK>
++# Modules linked in: vkms
++# CR2: 000000000000001c
++# ---[ end trace 0000000000000000 ]---
++# RIP: 0010:compose_active_planes+0x1a3/0x760 [vkms]
++# Code: db 4d 89 fa 85 c9 0f 84 32 03 00 00 4d 8b 24 da 48 c7 44 24 60 00 00 00 00 48 c7 44 24 68 00 00 00 00 49 8b 84 24 48 01 00 00 <8b> 50 1c 44 39 ea 0f 8f f3 02 00 00 44 39 68 24 0f 8e e9 02 00 00
++# RSP: 0018:ffffa35c40c43d20 EFLAGS: 00010202
++# RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000002
++# RDX: ffff8b02c52c8000 RSI: ffff8b02c52c9ffc RDI: 00000000fa4761c9
++# RBP: ffffa35c40c43de0 R08: 0000000000000000 R09: 0000000000000000
++# R10: ffff8b02c1c87840 R11: 0000000000000000 R12: ffff8b02d4508800
++# R13: 0000000000000021 R14: 0000000000000000 R15: ffff8b02c1c87840
++# FS:  0000000000000000(0000) GS:ffff8b02efd00000(0000) knlGS:0000000000000000
++# CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
++
+ # Skip driver specific tests
+ ^amdgpu.*
+ ^msm.*
+@@ -272,3 +802,8 @@ gem_.*
+ i915_.*
+ xe_.*
+ tools_test.*
++
++# IGT issue. is_joiner_mode() should return false for non-Intel hardware.
++# https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/issues/162
++kms_display_modes@extended-mode-basic
++kms_display_modes@mst-extended-mode-negative
 -- 
-Chuck Lever
+2.43.0
+
