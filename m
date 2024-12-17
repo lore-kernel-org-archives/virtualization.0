@@ -1,47 +1,85 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7231175D50;
-	Tue, 17 Dec 2024 06:56:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E3F1815CD79
+	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 07:17:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734418582; cv=none; b=mOzYYGT7FfGV+cUUdDGeYl4RnawrcjgxG7Ig1BB0EBn2YCasGnHAzdE43OxV7qIffvbp0phnyudpRN8Uay3Fl/t5vzUCA1e8FuQylLME/3WD5Y5/ijL9uo3IChEjYSSDPi6XlzAl1VCXxXFO9p5JZ8xTG7shd8RODuX+nZrK8s8=
+	t=1734419858; cv=none; b=L2jP2lCNsL4HmRFvEjZSSTwet1XUKAjVVURZuey6rfgkazqjLJCGmSGC6X18HaIQEa4MGRNIqU7JLURyWktuWbp+x9UejulNagM9HCGQ4cRyUgWOlHMREZhj2mPEqrsO1YCSIIpxgQMeEv//YQVBqQ7hbTfZn3qWnVrIVwO7JJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734418582; c=relaxed/simple;
-	bh=Vv7cmOIdxqoOHdgef+zWE9MDGSMfxeMMLKxfAkD2Vqg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cF61nXoynSdkKL2Fj/y2dCh01K9BvJJOmJoeesK7D5cfzv08Ue/i82pGfhttrKISQLiwpgZ2r0gVEccspQilsz8UTrc8CUBVNVkiDfuSwX0Up7+lSuYyEBKPHnth6O+dU/piKqUFqCsYsP1OtNUFWLJbGQpiW91cVCaN1L/zuL0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id E725668B05; Tue, 17 Dec 2024 07:56:14 +0100 (CET)
-Date: Tue, 17 Dec 2024 07:56:14 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Oliver Sang <oliver.sang@intel.com>
-Cc: Christoph Hellwig <hch@lst.de>, oe-lkp@lists.linux.dev, lkp@intel.com,
-	linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-	linux-block@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org
-Subject: Re: [linus:master] [block]  e70c301fae: stress-ng.aiol.ops_per_sec
- 49.6% regression
-Message-ID: <20241217065614.GA19113@lst.de>
-References: <202412122112.ca47bcec-lkp@intel.com> <20241213143224.GA16111@lst.de> <20241217045527.GA16091@lst.de> <Z2EgW8/WNfzZ28mn@xsang-OptiPlex-9020>
+	s=arc-20240116; t=1734419858; c=relaxed/simple;
+	bh=Zrlk6LLf2G5/XLvrn/OJXQH8CFlPncDWlcWImq8hu8k=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=V6Z6gzIsUcTK5P9O6IeWLX0ooEY8xBIljybRrdUViPkenUX2OgHTRz4Nvl1x+kyxk4MpTrknJHradnVXF46f4ZCj+LMyt0x1V+j2wsesq81bJ+mBIvTilINzks7HVwbHOSEE5jJss/fF/TABHxNNgDA7peWu7mb2lGqYU2WILXs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=asPjhEeB; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="asPjhEeB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=B9qCC
+	0utvM1hgVi7MOI0Z5r71VmyBlYIOULJl+wWQvs=; b=asPjhEeBKiDpIgGIXIBNO
+	sOztCx5+mGHy/WMH5pIMOorDgedFdGNbUnven2JIBIWfLgd1Y/BpjA5BECGiNpG3
+	ELobMjAtl5hVDwqCdYKPGyQchQhjWXCYp4jvWGlQYLXZ/C2AkifY75NCu3XIB7PP
+	CW8sGoUkru/xHS8MkXn9Ik=
+Received: from icess-ProLiant-DL380-Gen10.. (unknown [])
+	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wDXDzR1JWFnhCKOBA--.64228S4;
+	Tue, 17 Dec 2024 15:17:25 +0800 (CST)
+From: Ma Ke <make_ruc2021@163.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	zhangweiping@didichuxing.com,
+	cohuck@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Ma Ke <make_ruc2021@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] virtio: fix reference leak in register_virtio_device()
+Date: Tue, 17 Dec 2024 15:17:08 +0800
+Message-Id: <20241217071708.2905142-1-make_ruc2021@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z2EgW8/WNfzZ28mn@xsang-OptiPlex-9020>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDXDzR1JWFnhCKOBA--.64228S4
+X-Coremail-Antispam: 1Uf129KBjvdXoW7Gr15GF4DCrW8try7Gw47CFg_yoWDJwbEgw
+	1v9r93Xr48GF40yrW5Ar4rZrnayasrtan3Xr45tF93J3y2vF4DXrnrXrn8tF1Uu347Cr4D
+	AF45Krs5Zw1fWjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRNyxRDUUUUU==
+X-CM-SenderInfo: 5pdnvshuxfjiisr6il2tof0z/xtbBFQO4C2dhI2AwpwAAs3
 
-On Tue, Dec 17, 2024 at 02:55:23PM +0800, Oliver Sang wrote:
-> from below information, it seems an 'ahci' to me. but since I have limited
-> knowledge about storage driver, maybe I'm wrong. if you want more information,
-> please let us know. thanks a lot!
+The reference count of the device incremented in device_initialize() is
+not decremented when device_add() fails. Add a put_device() call before
+returning from the function.
 
-Yes, this looks like ahci.  Thanks a lot!
+Found by code review.
+
+Cc: stable@vger.kernel.org
+Fixes: f2b44cde7e16 ("virtio: split device_register into device_initialize and device_add")
+Signed-off-by: Ma Ke <make_ruc2021@163.com>
+---
+Changes in v2:
+- modified the fixes tag according to suggestions;
+- modified the bug description.
+---
+ drivers/virtio/virtio.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index b9095751e43b..ac721b5597e8 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -503,6 +503,7 @@ int register_virtio_device(struct virtio_device *dev)
+ 
+ out_of_node_put:
+ 	of_node_put(dev->dev.of_node);
++	put_device(&dev->dev);
+ out_ida_remove:
+ 	ida_free(&virtio_index_ida, dev->index);
+ out:
+-- 
+2.25.1
 
