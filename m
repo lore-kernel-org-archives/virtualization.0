@@ -1,147 +1,187 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C5681487C5
-	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 08:21:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D0E942AA1
+	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 08:43:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734423709; cv=none; b=RywO1VoHjOAI02gDF/FP3K4CMRafb+xGvJfOZDgoQMtlT/tVigDZczLCVkPTxQHQUt3F9ospvjLdg3fuL4dOh03wdyrPyYYGzXg8QhxYO1Zi1kuHGogMndStGKjkNKOZZEsbMqZ5T4NGonsP2aIcG0GYyH0RneppNnsDRWjUu6A=
+	t=1734425020; cv=none; b=bVhdpI2u5sd/YLhzQjWIaPzrzrMf65erORoVMhXoDBErn6+i4Vf3un202CW13ILtMjJ0rdfkwFT5V/iXmVZFsBq/QMYPGKNv3cu7nr39ZeLaty+g+iL8Ulr3DlXzc6SYg8rkyz10dm20oOWhFB74mjl2SiJWkSfcA536BCOBm8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734423709; c=relaxed/simple;
-	bh=F5S4FhtmltsBwBx86PvuD+lMhYGZK3Hqs0mfpw44AcI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PRTsFbQyzefcKmdeGRWGdXKh8+c91fFOYftlvmpcZLzE562cp0h8TUQ9/lEbhowbvbhadkrdDopvxoVHj/sZkO3D9CtIwFfaCcNI7r/2DbJNGdE9SuplafhONjp7W+NjdPs5VF9edf2rV08pUlpqURy1x64D+LmSxnNku5hY+Zk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qVwW87h9; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3iwiwvyj; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qVwW87h9; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3iwiwvyj; arc=none smtp.client-ip=195.135.223.130
+	s=arc-20240116; t=1734425020; c=relaxed/simple;
+	bh=RiMoYBjFKuweT8LKRjJQqcaHrlty+LCX9P5GUJNphxA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NTMvYmXvZhBRSZZWyrqUKzWcc2pcyOtyE2XnAmR1GRhn3m+Wax5U2zR+ZInzfJPCCMymg7XKKzOruSAfo5NtW+RH1gShhWubpggY2VRDopYGYihrZD9dE26NyDPZ7/RDtlN2eLfBKKzxXozKZ34RDXsUEPuSyW9UwQojBtMZBnA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=K6XBX4P4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=zJRlPaJK; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=K6XBX4P4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=zJRlPaJK; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qVwW87h9";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3iwiwvyj";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qVwW87h9";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3iwiwvyj"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="K6XBX4P4";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="zJRlPaJK";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="K6XBX4P4";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="zJRlPaJK"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 3BE1821120;
-	Tue, 17 Dec 2024 08:21:45 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 986291F449;
+	Tue, 17 Dec 2024 08:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1734423705; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
-	b=qVwW87h9IIRltr8VdEQKJhEHFuizPMnxm0At6YVF3qu+QiNzXpcpWmb0c3EcfdTqfazSpW
-	rFjbHnPZBb4MqKFKk758sazgfQJW8bw7GPrJyefEfU9FE6uZ8mWdlPQf4HhNdTPtmIdJIo
-	uIfhHPGBVf6Z3CqFuQIL2ayxRKzFaB8=
+	t=1734425016; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Vex7xKbmiMw00Z6gg7me9Xn6FewnCUQLvXk+yrg9GUI=;
+	b=K6XBX4P4DIlYd317heif18vVh+WiLwYjK6mwffo6DZtcFkAMtNUqC01YVxY2Tugx0iSvtW
+	PMKFlt6k5f9GrZ32tAaKiQDHup01W31HKMmOtl/Z99J5qcUgYFe0bXR74ilMtpDzV7QcPY
+	6zCuFjTHufQf2vMc0iyzExTWpWFcTK8=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1734423705;
+	s=susede2_ed25519; t=1734425016;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
-	b=3iwiwvyjFkJl+c1TbcwB8Pfq8gRzCBQ6bjAAAmtXFrCrO4FldFK7xQD1+gf7kU35PPhUF4
-	vs35Wg5oVgtVd3DA==
-Authentication-Results: smtp-out1.suse.de;
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Vex7xKbmiMw00Z6gg7me9Xn6FewnCUQLvXk+yrg9GUI=;
+	b=zJRlPaJKennVsp9HzxZ3sHY6I4UrV2OlfBfMja1S6RbnNnHL71rTYAD2ncCxDEZeAMd8rQ
+	DtTxLoT6oovorFDg==
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1734423705; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
-	b=qVwW87h9IIRltr8VdEQKJhEHFuizPMnxm0At6YVF3qu+QiNzXpcpWmb0c3EcfdTqfazSpW
-	rFjbHnPZBb4MqKFKk758sazgfQJW8bw7GPrJyefEfU9FE6uZ8mWdlPQf4HhNdTPtmIdJIo
-	uIfhHPGBVf6Z3CqFuQIL2ayxRKzFaB8=
+	t=1734425016; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Vex7xKbmiMw00Z6gg7me9Xn6FewnCUQLvXk+yrg9GUI=;
+	b=K6XBX4P4DIlYd317heif18vVh+WiLwYjK6mwffo6DZtcFkAMtNUqC01YVxY2Tugx0iSvtW
+	PMKFlt6k5f9GrZ32tAaKiQDHup01W31HKMmOtl/Z99J5qcUgYFe0bXR74ilMtpDzV7QcPY
+	6zCuFjTHufQf2vMc0iyzExTWpWFcTK8=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1734423705;
+	s=susede2_ed25519; t=1734425016;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
-	b=3iwiwvyjFkJl+c1TbcwB8Pfq8gRzCBQ6bjAAAmtXFrCrO4FldFK7xQD1+gf7kU35PPhUF4
-	vs35Wg5oVgtVd3DA==
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Vex7xKbmiMw00Z6gg7me9Xn6FewnCUQLvXk+yrg9GUI=;
+	b=zJRlPaJKennVsp9HzxZ3sHY6I4UrV2OlfBfMja1S6RbnNnHL71rTYAD2ncCxDEZeAMd8rQ
+	DtTxLoT6oovorFDg==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 19E3213A3C;
-	Tue, 17 Dec 2024 08:21:45 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 57568132EA;
+	Tue, 17 Dec 2024 08:43:36 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id mA8iBJk0YWe4GQAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Tue, 17 Dec 2024 08:21:45 +0000
-Date: Tue, 17 Dec 2024 09:21:44 +0100
-From: Daniel Wagner <dwagner@suse.de>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, 
-	Sagi Grimberg <sagi@grimberg.me>, John Garry <john.g.garry@oracle.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com, 
-	linux-nvme@lists.infradead.org
-Subject: Re: [PATCH v6 0/8] blk: refactor queue affinity helpers
-Message-ID: <632d25c7-ac46-4a1a-b2bc-14258a88216c@flourine.local>
-References: <20241202-refactor-blk-affinity-helpers-v6-0-27211e9c2cd5@kernel.org>
- <c5f7f562-c8b0-422b-bb51-744ecba7ecee@flourine.local>
+	id ooj4E7g5YWfOIAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 17 Dec 2024 08:43:36 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: kraxel@redhat.com,
+	dave@treblig.org,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	airlied@gmail.com,
+	simona@ffwll.ch
+Cc: virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH] drm/bochs: Do not put DRM device in PCI remove callback
+Date: Tue, 17 Dec 2024 09:43:17 +0100
+Message-ID: <20241217084328.225045-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c5f7f562-c8b0-422b-bb51-744ecba7ecee@flourine.local>
+Content-Transfer-Encoding: 8bit
 X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[9];
 	ARC_NA(0.00)[];
 	MIME_TRACE(0.00)[0:+];
-	MISSING_XM_UA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[24];
-	RCVD_TLS_ALL(0.00)[];
+	FREEMAIL_TO(0.00)[redhat.com,treblig.org,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_EQ_ENVFROM(0.00)[];
 	FROM_HAS_DN(0.00)[];
 	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
-X-Spam-Score: -4.30
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Score: -2.80
 X-Spam-Flag: NO
 
-Hi Jens,
+Removing the bochs PCI device should mark the DRM device as unplugged
+without removing it. Hence clear the respective call to drm_dev_put()
+from bochs_pci_remove().
 
-On Mon, Dec 09, 2024 at 10:42:26AM +0100, Daniel Wagner wrote:
-> On Mon, Dec 02, 2024 at 03:00:08PM +0100, Daniel Wagner wrote:
-> > I've rebased and retested the series on top of for-6.14/block and updated
-> > the docummentation as requested by John.
-> > 
-> > Original cover letter:
-> > 
-> > These patches were part of 'honor isolcpus configuration' [1] series. To
-> > simplify the review process I decided to send this as separate series
-> > because I think it's a nice cleanup independent of the isolcpus feature.
-> > 
-> > Signed-off-by: Daniel Wagner <wagi@kernel.org>
-> 
-> I've based this work on top of your tree as I think it should go your
-> tree. If this should go via different tree, let me know which one.
-> 
-> And in case the series didn't hit your inbox, I really don't know what I
-> am doing wrong. I've switched over to use b4 and korg for sending the
-> patches and on my side all looks good and the mails also appear on lore
-> completely normal.
+Fixes a double unref in devm_drm_dev_init_release(). An example error
+message is shown below:
 
-Any chance to get this merged?
+[   32.958338] BUG: KASAN: use-after-free in drm_dev_put.part.0+0x1b/0x90
+[   32.958850] Write of size 4 at addr ffff888152134004 by task (udev-worker)/591
+[   32.959574] CPU: 3 UID: 0 PID: 591 Comm: (udev-worker) Tainted: G            E      6.13.0-rc2-1-default+ #3417
+[   32.960316] Tainted: [E]=UNSIGNED_MODULE
+[   32.960637] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.3-2-gc13ff2cd-prebuilt.qemu.org 04/01/2014
+[   32.961429] Call Trace:
+[   32.961433]  <TASK>
+[   32.961439]  dump_stack_lvl+0x68/0x90
+[   32.961452]  print_address_description.constprop.0+0x88/0x330
+[   32.961461]  ? preempt_count_sub+0x14/0xc0
+[   32.961473]  print_report+0xe2/0x1d0
+[   32.961479]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   32.963725]  ? __virt_addr_valid+0x143/0x320
+[   32.964077]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   32.964463]  ? drm_dev_put.part.0+0x1b/0x90
+[   32.964817]  kasan_report+0xce/0x1a0
+[   32.965123]  ? drm_dev_put.part.0+0x1b/0x90
+[   32.965474]  kasan_check_range+0xff/0x1c0
+[   32.965806]  drm_dev_put.part.0+0x1b/0x90
+[   32.966138]  release_nodes+0x84/0xc0
+[   32.966447]  devres_release_all+0xd2/0x110
+[   32.966788]  ? __pfx_devres_release_all+0x10/0x10
+[   32.967177]  ? preempt_count_sub+0x14/0xc0
+[   32.967523]  device_unbind_cleanup+0x16/0xc0
+[   32.967886]  really_probe+0x1b7/0x570
+[   32.968207]  __driver_probe_device+0xca/0x1b0
+[   32.968568]  driver_probe_device+0x4a/0xf0
+[   32.968907]  __driver_attach+0x10b/0x290
+[   32.969239]  ? __pfx___driver_attach+0x10/0x10
+[   32.969598]  bus_for_each_dev+0xc0/0x110
+[   32.969923]  ? __pfx_bus_for_each_dev+0x10/0x10
+[   32.970291]  ? bus_add_driver+0x17a/0x2b0
+[   32.970622]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   32.971011]  bus_add_driver+0x19a/0x2b0
+[   32.971335]  driver_register+0xd8/0x160
+[   32.971671]  ? __pfx_bochs_pci_driver_init+0x10/0x10 [bochs]
+[   32.972130]  do_one_initcall+0xba/0x390
+[...]
 
-Thanks,
-Daniel
+After unplugging the DRM device, clients will close their references.
+Closing the final reference will also release the DRM device.
+
+Reported-by: Dr. David Alan Gilbert <dave@treblig.org>
+Closes: https://lore.kernel.org/lkml/Z18dbfDAiFadsSdg@gallifrey/
+Fixes: 04826f588682 ("drm/bochs: Allocate DRM device in struct bochs_device")
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux.dev
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/tiny/bochs.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index 89a699370a59..c67e1f906785 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -757,7 +757,6 @@ static void bochs_pci_remove(struct pci_dev *pdev)
+ 
+ 	drm_dev_unplug(dev);
+ 	drm_atomic_helper_shutdown(dev);
+-	drm_dev_put(dev);
+ }
+ 
+ static void bochs_pci_shutdown(struct pci_dev *pdev)
+-- 
+2.47.1
+
