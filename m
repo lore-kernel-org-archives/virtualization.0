@@ -1,151 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACAE21FAC53;
-	Tue, 17 Dec 2024 18:30:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0991D516F
+	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 21:00:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734460206; cv=none; b=KYk/yTpEXcpA8q37MdzzpRbXYIji01CuoABEy0omzoDgpemrSlK9n1sU/HqZG7pYwiks09Ailcu0zLek1gbYpam3ZkrnPGUj+9Oj+pvo9nLnsUqll01NYZIkEefbROlyvdlHXnSNA1tzyF1oMefmTjB6BKdFdOI5M+V4+tV4yyk=
+	t=1734469252; cv=none; b=b2MRF9gQCR1zjRRjxIENhf5RPQRv1A05j6wjXdQSLfHf0kT3JhyYAaL8+GnvOkTx5Gj3iJ12dxmL5ltkitKQWOX0ftaSXZPVc9DnZU1892nxNR8Bw3nBuYJjWHY7ekqmsBqIbaUBJA5MrrL1LgkJodmyBEDRVJ3RN0xh7B368aE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734460206; c=relaxed/simple;
-	bh=6NgFV7+SLJHkzCci3gNbm7cBYHWTyZIkNamwDIlbLeY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Bj6HiztUGL39yxOUV/zzs8LHw7kcroQFEP5yfrXmmVy+nwmnyZ/+4M9TpiJ3a0W0cY1QmPrtBQWlqpb43catXnn5MPco1XktayKkFMdmuL8F7UAqY1gQ9wU5l3IZaRqyDbKR39rKyGIlQ0qj3Fb5jSel4PlrHIpuO7/9xQSkVZk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s6Kv27+R; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1734469252; c=relaxed/simple;
+	bh=INHCV9g7S0q1m2IVXiOJftwDpaPmTbEq/X94iWftqSU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lhafOGm8JUJh4Xe7MU0B8/kv5z6M9GnFvuKW4fZ8xo60OKuaMJqhkUTLeUWOZ8TcmyDNCyHdfHSSVNVeij5Rae0xKPrrhwhREf6pF+wS7pppaSKFDT5a0yo4yTm8jjGcT4SAmdUe1se6/wuawNzadQ+rhjGYjuJGBCbVU9s6dg8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fEGWp3OT; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s6Kv27+R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEEDBC4CED7;
-	Tue, 17 Dec 2024 18:30:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1734460206;
-	bh=6NgFV7+SLJHkzCci3gNbm7cBYHWTyZIkNamwDIlbLeY=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=s6Kv27+RnXSPrl2jQCg0fkmNWjHVSiB/hAypqxFY66hSV7caMFNcFSK9tefnE2j9D
-	 4VbA1/GbM9ZVKy8tWqx699sdcqv9NCX8Pbgz/cDonCQ1O4uhOltf/ng8vOftMg8qLI
-	 lmxKzV9+CUUzhx85La7dhEaQgYdecAI5Ogz0N/F6chL7REarIP7YADQY4s+x45YeFH
-	 vV5ptlSjGSqA+RYyXOk99DPYju/HT35KkViwL5WI2VvpjJK6uNHYY5ZLa1KLPSUkk7
-	 xMfjlLKxelpJ/H5zZtseSfB/nl/OowQ7AE/vSLMPBeemE+TXvoPmt90w9y20mhLuQh
-	 bglrtOGwWgJRA==
-From: Daniel Wagner <wagi@kernel.org>
-Date: Tue, 17 Dec 2024 19:29:43 +0100
-Subject: [PATCH v4 9/9] blk-mq: issue warning when offlining hctx with
- online isolcpus
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fEGWp3OT"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-5d41848901bso206078a12.0
+        for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 13:00:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1734469249; x=1735074049; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=INHCV9g7S0q1m2IVXiOJftwDpaPmTbEq/X94iWftqSU=;
+        b=fEGWp3OT/Jsy8VxTKyZSs2dr5NqkwSGJt0Ol/ioEOKMLB7rAdpXGmZgFQWt9/TIBak
+         6Qo7o1PGBY7tm9vFqgI16SYLCczFaSdh96nec9avTjIyWrixSLi359YCyfDk1aKB+qdd
+         4yHiqS2UdOZBQhqORBAuC0c1J6WzrDWC0MsUyJNukdSaGep19zBSTJ1Gn/TkDvH5e01p
+         QpOe9hQ1Y9UdShTxYJIWunyGEFcrHvBiE3tyurb1MS4uh1LsFjJvLTdT23NODmb0qb4q
+         YbA1D59m7f5hYFSfzWq5FWcfHiUxO0g0yPLXy2Ht/qSym0JAv74Yy0qPTEju0qA4v2A4
+         ntaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734469249; x=1735074049;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=INHCV9g7S0q1m2IVXiOJftwDpaPmTbEq/X94iWftqSU=;
+        b=NVIXmc5Qvs01QESFIXRZP79Nif784Kaff0qhwopvvEn7DKgRzPPSObaCJ5OhM4O6Q8
+         AETVMZGhm+rYFGoeg852WTYDIUOK7KiBvVo+DNx0RD0Z0FR4ysEkl45o0sNt957gRD/I
+         D5g+wtzhlzt6YrBHDszH3KfgjGs6fPZwWopJSu3NVNzC9yUvAxLvsDLEF6FIdmWT6NLN
+         CMiSa+yjHrQZjf0HKtCLdE7pm4NvL9+4NMqJB9l30qyKQXy2hNv3r1wPC85WFtBqipuQ
+         1g/6TIfFpt5AbrRt0t1CN6C0tJ3UL6NXllj+j5VDvRd+sv6wRRGppUUDXYHmpiDnD938
+         C7Uw==
+X-Forwarded-Encrypted: i=1; AJvYcCXZhhTV5RCPcs01HgKjm3nlLH7Y1vrlLttniECHuEQ1AuSVg3iRSpDctH4OO4NbxQDieb1Nh1UZbTDc9MWxkA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwA+t9sAIC5Gxh3Meu+pD0OA84FxU9yQK9JUWo6hKwGf1Ykv+0D
+	TitU1Im9jNeIrMbqHAvu4/kusF13stS3CmIdiXTA8b0IAM3CgUaVpEceY/mU7uN1iQ1WuOjyaqD
+	alB0b3O4hepuuAgqAzV4qbURwKeI=
+X-Gm-Gg: ASbGncuWC/IVkwK0/Dg7Qthx4FcKsYFUcV99Ob5RPKMdolZf+rpKwRoycf39qzDCb9g
+	9p0IECd8Apx3HYcr0eJDiFm5OsDJSKKTV5JuY
+X-Google-Smtp-Source: AGHT+IFHf4Fsj2G5kYDkmrWOuJ0ZbLbpmTkR4fwRt0Klc0NOJT0DyBzTmeB2D0VpGqL4MxzKPGgpgwaEbImDj00MlCQ=
+X-Received: by 2002:a05:6402:354d:b0:5d0:7282:6f22 with SMTP id
+ 4fb4d7f45d1cf-5d7d56175c1mr5324324a12.14.1734469249108; Tue, 17 Dec 2024
+ 13:00:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20241217-isolcpus-io-queues-v4-9-5d355fbb1e14@kernel.org>
-References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
-In-Reply-To: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
-To: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>, 
- Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
- Kashyap Desai <kashyap.desai@broadcom.com>, 
- Sumit Saxena <sumit.saxena@broadcom.com>, 
- Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, 
- Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
- "Martin K. Petersen" <martin.petersen@oracle.com>, 
- Nilesh Javali <njavali@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com, 
- Don Brace <don.brace@microchip.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, 
- Stefan Hajnoczi <stefanha@redhat.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- Thomas Gleixner <tglx@linutronix.de>
-Cc: Costa Shulyupin <costa.shul@redhat.com>, 
- Juri Lelli <juri.lelli@redhat.com>, 
- Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
- Ming Lei <ming.lei@redhat.com>, 
- =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
- Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
- Hannes Reinecke <hare@suse.de>, 
- Sridhar Balaraman <sbalaraman@parallelwireless.com>, 
- "brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org, 
- linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
- megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
- storagedev@microchip.com, virtualization@lists.linux.dev, 
- Daniel Wagner <wagi@kernel.org>
-X-Mailer: b4 0.14.2
+References: <20241203121424.19887-1-mengferry@linux.alibaba.com>
+ <Z2BNHWFWgLjEMiAn@infradead.org> <CAJSP0QXU_uNqL-9LmLRkDdPPSdUAGdesQ2DFuCMHnjyEuREvXQ@mail.gmail.com>
+ <0535520b-a6a6-4578-9aca-c698e148004e@linux.alibaba.com> <acaf46f3-3f6c-44c9-86b5-98aa7845f1b6@kernel.dk>
+In-Reply-To: <acaf46f3-3f6c-44c9-86b5-98aa7845f1b6@kernel.dk>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Date: Tue, 17 Dec 2024 16:00:37 -0500
+Message-ID: <CAJSP0QWfSzD8Z+22SEjUMkG07nrBa+6WU_APYkrvwzNbScRRCw@mail.gmail.com>
+Subject: Re: [PATCH 0/3][RFC] virtio-blk: add io_uring passthrough support for virtio-blk
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Jingbo Xu <jefflexu@linux.alibaba.com>, Christoph Hellwig <hch@infradead.org>, 
+	Ferry Meng <mengferry@linux.alibaba.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, linux-block@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 
-When we offlining a hardware context which also serves isolcpus mapped
-to it, any IO issued by the isolcpus will stall as there is nothing
-which handles the interrupts etc.
+On Tue, 17 Dec 2024 at 12:54, Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 12/16/24 11:08 PM, Jingbo Xu wrote:
+> >> That's why I asked Jens to weigh in on whether there is a generic
+> >> block layer solution here. If uring_cmd is faster then maybe a generic
+> >> uring_cmd I/O interface can be defined without tying applications to
+> >> device-specific commands. Or maybe the traditional io_uring code path
+> >> can be optimized so that bypass is no longer attractive.
+>
+> It's not that the traditional io_uring code path is slower, it's in fact
+> basically the same thing. It's that all the other jazz that happens
+> below io_uring slows things down, which is why passthrough ends up being
+> faster.
 
-This configuration/setup is not supported at this point thus just issue
-a warning.
+Are you happy with virtio_blk passthrough or do you want a different approach?
 
-Signed-off-by: Daniel Wagner <wagi@kernel.org>
----
- block/blk-mq.c | 43 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 42 insertions(+), 1 deletion(-)
-
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index de15c0c76f874a2a863b05a23e0f3dba20cb6488..f9af0f5dd6aac8da855777acf2ffc61128f15a74 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -3619,6 +3619,45 @@ static bool blk_mq_hctx_has_requests(struct blk_mq_hw_ctx *hctx)
- 	return data.has_rq;
- }
- 
-+static void blk_mq_hctx_check_isolcpus_online(struct blk_mq_hw_ctx *hctx, unsigned int cpu)
-+{
-+	const struct cpumask *hk_mask;
-+	int i;
-+
-+	if (!housekeeping_enabled(HK_TYPE_MANAGED_IRQ))
-+		return;
-+
-+	hk_mask = housekeeping_cpumask(HK_TYPE_MANAGED_IRQ);
-+
-+	for (i = 0; i < hctx->nr_ctx; i++) {
-+		struct blk_mq_ctx *ctx = hctx->ctxs[i];
-+
-+		if (ctx->cpu == cpu)
-+			continue;
-+
-+		/*
-+		 * Check if this context has at least one online
-+		 * housekeeping CPU in this case the hardware context is
-+		 * usable.
-+		 */
-+		if (cpumask_test_cpu(ctx->cpu, hk_mask) &&
-+		    cpu_online(ctx->cpu))
-+			break;
-+
-+		/*
-+		 * The context doesn't have any online housekeeping CPUs
-+		 * but there might be an online isolated CPU mapped to
-+		 * it.
-+		 */
-+		if (cpu_is_offline(ctx->cpu))
-+			continue;
-+
-+		pr_warn("%s: offlining hctx%d but there is still an online isolcpu CPU %d mapped to it, IO stalls expected\n",
-+			hctx->queue->disk->disk_name,
-+			hctx->queue_num, ctx->cpu);
-+	}
-+}
-+
- static bool blk_mq_hctx_has_online_cpu(struct blk_mq_hw_ctx *hctx,
- 		unsigned int this_cpu)
- {
-@@ -3638,8 +3677,10 @@ static bool blk_mq_hctx_has_online_cpu(struct blk_mq_hw_ctx *hctx,
- 			continue;
- 
- 		/* this hctx has at least one online CPU */
--		if (this_cpu != cpu)
-+		if (this_cpu != cpu) {
-+			blk_mq_hctx_check_isolcpus_online(hctx, this_cpu);
- 			return true;
-+		}
- 	}
- 
- 	return false;
-
--- 
-2.47.1
-
+Stefan
