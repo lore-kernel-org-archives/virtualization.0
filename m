@@ -1,85 +1,147 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E3F1815CD79
-	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 07:17:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C5681487C5
+	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 08:21:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734419858; cv=none; b=L2jP2lCNsL4HmRFvEjZSSTwet1XUKAjVVURZuey6rfgkazqjLJCGmSGC6X18HaIQEa4MGRNIqU7JLURyWktuWbp+x9UejulNagM9HCGQ4cRyUgWOlHMREZhj2mPEqrsO1YCSIIpxgQMeEv//YQVBqQ7hbTfZn3qWnVrIVwO7JJc=
+	t=1734423709; cv=none; b=RywO1VoHjOAI02gDF/FP3K4CMRafb+xGvJfOZDgoQMtlT/tVigDZczLCVkPTxQHQUt3F9ospvjLdg3fuL4dOh03wdyrPyYYGzXg8QhxYO1Zi1kuHGogMndStGKjkNKOZZEsbMqZ5T4NGonsP2aIcG0GYyH0RneppNnsDRWjUu6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734419858; c=relaxed/simple;
-	bh=Zrlk6LLf2G5/XLvrn/OJXQH8CFlPncDWlcWImq8hu8k=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=V6Z6gzIsUcTK5P9O6IeWLX0ooEY8xBIljybRrdUViPkenUX2OgHTRz4Nvl1x+kyxk4MpTrknJHradnVXF46f4ZCj+LMyt0x1V+j2wsesq81bJ+mBIvTilINzks7HVwbHOSEE5jJss/fF/TABHxNNgDA7peWu7mb2lGqYU2WILXs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=asPjhEeB; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1734423709; c=relaxed/simple;
+	bh=F5S4FhtmltsBwBx86PvuD+lMhYGZK3Hqs0mfpw44AcI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PRTsFbQyzefcKmdeGRWGdXKh8+c91fFOYftlvmpcZLzE562cp0h8TUQ9/lEbhowbvbhadkrdDopvxoVHj/sZkO3D9CtIwFfaCcNI7r/2DbJNGdE9SuplafhONjp7W+NjdPs5VF9edf2rV08pUlpqURy1x64D+LmSxnNku5hY+Zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qVwW87h9; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3iwiwvyj; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qVwW87h9; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3iwiwvyj; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="asPjhEeB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=B9qCC
-	0utvM1hgVi7MOI0Z5r71VmyBlYIOULJl+wWQvs=; b=asPjhEeBKiDpIgGIXIBNO
-	sOztCx5+mGHy/WMH5pIMOorDgedFdGNbUnven2JIBIWfLgd1Y/BpjA5BECGiNpG3
-	ELobMjAtl5hVDwqCdYKPGyQchQhjWXCYp4jvWGlQYLXZ/C2AkifY75NCu3XIB7PP
-	CW8sGoUkru/xHS8MkXn9Ik=
-Received: from icess-ProLiant-DL380-Gen10.. (unknown [])
-	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wDXDzR1JWFnhCKOBA--.64228S4;
-	Tue, 17 Dec 2024 15:17:25 +0800 (CST)
-From: Ma Ke <make_ruc2021@163.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	zhangweiping@didichuxing.com,
-	cohuck@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Ma Ke <make_ruc2021@163.com>,
-	stable@vger.kernel.org
-Subject: [PATCH v2] virtio: fix reference leak in register_virtio_device()
-Date: Tue, 17 Dec 2024 15:17:08 +0800
-Message-Id: <20241217071708.2905142-1-make_ruc2021@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qVwW87h9";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3iwiwvyj";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qVwW87h9";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3iwiwvyj"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 3BE1821120;
+	Tue, 17 Dec 2024 08:21:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1734423705; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
+	b=qVwW87h9IIRltr8VdEQKJhEHFuizPMnxm0At6YVF3qu+QiNzXpcpWmb0c3EcfdTqfazSpW
+	rFjbHnPZBb4MqKFKk758sazgfQJW8bw7GPrJyefEfU9FE6uZ8mWdlPQf4HhNdTPtmIdJIo
+	uIfhHPGBVf6Z3CqFuQIL2ayxRKzFaB8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1734423705;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
+	b=3iwiwvyjFkJl+c1TbcwB8Pfq8gRzCBQ6bjAAAmtXFrCrO4FldFK7xQD1+gf7kU35PPhUF4
+	vs35Wg5oVgtVd3DA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1734423705; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
+	b=qVwW87h9IIRltr8VdEQKJhEHFuizPMnxm0At6YVF3qu+QiNzXpcpWmb0c3EcfdTqfazSpW
+	rFjbHnPZBb4MqKFKk758sazgfQJW8bw7GPrJyefEfU9FE6uZ8mWdlPQf4HhNdTPtmIdJIo
+	uIfhHPGBVf6Z3CqFuQIL2ayxRKzFaB8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1734423705;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0ccd5T/w72yfTNgA1rqqzypkLFYQGNqOiIvNG54Ot8=;
+	b=3iwiwvyjFkJl+c1TbcwB8Pfq8gRzCBQ6bjAAAmtXFrCrO4FldFK7xQD1+gf7kU35PPhUF4
+	vs35Wg5oVgtVd3DA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 19E3213A3C;
+	Tue, 17 Dec 2024 08:21:45 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id mA8iBJk0YWe4GQAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Tue, 17 Dec 2024 08:21:45 +0000
+Date: Tue, 17 Dec 2024 09:21:44 +0100
+From: Daniel Wagner <dwagner@suse.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, 
+	Sagi Grimberg <sagi@grimberg.me>, John Garry <john.g.garry@oracle.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>, 
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
+	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, storagedev@microchip.com, 
+	linux-nvme@lists.infradead.org
+Subject: Re: [PATCH v6 0/8] blk: refactor queue affinity helpers
+Message-ID: <632d25c7-ac46-4a1a-b2bc-14258a88216c@flourine.local>
+References: <20241202-refactor-blk-affinity-helpers-v6-0-27211e9c2cd5@kernel.org>
+ <c5f7f562-c8b0-422b-bb51-744ecba7ecee@flourine.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDXDzR1JWFnhCKOBA--.64228S4
-X-Coremail-Antispam: 1Uf129KBjvdXoW7Gr15GF4DCrW8try7Gw47CFg_yoWDJwbEgw
-	1v9r93Xr48GF40yrW5Ar4rZrnayasrtan3Xr45tF93J3y2vF4DXrnrXrn8tF1Uu347Cr4D
-	AF45Krs5Zw1fWjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRNyxRDUUUUU==
-X-CM-SenderInfo: 5pdnvshuxfjiisr6il2tof0z/xtbBFQO4C2dhI2AwpwAAs3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c5f7f562-c8b0-422b-bb51-744ecba7ecee@flourine.local>
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	MISSING_XM_UA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[24];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -4.30
+X-Spam-Flag: NO
 
-The reference count of the device incremented in device_initialize() is
-not decremented when device_add() fails. Add a put_device() call before
-returning from the function.
+Hi Jens,
 
-Found by code review.
+On Mon, Dec 09, 2024 at 10:42:26AM +0100, Daniel Wagner wrote:
+> On Mon, Dec 02, 2024 at 03:00:08PM +0100, Daniel Wagner wrote:
+> > I've rebased and retested the series on top of for-6.14/block and updated
+> > the docummentation as requested by John.
+> > 
+> > Original cover letter:
+> > 
+> > These patches were part of 'honor isolcpus configuration' [1] series. To
+> > simplify the review process I decided to send this as separate series
+> > because I think it's a nice cleanup independent of the isolcpus feature.
+> > 
+> > Signed-off-by: Daniel Wagner <wagi@kernel.org>
+> 
+> I've based this work on top of your tree as I think it should go your
+> tree. If this should go via different tree, let me know which one.
+> 
+> And in case the series didn't hit your inbox, I really don't know what I
+> am doing wrong. I've switched over to use b4 and korg for sending the
+> patches and on my side all looks good and the mails also appear on lore
+> completely normal.
 
-Cc: stable@vger.kernel.org
-Fixes: f2b44cde7e16 ("virtio: split device_register into device_initialize and device_add")
-Signed-off-by: Ma Ke <make_ruc2021@163.com>
----
-Changes in v2:
-- modified the fixes tag according to suggestions;
-- modified the bug description.
----
- drivers/virtio/virtio.c | 1 +
- 1 file changed, 1 insertion(+)
+Any chance to get this merged?
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index b9095751e43b..ac721b5597e8 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -503,6 +503,7 @@ int register_virtio_device(struct virtio_device *dev)
- 
- out_of_node_put:
- 	of_node_put(dev->dev.of_node);
-+	put_device(&dev->dev);
- out_ida_remove:
- 	ida_free(&virtio_index_ida, dev->index);
- out:
--- 
-2.25.1
-
+Thanks,
+Daniel
