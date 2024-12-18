@@ -1,111 +1,88 @@
-Received: from mail-io1-f51.google.com (mail-io1-f51.google.com [209.85.166.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 938AF1DC18F
-	for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 21:07:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.51
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 08F581F931
+	for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 03:12:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734469650; cv=none; b=SYKoct83OBoN5qa6QEh3RGoExaU4s4OtRtr/a5SAo/z+5TOFbEH6R6+oFjllq32GN47+/9Lz4RgcoFK1vlGfnHHSNEaIpwkd8YfoNQw7Qswu33rQ88xQnt6i2ZA89mkmuzwnDrhOFtdQ2KpiEMevXE5hTEY6lagmR0nMMINT1Ek=
+	t=1734491557; cv=none; b=He4Y+KkMD9zw4Ycy5XDhvjZiTc8oWLI8bn2AmgRzZC4SxuOax/xWMTvkeRIla9wU4WIaKPp/VgD+/hqW/S6AoBMMnwTiJgBJezbG4F0mNxTn7PP3fqoU5qqipXdNX1IFglq1FX19O4XQy9xQ/AsfYz/bKCLJDD4PzAMMGwWEnQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734469650; c=relaxed/simple;
-	bh=DYXCpIfYdRHNRG32/Ni0pl1LzbN+rMCEr35BN5GBtqo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H1cGR8RgKqKbMBIodyFWCU2R4/U+BxFVtFbss5t42wWgYEBYNn6Ab3Fnf+zoEATlOV6yzlw+MlxBsQWq46J7rq4Ep/tEOlNRzY+LEh8olxSWiUR0KuwmhZYPPRXfjhw1bUDufpaY18CR0bgED4jkWaGhkOWk63W2SSZmFJWx1CQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=MgBz3o3d; arc=none smtp.client-ip=209.85.166.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1734491557; c=relaxed/simple;
+	bh=M1YFIBnEAGL4iYun/168E/pCBZDCohC2vG8p9/Mu/wo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=En4vhQN9W4hdJK9wco6LNGP54fB5bQ8uwJpOLAxfgs3PzDZpRXR2Jr8Q0nZ8a5mBj5oGb2qZmaGnsx7gUx7v70JxYH72ridBBEGRoiljYvGfEDM/pGGMntr4OFCZt2WbJA5b1rsOycjeMSWfveZjZCtxpP3UNS4GVzDpGl87OMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=RotmdLRx; arc=none smtp.client-ip=117.135.210.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="MgBz3o3d"
-Received: by mail-io1-f51.google.com with SMTP id ca18e2360f4ac-844e39439abso155446539f.1
-        for <virtualization@lists.linux.dev>; Tue, 17 Dec 2024 13:07:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1734469648; x=1735074448; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xxTHFAi0ufizCl7I67BVly4Us0FktZFreE3PeudaUmw=;
-        b=MgBz3o3dnLy0a9ftqWZHJy4rfb5HxyimUBT9xASqKJVE17sXRc3kf+uivbQiZ1vrmv
-         LFw6XXdLYTS3xKgvlultfhCTzi3X6IfzGSwF0fPcVuruMIZ4NE40SA+RtecWYu0QszdP
-         59nAs/eM7fPJjN1+xUUnQX68JCMV3AaNhRRfjTIQtgcp+LIsNpjPNAKgjx+KhpUrqmcg
-         QEEZJOzad8ePDAp2uepySBbJKy4hgC3rV4hhNnF6x1U/yAZXRzFSBaLu/atdgKYnNBfW
-         xJM9AMfTZve068m93EZTDYcxGdY/7rAKNFaBKTnXet1D2kCYS5VxhThTCnIaiiPqgeOG
-         RiqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734469648; x=1735074448;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xxTHFAi0ufizCl7I67BVly4Us0FktZFreE3PeudaUmw=;
-        b=QAZGszzTKT4FBqbs5bD3cSJfq1PGxzP/UGXUiXDYTKbervCS8F4d0nGPVvFliG296Y
-         4DeUZrShs6cPG6ie//TyUMG8LSMyit1rrULPQB6UP0iizaQC9WTpAv7/20wBRIasdEB6
-         Jeqdv/jdoLkIAz4TGRS+QbYPF/D32/2DW58lW9t5dgdPIx4BypmC/uikw9FdCFimMFMu
-         PhGa/tCktv1RGPDCLl73eDBfTGnySNZGnVOVqGYruSkgBwDVmNajyrkSn3L1osy6tQsw
-         YtAKXp5ZhPqCSxgwvV+IbIje+heWjzIXhnki1eYk4x1kPbvJUAxxoGMjM7YCi/p7wTur
-         FZcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWk75WDGy3JhGaUsLvx97edeMRIe/55TaMI5CIS2+QdfYTLZcj0K83FVhbuDf+nB9mjU8opVAc6zCI+eDMX+A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw1GCHFlfEFfexAhDCdYnrkYexkGm4jTZaZcRG2sN97tipJHTLm
-	f4+rboG7z2hp5010R+snMjJOmcC1CAT6m13D6HHX8WLXqZ+f2Ua+7+T5x3KGfoQ=
-X-Gm-Gg: ASbGncvNXCbJs7qPyH9icaKIck0Nwy50JQDY0Z16S9oooI36cJnEPfflqoCf50nRKzF
-	KYKMjx1+Zdvb2v7RJ17Bbnt1Jundds5fOqyVzFj6thXBPrP8xcgx0g2dfNIfoQdEzTZx4oxKSLw
-	f6lGPNB+G0nq/EWaNhShzchs2UmQE6XeizrpBWyfJu7dirEgllrCxlqz7axUFAoHylCxBErhSTl
-	apRRpmcWjnQVn7cUaClFZ1J4vqDcVCJpL7eax40CtJjWq3x97hS
-X-Google-Smtp-Source: AGHT+IEZuOks5bPSEmDavYC9qmsQ8z1l/snRQxoEwkEepPxAkIeF35dwOhWBSaIIdJE+B3U31qo95A==
-X-Received: by 2002:a05:6602:2c88:b0:803:5e55:ecb2 with SMTP id ca18e2360f4ac-8475831e21emr49355439f.0.1734469647813;
-        Tue, 17 Dec 2024 13:07:27 -0800 (PST)
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id ca18e2360f4ac-844f62583ebsm194676439f.11.2024.12.17.13.07.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Dec 2024 13:07:27 -0800 (PST)
-Message-ID: <92eafd0f-943a-4595-8df3-45128cac5ee9@kernel.dk>
-Date: Tue, 17 Dec 2024 14:07:26 -0700
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="RotmdLRx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=jy6A0
+	Cma7FA8Mc0GsrpEj8FXjIQ6ESmSb3IJInjwgPw=; b=RotmdLRxyYElWf/Wuk0di
+	FLrZipjzPwj5pJP22ddXEYM2/eizy6XRDVsJTSy+V9eEBMHkL31ZU6HceyGL0c9s
+	eVVwN+F4eDqTJPoQ8uW0IDMN4vEpMWkFWY0I3DRJge+QS3K4f+exDA93p5Jt0y3p
+	RRNT0DpkMlqLf1NNCJgxdU=
+Received: from icess-ProLiant-DL380-Gen10.. (unknown [])
+	by gzga-smtp-mtada-g0-4 (Coremail) with SMTP id _____wCHRwSKPWJn3r02BQ--.12880S4;
+	Wed, 18 Dec 2024 11:12:24 +0800 (CST)
+From: Ma Ke <make_ruc2021@163.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	zhangweiping@didichuxing.com,
+	cohuck@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Ma Ke <make_ruc2021@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] virtio: fix reference leak in register_virtio_device()
+Date: Wed, 18 Dec 2024 11:12:01 +0800
+Message-Id: <20241218031201.2968918-1-make_ruc2021@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/3][RFC] virtio-blk: add io_uring passthrough support for
- virtio-blk
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Jingbo Xu <jefflexu@linux.alibaba.com>,
- Christoph Hellwig <hch@infradead.org>,
- Ferry Meng <mengferry@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- linux-block@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
- Joseph Qi <joseph.qi@linux.alibaba.com>
-References: <20241203121424.19887-1-mengferry@linux.alibaba.com>
- <Z2BNHWFWgLjEMiAn@infradead.org>
- <CAJSP0QXU_uNqL-9LmLRkDdPPSdUAGdesQ2DFuCMHnjyEuREvXQ@mail.gmail.com>
- <0535520b-a6a6-4578-9aca-c698e148004e@linux.alibaba.com>
- <acaf46f3-3f6c-44c9-86b5-98aa7845f1b6@kernel.dk>
- <CAJSP0QWfSzD8Z+22SEjUMkG07nrBa+6WU_APYkrvwzNbScRRCw@mail.gmail.com>
-Content-Language: en-US
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <CAJSP0QWfSzD8Z+22SEjUMkG07nrBa+6WU_APYkrvwzNbScRRCw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wCHRwSKPWJn3r02BQ--.12880S4
+X-Coremail-Antispam: 1Uf129KBjvdXoW7JFy3ur4xKw4DWw45JryxZrb_yoWkWFg_tw
+	409r92qr1UGa10yrZxAr4rZr1S9asFqFZxWr45tFykJ342vrWDXr1qqrn0qF1Uu3W7Cr4D
+	JFW3Gws5Zw1fKjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRNyxRDUUUUU==
+X-CM-SenderInfo: 5pdnvshuxfjiisr6il2tof0z/1tbizRi5C2diNI0PdgABsj
 
-On 12/17/24 2:00 PM, Stefan Hajnoczi wrote:
-> On Tue, 17 Dec 2024 at 12:54, Jens Axboe <axboe@kernel.dk> wrote:
->>
->> On 12/16/24 11:08 PM, Jingbo Xu wrote:
->>>> That's why I asked Jens to weigh in on whether there is a generic
->>>> block layer solution here. If uring_cmd is faster then maybe a generic
->>>> uring_cmd I/O interface can be defined without tying applications to
->>>> device-specific commands. Or maybe the traditional io_uring code path
->>>> can be optimized so that bypass is no longer attractive.
->>
->> It's not that the traditional io_uring code path is slower, it's in fact
->> basically the same thing. It's that all the other jazz that happens
->> below io_uring slows things down, which is why passthrough ends up being
->> faster.
-> 
-> Are you happy with virtio_blk passthrough or do you want a different approach?
+Once device_add(&dev->dev) failed, call put_device() to explicitly
+release dev->dev. Or it could cause double free problem.
 
-I think it looks fine.
+As comment of device_add() says, 'if device_add() succeeds, you should
+call device_del() when you want to get rid of it. If device_add() has
+not succeeded, use only put_device() to drop the reference count'.
 
+Found by code review.
+
+Cc: stable@vger.kernel.org
+Fixes: f2b44cde7e16 ("virtio: split device_register into device_initialize and device_add")
+Signed-off-by: Ma Ke <make_ruc2021@163.com>
+---
+Changes in v2:
+- modified the bug description to make it more clear;
+- changed the Fixes tag.
+---
+ drivers/virtio/virtio.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index b9095751e43b..ac721b5597e8 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -503,6 +503,7 @@ int register_virtio_device(struct virtio_device *dev)
+ 
+ out_of_node_put:
+ 	of_node_put(dev->dev.of_node);
++	put_device(&dev->dev);
+ out_ida_remove:
+ 	ida_free(&virtio_index_ida, dev->index);
+ out:
 -- 
-Jens Axboe
+2.25.1
 
