@@ -1,199 +1,201 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40AB21B0422
-	for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 13:41:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E6BB35948
+	for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 14:19:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734529262; cv=none; b=tA5V9Hhz+NBbPgsZfZs8LJ7ISwKlPwVXumDGkbLJ0pkSkrYoiwB17/zyJEOeLxPNF8fXsRuKhdYgtnma55tUluRfJFQaWxTCizfp1/OTJhqErrvR0undZ+8B7mlwmSNIeOxJdmr3FWgniVyxwSmXdP7Tbir6VjaMep97jpq+pi8=
+	t=1734531557; cv=none; b=SrJDmW9VYm3I1pOsdWM+lLXt1/o0rG0AN5dOlhLS38FdKoDWXcDYanO/ZURxEzh0c31U1A1275INQknOplhK97+PHD0BJSdiPGstfGgvHPbNyQRh2Xce1hJiqj7RZ5u+Pte3GvQem2K71m6Av/ZVc3A4yVGo+ZvPixIg0YQpk1M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734529262; c=relaxed/simple;
-	bh=K0zNBfbcETnxYcirA39F9HXcQ5BTEnz7zkOIyJnNNe8=;
+	s=arc-20240116; t=1734531557; c=relaxed/simple;
+	bh=m/if1K64Zqo21BsmqXSEa9AQciQnbHPatnYQy9qNNZg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=l0IZdk7WVFa1pPkBzYBjqYrIrvg+kleXPoArIgrCWzJsXi3hYrpHoOGjeGk0LNT2ZepALy4HYnF6UcPpUr8DkB7xN7mUObCmn1YrX3ngn52XGsRSlI9Abqny+1dboPy79mUyZSHtyoB6VpjkgYP3AFqadbWnKu3GNKOPws4dJYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aGMPcy74; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=gIHVU6iOFa7WtnIqgw3FOa6yNG/6x5yv9tMNtjvoCxqu8B1dyVA/VaPkSmnObPcyAy1qI++coywAz3qvnBaI9Mdooo5YWP0FHf6vBLLTc+bpGstQIWP32WBr8h6bS7MkFDfWkL30q10q9ba4JaUk66zAjdZxj31hmNbmUawb43U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=theori.io; spf=pass smtp.mailfrom=theori.io; dkim=pass (1024-bit key) header.d=theori.io header.i=@theori.io header.b=Ak44wVMd; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=theori.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=theori.io
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aGMPcy74"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734529259;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6UKlCgrehlnF+33doHpsOgEv2HS2Nvzn1ShjGdsaFJ4=;
-	b=aGMPcy74i0LxSTc5o9+or4hO7g063+eIUfdQxThqP+DNt1Zl3kgoEZc6fymAdh9iC3VBMu
-	4vIfGov6aMRybpsQ4cTWIVcPa/lPMgcQQPnUqlftzQq7xBb4TrnZlQORBmIzYIZLgJUmmh
-	4tuMAJt4+Ndbk9byGH+RmU0n1oqAwBY=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-561-yEqLkUFHPoCNmdJHkQGlAg-1; Wed, 18 Dec 2024 08:40:56 -0500
-X-MC-Unique: yEqLkUFHPoCNmdJHkQGlAg-1
-X-Mimecast-MFC-AGG-ID: yEqLkUFHPoCNmdJHkQGlAg
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6d8eb5ea994so74672346d6.1
-        for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 05:40:56 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=theori.io header.i=@theori.io header.b="Ak44wVMd"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2ef72924e53so5897618a91.3
+        for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 06:19:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=theori.io; s=google; t=1734531553; x=1735136353; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Hy/mNrslR2WJrjQxNAeuMQbIpeAIFJXQ4+GreAFDCQQ=;
+        b=Ak44wVMdLJFLUKtVllhstua9UDkmi6SDmtoXyTrsc3ZYpvwh7/WBC4cIbvpl9l2GmK
+         A+XTmLXibR6ReBeFvd59CMjQ06CvohSrEAAn0GWhtj/Kw5MKtYCeWw1wSkUBD7w6K45a
+         BLiJvud5oPTkjHz4ZboJHk1ZFZp7ffEQ+sCK0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734529256; x=1735134056;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6UKlCgrehlnF+33doHpsOgEv2HS2Nvzn1ShjGdsaFJ4=;
-        b=owBVuRvEcrdqf//Ewdr3SbcBWO+5jMWtb18zVuSUWvnepjazF6jqQVcchIXCVzYFko
-         +Qgz+1rRcUsWrdwPJabCrINOsJvi0jeVcmK3a/Xi8dtv6qHDP5+lcO6CwvwqVr0E7NpK
-         MvL68IT7PXvnLHGWdwhsClcHJK/wL3JgNGqKHVm1qPFyJEeGwjtpccF6qqrEgbbQj0Al
-         pGs4lFbzb4ktiYzUx9eF0/rQrYwfdIEGPljIoOPtRBbVdSmHuNhslLTL5dpGCLt/8sJw
-         V7p8u28GyXR2T92DejBSY3jBImMygFw1xAJYx5BJmpusccla5EWkmEZ7hcYTNo81w9Yb
-         pGJA==
-X-Forwarded-Encrypted: i=1; AJvYcCVWBgJXcv+Wkp1ktG75GUY2YPKYy5J/BevN9l+aIP/n0hiuWMJi6aYtFZMVA/gGS84yGjAamE9LUS1qvPVrZw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwD+vhvqPSubCzzVvNjkhgc9If6CBVFebA9l3lroqBblpr4IKvS
-	fOk/z6JC3SiWjEKWwB0YkL7SoR8ES7mAB/IDq/d/4R5at4tN3xL8Ue8kEoobg9TgtyajzvanucC
-	isOobDyzgD92jkYvTouWKzs14CUfa5+7SEQ7RZHg7NeD5w8on7VZK12h5FPjKQwzV
-X-Gm-Gg: ASbGnctaAOh3FCFE3C8WDZ7AdvEWVeO+gB5wpHhgVgnn/syCMlI1XfRfZoJFO7KSfJ4
-	U+L6aHGcSDBYvUdUrrl/kASxyldG6YwGoPzHAjV95FTJ2/9ttQGiL9PJ6azkU/Y/iMMRy7DDRle
-	8d087h2Nrik4H6qBzQpVXjzjJjVxYFzS7M/4Y5Q9pnglnzcp8GxacI62AVkWRm2abZWC+/BW0GA
-	K1gNruhET03ZL2/kHh5XKX7Lzvy+ckHxk6itbZBesCiTsqhfXrKuN0ru7SrNHP49wtWZsHXgqwN
-	fkQCfszAm4Xizo8SlamBhmkSPa34PAlN
-X-Received: by 2002:a05:6214:cc5:b0:6d8:8a60:ef2c with SMTP id 6a1803df08f44-6dd091a11bemr55843406d6.2.1734529255999;
-        Wed, 18 Dec 2024 05:40:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGO9mHXcACDlZbDnxDKCyk44Fx1XL6dG1GpRlYM9XB/qySvxxv969FyCcdix0+v6qIEDr/4pA==
-X-Received: by 2002:a05:6214:cc5:b0:6d8:8a60:ef2c with SMTP id 6a1803df08f44-6dd091a11bemr55842876d6.2.1734529255583;
-        Wed, 18 Dec 2024 05:40:55 -0800 (PST)
-Received: from sgarzare-redhat (host-87-12-185-21.business.telecomitalia.it. [87.12.185.21])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6dccd2795e9sm50346356d6.66.2024.12.18.05.40.53
+        d=1e100.net; s=20230601; t=1734531553; x=1735136353;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Hy/mNrslR2WJrjQxNAeuMQbIpeAIFJXQ4+GreAFDCQQ=;
+        b=fIG3tU4l5jtnt3NoIidayehm+THivYsTSxHgnsxnsdqqHttZ2jxpMAJnxi2DPV370r
+         yYuA0hq46lOgLd+NR8tZ710uM86oKFuTpSrRK8cvMM1FMrc4fWKk2miO06oJa/fvLiz3
+         h8DGUMI4WY9MNQh4pX25UVdomVb8syPWkjPQF+tWSfSkMPZEfcWWucVm+B6hVjqdoaBg
+         fS5B2vzW56k5X5Zdq7f2b/Ia/v24VJXnuVvU0XI+yQG0jyykO1WdMKV+CPiLNqOt37Zg
+         PNhSiB+9wMp7SJm8hCqyDpC9aqOuIDTH/u761I4LJ+NEuZSPF4VCjrmaq4OyBjEWxkv6
+         PPng==
+X-Forwarded-Encrypted: i=1; AJvYcCUULDCZAFkrnfUN7eq7h076ICz43BLTb6FRdofY8jjvJbSBbJLR7VubFifu95c427+b9MGILc0QeuvESZ8MTw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxYUYtiNs3QrJi5miMufKbeqWCEnzMbO+XZEEIZievupchTD3OE
+	RjyTFuVxlyLFkosTvMMuHYRkaQShuddF4ucqxVt5IJ27bEX51l+FxXBN+7gEr4w=
+X-Gm-Gg: ASbGncsllVCKPr16ATl7bm1B239k1W+xDqX6M0ayG7OdvYomAYCXrfDYItSAvoAQPj5
+	hOgyToidl+P5ZbQPHDlkwD1iDAkcZKeS8IOxOAFVsIEzSUK1jSnOV9UsM8oJY9ncp3nc2Gs68XI
+	4osgpmyDrlj7+dPmr+PjpbSn87mXupRWNCvDVaBPqme/vtob069sipRAlQY2LkZjf7sVgro5bTu
+	i+OwsRLOCxP9UdqHdr6/OWGmeFSTEy/BcPtem4pAlM4bWx/k+EX99NOj2n46eau7nJG5Q==
+X-Google-Smtp-Source: AGHT+IHxHsok6Ghzv4mG5bbwZxtJBm0KrLBeRj9Z3CAnLKY4I1RLA6A0g7k+LKSbVnlN6L2P3p0loQ==
+X-Received: by 2002:a17:90a:e7cb:b0:2ee:aed6:9ec2 with SMTP id 98e67ed59e1d1-2f2e91f10b8mr4828738a91.14.1734531553429;
+        Wed, 18 Dec 2024 06:19:13 -0800 (PST)
+Received: from v4bel-B760M-AORUS-ELITE-AX ([211.219.71.65])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f2edc3768esm1468228a91.49.2024.12.18.06.19.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Dec 2024 05:40:55 -0800 (PST)
-Date: Wed, 18 Dec 2024 14:40:49 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Hyunwoo Kim <v4bel@theori.io>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, qwerty@theori.io, imv4bel@gmail.com
+        Wed, 18 Dec 2024 06:19:12 -0800 (PST)
+Date: Wed, 18 Dec 2024 09:19:08 -0500
+From: Hyunwoo Kim <v4bel@theori.io>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	qwerty@theori.io, imv4bel@gmail.com, v4bel@theori.io
 Subject: Re: [PATCH] vsock/virtio: Fix null-ptr-deref in vsock_stream_has_data
-Message-ID: <lwfkm3salizjvubc5vqnkxi4bk4zdglg5um4xygfxwmrkktrbc@bvazoy4k723k>
+Message-ID: <Z2LZ3HK05RH8OfP5@v4bel-B760M-AORUS-ELITE-AX>
 References: <Z2K/I4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX>
+ <lwfkm3salizjvubc5vqnkxi4bk4zdglg5um4xygfxwmrkktrbc@bvazoy4k723k>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <Z2K/I4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: cETJ7cHXlwwzS_7rwOTbfnMXht8pu072K_VNskDzINA_1734529256
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <lwfkm3salizjvubc5vqnkxi4bk4zdglg5um4xygfxwmrkktrbc@bvazoy4k723k>
 
-On Wed, Dec 18, 2024 at 07:25:07AM -0500, Hyunwoo Kim wrote:
->When calling connect to change the CID of a vsock, the loopback
->worker for the VIRTIO_VSOCK_OP_RST command is invoked.
->During this process, vsock_stream_has_data() calls
->vsk->transport->stream_has_data().
->However, a null-ptr-deref occurs because vsk->transport was set
->to NULL in vsock_deassign_transport().
->
->                     cpu0                                                      cpu1
->
->                                                               socket(A)
->
->                                                               bind(A, VMADDR_CID_LOCAL)
->                                                                 vsock_bind()
->
->                                                               listen(A)
->                                                                 vsock_listen()
->  socket(B)
->
->  connect(B, VMADDR_CID_LOCAL)
->
->  connect(B, VMADDR_CID_HYPERVISOR)
->    vsock_connect(B)
->      lock_sock(sk);
->      vsock_assign_transport()
->        virtio_transport_release()
->          virtio_transport_close()
->            virtio_transport_shutdown()
->              virtio_transport_send_pkt_info()
->                vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
->                  queue_work(vsock_loopback_work)
->        vsock_deassign_transport()
->          vsk->transport = NULL;
->                                                               vsock_loopback_work()
->                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
->                                                                   virtio_transport_recv_connected()
->                                                                     virtio_transport_reset()
->                                                                       virtio_transport_send_pkt_info()
->                                                                         vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_RST)
->                                                                           queue_work(vsock_loopback_work)
->
->                                                               vsock_loopback_work()
->                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_RST)
->								   virtio_transport_recv_disconnecting()
->								     virtio_transport_do_close()
->								       vsock_stream_has_data()
->								         vsk->transport->stream_has_data(vsk);    // null-ptr-deref
->
->To resolve this issue, add a check for vsk->transport, similar to
->functions like vsock_send_shutdown().
->
->Fixes: fe502c4a38d9 ("vsock: add 'transport' member in the struct vsock_sock")
->Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
->Signed-off-by: Wongi Lee <qwerty@theori.io>
->---
-> net/vmw_vsock/af_vsock.c | 3 +++
-> 1 file changed, 3 insertions(+)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 5cf8109f672a..a0c008626798 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -870,6 +870,9 @@ EXPORT_SYMBOL_GPL(vsock_create_connected);
->
-> s64 vsock_stream_has_data(struct vsock_sock *vsk)
-> {
->+	if (!vsk->transport)
->+		return 0;
->+
+On Wed, Dec 18, 2024 at 02:40:49PM +0100, Stefano Garzarella wrote:
+> On Wed, Dec 18, 2024 at 07:25:07AM -0500, Hyunwoo Kim wrote:
+> > When calling connect to change the CID of a vsock, the loopback
+> > worker for the VIRTIO_VSOCK_OP_RST command is invoked.
+> > During this process, vsock_stream_has_data() calls
+> > vsk->transport->stream_has_data().
+> > However, a null-ptr-deref occurs because vsk->transport was set
+> > to NULL in vsock_deassign_transport().
+> > 
+> >                     cpu0                                                      cpu1
+> > 
+> >                                                               socket(A)
+> > 
+> >                                                               bind(A, VMADDR_CID_LOCAL)
+> >                                                                 vsock_bind()
+> > 
+> >                                                               listen(A)
+> >                                                                 vsock_listen()
+> >  socket(B)
+> > 
+> >  connect(B, VMADDR_CID_LOCAL)
+> > 
+> >  connect(B, VMADDR_CID_HYPERVISOR)
+> >    vsock_connect(B)
+> >      lock_sock(sk);
+> >      vsock_assign_transport()
+> >        virtio_transport_release()
+> >          virtio_transport_close()
+> >            virtio_transport_shutdown()
+> >              virtio_transport_send_pkt_info()
+> >                vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
+> >                  queue_work(vsock_loopback_work)
+> >        vsock_deassign_transport()
+> >          vsk->transport = NULL;
+> >                                                               vsock_loopback_work()
+> >                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
+> >                                                                   virtio_transport_recv_connected()
+> >                                                                     virtio_transport_reset()
+> >                                                                       virtio_transport_send_pkt_info()
+> >                                                                         vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_RST)
+> >                                                                           queue_work(vsock_loopback_work)
+> > 
+> >                                                               vsock_loopback_work()
+> >                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_RST)
+> > 								   virtio_transport_recv_disconnecting()
+> > 								     virtio_transport_do_close()
+> > 								       vsock_stream_has_data()
+> > 								         vsk->transport->stream_has_data(vsk);    // null-ptr-deref
+> > 
+> > To resolve this issue, add a check for vsk->transport, similar to
+> > functions like vsock_send_shutdown().
+> > 
+> > Fixes: fe502c4a38d9 ("vsock: add 'transport' member in the struct vsock_sock")
+> > Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
+> > Signed-off-by: Wongi Lee <qwerty@theori.io>
+> > ---
+> > net/vmw_vsock/af_vsock.c | 3 +++
+> > 1 file changed, 3 insertions(+)
+> > 
+> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> > index 5cf8109f672a..a0c008626798 100644
+> > --- a/net/vmw_vsock/af_vsock.c
+> > +++ b/net/vmw_vsock/af_vsock.c
+> > @@ -870,6 +870,9 @@ EXPORT_SYMBOL_GPL(vsock_create_connected);
+> > 
+> > s64 vsock_stream_has_data(struct vsock_sock *vsk)
+> > {
+> > +	if (!vsk->transport)
+> > +		return 0;
+> > +
+> 
+> I understand that this alleviates the problem, but IMO it is not the right
+> solution. We should understand why we're still processing the packet in the
+> context of this socket if it's no longer assigned to the right transport.
 
-I understand that this alleviates the problem, but IMO it is not the 
-right solution. We should understand why we're still processing the 
-packet in the context of this socket if it's no longer assigned to the 
-right transport.
+Got it. I agree with you.
 
-Maybe we can try to improve virtio_transport_recv_pkt() and check if the 
-vsk->transport is what we expect, I mean something like this (untested):
+> 
+> Maybe we can try to improve virtio_transport_recv_pkt() and check if the
+> vsk->transport is what we expect, I mean something like this (untested):
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 9acc13ab3f82..18b91149a62e 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -1628,8 +1628,10 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+> 
+>         lock_sock(sk);
+> 
+> -       /* Check if sk has been closed before lock_sock */
+> -       if (sock_flag(sk, SOCK_DONE)) {
+> +       /* Check if sk has been closed or assigned to another transport before
+> +        * lock_sock
+> +        */
+> +       if (sock_flag(sk, SOCK_DONE) || vsk->transport != t) {
+>                 (void)virtio_transport_reset_no_sock(t, skb);
+>                 release_sock(sk);
+>                 sock_put(sk);
+> 
+> BTW I'm not sure it is the best solution, we have to check that we do not
+> introduce strange cases, but IMHO we have to solve the problem earlier in
+> virtio_transport_recv_pkt().
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 9acc13ab3f82..18b91149a62e 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1628,8 +1628,10 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+At least for vsock_loopback.c, this change doesn’t seem to introduce any 
+particular issues.
 
-         lock_sock(sk);
+And separately, I think applying the vsock_stream_has_data patch would help 
+prevent potential issues that could arise when vsock_stream_has_data is 
+called somewhere.
 
--       /* Check if sk has been closed before lock_sock */
--       if (sock_flag(sk, SOCK_DONE)) {
-+       /* Check if sk has been closed or assigned to another transport before
-+        * lock_sock
-+        */
-+       if (sock_flag(sk, SOCK_DONE) || vsk->transport != t) {
-                 (void)virtio_transport_reset_no_sock(t, skb);
-                 release_sock(sk);
-                 sock_put(sk);
-
-BTW I'm not sure it is the best solution, we have to check that we do 
-not introduce strange cases, but IMHO we have to solve the problem 
-earlier in virtio_transport_recv_pkt().
-
-Thanks,
-Stefano
-
-> 	return vsk->transport->stream_has_data(vsk);
-> }
-> EXPORT_SYMBOL_GPL(vsock_stream_has_data);
->-- 
->2.34.1
->
-
+> 
+> Thanks,
+> Stefano
+> 
+> > 	return vsk->transport->stream_has_data(vsk);
+> > }
+> > EXPORT_SYMBOL_GPL(vsock_stream_has_data);
+> > -- 
+> > 2.34.1
+> > 
+> 
