@@ -1,31 +1,40 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mout.web.de (mout.web.de [212.227.17.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1322614A62B
-	for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 03:35:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F4C15854F;
+	Wed, 18 Dec 2024 08:00:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734492934; cv=none; b=GEUe+d1xugwVObagZ7pZ5ZqQ/5pfhmboz6h5uHO/9SzQoHFvfF0dKY7JkAhf8qMyejxc9El5lxLhejqgVrBAuVuftkrPFDYWdbQxmidMF5vBo1RaSuZ+d66aVe4XKsw6m1qg+Wq93lQvYbH9iIyyPYA/lfjIuZY/TwZG4bKsEp0=
+	t=1734508850; cv=none; b=cbeMe8YW6IX7VEA0cbX/cIBlJdufSrES+qXzPa0yeYYn6XjCR+9vk+Ky9HEYvfKB+o0xrNpNIxsFsndptttNVEcHedFgHpWRkdS9RtLUS9Y8SuFP2EIutbyz3jCPEOnKgGDS1hsEEK8UKV3AwszpfOHZ/E5q8U5FAnfYDxisll0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734492934; c=relaxed/simple;
-	bh=vgO1U/Y8Tyjoq8LUVxkUz+j2i9Ufx61wGRhxHLFOONU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=j7m5voheifHV7mYfk4zvQWpMdYPxvP1RKKh4E+ouSnCVgOSrL3eSKE5HEFA9wQblIdUskKL4u40fctSIsfaYA40ggvjlgHCg4CdCk4jWP8QPC9zsTQk5MBV8KhXilPNV696UFrGgWDItQ7Ys/aEPSXV/0+Z0qhRPrXHiLjpvciQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aVra/Rpd; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1734508850; c=relaxed/simple;
+	bh=aA3AumJBium5XUel0RXRniih59Vb8i5HixIYaTqea/I=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=ISAIAcy5j6fe0abuDz/HRb238q/ssdhjJgrkIa7vwLfcd3uOSZi9uZTVSdCg+abLki9+/z2qyPaAbA7osYJazz1R3GdipEZ5F1FNrya+vxn7rlmlT1IfIgRpmMRo76cj6cXf66UytLVkQiq1ZPnggEKJLrEhwI16RB31SJyp1r4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=Lh19N3hZ; arc=none smtp.client-ip=212.227.17.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aVra/Rpd"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1734492923; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=YGzuGWLAUDC0mlrmUfaEpO0oU9ym4tO687kSt9C3jc0=;
-	b=aVra/Rpd+Q7SyqA3GgTngsfIML51prCBzKpA9yEahMzjtC+Pp4SHq6u8/75K0Y1f6uSQWuQC3XEJW4xA42M+bGojTiu3NLBjZDRdcdOuZxMGv/ovRfL25EgSAXhtumAwxYVeJxk776S5+Xbm0e0lWXsZQxXFI4UVnyz15PDVOCc=
-Received: from 30.221.131.238(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0WLl5IBE_1734492921 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 18 Dec 2024 11:35:22 +0800
-Message-ID: <bcc94e61-d4ce-4a33-a7cd-0cb61a516bf9@linux.alibaba.com>
-Date: Wed, 18 Dec 2024 11:35:19 +0800
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="Lh19N3hZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1734508831; x=1735113631; i=markus.elfring@web.de;
+	bh=ZiVQ013gzwXq0yefM486yeJ8+UOSpCWb4AaYGr8NYkI=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=Lh19N3hZV5LMGCLSF5A5AZDtAVQLQDX1fDIizEAAOLUmfDTCNEJDjcUFWJJfTcKi
+	 kcxqaOLKliSW0fUyNsrWWlUnKctG0ookeoIMvVu/V4PoPDE0N9AjK0edG04ilaIs3
+	 WQflbd6I6+5QAli6x5tcMRjijYhXYsk12atdH50XRg8kDUuaup6kRAIYaxUcpo4ij
+	 owXwp7SH0lIGWsFcDBEDPisbZ45APBF9hsPAg60WZ/v+1bmhW+ZSTTT+Uo2kjCBS+
+	 SLctJkZexwc3MpLEKTEtjwudKSk6IVDnhpNAMcGzfjyv08fZUiB+2Q/GmrxqU6imY
+	 TQfIq55jCpPmVH8ZFg==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.70.41]) by smtp.web.de (mrweb105
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1MDMvE-1tFc3F2vYM-00AyMn; Wed, 18
+ Dec 2024 09:00:31 +0100
+Message-ID: <e8dd155b-c907-4874-bd78-af768dc507a5@web.de>
+Date: Wed, 18 Dec 2024 09:00:27 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -33,44 +42,73 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/3][RFC] virtio-blk: add io_uring passthrough support for
- virtio-blk
-To: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Jingbo Xu <jefflexu@linux.alibaba.com>,
- Christoph Hellwig <hch@infradead.org>, "Michael S . Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- linux-block@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
- Joseph Qi <joseph.qi@linux.alibaba.com>
-References: <20241203121424.19887-1-mengferry@linux.alibaba.com>
- <Z2BNHWFWgLjEMiAn@infradead.org>
- <CAJSP0QXU_uNqL-9LmLRkDdPPSdUAGdesQ2DFuCMHnjyEuREvXQ@mail.gmail.com>
- <0535520b-a6a6-4578-9aca-c698e148004e@linux.alibaba.com>
- <acaf46f3-3f6c-44c9-86b5-98aa7845f1b6@kernel.dk>
- <CAJSP0QWfSzD8Z+22SEjUMkG07nrBa+6WU_APYkrvwzNbScRRCw@mail.gmail.com>
- <92eafd0f-943a-4595-8df3-45128cac5ee9@kernel.dk>
-Content-Language: en-US
-From: Ferry Meng <mengferry@linux.alibaba.com>
-In-Reply-To: <92eafd0f-943a-4595-8df3-45128cac5ee9@kernel.dk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: make_ruc2021@163.com, virtualization@lists.linux.dev,
+ kernel-janitors@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ weiping zhang <zhangweiping@didichuxing.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20241218031201.2968918-1-make_ruc2021@163.com>
+Subject: Re: [PATCH v2] virtio: fix reference leak in register_virtio_device()
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20241218031201.2968918-1-make_ruc2021@163.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:stnYhqrMZMRL+tYtQPJEMn4nWYPSo7zdnq+q/3qYuHd2ZHDDEWV
+ 5MRTe4xxAGI4NWXW46k529kR3eldazBCtnQFandRHYl1xxtWZa5uJWlj7io0ZT2nP2KUUCs
+ C4IHJIq9481ufLXAjQF45aGS8/kTAQK7EBv9QqvRf6wilIPB5lp38bXgoBrVZaYuJ+hN8/4
+ qgteZv2soj9ps1RrHc79A==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:5TZ/deI83Iw=;4rVdb+42OqUi0V9ghUfTvHJLipo
+ 1I/Op10dkReva/AIrSaLZ31YzbMZID+I+mjXL5Jnjyya5e663+UCQ4ybxrf+xVeiTVXLhlWLA
+ p6XUR/yyr9YuNEstAc5bpVIdD39t88pot8h0DT46rAXelIt1jWeAzfw44N32qT6JCl0yxi3sB
+ nabwYOx8ke03MPxQSaVVlXuAGC+rNj8/SxLFsYMey/BMfhLuaZ7DAdXbLkaqQCppCOmObQ4+Y
+ FnEqY4LcTQh3vzVgDfdFwP033LD9kBw5u0Hw0SvDksWS0aEu5JTrodEGsBuh5MSKSoEbI41aa
+ ha+zLFkRBUcvT5Y8HhuUWjocMJQpExiW0NmOHL8/OvyXxV4MgbvJbn688a2UD9Ip8XTxBBDTq
+ OIm0Tjd2ciUF5zqbpBjqJcLWYBOQL2YtomFQ+TD6KtJI4Qxra9mVmbECUEYJVPk0mSEnghqL+
+ 6AetLw7Ck/OyHDuQAaeBuzN8C3U1Pes0qK2d+yC+rIr4s9zZ34dN4recFI5CCMVh0EU+67CCH
+ LYr2VBUD5jehWxXHger1T3daSEo5Khm+Xfo/UZQR/DteluniLpMhT2d40UxtE8sVo3tHG2UzH
+ yIemXs8MsirsF5VoaytkSwHR5BG8m4PxRLMnPHTwXjNZ6naxar5s8EKlLa0spVFaCZdyirhPl
+ /0TBlRMDCD3AczqXuQ4C0jjje88J/uqxqfgCS9yg5ptRy0SpfQ1fauUqRsKqXI9fQFZwm68qm
+ WM1NMBhWVJE3qMx1rBsxB2BnAghvMj7iyUYWeE7Okg//JGMPddHdj08Tpr2YnZXJgD61657HV
+ ShKaVIDK3XbATgU+7c//4BTnZhDirBkIrEseCgC2tTGB9MFCC/MNh4U3pESCvId4ROhRAbi64
+ YKr4pxql9nz9WYrrLD8g2Z7Buhe2DUNFz/sR2jOLynEz742m/yRFa8wMcS1ha9QoUqAg6aJle
+ qR7P6HrpghNlYuB+HkmfVwt8gWGdAsDBI2qT/FHKhEIfa2lMPTJIg0CF9iQ94tPJOKI1bhmya
+ aAeCzIi3DdjsxPTS0cjWTdWVLqKvJuCcJAl3OVlUVUxp13Dek9NAkeLX3GoXKftGxbNOZfNIn
+ w0mjibJx8=
+
+> Once device_add(&dev->dev) failed, call put_device() to explicitly
+> release dev->dev. Or it could cause double free problem.
+
+https://elixir.bootlin.com/linux/v6.13-rc3/source/drivers/base/core.c#L352=
+1
 
 
-On 12/18/24 5:07 AM, Jens Axboe wrote:
-> On 12/17/24 2:00 PM, Stefan Hajnoczi wrote:
->> On Tue, 17 Dec 2024 at 12:54, Jens Axboe <axboe@kernel.dk> wrote:
->>> On 12/16/24 11:08 PM, Jingbo Xu wrote:
->>>>> That's why I asked Jens to weigh in on whether there is a generic
->>>>> block layer solution here. If uring_cmd is faster then maybe a generic
->>>>> uring_cmd I/O interface can be defined without tying applications to
->>>>> device-specific commands. Or maybe the traditional io_uring code path
->>>>> can be optimized so that bypass is no longer attractive.
->>> It's not that the traditional io_uring code path is slower, it's in fact
->>> basically the same thing. It's that all the other jazz that happens
->>> below io_uring slows things down, which is why passthrough ends up being
->>> faster.
->> Are you happy with virtio_blk passthrough or do you want a different approach?
-> I think it looks fine.
+=E2=80=A6
+> Found by code review.
+
+https://elixir.bootlin.com/linux/v6.13-rc3/source/drivers/virtio/virtio.c#=
+L498
+
+Will possibilities become interesting to improve automated source code ana=
+lyses accordingly?
+
+
+=E2=80=A6
+> +++ b/drivers/virtio/virtio.c
+> @@ -503,6 +503,7 @@ int register_virtio_device(struct virtio_device *dev=
+)
 >
-OK, thx. I will submit the official patch for review soon after 
-resolving the test bot warning.
+>  out_of_node_put:
+>  	of_node_put(dev->dev.of_node);
+> +	put_device(&dev->dev);
+>  out_ida_remove:
+>  	ida_free(&virtio_index_ida, dev->index);
+>  out:
+
+How much can the ordering matter for such resource cleanup calls here?
+
+Regards,
+Markus
