@@ -1,102 +1,101 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DEAF17DFE3
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:37:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26C7175D34
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:39:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734511039; cv=none; b=DkQEil6vDfVNnm8Kni1OWW4NaqAmmuFEPAcCD6PM/xumziMy2gFECWxZgTmg260Ejwe71EL82tpBQAHhuqdZJBNY3wyhNBL5ugFFTu3YaIYOy6GXV8F+Msm+c+Qw0qqtEX9pmbKvgWZHke6ys8o182PG4VXWCubkhjkyfYUBjx8=
+	t=1734511159; cv=none; b=Rz1CIqsuo8xYLqVC+GMrPXqy+ULB30RU3pkdv9BghlY/4VouxiaRuGiwTk4ulxCJeqPxTqx3VM74v6pEAx/00d6Bwlw826UouSNAOq7c+7EplssOPKznjVO5v+p496iEub9d9UZvwEwEuiFX1XI5gJNh/h01J3jwru8R48DxfVg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734511039; c=relaxed/simple;
-	bh=KdNSPTYzI0yXRPOSxU2NZR4f+TDNEOZLE396GR9IUio=;
+	s=arc-20240116; t=1734511159; c=relaxed/simple;
+	bh=kvEZgLfuKpBIL6UXFHvWj4fhMBsAebQHK+DO4sBMdwo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IUbOnmcG5phJ3l9YkeyHv5IFuD18pJ//xrOh0kmT6wn3nrndnm/LWuum0QLb+Q5KmQewckpETejYqTjNbNBNoLLU+2Rd76WBhXTL7QBxDOTGkOj9z/11I/LmadFF1yR0nqGa1PwTxhm960sgpGXX2ypURW1mgs8ZayzAPuODJPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gFHXCwZC; arc=none smtp.client-ip=140.211.166.136
+	 To:Cc:Content-Type; b=nTSH8kJfQIrqjrIU3/+6r4tqvFXfUGrku2qII1XhL9QSm1I7J/NueNAwRwMpICGzUdt2eZganWWfTz4Qsc05Pcs4z7lEKlWHPX4spnEIubO65tQ1b1pKn+/isSvPW+6+jFSwBisUQBCh4hae5DiKJ6YhHtMCySm7dRzpqT2eqY8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V+D+4gKz; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gFHXCwZC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V+D+4gKz"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8B994613F8
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:37:17 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4C298816A2
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:39:18 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.793
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id vu9kG_2M6Sp6 for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Dec 2024 08:37:17 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 8rBVJgEifmad for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Dec 2024 08:39:17 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 9E23D606F4
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E23D606F4
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gFHXCwZC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 6D93E814C9
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6D93E814C9
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V+D+4gKz
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9E23D606F4
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:37:15 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6D93E814C9
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734511034;
+	s=mimecast20190719; t=1734511156;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=GS4RlJkSlafscPifZWZnqyNOXWHjYSJdsZMAPTjf4Xg=;
-	b=gFHXCwZC6d+os9litCKmuGxIq1OysxKJpIhZw+Q2h6OnEYDzYiqbZi93KY/8HCnjwT85Tf
-	Ahd56vdnKBfebDowEWVdkpzs9qgtTqjSO0tfmKudFfz7APoPE6gltrLWjn12gN+xEc29s0
-	KrBG8+x03BUh5JUAVSwyL550z2Xgnqo=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=yhonihEVaQJzVy2Bbs74DpiB+LrNVYNHZo3wHnFP0Ec=;
+	b=V+D+4gKz9J9AmBUW+nza9qJnLtibnbxxNa7qe0G9fCg1c9eDqB1GJACksh/+JWA2LtuZQT
+	AkcQJsiaIhuigA4WRbiEkTnZONC8y33cnZzKl6jmUAIqI8IxFsEQYvVjaMPQ6kIpXtu8e2
+	k5IEDx9D4aMR54M2PBXGJfuBuKjp4xQ=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-396-vszeBIFsOmKfdYFDInsJ6g-1; Wed, 18 Dec 2024 03:37:10 -0500
-X-MC-Unique: vszeBIFsOmKfdYFDInsJ6g-1
-X-Mimecast-MFC-AGG-ID: vszeBIFsOmKfdYFDInsJ6g
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-aa67f03ca86so451905166b.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 00:37:10 -0800 (PST)
+ us-mta-428-j6W4QQD8MPGbieMHvWoCuQ-1; Wed, 18 Dec 2024 03:39:14 -0500
+X-MC-Unique: j6W4QQD8MPGbieMHvWoCuQ-1
+X-Mimecast-MFC-AGG-ID: j6W4QQD8MPGbieMHvWoCuQ
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-aa6a1595fdaso500587066b.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 00:39:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734511029; x=1735115829;
+        d=1e100.net; s=20230601; t=1734511153; x=1735115953;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GS4RlJkSlafscPifZWZnqyNOXWHjYSJdsZMAPTjf4Xg=;
-        b=QSNCccgDJMp5AYRyLZdmD1IME7qibKHOjJuTOfPOPLRlRRTgUy74Vw0rF0HXsoc3TZ
-         IU4pgWippCQZXGY4ZBpychGehAXTVeanFCP2z5LOZaemvRZ9OM5Nx/sFDM0g6B8aLSq8
-         6Br40T4DtnrR5BXn3onw6Khpt1JnTe8fmCOIJv1QkaKuQCXMl+cC/k+cXsRmyy2ebXIv
-         BeqzEN9sjQSrYlPUoKEYdm4BGRdfl47UcHQUFq5V+T/SaDHX2JaqfGagZuese3cwEa2O
-         cImaxugjBKtXzhL0To4ptEeGn9z0EM6L7GQGsSnI82EYX4FxeaW8AWVBBypljc90xPkx
-         OEbg==
-X-Forwarded-Encrypted: i=1; AJvYcCXIYz6zdB0odD/omlpGLloKHyEOV884lEfK0UF156d/h+romyZi5LEKeNj5lu/ry/gVQ87uWgaUvRZRndP5Ow==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxLl0rcXUvQlXbqemV9wTGjLz/VONUXunbQViWQwMbIEcVEvdSG
-	OfHvTnXQTK/BNbGp+85Nn/d7FZMEQbf/Ls7BklZz05pm2d9Mt66lFNQK8/dsKfnk5YaOBGQgfGs
-	zjCGdFPkbDPVa117ix+0vF/cjeEjPnG60kvIRNB8HJDE4DWBPPWnisHl9sukpHwPS6UjzXdttH4
-	Ova7XiiSpbRmRU+0724FCyF1CkrZ/kzv6TVsFec2Y1ysFQlhLCRigKqg==
-X-Gm-Gg: ASbGncv1c3U7kNr2A2VNgraVTCh/Ig6agfU/ybFPZw+EeKcl2+WrLOb6yCHPLg+WnAV
-	72dt02kocddLRiYtFSbkxo2a7J+zCsL/+UT3ycT8=
-X-Received: by 2002:a05:6402:34cb:b0:5d0:c697:1f02 with SMTP id 4fb4d7f45d1cf-5d7ee3b57ddmr5014753a12.17.1734511029518;
-        Wed, 18 Dec 2024 00:37:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFsTO9d3Y4gBzRKxIZ2rqQKa8yVFxcJFzH6jsY0ql4eXDtA+BSmNxlStP+pIpwj1SFopfPZm0RqzKTnvpwlDD0=
-X-Received: by 2002:a05:6402:34cb:b0:5d0:c697:1f02 with SMTP id
- 4fb4d7f45d1cf-5d7ee3b57ddmr5014697a12.17.1734511029163; Wed, 18 Dec 2024
- 00:37:09 -0800 (PST)
+        bh=yhonihEVaQJzVy2Bbs74DpiB+LrNVYNHZo3wHnFP0Ec=;
+        b=fDDaxuPtFzFaXQneD/nM0hbBViFVaPiJupYxuBvCtN+y2GGXmwaq2qGr3dhluIaa9K
+         zvaUC5Qn7QKxfr8cSLHGRny7djyvO7dBXeHjNMvIBYVBYTzG6GmyEo41e1VDAvYvC9B0
+         S1ey8ADiPCQ7d+TWE7ytGrVz5Hdc+WZE0XwB6fhZF0sSjnoAWhrLzZF3hgM9R7uE8Ges
+         cOg/du3++1mVpF9rlXRjs7eNWyR14NZDPlIsJ7gRojVmQFjQTfDkBW9tPCyT9DMeAzVL
+         i2TCo8fKNvxfvaQ2r9yHl8rtBFDlapmkz+bejGc3WlerKOPqIDF5pTZET4q7y30FkNbg
+         JghA==
+X-Forwarded-Encrypted: i=1; AJvYcCX6ZYZzyxnEt47bu8CVN7sHW4m2aEcLJ4n8Ejy8aFa9XDA6RYb3pznT6KDfsPGO7B4dhah1jXWlREn6OobYAA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxR8znvXqkG5QONkt1gZjLKIYpoRw2LPnqeOAIVOfikdi1EFDJk
+	5VY41ScL3yRYF2yNjp+jKIuFoxHYSahVKRzd3pcR7qSYF1lzHyH9Ee62HJldgdkRfbUv2fEL0I1
+	csICGhhyB+EiFSslRJNAD2PKwACsutjEhi3nXBg5SHYbUjwOvtmidPQqG/UL+R6vtQw38rcjFex
+	zAIxMsGcfwRaKxWwng8wOmOpCStgSVzvpDxulowi6CE9mOVKjl3vFmvQ==
+X-Gm-Gg: ASbGncvBcCZvb1VcjDGtDsikuRZD3QyRvvopfh9vTkhCavfcAtsr5ntIpY3mHzSQNiG
+	Kd8R7uNRIX9rrDtS/goOG9YVu6bxAbgeRqYrt5vM=
+X-Received: by 2002:a17:907:78e:b0:aa6:96ad:f903 with SMTP id a640c23a62f3a-aabf477ddffmr189585166b.31.1734511153504;
+        Wed, 18 Dec 2024 00:39:13 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHPyHUFmwfjNjzfUhcrQYfLNkqlmB6wOjQYl2K8WIGXcwvWI6bQLQsDKPK91gwt2HYdHpGSb0X2wb+YUCuEdFA=
+X-Received: by 2002:a17:907:78e:b0:aa6:96ad:f903 with SMTP id
+ a640c23a62f3a-aabf477ddffmr189582266b.31.1734511153024; Wed, 18 Dec 2024
+ 00:39:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241210164456.925060-1-lulu@redhat.com> <20241210164456.925060-2-lulu@redhat.com>
- <urth32zhvjesd7pjgy4rzbkbddtvxbmevfjid5vebfak2bd2ae@izvzeo5mk2s6>
-In-Reply-To: <urth32zhvjesd7pjgy4rzbkbddtvxbmevfjid5vebfak2bd2ae@izvzeo5mk2s6>
+References: <20241210164456.925060-1-lulu@redhat.com> <20241210164456.925060-3-lulu@redhat.com>
+ <tah7oyn43szvjmuzdatcaysonqlzel5zok2ancuupk5eir2hh3@xfq7uacjn7rn>
+In-Reply-To: <tah7oyn43szvjmuzdatcaysonqlzel5zok2ancuupk5eir2hh3@xfq7uacjn7rn>
 From: Cindy Lu <lulu@redhat.com>
-Date: Wed, 18 Dec 2024 16:36:30 +0800
-Message-ID: <CACLfguVbD_eti13-yVezT-z5Hy=U5FVNwmDO4ogVY657EYv4DA@mail.gmail.com>
-Subject: Re: [PATCH v4 1/8] vhost: Add a new parameter in vhost_dev to allow
- user select kthread
+Date: Wed, 18 Dec 2024 16:38:35 +0800
+Message-ID: <CACLfguWPmu=Wx76bqQesa+OEUAvietEDfGNvXDUCOt4LEFzgbg@mail.gmail.com>
+Subject: Re: [PATCH v4 2/8] vhost: Add the vhost_worker to support kthread
 To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
 	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
 	netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 7T7vOSi4M-kHR_hZeVYEihjbietqjCqVc6AnLDP6eKk_1734511029
+X-Mimecast-MFC-PROC-ID: RXMBSz1zeddNZC8sebux909qsvNzyrSUT1EVX_WzcSU_1734511153
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -104,54 +103,80 @@ Content-Transfer-Encoding: quoted-printable
 On Wed, Dec 11, 2024 at 1:52=E2=80=AFAM Stefano Garzarella <sgarzare@redhat=
 .com> wrote:
 >
-> On Wed, Dec 11, 2024 at 12:41:40AM +0800, Cindy Lu wrote:
-> >The vhost now uses vhost_task and workers as a child of the owner thread=
-.
-> >While this aligns with containerization principles,it confuses some lega=
-cy
->
-> nit: missing space in "principles,it"
->
-Thanks Stefano, will fix this
-> >userspace app, Therefore, we are reintroducing kthread API support.
->
-> nit: "app, therefore" or "app. Therefore"
->
-sure, will fix this
+> On Wed, Dec 11, 2024 at 12:41:41AM +0800, Cindy Lu wrote:
+> >Add the previously removed function vhost_worker() back
+> >to support the kthread and rename it to vhost_run_work_kthread_list.
 > >
-> >Introduce a new parameter to enable users to choose between
-> >kthread and task mode.
+> >The old function vhost_worker was change to support task in
+>
+> s/change/changed
+>
+will fix this
+> >commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
+> >change to xarray in
+>
+> "and to support multiple workers per device using xarray in"
+>
+will fix this
+Thanks
+Cindy
+> >commit 1cdaafa1b8b4 ("vhost: replace single worker pointer with xarray")
+
 > >
 > >Signed-off-by: Cindy Lu <lulu@redhat.com>
 > >---
-> > drivers/vhost/vhost.c | 1 +
-> > drivers/vhost/vhost.h | 1 +
-> > 2 files changed, 2 insertions(+)
+> > drivers/vhost/vhost.c | 38 ++++++++++++++++++++++++++++++++++++++
+> > 1 file changed, 38 insertions(+)
 > >
 > >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> >index 9ac25d08f473..eaddbd39c29b 100644
+> >index eaddbd39c29b..1feba29abf95 100644
 > >--- a/drivers/vhost/vhost.c
 > >+++ b/drivers/vhost/vhost.c
-> >@@ -552,6 +552,7 @@ void vhost_dev_init(struct vhost_dev *dev,
-> >       dev->byte_weight =3D byte_weight;
-> >       dev->use_worker =3D use_worker;
-> >       dev->msg_handler =3D msg_handler;
-> >+      dev->inherit_owner =3D true;
-> >       init_waitqueue_head(&dev->wait);
-> >       INIT_LIST_HEAD(&dev->read_list);
-> >       INIT_LIST_HEAD(&dev->pending_list);
-> >diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> >index bb75a292d50c..c650c4506c70 100644
-> >--- a/drivers/vhost/vhost.h
-> >+++ b/drivers/vhost/vhost.h
-> >@@ -176,6 +176,7 @@ struct vhost_dev {
-> >       int byte_weight;
-> >       struct xarray worker_xa;
-> >       bool use_worker;
-> >+      bool inherit_owner;
-> >       int (*msg_handler)(struct vhost_dev *dev, u32 asid,
-> >                          struct vhost_iotlb_msg *msg);
-> > };
+> >@@ -388,6 +388,44 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+> >       __vhost_vq_meta_reset(vq);
+> > }
+> >
+> >+static int vhost_run_work_kthread_list(void *data)
+> >+{
+> >+      struct vhost_worker *worker =3D data;
+> >+      struct vhost_work *work, *work_next;
+> >+      struct vhost_dev *dev =3D worker->dev;
+> >+      struct llist_node *node;
+> >+
+> >+      kthread_use_mm(dev->mm);
+> >+
+> >+      for (;;) {
+> >+              /* mb paired w/ kthread_stop */
+> >+              set_current_state(TASK_INTERRUPTIBLE);
+> >+
+> >+              if (kthread_should_stop()) {
+> >+                      __set_current_state(TASK_RUNNING);
+> >+                      break;
+> >+              }
+> >+              node =3D llist_del_all(&worker->work_list);
+> >+              if (!node)
+> >+                      schedule();
+> >+
+> >+              node =3D llist_reverse_order(node);
+> >+              /* make sure flag is seen after deletion */
+> >+              smp_wmb();
+> >+              llist_for_each_entry_safe(work, work_next, node, node) {
+> >+                      clear_bit(VHOST_WORK_QUEUED, &work->flags);
+> >+                      __set_current_state(TASK_RUNNING);
+> >+                      kcov_remote_start_common(worker->kcov_handle);
+> >+                      work->fn(work);
+> >+                      kcov_remote_stop();
+> >+                      cond_resched();
+> >+              }
+> >+      }
+> >+      kthread_unuse_mm(dev->mm);
+> >+
+> >+      return 0;
+> >+}
+> >+
+> > static bool vhost_run_work_list(void *data)
+> > {
+> >       struct vhost_worker *worker =3D data;
 > >--
 > >2.45.0
 > >
