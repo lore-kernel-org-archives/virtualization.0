@@ -1,182 +1,203 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26C7175D34
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:39:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57870192D69
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:46:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734511159; cv=none; b=Rz1CIqsuo8xYLqVC+GMrPXqy+ULB30RU3pkdv9BghlY/4VouxiaRuGiwTk4ulxCJeqPxTqx3VM74v6pEAx/00d6Bwlw826UouSNAOq7c+7EplssOPKznjVO5v+p496iEub9d9UZvwEwEuiFX1XI5gJNh/h01J3jwru8R48DxfVg=
+	t=1734511590; cv=none; b=nurrvH3rrd0UUKTJcwLnvgT65mfJDSapY49T/kwx3s2LQnN/byXwZ3vs3/VbKCPpcZLat/VQ9EMNecbwKJpQMhMyT86ITEERyq2mVfBgurEwpeEA3gCWbFUqyLznvc6ebp5q6RlnBF/OQ3Ivv1aBRrevXNjxtT2R6cakGlIMVcM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734511159; c=relaxed/simple;
-	bh=kvEZgLfuKpBIL6UXFHvWj4fhMBsAebQHK+DO4sBMdwo=;
+	s=arc-20240116; t=1734511590; c=relaxed/simple;
+	bh=O3ovGN6Hg1bqUxumZterPrFzVTulwMpdVPSvm/DtAqI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nTSH8kJfQIrqjrIU3/+6r4tqvFXfUGrku2qII1XhL9QSm1I7J/NueNAwRwMpICGzUdt2eZganWWfTz4Qsc05Pcs4z7lEKlWHPX4spnEIubO65tQ1b1pKn+/isSvPW+6+jFSwBisUQBCh4hae5DiKJ6YhHtMCySm7dRzpqT2eqY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V+D+4gKz; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=WCMsYxHIgA82W04JQiAO5rkOgLrr1btMcgYvMnx9hkUZGRRjdSRwCCtzll9kvZmgGyUpQ0N0Hy92YSpUcVZ2zLeX6iclvdGKVfRQ9iP3bRVxpyApb4WYXrzRnM3v/Q+Thkz3PIIqrKjW8KQTv41DMAGdsCov4JWEyMauJQmD7l4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h3L3PqID; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V+D+4gKz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h3L3PqID"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4C298816A2
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:39:18 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E371C4172F
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:46:28 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.793
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 8rBVJgEifmad for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Dec 2024 08:39:17 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id UE07K8HnwqnS for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Dec 2024 08:46:28 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 6D93E814C9
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6D93E814C9
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V+D+4gKz
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org CCA1941605
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CCA1941605
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h3L3PqID
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6D93E814C9
-	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:39:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id CCA1941605
+	for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 08:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734511156;
+	s=mimecast20190719; t=1734511586;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=yhonihEVaQJzVy2Bbs74DpiB+LrNVYNHZo3wHnFP0Ec=;
-	b=V+D+4gKz9J9AmBUW+nza9qJnLtibnbxxNa7qe0G9fCg1c9eDqB1GJACksh/+JWA2LtuZQT
-	AkcQJsiaIhuigA4WRbiEkTnZONC8y33cnZzKl6jmUAIqI8IxFsEQYvVjaMPQ6kIpXtu8e2
-	k5IEDx9D4aMR54M2PBXGJfuBuKjp4xQ=
+	bh=EqGOCEuKyFp5Mq0Dor8PkiIuS+YUjt1N5OpQaCIrUnI=;
+	b=h3L3PqIDGaPdQ6J/W/H9ll+c6sEHDdKnaK/6+NPz0KcBUCIR0dvZWZ5sO74w1mF7jipzFI
+	Ipkp34boddRWmUbxzOTZGetaxGPeTrxLuunXwtVResJJXUJZ6y43gaOE7jFnohZiZIhmex
+	3bGAf9YDtgYqzbRMgJxRyU562UyZ6sI=
 Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
  [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-428-j6W4QQD8MPGbieMHvWoCuQ-1; Wed, 18 Dec 2024 03:39:14 -0500
-X-MC-Unique: j6W4QQD8MPGbieMHvWoCuQ-1
-X-Mimecast-MFC-AGG-ID: j6W4QQD8MPGbieMHvWoCuQ
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-aa6a1595fdaso500587066b.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 00:39:14 -0800 (PST)
+ us-mta-294-Vxd7rj6hMu6mPGG_KTlR9g-1; Wed, 18 Dec 2024 03:46:24 -0500
+X-MC-Unique: Vxd7rj6hMu6mPGG_KTlR9g-1
+X-Mimecast-MFC-AGG-ID: Vxd7rj6hMu6mPGG_KTlR9g
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-aab954d1116so441520066b.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 18 Dec 2024 00:46:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734511153; x=1735115953;
+        d=1e100.net; s=20230601; t=1734511583; x=1735116383;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yhonihEVaQJzVy2Bbs74DpiB+LrNVYNHZo3wHnFP0Ec=;
-        b=fDDaxuPtFzFaXQneD/nM0hbBViFVaPiJupYxuBvCtN+y2GGXmwaq2qGr3dhluIaa9K
-         zvaUC5Qn7QKxfr8cSLHGRny7djyvO7dBXeHjNMvIBYVBYTzG6GmyEo41e1VDAvYvC9B0
-         S1ey8ADiPCQ7d+TWE7ytGrVz5Hdc+WZE0XwB6fhZF0sSjnoAWhrLzZF3hgM9R7uE8Ges
-         cOg/du3++1mVpF9rlXRjs7eNWyR14NZDPlIsJ7gRojVmQFjQTfDkBW9tPCyT9DMeAzVL
-         i2TCo8fKNvxfvaQ2r9yHl8rtBFDlapmkz+bejGc3WlerKOPqIDF5pTZET4q7y30FkNbg
-         JghA==
-X-Forwarded-Encrypted: i=1; AJvYcCX6ZYZzyxnEt47bu8CVN7sHW4m2aEcLJ4n8Ejy8aFa9XDA6RYb3pznT6KDfsPGO7B4dhah1jXWlREn6OobYAA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxR8znvXqkG5QONkt1gZjLKIYpoRw2LPnqeOAIVOfikdi1EFDJk
-	5VY41ScL3yRYF2yNjp+jKIuFoxHYSahVKRzd3pcR7qSYF1lzHyH9Ee62HJldgdkRfbUv2fEL0I1
-	csICGhhyB+EiFSslRJNAD2PKwACsutjEhi3nXBg5SHYbUjwOvtmidPQqG/UL+R6vtQw38rcjFex
-	zAIxMsGcfwRaKxWwng8wOmOpCStgSVzvpDxulowi6CE9mOVKjl3vFmvQ==
-X-Gm-Gg: ASbGncvBcCZvb1VcjDGtDsikuRZD3QyRvvopfh9vTkhCavfcAtsr5ntIpY3mHzSQNiG
-	Kd8R7uNRIX9rrDtS/goOG9YVu6bxAbgeRqYrt5vM=
-X-Received: by 2002:a17:907:78e:b0:aa6:96ad:f903 with SMTP id a640c23a62f3a-aabf477ddffmr189585166b.31.1734511153504;
-        Wed, 18 Dec 2024 00:39:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHPyHUFmwfjNjzfUhcrQYfLNkqlmB6wOjQYl2K8WIGXcwvWI6bQLQsDKPK91gwt2HYdHpGSb0X2wb+YUCuEdFA=
-X-Received: by 2002:a17:907:78e:b0:aa6:96ad:f903 with SMTP id
- a640c23a62f3a-aabf477ddffmr189582266b.31.1734511153024; Wed, 18 Dec 2024
- 00:39:13 -0800 (PST)
+        bh=EqGOCEuKyFp5Mq0Dor8PkiIuS+YUjt1N5OpQaCIrUnI=;
+        b=pZPJB1G5KrgJfOvqQ79qZwbnPV7WTRzy2QGCdoBGT2uX6KVvAD0IkVgJloRWl1x+w6
+         NEWcArrG6TxOd/CzHbtRDtn4ISL5wz2AFOb8L174QtlTy+jodqAuC3QWcFMuZEyk0C61
+         DNAptGOlxkc7fh4/ioOj+EWzk639D1Pm+NCYTWWtO5wTHetANoS1hHgBlkGQfY8GHoEt
+         xDOgWyPMGAW+WOx6mjtaDFs9mayMZuPQX4tiJzq1ulgnRxFvEIzHUDOU+6UR1t1Qh6ls
+         Qmw4E/pVTe6OGJsgoe7UNy9IT1ps5heDJHARo1ETxpIntBp6sxTIBvZMPucC0h/AbznM
+         +aNw==
+X-Forwarded-Encrypted: i=1; AJvYcCWR+eWERbQPePp6r6ZhWsJmdJ7Ywo1t4RXOnS5LDJn7a/iE3Fc22/rT5XuIRp2LI4F7raLp+Uybop87bRJc7g==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwL8xWGIlo5iQ8d7dOaplVu+gVo8QibgcFuxClzeD+72XZNLhwO
+	65veWcYEPMKJT/BS7ttYzv8NizROFIkq2R83msref3bvxIWoJLbyYyzClxWqUbdBwZJDKl7D3fI
+	nAI69PEsFf/BKQTzLMcdLo561KlXDo446E28PIM4jvZDbxRIwc7rDa27spNx7vuYAJqa0ypUrT+
+	aLmG/t1lyrEcZE+af1BwmTqW/8Tf2Jvx5FEMdwlPJMHyYa5atbjn6/YA==
+X-Gm-Gg: ASbGncvx0QME0agZtdYVCmSViNX0Bcfbrb/0EiMmR4sRrhEdRJNkvbZQ4/nz2aaXiIZ
+	Zx+SbLjVNkwZ4I2dQIUDcIA7tgW0E7xEMRVyexMU=
+X-Received: by 2002:a17:907:86a1:b0:aa6:8430:cb02 with SMTP id a640c23a62f3a-aabf4966c7dmr144137866b.61.1734511583428;
+        Wed, 18 Dec 2024 00:46:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFQHFm3Z3+PffAYmhBV7W18HwZ6rWjm1WHllt6r3VVlY7cNgegLPC1hcc2vCR+lKDficcfktiXwIyQn7ScZf8Y=
+X-Received: by 2002:a17:907:86a1:b0:aa6:8430:cb02 with SMTP id
+ a640c23a62f3a-aabf4966c7dmr144136066b.61.1734511583030; Wed, 18 Dec 2024
+ 00:46:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241210164456.925060-1-lulu@redhat.com> <20241210164456.925060-3-lulu@redhat.com>
- <tah7oyn43szvjmuzdatcaysonqlzel5zok2ancuupk5eir2hh3@xfq7uacjn7rn>
-In-Reply-To: <tah7oyn43szvjmuzdatcaysonqlzel5zok2ancuupk5eir2hh3@xfq7uacjn7rn>
+References: <20241210164456.925060-1-lulu@redhat.com> <20241210164456.925060-4-lulu@redhat.com>
+ <yo2wq3brumnud4e7a4f4ni5s37olicv3ksvztcetgj2urmccks@qvrutryfahmf>
+In-Reply-To: <yo2wq3brumnud4e7a4f4ni5s37olicv3ksvztcetgj2urmccks@qvrutryfahmf>
 From: Cindy Lu <lulu@redhat.com>
-Date: Wed, 18 Dec 2024 16:38:35 +0800
-Message-ID: <CACLfguWPmu=Wx76bqQesa+OEUAvietEDfGNvXDUCOt4LEFzgbg@mail.gmail.com>
-Subject: Re: [PATCH v4 2/8] vhost: Add the vhost_worker to support kthread
+Date: Wed, 18 Dec 2024 16:45:46 +0800
+Message-ID: <CACLfguWtkt6xXs5dJygyEGQwztFdC8BrT3KOr1wpGjSraFL8HA@mail.gmail.com>
+Subject: Re: [PATCH v4 3/8] vhost: Add the cgroup related function
 To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
 	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
 	netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: RXMBSz1zeddNZC8sebux909qsvNzyrSUT1EVX_WzcSU_1734511153
+X-Mimecast-MFC-PROC-ID: 2iCAuozuYuApB5xNLC37p165G4BVN877rC-Nn8Ekndw_1734511583
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 11, 2024 at 1:52=E2=80=AFAM Stefano Garzarella <sgarzare@redhat=
+On Wed, Dec 11, 2024 at 1:53=E2=80=AFAM Stefano Garzarella <sgarzare@redhat=
 .com> wrote:
 >
-> On Wed, Dec 11, 2024 at 12:41:41AM +0800, Cindy Lu wrote:
-> >Add the previously removed function vhost_worker() back
-> >to support the kthread and rename it to vhost_run_work_kthread_list.
-> >
-> >The old function vhost_worker was change to support task in
+> On Wed, Dec 11, 2024 at 12:41:42AM +0800, Cindy Lu wrote:
+> >Add back the previously removed cgroup function to support the kthread
 >
-> s/change/changed
+> nit: missing . at the end
 >
 will fix this
-> >commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
-> >change to xarray in
+> >The biggest change for this part is in vhost_attach_cgroups() and
+> >vhost_attach_task_to_cgroups().
 >
-> "and to support multiple workers per device using xarray in"
+> It's not clear what the big change is, is there a piece missing?
 >
-will fix this
+sure, I will rewrite this part to make it more clear
 Thanks
-Cindy
-> >commit 1cdaafa1b8b4 ("vhost: replace single worker pointer with xarray")
-
+cindy
+> >
+> >The old function was remove in
+>
+> s/remove/removed
+>
+> BTW which is the old function?
+>
+I will add this information
+Thanks
+cindy
+> >commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
 > >
 > >Signed-off-by: Cindy Lu <lulu@redhat.com>
 > >---
-> > drivers/vhost/vhost.c | 38 ++++++++++++++++++++++++++++++++++++++
-> > 1 file changed, 38 insertions(+)
+> > drivers/vhost/vhost.c | 33 +++++++++++++++++++++++++++++++++
+> > 1 file changed, 33 insertions(+)
 > >
 > >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> >index eaddbd39c29b..1feba29abf95 100644
+> >index 1feba29abf95..812dfd218bc2 100644
 > >--- a/drivers/vhost/vhost.c
 > >+++ b/drivers/vhost/vhost.c
-> >@@ -388,6 +388,44 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> >       __vhost_vq_meta_reset(vq);
+> >@@ -22,6 +22,7 @@
+> > #include <linux/slab.h>
+> > #include <linux/vmalloc.h>
+> > #include <linux/kthread.h>
+> >+#include <linux/cgroup.h>
+> > #include <linux/module.h>
+> > #include <linux/sort.h>
+> > #include <linux/sched/mm.h>
+> >@@ -620,6 +621,38 @@ long vhost_dev_check_owner(struct vhost_dev *dev)
 > > }
+> > EXPORT_SYMBOL_GPL(vhost_dev_check_owner);
 > >
-> >+static int vhost_run_work_kthread_list(void *data)
+> >+struct vhost_attach_cgroups_struct {
+> >+      struct vhost_work work;
+> >+      struct task_struct *owner;
+> >+      int ret;
+> >+};
+> >+
+> >+static void vhost_attach_cgroups_work(struct vhost_work *work)
 > >+{
-> >+      struct vhost_worker *worker =3D data;
-> >+      struct vhost_work *work, *work_next;
-> >+      struct vhost_dev *dev =3D worker->dev;
-> >+      struct llist_node *node;
+> >+      struct vhost_attach_cgroups_struct *s;
 > >+
-> >+      kthread_use_mm(dev->mm);
-> >+
-> >+      for (;;) {
-> >+              /* mb paired w/ kthread_stop */
-> >+              set_current_state(TASK_INTERRUPTIBLE);
-> >+
-> >+              if (kthread_should_stop()) {
-> >+                      __set_current_state(TASK_RUNNING);
-> >+                      break;
-> >+              }
-> >+              node =3D llist_del_all(&worker->work_list);
-> >+              if (!node)
-> >+                      schedule();
-> >+
-> >+              node =3D llist_reverse_order(node);
-> >+              /* make sure flag is seen after deletion */
-> >+              smp_wmb();
-> >+              llist_for_each_entry_safe(work, work_next, node, node) {
-> >+                      clear_bit(VHOST_WORK_QUEUED, &work->flags);
-> >+                      __set_current_state(TASK_RUNNING);
-> >+                      kcov_remote_start_common(worker->kcov_handle);
-> >+                      work->fn(work);
-> >+                      kcov_remote_stop();
-> >+                      cond_resched();
-> >+              }
-> >+      }
-> >+      kthread_unuse_mm(dev->mm);
-> >+
-> >+      return 0;
+> >+      s =3D container_of(work, struct vhost_attach_cgroups_struct, work=
+);
+> >+      s->ret =3D cgroup_attach_task_all(s->owner, current);
 > >+}
 > >+
-> > static bool vhost_run_work_list(void *data)
+> >+static int vhost_attach_task_to_cgroups(struct vhost_worker *worker)
+>
+> This function looks renamed, should we mention in the commit
+> description?
+>
+> >+{
+> >+      struct vhost_flush_struct flush;
+> >+      struct vhost_attach_cgroups_struct attach;
+> >+
+> >+      attach.owner =3D current;
+> >+
+> >+      vhost_work_init(&attach.work, vhost_attach_cgroups_work);
+> >+      vhost_worker_queue(worker, &attach.work);
+> >+
+> >+      init_completion(&flush.wait_event);
+> >+      vhost_work_init(&flush.work, vhost_flush_work);
+> >+      vhost_worker_queue(worker, &flush.work);
+> >+      wait_for_completion(&flush.wait_event);
+>
+> IIUC this block is the old "vhost_dev_flush", right?
+>
+> Maybe we should mention also that in the commit description.
+>
+sure, will add these informations
+Thanks
+cindy
+> >+
+> >+      return attach.ret;
+> >+}
+> >+
+> > /* Caller should have device mutex */
+> > bool vhost_dev_has_owner(struct vhost_dev *dev)
 > > {
-> >       struct vhost_worker *worker =3D data;
 > >--
 > >2.45.0
 > >
