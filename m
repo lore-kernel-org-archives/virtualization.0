@@ -1,146 +1,168 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 448FA225782
-	for <virtualization@lists.linux.dev>; Thu, 19 Dec 2024 15:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7692AD16
+	for <virtualization@lists.linux.dev>; Thu, 19 Dec 2024 15:38:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734621180; cv=none; b=EF0Yn7bxf18WcrGAFYX6CgISom/rSZM60PzH/XgQHgSGYOJGhed/pIRP9SYnEL0m9TCc+84pFhwvyuPjmC25CYAUbFjVoF7qU2OgWG7xC+gEo2BHgrY3S8t5rooSO0MmrYWA0mnlyoj0zP045a+ZGWsjH71vwkT31p3fzy8DQ6A=
+	t=1734622733; cv=none; b=m2q5uTQ4iQjEt7SQHRxjg8/NSYXeWrOBhboZTzVlguQEibekee/mxXTNAbyqTZkPG00uDsqcYyhNLtKaAffHHpCkFfHpMzmybxEOnNgjUX2QxAk3qVvyDt11zSYksicEm+D/Y+22WvupBvI4dlp5TEKgr6i7A4y66mps1wPhRx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734621180; c=relaxed/simple;
-	bh=BS1e2dHZHI3fvwxGNU/s5HGMxXY4wseBqH7EwQUXzlA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=duo3T4CmrGcJ3sw3+A4ToKXk6e/HdFf2E1pbtTJsIoU6Q6fB3IXhNGnsmN5da4/uz0HahoQ23dblv/0/hk5Si0BWXOEgwo3o6KVf8MFGl6j9alyGidpfBSYJayHzUeBEcP7Lkzq558fRpEb7CNAYe/P4SXFEQPrbuJuse+c+ypQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AEt5451k; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1734622733; c=relaxed/simple;
+	bh=ZwCCCKKdJfUkajbRuIfXBHqtvA2LzQrqJ8Q5lDvhrAs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Am1EFPF6N1uK65zKwNTN4LxdZLlNsqPgFeQJuwjSv1y6Pv85ciUXKFpfnVV8HoWGS6rc4JDPEesIMgNBSHastGdkzarF2anyxKdlZ9vNdrEIylenHXC/wCoWIbDhpQLjh012MyXVIw/fZXL3mr9h7v3wsk34qdpWyeiWdg2jwB8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=lIuIKLZ3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Awx86fPr; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=lIuIKLZ3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Awx86fPr; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AEt5451k"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734621178;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="lIuIKLZ3";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Awx86fPr";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="lIuIKLZ3";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Awx86fPr"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 2DC081F392;
+	Thu, 19 Dec 2024 15:38:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1734622724; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BS1e2dHZHI3fvwxGNU/s5HGMxXY4wseBqH7EwQUXzlA=;
-	b=AEt5451kIRhN0WaDPeYIDwUZjQJuMQHDCz2j0JAPd+Kkh80xv5BpN/puDwGt34u6XewBHG
-	I+4Xs86BNTPUfpD9aIELqTjURqDERpYLINoeIpEDIS1h9MHU6/x3S3T+LnI5ZNFmzE1UK1
-	KSBKbg2RekEsgTe5ri3vvji8NXa2CQE=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-329-SHI40J7JMhmefyI0_ZHNGw-1; Thu, 19 Dec 2024 10:12:57 -0500
-X-MC-Unique: SHI40J7JMhmefyI0_ZHNGw-1
-X-Mimecast-MFC-AGG-ID: SHI40J7JMhmefyI0_ZHNGw
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-6f2b3f1eb8cso9308177b3.2
-        for <virtualization@lists.linux.dev>; Thu, 19 Dec 2024 07:12:57 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734621176; x=1735225976;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=BS1e2dHZHI3fvwxGNU/s5HGMxXY4wseBqH7EwQUXzlA=;
-        b=aT8j1Q8qoL57vyc0E1zsl2EF1FFJrV5/kjvckRGczbEcQy4i6I8gtq/Ge4U17GvAQs
-         X3DNW5qXhGArTTm+bx5XRKedzIcI4bBYpYi8BGvcjLuxnvVvhfE8VYl5svJytneEPXyI
-         pgqmpcG4VuGUFqeVu83akL9Yqy59VIJSq0s2D3ZBxLqs41BLmHuwfE/3/UO4mBlfzEL5
-         chGhqq2FIyhRcFtrvfNZAzHzD0jyRescpWKep1dkJPAAHetJiKZd0jfKnHGeAZcZQ28u
-         kpdLgtzpHC2AX5ycEEaOZwx93gcVVUIvuSh6vohOJxhLDIMc1xgi/YjGhIK05edfUAXo
-         xu+w==
-X-Forwarded-Encrypted: i=1; AJvYcCXspXgsoznGzF2VLGp76ZekVWOynhMOgannCoa5HUZowHaib+F4kVasZ5GmET8rQSyWDDr0Tam7nDrLsmHnjg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyPi7iH8qZ9uG6QM1z/Sa4xzZhSKf3GaSau2FLgbNWBadaThvWe
-	V/3PRlxzYSjW6fgdDPKvQl3kChu0ya/t+48mCZdsjefiMiJNuPYcINsipCWkzWUHWoKBPJVgqkO
-	SGMNLmWIi6Roq6lFAYoUOV2NTVTVZk6DbVPZo86qLG500nOP12jz87KKI77bs6jfCM690Wv9qZ8
-	RtBklsNjPOZW7Qhd6DwxVTm6NSyL/aun6cyoqnx4c=
-X-Gm-Gg: ASbGncvMqCRy2n5MMtJk3o5dHOz4Qwy/EXh9RbjtS+aT/in/U0O6axbSU0L8Akf6vKD
-	XP5jwzv7YnxaxR2knAhJ+Hj1jcbDNge/JXMj6
-X-Received: by 2002:a05:690c:6d0c:b0:6ef:81c0:5b56 with SMTP id 00721157ae682-6f3e1b5ce05mr41292447b3.14.1734621176512;
-        Thu, 19 Dec 2024 07:12:56 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH1e1vKWNdpMhQtoYe0ECNznGPLcHrkVfOEIgjsb3Ce0adQykjZ0v+sCHN5/nm1oh7Kq8n+MtXssaBfGQPaLyA=
-X-Received: by 2002:a05:690c:6d0c:b0:6ef:81c0:5b56 with SMTP id
- 00721157ae682-6f3e1b5ce05mr41291937b3.14.1734621176096; Thu, 19 Dec 2024
- 07:12:56 -0800 (PST)
+	bh=7YJfQlySGqkADIe6C2FpqIGeFo+bGA1iN79AkPkxUCM=;
+	b=lIuIKLZ3tx9Tlasx+4eYis53arw0VaKm3Wb1cWvb25z+Dg8VMTHXyFLY9DQgh1izh5tKcn
+	TgFWIX4sl7yYM3i8in2DGUM6Np6WDhTCk7CjE4/KBwwx/G63QhBgvaQWAY0k/qdhoLDev5
+	MS3Z43ARDJrKXLuTjCXs6oSlJ8R9DXY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1734622724;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7YJfQlySGqkADIe6C2FpqIGeFo+bGA1iN79AkPkxUCM=;
+	b=Awx86fPr/B1eNZPuzu33T8EOyLecp2Vl8kd0f176Ei8UGx0R6SiZf7ATaV3NDN+OTRnuaj
+	32KyGSHHHdAli/Dg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=lIuIKLZ3;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=Awx86fPr
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1734622724; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7YJfQlySGqkADIe6C2FpqIGeFo+bGA1iN79AkPkxUCM=;
+	b=lIuIKLZ3tx9Tlasx+4eYis53arw0VaKm3Wb1cWvb25z+Dg8VMTHXyFLY9DQgh1izh5tKcn
+	TgFWIX4sl7yYM3i8in2DGUM6Np6WDhTCk7CjE4/KBwwx/G63QhBgvaQWAY0k/qdhoLDev5
+	MS3Z43ARDJrKXLuTjCXs6oSlJ8R9DXY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1734622724;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7YJfQlySGqkADIe6C2FpqIGeFo+bGA1iN79AkPkxUCM=;
+	b=Awx86fPr/B1eNZPuzu33T8EOyLecp2Vl8kd0f176Ei8UGx0R6SiZf7ATaV3NDN+OTRnuaj
+	32KyGSHHHdAli/Dg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0E99513A77;
+	Thu, 19 Dec 2024 15:38:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id bzRPAwQ+ZGc2PgAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Thu, 19 Dec 2024 15:38:44 +0000
+Date: Thu, 19 Dec 2024 16:38:43 +0100
+From: Daniel Wagner <dwagner@suse.de>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+	Kashyap Desai <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>, 
+	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Nilesh Javali <njavali@marvell.com>, 
+	GR-QLogic-Storage-Upstream@marvell.com, Don Brace <don.brace@microchip.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, 
+	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
+	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
+	Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>, 
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
+	Sridhar Balaraman <sbalaraman@parallelwireless.com>, "brookxu.cn" <brookxu.cn@gmail.com>, 
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, storagedev@microchip.com, 
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
+ isolcpus=managed_irq is enabled
+Message-ID: <cc5e44dd-e1dc-4f24-88d9-ce45a8b0794f@flourine.local>
+References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
+ <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
+ <Z2PlbL0XYTQ_LxTw@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <Z2K/I4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX> <lwfkm3salizjvubc5vqnkxi4bk4zdglg5um4xygfxwmrkktrbc@bvazoy4k723k>
- <Z2LZ3HK05RH8OfP5@v4bel-B760M-AORUS-ELITE-AX> <s2k74f6zvjm7uexqfyej6txvoqgf6lkaa47igo2eh4pq55d4n2@wnrrcr6aa6lk>
- <f7a3rlgpc36wk75grqeg6ndqmlprvilznlsesyruqfb7m5vrp7@myil7ex4f62n>
- <Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX> <5ca20d4c-1017-49c2-9516-f6f75fd331e9@rbox.co>
- <Z2N44ka8+l83XqcG@v4bel-B760M-AORUS-ELITE-AX> <fezrztdzj5bz54ys6qialz4w3bjqqxmhx74t2tnklbif6ns5dn@mtcjqnqbx6n4>
- <722e8d32-fe5c-4522-be2b-5967fdbb6b30@rbox.co> <CAGxU2F5VMGg--iv8Nxvmo_tGhHf_4d_hO5WuibXLUcwVVNgQEg@mail.gmail.com>
- <cc04fe7a-aa49-47a7-8d54-7a0e7c5bfbdc@rbox.co>
-In-Reply-To: <cc04fe7a-aa49-47a7-8d54-7a0e7c5bfbdc@rbox.co>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Thu, 19 Dec 2024 16:12:44 +0100
-Message-ID: <CAGxU2F5K+0s9hnk=uuC_fE=otrH+iSe7OVi1gQbDjr7xt5wY9g@mail.gmail.com>
-Subject: Re: [PATCH] vsock/virtio: Fix null-ptr-deref in vsock_stream_has_data
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Hyunwoo Kim <v4bel@theori.io>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Jason Wang <jasowang@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	qwerty@theori.io
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: V1228HzlAnOEwjFmvpDN8i3-Iz6-yhThX6oEA1a4ME8_1734621176
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z2PlbL0XYTQ_LxTw@fedora>
+X-Rspamd-Queue-Id: 2DC081F392
+X-Spam-Score: -3.01
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	ARC_NA(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[39];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_CC(0.00)[kernel.org,kernel.dk,lst.de,grimberg.me,broadcom.com,oracle.com,marvell.com,microchip.com,redhat.com,linux.alibaba.com,linux-foundation.org,linutronix.de,suse.com,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLy1uc785cwzda5mnrw36e8hj5)];
+	MISSING_XM_UA(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-On Thu, 19 Dec 2024 at 16:05, Michal Luczaj <mhal@rbox.co> wrote:
->
-> On 12/19/24 15:48, Stefano Garzarella wrote:
-> > On Thu, 19 Dec 2024 at 15:36, Michal Luczaj <mhal@rbox.co> wrote:
-> >>
-> >> On 12/19/24 09:19, Stefano Garzarella wrote:
-> >>> ...
-> >>> I think the best thing though is to better understand how to handle
-> >>> deassign, rather than checking everywhere that it's not null, also
-> >>> because in some cases (like the one in virtio-vsock), it's also
-> >>> important that the transport is the same.
-> >>
-> >> My vote would be to apply your virtio_transport_recv_pkt() patch *and* make
-> >> it impossible-by-design to switch ->transport from non-NULL to NULL in
-> >> vsock_assign_transport().
-> >
-> > I don't know if that's enough, in this case the problem is that some
-> > response packets are intended for a socket, where the transport has
-> > changed. So whether it's null or assigned but different, it's still a
-> > problem we have to handle.
-> >
-> > So making it impossible for the transport to be null, but allowing it
-> > to be different (we can't prevent it from changing), doesn't solve the
-> > problem for us, it only shifts it.
->
-> Got it. I assumed this issue would be solved by `vsk->transport !=
-> &t->transport` in the critical place(s).
->
-> (Note that BPF doesn't care if transport has changed; BPF just expects to
-> have _a_ transport.)
->
-> >> If I'm not mistaken, that would require rewriting vsock_assign_transport()
-> >> so that a new transport is assigned only once fully initialized, otherwise
-> >> keep the old one (still unhurt and functional) and return error. Because
-> >> failing connect() should not change anything under the hood, right?
-> >>
-> >
-> > Nope, connect should be able to change the transport.
-> >
-> > Because a user can do an initial connect() that requires a specific
-> > transport, this one fails maybe because there's no peer with that cid.
-> > Then the user can redo the connect() to a different cid that requires
-> > a different transport.
->
-> But the initial connect() failing does not change anything under the hood
-> (transport should/could stay NULL).
+On Thu, Dec 19, 2024 at 05:20:44PM +0800, Ming Lei wrote:
+> > +	cpumask_andnot(isol_mask,
+> > +		       cpu_possible_mask,
+> > +		       housekeeping_cpumask(HK_TYPE_MANAGED_IRQ));
+> > +
+> > +	for_each_cpu(cpu, isol_mask) {
+> > +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
+> > +		queue = (queue + 1) % qmap->nr_queues;
+> > +	}
+> 
+> Looks the IO hang issue in V3 isn't addressed yet, is it?
+> 
+> https://lore.kernel.org/linux-block/ZrtX4pzqwVUEgIPS@fedora/
 
-Nope, isn't null, it's assigned to a transport, because for example it
-has to send a packet to connect to the remote CID and wait back for a
-response that for example says the CID doesn't exist.
+I've added an explanation in the cover letter why this is not
+addressed. From the cover letter:
 
-> Then a successful re-connect assigns
-> the transport (NULL -> non-NULL). And it's all good because all I wanted to
-> avoid (because of BPF) was non-NULL -> NULL. Anyway, that's my possibly
-> shallow understanding :)
->
-
+I've experimented for a while and all solutions I came up were horrible
+hacks (the hotpath needs to be touched) and I don't want to slow down all
+other users (which are almost everyone). IMO, it's just not worth trying
+to fix this corner case. If the user is using isolcpus and does CPU
+hotplug, we can expect that the user can also first offline the isolated
+CPUs. I've discussed this topic during ALPSS and the room came to the
+same conclusion. Thus I just added a patch which issues a warning that
+IOs are likely to hang.
