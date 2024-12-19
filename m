@@ -1,194 +1,188 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176ED224AFC
-	for <virtualization@lists.linux.dev>; Thu, 19 Dec 2024 09:21:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0887619C569;
+	Thu, 19 Dec 2024 09:44:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734600086; cv=none; b=XbyZyVkf1GujuSsfV5/tP/xLp4CMh65puyjOCNcECHE74mYOtJl5q4s5FyFjEPeF17F4priRpIRrXaKZ5UX2BbqQBTw/QSaglg3BBivYjDxKNkPeIFQUxQIpVFGbwwj3NJE58NCIF3JtppI/cHRI942C1gPuD5WvJQfht/n3v/Y=
+	t=1734601494; cv=none; b=lJrpijp1o2op1frg1eDxjHYCaSL1Kgl9x1k2LEyb6Jc8PFlUZRnPeylGka1ZMkhcBwWaJWQriZ4ageu404dXw4ETsm3UDqBDSUXj8JqAENQ4RB0zXmksPfncrW0bDTpYdxkv7Nic+l3h0hypeTdWIMX3QFyqE0PxvP1ylEgPip4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734600086; c=relaxed/simple;
-	bh=vw2hzac5lL8mrRYV31CrsMRjIydqDJo1GEH5qJ/dFdk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fwsmWathei+49xP7msnEiZwqdfxPjOXOxM+0aR5nl7nHYXlkV8fejEkLfQbpAm8ZQz1YuTURj/2I2E7zhCi+CqxZGIKIIqs/kW9W0VqveZ05L1FAg/S3Wqx4bmO9f1396DP9Ri4hJ545oCtgwZ9mWG5GeWa92vJyls7F1hCvWII=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VMBuo6fL; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1734601494; c=relaxed/simple;
+	bh=PkLmEmXcHJxnSZqnRVtAiihctT5CtwZoFyVCMBynPGs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iNco19dWzO3x23Xad9W5KfvREW0NshMzA+qqDzSgGtqyBU8RakuJKWWCIurXpJqsi8xIuAkYwuqXMQVZmLmXgzOaCITUjhX5Ja2c6GUENYyYGYshhOI/K1tDVnfkEYrDzjelAHtjk+d7uJgEK8hjkhqmjql+c7Yz6dX7mheksjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E12WW/6M; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VMBuo6fL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734600083;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pDD0mLx6ehr9v2wmDPxS8oF7AlYywFCAdUDEKZVcQAc=;
-	b=VMBuo6fLDAxY0z6uIB7xmcAE2RrrHekA2liyw/Zk4MZTWNxMNhVY1sR81GH++CMoXBHAq6
-	WYowNxI6a4Q286KZENx1MxX2l4ugWpOTSghfb3jT6Dsm5ZedpEOOo/QG+QJ16pu6yYjwOX
-	oOdF1xtKV8CaGOMXvROstAcIVYb2H4A=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-515-KJhKDg6wOXu9264xicIKRw-1; Thu,
- 19 Dec 2024 04:21:19 -0500
-X-MC-Unique: KJhKDg6wOXu9264xicIKRw-1
-X-Mimecast-MFC-AGG-ID: KJhKDg6wOXu9264xicIKRw
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2C5ED1956053;
-	Thu, 19 Dec 2024 09:21:15 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.24])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CA62019560A2;
-	Thu, 19 Dec 2024 09:20:50 +0000 (UTC)
-Date: Thu, 19 Dec 2024 17:20:44 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Daniel Wagner <wagi@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-	Kashyap Desai <kashyap.desai@broadcom.com>,
-	Sumit Saxena <sumit.saxena@broadcom.com>,
-	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-	Chandrakanth patil <chandrakanth.patil@broadcom.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Nilesh Javali <njavali@marvell.com>,
-	GR-QLogic-Storage-Upstream@marvell.com,
-	Don Brace <don.brace@microchip.com>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E12WW/6M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60769C4CECE;
+	Thu, 19 Dec 2024 09:44:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1734601493;
+	bh=PkLmEmXcHJxnSZqnRVtAiihctT5CtwZoFyVCMBynPGs=;
+	h=From:To:Cc:Subject:Date:From;
+	b=E12WW/6M3wFKEJYUBsmlofWsddnnxPNgLH6IYoO4uzdlYrcDtGS3yi2bLQbiNJD1J
+	 f2dDfLgI6qbs2+WcA+BbUROC2TgvImEjJo9fOiNXvjhqBY4NGRdVh53cIReBC31EdW
+	 rF4bpbCyYo1OgpGSQd38bC1mjoZhe7OR2qlTQlGmXeNDvezj1Zt6sdllGKUH9m3wUz
+	 qEt1ROIwOTee98uQunNOsar74/QDP6Jc933wg22ll8GDImmoyfhAYzUZH7BqRB2Hec
+	 LFY33mP66PrJ/J089eKcbAQ6MFdnzlPyw4UuQQ1ff7Xxf2h5zwtue7Chusqh2Uu9jA
+	 u8AtTmkUta8JQ==
+From: Philipp Stanner <phasta@kernel.org>
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Costa Shulyupin <costa.shul@redhat.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Waiman Long <llong@redhat.com>,
-	Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
-	Sridhar Balaraman <sbalaraman@parallelwireless.com>,
-	"brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org,
-	storagedev@microchip.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
- isolcpus=managed_irq is enabled
-Message-ID: <Z2PlbL0XYTQ_LxTw@fedora>
-References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
- <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Philipp Stanner <pstanner@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4] vdpa: solidrun: Replace deprecated PCI functions
+Date: Thu, 19 Dec 2024 10:44:29 +0100
+Message-ID: <20241219094428.21511-2-phasta@kernel.org>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Transfer-Encoding: 8bit
 
-On Tue, Dec 17, 2024 at 07:29:42PM +0100, Daniel Wagner wrote:
-> When isolcpus=managed_irq is enabled all hardware queues should run on
-> the housekeeping CPUs only. Thus ignore the affinity mask provided by
-> the driver. Also we can't use blk_mq_map_queues because it will map all
-> CPUs to first hctx unless, the CPU is the same as the hctx has the
-> affinity set to, e.g. 8 CPUs with isolcpus=managed_irq,2-3,6-7 config
-> 
->   queue mapping for /dev/nvme0n1
->         hctx0: default 2 3 4 6 7
->         hctx1: default 5
->         hctx2: default 0
->         hctx3: default 1
-> 
->   PCI name is 00:05.0: nvme0n1
->         irq 57 affinity 0-1 effective 1 is_managed:0 nvme0q0
->         irq 58 affinity 4 effective 4 is_managed:1 nvme0q1
->         irq 59 affinity 5 effective 5 is_managed:1 nvme0q2
->         irq 60 affinity 0 effective 0 is_managed:1 nvme0q3
->         irq 61 affinity 1 effective 1 is_managed:1 nvme0q4
-> 
-> where as with blk_mq_hk_map_queues we get
-> 
->   queue mapping for /dev/nvme0n1
->         hctx0: default 2 4
->         hctx1: default 3 5
->         hctx2: default 0 6
->         hctx3: default 1 7
-> 
->   PCI name is 00:05.0: nvme0n1
->         irq 56 affinity 0-1 effective 1 is_managed:0 nvme0q0
->         irq 61 affinity 4 effective 4 is_managed:1 nvme0q1
->         irq 62 affinity 5 effective 5 is_managed:1 nvme0q2
->         irq 63 affinity 0 effective 0 is_managed:1 nvme0q3
->         irq 64 affinity 1 effective 1 is_managed:1 nvme0q4
-> 
-> Signed-off-by: Daniel Wagner <wagi@kernel.org>
-> ---
->  block/blk-mq-cpumap.c | 66 +++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 66 insertions(+)
-> 
-> diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
-> index b3a863c2db3231624685ab54a1810b22af4111f4..38016bf1be8af14ef368e68d3fd12416858e3da6 100644
-> --- a/block/blk-mq-cpumap.c
-> +++ b/block/blk-mq-cpumap.c
-> @@ -61,11 +61,74 @@ unsigned int blk_mq_num_online_queues(unsigned int max_queues)
->  }
->  EXPORT_SYMBOL_GPL(blk_mq_num_online_queues);
->  
-> +/*
-> + * blk_mq_map_hk_queues - Create housekeeping CPU to hardware queue mapping
-> + * @qmap:	CPU to hardware queue map
-> + *
-> + * Create a housekeeping CPU to hardware queue mapping in @qmap. If the
-> + * isolcpus feature is enabled and blk_mq_map_hk_queues returns true,
-> + * @qmap contains a valid configuration honoring the managed_irq
-> + * configuration. If the isolcpus feature is disabled this function
-> + * returns false.
-> + */
-> +static bool blk_mq_map_hk_queues(struct blk_mq_queue_map *qmap)
-> +{
-> +	struct cpumask *hk_masks;
-> +	cpumask_var_t isol_mask;
-> +	unsigned int queue, cpu, nr_masks;
-> +
-> +	if (!housekeeping_enabled(HK_TYPE_MANAGED_IRQ))
-> +		return false;
-> +
-> +	/* map housekeeping cpus to matching hardware context */
-> +	nr_masks = qmap->nr_queues;
-> +	hk_masks = group_cpus_evenly(&nr_masks);
-> +	if (!hk_masks)
-> +		goto fallback;
-> +
-> +	for (queue = 0; queue < qmap->nr_queues; queue++) {
-> +		for_each_cpu(cpu, &hk_masks[queue % nr_masks])
-> +			qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> +	}
-> +
-> +	kfree(hk_masks);
-> +
-> +	/* map isolcpus to hardware context */
-> +	if (!alloc_cpumask_var(&isol_mask, GFP_KERNEL))
-> +		goto fallback;
-> +
-> +	queue = 0;
-> +	cpumask_andnot(isol_mask,
-> +		       cpu_possible_mask,
-> +		       housekeeping_cpumask(HK_TYPE_MANAGED_IRQ));
-> +
-> +	for_each_cpu(cpu, isol_mask) {
-> +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> +		queue = (queue + 1) % qmap->nr_queues;
-> +	}
+From: Philipp Stanner <pstanner@redhat.com>
 
-Looks the IO hang issue in V3 isn't addressed yet, is it?
+The PCI functions
 
-https://lore.kernel.org/linux-block/ZrtX4pzqwVUEgIPS@fedora/
+	pcim_iomap_regions()
+	pcim_iounmap_regions()
+	pcim_iomap_table()
 
+have been deprecated by the PCI subsystem.
 
-Thanks,
-Ming
+Replace these functions with their successors pcim_iomap_region() and
+pcim_iounmap_region().
+
+Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+---
+Changes in v4:
+  - snet_open_vf_bar(): use distinct temporary variable to ensure
+    snet->bar is never an ERR_PTR. (Stefano)
+
+Changes in v3:
+  - Move __iomem *io declaration into the loop. (Stefano)
+
+Changes in v2:
+  - Fix build warning because of dead variable.
+  - Make "bars_found" a boolean, since only true or false are relevant.
+---
+ drivers/vdpa/solidrun/snet_main.c | 57 +++++++++++++++----------------
+ 1 file changed, 28 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+index c8b74980dbd1..55ec51c17ab3 100644
+--- a/drivers/vdpa/solidrun/snet_main.c
++++ b/drivers/vdpa/solidrun/snet_main.c
+@@ -556,58 +556,60 @@ static const struct vdpa_config_ops snet_config_ops = {
+ static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+ {
+ 	char *name;
+-	int ret, i, mask = 0;
++	unsigned short i;
++	bool bars_found = false;
++
++	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-bars", pci_name(pdev));
++	if (!name)
++		return -ENOMEM;
++
+ 	/* We don't know which BAR will be used to communicate..
+ 	 * We will map every bar with len > 0.
+ 	 *
+ 	 * Later, we will discover the BAR and unmap all other BARs.
+ 	 */
+ 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+-		if (pci_resource_len(pdev, i))
+-			mask |= (1 << i);
++		void __iomem *io;
++
++		if (pci_resource_len(pdev, i) == 0)
++			continue;
++
++		io = pcim_iomap_region(pdev, i, name);
++		if (IS_ERR(io)) {
++			SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
++			return PTR_ERR(io);
++		}
++
++		psnet->bars[i] = io;
++		bars_found = true;
+ 	}
+ 
+ 	/* No BAR can be used.. */
+-	if (!mask) {
++	if (!bars_found) {
+ 		SNET_ERR(pdev, "Failed to find a PCI BAR\n");
+ 		return -ENODEV;
+ 	}
+ 
+-	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-bars", pci_name(pdev));
+-	if (!name)
+-		return -ENOMEM;
+-
+-	ret = pcim_iomap_regions(pdev, mask, name);
+-	if (ret) {
+-		SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
+-		return ret;
+-	}
+-
+-	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+-		if (mask & (1 << i))
+-			psnet->bars[i] = pcim_iomap_table(pdev)[i];
+-	}
+-
+ 	return 0;
+ }
+ 
+ static int snet_open_vf_bar(struct pci_dev *pdev, struct snet *snet)
+ {
+ 	char *name;
+-	int ret;
++	void __iomem *io;
+ 
+ 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-bars", pci_name(pdev));
+ 	if (!name)
+ 		return -ENOMEM;
+ 
+ 	/* Request and map BAR */
+-	ret = pcim_iomap_regions(pdev, BIT(snet->psnet->cfg.vf_bar), name);
+-	if (ret) {
++	io = pcim_iomap_region(pdev, snet->psnet->cfg.vf_bar, name);
++	if (IS_ERR(io)) {
+ 		SNET_ERR(pdev, "Failed to request and map PCI BAR for a VF\n");
+-		return ret;
++		return PTR_ERR(io);
+ 	}
+ 
+-	snet->bar = pcim_iomap_table(pdev)[snet->psnet->cfg.vf_bar];
++	snet->bar = io;
+ 
+ 	return 0;
+ }
+@@ -656,15 +658,12 @@ static int psnet_detect_bar(struct psnet *psnet, u32 off)
+ 
+ static void psnet_unmap_unused_bars(struct pci_dev *pdev, struct psnet *psnet)
+ {
+-	int i, mask = 0;
++	unsigned short i;
+ 
+ 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+ 		if (psnet->bars[i] && i != psnet->barno)
+-			mask |= (1 << i);
++			pcim_iounmap_region(pdev, i);
+ 	}
+-
+-	if (mask)
+-		pcim_iounmap_regions(pdev, mask);
+ }
+ 
+ /* Read SNET config from PCI BAR */
+-- 
+2.47.1
 
