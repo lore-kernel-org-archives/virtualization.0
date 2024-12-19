@@ -1,174 +1,91 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B950022618E
-	for <virtualization@lists.linux.dev>; Thu, 19 Dec 2024 16:10:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6EC51A76BB
+	for <virtualization@lists.linux.dev>; Thu, 19 Dec 2024 18:58:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734624612; cv=none; b=d4jb/lyvclg7rFWV4nI1gT11zv8WjrJGImRkZNPMMXlxKVh1jPHkyYzuVpvwWmdt0VpRGBzT+HA2U0rvQyDEz2WFhhgLd2Qfw1Hqh/EPe4n3xXJm/r4LR3OZ9EGchw2LSKhPOIMFjNSoShApVWZRLURb+v40OW9HlqwUnkTC0Qs=
+	t=1734634724; cv=none; b=pCYcIopRxSuOqg9zZDnF55dABy7KERvEnwapv6KmSSS/pUknkjTHod8T78TTukLPQWW+02jiorqJs7SV6I5bRqSUp9JD5WJ/EwWLRxSTZudwtMGFkiIemM7UmKNtXhnI568IxEyJf6w2NKqSreBUTPtB7qAz3FmK6Xw2rGt4Y0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734624612; c=relaxed/simple;
-	bh=w8uHLAOWytKhZ+2rc6CmLW4hjt/sBLkeIYoFGGtcGKc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=B1J06lh5JWcv15WBVn+Ik5NB98vl9OYo+pRD2MEUGB+yscGRlMe0EJRTAFgG1nfZKRGFphTczMlBLCS/N4s22PVk0FZkDpBF3xS/tFz4uVo5g05eBVeTIoAda+0JQcA8TF+Y+G1213Zg8iFzd9CAhYOjDMNco83v9MTnJmMGzVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=YHY1GRX2; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1734634724; c=relaxed/simple;
+	bh=9JS1nLGsRdm2GmtsediR0LcX4P5CKPhOlaAoyG5KrQo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JqFe6tQJOilJhPuGKAhBS7VF7oNr9b9k/o8NHZwqdY5IQz9iK58DqoUnIOHhV4v9cA3dzdvtKpU86LREmX0o0ov7GZ1E7dEI5yNamGLfTXVJXqojtGrfrcGisxxNgcWt9vGnHbINaZZe9jWUMqt/ySE2eLrFbA3qQX4Y12Y9Awk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oXad9Xqy; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="YHY1GRX2"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1tOJ63-008118-6S; Thu, 19 Dec 2024 17:09:55 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=QVsORav3DcVAhBYvUaAOANSrKkq0cKBzJoIMSAjqDVQ=; b=YHY1GRX20+/b0sq3p9K21iUEom
-	dZjaWWOi64Qwp7hLn1BFKyXgIS1q1Grmj1rgvarCBURRp5Wxzcy6sCvOEcStIXUlNnBxUrUNnWfJV
-	WRjwhqXbJXQJpfgWM0Nxxrq5/NHy5MpkxEQMup1jKXDd0/2fGOuofaUVyoT83iZPEyWAQmDx1FKP8
-	4dglqCWayHf9FNLWF7ktY84iym1Dvm3c+SNOJU5c4ciuyPZQOjWiF99VwyZfxmJurUhLTz/YKD7o/
-	EiBXkv42H0qxVq55KYhbBlFwZg3Up3MH5LVH2w3nTGuQwLaI/PErMhSQ7NKr3BsKSzA3npCOyimbg
-	1LejDZog==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1tOJ62-0002R7-6c; Thu, 19 Dec 2024 17:09:54 +0100
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1tOJ5r-00Ealw-Pp; Thu, 19 Dec 2024 17:09:43 +0100
-Message-ID: <2906e706-bb0d-47c6-a4bb-9f3dc9ff7834@rbox.co>
-Date: Thu, 19 Dec 2024 17:09:42 +0100
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oXad9Xqy"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-215740b7fb8so14025ad.0
+        for <virtualization@lists.linux.dev>; Thu, 19 Dec 2024 10:58:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1734634722; x=1735239522; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9JS1nLGsRdm2GmtsediR0LcX4P5CKPhOlaAoyG5KrQo=;
+        b=oXad9XqygXM0FdGRtI4vaFBBfU+wFdOcRBdLzsTenr3jLvycdC8gXJWRCaD0Po/J85
+         U+cSbeZeIeWBBTboxWowbNZ5pwSVGnkR40xhwQ+ofmImm7VdhNyguiGlllqhtoQoSTQ4
+         jdLAmBdlMofXRMHyO8wha8wdmJ1crks4Yg3+7ifbP9Ml9Vv5TrtOl803zJLkBneFzV8C
+         002HGbnoOaq/L3B7SGbAOW5xu2T2nmq5e8t2GUb+W/NwmOk42g25wVCHAMJCXzfwlhCs
+         IL0FWVJwCBGfsR+uAn0MQ8RTsqqzLiN2AmIPGrRV9bIxgctVQ//9WRr48E9ZcgacyEr7
+         VVjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734634722; x=1735239522;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9JS1nLGsRdm2GmtsediR0LcX4P5CKPhOlaAoyG5KrQo=;
+        b=MXe/dfIaqp6SfyGRsc+fdmlo9Jnp308uUxumIiPiejteF5v6qNPCKwgHV50aq56z1X
+         gS9xnZQA8M2wTFQzQMEkBbP2xVTRM1kwLMAJ5xEzPsKWouRU+ooYs6uIIJiJdA/2+fys
+         J02u+YQs4hyN96e3wZwWALEHB0opk70wiWV786Y6R2aeQcmNkTsNwJBuuwtSlAecdAml
+         B5nGi7Mnmw3maD4YPlH7cROmiQxx09JplryOZkzX3gpXJ9c9jxtzQ3skj9EAYUSBiwaA
+         0FIyj0ISk4/ZlFbLLlkpXUPif7LoNkmrGKT4sxMcGiNW8UglqSPBy7p1CqQCM6Y7ceVu
+         HFbw==
+X-Forwarded-Encrypted: i=1; AJvYcCWaltFVhVNWGmy4ocyCY9J7syEFd5IL6ScdW0fqlt4grZdIlDWLh3IY/QprZ7Wo2FGzfQ/c4ojHb0gFqnS37Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz9t3AkoGD/za62NLCjZpO0/LzfGxp34wAev7qUc1dQ0B9/gvm5
+	7ITgx6j7mA78yWL7OLBBdFWuyrEivlsszbRW3zAyEQg5MqtodYHYyouMNaXC0P5gBavE90vUxzK
+	XeEdWOxFdoSnSl9m89RtJZTsMR4hY/+eBIfPB
+X-Gm-Gg: ASbGncuVPLdlFyLC/s89VCUUWjnh7BbqZ7sJErQSKaJHx3Dl7tjW2158DOVRAPkGket
+	hVPw5TwY1gC84FbcgxY8IRG3B1NQUdNDrvWvE+Q==
+X-Google-Smtp-Source: AGHT+IEtqWh80ytR520gQgE2R1z5Ywcq1MyXHaz7g58hEX9BLezeXel5Ss63xiUtuaYs55iEKYe9EOBe7VRCo78PcuQ=
+X-Received: by 2002:a17:903:120d:b0:216:27f5:9dd7 with SMTP id
+ d9443c01a7336-219e6a9a900mr26385ad.11.1734634721761; Thu, 19 Dec 2024
+ 10:58:41 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vsock/virtio: Fix null-ptr-deref in vsock_stream_has_data
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Hyunwoo Kim <v4bel@theori.io>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org, qwerty@theori.io
-References: <Z2K/I4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX>
- <lwfkm3salizjvubc5vqnkxi4bk4zdglg5um4xygfxwmrkktrbc@bvazoy4k723k>
- <Z2LZ3HK05RH8OfP5@v4bel-B760M-AORUS-ELITE-AX>
- <s2k74f6zvjm7uexqfyej6txvoqgf6lkaa47igo2eh4pq55d4n2@wnrrcr6aa6lk>
- <f7a3rlgpc36wk75grqeg6ndqmlprvilznlsesyruqfb7m5vrp7@myil7ex4f62n>
- <Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX>
- <5ca20d4c-1017-49c2-9516-f6f75fd331e9@rbox.co>
- <Z2N44ka8+l83XqcG@v4bel-B760M-AORUS-ELITE-AX>
- <fezrztdzj5bz54ys6qialz4w3bjqqxmhx74t2tnklbif6ns5dn@mtcjqnqbx6n4>
- <722e8d32-fe5c-4522-be2b-5967fdbb6b30@rbox.co>
- <CAGxU2F5VMGg--iv8Nxvmo_tGhHf_4d_hO5WuibXLUcwVVNgQEg@mail.gmail.com>
- <cc04fe7a-aa49-47a7-8d54-7a0e7c5bfbdc@rbox.co>
- <CAGxU2F5K+0s9hnk=uuC_fE=otrH+iSe7OVi1gQbDjr7xt5wY9g@mail.gmail.com>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <CAGxU2F5K+0s9hnk=uuC_fE=otrH+iSe7OVi1gQbDjr7xt5wY9g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20241203002328.694071-1-yuanchu@google.com>
+In-Reply-To: <20241203002328.694071-1-yuanchu@google.com>
+From: Yuanchu Xie <yuanchu@google.com>
+Date: Thu, 19 Dec 2024 10:58:24 -0800
+Message-ID: <CAJj2-QFSmtCcQ=dm3yMhNi9F6trbcP0rg5z8cns5V64Pmn0c9Q@mail.gmail.com>
+Subject: Re: [PATCH v5 1/2] virt: pvmemcontrol: control guest physical memory properties
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>, 
+	Pasha Tatashin <pasha.tatashin@soleen.com>, linux-kernel@vger.kernel.org, 
+	linux-mm@kvack.org, virtualization@lists.linux.dev, 
+	dev@lists.cloudhypervisor.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 12/19/24 16:12, Stefano Garzarella wrote:
-> On Thu, 19 Dec 2024 at 16:05, Michal Luczaj <mhal@rbox.co> wrote:
->>
->> On 12/19/24 15:48, Stefano Garzarella wrote:
->>> On Thu, 19 Dec 2024 at 15:36, Michal Luczaj <mhal@rbox.co> wrote:
->>>>
->>>> On 12/19/24 09:19, Stefano Garzarella wrote:
->>>>> ...
->>>>> I think the best thing though is to better understand how to handle
->>>>> deassign, rather than checking everywhere that it's not null, also
->>>>> because in some cases (like the one in virtio-vsock), it's also
->>>>> important that the transport is the same.
->>>>
->>>> My vote would be to apply your virtio_transport_recv_pkt() patch *and* make
->>>> it impossible-by-design to switch ->transport from non-NULL to NULL in
->>>> vsock_assign_transport().
->>>
->>> I don't know if that's enough, in this case the problem is that some
->>> response packets are intended for a socket, where the transport has
->>> changed. So whether it's null or assigned but different, it's still a
->>> problem we have to handle.
->>>
->>> So making it impossible for the transport to be null, but allowing it
->>> to be different (we can't prevent it from changing), doesn't solve the
->>> problem for us, it only shifts it.
->>
->> Got it. I assumed this issue would be solved by `vsk->transport !=
->> &t->transport` in the critical place(s).
->>
->> (Note that BPF doesn't care if transport has changed; BPF just expects to
->> have _a_ transport.)
->>
->>>> If I'm not mistaken, that would require rewriting vsock_assign_transport()
->>>> so that a new transport is assigned only once fully initialized, otherwise
->>>> keep the old one (still unhurt and functional) and return error. Because
->>>> failing connect() should not change anything under the hood, right?
->>>>
->>>
->>> Nope, connect should be able to change the transport.
->>>
->>> Because a user can do an initial connect() that requires a specific
->>> transport, this one fails maybe because there's no peer with that cid.
->>> Then the user can redo the connect() to a different cid that requires
->>> a different transport.
->>
->> But the initial connect() failing does not change anything under the hood
->> (transport should/could stay NULL).
-> 
-> Nope, isn't null, it's assigned to a transport, because for example it
-> has to send a packet to connect to the remote CID and wait back for a
-> response that for example says the CID doesn't exist.
+On Mon, Dec 2, 2024 at 4:24=E2=80=AFPM Yuanchu Xie <yuanchu@google.com> wro=
+te:
+>
+> Pvmemcontrol provides a way for the guest to control its physical memory
+> properties and enables optimizations and security features. For example,
+> the guest can provide information to the host where parts of a hugepage
+> may be unbacked, or sensitive data may not be swapped out, etc.
+Hello Greg,
 
-Ahh, I think I get it. So the initial connect() passed
-vsock_assign_transport() successfully and then failed deeper in
-vsock_connect(), right? That's fine. Let the socket have a useless
-transport (a valid pointer nevertheless). Sure, upcoming connect() can
-assign a new (possibly useless just as well) transport, but there's no
-reason to allow ->transport becoming NULL.
+I addressed the feedback from you earlier at [1]. Let me know how the v5 go=
+es.
 
-And a pre-connect socket (where ->transport==NULL) is not an issue, because
-BPF won't let it in any sockmap, so vsock_bpf_recvmsg() won't be reachable.
+Thanks,
+Yuanchu
 
-Anywa, thanks for explaining,
-Michal
-
-PS. Or ignore the above and remove the socket from the sockmap at every
-reconnect? Possible unhash abuse:
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 5cf8109f672a..8a65153ee186 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -483,6 +483,10 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 		if (vsk->transport == new_transport)
- 			return 0;
- 
-+		const struct proto *prot = READ_ONCE(sk->sk_prot);
-+		if (prot->unhash)
-+			prot->unhash(sk);
-+
- 		/* transport->release() must be called with sock lock acquired.
- 		 * This path can only be taken during vsock_connect(), where we
- 		 * have already held the sock lock. In the other cases, this
-diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-index 4aa6e74ec295..80deb4d70aea 100644
---- a/net/vmw_vsock/vsock_bpf.c
-+++ b/net/vmw_vsock/vsock_bpf.c
-@@ -119,6 +119,7 @@ static void vsock_bpf_rebuild_protos(struct proto *prot, const struct proto *bas
- 	*prot        = *base;
- 	prot->close  = sock_map_close;
- 	prot->recvmsg = vsock_bpf_recvmsg;
-+	prot->unhash = sock_map_unhash;
- 	prot->sock_is_readable = sk_msg_is_readable;
- }
-
->> Then a successful re-connect assigns
->> the transport (NULL -> non-NULL). And it's all good because all I wanted to
->> avoid (because of BPF) was non-NULL -> NULL. Anyway, that's my possibly
->> shallow understanding :)
-
+[1] https://lore.kernel.org/linux-mm/2024102220-creed-darkening-aac0@gregkh=
+/
