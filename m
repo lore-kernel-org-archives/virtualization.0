@@ -1,78 +1,58 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0030974059
-	for <virtualization@lists.linux.dev>; Fri, 20 Dec 2024 10:49:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33877204567;
+	Fri, 20 Dec 2024 14:35:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734691783; cv=none; b=BF4wRPKNYCUlRb2N0//0YVp/lYsX8jb6pDBfvbaVj3G3cgLs3/EWv1iJizuBZbZ5TGasQ4aKDCH8laC5L26TU7Z7LPNXPQAyLkSSd3eqnVDEiLGxzWp20MCvrtW7DfFuux1rBAf+xX08HG9Si2EgS3n+jMyOtaBSQnS6AENjNHY=
+	t=1734705311; cv=none; b=cJ7jZfGNMKO/fQsRYKJOE4YVsRKVpyp1oiQW67+HfyoKeh3oPWStS16vDky3FX5R7+ORU7T0gEcZ4rMeaQ3KXUHxWtpunD7zwYfysMg/MNi9WcBF5AZ/9y7Iwib5HqEVGN1XDOqHsssQUnDQIOr6cXWIFbkgErWagD63lfzkhp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734691783; c=relaxed/simple;
-	bh=fpcL8/eXhdzv8XX4qG8CIg06qhF8l6Jl3e2nleA6Qtw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=m8HzHPfKGp2rK23qdDk6mJjDUpt75AEqrEgtrpI2/iBDwJ+uAXNC82eoblW/nAuQc24JXy2pF87+TF+GdCQYBUPUQh7wM4yFmdQAVeCGij7aalbDLg8QpJZg3/7VyuFKqE/srCWVq7sqXrfBJ+Ad+9Z5P1xdxBdABt5pPS/fGFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WJqmLiDz; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1734705311; c=relaxed/simple;
+	bh=LCPBtL/uXiFkgmQXVHF5Nv5K6A46/9d86qUCYOlizc8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=f6wP6Y5OqpXgTzsRtmMr2DY2sHA7E0tl2rfEoVeAGa3SgK2PodyARr2qzdVjE1lYlkHiloiTxuaE07xHYXMuHZml2j6iMkurskcLGp001c00zdc+Ap3/21ETHlr02vhsHBe8NQAOWGRlslIyGVZiwYTuwHeAN4zYI68MS/mX0BY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Tcr2XS+w; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WJqmLiDz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734691780;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=79PeQb+yDjXpAI7pY4e/4qGE53ll5/LkYg4JvYVptU4=;
-	b=WJqmLiDzbXXBZCdjcStnysia9BBB24wLRdLBV6S+cz1z5BWhXRmaG8qQZFP0Q9NFkvj7zM
-	YEo5vj5/GTm6OJBZ6I0EqaY7lWu3dpLRztmUg3YFhM0rra43KJOaSIA88ykaWLQiIvgxL9
-	peBydwD8xK62Sb8Qk1Gm8LryRu8zTzg=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-271-BAN1g7ftO_OySFteAnq3iw-1; Fri, 20 Dec 2024 05:49:39 -0500
-X-MC-Unique: BAN1g7ftO_OySFteAnq3iw-1
-X-Mimecast-MFC-AGG-ID: BAN1g7ftO_OySFteAnq3iw
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-386333ea577so791017f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 20 Dec 2024 02:49:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734691778; x=1735296578;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=79PeQb+yDjXpAI7pY4e/4qGE53ll5/LkYg4JvYVptU4=;
-        b=BWo1pAz57bkGEEbbbDnM/hH9Yj2qbR5p1U8wE2f1vyfaasODATgS7t52SJC439vZ8q
-         tGci7JaGepqj9N3utHrAeeoouYUlN8EafeoVx08Hi+1InlD6pjNyjJ8tD125rua3KPsU
-         P7Uzb1gzsUjipfhsdCOQ7SazFmo/XHLzx0CZbbH9nE/V+hIQeMqrulojP8aB5hsdIKvt
-         omI0cQCw2n+CtStSe6a2uj++93k4g+o6UsHCOW1YvzJM2WvtJbFd546ht6/UMhVEuqTR
-         7xKUu8z88xC+c1Fmz09/sNOkYCahu8O7Zku3+eyfMC1zqQSI69bmWJ2src+PRWDb/tfE
-         ZR8A==
-X-Forwarded-Encrypted: i=1; AJvYcCWk/xCbtU2bdGi+XgmwGtvaYCP0+zvmfTkfs7NkZpnbuNCdxqkFTGUSawxeLocWPpgAXtwF4ikaCjkqrGK8cg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyTEnsxJ+FNItzqMnMax8W3VJpYqdfvHofHz88FnwNQCjHJA2nW
-	3x1k7DnuB3BJtW6+vYMb2ccmfq9VH5CmkQivlJL7N1umu/ylOjtYBEpfMT2HGyS6o9+c2knSmRc
-	Py7Wy8cnFoib4LEbNihJLBbbFSvy77IA0wkZJsHkQip7bWj9xSWXYMx0SXzrqBqPf
-X-Gm-Gg: ASbGncuZv9FMBgJVWUDrsJCN4PiRXJv6gJKm6zDH42m8X7AQFUiNIV2R8N4UygrMt+h
-	cR4w/0RgecJ7VxtozKx/7bNnE+wKOExc0Lkrb2hC+zvxf1lxyPltH42PyxIoKROxo6at9C6MJn0
-	quzcX+zrsPcIZ1RDptI5S5aaJ0rfcfGfcVPXC/Uthq8hM/t1amVlY+psebknJoUHh2uEmPgrv1V
-	6j+RwgbFS/RrLGx44e+NMdTQP9OadMRpOKYSmRdxxOynzIVUHGWRIv4HBVInLknMwUu3FZP0eKd
-	B9ESaT241o/u5pAX6DDhtgLo3uG3j4z0
-X-Received: by 2002:a05:6000:4010:b0:382:51ae:7569 with SMTP id ffacd0b85a97d-38a221fae45mr2303072f8f.18.1734691778046;
-        Fri, 20 Dec 2024 02:49:38 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE+bB/Kw1tq4MLQwoUR3v3iXpALFjAVHwtoeLFOoROYE+dTEpj2Tnl57eNVBy7xhviP34E31g==
-X-Received: by 2002:a05:6000:4010:b0:382:51ae:7569 with SMTP id ffacd0b85a97d-38a221fae45mr2303035f8f.18.1734691777331;
-        Fri, 20 Dec 2024 02:49:37 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-100.retail.telecomitalia.it. [82.53.134.100])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43656af6c25sm76195635e9.8.2024.12.20.02.49.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Dec 2024 02:49:36 -0800 (PST)
-Date: Fri, 20 Dec 2024 11:49:32 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Hyunwoo Kim <v4bel@theori.io>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, qwerty@theori.io
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Tcr2XS+w"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tOe5e-00Ayr5-Bh; Fri, 20 Dec 2024 15:34:54 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=Lfv9zF1rca+KAyc4+BgK6OBzttFWIwtQNyXSxi64xOc=; b=Tcr2XS+wr3wf3pznEqyailSDKg
+	5Ryyncm0zuWza6RmF6Y/SDr9H3SDUgw7XPU5yjWOs78Fcn/Md3ns8VP6e+eOjlm03JsNHGfmlQ6Hi
+	9J44+91awjbU8+41C0hb42tfJ39pcN8JtnKY2x04hBq76ZB4dFwGZD9IG5MbC+hiV6Cnt0k9X3p6Q
+	qQYW1XqkRc61R6ILHo7ZRzdhj90ntaaXI6JYCHhz40UPjQdg3lz7DwCDx4IT+TB5+Tn2jUNOAhdhx
+	xizxc8ToAId6w38qL6ZqZfGsw/gcTVNOjORDkqs5ownntv28kPyyQn2+2VvJSMqdaXF9QTAokC7TK
+	DTFXseag==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tOe5d-0003jC-HE; Fri, 20 Dec 2024 15:34:53 +0100
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tOe5Z-000CXF-8S; Fri, 20 Dec 2024 15:34:49 +0100
+Message-ID: <b098c1e0-4422-460a-8372-b5aaea76bfc1@rbox.co>
+Date: Fri, 20 Dec 2024 15:34:47 +0100
+Precedence: bulk
+X-Mailing-List: virtualization@lists.linux.dev
+List-Id: <virtualization.lists.linux.dev>
+List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] vsock/virtio: Fix null-ptr-deref in vsock_stream_has_data
-Message-ID: <jkhr2v5zjebxnckmhn3f3dvv5zdzbldkyxbe5kx5m7vzvw6kzi@nrqipygyhlix>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Hyunwoo Kim <v4bel@theori.io>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org, qwerty@theori.io
 References: <f7a3rlgpc36wk75grqeg6ndqmlprvilznlsesyruqfb7m5vrp7@myil7ex4f62n>
  <Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX>
  <5ca20d4c-1017-49c2-9516-f6f75fd331e9@rbox.co>
@@ -83,140 +63,24 @@ References: <f7a3rlgpc36wk75grqeg6ndqmlprvilznlsesyruqfb7m5vrp7@myil7ex4f62n>
  <cc04fe7a-aa49-47a7-8d54-7a0e7c5bfbdc@rbox.co>
  <CAGxU2F5K+0s9hnk=uuC_fE=otrH+iSe7OVi1gQbDjr7xt5wY9g@mail.gmail.com>
  <2906e706-bb0d-47c6-a4bb-9f3dc9ff7834@rbox.co>
-Precedence: bulk
-X-Mailing-List: virtualization@lists.linux.dev
-List-Id: <virtualization.lists.linux.dev>
-List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <2906e706-bb0d-47c6-a4bb-9f3dc9ff7834@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zGquLsIO6iNEilEC41UOGN0R4RDQOR9o57wtG6kWeO8_1734691778
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+ <jkhr2v5zjebxnckmhn3f3dvv5zdzbldkyxbe5kx5m7vzvw6kzi@nrqipygyhlix>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <jkhr2v5zjebxnckmhn3f3dvv5zdzbldkyxbe5kx5m7vzvw6kzi@nrqipygyhlix>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Dec 19, 2024 at 05:09:42PM +0100, Michal Luczaj wrote:
->On 12/19/24 16:12, Stefano Garzarella wrote:
->> On Thu, 19 Dec 2024 at 16:05, Michal Luczaj <mhal@rbox.co> wrote:
->>>
->>> On 12/19/24 15:48, Stefano Garzarella wrote:
->>>> On Thu, 19 Dec 2024 at 15:36, Michal Luczaj <mhal@rbox.co> wrote:
->>>>>
->>>>> On 12/19/24 09:19, Stefano Garzarella wrote:
->>>>>> ...
->>>>>> I think the best thing though is to better understand how to handle
->>>>>> deassign, rather than checking everywhere that it's not null, also
->>>>>> because in some cases (like the one in virtio-vsock), it's also
->>>>>> important that the transport is the same.
->>>>>
->>>>> My vote would be to apply your virtio_transport_recv_pkt() patch *and* make
->>>>> it impossible-by-design to switch ->transport from non-NULL to NULL in
->>>>> vsock_assign_transport().
->>>>
->>>> I don't know if that's enough, in this case the problem is that some
->>>> response packets are intended for a socket, where the transport has
->>>> changed. So whether it's null or assigned but different, it's still a
->>>> problem we have to handle.
->>>>
->>>> So making it impossible for the transport to be null, but allowing it
->>>> to be different (we can't prevent it from changing), doesn't solve the
->>>> problem for us, it only shifts it.
->>>
->>> Got it. I assumed this issue would be solved by `vsk->transport !=
->>> &t->transport` in the critical place(s).
->>>
->>> (Note that BPF doesn't care if transport has changed; BPF just expects to
->>> have _a_ transport.)
->>>
->>>>> If I'm not mistaken, that would require rewriting vsock_assign_transport()
->>>>> so that a new transport is assigned only once fully initialized, otherwise
->>>>> keep the old one (still unhurt and functional) and return error. Because
->>>>> failing connect() should not change anything under the hood, right?
->>>>>
->>>>
->>>> Nope, connect should be able to change the transport.
->>>>
->>>> Because a user can do an initial connect() that requires a specific
->>>> transport, this one fails maybe because there's no peer with that cid.
->>>> Then the user can redo the connect() to a different cid that requires
->>>> a different transport.
->>>
->>> But the initial connect() failing does not change anything under the hood
->>> (transport should/could stay NULL).
->>
->> Nope, isn't null, it's assigned to a transport, because for example it
->> has to send a packet to connect to the remote CID and wait back for a
->> response that for example says the CID doesn't exist.
->
->Ahh, I think I get it. So the initial connect() passed
->vsock_assign_transport() successfully and then failed deeper in
->vsock_connect(), right? That's fine. Let the socket have a useless
->transport (a valid pointer nevertheless). 
+On 12/20/24 11:49, Stefano Garzarella wrote:
+> ...
+> Note that non-NULL -> NULL should only occur before a connection is 
+> established, so before any data is passed. Is this a problem for BPF?
 
-Just to be clear, it's not useless, since it's used to make the 
-connection. We know that it's useless just when we report that the 
-connection failed, so maybe we should de-assign it when we set 
-`sock->state = SS_UNCONNECTED`.
+Please take a look at vsock_bpf_update_proto(). The condition is to have a
+transport assigned. BPF assumes transport will stay valid.
 
->Sure, upcoming connect() can
->assign a new (possibly useless just as well) transport, but there's no
->reason to allow ->transport becoming NULL.
+And currently that's a wrong assumption: transport can transition from
+non-NULL to NULL (due to a failed reconnect). That's why we hit null ptr
+deref via vsock_bpf_recvmsg().
 
-I'm not sure about this, in the end in the connection failure case, when 
-we set `sock->state = SS_UNCONNECTED`, we're returning the socket to a 
-pre-connect state, so it might make sense to also reset the transport to 
-NULL, so that we have exactly the same conditions.
-
->
->And a pre-connect socket (where ->transport==NULL) is not an issue, because
->BPF won't let it in any sockmap, so vsock_bpf_recvmsg() won't be reachable.
->
->Anywa, thanks for explaining,
->Michal
->
->PS. Or ignore the above and remove the socket from the sockmap at every
->reconnect? Possible unhash abuse:
-
-I should take a closer look at unhash, but it might make sense!
-
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 5cf8109f672a..8a65153ee186 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -483,6 +483,10 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
-> 		if (vsk->transport == new_transport)
-> 			return 0;
->
->+		const struct proto *prot = READ_ONCE(sk->sk_prot);
->+		if (prot->unhash)
->+			prot->unhash(sk);
->+
-> 		/* transport->release() must be called with sock lock acquired.
-> 		 * This path can only be taken during vsock_connect(), where we
-> 		 * have already held the sock lock. In the other cases, this
->diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
->index 4aa6e74ec295..80deb4d70aea 100644
->--- a/net/vmw_vsock/vsock_bpf.c
->+++ b/net/vmw_vsock/vsock_bpf.c
->@@ -119,6 +119,7 @@ static void vsock_bpf_rebuild_protos(struct proto *prot, const struct proto *bas
-> 	*prot        = *base;
-> 	prot->close  = sock_map_close;
-> 	prot->recvmsg = vsock_bpf_recvmsg;
->+	prot->unhash = sock_map_unhash;
-> 	prot->sock_is_readable = sk_msg_is_readable;
-> }
->
->>> Then a successful re-connect assigns
->>> the transport (NULL -> non-NULL). And it's all good because all I wanted to
->>> avoid (because of BPF) was non-NULL -> NULL. Anyway, that's my possibly
->>> shallow understanding :)
->
-
-Note that non-NULL -> NULL should only occur before a connection is 
-established, so before any data is passed. Is this a problem for BPF?
-
-Thanks,
-Stefano
+That said, I sure hope someone BPF-competent is reading this :)
 
