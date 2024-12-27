@@ -1,271 +1,177 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F2D635943
-	for <virtualization@lists.linux-foundation.org>; Fri, 27 Dec 2024 02:24:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735266290; cv=fail; b=st+aY8PiIsJrfTWB8llaiD+/71u48BZErvtqB5220JQdyKrQSEj/eir1b1xzJ6m8ttvV5IDHKft6YS6zgsj59V0WYIHHrFkjUQLUZAKcJFcJg3fSwZQpt59v2Jze8xDJJU/4DltnsRTdTiuC54RixKznsoCp6E8w5ZNwb/IYduM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735266290; c=relaxed/simple;
-	bh=N8n59VZR+mfjpWLM0GFsAvLtUyInUY/dTgLssxUNelc=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=WnZL7Sm2AEsfk8fWYWduct2hpzbuuEB06MXMSrSoF2+rkY/VgdguxRM2YkNOCLKrW9vTH4gt6HcVU51Qa9XcsQ9z+RQDZOHfCW6y8en/yHlDadUej6QmJAXVbsoGBJbGFRV1jhfbNWLE7v/KalFwgv5owLPRSD5IHKPGJ4D+vXA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=o/gLTk+y; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FE7343AA1
+	for <virtualization@lists.linux.dev>; Fri, 27 Dec 2024 04:34:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1735274055; cv=none; b=gixZAIIRy3vOW8/i8rWjhaCe3S94wTqJVBDLqc8xPRHmwzJCmjyyBy3ZrWpKg3E81lP0e8zbIXgMjD4hO4bohnDD9nOhGRE9XLur97XBt1nwvSRS9rJzdbwKtrZdUB3/kVIiXs5W341Cg3aDfsLNuJPNHYnBB11WBlR8h5Ax5b8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1735274055; c=relaxed/simple;
+	bh=FVW7XNY64xuydDmLofP+sTKTUNUDp24hB/HXdgDSItk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=m1RvIrMcEjf4ZqP2RJMIIXBU4fOQ+BoLo3eTmvNKYhh/0Kns3D6jWmEU2rhsuPopG4srTy/mRFmuq+EsvbzWbMbmds1zZJXHmnEpslOBvnbDUwm7Ol6xkIAKFhDQAJXN8T1wFMyxSFjSg0M7gWcBv0B8BGnyPAsm+0vsf8fETyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=u7TavqZY; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="o/gLTk+y"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1285980E02
-	for <virtualization@lists.linux-foundation.org>; Fri, 27 Dec 2024 02:24:49 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id NP87onlrm_1I for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Dec 2024 02:24:48 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2407::606; helo=nam02-bn1-obe.outbound.protection.outlook.com; envelope-from=honglei1.huang@amd.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 10E5E80DEC
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 10E5E80DEC
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=o/gLTk+y
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on20606.outbound.protection.outlook.com [IPv6:2a01:111:f403:2407::606])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 10E5E80DEC
-	for <virtualization@lists.linux-foundation.org>; Fri, 27 Dec 2024 02:24:47 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=rhmlZOA0qSG207CRZuHY12w81LeRguiOQBtPiIFJPs2Job1QPuPFtaTqN/xmHhurjTO25AApDjs/UgQG+IFxb6bDwYZnrRQAR3YxYfmSyi53SAkj7gaiefVLwToP4L2Y0Z+uGHVRRfqMErRexrGPlNhavtpnRZ8bNai4Buw2ApCEHXF7aqAQCDuz4AXPNlrupfKJIZ5Ast3PoxGooCJvwR9NNthv2wlubyui6+Od2R40W9mA6GTHdcTVM7cIpVrY8gAgtgEvCtIx9N2cq7l2bFUuNdw0pi6+qku5x6dq5fAQWP1szUAPOl3j7MpRHs4Kwzf2ab9dmyWyXVf2ELadvg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iQrVJZHBRcCj7VE3ZIt+LD6+HX4i/shC4oZ/rALrRlA=;
- b=YEcjkmXfIZ71OFZ6dDEkprnY5HxR1HVB16z1FeIYo/YQmnrc1m/Y538yJtkPQmH0l8VCv+Y34KDQc6rzwLPG+ztuCWci/ka2fZcd1+3/p3z5hw+E2YfPv+IW3CGX9quKOuWAcQzXwnVnCrSohutEDtZOoSss8GO0Xn+lr+RKpg7tgxOfZax0a9ncL3nNKs/Lci1AfbIbmMcVZamSgBj32uUioHfrk3J4SNtvmFfRqcRJ0lIXZ0aIj+4MIKAAcVqNuYe46v/mU4e9u+LvAwlX4cy+u4ynXtE6XrjB79sCpcBbmjkAlqlZAIl/Z10b2W8eRreJuAuBq5BOVwR/f47hxw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iQrVJZHBRcCj7VE3ZIt+LD6+HX4i/shC4oZ/rALrRlA=;
- b=o/gLTk+ycxNGLim0HelUaXJXr/TItHvPi/6q4DSlwCDana2htP+AOJi7bzlNkKyRWcevDOqpRQkyEmjWqTpDNuD5HlO5y2VyTCEuWgR4nXd4Poyv97RoFOYOBtmx3HEJuceUnmyjyWX+HtXECZXPUFoxqEtER+mRQe5t+ELvbk8=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
- by CYYPR12MB8732.namprd12.prod.outlook.com (2603:10b6:930:c8::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8293.14; Fri, 27 Dec
- 2024 02:24:40 +0000
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941%2]) with mapi id 15.20.8293.000; Fri, 27 Dec 2024
- 02:24:40 +0000
-Message-ID: <de8ade34-eb67-4bff-a1c9-27cb51798843@amd.com>
-Date: Fri, 27 Dec 2024 10:24:29 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
- object
-To: Demi Marie Obenour <demiobenour@gmail.com>, Huang Rui
- <ray.huang@amd.com>, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, Dmitry Osipenko
- <dmitry.osipenko@collabora.com>, dri-devel@lists.freedesktop.org,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Akihiko Odaki <akihiko.odaki@daynix.com>,
- Lingshan Zhu <Lingshan.Zhu@amd.com>
-References: <20241220100409.4007346-1-honglei1.huang@amd.com>
- <20241220100409.4007346-3-honglei1.huang@amd.com>
- <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
- <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
-Content-Language: en-US
-From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
-In-Reply-To: <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SG2PR01CA0156.apcprd01.prod.exchangelabs.com
- (2603:1096:4:8f::36) To IA1PR12MB6435.namprd12.prod.outlook.com
- (2603:10b6:208:3ad::10)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="u7TavqZY"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2ee51f8c47dso6531628a91.1
+        for <virtualization@lists.linux.dev>; Thu, 26 Dec 2024 20:34:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1735274053; x=1735878853; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=hwCjjlIrKBk+YtuDMOqh5H8o6TB/HNBq181H/Zb/guw=;
+        b=u7TavqZYErKtiVfkuyxX+Lmy5kh6qypyiAk1y0zReaBas6nNBcNlqMLjco94VlrsP/
+         4bcTArsWrS2P6QugrSGxVCONkBSsnlskE9BKyQhLR6u8k6jqAYb2uAj1q2XTx0c2D4Iy
+         YDd2SL2/KQabCa8MNuqeEG7+exV6CI5ceTbTWnIywCiOQG6Qn0kpIIlZEa2FKK5hYqs5
+         d0RRyA5S2EQOAmlLM/zBuWz33m/pkEqpscrt2mvWE1gPS6VSKw1uFwp4orFKC3jqDGs4
+         o3eatso87GkfXxoc2VU5dTWbHAeMfZ38auWVqsio6chZrDjKjlUW1X7WMa5mES1DpEVI
+         FoHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735274053; x=1735878853;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=hwCjjlIrKBk+YtuDMOqh5H8o6TB/HNBq181H/Zb/guw=;
+        b=gMfGGRdhzEo0wBwG1E3+Yt6D6d8qB+/zTVCDviWQVxTQchdnIIoqnJlghp61Puo0fQ
+         UGyLpunajHJ/wbnUjXnW5N4RN2/q+LSXJBlJYE/HtouOgdgxSPDJYXMFAoFNy9PnqaEh
+         /IwEFSdbXm6+7LhIqQtHgVSEKPBiWRu3jnxtdD9JxBx+Iam6k6zZ/5Oc7L63hXRKd1o+
+         oVQ5d4kAt/GONPXeKWSmSNQzHAAyjeserp+Zw02qb3Sm47AYMlybIBB/aKJ5QKY9xYdd
+         C1apGRDnUYtZC5K5Jw4sNJIw3CWkbNi2gf7oAzUEno0fVz81KZy2QAgUeRYNRXAt+Cez
+         x4XQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUDM2rqaG3r66NaHiAAGRZmVjrSjRaVqHNGHczUPDVScdBnSc5E+A8iinsvlNpeSKLlfOPjzS2ygjDmXB9Mrw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxwC1bbveOKrE6XzoPh0xA4+jCl1KpECm0SIDKV0lDXmkCyK+Sd
+	08owH58UtLjIHvYODIMiu8v3U6/T9Hc1R3f4riARCOgZOCMLaNBqkPWrNCBGUvc=
+X-Gm-Gg: ASbGncuFdTwx4LJ0PVON12+VCtaOFvT7Vrl6ci48bDCSNEGA1w7NAdDogdscg/CAGvk
+	vl5wV0UHaMv1uYtDbZgvHVdJaCJZoeQEwJR2xF94mHe9NDZbcuJBUefwKVy128uk326qPhkBr/y
+	rhlkoNQiUYNdE2rsNKrLhW3biV/PQdUsVItSVigSL7bwmOIVDu3woGouKvsimUOUOsOqZz5BKmc
+	PzXVeY26SZy24tIcVWd0m06h+TQReuhxFqQ10ewnp8jDjuHaYSZfz+wseIWr9VXBw40MA==
+X-Google-Smtp-Source: AGHT+IHbpgq5016PFvFeTeZ6RoKGAfu8Cv7iPr2JE4+A0XviJrDeYl5kAk/GomPB/LPyZ9Od5C0lCQ==
+X-Received: by 2002:a17:90a:c2ce:b0:2ee:4513:f1d1 with SMTP id 98e67ed59e1d1-2f452eb24b8mr34814458a91.23.1735274053570;
+        Thu, 26 Dec 2024 20:34:13 -0800 (PST)
+Received: from [157.82.207.107] ([157.82.207.107])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f4478a92absm14894900a91.44.2024.12.26.20.34.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 26 Dec 2024 20:34:13 -0800 (PST)
+Message-ID: <cd4a2384-33e9-4efd-915a-dd6fee752638@daynix.com>
+Date: Fri, 27 Dec 2024 13:34:10 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|CYYPR12MB8732:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1759e712-1a2e-4a5d-216a-08dd261d9dcd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?eDBVOGVpcENrUXVBUENPTmplMzM2YjJGTEp2T1V6Q0pWV0cwZ0dHcXozZmd6?=
- =?utf-8?B?SnNzUXlaeldoNWFCaTJPbWI0QzRNdGtHY3JmbXYrWkRKaVQrbHlZNHA4ZVJI?=
- =?utf-8?B?dWo0UElMaURoS3dVZlAwVnRNZjlOcUJFeVd0QS90SExHYmNpR2IwRVgvRXZV?=
- =?utf-8?B?R0V6NGlWVGdSVEJCbk8xRmpJbDAzZ3NtSS92K0J4cC9JWFJHTWo0cnpZeTJW?=
- =?utf-8?B?WXAvV0Y0YU5kUTVBOEV2YWx5ejFjQThkQ2dhd1VWeTA2V2JjTW9tTGRwK29K?=
- =?utf-8?B?RUJVYi9OSUN1OWlmRnFJcFhaY0ZrQnlidndobDltakNsTHJKNklRU0tZS1BJ?=
- =?utf-8?B?bGxDUW15SXJTd29Bcy91clRYc3VwdXZ0T2R5RW9WcUJHRWhZUWhadkQ3V2pP?=
- =?utf-8?B?aGNvTGlXSXp6L3dpY3l4UXlpR3Z1cUhuRFluY2RidlBaSmZGdmFyVjlsNUVu?=
- =?utf-8?B?Y1RVUHJGSEl1L3VJTE1HRUUvUm9xQXFSa1FSVm1RSWtwV01mUWY5OWNOWDU2?=
- =?utf-8?B?cWxnS090a0xlcDBWU2dFT3FvemFpZ2M4QXVjR2xhb0lNRmZQakJOdjhIcUE3?=
- =?utf-8?B?dVNHUmI4MW95UEdMb2JSMjMyTWl5MUIxTkMwMjZ4ejAxRWNFWDNIZjhGT2tW?=
- =?utf-8?B?NWhyVE94ZGhrQm5XYTYyTEEwWCtkelZxSWdkaENnaWZzVW5MdThZdXJranMr?=
- =?utf-8?B?S3REV1JvS0xVdU9MWi9hMThrc2Fnb1Y4UzA5QjBBSDZXb2pWMjFyTy9WU0Jm?=
- =?utf-8?B?c1BFanI5bWFlemJHTmpLSW1UMGNFRURFcjZ4QjRSbGJwQ0h0S0RZRTRRZXc1?=
- =?utf-8?B?K09yV1ZBZE1OUmZFRHFRYmYzQTJINzB4aEUyOGRzRURmNW40MG1IZ2xaMUVi?=
- =?utf-8?B?V01wK0NhemRzNTEyUG84a0hha3g4RWdrYlFic0R5TG9zUmlubXRPejlVSUxQ?=
- =?utf-8?B?VkxFM2d6N00yNGhyUzJtclp2VUcxNGFJRTRQTTNwWlNUY3p6RG80bnRTS0Zi?=
- =?utf-8?B?aG9ZTU5wc2xGUkZOYys0Um9EWDExMWJ6VUZSSFkzTndvM2MxeEhGUDBmczhU?=
- =?utf-8?B?ampCdXB5ZEhWblRBMFdFajJKRmZhNlFpajVYTmdtckpoVzZhMUZhbExDWWRr?=
- =?utf-8?B?eENOejJDUFZKNU5rVEYvOUV1NzNVeExONVVpNm1LeUNSZ0ZiYXFKazRMaDBp?=
- =?utf-8?B?NmdGRkNGVVMzN2M5RFliZ1JXSlU2R1FNSERqOHA1b2kzZnpHUm5EeXp3aWlY?=
- =?utf-8?B?MlZ2eVF0ajVJajlhc2JQeFJkbjhOaTJxZFB4OXRGUkNPeG16Z004N1RKdERW?=
- =?utf-8?B?K0ZpMzlkc2xRM0w1WHI3TmZxQzFVeU9lMWMyS2FYQmQ2NkNMN0M1L3lhb3ZF?=
- =?utf-8?B?dFg5c3d1bGRhdmpWSGV5UlZ6NjcrcEp1UXQ0bDlYNDloUnlKeFdpK2Npdjgr?=
- =?utf-8?B?T2Z5QTk2RXdUMnJoQ2tMZlQ1b015bGlKVVFGVUtvajFZSFZKS0VzN0xCSkx0?=
- =?utf-8?B?UTUwaTJKSWxRV3RrMC80dlp5VG16K3d2NDhaelYxM1pBOFcvN21rekkvUWVs?=
- =?utf-8?B?b2ZESWJBR0dPOUl1bjFxUFBESFMyd2tkdFJPK0J5SUtyOUI1K0VDYzhGMDgv?=
- =?utf-8?B?aC9qZGNRZTRxcUZzY0hiMml0RGZYQXBvRmthUFhVaG1UT2VyQzZzMzhyNzhp?=
- =?utf-8?B?NGl4L2xVUzA5V3lWUWFlNWVnY2tWU0g3S0JEdDJDdWM1clZLczVSS0VKRFVJ?=
- =?utf-8?B?MXZzODJoMHBGSTltN1lleUNNZzREcTJjYmpObk5YUEcxRVBVYlc2ME5lVHZs?=
- =?utf-8?B?T01MZHpJRkNnWUc1dWV4eFBwQmJxa2NuaXpLVWJBRDJWbnVjbzRRQ1dYV1o0?=
- =?utf-8?B?dG5VNG9IMlpxeUx4a2ZFRzZ6SFhYSG9pUXJDZEZENjZBN3krWExlTFpqazY0?=
- =?utf-8?Q?lBhxb47A1I4=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?eHpUL1Q3OHZ2YWtOdDVPNDJNUk9TRE51UUVzNk5wRWlvN05waTVjRWFCOWNN?=
- =?utf-8?B?Q1ZtU2JlY2RpRmdITkJrRXNpL01tSVBSdnZWb29JMVpTUU1jT0VnUzdnQXRu?=
- =?utf-8?B?Tm16ZlBscXJZY2NlZ3ZxNU5ETnprTmNuWkVZT1VHQTcrWUEwVWFZazAvUmNt?=
- =?utf-8?B?THhKQmgvODUxM2dOOUZJR1UvTFVDMHRuTy9SMG9WL0ZJOG9EVUlSTjFiWVBh?=
- =?utf-8?B?QVpmK2xxZ2NtczIreExJWEVhTksyd1Q5Z2JSNnVmUi9yQk5SWThqeEhpTGpr?=
- =?utf-8?B?ZjlveklSVkNSUFNTd012NE1GL01DZTVqUjM0WUFIa3RYYVpzcHlMOEFFeUlM?=
- =?utf-8?B?b1BjeGR5NUNJUm11bTlrU3owZ1oybUVkTTFsOHYyV3hQVnBkUS83b09vU1ZU?=
- =?utf-8?B?SytVamhoNHUvSkxXcWJJOFI1YXVXeXhEaVdpclRWQTFUVStqNmh0QzZnR2k1?=
- =?utf-8?B?Z21MY1MxY1ErbTU3ZW1tVVQ0bktuQXJEZ3VScS9DV0Y4Y0dOazdsNVRBNGs4?=
- =?utf-8?B?cklubzE1R1pxTFhwTG1TWDBDNGQ5RW5hNURkcVc5RmtuVWZHNUtuNkFpaUhQ?=
- =?utf-8?B?Z0hQcmI0WElyZ3J0MU11YnZmNWxrd0NWRXpCalc5V1Yzci9MKzVaeUZ2TS9N?=
- =?utf-8?B?ck9WZFRkZncvSXNNRjNZTGVmSjVDaTlBMklNMGNtMkVMSkhDUnFyYlVNUmtF?=
- =?utf-8?B?bUVpenArZEMrY0kyd1BpRmRzN1ZGSXVPVlVVNUg3aVc1M3RhWVh0RnJHVkxU?=
- =?utf-8?B?cHFtUjdmTnZzQ2IzMmNLTENSMTNjOHJ4VFhEYlB2cVJPMEY1OU5DUXhyNnVZ?=
- =?utf-8?B?SXYyVVJKRXB4d2JueHlYRlhQMExqclRPcjhjUXhwUjFTWVp1NFo2b2x1RStN?=
- =?utf-8?B?UXdiS2lHL3g3TjhZMWNxTTBwTzFHb1R4OXBxL2JvRjhjTXo0WkJ2NlpPR0ZQ?=
- =?utf-8?B?Y25xUjdzVloxdWZQSG5rZjY2OEd5ZXpDU3R4b3doSkFxUXRLdHUxeGwvbUtG?=
- =?utf-8?B?MGVaRURSNkJVZy8yYmsxQXp5MVJSMU1mWDAzNS9jcndXZFVSWEZLeEdvY3d1?=
- =?utf-8?B?bFBUY2FJd3ZpblRhekNTUGpRL1huYTFqazJBa3BrYVRCb3A2TjJQUHErWE9O?=
- =?utf-8?B?bk92cEpKTUpYeEVrbng1YVgwWVdIcjdwek42UG5qTHV0aG9tWWJtbmJ3YVFG?=
- =?utf-8?B?Zm96K2xIU3N0Q1ZHYTFFdEJFOC8zQlVPcGpodHVRT041clFsVWJtM2JVL3Vu?=
- =?utf-8?B?K1ZrOFBvWUE4dE1MelJqdEpMNHFtQVlMOGV2NFpSRUdvRDlpRjJBQ08ySUFZ?=
- =?utf-8?B?WWZvNHdPcVBKbUJueTRqWmZXODZEWWFYTW1ZVEtQSVZWTTQ1NktFM2ZJdjZy?=
- =?utf-8?B?M013eUxUc3ZkZ0s2RHJUbE5wZ256NkY2UmJiWitvU3AvdFN6ZGozTHNoaHdz?=
- =?utf-8?B?dldGK3FTOGs2WGN4aVJYdUx1R2dmMHZEaSttTVZPZDlIeVgzS1VWK0I1WUhP?=
- =?utf-8?B?T09leTFOSkFPQjUrK3Y5TG1VckhZSmJUTDRxUUlLVEIrUmpUNTdROWVOY09R?=
- =?utf-8?B?dUl6c2xOOE9GejZQVldRbHBnU25LM2ZVSW5BS0NvWjQ0dUdVME82bHE0VVVS?=
- =?utf-8?B?OEVHS2haeWdmQk53Vy9qd2UzSVRJeXk2QzA5WG5jdmV1ZmlGem9yWHg1U1dG?=
- =?utf-8?B?eFhsWEtFV09iM1NPS0p2TDFhbW05aE1IcFB2VlczcHNjNURWbllwNzhDM080?=
- =?utf-8?B?SzN6NlcvN2xucmxVUTVMM2c0ekF1bnZjQW1iSW5TcUNRendRZEhSdlIyZVVq?=
- =?utf-8?B?ZE5MYnhDb3NRbjF5Ulgrc05EekxjQmwxQ1Rsc1d6alJ5UkZrbzBJVlNDdmx1?=
- =?utf-8?B?cUp4ODRUQU80NnN4Uk1TOWNYQzhTcW1LakdVb3U3VDdIenJtK0s2S2d5QmEz?=
- =?utf-8?B?RWNJRDJrbUpJWjdGRVhsUEw4OFNZUCtqNzVTUzlBTXNNQkM1OGt2T0NUZ0Vz?=
- =?utf-8?B?d3BwSTBXekYvYmtrbkc5R01EZGlXa3MzK3FEaEFSdWtBUUFrRlVSRXpTcXdM?=
- =?utf-8?B?akg2d0IvdmQrUTZoZnZncUtQNmNndlhRRG9EUmh2aFBhdE43aVlmeXN6YWZz?=
- =?utf-8?Q?9FiVqMb/MlYqjRTgAQSPySt7K?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1759e712-1a2e-4a5d-216a-08dd261d9dcd
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Dec 2024 02:24:40.2903
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: LnGCP8BETah3rkfkryDyZpDyGqGm41aQJvSmAkZXBmi5NgC7SOvfv0PMlphqSGObFaOXP05mOoTEu3UFoO/GsQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR12MB8732
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vhost/net: Set num_buffers for virtio 1.0
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20240915-v1-v1-1-f10d2cb5e759@daynix.com>
+ <20241106035029-mutt-send-email-mst@kernel.org>
+ <CACGkMEt0spn59oLyoCwcJDdLeYUEibePF7gppxdVX1YvmAr72Q@mail.gmail.com>
+ <20241226064215-mutt-send-email-mst@kernel.org>
+ <CACGkMEug-83KTBQjJBEKuYsVY86-mCSMpuGgj-BfcL=m2VFfvA@mail.gmail.com>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <CACGkMEug-83KTBQjJBEKuYsVY86-mCSMpuGgj-BfcL=m2VFfvA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-
-On 2024/12/22 9:59, Demi Marie Obenour wrote:
-> On 12/20/24 10:35 AM, Simona Vetter wrote:
->> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
->>> From: Honglei Huang <Honglei1.Huang@amd.com>
->>>
->>> A virtio-gpu userptr is based on HMM notifier.
->>> Used for let host access guest userspace memory and
->>> notice the change of userspace memory.
->>> This series patches are in very beginning state,
->>> User space are pinned currently to ensure the host
->>> device memory operations are correct.
->>> The free and unmap operations for userspace can be
->>> handled by MMU notifier this is a simple and basice
->>> SVM feature for this series patches.
->>> The physical PFNS update operations is splited into
->>> two OPs in here. The evicted memories won't be used
->>> anymore but remap into host again to achieve same
->>> effect with hmm_rang_fault.
->>
->> So in my opinion there are two ways to implement userptr that make sense:
->>
->> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
->>    notifier
->>
->> - unpinnned userptr where you entirely rely on userptr and do not hold any
->>    page references or page pins at all, for full SVM integration. This
->>    should use hmm_range_fault ideally, since that's the version that
->>    doesn't ever grab any page reference pins.
->>
->> All the in-between variants are imo really bad hacks, whether they hold a
->> page reference or a temporary page pin (which seems to be what you're
->> doing here). In much older kernels there was some justification for them,
->> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
->> now all sorted out. So there's really only fully pinned, or true svm left
->> as clean design choices imo.
->>
->> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
->> you?
+On 2024/12/27 10:29, Jason Wang wrote:
 > 
-> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
-> in complexity that pinning everything avoids.  Furthermore, this avoids the
-> host having to take action in response to guest memory reclaim requests.
-> This avoids additional complexity (and thus attack surface) on the host side.
-> Furthermore, since this is for ROCm and not for graphics, I am less concerned
-> about supporting systems that require swappable GPU VRAM.
+> 
+> On Thu, Dec 26, 2024 at 7:54 PM Michael S. Tsirkin <mst@redhat.com 
+> <mailto:mst@redhat.com>> wrote:
+> 
+>     On Mon, Nov 11, 2024 at 09:27:45AM +0800, Jason Wang wrote:
+>      > On Wed, Nov 6, 2024 at 4:54 PM Michael S. Tsirkin <mst@redhat.com
+>     <mailto:mst@redhat.com>> wrote:
+>      > >
+>      > > On Sun, Sep 15, 2024 at 10:35:53AM +0900, Akihiko Odaki wrote:
+>      > > > The specification says the device MUST set num_buffers to 1 if
+>      > > > VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
+>      > > >
+>      > > > Fixes: 41e3e42108bc ("vhost/net: enable virtio 1.0")
+>      > > > Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com
+>     <mailto:akihiko.odaki@daynix.com>>
+>      > >
+>      > > True, this is out of spec. But, qemu is also out of spec :(
+>      > >
+>      > > Given how many years this was out there, I wonder whether
+>      > > we should just fix the spec, instead of changing now.
+>      > >
+>      > > Jason, what's your take?
+>      >
+>      > Fixing the spec (if you mean release the requirement) seems to be
+>     less risky.
+>      >
+>      > Thanks
+> 
+>     I looked at the latest spec patch.
+>     Issue is, if we relax the requirement in the spec,
+>     it just might break some drivers.
+> 
+>     Something I did not realize at the time.
+> 
+>     Also, vhost just leaves it uninitialized so there really is no chance
+>     some driver using vhost looks at it and assumes 0.
+ > >
+> So it also has no chance to assume it for anything specific value.
 
-Hi Sima and Demi,
+Theoretically, there could be a driver written according to the 
+specification and tested with other device implementations that set 
+num_buffers to one.
 
-I totally agree the flag FOLL_LONGTERM is needed, I will add it in next 
-version.
+Practically, I will be surprised if there is such a driver in reality.
 
-And for the first pin variants implementation, the MMU notifier is also 
-needed I think.Cause the userptr feature in UMD generally used like 
-this: the registering of userptr always is explicitly invoked by user 
-code like "registerMemoryToGPU(userptrAddr, ...)", but for the userptr 
-release/free, there is no explicit API for it, at least in hsakmt/KFD 
-stack. User just need call system call "free(userptrAddr)", then kernel 
-driver will release the userptr by MMU notifier callback.Virtio-GPU has 
-no other way to know if user has been free the userptr except for MMU 
-notifior.And in UMD theres is no way to get the free() operation is 
-invoked by user.The only way is use MMU notifier in virtio-GPU driver 
-and free the corresponding data in host by some virtio CMDs as far as I 
-can see.
+But I also see few reasons to relax the device requirement now; if we 
+used to say it should be set to one and there is no better alternative 
+value, why don't stick to one?
 
-And for the second way that is use hmm_range_fault, there is a 
-predictable issues as far as I can see, at least in hsakmt/KFD stack. 
-That is the memory may migrate when GPU/device is working. In bare 
-metal, when memory is migrating KFD driver will pause the compute work 
-of the device in mmap_wirte_lock then use hmm_range_fault to remap the 
-migrated/evicted memories to GPU then restore the compute work of device 
-to ensure the correction of the data. But in virtio-GPU driver the 
-migration happen in guest kernel, the evict mmu notifier callback 
-happens in guest, a virtio CMD can be used for notify host but as lack 
-of mmap_write_lock protection in host kernel, host will hold invalid 
-data for a short period of time, this may lead to some issues. And it is 
-hard to fix as far as I can see.
+I sent v2 for the virtio-spec change that retains the device requirement 
+so please tell me what you think about it:
+https://lore.kernel.org/virtio-comment/20241227-reserved-v2-1-de9f9b0a808d@daynix.com/T/#u
 
-I will extract some APIs into helper according to your request, and I 
-will refactor the whole userptr implementation, use some callbacks in 
-page getting path, let the pin method and hmm_range_fault can be choiced
-in this series patches.
+> 
+> 
+>     There is another thing out of spec with vhost at the moment:
+>     it is actually leaving this field in the buffer
+>     uninitialized. Which is out of spec, length supplied by device
+>     must be initialized by device.
+> 
+> 
+> What do you mean by "length" here?
+> 
+> 
+> 
+>     We generally just ask everyone to follow spec.
+> 
+> 
+> Spec can't cover all the behaviour, so there would be some leftovers.
+> 
+>        So now I'm inclined to fix
+>     it, and make a corresponding qemu change.
+> 
+> 
+>     Now, about how to fix it - besides a risk to non-VM workloads, I dislike
+>     doing an extra copy to user into buffer. So maybe we should add an ioctl
+>     to teach tun to set num bufs to 1.
+>     This way userspace has control.
+> 
+> 
+> I'm not sure I will get here. TUN has no knowledge of the mergeable 
+> buffers if I understand it correctly.
+
+I rather want QEMU and other vhost_net users automatically fixed instead 
+of opting-in the fix.
+
+The extra copy overhead can be almost eliminated if we initialize the 
+field in TUN/TAP; they already writes other part of the header so we can 
+simply add two bytes there. But I wonder if it's worthwhile.
 
 Regards,
-Honglei
-
+Akihiko Odaki
