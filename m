@@ -1,62 +1,62 @@
-Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
+Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 294CA19AD48
-	for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 18:50:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 640281990BD
+	for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 18:50:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735411805; cv=none; b=ch8IM8wO39ka43pC7vs5ieRF/2bFQdeeGhviZO9HVRbuLa5gnZWgAGIaMjprNavTNJO4uj7a1ZgzJNRa0v4mXrtssgx4BX+k6f1PoWLeD9rhW2/sh1wPjWDBnK1nBhj0/uRcmY7M6tGH6mAqCW6sCGu+bG8MG8G1gubTE67ujSk=
+	t=1735411807; cv=none; b=CnOaEcHqokx8m3RsZa178rFtwUJ/YPDzJUa1LkYY9HyXGyELsePKJYtsBhQ3mCV+T/Tqv6gbprOOuKhv1HOk/KM+5WTPzIn3rX6PjWnYQ+E7YfkcqmHpJQ+BlWrJ+S4Ln3xTR6+mDZZCcKT48N58NMeBN9EyZeA2AvDE6cnUNpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735411805; c=relaxed/simple;
-	bh=00KAaZiElDeuSwSawiskbWLQDjpCB7R5sWeWi2JBcew=;
+	s=arc-20240116; t=1735411807; c=relaxed/simple;
+	bh=hMJtabK1vX54uoCs62Uh1uKXB0G3C1rvDyjRxtrbzJ8=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Xox75NfqjfdF5LDcjjgGe0gudl4DNihB51X26kIzUeBxtjoOZJfLIGc9cYE10A710jzFLLCSuHCkn9OEmG2ErxiVlj5ey8guNxJES6asYJc9Z1tcCFUSbjYfHrTcgk9ejFFcbofG4HaXdgJNaVGw+1Z4b1SsBhwK0aWeC74MSVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HR/BW0ya; arc=none smtp.client-ip=209.85.219.176
+	 MIME-Version; b=o0bk2hnL81C547Hi+cDTdvsSfrLCv55oABgH+or/G6b2lbJ18ohMPCn+QzBz8b2ZG3B6LxzVTyqL7x3HcjmjTWASuaD057Z/+IG5zz2qI1hbMob1H48gUyAzSKnerqeXzID11EGqUwCR6ojprvB66aQObLzCn6f8SfxYGY405hE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BlZEGLVK; arc=none smtp.client-ip=209.85.219.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HR/BW0ya"
-Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e3a26de697fso8956709276.3
-        for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 10:50:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BlZEGLVK"
+Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e3990bbe22cso8902420276.1
+        for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 10:50:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735411803; x=1736016603; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1735411804; x=1736016604; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=0bA6qa5mRtLx/JNJepZMf5RGZWm5ti1ameVb2qE56fE=;
-        b=HR/BW0yaLX6aZRFeIynGY+DkfYzJpzcqvrLTPtDUi3HEwQ7nMpLL2NQjO294r/doZM
-         ZtIgjLMwRs7eEf/gpFgk4sAi+QznKoTqoJlNbNGVOKkXlQCKVCWuubRESUJ/ISTPVmwz
-         Ndrpp99xT/yfJYmnjqhPdHdyYt52y+ggM5n6wnEFIgUvaqevXVfQU4Q0PDVPX0xjYIS0
-         HUbjgkYpJm4h2oSD64bg20vZCe+HimpRyPohZCwiuyQg1A1ivRseDqSeCYT+gx49AcQF
-         ZHaHpsThmjI79CHHVE/Y3sIeHZiIR3s2ske72iNKmdr86dJT73PiTgTXHYhpYCiNMzum
-         T8aA==
+        bh=S9g5yzfm32qCCSZ9hYX8RFrDFECwqUd1W8h8dBnaZOA=;
+        b=BlZEGLVKjltdzsX/KWoK5Bfs1KxRUd26PTU6eveBkc0eMw9i/tAnTsbw6EQWbZ9a7S
+         Dnoqal7XtTVTxDrEyac7EZvUUrqYo5qrGtUzyLiY3pQpTommBqmbnrG9cXG5/KtOV5ja
+         yRVn58LBVWHBQHWD/Y+ckp/d5DRgFUvxZXbZHOsUgIRHAYrQWBBpJJo8CV77v92dvgMd
+         NPDF0anmch1CVahx26DFatPFjikww6oX8hQBQvE3r0MLbEB+3Om3XXILV96aeXD/55nr
+         UianhCDGSdgSgTLtRTPkHtClZ0kQi5hfcfT4uVVT3zwR+XAO3NPKHIpRX9Wnn769x69i
+         5J3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735411803; x=1736016603;
+        d=1e100.net; s=20230601; t=1735411804; x=1736016604;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0bA6qa5mRtLx/JNJepZMf5RGZWm5ti1ameVb2qE56fE=;
-        b=TMtCo+7y8YC6K1QQTn9FB0IGNuMC4/xTPkqGqP1nuPbQci9HTjuZUYpDoHVVupom5+
-         2nHV7TYnCwQrum7U2cK9TZEuRnMUd5c4dhbgmImjqJuoeiEk5deLhfB/UZ5KdzUykk7I
-         L9YIpNtQ1j43UrAjf9Bbjgu0Jy4WH6swxbm3PbeU0TZo6vtq/PY6M/ejahfYDqIvAlR+
-         ooi2L7QfuX6XtqTF7EtZJOHCgUE3kA0E5wYt1Bpw7KBgqaBOHxawHphcWinh/vacutKG
-         jjKeBHFdcPWY7QwDfMUACaQo0pmr187gO0EC0sQeWUeYy0pMvDVyAPkDdLcwIaZnpcOJ
-         +gNQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVLoQiiaVw1JMt6IcrnIko46BAbHGRAMgGOmcRZnGRAFCv6kJLw6UftavZeaTlud//oW+WOK8CQU+U4fEFdig==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwFhx2UkpV71z7NjpF1PkYqwLP2AJRiXkVL9jCGroPy48Ah5yyp
-	RMt8dXBXCrHNvEEdrtA9RpFDkerSyAzUKb4LSEBmqqBMYtIkevLC
-X-Gm-Gg: ASbGncv3QWqWWwLTkTmZ5Y0kWk15MuQPmmH4LmYgY0dQjEs1NIyHGVGR4xeocNBpBXo
-	Fh1ti8tp/k+dWaxa0HwzCt0GylNMCCO5TnXU0vMAK8lGl911zhxv7XM+YRezW5/lr37clzqGfOk
-	cw+YEPaAjFdKNUrIE6tBSVQXUVXnGUDcCA1rQ+Ov32FJ+LoLKbrjMtMHZDHsctBUGrewCCwhSpQ
-	5Tfxcb9nQKgJg516c4MK0gGSRSE3zt9bCcTweyOCguT1MCDUAqvVwDYJALnmPxDb7sdsTLtzRNc
-	fOKYdGr5U9LxHgmo
-X-Google-Smtp-Source: AGHT+IEdltlfo7VoM/K9Hx3CK/leMoimfCHWr7pfYR9wsJX7DjblcCmfKrexz0jlZQgTcU9bnrqr/g==
-X-Received: by 2002:a05:6902:1a48:b0:e49:5f2d:e71d with SMTP id 3f1490d57ef6-e538c267d16mr23706682276.21.1735411803005;
-        Sat, 28 Dec 2024 10:50:03 -0800 (PST)
+        bh=S9g5yzfm32qCCSZ9hYX8RFrDFECwqUd1W8h8dBnaZOA=;
+        b=UMH6au7eMqe0qir0a3hYWB4xGkS/Dv0QVzZ6cn2lqshrKkB09P+jS/Ks96lTbmwGPE
+         /kYheFAadeh5ndggTWSZVAdsipS9vUD0H1CdAtCIfr2R31gEhBRMG1at3DkiZM1Sounf
+         olC4svzddMKQpra4jwXlnyw159Zr8tzUYnBjQdym6t57RIb9o22IKLTMZiLTBcqmIr5y
+         GDRhh/DdgmM7X7E3alVfQY0BrYZ0bKl6jSpdY0RZ6bKPxosikulg47LTAaJ3ytC657mD
+         yravWSRdBLnCaQ1O43m4vQx8mdC9I4viMZ9xXkTOgTBd07fRfpMgAEaE2Ef+O9Itinus
+         tFTQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXvpaz1ILgjUn2rvNiU78zIzS/B7PhTPf7c8Qk/oIuhPp4fj/cIGzvBxaJIOeJoK9xZggc2Brw9HNIelw3jfg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwNP+xJdNhkDKRmbk7y6nTXlctwNdR2Xly4ohTggiA2hWtX10aV
+	+My87uJAW2WNTpyWfF1a+DT8QkNPw+BQ9H4Zyv5KZWEJLbcBj4iC
+X-Gm-Gg: ASbGncuZabJegxP5xkHlU9U5jtppjtsLdudSIf3Ntw8UatAlyiGKhszQu8SGzfA8r0u
+	+Fy1cfchCcijx1rFdS58slaXiXhLWPCrbOjj6U/kgs5H/otyNjlVkOOGkXQ4OtgpKI2tRGRQ52f
+	Q+5s7I8uTIkYexmSAOJYGPN15v5xUgt/iPQSKi8AkKxuZpFa7E9q8sCOfpv1UGqJZPjEEwZmtUJ
+	VkBNfT17WDFiC8rwUAfnO1PX7KHjf+7EIwyoCGXSSo37X7aXJbo652ElxtSW9FrA+byk2sZmMBs
+	XNJaMdyZWXiNjtWh
+X-Google-Smtp-Source: AGHT+IFRAv4ES1nGe5GZzQSCr0JvuQEh3E1vBTb1UadMisfKYeWtlE6qWVQlRiPBMv3C59QKs6b8rQ==
+X-Received: by 2002:a25:cc1:0:b0:e53:4d98:7459 with SMTP id 3f1490d57ef6-e538c3cfd9dmr14310782276.40.1735411804331;
+        Sat, 28 Dec 2024 10:50:04 -0800 (PST)
 Received: from localhost (c-24-129-28-254.hsd1.fl.comcast.net. [24.129.28.254])
-        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e537cbeba44sm5051923276.7.2024.12.28.10.50.01
+        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e537cf73675sm5102193276.51.2024.12.28.10.50.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Dec 2024 10:50:02 -0800 (PST)
+        Sat, 28 Dec 2024 10:50:03 -0800 (PST)
 From: Yury Norov <yury.norov@gmail.com>
 To: linux-kernel@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
@@ -118,9 +118,9 @@ To: linux-kernel@vger.kernel.org,
 	Peter Xu <peterx@redhat.com>,
 	Shrikanth Hegde <sshegde@linux.ibm.com>,
 	Hendrik Brueckner <brueckner@linux.ibm.com>
-Subject: [PATCH 05/14] cpumask: deprecate cpumask_next_wrap()
-Date: Sat, 28 Dec 2024 10:49:37 -0800
-Message-ID: <20241228184949.31582-6-yury.norov@gmail.com>
+Subject: [PATCH 06/14] cpumask: re-introduce cpumask_next{,_and}_wrap()
+Date: Sat, 28 Dec 2024 10:49:38 -0800
+Message-ID: <20241228184949.31582-7-yury.norov@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20241228184949.31582-1-yury.norov@gmail.com>
 References: <20241228184949.31582-1-yury.norov@gmail.com>
@@ -132,144 +132,75 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The next patche aligns implementation of cpumask_next_wrap() with the
-generic version in find.h which changes function signature.
+cpumask_next_wrap_old() has two additional parameters, comparing to it's
+analogue in linux/find.h find_next_bit_wrap(). The reason for that is
+historical.
 
-To make the transition smooth, this patch deprecates current
-implementation by adding an _old suffix. The following patches switch
-current users to the new implementation one by one.
+Before 4fe49b3b97c262 ("lib/bitmap: introduce for_each_set_bit_wrap()
+macro"), cpumask_next_wrap() was used to implement for_each_cpu_wrap()
+iterator. Now that the iterator is an alias to generic
+for_each_set_bit_wrap(), the additional parameters aren't used and may
+confuse readers.
 
-No functional changes were intended.
+All existing users call cpumask_next_wrap() in a way that makes it
+possible to turn it to straight and simple alias to find_next_bit_wrap().
+
+In a couple places kernel users opencode missing cpumask_next_and_wrap().
+Add it as well.
 
 Signed-off-by: Yury Norov <yury.norov@gmail.com>
 ---
- arch/s390/kernel/processor.c        | 2 +-
- drivers/nvme/host/tcp.c             | 2 +-
- drivers/pci/controller/pci-hyperv.c | 2 +-
- drivers/scsi/lpfc/lpfc_init.c       | 2 +-
- include/linux/cpumask.h             | 4 ++--
- kernel/padata.c                     | 2 +-
- lib/cpumask.c                       | 6 +++---
- 7 files changed, 10 insertions(+), 10 deletions(-)
+ include/linux/cpumask.h | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index 5ce9a795a0fe..42ca61909030 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -72,7 +72,7 @@ void notrace stop_machine_yield(const struct cpumask *cpumask)
- 	this_cpu = smp_processor_id();
- 	if (__this_cpu_inc_return(cpu_relax_retry) >= spin_retry) {
- 		__this_cpu_write(cpu_relax_retry, 0);
--		cpu = cpumask_next_wrap(this_cpu, cpumask, this_cpu, false);
-+		cpu = cpumask_next_wrap_old(this_cpu, cpumask, this_cpu, false);
- 		if (cpu >= nr_cpu_ids)
- 			return;
- 		if (arch_vcpu_is_preempted(cpu))
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 28c76a3e1bd2..054904376c3c 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1578,7 +1578,7 @@ static void nvme_tcp_set_queue_io_cpu(struct nvme_tcp_queue *queue)
- 	if (wq_unbound)
- 		queue->io_cpu = WORK_CPU_UNBOUND;
- 	else
--		queue->io_cpu = cpumask_next_wrap(n - 1, cpu_online_mask, -1, false);
-+		queue->io_cpu = cpumask_next_wrap_old(n - 1, cpu_online_mask, -1, false);
- }
- 
- static void nvme_tcp_tls_done(void *data, int status, key_serial_t pskid)
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index cdd5be16021d..86d1c2be8eb5 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1757,7 +1757,7 @@ static int hv_compose_multi_msi_req_get_cpu(void)
- 
- 	spin_lock_irqsave(&multi_msi_cpu_lock, flags);
- 
--	cpu_next = cpumask_next_wrap(cpu_next, cpu_online_mask, nr_cpu_ids,
-+	cpu_next = cpumask_next_wrap_old(cpu_next, cpu_online_mask, nr_cpu_ids,
- 				     false);
- 	cpu = cpu_next;
- 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 7f57397d91a9..31622fb0614a 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -12876,7 +12876,7 @@ lpfc_irq_rebalance(struct lpfc_hba *phba, unsigned int cpu, bool offline)
- 
- 	if (offline) {
- 		/* Find next online CPU on original mask */
--		cpu_next = cpumask_next_wrap(cpu, orig_mask, cpu, true);
-+		cpu_next = cpumask_next_wrap_old(cpu, orig_mask, cpu, true);
- 		cpu_select = lpfc_next_online_cpu(orig_mask, cpu_next);
- 
- 		/* Found a valid CPU */
 diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-index 30042351f15f..b267a4f6a917 100644
+index b267a4f6a917..18c9908d50c4 100644
 --- a/include/linux/cpumask.h
 +++ b/include/linux/cpumask.h
-@@ -296,7 +296,7 @@ unsigned int cpumask_next_and(int n, const struct cpumask *src1p,
- 
- #if NR_CPUS == 1
- static __always_inline
--unsigned int cpumask_next_wrap(int n, const struct cpumask *mask, int start, bool wrap)
-+unsigned int cpumask_next_wrap_old(int n, const struct cpumask *mask, int start, bool wrap)
- {
- 	cpumask_check(start);
- 	if (n != -1)
-@@ -312,7 +312,7 @@ unsigned int cpumask_next_wrap(int n, const struct cpumask *mask, int start, boo
- 	return cpumask_first(mask);
+@@ -284,6 +284,43 @@ unsigned int cpumask_next_and(int n, const struct cpumask *src1p,
+ 		small_cpumask_bits, n + 1);
  }
- #else
--unsigned int __pure cpumask_next_wrap(int n, const struct cpumask *mask, int start, bool wrap);
-+unsigned int __pure cpumask_next_wrap_old(int n, const struct cpumask *mask, int start, bool wrap);
- #endif
  
++/**
++ * cpumask_next_and_wrap - get the next cpu in *src1p & *src2p, starting from
++ *			   @n and wrapping around, if needed
++ * @n: the cpu prior to the place to search (i.e. return will be > @n)
++ * @src1p: the first cpumask pointer
++ * @src2p: the second cpumask pointer
++ *
++ * Return: >= nr_cpu_ids if no further cpus set in both.
++ */
++static __always_inline
++unsigned int cpumask_next_and_wrap(int n, const struct cpumask *src1p,
++			      const struct cpumask *src2p)
++{
++	/* -1 is a legal arg here. */
++	if (n != -1)
++		cpumask_check(n);
++	return find_next_and_bit_wrap(cpumask_bits(src1p), cpumask_bits(src2p),
++		small_cpumask_bits, n + 1);
++}
++
++/*
++ * cpumask_next_wrap - get the next cpu in *src, starting from
++ *			   @n and wrapping around, if needed
++ * @n: the cpu prior to the place to search
++ * @src: cpumask pointer
++ *
++ * Return: >= nr_cpu_ids if no further cpus set in both.
++ */
++static __always_inline
++unsigned int cpumask_next_wrap(int n, const struct cpumask *src)
++{
++	/* -1 is a legal arg here. */
++	if (n != -1)
++		cpumask_check(n);
++	return find_next_bit_wrap(cpumask_bits(src), small_cpumask_bits, n + 1);
++}
++
  /**
-diff --git a/kernel/padata.c b/kernel/padata.c
-index d51bbc76b227..454ff2fca40b 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -274,7 +274,7 @@ static struct padata_priv *padata_find_next(struct parallel_data *pd,
- 	if (remove_object) {
- 		list_del_init(&padata->list);
- 		++pd->processed;
--		pd->cpu = cpumask_next_wrap(cpu, pd->cpumask.pcpu, -1, false);
-+		pd->cpu = cpumask_next_wrap_old(cpu, pd->cpumask.pcpu, -1, false);
- 	}
- 
- 	spin_unlock(&reorder->lock);
-diff --git a/lib/cpumask.c b/lib/cpumask.c
-index e77ee9d46f71..c9a9b451772a 100644
---- a/lib/cpumask.c
-+++ b/lib/cpumask.c
-@@ -8,7 +8,7 @@
- #include <linux/numa.h>
- 
- /**
-- * cpumask_next_wrap - helper to implement for_each_cpu_wrap
-+ * cpumask_next_wrap_old - helper to implement for_each_cpu_wrap
-  * @n: the cpu prior to the place to search
-  * @mask: the cpumask pointer
-  * @start: the start point of the iteration
-@@ -19,7 +19,7 @@
-  * Note: the @wrap argument is required for the start condition when
-  * we cannot assume @start is set in @mask.
-  */
--unsigned int cpumask_next_wrap(int n, const struct cpumask *mask, int start, bool wrap)
-+unsigned int cpumask_next_wrap_old(int n, const struct cpumask *mask, int start, bool wrap)
- {
- 	unsigned int next;
- 
-@@ -37,7 +37,7 @@ unsigned int cpumask_next_wrap(int n, const struct cpumask *mask, int start, boo
- 
- 	return next;
- }
--EXPORT_SYMBOL(cpumask_next_wrap);
-+EXPORT_SYMBOL(cpumask_next_wrap_old);
- 
- /* These are not inline because of header tangles. */
- #ifdef CONFIG_CPUMASK_OFFSTACK
+  * for_each_cpu - iterate over every cpu in a mask
+  * @cpu: the (optionally unsigned) integer iterator
 -- 
 2.43.0
 
