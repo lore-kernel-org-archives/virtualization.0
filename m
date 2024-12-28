@@ -1,124 +1,82 @@
-Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BFCB2744D
-	for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 18:49:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F34AF198E92
+	for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 18:49:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735411797; cv=none; b=RRxSvBXY9vPyO8HOpEO699j6HBBaV9sjv7YkM7/GIQM3ik2XI1K4pQ4J7xIo22d/p/8Z+8AhWsrffjLz4+3CrX3LKXayJoGd0jY5AL1CPAFCjKsOHeUanLLn2Plu8YxRDDXO4B3qVTlpQPSygREdsghb1e7SwN3c92IdIwb0vdA=
+	t=1735411800; cv=none; b=j04YmyHSvyjUV436CDaYDOzag2NdcK14DD60ju+uxmtt2Dvg+E4f7Mm9ti3j6pa1OraA+94uXqDgNo1lLuSKB1+6J8EKna1/WFvRKXT8hAR/Q4ohu/zrCB1C8ic9YtF9WtCuoMBjaQJhOG3GMVYCw56NFqXchO2Qt0+rwFmT5Uo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735411797; c=relaxed/simple;
-	bh=1yAI3ZDHyUkDV9UQDHx22Hbwp4ZXby1Wc02tN6J1Y4M=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=MWDQj6D4k513gI7QV7oxevADx80E8TWYfHZVFW4vBOngZJsyIZQfDJpPTWnqpgMwKmzDMq+Wp09sa6t0t6FISWTvcG+v9nOdYBMLQs+WhbQprECnt10pPx1Sb+E7XhEqYHNVbMvMokQM0qdRr51uDJGshBIUdt9npar/h5IqwdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FNhM8/8Y; arc=none smtp.client-ip=209.85.219.178
+	s=arc-20240116; t=1735411800; c=relaxed/simple;
+	bh=rjLiHSvKUq/eF1loio7Yr9yGD09W83hpAJm71ZhEPPg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=adjKImLt9iZkFIEC7asea1zInp5AJTFzWyp+/wi1GYZ7MRzmNWreTZ5GBCC/psxEV/98r03ELCHt2ut1sVacV6142nxg5nAnZkMJdB16+rUiigR+M8Jz8q5QRqlTTJeeWhtUAXuD2MAhiVLqZqwOQOdVZIuAd0eFbfsZEFL/HYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BS2BV4QZ; arc=none smtp.client-ip=209.85.219.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FNhM8/8Y"
-Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-e396c98af22so4237428276.1
-        for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 10:49:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BS2BV4QZ"
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e3c9ec344efso8289010276.2
+        for <virtualization@lists.linux.dev>; Sat, 28 Dec 2024 10:49:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735411794; x=1736016594; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=nmPTlVzrMWsZV/0UuabLUVbV1EH4j//h4cVfthapkOk=;
-        b=FNhM8/8YC4xmG4ebTrv1AqBKMykRRQ3aeyNqZo3RBtrDijyRk9nb9C3QfXQwp0XyVs
-         i+pBMlRVgu4rarGse8XCpk8Dg+JLF/rbGpDcCXjUAV4y1O0UZTbsrwsVRllk+4y0/p9A
-         t9LLB6ujFICNCCWSHPQorLLLfMeAKEBeYVKrU+prSRwhV6JwenT5siG28iOJCrU/FpwR
-         2GQ2mSo5igsYxWFqEF3c1wVboySO5BceZRdFiZ+WKHT4Uqx8lsQgfOZbtmQwPlk03Tuj
-         HpZ/hhPjZv+cIoKWMunScnhwMYlPvEmG+sKNCOIoH0HIUQCLSVw+5WD8f28ct8SWg65k
-         nHyQ==
+        d=gmail.com; s=20230601; t=1735411798; x=1736016598; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZyD/SfnxslLrliyoyVIe5C8rt51G8jW8D1jt5/B6HkA=;
+        b=BS2BV4QZBtFr8FI8ZxpVUo9qbt2EKdzCEo/ZFzn8J9mcFzjgYmWKsop664xrA7e1IP
+         fcsIqCQZ5Vbats++Zld8uATCrbasCzaG0+sDTVhVc6bgmM/oMN53H4azd0D9j/uwpPn/
+         Ri58JxXrrGfrQMmR0HeBbgei/zuVAd09WQuI/39Cg4+eDcRxrB9tPxoTHYJRqqFaAzGS
+         t1jalUsAinW0w5QcG7/iCs7N1le906Zkq9kwyirYzioqJnziD2cysnF35fzAiYqn5PpD
+         DOpFect21O+qBfPuqEthEiaCufCPA2HVd8HPR5CkE44cBFDS7Sak60XA1XJY11BxHBiq
+         XTWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735411794; x=1736016594;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=nmPTlVzrMWsZV/0UuabLUVbV1EH4j//h4cVfthapkOk=;
-        b=MWn/wIm3Yeiq8a9dISpEXzMhJjrSM0onYVbsf/WBo8EiPFrfSA6YbaiDnG22An5QHV
-         JWJUhx561otyVZ97mM3NmGXvNeMfZObbUpgQTpTOlLBUhi6KbM8zCd7TdjNjtMM+PkVg
-         jmJSlhg8QYx7wHROBnHh+3fNjAJVITvNPqoXMF4AlN3hzQrdKWxeEImVZWHP6YnLyJGr
-         kehWOOCdV0A8ZE+0mTyyFmvbllTtshMmy5UF6+1obdmQLx/AkY//Y8QZDdKfTY2XcieB
-         DEqajcVfxh13U2bublDZKbHFaTooyIyJ3YY+zFFYwDQ4XKG5Thnou2e0VxarFj5cKx0U
-         R0Aw==
-X-Forwarded-Encrypted: i=1; AJvYcCUOiqHEALlMBCXn9Fpo+HAq2pB+sfmZMCA23tiDgL7Njrc6qf823rdyZ80Oe4ZnzgWrxSorXzLgjVTBa/vkOg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwmQXuNxO0shVq+EbiVRHZBox1nijBsR5Ea/MnnO2/N61VYa4v0
-	A7iGtcKxDtHXhhXbfEv8ugZO9vQg67sTbHVUAd/NU0B9dP7JYO7G
-X-Gm-Gg: ASbGncvDWsqZYButD+6LCFs9KM554YSld/z1ThiX4M4v3GrSPGy8VIt3XvBvhQ4ESgB
-	VffSU31pn63iQeM26tcRpQz/bwlaJAA+lx0JO6aVcocDGsyQds8qZ8xqLMyZd8dnAKp9IKNHDjF
-	OGE5uRmA+6rnjaJVjObP6UDMi1jNrfqrhTXyYMUtapVyMBOQGyw+nvMYzOkPkR302zBqOIsug7j
-	ImODq8Bd7UurDYNY5xTF1ACateSl60ksoqy/v5dR3Bya6Et68zwkNWBo4GxrngCKnGpcUD1AFfb
-	QOjvjaDxwrIIwa+p
-X-Google-Smtp-Source: AGHT+IEkJJFH0m3oTNAbR0yAINMZTww0cO+zE7+Lf9uNhKvuTxiLtpcDAvH2RV2/PHCyo+AVfgp8KA==
-X-Received: by 2002:a05:6902:18c1:b0:e39:8b94:16e6 with SMTP id 3f1490d57ef6-e538c3a2eb7mr19599866276.39.1735411794393;
-        Sat, 28 Dec 2024 10:49:54 -0800 (PST)
+        d=1e100.net; s=20230601; t=1735411798; x=1736016598;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZyD/SfnxslLrliyoyVIe5C8rt51G8jW8D1jt5/B6HkA=;
+        b=Dd2x5+K8Pu6ZZey/PWpDB9f3qJDHRkQnMxNBpNj8SrJ6LoEscz4riCUC3tmJ1nsGbQ
+         hds5td8yohCOaoSxuFY4+VSPl8C3N0r2hw5g/lHBRYt7WG9T2Nd0GZRdXgxegI3NTsP6
+         qQrR92uVGaBgY2L63IDIZoBwPwJOoIVJQF+ejPR0jA+4DqbQgc3Vk5vtmYf3G+xdQNMh
+         bu+JJghXlZCIRtmDCzOhBXK0ZCwIYsI8agiqZBH7hJZBcw1PBdAMnuFZjdl9fKgp4C/l
+         PwACftScYxJOdX6g6q5XhZ5CrmMnUrgEaMt2T8hJ3+tgNSzZOdcYjO6k4kreJu+V1BB5
+         XUTg==
+X-Forwarded-Encrypted: i=1; AJvYcCWC5ISvEV4f+aDtsINcQlncsJehLZbozG55it1Y27BkoILtsjVUH9htNr1ettRkBIOjM4kk3XeLH1TW1aSrZQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxNeAAcMSY/kHFaWPy1p+VyUMBhj6PPWAGiNnIGEv8sznb0YLgX
+	Rg38KxICuJTt6w1klVq8XaqiquCgu/cGHtQ7PX+jKG1Qe3/7vVk6
+X-Gm-Gg: ASbGnct18F1iO/LkUwVF00Yuz2D8wSZw2v/b7yYFyM69tipHUPXVNoHuoTpRzvVuJgR
+	nAmwDuTe0rC6+I+mrMBSZD5zu4Y4vWbdBO7RTsNBqxfBHFpQf820QUOmi42QR7pYCCpWSYgthQ1
+	Uc0kbjSMWLxd6PmMVLW8xkUvlwzxBQVZ6i2mcUbqZD8DwqduoxRipcdaRy4mkYcybJDQ1M1aK63
+	iqo2qOZlQPpQXc21UaytQ0RYpr8Arn4TuzBt3/ZO/nZ1wXfv5tKWJ4EkY8PJ9yZfl1ayg607d2g
+	R2x4Ro1J7shyavKo
+X-Google-Smtp-Source: AGHT+IGiqvJf1RliBJCBp61gtA5mmGJsJtIiqDmDHZDVegn/DpktFuOcGR3eHMQYzJgC1Tq1ntdg3A==
+X-Received: by 2002:a05:690c:6c08:b0:6ef:4a57:fc7c with SMTP id 00721157ae682-6f3f8115430mr229828487b3.16.1735411797858;
+        Sat, 28 Dec 2024 10:49:57 -0800 (PST)
 Received: from localhost (c-24-129-28-254.hsd1.fl.comcast.net. [24.129.28.254])
-        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e537cbedbe7sm5061343276.4.2024.12.28.10.49.51
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-6f3e77ed1fdsm48567247b3.84.2024.12.28.10.49.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Dec 2024 10:49:53 -0800 (PST)
+        Sat, 28 Dec 2024 10:49:57 -0800 (PST)
 From: Yury Norov <yury.norov@gmail.com>
 To: linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org,
-	linux-hyperv@vger.kernel.org,
-	linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linux-crypto@vger.kernel.org,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Haren Myneni <haren@linux.ibm.com>,
-	Rick Lindsley <ricklind@linux.ibm.com>,
-	Nick Child <nnac123@linux.ibm.com>,
-	Thomas Falcon <tlfalcon@linux.ibm.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Keith Busch <kbusch@kernel.org>,
-	Jens Axboe <axboe@kernel.dk>,
-	Christoph Hellwig <hch@lst.de>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Dexuan Cui <decui@microsoft.com>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	=?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-	Rob Herring <robh@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	James Smart <james.smart@broadcom.com>,
-	Dick Kennedy <dick.kennedy@broadcom.com>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Yury Norov <yury.norov@gmail.com>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Matt Wu <wuqiang.matt@bytedance.com>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Daniel Jordan <daniel.m.jordan@oracle.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Greg Kurz <groug@kaod.org>,
-	Peter Xu <peterx@redhat.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>
-Subject: [PATCH 00/14] cpumask: cleanup cpumask_next_wrap() implementation and usage
-Date: Sat, 28 Dec 2024 10:49:32 -0800
-Message-ID: <20241228184949.31582-1-yury.norov@gmail.com>
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Yury Norov <yury.norov@gmail.com>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: [PATCH 02/14] virtio_net: simplify virtnet_set_affinity()
+Date: Sat, 28 Dec 2024 10:49:34 -0800
+Message-ID: <20241228184949.31582-3-yury.norov@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20241228184949.31582-1-yury.norov@gmail.com>
+References: <20241228184949.31582-1-yury.norov@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -127,68 +85,74 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-cpumask_next_wrap() is overly complicated, comparing to it's generic
-version find_next_bit_wrap(), not mentioning it duplicates the above.
-It roots to the times when the function was used in the implementation
-of for_each_cpu_wrap() iterator. The function has 2 additional parameters
-that were used to catch loop termination condition for the iterator.
-(Although, only one is needed.)
+The inner loop may be replaced with the dedicated for_each_online_cpu_wrap.
+It helps to avoid setting the same bits in the @mask more than once, in
+case of group_size is greater than number of online CPUs.
 
-Since 4fe49b3b97c262 ("lib/bitmap: introduce for_each_set_bit_wrap()
-macro"), for_each_cpu_wrap() is wired to corresponding generic
-wrapping bitmap iterator, and additional complexity of
-cpumask_next_wrap() is not needed anymore.
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
+---
+ drivers/net/virtio_net.c | 12 +++++++-----
+ include/linux/cpumask.h  |  4 ++++
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-All existing users call cpumask_next_wrap() in a manner that makes
-it possible to turn it to a straight and simple alias to
-find_next_bit_wrap().
-
-This series replaces historical 4-parameter cpumask_next_wrap() with a
-thin 2-parameter wrapper around find_next_bit_wrap().
-
-Where it's possible to use for_each_cpu_wrap() iterator, the code is
-switched to use it because it's always preferable to use iterators over
-open loops.
-
-This series touches various scattered subsystems and To-list for the
-whole series is quite a long. To minimize noise, I send cover-letter and
-key patches #5 and 6 to every person involved. All other patches are sent
-individually to those pointed by scripts/get_maintainers.pl.
-
-I'd like to move the series with my bitmap-for-next branch as a whole.
-
-Yury Norov (14):
-  objpool: rework objpool_pop()
-  virtio_net: simplify virtnet_set_affinity()
-  ibmvnic: simplify ibmvnic_set_queue_affinity()
-  powerpc/xmon: simplify xmon_batch_next_cpu()
-  cpumask: deprecate cpumask_next_wrap()
-  cpumask: re-introduce cpumask_next_wrap()
-  cpumask: use cpumask_next_wrap() where appropriate
-  padata: switch padata_find_next() to using cpumask_next_wrap()
-  s390: switch stop_machine_yield() to using cpumask_next_wrap()
-  nvme-tcp: switch nvme_tcp_set_queue_io_cpu() to using
-    cpumask_next_wrap()
-  scsi: lpfc: switch lpfc_irq_rebalance() to using cpumask_next_wrap()
-  scsi: lpfc: rework lpfc_next_{online,present}_cpu()
-  PCI: hv: switch hv_compose_multi_msi_req_get_cpu() to using
-    cpumask_next_wrap()
-  cpumask: drop cpumask_next_wrap_old()
-
- arch/powerpc/xmon/xmon.c            |  6 +---
- arch/s390/kernel/processor.c        |  2 +-
- drivers/net/ethernet/ibm/ibmvnic.c  | 17 +++++-----
- drivers/net/virtio_net.c            | 12 +++++---
- drivers/nvme/host/tcp.c             |  2 +-
- drivers/pci/controller/pci-hyperv.c |  3 +-
- drivers/scsi/lpfc/lpfc.h            | 23 +++-----------
- drivers/scsi/lpfc/lpfc_init.c       |  2 +-
- include/linux/cpumask.h             | 48 ++++++++++++++++-------------
- include/linux/objpool.h             |  7 ++---
- kernel/padata.c                     |  2 +-
- lib/cpumask.c                       | 37 ++--------------------
- 12 files changed, 60 insertions(+), 101 deletions(-)
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7646ddd9bef7..5e266486de1f 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3826,7 +3826,7 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
+ 	cpumask_var_t mask;
+ 	int stragglers;
+ 	int group_size;
+-	int i, j, cpu;
++	int i, start = 0, cpu;
+ 	int num_cpu;
+ 	int stride;
+ 
+@@ -3840,16 +3840,18 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
+ 	stragglers = num_cpu >= vi->curr_queue_pairs ?
+ 			num_cpu % vi->curr_queue_pairs :
+ 			0;
+-	cpu = cpumask_first(cpu_online_mask);
+ 
+ 	for (i = 0; i < vi->curr_queue_pairs; i++) {
+ 		group_size = stride + (i < stragglers ? 1 : 0);
+ 
+-		for (j = 0; j < group_size; j++) {
++		for_each_online_cpu_wrap(cpu, start) {
++			if (!group_size--)
++				break;
+ 			cpumask_set_cpu(cpu, mask);
+-			cpu = cpumask_next_wrap(cpu, cpu_online_mask,
+-						nr_cpu_ids, false);
+ 		}
++
++		start = cpu < nr_cpu_ids ? cpu + 1 : start;
++
+ 		virtqueue_set_affinity(vi->rq[i].vq, mask);
+ 		virtqueue_set_affinity(vi->sq[i].vq, mask);
+ 		__netif_set_xps_queue(vi->dev, cpumask_bits(mask), i, XPS_CPUS);
+diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
+index 5cf69a110c1c..30042351f15f 100644
+--- a/include/linux/cpumask.h
++++ b/include/linux/cpumask.h
+@@ -1036,6 +1036,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
+ 
+ #define for_each_possible_cpu_wrap(cpu, start)	\
+ 	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
++#define for_each_online_cpu_wrap(cpu, start)	\
++	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
+ #else
+ #define for_each_possible_cpu(cpu) for_each_cpu((cpu), cpu_possible_mask)
+ #define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
+@@ -1044,6 +1046,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
+ 
+ #define for_each_possible_cpu_wrap(cpu, start)	\
+ 	for_each_cpu_wrap((cpu), cpu_possible_mask, (start))
++#define for_each_online_cpu_wrap(cpu, start)	\
++	for_each_cpu_wrap((cpu), cpu_online_mask, (start))
+ #endif
+ 
+ /* Wrappers for arch boot code to manipulate normally-constant masks */
 -- 
 2.43.0
 
