@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EE7A15E8B;
-	Mon, 30 Dec 2024 15:50:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 538E82AE68;
+	Mon, 30 Dec 2024 15:57:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735573841; cv=none; b=sSSefrtTxQPGj22jxzcijtz4oD89kkuTVnUtVc2sRYiiIwrBAzptQcZVtapk+NEvB7D2eUkRCtqBKMpO6PDOtUyiBuox/apyRGbN/CBP6WK4gKAw5dyXItu1z/izfHxInS+0CzAodrd4goXlbkLerkKVhhoSG7h53b3THFkU0lE=
+	t=1735574233; cv=none; b=J9f0VebktPRbHzBHROmIom0KFk2/8mGsP1u+LTmZ8aIDWuGNZ56CLsMGRnc/DypJkS7ugE+c3tJhUmIlCkfJQM80TP+CpSecuWHNSqdmN8TuA+BkSmKkXU0UioAgtyuLELDOmhvsdai/aBwNGp4b63WbjPnP7hHMypwCjmqoWe4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735573841; c=relaxed/simple;
-	bh=BVnUKsU20NhoQin4Fxh0ljKC0RMutULU2bo7fC8c4v0=;
+	s=arc-20240116; t=1735574233; c=relaxed/simple;
+	bh=WIuqn3hKiia+3FQQRFC4h6nBs6kLoNQ63mFbJEC76eY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LSTrIVPgL4yh9yFsukpzJoDVpIijJuP73ZNOQYzSB1wOYU1R1IuP1PRNypFArZTg4DZxHa3Vt7ZiH8xxgUQkGa+QZ6Rme7Shp8ki2PHso2tnwtauf0g+hSrBn0HUQaZhqlvh4n6urmLSzMnptjKvLZxlVGOvzi/aTuVloN/Ldk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=ALSRnwQn; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=EN2mV3sikJxo85z+QfYawwt6qRc/YS7XwFwBFlHsWLDQKEGxEVu5n3vHbd4o2iEIfvSkMycVjtghDcydCnxpJIL2Y6SwoWzeCep5Pnr4ugTeE7uqDWBw6U/0bs637IDxiKdjZEVUqQh8Wf1HCU2aUK3Er6hEk+YxnSAZb2bYPoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=TQwjTLnW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="ALSRnwQn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E328AC4CED0;
-	Mon, 30 Dec 2024 15:50:40 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="TQwjTLnW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6213AC4CED0;
+	Mon, 30 Dec 2024 15:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1735573841;
-	bh=BVnUKsU20NhoQin4Fxh0ljKC0RMutULU2bo7fC8c4v0=;
+	s=korg; t=1735574232;
+	bh=WIuqn3hKiia+3FQQRFC4h6nBs6kLoNQ63mFbJEC76eY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ALSRnwQnNkb2atQ4aki4+vFhhbxq06GBFiGSXVdroXOTJRdAPlgeLPg6CBCrL8Wv3
-	 xD7APxu+wdBNWq2YU63rhDzb2jdIctkVlIWcgkB1HV+t8oH1QepQ420cpU3QBm9nCb
-	 kgsgGlNW3xXojNhTmL0ouFUeSIx//SOVD+EPhcSg=
+	b=TQwjTLnWbY+RQUrvqaHnOAj7MzgdyNWu3GdmphMahp6jdmur2uX3JVuK7uj3kO9tP
+	 JDRwXBHNJXyFzKzLyi1tcuf/+ReX56LFIRjNXXGKdtE+q+0B3NTtLHrDixezmuvW3d
+	 I+5eZDZzeYZogle6WBnrskeT2xIlzM+bVDtZoBpo=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Ming Lei <ming.lei@redhat.com>,
 	Jens Axboe <axboe@kernel.dk>,
 	Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.6 49/86] virtio-blk: dont keep queue frozen during system suspend
-Date: Mon, 30 Dec 2024 16:42:57 +0100
-Message-ID: <20241230154213.588811782@linuxfoundation.org>
+Subject: [PATCH 6.12 075/114] virtio-blk: dont keep queue frozen during system suspend
+Date: Mon, 30 Dec 2024 16:43:12 +0100
+Message-ID: <20241230154220.983328908@linuxfoundation.org>
 X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20241230154211.711515682@linuxfoundation.org>
-References: <20241230154211.711515682@linuxfoundation.org>
+In-Reply-To: <20241230154218.044787220@linuxfoundation.org>
+References: <20241230154218.044787220@linuxfoundation.org>
 User-Agent: quilt/0.68
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -53,7 +53,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-6.6-stable review patch.  If anyone has any objections, please let me know.
+6.12-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -94,10 +94,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 997106fe73e4..65a1f1576e55 100644
+index 43c96b73a711..0e50b65e1dbf 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -1624,9 +1624,12 @@ static void virtblk_remove(struct virtio_device *vdev)
+@@ -1587,9 +1587,12 @@ static void virtblk_remove(struct virtio_device *vdev)
  static int virtblk_freeze(struct virtio_device *vdev)
  {
  	struct virtio_blk *vblk = vdev->priv;
@@ -111,7 +111,7 @@ index 997106fe73e4..65a1f1576e55 100644
  
  	/* Ensure we don't receive any more interrupts */
  	virtio_reset_device(vdev);
-@@ -1650,8 +1653,8 @@ static int virtblk_restore(struct virtio_device *vdev)
+@@ -1613,8 +1616,8 @@ static int virtblk_restore(struct virtio_device *vdev)
  		return ret;
  
  	virtio_device_ready(vdev);
