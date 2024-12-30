@@ -1,33 +1,31 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9B292744D;
-	Sat, 28 Dec 2024 19:28:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FDF7155345
+	for <virtualization@lists.linux.dev>; Mon, 30 Dec 2024 07:47:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735414095; cv=none; b=rlzgu8HbAchGabDdIFuHwiZQkGSnZkCBRrhGPXLPxHdvZcq0BPP7W84sLypjHwf50MTsWV+PFeU6TRme82LJV3dW1tjpUOwtkJ4GHmHkCTJJRZhlvw02pb/M/u3mJgYzRFJORJnK6pfGpOA9/wyC9+INFqcyvCO+2sjKE5gH7Mo=
+	t=1735544856; cv=none; b=fWAsZVXfqH0F4Vj2HAPvcw8257sXEzzclrA3xhYl61XsauBGRKpaKQbFY96AotJu519AL9JZqqs3493KOGoRXoxk95cjkyrx6S0nxOfR+ojx9Negtyu5S82+mNAuoPAU45dsYkEDW8PB0knTqmKSAOZrl92WsiJ+R2tEtQUYh1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735414095; c=relaxed/simple;
-	bh=VSUk2RevzgoLpoKkPtxfiydxyc1+Qk/NEc9zjGax7Xk=;
+	s=arc-20240116; t=1735544856; c=relaxed/simple;
+	bh=S4wyVh8bgI+5iwQAypm2B1A1qlCaf8xm+WuEjqqB14w=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P9ZvzaK5I8aGnSHHzO8l78JQx4uBNWFk5xBa/txVpHLhrd6dggDdP3PWcpk4y3pk9YnAumcp5D8fcLaar4bKtT/oNwqsbWUAB96mWmUGyDlQnwVlNannDb9eX0c6nmfjRBNPUTKrAiWRbkbawjrZBUYJZBST9p2bCSAu6EcDm3k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p97DZ0Nx; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=RGGjnjPYEZ3lfs/ThDY5mM94qm8LVxU9AgeEHntPDS3SivN0cx8UVRJItUkNWtxRpiRAUevlQd41F9lqIXdDPV/4BeA/7RE/jey+tGaJXQRg3y8gZGXRZzU1lTzPzZ1pQOTuy9QUTC84JMBmEkDyuJIcJbD5mCT2cB07zWHJyLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yeNLXiNM; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p97DZ0Nx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5591C4CECD;
-	Sat, 28 Dec 2024 19:28:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1735414095;
-	bh=VSUk2RevzgoLpoKkPtxfiydxyc1+Qk/NEc9zjGax7Xk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=p97DZ0NxPjGkbuXixh57qRqbuQKgJZPDSIGYm/BKzAvRZnVo5XPlJeD7IlSZPK28N
-	 MWU+h4Bf8EnSUeV7GmbAfRmCkUYFI4NdO0FRojFFpZZCbPXEvqeZDcuo+M6V0PyThr
-	 rgQYj2aKj9bq49LOrMhNDyn7N6SULRxmi42Akcwb4h3BmP0I9TNb0JBo/az9tNlWDl
-	 DuCYfNJWALOAaSvw6Nl9/62rb9uSR01ECmkTKNp3py1oP937PV7gmWulCyF59Qnp7C
-	 ZrDPKZtHQvPinLaUX2u6zAEfj0PlMpCk3yGq5vodrFz3yE7NeQAX2eiv2HkTwhexae
-	 pEMyZr2EGOM1g==
-Message-ID: <6b2b5cf5-6988-4860-bda5-742dffce0db2@kernel.org>
-Date: Sat, 28 Dec 2024 13:28:11 -0600
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yeNLXiNM"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1735544850; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=Q89ZrFao1DqP4ZXjkltYWF7Oqwsz2Y8oiw0M0MX52R4=;
+	b=yeNLXiNMtamFGwcDpgEs2XBUJdNcTDFdiLNL4rHTmG14c8QJaJxihggGOWKPmbqzd3x+I9sDEQl/P+HIKS/ouNaQvdHjuXqj5d9GrUTx2kJMCDe9MgmbVrquzSPE901d9EXR4uvOYQh3qU5dT2KX8QQKCEjmEvZL5RBu5eUn+vo=
+Received: from 30.221.129.25(mailfrom:joseph.qi@linux.alibaba.com fp:SMTPD_---0WMU8xBE_1735544848 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 30 Dec 2024 15:47:29 +0800
+Message-ID: <9ac0d010-0592-4047-8e59-2db72dfe5111@linux.alibaba.com>
+Date: Mon, 30 Dec 2024 15:47:27 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,52 +33,228 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next v1 5/5] net: devmem: Implement TX path
-Content-Language: en-US
-To: Mina Almasry <almasrymina@google.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Donald Hunter <donald.hunter@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
- Kaiyuan Zhang <kaiyuanz@google.com>, Pavel Begunkov
- <asml.silence@gmail.com>, Willem de Bruijn <willemb@google.com>,
- Samiullah Khawaja <skhawaja@google.com>, Stanislav Fomichev
- <sdf@fomichev.me>, Joe Damato <jdamato@fastly.com>, dw@davidwei.uk
-References: <20241221004236.2629280-1-almasrymina@google.com>
- <20241221004236.2629280-6-almasrymina@google.com>
-From: David Ahern <dsahern@kernel.org>
-In-Reply-To: <20241221004236.2629280-6-almasrymina@google.com>
+Subject: Re: [PATCH v1 1/3] virtio-blk: add virtio-blk chardev support.
+To: Ferry Meng <mengferry@linux.alibaba.com>
+Cc: linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
+ Stefan Hajnoczi <stefanha@redhat.com>, Christoph Hellwig
+ <hch@infradead.org>, Jeffle Xu <jefflexu@linux.alibaba.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ linux-block <linux-block@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ virtualization@lists.linux.dev
+References: <20241218092435.21671-1-mengferry@linux.alibaba.com>
+ <20241218092435.21671-2-mengferry@linux.alibaba.com>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
+In-Reply-To: <20241218092435.21671-2-mengferry@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 12/20/24 5:42 PM, Mina Almasry wrote:
-> diff --git a/include/uapi/linux/uio.h b/include/uapi/linux/uio.h
-> index 649739e0c404..41490cde95ad 100644
-> --- a/include/uapi/linux/uio.h
-> +++ b/include/uapi/linux/uio.h
-> @@ -38,6 +38,11 @@ struct dmabuf_token {
->  	__u32 token_count;
+
+
+On 2024/12/18 17:24, Ferry Meng wrote:
+> Introduce character interfaces for block device (per-device), facilitating
+> access to block devices through io_uring I/O passsthrough.
+> 
+> Besides, vblk initialize only use kmalloc with GFP_KERNEL flag, but for
+> char device support, we should ensure cdev kobj must be zero before
+> initialize. So better initial this struct with __GFP_ZERO flag.
+> 
+> Now the character devices only named as
+> 
+> 	- /dev/vdXc0
+> 
+> Currently, only one character interface is created for one actual
+> virtblk device, although it has been partitioned.
+> 
+> Signed-off-by: Ferry Meng <mengferry@linux.alibaba.com>
+> ---
+>  drivers/block/virtio_blk.c | 84 +++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 83 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 194417abc105..3487aaa67514 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/numa.h>
+>  #include <linux/vmalloc.h>
+>  #include <uapi/linux/virtio_ring.h>
+> +#include <linux/cdev.h>
+>  
+>  #define PART_BITS 4
+>  #define VQ_NAME_LEN 16
+> @@ -25,6 +26,8 @@
+>  /* The maximum number of sg elements that fit into a virtqueue */
+>  #define VIRTIO_BLK_MAX_SG_ELEMS 32768
+>  
+> +#define VIRTBLK_MINORS		(1U << MINORBITS)
+> +
+>  #ifdef CONFIG_ARCH_NO_SG_CHAIN
+>  #define VIRTIO_BLK_INLINE_SG_CNT	0
+>  #else
+> @@ -45,6 +48,10 @@ MODULE_PARM_DESC(poll_queues, "The number of dedicated virtqueues for polling I/
+>  static int major;
+>  static DEFINE_IDA(vd_index_ida);
+>  
+> +static DEFINE_IDA(vd_chr_minor_ida);
+> +static dev_t vd_chr_devt;
+> +static struct class *vd_chr_class;
+> +
+>  static struct workqueue_struct *virtblk_wq;
+>  
+>  struct virtio_blk_vq {
+> @@ -84,6 +91,10 @@ struct virtio_blk {
+>  
+>  	/* For zoned device */
+>  	unsigned int zone_sectors;
+> +
+> +	/* For passthrough cmd */
+> +	struct cdev cdev;
+> +	struct device cdev_device;
 >  };
 >  
-> +struct dmabuf_tx_cmsg {
-> +	__u32 dmabuf_id;
+>  struct virtblk_req {
+> @@ -1239,6 +1250,55 @@ static const struct blk_mq_ops virtio_mq_ops = {
+>  	.poll		= virtblk_poll,
+>  };
+>  
+> +static void virtblk_cdev_rel(struct device *dev)
+> +{
+> +	ida_free(&vd_chr_minor_ida, MINOR(dev->devt));
+> +}
+> +
+> +static void virtblk_cdev_del(struct cdev *cdev, struct device *cdev_device)
+> +{
+> +	cdev_device_del(cdev, cdev_device);
+> +	put_device(cdev_device);
+> +}
+> +
+> +static int virtblk_cdev_add(struct virtio_blk *vblk,
+> +		const struct file_operations *fops)
+> +{
+> +	struct cdev *cdev = &vblk->cdev;
+> +	struct device *cdev_device = &vblk->cdev_device;
+> +	int minor, ret;
+> +
+> +	minor = ida_alloc(&vd_chr_minor_ida, GFP_KERNEL);
+> +	if (minor < 0)
+> +		return minor;
+> +
+> +	cdev_device->parent = &vblk->vdev->dev;
+> +	cdev_device->devt = MKDEV(MAJOR(vd_chr_devt), minor);
+> +	cdev_device->class = vd_chr_class;
+> +	cdev_device->release = virtblk_cdev_rel;
+> +	device_initialize(cdev_device);
+> +
+> +	ret = dev_set_name(cdev_device, "%sc0", vblk->disk->disk_name);
+> +	if (ret)
+> +		goto err;
+> +
+> +	cdev_init(cdev, fops);
+> +	ret = cdev_device_add(cdev, cdev_device);
+> +	if (ret) {
+> +		put_device(cdev_device);
+> +		goto err;
 
-I believe you need to make sure the u64 is properly aligned:
+put_device() will call cdev_device->release() to free vd_chr_minor_ida.
 
-	__u32 unused;  // and verify it is set to 0
-
-> +	__u64 dmabuf_offset;
+> +	}
+> +	return ret;
+> +
+> +err:
+> +	ida_free(&vd_chr_minor_ida, minor);
+> +	return ret;
+> +}
+> +
+> +static const struct file_operations virtblk_chr_fops = {
+> +	.owner		= THIS_MODULE,
 > +};
 > +
->  /*
->   *	UIO_MAXIOV shall be at least 16 1003.1g (5.4.1.1)
->   */
+>  static unsigned int virtblk_queue_depth;
+>  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
+>  
+> @@ -1456,7 +1516,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  		goto out;
+>  	index = err;
+>  
+> -	vdev->priv = vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
+> +	vdev->priv = vblk = kzalloc(sizeof(*vblk), GFP_KERNEL);
+>  	if (!vblk) {
+>  		err = -ENOMEM;
+>  		goto out_free_index;
+> @@ -1544,6 +1604,10 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	if (err)
+>  		goto out_cleanup_disk;
+>  
+> +	err = virtblk_cdev_add(vblk, &virtblk_chr_fops);
+> +	if (err)
+> +		goto out_cleanup_disk;
+
+Missing remove the added disk before.
+
+> +
+>  	return 0;
+>  
+>  out_cleanup_disk:
+> @@ -1568,6 +1632,8 @@ static void virtblk_remove(struct virtio_device *vdev)
+>  	/* Make sure no work handler is accessing the device. */
+>  	flush_work(&vblk->config_work);
+>  
+> +	virtblk_cdev_del(&vblk->cdev, &vblk->cdev_device);
+> +
+>  	del_gendisk(vblk->disk);
+>  	blk_mq_free_tag_set(&vblk->tag_set);
+>  
+> @@ -1674,13 +1740,27 @@ static int __init virtio_blk_init(void)
+>  		goto out_destroy_workqueue;
+>  	}
+>  
+> +	error = alloc_chrdev_region(&vd_chr_devt, 0, VIRTBLK_MINORS,
+> +				"vblk-generic");
+> +	if (error < 0)
+> +		goto unregister_chrdev;
+
+Should unregister blkdev.
+
+> +
+> +	vd_chr_class = class_create("vblk-generic");
+> +	if (IS_ERR(vd_chr_class)) {
+> +		error = PTR_ERR(vd_chr_class);
+> +		goto unregister_chrdev;
+> +	}
+> +
+>  	error = register_virtio_driver(&virtio_blk);
+>  	if (error)
+>  		goto out_unregister_blkdev;
+
+You've missed destroying vd_chr_class.
+
+> +
+>  	return 0;
+>  
+>  out_unregister_blkdev:
+>  	unregister_blkdev(major, "virtblk");
+> +unregister_chrdev:
+> +	unregister_chrdev_region(vd_chr_devt, VIRTBLK_MINORS);
+
+The out labels should be re-ordered, e.g. move this up.
+
+>  out_destroy_workqueue:
+>  	destroy_workqueue(virtblk_wq);
+>  	return error;
+> @@ -1690,7 +1770,9 @@ static void __exit virtio_blk_fini(void)
+>  {
+>  	unregister_virtio_driver(&virtio_blk);
+>  	unregister_blkdev(major, "virtblk");
+
+Also missed destroying vd_chr_class.
+
+Thanks,
+Joseph
+
+> +	unregister_chrdev_region(vd_chr_devt, VIRTBLK_MINORS);
+>  	destroy_workqueue(virtblk_wq);
+> +	ida_destroy(&vd_chr_minor_ida);
+>  }
+>  module_init(virtio_blk_init);
+>  module_exit(virtio_blk_fini);
 
