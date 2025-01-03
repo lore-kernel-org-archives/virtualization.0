@@ -1,152 +1,100 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118E51CD1F6
-	for <virtualization@lists.linux.dev>; Fri,  3 Jan 2025 08:35:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 367181D4610;
+	Fri,  3 Jan 2025 09:09:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735893341; cv=none; b=i1xucbt+zTvU6N3srxTXxawWOMlHuWAozT0vFvrGHfZKxrCT9lmQxKpJzFO1aypQ9Rt+Pe5x+mGnAVgSM5xVKz4NQdRzBooWDuCqrzHRmCHLZlVE1kj09SgEBqwmP90PqjTesSWmTKitBtka9SuW7ABbbS8MvM4ypvAi/GmA9gE=
+	t=1735895360; cv=none; b=UlWDeMzUrG8ROmARTx0gHq7HHy/Y12zRAxFcv4x8QQmeNpVppcIqsOQXP0BnKVEKWjDZeTmTx930ruS6N2zNM48HH6BJfIXq9VqxoDtLq0qSesCP7AMiwFu7DzZwGZKnM0s1LMFrL+0XUUS+DYA6qvyg38cOmcEmEmJDhVgepBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735893341; c=relaxed/simple;
-	bh=m6o9aISv6L3EEBwD7nPuVZXQzsoBVQIjPOkdAPOO2+Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VM1hcgAVbju+pECKLTODqWQEqPEM5b6/teYjBH/nIdEzeeMsyAWNfgH/94v/2O3RnHFYuH7uJLJzS0TiAwIaoplglrTsaZCvEMwfYnjtxYV4Ix4RbGrfgFu5wCf86ASLCeJ7Dac/VCU+FyfRomTV9KKxb6PeDpvFHlQR4/HnKDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HYdxkNUR; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1735895360; c=relaxed/simple;
+	bh=EV+hiXpMnVwPGQUO7JrQyTZCFrVUBDW19vmgMtQRWGg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iyG5dDRmR1dCRCqvAwVGpvgCWVw5yh835bv0ahlbnUg7sfLTICHQ4hk/MozQhXJ9wDJu4SuLVI+NEf9d857GWUaAw1urT7cA/WrlhNFSSVhd163kZce/jja02DmIHqa8DUH6ARROxTviKC0EyOS3pgsrkw4Uze+JYfjRTpLaKsk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eOPpH7Z1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HYdxkNUR"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2f45526dea0so2254836a91.1
-        for <virtualization@lists.linux.dev>; Fri, 03 Jan 2025 00:35:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735893339; x=1736498139; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=0mNSE5l1moO/1n7caacSdxfwOs3Hhsbfh6K+K68U36Y=;
-        b=HYdxkNURW+zwO6aSceLmx7xKqWXxgse0dFvxxD3haPGjAvhhBEbMfD+UXHnq60A9tj
-         1lobb+r8yw+LIoDXa8720Y+KfpkMAgz/oTvK8ZVcZSehLR76jbLABDHKlggBUJEezYMl
-         0n3OmdDM4CJ7BnU44eILei/SQ8H0+iRKIqTgxLVjk8we3fRTg26VybYVxIkzFvTaGwiE
-         zZQgzcca7BHHteYUpJgUZJu5IGE68QRYgy6xFkqPlnCwYevmEARXzRlOO7yG7Q6uX0mt
-         pqQKkZN+vzf+nPDRy+cU0HSKoNd+AEz1oS/fRFZ69qQNDdmeYKj7nPP9fem34baXfpV0
-         PVOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735893339; x=1736498139;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0mNSE5l1moO/1n7caacSdxfwOs3Hhsbfh6K+K68U36Y=;
-        b=YMkKsXi9V0TEIwjLXXhuKZRpxo/tkg9JfH/iF08NMFgfZNdMVnce8WuTY24r00wn8X
-         vH+T1TJGBbgpF6yq7Jh9uN2oN4txT5vRMQN9FDnWwULOqbl3ko5pkgplKrEzS2zTU8B6
-         EnkDqC3TCvrjC3anzwguCgVOIbHkxzIyXbpyJb5bimZoSYNRfTQtUESq4NbM//Acg1bZ
-         pqNj0DAhLpGr2B2VIMcZ7aC29i/fJirxHvIA4sE1ok+bJEKAa3VsQXsUQvyWfaS+LQt9
-         mrMnHVGnbvVTUK4UO8YznxrzZ1vx6IynSMWR2JW5aR14UAd5KE3ROhPaNKb8E5MjazlP
-         v9sA==
-X-Forwarded-Encrypted: i=1; AJvYcCVk6tLhLQsa/Z8VTJD3rlZ7xdAu5VBiCPgXd36E/vX9T8AjE+SRk71btfyscX5Z6/RaAXbFFVxmyRWc7c6Dtg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzpZ8+AMhqU8nr0CDgUSip8k1Kb6ui1VF16w/4GS01DaHi0rMNP
-	p56mQ3r7pOWLpZfzzrun4v2ZB0s6mBbqmsWDhvwYFP0RrExUKvqj
-X-Gm-Gg: ASbGncthin9SKlFTmwDp5gtgLiFxUGTjhkGmBi82r6/zWc5eHfwOw3SPS3ZICS4DeBl
-	epVINVgbNbOurW+12Fj0CrDJgQj+OUfzKi0Ckx2gDUQHOriwQY7FDuxiSxIFkW/kaKdbgQuPxgv
-	Xiao8EuWzfic7gV2QBH0nRcJ1JkaauJVrni1fn0EhYSkRN8ayXaY7BO5gGZUe+XbwvlsNzG9onx
-	c+8wlNYsP9y0nu/1JDLb71z8tJq1sL/sz/srEkebmxkLGbvtOyd4pK7p6HoPQmsRouWhw==
-X-Google-Smtp-Source: AGHT+IHRV/PrvU4It40AKrowU5SGQvvYdkKFhMC4R60rhuMGOLgJUiRFHyCQsx08hnHqoCcTPaqexQ==
-X-Received: by 2002:a05:6a00:6f4b:b0:726:380a:282f with SMTP id d2e1a72fcca58-72abdd3c245mr27376891b3a.2.1735893339150;
-        Fri, 03 Jan 2025 00:35:39 -0800 (PST)
-Received: from localhost.localdomain ([45.78.50.120])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72aad836d22sm25727340b3a.77.2025.01.03.00.35.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jan 2025 00:35:38 -0800 (PST)
-From: hlleng <a909204013@gmail.com>
-To: info@metux.net,
-	vireshk@kernel.org,
-	linux-gpio@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: hlleng <a909204013@gmail.com>
-Subject: [PATCH] drivers:gpio: support multiple virtio-gpio controller instances
-Date: Fri,  3 Jan 2025 16:35:20 +0800
-Message-ID: <20250103083520.1764441-1-a909204013@gmail.com>
-X-Mailer: git-send-email 2.45.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eOPpH7Z1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27344C4CECE;
+	Fri,  3 Jan 2025 09:09:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1735895359;
+	bh=EV+hiXpMnVwPGQUO7JrQyTZCFrVUBDW19vmgMtQRWGg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=eOPpH7Z1DWY+qC+ZswNYpEj1NogUVt18Le5PmNjKRycWQMWFCXz5ZLu/ps6JGuouv
+	 YSRXpSielIWAG4ix5MM9Ly/Bue7AivSVToUq8B4/BO/uVX4jr/jg4rg3eP+2SNDEUL
+	 44mc7IJ9OfPI5JQsikHpGMEibSRHvEs/rBPlE6w4zebF34+H49VhgEMNJjevnkXpJq
+	 sF6JIRKKHop6Iz5soaFjfVKtPAMAu5fFp6/IasYWTFyXhJZ30e4piw20lSDqRQdUJL
+	 zy3JPS0vSxCPQDWkerdOHwvXMT5v7NOsqhiTJW/U4huW6LtT4kQBvtn0daaSZ8Ix0R
+	 1x37gPSi3R4Kw==
+Date: Fri, 3 Jan 2025 10:09:14 +0100
+From: Niklas Cassel <cassel@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Oliver Sang <oliver.sang@intel.com>, oe-lkp@lists.linux.dev,
+	lkp@intel.com, linux-kernel@vger.kernel.org,
+	Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	Damien Le Moal <dlemoal@kernel.org>, linux-btrfs@vger.kernel.org,
+	linux-aio@kvack.org
+Subject: Re: [linus:master] [block]  e70c301fae: stress-ng.aiol.ops_per_sec
+ 49.6% regression
+Message-ID: <Z3epOlVGDBqj72xC@ryzen>
+References: <202412122112.ca47bcec-lkp@intel.com>
+ <20241213143224.GA16111@lst.de>
+ <20241217045527.GA16091@lst.de>
+ <Z2EgW8/WNfzZ28mn@xsang-OptiPlex-9020>
+ <20241217065614.GA19113@lst.de>
+ <Z3ZhNYHKZPMpv8Cz@ryzen>
+ <20250103064925.GB27984@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250103064925.GB27984@lst.de>
 
-Modify the virtio-gpio driver to support multiple virtual GPIO controller
-instances. The previous static global irq_chip structure caused conflicts
-between multiple virtio-gpio device instances as they shared the same
-interrupt controller configuration.
+On Fri, Jan 03, 2025 at 07:49:25AM +0100, Christoph Hellwig wrote:
+> On Thu, Jan 02, 2025 at 10:49:41AM +0100, Niklas Cassel wrote:
+> > > > from below information, it seems an 'ahci' to me. but since I have limited
+> > > > knowledge about storage driver, maybe I'm wrong. if you want more information,
+> > > > please let us know. thanks a lot!
+> > > 
+> > > Yes, this looks like ahci.  Thanks a lot!
+> > 
+> > Did this ever get resolved?
+> > 
+> > I haven't seen a patch that seems to address this.
+> > 
+> > AHCI (ata_scsi_queuecmd()) only issues a single command, so if there is any
+> > reordering when issuing a batch of commands, my guess is that the problem
+> > also affects SCSI / the problem is in upper layers above AHCI, i.e. SCSI lib
+> > or block layer.
+> 
+> I started looking into this before the holidays.  blktrace shows perfectly
+> sequential writes without any reordering using ahci, directly on the
+> block device or using xfs and btrfs when using dd.  I also started
+> looking into what the test does and got as far as checking out the
+> stress-ng source tree and looking at stress-aiol.c.  AFAICS the default
+> submission does simple reads and writes using increasing offsets.
+> So if the test result isn't a fluke either the aio code does some
+> weird reordering or btrfs does.
+> 
+> Oliver, did the test also show any interesting results on non-btrfs
+> setups?
+> 
 
-Fix this by:
-1. Remove the static global vgpio_irq_chip structure
-2. Dynamically allocate a dedicated irq_chip for each virtio-gpio instance
-3. Use device-specific names for each instance's irq_chip
+One thing that came to mind.
+Some distros (e.g. Fedora and openSUSE) ship with an udev rule that sets
+the I/O scheduler to BFQ for single-queue HDDs.
 
-Signed-off-by: hlleng <a909204013@gmail.com>
----
- drivers/gpio/gpio-virtio.c | 29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+It could very well be the I/O scheduler that reorders.
 
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-index 93544ff62513..ac39da17a29b 100644
---- a/drivers/gpio/gpio-virtio.c
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -350,19 +350,6 @@ static void virtio_gpio_irq_bus_sync_unlock(struct irq_data *d)
- 	mutex_unlock(&vgpio->irq_lock);
- }
- 
--static struct irq_chip vgpio_irq_chip = {
--	.name			= "virtio-gpio",
--	.irq_enable		= virtio_gpio_irq_enable,
--	.irq_disable		= virtio_gpio_irq_disable,
--	.irq_mask		= virtio_gpio_irq_mask,
--	.irq_unmask		= virtio_gpio_irq_unmask,
--	.irq_set_type		= virtio_gpio_irq_set_type,
--
--	/* These are required to implement irqchip for slow busses */
--	.irq_bus_lock		= virtio_gpio_irq_bus_lock,
--	.irq_bus_sync_unlock	= virtio_gpio_irq_bus_sync_unlock,
--};
--
- static bool ignore_irq(struct virtio_gpio *vgpio, int gpio,
- 		       struct vgpio_irq_line *irq_line)
- {
-@@ -542,6 +529,7 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 	struct virtio_gpio_config config;
- 	struct device *dev = &vdev->dev;
- 	struct virtio_gpio *vgpio;
-+	struct irq_chip *gpio_irq_chip;
- 	u32 gpio_names_size;
- 	u16 ngpio;
- 	int ret, i;
-@@ -591,13 +579,26 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 		if (!vgpio->irq_lines)
- 			return -ENOMEM;
- 
-+		gpio_irq_chip = devm_kzalloc(dev, sizeof(*gpio_irq_chip), GFP_KERNEL);
-+		if (!gpio_irq_chip)
-+			return -ENOMEM;
-+
-+		gpio_irq_chip->name = dev_name(dev);
-+		gpio_irq_chip->irq_enable = virtio_gpio_irq_enable;
-+		gpio_irq_chip->irq_disable = virtio_gpio_irq_disable;
-+		gpio_irq_chip->irq_mask = virtio_gpio_irq_mask;
-+		gpio_irq_chip->irq_unmask = virtio_gpio_irq_unmask;
-+		gpio_irq_chip->irq_set_type = virtio_gpio_irq_set_type;
-+		gpio_irq_chip->irq_bus_lock = virtio_gpio_irq_bus_lock;
-+		gpio_irq_chip->irq_bus_sync_unlock = virtio_gpio_irq_bus_sync_unlock;
-+
- 		/* The event comes from the outside so no parent handler */
- 		vgpio->gc.irq.parent_handler	= NULL;
- 		vgpio->gc.irq.num_parents	= 0;
- 		vgpio->gc.irq.parents		= NULL;
- 		vgpio->gc.irq.default_type	= IRQ_TYPE_NONE;
- 		vgpio->gc.irq.handler		= handle_level_irq;
--		vgpio->gc.irq.chip		= &vgpio_irq_chip;
-+		vgpio->gc.irq.chip		= gpio_irq_chip;
- 
- 		for (i = 0; i < ngpio; i++) {
- 			vgpio->irq_lines[i].type = VIRTIO_GPIO_IRQ_TYPE_NONE;
--- 
-2.45.1
+Oliver, which I/O scheduler are you using?
+$ cat /sys/block/sdb/queue/scheduler 
+none mq-deadline kyber [bfq]
 
+
+Kind regards,
+Niklas
