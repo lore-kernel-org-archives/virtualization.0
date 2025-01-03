@@ -1,134 +1,166 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC3C0D528;
-	Thu,  2 Jan 2025 16:21:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 334F5CA6F
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 Jan 2025 01:50:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735834877; cv=none; b=d7xhHgThMTuCD41yw3da8twAgi3JqitjUTk3ZCgHjFrdCr+JB2trXNPqgSRyRMnqzH/nYFYSOZSqYm5hWdozYKoy/0v87HE7MJzK9bf12qVKv123BZdqcR7Y/hN9KIYkJDUMdVhugsF+AWbctrKNDgMDNry3oTM6+ljnsDG4lx8=
+	t=1735869014; cv=none; b=U/4OAx8lp2t1cGQvAf3A5SKMk6AV257FPOfcic6MJF42R5h/YZRwqIud+X8Y11WCeztXu2OSE8on9blosgwtvAD3tBBeMGb54qoWiJGJKAYb12yJalvybtpjoPI3qTyrRc8gg0e5iNYfYIA5KnykbWYHvSu9mXRjFKubUA8ekwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735834877; c=relaxed/simple;
-	bh=dSJv3kAsx4e/jI21sZlJ4yX2VorXsrGLdIC+nkDYCUM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qF6/TKWxwkyCDllS65jMM3y6bMNg0K/ygv7R0OieZhets9GErbXdZhVjiiEVDZbLkb7wxnw5dWdKLe+wCy3FVMNHZboXm3u+jIJghz92Eo/TxXYCSWmaMHqz67PaIPsGubTrLd/4pUhsEJZf0/eQzuxnAM22lrLF42kcQHGuVHA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AOhBeuCs; arc=none smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1735869014; c=relaxed/simple;
+	bh=ugWlQcT2LvXutYN+EdP0XTdDZ2Af6oEJzyrnb6d7Lp8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ND4qgCY+BFy204/8QCkDvifXOneuEvZcQ28BPhxbzA01yjib9hvhqG25BqXdy68YNDTzGN6BIZhvp2xsTUofETiCjG4XcmOkDwxRof+MpbDKyOYT7XuRrKC6aHP0KKhj6SxIDISQ2maj1W0OEMHjdeG9FRnp1wEzp+P8WY2Zg+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CQWbpwId; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AOhBeuCs"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-385e0e224cbso5788135f8f.2;
-        Thu, 02 Jan 2025 08:21:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735834874; x=1736439674; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=EFwagoQckg1x48oSlTADI+AZ0xM8gKp36cMYG8nIBr0=;
-        b=AOhBeuCsxqO+uJcM04qJpH0yzMYZ98MgbjdW17peIITd819+RbhHUSPQfmx+KQKNf+
-         QnHttnLUX46xGWqqf3PnK62enI7TOr3fTNs97gk7oBbZwslRvjfvkvCyRf3RAi6m7Qh2
-         FZJ+bjDhBoGQw+VvRbUl2KKQ9M77a1KLFKlkOoAJMs6l14mO2u+jpPNp/0/mWP99w1UL
-         2/dWOjEilFpuMs0oqLnu2PihQ7zix2xm6ojLtd92vY/fwtxAU0OgtJoWNr272+eSAYD2
-         O6HLpZVLmZmneIn8fMZ0WNPP5Wg6/B5W/6X38L+zBc5qD3qWO9tMZThBrdqh+hNly6K1
-         QwbQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CQWbpwId"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id BB48E60643
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 Jan 2025 01:50:11 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id A0VS-tgNyWUW for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 Jan 2025 01:50:11 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org DB54E60614
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DB54E60614
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CQWbpwId
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DB54E60614
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 Jan 2025 01:50:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1735869009;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HcP2qJh46eUcVs5AZUyl+IUjPfN/SLun1H/+PvBG35E=;
+	b=CQWbpwId9QuzvuiWoL250W65J/GCS9BQ2EfQbR7p87nCEGOQLlR7SxPi4Zk6qO6ir5H5ia
+	BEQIEoYPzEiCy7gsE/S+FR2w9quzh8mtSnOUGSN+wcgU85KyaTQBZPqAp8rMDMZLxp3ifL
+	nzjVGZtiWDJLNGf9l2WdLc4Bqu/LpuE=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-645-0-M6RzwIOaaXHrTk1sKsdw-1; Thu, 02 Jan 2025 20:50:07 -0500
+X-MC-Unique: 0-M6RzwIOaaXHrTk1sKsdw-1
+X-Mimecast-MFC-AGG-ID: 0-M6RzwIOaaXHrTk1sKsdw
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5d88d37abd0so5223415a12.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 02 Jan 2025 17:50:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735834874; x=1736439674;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EFwagoQckg1x48oSlTADI+AZ0xM8gKp36cMYG8nIBr0=;
-        b=KRY2GX7SI1ljo26q8bpjAWbo13t7NCQPHvruY6t4cenYti0/qX76N3hLLlEUXoYYbR
-         PUXiIe6SDQOtEN+/Mz0VRksAKphr2IInRlSwwdnLCZavKjnFXdxQiJ8TD0HPtOePbc3+
-         R3fOFHjPcoOtoPf1DIXnTHoqV7KPrVadKj2NNA7hHsR1e66YGFd6Jd5mgeH9Z6wtMgUT
-         95t3gnHGP5piIhhJl1fzwxOdlTpm8peNBLa8pFN8dlu8D13Kyx5Uic1xsvWlMP2Nng2X
-         cSiN81S1RER3P9Y4HlU9dxP4qIIyUNIGre7EsuC9WOJ4CzYtfQpGXqKHgX6Y0yO+waBI
-         ZYMg==
-X-Forwarded-Encrypted: i=1; AJvYcCUYxkop7x3ljjWztg3e+jxGUFsBb0VaM8Fzv29LkGlFvgGVbq0r2W6SbilNYnuFSvQFW/PiV5rnyKhnF9EaHcQ=@lists.linux.dev, AJvYcCXNjbnqNKg3XdFET4orw4MDispfxWssndL+Rxhs59V+roSGoSHIvjdElEJpCXmc2R2SeZv4Xj2Gj4EO@lists.linux.dev
-X-Gm-Message-State: AOJu0YzDW/4c1M2FWCcpsrvU3fUGGoUJZ7ik2dTz8WYwB02tH7vE6ONC
-	Np1gWjydXcH8Mf2JKOf0zWs1A9lJtGcA9kMvaRbi5LqsrUk5Osq9
-X-Gm-Gg: ASbGncuZlPV37RKKdIG+U3iN4JlSxzgXFRds0jet1Iatue1Krl8xFRgT6KMGkxgASWx
-	4mnvInR30ihARZ0ZTeEKRj51AP09Jj5MgPBn2qRB2x63b6oRpJcepBuDSKg2imoUWF9+wpH2Q5K
-	/yR2f1hhV90r+g9Kye3wfGJGoDjaStrfEmAIZKk461deNbBCgMfGlMnHASU3a7DXOQI+guQm8ZL
-	tjrqeNIEthweKrAMjtZfMPK4WRQqrwPiXR/53isOUKXU+gtgy0s19Y9YoSfDuOAM85yR7gb3gJW
-	sMhS64qMpfmsSXG25Dd4
-X-Google-Smtp-Source: AGHT+IG0AunmMSQFcstGX2xexmsNqbQEnotP3JgjDGhHiAOcDSrfECwecZI3LFYSIzW+tk7K7kLpPg==
-X-Received: by 2002:a05:6000:1a8a:b0:385:df84:8496 with SMTP id ffacd0b85a97d-38a221f2ef4mr40402238f8f.3.1735834874159;
-        Thu, 02 Jan 2025 08:21:14 -0800 (PST)
-Received: from hoboy.vegasvil.org (89-26-16-1.stat.cablelink.at. [89.26.16.1])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c848a47sm38031656f8f.62.2025.01.02.08.21.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jan 2025 08:21:13 -0800 (PST)
-Date: Thu, 2 Jan 2025 08:21:11 -0800
-From: Richard Cochran <richardcochran@gmail.com>
-To: Peter Hilber <quic_philber@quicinc.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	virtio-dev@lists.linux.dev, netdev@vger.kernel.org,
-	Trilok Soni <quic_tsoni@quicinc.com>,
-	Srivatsa Vaddagiri <quic_svaddagi@quicinc.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Jason Wang <jasowang@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	linux-kselftest@vger.kernel.org, linux-api@vger.kernel.org,
-	David Woodhouse <dwmw2@infradead.org>,
-	"Ridoux, Julien" <ridouxj@amazon.com>,
-	John Stultz <jstultz@google.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>
-Subject: Re: [RFC PATCH 1/2] ptp: add PTP_SYS_OFFSET_STAT for xtstamping with
- status
-Message-ID: <Z3a892mBOSRl6BlN@hoboy.vegasvil.org>
-References: <20241219204208.3160-1-quic_philber@quicinc.com>
- <20241219204208.3160-2-quic_philber@quicinc.com>
- <Z2WLGHRdlsRpT6BL@hoboy.vegasvil.org>
- <wcxdbqhoe4cppukyy5rvkq5am4ht6wk5u6d6g2k2swqhidjw7i@6nar5vuusm35>
- <Z2ymZuiFqY8mxihJ@hoboy.vegasvil.org>
- <a352mltlizneonxazn4bffydn57fyudrc3zougii2rnatg3jga@3yagssaob5sb>
+        d=1e100.net; s=20230601; t=1735869006; x=1736473806;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HcP2qJh46eUcVs5AZUyl+IUjPfN/SLun1H/+PvBG35E=;
+        b=cC7TFhEgk1brxKNfTexE3JOwaQ/c/ogoGaLeIY1v/0SzTyLj/aXXc2XgBByuEEb69U
+         fh0pzk8mZ2nypTfz1Vd7gwwhvvapJKs6xGhzWRTZsbIlxxIcZs9N/zj/B3llpCo8Bdw1
+         zC1fe3dN00NYkzfAaBC/jHFe8Y7AxaN/ujuq9Po7rScg+puZJinOcI/SQVPJhf4sydaY
+         6r8ykJNM3ZCLxEhfyH/rNbwZFlPgoqERv3IuIpczy0YnZW5HeWXnDP8Tahl/TGl8vnsJ
+         E8+N0cXWDjQgvQmrpLLgLjMzlr8arD1Q8afJBrv4d8sbo7nJwsfTZhuu7hQRs4ANxs6I
+         xoPg==
+X-Forwarded-Encrypted: i=1; AJvYcCXztFoAxfNBC+gE4kcnEAM1cp3fAUNQBZqP2rA9oQ7OdWCNTvEXgUhl2l0Ead70jCBF26kf5KJ6GGnlm1g17Q==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxL+lsmfiHhxNVB9SDDftySYdnetxpWImQixHEHX8NNZpmmTYLE
+	SJ1rfKGUhzyOHykNL+ibv9lylk5JfoJJFcLUJT3dv7wmI8KLbqq+SYtoachRgEpRG726SGPGPZc
+	fakuZWomUVxvJxGh9fP6oSTS74b8KHAge8g39gHzlX7s0RzMEvGRGhPvLYWbmJW3enR1x1fW2hC
+	3AiTBxfkZpkzTmYG3/dt5ii/GO7HezCgVN7QrX9B4u+8uy7JyqQn7K2Q==
+X-Gm-Gg: ASbGncuA59thyzygf/nUAwlZ4tAM1r3Zj2g3fWVz8+r4nrAQhFpNCBXIanx7eo4D7b0
+	YcO85hjdcVwSWJbw5b4abI+pIqFpjpZhlJxJBe0k=
+X-Received: by 2002:a05:6402:430f:b0:5d1:2631:b88a with SMTP id 4fb4d7f45d1cf-5d81ddacf87mr33437950a12.17.1735869006457;
+        Thu, 02 Jan 2025 17:50:06 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG8gbSec5MrA3LDch29C5XkdV12IqVhzmcGZKBUwF2Ovv/WSVZhgrXSG3lcLmKAzES5YNxhp1Ov1bT+JGQANA0=
+X-Received: by 2002:a05:6402:430f:b0:5d1:2631:b88a with SMTP id
+ 4fb4d7f45d1cf-5d81ddacf87mr33437939a12.17.1735869006114; Thu, 02 Jan 2025
+ 17:50:06 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a352mltlizneonxazn4bffydn57fyudrc3zougii2rnatg3jga@3yagssaob5sb>
+References: <20241230124445.1850997-1-lulu@redhat.com>
+In-Reply-To: <20241230124445.1850997-1-lulu@redhat.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Fri, 3 Jan 2025 09:49:29 +0800
+Message-ID: <CAPpAL=xFoJF1NiD3vbD56R+2voNOA=1m_un6KNEB9JjUPvAkZw@mail.gmail.com>
+Subject: Re: [PATCH v5 0/6] vhost: Add support of kthread API
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
+	sgarzare@redhat.com, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: uM-CqnYqRUGMkPcwTM2S2m-oAR4gadNNt3aZ7wnmoK8_1735869006
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 02, 2025 at 05:11:01PM +0100, Peter Hilber wrote:
-> Would it be more acceptable to just announce leap seconds, but not
-> whether to smear?
+I tested this series v5 with virtio-net regression tests, everything works =
+fine.
 
-Up until now, leap second announcements were handled in user space,
-and the kernel played no role.
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-> I do not understand. Is the point that guests should decide through
-> another channel about leap second smearing?
 
-Yes, that would make more sense to me.
+On Mon, Dec 30, 2024 at 8:46=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+>
+> In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),
+> the vhost now uses vhost_task and operates as a child of the
+> owner thread. This aligns with containerization principles.
+> However, this change has caused confusion for some legacy
+> userspace applications. Therefore, we are reintroducing
+> support for the kthread API.
+>
+> In this series, a new UAPI is implemented to allow
+> userspace applications to configure their thread mode.
+>
+> Changelog v2:
+>  1. Change the module_param's name to enforce_inherit_owner, and the defa=
+ult value is true.
+>  2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
+>
+> Changelog v3:
+>  1. Change the module_param's name to inherit_owner_default, and the defa=
+ult value is true.
+>  2. Add a structure for task function; the worker will select a different=
+ mode based on the value inherit_owner.
+>  3. device will have their own inherit_owner in struct vhost_dev
+>  4. Address other comments
+>
+> Changelog v4:
+>  1. remove the module_param, only keep the UAPI
+>  2. remove the structure for task function; change to use the function po=
+inter in vhost_worker
+>  3. fix the issue in vhost_worker_create and vhost_dev_ioctl
+>  4. Address other comments
+>
+> Changelog v5:
+>  1. Change wakeup and stop function pointers in struct vhost_worker to vo=
+id.
+>  2. merging patches 4, 5, 6 in a single patch
+>  3. Fix spelling issues and address other comments.
+>
+> Tested with QEMU with kthread mode/task mode/kthread+task mode
+>
+> Cindy Lu (6):
+>   vhost: Add a new parameter in vhost_dev to allow user select kthread
+>   vhost: Add the vhost_worker to support kthread
+>   vhost: Add the cgroup related function
+>   vhost: Add worker related functions to support kthread
+>   vhost: Add new UAPI to support change to task mode
+>   vhost_scsi: Add check for inherit_owner status
+>
+>  drivers/vhost/scsi.c       |   8 ++
+>  drivers/vhost/vhost.c      | 178 +++++++++++++++++++++++++++++++++----
+>  drivers/vhost/vhost.h      |   4 +
+>  include/uapi/linux/vhost.h |  19 ++++
+>  4 files changed, 192 insertions(+), 17 deletions(-)
+>
+> --
+> 2.45.0
+>
+>
 
-> I hope there will be some feedback from third parties (at least related
-> to virtualization).
-
-+1
-
-I'm no VM expert, but I'd like to avoid tacking things onto the kernel
-PTP layer, unless there is a really strong justification.
-
-> For sure. But the aim of this proposal is to have an interoperable time
-> synchronization solution for VMs through a Virtio device. So the idea is
-> to include metrics, if a consensus on their usefulness can be reached.
-> AFAIU it is difficult to bypass the kernel for Virtio devices.
-
-Providing clock metrics only makes sense when there is some choice to
-be made based on those metrics.  If the "limited" VM guests don't even
-have networking, then they have no choice but to accept the time from
-the VM host, right?  In which case, the metrics do not provide any
-benefit to the guest.
-
-Or what am I missing?
-
-Thanks,
-Richard
