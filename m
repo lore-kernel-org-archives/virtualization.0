@@ -1,106 +1,65 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7064C1FC100;
-	Fri,  3 Jan 2025 17:44:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EECFB149C7B;
+	Sat,  4 Jan 2025 09:14:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735926275; cv=none; b=j65ssdqmZYDWnKqmM5hAVUVZkrTgWsy6VqEghmmzzZzCHPEW/MyL2kDBvIppPYzR/Br7sZiKBejQE8Vf90od09CYZhYYahCHvxYIja0Yvx8cv+Am506FsDj/S5zKt5oEgS4ZVSmdTYvhjcdFl874A0MQ02su2eRC5qQvMK0pz84=
+	t=1735982060; cv=none; b=CtXMkIvfp6nk7Wal3tB1Asau9Djcu4/ZZOYEpFcQA//bQl6qL307bNJOR1pglLj5IiUedF5xBeYQgbD2isew/TSxID67OcC01oxvSJ5pc/QS3CJNgjo/tLJ+BDxxK64zVVxaJhPi6oGKvLW2tWUClm2jhTGlIVU8oPKnjsqH57M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735926275; c=relaxed/simple;
-	bh=pRVkikpR9atkH7Z9yyBq4g6p9KSycIkZ3xWUYDx7kKA=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=Ojp5+Gm+KObHHYR9JHDDQXL/cPA9hqFjsvHrJrHhOElB1GLxfYTiOJ/HNqd1ZYIckV3Q3gkDxuRJEeOQLdufhvyNac859Cks+/dDGtBaUj1f2Ixly27bNrWBsjLPFUTxX70ZhPlALhzJUOiSz1H9fAeQwu/12LjX/wM5o2RFyz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=meOuPxmX; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1735982060; c=relaxed/simple;
+	bh=yi4bm2VUFTkWYOWwMe3sVb/5qkLbD5gtmB4nXFKVM3A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=S96e+KsOc0U6qNRxi/F3mPGkTSCHy37krRUv26ib49eODz8ex0p7nNtismYVl8nxY7GHd6tfX4pE+WW3LnNT1jddnJiIs5jdWqtpNe3OS/fInE87VrnWOINmMYOL5d9L+n2vPvCzBwDsciRLoosVFhxDjMGFZPqJ7BMzChpBr2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=xhvTTGyJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="meOuPxmX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02697C4CED6;
-	Fri,  3 Jan 2025 17:44:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1735926275;
-	bh=pRVkikpR9atkH7Z9yyBq4g6p9KSycIkZ3xWUYDx7kKA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=meOuPxmX/Ck1O9Y0poyu1vIfbHYu57927aYMHr4c+lFo4un3h0FURP6ahYknhqadI
-	 Ou3VE5lCVqinSr+c8Ca+iIDQm550srFu7W26FsUMWJpjdA4+n8mRM7dLEHg8xSPaqP
-	 8uEmFVTOnt42FDy6XzozpeQulJLK6F/LapjtG2jjw8z40p+fYAO1Uk1d0RJiOIMAsw
-	 HeBZrvMlEAV40/iwAhBNNadnacwoWmNvPaRMbqDe+q0Bwsqm2/Cf4pkwB2e5Vu/oPS
-	 Rz/a4yLi/ZewxdQd392AAm4dRgoMDQuSPqZW2Fis9fDjNtXPetd2B+BiXacAoGTxrz
-	 HeQV+3vysqs6g==
-Date: Fri, 3 Jan 2025 11:44:32 -0600
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Yury Norov <yury.norov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-crypto@vger.kernel.org,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Haren Myneni <haren@linux.ibm.com>,
-	Rick Lindsley <ricklind@linux.ibm.com>,
-	Nick Child <nnac123@linux.ibm.com>,
-	Thomas Falcon <tlfalcon@linux.ibm.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-	Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
-	James Smart <james.smart@broadcom.com>,
-	Dick Kennedy <dick.kennedy@broadcom.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Matt Wu <wuqiang.matt@bytedance.com>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Daniel Jordan <daniel.m.jordan@oracle.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Greg Kurz <groug@kaod.org>, Peter Xu <peterx@redhat.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>
-Subject: Re: [PATCH 06/14] cpumask: re-introduce cpumask_next{,_and}_wrap()
-Message-ID: <20250103174432.GA4182129@bhelgaas>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="xhvTTGyJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED36CC4CED1;
+	Sat,  4 Jan 2025 09:14:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1735982059;
+	bh=yi4bm2VUFTkWYOWwMe3sVb/5qkLbD5gtmB4nXFKVM3A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=xhvTTGyJoNsMo/reawAcbWj7tBJLuLFt2Dud5GR24I2D8Z7atIfV+ybNrg11EZ9pi
+	 egBCf25l+YyskZNXkF8OQ8ue3A5Fjhae2rxP36SyDc9XIdMQ1T1MgRfGUxhqPZt7pk
+	 fp5EJCdx6PkN2XuyQFr22e9Ji/mPcHJodiRYd80Y=
+Date: Sat, 4 Jan 2025 10:13:30 +0100
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Yuanchu Xie <yuanchu@google.com>
+Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org
+Subject: Re: [PATCH v5 1/2] virt: pvmemcontrol: control guest physical memory
+ properties
+Message-ID: <2025010409-vegan-marine-f5e2@gregkh>
+References: <20241203002328.694071-1-yuanchu@google.com>
+ <CAJj2-QFSmtCcQ=dm3yMhNi9F6trbcP0rg5z8cns5V64Pmn0c9Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20241228184949.31582-7-yury.norov@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJj2-QFSmtCcQ=dm3yMhNi9F6trbcP0rg5z8cns5V64Pmn0c9Q@mail.gmail.com>
 
-On Sat, Dec 28, 2024 at 10:49:38AM -0800, Yury Norov wrote:
-> cpumask_next_wrap_old() has two additional parameters, comparing to it's
-> analogue in linux/find.h find_next_bit_wrap(). The reason for that is
-> historical.
+On Thu, Dec 19, 2024 at 10:58:24AM -0800, Yuanchu Xie wrote:
+> On Mon, Dec 2, 2024 at 4:24 PM Yuanchu Xie <yuanchu@google.com> wrote:
+> >
+> > Pvmemcontrol provides a way for the guest to control its physical memory
+> > properties and enables optimizations and security features. For example,
+> > the guest can provide information to the host where parts of a hugepage
+> > may be unbacked, or sensitive data may not be swapped out, etc.
+> Hello Greg,
+> 
+> I addressed the feedback from you earlier at [1]. Let me know how the v5 goes.
 
-s/it's/its/
+Why isn't this being reviewed by the KVM and mm developers?  THat's the
+subsytems you are interacting with, right?
 
-Personally I think cscope/tags/git grep make "find_next_bit_wrap()"
-enough even without mentioning "linux/find.h".
+thanks,
 
-> + * cpumask_next_and_wrap - get the next cpu in *src1p & *src2p, starting from
-> + *			   @n and wrapping around, if needed
-> + * @n: the cpu prior to the place to search (i.e. return will be > @n)
-
-Is the return really > @n if it wraps?
+greg k-h
