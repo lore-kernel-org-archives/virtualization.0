@@ -1,39 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52E1B18CC1D;
-	Sat,  4 Jan 2025 09:16:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0B45487BE
+	for <virtualization@lists.linux.dev>; Sun,  5 Jan 2025 22:47:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735982180; cv=none; b=CyKpryiDzZ/R5SL+tCi1hDYcMr1HQFPZm8NdaJjmAcwOsbHoLWp15Qdv1XDjeDu10HUpEGULlDl4D/ebUfqU27Cyczfk4ZAVBp6aGCTVdvJqKHz1HRGtf90idYIVA2c8RJrGTbvkOXliTGB75G/V/Yne17bdCU5NwcpQdqYobtI=
+	t=1736117234; cv=none; b=UJDT3VcZnCiuHrcHiZVsmvaQ3t+doMmHPtpUxWTjpB4AJ/IqRXGBUNERjmZNFjK2q3V0Sz7q/Y6sZoJun6TrVkWgAMRbc7AkV7wiSOAZOyMAQul6d0bBB3mLBeDfcjJHDnGzFvCr/FFcx6VUIQWA6E8c6NM2tTguWMjYxCiK1R4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735982180; c=relaxed/simple;
-	bh=6VBIhXx0eivTlNHc2gJrHjg2QXuMuBMEWXQy/CT7ASE=;
+	s=arc-20240116; t=1736117234; c=relaxed/simple;
+	bh=BMYDPdXSb2p42GtUdkIiijZF1go73+F4fVLY33Fiw28=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=W6EaG1DKcQASs/JcFTm5xE4vO3w7Yq4g6Npct4Or2D8i0k8YX3zlFOaTVHi1S5EprqlMIssjH/s7ZCiGwbBB3wky12dJo2SeOQ/ZtPFzX1Jt10mx0tVRwuZDNPxMkrfwXbdcn2pw/U1vwHhRp5W+4nvHHJneQJh+vD9ymBfNPmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=s4uzfjBu; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=bd4WWVkrjnRrAU5UoSLayEb5gbUk9KLLtgRiyhcxPBsqJI6nkQuL3C/pzeWI+0dvbBNLAOa/auJmwuiTjV5roLMoMu/QY056Cg7Mp3DniOm0YnruWIp5Ckp7krX4P0EkFQihBzPOOVVxyuFA8YXVm7C+WY0N7ZZesleaD0O9ZWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=v6yrbfpL; arc=none smtp.client-ip=209.85.208.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="s4uzfjBu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A06C4CED1;
-	Sat,  4 Jan 2025 09:16:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1735982179;
-	bh=6VBIhXx0eivTlNHc2gJrHjg2QXuMuBMEWXQy/CT7ASE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=s4uzfjBuHB/1X3vOeSx39WvaaW/y89VKoT8fvU+3fipJnwtmLPncurGunWvxm0HXs
-	 Y5AuKSc61ruvgtmw43UrYiHe1gUrF4SSBdXoCPHDafo9Y3BPkstyQuW6/CRhnlUztW
-	 mzcSIIWaguGYVwPXDcoAKlDJcYkGAuG7f58Ha7+w=
-Date: Sat, 4 Jan 2025 10:15:30 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Yuanchu Xie <yuanchu@google.com>
-Cc: Wei Liu <liuwe@microsoft.com>, Rob Bradford <rbradford@rivosinc.com>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	virtualization@lists.linux.dev, dev@lists.cloudhypervisor.org
-Subject: Re: [PATCH v5 1/2] virt: pvmemcontrol: control guest physical memory
- properties
-Message-ID: <2025010448-citizen-untrained-d607@gregkh>
-References: <20241203002328.694071-1-yuanchu@google.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="v6yrbfpL"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-30219437e63so156465411fa.1
+        for <virtualization@lists.linux.dev>; Sun, 05 Jan 2025 14:47:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1736117231; x=1736722031; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=TUw/Qsx3e/Vb/fGVkhPXMOTG1JvaasLeNnFxwC0uDdk=;
+        b=v6yrbfpLbKv8caoPyXedZ+1imcjbPXzyfHSDF8QgFSdTa7O5Y8MCL2qWzswnLW79qQ
+         OkfuDMDf/Ptp1D0AxIiZAYD9XfknNZwW/Lqhv+OEJw/4OtBtV4Z3qgJXPJrsE+eJqE8w
+         RmF3tKdnuslVoxONy/e7qulAilyEDZhOY2jw2beoXf1e7F+UbZrOcFkLHvmGDEtPlJfb
+         Q4OOIPAh5Psx1f/NR9cRqinBPefXxTelrfXdnfnImWzaXR9sv3a4D5HPbwnO91+35cbL
+         jjHtS2HnxnIKgCEwdrfaszTSVreDL6TOzy3rZYbeS7vKp7KESbeJi+B2sQC8Q/50MELS
+         sEnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736117231; x=1736722031;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TUw/Qsx3e/Vb/fGVkhPXMOTG1JvaasLeNnFxwC0uDdk=;
+        b=D7pLJjwKQEIG2Kaz/T/CKxWo0o34+Xn93XaWVTnQgionqAch34Wcjks+TIomRpuMlS
+         NBh8YkkSYUA+wd4BpD2C5umNs5Eiej8Fl6J7F6SWTY13vDN22H3NLNzc/cdPcia904l6
+         /Rxwr8v5OpavDD9Ju8w67GI8Bk3+dD7T9oEzmJxSG8M0pHnTJrzRGVT46WuP9Tq7Tsqm
+         6pkQlPm8qwXHxhfB9RMLDwvq4bm1vCMUZsz22alZadAREys4pHy77TfO+g1T32soSvke
+         JcKxLTSwdZwm8onfQi4+t5S388DYojHaQUOeL/JcEZcMZT0DJRg3HBqR+LDLPodHaOfx
+         brJw==
+X-Forwarded-Encrypted: i=1; AJvYcCUF5MRHF8qixIGNeTb7sBZzW22FOXfdH2NKdycHdB6S5r/jZRb+6UDSPgIcjvg2duaF/TVdz42Xr5Q724d81g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YysIczOVpVikqsxK/JrM0A6rSbjb+zhFVJKHuKL+bdivpxl2TWU
+	WjFYN6Htrhy4hrFGpUgSR8Tdlh7FNP+CuyRJbwnAWpz4qtF4UJXogt5brgoT9WA=
+X-Gm-Gg: ASbGncsRYOJNzWVzEY1bfzc6llFZrWu+bmXf4XmyReEK9YDc9wm09rP8Xy56amX/lZp
+	Xd5MzpSH2W+7PiXoQqqCWE4RsZypbZe9xZQjfSrxML1SehCNM0uB6e6hojf0iYF9KGiB8zFb0p6
+	mJVZnQsgI+470TzJQ93tPIcxHcyjCV4g0EJfN/oYP0TtGzlVTlgKRooxY7gH35AqHQC9bKtBHDQ
+	QqbIRhHX1XIKAy27M2MwRyODHmaRYBi+vsXnV8fIwTHkHEz1n9Vh/cAz5slc7qW5Fz3DV9Pm/qC
+	SxfnZYR1YJsCQ4123woc6u2wCrwqOPi1vghL
+X-Google-Smtp-Source: AGHT+IGdeC3kJKQByRSkP8PFuxEiAQLE0VDeCxWNLmf8WlobNvqOtqUKt3Qejko5pkmOL0gzpID7uQ==
+X-Received: by 2002:a2e:a78a:0:b0:302:4a8f:428b with SMTP id 38308e7fff4ca-304583eca3fmr125244721fa.15.1736117231020;
+        Sun, 05 Jan 2025 14:47:11 -0800 (PST)
+Received: from eriador.lumag.spb.ru (2001-14ba-a0c3-3a00--7a1.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::7a1])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3045b09669csm54711531fa.120.2025.01.05.14.47.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 05 Jan 2025 14:47:09 -0800 (PST)
+Date: Mon, 6 Jan 2025 00:47:07 +0200
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+To: Jani Nikula <jani.nikula@linux.intel.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Karol Herbst <kherbst@redhat.com>, Lyude Paul <lyude@redhat.com>, 
+	Danilo Krummrich <dakr@redhat.com>, Harry Wentland <harry.wentland@amd.com>, 
+	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>, 
+	Alex Deucher <alexander.deucher@amd.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
+	Xinhui Pan <Xinhui.Pan@amd.com>, Alain Volmat <alain.volmat@foss.st.com>, 
+	Raphael Gallais-Pou <rgallaispou@gmail.com>, Liviu Dudau <liviu.dudau@arm.com>, 
+	Andrzej Hajda <andrzej.hajda@intel.com>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Robert Foss <rfoss@kernel.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, 
+	Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+	Peter Senna Tschudin <peter.senna@gmail.com>, Ian Ray <ian.ray@ge.com>, 
+	Martyn Welch <martyn.welch@collabora.co.uk>, Inki Dae <inki.dae@samsung.com>, 
+	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
+	Stefan Agner <stefan@agner.ch>, Alison Wang <alison.wang@nxp.com>, 
+	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
+	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
+	Rob Clark <robdclark@gmail.com>, Abhinav Kumar <quic_abhinavk@quicinc.com>, 
+	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
+	Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Sandy Huang <hjc@rock-chips.com>, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, 
+	Andy Yan <andy.yan@rock-chips.com>, Chen-Yu Tsai <wens@csie.org>, 
+	Samuel Holland <samuel@sholland.org>, Thierry Reding <thierry.reding@gmail.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Dave Stevenson <dave.stevenson@raspberrypi.com>, =?utf-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>, 
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
+	Chia-I Wu <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
+	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
+	freedreno@lists.freedesktop.org, virtualization@lists.linux.dev, 
+	spice-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev, 
+	linux-tegra@vger.kernel.org, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, 
+	Jani Nikula <jani.nikula@intel.com>
+Subject: Re: [PATCH v2 0/5] drm/connector: make mode_valid() callback accept
+ const mode pointer
+Message-ID: <76ho36jqcraehnsgpjralpye52w7ryshhgizekn4qqfsikiojd@3yyorbvjkc7b>
+References: <20241214-drm-connector-mode-valid-const-v2-0-4f9498a4c822@linaro.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -42,123 +111,127 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241203002328.694071-1-yuanchu@google.com>
+In-Reply-To: <20241214-drm-connector-mode-valid-const-v2-0-4f9498a4c822@linaro.org>
 
-On Mon, Dec 02, 2024 at 04:23:27PM -0800, Yuanchu Xie wrote:
-> Pvmemcontrol provides a way for the guest to control its physical memory
-> properties and enables optimizations and security features. For example,
-> the guest can provide information to the host where parts of a hugepage
-> may be unbacked, or sensitive data may not be swapped out, etc.
+On Sat, Dec 14, 2024 at 03:37:04PM +0200, Dmitry Baryshkov wrote:
+> While working on the generic mode_valid() implementation for the HDMI
+> Connector framework I noticed that unlike other DRM objects
+> drm_connector accepts non-const pointer to struct drm_display_mode,
+> while obviously mode_valid() isn't expected to modify the argument.
 > 
-> Pvmemcontrol allows guests to manipulate its gPTE entries in the SLAT,
-> and also some other properties of the memory mapping on the host.
-> This is achieved by using the KVM_CAP_SYNC_MMU capability. When this
-> capability is available, the changes in the backing of the memory region
-> on the host are automatically reflected into the guest. For example, an
-> mmap() or madvise() that affects the region will be made visible
-> immediately.
+> Mass-change the DRM framework code to pass const argument to that
+> callback.
 > 
-> There are two components of the implementation: the guest Linux driver
-> and Virtual Machine Monitor (VMM) device. A guest-allocated shared
-> buffer is negotiated per-cpu through a few PCI MMIO registers; the VMM
-> device assigns a unique command for each per-cpu buffer. The guest
-> writes its pvmemcontrol request in the per-cpu buffer, then writes the
-> corresponding command into the command register, calling into the VMM
-> device to perform the pvmemcontrol request.
+> The series has been compile-tested with defconfig for x86-64, arm and
+> arm64.
 > 
-> The synchronous per-cpu shared buffer approach avoids the kick and busy
-> waiting that the guest would have to do with virtio virtqueue transport.
+> Note: yes, I understand that this change might be hard to review and
+> merge. The only viable option that I foresee is to add new callback,
+> having the const argument and migrate drivers into using it one by one.
+
+Colleagues, I'd like to graciously ping regarding this series. Should it
+be merged as is (possibly requiring more R-B's)? Or should I rework it
+adding something like .mode_valid_new() callback which takes const
+argument?
+
 > 
-> User API
-> >From the userland, the pvmemcontrol guest driver is controlled via the
-> ioctl(2) call. It requires CAP_SYS_ADMIN.
-> 
-> ioctl(fd, PVMEMCONTROL_IOCTL, struct pvmemcontrol_buf *buf);
-> 
-> Guest userland applications can tag VMAs and guest hugepages, or advise
-> the host on how to handle sensitive guest pages.
-> 
-> Supported function codes and their use cases:
-> PVMEMCONTROL_FREE/REMOVE/DONTNEED/PAGEOUT. For the guest. One can reduce
-> the struct page and page table lookup overhead by using hugepages backed
-> by smaller pages on the host. These pvmemcontrol commands can allow for
-> partial freeing of private guest hugepages to save memory. They also
-> allow kernel memory, such as kernel stacks and task_structs to be
-> paravirtualized if we expose kernel APIs.
-> 
-> PVMEMCONTROL_MERGEABLE can inform the host KSM to deduplicate VM pages.
-> 
-> PVMEMCONTROL_UNMERGEABLE is useful for security, when the VM does not
-> want to share its backing pages.
-> The same with PVMEMCONTROL_DONTDUMP, so sensitive pages are not included
-> in a dump.
-> MLOCK/UNLOCK can advise the host that sensitive information is not
-> swapped out on the host.
-> 
-> PVMEMCONTROL_MPROTECT_NONE/R/W/RW. For guest stacks backed by hugepages,
-> stack guard pages can be handled in the host and memory can be saved in
-> the hugepage.
-> 
-> PVMEMCONTROL_SET_VMA_ANON_NAME is useful for observability and debugging
-> how guest memory is being mapped on the host.
-> 
-> Sample program making use of PVMEMCONTROL_DONTNEED:
-> https://github.com/Dummyc0m/pvmemcontrol-user
-> 
-> The VMM implementation is part of Cloud Hypervisor, the feature
-> pvmemcontrol can be enabled and the VMM can then provide the device to a
-> supporting guest.
-> https://github.com/cloud-hypervisor/cloud-hypervisor
-> 
-> Signed-off-by: Yuanchu Xie <yuanchu@google.com>
+> Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> ---
+> Changes in v2:
+> - Rebased on top of linux-next
+> - Replaced 'accept const argument' with 'take a const arugment'
+>   (Laurent)
+> - Link to v1: https://lore.kernel.org/r/20241115-drm-connector-mode-valid-const-v1-0-b1b523156f71@linaro.org
 > 
 > ---
-> PATCH v4 -> v5
-> - use drvdata and friends to enable multiple devices
-
-And now you are "burning" a whole major number for this, right?  Why not
-just use a misc device for every individual one?  That should be much
-simpler and take away a lot of the generic code you have added here
-(your class structure, your major/minor number handling, etc.)
-
-> PATCH v3 -> v4
-> - changed dev_info to dev_dbg so the driver is quiet when it works
->   properly.
-> - Edited the changelog section to be included in the diffstat.
+> Dmitry Baryshkov (5):
+>       drm/encoder_slave: make mode_valid accept const struct drm_display_mode
+>       drm/amdgpu: don't change mode in amdgpu_dm_connector_mode_valid()
+>       drm/sti: hda: pass const struct drm_display_mode* to hda_get_mode_idx()
+>       drm/connector: make mode_valid_ctx take a const struct drm_display_mode
+>       drm/connector: make mode_valid take a const struct drm_display_mode
 > 
-> PATCH v2 -> v3
-> - added PVMEMCONTROL_MERGEABLE for memory dedupe.
-> - updated link to the upstream Cloud Hypervisor repo, and specify the
->   feature required to enable the device.
+>  drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c           |  8 ++++----
+>  drivers/gpu/drm/amd/amdgpu/atombios_dp.c                 |  2 +-
+>  drivers/gpu/drm/amd/amdgpu/atombios_dp.h                 |  2 +-
+>  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c        | 12 +++++++++---
+>  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h        |  2 +-
+>  drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c |  2 +-
+>  drivers/gpu/drm/arm/malidp_mw.c                          |  2 +-
+>  drivers/gpu/drm/bridge/adv7511/adv7511_drv.c             |  2 +-
+>  drivers/gpu/drm/bridge/cadence/cdns-mhdp8546-core.c      |  2 +-
+>  drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c |  7 -------
+>  drivers/gpu/drm/display/drm_bridge_connector.c           |  2 +-
+>  drivers/gpu/drm/display/drm_hdmi_state_helper.c          |  2 +-
+>  drivers/gpu/drm/drm_crtc_helper_internal.h               |  2 +-
+>  drivers/gpu/drm/drm_probe_helper.c                       |  2 +-
+>  drivers/gpu/drm/exynos/exynos_hdmi.c                     |  2 +-
+>  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c                |  2 +-
+>  drivers/gpu/drm/gma500/cdv_intel_crt.c                   |  2 +-
+>  drivers/gpu/drm/gma500/cdv_intel_dp.c                    |  2 +-
+>  drivers/gpu/drm/gma500/cdv_intel_hdmi.c                  |  2 +-
+>  drivers/gpu/drm/gma500/cdv_intel_lvds.c                  |  2 +-
+>  drivers/gpu/drm/gma500/oaktrail_hdmi.c                   |  2 +-
+>  drivers/gpu/drm/gma500/psb_intel_drv.h                   |  2 +-
+>  drivers/gpu/drm/gma500/psb_intel_lvds.c                  |  2 +-
+>  drivers/gpu/drm/gma500/psb_intel_sdvo.c                  |  2 +-
+>  drivers/gpu/drm/i2c/ch7006_drv.c                         |  2 +-
+>  drivers/gpu/drm/i2c/sil164_drv.c                         |  2 +-
+>  drivers/gpu/drm/i915/display/dvo_ch7017.c                |  2 +-
+>  drivers/gpu/drm/i915/display/dvo_ch7xxx.c                |  2 +-
+>  drivers/gpu/drm/i915/display/dvo_ivch.c                  |  2 +-
+>  drivers/gpu/drm/i915/display/dvo_ns2501.c                |  2 +-
+>  drivers/gpu/drm/i915/display/dvo_sil164.c                |  2 +-
+>  drivers/gpu/drm/i915/display/dvo_tfp410.c                |  2 +-
+>  drivers/gpu/drm/i915/display/icl_dsi.c                   |  2 +-
+>  drivers/gpu/drm/i915/display/intel_crt.c                 |  2 +-
+>  drivers/gpu/drm/i915/display/intel_dp.c                  |  2 +-
+>  drivers/gpu/drm/i915/display/intel_dp_mst.c              |  2 +-
+>  drivers/gpu/drm/i915/display/intel_dsi.c                 |  2 +-
+>  drivers/gpu/drm/i915/display/intel_dsi.h                 |  2 +-
+>  drivers/gpu/drm/i915/display/intel_dvo.c                 |  2 +-
+>  drivers/gpu/drm/i915/display/intel_dvo_dev.h             |  2 +-
+>  drivers/gpu/drm/i915/display/intel_hdmi.c                |  2 +-
+>  drivers/gpu/drm/i915/display/intel_lvds.c                |  2 +-
+>  drivers/gpu/drm/i915/display/intel_sdvo.c                |  2 +-
+>  drivers/gpu/drm/i915/display/intel_tv.c                  |  2 +-
+>  drivers/gpu/drm/i915/display/vlv_dsi.c                   |  2 +-
+>  drivers/gpu/drm/imx/ipuv3/imx-tve.c                      |  2 +-
+>  drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c      |  2 +-
+>  drivers/gpu/drm/nouveau/dispnv04/tvnv17.c                |  2 +-
+>  drivers/gpu/drm/nouveau/dispnv50/disp.c                  |  2 +-
+>  drivers/gpu/drm/nouveau/nouveau_connector.c              |  2 +-
+>  drivers/gpu/drm/qxl/qxl_display.c                        |  2 +-
+>  drivers/gpu/drm/radeon/atombios_dp.c                     |  2 +-
+>  drivers/gpu/drm/radeon/radeon_connectors.c               | 10 +++++-----
+>  drivers/gpu/drm/radeon/radeon_mode.h                     |  2 +-
+>  drivers/gpu/drm/rockchip/cdn-dp-core.c                   |  2 +-
+>  drivers/gpu/drm/rockchip/inno_hdmi.c                     |  4 ++--
+>  drivers/gpu/drm/rockchip/rk3066_hdmi.c                   |  2 +-
+>  drivers/gpu/drm/sti/sti_dvo.c                            |  2 +-
+>  drivers/gpu/drm/sti/sti_hda.c                            | 12 ++++++------
+>  drivers/gpu/drm/sti/sti_hdmi.c                           |  2 +-
+>  drivers/gpu/drm/tegra/dsi.c                              |  2 +-
+>  drivers/gpu/drm/tegra/hdmi.c                             |  2 +-
+>  drivers/gpu/drm/tegra/sor.c                              |  2 +-
+>  drivers/gpu/drm/vc4/vc4_txp.c                            |  2 +-
+>  drivers/gpu/drm/virtio/virtgpu_display.c                 |  2 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_kms.c                      |  2 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_kms.h                      |  2 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c                     |  2 +-
+>  include/drm/display/drm_hdmi_state_helper.h              |  2 +-
+>  include/drm/drm_encoder_slave.h                          |  2 +-
+>  include/drm/drm_modeset_helper_vtables.h                 |  4 ++--
+>  71 files changed, 92 insertions(+), 93 deletions(-)
+> ---
+> base-commit: 4176cf5c5651c33769de83bb61b0287f4ec7719f
+> change-id: 20241115-drm-connector-mode-valid-const-ae3db0ef6cb7
 > 
-> PATCH v1 -> v2
-> - fixed byte order sparse warning. ioread/write already does
->   little-endian.
-> - add include for linux/percpu.h
+> Best regards,
+> -- 
+> Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 > 
-> RFC v1 -> PATCH v1
-> - renamed memctl to pvmemcontrol
-> - defined device endianness as little endian
-> 
-> v1:
-> https://lore.kernel.org/linux-mm/20240518072422.771698-1-yuanchu@google.com/
-> v2:
-> https://lore.kernel.org/linux-mm/20240612021207.3314369-1-yuanchu@google.com/
-> v3:
-> https://lore.kernel.org/linux-mm/20241016193947.48534-1-yuanchu@google.com/
-> v4:
-> https://lore.kernel.org/linux-mm/20241021204849.1580384-1-yuanchu@google.com/
-> 
->  .../userspace-api/ioctl/ioctl-number.rst      |   2 +
->  drivers/virt/Kconfig                          |   2 +
->  drivers/virt/Makefile                         |   1 +
->  drivers/virt/pvmemcontrol/Kconfig             |  10 +
->  drivers/virt/pvmemcontrol/Makefile            |   2 +
->  drivers/virt/pvmemcontrol/pvmemcontrol.c      | 499 ++++++++++++++++++
 
-Why a whole subdirectory for just one .c file?  Why not put it in
-drivers/virt/ ?
-
-thanks,
-
-greg k-h
+-- 
+With best wishes
+Dmitry
