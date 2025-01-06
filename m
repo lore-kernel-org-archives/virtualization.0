@@ -1,128 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E131D619D;
-	Mon,  6 Jan 2025 16:00:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E55013A257;
+	Mon,  6 Jan 2025 17:47:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736179255; cv=none; b=gIH5mFrUJHPm0fRkJMzBVECB1EakdgvaABu5I8tjfI8EC7BJM32mtaU5Kv+rY+BPBWHy4+Vh99DT+FqET8TDDbq+TASc3nRuyECof0LpY5M8R6uVXZlP9ildAS0zaUpIwuC5S0hY+7rtFhYha4D3R2cjOV/jzAHkldm3KKEsEGw=
+	t=1736185676; cv=none; b=ug50pYsKpmZ5FMpk8zLGMOxWrtr/qoJZlut5ZqfFq+3sk9J+QykPZBJs71RyhHFWy0CBdiiweOL6nyiT+/8VLW6EG5BsZUcSwDYpL9lQM29Xzk5iIjO8FsDC+wiLIH0qr0o3T3KN3H4s3IqEYjyLRMkNDCdZverBC/v1DNvlW1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736179255; c=relaxed/simple;
-	bh=CN40k1Sx0WMdCmPtXW6nwPnzf8xu6d7wbxyZhlLDcTI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kOIIP04+M9O8A/t4TEmjp9kFLEyWNBen5vNG0e2GMWEIIi0SKo1qTNtV/5tcuTkQAALgCwZ+BddORJlzUrpUeWHeusEKCQMNpQD1w9KYwBU8fQrIqZ1xCv5mLaizFZQ9rWhbkjo4gVC2FAosNMBADW3ukc+KXSlZlnLaNZLAAAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=i7MeEdkU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736185676; c=relaxed/simple;
+	bh=dJwLyChi/EnOT24oVuUMdY6a6RUOFaJJrcDRbpRF8XM=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TKkEdbS9QRdxFij2bViN2kL3/Hq7bxHj7ygriHmUCVrlRdTzVn3yFl5zuVEAXkJbBpw8nf3loeRiwh7w/bLlfm89m5XF09HzNG9BJTl4aXbm6Hj5W0KxYKTV7YHzrzX2F4pG3z4qtkdLy8X+EICvII9Fm+lJ/mUztXjgba4nqxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=VdunQCs8; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="i7MeEdkU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B30E2C4CED2;
-	Mon,  6 Jan 2025 16:00:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1736179255;
-	bh=CN40k1Sx0WMdCmPtXW6nwPnzf8xu6d7wbxyZhlLDcTI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=i7MeEdkUFBb3G9R5bUWqtLVBn+ZiF6e8LTfLQya3RzMVnWeMvy69U1KpPo2OPJ/Bb
-	 NURCAaelRJFgT3ZsIeagRXgpo5Kdv+Ce+Pc9UKbpkwoiU5fJA0CivG8d8vqq5p1lop
-	 6gKvxSheoX/zhg2jfSCJgE1j5laLwqpVqk8E5MxY=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: stable@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	patches@lists.linux.dev,
-	Yi Sun <yi.sun@unisoc.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	virtualization@lists.linux.dev,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Ming Lei <ming.lei@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/93] virtio-blk: dont keep queue frozen during system suspend
-Date: Mon,  6 Jan 2025 16:17:26 +0100
-Message-ID: <20250106151130.591709064@linuxfoundation.org>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20250106151128.686130933@linuxfoundation.org>
-References: <20250106151128.686130933@linuxfoundation.org>
-User-Agent: quilt/0.68
-X-stable: review
-X-Patchwork-Hint: ignore
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="VdunQCs8"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 506G2oDm001290;
+	Mon, 6 Jan 2025 17:47:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=g1OlXN+r8fkCZxXYqiGEVezy
+	SBUM+VtpKZlgxYr1d5Q=; b=VdunQCs8SYsDOiv4awx4CrGCyLFTKZsFRoJP5MAs
+	gCXDAYo8FfCFgmVKQSOGuikcwyXQp7GKx8jyPTbvBpePGFyhrjKK2MBm8TMemFnF
+	+KDd7t6oo4tt7qfejoWRUypayNjbrh4xih7GhcHzYv25J9nGNZZisBH9/QtUGFWv
+	9ijqg1PX+tpp4gIe6JosD3AmbZ2EqJuAPjczm37TVwMdbj9DMiM6PrB4QJgNjS22
+	bKWwhpOaUkp9brjRZb2sju2BTglSeZBS/nVEiKoHNzPBZ1UGxIi0DJPbapAvj6hr
+	wVxcxBX/DSlOOsOyBksy90HuSh5oizXO20Xokh8uNIXJiQ==
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 440jbmg7pt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 06 Jan 2025 17:47:25 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 506HlOFm025416
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 6 Jan 2025 17:47:24 GMT
+Received: from PHILBER.na.qualcomm.com (10.80.80.8) by
+ nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.9; Mon, 6 Jan 2025 09:46:28 -0800
+Date: Mon, 6 Jan 2025 18:46:17 +0100
+From: Peter Hilber <quic_philber@quicinc.com>
+To: Richard Cochran <richardcochran@gmail.com>
+CC: <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        <virtio-dev@lists.linux.dev>, <netdev@vger.kernel.org>,
+        Trilok Soni
+	<quic_tsoni@quicinc.com>,
+        Srivatsa Vaddagiri <quic_svaddagi@quicinc.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eugenio =?utf-8?B?UMOpcmV6?=
+	<eperezma@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Andrew Lunn
+	<andrew+netdev@lunn.ch>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+	<kuba@kernel.org>,
+        Jason Wang <jasowang@redhat.com>, Paolo Abeni
+	<pabeni@redhat.com>,
+        Shuah Khan <shuah@kernel.org>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>,
+        <linux-kselftest@vger.kernel.org>, <linux-api@vger.kernel.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        "Ridoux,
+ Julien" <ridouxj@amazon.com>,
+        John Stultz <jstultz@google.com>,
+        "Thomas
+ Gleixner" <tglx@linutronix.de>,
+        Stephen Boyd <sboyd@kernel.org>,
+        "Anna-Maria
+ Behnsen" <anna-maria@linutronix.de>
+Subject: Re: [RFC PATCH 1/2] ptp: add PTP_SYS_OFFSET_STAT for xtstamping with
+ status
+Message-ID: <ae5hdnhewksv2wkshxyyt3262mqi6o45opkl4occ5nt5zidr5e@lii7fgucetvu>
+References: <20241219204208.3160-1-quic_philber@quicinc.com>
+ <20241219204208.3160-2-quic_philber@quicinc.com>
+ <Z2WLGHRdlsRpT6BL@hoboy.vegasvil.org>
+ <wcxdbqhoe4cppukyy5rvkq5am4ht6wk5u6d6g2k2swqhidjw7i@6nar5vuusm35>
+ <Z2ymZuiFqY8mxihJ@hoboy.vegasvil.org>
+ <a352mltlizneonxazn4bffydn57fyudrc3zougii2rnatg3jga@3yagssaob5sb>
+ <Z3a892mBOSRl6BlN@hoboy.vegasvil.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <Z3a892mBOSRl6BlN@hoboy.vegasvil.org>
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: r9V-M1YzFMt2DWTG4Vxl7gdWGlCaAN0G
+X-Proofpoint-ORIG-GUID: r9V-M1YzFMt2DWTG4Vxl7gdWGlCaAN0G
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 malwarescore=0 spamscore=0 bulkscore=0 adultscore=0
+ phishscore=0 mlxlogscore=874 priorityscore=1501 lowpriorityscore=0
+ clxscore=1015 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501060156
 
-5.4-stable review patch.  If anyone has any objections, please let me know.
+On Thu, Jan 02, 2025 at 08:21:11AM -0800, Richard Cochran wrote:
+> On Thu, Jan 02, 2025 at 05:11:01PM +0100, Peter Hilber wrote:
+> > For sure. But the aim of this proposal is to have an interoperable time
+> > synchronization solution for VMs through a Virtio device. So the idea is
+> > to include metrics, if a consensus on their usefulness can be reached.
+> > AFAIU it is difficult to bypass the kernel for Virtio devices.
+> 
+> Providing clock metrics only makes sense when there is some choice to
+> be made based on those metrics.  If the "limited" VM guests don't even
+> have networking, then they have no choice but to accept the time from
+> the VM host, right?  In which case, the metrics do not provide any
+> benefit to the guest.
+> 
+> Or what am I missing?
 
-------------------
+The proposal is not limited to guests with no networking.
 
-From: Ming Lei <ming.lei@redhat.com>
+Guests *might* not have internet access (might not be "internetworked").
+Even then, guests can still interact with the environment (so metrics
+can be important) and might decide to reduce features when the metrics
+are too bad.
 
-[ Upstream commit 7678abee0867e6b7fb89aa40f6e9f575f755fb37 ]
+Thanks for the comments,
 
-Commit 4ce6e2db00de ("virtio-blk: Ensure no requests in virtqueues before
-deleting vqs.") replaces queue quiesce with queue freeze in virtio-blk's
-PM callbacks. And the motivation is to drain inflight IOs before suspending.
-
-block layer's queue freeze looks very handy, but it is also easy to cause
-deadlock, such as, any attempt to call into bio_queue_enter() may run into
-deadlock if the queue is frozen in current context. There are all kinds
-of ->suspend() called in suspend context, so keeping queue frozen in the
-whole suspend context isn't one good idea. And Marek reported lockdep
-warning[1] caused by virtio-blk's freeze queue in virtblk_freeze().
-
-[1] https://lore.kernel.org/linux-block/ca16370e-d646-4eee-b9cc-87277c89c43c@samsung.com/
-
-Given the motivation is to drain in-flight IOs, it can be done by calling
-freeze & unfreeze, meantime restore to previous behavior by keeping queue
-quiesced during suspend.
-
-Cc: Yi Sun <yi.sun@unisoc.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtualization@lists.linux.dev
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Link: https://lore.kernel.org/r/20241112125821.1475793-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/block/virtio_blk.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 3afc07b59477..b1c5bcae9b31 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1062,9 +1062,12 @@ static void virtblk_remove(struct virtio_device *vdev)
- static int virtblk_freeze(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
-+	struct request_queue *q = vblk->disk->queue;
- 
- 	/* Ensure no requests in virtqueues before deleting vqs. */
--	blk_mq_freeze_queue(vblk->disk->queue);
-+	blk_mq_freeze_queue(q);
-+	blk_mq_quiesce_queue_nowait(q);
-+	blk_mq_unfreeze_queue(q);
- 
- 	/* Ensure we don't receive any more interrupts */
- 	vdev->config->reset(vdev);
-@@ -1088,8 +1091,8 @@ static int virtblk_restore(struct virtio_device *vdev)
- 		return ret;
- 
- 	virtio_device_ready(vdev);
-+	blk_mq_unquiesce_queue(vblk->disk->queue);
- 
--	blk_mq_unfreeze_queue(vblk->disk->queue);
- 	return 0;
- }
- #endif
--- 
-2.39.5
-
-
-
+Peter
