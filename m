@@ -1,216 +1,138 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CDC43172
-	for <virtualization@lists.linux-foundation.org>; Mon,  6 Jan 2025 08:22:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 620C71BF58;
+	Mon,  6 Jan 2025 08:55:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736151775; cv=none; b=QVeAX7PvY9G4+EQhK2OZUs4iqC8M8zAkUR2M9Fqh7DKouWsrOGCT44FEFJ1TxGvWaY73WW+q9KZEXfcGU5/CchASCaFwF/YxYAWT6EkM3rFl+EsANsdrml6cKR4xE3NVW+pj1Xxvlosa7yJVMH0A0FlYG7nZa+D+0wkUzjpIZNc=
+	t=1736153752; cv=none; b=HH/RPz/bKdjvKE/nakBzLpnraMDvvuGzjvOn9Rb24OOd89lzoYJnrAMNotxTpFBnBnHKre3NZGtm0AEeuG4hzSbrX8WD3YmroSqqy4JsVGYttqrdlAQh8sDpxgD/0yRydpjN1cr70ZxRDdyGN0EbGeW9eauw7rxbpnziCVHumfk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736151775; c=relaxed/simple;
-	bh=xnQDJifQ7pQZ0oM/jyc28SkYbg9i2KWTEQUpWgH1Zro=;
-	h=From:To:References:In-Reply-To:Subject:Date:Message-ID:
-	 MIME-Version:Content-Type; b=DtyWZZ8Swv/PVmJIUaiHUZn6m7x0unyhpeU9P2z64j7Aqjx+7ZKAZDTM/tXvDhjN5pjU+Lur6d69vo3DHLfgUU7mxF/rvCT/d4enwDx11kd+7RmhQ70AQHBC4Zbi3psrveKfjKMO+bzJxSeNuFWV/VcTo6TXXjOx6S4pGvKfmsc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=tuhh.de header.i=@tuhh.de header.b=fiwAC0kj; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1736153752; c=relaxed/simple;
+	bh=gG4SiTyR1rjNKpTSl7F5DKYKTnsEbd9XXx+wOP8RmzQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uJq7Epev3Rf6ltVR8zvqogpY628K4oG+XJY/yMKaRevwL4sudud7CXlfmvnp58CSD0FEDkKZABduqU9w/g5U9R++26MwY38Ki/IwWCvpvww6TRdpeq7kGRXdjoCuqZMoopBz5BlOME5a1XbBVOpK1M8+dmF3RteI71WSaDAUcHY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AqJv2SZ9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuhh.de header.i=@tuhh.de header.b="fiwAC0kj"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0F37340296
-	for <virtualization@lists.linux-foundation.org>; Mon,  6 Jan 2025 08:22:52 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id XEk7HFdnmGKw for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Jan 2025 08:22:50 +0000 (UTC)
-X-Greylist: delayed 577 seconds by postgrey-1.37 at util1.osuosl.org; Mon, 06 Jan 2025 08:22:50 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 454BC4018F
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=tuhh.de
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 454BC4018F
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=tuhh.de header.i=@tuhh.de header.a=rsa-sha256 header.s=x2025-01 header.b=fiwAC0kj
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:638:702:20aa::205:38; helo=smtp1.rz.tu-harburg.de; envelope-from=stefan.schulte@tuhh.de; receiver=<UNKNOWN> 
-Received: from smtp1.rz.tu-harburg.de (smtp1.rz.tu-harburg.de [IPv6:2001:638:702:20aa::205:38])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 454BC4018F
-	for <virtualization@lists.linux-foundation.org>; Mon,  6 Jan 2025 08:22:50 +0000 (UTC)
-Received: from mail.tu-harburg.de (mail3.rz.tu-harburg.de [134.28.202.82])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(Client CN "mail.tu-harburg.de", Issuer "GEANT OV RSA CA 4" (verified OK))
-	by smtp1.rz.tu-harburg.de (Postfix) with ESMTPS id 4YRRks3wmLzxRY;
-	Mon,  6 Jan 2025 09:13:09 +0100 (CET)
-Received: from mailspring.rz.tuhh.de (mailspring.rz.tuhh.de [134.28.202.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: cvv1159@KERBEROS.TU-HARBURG.DE)
-	by mail.tu-harburg.de (Postfix) with ESMTPSA id 4YRRkh65bQzJrLW;
-	Mon,  6 Jan 2025 09:13:00 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuhh.de; s=x2025-01;
-	t=1736151189; bh=xnQDJifQ7pQZ0oM/jyc28SkYbg9i2KWTEQUpWgH1Zro=;
-	h=From:To:References:In-Reply-To:Subject:Date:Message-ID:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	b=fiwAC0kjPJJ4WBbxFmnKfluyL2Z2IHO1HE6npmVOe0/AAoZ67ajy8krSxROA5vex3
-	 H98G9ZGeTyQyV51NAGaIqZ79dVG8wmYb7de6ox07rnZRVFsSt1clIBy3oNT6c/9s5J
-	 8d5DaRu3E5USVHVADY9WVNTNegjcERUFiGqLltZU=
-From: "Stefan Schulte" <stefan.schulte@tuhh.de>
-To: <access@ncsa.uiuc.edu>,
-	<agents@cs.umbc.edu>,
-	<bblisa-announce@bblisa.org>,
-	<CABERNET-EVENTS@JISCMAIL.AC.UK>,
-	<cfp@mmlab.snu.ac.kr>,
-	<chi-Announcements@acm.org>,
-	<comm-theory@ieee.org>,
-	<CommunicationsSociety@comsoc.org>,
-	<community@mlnet.org>,
-	<conference-services@ieee.org>,
-	<conferences@gridtoday.com>,
-	<conferences@newsmaster.tgc.com>,
-	<contiki-developers@lists.sourceforge.net>,
-	<cphc-conf@Jiscmail.ac.uk>,
-	<csc@lists.purdue.edu>,
-	<cse-cfp@cse.stfx.ca>,
-	<DAI-List@mcc.com>,
-	<discuss@ieeetcsc.org>,
-	<distributed-computing-announce@datasys.cs.iit.edu>,
-	<editor@hpcwire.com>,
-	<end2end-china@netarchlab.tsinghua.edu.cn>,
-	<grideditor@gridtoday.com>,
-	<GRUPO@GSD.INESC-ID.PT>,
-	<hpc-announce@mcs.anl.gov>,
-	<icec@listserver.tue.nl>,
-	<info@autonomic-communication.org>,
-	<INVESTIGADORES@INESC-ID.PT>,
-	<iot-edge-cloud@COMSOC.ORG>,
-	<ml@ics.uci.edu>,
-	<ml@isle.org>,
-	<mmb@ira.uka.de>,
-	<multicomm@comsoc.org>,
-	<NGN@JISCMAIL.AC.UK>,
-	<pdcemail@ee.uwa.edu.au>,
-	<performance@merlot.usc.edu>,
-	<planning@asu.edu>,
-	<podc-related@acm.org>,
-	<publicity@hipeac.net>,
-	<remarks@psc.edu>,
-	<siam-sc@siam.org>,
-	<SIGCOMM-MEMBERS@ACM.ORG>,
-	<sigcomm@postel.org>,
-	<sigmetrics-bb@merlot.usc.edu>,
-	<sigplan-l@acm.uiuc.edu>,
-	<SIGSIM@ACM.ORG>,
-	<socinfo@cs.tut.fi>,
-	<spectrum-webmaster@ieee.org>,
-	<storage-research-list@ece.cmu.edu>,
-	<tccc-announce@comsoc.org>,
-	<tccn@comsoc.org>,
-	<tcsc@cse.stfx.ca>,
-	<tfcc@clustercomputing.org>,
-	<uk-performance@macs.hw.ac.uk>,
-	<uksim@glam.ac.uk>,
-	<virtualization@lists.linux-foundation.org>,
-	<webmaster@ncsa.uiuc.edu>
-References: <02f901db2556$971b8560$c5529020$@tuhh.de>
-In-Reply-To: <02f901db2556$971b8560$c5529020$@tuhh.de>
-Subject: Deadline Extended: 9th IEEE International Conference on Fog and Edge Computing (ICFEC 2025) 
-Date: Mon, 6 Jan 2025 09:12:59 +0100
-Message-ID: <057d01db6012$d243ad10$76cb0730$@tuhh.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AqJv2SZ9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5F5C4CED2;
+	Mon,  6 Jan 2025 08:55:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736153751;
+	bh=gG4SiTyR1rjNKpTSl7F5DKYKTnsEbd9XXx+wOP8RmzQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=AqJv2SZ9q16OyArWqElTwLOPNwqTm/ShNQQWffb96q1lj4AqFBu2S8K57PHmnRH7/
+	 xzupTm63UbfD3+7hQmj/mjtk7Ni2a3mv4rg5ZyC7gx0mF08AN7kqGfWIqKC458mCKN
+	 gwQp1eC6iRJnKLYxcKdFS5a/G+MvmBRmjaM6UcbaHc3qmp9xl3044q8FgfIkpESvIn
+	 ifJDNyYD52oEbg9I7c1Dg0+YMil4dxoxeB9GxG9BEJ3g21c7PaizTkseSF5f+HfCFD
+	 c/9goNwKH4U8aSo3khRGr2Y22RbMLY00xLu/mzuLGW5AwAZLSwqWV1X5wYZD2lVzu1
+	 C6+ttlxaCH/rg==
+Date: Mon, 6 Jan 2025 09:55:49 +0100
+From: Maxime Ripard <mripard@kernel.org>
+To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Karol Herbst <kherbst@redhat.com>, Lyude Paul <lyude@redhat.com>, 
+	Danilo Krummrich <dakr@redhat.com>, Harry Wentland <harry.wentland@amd.com>, 
+	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>, 
+	Alex Deucher <alexander.deucher@amd.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
+	Xinhui Pan <Xinhui.Pan@amd.com>, Alain Volmat <alain.volmat@foss.st.com>, 
+	Raphael Gallais-Pou <rgallaispou@gmail.com>, Liviu Dudau <liviu.dudau@arm.com>, 
+	Andrzej Hajda <andrzej.hajda@intel.com>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Robert Foss <rfoss@kernel.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, 
+	Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+	Peter Senna Tschudin <peter.senna@gmail.com>, Ian Ray <ian.ray@ge.com>, 
+	Martyn Welch <martyn.welch@collabora.co.uk>, Inki Dae <inki.dae@samsung.com>, 
+	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
+	Stefan Agner <stefan@agner.ch>, Alison Wang <alison.wang@nxp.com>, 
+	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
+	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
+	Rob Clark <robdclark@gmail.com>, Abhinav Kumar <quic_abhinavk@quicinc.com>, 
+	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
+	Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Sandy Huang <hjc@rock-chips.com>, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, 
+	Andy Yan <andy.yan@rock-chips.com>, Chen-Yu Tsai <wens@csie.org>, 
+	Samuel Holland <samuel@sholland.org>, Thierry Reding <thierry.reding@gmail.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Dave Stevenson <dave.stevenson@raspberrypi.com>, =?utf-8?B?TWHDrXJh?= Canal <mcanal@igalia.com>, 
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
+	Chia-I Wu <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
+	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
+	freedreno@lists.freedesktop.org, virtualization@lists.linux.dev, 
+	spice-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev, 
+	linux-tegra@vger.kernel.org, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, 
+	Jani Nikula <jani.nikula@intel.com>
+Subject: Re: [PATCH v2 0/5] drm/connector: make mode_valid() callback accept
+ const mode pointer
+Message-ID: <20250106-passionate-lorikeet-of-apotheosis-c62ff1@houat>
+References: <20241214-drm-connector-mode-valid-const-v2-0-4f9498a4c822@linaro.org>
+ <76ho36jqcraehnsgpjralpye52w7ryshhgizekn4qqfsikiojd@3yyorbvjkc7b>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/signed; micalg=pgp-sha384;
+	protocol="application/pgp-signature"; boundary="7fhp4op5b7mhfhd4"
+Content-Disposition: inline
+In-Reply-To: <76ho36jqcraehnsgpjralpye52w7ryshhgizekn4qqfsikiojd@3yyorbvjkc7b>
+
+
+--7fhp4op5b7mhfhd4
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-X-Mailer: Microsoft Outlook 16.0
-Content-Language: de
-Thread-Index: AdtgEr+aE0tiPEc0ReKzvSlDhE6Agw==
+Subject: Re: [PATCH v2 0/5] drm/connector: make mode_valid() callback accept
+ const mode pointer
+MIME-Version: 1.0
 
-Deadline Extended: 9th IEEE International Conference on Fog and Edge
-Computing (ICFEC 2025) http://icfec2025.ontariotechu.ca/, May 19th-22nd,
-2025, Troms=F8, Norway
+On Mon, Jan 06, 2025 at 12:47:07AM +0200, Dmitry Baryshkov wrote:
+> On Sat, Dec 14, 2024 at 03:37:04PM +0200, Dmitry Baryshkov wrote:
+> > While working on the generic mode_valid() implementation for the HDMI
+> > Connector framework I noticed that unlike other DRM objects
+> > drm_connector accepts non-const pointer to struct drm_display_mode,
+> > while obviously mode_valid() isn't expected to modify the argument.
+> >=20
+> > Mass-change the DRM framework code to pass const argument to that
+> > callback.
+> >=20
+> > The series has been compile-tested with defconfig for x86-64, arm and
+> > arm64.
+> >=20
+> > Note: yes, I understand that this change might be hard to review and
+> > merge. The only viable option that I foresee is to add new callback,
+> > having the const argument and migrate drivers into using it one by one.
+>=20
+> Colleagues, I'd like to graciously ping regarding this series. Should it
+> be merged as is (possibly requiring more R-B's)? Or should I rework it
+> adding something like .mode_valid_new() callback which takes const
+> argument?
 
-###TOPICS OF INTEREST###
-The conference seeks to attract high-quality contributions covering both
-theory and practice over systems research and emerging domain-specific
-applications related to next-generation distributed systems that cover
-different parts of the cloud-edge compute continuum. This covers =
-different
-computing models, including mist computing, edge computing, multi-access
-edge computing, fog computing, and mobile cloud computing.=20
-Some representative topics of interest include, but are not limited to:
-* Data centers and infrastructures along the compute continuum
-* Mobility management along the compute continuum
-* Federated learning and distributed machine learning in and for the =
-compute
-continuum
-* 5G/6G for the compute continuum
-* Middleware and runtime systems for the compute continuum
-* Programming models for the compute continuum
-* Storage and data management platforms along the compute continuum
-* Scheduling and resource management for the compute continuum
-* Security, privacy, trust, and provenance issues for the compute =
-continuum
-* Distributed consensus and blockchains in the compute continuum
-* Modeling and simulation for and in the compute continuum
-* Performance monitoring and metering of infrastructures along the =
-compute
-continuum
-* (Big) Data processing in the compute continuum
-* Energy-efficient computing in the compute continuum
+I think your patch is fine, and you can add my
 
-###SUBMISSION###
-We invite original manuscripts that have neither been published =
-elsewhere
-nor are under review at a different venue. Papers should follow the IEEE
-template for conference proceedings. Authors should submit papers, =
-written
-in English, electronically in PDF format, and may not exceed 8 =
-letter-size
-pages in length, including all figures, tables, and references. Apart =
-from
-full papers, authors may also submit poster papers, which may not exceed =
-2
-pages in length.=20
+Reviewed-by: Maxime Ripard <mripard@kernel.org>
 
-All manuscripts will be reviewed and judged on originality, technical
-strength, significance, presentation, and relevance to the conference by =
-at
-least three reviewers. Papers may be submitted online at
-https://easychair.org/conferences/?conf=3Dicfec2025.=20
+We seem to lack an Acked-by for amdgpu though?
 
-Papers that are accepted for publication may be accepted as REGULAR =
-papers
-(8 pages), SHORT papers (5 pages), or POSTER papers (2 pages), depending =
-on
-the reviewers' recommendations. Accepted regular, short, and poster =
-papers
-will be included in the conference proceedings that will be published
-through the IEEE Computer Society Conference Publishing Services.=20
+Maxime
 
-Further submission information can be found at
-http://icfec2025.ontariotechu.ca/.
+--7fhp4op5b7mhfhd4
+Content-Type: application/pgp-signature; name="signature.asc"
 
-###IMPORTANT DATES###
-* Jan. 23, 2025: Paper submission deadline
-* Feb. 28, 2025: Author notification
-* Mar. 15, 2025: Camera-ready submission
-* May 19-22, 2025: Conference (on-site in Troms=F8, Norway)
+-----BEGIN PGP SIGNATURE-----
 
-###ORGANIZATION & CONTACT###
-General Chairs:
-* Khalid Elgazzar, Ontario Tech University, Canada
-* Lena Mashayekhy, University of Delaware, USA
+iJUEABMJAB0WIQTkHFbLp4ejekA/qfgnX84Zoj2+dgUCZ3ualAAKCRAnX84Zoj2+
+ds65AYCm0HY0VDiw9/7lDbcyH0YuzRQu/+7FuV8GS6p+ubfGmvGVGOS+07oCUheK
+PN/gOxwBgOc9gl1vmxFUVrfM3LjcOixdshbfH49V0dlOMzIZO3m/L5caQ4O6jchE
+p0sk4xSGUQ==
+=4eTB
+-----END PGP SIGNATURE-----
 
-Program Committee Chairs:=20
-* Cristina L. Abad, Escuela Superior Politecnica del Litoral (ESPOL),
-Ecuador
-* Stefan Schulte, Hamburg University of Technology, Germany
-* Subhajit Sidhanta, IIT Kharagpur, India
-
-The organizing committee of IEEE ICFEC 2025 can be reached via email at
-stefan.schulte@tuhh.de.
-
-
+--7fhp4op5b7mhfhd4--
