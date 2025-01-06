@@ -1,22 +1,22 @@
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D78E1DACBE
-	for <virtualization@lists.linux.dev>; Mon,  6 Jan 2025 10:57:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5064C1DC9A7
+	for <virtualization@lists.linux.dev>; Mon,  6 Jan 2025 10:59:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736161059; cv=none; b=rtjaUwaEI5/HOPr4Zhkm9HsmaYM795oLfBz7puevLmRWhoh76RsDh6rpbDp9KhYAirZKu/ryaExvE0y2ugQwq3oqdWP6VHxwAP1EYgAmzF3RfStmaEmu6ecbNPgzfNj3v8kcDcoIIlsdtIhngoC+ReXeK7QEcm4KWT5tStVaU+A=
+	t=1736161150; cv=none; b=aob9CSbqS7t94T+mWNMq5LkxIQ9RboYLvVpswgs05S3d1fQ3OcNrHooLLZIFmSGRHyyIwt1dG+8uZ0o7iNHUHS8bIY2XXGK835kfM4cVkL0OTX8q1W9+IRWj1GXAgdP05YcnmYIExkin2NDSJGJN9W3mQd0TnYGpo9+RItBc4d8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736161059; c=relaxed/simple;
-	bh=PE4GcSKp0lUdDqbIfdbZcJExRHuMRvf9+YtveZDL1nE=;
+	s=arc-20240116; t=1736161150; c=relaxed/simple;
+	bh=IeKoNlvkzTkgU9FT99S2kHoF8QpEbi/1d9veU/3SYew=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lpmPvJOdJ8zVqbyI88HeBEE6cuuUC6u7wr4I0C89/BdDUy8zktT29u+Md2uTQomoWtABQF9TGNDMQ1QXsYYCE5elgwFmt0dqvLmbIMEf4E8Z8DJ7FNDW2LS/lyfo9vQVgzc/ftiiB5FtSit12ZGn0ym70bEB/9Zsz3CeHWF02Kk=
+	 Content-Type:Content-Disposition:In-Reply-To; b=i5uiFrPRFEmQFGpqMMNbsZkA0CruTUPiFuNAqylM1+FuGybL1HB3kf7z2E2FW6lBX7lmjMv4OLu85V5XtgnFQpdUFjV3X3lGGt2KBObitf8+y+VFWWK9p/NuzEKphv7ItmEgAOBmlxSBMxEGiB6fMW/C+fxtAfwOY7h2oEANn00=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
 Received: by verein.lst.de (Postfix, from userid 2407)
-	id 7D08D68C7B; Mon,  6 Jan 2025 11:57:32 +0100 (CET)
-Date: Mon, 6 Jan 2025 11:57:32 +0100
+	id 6422968CFE; Mon,  6 Jan 2025 11:59:05 +0100 (CET)
+Date: Mon, 6 Jan 2025 11:59:05 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: Damien Le Moal <dlemoal@kernel.org>
 Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
@@ -24,10 +24,10 @@ Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
 	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
 	nbd@other.debian.org, virtualization@lists.linux.dev,
 	linux-scsi@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
-Subject: Re: [PATCH 03/10] block: add a store_limit operations for sysfs
- entries
-Message-ID: <20250106105732.GA21833@lst.de>
-References: <20250106100645.850445-1-hch@lst.de> <20250106100645.850445-4-hch@lst.de> <a461bbbc-f251-4f44-89c7-f80f72e6e96d@kernel.org>
+Subject: Re: [PATCH 05/10] block: don't update BLK_FEAT_POLL in
+ __blk_mq_update_nr_hw_queues
+Message-ID: <20250106105905.GB21833@lst.de>
+References: <20250106100645.850445-1-hch@lst.de> <20250106100645.850445-6-hch@lst.de> <1538d5e9-eb59-49a7-90c8-77a290f3a420@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -36,14 +36,17 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a461bbbc-f251-4f44-89c7-f80f72e6e96d@kernel.org>
+In-Reply-To: <1538d5e9-eb59-49a7-90c8-77a290f3a420@kernel.org>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Mon, Jan 06, 2025 at 07:46:19PM +0900, Damien Le Moal wrote:
-> The freeze must NOT be done for the "if (entry->store_limit)" case. So this
-> needs to go int the "else". Otherwise, you still have freeze the take limit
-> lock order which can cause the ABBA deadlocks in SCSI sd.
+On Mon, Jan 06, 2025 at 07:55:30PM +0900, Damien Le Moal wrote:
+> > +	lim->features |= BLK_FEAT_IO_STAT | BLK_FEAT_NOWAIT | BLK_FEAT_POLL;
+> 
+> Why set BLK_FEAT_POLL unconditionally ? This is changing the current default
+> for many devices, no ?
 
-That is fixed in the next patch.  This one is pure refactoring without
-behavior change.
-
+Due to the runtime check it doesn't actually change behavior.  But
+it does change the value read from sysfs, which also need extra check
+for poll queues.  But the entire point is that we don't have to update
+this field when updating the queues, so yes it should be set
+unconditonally.
