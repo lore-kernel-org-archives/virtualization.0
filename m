@@ -1,60 +1,81 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E08C197A68
-	for <virtualization@lists.linux.dev>; Tue,  7 Jan 2025 07:07:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 958081DDC1F
+	for <virtualization@lists.linux.dev>; Tue,  7 Jan 2025 07:52:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736233622; cv=none; b=dOzTRPSDK1Es9phO1vSFqQ/NOVVesmzdh4F313zi1QcvQx2QIFE5sLSAriV/8D7/j7ihRTUPmIY1DnKGFG6sTa8vtU0pt2uiSJekBYARgbFnzMWHb+XMhcx8zuuJ5XM67SmRGIrJmlWXcCCKWV4XOSkIScd0z9ALH4GPeXsWcVU=
+	t=1736236329; cv=none; b=uy9SavojNznXEvqTap3Gg97i+sVK3o27OvVXS1VEB7ndcfBQ6dlfBIcGt20oN8wyJF0I+Y99kQSuWI0dr1Cs6bcxrVZwYUbbBapvKEf0sUmoVpvJ5nIJTQALILrIxgXXEI5Qt9PcKvwtnHpT6LTPeeUBUJno8wLp7HXw4sbcb80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736233622; c=relaxed/simple;
-	bh=dzZO4sznpYdO8z5JfTNq6/2Am3vwkoPsY2KZD8PeZpc=;
+	s=arc-20240116; t=1736236329; c=relaxed/simple;
+	bh=JfYaEInJSpmq0SGY6Ukw0A5RAm/wciQENH2/SPvgjYU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UAvqnVdCWEgYEAJk2r1yGWXvhP7t41grhUgw3pYlJ30QvU6edoiH1oUqOcBvh5UF9GZSjWftrvOVGdT8IbZYVlvaTI7KRl25Te0ny7qxfW4QTPQZm1MiiJy5UhnX0Ty6U4MM2CMuOYdZXMsyKmiyPLpFUpIjFLFRNNW5b9Rb4jc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dr8hnk+j; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=VMveXj4pXn4WlDP+C3Ug0AoU0PNZcphJAuPxoa4vLDNpQbz+G+Dg4fhgUTShn8PXGeLtbrKgLr1XkKILLPID3NXi0DpHhFkjNv9/Bi5tx4GUYefCxso222XYiBD+U4GD9TJP8fGa6CMhEgcOoD8tIjYs2q0Ym/SC8aTqwR7utrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FI5ljDTa; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=UT/1Hhr+; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FI5ljDTa; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=UT/1Hhr+; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dr8hnk+j"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5073s5ae013495;
-	Tue, 7 Jan 2025 07:06:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=inaSEM
-	pTVKk1ST+3srG8V1U/0h9KEiFBTVU1i7Qk0gU=; b=dr8hnk+jtUP5Iz3VCNvTvO
-	cUgORr4Di+uZ8SzVPZCgkxtwSGNKSduqENIm2R0DmBsWWmvOnHm2hsDjmCrlbi9q
-	mAgt+JFLxEuJKu/Tcvo3T1UV3VVEG/Q8+HjAvzN/UdyuR5XtMdOXp8gQxfWsm19X
-	go1Z1l6vhaoXYQtQl/r1qx/xyV11EqAUamjMCuI7d5yKT7mk1ieR+JNNLcqMN69N
-	Y+EKe1NQAnb8D6e4qPen8uC9hgOGu/ZdzcMK6sNaNi+cJI7Q7zRwrcT/TvFJjG2G
-	v/4hTjVmEJBS9UxhLngKVk8M3P4e8kXtr1LSVkh2wFXppJjyu+HmEVzo+FM455JA
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440vrc8q1s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 07:06:56 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5073RCiW008851;
-	Tue, 7 Jan 2025 07:06:55 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43yfpyse6h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 07:06:55 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50776sHI32768646
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 Jan 2025 07:06:54 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 900C258064;
-	Tue,  7 Jan 2025 07:06:54 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 191ED58063;
-	Tue,  7 Jan 2025 07:06:51 +0000 (GMT)
-Received: from [9.109.198.241] (unknown [9.109.198.241])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  7 Jan 2025 07:06:50 +0000 (GMT)
-Message-ID: <bb8ea315-cf16-4fd1-9680-bbc390ac1756@linux.ibm.com>
-Date: Tue, 7 Jan 2025 12:36:49 +0530
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FI5ljDTa";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="UT/1Hhr+";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FI5ljDTa";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="UT/1Hhr+"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 81F0621169;
+	Tue,  7 Jan 2025 07:52:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736236320; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ma7lupYQRgt/8w+mxCotePjXTbtf5xdjlK6gQrSLO7Y=;
+	b=FI5ljDTa4GtQpy6KDU9HM4Nrbti6tciIpE84OSvjuX2EvzGySz5TtXTbajtMnO7f2vKC90
+	Nb+k8Qm8x2U7bZhf4BXfp/VACxWuIYncKJToNz6fT5UWPt/4hOJBmwdYB7tnJb/bsFNou/
+	GmpejyOY3XjP2vJYJJEXqA5JV+LSgN0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736236320;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ma7lupYQRgt/8w+mxCotePjXTbtf5xdjlK6gQrSLO7Y=;
+	b=UT/1Hhr+Qtp4+7hk1PCVwpbgFW4bMem1xs8sXHc4k/NRMz5L6p+M/PhMr1aKWEJu8eTrFL
+	zvtZTZSxFWSmLLAg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=FI5ljDTa;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="UT/1Hhr+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736236320; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ma7lupYQRgt/8w+mxCotePjXTbtf5xdjlK6gQrSLO7Y=;
+	b=FI5ljDTa4GtQpy6KDU9HM4Nrbti6tciIpE84OSvjuX2EvzGySz5TtXTbajtMnO7f2vKC90
+	Nb+k8Qm8x2U7bZhf4BXfp/VACxWuIYncKJToNz6fT5UWPt/4hOJBmwdYB7tnJb/bsFNou/
+	GmpejyOY3XjP2vJYJJEXqA5JV+LSgN0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736236320;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ma7lupYQRgt/8w+mxCotePjXTbtf5xdjlK6gQrSLO7Y=;
+	b=UT/1Hhr+Qtp4+7hk1PCVwpbgFW4bMem1xs8sXHc4k/NRMz5L6p+M/PhMr1aKWEJu8eTrFL
+	zvtZTZSxFWSmLLAg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0DC3713A6A;
+	Tue,  7 Jan 2025 07:51:59 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id qc+mAB/dfGdtMAAAD6G6ig
+	(envelope-from <hare@suse.de>); Tue, 07 Jan 2025 07:51:59 +0000
+Message-ID: <1a2fe8aa-d3e1-4e36-8cd5-27141c1d7178@suse.de>
+Date: Tue, 7 Jan 2025 08:51:57 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,63 +83,125 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 05/10] block: don't update BLK_FEAT_POLL in
- __blk_mq_update_nr_hw_queues
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Damien Le Moal <dlemoal@kernel.org>,
-        Ming Lei <ming.lei@redhat.com>, linux-block@vger.kernel.org,
-        linux-nvme@lists.infradead.org, nbd@other.debian.org,
-        virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
-        usb-storage@lists.one-eyed-alien.net
-References: <20250106100645.850445-1-hch@lst.de>
- <20250106100645.850445-6-hch@lst.de>
- <4addcb5e-fc88-4a86-a464-cc25d8674267@linux.ibm.com>
- <20250106110532.GA22062@lst.de>
- <3fb212e4-8fff-45fc-9cff-f5b5eaff4231@linux.ibm.com>
- <20250106152708.GA27431@lst.de>
+Subject: Re: [PATCH v4 1/9] lib/group_cpus: let group_cpu_evenly return number
+ of groups
+To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ Sagi Grimberg <sagi@grimberg.me>, Kashyap Desai
+ <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>,
+ Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+ Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Nilesh Javali <njavali@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ Don Brace <don.brace@microchip.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>
+Cc: Costa Shulyupin <costa.shul@redhat.com>,
+ Juri Lelli <juri.lelli@redhat.com>, Valentin Schneider
+ <vschneid@redhat.com>, Waiman Long <llong@redhat.com>,
+ Ming Lei <ming.lei@redhat.com>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
+ <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>,
+ Mel Gorman <mgorman@suse.de>,
+ Sridhar Balaraman <sbalaraman@parallelwireless.com>,
+ "brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
+ linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+ megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org,
+ storagedev@microchip.com, virtualization@lists.linux.dev
+References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
+ <20241217-isolcpus-io-queues-v4-1-5d355fbb1e14@kernel.org>
 Content-Language: en-US
-From: Nilay Shroff <nilay@linux.ibm.com>
-In-Reply-To: <20250106152708.GA27431@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fjpHHO44d6r9IEMzw536FE7K15i-7J20
-X-Proofpoint-ORIG-GUID: fjpHHO44d6r9IEMzw536FE7K15i-7J20
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=305 spamscore=0
- impostorscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0
- clxscore=1015 mlxscore=0 priorityscore=1501 suspectscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2501070056
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20241217-isolcpus-io-queues-v4-1-5d355fbb1e14@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 81F0621169
+X-Spam-Score: -3.01
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	ARC_NA(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_CC(0.00)[redhat.com,suse.com,kernel.org,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,broadcom.com,microchip.com,lists.linux.dev];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCPT_COUNT_TWELVE(0.00)[38];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLeuu8pmbomyos8bjut4e19yoq)];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
+	TO_DN_SOME(0.00)[]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Spam-Level: 
 
+On 12/17/24 19:29, Daniel Wagner wrote:
+> group_cpu_evenly might allocated less groups then the requested:
+> 
+> group_cpu_evenly
+>    __group_cpus_evenly
+>      alloc_nodes_groups
+>        # allocated total groups may be less than numgrps when
+>        # active total CPU number is less then numgrps
+> 
+> In this case, the caller will do an out of bound access because the
+> caller assumes the masks returned has numgrps.
+> 
+> Return the number of groups created so the caller can limit the access
+> range accordingly.
+> 
+> Signed-off-by: Daniel Wagner <wagi@kernel.org>
+> ---
+>   block/blk-mq-cpumap.c        |  7 ++++---
+>   drivers/virtio/virtio_vdpa.c |  2 +-
+>   fs/fuse/virtio_fs.c          |  7 ++++---
+>   include/linux/group_cpus.h   |  2 +-
+>   kernel/irq/affinity.c        |  2 +-
+>   lib/group_cpus.c             | 23 +++++++++++++----------
+>   6 files changed, 24 insertions(+), 19 deletions(-)
+> 
+> diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
+> index ad8d6a363f24ae11968b42f7bcfd6a719a0499b7..85c0a7073bd8bff5d34aad1729d45d89da4c4bd1 100644
+> --- a/block/blk-mq-cpumap.c
+> +++ b/block/blk-mq-cpumap.c
+> @@ -19,9 +19,10 @@
+>   void blk_mq_map_queues(struct blk_mq_queue_map *qmap)
+>   {
+>   	const struct cpumask *masks;
+> -	unsigned int queue, cpu;
+> +	unsigned int queue, cpu, nr_masks;
+>   
+> -	masks = group_cpus_evenly(qmap->nr_queues);
+> +	nr_masks = qmap->nr_queues;
+> +	masks = group_cpus_evenly(&nr_masks);
 
+Hmph. I am a big fan of separating input and output paramenters;
+most ABI definitions will be doing that anyway.
+Makes it also really hard to track whether the output parameters
+had been set at all. Care to split it up?
 
-On 1/6/25 8:57 PM, Christoph Hellwig wrote:
-> On Mon, Jan 06, 2025 at 05:36:52PM +0530, Nilay Shroff wrote:
->> Oh yes, I saw that you moved blk_mq_can_poll() to blk-mq.h and 
->> made it inline so thought why bdev_can_poll() can't be made inline?
-> 
-> It can be, but why would you want it to?  What do you gain from forcing
-> the compiler to inline it, when sane compilers with a sane inlining
-> threshold will do that anyway.
-Hmm, ok, I was thinking just in case we want to force compiler. What if
-in case compiler doesn't inline it? However, if we're moving this function
-to a header then it would be made inline, anyways.
-> 
->> BTW, bdev_can_poll() is  called from IO fastpath and so making it inline 
->> may slightly improve performance. 
->> On another note, I do see that blk_mq_can_poll() is now only called 
->> from bdev_can_poll(). So you may want to merge these two functions 
->> in a single call and make that inline.
-> 
-> I'd rather keep generic block layer logic separate from blk-mq logic.
-> We tend to do a few direct calls into blk-mq from the core code to
-> avoid the indirect call overhead, but we should still keep the code
-> as separate as possible to keep it somewhat modular.
-> 
-Okay, make sense.
+Cheers,
 
-Thanks,
---Nilay
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+
