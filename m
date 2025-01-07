@@ -1,215 +1,158 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB071F0E44
-	for <virtualization@lists.linux.dev>; Tue,  7 Jan 2025 13:29:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0593E2940F
+	for <virtualization@lists.linux.dev>; Tue,  7 Jan 2025 15:39:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736256558; cv=none; b=u1k2+fJMfeJryAdVda8HY+mImTCQ1EASlLnZSl6Kqr9/ytYLAOMpDXjiVtmaj3T1M61s7ePAbvI5AlhrxTg63yuB2sTKnm9xxXPPf91f2KZxeHTs34/ozWI1qKrIxKNIQk0FQ2aaKMqa8Rc/EKoXenNLOhLE+RbIP2+jDDd1ZBA=
+	t=1736264369; cv=none; b=KEE1yZs/dzHEYwlJw8PCSPhLMvQSv8N0SsMTvapg6joMBV97ZTHZhTHniah77yTOlKYWoSKP74o4htmeUJ8iDIQ+kTrGrxqIVquIX869rzv7SsNemSVewSgQeGxhrpfKOX5gnJH1cbatFcsjnzVYYQ/WMcsjQPJzGiwHTcN/2ss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736256558; c=relaxed/simple;
-	bh=L+MkuHhCLgD8kGQfSxdeNfO2pfO1WF0R1klzgWW+KGw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DIYqralO/3lseQETpmjXEmtCWwDIDlL+O8dbg7qYBe2yvIbPF9/EF0uvobEPZnzoWiq46nNoihBiW5xm/XyJudo+//EWMPQ6ZHxXXd2xQKH3DBUU2/sYc4xOIGMVIu8CKVIgNYBEbWCHt9Heb364reTlB6tIaNcxdc8BYojEIvE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OBlsnYR/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736264369; c=relaxed/simple;
+	bh=FRVjJvG/HbiP4iJ9ShtEBTB73KvSoziGGuOe71w7ujY=;
+	h=From:Message-ID:Date:MIME-Version:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=j9CrRSNYL8AWX/xJyCi1hIZejoEkcCr7GvkSRvOyN5Ttwa/GyUjzNKre8N3gU3uaAAPLvoXEtBy5nhya08YvcDCZNe76/NgzDC/XGs9lbbzJHJvnbsGOsRy+tSzEQjbh2jUBJzX9sVOwM8izbtCTTrj99cHWRgI5YjaQmwIReFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vrv3c3/k; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OBlsnYR/"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 507BWGNg009731;
-	Tue, 7 Jan 2025 13:28:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=mLgDzv/pVpbzGVF/OSbbOoTsrwb8sA
-	5JJIlfnBc5IRk=; b=OBlsnYR/bBezL2GRdAOvCDpfjTzgBC1YAjcDWKh3genAFF
-	7VmFYGzCQqntDisGxSNct7Weq0zBh7U5qGIkA5VFcOJnoftvLaehKEFWCQfbiAfR
-	Hl5eFKoY3fwyy2nUB/xz6agS+ZhpnxTY7T/PX+63Xv2yU1Kk0y9tcnz2IFIcrbYV
-	NzQeY+t+o8ZjwiyLasSJ3MUgeMRk8A4h2B7dp/wPkINyHfgIfyQ633G927/t2rHM
-	KAh2R9OaibMnsh2VLHw9gByqghhedxAONPnPg+tuNpdgnb/8oi6iqo8T34dO6hVT
-	kuVJh4zs/jK+zKcJflBj0i12SBFp1JxjCTVCM/Nw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440s0aaygh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 13:28:40 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 507DSdcj025835;
-	Tue, 7 Jan 2025 13:28:39 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440s0aaygc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 13:28:39 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5079nnbp027946;
-	Tue, 7 Jan 2025 13:28:38 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yhhk2dgt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 13:28:38 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 507DSY0s27591038
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 Jan 2025 13:28:34 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D9D820040;
-	Tue,  7 Jan 2025 13:28:34 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2A3C020043;
-	Tue,  7 Jan 2025 13:28:33 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  7 Jan 2025 13:28:33 +0000 (GMT)
-Date: Tue, 7 Jan 2025 14:28:31 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Yury Norov <yury.norov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-        linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-crypto@vger.kernel.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Haren Myneni <haren@linux.ibm.com>,
-        Rick Lindsley <ricklind@linux.ibm.com>,
-        Nick Child <nnac123@linux.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
-        James Smart <james.smart@broadcom.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Matt Wu <wuqiang.matt@bytedance.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>, Greg Kurz <groug@kaod.org>,
-        Peter Xu <peterx@redhat.com>, Shrikanth Hegde <sshegde@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-Subject: Re: [PATCH 06/14] cpumask: re-introduce cpumask_next{,_and}_wrap()
-Message-ID: <Z30r/6S8VBU8/Ml5@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20241228184949.31582-1-yury.norov@gmail.com>
- <20241228184949.31582-7-yury.norov@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vrv3c3/k"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736264365;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iHSg1y6UnjoLFUKVWKkQCt5FDx941kJIeDF0Ru2YJVU=;
+	b=Vrv3c3/kSgLyrjQEKIr3fCuEXMxa33VP28Qct0a5oxR3mWM/lj9tiQjdHLjW7UlGONWXDA
+	n7wBd2rmRz0mV/BRp54FRkCaow028K0j7PArjTEi9HueGFMEforMYOR1zY4PsdY7iV4G3q
+	kApcxfr1dW9tGJv1OPy4kS3kovI7eQg=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-68-Sbfb5fHDNBa5hKFZVqFmMA-1; Tue, 07 Jan 2025 10:39:25 -0500
+X-MC-Unique: Sbfb5fHDNBa5hKFZVqFmMA-1
+X-Mimecast-MFC-AGG-ID: Sbfb5fHDNBa5hKFZVqFmMA
+Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-6d8f94518c9so333127936d6.1
+        for <virtualization@lists.linux.dev>; Tue, 07 Jan 2025 07:39:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736264364; x=1736869164;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iHSg1y6UnjoLFUKVWKkQCt5FDx941kJIeDF0Ru2YJVU=;
+        b=Ka/xaS35WEa8pDlXafLVeIiUxxXAAy5YOF8BNaMpyu7tp3rgaOKYJOHDvBBWvWrM+m
+         l4BIZ3VDgF3uRRnAS9Nhc4o3Vzx7j6R1fbMWLtPPTMhYMm0x6LDjhhOY2DhUHKIi4q5k
+         +Z8zFafg9DF2IPoR3cXWhBi0ExjUDSqwgj1s/cN7UmVkDZkvqp0ESeC6npzosA7bfvDE
+         MGR2pKqIiWl9zLkV7ZOYj5Ek2qmW9Snw3RZL8M3mCkNdFu47wETQnu5GZF6RyyU0Qx2v
+         JHDSpzJlIXoB/yUspIsDO7FCiY7xx05/LSNSDA4mkiXPTxSycyQvlaIoB+XRPhgcZyHK
+         4Xtg==
+X-Forwarded-Encrypted: i=1; AJvYcCUzECeRcPrdptwYAvxQT+kC5sxKUetPtWIX8Zxx7RRZWFAKTWCZuzJ5L/gdNY2kUky/pI4U4rr5A94E6GbU4g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyNmohAOOmfHcEHaR/ezCok/tQgIFt0E39KTvGoeAtKWRzNfmbx
+	dD0ug3P8xzBKRiFDwJuISV2nzPfQs1UKHYa9YjPhousVQ5zS8ZjHpKUVbABkemW/2MHbG311Vfb
+	6xFm0/YWs+Wnnezyzd4oT8I27tIAPGANCPIJBuhaPK5qRrDMLAssF+3Q0P0ZlnMja
+X-Gm-Gg: ASbGncvHssTDEu1kQiP7MsAtd4J1V28JME33NsYr0Jo69X4TBlTYkpLZifEX9z3Mt9/
+	vcmfLV9UX8nJEJshYoJSN9DyvFO54cf3g/U+A1EWzDEb45ow7APiPRWD8gFjvcjQtemhoy0P9mn
+	4TC3kivjx8nMS+ZFQ6QCPEwur/FE2RP4oB4dwppnvgPaJ4R4O7pTlhevi2ilw0C9IoIAX3gkM/6
+	I8ti6wXYOP7VBpG4cs79Gyg7fv3n2BxOWqCor1Aa6n//x4irL9BUDVdyFpYkzZeaEf2k9j4R+bH
+	jHPBkPi9XfHrcdzRCbjdSwwB
+X-Received: by 2002:a05:6214:33c4:b0:6dd:d3b:de4e with SMTP id 6a1803df08f44-6dd2339a922mr1051439416d6.36.1736264362699;
+        Tue, 07 Jan 2025 07:39:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE4W8jiXvb2g7SfEbTpg7s86WYmhnjTSw6XGGd3uv3PzoxZkmqTCVHHTeUleWDp0snzmmaxAg==
+X-Received: by 2002:a05:6214:33c4:b0:6dd:d3b:de4e with SMTP id 6a1803df08f44-6dd2339a922mr1051439056d6.36.1736264362302;
+        Tue, 07 Jan 2025 07:39:22 -0800 (PST)
+Received: from ?IPV6:2601:188:ca00:a00:f844:fad5:7984:7bd7? ([2601:188:ca00:a00:f844:fad5:7984:7bd7])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6dd181a7c13sm182664036d6.77.2025.01.07.07.39.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jan 2025 07:39:21 -0800 (PST)
+From: Waiman Long <llong@redhat.com>
+X-Google-Original-From: Waiman Long <longman@redhat.com>
+Message-ID: <a04eb7d4-4817-41db-bc74-a9fb63f33c5c@redhat.com>
+Date: Tue, 7 Jan 2025 10:39:00 -0500
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241228184949.31582-7-yury.norov@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CvBcdJZ3Px_Fxar3yVlr0JKsNe7bUdCi
-X-Proofpoint-ORIG-GUID: MYFcjTtUWdbqcyxPXpK7_i-p0KcJF5T7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- phishscore=0 mlxlogscore=999 lowpriorityscore=0 impostorscore=0
- malwarescore=0 mlxscore=0 adultscore=0 bulkscore=0 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501070109
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 2/9] sched/isolation: document HK_TYPE housekeeping
+ option
+To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ Sagi Grimberg <sagi@grimberg.me>, Kashyap Desai
+ <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>,
+ Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+ Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Nilesh Javali <njavali@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ Don Brace <don.brace@microchip.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>
+Cc: Costa Shulyupin <costa.shul@redhat.com>,
+ Juri Lelli <juri.lelli@redhat.com>, Valentin Schneider
+ <vschneid@redhat.com>, Waiman Long <llong@redhat.com>,
+ Ming Lei <ming.lei@redhat.com>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
+ <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>,
+ Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
+ Sridhar Balaraman <sbalaraman@parallelwireless.com>,
+ "brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
+ linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+ megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org,
+ storagedev@microchip.com, virtualization@lists.linux.dev
+References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
+ <20241217-isolcpus-io-queues-v4-2-5d355fbb1e14@kernel.org>
+In-Reply-To: <20241217-isolcpus-io-queues-v4-2-5d355fbb1e14@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ziWBjwqAzLUiHSWiu8FbDjl3udC7tUnNTAxp3nGz1Ow_1736264364
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sat, Dec 28, 2024 at 10:49:38AM -0800, Yury Norov wrote:
 
-Hi Yury,
-
-> cpumask_next_wrap_old() has two additional parameters, comparing to it's
-> analogue in linux/find.h find_next_bit_wrap(). The reason for that is
-> historical.
-> 
-> Before 4fe49b3b97c262 ("lib/bitmap: introduce for_each_set_bit_wrap()
-> macro"), cpumask_next_wrap() was used to implement for_each_cpu_wrap()
-> iterator. Now that the iterator is an alias to generic
-> for_each_set_bit_wrap(), the additional parameters aren't used and may
-> confuse readers.
-> 
-> All existing users call cpumask_next_wrap() in a way that makes it
-> possible to turn it to straight and simple alias to find_next_bit_wrap().
-> 
-> In a couple places kernel users opencode missing cpumask_next_and_wrap().
-> Add it as well.
-> 
-> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+On 12/17/24 1:29 PM, Daniel Wagner wrote:
+> The enum is a public API which can be used all over the kernel. This
+> warrants a bit of documentation.
+>
+> Signed-off-by: Daniel Wagner <wagi@kernel.org>
 > ---
->  include/linux/cpumask.h | 37 +++++++++++++++++++++++++++++++++++++
->  1 file changed, 37 insertions(+)
-> 
-> diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> index b267a4f6a917..18c9908d50c4 100644
-> --- a/include/linux/cpumask.h
-> +++ b/include/linux/cpumask.h
-> @@ -284,6 +284,43 @@ unsigned int cpumask_next_and(int n, const struct cpumask *src1p,
->  		small_cpumask_bits, n + 1);
->  }
->  
+>   include/linux/sched/isolation.h | 13 +++++++++++++
+>   1 file changed, 13 insertions(+)
+>
+> diff --git a/include/linux/sched/isolation.h b/include/linux/sched/isolation.h
+> index 2b461129d1fad0fd0ef1ad759fe44695dc635e8c..6649c3a48e0ea0a88c84bf5f2a74bff039fadaf2 100644
+> --- a/include/linux/sched/isolation.h
+> +++ b/include/linux/sched/isolation.h
+> @@ -6,6 +6,19 @@
+>   #include <linux/init.h>
+>   #include <linux/tick.h>
+>   
 > +/**
-> + * cpumask_next_and_wrap - get the next cpu in *src1p & *src2p, starting from
-> + *			   @n and wrapping around, if needed
-> + * @n: the cpu prior to the place to search (i.e. return will be > @n)
-> + * @src1p: the first cpumask pointer
-> + * @src2p: the second cpumask pointer
-> + *
-> + * Return: >= nr_cpu_ids if no further cpus set in both.
+> + * enum hk_type - housekeeping cpu mask types
+> + * @HK_TYPE_TIMER:	housekeeping cpu mask for timers
+> + * @HK_TYPE_RCU:	housekeeping cpu mask for RCU
+> + * @HK_TYPE_MISC:	housekeeping cpu mask for miscalleanous resources
+> + * @HK_TYPE_SCHED:	housekeeping cpu mask for scheduling
+> + * @HK_TYPE_TICK:	housekeeping cpu maks for timer tick
+> + * @HK_TYPE_DOMAIN:	housekeeping cpu mask for general SMP balancing
+> + *			and scheduling algoririthms
+> + * @HK_TYPE_WQ:		housekeeping cpu mask for worksqueues
+> + * @HK_TYPE_MANAGED_IRQ: housekeeping cpu mask for managed IRQs
+> + * @HK_TYPE_KTHREAD:	housekeeping cpu mask for kthreads
 > + */
-> +static __always_inline
-> +unsigned int cpumask_next_and_wrap(int n, const struct cpumask *src1p,
-> +			      const struct cpumask *src2p)
-> +{
-> +	/* -1 is a legal arg here. */
-> +	if (n != -1)
-> +		cpumask_check(n);
-> +	return find_next_and_bit_wrap(cpumask_bits(src1p), cpumask_bits(src2p),
-> +		small_cpumask_bits, n + 1);
-> +}
-> +
-> +/*
-> + * cpumask_next_wrap - get the next cpu in *src, starting from
-> + *			   @n and wrapping around, if needed
+>   enum hk_type {
+>   	HK_TYPE_TIMER,
+>   	HK_TYPE_RCU,
+>
+The various housekeeping types are in the process of being consolidated 
+as most of them cannot be set independently. See commit 6010d245ddc9 
+("sched/isolation: Consolidate housekeeping cpumasks that are always 
+identical") in linux-next or tip. So this patch will have conflict.
 
-Does it mean the search wraps a cpumask and starts from the beginning
-if the bit is not found and returns >= nr_cpu_ids if @n crosses itself?
+Cheers,
+Longman
 
-> + * @n: the cpu prior to the place to search
-> + * @src: cpumask pointer
-> + *
-> + * Return: >= nr_cpu_ids if no further cpus set in both.
 
-It looks like Return is a cpumask_next_and_wrap() comment leftover.
-
-> + */
-> +static __always_inline
-> +unsigned int cpumask_next_wrap(int n, const struct cpumask *src)
-> +{
-> +	/* -1 is a legal arg here. */
-> +	if (n != -1)
-> +		cpumask_check(n);
-> +	return find_next_bit_wrap(cpumask_bits(src), small_cpumask_bits, n + 1);
-> +}
-> +
->  /**
->   * for_each_cpu - iterate over every cpu in a mask
->   * @cpu: the (optionally unsigned) integer iterator
-
-Thanks!
