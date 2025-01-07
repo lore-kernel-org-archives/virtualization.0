@@ -1,115 +1,124 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4931519F471
-	for <virtualization@lists.linux.dev>; Tue,  7 Jan 2025 06:00:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E08C197A68
+	for <virtualization@lists.linux.dev>; Tue,  7 Jan 2025 07:07:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736229653; cv=none; b=ihMQWdjbxGdRNcZI1e1Tm1cvZS3IaCEqmRoTPPD2/CjC157DbfUWpdxG2OLnC3HVsySt3sXKp1YWprwy4FMLFmvf7zMLaEKR06aMtV7E7ZAoCnPxjMriZrxM6gfcW0JVy6MRhifviwwZM74dJi0weiFqYyOxmOWd2pcLskCoaLE=
+	t=1736233622; cv=none; b=dOzTRPSDK1Es9phO1vSFqQ/NOVVesmzdh4F313zi1QcvQx2QIFE5sLSAriV/8D7/j7ihRTUPmIY1DnKGFG6sTa8vtU0pt2uiSJekBYARgbFnzMWHb+XMhcx8zuuJ5XM67SmRGIrJmlWXcCCKWV4XOSkIScd0z9ALH4GPeXsWcVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736229653; c=relaxed/simple;
-	bh=pcTS2IIvM5b/ePXGvpNyGCKS7Bb0XTsBiAqUhzDkKDs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZIJX71UKOiG4/YEZlKc768voIZt8VhB/bYPHivAs0k3xttzChDP76U5NVd8vp9ztwoZ0vnbvta7QNRfB8luDv79I3OEHKn29jNFl2Prwnn+KdmzUj85qVLW6JKPgD/FUyVjbHFaLqkkCK6lYSAcyQEnozkNvXLI+ZE4+Fp0F2vg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=VuMSX6QB; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1736233622; c=relaxed/simple;
+	bh=dzZO4sznpYdO8z5JfTNq6/2Am3vwkoPsY2KZD8PeZpc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UAvqnVdCWEgYEAJk2r1yGWXvhP7t41grhUgw3pYlJ30QvU6edoiH1oUqOcBvh5UF9GZSjWftrvOVGdT8IbZYVlvaTI7KRl25Te0ny7qxfW4QTPQZm1MiiJy5UhnX0Ty6U4MM2CMuOYdZXMsyKmiyPLpFUpIjFLFRNNW5b9Rb4jc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dr8hnk+j; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="VuMSX6QB"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-216728b1836so200466725ad.0
-        for <virtualization@lists.linux.dev>; Mon, 06 Jan 2025 22:00:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1736229648; x=1736834448; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q1LqtCCFqO+EmbQDGZfil95JY56xLKJrZ75mF8dLQMY=;
-        b=VuMSX6QByGBTkTthouFZc6rtqj2R0ejZyR3kCjY8P7O4bcsiNRC45V/OiNM3yRKmOQ
-         69bc1Hdu1Xk/JBgrqtctowlELqjzanKz3FM/ww3CQYTYgr1nk1KAYZ7/2ODfXKRdXdSK
-         P8Zw5vMit6zJgS8K/JMAoGSarXyDgl8EQYG5Awm+6VuYgRugWQcG6CHsoc+gcDpl7Z53
-         n+dBAtmfMum4Zq/Ky2WM7oA1wF4UDpRZXkJcYcJ7SxjnuP04f0bOiaG4LfJs3c9FdYHQ
-         Tk0R8khxrgb03It4G02srzBHTVOXaTQMrkQXV884Blh9SKqpTbFp+Qpiu6rN6fPa6364
-         lw3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736229648; x=1736834448;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Q1LqtCCFqO+EmbQDGZfil95JY56xLKJrZ75mF8dLQMY=;
-        b=oGG+90Mva/YKch9ALhwfrtjGuWsPaXRQKQXJwYbdJG9g5gJWR0OAOPMsFT9DF46C6X
-         ZlG0HK2eqSvekSjVjEfsqLqut1rCBBGc1LCET5+v1uX3XwZfbi20kO4bI8SuJ/ZZ1joe
-         VVQiglz2o9mFeQcnLYqgOJ4pe/Whhj+i14ClmcGyaAT5XGdWQ1LnQboot/ScCMtY+mcA
-         /vl4UdhQ3gN1SCGNFtJaZan1qfW6UwNqGrSCm//c+S4m47yZfRlUJiECXFbT8hmsugcX
-         pC5/zho2Y/m2lK2KiITUFBFpkqfZM++JFevKcFmEM5bQZ4fprm9LmgZ7Vo3wLqNM7ubk
-         DKaQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWkG33ZxCTSmFDtIeQha8jwzOXwo8lHTncgeASeYONFYOGzv/QUiiKWOdoQoEGmuiTI+PEqGjMglZdbqVO87A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzK8rAbW6oWxQOkbOuCxgi9VbNBZfsAyq0ycsra49tlDLxhfqPJ
-	ynx/LQrT+vzCjbrMGOgE2bUjVzg4nw4OfzqmwFXUNQZh3Fkh652vQ3kaueqtyniOFqQErtNT9pm
-	a
-X-Gm-Gg: ASbGncuOlekP6yQHQQwujFGzUeTbs+HKeSSKbyi2vMIppE/7aCcIQyqp/l2CV91SVVX
-	momy2cHOYogxDrKVNZgIxaluVKTRKya3tA3VX5PAHBqnXgdy863FWDguVd1DwvZ3GuVF6VpCyng
-	mjqPfCVHt3C8IYbxtEWrDxDyY/Wsm82/LeoUWLB0ufigiStkbqdfrpR+TtEACDrhWr6yz29C2VE
-	WGg9RZgfR+W7703uvWc32GjcLN72ztFwoKrV9Db4JzaRh3DQjZKjC/uutA=
-X-Google-Smtp-Source: AGHT+IEV0SW8UbkPJKhQiSFE3WXE7urmJef0CRVNx98DBDbQuc5ZLOE88pPCGk4dWb4wb3Z1ikREsw==
-X-Received: by 2002:a05:6a20:1596:b0:1e1:9f57:eab4 with SMTP id adf61e73a8af0-1e5e04609b4mr93184649637.16.1736229648586;
-        Mon, 06 Jan 2025 22:00:48 -0800 (PST)
-Received: from localhost ([122.172.84.139])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-842aba72f7csm29716122a12.4.2025.01.06.22.00.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jan 2025 22:00:47 -0800 (PST)
-Date: Tue, 7 Jan 2025 11:30:44 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: hlleng <a909204013@gmail.com>
-Cc: info@metux.net, vireshk@kernel.org, linux-gpio@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH] drivers:gpio: support multiple virtio-gpio controller
- instances
-Message-ID: <20250107060044.hteiw6dgycz5rr7x@vireshk-i7>
-References: <20250103083520.1764441-1-a909204013@gmail.com>
- <20250106043508.x3pwt3jzh37t265f@vireshk-i7>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dr8hnk+j"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5073s5ae013495;
+	Tue, 7 Jan 2025 07:06:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=inaSEM
+	pTVKk1ST+3srG8V1U/0h9KEiFBTVU1i7Qk0gU=; b=dr8hnk+jtUP5Iz3VCNvTvO
+	cUgORr4Di+uZ8SzVPZCgkxtwSGNKSduqENIm2R0DmBsWWmvOnHm2hsDjmCrlbi9q
+	mAgt+JFLxEuJKu/Tcvo3T1UV3VVEG/Q8+HjAvzN/UdyuR5XtMdOXp8gQxfWsm19X
+	go1Z1l6vhaoXYQtQl/r1qx/xyV11EqAUamjMCuI7d5yKT7mk1ieR+JNNLcqMN69N
+	Y+EKe1NQAnb8D6e4qPen8uC9hgOGu/ZdzcMK6sNaNi+cJI7Q7zRwrcT/TvFJjG2G
+	v/4hTjVmEJBS9UxhLngKVk8M3P4e8kXtr1LSVkh2wFXppJjyu+HmEVzo+FM455JA
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440vrc8q1s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jan 2025 07:06:56 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5073RCiW008851;
+	Tue, 7 Jan 2025 07:06:55 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43yfpyse6h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jan 2025 07:06:55 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50776sHI32768646
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 Jan 2025 07:06:54 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 900C258064;
+	Tue,  7 Jan 2025 07:06:54 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 191ED58063;
+	Tue,  7 Jan 2025 07:06:51 +0000 (GMT)
+Received: from [9.109.198.241] (unknown [9.109.198.241])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  7 Jan 2025 07:06:50 +0000 (GMT)
+Message-ID: <bb8ea315-cf16-4fd1-9680-bbc390ac1756@linux.ibm.com>
+Date: Tue, 7 Jan 2025 12:36:49 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250106043508.x3pwt3jzh37t265f@vireshk-i7>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 05/10] block: don't update BLK_FEAT_POLL in
+ __blk_mq_update_nr_hw_queues
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Damien Le Moal <dlemoal@kernel.org>,
+        Ming Lei <ming.lei@redhat.com>, linux-block@vger.kernel.org,
+        linux-nvme@lists.infradead.org, nbd@other.debian.org,
+        virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
+        usb-storage@lists.one-eyed-alien.net
+References: <20250106100645.850445-1-hch@lst.de>
+ <20250106100645.850445-6-hch@lst.de>
+ <4addcb5e-fc88-4a86-a464-cc25d8674267@linux.ibm.com>
+ <20250106110532.GA22062@lst.de>
+ <3fb212e4-8fff-45fc-9cff-f5b5eaff4231@linux.ibm.com>
+ <20250106152708.GA27431@lst.de>
+Content-Language: en-US
+From: Nilay Shroff <nilay@linux.ibm.com>
+In-Reply-To: <20250106152708.GA27431@lst.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fjpHHO44d6r9IEMzw536FE7K15i-7J20
+X-Proofpoint-ORIG-GUID: fjpHHO44d6r9IEMzw536FE7K15i-7J20
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=305 spamscore=0
+ impostorscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0
+ clxscore=1015 mlxscore=0 priorityscore=1501 suspectscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501070056
 
-On 06-01-25, 10:05, Viresh Kumar wrote:
-> On 03-01-25, 16:35, hlleng wrote:
-> > Modify the virtio-gpio driver to support multiple virtual GPIO controller
-> > instances. The previous static global irq_chip structure caused conflicts
-> > between multiple virtio-gpio device instances as they shared the same
-> > interrupt controller configuration.
+
+
+On 1/6/25 8:57 PM, Christoph Hellwig wrote:
+> On Mon, Jan 06, 2025 at 05:36:52PM +0530, Nilay Shroff wrote:
+>> Oh yes, I saw that you moved blk_mq_can_poll() to blk-mq.h and 
+>> made it inline so thought why bdev_can_poll() can't be made inline?
 > 
-> What is the conflict you are getting since all it has is callbacks only, I
-> wonder why do we need to duplicate it.
+> It can be, but why would you want it to?  What do you gain from forcing
+> the compiler to inline it, when sane compilers with a sane inlining
+> threshold will do that anyway.
+Hmm, ok, I was thinking just in case we want to force compiler. What if
+in case compiler doesn't inline it? However, if we're moving this function
+to a header then it would be made inline, anyways.
+> 
+>> BTW, bdev_can_poll() is  called from IO fastpath and so making it inline 
+>> may slightly improve performance. 
+>> On another note, I do see that blk_mq_can_poll() is now only called 
+>> from bdev_can_poll(). So you may want to merge these two functions 
+>> in a single call and make that inline.
+> 
+> I'd rather keep generic block layer logic separate from blk-mq logic.
+> We tend to do a few direct calls into blk-mq from the core code to
+> avoid the indirect call overhead, but we should still keep the code
+> as separate as possible to keep it somewhat modular.
+> 
+Okay, make sense.
 
-Ahh, so irq chip should be shared actually..
-
-static void gpiochip_set_irq_hooks(struct gpio_chip *gc)
-{
-        ...
-
-	/* Check if the irqchip already has this hook... */
-	if (irqchip->irq_enable == gpiochip_irq_enable ||
-		irqchip->irq_mask == gpiochip_irq_mask) {
-		/*
-		 * ...and if so, give a gentle warning that this is bad
-		 * practice.
-		 */
-		chip_info(gc,
-			  "detected irqchip that is shared with multiple gpiochips: please fix the driver.\n");
-		return;
-	}
-
-        ...
-}
-
-For your patch:
-
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-
--- 
-viresh
+Thanks,
+--Nilay
