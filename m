@@ -1,81 +1,82 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CDA91F8EE9
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:41:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01AE31F709F
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:41:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736336462; cv=none; b=V79OxR6GyaSs/gaW+zt/IZ+q6EHyI087JaM7GoAPACQUNNUYOFUXdzuCNMnDX1ok8vH/CiNhx2qWHbtV5Mb+EL2c2Dgmc2eDgzGsstMQbVRuczc1oqgdEExlx5Kwv5DCVyJre+N5uKVr8CbYT1DgLuMhpz+pOZ/eQ+PZfioKCMs=
+	t=1736336471; cv=none; b=g3zeLxni/CIc3+Rp1AbJiM8T+y1dzL9PdeQ68ElC1HJUEWFdmCQHNfOmuanPRTT9cg5prWk1mER556otEVCH7eO67kHkQyPKw3UGmjJwXN6pVGt5Tiu+npbwq/lY7wpJ+9/fEnOA+IB4kD7hwScfiRgFPbrD0jZs/oGbvbe1Rpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736336462; c=relaxed/simple;
-	bh=lWV/O/UttiTJkLULUBKYE0bPmgRlaCXXqj66Zi3wY7Q=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To; b=DEjliZ0qVJ3mFg7jDch0m72yN8aEDnE/1IR31/WRrFe9DTxnYXSUmBZd6pnTSUo1MuOA/q5SM4HoGcdAgfG5+cjD+s8+RS2IUooY1ZDeatymIk1OkOqaDTIzT41hXgGV9Ds2ooDv5Hgck0YconuYNxWhgo1OBzMUjPybmwb6JaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=ZVe0Vkp/; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1736336471; c=relaxed/simple;
+	bh=xUh8OsO82Lz+N74mTsrU5GQoEJf86sRiocBQFvqOGTc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To; b=R7KKED8XZ3qrw+j3dodNx/M4uQ2sGOAzwRVUmJ3fXtW9Du7kHXptrUPPwKbyk5DmbwkDYF51HAx6M5ecXT4PN+i6bITLT8kQb0bfTx3j+FxpN0uy6nkDBzUDCPZLcOY9DqxEYRFMXSJo+H8O69cgQvPfJI/FwSjDJJLsMkD1vbs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=w2dc1Yfh; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="ZVe0Vkp/"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="w2dc1Yfh"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CB20F403B6
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:41:00 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9685A40405
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:41:09 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id jVyUJL6tdWsM for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jan 2025 11:40:59 +0000 (UTC)
+ id oiVgBQbipCuk for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Jan 2025 11:41:07 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62c; helo=mail-pl1-x62c.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 3CAB3403A4
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 4EE56403EB
 Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3CAB3403A4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4EE56403EB
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=ZVe0Vkp/
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=w2dc1Yfh
 Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3CAB3403A4
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:40:58 +0000 (UTC)
-Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-216401de828so232673255ad.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 08 Jan 2025 03:40:58 -0800 (PST)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4EE56403EB
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:41:07 +0000 (UTC)
+Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-2163b0c09afso244425995ad.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 08 Jan 2025 03:41:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736336458; x=1736941258; darn=lists.linux-foundation.org;
-        h=to:content-transfer-encoding:mime-version:message-id:date:subject
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=fjDlOhfFjHDP1GFg1z841jK8M5cnJcOZe4IzLR2+JLQ=;
-        b=ZVe0Vkp/52igiVq+voHbR1oRmfDHRjsNb+TXz05K5fOAHEBfi4+FRf9LtJfA7ZkUKH
-         n86Zsm4PdAZ1ajTA8PEdf2SnfW0yjKwG47/FbYct6rY+dl30H5QsCs1KlkPI/qpslx//
-         7GTGMViks6kyEXZ11hVZHZe1KSblY9GzvygRis6w5i/EabNcc3Sj7Ht+zjf8QN1K0rq8
-         +2kH1xlA7eQh5d9bnfkaI6OrthHW8MpgIPQ+EJhPuF7C/UH9ZEMPFyIOftjGcT9jIARv
-         Fyo13sFS16nv7TnVlYY8q3yJM2q4WkKFZ4Ic6yvU3pXrLn63Qld1pHteS2vX6IFpNPLP
-         rwGA==
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736336467; x=1736941267; darn=lists.linux-foundation.org;
+        h=to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oH2ziWEMe8qysnaJoX6kBUE58VGIgBpa5DNj4QNLj2A=;
+        b=w2dc1Yfhhn3Rqao4Gs4KP30XO7nripi4pFcoPdVUy8nleliM+b9qad18O7kShl0EXv
+         EVxMT2gVlXpilG0M3nokIbFQYOsu+MshC05D8YDO8wJUM7E5T2Ff6SzVqD3+ADdVCPqT
+         a2p1FJOioWGZvO5OrA64ukgTT/KjECgSB2X3oaCM5rG60vLx8ET+hKyXZgxfPu5bveyy
+         3uoA26REpVD+feEKMdK3Hn1xahdR76GwKUXGlJfG4DU9iOXV+SC+6gcxAHPw3F/YYTM7
+         0jyb3xWJ5jmZaT+l/VJYdweqXnBmFgVbEkL/QsAVVSY2sEtjtVzo/03Tig0qF6nPwGwe
+         0I+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736336458; x=1736941258;
-        h=to:content-transfer-encoding:mime-version:message-id:date:subject
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fjDlOhfFjHDP1GFg1z841jK8M5cnJcOZe4IzLR2+JLQ=;
-        b=Wu+S8KmP488v2NhDgjZNTisi+iPohSg45BtnlFU1KoVTYIaOXNst+jlgsnIuHZlEZd
-         AvTmMJzzsA9hPM7wp/KA+dxOEKrx4k3adjrOzPCZFmNK/Xws/j/Unr6KZ1M4rRhEOyRF
-         xmD+B2cKbZaM2wyudNqKEc1fhVv0woSbokMB0eqVHMSFcyimE7NgqM8hek1e1Jw51DtQ
-         yJ/eJPO4V4rikccbnnX+ORPjZqW+OkOf4eaT2UTC/rokXsDDhncJCBTrzxSdEg6RgK0E
-         sY9EMncsi4Nr3k7Aa35lt7TXBLf8ki6dKF4hhza2HwXCG52e+feqgWA7D6RFDwwFqMK5
-         1ZGg==
-X-Forwarded-Encrypted: i=1; AJvYcCV5jbDWiAKjKiPCHGpJCVa7i/CBQb4KtpYUohKFaarpKfm7bjPcx8EAM7Sy0XfWkVE+gviGIu5C7+XZaLKg3w==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzfHszC2bRh7VXmJuF9FzuOe2nWb7l2gzLRmV7Cpz8PB3QIuajq
-	fBY+YHadgETQeCN63HmZexx2yvldK9buWVW3uVupZy8KWnEWZYMA/Lc8HppYMMY=
-X-Gm-Gg: ASbGncvghNOAYWMNwkitUXCf4vibWtI1EDS4MZ72isJImsTUxeG7EbjbNdH+ipMkmln
-	3qoQ5/xlzThaf1vBizMekhtMXkFCtnQ0PsaQhjIeV+XjMeni/6Km8UyvsXMMaSfnpMKvr+xODBx
-	h7CBB0sRzNfHOH9bg3QRH8MaXacBUSec7UjpZOwkhIe7OlCOc3CR27md6BsHqrTHwRyjG/Io1k3
-	Zv8O6fqBssQOzPRptygoSF24UYybigtixCps/I4Ofdw3Z8ret5CECi3hro=
-X-Google-Smtp-Source: AGHT+IHFRNXARPASashVpP22bZbsPAi6fmuWW4IEFR4NWYNiuFbqTXoYAUP1T7En6RP96xLPSNA5Pg==
-X-Received: by 2002:a17:902:e750:b0:216:5268:9aab with SMTP id d9443c01a7336-21a83fe4ba3mr38646875ad.46.1736336458432;
-        Wed, 08 Jan 2025 03:40:58 -0800 (PST)
+        d=1e100.net; s=20230601; t=1736336467; x=1736941267;
+        h=to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oH2ziWEMe8qysnaJoX6kBUE58VGIgBpa5DNj4QNLj2A=;
+        b=WdWhsGCzhi3wrhAVFWosQI2tzO4QqMWHjKGmiRgSOc6CXL3ks+mhxirhPFZRGPdHOn
+         yx7T5lZ97TVX6/JdoT0shha+OL6eF5s7zERLyOS5c5DaDxLiaq8jyzIoNOOo9f9bt/9T
+         kFr/esFXgQfpBXEbZxXVWEqyJBcGwiSEpqhridsuvk40Jq226dhwA/W4A4a/3mQsi6jb
+         LTHHcjbfXjbZ3TlHjM8rWrlgPSUWA3vTjWm3ULmGP60pN1yOYQqQSo2o8HDldV4QwXfe
+         3hZyfXQte21ny0m/LfTZV7eNEkqn2zU9GQYahjaEK5/joijFJH0KWmHYJcsRmZN9LiJo
+         UdFg==
+X-Forwarded-Encrypted: i=1; AJvYcCVLNo8czO+5Q7s47DAP/UqbaFIBouKhy6cdKmq037CkjvN1g5xsX2Ztw190zHYuQE3L+6uB7zkMXdn59Ai1mg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxC+kpPoPWbR8w/UU87wS2hYxEWQDQZ6GP5sE+Ibqy3AdL9+flo
+	iDx57HUS+weakSv6tXD0wmgJIl4R5nTObs/83+W8H+F6ws6PDXc55DNnjdjQHTM=
+X-Gm-Gg: ASbGnctlh8ecWUcEOES4KmXWYOL3jxRRQzTlyKK78wQAKntozv0imY1mUOSMf1YAa9V
+	zbbayMGnhWifvVfKlsq/1lonCxc2v2zqYn2+fSxbNzxHWsNUMCYv76+kgq4kwEDDHraNmqXGUta
+	If5LI/igv+TFc/cy/iHfsw6zkwIpMe7lwaHZaBVfretyQATDVYcXordVg1bKH6nIJa/UOSmykR+
+	Cgx2Md+NRqFggifgLlpSDGGD4hsY4axMxdbHbRbZbBT9msbejSr/Yuu6Kk=
+X-Google-Smtp-Source: AGHT+IHuO0sn4/D2+eA6ahjvLDULaENPDh16fQndX6xSehx4MyuAdRMsWxzy1+nsbhR5LQOFek4wJQ==
+X-Received: by 2002:a05:6a20:c89b:b0:1e1:dd97:7881 with SMTP id adf61e73a8af0-1e88d12745bmr4580937637.23.1736336466507;
+        Wed, 08 Jan 2025 03:41:06 -0800 (PST)
 Received: from localhost ([157.82.203.37])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-219dc964b84sm325595705ad.50.2025.01.08.03.40.53
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-72aad836b90sm35189879b3a.72.2025.01.08.03.41.01
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Jan 2025 03:40:57 -0800 (PST)
+        Wed, 08 Jan 2025 03:41:06 -0800 (PST)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Subject: [PATCH 0/3] tun: Unify vnet implementation and fill full vnet
- header
-Date: Wed, 08 Jan 2025 20:40:10 +0900
-Message-Id: <20250108-tun-v1-0-67d784b34374@daynix.com>
+Date: Wed, 08 Jan 2025 20:40:11 +0900
+Subject: [PATCH 1/3] tun: Unify vnet implementation
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -84,9 +85,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIABpkfmcC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIxNDI2MD3ZLSPF0zs1RDg0QTyySDZHMloMqCotS0zAqwKdGxtbUAGJ7vjVU
- AAAA=
+Message-Id: <20250108-tun-v1-1-67d784b34374@daynix.com>
+References: <20250108-tun-v1-0-67d784b34374@daynix.com>
+In-Reply-To: <20250108-tun-v1-0-67d784b34374@daynix.com>
 To: Jonathan Corbet <corbet@lwn.net>, 
  Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
  Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
@@ -102,42 +103,892 @@ To: Jonathan Corbet <corbet@lwn.net>,
  devel@daynix.com, Akihiko Odaki <akihiko.odaki@daynix.com>
 X-Mailer: b4 0.14-dev-fd6e3
 
-When I implemented virtio's hash-related features to tun/tap [1],
-I found tun/tap does not fill the entire region reserved for the virtio
-header, leaving some uninitialized hole in the middle of the buffer
-after read()/recvmesg().
-
-This series fills the uninitialized hole. More concretely, the
-num_buffers field will be initialized with 1, and the other fields will
-be inialized with 0. Setting the num_buffers field to 1 is mandated by
-virtio 1.0 [2].
-
-The change to virtio header is preceded by another change that refactors
-tun and tap to unify their virtio-related code.
-
-[1]: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
-[2]: https://lore.kernel.org/r/20241227084256-mutt-send-email-mst@kernel.org/
+Both tun and tap exposes the same set of virtio-net-related features.
+Unify their implementations to ease future changes.
 
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
-Akihiko Odaki (3):
-      tun: Unify vnet implementation
-      tun: Pad virtio header with zero
-      tun: Set num_buffers for virtio 1.0
-
  MAINTAINERS            |   1 +
  drivers/net/Kconfig    |   5 ++
  drivers/net/Makefile   |   1 +
- drivers/net/tap.c      | 174 ++++++----------------------------------
- drivers/net/tun.c      | 212 ++++++++-----------------------------------------
- drivers/net/tun_vnet.c | 191 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/tap.c      | 172 ++++++----------------------------------
+ drivers/net/tun.c      | 208 ++++++++-----------------------------------------
+ drivers/net/tun_vnet.c | 186 +++++++++++++++++++++++++++++++++++++++++++
  drivers/net/tun_vnet.h |  24 ++++++
- 7 files changed, 281 insertions(+), 327 deletions(-)
----
-base-commit: a32e14f8aef69b42826cf0998b068a43d486a9e9
-change-id: 20241230-tun-66e10a49b0c7
+ 7 files changed, 273 insertions(+), 324 deletions(-)
 
-Best regards,
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 910305c11e8a..1be8a452d11f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -23903,6 +23903,7 @@ F:	Documentation/networking/tuntap.rst
+ F:	arch/um/os-Linux/drivers/
+ F:	drivers/net/tap.c
+ F:	drivers/net/tun.c
++F:	drivers/net/tun_vnet.h
+ 
+ TURBOCHANNEL SUBSYSTEM
+ M:	"Maciej W. Rozycki" <macro@orcam.me.uk>
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 1fd5acdc73c6..255c8f9f1d7c 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -395,6 +395,7 @@ config TUN
+ 	tristate "Universal TUN/TAP device driver support"
+ 	depends on INET
+ 	select CRC32
++	select TUN_VNET
+ 	help
+ 	  TUN/TAP provides packet reception and transmission for user space
+ 	  programs.  It can be viewed as a simple Point-to-Point or Ethernet
+@@ -417,10 +418,14 @@ config TUN
+ 
+ config TAP
+ 	tristate
++	select TUN_VNET
+ 	help
+ 	  This option is selected by any driver implementing tap user space
+ 	  interface for a virtual interface to re-use core tap functionality.
+ 
++config TUN_VNET
++	tristate
++
+ config TUN_VNET_CROSS_LE
+ 	bool "Support for cross-endian vnet headers on little-endian kernels"
+ 	default n
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index 13743d0e83b5..bc1f193eccb1 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -30,6 +30,7 @@ obj-y += pcs/
+ obj-$(CONFIG_RIONET) += rionet.o
+ obj-$(CONFIG_NET_TEAM) += team/
+ obj-$(CONFIG_TUN) += tun.o
++obj-$(CONFIG_TUN_VNET) += tun_vnet.o
+ obj-$(CONFIG_TAP) += tap.o
+ obj-$(CONFIG_VETH) += veth.o
+ obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 5aa41d5f7765..60804855510b 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -26,74 +26,9 @@
+ #include <linux/virtio_net.h>
+ #include <linux/skb_array.h>
+ 
+-#define TAP_IFFEATURES (IFF_VNET_HDR | IFF_MULTI_QUEUE)
+-
+-#define TAP_VNET_LE 0x80000000
+-#define TAP_VNET_BE 0x40000000
+-
+-#ifdef CONFIG_TUN_VNET_CROSS_LE
+-static inline bool tap_legacy_is_little_endian(struct tap_queue *q)
+-{
+-	return q->flags & TAP_VNET_BE ? false :
+-		virtio_legacy_is_little_endian();
+-}
+-
+-static long tap_get_vnet_be(struct tap_queue *q, int __user *sp)
+-{
+-	int s = !!(q->flags & TAP_VNET_BE);
+-
+-	if (put_user(s, sp))
+-		return -EFAULT;
+-
+-	return 0;
+-}
+-
+-static long tap_set_vnet_be(struct tap_queue *q, int __user *sp)
+-{
+-	int s;
+-
+-	if (get_user(s, sp))
+-		return -EFAULT;
+-
+-	if (s)
+-		q->flags |= TAP_VNET_BE;
+-	else
+-		q->flags &= ~TAP_VNET_BE;
+-
+-	return 0;
+-}
+-#else
+-static inline bool tap_legacy_is_little_endian(struct tap_queue *q)
+-{
+-	return virtio_legacy_is_little_endian();
+-}
+-
+-static long tap_get_vnet_be(struct tap_queue *q, int __user *argp)
+-{
+-	return -EINVAL;
+-}
++#include "tun_vnet.h"
+ 
+-static long tap_set_vnet_be(struct tap_queue *q, int __user *argp)
+-{
+-	return -EINVAL;
+-}
+-#endif /* CONFIG_TUN_VNET_CROSS_LE */
+-
+-static inline bool tap_is_little_endian(struct tap_queue *q)
+-{
+-	return q->flags & TAP_VNET_LE ||
+-		tap_legacy_is_little_endian(q);
+-}
+-
+-static inline u16 tap16_to_cpu(struct tap_queue *q, __virtio16 val)
+-{
+-	return __virtio16_to_cpu(tap_is_little_endian(q), val);
+-}
+-
+-static inline __virtio16 cpu_to_tap16(struct tap_queue *q, u16 val)
+-{
+-	return __cpu_to_virtio16(tap_is_little_endian(q), val);
+-}
++#define TAP_IFFEATURES (IFF_VNET_HDR | IFF_MULTI_QUEUE)
+ 
+ static struct proto tap_proto = {
+ 	.name = "tap",
+@@ -641,10 +576,10 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 	struct sk_buff *skb;
+ 	struct tap_dev *tap;
+ 	unsigned long total_len = iov_iter_count(from);
+-	unsigned long len = total_len;
++	unsigned long len;
+ 	int err;
+ 	struct virtio_net_hdr vnet_hdr = { 0 };
+-	int vnet_hdr_len = 0;
++	int hdr_len;
+ 	int copylen = 0;
+ 	int depth;
+ 	bool zerocopy = false;
+@@ -652,38 +587,20 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 	enum skb_drop_reason drop_reason;
+ 
+ 	if (q->flags & IFF_VNET_HDR) {
+-		vnet_hdr_len = READ_ONCE(q->vnet_hdr_sz);
+-
+-		err = -EINVAL;
+-		if (len < vnet_hdr_len)
+-			goto err;
+-		len -= vnet_hdr_len;
+-
+-		err = -EFAULT;
+-		if (!copy_from_iter_full(&vnet_hdr, sizeof(vnet_hdr), from))
+-			goto err;
+-		iov_iter_advance(from, vnet_hdr_len - sizeof(vnet_hdr));
+-		if ((vnet_hdr.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+-		     tap16_to_cpu(q, vnet_hdr.csum_start) +
+-		     tap16_to_cpu(q, vnet_hdr.csum_offset) + 2 >
+-			     tap16_to_cpu(q, vnet_hdr.hdr_len))
+-			vnet_hdr.hdr_len = cpu_to_tap16(q,
+-				 tap16_to_cpu(q, vnet_hdr.csum_start) +
+-				 tap16_to_cpu(q, vnet_hdr.csum_offset) + 2);
+-		err = -EINVAL;
+-		if (tap16_to_cpu(q, vnet_hdr.hdr_len) > len)
++		hdr_len = tun_vnet_hdr_get(READ_ONCE(q->vnet_hdr_sz), q->flags, from, &vnet_hdr);
++		if (hdr_len < 0) {
++			err = hdr_len;
+ 			goto err;
++		}
++	} else {
++		hdr_len = 0;
+ 	}
+ 
+-	err = -EINVAL;
+-	if (unlikely(len < ETH_HLEN))
+-		goto err;
+-
++	len = iov_iter_count(from);
+ 	if (msg_control && sock_flag(&q->sk, SOCK_ZEROCOPY)) {
+ 		struct iov_iter i;
+ 
+-		copylen = vnet_hdr.hdr_len ?
+-			tap16_to_cpu(q, vnet_hdr.hdr_len) : GOODCOPY_LEN;
++		copylen = hdr_len ? hdr_len : GOODCOPY_LEN;
+ 		if (copylen > good_linear)
+ 			copylen = good_linear;
+ 		else if (copylen < ETH_HLEN)
+@@ -697,7 +614,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 
+ 	if (!zerocopy) {
+ 		copylen = len;
+-		linear = tap16_to_cpu(q, vnet_hdr.hdr_len);
++		linear = hdr_len;
+ 		if (linear > good_linear)
+ 			linear = good_linear;
+ 		else if (linear < ETH_HLEN)
+@@ -732,9 +649,8 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 	}
+ 	skb->dev = tap->dev;
+ 
+-	if (vnet_hdr_len) {
+-		err = virtio_net_hdr_to_skb(skb, &vnet_hdr,
+-					    tap_is_little_endian(q));
++	if (q->flags & IFF_VNET_HDR) {
++		err = tun_vnet_hdr_to_skb(q->flags, skb, &vnet_hdr);
+ 		if (err) {
+ 			rcu_read_unlock();
+ 			drop_reason = SKB_DROP_REASON_DEV_HDR;
+@@ -797,23 +713,17 @@ static ssize_t tap_put_user(struct tap_queue *q,
+ 	int total;
+ 
+ 	if (q->flags & IFF_VNET_HDR) {
+-		int vlan_hlen = skb_vlan_tag_present(skb) ? VLAN_HLEN : 0;
+ 		struct virtio_net_hdr vnet_hdr;
+ 
+ 		vnet_hdr_len = READ_ONCE(q->vnet_hdr_sz);
+-		if (iov_iter_count(iter) < vnet_hdr_len)
+-			return -EINVAL;
+-
+-		if (virtio_net_hdr_from_skb(skb, &vnet_hdr,
+-					    tap_is_little_endian(q), true,
+-					    vlan_hlen))
+-			BUG();
+ 
+-		if (copy_to_iter(&vnet_hdr, sizeof(vnet_hdr), iter) !=
+-		    sizeof(vnet_hdr))
+-			return -EFAULT;
++		ret = tun_vnet_hdr_from_skb(q->flags, NULL, skb, &vnet_hdr);
++		if (ret < 0)
++			goto done;
+ 
+-		iov_iter_advance(iter, vnet_hdr_len - sizeof(vnet_hdr));
++		ret = tun_vnet_hdr_put(vnet_hdr_len, iter, &vnet_hdr);
++		if (ret < 0)
++			goto done;
+ 	}
+ 	total = vnet_hdr_len;
+ 	total += skb->len;
+@@ -1072,42 +982,6 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
+ 		q->sk.sk_sndbuf = s;
+ 		return 0;
+ 
+-	case TUNGETVNETHDRSZ:
+-		s = q->vnet_hdr_sz;
+-		if (put_user(s, sp))
+-			return -EFAULT;
+-		return 0;
+-
+-	case TUNSETVNETHDRSZ:
+-		if (get_user(s, sp))
+-			return -EFAULT;
+-		if (s < (int)sizeof(struct virtio_net_hdr))
+-			return -EINVAL;
+-
+-		q->vnet_hdr_sz = s;
+-		return 0;
+-
+-	case TUNGETVNETLE:
+-		s = !!(q->flags & TAP_VNET_LE);
+-		if (put_user(s, sp))
+-			return -EFAULT;
+-		return 0;
+-
+-	case TUNSETVNETLE:
+-		if (get_user(s, sp))
+-			return -EFAULT;
+-		if (s)
+-			q->flags |= TAP_VNET_LE;
+-		else
+-			q->flags &= ~TAP_VNET_LE;
+-		return 0;
+-
+-	case TUNGETVNETBE:
+-		return tap_get_vnet_be(q, sp);
+-
+-	case TUNSETVNETBE:
+-		return tap_set_vnet_be(q, sp);
+-
+ 	case TUNSETOFFLOAD:
+ 		/* let the user check for future flags */
+ 		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
+@@ -1151,7 +1025,7 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
+ 		return ret;
+ 
+ 	default:
+-		return -EINVAL;
++		return tun_vnet_ioctl(&q->vnet_hdr_sz, &q->flags, cmd, sp);
+ 	}
+ }
+ 
+@@ -1198,7 +1072,7 @@ static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
+ 	skb->protocol = eth_hdr(skb)->h_proto;
+ 
+ 	if (vnet_hdr_len) {
+-		err = virtio_net_hdr_to_skb(skb, gso, tap_is_little_endian(q));
++		err = tun_vnet_hdr_to_skb(q->flags, skb, gso);
+ 		if (err)
+ 			goto err_kfree;
+ 	}
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index e816aaba8e5f..dbf0dee92e93 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -83,6 +83,8 @@
+ #include <linux/uaccess.h>
+ #include <linux/proc_fs.h>
+ 
++#include "tun_vnet.h"
++
+ static void tun_default_link_ksettings(struct net_device *dev,
+ 				       struct ethtool_link_ksettings *cmd);
+ 
+@@ -94,9 +96,6 @@ static void tun_default_link_ksettings(struct net_device *dev,
+  * overload it to mean fasync when stored there.
+  */
+ #define TUN_FASYNC	IFF_ATTACH_QUEUE
+-/* High bits in flags field are unused. */
+-#define TUN_VNET_LE     0x80000000
+-#define TUN_VNET_BE     0x40000000
+ 
+ #define TUN_FEATURES (IFF_NO_PI | IFF_ONE_QUEUE | IFF_VNET_HDR | \
+ 		      IFF_MULTI_QUEUE | IFF_NAPI | IFF_NAPI_FRAGS)
+@@ -298,70 +297,6 @@ static bool tun_napi_frags_enabled(const struct tun_file *tfile)
+ 	return tfile->napi_frags_enabled;
+ }
+ 
+-#ifdef CONFIG_TUN_VNET_CROSS_LE
+-static inline bool tun_legacy_is_little_endian(struct tun_struct *tun)
+-{
+-	return tun->flags & TUN_VNET_BE ? false :
+-		virtio_legacy_is_little_endian();
+-}
+-
+-static long tun_get_vnet_be(struct tun_struct *tun, int __user *argp)
+-{
+-	int be = !!(tun->flags & TUN_VNET_BE);
+-
+-	if (put_user(be, argp))
+-		return -EFAULT;
+-
+-	return 0;
+-}
+-
+-static long tun_set_vnet_be(struct tun_struct *tun, int __user *argp)
+-{
+-	int be;
+-
+-	if (get_user(be, argp))
+-		return -EFAULT;
+-
+-	if (be)
+-		tun->flags |= TUN_VNET_BE;
+-	else
+-		tun->flags &= ~TUN_VNET_BE;
+-
+-	return 0;
+-}
+-#else
+-static inline bool tun_legacy_is_little_endian(struct tun_struct *tun)
+-{
+-	return virtio_legacy_is_little_endian();
+-}
+-
+-static long tun_get_vnet_be(struct tun_struct *tun, int __user *argp)
+-{
+-	return -EINVAL;
+-}
+-
+-static long tun_set_vnet_be(struct tun_struct *tun, int __user *argp)
+-{
+-	return -EINVAL;
+-}
+-#endif /* CONFIG_TUN_VNET_CROSS_LE */
+-
+-static inline bool tun_is_little_endian(struct tun_struct *tun)
+-{
+-	return tun->flags & TUN_VNET_LE ||
+-		tun_legacy_is_little_endian(tun);
+-}
+-
+-static inline u16 tun16_to_cpu(struct tun_struct *tun, __virtio16 val)
+-{
+-	return __virtio16_to_cpu(tun_is_little_endian(tun), val);
+-}
+-
+-static inline __virtio16 cpu_to_tun16(struct tun_struct *tun, u16 val)
+-{
+-	return __cpu_to_virtio16(tun_is_little_endian(tun), val);
+-}
+-
+ static inline u32 tun_hashfn(u32 rxhash)
+ {
+ 	return rxhash & TUN_MASK_FLOW_ENTRIES;
+@@ -1752,8 +1687,9 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 	struct tun_pi pi = { 0, cpu_to_be16(ETH_P_IP) };
+ 	struct sk_buff *skb;
+ 	size_t total_len = iov_iter_count(from);
+-	size_t len = total_len, align = tun->align, linear;
++	size_t len, align = tun->align, linear;
+ 	struct virtio_net_hdr gso = { 0 };
++	int hdr_len;
+ 	int good_linear;
+ 	int copylen;
+ 	bool zerocopy = false;
+@@ -1764,37 +1700,25 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 	enum skb_drop_reason drop_reason = SKB_DROP_REASON_NOT_SPECIFIED;
+ 
+ 	if (!(tun->flags & IFF_NO_PI)) {
+-		if (len < sizeof(pi))
++		if (iov_iter_count(from) < sizeof(pi))
+ 			return -EINVAL;
+-		len -= sizeof(pi);
+ 
+ 		if (!copy_from_iter_full(&pi, sizeof(pi), from))
+ 			return -EFAULT;
+ 	}
+ 
+ 	if (tun->flags & IFF_VNET_HDR) {
+-		int vnet_hdr_sz = READ_ONCE(tun->vnet_hdr_sz);
+-
+-		if (len < vnet_hdr_sz)
+-			return -EINVAL;
+-		len -= vnet_hdr_sz;
+-
+-		if (!copy_from_iter_full(&gso, sizeof(gso), from))
+-			return -EFAULT;
+-
+-		if ((gso.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+-		    tun16_to_cpu(tun, gso.csum_start) + tun16_to_cpu(tun, gso.csum_offset) + 2 > tun16_to_cpu(tun, gso.hdr_len))
+-			gso.hdr_len = cpu_to_tun16(tun, tun16_to_cpu(tun, gso.csum_start) + tun16_to_cpu(tun, gso.csum_offset) + 2);
+-
+-		if (tun16_to_cpu(tun, gso.hdr_len) > len)
+-			return -EINVAL;
+-		iov_iter_advance(from, vnet_hdr_sz - sizeof(gso));
++		hdr_len = tun_vnet_hdr_get(READ_ONCE(tun->vnet_hdr_sz), tun->flags, from, &gso);
++		if (hdr_len < 0)
++			return hdr_len;
++	} else {
++		hdr_len = 0;
+ 	}
+ 
++	len = iov_iter_count(from);
+ 	if ((tun->flags & TUN_TYPE_MASK) == IFF_TAP) {
+ 		align += NET_IP_ALIGN;
+-		if (unlikely(len < ETH_HLEN ||
+-			     (gso.hdr_len && tun16_to_cpu(tun, gso.hdr_len) < ETH_HLEN)))
++		if (unlikely(len < ETH_HLEN || (hdr_len && hdr_len < ETH_HLEN)))
+ 			return -EINVAL;
+ 	}
+ 
+@@ -1807,7 +1731,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 		 * enough room for skb expand head in case it is used.
+ 		 * The rest of the buffer is mapped from userspace.
+ 		 */
+-		copylen = gso.hdr_len ? tun16_to_cpu(tun, gso.hdr_len) : GOODCOPY_LEN;
++		copylen = hdr_len ? hdr_len : GOODCOPY_LEN;
+ 		if (copylen > good_linear)
+ 			copylen = good_linear;
+ 		linear = copylen;
+@@ -1830,10 +1754,10 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 	} else {
+ 		if (!zerocopy) {
+ 			copylen = len;
+-			if (tun16_to_cpu(tun, gso.hdr_len) > good_linear)
++			if (hdr_len > good_linear)
+ 				linear = good_linear;
+ 			else
+-				linear = tun16_to_cpu(tun, gso.hdr_len);
++				linear = hdr_len;
+ 		}
+ 
+ 		if (frags) {
+@@ -1868,7 +1792,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 		}
+ 	}
+ 
+-	if (virtio_net_hdr_to_skb(skb, &gso, tun_is_little_endian(tun))) {
++	if (tun_vnet_hdr_to_skb(tun->flags, skb, &gso)) {
+ 		atomic_long_inc(&tun->rx_frame_errors);
+ 		err = -EINVAL;
+ 		goto free_skb;
+@@ -2061,29 +1985,27 @@ static ssize_t tun_put_user_xdp(struct tun_struct *tun,
+ 				struct xdp_frame *xdp_frame,
+ 				struct iov_iter *iter)
+ {
++	int ret;
+ 	int vnet_hdr_sz = 0;
+ 	size_t size = xdp_frame->len;
+-	size_t ret;
++	size_t total;
+ 
+ 	if (tun->flags & IFF_VNET_HDR) {
+ 		struct virtio_net_hdr gso = { 0 };
+ 
+ 		vnet_hdr_sz = READ_ONCE(tun->vnet_hdr_sz);
+-		if (unlikely(iov_iter_count(iter) < vnet_hdr_sz))
+-			return -EINVAL;
+-		if (unlikely(copy_to_iter(&gso, sizeof(gso), iter) !=
+-			     sizeof(gso)))
+-			return -EFAULT;
+-		iov_iter_advance(iter, vnet_hdr_sz - sizeof(gso));
++		ret = tun_vnet_hdr_put(vnet_hdr_sz, iter, &gso);
++		if (ret < 0)
++			return ret;
+ 	}
+ 
+-	ret = copy_to_iter(xdp_frame->data, size, iter) + vnet_hdr_sz;
++	total = copy_to_iter(xdp_frame->data, size, iter) + vnet_hdr_sz;
+ 
+ 	preempt_disable();
+-	dev_sw_netstats_tx_add(tun->dev, 1, ret);
++	dev_sw_netstats_tx_add(tun->dev, 1, total);
+ 	preempt_enable();
+ 
+-	return ret;
++	return total;
+ }
+ 
+ /* Put packet to the user space buffer */
+@@ -2097,6 +2019,7 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+ 	int vlan_offset = 0;
+ 	int vlan_hlen = 0;
+ 	int vnet_hdr_sz = 0;
++	int ret;
+ 
+ 	if (skb_vlan_tag_present(skb))
+ 		vlan_hlen = VLAN_HLEN;
+@@ -2123,31 +2046,13 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+ 	if (vnet_hdr_sz) {
+ 		struct virtio_net_hdr gso;
+ 
+-		if (iov_iter_count(iter) < vnet_hdr_sz)
+-			return -EINVAL;
+-
+-		if (virtio_net_hdr_from_skb(skb, &gso,
+-					    tun_is_little_endian(tun), true,
+-					    vlan_hlen)) {
+-			struct skb_shared_info *sinfo = skb_shinfo(skb);
+-
+-			if (net_ratelimit()) {
+-				netdev_err(tun->dev, "unexpected GSO type: 0x%x, gso_size %d, hdr_len %d\n",
+-					   sinfo->gso_type, tun16_to_cpu(tun, gso.gso_size),
+-					   tun16_to_cpu(tun, gso.hdr_len));
+-				print_hex_dump(KERN_ERR, "tun: ",
+-					       DUMP_PREFIX_NONE,
+-					       16, 1, skb->head,
+-					       min((int)tun16_to_cpu(tun, gso.hdr_len), 64), true);
+-			}
+-			WARN_ON_ONCE(1);
+-			return -EINVAL;
+-		}
+-
+-		if (copy_to_iter(&gso, sizeof(gso), iter) != sizeof(gso))
+-			return -EFAULT;
++		ret = tun_vnet_hdr_from_skb(tun->flags, tun->dev, skb, &gso);
++		if (ret < 0)
++			goto done;
+ 
+-		iov_iter_advance(iter, vnet_hdr_sz - sizeof(gso));
++		ret = tun_vnet_hdr_put(vnet_hdr_sz, iter, &gso);
++		if (ret < 0)
++			goto done;
+ 	}
+ 
+ 	if (vlan_hlen) {
+@@ -2507,7 +2412,7 @@ static int tun_xdp_one(struct tun_struct *tun,
+ 	skb_reserve(skb, xdp->data - xdp->data_hard_start);
+ 	skb_put(skb, xdp->data_end - xdp->data);
+ 
+-	if (virtio_net_hdr_to_skb(skb, gso, tun_is_little_endian(tun))) {
++	if (tun_vnet_hdr_to_skb(tun->flags, skb, gso)) {
+ 		atomic_long_inc(&tun->rx_frame_errors);
+ 		kfree_skb(skb);
+ 		ret = -EINVAL;
+@@ -3091,8 +2996,6 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
+ 	kgid_t group;
+ 	int ifindex;
+ 	int sndbuf;
+-	int vnet_hdr_sz;
+-	int le;
+ 	int ret;
+ 	bool do_notify = false;
+ 
+@@ -3299,50 +3202,6 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
+ 		tun_set_sndbuf(tun);
+ 		break;
+ 
+-	case TUNGETVNETHDRSZ:
+-		vnet_hdr_sz = tun->vnet_hdr_sz;
+-		if (copy_to_user(argp, &vnet_hdr_sz, sizeof(vnet_hdr_sz)))
+-			ret = -EFAULT;
+-		break;
+-
+-	case TUNSETVNETHDRSZ:
+-		if (copy_from_user(&vnet_hdr_sz, argp, sizeof(vnet_hdr_sz))) {
+-			ret = -EFAULT;
+-			break;
+-		}
+-		if (vnet_hdr_sz < (int)sizeof(struct virtio_net_hdr)) {
+-			ret = -EINVAL;
+-			break;
+-		}
+-
+-		tun->vnet_hdr_sz = vnet_hdr_sz;
+-		break;
+-
+-	case TUNGETVNETLE:
+-		le = !!(tun->flags & TUN_VNET_LE);
+-		if (put_user(le, (int __user *)argp))
+-			ret = -EFAULT;
+-		break;
+-
+-	case TUNSETVNETLE:
+-		if (get_user(le, (int __user *)argp)) {
+-			ret = -EFAULT;
+-			break;
+-		}
+-		if (le)
+-			tun->flags |= TUN_VNET_LE;
+-		else
+-			tun->flags &= ~TUN_VNET_LE;
+-		break;
+-
+-	case TUNGETVNETBE:
+-		ret = tun_get_vnet_be(tun, argp);
+-		break;
+-
+-	case TUNSETVNETBE:
+-		ret = tun_set_vnet_be(tun, argp);
+-		break;
+-
+ 	case TUNATTACHFILTER:
+ 		/* Can be set only for TAPs */
+ 		ret = -EINVAL;
+@@ -3398,8 +3257,7 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
+ 		break;
+ 
+ 	default:
+-		ret = -EINVAL;
+-		break;
++		ret = tun_vnet_ioctl(&tun->vnet_hdr_sz, &tun->flags, cmd, argp);
+ 	}
+ 
+ 	if (do_notify)
+diff --git a/drivers/net/tun_vnet.c b/drivers/net/tun_vnet.c
+new file mode 100644
+index 000000000000..fe842df9e9ef
+--- /dev/null
++++ b/drivers/net/tun_vnet.c
+@@ -0,0 +1,186 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++#include "tun_vnet.h"
++
++/* High bits in flags field are unused. */
++#define TUN_VNET_LE 0x80000000
++#define TUN_VNET_BE 0x40000000
++
++static bool tun_vnet_legacy_is_little_endian(unsigned int flags)
++{
++	return !(IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) && (flags & TUN_VNET_BE)) &&
++	       virtio_legacy_is_little_endian();
++}
++
++static long tun_vnet_get_be(int flags, int __user *sp)
++{
++	int s = !!(flags & TUN_VNET_BE);
++
++	if (!IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE))
++		return -EINVAL;
++
++	if (put_user(s, sp))
++		return -EFAULT;
++
++	return 0;
++}
++
++static long tun_vnet_set_be(int *flags, int __user *sp)
++{
++	int s;
++
++	if (!IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE))
++		return -EINVAL;
++
++	if (get_user(s, sp))
++		return -EFAULT;
++
++	if (s)
++		*flags |= TUN_VNET_BE;
++	else
++		*flags &= ~TUN_VNET_BE;
++
++	return 0;
++}
++
++static bool tun_vnet_is_little_endian(unsigned int flags)
++{
++	return flags & TUN_VNET_LE || tun_vnet_legacy_is_little_endian(flags);
++}
++
++static u16 tun_vnet16_to_cpu(unsigned int flags, __virtio16 val)
++{
++	return __virtio16_to_cpu(tun_vnet_is_little_endian(flags), val);
++}
++
++static __virtio16 cpu_to_tun_vnet16(unsigned int flags, u16 val)
++{
++	return __cpu_to_virtio16(tun_vnet_is_little_endian(flags), val);
++}
++
++long tun_vnet_ioctl(int *sz, unsigned int *flags,
++		    unsigned int cmd, int __user *sp)
++{
++	int s;
++
++	switch (cmd) {
++	case TUNGETVNETHDRSZ:
++		s = *sz;
++		if (put_user(s, sp))
++			return -EFAULT;
++		return 0;
++
++	case TUNSETVNETHDRSZ:
++		if (get_user(s, sp))
++			return -EFAULT;
++		if (s < (int)sizeof(struct virtio_net_hdr))
++			return -EINVAL;
++
++		*sz = s;
++		return 0;
++
++	case TUNGETVNETLE:
++		s = !!(*flags & TUN_VNET_LE);
++		if (put_user(s, sp))
++			return -EFAULT;
++		return 0;
++
++	case TUNSETVNETLE:
++		if (get_user(s, sp))
++			return -EFAULT;
++		if (s)
++			*flags |= TUN_VNET_LE;
++		else
++			*flags &= ~TUN_VNET_LE;
++		return 0;
++
++	case TUNGETVNETBE:
++		return tun_vnet_get_be(*flags, sp);
++
++	case TUNSETVNETBE:
++		return tun_vnet_set_be(flags, sp);
++
++	default:
++		return -EINVAL;
++	}
++}
++EXPORT_SYMBOL_GPL(tun_vnet_ioctl);
++
++int tun_vnet_hdr_get(int sz, unsigned int flags, struct iov_iter *from,
++		     struct virtio_net_hdr *hdr)
++{
++	if (iov_iter_count(from) < sz)
++		return -EINVAL;
++
++	if (!copy_from_iter_full(hdr, sizeof(*hdr), from))
++		return -EFAULT;
++
++	iov_iter_advance(from, sz - sizeof(*hdr));
++	if ((hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
++	    tun_vnet16_to_cpu(flags, hdr->csum_start) +
++	    tun_vnet16_to_cpu(flags, hdr->csum_offset) + 2 >
++		     tun_vnet16_to_cpu(flags, hdr->hdr_len))
++		hdr->hdr_len = cpu_to_tun_vnet16(flags,
++						 tun_vnet16_to_cpu(flags, hdr->csum_start) +
++						 tun_vnet16_to_cpu(flags, hdr->csum_offset) + 2);
++	if (tun_vnet16_to_cpu(flags, hdr->hdr_len) > iov_iter_count(from))
++		return -EINVAL;
++
++	return tun_vnet16_to_cpu(flags, hdr->hdr_len);
++}
++EXPORT_SYMBOL_GPL(tun_vnet_hdr_get);
++
++int tun_vnet_hdr_put(int sz, struct iov_iter *iter,
++		     const struct virtio_net_hdr *hdr)
++{
++	if (iov_iter_count(iter) < sz)
++		return -EINVAL;
++
++	if (copy_to_iter(hdr, sizeof(*hdr), iter) != sizeof(*hdr))
++		return -EFAULT;
++
++	iov_iter_advance(iter, sz - sizeof(*hdr));
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(tun_vnet_hdr_put);
++
++int tun_vnet_hdr_to_skb(unsigned int flags, struct sk_buff *skb,
++			const struct virtio_net_hdr *hdr)
++{
++	return virtio_net_hdr_to_skb(skb, hdr, tun_vnet_is_little_endian(flags));
++}
++EXPORT_SYMBOL_GPL(tun_vnet_hdr_to_skb);
++
++int tun_vnet_hdr_from_skb(unsigned int flags, const struct net_device *dev,
++			  const struct sk_buff *skb,
++			  struct virtio_net_hdr *hdr)
++{
++	int vlan_hlen = skb_vlan_tag_present(skb) ? VLAN_HLEN : 0;
++
++	if (virtio_net_hdr_from_skb(skb, hdr,
++				    tun_vnet_is_little_endian(flags), true,
++				    vlan_hlen)) {
++		struct skb_shared_info *sinfo = skb_shinfo(skb);
++
++		if (net_ratelimit()) {
++			netdev_err(dev, "unexpected GSO type: 0x%x, gso_size %d, hdr_len %d\n",
++				   sinfo->gso_type, tun_vnet16_to_cpu(flags, hdr->gso_size),
++				   tun_vnet16_to_cpu(flags, hdr->hdr_len));
++			print_hex_dump(KERN_ERR, "tun: ",
++				       DUMP_PREFIX_NONE,
++				       16, 1, skb->head,
++				       min(tun_vnet16_to_cpu(flags, hdr->hdr_len), 64), true);
++		}
++		WARN_ON_ONCE(1);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(tun_vnet_hdr_from_skb);
++
++MODULE_DESCRIPTION("Common library for drivers implementing TUN/TAP's virtio-related features");
++MODULE_AUTHOR("Max Krasnyansky <maxk@qualcomm.com>");
++MODULE_AUTHOR("Arnd Bergmann <arnd@arndb.de>");
++MODULE_AUTHOR("Sainath Grandhi <sainath.grandhi@intel.com>");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/net/tun_vnet.h b/drivers/net/tun_vnet.h
+new file mode 100644
+index 000000000000..2dfdbe92bb24
+--- /dev/null
++++ b/drivers/net/tun_vnet.h
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef TUN_VNET_H
++#define TUN_VNET_H
++
++#include <linux/if_tun.h>
++#include <linux/virtio_net.h>
++
++long tun_vnet_ioctl(int *sz, unsigned int *flags,
++		    unsigned int cmd, int __user *sp);
++
++int tun_vnet_hdr_get(int sz, unsigned int flags, struct iov_iter *from,
++		     struct virtio_net_hdr *hdr);
++
++int tun_vnet_hdr_put(int sz, struct iov_iter *iter,
++		     const struct virtio_net_hdr *hdr);
++
++int tun_vnet_hdr_to_skb(unsigned int flags, struct sk_buff *skb,
++			const struct virtio_net_hdr *hdr);
++
++int tun_vnet_hdr_from_skb(unsigned int flags, const struct net_device *dev,
++			  const struct sk_buff *skb,
++			  struct virtio_net_hdr *hdr);
++
++#endif /* TUN_VNET_H */
+
 -- 
-Akihiko Odaki <akihiko.odaki@daynix.com>
+2.47.1
 
