@@ -1,162 +1,177 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B79921F940A
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:23:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD3131F941E
+	for <virtualization@lists.linux.dev>; Wed,  8 Jan 2025 12:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736339000; cv=none; b=Co/9JGpNwlTEmhl2lbVQP1m4wA0OZS6DnUS8xaw3Nf4N0uWzzsDZlUEuQR9ygFtdQDzamoti4UMr+SfSvK1lMskQMZ/TF+6OYIxKtzHF/w2k+/z8U9+g/WlI9cQHihJxZi6ALVa2jSjBScWhNAp2jMR3c5h39GT1jRYjscreGMc=
+	t=1736339281; cv=none; b=HEgqF5s3OG6Ce56/noOn/zI7pSUI3gshLbUlWpX8i9TYVUqb9VXtILcS6zSE0FHA5Adndj+A8q2iJu7b4p84rKUnGw8RHgchuWnc4eIuqHrCff3StRppXkPGsFmA52nWVndjuYnmHuO8akgr4qOx8PXqSzRfRP0kPi75cjF5VZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736339000; c=relaxed/simple;
-	bh=CYEL1xsMWMcBwANmoFnaeB+RsMLozxlw7Y9ZKV5IL4M=;
+	s=arc-20240116; t=1736339281; c=relaxed/simple;
+	bh=XnLemeL4IHrhEImF6ctGxz/BFHYds4mn0cQmO+AnjTc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=nxNMuZKi7Q4od0jY/NSHkDiPf1m94TL416Wra0eZQ6PYkwz3SPy9JOVlZHGFLh2cVoR/SpEimGJ4OLR8aBO9nrmZNlk52HeE9PH9FIqZFY68P0tdVGu679eCsABWBVBz6P6KMcGz22hblUBka8hsr3OjeSsfVxwF4/Ow1LopbjQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JdP9n+/f; arc=none smtp.client-ip=140.211.166.133
+	 In-Reply-To:Content-Type:Content-Disposition; b=KyFYY8uNh62I96vCSF8qQEdHNWFxdB4j11rvN6nqp38sizSHGO0w98SkDiqfnNryCgjKM5knXWg54JzqB2DMXNK5jhlG2AxHS25pygsxruhB7gQLJv/o4p78g0beVu5+pah3JVAe4zGirwqOaX+y31zH1+4l8uP2Q9/ZUGZXfVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ce9IVfKV; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JdP9n+/f"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 56397401F1
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:23:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ygPEpJQoadjj for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jan 2025 12:23:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 51C68401D8
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 51C68401D8
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JdP9n+/f
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 51C68401D8
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:23:17 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ce9IVfKV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736338997;
+	s=mimecast20190719; t=1736339278;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jtNPZrhPuEXDAUmk7MMSLxT+pmGkUlhGX8IMqmFXcVs=;
-	b=JdP9n+/f26cNTN/O2msmEFR97+TcyDAeJZCkhXueCJ+NJZ89O8GYtrGLc+GCsrP3rQDN1t
-	iD3x7Ak9I/8fN6Qz7ZNRLr9mvX8gPQ2J1LlgOwkEyhW2ttey9rhY7Dr7MFuqF3NqqrI4Yn
-	iclafhAll5B76GWZKhhCFmNSLjqw3Cc=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CE+ieq2Nnj1SjMfQGTDo5V1UJ6zv6x6ViYgzrgENqg0=;
+	b=ce9IVfKVd5H1Kwg8tAcHw32LGV9+iuiuuSLRw4o+5dvmwSyNOVAh4/crD41iV9bHLR2Asy
+	b/KQ2p1CgJ7c73aj6HOK04GiYabnGfRyg8uWK0COj7QSS/VF4LTWh2mc55mMcL54ApCnMR
+	qHZo3AwGCRG4Dbipfv6nnfvo5P1insA=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-152-tWK8jy-kML6Vc6NvEZV6Ag-1; Wed, 08 Jan 2025 07:23:15 -0500
-X-MC-Unique: tWK8jy-kML6Vc6NvEZV6Ag-1
-X-Mimecast-MFC-AGG-ID: tWK8jy-kML6Vc6NvEZV6Ag
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-aaf921b8a85so591352066b.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 08 Jan 2025 04:23:14 -0800 (PST)
+ us-mta-614-JnRq3yS1MUSW35VLBeSeZA-1; Wed, 08 Jan 2025 07:27:55 -0500
+X-MC-Unique: JnRq3yS1MUSW35VLBeSeZA-1
+X-Mimecast-MFC-AGG-ID: JnRq3yS1MUSW35VLBeSeZA
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-436723db6c4so96393475e9.3
+        for <virtualization@lists.linux.dev>; Wed, 08 Jan 2025 04:27:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736338994; x=1736943794;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jtNPZrhPuEXDAUmk7MMSLxT+pmGkUlhGX8IMqmFXcVs=;
-        b=Z1DGnqVQaMExP/3Fwm1SGESCKyo2CBW6Cjz7vYK6S6Jf/jF+M53xt7BdeSepRm3EUG
-         Ly/uHdqxQDkvXvvtLRsPY79ntR30aDXKRQ9gX3cG/MxQjf4HwNaZKtZRquKlWXpnpjsq
-         N24Lx04R+PsJgRzgq2U8bY7bQ4MP5f/8kJodmxKBQqEhceYyxOTfjgX4VeRz4rRbYqrn
-         a4ekln9AU4/oebjGStRovvk+gbUPGtdgGikmn7X8HmqNwEMOLxPgKqsrYnJDmaCkTisg
-         U9ubJBKCpmg78Dmd+8qb7qtgIo5i7E+jPzhANpco9C3kQW+mPmMAciHb/p8O6Y8QL2bA
-         /5zw==
-X-Forwarded-Encrypted: i=1; AJvYcCVlPffwiHGLXIiV6b9mkIBCcb6C2DoVTOtDE90NwJ/CYDzRoY/UjS9ZoMM9jbsNGZQy+/06vV9m30qCBd9s+g==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyNgPOBTWzdb247pGJ8cH9PCaDq5ftyZ8xkjSbK8S1zdPUx9NM6
-	9eDRP27at8V71ycCBImcv5nfu0wXSB9rUuT6r+d3KLS7Mcf8yJUen1rMDyyW2uf4Ffr8j5jVrtA
-	joLfgvX6tOXqFvng6lGrnpV2/nLEkWNQf66lFh7/JoL2ThK4CTGzNFH6utSN/EyTtkpZOJ/zox7
-	xnw6k=
-X-Gm-Gg: ASbGncvinMdQQ1MdrV4d/TLzInGLHZAUBHdqCNiddUdfih67lrPiXgWWxDVQwAOeoCo
-	MY1lM4AKD+GUIyFQciC7ZmbQA+N9IStm1C9+DgWWrDDgwEJnrGq/OqsmZ38rd5bLyRG78F7hI6j
-	sXMYysEQYG54uzBXcjZyplDVMdrKoL0ak+iYMdgnvh6B1J4gt+aq3hAnzS60SrIfc+/nfdLJa8v
-	5ksq+fBxuj0bCHrqAILW6A3DLvFBgZCg//i1ZmX/5ks/B8w3AI=
-X-Received: by 2002:a17:907:1c96:b0:aa6:6a52:970 with SMTP id a640c23a62f3a-ab2ab6a7603mr214442866b.1.1736338993621;
-        Wed, 08 Jan 2025 04:23:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFgJ2ItxqbcNpBvhzA7PF267wqdTMYaBrex8PA7k15rP1ubt/sLuYmBO/GJPJLWwYew7P6vYw==
-X-Received: by 2002:a17:907:1c96:b0:aa6:6a52:970 with SMTP id a640c23a62f3a-ab2ab6a7603mr214439666b.1.1736338993060;
-        Wed, 08 Jan 2025 04:23:13 -0800 (PST)
+        d=1e100.net; s=20230601; t=1736339274; x=1736944074;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CE+ieq2Nnj1SjMfQGTDo5V1UJ6zv6x6ViYgzrgENqg0=;
+        b=Crd6MJgOfJRBwLckRkGrw1tv7/m1sqPLD4PoUcBF0s8g0qK5hyaD2Hv/IJI2ID/cwQ
+         uZYcrYWqhh3fELIM9BAdXH7CCVehvkORZJEbfixLlJ4D6Q9j+jKVcWdbpTsbS2xTYMXC
+         AcU0ELTcwCOxkE6Uh5v2geYhPeePfIA2Y7NF7l6/vd68vDYRFSskns5uGvOJA724d7gM
+         8WAm14XdtBki6n7rMKXvkCq1XSr1771kMFMnwjUE49CbDPuz/1cpq+hkFi3E1eckG6gR
+         WwMzK3woCp8Jpig6sdAa5Uuqi5l07CqGc/5FULa4SqR6RCBnYQ8/0nnsNcfh4Cty751N
+         HGCA==
+X-Forwarded-Encrypted: i=1; AJvYcCW5s1Fag39AAONwSHxP/DNCAIlTVZBLz8Lq5kORjzEHHgGNQTYExBfTiVtTnKA0+OBKzOj91q5GX9B4odi8Jg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx4B2LHwZ2bJhE2Hk2mWNvni/zazY3Nu+PJTF9m/lXQ3H1q736n
+	GN5tp5wCcmbKxyRPGZGWQhnv+77ncuMoaeMlJ13kYV47M37+wZ5omukendxHoxBs3cbRI+48/Wm
+	RgYxVArHIR7fA9l6MBEMlghLshtVpPSQqHyG+IBbttg5cvkVgDKO6ZknRPD3M7Bjw
+X-Gm-Gg: ASbGncuXoJujOdJPXnbrludYL05E6VEYoF8u0x7VGqjfM5KZ1zN9BVe54aYU1z0K08V
+	QQV7nl6zbfiGl5d4pfY7eopfJyHHV8vmgUhhYDKbawt68uGx41o8goS7g+XJorvSO2lXOgYkkOU
+	sze14cNV1010R7ugzTSNBCCciCN+yfGsB89cScn/3LVTOKsadKnIo+OOYSGmwZH2SkYNO1GcFJf
+	vyF/o9vJ5v2g/rwsM1tDOUZruVRqfzBySxvhUVFayeCSfH5yqQ=
+X-Received: by 2002:a05:600c:511f:b0:436:1b96:7072 with SMTP id 5b1f17b1804b1-436e26867f6mr21830975e9.5.1736339274322;
+        Wed, 08 Jan 2025 04:27:54 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IENxKhGDHesgYkFwNwBJXCiFFCpFk4h9OPIuCpP1RPQAdqKF9uWZeo5HUnJYIpAberSrBMGeQ==
+X-Received: by 2002:a05:600c:511f:b0:436:1b96:7072 with SMTP id 5b1f17b1804b1-436e26867f6mr21830685e9.5.1736339273849;
+        Wed, 08 Jan 2025 04:27:53 -0800 (PST)
 Received: from redhat.com ([2a02:14f:175:d62d:93ef:d7e2:e7da:ed72])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aac0e82f616sm2481777466b.41.2025.01.08.04.23.10
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436e2e89dfesm19211805e9.32.2025.01.08.04.27.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jan 2025 04:23:12 -0800 (PST)
-Date: Wed, 8 Jan 2025 07:23:08 -0500
+        Wed, 08 Jan 2025 04:27:53 -0800 (PST)
+Date: Wed, 8 Jan 2025 07:27:45 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v5 0/6] vhost: Add support of kthread API
-Message-ID: <20250108072229-mutt-send-email-mst@kernel.org>
-References: <20241230124445.1850997-1-lulu@redhat.com>
+To: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"dsahern@gmail.com" <dsahern@gmail.com>,
+	"davem@davemloft.net" <davem@davemloft.net>,
+	"edumazet@google.com" <edumazet@google.com>,
+	"dsahern@kernel.org" <dsahern@kernel.org>,
+	"pabeni@redhat.com" <pabeni@redhat.com>,
+	"joel.granados@kernel.org" <joel.granados@kernel.org>,
+	"kuba@kernel.org" <kuba@kernel.org>,
+	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>,
+	"horms@kernel.org" <horms@kernel.org>,
+	"pablo@netfilter.org" <pablo@netfilter.org>,
+	"kadlec@netfilter.org" <kadlec@netfilter.org>,
+	"netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>,
+	"coreteam@netfilter.org" <coreteam@netfilter.org>,
+	"shenjian15@huawei.com" <shenjian15@huawei.com>,
+	"salil.mehta@huawei.com" <salil.mehta@huawei.com>,
+	"shaojijie@huawei.com" <shaojijie@huawei.com>,
+	"saeedm@nvidia.com" <saeedm@nvidia.com>,
+	"tariqt@nvidia.com" <tariqt@nvidia.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"eperezma@redhat.com" <eperezma@redhat.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"ij@kernel.org" <ij@kernel.org>,
+	"ncardwell@google.com" <ncardwell@google.com>,
+	"Koen De Schepper (Nokia)" <koen.de_schepper@nokia-bell-labs.com>,
+	"g.white@cablelabs.com" <g.white@cablelabs.com>,
+	"ingemar.s.johansson@ericsson.com" <ingemar.s.johansson@ericsson.com>,
+	"mirja.kuehlewind@ericsson.com" <mirja.kuehlewind@ericsson.com>,
+	"cheshire@apple.com" <cheshire@apple.com>,
+	"rs.ietf@gmx.at" <rs.ietf@gmx.at>,
+	"Jason_Livingood@comcast.com" <Jason_Livingood@comcast.com>,
+	"vidhi_goel@apple.com" <vidhi_goel@apple.com>
+Subject: Re: [PATCH v6 net-next 11/14] virtio_net: Accurate ECN flag in
+ virtio_net_hdr
+Message-ID: <20250108072548-mutt-send-email-mst@kernel.org>
+References: <20241227191211.12485-1-chia-yu.chang@nokia-bell-labs.com>
+ <20241227191211.12485-12-chia-yu.chang@nokia-bell-labs.com>
+ <CACGkMEu990O+2Sedj+ASv0P5TnZR9THiOdHmx=L0hOxQRXPcsg@mail.gmail.com>
+ <PAXPR07MB79849952690901A50688EFEDA3092@PAXPR07MB7984.eurprd07.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241230124445.1850997-1-lulu@redhat.com>
+In-Reply-To: <PAXPR07MB79849952690901A50688EFEDA3092@PAXPR07MB7984.eurprd07.prod.outlook.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zpD5ocZdYuBoD84Ezef7_coEUUrGTZeR59NJisptNAQ_1736338994
+X-Mimecast-MFC-PROC-ID: BHLzSt8UvtMabp6QdeajxJSsC7sezUz9ZH1R4gM2JO0_1736339274
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Mon, Dec 30, 2024 at 08:43:47PM +0800, Cindy Lu wrote:
-> In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),   
-> the vhost now uses vhost_task and operates as a child of the   
-> owner thread. This aligns with containerization principles.   
-> However, this change has caused confusion for some legacy   
-> userspace applications. Therefore, we are reintroducing   
-> support for the kthread API.  
+On Mon, Dec 30, 2024 at 09:50:59AM +0000, Chia-Yu Chang (Nokia) wrote:
+> >From: Jason Wang <jasowang@redhat.com> 
+> >Sent: Monday, December 30, 2024 8:52 AM
+> >To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
+> >Cc: netdev@vger.kernel.org; dsahern@gmail.com; davem@davemloft.net; edumazet@google.com; dsahern@kernel.org; pabeni@redhat.com; joel.granados@kernel.org; kuba@kernel.org; andrew+netdev@lunn.ch; horms@kernel.org; pablo@netfilter.org; kadlec@netfilter.org; netfilter-devel@vger.kernel.org; coreteam@netfilter.org; shenjian15@huawei.com; salil.mehta@huawei.com; shaojijie@huawei.com; saeedm@nvidia.com; tariqt@nvidia.com; mst@redhat.com; xuanzhuo@linux.alibaba.com; eperezma@redhat.com; virtualization@lists.linux.dev; ij@kernel.org; ncardwell@google.com; Koen De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>; g.white@cablelabs.com; ingemar.s.johansson@ericsson.com; mirja.kuehlewind@ericsson.com; cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com; vidhi_goel@apple.com
+> >Subject: Re: [PATCH v6 net-next 11/14] virtio_net: Accurate ECN flag in virtio_net_hdr
+> >
+> >[You don't often get email from jasowang@redhat.com. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
+> >
+> >CAUTION: This is an external email. Please be very careful when clicking links or opening attachments. See the URL nok.it/ext for additional information.
+> >
+> >
+> >
+> >On Sat, Dec 28, 2024 at 3:13 AM <chia-yu.chang@nokia-bell-labs.com> wrote:
+> >>
+> >> From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> >>
+> >> Unlike RFC 3168 ECN, accurate ECN uses the CWR flag as part of the ACE 
+> >> field to count new packets with CE mark; however, it will be corrupted 
+> >> by the RFC 3168 ECN-aware TSO. Therefore, fallback shall be applied by 
+> >> seting NETIF_F_GSO_ACCECN to ensure that the CWR flag should not be 
+> >> changed within a super-skb.
+> >>
+> >> To apply the aforementieond new AccECN GSO for virtio, new featue bits 
+> >> for host and guest are added for feature negotiation between driver 
+> >> and device. And the translation of Accurate ECN GSO flag between 
+> >> virtio_net_hdr and skb header for NETIF_F_GSO_ACCECN is also added to 
+> >> avoid CWR flag corruption due to RFC3168 ECN TSO.
+> >>
+> >> Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> >> ---
+> >>  drivers/net/virtio_net.c        | 14 +++++++++++---
+> >>  drivers/vdpa/pds/debugfs.c      |  6 ++++++
+> >>  include/linux/virtio_net.h      | 16 ++++++++++------
+> >>  include/uapi/linux/virtio_net.h |  5 +++++
+> >>  4 files changed, 32 insertions(+), 9 deletions(-)
+> >
+> >Is there a link to the spec patch? It needs to be accepted first.
+> >
+> >Thanks
+> 
+> Hi Jason,
+> 
+> Thanks for the feedback, I found the virtio-spec in github: https://github.com/oasis-tcs/virtio-spec but not able to find the procedure to propose.
+> Could you help to share the procedure to propose spec patch? Thanks.
 
 
-I briefly applied this, but there seem to be a bit too
-many nits. So I will wait for v6 with everything addressed.
+You post it on virtio-comment for discussion. Github issues are then used
+for voting and to track acceptance.
+https://github.com/oasis-tcs/virtio-spec/blob/master/README.md#use-of-github-issues
 
-Thanks!
 
-> In this series, a new UAPI is implemented to allow   
-> userspace applications to configure their thread mode. 
-> 
-> Changelog v2:
->  1. Change the module_param's name to enforce_inherit_owner, and the default value is true.
->  2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
->  
-> Changelog v3:
->  1. Change the module_param's name to inherit_owner_default, and the default value is true.
->  2. Add a structure for task function; the worker will select a different mode based on the value inherit_owner.
->  3. device will have their own inherit_owner in struct vhost_dev
->  4. Address other comments
-> 
-> Changelog v4: 
->  1. remove the module_param, only keep the UAPI
->  2. remove the structure for task function; change to use the function pointer in vhost_worker
->  3. fix the issue in vhost_worker_create and vhost_dev_ioctl
->  4. Address other comments
-> 
-> Changelog v5: 
->  1. Change wakeup and stop function pointers in struct vhost_worker to void.
->  2. merging patches 4, 5, 6 in a single patch
->  3. Fix spelling issues and address other comments.
->  
-> Tested with QEMU with kthread mode/task mode/kthread+task mode
-> 
-> Cindy Lu (6):
->   vhost: Add a new parameter in vhost_dev to allow user select kthread
->   vhost: Add the vhost_worker to support kthread
->   vhost: Add the cgroup related function
->   vhost: Add worker related functions to support kthread
->   vhost: Add new UAPI to support change to task mode
->   vhost_scsi: Add check for inherit_owner status
-> 
->  drivers/vhost/scsi.c       |   8 ++
->  drivers/vhost/vhost.c      | 178 +++++++++++++++++++++++++++++++++----
->  drivers/vhost/vhost.h      |   4 +
->  include/uapi/linux/vhost.h |  19 ++++
->  4 files changed, 192 insertions(+), 17 deletions(-)
-> 
-> -- 
-> 2.45.0
+> --
+> Chia-Yu
 
