@@ -1,217 +1,196 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA98F1F9A80
-	for <virtualization@lists.linux.dev>; Wed,  8 Jan 2025 12:14:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 627A91F942E
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:15:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736338471; cv=none; b=HMQkmrHJTBZF2iBlvW4v4oo7M8+TgDJaVEi26SErhtBSvyXX3WC4nKM1sxCL36XGc14joKswpa+87VZCr387d3RO08gjDS/bcXZTXizdAbO8ZGiz5wg6XFNqFBpY47Q9IcDUxl2WwxpHL+jw02od7XOY2BUqfq0YO5XLK48wqPg=
+	t=1736338548; cv=none; b=louRNnEZGfun6YESfX+emFV7UONaiRKgczrz983Cyl9AOwKGZfXohP7x5bSrYcni3hFelM5+mGar4YBeu7+3QqjWhVqIYBdWthZD5G0HtRYuWiKYB0TCZs2VNlqv9mqtB7RiS7nvryZD7s38pGxRPUBvACcTpAufGpTBHwcQKrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736338471; c=relaxed/simple;
-	bh=AbAMklZDKkmgBrce1wQNnGkf1NudHIybtXPcqdjSd2c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fR/NoPzd5e7+N1lqOHE+zAWK13FfkmUzYKvG29naPby7jaw9QFpLQ0ut/J44jY/Q4E1ixQDSBhrePGoXZTqCiyy7G0eRjj7XvrYRXbZ3iN+DtpF+4k4xcg4kCOfvmO3X8wjHaR+kaIrIIG0TJJH1DttNRnuTSqCFnJjq4cNWzUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VTYGgtYN; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736338548; c=relaxed/simple;
+	bh=OqojvAOQdZS0yj4ZVZFm47SzmmZRZEQKJGSfgoE2f+k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=tnKod3qWXrs+4w2h5xffZShPfuv63IdQDZFzDCeskAqYHDVvoO5mFffm7dkWzGo5dMlV6cXgSrePv7KSgtinvpIiKSCpA2KToRLb2wqrfFVm7oqb8zTh8sDob/vtH43QJoQPtXWS7B9JfOUgKq/kgiSa38G6KSi+fGzpJAxwRZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ha0Wc5JH; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VTYGgtYN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ha0Wc5JH"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id CE6B4402DA
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:15:46 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id YUNLLfZPjXHF for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Jan 2025 12:15:45 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B04C140170
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B04C140170
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ha0Wc5JH
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B04C140170
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736338468;
+	s=mimecast20190719; t=1736338544;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=i7q07UpxqItN5/CbDvEBg89xcdarz8dNPCMF232L7BQ=;
-	b=VTYGgtYNkjtVkX1M2XXzrHmCoeet/o9oiZEGGmVY/lR3QgG7m5YHdkJXYfbuCbryVmHjfQ
-	kKZwsLAVGzBscN78t1MkgBeoye5hjMhqz/VmEA0x6lsGkjZFuXhZK7jV3qieLxbpasJUH2
-	CKhhiEeVvgRwswhYc+8+hoAScDzK0/8=
+	 in-reply-to:in-reply-to:references:references;
+	bh=LFFT/vNzip1RPoosirB5rZ8ksM/hte4x/jhW8SUMpHI=;
+	b=ha0Wc5JHzN83B6sCVc4QfoA/hlg0KZaMXsp8rxzFgUAkypJPI7DIqhkRQviGbuAvTY1zer
+	KrCGfre/X9IyxxBx8ZsaV9zX1a7hX2Cv8vAXDKpGimRwkXOJz65XzodGn2NRpbgyUCMpHm
+	jz6Lt9sy085or/da6xh+jkAHvA8CSck=
 Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
  [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-602-2vzPVxjAPlalf77xk6Q97w-1; Wed, 08 Jan 2025 07:14:27 -0500
-X-MC-Unique: 2vzPVxjAPlalf77xk6Q97w-1
-X-Mimecast-MFC-AGG-ID: 2vzPVxjAPlalf77xk6Q97w
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3862c67763dso6919033f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 08 Jan 2025 04:14:27 -0800 (PST)
+ us-mta-563-naUC9vbwMNCfM86zIXlXDA-1; Wed, 08 Jan 2025 07:15:43 -0500
+X-MC-Unique: naUC9vbwMNCfM86zIXlXDA-1
+X-Mimecast-MFC-AGG-ID: naUC9vbwMNCfM86zIXlXDA
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-385e03f54d0so7547901f8f.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 08 Jan 2025 04:15:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736338466; x=1736943266;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=i7q07UpxqItN5/CbDvEBg89xcdarz8dNPCMF232L7BQ=;
-        b=rL/QHy7zLPEg0Iv0hDddoc/qt556fmwUS7v8VtV+B6ZL1gKxsdEHNOYQUjN0mHH5b/
-         HuDWSj/sKDadeOc/peFO3fe9NIrA5Se5lET/k8RW6RZUTtL5yW4PoybHQwsdtbtGrHVW
-         mD4A+2vL+hAjN4KeDJUPq7+b8LX5EBXoWqH4GSlmW5OmQC7crsoclYB/MKvfCddMR08Y
-         EexXn6qaM4LxlEju8LfwGFvjxBda1uKpkGP1GXSyocxI7vOjF9loMrtfZ1q1gRWTPPuO
-         SpeLes/l0gSiZzSzgGKGKsiHcHjt0HAjrmlJQxyuDBq1nG5wdRSXRbzMHXIdUHdtlxtH
-         X44g==
-X-Forwarded-Encrypted: i=1; AJvYcCXumRwAFf9VE9ggGAWmkINOQnmBItn57EfQDFm4/M/yQPZQ7/frLegj0Z/pXe5mMmk8J5FLNuneON5G29OYjA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx/bwrtNT8UutVvturfgRHJwa6I13blfWrD/5SRgN9QUZUY0CiQ
-	SMXbdgjBHiEYsaLQmXVCpQZ/OveEaA8L/05Yht7iGHib+/aM/sZ0nYG3KVtrPc3D0tZVdNVz3UP
-	ebgKulzDpxzrf5QAIltcGSnelN0cvUBahvURmWiekk7pOLqG9ERcxCo7ES2WmGKhw
-X-Gm-Gg: ASbGncut9XQj/NMj3PDBVqrV/RJSGWAny+YgNv/UtONDvPABqWyV81SkIjzzqoWxWYT
-	she8WoppIbYmgIbLW+0Y2cGfF7XDKLBsVkFEDO4FEhbrWMF5sE2GuALtSfQxDvSl0OFvEyVgDoU
-	j/7YSJtXcYWE+wmz38QDfOA4yO8TQ6gM112SWowYqQLW4UGsyt1n3kIr56tus/a7q9PsNd8qfLB
-	b04S/BaGbhWao5U0+U4To/sYjWD6msB5htGyYEmC5yzRHlcV2JpC5ZmkL51hC5X0M4PA8tp58fB
-	4B8w4pup7MIjPqhRaynMGAmeitSENKSF1MH/3qJx0CrKz5tHPMGMS/92t/yddn7C3ySu0qYmEUb
-	bmWZxIQ==
-X-Received: by 2002:a05:6000:1567:b0:386:3cfa:62ad with SMTP id ffacd0b85a97d-38a872f6970mr2227395f8f.1.1736338466443;
-        Wed, 08 Jan 2025 04:14:26 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG7arOIchse9o494js1Tab5nOKasKdGhG0D/75m9o3epafPGRuC3YbVQ6l4Ror1ppOwwQPlTw==
-X-Received: by 2002:a05:6000:1567:b0:386:3cfa:62ad with SMTP id ffacd0b85a97d-38a872f6970mr2227363f8f.1.1736338466073;
-        Wed, 08 Jan 2025 04:14:26 -0800 (PST)
-Received: from ?IPV6:2003:cb:c70d:3a00:d73c:6a8:ca9f:1df7? (p200300cbc70d3a00d73c06a8ca9f1df7.dip0.t-ipconnect.de. [2003:cb:c70d:3a00:d73c:6a8:ca9f:1df7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c828a8dsm53157942f8f.2.2025.01.08.04.14.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Jan 2025 04:14:24 -0800 (PST)
-Message-ID: <29278ec5-a7ec-4935-94e2-0b56e601f385@redhat.com>
-Date: Wed, 8 Jan 2025 13:14:22 +0100
+        d=1e100.net; s=20230601; t=1736338542; x=1736943342;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LFFT/vNzip1RPoosirB5rZ8ksM/hte4x/jhW8SUMpHI=;
+        b=VQk5hXhgpFC8JJJxgM5kQlCjDebz/pUfYfrkZ8gfbHi3eCvrpD8IbsTzVDQfTG7XS8
+         wPysNbuFd0XL8SB2ApG0RmkBZM5Huihc8hv4tR1Zd/C6fh4FBaoA71O5bL/SozbrtEm8
+         MMFH9j8bP2HW5STDPD5suc5vt4rpitPk3K7G650uvyiYyWba+hO8sQLX3i0haNzZurEM
+         Vi9eR8HdlppZBVT4xklunmUXe8gJJ6i/hIT8OtUNMBc5a+WqIIlJtAn0xmJx6d2r5Wz3
+         suP5Slb00px/hIXmTRYI5uS0Jfz6gyQ8jiEplpGgwOxR7tdyTakQ5pdVaVlHlXqdpHBj
+         rIEw==
+X-Forwarded-Encrypted: i=1; AJvYcCUtQe2laoIIt9FpliaKRpvfgw4PMVB7iXaE4sCM2p1TFfuNJTpY8XS2AOdddV7bvZ1ya3q8d0LcF0RzFgpxww==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yym5mquaWzowezrgoHq/YypMnFiyP9b6HSnI4skJ+pp8VDJ6jH3
+	dCtg8gCxmu2qN9ktq+A0WSNxZMFHHiwwAxRSiSDDMvSdluWLLTrkfqh0BNi0dCevjvsDaMOOrPf
+	1Xr99wk22GZSzeBIH5BVlfMTC3mn9GSf/DM/leu7PHUwbQwCfaWMVe5l+WVYFT+GYpgjcHlTF0A
+	8yK/M=
+X-Gm-Gg: ASbGnctSZ09Xxq+57T0RIeDFETnbHEmiLZRJCQAPokRfTwn5a/qgGTvPJGOnMrLGM5V
+	JfhdBVXTB5m0NrxQ9fDOeQU9v23LGSfcGR8+cBo+AasBxtfbeEJXIhLUGvEmQwIlfluSg1ZnyTp
+	hCMMdfGjrkpY9E/3z4DAdDK9WHVPLb1rLDiLqKZGXUEekdyheX7WBL76VihaLbjv8HXr82PtKUW
+	nMFZYX8rH9grJ1C3+p1PARz86ainMQW4De8Vclv5lDfp913veI=
+X-Received: by 2002:a05:6000:1f88:b0:385:fc97:9c63 with SMTP id ffacd0b85a97d-38a872f6915mr2066554f8f.9.1736338542107;
+        Wed, 08 Jan 2025 04:15:42 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG+hsGgqCsiIWeOXVWHmgrZwnMiJD4OWipciIeE4FGEZqdLeDGimlpEKTMbbuIjZpmwpZibCg==
+X-Received: by 2002:a05:6000:1f88:b0:385:fc97:9c63 with SMTP id ffacd0b85a97d-38a872f6915mr2066535f8f.9.1736338541761;
+        Wed, 08 Jan 2025 04:15:41 -0800 (PST)
+Received: from redhat.com ([2a02:14f:175:d62d:93ef:d7e2:e7da:ed72])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436e2e03210sm19211155e9.34.2025.01.08.04.15.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jan 2025 04:15:41 -0800 (PST)
+Date: Wed, 8 Jan 2025 07:15:38 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: Re: [PATCH v5 5/6] vhost: Add new UAPI to support change to task mode
+Message-ID: <20250108071456-mutt-send-email-mst@kernel.org>
+References: <20241230124445.1850997-1-lulu@redhat.com>
+ <20241230124445.1850997-6-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/12] fs/proc/vmcore: kdump support for virtio-mem on
- s390
-To: Heiko Carstens <hca@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- kexec@lists.infradead.org, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Baoquan He <bhe@redhat.com>,
- Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
- Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Eric Farman
- <farman@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-References: <20241204125444.1734652-1-david@redhat.com>
- <20250108070407-mutt-send-email-mst@kernel.org>
- <20250108121043.7704-I-hca@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20250108121043.7704-I-hca@linux.ibm.com>
+In-Reply-To: <20241230124445.1850997-6-lulu@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: MvDiEvisCUtZZssDSMe47H45UYdjyLDSPfXBZ4VZIOY_1736338466
+X-Mimecast-MFC-PROC-ID: kndGHE-4x7VNqM2t8mR-2_PW4zzWBXX9QOEeVxWUbGI_1736338542
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 08.01.25 13:10, Heiko Carstens wrote:
-> On Wed, Jan 08, 2025 at 07:04:23AM -0500, Michael S. Tsirkin wrote:
->> On Wed, Dec 04, 2024 at 01:54:31PM +0100, David Hildenbrand wrote:
->>> The only "different than everything else" thing about virtio-mem on s390
->>> is kdump: The crash (2nd) kernel allocates+prepares the elfcore hdr
->>> during fs_init()->vmcore_init()->elfcorehdr_alloc(). Consequently, the
->>> kdump kernel must detect memory ranges of the crashed kernel to
->>> include via PT_LOAD in the vmcore.
->>>
->>> On other architectures, all RAM regions (boot + hotplugged) can easily be
->>> observed on the old (to crash) kernel (e.g., using /proc/iomem) to create
->>> the elfcore hdr.
->>>
->>> On s390, information about "ordinary" memory (heh, "storage") can be
->>> obtained by querying the hypervisor/ultravisor via SCLP/diag260, and
->>> that information is stored early during boot in the "physmem" memblock
->>> data structure.
->>>
->>> But virtio-mem memory is always detected by as device driver, which is
->>> usually build as a module. So in the crash kernel, this memory can only be
->>> properly detected once the virtio-mem driver started up.
->>>
->>> The virtio-mem driver already supports the "kdump mode", where it won't
->>> hotplug any memory but instead queries the device to implement the
->>> pfn_is_ram() callback, to avoid reading unplugged memory holes when reading
->>> the vmcore.
->>>
->>> With this series, if the virtio-mem driver is included in the kdump
->>> initrd -- which dracut already takes care of under Fedora/RHEL -- it will
->>> now detect the device RAM ranges on s390 once it probes the devices, to add
->>> them to the vmcore using the same callback mechanism we already have for
->>> pfn_is_ram().
->>>
->>> To add these device RAM ranges to the vmcore ("patch the vmcore"), we will
->>> add new PT_LOAD entries that describe these memory ranges, and update
->>> all offsets vmcore size so it is all consistent.
->>>
->>> My testing when creating+analyzing crash dumps with hotplugged virtio-mem
->>> memory (incl. holes) did not reveal any surprises.
->>>
->>> Patch #1 -- #7 are vmcore preparations and cleanups
->>> Patch #8 adds the infrastructure for drivers to report device RAM
->>> Patch #9 + #10 are virtio-mem preparations
->>> Patch #11 implements virtio-mem support to report device RAM
->>> Patch #12 activates it for s390, implementing a new function to fill
->>>            PT_LOAD entry for device RAM
->>
->> Who is merging this?
->> virtio parts:
->>
->> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+On Mon, Dec 30, 2024 at 08:43:52PM +0800, Cindy Lu wrote:
+> Add a new UAPI to enable setting the vhost device to task mode.
+> The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
+> to configure the mode if necessary.
+> This setting must be applied before VHOST_SET_OWNER, as the worker
+> will be created in the VHOST_SET_OWNER function
 > 
-> I guess this series should go via Andrew Morton. Andrew?
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+
+I'd like a Kconfig option to control enabling/blocking this
+ioctl. Make it a patch on top pls.
+
+
+> ---
+>  drivers/vhost/vhost.c      | 22 +++++++++++++++++++++-
+>  include/uapi/linux/vhost.h | 19 +++++++++++++++++++
+>  2 files changed, 40 insertions(+), 1 deletion(-)
 > 
-> Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
-> 
-
-Yes, it's in mm-unstable already for quite a while.
-
-Thanks for the acks!
-
--- 
-Cheers,
-
-David / dhildenb
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index ff17c42e2d1a..47c1329360ac 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2250,15 +2250,35 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+>  {
+>  	struct eventfd_ctx *ctx;
+>  	u64 p;
+> -	long r;
+> +	long r = 0;
+>  	int i, fd;
+> +	u8 inherit_owner;
+>  
+>  	/* If you are not the owner, you can become one */
+>  	if (ioctl == VHOST_SET_OWNER) {
+>  		r = vhost_dev_set_owner(d);
+>  		goto done;
+>  	}
+> +	if (ioctl == VHOST_SET_INHERIT_FROM_OWNER) {
+> +		/*inherit_owner can only be modified before owner is set*/
+> +		if (vhost_dev_has_owner(d)) {
+> +			r = -EBUSY;
+> +			goto done;
+> +		}
+> +		if (copy_from_user(&inherit_owner, argp, sizeof(u8))) {
+> +			r = -EFAULT;
+> +			goto done;
+> +		}
+> +		/* Validate the inherit_owner value, ensuring it is either 0 or 1 */
+> +		if (inherit_owner > 1) {
+> +			r = -EINVAL;
+> +			goto done;
+> +		}
+> +
+> +		d->inherit_owner = (bool)inherit_owner;
+>  
+> +		goto done;
+> +	}
+>  	/* You must be the owner to do anything else */
+>  	r = vhost_dev_check_owner(d);
+>  	if (r)
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index b95dd84eef2d..f5fcf0b25736 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -235,4 +235,23 @@
+>   */
+>  #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
+>  					      struct vhost_vring_state)
+> +
+> +/**
+> + * VHOST_SET_INHERIT_FROM_OWNER - Set the inherit_owner flag for the vhost device
+> + *
+> + * @param inherit_owner: An 8-bit value that determines the vhost thread mode
+> + *
+> + * When inherit_owner is set to 1 (default behavior):
+> + *   - The VHOST worker threads inherit their values/checks from
+> + *     the thread that owns the VHOST device. The vhost threads will
+> + *     be counted in the nproc rlimits.
+> + *
+> + * When inherit_owner is set to 0:
+> + *   - The VHOST worker threads will use the traditional kernel thread (kthread)
+> + *     implementation, which may be preferred by older userspace applications that
+> + *     do not utilize the newer vhost_task concept.
+> + */
+> +
+> +#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, __u8)
+> +
+>  #endif
+> -- 
+> 2.45.0
 
