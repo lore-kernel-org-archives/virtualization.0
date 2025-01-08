@@ -1,205 +1,231 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 496711FAC5E
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:50:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B10171F8F17
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 14:35:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736340614; cv=none; b=Nx6js3G3amoK+aFD9f/5Usxa2+wvgM23F17ZELFrROMQVKmfnvjbeCKxmYB0y1cPaeL2ri8xbWtvv48a6Iz2PjEtddGWKQO56yaRD5QQ8LQVTyePD6Qb56CBIqIsTHFX3UGDQuKlMJhm7HsUfET2X3M5QDuB0nncCsEYOqVdEpE=
+	t=1736346930; cv=none; b=jYQvxMgg6WTBukOKBesYi6p5T2fWAHhYanpN4HqChOjwpR11k1Vo8Ks676AL+Q6gA+aDZfpeXVtuf1gZer2jC3TwdBcqJFzCu7ale66hoWzIdEkbXlKjrv66aWOkgCnhcRwP6/O0IEA7NSlrayxDv8O3vQ0hhMmSzJT/DW81Aoc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736340614; c=relaxed/simple;
-	bh=YiJrTfY+TiGJUrCS4GvvFA3Xo+ceErOtea7oVDJDOA4=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=seSbABwKGTvk0mIDSsDdmlIs22Epoih59bBecOJ2FYWWwtt1YNPJFnpOyxIpQDlOCCCH8FTo77WWEuZ4Txw5k03Y+d+eMsIlgcZq1xYDEHmD7QaXhZhMMLnzjcj3fE1HBT+NR8V4SETKHvsQM+1avhs/neiPw3MT9HZFRd7G39g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=tu-sofia.bg header.i=@tu-sofia.bg header.b=r6KflBX8; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1736346930; c=relaxed/simple;
+	bh=cGZJRyPafRKNJJY5vcDxe6f14C30b1JFes5npfM4sq0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=YW3hRepUR9Z1Y4i8khFI1QSePosLEDdlnhVOhkYLzUor4t7PQUoQd3UDReNkK9RvWPIQiCbXk1upJC3sC9T0QT8Rr0XNm9GD7rpOykTiEZZju0sf9QtPOze+aJTUnP027Ub0JEZxkoA7N52SUgPq/nyIMLSzRtGaFWRH3mjTfXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KsCWzG0o; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-sofia.bg header.i=@tu-sofia.bg header.b="r6KflBX8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KsCWzG0o"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C8069408AD
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:50:11 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 515F6402E0
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 14:35:28 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.793
+X-Spam-Score: -5.792
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id gNsclC6Wof-p for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jan 2025 12:50:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=81.161.240.27; helo=new-smtp.tu-sofia.bg; envelope-from=rrom@tu-sofia.bg; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EB30A4063D
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=tu-sofia.bg
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EB30A4063D
+ id X28FS7Csv2h3 for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Jan 2025 14:35:27 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 4488940275
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4488940275
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=tu-sofia.bg header.i=@tu-sofia.bg header.a=rsa-sha256 header.s=dkim header.b=r6KflBX8
-Received: from new-smtp.tu-sofia.bg (new-smtp.tu-sofia.bg [81.161.240.27])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EB30A4063D
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 12:50:08 +0000 (UTC)
-Received: from new-smtp.tu-sofia.bg (localhost.localdomain [127.0.0.1])
-	by new-smtp.tu-sofia.bg (TU - Sofia SMTP Gateway) with ESMTP id 03E05477DE;
-	Wed,  8 Jan 2025 14:41:26 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tu-sofia.bg; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:from:from:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=dkim; bh=TkaYep9mMYfMUUKXREoF
-	v/fzFdoCTt2AIEPJH6JwBSk=; b=r6KflBX8NBaVFuqp0YiL0DpcZHm7bHtYgrdQ
-	RFMhe4WLuXqjs8QODyuoxCty9YiKm4AxhhkUg0q34uuoCROCjypd19rD5toXgD3a
-	J29bLithNIi4x+2EiB6kExW1yDu8LlZZdSHh3PWDnp7lq3c4kmI1W+7fYqx9LhSQ
-	5T2lO2w=
-Received: from mail.tu-sofia.bg (ALPHA.tu-sofia.bg [81.161.240.12])
-	by new-smtp.tu-sofia.bg (TU - Sofia SMTP Gateway) with ESMTP id D5826477D9;
-	Wed,  8 Jan 2025 14:41:24 +0200 (EET)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KsCWzG0o
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4488940275
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 14:35:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736346925;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/5ZTMHD9LRSOsMkn2E1KdU1LHI0MWopp6tiSITVH5L0=;
+	b=KsCWzG0o0JAgP4JDv+xiwRAgUj6ceIrbxdIemZlDbB2tZldmIO0J4TZCpgR814xkpJpwyY
+	hWL9k2h0kc7F2rlutx9pfiO1oUP3nkENpxmBGHGAFz/LTfqyGJqPe5L6ElBI243YY181IU
+	mzg6/LL5dnpPKT8nnzwcIOnhRv2dQGI=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-453-I-_PIEhhPn663y0g1GUWCg-1; Wed, 08 Jan 2025 09:35:24 -0500
+X-MC-Unique: I-_PIEhhPn663y0g1GUWCg-1
+X-Mimecast-MFC-AGG-ID: I-_PIEhhPn663y0g1GUWCg
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-385e03f54d0so7604137f8f.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 08 Jan 2025 06:35:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736346923; x=1736951723;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/5ZTMHD9LRSOsMkn2E1KdU1LHI0MWopp6tiSITVH5L0=;
+        b=jLzADH+MsoK81qlTxFXK2bBDsxad8hj2Zhc/GySHGaGtfP3BcYg4FfxC3otnQq7h4C
+         QgTm424K81+/08aCF7jsFWnuCDCH4XeRuaHne6/BgdgDd9blcuOhqnUdHORAlC10ymse
+         uI6B5Lonrt+X9snH7mU+xFQYFke4caSPQ3LPVvC8Q43oXqvGl/DYiut7+Sxl7C4CB29n
+         4mvGrKvlOmzV8wQPMFZyFVOQqbg9xUaxLCPrshDHGyTXF4O6H+E0uq7dkcbGjseb8b8M
+         pmSZY9szAbnSHCGBqazKjNFMK+Va/4Kdx4sJCaPVm1Hj01pZqCtTNqfGeWjmLw+Lg/t3
+         cJNQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWpiVwRsZNSQGsBYovWotXXhP4vfD5yRvu1uJwJbm5sl7oHl4Zzzkb6qh5/MffdBNeBnZDUZ3eNhBlzfbqCqA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwVE4OZEV9mQe2xkyOI+H/lLgHqK2ilQBYDgAr997FxGqBxOgFM
+	kSXvmiaTwdddSmVyYZgumzAPAsD4E+aEUUNRyM5S6oK+OupQXKtwezGPutqWPZaiZNK31QcBEuX
+	OTMqpnVFrNFOVsbvFPmfbBOnG4f/bil0x7wEjnkGQZkPqa9jUmsLZuOj136xHiquAq4kvmrTlNf
+	yYmd0=
+X-Gm-Gg: ASbGncv+qj9T7A8EnZ8dZPA+2bNnb9GImj1sGEytRxNsVBHW0W79mlp3BuIw+9hVW+/
+	evHiZRXE+YqarWdVo1rSP92qWTQqiGcvoK8BA44V68CrO3tNrx0uyddDRxUre+ywFwrZNLqXZAp
+	9hTAB0hiGOXld9jKrMfIo3Wk9DkcguuU25HLOIQqtTB5EmA0nmlnEI/DI8EpCWG2sStLpxbR7cp
+	z+COKGO7bLrmZuoC48m9ax/CX2FOaSt/Anyizeb0yGQGttICEk+iLM2AA==
+X-Received: by 2002:a05:6000:719:b0:385:e879:45cc with SMTP id ffacd0b85a97d-38a873045d9mr2369577f8f.19.1736346922750;
+        Wed, 08 Jan 2025 06:35:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGmXEY/7tcjhjyBGapU8wmd3WjpH1fL63j8ZoTYBsDKD9dKaBd2q4JDYo9XrZZQc+PlVC9+Tg==
+X-Received: by 2002:a05:6000:719:b0:385:e879:45cc with SMTP id ffacd0b85a97d-38a873045d9mr2369547f8f.19.1736346922181;
+        Wed, 08 Jan 2025 06:35:22 -0800 (PST)
+Received: from sgarzare-redhat ([5.77.93.126])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c8289a0sm54534369f8f.7.2025.01.08.06.35.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jan 2025 06:35:21 -0800 (PST)
+Date: Wed, 8 Jan 2025 15:35:15 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+Subject: Re: [PATCH v5 4/6] vhost: Add worker related functions to support
+ kthread
+Message-ID: <foiitmbzkjjjbnz46sfy627jsfwkvya42zujxiigykzj2dluya@iumroiukvfld>
+References: <20241230124445.1850997-1-lulu@redhat.com>
+ <20241230124445.1850997-5-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Wed, 08 Jan 2025 14:41:24 +0200
-From: rrom <rrom@tu-sofia.bg>
-To: Stefan Schulte <stefan.schulte@tuhh.de>
-Cc: access@ncsa.uiuc.edu, agents@cs.umbc.edu, bblisa-announce@bblisa.org,
- CABERNET-EVENTS@jiscmail.ac.uk, cfp@mmlab.snu.ac.kr,
- chi-Announcements@acm.org, comm-theory@ieee.org,
- CommunicationsSociety@comsoc.org, community@mlnet.org,
- conference-services@ieee.org, conferences@gridtoday.com,
- conferences@newsmaster.tgc.com, contiki-developers@lists.sourceforge.net,
- cphc-conf@jiscmail.ac.uk, csc@lists.purdue.edu, cse-cfp@cse.stfx.ca,
- DAI-List@mcc.com, discuss@ieeetcsc.org,
- distributed-computing-announce@datasys.cs.iit.edu, editor@hpcwire.com,
- end2end-china@netarchlab.tsinghua.edu.cn, grideditor@gridtoday.com,
- GRUPO@gsd.inesc-id.pt, hpc-announce@mcs.anl.gov, icec@listserver.tue.nl,
- info@autonomic-communication.org, INVESTIGADORES@inesc-id.pt,
- iot-edge-cloud@comsoc.org, ml@ics.uci.edu, ml@isle.org, mmb@ira.uka.de,
- multicomm@comsoc.org, NGN@jiscmail.ac.uk, pdcemail@ee.uwa.edu.au,
- performance@merlot.usc.edu, planning@asu.edu, podc-related@acm.org,
- publicity@hipeac.net, remarks@psc.edu, siam-sc@siam.org,
- SIGCOMM-MEMBERS@acm.org, sigcomm@postel.org, sigmetrics-bb@merlot.usc.edu,
- sigplan-l@acm.uiuc.edu, SIGSIM@acm.org, socinfo@cs.tut.fi,
- spectrum-webmaster@ieee.org, storage-research-list@ece.cmu.edu,
- tccc-announce@comsoc.org, tccn@comsoc.org, tcsc@cse.stfx.ca,
- tfcc@clustercomputing.org, uk-performance@macs.hw.ac.uk, uksim@glam.ac.uk,
- virtualization@lists.linux-foundation.org, webmaster@ncsa.uiuc.edu
-Subject: IJITS journal - Information
-In-Reply-To: <057d01db6012$d243ad10$76cb0730$@tuhh.de>
-References: <02f901db2556$971b8560$c5529020$@tuhh.de>
- <057d01db6012$d243ad10$76cb0730$@tuhh.de>
-Message-ID: <baae856877d4bd5809317ed8274058bf@tu-sofia.bg>
-X-Sender: rrom@tu-sofia.bg
-Organization: =?UTF-8?Q?=D0=A2=D0=A3-=D0=A1=D0=BE=D1=84=D0=B8=D1=8F?=
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241230124445.1850997-5-lulu@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 8NMI8HFXepHvcJaS7mzMXqxT0HKxi3-YWzQKYSVZtIo_1736346923
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Dear Colleagues,
-Thanks for all comunications and information for potential publications!
+On Mon, Dec 30, 2024 at 08:43:51PM +0800, Cindy Lu wrote:
+>Restore the previously removed functions kthread_wakeup and
+>kthread_stop, and add two new function pointers to wake up and stop
+>the workers. The function vhost_worker_create will initialize these
+>pointers based on the value of inherit_owner.
+>
+>The functions vhost_worker_queue() and vhost_worker_destroy() will
+>use the function pointer in vhost_worker, which is initialized
+>according to the inherit_owner value.
+>
+>Signed-off-by: Cindy Lu <lulu@redhat.com>
+>---
+> drivers/vhost/vhost.c | 84 ++++++++++++++++++++++++++++++++++---------
+> drivers/vhost/vhost.h |  3 ++
+> 2 files changed, 71 insertions(+), 16 deletions(-)
+>
+>diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>index 812dfd218bc2..ff17c42e2d1a 100644
+>--- a/drivers/vhost/vhost.c
+>+++ b/drivers/vhost/vhost.c
 
-Please, find attached a brief information about a scientific journal 
-International Journal on IT and Security (ijits-bg.com), published by 
-me, which is indexed in the Web of Science with an impact factor 
-JIF(2023)=1.0.
-Published articles for the past two years can be accessed using the URL
-    2023
-https://ijits-bg.com/sites/default/files/archive/2023(vol.15)/contents-vol15-2023_1.pdf
-    2024
-https://ijits-bg.com/sites/default/files/archive/2024(vol.16)/Contents_Vol16-2024-6.pdf
+[...]
 
-Please, do not hesitate to contact me if you need additional 
-information.
-Kind regards
-Prof. Eng. Radi Romansky, D.Sc.
+>@@ -736,27 +758,57 @@ static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
+> 	worker->dev = dev;
+> 	snprintf(name, sizeof(name), "vhost-%d", current->pid);
+>
+>-	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
+>-				 worker, name);
+>-	if (!vtsk)
+>-		goto free_worker;
+>-
+> 	mutex_init(&worker->mutex);
+> 	init_llist_head(&worker->work_list);
+> 	worker->kcov_handle = kcov_common_handle();
+>-	worker->vtsk = vtsk;
+>+    /*
+>+     * If inherit_owner is true we use vhost_tasks to create
+>+     * the worker so all settings/limits like cgroups, NPROC,
+>+     * scheduler, etc are inherited from the owner.
+>+     * If false,we use kthreads and only attach to the same
+>+     * cgroups as the owner for compat with older kernels.
+>+     */
 
+This comment block seems to have incorrect indentation, perhaps you need 
+to replace the spaces with at least one tab.
 
-
-
-
-На 06.01.2025 10:12, Stefan Schulte написа:
-> Deadline Extended: 9th IEEE International Conference on Fog and Edge
-> Computing (ICFEC 2025) http://icfec2025.ontariotechu.ca/, May 
-> 19th-22nd,
-> 2025, Tromsø, Norway
-> 
-> ###TOPICS OF INTEREST###
-> The conference seeks to attract high-quality contributions covering 
-> both
-> theory and practice over systems research and emerging domain-specific
-> applications related to next-generation distributed systems that cover
-> different parts of the cloud-edge compute continuum. This covers 
-> different
-> computing models, including mist computing, edge computing, 
-> multi-access
-> edge computing, fog computing, and mobile cloud computing.
-> Some representative topics of interest include, but are not limited to:
-> * Data centers and infrastructures along the compute continuum
-> * Mobility management along the compute continuum
-> * Federated learning and distributed machine learning in and for the 
-> compute
-> continuum
-> * 5G/6G for the compute continuum
-> * Middleware and runtime systems for the compute continuum
-> * Programming models for the compute continuum
-> * Storage and data management platforms along the compute continuum
-> * Scheduling and resource management for the compute continuum
-> * Security, privacy, trust, and provenance issues for the compute 
-> continuum
-> * Distributed consensus and blockchains in the compute continuum
-> * Modeling and simulation for and in the compute continuum
-> * Performance monitoring and metering of infrastructures along the 
-> compute
-> continuum
-> * (Big) Data processing in the compute continuum
-> * Energy-efficient computing in the compute continuum
-> 
-> ###SUBMISSION###
-> We invite original manuscripts that have neither been published 
-> elsewhere
-> nor are under review at a different venue. Papers should follow the 
-> IEEE
-> template for conference proceedings. Authors should submit papers, 
-> written
-> in English, electronically in PDF format, and may not exceed 8 
-> letter-size
-> pages in length, including all figures, tables, and references. Apart 
-> from
-> full papers, authors may also submit poster papers, which may not 
-> exceed 2
-> pages in length.
-> 
-> All manuscripts will be reviewed and judged on originality, technical
-> strength, significance, presentation, and relevance to the conference 
-> by at
-> least three reviewers. Papers may be submitted online at
-> https://easychair.org/conferences/?conf=icfec2025.
-> 
-> Papers that are accepted for publication may be accepted as REGULAR 
-> papers
-> (8 pages), SHORT papers (5 pages), or POSTER papers (2 pages), 
-> depending on
-> the reviewers' recommendations. Accepted regular, short, and poster 
-> papers
-> will be included in the conference proceedings that will be published
-> through the IEEE Computer Society Conference Publishing Services.
-> 
-> Further submission information can be found at
-> http://icfec2025.ontariotechu.ca/.
-> 
-> ###IMPORTANT DATES###
-> * Jan. 23, 2025: Paper submission deadline
-> * Feb. 28, 2025: Author notification
-> * Mar. 15, 2025: Camera-ready submission
-> * May 19-22, 2025: Conference (on-site in Tromsø, Norway)
-> 
-> ###ORGANIZATION & CONTACT###
-> General Chairs:
-> * Khalid Elgazzar, Ontario Tech University, Canada
-> * Lena Mashayekhy, University of Delaware, USA
-> 
-> Program Committee Chairs:
-> * Cristina L. Abad, Escuela Superior Politecnica del Litoral (ESPOL),
-> Ecuador
-> * Stefan Schulte, Hamburg University of Technology, Germany
-> * Subhajit Sidhanta, IIT Kharagpur, India
-> 
-> The organizing committee of IEEE ICFEC 2025 can be reached via email at
-> stefan.schulte@tuhh.de.
+>+	if (dev->inherit_owner) {
+>+		vtsk = vhost_task_create(vhost_run_work_list,
+>+					 vhost_worker_killed, worker, name);
+>+		if (!vtsk)
+>+			goto free_worker;
+>+
+>+		worker->vtsk = vtsk;
+>+		worker->worker_wakeup = vhost_task_wakeup_fn;
+>+		worker->worker_stop = vhost_task_stop_fn;
+>+
+>+		vhost_task_start(vtsk);
+>+		ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b,
+>+			       GFP_KERNEL);
+>+		if (ret < 0)
+>+			goto stop_worker;
+>+	} else {
+>+		task = kthread_create(vhost_run_work_kthread_list, worker,
+>+				      "vhost-%d", current->pid);
+>+		if (IS_ERR(task)) {
+>+			ret = PTR_ERR(task);
+>+			goto free_worker;
+>+		}
+>+		worker->kthread_task = task;
+>+		worker->worker_wakeup = vhost_kthread_wakeup_fn;
+>+		worker->worker_stop = vhost_kthread_stop_fn;
+>
+>-	vhost_task_start(vtsk);
+>+		wake_up_process(task);
+>+		ret = xa_alloc(&dev->worker_xa, &id, worker, 
+>xa_limit_32b,
+>+			       GFP_KERNEL);
+>+		if (ret < 0)
+>+			goto stop_worker;
+>
+>-	ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_KERNEL);
+>-	if (ret < 0)
+>-		goto stop_worker;
+>-	worker->id = id;
+>+		ret = vhost_attach_task_to_cgroups(worker);
+>+		if (ret)
+>+			goto stop_worker;
+>+	}
+>
+>+	worker->id = id;
+> 	return worker;
+>-
+> stop_worker:
+>-	vhost_task_stop(vtsk);
+>+	worker->worker_stop(worker);
+> free_worker:
+> 	kfree(worker);
+> 	return NULL;
+>diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+>index c650c4506c70..63b1da08a2b0 100644
+>--- a/drivers/vhost/vhost.h
+>+++ b/drivers/vhost/vhost.h
+>@@ -27,6 +27,7 @@ struct vhost_work {
+> };
+>
+> struct vhost_worker {
+>+	struct task_struct *kthread_task;
+> 	struct vhost_task	*vtsk;
+> 	struct vhost_dev	*dev;
+> 	/* Used to serialize device wide flushing with worker swapping. */
+>@@ -36,6 +37,8 @@ struct vhost_worker {
+> 	u32			id;
+> 	int			attachment_cnt;
+> 	bool			killed;
+>+	void (*worker_wakeup)(struct vhost_worker *worker);
+>+	void (*worker_stop)(struct vhost_worker *worker);
+> };
+>
+> /* Poll a file (eventfd or socket) */
+>-- 
+>2.45.0
+>
 
