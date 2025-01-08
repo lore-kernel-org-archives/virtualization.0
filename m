@@ -1,190 +1,180 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0A441A256B
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 03:00:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE7381AAA0F
+	for <virtualization@lists.linux.dev>; Wed,  8 Jan 2025 07:04:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736305222; cv=none; b=c1e3CbmAQpXgsa/AnKdHkJ11KouCQ5s3jkRH+3tHu+vBq54nGgQdKR2MvtkMUarMZkIMBfC4IhsvGUcIYZ9naG0/B9GrpERnH0iiCTbSa9ziHZkYNp1qxM7Q6cZBKLHlkZbFeroAvSuJXllQGCYY4XoYcbg+O+3aNKpXXle2HgY=
+	t=1736319882; cv=none; b=atogChNwrfZsSa5PCnZvHxtDb07oodH99Yp+nS/ZtgRPBQhcT5qR8PZx6mrMUbwZRTq80p0voR2rc8FCa33Gd8xA0dKyCuGG/USUozqgOJM3s5f2IlUrl0MHrwZWao3qSi/d9JMHLk4uov7W/GYWOZYNIj2TxbXmBU/WNaNNU8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736305222; c=relaxed/simple;
-	bh=Dciqjvlx2H/R6YN5xtBjgCX46H21JuTpbwkAJGiEdAY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rYP5lYffIYHxh8Z/C1yBYQNUHmPHhydjf4XkmuIgd/JfOdRJNEQ2sUtrIYIIJ5qiSlqumvWLiii6NLVEB1rtzBdS5v0wRB30Ab2rvMLfFh+1dOYGlNzcsIcq+zmH76vZ0F+1P+KGkW6wDZvv7z86iKyKr5we4SjAWbZsYnxYR9k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SDD6O45W; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1736319882; c=relaxed/simple;
+	bh=97Z9jXEaLvqI/0AurCDd73gtcj00ygdYOHTFT0NTmkM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Mrb3inz+09FT5E0aZnOPMdMvEqtaxTeYo9jV9aBO/+AyFv4diCSmp/mcy4LKgwtQVHPRfI6MQV+cFMFojhHnLUuLK4lq+jfllgP9uuFL0OSKcZGwN84u3F+Q+Wnlz2bC63FFhcW1ns8NDYvkrtcmyGTFvOZTndxYs3AQB0ur+IE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ViDd3Noq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=GHJ04it5; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=iUnAYZ1m; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=FTvolTlt; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SDD6O45W"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2AF6F4046C
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 03:00:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id A2jqVyQqWD1E for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jan 2025 03:00:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 26DC44044E
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 26DC44044E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SDD6O45W
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 26DC44044E
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 03:00:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736305216;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ViDd3Noq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="GHJ04it5";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="iUnAYZ1m";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="FTvolTlt"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id F133B21109;
+	Wed,  8 Jan 2025 07:04:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736319879; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=V79OcuD49cIJZohEbmJe69JuNmGmHHtDUlNMPt0oqHY=;
-	b=SDD6O45WSgsYvubW04ZNXJOuq9XtfBCojBn/E1mX2og6UFhCeYkm1HyAC8pVyGsaW8fbGC
-	LhRv9sowh/bjeIwZI81f4DUHzymBzwHIu8SnhwNc5nvSWBu2/JKE3EnMgf7dRaAtwPyA0B
-	1mVt130Y+Cxg7MY8injVhDDV7xJ+tsA=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-599-Gccn6AFxNFKhY5MFaPP44w-1; Tue, 07 Jan 2025 22:00:15 -0500
-X-MC-Unique: Gccn6AFxNFKhY5MFaPP44w-1
-X-Mimecast-MFC-AGG-ID: Gccn6AFxNFKhY5MFaPP44w
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-aa6704ffcaeso636814166b.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 07 Jan 2025 19:00:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736305214; x=1736910014;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=V79OcuD49cIJZohEbmJe69JuNmGmHHtDUlNMPt0oqHY=;
-        b=lFqx0MSywSR4uM/gey7Dt/OJFO2UzrvN8q+oI4EjB5x+iNgAKylLrTNl4m4H+DMxVr
-         u8lPpKDle5ND/eA52joUmih7QVssX2Dep+RLwBLEsZHUHPD2AGvNL9ADxNfbwXEdjCf5
-         dCQUv9Ept9OETEb07wz5K2XtLJDYoVwIvJzED/8fRfYc4YPpC+6ce3XOsmpWW/RmsBeh
-         C7ESNjsYeZhh4ZFZl4YuqhyKndPZIEiEMdDB4Ou+uCnixU94iMRa2Tu2ajFhZiEodPoW
-         25Q1M46y4ZmwVMrt4ACy5Y///H4j21HpiAb5FPOWYohOMdS24uGyFd6uGE/FBfz36JJi
-         G5Hg==
-X-Forwarded-Encrypted: i=1; AJvYcCUxws3RKyG4G47dX0u15tSWcuNcNQ7em1ofs8ItGSprWfjPmvSiwpZ2+VqEEFbQQOCtQBy7b9tkvRsQRdJyHw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yw0jsPUt13nVVdzdRbQXoYMjyYQOXfc8OqSdrrWLtEKiD7Z/yfP
-	/flEvbwWwqqBGr2VDzTDPCv3H9yEgS2ska+ORXsmz7MQVS5YYnWA66h9jxYrwBVFDC/NWFO2Mna
-	XMDyss1PBhOKyex+hG5ypmFpxS/KoBIIiT0e7ooxrJMMrx8C+7iaMQfpOK2w/6RAf2D/bT8LLDp
-	pxfVgIm6732Xyh/Op8NljcStIk0shVlra9jWN9UzdlZ9zC6uysr75jjA==
-X-Gm-Gg: ASbGncvz2XHWrgW7XrI99vFoAsqVcI6fIAfPw4Ojcmc160XfafdGquMzK3gpNlb6Z/c
-	luAZXK6jAy686Kfh9eH1FnnepDXVaE8syV3lXlws=
-X-Received: by 2002:a17:907:3da8:b0:aae:ce4c:ca40 with SMTP id a640c23a62f3a-ab2ab740698mr70740866b.32.1736305214140;
-        Tue, 07 Jan 2025 19:00:14 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEgP52S4qE/N+6vyL1S81I9hJPIsqy66nodr1Pp2Y+yokSkk63j2GOn+8boM7mJWTzOpreQfQRZbVEpr6TCCdE=
-X-Received: by 2002:a17:907:3da8:b0:aae:ce4c:ca40 with SMTP id
- a640c23a62f3a-ab2ab740698mr70739566b.32.1736305213805; Tue, 07 Jan 2025
- 19:00:13 -0800 (PST)
+	bh=pUhd/vuJ7Qh4LISlnOJEeKSvhL5c1rYQUMWf6j8GZeg=;
+	b=ViDd3NoqiqVOw2/F9yp9EvyDJfLISJyYQ4UotJYQpkkAqf9OHyT8WVYsHo+0a9pvEeUqjU
+	l0u1iR+pJX36ctMq5TIKAxKeZa6J79zqHYF668UJFvw5D3XogKOlAWItZqMmVK9cZCKUMv
+	PmrtvmUmRsA2U/pxIdV9LQEpCWP31j4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736319879;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pUhd/vuJ7Qh4LISlnOJEeKSvhL5c1rYQUMWf6j8GZeg=;
+	b=GHJ04it55qgadeJB0HPBJ/S3wWihS/kC5KcVYb5uJl54RaanMTHlu2VKDEYKVokAtTfoiT
+	z2AHYjki37ZKiqCg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=iUnAYZ1m;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=FTvolTlt
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736319878; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pUhd/vuJ7Qh4LISlnOJEeKSvhL5c1rYQUMWf6j8GZeg=;
+	b=iUnAYZ1mlH5DLdSHz87oUNEUKYGUO+jnlha57dp2yLQ+NJuZ6BFXAhKJSgo2fPUDTogffB
+	wX4OrtgOOdAnHQRLO6HnnwmOrIc0l1KaFT+4ajfc6aBBmPmLik4pzocJE9/y5ZWvrMpSNh
+	g2PXFkwEyCC/BGEySUEA9xfz3QIvcVs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736319878;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pUhd/vuJ7Qh4LISlnOJEeKSvhL5c1rYQUMWf6j8GZeg=;
+	b=FTvolTltjMasmbymK0ioBc2v1CZv4TyCuHXgHieN7ZMx6VJ+9jjx5+fy+pbM+y7vIFWfM+
+	zZK8M7sGER6i4cCw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 5E258137DA;
+	Wed,  8 Jan 2025 07:04:36 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id u4KYE4Qjfme4PAAAD6G6ig
+	(envelope-from <hare@suse.de>); Wed, 08 Jan 2025 07:04:36 +0000
+Message-ID: <6a40ed2d-173f-4723-8570-f06b0c9c0ee2@suse.de>
+Date: Wed, 8 Jan 2025 08:04:35 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241230124445.1850997-1-lulu@redhat.com> <20241230124445.1850997-3-lulu@redhat.com>
- <CACGkMEuA_O5bgwLNz47sWJTQGqqOvq==_vNnhqrH-eGtbg-Fuw@mail.gmail.com>
-In-Reply-To: <CACGkMEuA_O5bgwLNz47sWJTQGqqOvq==_vNnhqrH-eGtbg-Fuw@mail.gmail.com>
-From: Cindy Lu <lulu@redhat.com>
-Date: Wed, 8 Jan 2025 10:59:37 +0800
-X-Gm-Features: AbW1kvbzKsocE9MoY2y3BpGkLVoAP0F5ST9KJOD7MBCiRYxaH_6OoiW7WzjZjUo
-Message-ID: <CACLfguVFHV2HZoAzOfpSvYZL0a3ehGqnJiwnnZqjctDGYAxDPA@mail.gmail.com>
-Subject: Re: [PATCH v5 2/6] vhost: Add the vhost_worker to support kthread
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OUtWxUYnKv1SvJ5HC92kOvCfw-LQob3qQk-C4YYHufI_1736305214
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 3/9] blk-mq: add number of queue calc helper
+To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ Sagi Grimberg <sagi@grimberg.me>, Kashyap Desai
+ <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>,
+ Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+ Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Nilesh Javali <njavali@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ Don Brace <don.brace@microchip.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>
+Cc: Costa Shulyupin <costa.shul@redhat.com>,
+ Juri Lelli <juri.lelli@redhat.com>, Valentin Schneider
+ <vschneid@redhat.com>, Waiman Long <llong@redhat.com>,
+ Ming Lei <ming.lei@redhat.com>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
+ <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>,
+ Mel Gorman <mgorman@suse.de>,
+ Sridhar Balaraman <sbalaraman@parallelwireless.com>,
+ "brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
+ linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+ megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org,
+ storagedev@microchip.com, virtualization@lists.linux.dev
+References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
+ <20241217-isolcpus-io-queues-v4-3-5d355fbb1e14@kernel.org>
+Content-Language: en-US
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20241217-isolcpus-io-queues-v4-3-5d355fbb1e14@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: F133B21109
+X-Spam-Score: -3.01
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	ARC_NA(0.00)[];
+	URIBL_BLOCKED(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,lst.de:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[38];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[redhat.com,suse.com,kernel.org,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,broadcom.com,microchip.com,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	R_RATELIMIT(0.00)[to_ip_from(RLeuu8pmbomyos8bjut4e19yoq)];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-On Thu, Jan 2, 2025 at 11:19=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Mon, Dec 30, 2024 at 8:45=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
-> >
-> > Add the previously removed function vhost_worker() back to support the
-> > kthread and rename it to vhost_run_work_kthread_list.
-> >
-> > The old function vhost_worker() was changed to support tasks in
-> > commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
-> > and to support multiple workers per device using xarray in
-> > commit 1cdaafa1b8b4 ("vhost: replace single worker pointer with xarray"=
-).
-> >
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
->
-> I think we need to tweak the title as this patch just brings back the
-> kthread worker?
->
-> Other than that,
->
-sure will do
-Thanks
-cindy
-> Acked-by: Jason Wang <jasowang@redhat.com>
->
-> Thanks
->
-> > ---
-> >  drivers/vhost/vhost.c | 38 ++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 38 insertions(+)
-> >
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index eaddbd39c29b..1feba29abf95 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -388,6 +388,44 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> >         __vhost_vq_meta_reset(vq);
-> >  }
-> >
-> > +static int vhost_run_work_kthread_list(void *data)
-> > +{
-> > +       struct vhost_worker *worker =3D data;
-> > +       struct vhost_work *work, *work_next;
-> > +       struct vhost_dev *dev =3D worker->dev;
-> > +       struct llist_node *node;
-> > +
-> > +       kthread_use_mm(dev->mm);
-> > +
-> > +       for (;;) {
-> > +               /* mb paired w/ kthread_stop */
-> > +               set_current_state(TASK_INTERRUPTIBLE);
-> > +
-> > +               if (kthread_should_stop()) {
-> > +                       __set_current_state(TASK_RUNNING);
-> > +                       break;
-> > +               }
-> > +               node =3D llist_del_all(&worker->work_list);
-> > +               if (!node)
-> > +                       schedule();
-> > +
-> > +               node =3D llist_reverse_order(node);
-> > +               /* make sure flag is seen after deletion */
-> > +               smp_wmb();
-> > +               llist_for_each_entry_safe(work, work_next, node, node) =
-{
-> > +                       clear_bit(VHOST_WORK_QUEUED, &work->flags);
-> > +                       __set_current_state(TASK_RUNNING);
-> > +                       kcov_remote_start_common(worker->kcov_handle);
-> > +                       work->fn(work);
-> > +                       kcov_remote_stop();
-> > +                       cond_resched();
-> > +               }
-> > +       }
-> > +       kthread_unuse_mm(dev->mm);
-> > +
-> > +       return 0;
-> > +}
-> > +
-> >  static bool vhost_run_work_list(void *data)
-> >  {
-> >         struct vhost_worker *worker =3D data;
-> > --
-> > 2.45.0
-> >
->
+On 12/17/24 19:29, Daniel Wagner wrote:
+> Multiqueue devices should only allocate queues for the housekeeping CPUs
+> when isolcpus=managed_irq is set. This avoids that the isolated CPUs get
+> disturbed with OS workload.
+> 
+> Add two variants of helpers which calculates the correct number of
+> queues which should be used. The need for two variants is necessary
+> because some drivers calculate their max number of queues based on the
+> possible CPU mask, others based on the online CPU mask.
+> 
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: Daniel Wagner <wagi@kernel.org>
+> ---
+>   block/blk-mq-cpumap.c  | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>   include/linux/blk-mq.h |  2 ++
+>   2 files changed, 47 insertions(+)
+> 
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
