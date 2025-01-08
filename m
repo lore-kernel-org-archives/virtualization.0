@@ -1,328 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C0ED1F8AC5
-	for <virtualization@lists.linux.dev>; Wed,  8 Jan 2025 11:35:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CDA91F8EE9
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:41:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736336136; cv=none; b=jtCY6dlG8IHOLKv9a9Ja+55hFKPTYyb5YaCZ9JoV4sj4Hg6sPOHa6xb2gCLiyuytypeDtP06fi7qhC1n45UuSo7Rl36x4VGbnlodvG8ELXcX8cxTKwcfBE04/5N0AWmo5GL0ZXMJ/4ZwEdMakmT554Vku6yCugjzKqG85Kui3e8=
+	t=1736336462; cv=none; b=V79OxR6GyaSs/gaW+zt/IZ+q6EHyI087JaM7GoAPACQUNNUYOFUXdzuCNMnDX1ok8vH/CiNhx2qWHbtV5Mb+EL2c2Dgmc2eDgzGsstMQbVRuczc1oqgdEExlx5Kwv5DCVyJre+N5uKVr8CbYT1DgLuMhpz+pOZ/eQ+PZfioKCMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736336136; c=relaxed/simple;
-	bh=U0y7FwcwyD44HJYQrcVy1dEqp8zW7hw0F2XTaKo2RxE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=UFl0oahL7tf6QnD7rSGQwDRmWUDLarQnoQuzkONnukBBH/4WL7XuT1PdWZyzKRbTFjqBxK/wE34yUq1AaC1kGR4DNjRhltYGwRP4wB/M5ckIYRlUqstzl/fwTbfKmzCyitCg5f83RUqKRyFDWTuJfEfYpaoDZ2+a6QFtRScr3OU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YzPlvj1s; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736336462; c=relaxed/simple;
+	bh=lWV/O/UttiTJkLULUBKYE0bPmgRlaCXXqj66Zi3wY7Q=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To; b=DEjliZ0qVJ3mFg7jDch0m72yN8aEDnE/1IR31/WRrFe9DTxnYXSUmBZd6pnTSUo1MuOA/q5SM4HoGcdAgfG5+cjD+s8+RS2IUooY1ZDeatymIk1OkOqaDTIzT41hXgGV9Ds2ooDv5Hgck0YconuYNxWhgo1OBzMUjPybmwb6JaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=ZVe0Vkp/; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YzPlvj1s"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736336125;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1+XOF/Yu0g2fsX7t9xPysH0JaEinWV6AydJhgfHcaq0=;
-	b=YzPlvj1s+RCEeOuWI3HNwRE8+Ro9iQJvWZXr/c39o9j07SNeFpwVbHTh5eTobPbsoIpSF5
-	ij+ccWDYwLK5LJzggRH0CYhNyNQ+yefO1btQ+ykaYEzHULNRi+PbYaLlKf470EMKlDwAoA
-	2DIz0ErYainBXEmWx2oT7b/sR/n3lHo=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-96-txlkZ8sRMb-bU4kS46CylQ-1; Wed, 08 Jan 2025 06:35:24 -0500
-X-MC-Unique: txlkZ8sRMb-bU4kS46CylQ-1
-X-Mimecast-MFC-AGG-ID: txlkZ8sRMb-bU4kS46CylQ
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4361eb83f46so120427765e9.3
-        for <virtualization@lists.linux.dev>; Wed, 08 Jan 2025 03:35:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="ZVe0Vkp/"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id CB20F403B6
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:41:00 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id jVyUJL6tdWsM for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Jan 2025 11:40:59 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62c; helo=mail-pl1-x62c.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 3CAB3403A4
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3CAB3403A4
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=ZVe0Vkp/
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3CAB3403A4
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 11:40:58 +0000 (UTC)
+Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-216401de828so232673255ad.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 08 Jan 2025 03:40:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736336458; x=1736941258; darn=lists.linux-foundation.org;
+        h=to:content-transfer-encoding:mime-version:message-id:date:subject
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fjDlOhfFjHDP1GFg1z841jK8M5cnJcOZe4IzLR2+JLQ=;
+        b=ZVe0Vkp/52igiVq+voHbR1oRmfDHRjsNb+TXz05K5fOAHEBfi4+FRf9LtJfA7ZkUKH
+         n86Zsm4PdAZ1ajTA8PEdf2SnfW0yjKwG47/FbYct6rY+dl30H5QsCs1KlkPI/qpslx//
+         7GTGMViks6kyEXZ11hVZHZe1KSblY9GzvygRis6w5i/EabNcc3Sj7Ht+zjf8QN1K0rq8
+         +2kH1xlA7eQh5d9bnfkaI6OrthHW8MpgIPQ+EJhPuF7C/UH9ZEMPFyIOftjGcT9jIARv
+         Fyo13sFS16nv7TnVlYY8q3yJM2q4WkKFZ4Ic6yvU3pXrLn63Qld1pHteS2vX6IFpNPLP
+         rwGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736336122; x=1736940922;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1+XOF/Yu0g2fsX7t9xPysH0JaEinWV6AydJhgfHcaq0=;
-        b=D4+iOYKMwEBlcd+ne3TT83qF+5Gx7JH4/pGR0o6JL9z4Hl/PflIxQEWYKcEFqIZg6Y
-         qdOJdJ85XufmVY60lsemWRfjxTxEcYvrqaFmLAKRFveSHu7zp8gTW97ZpHs4ZxqgbCfS
-         OLiUr4ySw5myAfblU23QbYs9PK9hpE/mEhhQTJNt0rFI7APgtQZAbfUGUzOvSO9UOCnr
-         rrBLpz7/I6H1C0pIuy23wCnfvT7qcVRzTYYe1VgiuoWdCBeOxlLMo98blGendPIuntbX
-         Q2Sb6d50RtB6KvqMHBu5NCBO1jT3iW7Rr4d571ByYIq1dv1HYRkIl00HBhJy9pxhfSqo
-         RgAA==
-X-Forwarded-Encrypted: i=1; AJvYcCULxaNhTefhMJwxW3N8xn4HR4Uc6fvxYqDyr5gxySnWIS6i1ffO4y573iUYN2RYQIz89OwYSWDg3CQznQPgCQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxUnsfZyG1OsKaYpcfmXv2ME2JNrI/Ca19cQEEHn4fzZwnohWeZ
-	CviWANJJKewRmkkLIVqEQVodxl16DrAr+r9zTOfqNQbEqc0iEK64ZPLPkngeczlQKQl0pUcyDOY
-	6aQ4jjvri1QbVNUi+7QznF2eEux9OCzDu4Jjwybr3LYNNSazPKoCF4x/IQE5s6KegLay4tiLT
-X-Gm-Gg: ASbGncv9jT2RkZZeEFBVA9Xp320nrPIGjpxe5cAxUsOk/uSTBE/HO9Dprk5P2C8HHo2
-	hyFFfdJ+JYv95B0Pviqdozgu2rgRkWTRdVYHcqroZk7xZQ6YWUmLO4ryIt0TbnIUCe2y6F0Pdh7
-	u7EcVCjGB0x6oKDJ4YQXLIWqfbIIOVdYqeUsbszyIhWlK6xE+r4joA2y6P4QN6WMBE/qaCHAHQC
-	NDU+6ibV3uthcs3JfwWJsaYSnOYBE08TJivChnru+RKQE5ES6E=
-X-Received: by 2002:a5d:6da4:0:b0:386:3356:f3ac with SMTP id ffacd0b85a97d-38a8730cf2cmr2072562f8f.26.1736336122484;
-        Wed, 08 Jan 2025 03:35:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGSxEwNeaWY0iq88jJcFtUsYY7LdG5hvMnzg7jF1DNAqRGfd3L2Ij4vGfuJoUWTe6dQ/ngDfw==
-X-Received: by 2002:a5d:6da4:0:b0:386:3356:f3ac with SMTP id ffacd0b85a97d-38a8730cf2cmr2072534f8f.26.1736336122037;
-        Wed, 08 Jan 2025 03:35:22 -0800 (PST)
-Received: from redhat.com ([2a02:14f:175:d62d:93ef:d7e2:e7da:ed72])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436e2dc12dasm17964855e9.10.2025.01.08.03.35.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jan 2025 03:35:21 -0800 (PST)
-Date: Wed, 8 Jan 2025 06:35:17 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio_ring: skip cpu sync when mapping fails
-Message-ID: <20250108063310-mutt-send-email-mst@kernel.org>
-References: <20241111025538.2837-1-jasowang@redhat.com>
+        d=1e100.net; s=20230601; t=1736336458; x=1736941258;
+        h=to:content-transfer-encoding:mime-version:message-id:date:subject
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fjDlOhfFjHDP1GFg1z841jK8M5cnJcOZe4IzLR2+JLQ=;
+        b=Wu+S8KmP488v2NhDgjZNTisi+iPohSg45BtnlFU1KoVTYIaOXNst+jlgsnIuHZlEZd
+         AvTmMJzzsA9hPM7wp/KA+dxOEKrx4k3adjrOzPCZFmNK/Xws/j/Unr6KZ1M4rRhEOyRF
+         xmD+B2cKbZaM2wyudNqKEc1fhVv0woSbokMB0eqVHMSFcyimE7NgqM8hek1e1Jw51DtQ
+         yJ/eJPO4V4rikccbnnX+ORPjZqW+OkOf4eaT2UTC/rokXsDDhncJCBTrzxSdEg6RgK0E
+         sY9EMncsi4Nr3k7Aa35lt7TXBLf8ki6dKF4hhza2HwXCG52e+feqgWA7D6RFDwwFqMK5
+         1ZGg==
+X-Forwarded-Encrypted: i=1; AJvYcCV5jbDWiAKjKiPCHGpJCVa7i/CBQb4KtpYUohKFaarpKfm7bjPcx8EAM7Sy0XfWkVE+gviGIu5C7+XZaLKg3w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzfHszC2bRh7VXmJuF9FzuOe2nWb7l2gzLRmV7Cpz8PB3QIuajq
+	fBY+YHadgETQeCN63HmZexx2yvldK9buWVW3uVupZy8KWnEWZYMA/Lc8HppYMMY=
+X-Gm-Gg: ASbGncvghNOAYWMNwkitUXCf4vibWtI1EDS4MZ72isJImsTUxeG7EbjbNdH+ipMkmln
+	3qoQ5/xlzThaf1vBizMekhtMXkFCtnQ0PsaQhjIeV+XjMeni/6Km8UyvsXMMaSfnpMKvr+xODBx
+	h7CBB0sRzNfHOH9bg3QRH8MaXacBUSec7UjpZOwkhIe7OlCOc3CR27md6BsHqrTHwRyjG/Io1k3
+	Zv8O6fqBssQOzPRptygoSF24UYybigtixCps/I4Ofdw3Z8ret5CECi3hro=
+X-Google-Smtp-Source: AGHT+IHFRNXARPASashVpP22bZbsPAi6fmuWW4IEFR4NWYNiuFbqTXoYAUP1T7En6RP96xLPSNA5Pg==
+X-Received: by 2002:a17:902:e750:b0:216:5268:9aab with SMTP id d9443c01a7336-21a83fe4ba3mr38646875ad.46.1736336458432;
+        Wed, 08 Jan 2025 03:40:58 -0800 (PST)
+Received: from localhost ([157.82.203.37])
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-219dc964b84sm325595705ad.50.2025.01.08.03.40.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jan 2025 03:40:57 -0800 (PST)
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: [PATCH 0/3] tun: Unify vnet implementation and fill full vnet
+ header
+Date: Wed, 08 Jan 2025 20:40:10 +0900
+Message-Id: <20250108-tun-v1-0-67d784b34374@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20241111025538.2837-1-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vsO8QZiR8pErhbsm1CHGxA-z_9v9_eOPTBbYaDuhOUY_1736336123
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIABpkfmcC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIxNDI2MD3ZLSPF0zs1RDg0QTyySDZHMloMqCotS0zAqwKdGxtbUAGJ7vjVU
+ AAAA=
+To: Jonathan Corbet <corbet@lwn.net>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
+ devel@daynix.com, Akihiko Odaki <akihiko.odaki@daynix.com>
+X-Mailer: b4 0.14-dev-fd6e3
 
-On Mon, Nov 11, 2024 at 10:55:38AM +0800, Jason Wang wrote:
-> There's no need to sync DMA for CPU on mapping errors. So this patch
-> skips the CPU sync in the error handling path of DMA mapping.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+When I implemented virtio's hash-related features to tun/tap [1],
+I found tun/tap does not fill the entire region reserved for the virtio
+header, leaving some uninitialized hole in the middle of the buffer
+after read()/recvmesg().
 
+This series fills the uninitialized hole. More concretely, the
+num_buffers field will be initialized with 1, and the other fields will
+be inialized with 0. Setting the num_buffers field to 1 is mandated by
+virtio 1.0 [2].
 
-So as I said, I do not get why we are optimizing error paths.
-The commit log at least needs to be improved to document
-the motivation.
+The change to virtio header is preceded by another change that refactors
+tun and tap to unify their virtio-related code.
 
+[1]: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
+[2]: https://lore.kernel.org/r/20241227084256-mutt-send-email-mst@kernel.org/
 
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+---
+Akihiko Odaki (3):
+      tun: Unify vnet implementation
+      tun: Pad virtio header with zero
+      tun: Set num_buffers for virtio 1.0
 
+ MAINTAINERS            |   1 +
+ drivers/net/Kconfig    |   5 ++
+ drivers/net/Makefile   |   1 +
+ drivers/net/tap.c      | 174 ++++++----------------------------------
+ drivers/net/tun.c      | 212 ++++++++-----------------------------------------
+ drivers/net/tun_vnet.c | 191 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/tun_vnet.h |  24 ++++++
+ 7 files changed, 281 insertions(+), 327 deletions(-)
+---
+base-commit: a32e14f8aef69b42826cf0998b068a43d486a9e9
+change-id: 20241230-tun-66e10a49b0c7
 
-> ---
->  drivers/virtio/virtio_ring.c | 98 +++++++++++++++++++++---------------
->  1 file changed, 57 insertions(+), 41 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index be7309b1e860..b422b5fb22db 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -441,8 +441,10 @@ static void virtqueue_init(struct vring_virtqueue *vq, u32 num)
->   */
->  
->  static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
-> -					   const struct vring_desc *desc)
-> +					   const struct vring_desc *desc,
-> +					   bool skip_sync)
->  {
-> +	unsigned long attrs = skip_sync ? DMA_ATTR_SKIP_CPU_SYNC : 0;
->  	u16 flags;
-
-
-If you really feel we must do it, just pass attrs directly so
-we do not get an extra branch. Also makes for a more readable code.
-
->  	if (!vq->do_unmap)
-> @@ -450,16 +452,18 @@ static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
->  
->  	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
->  
-> -	dma_unmap_page(vring_dma_dev(vq),
-> -		       virtio64_to_cpu(vq->vq.vdev, desc->addr),
-> -		       virtio32_to_cpu(vq->vq.vdev, desc->len),
-> -		       (flags & VRING_DESC_F_WRITE) ?
-> -		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> +	dma_unmap_page_attrs(vring_dma_dev(vq),
-> +			     virtio64_to_cpu(vq->vq.vdev, desc->addr),
-> +			     virtio32_to_cpu(vq->vq.vdev, desc->len),
-> +			     (flags & VRING_DESC_F_WRITE) ?
-> +			     DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> +			     attrs);
->  }
->  
->  static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
-> -					  unsigned int i)
-> +					  unsigned int i, bool skip_sync)
->  {
-> +	unsigned long attrs = skip_sync ? DMA_ATTR_SKIP_CPU_SYNC : 0;
->  	struct vring_desc_extra *extra = vq->split.desc_extra;
->  	u16 flags;
->  
-> @@ -469,20 +473,22 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
->  		if (!vq->use_dma_api)
->  			goto out;
->  
-> -		dma_unmap_single(vring_dma_dev(vq),
-> -				 extra[i].addr,
-> -				 extra[i].len,
-> -				 (flags & VRING_DESC_F_WRITE) ?
-> -				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> +		dma_unmap_single_attrs(vring_dma_dev(vq),
-> +				       extra[i].addr,
-> +				       extra[i].len,
-> +				       (flags & VRING_DESC_F_WRITE) ?
-> +				       DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> +				       attrs);
->  	} else {
->  		if (!vq->do_unmap)
->  			goto out;
->  
-> -		dma_unmap_page(vring_dma_dev(vq),
-> -			       extra[i].addr,
-> -			       extra[i].len,
-> -			       (flags & VRING_DESC_F_WRITE) ?
-> -			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> +		dma_unmap_page_attrs(vring_dma_dev(vq),
-> +				     extra[i].addr,
-> +				     extra[i].len,
-> +				     (flags & VRING_DESC_F_WRITE) ?
-> +				     DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> +				     attrs);
->  	}
->  
->  out:
-> @@ -717,10 +723,10 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->  		if (i == err_idx)
->  			break;
->  		if (indirect) {
-> -			vring_unmap_one_split_indirect(vq, &desc[i]);
-> +			vring_unmap_one_split_indirect(vq, &desc[i], true);
->  			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
->  		} else
-> -			i = vring_unmap_one_split(vq, i);
-> +			i = vring_unmap_one_split(vq, i, true);
->  	}
->  
->  free_indirect:
-> @@ -775,12 +781,12 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
->  	i = head;
->  
->  	while (vq->split.vring.desc[i].flags & nextflag) {
-> -		vring_unmap_one_split(vq, i);
-> +		vring_unmap_one_split(vq, i, false);
->  		i = vq->split.desc_extra[i].next;
->  		vq->vq.num_free++;
->  	}
->  
-> -	vring_unmap_one_split(vq, i);
-> +	vring_unmap_one_split(vq, i, false);
->  	vq->split.desc_extra[i].next = vq->free_head;
->  	vq->free_head = head;
->  
-> @@ -804,7 +810,8 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
->  
->  		if (vq->do_unmap) {
->  			for (j = 0; j < len / sizeof(struct vring_desc); j++)
-> -				vring_unmap_one_split_indirect(vq, &indir_desc[j]);
-> +				vring_unmap_one_split_indirect(vq,
-> +							&indir_desc[j], false);
->  		}
->  
->  		kfree(indir_desc);
-> @@ -1221,8 +1228,10 @@ static u16 packed_last_used(u16 last_used_idx)
->  }
->  
->  static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
-> -				     const struct vring_desc_extra *extra)
-> +				     const struct vring_desc_extra *extra,
-> +				     bool skip_sync)
->  {
-> +	unsigned long attrs = skip_sync ? DMA_ATTR_SKIP_CPU_SYNC : 0;
->  	u16 flags;
->  
->  	flags = extra->flags;
-> @@ -1231,24 +1240,28 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
->  		if (!vq->use_dma_api)
->  			return;
->  
-> -		dma_unmap_single(vring_dma_dev(vq),
-> -				 extra->addr, extra->len,
-> -				 (flags & VRING_DESC_F_WRITE) ?
-> -				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> +		dma_unmap_single_attrs(vring_dma_dev(vq),
-> +				       extra->addr, extra->len,
-> +				       (flags & VRING_DESC_F_WRITE) ?
-> +				       DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> +				       attrs);
->  	} else {
->  		if (!vq->do_unmap)
->  			return;
->  
-> -		dma_unmap_page(vring_dma_dev(vq),
-> -			       extra->addr, extra->len,
-> -			       (flags & VRING_DESC_F_WRITE) ?
-> -			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> +		dma_unmap_page_attrs(vring_dma_dev(vq),
-> +				     extra->addr, extra->len,
-> +				     (flags & VRING_DESC_F_WRITE) ?
-> +				     DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> +				     attrs);
->  	}
->  }
->  
->  static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
-> -				    const struct vring_packed_desc *desc)
-> +				    const struct vring_packed_desc *desc,
-> +				    bool skip_sync)
->  {
-> +	unsigned long attrs = skip_sync ? DMA_ATTR_SKIP_CPU_SYNC : 0;
->  	u16 flags;
->  
->  	if (!vq->do_unmap)
-> @@ -1256,11 +1269,12 @@ static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
->  
->  	flags = le16_to_cpu(desc->flags);
->  
-> -	dma_unmap_page(vring_dma_dev(vq),
-> -		       le64_to_cpu(desc->addr),
-> -		       le32_to_cpu(desc->len),
-> -		       (flags & VRING_DESC_F_WRITE) ?
-> -		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> +	dma_unmap_page_attrs(vring_dma_dev(vq),
-> +			     le64_to_cpu(desc->addr),
-> +			     le32_to_cpu(desc->len),
-> +			     (flags & VRING_DESC_F_WRITE) ?
-> +			     DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> +			     attrs);
->  }
->  
->  static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
-> @@ -1389,7 +1403,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  	err_idx = i;
->  
->  	for (i = 0; i < err_idx; i++)
-> -		vring_unmap_desc_packed(vq, &desc[i]);
-> +		vring_unmap_desc_packed(vq, &desc[i], true);
->  
->  free_desc:
->  	kfree(desc);
-> @@ -1539,7 +1553,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
->  	for (n = 0; n < total_sg; n++) {
->  		if (i == err_idx)
->  			break;
-> -		vring_unmap_extra_packed(vq, &vq->packed.desc_extra[curr]);
-> +		vring_unmap_extra_packed(vq,
-> +					 &vq->packed.desc_extra[curr], true);
->  		curr = vq->packed.desc_extra[curr].next;
->  		i++;
->  		if (i >= vq->packed.vring.num)
-> @@ -1619,7 +1634,8 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
->  		curr = id;
->  		for (i = 0; i < state->num; i++) {
->  			vring_unmap_extra_packed(vq,
-> -						 &vq->packed.desc_extra[curr]);
-> +						 &vq->packed.desc_extra[curr],
-> +						 false);
->  			curr = vq->packed.desc_extra[curr].next;
->  		}
->  	}
-> @@ -1636,7 +1652,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
->  			len = vq->packed.desc_extra[id].len;
->  			for (i = 0; i < len / sizeof(struct vring_packed_desc);
->  					i++)
-> -				vring_unmap_desc_packed(vq, &desc[i]);
-> +				vring_unmap_desc_packed(vq, &desc[i], false);
->  		}
->  		kfree(desc);
->  		state->indir_desc = NULL;
-> -- 
-> 2.31.1
+Best regards,
+-- 
+Akihiko Odaki <akihiko.odaki@daynix.com>
 
