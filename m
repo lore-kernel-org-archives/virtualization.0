@@ -1,193 +1,217 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 912EA2AF0E
-	for <virtualization@lists.linux.dev>; Wed,  8 Jan 2025 02:02:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E065C17E8E2
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 02:51:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736301751; cv=none; b=kYbvoR1g7nVVUexQWg462ay/jJkXigHHFBM3iW2MHFJysof/vOdb+NpK2amiHCmb6iuTkTieNSxPxKJKmNRAO966Lzef5SiqULIq4nZ94bWx7xTIwdAaQH08Vt9U7gorxBY88PEqUqxoSL+a6Pnvl2JxxHb337TycBEkjbdDFyo=
+	t=1736304716; cv=none; b=j8a0t0B2WimHJwwxmIc9dJiEk67jLdavxDe1xRvi+lFKwf4vQUL4YJ2GkJ2OeUSjuzjaM387Ye/cmccqtBvUMsSCIMBG4CgH6KRfvI/739aHHjmcHTCDgG77ycA2RhLjjeViabD4sUwXV31tS64NKVfCU22GEX1XtWmJ3Bw5Fvw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736301751; c=relaxed/simple;
-	bh=bnbdafSHoUIXiLJU0hLjv6jA35U7B1BBo1Y6D1ExIF4=;
+	s=arc-20240116; t=1736304716; c=relaxed/simple;
+	bh=8dLaTNZkOANyi7LZAXsihdUd6Va5DlR/j7so/eFJ/RU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FkRNNTWUE9ATxVbnVp1OQG3ko7/tJUIl99bWGPmXOD7wP5MZoRWV899jLrxzZH/dZ6arEdLY97FeirZhBnE5FQME96GlDVBc7eTrjt0Hmun07mR5AF5hZ+VQIXjzVF/sfebEw1wNnw+wtA75OovrQLFXhaBbjozenatPWrG40jY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h9QJqLwb; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=T/JNR9v7XI9/HU2ew846kfWjnGEwL9RPU/GSzHIKUpOVHGgeFw855LayblQVyrqUkmC+XSQECofvKtG8aKCixPdE8JHY40v/kj74EC783CEbugoPWagyndJ05OqBI+PyUT/G3gZnHYqo/LOLzTicvt2IFZrq0t90r+8+uqEySzY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eVEw9Cnm; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h9QJqLwb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eVEw9Cnm"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8E8FC605A3
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 02:51:54 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id X9Ma_9bo4EtU for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Jan 2025 02:51:53 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org A2313606E1
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2313606E1
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eVEw9Cnm
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A2313606E1
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Jan 2025 02:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736301747;
+	s=mimecast20190719; t=1736304711;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=S3O4asXjraCLx5UW8S6Qn4t+5ED6yreicv33kZYqYIE=;
-	b=h9QJqLwbgY/kMyQDUX9GQDVRcbAOb+v8/BoUUoandPi+jG/nW1Dkhg4FMhVOzijPA7ONzr
-	yLuyd97Y0FUR7ECtKYs0GEBIORkLHScmjtTF5R236TSG6XtWlvbB117sF4TshIiFgJ9lTi
-	CYxgHecIwFe73THaHpaiH1OhKG3MGCQ=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CaOb1WalMmtTDfnQFpI5uhYTy1TqdKKF46UnkmKk8QA=;
+	b=eVEw9CnmuaHrj27pb81E7/jTfs7/FIdqO8urAw5Hd+VFYYQ6VSMDFyLXy32t/QjHYxx0Tq
+	LVrZm12j+4kdlqbf2ZrTsF4Vs1maGCaVvqScsNUJJC9P6WJ1Z5nTA1RpUM/WZ2mpB8+qXZ
+	QyOurL6/zI+7/TIimZAX9WiWKPjkQhI=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-557-gBGfjyljNI2ZM2yE0QFuLQ-1; Tue, 07 Jan 2025 21:02:26 -0500
-X-MC-Unique: gBGfjyljNI2ZM2yE0QFuLQ-1
-X-Mimecast-MFC-AGG-ID: gBGfjyljNI2ZM2yE0QFuLQ
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2ee8ced572eso24384816a91.0
-        for <virtualization@lists.linux.dev>; Tue, 07 Jan 2025 18:02:26 -0800 (PST)
+ us-mta-652-8x5LwG8tM1awwhqtSYpBbQ-1; Tue, 07 Jan 2025 21:51:50 -0500
+X-MC-Unique: 8x5LwG8tM1awwhqtSYpBbQ-1
+X-Mimecast-MFC-AGG-ID: 8x5LwG8tM1awwhqtSYpBbQ
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-aab954d1116so852897166b.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 07 Jan 2025 18:51:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736301745; x=1736906545;
+        d=1e100.net; s=20230601; t=1736304709; x=1736909509;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=S3O4asXjraCLx5UW8S6Qn4t+5ED6yreicv33kZYqYIE=;
-        b=STs8LlTlGNCBesIQ6cE8RsRni8Jo1C//AP/oyS2z9WkCw25BUFQLAIXgZhx5leRWKK
-         GkscoIiqEs/BU3MbHTSp88JoVhGuc8B4dPIKpQodP7eW+K8ZWEaKJs45Ybl0Tw8Lng2z
-         AcvIFDdBFecZ540MPCy6kBoPL0PjGbOYFl/Wgxw852ZNMkgBqYxwgesZjFkO7KmXFNtL
-         y0NoaIlctwlWz7uvaQ5Gs6ahg3+zUpI2GVciMszlUUs+0vd/CpIbgB8e+ksEkFloDJyG
-         q2L9mfNRkE6wTROvn6KFEKbGK/HlQYbS+BJvLvYt8MUjn1+lTvf10byxPC+7r25CTHgW
-         fDgA==
-X-Forwarded-Encrypted: i=1; AJvYcCWmV6J+ynfasojyhKk4tD1pPJjmhXU/3uHr0bNmPDUwoDflS/fLByoM5jMUaNeNGnYfNrGTLfzJeB9+Duxo1A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw7HeInEr1VdHqTqOegfNLZCy25+jE5y5PTvRp4kEyVYU+rmD9j
-	jyzcOfriqj7WWqEilpDMtrEOZPa9ucnPBBmGBhyDLAUbeoL9OsO72xLT0SIDSpYaQEeIJx22KK2
-	TkGU+78MtXCmCjrfCljoRhUZsgUaa2kXSzw//fWfesRauaZ19b0p/U30LGsGci5Cb60coNRLKj2
-	/du9nxE5OrYwiijGu1bDJjJIF8Txwapdr2vQzN0tU=
-X-Gm-Gg: ASbGncs/rGFIF/pzNFJ9t5/a8w0+YvQEH38T8rQ5l7X5PYtxYfjFxqJvqe5VDh4rtfl
-	DIqmzClbY8iMTwKAy1C7GtDl5DZpcS50LvobMscU=
-X-Received: by 2002:aa7:9319:0:b0:725:e325:ab3a with SMTP id d2e1a72fcca58-72d21f4c187mr1867000b3a.14.1736301745054;
-        Tue, 07 Jan 2025 18:02:25 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFEZ9BFWxbThy9xqFzriMnomszTBHHhxQZJ4oGdMaqUnaNUKqZKdEG9BHYR70GXPA0r+I74eLe8+1UXXTotQPA=
-X-Received: by 2002:aa7:9319:0:b0:725:e325:ab3a with SMTP id
- d2e1a72fcca58-72d21f4c187mr1866956b3a.14.1736301744614; Tue, 07 Jan 2025
- 18:02:24 -0800 (PST)
+        bh=CaOb1WalMmtTDfnQFpI5uhYTy1TqdKKF46UnkmKk8QA=;
+        b=qmqb7mHoTmZo52n03KAV0EI1re57VWekrQDKFgzZxLe6DQtopouhVjQFugtqstxvpn
+         zHaiZFFxvnQ/IrguEKRCuX31nD94z/8O6GWQxsTXwYlLNKqbODiw7tYBGVgGuzNX2aR7
+         wCXB0z1n+3hmtfP4Dzl+ryMfoMOFCpVSBbDdt7Kee77H9WazI47vTOLWinSHrN3Z866I
+         dT23nQHpDIkYCFtNnz6rpZBZNnO4P8LhPWYDcyseBuVttsv1vVa5CgDPggVYDJhyCVN+
+         qqry2UqYRaoymiBMMqA46lyyjuRITAJTp8BTwvvmpTmZHhsNC601E8EQyn0fPNJUkQcX
+         p+QA==
+X-Forwarded-Encrypted: i=1; AJvYcCWiPk2cfni6i6yucbxCTCsoB3HlHQinC/DdkMuN3cQLK8fWEaDKiPbC876F/KshNTkdeR063iYjM811kbKnHw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yw4LbaEEAivMOBgbLUH03pTQfHCReSTDkURdBOwUEWZrZq+BOsq
+	oZJDVQNLx1aXp2XtUX34whxgDrhEKGxFO4BukfwBKivWogeCPZ7twiIdZOgsrA8vcCtKpVZEMYD
+	asdM3h/bas7tDucOT9l0hF6oGcfbELtnN4ZL2JxdMghdBxCxmL5QbzeFmDS0KSXzmDsBJYiZp/T
+	8utUMWrx4Eg9KtQtsJ8/cMWpeVrG6/fwtN74gf7GEyXJDOkeavDx9Hww==
+X-Gm-Gg: ASbGncuKytq6Lo4icD0aF9JEDBAPN04WP6bub5ITUUEVboLC/1gCUdUfGHQX8p6sVdh
+	4cNxdadzNJYqT8ReYfkpsn/lH7auQcU56BA3jIyE=
+X-Received: by 2002:a17:907:70c:b0:aae:fd36:f511 with SMTP id a640c23a62f3a-ab2abc6ea66mr77955566b.47.1736304709349;
+        Tue, 07 Jan 2025 18:51:49 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE6yK+DbzIUr4iGjw5rQGTq1fi56HNFDf3sTbtwCjx1OywVB5oV8TYRFR62h6FgiT92zaX8RgvipZ3/oQ5Q3Ic=
+X-Received: by 2002:a17:907:70c:b0:aae:fd36:f511 with SMTP id
+ a640c23a62f3a-ab2abc6ea66mr77954366b.47.1736304709030; Tue, 07 Jan 2025
+ 18:51:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250107182516.48723-1-andrew.boyer@amd.com>
-In-Reply-To: <20250107182516.48723-1-andrew.boyer@amd.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 8 Jan 2025 10:02:13 +0800
-X-Gm-Features: AbW1kvaXj1MjFHCsg5QMAHaUlm13FiHYH0_03Qv8TJOXkWflZr9GjLeuzmB2ppY
-Message-ID: <CACGkMEt3iM2WZT08rpMHOFp_n2jWnjrG+YML5DgXrW2FbJC6vA@mail.gmail.com>
-Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
-To: Andrew Boyer <andrew.boyer@amd.com>
-Cc: Viktor Prutyanov <viktor@daynix.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Eugenio Perez <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux.dev, 
-	linux-block@vger.kernel.org
+References: <20241230124445.1850997-1-lulu@redhat.com> <20241230124445.1850997-6-lulu@redhat.com>
+ <CACGkMEvPbe3wvC0UvAu-vgGYu1xMWRzCt0qwUofcHJThRdFxiQ@mail.gmail.com>
+In-Reply-To: <CACGkMEvPbe3wvC0UvAu-vgGYu1xMWRzCt0qwUofcHJThRdFxiQ@mail.gmail.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Wed, 8 Jan 2025 10:51:11 +0800
+X-Gm-Features: AbW1kvbiMIhC0HRAuDWZOT4vBtLPxtDfnnW0zCtIIqaxj_a90D6twTPuluo2bIM
+Message-ID: <CACLfguV_PZSuhXsga=A-OeBGx0m0ThjyVy1eihM_2WEmoY3jhQ@mail.gmail.com>
+Subject: Re: [PATCH v5 5/6] vhost: Add new UAPI to support change to task mode
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fKyq6c827c4dJ9WcsVb0QFY8nT1F3z6GcX2mIQabqCY_1736301745
+X-Mimecast-MFC-PROC-ID: uYj3o4XfK9V4mCw7n07Q18LV_mdfbOG2_H3nsVgr2bA_1736304709
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 8, 2025 at 2:27=E2=80=AFAM Andrew Boyer <andrew.boyer@amd.com> =
-wrote:
+On Thu, Jan 2, 2025 at 11:37=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
 >
-> Commit af8ececda185 ("virtio: add VIRTIO_F_NOTIFICATION_DATA feature
-> support") added notification data support to the core virtio driver
-> code. When this feature is enabled, the notification includes the
-> updated producer index for the queue. Thus it is now critical that
-> notifications arrive in order.
+> On Mon, Dec 30, 2024 at 8:45=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+> >
+> > Add a new UAPI to enable setting the vhost device to task mode.
+> > The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
+> > to configure the mode if necessary.
+> > This setting must be applied before VHOST_SET_OWNER, as the worker
+> > will be created in the VHOST_SET_OWNER function
+> >
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > ---
+> >  drivers/vhost/vhost.c      | 22 +++++++++++++++++++++-
+> >  include/uapi/linux/vhost.h | 19 +++++++++++++++++++
+> >  2 files changed, 40 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index ff17c42e2d1a..47c1329360ac 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -2250,15 +2250,35 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsig=
+ned int ioctl, void __user *argp)
+> >  {
+> >         struct eventfd_ctx *ctx;
+> >         u64 p;
+> > -       long r;
+> > +       long r =3D 0;
+> >         int i, fd;
+> > +       u8 inherit_owner;
+> >
+> >         /* If you are not the owner, you can become one */
+> >         if (ioctl =3D=3D VHOST_SET_OWNER) {
+> >                 r =3D vhost_dev_set_owner(d);
+> >                 goto done;
+> >         }
+> > +       if (ioctl =3D=3D VHOST_SET_INHERIT_FROM_OWNER) {
+> > +               /*inherit_owner can only be modified before owner is se=
+t*/
+> > +               if (vhost_dev_has_owner(d)) {
+> > +                       r =3D -EBUSY;
+> > +                       goto done;
+> > +               }
+> > +               if (copy_from_user(&inherit_owner, argp, sizeof(u8))) {
+> > +                       r =3D -EFAULT;
+> > +                       goto done;
+> > +               }
 >
-> The virtio_blk driver has historically not worried about notification
-> ordering. Modify it so that the prepare and kick steps are both done
-> under the vq lock.
-
-Do we have performance numbers when VIRTIO_F_NOTIFICATION_DATA is not
-negotiated?
-
-We need to make sure it doesn't introduce any regression in the case
-like virtualization setup since now there could be an vmexit when
-holding the virtqueue lock.
-
+> Not a native speaker but I wonder if "VHOST_FORK_FROM_OWNER" is better or=
+ not.
+>
+Sure will do
+> > +               /* Validate the inherit_owner value, ensuring it is eit=
+her 0 or 1 */
+> > +               if (inherit_owner > 1) {
+> > +                       r =3D -EINVAL;
+> > +                       goto done;
+> > +               }
+> > +
+> > +               d->inherit_owner =3D (bool)inherit_owner;
+>
+> So this allows userspace to reset the owner and toggle the value. This
+> seems to be fine, but I wonder if we need to some cleanup in
+> vhost_dev_reset_owner() or not. Let's explain this somewhere (probably
+> in the commit log).
+>
+sure will add these information
 Thanks
-
+Cindy
+> >
+> > +               goto done;
+> > +       }
+> >         /* You must be the owner to do anything else */
+> >         r =3D vhost_dev_check_owner(d);
+> >         if (r)
+> > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> > index b95dd84eef2d..f5fcf0b25736 100644
+> > --- a/include/uapi/linux/vhost.h
+> > +++ b/include/uapi/linux/vhost.h
+> > @@ -235,4 +235,23 @@
+> >   */
+> >  #define VHOST_VDPA_GET_VRING_SIZE      _IOWR(VHOST_VIRTIO, 0x82,      =
+ \
+> >                                               struct vhost_vring_state)
+> > +
+> > +/**
+> > + * VHOST_SET_INHERIT_FROM_OWNER - Set the inherit_owner flag for the v=
+host device
+> > + *
+> > + * @param inherit_owner: An 8-bit value that determines the vhost thre=
+ad mode
+> > + *
+> > + * When inherit_owner is set to 1 (default behavior):
+> > + *   - The VHOST worker threads inherit their values/checks from
+> > + *     the thread that owns the VHOST device. The vhost threads will
+> > + *     be counted in the nproc rlimits.
+> > + *
+> > + * When inherit_owner is set to 0:
+> > + *   - The VHOST worker threads will use the traditional kernel thread=
+ (kthread)
+> > + *     implementation, which may be preferred by older userspace appli=
+cations that
+> > + *     do not utilize the newer vhost_task concept.
+> > + */
+> > +
+> > +#define VHOST_SET_INHERIT_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, __u8)
+> > +
+> >  #endif
+> > --
+> > 2.45.0
 >
-> Signed-off-by: Andrew Boyer <andrew.boyer@amd.com>
-> Reviewed-by: Brett Creeley <brett.creeley@amd.com>
-> Fixes: af8ececda185 ("virtio: add VIRTIO_F_NOTIFICATION_DATA feature supp=
-ort")
-> Cc: Viktor Prutyanov <viktor@daynix.com>
-> Cc: virtualization@lists.linux.dev
-> Cc: linux-block@vger.kernel.org
-> ---
->  drivers/block/virtio_blk.c | 19 ++++---------------
->  1 file changed, 4 insertions(+), 15 deletions(-)
->
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 3efe378f1386..14d9e66bb844 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx =
-*hctx)
->  {
->         struct virtio_blk *vblk =3D hctx->queue->queuedata;
->         struct virtio_blk_vq *vq =3D &vblk->vqs[hctx->queue_num];
-> -       bool kick;
->
->         spin_lock_irq(&vq->lock);
-> -       kick =3D virtqueue_kick_prepare(vq->vq);
-> +       virtqueue_kick(vq->vq);
->         spin_unlock_irq(&vq->lock);
-> -
-> -       if (kick)
-> -               virtqueue_notify(vq->vq);
->  }
->
->  static blk_status_t virtblk_fail_to_queue(struct request *req, int rc)
-> @@ -432,7 +428,6 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_=
-ctx *hctx,
->         struct virtblk_req *vbr =3D blk_mq_rq_to_pdu(req);
->         unsigned long flags;
->         int qid =3D hctx->queue_num;
-> -       bool notify =3D false;
->         blk_status_t status;
->         int err;
->
-> @@ -454,12 +449,10 @@ static blk_status_t virtio_queue_rq(struct blk_mq_h=
-w_ctx *hctx,
->                 return virtblk_fail_to_queue(req, err);
->         }
->
-> -       if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
-> -               notify =3D true;
-> +       if (bd->last)
-> +               virtqueue_kick(vblk->vqs[qid].vq);
->         spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->
-> -       if (notify)
-> -               virtqueue_notify(vblk->vqs[qid].vq);
->         return BLK_STS_OK;
->  }
->
-> @@ -476,7 +469,6 @@ static void virtblk_add_req_batch(struct virtio_blk_v=
-q *vq,
->  {
->         struct request *req;
->         unsigned long flags;
-> -       bool kick;
->
->         spin_lock_irqsave(&vq->lock, flags);
->
-> @@ -492,11 +484,8 @@ static void virtblk_add_req_batch(struct virtio_blk_=
-vq *vq,
->                 }
->         }
->
-> -       kick =3D virtqueue_kick_prepare(vq->vq);
-> +       virtqueue_kick(vq->vq);
->         spin_unlock_irqrestore(&vq->lock, flags);
-> -
-> -       if (kick)
-> -               virtqueue_notify(vq->vq);
->  }
->
->  static void virtio_queue_rqs(struct rq_list *rqlist)
-> --
-> 2.17.1
+> Thanks
 >
 
