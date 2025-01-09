@@ -1,210 +1,257 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52C76155345
-	for <virtualization@lists.linux.dev>; Thu,  9 Jan 2025 08:33:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7303A2147EF
+	for <virtualization@lists.linux.dev>; Thu,  9 Jan 2025 09:01:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736411608; cv=none; b=WdXL0hnEn1myCHk5nZagPdgDk3ATvIGBUoTQjuORLrSrDvgm/xa29KhFL/IfqFFKtBnZAUvrdC4CywrjC2RVtUZrEKZNlnzAIeZVdEo4yLyPXa/PaX1p1gG8V8yJ1fSnyw3iXijAQnM2QfhdfhqcHzUMptaijyhNcYv4m39ndoM=
+	t=1736413307; cv=none; b=UFUNpo5PCckpRniVDWogmziEEKCe4N6SzN1kqJPywWByvJAQPwq7OdIqZit2HexTFqJcBYQEH6iVNcIdeJvakdR5LiJkmlKTRynUSbUyx7o0U5fDLui+UzWog0Q4MGBYJc3M1I1jVmMahOmONCieA3zKLKWEVBW0dOmafvd3roI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736411608; c=relaxed/simple;
-	bh=gNHm1ZRWd6QZ3EhHhcH7DAjavJAkn9sWeqtF5IZenuA=;
+	s=arc-20240116; t=1736413307; c=relaxed/simple;
+	bh=+sIdD58FlzLJ0SpEVOPekmjkzCRZ+9ERthJqbNbAqjA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AXVHLLV2EeH/81d4DVySZu+u4ttzRxtFIe0dun256I1eF81LQaKroNh0tdQKv50/pEDNvYZK0X0GHilw627SgfkQ1lD9AgpNz1E9TI5IAVE8pTrCPepyYglNnGubqHJSYHJnD+GbGvK0eo3jewsc9Jx0LnsU5hbj6GcZcW/OO6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e5JPf2tO; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=pHGstXAknhGg826i76neKW2AcEYZr7WeVHINQaCFzMZW2U6WGdq2KFuFMpHM2W7d2tdLb9CCaoTmghkIVTSDW9fxOn8/5xTdBNXfQRBwsH81oA581G9yQQ7b1udxDHDAAHjRNtpjQnikJVW33DZA7t698wDBVUpYF7PijQVBnOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cf8gC9H1; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e5JPf2tO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cf8gC9H1"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736411605;
+	s=mimecast20190719; t=1736413304;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=uqRP5f1dFunit71HPNsUwkwx3/dTBxrPG9UiLsklLDM=;
-	b=e5JPf2tOpBTkeVW2WD/iD1N0pgIqw863ikJAeh++xMDL6cNmzL5FJ/2nizjf1onvN9ekor
-	gYL+EnUjrX287Sm5ArI88nICHeKChRW+yXammnBXTL2katdO2dD0QwKvNofy/mg1wQ9fIE
-	O+AU7b4QdoIm24HZxVs4xAxvqTNMXKA=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=O/+PvGvb8cisc0+olaJcorud7NkJpehAn5lKv6sXjgA=;
+	b=Cf8gC9H1QF+QyBnvPQrstKRTBS1jwC987lQuyojJb6O1O8qu+liZN0BlNDSO3QFnGQvDqh
+	/XMy0mD2kFehoOZkUPh0GKka8E07WepUmzOFn5mguBq6pKEDsLGBJkXnb6dxU/+KcsNX01
+	uc9ya91Duf6o5CRKRsMwuhiAOEQzjr4=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-313-eG2Gdqh8NLiZopDjOPmHuA-1; Thu, 09 Jan 2025 03:33:23 -0500
-X-MC-Unique: eG2Gdqh8NLiZopDjOPmHuA-1
-X-Mimecast-MFC-AGG-ID: eG2Gdqh8NLiZopDjOPmHuA
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-385e1339790so416424f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 09 Jan 2025 00:33:23 -0800 (PST)
+ us-mta-38-Mlj6NxeUOliv2leabCW-Og-1; Thu, 09 Jan 2025 04:01:43 -0500
+X-MC-Unique: Mlj6NxeUOliv2leabCW-Og-1
+X-Mimecast-MFC-AGG-ID: Mlj6NxeUOliv2leabCW-Og
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-aaf921b8a85so68124866b.0
+        for <virtualization@lists.linux.dev>; Thu, 09 Jan 2025 01:01:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736411602; x=1737016402;
+        d=1e100.net; s=20230601; t=1736413299; x=1737018099;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=uqRP5f1dFunit71HPNsUwkwx3/dTBxrPG9UiLsklLDM=;
-        b=f6KPhZwBvxx+f+ERsMLBxTBSKJmBYPr7jJmEam70/WniNYUYENjAQEe6CuNwLdo7SW
-         PGG04o5TRaPpxz5BSjjTE96KpNGQv8ZG8fq6+nPwfl+ydRREZ9RzqYfsqfmSK9wl0iBX
-         SRpx418IupjGTjvM6HsnMV7hLYUWWSDDfx8fc3QQuGaA0Er/G3iFYjHgFEOzPYG2XAaT
-         4LMLgfTHT5SHiajwOp1Vwi67otcJ+OjWLJ/oCzKiCkwmaZMgOw8CFIzLpYadb+7AkxGp
-         AYYmZemGBdSTaoJrLJ4fTLHlUzcK4fNg6bMuw/481gT79/SRu2d6bIXMiPs20/azNlWu
-         LVlA==
-X-Forwarded-Encrypted: i=1; AJvYcCU5BpcJoWBH1laex2l3InDX1udhEq90xabqKW5yWESO+K46gYDk8sCE/YjzqS5ZNpHBtNlu55eoeYtcM8YkeA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxIwZKQm6zqjJ3Ts4drW0/tlFeFmi90oWWptHJB34XhJ6hSxgjV
-	2EEzCPTrq5/v3D1rNG2wqxtdjema2vWj/ZiuWXBcT4UkJX55xJfm2Og6WHffyKxKqk72fBARsGp
-	CjjU8oLB/KrSOyv3ER3mA/L9CVbvXW3otpigaPkY3IwYveeneHEeIJdwbIQesEl4D
-X-Gm-Gg: ASbGnctWLW9CSvy973PzdEs414ewwx1nmQiQft/mcQr+/wj6nl1YxHZ94Xj7bFLPXF/
-	bS9VK+SVqC3ezJPmUfdwV9krkZ4WNDdLng/FxaUTLPF3zuRTKz7rhBmV8XsB6daACxVWnHScakq
-	8Su63zY4YoQSL5IGTrCg9IebaMFAECFcoJHTLnUvmK+FDsRy+nNhQUa4edWUkFisJ1jH/fDCRco
-	EPdzMOAFga/pmTZYT28wCR8GLCPUoqphndwzRFXnGDTOD4Lbc+hE3SXME4=
-X-Received: by 2002:a5d:6d02:0:b0:38a:50f7:24fa with SMTP id ffacd0b85a97d-38a87357a07mr5310610f8f.54.1736411602082;
-        Thu, 09 Jan 2025 00:33:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEk1MDrg8tu6jB97ExyCN1fqiiCxS8wPYxwQC29oBrKPhm516/evymAwLslSjLurHxQbye5HA==
-X-Received: by 2002:a5d:6d02:0:b0:38a:50f7:24fa with SMTP id ffacd0b85a97d-38a87357a07mr5310558f8f.54.1736411601434;
-        Thu, 09 Jan 2025 00:33:21 -0800 (PST)
+        bh=O/+PvGvb8cisc0+olaJcorud7NkJpehAn5lKv6sXjgA=;
+        b=g8oQKp5qNAaPw3QVKfzb/D8cgJkr6beazBc3Uj8nczzc8usA+OExivOdfNYLubeUNW
+         XBKPMnNHnBRFwwAI5jGce4lwFwyt8ZpJWsz7bgbKOdqENuOm+j4grNSOAeVDKoAxDaO1
+         uxtTZw4x6N9O1Qs00yVRVeedgGs/mjkTV/rTXkjLH0GYhDPvFYJx6vxUiqfGxkk5Wj8w
+         /ElQUEcmTSycohdKXzslomrC+mizxrA+IKLcqHauysZrivJVOZ0AtFSZ8nUxd/Eed7OV
+         7V2gChcfOjH5jssHPyClZA+8uVQU8/eFog5+rb9r51qmxPNjWCVqpy0OigPPnJRouBiI
+         c4lQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWvymyv9FnYaNPDTehL2chPMUsyAIVnlGgVHlWkI7i+6VdamXTER2jI4GLxi/9ht/iZMzsg+JLxaswlaoxHiA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw7UFi5CqL6r686CBtBD7SSVnjyQMom0cNZtPtdWOEnL6tdLeu7
+	IEviqxsRjaESMzCFWOcC/5JWeZastsOqs4pLMIjCZ1zGjTxvHEJW8JLeKToaRfTMnb2nPHjjyZF
+	sZu66PtGpTzQz2KVDYnFpYB6MJW/Qnkj+GV3YhKqSqRMN87dDGVWYVaSjOv84fkmX
+X-Gm-Gg: ASbGncsUCODsEKsJN2qoMyvoyKccE9xuIxCUlGgL6V/cE4hPHJ1TITbPzIbVcOjFp48
+	p+8luPJHtB5QiEJdUhF4FAE+aG0UoEQlUrfbGTKpTix++qbMwy8siHVEF4btp64iXeWu5k0ChOE
+	OrSD2m0w6+Y9UJPjUxkT3xjltT7zdL9K8TamYZTaboIaeCG52iNwNTCvY3vXiQB9W4QWEzVEwag
+	rKlyWxxudXW+FAyk37lYPjTrLo2jwK6amEm4U7Gv1Z2h0jX1CRfSCkA72g=
+X-Received: by 2002:a17:907:a08e:b0:ab2:c1e5:397c with SMTP id a640c23a62f3a-ab2c1e53ab3mr223776566b.29.1736413299321;
+        Thu, 09 Jan 2025 01:01:39 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEOV9JHlol/Wmiz7E/zdqdsLMLcaiajVGTKl716cWZNRFMuCfB7oQmf+Zga+/+By1e+6a2YiA==
+X-Received: by 2002:a17:907:a08e:b0:ab2:c1e5:397c with SMTP id a640c23a62f3a-ab2c1e53ab3mr223769366b.29.1736413298532;
+        Thu, 09 Jan 2025 01:01:38 -0800 (PST)
 Received: from sgarzare-redhat ([5.77.115.218])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e38332asm1136441f8f.23.2025.01.09.00.33.19
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab2c905f067sm50679166b.14.2025.01.09.01.01.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jan 2025 00:33:20 -0800 (PST)
-Date: Thu, 9 Jan 2025 09:33:14 +0100
+        Thu, 09 Jan 2025 01:01:37 -0800 (PST)
+Date: Thu, 9 Jan 2025 10:01:31 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: syzbot <syzbot+3affdbfc986ecd9200fd@syzkaller.appspotmail.com>
-Cc: cong.wang@bytedance.com, davem@davemloft.net, edumazet@google.com, 
-	horms@kernel.org, kuba@kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev
-Subject: Re: [syzbot] [virt?] [net?] general protection fault in
- vsock_connectible_has_data
-Message-ID: <a4n77w3u22efhdnyz5xn5gjvsfq7xncy3lyn32xqobnuw6gb27@kxubdyn4hr2q>
-References: <677f84a8.050a0220.25a300.01b3.GAE@google.com>
+To: Hyunwoo Kim <v4bel@theori.io>
+Cc: netdev@vger.kernel.org, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wongi Lee <qwerty@theori.io>, 
+	"David S. Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>, 
+	virtualization@lists.linux.dev, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Luigi Leonardi <leonardi@redhat.com>, bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Michal Luczaj <mhal@rbox.co>, kvm@vger.kernel.org, 
+	imv4bel@gmail.com
+Subject: Re: [PATCH net 1/2] vsock/virtio: discard packets if the transport
+ changes
+Message-ID: <77plpkw3mp4r3ue4ubmh4yhqfo777koiu65dqfqfxmjgc5uq57@aifi6mhtgtuj>
+References: <20250108180617.154053-1-sgarzare@redhat.com>
+ <20250108180617.154053-2-sgarzare@redhat.com>
+ <Z37Sh+utS+iV3+eb@v4bel-B760M-AORUS-ELITE-AX>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <677f84a8.050a0220.25a300.01b3.GAE@google.com>
-X-Mimecast-Spam-Score: 1
-X-Mimecast-MFC-PROC-ID: SPD78MqbzxBTGOlzKXsj9BlHWwi8yBGPx2VQmVKaZ0U_1736411602
+In-Reply-To: <Z37Sh+utS+iV3+eb@v4bel-B760M-AORUS-ELITE-AX>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: EdbDTrDczv4HHt8QUuL0itvejG_CcCdjGYyxazMJr5I_1736413299
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Thu, Jan 09, 2025 at 12:11:20AM -0800, syzbot wrote:
->Hello,
+On Wed, Jan 08, 2025 at 02:31:19PM -0500, Hyunwoo Kim wrote:
+>On Wed, Jan 08, 2025 at 07:06:16PM +0100, Stefano Garzarella wrote:
+>> If the socket has been de-assigned or assigned to another transport,
+>> we must discard any packets received because they are not expected
+>> and would cause issues when we access vsk->transport.
+>>
+>> A possible scenario is described by Hyunwoo Kim in the attached link,
+>> where after a first connect() interrupted by a signal, and a second
+>> connect() failed, we can find `vsk->transport` at NULL, leading to a
+>> NULL pointer dereference.
+>>
+>> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+>> Reported-by: Hyunwoo Kim <v4bel@theori.io>
+>> Reported-by: Wongi Lee <qwerty@theori.io>
+>> Closes: https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> ---
+>>  net/vmw_vsock/virtio_transport_common.c | 7 +++++--
+>>  1 file changed, 5 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>> index 9acc13ab3f82..51a494b69be8 100644
+>> --- a/net/vmw_vsock/virtio_transport_common.c
+>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>> @@ -1628,8 +1628,11 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>>
+>>  	lock_sock(sk);
+>>
+>> -	/* Check if sk has been closed before lock_sock */
+>> -	if (sock_flag(sk, SOCK_DONE)) {
+>> +	/* Check if sk has been closed or assigned to another transport before
+>> +	 * lock_sock (note: listener sockets are not assigned to any transport)
+>> +	 */
+>> +	if (sock_flag(sk, SOCK_DONE) ||
+>> +	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
 >
->syzbot found the following issue on:
+>If a race scenario with vsock_listen() is added to the existing
+>race scenario, the patch can be bypassed.
 >
->HEAD commit:    8ce4f287524c net: libwx: fix firmware mailbox abnormal ret..
->git tree:       net
->console+strace: https://syzkaller.appspot.com/x/log.txt?x=13f06edf980000
->kernel config:  https://syzkaller.appspot.com/x/.config?x=1c541fa8af5c9cc7
->dashboard link: https://syzkaller.appspot.com/bug?extid=3affdbfc986ecd9200fd
->compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
->syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15695418580000
->C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=124c56f8580000
+>In addition to the existing scenario:
+>```
+>                     cpu0                                                      cpu1
 >
->Downloadable assets:
->disk image: https://storage.googleapis.com/syzbot-assets/e09bf4b8939b/disk-8ce4f287.raw.xz
->vmlinux: https://storage.googleapis.com/syzbot-assets/f7f7846f83db/vmlinux-8ce4f287.xz
->kernel image: https://storage.googleapis.com/syzbot-assets/44540dea47ac/bzImage-8ce4f287.xz
+>                                                               socket(A)
 >
->The issue was bisected to:
+>                                                               bind(A, {cid: VMADDR_CID_LOCAL, port: 1024})
+>                                                                 vsock_bind()
 >
->commit 69139d2919dd4aa9a553c8245e7c63e82613e3fc
->Author: Cong Wang <cong.wang@bytedance.com>
->Date:   Mon Aug 12 02:21:53 2024 +0000
+>                                                               listen(A)
+>                                                                 vsock_listen()
+>  socket(B)
 >
->    vsock: fix recursive ->recvmsg calls
+>  connect(B, {cid: VMADDR_CID_LOCAL, port: 1024})
+>    vsock_connect()
+>      lock_sock(sk);
+>      virtio_transport_connect()
+>        virtio_transport_connect()
+>          virtio_transport_send_pkt_info()
+>            vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_REQUEST)
+>              queue_work(vsock_loopback_work)
+>      sk->sk_state = TCP_SYN_SENT;
+>      release_sock(sk);
+>                                                               vsock_loopback_work()
+>                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_REQUEST)
+>                                                                   sk = vsock_find_bound_socket(&dst);
+>                                                                   virtio_transport_recv_listen(sk, skb)
+>                                                                     child = vsock_create_connected(sk);
+>                                                                     vsock_assign_transport()
+>                                                                       vvs = kzalloc(sizeof(*vvs), GFP_KERNEL);
+>                                                                     vsock_insert_connected(vchild);
+>                                                                       list_add(&vsk->connected_table, list);
+>                                                                     virtio_transport_send_response(vchild, skb);
+>                                                                       virtio_transport_send_pkt_info()
+>                                                                         vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_RESPONSE)
+>                                                                           queue_work(vsock_loopback_work)
 >
->bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=116bc4b0580000
->final oops:     https://syzkaller.appspot.com/x/report.txt?x=136bc4b0580000
->console output: https://syzkaller.appspot.com/x/log.txt?x=156bc4b0580000
+>                                                               vsock_loopback_work()
+>                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_RESPONSE)
+>                                                                   sk = vsock_find_bound_socket(&dst);
+>                                                                   lock_sock(sk);
+>                                                                   case TCP_SYN_SENT:
+>                                                                   virtio_transport_recv_connecting()
+>                                                                     sk->sk_state = TCP_ESTABLISHED;
+>                                                                   release_sock(sk);
 >
->IMPORTANT: if you fix the issue, please add the following tag to the commit:
->Reported-by: syzbot+3affdbfc986ecd9200fd@syzkaller.appspotmail.com
->Fixes: 69139d2919dd ("vsock: fix recursive ->recvmsg calls")
+>                                                               kill(connect(B));
+>      lock_sock(sk);
+>      if (signal_pending(current)) {
+>      sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+>      sock->state = SS_UNCONNECTED;    // [1]
+>      release_sock(sk);
 >
->Oops: general protection fault, probably for non-canonical address 0xdffffc0000000014: 0000 [#1] PREEMPT SMP KASAN PTI
->KASAN: null-ptr-deref in range [0x00000000000000a0-0x00000000000000a7]
->CPU: 1 UID: 0 PID: 5828 Comm: syz-executor976 Not tainted 6.13.0-rc5-syzkaller-00142-g8ce4f287524c #0
->Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024
->RIP: 0010:vsock_connectible_has_data+0x85/0x100 net/vmw_vsock/af_vsock.c:882
->Code: 80 3c 38 00 74 08 48 89 df e8 e7 e0 5f f6 48 8b 1b 66 83 fd 05 75 3a e8 d9 78 f9 f5 48 81 c3 a0 00 00 00 48 89 d8 48 c1 e8 03 <42> 80 3c 38 00 74 08 48 89 df e8 bc e0 5f f6 4c 8b 1b 4c 89 f7 41
->RSP: 0018:ffffc900015976f8 EFLAGS: 00010206
->RAX: 0000000000000014 RBX: 00000000000000a0 RCX: ffff888033e09e00
->RDX: 0000000000000000 RSI: 0000000000000005 RDI: 0000000000000005
->RBP: 0000000000000005 R08: ffffffff8ba5fadc R09: 1ffffffff285492b
->R10: dffffc0000000000 R11: fffffbfff285492c R12: 0000000000002000
->R13: dffffc0000000000 R14: ffff888033e18000 R15: dffffc0000000000
->FS:  00005555565ca380(0000) GS:ffff8880b8700000(0000) knlGS:0000000000000000
->CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->CR2: 00000000200061c8 CR3: 0000000074f74000 CR4: 00000000003526f0
->DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->Call Trace:
-> <TASK>
-> vsock_has_data net/vmw_vsock/vsock_bpf.c:30 [inline]
-> vsock_bpf_recvmsg+0x4b5/0x10a0 net/vmw_vsock/vsock_bpf.c:87
-> sock_recvmsg_nosec net/socket.c:1033 [inline]
-> sock_recvmsg+0x22f/0x280 net/socket.c:1055
-> ____sys_recvmsg+0x1c6/0x480 net/socket.c:2803
-> ___sys_recvmsg net/socket.c:2845 [inline]
-> do_recvmmsg+0x426/0xab0 net/socket.c:2940
-> __sys_recvmmsg net/socket.c:3014 [inline]
-> __do_sys_recvmmsg net/socket.c:3037 [inline]
-> __se_sys_recvmmsg net/socket.c:3030 [inline]
-> __x64_sys_recvmmsg+0x199/0x250 net/socket.c:3030
-> do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-> do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
-> entry_SYSCALL_64_after_hwframe+0x77/0x7f
->RIP: 0033:0x7fb38b2465e9
->Code: 48 83 c4 28 c3 e8 37 17 00 00 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
->RSP: 002b:00007fffd43f6938 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
->RAX: ffffffffffffffda RBX: 00007fffd43f6b08 RCX: 00007fb38b2465e9
->RDX: 0000000000000001 RSI: 00000000200061c0 RDI: 0000000000000003
->RBP: 00007fb38b2b9610 R08: 0000000000000000 R09: 00007fffd43f6b08
->R10: 0000000000002000 R11: 0000000000000246 R12: 0000000000000001
->R13: 00007fffd43f6af8 R14: 0000000000000001 R15: 0000000000000001
-> </TASK>
->Modules linked in:
->---[ end trace 0000000000000000 ]---
->RIP: 0010:vsock_connectible_has_data+0x85/0x100 net/vmw_vsock/af_vsock.c:882
->Code: 80 3c 38 00 74 08 48 89 df e8 e7 e0 5f f6 48 8b 1b 66 83 fd 05 75 3a e8 d9 78 f9 f5 48 81 c3 a0 00 00 00 48 89 d8 48 c1 e8 03 <42> 80 3c 38 00 74 08 48 89 df e8 bc e0 5f f6 4c 8b 1b 4c 89 f7 41
->RSP: 0018:ffffc900015976f8 EFLAGS: 00010206
->RAX: 0000000000000014 RBX: 00000000000000a0 RCX: ffff888033e09e00
->RDX: 0000000000000000 RSI: 0000000000000005 RDI: 0000000000000005
->RBP: 0000000000000005 R08: ffffffff8ba5fadc R09: 1ffffffff285492b
->R10: dffffc0000000000 R11: fffffbfff285492c R12: 0000000000002000
->R13: dffffc0000000000 R14: ffff888033e18000 R15: dffffc0000000000
->FS:  00005555565ca380(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
->CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->CR2: 000000000066c7e0 CR3: 0000000074f74000 CR4: 00000000003526f0
->DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->----------------
->Code disassembly (best guess):
->   0:	80 3c 38 00          	cmpb   $0x0,(%rax,%rdi,1)
->   4:	74 08                	je     0xe
->   6:	48 89 df             	mov    %rbx,%rdi
->   9:	e8 e7 e0 5f f6       	call   0xf65fe0f5
->   e:	48 8b 1b             	mov    (%rbx),%rbx
->  11:	66 83 fd 05          	cmp    $0x5,%bp
->  15:	75 3a                	jne    0x51
->  17:	e8 d9 78 f9 f5       	call   0xf5f978f5
->  1c:	48 81 c3 a0 00 00 00 	add    $0xa0,%rbx
->  23:	48 89 d8             	mov    %rbx,%rax
->  26:	48 c1 e8 03          	shr    $0x3,%rax
->* 2a:	42 80 3c 38 00       	cmpb   $0x0,(%rax,%r15,1) <-- trapping instruction
->  2f:	74 08                	je     0x39
->  31:	48 89 df             	mov    %rbx,%rdi
->  34:	e8 bc e0 5f f6       	call   0xf65fe0f5
->  39:	4c 8b 1b             	mov    (%rbx),%r11
->  3c:	4c 89 f7             	mov    %r14,%rdi
->  3f:	41                   	rex.B
+>  connect(B, {cid: VMADDR_CID_HYPERVISOR, port: 1024})
+>    vsock_connect(B)
+>      lock_sock(sk);
+>      vsock_assign_transport()
+>        virtio_transport_release()
+>          virtio_transport_close()
+>            if (!(sk->sk_state == TCP_ESTABLISHED || sk->sk_state == TCP_CLOSING))
+>            virtio_transport_shutdown()
+>              virtio_transport_send_pkt_info()
+>                vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
+>                  queue_work(vsock_loopback_work)
+>            schedule_delayed_work(&vsk->close_work, VSOCK_CLOSE_TIMEOUT);	// [5]
+>        vsock_deassign_transport()
+>          vsk->transport = NULL;
+>        return -ESOCKTNOSUPPORT;
+>      release_sock(sk);
+>                                                               vsock_loopback_work()
+>                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_SHUTDOWN)
+>                                                                   virtio_transport_recv_connected()
+>                                                                     virtio_transport_reset()
+>                                                                       virtio_transport_send_pkt_info()
+>                                                                         vsock_loopback_send_pkt(VIRTIO_VSOCK_OP_RST)
+>                                                                           queue_work(vsock_loopback_work)
+>  listen(B)
+>    vsock_listen()
+>      if (sock->state != SS_UNCONNECTED)    // [2]
+>      sk->sk_state = TCP_LISTEN;    // [3]
 >
+>                                                               vsock_loopback_work()
+>                                                                 virtio_transport_recv_pkt(VIRTIO_VSOCK_OP_RST)
+>								   if ((sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {    // [4]
+>								   ...
+>							
+>  virtio_transport_close_timeout()
+>    virtio_transport_do_close()
+>      vsock_stream_has_data()
+>        return vsk->transport->stream_has_data(vsk);    // null-ptr-deref
 >
+>```
+>(Yes, This is quite a crazy scenario, but it can actually be induced)
+>
+>Since sock->state is set to SS_UNCONNECTED during the first connect()[1],
+>it can pass the sock->state check[2] in vsock_listen() and set
+>sk->sk_state to TCP_LISTEN[3].
+>If this happens, the check in the patch with
+>`sk->sk_state != TCP_LISTEN` will pass[4], and a null-ptr-deref can
+>still occur.)
+>
+>More specifically, because the sk_state has changed to TCP_LISTEN,
+>virtio_transport_recv_disconnecting() will not be called by the
+>loopback worker. However, a null-ptr-deref may occur in
+>virtio_transport_close_timeout(), which is scheduled by
+>virtio_transport_close() called in the flow of the second connect()[5].
+>(The patch no longer cancels the virtio_transport_close_timeout() worker)
+>
+>And even if the `sk->sk_state != TCP_LISTEN` check is removed from the
+>patch, it seems that a null-ptr-deref will still occur due to
+>virtio_transport_close_timeout().
+>It might be necessary to add worker cancellation at the
+>appropriate location.
 
-This looks related to the same issue fixed by the patch I sent
-yesterday: https://lore.kernel.org/netdev/20250108180617.154053-3-sgarzare@redhat.com/
+Thanks for the analysis!
 
-I just pushed them on my fix-vsock-null-transport brach:
+Do you have time to cook a proper patch to cover this scenario?
+Or we should mix this fix together with your patch (return 0 in 
+vsock_stream_has_data()) while we investigate a better handling?
 
-#syz test: https://github.com/stefano-garzarella/linux.git fix-vsock-null-transport
+Thanks,
+Stefano
 
