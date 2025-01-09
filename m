@@ -1,192 +1,211 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59F942163BA
-	for <virtualization@lists.linux.dev>; Thu,  9 Jan 2025 10:19:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA5C221507F
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 10:47:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736417999; cv=none; b=VyfqWQRUguFVS8KOu1NddmtPWKdhUco20uUEOZrHwICoOkmExGvYk3Z3C9ViwREyKwxWINfiF7/kMrD+1znzSGhO37ZlJc+GlUB54xOK4qhEhbgJSd806vqmyjukFwDfYNgYq6pRDVae6u44tEw5/8ZCegVObb8hOIG27Bp3B5o=
+	t=1736419658; cv=none; b=BT8nhO7HpQr1r8ThhYu54UrAWULzD2YSXZxFD+2/GZW0gaoX3cs0DkuVmbZ1fs0IS20iB1b7qoNFDKRI0OfWGDglAtNcp5Ssvw8M0bgGJL4aCFLbjK++a603QT+i7PpNTQDrP0zUxkn0LVdxfT7WDiVLhb09XLMRTO7IRu+KDoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736417999; c=relaxed/simple;
-	bh=uGiQxFy1s5xeq1KoKnvvc/uBnnzYKHTfVcJoqj87jNg=;
+	s=arc-20240116; t=1736419658; c=relaxed/simple;
+	bh=7xl1sBFt2GFWC41AWFg2risMqWrJmQ862WAJ8DnWKlc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ivhqu2I6wUpHE0rx2a8bHjqt/uPFzyKtrhF2AUF0ORECG2+uTeVWhKy/Qif8NFSm0HjAPk5RCrSqRH6KGVnry5suqIUm4f2PpqGe1s/GYkT+/jppZmVqGiftpiu4FX83fMloUCccS+fB7GzERb2HdHBEmxVWpdoRvoXrT3JI6yY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BDP2GSKs; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=sWk491by9khwO19rxwWBrh6WmewkT8ViPpmT6H0AdPxxObxw5p5tSf/WxgYSRg0NzGEhZQk9qrWhAj3VaWxqoYpeWzQDKeqYTZ1QgzAYPsVVkVE+aVzFt63itDYhGBDEP0dP3thlSnNJ1Xdw8iC1DmCv2d9ByRYqAEoPpUmho3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=UhabqEOq; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=fqGqhtka; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=UhabqEOq; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=fqGqhtka; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BDP2GSKs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736417996;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="UhabqEOq";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="fqGqhtka";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="UhabqEOq";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="fqGqhtka"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7D98040103
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 10:47:36 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id csYOz_iRE3wf for <virtualization@lists.linux-foundation.org>;
+ Thu,  9 Jan 2025 10:47:35 +0000 (UTC)
+X-Greylist: delayed 579 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 09 Jan 2025 10:47:35 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 34B924004A
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=suse.cz
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 34B924004A
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=UhabqEOq;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=fqGqhtka;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=UhabqEOq;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=fqGqhtka
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a07:de40:b251:101:10:150:64:1; helo=smtp-out1.suse.de; envelope-from=jack@suse.cz; receiver=<UNKNOWN> 
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2a07:de40:b251:101:10:150:64:1])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 34B924004A
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 10:47:34 +0000 (UTC)
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 235E821114;
+	Thu,  9 Jan 2025 10:37:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1736419071; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=mDFZvC9ufxrWv6tOwpxDjE36uvyXj6GJcVYLoUQ5PZw=;
-	b=BDP2GSKs6K3WTrJWUKPr3kptKn4XJclvM6jfbA8nguHdyNWKHNsrxrO2KEak6CXm012zfi
-	BHj20Y5i34zxQiUbFas0HySqfsT/2PCL7uKRmkU5puZII+ZYjnYZ7jZGTmaoFFUf8BD6De
-	vb1sfZwm/U6KP4nAYLy8GI0f2IHDDO8=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-562-CG5LDTlPPCahFtjQF76icA-1; Thu, 09 Jan 2025 05:19:55 -0500
-X-MC-Unique: CG5LDTlPPCahFtjQF76icA-1
-X-Mimecast-MFC-AGG-ID: CG5LDTlPPCahFtjQF76icA
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5d3ce91c403so719451a12.3
-        for <virtualization@lists.linux.dev>; Thu, 09 Jan 2025 02:19:54 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736417993; x=1737022793;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mDFZvC9ufxrWv6tOwpxDjE36uvyXj6GJcVYLoUQ5PZw=;
-        b=MpNtnN2B+XHW23amGLf8qj4YCHzZ9Uc8ltljyBPGXBKybTIW7fWyKgmHKx9MMZ/JYY
-         42FJccOKrtXY8RQ9fCJAyLqBQfECsft5fn4cRc/EFL3o/VAug/DmGO+1Y0QuHGnH2+ia
-         iPivqOABxvi2g4YXd21jQwbNIrnrC2soW/oui24ieaX9fo3VIgGLrjnMXeii3jrkKeRL
-         n7dTZqXewHu9v+HvhcnY2/fhK/HRZw5uSAARwP67MNyo94tS4MPMKDd27dhOZ33YkUP8
-         v/s4cgjlzBlsjB2bTRcOiD7L9Ut9fkKO9E7YGweP8mtYQyYebcG3XLRuYFmiBHcRFJYc
-         PYng==
-X-Forwarded-Encrypted: i=1; AJvYcCW+ZEf+Ryv/3Ii7wm6+QjUO3CCwopwfYh8pGG7AWYbzW8pbTAfDzswUU/igs/EmG03NU+Zm5t8lItAbjuD/EA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxeSbkozR5+kzxy21/iBG9VavKfAKsE/f+VVJ9lZfovvPQJvFhC
-	1cQbsrHfCo17erUAa0jIAx4SCzGnxFFoaGoImxUX3W/NH6NT8kF65zZJkJbLou/QpZsyhXRbrim
-	XbTKgyk3qq33NZNg57qj2k2fUtbbw6u7WJlbekAnND4ECKlLvjwKSCGT33c8dXzJY
-X-Gm-Gg: ASbGncvzp94Ee8/phyfn6ClT+KvkMdQ5nM/qSOTBpAZw6bEG57H6lNB3UCn+YafnDh4
-	r/Olb5qgFBZqSF6SCqmvwoeZfSrHpakHZekN0Jm7g56Xdar3GCOCJjLhorvyddRPkRQWfGHd/qK
-	YIrUwHjox04xVzgZBxjdiyAa18oMg3fBehvapYg0X6Asj2WWxmQsqgDp1B6kEOsPQFlWUlGxQU2
-	FuqI5fSmBk1Gcnssk2JHh/Mm1XYDWN7QMj6vxgx2KNO9Z/vjVI=
-X-Received: by 2002:a05:6402:5241:b0:5d0:f904:c23d with SMTP id 4fb4d7f45d1cf-5d972e6e094mr5985348a12.28.1736417992880;
-        Thu, 09 Jan 2025 02:19:52 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEeBBoWzpbGVe1gFjSBCCyHS+IRJ7sCY3Bae6DxEpGXChaWI3GoCv0AgWmxcGb5rxQohjRKQA==
-X-Received: by 2002:a05:6402:5241:b0:5d0:f904:c23d with SMTP id 4fb4d7f45d1cf-5d972e6e094mr5985315a12.28.1736417992509;
-        Thu, 09 Jan 2025 02:19:52 -0800 (PST)
-Received: from redhat.com ([2a02:14f:175:d62d:93ef:d7e2:e7da:ed72])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5d99008c366sm460727a12.17.2025.01.09.02.19.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jan 2025 02:19:50 -0800 (PST)
-Date: Thu, 9 Jan 2025 05:19:45 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrew Boyer <andrew.boyer@amd.com>
-Cc: Viktor Prutyanov <viktor@daynix.com>, Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eugenio Perez <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux.dev,
-	linux-block@vger.kernel.org
-Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
-Message-ID: <20250109051337-mutt-send-email-mst@kernel.org>
-References: <20250107182516.48723-1-andrew.boyer@amd.com>
+	bh=CX40sLvsmEhDLSJTaTldfvB4pJb1E1M5ld3ODr0Mkbs=;
+	b=UhabqEOqWkFJt9pS2Eg7bmNobXgAaYioaBedkfwEo6llN+5M7LZttYYlHSWbWwnIK5CAv4
+	uCYy6llxHAUGUOZRo2WXQ8ksSFDzmbZMGytwVMhwE0AztxyqrPRhgLGuTlQTRygCldfEhg
+	HiYoojxFk1Z5q1xzu01v0zQdB2VgIQU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1736419071;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CX40sLvsmEhDLSJTaTldfvB4pJb1E1M5ld3ODr0Mkbs=;
+	b=fqGqhtka0ItNK7M+x7GYmey/2CvecS9u9o5ZCX/Gzcn4G1CO+LTRHjXpV4N1ALoQKV4UZE
+	WppUXtBqx4qV0aAA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=UhabqEOq;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=fqGqhtka
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1736419071; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CX40sLvsmEhDLSJTaTldfvB4pJb1E1M5ld3ODr0Mkbs=;
+	b=UhabqEOqWkFJt9pS2Eg7bmNobXgAaYioaBedkfwEo6llN+5M7LZttYYlHSWbWwnIK5CAv4
+	uCYy6llxHAUGUOZRo2WXQ8ksSFDzmbZMGytwVMhwE0AztxyqrPRhgLGuTlQTRygCldfEhg
+	HiYoojxFk1Z5q1xzu01v0zQdB2VgIQU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1736419071;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CX40sLvsmEhDLSJTaTldfvB4pJb1E1M5ld3ODr0Mkbs=;
+	b=fqGqhtka0ItNK7M+x7GYmey/2CvecS9u9o5ZCX/Gzcn4G1CO+LTRHjXpV4N1ALoQKV4UZE
+	WppUXtBqx4qV0aAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 14593139AB;
+	Thu,  9 Jan 2025 10:37:51 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 1pDtBP+mf2ewFQAAD6G6ig
+	(envelope-from <jack@suse.cz>); Thu, 09 Jan 2025 10:37:51 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id BF005A0887; Thu,  9 Jan 2025 11:37:46 +0100 (CET)
+Date: Thu, 9 Jan 2025 11:37:46 +0100
+From: Jan Kara <jack@suse.cz>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	linux-fsdevel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, netdev@vger.kernel.org, 
+	Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	linux-kselftest@vger.kernel.org, Yuri Benditovich <yuri.benditovich@daynix.com>, 
+	Andrew Melnychenko <andrew@daynix.com>, Stephen Hemminger <stephen@networkplumber.org>, 
+	gur.stavi@huawei.com, devel@daynix.com
+Subject: Re: [PATCH v2 2/3] tun: Pad virtio header with zero
+Message-ID: <apouzqstvjjracsde2o4ky3wguw7xeerolc5mp4aty4zgnpxct@gongys63jwdw>
+References: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
+ <20250109-tun-v2-2-388d7d5a287a@daynix.com>
+ <20250109023056-mutt-send-email-mst@kernel.org>
+ <571a2d61-5fbe-4e49-b4d1-6bf0c7604a57@daynix.com>
+ <20250109024247-mutt-send-email-mst@kernel.org>
+ <6f33c048-81ad-4d15-872d-187e965e6d79@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250107182516.48723-1-andrew.boyer@amd.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: c64dKZJGDR0I91eC5B67UDNnava3Dj2kMqFDIl8u8K8_1736417993
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <6f33c048-81ad-4d15-872d-187e965e6d79@daynix.com>
+X-Rspamd-Queue-Id: 235E821114
+X-Spamd-Result: default: False [-2.51 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[27];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_COUNT_THREE(0.00)[3];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RCVD_TLS_LAST(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	TO_DN_SOME(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLxr8yp7wrfbdywxro7ki6ncu8)];
+	MISSING_XM_UA(0.00)[];
+	FREEMAIL_CC(0.00)[redhat.com,zeniv.linux.org.uk,kernel.org,suse.cz,vger.kernel.org,davemloft.net,google.com,lwn.net,gmail.com,linux.alibaba.com,lists.linux-foundation.org,daynix.com,networkplumber.org,huawei.com];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:dkim]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
 
-On Tue, Jan 07, 2025 at 10:25:16AM -0800, Andrew Boyer wrote:
-> Commit af8ececda185 ("virtio: add VIRTIO_F_NOTIFICATION_DATA feature
-> support") added notification data support to the core virtio driver
-> code. When this feature is enabled, the notification includes the
-> updated producer index for the queue. Thus it is now critical that
-> notifications arrive in order.
+On Thu 09-01-25 18:36:52, Akihiko Odaki wrote:
+> On 2025/01/09 16:43, Michael S. Tsirkin wrote:
+> > On Thu, Jan 09, 2025 at 04:41:50PM +0900, Akihiko Odaki wrote:
+> > > On 2025/01/09 16:31, Michael S. Tsirkin wrote:
+> > > > On Thu, Jan 09, 2025 at 03:58:44PM +0900, Akihiko Odaki wrote:
+> > > > > tun used to simply advance iov_iter when it needs to pad virtio header,
+> > > > > which leaves the garbage in the buffer as is. This is especially
+> > > > > problematic when tun starts to allow enabling the hash reporting
+> > > > > feature; even if the feature is enabled, the packet may lack a hash
+> > > > > value and may contain a hole in the virtio header because the packet
+> > > > > arrived before the feature gets enabled or does not contain the
+> > > > > header fields to be hashed. If the hole is not filled with zero, it is
+> > > > > impossible to tell if the packet lacks a hash value.
+> > > > > 
+> > > > > In theory, a user of tun can fill the buffer with zero before calling
+> > > > > read() to avoid such a problem, but leaving the garbage in the buffer is
+> > > > > awkward anyway so fill the buffer in tun.
+> > > > > 
+> > > > > Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+> > > > 
+> > > > But if the user did it, you have just overwritten his value,
+> > > > did you not?
+> > > 
+> > > Yes. but that means the user expects some part of buffer is not filled after
+> > > read() or recvmsg(). I'm a bit worried that not filling the buffer may break
+> > > assumptions others (especially the filesystem and socket infrastructures in
+> > > the kernel) may have.
+> > > 
+> > > If we are really confident that it will not cause problems, this behavior
+> > > can be opt-in based on a flag or we can just write some documentation
+> > > warning userspace programmers to initialize the buffer.
+> > 
+> > It's been like this for years, I'd say we wait until we know there's a problem?
 > 
-> The virtio_blk driver has historically not worried about notification
-> ordering. Modify it so that the prepare and kick steps are both done
-> under the vq lock.
+> Perhaps we can just leave it as is. Let me ask filesystem and networking
+> people:
 > 
-> Signed-off-by: Andrew Boyer <andrew.boyer@amd.com>
-> Reviewed-by: Brett Creeley <brett.creeley@amd.com>
-> Fixes: af8ececda185 ("virtio: add VIRTIO_F_NOTIFICATION_DATA feature support")
-> Cc: Viktor Prutyanov <viktor@daynix.com>
-> Cc: virtualization@lists.linux.dev
-> Cc: linux-block@vger.kernel.org
+> Is it OK to leave some part of buffer uninitialized with read_iter() or
+> recvmsg()?
 
+I think that leaving part of the IO buffer within returned IO length
+uninitialized is a very bad practice and I'm not aware of any place in
+filesystem area that would do that. It makes life unnecessarily harder
+for userspace and also it is invitation for subtle information leaks
+(depending on who allocates the buffer and who then gets to read the
+results). So I think the patch makes sense.
 
-Hmm. Not good, notify can be very slow, holding a lock is a bad idea.
-Basically, virtqueue_notify must work ouside of locks, this
-means af8ececda185 is broken and we did not notice.
-
-Let's fix it please.
-
-Try some kind of compare and swap scheme where we detect that index
-was updated since? Will allow skipping a notification, too.
-
-
-
-
-> ---
->  drivers/block/virtio_blk.c | 19 ++++---------------
->  1 file changed, 4 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 3efe378f1386..14d9e66bb844 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
->  {
->  	struct virtio_blk *vblk = hctx->queue->queuedata;
->  	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
-> -	bool kick;
->  
->  	spin_lock_irq(&vq->lock);
-> -	kick = virtqueue_kick_prepare(vq->vq);
-> +	virtqueue_kick(vq->vq);
->  	spin_unlock_irq(&vq->lock);
-> -
-> -	if (kick)
-> -		virtqueue_notify(vq->vq);
->  }
->  
->  static blk_status_t virtblk_fail_to_queue(struct request *req, int rc)
-> @@ -432,7 +428,6 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->  	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
->  	unsigned long flags;
->  	int qid = hctx->queue_num;
-> -	bool notify = false;
->  	blk_status_t status;
->  	int err;
->  
-> @@ -454,12 +449,10 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->  		return virtblk_fail_to_queue(req, err);
->  	}
->  
-> -	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
-> -		notify = true;
-> +	if (bd->last)
-> +		virtqueue_kick(vblk->vqs[qid].vq);
->  	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
->  
-> -	if (notify)
-> -		virtqueue_notify(vblk->vqs[qid].vq);
->  	return BLK_STS_OK;
->  }
->  
-> @@ -476,7 +469,6 @@ static void virtblk_add_req_batch(struct virtio_blk_vq *vq,
->  {
->  	struct request *req;
->  	unsigned long flags;
-> -	bool kick;
->  
->  	spin_lock_irqsave(&vq->lock, flags);
->  
-> @@ -492,11 +484,8 @@ static void virtblk_add_req_batch(struct virtio_blk_vq *vq,
->  		}
->  	}
->  
-> -	kick = virtqueue_kick_prepare(vq->vq);
-> +	virtqueue_kick(vq->vq);
->  	spin_unlock_irqrestore(&vq->lock, flags);
-> -
-> -	if (kick)
-> -		virtqueue_notify(vq->vq);
->  }
->  
->  static void virtio_queue_rqs(struct rq_list *rqlist)
-> -- 
-> 2.17.1
-
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
