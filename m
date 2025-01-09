@@ -1,157 +1,189 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A724818E377;
-	Thu,  9 Jan 2025 17:15:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83F5C18CBF2
+	for <virtualization@lists.linux.dev>; Thu,  9 Jan 2025 17:27:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736442927; cv=none; b=dGubg2ijQ3RGfml4/jRRqPVBfbtvjATOSymRvY70WPKJWIk8rUUvTZYSke+ZqbHEIkxx6AcG3diS32WBh9eRG5nr2eV+Jl4267w/8V/i/CWPp4aNILeJdB+uprmLFMmFisE2mMJ9u+ex5E3rytvUcEbvwhKBKwmdxDbqp1C9VRs=
+	t=1736443642; cv=none; b=GDKsFcHe6Zzn2HQ27KDGu+veaDnMqBHwlRXiy/ZaDPjpW1rG+mf1OJIck9hnnpVgcZ5C3xRYelZhI8DB8jyfxoLIzTDuJoDa8YMGIdOvfc4k8CxRiMVPuIRQBhiAEiq4mBU2QD7NETf/p+5f1ce1Fg0Pxe3+/pNQ7lqMsD4sMVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736442927; c=relaxed/simple;
-	bh=iHe0e5c+fmzIEFb4JwfVINvpf7LWF6/4nvNtj0QRgPQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gjSyq4wpUGf05i6SP16AyTL7Q/D1mofNYIHjzqkWVmkJo/2oWTtKqOHx8dnHzMwQM32I40wXMBUFD5CiAkxfQSLdXClJnUNz4ie3/D8V7XP0Fz2S58QCiuxw6HOrjFHinMcxHwbiY1chj8Lr+V7mAXOxHUs0h+Un6TG1cmcWKuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=R0mEQ+Wu; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1736443642; c=relaxed/simple;
+	bh=kHu+GTsLpij/qrWD7LEXSugYuuXT9Cxa+9S+SVJ5pR8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=e7f/O6nOhvOQQNAEDtNQru92nZbvoO5EGMJSpOF6uHZmweL18eB0X41auz6uJ2LKCbAdZIvwXRAbjx9hNrom018MmK0GVCMxznILdnr02grJT9bomjZni1CDJ58O7b1nBMVECHg5E2q+plwHhx/eoBOBmEAsXsId5TK5wywgSus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IGFlp0vr; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="R0mEQ+Wu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1736442926; x=1767978926;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=iHe0e5c+fmzIEFb4JwfVINvpf7LWF6/4nvNtj0QRgPQ=;
-  b=R0mEQ+WuUaHa5xHsD1YsYxKojJgiuLbG7KgDusO19vIqAqLmP+cTqSwz
-   LfRIh+glbMsbVuJUi3jpL6ZBCDcehOwtV9cJgwIBIMg15JEUL3x4E8G1o
-   lpwJ/VJIDKIDtPHOQS7yk61zH9xneX1RDTLpMcdppznHK6wBPuw2t1JML
-   L7YkAbgzQxUYbircwgDBGXzhrcBz6KIvKdC4a/+qV6/Q+YtCuwCqYG21f
-   5SOcVm79KzpOdZWsUUlFggDHFv+yFLrGXwNiVdOeZlxFWjUg8jFkc+QsM
-   56bkzb6lj1qK/XBAtbWxQd5p9HU1GBfD3UdT86inl66/Oi4zaJq2YmPWL
-   Q==;
-X-CSE-ConnectionGUID: Peh5asWkTA+dLSWMuCiupg==
-X-CSE-MsgGUID: oPiX7R5tRhu0jAM4atieLA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11310"; a="36604449"
-X-IronPort-AV: E=Sophos;i="6.12,301,1728975600"; 
-   d="scan'208";a="36604449"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jan 2025 09:15:26 -0800
-X-CSE-ConnectionGUID: sCHGnpr3S22msRSMnEsaNw==
-X-CSE-MsgGUID: Kiw4VfoXQbSJcARHoMEU4w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="140776648"
-Received: from bergbenj-mobl1.ger.corp.intel.com (HELO [10.245.245.241]) ([10.245.245.241])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jan 2025 09:15:20 -0800
-Message-ID: <ec240a46-3fe1-46fa-84bc-2f962d7441ce@intel.com>
-Date: Thu, 9 Jan 2025 17:15:17 +0000
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IGFlp0vr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736443639;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pQbYtM+vj6QMOXJpXz2slqBkN/ZxPHq8K4lAZBFA1DA=;
+	b=IGFlp0vrHIubVUo4fsFT+1UH8Q6WFwaY7Ua6mgN4kxR5inTCJP6KNRFn0xz0pZpYDmvrx+
+	YKXvWkh0sxgN/W4OLZO06NHeZ9rIROO2CXqCp7kVVC40j2+TpUtoP8p/7oi6fBNFz0r/BT
+	RoJNYVhwXW2yFkeVCb5AyvPasGXsL+c=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-527-wMhoz6a5O3Gj9HHvWaKu2g-1; Thu,
+ 09 Jan 2025 12:27:15 -0500
+X-MC-Unique: wMhoz6a5O3Gj9HHvWaKu2g-1
+X-Mimecast-MFC-AGG-ID: wMhoz6a5O3Gj9HHvWaKu2g
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1CE0E1956053;
+	Thu,  9 Jan 2025 17:27:13 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.220])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id CFC63195E3D9;
+	Thu,  9 Jan 2025 17:27:11 +0000 (UTC)
+Date: Thu, 9 Jan 2025 12:27:10 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Ferry Meng <mengferry@linux.alibaba.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, linux-block@vger.kernel.org,
+	Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>,
+	Joseph Qi <joseph.qi@linux.alibaba.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>
+Subject: Re: [PATCH v1 0/3] virtio-blk: add io_uring passthrough support.
+Message-ID: <20250109172710.GA192961@fedora>
+References: <20241218092435.21671-1-mengferry@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 23/25] drm/xe: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-To: Thomas Zimmermann <tzimmermann@suse.de>,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>
-References: <20250109150310.219442-1-tzimmermann@suse.de>
- <20250109150310.219442-24-tzimmermann@suse.de>
- <91c904f8-ba47-4595-be65-6fb57dcc9c64@intel.com>
- <6666af19-a98d-41d7-8329-7b50807c04a9@suse.de>
-Content-Language: en-GB
-From: Matthew Auld <matthew.auld@intel.com>
-In-Reply-To: <6666af19-a98d-41d7-8329-7b50807c04a9@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="3VE3BC/I/P4n9b3B"
+Content-Disposition: inline
+In-Reply-To: <20241218092435.21671-1-mengferry@linux.alibaba.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On 09/01/2025 16:26, Thomas Zimmermann wrote:
-> Hi
-> 
-> 
-> Am 09.01.25 um 17:05 schrieb Matthew Auld:
->> On 09/01/2025 14:57, Thomas Zimmermann wrote:
->>> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch
->>> and buffer size. Align the pitch to a multiple of 8. Align the
->>> buffer size according to hardware requirements.
->>>
->>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->>> Cc: Lucas De Marchi <lucas.demarchi@intel.com>
->>> Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
->>> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
->>> ---
->>>   drivers/gpu/drm/xe/xe_bo.c | 8 ++++----
->>>   1 file changed, 4 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/xe/xe_bo.c b/drivers/gpu/drm/xe/xe_bo.c
->>> index e6c896ad5602..d75e3c39ab14 100644
->>> --- a/drivers/gpu/drm/xe/xe_bo.c
->>> +++ b/drivers/gpu/drm/xe/xe_bo.c
->>> @@ -8,6 +8,7 @@
->>>   #include <linux/dma-buf.h>
->>>     #include <drm/drm_drv.h>
->>> +#include <drm/drm_dumb_buffers.h>
->>>   #include <drm/drm_gem_ttm_helper.h>
->>>   #include <drm/drm_managed.h>
->>>   #include <drm/ttm/ttm_device.h>
->>> @@ -2535,14 +2536,13 @@ int xe_bo_dumb_create(struct drm_file 
->>> *file_priv,
->>>       struct xe_device *xe = to_xe_device(dev);
->>>       struct xe_bo *bo;
->>>       uint32_t handle;
->>> -    int cpp = DIV_ROUND_UP(args->bpp, 8);
->>>       int err;
->>>       u32 page_size = max_t(u32, PAGE_SIZE,
->>>           xe->info.vram_flags & XE_VRAM_FLAGS_NEED64K ? SZ_64K : SZ_4K);
->>>   -    args->pitch = ALIGN(args->width * cpp, 64);
->>> -    args->size = ALIGN(mul_u32_u32(args->pitch, args->height),
->>> -               page_size);
->>> +    err = drm_mode_size_dumb(dev, args, SZ_64, page_size);
->>
->> AFAICT this looks to change the behaviour, where u64 size was 
->> technically possible and was allowed given that args->size is u64, but 
->> this helper is limiting the size to u32. Is that intentional? If so, 
->> we should probably make that clear in the commit message.
-> 
-> That's an interesting observation; thanks. The ioctl's internal checks 
-> have always limited the size to 32 bit. [1] I think it is not supposed 
-> to be larger than that. We can change the helper to support 64-bit sizes 
-> as well.
 
-Ah, I missed the internal check.
+--3VE3BC/I/P4n9b3B
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Having said that, is there any use case? Dumb buffers are for software 
-> rendering only. Allocating more than a few dozen MiB seems like a 
-> mistake. Maybe we should rather limit the allowed allocation size instead?
+On Wed, Dec 18, 2024 at 05:24:32PM +0800, Ferry Meng wrote:
+> This patchset implements io_uring passthrough surppot in virtio-blk
+> driver, bypass vfs and part of block layer logic, resulting in lower
+> submit latency and increased flexibility when utilizing virtio-blk.
+>=20
+> In this version, currently only supports READ/WRITE vec/no-vec operations,
+> others like discard or zoned ops not considered in. So the userspace-rela=
+ted
 
-Yeah, I doubt there are any real users. Given the existing internal 
-check, limiting to u32 makes sense to me.
+If WRITE is supported then FLUSH is also required so that written data
+can be persisted without falling back to another API.
 
-> 
-> Best regards
-> Thomas
-> 
-> [1] https://elixir.bootlin.com/linux/v6.12.6/source/drivers/gpu/drm/ 
-> drm_dumb_buffers.c#L82
-> 
->>
->>> +    if (err)
->>> +        return err;
->>>         bo = xe_bo_create_user(xe, NULL, NULL, args->size,
->>>                      DRM_XE_GEM_CPU_CACHING_WC,
->>
-> 
+> struct is not complicated.
+>=20
+> struct virtblk_uring_cmd {
+> 	__u32 type;
+> 	__u32 ioprio;
+> 	__u64 sector;
+> 	/* above is related to out_hdr */
+> 	__u64 data;  // user buffer addr or iovec base addr.
+> 	__u32 data_len; // user buffer length or iovec count.
+> 	__u32 flag;  // only contains whether a vector rw or not.
+> };=20
+>=20
+> To test this patch series, I changed fio's code:=20
+> 1. Added virtio-blk support to engines/io_uring.c.
+> 2. Added virtio-blk support to the t/io_uring.c testing tool.
+> Link: https://github.com/jdmfr/fio
+>=20
+>=20
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> Performance
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> Using t/io_uring-vblk, the performance of virtio-blk based on uring-cmd
+> scales better than block device access. (such as below, Virtio-Blk with Q=
+EMU,
+> 1-depth fio)=20
+> (passthru) read: IOPS=3D17.2k, BW=3D67.4MiB/s (70.6MB/s)=20
+> slat (nsec): min=3D2907, max=3D43592, avg=3D3981.87, stdev=3D595.10=20
+> clat (usec): min=3D38, max=3D285,avg=3D53.47, stdev=3D 8.28=20
+> lat (usec): min=3D44, max=3D288, avg=3D57.45, stdev=3D 8.28
+> (block) read: IOPS=3D15.3k, BW=3D59.8MiB/s (62.7MB/s)=20
+> slat (nsec): min=3D3408, max=3D35366, avg=3D5102.17, stdev=3D790.79=20
+> clat (usec): min=3D35, max=3D343, avg=3D59.63, stdev=3D10.26=20
+> lat (usec): min=3D43, max=3D349, avg=3D64.73, stdev=3D10.21
+>=20
+> Testing the virtio-blk device with fio using 'engines=3Dio_uring_cmd'
+> and 'engines=3Dio_uring' also demonstrates improvements in submit latency.
+> (passthru) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O=
+0 -n1 -u1 /dev/vdcc0=20
+> IOPS=3D189.80K, BW=3D741MiB/s, IOS/call=3D4/3
+> IOPS=3D187.68K, BW=3D733MiB/s, IOS/call=3D4/3=20
+> (block) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -=
+n1 -u0 /dev/vdc=20
+> IOPS=3D101.51K, BW=3D396MiB/s, IOS/call=3D4/3
+> IOPS=3D100.01K, BW=3D390MiB/s, IOS/call=3D4/4
+
+This iodepth=3D8 (submission/completion batching 4) result surprised me
+because the io_uring calls are already batched but there is still a 4
+microsecond improvement per request.
+
+I was expecting to see less improvement when iodepth is increased
+because the syscall, io_uring, and some block layer cost is amortized
+thanks to batching and block plugging.
+
+Is the virtio-blk driver submitting 4 requests at a time for both
+passthru and block? I wonder if something else is going on here.
+
+>=20
+> =3D=3D=3D=3D=3D=3D=3D
+> Changes
+> =3D=3D=3D=3D=3D=3D=3D
+>=20
+> Changes in v1:
+> --------------
+> * remove virtblk_is_write() helper
+> * fix rq_flags type definition (blk_opf_t), add REQ_ALLOC_CACHE flag.
+> https://lore.kernel.org/io-uring/202412042324.uKQ5KdkE-lkp@intel.com/
+>=20
+> RFC discussion:
+> ---------------
+> https://lore.kernel.org/io-uring/20241203121424.19887-1-mengferry@linux.a=
+libaba.com/
+>=20
+> Ferry Meng (3):
+>   virtio-blk: add virtio-blk chardev support.
+>   virtio-blk: add uring_cmd support for I/O passthru on chardev.
+>   virtio-blk: add uring_cmd iopoll support.
+>=20
+>  drivers/block/virtio_blk.c      | 320 +++++++++++++++++++++++++++++++-
+>  include/uapi/linux/virtio_blk.h |  16 ++
+>  2 files changed, 331 insertions(+), 5 deletions(-)
+>=20
+> --=20
+> 2.43.5
+>=20
+
+--3VE3BC/I/P4n9b3B
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmeABu4ACgkQnKSrs4Gr
+c8jHyggAxZwQ29QQgfNp3N2lpMZshj7//KYUnpXptKL3DjiPOrqv0kP/zLgFnb0Q
+1M3YhF6zyll4nhfOSR6PadGIuDeqOWUo0Ya7jpkkETnevPi0BexjOC+3fCRUNP+p
+JuJhefhvObAggCiVQXepycJ4URpwmRhA8DluuNux+TsQI+fyslMJ55VO3dEyqzQq
+i2iDy8rZ9AWZc90u1BRQ5cIptU6Sdbn2rQpwFaVk1+cMp1WdfF5BsKq+BVsIWm5v
+zDlCg0kl3yhc1pJ/h374XNINjlnYS3YEB3YPlO89+KNVtEbzJe0677vA+y6YO7VB
+4z6ILKuGVIptHC7Aa4JKwUWAiCDN/A==
+=dyzO
+-----END PGP SIGNATURE-----
+
+--3VE3BC/I/P4n9b3B--
 
