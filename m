@@ -1,44 +1,50 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF26020469B
-	for <virtualization@lists.linux.dev>; Thu,  9 Jan 2025 15:28:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAAAF14F98;
+	Thu,  9 Jan 2025 16:06:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736436501; cv=none; b=X+a7sDG4/y3TgkP9dDiPJmMoJ5Sj3FWo9TmAl5OrjtJYd7v/K8rn5Lb5w3yxmqe/PvwxT4WEDp9K1QE33bhxKhJHNu31G8481OgH7I+UbXttT62iC227h5TmLF7SQpaAUNUhIguw/fgGPoLDw1BdBCNvf7s0VTnDnuSjU3qJHxk=
+	t=1736438773; cv=none; b=FmNiHRgimnHPsg783Ip8cxiWAAv2RgfOunFhr6QDhhCvY9aoppcFAM/xh4crW5Yk9jO3QE6TLC2nEsCM+ueJUnY8LO1Mi/If5tWOzy881kbmYIH/8E26Ao6onjVP8AwtVmApH3o/PLlBIK5ZqB9QqKDq6nZeGq3SiZtadTI7vQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736436501; c=relaxed/simple;
-	bh=Spu51y9HfZuOxHXPfsEWvCmRgGJgzXcQUPYrBwwbc4Q=;
+	s=arc-20240116; t=1736438773; c=relaxed/simple;
+	bh=p4XkuorIpNoSEU2HBpQ1O27DvwV5LvulfkLyMZfyAfg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A9jXbeOeF3iEEilYXOoRtzUG1Rfj6Rx2iEgx4W7bQ2QyEon4+Bgolo6sAK23MG2j/6IaZ4XDiwim5fdSDSBbnAJqXYTPp336NWt2WKDbP04/rrPLZqMbJm134ZHrdVMLZqlatWj/ezHV55kQ7w98kUkhLRMkC0+rvGqtiUM8S9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=YsIG8cgA; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	 In-Reply-To:Content-Type; b=egHiXnCLxx56Q+/YtUGMGFM6p1ZMGU7wMLkC5+1V93zXXP/7ENGgWTLs3r6kjUozRa2cLVwPqe0yI+jGNYWjoJeo5aQqyDylnFzEIOlKz1xj+4/YtaarBq/NfrovVOV2o9YpAe0KSEvAdV9oTznba1B9GCEjysALBLlTGUgreD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kc6YdHA+; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="YsIG8cgA"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1tVuSA-003GPX-Hx; Thu, 09 Jan 2025 16:28:10 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=NnAJ9ysjnx9++5Tx4kBs7NCrt44ysPVsN78x25Ia93U=; b=YsIG8cgAFFi8vjxD/YzvpAyj9G
-	oQlYlT08oJ3QDe3lvIYyOnGCJW8m96RaXXVSKTAZL3GfkdyVRQa2+Zzxhk1J+2B2HSLhuM9if6E1i
-	Uzpya8zCKO9JlMrVpkrlgOwFkjgYEPDw05neTBPiVcOCCY1YdQsOgb3hcYj3hLBkb/z1cP5FQ4Wng
-	F07tDkAFG9W5RlGoOmL+ijIUCGK2mEvdXiYG6H+ue+BymTN+IS6FOScwjVHFd9GUb6TkeMjr9cCE8
-	gmari1ZpangqHiEeSU8bHfOGCd5LuvF79YLJsgXu0IVUTlp3vS6jw/Qc/IANUsQXRCRnR1h5+2WEV
-	65jdyx+g==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1tVuS9-0004qn-2n; Thu, 09 Jan 2025 16:28:09 +0100
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1tVuRs-006wNO-LY; Thu, 09 Jan 2025 16:27:52 +0100
-Message-ID: <05c8648c-d6ca-419b-a4ec-6b305f4ca19f@rbox.co>
-Date: Thu, 9 Jan 2025 16:27:51 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kc6YdHA+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1736438772; x=1767974772;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=p4XkuorIpNoSEU2HBpQ1O27DvwV5LvulfkLyMZfyAfg=;
+  b=kc6YdHA+f+SZjxp8KzB62WRPem4bWEcS8YiNIy7PHCFhyaofuvB7NV2f
+   IME/SDVAnup+dTqH7ZbtMCq9fv9J0SuKqWwJXS7kJ4vCMYyQd6QJ+rAGJ
+   HtU12PcqSeg9VB8k6y6wHHl1R6cTpk8jd36TA0E7vtNxn3Q7qAe6ASH+K
+   Cy2TYu9HinHmKPKVsP9IBl9saTzUeXYmvyHiUAo2uiGZhkupQ80VV3PO8
+   y5YyooVO2/vCmT5qwGtIJeirTxnlRnELWKQp69/r9hKG2BnTrOXsJApF3
+   tA95IbVgsudvFVzQa72Wt0VX64Ain9vpUzJCnQ/LwOaQ763e6zidg1JzE
+   g==;
+X-CSE-ConnectionGUID: ovuNTVntQ+a4c2zRyt/2hw==
+X-CSE-MsgGUID: ek5m3OBFTmqmcfTGKbirwg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11310"; a="62086131"
+X-IronPort-AV: E=Sophos;i="6.12,301,1728975600"; 
+   d="scan'208";a="62086131"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jan 2025 08:05:55 -0800
+X-CSE-ConnectionGUID: gYM7jUeoQau2+oJbNyjiWQ==
+X-CSE-MsgGUID: 8PkbOk3sQpqIzHIL0w463A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,301,1728975600"; 
+   d="scan'208";a="103967271"
+Received: from bergbenj-mobl1.ger.corp.intel.com (HELO [10.245.245.241]) ([10.245.245.241])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jan 2025 08:05:50 -0800
+Message-ID: <91c904f8-ba47-4595-be65-6fb57dcc9c64@intel.com>
+Date: Thu, 9 Jan 2025 16:05:47 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,47 +52,76 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/2] vsock/virtio: discard packets if the transport
- changes
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Simon Horman <horms@kernel.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
- Eric Dumazet <edumazet@google.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Wongi Lee <qwerty@theori.io>, "David S. Miller" <davem@davemloft.net>,
- Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>,
- virtualization@lists.linux.dev, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Luigi Leonardi <leonardi@redhat.com>,
- bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Hyunwoo Kim <v4bel@theori.io>,
- kvm@vger.kernel.org
-References: <20250108180617.154053-1-sgarzare@redhat.com>
- <20250108180617.154053-2-sgarzare@redhat.com>
- <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
- <wix5cx7uhthr6imrpsliysktyae6xwuzpvg77uscswyqwszzfb@ms5osa4ckdcm>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <wix5cx7uhthr6imrpsliysktyae6xwuzpvg77uscswyqwszzfb@ms5osa4ckdcm>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2 23/25] drm/xe: Compute dumb-buffer sizes with
+ drm_mode_size_dumb()
+To: Thomas Zimmermann <tzimmermann@suse.de>,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
+ simona@ffwll.ch
+Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
+ freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+ nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+ intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
+ Lucas De Marchi <lucas.demarchi@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>
+References: <20250109150310.219442-1-tzimmermann@suse.de>
+ <20250109150310.219442-24-tzimmermann@suse.de>
+Content-Language: en-GB
+From: Matthew Auld <matthew.auld@intel.com>
+In-Reply-To: <20250109150310.219442-24-tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 1/9/25 14:42, Stefano Garzarella wrote:
-> On Thu, Jan 09, 2025 at 02:34:28PM +0100, Michal Luczaj wrote:
->> ...
->> That said, when I apply this patch, but drop the `sk->sk_state !=
->> TCP_LISTEN &&`: no more splats.
+On 09/01/2025 14:57, Thomas Zimmermann wrote:
+> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch
+> and buffer size. Align the pitch to a multiple of 8. Align the
+> buffer size according to hardware requirements.
 > 
-> We can't drop `sk->sk_state != TCP_LISTEN &&` because listener socket 
-> doesn't have any transport (vsk->transport == NULL), so every connection 
-> request will receive an error, so maybe this is the reason of no splats.
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+> Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
+> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> ---
+>   drivers/gpu/drm/xe/xe_bo.c | 8 ++++----
+>   1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/xe/xe_bo.c b/drivers/gpu/drm/xe/xe_bo.c
+> index e6c896ad5602..d75e3c39ab14 100644
+> --- a/drivers/gpu/drm/xe/xe_bo.c
+> +++ b/drivers/gpu/drm/xe/xe_bo.c
+> @@ -8,6 +8,7 @@
+>   #include <linux/dma-buf.h>
+>   
+>   #include <drm/drm_drv.h>
+> +#include <drm/drm_dumb_buffers.h>
+>   #include <drm/drm_gem_ttm_helper.h>
+>   #include <drm/drm_managed.h>
+>   #include <drm/ttm/ttm_device.h>
+> @@ -2535,14 +2536,13 @@ int xe_bo_dumb_create(struct drm_file *file_priv,
+>   	struct xe_device *xe = to_xe_device(dev);
+>   	struct xe_bo *bo;
+>   	uint32_t handle;
+> -	int cpp = DIV_ROUND_UP(args->bpp, 8);
+>   	int err;
+>   	u32 page_size = max_t(u32, PAGE_SIZE,
+>   		xe->info.vram_flags & XE_VRAM_FLAGS_NEED64K ? SZ_64K : SZ_4K);
+>   
+> -	args->pitch = ALIGN(args->width * cpp, 64);
+> -	args->size = ALIGN(mul_u32_u32(args->pitch, args->height),
+> -			   page_size);
+> +	err = drm_mode_size_dumb(dev, args, SZ_64, page_size);
 
-Bah, sorry, I didn't run the test suit.
+AFAICT this looks to change the behaviour, where u64 size was 
+technically possible and was allowed given that args->size is u64, but 
+this helper is limiting the size to u32. Is that intentional? If so, we 
+should probably make that clear in the commit message.
 
-> I'm cooking some more patches to fix Hyunwoo's scenario handling better 
-> the close work when the virtio destructor is called.
-> 
-> I'll run your reproduces to test it, thanks for that!
-> 
-> Stefano
-> 
+> +	if (err)
+> +		return err;
+>   
+>   	bo = xe_bo_create_user(xe, NULL, NULL, args->size,
+>   			       DRM_XE_GEM_CPU_CACHING_WC,
 
