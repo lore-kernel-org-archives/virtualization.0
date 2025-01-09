@@ -1,157 +1,136 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E379F217656
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 12:46:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438041E868;
+	Thu,  9 Jan 2025 13:34:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736426781; cv=none; b=F2L0fyq6lcejLS8DKSK/kYqX29kKKyKJKsxNZi4yEPOPT0AOGke+NT31/DPsrMgAzuWK2100MGi3DtUO9Ocdif4g1jQXKkYrmkk2KFDQLp2nxeMz1EziPXjX7OhfltJK7Ho+B3MT/CqGGE2RuobWyvL2ezClgLjcJhROamnsuFY=
+	t=1736429682; cv=none; b=ckSPzMo+zlcK7dsiLjnA3KcvRcEJyYqKXhnaQsViq6ATAgjeY1WTB26EIs7dC/VPLikkLAX2p/JL8CQYMSFcov/6Y0gyZ0BAywd+w2DHN7FcHotYMyTm3OJRHcbP04zr6zBJWJkI4NvpvGfk1UAWjGuLfGkh61DgPQigiKW0J0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736426781; c=relaxed/simple;
-	bh=nOOZA+iN0ga0CTphyM/C05+qgOczZ68TEd0WLotUewg=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=CtYTxXCgW1gyYRz8YQ7m3gwrc4UD2hy8qAb+jpsyrce3buNxdVA6CegxxMwHCIing5U4cqov9cYkeaVgOh/A8rRs+Us4+yPOlZjub+xq74Art52EXa7Zw58Qmt58wqSsl2IJY0lSJQqn9VWLZQswews65eFQkkLua2TKUgA0/v4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OPfGwjJ1; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1736429682; c=relaxed/simple;
+	bh=2iOVx27y8FWIvxdxYvHRDO2A/7X5KLbji8GiY5iP4HE=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=YuR1vmTg8xm3wLc1v1fXDdb8lcjE2eX/A1FXi1vXRKcF0QYjCrZwnReNQp30PbNrm0QVUP6Rlgivat4pciW4bMeASg4edwILYZdF4VuWXY/BZytzSkI6T9955TbA9R1yVKeclBCGCQFL/2V+g+3FCbEij0MNKwm/tYlK8Gw5zIM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=dPeu0oXw; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OPfGwjJ1"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7DC6F40F0F
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 12:46:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id t4wwjqsAj5Do for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jan 2025 12:46:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::732; helo=mail-qk1-x732.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 711C940F03
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 711C940F03
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=OPfGwjJ1
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 711C940F03
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 12:46:18 +0000 (UTC)
-Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-7b6ea711805so93420785a.1
-        for <virtualization@lists.linux-foundation.org>; Thu, 09 Jan 2025 04:46:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736426777; x=1737031577; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kaPMLCUZXOj8V/TsoKhneA/pbfWV2N1nHu6od460Xzw=;
-        b=OPfGwjJ1sCpGC3vzAoC0kQUciUSA65invGouNN4ee1TDmp9d9oXWnIEDXUZAMWXVRW
-         3kun3t1exa68zddch7nA/FB2NEPwwINWtBztvSM7ulZsjBGooP2VISSY6TXuXDmSKDOF
-         WwjZm7tYDjFUnZB8qRK6tJshRYonLPnjs4zBi8185FyDHo0ci3GsbTSBpavIiRgtFTmy
-         yt3gvMLC4Zbd4qIWH8mVK+ppwb27NxvzPIKv9KDTOKdnL0cI/ICW7lL+UM8BG5oT9oaJ
-         RrgmM2FfbK+1ZYV5aVi2LeW8AP+11PXXryn7CM69jbgqrvxT6izDvd4dIEcsygj4QAWH
-         tYvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736426777; x=1737031577;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=kaPMLCUZXOj8V/TsoKhneA/pbfWV2N1nHu6od460Xzw=;
-        b=Zjp5A7BdbpgmTWRv61dPIn8cmQGBTDmlDHECCGJFr7pNn0XFgZJFnlWoxApeC2mLO2
-         +AI2AJLHeA/5PP5SDzC+TlbFZSOoWLdVMBNXKdS9koe3FO8wpg/qHSJvY5cm75ta1DoV
-         abtmsnPpacv4Fsapk1OQAiGEuG7GBMbzvSUh/Fnhmg/1JQSlF4dFlnvXjlugOFaxSFSR
-         WoTyf0QCFVzzxWIUPlx8vieci3cLvft6BI8lXC4EAlyRSmvznl5Ik7LSgxXR6ffzdG2T
-         t0f07KJcKDS7tVjtERYjzDV0vw50UnmV9dhN56lfukXPjOH1UkSt8vgvmBFIj77Vu7hk
-         pwNw==
-X-Forwarded-Encrypted: i=1; AJvYcCX9+rxr62E7IA45gT973Ecm68N1EGBX1rWasi0/w5L6NwOI49xd7HqFvTKXh2zsPU6amst3rXWBgdYmypmYNA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yxt3LCPQul9u9o4ywjgWLaxm5mVXm6OS+bFWQfKjm03C2JtUE2x
-	1vc6L+md8HbwnmtJWp7DR1z5lfczPXz8IJhlBewd+MuyFjujjV7J
-X-Gm-Gg: ASbGnctd2eaipR4HkipSxlq5pXD6u1mYKHFqnYJHrOynAuEpqYzpFsKlKJ/iJ5OxW0w
-	wdVWIzX5I5K/QVp0ufF98vZiGFbrh1Rl+UIfgJKlGb9mBpthM+S2ieomR5j5wP0Lojh6fu2O0VL
-	vA7ujVeDSVMIh7ueC2MQbLQC7+mmzdivK+VHMl1xV41WB3wOTDV787FrB0N9oayb8Of9vptlJ1s
-	eA5cDlP7sVAoLYtqlduQknxIvodModYspB7ooLemqjhJDUCCyqmVfq1cDsKmbxX1wb8uhsnLZrN
-	Q/JpDRoXfayGvtjs0foFb7ttKBeM
-X-Google-Smtp-Source: AGHT+IElltpq0Se5BPymgSR44p/+E1b35WmaB/SUjKp4ksNe7YwiYRSh+K5j9T3I6qKRunWydJbAbg==
-X-Received: by 2002:a05:620a:444f:b0:7b6:f1be:4f7e with SMTP id af79cd13be357-7bcd9755084mr912637385a.26.1736426777023;
-        Thu, 09 Jan 2025 04:46:17 -0800 (PST)
-Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7bce3516068sm62500685a.100.2025.01.09.04.46.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jan 2025 04:46:16 -0800 (PST)
-Date: Thu, 09 Jan 2025 07:46:15 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, 
- kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, 
- linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, 
- gur.stavi@huawei.com, 
- devel@daynix.com
-Message-ID: <677fc517b7b6e_362bc12945@willemb.c.googlers.com.notmuch>
-In-Reply-To: <571a2d61-5fbe-4e49-b4d1-6bf0c7604a57@daynix.com>
-References: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
- <20250109-tun-v2-2-388d7d5a287a@daynix.com>
- <20250109023056-mutt-send-email-mst@kernel.org>
- <571a2d61-5fbe-4e49-b4d1-6bf0c7604a57@daynix.com>
-Subject: Re: [PATCH v2 2/3] tun: Pad virtio header with zero
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="dPeu0oXw"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tVsgD-002sUu-QM; Thu, 09 Jan 2025 14:34:33 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=w1/9gczPFPtb52AVap22ovoMq0pU+nsu8ng9Iwts42I=; b=dPeu0oXwrUl7zzbPhKigqr74+4
+	vQMAkuk363gZiWpmLVjGFes/MI9NAT5EDa2sXOWXEcH4sjrMQ74AW4hpMn12BloZ2Xu0gBGHgs+yh
+	2sjDk/M+IwHonhz+fzexA59U79RrqLjmBYWXWAkF9nqxm6i9yG6gsIuz5u8Fj9nMClfkGfZMD1DeU
+	QnHHar22KkbMoyxh4uonqaoTki9ObYh5nRmZn3+0G/lde2IMcQWxflWHApo/dYWoljXwmWtHHybQQ
+	gtJBy+uteaBMQ8mkOpjfX2VN40FAJzytCzKEIgkXBuJkQ5XLCmEhKqOqCq9bC9CCkWcUzULb2BNL2
+	3qfCyXtA==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tVsgC-0004nq-Nj; Thu, 09 Jan 2025 14:34:32 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tVsgA-006cIo-Fi; Thu, 09 Jan 2025 14:34:30 +0100
+Message-ID: <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
+Date: Thu, 9 Jan 2025 14:34:28 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [PATCH net 1/2] vsock/virtio: discard packets if the transport
+ changes
+To: Stefano Garzarella <sgarzare@redhat.com>, netdev@vger.kernel.org
+Cc: Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+ linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wongi Lee <qwerty@theori.io>,
+ "David S. Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>,
+ virtualization@lists.linux.dev, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Luigi Leonardi <leonardi@redhat.com>,
+ bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Hyunwoo Kim <v4bel@theori.io>,
+ kvm@vger.kernel.org
+References: <20250108180617.154053-1-sgarzare@redhat.com>
+ <20250108180617.154053-2-sgarzare@redhat.com>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <20250108180617.154053-2-sgarzare@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-Akihiko Odaki wrote:
-> On 2025/01/09 16:31, Michael S. Tsirkin wrote:
-> > On Thu, Jan 09, 2025 at 03:58:44PM +0900, Akihiko Odaki wrote:
-> >> tun used to simply advance iov_iter when it needs to pad virtio header,
-> >> which leaves the garbage in the buffer as is. This is especially
-> >> problematic when tun starts to allow enabling the hash reporting
-> >> feature; even if the feature is enabled, the packet may lack a hash
-> >> value and may contain a hole in the virtio header because the packet
-> >> arrived before the feature gets enabled or does not contain the
-> >> header fields to be hashed. If the hole is not filled with zero, it is
-> >> impossible to tell if the packet lacks a hash value.
-
-Zero is a valid hash value, so cannot be used as an indication that
-hashing is inactive.
-
-> >> In theory, a user of tun can fill the buffer with zero before calling
-> >> read() to avoid such a problem, but leaving the garbage in the buffer is
-> >> awkward anyway so fill the buffer in tun.
-> >>
-> >> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> > 
-> > But if the user did it, you have just overwritten his value,
-> > did you not?
+On 1/8/25 19:06, Stefano Garzarella wrote:
+> If the socket has been de-assigned or assigned to another transport,
+> we must discard any packets received because they are not expected
+> and would cause issues when we access vsk->transport.
 > 
-> Yes. but that means the user expects some part of buffer is not filled 
-> after read() or recvmsg(). I'm a bit worried that not filling the buffer 
-> may break assumptions others (especially the filesystem and socket 
-> infrastructures in the kernel) may have.
+> A possible scenario is described by Hyunwoo Kim in the attached link,
+> where after a first connect() interrupted by a signal, and a second
+> connect() failed, we can find `vsk->transport` at NULL, leading to a
+> NULL pointer dereference.
+> 
+> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+> Reported-by: Hyunwoo Kim <v4bel@theori.io>
+> Reported-by: Wongi Lee <qwerty@theori.io>
+> Closes: https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 9acc13ab3f82..51a494b69be8 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -1628,8 +1628,11 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>  
+>  	lock_sock(sk);
+>  
+> -	/* Check if sk has been closed before lock_sock */
+> -	if (sock_flag(sk, SOCK_DONE)) {
+> +	/* Check if sk has been closed or assigned to another transport before
+> +	 * lock_sock (note: listener sockets are not assigned to any transport)
+> +	 */
+> +	if (sock_flag(sk, SOCK_DONE) ||
+> +	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
+>  		(void)virtio_transport_reset_no_sock(t, skb);
+>  		release_sock(sk);
+>  		sock_put(sk);
 
-If this is user memory that is ignored by the kernel, just reflected
-back, then there is no need in general to zero it. There are many such
-instances, also in msg_control.
+FWIW, I've tried simplifying Hyunwoo's repro to toy with some tests. Ended
+up with
 
-If not zeroing leads to ambiguity with the new feature, that would be
-a reason to add it -- it is always safe to do so.
- 
-> If we are really confident that it will not cause problems, this 
-> behavior can be opt-in based on a flag or we can just write some 
-> documentation warning userspace programmers to initialize the buffer.
+```
+from threading import *
+from socket import *
+from signal import *
+
+def listener(tid):
+	while True:
+		s = socket(AF_VSOCK, SOCK_SEQPACKET)
+		s.bind((1, 1234))
+		s.listen()
+		pthread_kill(tid, SIGUSR1)
+
+signal(SIGUSR1, lambda *args: None)
+Thread(target=listener, args=[get_ident()]).start()
+
+while True:
+	c = socket(AF_VSOCK, SOCK_SEQPACKET)
+	c.connect_ex((1, 1234))
+	c.connect_ex((42, 1234))
+```
+
+which gives me splats with or without this patch.
+
+That said, when I apply this patch, but drop the `sk->sk_state !=
+TCP_LISTEN &&`: no more splats.
