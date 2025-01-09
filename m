@@ -1,128 +1,149 @@
-Received: from fout-b2-smtp.messagingengine.com (fout-b2-smtp.messagingengine.com [202.12.124.145])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0339142E86
-	for <virtualization@lists.linux.dev>; Thu,  9 Jan 2025 03:59:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.145
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A3D321480D
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 06:59:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736395193; cv=none; b=cqwe1FSccF6G708vGcBHJZU8gEWb5WaqEr6Z/FogvW0WNXEJYIb27PXa5CNc1ykdV9n0a3NkF5qAJ+aBHB3pd2dlOoAvchuL90wBGU1CqzocvL0DwnzD1APKKkE1NiD+Q/mJxedlqDGkJ5L8PksX3Q8dlC6fAoyrubhgQkPzDD0=
+	t=1736405943; cv=none; b=tBkpjuPFu1LGd11CZMveUjVUck7tFzUSvQ+7mGhL13iQDyw4r9m1tEeNWTLxWF2zitqRZ+NTiIfZwlGSzPoqfgKYjjq8KVN5g2KDOG95VZ9Hoka5svvYaF1fKilxOeEh8tqawZxOcAqT2XN+p6nUmfqk8MRK+4I/tlxkr1fAgfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736395193; c=relaxed/simple;
-	bh=DsRZEezRzRoZYoVb+0O3qLEW5TiNd+7YrIVz/TNmuno=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FI1ZorfAtTJGT4O8L4VNG6fBBvwM/21mftOHb8mSuHbLOMqHYKErb8itq6KLtrtbgXP+swxh4rl/rRmxZN+91b05TZS0AZl8PHypnn1KI5I6AHtyMSBjD5ovCX5CkkglZKUMNu12PIJwbBR4rrIMdTUz1WVJIhOY1bQeH2poWg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=davidreaver.com; spf=pass smtp.mailfrom=davidreaver.com; dkim=pass (2048-bit key) header.d=davidreaver.com header.i=@davidreaver.com header.b=U3egZpQD; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=NCAf/e6+; arc=none smtp.client-ip=202.12.124.145
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=davidreaver.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=davidreaver.com
+	s=arc-20240116; t=1736405943; c=relaxed/simple;
+	bh=b4nGT7bzNP9cYs0RRg/GoDk6GVo5jtMW+D3RbTMnfIM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To; b=j4oxDNPVhH8dkDGSG4eWhf7ENjeJSO8O7HecUTXENI+3cIkhXoaHyug0OW0SvakukzmisYqNuyydnU2uuV/JCk9j09cxzDUrXHVW6ZY6oCD8e+oY5axN/WELBMVFCOGrHnmsTp8CZuN+c3AR10mnmy0PKeRD4jWXl47vmR9Vke0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=W8tr3Gcg; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=davidreaver.com header.i=@davidreaver.com header.b="U3egZpQD";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="NCAf/e6+"
-Received: from phl-compute-09.internal (phl-compute-09.phl.internal [10.202.2.49])
-	by mailfout.stl.internal (Postfix) with ESMTP id 0177A1140192;
-	Wed,  8 Jan 2025 22:59:50 -0500 (EST)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-09.internal (MEProxy); Wed, 08 Jan 2025 22:59:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=davidreaver.com;
-	 h=cc:cc:content-transfer-encoding:content-type:date:date:from
-	:from:in-reply-to:message-id:mime-version:reply-to:subject
-	:subject:to:to; s=fm2; t=1736395190; x=1736481590; bh=iuO+1lEcQ0
-	Y2oEv4cKm+6QD3p3rkNrIsEabaaqaECPw=; b=U3egZpQDpVlpxZLTCXbcJJH+6r
-	lKUaNZjzjFig0pn6jsw+yMsvUzrTm+qamBi1leW51QVPDMRPZq95fYGttRKeqpTh
-	s8vn049fCYL6+YezCDjWTHEP2VpZyJ8BYb0Q4ldI+L5GzX0EcxCWM8yWSr01GotG
-	EpKxl252R3ZRgVAuqYavm5hFXDXJofNQqVcZe9z85oy9lmnSBcq1HRYoEAP626dx
-	jljWhPAgh7xfiX3ACO0LaNK2UWwiVzesrdJvvsTeAnAUgBHQ9h+qwmBYVXkSdzDg
-	VvmHfqQ81IYocANQm821aTssPXlzgC0vAam/vjlAWyfgsS3OlxGiUahvnxKA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1736395190; x=1736481590; bh=iuO+1lEcQ0Y2oEv4cKm+6QD3p3rkNrIsEab
-	aaqaECPw=; b=NCAf/e6+rneSKBhB63ayToYgrRaaaWKw/KqG7QciwFgtqMxYjas
-	jGjrSrUGNMcYPA/38a84QtsfbrT7IvT4m9QVco2smKeM/nMNhejUKFD+p+i+SjwT
-	9622X1DOQeF2BG5C8px8hXCaTblkM29uvvrd1DBUJD3Xon5+SAHKIyn+xly1dYRh
-	cYqapg7/fsGzTctdhD2AYK1rbk+n/OBo4CYEn7buNdOzvgCXuaeDI+B3O0H3qA7m
-	l7I21Oi42yhOFDNjQSVcq6zpE3u9w35t6PIT9rAg6GJqSJ54I4NhxpiOfO/gFhSt
-	xTSRm83Piet/sxNBx027dcrhfRUMQ6fLxmQ==
-X-ME-Sender: <xms:tkl_Z7zLW-Z5VWzxxEOMRajzwz46MaLTfbetnZSXgJTrnEh1kSucKQ>
-    <xme:tkl_ZzTDZq9trWf10HiCmE7MJ4cQ-Wjp2kPXe382fryvQZn-nwAB9sRtJbOELBdAk
-    _wjBX7bU3gTr-Or70Q>
-X-ME-Received: <xmr:tkl_Z1UtcgXHlqwWV_aeTmVFdjTQmAvWH0Rly50wrff-tMs9ZS4aovA2wZe4MxBuxvPM8B8HkKWtdnpyivnMyLSbc5u-iW36SKCabUghees0eF4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefuddrudeghedgieeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhephffvvefufffkofgggfestdekredtredttdenucfh
-    rhhomhepffgrvhhiugcutfgvrghvvghruceomhgvsegurghvihgurhgvrghvvghrrdgtoh
-    hmqeenucggtffrrghtthgvrhhnpeevjefgueffgfelvdeigfefgfdvtefhuddvheeffeeg
-    gfejteelhfegvedvhfefleenucffohhmrghinheplhifnhdrnhgvthdpkhgvrhhnvghlrd
-    horhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    mhgvsegurghvihgurhgvrghvvghrrdgtohhmpdhnsggprhgtphhtthhopeekpdhmohguvg
-    epshhmthhpohhuthdprhgtphhtthhopegrmhhitheskhgvrhhnvghlrdhorhhgpdhrtghp
-    thhtoheprghrnhgusegrrhhnuggsrdguvgdprhgtphhtthhopehgrhgvghhkhheslhhinh
-    hugihfohhunhgurghtihhonhdrohhrghdprhgtphhtthhopehmvgesuggrvhhiughrvggr
-    vhgvrhdrtghomhdprhgtphhtthhopehvihhrthhurghlihiirghtihhonheslhhishhtsh
-    drlhhinhhugidruggvvhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghr
-    rdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehirhgrrdifvghinhihsehinhhtvghlrd
-    gtohhmpdhrtghpthhtohepthhglhigsehlihhnuhhtrhhonhhigidruggv
-X-ME-Proxy: <xmx:tkl_Z1gXl6vQx06KzNMJkFJvFdZaSppHaCaqAkEPGcNz0bwhnhxldA>
-    <xmx:tkl_Z9DEsd8aoJjErzAfpdPNftpSsQRJnlRM2Fz18BwJNorVrWXczg>
-    <xmx:tkl_Z-JIKkbUl1amHNP34BzFSUOEnmsYYzlPPHwAcG5WkjfKs1CiFQ>
-    <xmx:tkl_Z8ClcXw4YWFsGYUQRzf-F7UwqhFr5kXesI4-4K0sZnqs4JxXtw>
-    <xmx:tkl_Zx0Vi-ieng_K0CRImVMSZ70z7KKeHQ8QjkHOkEVIztsqS-muBh0t>
-Feedback-ID: i67e946c9:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 8 Jan 2025 22:59:48 -0500 (EST)
-From: David Reaver <me@davidreaver.com>
-To: Amit Shah <amit@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: David Reaver <me@davidreaver.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Ira Weiny <ira.weiny@intel.com>,
-	Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH] virtio: console: Replace deprecated kmap_atomic with kmap_local_page
-Date: Wed,  8 Jan 2025 19:59:02 -0800
-Message-ID: <20250109035904.168345-1-me@davidreaver.com>
-X-Mailer: git-send-email 2.47.0
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="W8tr3Gcg"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id AB03980526
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 06:59:01 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id k-JwRdJVkvsb for <virtualization@lists.linux-foundation.org>;
+ Thu,  9 Jan 2025 06:59:00 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62e; helo=mail-pl1-x62e.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 56D1D804F5
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 56D1D804F5
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=W8tr3Gcg
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 56D1D804F5
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Jan 2025 06:58:59 +0000 (UTC)
+Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-216426b0865so8326285ad.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 08 Jan 2025 22:58:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736405939; x=1737010739; darn=lists.linux-foundation.org;
+        h=to:content-transfer-encoding:mime-version:message-id:date:subject
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=V6t1qxwBoLWfejlGfA7U17j5uTd/JzY8q21mk1j72ew=;
+        b=W8tr3GcgX/FRZDiwfD3BjNAzC4Sz5E8xA6Uy7e1o+YHt/RAC0uBURVM+rsXgc9HMbF
+         OPvIPBhZGNTjAxcWc7DIdsqIbfyOiMnpmuyn9oyul1JAQKMyW7Lk/VmI2NSccMWbs8Tr
+         Uo08H+sikooYQe3SnztMXrxS79hyVwTB/9SGxPcXn5BiXieYgLeG0GRPJaNPzV5EAzeW
+         YJDP4miIJEpq1lxH7ArJWga2BBwSNnuEDLsSNiQJu/I6GntBYbFrhq/uMt9rHruTSZCP
+         +4i1mNlVZ23Y0WwH8DijIcbmJ1EoVKcM63rHrmWc2eWkuSnIATLrhU3ykEvd3YxIjovt
+         Ui7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736405939; x=1737010739;
+        h=to:content-transfer-encoding:mime-version:message-id:date:subject
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=V6t1qxwBoLWfejlGfA7U17j5uTd/JzY8q21mk1j72ew=;
+        b=KUKJd1OXR56zuG36nCB8+sIPWbxn585qgiaud8Ms9IATsZo6nNq0E6ooWedsLkTE6h
+         J7LnpqZ69FSKTSZaqufnggDBa4FZP4Yuaixqq404YhYJnaIGu+Ur4QPct7ZECbw7Ntss
+         rFe2Q31OAcgYUvfkhnATo8xx7KbBm/OiRJN5VpzGj5xTTDbN07oq1VaR6RtASMLL2fH5
+         83ennZwkd5IpHdeEIpRGs0wnAx4M/ZchatAXnneztnZduGu2qisgFbWy7dGkVNUnuWC9
+         YC1RGxi4mc+uDkwWUPoC99JSvaB+QC0VDcwNsC2IJJnxSyC/2dTInybfheVKJL61icdc
+         cBcA==
+X-Forwarded-Encrypted: i=1; AJvYcCUAypFWFicSwBHirt2PKkFA8YHMuHiYBihNGGis6Sue8H19UtrPfGDxTyjRoa9uM0m2ni2LD3vWHlwA+8RfhQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxyAS3Iz5k9hVPHQ0jiHwUGfKsjfvIs2+AS0fP4TinE/mmxSSLC
+	1ZRb0nJEpZoXoIgxMJMbAszxXatUXGR3Aff1WcOGb9Cibkx6qC9hsbDtMh5T65Y=
+X-Gm-Gg: ASbGncuvX0p447rf9/8/k9CApoSwVmJ4o4Y5CVmHFR6s1Z5pNv7+B6kPMKsEuG5hIwV
+	fB5fQE+xcddtYpr9Vw5ZxJdfCVnP4cWR8/4Gn7SkyzOxJj47nRZDNElvuXTxPjER/ZEQsrTfBHG
+	n8ionz1q/SRY6a2nV/a+/FIYxelx5j3GUeBLQleTsPsJFOvzYHvr1VZmrkmbdWHbmVh18jIEn3G
+	btnQ3fmzKqmroOAmqkXMBgtG4wlVlpBcw3g13C7PPRHQdDEfjARXmBI9hI=
+X-Google-Smtp-Source: AGHT+IFVrPaDE5bT1NedCIHg/BRb9M1axoVZQXe+QhCRKOheUBg8nZqyVlcuDTD0PULcei7AMQYLnw==
+X-Received: by 2002:a17:902:e5c2:b0:215:6f5d:b756 with SMTP id d9443c01a7336-21a83f36e79mr79407695ad.7.1736405939214;
+        Wed, 08 Jan 2025 22:58:59 -0800 (PST)
+Received: from localhost ([157.82.203.37])
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-21a91767f94sm5432205ad.40.2025.01.08.22.58.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jan 2025 22:58:58 -0800 (PST)
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: [PATCH v2 0/3] tun: Unify vnet implementation and fill full vnet
+ header
+Date: Thu, 09 Jan 2025 15:58:42 +0900
+Message-Id: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAKJzf2cC/y2OwQ6CMBBEf4Xs2ZptqRQ9+R+GA5RV9mDBFgiE9
+ N8t6PFNZl5mg0CeKcAt28DTzIF7l0CdMrBd7V4kuE0MCpWWKkcxTk4UBUms9bVBayA1B09PXg7
+ Lo0rccRh7vx7SWe7pvr+gxPLYz1KgKExrSt3kOjf63tar4+Vs+zdU8Wf09JnSnfGvjfELvQd+h
+ qwAAAA=
+To: Jonathan Corbet <corbet@lwn.net>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
+ devel@daynix.com, Akihiko Odaki <akihiko.odaki@daynix.com>
+X-Mailer: b4 0.14-dev-fd6e3
 
-kmap_atomic() is deprecated and should be replaced with kmap_local_page()
-[1][2]. kmap_local_page() is faster in kernels with HIGHMEM enabled, can
-take page faults, and allows preemption.
+When I implemented virtio's hash-related features to tun/tap [1],
+I found tun/tap does not fill the entire region reserved for the virtio
+header, leaving some uninitialized hole in the middle of the buffer
+after read()/recvmesg().
 
-According to [2], this replacement is safe as long as the code between
-kmap_atomic() and kunmap_atomic() does not implicitly depend on disabling
-page faults or preemption. In this patch, the only thing happening between
-mapping and unmapping the page is a memcpy, and I don't suspect it depends
-on disabling page faults or preemption.
+This series fills the uninitialized hole. More concretely, the
+num_buffers field will be initialized with 1, and the other fields will
+be inialized with 0. Setting the num_buffers field to 1 is mandated by
+virtio 1.0 [2].
 
-[1] https://lwn.net/Articles/836144/
-[2] https://docs.kernel.org/mm/highmem.html#temporary-virtual-mappings
+The change to virtio header is preceded by another change that refactors
+tun and tap to unify their virtio-related code.
 
-Signed-off-by: David Reaver <me@davidreaver.com>
+[1]: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
+[2]: https://lore.kernel.org/r/20241227084256-mutt-send-email-mst@kernel.org/
+
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
- drivers/char/virtio_console.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Changes in v2:
+- Fixed num_buffers endian.
+- Link to v1: https://lore.kernel.org/r/20250108-tun-v1-0-67d784b34374@daynix.com
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index c62b208b42f1..24442485e73e 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -883,9 +883,9 @@ static int pipe_to_sg(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
- 		if (len + offset > PAGE_SIZE)
- 			len = PAGE_SIZE - offset;
- 
--		src = kmap_atomic(buf->page);
-+		src = kmap_local_page(buf->page);
- 		memcpy(page_address(page) + offset, src + buf->offset, len);
--		kunmap_atomic(src);
-+		kunmap_local(src);
- 
- 		sg_set_page(&(sgl->sg[sgl->n]), page, len, offset);
- 	}
+---
+Akihiko Odaki (3):
+      tun: Unify vnet implementation
+      tun: Pad virtio header with zero
+      tun: Set num_buffers for virtio 1.0
+
+ MAINTAINERS            |   1 +
+ drivers/net/Kconfig    |   5 ++
+ drivers/net/Makefile   |   1 +
+ drivers/net/tap.c      | 174 ++++++----------------------------------
+ drivers/net/tun.c      | 214 +++++++++----------------------------------------
+ drivers/net/tun_vnet.c | 191 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/tun_vnet.h |  24 ++++++
+ 7 files changed, 283 insertions(+), 327 deletions(-)
+---
+base-commit: a32e14f8aef69b42826cf0998b068a43d486a9e9
+change-id: 20241230-tun-66e10a49b0c7
+
+Best regards,
+-- 
+Akihiko Odaki <akihiko.odaki@daynix.com>
+
