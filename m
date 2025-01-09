@@ -1,74 +1,75 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15E9D19E965;
-	Thu,  9 Jan 2025 10:00:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 085DE215F47
+	for <virtualization@lists.linux.dev>; Thu,  9 Jan 2025 10:15:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736416837; cv=none; b=TbyPO6Q8UYvXLvr3negMrzzAz6Q3169bepecIWeb5H/+Xi041C94MnQZQWzMWZfykRTk2T4iVzJ+PDLBrsXUoDsvgcSYpUh7uZi9N5BrG1TROA+u1e+ZmBVz1sSG9zTbGCTZcgWObwNQ/+o2v4INFKuOfcZSCrmL2HIgZ6/nMiM=
+	t=1736417706; cv=none; b=HqWq7xnzP9zuR1QDWXIA1KU1AZivq8R1a1antDU3/+SoUm/WkP7PPTwL+a+EvFiAPvJe6LphdUYdqhNl2v5KlsF94vzLwJLAr3Bjv1QoQoUqLgxegU82yXdJ0inOpmV/nDbC/QK8Cb8KR+Y+h+8fyKlpsssr4khSFuU52ad+9Fs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736416837; c=relaxed/simple;
-	bh=b/rYt0Z0ihUMkSLw4TZszASAPcnL7yCL+ei7qA8R0Pg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=eatpeVnwqyB/JP4XYdsX3bob5cNJgKkdQz07tp4zccvnLjSdJZet2MDzdOMhR9lZNrFmk7ByLFHcTw3u3i5bCgBboNM5p2qnJud0tex/Drb0kLCMQBtfZ+EJpHAX/1B+Z5x9K8in2IfJ4P3h0nYJ9wt5+nTlbTWpVjZA0dnQxeo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=usUzqOhs; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="usUzqOhs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AECEC4CED2;
-	Thu,  9 Jan 2025 10:00:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736416837;
-	bh=b/rYt0Z0ihUMkSLw4TZszASAPcnL7yCL+ei7qA8R0Pg=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=usUzqOhsKz+DWvJrW5ueKeSsHHE2sqGgKn5zH7oKNLtHSBey7ORgohZu2kRDq8jL7
-	 pBFsxDtAdfQa3ajmBfEvdBSHtNU1mOQ1Oe2dZoO5m65q058JQJDKhe0CiWrYGw480t
-	 E0hJ2SPl/loDd5dTFCs1XBIex7U/36ySByzBILoEWpr0YmCwcBAYM1Cw0/YXIQ1WHE
-	 yzrZk1aq6SWrV95/tM6VHy2hkJuwz5hHlRS/elUV8KC0bJB7/P/wKPWwbsZ0uU9yT5
-	 cdPrZhzq9PgzWEM7kr3AOIWm/5lmEZIwhE5kk1YwqHl1YdwBE6Chs0v+J7/rrAvn33
-	 WEdNPGBV7fcNg==
-Message-ID: <71ebf77ed3f006e950a692368c87726c74e9063d.camel@kernel.org>
-Subject: Re: [PATCH] virtio: console: Replace deprecated kmap_atomic with
- kmap_local_page
-From: Amit Shah <amit@kernel.org>
-To: David Reaver <me@davidreaver.com>, Arnd Bergmann <arnd@arndb.de>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Ira Weiny
-	 <ira.weiny@intel.com>, Thomas Gleixner <tglx@linutronix.de>
-Date: Thu, 09 Jan 2025 11:00:33 +0100
-In-Reply-To: <20250109035904.168345-1-me@davidreaver.com>
-References: <20250109035904.168345-1-me@davidreaver.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.2 (3.54.2-1.fc41) 
+	s=arc-20240116; t=1736417706; c=relaxed/simple;
+	bh=kbyruUblBhGqvdvcdX8FQpbEnhYxPFdcdXEruhRjdaY=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=IPsgv+09HtLef/jcGEoLIiVFvLn1FBmgs4q7Od3HPER5MzLONeCWgmbSNAIV+OXjdIdLBIii3m/DBJRX9JSOhb6+LD/kIiDUEhcQytCSvVmsWOBdwpMyl/pUZceU4L2nbtGYaOIgg+Bhazw+aBbXQ0zAMikL7f9lWXrOsIKN+vM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-844d5c7d664so57980539f.2
+        for <virtualization@lists.linux.dev>; Thu, 09 Jan 2025 02:15:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736417704; x=1737022504;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=B1KyLOxtLSju+kMk5DlvaCFJoyIAsTFtQb1SI5TVf6g=;
+        b=ZxDk05lbWYNjcDwg0R5ekYckvHjX0nKCo1tEkKK80vRi+YshzYa/8GTUKmWGTl9Qky
+         PFDDxDZcJvx2lTey7NUZxp6QuJQx8G9vIe6ncttE0Qle7pTqUX5Gu4pamUxD3vc6zM4q
+         AeepkQQp4yASfKU/X8SGJDsPPRh8h4HiAf5p+7kI5vEPH/9ZsWJMKBTB8meG2+I3WUZg
+         6yFlCFkDeHrHTmzJrHd+JvK6L32sWss4ekzeJesVwYcOhUeVhLSwQQnxg1AKa2xPhXbv
+         X3MEUsWeOZ9ZwstFdDIsf35sVBnxtQQpnLaq3jZ4hkEw5/73tslD3JPZntuJEE1UBfxE
+         haRg==
+X-Forwarded-Encrypted: i=1; AJvYcCWIBtUHdlocABimjOA5XNMoS0L80wfc5z5dAyg8e0P9MNR0fIBl4COJ2NK5f99sMnkcBUtnoiXRP9VCc0YQkQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyWANbltfFi1F5kayGelemjOwy9Ci0HigFw0WlFiywiiiS8C/AX
+	hMjn/WFBkfTIBGD+DLUenbRDTiTSrSDf/uN/7gYtx2+mF7SIVEeOVfeFb/c2bLmeo79GT86nVYC
+	7iMmrQ8zJvw4wJ65B2EKGywTz+x2MEeKKpxUDtm/U5j2vCvxPzq2aDYs=
+X-Google-Smtp-Source: AGHT+IH2QInG3jDHyiVNPfZgn0++Tkz4Y5LCkLxo9WKy/mclasTAGOgowMoJPjHgAXD1Pi/vi3la0WkAWKV44ggGP4GmCciogWru
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Received: by 2002:a05:6e02:160e:b0:3a7:e86a:e80f with SMTP id
+ e9e14a558f8ab-3ce3a9a5b0cmr54427525ab.3.1736417703971; Thu, 09 Jan 2025
+ 02:15:03 -0800 (PST)
+Date: Thu, 09 Jan 2025 02:15:03 -0800
+In-Reply-To: <a4n77w3u22efhdnyz5xn5gjvsfq7xncy3lyn32xqobnuw6gb27@kxubdyn4hr2q>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <677fa1a7.050a0220.25a300.01b5.GAE@google.com>
+Subject: Re: [syzbot] [virt?] [net?] general protection fault in vsock_connectible_has_data
+From: syzbot <syzbot+3affdbfc986ecd9200fd@syzkaller.appspotmail.com>
+To: cong.wang@bytedance.com, davem@davemloft.net, edumazet@google.com, 
+	horms@kernel.org, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com, 
+	sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, 2025-01-08 at 19:59 -0800, David Reaver wrote:
-> kmap_atomic() is deprecated and should be replaced with
-> kmap_local_page()
-> [1][2]. kmap_local_page() is faster in kernels with HIGHMEM enabled,
-> can
-> take page faults, and allows preemption.
->=20
-> According to [2], this replacement is safe as long as the code
-> between
-> kmap_atomic() and kunmap_atomic() does not implicitly depend on
-> disabling
-> page faults or preemption. In this patch, the only thing happening
-> between
-> mapping and unmapping the page is a memcpy, and I don't suspect it
-> depends
-> on disabling page faults or preemption.
->=20
-> [1] https://lwn.net/Articles/836144/
-> [2]
-> https://docs.kernel.org/mm/highmem.html#temporary-virtual-mappings
->=20
-> Signed-off-by: David Reaver <me@davidreaver.com>
+Hello,
 
-Reviewed-by: Amit Shah <amit@kernel.org>
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
+Reported-by: syzbot+3affdbfc986ecd9200fd@syzkaller.appspotmail.com
+Tested-by: syzbot+3affdbfc986ecd9200fd@syzkaller.appspotmail.com
+
+Tested on:
+
+commit:         767faff2 vsock/bpf: return early if transport is not a..
+git tree:       https://github.com/stefano-garzarella/linux.git fix-vsock-null-transport
+console output: https://syzkaller.appspot.com/x/log.txt?x=17c9d4b0580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=4ef22c4fce5135b4
+dashboard link: https://syzkaller.appspot.com/bug?extid=3affdbfc986ecd9200fd
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+
+Note: no patches were applied.
+Note: testing is done by a robot and is best-effort only.
