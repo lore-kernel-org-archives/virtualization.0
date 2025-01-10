@@ -1,64 +1,64 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF72217995E
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 06:18:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5944E2063ED
+	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 06:28:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736489921; cv=none; b=oG/k70BWHlau3E6GRKXCY6B8jq3pGoSZcCx8Uoj98G3iAIx8A1GmoQuEjqQDWH+f5gU8QU7lXFrtdAG2PvqeDKE2Q3Bf2ThnHnOMy7e7v/LBfz6lczDQOk8AzdI3CkNM7DgQE4DUfPdXNaDvIl1LDiUte3rVuc+VaB6PFWvV380=
+	t=1736490516; cv=none; b=frjYwgkRdIr3JfPJia1HZnOpuKAWplWOZspEAk4/Ocwo8dsAZj3TuKmnbrOnX779gwWLhAmIidkLH0J2RXTG+3eDNiiOJpgHzPEizN8Ux6NnWMf21z8iQu4+YojtjxgwgS8H4JbgKnaP2V28rC+u+Tt0fio4HGJzhORCobFYHL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736489921; c=relaxed/simple;
-	bh=k8iw9+kciIECw/ctmne1alKhyO7yDWLOtGLrwdrz43s=;
+	s=arc-20240116; t=1736490516; c=relaxed/simple;
+	bh=FMqJ7naQjmlWyErCDh0m1Os/KqRSP9MKroOgTnaF1hc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FHD49u0f8YtVfPARaJBcg2FJt1w9JG638oX2N+41BYBIC0bZPB7Lrz99/CA8taj7+ssBxr8Ep1dXszZZ6iVGAblQfyLiXYdJCrugugm1tghh/8JmDMgZlYdsNOLMXxHmD6tYXd/niMt0AJtOw47dasml0Rwvr++LR9e5wXynma8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GQOk15k2; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=BjydTGuJmxAqlVeAkL2OrKSWN1XMB2y21E5vhIWzPBEsXIuqPuw0/wDiVl9Bah3h4eqnTM1taXfvh+JfiQ2eOcdq06Vwg5yA2O+pnZvCn2cpXZx5mbTd+/JM0pnioQ08+v2IR4W5UnJykF3MGALkGDEt5QfFjutTHLNsx2d0oiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GjlAVJSG; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GQOk15k2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GjlAVJSG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736489917;
+	s=mimecast20190719; t=1736490513;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ISxfKzVoXDOr34Y5KsabwaYvJOoTxc4gV0y3MMcBA0A=;
-	b=GQOk15k2V8gcHO2AnLz230RkKVKYjd8dNG1kBN3uqnuUkSVBnLW0CepRICY81BMJbL+wpA
-	48hRnqgmqJugaW1/k1stliI6EHceyWoLwFNVHCDY8rzATD6grCMRQ+mCZZ6YVVvrWs3xw2
-	zs3MsmXMa0Fc8smBxtihosTlDNgc9w8=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=KidJbubUSbaHzABwf67ALlasvoQwAnREDKg8gDCC2p8=;
+	b=GjlAVJSG82uF97qSjHmNMCuOzoPaOkg2RRRq2PoO6luPNycGSeBOTSr6tkFTcqvoMLgnGw
+	IOadN8h8DCIJYEu35UgTuHXeGADL7rPx2V+pKigrgDwDDPZ55ShflQEHUfrz2/+1/rlDDi
+	nosjfd61eHvvDbP69xSLs6uYBMolVWI=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-441-SlU31jIzMo-Ap87MNMii2A-1; Fri, 10 Jan 2025 01:18:35 -0500
-X-MC-Unique: SlU31jIzMo-Ap87MNMii2A-1
-X-Mimecast-MFC-AGG-ID: SlU31jIzMo-Ap87MNMii2A
-Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-5d3d9d6293fso1456221a12.0
-        for <virtualization@lists.linux.dev>; Thu, 09 Jan 2025 22:18:35 -0800 (PST)
+ us-mta-605-Ihi9R1PnMBCCd6pw14GSKg-1; Fri, 10 Jan 2025 01:28:32 -0500
+X-MC-Unique: Ihi9R1PnMBCCd6pw14GSKg-1
+X-Mimecast-MFC-AGG-ID: Ihi9R1PnMBCCd6pw14GSKg
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2ef775ec883so3105172a91.1
+        for <virtualization@lists.linux.dev>; Thu, 09 Jan 2025 22:28:31 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736489914; x=1737094714;
+        d=1e100.net; s=20230601; t=1736490511; x=1737095311;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ISxfKzVoXDOr34Y5KsabwaYvJOoTxc4gV0y3MMcBA0A=;
-        b=Wg5TnDctVFywC6EhKZczDnVcf+fFso8f34DgMb7zmuHD1hPY5S8Z1M0BEY1fMZZBwd
-         wOz+BSILYI9KPIFZBdEOzq/bMYXM+6nmH4FcVBKs7x1ZJRPCE4GoaCRqMwNmqlKh2aQQ
-         iT236J+tDJywyC6mpmaG4BWwtxM1g+a92rK96+FP0eCJ7WYsonBdvd3bAYv7q3pE4ey8
-         roJb3TFqpHrh4C3xGrKFfUFBQk+7mC6EJ+f4m2n3b+w9YUCaC4QmS3xqYl1puQaNoKcq
-         w4cKzAL3RYFXXvLGiSAj+kBhOcoHCoUykxfL6VC30/9OhuUX6Ko2GjlICuJiypraM+zg
-         TgGw==
-X-Forwarded-Encrypted: i=1; AJvYcCXYHvY4VHva5xzekpGUPHrXGxpike2e2mPwhg9+fMCTiKApz1DLoI9KqS7oXpgv+/ypTZ4RV7IhsdQRPnl3Ew==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx+5kvOZHkXoyv4U9KqpgHdYLQCV51j4ECHeX2hrTDCMNf11xCe
-	fqt4+ecUpg7CIhC5xXO1iJYbGCmFI6536n0WKMnyfhSr5T6KMj1CQySWn+qg1P6NdyvZ6lL3pYE
-	3s9xjS9GOLL2HZMASElinr28RolEGOrayHbZ9J5nf09VSs3nxb/0U9MH2F+xdOh7yh2tBBpET5y
-	PF9DfDn8hkFdQHQMlWFCaksCJsvZl/x0mAFwDeszQ=
-X-Gm-Gg: ASbGncsD6zoBLKN0O3xIuOScC+AZiELSI09jQN6iBrWy3MYZy3ROrQ99KrycHvO7u//
-	Z524zuCnAqIrBfiRG2roV/8gjqMb3CcAhGiwidv8=
-X-Received: by 2002:a05:6402:3888:b0:5d1:2377:5ae2 with SMTP id 4fb4d7f45d1cf-5d972dfb857mr8721761a12.7.1736489914359;
-        Thu, 09 Jan 2025 22:18:34 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEiAdihQyFMz0O5tj3Ue3EozuwVp0j8wLiDgLZq4DzNClh5miAT01uxp0Lj3n+X60xlkcwlDVJx2hp/x1jcaIw=
-X-Received: by 2002:a05:6402:3888:b0:5d1:2377:5ae2 with SMTP id
- 4fb4d7f45d1cf-5d972dfb857mr8721718a12.7.1736489914008; Thu, 09 Jan 2025
- 22:18:34 -0800 (PST)
+        bh=KidJbubUSbaHzABwf67ALlasvoQwAnREDKg8gDCC2p8=;
+        b=UE9fY9YulTvjsqthvoDHhmgmq9kmHROJE+Hwd0jKhIqSl/r6W1BQGbu8Opp3gswJBW
+         yq8VtCJ8LyLypAHfm29+1ocYYZLk6WpT9xETFm6HQIORZU481NriEVo8UhR71dseL0x2
+         S8T0xr9j1lkdaamULkOun+6rDrDe74kY2t2KGD1Ku7QnsZODe9NMLvhRQZKAl0x3aWmM
+         jim7saveGSzuN3xrxG3e9WC+YL4n5sAgaSwKy+srYleBLOc0j4lQiXpgfYW/mLhJFqtt
+         bJc3erxaI6ueoqEGtVc2YvtdE4Ci/gzC6Gdj6OyS1nJMwNaxRdgioLOhojockcGv+0NV
+         SmzA==
+X-Forwarded-Encrypted: i=1; AJvYcCXsN8jZOJfTKy4u0pOJMYQ85xdCag0MmzBJtfQKQ6T2UpkBlTaUsY4Ndkmro6pd6zMu6Ur69FlI0MUbcsC/DQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxoHH757IppNWPtXrDTAI2IHVuCDm1DQchpAmdXwUJV9ylyCTHt
+	/6mPOuqW6UdHxQoX7t5/XpgX7ATIqWX6/2AnB2Wol4PuCK4yAL0jl3zWLAwYUWCYUXn2qFl6jab
+	M/3Cwr5XWESz9sG5np3pypR4WvvqOWeH3fOhZvnXCsp7Zgl5fbhBGA4DcJxeNyxM6/7BYDhscJu
+	ozRrQTDtY73UZcP3GoLbPnxFJR+YLB466GQ8tsrqo=
+X-Gm-Gg: ASbGnctWB6BanZPSw8gNrXZdCuX4D6u4ZDsQTBx8F86XCzjv5/riP019crp8Lyt8CHV
+	X7jRu0Psa1FnLE8Rl7QIanVI2skJufAgno1Msuuk=
+X-Received: by 2002:a17:90b:51cb:b0:2ef:3192:d280 with SMTP id 98e67ed59e1d1-2f548f162acmr13802139a91.5.1736490510922;
+        Thu, 09 Jan 2025 22:28:30 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEp0/BM7o0tEEC723P2ISeuSUTQVVQ33mQotWanfawICGwc51DjRSX4yb/t8dyOagdAuanru9FGx4KAnLdQtHQ=
+X-Received: by 2002:a17:90b:51cb:b0:2ef:3192:d280 with SMTP id
+ 98e67ed59e1d1-2f548f162acmr13802075a91.5.1736490510354; Thu, 09 Jan 2025
+ 22:28:30 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,27 +67,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20241227191211.12485-1-chia-yu.chang@nokia-bell-labs.com>
  <20241227191211.12485-12-chia-yu.chang@nokia-bell-labs.com>
- <CACGkMEu990O+2Sedj+ASv0P5TnZR9THiOdHmx=L0hOxQRXPcsg@mail.gmail.com>
- <PAXPR07MB79849952690901A50688EFEDA3092@PAXPR07MB7984.eurprd07.prod.outlook.com>
- <20250108072548-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250108072548-mutt-send-email-mst@kernel.org>
-From: Lei Yang <leiyang@redhat.com>
-Date: Fri, 10 Jan 2025 14:17:57 +0800
-X-Gm-Features: AbW1kvb8ubWeXgB-U6M0XsqnjiyDPikXOh18Gs0pZOWli8Sl1qeTWevc3-CPVnA
-Message-ID: <CAPpAL=xcWrbDMnqd5X6QfSMi1Mz-VOm0k-07kR5wsB8d0LU_pA@mail.gmail.com>
+ <CACGkMEu990O+2Sedj+ASv0P5TnZR9THiOdHmx=L0hOxQRXPcsg@mail.gmail.com> <PAXPR07MB79849952690901A50688EFEDA3092@PAXPR07MB7984.eurprd07.prod.outlook.com>
+In-Reply-To: <PAXPR07MB79849952690901A50688EFEDA3092@PAXPR07MB7984.eurprd07.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 10 Jan 2025 14:28:18 +0800
+X-Gm-Features: AbW1kvaTgRZIZgzRWrIQzrtZd7X6glRAsDjE7ywFuxLA5XjNWNs_FA7giy52KJg
+Message-ID: <CACGkMEvNR4rGnC78Mybext7z6jqdBtPfz544_SPXs0t3wUMP8A@mail.gmail.com>
 Subject: Re: [PATCH v6 net-next 11/14] virtio_net: Accurate ECN flag in virtio_net_hdr
 To: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
-Cc: Jason Wang <jasowang@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"dsahern@gmail.com" <dsahern@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>, 
-	"edumazet@google.com" <edumazet@google.com>, "dsahern@kernel.org" <dsahern@kernel.org>, 
-	"pabeni@redhat.com" <pabeni@redhat.com>, "joel.granados@kernel.org" <joel.granados@kernel.org>, 
-	"kuba@kernel.org" <kuba@kernel.org>, "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, 
-	"horms@kernel.org" <horms@kernel.org>, "pablo@netfilter.org" <pablo@netfilter.org>, 
-	"kadlec@netfilter.org" <kadlec@netfilter.org>, 
-	"netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "dsahern@gmail.com" <dsahern@gmail.com>, 
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>, 
+	"dsahern@kernel.org" <dsahern@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>, 
+	"joel.granados@kernel.org" <joel.granados@kernel.org>, "kuba@kernel.org" <kuba@kernel.org>, 
+	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "horms@kernel.org" <horms@kernel.org>, 
+	"pablo@netfilter.org" <pablo@netfilter.org>, "kadlec@netfilter.org" <kadlec@netfilter.org>, 
+	"netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, 
 	"coreteam@netfilter.org" <coreteam@netfilter.org>, "shenjian15@huawei.com" <shenjian15@huawei.com>, 
 	"salil.mehta@huawei.com" <salil.mehta@huawei.com>, "shaojijie@huawei.com" <shaojijie@huawei.com>, 
-	"saeedm@nvidia.com" <saeedm@nvidia.com>, "tariqt@nvidia.com" <tariqt@nvidia.com>, 
+	"saeedm@nvidia.com" <saeedm@nvidia.com>, "tariqt@nvidia.com" <tariqt@nvidia.com>, "mst@redhat.com" <mst@redhat.com>, 
 	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>, 
 	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "ij@kernel.org" <ij@kernel.org>, 
 	"ncardwell@google.com" <ncardwell@google.com>, 
@@ -98,96 +95,82 @@ Cc: Jason Wang <jasowang@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kern
 	"rs.ietf@gmx.at" <rs.ietf@gmx.at>, 
 	"Jason_Livingood@comcast.com" <Jason_Livingood@comcast.com>, "vidhi_goel@apple.com" <vidhi_goel@apple.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: oRXQHIXeIrwWysicXWGMuramgBJvXKK4hJ3C9gk__6s_1736489914
+X-Mimecast-MFC-PROC-ID: Ee8l3khrm9YZhmPUp0bTWiQg7OC76AaFWQLbW4ocRZw_1736490511
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-I tested this series of patches v6 with virtio-net regression tests,
-everything works fine.
-
-Tested-by: Lei Yang <leiyang@redhat.com>
-
-On Wed, Jan 8, 2025 at 8:33=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
-wrote:
+On Mon, Dec 30, 2024 at 5:51=E2=80=AFPM Chia-Yu Chang (Nokia)
+<chia-yu.chang@nokia-bell-labs.com> wrote:
 >
-> On Mon, Dec 30, 2024 at 09:50:59AM +0000, Chia-Yu Chang (Nokia) wrote:
-> > >From: Jason Wang <jasowang@redhat.com>
-> > >Sent: Monday, December 30, 2024 8:52 AM
-> > >To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
-> > >Cc: netdev@vger.kernel.org; dsahern@gmail.com; davem@davemloft.net; ed=
-umazet@google.com; dsahern@kernel.org; pabeni@redhat.com; joel.granados@ker=
-nel.org; kuba@kernel.org; andrew+netdev@lunn.ch; horms@kernel.org; pablo@ne=
-tfilter.org; kadlec@netfilter.org; netfilter-devel@vger.kernel.org; coretea=
-m@netfilter.org; shenjian15@huawei.com; salil.mehta@huawei.com; shaojijie@h=
-uawei.com; saeedm@nvidia.com; tariqt@nvidia.com; mst@redhat.com; xuanzhuo@l=
-inux.alibaba.com; eperezma@redhat.com; virtualization@lists.linux.dev; ij@k=
-ernel.org; ncardwell@google.com; Koen De Schepper (Nokia) <koen.de_schepper=
-@nokia-bell-labs.com>; g.white@cablelabs.com; ingemar.s.johansson@ericsson.=
-com; mirja.kuehlewind@ericsson.com; cheshire@apple.com; rs.ietf@gmx.at; Jas=
-on_Livingood@comcast.com; vidhi_goel@apple.com
-> > >Subject: Re: [PATCH v6 net-next 11/14] virtio_net: Accurate ECN flag i=
-n virtio_net_hdr
-> > >
-> > >[You don't often get email from jasowang@redhat.com. Learn why this is=
- important at https://aka.ms/LearnAboutSenderIdentification ]
-> > >
-> > >CAUTION: This is an external email. Please be very careful when clicki=
-ng links or opening attachments. See the URL nok.it/ext for additional info=
-rmation.
-> > >
-> > >
-> > >
-> > >On Sat, Dec 28, 2024 at 3:13=E2=80=AFAM <chia-yu.chang@nokia-bell-labs=
-.com> wrote:
-> > >>
-> > >> From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-> > >>
-> > >> Unlike RFC 3168 ECN, accurate ECN uses the CWR flag as part of the A=
-CE
-> > >> field to count new packets with CE mark; however, it will be corrupt=
-ed
-> > >> by the RFC 3168 ECN-aware TSO. Therefore, fallback shall be applied =
-by
-> > >> seting NETIF_F_GSO_ACCECN to ensure that the CWR flag should not be
-> > >> changed within a super-skb.
-> > >>
-> > >> To apply the aforementieond new AccECN GSO for virtio, new featue bi=
-ts
-> > >> for host and guest are added for feature negotiation between driver
-> > >> and device. And the translation of Accurate ECN GSO flag between
-> > >> virtio_net_hdr and skb header for NETIF_F_GSO_ACCECN is also added t=
-o
-> > >> avoid CWR flag corruption due to RFC3168 ECN TSO.
-> > >>
-> > >> Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-> > >> ---
-> > >>  drivers/net/virtio_net.c        | 14 +++++++++++---
-> > >>  drivers/vdpa/pds/debugfs.c      |  6 ++++++
-> > >>  include/linux/virtio_net.h      | 16 ++++++++++------
-> > >>  include/uapi/linux/virtio_net.h |  5 +++++
-> > >>  4 files changed, 32 insertions(+), 9 deletions(-)
-> > >
-> > >Is there a link to the spec patch? It needs to be accepted first.
-> > >
-> > >Thanks
+> >From: Jason Wang <jasowang@redhat.com>
+> >Sent: Monday, December 30, 2024 8:52 AM
+> >To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
+> >Cc: netdev@vger.kernel.org; dsahern@gmail.com; davem@davemloft.net; edum=
+azet@google.com; dsahern@kernel.org; pabeni@redhat.com; joel.granados@kerne=
+l.org; kuba@kernel.org; andrew+netdev@lunn.ch; horms@kernel.org; pablo@netf=
+ilter.org; kadlec@netfilter.org; netfilter-devel@vger.kernel.org; coreteam@=
+netfilter.org; shenjian15@huawei.com; salil.mehta@huawei.com; shaojijie@hua=
+wei.com; saeedm@nvidia.com; tariqt@nvidia.com; mst@redhat.com; xuanzhuo@lin=
+ux.alibaba.com; eperezma@redhat.com; virtualization@lists.linux.dev; ij@ker=
+nel.org; ncardwell@google.com; Koen De Schepper (Nokia) <koen.de_schepper@n=
+okia-bell-labs.com>; g.white@cablelabs.com; ingemar.s.johansson@ericsson.co=
+m; mirja.kuehlewind@ericsson.com; cheshire@apple.com; rs.ietf@gmx.at; Jason=
+_Livingood@comcast.com; vidhi_goel@apple.com
+> >Subject: Re: [PATCH v6 net-next 11/14] virtio_net: Accurate ECN flag in =
+virtio_net_hdr
 > >
-> > Hi Jason,
+> >[You don't often get email from jasowang@redhat.com. Learn why this is i=
+mportant at https://aka.ms/LearnAboutSenderIdentification ]
 > >
-> > Thanks for the feedback, I found the virtio-spec in github: https://git=
-hub.com/oasis-tcs/virtio-spec but not able to find the procedure to propose=
-.
-> > Could you help to share the procedure to propose spec patch? Thanks.
+> >CAUTION: This is an external email. Please be very careful when clicking=
+ links or opening attachments. See the URL nok.it/ext for additional inform=
+ation.
+> >
+> >
+> >
+> >On Sat, Dec 28, 2024 at 3:13=E2=80=AFAM <chia-yu.chang@nokia-bell-labs.c=
+om> wrote:
+> >>
+> >> From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> >>
+> >> Unlike RFC 3168 ECN, accurate ECN uses the CWR flag as part of the ACE
+> >> field to count new packets with CE mark; however, it will be corrupted
+> >> by the RFC 3168 ECN-aware TSO. Therefore, fallback shall be applied by
+> >> seting NETIF_F_GSO_ACCECN to ensure that the CWR flag should not be
+> >> changed within a super-skb.
+> >>
+> >> To apply the aforementieond new AccECN GSO for virtio, new featue bits
+> >> for host and guest are added for feature negotiation between driver
+> >> and device. And the translation of Accurate ECN GSO flag between
+> >> virtio_net_hdr and skb header for NETIF_F_GSO_ACCECN is also added to
+> >> avoid CWR flag corruption due to RFC3168 ECN TSO.
+> >>
+> >> Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> >> ---
+> >>  drivers/net/virtio_net.c        | 14 +++++++++++---
+> >>  drivers/vdpa/pds/debugfs.c      |  6 ++++++
+> >>  include/linux/virtio_net.h      | 16 ++++++++++------
+> >>  include/uapi/linux/virtio_net.h |  5 +++++
+> >>  4 files changed, 32 insertions(+), 9 deletions(-)
+> >
+> >Is there a link to the spec patch? It needs to be accepted first.
+> >
+> >Thanks
 >
+> Hi Jason,
 >
-> You post it on virtio-comment for discussion. Github issues are then used
-> for voting and to track acceptance.
-> https://github.com/oasis-tcs/virtio-spec/blob/master/README.md#use-of-git=
-hub-issues
+> Thanks for the feedback, I found the virtio-spec in github: https://githu=
+b.com/oasis-tcs/virtio-spec but not able to find the procedure to propose.
+> Could you help to share the procedure to propose spec patch? Thanks.
+
+Sorry for the late reply.
+
+You can start by subscribing to virtio-dev and send a spec patch there.
+
+Thanks
+
 >
->
-> > --
-> > Chia-Yu
->
->
+> --
+> Chia-Yu
 
