@@ -1,170 +1,230 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F1212080D7
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 08:39:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 476D520B7EA
+	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 09:21:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736498369; cv=none; b=fmU+TdQDGrfSWpCBws6vj1b6x9jF89boAoa0Ay6ddo/lBM4y44mbTrc76cz0uFiYCKyNVNHX8vWKr04m9u7dXvexSYh72x6fr0MnEjHSfipRHfnXBLbsFTK/TxvsvmvYpyvVzicjtNFDHsMo63RXCW7ds+Jv1bttWH7FmMmR6+0=
+	t=1736500913; cv=none; b=XUew0rIzaDL4IrwrKNfhrPhjsQ/aq0j7RDloYBxbC9AR2VBLZGg/Nj4Nx7DQEkYKgzrra94RFfVd1spCWzc/MRTlzjX4ygf4bM5709fdhQm55WGK0tJqqdgwmVoemKwk9AGAC8M89suizUaDp0t7CIiR1zQ4nr8FrYTPo4sHPrI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736498369; c=relaxed/simple;
-	bh=iJsV4mrkuXUAlTF79pi0keywbZpwBmWfcU2SNaEDdkA=;
+	s=arc-20240116; t=1736500913; c=relaxed/simple;
+	bh=JPFn7TpJptfEglULM9N+4ezAx2VVTnRpHNdjHv6+cWg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gsLBpsoWzOcwUN2/55ErzKUv3HNxto27RiLRWIggTbeDWCX98TPI7YwfYSRsVhkKYRcN8jDJkIM5qmlZmWZj5sN2yYiwlGkawOAPIjziLg38m7uKHu7HyGfc7fpwVwifMCzr1Y7gLo1QVRBs0GELIuJG4CsRMLFhhTzmRSOvILA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AszaI7Hq; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=t6lNA5J3Y4vUHY0dYPz2jxUfBcocp2lv66AbE9eFUYDcnsBM2bBCtgW83mOYSCuIMP0h0rihqcw21riE+utDF9p8XW4FnM/hwL1V4kBcW+6/D3xfgdinMvNvHEec0yD28epHwlNddzhAYe0kDAtFll7GVu6WktG1E3dUsR+9LYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VggD9E13; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=l5r1KcXL; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VggD9E13; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=l5r1KcXL; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AszaI7Hq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736498367;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VggD9E13";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="l5r1KcXL";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VggD9E13";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="l5r1KcXL"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 8D4A421137;
+	Fri, 10 Jan 2025 09:21:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736500909; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CXoL+WQHSf+XTBr1CBk1hX3xSrp4GoYvIVG/Iw0rQu8=;
-	b=AszaI7Hq/0fUAxrji5Cyq5+8Eepq96V0RHlXl9i/Zv7TzG3od+5phkE4vkOFHFqfHEX6tP
-	nkVLdmLzCxml/Gw579fLK8C49wKRuuClr4pfClc/w4b5zewxweZ4GNgzWqawRDxBROhITV
-	C+exrQnfKXyAaBIa2Pmt3nzOLrR6v3c=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-549-W2IiTfUHMky2ws9y52SxJg-1; Fri, 10 Jan 2025 03:39:24 -0500
-X-MC-Unique: W2IiTfUHMky2ws9y52SxJg-1
-X-Mimecast-MFC-AGG-ID: W2IiTfUHMky2ws9y52SxJg
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-385e1339790so1116069f8f.2
-        for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 00:39:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736498363; x=1737103163;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CXoL+WQHSf+XTBr1CBk1hX3xSrp4GoYvIVG/Iw0rQu8=;
-        b=sq7NOf2pQd02EoVmVMe+Z5pQLGO4wYOzHCDglAG51vjAbS43Ofge8OY4gTTUI41L21
-         lkFDOLgR4iCZvdDZb0+qvMXqkl7EiAFE9b30GkS4aDYWzxWusl3zuJQ23Ls3s2ROD09q
-         9Ki7WWk13mYhaVlOaiW+/42nFpY8CEBQ0Pqe1Jgj6pVQsXvIb3K5qLmPdu/Qh6Ub3Utk
-         ZHORnRJkwbNDN58SD7CTxbVUPAMz3qdIRadSSu1v4x1ZFzuVHLIqLvHvt037PQkpA337
-         R+i4SFWOse7bf5Y54WOsWtSSgtgbwa0AXKDkKIrrHvYeojZcAAf7ad0Q4dNRpwQlJ447
-         pLnA==
-X-Forwarded-Encrypted: i=1; AJvYcCVhMdVSfKRjZJZVtWgCrD8zP0+x9HEB1bBiTlY+soyPPVw1XYfS0WUVlgfonW+st0g7DUlLFrJ8Xnke1JRWvw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyDu2b0Q8Tju/cG56/SweG44HzmjdFmNQLfWt5BQHPxMIx7vrsK
-	4gpkNeq/FMFAXorTakdft2oq2LnulChHzYsOeK4Cetrs5k2f6J+O8Sg9U5UvIDEfo/G86D/35Ik
-	gy+aBWXdt5g1uHBMrB1X+9zuxVsWXbk2z8hIx1MtIrcqDAPX1/o+ippKHIY39OKlc
-X-Gm-Gg: ASbGncvGN2pRJwqnuSKd6aXFUcpHfg6fTph3q2+rcuyeHso/WQUrUurBy1Cs1JDjQng
-	p5x0RpV+V/u0VZqwinEisnx02X3VkhHQMMYtdpkEtoEIO7WkRvzZZN70LRV3ufg5XiB/cndnphw
-	fduBTbtFuzF3HyhDEUIXPI1/QyY0wH+vLjZzWWxzOpYtwL9ceZ72IVeuNCc1qJwOn44vamOxqws
-	p88A/s22SHkJYdWGIbQYuAxWJJNamcfzLDSCELZfsQnsw+UGpDUCcnD9w==
-X-Received: by 2002:a5d:6483:0:b0:385:fabf:13d5 with SMTP id ffacd0b85a97d-38a8730d55cmr9428506f8f.25.1736498362855;
-        Fri, 10 Jan 2025 00:39:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGxWFzsARmI1wzAKHZHOe31pA0LmSwGyB/GI2e+cfrQc0ZXGW0pe8rXUAHFnRj3NAhqLwSr2g==
-X-Received: by 2002:a5d:6483:0:b0:385:fabf:13d5 with SMTP id ffacd0b85a97d-38a8730d55cmr9428445f8f.25.1736498362219;
-        Fri, 10 Jan 2025 00:39:22 -0800 (PST)
-Received: from sgarzare-redhat ([5.77.78.183])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e4c1b44sm3942825f8f.90.2025.01.10.00.39.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jan 2025 00:39:21 -0800 (PST)
-Date: Fri, 10 Jan 2025 09:39:16 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: netdev@vger.kernel.org, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wongi Lee <qwerty@theori.io>, 
-	"David S. Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>, 
-	virtualization@lists.linux.dev, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Luigi Leonardi <leonardi@redhat.com>, bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Hyunwoo Kim <v4bel@theori.io>, kvm@vger.kernel.org
-Subject: Re: [PATCH net 1/2] vsock/virtio: discard packets if the transport
- changes
-Message-ID: <2wsi6sehglavj75jr5gugdq6oqtor7gonx5zhmetzqwvfwc5gn@e3xlsfvygfgj>
-References: <20250108180617.154053-1-sgarzare@redhat.com>
- <20250108180617.154053-2-sgarzare@redhat.com>
- <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
+	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
+	b=VggD9E131ngIixhrfT/RlutwzoWzOw2j7y1EcB/S/80M+0q77ykQTRRDVCT4X8TSteJrX+
+	V9iXI+sfAK338e6EZmXI1PimDlvVcBlqS+pimhRSFSD0KwBC3EiEvp1Ww/a+VBJkxCvkjt
+	+uYQH6q/P3gytibK0E6MjK/V2SUGXNk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736500909;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
+	b=l5r1KcXL8dDVVpqBGbbkpennMgaXNaAVW+B60EdIMryESE92hDmk2b6AyiqCW+Jt4sGHWf
+	1OFCLYlv/L5VDMBA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736500909; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
+	b=VggD9E131ngIixhrfT/RlutwzoWzOw2j7y1EcB/S/80M+0q77ykQTRRDVCT4X8TSteJrX+
+	V9iXI+sfAK338e6EZmXI1PimDlvVcBlqS+pimhRSFSD0KwBC3EiEvp1Ww/a+VBJkxCvkjt
+	+uYQH6q/P3gytibK0E6MjK/V2SUGXNk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736500909;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
+	b=l5r1KcXL8dDVVpqBGbbkpennMgaXNaAVW+B60EdIMryESE92hDmk2b6AyiqCW+Jt4sGHWf
+	1OFCLYlv/L5VDMBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7930613763;
+	Fri, 10 Jan 2025 09:21:49 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id l8OMHa3mgGecDwAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Fri, 10 Jan 2025 09:21:49 +0000
+Date: Fri, 10 Jan 2025 10:21:49 +0100
+From: Daniel Wagner <dwagner@suse.de>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+	Kashyap Desai <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>, 
+	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Nilesh Javali <njavali@marvell.com>, 
+	GR-QLogic-Storage-Upstream@marvell.com, Don Brace <don.brace@microchip.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, 
+	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
+	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
+	Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>, 
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
+	Sridhar Balaraman <sbalaraman@parallelwireless.com>, "brookxu.cn" <brookxu.cn@gmail.com>, 
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, storagedev@microchip.com, 
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
+ isolcpus=managed_irq is enabled
+Message-ID: <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
+References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
+ <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
+ <Z2PlbL0XYTQ_LxTw@fedora>
+ <cc5e44dd-e1dc-4f24-88d9-ce45a8b0794f@flourine.local>
+ <Z2UwvQoDM3f4zAxG@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 3UtAgfAFDpHMQo_DhPJGh7_D_rCUUOQUxzcoNEZBszM_1736498363
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Z2UwvQoDM3f4zAxG@fedora>
+X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[39];
+	FREEMAIL_CC(0.00)[kernel.org,kernel.dk,lst.de,grimberg.me,broadcom.com,oracle.com,marvell.com,microchip.com,redhat.com,linux.alibaba.com,linux-foundation.org,linutronix.de,suse.com,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLtq7xx1p6rx585ucya5i3u39z)];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-On Thu, Jan 09, 2025 at 02:34:28PM +0100, Michal Luczaj wrote:
->On 1/8/25 19:06, Stefano Garzarella wrote:
->> If the socket has been de-assigned or assigned to another transport,
->> we must discard any packets received because they are not expected
->> and would cause issues when we access vsk->transport.
->>
->> A possible scenario is described by Hyunwoo Kim in the attached link,
->> where after a first connect() interrupted by a signal, and a second
->> connect() failed, we can find `vsk->transport` at NULL, leading to a
->> NULL pointer dereference.
->>
->> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
->> Reported-by: Hyunwoo Kim <v4bel@theori.io>
->> Reported-by: Wongi Lee <qwerty@theori.io>
->> Closes: https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
->> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->> ---
->>  net/vmw_vsock/virtio_transport_common.c | 7 +++++--
->>  1 file changed, 5 insertions(+), 2 deletions(-)
->>
->> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->> index 9acc13ab3f82..51a494b69be8 100644
->> --- a/net/vmw_vsock/virtio_transport_common.c
->> +++ b/net/vmw_vsock/virtio_transport_common.c
->> @@ -1628,8 +1628,11 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
->>
->>  	lock_sock(sk);
->>
->> -	/* Check if sk has been closed before lock_sock */
->> -	if (sock_flag(sk, SOCK_DONE)) {
->> +	/* Check if sk has been closed or assigned to another transport before
->> +	 * lock_sock (note: listener sockets are not assigned to any transport)
->> +	 */
->> +	if (sock_flag(sk, SOCK_DONE) ||
->> +	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
->>  		(void)virtio_transport_reset_no_sock(t, skb);
->>  		release_sock(sk);
->>  		sock_put(sk);
->
->FWIW, I've tried simplifying Hyunwoo's repro to toy with some tests. Ended
->up with
->
->```
->from threading import *
->from socket import *
->from signal import *
->
->def listener(tid):
->	while True:
->		s = socket(AF_VSOCK, SOCK_SEQPACKET)
->		s.bind((1, 1234))
->		s.listen()
->		pthread_kill(tid, SIGUSR1)
->
->signal(SIGUSR1, lambda *args: None)
->Thread(target=listener, args=[get_ident()]).start()
->
->while True:
->	c = socket(AF_VSOCK, SOCK_SEQPACKET)
->	c.connect_ex((1, 1234))
->	c.connect_ex((42, 1234))
->```
->
->which gives me splats with or without this patch.
+Hi Ming,
 
-Thanks again for the repro, it worked for me, only if a G2H transport
-wasn't loaeded (e.g. virtio-vsock driver).
+On Fri, Dec 20, 2024 at 04:54:21PM +0800, Ming Lei wrote:
+> On Thu, Dec 19, 2024 at 04:38:43PM +0100, Daniel Wagner wrote:
+> 
+> > When isolcpus=managed_irq is enabled all hardware queues should run on
+> > the housekeeping CPUs only. Thus ignore the affinity mask provided by
+> > the driver.
+> 
+> Compared with in-tree code, the above words are misleading.
+> 
+> - irq core code respects isolated CPUs by trying to exclude isolated
+> CPUs from effective masks
+> 
+> - blk-mq won't schedule blockd on isolated CPUs
 
-I tested on the v2 I just sent [1], and I can't see the kernel oops
-anymore, but please do test/review too.
+I see your point, the commit should highlight the fact when an
+application is issuing an I/O, this can lead to stalls.
+
+What about a commit message like:
+
+  When isolcpus=managed_irq is enabled, and the last housekeeping CPU for
+  a given hardware context goes offline, there is no CPU left which
+  handles the IOs anymore. If isolated CPUs mapped to this hardware
+  context are online and an application running on these isolated CPUs
+  issue an IO this will lead to stalls.
+
+  The kernel will not schedule IO to isolated CPUS thus this avoids IO
+  stalls.
+
+  Thus issue a warning when housekeeping CPUs are offlined for a hardware
+  context while there are still isolated CPUs online.
+
+> If application aren't run on isolated CPUs, IO interrupt usually won't
+> be triggered on isolated CPUs, so isolated CPUs are _not_ ignored.
+
+FWIW, the 'usually' part is what made our customers nervous. They saw
+some IRQ noise on the isolated CPUs with their workload and reported
+with these changes all was good. Unfortunately, we never got the hands
+on the workload, hard to say what was causing it.
+
+> > On Thu, Dec 19, 2024 at 05:20:44PM +0800, Ming Lei wrote:
+> > > > +	cpumask_andnot(isol_mask,
+> > > > +		       cpu_possible_mask,
+> > > > +		       housekeeping_cpumask(HK_TYPE_MANAGED_IRQ));
+> > > > +
+> > > > +	for_each_cpu(cpu, isol_mask) {
+> > > > +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
+> > > > +		queue = (queue + 1) % qmap->nr_queues;
+> > > > +	}
+> > > 
+> > > Looks the IO hang issue in V3 isn't addressed yet, is it?
+> > > 
+> > > https://lore.kernel.org/linux-block/ZrtX4pzqwVUEgIPS@fedora/
+> > 
+> > I've added an explanation in the cover letter why this is not
+> > addressed. From the cover letter:
+> > 
+> > I've experimented for a while and all solutions I came up were horrible
+> > hacks (the hotpath needs to be touched) and I don't want to slow down all
+> > other users (which are almost everyone). IMO, it's just not worth trying
+> 
+> IMO, this patchset is one improvement on existed best-effort approach, which
+> works fine most of times, so why you do think it slows down everyone?
+
+I was talking about implementing the feature which would remap the
+isolated CPUs to online hardware context when the current hardware
+context goes offline. I didn't find a solution which I think would be
+worth presenting. All involved some sort of locking/refcounting in the
+hotpath, which I think we should just avoid.
+
+> > to fix this corner case. If the user is using isolcpus and does CPU
+> > hotplug, we can expect that the user can also first offline the isolated
+> > CPUs. I've discussed this topic during ALPSS and the room came to the
+> > same conclusion. Thus I just added a patch which issues a warning that
+> > IOs are likely to hang.
+> 
+> If the change need userspace cooperation for using 'managed_irq', the exact
+> behavior need to be documented in both this commit and Documentation/admin-guide/kernel-parameters.txt,
+> instead of cover-letter only.
+> 
+> But this patch does cause regression for old applications which can't
+> follow the new introduced rule:
+> 
+> 	```
+> 	If the user is using isolcpus and does CPU hotplug, we can expect that the
+> 	user can also first offline the isolated CPUs.
+> 	```
+
+Indeed, I forgot to update the documentation. I'll update it accordingly.
 
 Thanks,
-Stefano
-
-[1] https://lore.kernel.org/netdev/20250110083511.30419-1-sgarzare@redhat.com/
-
+Daniel
