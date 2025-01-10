@@ -1,154 +1,186 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE06D20C019
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 11:25:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39D5C204F66
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:32:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736508322; cv=none; b=BcDB3tJB8mFLPCOQVqFbzKnGXEoGcQV22EH6ytPkMzDFyd5mcvAJRTNOwJ8ieTSlC0UnbeQREa4HhFIKsg8rbrIYgzjYcL89NjHJwNVBSwflQQaWEqC2wG68x59XY3HyCTNEsGeyngL3JyHlG2/6snvEdzqxb3tkry/uBllDkJc=
+	t=1736508762; cv=none; b=JvFsSb9E4jgHEmxVv6yU5s+QUx4DVbN24OnUEvp9cxY6l92eiluxPN8Z6i/jI614xPD+LJ4QEnwYsp2dltUI2fTlfQ6fnFweJVwMqozysyPXe6iLqmyaSTLhFtqxGFd+bGw5KUS1Y5cT6F7ldbvUwkOF6VYokLHXVCDRyTcFTE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736508322; c=relaxed/simple;
-	bh=h+3V8Dg/wI18YbTuYBPBYgVfFTOtZGjB+ocTQMzeqlo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=F1jSTel/6RL//urKFgofksUa5eLdZrMHS8mWgyRlLNo5qp0ZNPNaZXmgvAKPICFdHeVs3ORvISr2ueHzU87G+3toMNWWAM1SAFQLzEyW8rIqMypZ5W+3uTR/Jni3Hz2N9+f5lk7GpgSjCfghux4vZWNquRQf3OyBHLwVQ46Y4aI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NffOMgCO; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736508762; c=relaxed/simple;
+	bh=yLRKiodCpUEkNU747JZ4PBw6mzhLuN0TGC+xkk8hayA=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=XTLdnpfGyxakanOhi2DV2H60CVzk0xTiFCre+fIJD3TBw4KckTyjbJMFXAeyL4gVlavAZGt73V9TiAZmRnn4L+eN0JFmlZUxlEZ7ZoW+PtdvBiMCXuXaPTVsUih4dfJZhZ9DLvAsD2+oUKjroKqYrvRVOdBTrlytaYI1A9EsXI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aAhZjg02; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NffOMgCO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736508320;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4Ef2wLHVQGV1IsoMPeKXi5uZyvCqMew4uoHW3wntJAQ=;
-	b=NffOMgCOAshceS8GokIk/LdN4Ak1N4IygtCeQDEfNXR8+qKbwrYfvNzrEemycOXSzZtf4J
-	WPYi6KlkBD7E0RkDHPFWPNxqB3F4sB15gN/cNtYqJcJrCRJ9sH3+u1FMEkWapm4byuEMJ2
-	MBkzEPmS1ydFf6nQRMXtldRz+RowVy8=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-451-qcT3XR_INOuhIQoJya7GTA-1; Fri, 10 Jan 2025 06:25:18 -0500
-X-MC-Unique: qcT3XR_INOuhIQoJya7GTA-1
-X-Mimecast-MFC-AGG-ID: qcT3XR_INOuhIQoJya7GTA
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-aa680e17f6dso145554166b.1
-        for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 03:25:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736508318; x=1737113118;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aAhZjg02"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id C9A6E40FA4
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:32:40 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id FPrtE0yZ1Z_R for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 Jan 2025 11:32:40 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::82a; helo=mail-qt1-x82a.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org B94B540B35
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B94B540B35
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=aAhZjg02
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B94B540B35
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:32:39 +0000 (UTC)
+Received: by mail-qt1-x82a.google.com with SMTP id d75a77b69052e-467a3c85e11so11416401cf.2
+        for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:32:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1736508758; x=1737113558; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4Ef2wLHVQGV1IsoMPeKXi5uZyvCqMew4uoHW3wntJAQ=;
-        b=pqvQG2M/+XFNVSRceXKvD86QE389oIadyB/7txME8YadH8xb+P+pGtXyV/8XVvch1J
-         yUfdFhicecp4wzGqizeBE4m2PUlvsvuMDRq2rDIIEq91xn6+wJzr9pRN447shMAPXxjC
-         QChR9gUH3oC1q6sYp58fskYh+dwI8dQsx65hJb6/5H0XAXJYyJNKPdA3L08FZjAWqLTS
-         lcn7dsH01KQ044eOGgjEYUD2gY16X9L+msRlQVwhFTkTeM2nJxILIYlAfixd14ucbztP
-         1yvuaBLaFRr3Xyk/Bty+jZvt2N8vhELUEov9DW/RRg6QPqjEyxERAKZ37+4SMgv3+usL
-         D8pw==
-X-Forwarded-Encrypted: i=1; AJvYcCWwFcolCx5qzpFjgi+SGOQWpJQ5IYUQmRsJ4YTd00FmGq6QZldA9wMAoNX2YFlMmmxGPkDz6GriuRvlz4pJtQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwD31lS6lSQ50+hzqMFTLDhD4SMz6+/myhm9QVepUw+0bEKdn9x
-	c8FCpvqarVteP1AkDZZ3Dz8Okfp/bVTQc1hP6vW8I6noI9hVFTluWaNwhspWq+P1hPPMZlNYkZg
-	99+A6Bte+76HwHnQX+BHwstAjUO3uV/n+2JhHgK1Sr9MLQTyjo8GnNUs14YtCui1z
-X-Gm-Gg: ASbGncvR1su8M3ti0+jLrj6yrbf9skTVOtA/mRSsgt4Uv35D40vMeRAdyvYh6CpT+PY
-	Ww6RWw9PyvdFxf0Pn0BRw0Te/wgpOhyPUKVU7xa/zyHgbgDnEk1bYJ50Tsk+LqhtAS28InTdzNj
-	8DCN22dsxL0yjF6LGaCZkuOpocxZvBVE+BeW79gIZvzUAI7ok+Z6W+8iJzn35eeGax+7XEzeU0P
-	0GwqNfbl2fMVOtbvI/rUtVu3FzGjFu6aIlcZYKyeGcYqmKz6JiHPvCFqe20xnI=
-X-Received: by 2002:a05:6402:5194:b0:5d0:fb56:3f with SMTP id 4fb4d7f45d1cf-5d972e0e341mr23290979a12.12.1736508317703;
-        Fri, 10 Jan 2025 03:25:17 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH3mqsKI2idLOS3bFseUHtOVmXbXG31Er639vFwFDT2akA/HfPxaQl8uNFpTeEdJZcPXxQTRg==
-X-Received: by 2002:a05:6402:5194:b0:5d0:fb56:3f with SMTP id 4fb4d7f45d1cf-5d972e0e341mr23290897a12.12.1736508317029;
-        Fri, 10 Jan 2025 03:25:17 -0800 (PST)
-Received: from sgarzare-redhat ([193.207.202.103])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab2c95af694sm159293266b.144.2025.01.10.03.25.14
+        bh=bj5hzhLDurnV0Uikx72ybZP+UMepormLzXbaIUCT51w=;
+        b=aAhZjg027UjMgiajFA3hfsKfrqLAKUHIUS6I0GD7lztC5B25NAF0GYdy8FRNppI6MZ
+         KGG+UwFlJPeOo+fYOe/Hr+iHVY2VPI3A6xSShhHQLwgQoRg5I1hyeaOtmt+0Wyv6+Q4l
+         oT1jmrNQKI/0/MdlVaUE/ZmbqLZKC6PW+j4ddX7+V99JBoZdFa9jbxLukqw13JdwxPID
+         H2bLQLvkVbjvrsDj9aAxrgZ20VHonfIftorvc44Fa+Jq96IkqVfpdb6nv1AYDOx3uqIu
+         /MlXfsxMqHYbrpmPe1EU2yQ3K8Tn5EDhAnwg3MrHM8t5xFVvGyd9JoS/yf11QLAcdfhe
+         43bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736508758; x=1737113558;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=bj5hzhLDurnV0Uikx72ybZP+UMepormLzXbaIUCT51w=;
+        b=TvxMOu9EWAEoE2g4CWb2iyqmK79Vbatk43UPsDaQJk1Vp93xs6wgQ3MN3cqrvpdFtW
+         UDWbOx6Dbc+50NJdPvNJmPKDzlrw8sLBmpR4zR+qYG1co7ZkOSJFqe27GraAFxIuyLXD
+         ZWrf0OokaFzosyE+PWylscyBWP7nzAGD485r22aFbaoRdpLOEMKVVGW5ABGFkAHSvgfv
+         WX+sjuRXIPfvi680ogc0Z+smhrbgx1ceelLr3dye7dviuIeU1XhVrrKNfpY5sEmtfZbK
+         4ZF97Sg16QTuAGffojmg/3o+7S/WeWJTtockLv/W43wNS3kYPT9xZ/CsKR7fmrdbPed3
+         5MCA==
+X-Forwarded-Encrypted: i=1; AJvYcCUa6UmolG3dRWZRYCXgjsJU2QqwrZGP+di9+jBu/2oApGlHa7SDVpRf0O1SjmlESrkDo9bCf3ZpWRXR8nm6Jw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yw5zBgFE4Enuuyhi/VlhwoQ5iKETCxakwfCWSyJsh7RILmUcBNA
+	gz/9g94sY4Qi+dqF6GWWc+KpTEc4ZwyfAmiD/Ib8rLfKK594Y8P0
+X-Gm-Gg: ASbGncspNT/WgeaFuoZPdlOiC7vp3zMrI57MWkmnCmvpfKzIsz2eVZDHlC0XbKWRf+q
+	yfQ7+q21yk27LYRyv4RlEdegJYBTMnlc0eZU+qMIw7rNh+jG9ynardNbuDui6J504S+rxboN4s5
+	1XChNoRYmDVd6eHmFvV4V6QIlZjtfsMEqj20obX0TXaOiJ84lAihOmuyhpORn8o9s8gjfT1FyAB
+	bCFBGTFFW4VIPJjZAJzUTyWl1bGzOBt+ge+3UArkOHKTdYlcDuJgcFioDYHrQMaFsUBXxUeNftn
+	U++sDi40prtfXah0LHbYLn/E9VJK
+X-Google-Smtp-Source: AGHT+IEAeRPcXEPZaY0ZiqE+FHD3WXuaK99GAFn6AMFjwlATA6fP06zaeLna0c3A/VPZLWprZOxVFQ==
+X-Received: by 2002:a05:622a:1196:b0:468:fb3c:5e75 with SMTP id d75a77b69052e-46c710e13c5mr151993961cf.38.1736508758327;
+        Fri, 10 Jan 2025 03:32:38 -0800 (PST)
+Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46c873cd1b0sm8463741cf.49.2025.01.10.03.32.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jan 2025 03:25:16 -0800 (PST)
-Date: Fri, 10 Jan 2025 12:25:09 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Luigi Leonardi <leonardi@redhat.com>
-Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	bpf@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"David S. Miller" <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Eric Dumazet <edumazet@google.com>, kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>, Jakub Kicinski <kuba@kernel.org>, 
-	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
-Subject: Re: [PATCH net v2 4/5] vsock: reset socket state when de-assigning
- the transport
-Message-ID: <fjx4nkajq3cnaxdbvs3dd2sxtc35tkqlqti3h44t3xuefclwar@havkg6jfisxu>
-References: <20250110083511.30419-1-sgarzare@redhat.com>
- <20250110083511.30419-5-sgarzare@redhat.com>
- <esoasx64en34ixiylalt2hldqi5duvvzrpt65xq7nioro7gbbb@rhp6lth5grj4>
+        Fri, 10 Jan 2025 03:32:37 -0800 (PST)
+Date: Fri, 10 Jan 2025 06:32:37 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Jason Wang <jasowang@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, 
+ kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, 
+ linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, 
+ gur.stavi@huawei.com, 
+ devel@daynix.com
+Message-ID: <678105555a23f_3fe20a29440@willemb.c.googlers.com.notmuch>
+In-Reply-To: <3a5001b5-9a07-4dfd-8cec-1e5f7180b88a@daynix.com>
+References: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
+ <20250109-tun-v2-2-388d7d5a287a@daynix.com>
+ <20250109023056-mutt-send-email-mst@kernel.org>
+ <571a2d61-5fbe-4e49-b4d1-6bf0c7604a57@daynix.com>
+ <677fc517b7b6e_362bc12945@willemb.c.googlers.com.notmuch>
+ <5e193a94-8f5a-4a2a-b4c4-3206c21c0b63@daynix.com>
+ <20250110033306-mutt-send-email-mst@kernel.org>
+ <3a5001b5-9a07-4dfd-8cec-1e5f7180b88a@daynix.com>
+Subject: Re: [PATCH v2 2/3] tun: Pad virtio header with zero
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <esoasx64en34ixiylalt2hldqi5duvvzrpt65xq7nioro7gbbb@rhp6lth5grj4>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OYMt_gOYEiYA2q1IjYlB9Jys51l4GO179DP-9F1H2Hk_1736508318
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 10, 2025 at 11:56:28AM +0100, Luigi Leonardi wrote:
->On Fri, Jan 10, 2025 at 09:35:10AM +0100, Stefano Garzarella wrote:
->>Transport's release() and destruct() are called when de-assigning the
->>vsock transport. These callbacks can touch some socket state like
->>sock flags, sk_state, and peer_shutdown.
->>
->>Since we are reassigning the socket to a new transport during
->>vsock_connect(), let's reset these fields to have a clean state with
->>the new transport.
->>
->>Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
->>Cc: stable@vger.kernel.org
->>Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->>---
->>net/vmw_vsock/af_vsock.c | 9 +++++++++
->>1 file changed, 9 insertions(+)
->>
->>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->>index 5cf8109f672a..74d35a871644 100644
->>--- a/net/vmw_vsock/af_vsock.c
->>+++ b/net/vmw_vsock/af_vsock.c
->>@@ -491,6 +491,15 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->>		 */
->>		vsk->transport->release(vsk);
->>		vsock_deassign_transport(vsk);
->>+
->>+		/* transport's release() and destruct() can touch some socket
->>+		 * state, since we are reassigning the socket to a new transport
->>+		 * during vsock_connect(), let's reset these fields to have a
->>+		 * clean state.
->>+		 */
->>+		sock_reset_flag(sk, SOCK_DONE);
->>+		sk->sk_state = TCP_CLOSE;
->>+		vsk->peer_shutdown = 0;
->>	}
->>
->>	/* We increase the module refcnt to prevent the transport unloading
->>-- 
->>2.47.1
->>
->
->Hi Stefano,
->I spent some time investigating what would happen if the scheduled work
->ran before `virtio_transport_cancel_close_work`. IIUC that should do 
->no harm and all the fields are reset correctly.
+Akihiko Odaki wrote:
+> On 2025/01/10 17:33, Michael S. Tsirkin wrote:
+> > On Fri, Jan 10, 2025 at 01:38:06PM +0900, Akihiko Odaki wrote:
+> >> On 2025/01/09 21:46, Willem de Bruijn wrote:
+> >>> Akihiko Odaki wrote:
+> >>>> On 2025/01/09 16:31, Michael S. Tsirkin wrote:
+> >>>>> On Thu, Jan 09, 2025 at 03:58:44PM +0900, Akihiko Odaki wrote:
+> >>>>>> tun used to simply advance iov_iter when it needs to pad virtio header,
+> >>>>>> which leaves the garbage in the buffer as is. This is especially
+> >>>>>> problematic when tun starts to allow enabling the hash reporting
+> >>>>>> feature; even if the feature is enabled, the packet may lack a hash
+> >>>>>> value and may contain a hole in the virtio header because the packet
+> >>>>>> arrived before the feature gets enabled or does not contain the
+> >>>>>> header fields to be hashed. If the hole is not filled with zero, it is
+> >>>>>> impossible to tell if the packet lacks a hash value.
+> >>>
+> >>> Zero is a valid hash value, so cannot be used as an indication that
+> >>> hashing is inactive.
+> >>
+> >> Zeroing will initialize the hash_report field to
+> >> VIRTIO_NET_HASH_REPORT_NONE, which tells it does not have a hash value.
+> >>
+> >>>
+> >>>>>> In theory, a user of tun can fill the buffer with zero before calling
+> >>>>>> read() to avoid such a problem, but leaving the garbage in the buffer is
+> >>>>>> awkward anyway so fill the buffer in tun.
+> >>>>>>
+> >>>>>> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+> >>>>>
+> >>>>> But if the user did it, you have just overwritten his value,
+> >>>>> did you not?
+> >>>>
+> >>>> Yes. but that means the user expects some part of buffer is not filled
+> >>>> after read() or recvmsg(). I'm a bit worried that not filling the buffer
+> >>>> may break assumptions others (especially the filesystem and socket
+> >>>> infrastructures in the kernel) may have.
+> >>>
+> >>> If this is user memory that is ignored by the kernel, just reflected
+> >>> back, then there is no need in general to zero it. There are many such
+> >>> instances, also in msg_control.
+> >>
+> >> More specifically, is there any instance of recvmsg() implementation which
+> >> returns N and does not fill the complete N bytes of msg_iter?
+> > 
+> > The one in tun. It was a silly idea but it has been here for years now.
+> 
+> Except tun. If there is such an example of recvmsg() implementation and 
+> it is not accidental and people have agreed to keep it functioning, we 
+> can confidently say this construct is safe without fearing pushback from 
+> people maintaining filesystem/networking infrastructure. Ultimately I 
+> want those people decide if this can be supported for the future or not.
 
-Yep, after transport->destruct() call, the delayed work should have 
-already finished or canceled.
+It seems preferable to write a value.
 
->
->Thank you,
->Luigi
->
->Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
->
+Userspace should have not assumption that whatever it writes there
+will be reflected unmodified. That said, that is the tiny risk of
+changing this in established code.
 
-Thanks for the review,
-Stefano
+If it worked without issue so far, without hashing, then probably the
+change should only go to net-next.
 
+As said, there are examples in msg_control. I don't immediately have
+an example where this is the case in msg_data today. A search for
+iov_iter_advance might show something.
