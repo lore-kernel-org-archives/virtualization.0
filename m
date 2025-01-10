@@ -1,163 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9169620767F
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 09:49:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99D01E200F
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 10:04:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736502554; cv=none; b=KpxaSe3cFtPeGkknQ4El182/yP9NxkPaM0WZUJblDpn8wS1Cx0JN9YTsQDzuadIz1Qtbvrfk1aBQwJ7j7tgDxyIk1idNNmNnzHPykqJkMJTb0T8XZEx3OV6K5pJPshh0E/wxNuIa0MyMEQc8QZSUv0D9keNEOM5Gd1LFv/Yv5Pg=
+	t=1736503457; cv=none; b=ViGNBE/8YrN2msqZpbQOAwOfPiuc9r15GUK3nqUejPumam5VwTurmXyas468SJUHlhUi1IXVW2Qd6VRG4Df0sewRalf9J7Pxoga5JbF5j+18pOgy5tZF3/uO3hr0P2Ay/HRbTEUVhguIF9sgLXufFXWGeVqNd439jCNsGbJ7RN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736502554; c=relaxed/simple;
-	bh=qhsRGNUqK6OAKrKR2V1iKiCXi3FqvXqzYw8GoxWzqw4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TSXCTD2wGIJKlf5L04uCEJKm+RpEW6cztex8Pvnef2FQ7nYEq86IiIZCmtjrB06q7k8Xt23PLaaH6E3boyM3prGGPxMf4hlMZLp4fZH3/CKumcFlKs10Z5XsLqzSXx35/Y9l+f0oC/aPyKpNvsU4RSBkYrkldhpV/3Kg0FcXTi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B5TG5MzY; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736503457; c=relaxed/simple;
+	bh=qNaQzpehQQCjP6U1Smo/Nd38XDFDvWBgAvAJl4KW8uA=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=bCM12V1MGqNAWjuzU2Y27fGYqD/nrvZtMpS2mFKhtTpRdLwZCDrvb8WjXaK0B5CL8lijmFYAWEECIP4BCDNd1uG8rjy8vPgk2C4HCLTyaPy1k0VXqR+rJaK5YoFEosqGwzUIZ4YksG6Rd8IhhAgSAEZAasmsGTol8fjxGQmqEyg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=nXt48pVn; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B5TG5MzY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736502550;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aZr4uP1kpXqvKBmngNwvVhMpySxrRZICu1BEXbGGI18=;
-	b=B5TG5MzYjawtiRug+VISUYgaiodKP5t+JySCekzCKzgiSrAt+ch4fbV2omaw4kYZwV64A1
-	HiHhnZyW9yx6uYNu9AE/TDNVuLF/6jbiVJV80h7mcsinPGpXHrJ21aV92yIAx/TEep81VD
-	0xBF4aAIOo2yBjKbX//FLF+bS8HUuoI=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-644-zCBwwCfiOz6MrON0qF0V-g-1; Fri, 10 Jan 2025 04:49:09 -0500
-X-MC-Unique: zCBwwCfiOz6MrON0qF0V-g-1
-X-Mimecast-MFC-AGG-ID: zCBwwCfiOz6MrON0qF0V-g
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5d124077928so1563954a12.0
-        for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 01:49:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="nXt48pVn"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7D12360AF5
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 10:04:15 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 1YOD7JERYcCA for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 Jan 2025 10:04:14 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62c; helo=mail-pl1-x62c.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 85E11606B9
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 85E11606B9
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=nXt48pVn
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 85E11606B9
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 10:04:14 +0000 (UTC)
+Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-2165448243fso34243755ad.1
+        for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 02:04:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736503454; x=1737108254; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=SbCDbM8KQIXhK7Foj8Bp5mpZOBTNVuVCawxI33XikWY=;
+        b=nXt48pVnRLujk817bH/wCeufMAifvn+LuFoo+h70kCwC7ZMCNPO2ikL1++PXp/Y90R
+         nGK0bp3T4fvjpa87NlWmiaOsAWEwSOzVnCSB+y5Eu3IgesHqKlHISTs8r4nVudsh+bJ2
+         ssGJoYHymUCBGqD7DL68G3IbTov2rjKJGBJ+EmA5VfcsDVFPM3lyTauqsdOEg6UGk7tf
+         XYxf11l4GPWRJMF1YDptclVx5ACz8wtbOtnujbXddUTcl6DaDTJTBGb58DUMcp5dYIw3
+         IBw4FGfYKaalRbO1y5fVZLKUj8gRFX9okAPS+yXaY12bo4d2j3JsbkNN9L6BM+cgS42W
+         iSdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736502548; x=1737107348;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aZr4uP1kpXqvKBmngNwvVhMpySxrRZICu1BEXbGGI18=;
-        b=R6aHqdH4j5EkFxYWXYXdXjBfhZaAGMHjSsBPdPwgj8paTnuz1y9OQOrEo61TSTfsyi
-         d+xXSx07SjvD2Yj01Sd86nNiwv9JoIDyCAtVvGdsJJzYPo14spFWesTK5HCSnaFiel98
-         Ls4gPfOihrciqiIfghK6ETp7wsI5HWJzdZXvAYtnXHm5Z0hSTiyDwFBifT8JXiDZftmI
-         M40IrWziAMvA4NcmD5lVdldIfg8hWrip5e+O4dNzR0j2GyGpTXXHo2Tvra92UQyWJ4/p
-         wx/Ua4BX01WmK0LnqIUawDbI9LtAdWlPIPB+nYstFCUber9c/RT6x2w7hw5s5lJanqhY
-         xo7w==
-X-Forwarded-Encrypted: i=1; AJvYcCUAz37uBbh6Vv4LuDcite8iee4fAqPeQ1WAsAAX7PyhVtVQgjE6JFdh6DaoNeS/WPu7YUo5zomfs3pF7rSRvw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwmLA5FAbXuz7JPLbp7owodg0RZurGgl5eAhSpO9zY4DIQ9+bXk
-	rJ6FTx/4YrHFvRjkq5zKzael4xy33YrVRP55Yv7CNp58czs5ARerN7rxt/tP54Vb/IPiMGqzsN6
-	Sx4fb8pqJ14LRYv6RD1BIWVFo+xHpPZaIvIAFidyovPSGJTsSSLR5YlOdErZWjkiX
-X-Gm-Gg: ASbGncu7Qi995FZGMrxJP8dRCPXObfElUJq93a9ujhKa75oOMdjcJMX/DccHSLkDtYJ
-	CtAqbUwqKST/9/+nL8ZcQnGBcRhAvkd6ToXBD7el26YPO9YWR31beDm7IZ31KCFtOo/PbtbK0VA
-	y28VMDfIwQJZWsGnPpTD1iSh5dtybAtf5cNRgOvnjo/2Fxyn/p9FpBtAvOlNSAWJqogiEAN7BaD
-	kBe/tvyz/u3iruCeRPUNlREcgMWutylocw93On59+hI/uqpzGQIsWDOsXaH
-X-Received: by 2002:a05:6402:321a:b0:5d3:cff5:634f with SMTP id 4fb4d7f45d1cf-5d972e4ee26mr9809158a12.24.1736502548014;
-        Fri, 10 Jan 2025 01:49:08 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE7NcV6qvOmi3pOuIGf31hIeLvRpTDpjsTfMUkfqpvbiE2Dvo13pJInSk8Nx0om0nJMaf5Oqg==
-X-Received: by 2002:a05:6402:321a:b0:5d3:cff5:634f with SMTP id 4fb4d7f45d1cf-5d972e4ee26mr9809135a12.24.1736502547530;
-        Fri, 10 Jan 2025 01:49:07 -0800 (PST)
-Received: from leonardi-redhat ([176.206.32.19])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5d99008c29fsm1446933a12.9.2025.01.10.01.49.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jan 2025 01:49:06 -0800 (PST)
-Date: Fri, 10 Jan 2025 10:49:02 +0100
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	bpf@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"David S. Miller" <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Eric Dumazet <edumazet@google.com>, kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>, Jakub Kicinski <kuba@kernel.org>, 
-	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
-Subject: Re: [PATCH net v2 5/5] vsock: prevent null-ptr-deref in
- vsock_*[has_data|has_space]
-Message-ID: <7ve3d5nuqddbdxbocmexobolzdf4qzsmro7kknnwkuqetznkfk@lispccbzv3lg>
-References: <20250110083511.30419-1-sgarzare@redhat.com>
- <20250110083511.30419-6-sgarzare@redhat.com>
+        d=1e100.net; s=20230601; t=1736503454; x=1737108254;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SbCDbM8KQIXhK7Foj8Bp5mpZOBTNVuVCawxI33XikWY=;
+        b=RQDWGSqI2DV6F0TQHUm2CUFDgDUyDNikVdPMNmw4jBAjUoKUpVKy4CkqDVk4Ntvq65
+         ixK3S4CTqAqAxk3om3IW/LToF32JFFcDDMlt5G6SPnfBqktVJ48bfAabxStSEngAKkBv
+         A3A+cCqRhQGqNkT0/xZqPlhXLY25834Ts8SllcvOKwajPh/01jycYUfx9gLFVbj0Oa7T
+         yY2yVZaGWrUuHXymp+IasEkc80NU75eGFI3bO7ZT713Ww4YuujFbDadbTf6QCorsCFvE
+         T4U8c/eXCgXUVXyIWR2RNAopIKtYC/fe+POsfvSwdmSvy0N3ZGssb2tWVC9si1xJj4nH
+         VXgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUB/Vvj9d9RROqVRsnhsvJvbkKzer/UWFlFZHykgVSZbBKQe2vFSIVutpJC6Vf48/ZtM9D9aaZPRL+uXhQHig==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxPWtwrI/NRWZ6rukaoRoMEpJYigUywDBEu+p82n2Kzhf0ib9X5
+	xaYcaxA1HIW3mkgngJPtb2ZXl/tS7qON+dfFvmZz8ZYxtdOqtBy8C90UatqlOWA=
+X-Gm-Gg: ASbGncuqBoeGQozuGGmGq8Q5bFrfpg82vaKJBSKsbaNgSoE7TW2ilgTedo04V5REXjm
+	rODYx4ab56NdWR/tBzUrFaTYdmqGeYtQ0PIG9WXCRECqao3+nymc1nBx7aVWnLoyV0HNufyvS9P
+	JqB9bcXVbsGR7NmcE1qzkkL1b+Hog9uoSJ661Eu0/7CbrPfa4P/gY4GMdpj9dZP+pVmh2qE8A31
+	e64ndRKc7kLSr5Gn586sp9gaAXFmGmSIDuoeBPWeEWr2DX2raXMtegQDSr47QDoreM=
+X-Google-Smtp-Source: AGHT+IGwGJ74ps/x/Eb/FXDjZwvLuJmQUxKHNbskjBfpmMO+fHvECFMcSxYPTjF3D4hGyGv0Hh3cVw==
+X-Received: by 2002:a05:6a00:179f:b0:72a:bc54:84f7 with SMTP id d2e1a72fcca58-72d21f4f2e5mr15271389b3a.12.1736503453610;
+        Fri, 10 Jan 2025 02:04:13 -0800 (PST)
+Received: from [157.82.203.37] ([157.82.203.37])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72d4067e9e1sm1247468b3a.131.2025.01.10.02.04.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Jan 2025 02:04:13 -0800 (PST)
+Message-ID: <1f2908ed-e938-4365-8f1e-9f1c7753fb9b@daynix.com>
+Date: Fri, 10 Jan 2025 19:04:07 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250110083511.30419-6-sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6RCB0nG_oRPC7GAgmgmSw_ESeCbVZ6Dej6DSfgA4U_Q_1736502548
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: Re: [PATCH v2 3/3] tun: Set num_buffers for virtio 1.0
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>,
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
+ devel@daynix.com
+References: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
+ <20250109-tun-v2-3-388d7d5a287a@daynix.com>
+ <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
+Content-Language: en-US
+In-Reply-To: <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 10, 2025 at 09:35:11AM +0100, Stefano Garzarella wrote:
->Recent reports have shown how we sometimes call vsock_*_has_data()
->when a vsock socket has been de-assigned from a transport (see attached
->links), but we shouldn't.
->
->Previous commits should have solved the real problems, but we may have
->more in the future, so to avoid null-ptr-deref, we can return 0
->(no space, no data available) but with a warning.
->
->This way the code should continue to run in a nearly consistent state
->and have a warning that allows us to debug future problems.
->
->Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
->Cc: stable@vger.kernel.org
->Link: https://lore.kernel.org/netdev/Z2K%2FI4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX/
->Link: https://lore.kernel.org/netdev/5ca20d4c-1017-49c2-9516-f6f75fd331e9@rbox.co/
->Link: https://lore.kernel.org/netdev/677f84a8.050a0220.25a300.01b3.GAE@google.com/
->Co-developed-by: Hyunwoo Kim <v4bel@theori.io>
->Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
->Co-developed-by: Wongi Lee <qwerty@theori.io>
->Signed-off-by: Wongi Lee <qwerty@theori.io>
->Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->---
-> net/vmw_vsock/af_vsock.c | 9 +++++++++
-> 1 file changed, 9 insertions(+)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 74d35a871644..fa9d1b49599b 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -879,6 +879,9 @@ EXPORT_SYMBOL_GPL(vsock_create_connected);
->
-> s64 vsock_stream_has_data(struct vsock_sock *vsk)
-> {
->+	if (WARN_ON(!vsk->transport))
->+		return 0;
->+
-> 	return vsk->transport->stream_has_data(vsk);
-> }
-> EXPORT_SYMBOL_GPL(vsock_stream_has_data);
->@@ -887,6 +890,9 @@ s64 vsock_connectible_has_data(struct vsock_sock *vsk)
-> {
-> 	struct sock *sk = sk_vsock(vsk);
->
->+	if (WARN_ON(!vsk->transport))
->+		return 0;
->+
-> 	if (sk->sk_type == SOCK_SEQPACKET)
-> 		return vsk->transport->seqpacket_has_data(vsk);
-> 	else
->@@ -896,6 +902,9 @@ EXPORT_SYMBOL_GPL(vsock_connectible_has_data);
->
-> s64 vsock_stream_has_space(struct vsock_sock *vsk)
-> {
->+	if (WARN_ON(!vsk->transport))
->+		return 0;
->+
-> 	return vsk->transport->stream_has_space(vsk);
-> }
-> EXPORT_SYMBOL_GPL(vsock_stream_has_space);
->-- 
->2.47.1
->
+On 2025/01/10 12:27, Jason Wang wrote:
+> On Thu, Jan 9, 2025 at 2:59 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>
+>> The specification says the device MUST set num_buffers to 1 if
+>> VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
+> 
+> Have we agreed on how to fix the spec or not?
+> 
+> As I replied in the spec patch, if we just remove this "MUST", it
+> looks like we are all fine?
 
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
+My understanding is that we should fix the kernel and QEMU instead. 
+There may be some driver implementations that assumes num_buffers is 1 
+so the kernel and QEMU should be fixed to be compatible with such 
+potential implementations.
 
-Thanks!
-Luigi
+It is also possible to make future drivers with existing kernels and 
+QEMU by ensuring they will not read num_buffers when 
+VIRTIO_NET_F_MRG_RXBUF has not negotiated, and that's what "[PATCH v3] 
+virtio-net: Ignore num_buffers when unused" does.
+https://lore.kernel.org/r/20250110-reserved-v3-1-2ade0a5d2090@daynix.com
 
+Regards,
+Akihiko Odaki
