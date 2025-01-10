@@ -1,230 +1,219 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 476D520B7EA
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 09:21:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DF2920A5C9
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:28:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736500913; cv=none; b=XUew0rIzaDL4IrwrKNfhrPhjsQ/aq0j7RDloYBxbC9AR2VBLZGg/Nj4Nx7DQEkYKgzrra94RFfVd1spCWzc/MRTlzjX4ygf4bM5709fdhQm55WGK0tJqqdgwmVoemKwk9AGAC8M89suizUaDp0t7CIiR1zQ4nr8FrYTPo4sHPrI=
+	t=1736501335; cv=none; b=tpeNVNkmOrQDUuFeBR2uiW58eZ7/C81jCVr4QJCyAdMVUTYpEnxvA/wb9geXSo1aXRDUsHcsS+8b3xueTF03HtGU7/4I2v9fdDMNx49k9Xwt/yJUkKBzKHbeQDwKNzmwY7509xphKf66aoyecDAicTSAj6EVD7p3eceXKNIOeNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736500913; c=relaxed/simple;
-	bh=JPFn7TpJptfEglULM9N+4ezAx2VVTnRpHNdjHv6+cWg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t6lNA5J3Y4vUHY0dYPz2jxUfBcocp2lv66AbE9eFUYDcnsBM2bBCtgW83mOYSCuIMP0h0rihqcw21riE+utDF9p8XW4FnM/hwL1V4kBcW+6/D3xfgdinMvNvHEec0yD28epHwlNddzhAYe0kDAtFll7GVu6WktG1E3dUsR+9LYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VggD9E13; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=l5r1KcXL; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VggD9E13; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=l5r1KcXL; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1736501335; c=relaxed/simple;
+	bh=GWGuc3VMdr5N9fv2KHCFN5USR+3NK9F0l8JRZS0PRfE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=TBsCaKJjkE1HHUO0N3CF/qxb0LZs5Fw2CpWfZ9ut+/kcwjvIcVy0cAztrJ8G4Yr2PPnf/W9Hewpm+B9tjJuGs1s+IKml7JgGCAQI9hwCscnEbMV+ZW26awwhgFxvcIBf+QbgygRAd5tYdySDn+b2qWBmVW2EzFDDtiaAO1cKfP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=szz1C30z; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VggD9E13";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="l5r1KcXL";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VggD9E13";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="l5r1KcXL"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 8D4A421137;
-	Fri, 10 Jan 2025 09:21:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1736500909; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
-	b=VggD9E131ngIixhrfT/RlutwzoWzOw2j7y1EcB/S/80M+0q77ykQTRRDVCT4X8TSteJrX+
-	V9iXI+sfAK338e6EZmXI1PimDlvVcBlqS+pimhRSFSD0KwBC3EiEvp1Ww/a+VBJkxCvkjt
-	+uYQH6q/P3gytibK0E6MjK/V2SUGXNk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1736500909;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
-	b=l5r1KcXL8dDVVpqBGbbkpennMgaXNaAVW+B60EdIMryESE92hDmk2b6AyiqCW+Jt4sGHWf
-	1OFCLYlv/L5VDMBA==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1736500909; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
-	b=VggD9E131ngIixhrfT/RlutwzoWzOw2j7y1EcB/S/80M+0q77ykQTRRDVCT4X8TSteJrX+
-	V9iXI+sfAK338e6EZmXI1PimDlvVcBlqS+pimhRSFSD0KwBC3EiEvp1Ww/a+VBJkxCvkjt
-	+uYQH6q/P3gytibK0E6MjK/V2SUGXNk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1736500909;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5K5tRuf9RAXyTMoNI3bIMwCXOB93swtFl5w0aetpzz4=;
-	b=l5r1KcXL8dDVVpqBGbbkpennMgaXNaAVW+B60EdIMryESE92hDmk2b6AyiqCW+Jt4sGHWf
-	1OFCLYlv/L5VDMBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7930613763;
-	Fri, 10 Jan 2025 09:21:49 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id l8OMHa3mgGecDwAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Fri, 10 Jan 2025 09:21:49 +0000
-Date: Fri, 10 Jan 2025 10:21:49 +0100
-From: Daniel Wagner <dwagner@suse.de>
-To: Ming Lei <ming.lei@redhat.com>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	Kashyap Desai <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>, 
-	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Nilesh Javali <njavali@marvell.com>, 
-	GR-QLogic-Storage-Upstream@marvell.com, Don Brace <don.brace@microchip.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, 
-	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
-	Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>, 
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
-	Sridhar Balaraman <sbalaraman@parallelwireless.com>, "brookxu.cn" <brookxu.cn@gmail.com>, 
-	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
-	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, storagedev@microchip.com, 
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
- isolcpus=managed_irq is enabled
-Message-ID: <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
-References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
- <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
- <Z2PlbL0XYTQ_LxTw@fedora>
- <cc5e44dd-e1dc-4f24-88d9-ce45a8b0794f@flourine.local>
- <Z2UwvQoDM3f4zAxG@fedora>
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="szz1C30z"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3468360761
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:28:54 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: 0.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id I6JjrtC-TwMM for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 Jan 2025 09:28:53 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62e; helo=mail-pl1-x62e.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 0ED986069C
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0ED986069C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=szz1C30z
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0ED986069C
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:28:52 +0000 (UTC)
+Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-21670dce0a7so37462875ad.1
+        for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 01:28:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736501332; x=1737106132; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=igRjP8Z8IeTK8JEZO8XtaE1DaoQy9k12HA0KbHTX3XM=;
+        b=szz1C30zL03z117F3uaSttc+w7GbJqgj/51H9S4Pt2m3aKSLq8ZygpsZKUEOIqlgWx
+         7g0MF5OFNLDismCzo2wm/VI+NQagRdu89QzAOtX5A9y9+AvQR2l7lNhwfDNP1sZGxloC
+         7U+Ftj4HOijD7OIYJmYyVpIrz22xbKN9OzSPpEqVG0H+xPqrzReTO1FbQyV7nxUyX73i
+         EV6dHrKOa+lqDRXJCkEIdw7ehJct9txppLX8p0Vp5RBUKHeVz0e01tU5Zu/f/LBfhtPw
+         Vu8VQFDsFcjw+NCsSJhay3VvZxgiNRo5yWsDdwi0jbAynpFsQUeUfJLUq2KCx0JyearX
+         MVOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736501332; x=1737106132;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=igRjP8Z8IeTK8JEZO8XtaE1DaoQy9k12HA0KbHTX3XM=;
+        b=tzWtWNgjMadO6ErvRDIgq0/fdgvC5UFb7tiUpnbj5D/LtcEffdXqpGD1i/N39XhOeE
+         canCvl6zVSV2WxMoTWQszDPCJrx5LQlosZXKSowUpbxHxTRTDQ5mjMYu4bs105kDv36z
+         DDcwfgEJDv6bS6DP4LyZM54pY5vCYv+GNr4zVkxrbcSLRpH9ABr4fBQvcXOOd5MlLZMg
+         0kI+qv3yWQRh0Dh6Z5alC0mNp1XhwRPN2Iz0kaTsvCxXpNqxRU840FIg8ylvoT5IwUX4
+         amTozvduyQEiSGBChoLlhE/+0cLsxMvY06T/enKRhZu8zLg+WHo89RFcSHCTeUKFPhjy
+         eutw==
+X-Forwarded-Encrypted: i=1; AJvYcCVJ/gY596sMttRX6UfeoOzklKOBsegAGkTwowZp4v4f8WnlB8xyln2d6l0M2edmBUUYftQeHHY4NoF32LRSLA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxiGnyZF0SP0olwSsC85RnsY1h6OQ+hkoKd7HOy9s//HRBZe+Ou
+	SngDuufK4Jh45pKX1Is56M5qxczQIGpIHV9J8PqdH1XN+ArvGi6EJjMig32YtbE=
+X-Gm-Gg: ASbGncu/XhdcxbeMCWla/zHxyedXCvFdmthTjQhqw6Ms4bQ6UsW7cljoT+aX4Ib5o5Y
+	U7RpM8wZ/XgYusTMfyfaxPfSUKmXsEd+9aTScHNICuddmn0NAXpmlTlVcILid+/cRNBoSd6WEcM
+	Eq8HHovnkXLmShKzRXvQaaReM8TSJ/m4EK+Xwsg6d8+RKC6JHnwTUDHyJfcw2zU1fUJYMnHx66g
+	3AMViOwWKskrreE1lK0853jcO6EdJJDEEcx0F4KKggovobbRG7eFO962qulmRX32k0=
+X-Google-Smtp-Source: AGHT+IEbncdNgeHV3NRD5L3UNOBwnx4pcPRNgcfCcKKAqBupE3LuCLH6YhUM6tqENcH7rFNBH/3/jQ==
+X-Received: by 2002:a17:902:dac6:b0:216:4a8a:2665 with SMTP id d9443c01a7336-21a84012a17mr153359295ad.50.1736501332180;
+        Fri, 10 Jan 2025 01:28:52 -0800 (PST)
+Received: from [157.82.203.37] ([157.82.203.37])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21a9f22d5fcsm10340475ad.176.2025.01.10.01.28.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Jan 2025 01:28:51 -0800 (PST)
+Message-ID: <0bcbbc09-e4dd-4e16-ac1a-c9d3f368c145@daynix.com>
+Date: Fri, 10 Jan 2025 18:28:46 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z2UwvQoDM3f4zAxG@fedora>
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[39];
-	FREEMAIL_CC(0.00)[kernel.org,kernel.dk,lst.de,grimberg.me,broadcom.com,oracle.com,marvell.com,microchip.com,redhat.com,linux.alibaba.com,linux-foundation.org,linutronix.de,suse.com,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,lists.linux.dev];
-	RCVD_TLS_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLtq7xx1p6rx585ucya5i3u39z)];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-X-Spam-Level: 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 1/6] virtio_net: Add functions for hashing
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Jonathan Corbet <corbet@lwn.net>, Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>,
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com
+References: <20250109-rss-v6-0-b1c90ad708f6@daynix.com>
+ <20250109-rss-v6-1-b1c90ad708f6@daynix.com>
+ <677fd98d89df1_362bc12942f@willemb.c.googlers.com.notmuch>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <677fd98d89df1_362bc12942f@willemb.c.googlers.com.notmuch>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Ming,
-
-On Fri, Dec 20, 2024 at 04:54:21PM +0800, Ming Lei wrote:
-> On Thu, Dec 19, 2024 at 04:38:43PM +0100, Daniel Wagner wrote:
+On 2025/01/09 23:13, Willem de Bruijn wrote:
+> Akihiko Odaki wrote:
+>> They are useful to implement VIRTIO_NET_F_RSS and
+>> VIRTIO_NET_F_HASH_REPORT.
 > 
-> > When isolcpus=managed_irq is enabled all hardware queues should run on
-> > the housekeeping CPUs only. Thus ignore the affinity mask provided by
-> > the driver.
+> Toeplitz potentially has users beyond virtio. I wonder if we should
+> from the start implement this as net/core/rss.c.
+
+Or in lib/toeplitz.c just as like lib/siphash.c. I just chose the 
+easiest option to implement everything in include/linux/virtio_net.h.
+
 > 
-> Compared with in-tree code, the above words are misleading.
+>   
+>> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+>> ---
+>>   include/linux/virtio_net.h | 188 +++++++++++++++++++++++++++++++++++++++++++++
+>>   1 file changed, 188 insertions(+)
+>>
+>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>> index 02a9f4dc594d..3b25ca75710b 100644
+>> --- a/include/linux/virtio_net.h
+>> +++ b/include/linux/virtio_net.h
+>> @@ -9,6 +9,194 @@
+>>   #include <uapi/linux/tcp.h>
+>>   #include <uapi/linux/virtio_net.h>
+>>   
+>> +struct virtio_net_hash {
+>> +	u32 value;
+>> +	u16 report;
+>> +};
+>> +
+>> +struct virtio_net_toeplitz_state {
+>> +	u32 hash;
+>> +	const u32 *key;
+>> +};
+>> +
+>> +#define VIRTIO_NET_SUPPORTED_HASH_TYPES (VIRTIO_NET_RSS_HASH_TYPE_IPv4 | \
+>> +					 VIRTIO_NET_RSS_HASH_TYPE_TCPv4 | \
+>> +					 VIRTIO_NET_RSS_HASH_TYPE_UDPv4 | \
+>> +					 VIRTIO_NET_RSS_HASH_TYPE_IPv6 | \
+>> +					 VIRTIO_NET_RSS_HASH_TYPE_TCPv6 | \
+>> +					 VIRTIO_NET_RSS_HASH_TYPE_UDPv6)
+>> +
+>> +#define VIRTIO_NET_RSS_MAX_KEY_SIZE 40
+>> +
+>> +static inline void virtio_net_toeplitz_convert_key(u32 *input, size_t len)
+>> +{
+>> +	while (len >= sizeof(*input)) {
+>> +		*input = be32_to_cpu((__force __be32)*input);
+>> +		input++;
+>> +		len -= sizeof(*input);
+>> +	}
+>> +}
+>> +
+>> +static inline void virtio_net_toeplitz_calc(struct virtio_net_toeplitz_state *state,
+>> +					    const __be32 *input, size_t len)
+>> +{
+>> +	while (len >= sizeof(*input)) {
+>> +		for (u32 map = be32_to_cpu(*input); map; map &= (map - 1)) {
+>> +			u32 i = ffs(map);
+>> +
+>> +			state->hash ^= state->key[0] << (32 - i) |
+>> +				       (u32)((u64)state->key[1] >> i);
+>> +		}
+>> +
+>> +		state->key++;
+>> +		input++;
+>> +		len -= sizeof(*input);
+>> +	}
+>> +}
 > 
-> - irq core code respects isolated CPUs by trying to exclude isolated
-> CPUs from effective masks
+> Have you verified that this algorithm matches a known toeplitz
+> implementation. And computes the expected values for the test
+> inputs in
 > 
-> - blk-mq won't schedule blockd on isolated CPUs
+> https://learn.microsoft.com/en-us/windows-hardware/drivers/network/verifying-the-rss-hash-calculation
 
-I see your point, the commit should highlight the fact when an
-application is issuing an I/O, this can lead to stalls.
+Yes.
 
-What about a commit message like:
-
-  When isolcpus=managed_irq is enabled, and the last housekeeping CPU for
-  a given hardware context goes offline, there is no CPU left which
-  handles the IOs anymore. If isolated CPUs mapped to this hardware
-  context are online and an application running on these isolated CPUs
-  issue an IO this will lead to stalls.
-
-  The kernel will not schedule IO to isolated CPUS thus this avoids IO
-  stalls.
-
-  Thus issue a warning when housekeeping CPUs are offlined for a hardware
-  context while there are still isolated CPUs online.
-
-> If application aren't run on isolated CPUs, IO interrupt usually won't
-> be triggered on isolated CPUs, so isolated CPUs are _not_ ignored.
-
-FWIW, the 'usually' part is what made our customers nervous. They saw
-some IRQ noise on the isolated CPUs with their workload and reported
-with these changes all was good. Unfortunately, we never got the hands
-on the workload, hard to say what was causing it.
-
-> > On Thu, Dec 19, 2024 at 05:20:44PM +0800, Ming Lei wrote:
-> > > > +	cpumask_andnot(isol_mask,
-> > > > +		       cpu_possible_mask,
-> > > > +		       housekeeping_cpumask(HK_TYPE_MANAGED_IRQ));
-> > > > +
-> > > > +	for_each_cpu(cpu, isol_mask) {
-> > > > +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> > > > +		queue = (queue + 1) % qmap->nr_queues;
-> > > > +	}
-> > > 
-> > > Looks the IO hang issue in V3 isn't addressed yet, is it?
-> > > 
-> > > https://lore.kernel.org/linux-block/ZrtX4pzqwVUEgIPS@fedora/
-> > 
-> > I've added an explanation in the cover letter why this is not
-> > addressed. From the cover letter:
-> > 
-> > I've experimented for a while and all solutions I came up were horrible
-> > hacks (the hotpath needs to be touched) and I don't want to slow down all
-> > other users (which are almost everyone). IMO, it's just not worth trying
 > 
-> IMO, this patchset is one improvement on existed best-effort approach, which
-> works fine most of times, so why you do think it slows down everyone?
-
-I was talking about implementing the feature which would remap the
-isolated CPUs to online hardware context when the current hardware
-context goes offline. I didn't find a solution which I think would be
-worth presenting. All involved some sort of locking/refcounting in the
-hotpath, which I think we should just avoid.
-
-> > to fix this corner case. If the user is using isolcpus and does CPU
-> > hotplug, we can expect that the user can also first offline the isolated
-> > CPUs. I've discussed this topic during ALPSS and the room came to the
-> > same conclusion. Thus I just added a patch which issues a warning that
-> > IOs are likely to hang.
+> We have a toeplitz implementation in
+> tools/testing/selftests/net/toeplitz.c that can also be used as
+> reference.
+ > >> +
+>> +static inline u8 virtio_net_hash_key_length(u32 types)
+>> +{
+>> +	size_t len = 0;
+>> +
+>> +	if (types & VIRTIO_NET_HASH_REPORT_IPv4)
+>> +		len = max(len,
+>> +			  sizeof(struct flow_dissector_key_ipv4_addrs));
+>> +
+>> +	if (types &
+>> +	    (VIRTIO_NET_HASH_REPORT_TCPv4 | VIRTIO_NET_HASH_REPORT_UDPv4))
+>> +		len = max(len,
+>> +			  sizeof(struct flow_dissector_key_ipv4_addrs) +
+>> +			  sizeof(struct flow_dissector_key_ports));
+>> +
+>> +	if (types & VIRTIO_NET_HASH_REPORT_IPv6)
+>> +		len = max(len,
+>> +			  sizeof(struct flow_dissector_key_ipv6_addrs));
+>> +
+>> +	if (types &
+>> +	    (VIRTIO_NET_HASH_REPORT_TCPv6 | VIRTIO_NET_HASH_REPORT_UDPv6))
+>> +		len = max(len,
+>> +			  sizeof(struct flow_dissector_key_ipv6_addrs) +
+>> +			  sizeof(struct flow_dissector_key_ports));
+>> +
+>> +	return len + 4;
 > 
-> If the change need userspace cooperation for using 'managed_irq', the exact
-> behavior need to be documented in both this commit and Documentation/admin-guide/kernel-parameters.txt,
-> instead of cover-letter only.
-> 
-> But this patch does cause regression for old applications which can't
-> follow the new introduced rule:
-> 
-> 	```
-> 	If the user is using isolcpus and does CPU hotplug, we can expect that the
-> 	user can also first offline the isolated CPUs.
-> 	```
-
-Indeed, I forgot to update the documentation. I'll update it accordingly.
-
-Thanks,
-Daniel
+> Avoid magic constants. Please use sizeof or something else to signal
+> what this 4 derives from.
