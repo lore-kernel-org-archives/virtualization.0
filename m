@@ -1,193 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE921205ABB
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 10:57:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84C2A209F48
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:12:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736506670; cv=none; b=uJazdsvrAxwpDGJ4nUHyqoCzwGlwb3xczd4lB4540ktHa6LcF2iyQCXSO+uyAaLVf95EiSy8ufBn6/cLLk5VD25NZFlfPcYlHKENiruvGbI0r4r7gTxqiWywiBizhwduepNNSJTPiqFJKtJm7cX9uC6DtkFT79R6Z4iTLHta41w=
+	t=1736507555; cv=none; b=WavN28XmYUUqYwacutbjYo8pF8Cs9NCFS6NoJeVq1MT9CBrhzrn6Qid6GHEG7AVCOxi5FV/KKPjvGai9oakuCb66WPlY67aMjTAXxX4M5KVNQJzKSunL2L2qrPHwozlmPVJye98VgI0l2lTb5BBPvSGJT2ImfWT+0EzW6x0L4kg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736506670; c=relaxed/simple;
-	bh=J08jrPV1Tnjsks3FkDNgHe/lPdv6Q0IvGjCXuEqHoGE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=BrSBm8yDnhu9PJPn7/npOnnmk7c7DwL3Bdm+dbR7Bcy/BNmYMrfPbOI3Q2/VuHzMkZvwslBjsVs+7ervi9Z94HxYJlRK27rkLYENRNZc7Sf7JF0YGP4EPDTqc9cFQqmJ2ODdbDP3y2mgZJKFgRR30NT3VnyadfGZVw2SYz0CtMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ya5DnIDC; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736507555; c=relaxed/simple;
+	bh=qXSynCY96TYG7wZ7OASI5Muii12uM+aBd0x+fKz2Q64=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fapc+Chub51Z9IqzRisxwrN68tGs2DSrSWc1EuVDepaf1f0jq1roBhSsRLrCPyB1SEPWhpyKcSNHnxEW1VsYWx4CEt2OKTZjz3fFonMeXLYvQ5IwKmscfgR6p7JS9LlM78HUAkwJ50GtmCUsyiyge6M6DzdqRfzGIhOIDCrgeYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=a+oDhSt2; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ya5DnIDC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736506667;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wTBki0vgAxfifXdgNeBVy0WzwbqroFsqKcMbO7Lm6Oc=;
-	b=Ya5DnIDCPSRTMqHSHaqbFediVvJ04vNPm0FvcEpybFDWL5O2AmQklIF/uLpees45BKg6Bk
-	xEIPusujuHFcehfT4qKyRKo/RpJ+EAq0sxeLRcedt+ydHYugcx+Jk0jAZyF9p9uulqAKRc
-	QwrcCAWupTd2hnauVt/tA8C6/fi7rxs=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-184-kTV6KJNNOUu74zTkJxxEcg-1; Fri, 10 Jan 2025 05:57:46 -0500
-X-MC-Unique: kTV6KJNNOUu74zTkJxxEcg-1
-X-Mimecast-MFC-AGG-ID: kTV6KJNNOUu74zTkJxxEcg
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-aa67fcbb549so202024366b.0
-        for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 02:57:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="a+oDhSt2"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 231B5404E0
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:12:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id BsHEMKH3k2z4 for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 Jan 2025 11:12:33 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::633; helo=mail-pl1-x633.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 46C7140112
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 46C7140112
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=a+oDhSt2
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 46C7140112
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:12:33 +0000 (UTC)
+Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-2163dc5155fso33488675ad.0
+        for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:12:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736507552; x=1737112352; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=fUI/Gf/iNdZ2kON6E6PSrhEkMNvEUQIh/sL8yMhLamQ=;
+        b=a+oDhSt2j97CrwaKZgP2UggRaiVIYcl7pDmGXdJK4IIsSSBVtT9S7yzhstM4vfH7Tq
+         vZbnhB5fsB6cz0wmzd3MGtLRRtkDQWJleyiS0AP6RKNowjhgziKKLlikIfiD1ez5v8GB
+         82P9bnFQZvAvzWkciGfe3jFuzB8iZkaoy81bfMU9b6dApoaID7X36D/veT9W2/Emspo6
+         ZK1YpQdsmAsicNvqDoFFFBkd8JNtf0k7WsDpHfOm7QDWu9DZ7hmOXZ6b4nsLvtgyMmms
+         K0krXeQldUIlhgxUT63UpdvxG1K7DZvLwUKar9wgBcf/EX3mUMheY3aijOdSp2C7nEyW
+         eyQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736506665; x=1737111465;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wTBki0vgAxfifXdgNeBVy0WzwbqroFsqKcMbO7Lm6Oc=;
-        b=JMf10yGFmIkjuBdRptl2ADexlvCoEOrAZnSJMpuxQP5a1rQhTi7nrDin8h1ZyStDfE
-         ZTOtE6hHj5A9/E5NXpK6BkPdoxmCJoClcn+opApPRJ70+Z2aucUsvCutoB8zDicwgaKz
-         uTqxsDRQyjyE7Vo+lFg+dUlUXuj4VfHVH/BKNUxMOdrIr4VlI2gA6zV3NABqN/9krzZG
-         GULlXpndM8tOyX851WWqoa1P/loZLwMQk7DiN8kMhMzmYkov5DaRxxaxIzMbrqX8v1jt
-         5EXbUrarhAGVY/c6IpnX7ZDK3IF2dhEc2nU4XZZnCug/UCLuenGrEj6s0YCJQDQOfONt
-         Sl2A==
-X-Forwarded-Encrypted: i=1; AJvYcCXKz6M0aybH21Wq4VLMzs4CmXKGBELFf1D2BVIcicxEB4BNgf0xuTIrJsgR/16rqQp/4d4ofoZz6z+LqJyjIw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxUFtB0rT90mm3TZ1GAFCnr8q0X8wYFGmYNCTcZP7/QKA1xfYVb
-	yIdwrDhogT7HYNrgnCJnLIlkI61dsOgFu5vcudD812GDpeddtEJUm3Ci3OSYMTUeXLGUlOH9xtl
-	fJGlmbqxL+0Q4kk6KPhgZ0IghZSWFCxOB5t5v9aGpS/lPm/cgDtUi/Y3tvoXWKDSZ
-X-Gm-Gg: ASbGncsYLcyawEbxiw3gaeM/ih2gkATcnmW5V/Yg/giOHYqsvEZYgFn3d+WUoX7ff94
-	Wu9fNClBCx9a735dQg3qvCWuUyAcsOEgu60nx6MseAdcLTk3zwTl54HITQvqQodo0n1pfhZZNAX
-	y8uwR7u6R+CfYPJMbznvIuSYp4UEn0RpD1cFE9RE8a3GHxqkxlpl7/4y5ljG+WFAAkdmUv7T0dV
-	xEbEUDQ/6z0hME8vskR8oXopwpC7F0qbc0lGwAWJIkt/tVly20d+VIQpfFk
-X-Received: by 2002:a17:907:7b99:b0:aa6:2a17:b54c with SMTP id a640c23a62f3a-ab2ab16b1cbmr782663866b.6.1736506664806;
-        Fri, 10 Jan 2025 02:57:44 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IESv2FtstfmeRfNMDHjG83u1YYQu94Q31j0qdyPPj9UJSPP/WkoIPQIVfa4hgWYpj5Nmu9NKg==
-X-Received: by 2002:a17:907:7b99:b0:aa6:2a17:b54c with SMTP id a640c23a62f3a-ab2ab16b1cbmr782662166b.6.1736506664375;
-        Fri, 10 Jan 2025 02:57:44 -0800 (PST)
-Received: from leonardi-redhat ([176.206.32.19])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab2c90d7432sm153952766b.49.2025.01.10.02.57.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jan 2025 02:57:44 -0800 (PST)
-Date: Fri, 10 Jan 2025 11:57:41 +0100
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	bpf@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"David S. Miller" <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Eric Dumazet <edumazet@google.com>, kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>, Jakub Kicinski <kuba@kernel.org>, 
-	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
-Subject: Re: [PATCH net v2 3/5] vsock/virtio: cancel close work in the
- destructor
-Message-ID: <f6wv63x75ohn3s3isbbfggnvpfxwx5mbgnpmol4tnw5tthq4nf@wb62fpiplgs4>
-References: <20250110083511.30419-1-sgarzare@redhat.com>
- <20250110083511.30419-4-sgarzare@redhat.com>
+        d=1e100.net; s=20230601; t=1736507552; x=1737112352;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fUI/Gf/iNdZ2kON6E6PSrhEkMNvEUQIh/sL8yMhLamQ=;
+        b=MmS5RNICCRWJb4RXj1lAd9Kv7ebvniSNQyZrZ5VBT5PYzGwoKseQWBCD1F7zUxMCyk
+         yjMK5Z8eEZ46CIw53st3ozUSQP1oWvLAxSP2dcN8gP6Z/mxEINxNy7NiaG97+0so7OzM
+         UEU7fMLQEGk3psusJ5tT8PW1r7saRV58IQf6+2UUvK6/5mDFT6TlVxuPXeIWDrD91Wnz
+         bl8MC1/5OC71w9ZrXES4qR11AI8BrV5kY84AJm3YU7v2q3R9VLSiK89NfrQn2+6HNc/Z
+         4NdK6BOuzWm7KDCPFtRDSynp6EnZtowbNWSNo0FqmTtJhwT9wwBYKYE6lMrAKT34IEde
+         FiNw==
+X-Forwarded-Encrypted: i=1; AJvYcCWznbZu3kMmN9HOmaxEd0AsklgUb84p/be1uad0FZ+BeiIySclR37nR5Bm2wPPjoUsqN79AxDjEJ1M3L+dopA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxIp0fh4TMBwoMkBBfkEYOs+u9TxLyIERrIq1krnQk4gyG7FqJB
+	QbbotifUwnt5+COnEoO610BVix3MJ+LuskUeIVbJy2zT21qNobXQ+CT6AjSZV8E=
+X-Gm-Gg: ASbGncs61S23+XvU8d50mqFOvJD1ws96i2x1pVlhF6bXZ33qoSRoJicL9NhmVeYmkME
+	IhGBPNfxM4mZUd9GLY56gLFs7cl3HSg2E0dWO0GIb8aRx53qW8lEf+z53xurGLExBMomcM76pTl
+	cZjIUhP2Cb/TUyEU9ya9+MJHbWlBYYCFp3CQaduIJPiCH8wxb3CsS1RMgJYXwhAj+YCczjMzf8Z
+	JWY6zA8jd/xg9fhocy80tCtL6SbFeWIOy5uxBY20uw5k39waviflz007FUVxVihyzw=
+X-Google-Smtp-Source: AGHT+IFsisJKA6JOrR0eUj5WfV8wXSlwG+ErpDxaHPAWov6uHn2OYu5jltHENp4vvgdoL273AAhZWg==
+X-Received: by 2002:a05:6a20:244d:b0:1d9:fbc:457c with SMTP id adf61e73a8af0-1e88d0a4770mr18461822637.36.1736507552500;
+        Fri, 10 Jan 2025 03:12:32 -0800 (PST)
+Received: from [157.82.203.37] ([157.82.203.37])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72d4056a2cfsm1373935b3a.51.2025.01.10.03.12.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Jan 2025 03:12:32 -0800 (PST)
+Message-ID: <2e015ee6-8a3b-43fb-b119-e1921139c74b@daynix.com>
+Date: Fri, 10 Jan 2025 20:12:25 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250110083511.30419-4-sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: RhF1zzdHSgWhuvCDxdSjhAw_cdtOtna1UoU7yvlzOr4_1736506665
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/3] tun: Set num_buffers for virtio 1.0
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>,
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
+ devel@daynix.com
+References: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
+ <20250109-tun-v2-3-388d7d5a287a@daynix.com>
+ <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
+ <20250110052246-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <20250110052246-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 10, 2025 at 09:35:09AM +0100, Stefano Garzarella wrote:
->During virtio_transport_release() we can schedule a delayed work to
->perform the closing of the socket before destruction.
->
->The destructor is called either when the socket is really destroyed
->(reference counter to zero), or it can also be called when we are
->de-assigning the transport.
->
->In the former case, we are sure the delayed work has completed, because
->it holds a reference until it completes, so the destructor will
->definitely be called after the delayed work is finished.
->But in the latter case, the destructor is called by AF_VSOCK core, just
->after the release(), so there may still be delayed work scheduled.
->
->Refactor the code, moving the code to delete the close work already in
->the do_close() to a new function. Invoke it during destruction to make
->sure we don't leave any pending work.
->
->Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
->Cc: stable@vger.kernel.org
->Reported-by: Hyunwoo Kim <v4bel@theori.io>
->Closes: https://lore.kernel.org/netdev/Z37Sh+utS+iV3+eb@v4bel-B760M-AORUS-ELITE-AX/
->Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->---
-> net/vmw_vsock/virtio_transport_common.c | 29 ++++++++++++++++++-------
-> 1 file changed, 21 insertions(+), 8 deletions(-)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 51a494b69be8..7f7de6d88096 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -26,6 +26,9 @@
-> /* Threshold for detecting small packets to copy */
-> #define GOOD_COPY_LEN  128
->
->+static void virtio_transport_cancel_close_work(struct vsock_sock *vsk,
->+					       bool cancel_timeout);
->+
-> static const struct virtio_transport *
-> virtio_transport_get_ops(struct vsock_sock *vsk)
-> {
->@@ -1109,6 +1112,8 @@ void virtio_transport_destruct(struct vsock_sock *vsk)
-> {
-> 	struct virtio_vsock_sock *vvs = vsk->trans;
->
->+	virtio_transport_cancel_close_work(vsk, true);
->+
-> 	kfree(vvs);
-> 	vsk->trans = NULL;
-> }
->@@ -1204,17 +1209,11 @@ static void virtio_transport_wait_close(struct sock *sk, long timeout)
-> 	}
-> }
->
->-static void virtio_transport_do_close(struct vsock_sock *vsk,
->-				      bool cancel_timeout)
->+static void virtio_transport_cancel_close_work(struct vsock_sock *vsk,
->+					       bool cancel_timeout)
-> {
-> 	struct sock *sk = sk_vsock(vsk);
->
->-	sock_set_flag(sk, SOCK_DONE);
->-	vsk->peer_shutdown = SHUTDOWN_MASK;
->-	if (vsock_stream_has_data(vsk) <= 0)
->-		sk->sk_state = TCP_CLOSING;
->-	sk->sk_state_change(sk);
->-
-> 	if (vsk->close_work_scheduled &&
-> 	    (!cancel_timeout || cancel_delayed_work(&vsk->close_work))) {
-> 		vsk->close_work_scheduled = false;
->@@ -1226,6 +1225,20 @@ static void virtio_transport_do_close(struct vsock_sock *vsk,
-> 	}
-> }
->
->+static void virtio_transport_do_close(struct vsock_sock *vsk,
->+				      bool cancel_timeout)
->+{
->+	struct sock *sk = sk_vsock(vsk);
->+
->+	sock_set_flag(sk, SOCK_DONE);
->+	vsk->peer_shutdown = SHUTDOWN_MASK;
->+	if (vsock_stream_has_data(vsk) <= 0)
->+		sk->sk_state = TCP_CLOSING;
->+	sk->sk_state_change(sk);
->+
->+	virtio_transport_cancel_close_work(vsk, cancel_timeout);
->+}
->+
-> static void virtio_transport_close_timeout(struct work_struct *work)
-> {
-> 	struct vsock_sock *vsk =
->-- 
->2.47.1
->
+On 2025/01/10 19:23, Michael S. Tsirkin wrote:
+> On Fri, Jan 10, 2025 at 11:27:13AM +0800, Jason Wang wrote:
+>> On Thu, Jan 9, 2025 at 2:59 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>
+>>> The specification says the device MUST set num_buffers to 1 if
+>>> VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
+>>
+>> Have we agreed on how to fix the spec or not?
+>>
+>> As I replied in the spec patch, if we just remove this "MUST", it
+>> looks like we are all fine?
+>>
+>> Thanks
+> 
+> We should replace MUST with SHOULD but it is not all fine,
+> ignoring SHOULD is a quality of implementation issue.
+> 
 
-Thanks!
+Should we really replace it? It would mean that a driver conformant with 
+the current specification may not be compatible with a device conformant 
+with the future specification.
 
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
-
+We are going to fix all implementations known to buggy (QEMU and Linux) 
+anyway so I think it's just fine to leave that part of specification as is.
