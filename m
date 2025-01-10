@@ -1,95 +1,95 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 596DC1E0E0D
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:25:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2DDD2063C3
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:27:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736479505; cv=none; b=fDi/gbP/QIlzGg3ATfie+5Sca0pIxIJNtXW+MJDKD8oskvAojymJ3ERxivNWBC7pNaxApo5SRV6Qb+ke9w83dJOY/x4oEyc8oELfQ+4xCi2XwhpFhOhK82wloeuWO8daJSI6+AdkHdVpZKGe6XzTBikVDyTUXIBBu0VkT6UaGZM=
+	t=1736479653; cv=none; b=gJAP4cxXu6l1OdgYQuA/CsAf7J5Zhpo2NWZJgID2KRzLMGVnnyFUgTTljMPf5a0d0mcPp8KkdV60Osy07xc1G5xbq/Kc+SrJUKpDsNFr1rQlP24onZ7rjfCj766hsQag4Jq83ml0/9f9eRVCzhCR53deiJEnJI+V8xXMO/y86qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736479505; c=relaxed/simple;
-	bh=xiIZOksV9gK8x5lTS+rlahAEFaL/qj64KXL6RVencw0=;
+	s=arc-20240116; t=1736479653; c=relaxed/simple;
+	bh=7uR8vN0M0CFh5qpZV7D1vSWR3xVu4IYzXqUeioDmijc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=joP4QOr0anAdBtlgiOHmiqchmbwvDq6bKypKx5uC0cu0bBzPVP/ROgwOL/UK8NNBgvnMNcDAsZzno7pcm5Psu3c8/jKOjUDIsMg5Fa8FgUCeTjVz2efPMAR8fwVRCoIwhBO5DrOrZ2oTFqUS+l8/aHlxILpa7OtvfGrWAsgIo5E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FGoWxuua; arc=none smtp.client-ip=140.211.166.137
+	 To:Cc:Content-Type; b=Kf64vkM3r7s5dSiaRd77m8IAGm+GS7G2wlE0KL+Ttm6Mn1pj4SntgFk72nsUKoK8ypLgcpl+kMtUCh2T/GVmZR2gk7hkTEDCdWvq60tAcHtnDz+9HMr2+XBk/AFVN89ArL9xy+jKcW4wUg/iBqndUY6cpgRnRWQeqgXO8X21fVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Nb4QVI9m; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FGoWxuua"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Nb4QVI9m"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id F267D407B6
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:25:03 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7ED1460796
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:27:32 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.792
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id v7lwMzjrc9AU for <virtualization@lists.linux-foundation.org>;
- Fri, 10 Jan 2025 03:25:03 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ClBX5QDqSxiX for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 Jan 2025 03:27:32 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 1732E405C9
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1732E405C9
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FGoWxuua
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org ABE136070E
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ABE136070E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Nb4QVI9m
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 1732E405C9
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:25:01 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id ABE136070E
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736479500;
+	s=mimecast20190719; t=1736479650;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ux/EFJGUhHtGiPWKsNCatUDg5uRU42FVCWFIHQvV8s8=;
-	b=FGoWxuua4vh9ZGE34vxHBfMXrmAA0IqaqUQSOfBG14Fh7uMn7akli2l2u5ChCY5ZzuQiai
-	o3YzTmCAGJczKmJVWDj/QvsEw8WVVAySuMG3y+UmmTVj+YEtpATcoctzDK/WfsG1GDdbiF
-	EMBAkw/0kZAYfn+UfNrFcYCF29oT4Qs=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7uR8vN0M0CFh5qpZV7D1vSWR3xVu4IYzXqUeioDmijc=;
+	b=Nb4QVI9mHzICmqRIZVeZFZY9R5ZTx8hooto6Moan0/cZia3CmRd0TIKaW8gNrAtJBp9Dce
+	DfCqWnBkBXKRVFWyvxY+Fpxrtc204L4k/EXG/Wt1cUGoccyQpkRthZObV0BTh+UZVmegpm
+	FW3LYu5c7nRSJyIj1E8dkq2cEQNGdi4=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-503-iedGLLHrN5KgvZ1e_c9_Qw-1; Thu, 09 Jan 2025 22:24:58 -0500
-X-MC-Unique: iedGLLHrN5KgvZ1e_c9_Qw-1
-X-Mimecast-MFC-AGG-ID: iedGLLHrN5KgvZ1e_c9_Qw
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2ef79d9c692so4250598a91.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 09 Jan 2025 19:24:58 -0800 (PST)
+ us-mta-347-gJv4Wk1bNZmhkjsodGGJAA-1; Thu, 09 Jan 2025 22:27:27 -0500
+X-MC-Unique: gJv4Wk1bNZmhkjsodGGJAA-1
+X-Mimecast-MFC-AGG-ID: gJv4Wk1bNZmhkjsodGGJAA
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2ef35de8901so2863434a91.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 09 Jan 2025 19:27:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736479498; x=1737084298;
+        d=1e100.net; s=20230601; t=1736479646; x=1737084446;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ux/EFJGUhHtGiPWKsNCatUDg5uRU42FVCWFIHQvV8s8=;
-        b=EIWvwGuE13Eq3o6zShqEhllEUXGGP0uWZe2yKqM+UWLOVIpdf8R9WXqSu5SkoiImYI
-         nHSWxWEVHDW0QYqU4chaqxALWrvq9ok/9p+cLxvd64vYnGe3BuRNAVifN/6/cuAuSu4/
-         HCwQSwZd5eLrXgzsITYPK1+C6Ul4rg6O7BF02hhqpbdaUSv8ikFaWU1BdXjb3gJZ4aHb
-         QHpbLgOMD6a+CRhnZK2g98b3L1jCXEXTpjk7AUbMxQMnKStIBIQhJJsxsfObbK30vXnL
-         Ynz69xbIaVWZrGx4DjyEbAABtuUzFBRcO+3fiCw5ObEy89zLJLqN+9whWFp4Ub01xDyo
-         Oo+w==
-X-Forwarded-Encrypted: i=1; AJvYcCXr/l6BpSnLtTudgFnKXv+lCcvlF6+fhhhAC1g7t5Ps1Kq/2s96vaM0BtzRRn/TLVt02f/oSCMHkG+/PPBMpw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yzo0MgYS/whETCk5l14OruHj1vveO7n6PBNWDp9mBfdzIKztgYb
-	imS548UmA2JpMKbEH8vaxGi9/5mDt8fHea26FInGPYM2pD6cFhlFFDvS8mORHvzyRzVv54ul6OY
-	hKTdJkrMToDU0cJf/1Bco8BxNmjDbOCk3bgFzLnt8L0rbxH5CZ8uUEEVOhHLE3wjOn1r0Ixjjun
-	jiQXE2gk3Awy5YFiskyI7LVSNBJg5whWa/YRL7CJcaG7zwGEIgFFQj7g==
-X-Gm-Gg: ASbGncv+Q5O15zquSNt9tyoeR7cFoGpm5KaWni4krtvWiQxoFWZh5YOxcydBYKbelzB
-	RtxvBPCd0ZUbU0fq9lUf9qxGE9V2VLTGB/TgO1Ro=
-X-Received: by 2002:a17:90b:2f45:b0:2ef:2f49:7d7f with SMTP id 98e67ed59e1d1-2f548ece7afmr14119981a91.18.1736479497873;
-        Thu, 09 Jan 2025 19:24:57 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGl4su9kuwxLueN6s9pabolA/u0yv9vnPxFtYkK0ZVCk201Nafu3Va6ZCJu8GUQ/vQJh85IIDkmsOql8mxd8mA=
-X-Received: by 2002:a17:90b:2f45:b0:2ef:2f49:7d7f with SMTP id
- 98e67ed59e1d1-2f548ece7afmr14119944a91.18.1736479497484; Thu, 09 Jan 2025
- 19:24:57 -0800 (PST)
+        bh=7uR8vN0M0CFh5qpZV7D1vSWR3xVu4IYzXqUeioDmijc=;
+        b=m9lR5ssF7Tedk7G7nbj9tV8jlK/YZCDL7PoejevtObQ9VCM9clMjK3M1NVa5KtZ9XA
+         fYQqe6+ET93s2hbJXzdikY+y//+JBC/JxjBlfqpIOG4TH0NXY9UnIrp7I/OjWo/ZdLKi
+         iQl1rE1IfE7pcx0vz7fboV0G4d/tnhs79hi0XcNkAlynwnyhsfX/MlBJBEwI6U8e5UND
+         /Fc6LT+WsxNgDhU3L86KhkkU0NsTCHvia87qIzcl7iG7RpPiB8TJvl8lkg7xcVa0FXX+
+         p5G342YDhSY1pYPXNFslk1W4wyCuIo0wr879DqFdlzV4uIJC49B55fFaebBu/IusOPl0
+         eGAg==
+X-Forwarded-Encrypted: i=1; AJvYcCUkM+z4BGTL1mmW6edmz7iDDk9iXxFYCJPyRZRmgrHEPFr8H83tK9ooybhZZohfZ/IWgPV3Nmjdk2vQWppXIg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyJbPf1U4Lvhg3CRbQGjZv5FLEEwKnfUvpEtPrQW2gU+u7COezT
+	NQdK6k3JMvDFpEOI6cQVtD3bvanUc6Cwl1ZwnIzVVI6mTq1Bt5dDOF+FBqJpy5suVQP7J9F+6lf
+	sqCeIcmqLGxnZGVYYE/kQ2BCguFMMuNWmwUxpkHkHT5upWUpGMEfn1ne0CFB0+gOgGTuRujsMJJ
+	NJuK++WoAhlcboy1ufTbTiOjA3SbYZjOVL9Q8kaKmwx0e49imsjz3MUg==
+X-Gm-Gg: ASbGncvz8ka7pxZJpOVmp1apOyDo4B6am10p0lxsIPv4XCdQrULoUCuIl4a+2sZ9aAH
+	y2SBdE8O6YHQe2Izk+FwvpQ6kVHwogIH/hvg3Ra8=
+X-Received: by 2002:a17:90b:2f0e:b0:2ea:59e3:2d2e with SMTP id 98e67ed59e1d1-2f548eb9e0emr14161346a91.10.1736479645908;
+        Thu, 09 Jan 2025 19:27:25 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGr6qt6YqI8gxH2NjDJ69HLIEFDu0/JDwyZCE+11GxsqEEXtLHHfTQDNxjuhLS8NYQPmojHsZtINe9boq5qSYU=
+X-Received: by 2002:a17:90b:2f0e:b0:2ea:59e3:2d2e with SMTP id
+ 98e67ed59e1d1-2f548eb9e0emr14161300a91.10.1736479645509; Thu, 09 Jan 2025
+ 19:27:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250109-tun-v2-0-388d7d5a287a@daynix.com> <20250109-tun-v2-1-388d7d5a287a@daynix.com>
-In-Reply-To: <20250109-tun-v2-1-388d7d5a287a@daynix.com>
+References: <20250109-tun-v2-0-388d7d5a287a@daynix.com> <20250109-tun-v2-3-388d7d5a287a@daynix.com>
+In-Reply-To: <20250109-tun-v2-3-388d7d5a287a@daynix.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 10 Jan 2025 11:24:45 +0800
-X-Gm-Features: AbW1kvayDbWMw6YuULfNbkLhEoUv0nyH0UVx2PFd5rLWnQcrUga4t_8H0CMLDNk
-Message-ID: <CACGkMEs2S=G-Y077hCeFE57ar0h1A5EaySOOTcvFZUVC0oGdXQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] tun: Unify vnet implementation
+Date: Fri, 10 Jan 2025 11:27:13 +0800
+X-Gm-Features: AbW1kvZyiy6igQIYtcT2bEIGGuMlsgd6CYsI8IZapQaNgu__KkmEtAKFahTJbko
+Message-ID: <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] tun: Set num_buffers for virtio 1.0
 To: Akihiko Odaki <akihiko.odaki@daynix.com>
 Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
 	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
@@ -101,7 +101,7 @@ Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gm
 	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
 	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, devel@daynix.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bjl7RwILYoXtPzj6k6kZpixNWHav7jKclIcKXctZax8_1736479498
+X-Mimecast-MFC-PROC-ID: wwVzkxeo21e29YTDEsbF84Kfxv6GnEFl8yZGmkj4JY8_1736479646
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -109,46 +109,13 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Jan 9, 2025 at 2:59=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix.=
 com> wrote:
 >
-> Both tun and tap exposes the same set of virtio-net-related features.
-> Unify their implementations to ease future changes.
->
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> ---
->  MAINTAINERS            |   1 +
->  drivers/net/Kconfig    |   5 ++
->  drivers/net/Makefile   |   1 +
->  drivers/net/tap.c      | 172 ++++++----------------------------------
->  drivers/net/tun.c      | 208 ++++++++-----------------------------------=
-------
->  drivers/net/tun_vnet.c | 186 +++++++++++++++++++++++++++++++++++++++++++
->  drivers/net/tun_vnet.h |  24 ++++++
->  7 files changed, 273 insertions(+), 324 deletions(-)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 910305c11e8a..1be8a452d11f 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -23903,6 +23903,7 @@ F:      Documentation/networking/tuntap.rst
->  F:     arch/um/os-Linux/drivers/
->  F:     drivers/net/tap.c
->  F:     drivers/net/tun.c
-> +F:     drivers/net/tun_vnet.h
->
->  TURBOCHANNEL SUBSYSTEM
->  M:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> index 1fd5acdc73c6..255c8f9f1d7c 100644
-> --- a/drivers/net/Kconfig
-> +++ b/drivers/net/Kconfig
-> @@ -395,6 +395,7 @@ config TUN
->         tristate "Universal TUN/TAP device driver support"
->         depends on INET
->         select CRC32
-> +       select TUN_VNET
+> The specification says the device MUST set num_buffers to 1 if
+> VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
 
-I don't think we need a dedicated Kconfig option here.
+Have we agreed on how to fix the spec or not?
 
-Btw, fixes should come first as it simplifies the backporting.
+As I replied in the spec patch, if we just remove this "MUST", it
+looks like we are all fine?
 
 Thanks
 
