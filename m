@@ -1,168 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B55DB20B807
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 08:35:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F1212080D7
+	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 08:39:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736498152; cv=none; b=nlCT3FMxNRJTzFYSYqKz0IYrCA43Q448KNiCS10tpm42l3ID8m5/9e59OEwCZ9V29usiqmlbOsrKzx8zUFDNe2+Qv91gJ4ZAK/D/dycYtrgdDlpCIzivsVQmLSUMy36qWBGadek9fEhUADDL/KxSm24YBPo6vn0pKpKk3zpPQHk=
+	t=1736498369; cv=none; b=fmU+TdQDGrfSWpCBws6vj1b6x9jF89boAoa0Ay6ddo/lBM4y44mbTrc76cz0uFiYCKyNVNHX8vWKr04m9u7dXvexSYh72x6fr0MnEjHSfipRHfnXBLbsFTK/TxvsvmvYpyvVzicjtNFDHsMo63RXCW7ds+Jv1bttWH7FmMmR6+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736498152; c=relaxed/simple;
-	bh=ZkTGYail/OHpw8whko7T8HSpEewACyZ6yzZNkHMM848=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=sKnjKykyBYT62L/TwfATpXOU0W3Tl/bNhNnULqkoEcLTqy2477JgdsUY8CCJJ/iACr7niBjJYBvg7aKPso6741Ch8jv2xtsf5yFTHGXluVnkJcekH5JUY2u5/KWv+qI1A1Yulp6G0ce15dHKP5RzWDb8DBuDNv9Buv05U1/ys0w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VR/eoAhC; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1736498369; c=relaxed/simple;
+	bh=iJsV4mrkuXUAlTF79pi0keywbZpwBmWfcU2SNaEDdkA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=gsLBpsoWzOcwUN2/55ErzKUv3HNxto27RiLRWIggTbeDWCX98TPI7YwfYSRsVhkKYRcN8jDJkIM5qmlZmWZj5sN2yYiwlGkawOAPIjziLg38m7uKHu7HyGfc7fpwVwifMCzr1Y7gLo1QVRBs0GELIuJG4CsRMLFhhTzmRSOvILA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AszaI7Hq; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VR/eoAhC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AszaI7Hq"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736498149;
+	s=mimecast20190719; t=1736498367;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=F5v5m4rv3lPn2u8LD9NON66qt3Pvib6QUvVJIVTGvfw=;
-	b=VR/eoAhCxNCPIocR/HXW7d5PyILNawlWacd2o1qRpwvA9su2rqfWUU9qOEDfdYAElgxxev
-	gnLzmamG3XMdVTc2+D073nyvA3biEkS8CrJrCf3WUNoxBKzw4YY3y+kNKr31U2HThpJECw
-	j66963bwaWtovuZsnsnpES7DtjURCu0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CXoL+WQHSf+XTBr1CBk1hX3xSrp4GoYvIVG/Iw0rQu8=;
+	b=AszaI7Hq/0fUAxrji5Cyq5+8Eepq96V0RHlXl9i/Zv7TzG3od+5phkE4vkOFHFqfHEX6tP
+	nkVLdmLzCxml/Gw579fLK8C49wKRuuClr4pfClc/w4b5zewxweZ4GNgzWqawRDxBROhITV
+	C+exrQnfKXyAaBIa2Pmt3nzOLrR6v3c=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-482-W20uTs5yNYWFYMSACkYeDw-1; Fri, 10 Jan 2025 03:35:46 -0500
-X-MC-Unique: W20uTs5yNYWFYMSACkYeDw-1
-X-Mimecast-MFC-AGG-ID: W20uTs5yNYWFYMSACkYeDw
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43625ceae52so9655505e9.0
-        for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 00:35:45 -0800 (PST)
+ us-mta-549-W2IiTfUHMky2ws9y52SxJg-1; Fri, 10 Jan 2025 03:39:24 -0500
+X-MC-Unique: W2IiTfUHMky2ws9y52SxJg-1
+X-Mimecast-MFC-AGG-ID: W2IiTfUHMky2ws9y52SxJg
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-385e1339790so1116069f8f.2
+        for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 00:39:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736498145; x=1737102945;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=F5v5m4rv3lPn2u8LD9NON66qt3Pvib6QUvVJIVTGvfw=;
-        b=kErSGRs+C02X0U1bdlCZu/+dU9S6Gxd4KpLK22ckbbG3YJ/n3AJ76MDq1f8YeDNcFe
-         ms7AXaQvHbcG2jj2wh6NdHgZMNQ5c3FsYHGe/r5IrjCiM9cqOebZ6e4VDote1AWQ7ZHR
-         PyIMSA9A/wj19YHC9phbBkVnoOKjDeAEAZ2O4Iyvy3QQtayi7XykU4WjDj3xFADga/vf
-         3c73BWCKu9OiTjcSy9JlcJeCTau+RsAoELKbd11h2OaomtSCQPXya7Pi/xx4VsEVXFAb
-         VgUd+tlCiGiE3I+S9CzHwxE/C6DTqAGq7UpQGzgJ2YRAB7tncu8jm3CuJYFmFgsZUjYP
-         AfRA==
-X-Forwarded-Encrypted: i=1; AJvYcCW7x6OxbdmfULKRC4tspCGweqjwpXY2YVCeYCKbOVqufzSIOieenonInUIwxp9Rtqi5JG09a6dITG50zYKdNA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywl2I3WokbfViopq4iENuILxjmJZH2YEj8RH8VxFEcXcFXP9mI5
-	WDJhOS8yOjM9Wg4KYMY7qiZFSmezZyEA9cobe64FdshTnbWS58TL0VAZsVlWh3NF41HrpyVg7gc
-	U8oAMHwt3mgiudTxaagDIH7/bwMIdD99bsF5fTgfgFkqZFDuipLYqvgHvAzE0q3la
-X-Gm-Gg: ASbGncvYnBcCc4Di4WgiYX8VW9uX6tIKwUkOf0ViY1C61l9UEavUpKajx4XxG4QOyUz
-	OwXkkGUKSuIZsVb7jCBYr9Hy5iFWUHNzm3WxWiPEu006itOc9Wco8YgToBHQCsMYr2S183XVL0B
-	3UuayXdyi9Hvb+dSNeWBMm5dpbEaw2KfOUTIuf8qhdlfZl/JzciCG4eySaF9l4KE/3Aa5AcAEzv
-	V0g0Z+stumUgGneBhdoqm9gEw4kSZyBZY7V+sIDXXgODTU=
-X-Received: by 2002:a05:600c:4fc2:b0:434:f3d8:62d0 with SMTP id 5b1f17b1804b1-436e26803f4mr84609945e9.3.1736498144877;
-        Fri, 10 Jan 2025 00:35:44 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGpqRZ6c+WoEWD0O+MqMW8gszvq2OTzZ1nbLSdaSb4uThngbiKtv0ftXVfyIYyqEi2yR41t1A==
-X-Received: by 2002:a05:600c:4fc2:b0:434:f3d8:62d0 with SMTP id 5b1f17b1804b1-436e26803f4mr84609315e9.3.1736498144222;
-        Fri, 10 Jan 2025 00:35:44 -0800 (PST)
-Received: from step1.. ([5.77.78.183])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436e2e92dc4sm78738505e9.39.2025.01.10.00.35.41
+        d=1e100.net; s=20230601; t=1736498363; x=1737103163;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CXoL+WQHSf+XTBr1CBk1hX3xSrp4GoYvIVG/Iw0rQu8=;
+        b=sq7NOf2pQd02EoVmVMe+Z5pQLGO4wYOzHCDglAG51vjAbS43Ofge8OY4gTTUI41L21
+         lkFDOLgR4iCZvdDZb0+qvMXqkl7EiAFE9b30GkS4aDYWzxWusl3zuJQ23Ls3s2ROD09q
+         9Ki7WWk13mYhaVlOaiW+/42nFpY8CEBQ0Pqe1Jgj6pVQsXvIb3K5qLmPdu/Qh6Ub3Utk
+         ZHORnRJkwbNDN58SD7CTxbVUPAMz3qdIRadSSu1v4x1ZFzuVHLIqLvHvt037PQkpA337
+         R+i4SFWOse7bf5Y54WOsWtSSgtgbwa0AXKDkKIrrHvYeojZcAAf7ad0Q4dNRpwQlJ447
+         pLnA==
+X-Forwarded-Encrypted: i=1; AJvYcCVhMdVSfKRjZJZVtWgCrD8zP0+x9HEB1bBiTlY+soyPPVw1XYfS0WUVlgfonW+st0g7DUlLFrJ8Xnke1JRWvw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyDu2b0Q8Tju/cG56/SweG44HzmjdFmNQLfWt5BQHPxMIx7vrsK
+	4gpkNeq/FMFAXorTakdft2oq2LnulChHzYsOeK4Cetrs5k2f6J+O8Sg9U5UvIDEfo/G86D/35Ik
+	gy+aBWXdt5g1uHBMrB1X+9zuxVsWXbk2z8hIx1MtIrcqDAPX1/o+ippKHIY39OKlc
+X-Gm-Gg: ASbGncvGN2pRJwqnuSKd6aXFUcpHfg6fTph3q2+rcuyeHso/WQUrUurBy1Cs1JDjQng
+	p5x0RpV+V/u0VZqwinEisnx02X3VkhHQMMYtdpkEtoEIO7WkRvzZZN70LRV3ufg5XiB/cndnphw
+	fduBTbtFuzF3HyhDEUIXPI1/QyY0wH+vLjZzWWxzOpYtwL9ceZ72IVeuNCc1qJwOn44vamOxqws
+	p88A/s22SHkJYdWGIbQYuAxWJJNamcfzLDSCELZfsQnsw+UGpDUCcnD9w==
+X-Received: by 2002:a5d:6483:0:b0:385:fabf:13d5 with SMTP id ffacd0b85a97d-38a8730d55cmr9428506f8f.25.1736498362855;
+        Fri, 10 Jan 2025 00:39:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGxWFzsARmI1wzAKHZHOe31pA0LmSwGyB/GI2e+cfrQc0ZXGW0pe8rXUAHFnRj3NAhqLwSr2g==
+X-Received: by 2002:a5d:6483:0:b0:385:fabf:13d5 with SMTP id ffacd0b85a97d-38a8730d55cmr9428445f8f.25.1736498362219;
+        Fri, 10 Jan 2025 00:39:22 -0800 (PST)
+Received: from sgarzare-redhat ([5.77.78.183])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e4c1b44sm3942825f8f.90.2025.01.10.00.39.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jan 2025 00:35:43 -0800 (PST)
+        Fri, 10 Jan 2025 00:39:21 -0800 (PST)
+Date: Fri, 10 Jan 2025 09:39:16 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	bpf@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Luigi Leonardi <leonardi@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Wongi Lee <qwerty@theori.io>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	kvm@vger.kernel.org,
-	Paolo Abeni <pabeni@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Hyunwoo Kim <v4bel@theori.io>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Michal Luczaj <mhal@rbox.co>,
-	virtualization@lists.linux.dev,
-	Bobby Eshleman <bobby.eshleman@bytedance.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net v2 5/5] vsock: prevent null-ptr-deref in vsock_*[has_data|has_space]
-Date: Fri, 10 Jan 2025 09:35:11 +0100
-Message-ID: <20250110083511.30419-6-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20250110083511.30419-1-sgarzare@redhat.com>
-References: <20250110083511.30419-1-sgarzare@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: netdev@vger.kernel.org, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wongi Lee <qwerty@theori.io>, 
+	"David S. Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>, 
+	virtualization@lists.linux.dev, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Luigi Leonardi <leonardi@redhat.com>, bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Hyunwoo Kim <v4bel@theori.io>, kvm@vger.kernel.org
+Subject: Re: [PATCH net 1/2] vsock/virtio: discard packets if the transport
+ changes
+Message-ID: <2wsi6sehglavj75jr5gugdq6oqtor7gonx5zhmetzqwvfwc5gn@e3xlsfvygfgj>
+References: <20250108180617.154053-1-sgarzare@redhat.com>
+ <20250108180617.154053-2-sgarzare@redhat.com>
+ <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: j6XbQVaEA05GWuBJ3GqBGPycesi0DaVuj-VtA1MELKk_1736498145
+X-Mimecast-MFC-PROC-ID: 3UtAgfAFDpHMQo_DhPJGh7_D_rCUUOQUxzcoNEZBszM_1736498363
 X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Recent reports have shown how we sometimes call vsock_*_has_data()
-when a vsock socket has been de-assigned from a transport (see attached
-links), but we shouldn't.
+On Thu, Jan 09, 2025 at 02:34:28PM +0100, Michal Luczaj wrote:
+>On 1/8/25 19:06, Stefano Garzarella wrote:
+>> If the socket has been de-assigned or assigned to another transport,
+>> we must discard any packets received because they are not expected
+>> and would cause issues when we access vsk->transport.
+>>
+>> A possible scenario is described by Hyunwoo Kim in the attached link,
+>> where after a first connect() interrupted by a signal, and a second
+>> connect() failed, we can find `vsk->transport` at NULL, leading to a
+>> NULL pointer dereference.
+>>
+>> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+>> Reported-by: Hyunwoo Kim <v4bel@theori.io>
+>> Reported-by: Wongi Lee <qwerty@theori.io>
+>> Closes: https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> ---
+>>  net/vmw_vsock/virtio_transport_common.c | 7 +++++--
+>>  1 file changed, 5 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>> index 9acc13ab3f82..51a494b69be8 100644
+>> --- a/net/vmw_vsock/virtio_transport_common.c
+>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>> @@ -1628,8 +1628,11 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>>
+>>  	lock_sock(sk);
+>>
+>> -	/* Check if sk has been closed before lock_sock */
+>> -	if (sock_flag(sk, SOCK_DONE)) {
+>> +	/* Check if sk has been closed or assigned to another transport before
+>> +	 * lock_sock (note: listener sockets are not assigned to any transport)
+>> +	 */
+>> +	if (sock_flag(sk, SOCK_DONE) ||
+>> +	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
+>>  		(void)virtio_transport_reset_no_sock(t, skb);
+>>  		release_sock(sk);
+>>  		sock_put(sk);
+>
+>FWIW, I've tried simplifying Hyunwoo's repro to toy with some tests. Ended
+>up with
+>
+>```
+>from threading import *
+>from socket import *
+>from signal import *
+>
+>def listener(tid):
+>	while True:
+>		s = socket(AF_VSOCK, SOCK_SEQPACKET)
+>		s.bind((1, 1234))
+>		s.listen()
+>		pthread_kill(tid, SIGUSR1)
+>
+>signal(SIGUSR1, lambda *args: None)
+>Thread(target=listener, args=[get_ident()]).start()
+>
+>while True:
+>	c = socket(AF_VSOCK, SOCK_SEQPACKET)
+>	c.connect_ex((1, 1234))
+>	c.connect_ex((42, 1234))
+>```
+>
+>which gives me splats with or without this patch.
 
-Previous commits should have solved the real problems, but we may have
-more in the future, so to avoid null-ptr-deref, we can return 0
-(no space, no data available) but with a warning.
+Thanks again for the repro, it worked for me, only if a G2H transport
+wasn't loaeded (e.g. virtio-vsock driver).
 
-This way the code should continue to run in a nearly consistent state
-and have a warning that allows us to debug future problems.
+I tested on the v2 I just sent [1], and I can't see the kernel oops
+anymore, but please do test/review too.
 
-Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/netdev/Z2K%2FI4nlHdfMRTZC@v4bel-B760M-AORUS-ELITE-AX/
-Link: https://lore.kernel.org/netdev/5ca20d4c-1017-49c2-9516-f6f75fd331e9@rbox.co/
-Link: https://lore.kernel.org/netdev/677f84a8.050a0220.25a300.01b3.GAE@google.com/
-Co-developed-by: Hyunwoo Kim <v4bel@theori.io>
-Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
-Co-developed-by: Wongi Lee <qwerty@theori.io>
-Signed-off-by: Wongi Lee <qwerty@theori.io>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- net/vmw_vsock/af_vsock.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Thanks,
+Stefano
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 74d35a871644..fa9d1b49599b 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -879,6 +879,9 @@ EXPORT_SYMBOL_GPL(vsock_create_connected);
- 
- s64 vsock_stream_has_data(struct vsock_sock *vsk)
- {
-+	if (WARN_ON(!vsk->transport))
-+		return 0;
-+
- 	return vsk->transport->stream_has_data(vsk);
- }
- EXPORT_SYMBOL_GPL(vsock_stream_has_data);
-@@ -887,6 +890,9 @@ s64 vsock_connectible_has_data(struct vsock_sock *vsk)
- {
- 	struct sock *sk = sk_vsock(vsk);
- 
-+	if (WARN_ON(!vsk->transport))
-+		return 0;
-+
- 	if (sk->sk_type == SOCK_SEQPACKET)
- 		return vsk->transport->seqpacket_has_data(vsk);
- 	else
-@@ -896,6 +902,9 @@ EXPORT_SYMBOL_GPL(vsock_connectible_has_data);
- 
- s64 vsock_stream_has_space(struct vsock_sock *vsk)
- {
-+	if (WARN_ON(!vsk->transport))
-+		return 0;
-+
- 	return vsk->transport->stream_has_space(vsk);
- }
- EXPORT_SYMBOL_GPL(vsock_stream_has_space);
--- 
-2.47.1
+[1] https://lore.kernel.org/netdev/20250110083511.30419-1-sgarzare@redhat.com/
 
