@@ -1,133 +1,154 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84C2A209F48
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:12:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE06D20C019
+	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 11:25:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736507555; cv=none; b=WavN28XmYUUqYwacutbjYo8pF8Cs9NCFS6NoJeVq1MT9CBrhzrn6Qid6GHEG7AVCOxi5FV/KKPjvGai9oakuCb66WPlY67aMjTAXxX4M5KVNQJzKSunL2L2qrPHwozlmPVJye98VgI0l2lTb5BBPvSGJT2ImfWT+0EzW6x0L4kg=
+	t=1736508322; cv=none; b=BcDB3tJB8mFLPCOQVqFbzKnGXEoGcQV22EH6ytPkMzDFyd5mcvAJRTNOwJ8ieTSlC0UnbeQREa4HhFIKsg8rbrIYgzjYcL89NjHJwNVBSwflQQaWEqC2wG68x59XY3HyCTNEsGeyngL3JyHlG2/6snvEdzqxb3tkry/uBllDkJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736507555; c=relaxed/simple;
-	bh=qXSynCY96TYG7wZ7OASI5Muii12uM+aBd0x+fKz2Q64=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fapc+Chub51Z9IqzRisxwrN68tGs2DSrSWc1EuVDepaf1f0jq1roBhSsRLrCPyB1SEPWhpyKcSNHnxEW1VsYWx4CEt2OKTZjz3fFonMeXLYvQ5IwKmscfgR6p7JS9LlM78HUAkwJ50GtmCUsyiyge6M6DzdqRfzGIhOIDCrgeYU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=a+oDhSt2; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1736508322; c=relaxed/simple;
+	bh=h+3V8Dg/wI18YbTuYBPBYgVfFTOtZGjB+ocTQMzeqlo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=F1jSTel/6RL//urKFgofksUa5eLdZrMHS8mWgyRlLNo5qp0ZNPNaZXmgvAKPICFdHeVs3ORvISr2ueHzU87G+3toMNWWAM1SAFQLzEyW8rIqMypZ5W+3uTR/Jni3Hz2N9+f5lk7GpgSjCfghux4vZWNquRQf3OyBHLwVQ46Y4aI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NffOMgCO; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="a+oDhSt2"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 231B5404E0
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:12:34 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id BsHEMKH3k2z4 for <virtualization@lists.linux-foundation.org>;
- Fri, 10 Jan 2025 11:12:33 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::633; helo=mail-pl1-x633.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 46C7140112
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 46C7140112
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=a+oDhSt2
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 46C7140112
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 11:12:33 +0000 (UTC)
-Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-2163dc5155fso33488675ad.0
-        for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 03:12:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736507552; x=1737112352; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=fUI/Gf/iNdZ2kON6E6PSrhEkMNvEUQIh/sL8yMhLamQ=;
-        b=a+oDhSt2j97CrwaKZgP2UggRaiVIYcl7pDmGXdJK4IIsSSBVtT9S7yzhstM4vfH7Tq
-         vZbnhB5fsB6cz0wmzd3MGtLRRtkDQWJleyiS0AP6RKNowjhgziKKLlikIfiD1ez5v8GB
-         82P9bnFQZvAvzWkciGfe3jFuzB8iZkaoy81bfMU9b6dApoaID7X36D/veT9W2/Emspo6
-         ZK1YpQdsmAsicNvqDoFFFBkd8JNtf0k7WsDpHfOm7QDWu9DZ7hmOXZ6b4nsLvtgyMmms
-         K0krXeQldUIlhgxUT63UpdvxG1K7DZvLwUKar9wgBcf/EX3mUMheY3aijOdSp2C7nEyW
-         eyQQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NffOMgCO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736508320;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4Ef2wLHVQGV1IsoMPeKXi5uZyvCqMew4uoHW3wntJAQ=;
+	b=NffOMgCOAshceS8GokIk/LdN4Ak1N4IygtCeQDEfNXR8+qKbwrYfvNzrEemycOXSzZtf4J
+	WPYi6KlkBD7E0RkDHPFWPNxqB3F4sB15gN/cNtYqJcJrCRJ9sH3+u1FMEkWapm4byuEMJ2
+	MBkzEPmS1ydFf6nQRMXtldRz+RowVy8=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-451-qcT3XR_INOuhIQoJya7GTA-1; Fri, 10 Jan 2025 06:25:18 -0500
+X-MC-Unique: qcT3XR_INOuhIQoJya7GTA-1
+X-Mimecast-MFC-AGG-ID: qcT3XR_INOuhIQoJya7GTA
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-aa680e17f6dso145554166b.1
+        for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 03:25:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736507552; x=1737112352;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fUI/Gf/iNdZ2kON6E6PSrhEkMNvEUQIh/sL8yMhLamQ=;
-        b=MmS5RNICCRWJb4RXj1lAd9Kv7ebvniSNQyZrZ5VBT5PYzGwoKseQWBCD1F7zUxMCyk
-         yjMK5Z8eEZ46CIw53st3ozUSQP1oWvLAxSP2dcN8gP6Z/mxEINxNy7NiaG97+0so7OzM
-         UEU7fMLQEGk3psusJ5tT8PW1r7saRV58IQf6+2UUvK6/5mDFT6TlVxuPXeIWDrD91Wnz
-         bl8MC1/5OC71w9ZrXES4qR11AI8BrV5kY84AJm3YU7v2q3R9VLSiK89NfrQn2+6HNc/Z
-         4NdK6BOuzWm7KDCPFtRDSynp6EnZtowbNWSNo0FqmTtJhwT9wwBYKYE6lMrAKT34IEde
-         FiNw==
-X-Forwarded-Encrypted: i=1; AJvYcCWznbZu3kMmN9HOmaxEd0AsklgUb84p/be1uad0FZ+BeiIySclR37nR5Bm2wPPjoUsqN79AxDjEJ1M3L+dopA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxIp0fh4TMBwoMkBBfkEYOs+u9TxLyIERrIq1krnQk4gyG7FqJB
-	QbbotifUwnt5+COnEoO610BVix3MJ+LuskUeIVbJy2zT21qNobXQ+CT6AjSZV8E=
-X-Gm-Gg: ASbGncs61S23+XvU8d50mqFOvJD1ws96i2x1pVlhF6bXZ33qoSRoJicL9NhmVeYmkME
-	IhGBPNfxM4mZUd9GLY56gLFs7cl3HSg2E0dWO0GIb8aRx53qW8lEf+z53xurGLExBMomcM76pTl
-	cZjIUhP2Cb/TUyEU9ya9+MJHbWlBYYCFp3CQaduIJPiCH8wxb3CsS1RMgJYXwhAj+YCczjMzf8Z
-	JWY6zA8jd/xg9fhocy80tCtL6SbFeWIOy5uxBY20uw5k39waviflz007FUVxVihyzw=
-X-Google-Smtp-Source: AGHT+IFsisJKA6JOrR0eUj5WfV8wXSlwG+ErpDxaHPAWov6uHn2OYu5jltHENp4vvgdoL273AAhZWg==
-X-Received: by 2002:a05:6a20:244d:b0:1d9:fbc:457c with SMTP id adf61e73a8af0-1e88d0a4770mr18461822637.36.1736507552500;
-        Fri, 10 Jan 2025 03:12:32 -0800 (PST)
-Received: from [157.82.203.37] ([157.82.203.37])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72d4056a2cfsm1373935b3a.51.2025.01.10.03.12.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 10 Jan 2025 03:12:32 -0800 (PST)
-Message-ID: <2e015ee6-8a3b-43fb-b119-e1921139c74b@daynix.com>
-Date: Fri, 10 Jan 2025 20:12:25 +0900
+        d=1e100.net; s=20230601; t=1736508318; x=1737113118;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4Ef2wLHVQGV1IsoMPeKXi5uZyvCqMew4uoHW3wntJAQ=;
+        b=pqvQG2M/+XFNVSRceXKvD86QE389oIadyB/7txME8YadH8xb+P+pGtXyV/8XVvch1J
+         yUfdFhicecp4wzGqizeBE4m2PUlvsvuMDRq2rDIIEq91xn6+wJzr9pRN447shMAPXxjC
+         QChR9gUH3oC1q6sYp58fskYh+dwI8dQsx65hJb6/5H0XAXJYyJNKPdA3L08FZjAWqLTS
+         lcn7dsH01KQ044eOGgjEYUD2gY16X9L+msRlQVwhFTkTeM2nJxILIYlAfixd14ucbztP
+         1yvuaBLaFRr3Xyk/Bty+jZvt2N8vhELUEov9DW/RRg6QPqjEyxERAKZ37+4SMgv3+usL
+         D8pw==
+X-Forwarded-Encrypted: i=1; AJvYcCWwFcolCx5qzpFjgi+SGOQWpJQ5IYUQmRsJ4YTd00FmGq6QZldA9wMAoNX2YFlMmmxGPkDz6GriuRvlz4pJtQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwD31lS6lSQ50+hzqMFTLDhD4SMz6+/myhm9QVepUw+0bEKdn9x
+	c8FCpvqarVteP1AkDZZ3Dz8Okfp/bVTQc1hP6vW8I6noI9hVFTluWaNwhspWq+P1hPPMZlNYkZg
+	99+A6Bte+76HwHnQX+BHwstAjUO3uV/n+2JhHgK1Sr9MLQTyjo8GnNUs14YtCui1z
+X-Gm-Gg: ASbGncvR1su8M3ti0+jLrj6yrbf9skTVOtA/mRSsgt4Uv35D40vMeRAdyvYh6CpT+PY
+	Ww6RWw9PyvdFxf0Pn0BRw0Te/wgpOhyPUKVU7xa/zyHgbgDnEk1bYJ50Tsk+LqhtAS28InTdzNj
+	8DCN22dsxL0yjF6LGaCZkuOpocxZvBVE+BeW79gIZvzUAI7ok+Z6W+8iJzn35eeGax+7XEzeU0P
+	0GwqNfbl2fMVOtbvI/rUtVu3FzGjFu6aIlcZYKyeGcYqmKz6JiHPvCFqe20xnI=
+X-Received: by 2002:a05:6402:5194:b0:5d0:fb56:3f with SMTP id 4fb4d7f45d1cf-5d972e0e341mr23290979a12.12.1736508317703;
+        Fri, 10 Jan 2025 03:25:17 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH3mqsKI2idLOS3bFseUHtOVmXbXG31Er639vFwFDT2akA/HfPxaQl8uNFpTeEdJZcPXxQTRg==
+X-Received: by 2002:a05:6402:5194:b0:5d0:fb56:3f with SMTP id 4fb4d7f45d1cf-5d972e0e341mr23290897a12.12.1736508317029;
+        Fri, 10 Jan 2025 03:25:17 -0800 (PST)
+Received: from sgarzare-redhat ([193.207.202.103])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab2c95af694sm159293266b.144.2025.01.10.03.25.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2025 03:25:16 -0800 (PST)
+Date: Fri, 10 Jan 2025 12:25:09 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Luigi Leonardi <leonardi@redhat.com>
+Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	bpf@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Eric Dumazet <edumazet@google.com>, kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>, Jakub Kicinski <kuba@kernel.org>, 
+	Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
+Subject: Re: [PATCH net v2 4/5] vsock: reset socket state when de-assigning
+ the transport
+Message-ID: <fjx4nkajq3cnaxdbvs3dd2sxtc35tkqlqti3h44t3xuefclwar@havkg6jfisxu>
+References: <20250110083511.30419-1-sgarzare@redhat.com>
+ <20250110083511.30419-5-sgarzare@redhat.com>
+ <esoasx64en34ixiylalt2hldqi5duvvzrpt65xq7nioro7gbbb@rhp6lth5grj4>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] tun: Set num_buffers for virtio 1.0
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Andrew Melnychenko <andrew@daynix.com>,
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
- devel@daynix.com
-References: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
- <20250109-tun-v2-3-388d7d5a287a@daynix.com>
- <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
- <20250110052246-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <20250110052246-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <esoasx64en34ixiylalt2hldqi5duvvzrpt65xq7nioro7gbbb@rhp6lth5grj4>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: OYMt_gOYEiYA2q1IjYlB9Jys51l4GO179DP-9F1H2Hk_1736508318
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 2025/01/10 19:23, Michael S. Tsirkin wrote:
-> On Fri, Jan 10, 2025 at 11:27:13AM +0800, Jason Wang wrote:
->> On Thu, Jan 9, 2025 at 2:59 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>>
->>> The specification says the device MUST set num_buffers to 1 if
->>> VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
+On Fri, Jan 10, 2025 at 11:56:28AM +0100, Luigi Leonardi wrote:
+>On Fri, Jan 10, 2025 at 09:35:10AM +0100, Stefano Garzarella wrote:
+>>Transport's release() and destruct() are called when de-assigning the
+>>vsock transport. These callbacks can touch some socket state like
+>>sock flags, sk_state, and peer_shutdown.
 >>
->> Have we agreed on how to fix the spec or not?
+>>Since we are reassigning the socket to a new transport during
+>>vsock_connect(), let's reset these fields to have a clean state with
+>>the new transport.
 >>
->> As I replied in the spec patch, if we just remove this "MUST", it
->> looks like we are all fine?
+>>Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+>>Cc: stable@vger.kernel.org
+>>Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>>---
+>>net/vmw_vsock/af_vsock.c | 9 +++++++++
+>>1 file changed, 9 insertions(+)
 >>
->> Thanks
-> 
-> We should replace MUST with SHOULD but it is not all fine,
-> ignoring SHOULD is a quality of implementation issue.
-> 
+>>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>>index 5cf8109f672a..74d35a871644 100644
+>>--- a/net/vmw_vsock/af_vsock.c
+>>+++ b/net/vmw_vsock/af_vsock.c
+>>@@ -491,6 +491,15 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+>>		 */
+>>		vsk->transport->release(vsk);
+>>		vsock_deassign_transport(vsk);
+>>+
+>>+		/* transport's release() and destruct() can touch some socket
+>>+		 * state, since we are reassigning the socket to a new transport
+>>+		 * during vsock_connect(), let's reset these fields to have a
+>>+		 * clean state.
+>>+		 */
+>>+		sock_reset_flag(sk, SOCK_DONE);
+>>+		sk->sk_state = TCP_CLOSE;
+>>+		vsk->peer_shutdown = 0;
+>>	}
+>>
+>>	/* We increase the module refcnt to prevent the transport unloading
+>>-- 
+>>2.47.1
+>>
+>
+>Hi Stefano,
+>I spent some time investigating what would happen if the scheduled work
+>ran before `virtio_transport_cancel_close_work`. IIUC that should do 
+>no harm and all the fields are reset correctly.
 
-Should we really replace it? It would mean that a driver conformant with 
-the current specification may not be compatible with a device conformant 
-with the future specification.
+Yep, after transport->destruct() call, the delayed work should have 
+already finished or canceled.
 
-We are going to fix all implementations known to buggy (QEMU and Linux) 
-anyway so I think it's just fine to leave that part of specification as is.
+>
+>Thank you,
+>Luigi
+>
+>Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
+>
+
+Thanks for the review,
+Stefano
+
