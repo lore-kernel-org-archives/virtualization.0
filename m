@@ -1,212 +1,287 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26A6820DD79
-	for <virtualization@lists.linux.dev>; Fri, 10 Jan 2025 15:10:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736521813; cv=fail; b=asuvxFN15bqMlNz7tbq6tWh65kNUsIHND8YVt7IBFTxRvjbFhYsjXccmoXlmBJK3fN7Ntc8y6Wphhb2/wghgwNBpI5y+tcvsU2hVuBE5DE4jjAjdEs/aUjy0KTJaKv5l5m8qv/OS/qoiQuKlvw3lWb5IwhuQiQe4ZAmn/JsQvKk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736521813; c=relaxed/simple;
-	bh=7XEZHCDLfZ3rcjtzbDcan387+a6EsJs+RB2bal8tjOY=;
-	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=VNHlWSKAhwHwql91c8Hhga4KX93Cke/+k7p2DBwV+nHkcJz2+0RVB/hI0SWprZw18u/SPHQiSArxcCRpM6/Zx65eK2t4d4pTg6QpQpwbj2mwkBvmjk0zI5YaszAtLNJCsvVJjBsg/cvts9RTezSqzIEst5ER90iOen9CoNd2ZZc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LHVNg7Vy; arc=fail smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 799A0212D96;
+	Fri, 10 Jan 2025 16:26:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1736526406; cv=none; b=HPa00omCphg7jz4iBtNE6irH3eowZPvjm9bU35sjPwRmXfCkUAv68GPesWmh59L/E0/gGCeIGobnXkIK+hlFWmkfRsTIV+cziqxn0DusS4dWuWdyUn8v2fuveKOqL0ov+FYyS4RcWLGX762FLVVxnVZupeeIHX0HoB1TtEYCQfM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1736526406; c=relaxed/simple;
+	bh=8+1TkdvqacD8Nc4nf9rT0oLnAayacOVRY3LIe46qmxQ=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=D0gdzRBGE2LveV6bZJfmaaHHZZcHXFVy7VPol5E0lEW+W1alEGFNr1735JykjNxzFhVSvbi1dXb1dozSppqukkv9vu4XRYSi7yNgRSbTvl+aJYMd0RdMCqxgBHHJL91E4TZPFb6mgJ5BxG5UWqCLMHRpq9BuPXzdaDZKaMyvIZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eZDP2TGT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LHVNg7Vy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1736521811; x=1768057811;
-  h=date:from:to:cc:subject:message-id:references:
-   in-reply-to:mime-version;
-  bh=7XEZHCDLfZ3rcjtzbDcan387+a6EsJs+RB2bal8tjOY=;
-  b=LHVNg7Vy7WOABBbCCXWeGcqEPPJ9Cm1oFUDAG08EaI9qZVWY/nrKWbyg
-   f+r3m1+3rAG1JX9P4QDLnMm8kjKLUZyAdZOQxHjHpSxY7sAcFYBLcuWOl
-   /skYP/msKgaSEN3IajMiKDuNeD0kIbl8PppZEYywFEFtBlaL6iDwEC9wD
-   OiYDJXV+Ox1RolgG0pd7Ig4kuic2Pti1VLKknvjPGx4yGwT9MuM1sWsHg
-   SH1/mPzSNbhHNCPbON8I34y3Z26wXAzaaE2rzoTYHqVIWeIg9Zvw0tChB
-   b4aOfcWMoepCU62Pgc7igllTrfIPcyLv21cPTy2gRyW6qTWeQkT4GTj/h
-   Q==;
-X-CSE-ConnectionGUID: kjVnMR5TSZqc0TedxfgseQ==
-X-CSE-MsgGUID: hVomWz6lSu2pYD44Tz+nyQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11311"; a="40583089"
-X-IronPort-AV: E=Sophos;i="6.12,303,1728975600"; 
-   d="scan'208";a="40583089"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2025 07:10:10 -0800
-X-CSE-ConnectionGUID: MOM5E4EtT5iJajhd+Etx+w==
-X-CSE-MsgGUID: 4RWwGWt5TbKQ16goD1vtzg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="127039696"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
-  by fmviesa002.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 10 Jan 2025 07:10:10 -0800
-Received: from orsmsx601.amr.corp.intel.com (10.22.229.14) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.44; Fri, 10 Jan 2025 07:10:09 -0800
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.44 via Frontend Transport; Fri, 10 Jan 2025 07:10:09 -0800
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (104.47.51.49) by
- edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.44; Fri, 10 Jan 2025 07:10:08 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=i4qN+uOsdy2B12MhnWQcZexhbranG5SYVGnm/3CcHPPIvkLe4iY2nhYUNlqXd5IPZ2uew/AYhUr5msiXkqw6/fB/bpj85JR6oOYN1WEVwcSX6z1vU+qH5J3vf3YkrDiFTuuGQGDWhPRafbcywTk3jZWV+/jelF0locx24SQJC0VoNwLnhc+I5b5ORi9tlx9yJFUSYDLgK1ts3a0ED9Ah7MwPevWmisI+xnx/NVi2omZHoCgcbZmhq27JihAGg5CZqirjaiS7X1Jhj7PLCwSMa8PEvkbO4dvbjk29d1fcbK3rCIEVmMQTaDjftTSx7Cr54uMvt5jLrm0zeQor80TvCg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0VhKaezIyvoaulLjeKFChbiQagBpZVwskySAEAqbOXk=;
- b=jhD9Vaf7bqrTQHF/Kc1+8uMuogdJmwfkQP7WmmB4/hYrdOjDPnH5KcF8CxpMHRJE5nHJWbrBmHnnTIIxYA69YQJD0XftNuah88KIqYtk2kbLAwSoFsx18zSWisDpDL1op4HwNQHaYyUbedEqgcGdvGyqsl5HGMhpoBN9pbtiWGxS65973zfDyPOHxZKvo+HfaXNcQutwDmIKjYe6wPpouBfaGx3q5Nmc+0m4o4uGqyS0uh8SmEd/dd6pOBG/dAGsYGIJYyWaB7dByCh/6Z146LZlzd2yf2VyRJa4vzqPTWUCrrEhqBcpOZwlr8lguVjbj5LKL8EdLzv7xqcy8nvClQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from SA1PR11MB6733.namprd11.prod.outlook.com (2603:10b6:806:25c::17)
- by SA2PR11MB4825.namprd11.prod.outlook.com (2603:10b6:806:111::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8335.13; Fri, 10 Jan
- 2025 15:09:53 +0000
-Received: from SA1PR11MB6733.namprd11.prod.outlook.com
- ([fe80::cf7d:9363:38f4:8c57]) by SA1PR11MB6733.namprd11.prod.outlook.com
- ([fe80::cf7d:9363:38f4:8c57%4]) with mapi id 15.20.8314.015; Fri, 10 Jan 2025
- 15:09:53 +0000
-Date: Fri, 10 Jan 2025 09:09:49 -0600
-From: Ira Weiny <ira.weiny@intel.com>
-To: David Reaver <me@davidreaver.com>, Amit Shah <amit@kernel.org>, "Arnd
- Bergmann" <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC: David Reaver <me@davidreaver.com>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>, "Thomas
- Gleixner" <tglx@linutronix.de>
-Subject: Re: [PATCH] virtio: console: Replace deprecated kmap_atomic with
- kmap_local_page
-Message-ID: <6781383df520_167faf2946@iweiny-mobl.notmuch>
-References: <20250109035904.168345-1-me@davidreaver.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20250109035904.168345-1-me@davidreaver.com>
-X-ClientProxiedBy: MW4P223CA0030.NAMP223.PROD.OUTLOOK.COM
- (2603:10b6:303:80::35) To SA1PR11MB6733.namprd11.prod.outlook.com
- (2603:10b6:806:25c::17)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eZDP2TGT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 833DEC4CED6;
+	Fri, 10 Jan 2025 16:26:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736526406;
+	bh=8+1TkdvqacD8Nc4nf9rT0oLnAayacOVRY3LIe46qmxQ=;
+	h=From:Subject:Date:To:Cc:From;
+	b=eZDP2TGTbP+zwRmZEq/dbPBkfQp6zEg6QALsII4WFB4nr8ZA+ieVbzhkkuj3BMU60
+	 goMqrIXQQ5gWP+qZ98OEl4vJBIYcwR6r+HwHgB65UM0QnEZRlTmwuPur4Xkd+YofLC
+	 vVm9Z2EBa3bjXrNJ3oxbtGEwc3wjZtJKiFBWyWandr6JvHvBKqpaJeqvFjPoiHuORr
+	 tc9gaND4h6pHX03srLnTxY0FfPKS52PLJ9MYrjmcIIyVClePzxuGgheSlI2EhyjOAO
+	 980k/v6C/TpzUaIFJ4MOuvaZMsMOuV7ySL38AmCye8MV6kx81vVhtYMFMdJGKA1fZu
+	 4dpjawxEfhIpQ==
+From: Daniel Wagner <wagi@kernel.org>
+Subject: [PATCH v5 0/9] blk: honor isolcpus configuration
+Date: Fri, 10 Jan 2025 17:26:38 +0100
+Message-Id: <20250110-isolcpus-io-queues-v5-0-0e4f118680b0@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA1PR11MB6733:EE_|SA2PR11MB4825:EE_
-X-MS-Office365-Filtering-Correlation-Id: c1aecb3a-01a2-4670-5abd-08dd3188d5dd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016|7053199007;
-X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?YxTLXVIQLuS9wZuHisG24UMd/+j+hMZOBPJL8JJDL3N0vyfHJgOZBWcJ7p1H?=
- =?us-ascii?Q?6xMMYNxPrh8ykytTSgfmHVGstWTsVZLtcw0K9ZmYZMbckvGGb72UGR/m/btN?=
- =?us-ascii?Q?wD4uTE6yOZPtpQW+JMgt5k5XoJIBwRHGYiTczHZ5RtfwXzMzqxbfZarb1Py8?=
- =?us-ascii?Q?ZlAyB4qoHH8M2Fqx2Iw/EJCHBS/o52d4W4QLhZ6NFontiIJoBen6jhJqzVf+?=
- =?us-ascii?Q?D9doUeDxG0VEC5c2OmvYv/tdsnzdUSsEhbT8wjbUORHvfo80/9pYAnVBGmaE?=
- =?us-ascii?Q?wLD91Ok8cQx6n7zYB/nEK2+n8zh7mUeG+AsTcRsbbkajJrgudPjl1TDUw36x?=
- =?us-ascii?Q?lyqqeWe3boU6AL9vNuu1JkNLhheI46sYV6eGH2VozjkaT88nMQIrqpHLBDFM?=
- =?us-ascii?Q?UVslsAD4iaUR3CvhyN43DHxynGBi4E8TWeP2h3JMdIXKeRZXRUASeFjIGw6L?=
- =?us-ascii?Q?nLB/fZAlePvds/KfZlKKdmMlM7mFK/sO/hPfCkLRcdt+6ktO5xQ3xjd0QkG3?=
- =?us-ascii?Q?jdZU9WC4VmPXhUbBd4cet53I7enZDRjUEU85vrNE/OA9HEklu73+NDu1MtXy?=
- =?us-ascii?Q?zsNAskCvwIO2qHYzcMHCJ/jQj/qO7j4JZthMKH7m12Lh1e8E8yIZkNd7ffSX?=
- =?us-ascii?Q?sxSxiUWI3TtKkilJozyfi5Di1lkfXkuziQh2YMHBlJZs4ypaQFJS4P2EYSST?=
- =?us-ascii?Q?xdpxB3UmXzmr+Qo2RANDfm3sjIxZQp62Gg4s7MJIhXTAnniQGt+SF8fXRrNE?=
- =?us-ascii?Q?ybfQnLXzazuRt3sFimWfg+/hMr6zLsIE4NrsdyChsv7Ttssyip9hZxhgkdNn?=
- =?us-ascii?Q?Qq11BoZmgpdexv2Ilz7S7VYAcFSDiuveWzwKZJF1KPsMWt5Ln8IHkisuFqBa?=
- =?us-ascii?Q?0r9jBMFOyOBAYrZ13nPwkLjypOWj8ep1d/G1Vhz3kL5Ys8vbtiULPEOYqGgr?=
- =?us-ascii?Q?zK5ZvxFQz6jW/eZwFvP9XzIBWpnmhXemefEUUmwsp5UCSALx+WCn+LrjfvP9?=
- =?us-ascii?Q?NebpkeUH7jTpBNsep8Oaeq4//p+kkbrejDt7wwX9+pEoHxg9BmP9RjRNX3qx?=
- =?us-ascii?Q?nJ4b5cN87iSTdPA4tTT4CcLjMQswNERXBC5iP4Jb2PclLHKCoyWB0RhBWqOG?=
- =?us-ascii?Q?Zke1qnNjE3kUvakyRBinMkuGbi8V93YbOjszt+3k09sCDqOTydy+rmg5qnWa?=
- =?us-ascii?Q?iqXXWmjA8/TWrdSvzCI6nvfuD2gs0743ZeFvFqRxVcN7QYnLCzYgL8H1htgM?=
- =?us-ascii?Q?cN9uS+00chXLrpSmVMHTj+1tgTLUOPtInRSjsX1YR9oBYeG/SPyc6fXUkKbU?=
- =?us-ascii?Q?A0DfICnHqBTRnifFaCST/rKpSnI6xzfDEsdpxw10p7QHQw=3D=3D?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR11MB6733.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?dJRW0ktoCofw9ndR219OAVY1Vv72TBpLAs5C6aHVXb78shSyEGtIPEz0I7wR?=
- =?us-ascii?Q?fJiTSacr/D6D/qKExJTTc0yQ2Dva/bySXDA5lxvFy06kbiHuN6rvi797esq5?=
- =?us-ascii?Q?iEFhcobflJqbnpCHeVzK+jg8tvIolOtn+7bcfMHg5xEeY9MobxGNdx16b4sM?=
- =?us-ascii?Q?sdK67q0RrlOoycfuygKP6VEjELDtYV+TCXlgHt/ipPjMu9H7o3SugMVCdPMA?=
- =?us-ascii?Q?ctaGDa53QC8rLCrRUZ109PpFAGpXGjT/m5shisT88/MHsjvWz+NRt3MM+WnB?=
- =?us-ascii?Q?0Zf+Vj5qNnvz+PZZIJ3a31tj/LMokUIi5HCTtCKMQjjfdN+sTXarSdLxyiVK?=
- =?us-ascii?Q?XT8EIGUgrTlGTCYscjw/52LOVuocW5OjASLc/2qSFKCumyq4aSsnCPBAkvIq?=
- =?us-ascii?Q?LtxLwKYYSfbMnJrT2wAIbGv+cZ2yHMx9AGK0sxx/GeC2f8shnc6zk0JEn2M3?=
- =?us-ascii?Q?NA+lBCDOpSQS91FqcQKx/ThOkPIXIrm8cxQ55sUJTEWO6CO4EZEho1PZ+ePd?=
- =?us-ascii?Q?Mhi7hz/3tgFiw4Omnlpi+I2FivoO/ct4zMSzo1umZbvEYBg5VOy1GhEB9uFT?=
- =?us-ascii?Q?CgyETgI609w/fbDIeEDq4VdUSaalms9HkLSGZl/Ec9vWPXqih0enEP5RuoqF?=
- =?us-ascii?Q?ZZsqakeRfzfcKRNhoBVpYEdCipPOVxLrtNJlf/BVC513gfNtytb2vfmOe0um?=
- =?us-ascii?Q?arm4pcXRu/9gNhdffQSWClco4jWTbWZVraGJF1s+rOxljcTbrPGouS1TLbRu?=
- =?us-ascii?Q?W/tUsBW56DawNOT9JEgP+t/xk0Upcr4CodyLCaIIrW7gI69KgKZFx5rjN0B6?=
- =?us-ascii?Q?9HTeWtjm9OjrI1RGllqOFzJRzvuOsPOVDguKO9yBda2AlfOcTyKN1cTBCkoc?=
- =?us-ascii?Q?vn5JJ6MzEqQslXLUK/myzxcrLefdbj9HJIfPmdzPIu58wpEHP4ddnPazFpij?=
- =?us-ascii?Q?LNXZBaB5jii4V88pZpGjtWQbI2t2hQjtL8l2vWT7AYmqGiAEJeWs0yPpMf/P?=
- =?us-ascii?Q?BBtVkh5oHZZ9R9sTMNNnkXvXU9cCMzQreANMZPw9qFra36euoTwS/9dm6iyb?=
- =?us-ascii?Q?cJab3SYEXTyc2zpMuAajBXuWRDmmKC75pW5PjmicX4CdVX9aASKf3sZbstj7?=
- =?us-ascii?Q?qvBhwD5JYLJarvUuJVpQwwVjSKslVgmORI8dkCA6k7HlOu22zBEaxht3s7oA?=
- =?us-ascii?Q?D4lkQfWLtKZ7bN5Ppcp4sBBvdgOE4N2Oh5R1kmn7u+jOgbXn8eBi0fvBlHVO?=
- =?us-ascii?Q?KppsYk/RU4SaFRPwd2Phba+LaIDY6ZF4JFnAX7Awopw4QWjJk852w1dry1nm?=
- =?us-ascii?Q?iSzR2Z2DiWKa+sphwYxsy6LGJE8ItQtifp/2iHF3hAPMum04j8WiDhIjp7r/?=
- =?us-ascii?Q?iEg1ac2JMfjF6Xe7BWTbwwIQ0BPfxyr2H9L2EQGkstHotAOMaWqf3HMz4bzd?=
- =?us-ascii?Q?VsXUBi8J764ORr02e1mZvr5CiTVU4H8dKTpdv3LmdJS0vITf49Kx3c3s9EVs?=
- =?us-ascii?Q?y87cUJj91lLCPJb6UoGqNTBiekVbMj7sceUb7EA8cltXVa2wGfN7aMtdjruo?=
- =?us-ascii?Q?/n2Zp7YI8+OX6oiO+radFnSOJV02iYYymIqQGusz?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: c1aecb3a-01a2-4670-5abd-08dd3188d5dd
-X-MS-Exchange-CrossTenant-AuthSource: SA1PR11MB6733.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jan 2025 15:09:53.1525
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gmlutYDtaoFovFgpglowmXzcVRBcW8GP+k4+AtP4rMTgRFxB8e5F/v40Q+NYCKbjzTRT7VQiHG4kRYtk+GVykg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR11MB4825
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAD5KgWcC/23Q247CIBAG4FcxXC+G4dCye+V7bLyAdlCiKcpIo
+ zF9d1H3oEkv/0n4ZvivjDBHJPa1uLKMY6SYhhrMx4J1WzdskMe+ZiaF1KKRgkdK++5QiMfEjwU
+ LEgdnLXrdhmA9qw8PGUM8P9Dvdc3bSKeUL48dI9ynvxzMcSNwwa2H5tMHDcKqFRXCZY/sjo3yF
+ WhnAVkB2TglUXU6tOYdUP+AFc0soCrQO4HYBXT1V++A/gNAwvwFugKmV8YE7wFBr3aYB9wvU96
+ w9fTsKOOx1L5PP0VN0w3ilKOzjQEAAA==
+X-Change-ID: 20240620-isolcpus-io-queues-1a88eb47ff8b
+To: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>, 
+ Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+ "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ Thomas Gleixner <tglx@linutronix.de>, 
+ Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
+ Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
+ Ming Lei <ming.lei@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, 
+ Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
+ linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
+ linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, 
+ linux-scsi@vger.kernel.org, storagedev@microchip.com, 
+ virtualization@lists.linux.dev, GR-QLogic-Storage-Upstream@marvell.com, 
+ Daniel Wagner <wagi@kernel.org>
+X-Mailer: b4 0.14.2
 
-David Reaver wrote:
-> kmap_atomic() is deprecated and should be replaced with kmap_local_page()
-> [1][2]. kmap_local_page() is faster in kernels with HIGHMEM enabled, can
-> take page faults, and allows preemption.
+I've splitted the parameter into input and output variable for
+group_cpu_evenly as requested by Hannes.
 
-Thanks for taking these on!  It is good to see some progress here.
+The commit message on the "lib/group_cpus: honor housekeeping config when
+grouping CPUs" is hopefully not missleading anymore. I've took the
+liberty to updated the managed_irq documentation with the aim to reduce
+confusion. I got some feedback that the text is hard to understand.
+Obviously I added the warning on possible IO stalls when doing cpu
+hotplug.
 
-> 
-> According to [2], this replacement is safe as long as the code between
-> kmap_atomic() and kunmap_atomic() does not implicitly depend on disabling
-> page faults or preemption. In this patch, the only thing happening between
-> mapping and unmapping the page is a memcpy, and I don't suspect it depends
-> on disabling page faults or preemption.
-> 
-> [1] https://lwn.net/Articles/836144/
-> [2] https://docs.kernel.org/mm/highmem.html#temporary-virtual-mappings
-> 
-> Signed-off-by: David Reaver <me@davidreaver.com>
-> ---
->  drivers/char/virtio_console.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index c62b208b42f1..24442485e73e 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -883,9 +883,9 @@ static int pipe_to_sg(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
->  		if (len + offset > PAGE_SIZE)
->  			len = PAGE_SIZE - offset;
->  
-> -		src = kmap_atomic(buf->page);
-> +		src = kmap_local_page(buf->page);
->  		memcpy(page_address(page) + offset, src + buf->offset, len);
-> -		kunmap_atomic(src);
-> +		kunmap_local(src);
+Daniel
 
-memcpy_to_page()
+(trimmed the To/Cc list, it was a bit large.)
 
-Ira
+Initial cover letter:
 
-[snip]
+The nvme-pci driver is ignoring the isolcpus configuration. There were
+several attempts to fix this in the past [1][2]. This is another attempt
+but this time trying to address the feedback and solve it in the core
+code.
+
+The first patch introduces a new option for isolcpus 'io_queue', but I'm
+not really sure if this is needed and we could just use the managed_irq
+option instead. I guess depends if there is an use case which depens on
+queues on the isolated CPUs.
+
+The second patch introduces a new block layer helper which returns the
+number of possible queues. I suspect it would makes sense also to make
+this helper a bit smarter and also consider the number of queues the
+hardware supports.
+
+And the last patch updates the group_cpus_evenly function so that it uses
+only the housekeeping CPUs when they are defined
+
+Note this series is not addressing the affinity setting of the admin
+queue (queue 0). I'd like to address this after we agreed on how to solve
+this. Currently, the admin queue affinity can be controlled by the
+irq_afffinity command line option, so there is at least a workaround for
+it.
+
+Baseline:
+
+available: 2 nodes (0-1)
+node 0 cpus: 0 1 2 3
+node 0 size: 1536 MB
+node 0 free: 1227 MB
+node 1 cpus: 4 5 6 7
+node 1 size: 1729 MB
+node 1 free: 1422 MB
+node distances:
+node   0   1
+  0:  10  20
+  1:  20  10
+
+options nvme write_queues=4 poll_queues=4
+
+55: 0 41 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 0-edge nvme0q0 affinity: 0-3
+63: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 1-edge nvme0q1 affinity: 4-5
+64: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 2-edge nvme0q2 affinity: 6-7
+65: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 3-edge nvme0q3 affinity: 0-1
+66: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 4-edge nvme0q4 affinity: 2-3
+67: 0 0 0 0 24 0 0 0 PCI-MSIX-0000:00:05.0 5-edge nvme0q5 affinity: 4
+68: 0 0 0 0 0 1 0 0 PCI-MSIX-0000:00:05.0 6-edge nvme0q6 affinity: 5
+69: 0 0 0 0 0 0 41 0 PCI-MSIX-0000:00:05.0 7-edge nvme0q7 affinity: 6
+70: 0 0 0 0 0 0 0 3 PCI-MSIX-0000:00:05.0 8-edge nvme0q8 affinity: 7
+71: 1 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 9-edge nvme0q9 affinity: 0
+72: 0 18 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 10-edge nvme0q10 affinity: 1
+73: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 11-edge nvme0q11 affinity: 2
+74: 0 0 0 3 0 0 0 0 PCI-MSIX-0000:00:05.0 12-edge nvme0q12 affinity: 3
+
+queue mapping for /dev/nvme0n1
+        hctx0: default 4 5
+        hctx1: default 6 7
+        hctx2: default 0 1
+        hctx3: default 2 3
+        hctx4: read 4
+        hctx5: read 5
+        hctx6: read 6
+        hctx7: read 7
+        hctx8: read 0
+        hctx9: read 1
+        hctx10: read 2
+        hctx11: read 3
+        hctx12: poll 4 5
+        hctx13: poll 6 7
+        hctx14: poll 0 1
+        hctx15: poll 2 3
+
+PCI name is 00:05.0: nvme0n1
+        irq 55, cpu list 0-3, effective list 1
+        irq 63, cpu list 4-5, effective list 5
+        irq 64, cpu list 6-7, effective list 7
+        irq 65, cpu list 0-1, effective list 1
+        irq 66, cpu list 2-3, effective list 3
+        irq 67, cpu list 4, effective list 4
+        irq 68, cpu list 5, effective list 5
+        irq 69, cpu list 6, effective list 6
+        irq 70, cpu list 7, effective list 7
+        irq 71, cpu list 0, effective list 0
+        irq 72, cpu list 1, effective list 1
+        irq 73, cpu list 2, effective list 2
+        irq 74, cpu list 3, effective list 3
+
+* patched:
+
+48: 0 0 33 0 0 0 0 0 PCI-MSIX-0000:00:05.0 0-edge nvme0q0 affinity: 0-3
+58: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 1-edge nvme0q1 affinity: 4
+59: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 2-edge nvme0q2 affinity: 5
+60: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 3-edge nvme0q3 affinity: 0
+61: 0 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 4-edge nvme0q4 affinity: 1
+62: 0 0 0 0 45 0 0 0 PCI-MSIX-0000:00:05.0 5-edge nvme0q5 affinity: 4
+63: 0 0 0 0 0 12 0 0 PCI-MSIX-0000:00:05.0 6-edge nvme0q6 affinity: 5
+64: 2 0 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 7-edge nvme0q7 affinity: 0
+65: 0 35 0 0 0 0 0 0 PCI-MSIX-0000:00:05.0 8-edge nvme0q8 affinity: 1
+
+queue mapping for /dev/nvme0n1
+        hctx0: default 2 3 4 6 7
+        hctx1: default 5
+        hctx2: default 0
+        hctx3: default 1
+        hctx4: read 4
+        hctx5: read 5
+        hctx6: read 0
+        hctx7: read 1
+        hctx8: poll 4
+        hctx9: poll 5
+        hctx10: poll 0
+        hctx11: poll 1
+
+PCI name is 00:05.0: nvme0n1
+        irq 48, cpu list 0-3, effective list 2
+        irq 58, cpu list 4, effective list 4
+        irq 59, cpu list 5, effective list 5
+        irq 60, cpu list 0, effective list 0
+        irq 61, cpu list 1, effective list 1
+        irq 62, cpu list 4, effective list 4
+        irq 63, cpu list 5, effective list 5
+        irq 64, cpu list 0, effective list 0
+        irq 65, cpu list 1, effective list 1
+
+[1] https://lore.kernel.org/lkml/20220423054331.GA17823@lst.de/T/#m9939195a465accbf83187caf346167c4242e798d
+[2] https://lore.kernel.org/linux-nvme/87fruci5nj.ffs@tglx/
+[3] https://lore.kernel.org/linux-nvme/20241202-refactor-blk-affinity-helpers-v6-0-27211e9c2cd5@kernel.org/
+
+Signed-off-by: Daniel Wagner <wagi@kernel.org>
+---
+Changes in v5:
+- rebased on latest for-6.14/block
+- udpated documetation on managed_irq
+- updated commit message "blk-mq: issue warning when offlining hctx with online isolcpus"
+- split input/output parameter in "lib/group_cpus: let group_cpu_evenly return number of groups"
+- dropped "sched/isolation: document HK_TYPE housekeeping option"
+- Link to v4: https://lore.kernel.org/r/20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org
+
+Changes in v4:
+- added "blk-mq: issue warning when offlining hctx with online isolcpus"
+- fixed check in cgroup_cpus_evenly, the if condition needs to use
+  housekeeping_enabled() and not cpusmask_weight(housekeeping_masks),
+  because the later will always return a valid mask.
+- dropped fixed tag from "lib/group_cpus.c: honor housekeeping config when
+  grouping CPUs"
+- fixed overlong line "scsi: use block layer helpers to calculate num
+  of queues"
+- dropped "sched/isolation: Add io_queue housekeeping option",
+  just document the housekeep enum hk_type
+- added "lib/group_cpus: let group_cpu_evenly return number of groups"
+- collected tags
+- splitted series into a preperation series:
+  https://lore.kernel.org/linux-nvme/20241202-refactor-blk-affinity-helpers-v6-0-27211e9c2cd5@kernel.org/
+- Link to v3: https://lore.kernel.org/r/20240806-isolcpus-io-queues-v3-0-da0eecfeaf8b@suse.de
+
+Changes in v3:
+- lifted a couple of patches from
+  https://lore.kernel.org/all/20210709081005.421340-1-ming.lei@redhat.com/
+  "virito: add APIs for retrieving vq affinity"
+  "blk-mq: introduce blk_mq_dev_map_queues"
+- replaces all users of blk_mq_[pci|virtio]_map_queues with
+  blk_mq_dev_map_queues
+- updated/extended number of queue calc helpers
+- add isolcpus=io_queue CPU-hctx mapping function
+- documented enum hk_type and isolcpus=io_queue
+- added "scsi: pm8001: do not overwrite PCI queue mapping"
+- Link to v2: https://lore.kernel.org/r/20240627-isolcpus-io-queues-v2-0-26a32e3c4f75@suse.de
+
+Changes in v2:
+- updated documentation
+- splitted blk/nvme-pci patch
+- dropped HK_TYPE_IO_QUEUE, use HK_TYPE_MANAGED_IRQ
+- Link to v1: https://lore.kernel.org/r/20240621-isolcpus-io-queues-v1-0-8b169bf41083@suse.de
+
+---
+Daniel Wagner (9):
+      lib/group_cpus: let group_cpu_evenly return number initialized masks
+      blk-mq: add number of queue calc helper
+      nvme-pci: use block layer helpers to calculate num of queues
+      scsi: use block layer helpers to calculate num of queues
+      virtio: blk/scsi: use block layer helpers to calculate num of queues
+      lib/group_cpus: honor housekeeping config when grouping CPUs
+      blk-mq: use hk cpus only when isolcpus=managed_irq is enabled
+      blk-mq: issue warning when offlining hctx with online isolcpus
+      doc: update managed_irq documentation
+
+ Documentation/admin-guide/kernel-parameters.txt |  46 +++++-----
+ block/blk-mq-cpumap.c                           | 116 +++++++++++++++++++++++-
+ block/blk-mq.c                                  |  43 ++++++++-
+ drivers/block/virtio_blk.c                      |   5 +-
+ drivers/nvme/host/pci.c                         |   5 +-
+ drivers/scsi/megaraid/megaraid_sas_base.c       |  15 +--
+ drivers/scsi/qla2xxx/qla_isr.c                  |  10 +-
+ drivers/scsi/smartpqi/smartpqi_init.c           |   5 +-
+ drivers/scsi/virtio_scsi.c                      |   1 +
+ drivers/virtio/virtio_vdpa.c                    |   9 +-
+ fs/fuse/virtio_fs.c                             |   6 +-
+ include/linux/blk-mq.h                          |   2 +
+ include/linux/group_cpus.h                      |   3 +-
+ kernel/irq/affinity.c                           |   9 +-
+ lib/group_cpus.c                                |  90 +++++++++++++++++-
+ 15 files changed, 304 insertions(+), 61 deletions(-)
+---
+base-commit: 844b8cdc681612ff24df62cdefddeab5772fadf1
+change-id: 20240620-isolcpus-io-queues-1a88eb47ff8b
+
+Best regards,
+-- 
+Daniel Wagner <wagi@kernel.org>
+
