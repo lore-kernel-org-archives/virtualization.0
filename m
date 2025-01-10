@@ -1,81 +1,81 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 025ED20A5C2
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:32:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9BD220CCC7
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:48:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736501545; cv=none; b=rHIZa/4/EERLutYasK+OHINVs1ldy2sRSCfUan7YAQCqix9dmwDRJxGkxNwh3Rie4RimYut4y+qiVOFePJYHNb5+9905mRthfSQKFXJEwisf57CPiulzCvg/fH0MrpAsot+vGfLQ9XMWEtlTYobC8/Av89tUlL6WtsScOKpRqq8=
+	t=1736502492; cv=none; b=Um92LCb4Npj2NFk6OrHLi6A1GWGvkLe2VLaJoAEqyVS2nDSEFaPhqq0e70lZ4LoSFrXkDvcgTC9hs2qEGhTLLNnFMFB9Anxx+23uwgjk+SUGfvmx8jHpcXS8c3ZYSkW7qSxxLNyAsNTpy4e0hHc/1BFRbkIwpsFsyHtC5T1g7/4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736501545; c=relaxed/simple;
-	bh=8ICZb6U2SZaHud4IyV34XQPrQqQxCLw0HjcvdQrsl0g=;
+	s=arc-20240116; t=1736502492; c=relaxed/simple;
+	bh=kVRbfJjqPGz8mIX7HYr5rAjUJTIc7wg/ASHsghAXszw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=tdiPeKHOOq7aR0jghTbUqqVwnBRma3G7wOO0LgO3QqwZ+SiejQCf7s296lfGbgRqk9BpKMluukiE/fscgZcgOsu3KQ/+A4ON4r/enc7DugdeBeuK7NZ7EhrBzOigKIRE8m5SBWxn55EDFN/WOKj1ysRsgtDzCPj80OIUu4K253c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=osDD7ZHH; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type; b=HGCaK7kv9dM6lPYrV4GtEdDREnnS1D/lbCD5nzXuSltZ1U1/E2PrffUxBaWLVtnZQYng61a/ZJwtDx5OWSJCPjoAnvJU5oJTlNj6XDfhu8/1MkZIjULpXD+P5iLQEdo2iTTQ+RBsdRNdUfZKH9SkqvDkNsBKWyg5P+b7CJdAedI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=zMDKcr9O; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="osDD7ZHH"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="zMDKcr9O"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 95FBE40362
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:32:23 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 92C7460B57
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:48:10 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id rV7XZoSzf38g for <virtualization@lists.linux-foundation.org>;
- Fri, 10 Jan 2025 09:32:22 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id RABjoOELSix8 for <virtualization@lists.linux-foundation.org>;
+ Fri, 10 Jan 2025 09:48:03 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::102f; helo=mail-pj1-x102f.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DB8EF403AF
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB8EF403AF
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=osDD7ZHH
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 974506067A
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 974506067A
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=zMDKcr9O
 Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DB8EF403AF
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:32:21 +0000 (UTC)
-Received: by mail-pj1-x102f.google.com with SMTP id 98e67ed59e1d1-2ee8e8e29f6so2505134a91.0
-        for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 01:32:21 -0800 (PST)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 974506067A
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 09:48:03 +0000 (UTC)
+Received: by mail-pj1-x102f.google.com with SMTP id 98e67ed59e1d1-2f13acbe29bso4485788a91.1
+        for <virtualization@lists.linux-foundation.org>; Fri, 10 Jan 2025 01:48:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736501541; x=1737106341; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736502483; x=1737107283; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:to:subject:user-agent:mime-version:date:message-id:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=2qAyhbY6xjB0PYVOjH0JJ+uKUeqUxyl3Pbg8hrlDb24=;
-        b=osDD7ZHH9UwWMdO5MitdPwZLBNN1ms2svNBWrG2eT3KnXtJLbmOC097uQcC7pP6rJz
-         FqtSg8wkKoqiV/TiSSObt4gp04rrqjfF9O54RXGbrm/4GsOYaeCMeGM5vdjH+sj6rW0i
-         Ad3oMh/o4b6YpxsUS5xWZ5ty8k07oydmDFe+K6fgMEGUSckkbBofFxaz6CAVzowNZ8Fp
-         iF3SlUqVqxBjMNng39Q3T+55CRoC+GgfRwT0RfnJ1llCqeSgmvtywpxX54pyYGah/am7
-         ZVqPXPI/emLjwrjWe7Kalok0rElnsAXOt6/9LPDPxnQnCYaYB2P6AW6/EuAeVPcGmsP2
-         gMLw==
+        bh=32Vr4Gt1G1myfrpAERq6AqxVOpF64+scMP61EbgQiWY=;
+        b=zMDKcr9OFoAM+NMVuEsJaIia0Z5xOlwveJdgYybsLranWbeDsZG+9Ry+U28+4Pk+s8
+         5Wkl+Ee+gwe9Aa2UNvyMZSKBLkPIzzaJPV65SeCgPzYfmuo0KpS7jm3HzkL4q/3hwE01
+         ksR/DJoX9zav9UqN0Jd1Y72su30WeXEv68D8m0tiX8JhkcQ+8mDtyefymAt/mKReQjud
+         0/LsBfNqpWSR2TqfGX4xAIdU+la99uizAELGE9+rAxCZRdxzuCM5zAw7BRI5He7Ku8qj
+         kfxuoDcGXfM2iNugRb/8X8pHlZPqTzL6C0Jr2CmHoUBQz76QI0An1sftbYGXBJReR9cd
+         RwHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736501541; x=1737106341;
+        d=1e100.net; s=20230601; t=1736502483; x=1737107283;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=2qAyhbY6xjB0PYVOjH0JJ+uKUeqUxyl3Pbg8hrlDb24=;
-        b=ceOQwH1hu80fOzuGLQIRpan3EolRmC4VFigljl24cScBO7RUOK27p+0pN68T4izsca
-         q0QAIGE/qTbeaypjkYe/paUCA3npr7hmRhTSCmx0iAj3kOqNbozSKhnBwvvam2dBya2U
-         aYAmxbbUmPxZnJAsezLR8RcZpm/o1XVspjeO/Ig/Sa6xNVFDq//RMo2s8mqNFqBWSTmA
-         o2KjOhZCMLoTB+c+IVJPeEneZBAxq65XSvwL0xTlBouZiI1F7cAV2CW6pMtb0o/DBSfX
-         dmD9vYfhiSK86TzgBpb0mKlFdF8J1JlaZQWJ13MAVDpMuEybFkBDBCqOXbJr1jY7cSl4
-         /X4A==
-X-Forwarded-Encrypted: i=1; AJvYcCWz5pT3C+OAHJiDgo86Lw3QRkjjW4XguMK2J3k/xsrOXHzES+c0fOHsGkvqFn7bpr2MAYj9PZALXYNhRIIp+A==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yw+i1Pv5U56tbncXXf8GFIgYTosE260OAA9wNdYJsQGQAQqSdbK
-	Zl66m24Q6Rf/OAN7pq/xBVY3rxC2HqkGAe/Y6uXgNDKrej9UZzFXnEKArnf1SBk=
-X-Gm-Gg: ASbGncu9jlyp11bP7+rXKRemVJGquM44ExB4uaC7F0i1a0YV76YIyqVcMt2WtZItSxP
-	o350ASTiU1j0ea+lnI63KCmxlBJ3qPBXDP1SO27ivvNrnSnQm22aktIEo5nHGbA3uKR+INvHK4P
-	rpswm8mycZ15jju7pFcfJjXKFBtYgcPxXeI7aeBOBIG3hVaPlDo5bU8fkKbhK3CV1spG3pCUvbu
-	hR2Za5BULTllW119UHNDi15uPllwrn7Fux3bBrnfI1Zvfx/rtdqE4ADzkxjYBL3deU=
-X-Google-Smtp-Source: AGHT+IHCAefyb/c9UWx+wsZlZLyydvMpFraWDOVlJJu45jrENmIi4N1/BRIWGiCpKgZr/5N+sJ2sTA==
-X-Received: by 2002:a17:90b:4d10:b0:2ee:cd83:8fe7 with SMTP id 98e67ed59e1d1-2f5490edb9emr14706442a91.35.1736501541021;
-        Fri, 10 Jan 2025 01:32:21 -0800 (PST)
+        bh=32Vr4Gt1G1myfrpAERq6AqxVOpF64+scMP61EbgQiWY=;
+        b=bqd2IT/+/C0W6qoDQDHJjMUwbjNuJhPd9/K7kipFiz7YqCGS91/proARMHMpQiMC2A
+         MrBXLeszKGdRu1ugtNvE7twnPAMICntEcsOWc+YO8UsMW/O5/OXF6l6JxZsSo5/4XDB8
+         kvQ4eY/uxvBZzfARtqjnnY7tDkVN7WrKFDIrfk0jnyB27hVv9cauU2/OX1rKT+RY8pQv
+         UvL9TTKK6SZWVWe7qQTelXe23F9i8xN4cPkZyTsEyGfaKne1sTaigfCRMMNt6zlzBfuH
+         JnbFNu9r6eqXtWDHdURRwRpEyxmqMG+VCkJ+CaxivcpeQWgUZBLCnsxd33YUsjYDB9s2
+         eA+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCU1NZ3pP44yNp6BkFqcrNvjkHY3ANXd+/JR5TwxFl3gnNzzUvSatZ19v+xTrziCjaZ8dPbskaF6pVXb6/cJrQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxFYfDmgq8LvS3/5lWmzGz+oBa4UhGVBy485NszfXStlkVNaKcc
+	fKg3UbnNC+e8B23Efn2xHXuAYtQkWIoq/sGs/4MYxHcrz2AYwHaV6CjPR8r7qsg=
+X-Gm-Gg: ASbGncuFK/pHg8R/49Lz7TsNp90N8UlesITXt3GLeygDfz890Mm/LUnNEKojHeKsk6p
+	IrjNXfOTp9Uo8YG3HASCft5BvECa+hLXekjkCuvmp4fZkfVl7pXJXB6y57/880s46WBgTJXDE8h
+	GaNywhoAxHeWwu7CqvE4h3cUw2ee0UeWvXz6vUWBiwmCXgpwIeR37/QPLcPghe8jXyTJH9DJ8Lm
+	HafzSoazuyQQK9T6LvpnkxOJZBR0iPNXAGAkN+UFjYNmTgdpTMDd/axeMO1BkmOuwM=
+X-Google-Smtp-Source: AGHT+IG4bZICCGUJL8IFrqqswdhSk8TqvGQUJNKkxBrtJDASy/wZzUeIl0i4xzyDL1lhN+MfLWTweA==
+X-Received: by 2002:a17:90a:d448:b0:2ee:c30f:33c9 with SMTP id 98e67ed59e1d1-2f55838d0eamr8537569a91.14.1736502482736;
+        Fri, 10 Jan 2025 01:48:02 -0800 (PST)
 Received: from [157.82.203.37] ([157.82.203.37])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f559451a30sm2858896a91.33.2025.01.10.01.32.15
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21a9f12f94asm10822555ad.72.2025.01.10.01.47.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 10 Jan 2025 01:32:20 -0800 (PST)
-Message-ID: <444122e9-dde6-4021-bc2f-b0f84db2407e@daynix.com>
-Date: Fri, 10 Jan 2025 18:32:14 +0900
+        Fri, 10 Jan 2025 01:48:02 -0800 (PST)
+Message-ID: <b645e3e3-b42a-4d7a-b5f1-8f8fd9eff0ee@daynix.com>
+Date: Fri, 10 Jan 2025 18:47:56 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,7 +83,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 3/6] tun: Introduce virtio-net hash feature
+Subject: Re: [PATCH v6 5/6] selftest: tun: Add tests for virtio-net hashing
 To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
  Jonathan Corbet <corbet@lwn.net>, Jason Wang <jasowang@redhat.com>,
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
@@ -97,493 +97,76 @@ To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
  Andrew Melnychenko <andrew@daynix.com>,
  Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com
 References: <20250109-rss-v6-0-b1c90ad708f6@daynix.com>
- <20250109-rss-v6-3-b1c90ad708f6@daynix.com>
- <677fdd2968737_362bc129467@willemb.c.googlers.com.notmuch>
+ <20250109-rss-v6-5-b1c90ad708f6@daynix.com>
+ <677fdee2b56d_362bc129446@willemb.c.googlers.com.notmuch>
 Content-Language: en-US
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <677fdd2968737_362bc129467@willemb.c.googlers.com.notmuch>
+In-Reply-To: <677fdee2b56d_362bc129446@willemb.c.googlers.com.notmuch>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2025/01/09 23:28, Willem de Bruijn wrote:
+On 2025/01/09 23:36, Willem de Bruijn wrote:
 > Akihiko Odaki wrote:
->> Hash reporting
->> --------------
->>
->> Allow the guest to reuse the hash value to make receive steering
->> consistent between the host and guest, and to save hash computation.
->>
->> RSS
->> ---
->>
->> RSS is a receive steering algorithm that can be negotiated to use with
->> virtio_net. Conventionally the hash calculation was done by the VMM.
->> However, computing the hash after the queue was chosen defeats the
->> purpose of RSS.
->>
->> Another approach is to use eBPF steering program. This approach has
->> another downside: it cannot report the calculated hash due to the
->> restrictive nature of eBPF steering program.
->>
->> Introduce the code to perform RSS to the kernel in order to overcome
->> thse challenges. An alternative solution is to extend the eBPF steering
->> program so that it will be able to report to the userspace, but I didn't
->> opt for it because extending the current mechanism of eBPF steering
->> program as is because it relies on legacy context rewriting, and
->> introducing kfunc-based eBPF will result in non-UAPI dependency while
->> the other relevant virtualization APIs such as KVM and vhost_net are
->> UAPIs.
+>> The added tests confirm tun can perform RSS and hash reporting, and
+>> reject invalid configurations for them.
 >>
 >> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 >> ---
->>   Documentation/networking/tuntap.rst |   7 ++
->>   drivers/net/Kconfig                 |   1 +
->>   drivers/net/tap.c                   |  50 ++++++++++-
->>   drivers/net/tun.c                   |  93 +++++++++++++++-----
->>   drivers/net/tun_vnet.c              | 167 +++++++++++++++++++++++++++++++++---
->>   drivers/net/tun_vnet.h              |  33 ++++++-
->>   include/linux/if_tap.h              |   2 +
->>   include/linux/skbuff.h              |   3 +
->>   include/uapi/linux/if_tun.h         |  75 ++++++++++++++++
->>   net/core/skbuff.c                   |   4 +
->>   10 files changed, 397 insertions(+), 38 deletions(-)
+>>   tools/testing/selftests/net/Makefile |   2 +-
+>>   tools/testing/selftests/net/tun.c    | 558 ++++++++++++++++++++++++++++++++++-
+>>   2 files changed, 551 insertions(+), 9 deletions(-)
 >>
->> diff --git a/Documentation/networking/tuntap.rst b/Documentation/networking/tuntap.rst
->> index 4d7087f727be..86b4ae8caa8a 100644
->> --- a/Documentation/networking/tuntap.rst
->> +++ b/Documentation/networking/tuntap.rst
->> @@ -206,6 +206,13 @@ enable is true we enable it, otherwise we disable it::
->>         return ioctl(fd, TUNSETQUEUE, (void *)&ifr);
->>     }
+>> diff --git a/tools/testing/selftests/net/Makefile b/tools/testing/selftests/net/Makefile
+>> index cb2fc601de66..92762ce3ebd4 100644
+>> --- a/tools/testing/selftests/net/Makefile
+>> +++ b/tools/testing/selftests/net/Makefile
+>> @@ -121,6 +121,6 @@ $(OUTPUT)/reuseport_bpf_numa: LDLIBS += -lnuma
+>>   $(OUTPUT)/tcp_mmap: LDLIBS += -lpthread -lcrypto
+>>   $(OUTPUT)/tcp_inq: LDLIBS += -lpthread
+>>   $(OUTPUT)/bind_bhash: LDLIBS += -lpthread
+>> -$(OUTPUT)/io_uring_zerocopy_tx: CFLAGS += -I../../../include/
+>> +$(OUTPUT)/io_uring_zerocopy_tx $(OUTPUT)/tun: CFLAGS += -I../../../include/
 >>   
->> +3.4 Reference
->> +-------------
->> +
->> +``linux/if_tun.h`` defines the interface described below:
->> +
->> +.. kernel-doc:: include/uapi/linux/if_tun.h
->> +
->>   Universal TUN/TAP device driver Frequently Asked Question
->>   =========================================================
+>>   include bpf.mk
+>> diff --git a/tools/testing/selftests/net/tun.c b/tools/testing/selftests/net/tun.c
+>> index 463dd98f2b80..9424d897e341 100644
+>> --- a/tools/testing/selftests/net/tun.c
+>> +++ b/tools/testing/selftests/net/tun.c
+>> @@ -2,21 +2,37 @@
 >>   
->> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
->> index 255c8f9f1d7c..f7b0d9a89a71 100644
->> --- a/drivers/net/Kconfig
->> +++ b/drivers/net/Kconfig
->> @@ -395,6 +395,7 @@ config TUN
->>   	tristate "Universal TUN/TAP device driver support"
->>   	depends on INET
->>   	select CRC32
->> +	select SKB_EXTENSIONS
->>   	select TUN_VNET
->>   	help
->>   	  TUN/TAP provides packet reception and transmission for user space
->> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
->> index fe9554ee5b8b..27659df1f96e 100644
->> --- a/drivers/net/tap.c
->> +++ b/drivers/net/tap.c
->> @@ -179,6 +179,16 @@ static void tap_put_queue(struct tap_queue *q)
->>   	sock_put(&q->sk);
->>   }
+>>   #define _GNU_SOURCE
 >>   
->> +static struct virtio_net_hash *tap_add_hash(struct sk_buff *skb)
->> +{
->> +	return (struct virtio_net_hash *)skb->cb;
->> +}
->> +
->> +static const struct virtio_net_hash *tap_find_hash(const struct sk_buff *skb)
->> +{
->> +	return (const struct virtio_net_hash *)skb->cb;
->> +}
->> +
+>> +#include <endian.h>
+>>   #include <errno.h>
+>>   #include <fcntl.h>
+>> +#include <stddef.h>
+>>   #include <stdio.h>
+>>   #include <stdlib.h>
+>>   #include <string.h>
+>>   #include <unistd.h>
+>> -#include <linux/if.h>
+>> +#include <net/if.h>
+>> +#include <netinet/ip.h>
+>> +#include <sys/ioctl.h>
+>> +#include <sys/socket.h>
+>> +#include <linux/compiler.h>
+>> +#include <linux/icmp.h>
+>> +#include <linux/if_arp.h>
+>>   #include <linux/if_tun.h>
+>> +#include <linux/ipv6.h>
+>>   #include <linux/netlink.h>
+>>   #include <linux/rtnetlink.h>
+>> -#include <sys/ioctl.h>
+>> -#include <sys/socket.h>
+>> +#include <linux/sockios.h>
+>> +#include <linux/tcp.h>
+>> +#include <linux/udp.h>
+>> +#include <linux/virtio_net.h>
 > 
-> If introducing a cb for tap, define a struct tuntap_skb_cb.
-> 
-> So that we do not have to change types if we ever need to extend it further.
-> 
-> And in line with your other patch that deduplicates between tun and tap,
-> define only one new struct, not two (as this patch currently does).
+> Are all these include changes strictly needed? Iff so, might as well
+> fix ordering to be alphabetical (lexicographic).
+>    
 
-The previous version did that, but Jason suggested the added 
-TUNSETVNETHASH ioctl should support all the flags we are implementing 
-(TUN_VNET_HASH_REPORT and TUN_VNET_HASH_RSS) in one patch.
-
-> 
->>   /*
->>    * Select a queue based on the rxq of the device on which this packet
->>    * arrived. If the incoming device is not mq, calculate a flow hash
->> @@ -189,6 +199,7 @@ static void tap_put_queue(struct tap_queue *q)
->>   static struct tap_queue *tap_get_queue(struct tap_dev *tap,
->>   				       struct sk_buff *skb)
->>   {
->> +	struct flow_keys_basic keys_basic;
->>   	struct tap_queue *queue = NULL;
->>   	/* Access to taps array is protected by rcu, but access to numvtaps
->>   	 * isn't. Below we use it to lookup a queue, but treat it as a hint
->> @@ -196,17 +207,41 @@ static struct tap_queue *tap_get_queue(struct tap_dev *tap,
->>   	 * racing against queue removal.
->>   	 */
->>   	int numvtaps = READ_ONCE(tap->numvtaps);
->> +	struct tun_vnet_hash_container *vnet_hash = rcu_dereference(tap->vnet_hash);
->>   	__u32 rxq;
->>   
->> +	*tap_add_hash(skb) = (struct virtio_net_hash) { .report = VIRTIO_NET_HASH_REPORT_NONE };
->> +
->>   	if (!numvtaps)
->>   		goto out;
->>   
->>   	if (numvtaps == 1)
->>   		goto single;
->>   
->> +	if (vnet_hash && (vnet_hash->common.flags & TUN_VNET_HASH_RSS)) {
->> +		rxq = tun_vnet_rss_select_queue(numvtaps, vnet_hash, skb, tap_add_hash);
->> +		queue = rcu_dereference(tap->taps[rxq]);
->> +		goto out;
->> +	}
->> +
->> +	if (!skb->l4_hash && !skb->sw_hash) {
->> +		struct flow_keys keys;
->> +
->> +		skb_flow_dissect_flow_keys(skb, &keys, FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
->> +		rxq = flow_hash_from_keys(&keys);
->> +		keys_basic = (struct flow_keys_basic) {
->> +			.control = keys.control,
->> +			.basic = keys.basic
->> +		};
->> +	} else {
->> +		skb_flow_dissect_flow_keys_basic(NULL, skb, &keys_basic, NULL, 0, 0, 0,
->> +						 FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
->> +		rxq = skb->hash;
->> +	}
->> +
->>   	/* Check if we can use flow to select a queue */
->> -	rxq = skb_get_hash(skb);
->>   	if (rxq) {
->> +		tun_vnet_hash_report(vnet_hash, skb, &keys_basic, rxq, tap_add_hash);
-> 
-> This seems to be introducing multiple new functionalities in one patch:
-> support for RSS to select a queue, hash report, and possibly more.
-> 
-> Please have one feature change per patch. It's much easier to review
-> than when code for multiple features is interleaved.
-> 
-> 
->>   		queue = rcu_dereference(tap->taps[rxq % numvtaps]);
->>   		goto out;
->>   	}
->> @@ -713,11 +748,12 @@ static ssize_t tap_put_user(struct tap_queue *q,
->>   	int total;
->>   
->>   	if (q->flags & IFF_VNET_HDR) {
->> -		struct virtio_net_hdr_v1 vnet_hdr;
->> +		struct virtio_net_hdr_v1_hash vnet_hdr;
->>   
->>   		vnet_hdr_len = READ_ONCE(q->vnet_hdr_sz);
->>   
->> -		ret = tun_vnet_hdr_from_skb(q->flags, NULL, skb, &vnet_hdr);
->> +		ret = tun_vnet_hdr_from_skb(vnet_hdr_len, q->flags, NULL, skb,
->> +					    tap_find_hash, &vnet_hdr);
->>   		if (ret < 0)
->>   			goto done;
->>   
->> @@ -1025,7 +1061,13 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
->>   		return ret;
->>   
->>   	default:
->> -		return tun_vnet_ioctl(&q->vnet_hdr_sz, &q->flags, cmd, sp);
->> +		rtnl_lock();
->> +		tap = rtnl_dereference(q->tap);
->> +		ret = tun_vnet_ioctl(&q->vnet_hdr_sz, &q->flags,
->> +				     tap ? &tap->vnet_hash : NULL, -EINVAL,
->> +				     true, cmd, sp);
->> +		rtnl_unlock();
->> +		return ret;
->>   	}
->>   }
->>   
->> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->> index f211d0580887..efdbd2f65100 100644
->> --- a/drivers/net/tun.c
->> +++ b/drivers/net/tun.c
->> @@ -209,6 +209,7 @@ struct tun_struct {
->>   	struct bpf_prog __rcu *xdp_prog;
->>   	struct tun_prog __rcu *steering_prog;
->>   	struct tun_prog __rcu *filter_prog;
->> +	struct tun_vnet_hash_container __rcu *vnet_hash;
->>   	struct ethtool_link_ksettings link_ksettings;
->>   	/* init args */
->>   	struct file *file;
->> @@ -451,20 +452,37 @@ static inline void tun_flow_save_rps_rxhash(struct tun_flow_entry *e, u32 hash)
->>   		e->rps_rxhash = hash;
->>   }
->>   
->> +static struct virtio_net_hash *tun_add_hash(struct sk_buff *skb)
->> +{
->> +	return skb_ext_add(skb, SKB_EXT_TUN_VNET_HASH);
->> +}
->> +
->> +static const struct virtio_net_hash *tun_find_hash(const struct sk_buff *skb)
->> +{
->> +	return skb_ext_find(skb, SKB_EXT_TUN_VNET_HASH);
->> +}
->> +
->>   /* We try to identify a flow through its rxhash. The reason that
->>    * we do not check rxq no. is because some cards(e.g 82599), chooses
->>    * the rxq based on the txq where the last packet of the flow comes. As
->>    * the userspace application move between processors, we may get a
->>    * different rxq no. here.
->>    */
->> -static u16 tun_automq_select_queue(struct tun_struct *tun, struct sk_buff *skb)
->> +static u16 tun_automq_select_queue(struct tun_struct *tun,
->> +				   const struct tun_vnet_hash_container *vnet_hash,
->> +				   struct sk_buff *skb)
->>   {
->> +	struct flow_keys keys;
->> +	struct flow_keys_basic keys_basic;
->>   	struct tun_flow_entry *e;
->>   	u32 txq, numqueues;
->>   
->>   	numqueues = READ_ONCE(tun->numqueues);
->>   
->> -	txq = __skb_get_hash_symmetric(skb);
->> +	memset(&keys, 0, sizeof(keys));
->> +	skb_flow_dissect(skb, &flow_keys_dissector_symmetric, &keys, 0);
->> +
->> +	txq = flow_hash_from_keys(&keys);
->>   	e = tun_flow_find(&tun->flows[tun_hashfn(txq)], txq);
->>   	if (e) {
->>   		tun_flow_save_rps_rxhash(e, txq);
->> @@ -473,6 +491,13 @@ static u16 tun_automq_select_queue(struct tun_struct *tun, struct sk_buff *skb)
->>   		txq = reciprocal_scale(txq, numqueues);
->>   	}
->>   
->> +	keys_basic = (struct flow_keys_basic) {
->> +		.control = keys.control,
->> +		.basic = keys.basic
->> +	};
->> +	tun_vnet_hash_report(vnet_hash, skb, &keys_basic, skb->l4_hash ? skb->hash : txq,
->> +			     tun_add_hash);
->> +
->>   	return txq;
->>   }
->>   
->> @@ -500,10 +525,17 @@ static u16 tun_select_queue(struct net_device *dev, struct sk_buff *skb,
->>   	u16 ret;
->>   
->>   	rcu_read_lock();
->> -	if (rcu_dereference(tun->steering_prog))
->> +	if (rcu_dereference(tun->steering_prog)) {
->>   		ret = tun_ebpf_select_queue(tun, skb);
->> -	else
->> -		ret = tun_automq_select_queue(tun, skb);
->> +	} else {
->> +		struct tun_vnet_hash_container *vnet_hash = rcu_dereference(tun->vnet_hash);
->> +
->> +		if (vnet_hash && (vnet_hash->common.flags & TUN_VNET_HASH_RSS))
->> +			ret = tun_vnet_rss_select_queue(READ_ONCE(tun->numqueues), vnet_hash,
->> +							skb, tun_add_hash);
->> +		else
->> +			ret = tun_automq_select_queue(tun, vnet_hash, skb);
->> +	}
->>   	rcu_read_unlock();
->>   
->>   	return ret;
->> @@ -1991,8 +2023,8 @@ static ssize_t tun_put_user_xdp(struct tun_struct *tun,
->>   	size_t total;
->>   
->>   	if (tun->flags & IFF_VNET_HDR) {
->> -		struct virtio_net_hdr_v1 gso = {
->> -			.num_buffers = __virtio16_to_cpu(true, 1)
->> +		struct virtio_net_hdr_v1_hash gso = {
->> +			.hdr = { .num_buffers = __virtio16_to_cpu(true, 1) }
->>   		};
->>   
->>   		vnet_hdr_sz = READ_ONCE(tun->vnet_hdr_sz);
->> @@ -2021,7 +2053,6 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->>   	int vlan_offset = 0;
->>   	int vlan_hlen = 0;
->>   	int vnet_hdr_sz = 0;
->> -	int ret;
->>   
->>   	if (skb_vlan_tag_present(skb))
->>   		vlan_hlen = VLAN_HLEN;
->> @@ -2046,9 +2077,11 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->>   	}
->>   
->>   	if (vnet_hdr_sz) {
->> -		struct virtio_net_hdr_v1 gso;
->> +		struct virtio_net_hdr_v1_hash gso;
->> +		int ret;
->>   
->> -		ret = tun_vnet_hdr_from_skb(tun->flags, tun->dev, skb, &gso);
->> +		ret = tun_vnet_hdr_from_skb(vnet_hdr_sz, tun->flags, tun->dev,
->> +					    skb, tun_find_hash, &gso);
->>   		if (ret < 0)
->>   			goto done;
->>   
->> @@ -2229,6 +2262,9 @@ static void tun_free_netdev(struct net_device *dev)
->>   	security_tun_dev_free_security(tun->security);
->>   	__tun_set_ebpf(tun, &tun->steering_prog, NULL);
->>   	__tun_set_ebpf(tun, &tun->filter_prog, NULL);
->> +	rtnl_lock();
->> +	kfree_rcu_mightsleep(rtnl_dereference(tun->vnet_hash));
->> +	rtnl_unlock();
->>   }
->>   
->>   static void tun_setup(struct net_device *dev)
->> @@ -2927,13 +2963,9 @@ static int tun_set_queue(struct file *file, struct ifreq *ifr)
->>   }
->>   
->>   static int tun_set_ebpf(struct tun_struct *tun, struct tun_prog __rcu **prog_p,
->> -			void __user *data)
->> +			int fd)
->>   {
->>   	struct bpf_prog *prog;
->> -	int fd;
->> -
->> -	if (copy_from_user(&fd, data, sizeof(fd)))
->> -		return -EFAULT;
->>   
->>   	if (fd == -1) {
->>   		prog = NULL;
->> @@ -3000,6 +3032,7 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
->>   	int sndbuf;
->>   	int ret;
->>   	bool do_notify = false;
->> +	struct tun_vnet_hash_container *vnet_hash;
->>   
->>   	if (cmd == TUNSETIFF || cmd == TUNSETQUEUE ||
->>   	    (_IOC_TYPE(cmd) == SOCK_IOC_TYPE && cmd != SIOCGSKNS)) {
->> @@ -3058,9 +3091,10 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
->>   		goto unlock;
->>   	}
->>   
->> -	ret = -EBADFD;
->> -	if (!tun)
->> +	if (!tun) {
->> +		ret = tun_vnet_ioctl(NULL, NULL, NULL, -EBADFD, true, cmd, argp);
->>   		goto unlock;
->> +	}
->>   
->>   	netif_info(tun, drv, tun->dev, "tun_chr_ioctl cmd %u\n", cmd);
->>   
->> @@ -3236,11 +3270,27 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
->>   		break;
->>   
->>   	case TUNSETSTEERINGEBPF:
->> -		ret = tun_set_ebpf(tun, &tun->steering_prog, argp);
->> +		if (get_user(ret, (int __user *)argp)) {
->> +			ret = -EFAULT;
->> +			break;
->> +		}
->> +
->> +		vnet_hash = rtnl_dereference(tun->vnet_hash);
->> +		if (ret != -1 && vnet_hash && (vnet_hash->common.flags & TUN_VNET_HASH_RSS)) {
->> +			ret = -EBUSY;
->> +			break;
->> +		}
->> +
->> +		ret = tun_set_ebpf(tun, &tun->steering_prog, ret);
->>   		break;
->>   
->>   	case TUNSETFILTEREBPF:
->> -		ret = tun_set_ebpf(tun, &tun->filter_prog, argp);
->> +		if (get_user(ret, (int __user *)argp)) {
->> +			ret = -EFAULT;
->> +			break;
->> +		}
->> +
->> +		ret = tun_set_ebpf(tun, &tun->filter_prog, ret);
->>   		break;
->>   
->>   	case TUNSETCARRIER:
->> @@ -3259,7 +3309,10 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
->>   		break;
->>   
->>   	default:
->> -		ret = tun_vnet_ioctl(&tun->vnet_hdr_sz, &tun->flags, cmd, argp);
->> +		ret = tun_vnet_ioctl(&tun->vnet_hdr_sz, &tun->flags,
->> +				     &tun->vnet_hash, -EINVAL,
->> +				     !rtnl_dereference(tun->steering_prog),
->> +				     cmd, argp);
->>   	}
->>   
->>   	if (do_notify)
->> diff --git a/drivers/net/tun_vnet.c b/drivers/net/tun_vnet.c
->> index a7a7989fae56..d36ca3b23265 100644
->> --- a/drivers/net/tun_vnet.c
->> +++ b/drivers/net/tun_vnet.c
->> @@ -58,18 +58,33 @@ static __virtio16 cpu_to_tun_vnet16(unsigned int flags, u16 val)
->>   }
->>   
->>   long tun_vnet_ioctl(int *sz, unsigned int *flags,
->> -		    unsigned int cmd, int __user *sp)
->> +		    struct tun_vnet_hash_container __rcu **hashp,
->> +		    long fallback, bool can_rss,
->> +		    unsigned int cmd, void __user *argp)
->>   {
->> +	static const struct tun_vnet_hash cap = {
->> +		.flags = TUN_VNET_HASH_REPORT | TUN_VNET_HASH_RSS,
->> +		.types = VIRTIO_NET_SUPPORTED_HASH_TYPES
->> +	};
->> +	struct tun_vnet_hash hash_buf;
->> +	struct tun_vnet_hash_container *hash;
->> +	int __user *sp = argp;
->>   	int s;
->>   
->>   	switch (cmd) {
->>   	case TUNGETVNETHDRSZ:
->> +		if (!sz)
->> +			return -EBADFD;
->> +
->>   		s = *sz;
->>   		if (put_user(s, sp))
->>   			return -EFAULT;
->>   		return 0;
->>   
->>   	case TUNSETVNETHDRSZ:
->> +		if (!sz)
->> +			return -EBADFD;
->> +
-> 
-> Here and above: why is this newly needed with this patch?
-> 
-> Same for flags below.
-> 
->>   		if (get_user(s, sp))
->>   			return -EFAULT;
->>   		if (s < (int)sizeof(struct virtio_net_hdr))
->> @@ -79,12 +94,18 @@ long tun_vnet_ioctl(int *sz, unsigned int *flags,
->>   		return 0;
->>   
->>   	case TUNGETVNETLE:
->> +		if (!flags)
->> +			return -EBADFD;
->> +
->>   		s = !!(*flags & TUN_VNET_LE);
->>   		if (put_user(s, sp))
->>   			return -EFAULT;
->>   		return 0;
->>   
->>   	case TUNSETVNETLE:
->> +		if (!flags)
->> +			return -EBADFD;
->> +
->>   		if (get_user(s, sp))
->>   			return -EFAULT;
->>   		if (s)
->> @@ -94,17 +115,132 @@ long tun_vnet_ioctl(int *sz, unsigned int *flags,
->>   		return 0;
->>   
->>   	case TUNGETVNETBE:
->> +		if (!flags)
->> +			return -EBADFD;
->> +
->>   		return tun_vnet_get_be(*flags, sp);
->>   
->>   	case TUNSETVNETBE:
->> +		if (!flags)
->> +			return -EBADFD;
->> +
->>   		return tun_vnet_set_be(flags, sp);
-
+Yes. I placed header files in linux/ after the other header files 
+because include/uapi/linux/libc-compat.h requires libc header files to 
+be placed before linux/ ones.
