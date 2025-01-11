@@ -1,230 +1,119 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B28D17BB6
-	for <virtualization@lists.linux.dev>; Sat, 11 Jan 2025 03:31:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from zju.edu.cn (mail.zju.edu.cn [61.164.42.155])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6BBB74689
+	for <virtualization@lists.linux.dev>; Sat, 11 Jan 2025 03:39:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=61.164.42.155
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736566309; cv=none; b=O+ODAjO/52FZG7OwXQEdmt15/hfh9Zeumy9DLWKGt13DLNEztxW3gcOLu1CTl6NooPTeaP11VUNfC71L1oQuSx+JwI/KLn5QFHhBeisKoO36FWDJbP286rAGeak9gZQaw48q/UYITj3AJEqZSFfpS9xauVpAgKiv+Cg0HUj14JM=
+	t=1736566782; cv=none; b=CmBdI28Eo0pbAu/yScsnb7TZ+IE1EcZfmHjOp48jrwFhyQAMTEX641Z4EfdgS3+6CBc/qodVSrPZg4EglXCUuZtN+aeiNH1usfmetksz+uODDWlAHqgWJJzi/oZc8R5rsR+YGtEKmT+6StYl6jsh0s8mL948BTqY49E+juCAZog=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736566309; c=relaxed/simple;
-	bh=5xh5jozQ32aeRFicEnr0DHa8DqBRNILOyWAPo2iTSi0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TLX3C4ruQ2rJ7W/hGsn1/YIvOIJSxyZ2cYrUCCSnHbV3z+ZiPZihj3lS+ufj550elUDpNMbOzpY0/AHJf/5o3IS6TfMnTjbg9qYYXNpzJhc+vRg4FGgWboC2KgzoLEsSgt0eHCqs9WwsWW6vKVgdAkOT8xTgqoGqME9GF/K5c60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h9owafDh; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h9owafDh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736566307;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0W+82H/K+CNzaGAr5/RSFb2EWf4KvzDMQXmpvJfy+Ec=;
-	b=h9owafDhjx4TYPLhEjBQ4qlMpgpsgX5xHjroz+UWUPDtccBlZzHrYflzQ/PsEWyWWIJviY
-	kxJ+wICs0qX4Ac+oxgW2UMUk29VLeB42p1X/W2fewO9H3lB3tKAV/rYIvCY6aIl+0fqExw
-	4kksx2HcLKqyqhVePYxB6HBEAK8z5+U=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-654-LKBUZ1EeMP2vAeGKv4Vuyg-1; Fri,
- 10 Jan 2025 22:31:43 -0500
-X-MC-Unique: LKBUZ1EeMP2vAeGKv4Vuyg-1
-X-Mimecast-MFC-AGG-ID: LKBUZ1EeMP2vAeGKv4Vuyg
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 339E719560B2;
-	Sat, 11 Jan 2025 03:31:39 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.10])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8E20D195E3D9;
-	Sat, 11 Jan 2025 03:31:16 +0000 (UTC)
-Date: Sat, 11 Jan 2025 11:31:10 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Daniel Wagner <dwagner@suse.de>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Kashyap Desai <kashyap.desai@broadcom.com>,
-	Sumit Saxena <sumit.saxena@broadcom.com>,
-	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-	Chandrakanth patil <chandrakanth.patil@broadcom.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Nilesh Javali <njavali@marvell.com>,
-	GR-QLogic-Storage-Upstream@marvell.com,
-	Don Brace <don.brace@microchip.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Costa Shulyupin <costa.shul@redhat.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Waiman Long <llong@redhat.com>,
-	Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
-	Sridhar Balaraman <sbalaraman@parallelwireless.com>,
-	"brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org,
-	storagedev@microchip.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
- isolcpus=managed_irq is enabled
-Message-ID: <Z4Hl_oQhJ2u6g2B3@fedora>
-References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
- <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
- <Z2PlbL0XYTQ_LxTw@fedora>
- <cc5e44dd-e1dc-4f24-88d9-ce45a8b0794f@flourine.local>
- <Z2UwvQoDM3f4zAxG@fedora>
- <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
+	s=arc-20240116; t=1736566782; c=relaxed/simple;
+	bh=TLyhrsWjadiEWPvpQVisda8F0xFAdqaNQ5THKiNKd84=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sXytS7aucstkpFVv87LjCSTAmbXbeZpPaeVreiF3vas++OiCpASc36rj/v6QePUbbO4sN7tSVgWLuar5MPqMFjRZlkjY17+EORAVmx0DdInN8oqpDziwH8NqX1BfzLaO0uHrIyyNGUFFuLu5i4a9wrsCWgWb/qt7JlMV6IZYvVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=61.164.42.155
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
+Received: from NUC10i7FNH.. (unknown [10.214.100.11])
+	by mail-app2 (Coremail) with SMTP id by_KCgBnm5fm5oFngZxwAQ--.56469S2;
+	Sat, 11 Jan 2025 11:35:06 +0800 (CST)
+From: Haoran Zhang <wh1sper@zju.edu.cn>
+To: mst@redhat.com
+Cc: jasowang@redhat.com,
+	michael.christie@oracle.com,
+	pbonzini@redhat.com,
+	stefanha@redhat.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Haoran Zhang <wh1sper@zju.edu.cn>
+Subject: [PATCH] vhost/scsi: Fix improper cleanup in vhost_scsi_set_endpoint()
+Date: Sat, 11 Jan 2025 11:34:18 +0800
+Message-ID: <20250111033454.26596-1-wh1sper@zju.edu.cn>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:by_KCgBnm5fm5oFngZxwAQ--.56469S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxWr4UGFy7XF4xKF1xXFW7twb_yoW5Cr4kpF
+	WYg347Gr4xGFWUta9FgFs8Wr1rGa1rZF18JF97K3WFvas0yrZrA3yDGF4jgF15AFZrCr4j
+	yF1v93Z0qryvyaDanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9C1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2IY04v7MxkF7I0E
+	n4kS14v26r1q6r43MxAIw28IcxkI7VAKI48JMxAIw28IcVCjz48v1sIEY20_GFWkJr1UJw
+	CFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE
+	14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2
+	IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxK
+	x2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI
+	0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUd-B_UUUUU=
+X-CM-SenderInfo: asssliaqzvq6lmxovvfxof0/1tbiAggCB2eABK8MSgAEsB
 
-On Fri, Jan 10, 2025 at 10:21:49AM +0100, Daniel Wagner wrote:
-> Hi Ming,
-> 
-> On Fri, Dec 20, 2024 at 04:54:21PM +0800, Ming Lei wrote:
-> > On Thu, Dec 19, 2024 at 04:38:43PM +0100, Daniel Wagner wrote:
-> > 
-> > > When isolcpus=managed_irq is enabled all hardware queues should run on
-> > > the housekeeping CPUs only. Thus ignore the affinity mask provided by
-> > > the driver.
-> > 
-> > Compared with in-tree code, the above words are misleading.
-> > 
-> > - irq core code respects isolated CPUs by trying to exclude isolated
-> > CPUs from effective masks
-> > 
-> > - blk-mq won't schedule blockd on isolated CPUs
-> 
-> I see your point, the commit should highlight the fact when an
-> application is issuing an I/O, this can lead to stalls.
-> 
-> What about a commit message like:
-> 
->   When isolcpus=managed_irq is enabled, and the last housekeeping CPU for
->   a given hardware context goes offline, there is no CPU left which
->   handles the IOs anymore. If isolated CPUs mapped to this hardware
->   context are online and an application running on these isolated CPUs
->   issue an IO this will lead to stalls.
+Since commit 3f8ca2e115e55 ("vhost scsi: alloc cmds per vq instead of session"), a bug can be triggered when the host sends a duplicate VHOST_SCSI_SET_ENDPOINT ioctl command.
 
-It isn't correct, the in-tree code doesn't have such stall, no matter if
-IO is issued from HK or isolated CPUs since the managed irq is guaranteed to
-live if any mapped CPU is online.
+In vhost_scsi_set_endpoint(), if the new `vhost_wwpn` matches the old tpg's tport_name but the tpg is still held by current vhost_scsi(i.e. it is busy), the active `tpg` will be unreferenced. Subsequently, if the owner releases vhost_scsi, the assertion `BUG_ON(sd->s_dependent_count < 1)` will be triggerred, terminating the  target_undepend_item() procedure and leaving `configfs_dirent_lock` locked. If user enters configfs afterward, the CPU will become locked up.
+This issue occurs because vhost_scsi_set_endpoint() allocates a new `vs_tpg` to hold the tpg array and copies all the old tpg entries into it before proceeding. When the new target is busy, the controw flow falls back to the `undepend` label, cause ing all the target `tpg` entries to be unreferenced, including the old one, which is still in use.
 
-> 
->   The kernel will not schedule IO to isolated CPUS thus this avoids IO
->   stalls.
-> 
->   Thus issue a warning when housekeeping CPUs are offlined for a hardware
->   context while there are still isolated CPUs online.
-> 
-> > If application aren't run on isolated CPUs, IO interrupt usually won't
-> > be triggered on isolated CPUs, so isolated CPUs are _not_ ignored.
-> 
-> FWIW, the 'usually' part is what made our customers nervous. They saw
-> some IRQ noise on the isolated CPUs with their workload and reported
-> with these changes all was good. Unfortunately, we never got the hands
-> on the workload, hard to say what was causing it.
+The backtrace is:
 
-Please see irq_do_set_affinity():
+[   60.085044] kernel BUG at fs/configfs/dir.c:1179!
+[   60.087729] RIP: 0010:configfs_undepend_item+0x76/0x80
+[   60.094735] Call Trace:
+[   60.094926]  <TASK>
+[   60.098232]  target_undepend_item+0x1a/0x30
+[   60.098745]  vhost_scsi_clear_endpoint+0x363/0x3e0
+[   60.099342]  vhost_scsi_release+0xea/0x1a0
+[   60.099860]  ? __pfx_vhost_scsi_release+0x10/0x10
+[   60.100459]  ? __pfx_locks_remove_file+0x10/0x10
+[   60.101025]  ? __pfx_task_work_add+0x10/0x10
+[   60.101565]  ? evm_file_release+0xc8/0xe0
+[   60.102074]  ? __pfx_vhost_scsi_release+0x10/0x10
+[   60.102661]  __fput+0x222/0x5a0
+[   60.102925]  ____fput+0x1e/0x30
+[   60.103187]  task_work_run+0x133/0x1c0
+[   60.103479]  ? __pfx_task_work_run+0x10/0x10
+[   60.103813]  ? pick_next_task_fair+0xe1/0x6f0
+[   60.104179]  syscall_exit_to_user_mode+0x235/0x240
+[   60.104542]  do_syscall_64+0x8a/0x170
+[   60.113301]  </TASK>
+[   60.113931] ---[ end trace 0000000000000000 ]---
+[   60.121517] note: poc[2363] exited with preempt_count 1
 
-        if (irqd_affinity_is_managed(data) &&
-              housekeeping_enabled(HK_TYPE_MANAGED_IRQ)) {
-                  const struct cpumask *hk_mask;
+To fix this issue, the controw flow should be redirected to the `free_vs_tpg` label to ensure proper cleanup.
 
-                  hk_mask = housekeeping_cpumask(HK_TYPE_MANAGED_IRQ);
+Fixes: 3f8ca2e115e55 ("vhost scsi: alloc cmds per vq instead of session")
+Signed-off-by: Haoran Zhang <wh1sper@zju.edu.cn>
+---
+ drivers/vhost/scsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-                  cpumask_and(&tmp_mask, mask, hk_mask);
-                  if (!cpumask_intersects(&tmp_mask, cpu_online_mask))
-                          prog_mask = mask;
-                  else
-                          prog_mask = &tmp_mask;
-          } else {
-                  prog_mask = mask;
-
-The whole mask which may include isolated CPUs is only programmed to
-hardware if there isn't any online CPU in `irq_mask & hk_mask`.
-
-> 
-> > > On Thu, Dec 19, 2024 at 05:20:44PM +0800, Ming Lei wrote:
-> > > > > +	cpumask_andnot(isol_mask,
-> > > > > +		       cpu_possible_mask,
-> > > > > +		       housekeeping_cpumask(HK_TYPE_MANAGED_IRQ));
-> > > > > +
-> > > > > +	for_each_cpu(cpu, isol_mask) {
-> > > > > +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
-> > > > > +		queue = (queue + 1) % qmap->nr_queues;
-> > > > > +	}
-> > > > 
-> > > > Looks the IO hang issue in V3 isn't addressed yet, is it?
-> > > > 
-> > > > https://lore.kernel.org/linux-block/ZrtX4pzqwVUEgIPS@fedora/
-> > > 
-> > > I've added an explanation in the cover letter why this is not
-> > > addressed. From the cover letter:
-> > > 
-> > > I've experimented for a while and all solutions I came up were horrible
-> > > hacks (the hotpath needs to be touched) and I don't want to slow down all
-> > > other users (which are almost everyone). IMO, it's just not worth trying
-> > 
-> > IMO, this patchset is one improvement on existed best-effort approach, which
-> > works fine most of times, so why you do think it slows down everyone?
-> 
-> I was talking about implementing the feature which would remap the
-> isolated CPUs to online hardware context when the current hardware
-> context goes offline. I didn't find a solution which I think would be
-> worth presenting. All involved some sort of locking/refcounting in the
-> hotpath, which I think we should just avoid.
-
-I understand the trouble, but it is still one improvement from user
-viewpoint instead of feature since the interface of 'isolcpus=manage_irq'
-isn't changed.
-
-> 
-> > > to fix this corner case. If the user is using isolcpus and does CPU
-> > > hotplug, we can expect that the user can also first offline the isolated
-> > > CPUs. I've discussed this topic during ALPSS and the room came to the
-> > > same conclusion. Thus I just added a patch which issues a warning that
-> > > IOs are likely to hang.
-> > 
-> > If the change need userspace cooperation for using 'managed_irq', the exact
-> > behavior need to be documented in both this commit and Documentation/admin-guide/kernel-parameters.txt,
-> > instead of cover-letter only.
-> > 
-> > But this patch does cause regression for old applications which can't
-> > follow the new introduced rule:
-> > 
-> > 	```
-> > 	If the user is using isolcpus and does CPU hotplug, we can expect that the
-> > 	user can also first offline the isolated CPUs.
-> > 	```
-> 
-> Indeed, I forgot to update the documentation. I'll update it accordingly.
-
-It isn't documentation thing, it breaks the no-regression policy, which crosses
-our red-line.
-
-If you really want to move on, please add one new kernel command
-line with documenting the new usage which requires applications to
-offline CPU in order.
-
-
-thanks,
-Ming
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 718fa4e0b31e..b994138837f2 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1726,7 +1726,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 				mutex_unlock(&tpg->tv_tpg_mutex);
+ 				mutex_unlock(&vhost_scsi_mutex);
+ 				ret = -EEXIST;
+-				goto undepend;
++				goto free_vs_tpg;
+ 			}
+ 			/*
+ 			 * In order to ensure individual vhost-scsi configfs
+@@ -1802,6 +1802,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+ 		}
+ 	}
++free_vs_tpg:
+ 	kfree(vs_tpg);
+ out:
+ 	mutex_unlock(&vs->dev.mutex);
+-- 
+2.43.0
 
