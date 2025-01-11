@@ -1,108 +1,230 @@
-Received: from mx04lb.world4you.com (mx04lb.world4you.com [81.19.149.114])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF65221D82;
-	Fri, 10 Jan 2025 23:06:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.149.114
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B28D17BB6
+	for <virtualization@lists.linux.dev>; Sat, 11 Jan 2025 03:31:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736550418; cv=none; b=HCJ0Eed9QFBljaDRZOviF5bq6D3aawQfdqwn58+Vl2AKLES+iP/uPDcAzAF9rzh6RkxQkbv0YdQPiJTL9r9qmR/64NSE2JVj0VMLQpU7VynRM708AGpcqBkBFVb81TybKzw9r965AIqvyKkJmpI3LQJ1KyITwGTbHL7upFcqv/w=
+	t=1736566309; cv=none; b=O+ODAjO/52FZG7OwXQEdmt15/hfh9Zeumy9DLWKGt13DLNEztxW3gcOLu1CTl6NooPTeaP11VUNfC71L1oQuSx+JwI/KLn5QFHhBeisKoO36FWDJbP286rAGeak9gZQaw48q/UYITj3AJEqZSFfpS9xauVpAgKiv+Cg0HUj14JM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736550418; c=relaxed/simple;
-	bh=7bVyhUkOUmdxXhBTntK4B9SLDUUw6qekQTdQcvk+6I8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WUWuU9u7WGWW1hH2Zg9Bvp5FB3r0FYQw/aL3YYSnwZSDbQ2oGNuyLv/NW5jQqI+49bD7L39CDfcZ4H8A0S6hMZhD9GD9RfC4zFZzGVcC9q95oI0mIWk04iTE+7anSeT5JiCDo8fWioVYTVfEcm01bZrD0nn9fH9dVORaYqXuIUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com; spf=pass smtp.mailfrom=engleder-embedded.com; dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b=jJDpReDn; arc=none smtp.client-ip=81.19.149.114
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=engleder-embedded.com
+	s=arc-20240116; t=1736566309; c=relaxed/simple;
+	bh=5xh5jozQ32aeRFicEnr0DHa8DqBRNILOyWAPo2iTSi0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TLX3C4ruQ2rJ7W/hGsn1/YIvOIJSxyZ2cYrUCCSnHbV3z+ZiPZihj3lS+ufj550elUDpNMbOzpY0/AHJf/5o3IS6TfMnTjbg9qYYXNpzJhc+vRg4FGgWboC2KgzoLEsSgt0eHCqs9WwsWW6vKVgdAkOT8xTgqoGqME9GF/K5c60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h9owafDh; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b="jJDpReDn"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=engleder-embedded.com; s=dkim11; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=2NaWeoONQwEPrslOdzU18dxIg5ue4NuE8CgSqzKfz+w=; b=jJDpReDn/ax6joK9ZJ+BBibOqG
-	z/29J2w9eO953RP9ToEMpDDFqqLLU5u5dMhng0asgxsnrLCFKI4obZq4KMD4r+nyRH8EakerV8Vup
-	3YDFltg5HNlZiN8AvAHqxpG045cgvHnWKeqJ3WISiKWoNjNc8GmXpT2iL40yXuz/e8eU=;
-Received: from [88.117.60.28] (helo=[10.0.0.160])
-	by mx04lb.world4you.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.97.1)
-	(envelope-from <gerhard@engleder-embedded.com>)
-	id 1tWNNr-000000003nJ-2QII;
-	Fri, 10 Jan 2025 23:21:40 +0100
-Message-ID: <ed648ed1-8696-4120-a6f3-db1f325147b4@engleder-embedded.com>
-Date: Fri, 10 Jan 2025 23:21:39 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h9owafDh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736566307;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0W+82H/K+CNzaGAr5/RSFb2EWf4KvzDMQXmpvJfy+Ec=;
+	b=h9owafDhjx4TYPLhEjBQ4qlMpgpsgX5xHjroz+UWUPDtccBlZzHrYflzQ/PsEWyWWIJviY
+	kxJ+wICs0qX4Ac+oxgW2UMUk29VLeB42p1X/W2fewO9H3lB3tKAV/rYIvCY6aIl+0fqExw
+	4kksx2HcLKqyqhVePYxB6HBEAK8z5+U=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-654-LKBUZ1EeMP2vAeGKv4Vuyg-1; Fri,
+ 10 Jan 2025 22:31:43 -0500
+X-MC-Unique: LKBUZ1EeMP2vAeGKv4Vuyg-1
+X-Mimecast-MFC-AGG-ID: LKBUZ1EeMP2vAeGKv4Vuyg
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 339E719560B2;
+	Sat, 11 Jan 2025 03:31:39 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.10])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8E20D195E3D9;
+	Sat, 11 Jan 2025 03:31:16 +0000 (UTC)
+Date: Sat, 11 Jan 2025 11:31:10 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Daniel Wagner <dwagner@suse.de>
+Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Kashyap Desai <kashyap.desai@broadcom.com>,
+	Sumit Saxena <sumit.saxena@broadcom.com>,
+	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+	Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Nilesh Javali <njavali@marvell.com>,
+	GR-QLogic-Storage-Upstream@marvell.com,
+	Don Brace <don.brace@microchip.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Costa Shulyupin <costa.shul@redhat.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Waiman Long <llong@redhat.com>,
+	Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
+	Sridhar Balaraman <sbalaraman@parallelwireless.com>,
+	"brookxu.cn" <brookxu.cn@gmail.com>, linux-kernel@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org,
+	storagedev@microchip.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
+ isolcpus=managed_irq is enabled
+Message-ID: <Z4Hl_oQhJ2u6g2B3@fedora>
+References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
+ <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
+ <Z2PlbL0XYTQ_LxTw@fedora>
+ <cc5e44dd-e1dc-4f24-88d9-ce45a8b0794f@flourine.local>
+ <Z2UwvQoDM3f4zAxG@fedora>
+ <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 1/3] virtio_net: Prepare for NAPI to queue
- mapping
-To: Joe Damato <jdamato@fastly.com>, netdev@vger.kernel.org
-Cc: mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
- open list <linux-kernel@vger.kernel.org>
-References: <20250110202605.429475-1-jdamato@fastly.com>
- <20250110202605.429475-2-jdamato@fastly.com>
-Content-Language: en-US
-From: Gerhard Engleder <gerhard@engleder-embedded.com>
-In-Reply-To: <20250110202605.429475-2-jdamato@fastly.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AV-Do-Run: Yes
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On 10.01.25 21:26, Joe Damato wrote:
-> Slight refactor to prepare the code for NAPI to queue mapping. No
-> functional changes.
+On Fri, Jan 10, 2025 at 10:21:49AM +0100, Daniel Wagner wrote:
+> Hi Ming,
 > 
-> Signed-off-by: Joe Damato <jdamato@fastly.com>
-> ---
->   drivers/net/virtio_net.c | 10 ++++++++--
->   1 file changed, 8 insertions(+), 2 deletions(-)
+> On Fri, Dec 20, 2024 at 04:54:21PM +0800, Ming Lei wrote:
+> > On Thu, Dec 19, 2024 at 04:38:43PM +0100, Daniel Wagner wrote:
+> > 
+> > > When isolcpus=managed_irq is enabled all hardware queues should run on
+> > > the housekeeping CPUs only. Thus ignore the affinity mask provided by
+> > > the driver.
+> > 
+> > Compared with in-tree code, the above words are misleading.
+> > 
+> > - irq core code respects isolated CPUs by trying to exclude isolated
+> > CPUs from effective masks
+> > 
+> > - blk-mq won't schedule blockd on isolated CPUs
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7646ddd9bef7..cff18c66b54a 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2789,7 +2789,8 @@ static void skb_recv_done(struct virtqueue *rvq)
->   	virtqueue_napi_schedule(&rq->napi, rvq);
->   }
->   
-> -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
-> +static void virtnet_napi_do_enable(struct virtqueue *vq,
-> +				   struct napi_struct *napi)
->   {
->   	napi_enable(napi);
->   
-> @@ -2802,6 +2803,11 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
->   	local_bh_enable();
->   }
->   
-> +static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
-> +{
-> +	virtnet_napi_do_enable(vq, napi);
-> +}
-> +
->   static void virtnet_napi_tx_enable(struct virtnet_info *vi,
->   				   struct virtqueue *vq,
->   				   struct napi_struct *napi)
-> @@ -2817,7 +2823,7 @@ static void virtnet_napi_tx_enable(struct virtnet_info *vi,
->   		return;
->   	}
->   
-> -	return virtnet_napi_enable(vq, napi);
-> +	virtnet_napi_do_enable(vq, napi);
->   }
->   
->   static void virtnet_napi_tx_disable(struct napi_struct *napi)
+> I see your point, the commit should highlight the fact when an
+> application is issuing an I/O, this can lead to stalls.
+> 
+> What about a commit message like:
+> 
+>   When isolcpus=managed_irq is enabled, and the last housekeeping CPU for
+>   a given hardware context goes offline, there is no CPU left which
+>   handles the IOs anymore. If isolated CPUs mapped to this hardware
+>   context are online and an application running on these isolated CPUs
+>   issue an IO this will lead to stalls.
 
-Reviewed-by: Gerhard Engleder <gerhard@engleder-embedded.com>
+It isn't correct, the in-tree code doesn't have such stall, no matter if
+IO is issued from HK or isolated CPUs since the managed irq is guaranteed to
+live if any mapped CPU is online.
+
+> 
+>   The kernel will not schedule IO to isolated CPUS thus this avoids IO
+>   stalls.
+> 
+>   Thus issue a warning when housekeeping CPUs are offlined for a hardware
+>   context while there are still isolated CPUs online.
+> 
+> > If application aren't run on isolated CPUs, IO interrupt usually won't
+> > be triggered on isolated CPUs, so isolated CPUs are _not_ ignored.
+> 
+> FWIW, the 'usually' part is what made our customers nervous. They saw
+> some IRQ noise on the isolated CPUs with their workload and reported
+> with these changes all was good. Unfortunately, we never got the hands
+> on the workload, hard to say what was causing it.
+
+Please see irq_do_set_affinity():
+
+        if (irqd_affinity_is_managed(data) &&
+              housekeeping_enabled(HK_TYPE_MANAGED_IRQ)) {
+                  const struct cpumask *hk_mask;
+
+                  hk_mask = housekeeping_cpumask(HK_TYPE_MANAGED_IRQ);
+
+                  cpumask_and(&tmp_mask, mask, hk_mask);
+                  if (!cpumask_intersects(&tmp_mask, cpu_online_mask))
+                          prog_mask = mask;
+                  else
+                          prog_mask = &tmp_mask;
+          } else {
+                  prog_mask = mask;
+
+The whole mask which may include isolated CPUs is only programmed to
+hardware if there isn't any online CPU in `irq_mask & hk_mask`.
+
+> 
+> > > On Thu, Dec 19, 2024 at 05:20:44PM +0800, Ming Lei wrote:
+> > > > > +	cpumask_andnot(isol_mask,
+> > > > > +		       cpu_possible_mask,
+> > > > > +		       housekeeping_cpumask(HK_TYPE_MANAGED_IRQ));
+> > > > > +
+> > > > > +	for_each_cpu(cpu, isol_mask) {
+> > > > > +		qmap->mq_map[cpu] = qmap->queue_offset + queue;
+> > > > > +		queue = (queue + 1) % qmap->nr_queues;
+> > > > > +	}
+> > > > 
+> > > > Looks the IO hang issue in V3 isn't addressed yet, is it?
+> > > > 
+> > > > https://lore.kernel.org/linux-block/ZrtX4pzqwVUEgIPS@fedora/
+> > > 
+> > > I've added an explanation in the cover letter why this is not
+> > > addressed. From the cover letter:
+> > > 
+> > > I've experimented for a while and all solutions I came up were horrible
+> > > hacks (the hotpath needs to be touched) and I don't want to slow down all
+> > > other users (which are almost everyone). IMO, it's just not worth trying
+> > 
+> > IMO, this patchset is one improvement on existed best-effort approach, which
+> > works fine most of times, so why you do think it slows down everyone?
+> 
+> I was talking about implementing the feature which would remap the
+> isolated CPUs to online hardware context when the current hardware
+> context goes offline. I didn't find a solution which I think would be
+> worth presenting. All involved some sort of locking/refcounting in the
+> hotpath, which I think we should just avoid.
+
+I understand the trouble, but it is still one improvement from user
+viewpoint instead of feature since the interface of 'isolcpus=manage_irq'
+isn't changed.
+
+> 
+> > > to fix this corner case. If the user is using isolcpus and does CPU
+> > > hotplug, we can expect that the user can also first offline the isolated
+> > > CPUs. I've discussed this topic during ALPSS and the room came to the
+> > > same conclusion. Thus I just added a patch which issues a warning that
+> > > IOs are likely to hang.
+> > 
+> > If the change need userspace cooperation for using 'managed_irq', the exact
+> > behavior need to be documented in both this commit and Documentation/admin-guide/kernel-parameters.txt,
+> > instead of cover-letter only.
+> > 
+> > But this patch does cause regression for old applications which can't
+> > follow the new introduced rule:
+> > 
+> > 	```
+> > 	If the user is using isolcpus and does CPU hotplug, we can expect that the
+> > 	user can also first offline the isolated CPUs.
+> > 	```
+> 
+> Indeed, I forgot to update the documentation. I'll update it accordingly.
+
+It isn't documentation thing, it breaks the no-regression policy, which crosses
+our red-line.
+
+If you really want to move on, please add one new kernel command
+line with documenting the new usage which requires applications to
+offline CPU in order.
+
+
+thanks,
+Ming
+
