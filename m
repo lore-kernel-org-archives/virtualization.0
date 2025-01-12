@@ -1,302 +1,296 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACD5646B5
-	for <virtualization@lists.linux-foundation.org>; Sun, 12 Jan 2025 08:30:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736670625; cv=none; b=lRIWDUuAwRrZSE5EZfk4q1D9gma1MihyzpTyvBrtWPFGWMDjn8AZH8mQMFPJr9Ctr0CGgBnUFPXKtCz14nRNcdhoyVSFYihTJL5xCEjL9QKu7CLB4nok7JDblPL8URPB9606UrQHQQQnmSXZeEWQqvW4SKBkjLJwZkvoOMR9fTk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736670625; c=relaxed/simple;
-	bh=cNsAJ5Z+S+BBakQmutJQpXGCj/CMJXqvJshLZVo4eoE=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QqNYcylnBb6y9yvcpPv9r+HuCQuzM/fURZeEIPaCy1S+PZBLpzJ2t+6PjjwRg6M4HrAveHF649VatNM926PgF8XAWQ5DS+Lbq4xWKYDwOQlNFmUvMD5/Sa4fb0zdPlxBcuXQjz/LDWe/xp910988LvSC83RZqF2KTzSCzpUvBpw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=arizona.edu header.i=@arizona.edu header.b=Az5Y3wXn; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAF511BFE00;
+	Sun, 12 Jan 2025 18:50:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1736707845; cv=fail; b=PhMCgi3h1/kQBpVbZiMsNjxz37x3feGGjXklXaOxwUG4hd7X5AUSZrvlkqKVhq5BK+MTx9IrkuyM3UXMDlagfyyI1xTyPGeUJnm8VhapzxSusaEQ7/2rnZJnb+KbidtIxNuP+WyS2ZfbbCjy09v1G3mV6EY5BoqTlEC9BEHyLE4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1736707845; c=relaxed/simple;
+	bh=xaLOuxAE9w21l7abIdfJXoV8Kfw3D6lehJMuzHPnUaE=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=ph3NI0l+ntaraaebSfKjrB0TSf3wQ7NMcRfu6fYBfhoUm8o6ygMHrjEjia0uGctWmCxwerZeYoDahmM14no0YrH7gIaoN5rid+ddsT+xRpGbWyLwfQtmaxyzz/RS2cF20HO3xUXU0sehbhkB18BwKLfbsaNXNuZ9ckCQ4Gy0xjQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=aGttjXK3; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=tFw0zWrk; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arizona.edu header.i=@arizona.edu header.b="Az5Y3wXn"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3F1ED81347
-	for <virtualization@lists.linux-foundation.org>; Sun, 12 Jan 2025 08:30:23 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id xGE_i5YyRKqF for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jan 2025 08:30:21 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=170.10.153.118; helo=usb-smtp-delivery-118.mimecast.com; envelope-from=sahilhassan@arizona.edu; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7CD6281344
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=arizona.edu
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7CD6281344
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arizona.edu header.i=@arizona.edu header.a=rsa-sha256 header.s=mimecast20240207 header.b=Az5Y3wXn
-Received: from usb-smtp-delivery-118.mimecast.com (usb-smtp-delivery-118.mimecast.com [170.10.153.118])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7CD6281344
-	for <virtualization@lists.linux-foundation.org>; Sun, 12 Jan 2025 08:30:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arizona.edu;
-	s=mimecast20240207; t=1736670620;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=84tR6yC2J4BmdPFhBiO8/GYMeTxyWfKjBPbgQgSlT3M=;
-	b=Az5Y3wXng18AM58civpXjO7JSkUqU7bYZbtJQtjf1HwbGGZk9fhe0gPtr5bSdTlrAfGUJY
-	J/Df7FkQgWHg3LlH5oBgsCqVBmFZ0Ui6EudUrKrgApO7Mr+97q/NzK79ydSIqq2FfMCL60
-	9wnWM2FgaLrfyxPpGhKoC4MHYfEAeCd3bDDlRV3wdbuJkpQBB0I3NcZ8/hnBT6kFkEy73+
-	xZQReODcb1B7q6RPzABlSF8MdZRJfkpYNU4vbooHVuE0xQtEsXQdJJIBShCtTwjMUotOvB
-	5vLk5DEKCJ0LEjEWyM8rTSO/5+cndAq2fNYXcWmQTmM/2fSiIg5fGJsBD7sOeA==
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com
- (mail-bn7nam10lp2042.outbound.protection.outlook.com [104.47.70.42]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id usb-mta-2-SLLEpLRJMLirIty8LSWh6A-1; Sun,
- 12 Jan 2025 00:30:14 -0800
-X-MC-Unique: SLLEpLRJMLirIty8LSWh6A-1
-X-Mimecast-MFC-AGG-ID: SLLEpLRJMLirIty8LSWh6A
-Received: from CYYPR19MB8118.namprd19.prod.outlook.com (2603:10b6:930:ba::12)
- by DS0PR19MB7925.namprd19.prod.outlook.com (2603:10b6:8:163::21) with
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="aGttjXK3";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="tFw0zWrk"
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50CHPp8Z022502;
+	Sun, 12 Jan 2025 17:35:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2023-11-20; bh=8jdlBCkwLSwzXh5O6l9tNZqG0N+Npai3l9n5j41FYNA=; b=
+	aGttjXK31o5355kCLHpJe8h/dM9/rRtDxy51qZ8+vvJYyGTiwanNHHxkRtBnYe5E
+	Ir/GQv0/d0ceMQxhM8W8N3DPeJtTd6rV5EixdMy7KRdEjRgag2UD/yS0iUaRklk+
+	KRW/9zTtDZ/U0dkn+UMgY6JHTjWW+JkCqJOLhLdzeQ02N3QbT2AG8ppV0OilPaRy
+	UwLBQeStexGlm+Wjv/jHRDyILNC07b8ZohDn9/m3RFRR+t0tAofGNLOK2fYwZtb4
+	MP8z0TpHqPkPPivKSq3LqP0/qCdb3SAgb7KdzUeM5zEPiM3Q4kGNbG33oF/lFiiP
+	gf9tt3jYFWDwkb0knrXxMQ==
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 443gh8td4n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 12 Jan 2025 17:35:27 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 50CEPJEO033214;
+	Sun, 12 Jan 2025 17:35:26 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2169.outbound.protection.outlook.com [104.47.56.169])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 443f368gqj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 12 Jan 2025 17:35:26 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Nq48/AB7Fky6hzjo/9mmzuO2DlSyNL6FZZhBzoZYGCXoBuX46RYi47DWp9qMA3IH+gOWmjlvkBngIb5KKwS1oGroUGoIHnuQgyXw0PIYQdZ/89ZjJxGCHsK6Mz640BRhSliBUZXg8dU0D3BGqudhVyJReUkVZ9CbHmyMs+esp80UZA/3AYGY8VdHYvV5kozYEZktfaxyUGvD3ZpuIV/zXFVXclFpphQpcD0+3o6+OLqxxDt8IGgMmTucGJUZTZ1RPMsf696ggeBNtOLB9SzcYrPdsDL0vTQpHtTNIg/mmaLSjs3k0YtnIprvIEZUMId9WON5OceVPKNygPWl5/nnpA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8jdlBCkwLSwzXh5O6l9tNZqG0N+Npai3l9n5j41FYNA=;
+ b=P+Qmq1QI0uVziOBrndhD58lKhXWusA4ORUbbErM6k9tShuC1oRiMrYtNaqLAGon4JnskOfkGyBCFs8bA+eKycm+wVjlQtQvZPH0vISB/8ly6DSEBtaKFLJScjsj4/6luGD9Esk9+bFnNn8NfZN724qA5RZcTkEubr8HAqlDqT1qn/RGyaCEH4aeS1uJnccRrHEaXLBxPNcgKCJ5bcQFzqRzZsM5nPSsuUR4apXp6f9C+HnGuzoo/KQ+RfzjKLiTPw15HxaBqWMbOrt+RgZm1qk43i2LqM/PlFzLgy9TYoaXjbEM9p12SzQT3IUzLb+hPv1EtxwiJER+FdNmrVdb+WA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8jdlBCkwLSwzXh5O6l9tNZqG0N+Npai3l9n5j41FYNA=;
+ b=tFw0zWrkUD6WwjqVKBPKzvy0gkYlj32BsQLEmeG4TDW18boRVJNEAD7FKuY9DYVZHdakXwrV+MASHony4BWpTGh89zUMXpmvdWnn1R8tvNdqtfp/fSjBdznAbGhuBu6M/5mIPv/wjCMPuG3SlGetzB5y87DwFUqiH5htJQbaJ94=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by SA1PR10MB5686.namprd10.prod.outlook.com (2603:10b6:806:236::5) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8335.17; Sun, 12 Jan
- 2025 08:30:10 +0000
-Received: from CYYPR19MB8118.namprd19.prod.outlook.com
- ([fe80::aca5:563b:9d89:ef9c]) by CYYPR19MB8118.namprd19.prod.outlook.com
- ([fe80::aca5:563b:9d89:ef9c%3]) with mapi id 15.20.8335.011; Sun, 12 Jan 2025
- 08:30:10 +0000
-From: "Hassan, Md Sahil - (sahilhassan)" <sahilhassan@arizona.edu>
-To: "contiki-developers@lists.sourceforge.net"
-	<contiki-developers@lists.sourceforge.net>, "icec@listserver.tue.nl"
-	<icec@listserver.tue.nl>, "tccc-announce@comsoc.org"
-	<tccc-announce@comsoc.org>, "virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>
-Subject: Call for Papers: Thirty-Fourth IEEE Heterogeneity in Computing
- Workshop (HCW)
-Thread-Topic: Call for Papers: Thirty-Fourth IEEE Heterogeneity in Computing
- Workshop (HCW)
-Thread-Index: AQHbYwsnKyaGSeWwVE+1XbJtqXr/6Q==
-Date: Sun, 12 Jan 2025 08:30:10 +0000
-Message-ID: <SA1PR19MB81165562F01E8C2ADAE786A7B91C2@SA1PR19MB8116.namprd19.prod.outlook.com>
-Accept-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: 
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CYYPR19MB8118:EE_|DS0PR19MB7925:EE_
-x-ms-office365-filtering-correlation-id: eb87e2db-062d-49e5-6f9e-08dd32e35411
-x-ua-ms: UAConnect365
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|10070799003|38070700018
-x-microsoft-antispam-message-info: =?iso-8859-1?Q?oPS3JddMH3EykWNh/0Kp3gXAMHO2/4Qr9lYMh2KX05qUlt/Sxc0iZD1kSh?=
- =?iso-8859-1?Q?+XvSZRza668d6V8LDkcCifD3ZZDvhgUdUSM6og9bTO/vm2ldjrD7HeJLzG?=
- =?iso-8859-1?Q?5DYRgH2dNKY2CsXafSYoSGvNvOZVUvipNnC3jx6luLO2vnIdvXgWKDWVJa?=
- =?iso-8859-1?Q?OVCgupR5L9HJNZqrfXL7wq+7g22V+HYYvwZqA1k/klG+1jlLNtt20wkC1F?=
- =?iso-8859-1?Q?y2mMPogReYRr3oJBDzMIrlgQIHTp4L/qrPZ2tPr19+c03POvTEbSvy1mtW?=
- =?iso-8859-1?Q?oKg/5x+L7eGTrA5v9lMRRRvoOow8Hj6yVOKzdDH8qbBHWoYRIsvxvj4yAy?=
- =?iso-8859-1?Q?2nxYrYXtSZ9VzvaK9CCOgvRJ8MR2vHBzooPU1FW2XLFL6HTeYosvWyBFVN?=
- =?iso-8859-1?Q?329YkjimoL55x97onktXoRoH3CaR4u2z+sxTAIJZ4APhwrCjs2npj8rihW?=
- =?iso-8859-1?Q?NsJiP1TOngNqkfPftuAO8GccQOr+AasG9x3C7v0l/sfqeaBKkr3ut57cGM?=
- =?iso-8859-1?Q?6CSoKukKa51vQw9etH/TeY4spNsmtZ+zkUpfM+W9/jpHCesKhBClbbLvjt?=
- =?iso-8859-1?Q?55mIkZj0F6hwG9AaT8dZa3WH7TFM7wSCJn/Axmr600aehE73j8Kv0SgV96?=
- =?iso-8859-1?Q?O0Sj/bT0E3Mx7TGRAlEoKEbSZ3VX/bCbOHy8nLRzNaQpHyBOwxbuF0xVCk?=
- =?iso-8859-1?Q?T+Cx6my3bDCa9yaz8gCqjbQ5Pjbp5hnK1HzZGh4PXLf7KnGN3EyUZhX+eZ?=
- =?iso-8859-1?Q?uyQ/bgGjdXECQZZ/P0Fn66Kd9T9nKahst1IUHITAD2zf2lp3pgRU0Oeqi/?=
- =?iso-8859-1?Q?CTie+sGqkTLO2ULCuYdnTz9QPfyhP/IyFgYUydHE7hrg56ClC2dPHv7bjL?=
- =?iso-8859-1?Q?dTafZTAAVUZlsMBIr/LthhYLGD7WvjIfqvxD4oBr1lnKhFhPmL3zM23QzZ?=
- =?iso-8859-1?Q?Je0KgJb4r4cWdVfw+/5AosfIIdCBXYLwoCLB0TeS5RwN9yREEEOFwdMauL?=
- =?iso-8859-1?Q?UuvDtbORLmi5e+HSv9yodtkAXYwtB9Eg1N8hVHLpmfgXZcOu7oBfyKWFdZ?=
- =?iso-8859-1?Q?ARG+VWJ5cY9BcpCbEQ2uoR6eMmvkPGvSwkjLh001jI4Ml/7bdXnct9TZM+?=
- =?iso-8859-1?Q?/P84tF1n0vKHK9QB5xD+Gu1bXpqxPbgHUOKSVLqse2VDTS+4f+N8kXRMi1?=
- =?iso-8859-1?Q?jGgtUMaVKVb3zJOjG8ldEj4IehXeEi4K03XqBqQONSpUJ75qwjPA20E9SB?=
- =?iso-8859-1?Q?WShFJu6AdsKMk8j+/RRetJMCCR+ySEiYr6MfaA8nzfdrZUHhVYNnGKuv5N?=
- =?iso-8859-1?Q?MYXwv7Ywz61fkR9KugValC7M3inTiHUFmkKu77Ceud2ArcOSdS2Ueb/HtI?=
- =?iso-8859-1?Q?j4vSpxefyWwA57E86hzpn1DxtUt61mkn9qmpATUvGs3mdYCA10y+ME2Wn7?=
- =?iso-8859-1?Q?VE/u2PxC+DC1GsHT?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CYYPR19MB8118.namprd19.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(10070799003)(38070700018);DIR:OUT;SFP:1102
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?Ic5VyKTVHJj1ePsdh5Qj5tlhJ+pvPU3T95jhS3irLwCopj2AsPU7LmxgyB?=
- =?iso-8859-1?Q?FUGTIpVogLvT6IlksTEDOx+5E+skiTG8jHbgm/Lst9uKvzCxpefQ8ICZPg?=
- =?iso-8859-1?Q?4cpPyy1Z5ktZjpbM68i1qjget0ZsBi2c8Yl1ktsEzcrcfg/h8F0DG4HpOF?=
- =?iso-8859-1?Q?dWlL1FNWFPMCY5LnOEfxTEIws1SrpsSWk2RlpJ7h9yTvlFe4Nwd1KXxMHx?=
- =?iso-8859-1?Q?Qpr9eUfFCSo/hAOu/ifugjs2M38SGNqnDBditLTXX+jSFWZLsIltezlz10?=
- =?iso-8859-1?Q?sWSjCxES3p5qsIkM5338ATbMMWwlKqPSq4vK4hAn21i/uBYNEEIjofxP83?=
- =?iso-8859-1?Q?7cY3NujmdqIUcwETI+m9gOH6Jt4RguNPaVrFb6BhHoCF1aOiIDgQmcFgGA?=
- =?iso-8859-1?Q?FJ7HsQ/6V2fQr6eml3udGs7xT+gVwz+u98cDPP1fUmVZW6GPx7zvfIsbwl?=
- =?iso-8859-1?Q?y3MrNu1VAv8oUvAhKsGJhzeF9ppg/Hn7Gxg4cdBlndsUJ9V80nmAWBsjWR?=
- =?iso-8859-1?Q?R/Oil3rOozWy4UoEr9HtGm67XIQovm3QgPxIUwkLJYC36JVC4k8PJIm+lv?=
- =?iso-8859-1?Q?BXuvVlULOlsMQtuoNtwv2LdqCvSauYu0fQcf0Qr53I4ADM8hDvPLc/iHhS?=
- =?iso-8859-1?Q?kR/Ryk0C+mIi567o1pqx+BQLU3MSnxbhv2eHYFUkn5ebCMLvAiBLDJiD8e?=
- =?iso-8859-1?Q?v4rnFM2SD33DeAglKZ9Hz5/hCKtJQGZnBTiY18ltlUcz6raAduYd26fWYM?=
- =?iso-8859-1?Q?13L9nGJw7lhevdvM7O/3ejcSkszEMuvphOQRapoUOlTDBuAQTpiIY/KXhx?=
- =?iso-8859-1?Q?Pdft+QGwUKtqN+dwexOFOns8f8EMRLJ9NKJiRa8DkNJP3OvgGye7nemvDn?=
- =?iso-8859-1?Q?QKFuLsYLORDvIzkmceqZTvARpAtKGDKfWdJipJYFrUS6TomWkw1Xjdnkcs?=
- =?iso-8859-1?Q?4bWQumtE5zxm1+xbiyke6av/Un2AK9aRg4MjbiZi6UYjdCGva3P1Mjl95V?=
- =?iso-8859-1?Q?de7BtAANc0ZIt6Xe3LsKs9XfRVCqRYjUZcQ17z3DXCu0NKyfAnSSqyyO5y?=
- =?iso-8859-1?Q?Eso2aQS5thklT0vpELevcAsnmJf14wNAtpuCFZbNzDlFpqqPl+qD9xmV3H?=
- =?iso-8859-1?Q?2XGPG0rOCXuYdwnb1wgYlR/Y1Nu8HFUeLPNTU/ZpUc4bfF+GpDcGttfzhC?=
- =?iso-8859-1?Q?XVfBXdF7NW7+i4SfFmbWm1TYG2AsIxVFQhwIIEZVm3FYdrqSscSsqKry+o?=
- =?iso-8859-1?Q?bZgoPWuVsx6bXgQn1IPovlp97x3OeKfWUAHP5uJA1GZHjZyzQLnGweW1Og?=
- =?iso-8859-1?Q?0FWTGiEOORA/KSJz3xQ5uWaUoVpL1ZM/A71VwHWZ0wVuBgunVcp0Pf1aC7?=
- =?iso-8859-1?Q?PxX6pDU5mgKfE2eWMR0kZcMnuK449/lI36rw/wvTZ1G8qS28egKFUEwpNT?=
- =?iso-8859-1?Q?2tgpd/8T7tcKM0/EcOBXQqVlKDE4zKmfV1XT5whMHQMCtw/ye8PiL4HXxt?=
- =?iso-8859-1?Q?a7NsEjeg2xPsWZjhDzXbvFqitDjz3IoXMKMtHnDEI+imp8Wli2r1eqXv7s?=
- =?iso-8859-1?Q?JJx9QO/1uln50E7hzeDFeCZnNClU6cgfmg2QEgVNVuykcXeMdeiaS8/Y1r?=
- =?iso-8859-1?Q?q0WQSldR/hNOrZxxAZR4aAtN++1DR+fgB9AEr3IBcuGw/f9p8dBhudOPO2?=
- =?iso-8859-1?Q?09PTZsMUQf2dzXyiR5BcHes8uVJKTPbXZg3y53lK?=
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8335.13; Sun, 12 Jan
+ 2025 17:35:24 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0%3]) with mapi id 15.20.8335.015; Sun, 12 Jan 2025
+ 17:35:22 +0000
+Message-ID: <bae5ca72-c6ff-4412-a317-4649f2d09cdf@oracle.com>
+Date: Sun, 12 Jan 2025 11:35:20 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vhost/scsi: Fix improper cleanup in
+ vhost_scsi_set_endpoint()
+To: Haoran Zhang <wh1sper@zju.edu.cn>, mst@redhat.com
+Cc: jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com,
+        eperezma@redhat.com, virtualization@lists.linux.dev,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20250111033454.26596-1-wh1sper@zju.edu.cn>
+Content-Language: en-US
+From: michael.christie@oracle.com
+In-Reply-To: <20250111033454.26596-1-wh1sper@zju.edu.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: CH2PR20CA0030.namprd20.prod.outlook.com
+ (2603:10b6:610:58::40) To CY8PR10MB7243.namprd10.prod.outlook.com
+ (2603:10b6:930:7c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|SA1PR10MB5686:EE_
+X-MS-Office365-Filtering-Correlation-Id: 662d7904-9456-4a92-2aed-08dd332f7df9
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?UW9BSkRRWnNBT2ZVWG1pRXhEZGNWMy9LNkVxRys1QUFrZmFodVdTRmdUVk1x?=
+ =?utf-8?B?QTAzQlJKL0N1dkdzZytyWGxJWDdsZEJaWXdNUlNPSmpZdlE3K3VCZmdoS0w1?=
+ =?utf-8?B?UFRkcEladkpQdzliZFR2QkQ3T1NqZnM2YXBGc3VrenZnaEZUbHVqYXJYRGh0?=
+ =?utf-8?B?RzlEcG9FTVF3bTNhblU4dzJDRGgzeGtuWXZpYlZqRWdrSVJSYVhYWjBtQVYr?=
+ =?utf-8?B?bk1ISFUwbFlYeXo0eWx3UlNlMDJyeHlPVitIRUN6Q3ozM3VqZ1NRbVlCUlZS?=
+ =?utf-8?B?dks1MnFtSzRENVNpSVd2ZG96TGxQZVNBT1UxcGFPZldEUzJpZkxFVFVrSnd2?=
+ =?utf-8?B?dDFtSUk1ayt0U1BIT24zRGZBOWpCaTltUnNTN0JzNTNJMVhyYTFqaTVnSzZ1?=
+ =?utf-8?B?cUkxekRVTmdlMUU3Uk92UFp0N0RXYXorNFBJRjJEMmo4anRRa084QkZjU29z?=
+ =?utf-8?B?TXhTMGo1YXo3OWp4V0lRVXVQUUZTSk1hUWYwKzVkaHBrU0xOVHNsNjNHeUdL?=
+ =?utf-8?B?OXlzYnd3cW0raUNUWmw2aE84WFNEUDBWcFoxdTE4Tko0TkJmQ3NndVIvWHJE?=
+ =?utf-8?B?OWtiMHZwTVlkMFRRbVBVY3c3c0pxaUVQcWV0YTJCZU5TSk5uc2xuTmdmRmhQ?=
+ =?utf-8?B?V2ZGZFRaTW1JUndqSkEwaEt4WDJ5YmRQZnhGa3BTMUZienVGckkxbGpoSENH?=
+ =?utf-8?B?VHM5SWNscHJGYWNXOTVLbEFaQlJJcVFvdXhaNWxiMUU0aUlYNHlVSkVpWXdY?=
+ =?utf-8?B?WmRibXRUaWpVU2VMRWcxdFJId3ZHRitldnVlU3BqQWtKaUFNZTVjTWxOWDRH?=
+ =?utf-8?B?Z1ZqcmR6bldCemZzUzdHcXlza2RacU9OaEg5ZjRMdnVYZXljRlR6YWhVd0t4?=
+ =?utf-8?B?WGFQQ2xyRHBMZDRNalQyN0JvaWt5WUFqNEJpajVuaVJnR01NeEd5bVVvbFBv?=
+ =?utf-8?B?eHhwM3ZPMHpVeEptWFd6SGVScGtKMUYvZFE5dTV0TEhYNlNFSzdMNW5CVUtp?=
+ =?utf-8?B?VXRtalZENGVjTko0RU04bEt4UStjYmNuKzhpTEhlb2lsbEVaT1R0VXJUWVVm?=
+ =?utf-8?B?MHgxV2k4V25jcDFteHA0cVZRTUdrbkdoUkJ4VGRkS2xDa1lyZE5YeGF1eGJt?=
+ =?utf-8?B?b2lKUEdYd21XeGpNUDZCR2pIZkJRWDd4eFBPaHZrWmtyWGYyV2NueXh4R3la?=
+ =?utf-8?B?MEFKclNyeEhXNmVZNlZCQXVuWmZGdWZ6b1FmM1d0NGxOdEduOWJISHRsTk1u?=
+ =?utf-8?B?bWpVb1BZUUdYV0lzN0NyU0krNVNyMFlFVEx0WTExR3lzbXIvVDFHenAxWGp0?=
+ =?utf-8?B?Z0o0dzljQmQ1eTNPd0V0dk9PREIxUmlpVEl6VnIyQmpSMjNxMGRobWptMzgw?=
+ =?utf-8?B?bVcwOVd6d3dvT1pYUjdpMUh2Z3Y5QnNFWWE5Qy9QVzhkbHZzMUxLUWJjNEFi?=
+ =?utf-8?B?bWlQSkh5WDEvdm5oeTl2ZjRBMVBrVGhaQ2M1NDhaeE5zbE1rWlBCRnpZK3JJ?=
+ =?utf-8?B?RDdYWVJ1b1hKZzl2eXRlVWV0Q3BvYUVtN2JyUXdFMm4wOWxuLzkzdXFhMmpw?=
+ =?utf-8?B?c0FzME45QVovUlZESG4xeHUrRnE0U05KRFBrWkh2TWtSR3kwajlPWnhMU2Fy?=
+ =?utf-8?B?ZUpQK0ZpeVZCY3VGMy9ybUNXZVRQbXliQVdhcUV2bklMZkVZVzViZHFzV0Iy?=
+ =?utf-8?B?Skw3UkNkRjBSNFZSc1pTbXNnNzVPRWRZNmhra3VZWEkrbFZIS2kxcDRHZWpL?=
+ =?utf-8?B?ci82cVBCc05sc0JLdXZ5QXRObWRycHdFNW02Q3hZWVkvTFBEN256blVralJi?=
+ =?utf-8?B?ZDY2clR4SFFCMU1wWHRlN2FYMk9uVEluMHJJK0x6SS96ZSs2dnZlS3BwdWFV?=
+ =?utf-8?Q?Y5UMrBiNCHvqw?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?eGp6b2dyZ0hsNDh4RktTVXdiUHF1MGY4SnpQYVhaRHZBL3JiYmxxS2lIWG5M?=
+ =?utf-8?B?MldjNVFWRHRJaUtWNS9aNmVFR2ltL2U4U2NTS0pnZ1lhUzlEVHQ4QWtsVXpr?=
+ =?utf-8?B?S3Fkd05RWFp2SEgvcm5sWHl4dERBeWo0SldCNVVkN2J6UTZoUWVOK28ySjRS?=
+ =?utf-8?B?UURLOEdCRkg5dlFoMDZSbStkTXo2WGdIczBBYzVDQ25GOWQ1S1Ixa1dFU21B?=
+ =?utf-8?B?OHBwRmdpRXBlOFBVTlpsdlZ5MVlFQnBUbXl0MWx1WFk3aFl6ZWZkMmRjWnJD?=
+ =?utf-8?B?STJnUzJ0MlJJOGlXVmFDdjUrK1N0VTYzNzU5Q0hqdzFqMXpPY3Qzb0FGR1hT?=
+ =?utf-8?B?ckw3NEVKK3F2ZnJRWmFJcE9UZEFqaVgrSmNUTVlGUVZodzI5c3FrZGttMFNR?=
+ =?utf-8?B?ajlPK1RhZlFIdXNJR1h2MXltbVAyM1lRMGZrYmk0enJKQVBZNGUwVnFKRmlq?=
+ =?utf-8?B?TVU5aEY2aTlxTVFDRHpUeWFqUVc2a3Y5bUt1ZDMrSzNCZ0hvd25xZDYvNGdE?=
+ =?utf-8?B?VFVQV3ZVRElHVVYxV2QvTkltZEptSUo0MVlEc3dUTVRScGY0azk3d0kwMnNF?=
+ =?utf-8?B?dVpjZzJPL05kRllneTd4VGwxZVdIUlliT2pGd2UwclYyTUpUcVJpc2hmTlJP?=
+ =?utf-8?B?RlZoaDJRRll3MWtpZVp0OW9xL2pZa09FSk5ZU1B5RlcranBpdzBHTXNzTFZP?=
+ =?utf-8?B?b1hIa25BdjRYZFo1c3hZM21qdmFSYnZnWngzMmxGUHpYRjgvSlRWNFFSWTd1?=
+ =?utf-8?B?Y0tVTHg2aU1VM2o3MGxmTi9qbWYwK2ZqTEE3MWVlWWhDTkdaajRvcXJjSmhk?=
+ =?utf-8?B?ZTRmeVdRQjlneXhvTnR5ZFJiblYxRjhONitDYTd6dU9YdWpFYnJBKy82RWhs?=
+ =?utf-8?B?L2xMbGptbGl0K3NpRnJvajNtK3l4R2NjRXc4Yjh3cXlYaklnekJyMWhTYklS?=
+ =?utf-8?B?Wm1ndmJwL0hMU25jbEZTczhSam5OT0xCVU5WU01qOEQzSnFPSlR2RzliLzZI?=
+ =?utf-8?B?RCtGa2ExbVlWOUFHTXpWLzY1ZW4zNjJheC9MNHpFdldrWTdUclAvWHhlUlZ3?=
+ =?utf-8?B?VzJWbi9jVE83V3NGbGF1OHdoUVY2Z0F6WHhFKzBVc3ZzQXlHMUhNL2c1bEU3?=
+ =?utf-8?B?dXJ5d25iNTkxT3JmNkdUM1MrMmtWMlFKeW1jdXFUTE5ubXFoczUwZFJTWWc3?=
+ =?utf-8?B?T1FDeEtGVUxkSTVOU0plUlA0V2hDRiszazBLTnZMdlk5NFJlNC9zdWdpcWxr?=
+ =?utf-8?B?NU81WUpuZWQzNHpvZ0t1NDBmbW1oOGd5d2ozaCtFNCtYaVJwcDhHRmJsRERn?=
+ =?utf-8?B?Y3lyd2I0QVpIajQ0WFpOWU1GRXN5a3ZTWHZ3TFNmMUQvSDhDbW5wS3hZbmN6?=
+ =?utf-8?B?bEdCNkxUeklLcXgrWkltZ3d6UjVKSy9OUkNDSUtmdXV4V2ZMdkZEUEtIeTNN?=
+ =?utf-8?B?VWp6K0JybGhDSG4wVmpnWGFHSTlqeVVzeS9qZzI0R3F0ZHZtd0hnS2ZlRUxy?=
+ =?utf-8?B?UDQxV3UyVEd1ODJkdk5KdEZQQ3hxa1I4ODlqSklpcWJNVnZlUlIvVHJicVJD?=
+ =?utf-8?B?djhBU3kzZzNwalhoMDFFWVBvN1ZJWUZkNEpVYXpaQ2M2OWw0OUdpTjEyL3Qx?=
+ =?utf-8?B?UjYyLzMwa3lYMmFxYjJabVJqWGl1R2F2UXZrUFRYcituWlJOV1I5a2lTbTVn?=
+ =?utf-8?B?TnlsMkpBb0VWWnloOUZyMDFSN0o2MG8vaWdyZGkxcnZJdHlPUzBBd0ZiTmRW?=
+ =?utf-8?B?NjUwT2Y3cUNOK2lVMm5UOFRUa29vUkpzcjk3cmNyVzdmMm5Iak5WZEdaVDRL?=
+ =?utf-8?B?OUNzclM0ajc2TGE0czhNdHBtbm1rNWpOaU5DNUZOY3ZHWDJLekhKdis2VmpD?=
+ =?utf-8?B?d3ZCQlBXc3pRcGtoeHZqVWhHdFhNZlhiUzdPNW9NVVdEbm9QRzROai9vL0JT?=
+ =?utf-8?B?Wnl6R2NTWERsczBuNy91Ujh3KzBLRUpiR2xCREtIVTVkNWFUQUZOMmhzTnNk?=
+ =?utf-8?B?RGpZdGphVWVvaGpWYmV4emdNWkNXSkRzdVl3RHV6SW1zQkZWMFNwd3dRODgx?=
+ =?utf-8?B?ekNMbzhvL3IyQXBSbGhYM01uNkNTTjRUUVdMejUwaUxEMzBuckFLYkZkcnM0?=
+ =?utf-8?B?aVE2TXBiTkxJL1BLMGRndXJKS2JKcVNiZ1ArMktjKzBmd2dHQVBCQ0U5UitI?=
+ =?utf-8?B?NHc9PQ==?=
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: rA8FJNaIx7fz5vtsw6hwMYaA6QX1WXKodZn9MYw8rN7t/NcAnW+GHlvgYDJ+LV3MgUr6FrwuTAUQeLPCg3kPr7nVBV7iWKK1xCxjeSv43WQkEcm/M4/WvmnFdQ+q9vNrCmKjo4Ua2xZLkrx9VMY1LD0Ohx3MFVIMV7QnnSxSJmoYPg8jrjv1MmBndNYxOsOwXQKEjJQHyxCXbK1HUQBha+RSehn4CnIahVZHa+YhAS+RLuNeKpNhfa7LPLD+zo5CJcam4sfdhpCw8/QxTsdp3umSteQ+5glHOQOx7/doYxcuM1vBN4+HTZXqTj24s3riihw7XQz6grwVlTZGKTyxmYMnwzIngTrggoK2RvrSWTNUn1D5r5MPKwjb00MNgkDkFgaxrqCg7RYwnP10Wz8VYb+5tsI5d5OzAVt99UI1dkKauBwZdTm302cdVGYUsIpQZCGsUzMyyYfVsJ2ySR/TFjqMz0BRACjX7JNAkWXHnzI+I4WAE2X2NC08RKe0VhI0/TK3zy349ZLHnuUg1AQ4SOuGT8KnUMHqz8B+oTHlHbsIU3nlXYIxuFxeiq2CnVv2N3/Knun1SEtsBu9QlWd0ChfqW0z98vV7UeFm6WZCP/a4thXRDVTO3uAG5IzogU8K
-X-OriginatorOrg: arizona.edu
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	RGAuHQujXH0XiMTbHhoBs7FmqX4wxJQIWb6fd2Al1tatKypB6/Ungfh319X9e7A7RKVJWfRFgysWNuqyBohZWuF6luhvu+3k/ekK39eWHULxPihxluiuwhtkgsNjOByZGzOit7V5y7Tx+kXx9DGJWcPg8yroLjGe+ziiKSD2MKXq3u5PDnirT/J6S5RXk7H1Mvf35OjlmAQXZpVZTtI3NMSqKZokdZv18BCxFV8hOnT0xfExPrUS9QTlhz3BVdEtWOXwhG9BGdz6zmVffcoopp3ebYW25PM2JYV0zxeHZpsypXqhU08SkF4HUviajnw0JsWFKd2BgCavlB5h5wYvdShN7Fz4TTPCl1dLfLWUiMHpEE27ZkQKtV4nYNDPsI7d0pXdOpWC2QSCaZ5BR3lZ03B0BybL0TBSOp1w/1d3/bcBghItrp/LPmsZCF2LcJBIjAH7dlSerm2djPgY0n4pu8dFm+OM8AOKfpgERNbXT4kpxXNfPfmJ919AQ4+GejhKqzNYkeTWTEO+ZY0k6L/Vf9t0fDT009Mg0n4JnoFjlVCAlZ5Yo8pfADdJW/zHZ3yVYeZsyjlNjJWQpvxhgOhtXxyU6kV/Dt4lx9NMo3tkxuA=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 662d7904-9456-4a92-2aed-08dd332f7df9
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CYYPR19MB8118.namprd19.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: eb87e2db-062d-49e5-6f9e-08dd32e35411
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Jan 2025 08:30:10.5741
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2025 17:35:22.7781
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5ee35505-eb8e-4929-937d-645df5013288
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 8ISA6WbFSply7PEKIqv9AaAMQeV1yTim847HeSFtDONN5o49xmllYXZUkipGoidruCtrYyGVfnjJ8sknPfgcbQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR19MB7925
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ia2y0FIVYZRrZAZhvZppCX0w0PDRYONePVmX3FKiB9s_1736670613
-X-Mimecast-Originator: arizona.edu
-Content-Language: en-US
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 9OJ3YkrP6fab8ZmxjbqiYWt68fRbNVRFGvoUirntoVfzseV0YqksCj1Pd/Qxz041jzTS6fmvnNnLV+Zle2ETxYHmTJ/KZv0JeVg336vgv5Q=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB5686
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-12_08,2025-01-10_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 adultscore=0
+ suspectscore=0 phishscore=0 malwarescore=0 mlxlogscore=999 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2411120000
+ definitions=main-2501120156
+X-Proofpoint-GUID: QGSGGXTzlMMH_qAjdNQj1uxSbZuyb1Ev
+X-Proofpoint-ORIG-GUID: QGSGGXTzlMMH_qAjdNQj1uxSbZuyb1Ev
 
-*** Call for Papers ***=0A=0AHeterogeneity in Computing Workshop (HCW) 2025=
-=0AJune 4, 2025            Milan, Italy            hcw-ipdps.org=0A=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=0AMost modern computing=
- systems are heterogeneous, either for organic reasons because components g=
-rew independently, as it is the case in desktop grids, or by design to leve=
-rage the strength of specific hardware, as it is the case in accelerated sy=
-stems. In any case, all computing systems have some form of hardware or sof=
-tware heterogeneity that must be managed, leveraged, understood, and exploi=
-ted. The Heterogeneity in Computing Workshop (HCW) is a venue to discuss an=
-d innovate in all theoretical and practical aspects of heterogeneous comput=
-ing: design, programmability, efficient utilization, algorithms, modeling, =
-applications, etc. HCW 2025 will be the thirty-fourth annual gathering of t=
-his workshop.=0A=0AHCW 2025 will be held in conjunction with the 39th IEEE =
-International Parallel and Distributed Processing Symposium (ipdps.org). IE=
-EE IPDPS 2025 is sponsored by the IEEE Computer Society through the Technic=
-al Committee on Parallel Processing (TCPP).=0A=0A**** Topics ****=0ATopics =
-of interest include but are not limited to the following areas:=0A- Heterog=
-eneous multicore systems and architectures: Design, exploration, and experi=
-mental analysis of heterogeneous computing systems such as Graphics Process=
-ing Units, heterogeneous systems-on-chip, Artificial Intelligence chips, Fi=
-eld Programmable Gate Arrays, big.LITTLE, and application-specific architec=
-tures.=0A- Heterogeneous parallel and distributed systems: Design and analy=
-sis of computing grids, cloud systems, hybrid clusters, datacenters, geo-di=
-stributed computing systems, and supercomputers.=0A- Deep memory hierarchie=
-s: Design and analysis of memory hierarchies with SRAM, DRAM, Flash/SSD, an=
-d HDD technologies; NUMA architectures; cache coherence strategies; novel m=
-emory systems such as phase-change RAM, magnetic (e.g., STT) RAM, 3D Xpoint=
-/crossbars, and memristors.=0A- On-chip, off-chip, and heterogeneous networ=
-k architectures: Network-on-chip (NoC) architectures and protocols for hete=
-rogeneous multicore applications; energy, latency, reliability, and securit=
-y optimizations for NoCs; off-chip (chip-to-chip) network architectures and=
- optimizations; heterogeneous networks (combination of NoC and off-chip) de=
-sign, evaluation, and optimizations; large-scale parallel and distributed h=
-eterogeneous network design, evaluation, and optimizations.=0A- Programming=
- models and tools: Programming paradigms and tools for heterogeneous system=
-s; middleware and runtime systems; performance-abstraction tradeoff; intero=
-perability of heterogeneous software environments; workflows; dataflows.=0A=
-- Resource management and algorithms for heterogeneous systems: Parallel al=
-gorithms for solving problems on heterogeneous systems (e.g., multicores, h=
-ybrid clusters, grids, or clouds); strategies for scheduling and allocation=
- on heterogeneous 2D and 3D multicore architectures; static and dynamic sch=
-eduling and resource management for large-scale and parallel heterogeneous =
-systems.=0A- Modeling, characterization, and optimizations: Performance mod=
-els and their use in the design of parallel and distributed algorithms for =
-heterogeneous platforms; characterizations and optimizations for improving =
-the time to solve a problem (e.g., throughput, latency, runtime); modeling =
-and optimizing electricity consumption (e.g., power, energy); modeling for =
-failure management (e.g., fault tolerance, recovery, reliability); modeling=
- for security in heterogeneous platforms.=0A- Applications on heterogeneous=
- systems: Case studies; confluence of Big Data systems and heterogeneous sy=
-stems; data-intensive computing; scientific computing.=0A=0AThis year we wi=
-sh to focus on and expand submissions and presentations in the following "h=
-ot topics" areas; therefore, we especially invite submissions in the follow=
-ing four areas:=0A- Heterogeneous Integration of Quantum Computing: Design,=
- exploration, and analysis of architectures and software frameworks enablin=
-g heterogeneous integration of classical computing and quantum computing (e=
-.g., heterogeneous quantum computers, error correction, heterogeneous appli=
-cations that use both classical and quantum logic, benchmarks for heterogen=
-eous quantum computers).=0A- Heterogeneity and Interoperability in Software=
- & Data Systems: Design, exploration, and analysis of architectures and sof=
-tware frameworks for interoperability in software and data systems (e.g., s=
-emantic frameworks, interoperability for heterogeneous Internet-of-Things s=
-ystems, model-driven frameworks).=0A- Heterogeneous Computing for Machine L=
-earning (ML) and Deep Learning (DL): Design, exploration, benchmarking, and=
- analysis of accelerators and software frameworks for ML and DL application=
-s on heterogeneous computing systems.=0A- Closing the loop on the design of=
- heterogeneous compilers, runtimes, and hardware: As the needs of heterogen=
-eous hardware apply pressure on runtime designers to adjust for the complex=
-ities of heterogeneous resource management, runtimes are now applying press=
-ure back towards compiler designers to include all relevant information -- =
-such as data flow and dependency analysis or hardware-specific representati=
-ons of application tasks -- in their binaries to enable resource management=
- policies to arbitrate effectively. Advancements in machine understanding o=
-f code are critical in enabling progress here with a holistic view of compi=
-lers, runtimes and heterogeneous hardware.=0A=0A**** Important Dates ****=
-=0A- Abstract submission (required): January 23, 2025=0A- Paper submission:=
- January 30, 2025=0A- Author notification: February 20, 2025=0A- Camera-rea=
-dy submission: March 6, 2025=0A=0A**** Paper Submissions ****=0AManuscripts=
- submitted to HCW 2025 should not have been previously published or be unde=
-r review for a different workshop, conference, or journal.=0A=0ASubmissions=
- must use the latest IEEE manuscript templates for conference proceedings (=
-http://ieee.org/conferences/publishing/templates.html). Submissions may not=
- exceed a total of ten single-spaced double-column pages using 10-point siz=
-e font on 8.5x11 inch pages. The page limit includes figures, tables, and r=
-eferences. A single-blind review process will be followed.=0A=0AFiles shoul=
-d be submitted by following the instructions at the IPDPS 2025 submission s=
-ite (http://ssl.linklings.net/conferences/ipdps).=0A=0ANew this year, we pl=
-an to recognize an outstanding HCW 2025 publication with a Best Paper Award=
-. The Best Paper Award will be determined by taking into account the recomm=
-endations provided by the Technical Program Committee, along with detailed =
-evaluations of the paper's originality, significance, and overall quality.=
-=0A=0A**** Workshop Organization ****=0A=0AGeneral Co-Chairs: DK Panda and =
-Hari Subramoni, The Ohio State University, USA=0A=0ATechnical Program Commi=
-ttee Chair: Ali Akoglu, University of Arizona, USA=0A=0AQuestions may be se=
-nt to the HCW 2025 General Co-Chairs (DK Panda: panda.2 at osu dot edu, Har=
-i Subramoni: subramoni.1 at osu dot edu) or Technical Program Committee Cha=
-ir (Ali Akoglu: akoglu at arizona dot edu).=0A=0ATechnical Program Committe=
-e:=0A- Shashank Adavally, Micron Technology, USA=0A- Mohsen Amini Salehi, U=
-niversity of North Texas, USA=0A- Mehmet Belviranli, Colorado School of Min=
-es, USA=0A- Gonzalo Brito Gadeschi, NVIDIA Corporation, Germany=0A- Nick Br=
-own, University of Edinburgh, Scotland=0A- Daniel Cordeiro, University of S=
-ao Paulo, Brazil=0A- Matthias Diener, University of Illinois, USA=0A- Mural=
-i Emani, Argonne National Laboratory, USA=0A- Jiri Filipovic, Masaryk Unive=
-rsity, Czech Republic=0A- Abdou Guermouche, University of Bordeaux, France=
-=0A- Yanfei Guo, Argonne National Laboratory, USA=0A- Diana Goehringer, Tec=
-hnical University Dresden, Germany=0A- Sahil Hassan, University of Arizona,=
- USA=0A- Emmanuel Jeannot, INRIA, France=0A- Krishna Kavi, University of No=
-rth Texas, USA=0A- Georgios Keramidas, Aristotle University, Greece=0A- Joo=
-ngheon Kim, Korea University, Korea=0A- Joanna Kolodziej, Cracow University=
- of Technology, Poland=0A- Alexey Lastovetsky, University College Dublin, I=
-reland=0A- Seyong Lee, Oak Ridge National Laboratory, USA=0A- Laercio Lima =
-Pilla, CNRS, France=0A- Hatem Ltaief, King Abdullah University of Science a=
-nd Technology, Saudi Arabia=0A- Joshua Mack, Praetorian, USA=20=0A- Joseph =
-Manzano, Pacific Northwest National Laboratory, USA=0A- Matthias Mueller, A=
-achen University, Germany=0A- Sridhar Radhakrishnan, University of Oklahoma=
-, USA=0A- Jose Rufino, Polytechnic Institute of Braganca, Portugal=0A- Marc=
-o Domenico Santambrogio, Politecnico di Milano, Italy=0A- Aamir Shafi, The =
-Ohio State University, USA=0A- Sameer Shende, University of Oregon; ParaToo=
-ls, Inc., USA=0A- Achim Streit, Karlsruhe Institute of Technology, Germany=
-=0A- Shubbhi Taneja, Worcester Polytechnic Institute, USA=0A- Samuel Thibau=
-lt, University of Bordeaux, France=0A- Claire Vishik, Intel, USA=0A- Logan =
-Ward, Argonne National Laboratory, USA=0A=0ASteering Committee:=0A- Kamesh =
-Madduri, Pennsylvania State University, USA (Chair)=0A- Behrooz Shirazi, Na=
-tional Science Foundation, USA (Immediate Past Chair)=0A- H. J. Siegel, Col=
-orado State University, USA (Past Chair)=0A- John Antonio, University of Ok=
-lahoma, USA=0A- David Bader, New Jersey Institute of Technology, USA=0A- An=
-ne Benoit, ENS Lyon, France=0A- Jack Dongarra, University of Tennessee, USA=
-=0A- Alexey Lastovetsky, University College Dublin, UK=0A- Sudeep Pasricha,=
- Colorado State University, USA=0A- Viktor K. Prasanna, University of South=
-ern California, USA=0A- Yves Robert, ENS Lyon, France=0A- Erik Saule, Unive=
-rsity of North Carolina at Charlotte, USA=0A- Uwe Schwiegelshohn, TU Dortmu=
-nd University, Germany=0A
+On 1/10/25 9:34 PM, Haoran Zhang wrote:
+> Since commit 3f8ca2e115e55 ("vhost scsi: alloc cmds per vq instead of session"), a bug can be triggered when the host sends a duplicate VHOST_SCSI_SET_ENDPOINT ioctl command.
+
+I don't think that git commit is correct. It should be:
+
+25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
+
+
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 718fa4e0b31e..b994138837f2 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -1726,7 +1726,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+>  				mutex_unlock(&tpg->tv_tpg_mutex);
+>  				mutex_unlock(&vhost_scsi_mutex);
+>  				ret = -EEXIST;
+> -				goto undepend;
+> +				goto free_vs_tpg;
+
+I agree you found a bug, but I'm not sure how you hit it from here. A
+couple lines before this, we do:
+
+if (tpg->tv_tpg_vhost_count != 0) {
+	mutex_unlock(&tpg->tv_tpg_mutex);
+	continue;
+}
+
+If the tpg was already in the vs_tpg, then tv_tpg_vhost_count would be
+non-zero and we would hit the check above.
+
+Could you describe the target and tpg mapping for how you hit this?
+
+
+>  			}
+>  			/*
+>  			 * In order to ensure individual vhost-scsi configfs
+
+
+However, I was able to replicate the bug by hitting the chunk below this
+comment where we do:
+
+ret = target_depend_item(&se_tpg->tpg_group.cg_item);
+if (ret) {
+	pr_warn("target_depend_item() failed: %d\n", ret);
+	mutex_unlock(&tpg->tv_tpg_mutex);
+	mutex_unlock(&vhost_scsi_mutex);
+	goto undepend;
+
+
+> @@ -1802,6 +1802,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+>  			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+>  		}
+>  	}
+> +free_vs_tpg:
+>  	kfree(vs_tpg);
+
+To fix the bug, I don't think we can just free the vs_tpg. There's 2
+cases we can hit the error path:
+
+1. First time calling vhost_scsi_set_endpoint.
+
+If we have a target with 2 tpgs, and for tpg1 we did a successful
+target_depend_item call, but then we looped and for tpg2
+target_depend_item failed, if we just did a kfree then we would leave a
+refcount on tpg1.
+
+So for this case, we need to do the "goto undepend".
+
+2. N > 1 time calling vhost_scsi_set_endpoint.
+
+This one is more complicated because let's say we started with 1 tpg and
+on the first call to vhost_scsi_set_endpoint we successfully did
+target_depend_item on it. Before the 2nd call to vhost_scsi_set_endpoint
+we added tpg2 and tpg3. We then do vhost_scsi_set_endpoint for the 2nd
+time, we successfully do target_depend_item on tpg2, but it fails for tpg3.
+
+In this case, we want to unwind what we did on this 2nd call, so we want
+to do target_undepend_item on tpg2. And, we don't want to call it for
+tpg1 or we will hit the bug you found.
+
+So I think to fix the issue, we would want to:
+
+1. move the
+
+memcpy(vs_tpg, vs->vs_tpg, len);
+
+to the end of the function after we do the vhost_scsi_flush. This will
+be more complicated than the current memcpy though. We will want to
+merge the local vs_tpg and the vs->vs_tpg like:
+
+for (i = 0; i < VHOST_SCSI_MAX_TARGET; i++) {
+	if (vs_tpg[i])
+		vs->vs_tpg[i] = vs_tpg[i])
+}
+
+2. We want to leave the "goto undepend" calls as is. For the the
+undepend goto handling we also want to leave the code as is. We want to
+continue to loop over the local vs_tpg because after we moved the memcpy
+for #1 it now only contains the tpgs we updated on the current
+vhost_scsi_set_endpoint call.
 
