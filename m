@@ -1,203 +1,152 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BFB2250F8
-	for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 13:19:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7114125B2;
+	Mon, 13 Jan 2025 13:52:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736774358; cv=none; b=gZUzEvkT6C7q2LhnD6EwIA1rRbE/ngiUpjzcaQkfJ/TwqZpiHXXNXZxxaMCi/16ye1SrM1Q5S6R53RnQdmm0MUGJSLJV3GvNsnua8SjmJ5l9/XEVr+08fAUgojG3s6PWDq4bxHbq/51WguZGkdYQ5rvhqyU4KgpmdbRxbctxjXk=
+	t=1736776344; cv=none; b=MrY8adHkjiKaPrh7uOooSZH6l9roYcelTZVU0Oz6ZdVeRsUqm1QKT1gTueCUP9NkAMg+UvSWD4uHaurMRK1oAzm6LcL2fej2cMxJdqozn2UDOjwEXzhL1u1OYeghBblxzr1WCiSrGZJqvWhDcF1W/Db0cdksso7LLaxIppiDnQI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736774358; c=relaxed/simple;
-	bh=TE1VgIcDpVbxf0N+g7FTI8eBRS9eegkK3O/MK1j5RH0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NEB4Bl6OLn0L0v0f+6EeyMHrnKkVu2oAvj9jYKJS2JBfv9fZ8rOs/bBHYbD0bwAXUoEhq30Wyr/hJtoVcy8rQnwcqGVYWxGPBU0K+UfUXD6bxXwCLbvODyH8Ei6y901ssJdF0643wEEKVrXG2h78AnyxP9K3c2eolUQZ7KNVwRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AzCXjj0I; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Y6Nf78CC; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AzCXjj0I; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Y6Nf78CC; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1736776344; c=relaxed/simple;
+	bh=9AbuImX+qUA5xUGc1nAF+CP836w8rcdl4nd/P5mYNKc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BsHSpdNxA85HsidK1EA5fV32dS1cgvVowM18DBmJxdMJkvyWQUh3c3UpeHYKWMgZ8si+TGr/uU6eTJkFnJSEgre/k72iTn/NagBTny39p4bvPY4/CWP45IMUN2DTZsQxJx6r3LJI4x+mCfmpG2WClzzglpdMDnl9zLxS/U4i9XU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=BQxT0AMO; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AzCXjj0I";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Y6Nf78CC";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AzCXjj0I";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Y6Nf78CC"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id D13341F37C;
-	Mon, 13 Jan 2025 13:19:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1736774354; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
-	b=AzCXjj0IB7HJ0lRlZfkhGJ9yptYRAVmDHjPpl+PAX0axC4BEMgZeFboZGM8lsV7e6EYv5x
-	tsKp7ZOGlY7/IxbVIonpm7mnDaK0GsYpfZa6t1AElG3Ij+7pB2WKPpr3NkRJhUb6OMBT7H
-	yN9dBqxGdUBcuJj2PEr+LgNz5bzMULM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1736774354;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
-	b=Y6Nf78CCmw1r042Y0Fgj387JxecUE5Atb8GuuYI7GkCPF14NwtorxBu6pdKNojRAL0FQvz
-	QpqHePj1TvHsQTDg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1736774354; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
-	b=AzCXjj0IB7HJ0lRlZfkhGJ9yptYRAVmDHjPpl+PAX0axC4BEMgZeFboZGM8lsV7e6EYv5x
-	tsKp7ZOGlY7/IxbVIonpm7mnDaK0GsYpfZa6t1AElG3Ij+7pB2WKPpr3NkRJhUb6OMBT7H
-	yN9dBqxGdUBcuJj2PEr+LgNz5bzMULM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1736774354;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
-	b=Y6Nf78CCmw1r042Y0Fgj387JxecUE5Atb8GuuYI7GkCPF14NwtorxBu6pdKNojRAL0FQvz
-	QpqHePj1TvHsQTDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BC67B13A6F;
-	Mon, 13 Jan 2025 13:19:14 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id Nbj4LdIShWc1IgAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Mon, 13 Jan 2025 13:19:14 +0000
-Date: Mon, 13 Jan 2025 14:19:14 +0100
-From: Daniel Wagner <dwagner@suse.de>
-To: Ming Lei <ming.lei@redhat.com>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	Kashyap Desai <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>, 
-	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Nilesh Javali <njavali@marvell.com>, 
-	GR-QLogic-Storage-Upstream@marvell.com, Don Brace <don.brace@microchip.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, 
-	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
-	Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>, 
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
-	Sridhar Balaraman <sbalaraman@parallelwireless.com>, "brookxu.cn" <brookxu.cn@gmail.com>, 
-	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
-	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, storagedev@microchip.com, 
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
- isolcpus=managed_irq is enabled
-Message-ID: <4047eb51-ee6b-46ae-a67b-ce74c54c41e7@flourine.local>
-References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
- <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
- <Z2PlbL0XYTQ_LxTw@fedora>
- <cc5e44dd-e1dc-4f24-88d9-ce45a8b0794f@flourine.local>
- <Z2UwvQoDM3f4zAxG@fedora>
- <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
- <Z4Hl_oQhJ2u6g2B3@fedora>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="BQxT0AMO"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tXKrW-00E7vS-Nb; Mon, 13 Jan 2025 14:52:14 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=9/mNvCKWR3TaBBy6qMKu0clHap35DZ0yxeGdHeDIU+A=; b=BQxT0AMOkcYl2agGwxfQIklx5t
+	+UVjYUoTV345uqtF1mDnoA69p0ZoilmYpBzkKKvj5/HPPlE+qzxWjSAby3Xqnhv9jDfI9q31yYuub
+	kP7OZNP9NKRBx+ttcWU8Je0PyscOrPAl9zEHyz6U3ugP6mJH/F6i/wZL76LatX58KH4UgisKWd0Zx
+	1unwFlLzHRRvybI4JRkhmvXxMlUrPXZp0dDFf0kr+uUAR1Bmet8yDRWjN84onV0u6z5Cuvkef56o+
+	SF2T033rLm9SL932pDhMzky/K+C32AFv69sYKsCu+v2KNwSAkxOn8l0cf85p/IQvX1Nf3PueYdzTM
+	Yt1O7cuQ==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tXKrV-0004mn-8Z; Mon, 13 Jan 2025 14:52:13 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tXKrI-00EPet-Dj; Mon, 13 Jan 2025 14:52:00 +0100
+Message-ID: <903dd624-44e5-4792-8aac-0eaaf1e675c5@rbox.co>
+Date: Mon, 13 Jan 2025 14:51:58 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z4Hl_oQhJ2u6g2B3@fedora>
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[39];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[kernel.org,kernel.dk,lst.de,grimberg.me,broadcom.com,oracle.com,marvell.com,microchip.com,redhat.com,linux.alibaba.com,linux-foundation.org,linutronix.de,suse.com,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,lists.linux.dev];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	R_RATELIMIT(0.00)[to_ip_from(RLtq7xx1p6rx585ucya5i3u39z)]
-X-Spam-Flag: NO
-X-Spam-Level: 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 1/5] vsock/virtio: discard packets if the transport
+ changes
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Luigi Leonardi <leonardi@redhat.com>, "David S. Miller"
+ <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>,
+ kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
+References: <20250110083511.30419-1-sgarzare@redhat.com>
+ <20250110083511.30419-2-sgarzare@redhat.com>
+ <1aa83abf-6baa-4cf1-a108-66b677bcfd93@rbox.co>
+ <nedvcylhjxrkmkvgugsku2lpdjgjpo5exoke4o6clxcxh64s3i@jkjnvngazr5v>
+ <CAGxU2F7BoMNi-z=SHsmCV5+99=CxHo4dxFeJnJ5=q9X=CM3QMA@mail.gmail.com>
+ <cccb1a4f-5495-4db1-801e-eca211b757c3@rbox.co>
+ <nzpj4hc6m4jlqhcwv6ngmozl3hcoxr6kehoia4dps7jytxf6df@iqglusiqrm5n>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <nzpj4hc6m4jlqhcwv6ngmozl3hcoxr6kehoia4dps7jytxf6df@iqglusiqrm5n>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Ming,
-
-On Sat, Jan 11, 2025 at 11:31:10AM +0800, Ming Lei wrote:
-> > What about a commit message like:
-> > 
-> >   When isolcpus=managed_irq is enabled, and the last housekeeping CPU for
-> >   a given hardware context goes offline, there is no CPU left which
-> >   handles the IOs anymore. If isolated CPUs mapped to this hardware
-> >   context are online and an application running on these isolated CPUs
-> >   issue an IO this will lead to stalls.
+On 1/13/25 12:05, Stefano Garzarella wrote:
+> On Mon, Jan 13, 2025 at 11:12:52AM +0100, Michal Luczaj wrote:
+>> On 1/13/25 10:07, Stefano Garzarella wrote:
+>>> On Mon, 13 Jan 2025 at 09:57, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>>> On Sun, Jan 12, 2025 at 11:42:30PM +0100, Michal Luczaj wrote:
+>>>
+>>> [...]
+>>>
+>>>>>
+>>>>> So, if I get this right:
+>>>>> 1. vsock_create() (refcnt=1) calls vsock_insert_unbound() (refcnt=2)
+>>>>> 2. transport->release() calls vsock_remove_bound() without checking if sk
+>>>>>   was bound and moved to bound list (refcnt=1)
+>>>>> 3. vsock_bind() assumes sk is in unbound list and before
+>>>>>   __vsock_insert_bound(vsock_bound_sockets()) calls
+>>>>>   __vsock_remove_bound() which does:
+>>>>>      list_del_init(&vsk->bound_table); // nop
+>>>>>      sock_put(&vsk->sk);               // refcnt=0
+>>>>>
+>>>>> The following fixes things for me. I'm just not certain that's the only
+>>>>> place where transport destruction may lead to an unbound socket being
+>>>>> removed from the unbound list.
+>>>>>
+>>>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>>>>> index 7f7de6d88096..0fe807c8c052 100644
+>>>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>>>> @@ -1303,7 +1303,8 @@ void virtio_transport_release(struct vsock_sock *vsk)
+>>>>>
+>>>>>       if (remove_sock) {
+>>>>>               sock_set_flag(sk, SOCK_DONE);
+>>>>> -              virtio_transport_remove_sock(vsk);
+>>>>> +              if (vsock_addr_bound(&vsk->local_addr))
+>>>>> +                      virtio_transport_remove_sock(vsk);
+>>>>
+>>>> I don't get this fix, virtio_transport_remove_sock() calls
+>>>>    vsock_remove_sock()
+>>>>      vsock_remove_bound()
+>>>>        if (__vsock_in_bound_table(vsk))
+>>>>            __vsock_remove_bound(vsk);
+>>>>
+>>>>
+>>>> So, should already avoid this issue, no?
+>>>
+>>> I got it wrong, I see now what are you trying to do, but I don't think
+>>> we should skip virtio_transport_remove_sock() entirely, it also purge
+>>> the rx_queue.
+>>
+>> Isn't rx_queue empty-by-definition in case of !__vsock_in_bound_table(vsk)?
 > 
-> It isn't correct, the in-tree code doesn't have such stall, no matter if
-> IO is issued from HK or isolated CPUs since the managed irq is guaranteed to
-> live if any mapped CPU is online.
-
-Yes, it has different properties.
-
-> Please see irq_do_set_affinity():
+> It could be.
 > 
->         if (irqd_affinity_is_managed(data) &&
->               housekeeping_enabled(HK_TYPE_MANAGED_IRQ)) {
->                   const struct cpumask *hk_mask;
-> 
->                   hk_mask = housekeeping_cpumask(HK_TYPE_MANAGED_IRQ);
-> 
->                   cpumask_and(&tmp_mask, mask, hk_mask);
->                   if (!cpumask_intersects(&tmp_mask, cpu_online_mask))
->                           prog_mask = mask;
->                   else
->                           prog_mask = &tmp_mask;
->           } else {
->                   prog_mask = mask;
-> 
-> The whole mask which may include isolated CPUs is only programmed to
-> hardware if there isn't any online CPU in `irq_mask & hk_mask`.
+> But I see some other issues:
+> - we need to fix also in the other transports, since they do the same
 
-This is not what I try to achieve here. The main motivation with this
-series is that isolated CPUs are never serving IRQs.
+Ahh, yes, VMCI and Hyper-V would need that, too.
 
-> > I was talking about implementing the feature which would remap the
-> > isolated CPUs to online hardware context when the current hardware
-> > context goes offline. I didn't find a solution which I think would be
-> > worth presenting. All involved some sort of locking/refcounting in the
-> > hotpath, which I think we should just avoid.
+> - we need to check delayed cancel work too that call 
+>    virtio_transport_remove_sock()
+
+That's the "I'm just not certain" part. As with rx_queue, I though delayed
+cancel can only happen for a bound socket. So, per architecture, no need to
+deal with that here, right?
+
+> An alternative approach, which would perhaps allow us to avoid all this, 
+> is to re-insert the socket in the unbound list after calling release() 
+> when we deassign the transport.
 > 
-> I understand the trouble, but it is still one improvement from user
-> viewpoint instead of feature since the interface of 'isolcpus=manage_irq'
-> isn't changed.
+> WDYT?
 
-Ah, I understood you wrong. I didn't want to upset you. I thought you
-were fine by changing how managed_irq works.
+If we can't keep the old state (sk_state, transport, etc) on failed
+re-connect() then reverting back to initial state sounds, uhh, like an
+option :) I'm not sure how well this aligns with (user's expectations of)
+good ol' socket API, but maybe that train has already left.
 
-> > Indeed, I forgot to update the documentation. I'll update it accordingly.
-> 
-> It isn't documentation thing, it breaks the no-regression policy, which crosses
-> our red-line.
-> 
-> If you really want to move on, please add one new kernel command
-> line with documenting the new usage which requires applications to
-> offline CPU in order.
+Another possibility would be to simply brick the socket on failed (re)connect.
 
-Sure, I'll bring the separate command line option back.
-
-Thanks,
-Daniel
