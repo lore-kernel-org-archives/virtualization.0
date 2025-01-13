@@ -1,182 +1,203 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53FA422F169
-	for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 11:05:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BFB2250F8
+	for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 13:19:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736766323; cv=none; b=F+UwrTtJ/dUXs5eR9UnMwfoaEMdULU4LmUOXr/QeeLOJDmADZUuFbh0nY7fMGQlAHeVrUhJxZnCCPQS6QG5GeM79JiQbbYgqO64TnTMgxMkUZJfVGXt12xFINsbf68rseJwtLhbwZe7bDDxrUyFkyCb59FTW3TNWeH+YyT87/us=
+	t=1736774358; cv=none; b=gZUzEvkT6C7q2LhnD6EwIA1rRbE/ngiUpjzcaQkfJ/TwqZpiHXXNXZxxaMCi/16ye1SrM1Q5S6R53RnQdmm0MUGJSLJV3GvNsnua8SjmJ5l9/XEVr+08fAUgojG3s6PWDq4bxHbq/51WguZGkdYQ5rvhqyU4KgpmdbRxbctxjXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736766323; c=relaxed/simple;
-	bh=Y/DjbpXTli+q6qXYniP9mDlDlQz3GWNZg2gJsGHgxs4=;
+	s=arc-20240116; t=1736774358; c=relaxed/simple;
+	bh=TE1VgIcDpVbxf0N+g7FTI8eBRS9eegkK3O/MK1j5RH0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=eniKNMeFRf6kl0P0mBh2GPDfhcYcMaETLh3a7V4CFGuiBaQv+Nwiu2FkR7I6pMhnwwLdcWMnC9moI7y3xeAL+dz/wJg5WziMTmmXo1eqQR57qcwQC4IZLNecemAHdEc/drlUaaPpJfU2HhI135ixARPtYunIOyY8fJdcUZSQ6ME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W9I+IGJt; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=NEB4Bl6OLn0L0v0f+6EeyMHrnKkVu2oAvj9jYKJS2JBfv9fZ8rOs/bBHYbD0bwAXUoEhq30Wyr/hJtoVcy8rQnwcqGVYWxGPBU0K+UfUXD6bxXwCLbvODyH8Ei6y901ssJdF0643wEEKVrXG2h78AnyxP9K3c2eolUQZ7KNVwRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AzCXjj0I; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Y6Nf78CC; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AzCXjj0I; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Y6Nf78CC; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W9I+IGJt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736766319;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AzCXjj0I";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Y6Nf78CC";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AzCXjj0I";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Y6Nf78CC"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id D13341F37C;
+	Mon, 13 Jan 2025 13:19:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736774354; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=nBhouD3nO1E5V4MavagLJ4BxPXoXO2uHY25LrPgF6oo=;
-	b=W9I+IGJtXieT9K+HrRgNaBJi1K2x4cpW9FfJf25mg+mVmTMuG9pRsyNCkVN28lBPYjYWV/
-	hnkmTQXZ0M4z6BV+8fE6fA71bknkwEeaHswRjL9rMqXaZdpL1YYMIA0eqoGR9ZHdaK9uCC
-	BPRMEsGu9zxkXsyfghNtbjjlNBfzBoU=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-257-b86hO99SMcW71mWYxG9l0A-1; Mon, 13 Jan 2025 06:05:15 -0500
-X-MC-Unique: b86hO99SMcW71mWYxG9l0A-1
-X-Mimecast-MFC-AGG-ID: b86hO99SMcW71mWYxG9l0A
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-7b6c51069f5so697947885a.3
-        for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 03:05:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736766315; x=1737371115;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nBhouD3nO1E5V4MavagLJ4BxPXoXO2uHY25LrPgF6oo=;
-        b=qYwPJO7fK/FI340fppsJcEVQucRgYXAwZQ0IQ+LIXqeSusG0/8WzorPb4Jqn75EbFU
-         8hwypJoeqv1H0GN3k8ExNnIUdk5YtpeN6rLHbNQE26krc0Ft9Md7DZPIy5OetyU1+SSR
-         XTdwbX6NKwbkOICtoTpiLvoyH5AhfqA0tEke0LQ7IhNqSvDFk1Q/slR3L01I87WVNBWQ
-         JPJRFekYNlpwe5d90K2chvq4ppAJ61t5RzdNADSrygq7LxDDSDFcHxs85QRyHezINCpu
-         3ILRwmx/0Er/JvmSQ8kUr7Jl6BsLkEsKdjVpnWT+Yu6ibp/AVNb0aK71YjxR/TZJs4Ry
-         SbyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXjA/NPpBp7+li5B95C6F4uoBeSlIC7JL7U8FypQvC2iX2RQ5cU/TnsIrFZE/PsOYcJvdAEIaZz41pwVD9HZA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy/y3SH/Xcf8n1pIT735svu3CVRdYtbLnzCMsd0cuVmnKkLvneL
-	gaq5A8r6hReEBeHsihbyZDPyG14ScZNToAJHGYkilbUGBJTNkRw/lFBuOlMDvVVnCWbLjZxKXqL
-	vcAK4RMlsk+3erXKnDaHNYYRTlP9TIb4VkzDiL0Ef7gUaWk8ObxaXir15BzbDpRmf
-X-Gm-Gg: ASbGncvI+RSeMeEO5nuOtUbw/N6/d8sHjkgTfryf/5UIZ0WhDdI6Dr38D3utj4rHbK5
-	n6QuLQtrvFyA5hkPUORqNb49ZrTj9zgFPiujB/JfGI0anbCYZJJ+QrFK36pySTytEyOk+DaMj3d
-	wCr2Vb+Xs6Ot8p1J89s8ZebviS1j0Okeh9OtWduIRDSGb88J4rbpanJ7Pt6uzmng8dqx3RzGAR2
-	7A5Fhh53g2K4i7dR/Ag2iEzRfaPN6uY+PZxQ6C/b8DL52DIjiQksqNy8/XklHiuaRFkIZs76E9U
-	1TgnatNel4sND9WHrPBoVKFf+I3kB+NU
-X-Received: by 2002:a05:620a:4090:b0:7b6:da21:751c with SMTP id af79cd13be357-7bcd96e6e7fmr3008275785a.11.1736766315356;
-        Mon, 13 Jan 2025 03:05:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEudJmjiFx2X110aIZp/K+dX1C2vUPlCS9Q7jCzrlGeW5dRG0V5tRdS8MDrW/FDVcQi98EIoA==
-X-Received: by 2002:a05:620a:4090:b0:7b6:da21:751c with SMTP id af79cd13be357-7bcd96e6e7fmr3008272185a.11.1736766314973;
-        Mon, 13 Jan 2025 03:05:14 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-100.retail.telecomitalia.it. [82.53.134.100])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7bce3516193sm474979185a.117.2025.01.13.03.05.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2025 03:05:14 -0800 (PST)
-Date: Mon, 13 Jan 2025 12:05:07 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	bpf@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Luigi Leonardi <leonardi@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Wongi Lee <qwerty@theori.io>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>, kvm@vger.kernel.org, 
-	Paolo Abeni <pabeni@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>, 
-	Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
-Subject: Re: [PATCH net v2 1/5] vsock/virtio: discard packets if the
- transport changes
-Message-ID: <nzpj4hc6m4jlqhcwv6ngmozl3hcoxr6kehoia4dps7jytxf6df@iqglusiqrm5n>
-References: <20250110083511.30419-1-sgarzare@redhat.com>
- <20250110083511.30419-2-sgarzare@redhat.com>
- <1aa83abf-6baa-4cf1-a108-66b677bcfd93@rbox.co>
- <nedvcylhjxrkmkvgugsku2lpdjgjpo5exoke4o6clxcxh64s3i@jkjnvngazr5v>
- <CAGxU2F7BoMNi-z=SHsmCV5+99=CxHo4dxFeJnJ5=q9X=CM3QMA@mail.gmail.com>
- <cccb1a4f-5495-4db1-801e-eca211b757c3@rbox.co>
+	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
+	b=AzCXjj0IB7HJ0lRlZfkhGJ9yptYRAVmDHjPpl+PAX0axC4BEMgZeFboZGM8lsV7e6EYv5x
+	tsKp7ZOGlY7/IxbVIonpm7mnDaK0GsYpfZa6t1AElG3Ij+7pB2WKPpr3NkRJhUb6OMBT7H
+	yN9dBqxGdUBcuJj2PEr+LgNz5bzMULM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736774354;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
+	b=Y6Nf78CCmw1r042Y0Fgj387JxecUE5Atb8GuuYI7GkCPF14NwtorxBu6pdKNojRAL0FQvz
+	QpqHePj1TvHsQTDg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1736774354; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
+	b=AzCXjj0IB7HJ0lRlZfkhGJ9yptYRAVmDHjPpl+PAX0axC4BEMgZeFboZGM8lsV7e6EYv5x
+	tsKp7ZOGlY7/IxbVIonpm7mnDaK0GsYpfZa6t1AElG3Ij+7pB2WKPpr3NkRJhUb6OMBT7H
+	yN9dBqxGdUBcuJj2PEr+LgNz5bzMULM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1736774354;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Hk3TAm3KuJF1wWNhcwjdPo+b1BCvU/jsmXrNHxfsCJo=;
+	b=Y6Nf78CCmw1r042Y0Fgj387JxecUE5Atb8GuuYI7GkCPF14NwtorxBu6pdKNojRAL0FQvz
+	QpqHePj1TvHsQTDg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BC67B13A6F;
+	Mon, 13 Jan 2025 13:19:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id Nbj4LdIShWc1IgAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Mon, 13 Jan 2025 13:19:14 +0000
+Date: Mon, 13 Jan 2025 14:19:14 +0100
+From: Daniel Wagner <dwagner@suse.de>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+	Kashyap Desai <kashyap.desai@broadcom.com>, Sumit Saxena <sumit.saxena@broadcom.com>, 
+	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>, Chandrakanth patil <chandrakanth.patil@broadcom.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Nilesh Javali <njavali@marvell.com>, 
+	GR-QLogic-Storage-Upstream@marvell.com, Don Brace <don.brace@microchip.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, 
+	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
+	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
+	Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, Frederic Weisbecker <frederic@kernel.org>, 
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
+	Sridhar Balaraman <sbalaraman@parallelwireless.com>, "brookxu.cn" <brookxu.cn@gmail.com>, 
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, storagedev@microchip.com, 
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 8/9] blk-mq: use hk cpus only when
+ isolcpus=managed_irq is enabled
+Message-ID: <4047eb51-ee6b-46ae-a67b-ce74c54c41e7@flourine.local>
+References: <20241217-isolcpus-io-queues-v4-0-5d355fbb1e14@kernel.org>
+ <20241217-isolcpus-io-queues-v4-8-5d355fbb1e14@kernel.org>
+ <Z2PlbL0XYTQ_LxTw@fedora>
+ <cc5e44dd-e1dc-4f24-88d9-ce45a8b0794f@flourine.local>
+ <Z2UwvQoDM3f4zAxG@fedora>
+ <ae9abe4c-010a-41ff-be44-1d52a331eb11@flourine.local>
+ <Z4Hl_oQhJ2u6g2B3@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cccb1a4f-5495-4db1-801e-eca211b757c3@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 76XMAWAVhPQhMW8eUXy8uLLq6O5iJp3js1ZH9hr1Vqg_1736766315
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Z4Hl_oQhJ2u6g2B3@fedora>
+X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[39];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.org,kernel.dk,lst.de,grimberg.me,broadcom.com,oracle.com,marvell.com,microchip.com,redhat.com,linux.alibaba.com,linux-foundation.org,linutronix.de,suse.com,suse.de,parallelwireless.com,gmail.com,vger.kernel.org,lists.infradead.org,lists.linux.dev];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	R_RATELIMIT(0.00)[to_ip_from(RLtq7xx1p6rx585ucya5i3u39z)]
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-On Mon, Jan 13, 2025 at 11:12:52AM +0100, Michal Luczaj wrote:
->On 1/13/25 10:07, Stefano Garzarella wrote:
->> On Mon, 13 Jan 2025 at 09:57, Stefano Garzarella <sgarzare@redhat.com> wrote:
->>> On Sun, Jan 12, 2025 at 11:42:30PM +0100, Michal Luczaj wrote:
->>
->> [...]
->>
->>>>
->>>> So, if I get this right:
->>>> 1. vsock_create() (refcnt=1) calls vsock_insert_unbound() (refcnt=2)
->>>> 2. transport->release() calls vsock_remove_bound() without checking if sk
->>>>   was bound and moved to bound list (refcnt=1)
->>>> 3. vsock_bind() assumes sk is in unbound list and before
->>>>   __vsock_insert_bound(vsock_bound_sockets()) calls
->>>>   __vsock_remove_bound() which does:
->>>>      list_del_init(&vsk->bound_table); // nop
->>>>      sock_put(&vsk->sk);               // refcnt=0
->>>>
->>>> The following fixes things for me. I'm just not certain that's the only
->>>> place where transport destruction may lead to an unbound socket being
->>>> removed from the unbound list.
->>>>
->>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>>> index 7f7de6d88096..0fe807c8c052 100644
->>>> --- a/net/vmw_vsock/virtio_transport_common.c
->>>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>>> @@ -1303,7 +1303,8 @@ void virtio_transport_release(struct vsock_sock *vsk)
->>>>
->>>>       if (remove_sock) {
->>>>               sock_set_flag(sk, SOCK_DONE);
->>>> -              virtio_transport_remove_sock(vsk);
->>>> +              if (vsock_addr_bound(&vsk->local_addr))
->>>> +                      virtio_transport_remove_sock(vsk);
->>>
->>> I don't get this fix, virtio_transport_remove_sock() calls
->>>    vsock_remove_sock()
->>>      vsock_remove_bound()
->>>        if (__vsock_in_bound_table(vsk))
->>>            __vsock_remove_bound(vsk);
->>>
->>>
->>> So, should already avoid this issue, no?
->>
->> I got it wrong, I see now what are you trying to do, but I don't think
->> we should skip virtio_transport_remove_sock() entirely, it also purge
->> the rx_queue.
->
->Isn't rx_queue empty-by-definition in case of !__vsock_in_bound_table(vsk)?
+Hi Ming,
 
-It could be.
+On Sat, Jan 11, 2025 at 11:31:10AM +0800, Ming Lei wrote:
+> > What about a commit message like:
+> > 
+> >   When isolcpus=managed_irq is enabled, and the last housekeeping CPU for
+> >   a given hardware context goes offline, there is no CPU left which
+> >   handles the IOs anymore. If isolated CPUs mapped to this hardware
+> >   context are online and an application running on these isolated CPUs
+> >   issue an IO this will lead to stalls.
+> 
+> It isn't correct, the in-tree code doesn't have such stall, no matter if
+> IO is issued from HK or isolated CPUs since the managed irq is guaranteed to
+> live if any mapped CPU is online.
 
-But I see some other issues:
-- we need to fix also in the other transports, since they do the same
-- we need to check delayed cancel work too that call 
-   virtio_transport_remove_sock()
+Yes, it has different properties.
 
-An alternative approach, which would perhaps allow us to avoid all this, 
-is to re-insert the socket in the unbound list after calling release() 
-when we deassign the transport.
+> Please see irq_do_set_affinity():
+> 
+>         if (irqd_affinity_is_managed(data) &&
+>               housekeeping_enabled(HK_TYPE_MANAGED_IRQ)) {
+>                   const struct cpumask *hk_mask;
+> 
+>                   hk_mask = housekeeping_cpumask(HK_TYPE_MANAGED_IRQ);
+> 
+>                   cpumask_and(&tmp_mask, mask, hk_mask);
+>                   if (!cpumask_intersects(&tmp_mask, cpu_online_mask))
+>                           prog_mask = mask;
+>                   else
+>                           prog_mask = &tmp_mask;
+>           } else {
+>                   prog_mask = mask;
+> 
+> The whole mask which may include isolated CPUs is only programmed to
+> hardware if there isn't any online CPU in `irq_mask & hk_mask`.
 
-WDYT?
+This is not what I try to achieve here. The main motivation with this
+series is that isolated CPUs are never serving IRQs.
 
-Stefano
+> > I was talking about implementing the feature which would remap the
+> > isolated CPUs to online hardware context when the current hardware
+> > context goes offline. I didn't find a solution which I think would be
+> > worth presenting. All involved some sort of locking/refcounting in the
+> > hotpath, which I think we should just avoid.
+> 
+> I understand the trouble, but it is still one improvement from user
+> viewpoint instead of feature since the interface of 'isolcpus=manage_irq'
+> isn't changed.
 
->
->>> Can the problem be in vsock_bind() ?
->
->Well, I wouldn't say so.
->
->>> Is this issue pre-existing or introduced by this series?
->>
->> I think this is pre-existing, can you confirm?
->
->Yup, I agree, pre-existing.
->
->> In that case, I'd not stop this series, and fix it in another patch/series.
->
->Yeah, sure thing.
->
->Thanks,
->Michal
->
+Ah, I understood you wrong. I didn't want to upset you. I thought you
+were fine by changing how managed_irq works.
 
+> > Indeed, I forgot to update the documentation. I'll update it accordingly.
+> 
+> It isn't documentation thing, it breaks the no-regression policy, which crosses
+> our red-line.
+> 
+> If you really want to move on, please add one new kernel command
+> line with documenting the new usage which requires applications to
+> offline CPU in order.
+
+Sure, I'll bring the separate command line option back.
+
+Thanks,
+Daniel
