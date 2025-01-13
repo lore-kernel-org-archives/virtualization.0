@@ -1,240 +1,222 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id DA0FC3C3C;
-	Mon, 13 Jan 2025 03:54:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ECA4186A
+	for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 04:06:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736740485; cv=none; b=rn1HGdTXUCx3EYf0NvCEMybslPF6x4r4ARPwIeqQPdfqGzk5hbTYa0aPHfCcJNHkO0d144hWofAhFLQEXSRIiIV9FAjdEeMViqWYS1UZUI1aMX/ND+4tjNMQJARLhhajrWlKkzlb1FSlPVU7Zb/2JkwwZRWWPd7sUp45dwd1JeI=
+	t=1736741169; cv=none; b=kX7wgQz1I4VIdiVou2B1LYkerFEZtVJnioPlMb+7pYsT1+S18tjr8Oy8vDbbYIkerYuLu3YhxbQBRLVvX2D5zXX+ev815ImGKq0rfsvP1pTOJ5EqP08oKOwfIa9QTDMtiu2ku4mgd0cfUrgHWjXHSy9Ara8LqXsfWC6NLeFnBIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736740485; c=relaxed/simple;
-	bh=KAtxy5kLOTtdNHLjq445e2lNZSDTxI8Vx+tk8+y7iU0=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=IS3jwCJYJYWovaIqFOVlcQJX3Pdo2cVVHoJ27bKci44UCSiHvYmBUimKAN7629KXpx6GDLsLuFJaeBtkMf5Y1W6G3jVF1AqPvwiyZeWPT3AZl/Xlu90ox9EMsMmBqKvdFJYuTseM/SG3O5Yv1iOYYxIvMIncTyLRTbN7TbsU4lA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=fail (1024-bit key) header.d=163.com header.i=@163.com header.b=JCISy2Zi reason="signature verification failed"; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1736741169; c=relaxed/simple;
+	bh=YZZ9I+l3G7qr3EMipQUJR0fSHci2HaxgX7ZkbidFbrA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=f0C39bWgmVRtXx3L87ZuiURDQminb9L9YgfcZKe+NLvQOV1eemA5GHROWQiZr17OiHIUFw7ZBrnb/upUM002MxdimzyVprpoh8yxo+VznAQMMwgn7iqvtxCqgFqpJ9Rv0WeIbxQIIYklJes+lkKSrpMS5AKC69KsopcRxFfmT+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UKMZYkPt; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=163.com header.i=@163.com header.b="JCISy2Zi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=eemiIfpJILwOwTzjnZMeRKg1K3cifJJEv104WN7Ptf8=; b=J
-	CISy2Zi4WrKmoei+W04SElMfBUZbXsY2n+xpFOCqDmNHtyexlDrgrdshJr2bSKLl
-	P7T4CJE7Qo1SvA9EIwv7dmzQkavXi3jFYVYDqoIHIRZGv1dLejGYHHEfnDQtQRE3
-	0VYGm1B27i9cq78tLx+8WoWRmp3FsjWETp5TF+zyWA=
-Received: from andyshrk$163.com ( [103.29.142.67] ) by
- ajax-webmail-wmsvr-40-117 (Coremail) ; Mon, 13 Jan 2025 11:53:59 +0800
- (CST)
-Date: Mon, 13 Jan 2025 11:53:59 +0800 (CST)
-From: "Andy Yan" <andyshrk@163.com>
-To: "Thomas Zimmermann" <tzimmermann@suse.de>
-Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com, 
-	simona@ffwll.ch, dri-devel@lists.freedesktop.org, 
-	linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org, 
-	linux-arm-msm@vger.kernel.org, imx@lists.linux.dev, 
-	linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org, 
-	linux-renesas-soc@vger.kernel.org, 
-	linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org, 
-	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
-Subject: Re:Re: [PATCH v2 02/25] drm/dumb-buffers: Provide helper to set
- pitch and size
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version XT5.0.14 build 20240801(9da12a7b)
- Copyright (c) 2002-2025 www.mailtech.cn 163com
-In-Reply-To: <e800ebc2-39b5-46d5-89ec-883ed1c7626b@suse.de>
-References: <20250109150310.219442-1-tzimmermann@suse.de>
- <20250109150310.219442-3-tzimmermann@suse.de>
- <94f78e1.19bf.1944de709b0.Coremail.andyshrk@163.com>
- <e800ebc2-39b5-46d5-89ec-883ed1c7626b@suse.de>
-X-NTES-SC: AL_Qu2YBPufv0wo7yKeZulS/DNQ2YpmHKvs4olgqcQkZd0qqTHPyz4QZ0BuLUbI3d4WuFSnvoMCEgbKZbJt8QVJ
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UKMZYkPt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736741165;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TZ9KVJCNW1gWH14rRZNf+IonExJW3H1qiVrWM9RW4co=;
+	b=UKMZYkPt0JngMWLXgzqlkROSqiVmcIrPaEddMZNbL3egK9o7o73I1+Y4/r2PpCcnG1Wi84
+	acDKFVQb6tIZ6Qr23thj57TaLIT4joGzY25yhfwd/jEdeC+OU2w0DZ0Ip+vobtXHL8egWP
+	WV7ecVXi8QIds3OadaPIze2ndhdWlZs=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-221-dUrYxQvwMRelCsvAkGimvA-1; Sun, 12 Jan 2025 23:06:04 -0500
+X-MC-Unique: dUrYxQvwMRelCsvAkGimvA-1
+X-Mimecast-MFC-AGG-ID: dUrYxQvwMRelCsvAkGimvA
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2ef114d8346so6610219a91.0
+        for <virtualization@lists.linux.dev>; Sun, 12 Jan 2025 20:06:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736741163; x=1737345963;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TZ9KVJCNW1gWH14rRZNf+IonExJW3H1qiVrWM9RW4co=;
+        b=VaPmDE4m7kjZiuFv1trZAEXCGGNZ8YXc2ifaC9gdO7Yf91i793uu46KIQ2DiMJfudW
+         GXOrDXQEa3kh7DzH0rDD1B1/yR+oJimEhwntfELpHH6D/XAg6mJugQsNbxfvcCwewGCg
+         cLKPGXdGVPWpDp4iF1TF4ZQgwskXMUld55kqR+A7UIY+fWZkhRuTVIWVH4biaxyJp4VH
+         ucvFaLbqS46dGnlxyDTp2i+WDY5qzG8FoF3Swf5B4VG36da330m2IXw3ZCzEHw+1JRMQ
+         GWZ18R0JBsZwZ6WDclWTeCDI4Q4T5yRs9LeOQvSYb2feqGTU8VKzvJoBYW834ioXMzZJ
+         LfAg==
+X-Forwarded-Encrypted: i=1; AJvYcCWcIWilFBHeXAxtgfAFW8nqUXUJywnwjpoo7AelrcFeZJqemf5tR6T+27aWsDj8rwy+B8BVvGgbn8nC4H76cw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwkHk0OEq1oLGaX+jhH2zPPWw1wAbvqKvj6PEMdHM1Ipm7fvUwh
+	QlXwOm0pL5vhHuGHrmAZIGa2jVsntVtYxYKELoWRM4Po6AgV1n1e4D59D7O+5ZP/at6RXQ+S3e9
+	KbQ2jJPizLsURYB8Q6apdUWjGxJkBiXQ7bS95q8ePU5io1CtUkfsvWdmwB4Bqm0xqab/g7sg+Dt
+	zzKpPMmddEl8m2WNByHgylyRlG7sk5b/3QfOW3X4U=
+X-Gm-Gg: ASbGnctfgbnWYFHRgEwgYKW0EQQsdAt/YHwNCHZ4Rgmlba8vHKM3K1kX8RDgiNAe8xA
+	44c433yY5J11LTRXxq+crjG+lkQA+XPckzW/QTGo=
+X-Received: by 2002:a17:90b:51cb:b0:2ef:3192:d280 with SMTP id 98e67ed59e1d1-2f548f162acmr26190269a91.5.1736741163607;
+        Sun, 12 Jan 2025 20:06:03 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF1A+G5TTiOBCTRJzQQc8LlM21qz/pIEYJLiWzPbeMHcvlPcNaP8l/WEchbVIhmKLEDwqkhau6vUzNiW09UCBo=
+X-Received: by 2002:a17:90b:51cb:b0:2ef:3192:d280 with SMTP id
+ 98e67ed59e1d1-2f548f162acmr26190231a91.5.1736741163106; Sun, 12 Jan 2025
+ 20:06:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <443491d4.4087.1945dcc04e3.Coremail.andyshrk@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:dSgvCgCXH4lXjoRnjolVAA--.27065W
-X-CM-SenderInfo: 5dqg52xkunqiywtou0bp/1tbiqAHTXmeEidhe-AACs2
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+References: <20250110202605.429475-1-jdamato@fastly.com> <20250110202605.429475-4-jdamato@fastly.com>
+In-Reply-To: <20250110202605.429475-4-jdamato@fastly.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 13 Jan 2025 12:05:51 +0800
+X-Gm-Features: AbW1kvbJjBsqd5MxoROEXNyf-c5A5BV1qq0kCSqjUPSk4kLtr3sC7nlacQgsc78
+Message-ID: <CACGkMEtjERF72zkLzDn2OKz3OGkJOQ+FCJS3MRscJqakEz9FYA@mail.gmail.com>
+Subject: Re: [PATCH net-next 3/3] virtio_net: Map NAPIs to queues
+To: Joe Damato <jdamato@fastly.com>
+Cc: netdev@vger.kernel.org, mkarsten@uwaterloo.ca, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ChI8_jP5JUfwib5WM6OwJOZj3aUvec2Dafj9k-kBjMU_1736741164
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-CkhpIFRob21hcywKCkF0IDIwMjUtMDEtMTAgMjE6MjM6NDgsICJUaG9tYXMgWmltbWVybWFubiIg
-PHR6aW1tZXJtYW5uQHN1c2UuZGU+IHdyb3RlOgo+SGkKPgo+Cj5BbSAxMC4wMS4yNSB1bSAwMjo0
-OSBzY2hyaWViIEFuZHkgWWFuOgo+PiBIaSBUaG9tYXMsCj4+Cj4+IEF0IDIwMjUtMDEtMDkgMjI6
-NTY6NTYsICJUaG9tYXMgWmltbWVybWFubiIgPHR6aW1tZXJtYW5uQHN1c2UuZGU+IHdyb3RlOgo+
-Pj4gQWRkIGRybV9tb2Rlc19zaXplX2R1bWIoKSwgYSBoZWxwZXIgdG8gY2FsY3VsYXRlIHRoZSBk
-dW1iLWJ1ZmZlcgo+Pj4gc2NhbmxpbmUgcGl0Y2ggYW5kIGFsbG9jYXRpb24gc2l6ZS4gSW1wbGVt
-ZW50YXRpb25zIG9mIHN0cnVjdAo+Pj4gZHJtX2RyaXZlci5kdW1iX2NyZWF0ZSBjYW4gY2FsbCB0
-aGUgbmV3IGhlbHBlciBmb3IgdGhlaXIgc2l6ZQo+Pj4gY29tcHV0YXRpb25zLiBUaGVyZSdzIGN1
-cnJlbnRseSBxdWl0ZSBhIGJpdCBvZiBjb2RlIGR1cGxpY2F0aW9uCj4+PiBhbW9uZyBEUk0ncyBt
-ZW1vcnkgbWFuYWdlcnMuIEVhY2ggY2FsY3VsYXRlcyBzY2FubGluZSBwaXRjaCBhbmQKPj4+IGJ1
-ZmZlciBzaXplIGZyb20gdGhlIGdpdmVuIGFyZ3VtZW50cywgYnV0IHRoZSBpbXBsZW1lbnRhdGlv
-bnMgYXJlCj4+PiBpbmNvbnNpc3RlbnQgaW4gaG93IHRoZXkgdHJlYXQgYWxpZ25tZW50IGFuZCBm
-b3JtYXQgc3VwcG9ydC4gTGF0ZXIKPj4+IHBhdGNoZXMgd2lsbCB1bmlmeSB0aGlzIGNvZGUgb24g
-dG9wIG9mIGRybV9tb2RlX3NpemVfZHVtYigpIGFzCj4+PiBtdWNoIGFzIHBvc3NpYmxlLgo+Pj4K
-Pj4+IGRybV9tb2RlX3NpemVfZHVtYigpIHVzZXMgZXhpc3RpbmcgNENDIGZvcm1hdCBoZWxwZXJz
-IHRvIGludGVycHJldCB0aGUKPj4+IGdpdmVuIGNvbG9yIG1vZGUuIFRoaXMgbWFrZXMgdGhlIGR1
-bWItYnVmZmVyIGludGVyZmFjZSBiZWhhdmUgc2ltaWxhcgo+Pj4gdGhlIGtlcm5lbCdzIHZpZGVv
-PSBwYXJhbWV0ZXIuIEFnYWluLCBjdXJyZW50IHBlci1kcml2ZXIgaW1wbGVtZW50YXRpb25zCj4+
-PiBsaWtlbHkgaGF2ZSBzdWJ0bGUgZGlmZmVyZW5jZXMgb3IgYnVncyBpbiBob3cgdGhleSBzdXBw
-b3J0IGNvbG9yIG1vZGVzLgo+Pj4KPj4+IEZ1dHVyZSBkaXJlY3Rpb25zOiBvbmUgYnVnIGlzIHBy
-ZXNlbnQgaW4gdGhlIGN1cnJlbnQgaW5wdXQgdmFsaWRhdGlvbgo+Pj4gaW4gZHJtX21vZGVfY3Jl
-YXRlX2R1bWIoKS4gVGhlIGR1bWItYnVmZmVyIG92ZXJmbG93IHRlc3RzIHJvdW5kIHVwIGFueQo+
-Pj4gZ2l2ZW4gYml0cy1wZXItcGl4ZWwgdmFsdWUgdG8gYSBtdWx0aXBsZSBvZiA4LiBTbyBldmVu
-IG9uZS1iaXQgZm9ybWF0cywKPj4+IHN1Y2ggYXMgRFJNX0ZPUk1BVF9DMSwgcmVxdWlyZSA4IGJp
-dHMgcGVyIHBpeGVsLiBXaGlsZSBub3QgY29tbW9uLAo+Pj4gbG93LWVuZCBkaXNwbGF5cyB1c2Ug
-c3VjaCBmb3JtYXRzOyB3aXRoIGEgcG9zc2libGUgb3ZlcmNvbW1pdG1lbnQgb2YKPj4+IG1lbW9y
-eS4gQXQgc29tZSBwb2ludCwgdGhlIHZhbGlkYXRpb24gbG9naWMgaW4gZHJtX21vZGVfc2l6ZV9k
-dW1iKCkgaXMKPj4+IHN1cHBvc2VkIHRvIHJlcGxhY2UgdGhlIGVycm9ub3VzIGNvZGUuCj4+Pgo+
-Pj4gU2lnbmVkLW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+
-Cj4+PiAtLS0KPj4+IGRyaXZlcnMvZ3B1L2RybS9kcm1fZHVtYl9idWZmZXJzLmMgfCA5MyArKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysKPj4+IGluY2x1ZGUvZHJtL2RybV9kdW1iX2J1ZmZl
-cnMuaCAgICAgfCAxNCArKysrKwo+Pj4gMiBmaWxlcyBjaGFuZ2VkLCAxMDcgaW5zZXJ0aW9ucygr
-KQo+Pj4gY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvZHJtL2RybV9kdW1iX2J1ZmZlcnMuaAo+
-Pj4KPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vZHJtX2R1bWJfYnVmZmVycy5jIGIv
-ZHJpdmVycy9ncHUvZHJtL2RybV9kdW1iX2J1ZmZlcnMuYwo+Pj4gaW5kZXggOTkxNmFhZjViM2Yy
-Li5mZDM5NzIwYmQ2MTcgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vZHJtX2R1bWJf
-YnVmZmVycy5jCj4+PiArKysgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2R1bWJfYnVmZmVycy5jCj4+
-PiBAQCAtMjUsNiArMjUsOCBAQAo+Pj4KPj4+ICNpbmNsdWRlIDxkcm0vZHJtX2RldmljZS5oPgo+
-Pj4gI2luY2x1ZGUgPGRybS9kcm1fZHJ2Lmg+Cj4+PiArI2luY2x1ZGUgPGRybS9kcm1fZHVtYl9i
-dWZmZXJzLmg+Cj4+PiArI2luY2x1ZGUgPGRybS9kcm1fZm91cmNjLmg+Cj4+PiAjaW5jbHVkZSA8
-ZHJtL2RybV9nZW0uaD4KPj4+ICNpbmNsdWRlIDxkcm0vZHJtX21vZGUuaD4KPj4+Cj4+PiBAQCAt
-NTcsNiArNTksOTcgQEAKPj4+ICAgKiBhIGhhcmR3YXJlLXNwZWNpZmljIGlvY3RsIHRvIGFsbG9j
-YXRlIHN1aXRhYmxlIGJ1ZmZlciBvYmplY3RzLgo+Pj4gICAqLwo+Pj4KPj4+ICtzdGF0aWMgaW50
-IGRybV9tb2RlX2FsaWduX2R1bWIoc3RydWN0IGRybV9tb2RlX2NyZWF0ZV9kdW1iICphcmdzLAo+
-Pj4gKwkJCSAgICAgICB1bnNpZ25lZCBsb25nIHBpdGNoX2FsaWduLAo+Pj4gKwkJCSAgICAgICB1
-bnNpZ25lZCBsb25nIHNpemVfYWxpZ24pCj4+PiArewo+Pj4gKwl1MzIgcGl0Y2ggPSBhcmdzLT5w
-aXRjaDsKPj4+ICsJdTMyIHNpemU7Cj4+PiArCj4+PiArCWlmICghcGl0Y2gpCj4+PiArCQlyZXR1
-cm4gLUVJTlZBTDsKPj4+ICsKPj4+ICsJaWYgKHBpdGNoX2FsaWduKQo+Pj4gKwkJcGl0Y2ggPSBy
-b3VuZHVwKHBpdGNoLCBwaXRjaF9hbGlnbik7Cj4+PiArCj4+PiArCS8qIG92ZXJmbG93IGNoZWNr
-cyBmb3IgMzJiaXQgc2l6ZSBjYWxjdWxhdGlvbnMgKi8KPj4+ICsJaWYgKGFyZ3MtPmhlaWdodCA+
-IFUzMl9NQVggLyBwaXRjaCkKPj4+ICsJCXJldHVybiAtRUlOVkFMOwo+Pj4gKwo+Pj4gKwlpZiAo
-IXNpemVfYWxpZ24pCj4+PiArCQlzaXplX2FsaWduID0gUEFHRV9TSVpFOwo+Pj4gKwllbHNlIGlm
-ICghSVNfQUxJR05FRChzaXplX2FsaWduLCBQQUdFX1NJWkUpKQo+Pj4gKwkJcmV0dXJuIC1FSU5W
-QUw7Cj4+PiArCj4+PiArCXNpemUgPSBBTElHTihhcmdzLT5oZWlnaHQgKiBwaXRjaCwgc2l6ZV9h
-bGlnbik7Cj4+PiArCWlmICghc2l6ZSkKPj4+ICsJCXJldHVybiAtRUlOVkFMOwo+Pj4gKwo+Pj4g
-KwlhcmdzLT5waXRjaCA9IHBpdGNoOwo+Pj4gKwlhcmdzLT5zaXplID0gc2l6ZTsKPj4+ICsKPj4+
-ICsJcmV0dXJuIDA7Cj4+PiArfQo+Pj4gKwo+Pj4gKy8qKgo+Pj4gKyAqIGRybV9tb2RlX3NpemVf
-ZHVtYiAtIENhbGN1bGF0ZXMgdGhlIHNjYW5saW5lIGFuZCBidWZmZXIgc2l6ZXMgZm9yIGR1bWIg
-YnVmZmVycwo+Pj4gKyAqIEBkZXY6IERSTSBkZXZpY2UKPj4+ICsgKiBAYXJnczogUGFyYW1ldGVy
-cyBmb3IgdGhlIGR1bWIgYnVmZmVyCj4+PiArICogQHBpdGNoX2FsaWduOiBTY2FubGluZSBhbGln
-bm1lbnQgaW4gYnl0ZXMKPj4+ICsgKiBAc2l6ZV9hbGlnbjogQnVmZmVyLXNpemUgYWxpZ25tZW50
-IGluIGJ5dGVzCj4+PiArICoKPj4+ICsgKiBUaGUgaGVscGVyIGRybV9tb2RlX3NpemVfZHVtYigp
-IGNhbGN1bGF0ZXMgdGhlIHNpemUgb2YgdGhlIGJ1ZmZlcgo+Pj4gKyAqIGFsbG9jYXRpb24gYW5k
-IHRoZSBzY2FubGluZSBzaXplIGZvciBhIGR1bWIgYnVmZmVyLiBDYWxsZXJzIGhhdmUgdG8KPj4+
-ICsgKiBzZXQgdGhlIGJ1ZmZlcnMgd2lkdGgsIGhlaWdodCBhbmQgY29sb3IgbW9kZSBpbiB0aGUg
-YXJndW1lbnQgQGFyZy4KPj4+ICsgKiBUaGUgaGVscGVyIHZhbGlkYXRlcyB0aGUgY29ycmVjdG5l
-c3Mgb2YgdGhlIGlucHV0IGFuZCB0ZXN0cyBmb3IKPj4+ICsgKiBwb3NzaWJsZSBvdmVyZmxvd3Mu
-IElmIHN1Y2Nlc3NmdWwsIGl0IHJldHVybnMgdGhlIGR1bWIgYnVmZmVyJ3MKPj4+ICsgKiByZXF1
-aXJlZCBzY2FubGluZSBwaXRjaCBhbmQgc2l6ZSBpbiAmYXJncy4KPj4+ICsgKgo+Pj4gKyAqIFRo
-ZSBwYXJhbWV0ZXIgQHBpdGNoX2FsaWduIGFsbG93cyB0aGUgZHJpdmVyIHRvIHNwZWNpZmllcyBh
-bgo+Pj4gKyAqIGFsaWdubWVudCBmb3IgdGhlIHNjYW5saW5lIHBpdGNoLCBpZiB0aGUgaGFyZHdh
-cmUgcmVxdWlyZXMgYW55LiBUaGUKPj4+ICsgKiBjYWxjdWxhdGVkIHBpdGNoIHdpbGwgYmUgYSBt
-dWx0aXBsZSBvZiB0aGUgYWxpZ25tZW50LiBUaGUgcGFyYW1ldGVyCj4+PiArICogQHNpemVfYWxp
-Z24gYWxsb3dzIHRvIHNwZWNpZnkgYW4gYWxpZ25tZW50IGZvciBidWZmZXIgc2l6ZXMuIFRoZQo+
-Pj4gKyAqIHJldHVybmVkIHNpemUgaXMgYWx3YXlzIGEgbXVsdGlwbGUgb2YgUEFHRV9TSVpFLgo+
-Pj4gKyAqCj4+PiArICogUmV0dXJuczoKPj4+ICsgKiBaZXJvIG9uIHN1Y2Nlc3MsIG9yIGEgbmVn
-YXRpdmUgZXJyb3IgY29kZSBvdGhlcndpc2UuCj4+PiArICovCj4+PiAraW50IGRybV9tb2RlX3Np
-emVfZHVtYihzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LAo+Pj4gKwkJICAgICAgIHN0cnVjdCBkcm1f
-bW9kZV9jcmVhdGVfZHVtYiAqYXJncywKPj4+ICsJCSAgICAgICB1bnNpZ25lZCBsb25nIHBpdGNo
-X2FsaWduLAo+Pj4gKwkJICAgICAgIHVuc2lnbmVkIGxvbmcgc2l6ZV9hbGlnbikKPj4+ICt7Cj4+
-PiArCXUzMiBmb3VyY2M7Cj4+PiArCWNvbnN0IHN0cnVjdCBkcm1fZm9ybWF0X2luZm8gKmluZm87
-Cj4+PiArCXU2NCBwaXRjaDsKPj4+ICsKPj4+ICsJLyoKPj4+ICsJICogVGhlIHNjYW5saW5lIHBp
-dGNoIGRlcGVuZHMgb24gdGhlIGJ1ZmZlciB3aWR0aCBhbmQgdGhlIGNvbG9yCj4+PiArCSAqIGZv
-cm1hdC4gVGhlIGxhdHRlciBpcyBzcGVjaWZpZWQgYXMgYSBjb2xvci1tb2RlIGNvbnN0YW50IGZv
-cgo+Pj4gKwkgKiB3aGljaCB3ZSBmaXJzdCBoYXZlIHRvIGZpbmQgdGhlIGNvcnJlc3BvbmRpbmcg
-Y29sb3IgZm9ybWF0Lgo+Pj4gKwkgKgo+Pj4gKwkgKiBEaWZmZXJlbnQgY29sb3IgZm9ybWF0cyBj
-YW4gaGF2ZSB0aGUgc2FtZSBjb2xvci1tb2RlIGNvbnN0YW50Lgo+Pj4gKwkgKiBGb3IgZXhhbXBs
-ZSBYUkdCODg4OCBhbmQgQkdSWDg4ODggYm90aCBoYXZlIGEgY29sb3IgbW9kZSBvZiAzMi4KPj4+
-ICsJICogSXQgaXMgcG9zc2libGUgdG8gdXNlIGRpZmZlcmVudCBmb3JtYXRzIGZvciBkdW1iLWJ1
-ZmZlciBhbGxvY2F0aW9uCj4+PiArCSAqIGFuZCByZW5kZXJpbmcgYXMgbG9uZyBhcyBhbGwgaW52
-b2x2ZWQgZm9ybWF0cyBzaGFyZSB0aGUgc2FtZQo+Pj4gKwkgKiBjb2xvci1tb2RlIGNvbnN0YW50
-Lgo+Pj4gKwkgKi8KPj4+ICsJZm91cmNjID0gZHJtX2RyaXZlcl9jb2xvcl9tb2RlX2Zvcm1hdChk
-ZXYsIGFyZ3MtPmJwcCk7Cj4+IFRoaXMgd2lsbCByZXR1cm4gLUVJTlZBTCB3aXRoIGJwcCBkcm1f
-bW9kZV9sZWdhY3lfZmJfZm9ybWF0IGRvZXNuJ3Qgc3VwcG9ydCwKPj4gc3VjaCBhcyhOVjE1LCBO
-VjIwLCBOVjMwLCBicHAgaXMgMTApWzBdCj4KPlRoYW5rcyBmb3IgdGFraW5nIGEgbG9vay4gVGhh
-dCBOVi1yZWxhdGVkIGNvZGUgYXQgWzBdIGlzIGEgJ3NvbWV3aGF0IAo+bm9uLWlkaW9tYXRpYyB1
-c2UnIG9mIHRoZSBVQVBJLiBUaGUgZHVtYi1idWZmZXIgaW50ZXJmYWNlIHJlYWxseSBqdXN0IAo+
-c3VwcG9ydHMgYSBzaW5nbGUgcGxhbmUuIFRoZSBmaXggd291bGQgYmUgYSBuZXcgaW9jdGwgdGhh
-dCB0YWtlcyBhIERSTSAKPjRjYyBjb25zdGFudCBhbmQgcmV0dXJucyBhIGJ1ZmZlciBoYW5kbGUv
-cGl0Y2gvc2l6ZSBmb3IgZWFjaCBwbGFuZS4gQnV0IAo+dGhhdCdzIHNlcGFyYXRlIHNlcmllcyB0
-aHJvdWdob3V0IHRoZSB2YXJpb3VzIGNvbXBvbmVudHMuCgpTbyBpcyB0aGVyZSBhIHN0YW5kYXJk
-IHdheSB0byBjcmVhdGUgYnVmZmVyIGZvciBOVi1yZWxhdGVkIGZvcm1hdCBub3cgPwpXaXRoIGEg
-cXVpY2sgc2VhcmNoLCBJIGNhbiBzZWUgbWFueSB1c2VyIHNwYWNlIHVzZSBkdW1iLWJ1ZmZlciBm
-b3IgTlYtcmVsZWF0ZWQKYnVmZmVyIGFsbG9jOgoKWzBdaHR0cHM6Ly9naXRodWIuY29tL3RvbWJh
-L2ttc3h4L2Jsb2IvbWFzdGVyL2ttcyUyQiUyQi9zcmMvcGl4ZWxmb3JtYXRzLmNwcApbMV1odHRw
-czovL2dpdGxhYi5mcmVlZGVza3RvcC5vcmcvZHJtL2lndC1ncHUtdG9vbHMvLS9ibG9iL21hc3Rl
-ci9saWIvaWd0X2ZiLmM/cmVmX3R5cGU9aGVhZHMKWzJdaHR0cHM6Ly9naXRsYWIuZnJlZWRlc2t0
-b3Aub3JnL2dzdHJlYW1lci9nc3RyZWFtZXIvLS9ibG9iL21haW4vc3VicHJvamVjdHMvZ3N0LXBs
-dWdpbnMtYmFkL3N5cy9rbXMvZ3N0a21zdXRpbHMuYz9yZWZfdHlwZT1oZWFkcyNMMTE2Cgo+Cj5U
-aGVyZSdzIGFsc28gY29kZSBYUkdCMTYxNjE2MTZGLiBUaGlzIGlzIGEgdmlhYmxlIGZvcm1hdCBm
-b3IgdGhlIFVBUEksIAo+YnV0IHNlZW1zIG5vdCB2ZXJ5IHVzZWZ1bCBpbiBwcmFjdGljZS4KPgo+
-Pgo+PiBBbmQgdGhlcmUgYXJlIGFsc28gc29tZSBBRkJDIGJhc2VkIGZvcm1hdCB3aXRoIGJwcCBj
-YW4ndCBiZSBoYW5kbGVkIGhlcmUsIHNlZToKPj4gc3RhdGljIF9fdTMyIGRybV9nZW1fYWZiY19n
-ZXRfYnBwKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsCj4+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgY29uc3Qgc3RydWN0IGRybV9tb2RlX2ZiX2NtZDIgKm1vZGVfY21kKQo+PiB7
-Cj4+ICAgICAgICAgIGNvbnN0IHN0cnVjdCBkcm1fZm9ybWF0X2luZm8gKmluZm87Cj4+ICAgICAg
-ICAgICAgICAgICAgCj4+ICAgICAgICAgIGluZm8gPSBkcm1fZ2V0X2Zvcm1hdF9pbmZvKGRldiwg
-bW9kZV9jbWQpOwo+PiAgICAgICAgICAgICAgICAgIAo+PiAgICAgICAgICBzd2l0Y2ggKGluZm8t
-PmZvcm1hdCkgewo+PiAgICAgICAgICBjYXNlIERSTV9GT1JNQVRfWVVWNDIwXzhCSVQ6Cj4+ICAg
-ICAgICAgICAgICAgICAgcmV0dXJuIDEyOwo+PiAgICAgICAgICBjYXNlIERSTV9GT1JNQVRfWVVW
-NDIwXzEwQklUOgo+PiAgICAgICAgICAgICAgICAgIHJldHVybiAxNTsKPj4gICAgICAgICAgY2Fz
-ZSBEUk1fRk9STUFUX1ZVWTEwMTAxMDoKPj4gICAgICAgICAgICAgICAgICByZXR1cm4gMzA7Cj4+
-ICAgICAgICAgIGRlZmF1bHQ6Cj4+ICAgICAgICAgICAgICAgICAgcmV0dXJuIGRybV9mb3JtYXRf
-aW5mb19icHAoaW5mbywgMCk7Cj4+ICAgICAgICAgIH0KPj4gfQo+Cj5TYW1lIHByb2JsZW0gaGVy
-ZS4gVGhlc2UgWVVWIGZvcm1hdHMgYXJlIG11bHRpLXBsYW5hciBhbmQgdGhlcmUgc2hvdWxkIAo+
-YmUgbm8gZHVtYiBidWZmZXJzIGZvciB0aGVtLgoKVGhlc2UgYWZiYyBiYXNlZCBmb3JtYXQgYXJl
-IG9uZSBwbGFuZSwgc2VlOgoKLyoKICogMS1wbGFuZSBZVVYgNDoyOjAKICogSW4gdGhlc2UgZm9y
-bWF0cywgdGhlIGNvbXBvbmVudCBvcmRlcmluZyBpcyBzcGVjaWZpZWQgKFksIGZvbGxvd2VkIGJ5
-IFUKICogdGhlbiBWKSwgYnV0IHRoZSBleGFjdCBMaW5lYXIgbGF5b3V0IGlzIHVuZGVmaW5lZC4K
-ICogVGhlc2UgZm9ybWF0cyBjYW4gb25seSBiZSB1c2VkIHdpdGggYSBub24tTGluZWFyIG1vZGlm
-aWVyLgogKi8KI2RlZmluZSBEUk1fRk9STUFUX1lVVjQyMF84QklUICBmb3VyY2NfY29kZSgnWScs
-ICdVJywgJzAnLCAnOCcpCiNkZWZpbmUgRFJNX0ZPUk1BVF9ZVVY0MjBfMTBCSVQgZm91cmNjX2Nv
-ZGUoJ1knLCAnVScsICcxJywgJzAnKQoKPgo+QXMgd2Ugc3RpbGwgaGF2ZSB0byBzdXBwb3J0IHRo
-ZXNlIGFsbCB1c2UgY2FzZXMsIEkndmUgbW9kaWZpZWQgdGhlIG5ldyAKPmhlbHBlciB0byBmYWxs
-YmFjayB0byBjb21wdXRpbmcgdGhlIHBpdGNoIGZyb20gdGhlIGdpdmVuIGJwcCB2YWx1ZS4gCj5U
-aGF0J3Mgd2hhdCBkcml2ZXJzIGN1cnJlbnRseSBkby4gQ291bGQgeW91IHBsZWFzZSBhcHBseSB0
-aGUgYXR0YWNoZWQgCj5wYXRjaCBvbiB0b3Agb2YgdGhlIHNlcmllcyBhbmQgcmVwb3J0IGJhY2sg
-dGhlIHJlc3VsdCBvZiB0aGUgdGVzdD8gWW91IAo+c2hvdWxkIHNlZSBhIGtlcm5lbCB3YXJuaW5n
-IGFib3V0IHRoZSB1bmtub3duIGNvbG9yIG1vZGUsIGJ1dCBhbGxvY2F0aW9uIAo+c2hvdWxkIHN1
-Y2NlZWQuCgpZZXMsIHRoZSBhdHRhY2hlZCBwYXRjaCB3b3JrcyBmb3IgbXkgdGVzdCBjYXNlLgoK
-Pgo+QmVzdCByZWdhcmRzCj5UaG9tYXMKPgo+Pgo+Pgo+PiBbMF1odHRwczovL2dpdGxhYi5mcmVl
-ZGVza3RvcC5vcmcvbWVzYS9kcm0vLS9ibG9iL21haW4vdGVzdHMvbW9kZXRlc3QvYnVmZmVycy5j
-P3JlZl90eXBlPWhlYWRzI0wxNTkKPj4KPj4gVGhpcyBpbnRyb2R1Y2UgYSBtb2RldGVzdCBmYWls
-dXJlIG9uIHJvY2tjaGlwIHBsYXRmb3JtOgo+PiAjIG1vZGV0ZXN0IC1NIHJvY2tjaGlwIC1zIDcw
-QDY4OjE5MjB4MTA4MCAtUCAzMkA2ODoxOTIweDEwODBATlYzMAo+PiBzZXR0aW5nIG1vZGUgMTky
-MHgxMDgwLTYwLjAwSHogb24gY29ubmVjdG9ycyA3MCwgY3J0YyA2OAo+PiB0ZXN0aW5nIDE5MjB4
-MTA4MEBOVjMwIG92ZXJsYXkgcGxhbmUgMzIKPj4gZmFpbGVkIHRvIGNyZWF0ZSBkdW1iIGJ1ZmZl
-cjogSW52YWxpZCBhcmd1bWVudAo+Pgo+PiBJIHRoaW5rIG90aGVyIHBsYXRmb3JtIHdpdGggYnBw
-IGNhbid0IGhhbmRsZXIgYnkgIGRybV9tb2RlX2xlZ2FjeV9mYl9mb3JtYXQgd2lsbAo+PiBhbHNv
-IHNlZSB0aGlzIGtpbmQgb2YgZmFpbHVyZToKPj4KPj4KPj4KPj4+ICsJaWYgKGZvdXJjYyA9PSBE
-Uk1fRk9STUFUX0lOVkFMSUQpCj4+PiArCQlyZXR1cm4gLUVJTlZBTDsKPj4+ICsJaW5mbyA9IGRy
-bV9mb3JtYXRfaW5mbyhmb3VyY2MpOwo+Pj4gKwlpZiAoIWluZm8pCj4+PiArCQlyZXR1cm4gLUVJ
-TlZBTDsKPj4+ICsJcGl0Y2ggPSBkcm1fZm9ybWF0X2luZm9fbWluX3BpdGNoKGluZm8sIDAsIGFy
-Z3MtPndpZHRoKTsKPj4+ICsJaWYgKCFwaXRjaCB8fCBwaXRjaCA+IFUzMl9NQVgpCj4+PiArCQly
-ZXR1cm4gLUVJTlZBTDsKPj4+ICsKPj4+ICsJYXJncy0+cGl0Y2ggPSBwaXRjaDsKPj4+ICsKPj4+
-ICsJcmV0dXJuIGRybV9tb2RlX2FsaWduX2R1bWIoYXJncywgcGl0Y2hfYWxpZ24sIHNpemVfYWxp
-Z24pOwo+Pj4gK30KPj4+ICtFWFBPUlRfU1lNQk9MKGRybV9tb2RlX3NpemVfZHVtYik7Cj4+PiAr
-Cj4+PiBpbnQgZHJtX21vZGVfY3JlYXRlX2R1bWIoc3RydWN0IGRybV9kZXZpY2UgKmRldiwKPj4+
-IAkJCSBzdHJ1Y3QgZHJtX21vZGVfY3JlYXRlX2R1bWIgKmFyZ3MsCj4+PiAJCQkgc3RydWN0IGRy
-bV9maWxlICpmaWxlX3ByaXYpCj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9kcm0vZHJtX2R1bWJf
-YnVmZmVycy5oIGIvaW5jbHVkZS9kcm0vZHJtX2R1bWJfYnVmZmVycy5oCj4+PiBuZXcgZmlsZSBt
-b2RlIDEwMDY0NAo+Pj4gaW5kZXggMDAwMDAwMDAwMDAwLi42ZmUzNjAwNGIxOWQKPj4+IC0tLSAv
-ZGV2L251bGwKPj4+ICsrKyBiL2luY2x1ZGUvZHJtL2RybV9kdW1iX2J1ZmZlcnMuaAo+Pj4gQEAg
-LTAsMCArMSwxNCBAQAo+Pj4gKy8qIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBNSVQgKi8KPj4+
-ICsKPj4+ICsjaWZuZGVmIF9fRFJNX0RVTUJfQlVGRkVSU19IX18KPj4+ICsjZGVmaW5lIF9fRFJN
-X0RVTUJfQlVGRkVSU19IX18KPj4+ICsKPj4+ICtzdHJ1Y3QgZHJtX2RldmljZTsKPj4+ICtzdHJ1
-Y3QgZHJtX21vZGVfY3JlYXRlX2R1bWI7Cj4+PiArCj4+PiAraW50IGRybV9tb2RlX3NpemVfZHVt
-YihzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LAo+Pj4gKwkJICAgICAgIHN0cnVjdCBkcm1fbW9kZV9j
-cmVhdGVfZHVtYiAqYXJncywKPj4+ICsJCSAgICAgICB1bnNpZ25lZCBsb25nIHBpdGNoX2FsaWdu
-LAo+Pj4gKwkJICAgICAgIHVuc2lnbmVkIGxvbmcgc2l6ZV9hbGlnbik7Cj4+PiArCj4+PiArI2Vu
-ZGlmCj4+PiAtLSAKPj4+IDIuNDcuMQo+Pj4KPj4+Cj4+PiBfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwo+Pj4gTGludXgtcm9ja2NoaXAgbWFpbGluZyBsaXN0
-Cj4+PiBMaW51eC1yb2NrY2hpcEBsaXN0cy5pbmZyYWRlYWQub3JnCj4+PiBodHRwOi8vbGlzdHMu
-aW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LXJvY2tjaGlwCj4KPi0tIAo+LS0K
-PlRob21hcyBaaW1tZXJtYW5uCj5HcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyCj5TVVNFIFNvZnR3
-YXJlIFNvbHV0aW9ucyBHZXJtYW55IEdtYkgKPkZyYW5rZW5zdHJhc3NlIDE0NiwgOTA0NjEgTnVl
-cm5iZXJnLCBHZXJtYW55Cj5HRjogSXZvIFRvdGV2LCBBbmRyZXcgTXllcnMsIEFuZHJldyBNY0Rv
-bmFsZCwgQm91ZGllbiBNb2VybWFuCj5IUkIgMzY4MDkgKEFHIE51ZXJuYmVyZykK
+On Sat, Jan 11, 2025 at 4:26=E2=80=AFAM Joe Damato <jdamato@fastly.com> wro=
+te:
+>
+> Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
+> can be accessed by user apps.
+>
+> $ ethtool -i ens4 | grep driver
+> driver: virtio_net
+>
+> $ sudo ethtool -L ens4 combined 4
+>
+> $ ./tools/net/ynl/pyynl/cli.py \
+>        --spec Documentation/netlink/specs/netdev.yaml \
+>        --dump queue-get --json=3D'{"ifindex": 2}'
+> [{'id': 0, 'ifindex': 2, 'napi-id': 8289, 'type': 'rx'},
+>  {'id': 1, 'ifindex': 2, 'napi-id': 8290, 'type': 'rx'},
+>  {'id': 2, 'ifindex': 2, 'napi-id': 8291, 'type': 'rx'},
+>  {'id': 3, 'ifindex': 2, 'napi-id': 8292, 'type': 'rx'},
+>  {'id': 0, 'ifindex': 2, 'type': 'tx'},
+>  {'id': 1, 'ifindex': 2, 'type': 'tx'},
+>  {'id': 2, 'ifindex': 2, 'type': 'tx'},
+>  {'id': 3, 'ifindex': 2, 'type': 'tx'}]
+>
+> Note that virtio_net has TX-only NAPIs which do not have NAPI IDs, so
+> the lack of 'napi-id' in the above output is expected.
+>
+> Signed-off-by: Joe Damato <jdamato@fastly.com>
+> ---
+>  drivers/net/virtio_net.c | 29 ++++++++++++++++++++++++++---
+>  1 file changed, 26 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 4e88d352d3eb..8f0f26cc5a94 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2804,14 +2804,28 @@ static void virtnet_napi_do_enable(struct virtque=
+ue *vq,
+>  }
+>
+>  static void virtnet_napi_enable_lock(struct virtqueue *vq,
+> -                                    struct napi_struct *napi)
+> +                                    struct napi_struct *napi,
+> +                                    bool need_rtnl)
+>  {
+> +       struct virtnet_info *vi =3D vq->vdev->priv;
+> +       int q =3D vq2rxq(vq);
+> +
+>         virtnet_napi_do_enable(vq, napi);
+> +
+> +       if (q < vi->curr_queue_pairs) {
+> +               if (need_rtnl)
+> +                       rtnl_lock();
+
+Can we tweak the caller to call rtnl_lock() instead to avoid this trick?
+
+> +
+> +               netif_queue_set_napi(vi->dev, q, NETDEV_QUEUE_TYPE_RX, na=
+pi);
+> +
+> +               if (need_rtnl)
+> +                       rtnl_unlock();
+> +       }
+>  }
+>
+>  static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct=
+ *napi)
+>  {
+> -       virtnet_napi_enable_lock(vq, napi);
+> +       virtnet_napi_enable_lock(vq, napi, false);
+>  }
+>
+>  static void virtnet_napi_tx_enable(struct virtnet_info *vi,
+> @@ -2848,9 +2862,13 @@ static void refill_work(struct work_struct *work)
+>         for (i =3D 0; i < vi->curr_queue_pairs; i++) {
+>                 struct receive_queue *rq =3D &vi->rq[i];
+>
+> +               rtnl_lock();
+> +               netif_queue_set_napi(vi->dev, i, NETDEV_QUEUE_TYPE_RX, NU=
+LL);
+> +               rtnl_unlock();
+>                 napi_disable(&rq->napi);
+
+I wonder if it's better to have a helper to do set napi to NULL as
+well as napi_disable().
+
+> +
+>                 still_empty =3D !try_fill_recv(vi, rq, GFP_KERNEL);
+> -               virtnet_napi_enable_lock(rq->vq, &rq->napi);
+> +               virtnet_napi_enable_lock(rq->vq, &rq->napi, true);
+>
+>                 /* In theory, this can happen: if we don't get any buffer=
+s in
+>                  * we will *never* try to fill again.
+> @@ -3048,6 +3066,7 @@ static int virtnet_poll(struct napi_struct *napi, i=
+nt budget)
+>  static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_i=
+ndex)
+>  {
+>         virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
+> +       netif_queue_set_napi(vi->dev, qp_index, NETDEV_QUEUE_TYPE_RX, NUL=
+L);
+>         napi_disable(&vi->rq[qp_index].napi);
+>         xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+>  }
+> @@ -3317,8 +3336,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb,=
+ struct net_device *dev)
+>  static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_que=
+ue *rq)
+>  {
+>         bool running =3D netif_running(vi->dev);
+> +       int q =3D vq2rxq(rq->vq);
+>
+>         if (running) {
+> +               netif_queue_set_napi(vi->dev, q, NETDEV_QUEUE_TYPE_RX, NU=
+LL);
+>                 napi_disable(&rq->napi);
+>                 virtnet_cancel_dim(vi, &rq->dim);
+>         }
+> @@ -5943,6 +5964,8 @@ static int virtnet_xdp_set(struct net_device *dev, =
+struct bpf_prog *prog,
+>         /* Make sure NAPI is not using any XDP TX queues for RX. */
+>         if (netif_running(dev)) {
+>                 for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> +                       netif_queue_set_napi(vi->dev, i, NETDEV_QUEUE_TYP=
+E_RX,
+> +                                            NULL);
+>                         napi_disable(&vi->rq[i].napi);
+>                         virtnet_napi_tx_disable(&vi->sq[i].napi);
+>                 }
+> --
+> 2.25.1
+>
+
+Thanks
+
