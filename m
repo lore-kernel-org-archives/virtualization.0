@@ -1,161 +1,138 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EFC61FDA78
-	for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 10:03:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34BE8235C07;
+	Mon, 13 Jan 2025 10:13:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736762591; cv=none; b=L7L3zFLRpjOHOdYyk2E3KKbIgVaE8ZQvW4A4MlLwJwLGCwomDfh09RuoTwq4Eq34mJqhYP2QXbb0jVTOmN6MVa01zoRJ/TbQt2XI+M6S//A0Z5090XFoB+PTzRF5LkhHrHW23VtWu0pGQBrEd/JpyI3npjuc7vfvl2usvyL2Q0Y=
+	t=1736763208; cv=none; b=GS+qstBP/T2w2GuwF25eVQuXmLyGGj5IqI5p1SjrxJ/hRTvQoPOm+wSOzDiam+CPOzrzEvae8brlq32OoWgWeXYbKMbmr9GniP4H4hAa+p/NNmF1VAreOz9j88qlohGsxmIaX1fc2IwesznwHakFSDSbxM0VwDkgj1fhafFoXXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736762591; c=relaxed/simple;
-	bh=I0iLGLoingivba6W6nV+6WOB5RMn6wMHhgUaf69LrZU=;
-	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=A5lwLb2uaxvT+lAumSDTJfzr9V4cTl4P8Y6dwZT1L/opwh7j9RLqXL0Kl4FXFaddJB+XFkL9LoxOY7tijgGbiIsvIt6IP4GsN8eNeQfDb9bd2uhix/j++/tUOlzBx8LTGHqAePHpqi+RjXjDY3J14McLovDoraPbAjOMQ3aQWOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 9432dcccd19511efa216b1d71e6e1362-20250113
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.45,REQID:89d1d8f5-cc7a-49c3-a1dc-8a732374dea8,IP:0,U
-	RL:0,TC:0,Content:-25,EDM:-30,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACT
-	ION:release,TS:-55
-X-CID-META: VersionHash:6493067,CLOUDID:49d59e2f298ddd97acdf809673a998b8,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|102,TC:nil,Content:0|50,EDM:2,IP:n
-	il,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LE
-	S:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-UUID: 9432dcccd19511efa216b1d71e6e1362-20250113
-Received: from node2.com.cn [(10.44.16.197)] by mailgw.kylinos.cn
-	(envelope-from <wangyufeng@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 138486490; Mon, 13 Jan 2025 18:03:03 +0800
-Received: from node2.com.cn (localhost [127.0.0.1])
-	by node2.com.cn (NSMail) with SMTP id A5E0CB803CA2;
-	Mon, 13 Jan 2025 18:03:03 +0800 (CST)
-X-ns-mid: postfix-6784E4D7-5499562680
-Received: from localhost.localdomain (unknown [10.42.12.106])
-	by node2.com.cn (NSMail) with ESMTPA id EB3CCB803CA2;
-	Mon, 13 Jan 2025 10:03:02 +0000 (UTC)
-From: Yufeng Wang <wangyufeng@kylinos.cn>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Yufeng Wang <wangyufeng@kylinos.cn>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] tools/virtio: Add DMA_MAPPING_ERROR and sg_dma_len api define for virtio test
-Date: Mon, 13 Jan 2025 18:03:00 +0800
-Message-Id: <20250113100300.174382-1-wangyufeng@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250113090231.169149-1-wangyufeng@kylinos.cn>
-References: <20250113090231.169149-1-wangyufeng@kylinos.cn>
+	s=arc-20240116; t=1736763208; c=relaxed/simple;
+	bh=AbEypxldcB557r7ML3RWblxFpClAAQjKh+mk6I/n4hI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Wlg15qLr+UOUOqCIm8CG13U/8Jaag9WN5yqCIk4WbpxkgYt3hcwXnd0nH88mya5YJ0rwPZkkJPRjv6hMZb1NHj0mVfX+aZWm+MoKjjECR+tzlO++Cmc3CSSeQUejxJYG9B4Dzr9DtCMdkFMo+XHlzaLzB3t/qvQ0Uo23/9dYYqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=ja5p8TTx; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="ja5p8TTx"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tXHRa-00DhCO-Tc; Mon, 13 Jan 2025 11:13:14 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=XmtGPnPvH6It0GR990T2qwUAKTVPIjKO4lymK4SpZf0=; b=ja5p8TTx11VmfSU8AkwM9xXOmC
+	R0HlPnuhaO1aaA7LAjGwUBgO0aROIcDCW4554r3UreeZMe+JNAeN6PwYZdoPIeZ/a9Ltr0v6pqZk1
+	pfgzT/3Cx6JtLcVuSP1PyMhcWVrhxendX5WNGukCBli1xObGZmO3AYDtBF4RaWeQH0hyrsaoDmXM5
+	ctWBMBsU6CeUXHU/QRGCyegPn52elUhgWOvbCK3wwso/sAASLSTVO/V6u2dsF0xAxNy4nqza65VKJ
+	o6G7pBxsDYS7UQt2L858VXvhHpMHcEgoILEFvv0/wl/CqRDS2y5sJxMQgal2aQkRXYRIjmhDq40nM
+	mI39Dq5Q==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tXHRZ-00030N-L5; Mon, 13 Jan 2025 11:13:13 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tXHRG-00DToB-7D; Mon, 13 Jan 2025 11:12:54 +0100
+Message-ID: <cccb1a4f-5495-4db1-801e-eca211b757c3@rbox.co>
+Date: Mon, 13 Jan 2025 11:12:52 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 1/5] vsock/virtio: discard packets if the transport
+ changes
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Luigi Leonardi <leonardi@redhat.com>, "David S. Miller"
+ <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>,
+ kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
+References: <20250110083511.30419-1-sgarzare@redhat.com>
+ <20250110083511.30419-2-sgarzare@redhat.com>
+ <1aa83abf-6baa-4cf1-a108-66b677bcfd93@rbox.co>
+ <nedvcylhjxrkmkvgugsku2lpdjgjpo5exoke4o6clxcxh64s3i@jkjnvngazr5v>
+ <CAGxU2F7BoMNi-z=SHsmCV5+99=CxHo4dxFeJnJ5=q9X=CM3QMA@mail.gmail.com>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <CAGxU2F7BoMNi-z=SHsmCV5+99=CxHo4dxFeJnJ5=q9X=CM3QMA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
-when we build tools/virtio, meet below error information.
+On 1/13/25 10:07, Stefano Garzarella wrote:
+> On Mon, 13 Jan 2025 at 09:57, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>> On Sun, Jan 12, 2025 at 11:42:30PM +0100, Michal Luczaj wrote:
+> 
+> [...]
+> 
+>>>
+>>> So, if I get this right:
+>>> 1. vsock_create() (refcnt=1) calls vsock_insert_unbound() (refcnt=2)
+>>> 2. transport->release() calls vsock_remove_bound() without checking if sk
+>>>   was bound and moved to bound list (refcnt=1)
+>>> 3. vsock_bind() assumes sk is in unbound list and before
+>>>   __vsock_insert_bound(vsock_bound_sockets()) calls
+>>>   __vsock_remove_bound() which does:
+>>>      list_del_init(&vsk->bound_table); // nop
+>>>      sock_put(&vsk->sk);               // refcnt=0
+>>>
+>>> The following fixes things for me. I'm just not certain that's the only
+>>> place where transport destruction may lead to an unbound socket being
+>>> removed from the unbound list.
+>>>
+>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>>> index 7f7de6d88096..0fe807c8c052 100644
+>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>> @@ -1303,7 +1303,8 @@ void virtio_transport_release(struct vsock_sock *vsk)
+>>>
+>>>       if (remove_sock) {
+>>>               sock_set_flag(sk, SOCK_DONE);
+>>> -              virtio_transport_remove_sock(vsk);
+>>> +              if (vsock_addr_bound(&vsk->local_addr))
+>>> +                      virtio_transport_remove_sock(vsk);
+>>
+>> I don't get this fix, virtio_transport_remove_sock() calls
+>>    vsock_remove_sock()
+>>      vsock_remove_bound()
+>>        if (__vsock_in_bound_table(vsk))
+>>            __vsock_remove_bound(vsk);
+>>
+>>
+>> So, should already avoid this issue, no?
+> 
+> I got it wrong, I see now what are you trying to do, but I don't think
+> we should skip virtio_transport_remove_sock() entirely, it also purge
+> the rx_queue.
 
-cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/
--I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow
--fno-strict-aliasing -fno-common -MMD
--U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
--mfunction-return=3Dthunk
--fcf-protection=3Dnone -mindirect-branch-register -pthread
--c -o virtio_ring.o ../../drivers/virtio/virtio_ring.c
+Isn't rx_queue empty-by-definition in case of !__vsock_in_bound_table(vsk)?
 
-../../drivers/virtio/virtio_ring.c: in function 'vring_need_unmap_buffer'=
-:
-../../drivers/virtio/virtio_ring.c:294:54: error:'DMA_MAPPING_ERROR'Undec=
-lared (first use within this function)
-  294 |         return vring->use_dma_api && (extra->addr !=3D DMA_MAPPIN=
-G_ERROR);
-      |                                                      ^~~~~~~~~~~~=
-~~~~~
-../../drivers/virtio/virtio_ring.c:294:54: Note: Each undeclared identifi=
-er is only reported once within the function it appears in
-../../drivers/virtio/virtio_ring.c: in function 'vring_map_one_sg':
-../../drivers/virtio/virtio_ring.c:369:24: error=EF=BC=9AImplicit declara=
-tion function'sg_dma_len' [-Wimplicit-function-declaration]
-  369 |                 *len =3D sg_dma_len(sg);
-      |                        ^~~~~~~~~~
-../../drivers/virtio/virtio_ring.c: in function'virtqueue_add_desc_split'=
-:
-../../drivers/virtio/virtio_ring.c:518:37: error:'DMA_MAPPING_ERROR'Undec=
-lared (first use within this function)
-  518 |         extra[i].addr =3D premapped ? DMA_MAPPING_ERROR : addr;
-      |                                     ^~~~~~~~~~~~~~~~~
-../../drivers/virtio/virtio_ring.c: in function'virtqueue_add_indirect_pa=
-cked':
-../../drivers/virtio/virtio_ring.c:1370:61: error: 'DMA_MAPPING_ERROR'Und=
-eclared (first use within this function)
- 1370 |                             extra[i].addr =3D premapped ? DMA_MAP=
-PING_ERROR : addr;
-      |                                                         ^~~~~~~~~=
-~~~~~~~~
+>> Can the problem be in vsock_bind() ?
 
-../../drivers/virtio/virtio_ring.c: in function'virtqueue_add_packed':
-../../drivers/virtio/virtio_ring.c:1535:41: error:'DMA_MAPPING_ERROR'Unde=
-clared (first use within this function)
- 1535 |                                         DMA_MAPPING_ERROR : addr;
-      |                                         ^~~~~~~~~~~~~~~~~
+Well, I wouldn't say so.
 
-Fixes: <c7e1b422afac>("virtio_ring: perform premapped operations based on=
- per-buffer")
-also add DMA_MAPPING_ERROR define for virtio test.
+>> Is this issue pre-existing or introduced by this series?
+> 
+> I think this is pre-existing, can you confirm?
 
-Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
----
-v2: fix more build error in the same commit
-    <c7e1b422afac>("virtio_ring: perform premapped operations based on pe=
-r-buffer")
----
- tools/virtio/linux/dma-mapping.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+Yup, I agree, pre-existing.
 
-diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-ma=
-pping.h
-index 822ecaa8e4df..095958461788 100644
---- a/tools/virtio/linux/dma-mapping.h
-+++ b/tools/virtio/linux/dma-mapping.h
-@@ -31,6 +31,7 @@ enum dma_data_direction {
- #define dma_unmap_page(d, a, s, r) do { (void)(d); (void)(a); (void)(s);=
- (void)(r); } while (0)
-=20
- #define sg_dma_address(sg) (0)
-+#define sg_dma_len(sg) (0)
- #define dma_need_sync(v, a) (0)
- #define dma_unmap_single_attrs(d, a, s, r, t) do { \
- 	(void)(d); (void)(a); (void)(s); (void)(r); (void)(t); \
-@@ -43,4 +44,16 @@ enum dma_data_direction {
- } while (0)
- #define dma_max_mapping_size(...) SIZE_MAX
-=20
-+/*
-+ * A dma_addr_t can hold any valid DMA or bus address for the platform. =
- It can
-+ * be given to a device to use as a DMA source or target.  It is specifi=
-c to a
-+ * given device and there may be a translation between the CPU physical =
-address
-+ * space and the bus address space.
-+ *
-+ * DMA_MAPPING_ERROR is the magic error code if a mapping failed.  It sh=
-ould not
-+ * be used directly in drivers, but checked for using dma_mapping_error(=
-)
-+ * instead.
-+ */
-+#define DMA_MAPPING_ERROR		(~(dma_addr_t)0)
-+
- #endif
---=20
-2.34.1
+> In that case, I'd not stop this series, and fix it in another patch/series.
+
+Yeah, sure thing.
+
+Thanks,
+Michal
 
