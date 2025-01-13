@@ -1,98 +1,146 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7CF9239790
-	for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 09:02:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 935AC232392
+	for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 09:07:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736758961; cv=none; b=mLtP9e9K9709rlHhQi8pWKdHHBw6o5m/abrBWK6JbodccXyONoYKHHBA+s9GXPeQwJ8N4U/AZ75hAekAyD+4kTcxZiSoIproUcCSx/xN4BRW7ZmZPeJJq8wBUDpRK3OEylGG33ioR/EtDZuXCSqnFIMZ0mcoVn74IaI1UE2dGh0=
+	t=1736759266; cv=none; b=tvyGe0y7ptCUuSrOJCIAr/+rkV4afGBiaUvGzCkIpe/uaiuzWT5JzrL+ZlDm6Heb71cqnhnck9ebyhkR/wk3+4QyxeUZyT3pvZq1vL5KX3hGVTXf8koI12OaW25Hzvr1HsDGYlE/47AIABNNSWrv/cNsWT8BwLh849gvytv+cXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736758961; c=relaxed/simple;
-	bh=ZRZgcpXF9Vo0iBoHpWONsJSAS38Qr0n6xxFQha2z6YE=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version; b=iEGWF0DQ6mzscRKkJs9sWiQ0sGqQUKbKcz9+ABcLJ7Zuq2bujXUSQg04nSItSeONBbChKEHU8Ou75HYROcSXzvnGX4K1mLLRBKla/0bmCzOJ42A0I5k31g5hhKzJaH1JekrHByWEu0wyyfQfBp8XIAKIJyqXTkjrGE7A2mnef9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 217557bcd18d11efa216b1d71e6e1362-20250113
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.45,REQID:4a8c3d47-dee4-4261-8cf4-e46c1c4f34b5,IP:0,U
-	RL:0,TC:0,Content:-5,EDM:-25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
-	ON:release,TS:-30
-X-CID-META: VersionHash:6493067,CLOUDID:404b033aa65253e43479dc516a56b303,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0|50,EDM:1,IP:nil,URL
-	:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SP
-	R:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-UUID: 217557bcd18d11efa216b1d71e6e1362-20250113
-Received: from node2.com.cn [(10.44.16.197)] by mailgw.kylinos.cn
-	(envelope-from <wangyufeng@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 430005671; Mon, 13 Jan 2025 17:02:35 +0800
-Received: from node2.com.cn (localhost [127.0.0.1])
-	by node2.com.cn (NSMail) with SMTP id 2E3FEB803947;
-	Mon, 13 Jan 2025 17:02:35 +0800 (CST)
-X-ns-mid: postfix-6784D6AB-164362288
-Received: from localhost.localdomain (unknown [10.42.12.106])
-	by node2.com.cn (NSMail) with ESMTPA id 1EEA4B803947;
-	Mon, 13 Jan 2025 09:02:33 +0000 (UTC)
-From: Yufeng Wang <wangyufeng@kylinos.cn>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Yufeng Wang <wangyufeng@kylinos.cn>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] tools/virtio: Add DMA_MAPPING_ERROR define for virtio test
-Date: Mon, 13 Jan 2025 17:02:31 +0800
-Message-Id: <20250113090231.169149-1-wangyufeng@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1736759266; c=relaxed/simple;
+	bh=6yDyyW0a6Ly6O8248teCrbgEXbOE+SVqdnWMzK9oNwQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HjW8RW6kftK0GeAne6qrpF8Wpagu7wsbDVMdAoHLpzgw/4Z1GYWo0odLwlKSqmAgtIOkxz/aPGqPYGfhyxwPO24UoTJkFxdv3dJ+cwL/tUh7NhmMr8g1DlP/9RTqN3CtDCsFk4uzF3m2jJdGCtkdTgsv0nQF+cFwGkMMlCIud+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RW/FiS7J; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RW/FiS7J"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736759263;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DoCA3mgR5luSoFMglhHAYVKxgoy3EGwdMDnuXoKHBSs=;
+	b=RW/FiS7JhOnfjz9issLDEwrlrPppiFOHZzCkLS/ndVcNAHn88PbQZa8UhD8TCJOacLSpW4
+	0BhTATgGw93u/JZXTcmfybTnJUqkWyTXG4e9PSQUuvglUtax0fk+jNBRr6jSaT8QXBkPIs
+	tUbQBEpOCy8mHbAh0LBhroYJmazB3kg=
+Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
+ [209.85.219.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-624-aXpzIu5JPrmezuOcwuVMOw-1; Mon, 13 Jan 2025 04:07:42 -0500
+X-MC-Unique: aXpzIu5JPrmezuOcwuVMOw-1
+X-Mimecast-MFC-AGG-ID: aXpzIu5JPrmezuOcwuVMOw
+Received: by mail-yb1-f198.google.com with SMTP id 3f1490d57ef6-e02fff66a83so7920318276.0
+        for <virtualization@lists.linux.dev>; Mon, 13 Jan 2025 01:07:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736759262; x=1737364062;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DoCA3mgR5luSoFMglhHAYVKxgoy3EGwdMDnuXoKHBSs=;
+        b=XQgnhyEgN878BOF8frCdhP+YHptnCUQgvffI20l+3qp1v1aq4nu+KqgLZo7n3Ol1FP
+         kQY696kEB1uVsLTbKYUPjPazigPfOzjlUBo2LqdS5cQxPaxU6NLT3B+rB3k4sTMwTx5e
+         3UP05HEABMoiXza2acDHNWDUZx0IVWyAZJeC5YYYuknC2UXkCSNgk2fx2pj/l01D27tA
+         Qhnxv6Rq23lN4GG2kp9ohoRSLCl6znrx596qAmthqwBYxM8Los+pUNIs5WnXq+YEL8xk
+         JsEL/qyXHYdiUDzQiRZoGMoqnJ7+pMVJAk1Dl2j2H375wI1rO/PYLY0GGufukfHLlgsP
+         1sEQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVGVmlmx9G8LyHDK46yGdl0QVlrDsTBt64aJBx72YqlKzMaus2lrFczH92BMzvqrntBG/+xxk5qynYj8e5kvw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxyjnN3nuiZXNcWpusWqpaqQrWtuZfRwIo7/CrMDMQfWfDH5RYz
+	CpCFiAETVvh4hJqrCmu9GK4XbkQrIiRUDDrTPBMWi6o1aBRDFl79Y+66UOYJgHWZMY+v8AOm8Jd
+	0lCz0octDO7gb3rmsTxoStKNn7o16mhSfZFc3G2zRllr8nv2E5o7Sl4uWHW5FObw1WU8ic6J1SJ
+	2BQJxtvRAbQoRa1af+pciY/CzyFvBizOvDMEwuqV8=
+X-Gm-Gg: ASbGncsbmLEmkq121E8dMIW75zqGxWzxdiWGZ8KSkQXPQj6+N1WG/9iW3xztW6HVE2C
+	Yallg7itG5+Fqxc9liKMQ1Mh2ATg0Fg/y0IZYtA==
+X-Received: by 2002:a25:2104:0:b0:e47:f4e3:87e3 with SMTP id 3f1490d57ef6-e54edf25ca4mr10705876276.11.1736759261779;
+        Mon, 13 Jan 2025 01:07:41 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH+CmZ1v9e/WbMUz4yhx1sfIQirqoiE0T/w4GOD49eFf+cvd2Qrlw+zoWAPzA/qokVRzziYFs0iIh6kdpyEqho=
+X-Received: by 2002:a25:2104:0:b0:e47:f4e3:87e3 with SMTP id
+ 3f1490d57ef6-e54edf25ca4mr10705852276.11.1736759261303; Mon, 13 Jan 2025
+ 01:07:41 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+References: <20250110083511.30419-1-sgarzare@redhat.com> <20250110083511.30419-2-sgarzare@redhat.com>
+ <1aa83abf-6baa-4cf1-a108-66b677bcfd93@rbox.co> <nedvcylhjxrkmkvgugsku2lpdjgjpo5exoke4o6clxcxh64s3i@jkjnvngazr5v>
+In-Reply-To: <nedvcylhjxrkmkvgugsku2lpdjgjpo5exoke4o6clxcxh64s3i@jkjnvngazr5v>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Mon, 13 Jan 2025 10:07:30 +0100
+X-Gm-Features: AbW1kvaVe4-Ehu2H7XpdFvk6JHj69SbGoUvKX4WzH9KRTtiYmUqWFms2gAxG3cY
+Message-ID: <CAGxU2F7BoMNi-z=SHsmCV5+99=CxHo4dxFeJnJ5=q9X=CM3QMA@mail.gmail.com>
+Subject: Re: [PATCH net v2 1/5] vsock/virtio: discard packets if the transport changes
+To: Michal Luczaj <mhal@rbox.co>
+Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, bpf@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Luigi Leonardi <leonardi@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>, kvm@vger.kernel.org, 
+	Paolo Abeni <pabeni@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>, 
+	Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, stable@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: qgtvcygSjUd4NhBQ4i4oF2VN_iR9g06Pe02eRNKisuM_1736759262
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 
-Fixes: <c7e1b422afac>("virtio_ring: perform premapped operations based on=
- per-buffer")
-also add DMA_MAPPING_ERROR define for virtio test.
+On Mon, 13 Jan 2025 at 09:57, Stefano Garzarella <sgarzare@redhat.com> wrote:
+> On Sun, Jan 12, 2025 at 11:42:30PM +0100, Michal Luczaj wrote:
 
-Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
----
- tools/virtio/linux/dma-mapping.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+[...]
 
-diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-ma=
-pping.h
-index 822ecaa8e4df..6e6e443c53d4 100644
---- a/tools/virtio/linux/dma-mapping.h
-+++ b/tools/virtio/linux/dma-mapping.h
-@@ -43,4 +43,16 @@ enum dma_data_direction {
- } while (0)
- #define dma_max_mapping_size(...) SIZE_MAX
-=20
-+/*
-+ * A dma_addr_t can hold any valid DMA or bus address for the platform. =
- It can
-+ * be given to a device to use as a DMA source or target.  It is specifi=
-c to a
-+ * given device and there may be a translation between the CPU physical =
-address
-+ * space and the bus address space.
-+ *
-+ * DMA_MAPPING_ERROR is the magic error code if a mapping failed.  It sh=
-ould not
-+ * be used directly in drivers, but checked for using dma_mapping_error(=
-)
-+ * instead.
-+ */
-+#define DMA_MAPPING_ERROR		(~(dma_addr_t)0)
-+
- #endif
---=20
-2.34.1
+> >
+> >So, if I get this right:
+> >1. vsock_create() (refcnt=1) calls vsock_insert_unbound() (refcnt=2)
+> >2. transport->release() calls vsock_remove_bound() without checking if sk
+> >   was bound and moved to bound list (refcnt=1)
+> >3. vsock_bind() assumes sk is in unbound list and before
+> >   __vsock_insert_bound(vsock_bound_sockets()) calls
+> >   __vsock_remove_bound() which does:
+> >      list_del_init(&vsk->bound_table); // nop
+> >      sock_put(&vsk->sk);               // refcnt=0
+> >
+> >The following fixes things for me. I'm just not certain that's the only
+> >place where transport destruction may lead to an unbound socket being
+> >removed from the unbound list.
+> >
+> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> >index 7f7de6d88096..0fe807c8c052 100644
+> >--- a/net/vmw_vsock/virtio_transport_common.c
+> >+++ b/net/vmw_vsock/virtio_transport_common.c
+> >@@ -1303,7 +1303,8 @@ void virtio_transport_release(struct vsock_sock *vsk)
+> >
+> >       if (remove_sock) {
+> >               sock_set_flag(sk, SOCK_DONE);
+> >-              virtio_transport_remove_sock(vsk);
+> >+              if (vsock_addr_bound(&vsk->local_addr))
+> >+                      virtio_transport_remove_sock(vsk);
+>
+> I don't get this fix, virtio_transport_remove_sock() calls
+>    vsock_remove_sock()
+>      vsock_remove_bound()
+>        if (__vsock_in_bound_table(vsk))
+>            __vsock_remove_bound(vsk);
+>
+>
+> So, should already avoid this issue, no?
+
+I got it wrong, I see now what are you trying to do, but I don't think
+we should skip virtio_transport_remove_sock() entirely, it also purge
+the rx_queue.
+
+>
+> Can the problem be in vsock_bind() ?
+>
+> Is this issue pre-existing or introduced by this series?
+
+I think this is pre-existing, can you confirm?
+
+In that case, I'd not stop this series, and fix it in another patch/series.
+
+Thanks,
+Stefano
 
