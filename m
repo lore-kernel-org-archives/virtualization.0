@@ -1,79 +1,83 @@
-Received: from zju.edu.cn (spam.zju.edu.cn [61.164.42.155])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B0AA61C5F2A
-	for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 08:41:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=61.164.42.155
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70492246341
+	for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 08:53:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736844118; cv=none; b=i1aoF1lg/4/2T1RPTP7CchShOC88V6yTq1aT20Yl5JyCcTqwx1OWNGTDZWx/NOTe4hRpw4dyvFEwJHiFbWM7OSdRZkEOyHcSlQN6rVZn10/lw02ojbFLwOl40SbIlz6j1vSKNKKeraBfKVgx9gAxOlHZYx5N6gtua3DLfZItIwM=
+	t=1736844804; cv=none; b=jtMuc7ElfgHYVnul0FmHjnR33BZ6Wbk2qa58F38V6unSQiGpuGaOT7zc5sqbr7SDYHXGTyvf5jAl8zWmXEcrdBFpHZK+BBJQN3F2l5phLzg5bOdeICcGNvTa89aK6GYVEPWAKMCRzsJ9Ken25xr7sYyuQgc9vN0NLe3xHeNGCWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736844118; c=relaxed/simple;
-	bh=uYN89YWMDJIkGeTg164qE0BPS4rRTZt8kOzUvyUZomg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=lqisWzSZECPdrTzOsb0h/H0NznXHWjWsETaOufN7085/9VJlOUM47jGtzopMN78sbE3C/GyGLeu6LL4KBzuskd5GGuUQb2rPxNbgWEBJnZWBCsx1jOLJ8Hf5LqFRDg2UFvgwRqPbAreG3jlmAX+s1i5fQbskU1W7CjWuKSU7BkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=61.164.42.155
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
-Received: from wh1sper$zju.edu.cn ( [10.162.198.27] ) by
- ajax-webmail-mail-app4 (Coremail) ; Tue, 14 Jan 2025 16:41:46 +0800
- (GMT+08:00)
-Date: Tue, 14 Jan 2025 16:41:46 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From: =?UTF-8?B?5byg5rWp54S2?= <wh1sper@zju.edu.cn>
-To: "Lei Yang" <leiyang@redhat.com>
-Cc: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com,
-	stefanha@redhat.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Mike Christie" <michael.christie@oracle.com>
-Subject: Re: Re: [PATCH] vhost/scsi: Fix improper cleanup in
- vhost_scsi_set_endpoint()
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2024.1-cmXT5 build
- 20240625(a75f206e) Copyright (c) 2002-2025 www.mailtech.cn zju.edu.cn
-In-Reply-To: <CAPpAL=xC7+f_8V4D==JvZxs5X-CePa_VftOH=KDc8H1vPSNp9w@mail.gmail.com>
-References: <20250111033454.26596-1-wh1sper@zju.edu.cn>
- <bae5ca72-c6ff-4412-a317-4649f2d09cdf@oracle.com>
- <481cd60a-d633-4251-bb53-d3026e005930@oracle.com>
- <CAPpAL=xC7+f_8V4D==JvZxs5X-CePa_VftOH=KDc8H1vPSNp9w@mail.gmail.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+	s=arc-20240116; t=1736844804; c=relaxed/simple;
+	bh=5g6YI3VSc2he1AIWEj6rK/UJIQQIl2GVHyCIoj7OfVs=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=uTupRMiCsRPexXhB1/Ni5ufu+iALlA1fSf364gvO6liYwzFXvHRM98WEMSmW6J5NUiXmpAmwLtyQJVnOaP5oiQDyPqlUTKOz9PLLPwOD+WB0dd6Mp4ZMbYNrxUlyQVKqo8lJtip5i0EpMV32OCcrz/MD3VPACpG+HIui49Kkogw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-3a9d4ea9e0cso42215325ab.0
+        for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 00:53:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736844802; x=1737449602;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=JFvaCi6OEprP4NozqIKOrxaacwrudgTBzUFQ42YDX5Y=;
+        b=dbqpmSKN3LpTllhbZp9S0VWzdMcC+YHy51pgRUcpQnab1SbyxwkDIznvcJl+bvshEF
+         KDWK6HNxpZQF7OeKBG2d24LqtkPHc2RovMObFJnms82aGrP0bXTE5129S14cItM9IYzX
+         aYh5U7+SBlVXdrneSp9cxd7pHGCUUVPtn59Rwu26ZHcaagvYu+jHfd+dDs6uxfoMp9lq
+         1slBY5tEo+qcXZHHzcZ2xxz1D7fS9fK0FUGreejhHhPKeJw5zjWllJHtGEk7xd4Dv6Ps
+         GHP/6Ohcn+03Tb2j+OCRkCPFWTMfdVx11bmo91cXLknWSor0ii4OnS+Mg3c7C4DF8idj
+         iseg==
+X-Forwarded-Encrypted: i=1; AJvYcCWzR30HuXcOptoQr+B1yNu6v3gybVz1IlAWF2N2hn3BQ0W2PNmRo2kds0PlH3gC5WLbz5MQO4nwnIiIpDQmLA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxuhNrxKzZy3b8wgSangN0ZLlIEzwaXknmxowHFP5OO03x2e029
+	QQeGNcJwddF9ZdpN/aGCVcv0k7WZhXiulVnRcOpHVcpdtvxeIZ3bNGXgNvOGvtpbfq+fiMB2h/x
+	CEfq/0B7dtCV7Q2c/vZFTl2fweUtW1g7UJvjv7LCgTrIOblsZSZp0cH4=
+X-Google-Smtp-Source: AGHT+IFCp/+v3TVw+JDmt7x1AFMtk4gKwRBygFogugXAIjM8909UTJV7XVtkmBP0VFmupOD7vKism8MMLSbWJBy4Qu5zku9mDhOI
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <2b10f430.24ffd.19463f9dc80.Coremail.wh1sper@zju.edu.cn>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:cS_KCgCHmRVKI4ZnTMIlAQ--.44913W
-X-CM-SenderInfo: asssliaqzvq6lmxovvfxof0/1tbiAg0GB2eFSrAYpgAAso
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VW7Jw
-	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-	daVFxhVjvjDU=
+X-Received: by 2002:a05:6e02:9f:b0:3ce:6aa7:fe96 with SMTP id
+ e9e14a558f8ab-3ce6aa80ccemr73820895ab.22.1736844802586; Tue, 14 Jan 2025
+ 00:53:22 -0800 (PST)
+Date: Tue, 14 Jan 2025 00:53:22 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67862602.050a0220.216c54.006e.GAE@google.com>
+Subject: [syzbot] Monthly virt report (Jan 2025)
+From: syzbot <syzbot+list8152fa51bb0f3c8d39aa@syzkaller.appspotmail.com>
+To: linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-WWVzLCBhbmQgaXQgYWxzbyBwcm90ZWN0cyB0aGUga2VybmVsIGZyb20gdGhlIFBvQywgYXMgSSd2
-ZSB0ZXN0ZWQuCgpPbiAyMDI1LTAxLTE0IDEwOjE3OjUwIExlaSBZYW5nIHdyb3RlOgo+IEkgdGVz
-dGVkIHRoaXMgcGF0Y2ggd2l0aCB2aXJ0aW8tbmV0IHJlZ3Jlc3Npb24gdGVzdHMsIGV2ZXJ5dGhp
-bmcgd29ya3MgZmluZS4KPiAKPiBUZXN0ZWQtYnk6IExlaSBZYW5nIDxsZWl5YW5nQHJlZGhhdC5j
-b20+Cj4gCj4gCj4gT24gTW9uLCBKYW4gMTMsIDIwMjUgYXQgNToyMOKAr0FNIE1pa2UgQ2hyaXN0
-aWUKPiA8bWljaGFlbC5jaHJpc3RpZUBvcmFjbGUuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiAxLzEy
-LzI1IDExOjM1IEFNLCBtaWNoYWVsLmNocmlzdGllQG9yYWNsZS5jb20gd3JvdGU6Cj4gPiA+IFNv
-IEkgdGhpbmsgdG8gZml4IHRoZSBpc3N1ZSwgd2Ugd291bGQgd2FudCB0bzoKPiA+ID4KPiA+ID4g
-MS4gbW92ZSB0aGUKPiA+ID4KPiA+ID4gbWVtY3B5KHZzX3RwZywgdnMtPnZzX3RwZywgbGVuKTsK
-PiA+ID4KPiA+ID4gdG8gdGhlIGVuZCBvZiB0aGUgZnVuY3Rpb24gYWZ0ZXIgd2UgZG8gdGhlIHZo
-b3N0X3Njc2lfZmx1c2guIFRoaXMgd2lsbAo+ID4gPiBiZSBtb3JlIGNvbXBsaWNhdGVkIHRoYW4g
-dGhlIGN1cnJlbnQgbWVtY3B5IHRob3VnaC4gV2Ugd2lsbCB3YW50IHRvCj4gPiA+IG1lcmdlIHRo
-ZSBsb2NhbCB2c190cGcgYW5kIHRoZSB2cy0+dnNfdHBnIGxpa2U6Cj4gPiA+Cj4gPiA+IGZvciAo
-aSA9IDA7IGkgPCBWSE9TVF9TQ1NJX01BWF9UQVJHRVQ7IGkrKykgewo+ID4gPiAgICAgICBpZiAo
-dnNfdHBnW2ldKQo+ID4gPiAgICAgICAgICAgICAgIHZzLT52c190cGdbaV0gPSB2c190cGdbaV0p
-Cj4gPiA+IH0KPiA+Cj4gPiBJIHRoaW5rIEkgd3JvdGUgdGhhdCBpbiByZXZlcnNlLiBXZSB3b3Vs
-ZCB3YW50Ogo+ID4KPiA+IHZob3N0X3Njc2lfZmx1c2godnMpOwo+ID4KPiA+IGlmICh2cy0+dnNf
-dHBnKSB7Cj4gPiAgICAgICAgIGZvciAoaSA9IDA7IGkgPCBWSE9TVF9TQ1NJX01BWF9UQVJHRVQ7
-IGkrKykgewo+ID4gICAgICAgICAgICAgICAgIGlmICh2cy0+dnNfdHBnW2ldKQo+ID4gICAgICAg
-ICAgICAgICAgICAgICAgICAgdnNfdHBnW2ldID0gdnMtPnZzX3RwZ1tpXSkKPiA+ICAgICAgICAg
-fQo+ID4gfQo+ID4KPiA+IGtmcmVlKHZzLT52c190cGcpOwo+ID4gdnMtPnZzX3RwZyA9IHZzX3Rw
-ZzsKPiA+Cj4gPiBvciB3ZSBjb3VsZCBqdXN0IGFsbG9jYXRlIHRoZSB2c190cGcgd2l0aCB0aGUg
-dmhvc3Rfc2NzaSBsaWtlOgo+ID4KPiA+IHN0cnVjdCB2aG9zdF9zY3NpIHsKPiA+ICAgICAgICAg
-Li4uLgo+ID4KPiA+ICAgICAgICAgc3RydWN0IHZob3N0X3Njc2lfdHBnICp2c190cGdbVkhPU1Rf
-U0NTSV9NQVhfVEFSR0VUXTsKPiA+Cj4gPiB0aGVuIHdoZW4gd2UgbG9vcCBpbiB2aG9zdF9zY3Np
-X3NldC9jbGVhcl9lbmRwb2ludCBzZXQvY2xlYXIgdGhlCj4gPiBldmVyeSB2c190cGcgZW50cnku
-Cj4gPgo=
+Hello virt maintainers/developers,
+
+This is a 31-day syzbot report for the virt subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/virt
+
+During the period, 1 new issues were detected and 0 were fixed.
+In total, 8 issues are still open and 45 have already been fixed.
+
+Some of the still happening issues:
+
+Ref Crashes Repro Title
+<1> 326     No    INFO: task hung in __vhost_worker_flush
+                  https://syzkaller.appspot.com/bug?extid=7f3bbe59e8dd2328a990
+<2> 24      No    KCSAN: data-race in virtqueue_disable_cb / virtqueue_disable_cb (5)
+                  https://syzkaller.appspot.com/bug?extid=9d46c74b27b961b244a9
+<3> 8       Yes   INFO: rcu detected stall in schedule_tail (6)
+                  https://syzkaller.appspot.com/bug?extid=4d2bdddae2e3866013ef
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
+
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.
