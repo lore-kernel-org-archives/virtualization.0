@@ -1,153 +1,182 @@
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f205.google.com (mail-il1-f205.google.com [209.85.166.205])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFB613F9D5;
-	Tue, 14 Jan 2025 14:04:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EFA41DA21
+	for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 14:48:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.205
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736863448; cv=none; b=os26OuudcsRVpYDvtDCMwbmIyaM1l96QDPyyrPrNXnOlRWpmhYOZpDRy/jxE0oZnYdWe+3kaPi43aHE8ujpKMNuSfFuulJHqtyDl0JApcpJd1QKvpP05pJJe65Oqw1ngF/8Kjp/b8YCFSQBONoZPdx4OcQ49+37JQcpQgqN2esY=
+	t=1736866107; cv=none; b=MX5RXCXD42hdPHbsUdYVBlPVCMWKna1MeXoWodb6su4AOZS7X+CGVg8qMDpGhobUvxEJysjppXK4Uz3tavNITKB0HvIwvBC7i9HVdi1KIWMf31Vh9IonM1VT6R8fKC5zVE8bLGQ2Jwv2q4cgCUMHAJ0MfY+tg8mvyXYn65s6dTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736863448; c=relaxed/simple;
-	bh=jBGGjiAjYD2JOnPDqBA/PIwuCRksQV5KpdLlTR77h4U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GI3Oz4Bwbf+pG38l4DVQPJ+pkfSvu9QS3DtEiyoQurNWlO8mzo5X+4KVPAdPPCTwOE1/h83Ylq+EpDNXuzfhCvWlhDUV/uqvwj4OPB/GDlQHZH5Txq+prclG4TkrssT1HoQpIxaIrTSQ7Fv+6kwO9IZ/ZyoLVuiEM/Q+VJDPi5M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=VUmMPz/T; arc=none smtp.client-ip=213.167.242.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="VUmMPz/T"
-Received: from [192.168.88.20] (91-158-153-178.elisa-laajakaista.fi [91.158.153.178])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 31F9BD21;
-	Tue, 14 Jan 2025 15:03:06 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1736863387;
-	bh=jBGGjiAjYD2JOnPDqBA/PIwuCRksQV5KpdLlTR77h4U=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=VUmMPz/TKALedLGdjaIw/OWv6jEHfDPMa8xt4ELJX5I8SbEMhIAPnQ7LMaQ/pxC0d
-	 yctQn2J+9Ex5RD5bSpotgdbZkvyy/groI/l05HXur2OCULVTYWkAA3caibRw5fOAxJ
-	 rPavCX5KpuNQwwNzE4HXGXO6RbtvlTGy6+Ypgri4=
-Message-ID: <c303dcb4-fee9-45d0-aaff-0f5f1fef07f7@ideasonboard.com>
-Date: Tue, 14 Jan 2025 16:04:00 +0200
+	s=arc-20240116; t=1736866107; c=relaxed/simple;
+	bh=GAqZTwhojEai05l143Q0cbWkRvqG76Uv+ZEGiMlQCI4=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=SuJTq2CVvZb4//QQv34paev4VPPlcDlhkxk6n+giASlVWvjj+mj1ur+wEM/sNdCVTNDGD2rGdW+E7tOjeYcqeXTQTUS4dXJ+c7VKDFkcy8hIUAXtShvZ+08j+gEC2X7yK6eZwCyF0gzYYqrhVo03NlHbosGH3bWSqTqsrg0CfUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.205
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f205.google.com with SMTP id e9e14a558f8ab-3ce51b2fcc6so76728305ab.1
+        for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 06:48:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736866105; x=1737470905;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=CdHuHYIHigI2HG/3al45TqM1nURPxcXiuyoRnE7jjfo=;
+        b=Ny1/WIny37+oxX1CSvsWFF8Y2CbevZ5TK7PMKJg6p+BgPAnIaPXZAKAsi9les4M9Xy
+         VXDWIvIeIFRQmvB6peTrKRD17Hk+32AsR7e2umEbdOwRAfeYPMOgOdrnxdllLghf8PM1
+         sWjcgY4Q5I1U24zXnFr8UZhIJu4hgcvKq8jrBHjjT0H8AN1Q+54HvxavzsOW1he4I4gx
+         2bPhDv/XCX5rDayz6GBmAtqwBOvwHpyMxKSrS5PE90+XXfQswTn/LwiV3pJh0kpGrowD
+         Yne5JO5HEQcHK8ZiHaQ8UwLXKvze5L6wSIiKD3vhVKd1o3is23xgTfJL/WgxCc0w9xJm
+         UL1Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUIDIhE4BgO81LrwXlYaR93GHVWLVP3mJdY2jCKOBiGIyFRvmSDrgmgLuToyM9Ei+MNdj35xWNIwiExNSzITg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxTvKs4kiBv1de6C5yDxg+XEw0KJzIm/u6X0xiLmsWqo4giEZ0a
+	v8XzKnv63wpcv+fPcqGXIZ7NMK6IRPQLxrzNRBTlYJswZnVR35nQ2D42L54Hz0ORZV5tji9x1qN
+	PSH3uukAbVyhwplbvGMRb2yQMFkrYG80+ycraDI6HkxdDktboC9E68h4=
+X-Google-Smtp-Source: AGHT+IEK+4uzW1kPOyZV52DbWzrRwZj3WfUL2LiMZT5oP3XvaKnr5cH4TintgJz+F1kbQHWnI2HRAPbnMkQKg4dRGFUlONkDgWkb
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 15/25] drm/omapdrm: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch
-References: <20250109150310.219442-1-tzimmermann@suse.de>
- <20250109150310.219442-16-tzimmermann@suse.de>
-Content-Language: en-US
-From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Autocrypt: addr=tomi.valkeinen@ideasonboard.com; keydata=
- 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
-In-Reply-To: <20250109150310.219442-16-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6e02:1fe6:b0:3ce:568:b62a with SMTP id
+ e9e14a558f8ab-3ce3a88ac9amr202241825ab.14.1736866103312; Tue, 14 Jan 2025
+ 06:48:23 -0800 (PST)
+Date: Tue, 14 Jan 2025 06:48:23 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67867937.050a0220.216c54.007c.GAE@google.com>
+Subject: [syzbot] [net?] [virt?] general protection fault in vsock_stream_has_data
+From: syzbot <syzbot+71613b464c8ef17ab718@syzkaller.appspotmail.com>
+To: bobby.eshleman@bytedance.com, davem@davemloft.net, edumazet@google.com, 
+	horms@kernel.org, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, sgarzare@redhat.com, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-Hi,
+Hello,
 
-On 09/01/2025 16:57, Thomas Zimmermann wrote:
-> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
-> buffer size. Align the pitch to a multiple of 8.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-> ---
->   drivers/gpu/drm/omapdrm/omap_gem.c | 15 +++++++--------
->   1 file changed, 7 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/omapdrm/omap_gem.c b/drivers/gpu/drm/omapdrm/omap_gem.c
-> index b9c67e4ca360..b8413a2dcdeb 100644
-> --- a/drivers/gpu/drm/omapdrm/omap_gem.c
-> +++ b/drivers/gpu/drm/omapdrm/omap_gem.c
-> @@ -11,6 +11,7 @@
->   #include <linux/pfn_t.h>
->   #include <linux/vmalloc.h>
->   
-> +#include <drm/drm_dumb_buffers.h>
->   #include <drm/drm_prime.h>
->   #include <drm/drm_vma_manager.h>
->   
-> @@ -583,15 +584,13 @@ static int omap_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struc
->   int omap_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
->   		struct drm_mode_create_dumb *args)
->   {
-> -	union omap_gem_size gsize;
-> -
-> -	args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
-> -
-> -	args->size = PAGE_ALIGN(args->pitch * args->height);
-> +	union omap_gem_size gsize = { };
-> +	int ret;
->   
-> -	gsize = (union omap_gem_size){
-> -		.bytes = args->size,
-> -	};
-> +	ret = drm_mode_size_dumb(dev, args, SZ_8, 0);
-> +	if (ret)
-> +		return ret;
-> +	gsize.bytes = args->size;
->   
->   	return omap_gem_new_handle(dev, file, gsize,
->   			OMAP_BO_SCANOUT | OMAP_BO_WC, &args->handle);
+syzbot found the following issue on:
 
-Tested on dra76 evm.
+HEAD commit:    25cc469d6d34 net: phy: micrel: use helper phy_disable_eee
+git tree:       net-next
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=15faeef8580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=d50f1d63eac02308
+dashboard link: https://syzkaller.appspot.com/bug?extid=71613b464c8ef17ab718
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16e374b0580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1778d3c4580000
 
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/1a1fa1071012/disk-25cc469d.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/3fcf28733f5e/vmlinux-25cc469d.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/ed476a847c4e/bzImage-25cc469d.xz
 
-  Tomi
+The issue was bisected to:
 
+commit 71dc9ec9ac7d3eee785cdc986c3daeb821381e20
+Author: Bobby Eshleman <bobby.eshleman@bytedance.com>
+Date:   Fri Jan 13 22:21:37 2023 +0000
+
+    virtio/vsock: replace virtio_vsock_pkt with sk_buff
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=102b1ef8580000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=122b1ef8580000
+console output: https://syzkaller.appspot.com/x/log.txt?x=142b1ef8580000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+71613b464c8ef17ab718@syzkaller.appspotmail.com
+Fixes: 71dc9ec9ac7d ("virtio/vsock: replace virtio_vsock_pkt with sk_buff")
+
+Oops: general protection fault, probably for non-canonical address 0xdffffc000000000c: 0000 [#1] PREEMPT SMP KASAN PTI
+KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
+CPU: 0 UID: 0 PID: 8 Comm: kworker/0:0 Not tainted 6.13.0-rc6-syzkaller-00898-g25cc469d6d34 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024
+Workqueue: vsock-loopback vsock_loopback_work
+RIP: 0010:vsock_stream_has_data+0x46/0x70 net/vmw_vsock/af_vsock.c:873
+Code: 8d 9e 50 05 00 00 48 89 d8 48 c1 e8 03 42 80 3c 38 00 74 08 48 89 df e8 58 82 5c f6 48 8b 1b 48 83 c3 60 48 89 d8 48 c1 e8 03 <42> 80 3c 38 00 74 08 48 89 df e8 3b 82 5c f6 4c 8b 1b 4c 89 f7 5b
+RSP: 0018:ffffc900000d7748 EFLAGS: 00010206
+RAX: 000000000000000c RBX: 0000000000000060 RCX: ffff88801cac5a00
+RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff888077bf08c0
+RBP: ffff888077bf08c0 R08: ffff888077bf0927 R09: 1ffff1100ef7e124
+R10: dffffc0000000000 R11: ffffed100ef7e125 R12: dffffc0000000000
+R13: ffffffff8ffeb820 R14: ffff888077bf08c0 R15: dffffc0000000000
+FS:  0000000000000000(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffca709b000 CR3: 000000007b69c000 CR4: 00000000003526f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ virtio_transport_do_close+0x64/0x3d0 net/vmw_vsock/virtio_transport_common.c:1214
+ virtio_transport_recv_disconnecting net/vmw_vsock/virtio_transport_common.c:1452 [inline]
+ virtio_transport_recv_pkt+0x1755/0x2b10 net/vmw_vsock/virtio_transport_common.c:1661
+ vsock_loopback_work+0x3e9/0x530 net/vmw_vsock/vsock_loopback.c:133
+ process_one_work kernel/workqueue.c:3229 [inline]
+ process_scheduled_works+0xa66/0x1840 kernel/workqueue.c:3310
+ worker_thread+0x870/0xd30 kernel/workqueue.c:3391
+ kthread+0x2f0/0x390 kernel/kthread.c:389
+ ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:vsock_stream_has_data+0x46/0x70 net/vmw_vsock/af_vsock.c:873
+Code: 8d 9e 50 05 00 00 48 89 d8 48 c1 e8 03 42 80 3c 38 00 74 08 48 89 df e8 58 82 5c f6 48 8b 1b 48 83 c3 60 48 89 d8 48 c1 e8 03 <42> 80 3c 38 00 74 08 48 89 df e8 3b 82 5c f6 4c 8b 1b 4c 89 f7 5b
+RSP: 0018:ffffc900000d7748 EFLAGS: 00010206
+RAX: 000000000000000c RBX: 0000000000000060 RCX: ffff88801cac5a00
+RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff888077bf08c0
+RBP: ffff888077bf08c0 R08: ffff888077bf0927 R09: 1ffff1100ef7e124
+R10: dffffc0000000000 R11: ffffed100ef7e125 R12: dffffc0000000000
+R13: ffffffff8ffeb820 R14: ffff888077bf08c0 R15: dffffc0000000000
+FS:  0000000000000000(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffca709b000 CR3: 00000000334b6000 CR4: 00000000003526f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+----------------
+Code disassembly (best guess):
+   0:	8d 9e 50 05 00 00    	lea    0x550(%rsi),%ebx
+   6:	48 89 d8             	mov    %rbx,%rax
+   9:	48 c1 e8 03          	shr    $0x3,%rax
+   d:	42 80 3c 38 00       	cmpb   $0x0,(%rax,%r15,1)
+  12:	74 08                	je     0x1c
+  14:	48 89 df             	mov    %rbx,%rdi
+  17:	e8 58 82 5c f6       	call   0xf65c8274
+  1c:	48 8b 1b             	mov    (%rbx),%rbx
+  1f:	48 83 c3 60          	add    $0x60,%rbx
+  23:	48 89 d8             	mov    %rbx,%rax
+  26:	48 c1 e8 03          	shr    $0x3,%rax
+* 2a:	42 80 3c 38 00       	cmpb   $0x0,(%rax,%r15,1) <-- trapping instruction
+  2f:	74 08                	je     0x39
+  31:	48 89 df             	mov    %rbx,%rdi
+  34:	e8 3b 82 5c f6       	call   0xf65c8274
+  39:	4c 8b 1b             	mov    (%rbx),%r11
+  3c:	4c 89 f7             	mov    %r14,%rdi
+  3f:	5b                   	pop    %rbx
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
