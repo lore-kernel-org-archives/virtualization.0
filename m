@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C6E120B7FD
-	for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 17:59:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7246F20CCC5
+	for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 17:59:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736877545; cv=none; b=WBMt/y8t8V1SXU61oDeK8GS7yfLEEPJ64/8+YOGCNIjPAGPPCdXNpo9Z2LlhQUhBSKUFVUSaIhW+e7YgO/zPfWqIuqQAuls2v/L7RCS4N69k5nx4U059AtnuwQUzZAEXjqTORikhg3MTRSNHTyPU2yDFivEuTN6XynNu/XKDCno=
+	t=1736877571; cv=none; b=Pwkz8Jmx4LgkpYfEYaxeUzQR91p/OMedqsd64XNw1vLdBA4UKk9G7nNFE5tQE4K9wKDbpBMqdAyPPfTWebgdMt/PIvPApYRpb+/VBJAjvnRaYflDh5YlkTV/30e8a7rBjfsYQ1b/A7dAowq/WGZJ02yda8qggzxj+jUG82geHtQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736877545; c=relaxed/simple;
-	bh=Dnno1tC/L/92cDfEYOe+p8R0KEl/kpQJUp/+XMytTUI=;
+	s=arc-20240116; t=1736877571; c=relaxed/simple;
+	bh=f+M7JVmuzBY3THk0fyjhKmyngjuTaSG33xgNtD22Ej8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ih7stBUB0nT6+AjutakcoXs5ZEZZKX3a36UDK3rSz+gFtVH5HRjuqTbv7kymQAm4tWTjTTsDzbgIKWsrAPaepZaxx0EoWImE7+viq9F19wYYXDOxow6Fv2a3wuOvhh4GWjGmgLGP0OQxTvVu3BXej0rxJH8H83GYCI9fbXEf24s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BFAx/1Kp; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=Yx4DpRmyUYykmQab0praHnrp50SMk1QwoCDeuuX/OLKdhbmLDd2nulcJCvzERoQQYHIZ/LsuLBODohS2YsF89cLYTkfobX6MKWBSReD05zztbiLlg2/+QZQZDgJQl3iD57Czpk6j7HlTjkUIQjQ36eIFmQdBGt1+HutB44JCMBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rv4zqhak; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BFAx/1Kp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rv4zqhak"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736877542;
+	s=mimecast20190719; t=1736877568;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qMGrs2zO6mJ5O7oOgt8NAfFjs5VkJpcxP/Ef9nOpYpY=;
-	b=BFAx/1KpK7OrC3LaEvdXdnfK5gEbla+8nebQxxo/bDk1/b0lOj/k+iBji3oAjYwB5DInKY
-	3JWupUjgKM2XvdXC3zzx8Q5y+JZdYgJzh2Fp8DBw2VNzfv0Kv3kn8Hiw4rzMRtA7Mxb9e0
-	+PXWqNQuv0GsVOSJcKlp36yqj4Im6xg=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+	bh=vzSk9ZzswXx0ijJl+1BL1pcjLYKU11Wq/W2Kyfj2Pb8=;
+	b=Rv4zqhakAlGeuzWxDH3RQx/1Tl8DXzBM54uIOwq/GfOVINgCE4jJRGAW3AqVf8F1ssppNQ
+	8ELPsRzwxYDnMJSV7hO/NcdWumhjiDBTXohbpq5Vy0nHUlzHJkL1hdlOKNFDrNYo1HDC8O
+	irERnO90YNwU+sgZ9EffgnypMxvrx9g=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-682-oI0zUiW-N3iwUtCDbN7ROA-1; Tue,
- 14 Jan 2025 12:58:58 -0500
-X-MC-Unique: oI0zUiW-N3iwUtCDbN7ROA-1
-X-Mimecast-MFC-AGG-ID: oI0zUiW-N3iwUtCDbN7ROA
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-317-domFoMd6N8WvyrMSzp1fqA-1; Tue,
+ 14 Jan 2025 12:59:23 -0500
+X-MC-Unique: domFoMd6N8WvyrMSzp1fqA-1
+X-Mimecast-MFC-AGG-ID: domFoMd6N8WvyrMSzp1fqA
 Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BC5491956059;
-	Tue, 14 Jan 2025 17:58:54 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E586919560B7;
+	Tue, 14 Jan 2025 17:59:19 +0000 (UTC)
 Received: from vschneid-thinkpadt14sgen2i.remote.csb (unknown [10.39.192.55])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8B17C195608A;
-	Tue, 14 Jan 2025 17:58:29 +0000 (UTC)
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 21066195608A;
+	Tue, 14 Jan 2025 17:58:54 +0000 (UTC)
 From: Valentin Schneider <vschneid@redhat.com>
 To: linux-kernel@vger.kernel.org,
 	x86@kernel.org,
@@ -59,8 +59,7 @@ To: linux-kernel@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
 	bpf@vger.kernel.org,
 	bcm-kernel-feedback-list@broadcom.com
-Cc: Josh Poimboeuf <jpoimboe@kernel.org>,
-	Juergen Gross <jgross@suse.com>,
+Cc: Juergen Gross <jgross@suse.com>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
 	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
 	Russell King <linux@armlinux.org.uk>,
@@ -86,6 +85,7 @@ Cc: Josh Poimboeuf <jpoimboe@kernel.org>,
 	Adrian Hunter <adrian.hunter@intel.com>,
 	"Liang, Kan" <kan.liang@linux.intel.com>,
 	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
 	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
 	Sean Christopherson <seanjc@google.com>,
 	Paolo Bonzini <pbonzini@redhat.com>,
@@ -131,9 +131,9 @@ Cc: Josh Poimboeuf <jpoimboe@kernel.org>,
 	Luis Chamberlain <mcgrof@kernel.org>,
 	Randy Dunlap <rdunlap@infradead.org>,
 	Tiezhu Yang <yangtiezhu@loongson.cn>
-Subject: [PATCH v4 14/30] perf/x86/amd: Mark perf_lopwr_cb static call as __ro_after_init
-Date: Tue, 14 Jan 2025 18:51:27 +0100
-Message-ID: <20250114175143.81438-15-vschneid@redhat.com>
+Subject: [PATCH v4 15/30] sched/clock: Mark sched_clock_running key as __ro_after_init
+Date: Tue, 14 Jan 2025 18:51:28 +0100
+Message-ID: <20250114175143.81438-16-vschneid@redhat.com>
 In-Reply-To: <20250114175143.81438-1-vschneid@redhat.com>
 References: <20250114175143.81438-1-vschneid@redhat.com>
 Precedence: bulk
@@ -145,32 +145,28 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-Later commits will cause objtool to warn about static calls being used in
-.noinstr sections in order to safely defer instruction patching IPIs
-targeted at NOHZ_FULL CPUs.
+sched_clock_running is only ever enabled in the __init functions
+sched_clock_init() and sched_clock_init_late(), and is never disabled. Mark
+it __ro_after_init.
 
-perf_lopwr_cb is used in .noinstr code, but is only ever updated in __init
-amd_brs_lopwr_init(), and can thus be marked as __ro_after_init.
-
-Reported-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
 ---
- arch/x86/events/amd/brs.c | 2 +-
+ kernel/sched/clock.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/amd/brs.c b/arch/x86/events/amd/brs.c
-index 780acd3dff22a..e2ff03af15d82 100644
---- a/arch/x86/events/amd/brs.c
-+++ b/arch/x86/events/amd/brs.c
-@@ -422,7 +422,7 @@ void noinstr perf_amd_brs_lopwr_cb(bool lopwr_in)
- 	}
+diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
+index a09655b481402..200e5568b9894 100644
+--- a/kernel/sched/clock.c
++++ b/kernel/sched/clock.c
+@@ -66,7 +66,7 @@ notrace unsigned long long __weak sched_clock(void)
  }
+ EXPORT_SYMBOL_GPL(sched_clock);
  
--DEFINE_STATIC_CALL_NULL(perf_lopwr_cb, perf_amd_brs_lopwr_cb);
-+DEFINE_STATIC_CALL_NULL_RO(perf_lopwr_cb, perf_amd_brs_lopwr_cb);
- EXPORT_STATIC_CALL_TRAMP_GPL(perf_lopwr_cb);
+-static DEFINE_STATIC_KEY_FALSE(sched_clock_running);
++static DEFINE_STATIC_KEY_FALSE_RO(sched_clock_running);
  
- void __init amd_brs_lopwr_init(void)
+ #ifdef CONFIG_HAVE_UNSTABLE_SCHED_CLOCK
+ /*
 -- 
 2.43.0
 
