@@ -1,63 +1,63 @@
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2841D20CCD9
-	for <virtualization@lists.linux.dev>; Wed, 15 Jan 2025 03:38:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78C434C98
+	for <virtualization@lists.linux.dev>; Wed, 15 Jan 2025 03:41:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736912316; cv=none; b=f7wxRTgAFFf2VdmmrMhhgdhpcEOacyCTtiYpnKPTo71jXl7FpOoaLej6QE7/SR2tIu20Lwy7oZdiCYDNJ+Q+Srhn3TFD55V8bNvZ3Aa17JRclGIpIIQ3WDRKU7yQ9aHubHoVwgBR12groakqgUfjbrLEBfdeeoqOku6l56T7P8I=
+	t=1736912466; cv=none; b=K6v22HALGg/vR4lUeTK8jZP1lKmlGRLlp+7ZCYVYHp84iui0PZfPwFfn8vEmHVAaDE2FnH+ib32domfgGp2ioquHCye9k6CTdamwUgvu6nhr9h8o2yDUhfXZnz7bGVq0mcQARVMOJZJuV84xyvkDaMa4lsjxO/idWlBB2xRzzU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736912316; c=relaxed/simple;
-	bh=gN06EUNT97ngcgK4V6x/fRnJvp2euBs+cFhJIU8hNis=;
+	s=arc-20240116; t=1736912466; c=relaxed/simple;
+	bh=lx1JoZuyAOvH+tAWIwuUhi8eFxOhxcAC6JbtgL/RLvk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Srkdjql+BohBgCKetFGinkVOFIj1gj0Hkmhql7t2SeYCKBkL4jYWoAHXlOq15IBz3FK5aW23qSMaf7JNHV2J9PBQ8AHjA5Qn+KxEL+OFrfMj4rictBk8S1W0iNR/LrRC4tdEmspkGTaWgX8t8ARRpEGziNvk7OKWetg+bubGs0I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GpXfA3R1; arc=none smtp.client-ip=209.85.219.170
+	 Content-Type:Content-Disposition:In-Reply-To; b=hK+HDmmKJsKCa+SbdN37B5O8xbdDhXB/LlnT4GyprvNrg5gGWWVvbyh2WjTocPUgQ/jTogjNzeofwwagJy2KejpxdNgT5dL8sdrabf+OUlbZqpCzGqMXr3zwZ7XWArX208ZLvDzBW3BjxymByifabddvo5+5N0yCb8IZ6PQvm5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Xo9JaBuY; arc=none smtp.client-ip=209.85.219.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GpXfA3R1"
-Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e46ac799015so8654974276.0
-        for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 19:38:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xo9JaBuY"
+Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-e54d268bc3dso11148570276.1
+        for <virtualization@lists.linux.dev>; Tue, 14 Jan 2025 19:41:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736912313; x=1737517113; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1736912464; x=1737517264; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ggG1Vuf9tiZ0JKZNDTMJJvN8O1nAUNZ5coZeOdFCGi0=;
-        b=GpXfA3R1JGUQyISCqsSWMkRVk9MAjfAN1t8Y2sj3RFcjY5uGZp2GJlf5avnt92NEA4
-         fjufSWpFIdNur4y2wb1L1KLDS0Qsq+lBuFZYNODLbepWYiwcVzqDRSRF++tnVV8Y0mdQ
-         R50Ua4G7C/zPmH4x05NDCNBbiaSlBNam1TcvxDajrmhPVXaC0TiFkLoygXxAY8QV/MQG
-         Tq+In2xa55+q1ar8evtffP0qPnkKIfUmWdYVgU/6Nz3kk4vF3JJDhXy2te/1F5Ju5vyU
-         6SM/HggyWvbUTZFQ7eZTMJW6wTRUrO0US3P5wYcdPFN/DTJle3PNm80ULPSevULEp1a8
-         pVeQ==
+        bh=UmTK2k4vF2mqctoCssOfytU8KQ/2i1ya8c1dPxSZwZk=;
+        b=Xo9JaBuYq2jofZv181ej5po69wB+AyHVNDUoCvCKxQCdJ2sTvI1Ug7v/csnbw/2tFD
+         9cEe5GUauFrb60Z6MQPwUm53X9IO0EGI0XO9w+PEYgAZ415wN4KqKuH+KfuuZBiasxtS
+         Pw1MByDG+D2629XC17xGh1QdvEtD/jDAkkVNQniPMHPk9Z7dTYyS/9xhcu5rF81/gP8m
+         sXQ1aDGpxWAbn7zKjbOoYgNofYhfKZue3tKJahy/Iqs2DttOy6ZntVfHxAp6HuxX0Bj5
+         aDNVjUK/lgdVMon9ZfAJ+1neir4C/xjcwOWYzoXKCG4XFQsr8pdelzUfHZVJk83Mtxb5
+         WgCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736912313; x=1737517113;
+        d=1e100.net; s=20230601; t=1736912464; x=1737517264;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ggG1Vuf9tiZ0JKZNDTMJJvN8O1nAUNZ5coZeOdFCGi0=;
-        b=Q/iNjQKc15EcA16P7FHo4wJVs40NvXOrceq2BHveTJQZ7JrSTgpWl1A5unEd1rkdXF
-         sadiXqV+4gxbH4SoU7K+4CLheikpkkmQcsjqmZPK4tR+JWpyAA0mimZASEpCxhSsoQXS
-         /mb2GDpWX+aORyPYUlRyOIJ7ja3lgHorG8Bd6w6JOTR0wBKATuEYZwz+7ojk3uEOQsox
-         ly2Xv5mOc5R0t2LDvGNO+xhxFG2DzpepIwOpTDNQOFKN6k51ihz+7T5cq21jmkVAOKeQ
-         2Y+UKzcX8XpmqaUs79DwveGNzmL7C+aMG0Td0zzgEERikfn/rB+IQyCtb5qY0XWTvB4f
-         QY1A==
-X-Forwarded-Encrypted: i=1; AJvYcCWayUEjdSSj/bOGtO4kTg03grYRiRkAMVOtHuY74pclIjtCPHX8EsdyTs89r2UbcO0aEQLdWLh/iJyCFqNpuA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YweC0JRXiWqZ+SZ4yXK0eggGNuBbAalsTsYASkVQkFx5Fc2eNlU
-	TYxsHHyGNrig1Nx58nRB2uagkQZFVLA0cFmYA5iZodysUzd3aAaf
-X-Gm-Gg: ASbGnct8huD26agxVL2f6JUxAxMikLJpq7KxcKmhlRps/dNGRkahe6BEfZcHLTpn9PZ
-	4G8v0NUaR2+zlvSEbSushVCGIOdmDRFBsD23qrMHf5JE5ZfPNZnch9AfIdCY6dRYH4NI0ktScJW
-	nLRcaq/680kYdS+kDm+XLtdXhD5dwVdiPsNewAyzATgy2A90m6iU6CDNNCeLDqI1RNhnTOXRUmg
-	PaEkLUEX9IeAnyNUlC7iodsCfHhRnU5Ygx3Ibof/Dz8Z8eqnCX+Oyeh
-X-Google-Smtp-Source: AGHT+IGcxF5UAr9VMjmEWcxKQm1jPE9VpwQlX4HhGZHkGGwOlZgKnKfAZqEBywSv8uk39tmS/FGABQ==
-X-Received: by 2002:a05:690c:62ca:b0:6ef:7d51:eba6 with SMTP id 00721157ae682-6f5312a8384mr216747977b3.28.1736912312722;
-        Tue, 14 Jan 2025 19:38:32 -0800 (PST)
+        bh=UmTK2k4vF2mqctoCssOfytU8KQ/2i1ya8c1dPxSZwZk=;
+        b=AGprx2weVPfLCpFtd090uNbykjuB0s2WIy7AiOj0FUpRFK/0StoXx/6/PFFMRmUnHI
+         Yw8f1zhxaFbkimxpmkVKg1pZKJGo62b4I7vHL1f3oeUG5z5Pni/MtN41KnuyPRXlf43J
+         YOSn5IbBGjIGhQBqSZoAgS0pWMpRwZvfxBpFuZ6He0wymrwnWO8EgRlUrxUfIDVYaunJ
+         8DVsN1pfRnFJtX0aC4ghLwUZ1ApRQi9X3ps1MBWxVyeWDmQ+XUYRQJWxlKYMbC8AX/bN
+         NgjI/zll7KQIWem9xbNDcLjnP5QklOyNPxUaCsv9nVJC/PUrsFhO6awINRYI6StLhfOF
+         bBhA==
+X-Forwarded-Encrypted: i=1; AJvYcCW9hsSuQxBp8nX+YOSwsE/fr4IS5IAaBWM5/ifCmiiX9Op3r2hSZ9SWWq8pZnBfje7J21nSlGVXaMv4gaXrYQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxbLYEt0R/qPzSdv1t5gfB7VT/URJ3fdcNfhOQHKOYrQQ+C8SDu
+	kVXoqR/xXXwsgczeZZuRaZe5zFyFnub+ecEol7kdBkzG3sFyJmwC
+X-Gm-Gg: ASbGncul2rN3RDajrdKqWLFbmpMjfWlL9RnfnyYcY7Xswc1CGCRk1+MJmVWuTNdpoW4
+	pk1mpFdKnF0CJRr1St4DGy8j21zKZk5cb3xKiYh3f1pyQhte3OXm6CPs7ONIGzY3Oc225G1CEdX
+	HYGFITJ6pHgmPCq/u9/zQCTSeVxG9vzHltn94HdgPX5HmC7kECjHLpFWV+K3mllaV42KDgXZEin
+	MrvCd2wD1L1W+Xj1MqmAAr+isQpRJt78AeEMRegf6Qck/2ULrBrgOYt
+X-Google-Smtp-Source: AGHT+IGlCnPNZfANCVJooif/vwR9Wcfdn14fNs9Squ/CXSzhwHBTvNfC1cp1ga3/es5eAiOB92QKfQ==
+X-Received: by 2002:a05:690c:45c9:b0:6f6:cad6:6b5a with SMTP id 00721157ae682-6f6cad66c84mr8171767b3.13.1736912464441;
+        Tue, 14 Jan 2025 19:41:04 -0800 (PST)
 Received: from localhost ([2601:347:100:5ea0:e12f:d330:c8d6:a6b7])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-6f546dd712esm23854477b3.79.2025.01.14.19.38.30
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-6f6c93732c9sm1796417b3.103.2025.01.14.19.41.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jan 2025 19:38:31 -0800 (PST)
-Date: Tue, 14 Jan 2025 22:38:30 -0500
+        Tue, 14 Jan 2025 19:41:03 -0800 (PST)
+Date: Tue, 14 Jan 2025 22:41:02 -0500
 From: Yury Norov <yury.norov@gmail.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Bjorn Helgaas <helgaas@kernel.org>
 Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
 	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
 	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
@@ -70,6 +70,7 @@ Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
 	Madhavan Srinivasan <maddy@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	Haren Myneni <haren@linux.ibm.com>,
@@ -106,10 +107,9 @@ Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
 	Shrikanth Hegde <sshegde@linux.ibm.com>,
 	Hendrik Brueckner <brueckner@linux.ibm.com>
 Subject: Re: [PATCH 06/14] cpumask: re-introduce cpumask_next{,_and}_wrap()
-Message-ID: <Z4cttq0dfHnapkUI@thinkpad>
-References: <20241228184949.31582-1-yury.norov@gmail.com>
- <20241228184949.31582-7-yury.norov@gmail.com>
- <Z30r/6S8VBU8/Ml5@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Message-ID: <Z4cuTsHbO6yiuFKA@thinkpad>
+References: <20241228184949.31582-7-yury.norov@gmail.com>
+ <20250103174432.GA4182129@bhelgaas>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -118,90 +118,26 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Z30r/6S8VBU8/Ml5@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+In-Reply-To: <20250103174432.GA4182129@bhelgaas>
 
-On Tue, Jan 07, 2025 at 02:28:31PM +0100, Alexander Gordeev wrote:
+On Fri, Jan 03, 2025 at 11:44:32AM -0600, Bjorn Helgaas wrote:
 > On Sat, Dec 28, 2024 at 10:49:38AM -0800, Yury Norov wrote:
-> 
-> Hi Yury,
-> 
 > > cpumask_next_wrap_old() has two additional parameters, comparing to it's
 > > analogue in linux/find.h find_next_bit_wrap(). The reason for that is
 > > historical.
-> > 
-> > Before 4fe49b3b97c262 ("lib/bitmap: introduce for_each_set_bit_wrap()
-> > macro"), cpumask_next_wrap() was used to implement for_each_cpu_wrap()
-> > iterator. Now that the iterator is an alias to generic
-> > for_each_set_bit_wrap(), the additional parameters aren't used and may
-> > confuse readers.
-> > 
-> > All existing users call cpumask_next_wrap() in a way that makes it
-> > possible to turn it to straight and simple alias to find_next_bit_wrap().
-> > 
-> > In a couple places kernel users opencode missing cpumask_next_and_wrap().
-> > Add it as well.
-> > 
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> > ---
-> >  include/linux/cpumask.h | 37 +++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 37 insertions(+)
-> > 
-> > diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> > index b267a4f6a917..18c9908d50c4 100644
-> > --- a/include/linux/cpumask.h
-> > +++ b/include/linux/cpumask.h
-> > @@ -284,6 +284,43 @@ unsigned int cpumask_next_and(int n, const struct cpumask *src1p,
-> >  		small_cpumask_bits, n + 1);
-> >  }
-> >  
-> > +/**
+> 
+> s/it's/its/
+> 
+> Personally I think cscope/tags/git grep make "find_next_bit_wrap()"
+> enough even without mentioning "linux/find.h".
+> 
 > > + * cpumask_next_and_wrap - get the next cpu in *src1p & *src2p, starting from
 > > + *			   @n and wrapping around, if needed
 > > + * @n: the cpu prior to the place to search (i.e. return will be > @n)
-> > + * @src1p: the first cpumask pointer
-> > + * @src2p: the second cpumask pointer
-> > + *
-> > + * Return: >= nr_cpu_ids if no further cpus set in both.
-> > + */
-> > +static __always_inline
-> > +unsigned int cpumask_next_and_wrap(int n, const struct cpumask *src1p,
-> > +			      const struct cpumask *src2p)
-> > +{
-> > +	/* -1 is a legal arg here. */
-> > +	if (n != -1)
-> > +		cpumask_check(n);
-> > +	return find_next_and_bit_wrap(cpumask_bits(src1p), cpumask_bits(src2p),
-> > +		small_cpumask_bits, n + 1);
-> > +}
-> > +
-> > +/*
-> > + * cpumask_next_wrap - get the next cpu in *src, starting from
-> > + *			   @n and wrapping around, if needed
 > 
-> Does it mean the search wraps a cpumask and starts from the beginning
-> if the bit is not found and returns >= nr_cpu_ids if @n crosses itself?
-> 
-> > + * @n: the cpu prior to the place to search
-> > + * @src: cpumask pointer
-> > + *
-> > + * Return: >= nr_cpu_ids if no further cpus set in both.
-> 
-> It looks like Return is a cpumask_next_and_wrap() comment leftover.
-> 
-> > + */
-> > +static __always_inline
-> > +unsigned int cpumask_next_wrap(int n, const struct cpumask *src)
-> > +{
-> > +	/* -1 is a legal arg here. */
-> > +	if (n != -1)
-> > +		cpumask_check(n);
-> > +	return find_next_bit_wrap(cpumask_bits(src), small_cpumask_bits, n + 1);
-> > +}
-> > +
-> >  /**
-> >   * for_each_cpu - iterate over every cpu in a mask
-> >   * @cpu: the (optionally unsigned) integer iterator
-> 
-> Thanks!
+> Is the return really > @n if it wraps?
 
-Thanks, I'll update the comments.
+No, this is a copy-paste error. Will fix in v2.
+
+Thanks,
+Yury
