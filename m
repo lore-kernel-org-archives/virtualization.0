@@ -1,170 +1,154 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx13lb.world4you.com (mx13lb.world4you.com [81.19.149.123])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DB7722F387
-	for <virtualization@lists.linux.dev>; Thu, 16 Jan 2025 19:41:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A01AC236A64;
+	Thu, 16 Jan 2025 20:28:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.149.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737056483; cv=none; b=RsEMSUhFltzrh0fwBvmKZ3i9HiMnGiBDp94KaAHLTGUPlpFmejxMNBADJIxvYyeaa1UAi+G7bZu2V22PPNKWrPBD91xD/G8pTfcrqmB0dczeeyrM5LcNyO2gmL0FcJsoRshlqaLKPuPF21sZcPF6DILGxoUM58H9rfvl7SxI07Y=
+	t=1737059301; cv=none; b=haAYmovAGh+bYTuwiI9OL/Cy5Pvf0hSgB1KPSixTRSYa72V/IoNotNqvGMqjh76lXtBu6IMlaK0ll2nXf6rX48KSJ19VnWCvnsQ2EqEAZvqE6NeB9qJ6C9fxqYTtGmBP/WKWCXl3tgoI3U3FPJOJHQQMpsJTOy8YsD53OJPhiH8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737056483; c=relaxed/simple;
-	bh=9teq+JaoUOCCJi8v76Xn+Iblh9s5emNTyUVHhpT+Amc=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Slspkq0grhK7tsXdeNzQOsWI3kTE0MYUVimu68HyssjzZ13CTXUgTjVlk9wkdka7Lhm5iyrIgohhDRpR0CcGjzzk8iEjoOmFYh7bBGpXYf01QBP9fwkHT6r3PocmzDzQu0a8RPiwD++mKXa8zhCt4ndl1LqA5nr84QycocEAPHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jstultz.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cp5OzI21; arc=none smtp.client-ip=209.85.216.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jstultz.bounces.google.com
+	s=arc-20240116; t=1737059301; c=relaxed/simple;
+	bh=nudOlvqSJ1aBhTQ2tX4dtnYAuDIsm35x9yhIVoUF/mg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
+	 In-Reply-To:Content-Type; b=MTA9t8QchOzWpTO7rqt6hJwPnHOcLcDy4Am52Lg6LU+cxX1gLQ3o7DxxXdWVO7sxBfg0oi4JjLJ2SbTyKA14r3A9KOmOqi+vADJGYspnyJwSHzxXp/555/UcmfOvrhFRx/cQy/RfcykclprwBpf9mNcJP1DMxI0XSYWqAsp40Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com; spf=pass smtp.mailfrom=engleder-embedded.com; dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b=I7OqsmYT; arc=none smtp.client-ip=81.19.149.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=engleder-embedded.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cp5OzI21"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2f550d28f7dso2670171a91.3
-        for <virtualization@lists.linux.dev>; Thu, 16 Jan 2025 11:41:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1737056480; x=1737661280; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=9c+mKdS6UvxTM+mMX7MZ1E/vU8+YRkTBKKT8mptdijw=;
-        b=cp5OzI21vXLdpi4FVbvxyE/2QrFaXg2kAmI3vnTKdIsT0kJaut6eU5HD6cSqwjpNjh
-         zxRc2whlyum3DQ/x2jTLEGE1rKtdUUgE+UJ3xF8nAA95COaabBgyfWHgS1YXysWidUtA
-         RHmMBrmbzD1BhVZ6t5dv1ElxWlgW/VysdEmckC5d+UJiyARyYEU6nV0YMVXFoMwxZSrp
-         Vr/PrrCM+TSF/qExOUvXbsPyg/YnkNNMvlU5kuujZ/nsYMKTNJ8nOz4K0WQzFsNDDVdx
-         XGJaheTJhDsyupJpQMKkoeciti9nI/1tAMGMDB2WGNjn7b9I7fPiWPLe8llTq5rVcrDe
-         6nBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737056480; x=1737661280;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9c+mKdS6UvxTM+mMX7MZ1E/vU8+YRkTBKKT8mptdijw=;
-        b=fBTGSQ1GdVxtDCu7ve6kq7ReiyBqGLzcrXXEhNoBueTOr2nRrZa01KTlWASjFYV8qK
-         AL0xB2JwFmdwQbm5JIERZCJhuGu+Fbb4942XX/7Muz8f8q2d2hsicTi2NwN9C9HPY8UM
-         NpyboM7OHIoYaBOlWtanmFIOtCP7ZFxSVhbXVE5MsyebhNYnJSxaaLxrdHY9xdcStL2m
-         sHGZuqGoi05k54jL4A2Eps6ApFNMdvo15oORoR3O8vQNS3UoIzrLsuXSswbTsfGDmTbr
-         XYwgL2FHF9k0fnfRfJS9XMQXbTU4PwG//ASOQMa4pGyiCa08mV/8zhPTZu+Ah2RGWtC1
-         KHcw==
-X-Forwarded-Encrypted: i=1; AJvYcCVGSl9+KaxRhYgOSMTxD2c8OjxSQdPjlSENTSl5Ala5hdY8w//D9e1+v70K4J9LT1+SHVx8fydK7YNaj6eAGw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxHMUHKW86jQIEH5YkJaGK2BRVHVrW66DID3VprUAeNZ25DZYGE
-	xu1pTlUI6EEhr5/AtxFGXfnEctXA45eTWdC/UaphdflmERS+038VK8jfpUB2W4y/pbrZpl0x+sn
-	zUoav
-X-Google-Smtp-Source: AGHT+IHAxCEfJhjinmdp7iL+RcQHMoAkeF1j+7nASLrBvD6x6xTr0/mXwbpnY2YoABTiPpn8G6D6/jrHd328
-X-Received: from pjbsn6.prod.google.com ([2002:a17:90b:2e86:b0:2ea:4139:e72d])
- (user=jstultz job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:258c:b0:2ee:f687:6ad5
- with SMTP id 98e67ed59e1d1-2f548ea5b95mr51110210a91.2.1737056480195; Thu, 16
- Jan 2025 11:41:20 -0800 (PST)
-Date: Thu, 16 Jan 2025 11:40:59 -0800
-In-Reply-To: <87ed12j20b.wl-tiwai@suse.de>
+	dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b="I7OqsmYT"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=engleder-embedded.com; s=dkim11; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:Cc:References:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=ahuT/uI6m98g3xSc8Ha9OAIyv3omnEhaK7ihtInarV0=; b=I7OqsmYTo+0VcA+Ln2qQcokgSz
+	OLyZ30zDmnP1fjgVzUgNx13Jf5RBmlYgfjjheUWk96EbXAUkIWdBwjeHv2T7WChrZ7XfEx2LYCHGW
+	FRNBXzk6CEv45lziRZH+e8WYkCElbRz00SeNFQNo5n+xxJOFKXbhwu/3Ub/qqk3scpNY=;
+Received: from [88.117.60.28] (helo=[10.0.0.160])
+	by mx13lb.world4you.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.97.1)
+	(envelope-from <gerhard@engleder-embedded.com>)
+	id 1tYWTJ-000000006xn-2BtL;
+	Thu, 16 Jan 2025 21:28:09 +0100
+Message-ID: <f8fe5618-af94-4f5b-8dbc-e8cae744aedf@engleder-embedded.com>
+Date: Thu, 16 Jan 2025 21:28:07 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <87ed12j20b.wl-tiwai@suse.de>
-X-Mailer: git-send-email 2.48.0.rc2.279.g1de40edade-goog
-Message-ID: <20250116194114.3375616-1-jstultz@google.com>
-Subject: [PATCH v2] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
-From: John Stultz <jstultz@google.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: John Stultz <jstultz@google.com>, Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	virtualization@lists.linux.dev, linux-sound@vger.kernel.org, 
-	kernel-team@android.com, Betty Zhou <bettyzhou@google.com>, 
-	Takashi Iwai <tiwai@suse.de>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 3/4] virtio_net: Map NAPIs to queues
+To: Joe Damato <jdamato@fastly.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20250116055302.14308-1-jdamato@fastly.com>
+ <20250116055302.14308-4-jdamato@fastly.com>
+ <1737013994.1861002-1-xuanzhuo@linux.alibaba.com>
+ <Z4kvQI8GmmEGrq1F@LQ3V64L9R2>
+Content-Language: en-US
+Cc: "open list:XDP (eXpress Data Path):Keyword:(?:b|_)xdp(?:b|_)"
+ <bpf@vger.kernel.org>, jasowang@redhat.com, leiyang@redhat.com,
+ mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+ open list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+From: Gerhard Engleder <gerhard@engleder-embedded.com>
+In-Reply-To: <Z4kvQI8GmmEGrq1F@LQ3V64L9R2>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AV-Do-Run: Yes
 
-Betty reported hitting the following warning:
+On 16.01.25 17:09, Joe Damato wrote:
+> On Thu, Jan 16, 2025 at 03:53:14PM +0800, Xuan Zhuo wrote:
+>> On Thu, 16 Jan 2025 05:52:58 +0000, Joe Damato <jdamato@fastly.com> wrote:
+>>> Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
+>>> can be accessed by user apps.
+>>>
+>>> $ ethtool -i ens4 | grep driver
+>>> driver: virtio_net
+>>>
+>>> $ sudo ethtool -L ens4 combined 4
+>>>
+>>> $ ./tools/net/ynl/pyynl/cli.py \
+>>>         --spec Documentation/netlink/specs/netdev.yaml \
+>>>         --dump queue-get --json='{"ifindex": 2}'
+>>> [{'id': 0, 'ifindex': 2, 'napi-id': 8289, 'type': 'rx'},
+>>>   {'id': 1, 'ifindex': 2, 'napi-id': 8290, 'type': 'rx'},
+>>>   {'id': 2, 'ifindex': 2, 'napi-id': 8291, 'type': 'rx'},
+>>>   {'id': 3, 'ifindex': 2, 'napi-id': 8292, 'type': 'rx'},
+>>>   {'id': 0, 'ifindex': 2, 'type': 'tx'},
+>>>   {'id': 1, 'ifindex': 2, 'type': 'tx'},
+>>>   {'id': 2, 'ifindex': 2, 'type': 'tx'},
+>>>   {'id': 3, 'ifindex': 2, 'type': 'tx'}]
+>>>
+>>> Note that virtio_net has TX-only NAPIs which do not have NAPI IDs, so
+>>> the lack of 'napi-id' in the above output is expected.
+>>>
+>>> Signed-off-by: Joe Damato <jdamato@fastly.com>
+>>> ---
+>>>   v2:
+>>>     - Eliminate RTNL code paths using the API Jakub introduced in patch 1
+>>>       of this v2.
+>>>     - Added virtnet_napi_disable to reduce code duplication as
+>>>       suggested by Jason Wang.
+>>>
+>>>   drivers/net/virtio_net.c | 34 +++++++++++++++++++++++++++++-----
+>>>   1 file changed, 29 insertions(+), 5 deletions(-)
+>>>
+>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>> index cff18c66b54a..c6fda756dd07 100644
+>>> --- a/drivers/net/virtio_net.c
+>>> +++ b/drivers/net/virtio_net.c
+>>> @@ -2803,9 +2803,18 @@ static void virtnet_napi_do_enable(struct virtqueue *vq,
+>>>   	local_bh_enable();
+>>>   }
+>>>
+>>> -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
+>>> +static void virtnet_napi_enable(struct virtqueue *vq,
+>>> +				struct napi_struct *napi)
+>>>   {
+>>> +	struct virtnet_info *vi = vq->vdev->priv;
+>>> +	int q = vq2rxq(vq);
+>>> +	u16 curr_qs;
+>>> +
+>>>   	virtnet_napi_do_enable(vq, napi);
+>>> +
+>>> +	curr_qs = vi->curr_queue_pairs - vi->xdp_queue_pairs;
+>>> +	if (!vi->xdp_enabled || q < curr_qs)
+>>> +		netif_queue_set_napi(vi->dev, q, NETDEV_QUEUE_TYPE_RX, napi);
+>>
+>> So what case the check of xdp_enabled is for?
+> 
+> Based on a previous discussion [1], the NAPIs should not be linked
+> for in-kernel XDP, but they _should_ be linked for XSK.
+> 
+> I could certainly have misread the virtio_net code (please let me
+> know if I've gotten it wrong, I'm not an expert), but the three
+> cases I have in mind are:
+> 
+>    - vi->xdp_enabled = false, which happens when no XDP is being
+>      used, so the queue number will be < vi->curr_queue_pairs.
+> 
+>    - vi->xdp_enabled = false, which I believe is what happens in the
+>      XSK case. In this case, the NAPI is linked.
+> 
+>    - vi->xdp_enabled = true, which I believe only happens for
+>      in-kernel XDP - but not XSK - and in this case, the NAPI should
+>      NOT be linked.
 
-[    8.709131][  T221] WARNING: CPU: 2 PID: 221 at kernel/workqueue.c:4182
-...
-[    8.713282][  T221] Call trace:
-[    8.713365][  T221]  __flush_work+0x8d0/0x914
-[    8.713468][  T221]  __cancel_work_sync+0xac/0xfc
-[    8.713570][  T221]  cancel_work_sync+0x24/0x34
-[    8.713667][  T221]  virtsnd_remove+0xa8/0xf8 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
-[    8.713868][  T221]  virtsnd_probe+0x48c/0x664 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
-[    8.714035][  T221]  virtio_dev_probe+0x28c/0x390
-[    8.714139][  T221]  really_probe+0x1bc/0x4c8
-...
+My interpretation based on [1] is that an in-kernel XDP Tx queue is a
+queue that is only used if XDP is attached and is not visible to
+userspace. The in-kernel XDP Tx queue is used to not load stack Tx
+queues with XDP packets. IIRC fbnic has additional queues only for
+XDP Tx. So for stack RX queues I would always link napi, no matter if
+XDP is attached or not. I think most driver do not have in-kernel XDP
+Tx queues. But I'm also not an expert.
 
-It seems we're hitting the error path in virtsnd_probe(), which
-triggers a virtsnd_remove() which iterates over the substreams
-calling cancel_work_sync() on the elapsed_period work_struct.
-
-Looking at the code, from earlier in:
-virtsnd_probe()->virtsnd_build_devs()->virtsnd_pcm_parse_cfg()
-
-We set snd->nsubstreams, allocate the snd->substreams, and if
-we then hit an error on the info allocation or something in
-virtsnd_ctl_query_info() fails, we will exit without having
-initialized the elapsed_period work_struct.
-
-When that error path unwinds we then call virtsnd_remove()
-which as long as the substreams array is allocated, will iterate
-through calling cancel_work_sync() on the uninitialized work
-struct hitting this warning.
-
-Takashi Iwai suggested this fix, which initializes the substreams
-structure right after allocation, so that if we hit the error
-paths we avoid trying to cleanup uninitialized data.
-
-Note: I have not yet managed to reproduce the issue myself, so
-this patch has had limited testing.
-
-Feedback or thoughts would be appreciated!
-
-Cc: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: virtualization@lists.linux.dev
-Cc: linux-sound@vger.kernel.org
-Cc: kernel-team@android.com
-Reported-by: Betty Zhou <bettyzhou@google.com>
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: John Stultz <jstultz@google.com>
----
-v2: Use Takashi Iwai's suggested approach
----
- sound/virtio/virtio_pcm.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
-
-diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
-index 967e4c45be9b..2f7c5e709f07 100644
---- a/sound/virtio/virtio_pcm.c
-+++ b/sound/virtio/virtio_pcm.c
-@@ -339,6 +339,21 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
- 	if (!snd->substreams)
- 		return -ENOMEM;
- 
-+	/*
-+	 * Initialize critical substream fields early in case we hit an
-+	 * error path and end up trying to clean up uninitialized structures
-+	 * elsewhere.
-+	 */
-+	for (i = 0; i < snd->nsubstreams; ++i) {
-+		struct virtio_pcm_substream *vss = &snd->substreams[i];
-+
-+		vss->snd = snd;
-+		vss->sid = i;
-+		INIT_WORK(&vss->elapsed_period, virtsnd_pcm_period_elapsed);
-+		init_waitqueue_head(&vss->msg_empty);
-+		spin_lock_init(&vss->lock);
-+	}
-+
- 	info = kcalloc(snd->nsubstreams, sizeof(*info), GFP_KERNEL);
- 	if (!info)
- 		return -ENOMEM;
-@@ -352,12 +367,6 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
- 		struct virtio_pcm_substream *vss = &snd->substreams[i];
- 		struct virtio_pcm *vpcm;
- 
--		vss->snd = snd;
--		vss->sid = i;
--		INIT_WORK(&vss->elapsed_period, virtsnd_pcm_period_elapsed);
--		init_waitqueue_head(&vss->msg_empty);
--		spin_lock_init(&vss->lock);
--
- 		rc = virtsnd_pcm_build_hw(vss, &info[i]);
- 		if (rc)
- 			goto on_exit;
--- 
-2.48.0.rc2.279.g1de40edade-goog
-
+Gerhard
