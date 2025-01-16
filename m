@@ -1,223 +1,165 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D7ED1DE4C6;
-	Thu, 16 Jan 2025 08:09:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38CBA157E88
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 08:09:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737014971; cv=none; b=j7iC1MAHRyKNjzHLBdjOT3yKbk7lLmMkIzAXJNdE42bC9uCHuf0mHpydiCyPrGQ3O+IUmPToTgJyiWiahEyfxbrPWPQpC274H5eXGLK/laxen0rudXl5KyZIamtN60eGypmmR6Nmxe9aczgHeeOP3vsuKsdPGm3bb+8LLQza0gM=
+	t=1737014976; cv=none; b=XXAhnnCrLCiMvIFcgvzTuyRBnomr9dWfKNCu88sOr5wPDdCcs6kh2Kv3RKikh8gED8ifS84eFx6j8XGVuvZ+6ElbuRqkDyi93P7hMf4g0fhnexnWBPnmvBTQb8sQRhiIhC4dX+9et0/LQMcB1FeYZ8K1EmFRSgGhw4TJwR3EtdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737014971; c=relaxed/simple;
-	bh=qutSka+w/xEAf59QNYINpaHGaAu6p4W5IyAck9GACX0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=oQQCyKEv52wEkyv1WGkhFL+IT13ijbVqH1Kb+EkP1XPPk9fjboCOqW3Rv9+qDQwiHo/GrQkjZRTM2PbqKT1vPJR4sttChUUw0As4rtokxZdwrMZqubuZ15qTHxkpKZ/CwyoYeMh8FCl9I8q3TbD1JMq245jW26mlvkgap0nGuSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=guL7z/7g; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=QhcTxwz2; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=guL7z/7g; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=QhcTxwz2; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1737014976; c=relaxed/simple;
+	bh=hmozYSHMasgRBCBF4xrgoPZ2LwIXeYuHywhslmCDunM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To; b=EmhUpqvKR6em3mL0HxkjUceQzW3ptH4P11uopQH00/acMTeq8SbMkA7udjOcwG3CokawpjRisjShAjKpBxnATSlABAsIvaTgMEP/YfvOeCdOKdRt46YgRzP4o6EA2B8bYITj4E7lyLxkUObTWPQ9aXxC2IgLkG5SUIJwzmGzSNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=Hselal2E; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="guL7z/7g";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="QhcTxwz2";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="guL7z/7g";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="QhcTxwz2"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id AF679211D2;
-	Thu, 16 Jan 2025 08:09:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1737014961; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xcxRML23Nx7RFNokQB2O02aJnU9nWJlVXpAUoW6/DUc=;
-	b=guL7z/7g3EcabgvnEePbbCuZQv7xD8Nwr9UitmLW0HdQwyFjV2SSCQgHXiJw8V8gnCT1K2
-	PWtPwlEQencxyOkZzRFYa02U7TT7cyGEKiFsdqSu4Fbz6rTKbBaplstwxqYo2gR84TVDZg
-	EoU34+EHEiZW91gRDl+FfWH9McSLkvo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1737014961;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xcxRML23Nx7RFNokQB2O02aJnU9nWJlVXpAUoW6/DUc=;
-	b=QhcTxwz2tTYoCTzfudp0U1RC65EHxbTx4mcJuk8sOgRjhjNV0lXRty1p1dQWnKcwWKutz2
-	DR+iY8oRFsTbZEBQ==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1737014961; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xcxRML23Nx7RFNokQB2O02aJnU9nWJlVXpAUoW6/DUc=;
-	b=guL7z/7g3EcabgvnEePbbCuZQv7xD8Nwr9UitmLW0HdQwyFjV2SSCQgHXiJw8V8gnCT1K2
-	PWtPwlEQencxyOkZzRFYa02U7TT7cyGEKiFsdqSu4Fbz6rTKbBaplstwxqYo2gR84TVDZg
-	EoU34+EHEiZW91gRDl+FfWH9McSLkvo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1737014961;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xcxRML23Nx7RFNokQB2O02aJnU9nWJlVXpAUoW6/DUc=;
-	b=QhcTxwz2tTYoCTzfudp0U1RC65EHxbTx4mcJuk8sOgRjhjNV0lXRty1p1dQWnKcwWKutz2
-	DR+iY8oRFsTbZEBQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3205713A57;
-	Thu, 16 Jan 2025 08:09:21 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 3VTFCrG+iGf+BAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 16 Jan 2025 08:09:21 +0000
-Message-ID: <a2bbeb47-2569-4ee0-9265-92bab139bdc6@suse.de>
-Date: Thu, 16 Jan 2025 09:09:20 +0100
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="Hselal2E"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id E00714183C
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 08:09:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id P4iGA2f5340F for <virtualization@lists.linux-foundation.org>;
+ Thu, 16 Jan 2025 08:09:34 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::1029; helo=mail-pj1-x1029.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org ED6DD41812
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED6DD41812
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=Hselal2E
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id ED6DD41812
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 08:09:33 +0000 (UTC)
+Received: by mail-pj1-x1029.google.com with SMTP id 98e67ed59e1d1-2ef28f07dbaso955613a91.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 00:09:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1737014973; x=1737619773; darn=lists.linux-foundation.org;
+        h=to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XrRxU+soYwScLHZl10nkQ00JQwkyOSxqF0iWMzuJt8Q=;
+        b=Hselal2Eczfq9qOsxpXgPfBTRnU1Ws53MNkMqK/pevhWtjvo6kiERz5rHkhfEjIIvB
+         7aIsCaK1+m+wVmtTsR5WaOtTa4Gvj1y94gp8k+NbhdU+H82JgMxxLDWLTf1nDYrszFOR
+         0tHJ1qunLTQ6v6ifyvX5+iprXeHJP/TAD4isd0iwyPI7OGjEAPC8Ns5BjhqZ5rKKntKY
+         z6nT7rVo7YMAVmBbMfJxlYwpO3fR9b0J2MJiTqj0gutnUIUeOR+RKcAiyzegVp752PvP
+         rjOlDD7Mx93EHycocL3L4S9FjdPx47l+REmhaNYJxIQpWVyJC85tL+eYWk0kFTZQFIvQ
+         p0ZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737014973; x=1737619773;
+        h=to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=XrRxU+soYwScLHZl10nkQ00JQwkyOSxqF0iWMzuJt8Q=;
+        b=NCPmR2vKLeSHBP5jyuHZm+bhBulvRIdfdXFi2/1aiQx6wJtF++o/dYhwdtzhkmfBTY
+         +6l7xl3etl3nKZf+HYdeK1y0LZk6EdTFiNWJwh84iyODW9+Ujw+AkfRXsyG2S+NVtjQO
+         aHxJYvrsyRf+ajUauFVFBtiBDGLKLenF0OaTQ8SZvumIIBDoXzqjNa+LTatHVatVEy8q
+         gmpj/Z9Dk4Quk0weWS1I4PNbNJ79zfe/NAvXAzNIlUiP8b2TlHq52mffDZAW0oHkIFuJ
+         4zDFQ2y69wl9nJajjz6LS1KZV+r3oZfMdVMRO/wWwwbKSErt6sLrr18cKAN3MzSGXAlE
+         02ug==
+X-Forwarded-Encrypted: i=1; AJvYcCU8vxLInjVKq2+6MayxqCUtoQdzhD2lC0gLWUAPpEdswQSaE+6m54CDyRKRl82o1nK0w5uAf683lYEHajUM5w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yw4mQ3AesptQjKInH41fFnRTpytSDU4joZebXuuaYp/PzhvHoh7
+	dYyHQS9O4HLTZp+Gd7d+jxhnq4ES1oTvaawh73NLVlzHK4i5uDTpUcqGmFrQQHQ=
+X-Gm-Gg: ASbGnct2DkU5PEjxn42CSCcAHS8jlF/zWH044E0nLFQx2xK8EP8TYiuyfnIXZmV1oR6
+	fzU6zY43hGhP3TxG7hsThcYUMA9v1zIHI39PtlnkM5Rh4p8H/7h77hWAnaPpx5GLJxlPKU5JHck
+	YbkO80rg1+qSRmlqQMJXZe+7009bfKrtdbdlBYvrsue4EI+0KzIYHl7KV4t+OU72ii23N931DGu
+	6sNDYMz3dGcMemAwvJTdCYAdujAHFmZO2PlJcwCGay3bLTeFLujPdQuoo8=
+X-Google-Smtp-Source: AGHT+IF/aivT7VGN/9qY0NI0lkx2WlvvYYZoSqZ5FMDTYVZ2BGLKcm5XiuPnE5f2W/R9LM3n5U+OJg==
+X-Received: by 2002:a17:90b:2642:b0:2ea:aa56:499 with SMTP id 98e67ed59e1d1-2f548e9aed3mr42283442a91.1.1737014973234;
+        Thu, 16 Jan 2025 00:09:33 -0800 (PST)
+Received: from localhost ([157.82.203.37])
+        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-2f72c1ccbd3sm2690558a91.22.2025.01.16.00.09.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Jan 2025 00:09:32 -0800 (PST)
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Date: Thu, 16 Jan 2025 17:08:11 +0900
+Subject: [PATCH net v3 8/9] tap: Keep hdr_len in tap_get_user()
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 25/25] drm/xlnx: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-To: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Andy Yan <andyshrk@163.com>
-References: <20250109150310.219442-1-tzimmermann@suse.de>
- <20250109150310.219442-26-tzimmermann@suse.de>
- <cdbe483d-0895-47aa-8c83-1c28220f4a02@ideasonboard.com>
- <bc97b92e-7f8a-4b92-af8a-20fa165ead55@suse.de>
- <f3ba05c7-6e49-4641-a3f9-ba418ebdb7c3@ideasonboard.com>
- <c6735280-7c32-4319-8ca9-a7305d8117c3@suse.de>
- <d67adb03-5cd0-4ac9-af58-cf4446dacee3@ideasonboard.com>
- <0ea6be58-0e04-4172-87cd-064a3e4a43bc@suse.de>
- <f35cb350-6be9-48ca-ad7e-e9dd418281d5@ideasonboard.com>
- <4af0b6a7-c16a-4187-bbf5-365a9c86de21@suse.de>
- <e327ad84-b5c9-4480-b873-dc3aca605538@ideasonboard.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <e327ad84-b5c9-4480-b873-dc3aca605538@ideasonboard.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_TO(0.00)[ideasonboard.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
-	RCPT_COUNT_TWELVE(0.00)[21];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[163.com,gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[lists.freedesktop.org,lists.infradead.org,vger.kernel.org,lists.linux.dev,lists.xenproject.org,ideasonboard.com,163.com];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid]
-X-Spam-Score: -2.80
-X-Spam-Flag: NO
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250116-tun-v3-8-c6b2871e97f7@daynix.com>
+References: <20250116-tun-v3-0-c6b2871e97f7@daynix.com>
+In-Reply-To: <20250116-tun-v3-0-c6b2871e97f7@daynix.com>
+To: Jonathan Corbet <corbet@lwn.net>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
+ devel@daynix.com, Akihiko Odaki <akihiko.odaki@daynix.com>
+X-Mailer: b4 0.14-dev-fd6e3
 
-Hi
+hdr_len is repeatedly used so keep it in a local variable.
 
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+---
+ drivers/net/tap.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-Am 15.01.25 um 15:20 schrieb Tomi Valkeinen:
-[...]
->
-> My point is that we have the current UAPI, and we have userspace using 
-> it, but we don't have clear rules what the ioctl does with specific 
-> parameters, and we don't document how it has to be used.
->
-> Perhaps the situation is bad, and all we can really say is that 
-> CREATE_DUMB only works for use with simple RGB formats, and the 
-> behavior for all other formats is platform specific. But I think even 
-> that would be valuable in the UAPI docs.
-
-To be honest, I would not want to specify behavior for anything but the 
-linear RGB formats. If anything, I'd take Daniel's reply mail for 
-documentation as-is. Anyone stretching the UAPI beyond RGB is on their own.
-
->
-> Thinking about this, I wonder if this change is good for omapdrm or 
-> xilinx (probably other platforms too that support non-simple non-RGB 
-> formats via dumb buffers): without this patch, in both drivers, the 
-> pitch calculations just take the bpp as bit-per-pixels, align it up, 
-> and that's it.
->
-> With this patch we end up using drm_driver_color_mode_format(), and 
-> aligning buffers according to RGB formats figured out via heuristics. 
-> It does happen to work, for the formats I tested, but it sounds like 
-> something that might easily not work, as it's doing adjustments based 
-> on wrong format.
->
-> Should we have another version of drm_mode_size_dumb() which just 
-> calculates using the bpp, without the drm_driver_color_mode_format() 
-> path? Or does the drm_driver_color_mode_format() path provide some 
-> value for the drivers that do not currently do anything similar?
-
-With the RGB-only rule, using drm_driver_color_mode_format() makes 
-sense. It aligns dumb buffers and video=, provides error checking, and 
-overall harmonizes code. The fallback is only required because of the 
-existing odd cases that already bend the UAPI's rules.
-
-Best regards
-Thomas
-
->
->  Tomi
->
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 061c2f27dfc8..7ee2e9ee2a89 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -645,6 +645,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 	int err;
+ 	struct virtio_net_hdr vnet_hdr = { 0 };
+ 	int vnet_hdr_len = 0;
++	int hdr_len = 0;
+ 	int copylen = 0;
+ 	int depth;
+ 	bool zerocopy = false;
+@@ -672,6 +673,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 		err = -EINVAL;
+ 		if (tap16_to_cpu(q, vnet_hdr.hdr_len) > iov_iter_count(from))
+ 			goto err;
++		hdr_len = tap16_to_cpu(q, vnet_hdr.hdr_len);
+ 	}
+ 
+ 	len = iov_iter_count(from);
+@@ -683,11 +685,8 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 	if (msg_control && sock_flag(&q->sk, SOCK_ZEROCOPY)) {
+ 		struct iov_iter i;
+ 
+-		copylen = vnet_hdr.hdr_len ?
+-			tap16_to_cpu(q, vnet_hdr.hdr_len) : GOODCOPY_LEN;
+-		if (copylen > good_linear)
+-			copylen = good_linear;
+-		else if (copylen < ETH_HLEN)
++		copylen = min(hdr_len ? hdr_len : GOODCOPY_LEN, good_linear);
++		if (copylen < ETH_HLEN)
+ 			copylen = ETH_HLEN;
+ 		linear = copylen;
+ 		i = *from;
+@@ -698,11 +697,9 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 
+ 	if (!zerocopy) {
+ 		copylen = len;
+-		linear = tap16_to_cpu(q, vnet_hdr.hdr_len);
+-		if (linear > good_linear)
+-			linear = good_linear;
+-		else if (linear < ETH_HLEN)
+-			linear = ETH_HLEN;
++		linear = min(hdr_len, good_linear);
++		if (copylen < ETH_HLEN)
++			copylen = ETH_HLEN;
+ 	}
+ 
+ 	skb = tap_alloc_skb(&q->sk, TAP_RESERVE, copylen,
 
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+2.47.1
 
