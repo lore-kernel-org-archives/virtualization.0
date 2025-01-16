@@ -1,156 +1,139 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB48D1991AE
-	for <virtualization@lists.linux.dev>; Thu, 16 Jan 2025 05:53:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB03B18D65F
+	for <virtualization@lists.linux.dev>; Thu, 16 Jan 2025 06:25:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737006813; cv=none; b=hs1M5M0nObhSTFzzvx2IcNm/ET+QYMkHaHD1th50imaICX4t63ENwFSXlvX/Ei+3cNeCV8pLU9fNyvIN2qMkx0hn7h/xeWo3dTrWFgAJflLFY+m/QH8zJ63pyyxLUSqKDYkpv4lny8TFfIsznPaSj3o6bfZiJag2N7G3xeH7UHI=
+	t=1737008723; cv=none; b=AX+zSIdZSNEP6aJUWWZjRQeTjsM7ylHvCGzQnQg7xf1Loy88drBuyHzPl6pICkgn0+6YjJZn1S4mux4gixRqBt9qMKVRlPPnLOlOfSUp2ZnLt+uDT8v8xt3MNXoKWkj18OeBtjQnC5K3vq82JBayIindVvw/zvBf0N82ZwejB88=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737006813; c=relaxed/simple;
-	bh=UXb3rPE/1GDUYX7xYJCycggz8UdX0ho9WDF1GZTuo+k=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JpzKIIA+08GiUjBHVMTSg8REjgbbvv24clB8pYnV+71cBLJUQuwBT4xVenoiPivgPZoeCi05l330/2Akig7NsfszSg4pTB1CfEy+Zb75bY3RgLccfCho3pE6F/eCoO0eCS0/MAdVHBhUKRfG4BnpblcArSqM19nZi9pYODhVq0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=r+m3yxJo; arc=none smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	s=arc-20240116; t=1737008723; c=relaxed/simple;
+	bh=WMJn4P15Uop0ZUJaj8l/izNbz6zUAeoohtTpPY/IIWw=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=E3edUrcbgmu6fBzIKeM1AJKD4DwsnhEPkl8pBKiDnHx1UT6iOU2SVfyb2oRmFywSB+9H+RixVao3UJO6sFi64dhcsMiub9eQ98OoFNJOXk47M99AexX9lZ2UzC0Cgyhq9M6rbMgRHexABuJis1A1XcUmbQsVqvWRPrSpPLVimvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jstultz.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=sWjYO0et; arc=none smtp.client-ip=209.85.214.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jstultz.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="r+m3yxJo"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2166651f752so10997775ad.3
-        for <virtualization@lists.linux.dev>; Wed, 15 Jan 2025 21:53:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="sWjYO0et"
+Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2163a2a1ec2so19788475ad.1
+        for <virtualization@lists.linux.dev>; Wed, 15 Jan 2025 22:25:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1737006811; x=1737611611; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uZtsz2Rtgk1xt8CSQNH2JM2w40RollK9oAaOdJJO1B8=;
-        b=r+m3yxJo+nOuztsCr5WH2CNchrR1VH+54a/TCOdfV1EqWDlE3e7Rpw6ignc+vWdY1b
-         wtD/nx0SmfPMfeKmjBI2o4zoHO0HHta/9iC6+FW7WTfRb1cSb772IxwEJuF4Iqgmm6qW
-         HU4ivFWbzVd5XqF6xgbwI9PghtX0YSL77mMy8=
+        d=google.com; s=20230601; t=1737008720; x=1737613520; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=0AN0Fv7sq/hB9CZnHK+4fFyVr9YDFDdUdaXoaXDLHo0=;
+        b=sWjYO0etkrpv2LKnZRlGyvlCkvOXE97tSTyWNufHI0o2uCv4Bg3GPPD/DA9cBdJTSp
+         Zig5rc062PbE4VvKuLjwyKENDe+iuCO4VTa/qdtPuRmoKWNxHui8hTfHv8BzgTbB90dZ
+         n+FtJEDmYz520h0IM7yn+FbK0FEy8yTS9OWS5VFrym4fPAcfLbtrJm3aOJt6t2lf/p2N
+         UGAIIiMqRSI4K0/+c6ACBrI4pggAkJ0s+tezbfuUddUp5yaTnSltUO7he2CFAtjSkThF
+         jfe7UH8Gzzsa+VNiXK0SbGpa2DNsC9eRSNN6/9pLNz6v0ibw9jdehLqaZs6uNoT951Ju
+         bNsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737006811; x=1737611611;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uZtsz2Rtgk1xt8CSQNH2JM2w40RollK9oAaOdJJO1B8=;
-        b=tiYlmx1ovxw8H8bXi2nTGVIeKRFVgPAsGb4nwNA+ogbrbdIL73BgunxXpo8bSe3wFp
-         8D25g9eCGFePlFb98K5sIXv9rQ98ttOjT9BRCAmWYSpmWqnaYAtkcKCfn1dlI9AOp4mT
-         srDrALaRpklDcp8vzjRsmkaKYCJ7ZpZghSV1Qz7wMcQ6Xb5ig4MfIMBcQZuqXw7Wi04O
-         V7vMTqo5itKiUK2/s09Ns+FCtN3N120hCFPISFYXe9ddm94ta7JJv0mm3n80C+OEG9Gx
-         EIzwkkHVVhkuJlQMiti0DkZdX6i6uZCVstDRuf3qOaX2lDBpvnlURorHsPDC2DcUzW1b
-         eplA==
-X-Forwarded-Encrypted: i=1; AJvYcCXSLsh3j4F2v28jTgqvaNoohW1lWgE8dA845wgNXKtkayLSMS62xVIyouzBYSoGwC5pHHW5UA1F1ByQFfOZJA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwlBqfmeV496F4dS2+IGVe4l+W+xooI2ShaAUOh5U5Ugxf8Jc+v
-	cDSYflD9qU1cOgY7vAYffStSW6WphCsTM9GnJaxCA/gNOISqoEwNX9KdmSoOtws=
-X-Gm-Gg: ASbGnctbGBTxQOunxptF5rAeSPcqOWa1x+a81+DYiY0E9bwVePWWozy+NsqqToStwxG
-	lSsBA3jUbJEgB/c6go8OFHyY0UPoX2IEcUINKVPcBfd+JgySs+GFdLg/J/cs8DrP7Cx2+cEtbbF
-	vml3yLG+wqDb5rpCuDUyRPbJSuz3HhGvAP/A/K8cpnXymqWHLK0v4dXu2FwyyENiUjznkTyu5S1
-	5LUb5u6qb5UlKLlPzKR24MkID8s3fQ8RtNv2eYO+UCgUfVQ3F/cwAYbpElIGJrV
-X-Google-Smtp-Source: AGHT+IGKQzp0gRosRVZZiRnTi2eKc0WyUMTIwNaRCmD8fTVjAZ/tLpnB9TpD79nfRxnZfUmc/GT8fg==
-X-Received: by 2002:a17:902:dace:b0:216:4b5a:998b with SMTP id d9443c01a7336-21a83fe4c3bmr516333485ad.45.1737006811200;
-        Wed, 15 Jan 2025 21:53:31 -0800 (PST)
-Received: from localhost.localdomain ([2620:11a:c019:0:65e:3115:2f58:c5fd])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21a9f22c991sm91249655ad.168.2025.01.15.21.53.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jan 2025 21:53:30 -0800 (PST)
-From: Joe Damato <jdamato@fastly.com>
-To: netdev@vger.kernel.org
-Cc: gerhard@engleder-embedded.com,
-	jasowang@redhat.com,
-	leiyang@redhat.com,
-	mkarsten@uwaterloo.ca,
-	Joe Damato <jdamato@fastly.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH net-next v2 4/4] virtio_net: Use persistent NAPI config
-Date: Thu, 16 Jan 2025 05:52:59 +0000
-Message-Id: <20250116055302.14308-5-jdamato@fastly.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20250116055302.14308-1-jdamato@fastly.com>
-References: <20250116055302.14308-1-jdamato@fastly.com>
+        d=1e100.net; s=20230601; t=1737008720; x=1737613520;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=0AN0Fv7sq/hB9CZnHK+4fFyVr9YDFDdUdaXoaXDLHo0=;
+        b=ZUl14m9oQ6Nd1EIzmFqLo2Z5F7eeuvw+3BPQAfK3fiKSuZySmxRjSUmrhXSAE0xewL
+         vV19AmlBXqAuNhN7qZPdHvR7hSAU3aQMgCMWM8ZprpNnk0o54uzBAQ7UnWDL6+clyPV8
+         zDjiCqR9NvVU6r455cyq71lOIyUZvpVriuuAfrhwCvQC8XKFZYuO9j+Kv8AUTtm29aHU
+         HPgv76Jga1JlX2cWxF5thJ5ffs75s79Gtil1L0qkI+X6BssNlxQGNRpHxPTVS9pHKvkQ
+         +9mtns6pzwlbHYu0B1vSiva5IDagaoQae6tKLyeT4AopTi2I69h6CN5NOYXhEqc4oDXW
+         klzA==
+X-Forwarded-Encrypted: i=1; AJvYcCUFv0/M7riWNMdVquPd7CoGnMlidbBfoBE8JwOewKorUBcmi1PB+3w1dmFKJXKoK52ZeXx07my9BfSFSdx07A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwN0k9AHtHBJQxuLnH9kIovabn4a9MaTzbdhOZZmEshEs5TDRo1
+	wsoGO4GlHxTCO8xX3XkIsewwDdfN0reIQ0s7XHwi2Xwurzo2BbxQcBAlwf5tFKR5vS6Gtqgyeu+
+	jK1QG
+X-Google-Smtp-Source: AGHT+IFuQloDZ6I9ZKV+hzAUpeyDuwaFLgqIic+b8+hSoEirG8TVYZ5FbcDjE0Zwn+8UmU2ObD/PiAwBYNLJ
+X-Received: from pghv4.prod.google.com ([2002:a63:f204:0:b0:7fd:38f5:be0])
+ (user=jstultz job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:7885:b0:1db:eff0:6ae7
+ with SMTP id adf61e73a8af0-1e88d36152cmr48823832637.33.1737008720197; Wed, 15
+ Jan 2025 22:25:20 -0800 (PST)
+Date: Wed, 15 Jan 2025 22:25:08 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.48.0.rc2.279.g1de40edade-goog
+Message-ID: <20250116062514.2391108-1-jstultz@google.com>
+Subject: [RFC][PATCH] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+From: John Stultz <jstultz@google.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: John Stultz <jstultz@google.com>, Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	virtualization@lists.linux.dev, linux-sound@vger.kernel.org, 
+	kernel-team@android.com, Betty Zhou <bettyzhou@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Use persistent NAPI config so that NAPI IDs are not renumbered as queue
-counts change.
+Betty reported hitting the following warning:
 
-$ sudo ethtool -l ens4  | tail -5 | egrep -i '(current|combined)'
-Current hardware settings:
-Combined:	4
+[    8.709131][  T221] WARNING: CPU: 2 PID: 221 at kernel/workqueue.c:4182
+...
+[    8.713282][  T221] Call trace:
+[    8.713365][  T221]  __flush_work+0x8d0/0x914
+[    8.713468][  T221]  __cancel_work_sync+0xac/0xfc
+[    8.713570][  T221]  cancel_work_sync+0x24/0x34
+[    8.713667][  T221]  virtsnd_remove+0xa8/0xf8 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
+[    8.713868][  T221]  virtsnd_probe+0x48c/0x664 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
+[    8.714035][  T221]  virtio_dev_probe+0x28c/0x390
+[    8.714139][  T221]  really_probe+0x1bc/0x4c8
+...
 
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 8194, 'type': 'rx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 8195, 'type': 'rx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 8196, 'type': 'rx'},
- {'id': 0, 'ifindex': 2, 'type': 'tx'},
- {'id': 1, 'ifindex': 2, 'type': 'tx'},
- {'id': 2, 'ifindex': 2, 'type': 'tx'},
- {'id': 3, 'ifindex': 2, 'type': 'tx'}]
+It seems we're hitting the error path in virtsnd_probe(), which
+triggers a virtsnd_remove() which iterates over the substreams
+calling cancel_work_sync() on the elapsed_period work_struct.
 
-Now adjust the queue count, note that the NAPI IDs are not renumbered:
+Looking at the code, from earlier in:
+virtsnd_probe()->virtsnd_build_devs()->virtsnd_pcm_parse_cfg()
 
-$ sudo ethtool -L ens4 combined 1
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 0, 'ifindex': 2, 'type': 'tx'}]
+We set snd->nsubstreams, allocate the snd->substreams, and if
+we then hit an error on the info allocation or something in
+virtsnd_ctl_query_info() fails, we will exit without having
+initialized the elapsed_period work_struct.
 
-$ sudo ethtool -L ens4 combined 8
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 8194, 'type': 'rx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 8195, 'type': 'rx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 8196, 'type': 'rx'},
- {'id': 4, 'ifindex': 2, 'napi-id': 8197, 'type': 'rx'},
- {'id': 5, 'ifindex': 2, 'napi-id': 8198, 'type': 'rx'},
- {'id': 6, 'ifindex': 2, 'napi-id': 8199, 'type': 'rx'},
- {'id': 7, 'ifindex': 2, 'napi-id': 8200, 'type': 'rx'},
- [...]
+When that error path unwinds we then call virtsnd_remove()
+which as long as the substreams array is allocated, will iterate
+through calling cancel_work_sync() on the uninitialized work
+struct hitting this warning.
 
-Signed-off-by: Joe Damato <jdamato@fastly.com>
+The simplest fix seems to just check the work_struct->func ptr
+is valid before calling cancel_work_sync(), but I wanted to share
+in case folks had ideas for a better solution.
+
+I have not yet managed to reproduce the issue myself, so this
+patch has had limited testing.
+
+Feedback or thoughts would be appreciated!
+
+Cc: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: virtualization@lists.linux.dev
+Cc: linux-sound@vger.kernel.org
+Cc: kernel-team@android.com
+Reported-by: Betty Zhou <bettyzhou@google.com>
+Signed-off-by: John Stultz <jstultz@google.com>
 ---
- v2:
-   - New in this v2. Adds persistent NAPI config so that NAPI IDs are
-     not renumbered and napi_config settings are persisted.
+ sound/virtio/virtio_card.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- drivers/net/virtio_net.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c6fda756dd07..52094596e94b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -6420,8 +6420,9 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 	INIT_DELAYED_WORK(&vi->refill, refill_work);
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		vi->rq[i].pages = NULL;
--		netif_napi_add_weight(vi->dev, &vi->rq[i].napi, virtnet_poll,
--				      napi_weight);
-+		netif_napi_add_config(vi->dev, &vi->rq[i].napi, virtnet_poll,
-+				      i);
-+		vi->rq[i].napi.weight = napi_weight;
- 		netif_napi_add_tx_weight(vi->dev, &vi->sq[i].napi,
- 					 virtnet_poll_tx,
- 					 napi_tx ? napi_weight : 0);
+diff --git a/sound/virtio/virtio_card.c b/sound/virtio/virtio_card.c
+index 965209e1d872..87dc49c9390a 100644
+--- a/sound/virtio/virtio_card.c
++++ b/sound/virtio/virtio_card.c
+@@ -365,7 +365,9 @@ static void virtsnd_remove(struct virtio_device *vdev)
+ 	for (i = 0; snd->substreams && i < snd->nsubstreams; ++i) {
+ 		struct virtio_pcm_substream *vss = &snd->substreams[i];
+ 
+-		cancel_work_sync(&vss->elapsed_period);
++		/* check we initialized the work struct before cancelling*/
++		if (vss->elapsed_period.func)
++			cancel_work_sync(&vss->elapsed_period);
+ 		virtsnd_pcm_msg_free(vss);
+ 	}
+ 
 -- 
-2.25.1
+2.48.0.rc2.279.g1de40edade-goog
 
