@@ -1,30 +1,30 @@
 Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3DD852361E7;
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7A3BC22BADF;
 	Thu, 16 Jan 2025 23:23:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737069796; cv=none; b=uLlDqQzgOVrqAjGcVXFsPCAtwY08ivlk08hoebZjBDiiW9vcAlqGYfTt7qKqZoDFKRBOTO+eyyW8Yd3FnzoYkQUz6fJqm/ayCMirld7Vh6h8YrSJ8zmNo9YeC5Xbjwyh9b1++RejvnKfXUaXyy8ybSJNwurp8HgxZZA+dSSeljY=
+	t=1737069797; cv=none; b=j72LsVWIAtDF+QjoRZshPWr6U2Okpk6MYwYN5nSn4LvcXjrX+VCOujM8RHWZtTWnFMaOyv2Mwj3KDbmm+pHEmZMkW6jrJeP0o+8NA8R7W9cyUsC/7y1Am9jHQVnHYY8A7E16FV66pMTwjvtGFO545TOK1ookEBUAmFzNptqZMGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737069796; c=relaxed/simple;
-	bh=OVAvyrQ2Hi9aky12+e8xtryMlBUSvpeHlMI7fo8WbsQ=;
+	s=arc-20240116; t=1737069797; c=relaxed/simple;
+	bh=ONbSvt/X6XSuRpBg/kxhZca6Mzje0CmqRYDOxvJrZ+M=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=gjQVyQCyxN9zlKUGsMpl3iiy7TqD9Zg3YKPriKS4YEWr6prUL3J+OfSk1+Jbdi0CJEKqZPxakOou3e0RG6CAtB/pAHvehDE/olv/CfQsicW7ZyFpnJEKh8xSbJBIzysEzTVoMuj7bjVApCLsj6pXK3PvU6zAwxH8EWtRjXK4AS0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=ENqnNakS; arc=none smtp.client-ip=13.77.154.182
+	 MIME-Version; b=t+l8KeEr70OskVS47+A1WWfpJ9H7jzzI61ajcA+hBo/wUySzIqu5pHREpJJ40gcJnFKQYzkJ6hUYkQkwCtU/f7uvIjew2BpdzZYV9KbLywfEj7A2qA+S3sDyKuQ8MDOQMWENzUrtN2kAEsjj2j3VUVbovxXfMj2kQRHSRMVrxdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=fsY2vTPs; arc=none smtp.client-ip=13.77.154.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ENqnNakS"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="fsY2vTPs"
 Received: from thinkpad-p16sg1.corp.microsoft.com (unknown [20.236.10.66])
-	by linux.microsoft.com (Postfix) with ESMTPSA id A6B9620591AA;
+	by linux.microsoft.com (Postfix) with ESMTPSA id 00E9220591AB;
 	Thu, 16 Jan 2025 15:23:14 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A6B9620591AA
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 00E9220591AB
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1737069794;
-	bh=P4jWpJL3m1B1x7U4cIHota00Kj8/WCnEujqgPgEJRxo=;
+	s=default; t=1737069795;
+	bh=bH78J9VP5ficnGV2dvBvEUQV0y++qVoeHqjErfV0eHE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ENqnNakSMHsmOehkMhdCS86XVVsyp0OqocXw//ub6IESyVXTwFgTXnVwkrObPMfqe
-	 ddnrIOQI27nypt9wuBDgIzGjNWBpQLwdczEJfRH+XqGHgmfklza1bVLj2r4duK9tJE
-	 8YtDQmTf6hhwW52FrQB9WbAayAuV27zb5/mL0Bwc=
+	b=fsY2vTPsopRlT2ivKJccsz24SyonfDNFDTJtw8mQp86qab/2OYgIJv4cfi6g957io
+	 6kNe61Orz/E2fYfbuTokuulXEEB39uGSRqYBGsvA/UiNVIwp3P2tRgIAEJzFSyfSsk
+	 sV7wfkaIeEvMZybLUmt51QezKGMG0Gg4b5gfh++w=
 From: Shyam Saini <shyamsaini@linux.microsoft.com>
 To: iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -36,9 +36,9 @@ Cc: will@kernel.org,
 	code@tyhicks.com,
 	eahariha@linux.microsoft.com,
 	vijayb@linux.microsoft.com
-Subject: [PATCH 2/3] iommu: consolidate MSI_IOVA macro definitions
-Date: Thu, 16 Jan 2025 15:23:06 -0800
-Message-Id: <20250116232307.1436693-3-shyamsaini@linux.microsoft.com>
+Subject: [PATCH 1/3] dt-bindings: iommu: add "arm,smmu-pci-msi-iova-data" property
+Date: Thu, 16 Jan 2025 15:23:07 -0800
+Message-Id: <20250116232307.1436693-4-shyamsaini@linux.microsoft.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250116232307.1436693-1-shyamsaini@linux.microsoft.com>
 References: <20250116232307.1436693-1-shyamsaini@linux.microsoft.com>
@@ -50,74 +50,83 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-MSI_IOVA* macros are common among different iommu/smu drivers,
-so move them to common iommu.h header file.
-This doesn't change anything wrt functionality of the IOMMU subsystem.
+By default ARM SMMU drivers use MSI_IOVA_BASE macro to reserve
+PCI MSI IOVA memory range, this assumes that all the platforms have
+MSI_IOVA_BASE address available for MSI reservation. However, this
+is not always the case, as some platforms may have the default
+address reserved for some other purposes and as a consequence ARM SMMU
+drivers can't reserve MSI memory for those platforms.
 
-Suggested-by: Jacob Pan <jacob.pan@linux.microsoft.com>
+To address this issue, add a new dts property
+"arm,smmu-pci-msi-iova-data" which can be used to hold custom
+PCI MSI IOVA address and its address length. This property can be passed
+to ARM SMMU drivers via device tree to reserve specified memory range
+for MSI.
+
 Signed-off-by: Shyam Saini <shyamsaini@linux.microsoft.com>
 ---
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h | 3 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c       | 3 ---
- drivers/iommu/virtio-iommu.c                | 2 --
- include/linux/iommu.h                       | 3 +++
- 4 files changed, 3 insertions(+), 8 deletions(-)
+ .../devicetree/bindings/iommu/arm,smmu-v3.yaml       | 12 ++++++++++++
+ .../devicetree/bindings/iommu/arm,smmu.yaml          | 12 ++++++++++++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
-index bd9d7c85576a2..d1713f6bbe6d1 100644
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
-@@ -502,9 +502,6 @@ static inline unsigned int arm_smmu_cdtab_l2_idx(unsigned int ssid)
- #define ARM_SMMU_POLL_TIMEOUT_US	1000000 /* 1s! */
- #define ARM_SMMU_POLL_SPIN_COUNT	10
+diff --git a/Documentation/devicetree/bindings/iommu/arm,smmu-v3.yaml b/Documentation/devicetree/bindings/iommu/arm,smmu-v3.yaml
+index 75fcf4cb52d9f..dbad612886604 100644
+--- a/Documentation/devicetree/bindings/iommu/arm,smmu-v3.yaml
++++ b/Documentation/devicetree/bindings/iommu/arm,smmu-v3.yaml
+@@ -56,6 +56,17 @@ properties:
+       NOTE: this only applies to the SMMU itself, not masters connected
+       upstream of the SMMU.
  
--#define MSI_IOVA_BASE			0x8000000
--#define MSI_IOVA_LENGTH			0x100000
--
- enum pri_resp {
- 	PRI_RESP_DENY = 0,
- 	PRI_RESP_FAIL = 1,
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 79afc92e1d8b9..287f8e8d25890 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -49,9 +49,6 @@
-  */
- #define QCOM_DUMMY_VAL -1
- 
--#define MSI_IOVA_BASE			0x8000000
--#define MSI_IOVA_LENGTH			0x100000
--
- static int force_stage;
- module_param(force_stage, int, S_IRUGO);
- MODULE_PARM_DESC(force_stage,
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index b85ce6310ddbd..8c8783c8b31be 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -24,8 +24,6 @@
- 
- #include "dma-iommu.h"
- 
--#define MSI_IOVA_BASE			0x8000000
--#define MSI_IOVA_LENGTH			0x100000
- 
- #define VIOMMU_REQUEST_VQ		0
- #define VIOMMU_EVENT_VQ			1
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 38c65e92ecd09..2a26d3e18b24e 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -1505,6 +1505,9 @@ static inline void iommu_debugfs_setup(void) {}
- #ifdef CONFIG_IOMMU_DMA
- #include <linux/msi.h>
- 
-+#define MSI_IOVA_BASE		0x8000000
-+#define MSI_IOVA_LENGTH		0x100000
++  arm,smmu-pci-msi-iova-data:
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    description: |
++      Specifies a custom PCI MSI base I/O Virtual Address and its memory range
++      size for ARM SMMU drivers. This allows setting a custom address and
++      memory size pair if the default MSI_IOVA_BASE_DEFAULT address and
++      MSI_IOVA_LENGTH_DEFAULT size are not suitable for the intended platform.
++    items:
++      - description: MSI IOVA base address
++      - description: MSI IOVA address length
 +
- int iommu_get_msi_cookie(struct iommu_domain *domain, dma_addr_t base);
+   msi-parent: true
  
- int iommu_dma_prepare_msi(struct msi_desc *desc, phys_addr_t msi_addr);
+   hisilicon,broken-prefetch-cmd:
+@@ -92,4 +103,5 @@ examples:
+             dma-coherent;
+             #iommu-cells = <1>;
+             msi-parent = <&its 0xff0000>;
++            arm,smmu-pci-msi-iova-data = <0xa0000000 0x100000>;
+     };
+diff --git a/Documentation/devicetree/bindings/iommu/arm,smmu.yaml b/Documentation/devicetree/bindings/iommu/arm,smmu.yaml
+index 032fdc27127bf..d080b13765d1f 100644
+--- a/Documentation/devicetree/bindings/iommu/arm,smmu.yaml
++++ b/Documentation/devicetree/bindings/iommu/arm,smmu.yaml
+@@ -207,6 +207,17 @@ properties:
+       NOTE: this only applies to the SMMU itself, not masters connected
+       upstream of the SMMU.
+ 
++  arm,smmu-pci-msi-iova-data:
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    description: |
++      Specifies a custom PCI MSI base I/O Virtual Address and its memory range
++      size for ARM SMMU drivers. This allows setting a custom address and
++      memory size pair if the default MSI_IOVA_BASE_DEFAULT address and
++      MSI_IOVA_LENGTH_DEFAULT size are not suitable for the intended platform.
++    items:
++      - description: MSI IOVA base address
++      - description: MSI IOVA address length
++
+   calxeda,smmu-secure-config-access:
+     type: boolean
+     description:
+@@ -679,6 +690,7 @@ examples:
+             #iommu-cells = <1>;
+             /* always ignore appended 5-bit TBU number */
+             stream-match-mask = <0x7c00>;
++            arm,smmu-pci-msi-iova-data = <0xa0000000 0x100000>;
+     };
+ 
+     bus {
 -- 
 2.34.1
 
