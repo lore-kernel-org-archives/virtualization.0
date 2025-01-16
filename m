@@ -1,154 +1,92 @@
-Received: from mx13lb.world4you.com (mx13lb.world4you.com [81.19.149.123])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A01AC236A64;
-	Thu, 16 Jan 2025 20:28:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.149.123
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C0FC71DD88F;
+	Thu, 16 Jan 2025 23:23:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737059301; cv=none; b=haAYmovAGh+bYTuwiI9OL/Cy5Pvf0hSgB1KPSixTRSYa72V/IoNotNqvGMqjh76lXtBu6IMlaK0ll2nXf6rX48KSJ19VnWCvnsQ2EqEAZvqE6NeB9qJ6C9fxqYTtGmBP/WKWCXl3tgoI3U3FPJOJHQQMpsJTOy8YsD53OJPhiH8=
+	t=1737069796; cv=none; b=szECKFsjAbLMSusAwbPT6Ib2pzia7SjE0uVfimdZsv0sO14vrLO6rg6UeHKlJzE3CsXZdQ5UDKmu73hY8DaYWOxMmot4ppIwByhwHarkVI/R3DPcxUY+FNGor3L5e2x62hdhK6n0i9CyYQ3Y2MBuSoNj/G468i0Wreea92PD4jo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737059301; c=relaxed/simple;
-	bh=nudOlvqSJ1aBhTQ2tX4dtnYAuDIsm35x9yhIVoUF/mg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
-	 In-Reply-To:Content-Type; b=MTA9t8QchOzWpTO7rqt6hJwPnHOcLcDy4Am52Lg6LU+cxX1gLQ3o7DxxXdWVO7sxBfg0oi4JjLJ2SbTyKA14r3A9KOmOqi+vADJGYspnyJwSHzxXp/555/UcmfOvrhFRx/cQy/RfcykclprwBpf9mNcJP1DMxI0XSYWqAsp40Mo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com; spf=pass smtp.mailfrom=engleder-embedded.com; dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b=I7OqsmYT; arc=none smtp.client-ip=81.19.149.123
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=engleder-embedded.com
+	s=arc-20240116; t=1737069796; c=relaxed/simple;
+	bh=lzcKpMvtoa9caH1dK776bAbqnopCsa5ERUGfA82TvbY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HUbb7Wjit3VB3IniH9YQHYYcEfpRWqMHLko1fLsBtYiXaAqvd/MpENhQPXG3zDuxBrHung2pVEgbkQP9lU4erCO2gU1NzIG6cBTh2ESRBWWT397O/tgq6N/SlgjNyPnMdcDpFfpljhJvjFvwvU5SjYOBElEvhXnVfZrvrByIsiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=aj9ZpFs/; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b="I7OqsmYT"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=engleder-embedded.com; s=dkim11; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:Cc:References:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=ahuT/uI6m98g3xSc8Ha9OAIyv3omnEhaK7ihtInarV0=; b=I7OqsmYTo+0VcA+Ln2qQcokgSz
-	OLyZ30zDmnP1fjgVzUgNx13Jf5RBmlYgfjjheUWk96EbXAUkIWdBwjeHv2T7WChrZ7XfEx2LYCHGW
-	FRNBXzk6CEv45lziRZH+e8WYkCElbRz00SeNFQNo5n+xxJOFKXbhwu/3Ub/qqk3scpNY=;
-Received: from [88.117.60.28] (helo=[10.0.0.160])
-	by mx13lb.world4you.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.97.1)
-	(envelope-from <gerhard@engleder-embedded.com>)
-	id 1tYWTJ-000000006xn-2BtL;
-	Thu, 16 Jan 2025 21:28:09 +0100
-Message-ID: <f8fe5618-af94-4f5b-8dbc-e8cae744aedf@engleder-embedded.com>
-Date: Thu, 16 Jan 2025 21:28:07 +0100
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="aj9ZpFs/"
+Received: from thinkpad-p16sg1.corp.microsoft.com (unknown [20.236.10.66])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 220C020591A5;
+	Thu, 16 Jan 2025 15:23:14 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 220C020591A5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1737069794;
+	bh=NTt6eAeZulOXgSwKKcojtQtTZr5qsec7mtCKAgDqis0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=aj9ZpFs/zTz59cSblNi82HiQ8/TWkT0sHEKkMl+c98XoAGr8T8D3xbIBOvEFqeSP6
+	 m+1n5yQFhBrkvITROOo+h3x8wDz2Z200t7jCrl64+w4kgPD0bvNN8DFlC+e9GmxCBH
+	 1oKkouiPTWwYHCxlxtqfVyvbaq/0dDWUnNtUDYZ0=
+From: Shyam Saini <shyamsaini@linux.microsoft.com>
+To: iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: will@kernel.org,
+	jacob.pan@linux.microsoft.com,
+	eric.auger@redhat.com,
+	code@tyhicks.com,
+	eahariha@linux.microsoft.com,
+	vijayb@linux.microsoft.com
+Subject: [PATCH 0/3] make MSI IOVA base address and its length configurable
+Date: Thu, 16 Jan 2025 15:23:04 -0800
+Message-Id: <20250116232307.1436693-1-shyamsaini@linux.microsoft.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 3/4] virtio_net: Map NAPIs to queues
-To: Joe Damato <jdamato@fastly.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20250116055302.14308-1-jdamato@fastly.com>
- <20250116055302.14308-4-jdamato@fastly.com>
- <1737013994.1861002-1-xuanzhuo@linux.alibaba.com>
- <Z4kvQI8GmmEGrq1F@LQ3V64L9R2>
-Content-Language: en-US
-Cc: "open list:XDP (eXpress Data Path):Keyword:(?:b|_)xdp(?:b|_)"
- <bpf@vger.kernel.org>, jasowang@redhat.com, leiyang@redhat.com,
- mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
- open list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-From: Gerhard Engleder <gerhard@engleder-embedded.com>
-In-Reply-To: <Z4kvQI8GmmEGrq1F@LQ3V64L9R2>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AV-Do-Run: Yes
+Content-Transfer-Encoding: 8bit
 
-On 16.01.25 17:09, Joe Damato wrote:
-> On Thu, Jan 16, 2025 at 03:53:14PM +0800, Xuan Zhuo wrote:
->> On Thu, 16 Jan 2025 05:52:58 +0000, Joe Damato <jdamato@fastly.com> wrote:
->>> Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
->>> can be accessed by user apps.
->>>
->>> $ ethtool -i ens4 | grep driver
->>> driver: virtio_net
->>>
->>> $ sudo ethtool -L ens4 combined 4
->>>
->>> $ ./tools/net/ynl/pyynl/cli.py \
->>>         --spec Documentation/netlink/specs/netdev.yaml \
->>>         --dump queue-get --json='{"ifindex": 2}'
->>> [{'id': 0, 'ifindex': 2, 'napi-id': 8289, 'type': 'rx'},
->>>   {'id': 1, 'ifindex': 2, 'napi-id': 8290, 'type': 'rx'},
->>>   {'id': 2, 'ifindex': 2, 'napi-id': 8291, 'type': 'rx'},
->>>   {'id': 3, 'ifindex': 2, 'napi-id': 8292, 'type': 'rx'},
->>>   {'id': 0, 'ifindex': 2, 'type': 'tx'},
->>>   {'id': 1, 'ifindex': 2, 'type': 'tx'},
->>>   {'id': 2, 'ifindex': 2, 'type': 'tx'},
->>>   {'id': 3, 'ifindex': 2, 'type': 'tx'}]
->>>
->>> Note that virtio_net has TX-only NAPIs which do not have NAPI IDs, so
->>> the lack of 'napi-id' in the above output is expected.
->>>
->>> Signed-off-by: Joe Damato <jdamato@fastly.com>
->>> ---
->>>   v2:
->>>     - Eliminate RTNL code paths using the API Jakub introduced in patch 1
->>>       of this v2.
->>>     - Added virtnet_napi_disable to reduce code duplication as
->>>       suggested by Jason Wang.
->>>
->>>   drivers/net/virtio_net.c | 34 +++++++++++++++++++++++++++++-----
->>>   1 file changed, 29 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->>> index cff18c66b54a..c6fda756dd07 100644
->>> --- a/drivers/net/virtio_net.c
->>> +++ b/drivers/net/virtio_net.c
->>> @@ -2803,9 +2803,18 @@ static void virtnet_napi_do_enable(struct virtqueue *vq,
->>>   	local_bh_enable();
->>>   }
->>>
->>> -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
->>> +static void virtnet_napi_enable(struct virtqueue *vq,
->>> +				struct napi_struct *napi)
->>>   {
->>> +	struct virtnet_info *vi = vq->vdev->priv;
->>> +	int q = vq2rxq(vq);
->>> +	u16 curr_qs;
->>> +
->>>   	virtnet_napi_do_enable(vq, napi);
->>> +
->>> +	curr_qs = vi->curr_queue_pairs - vi->xdp_queue_pairs;
->>> +	if (!vi->xdp_enabled || q < curr_qs)
->>> +		netif_queue_set_napi(vi->dev, q, NETDEV_QUEUE_TYPE_RX, napi);
->>
->> So what case the check of xdp_enabled is for?
-> 
-> Based on a previous discussion [1], the NAPIs should not be linked
-> for in-kernel XDP, but they _should_ be linked for XSK.
-> 
-> I could certainly have misread the virtio_net code (please let me
-> know if I've gotten it wrong, I'm not an expert), but the three
-> cases I have in mind are:
-> 
->    - vi->xdp_enabled = false, which happens when no XDP is being
->      used, so the queue number will be < vi->curr_queue_pairs.
-> 
->    - vi->xdp_enabled = false, which I believe is what happens in the
->      XSK case. In this case, the NAPI is linked.
-> 
->    - vi->xdp_enabled = true, which I believe only happens for
->      in-kernel XDP - but not XSK - and in this case, the NAPI should
->      NOT be linked.
+Hi,
 
-My interpretation based on [1] is that an in-kernel XDP Tx queue is a
-queue that is only used if XDP is attached and is not visible to
-userspace. The in-kernel XDP Tx queue is used to not load stack Tx
-queues with XDP packets. IIRC fbnic has additional queues only for
-XDP Tx. So for stack RX queues I would always link napi, no matter if
-XDP is attached or not. I think most driver do not have in-kernel XDP
-Tx queues. But I'm also not an expert.
+Currently, the MSI_IOVA_BASE address is hard-coded to 0x80000000,
+assuming that all platforms have this address available for MSI IOVA
+reservation. However, this is not always the case, as some platforms
+reserve this address for other purposes. Consequently, these platforms
+cannot reserve the MSI_IOVA_BASE address for MSI.
 
-Gerhard
+There was an [1] attempt to fix this problem by passing the MSI IOVA
+base as a kernel command line parameter. In the previous attempt,
+Will suggested reserving the MSI IOVA at runtime whenever there is a
+conflict with the default MSI_IOVA_BASE. However, dynamically reserving
+this address has debuggability concerns, as it becomes difficult to
+track IOMMU mapping failures.
+
+This patch series aims to address the issue by introducing a new DTS
+property, "arm,smmu-pci-msi-iova-data". This property allows the
+configuration of MSI IOVA with a custom MSI base address and a custom
+length for IOMMU/SMMU drivers. It accommodates platforms that do not
+have the default MSI base address available for MSI reservation.
+
+[1]: https://lore.kernel.org/lkml/20200914181307.117792-1-vemegava@linux.microsoft.com/
+
+Thanks,
+Shyam
+
+Shyam Saini (3):
+  dt-bindings: iommu: add "arm,smmu-pci-msi-iova-data" property
+  iommu: consolidate MSI_IOVA macro definitions
+  arm-smmu: use dts passed MSI IOVA address and length
+
+ .../bindings/iommu/arm,smmu-v3.yaml           | 12 +++++
+ .../devicetree/bindings/iommu/arm,smmu.yaml   | 12 +++++
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c   | 10 ++++-
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h   |  3 --
+ drivers/iommu/arm/arm-smmu/arm-smmu.c         | 11 +++--
+ drivers/iommu/virtio-iommu.c                  |  8 ++--
+ include/linux/iommu.h                         | 44 +++++++++++++++++++
+ 7 files changed, 86 insertions(+), 14 deletions(-)
+
+-- 
+2.34.1
+
