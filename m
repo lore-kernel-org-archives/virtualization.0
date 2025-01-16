@@ -1,109 +1,214 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A68778F41
-	for <virtualization@lists.linux.dev>; Wed, 15 Jan 2025 14:34:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF8A62744D
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 01:07:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736951680; cv=none; b=Dgd276OiWQnThpzml8Rk3qD6Wwgpz+nMn5NfMtxnS3kCfXldnl3FRtCUPVV0b8Bf2Z6fEvwpyJqSXzb7FnbqHimtevF1rudN5NT2TMfuKF8epfZMVLnRk/rRpAP8i1IlhbYIO2Cyrxy0MQM5a4QJvb2QbCsOugfRBXyZQIB50t0=
+	t=1736989632; cv=none; b=idPKKNuFTDH7i+J9SwJJcAR8Iy5h0SKiR1rYA5aVcZX6okKn6gaAqzwp0zbXAWW/wfNule9N0zrGqiDVXxe1jCIU7IgfzCqX/tSfceAIo3B2xX8fPyP8yJsZPVNdH5lEXJN09CAxIl+G63/VZjKKS4pJUR8S5pJzOgvGLfRNrgg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736951680; c=relaxed/simple;
-	bh=wgpCbUXuk0fjx7PlpFBa3YSbnvvXmj+DNx/eEdB8F5M=;
+	s=arc-20240116; t=1736989632; c=relaxed/simple;
+	bh=wlj81as0MSR+2QoKMzymAk7Z0bJsw6YvCNC5UATgJPE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=stiCbmpCzQxEtXmljQRpbSrc4jcVNIzDLCsLN3V0HvSINKw08SjlBKCA4yZIh/wFWPDkA04oRT+MPgPNo2pxN8zHVV1x3bDYXd/DkHra7pebWep/qLoVgBp7R0NngLB4zp+0pxzlsTvzO3GFBEVgVwv1VEt9nevyR3VL2eo/c/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fooishbar.org; spf=pass smtp.mailfrom=fooishbar.org; dkim=pass (2048-bit key) header.d=fooishbar.org header.i=@fooishbar.org header.b=h0qt0OYq; arc=none smtp.client-ip=209.85.219.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fooishbar.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fooishbar.org
+	 To:Cc:Content-Type; b=h+Rp+OyXErD4xBu1AHJKXdJN1V7PGFwzoKpHoeMXTZNIfwWc/ClWpIIz2QFjED6Apm/rDmD6aHdrVHFwQdDJhUqA4HAsSYPG4tleRwsUZGUeVx6ZtVzKMnESiUmsJQxrHRD5IDNx4aXuROn3IbGnOAm2fJnRyWCQk4GMM+d9e14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c6CHozNQ; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fooishbar.org header.i=@fooishbar.org header.b="h0qt0OYq"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6d89a727a19so9128696d6.0
-        for <virtualization@lists.linux.dev>; Wed, 15 Jan 2025 06:34:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fooishbar.org; s=google; t=1736951678; x=1737556478; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=wgpCbUXuk0fjx7PlpFBa3YSbnvvXmj+DNx/eEdB8F5M=;
-        b=h0qt0OYqITL9QdntRISFsBR2Spn/VMAQt/Ax02H1QP7JB9QhkzZVZcOoVrzkDMihFX
-         MxxUF9hxSbtXthy8OY3jWlTwVDKOCzAQ1kXgnTSOhTvGvPQO1zIH35jWXIb9gbLfGfVg
-         OzUsqT0wMA+D8EOpS3XA4RgN9tAAd2xGhCKExv9qM1DSgTtfy8mTHCDeOsZs9HdFln/5
-         q/cdyEcaMEsWWN/6FBuv599zW/mnqwC5pRfLSTkbjodWmmjz8jdsxwiricv4P4w7EA1n
-         0nK+E4NFQQaO61eZ3UTrTJzbAcn5RYnHB2vwIY0MKCO40ga9eJFt1Le0P6qAPGlVv9+d
-         KR+g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c6CHozNQ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5CD72400F1
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 01:07:10 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id OuwXzt4K6fv0 for <virtualization@lists.linux-foundation.org>;
+ Thu, 16 Jan 2025 01:07:09 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 0B5E6400BF
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0B5E6400BF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c6CHozNQ
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0B5E6400BF
+	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 01:07:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736989626;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wlj81as0MSR+2QoKMzymAk7Z0bJsw6YvCNC5UATgJPE=;
+	b=c6CHozNQ3cABqv47p2DRAo+iKhjcEiTi3qiXXVXXKYen1EdrTmiUi1sAL7QwNRmSUAKZSh
+	Y2I8rq0ID7+E0VvwWzcITofTOIIqSHjRUrwhW6+DjmQrWPHu4yeo3knzOQHBLJQlEp2ERl
+	eXxxFObz3HjTkjrT+g+V4cm+9X9rHWs=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-479-dH8zlo4APHOoJjybEHMUFw-1; Wed, 15 Jan 2025 20:07:05 -0500
+X-MC-Unique: dH8zlo4APHOoJjybEHMUFw-1
+X-Mimecast-MFC-AGG-ID: dH8zlo4APHOoJjybEHMUFw
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2ee6dccd3c9so845309a91.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 15 Jan 2025 17:07:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736951678; x=1737556478;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wgpCbUXuk0fjx7PlpFBa3YSbnvvXmj+DNx/eEdB8F5M=;
-        b=QW5+XfN+aOoFIB3H82RcVgvV1QWA86UYc/onCo/3gM6wQLzMtCpM7pYRYzJ9IhuTyX
-         TfgVn8houpiK15ax/1BRJGtnZ2CMHni4rdikTrK1/bzfmlm9juexzJ8NQzbjLDoFmMXJ
-         lxYt6kSeqITPAqA8zM+x9wgtrPy5Bvj0eyORTR57Iit5hh1V49Xdne6RYKDmCPkc/veo
-         /1NPiMTb3ZYdSMrPoLHFn22YuZv9emmxxe1FBDioGG3jtJjTqThmvmLXJeUdfmIY4t6N
-         TNt/wwXSWaHK41DdD48EKc8aDgTJBdS3md9tEhRqeQBOhPkPsDS5EsXQpoVULXCjJgw7
-         4Okg==
-X-Forwarded-Encrypted: i=1; AJvYcCWheAA0lXjMla4dcw5K+qCv7CICGqSldTBSn0m/VB0G9wJRS2rrPT7Ql9YuV0LwTiEsgTXfx7gbXp803PdRxw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyRa5keWq8QGsZaGqI7YneXZCFkKO6gghLnrO6xMmlINX7t/Y6Y
-	ZTyp0z0DuJKKyLrz5cJ3pa99YgYToDodKQjaXec3nnTaAsEm4GBU+bcM4TkvqRtx341iVxViR9h
-	gQoxGD6ol8pVp0KX8ka4u7aijkZcBLKijZfuNNQ==
-X-Gm-Gg: ASbGncvp7wR/k5bIl9VdLyV6pa2FvlJTSrYnITyO6VenX0G2usCKTCIl8EAAmzHkG+5
-	I4ezxcw8Jm1iR91ev6gyhovsqNAyVHlBNH2I=
-X-Google-Smtp-Source: AGHT+IFPz9fbMcvhhyZZGYYuWLUwXCRTy8s+kBCbi69J2hIRU1+TB7begqOpM0+xy1s6GqB+nx1X6ZJAR0totDSXOwo=
-X-Received: by 2002:a05:6214:486:b0:6d8:e7c9:ffa0 with SMTP id
- 6a1803df08f44-6e192c73ef5mr43851476d6.19.1736951677902; Wed, 15 Jan 2025
- 06:34:37 -0800 (PST)
+        d=1e100.net; s=20230601; t=1736989624; x=1737594424;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wlj81as0MSR+2QoKMzymAk7Z0bJsw6YvCNC5UATgJPE=;
+        b=UIFaXjRzAV3PmHoblgGsMCkutK/mtca5MS9eqa+lKKq5T0X8lBcChwnQEY5cgNV65A
+         J+qDrDqZUOP21DWQykKIa2uOyU/x3Jb1m4RFiBASrsg+isE+lXnmSLQCiZnntAmi+rXu
+         MFH0vJ+NYf8JVGCjIPBpiILYnRj0PMPs0Guf25P9iKZHJBDnFLTdrAI+mybFi2VRCxG1
+         q7b/KPzbyfbXzwiYzPp/X64P/cHiIWF5G5gvYPF4OxdbP9ER+wPvF9S3Rgx1nhsZPlqE
+         T7EIfLCSrbApkDhR1W+lgaCFaS1bZXryiaARvPeDJbgB2cPCLGDSAOnkCdqLIR1+Hpi3
+         ef5g==
+X-Forwarded-Encrypted: i=1; AJvYcCW4VK2qWi87zQUa+Oj8Ed1xhA1GPeSNlpthNzZhUDaBUfjsgOKMu7e6+y5uKiMZocweNKdvE8J19xQlOyGEWw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwlE/qVfPMqE0yKuJIPcaEFeZ0wG5h4RV08WmYIipPUbKR1pABb
+	e0tbryF+cATcVkA8D5ZChR8X1wOmyIIw4PETpwbEfLiS5Ngt32MaROwftswWQtiaonp7cNyaIJY
+	FuMX7fjTMQkqEhgir0h0rbmGYST3tUK1jVWDjCv6/oDQnLxhovmXkMzej/8MNVDdPWnp09EwFNk
+	xwJlGqSDdow5mdpnIrMA0ANoGqrezbBwuqIMzZn2UhEzHSfdU4Od81tA==
+X-Gm-Gg: ASbGncueNSVxjv4rLiHP0YK2USYIacCDwIq5xfhc5YhdcHLeif0LLKXXQ4JdUWC4N7h
+	eFh1E1cCsi0WD4EUBhiRPd70y4OJe9SQySCq0uJo=
+X-Received: by 2002:a17:90b:51cb:b0:2ef:3192:d280 with SMTP id 98e67ed59e1d1-2f548f162acmr41742279a91.5.1736989624175;
+        Wed, 15 Jan 2025 17:07:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFXTlxUYfojfThpUlYe1bY0TrNIHeZ7wOATIqqDywvf5ON2WLv7gIgxHZLXiKaVB1ytp3colHV+0p05xw+gzAU=
+X-Received: by 2002:a17:90b:51cb:b0:2ef:3192:d280 with SMTP id
+ 98e67ed59e1d1-2f548f162acmr41742236a91.5.1736989623732; Wed, 15 Jan 2025
+ 17:07:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250109150310.219442-1-tzimmermann@suse.de> <20250109150310.219442-26-tzimmermann@suse.de>
- <cdbe483d-0895-47aa-8c83-1c28220f4a02@ideasonboard.com> <bc97b92e-7f8a-4b92-af8a-20fa165ead55@suse.de>
- <f3ba05c7-6e49-4641-a3f9-ba418ebdb7c3@ideasonboard.com> <c6735280-7c32-4319-8ca9-a7305d8117c3@suse.de>
- <d67adb03-5cd0-4ac9-af58-cf4446dacee3@ideasonboard.com> <0ea6be58-0e04-4172-87cd-064a3e4a43bc@suse.de>
- <f35cb350-6be9-48ca-ad7e-e9dd418281d5@ideasonboard.com> <4af0b6a7-c16a-4187-bbf5-365a9c86de21@suse.de>
- <e327ad84-b5c9-4480-b873-dc3aca605538@ideasonboard.com>
-In-Reply-To: <e327ad84-b5c9-4480-b873-dc3aca605538@ideasonboard.com>
-From: Daniel Stone <daniel@fooishbar.org>
-Date: Wed, 15 Jan 2025 14:34:26 +0000
-X-Gm-Features: AbW1kvZOqZIfsgr5MQqIuf1jKNJtcUmkb-2ddanRpBEhDxEw_Wl931RGN2rzkA8
-Message-ID: <CAPj87rOn=RQ615zyaEdFT2ADfPztU7+heVi0G34Rdg-=QO1cCw@mail.gmail.com>
-Subject: Re: [PATCH v2 25/25] drm/xlnx: Compute dumb-buffer sizes with drm_mode_size_dumb()
-To: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>, maarten.lankhorst@linux.intel.com, 
-	mripard@kernel.org, airlied@gmail.com, simona@ffwll.ch, 
-	dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org, 
-	freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
-	imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org, 
-	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, 
-	linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org, 
-	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org, 
-	Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Andy Yan <andyshrk@163.com>
+References: <20250109-tun-v2-0-388d7d5a287a@daynix.com> <20250109-tun-v2-3-388d7d5a287a@daynix.com>
+ <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
+ <20250110052246-mutt-send-email-mst@kernel.org> <2e015ee6-8a3b-43fb-b119-e1921139c74b@daynix.com>
+ <CACGkMEuiyfH-QitiiKJ__-8NiTjoOfc8Nx5BwLM-GOfPpVEitA@mail.gmail.com> <fcb301e8-c808-4e20-92dd-2e3b83998d18@daynix.com>
+In-Reply-To: <fcb301e8-c808-4e20-92dd-2e3b83998d18@daynix.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 16 Jan 2025 09:06:52 +0800
+X-Gm-Features: AbW1kvY854xB4UWOJdJLBydWl06vsh4taL7pE63yt9P1_IVO_L6kO5WvWI7S_B8
+Message-ID: <CACGkMEvBU3mLbW+-nOscriR-SeDvPSm1mtwwgznYFOocuao5MQ@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] tun: Set num_buffers for virtio 1.0
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
+	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, devel@daynix.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: zEnjSUlTecqvSea3Qk7nkxPh_praf01bYgQtZjaYddU_1736989624
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 15 Jan 2025 at 14:20, Tomi Valkeinen
-<tomi.valkeinen@ideasonboard.com> wrote:
-> No disagreement there, we need CREATE_DUMB2.
+On Wed, Jan 15, 2025 at 1:07=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix=
+.com> wrote:
 >
-> My point is that we have the current UAPI, and we have userspace using
-> it, but we don't have clear rules what the ioctl does with specific
-> parameters, and we don't document how it has to be used.
+> On 2025/01/13 12:04, Jason Wang wrote:
+> > On Fri, Jan 10, 2025 at 7:12=E2=80=AFPM Akihiko Odaki <akihiko.odaki@da=
+ynix.com> wrote:
+> >>
+> >> On 2025/01/10 19:23, Michael S. Tsirkin wrote:
+> >>> On Fri, Jan 10, 2025 at 11:27:13AM +0800, Jason Wang wrote:
+> >>>> On Thu, Jan 9, 2025 at 2:59=E2=80=AFPM Akihiko Odaki <akihiko.odaki@=
+daynix.com> wrote:
+> >>>>>
+> >>>>> The specification says the device MUST set num_buffers to 1 if
+> >>>>> VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
+> >>>>
+> >>>> Have we agreed on how to fix the spec or not?
+> >>>>
+> >>>> As I replied in the spec patch, if we just remove this "MUST", it
+> >>>> looks like we are all fine?
+> >>>>
+> >>>> Thanks
+> >>>
+> >>> We should replace MUST with SHOULD but it is not all fine,
+> >>> ignoring SHOULD is a quality of implementation issue.
+> >>>
+> >
+> > So is this something that the driver should notice?
+> >
+> >>
+> >> Should we really replace it? It would mean that a driver conformant wi=
+th
+> >> the current specification may not be compatible with a device conforma=
+nt
+> >> with the future specification.
+> >
+> > I don't get this. We are talking about devices and we want to relax so
+> > it should compatibile.
 >
-> Perhaps the situation is bad, and all we can really say is that
-> CREATE_DUMB only works for use with simple RGB formats, and the behavior
-> for all other formats is platform specific. But I think even that would
-> be valuable in the UAPI docs.
+>
+> The problem is:
+> 1) On the device side, the num_buffers can be left uninitialized due to b=
+ugs
+> 2) On the driver side, the specification allows assuming the num_buffers
+> is set to one.
+>
+> Relaxing the device requirement will replace "due to bugs" with
+> "according to the specification" in 1). It still contradicts with 2) so
+> does not fix compatibility.
 
-Yeah, CREATE_DUMB only works for use with simple RGB formats in a
-linear layout. Not monochrome or YUV or tiled or displayed rotated or
-whatever.
+Just to clarify I meant we can simply remove the following:
 
-If it happens to accidentally work for other uses, that's fine, but
-it's not generically reliable for anything other than simple linear
-RGB. It's intended to let you do splash screens, consoles, recovery
-password entries, and software-rendered compositors if you really
-want. Anything more than that isn't 'dumb'.
+"""
+The device MUST use only a single descriptor if VIRTIO_NET_F_MRG_RXBUF
+was not negotiated. Note: This means that num_buffers will always be 1
+if VIRTIO_NET_F_MRG_RXBUF is not negotiated.
+"""
 
-Cheers,
-Daniel
+And
+
+"""
+If VIRTIO_NET_F_MRG_RXBUF has not been negotiated, the device MUST set
+num_buffers to 1.
+"""
+
+This seems easier as it reflects the fact where some devices don't set
+it. And it eases the transitional device as it doesn't need to have
+any special care.
+
+Then we don't need any driver normative so I don't see any conflict.
+
+Michael suggests we use "SHOULD", but if this is something that the
+driver needs to be aware of I don't know how "SHOULD" can help a lot
+or not.
+
+>
+> Instead, we should make the driver requirement stricter to change 2).
+> That is what "[PATCH v3] virtio-net: Ignore num_buffers when unused" does=
+:
+> https://lore.kernel.org/r/20250110-reserved-v3-1-2ade0a5d2090@daynix.com
+>
+> >
+> >>
+> >> We are going to fix all implementations known to buggy (QEMU and Linux=
+)
+> >> anyway so I think it's just fine to leave that part of specification a=
+s is.
+> >
+> > I don't think we can fix it all.
+>
+> It essentially only requires storing 16 bits. There are details we need
+> to work out, but it should be possible to fix.
+
+I meant it's not realistic to fix all the hypervisors. Note that
+modern devices have been implemented for about a decade so we may have
+too many versions of various hypervisors. (E.g DPDK seems to stick
+with the same behaviour of the current kernel).
+
+>
+> Regards,
+> Akihiko Odaki
+>
+
+Thanks
+
