@@ -1,147 +1,210 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F9A71DE8BB
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 12:54:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AACF22A809
+	for <virtualization@lists.linux.dev>; Thu, 16 Jan 2025 13:56:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737032045; cv=none; b=bwiveEmHRVdpW/vbpVyaT7tcWMV4Ol9DpKMCYQ/+jXYGRwvexcv3Vx+iPb+S79z9QS/v4QRRJbsjqfQZDFZIgH4Q3tmnh9aZTYFe/PWhhh+L/fnWPX08MK2+Xwdsj0Hg9Lv3dwwWU2zqpDbMbG16cHFtoZOdiayNslpOKfUfb3M=
+	t=1737035801; cv=none; b=i3v0E6sXfn/yyKsX35ldXFzNXJ/TNuNAzY7jjynvZZ4n6tXtPzNodEXNP53/k14Hrbn9ICJvLwdC1KhiSbrb5p8rcdLPFn4MmE0DQ8QHG5DmiqQFFNY5WyNHqqB1rjEMyovcOZsYZ9hfNx1Pne7d1zGdvDXgL0rLOvSGeNbTcVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737032045; c=relaxed/simple;
-	bh=/smTJtfyV4jnOqCiO5F5O17FS608/jSCKpjgFAeV7QM=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=qFnNVFvQHy3vt2hbcXS5YBOr7Q9DW83nQMFzlL/VKFVqoWOqtMY753hm6iNV+v3zg0UDGEoverUv35yu5Zx+MgXwKbZNgIrsKnzMeJXi23IuASrVe9oxYWQtpcuol8UixwaT1ECNn51FxTBzDWGCcqgNuu+uJrfjaUYfPtfFnAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i/PrivTm; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1737035801; c=relaxed/simple;
+	bh=FBOdIWSvN+AF8hTbNvRN4h7LIMA+A/Sza0H+lio0P9w=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=doTCE9sQ64eTmbCC/h+Tz+GgDox6PC82VT0tI/H0B6RF6et+RMTFRVgHyoaJARI4agBHIdqaAKK8xB9EgKTffG8MUV+FqQoyEcWG2I1C8pWEnNyZ9FZ4T55TKxin6x4kmNkjx744Opqq6ZgZgUbu4QqGjetvybMxKp+XAjEa9E0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AsiH0uCE; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=TmgmVthR; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AsiH0uCE; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=TmgmVthR; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i/PrivTm"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CCD37610B9
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 12:54:03 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id kiNHjqD0nbO0 for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Jan 2025 12:54:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::832; helo=mail-qt1-x832.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C589A61054
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C589A61054
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=i/PrivTm
-Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C589A61054
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 12:54:02 +0000 (UTC)
-Received: by mail-qt1-x832.google.com with SMTP id d75a77b69052e-467a6781bc8so7752061cf.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 16 Jan 2025 04:54:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737032041; x=1737636841; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KQMffHB5V9jp1w/KCByUeoZ7ulffBvZYTaCL6OedkWM=;
-        b=i/PrivTmZRt13NRF2iOijh+3K5C6S2cBSTYSFqfA0W/bB3whsKeEw2VSjj9S/Oq1SU
-         SzBus6kpYKcUCFwK4kEIXxRkYQupD/fxfAb3LVS268hyshE65mjvkNB4gfWD4fFpA/3P
-         kkY9/Xh+DkjqgvMrdrw7yNaJ4jnL6SbYAh9jOVxrnRwmKUN2qGM6Qqlw5kug7GUlvdfC
-         TAQeoPqFeICv7UDcQATcDEberRrEmrWjMSxZTzBcCdG2I/NmTJIT0xvy5lwyVfMd7HME
-         2JDS1r4bG+VeC2voqxx1lAcQHNpCzwRu/ymCe0Gz9Y16BSNPuUekcAyVV2qbx18rT/G7
-         Qpuw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737032041; x=1737636841;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=KQMffHB5V9jp1w/KCByUeoZ7ulffBvZYTaCL6OedkWM=;
-        b=rBXJ84IFSFSLuTKApfgtn/IoEiRI55JMOs5athGbX7IoTX4ZSdBs1BBXpGki/dLGx7
-         HcjBkX942nJbBbWGysTNDbbdZCtUCQIOBGmES2soBGsL61R17DvIRRQI8e7HvGrm7Rkl
-         iHUn4tFi+KvmFCfzhlMRMssBdPMH6TynEo6YZ8aaXdmPkiSKy4XjDSNxs++UoXwYEraw
-         MGfCPdp0PlX15y2qBgsH/w/jAAlm2glKdF2MuWMAKUcFerqRPXtncTTiNOdMO9zlseHW
-         P/VD8XbZ4SM7Ev185aNVUZEIofzuaRxY8Axkx2MZ3me//wfIDyH+vJd3/J+0w6LrCYV/
-         EJQg==
-X-Forwarded-Encrypted: i=1; AJvYcCUJIut6/NFkSKrolYEjw9Myd0izgu9em6uV+wW/i2cMwHnS/1qLCJu6iGWT7T/iIcX2s9z5iKVOE7tN9hJzqQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzO2F5ei5EP+Ye++bkGwpfI9efZGvWKoWI5qYzVcXTFDtB4QHFU
-	fEU3D9lJleJcG/WkJS+oAkzzMkWx73+xkZ/+q6jEGqUs0Kt6zqHm
-X-Gm-Gg: ASbGncvk4OKNTlrYnzTLjg3buQTHMaiZvT/2pzSNHSpzX9XqkL9gvll9xOGvYTz7Tro
-	VjqjyV/pw907TaOodNk5GfadA00pZFxqSBENuGd8OQn5rS0bIFL5AdIss3tOE6RN9okkRtPFH4x
-	VM80VwgrA5qN7GSV5YiUedHCLzVN8dsnWzhhxrJHNgelrAbf8zBlDhnbgkcpesk0RvQ8RJdhGxs
-	2g0OZhROrpHANlSPlYcGv6SbqwfvCfHCCOmEbDq+NU1E4FA/NucRHE4oFLefpl7GZ20ESs7ei/4
-	jRwkMiLPQf1+khWsTvnDGg1XO1Fe
-X-Google-Smtp-Source: AGHT+IGAPwHCulVk3YA3srEPPAkpgIxRZlbJrc49E6sk7X4J2EiUFlVkp6rRmzHsvgqlARBJ+pjj/Q==
-X-Received: by 2002:ac8:5705:0:b0:466:85eb:6123 with SMTP id d75a77b69052e-46c71003317mr520830751cf.22.1737032041353;
-        Thu, 16 Jan 2025 04:54:01 -0800 (PST)
-Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6dfade72b59sm75303556d6.87.2025.01.16.04.54.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jan 2025 04:54:00 -0800 (PST)
-Date: Thu, 16 Jan 2025 07:54:00 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, 
- kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, 
- linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, 
- gur.stavi@huawei.com, 
- devel@daynix.com
-Message-ID: <678901682ff09_3710bc2944f@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20250116031331-mutt-send-email-mst@kernel.org>
-References: <20250116-tun-v3-0-c6b2871e97f7@daynix.com>
- <20250116031331-mutt-send-email-mst@kernel.org>
-Subject: Re: [PATCH net v3 0/9] tun: Unify vnet implementation
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AsiH0uCE";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="TmgmVthR";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AsiH0uCE";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="TmgmVthR"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 82822211EC;
+	Thu, 16 Jan 2025 13:56:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1737035797; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YH9ws4NI7yAw9uNlgf72kIluOgpsV2iPQpo7pOsI9pA=;
+	b=AsiH0uCEtt+tVRflHderAd/Rd/JP0eMDc3eAvDC3zuzMJSZZJ7CU1AG2yA+KZQ2+tbrPCN
+	zyc5N2NO8grZ2n/2hC/tDKhPBgivzvYlXSdvsbeNu00M2oXypGjE3RuQO1qsqHlgze7omv
+	kslrdXeY/uJj5kGhRtcumKJhUI7Sspo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1737035797;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YH9ws4NI7yAw9uNlgf72kIluOgpsV2iPQpo7pOsI9pA=;
+	b=TmgmVthRUD/+fXjQ/t46WAfLK93t8xIWmwC8EQhXV66iuhdIOdIEVHVsBItumLyYPYe//B
+	/rpRgTrUonfaXADw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=AsiH0uCE;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=TmgmVthR
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1737035797; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YH9ws4NI7yAw9uNlgf72kIluOgpsV2iPQpo7pOsI9pA=;
+	b=AsiH0uCEtt+tVRflHderAd/Rd/JP0eMDc3eAvDC3zuzMJSZZJ7CU1AG2yA+KZQ2+tbrPCN
+	zyc5N2NO8grZ2n/2hC/tDKhPBgivzvYlXSdvsbeNu00M2oXypGjE3RuQO1qsqHlgze7omv
+	kslrdXeY/uJj5kGhRtcumKJhUI7Sspo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1737035797;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YH9ws4NI7yAw9uNlgf72kIluOgpsV2iPQpo7pOsI9pA=;
+	b=TmgmVthRUD/+fXjQ/t46WAfLK93t8xIWmwC8EQhXV66iuhdIOdIEVHVsBItumLyYPYe//B
+	/rpRgTrUonfaXADw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3778113332;
+	Thu, 16 Jan 2025 13:56:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id ITMvDBUQiWf3GgAAD6G6ig
+	(envelope-from <tiwai@suse.de>); Thu, 16 Jan 2025 13:56:37 +0000
+Date: Thu, 16 Jan 2025 14:56:36 +0100
+Message-ID: <87ed12j20b.wl-tiwai@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
+To: John Stultz <jstultz@google.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>,
+	virtualization@lists.linux.dev,
+	linux-sound@vger.kernel.org,
+	kernel-team@android.com,
+	Betty Zhou <bettyzhou@google.com>
+Subject: Re: [RFC][PATCH] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+In-Reply-To: <20250116062514.2391108-1-jstultz@google.com>
+References: <20250116062514.2391108-1-jstultz@google.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Rspamd-Queue-Id: 82822211EC
+X-Spam-Level: 
+X-Spamd-Result: default: False [-3.51 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_SEVEN(0.00)[10];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -3.51
+X-Spam-Flag: NO
 
-Michael S. Tsirkin wrote:
-> On Thu, Jan 16, 2025 at 05:08:03PM +0900, Akihiko Odaki wrote:
-> > When I implemented virtio's hash-related features to tun/tap [1],
-> > I found tun/tap does not fill the entire region reserved for the virtio
-> > header, leaving some uninitialized hole in the middle of the buffer
-> > after read()/recvmesg().
-> > 
-> > This series fills the uninitialized hole. More concretely, the
-> > num_buffers field will be initialized with 1, and the other fields will
-> > be inialized with 0. Setting the num_buffers field to 1 is mandated by
-> > virtio 1.0 [2].
-> > 
-> > The change to virtio header is preceded by another change that refactors
-> > tun and tap to unify their virtio-related code.
-> > 
-> > [1]: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
-> > [2]: https://lore.kernel.org/r/20241227084256-mutt-send-email-mst@kernel.org/
-> > 
-> > Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+On Thu, 16 Jan 2025 07:25:08 +0100,
+John Stultz wrote:
 > 
-> Will review. But this does not look like net material to me.
-> Not really a bugfix. More like net-next.
+> Betty reported hitting the following warning:
+> 
+> [    8.709131][  T221] WARNING: CPU: 2 PID: 221 at kernel/workqueue.c:4182
+> ...
+> [    8.713282][  T221] Call trace:
+> [    8.713365][  T221]  __flush_work+0x8d0/0x914
+> [    8.713468][  T221]  __cancel_work_sync+0xac/0xfc
+> [    8.713570][  T221]  cancel_work_sync+0x24/0x34
+> [    8.713667][  T221]  virtsnd_remove+0xa8/0xf8 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
+> [    8.713868][  T221]  virtsnd_probe+0x48c/0x664 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
+> [    8.714035][  T221]  virtio_dev_probe+0x28c/0x390
+> [    8.714139][  T221]  really_probe+0x1bc/0x4c8
+> ...
+> 
+> It seems we're hitting the error path in virtsnd_probe(), which
+> triggers a virtsnd_remove() which iterates over the substreams
+> calling cancel_work_sync() on the elapsed_period work_struct.
+> 
+> Looking at the code, from earlier in:
+> virtsnd_probe()->virtsnd_build_devs()->virtsnd_pcm_parse_cfg()
+> 
+> We set snd->nsubstreams, allocate the snd->substreams, and if
+> we then hit an error on the info allocation or something in
+> virtsnd_ctl_query_info() fails, we will exit without having
+> initialized the elapsed_period work_struct.
+> 
+> When that error path unwinds we then call virtsnd_remove()
+> which as long as the substreams array is allocated, will iterate
+> through calling cancel_work_sync() on the uninitialized work
+> struct hitting this warning.
+> 
+> The simplest fix seems to just check the work_struct->func ptr
+> is valid before calling cancel_work_sync(), but I wanted to share
+> in case folks had ideas for a better solution.
+> 
+> I have not yet managed to reproduce the issue myself, so this
+> patch has had limited testing.
+> 
+> Feedback or thoughts would be appreciated!
 
-+1. I said basically the same in v2.
+The conditional canceling is a bit flaky, IMHO.
+Alternatively, we can initialize the whole stuff right after the
+allocation, e.g. something like below.
 
-Perhaps the field initialization is net material, though not
-critical until hashing is merged, so not stable.
 
-The deduplication does not belong in net.
+thanks,
 
-IMHO it should all go to net-next.
+Takashi
+
+--- a/sound/virtio/virtio_pcm.c
++++ b/sound/virtio/virtio_pcm.c
+@@ -339,6 +339,16 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+ 	if (!snd->substreams)
+ 		return -ENOMEM;
+ 
++	for (i = 0; i < snd->nsubstreams; ++i) {
++		struct virtio_pcm_substream *vss = &snd->substreams[i];
++
++		vss->snd = snd;
++		vss->sid = i;
++		INIT_WORK(&vss->elapsed_period, virtsnd_pcm_period_elapsed);
++		init_waitqueue_head(&vss->msg_empty);
++		spin_lock_init(&vss->lock);
++	}
++
+ 	info = kcalloc(snd->nsubstreams, sizeof(*info), GFP_KERNEL);
+ 	if (!info)
+ 		return -ENOMEM;
+@@ -352,12 +362,6 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+ 		struct virtio_pcm_substream *vss = &snd->substreams[i];
+ 		struct virtio_pcm *vpcm;
+ 
+-		vss->snd = snd;
+-		vss->sid = i;
+-		INIT_WORK(&vss->elapsed_period, virtsnd_pcm_period_elapsed);
+-		init_waitqueue_head(&vss->msg_empty);
+-		spin_lock_init(&vss->lock);
+-
+ 		rc = virtsnd_pcm_build_hw(vss, &info[i]);
+ 		if (rc)
+ 			goto on_exit;
