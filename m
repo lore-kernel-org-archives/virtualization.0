@@ -1,139 +1,276 @@
-Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB03B18D65F
-	for <virtualization@lists.linux.dev>; Thu, 16 Jan 2025 06:25:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737008723; cv=none; b=AX+zSIdZSNEP6aJUWWZjRQeTjsM7ylHvCGzQnQg7xf1Loy88drBuyHzPl6pICkgn0+6YjJZn1S4mux4gixRqBt9qMKVRlPPnLOlOfSUp2ZnLt+uDT8v8xt3MNXoKWkj18OeBtjQnC5K3vq82JBayIindVvw/zvBf0N82ZwejB88=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737008723; c=relaxed/simple;
-	bh=WMJn4P15Uop0ZUJaj8l/izNbz6zUAeoohtTpPY/IIWw=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=E3edUrcbgmu6fBzIKeM1AJKD4DwsnhEPkl8pBKiDnHx1UT6iOU2SVfyb2oRmFywSB+9H+RixVao3UJO6sFi64dhcsMiub9eQ98OoFNJOXk47M99AexX9lZ2UzC0Cgyhq9M6rbMgRHexABuJis1A1XcUmbQsVqvWRPrSpPLVimvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jstultz.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=sWjYO0et; arc=none smtp.client-ip=209.85.214.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jstultz.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3D4C4C81;
+	Thu, 16 Jan 2025 06:37:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1737009454; cv=fail; b=XRdtUcxOO1yekS6n/bokDlT6CGjYtx0dpsU97jQOxmco/ohL9PcVCw75CyaOfdmXAW3nMu/cVHdsHqTrLP42VxTVZq/1dy6Z9/5uYt7kl10iHXw21n/WQgy0sjH7PTi52YFXQuv9l2HE+/9Ta8nfhLA3D0EJAQcEqcp/o1KajKk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1737009454; c=relaxed/simple;
+	bh=Om0RKCqJgHmzO+qYPkP4x8huI1vKdGElMegVQDVsGIk=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=drsrh4VndaZNMhvpguq5GniYO2agajkHpDEhVYeKAgZlY1VVh6OvwNo5pJr141QH214bvawYDn1RGNAoEEkkW8vytZQKvIrIYKYSIR5JPEfGfhU0ZX0HgpoKyHPlcn7a3F6Z20v70rr5KUd+mY5XeT4m2A3UMz0W0zn5On07OI8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=D/4hoKF8; arc=fail smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="sWjYO0et"
-Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2163a2a1ec2so19788475ad.1
-        for <virtualization@lists.linux.dev>; Wed, 15 Jan 2025 22:25:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1737008720; x=1737613520; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=0AN0Fv7sq/hB9CZnHK+4fFyVr9YDFDdUdaXoaXDLHo0=;
-        b=sWjYO0etkrpv2LKnZRlGyvlCkvOXE97tSTyWNufHI0o2uCv4Bg3GPPD/DA9cBdJTSp
-         Zig5rc062PbE4VvKuLjwyKENDe+iuCO4VTa/qdtPuRmoKWNxHui8hTfHv8BzgTbB90dZ
-         n+FtJEDmYz520h0IM7yn+FbK0FEy8yTS9OWS5VFrym4fPAcfLbtrJm3aOJt6t2lf/p2N
-         UGAIIiMqRSI4K0/+c6ACBrI4pggAkJ0s+tezbfuUddUp5yaTnSltUO7he2CFAtjSkThF
-         jfe7UH8Gzzsa+VNiXK0SbGpa2DNsC9eRSNN6/9pLNz6v0ibw9jdehLqaZs6uNoT951Ju
-         bNsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737008720; x=1737613520;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=0AN0Fv7sq/hB9CZnHK+4fFyVr9YDFDdUdaXoaXDLHo0=;
-        b=ZUl14m9oQ6Nd1EIzmFqLo2Z5F7eeuvw+3BPQAfK3fiKSuZySmxRjSUmrhXSAE0xewL
-         vV19AmlBXqAuNhN7qZPdHvR7hSAU3aQMgCMWM8ZprpNnk0o54uzBAQ7UnWDL6+clyPV8
-         zDjiCqR9NvVU6r455cyq71lOIyUZvpVriuuAfrhwCvQC8XKFZYuO9j+Kv8AUTtm29aHU
-         HPgv76Jga1JlX2cWxF5thJ5ffs75s79Gtil1L0qkI+X6BssNlxQGNRpHxPTVS9pHKvkQ
-         +9mtns6pzwlbHYu0B1vSiva5IDagaoQae6tKLyeT4AopTi2I69h6CN5NOYXhEqc4oDXW
-         klzA==
-X-Forwarded-Encrypted: i=1; AJvYcCUFv0/M7riWNMdVquPd7CoGnMlidbBfoBE8JwOewKorUBcmi1PB+3w1dmFKJXKoK52ZeXx07my9BfSFSdx07A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwN0k9AHtHBJQxuLnH9kIovabn4a9MaTzbdhOZZmEshEs5TDRo1
-	wsoGO4GlHxTCO8xX3XkIsewwDdfN0reIQ0s7XHwi2Xwurzo2BbxQcBAlwf5tFKR5vS6Gtqgyeu+
-	jK1QG
-X-Google-Smtp-Source: AGHT+IFuQloDZ6I9ZKV+hzAUpeyDuwaFLgqIic+b8+hSoEirG8TVYZ5FbcDjE0Zwn+8UmU2ObD/PiAwBYNLJ
-X-Received: from pghv4.prod.google.com ([2002:a63:f204:0:b0:7fd:38f5:be0])
- (user=jstultz job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:7885:b0:1db:eff0:6ae7
- with SMTP id adf61e73a8af0-1e88d36152cmr48823832637.33.1737008720197; Wed, 15
- Jan 2025 22:25:20 -0800 (PST)
-Date: Wed, 15 Jan 2025 22:25:08 -0800
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D/4hoKF8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1737009453; x=1768545453;
+  h=date:from:to:cc:subject:message-id:references:
+   content-transfer-encoding:in-reply-to:mime-version;
+  bh=Om0RKCqJgHmzO+qYPkP4x8huI1vKdGElMegVQDVsGIk=;
+  b=D/4hoKF8+xujTbHA/Smfe9r355P9uD4udnDb4+SeBRLn7870RWydoIMf
+   GSJXETZ1uQBxAxYuf700NiZRPMkTp8rGMpO6CQU1zaXEQTQSJr8+Sumcj
+   wrsIVh1UrbY7CqEjKo4Hjet6cxoMFAKxi6ZTIrClKQQ6BCrkARSi/KSdH
+   PKXm5hPa5mKwAiLaS20248bWGkCniMkuKkZ6tH66CLdTJLp+XaGEyV202
+   k7tvAlGD1lyk11cTuteiQf8SytYjiNwcL9mrCLmkiyFyJlSpcGJAEYoDW
+   rXRbfxp5fwQBS26K5oF53BWOJh+94G2I6ck5FAm4TbtIo0fovBMgnil94
+   Q==;
+X-CSE-ConnectionGUID: YhSS16FdSPOd6BU58C5yQg==
+X-CSE-MsgGUID: xqTz58LuQoykZr/L4nFNGg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11316"; a="48772425"
+X-IronPort-AV: E=Sophos;i="6.13,208,1732608000"; 
+   d="scan'208";a="48772425"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jan 2025 22:37:29 -0800
+X-CSE-ConnectionGUID: bT9LD+MtTKe6ggmot7NTBg==
+X-CSE-MsgGUID: MQeWb2qOTMiwxwNHI43aYg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,208,1732608000"; 
+   d="scan'208";a="110362323"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by fmviesa004.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 15 Jan 2025 22:37:27 -0800
+Received: from orsmsx601.amr.corp.intel.com (10.22.229.14) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.44; Wed, 15 Jan 2025 22:37:26 -0800
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.44 via Frontend Transport; Wed, 15 Jan 2025 22:37:26 -0800
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (104.47.51.43) by
+ edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.44; Wed, 15 Jan 2025 22:37:25 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=vcQkOLBZooXWU76iWvRcjrKl1BeVTpXfAa3CchXdvT12xPt/nDegsAAizZITOtTxXA6p96N+ZE7E0rd5WRzC+kh30cf/45jyz3KqiWnFdNoSGEi7Z749ghhKKFakSfo0AsSR2cx/LthMKpFq5RrGHJPE9ZFNxzfddQyjQZhQDLtFKybRGwlj0oiwbBaoOOhrW2nDEZA3qpDtMMZBZeUOfc7VVbW2wcYbXtjHYKCcCUCPRBTIGIv0jLkYOH1XfTlD1LlSUSuHReQFOtea6Gty1hl1mIv/0DrrNVOoLNxNwhzgi3E4kBmBmBusgOTAvoAL8K56E4wLFZMvp22qPYa7zA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=JLS5ucN48rCZdU+GoJadb0EnmYMv6N8oBwTQPkpM86E=;
+ b=JZehtzuCWVglrjSPE+LiBHuxCmyDRxKOZqcZivnHeFlk9Sfu803xtjAAGXshPyZYqn3FCeRpZLvxyLd4MLBUojyIyPOc54bXjDq5kM0Ykod23CLsvxTi2EuopDA4ztWeBg0y9oBW6pCvF6CMJPKcGOnpwd4Dc7DM7SRE5wnD+bJsQ7GuHf/lUwGNYXW86PP2Q7MCHBxgyKsQIC2yBC5ESa1j21sz5L/u4/BQx9pGlfKrjRFcOrwfFyiCT6UapaVg1Cg4SxR7ZgGJ4WXRYg0PtzsHLaHef0b4uGQMeAdA2TDkZXWdfElmxtvXi88BW70oQBitOF6wBim/+mHiiCPCMg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from LV3PR11MB8603.namprd11.prod.outlook.com (2603:10b6:408:1b6::9)
+ by PH7PR11MB6795.namprd11.prod.outlook.com (2603:10b6:510:1b9::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8335.17; Thu, 16 Jan
+ 2025 06:37:22 +0000
+Received: from LV3PR11MB8603.namprd11.prod.outlook.com
+ ([fe80::4622:29cf:32b:7e5c]) by LV3PR11MB8603.namprd11.prod.outlook.com
+ ([fe80::4622:29cf:32b:7e5c%3]) with mapi id 15.20.8356.010; Thu, 16 Jan 2025
+ 06:37:22 +0000
+Date: Thu, 16 Jan 2025 14:37:08 +0800
+From: Oliver Sang <oliver.sang@intel.com>
+To: Niklas Cassel <cassel@kernel.org>
+CC: Christoph Hellwig <hch@lst.de>, <oe-lkp@lists.linux.dev>, <lkp@intel.com>,
+	<linux-kernel@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
+	<linux-block@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-nvme@lists.infradead.org>, Damien Le Moal <dlemoal@kernel.org>,
+	<linux-btrfs@vger.kernel.org>, <linux-aio@kvack.org>, <oliver.sang@intel.com>
+Subject: Re: [linus:master] [block]  e70c301fae: stress-ng.aiol.ops_per_sec
+ 49.6% regression
+Message-ID: <Z4ipFFdAppraxrmA@xsang-OptiPlex-9020>
+References: <20241217045527.GA16091@lst.de>
+ <Z2EgW8/WNfzZ28mn@xsang-OptiPlex-9020>
+ <20241217065614.GA19113@lst.de>
+ <Z3ZhNYHKZPMpv8Cz@ryzen>
+ <20250103064925.GB27984@lst.de>
+ <Z3epOlVGDBqj72xC@ryzen>
+ <Z3zlgBB3ZrGApew7@xsang-OptiPlex-9020>
+ <Z35VVvuT0nl0iDfd@ryzen>
+ <Z4DD1Lgzvv66tS3w@xsang-OptiPlex-9020>
+ <Z4efKYwbf2QYBx40@ryzen>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Z4efKYwbf2QYBx40@ryzen>
+X-ClientProxiedBy: SG2PR03CA0112.apcprd03.prod.outlook.com
+ (2603:1096:4:91::16) To LV3PR11MB8603.namprd11.prod.outlook.com
+ (2603:10b6:408:1b6::9)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.48.0.rc2.279.g1de40edade-goog
-Message-ID: <20250116062514.2391108-1-jstultz@google.com>
-Subject: [RFC][PATCH] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
-From: John Stultz <jstultz@google.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: John Stultz <jstultz@google.com>, Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	virtualization@lists.linux.dev, linux-sound@vger.kernel.org, 
-	kernel-team@android.com, Betty Zhou <bettyzhou@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV3PR11MB8603:EE_|PH7PR11MB6795:EE_
+X-MS-Office365-Filtering-Correlation-Id: 87db3d83-aa28-4d32-0e21-08dd35f83bac
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|7416014|366016;
+X-Microsoft-Antispam-Message-Info: =?iso-8859-1?Q?18a3K2MokQoh10BAYL5X1dvCPHSyggB18Dq4J1TEiwoLGhEx5feKu06D5E?=
+ =?iso-8859-1?Q?OxQ0R+PFUqhJ53bj/9he91z2y5A9MNLIhAKvWHRZf4Nu9k4en7TwInrjd9?=
+ =?iso-8859-1?Q?7VvtqjcRnXcaeCU6R4PBfhgDLseAJuLGefDIotNvlFVSjRgiKT1re1Ezi8?=
+ =?iso-8859-1?Q?FoFp9VSg3PdLY29sJY92cuoLXdMq7VXqWAKrReBuWXcNnnFs8Orvzpi46s?=
+ =?iso-8859-1?Q?OKzwYTuKZIemoxOh89y72+2IU+ZqpHI9dwygEh+hawJ8CzZBNyd2BtXWMS?=
+ =?iso-8859-1?Q?0Plut6qg7wl18IoONvoSoKH1pknytsvQahfmcNEDki2EmJN+CL4Er+fUaM?=
+ =?iso-8859-1?Q?Vxk4Mz7bTGIhISck05dN3gY6MPTTg6V2+Y8NWw0U1jhUcv8BHPoJHEVFkS?=
+ =?iso-8859-1?Q?0LgrtLDvyh4eVYyLg1h4C106IXD9TTWeJoDv/ZnKyWlVhV7K4BTZ0/8spn?=
+ =?iso-8859-1?Q?xYcLrZG6OB1Mh/HVIqSDJn0fckTl4qUJresL85wdVo6pguaA7ilAVGforl?=
+ =?iso-8859-1?Q?FsMcfjTbJU5Sona2xDMNz7PyE2YieS8p4C0xYRbqzLtYiRkrTC9IAmCMn/?=
+ =?iso-8859-1?Q?r0RpP2pruWNyzrjOazEt0u59ob24X9YXxvUR8ZwFMGOiTmBqwNfqeHe/Kp?=
+ =?iso-8859-1?Q?YoLx1T96x9dgz5LW7MTf4okwQtMd6CwG+06AbFeNI0yO6VRJXv2WwNk8fg?=
+ =?iso-8859-1?Q?O0eKE2naf3J+5M/ZsR7wc7D3+nFV9vKeOHpDMrMO0JCuokgezRl0BPr4jr?=
+ =?iso-8859-1?Q?AOPyAUrZokOa3kRjxL8pYoI1VhA7eEpM53I2pbpkhyROwGnE2z4WO6P5Bf?=
+ =?iso-8859-1?Q?FUBH65sw3F5+QAt8F5/wGQeIl11nSj445hAuGgId3hWyKv0pnHxGPRRrZF?=
+ =?iso-8859-1?Q?HWq2eVNBHPJgLMlCnU1zIMdhpIb+iHMrm4c0+iuOI3C2QViHEY6ggDiLn/?=
+ =?iso-8859-1?Q?Zm0za7dZzEAx44ExTesI0Sp9Npb2vBo9OVV4nhmNZv/aQRrCCH12BMnI19?=
+ =?iso-8859-1?Q?16Ai6qobp8pUs/0UJ+Jh2vK03XdiWYekweC79E6z+7h6fHdT/qoKuts3Cs?=
+ =?iso-8859-1?Q?SxTYPWV5NiPhPMwCsf59iMIFHrzaBImxHTvRMA9EZ89oBYIzo4B7m863jk?=
+ =?iso-8859-1?Q?jzv6WL/0Z8DA5s/FFw8LaX8t4i5ec1fRYH9n8mu4WVgL1pFullH71jJ5Ze?=
+ =?iso-8859-1?Q?5cjpO9nHW7l78SzUQWZeL6VWdqvCp+AD87DC2H5TDRLXnIsBuTsJndk+Dp?=
+ =?iso-8859-1?Q?frHmud49+O5uXubhe2DmqMKbY9BLkjzYqiE9TJ06y5FenyGql1WG8Seq5Y?=
+ =?iso-8859-1?Q?A8/EhxUdR95cB7Zmy2BrbmH7R3ohK6+W5nj240rhKH2/zxdtJgOlwrU/ot?=
+ =?iso-8859-1?Q?4YlBkhoBuSjgk1Fbzs9YKg2LlDecpvaQ=3D=3D?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR11MB8603.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(7416014)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?SH83aM9Wlcs07b2kolhjmCT4wxPIMrfMyCZqcOWD4A1KeccErFcARBwWZl?=
+ =?iso-8859-1?Q?4lijeMhVmc/gxFf3lnWkcZMG9eXz1TYffWBtnUJXKdg2kOSIQ6fCZTpnoB?=
+ =?iso-8859-1?Q?uy5tmQvH6TLGVDQqHiFEFdYkCRZE8LLrHhd3PIGo1Okss+8u4ktzfkK4rM?=
+ =?iso-8859-1?Q?UdaCvVpiJfHR7JdBuwaVe0aIciVcKQvsApGb5+IOYHrROI/neXUjPHGJey?=
+ =?iso-8859-1?Q?Zn5HbFart1/TJ5DptnKiRefhO1GfGxe6uj79xfG2Epd46dO/ozyid4cWGa?=
+ =?iso-8859-1?Q?KlREOsHd12niSQHh8CSeHfDVBk1yKajPRpxR6nadSBuam9VUgWn/hNPqVW?=
+ =?iso-8859-1?Q?yisurW32Pen3aSa972Xneu+R6mQNDFn8izZmieD0+W4hiw6wSp5SVUOhYK?=
+ =?iso-8859-1?Q?m4Ck7vu4MaXaYtzDzbTlm+nZpgGCIBSUpx2RjZCDv8rZBvor5UscKBG2Hy?=
+ =?iso-8859-1?Q?FdoXKjjOnboVAhX7jRKk36EToPrulg+c0Lhb2mY6hO7TltH5w2H2FjuvIn?=
+ =?iso-8859-1?Q?IQCojCxqnsY6kIqygbeL9RrkKVWX0yoCtvYyc7Is6Ep/yhHqhz9Mn9d1nr?=
+ =?iso-8859-1?Q?MpRXNDkcno1tI3cRovLhidInpIEKLLP3HdUxc5JhQGW7/YEHJdFLXE1eUp?=
+ =?iso-8859-1?Q?89xh+f5dElUspbU9seCoBi/H5ezpmpP6uQoO65bODAOCo+txChUIM5jNEP?=
+ =?iso-8859-1?Q?7L6enwkiEuDQfB3ELZ1E/QDdnCduBR1sBUX05BrkVSQ9xi6iBQDpDDmXIR?=
+ =?iso-8859-1?Q?4Q218N9GNwZIgCf9euqZwfEttnXHh6MZxuUlovCrQqp1YgV85/feJkiJH7?=
+ =?iso-8859-1?Q?pvuHF7MRl9CCGFZLFSwpWolefN6MK2C638ysHV3WcFSNWiIjdqWkAc2E3/?=
+ =?iso-8859-1?Q?Ih8w/k0hnfTr8LIdZTpBZ4RPTTdW0joA55oWTluv4ky4ppNjO14MrR9KEo?=
+ =?iso-8859-1?Q?TP11ZmA0lis2I/LyY20rCfCBt7zwEW80SvAsZPpSc2oA4p3GvNTJzYiH12?=
+ =?iso-8859-1?Q?QkZyE4x0bpQAU/ifqYWaYbiceSL/iZ1Pgu8bUm/Uwt9mQ0PHfyWNGcP8yK?=
+ =?iso-8859-1?Q?W38FBSjB6xI/65M8qJHD1VIQ7MOc5aT86UqHl8RYmwMi+49kfifrnp51Rw?=
+ =?iso-8859-1?Q?Oj/QePzakTIzqj6h1SUljaW1ufcrt/zmqtNRXe02fWY8iWuuAMJ2LkGcaM?=
+ =?iso-8859-1?Q?r0gjBNNb+GB3df9lphHZKWCSX6hQYNpCw1XReRiUSLJP/vP6FYzSGTouDE?=
+ =?iso-8859-1?Q?nuqek3C1/KH9FeYdcPOEwtAAjw4j2e7x5PntvkzqfFB+pLJa2PvSACVAe8?=
+ =?iso-8859-1?Q?GUfeLE1gP0bXjICp7J/HVRmCNObcz45hic5gk2utwdGLW4ahW8NLz1bvZ+?=
+ =?iso-8859-1?Q?gyA45V+x13uhYKlM88NJwDEzkg0Oo77+MzcyyUY6pflDbS4RX27QwnfWpT?=
+ =?iso-8859-1?Q?WrBUTaTSc39PDkgOvgG09Gr3oDWBXsB8GlPn4AM+NO5LE9GITj/JqAgC6A?=
+ =?iso-8859-1?Q?rS0IykB3OXlzMbERF7NvJi99HU1MN0Y0n2iPhxfgITGxto0wg1TuxNliev?=
+ =?iso-8859-1?Q?mOPk1gb8WuF8UHWSUZvExwA898o5FGvWllxPgRe9Qhus2iiMhyo0iNz7sT?=
+ =?iso-8859-1?Q?hkXD83qZhZfnP2TcS4Gptm7DY6bQr5W+ROA+MAXKkpkoSuUTudN8e3eQ?=
+ =?iso-8859-1?Q?=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 87db3d83-aa28-4d32-0e21-08dd35f83bac
+X-MS-Exchange-CrossTenant-AuthSource: LV3PR11MB8603.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jan 2025 06:37:22.6827
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: qLfCYXbZPlXGPnH1zdwjI24Fi6rouQPmtJolMXJtXVf+FwsRVmhNgla1DKv+G7j9jItxPQxox5Up4jOcMv2ljA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB6795
+X-OriginatorOrg: intel.com
 
-Betty reported hitting the following warning:
+hi, Niklas,
 
-[    8.709131][  T221] WARNING: CPU: 2 PID: 221 at kernel/workqueue.c:4182
-...
-[    8.713282][  T221] Call trace:
-[    8.713365][  T221]  __flush_work+0x8d0/0x914
-[    8.713468][  T221]  __cancel_work_sync+0xac/0xfc
-[    8.713570][  T221]  cancel_work_sync+0x24/0x34
-[    8.713667][  T221]  virtsnd_remove+0xa8/0xf8 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
-[    8.713868][  T221]  virtsnd_probe+0x48c/0x664 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
-[    8.714035][  T221]  virtio_dev_probe+0x28c/0x390
-[    8.714139][  T221]  really_probe+0x1bc/0x4c8
-...
+On Wed, Jan 15, 2025 at 12:42:33PM +0100, Niklas Cassel wrote:
+> Hello Oliver,
+> 
+> On Fri, Jan 10, 2025 at 02:53:08PM +0800, Oliver Sang wrote:
+> > On Wed, Jan 08, 2025 at 11:39:28AM +0100, Niklas Cassel wrote:
+> > > > > Oliver, which I/O scheduler are you using?
+> > > > > $ cat /sys/block/sdb/queue/scheduler 
+> > > > > none mq-deadline kyber [bfq]
+> > > > 
+> > > > while our test running:
+> > > > 
+> > > > # cat /sys/block/sdb/queue/scheduler
+> > > > none [mq-deadline] kyber bfq
+> > > 
+> > > The stddev numbers you showed is all over the place, so are we certain
+> > > if this is a regression caused by commit e70c301faece ("block:
+> > > don't reorder requests in blk_add_rq_to_plug") ?
+> > > 
+> > > Do you know if the stddev has such big variation for this test even before
+> > > the commit?
+> > 
+> > in order to address your concern, we rebuild kernels for e70c301fae and its
+> > parent a3396b9999, also for v6.12-rc4. the config is still same as shared
+> > in our original report:
+> > https://download.01.org/0day-ci/archive/20241212/202412122112.ca47bcec-lkp@intel.com/config-6.12.0-rc4-00120-ge70c301faece
+> 
+> Thank you for putting in the work to do some extra tests.
+> 
+> (Doing performance regression testing is really important IMO,
+> as without it you are essentially in the blind.
+> Thank you guys for taking on the role of this important work!)
+> 
+> 
+> Looking at the extended number of iterations that you've in this email,
+> it is quite clear that e70c301faece, at least with the workload provided
+> by stress-ng + mq-deadline, introduced a regression:
+> 
+>        v6.12-rc4 a3396b99990d8b4e5797e7b16fd e70c301faece15b618e54b613b1
+> ---------------- --------------------------- ---------------------------
+>          %stddev     %change         %stddev     %change         %stddev
+>              \          |                \          |                \
+>     187.64 ±  5%      -0.6%     186.48 ±  7%     -47.6%      98.29 ± 17%  stress-ng.aiol.ops_per_sec
+> 
+> 
+> 
+> 
+> Looking at your results from stress-ng + none scheduler:
+> 
+>          %stddev     %change         %stddev     %change         %stddev
+>              \          |                \          |                \
+>     114.62 ± 19%      -1.9%     112.49 ± 17%     -32.4%      77.47 ± 21%  stress-ng.aiol.ops_per_sec
+> 
+> 
+> Which shows a change, but -32% rather than -47%, also seems to suggest a
+> regression for the stress-ng workload.
+> 
+> 
+> 
+> 
+> Looking closer at the raw number for stress-ng + none scheduler, in your
+> other email, it seems clear that the raw values from the stress-ng workload
+> can vary quite a lot. In the long run, I wonder if we perhaps can find a
+> workload that has less variation. E.g. fio test for IOPS and fio test for
+> throughout. But perhaps such workloads are already part of lkp-tests?
 
-It seems we're hitting the error path in virtsnd_probe(), which
-triggers a virtsnd_remove() which iterates over the substreams
-calling cancel_work_sync() on the elapsed_period work_struct.
+yes, we have fio tests [1].
+as in [2], we get it from https://github.com/axboe/fio
+not sure if it's just the fio you mentioned?
 
-Looking at the code, from earlier in:
-virtsnd_probe()->virtsnd_build_devs()->virtsnd_pcm_parse_cfg()
+our framework is basically automatic. bot merged repo/branches it monitors
+into so-called hourly kernel, then if found performance difference with base,
+bisect will be triggered to capture which commit causes the change.
 
-We set snd->nsubstreams, allocate the snd->substreams, and if
-we then hit an error on the info allocation or something in
-virtsnd_ctl_query_info() fails, we will exit without having
-initialized the elapsed_period work_struct.
+due to resource constraint, we cannot allot all testsuites (we have around 80)
+to all platforms, and there are other various reasons which could cause us to
+miss some performance differences.
 
-When that error path unwinds we then call virtsnd_remove()
-which as long as the substreams array is allocated, will iterate
-through calling cancel_work_sync() on the uninitialized work
-struct hitting this warning.
+if you have interests, could you help check those fio-basic-*.yaml files under
+[3]? if you can spot out the correct case, we could do more tests to check
+e70c301fae and its parent. thanks!
 
-The simplest fix seems to just check the work_struct->func ptr
-is valid before calling cancel_work_sync(), but I wanted to share
-in case folks had ideas for a better solution.
+[1] https://github.com/intel/lkp-tests/tree/master/programs/fio
+[2] https://github.com/intel/lkp-tests/blob/master/programs/fio/pkg/PKGBUILD
+[3] https://github.com/intel/lkp-tests/tree/master/jobs
 
-I have not yet managed to reproduce the issue myself, so this
-patch has had limited testing.
-
-Feedback or thoughts would be appreciated!
-
-Cc: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: virtualization@lists.linux.dev
-Cc: linux-sound@vger.kernel.org
-Cc: kernel-team@android.com
-Reported-by: Betty Zhou <bettyzhou@google.com>
-Signed-off-by: John Stultz <jstultz@google.com>
----
- sound/virtio/virtio_card.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/sound/virtio/virtio_card.c b/sound/virtio/virtio_card.c
-index 965209e1d872..87dc49c9390a 100644
---- a/sound/virtio/virtio_card.c
-+++ b/sound/virtio/virtio_card.c
-@@ -365,7 +365,9 @@ static void virtsnd_remove(struct virtio_device *vdev)
- 	for (i = 0; snd->substreams && i < snd->nsubstreams; ++i) {
- 		struct virtio_pcm_substream *vss = &snd->substreams[i];
- 
--		cancel_work_sync(&vss->elapsed_period);
-+		/* check we initialized the work struct before cancelling*/
-+		if (vss->elapsed_period.func)
-+			cancel_work_sync(&vss->elapsed_period);
- 		virtsnd_pcm_msg_free(vss);
- 	}
- 
--- 
-2.48.0.rc2.279.g1de40edade-goog
-
+> 
+> 
+> Kind regards,
+> Niklas
