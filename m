@@ -1,183 +1,103 @@
-Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C1D8F19992C
-	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 11:44:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=206.189.21.223
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9128C1FECB8
+	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 11:57:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737114264; cv=none; b=MjDTqRViJOhAPdSod2BLn2wCBoiRMzR55xgVz+mqa1YF0x5tVOg8rlD/d40b3go+iQsmFtp6z0fbcYjJPsb+JR6wTvyMvzXHCJD1VwmhfRg3Zygolto1bninyUgrBRjZNasKy8qtcXPsRhYUZHQCykkOdhRuIgPXouG52iyCLTA=
+	t=1737115029; cv=none; b=nwpx+uk/u0CiVncGygddJWoGEQAHOjfwkNWj8UDa8b/s3qRICxu1NFVHQfLTOz38VzDj7SxCd5aXBHwJ92Q0edsYwd4fVFdcZ94YeuONyupOI5q5TEVvIdkkzthY013cvfQoC1Wc04Vp8sdEiMpmHk0he/+sg3lZTMDRdt9Yp1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737114264; c=relaxed/simple;
-	bh=PhK0DeHGXnoZKBKI5r3PGBPr8XqY/40VBWxLuspWuag=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Oc3b6PfAPaz+DxctlRApaPoEMQEFLMq5g0dy0IeLjzGwmUZW1jM1/5lxVs9Q48Qw1UvB4vkWR/QR1pRVefh+o13REAn7e3jm4vO6A/MhVBwmTywfjuJbagIeaQ6CaLNZhe+RaCJ6P+zeqXcP8D/TqSsxD2veTQoJ7LDwX8ajcvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=206.189.21.223
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
-Received: from zju.edu.cn (unknown [10.214.100.11])
-	by mtasvr (Coremail) with SMTP id _____wBXxX2GQopnEJ0YAA--.20523S3;
-	Fri, 17 Jan 2025 19:44:07 +0800 (CST)
-Received: from NUC10i7FNH.. (unknown [10.214.100.11])
-	by mail-app2 (Coremail) with SMTP id zC_KCgCXdV6CQopnA40LAA--.9592S2;
-	Fri, 17 Jan 2025 19:44:05 +0800 (CST)
-From: Haoran Zhang <wh1sper@zju.edu.cn>
-To: michael.christie@oracle.com
-Cc: mst@redhat.com,
-	jasowang@redhat.com,
-	pbonzini@redhat.com,
-	stefanha@redhat.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Haoran Zhang <wh1sper@zju.edu.cn>
-Subject: Re: Re: [PATCH] vhost/scsi: Fix improper cleanup in vhost_scsi_set_endpoint()
-Date: Fri, 17 Jan 2025 19:42:02 +0800
-Message-ID: <20250117114400.79792-1-wh1sper@zju.edu.cn>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com>
-References: <e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com>
+	s=arc-20240116; t=1737115029; c=relaxed/simple;
+	bh=PdsR6eDtPLGU0UCT2ZWFhbGcZ1xhlz6rKWTWzAO6NWg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YDUOeRwObUAytMcsOvGWvRCSNxP6eEizcQ7ATxuj8Qt8ONV8w2wBwKD9qYlzQFDzLmKcrxDdvdMjfHLcoT/EqhMP//p9w+F5Rrcxv/W9MHVOoY39gXOjAzpAXuVtJigmPmMuenQWb/8YpGijSFwzcuVKembWl0EIpOr/ZhvP/Ww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZKdY4jtv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZKdY4jtv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1737115025;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pQeV0O+jL1G/DFyqYGy9184NT6E7z1zePUvfpKkhxQI=;
+	b=ZKdY4jtvWMN3MUhSBM45GYN3q0HIiLvq42cv2sVsOaruWoUdAIA2SsmE3y3wgDPl+XR+eI
+	BQZuWC0l2wqn7jTJ3Ir01uGeV+zDxq70YPLGA3HWbV4wWtTyN40QJM+pUQpqGV+Yojnlgs
+	OLFn6g3xMCGD8VWzt4NoS32pFvQpsr4=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-517-X-QMKzuZMpylKLq_glYHgA-1; Fri,
+ 17 Jan 2025 06:57:02 -0500
+X-MC-Unique: X-QMKzuZMpylKLq_glYHgA-1
+X-Mimecast-MFC-AGG-ID: X-QMKzuZMpylKLq_glYHgA
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7363919560BB;
+	Fri, 17 Jan 2025 11:57:00 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.68])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9CA3F1955F10;
+	Fri, 17 Jan 2025 11:56:53 +0000 (UTC)
+Date: Fri, 17 Jan 2025 19:56:48 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+	nbd@other.debian.org, ceph-devel@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-mtd@lists.infradead.org,
+	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/2] loop: force GFP_NOIO for underlying file systems
+ allocations
+Message-ID: <Z4pFgIqB50gz-ODi@fedora>
+References: <20250117074442.256705-1-hch@lst.de>
+ <20250117074442.256705-2-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zC_KCgCXdV6CQopnA40LAA--.9592S2
-X-CM-SenderInfo: asssliaqzvq6lmxovvfxof0/1tbiAg8JB2eJiygpSQAAsu
-X-CM-DELIVERINFO: =?B?wOZpVwXKKxbFmtjJiESix3B1w3u7BCRQAee6E0rsv8LVXQpn+jaR4luXxag8yWi2LJ
-	86hmNl1N/KjW2+Pzmhc0HcODClqWXbN+DaVcrUonWrmkaBtWb0Y17wNRe4l1CQeTIzSqoV
-	jvhx3BsZ8YrkQ3MQ8C49b7CoVDZy+9r3JI6jQOmiJ3qtq8cranNWbrrSC45yiw==
-X-Coremail-Antispam: 1Uk129KBj93XoWxuw1rKFyrGFWkCr43XFyDCFX_yoW7Gw4DpF
-	Z8G34jyr48G34UZrs7W3W5Xr18Crs3ur9xKFn2kry2vr98Cry8JrZrK3Z09F4DuFWrJF47
-	J3Wqq3W5Wrn8A3XCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUBl14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJV
-	Cq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84AC
-	jcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4UJVW0ow
-	A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-	0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc02F40EFcxC0V
-	AKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1l
-	Ox8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0Y48IcxkI7VAKI48G6xCjnV
-	AKz4kxM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2xKxwCF04k2
-	0xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI
-	8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41l
-	IxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIx
-	AIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2
-	jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7VUjtfHUUUUUU==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250117074442.256705-2-hch@lst.de>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-> I see now and can replicate it. I think there is a 2nd bug in
-> vhost_scsi_set_endpoint related to all this where we need to
-> prevent switching targets like this or else we'll leak some
-> other refcounts. If 500140501e23be28's tpg number was 3 then
-> we would overwrite the existing vs->vs_vhost_wwpn and never
-> be able to release the refounts on the tpgs from 500140562c8936fa.
->
-> I'll send a patchset to fix everything and cc you.
->
-> Thanks for all the work you did testing and debugging this
-> issue.
+On Fri, Jan 17, 2025 at 08:44:07AM +0100, Christoph Hellwig wrote:
+> File systems can and often do allocate memory in the read-write path.
+> If these allocations are done with __GFP_IO or __GFP_FS set they can
+> recurse into the file system or swap device on top of the loop device
+> and cause deadlocks.  Prevent this by forcing a noio scope over the
+> calls into the file system.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/block/loop.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+> index 1ec7417c7f00..71eccc5cfffb 100644
+> --- a/drivers/block/loop.c
+> +++ b/drivers/block/loop.c
+> @@ -1905,6 +1905,15 @@ static void loop_handle_cmd(struct loop_cmd *cmd)
+>  	int ret = 0;
+>  	struct mem_cgroup *old_memcg = NULL;
+>  	const bool use_aio = cmd->use_aio;
+> +	unsigned int memflags;
+> +
+> +	/*
+> +	 * We're calling into file system which could do be doing memory
+> +	 * allocations.  Ensure the memory reclaim does not cause I/O,
+> +	 * because that could end up in the user of this loop devices again and
+> +	 * deadlock.
+> +	 */
+> +	memflags = memalloc_noio_save();
 
-You are welcome. There is another bug I was about to report, but I'm not
-sure whether I should create a new thread. I feel that the original design
-of dynamically allocating new vs_tpgs in vhost_scsi_set_endpoint is not
-intuitive, and copying TPGs before setting the target doesn't seem
-logical. Since you are already refactoring the code, maybe I should post
-it here so we can address these issues in one go.
+If we call memalloc_noio_save() here, setting PF_MEMALLOC_NOIO can be removed
+from loop_process_work().
 
-[PATCH] vhost/scsi: Fix dangling pointer in vhost_scsi_set_endpoint()
 
-Since commit 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate
-if the endpoint is setup"), a dangling pointer issue has been introduced
-in vhost_scsi_set_endpoint() when the host fails to reconfigure the
-vhost-scsi endpoint. Specifically, this causes a UAF fault in
-vhost_scsi_get_req() when the guest attempts to send an SCSI request.
-
-In vhost_scsi_set_endpoint(), vhost_scsi->vs_tpg holds the same pointer
-as vq->private_data. The code allocates a new vs_tpg array to hold the
-TPGs and updates vq->private_data if a match is found between
-vhost_scsi_list's tport_name and the target WWPN. However, the code
-ignored the case where `match == 0` (i.e. the target endpoint does not
-match any TPGs in vhost_scsi_list). In this scenario, it directly frees
-the old vs_tpg and updates vhost_scsi->vs_tpg without modifying
-vq->private_data, leaving all vq's backend pointer dangling. As a result,
-subsequent requests from the guest will trigger a UAF fault on vs_tpg in
-vhost_scsi_get_req(). Below is the KASAN report:
-
-[   68.606821] BUG: KASAN: slab-use-after-free in vhost_scsi_get_req+0xef/0x1f0
-[   68.607671] Read of size 8 at addr ffff8880087a1008 by task vhost-1440/1460
-[   68.608570]
-[   68.612070] Call Trace:
-[   68.612429]  <TASK>
-[   68.612739]  dump_stack_lvl+0x9e/0xd0
-[   68.613206]  print_report+0xd1/0x670
-[   68.613711]  ? __virt_addr_valid+0x54/0x250
-[   68.614232]  ? kasan_complete_mode_report_info+0x6a/0x200
-[   68.614879]  kasan_report+0xd6/0x120
-[   68.615329]  ? vhost_scsi_get_req+0xef/0x1f0
-[   68.615869]  ? vhost_scsi_get_req+0xef/0x1f0
-[   68.616406]  __asan_load8+0x8b/0xe0
-[   68.616854]  vhost_scsi_get_req+0xef/0x1f0
-[   68.617362]  vhost_scsi_handle_vq+0x30f/0x15e0
-[   68.622248]  ...
-[   68.622868]  vhost_scsi_handle_kick+0x39/0x50
-[   68.623409]  vhost_run_work_list+0xd9/0x120
-[   68.623939]  ? __pfx_vhost_run_work_list+0x10/0x10
-[   68.624521]  vhost_task_fn+0xf8/0x240
-[   68.629164]  ...
-[   68.629705]  ret_from_fork+0x5d/0x80
-[   68.630155]  ? __pfx_vhost_task_fn+0x10/0x10
-[   68.630693]  ret_from_fork_asm+0x1a/0x30
-[   68.631179] RIP: 0033:0x0
-[   68.631516] Code: Unable to access opcode bytes at 0xffffffffffffffd6.
-[   68.637405]  </TASK>
-[   68.637670]
-[   68.637798] Allocated by task 1440:
-[   68.638124]  kasan_save_stack+0x39/0x70
-[   68.638607]  kasan_save_track+0x14/0x40
-[   68.638919]  kasan_save_alloc_info+0x37/0x60
-[   68.639331]  __kasan_kmalloc+0xc3/0xd0
-[   68.639625]  __kmalloc_cache_noprof+0x186/0x3a0
-[   68.639971]  vhost_scsi_ioctl+0x630/0xec0
-[   68.640392]  __x64_sys_ioctl+0x126/0x160
-[   68.640755]  x64_sys_call+0x11ad/0x25f0
-[   68.641076]  do_syscall_64+0x7e/0x170
-[   68.641437]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-[   68.641887]
-[   68.642016] Freed by task 1461:
-[   68.642301]  kasan_save_stack+0x39/0x70
-[   68.642622]  kasan_save_track+0x14/0x40
-[   68.642958]  kasan_save_free_info+0x3b/0x60
-[   68.643352]  __kasan_slab_free+0x52/0x80
-[   68.643675]  kfree+0x129/0x440
-[   68.643973]  vhost_scsi_ioctl+0xd74/0xec0
-[   68.644290]  __x64_sys_ioctl+0x126/0x160
-[   68.644589]  x64_sys_call+0x11ad/0x25f0
-[   68.644939]  do_syscall_64+0x7e/0x170
-[   68.645377]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-
-To address this issue, we need to prevent the `free(vs_tpg)` operation
-from being triggered by the `match == 0` branch , either by moving the
-free operation inside the if-clause or by adding a goto statement in the
-else-clause. Here is an alternative patch commit.
-
-Fixes: 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate if the endpoint is setup")
-Signed-off-by: Haoran Zhang <wh1sper@zju.edu.cn>
----
- drivers/vhost/scsi.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 718fa4e0b31e..1e15eab530d7 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -1775,6 +1775,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 		ret = 0;
- 	} else {
- 		ret = -EEXIST;
-+		goto undepend;
- 	}
- 
- 	/*
--- 
-2.43.0
+Thanks,
+Ming
 
