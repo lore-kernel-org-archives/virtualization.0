@@ -1,163 +1,227 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBCC71F942E
-	for <virtualization@lists.linux-foundation.org>; Fri, 17 Jan 2025 09:23:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76C151FA8C0
+	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 09:47:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737105838; cv=none; b=L4pBjaXlGc68ffDkych/l3//mydH9nEc7ZxNBvLVJFhpTzzOK+H6fvWzzad2u5z7zmrnDT+s2izvURQZGxqGkxSq2V5rwwqG9KMOqBqksU6WfXAEtF8hOutIxev8gmtc/SYa/a8Mt/Ta2EFRD+Ul7P8081MqU8253gxb6i7xoqE=
+	t=1737107279; cv=none; b=fraD6TS7b/w4ILQJjMU9DUZzvUTX+vd5isNkWakKJQfE0OEXs1FhOFg4X1bWvnvvFcfiMLmhS+6Xolc6c8SOBM386w+B8rkkWMHQHdM+8iwPIBQqLwuJGAqTZlywsHs9sq+RNjvtjd0brQEOTFPx09b/X3OSY14HtwLTxAZihkc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737105838; c=relaxed/simple;
-	bh=50hALf/6JHENCC8eS76LlBaB8m3rt1/ock6nsrhlS3M=;
-	h=Date:From:To:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=K2W6MJI02wjDo1/WzUXUC/gcV4iwEfVbII78b3HypI94diqoNfcHKdHQIkzaWg4IaeZ0yHAll92jnhOo0v1qQOGMTYIJOmxOeI/2TFWWWyRVwCKYQmd1keVMTSrj/DVyD1l62X1vQXS21BRVQ3ubwEEFQQ41+Lw0ybDKOjHr9cM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fMEQFqkk; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1737107279; c=relaxed/simple;
+	bh=F2gqeuB0aLhR/bzKUvYunwZ5S0liP9KO05qoNp3Tqo0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=t+H44NJ/TVNRptXVMS8TqZec2Y9tj4UvGWgmxn5HmeTlzeXOHilJdHERydJBL9jwm34dz+CxQOgmxp60OvR43INVYTYEpKvLZa1OR8s6dpWV5OwZx/aHJMmbZgmF9jWiTHDHJVgWWy8uFa0o5MxQT2VT83ColBucBwtqnTfUv0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A6tK/8Kh; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fMEQFqkk"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7F8B2417C2
-	for <virtualization@lists.linux-foundation.org>; Fri, 17 Jan 2025 09:23:56 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ueOsF4-SKzUa for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jan 2025 09:23:55 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::72b; helo=mail-qk1-x72b.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 915834178E
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 915834178E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=fMEQFqkk
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 915834178E
-	for <virtualization@lists.linux-foundation.org>; Fri, 17 Jan 2025 09:23:55 +0000 (UTC)
-Received: by mail-qk1-x72b.google.com with SMTP id af79cd13be357-7be49f6b331so157071385a.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 17 Jan 2025 01:23:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737105834; x=1737710634; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LUHC+rmP5s8u9ue7y5NSHcW77KbmtVUiG9NQgfxlEs4=;
-        b=fMEQFqkkhLahmi+uqGa+CwQICt2aKra8Xds9uGtKmbWmCrGyhPYXd6mi/V+7ABNg7a
-         rZh5auKMGWcO/bxK8N5gagJY9YB5hZ6fUy0rSDOxPs8B6T0TQQlpcLbw00xTmp42gAUO
-         jUBjPjYLLUejzHnV5U5zGt1EvGsQRwhnh6RcqGjwT8v4hi3M0hn80Nbtp7X5K/iviGsu
-         dK/m0YU8OU7ma1JTRU8TuEfK68QEq7Qc7aCgDL0xARdkHSqk4ImCoh2JAEejgDjnRpIS
-         4JfVOztO5Cbq1YQ6OCfMrgkz8iikK9bzWbFEvCoVjr4qm/3AC/QRPUEeo3YRSOHzPqOo
-         lrLQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A6tK/8Kh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1737107276;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VvR9KfuLK5jT/0k1YGBwcApH+9cF5PsvBxGMV+DYi4c=;
+	b=A6tK/8KhRQ9XMbSHXn7b5FCof71m9Nz66+F3lTZOpjmBhLvLfDkuafP9csPHxi6ibgXlmA
+	odXr377rBr7gxIYAXJCILlv4Qo6Fgqt8l31LZtzZy5NQMwudsySR0rPzqoyDucmtwib/t3
+	QSY23AtGRzyG9yN5iLngePVHHe8gxJY=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-22-y9RIJ29DOdOx5SYBkZppTw-1; Fri, 17 Jan 2025 04:47:55 -0500
+X-MC-Unique: y9RIJ29DOdOx5SYBkZppTw-1
+X-Mimecast-MFC-AGG-ID: y9RIJ29DOdOx5SYBkZppTw
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43623bf2a83so13472515e9.0
+        for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 01:47:54 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737105834; x=1737710634;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LUHC+rmP5s8u9ue7y5NSHcW77KbmtVUiG9NQgfxlEs4=;
-        b=Qic2LvdmEEnHseUpci1cnXde8WBQ9qSOxmrvazmDZLWmi07G0HSqfmE1V/jCqJLTDR
-         p/Z6YfwgTrn5Ge9AKFivjuOf3F2GDnXzpBvvfQTTnKukS2duoSwlchyJLZZkloZH1gJr
-         zqG2cGBX7HtranuuJ3Eo3adshhn26ai5zB1/Bh/v4JptO6W4uivJCm7mk3EpRmfxt2BL
-         zuWFNfMYQFKWeYAeZu4A9mKa0HMvf0ZUCBhHe+7Z0TW/bVWHs3RrFAwnAifhNmWrZPxU
-         HsnGs7JbsuIm1cuGIaxlAaXgRy/NswSk5FhbTjMdrGzeZ1MFW8KrRE/0URuvLBqEG/P0
-         0kjg==
-X-Forwarded-Encrypted: i=1; AJvYcCWcw1M+GRxGP8GwWSq9nNoHhuDfT4Wp5UanGOi09kYC/aPfd2K76aYz7fUGxt1LIBuBAv/s91X9RKkIN+fUng==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzjDYU+drUuwUASPmR2DM/aF8+Tp/BVtZ80WHmwtvxjVHqnoM0V
-	RXybO0yViACE54VyJgj1EUGLxCARt542fiY9X44R/79dgS1L00n2
-X-Gm-Gg: ASbGncvsayDRo1aPySVqh+0k9ZOW3f3wNzc91oQOCFKCYkAguQCm4Na/4RFHwtuqohu
-	99FkZllXE86fjhAy4w8RFI7tOD08xZFbiDdSaSj+YLMAthgV/WCCdhhe/jyGc+vVEUybzTeeS+J
-	qrnStZ4P21QtVNaK/zAJiWXeMp/oagZucRNjUeN60emVUpIjfjdWIYJ2uhlK+rolzCNLh6S+xUT
-	Qw4ut15SSmVywX7/baiTNB/ZXq4u6Al+9LC+Ytey/BPZEGwNTp3qw3/2U1gvYOolPgRfDLYxzvB
-	R5NVn4WjIik1pBw0odpJt6ZnRgcJ
-X-Google-Smtp-Source: AGHT+IEMu06W4+1L5IGQzrWbh5FGKq2dzIxGEx4RdrkbuTSxndYZ95YVhigy3GzlsmK1SHrLp3dALg==
-X-Received: by 2002:a05:620a:3942:b0:7b6:e9db:3b19 with SMTP id af79cd13be357-7be63287a2bmr335761385a.47.1737105834081;
-        Fri, 17 Jan 2025 01:23:54 -0800 (PST)
-Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6e1afc0f877sm9579176d6.31.2025.01.17.01.23.53
+        d=1e100.net; s=20230601; t=1737107274; x=1737712074;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=VvR9KfuLK5jT/0k1YGBwcApH+9cF5PsvBxGMV+DYi4c=;
+        b=jgi5R5IfQDTnMMlTre+Ve01IdPCEFTkaePg8iLc8D0mJbzMPMFQRjU7fY+jNfOVdOc
+         dJ4plM+mympoFk+fC1wnquR6sbKqZhOMdYf67IytuOARVWEyGPVvngQZB04hvg3BXH0q
+         QlQhKJQAqQLB0E43+I2MdoeZlwfMLAI+6TxIjfNUTM0Gkj2AFSnqG2Cd8uuyvK7tZzCs
+         e0AO6Yv0UOBlq37Xb+ltmUdYeFakLXqYUtrjj7zYFKVr0SMiP+NI9sOb2voHaKyb/Ovd
+         sCYy4wuJEy2FizC7gKMuE/Vyxv+PWzou/pkJkPfT8nQJa/Iyw9P4rIZ9zq+q1Qrwhzx8
+         oxSA==
+X-Forwarded-Encrypted: i=1; AJvYcCVSNtIrFcN9FZAkZmUR7YSXwMBrcllpzujF3r7EWbBAQgb3TZDRwS05mbsAVUXIfxBDidUCjUrY4qVGMc9L9A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzpX8mvyjCduJbMTe6eoML51lM1UW9mgxJep+hbHLCcNla4SQhV
+	LRoBhNXWsdXYQEDOYR47vQlJlv2iDHc/ic3gX7b71bZTBrKAem9Qj+vo8EzpclZZZ62HSCcow9I
+	rPCPYjx4KdnUvolp8O4+6QG6mKPzkCtJExj26VE8UwrX/HdHWpGn+guLXiSBfNqWR
+X-Gm-Gg: ASbGnctxfA+XtOzyayAdG9cxa6zZFHYSojQ9RchnZGxlzi4gY8fVwRnfD7IZtGVU/i7
+	DxAXPIAUmb3fafM2/6mJeEapmFqeIWo/ZgEdggAFln8b5Q9/kj5KR6+FmzL8Nmkj3piARD/Invu
+	lqIFyktBae5w9/lt87+8MBqtgr5k7pA56oc1qTl3eV1F9iQZu0TyyAuH1CkRuICMyDichktAAgC
+	F+5l1Ap4+O33TRa061fVr9lpB4ABuHjMONYOr7cSPOm+l6JKurphAyNb0kTKw4J2cdFpywpma0F
+	jedZibJUmeOwYL4EQM7X+wdxTSeYEgFkFd04wF0UWg==
+X-Received: by 2002:a05:600c:9a3:b0:434:fa73:a907 with SMTP id 5b1f17b1804b1-4389191b819mr16314115e9.13.1737107273774;
+        Fri, 17 Jan 2025 01:47:53 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHToHDxXT5KMOIEW1byUZUSn/LchRidR5pJg2ZFHbUxu07B2Q/njknWrWkjTXhDYHkp8NfwWQ==
+X-Received: by 2002:a05:600c:9a3:b0:434:fa73:a907 with SMTP id 5b1f17b1804b1-4389191b819mr16313255e9.13.1737107273291;
+        Fri, 17 Jan 2025 01:47:53 -0800 (PST)
+Received: from vschneid-thinkpadt14sgen2i.remote.csb (213-44-141-166.abo.bbox.fr. [213.44.141.166])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-438904131f5sm27135155e9.11.2025.01.17.01.47.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jan 2025 01:23:53 -0800 (PST)
-Date: Fri, 17 Jan 2025 04:23:53 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
- Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, 
- kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, 
- linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, 
- gur.stavi@huawei.com, 
- devel@daynix.com, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-Message-ID: <678a21a9388ae_3e503c294f4@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20250116-tun-v3-9-c6b2871e97f7@daynix.com>
-References: <20250116-tun-v3-0-c6b2871e97f7@daynix.com>
- <20250116-tun-v3-9-c6b2871e97f7@daynix.com>
-Subject: Re: [PATCH net v3 9/9] tap: Use tun's vnet-related code
+        Fri, 17 Jan 2025 01:47:52 -0800 (PST)
+From: Valentin Schneider <vschneid@redhat.com>
+To: Sean Christopherson <seanjc@google.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+ linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org,
+ kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-mm@kvack.org,
+ linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+ bcm-kernel-feedback-list@broadcom.com, Peter Zijlstra
+ <peterz@infradead.org>, Nicolas Saenz Julienne <nsaenzju@redhat.com>,
+ Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.amakhalov@broadcom.com>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
+ <kernel@xen0n.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Thomas
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H.
+ Peter Anvin" <hpa@zytor.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa
+ <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, Adrian Hunter
+ <adrian.hunter@intel.com>, Kan Liang <kan.liang@linux.intel.com>, Boris
+ Ostrovsky <boris.ostrovsky@oracle.com>, Josh Poimboeuf
+ <jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Frederic Weisbecker <frederic@kernel.org>,
+ "Paul E. McKenney" <paulmck@kernel.org>, Jason Baron <jbaron@akamai.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, Joel Fernandes
+ <joel@joelfernandes.org>, Josh Triplett <josh@joshtriplett.org>, Boqun
+ Feng <boqun.feng@gmail.com>, Uladzislau Rezki <urezki@gmail.com>, Mathieu
+ Desnoyers <mathieu.desnoyers@efficios.com>, Lai Jiangshan
+ <jiangshanlai@gmail.com>, Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli
+ <juri.lelli@redhat.com>, Clark Williams <williams@redhat.com>, Yair
+ Podemsky <ypodemsk@redhat.com>, Tomas Glozar <tglozar@redhat.com>, Vincent
+ Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann
+ <dietmar.eggemann@arm.com>, Ben Segall <bsegall@google.com>, Mel Gorman
+ <mgorman@suse.de>, Kees Cook <kees@kernel.org>, Andrew Morton
+ <akpm@linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Shuah
+ Khan <shuah@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Miguel
+ Ojeda <ojeda@kernel.org>, Alice Ryhl <aliceryhl@google.com>, "Mike
+ Rapoport (Microsoft)" <rppt@kernel.org>, Samuel Holland
+ <samuel.holland@sifive.com>, Rong Xu <xur@google.com>, Geert Uytterhoeven
+ <geert@linux-m68k.org>, Yosry Ahmed <yosryahmed@google.com>, "Kirill A.
+ Shutemov" <kirill.shutemov@linux.intel.com>, "Masami Hiramatsu (Google)"
+ <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, Luis
+ Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v4 25/30] context_tracking,x86: Defer kernel text
+ patching IPIs
+In-Reply-To: <Z4bTlZkqihaAyGb4@google.com>
+References: <20250114175143.81438-1-vschneid@redhat.com>
+ <20250114175143.81438-26-vschneid@redhat.com>
+ <Z4bTlZkqihaAyGb4@google.com>
+Date: Fri, 17 Jan 2025 10:47:49 +0100
+Message-ID: <xhsmhed11hiuy.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: DvJd8_jaF0YwdoY_ucMdxrEVGD0MWbmAUYHuAQpQwJs_1737107274
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 
-Akihiko Odaki wrote:
-> tun and tap implements the same vnet-related features so reuse the code.
-> 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> ---
->  drivers/net/Kconfig    |   1 +
->  drivers/net/Makefile   |   6 +-
->  drivers/net/tap.c      | 152 +++++--------------------------------------------
->  drivers/net/tun_vnet.c |   5 ++
->  4 files changed, 24 insertions(+), 140 deletions(-)
-> 
-> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> index 1fd5acdc73c6..c420418473fc 100644
-> --- a/drivers/net/Kconfig
-> +++ b/drivers/net/Kconfig
-> @@ -395,6 +395,7 @@ config TUN
->  	tristate "Universal TUN/TAP device driver support"
->  	depends on INET
->  	select CRC32
-> +	select TAP
->  	help
->  	  TUN/TAP provides packet reception and transmission for user space
->  	  programs.  It can be viewed as a simple Point-to-Point or Ethernet
-> diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-> index bb8eb3053772..2275309a97ee 100644
-> --- a/drivers/net/Makefile
-> +++ b/drivers/net/Makefile
-> @@ -29,9 +29,9 @@ obj-y += mdio/
->  obj-y += pcs/
->  obj-$(CONFIG_RIONET) += rionet.o
->  obj-$(CONFIG_NET_TEAM) += team/
-> -obj-$(CONFIG_TUN) += tun-drv.o
-> -tun-drv-y := tun.o tun_vnet.o
-> -obj-$(CONFIG_TAP) += tap.o
-> +obj-$(CONFIG_TUN) += tun.o
+On 14/01/25 13:13, Sean Christopherson wrote:
+> On Tue, Jan 14, 2025, Valentin Schneider wrote:
+>> text_poke_bp_batch() sends IPIs to all online CPUs to synchronize
+>> them vs the newly patched instruction. CPUs that are executing in userspace
+>> do not need this synchronization to happen immediately, and this is
+>> actually harmful interference for NOHZ_FULL CPUs.
+>
+> ...
+>
+>> This leaves us with static keys and static calls.
+>
+> ...
+>
+>> @@ -2317,11 +2334,20 @@ static void text_poke_bp_batch(struct text_poke_loc *tp, unsigned int nr_entries
+>>       * First step: add a int3 trap to the address that will be patched.
+>>       */
+>>      for (i = 0; i < nr_entries; i++) {
+>> -		tp[i].old = *(u8 *)text_poke_addr(&tp[i]);
+>> -		text_poke(text_poke_addr(&tp[i]), &int3, INT3_INSN_SIZE);
+>> +		void *addr = text_poke_addr(&tp[i]);
+>> +
+>> +		/*
+>> +		 * There's no safe way to defer IPIs for patching text in
+>> +		 * .noinstr, record whether there is at least one such poke.
+>> +		 */
+>> +		if (is_kernel_noinstr_text((unsigned long)addr))
+>> +			cond = NULL;
+>
+> Maybe pre-check "cond", especially if multiple ranges need to be checked?  I.e.
+>
+>               if (cond && is_kernel_noinstr_text(...))
+>> +
+>> +		tp[i].old = *((u8 *)addr);
+>> +		text_poke(addr, &int3, INT3_INSN_SIZE);
+>>      }
+>>
+>> -	text_poke_sync();
+>> +	__text_poke_sync(cond);
+>>
+>>      /*
+>>       * Second step: update all but the first byte of the patched range.
+>
+> ...
+>
+>> +/**
+>> + * is_kernel_noinstr_text - checks if the pointer address is located in the
+>> + *                    .noinstr section
+>> + *
+>> + * @addr: address to check
+>> + *
+>> + * Returns: true if the address is located in .noinstr, false otherwise.
+>> + */
+>> +static inline bool is_kernel_noinstr_text(unsigned long addr)
+>> +{
+>> +	return addr >= (unsigned long)__noinstr_text_start &&
+>> +	       addr < (unsigned long)__noinstr_text_end;
+>> +}
+>
+> This doesn't do the right thing for modules, which matters because KVM can be
+> built as a module on x86, and because context tracking understands transitions
+> to GUEST mode, i.e. CPUs that are running in a KVM guest will be treated as not
+> being in the kernel, and thus will have IPIs deferred.  If KVM uses a static key
+> or branch between guest_state_enter_irqoff() and guest_state_exit_irqoff(), the
+> patching code won't wait for CPUs to exit guest mode, i.e. KVM could theoretically
+> use the wrong static path.
+>
 
-Is reversing the previous changes to tun.ko intentional?
+AFAICT guest_state_{enter,exit}_irqoff() are only used in noinstr functions
+and thus such a static key usage should at the very least be caught and
+warned about by objtool - when this isn't built as a module.
 
-Perhaps the previous approach with a new CONFIG_TUN_VNET is preferable
-over this. In particular over making TUN select TAP, a new dependency.
+I never really thought about noinstr sections for modules; I can get
+objtool to warn about a non-noinstr allowed key being used in
+e.g. vmx_vcpu_enter_exit() just by feeding it the vmx.o:
 
-> +obj-$(CONFIG_TAP) += tap-drv.o
-> +tap-drv-y := tap.o tun_vnet.o
->  obj-$(CONFIG_VETH) += veth.o
->  obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
->  obj-$(CONFIG_VXLAN) += vxlan/
+arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_vcpu_enter_exit.isra.0+0x0: dummykey: non-RO static key usage in noinstr
+
+...but that requires removing a lot of code first because objtool stops
+earlier in its noinstr checks as it hits functions it doesn't have full
+information on, e.g.
+
+arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_vcpu_enter_exit+0x21c: call to __ct_user_enter() leaves .noinstr.text section
+
+__ct_user_enter() *is* noinstr, but you don't get that from just the header prototype.
+
+> I don't expect this to ever cause problems in practice, because patching code in
+> KVM's VM-Enter/VM-Exit path that has *functional* implications, while CPUs are
+> actively running guest code, would be all kinds of crazy.  But I do think we
+> should plug the hole.
+>
+> If this issue is unique to KVM, i.e. is not a generic problem for all modules (I
+> assume module code generally isn't allowed in the entry path, even via NMI?), one
+> idea would be to let KVM register its noinstr section for text poking.
+
