@@ -1,142 +1,109 @@
-Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADDA71A23AC
-	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 17:15:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F64215855E;
+	Fri, 17 Jan 2025 22:03:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737134131; cv=none; b=ThMwEN6yhLDztkUHAHynxfJDVLeZ6q9N+VlknZFJ9Y413CSpXydShqkAx2K39KBN97tBsz2zxLM+T47TP2TBiiok6FPGzXT6BskADYIC0s4pWZX5rxcJnbF8txREMw5Gj5HJZ0aHxquSn03LoNrK30IQeuJdnfjXmSaQOi/i2w8=
+	t=1737151393; cv=none; b=ACw+f6DyG4wjhGma/4fXOrTJe3ZrWL+KS3CDA4HslFSVbJiSCcBytJMFQ7f2nmp/40whpwLKALXe5+K7XsYpp+FcZRfvreQwUya2+WVtueID3kkIihSvMjn5LcAvEkcJ92gsq+NFuToLpWDD3lm1HfgKTlbcKSdz5Dq6n5U+/Bo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737134131; c=relaxed/simple;
-	bh=0MFya64nSwrKA4zsNtkUtWH4IKaadp8mDbPpC2PlrFo=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=A1Ixuwt+py2iDQZZZQX8ZmBdxOZgyVFqJgSdekIhW2y2gb2Rc/X8T4qq47ySVrh2l6RQZ8WhTW4+4TiQjfsE6ArXOgvMWPwO37neTUvcC1ms6ACNnt+A2F016HUJDwxrgz3remgJYDicD4kIOPGT27gUf0uiPXLgJFv/nUMdaOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=18Z4f+W9; arc=none smtp.client-ip=209.85.214.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1737151393; c=relaxed/simple;
+	bh=xY6e8RsoEZ6A+tJaci/cDSUApI6DhAPRsuEwbap3tgo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OGttgwWqviiW0EzjiDnhcPJ8ABlmJHUYKdLTkUFuT457ZvM5UaZixqgyavSxn3SaZnN8fYwhHLSPiNwnWHDfijI/xxo/oXxdzKMMY1MWQNeCtENIgvhtYYBzgN2sAh0JxJCmgyEBGNlCMZFHs+Be8yEyz5pt5XrYA0KPshGaDZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=FLf1eAGi; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="18Z4f+W9"
-Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2178115051dso44450935ad.1
-        for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 09:15:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1737134129; x=1737738929; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/pcx17eniD+ASjh3teIfjrJN/d55a+1SMCIjE05N6Y0=;
-        b=18Z4f+W92hjQtxbo71KFtykOgNC/nSIyiBuOg6pSBGeK+fiP+YhW1A+bcaS70mKsUI
-         oPySjg30DB7ZJHfzznXKfTZIRsJrL/izZB2JqI2YFdd6w+dNwZlfVsiS39MYZn+ibAjJ
-         8/yQITZubxofplNLXHmBgg/i5w5aK86iI+0d9OMcBuXUscwKdB/NltlDjGEmfuxGUsV0
-         +i3GkIvF9LJRHYV/2hotkd4b6nY7wLnEh6OYZRp3Yv7CcWXUcdmAWI3bqd3YqzuepUXu
-         WHQd7Ia/0lcDfUxd9Dfkk6t+23VF4PSZ0VorTNuVlsoaF8nQMqNzyRRibXdCa2HHq4Zs
-         ue7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737134129; x=1737738929;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/pcx17eniD+ASjh3teIfjrJN/d55a+1SMCIjE05N6Y0=;
-        b=kkwPmwPFX3GMCULU/mojoFx+XvdDjtzEmEcdLQ15AJfTdpjqLkcoigmbA01swJktWJ
-         o5gruWDYmiZQz33MG28KoScNgfJwyumz2LY1U0MXw3DQMBFNlmms7GCV8ggs/N1JfLN9
-         aMTgQSJ+v09bRKngdkOHJ1OCNrVEUWWS3X/VyyNCqSodmC4aBpSI9xGTDBWwdBxV4fsa
-         a86GYb4IldW0gKqcvdOao+6bjB/m+vqXXlPShG/xV6wUl/VRANl5D9+xGsEeRFIM0V4b
-         njPq6jvfnGIhf2/uAx8R8+oLfqXArFc3zRy4z5sUFB6XlCeWzZxSXhTLvIaZbpNDn53/
-         gdrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXr9FJn1qiFxF5sxX/RgiDKHLcocP+u/S+uVkam8T8pXC0DNibXCsM0YomgWBupTWwgnAYLNExfk5aDk8PUAw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/2tnkrSLC5+wbGtfJ4TgUTJwB5fnUWr43QRe8g77C0P/WH180
-	bfwD36uQC4iXQReUlSxQrXNUOSk0N8BuET1FIaS1lbDORPhrbQyIehNs29iuNFOVS5ag+enzOKM
-	GgQ==
-X-Google-Smtp-Source: AGHT+IFBt8EUJmCBrYJSR6SbgIXxnZj6fm10TNGjaAj4XRK+x0dRIzGirCE9VGAaKkDPtl0zEYTqCFRnILs=
-X-Received: from pfbcv2.prod.google.com ([2002:a05:6a00:44c2:b0:725:a760:4c72])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:148d:b0:725:eb85:f802
- with SMTP id d2e1a72fcca58-72daf930e3cmr5815077b3a.2.1737134128872; Fri, 17
- Jan 2025 09:15:28 -0800 (PST)
-Date: Fri, 17 Jan 2025 09:15:27 -0800
-In-Reply-To: <xhsmhed11hiuy.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="FLf1eAGi"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tYuQl-008u7k-HI; Fri, 17 Jan 2025 23:03:07 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=M/reCYsLr6s08s3R0WErIkODtGqCjwAs+f2DwNyZQg8=; b=FLf1eAGim4Tnh+661wlmPJ+n1S
+	yCa8uVopDrAmvazxt16YzB4jYlGXfgtAzjl5f4Apwm5xS4XxBWWPLFYHnDZm9Ft1ZQyGt3BW94Hdv
+	K6CPNyCPpuaIibiuFu1gM5bbGOK4WUHVW3maLrgqmnU+Ls8WguohVomVYHnoqsVXOSiq9bNl/lVqd
+	7qrmb3R3GH4Y768hXDBSw1RALrUe3yyD6aZdDN63L4rCFXIR20qFH4TnZDwLE3hkeuYmTljqxGyUB
+	M+c3EVGzOThShKerEI2HtjWisX/xfgVB7dJVJIi7NpUK7M1Fak6/LSo59WuuL5w2mFIQXe9IVc54T
+	ysJIkptg==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tYuQj-00059q-Um; Fri, 17 Jan 2025 23:03:06 +0100
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tYuQe-001shf-2d; Fri, 17 Jan 2025 23:03:00 +0100
+Message-ID: <e3085fe8-3dae-40b2-970f-b8cda956a8f5@rbox.co>
+Date: Fri, 17 Jan 2025 23:02:58 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250114175143.81438-1-vschneid@redhat.com> <20250114175143.81438-26-vschneid@redhat.com>
- <Z4bTlZkqihaAyGb4@google.com> <xhsmhed11hiuy.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
-Message-ID: <Z4qQL89GZ_gk0vpu@google.com>
-Subject: Re: [PATCH v4 25/30] context_tracking,x86: Defer kernel text patching IPIs
-From: Sean Christopherson <seanjc@google.com>
-To: Valentin Schneider <vschneid@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, 
-	virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	loongarch@lists.linux.dev, linux-riscv@lists.infradead.org, 
-	linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kselftest@vger.kernel.org, bpf@vger.kernel.org, 
-	bcm-kernel-feedback-list@broadcom.com, Peter Zijlstra <peterz@infradead.org>, 
-	Nicolas Saenz Julienne <nsaenzju@redhat.com>, Juergen Gross <jgross@suse.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.amakhalov@broadcom.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
-	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Thomas Gleixner <tglx@linutronix.de>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	Kan Liang <kan.liang@linux.intel.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, 
-	Josh Poimboeuf <jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Frederic Weisbecker <frederic@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, 
-	Jason Baron <jbaron@akamai.com>, Steven Rostedt <rostedt@goodmis.org>, 
-	Ard Biesheuvel <ardb@kernel.org>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, 
-	Joel Fernandes <joel@joelfernandes.org>, Josh Triplett <josh@joshtriplett.org>, 
-	Boqun Feng <boqun.feng@gmail.com>, Uladzislau Rezki <urezki@gmail.com>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>, 
-	Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Clark Williams <williams@redhat.com>, Yair Podemsky <ypodemsk@redhat.com>, 
-	Tomas Glozar <tglozar@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
-	Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall <bsegall@google.com>, 
-	Mel Gorman <mgorman@suse.de>, Kees Cook <kees@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, 
-	Shuah Khan <shuah@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
-	Miguel Ojeda <ojeda@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
-	"Mike Rapoport (Microsoft)" <rppt@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, Rong Xu <xur@google.com>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Yosry Ahmed <yosryahmed@google.com>, 
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, 
-	"Masami Hiramatsu (Google)" <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, 
-	Luis Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, 
-	Tiezhu Yang <yangtiezhu@loongson.cn>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 1/5] vsock/virtio: discard packets if the transport
+ changes
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Luigi Leonardi <leonardi@redhat.com>, "David S. Miller"
+ <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>,
+ kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
+ stable@vger.kernel.org
+References: <1aa83abf-6baa-4cf1-a108-66b677bcfd93@rbox.co>
+ <nedvcylhjxrkmkvgugsku2lpdjgjpo5exoke4o6clxcxh64s3i@jkjnvngazr5v>
+ <CAGxU2F7BoMNi-z=SHsmCV5+99=CxHo4dxFeJnJ5=q9X=CM3QMA@mail.gmail.com>
+ <cccb1a4f-5495-4db1-801e-eca211b757c3@rbox.co>
+ <nzpj4hc6m4jlqhcwv6ngmozl3hcoxr6kehoia4dps7jytxf6df@iqglusiqrm5n>
+ <903dd624-44e5-4792-8aac-0eaaf1e675c5@rbox.co>
+ <5nkibw33isxiw57jmoaadizo3m2p76ve6zioumlu2z2nh5lwck@xodwiv56zrou>
+ <7de34054-10cf-45d0-a869-adebb77ad913@rbox.co>
+ <n2itoh23kikzszzgmyejfwe3mdf6fmxzwbtyo5ahtxpaco3euq@osupldmckz7p>
+ <fb6f876f-a4eb-4005-bd76-fff0632291b8@rbox.co>
+ <pl4mhcim7v3ukv6eseynh6x2r6nftf7yuayjzd3ftyupwy5r2h@ixmlevubqzb2>
+From: Michal Luczaj <mhal@rbox.co>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <pl4mhcim7v3ukv6eseynh6x2r6nftf7yuayjzd3ftyupwy5r2h@ixmlevubqzb2>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 17, 2025, Valentin Schneider wrote:
-> On 14/01/25 13:13, Sean Christopherson wrote:
-> > On Tue, Jan 14, 2025, Valentin Schneider wrote:
-> >> +/**
-> >> + * is_kernel_noinstr_text - checks if the pointer address is located in the
-> >> + *                    .noinstr section
-> >> + *
-> >> + * @addr: address to check
-> >> + *
-> >> + * Returns: true if the address is located in .noinstr, false otherwise.
-> >> + */
-> >> +static inline bool is_kernel_noinstr_text(unsigned long addr)
-> >> +{
-> >> +	return addr >= (unsigned long)__noinstr_text_start &&
-> >> +	       addr < (unsigned long)__noinstr_text_end;
-> >> +}
-> >
-> > This doesn't do the right thing for modules, which matters because KVM can be
-> > built as a module on x86, and because context tracking understands transitions
-> > to GUEST mode, i.e. CPUs that are running in a KVM guest will be treated as not
-> > being in the kernel, and thus will have IPIs deferred.  If KVM uses a static key
-> > or branch between guest_state_enter_irqoff() and guest_state_exit_irqoff(), the
-> > patching code won't wait for CPUs to exit guest mode, i.e. KVM could theoretically
-> > use the wrong static path.
+On 1/16/25 09:57, Stefano Garzarella wrote:
+> On Tue, Jan 14, 2025 at 05:31:08PM +0100, Michal Luczaj wrote:
+>>> ...
+>>> Maybe we need to look better at the release, and prevent it from
+>>> removing the socket from the lists as you suggested, maybe adding a
+>>> function in af_vsock.c that all transports can call.
+>>
+>> I'd be happy to submit a proper patch, but it would be helpful to decide
+>> how close to AF_INET/AF_UNIX's behaviour is close enough. Or would you
+>> rather have that UAF plugged first?
+>>
 > 
-> AFAICT guest_state_{enter,exit}_irqoff() are only used in noinstr functions
-> and thus such a static key usage should at the very least be caught and
-> warned about by objtool - when this isn't built as a module.
+> I'd say, let's fix the UAF first, then fix the behaviour (also in a
+> single series, but I prefer 2 separate patches if possible).
+> About that, AF_VSOCK was started with the goal of following AF_INET as
+> closely as possible, and the test suite should serve that as well, so if
+> we can solve this problem and get closer to AF_INET, possibly even
+> adding a dedicated test, that would be ideal!
 
-That doesn't magically do the right thing though.  If KVM is built as a module,
-is_kernel_noinstr_text() will get false negatives even for static keys/branches
-that are annotaed as NOINSTR.
+All right, so let's keep the binding and allow removal from (un)bound list
+only on socket destruction. This is transport independent, changes are
+pretty minimal and, well, keeps the binding. Mixes well with the connect()
+behaviour fix.
+
+Let me know what you think:
+https://lore.kernel.org/netdev/20250117-vsock-transport-vs-autobind-v1-0-c802c803762d@rbox.co/
+
+Thanks,
+Michal
+
