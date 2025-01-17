@@ -1,109 +1,172 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F64215855E;
-	Fri, 17 Jan 2025 22:03:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755841ABEA1
+	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 22:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737151393; cv=none; b=ACw+f6DyG4wjhGma/4fXOrTJe3ZrWL+KS3CDA4HslFSVbJiSCcBytJMFQ7f2nmp/40whpwLKALXe5+K7XsYpp+FcZRfvreQwUya2+WVtueID3kkIihSvMjn5LcAvEkcJ92gsq+NFuToLpWDD3lm1HfgKTlbcKSdz5Dq6n5U+/Bo=
+	t=1737154591; cv=none; b=JC9gF8GWI5Pj9k206+jhRbP7fH+xNkEYj3mtt70MjvlYLY4NWhGCBUVPtnIVJ9LbpNTcmT9alfnGkjGcVxworXdZ5fkolsVKLr3lnVrRHijrmOPVHSG4+pvbfxqi+g317mVHMYrkRClnyOz9Uk/Hsyr/1M+rGx8fQhKs1i8Oqkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737151393; c=relaxed/simple;
-	bh=xY6e8RsoEZ6A+tJaci/cDSUApI6DhAPRsuEwbap3tgo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OGttgwWqviiW0EzjiDnhcPJ8ABlmJHUYKdLTkUFuT457ZvM5UaZixqgyavSxn3SaZnN8fYwhHLSPiNwnWHDfijI/xxo/oXxdzKMMY1MWQNeCtENIgvhtYYBzgN2sAh0JxJCmgyEBGNlCMZFHs+Be8yEyz5pt5XrYA0KPshGaDZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=FLf1eAGi; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1737154591; c=relaxed/simple;
+	bh=MZ8k6arSOGKfXEnGEo9T6WIuiEQrTSg4uSoW0G2usmw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pTKHeC5Bn3vaKeZV5b9E9XSJaWN+wmzes5BK20U4GlY/nnGaCGhsbyYl93civv3WkV4aOjDKNl/Z8bAu1mOwHOrzGVNM/BRfiMT7s1dqpatszcpjs/Q8iICdeqV1wc7lu0t0NBoQuyXj+IPBmD+M7AeK91GxTSQ+fIyRNHBo1A0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=UDtIaEz0; arc=none smtp.client-ip=209.85.217.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="FLf1eAGi"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1tYuQl-008u7k-HI; Fri, 17 Jan 2025 23:03:07 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=M/reCYsLr6s08s3R0WErIkODtGqCjwAs+f2DwNyZQg8=; b=FLf1eAGim4Tnh+661wlmPJ+n1S
-	yCa8uVopDrAmvazxt16YzB4jYlGXfgtAzjl5f4Apwm5xS4XxBWWPLFYHnDZm9Ft1ZQyGt3BW94Hdv
-	K6CPNyCPpuaIibiuFu1gM5bbGOK4WUHVW3maLrgqmnU+Ls8WguohVomVYHnoqsVXOSiq9bNl/lVqd
-	7qrmb3R3GH4Y768hXDBSw1RALrUe3yyD6aZdDN63L4rCFXIR20qFH4TnZDwLE3hkeuYmTljqxGyUB
-	M+c3EVGzOThShKerEI2HtjWisX/xfgVB7dJVJIi7NpUK7M1Fak6/LSo59WuuL5w2mFIQXe9IVc54T
-	ysJIkptg==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1tYuQj-00059q-Um; Fri, 17 Jan 2025 23:03:06 +0100
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1tYuQe-001shf-2d; Fri, 17 Jan 2025 23:03:00 +0100
-Message-ID: <e3085fe8-3dae-40b2-970f-b8cda956a8f5@rbox.co>
-Date: Fri, 17 Jan 2025 23:02:58 +0100
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UDtIaEz0"
+Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-4aff5b3845eso835062137.2
+        for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 14:56:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1737154588; x=1737759388; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=he366X0vqCY56I+SCllNk/+7JBZP0gskgWoZG7rnpZU=;
+        b=UDtIaEz0Tj0Jl+JhqNxArkFIG/7yVwIiRjatStzAqady4Q5EGH0bC5EedezuEWavXi
+         FOGPuPK3+/E3o2QxCiXYQGiAVzLfebCSMbQ4+/sD7t0pxKs6DMSE7ifRYO/qL9vxl8Nj
+         KgzNe2urZDyn4KRqApKzyTbythRHa+0USHmJajdcG1Z3aigvX4yLH36C1dUE89790BJH
+         rmchFWGxfN39jxxKu8ws9p6zRGfMdm0VEn9fU997khsJ4Su2fBIoHxAwLZWZEQgGYXVz
+         /WcvhiMcnK+QvRG1JfjLKnipsqLoyBDLBGyxGOMcbZ2/wGPrUzeXe8F3WBu0oJZL1lin
+         UE/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737154588; x=1737759388;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=he366X0vqCY56I+SCllNk/+7JBZP0gskgWoZG7rnpZU=;
+        b=ntOYSB/fyjy9pHI53Pev3LqAY/fvs7Fivpi1a1av74oMZSqjjq5z5ycE8O0wNuGMkc
+         EUkoHVgdmal7dqj2I2JnC8qlzM0Y7uavC88fL6An+4QhNqAMdP0QCyMNS/tecupT1ykV
+         /VcHT2Oj4ZXKAa7QO2jqsSb1Iz7gBcSwSBoxUf1PdXDPQabGDQiFny9isN+0tfRNmvKQ
+         PZ7v04XyI5jM6U6w9BeRk7vkdkvKZJpon/YrvVz2eWdPcrP2+py4l0BFJfdIrdZ+xDPX
+         lVPLB6cUATqnimjWGVWEBUTQxpT1DA5uQmLT7eZhTz8G9HQpWLflgC5s4sc0RzcYOndY
+         ANYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWaAGPjp30C6tPOTYCGWS3Hqhi17twfkuV7BvOV5FpOpcssAWDWPjbqKy0B92esx7gYiyobCFBwLyngHMEoFA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz33IvPBM/SeJO+t0xfbRugs4TLIrMFqWIg30jAfK0XNGD8lwLq
+	JoPmkkyBe/ybMdxKj+8mqmp3bFhM5kEqfs40UbTyqpeJbUwt/tfiSCU/o5NhIIn0GklHllLX15w
+	DRqeUH0vB5PWAspzTN2BFXUtv9uB7yAMafeQM
+X-Gm-Gg: ASbGncsJ2uVhvqbvK+KiQ+e3hVO45YyGS9nADWoqPV/cPeeHVGlUxa6jTK+HQhVbykC
+	C61JNeEt/OzBoDhgtjQEXsxMALqYg+tHFt8tVFtpsQubM4ht0AU8mzATmEyyaUMh2XaCcQYA=
+X-Google-Smtp-Source: AGHT+IF5keh1OkYhUK3RqcqnhV5OxQkXPU+ZsFCvGYt6ItUo4VtXll8joXvSm4m0B5v6T0Q6zgylSiB7Qbwlbay4s9E=
+X-Received: by 2002:a05:6102:3712:b0:4b1:14f3:5d6d with SMTP id
+ ada2fe7eead31-4b690bc6bc7mr4569126137.6.1737154588110; Fri, 17 Jan 2025
+ 14:56:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 1/5] vsock/virtio: discard packets if the transport
- changes
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
- Luigi Leonardi <leonardi@redhat.com>, "David S. Miller"
- <davem@davemloft.net>, Wongi Lee <qwerty@theori.io>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>,
- kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Simon Horman <horms@kernel.org>, Hyunwoo Kim <v4bel@theori.io>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
- stable@vger.kernel.org
-References: <1aa83abf-6baa-4cf1-a108-66b677bcfd93@rbox.co>
- <nedvcylhjxrkmkvgugsku2lpdjgjpo5exoke4o6clxcxh64s3i@jkjnvngazr5v>
- <CAGxU2F7BoMNi-z=SHsmCV5+99=CxHo4dxFeJnJ5=q9X=CM3QMA@mail.gmail.com>
- <cccb1a4f-5495-4db1-801e-eca211b757c3@rbox.co>
- <nzpj4hc6m4jlqhcwv6ngmozl3hcoxr6kehoia4dps7jytxf6df@iqglusiqrm5n>
- <903dd624-44e5-4792-8aac-0eaaf1e675c5@rbox.co>
- <5nkibw33isxiw57jmoaadizo3m2p76ve6zioumlu2z2nh5lwck@xodwiv56zrou>
- <7de34054-10cf-45d0-a869-adebb77ad913@rbox.co>
- <n2itoh23kikzszzgmyejfwe3mdf6fmxzwbtyo5ahtxpaco3euq@osupldmckz7p>
- <fb6f876f-a4eb-4005-bd76-fff0632291b8@rbox.co>
- <pl4mhcim7v3ukv6eseynh6x2r6nftf7yuayjzd3ftyupwy5r2h@ixmlevubqzb2>
-From: Michal Luczaj <mhal@rbox.co>
-Content-Language: pl-PL, en-GB
-In-Reply-To: <pl4mhcim7v3ukv6eseynh6x2r6nftf7yuayjzd3ftyupwy5r2h@ixmlevubqzb2>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20241219114400.858980-1-ajay.kaher@broadcom.com>
+ <CAGdbjmKSpQSh=xr7MguoSgP85VTR5eu1xUeUXD8RtvZn-=MW3A@mail.gmail.com> <CAD2QZ9atira8k-CgfqEY81ixZK9aPVte48qD+XnwL5LejhqO5Q@mail.gmail.com>
+In-Reply-To: <CAD2QZ9atira8k-CgfqEY81ixZK9aPVte48qD+XnwL5LejhqO5Q@mail.gmail.com>
+From: Kevin Loughlin <kevinloughlin@google.com>
+Date: Fri, 17 Jan 2025 14:56:17 -0800
+X-Gm-Features: AbW1kvY6Gnks08-MjwR4sAwr5GSXml24QlRa9pqSN0N5jeFiIqB598rDzpBX4wY
+Message-ID: <CAGdbjm+vuSDO_Zm4CiJgVEx1vx+LAT1+fVQG8xj41uYhBY9qkA@mail.gmail.com>
+Subject: Re: [PATCH] sev-snp: parse MP tables for VMware hypervisor
+To: Ajay Kaher <ajay.kaher@broadcom.com>
+Cc: bp@alien8.de, bcm-kernel-feedback-list@broadcom.com, tglx@linutronix.de, 
+	mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	ye.li@broadcom.com, bo.gan@broadcom.com, 
+	vamsi-krishna.brahmajosyula@broadcom.com, alexey.makhalov@broadcom.com, 
+	vasavi.sirnapalli@broadcom.com, florian.fainelli@broadcom.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 1/16/25 09:57, Stefano Garzarella wrote:
-> On Tue, Jan 14, 2025 at 05:31:08PM +0100, Michal Luczaj wrote:
->>> ...
->>> Maybe we need to look better at the release, and prevent it from
->>> removing the socket from the lists as you suggested, maybe adding a
->>> function in af_vsock.c that all transports can call.
->>
->> I'd be happy to submit a proper patch, but it would be helpful to decide
->> how close to AF_INET/AF_UNIX's behaviour is close enough. Or would you
->> rather have that UAF plugged first?
->>
-> 
-> I'd say, let's fix the UAF first, then fix the behaviour (also in a
-> single series, but I prefer 2 separate patches if possible).
-> About that, AF_VSOCK was started with the goal of following AF_INET as
-> closely as possible, and the test suite should serve that as well, so if
-> we can solve this problem and get closer to AF_INET, possibly even
-> adding a dedicated test, that would be ideal!
+On Thu, Jan 2, 2025 at 8:31=E2=80=AFPM Ajay Kaher <ajay.kaher@broadcom.com>=
+ wrote:
+>
+> On Thu, Dec 26, 2024 at 9:26=E2=80=AFPM Kevin Loughlin <kevinloughlin@goo=
+gle.com> wrote:
+> >
+> > On Thu, Dec 19, 2024 at 6:44=E2=80=AFAM Ajay Kaher <ajay.kaher@broadcom=
+.com> wrote:
+> > >
+> > > For VMware hypervisor, SEV-SNP enabled VM's could boot without UEFI.
+> > > In this case, mpparse_find_mptable() has to be called to parse MP
+> > > tables which contains boot information.
+> > >
+> > > Fixes: 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation fo=
+r SEV-SNP guests")
+> > > Signed-off-by: Ajay Kaher <ajay.kaher@broadcom.com>
+> > > Signed-off-by: Ye Li <ye.li@broadcom.com>
+> > > Tested-by: Ye Li <ye.li@broadcom.com>
+> > > ---
+> > >  arch/x86/kernel/cpu/vmware.c | 7 +++++++
+> > >  1 file changed, 7 insertions(+)
+> > >
+> > > diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmwar=
+e.c
+> > > index 00189cd..3e2594d 100644
+> > > --- a/arch/x86/kernel/cpu/vmware.c
+> > > +++ b/arch/x86/kernel/cpu/vmware.c
+> > > @@ -26,6 +26,7 @@
+> > >  #include <linux/export.h>
+> > >  #include <linux/clocksource.h>
+> > >  #include <linux/cpu.h>
+> > > +#include <linux/efi.h>
+> > >  #include <linux/reboot.h>
+> > >  #include <linux/static_call.h>
+> > >  #include <asm/div64.h>
+> > > @@ -35,6 +36,8 @@
+> > >  #include <asm/apic.h>
+> > >  #include <asm/vmware.h>
+> > >  #include <asm/svm.h>
+> > > +#include <asm/mem_encrypt.h>
+> > > +#include <asm/efi.h>
+> > >
+> > >  #undef pr_fmt
+> > >  #define pr_fmt(fmt)    "vmware: " fmt
+> > > @@ -429,6 +432,10 @@ static void __init vmware_platform_setup(void)
+> > >                 pr_warn("Failed to get TSC freq from the hypervisor\n=
+");
+> > >         }
+> > >
+> > > +       if (sev_status & MSR_AMD64_SEV_SNP_ENABLED &&
+> > > +           !efi_enabled(EFI_BOOT))
+> > > +               x86_init.mpparse.find_mptable =3D mpparse_find_mptabl=
+e;
+> >
+> > As far I know, Linux itself currently doesn't PVALIDATE the address
+> > ranges scanned in mpparse_find_mptable(), and Linux accesses these
+> > addresses as encrypted during early boot. Given this, am I correct
+> > that the guest firmware that you're using is doing the PVALIDATE of
+> > these ranges before starting Linux (else there would be a crash upon
+> > scan)? And then presumably the firmware is also making sure that this
+> > memory is encrypted so that Linux isn't reading unencrypted data as
+> > encrypted (i.e., garbage)?
+>
+> Yes, Linux (as a guest) receives valid data.
+>
+> > If so, does that mean all the ROM region scans removed in [0] are
+> > permissible for SEV-SNP guests booting on whichever guest firmware
+> > this is? But you only want/need the mptable info here?
+>
+> Yes, VMware firmware validates MPTABLE info when 'non-EFI guest boots
+> on VMware Hypervisor'. The other ROM regions removed in [0] were not
+> encrypted and validated. This is a specific use case for the VMware platf=
+orm.
+> Linux today assumes SNP VMs will be booted with UEFI.
+>
+> > [0] 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation for
+> > SEV-SNP guests")
+> >
+> > More broadly, ideally the guest firmware would communicate to Linux
+> > that these ranges are safe to access (perhaps via the e820 table),
+> > rather than Linux making the assumption that the ranges are safe for
+> > non-EFI SEV-SNP guest boots in this scenario. However, since you're
+> > only changing vmware_platform_setup() for such boots, I don't think we
+> > need to hold up this patch on that generality.
+>
+> This is a VMware specific scenario. VMware Hypervisor makes the MPTABLE
+> memory available in e820 when 'non-EFI guest boots on VMware Hypervisor'.
+> So it makes sense to do the changes only for vmware_platform_setup().
 
-All right, so let's keep the binding and allow removal from (un)bound list
-only on socket destruction. This is transport independent, changes are
-pretty minimal and, well, keeps the binding. Mixes well with the connect()
-behaviour fix.
+Works for me. Just wanted to make sure we don't regress Linux to
+making assumptions about the safety of accessing memory regions in
+CoCo guests without having entries in the e820 table for them.
 
-Let me know what you think:
-https://lore.kernel.org/netdev/20250117-vsock-transport-vs-autobind-v1-0-c802c803762d@rbox.co/
-
-Thanks,
-Michal
-
+Reviewed-by: Kevin Loughlin <kevinloughlin@google.com>
