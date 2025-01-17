@@ -1,270 +1,299 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D18B17FAC2
-	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 16:35:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737131733; cv=none; b=unzCL2SlV3xT907v6redtMscXjyAUYwitJkCOeDJlyRJ6j4V/+vxi9KEDOTBW7Dc6CoRNeDqtAcHctqKzJ3ZPDrDVSr6nVgZV9tpC5lZBY5rlnYkcLmlBVvRrDuctvQYvkM19aGmSn3QAiZRYMVb+v318NHub4rDgKv3NtgOkgY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737131733; c=relaxed/simple;
-	bh=mnQWYBcH7K4Pdk8X99isVoWJk81Loe1tgbM8hVfgExI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GPPXNlUxMXtCfzKJsfa5CpdhKDLWjlp+A/pfyxhSkZROWqv2eGcHZI/3JsCmnzCwmp8GNfWhV0PVtmpiUnDMT5d0kY2A51ut2vE0Hyy8ngPQ2YaXcJbceIdqdgPYNduQfLQBj/kZpBhkHpwyVMedstN9gbT38oPAm5bwwsbjNUI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=CjZes5iZ; arc=none smtp.client-ip=209.85.167.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D959199249
+	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 16:50:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1737132612; cv=fail; b=dfmdwtCgLFmMb/t+ysfZTHSLNZNWrU713p9nVa1PgULqWiRxfXTzUFAhXdx1mlyFzFfccKI6D+l/2WhUz2CU5ETdxy/Gy+EBvqvb6ysn03Y7DsvcBJx6UVZpWoKGJtXlzMfzhBB8JJTm7+V4SxlGfDaUQFSYrZ60aHtoc8j9Nus=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1737132612; c=relaxed/simple;
+	bh=kRowOKZRyxvzsrgt8MHrOK4s8VqMLbvk9R2iY/qSyVE=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=iS3LFtJsVRJ2qWGS8L65FsK1+AvJd0TBLfHfmU/7UIH2tPCdXJgSTWAgBzWnwWl44kXPPWct+TVMk+36CVC3xuFQOGuWP4SXpvWLtdafYlQTmotUv9HBxu/BgC/2Eqz7z+QIptwDQkP+IZGlAyRnxL4xHnzwnrIYoPAPCqulPWw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UqftVW2p; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=RUaFhKSZ; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="CjZes5iZ"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-53e3778bffdso2532424e87.0
-        for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 08:35:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UqftVW2p";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="RUaFhKSZ"
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50HEfnK8026592;
+	Fri, 17 Jan 2025 16:50:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2023-11-20; bh=BEnTuZXFOxmAo5XUrVu2jkrYQCRufr/E2ws31q3m2HI=; b=
+	UqftVW2pP8RxY64ccJW3Cj0vwSsRv/gTLmI1W860UkK2aHh12CQEeMivwLC/BOlU
+	hjejB0K6YyIfknFYEwg+IbrOaSRmSyRY9ltBZ6Nov+3fThdPFLYZ5KFfgDythwDD
+	0UHINwvyEjqtVzX3SdsUUpvzBTZqAqLM86ox/2iutu6koj5yw56sHQUcbTw1jfPJ
+	PVNSCSQHoFlnf1zigv73Swt3q5JXH4FUAAOUz4eRZGvCQm0dJQPqwLUg+uVimUY8
+	xQhcP+kpTWJg1fPF4WbuAjpykixKKTnjvj5+XlDblcdJnaxYFRklf4fh1pQFbCCj
+	cv5axymPyqeqnKrzkgxu1g==
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 443g8sn07n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jan 2025 16:50:09 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 50HGCZtY032233;
+	Fri, 17 Jan 2025 16:50:08 GMT
+Received: from nam02-sn1-obe.outbound.protection.outlook.com (mail-sn1nam02lp2044.outbound.protection.outlook.com [104.47.57.44])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 443f3cc9kq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jan 2025 16:50:08 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=eH3N6iajOnmJ+rG0gdo/y+BhvwXHUm+QaPRhAAPY49FNqVh+TWS37RI60PXFts9BUE/+A6R88oZ5hDMeFZQPewTbYzfP8BVD40Hv4IlRXt2WHvIHG8Xon34ovZqpfpfZ/QoaAVFonDSFkb2wEwfxt9jZ+Y5KGFQd5/94tjM/bNGPkQZG7Cp9PSj8AncEMnleUQ9+wtVkwKhffciATHvNzO4+rWT9ZI5LDkV4iHf2Sqw2iquTlg/si2vNc2r/CCRnBxmwUFH3u8DwLzFR851hdoafIFt9EeuJ6cSu2kxUKgg1Hd5CRx0TWD/cmsNDkOVPDZnoL9uAouqwpuoGAIv1eQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=BEnTuZXFOxmAo5XUrVu2jkrYQCRufr/E2ws31q3m2HI=;
+ b=kfsIfmwloVM0c7yNZtzCdGW2iUufF6X0BtGo7oj8DTrHY15BhTHgGhddIAlghIwAmuVwdKPtysAObQ+O9487h7S7pqxob3tVV2KjYEDl2cCdnUsPsdum/wEWG0UGan9lKhyUw5r/uWAC0sQd/thRJyAcXGSouMn0teprAgIWX4Lc0Y50832ZP5BQWHx4J06DLxbfJVEOnhtiuQVFKg708bG0KZbSo7MjFPimMaxW+NHZxxwyqWrZuyUDs40rn1N3HT8rJAYcmFmSNJBTpZTTtqOFvgi5ER/R5zNy/5Clu8twGkDvOsw7EuLmPimlxc0WxTboOO7Awnx5egm8PzItdQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1737131729; x=1737736529; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=RszBn5kNzLzH234uH5cn+iReWHdiosemvxGMigyfbrc=;
-        b=CjZes5iZQRT5B7N81xhGb/w+ftYZyG0t1eUJq9IIbkrN+0um5jQZk249Mp29vrMGGt
-         jiA4DnKsmboKWW99M0XuCILItRaNc2xAnw5FaINox36+ezewFLLM/n1ghUjMCAeGbsA7
-         9G2VMk/PEOU8IdomMy7AGcTTm976LcgjpmgDg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737131729; x=1737736529;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=RszBn5kNzLzH234uH5cn+iReWHdiosemvxGMigyfbrc=;
-        b=oe/NRo2GIT2Bxz0st+qfKBJoXS14ztQtStAEwOrS0+wxSNvuvfsd19b4bpUzLU1pnu
-         YS30bf8b5sVnK5N9EEa8g7mLZMtDKjhi7le1FBDkUGqS/7GHXT0FoNb/eRnQVyTbfbZo
-         jZEVGZ7MVoY9Wh6Uge7TX+ro2T2kUpfALi0iLeWN3FVGVD9eMtNkIy85ru2A6q2ML6BX
-         OWZAgU9EfhyNJZgPKj1tlmaqNd6lMX5UQzMgVAC1OmzYL0bCoeYS9AGytEji21+R9DnU
-         XOhp+zdDeWFzoZhQFKdJm8tQtABy8cGXCCMysON2J3hWB5TI8zXyi+w7gVhsuGUBG2NH
-         g95A==
-X-Forwarded-Encrypted: i=1; AJvYcCUwZkCZG9PFsdfvsX29KJJ5jxw+NIi7VHZ0x5V1zM/JzdLsO7sWfH6MF4Irw3lc5286P5ZC+r1bxi3SQFCGsA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxNyLKJCLpoTyUD/eigGnQVsHfWYOI8wFm++8ijoove1NMneHrQ
-	89V/kOzPkho5JjdzY/Y6iBK5DixXGfDh1RIse6MqB9zm1ltO/idaupdwJcejwNcvsSb9VU+uUF2
-	Ll6vYX93VVwBs9Bb2a0/VOWyMNdkEQxa7AH9l
-X-Gm-Gg: ASbGnct4XR7ph8j1AYd/v13lgPPcFr3REGWruH3PkVwmorwNvY+TorGh0CkJidQGPQi
-	dkAAPKV0e8SNtN6B0VqIn9EDxkMolAVKlPKA3iQ4=
-X-Google-Smtp-Source: AGHT+IE+1ouVQSfilbFl3vxpKg1u3o6lUBhbQh/XPcdIrJ7aBqOmZUmbeQhBteHH0YJePPyWBk5+DBeggufhmMXM6v0=
-X-Received: by 2002:a05:6512:1094:b0:542:6366:762a with SMTP id
- 2adb3069b0e04-5439c251116mr998969e87.25.1737131729222; Fri, 17 Jan 2025
- 08:35:29 -0800 (PST)
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BEnTuZXFOxmAo5XUrVu2jkrYQCRufr/E2ws31q3m2HI=;
+ b=RUaFhKSZsPY/XwtLSNaV/mNbbI0T3j1c1SI8Xg5dqkvy5Fj86hhxodU0VkWrjur2rTIMSF0ROZOCfqBgs6COUg6R3JtYuwJUM+nkwHarel9q4a43+gMME7BFTRnKhW5R8IwFKZr3HL73A18xVZ7Tl6XDRaGBFRwl/GGK83kKT3U=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by CH3PR10MB7988.namprd10.prod.outlook.com (2603:10b6:610:1c2::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8356.14; Fri, 17 Jan
+ 2025 16:50:06 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0%3]) with mapi id 15.20.8356.010; Fri, 17 Jan 2025
+ 16:50:06 +0000
+Message-ID: <d00be9fa-364c-4b9e-a14e-a3b403e7bd6c@oracle.com>
+Date: Fri, 17 Jan 2025 10:50:04 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vhost/scsi: Fix improper cleanup in
+ vhost_scsi_set_endpoint()
+To: Haoran Zhang <wh1sper@zju.edu.cn>
+Cc: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com,
+        stefanha@redhat.com, eperezma@redhat.com,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com>
+ <20250117114400.79792-1-wh1sper@zju.edu.cn>
+Content-Language: en-US
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <20250117114400.79792-1-wh1sper@zju.edu.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: DM6PR02CA0157.namprd02.prod.outlook.com
+ (2603:10b6:5:332::24) To CY8PR10MB7243.namprd10.prod.outlook.com
+ (2603:10b6:930:7c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241219114400.858980-1-ajay.kaher@broadcom.com>
- <CAGdbjmKSpQSh=xr7MguoSgP85VTR5eu1xUeUXD8RtvZn-=MW3A@mail.gmail.com> <CAD2QZ9atira8k-CgfqEY81ixZK9aPVte48qD+XnwL5LejhqO5Q@mail.gmail.com>
-In-Reply-To: <CAD2QZ9atira8k-CgfqEY81ixZK9aPVte48qD+XnwL5LejhqO5Q@mail.gmail.com>
-From: Ajay Kaher <ajay.kaher@broadcom.com>
-Date: Fri, 17 Jan 2025 22:05:16 +0530
-X-Gm-Features: AbW1kvYSnZ8M9hSC4O7PQcmeS0f1L1RXuY_hfshnsow_jSfeogD7BUs297fydSU
-Message-ID: <CAD2QZ9aaTxnraJfZbWj9zWvh13_hrFuMUCo=3stRNxcSdQ+05w@mail.gmail.com>
-Subject: Re: [PATCH] sev-snp: parse MP tables for VMware hypervisor
-To: Kevin Loughlin <kevinloughlin@google.com>
-Cc: bp@alien8.de, bcm-kernel-feedback-list@broadcom.com, tglx@linutronix.de, 
-	mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	ye.li@broadcom.com, bo.gan@broadcom.com, 
-	vamsi-krishna.brahmajosyula@broadcom.com, alexey.makhalov@broadcom.com, 
-	vasavi.sirnapalli@broadcom.com, florian.fainelli@broadcom.com
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-	boundary="000000000000ac6630062be97ff5"
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|CH3PR10MB7988:EE_
+X-MS-Office365-Filtering-Correlation-Id: df026ae4-e6d9-4950-3374-08dd3716feaf
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?UW1rUjVteDFlOUhqNlBXK2lEZGlNMXZrcnNpM0FCcU5tdEdJVzJ6Ry8yQk1v?=
+ =?utf-8?B?dXVGSENrRTZTbkpEL2oxUnowQk1wVm83LzF6SFM4eU9NdU9YbXdxY250U1B3?=
+ =?utf-8?B?Z2ZkSnRMUWpWVTBhZFJHTWpweEU1eUtvOE9LYTF4aUlqeHU2R2dhbWNLKy8v?=
+ =?utf-8?B?NEZna1o3ays3bXVrbjhicHV1bmd3Si92bXhuaTErWFpMWXpob016OHZ4QWFy?=
+ =?utf-8?B?S1NmdzdaL01NdVR1T3FtbHRyejlENGtEbkJ4b2U1aHNpNGY0RzZqZnBieTUv?=
+ =?utf-8?B?UC83RUp6VHFuamc5amdEb1lDZnZVTXdvMkl6d2Q1cGVqVmVVc3BpOExlakZu?=
+ =?utf-8?B?SGg0b2lsSTlDWUt3c2UyUDlKWE96UjNESlpwamN3RUxWMVZCWEtDWGRza21z?=
+ =?utf-8?B?emdKc0twMldkbHhhalpHU3lhcXU2YWd5TGtwaDJJRU5JWEFBRFIzMytVMFFh?=
+ =?utf-8?B?WXRmTUFIN3VRdnZ0RlQvM2hRVHNGdUx3KzBvekpmZVh2WkVZWTlvODFRZnR4?=
+ =?utf-8?B?dGhKUjZjOW5IclNjYXBpdzZRMGNWeXZKUXFFWmFGNHpsMXJMSkRnWmZCcWo0?=
+ =?utf-8?B?UnBHam5yTjFYaHIrUUROTE5kakNNYmxsZENURENPRi8xQk9DdHdwSXlvYUYw?=
+ =?utf-8?B?ZEhzYVd4a285NHVoSWtFalpVQ2xpTDNJNHY3NDFuclFHQktHY2tHRkJZaUlO?=
+ =?utf-8?B?c2Y2Nzg4MVlBbUJudHQ4VW94M2l4TDdaOFM2Vm9UZmhUSDNGdDkvNisrc1ky?=
+ =?utf-8?B?aW9mZHdqVzVIZWxLZ0FhWFlzTHlROGR3VXU0U2ZVdzZlK0FjTDlJd1A1T0dI?=
+ =?utf-8?B?UXcrcjZIWXRsT1Y3bWszNHRUL3hXZHN0dENQMTRmVHVjMkQyaTE4cndYNFVS?=
+ =?utf-8?B?OHd4QmJqU25RbS9XWitMM2FaUGNocnZYNnFLWHZoYnYrQjlYaDZ1bXJWTmFs?=
+ =?utf-8?B?SWs5ajVZdnUrZ2YvcU9nTHpSTm5KMzFjbDArQnhDRk1KQjVtRHRwQ0JsdnlG?=
+ =?utf-8?B?a3MxYy9udWdsR1lsQU1mRnNoSXA1ajZhK25ldEwvUFc2NlRGUk9icGJCT0xS?=
+ =?utf-8?B?dzM5VnI4K3p6TnZkQzYzam42ZEI5RVo4U20vdUVqV1g5WnR5Rm4yalA5T2Ey?=
+ =?utf-8?B?dXo5L3BiVnVnQ3F4VXN1TkNzVENqOVUwa2RPZmJpbjNXaVJ6ZlUwZy9SUmtx?=
+ =?utf-8?B?bDF3MldTQkRoODdmSlcwamZpZ295NldnZStsUHE4WmdvTHNwazVla21LTmR4?=
+ =?utf-8?B?WXVnRXJLMUVRSVllaktFZldqS0FrMkYwSnF5U0V0QVZFL2NGTURRNTUwQ2pw?=
+ =?utf-8?B?NzBvTGk1cFhoQ1FsK1JlRGJLbEJZcUtqMWZVR0hqREthVXdUdDNHL2hhZzNl?=
+ =?utf-8?B?SG4rWFVhYytmNW9mT2J0V21YSXBueHd5MC95eEo5SkVHMFp1MmJad3FUMnNr?=
+ =?utf-8?B?c1RRZ3NDU1ZzTk0zSVFZMXUvNUVSQXg1U1oyU0lDS21yUFYzcTdNLzlDMm51?=
+ =?utf-8?B?dHBvaWlDci94V2JBUGwwcmoydU5yUUhoVGhVYUdlcTM0RXBzU1JEVnMzZVlk?=
+ =?utf-8?B?dWNONGdBMGI0ZEZqYklKczFOdGhoQkVJUE5kK2dnRlhCY01xeTRqTGM2SWMw?=
+ =?utf-8?B?ZTZCV1lOa3JrZ3B4MjVCMjkyRVJrN01FZkJIMnh0S1ZjWjRNRFZjNWJWeWN6?=
+ =?utf-8?B?bnAxSVdqeFRqME9scDJOUXY2VklnUVFnMXdRVkJaTDBWVTVaSitjZU1aalp1?=
+ =?utf-8?B?R0w5bzB0RVk1ekFhcVRlMit5ZjViSzZXQ0FXNzkzOFpxQlRsdEF2RHc0Mkhz?=
+ =?utf-8?B?elZ3SkhaUHo5R09vVnZOcDNjc3J4THFkUGN5b2VLdlpKZ3JOTTAyaDBjd3pG?=
+ =?utf-8?Q?IXbKrvvG1k3Xf?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?VVBWVUNscCtxNTBBWUlVNGxVRzBBR1hGcGVPZzlDTlN2L0k3ODlmbkFkci9H?=
+ =?utf-8?B?YUtESk1iMmZDdWpodUtMUWFIalE4THZEK2FlTmcxSU1mbmwxWmpEdkJIcTM1?=
+ =?utf-8?B?aDlnL3h3RmtaZWVENEs3S3hFWVJjaWNPZlduOXpZY095YnRzYS9GWFNTaHU0?=
+ =?utf-8?B?L2pjTWNCUVJaRFF4MFlXT0lMUHp1aE1pSkhrOVJOaDVadldrVWVwZ3FzMjUz?=
+ =?utf-8?B?RVhrRFU2UWRnMWp1cVF2NDBwM0JFWXpDVEZXeVhSWEUvRmozUWVrRktJdmR3?=
+ =?utf-8?B?aXpWa2pJYnpza3g4K01MSzRTQXN4YUc4b0l3eUtUU2cwL3pwUW1qRUVBUnNw?=
+ =?utf-8?B?UXdrdTBBQlJXdkZsd1BiOE5LWnp1TThsaFBHRGNJR2UzenlBZlArTGV1b1Ju?=
+ =?utf-8?B?ZGRlak5QUlFKZjBSYlZ3dzlUK3VFMGg4MURXTTNBMVlNeVVSS1ZPSFBUUTJX?=
+ =?utf-8?B?RlBPL2h0N3BvU1Rialh0Ykc4MFNHOGYwZDBZZi9PaGp1bndnRnBnWVBSMkJU?=
+ =?utf-8?B?V2ZNdERKaUhIRmkyV2Y2R3JveXpLMlFETUZrVFFKb3lmRWRMaXVKQmljTTVP?=
+ =?utf-8?B?RmRwemQ5aWsyc2x0VW9qUGlBaGoyWXRYTGt6M0s2aDEweXJHZjlQcUp1bjls?=
+ =?utf-8?B?dERQU0ZWQkdrQWo4Y2h6WDFsVlBIRXBwdjlGSndiTnRpcDZqeDArcjF0R1dB?=
+ =?utf-8?B?Sll0K2pVUEZOMFQ4alZRMnVCcUcxL0YzdGUvbUFiYzkvWmtzWWhkTHNYNmxa?=
+ =?utf-8?B?KzVqSm81MHV4SnljNnJzRUFra0s5MkRDQ3o5U3FSZ29RMkgyc1V3SFdpblN0?=
+ =?utf-8?B?R1ppRjBRdDJZVkF4ZXNCVUh4YmNwYk5uc2IrT2hkbWlmc1crUTZnUmlsNCti?=
+ =?utf-8?B?eTlrSWExWnRUZklURy9yVEk5b1g1ZitEWDhVMml5K2NhZ3h2bEcrWGVEYkk2?=
+ =?utf-8?B?WVMvaGx3UVdKNE01NXpjSFRoOTR3K0lBQUJqQjhvcXhLeUxrU1h4bjVjZWNH?=
+ =?utf-8?B?MkM5bEZzTEx2cnhMbkdGbk5BOVRjOFlHb0w4MC9xZ3Blb0RNUDh4OCtjNldy?=
+ =?utf-8?B?eUhHY2pBZFJZUEduYmdROFN1OVJpdVNFMEVrNHQ0cnlhaHdxdFNKZmdlSkhX?=
+ =?utf-8?B?QmlhaFlWSldSVW9ETGxtV2U2QUdGVUNGbDJpT3B5dnc2bDdONEZIeldYb3Vp?=
+ =?utf-8?B?d202ZW1iS3JyR3lBaStXUmZpSm1OWHhpbmNsWWR3blVjbGFOTHpvSWpKQUNu?=
+ =?utf-8?B?Q3NRWjFZY3VOVmxNbFdWcEh1U2VEbUZRR2ZlL3RqRUdGcDZ0cG41V3VmNkY5?=
+ =?utf-8?B?QUlwWmVrWXZXa0FCUEtLS2ZEZTVFNTRvamxrOWxNeUdRVWZvZGN4RllvUy9P?=
+ =?utf-8?B?VVptd0V1ZTI1WkM1bVF0STRPZGZ1UUp0dkx6QXZIQ2d5aTJxZ0k5eGRvbTM2?=
+ =?utf-8?B?Yko0VHVEQ0FGT2tnaUNwTTNtYkc5T0VOVGtSZXk2Ym8wZGpOZDFDL3dqUWhx?=
+ =?utf-8?B?NFN2ZnQwdFhYL2V3WUttdW1rRXBlaSs4OWF2L2lXZFZWK2RybU52bUVWbmVr?=
+ =?utf-8?B?MWRqNnM3WGZZRFM2YjJmNTRtM05CMy9pT3U2QW9DNXFReEt4MGVWVFVxMHZX?=
+ =?utf-8?B?citlcWxqNnhWaHpBY3cvWnEwa2dxTW5LdXpBS1RMaWVGUiszeXZFbE5EbElk?=
+ =?utf-8?B?aXJpZk56Q1NTWHJiSzJDQkNmUVVFcS96Y2ZPdlZ2eWpmTUw4bEMyMzZPdzcy?=
+ =?utf-8?B?LzRUc0JoQUJBdWxyVHpNVW1Ka0lqSnBaYjdzcUJqMU9MRXFOckhmaUFtbURK?=
+ =?utf-8?B?dmRaczVaU2pTU3c2bDNYTzZvTDhwc01iZVdMT1JBME9lSENoY1MyMTdtbUpT?=
+ =?utf-8?B?WlhhdW9jblptSzU0cFVLcC91S0lOckVKMllOa2JTRVBkVnErM0UrTUhwcnZG?=
+ =?utf-8?B?SjRoWnU1c0dFQVhXK3BWdXJHeC9IRFo4RWs1STdFampWdkJoTVBlL0NOTHhD?=
+ =?utf-8?B?aUpockNEYzFYTjJnM0dsNnArUVJSOG1rWUdQZHdMUEk1dTdjSlArR1Z2c1pF?=
+ =?utf-8?B?aVIybkJZdTdOTDRyTTJmdlZjWlQvRWtPWkZJL2ZrbFV4MWMzZklLVldpd09H?=
+ =?utf-8?B?SWJvUUIvWUV5ODNhSWpRWGk2REtLRWZQYkZZaytzamh5eEdpOG1teE5tWGg0?=
+ =?utf-8?B?b1E9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	OtZO5zVO8/lXdgR5YZXk52vxAiH1oSxVMZpxrR//9BQzlZh96nadS0jkCCo5xDSJywTyp3YhYO3yl6K4AsOMThZ1keLqfcesScttYDgD31Vll4rhcNbZt6juSTsmniq9edQNNe0LMDELG6PVYWWLIsqlMgaagp93awoFvcpePNmv1ik/PQBMTrOvNB5+kUIUqcvU7cgOcjSj0GXxAaRIshH6OyRheJTngnTBYExsSptlmeuwzOw+pIhfzMTz358/3GllkSGQ5IybpNBW2wf9FnWilEp6WShXpa3hOO/dfr3J88M13JOpJR5nIgth6f8wLtnhlwXbmLDDSCVF3CtTZ5g9qD1NUV09j6WypdmccoUH0oyWtNHJ3SvWEbo8O+Do4sRscC2a5MzwcKTD7HMyYM7uxsHSddOiYsfvUP7IpyFT6Rgo0CRggH9ehM3DoHEiexZNrRe2dfuB7gGzSqVYscCpVttkzn8Fy/r0tqeUOTPIrl/BVDe0kGnvzWMA8gIbMv1qcD/3YImiS9TeHrfuSr9BnFjyugHus2zLTdQwDzOxM7zBcsJYAnJkdXDfDIV6GO0Hu8hi0j+89Pf8+5x3xwCGf8QZcQsKh516W413Itg=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: df026ae4-e6d9-4950-3374-08dd3716feaf
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2025 16:50:05.9594
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vIvVKb5EEvZCsK1bZXIdHgXFs7yINFd08ja5KU8gonCF1f7QaKwA5tkEd30rtVhB1mjRhQ1M11WG9H+wIRi1SfIRjZt2ya0ccRJsDt9OvUA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR10MB7988
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-17_06,2025-01-16_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 mlxscore=0 suspectscore=0
+ bulkscore=0 malwarescore=0 adultscore=0 spamscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2411120000
+ definitions=main-2501170132
+X-Proofpoint-GUID: AHg86DDKptFO2A7vX44XZe8zu5ULe611
+X-Proofpoint-ORIG-GUID: AHg86DDKptFO2A7vX44XZe8zu5ULe611
 
---000000000000ac6630062be97ff5
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On 1/17/25 5:42 AM, Haoran Zhang wrote:
+>> I see now and can replicate it. I think there is a 2nd bug in
+>> vhost_scsi_set_endpoint related to all this where we need to
+>> prevent switching targets like this or else we'll leak some
+>> other refcounts. If 500140501e23be28's tpg number was 3 then
+>> we would overwrite the existing vs->vs_vhost_wwpn and never
+>> be able to release the refounts on the tpgs from 500140562c8936fa.
+>>
+>> I'll send a patchset to fix everything and cc you.
+>>
+>> Thanks for all the work you did testing and debugging this
+>> issue.
+> 
+> You are welcome. There is another bug I was about to report, but I'm not
+> sure whether I should create a new thread. I feel that the original design
+> of dynamically allocating new vs_tpgs in vhost_scsi_set_endpoint is not
+> intuitive, and copying TPGs before setting the target doesn't seem
+> logical. Since you are already refactoring the code, maybe I should post
+> it here so we can address these issues in one go.
 
-On Fri, Jan 3, 2025 at 10:01=E2=80=AFAM Ajay Kaher <ajay.kaher@broadcom.com=
-> wrote:
-> > > For VMware hypervisor, SEV-SNP enabled VM's could boot without UEFI.
-> > > In this case, mpparse_find_mptable() has to be called to parse MP
-> > > tables which contains boot information.
-> > >
-> > > Fixes: 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation fo=
-r SEV-SNP guests")
-> > > Signed-off-by: Ajay Kaher <ajay.kaher@broadcom.com>
-> > > Signed-off-by: Ye Li <ye.li@broadcom.com>
-> > > Tested-by: Ye Li <ye.li@broadcom.com>
-> > > ---
-> > >  arch/x86/kernel/cpu/vmware.c | 7 +++++++
-> > >  1 file changed, 7 insertions(+)
-> > >
-> > > diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmwar=
-e.c
-> > > index 00189cd..3e2594d 100644
-> > > --- a/arch/x86/kernel/cpu/vmware.c
-> > > +++ b/arch/x86/kernel/cpu/vmware.c
-> > > @@ -26,6 +26,7 @@
-> > >  #include <linux/export.h>
-> > >  #include <linux/clocksource.h>
-> > >  #include <linux/cpu.h>
-> > > +#include <linux/efi.h>
-> > >  #include <linux/reboot.h>
-> > >  #include <linux/static_call.h>
-> > >  #include <asm/div64.h>
-> > > @@ -35,6 +36,8 @@
-> > >  #include <asm/apic.h>
-> > >  #include <asm/vmware.h>
-> > >  #include <asm/svm.h>
-> > > +#include <asm/mem_encrypt.h>
-> > > +#include <asm/efi.h>
-> > >
-> > >  #undef pr_fmt
-> > >  #define pr_fmt(fmt)    "vmware: " fmt
-> > > @@ -429,6 +432,10 @@ static void __init vmware_platform_setup(void)
-> > >                 pr_warn("Failed to get TSC freq from the hypervisor\n=
-");
-> > >         }
-> > >
-> > > +       if (sev_status & MSR_AMD64_SEV_SNP_ENABLED &&
-> > > +           !efi_enabled(EFI_BOOT))
-> > > +               x86_init.mpparse.find_mptable =3D mpparse_find_mptabl=
-e;
-> >
-> > As far I know, Linux itself currently doesn't PVALIDATE the address
-> > ranges scanned in mpparse_find_mptable(), and Linux accesses these
-> > addresses as encrypted during early boot. Given this, am I correct
-> > that the guest firmware that you're using is doing the PVALIDATE of
-> > these ranges before starting Linux (else there would be a crash upon
-> > scan)? And then presumably the firmware is also making sure that this
-> > memory is encrypted so that Linux isn't reading unencrypted data as
-> > encrypted (i.e., garbage)?
->
-> Yes, Linux (as a guest) receives valid data.
->
-> > If so, does that mean all the ROM region scans removed in [0] are
-> > permissible for SEV-SNP guests booting on whichever guest firmware
-> > this is? But you only want/need the mptable info here?
->
-> Yes, VMware firmware validates MPTABLE info when 'non-EFI guest boots
-> on VMware Hypervisor'. The other ROM regions removed in [0] were not
-> encrypted and validated. This is a specific use case for the VMware platf=
-orm.
-> Linux today assumes SNP VMs will be booted with UEFI.
->
-> > [0] 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation for
-> > SEV-SNP guests")
-> >
-> > More broadly, ideally the guest firmware would communicate to Linux
-> > that these ranges are safe to access (perhaps via the e820 table),
-> > rather than Linux making the assumption that the ranges are safe for
-> > non-EFI SEV-SNP guest boots in this scenario. However, since you're
-> > only changing vmware_platform_setup() for such boots, I don't think we
-> > need to hold up this patch on that generality.
->
-> This is a VMware specific scenario. VMware Hypervisor makes the MPTABLE
-> memory available in e820 when 'non-EFI guest boots on VMware Hypervisor'.
-> So it makes sense to do the changes only for vmware_platform_setup().
+Yeah, I'm not sure if being able to call vhost_scsi_set_endpoint multiple
+times and pick up new tpgs is actually a feature or not. There's so many
+bugs and it also doesn't support tpg removal.
 
-Kevin, thanks for your time and sharing your thoughts. Please let me know
-if you have any updates or need further information from my side.
+> 
+> [PATCH] vhost/scsi: Fix dangling pointer in vhost_scsi_set_endpoint()
+> 
+> Since commit 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate
+> if the endpoint is setup"), a dangling pointer issue has been introduced
+> in vhost_scsi_set_endpoint() when the host fails to reconfigure the
+> vhost-scsi endpoint. Specifically, this causes a UAF fault in
+> vhost_scsi_get_req() when the guest attempts to send an SCSI request.
+> 
+I saw that while reviewing the code. Here is my patch. I just added a new
+goto, because we don't need to do the undepend since we never did any
+depend calls.
 
-Looking forward to hearing from you.
+--------------------
 
-- Ajay
 
---000000000000ac6630062be97ff5
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+From 0474c5d41968095ea911d48159e4f6a129f1a862 Mon Sep 17 00:00:00 2001
+From: Mike Christie <michael.christie@oracle.com>
+Date: Wed, 15 Jan 2025 19:05:22 -0600
+Subject: [PATCH 1/3] vhost-scsi: Avoid accessing a freed vs_tpg when no tpgs
+ are found
 
-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
-fEfjRz/Z5b6J+pnCj2dzb2Wir3qx4rt1/aShjQasncmTZ0r8rOk2G3RmKolDmTmWPMeCgzL2KeQs
-QRXTsKFFi0np4iUyWo+MDCofsswor1HkoXwlmoIAdrFL+cw3qvOowpOB0pe3+G1rWNvJvYsOAzG6
-2a8X0kwMSTEGjJgAX+jQjqwdP8C4ZxmE7n236E9GiM8kfhFFAgMBAAGjggHYMIIB1DAOBgNVHQ8B
-Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
-b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
-dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
-BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
-Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
-oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
-A1UdEQQbMBmBF2FqYXkua2FoZXJAYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
-A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQkdXtSp1Dzqn1C33ctprG/
-nnkbNDANBgkqhkiG9w0BAQsFAAOCAgEAQbg6h5rEci8mKF65wFYkl7cvu+zaAia4d24Ef/05x2/P
-WAuBmkkDNwevol3iJzQNwlOuR4yR0sZchzw7mXSsqBhq1dgSNbReQ0qJU0YWze48y5rGlyZvCB1Q
-Z8FbyfrHGx4ZQJcjB1zeXJqqW6DPE5O8XOw+xTEKzIQxJFLgBF71RT5Jg4kJIY560kzMLBYKzS1f
-7fRmy20PR3frP6J2SwKPhNCsXVDP3t0KC5dUnlUf/1Ux2sVe/6G8+G7lBCG3A1TaN4j9woYHN7Y/
-U0LCVM46Gf7bFsu7RzwcrKtSOnfJ3Fs7V+IWCrTMvbCSQylAy3+BMkMGFZ0WwtXNLxbYIEhKAZmH
-npugOtDKS6j4LkLxkHr/dTYZvfdOXZXTIlz8qTfkTKw4ES4KW3EGzfnRZCL2VD27/GAtt0hwPWrY
-HL087+VQLA9RUVdfnigRjZOPWo//78ZaDd9PPWbLKqa6EIboR2nSV5miF9fQinDnxToBGplQEcXG
-WwCF8syc/0n0xzLlb/IOwxmkzMizN/3/vVp5eGh64OGdhSwzZDBQuVS08Wgfd3nVHT6zh1F0jBgZ
-ACv82jjjtABB+Tg1VZ0vcRr5ZzTC1WylB7ik6soemgWAgbrQfhNh0uHr9jq+NAbTA4wqUK6gA5LP
-kPwzH0/UqVP+eM3EQII1r4Uiee8YifwxggJkMIICYAIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
-VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
-QSAyMDIzAgwc6GO95nPh0DhXVGYwDQYJYIZIAWUDBAIBBQCggdQwLwYJKoZIhvcNAQkEMSIEIFPa
-G3qpYpd5iUuO+hAGibWnMR3SPp1Ou23cl8a8ocyPMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-HAYJKoZIhvcNAQkFMQ8XDTI1MDExNzE2MzUyOVowaQYJKoZIhvcNAQkPMVwwWjALBglghkgBZQME
-ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQowCwYJ
-KoZIhvcNAQEHMAsGCWCGSAFlAwQCATANBgkqhkiG9w0BAQEFAASCAQCceQdTsTGIGrliq6FQGGb9
-CKksVUmAuJ0Aots91NQhrn7pGJ8SqEPZxmVtFfAlmhCXbvJnRnfPU3mtrD6PZrhs28SRZ809WWlD
-nEiuajXyt+PFWTP8X7T5PxrQJf5t5BQOnYlo8pFwmAN05CIMJiHbmFhg0WoYZbGJZzectJ14WRuO
-Iys/XnaAQFq3P3EBTrXu9cSmchq7cJKOXl4By5J5aKqyuW7rBOmjDT0bqszM5A1ddkDOLdInFtdo
-9pwjMZgxdoZ4w7Q/RbCumEuWMN1sGverqfNVIRLqYUh4iFBRZWwJ9dAltsa+cI/sum87Hpi3CXoF
-ISnQ5mEIsIndwSw3
---000000000000ac6630062be97ff5--
+This fixes a use after free that occurs when vhost_scsi_set_endpoint is
+called more than once and calls after the first call do not find any
+tpgs to add to the vs_tpg. When vhost_scsi_set_endpoint first finds
+tpgs to add to the vs_tpg array match=true, so we will do:
+
+vhost_vq_set_backend(vq, vs_tpg);
+...
+
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
+
+If vhost_scsi_set_endpoint is called again and no tpgs are found
+match=false so we skip the vhost_vq_set_backend call leaving the
+pointer to the vs_tpg we then free via:
+
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
+
+If a scsi request is then sent we do:
+
+vhost_scsi_handle_vq -> vhost_scsi_get_req -> vhost_vq_get_backend
+
+which sees the vs_tpg we just did a kfree on.
+
+This fixes the issue by having us not reset and free the existing
+vs->vs-tpg pointer so the virtqueue private_data stays valid.
+
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+---
+ drivers/vhost/scsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 718fa4e0b31e..143276df16e2 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1775,6 +1775,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 		ret = 0;
+ 	} else {
+ 		ret = -EEXIST;
++		goto free_vs_tpg;
+ 	}
+ 
+ 	/*
+@@ -1802,6 +1803,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+ 		}
+ 	}
++free_vs_tpg:
+ 	kfree(vs_tpg);
+ out:
+ 	mutex_unlock(&vs->dev.mutex);
+-- 
+2.43.0
+
+
