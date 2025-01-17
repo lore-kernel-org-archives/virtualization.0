@@ -1,103 +1,172 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9128C1FECB8
-	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 11:57:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F9001FFC55
+	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 13:44:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737115029; cv=none; b=nwpx+uk/u0CiVncGygddJWoGEQAHOjfwkNWj8UDa8b/s3qRICxu1NFVHQfLTOz38VzDj7SxCd5aXBHwJ92Q0edsYwd4fVFdcZ94YeuONyupOI5q5TEVvIdkkzthY013cvfQoC1Wc04Vp8sdEiMpmHk0he/+sg3lZTMDRdt9Yp1I=
+	t=1737121500; cv=none; b=sdoI1Zpa1wV+2Nux1/T1hBsEFT7tz0gEK5ioQ23T4UV8Ke15teon3QDzEURFhQhhr5VhjYJMMKX8/PrjXOIk4QJPvorle59guB+XDNsUz/WOGo311U7U41gBoyPyUBnViHVW5ZMDqzQ2bcRSSZORTEr93t4ze+GX0cr8rhN1bjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737115029; c=relaxed/simple;
-	bh=PdsR6eDtPLGU0UCT2ZWFhbGcZ1xhlz6rKWTWzAO6NWg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YDUOeRwObUAytMcsOvGWvRCSNxP6eEizcQ7ATxuj8Qt8ONV8w2wBwKD9qYlzQFDzLmKcrxDdvdMjfHLcoT/EqhMP//p9w+F5Rrcxv/W9MHVOoY39gXOjAzpAXuVtJigmPmMuenQWb/8YpGijSFwzcuVKembWl0EIpOr/ZhvP/Ww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZKdY4jtv; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1737121500; c=relaxed/simple;
+	bh=3uGThAIZZrxCJ1Zag/yc29l3qlAKBV2/uT4Bw7pXLWs=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=BywZZxaObZ66WeaziSv8WwMW3Bh5l8XzKiJW6Qolp1KG7pqUu/qGLI4VCkMWSG8u7steNJGPyKUXWMnSk+o6iOQ5tYG63XPqAK0WsGyJzCsKzpz7jStPqSMhjEIJjPg5Ps/fMBsc7BbxpTB0VfBjxx3/mqjow9yVIgZhepwagMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MZHV+9J1; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZKdY4jtv"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MZHV+9J1"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737115025;
+	s=mimecast20190719; t=1737121498;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=pQeV0O+jL1G/DFyqYGy9184NT6E7z1zePUvfpKkhxQI=;
-	b=ZKdY4jtvWMN3MUhSBM45GYN3q0HIiLvq42cv2sVsOaruWoUdAIA2SsmE3y3wgDPl+XR+eI
-	BQZuWC0l2wqn7jTJ3Ir01uGeV+zDxq70YPLGA3HWbV4wWtTyN40QJM+pUQpqGV+Yojnlgs
-	OLFn6g3xMCGD8VWzt4NoS32pFvQpsr4=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-517-X-QMKzuZMpylKLq_glYHgA-1; Fri,
- 17 Jan 2025 06:57:02 -0500
-X-MC-Unique: X-QMKzuZMpylKLq_glYHgA-1
-X-Mimecast-MFC-AGG-ID: X-QMKzuZMpylKLq_glYHgA
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7363919560BB;
-	Fri, 17 Jan 2025 11:57:00 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.68])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9CA3F1955F10;
-	Fri, 17 Jan 2025 11:56:53 +0000 (UTC)
-Date: Fri, 17 Jan 2025 19:56:48 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-	nbd@other.debian.org, ceph-devel@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-mtd@lists.infradead.org,
-	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 1/2] loop: force GFP_NOIO for underlying file systems
- allocations
-Message-ID: <Z4pFgIqB50gz-ODi@fedora>
-References: <20250117074442.256705-1-hch@lst.de>
- <20250117074442.256705-2-hch@lst.de>
+	bh=HEKKhsO2kOL/qF9SHnIE9a8dcD47/tUh4wLid3vzvOo=;
+	b=MZHV+9J1aUgCppsgpkJpQvMYzSoG8bhifFYQCfj/9s39EQl3oZJe672ABRiEOX8cuePG88
+	3H4b1jduRVI2XTe2rKcWYkNV8UBEftukh2MH9GB4kpf3dz+QS0I7nla6c06YGeayOfRZVY
+	03On0hJE0BKuZFwayCxYqjEIo6cGR24=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-509-pKkhFpwhNoCHyiSruGf9pw-1; Fri, 17 Jan 2025 08:44:57 -0500
+X-MC-Unique: pKkhFpwhNoCHyiSruGf9pw-1
+X-Mimecast-MFC-AGG-ID: pKkhFpwhNoCHyiSruGf9pw
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-46798d74f0cso43648471cf.0
+        for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 05:44:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737121496; x=1737726296;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=HEKKhsO2kOL/qF9SHnIE9a8dcD47/tUh4wLid3vzvOo=;
+        b=PJ+7e6HsD63D2CtRRket4OzpCkiCUAPJuukxuzk0+ekar9r55ARtUAsn+c7iixw6lq
+         tDuIcK+xw5Fi+nhNDUle8O5Uwp0O3H0gCdO+0eVXOqhQR9N+mggECp7ghikb+BUlPPov
+         ESTaWonp+rCH7mvUqSRGyToKnhSNh90cmwosDXN0Kq2rDlGdXOgkEyn1mOh3C3JdOrKq
+         wqxNSuQHAk0Y7STYp12ePXKlUqXm9m4eGd5a9zx1hPzM+IZyL9HDbUfQGbq8QtOnaXya
+         SNCpMc6gaRKPz5zCAxjACaIPCLYq13kWqlEftoavX4nbJ+kCWiOLryPVpN6jv41mDti3
+         GQaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWBaJlnvtIIsCojmPrz8x4y2YAtnwIm2hxfjpXgdwO30Pfr6xoK1dDMY9c32Jt4f1V9TfMjHV5XFMjr1I2mpA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxiOLZtn+u3dUKiDdeiLjOokj/9G+k7utBWWN52LTPtjOuBrOQ8
+	5ry26bVTX9qXC0EmI135GsWb70GlJ0omFOCL3axrA8fUIwEGDtL5Cu69VtH0ZxIlvQPZlpP9ZAr
+	Ev+FWz9tPtUDd4XmhN7iPLGKVtsSQhV6z3MeRhOzZxV2W8INk2F996UANfKLOYU/D
+X-Gm-Gg: ASbGnctKWx9Z1Uo+lSueRzp0M1rdHSwIjyKQ9CHqHCjK1UFh+YujpEZmKK22dSV/hro
+	1iUyTp1PYsaSY05YWMqE53M7Mq+WXmj3G7FItxc5kFs63ezTvtLMnO2Q+f2+fULWsXx0mLN5B5f
+	3nw+elgHeHNNoWMTpewrTnh9NkGuIXo5nMXm0yNnV6N2dxWwEqUJ7GApEfNbF6GrWR9NwI35Kt4
+	uXpkD7FPkmZWtoPOJ5Xf1mS6yIuKsHvHEnlMM0hZqxH7F5E/gPqhAGG6tRhtlAapeEYH9gk9v7U
+	A77qg/1akjraL7Acq7oPES1VNN/CurbYJq/cU8czSw==
+X-Received: by 2002:a05:622a:1387:b0:467:674d:237f with SMTP id d75a77b69052e-46e12ad5f7bmr40518751cf.11.1737121496625;
+        Fri, 17 Jan 2025 05:44:56 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHmIl4MCDkHkFsxi8fUyXS99BtrKRZsY+6w06Ii3eQgKuqou3xcsKirOxy10aWGIFujuL9O5w==
+X-Received: by 2002:a05:622a:1387:b0:467:674d:237f with SMTP id d75a77b69052e-46e12ad5f7bmr40518371cf.11.1737121496270;
+        Fri, 17 Jan 2025 05:44:56 -0800 (PST)
+Received: from vschneid-thinkpadt14sgen2i.remote.csb (213-44-141-166.abo.bbox.fr. [213.44.141.166])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46e1042ef63sm11228641cf.71.2025.01.17.05.44.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jan 2025 05:44:55 -0800 (PST)
+From: Valentin Schneider <vschneid@redhat.com>
+To: Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org,
+ x86@kernel.org, virtualization@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
+ xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-mm@kvack.org,
+ linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+ bcm-kernel-feedback-list@broadcom.com
+Cc: Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov
+ <alexey.amakhalov@broadcom.com>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Paul
+ Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave
+ Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
+ <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexander
+ Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa
+ <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, Adrian Hunter
+ <adrian.hunter@intel.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Boris
+ Ostrovsky <boris.ostrovsky@oracle.com>, Josh Poimboeuf
+ <jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+ Sean Christopherson <seanjc@google.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann
+ <arnd@arndb.de>, Frederic Weisbecker <frederic@kernel.org>, "Paul E.
+ McKenney" <paulmck@kernel.org>, Jason Baron <jbaron@akamai.com>, Steven
+ Rostedt <rostedt@goodmis.org>, Ard Biesheuvel <ardb@kernel.org>, Neeraj
+ Upadhyay <neeraj.upadhyay@kernel.org>, Joel Fernandes
+ <joel@joelfernandes.org>, Josh Triplett <josh@joshtriplett.org>, Boqun
+ Feng <boqun.feng@gmail.com>, Uladzislau Rezki <urezki@gmail.com>, Mathieu
+ Desnoyers <mathieu.desnoyers@efficios.com>, Lai Jiangshan
+ <jiangshanlai@gmail.com>, Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli
+ <juri.lelli@redhat.com>, Clark Williams <williams@redhat.com>, Yair
+ Podemsky <ypodemsk@redhat.com>, Tomas Glozar <tglozar@redhat.com>, Vincent
+ Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann
+ <dietmar.eggemann@arm.com>, Ben Segall <bsegall@google.com>, Mel Gorman
+ <mgorman@suse.de>, Kees Cook <kees@kernel.org>, Andrew Morton
+ <akpm@linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Shuah
+ Khan <shuah@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Miguel
+ Ojeda <ojeda@kernel.org>, Alice Ryhl <aliceryhl@google.com>, "Mike
+ Rapoport (Microsoft)" <rppt@kernel.org>, Samuel Holland
+ <samuel.holland@sifive.com>, Rong Xu <xur@google.com>, Nicolas Saenz
+ Julienne <nsaenzju@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
+ Yosry Ahmed <yosryahmed@google.com>, "Kirill A. Shutemov"
+ <kirill.shutemov@linux.intel.com>, "Masami Hiramatsu (Google)"
+ <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, Luis
+ Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v4 26/30] x86,tlb: Make __flush_tlb_global()
+ noinstr-compliant
+In-Reply-To: <52311c3d-83cf-4dc4-bbcb-5fbca8eb249c@intel.com>
+References: <20250114175143.81438-1-vschneid@redhat.com>
+ <20250114175143.81438-27-vschneid@redhat.com>
+ <52311c3d-83cf-4dc4-bbcb-5fbca8eb249c@intel.com>
+Date: Fri, 17 Jan 2025 14:44:42 +0100
+Message-ID: <xhsmh5xmdh7w5.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250117074442.256705-2-hch@lst.de>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 5tpaWm5rk6aE6KIalgxp4of9Q0BVHZ955yeyABM2sVc_1737121496
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 
-On Fri, Jan 17, 2025 at 08:44:07AM +0100, Christoph Hellwig wrote:
-> File systems can and often do allocate memory in the read-write path.
-> If these allocations are done with __GFP_IO or __GFP_FS set they can
-> recurse into the file system or swap device on top of the loop device
-> and cause deadlocks.  Prevent this by forcing a noio scope over the
-> calls into the file system.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/block/loop.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-> index 1ec7417c7f00..71eccc5cfffb 100644
-> --- a/drivers/block/loop.c
-> +++ b/drivers/block/loop.c
-> @@ -1905,6 +1905,15 @@ static void loop_handle_cmd(struct loop_cmd *cmd)
->  	int ret = 0;
->  	struct mem_cgroup *old_memcg = NULL;
->  	const bool use_aio = cmd->use_aio;
-> +	unsigned int memflags;
-> +
-> +	/*
-> +	 * We're calling into file system which could do be doing memory
-> +	 * allocations.  Ensure the memory reclaim does not cause I/O,
-> +	 * because that could end up in the user of this loop devices again and
-> +	 * deadlock.
-> +	 */
-> +	memflags = memalloc_noio_save();
+On 14/01/25 13:45, Dave Hansen wrote:
+> On 1/14/25 09:51, Valentin Schneider wrote:
+>> +	cr4 = this_cpu_read(cpu_tlbstate.cr4);
+>> +	asm volatile("mov %0,%%cr4": : "r" (cr4 ^ X86_CR4_PGE) : "memory");
+>> +	asm volatile("mov %0,%%cr4": : "r" (cr4) : "memory");
+>> +	/*
+>> +	 * In lieu of not having the pinning crap, hard fail if CR4 doesn't
+>> +	 * match the expected value. This ensures that anybody doing dodgy gets
+>> +	 * the fallthrough check.
+>> +	 */
+>> +	BUG_ON(cr4 != this_cpu_read(cpu_tlbstate.cr4));
+>
+> Let's say someone managed to write to cpu_tlbstate.cr4 where they
+> cleared one of the pinned bits.
+>
+> Before this patch, CR4 pinning would WARN_ONCE() about it pretty quickly
+> and also reset the cleared bits.
+>
+> After this patch, the first native_flush_tlb_global() can clear pinned
+> bits, at least until native_write_cr4() gets called the next time. That
+> seems like it'll undermine CR4 pinning at least somewhat.
+>
 
-If we call memalloc_noio_save() here, setting PF_MEMALLOC_NOIO can be removed
-from loop_process_work().
+The BUG_ON() should still catch any pinned bit mishandling, however...
 
+> What keeps native_write_cr4() from being noinstr-compliant now? Is it
+> just the WARN_ONCE()?
+>
 
-Thanks,
-Ming
+I don't think that's even an issue since __WARN_printf() wraps the print in
+instrumentation_{begin,end}(). In v3 I made native_write_cr4() noinstr and
+added a non-noinstr wrapper to be used in existing callsites.
+
+AFAICT if acceptable we could make the whole thing noinstr and stick with
+that; Peter, is there something I missed that made you write the handmade
+noinstr CR4 RMW?
 
