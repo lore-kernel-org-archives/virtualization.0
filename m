@@ -1,111 +1,92 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CD1F1974FE;
-	Sun, 19 Jan 2025 20:23:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737318227; cv=pass; b=mqVSej4WfvXM21JWnWlk3vNdMK/p9xDZT+38EGXYZ5u9/wkeEJMwrEjnuwn87O3TdIuBIrdjFA/Q1L2qU1khLq2nkvNQz5BftzFccXRdZXHeoEXbIn6ucaUuohsIfCdO4WaMbW/VSJCC98GsaYx1ieuUzs+gu3UZhzxj91jolyQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737318227; c=relaxed/simple;
-	bh=tWfSI+1MtUACMBfnv4RFYgj8AtEb/70TFPYM8QfC13U=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=b54/tFjBs2/OPtzg5nn+P4YVAeaN3mt8yNrU5FzdkFvUJiwWqUaUrkVUJi6CjIZIZXexj7NqAo0S2pD1Y2b0SwtecY4+hxiPWKaIXPGkpiklsDGPekbSpEbfUR4cWGxcmOLYVT04LQXqAdhMzYAypgH1A1BhasxjNXo7gluP6W4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=P3C4eoQQ; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86F3E7DA82;
+	Sun, 19 Jan 2025 20:42:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1737319351; cv=none; b=SM7GFANOoY5Znxnp0gDRO9jqu5ljumC6h9asDdpHuRPz0Qj+cspSllOpes9uiKFnMuoZGzxXf3gUb5ist7jFpBrb/2paIP/Y9JfYlxOBV8Zs8Nn5DQ1KahLqKIdb5wWim0EVJ06SfAFetLnNNIU1k2OtZCHxnNi7iPkwgCFbzdQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1737319351; c=relaxed/simple;
+	bh=8lAhJ5IrVPZQcoYHV+i/ViFGYILbt1ZiJAEAksEQQDw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IbLHkZZpYF5DDKPhekNDONDghw0wFMT49A2+12oKT04NrrlTEh3Opb9TMNJRbfhp89RcnRR7VT2KMg95Z31u+bq3V2TZsuKVSsxQMusnzttN0QTCzudk+WvvEsXOIinthmqjPUO53sAWTAYv/x5WeHZYJH/ZcK8fl7BePMWCtJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NuoZOTVZ; arc=none smtp.client-ip=209.85.219.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="P3C4eoQQ"
-ARC-Seal: i=1; a=rsa-sha256; t=1737318217; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=FcVt7sT55FRfJnB7hDpCceMyLgXI6PVICfZtYwJVkQz7FG8zkQ3pH/cw22u5+cqY4MCqarQPX/j4Pw6/U08oJUKVwZ/IQ5vz8jmKUxrny6grkPp3MvGJcREbUuogE8IM5X4JahjxaDSqB3+l8n9E5+sUiym+cX2D2QmeZBPPngk=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1737318217; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=UPtfCtUKIAnqCQybAVHnv01lXRb06TK7ijHh2KLOKpk=; 
-	b=QLyDDeQzWVmPkipHItdkWgXSEjyJez6LsV5kHK32jNeu/pFZK3gTBcXX+Mau9EQNL2VZNJUwCX2NMTOr3Y3ce0VJiuPHqY6aSeixCGNPYktysV2jWK00TsNh5kVNc+sT6jnnRMX4IZHttStq0v2axsJFCAwbyExVi8mshKHpn7c=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1737318217;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:From:From:To:To:Cc:Cc:References:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=UPtfCtUKIAnqCQybAVHnv01lXRb06TK7ijHh2KLOKpk=;
-	b=P3C4eoQQZOIsO+77wHpza70B2I5iAoJtkIEYKhtBrRp4mn6L5IqcwdxR0B7MG3w6
-	63xUpCIPNfPlm7Q6BDiPYN15kJuLXgbV4vFTPZWEYW9LRkjxD40C22KaE0tc0DgwpG1
-	HRYedFS/q1ASzNpgD/AfVtQzWtYcdTGN3yLdcTiM=
-Received: by mx.zohomail.com with SMTPS id 1737318215647463.5943389283731;
-	Sun, 19 Jan 2025 12:23:35 -0800 (PST)
-Message-ID: <0820162d-f6d2-400e-b14b-86954d475d37@collabora.com>
-Date: Sun, 19 Jan 2025 23:23:31 +0300
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NuoZOTVZ"
+Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e455bf1f4d3so5153355276.2;
+        Sun, 19 Jan 2025 12:42:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1737319348; x=1737924148; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=8lAhJ5IrVPZQcoYHV+i/ViFGYILbt1ZiJAEAksEQQDw=;
+        b=NuoZOTVZk0jecqDoCLEpzOEE6wyi5tHTCUna45evkUl98o+cNRhQ2Xo96he0gckPne
+         TZoFk3v/2RA+bH/OrXgj5IF4RW5ScjSSbT2oZu5Ime0bHwfSIDt9Em7dnD0XiYVLfbpp
+         zUUnhZgB7xy6D58PUP2zqGsJtYwaynMmc/xTQRS4P/reZa50tk5AL8TZ/YFHph9YbnuX
+         agcVyacXAalKEL88AWvlCinj4QcmvBZxsttEAlj/sVUJCMn+JYsitVZ+SYMrxymyjV5m
+         UkmRWOIX26Tg6BdavJ7BvfZOmtW+SDGxtSbBDmuPllpo/Csl95AzeWrL+UaTdriIIAQK
+         pn1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737319348; x=1737924148;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8lAhJ5IrVPZQcoYHV+i/ViFGYILbt1ZiJAEAksEQQDw=;
+        b=uBk/thC4vvKLdcruqiM5gMVDA0T+IvkvnO1Nmpjt1drATSBKdaVXolQ8+RNj46FrSz
+         9e9EhMrMr/XiilW83Iurhk6HZeq7FOdDRekxWu4j6DN+xJ60UQqa9ALUj3uVLQvuWgM7
+         1pnj+JZnkQjMuLORWDFjO/JNtxWs2x+tP20CGITVtJk1vEq5RRdZawckgFPA3p2Epg/k
+         P41RuLIifLbNuOMODr2qNtFRAOpWzB46YqWhJEoStsBY35VzFw4dy6FnNrPSs2l+chbR
+         WRpscXfrFJnEI+Qz7w9v7Rljr99V5emWibbpJU4wQUSJ5VASa6xQSz2kCS83T7JJn8c3
+         GsfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUx3uV4QyVy46Aa67IBSNeAU72fthJl8w8jqFfEQn7IV3wrh+wutZymaXv9jYg4vyKZxhLs2rcc6KwGrBwU2wE=@lists.linux.dev, AJvYcCW/4F5N3lf7v4boRLKbKZh2MGuixJ5/XxCz1AWcS9+tAybwh82FuRQZDDEzUOl4y4ePnR6ggw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw9zCr2b6KR4vSvppKcODm/wT3TEEkS4x9o/jmZgMvqZUXgi5Fl
+	beGyFcEuYNEsdk5k8lu22YDSdWB/633xrVdP2eTHLVjQ6vSTQgtHr8WX0lAfYT9QAm6hjLkfzt8
+	B9JjWa+dAm8JKZvdUPHWAb/GDQaE=
+X-Gm-Gg: ASbGncuw8OlH3s91XHfnaZ+RFly/MbOaQQNjMAloVk7QEAbqPrWGEQXG0eZackkck0I
+	Fz/N/L1j82rQ/eXLKW+GCn/Zc2vnagKEq7USs4sCy2c6msJe0fgrG
+X-Google-Smtp-Source: AGHT+IGaPnb11OoaGg2ixbnYgp1PVt4lZ/eQ66+OiZixdaacUCgn7+WUkslkBTJ4yop1zjk2PUW+XSykxJ6BzY4VQ/c=
+X-Received: by 2002:a05:690c:d89:b0:6f4:dcb1:5bc7 with SMTP id
+ 00721157ae682-6f6eb658b77mr77228777b3.1.1737319348517; Sun, 19 Jan 2025
+ 12:42:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: Support partial maps of GEM objects
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: Sasha Finkelstein <fnkl.kernel@gmail.com>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- asahi@lists.linux.dev
 References: <20250109-virtgpu-gem-partial-map-v1-1-a914b48776bd@gmail.com>
- <2f51584c-0590-432b-a4db-7a2af99cde15@collabora.com>
- <CAMT+MTT11xg-14KrcqUTx3DxF=1NnYZAMY8RoZFoTesc0zEiVA@mail.gmail.com>
+ <2f51584c-0590-432b-a4db-7a2af99cde15@collabora.com> <CAMT+MTT11xg-14KrcqUTx3DxF=1NnYZAMY8RoZFoTesc0zEiVA@mail.gmail.com>
  <a6b7a3a1-e6f9-4da7-96b3-62aefb82dced@collabora.com>
-Content-Language: en-US
 In-Reply-To: <a6b7a3a1-e6f9-4da7-96b3-62aefb82dced@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+Date: Sun, 19 Jan 2025 21:42:17 +0100
+X-Gm-Features: AbW1kvY6AyoKzuXRUCeQ-DonU--FYB1N-89W9fTBo1fqGY0YjUfZ_KrqgSImC4M
+Message-ID: <CAMT+MTSCKiRMy6r2uDsT0dpv=jru-G-M5qih6vPSe=ZvpKC-kw@mail.gmail.com>
+Subject: Re: [PATCH] drm/virtio: Support partial maps of GEM objects
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	asahi@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On 1/19/25 23:02, Dmitry Osipenko wrote:
-> On 1/19/25 19:18, Sasha Finkelstein wrote:
->> On Sun, 19 Jan 2025 at 12:50, Dmitry Osipenko
->> <dmitry.osipenko@collabora.com> wrote:
->>>>       ret = io_remap_pfn_range(vma, vma->vm_start,
->>>> -                              vram->vram_node.start >> PAGE_SHIFT,
->>>> +                              (vram->vram_node.start >> PAGE_SHIFT) + vma->vm_pgoff,
->>>>                                vm_size, vma->vm_page_prot);
->>>>       return ret;
->>>>  }
->>>
->>> The vma->vm_pgoff is fake in DRM, it's used for looking up DRM GEM
->>> object based on the vma->vm_pgoff value when mmap is invoked.
->>
->> If my understanding is correct, vm_pgoff gets "unfaked" by
->> https://elixir.bootlin.com/linux/v6.12.6/source/drivers/gpu/drm/virtio/virtgpu_vram.c#L48
->>
->>> vma->vm_pgoff should be treated as zero here. Hence we can map a part of
->>> GEM, but only from its start. See drm_gem_mmap().
->>
->> I've had a "v0" (not on ml) of this patch that always treated vma->vm_pgoff as
->> zero. This broke when anything tried to mmap with a non-zero offset. Adding
->> vm_pgoff made it work correctly.
-> 
+On Sun, 19 Jan 2025 at 21:02, Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
 > I've tested this patch. Partial mapping with a non-zero offset doesn't
 > work because drm_gem_mmap() rejects it. I'd want to see your sample code
 > that performs mmaping, maybe I'm missing something.
-> 
->>> Please correct vma->vm_pgoff in v2.
->>
->> I need apps to be able to mmap with a non-zero offset for my usecase.
->> While the correct value may be something else other than what is in
->> the current patch, 0 is definitely incorrect for at least some workloads.
-> 
-> drm_gem_mmap() uses drm_vma_offset_exact_lookup_locked() that doesn't
-> allow vma->vm_pgoff != node.start. AFAICT, no one driver supports
-> mapping with a non-zero offset, perhaps for a reason that I don't know
-> about.
 
-See now that a non-zero mapping of a dmabuf might work. Will test it.
-
--- 
-Best regards,
-Dmitry
+The entire setup is a huge pile of moving parts, but here is the relevant
+function that creates a fd from the cross domain info (this is a part
+of the vm agent)
+https://github.com/WhatAmISupposedToPutHere/krun/blob/pipewire/crates/muvm/src/guest/bridge/common.rs#L745
+After the fd is created, it is passed to a pipewire client running
+inside the vm,
+which in turn does a simple mmap() (with a non-zero offset) on the relevant fd.
+Not sure where exactly pipewire's code does that, the syscall was observed
+via stracing the relevant process.
