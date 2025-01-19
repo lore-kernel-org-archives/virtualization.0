@@ -1,102 +1,204 @@
-Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-173.mta1.migadu.com (out-173.mta1.migadu.com [95.215.58.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BB3742AA3;
-	Sun, 19 Jan 2025 16:18:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A0CE1DB14C
+	for <virtualization@lists.linux.dev>; Sun, 19 Jan 2025 16:26:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737303502; cv=none; b=KSV7vXp3TKQt8ToDm06smYOvCuhZFEW7p6HybESZZnzuIGEMva/Xg6IMDEK+k1D2zeQ4F+hnCfwHLOGjWn9YxsJRIwgx7Ht3u1FgzC89wko7QGZrdukDjNP7lTGPr0extifTp9qS+c2BjA/ucNcp2Azo+LmemzeoII1U57dF8w8=
+	t=1737304009; cv=none; b=KCZiIYiyVA8aHpUOSStKALIfn8cKggJOTnIIGPeHsYZhJ+PYalK3QE9y7W6TIRGntcuzIVktR1Z5OeDuiVFnHLGgiIA7VFQF0qsSdQrvskTIz4KyC8VGSaUULFcNBmFDNWgB3ANVkAsvumg3jSzEkN4heYmDU8zDitfIbJrgSE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737303502; c=relaxed/simple;
-	bh=LAvJdSCTXPEjGK/+bn6A/GB+sDQ1V1X+W3Hx0D7sW94=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kkzReOuzutteJlpicQlUcpF2DpQG0X+bUFE+5t0m3W0/S/vjA9ADOUHhSOio3WJyko9pQGhtlp+9/WQFbyJc6TVfK+M8lcXHFgpa+L790xhIZlFRSx7KqHJ/Kh4lfg8bSEOhSJS6vkUw7X+TGuhE2Dg1p5G0PVxuNRU2nCGoTxA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b2M6JWJg; arc=none smtp.client-ip=209.85.219.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1737304009; c=relaxed/simple;
+	bh=B4rvTJW7ff21w1JZwgT0/LIrPNJS+x3zveTVYIlEO8U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BhapuBWt5ownA2t1jvfAhQeGHtbPj6M6L967vvvzK/qEaYhZCbKhKYZ9oWoWbohqA6K84oyj6Raljik7iXVBv/N9+5uNHOgPbNCFGAJ+LZDMtVJMs9taCphUGXt13W8KrFJ1qSMPFBg6JO5M+6QhGGL0SK9X2ZmjH4HVmL3pN0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=rSN8t36G; arc=none smtp.client-ip=95.215.58.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b2M6JWJg"
-Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e39779a268bso5497546276.1;
-        Sun, 19 Jan 2025 08:18:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737303500; x=1737908300; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=1sCj+Wpz58VXqoPHcsWC/oHPWAfJKC+x/UNR2bGR9uk=;
-        b=b2M6JWJg0oOQQW/NOsNfVmGgpFId1x25pfb4K0UEaYDsWiX8mj6dD4cYS0oeCAjQmw
-         G0+9qB6E47GOH9q5nhIXfdACFUdou01PeU37D6QXrcW5Vl3ic/WvYG6AWlIP9+GeHeGU
-         FRh85hVAFzIUEE4qwi7g81XbFDWsyalFEg2R7rRaZseFCtpbjzOq/gmzFx5nPZPlC+5H
-         GaxBemqWClePfweujF0P1OKYj/owwPA+jo8gQSKIV5excYvYBhlN33swa+W6iiwI009h
-         ONVXCcZ6EnxQag2YWLMMwAPJIcITnYPSDdRg+QJu08xbg3lVg3jry8Jy8L6c90fSYwz6
-         jwDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737303500; x=1737908300;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1sCj+Wpz58VXqoPHcsWC/oHPWAfJKC+x/UNR2bGR9uk=;
-        b=Xb0Op9Fc+5t4xUh3VUpzMfPA5EADLfbOroa9bM9DYrHDUxbXWdMSJcMRbuOLHbMKCD
-         DwadJvSFHN3xa/wkR4qcY0iPNYSM/XkZScKqupVKLRPkovt0elnvR2MmuUpXaxWXrcUR
-         TMds0Nce7kzYKxJiCbNEirHBYW8yg8l2oRe56Fw0IDb1r8PMJbH8+Tb/CDOYZu2xP5tJ
-         7XOxGd2ZfGDpKfkSq/cFDwodM4kTlSBuZPVRZuuqZh/4NhQmqQCP2FNnDf3+FMG+lgPQ
-         9U/9OQEtFJ2xCaMNKmRJREEP/jA47/8bWI5v286MkQEyOxvwZF/F+lmdqHV+GPo+lxus
-         PIgg==
-X-Forwarded-Encrypted: i=1; AJvYcCVFEa8+RhYZTptuQpPzyQVUcwMBQTbKSRcXA/IqXaogSvSxva0+rSx/HTglhcWAcYGrSpkfcyWVm5J/1HVbnTk=@lists.linux.dev, AJvYcCXoIFD/NQS7f4cINtAdoxHExc+i0mF30/DAV3dEBDXrgnarzScNymYRtq3UdhkWvscuQNxbqg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwE9lDJyyQo5Tvi8PAxTMlDsBX1UnrFFBXlcArZIyiUx4V4P2yc
-	JvDhCPabdwya+sIdl4wlaDlwYL0cQy14EdBBfWvdT+SukInKfNgMUFBdOGfCatQViZxr0vSAW5A
-	v6AVBX8En9ZEbFAQvAK/Hvi66oaE=
-X-Gm-Gg: ASbGncv/qC6dsrECl/66/DS2KW/D/HwrJBKtC3z2+XVm/XCu40tIW4wupUGx8MCVR9B
-	dugkWzL19KYAiPgnJN7Y7PlqrgmMccBEsq2RaD4CbX0RDtFVd4saH
-X-Google-Smtp-Source: AGHT+IE3CgHFn2hIrsTZPvTj0bIi1h7yRhFooguMB6B3KtYJttaNGjo7EYiOR9ob4BBPgMCOTedrzRZrca/qC5r4WoQ=
-X-Received: by 2002:a25:a187:0:b0:e57:167f:65ee with SMTP id
- 3f1490d57ef6-e57a3c20f59mr10007404276.17.1737303500121; Sun, 19 Jan 2025
- 08:18:20 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="rSN8t36G"
+Message-ID: <8234927e-0d12-4655-813d-8ec94179b737@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1737304005;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vk3LJPYAEJumDCHfvyn+0B3wt+JaPCGDzjEcWZxdF60=;
+	b=rSN8t36GlcqKWcSry2NAS7uuPoSokjl/moVcZQqfvubYqsOYH01D0yN3RMsNHteHhtpLti
+	kVL97c93wJmSXin/dBnch03Cy9RjtJi2PzJmt0HI9IluiFQUnxKcft+J/Ya7YtZG1krPc+
+	YGBCQ0RrYcucM6qjwpDCjNrgG9sTpfk=
+Date: Mon, 20 Jan 2025 00:26:30 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250109-virtgpu-gem-partial-map-v1-1-a914b48776bd@gmail.com> <2f51584c-0590-432b-a4db-7a2af99cde15@collabora.com>
-In-Reply-To: <2f51584c-0590-432b-a4db-7a2af99cde15@collabora.com>
-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
-Date: Sun, 19 Jan 2025 17:18:09 +0100
-X-Gm-Features: AbW1kvakcvtitImS5grWZ5T9Zu8aGtCBBjHwTPnICAN4Pw5_vi91Hx-_1Z63IHs
-Message-ID: <CAMT+MTT11xg-14KrcqUTx3DxF=1NnYZAMY8RoZFoTesc0zEiVA@mail.gmail.com>
-Subject: Re: [PATCH] drm/virtio: Support partial maps of GEM objects
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	asahi@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v2 25/25] drm/xlnx: Compute dumb-buffer sizes with
+ drm_mode_size_dumb()
+To: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
+ simona@ffwll.ch, dri-devel@lists.freedesktop.org,
+ linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
+ linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+ linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org,
+ linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org,
+ xen-devel@lists.xenproject.org,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Andy Yan <andyshrk@163.com>, Daniel Stone <daniel@fooishbar.org>
+References: <f3ba05c7-6e49-4641-a3f9-ba418ebdb7c3@ideasonboard.com>
+ <c6735280-7c32-4319-8ca9-a7305d8117c3@suse.de>
+ <d67adb03-5cd0-4ac9-af58-cf4446dacee3@ideasonboard.com>
+ <0ea6be58-0e04-4172-87cd-064a3e4a43bc@suse.de>
+ <f35cb350-6be9-48ca-ad7e-e9dd418281d5@ideasonboard.com>
+ <4af0b6a7-c16a-4187-bbf5-365a9c86de21@suse.de>
+ <e327ad84-b5c9-4480-b873-dc3aca605538@ideasonboard.com>
+ <a2bbeb47-2569-4ee0-9265-92bab139bdc6@suse.de>
+ <f3833771-fcd7-45dc-9019-1525fef34429@ideasonboard.com>
+ <CAMuHMdXxYa+Na3XxpLTy=-eUL_zQ9kAiUKYu-E04u3KWApusSA@mail.gmail.com>
+ <xz5ncq67bgmdase2jg3cfvyaxpiwhol2eqpfzow6dqpauvslo5@2w3rw27lhnxo>
+ <b97fcd2f-516a-4172-aef3-631418564cfa@linux.dev>
+ <ef52dab0-058f-408f-a298-c4b2453a3d2f@ideasonboard.com>
+ <f4562dbf-b132-4cfd-8f7e-43cd69f2673f@linux.dev>
+ <cf34be39-ce92-4ea5-b548-03008c163d31@ideasonboard.com>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Sui Jingfeng <sui.jingfeng@linux.dev>
+In-Reply-To: <cf34be39-ce92-4ea5-b548-03008c163d31@ideasonboard.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Sun, 19 Jan 2025 at 12:50, Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
-> >       ret = io_remap_pfn_range(vma, vma->vm_start,
-> > -                              vram->vram_node.start >> PAGE_SHIFT,
-> > +                              (vram->vram_node.start >> PAGE_SHIFT) + vma->vm_pgoff,
-> >                                vm_size, vma->vm_page_prot);
-> >       return ret;
-> >  }
+Hi,
+
+On 2025/1/19 23:22, Tomi Valkeinen wrote:
+> On 19/01/2025 16:59, Sui Jingfeng wrote:
 >
-> The vma->vm_pgoff is fake in DRM, it's used for looking up DRM GEM
-> object based on the vma->vm_pgoff value when mmap is invoked.
+>>>>> But userspace must be able to continue allocating YUV buffers through
+>>>>> CREATE_DUMB.
+>>>>
+>>>> I think, allocating YUV buffers through CREATE_DUMB interface is just
+>>>> an *abuse* and *misuse* of this API for now.
+>>>>
+>>>> Take the NV12 format as an example, NV12 is YUV420 planar format, have
+>>>> two planar: the Y-planar and the UV-planar. The Y-planar appear first
+>>>> in memory as an array of unsigned char values. The Y-planar is 
+>>>> followed
+>>>> immediately by the UV-planar, which is also an array of unsigned char
+>>>> values that contains packed U (Cb) and V (Cr) samples.
+>>>>
+>>>> But the 'drm_mode_create_dumb' structure is only intend to provide
+>>>> descriptions for *one* planar.
+>>>>
+>>>> struct drm_mode_create_dumb {
+>>>>      __u32 height;
+>>>>      __u32 width;
+>>>>      __u32 bpp;
+>>>>      __u32 flags;
+>>>>      __u32 handle;
+>>>>      __u32 pitch;
+>>>>      __u64 size;
+>>>> };
+>>>>
+>>>> An width x height NV12 image takes up width*height*(1 + 1/4 + 1/4) 
+>>>> bytes.
+>>>>
+>>>> So we can allocate an *equivalent* sized buffer to store the NV12 
+>>>> raw data.
+>>>>
+>>>> Either 'width * (height * 3/2)' where each pixel take up 8 bits,
+>>>> or just 'with * height' where each pixels take up 12 bits.
+>>>>
+>>>> However, all those math are just equivalents description to the 
+>>>> original
+>>>> NV12 format, neither are concrete correct physical description.
+>>>
+>>> I don't see the problem. Allocating dumb buffers, if we don't have 
+>>> any heuristics related to RGB behind it, is essentially just 
+>>> allocating a specific amount of memory, defined by width, height and 
+>>> bitsperpixel.
+>>>
+>> I think, the problem will be that the 'width', 'height' and 'bpp'
+>> are originally used to describe one plane. Those three parameters
+>> has perfectly defined physical semantics.
+>>
+>> But with multi planar formats, take NV12 image as an example,
+>> for a 2×2 square of pixels, there are 4 Y samples but only 1 U
+>> sample and 1 V sample. This format requires 4x8+1x8+1x8=48 bits
+>> to store the 2x2 square.
+>>
+>> So its depth is 12 bits per pixel (48 / (2 * 2)).
+>>
+>> so my problem is that the mentioned 12bpp in this example only
+>> make sense in mathematics, it doesn't has a good physical
+>> interpret. Do you agree with me on this technique point?
+>>
+>>> If I want to create an NV12 framebuffer, I allocate two dumb 
+>>> buffers, one for Y and one for UV planes, and size them accordingly. 
+>>> And then create the DRM framebuffer with those.
+>>>
+>> Then how you fill the value of the 'width', 'height' and 'bpp' of 
+>> each dumb buffers?
+>
+> For 640x480-NV12:
+> plane 0: width = 640, height = 480, bpp = 8
+> plane 1: width = 640 / 2, height = 480 / 2, bpp = 16
+>
+But i think this should be hardware dependent. The hardware I'm using
+load NV12  raw data as a whole. I only need to feed gpuva of the backing
+memory to the hardware register once.
 
-If my understanding is correct, vm_pgoff gets "unfaked" by
-https://elixir.bootlin.com/linux/v6.12.6/source/drivers/gpu/drm/virtio/virtgpu_vram.c#L48
+Not familiar with your hardware, so I can't talk more on this software
+design. Perhaps someone know more could have a comment on this.
 
-> vma->vm_pgoff should be treated as zero here. Hence we can map a part of
-> GEM, but only from its start. See drm_gem_mmap().
+>> Why not allocate storage for the whole on one shoot?
+>
+> You can, if you adjust the parameters accordingly. However, if the 
+> strides of the planes are not equal, I guess it might cause problems 
+> on some platforms.
+>
+> But I think it's usually simpler to allocate one buffer per plane, and 
+> perhaps even better as it doesn't require as large contiguous memory 
+> area.
+>
+>> The modetest in libdrm can be an good example, send it[1] to you as 
+>> an reference.
+>
+> Right, so modetest already does it successfully. So... What is the issue?
+>
+But then, the problem will become that it override the 'height' parameter.
+What's the physical interpretation of the 'height' parameter when creating
+an NV12 image with the dump API then?
 
-I've had a "v0" (not on ml) of this patch that always treated vma->vm_pgoff as
-zero. This broke when anything tried to mmap with a non-zero offset. Adding
-vm_pgoff made it work correctly.
+I guess, solving complex problems with simple APIs may see the limitation,
+sooner or later. But I not very sure and might be wrong. So other peoples
+can override me words.
 
-> Please correct vma->vm_pgoff in v2.
 
-I need apps to be able to mmap with a non-zero offset for my usecase.
-While the correct value may be something else other than what is in
-the current patch, 0 is definitely incorrect for at least some workloads.
+> Everyone agrees that CREATE_DUMB is not the best ioctl to allocate 
+> buffers, and one can't consider it to work identically across the 
+> platforms. But it's what we have and what has been used for ages.
+>
+Yeah, your request are not unreasonable. It can be seen as a kind of rigid demand.
+Since GEM DMA helpers doesn't export an more advanced interface to userspace so far.
+As a result, drivers that employing GEM DMA has no other choice, but to abuse the
+dumb buffer API to do allocation for the more complex format buffers.
+
+The dumb buffer API doesn't support to specify buffer format, tile status and
+placement etc. The more advance drivers has been exposed the xxx_create_gem()
+to user-space. It seems that a few more experienced programmers hint us to
+create an new ioctl at above thread, so that we can keep employing simple API
+to do simple things and to suit complex needs with the more advanced APIs.
+
+
+>  Tomi
+>
+-- 
+Best regards,
+Sui
+
