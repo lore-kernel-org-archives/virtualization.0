@@ -1,172 +1,93 @@
-Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755841ABEA1
-	for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 22:56:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.41
+Received: from zg8tmja5ljk3lje4ms43mwaa.icoremail.net (zg8tmja5ljk3lje4ms43mwaa.icoremail.net [209.97.181.73])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 448BF6FC3
+	for <virtualization@lists.linux.dev>; Sun, 19 Jan 2025 06:51:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.97.181.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737154591; cv=none; b=JC9gF8GWI5Pj9k206+jhRbP7fH+xNkEYj3mtt70MjvlYLY4NWhGCBUVPtnIVJ9LbpNTcmT9alfnGkjGcVxworXdZ5fkolsVKLr3lnVrRHijrmOPVHSG4+pvbfxqi+g317mVHMYrkRClnyOz9Uk/Hsyr/1M+rGx8fQhKs1i8Oqkg=
+	t=1737269480; cv=none; b=rnf6zyLDbA1XWmNWkHEvS4jNFLsWCS+p9xswbsKj7kk3YVFDgqhTzsulpvQAeIuAl2LJUKx0x/gTf8QH1CZuAZ8CxnwGL6xjrjytgcGj5Gq5mlFd1CRzRjF2Csst3qWDkbKnakGcLO+UqLMIdJpwsx6XepZafCDlbWKWEZARBRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737154591; c=relaxed/simple;
-	bh=MZ8k6arSOGKfXEnGEo9T6WIuiEQrTSg4uSoW0G2usmw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pTKHeC5Bn3vaKeZV5b9E9XSJaWN+wmzes5BK20U4GlY/nnGaCGhsbyYl93civv3WkV4aOjDKNl/Z8bAu1mOwHOrzGVNM/BRfiMT7s1dqpatszcpjs/Q8iICdeqV1wc7lu0t0NBoQuyXj+IPBmD+M7AeK91GxTSQ+fIyRNHBo1A0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=UDtIaEz0; arc=none smtp.client-ip=209.85.217.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UDtIaEz0"
-Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-4aff5b3845eso835062137.2
-        for <virtualization@lists.linux.dev>; Fri, 17 Jan 2025 14:56:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1737154588; x=1737759388; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=he366X0vqCY56I+SCllNk/+7JBZP0gskgWoZG7rnpZU=;
-        b=UDtIaEz0Tj0Jl+JhqNxArkFIG/7yVwIiRjatStzAqady4Q5EGH0bC5EedezuEWavXi
-         FOGPuPK3+/E3o2QxCiXYQGiAVzLfebCSMbQ4+/sD7t0pxKs6DMSE7ifRYO/qL9vxl8Nj
-         KgzNe2urZDyn4KRqApKzyTbythRHa+0USHmJajdcG1Z3aigvX4yLH36C1dUE89790BJH
-         rmchFWGxfN39jxxKu8ws9p6zRGfMdm0VEn9fU997khsJ4Su2fBIoHxAwLZWZEQgGYXVz
-         /WcvhiMcnK+QvRG1JfjLKnipsqLoyBDLBGyxGOMcbZ2/wGPrUzeXe8F3WBu0oJZL1lin
-         UE/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737154588; x=1737759388;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=he366X0vqCY56I+SCllNk/+7JBZP0gskgWoZG7rnpZU=;
-        b=ntOYSB/fyjy9pHI53Pev3LqAY/fvs7Fivpi1a1av74oMZSqjjq5z5ycE8O0wNuGMkc
-         EUkoHVgdmal7dqj2I2JnC8qlzM0Y7uavC88fL6An+4QhNqAMdP0QCyMNS/tecupT1ykV
-         /VcHT2Oj4ZXKAa7QO2jqsSb1Iz7gBcSwSBoxUf1PdXDPQabGDQiFny9isN+0tfRNmvKQ
-         PZ7v04XyI5jM6U6w9BeRk7vkdkvKZJpon/YrvVz2eWdPcrP2+py4l0BFJfdIrdZ+xDPX
-         lVPLB6cUATqnimjWGVWEBUTQxpT1DA5uQmLT7eZhTz8G9HQpWLflgC5s4sc0RzcYOndY
-         ANYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWaAGPjp30C6tPOTYCGWS3Hqhi17twfkuV7BvOV5FpOpcssAWDWPjbqKy0B92esx7gYiyobCFBwLyngHMEoFA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz33IvPBM/SeJO+t0xfbRugs4TLIrMFqWIg30jAfK0XNGD8lwLq
-	JoPmkkyBe/ybMdxKj+8mqmp3bFhM5kEqfs40UbTyqpeJbUwt/tfiSCU/o5NhIIn0GklHllLX15w
-	DRqeUH0vB5PWAspzTN2BFXUtv9uB7yAMafeQM
-X-Gm-Gg: ASbGncsJ2uVhvqbvK+KiQ+e3hVO45YyGS9nADWoqPV/cPeeHVGlUxa6jTK+HQhVbykC
-	C61JNeEt/OzBoDhgtjQEXsxMALqYg+tHFt8tVFtpsQubM4ht0AU8mzATmEyyaUMh2XaCcQYA=
-X-Google-Smtp-Source: AGHT+IF5keh1OkYhUK3RqcqnhV5OxQkXPU+ZsFCvGYt6ItUo4VtXll8joXvSm4m0B5v6T0Q6zgylSiB7Qbwlbay4s9E=
-X-Received: by 2002:a05:6102:3712:b0:4b1:14f3:5d6d with SMTP id
- ada2fe7eead31-4b690bc6bc7mr4569126137.6.1737154588110; Fri, 17 Jan 2025
- 14:56:28 -0800 (PST)
+	s=arc-20240116; t=1737269480; c=relaxed/simple;
+	bh=NYxjFn5O/HYGQBXSkB2Ih0ZJSmfSJu1mT0uwYKs5wUg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=esT4aY04MZuurHZYy0FTI3A3o5uFGTythWyQdAqraXU3SkurJ1UK8x91b9pmisWuclykvrp6E5eihItvgHsRdhSMf1IgElsbFTFwy0LO5fB+WwK8lD2ILam4lcnfwtar6qgdxHtbsyqIZqdVFUTnJu3DMZ0KeDECGhYrE71dMUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=209.97.181.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
+Received: from zju.edu.cn (unknown [117.161.58.149])
+	by mtasvr (Coremail) with SMTP id _____wDXKLzToIxnqVghAA--.11986S3;
+	Sun, 19 Jan 2025 14:51:00 +0800 (CST)
+Received: from wh1sper$zju.edu.cn ( [117.161.58.149] ) by
+ ajax-webmail-mail-app4 (Coremail) ; Sun, 19 Jan 2025 14:50:58 +0800
+ (GMT+08:00)
+Date: Sun, 19 Jan 2025 14:50:58 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From: =?UTF-8?B?5byg5rWp54S2?= <wh1sper@zju.edu.cn>
+To: "Mike Christie" <michael.christie@oracle.com>
+Cc: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com,
+	stefanha@redhat.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: Re: [PATCH] vhost/scsi: Fix improper cleanup in
+ vhost_scsi_set_endpoint()
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2024.2-cmXT6 build
+ 20241206(f7804f05) Copyright (c) 2002-2025 www.mailtech.cn zju.edu.cn
+In-Reply-To: <d00be9fa-364c-4b9e-a14e-a3b403e7bd6c@oracle.com>
+References: <e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com>
+ <20250117114400.79792-1-wh1sper@zju.edu.cn>
+ <d00be9fa-364c-4b9e-a14e-a3b403e7bd6c@oracle.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241219114400.858980-1-ajay.kaher@broadcom.com>
- <CAGdbjmKSpQSh=xr7MguoSgP85VTR5eu1xUeUXD8RtvZn-=MW3A@mail.gmail.com> <CAD2QZ9atira8k-CgfqEY81ixZK9aPVte48qD+XnwL5LejhqO5Q@mail.gmail.com>
-In-Reply-To: <CAD2QZ9atira8k-CgfqEY81ixZK9aPVte48qD+XnwL5LejhqO5Q@mail.gmail.com>
-From: Kevin Loughlin <kevinloughlin@google.com>
-Date: Fri, 17 Jan 2025 14:56:17 -0800
-X-Gm-Features: AbW1kvY6Gnks08-MjwR4sAwr5GSXml24QlRa9pqSN0N5jeFiIqB598rDzpBX4wY
-Message-ID: <CAGdbjm+vuSDO_Zm4CiJgVEx1vx+LAT1+fVQG8xj41uYhBY9qkA@mail.gmail.com>
-Subject: Re: [PATCH] sev-snp: parse MP tables for VMware hypervisor
-To: Ajay Kaher <ajay.kaher@broadcom.com>
-Cc: bp@alien8.de, bcm-kernel-feedback-list@broadcom.com, tglx@linutronix.de, 
-	mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	ye.li@broadcom.com, bo.gan@broadcom.com, 
-	vamsi-krishna.brahmajosyula@broadcom.com, alexey.makhalov@broadcom.com, 
-	vasavi.sirnapalli@broadcom.com, florian.fainelli@broadcom.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <38a0d34d.3d9.1947d5437b6.Coremail.wh1sper@zju.edu.cn>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:zi_KCgD3usTToIxn__IVAA--.3858W
+X-CM-SenderInfo: asssliaqzvq6lmxovvfxof0/1tbiAhMLB2eMLigWKwABsM
+X-CM-DELIVERINFO: =?B?pdV91wXKKxbFmtjJiESix3B1w3u7BCRQAee6E0rsv8LVXQpn+jaR4luXxag8yWi2LJ
+	86hqLH9YqTRpyMEfmF+fuNyi1Sd6lT/hU12woy/a1/0I0C7jTu6gekAeGASh89mmdAQxqh
+	ujf1sBb02Nc673zlXcfRzpV+xy8BeugxFMBRsIyElIKIzcZ9RUWyTuI3wqo08A==
+X-Coremail-Antispam: 1Uk129KBj9xXoWrKr47KFykGr4kCr17WFW5XFc_yoWkuwcEga
+	yvvrZxG34Iqr1xZayftFW3XF18Wr1aqFyrZw10vFnrZFyUZayUXF10vFn7uFWI9a97trWD
+	ZwnYyr9xGwnFyosvyTuYvTs0mTUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUj1kv1TuYvT
+	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
+	cSsGvfJTRUUUbyxYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E6xAIw20EY4v20x
+	vaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
+	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AK
+	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7xvr2IYc2Ij64
+	vIr40E4x8a64kEw24lFcxC0VAYjxAxZF0Ew4CEw7xC0wACY4xI67k04243AVC20s07MxAI
+	w28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr
+	4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxG
+	rwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8Jw
+	CI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2
+	z280aVCY1x0267AKxVW8JVW8Jr1l6VACY4xI67k04243AbIYCTnIWIevJa73UjIFyTuYvj
+	xU7GYpUUUUU
 
-On Thu, Jan 2, 2025 at 8:31=E2=80=AFPM Ajay Kaher <ajay.kaher@broadcom.com>=
- wrote:
->
-> On Thu, Dec 26, 2024 at 9:26=E2=80=AFPM Kevin Loughlin <kevinloughlin@goo=
-gle.com> wrote:
-> >
-> > On Thu, Dec 19, 2024 at 6:44=E2=80=AFAM Ajay Kaher <ajay.kaher@broadcom=
-.com> wrote:
-> > >
-> > > For VMware hypervisor, SEV-SNP enabled VM's could boot without UEFI.
-> > > In this case, mpparse_find_mptable() has to be called to parse MP
-> > > tables which contains boot information.
-> > >
-> > > Fixes: 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation fo=
-r SEV-SNP guests")
-> > > Signed-off-by: Ajay Kaher <ajay.kaher@broadcom.com>
-> > > Signed-off-by: Ye Li <ye.li@broadcom.com>
-> > > Tested-by: Ye Li <ye.li@broadcom.com>
-> > > ---
-> > >  arch/x86/kernel/cpu/vmware.c | 7 +++++++
-> > >  1 file changed, 7 insertions(+)
-> > >
-> > > diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmwar=
-e.c
-> > > index 00189cd..3e2594d 100644
-> > > --- a/arch/x86/kernel/cpu/vmware.c
-> > > +++ b/arch/x86/kernel/cpu/vmware.c
-> > > @@ -26,6 +26,7 @@
-> > >  #include <linux/export.h>
-> > >  #include <linux/clocksource.h>
-> > >  #include <linux/cpu.h>
-> > > +#include <linux/efi.h>
-> > >  #include <linux/reboot.h>
-> > >  #include <linux/static_call.h>
-> > >  #include <asm/div64.h>
-> > > @@ -35,6 +36,8 @@
-> > >  #include <asm/apic.h>
-> > >  #include <asm/vmware.h>
-> > >  #include <asm/svm.h>
-> > > +#include <asm/mem_encrypt.h>
-> > > +#include <asm/efi.h>
-> > >
-> > >  #undef pr_fmt
-> > >  #define pr_fmt(fmt)    "vmware: " fmt
-> > > @@ -429,6 +432,10 @@ static void __init vmware_platform_setup(void)
-> > >                 pr_warn("Failed to get TSC freq from the hypervisor\n=
-");
-> > >         }
-> > >
-> > > +       if (sev_status & MSR_AMD64_SEV_SNP_ENABLED &&
-> > > +           !efi_enabled(EFI_BOOT))
-> > > +               x86_init.mpparse.find_mptable =3D mpparse_find_mptabl=
-e;
-> >
-> > As far I know, Linux itself currently doesn't PVALIDATE the address
-> > ranges scanned in mpparse_find_mptable(), and Linux accesses these
-> > addresses as encrypted during early boot. Given this, am I correct
-> > that the guest firmware that you're using is doing the PVALIDATE of
-> > these ranges before starting Linux (else there would be a crash upon
-> > scan)? And then presumably the firmware is also making sure that this
-> > memory is encrypted so that Linux isn't reading unencrypted data as
-> > encrypted (i.e., garbage)?
->
-> Yes, Linux (as a guest) receives valid data.
->
-> > If so, does that mean all the ROM region scans removed in [0] are
-> > permissible for SEV-SNP guests booting on whichever guest firmware
-> > this is? But you only want/need the mptable info here?
->
-> Yes, VMware firmware validates MPTABLE info when 'non-EFI guest boots
-> on VMware Hypervisor'. The other ROM regions removed in [0] were not
-> encrypted and validated. This is a specific use case for the VMware platf=
-orm.
-> Linux today assumes SNP VMs will be booted with UEFI.
->
-> > [0] 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation for
-> > SEV-SNP guests")
-> >
-> > More broadly, ideally the guest firmware would communicate to Linux
-> > that these ranges are safe to access (perhaps via the e820 table),
-> > rather than Linux making the assumption that the ranges are safe for
-> > non-EFI SEV-SNP guest boots in this scenario. However, since you're
-> > only changing vmware_platform_setup() for such boots, I don't think we
-> > need to hold up this patch on that generality.
->
-> This is a VMware specific scenario. VMware Hypervisor makes the MPTABLE
-> memory available in e820 when 'non-EFI guest boots on VMware Hypervisor'.
-> So it makes sense to do the changes only for vmware_platform_setup().
+T24gMjAyNS0wMS0xOCAwMDo1MDowNCwgTWlrZSBDaHJpc3RpZSB3cm90ZToKPiBZZWFoLCBJJ20g
+bm90IHN1cmUgaWYgYmVpbmcgYWJsZSB0byBjYWxsIHZob3N0X3Njc2lfc2V0X2VuZHBvaW50IG11
+bHRpcGxlCj4gdGltZXMgYW5kIHBpY2sgdXAgbmV3IHRwZ3MgaXMgYWN0dWFsbHkgYSBmZWF0dXJl
+IG9yIG5vdC4gVGhlcmUncyBzbyBtYW55Cj4gYnVncyBhbmQgaXQgYWxzbyBkb2Vzbid0IHN1cHBv
+cnQgdHBnIHJlbW92YWwuCgpJdCBzZWVtcyB2aG9zdF9zY3NpX2NsZWFyX2VuZHBvaW50KCkgaXMg
+YXR0ZW1wdGluZyB0byBoYW5kbGUgdGhpcywgYnV0IGl0IGFjdHVhbGx5IHVuZGVwZW5kcyBhbGwg
+VFBHcywgaWdub3JpbmcgdGhlIHRhcmdldCwgYW5kIGFsc28gaW50cm9kdWNlcyB0aGUgZGFuZ2xp
+bmcgcG9pbnRlciB3aGVuIGBtYXRjaCA9PSAwYC4KCgo+ID4gW1BBVENIXSB2aG9zdC9zY3NpOiBG
+aXggZGFuZ2xpbmcgcG9pbnRlciBpbiB2aG9zdF9zY3NpX3NldF9lbmRwb2ludCgpCj4gPiAKPiA+
+IFNpbmNlIGNvbW1pdCA0ZjdmNDZkMzJjOTggKCJ0Y21fdmhvc3Q6IFVzZSB2cS0+cHJpdmF0ZV9k
+YXRhIHRvIGluZGljYXRlCj4gPiBpZiB0aGUgZW5kcG9pbnQgaXMgc2V0dXAiKSwgYSBkYW5nbGlu
+ZyBwb2ludGVyIGlzc3VlIGhhcyBiZWVuIGludHJvZHVjZWQKPiA+IGluIHZob3N0X3Njc2lfc2V0
+X2VuZHBvaW50KCkgd2hlbiB0aGUgaG9zdCBmYWlscyB0byByZWNvbmZpZ3VyZSB0aGUKPiA+IHZo
+b3N0LXNjc2kgZW5kcG9pbnQuIFNwZWNpZmljYWxseSwgdGhpcyBjYXVzZXMgYSBVQUYgZmF1bHQg
+aW4KPiA+IHZob3N0X3Njc2lfZ2V0X3JlcSgpIHdoZW4gdGhlIGd1ZXN0IGF0dGVtcHRzIHRvIHNl
+bmQgYW4gU0NTSSByZXF1ZXN0Lgo+ID4gCj4gSSBzYXcgdGhhdCB3aGlsZSByZXZpZXdpbmcgdGhl
+IGNvZGUuIEhlcmUgaXMgbXkgcGF0Y2guIEkganVzdCBhZGRlZCBhIG5ldwo+IGdvdG8sIGJlY2F1
+c2Ugd2UgZG9uJ3QgbmVlZCB0byBkbyB0aGUgdW5kZXBlbmQgc2luY2Ugd2UgbmV2ZXIgZGlkIGFu
+eQo+IGRlcGVuZCBjYWxscy4KClllcywgdGhlcmUncyBubyBuZWVkIHRvIGNhbGwgdW5kZXBlbmRf
+aXRlbSAtIGp1c3QgZnJlZSB2c190cGcuIE15IHBhdGNoIHdhcyBpbmNvcnJlY3QsIHRoYW5rcyBm
+b3IgYnJpbmdpbmcgdGhhdCB0byBteSBhdHRlbnRpb24uCg==
 
-Works for me. Just wanted to make sure we don't regress Linux to
-making assumptions about the safety of accessing memory regions in
-CoCo guests without having entries in the e820 table for them.
-
-Reviewed-by: Kevin Loughlin <kevinloughlin@google.com>
