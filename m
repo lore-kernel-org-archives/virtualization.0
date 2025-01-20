@@ -1,274 +1,297 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED83F196DB1
-	for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 09:13:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737364400; cv=none; b=XCvzWT67ffRzVfPNo4V63/8gwa9qCs9EpP7IfzjoONwlb7quM11AS+Aot3ZT9lkNptdNo+Smz7ITqUqcxan3j/ED7wZc9b8PBj81CJjnDu/bgEE4D6hJblkq6bkskynp03MF3Uo/l01+kURk1CbdaY3ltxB/rbH/vD9mhIdnif8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737364400; c=relaxed/simple;
-	bh=UTq3ImzsnsB8ba/oS22wapx7P47mkBvf3MOUq2GdfM8=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=c4CmxvGhg9/oqOFfs2QSy0U4HFgWtdrYFDYaV8aFEvbhe07zy1jNazRiaqascKi1yAmXaABc/Dhy0QY2x4JYNIAPHx2FPqZA4pwnpxYMGfspVl5qKhsKIhRwaJANLkO2vNilyf4H52cvqbzdcm0aXkVM1sGwTeXomUa5qcVvizg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ACUanQhv; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3001ADFF8
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:54:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1737366865; cv=fail; b=TGd2Nh7LzSeSl62pzieGE8kmwoj+F1jLahM4ju6nR9mDJo6md+wxUgRdpg5SIWDXpCf5etJE5olxEs+TEgZXW4PXKWfWkBtMdMDDpmNxvBJIg3zXVsvWx1IC7Vk5zA0wk7wQ7708EIdlXtWlrz17M8JJSWkKpZR5n/uM72jX8A0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1737366865; c=relaxed/simple;
+	bh=/q6epocWyn4yowvasbzrWFaaDSLBTJsOH1GYXMh+AlA=;
+	h=Message-ID:Date:Subject:From:To:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=jqwKy7Ww9PoTaHTe5oYKHrQlE1PSZ1qJhoCxDEcNxLEVc7pvzlTJjtX1DBP260oqB5a0o1JfPyp43uz4KCNXvQtHewFJ59jAeQpfBrzuC3/6eNhoujGtecfC5Z0Zgjmerb4IT6EDHxZIO28ohSrZLLcjj3WDFcK6dz/U/bbHpMo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=2Ciwl1qB; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ACUanQhv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737364397;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UTq3ImzsnsB8ba/oS22wapx7P47mkBvf3MOUq2GdfM8=;
-	b=ACUanQhvob1m74RT2h783MaF7ba2AhFOamLjyqhk2yvRif3GGr1PcrDnbAhXiDZNQ3JvAD
-	XDRFQoye9m8okaWYfrEEAl0PpZkyy+Q9b4P69lB4kchOYSJ9vLqTC8JfJHKyrw1snjlL0C
-	Rud5U37NuXT+qp1nYphtSQy0rx8OtYU=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-482-68j57YYOMpK_pG4RJWmhQw-1; Mon, 20 Jan 2025 04:13:15 -0500
-X-MC-Unique: 68j57YYOMpK_pG4RJWmhQw-1
-X-Mimecast-MFC-AGG-ID: 68j57YYOMpK_pG4RJWmhQw
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2ef8c7ef51dso8267606a91.1
-        for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 01:13:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737364394; x=1737969194;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZOis2+SGh36gSDpTA7G0VGC55LeC+q410Z9E2bu9Wh0=;
-        b=SuMmg6FfrQpsgalg3bZtWvCNLlsdgJBjkGZVVagcGEaNKyrLQ8SjvBWVxn19ZsC+Ul
-         7h+EVkh68LyIXdz+avIHmYkq3TYtfM8cSB7Rnqr1oqnococFycNhpOE4fCbD3nKUhBnu
-         YAKK7/UJqk15ClNi0KVR5nl+v03l/psSn0x8nZb3YAgyfVf+0PIQulJ8t0M0C3CKnP24
-         0q9uelfwIfy+iWrSkq+kwxntnWa0mYlehGog2dXlthLiA9UuuYGFmH7qw9VDsrlcueJX
-         1j3tGzSApPNXMpFCj9tvg1XcpGHuESuJ7B52SY0A12qbdsFIF96HrAXLzsah24/LT1gf
-         XZMA==
-X-Forwarded-Encrypted: i=1; AJvYcCWOoBFGloisa9+YHVfiNkDPtTWsRKKnq8KRThdxETItnymXg1VgAgSu5kji9u2alSWD8cs2IdtvAKFLqAdX4Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy71eO4ZeYsu3FUJVvezUlZctNhY1th9eppA7BhM2zps+zLDZ6s
-	AmUOphwJ5LDc4T2Aicwal7QFDaUQkkcYAAyFcUvy24jHP/7sT12ITAPWK4vGqXrqLglOOnV/NKS
-	gztGJZKu5NWd+K0hLiNWeDYBCVSLxmqtIM54i9wytzTkb0OvKbqkmqila30m8thER
-X-Gm-Gg: ASbGnctyfuLHlla2Txa2SV2olhHgGN0pRPn+tBSbkClnMFxG66HCIArqDpaeLUf8prx
-	S+8am0pOPbfIdV/XSFX3mDSP2yoN3M4e/17WrTGU+YVycfdQQvsx3LhcrSgdWtDMI1ipisPps/6
-	0D1jlnc1cC5xg8L+w4whFiCSXy9KF4nEEbDTlF/JPdqJTW2ByxXxttuPRkLuJYHCmasU5C7jDUy
-	wWgivGMIjgmc9JlR67m+Nyvd5aBR/mMsX9XgYXzAhxhtj5ezCb0M67rvd7/c/BqURqEK3Wk7eCB
-	a8SlubxzgbvPxvAUvgnX
-X-Received: by 2002:a17:90b:4f92:b0:2ee:d9d4:64a8 with SMTP id 98e67ed59e1d1-2f7284e2e9fmr33034784a91.0.1737364394253;
-        Mon, 20 Jan 2025 01:13:14 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFbLGwRcnbdpES2YQU/wa7wXYeibOgJAduA3aSxYxgLMxcouveQNO7OewgTeWoxgUudCiICAA==
-X-Received: by 2002:a17:90b:4f92:b0:2ee:d9d4:64a8 with SMTP id 98e67ed59e1d1-2f7284e2e9fmr33034758a91.0.1737364393879;
-        Mon, 20 Jan 2025 01:13:13 -0800 (PST)
-Received: from [10.200.68.91] (nat-pool-muc-u.redhat.com. [149.14.88.27])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f77619e6a5sm7860060a91.26.2025.01.20.01.13.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jan 2025 01:13:13 -0800 (PST)
-Message-ID: <e28c7cb2437d2dee73447db2db1d80646803e63a.camel@redhat.com>
-Subject: Re: [PATCH v4] vdpa: solidrun: Replace deprecated PCI functions
-From: Philipp Stanner <pstanner@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>, Philipp Stanner
-	 <phasta@kernel.org>
-Cc: Alvaro Karsz <alvaro.karsz@solid-run.com>, "Michael S. Tsirkin"
-	 <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
-	 <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
-	 <eperezma@redhat.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Date: Mon, 20 Jan 2025 10:13:03 +0100
-In-Reply-To: <enuhuc7tjc5ez33c23lgzyy2nhiy54lykshlk5xurl4r6ilnsd@qnhrvku4xpxa>
-References: <20241219094428.21511-2-phasta@kernel.org>
-	 <enuhuc7tjc5ez33c23lgzyy2nhiy54lykshlk5xurl4r6ilnsd@qnhrvku4xpxa>
-User-Agent: Evolution 3.52.4 (3.52.4-2.fc40)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="2Ciwl1qB"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8A6FE6070E
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:54:23 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id d3I20Nj7Ehtu for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Jan 2025 09:54:22 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2414::612; helo=nam11-bn8-obe.outbound.protection.outlook.com; envelope-from=honglei1.huang@amd.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 2924360716
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2924360716
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=2Ciwl1qB
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on20612.outbound.protection.outlook.com [IPv6:2a01:111:f403:2414::612])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2924360716
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:54:21 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=dNAjIN8P/at/uQ3XSAdWX5mkUmEOL+8CbFgLFwl+aR75HbMuAOg2p1hks0gjuTICBcnxXMAp0Zl0qFMatcqkHHnCrKbL/ZnjO3ofqsqcFBzPwnoIUdPmHE4EOXfTWs1SZvnb9gKXjFKZxZgMFyeWw+CEio44QbBXyt47Duzx4RiYANlDDeKDq1/PGQd6z0FCq+bQ/TboZreWldcMcLdrTdtsOlUido8zKZ5ZXO5qYuVMkgfijpVAYSIe99YgTBVBbFKb2EhntcmtB8W0ov55IXdHPZfqibuvfZXpbo89Sc4hmHLKDgco4T13cGB3AUe8Ju3QNlTrOUBIc0/Mkw2uOA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fLcIXoZ1ALw+UBSrTCxj3CBCe0EDx3cq3w25yzaaAuY=;
+ b=yqr0YDrfG6AbOYkPsI+JTbvxeRPDNx8nRtAEODHwqAj+LFP2hztuDI3Jr9zVMAzCcpvWJrEpozlRJUUR+rulObZztCUMD9Pgfphhj4VxjrpC1CgpgI0Xlw4eTEPJKo0qTpLpprWAmj+3HjDSemYz3JbzC14aSSE7XWfbKYWDeoCXb8DD4wQ7gpSIJ4LMnTDQlO/bNTK1jyDyNhe9bUEoN9t9zxaFo1hIBbdPpkQ/Z8uDsCmmO2jO0X5Pudi4r/NCTFkwCfPvMmjmnHCYekRqRJBz1Bwk5CW3E//vhmfs4QQ5qerWXWe2j+KjX6vFjVLOldoAae21oiAD0/1Y3Bo9wQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fLcIXoZ1ALw+UBSrTCxj3CBCe0EDx3cq3w25yzaaAuY=;
+ b=2Ciwl1qBV2+ubYW3D4WsCSoB7M+L41kVTQPc9DyO8X7SG9Q77TI6pFXqxANiNFMNLMBZACGXIVdENk4Ys7nZ3Yj82RZSFG/DBR/WjIBQBasGmTRWYbhLEX0N7TSM1OvfxfjcI8ybZjSW83YDrX430OF2Od61ywYX3kChojFRhF4=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
+ by MW4PR12MB6825.namprd12.prod.outlook.com (2603:10b6:303:20d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8356.16; Mon, 20 Jan
+ 2025 09:54:18 +0000
+Received: from IA1PR12MB6435.namprd12.prod.outlook.com
+ ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
+ ([fe80::273a:80c9:35fc:6941%4]) with mapi id 15.20.8356.020; Mon, 20 Jan 2025
+ 09:54:18 +0000
+Message-ID: <62aeac90-1ba6-4e22-9465-fee95973a6bf@amd.com>
+Date: Mon, 20 Jan 2025 17:54:10 +0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
+ object
+From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
+To: Demi Marie Obenour <demiobenour@gmail.com>, Huang Rui
+ <ray.huang@amd.com>, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, Dmitry Osipenko
+ <dmitry.osipenko@collabora.com>, dri-devel@lists.freedesktop.org,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Akihiko Odaki <akihiko.odaki@daynix.com>,
+ Lingshan Zhu <Lingshan.Zhu@amd.com>
+References: <20241220100409.4007346-1-honglei1.huang@amd.com>
+ <20241220100409.4007346-3-honglei1.huang@amd.com>
+ <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
+ <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
+ <40485636-7ea3-4e34-b4bb-1ccaaadd4e47@amd.com>
+Content-Language: en-US
+In-Reply-To: <40485636-7ea3-4e34-b4bb-1ccaaadd4e47@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: TYCP286CA0144.JPNP286.PROD.OUTLOOK.COM
+ (2603:1096:400:31b::8) To IA1PR12MB6435.namprd12.prod.outlook.com
+ (2603:10b6:208:3ad::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ZCn62AGo-jdEJwpypcQ2ZEoOp59jqQaovM9LdEx8-g4_1737364394
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|MW4PR12MB6825:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3f2f8d56-a824-41b3-1446-08dd393867bc
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|376014|7416014|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?VCtBdGkvbmtPZi9XTVRTN1FpcjFpak40Q0pkRlpNVUxoNjFLdkxWc2V2NTVa?=
+ =?utf-8?B?N28rR2lSbUZRTU9SdGJGejlpcytCb25JbG10VXEwdVFmZ3ZUWkVEdmcxZ29i?=
+ =?utf-8?B?SnZhWVBqNCsxYmZ4YU1qYWxjcVdmc1pRTHRnMkg0UW0vL3VyS1UyZjhyOXA0?=
+ =?utf-8?B?UUkrdFpVd00vcEIvQVpOSS9haTUreXRjekNRYStYQUgveUkyRitCM3o4YVJW?=
+ =?utf-8?B?Q3JjUXI3UFZQcDdJdGJab1ROSWhSQ25LZ2M0L3A3WTcvc3FKUTA0U3BDblp4?=
+ =?utf-8?B?WTAvYjA5NU13a1BpbFNZdXhBNXVwOEQ0MkJzYmFVamR2OUtYY3kxSW5ac3E1?=
+ =?utf-8?B?RE1KVENJNmRIWGllaENVd2M5L0ZEeGtCOHF6dlp0MVVRZVhudUpqUDJsYUNB?=
+ =?utf-8?B?NGY1QXFEaVlIeWduQ0o1WUxydFFISlJtSHFJM3FhVnJ3eUVPeDlqQXFZb0ZU?=
+ =?utf-8?B?WkRUbzlpamdseEEydU1vWHlRQjNZbWZzL1BES1hLdmxFTmVUdGZCbS9RblZF?=
+ =?utf-8?B?N0FCaXkwczBrcGNhTnVxbjZ5MjNLcWpXUDB5SldzUlFqTDhDQ25nTitNUmNx?=
+ =?utf-8?B?cUo3bHhnbVN2RXhJR3RmZFlQZWt1bDhRUHI0OTI0K0FtdzRDMG1iK0VVSDFa?=
+ =?utf-8?B?RkVJK0dvM2krdllCUFpTMnNBV1M2N1VLVnNCYklONUdyQXpLamY5Z2VpZTI4?=
+ =?utf-8?B?VTZIU0ZVRG5DTklPQWF4aStLejhMRlg4L2RiRHBYNVMrckplbndBV1hZUEpK?=
+ =?utf-8?B?czN3dnUrUjV3a0gvWGFQMUlMdGVGWXZOZGtHVG9lcmovQ1oyS3VEYkhvTnp6?=
+ =?utf-8?B?dHNNVDlCNjFzd0NpdnQ4eGZCRGZnNXpKY0UrWGFFK3lWaUxmTWlOS1lualNm?=
+ =?utf-8?B?WHduQ0ZYTkhyRXQ3UERXUk5vWEtIR0xQWi8zMmlVanlYOWZiT1h1S3ovZ3M1?=
+ =?utf-8?B?TlNzMjJPWXBUY0hsUUFNT051MmMzaEVmWDRqSTF1bzFyVkFVbXNwT0tBWFpj?=
+ =?utf-8?B?dHlYdkluV3cvM1VzUmJZam84RlhQa050YW1BTUpZVXp0ZGM5cEtHcXlaN3d2?=
+ =?utf-8?B?WmNUM0RSUHNIL0Y1RUVQelZPc24zb251eGNrUGNYcVh0Mlk1ZW4rZGhqOEdY?=
+ =?utf-8?B?dzVIN3ZsdXlabGZlbkZSRjlpM3lvUjFWYmExUUxpcU9YSTE0RzVMV0UzbGhJ?=
+ =?utf-8?B?bDRYL1BTUVNkOEI1YVpFYW1MRFY0RXM3bWlpN1pxL1dWUS9jYXlQNWV5MHFj?=
+ =?utf-8?B?STB0UDNCUWxRZU9GbTU0WmJHeVNtb2h4Vk9rWG0wY1lBQjl5U2JMaEtNamxj?=
+ =?utf-8?B?Wm1ENnBwSlB0TnYwUzU0MFZOTW81SmxoRHRHRUppaWF2clFVYkVqNzVqb0FI?=
+ =?utf-8?B?bUdXWjkxdGttMStNaTZ6aWp3eFA0aktWMjVQYVZNUzFkMm9RQ2JxbThXbFgx?=
+ =?utf-8?B?MFNkbUs3Z2ZKRVJUUkV0b2RxUCtxZ1VIT1J5M1VyS1hPelExMHo3L2owdjJK?=
+ =?utf-8?B?TUtYQjd5eUZEcUFyeG1rUGkzWmlsOGdpNVFkbHFya1FkRCtOdkNDdElMNk1V?=
+ =?utf-8?B?ZTlqY21RTjNpWGIrZTFQNG8zR1pLQW9GeHBWTWpIczlxdWtIQlkwM0pBUGZx?=
+ =?utf-8?B?SHFDb1F1ay9jTFRMaUZ5WTludkJjQ05xNWp6Yjk3STV2cWdSemdGWlpBMjdq?=
+ =?utf-8?B?MTVnVWRSYWY1MU9SZFRjbllGYnVDelNETkd4N3VNMDBwUS9ZWHZ2UXFyZHFI?=
+ =?utf-8?B?YnZ6djdWNGIyMXQ5Nkh6WEFnRXZOMUZxcVFQZzl4RkNEL1A5bjBzRzZJNXlp?=
+ =?utf-8?B?OXZEMHBsSUI3RkZacWFOS3NEMWpQWTBrVDQrckZCTGNZVTZBOHFGQjI0Uzlq?=
+ =?utf-8?Q?q9C/31wySwUiZ?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?aVVtdDBBRkNyS25UbSsvTlR2cWhnZGtEV21MQjlJYkpPdE0rSGpMOTdSU3hX?=
+ =?utf-8?B?SmlUTElqbXZabURvMlhjT2thbHlxdnljdkg2aTE4Nnh5RDNISUxkNXpYNkFD?=
+ =?utf-8?B?LytZMGR0eG90M3ZjZWJpbncrNng1R2MxN213ekVLeURhMUFPR2RRV0dnNnAw?=
+ =?utf-8?B?bmNkS0FsUG9PaFZuVWdTT0tqYmd3dk1ObTd2MzhMRE5TNWZnRk9oYW9XZ0xL?=
+ =?utf-8?B?WTRFSWppcXRHVVRiQjd2ZlUwMGJKcDZ3enVVMEpsR2s2U2h6UEZCYitBV0hU?=
+ =?utf-8?B?OWRZMFdmOTd5N1hjbW1pOThxSVVGUTRLY05XVVdncDI0d3JLVkdCNDBEWGl5?=
+ =?utf-8?B?ZVM3Z3BxUGM1aDNTTkNwaFo4MW44ajkxamFUM0YzbHU5NWpEUDVBbHJnalNQ?=
+ =?utf-8?B?TXVUZWZOU0F2WjhoZ1YzblFQVSs0QmdQYWlXclJVSGlEbTE5ZFlVYmw0YThx?=
+ =?utf-8?B?L3NDVWN5RmcwaUVZSDFScFhreTJZeHFYc2F4SmhaalFoRitRU01jOS9xR085?=
+ =?utf-8?B?ZTVGUkJlVWovMG9ubHMwVWxWUWsybWUxenptVkRyOG5hRnBMaHdsSTNmMEs0?=
+ =?utf-8?B?bDltZG9saGdVRk9iQTBNM2E1SkluSW5oNE9CenFTb3JjMlpYaE1ybWtGeDlu?=
+ =?utf-8?B?THY2NzNXa3FlSExReGNXdmVHc2VJWVVFRkdSaEdtSTNibG5YS2Q0TVc2THBr?=
+ =?utf-8?B?SkZ0SU5YaHNYVkZpenovQ2NaaW1MRjVaR2pIOUpPbjJlVjhqOUZ0S0I2UDJU?=
+ =?utf-8?B?cFFDYXlwK2x3dk9RdWs2RVdnR3kzZmFoS0FScDE0bm5JK2NUZXp0aUZiTEd6?=
+ =?utf-8?B?ZEFYZ1BjNWc1Y0ViRDNRa2p1SEN1Y0gzKzNWVW5iVHJtYnBETm5ocHZOM1RB?=
+ =?utf-8?B?YkZDL3VKbkE4ZXBLYU5tN0NzTk5QejltTk1uWjBqSzhiME13ektKZlh2c0Zq?=
+ =?utf-8?B?QzUvUTlVVEU4dUdPWk5LSEVkSlNsWk4zNk9wc2sxQ0FaaUtzc2ZLVk1Pa29M?=
+ =?utf-8?B?dmQ4TFpRaTBza2poYkFQMG1UOG93amhMMUs5QzJvVS91VUkxL3UxRStxT0Vw?=
+ =?utf-8?B?QjU3OUlEVXNrZ3NlVmdZWmxncDU0S2ZRS21GbnVQN3kxSzRMYng2RW9iNDFp?=
+ =?utf-8?B?dDlKOVVjQWQ2UHJ5MmhKdzZIcGoyWWxWeUM4d1NzMDRLS2NZbEY3RUoyNkts?=
+ =?utf-8?B?U3RPV2NjMmVpMVBaUVFNdG5NRzk4VGJhRStUd3dXVTRYL1dNQVlFa21LWDdk?=
+ =?utf-8?B?YnJ2WFZJZ2xJSHh2RFRRVENqM1dkK3VyNXZoR1BxOHdSY3VOcFozK3N5eU1i?=
+ =?utf-8?B?a3F0VHJqQmpDN1M3T3UrbnJ6U1NkbUlpZk5BY011eXVsVlA4K1BVb2xDdjRR?=
+ =?utf-8?B?US92NCtad0lJU2Ziemg1OXI5cE9CU0pLK0lLL3JPVDRFYlhjelE1N2RvcXNV?=
+ =?utf-8?B?MXlFQjFWWDBEcDVSQXhwMElodEg5Z0RFbTJidXhmMGhVemRsekFFYjVqdEF3?=
+ =?utf-8?B?MGNwdHZUeWlXR0pCZ0hOaFRvYmpNVHF0MFdnRTVBY2EveGZoQ3Brd1ZjVktC?=
+ =?utf-8?B?M245dEQwdU56RHg3emFkVkdEU1lSWjE2cHk4Yjl5Rk4yUlBvMDFZNFNYaTN6?=
+ =?utf-8?B?Mko0SldPVTIwcWo1WXF2YmZlMlFDdmpwUTZiVm95aTNKc3NWakdzUkVkRjN2?=
+ =?utf-8?B?cmgwSEVyUXFJOHNJVHJMUnV1WC9uZlFGaTBkWm9taG9DdHZ5QVowaUNQZjBV?=
+ =?utf-8?B?VXJSNlpTQmx4dXN4aEFpaHhzSERVOUVzdDlOMmN6UGlpOXZrQjlnWUVpR0Rl?=
+ =?utf-8?B?L3FaelRRQ1VvSzIxWmhnVnhNRlJaWmdPeXFKQ2pOTlYwNjd4SHBBWHRrOS81?=
+ =?utf-8?B?bTB6dE1BczNxR1NFYjhWb09hVVNnT3FjTDdMOFVGekFXNHlySm9nYnVQeUc3?=
+ =?utf-8?B?SFFsNmNIekxRT3phWGg1M0VHR042aG9QQjdMc1hlaXA4UmltUHNkbCtkeDdC?=
+ =?utf-8?B?U05MMWppU2pJVy9VY2lRVXppcTFsNythbXFDNHpldFZkUkxUTCtoZ0V5N1h1?=
+ =?utf-8?B?emRac2ZwaWlsKzMwOE5SRzhNRlc3WkRwcnFVNGhrcXh3Ri9vUlFJZWJrR1B0?=
+ =?utf-8?Q?N8SiDpm5RO3+JNBamt0zIWUZJ?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3f2f8d56-a824-41b3-1446-08dd393867bc
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jan 2025 09:54:18.0367
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: QnRUVZF57RKKoLs+vRInU/wfkhfYuIFslLtBdbiytqYG5yFYNW/lXY3JAUQCVBLoG90B8n8W8k2Uslf5ALt/ig==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB6825
 
-On Thu, 2024-12-19 at 10:51 +0100, Stefano Garzarella wrote:
-> On Thu, Dec 19, 2024 at 10:44:29AM +0100, Philipp Stanner wrote:
-> > From: Philipp Stanner <pstanner@redhat.com>
-> >=20
-> > The PCI functions
-> >=20
-> > =09pcim_iomap_regions()
-> > =09pcim_iounmap_regions()
-> > =09pcim_iomap_table()
-> >=20
-> > have been deprecated by the PCI subsystem.
-> >=20
-> > Replace these functions with their successors pcim_iomap_region()
-> > and
-> > pcim_iounmap_region().
-> >=20
-> > Signed-off-by: Philipp Stanner <pstanner@redhat.com>
-> > ---
-> > Changes in v4:
-> > =C2=A0- snet_open_vf_bar(): use distinct temporary variable to ensure
-> > =C2=A0=C2=A0 snet->bar is never an ERR_PTR. (Stefano)
->=20
-> Thanks for that!
->=20
-> I don't have a device to test, but it LGTM:
->=20
-> Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+On 2024/12/27 10:02, Huang, Honglei1 wrote:
+> On 2024/12/22 9:59, Demi Marie Obenour wrote:
+>> On 12/20/24 10:35 AM, Simona Vetter wrote:
+>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
+>>>> From: Honglei Huang<Honglei1.Huang@amd.com>
+>>>>
+>>>> A virtio-gpu userptr is based on HMM notifier.
+>>>> Used for let host access guest userspace memory and
+>>>> notice the change of userspace memory.
+>>>> This series patches are in very beginning state,
+>>>> User space are pinned currently to ensure the host
+>>>> device memory operations are correct.
+>>>> The free and unmap operations for userspace can be
+>>>> handled by MMU notifier this is a simple and basice
+>>>> SVM feature for this series patches.
+>>>> The physical PFNS update operations is splited into
+>>>> two OPs in here. The evicted memories won't be used
+>>>> anymore but remap into host again to achieve same
+>>>> effect with hmm_rang_fault.
+>>> So in my opinion there are two ways to implement userptr that make sense:
+>>>
+>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
+>>>    notifier
+>>>
+>>> - unpinnned userptr where you entirely rely on userptr and do not hold any
+>>>    page references or page pins at all, for full SVM integration. This
+>>>    should use hmm_range_fault ideally, since that's the version that
+>>>    doesn't ever grab any page reference pins.
+>>>
+>>> All the in-between variants are imo really bad hacks, whether they hold a
+>>> page reference or a temporary page pin (which seems to be what you're
+>>> doing here). In much older kernels there was some justification for them,
+>>> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
+>>> now all sorted out. So there's really only fully pinned, or true svm left
+>>> as clean design choices imo.
+>>>
+>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
+>>> you?
+>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
+>> in complexity that pinning everything avoids.  Furthermore, this avoids the
+>> host having to take action in response to guest memory reclaim requests.
+>> This avoids additional complexity (and thus attack surface) on the host side.
+>> Furthermore, since this is for ROCm and not for graphics, I am less concerned
+>> about supporting systems that require swappable GPU VRAM.
+> Hi Sima and Demi, I totally agree the flag FOLL_LONGTERM is needed, I 
+> will add it in next version. And for the first pin variants 
+> implementation, the MMU notifier is also needed I think.
+> Cause the userptr feature in UMD generally used like this: the 
+> registering of userptr
+> always is explicitly invoked by user code like 
+> "registerMemoryToGPU(userptrAddr, ...)",
+> but for the userptr release/free, there is no explicit API for it, at 
+> least in hsakmt/KFD stack.
+> User just need call system call "free(userptrAddr)", thenkernel driver 
+> will release the userptr
+> by MMU notifier callback.Virtio-GPU has no other way to know if user has 
+> been free the userptr
+> except for MMU notifior.And in UMD theres is no way to get the free() 
+> operation is invoked by user.
+> the only way is use MMU notifierin virtio-GPU driver and free the 
+> corresponding data in host
+> by some virtio CMDs as far as I can see.
+> And for the second way that is use hmm_range_fault, there is a 
+> predictable issues as far as I can see, at least in hsakmt/KFD stack. 
+> That is the memory may migrate when GPU/device is working. In bare 
+> metal, when memory is migrating KFD driver will pause the compute work 
+> of the device in mmap_wirte_lock then use hmm_range_fault to remap the 
+> migrated/evicted memories to GPU then restore the compute work of device 
+> to ensure the correction of the data. But in virtio-GPU driver the 
+> migration happen in guest kernel, the evict mmu notifier callback 
+> happens in guest, a virtio CMD can be used for notify host but as lack 
+> of mmap_write_lock protection in host kernel, host will hold invalid 
+> data for a short period of time, this may lead to some issues. And it is 
+> hard to fix as far as I can see.
+> Finally I will extract some APIs into helper according to your request, 
+> and I will refactor the whole userptr
+> implementation, use some callbacks in page getting path, let the pin 
+> method and hmm_range_fault can be choiced
+> in this series patches.
+> 
+> Regards,
+> Honglei
 
-Hi all,
+Hi Sima,
 
-can someone please finally merge this?
+I modified the code, remove all the MMU nitifior and use 
+pin_user_pages_fast only. Under this implementation userptr fully
+managed by UMD. We did a performance test, it decreased by 30% in
+OpenCL stack in Geekbench6 benmark.
+We use AMD V2000 for test:
+use MMU notifior + pin_user_pages:
+near 13000 score: https://browser.geekbench.com/v6/compute/3257793
 
-Thanks,
-Philipp
+use pin_user_pages only:
+near 10000 socre: https://browser.geekbench.com/v6/compute/3496228
 
+The code is under clean up, I will send out later.
 
->=20
->=20
-> >=20
-> > Changes in v3:
-> > =C2=A0- Move __iomem *io declaration into the loop. (Stefano)
-> >=20
-> > Changes in v2:
-> > =C2=A0- Fix build warning because of dead variable.
-> > =C2=A0- Make "bars_found" a boolean, since only true or false are
-> > relevant.
-> > ---
-> > drivers/vdpa/solidrun/snet_main.c | 57 +++++++++++++++-------------
-> > ---
-> > 1 file changed, 28 insertions(+), 29 deletions(-)
-> >=20
-> > diff --git a/drivers/vdpa/solidrun/snet_main.c
-> > b/drivers/vdpa/solidrun/snet_main.c
-> > index c8b74980dbd1..55ec51c17ab3 100644
-> > --- a/drivers/vdpa/solidrun/snet_main.c
-> > +++ b/drivers/vdpa/solidrun/snet_main.c
-> > @@ -556,58 +556,60 @@ static const struct vdpa_config_ops
-> > snet_config_ops =3D {
-> > static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet
-> > *psnet)
-> > {
-> > =09char *name;
-> > -=09int ret, i, mask =3D 0;
-> > +=09unsigned short i;
-> > +=09bool bars_found =3D false;
-> > +
-> > +=09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
-> > bars", pci_name(pdev));
-> > +=09if (!name)
-> > +=09=09return -ENOMEM;
-> > +
-> > =09/* We don't know which BAR will be used to communicate..
-> > =09 * We will map every bar with len > 0.
-> > =09 *
-> > =09 * Later, we will discover the BAR and unmap all other
-> > BARs.
-> > =09 */
-> > =09for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
-> > -=09=09if (pci_resource_len(pdev, i))
-> > -=09=09=09mask |=3D (1 << i);
-> > +=09=09void __iomem *io;
-> > +
-> > +=09=09if (pci_resource_len(pdev, i) =3D=3D 0)
-> > +=09=09=09continue;
-> > +
-> > +=09=09io =3D pcim_iomap_region(pdev, i, name);
-> > +=09=09if (IS_ERR(io)) {
-> > +=09=09=09SNET_ERR(pdev, "Failed to request and map
-> > PCI BARs\n");
-> > +=09=09=09return PTR_ERR(io);
-> > +=09=09}
-> > +
-> > +=09=09psnet->bars[i] =3D io;
-> > +=09=09bars_found =3D true;
-> > =09}
-> >=20
-> > =09/* No BAR can be used.. */
-> > -=09if (!mask) {
-> > +=09if (!bars_found) {
-> > =09=09SNET_ERR(pdev, "Failed to find a PCI BAR\n");
-> > =09=09return -ENODEV;
-> > =09}
-> >=20
-> > -=09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
-> > bars", pci_name(pdev));
-> > -=09if (!name)
-> > -=09=09return -ENOMEM;
-> > -
-> > -=09ret =3D pcim_iomap_regions(pdev, mask, name);
-> > -=09if (ret) {
-> > -=09=09SNET_ERR(pdev, "Failed to request and map PCI
-> > BARs\n");
-> > -=09=09return ret;
-> > -=09}
-> > -
-> > -=09for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
-> > -=09=09if (mask & (1 << i))
-> > -=09=09=09psnet->bars[i] =3D
-> > pcim_iomap_table(pdev)[i];
-> > -=09}
-> > -
-> > =09return 0;
-> > }
-> >=20
-> > static int snet_open_vf_bar(struct pci_dev *pdev, struct snet
-> > *snet)
-> > {
-> > =09char *name;
-> > -=09int ret;
-> > +=09void __iomem *io;
-> >=20
-> > =09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-
-> > bars", pci_name(pdev));
-> > =09if (!name)
-> > =09=09return -ENOMEM;
-> >=20
-> > =09/* Request and map BAR */
-> > -=09ret =3D pcim_iomap_regions(pdev, BIT(snet->psnet-
-> > >cfg.vf_bar), name);
-> > -=09if (ret) {
-> > +=09io =3D pcim_iomap_region(pdev, snet->psnet->cfg.vf_bar,
-> > name);
-> > +=09if (IS_ERR(io)) {
-> > =09=09SNET_ERR(pdev, "Failed to request and map PCI BAR
-> > for a VF\n");
-> > -=09=09return ret;
-> > +=09=09return PTR_ERR(io);
-> > =09}
-> >=20
-> > -=09snet->bar =3D pcim_iomap_table(pdev)[snet->psnet-
-> > >cfg.vf_bar];
-> > +=09snet->bar =3D io;
-> >=20
-> > =09return 0;
-> > }
-> > @@ -656,15 +658,12 @@ static int psnet_detect_bar(struct psnet
-> > *psnet, u32 off)
-> >=20
-> > static void psnet_unmap_unused_bars(struct pci_dev *pdev, struct
-> > psnet *psnet)
-> > {
-> > -=09int i, mask =3D 0;
-> > +=09unsigned short i;
-> >=20
-> > =09for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
-> > =09=09if (psnet->bars[i] && i !=3D psnet->barno)
-> > -=09=09=09mask |=3D (1 << i);
-> > +=09=09=09pcim_iounmap_region(pdev, i);
-> > =09}
-> > -
-> > -=09if (mask)
-> > -=09=09pcim_iounmap_regions(pdev, mask);
-> > }
-> >=20
-> > /* Read SNET config from PCI BAR */
-> > --=20
-> > 2.47.1
-> >=20
-> >=20
->=20
+And I found a another thing, it seems like in intel i915 userptr
+implementation, the pin_user_pages is also used in MMU notifior.
+Code path is: 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915/gem/i915_gem_userptr.c?h=v6.13#:~:text=ret%20%3D%20pin_user_pages_fast(obj%2D%3Euserptr.ptr%20%2B%20pinned%20*%20PAGE_SIZE%2C
+
+Patch set: 
+https://lore.kernel.org/all/159353552439.22701.14005121342739071590@emeril.freedesktop.org/T/
+https://patchwork.kernel.org/project/intel-gfx/patch/20210323155059.628690-17-maarten.lankhorst@linux.intel.com/#24064663
+
+And I didn't find the hmm_range_fault code path, maybe I missed it?
+
+Regards,
+Honglei
 
