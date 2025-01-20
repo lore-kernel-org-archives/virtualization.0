@@ -1,81 +1,81 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 133BF1DF26B
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 11:07:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20E011DF263
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 11:08:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737371262; cv=none; b=Cxv/ZzbSg68Hzobrqb7KRLKZSNIiUKidpqtHw3YqTFeQZGM5QMJukOkB/SqgpmLUg7H9zslulsHed+M6ssIgCBWmzQdhIKS7vh03lJR88LFMmk+uOFgiXTZN9PLHyE+XNilByAevFVG8Z7EwOgNPI22JLU0VdpNp70au8fKK8Jc=
+	t=1737371328; cv=none; b=Ee2sAhlEcBuayoZs7Neo3ZzqYNOAteB1M1kZrTYDSgFHFBAzhKU92QEqx0ZMTk9C0m9eEdSgku93ci3o0w1MNi3DYrLXMVK3eTtOu/3a3tniisbIshMmN7W5HAVNVtp3/Q/zH0Q2tSg4mjzsoCcGyE6pdDFuyYEYpdlYVxigmeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737371262; c=relaxed/simple;
-	bh=NY8xOSTb5H82+FIEW3G7ByzU+dpqafjZ58KpUcTCBIM=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=PGrIeQLh7vyOODxmxu1salrQ2q1VYDOXucYTPrsEtozKR9p9Lsz0XUhWoMJ7k/QDOTSbJdUguw21KVOGfS0XpocjOGA65rmrdD6Sm9aoMjzpNoYdG+VUovuH7jrDpbCLHK3clzw61nz7p4n7RNdtdy1yPCISTRng3VEb1CskYCQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cawE+9EZ; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1737371328; c=relaxed/simple;
+	bh=ULAlyrVB0EFv5QHnlkeU1h1uFDt8QM0/aVvEPlRZ7/g=;
+	h=Date:From:To:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=pAH1wWZA0HKVSFSWetaJz+S5XVPOzfE2cDetW9shfHeAl/9zOrR+Lk9+hV7Sb4vle7/HpekW8UgEtfcDeE8/TaZPqHS+nsv2k6DGwPRd45/HxFfY2UFn6PtN/qEqbvCJsuB/Eyc/MZ+xyO+M0TYRy+RjgMxT7689FKVSw3CowC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FXFTV2jZ; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cawE+9EZ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FXFTV2jZ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 91965413B0
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 11:07:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9729383B4E
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 11:08:45 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id eCEjYlNf4le2 for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jan 2025 11:07:38 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::830; helo=mail-qt1-x830.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 535F6413A1
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 535F6413A1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=cawE+9EZ
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 535F6413A1
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 11:07:38 +0000 (UTC)
-Received: by mail-qt1-x830.google.com with SMTP id d75a77b69052e-46df3fc7176so42881531cf.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 03:07:37 -0800 (PST)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id cbL_H2YL1N_I for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Jan 2025 11:08:45 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::732; helo=mail-qk1-x732.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org D34D983B1F
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D34D983B1F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=FXFTV2jZ
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D34D983B1F
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 11:08:44 +0000 (UTC)
+Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-7b6e9db19c8so399012885a.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 03:08:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737371257; x=1737976057; darn=lists.linux-foundation.org;
+        d=gmail.com; s=20230601; t=1737371323; x=1737976123; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :in-reply-to:message-id:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DJ6K6nvdOyUKshD5noQZW6cAKo0Nx9BnvWyFQDdbnYI=;
-        b=cawE+9EZauB2G/IjYRHgEX4HWWMAjoeoThPDDrFxtJDS246e77o6h60LwG1HBMNKNZ
-         qFBjWGn65HmL4K4/O1iFuZ9AAzrcVf2OfR7D3plIgeFB2Y9pgJfRHyI1bfykhZo+d/jN
-         xaXjLwKR38x5UtdczG0TfazG0yra3YuiDfi92ffO7LTLOjR2sIXx/xitAqngA6P8619j
-         DPn20GD5gUaITg7Hfo+mahULeoQAqzul1rcsZ9tIxvrTaFuLKU33EA1XXUp4GghwvFme
-         e/b/M9XCDEFBC56vxCUe4CRsk9PeHR8yAMx3hvsZ1JUiXQLY8cE7peDWKjMkmLbixk+Z
-         edEA==
+        bh=aG6TkAlGOMMNyymPZxnF0C646p7JeQya5BAnNmWiF0g=;
+        b=FXFTV2jZr9rc0dRM7d397Y4K/9SsypK7pkAmhRpGjPDbXhQBOLtrwx8/GA/vn1qkkZ
+         mK0qydS9+CAkeFrAXdxFt3Gsa2SbMCFlDm2xpOljIsAFRq2a+oOu2wDN6EBirgZFCCVn
+         2vxBlnSDR0eRiPcEP9WS3qxT3NsXUJbpTUDxyUG+5YY2ppxBL/+CrJyG64DxNlWrXkY3
+         s6g1degHsvRwfdIsEqrG8McLpXzLAMYYLkywDaMDCC+mPXj4u1ch3N5YKliS6sydF2sZ
+         jN8fevsvUqX+Pr6xvf6NJsFV6JaKI3ksdmCELlwcA22i03PkGyySvtJVv7SGGBLcrUy0
+         IIOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737371257; x=1737976057;
+        d=1e100.net; s=20230601; t=1737371323; x=1737976123;
         h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=DJ6K6nvdOyUKshD5noQZW6cAKo0Nx9BnvWyFQDdbnYI=;
-        b=Z1nrLPqAzWxESMIiCb88xUZXl/CUJwLFvHXcg1e9a/X3fOAJSKS+86JQ2MxNBYTlqD
-         Z1m5qnP5zaEGxHoexpzWEng0RTzNh+4aHVg13MYy855xtfdAN2o+rHLYg894OSitgrud
-         pGf6NEAikibJzzX9lCutTRxfW8bfmgumA9e8w7CNWHIJTXhLCg7CbsSLKaN/olr3ChAo
-         tLz73EC3Ip0GCRMpNDRWhqZeM98SivbEissGWnxkdGjANKpzwQRfHIhoLdvviyA0zKJ/
-         gVifEC2+r/7927gDw8EMRIxoA1YRBKCcSH0Ezb0vKMYaMDTxhhIk3lcegfERoIAGJKum
-         YMEg==
-X-Forwarded-Encrypted: i=1; AJvYcCVWZrm9Jm86Q8wQ5S0f3mCf6e7SNh64y4yu61ZwF2UFHf0k69hEzzl8D11JUN7haTXD3q3zOEK7bvVIYks5xA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz+gOtcFbuZrCvNDdTT1OJ4s5U53RgRfSVtvkZWBSVYDBJKnY3I
-	XZD/WrFAQcwBtNWtx/8ltS0SgD/E385hBtbxGRHWWus0erA/lh6b
-X-Gm-Gg: ASbGncuK4CvAUSB8W5oAMEuznLLke2XCD11W/HF5kh5o3MnmB/WBszjXIZDzRBYIs0Q
-	AqTk52vywUQiH1SzR9onN4Y2M6xrT21pG3GUmuSxutlPn6Ni6wwPdZgWvWf/sa+aiThBqD5ZERe
-	5DFL491mjfHzpqNgE7rayuChiGMa3Ype3DzbKfzFjn2G9WTfk7/l6A/D7uLfKB9hnwZaC9bGbNw
-	YfdPw/oUbF55Ik5YEg6UldgClRJr1mEhuSDU1wNs3vS9XR6rWoY1efMCX/7WKQatv1FA6/ND6bS
-	gM1ad/7DnndSoI3uAqTcq1dBRAKjlTrp7j6r0JcVWA==
-X-Google-Smtp-Source: AGHT+IEm2VfaURgMKTWVUkW8metfum5VkiD89JCWy5iWkkfOq8QOhBxbNhbeIAP1Xgz3v7nvNAsr3w==
-X-Received: by 2002:ac8:7fd6:0:b0:46c:78cc:e48 with SMTP id d75a77b69052e-46e12a0c2e0mr144720311cf.9.1737371256783;
-        Mon, 20 Jan 2025 03:07:36 -0800 (PST)
+         :in-reply-to:message-id:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aG6TkAlGOMMNyymPZxnF0C646p7JeQya5BAnNmWiF0g=;
+        b=vOI0qwZn9SklM4Zilnuaj15UWJhKthYS8FWizYJfSiKq+s2x+nvvQKwNpRdx58p1/D
+         cL5xNQo/2fKUItwsf1RXOjjRdIagMMLreopWCpOkZpOdPEHZ0tJY+QjfgiSNibKaeWuN
+         PLTF/npBiTBhoJxknJ5eHRHV+vuGHVpH5geFWCQWJphPieR3iGeikhhYQJbiy2S2kjZC
+         XRL2FzeBQuaabHHRjTrKQK9J/2Qcid+FUlh32SgPKf0jiuOQOOrIvP0ZWwkr3y7ffqfU
+         GDH0sCYjUlbdwyeno2Iu8YzRoodjblLUhQHXXSifCcW4epy/v4sP1c/HypQdRKMSuNTG
+         WHlA==
+X-Forwarded-Encrypted: i=1; AJvYcCU19ATXJnTZ5hGPSKzf9Cpa6mO/8egYb/QnqflKhSX1UbruKyFUz77ut2lrB2vm1VkMWWopog4FW/KjhWYpvw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yy7uSWnlNmg5JRe6KlajQIBRuQYRva4HsIe1VoHD5SDt9vcCr5x
+	YGirWKW+SCveJIpwwuqLMJ23U7QncwDYzzSKdZFQoyEI6GDgOVxV
+X-Gm-Gg: ASbGncvyqGi06I+baM+6pTArV3NYmtXOl3scIPztySQoZUanSShqMEnRy60zF76LVtw
+	a5ItyfbOqeXqS0A6EYr/7UnDilQ6VY0gMSIkTDEztOI9OqhCjXjFT/2EkgIcx0t5a0EOzg5mxG+
+	ieYD9ZTBS0FTHWHGXBStthF9Ie51R4pZJeILHLuL2VZ63HiWZ02+U2Rxgw8KTXuxkK5cko7eNLx
+	/R7WDYvaz4R3Yn18debTga6SqzisbUtO8cxyHDLI1NV7K1qLDA7eDhJex/psPVq1Ug+rHvKbc1L
+	K/DCWKREuEOFolKfTFtyZLrIidw5knRLzGycNNaLog==
+X-Google-Smtp-Source: AGHT+IHjrEflT7QkveiACsrNZZlggSGNB2s6/3h0lASWTfvZOXb0je20GxWRUnjZ5D+Xc5ekfo7iMg==
+X-Received: by 2002:a05:620a:24c8:b0:7b1:56f0:e09f with SMTP id af79cd13be357-7be632898c9mr2729938885a.54.1737371323433;
+        Mon, 20 Jan 2025 03:08:43 -0800 (PST)
 Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46e1042efa5sm41216411cf.66.2025.01.20.03.07.35
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7be6147591bsm433649385a.4.2025.01.20.03.08.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jan 2025 03:07:35 -0800 (PST)
-Date: Mon, 20 Jan 2025 06:07:35 -0500
+        Mon, 20 Jan 2025 03:08:42 -0800 (PST)
+Date: Mon, 20 Jan 2025 06:08:42 -0500
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
  Jonathan Corbet <corbet@lwn.net>, 
@@ -100,11 +100,11 @@ To: Akihiko Odaki <akihiko.odaki@daynix.com>,
  gur.stavi@huawei.com, 
  devel@daynix.com, 
  Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Message-ID: <678e2e779985a_19c7372947c@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20250120-tun-v4-0-ee81dda03d7f@daynix.com>
+Message-ID: <678e2eba905a0_19c7372943e@willemb.c.googlers.com.notmuch>
+In-Reply-To: <20250120-tun-v4-4-ee81dda03d7f@daynix.com>
 References: <20250120-tun-v4-0-ee81dda03d7f@daynix.com>
-Subject: Re: [PATCH net-next v4 0/9] tun: Unify vnet implementation
+ <20250120-tun-v4-4-ee81dda03d7f@daynix.com>
+Subject: Re: [PATCH net-next v4 4/9] tun: Decouple vnet from tun_struct
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -116,74 +116,9 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Akihiko Odaki wrote:
-> When I implemented virtio's hash-related features to tun/tap [1],
-> I found tun/tap does not fill the entire region reserved for the virtio
-> header, leaving some uninitialized hole in the middle of the buffer
-> after read()/recvmesg().
-> 
-> This series fills the uninitialized hole. More concretely, the
-> num_buffers field will be initialized with 1, and the other fields will
-> be inialized with 0. Setting the num_buffers field to 1 is mandated by
-> virtio 1.0 [2].
-> 
-> The change to virtio header is preceded by another change that refactors
-> tun and tap to unify their virtio-related code.
-> 
-> [1]: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
-> [2]: https://lore.kernel.org/r/20241227084256-mutt-send-email-mst@kernel.org/
+> Decouple vnet-related functions from tun_struct so that we can reuse
+> them for tap in the future.
 > 
 > Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-net-next is closed. But I'll review for when you resend.
-
-> ---
-> Changes in v4:
-> - s/sz/vnet_hdr_len_sz/ for patch "tun: Decouple vnet handling"
->   (Willem de Bruijn)
-
-Minor, and sorry my bad: len_sz is duplicative, vnet_hdr_sz is common.
-
-> - Reverted to add CONFIG_TUN_VNET.
-> - Link to v3: https://lore.kernel.org/r/20250116-tun-v3-0-c6b2871e97f7@daynix.com
-> 
-> Changes in v3:
-> - Dropped changes to fill the vnet header.
-> - Splitted patch "tun: Unify vnet implementation".
-> - Reverted spurious changes in patch "tun: Unify vnet implementation".
-> - Merged tun_vnet.c into TAP.
-> - Link to v2: https://lore.kernel.org/r/20250109-tun-v2-0-388d7d5a287a@daynix.com
-> 
-> Changes in v2:
-> - Fixed num_buffers endian.
-> - Link to v1: https://lore.kernel.org/r/20250108-tun-v1-0-67d784b34374@daynix.com
-> 
-> ---
-> Akihiko Odaki (9):
->       tun: Refactor CONFIG_TUN_VNET_CROSS_LE
->       tun: Avoid double-tracking iov_iter length changes
->       tun: Keep hdr_len in tun_get_user()
->       tun: Decouple vnet from tun_struct
->       tun: Decouple vnet handling
->       tun: Extract the vnet handling code
->       tap: Avoid double-tracking iov_iter length changes
->       tap: Keep hdr_len in tap_get_user()
->       tap: Use tun's vnet-related code
-> 
->  MAINTAINERS            |   2 +-
->  drivers/net/Kconfig    |   5 ++
->  drivers/net/Makefile   |   1 +
->  drivers/net/tap.c      | 172 ++++++------------------------------------
->  drivers/net/tun.c      | 200 +++++++------------------------------------------
->  drivers/net/tun_vnet.c | 184 +++++++++++++++++++++++++++++++++++++++++++++
->  drivers/net/tun_vnet.h |  25 +++++++
->  7 files changed, 267 insertions(+), 322 deletions(-)
-> ---
-> base-commit: a32e14f8aef69b42826cf0998b068a43d486a9e9
-> change-id: 20241230-tun-66e10a49b0c7
-> 
-> Best regards,
-> -- 
-> Akihiko Odaki <akihiko.odaki@daynix.com>
-> 
-
-
+Reviewed-by: Willem de Bruijn <willemb@google.com>
