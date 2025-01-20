@@ -1,341 +1,274 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E0FA1E0DCF
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:01:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED83F196DB1
+	for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 09:13:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737363712; cv=none; b=qO5dVCmuXI5uvH2VL4iCnOCgjpuRuNzT848btCtDO9V2D33kUFJIB/OrnegcG9Dy6O2Z4yT+qG6Wsqwch2X13bYAMe6MD2kLnskggEZbyVBjYP7RGD71bATczEuX6r754XHKfLFNT60AWoH1Cw1oZJWO3E7DY6vb6qpFBsRGj2E=
+	t=1737364400; cv=none; b=XCvzWT67ffRzVfPNo4V63/8gwa9qCs9EpP7IfzjoONwlb7quM11AS+Aot3ZT9lkNptdNo+Smz7ITqUqcxan3j/ED7wZc9b8PBj81CJjnDu/bgEE4D6hJblkq6bkskynp03MF3Uo/l01+kURk1CbdaY3ltxB/rbH/vD9mhIdnif8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737363712; c=relaxed/simple;
-	bh=4RYDeWZfgoS8TmhgeuK6a+3aCbA0s+NHcJ7l9i6jOAM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To; b=DhkD043zqTqdn6BeFscfjrPW2y75LTbbNXfSEHfHcEXhjyW6RYNsiRh9rB9FFiwqQ5FsBKTEi7LL3Pfmr7FFbaPmswG22wLZ8CucVKbQ9aX5e/o0wGU68NHNm623sseLnyRq0fT/C1yBkgYSPjI/JipDwODfq66WUpyYpd7pJ9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=CUaP0jLD; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1737364400; c=relaxed/simple;
+	bh=UTq3ImzsnsB8ba/oS22wapx7P47mkBvf3MOUq2GdfM8=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=c4CmxvGhg9/oqOFfs2QSy0U4HFgWtdrYFDYaV8aFEvbhe07zy1jNazRiaqascKi1yAmXaABc/Dhy0QY2x4JYNIAPHx2FPqZA4pwnpxYMGfspVl5qKhsKIhRwaJANLkO2vNilyf4H52cvqbzdcm0aXkVM1sGwTeXomUa5qcVvizg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ACUanQhv; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="CUaP0jLD"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 19D8C409A6
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:01:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 0FeH74FjQF75 for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jan 2025 09:01:50 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::1033; helo=mail-pj1-x1033.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org DE157405BC
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DE157405BC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=CUaP0jLD
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DE157405BC
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:01:49 +0000 (UTC)
-Received: by mail-pj1-x1033.google.com with SMTP id 98e67ed59e1d1-2ee67e9287fso7327617a91.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 01:01:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1737363709; x=1737968509; darn=lists.linux-foundation.org;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=bYG55sKWzGPW6NKcxch300rRfr6veN46k3Y03F9gCrE=;
-        b=CUaP0jLDtAdN8SsMRs4KbYbVnPvWLkylXbqmdWKJ7gOvsep6P4iA89GZxj7lixMiSp
-         NCCDhwG5VA9E4qZjnAuMw8TbyvzHwqxM2Q0MuGXayEPdPJxgLOgwtY4tN3n+yWzHXBFU
-         RZoEkSULEGqhTsf3XGoDALRjVcODsMiRHSKNrzcUulNnPrAb8We2kyUL7RmOrKbiaQFl
-         u9XXq6dRdv04j6Adjm/8ryTKWQkYEIbsS4JBSkdoRaJX/mHbkdIbbrmfjGJgQH7vgUUx
-         kuVxuwmBRm6G0Knfd99smnAkbZir5bExQCPYnorHA3DonxbNEp2Pl9Uk8ft6NX4qd4sz
-         IJww==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ACUanQhv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1737364397;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UTq3ImzsnsB8ba/oS22wapx7P47mkBvf3MOUq2GdfM8=;
+	b=ACUanQhvob1m74RT2h783MaF7ba2AhFOamLjyqhk2yvRif3GGr1PcrDnbAhXiDZNQ3JvAD
+	XDRFQoye9m8okaWYfrEEAl0PpZkyy+Q9b4P69lB4kchOYSJ9vLqTC8JfJHKyrw1snjlL0C
+	Rud5U37NuXT+qp1nYphtSQy0rx8OtYU=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-482-68j57YYOMpK_pG4RJWmhQw-1; Mon, 20 Jan 2025 04:13:15 -0500
+X-MC-Unique: 68j57YYOMpK_pG4RJWmhQw-1
+X-Mimecast-MFC-AGG-ID: 68j57YYOMpK_pG4RJWmhQw
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2ef8c7ef51dso8267606a91.1
+        for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 01:13:15 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737363709; x=1737968509;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bYG55sKWzGPW6NKcxch300rRfr6veN46k3Y03F9gCrE=;
-        b=h3zMyzEiJLN0BfVNrr6/cL8jWla0aSVxHdOyVOCyKHGFaOH/Uw39AZkcQCETpDVc5N
-         Dkuu1fk4dJZB/BHh3eXK1JYrH51hAP/xKnzsXWQVVNgzroEZev+tAajoG2pRW+GtGDOG
-         +/08QWF8M8LZfSbvIpuotqVgvCECAnyC+5XQlHF6zu5e71GrwKZI2cP2zjk3p4MkncI7
-         bn2V1x+Iav/1ZxjMNcpHchyXo2oK2KChrrY6vJTDHffqpvWA8gR6hF3mwMdm1X+PUXyR
-         YQdj42+cb3q5inUKDE+JWR0QcvciUijgbPmoUC1GoTG63a0rgSUtP/czAYTyXSImvxy5
-         jNHA==
-X-Forwarded-Encrypted: i=1; AJvYcCUvVY5/ZV+lnenrQMEVKNDBF8pe1kZqebaQDbVbHdhFcI5VL60oRDlCuiBgDbwDTR5MCTFD3+GzOshjsnQJCg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz1avbq79e2t9IUsAQiIVbzqG6c6A/EBvpS0Btc86mPiH/a6xT8
-	XwlWAPEmPRfOQs7zQAb6pDY7v6JpLZek16/oIZEbkpzKp8Zqe0Ayw3Z/i2+c+9g=
-X-Gm-Gg: ASbGncuWrZ1ZLOkHhdMH84SZaNNZn3Rt9ivoMSrnS71Eeul5OSDtkn2MVTwAJMoOWCj
-	16ur5WD0ZfCs/q1jKwppQ+vEpCf+GPp/D3AxUw+IQZ8ji33okGipRMoidQnb1bvSaKGXRt5L1QU
-	rOAcLKgPWepmBpz+RqR3n/cYIZJKQxT+RFVzWbnjNgsts3/l21xY8G6IPfzPD6XCggC9ToaTl8f
-	hhtGquwaKBmiYNqZLtUpy8+PDLKtrF+QqFlQ7M1Pv/ESAPsGr+YTOV5t0cGeoyHsHROd3br
-X-Google-Smtp-Source: AGHT+IH7uaHJ3ZKJFT5wyFQIBOmBXF2rLZqZWTmgA1OioMPJBHsnSIzsBmwU8qLRFmmzM8vdbtQ0pg==
-X-Received: by 2002:a17:90b:274a:b0:2ee:5edc:489 with SMTP id 98e67ed59e1d1-2f782d4ed92mr15866201a91.26.1737363709235;
-        Mon, 20 Jan 2025 01:01:49 -0800 (PST)
-Received: from localhost ([157.82.203.37])
-        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-2f77611d5d1sm7830173a91.4.2025.01.20.01.01.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jan 2025 01:01:48 -0800 (PST)
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Mon, 20 Jan 2025 18:00:18 +0900
-Subject: [PATCH net-next v4 9/9] tap: Use tun's vnet-related code
+        d=1e100.net; s=20230601; t=1737364394; x=1737969194;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZOis2+SGh36gSDpTA7G0VGC55LeC+q410Z9E2bu9Wh0=;
+        b=SuMmg6FfrQpsgalg3bZtWvCNLlsdgJBjkGZVVagcGEaNKyrLQ8SjvBWVxn19ZsC+Ul
+         7h+EVkh68LyIXdz+avIHmYkq3TYtfM8cSB7Rnqr1oqnococFycNhpOE4fCbD3nKUhBnu
+         YAKK7/UJqk15ClNi0KVR5nl+v03l/psSn0x8nZb3YAgyfVf+0PIQulJ8t0M0C3CKnP24
+         0q9uelfwIfy+iWrSkq+kwxntnWa0mYlehGog2dXlthLiA9UuuYGFmH7qw9VDsrlcueJX
+         1j3tGzSApPNXMpFCj9tvg1XcpGHuESuJ7B52SY0A12qbdsFIF96HrAXLzsah24/LT1gf
+         XZMA==
+X-Forwarded-Encrypted: i=1; AJvYcCWOoBFGloisa9+YHVfiNkDPtTWsRKKnq8KRThdxETItnymXg1VgAgSu5kji9u2alSWD8cs2IdtvAKFLqAdX4Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy71eO4ZeYsu3FUJVvezUlZctNhY1th9eppA7BhM2zps+zLDZ6s
+	AmUOphwJ5LDc4T2Aicwal7QFDaUQkkcYAAyFcUvy24jHP/7sT12ITAPWK4vGqXrqLglOOnV/NKS
+	gztGJZKu5NWd+K0hLiNWeDYBCVSLxmqtIM54i9wytzTkb0OvKbqkmqila30m8thER
+X-Gm-Gg: ASbGnctyfuLHlla2Txa2SV2olhHgGN0pRPn+tBSbkClnMFxG66HCIArqDpaeLUf8prx
+	S+8am0pOPbfIdV/XSFX3mDSP2yoN3M4e/17WrTGU+YVycfdQQvsx3LhcrSgdWtDMI1ipisPps/6
+	0D1jlnc1cC5xg8L+w4whFiCSXy9KF4nEEbDTlF/JPdqJTW2ByxXxttuPRkLuJYHCmasU5C7jDUy
+	wWgivGMIjgmc9JlR67m+Nyvd5aBR/mMsX9XgYXzAhxhtj5ezCb0M67rvd7/c/BqURqEK3Wk7eCB
+	a8SlubxzgbvPxvAUvgnX
+X-Received: by 2002:a17:90b:4f92:b0:2ee:d9d4:64a8 with SMTP id 98e67ed59e1d1-2f7284e2e9fmr33034784a91.0.1737364394253;
+        Mon, 20 Jan 2025 01:13:14 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFbLGwRcnbdpES2YQU/wa7wXYeibOgJAduA3aSxYxgLMxcouveQNO7OewgTeWoxgUudCiICAA==
+X-Received: by 2002:a17:90b:4f92:b0:2ee:d9d4:64a8 with SMTP id 98e67ed59e1d1-2f7284e2e9fmr33034758a91.0.1737364393879;
+        Mon, 20 Jan 2025 01:13:13 -0800 (PST)
+Received: from [10.200.68.91] (nat-pool-muc-u.redhat.com. [149.14.88.27])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f77619e6a5sm7860060a91.26.2025.01.20.01.13.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jan 2025 01:13:13 -0800 (PST)
+Message-ID: <e28c7cb2437d2dee73447db2db1d80646803e63a.camel@redhat.com>
+Subject: Re: [PATCH v4] vdpa: solidrun: Replace deprecated PCI functions
+From: Philipp Stanner <pstanner@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>, Philipp Stanner
+	 <phasta@kernel.org>
+Cc: Alvaro Karsz <alvaro.karsz@solid-run.com>, "Michael S. Tsirkin"
+	 <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+	 <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
+	 <eperezma@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Date: Mon, 20 Jan 2025 10:13:03 +0100
+In-Reply-To: <enuhuc7tjc5ez33c23lgzyy2nhiy54lykshlk5xurl4r6ilnsd@qnhrvku4xpxa>
+References: <20241219094428.21511-2-phasta@kernel.org>
+	 <enuhuc7tjc5ez33c23lgzyy2nhiy54lykshlk5xurl4r6ilnsd@qnhrvku4xpxa>
+User-Agent: Evolution 3.52.4 (3.52.4-2.fc40)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250120-tun-v4-9-ee81dda03d7f@daynix.com>
-References: <20250120-tun-v4-0-ee81dda03d7f@daynix.com>
-In-Reply-To: <20250120-tun-v4-0-ee81dda03d7f@daynix.com>
-To: Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
- devel@daynix.com, Akihiko Odaki <akihiko.odaki@daynix.com>
-X-Mailer: b4 0.14.2
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ZCn62AGo-jdEJwpypcQ2ZEoOp59jqQaovM9LdEx8-g4_1737364394
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-tun and tap implements the same vnet-related features so reuse the code.
+On Thu, 2024-12-19 at 10:51 +0100, Stefano Garzarella wrote:
+> On Thu, Dec 19, 2024 at 10:44:29AM +0100, Philipp Stanner wrote:
+> > From: Philipp Stanner <pstanner@redhat.com>
+> >=20
+> > The PCI functions
+> >=20
+> > =09pcim_iomap_regions()
+> > =09pcim_iounmap_regions()
+> > =09pcim_iomap_table()
+> >=20
+> > have been deprecated by the PCI subsystem.
+> >=20
+> > Replace these functions with their successors pcim_iomap_region()
+> > and
+> > pcim_iounmap_region().
+> >=20
+> > Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+> > ---
+> > Changes in v4:
+> > =C2=A0- snet_open_vf_bar(): use distinct temporary variable to ensure
+> > =C2=A0=C2=A0 snet->bar is never an ERR_PTR. (Stefano)
+>=20
+> Thanks for that!
+>=20
+> I don't have a device to test, but it LGTM:
+>=20
+> Acked-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
----
- drivers/net/Kconfig |   1 +
- drivers/net/tap.c   | 152 ++++++----------------------------------------------
- 2 files changed, 16 insertions(+), 137 deletions(-)
+Hi all,
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 924bf61f12a49566b26a78f42cea5ca1c48537c5..f8aa35bf8a93ac1c7f76b85919ac110cb06f21fb 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -421,6 +421,7 @@ config TUN
- 
- config TAP
- 	tristate
-+	select TUN_VNET
- 	help
- 	  This option is selected by any driver implementing tap user space
- 	  interface for a virtual interface to re-use core tap functionality.
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index 7ee2e9ee2a89fd539b087496b92d2f6198266f44..4f3cc3b2e3c6fb387ee2aaeef54c3faf39d90f10 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -26,74 +26,9 @@
- #include <linux/virtio_net.h>
- #include <linux/skb_array.h>
- 
--#define TAP_IFFEATURES (IFF_VNET_HDR | IFF_MULTI_QUEUE)
--
--#define TAP_VNET_LE 0x80000000
--#define TAP_VNET_BE 0x40000000
--
--#ifdef CONFIG_TUN_VNET_CROSS_LE
--static inline bool tap_legacy_is_little_endian(struct tap_queue *q)
--{
--	return q->flags & TAP_VNET_BE ? false :
--		virtio_legacy_is_little_endian();
--}
--
--static long tap_get_vnet_be(struct tap_queue *q, int __user *sp)
--{
--	int s = !!(q->flags & TAP_VNET_BE);
--
--	if (put_user(s, sp))
--		return -EFAULT;
--
--	return 0;
--}
--
--static long tap_set_vnet_be(struct tap_queue *q, int __user *sp)
--{
--	int s;
--
--	if (get_user(s, sp))
--		return -EFAULT;
--
--	if (s)
--		q->flags |= TAP_VNET_BE;
--	else
--		q->flags &= ~TAP_VNET_BE;
--
--	return 0;
--}
--#else
--static inline bool tap_legacy_is_little_endian(struct tap_queue *q)
--{
--	return virtio_legacy_is_little_endian();
--}
--
--static long tap_get_vnet_be(struct tap_queue *q, int __user *argp)
--{
--	return -EINVAL;
--}
--
--static long tap_set_vnet_be(struct tap_queue *q, int __user *argp)
--{
--	return -EINVAL;
--}
--#endif /* CONFIG_TUN_VNET_CROSS_LE */
--
--static inline bool tap_is_little_endian(struct tap_queue *q)
--{
--	return q->flags & TAP_VNET_LE ||
--		tap_legacy_is_little_endian(q);
--}
--
--static inline u16 tap16_to_cpu(struct tap_queue *q, __virtio16 val)
--{
--	return __virtio16_to_cpu(tap_is_little_endian(q), val);
--}
-+#include "tun_vnet.h"
- 
--static inline __virtio16 cpu_to_tap16(struct tap_queue *q, u16 val)
--{
--	return __cpu_to_virtio16(tap_is_little_endian(q), val);
--}
-+#define TAP_IFFEATURES (IFF_VNET_HDR | IFF_MULTI_QUEUE)
- 
- static struct proto tap_proto = {
- 	.name = "tap",
-@@ -655,25 +590,11 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
- 	if (q->flags & IFF_VNET_HDR) {
- 		vnet_hdr_len = READ_ONCE(q->vnet_hdr_sz);
- 
--		err = -EINVAL;
--		if (iov_iter_count(from) < vnet_hdr_len)
--			goto err;
--
--		err = -EFAULT;
--		if (!copy_from_iter_full(&vnet_hdr, sizeof(vnet_hdr), from))
--			goto err;
--		iov_iter_advance(from, vnet_hdr_len - sizeof(vnet_hdr));
--		if ((vnet_hdr.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
--		     tap16_to_cpu(q, vnet_hdr.csum_start) +
--		     tap16_to_cpu(q, vnet_hdr.csum_offset) + 2 >
--			     tap16_to_cpu(q, vnet_hdr.hdr_len))
--			vnet_hdr.hdr_len = cpu_to_tap16(q,
--				 tap16_to_cpu(q, vnet_hdr.csum_start) +
--				 tap16_to_cpu(q, vnet_hdr.csum_offset) + 2);
--		err = -EINVAL;
--		if (tap16_to_cpu(q, vnet_hdr.hdr_len) > iov_iter_count(from))
-+		hdr_len = tun_vnet_hdr_get(vnet_hdr_len, q->flags, from, &vnet_hdr);
-+		if (hdr_len < 0) {
-+			err = hdr_len;
- 			goto err;
--		hdr_len = tap16_to_cpu(q, vnet_hdr.hdr_len);
-+		}
- 	}
- 
- 	len = iov_iter_count(from);
-@@ -731,8 +652,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
- 	skb->dev = tap->dev;
- 
- 	if (vnet_hdr_len) {
--		err = virtio_net_hdr_to_skb(skb, &vnet_hdr,
--					    tap_is_little_endian(q));
-+		err = tun_vnet_hdr_to_skb(q->flags, skb, &vnet_hdr);
- 		if (err) {
- 			rcu_read_unlock();
- 			drop_reason = SKB_DROP_REASON_DEV_HDR;
-@@ -795,23 +715,17 @@ static ssize_t tap_put_user(struct tap_queue *q,
- 	int total;
- 
- 	if (q->flags & IFF_VNET_HDR) {
--		int vlan_hlen = skb_vlan_tag_present(skb) ? VLAN_HLEN : 0;
- 		struct virtio_net_hdr vnet_hdr;
- 
- 		vnet_hdr_len = READ_ONCE(q->vnet_hdr_sz);
--		if (iov_iter_count(iter) < vnet_hdr_len)
--			return -EINVAL;
- 
--		if (virtio_net_hdr_from_skb(skb, &vnet_hdr,
--					    tap_is_little_endian(q), true,
--					    vlan_hlen))
--			BUG();
--
--		if (copy_to_iter(&vnet_hdr, sizeof(vnet_hdr), iter) !=
--		    sizeof(vnet_hdr))
--			return -EFAULT;
-+		ret = tun_vnet_hdr_from_skb(q->flags, NULL, skb, &vnet_hdr);
-+		if (ret)
-+			return ret;
- 
--		iov_iter_advance(iter, vnet_hdr_len - sizeof(vnet_hdr));
-+		ret = tun_vnet_hdr_put(vnet_hdr_len, iter, &vnet_hdr);
-+		if (ret)
-+			return ret;
- 	}
- 	total = vnet_hdr_len;
- 	total += skb->len;
-@@ -1070,42 +984,6 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
- 		q->sk.sk_sndbuf = s;
- 		return 0;
- 
--	case TUNGETVNETHDRSZ:
--		s = q->vnet_hdr_sz;
--		if (put_user(s, sp))
--			return -EFAULT;
--		return 0;
--
--	case TUNSETVNETHDRSZ:
--		if (get_user(s, sp))
--			return -EFAULT;
--		if (s < (int)sizeof(struct virtio_net_hdr))
--			return -EINVAL;
--
--		q->vnet_hdr_sz = s;
--		return 0;
--
--	case TUNGETVNETLE:
--		s = !!(q->flags & TAP_VNET_LE);
--		if (put_user(s, sp))
--			return -EFAULT;
--		return 0;
--
--	case TUNSETVNETLE:
--		if (get_user(s, sp))
--			return -EFAULT;
--		if (s)
--			q->flags |= TAP_VNET_LE;
--		else
--			q->flags &= ~TAP_VNET_LE;
--		return 0;
--
--	case TUNGETVNETBE:
--		return tap_get_vnet_be(q, sp);
--
--	case TUNSETVNETBE:
--		return tap_set_vnet_be(q, sp);
--
- 	case TUNSETOFFLOAD:
- 		/* let the user check for future flags */
- 		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
-@@ -1149,7 +1027,7 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
- 		return ret;
- 
- 	default:
--		return -EINVAL;
-+		return tun_vnet_ioctl(&q->vnet_hdr_sz, &q->flags, cmd, sp);
- 	}
- }
- 
-@@ -1196,7 +1074,7 @@ static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
- 	skb->protocol = eth_hdr(skb)->h_proto;
- 
- 	if (vnet_hdr_len) {
--		err = virtio_net_hdr_to_skb(skb, gso, tap_is_little_endian(q));
-+		err = tun_vnet_hdr_to_skb(q->flags, skb, gso);
- 		if (err)
- 			goto err_kfree;
- 	}
+can someone please finally merge this?
 
--- 
-2.47.1
+Thanks,
+Philipp
+
+
+>=20
+>=20
+> >=20
+> > Changes in v3:
+> > =C2=A0- Move __iomem *io declaration into the loop. (Stefano)
+> >=20
+> > Changes in v2:
+> > =C2=A0- Fix build warning because of dead variable.
+> > =C2=A0- Make "bars_found" a boolean, since only true or false are
+> > relevant.
+> > ---
+> > drivers/vdpa/solidrun/snet_main.c | 57 +++++++++++++++-------------
+> > ---
+> > 1 file changed, 28 insertions(+), 29 deletions(-)
+> >=20
+> > diff --git a/drivers/vdpa/solidrun/snet_main.c
+> > b/drivers/vdpa/solidrun/snet_main.c
+> > index c8b74980dbd1..55ec51c17ab3 100644
+> > --- a/drivers/vdpa/solidrun/snet_main.c
+> > +++ b/drivers/vdpa/solidrun/snet_main.c
+> > @@ -556,58 +556,60 @@ static const struct vdpa_config_ops
+> > snet_config_ops =3D {
+> > static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet
+> > *psnet)
+> > {
+> > =09char *name;
+> > -=09int ret, i, mask =3D 0;
+> > +=09unsigned short i;
+> > +=09bool bars_found =3D false;
+> > +
+> > +=09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
+> > bars", pci_name(pdev));
+> > +=09if (!name)
+> > +=09=09return -ENOMEM;
+> > +
+> > =09/* We don't know which BAR will be used to communicate..
+> > =09 * We will map every bar with len > 0.
+> > =09 *
+> > =09 * Later, we will discover the BAR and unmap all other
+> > BARs.
+> > =09 */
+> > =09for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
+> > -=09=09if (pci_resource_len(pdev, i))
+> > -=09=09=09mask |=3D (1 << i);
+> > +=09=09void __iomem *io;
+> > +
+> > +=09=09if (pci_resource_len(pdev, i) =3D=3D 0)
+> > +=09=09=09continue;
+> > +
+> > +=09=09io =3D pcim_iomap_region(pdev, i, name);
+> > +=09=09if (IS_ERR(io)) {
+> > +=09=09=09SNET_ERR(pdev, "Failed to request and map
+> > PCI BARs\n");
+> > +=09=09=09return PTR_ERR(io);
+> > +=09=09}
+> > +
+> > +=09=09psnet->bars[i] =3D io;
+> > +=09=09bars_found =3D true;
+> > =09}
+> >=20
+> > =09/* No BAR can be used.. */
+> > -=09if (!mask) {
+> > +=09if (!bars_found) {
+> > =09=09SNET_ERR(pdev, "Failed to find a PCI BAR\n");
+> > =09=09return -ENODEV;
+> > =09}
+> >=20
+> > -=09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "psnet[%s]-
+> > bars", pci_name(pdev));
+> > -=09if (!name)
+> > -=09=09return -ENOMEM;
+> > -
+> > -=09ret =3D pcim_iomap_regions(pdev, mask, name);
+> > -=09if (ret) {
+> > -=09=09SNET_ERR(pdev, "Failed to request and map PCI
+> > BARs\n");
+> > -=09=09return ret;
+> > -=09}
+> > -
+> > -=09for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
+> > -=09=09if (mask & (1 << i))
+> > -=09=09=09psnet->bars[i] =3D
+> > pcim_iomap_table(pdev)[i];
+> > -=09}
+> > -
+> > =09return 0;
+> > }
+> >=20
+> > static int snet_open_vf_bar(struct pci_dev *pdev, struct snet
+> > *snet)
+> > {
+> > =09char *name;
+> > -=09int ret;
+> > +=09void __iomem *io;
+> >=20
+> > =09name =3D devm_kasprintf(&pdev->dev, GFP_KERNEL, "snet[%s]-
+> > bars", pci_name(pdev));
+> > =09if (!name)
+> > =09=09return -ENOMEM;
+> >=20
+> > =09/* Request and map BAR */
+> > -=09ret =3D pcim_iomap_regions(pdev, BIT(snet->psnet-
+> > >cfg.vf_bar), name);
+> > -=09if (ret) {
+> > +=09io =3D pcim_iomap_region(pdev, snet->psnet->cfg.vf_bar,
+> > name);
+> > +=09if (IS_ERR(io)) {
+> > =09=09SNET_ERR(pdev, "Failed to request and map PCI BAR
+> > for a VF\n");
+> > -=09=09return ret;
+> > +=09=09return PTR_ERR(io);
+> > =09}
+> >=20
+> > -=09snet->bar =3D pcim_iomap_table(pdev)[snet->psnet-
+> > >cfg.vf_bar];
+> > +=09snet->bar =3D io;
+> >=20
+> > =09return 0;
+> > }
+> > @@ -656,15 +658,12 @@ static int psnet_detect_bar(struct psnet
+> > *psnet, u32 off)
+> >=20
+> > static void psnet_unmap_unused_bars(struct pci_dev *pdev, struct
+> > psnet *psnet)
+> > {
+> > -=09int i, mask =3D 0;
+> > +=09unsigned short i;
+> >=20
+> > =09for (i =3D 0; i < PCI_STD_NUM_BARS; i++) {
+> > =09=09if (psnet->bars[i] && i !=3D psnet->barno)
+> > -=09=09=09mask |=3D (1 << i);
+> > +=09=09=09pcim_iounmap_region(pdev, i);
+> > =09}
+> > -
+> > -=09if (mask)
+> > -=09=09pcim_iounmap_regions(pdev, mask);
+> > }
+> >=20
+> > /* Read SNET config from PCI BAR */
+> > --=20
+> > 2.47.1
+> >=20
+> >=20
+>=20
 
