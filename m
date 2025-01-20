@@ -1,238 +1,223 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E01C15B54C
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 04:58:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1F99188591
+	for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 07:05:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737349089; cv=none; b=lL1wvTP7xaLLdoyyYd6rF9vKTkL+umXyyUpA6ieARwC/IWzYXpdpp4g0WHiNQc47e4Sn2Mjiiw03zR+pFXe76lJHAbU3tPDXZ995q8DcMYH081yZaKRKVxNHYBPNlOYYKaAn7CYpnl3j4gr/Mj30mtjOjHwG15YA5uYJo7S8m6w=
+	t=1737356722; cv=none; b=QMIXYp5RugZauQCBmrXdZX+j//GurS2KQ8bas7uiwzOpjNZFaYTDRhpc/Kt3VpgxWfdFrj2zZvx0J36it0Nd8dv59kaVtQ8qf4wf92BVVNx8TtKVzc/GHXl3LgpaAlRr/aOmBIf4P2ZnDgBXWDZRa0nfoto472YE4w7z4wiWW1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737349089; c=relaxed/simple;
-	bh=JBhx4FBRzKbzrz2Al5pNMHO5F3JgbgRL5B/gVFGVg/0=;
+	s=arc-20240116; t=1737356722; c=relaxed/simple;
+	bh=YHwhOhlln+ZBW4bsRMLXZlhX9KD0bxvWtNvYlkSCv3s=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uJL8v5bhxIXVyvA/LJNAOecoSXLlq+tGwpFxYf3QzWrz8YJNgA3Zd8euCYjjH1f2U74ku9LqqQtkAcEzPdZHQ5fmCL35e2ALzPOMIOyElwhZGpFHu95c8M8tSZAQJXgEQ+z5pMy4++fVn8GSXYvgvjmDoe16AeJMapDhQZE18pg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=r1ojTZ2F; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type; b=tejnwKuTUhiD4jCJg9XijUa10m8TpoNwFX3QIK7rMPmFYDrxknwo8CJCkcOobf2UybOMtLtHgKjxblSlo0SSJpImICHYCLte2cJne2pWLriTTfxfKqgufoDOfV3YbwzWftdRCc6WpphCcWWb8p2ylyD1KULOXHkrOjk8Ii426hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=H42Z2l+U; arc=none smtp.client-ip=91.218.175.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="r1ojTZ2F"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 10F41408BF
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 04:58:08 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id diCjFUFJYitN for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jan 2025 04:58:06 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62e; helo=mail-pl1-x62e.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 5FC8940719
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5FC8940719
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=r1ojTZ2F
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5FC8940719
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 04:58:06 +0000 (UTC)
-Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-21661be2c2dso72784105ad.1
-        for <virtualization@lists.linux-foundation.org>; Sun, 19 Jan 2025 20:58:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1737349085; x=1737953885; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=q4oIihNr6GZKGbnqtazZfNL+Wdu+eK7TRKf6H4jFUt4=;
-        b=r1ojTZ2FIe1LQ+mSuq4XZ6t51MLXMWTfHsVPVlwS5RCipwQRKWyBMgXgxLO4GW3MI8
-         E2MsCc5D7NqLdb/X1GEiLvBTlJxpNIQpnwiRN/YRdb1X8vrKTqL+K9djSYKkoMy3NN3O
-         JRrZV7EecTlNnF/vOi4f6taFtENr/JiCCyDHUpC9xliwUmLHJNPJraFXhTqSlz5JWTLh
-         zu1LxCWn7t9rOPI8P2TyUmYjOfm2I/f073jyhFebSF0wfKHCRWGeOikSW9DmLkplm+ZU
-         qVDRJN7uwJaCUEVLU+BGKGu78Rv8q65MtarS1HOCy8wRoY9GN3TKEEZJBhMd8NAQ1hdR
-         Znmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737349085; x=1737953885;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=q4oIihNr6GZKGbnqtazZfNL+Wdu+eK7TRKf6H4jFUt4=;
-        b=QGqgEJrttbONHntPtab/s6oVjouMoFv4c+rxLJYh1hF6yBRyORT0Lhd7FpWilQQt2E
-         XaNHRNLeP56s5MYf+VAocUqdNfPupOu2nTpAwrbX8SpJgT20YUeQV2ZXVgyaxt0BVQpd
-         6EE6VuoWyD8gTuPPEQXr44TVQG2xai4wcM741h/rThpcie8ZiU2R26f2aNdz3N4dzOf+
-         X+8eEaeuBS85PeIVLXh8OttC6/JoRW7O1Z0+C/ebNgSSZGy/F7AC54/LfWHWkH1sJ3E4
-         3k1cw3DhhyF7MW0zd3F+BYdSSg9HZGAON36W5jH18XNxcXLFmo86ANbN0trrbQwb3Qvt
-         +Ixw==
-X-Forwarded-Encrypted: i=1; AJvYcCX98gfOsf6Yc2Km0B45wUYqgqkqZSwX+xFUpxJ5MWwp1uR7Yw5ydoFEphDbSMYJGxjWzTpvq+DPf4sis3P7xQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Ywkj1e//g8yUTitUGHSykuboKIB8Sbjy9TJ40yz5PO9mZ6s1pZ6
-	3y/GKgHnsyccaF7noQo8unsfDJoWujKzdNHtCXVEEgwN5dpYeqlzpCIIhLry0kc=
-X-Gm-Gg: ASbGnctg9oWMJ77xuDQYA7eiV9yMok/X6NyVDEi5SBFzeHkB/VvnGi6NewB2BN5y/T0
-	EuYv1WZ0GOoByS58nBmFSfoh2eGlLiM0qDwMUC/CKA6V2mgvP+qSqTAFMeyxIKohHIYYU1Oz51F
-	ohRshL6oYvJBcLwNyuuU9QZXezq294hSqa/LQ/SYBjfjVwBuFp+Yu1jBbI381+lzgyKOOPV1GJP
-	Ad5n1YDLpHe7/ef/8eMW3dZjMPfgTx7XQ+ecMFy9QC48bH8ehVvHHDXe3uOMlo42zWfmQfnPYNC
-	qkD8
-X-Google-Smtp-Source: AGHT+IE8MzXrgaBKBfP61PbTUvr8PgxgGWYeOWK4EEWyIPyWkez8gj6KrIAnQzmUFU9EFnwQTPVCzw==
-X-Received: by 2002:a05:6a20:914e:b0:1e1:70ab:b369 with SMTP id adf61e73a8af0-1eb214983dfmr16605568637.13.1737349085531;
-        Sun, 19 Jan 2025 20:58:05 -0800 (PST)
-Received: from [157.82.203.37] ([157.82.203.37])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72dab817529sm6251103b3a.67.2025.01.19.20.58.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 19 Jan 2025 20:58:05 -0800 (PST)
-Message-ID: <8052733d-3e79-4fd5-9bea-9d3724820bb8@daynix.com>
-Date: Mon, 20 Jan 2025 13:57:59 +0900
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="H42Z2l+U"
+Message-ID: <84adda72-24c1-428d-9c55-8bb9ec189584@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1737356708;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=s4k8B9SqdOW/b4nXIri28MHaonby69L1MPYqhyNKUX0=;
+	b=H42Z2l+UXNpZWYWEmHERkXyThqLsthOt2Tl1gQlgH7BXsUNxeI/rr3PfiugdYdU7zHqpvq
+	dLqd9siDrRP2RNM9ARbxgV6zGEqcH+5CdCKOZz1TBdC0GDysb1JYpX1OOzaYOnjlwgwB22
+	siLOW8pFM6wtm6a+laFnQN1GQRPRQXE=
+Date: Mon, 20 Jan 2025 15:04:56 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] tun: Set num_buffers for virtio 1.0
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Andrew Melnychenko <andrew@daynix.com>,
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
- devel@daynix.com
-References: <20250109-tun-v2-0-388d7d5a287a@daynix.com>
- <20250109-tun-v2-3-388d7d5a287a@daynix.com>
- <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
- <20250110052246-mutt-send-email-mst@kernel.org>
- <2e015ee6-8a3b-43fb-b119-e1921139c74b@daynix.com>
- <CACGkMEuiyfH-QitiiKJ__-8NiTjoOfc8Nx5BwLM-GOfPpVEitA@mail.gmail.com>
- <fcb301e8-c808-4e20-92dd-2e3b83998d18@daynix.com>
- <CACGkMEvBU3mLbW+-nOscriR-SeDvPSm1mtwwgznYFOocuao5MQ@mail.gmail.com>
- <cc79bef1-c24e-448d-bc20-f8302e341b2c@daynix.com>
- <CACGkMEsJUb3ZLm3rLuaayDAS4kf-vbY03wL4M9j1K+Z=a4BDig@mail.gmail.com>
+Subject: Re: [PATCH v2 25/25] drm/xlnx: Compute dumb-buffer sizes with
+ drm_mode_size_dumb()
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, airlied@gmail.com, simona@ffwll.ch,
+ dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
+ freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+ nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+ intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
+ Andy Yan <andyshrk@163.com>, Daniel Stone <daniel@fooishbar.org>
+References: <e327ad84-b5c9-4480-b873-dc3aca605538@ideasonboard.com>
+ <a2bbeb47-2569-4ee0-9265-92bab139bdc6@suse.de>
+ <f3833771-fcd7-45dc-9019-1525fef34429@ideasonboard.com>
+ <CAMuHMdXxYa+Na3XxpLTy=-eUL_zQ9kAiUKYu-E04u3KWApusSA@mail.gmail.com>
+ <xz5ncq67bgmdase2jg3cfvyaxpiwhol2eqpfzow6dqpauvslo5@2w3rw27lhnxo>
+ <b97fcd2f-516a-4172-aef3-631418564cfa@linux.dev>
+ <ef52dab0-058f-408f-a298-c4b2453a3d2f@ideasonboard.com>
+ <f4562dbf-b132-4cfd-8f7e-43cd69f2673f@linux.dev>
+ <cf34be39-ce92-4ea5-b548-03008c163d31@ideasonboard.com>
+ <8234927e-0d12-4655-813d-8ec94179b737@linux.dev>
+ <20250119201443.GB2467@pendragon.ideasonboard.com>
 Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <CACGkMEsJUb3ZLm3rLuaayDAS4kf-vbY03wL4M9j1K+Z=a4BDig@mail.gmail.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Sui Jingfeng <sui.jingfeng@linux.dev>
+In-Reply-To: <20250119201443.GB2467@pendragon.ideasonboard.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On 2025/01/20 9:40, Jason Wang wrote:
-> On Thu, Jan 16, 2025 at 1:30 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>
->> On 2025/01/16 10:06, Jason Wang wrote:
->>> On Wed, Jan 15, 2025 at 1:07 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>>>
->>>> On 2025/01/13 12:04, Jason Wang wrote:
->>>>> On Fri, Jan 10, 2025 at 7:12 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+Hi,
+
+On 2025/1/20 04:14, Laurent Pinchart wrote:
+> On Mon, Jan 20, 2025 at 12:26:30AM +0800, Sui Jingfeng wrote:
+>> On 2025/1/19 23:22, Tomi Valkeinen wrote:
+>>> On 19/01/2025 16:59, Sui Jingfeng wrote:
+>>>
+>>>>>>> But userspace must be able to continue allocating YUV buffers through
+>>>>>>> CREATE_DUMB.
+>>>>>> I think, allocating YUV buffers through CREATE_DUMB interface is just
+>>>>>> an *abuse* and *misuse* of this API for now.
 >>>>>>
->>>>>> On 2025/01/10 19:23, Michael S. Tsirkin wrote:
->>>>>>> On Fri, Jan 10, 2025 at 11:27:13AM +0800, Jason Wang wrote:
->>>>>>>> On Thu, Jan 9, 2025 at 2:59 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>>>>>>>>
->>>>>>>>> The specification says the device MUST set num_buffers to 1 if
->>>>>>>>> VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
->>>>>>>>
->>>>>>>> Have we agreed on how to fix the spec or not?
->>>>>>>>
->>>>>>>> As I replied in the spec patch, if we just remove this "MUST", it
->>>>>>>> looks like we are all fine?
->>>>>>>>
->>>>>>>> Thanks
->>>>>>>
->>>>>>> We should replace MUST with SHOULD but it is not all fine,
->>>>>>> ignoring SHOULD is a quality of implementation issue.
->>>>>>>
->>>>>
->>>>> So is this something that the driver should notice?
->>>>>
+>>>>>> Take the NV12 format as an example, NV12 is YUV420 planar format, have
+>>>>>> two planar: the Y-planar and the UV-planar. The Y-planar appear first
+>>>>>> in memory as an array of unsigned char values. The Y-planar is followed
+>>>>>> immediately by the UV-planar, which is also an array of unsigned char
+>>>>>> values that contains packed U (Cb) and V (Cr) samples.
 >>>>>>
->>>>>> Should we really replace it? It would mean that a driver conformant with
->>>>>> the current specification may not be compatible with a device conformant
->>>>>> with the future specification.
->>>>>
->>>>> I don't get this. We are talking about devices and we want to relax so
->>>>> it should compatibile.
->>>>
->>>>
->>>> The problem is:
->>>> 1) On the device side, the num_buffers can be left uninitialized due to bugs
->>>> 2) On the driver side, the specification allows assuming the num_buffers
->>>> is set to one.
->>>>
->>>> Relaxing the device requirement will replace "due to bugs" with
->>>> "according to the specification" in 1). It still contradicts with 2) so
->>>> does not fix compatibility.
->>>
->>> Just to clarify I meant we can simply remove the following:
->>>
->>> """
->>> The device MUST use only a single descriptor if VIRTIO_NET_F_MRG_RXBUF
->>> was not negotiated. Note: This means that num_buffers will always be 1
->>> if VIRTIO_NET_F_MRG_RXBUF is not negotiated.
->>> """
->>>
->>> And
->>>
->>> """
->>> If VIRTIO_NET_F_MRG_RXBUF has not been negotiated, the device MUST set
->>> num_buffers to 1.
->>> """
->>>
->>> This seems easier as it reflects the fact where some devices don't set
->>> it. And it eases the transitional device as it doesn't need to have
->>> any special care.
->>
->> That can potentially break existing drivers that are compliant with the
->> current and assumes the num_buffers is set to 1.
-> 
-> Those drivers are already 'broken'. Aren't they?
-
-The drivers are not broken, but vhost_net is. The driver works fine as 
-long as it's used with a device compliant with the specification. If we 
-relax the device requirement in the future specification, the drivers 
-may not work with devices compliant with the revised specification.
-
-Regards,
-Akihiko Odaki
-
-> 
-> Thanks
-> 
->>
->> Regards,
->> Akihiko Odaki
->>
->>>
->>> Then we don't need any driver normative so I don't see any conflict.
->>>
->>> Michael suggests we use "SHOULD", but if this is something that the
->>> driver needs to be aware of I don't know how "SHOULD" can help a lot
->>> or not.
->>>
->>>>
->>>> Instead, we should make the driver requirement stricter to change 2).
->>>> That is what "[PATCH v3] virtio-net: Ignore num_buffers when unused" does:
->>>> https://lore.kernel.org/r/20250110-reserved-v3-1-2ade0a5d2090@daynix.com
->>>>
->>>>>
+>>>>>> But the 'drm_mode_create_dumb' structure is only intend to provide
+>>>>>> descriptions for *one* planar.
 >>>>>>
->>>>>> We are going to fix all implementations known to buggy (QEMU and Linux)
->>>>>> anyway so I think it's just fine to leave that part of specification as is.
+>>>>>> struct drm_mode_create_dumb {
+>>>>>>       __u32 height;
+>>>>>>       __u32 width;
+>>>>>>       __u32 bpp;
+>>>>>>       __u32 flags;
+>>>>>>       __u32 handle;
+>>>>>>       __u32 pitch;
+>>>>>>       __u64 size;
+>>>>>> };
+>>>>>>
+>>>>>> An width x height NV12 image takes up width*height*(1 + 1/4 + 1/4)
+>>>>>> bytes.
+>>>>>>
+>>>>>> So we can allocate an *equivalent* sized buffer to store the NV12
+>>>>>> raw data.
+>>>>>>
+>>>>>> Either 'width * (height * 3/2)' where each pixel take up 8 bits,
+>>>>>> or just 'with * height' where each pixels take up 12 bits.
+>>>>>>
+>>>>>> However, all those math are just equivalents description to the original
+>>>>>> NV12 format, neither are concrete correct physical description.
+>>>>> I don't see the problem. Allocating dumb buffers, if we don't have
+>>>>> any heuristics related to RGB behind it, is essentially just
+>>>>> allocating a specific amount of memory, defined by width, height and
+>>>>> bitsperpixel.
 >>>>>
->>>>> I don't think we can fix it all.
+>>>> I think, the problem will be that the 'width', 'height' and 'bpp'
+>>>> are originally used to describe one plane. Those three parameters
+>>>> has perfectly defined physical semantics.
 >>>>
->>>> It essentially only requires storing 16 bits. There are details we need
->>>> to work out, but it should be possible to fix.
->>>
->>> I meant it's not realistic to fix all the hypervisors. Note that
->>> modern devices have been implemented for about a decade so we may have
->>> too many versions of various hypervisors. (E.g DPDK seems to stick
->>> with the same behaviour of the current kernel).
->>   > >>
->>>> Regards,
->>>> Akihiko Odaki
+>>>> But with multi planar formats, take NV12 image as an example,
+>>>> for a 2×2 square of pixels, there are 4 Y samples but only 1 U
+>>>> sample and 1 V sample. This format requires 4x8+1x8+1x8=48 bits
+>>>> to store the 2x2 square.
 >>>>
->>>
->>> Thanks
->>>
+>>>> So its depth is 12 bits per pixel (48 / (2 * 2)).
+>>>>
+>>>> so my problem is that the mentioned 12bpp in this example only
+>>>> make sense in mathematics, it doesn't has a good physical
+>>>> interpret. Do you agree with me on this technique point?
+>>>>
+>>>>> If I want to create an NV12 framebuffer, I allocate two dumb
+>>>>> buffers, one for Y and one for UV planes, and size them accordingly.
+>>>>> And then create the DRM framebuffer with those.
+>>>>>
+>>>> Then how you fill the value of the 'width', 'height' and 'bpp' of
+>>>> each dumb buffers?
+>>> For 640x480-NV12:
+>>> plane 0: width = 640, height = 480, bpp = 8
+>>> plane 1: width = 640 / 2, height = 480 / 2, bpp = 16
+>> But i think this should be hardware dependent. The hardware I'm using
+>> load NV12  raw data as a whole. I only need to feed gpuva of the backing
+>> memory to the hardware register once.
 >>
-> 
+>> Not familiar with your hardware, so I can't talk more on this software
+>> design. Perhaps someone know more could have a comment on this.
+> Layout of planes in memory is just one hardware constraint, the same way
+> we have constraints on alignment and strides. Some devices require the
+> planes to be contiguous (likely with some alignment constraints), some
+> can work with planes being in discontiguous pieces of memory, and even
+> require them to be discontiguous and located in separate DRAM banks.
+
+Right.
+
+
+>>>> Why not allocate storage for the whole on one shoot?
+>>> You can, if you adjust the parameters accordingly. However, if the
+>>> strides of the planes are not equal, I guess it might cause problems
+>>> on some platforms.
+>>>
+>>> But I think it's usually simpler to allocate one buffer per plane, and
+>>> perhaps even better as it doesn't require as large contiguous memory
+>>> area.
+>>>
+>>>> The modetest in libdrm can be an good example, send it[1] to you as
+>>>> an reference.
+>>> Right, so modetest already does it successfully. So... What is the issue?
+>> But then, the problem will become that it override the 'height' parameter.
+>> What's the physical interpretation of the 'height' parameter when creating
+>> an NV12 image with the dump API then?
+> I wouldn't be too concerned about physical interpretations. Yes, the
+> height, width and bpp parameters were likely designed with RGB formats
+> in mind. Yes, using DUMB_CREATE for YUV formats is probably something
+> that the original authors didn't envision. And yes, from that point of
+> view, it could be seen by the original authors as an abuse of the API.
+> But I don't think that's a problem as such.
+
+Sometimes there may have 2D GPU or Image Process Unit get involved.
+Setting the dimension, the clip window and pitch etc parameters to the
+hardware are needed.
+
+The value of bpp affects pitch, bigger pitch may cause the hardware load
+more bytes than it should on one line. While the 'height' may affect the
+size of the clip window, depend on the calculation method.
+
+But I have no strong opinion toward with this and agree with you in overall.
+
+> An API is just an API. True, it would be nicer if the usage of the ioctl
+> parameters was more intuitive for YUV formats, but I believe we could
+> still standardize how the existing parameters map to linear scanout YUV
+> formats without causing the world to end. As has been said before, lots
+> of drivers are using DUMB_CREATE for this purpose, and we can't change
+> that.
+>
+> This doesn't mean we shouldn't work on improving memory allocation, but
+> I see that as a separate issue.
+>
+>> I guess, solving complex problems with simple APIs may see the limitation,
+>> sooner or later. But I not very sure and might be wrong. So other peoples
+>> can override me words.
+>>
+>>> Everyone agrees that CREATE_DUMB is not the best ioctl to allocate
+>>> buffers, and one can't consider it to work identically across the
+>>> platforms. But it's what we have and what has been used for ages.
+>> Yeah, your request are not unreasonable. It can be seen as a kind of rigid demand.
+>> Since GEM DMA helpers doesn't export an more advanced interface to userspace so far.
+>> As a result, drivers that employing GEM DMA has no other choice, but to abuse the
+>> dumb buffer API to do allocation for the more complex format buffers.
+>>
+>> The dumb buffer API doesn't support to specify buffer format, tile status and
+>> placement etc. The more advance drivers has been exposed the xxx_create_gem()
+>> to user-space. It seems that a few more experienced programmers hint us to
+>> create an new ioctl at above thread, so that we can keep employing simple API
+>> to do simple things and to suit complex needs with the more advanced APIs.
+> I'd really like to explore adding new ioctls to exposure memory
+> allocation constraints, and allocating the memory itself from DMA heaps.
+>
+-- 
+Best regards,
+Sui
 
