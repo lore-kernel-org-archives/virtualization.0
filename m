@@ -1,80 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75B2C1FB4
-	for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 13:53:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41251BB6A0
+	for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 13:53:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737381188; cv=none; b=OXHCOymCkMCtdP5uJevQpXCZIdtIHg6bcBfuVPjbfCq8XMq2rbBo1e8A5UJFH3SEjMeAmY+wUF5v3ncdS3hKLoH26/Uyb+8hkKmioTbRIBnLAmElDKpyp4LcW4m+CPubi9aNisORSEjgMYcTdkSoagAz8jCyq/mjA/qGc9GQBHY=
+	t=1737381211; cv=none; b=PchwjOGvJvWks9Ycs7Novy8HspIIKtAHNMkWBuloxaEylLDbuPY2YqoyywtIJmibIm5/vIwDFQiij9YxHY7VI9x3PdjPmyYL2bunWETJS0sEBr/hf0lBK4AB3SnaqLwJEtiPGJOeQlGpNy9IklYsnZ/0ZkVtrwEUUpkwwemMZvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737381188; c=relaxed/simple;
-	bh=Vura6+yciQTZ2zNGl8kEIKSnHsT6BHXQZI7yah00L58=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cvFNZO7n5mBUFauXsL7Is6QD3/FakDDEwO8dWitmddIUO+nsylcpZ9N0wULXVSFwvztfFf9w0sh5ghHcUUvcDFjfkoo/gzjzY62Jen2/lVirw1ob5vmciYfvXw3qD/df6y9GrQFlPlaXeTdsJD6vOcwZr0OwaFTekpdGQz1VONg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=THa5BJXL; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1737381211; c=relaxed/simple;
+	bh=uxNVkuB1kfPiPhaAvJDAYwdoCzbbN5ig+MfWtinYkGs=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=AHU8q7D5cSs2uQvk5YmCjio5PUQn1Cz09fQ2Dck3X7DTCeepjdlCpVtwqzvpe4aBdI+XT4XguNZ//6eYsMWC7Bwv2OCOQTxI7EuS4GbxDcdsZj6FDN/wHAxgau9kUNezG9VaKpCSAxR8XT8aBrCitd4/W3bB/+yLxITiyoMBrTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HbMtC92I; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="THa5BJXL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HbMtC92I"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737381185;
+	s=mimecast20190719; t=1737381209;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lOWOzVhXBnkVvqPrieOu4AWUxRmbQl7knuwuCl48rK4=;
-	b=THa5BJXLByOVZwo9ELHvzeVFvPiIXwxOVo3JeFSNzKoiEqekehuuVDhTu+LALvg33ACpOX
-	/DSBqo6zQB/zWMz1QQ4ePYH/h7myvKCl879MMhxt7mRXY+/8887MkyKPndEsCVZoADj4si
-	PX/o+eLmJ8JfIcYbTykxYrjP2yLk5q4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=6OUKdt6VXAQzpOTUFB26LmXUDO8O/oST+Zn2uKcAtKs=;
+	b=HbMtC92IGEx8a976wcxW0kDoKugHnljw5CJ/V3bldO3EleSl4f8dkr/UxaQd0pGkdw7Vvs
+	FLaOvwZFsd3RnEuOP3KbFH5VZ/Mo3jfZrt9VEpg7hpZnAL1LxkF1kfKPvTMoqshvadb4YN
+	4Ooo0u4GxuufcBnly1qGnkquaO6lzww=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-422-dfCp3B34NtyGuxQeySGN5g-1; Mon, 20 Jan 2025 08:53:04 -0500
-X-MC-Unique: dfCp3B34NtyGuxQeySGN5g-1
-X-Mimecast-MFC-AGG-ID: dfCp3B34NtyGuxQeySGN5g
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4361a8fc3bdso23446465e9.2
-        for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 05:53:03 -0800 (PST)
+ us-mta-157-LNO-xlaZPN-axzZyigdaaw-1; Mon, 20 Jan 2025 08:53:27 -0500
+X-MC-Unique: LNO-xlaZPN-axzZyigdaaw-1
+X-Mimecast-MFC-AGG-ID: LNO-xlaZPN-axzZyigdaaw
+Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-467b645935fso81662601cf.3
+        for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 05:53:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737381183; x=1737985983;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lOWOzVhXBnkVvqPrieOu4AWUxRmbQl7knuwuCl48rK4=;
-        b=w7Nv/t4b3jM1E06dMlOrQkzXe4IsUShHzK5tx2uv441m3PZ7BvSFi8aGVyjC4vWDLb
-         7nOwTo4Pz1zzdSWvrhYfOGoZKyvRpJ/a3165P0Bvo+6ZjwKl6DtJrD7fRgJg72G/OeMe
-         4MhVDUuZ4VGALj0P6c8SgkHDGT9fPZoMShtYS7o+bMjeoAStbMnnEI/bMhM2mtV9kEMK
-         ciStnn4t92bnDM4+76+lLC4qKV5Jfn96oMOI+9yxWgg61t1r1UMfDxzKml/O18BVSaua
-         Icv8xacg1xuweQkOJgnNnjvgF40l/R5hTB5sEWjrAtqONorumrkLq4ZWkbe3lXnlcfP/
-         bEKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU+St//pkzfLxlqkbGIeOOu1zGWYq1rbeUot0sfuq4GLvmL+438Li7QpOccEZCON9B7ViSpuAWPvGBr5a9icw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyoMYM/fVO1JlBGkm6wFOunmeC1br1nBLhiWo6gFKkrxIWfH0ff
-	teYCW16LkT1qYOegK7Wg+zHbHc299RR7/YmMmmMAqKX3xZLbyEhzljfidSc3xXLLDm6Axog2IRH
-	o26ui08NrKcNEW81oqPFp5nrRwBAydMghvBENT/CqSshtUfxxHdd40DwmhsCn8h/N
-X-Gm-Gg: ASbGnct5DIMPBjZR3fnjbpr2Q7ZBb7vRLz2vct6ycA1oQaqPR/AOXYObfIhwrv7WVCk
-	6oNmm8VMfDtUFkcqypbWmJ2TXKg4WuvdjffXDEXikzfBAmrCUbjPxYKJOle3S/PPVU0nCiHSw/W
-	uo/jLnRH/FUiMllk669IBkKV2lZj1uyOvOpR0au/wKRSz/rltlN47bqCbpVc0zPDxvU2Y8wTwL5
-	FpaScWYlgechJRfMMWSCQzk962YWi4Kb6DKCjDjy3eWwroGO7RqpWexO4u+Q5xSyNf2YV5lJeEN
-	sMcUrSahORxdy7+FjgQGlBGSiNZXKzMZHTWAWFjw+A==
-X-Received: by 2002:a05:600c:4e4f:b0:434:f767:68ea with SMTP id 5b1f17b1804b1-438913bf92cmr143732805e9.5.1737381182740;
-        Mon, 20 Jan 2025 05:53:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGrgov4Y1tyEzzjnnH/8SXJtEJ9mBMJdAZNTF35upcrbR4gJ6ayYDavrclh41utO/0Yrmoztg==
-X-Received: by 2002:a05:600c:4e4f:b0:434:f767:68ea with SMTP id 5b1f17b1804b1-438913bf92cmr143732525e9.5.1737381182375;
-        Mon, 20 Jan 2025 05:53:02 -0800 (PST)
-Received: from imammedo.users.ipa.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf3221c25sm10365602f8f.23.2025.01.20.05.53.01
+        d=1e100.net; s=20230601; t=1737381207; x=1737986007;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6OUKdt6VXAQzpOTUFB26LmXUDO8O/oST+Zn2uKcAtKs=;
+        b=txqsVM+tHP4b5ogKuwrZMTiMleVUP4tn1uoQY9X1ztadTgJsHBoFXgWzbIYr3IK29j
+         4sFZcikLApGqiZlII26pd2Z1p/R7+BacHJhz6StaB4m6Zr/LkPAE9fCwmSh1M2N0iUST
+         Vhx2xXr9CWinPi43CpDh+lfobiNzfORKPZf19zpixDWXyxzYMRj2zQLHtMig4893/Sua
+         BaJzez1xJw0lW3tYwRj0LoFzFjbnK6sAD+FM03SsKNglicHmSjvw1c+CUBwaK8rSHJHz
+         /efPHT96J9fEhqrbqBfZd8ag+SM+jn0wMgjMOuPtS2WsrJuRlOPte7ZOPuB7pR/x/b0+
+         UZXQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVyK/LhafF9kKORvjwOrS2mqcyrWRMT6/AMc9QK2z87GFnMZs2S2eW39UJmUwYq5auSIYNh6dWUoXzjZWjK2w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzAZq6As/bHDmKzD5SvrFdk/NWqXoQGpB7+nj7uxhXpRXcdnOw/
+	UyIiRZULvHgAP58Xsq8xqUQ1WvqKBQAwSSZx5H2mGsKE6rPZpkOAent4PobtfqB4MpB3Ntxj4Pq
+	M5M/oc10IvjkSuOD/bYfRFEef/M9VMtfgY0bPCR9FuqMSHsk7EPsmE04pu9c6TI0Q
+X-Gm-Gg: ASbGnct4ONJj6t1KvdUF7R5YyjwcCoWNcxhdhOWdSC7WkC1pF8GVi1N5vLEIIysW+sP
+	B4bzIebKpl87dDjwAb1KmwZxhnA8tzTqaRSeQlYfES7NdzRFHEbXhgzH/GLm89JKzjzQ7AsVby5
+	/9KDtLw25/Pa59tLnqCEGoEin1WZxf52UFOXv5u7yUFvahiYENh4rUP3CN7tL2Hs/m+086+EsWI
+	9WXPbyE4R8aLwgRzPmt7neDXzOnnVikEBpPOMctTp6ykS8IamPygCTYom2WRFQdLHQjX6vDiAGP
+	mxDweK5SSwInTfh+Pq+COnns6DomHDZLpy04zZq57ABz+PaS8hLUxw8=
+X-Received: by 2002:ac8:7d82:0:b0:467:5e61:c116 with SMTP id d75a77b69052e-46e12a1e36cmr160729051cf.7.1737381207219;
+        Mon, 20 Jan 2025 05:53:27 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGCbxGDy6CHUSfOLqTxGL3gA1S6wKRHlUvydXAdXodFBspL8+Pdog+OKdfN6k1jzDkgqmOx+A==
+X-Received: by 2002:ac8:7d82:0:b0:467:5e61:c116 with SMTP id d75a77b69052e-46e12a1e36cmr160728291cf.7.1737381206799;
+        Mon, 20 Jan 2025 05:53:26 -0800 (PST)
+Received: from vschneid-thinkpadt14sgen2i.remote.csb (213-44-141-166.abo.bbox.fr. [213.44.141.166])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46e1030da00sm42651971cf.33.2025.01.20.05.53.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jan 2025 05:53:01 -0800 (PST)
-Date: Mon, 20 Jan 2025 14:53:01 +0100
-From: Igor Mammedov <imammedo@redhat.com>
-To: Mark Harmstone <maharmstone@meta.com>
-Cc: "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- mst@redhat.com, kraxel@redhat.com
-Subject: Re: problems with virtio and microvm in ACPI mode
-Message-ID: <20250120145301.012f7e25@imammedo.users.ipa.redhat.com>
-In-Reply-To: <a02be605-7aa1-4d31-bbb4-835dc3948ad8@meta.com>
-References: <a02be605-7aa1-4d31-bbb4-835dc3948ad8@meta.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+        Mon, 20 Jan 2025 05:53:25 -0800 (PST)
+From: Valentin Schneider <vschneid@redhat.com>
+To: Sean Christopherson <seanjc@google.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+ linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org,
+ kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-mm@kvack.org,
+ linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+ bcm-kernel-feedback-list@broadcom.com, Peter Zijlstra
+ <peterz@infradead.org>, Nicolas Saenz Julienne <nsaenzju@redhat.com>,
+ Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.amakhalov@broadcom.com>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
+ <kernel@xen0n.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Thomas
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H.
+ Peter Anvin" <hpa@zytor.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa
+ <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, Adrian Hunter
+ <adrian.hunter@intel.com>, Kan Liang <kan.liang@linux.intel.com>, Boris
+ Ostrovsky <boris.ostrovsky@oracle.com>, Josh Poimboeuf
+ <jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Frederic Weisbecker <frederic@kernel.org>,
+ "Paul E. McKenney" <paulmck@kernel.org>, Jason Baron <jbaron@akamai.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, Joel Fernandes
+ <joel@joelfernandes.org>, Josh Triplett <josh@joshtriplett.org>, Boqun
+ Feng <boqun.feng@gmail.com>, Uladzislau Rezki <urezki@gmail.com>, Mathieu
+ Desnoyers <mathieu.desnoyers@efficios.com>, Lai Jiangshan
+ <jiangshanlai@gmail.com>, Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli
+ <juri.lelli@redhat.com>, Clark Williams <williams@redhat.com>, Yair
+ Podemsky <ypodemsk@redhat.com>, Tomas Glozar <tglozar@redhat.com>, Vincent
+ Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann
+ <dietmar.eggemann@arm.com>, Ben Segall <bsegall@google.com>, Mel Gorman
+ <mgorman@suse.de>, Kees Cook <kees@kernel.org>, Andrew Morton
+ <akpm@linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Shuah
+ Khan <shuah@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Miguel
+ Ojeda <ojeda@kernel.org>, Alice Ryhl <aliceryhl@google.com>, "Mike
+ Rapoport (Microsoft)" <rppt@kernel.org>, Samuel Holland
+ <samuel.holland@sifive.com>, Rong Xu <xur@google.com>, Geert Uytterhoeven
+ <geert@linux-m68k.org>, Yosry Ahmed <yosryahmed@google.com>, "Kirill A.
+ Shutemov" <kirill.shutemov@linux.intel.com>, "Masami Hiramatsu (Google)"
+ <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, Luis
+ Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v4 25/30] context_tracking,x86: Defer kernel text
+ patching IPIs
+In-Reply-To: <Z4qQL89GZ_gk0vpu@google.com>
+References: <20250114175143.81438-1-vschneid@redhat.com>
+ <20250114175143.81438-26-vschneid@redhat.com>
+ <Z4bTlZkqihaAyGb4@google.com>
+ <xhsmhed11hiuy.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <Z4qQL89GZ_gk0vpu@google.com>
+Date: Mon, 20 Jan 2025 14:53:13 +0100
+Message-ID: <xhsmhtt9tfv7a.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,59 +129,50 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: s3tGLcJz_6ghjxYM4cwsDjkFLQrqE6iROl9F8own_RA_1737381183
+X-Mimecast-MFC-PROC-ID: gnv81i6f5BSPBccdZVh0kVfIFYjgyC_I53PFKFKjDdw_1737381207
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-On Tue, 31 Dec 2024 18:22:39 +0000
-Mark Harmstone <maharmstone@meta.com> wrote:
+On 17/01/25 09:15, Sean Christopherson wrote:
+> On Fri, Jan 17, 2025, Valentin Schneider wrote:
+>> On 14/01/25 13:13, Sean Christopherson wrote:
+>> > On Tue, Jan 14, 2025, Valentin Schneider wrote:
+>> >> +/**
+>> >> + * is_kernel_noinstr_text - checks if the pointer address is located in the
+>> >> + *                    .noinstr section
+>> >> + *
+>> >> + * @addr: address to check
+>> >> + *
+>> >> + * Returns: true if the address is located in .noinstr, false otherwise.
+>> >> + */
+>> >> +static inline bool is_kernel_noinstr_text(unsigned long addr)
+>> >> +{
+>> >> +	return addr >= (unsigned long)__noinstr_text_start &&
+>> >> +	       addr < (unsigned long)__noinstr_text_end;
+>> >> +}
+>> >
+>> > This doesn't do the right thing for modules, which matters because KVM can be
+>> > built as a module on x86, and because context tracking understands transitions
+>> > to GUEST mode, i.e. CPUs that are running in a KVM guest will be treated as not
+>> > being in the kernel, and thus will have IPIs deferred.  If KVM uses a static key
+>> > or branch between guest_state_enter_irqoff() and guest_state_exit_irqoff(), the
+>> > patching code won't wait for CPUs to exit guest mode, i.e. KVM could theoretically
+>> > use the wrong static path.
+>>>
+>> AFAICT guest_state_{enter,exit}_irqoff() are only used in noinstr functions
+>> and thus such a static key usage should at the very least be caught and
+>> warned about by objtool - when this isn't built as a module.
+>
+> That doesn't magically do the right thing though.  If KVM is built as a module,
+> is_kernel_noinstr_text() will get false negatives even for static keys/branches
+> that are annotaed as NOINSTR.
 
-> Hi all,
-> 
-> I've encountered a really weird bug when trying to run the fstest 
-> generic/476 in a loop on a microvm VM. The block device is a
-> virtio-blk-device, formatted as btrfs.
-> 
-> With acpi=on, it eventually grinds to a halt, and prints a hang message. 
-> I tracked the problem down to be within wait_dev_supers, i.e. it's 
-> apparently issuing a write for the superblock that never returns. The 
-> strange thing is that with acpi=off everything works as it should.
-> 
-> acpi=off adds this to the cmdline: virtio_mmio.device=512@0xfeb00e00:12
-> 
-> acpi=on adds this to the DSDT:
-> 
-> Device (VR07)
-> {
->      Name (_HID, "LNRO0005")  // _HID: Hardware ID
->      Name (_UID, 0x07)  // _UID: Unique ID
->      Name (_CCA, One)  // _CCA: Cache Coherency Attribute
->      Name (_CRS, ResourceTemplate ()  // _CRS: Current Resource Settings
->      {
->          Memory32Fixed (ReadWrite,
->              0xFEB00E00,         // Address Base
->              0x00000200,         // Address Length
->              )
->          Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive, ,, )
->          {
->              0x0000000C,
->          }
->      })
-> }
-> 
-> ...and to my untrained eye it's not obvious if there's something wrong 
-> there.
-> 
-> Does this ring a bell to anyone? Is the bug in Qemu, the kernel, or am I
-> inadvertently doing something stupid? I'm happy to help someone 
-> reproduce this.
+Quite so.
 
-on the 1st glance nothing looks unusual,
-CCing Michael and Gerd in case they see where it might break.
+I've been looking at mod_mem_type & friends, I'm thinking adding a
+MOD_NOINSTR_TEXT type might be overkill considering modules really
+shouldn't be involved with early entry, KVM being the one exception.
 
-> 
-> Thanks
-> 
-> Mark
+Your suggestion to have a KVM-module-specific noinstr section sounds good
+to me, I'll have a look at that.
 
