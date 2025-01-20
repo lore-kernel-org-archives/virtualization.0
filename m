@@ -1,222 +1,170 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49EC719CD1D;
-	Mon, 20 Jan 2025 08:57:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67E3919D06B
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:00:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737363462; cv=none; b=NSJImID5qDcIpsK9TyN6ON39Njvr66/TDpPZAhot+0+qIpfTkZB2rpyIYOwyKd/sRS8MI34kMUDm/eU5buz5PNhyiOtpmrRtFwP207Jj9vVCiS4tOFZZ+f9xdpAyrUbryXvWUPZ53dbTibXg3rkRHTZZRBASoqBTZK1fQJ2K4Wk=
+	t=1737363642; cv=none; b=vDHM51UXxSqhmbc5EJ0ayUtgcWdOUNckedr9pjBkD9isEt6ruHlcU75csRJtRI7AMT8LI5L3wvbsgY+i5LE8LWgff9LJq5ZeGneuTXY+L5zK/VjNlsyiNuNP9y4SyBrHjhVR2ZFABWRO8BjPR17PXsB7hdaLM7NdPwrDZHXwy6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737363462; c=relaxed/simple;
-	bh=N5+Ilq+6Sl0BRyXz6K2xEcdVj95XrvSfSot0ouTatYY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ebqkyqb5+cIbYUrLYtlidzyJGktKbRicM4qNSQW18WdCGuvHq0GQr40rfljH19q8SWCme2FfZ+3pN/oLcJd5Xen5ZsZf5fgmylIFVK02o5T4ExIOg3QooSVMpiNbxb49rrFl/Ej0j0Fw4hmws8soz28QxAEy2FTWh0VwvwKh/e0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=kW3Pr8f9; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VlO1OePa; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=kW3Pr8f9; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VlO1OePa; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1737363642; c=relaxed/simple;
+	bh=qcajYeuzQqig2Pw2OjJksSWvVLoxEiTtaDCHiGYHL/Y=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=FiUJ4hBjrGoidcdpm9NWFdkk/1Y3+RRv+Z7cS8zgdXKXyrnvWRAP9c0talfyXX+9f6b2rBMBUteAemY0L/oWXho/LG9D0T1H0xS+gcJl5DKcFi96HeYKfyH8JJKzsnbLMqNwCwmlkLwexq5lYmlI/ztYqKOBi2+3gwtKqGok5vU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=1o8MsPW3; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="kW3Pr8f9";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VlO1OePa";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="kW3Pr8f9";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VlO1OePa"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 45D501F7A5;
-	Mon, 20 Jan 2025 08:57:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1737363458; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=UxuzgDcZRRA2/FviISYwEq2AIPpj8Irf9o88aWv1Nug=;
-	b=kW3Pr8f901Z7ow0UHFahd4SLynjHr1wROdXiToHoUzdZtS0UDlBfei6zyIhlrIvzjk3tTp
-	1yl9BBLd/wW4AIbYNxR4/K1qnpxSQzwOXdAtcjJfXqEvwzk6HOTU7pxJDjvQKvk3vSEC+G
-	+gkt4/bJ2a6edrgg2+jIR/ApD6tqgY4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1737363458;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=UxuzgDcZRRA2/FviISYwEq2AIPpj8Irf9o88aWv1Nug=;
-	b=VlO1OePapx4jPwQ9JJ2gQmbCi/5qM66D0h4jEtVFfdhS3PQIpAi47mvrbt89crlhSXbRc0
-	E8Wy/g/yidV+kRBQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=kW3Pr8f9;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=VlO1OePa
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1737363458; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=UxuzgDcZRRA2/FviISYwEq2AIPpj8Irf9o88aWv1Nug=;
-	b=kW3Pr8f901Z7ow0UHFahd4SLynjHr1wROdXiToHoUzdZtS0UDlBfei6zyIhlrIvzjk3tTp
-	1yl9BBLd/wW4AIbYNxR4/K1qnpxSQzwOXdAtcjJfXqEvwzk6HOTU7pxJDjvQKvk3vSEC+G
-	+gkt4/bJ2a6edrgg2+jIR/ApD6tqgY4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1737363458;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=UxuzgDcZRRA2/FviISYwEq2AIPpj8Irf9o88aWv1Nug=;
-	b=VlO1OePapx4jPwQ9JJ2gQmbCi/5qM66D0h4jEtVFfdhS3PQIpAi47mvrbt89crlhSXbRc0
-	E8Wy/g/yidV+kRBQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B6E2E139CB;
-	Mon, 20 Jan 2025 08:57:37 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id GIpkKwEQjmc1bAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 20 Jan 2025 08:57:37 +0000
-Message-ID: <dce0191b-8df0-4239-bdee-08a34c4b28d2@suse.de>
-Date: Mon, 20 Jan 2025 09:57:37 +0100
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="1o8MsPW3"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id E04BA409BA
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:00:39 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id g8gboulfvGo3 for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Jan 2025 09:00:38 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::629; helo=mail-pl1-x629.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 5A5CB4099F
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5A5CB4099F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=1o8MsPW3
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5A5CB4099F
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 09:00:38 +0000 (UTC)
+Received: by mail-pl1-x629.google.com with SMTP id d9443c01a7336-2166651f752so99338345ad.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 01:00:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1737363637; x=1737968437; darn=lists.linux-foundation.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=M73wUmCTBGNSLAfxRhHe8Rnzzifp0+HNyWyW7z7nYBg=;
+        b=1o8MsPW30kAjC96i4Tyay3HITK6aR2Gp9sHUvx9l7SJHYq5QS7l1gahUDq5i6eGTSC
+         JRxXhN7JdIrY82dkuHrbxYXqH6gG5NZOxJ5O7DZ3UIHVcGigsY9hVdpobMTspkSBMLDU
+         KnRIVjAwcVeGjRGm/q09Z36aLCqR3iIH3JUw8pBpA26dkGByMsWZOfsN1jLKLbm9Xr0W
+         6TPH1Td9SpP+M+SZ6bdfPIL8JSu6XzGH4VULqJV1S9hkkOh/4Zf/MG32Dk9Ln8nZ+fAo
+         97CkMRaztGehriVbYPce4QIiJw6VnBEmWJ8/y1vO8AGUPMNK+6pG6J5efQDdh6bqasir
+         G1Zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737363637; x=1737968437;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=M73wUmCTBGNSLAfxRhHe8Rnzzifp0+HNyWyW7z7nYBg=;
+        b=Y7VwBw8SDx8gk3h67OGd5WTIzA4FzkPf/GF9GP23gq/F/FTwVxb6JpnYcQCkptUsDH
+         tNVv7fJdDkoyo/KVG1QJPN1jJcsb/I+HhYfWbb7S7j1xQwY5ZRP5zKg68TVeFHLcu9vb
+         uB0UfGk9v36r3Ml8eUog0mqV5+xtpEU7nEsxdrlatH0OmrcYnu6koHIBfO/LSroVdKbi
+         gNuQ8FHeUZJRNc3VqtrdUOJRwBBc60dyVNLT5qe888zD6SAG3FV9cj9k9kDeQwJcDutW
+         23YQbERU+GMWET5q0fF0FRcyiWClaqceMU5RX3NAYhE+kPD5Hi6w/WvI5LQphQBU0qYj
+         98pA==
+X-Forwarded-Encrypted: i=1; AJvYcCVUrFW8f4hkpR0eG1SF67uL6DKd6CKBQsB0muti5AH3X2ndMELNFtq9H9PKBDLW04rMr0TKwxejr31cmQ0PjQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzGBVtznaeKx7Me9fk12+O9f/mBeZ3jmjQUyQkJjtrHbwDopOuA
+	BJ+tbTpEnkTsQ2w+AUeg8UTiS//mgW1xE/T67iKJAWSSOgnej5C6PEvA7JysUF4=
+X-Gm-Gg: ASbGncvDhcNIvLdKl0yugcpZ5GHz3BfiHblTbVWn0S7md8lQWqWBceddNg8oJoByNFa
+	CXUaA7H/1OJQWMCedHzZbPxLsbcFLsQj+pr4OQ36TTVv2FGCrowtW7JkdsYi542GJxeZITPxFgB
+	ZzCK1vJTknWpmsz48uSMozy0VvCDfb1N0ftxg1mnS9uaSFGfbujCN4kjp+BI+dIJ33BwBKwRwHb
+	VMsiPJeaftMo4vVSAyHKRaobMCLq07FkQtU+kF55PtD13zGvqwBwrcFcRHvgXpzUlCOn549
+X-Google-Smtp-Source: AGHT+IE1pLyS0CRQUGICRpfL+cuS6Zd8b3NmmH3IRRXgasWGxiLbxjOpEsY6IBDF/xH/j3M5fZzgCw==
+X-Received: by 2002:a05:6a00:802:b0:72a:a7a4:b4cd with SMTP id d2e1a72fcca58-72dafbb61bemr17694966b3a.21.1737363637519;
+        Mon, 20 Jan 2025 01:00:37 -0800 (PST)
+Received: from localhost ([157.82.203.37])
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-72daba44453sm6487254b3a.127.2025.01.20.01.00.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 20 Jan 2025 01:00:37 -0800 (PST)
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: [PATCH net-next v4 0/9] tun: Unify vnet implementation
+Date: Mon, 20 Jan 2025 18:00:09 +0900
+Message-Id: <20250120-tun-v4-0-ee81dda03d7f@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 25/25] drm/xlnx: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-To: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Andy Yan <andyshrk@163.com>, Daniel Stone <daniel@fooishbar.org>
-References: <20250109150310.219442-1-tzimmermann@suse.de>
- <20250109150310.219442-26-tzimmermann@suse.de>
- <cdbe483d-0895-47aa-8c83-1c28220f4a02@ideasonboard.com>
- <bc97b92e-7f8a-4b92-af8a-20fa165ead55@suse.de>
- <f3ba05c7-6e49-4641-a3f9-ba418ebdb7c3@ideasonboard.com>
- <c6735280-7c32-4319-8ca9-a7305d8117c3@suse.de>
- <d67adb03-5cd0-4ac9-af58-cf4446dacee3@ideasonboard.com>
- <0ea6be58-0e04-4172-87cd-064a3e4a43bc@suse.de>
- <f35cb350-6be9-48ca-ad7e-e9dd418281d5@ideasonboard.com>
- <4af0b6a7-c16a-4187-bbf5-365a9c86de21@suse.de>
- <e327ad84-b5c9-4480-b873-dc3aca605538@ideasonboard.com>
- <a2bbeb47-2569-4ee0-9265-92bab139bdc6@suse.de>
- <f3833771-fcd7-45dc-9019-1525fef34429@ideasonboard.com>
- <156804a9-3095-4c93-888f-d9041f523da6@suse.de>
- <469daa7f-123b-41cb-a99c-4441436d82dc@ideasonboard.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <469daa7f-123b-41cb-a99c-4441436d82dc@ideasonboard.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 45D501F7A5
-X-Spam-Level: 
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FREEMAIL_ENVRCPT(0.00)[163.com,gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[22];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_TO(0.00)[ideasonboard.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[lists.freedesktop.org,lists.infradead.org,vger.kernel.org,lists.linux.dev,lists.xenproject.org,ideasonboard.com,163.com,fooishbar.org];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	RCVD_COUNT_TWO(0.00)[2];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -3.01
-X-Spam-Flag: NO
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAJkQjmcC/2WQyw6CMBBFf4V0bU1ftMWV/2FcFDpIFxYthWAM/
+ +6kbDQub+6ck9x5kwlSgImcqjdJsIQpjBGDOlSkG1y8AQ0eMxFMKC4ko3mOVGvgzKmmZZ0hePl
+ I0Ie1WC4kQqYR1kyu2AxhymN6Ff3CS4+mmnFmi2nhlFFtvLGqlUoadfbuFcN67MZ7ESziG2p2S
+ CAkrfXG105Y4/4g+QVxvUMSoU63eM+hMb35gbZ9RYLnjC/I+5Trtn0AjlRLryABAAA=
+X-Change-ID: 20241230-tun-66e10a49b0c7
+To: Jonathan Corbet <corbet@lwn.net>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
+ devel@daynix.com, Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Willem de Bruijn <willemb@google.com>
+X-Mailer: b4 0.14.2
 
-Hi
+When I implemented virtio's hash-related features to tun/tap [1],
+I found tun/tap does not fill the entire region reserved for the virtio
+header, leaving some uninitialized hole in the middle of the buffer
+after read()/recvmesg().
 
+This series fills the uninitialized hole. More concretely, the
+num_buffers field will be initialized with 1, and the other fields will
+be inialized with 0. Setting the num_buffers field to 1 is mandated by
+virtio 1.0 [2].
 
-Am 20.01.25 um 09:51 schrieb Tomi Valkeinen:
-> Hi,
->
-> On 20/01/2025 09:49, Thomas Zimmermann wrote:
->> Hi
->>
->>
->> Am 16.01.25 um 11:03 schrieb Tomi Valkeinen:
->> [...]
->>> Aligning video= and dumb buffers almost sounds like going backwards. 
->>> video= parameter is bad,
->>
->> Who told you that? Video= is still the way to specify an initial 
->> display mode to the kernel and it will remain so.
->
-> You did =). "It aligns dumb buffers and video=". 
+The change to virtio header is preceded by another change that refactors
+tun and tap to unify their virtio-related code.
 
-I did not tell you "video= parameter is bad".
+[1]: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
+[2]: https://lore.kernel.org/r/20241227084256-mutt-send-email-mst@kernel.org/
 
-Best regards
-Thomas
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+---
+Changes in v4:
+- s/sz/vnet_hdr_len_sz/ for patch "tun: Decouple vnet handling"
+  (Willem de Bruijn)
+- Reverted to add CONFIG_TUN_VNET.
+- Link to v3: https://lore.kernel.org/r/20250116-tun-v3-0-c6b2871e97f7@daynix.com
 
-> I understand the need for drm_driver_color_mode_format() for video=. 
-> But I think it's bad for CREATE_DUMB, at least for the platforms which 
-> have never aimed for "RGB-only".
->
-> So you're not in favor of a drm_mode_size_dumb() version that does not 
-> use drm_driver_color_mode_format(), for these platforms? I'm still at 
-> loss as to why we would want to change the behavior of CREATE_DUMB. I 
-> see no upside, but I see the chance of regressions.
->
->  Tomi
->
+Changes in v3:
+- Dropped changes to fill the vnet header.
+- Splitted patch "tun: Unify vnet implementation".
+- Reverted spurious changes in patch "tun: Unify vnet implementation".
+- Merged tun_vnet.c into TAP.
+- Link to v2: https://lore.kernel.org/r/20250109-tun-v2-0-388d7d5a287a@daynix.com
 
+Changes in v2:
+- Fixed num_buffers endian.
+- Link to v1: https://lore.kernel.org/r/20250108-tun-v1-0-67d784b34374@daynix.com
+
+---
+Akihiko Odaki (9):
+      tun: Refactor CONFIG_TUN_VNET_CROSS_LE
+      tun: Avoid double-tracking iov_iter length changes
+      tun: Keep hdr_len in tun_get_user()
+      tun: Decouple vnet from tun_struct
+      tun: Decouple vnet handling
+      tun: Extract the vnet handling code
+      tap: Avoid double-tracking iov_iter length changes
+      tap: Keep hdr_len in tap_get_user()
+      tap: Use tun's vnet-related code
+
+ MAINTAINERS            |   2 +-
+ drivers/net/Kconfig    |   5 ++
+ drivers/net/Makefile   |   1 +
+ drivers/net/tap.c      | 172 ++++++------------------------------------
+ drivers/net/tun.c      | 200 +++++++------------------------------------------
+ drivers/net/tun_vnet.c | 184 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/tun_vnet.h |  25 +++++++
+ 7 files changed, 267 insertions(+), 322 deletions(-)
+---
+base-commit: a32e14f8aef69b42826cf0998b068a43d486a9e9
+change-id: 20241230-tun-66e10a49b0c7
+
+Best regards,
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+Akihiko Odaki <akihiko.odaki@daynix.com>
 
