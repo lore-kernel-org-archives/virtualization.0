@@ -1,238 +1,243 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C1DB9454
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 00:41:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1669199BC
+	for <virtualization@lists.linux.dev>; Mon, 20 Jan 2025 01:58:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737333674; cv=none; b=cwYP7CEmLN9doQ2WliFQdeyCayIlp3MjEpe9M64/UvrMatJcP3bTuioNg/bJQuKh1HfTs6iI6aPdwnR2Pc+JOLQ2ZN1txE2iU0Yi+55EyCsQtheuItr8H2acYzqqARrbfZ+plJfeB5pGsPLDmJJLqLOTORgwZVhpTbSMB4OjIts=
+	t=1737338313; cv=none; b=giwhx3biaqwZYSbWqKoH4YpCFp62ro6B2mmLAci/S60cC3EZq/i7DIo2AMJL1Gc4hD33jCvcHoQP80bwMF8h4pWZ4QkkDCIDARr8lPbmHUZbHh1GsNIihpe7+BkyCBbnqGFVTy4MeFg6zkdCMObWbWQ9me0S8woa+syyeQI9qC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737333674; c=relaxed/simple;
-	bh=aA1N/FCwEJWzfKwIbQDHaCbEggvd2ib8Yz4yJXSDdJM=;
+	s=arc-20240116; t=1737338313; c=relaxed/simple;
+	bh=yuBc5+h/9lwzieCgUsFLqW7znh5vXegnrIKqqEjuQzU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YYkqSwZSvEAkruancnC3giVacWd3AMFL7ZfH3VhEoZhvgBWGqGw+pMFG9F1h6N6yPW6NgrMg9O2YxucoR3wCmdUDmPpJtnIRtojHxDfqA2tIJBoKqkeK07qtad1nvameQEm024nY0Xr8uylz6cQZ89tj1l2DiVNENMXBWakl5Tk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CLHT4FjS; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=fsZlk9VdUkQhpVNTPFoLtpOBEwsPTgGvyMc8WrA91iMmWu720iQ048H7cTX6gVt0VNmVb7xnrjSrupnFxFeZk/KP8pR3PWocNU5rcvXiqK6Y2pIjTrDgy4f5KQpJ5XS1PMl/SLJncd+kV6+EMisUpIpg5xLIMdZM4NVUACh+Huo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bwkqy579; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CLHT4FjS"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8CA4D8419B
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 00:41:12 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id msWZW1rmhP_C for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jan 2025 00:41:11 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 802CC84198
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 802CC84198
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CLHT4FjS
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 802CC84198
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 00:41:11 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bwkqy579"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737333670;
+	s=mimecast20190719; t=1737338310;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=QoODFoEJ/D6WHGy7MOEpfhr94tOI/fDa1CVKWtBtZbg=;
-	b=CLHT4FjSYf+8qFsXwMyPLWQIGkBTZyDPZkXpFhLSo3zxD33sIJeyPY3yV+IhFDOUCoLXtV
-	9BGG7oqCN8JYNSiMrKPlti3v6uJ3W8+xL3d81O9Un9nUQnfDw9X6ULzkW8yyeKbLfVcAHT
-	I+r/2zdWaPiJUf26HnU6duDk6oE9k3s=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=vs03IIGJhVXqCXgVeBmydwl5duKVva078mHRQk4T/Vo=;
+	b=Bwkqy579ClzTSPWKoGeq+iyd4k+ME0Olb2DTXqWDwEabOBh2M+d7Tei3WlYFnLHY2gxP94
+	fsH8HcMT49wMmto/Z8xh/y+jbq2+OkYlEJJ87gGy7Z9/mMxHv7FLST97KO80MOCSNMIMoe
+	UXrWCOmVEwhJIuk/vWJdn87mjf9Se2A=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-20-MXiplrllPJmlp3IsZWcftw-1; Sun, 19 Jan 2025 19:41:08 -0500
-X-MC-Unique: MXiplrllPJmlp3IsZWcftw-1
-X-Mimecast-MFC-AGG-ID: MXiplrllPJmlp3IsZWcftw
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2ef35de8901so7209329a91.3
-        for <virtualization@lists.linux-foundation.org>; Sun, 19 Jan 2025 16:41:08 -0800 (PST)
+ us-mta-65-z2_tsh9HPw6sUs6xudiPMA-1; Sun, 19 Jan 2025 20:58:27 -0500
+X-MC-Unique: z2_tsh9HPw6sUs6xudiPMA-1
+X-Mimecast-MFC-AGG-ID: z2_tsh9HPw6sUs6xudiPMA
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2ef9864e006so11287737a91.2
+        for <virtualization@lists.linux.dev>; Sun, 19 Jan 2025 17:58:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737333667; x=1737938467;
+        d=1e100.net; s=20230601; t=1737338306; x=1737943106;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=QoODFoEJ/D6WHGy7MOEpfhr94tOI/fDa1CVKWtBtZbg=;
-        b=nQzGbzSVU7TWy2Dn9YzeV59J6DBVB/dp9FkeoIu4/IF6CyttajRQfDnmWPAVzlrP9O
-         Xauk8BnHwofiwmMkSp1SctfHYxFXXnFA0+HWWwQ2FqcmU3WJ6ajrRmQmxo2oaMNeUaEU
-         9ry+Ax2le0BcQEyJrsBM5n76eYudEyEOjA99Y0/KA9a03jsqayOsRcojHpWGDjO4qCm2
-         WY0dJSh3j+iALx82YNQvzal3FY0P9YWSMaeb7lDYT/ZDTGCMlLiHaRPHNbXfHX5Hv+9f
-         dEUok2Ja/EP5WtXr6ZO5kDa1/3uuHIDlPJ8yT3XWIbLs2Qmq+KcPHoOnhIQAcPVp15Aj
-         6sRg==
-X-Forwarded-Encrypted: i=1; AJvYcCV36cKdSoBfnSYqGY9y35tTRoRk4VMl+S31vJvFKSwYeNF39IMgTwt7ug2+gcHX89LrNCDaZlP9Kcbsopxp2w==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzHrSGxscU4l5FyHx+w8P4LRoJ/yWDsLgMI60JEeKvaEiIclDNd
-	VsW5HHuSepj9OvArVq0vKp1sHlGcxAWDYnK7tcBDBg7WElCIP6R+VAwLIfDn4ed7NU3ObOYW/Ex
-	WBz5umvYxmXT4tJ1MU4FlNB5zaP5AOL+CyTC8KfBPK0mo8uZ9XxvKbc2i0PSZP0S0TUcj/VLw9Q
-	15L216QGSkA1bl84y/DoKcmLOrUuqsAO2Xk/ZviTY8jctBOqBR4YNKog==
-X-Gm-Gg: ASbGncs8NGSZ+DXRmGUHpZ+xM3Wfm8Lvqm/ivpwkpkjYiyqs2CZoVLQEAC4GlgehFi7
-	ffwcNO8huspwgpOA1/7sgj9sGJysmoC0t1SQuP6qnRn4vPrGQO+jW
-X-Received: by 2002:a17:90a:d003:b0:2ee:a04b:92ce with SMTP id 98e67ed59e1d1-2f782d8c844mr13718673a91.32.1737333667416;
-        Sun, 19 Jan 2025 16:41:07 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGvOsgeJvjTzqlxcpcXrDzMSHfJqhVYBVkIV2UaUnhj4GnP64AkNHuirJUh0W/boBZuXQpajGMQJ+ugWEd6ZBA=
-X-Received: by 2002:a17:90a:d003:b0:2ee:a04b:92ce with SMTP id
- 98e67ed59e1d1-2f782d8c844mr13718637a91.32.1737333666967; Sun, 19 Jan 2025
- 16:41:06 -0800 (PST)
+        bh=vs03IIGJhVXqCXgVeBmydwl5duKVva078mHRQk4T/Vo=;
+        b=AnRUMoFfNcXRqabX+kBJYlaUSpwkPmQklxyVX5FH/UDFle9CR7Cx4YI+eYoUA54WeU
+         uelGeCOPYTuIauXaEKqi2Qb7H4YpKjpSq793oj+Un2clYmBIXqdjfhY6IyGjKsS+A4K4
+         i/bfxgeq5r//q6gVJf7YdxtPEaL1WfbUj0JL150WZdzWt1mRLiTj+59bLrwGMbH1PWmv
+         /rsLxTIeJhWTeUbi7EmOyyhKCOJGWK6KuCwJWeaY8GPJlhxkd7yeazkzxblwoIEptTdT
+         Aj3K46pdAdVwKbckGxXotqXQDbkAf/L6Z3V8s+ax88UrJ9k34Aj59NbM/0XgQ/puHcGO
+         9UYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW8uGEHyHgQZek5pacWvEfpceIhUkJdHN0Yx2iQJg9NG8YwRuMtHlO0f3TOKw7dKiAZEcaW2NaxRn1W7glfZg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyi9c0zKnZX/tUYsncYJw+qBNMLtUMI7KvBqjZ7mxHQRMvB9Jl+
+	rxAEkDQADyq9n0xyAfhNhlxQh2kmiokrNOKW58CKXT3/uKSHKjwCFnw+Abmo56r73cceGc9zEjp
+	YASQ8JEc4pBMiqSVhbHUtvTMnSdH7Aimt6ztCwDcAuoUkXqh6OWMqFuoOijBIZmI/OsOB3Og8/T
+	xp0LBh/+X9EkyV1I2H4FHVr86dzLmXBBQql+nqgRU=
+X-Gm-Gg: ASbGncuMscc4JdClE2RCvPxApqXWhl/5iQ5GNzBo7Y+I3//pFF036z7jaLv0oC5qGHU
+	Rc3qBxMtsS3sF/G1wqBv48XjiAGl3u9tgdoHWdOjYfEIzs+xU/WPB
+X-Received: by 2002:a17:90b:2750:b0:2ee:aef4:2c5d with SMTP id 98e67ed59e1d1-2f782d32bdcmr14441679a91.26.1737338306237;
+        Sun, 19 Jan 2025 17:58:26 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGxcO+gcU6GGpItpVaST+mP+lotfH8ALDufTNkb6YlviJFAQ1S+ZPqhw8EXYw//ooixqAGk20ku9VsIkuS7U5A=
+X-Received: by 2002:a17:90b:2750:b0:2ee:aef4:2c5d with SMTP id
+ 98e67ed59e1d1-2f782d32bdcmr14441654a91.26.1737338305832; Sun, 19 Jan 2025
+ 17:58:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250109-tun-v2-0-388d7d5a287a@daynix.com> <20250109-tun-v2-3-388d7d5a287a@daynix.com>
- <CACGkMEsm5DCb+n3NYeRjmq3rAANztZz5QmV8rbPNo+cH-=VzDQ@mail.gmail.com>
- <20250110052246-mutt-send-email-mst@kernel.org> <2e015ee6-8a3b-43fb-b119-e1921139c74b@daynix.com>
- <CACGkMEuiyfH-QitiiKJ__-8NiTjoOfc8Nx5BwLM-GOfPpVEitA@mail.gmail.com>
- <fcb301e8-c808-4e20-92dd-2e3b83998d18@daynix.com> <CACGkMEvBU3mLbW+-nOscriR-SeDvPSm1mtwwgznYFOocuao5MQ@mail.gmail.com>
- <cc79bef1-c24e-448d-bc20-f8302e341b2c@daynix.com>
-In-Reply-To: <cc79bef1-c24e-448d-bc20-f8302e341b2c@daynix.com>
+References: <20250116055302.14308-1-jdamato@fastly.com> <20250116055302.14308-4-jdamato@fastly.com>
+ <1737013994.1861002-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1737013994.1861002-1-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 20 Jan 2025 08:40:55 +0800
-X-Gm-Features: AbW1kvZySvRTtG6CQaeo9DOkWdfLmhPa3wBjyc1FO_e-8MjSnO1jhzJ2Si8rLnw
-Message-ID: <CACGkMEsJUb3ZLm3rLuaayDAS4kf-vbY03wL4M9j1K+Z=a4BDig@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] tun: Set num_buffers for virtio 1.0
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+Date: Mon, 20 Jan 2025 09:58:13 +0800
+X-Gm-Features: AbW1kvarckGogeshrcvCGai-_wdzjzim8Cy3XTbYBj63sr-Fx1KKQaClUhGQeVc
+Message-ID: <CACGkMEtaaScVM8iuHP7oGBhwCAvcjQstmNoedc5UTtkEMLRDow@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 3/4] virtio_net: Map NAPIs to queues
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Joe Damato <jdamato@fastly.com>, gerhard@engleder-embedded.com, leiyang@redhat.com, 
+	mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
 	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
-	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
-	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, devel@daynix.com
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>, 
+	"open list:XDP (eXpress Data Path):Keyword:(?:b|_)xdp(?:b|_)" <bpf@vger.kernel.org>, netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wTyGsZddFdLmI3tlA3uvrqdFu0H4kDSPQ_bl11SoO8Q_1737333667
+X-Mimecast-MFC-PROC-ID: tiB_KW_GR-i4bO3FPTRd1BjEp13lrxsa2uXvCkX17E0_1737338306
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 16, 2025 at 1:30=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix=
-.com> wrote:
+On Thu, Jan 16, 2025 at 3:57=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> On 2025/01/16 10:06, Jason Wang wrote:
-> > On Wed, Jan 15, 2025 at 1:07=E2=80=AFPM Akihiko Odaki <akihiko.odaki@da=
-ynix.com> wrote:
-> >>
-> >> On 2025/01/13 12:04, Jason Wang wrote:
-> >>> On Fri, Jan 10, 2025 at 7:12=E2=80=AFPM Akihiko Odaki <akihiko.odaki@=
-daynix.com> wrote:
-> >>>>
-> >>>> On 2025/01/10 19:23, Michael S. Tsirkin wrote:
-> >>>>> On Fri, Jan 10, 2025 at 11:27:13AM +0800, Jason Wang wrote:
-> >>>>>> On Thu, Jan 9, 2025 at 2:59=E2=80=AFPM Akihiko Odaki <akihiko.odak=
-i@daynix.com> wrote:
-> >>>>>>>
-> >>>>>>> The specification says the device MUST set num_buffers to 1 if
-> >>>>>>> VIRTIO_NET_F_MRG_RXBUF has not been negotiated.
-> >>>>>>
-> >>>>>> Have we agreed on how to fix the spec or not?
-> >>>>>>
-> >>>>>> As I replied in the spec patch, if we just remove this "MUST", it
-> >>>>>> looks like we are all fine?
-> >>>>>>
-> >>>>>> Thanks
-> >>>>>
-> >>>>> We should replace MUST with SHOULD but it is not all fine,
-> >>>>> ignoring SHOULD is a quality of implementation issue.
-> >>>>>
-> >>>
-> >>> So is this something that the driver should notice?
-> >>>
-> >>>>
-> >>>> Should we really replace it? It would mean that a driver conformant =
-with
-> >>>> the current specification may not be compatible with a device confor=
-mant
-> >>>> with the future specification.
-> >>>
-> >>> I don't get this. We are talking about devices and we want to relax s=
-o
-> >>> it should compatibile.
-> >>
-> >>
-> >> The problem is:
-> >> 1) On the device side, the num_buffers can be left uninitialized due t=
-o bugs
-> >> 2) On the driver side, the specification allows assuming the num_buffe=
-rs
-> >> is set to one.
-> >>
-> >> Relaxing the device requirement will replace "due to bugs" with
-> >> "according to the specification" in 1). It still contradicts with 2) s=
-o
-> >> does not fix compatibility.
+> On Thu, 16 Jan 2025 05:52:58 +0000, Joe Damato <jdamato@fastly.com> wrote=
+:
+> > Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
+> > can be accessed by user apps.
 > >
-> > Just to clarify I meant we can simply remove the following:
+> > $ ethtool -i ens4 | grep driver
+> > driver: virtio_net
 > >
-> > """
-> > The device MUST use only a single descriptor if VIRTIO_NET_F_MRG_RXBUF
-> > was not negotiated. Note: This means that num_buffers will always be 1
-> > if VIRTIO_NET_F_MRG_RXBUF is not negotiated.
-> > """
+> > $ sudo ethtool -L ens4 combined 4
 > >
-> > And
+> > $ ./tools/net/ynl/pyynl/cli.py \
+> >        --spec Documentation/netlink/specs/netdev.yaml \
+> >        --dump queue-get --json=3D'{"ifindex": 2}'
+> > [{'id': 0, 'ifindex': 2, 'napi-id': 8289, 'type': 'rx'},
+> >  {'id': 1, 'ifindex': 2, 'napi-id': 8290, 'type': 'rx'},
+> >  {'id': 2, 'ifindex': 2, 'napi-id': 8291, 'type': 'rx'},
+> >  {'id': 3, 'ifindex': 2, 'napi-id': 8292, 'type': 'rx'},
+> >  {'id': 0, 'ifindex': 2, 'type': 'tx'},
+> >  {'id': 1, 'ifindex': 2, 'type': 'tx'},
+> >  {'id': 2, 'ifindex': 2, 'type': 'tx'},
+> >  {'id': 3, 'ifindex': 2, 'type': 'tx'}]
 > >
-> > """
-> > If VIRTIO_NET_F_MRG_RXBUF has not been negotiated, the device MUST set
-> > num_buffers to 1.
-> > """
+> > Note that virtio_net has TX-only NAPIs which do not have NAPI IDs, so
+> > the lack of 'napi-id' in the above output is expected.
 > >
-> > This seems easier as it reflects the fact where some devices don't set
-> > it. And it eases the transitional device as it doesn't need to have
-> > any special care.
+> > Signed-off-by: Joe Damato <jdamato@fastly.com>
+> > ---
+> >  v2:
+> >    - Eliminate RTNL code paths using the API Jakub introduced in patch =
+1
+> >      of this v2.
+> >    - Added virtnet_napi_disable to reduce code duplication as
+> >      suggested by Jason Wang.
+> >
+> >  drivers/net/virtio_net.c | 34 +++++++++++++++++++++++++++++-----
+> >  1 file changed, 29 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index cff18c66b54a..c6fda756dd07 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -2803,9 +2803,18 @@ static void virtnet_napi_do_enable(struct virtqu=
+eue *vq,
+> >       local_bh_enable();
+> >  }
+> >
+> > -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_stru=
+ct *napi)
+> > +static void virtnet_napi_enable(struct virtqueue *vq,
+> > +                             struct napi_struct *napi)
+> >  {
+> > +     struct virtnet_info *vi =3D vq->vdev->priv;
+> > +     int q =3D vq2rxq(vq);
+> > +     u16 curr_qs;
+> > +
+> >       virtnet_napi_do_enable(vq, napi);
+> > +
+> > +     curr_qs =3D vi->curr_queue_pairs - vi->xdp_queue_pairs;
+> > +     if (!vi->xdp_enabled || q < curr_qs)
+> > +             netif_queue_set_napi(vi->dev, q, NETDEV_QUEUE_TYPE_RX, na=
+pi);
 >
-> That can potentially break existing drivers that are compliant with the
-> current and assumes the num_buffers is set to 1.
+> So what case the check of xdp_enabled is for?
 
-Those drivers are already 'broken'. Aren't they?
++1 and I think the XDP related checks should be done by the caller not here=
+.
+
+>
+> And I think we should merge this to last commit.
+>
+> Thanks.
+>
 
 Thanks
 
->
-> Regards,
-> Akihiko Odaki
->
+> >  }
 > >
-> > Then we don't need any driver normative so I don't see any conflict.
+> >  static void virtnet_napi_tx_enable(struct virtnet_info *vi,
+> > @@ -2826,6 +2835,20 @@ static void virtnet_napi_tx_enable(struct virtne=
+t_info *vi,
+> >       virtnet_napi_do_enable(vq, napi);
+> >  }
 > >
-> > Michael suggests we use "SHOULD", but if this is something that the
-> > driver needs to be aware of I don't know how "SHOULD" can help a lot
-> > or not.
+> > +static void virtnet_napi_disable(struct virtqueue *vq,
+> > +                              struct napi_struct *napi)
+> > +{
+> > +     struct virtnet_info *vi =3D vq->vdev->priv;
+> > +     int q =3D vq2rxq(vq);
+> > +     u16 curr_qs;
+> > +
+> > +     curr_qs =3D vi->curr_queue_pairs - vi->xdp_queue_pairs;
+> > +     if (!vi->xdp_enabled || q < curr_qs)
+> > +             netif_queue_set_napi(vi->dev, q, NETDEV_QUEUE_TYPE_RX, NU=
+LL);
+> > +
+> > +     napi_disable(napi);
+> > +}
+> > +
+> >  static void virtnet_napi_tx_disable(struct napi_struct *napi)
+> >  {
+> >       if (napi->weight)
+> > @@ -2842,7 +2865,8 @@ static void refill_work(struct work_struct *work)
+> >       for (i =3D 0; i < vi->curr_queue_pairs; i++) {
+> >               struct receive_queue *rq =3D &vi->rq[i];
 > >
-> >>
-> >> Instead, we should make the driver requirement stricter to change 2).
-> >> That is what "[PATCH v3] virtio-net: Ignore num_buffers when unused" d=
-oes:
-> >> https://lore.kernel.org/r/20250110-reserved-v3-1-2ade0a5d2090@daynix.c=
-om
-> >>
-> >>>
-> >>>>
-> >>>> We are going to fix all implementations known to buggy (QEMU and Lin=
-ux)
-> >>>> anyway so I think it's just fine to leave that part of specification=
- as is.
-> >>>
-> >>> I don't think we can fix it all.
-> >>
-> >> It essentially only requires storing 16 bits. There are details we nee=
-d
-> >> to work out, but it should be possible to fix.
+> > -             napi_disable(&rq->napi);
+> > +             virtnet_napi_disable(rq->vq, &rq->napi);
+> > +
+> >               still_empty =3D !try_fill_recv(vi, rq, GFP_KERNEL);
+> >               virtnet_napi_enable(rq->vq, &rq->napi);
 > >
-> > I meant it's not realistic to fix all the hypervisors. Note that
-> > modern devices have been implemented for about a decade so we may have
-> > too many versions of various hypervisors. (E.g DPDK seems to stick
-> > with the same behaviour of the current kernel).
->  > >>
-> >> Regards,
-> >> Akihiko Odaki
-> >>
+> > @@ -3042,7 +3066,7 @@ static int virtnet_poll(struct napi_struct *napi,=
+ int budget)
+> >  static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp=
+_index)
+> >  {
+> >       virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
+> > -     napi_disable(&vi->rq[qp_index].napi);
+> > +     virtnet_napi_disable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi)=
+;
+> >       xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+> >  }
 > >
-> > Thanks
+> > @@ -3313,7 +3337,7 @@ static void virtnet_rx_pause(struct virtnet_info =
+*vi, struct receive_queue *rq)
+> >       bool running =3D netif_running(vi->dev);
+> >
+> >       if (running) {
+> > -             napi_disable(&rq->napi);
+> > +             virtnet_napi_disable(rq->vq, &rq->napi);
+> >               virtnet_cancel_dim(vi, &rq->dim);
+> >       }
+> >  }
+> > @@ -5932,7 +5956,7 @@ static int virtnet_xdp_set(struct net_device *dev=
+, struct bpf_prog *prog,
+> >       /* Make sure NAPI is not using any XDP TX queues for RX. */
+> >       if (netif_running(dev)) {
+> >               for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> > -                     napi_disable(&vi->rq[i].napi);
+> > +                     virtnet_napi_disable(vi->rq[i].vq, &vi->rq[i].nap=
+i);
+> >                       virtnet_napi_tx_disable(&vi->sq[i].napi);
+> >               }
+> >       }
+> > --
+> > 2.25.1
 > >
 >
 
