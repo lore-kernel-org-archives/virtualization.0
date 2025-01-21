@@ -1,179 +1,166 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com [209.85.221.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C859414F9E2
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Jan 2025 05:44:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7A5084A2B;
+	Tue, 21 Jan 2025 09:06:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737438289; cv=none; b=YTkUsRyLfQDHJF4agelP5eMimXC2mOV7ky/wq1oSihKEW/N2k+2gSneJ2yj9uE46JN7vk199jksuEaxYk+oMTfiYZTKwdd7ZhrJBe5lSXjbYsKKtPUmOcMTBY+GHJEIYtb6GiY/0xsO7K8gFVAnxn6j8oiTzRQihNmIIugVrwB4=
+	t=1737450363; cv=none; b=QI4vFoJKSFapTMXbj/HIwDTPQJqgQfanZUy3D3S9SwmQYv1V9AK3f7IjY5wZbr75vmNanf55y+1zb+5YFFWBnCNmTWWEVNVDLOkG/RqsJupY0IRaiNhYReMqjN/h0vSCKQt4xvvlouAhrH7G6tYUeexYmV4Y70kISF0eKzyaSC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737438289; c=relaxed/simple;
-	bh=KKjKQrSywZ/HAtYTFy2CTQDgCf1VU2GQ+lX5cc5vXaI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=rzcdeIPFUjfFahBjF5q0kCT++6S1Fs72Ry4jrS6PUUhN8uSZoQPPbYsmwTgZRZ9ecw8AvmCren2xWVWXPRP1tVabzer5WzL02Tu0I8EETfm0ASMVKsq8WAztrxwM1RgZtZcAkLS7/T3fsU5RpatIM6GV5ADGuPC0rpW03p3Tc5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=prscOcRU; arc=none smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="prscOcRU"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 69DB284029
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Jan 2025 05:44:47 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id jjOPbpSWDOde for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jan 2025 05:44:46 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62e; helo=mail-pl1-x62e.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A8C7284028
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A8C7284028
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=prscOcRU
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A8C7284028
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Jan 2025 05:44:46 +0000 (UTC)
-Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-21654fdd5daso87410765ad.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 20 Jan 2025 21:44:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1737438286; x=1738043086; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=quek95SDTYVXYnePfXxFQzmJR+Lu7obq+8lhE5GmOzk=;
-        b=prscOcRUbc56z0McDbYCo2fMzxAmEnQbYbN+Nl3NHgF7l2uwEOCCmXzZmkH8pYX266
-         nmUW4CMAJAeGP0VTPFf6an0c55hLbGGoRjvcQBbGW637IiOJUYxybH9V7RdDTfqx3ujF
-         54pyuV5+M96Dy6HOOkEjl+KbmxBD4x8nBQj6FEKw1suzUeBqS6frLXoN7YrDeFFq9q5E
-         gHri3JR2/1szT7XOaBFI1FHj3lJ8JNoguaZbcrnZbwtlZYyh7BFpzK4myRe2Fjl7YOqL
-         tSNm65RhpXd6uxI1zbri50jikRtZYS/4D9Ky+vuq4Za6D8CZO4PO4Ff6jKdp3Ysy9Y3o
-         6Ybg==
+	s=arc-20240116; t=1737450363; c=relaxed/simple;
+	bh=379PWCV/7+kIrmP1pA3alid5iJDIvrSFYacRmagLkUc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Pb/ZizZK8N2Z855eaH7nIR/JcbZNvIsDXuxXuO2uiLGgzrxpbFbOaW6lTPjm23IcLKyKhfFJKI5mze+plW+PqPVnU7jO+lycm4y/7IxdMXyi/gy3HSjkteXRYjbd9fkknuzN+CChxjR2DcRtp6Km3rl7Lt/dPZAqB1tc7593bBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vk1-f172.google.com with SMTP id 71dfb90a1353d-5174db4e34eso3728499e0c.0;
+        Tue, 21 Jan 2025 01:06:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737438286; x=1738043086;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=quek95SDTYVXYnePfXxFQzmJR+Lu7obq+8lhE5GmOzk=;
-        b=EOqax1U7waCiTKn41eqDIVvuJ5Fievebx1FNaOc/92e9P5Un1ZKY7QJB7ArdNdT3y8
-         i56CeGKeMl+uII2Yo2BnmJ2vbiaunLmDLB8W0ECGirq5scXwu+LJzPeDZIDsUhtK1XVe
-         KR6It4LtyP4FW7lRHnhrmrroxb/Pas3Y4VyDpa0OBhqqoLqD2vdU4ufq7viWspDB4QJk
-         rnkjg8ZAft8XKOb1BqfEdHEeZwfwg1fuPgw+XJQu7rY7W39OH/7kXXTCSlrwsF58RE7N
-         tpJxrNuv9zqRshrxpKkKAjQ+73H4S5fqjbotrLlUq4gOZxSaArj1oIau9QhjRwHnZMGn
-         9Trw==
-X-Forwarded-Encrypted: i=1; AJvYcCXfEzf3e7/q6fW/SIB0yq1/HuXoJUIjJeW07uVoryK2euYnrOyZ5ipvZH8u5khOOKj7rzT6EhTekT+R92JAsg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzRKJy/UKfjBvfa4HTsyx0JjRPHmi4ZUcIj+ZSRfSDp9r4UKBUt
-	iPufX98OyX1o8Vo7nNST8shQtIurLuwmnoa0zYm6amchVas4iPeZuoSTRq0rDec=
-X-Gm-Gg: ASbGncsDv4mlFyGP8QfJqPIsC+IQkSIdf/qReMeEbatl7LHwhIiRlgyX5KGM1KSBeU2
-	URMV1Ub1Q8duecv745RSy9U/NI09zvafmzF6bkNWI/iocq6DXycKh7zFA4oy5VDT6OwiGyPM8Tc
-	ozRtjhGoIh83nb3t6wJzI2NEP7+Hou8RZQHQNkPRayu9GvpQl18O6RH12DZLrhF+s1lz834CaFH
-	Z8KHw3g57W/9wXtwLzm9FlTmWfTzXuIl6v6EJq/1/SBT7kYG9OaXGNmIjpPfAl+oOkNrrAMqqRa
-	frYs
-X-Google-Smtp-Source: AGHT+IFTVBGY3mBtHPPZNgGiKdheqCTQ97KHaRubQObIyg1+VGXEf+v/0x6j6pVWQSFPga7FkyMokQ==
-X-Received: by 2002:a05:6a20:2524:b0:1d5:10d6:92b9 with SMTP id adf61e73a8af0-1eb215894f4mr22737961637.30.1737438285826;
-        Mon, 20 Jan 2025 21:44:45 -0800 (PST)
-Received: from [157.82.203.37] ([157.82.203.37])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72dababc174sm8360634b3a.178.2025.01.20.21.44.40
+        d=1e100.net; s=20230601; t=1737450358; x=1738055158;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=h0F66BpcncnDZq8+yac2PqIUMY5KsLdGVzSelKc0x5s=;
+        b=Er8/myQPK5LAiCleYF1WXqeeeO8v8xh+oPFY44tcZzNUjasWL2QmiKg6mFzgWiOfo/
+         Qa7sRJvgCZ4AIXWLQ/O+huvHeyfuIzU5Ev+nN1hf7BjnLYXIeu0QIf0IhOyrQNUyEkGd
+         lZI4cYNtTnJRLFb7jsqAp+c7rw7I91esMdst5nwsdRuAF6iG7x44FjVHP84oOb7P9YPh
+         NH/Ogn7WoawjQuJ5cWptieO93cKpmbjtk/ZCuq+qiVx8zwp8BWGzYAzBmmM9RYz1lh94
+         DRPhe8eQYe/4SpSQXexEG4YhiBSLONt36tNp1B7ECAdYOOnm7RzbedIiTjnKNXpqdPxV
+         TYog==
+X-Forwarded-Encrypted: i=1; AJvYcCU4NcnCQ6q/dJptafIEts5Q9bGk+/n3aIZiKLFh8ml4oz9evgr1q8rWlvSnWdowYnzoRPZPDsiV3p/1zBuUZIs=@lists.linux.dev, AJvYcCVQJsQHkHxbM67KoFSKNDiKYqoB89A/SUvSrwpIU6cwdpyEL7xEvOpI6q1giuTkCbpHHBQ=@lists.linux.dev, AJvYcCWcwZ4No6qif28NEwgQwAkYyM60u2XXaW1N1pY2O++utfZFyPLcowfBum2ZaqBtfC2mlJfxdZi+dMwm7Jw=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzpx+ZR8HUhDvcrAyT1KtAJUT/QYwyDkyzpbiHXe6IuUHEUVKZG
+	PCOkp41XLLnB25756Ci+tyW5dBPKhiMSYQ9sm+dOFsb0eKVVj/gYPQEODHBL
+X-Gm-Gg: ASbGncscOu/1HokEyvL3kysuUOAUYH+AZemRl97vvc3TQi1lo76HOo/yHpW24yYN1sm
+	M4HcSVUp9RfBV02P6adFJjB1LJjobaMl4CcNOpMT5E6LHGO+IjcmPIj+OCzRV5wACNo9uOST5e8
+	QymTkoApzq0TZC+ko514jRVkiEp5y15Qi1RVbhfHiwuDojCMtBKmdXQdkjljU8KTdzfJfZx2qQ8
+	wPqEJBi24sbczH29qwV7TlTaAo8yyrBfK25gnhgMotCQdCJ+sEFiUEWhrfkk0JrL3G1O/t+nNov
+	znoiIyU+JSLupOVLE2Dde1zoVOqwOgCQPiDb
+X-Google-Smtp-Source: AGHT+IFfnzb4EAnx7CL0V9eoVMvrJbnBHxXC87haB6esuuzHQ68A/+dyGpSrIgilZ+sAB7xcu/Rn5g==
+X-Received: by 2002:a05:6122:4885:b0:516:1e32:f8c7 with SMTP id 71dfb90a1353d-51cd9453af7mr22136678e0c.0.1737450358425;
+        Tue, 21 Jan 2025 01:05:58 -0800 (PST)
+Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com. [209.85.221.175])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-51cf56ef34dsm1715847e0c.39.2025.01.21.01.05.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jan 2025 21:44:45 -0800 (PST)
-Message-ID: <806def7d-16f3-4d53-abc8-7d18e8c22dcb@daynix.com>
-Date: Tue, 21 Jan 2025 14:44:39 +0900
+        Tue, 21 Jan 2025 01:05:58 -0800 (PST)
+Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-518799f2828so2848421e0c.0;
+        Tue, 21 Jan 2025 01:05:57 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUO3bARZQJvyl4oxcTOtGYQ3DKSmjQtKBzhO0wqWPN2r1LOKs+vgYdP8Pqv8nFY0Dwbkyo=@lists.linux.dev, AJvYcCUkJgzVp/q2ZFzsqYF3Gz8XOENQgH9V3Eud78TI5alqYCGuQlDCrQb5p+2DLGb8+AVVaH7mug1LsIiN97w=@lists.linux.dev, AJvYcCVkZvuYap4rikUu/DG91jH033i/FUDPHlKzs1kyac7cPizNRM6cItxwi1dUTPpflRwyBcDQWwsobxn6thtaLbo=@lists.linux.dev
+X-Received: by 2002:a05:6122:1783:b0:517:e7b7:d04b with SMTP id
+ 71dfb90a1353d-51cd983d39emr19246646e0c.5.1737450357663; Tue, 21 Jan 2025
+ 01:05:57 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v4 8/9] tap: Keep hdr_len in tap_get_user()
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Jonathan Corbet <corbet@lwn.net>, Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Andrew Melnychenko <andrew@daynix.com>,
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
- devel@daynix.com
-References: <20250120-tun-v4-0-ee81dda03d7f@daynix.com>
- <20250120-tun-v4-8-ee81dda03d7f@daynix.com>
- <678e327e34602_19c737294b4@willemb.c.googlers.com.notmuch>
-Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <678e327e34602_19c737294b4@willemb.c.googlers.com.notmuch>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20241214-drm-connector-mode-valid-const-v2-0-4f9498a4c822@linaro.org>
+ <173624946815.1500596.321177900833598022.b4-ty@linaro.org>
+In-Reply-To: <173624946815.1500596.321177900833598022.b4-ty@linaro.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 21 Jan 2025 10:05:45 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdVwcaY2Fgpf7GYhBrE5B+AEg=v0BH4OjMXgnp=wqjxmKg@mail.gmail.com>
+X-Gm-Features: AbW1kvaysGolt62WeN4DkS2DNKlSt5oN-0lBeK1j4PwxsWLIrFBPjsQ9bnC7ZcA
+Message-ID: <CAMuHMdVwcaY2Fgpf7GYhBrE5B+AEg=v0BH4OjMXgnp=wqjxmKg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/5] drm/connector: make mode_valid() callback accept
+ const mode pointer
+To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Karol Herbst <kherbst@redhat.com>, Lyude Paul <lyude@redhat.com>, 
+	Danilo Krummrich <dakr@redhat.com>, Harry Wentland <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>, 
+	Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>, Alex Deucher <alexander.deucher@amd.com>, 
+	=?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+	Xinhui Pan <Xinhui.Pan@amd.com>, Alain Volmat <alain.volmat@foss.st.com>, 
+	Raphael Gallais-Pou <rgallaispou@gmail.com>, Liviu Dudau <liviu.dudau@arm.com>, 
+	Andrzej Hajda <andrzej.hajda@intel.com>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Robert Foss <rfoss@kernel.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, 
+	Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+	Peter Senna Tschudin <peter.senna@gmail.com>, Ian Ray <ian.ray@ge.com>, 
+	Martyn Welch <martyn.welch@collabora.co.uk>, Inki Dae <inki.dae@samsung.com>, 
+	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
+	Stefan Agner <stefan@agner.ch>, Alison Wang <alison.wang@nxp.com>, 
+	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
+	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
+	Rob Clark <robdclark@gmail.com>, Abhinav Kumar <quic_abhinavk@quicinc.com>, 
+	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
+	Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Sandy Huang <hjc@rock-chips.com>, 
+	=?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, 
+	Andy Yan <andy.yan@rock-chips.com>, Chen-Yu Tsai <wens@csie.org>, 
+	Samuel Holland <samuel@sholland.org>, Thierry Reding <thierry.reding@gmail.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Dave Stevenson <dave.stevenson@raspberrypi.com>, =?UTF-8?B?TWHDrXJhIENhbmFs?= <mcanal@igalia.com>, 
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
+	Chia-I Wu <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, intel-gfx@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
+	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
+	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org, 
+	linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev, 
+	linux-tegra@vger.kernel.org, 
+	Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, 
+	Jani Nikula <jani.nikula@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2025/01/20 20:24, Willem de Bruijn wrote:
-> Akihiko Odaki wrote:
->> hdr_len is repeatedly used so keep it in a local variable.
->>
->> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
->> ---
->>   drivers/net/tap.c | 17 +++++++----------
->>   1 file changed, 7 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
->> index 061c2f27dfc83f5e6d0bea4da0e845cc429b1fd8..7ee2e9ee2a89fd539b087496b92d2f6198266f44 100644
->> --- a/drivers/net/tap.c
->> +++ b/drivers/net/tap.c
->> @@ -645,6 +645,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
->>   	int err;
->>   	struct virtio_net_hdr vnet_hdr = { 0 };
->>   	int vnet_hdr_len = 0;
->> +	int hdr_len = 0;
->>   	int copylen = 0;
->>   	int depth;
->>   	bool zerocopy = false;
->> @@ -672,6 +673,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
->>   		err = -EINVAL;
->>   		if (tap16_to_cpu(q, vnet_hdr.hdr_len) > iov_iter_count(from))
->>   			goto err;
->> +		hdr_len = tap16_to_cpu(q, vnet_hdr.hdr_len);
->>   	}
->>   
->>   	len = iov_iter_count(from);
->> @@ -683,11 +685,8 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
->>   	if (msg_control && sock_flag(&q->sk, SOCK_ZEROCOPY)) {
->>   		struct iov_iter i;
->>   
->> -		copylen = vnet_hdr.hdr_len ?
->> -			tap16_to_cpu(q, vnet_hdr.hdr_len) : GOODCOPY_LEN;
->> -		if (copylen > good_linear)
->> -			copylen = good_linear;
->> -		else if (copylen < ETH_HLEN)
->> +		copylen = min(hdr_len ? hdr_len : GOODCOPY_LEN, good_linear);
->> +		if (copylen < ETH_HLEN)
->>   			copylen = ETH_HLEN;
->>   		linear = copylen;
->>   		i = *from;
->> @@ -698,11 +697,9 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
->>   
->>   	if (!zerocopy) {
->>   		copylen = len;
->> -		linear = tap16_to_cpu(q, vnet_hdr.hdr_len);
->> -		if (linear > good_linear)
->> -			linear = good_linear;
->> -		else if (linear < ETH_HLEN)
->> -			linear = ETH_HLEN;
->> +		linear = min(hdr_len, good_linear);
->> +		if (copylen < ETH_HLEN)
->> +			copylen = ETH_HLEN;
-> 
-> Similar to previous patch, I don't think this patch is significant
-> enough to warrant the code churn.
+Hi Dmitry,
 
-The following patch will require replacing
-tap16_to_cpu(q, vnet_hdr.hdr_len)
-with
-tap16_to_cpu(q->flags, vnet_hdr.hdr_len)
+On Tue, Jan 7, 2025 at 12:31=E2=80=AFPM Dmitry Baryshkov
+<dmitry.baryshkov@linaro.org> wrote:
+> On Sat, 14 Dec 2024 15:37:04 +0200, Dmitry Baryshkov wrote:
+> > While working on the generic mode_valid() implementation for the HDMI
+> > Connector framework I noticed that unlike other DRM objects
+> > drm_connector accepts non-const pointer to struct drm_display_mode,
+> > while obviously mode_valid() isn't expected to modify the argument.
+> >
+> > Mass-change the DRM framework code to pass const argument to that
+> > callback.
+> >
+> > [...]
+>
+> Applied to drm-misc-next, thanks!
+>
+> [1/5] drm/encoder_slave: make mode_valid accept const struct drm_display_=
+mode
+>       commit: 7a5cd45fab0a2671aa4ea6d8fb80cea268387176
+> [2/5] drm/amdgpu: don't change mode in amdgpu_dm_connector_mode_valid()
+>       commit: b255ce4388e09f14311e7912d0ccd45a14a08d66
+> [3/5] drm/sti: hda: pass const struct drm_display_mode* to hda_get_mode_i=
+dx()
+>       commit: 5f011b442006ccb29044263df10843de80fc0b14
+> [4/5] drm/connector: make mode_valid_ctx take a const struct drm_display_=
+mode
+>       commit: 66df9debcb29d14802912ed79a9cf9ba721b51a4
+> [5/5] drm/connector: make mode_valid take a const struct drm_display_mode
+>       commit: 26d6fd81916e62d2b0568d9756e5f9c33f0f9b7a
 
-It will make some lines a bit too long. Calling tap16_to_cpu() at 
-multiple places is also not good to keep the vnet implementation unified 
-as the function inspects vnet_hdr.
+I cannot find these in drm-misc or drm-next, but they are in drm-tip?
+The last one due to commit 2bdc721917cf141f ("Merge remote-tracking
+branch 'drm-misc/drm-misc-next' into drm-tip").
 
-This patch is independently too trivial, but I think it is a worthwhile 
-cleanup combined with the following patch.
+What am I missing?
+Thanks!
+
+P.S. Sima: noticed while resolving a merge conflict using drm-tip. Thx!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
