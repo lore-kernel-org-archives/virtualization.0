@@ -1,135 +1,193 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 298911F543B
-	for <virtualization@lists.linux.dev>; Tue, 21 Jan 2025 17:30:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10E871F542F
+	for <virtualization@lists.linux.dev>; Tue, 21 Jan 2025 17:55:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737480629; cv=none; b=Z8+KM2EYm5mZGoGm2fN4oDAwr1aiBZo4E6ZNmgwHuWGG+VgLmPEQPGtzc3QNVYJVIAfM5F9ESe6Fq8ViFDwBLPAzwYKFVV88HDb3YefYBy2F1ZR1i3S60SSjVxtjBUlDTY+mxBJ+QqJInnMpuScp5KgaLII6lP4zDNzw711lBOw=
+	t=1737482142; cv=none; b=mLVQ7kIjdALzc5F3JTfLgFCnVPP5hTtC8GBSLCFlZPuiE3uhC9G17qCNTov/BFuwI7fYW7XJ7TAdcjbnGgolzBfeTnbWv09Fvys3BmrN8IJsH0YBd7CBWY7H/QxHPZJC/35KxHbFNKelX2EuitWpN4Lfl3XnFpDGGo+LmA/y6/4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737480629; c=relaxed/simple;
-	bh=+XqZ2mIVewpWYnLioiQaGxFPazonOEuVdIMJXoMPQ2U=;
+	s=arc-20240116; t=1737482142; c=relaxed/simple;
+	bh=8MGMALB53GqE7pr90y8ipkSuziOt45gftdneWPyARRo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jr671w94EeWqiCHCKflD8wLGXf/Ws7QIQcAI8pMrn08PONAUbJgSvmO584u6UfktgRGhaXGplAoBDihyJHDz8ijBcz+qbAXchH6z33qLFF30GsZ9vdKllHXFJdSMZ3DhNRVi9TRXJIjq62lASIRmfMRWjdhi6qjaGcOqb4DHHYU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XCKQbcJv; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=BU6P4KLLRpt48WLbn/v3k941PGqXtWu42Wd3piQ35e48BQDSof1ykfcEwc6gPP+qevbdw2swIOHz5IRjOylDXUQqM8Y1Z90+Kk+uMlaEc8IDnhbbjUwSDtB8yZdLbI9zqWw7ycmQKgXZtRZl0OnpAXJ0M4afzVrogy9gPu7BR3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=urVY6hRJ; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XCKQbcJv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737480627;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1Ohl61oQvrjRs6MMIBMI/1E+/f+GFIL7csbNfKFkQbk=;
-	b=XCKQbcJv9lT5QorBXPb1FYfvOqrOsFC1Y/WkNtg0hbMlhrG70iLWwMEVzt8LBtxrDDLJkT
-	8irVrC/gQH2AIbo6avkRoYpO0tVvi+A8T6zA6uHkX4ldt8xodP2TWCRtj7bMsj/3xZyrTm
-	WGcyyFtVgZgjW5D11nxOMOfBkpIVuqs=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-357-5yoWfAX-NSSM1dfqwKpN3A-1; Tue, 21 Jan 2025 12:30:23 -0500
-X-MC-Unique: 5yoWfAX-NSSM1dfqwKpN3A-1
-X-Mimecast-MFC-AGG-ID: 5yoWfAX-NSSM1dfqwKpN3A
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43624b08181so43325e9.0
-        for <virtualization@lists.linux.dev>; Tue, 21 Jan 2025 09:30:23 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="urVY6hRJ"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-216634dd574so69939995ad.2
+        for <virtualization@lists.linux.dev>; Tue, 21 Jan 2025 09:55:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1737482140; x=1738086940; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:mail-followup-to:message-id:subject:cc:to
+         :from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=JMp+ss6Wwfurnp42doFXEAGvsTfQgZrzB8Da9TV6zaI=;
+        b=urVY6hRJ0S2kdyV2oGDQecyUj9AOHsOAE4itxYMRy0AMeM8qpc1H7A1YbNLDNao2Z2
+         ZIiXeEi42SMPrgcYrWqIsSEEkE30rl5lOStXNGEoJfhFMRIrqaCUQZFv/XfQk9TAAWzl
+         vHG3ra0xFTKWMlWAhKkQ1FGrlAp6H/nnYII4M=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737480622; x=1738085422;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1Ohl61oQvrjRs6MMIBMI/1E+/f+GFIL7csbNfKFkQbk=;
-        b=ltMWwPUwqWOQiE6HginruUFXB1xx5hJyYwaoXnGYsBfE2o73CsC9/Zi0UPqJgc8P+t
-         748rAmd/ENYH+9MB/VqPj+bLtIyVcsG2PcM+iAyHw+UK/n8JJ3uEmeMXh0rG4KQqpGtF
-         fUyTnourAJRhi1pZ2rJcuNu2pNf4whcPzmJWhYcxqU8hTJx5lPFFG9UgSkwJKGeLS15Y
-         sZvpWiKN1TjRkjTcS6uTmaYIfO7WvjCM/zJeSFOm3u/bMVDTM7pZ6uoUfrNN634J2mOd
-         OeWYvfgqEUDD4qBt3ymn4la5PpTTEt+BrtqCl+6KyWNhW/DsQYg+6RtT8GMPzgKOyZMM
-         ZMvA==
-X-Forwarded-Encrypted: i=1; AJvYcCX92FiBWnxT5pUtwoQ6n3WPXGoi70uhhxLeNG9ngIvpAgFD665xvffO6Y2icM+6OePsp3eqU/sZVggE4AQJUg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxTV8Gp3/vCDrg8nClyZ4Q8638War0xLiFKgKhb3a8lYergGv23
-	NO/Oq/tqMNY1yts6ycXLfmVP4fuP8RZCtdxYDCFwhq/eLA5m7Shd80tlV023DgZjuzm66SYHWOE
-	uPNwbZRfHHkqnR4cRqQ6PvDfxeJ6XocQZhgUoMPQZybyLF6DUh6t+RPIl5YBvUdAk
-X-Gm-Gg: ASbGncuJzZlBtn+m+BxTnSRB1AeZTmoGhA5E2UtnbVYstV60XlR80Eijc0WsOeXWDEg
-	+FxKIZKbOoOpNUz2ZSDGH6AGVAnVaHE7rHQO4eJuMVt6kBLphHPBkEftByAPW0qd/i8mqsT/xAR
-	cBTv0dFHki7vfR70geFpH5YRF6wZCXAxfcVC1C+uBWVFJPQXSIVGUZI6eHQDhKkO/FN06rhj20M
-	lgg0SyWXZTazrH0bvSGrcma9bu/bixH5gEoZsd+XwvyRfmJPF6De+nL+YeOKcdGvOgNh1/BVA==
-X-Received: by 2002:a05:600c:3d89:b0:438:9280:61d5 with SMTP id 5b1f17b1804b1-43892806237mr136001225e9.5.1737480622515;
-        Tue, 21 Jan 2025 09:30:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHOXs9Ya5kOuP/W2rM4xk+vm5PSiTxIW1zce/YaupUUzohswvYEtJM6u59IjkgPls10nttGDQ==
-X-Received: by 2002:a05:600c:3d89:b0:438:9280:61d5 with SMTP id 5b1f17b1804b1-43892806237mr136000975e9.5.1737480622163;
-        Tue, 21 Jan 2025 09:30:22 -0800 (PST)
-Received: from leonardi-redhat ([176.206.32.19])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43890408a66sm190273065e9.5.2025.01.21.09.30.20
+        d=1e100.net; s=20230601; t=1737482140; x=1738086940;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:mail-followup-to:message-id:subject:cc:to
+         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JMp+ss6Wwfurnp42doFXEAGvsTfQgZrzB8Da9TV6zaI=;
+        b=YcaL7BTXyOUA8hUOVKRWsr5rUw5DysVvxXSMLjWpt6RNXfDQwPp+VQJmYqBZUtILYm
+         b4831ibpKQAtb7MdXNB78bEJFcN3dC9D9qXXND3gsGXssmJgzCVE24jIDqbP/LGBODD4
+         p4+eY2zMupXLc1M6zmSTADCwXP/+7J16u3Wv9AbAzQs9rvqlogH+ffE/xEGHNj/8Vkng
+         kudX3KtSqPEHklQ3Enn5oUaJ2YVy7teK4bdLHpPSOjYcjhl6XkoKSgfQAyrct5klXgMC
+         kBvmKfV2RwtQVEbdtyKH8PXKBYB7ev947yz/LHlKX19ysojjfT1oh0R52sZN0v404z1i
+         Qdwg==
+X-Forwarded-Encrypted: i=1; AJvYcCX7BXenecdjv/ADf4d7JEb6q3qpvpvjQDekjhn+LRimbgzXnha/7/gJCsxAmRatDWU+LdHDef0AWBzexeCTkA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzY6u0IDUiqalBbOspGBwPrdOi24xkoKuXzB9mYyqzcYooM0FWX
+	sYeRS9iIgbJxjFC8Rm3IVASIRZdNXfZKmur0xoqujhY0aY3uBBJGCQycsQXEWO8=
+X-Gm-Gg: ASbGnctzr+Q8+HRj4frIrqypMZg6/+dqGi8kG25u+RfgM1+o2Teo21aE8E+xdl+RbN0
+	+FC+B3RDgYEtfv6pnfzhlUTjVJJWUZVcNT9m2R1XtIbVAoB5uIZotxwAZCZeTagfHiBXhDcNq7J
+	B72m3GYhock8moS35Zh1THThIHpKEUbCSvY4NMLJ058o/WfdzrMSlIHhBbqFnT5feTmQXM7EwHq
+	L+R6oUasb/tdJTJASep8LK/VNs5869Ix7LTmGfaBuSkbdJ0ouIccwIyc4n8xExwbiUaCtqNrU5a
+	iIDZ5n7k8i/+UJs8afTFe7U3NRQAyoaIrmHa
+X-Google-Smtp-Source: AGHT+IEBgJwx8lqhufWVr68uCZoTqch8S1RN/wzFz2PZOPH5Pq/W0Y7Zk8vLb/9NhhAf19hQTQLs0A==
+X-Received: by 2002:a05:6a21:4a4b:b0:1e0:c3bf:7909 with SMTP id adf61e73a8af0-1eb215ec91amr27186626637.41.1737482140313;
+        Tue, 21 Jan 2025 09:55:40 -0800 (PST)
+Received: from LQ3V64L9R2 (c-24-6-151-244.hsd1.ca.comcast.net. [24.6.151.244])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72dab7f0693sm9466532b3a.10.2025.01.21.09.55.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jan 2025 09:30:21 -0800 (PST)
-Date: Tue, 21 Jan 2025 18:30:19 +0100
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, netdev@vger.kernel.org, 
-	Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wongi Lee <qwerty@theori.io>, 
-	"David S. Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>, 
-	virtualization@lists.linux.dev, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Hyunwoo Kim <v4bel@theori.io>, kvm@vger.kernel.org
-Subject: Re: [PATCH net 1/2] vsock/virtio: discard packets if the transport
- changes
-Message-ID: <blvbtr3c7uxtbspbfwrobfk7qdukz6nst2bnomoxbltst2yhkm@47k6evsdceeg>
-References: <20250108180617.154053-1-sgarzare@redhat.com>
- <20250108180617.154053-2-sgarzare@redhat.com>
- <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
+        Tue, 21 Jan 2025 09:55:39 -0800 (PST)
+Date: Tue, 21 Jan 2025 09:55:36 -0800
+From: Joe Damato <jdamato@fastly.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, gerhard@engleder-embedded.com,
+	leiyang@redhat.com, mkarsten@uwaterloo.ca,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:XDP (eXpress Data Path):Keyword:(?:b|_)xdp(?:b|_)" <bpf@vger.kernel.org>,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH net-next v2 3/4] virtio_net: Map NAPIs to queues
+Message-ID: <Z4_fmIsLgs3nWvOm@LQ3V64L9R2>
+Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	gerhard@engleder-embedded.com, leiyang@redhat.com,
+	mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:XDP (eXpress Data Path):Keyword:(?:b|_)xdp(?:b|_)" <bpf@vger.kernel.org>,
+	netdev@vger.kernel.org
+References: <20250116055302.14308-1-jdamato@fastly.com>
+ <20250116055302.14308-4-jdamato@fastly.com>
+ <1737013994.1861002-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtaaScVM8iuHP7oGBhwCAvcjQstmNoedc5UTtkEMLRDow@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ifAqMikX6hErN-wDd9566n7FpO8NBL_YkXhheLCde3g_1737480622
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CACGkMEtaaScVM8iuHP7oGBhwCAvcjQstmNoedc5UTtkEMLRDow@mail.gmail.com>
 
-On Thu, Jan 09, 2025 at 02:34:28PM +0100, Michal Luczaj wrote:
->FWIW, I've tried simplifying Hyunwoo's repro to toy with some tests. 
->Ended
->up with
->
->```
->from threading import *
->from socket import *
->from signal import *
->
->def listener(tid):
->	while True:
->		s = socket(AF_VSOCK, SOCK_SEQPACKET)
->		s.bind((1, 1234))
->		s.listen()
->		pthread_kill(tid, SIGUSR1)
->
->signal(SIGUSR1, lambda *args: None)
->Thread(target=listener, args=[get_ident()]).start()
->
->while True:
->	c = socket(AF_VSOCK, SOCK_SEQPACKET)
->	c.connect_ex((1, 1234))
->	c.connect_ex((42, 1234))
->```
->
->which gives me splats with or without this patch.
->
->That said, when I apply this patch, but drop the `sk->sk_state !=
->TCP_LISTEN &&`: no more splats.
->
-Hi Michal,
+On Mon, Jan 20, 2025 at 09:58:13AM +0800, Jason Wang wrote:
+> On Thu, Jan 16, 2025 at 3:57 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> >
+> > On Thu, 16 Jan 2025 05:52:58 +0000, Joe Damato <jdamato@fastly.com> wrote:
+> > > Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
+> > > can be accessed by user apps.
+> > >
+> > > $ ethtool -i ens4 | grep driver
+> > > driver: virtio_net
+> > >
+> > > $ sudo ethtool -L ens4 combined 4
+> > >
+> > > $ ./tools/net/ynl/pyynl/cli.py \
+> > >        --spec Documentation/netlink/specs/netdev.yaml \
+> > >        --dump queue-get --json='{"ifindex": 2}'
+> > > [{'id': 0, 'ifindex': 2, 'napi-id': 8289, 'type': 'rx'},
+> > >  {'id': 1, 'ifindex': 2, 'napi-id': 8290, 'type': 'rx'},
+> > >  {'id': 2, 'ifindex': 2, 'napi-id': 8291, 'type': 'rx'},
+> > >  {'id': 3, 'ifindex': 2, 'napi-id': 8292, 'type': 'rx'},
+> > >  {'id': 0, 'ifindex': 2, 'type': 'tx'},
+> > >  {'id': 1, 'ifindex': 2, 'type': 'tx'},
+> > >  {'id': 2, 'ifindex': 2, 'type': 'tx'},
+> > >  {'id': 3, 'ifindex': 2, 'type': 'tx'}]
+> > >
+> > > Note that virtio_net has TX-only NAPIs which do not have NAPI IDs, so
+> > > the lack of 'napi-id' in the above output is expected.
+> > >
+> > > Signed-off-by: Joe Damato <jdamato@fastly.com>
+> > > ---
+> > >  v2:
+> > >    - Eliminate RTNL code paths using the API Jakub introduced in patch 1
+> > >      of this v2.
+> > >    - Added virtnet_napi_disable to reduce code duplication as
+> > >      suggested by Jason Wang.
+> > >
+> > >  drivers/net/virtio_net.c | 34 +++++++++++++++++++++++++++++-----
+> > >  1 file changed, 29 insertions(+), 5 deletions(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index cff18c66b54a..c6fda756dd07 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -2803,9 +2803,18 @@ static void virtnet_napi_do_enable(struct virtqueue *vq,
+> > >       local_bh_enable();
+> > >  }
+> > >
+> > > -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
+> > > +static void virtnet_napi_enable(struct virtqueue *vq,
+> > > +                             struct napi_struct *napi)
+> > >  {
+> > > +     struct virtnet_info *vi = vq->vdev->priv;
+> > > +     int q = vq2rxq(vq);
+> > > +     u16 curr_qs;
+> > > +
+> > >       virtnet_napi_do_enable(vq, napi);
+> > > +
+> > > +     curr_qs = vi->curr_queue_pairs - vi->xdp_queue_pairs;
+> > > +     if (!vi->xdp_enabled || q < curr_qs)
+> > > +             netif_queue_set_napi(vi->dev, q, NETDEV_QUEUE_TYPE_RX, napi);
+> >
+> > So what case the check of xdp_enabled is for?
+> 
+> +1 and I think the XDP related checks should be done by the caller not here.
 
-I think it would be nice to have this test in the vsock test suite.  
-WDYT? If you don't have any plans to port this to C, I can take care of 
-it :)
+Based on the reply further down in the thread, it seems that these
+queues should be mapped regardless of whether an XDP program is
+attached or not, IIUC.
 
-Cheers,
-Luigi
+Feel free to reply there, if you disagree/have comments.
 
+> >
+> > And I think we should merge this to last commit.
+> >
+> > Thanks.
+> >
+> 
+> Thanks
+
+FWIW, I don't plan to merge the commits, due to the reason mentioned
+further down in the thread.
+
+Thanks.
