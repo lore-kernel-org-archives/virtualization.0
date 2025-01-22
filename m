@@ -1,134 +1,154 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F4824A18
-	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 17:33:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF4821519A
+	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 17:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737567194; cv=none; b=aOjM4zZNxochyr8APL4OZ0fGvc3/BXwBFRKDY4CLotqXEpop2ULIptBrc0yeaR2l2LCvoQuusnHEBTQcjyrvk0hu8TBA2iUWIfSPpSMFLchqe5b6ovRPaiK0KHqcp5BHAOLOtYS/6mVXtIXSNUPEuIo8ETPiiEr2h2sTAn8LhNI=
+	t=1737567665; cv=none; b=t6kLHNI3mc9yrN5GOo5BqRgsY+myMBKcwKt2wdjraJMpeeXBJ1bZEC2VwIryVdkcILqiyXawo5js+Rk3E8didJHyIjdP58sJ/vL3qyp/1uWAbqN1Gr4b27IoDca9krSRkasR+sOUv3wmD+QHaFWgMS7tvCqpFxRJvuwnwzvJRs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737567194; c=relaxed/simple;
-	bh=UiVTRqCEyRChLd21Po/OOGS0oVKoPAD4VAWXgxBGRCQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GQMpKjT4vPZXEb1SrOnSCufFijN5zxFxh68257cNzurhwrhDpRD1rlQB7+rB8Oee929yzbu+cd60s7MZyIKZDXVvyQfI29aQ9mTb3P/34SEixtdeGJby1VDemsGwICJ1tprw2QxL6FHNiv6xptZ8TEOAxXPy5xj5Ke7Kf2DrTdo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JBVNqRaw; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737567665; c=relaxed/simple;
+	bh=zXXrzWCLJA++Rf33uMBJnwYrM22DuyNXl1CNawXNbVQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oJJe+Ig7mPemTylimb2Q6CidIjOjravZzPXtDLaRgdd5+851mEIqZiMXWIlEvEWgtjlM7OmRFtuZaB8yLvkVfCkNvF2qschwLtiX6OZVVHy6P9VvFhuwtJXDvx0m5tS7Ky+ulqfHkhAHsV6lKAK8UdJvm75ceM7cK19tlYYKdcM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=g9Aahn2f; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JBVNqRaw"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MDmAZU013754;
-	Wed, 22 Jan 2025 17:33:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=DvL+BT
-	eSKPzlmSiMZFOI7vDMdkfBDeNY9TkZBFK1P+s=; b=JBVNqRawluOJ25A/s5E0Sz
-	mypSpaNNX25LGg8M+qmlNk8rAMEPhusubUjLwkqYP39rFaOLKzSUagMikzeHhdBa
-	Rsz2meUHRfnx2fBIduNCfnK1nd70rrJUI0V8t9k4Xa+f29pmf9Yhclgit+AoUpT+
-	WFYrjmuCkSQCGrVGw1ZmS1kTmcn2PULlZ/vZ+cE83j16VQcaJHnW7Df70vQ/3zE6
-	NbscQz9Pf6hm95ZdQ72SsBrkcBxZzbATG4yVas5vL4PR4isknn5PFkP4pWJ9BK1s
-	P/i/ZsqcbGO3rbVVkY34kEx7bu/JxGwV/SOtGL57NBecWE2wMKajy1UAehzKA0zQ
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr9c7pc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 17:33:09 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50MHX94O009692;
-	Wed, 22 Jan 2025 17:33:09 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr9c7pa-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 17:33:09 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MEDJa2022387;
-	Wed, 22 Jan 2025 17:33:08 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448r4k9d1c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 17:33:08 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MHX6W156885648
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jan 2025 17:33:06 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0F17A2007A;
-	Wed, 22 Jan 2025 17:33:06 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B8CE20079;
-	Wed, 22 Jan 2025 17:33:05 +0000 (GMT)
-Received: from [9.171.41.95] (unknown [9.171.41.95])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Jan 2025 17:33:05 +0000 (GMT)
-Message-ID: <dcbce68c-f448-4bbf-8db9-c3cd3231b5dd@linux.ibm.com>
-Date: Wed, 22 Jan 2025 18:33:04 +0100
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="g9Aahn2f"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-21675fd60feso154023225ad.2
+        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 09:41:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1737567662; x=1738172462; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:mail-followup-to:message-id:subject:cc:to
+         :from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=hzk4EqT1xduSyCel68HG0gUHXnZnF8tcdwDmYNduisU=;
+        b=g9Aahn2fcFPDe1k/APb28tj//J11i1DHHvTqal96nifMfK9B7v60NpsQpgOsd52BKI
+         UQXfI+laIj/hwzQRau3AjmzvICC6QFdCo+j/in0EZ6X3oAttur6GcF+yuqY3z0s80Nbr
+         cGXXLTzJbwbdZCOHlimKc9WM0/GVYRHjgyZyY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737567662; x=1738172462;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:mail-followup-to:message-id:subject:cc:to
+         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=hzk4EqT1xduSyCel68HG0gUHXnZnF8tcdwDmYNduisU=;
+        b=iz5Mf6sBbXg4t4Rk0Y9MOBKH0DsJiZNHkokeujMeg2VFvXs//U2p5tEPujBStSw6gd
+         vG1PDC0YVXj4OXDOfBPoKOXQodyhpWKZJR6lNVnz+6Obq6NJwWvpAyy2Vb9VtfxHVUCE
+         6mI/Gyo5vc9deSE7l7BwTA1eVVr+pWlGdeMKjgBf9a1C611iqkoP7V3iVT4MxQMUcwKC
+         ri3AaFX2H0FQXv1/EHv8ABfor5+e+6eEbzC8EQPrnEM4LtWvvoPiSoAlIOCfJflC/FPh
+         BZ5N4oVPuwpwi/cOjbMwqBfYoO6G9BoxB1WDRANpaobtqa3J790iQ2SV0fqZq/1sf468
+         2LFA==
+X-Forwarded-Encrypted: i=1; AJvYcCXbXPoKndhIPjYOz0EtNc4O5MGs2c3lIBxw3xHnNK3vXPaIloQHWsfnBVmbNPWIdBTLMA2Fg1qYR8WeyKCIoQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzV2YFBLz02BD7cJ6bgVv44iV5wqRWI8n3p6cJFqINA3ovLPgi4
+	hSEQ7xoK2bEL/UG5YchaeHDO+B/ks8Xe+EW7bQphh27/Uroge/lcl3tJo213jWU=
+X-Gm-Gg: ASbGncvv50kGIlSMh+0np6aQy/YA85QgP78XUADR3wC+NqkPx+7eeawbWY2SIR7e8NT
+	Fq1A5xJ7yKN0RRIWeCFarfUGvHLa4LUIIxP3xbjY/5+DcjHXTgDpQao0X76+uDB51e7MLhoMPav
+	zfHLCqpvaDwUoPCvxTLyMQPKrKMNrQiwf7jTsflVMIV7JN4hm/CG85z3RY/9Ev+0QgIsrjrs86s
+	94qQDbJiutqNAE3euJBVKWXZvJUjAPdMh7Q/hC656JMKSkp66ptzBgPcsLfslXJRX0ujdM9HGAy
+	enSvQA8gWF+D3Q8jY6V80SI22YXAJoMEqCpC
+X-Google-Smtp-Source: AGHT+IFIskecjwcV3BTTBpzH9S2j5V80AaBRDbVtEQoTgjHrPpiHHnoNJ2flDyZszDsdGQ6aVKgGOw==
+X-Received: by 2002:a17:902:da88:b0:212:5786:7bb6 with SMTP id d9443c01a7336-21c353ef3abmr311395045ad.3.1737567660702;
+        Wed, 22 Jan 2025 09:41:00 -0800 (PST)
+Received: from LQ3V64L9R2 (c-24-6-151-244.hsd1.ca.comcast.net. [24.6.151.244])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21c2ce9ef97sm97733815ad.42.2025.01.22.09.40.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jan 2025 09:41:00 -0800 (PST)
+Date: Wed, 22 Jan 2025 09:40:57 -0800
+From: Joe Damato <jdamato@fastly.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, gerhard@engleder-embedded.com,
+	leiyang@redhat.com, xuanzhuo@linux.alibaba.com,
+	mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC net-next v3 2/4] virtio_net: Prepare for NAPI to queue
+ mapping
+Message-ID: <Z5EtqRrc_FAHbODM@LQ3V64L9R2>
+Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
+	Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
+	gerhard@engleder-embedded.com, leiyang@redhat.com,
+	xuanzhuo@linux.alibaba.com, mkarsten@uwaterloo.ca,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+References: <20250121191047.269844-1-jdamato@fastly.com>
+ <20250121191047.269844-3-jdamato@fastly.com>
+ <CACGkMEvT=J4XrkGtPeiE+8fwLsMP_B-xebnocJV8c5_qQtCOTA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
-To: "Boyer, Andrew" <Andrew.Boyer@amd.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Eugenio Perez <eperezma@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>,
-        "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        "Nelson, Shannon" <Shannon.Nelson@amd.com>,
-        "Creeley, Brett" <Brett.Creeley@amd.com>,
-        "Hubbe, Allen"
- <Allen.Hubbe@amd.com>
-References: <20250107182516.48723-1-andrew.boyer@amd.com>
- <7a4f03a0-9640-4d15-9f0d-4e1ceb82aa8c@linux.ibm.com>
- <20250109083907-mutt-send-email-mst@kernel.org>
- <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9XMjU6g2GxlcFUivRnsFvvAk3cFXg26O
-X-Proofpoint-ORIG-GUID: 6L8z3k5TyX8W3L5k3nRabhFaDxhHH998
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-22_07,2025-01-22_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 mlxscore=0
- spamscore=0 clxscore=1011 bulkscore=0 phishscore=0 malwarescore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2501220128
+In-Reply-To: <CACGkMEvT=J4XrkGtPeiE+8fwLsMP_B-xebnocJV8c5_qQtCOTA@mail.gmail.com>
 
-Am 22.01.25 um 15:44 schrieb Boyer, Andrew:
-[...]
-
->>>> --- a/drivers/block/virtio_blk.c
->>>> +++ b/drivers/block/virtio_blk.c
->>>> @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
->>>>  {
->>>>    struct virtio_blk *vblk = hctx->queue->queuedata;
->>>>    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
->>>> -   bool kick;
->>>>    spin_lock_irq(&vq->lock);
->>>> -   kick = virtqueue_kick_prepare(vq->vq);
->>>> +   virtqueue_kick(vq->vq);
->>>>    spin_unlock_irq(&vq->lock);
->>>> -
->>>> -   if (kick)
->>>> -           virtqueue_notify(vq->vq);
->>>>  }
->>>
->>> I would assume this will be a performance nightmare for normal IO.
->>
+On Wed, Jan 22, 2025 at 02:12:46PM +0800, Jason Wang wrote:
+> On Wed, Jan 22, 2025 at 3:11 AM Joe Damato <jdamato@fastly.com> wrote:
+> >
+> > Slight refactor to prepare the code for NAPI to queue mapping. No
+> > functional changes.
+> >
+> > Signed-off-by: Joe Damato <jdamato@fastly.com>
+> > Reviewed-by: Gerhard Engleder <gerhard@engleder-embedded.com>
+> > Tested-by: Lei Yang <leiyang@redhat.com>
+> > ---
+> >  v2:
+> >    - Previously patch 1 in the v1.
+> >    - Added Reviewed-by and Tested-by tags to commit message. No
+> >      functional changes.
+> >
+> >  drivers/net/virtio_net.c | 10 ++++++++--
+> >  1 file changed, 8 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 7646ddd9bef7..cff18c66b54a 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -2789,7 +2789,8 @@ static void skb_recv_done(struct virtqueue *rvq)
+> >         virtqueue_napi_schedule(&rq->napi, rvq);
+> >  }
+> >
+> > -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
+> > +static void virtnet_napi_do_enable(struct virtqueue *vq,
+> > +                                  struct napi_struct *napi)
+> >  {
+> >         napi_enable(napi);
 > 
-> Hello Michael and Christian and Jason,
-> Thank you for taking a look.
-> 
-> Is the performance concern that the vmexit might lead to the underlying virtual storage stack doing the work immediately? Any other job posting to the same queue would presumably be blocked on a vmexit when it goes to attempt its own notification. That would be almost the same as having the other job block on a lock during the operation, although I guess if you are skipping notifications somehow it would look different.
+> Nit: it might be better to not have this helper to avoid a misuse of
+> this function directly.
 
-The performance concern is that you hold a lock and then exit. Exits are expensive and can schedule so you will increase the lock holding time significantly. This is begging for lock holder preemption.
-Really, dont do it.
+Sorry, I'm probably missing something here.
+
+Both virtnet_napi_enable and virtnet_napi_tx_enable need the logic
+in virtnet_napi_do_enable.
+
+Are you suggesting that I remove virtnet_napi_do_enable and repeat
+the block of code in there twice (in virtnet_napi_enable and
+virtnet_napi_tx_enable)?
+
+Just seemed like a lot of code to repeat twice and a helper would be
+cleaner?
+
+Let me know; since net-next is closed there is a plenty of time to
+get this to where you'd like it to be before new code is accepted.
+
+> Other than this.
+> 
+> Acked-by: Jason Wang <jasowang@redhat.com>
+
+Thanks.
