@@ -1,164 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9D10215190
-	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 16:32:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F4824A18
+	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 17:33:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737563553; cv=none; b=UnRqV0Gvl8xGCQwFkD26ZVyk6yIllqCu28BI12V/qOpZoVJqijMgvaR6oYqIl+PPeLNlpS3weWJdqUAIPUtrtcL8HN9J5FzyH82BOR8zvvZlFFL29vzCZscbNEhmA/uE2pSu8B2WjAciCz2uL/YMOQrV85oQq3rl39iNgQZr8UE=
+	t=1737567194; cv=none; b=aOjM4zZNxochyr8APL4OZ0fGvc3/BXwBFRKDY4CLotqXEpop2ULIptBrc0yeaR2l2LCvoQuusnHEBTQcjyrvk0hu8TBA2iUWIfSPpSMFLchqe5b6ovRPaiK0KHqcp5BHAOLOtYS/6mVXtIXSNUPEuIo8ETPiiEr2h2sTAn8LhNI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737563553; c=relaxed/simple;
-	bh=X7WuejYrNLGbPdGmSl/hQJAVJY+nCsQOinXwdcwRx34=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OXlb2QWYBccmX7YWJc1qgpHnbRIrJ7mlCBzI3+UrBgXLzGHxQbyuS9ycY/KlzYhrirQm+ukHhbjopvUyzlIJr7CajvCWMjyvqzj3SsErffy4lmjx22KkbYKQHwJeuK7spLcC9EgKx3FM4TNQulNp+icsBu5rC06u9uNELFJoILE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dVWUeVbT; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1737567194; c=relaxed/simple;
+	bh=UiVTRqCEyRChLd21Po/OOGS0oVKoPAD4VAWXgxBGRCQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GQMpKjT4vPZXEb1SrOnSCufFijN5zxFxh68257cNzurhwrhDpRD1rlQB7+rB8Oee929yzbu+cd60s7MZyIKZDXVvyQfI29aQ9mTb3P/34SEixtdeGJby1VDemsGwICJ1tprw2QxL6FHNiv6xptZ8TEOAxXPy5xj5Ke7Kf2DrTdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JBVNqRaw; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dVWUeVbT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737563550;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FBhkAUsYGe18p0NTj+xot2gFPpqUS6sdPO7V3+k7KyY=;
-	b=dVWUeVbT67A0frR7yb7amDYS350m4tfQtxMAAvnku9pa9l9vZN+6oaDXqrB+vx9oB2pxSX
-	3/ccO1MUHVGzfK8y622cJqS2V/uAEXMjB3nsIntOicdKLq4c5TD0+uotRDqob1rloyL1V0
-	hlHMtvyxBbFQ/OZAF3KHVWloCiu/JBI=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-44-u1MiQJYYPzCUFobrBgtMPw-1; Wed,
- 22 Jan 2025 11:32:24 -0500
-X-MC-Unique: u1MiQJYYPzCUFobrBgtMPw-1
-X-Mimecast-MFC-AGG-ID: u1MiQJYYPzCUFobrBgtMPw
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 49D361955D9C;
-	Wed, 22 Jan 2025 16:32:23 +0000 (UTC)
-Received: from eperezma-thinkpadt480s.rmtes.csb (unknown [10.39.193.171])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2BD9A195608A;
-	Wed, 22 Jan 2025 16:32:19 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	Hanna Reitz <hreitz@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	German Maglione <gmaglione@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [RFC 5/5] virtiofs: perform DMA operations out of the spinlock
-Date: Wed, 22 Jan 2025 17:31:54 +0100
-Message-ID: <20250122163154.1225353-6-eperezma@redhat.com>
-In-Reply-To: <20250122163154.1225353-1-eperezma@redhat.com>
-References: <20250122163154.1225353-1-eperezma@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JBVNqRaw"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MDmAZU013754;
+	Wed, 22 Jan 2025 17:33:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=DvL+BT
+	eSKPzlmSiMZFOI7vDMdkfBDeNY9TkZBFK1P+s=; b=JBVNqRawluOJ25A/s5E0Sz
+	mypSpaNNX25LGg8M+qmlNk8rAMEPhusubUjLwkqYP39rFaOLKzSUagMikzeHhdBa
+	Rsz2meUHRfnx2fBIduNCfnK1nd70rrJUI0V8t9k4Xa+f29pmf9Yhclgit+AoUpT+
+	WFYrjmuCkSQCGrVGw1ZmS1kTmcn2PULlZ/vZ+cE83j16VQcaJHnW7Df70vQ/3zE6
+	NbscQz9Pf6hm95ZdQ72SsBrkcBxZzbATG4yVas5vL4PR4isknn5PFkP4pWJ9BK1s
+	P/i/ZsqcbGO3rbVVkY34kEx7bu/JxGwV/SOtGL57NBecWE2wMKajy1UAehzKA0zQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr9c7pc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 17:33:09 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50MHX94O009692;
+	Wed, 22 Jan 2025 17:33:09 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr9c7pa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 17:33:09 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MEDJa2022387;
+	Wed, 22 Jan 2025 17:33:08 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448r4k9d1c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 17:33:08 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MHX6W156885648
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Jan 2025 17:33:06 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0F17A2007A;
+	Wed, 22 Jan 2025 17:33:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B8CE20079;
+	Wed, 22 Jan 2025 17:33:05 +0000 (GMT)
+Received: from [9.171.41.95] (unknown [9.171.41.95])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Jan 2025 17:33:05 +0000 (GMT)
+Message-ID: <dcbce68c-f448-4bbf-8db9-c3cd3231b5dd@linux.ibm.com>
+Date: Wed, 22 Jan 2025 18:33:04 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
+To: "Boyer, Andrew" <Andrew.Boyer@amd.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Eugenio Perez <eperezma@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>,
+        "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "Nelson, Shannon" <Shannon.Nelson@amd.com>,
+        "Creeley, Brett" <Brett.Creeley@amd.com>,
+        "Hubbe, Allen"
+ <Allen.Hubbe@amd.com>
+References: <20250107182516.48723-1-andrew.boyer@amd.com>
+ <7a4f03a0-9640-4d15-9f0d-4e1ceb82aa8c@linux.ibm.com>
+ <20250109083907-mutt-send-email-mst@kernel.org>
+ <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9XMjU6g2GxlcFUivRnsFvvAk3cFXg26O
+X-Proofpoint-ORIG-GUID: 6L8z3k5TyX8W3L5k3nRabhFaDxhHH998
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-22_07,2025-01-22_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 mlxscore=0
+ spamscore=0 clxscore=1011 bulkscore=0 phishscore=0 malwarescore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2501220128
 
-This is useful for some setups like swiotlb or VDUSE where the DMA
-operations are expensive and/or need to be performed with a write lock.
+Am 22.01.25 um 15:44 schrieb Boyer, Andrew:
+[...]
 
-After applying this patch, fio read test goes from 1201MiB/s to 1211MiB/s.
+>>>> --- a/drivers/block/virtio_blk.c
+>>>> +++ b/drivers/block/virtio_blk.c
+>>>> @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+>>>>  {
+>>>>    struct virtio_blk *vblk = hctx->queue->queuedata;
+>>>>    struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>>>> -   bool kick;
+>>>>    spin_lock_irq(&vq->lock);
+>>>> -   kick = virtqueue_kick_prepare(vq->vq);
+>>>> +   virtqueue_kick(vq->vq);
+>>>>    spin_unlock_irq(&vq->lock);
+>>>> -
+>>>> -   if (kick)
+>>>> -           virtqueue_notify(vq->vq);
+>>>>  }
+>>>
+>>> I would assume this will be a performance nightmare for normal IO.
+>>
+> 
+> Hello Michael and Christian and Jason,
+> Thank you for taking a look.
+> 
+> Is the performance concern that the vmexit might lead to the underlying virtual storage stack doing the work immediately? Any other job posting to the same queue would presumably be blocked on a vmexit when it goes to attempt its own notification. That would be almost the same as having the other job block on a lock during the operation, although I guess if you are skipping notifications somehow it would look different.
 
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
- drivers/virtio/virtio_ring.c |  2 ++
- fs/fuse/virtio_fs.c          | 25 +++++++++++++++++++++++--
- 2 files changed, 25 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index e49912fa77c5..eb22bfcb9100 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -580,6 +580,7 @@ int virtqueue_map_sgs(struct virtqueue *_vq,
- 				goto unmap_release;
- 
- 			sg_dma_address(sg) = addr;
-+			sg_dma_len(sg) = sg->length;
- 			mapped_sg++;
- 		}
- 	}
-@@ -592,6 +593,7 @@ int virtqueue_map_sgs(struct virtqueue *_vq,
- 				goto unmap_release;
- 
- 			sg_dma_address(sg) = addr;
-+			sg_dma_len(sg) = sg->length;
- 			mapped_sg++;
- 		}
- 	}
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 1344c5782a7c..2b558b05d0f8 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -836,8 +836,21 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
- 
- 	/* End requests */
- 	list_for_each_entry_safe(req, next, &reqs, list) {
-+		struct scatterlist *stack_sgs[6];
-+		struct scatterlist **sgs = stack_sgs;
-+		unsigned int total_sgs = req->out_sgs + req->in_sgs;
-+
- 		list_del_init(&req->list);
- 
-+		/* TODO replace magic 6 by a macro */
-+		if (total_sgs > 6)
-+			sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
-+
-+		for (unsigned int i = 0; i < total_sgs; ++i)
-+			sgs[i] = &req->sg[i];
-+
-+		virtqueue_unmap_sgs(vq, sgs, req->out_sgs, req->in_sgs);
-+
- 		/* blocking async request completes in a worker context */
- 		if (req->args->may_block) {
- 			struct virtio_fs_req_work *w;
-@@ -850,6 +863,9 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
- 		} else {
- 			virtio_fs_request_complete(req, fsvq);
- 		}
-+
-+		if (sgs != stack_sgs)
-+			kfree(sgs);
- 	}
- 
- 	/* Try to push previously queued requests, as the queue might no longer be full */
-@@ -1426,6 +1442,11 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 		sgs[i] = &req->sg[i];
- 	WARN_ON(req->out_sgs + req->in_sgs != total_sgs);
- 
-+	// TODO can we change this ptr out of the lock?
-+	vq = fsvq->vq;
-+	// TODO handle this and following errors
-+	ret = virtqueue_map_sgs(vq, sgs, req->out_sgs, req->in_sgs);
-+	BUG_ON(ret < 0);
- 	spin_lock(&fsvq->lock);
- 
- 	if (!fsvq->connected) {
-@@ -1434,8 +1455,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 		goto out;
- 	}
- 
--	vq = fsvq->vq;
--	ret = virtqueue_add_sgs(vq, sgs, req->out_sgs, req->in_sgs, req, GFP_ATOMIC);
-+	ret = virtqueue_add_sgs_premapped(vq, sgs, req->out_sgs,
-+					  req->in_sgs, req, GFP_ATOMIC);
- 	if (ret < 0) {
- 		spin_unlock(&fsvq->lock);
- 		goto out;
--- 
-2.48.1
-
+The performance concern is that you hold a lock and then exit. Exits are expensive and can schedule so you will increase the lock holding time significantly. This is begging for lock holder preemption.
+Really, dont do it.
