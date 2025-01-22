@@ -1,233 +1,227 @@
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2073.outbound.protection.outlook.com [40.107.92.73])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3938A1448E4
-	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 14:48:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.73
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737557295; cv=fail; b=dCxSNLWrDHBFTovPyztZ48zZtmc74mrzEY9UtZ8efI9S2ZpzqdiDgLC1/exGmTClkVla68o0gaxgnPnEQ4+zLD2oQXahbpNoqR06P8srKsqWIfr+v2/0vhe1dKnCfo6kIS8L6Rm3u9jhu+H+IxtToMvFYoOP5evXPu5ifAZ8r7U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737557295; c=relaxed/simple;
-	bh=tfGAxppI9puZ0pTK4lwZ4igbh1lnNjShZBY7+VkNw6w=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=a3ODbuda49AHn++mif1ZsoNu20B3SRf+GGt443jfq5dmiPRiUzPL5qWL5uFLJmKCvNYEGXE8mn68ODvFlpqk13sLoGjaH3WZnoMU5z6sVHh41C2BNYWEzwJKwa61l2It4JxlFpUFvqRNGzdCrK7NFXmToN8bGy7Id8g9Raj7cyk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=yjDK1G9T; arc=fail smtp.client-ip=40.107.92.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1A44214203
+	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 15:14:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1737558849; cv=none; b=G/n5ugqDRvE43hAanz/7t8VBO/WjpftFn8FCX/cV/oGpSQ4EWwuxfbwIdc1wt5A65uIQBD2Z46Mr4vpjBVj0wa/AN8cNhuxwYDxk1QepxOMHbVe8p0kkeN4c3DCE7PV7REdDSEw7jgCyHvmD8u8CS6SKvFO9+w6ZVDY+SKTHn4Q=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1737558849; c=relaxed/simple;
+	bh=lPpWLlbJJUl6vnHfBxOZiUWLcQ6TXq9Fpz0DN6GGV64=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=P+kquEbpHosqccbdDJvPDm30behNhaL1muzoC7XK9CTKCkWETwF2IUQZs98F7D4K4HrI0nYq76ZnC0KXbQW/K12YjPWE3hr2wZF2JfXk7t/wVj94ZizPltaWeDIX3jU8HP1NdeH/IgvX9UumA4AriBTrJcwgImoLm99QKP73+Rg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hKV9WDcN; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="yjDK1G9T"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=aPCTwTUeIj4JYNjcajIFEpi5TnXL6Kv7zIuV+qcFbg8CMdG87Tr2rpIeSXK/bpoi1gf0tLncztXFWBzIx8AU45aMqM5D08ay5HPDMV5C965n0oDLAm7topLcx47sb5j8E6oXPjGky5fI/5h2V78UVKZDnR/5o3qIxgPL3MhISuAItmCdFIdRL+G88Rs2bRDaIQA/+um6/p+V1f5JmaFy5lRqmA+FSBuhN9mIw9HUZrLPUx4wfF8fVhWFyW2MzD3cTQcJVGmYvCpq8fF9MyuoX8q2bRSuiQK0K1mMkceYOCDKViC0jkIa+THYl4XWTb0Olfu3G/KYuYrfO+1duLZj8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tfGAxppI9puZ0pTK4lwZ4igbh1lnNjShZBY7+VkNw6w=;
- b=CTBgNUgGYi4P7mYCy0pSsaI5CBq9GOlls4YPbFYLp0KgTA3fKK480oQF/FcfjxEhaWEJfz2/x24dITPOOPipG0pDtENWXnNfmaM8vWcRz5Yazdj2sntf3PoGYucqP5eL0WsjSa9HGAdFXTJS9dUwcI1OZZFXMmFmYx75t358aGKPTFnr0zHzdsoBIHViTsFMXvEzLm/65N9KTnfnLEeqJ8GlSnArVxX12AiLz25aqCV6/w7lS6Team0bCdbkKCG/EBzZfX+2var2aKwRtQMxL3T8fgdcTVnJhk4DwtwBOxlUwBbeBEZEwkvqlXa+OaMhq3CLqSnimo87WrYUdHApug==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tfGAxppI9puZ0pTK4lwZ4igbh1lnNjShZBY7+VkNw6w=;
- b=yjDK1G9Tjp4uWGo+AyUZgO3xhw87UsNTPo9YzYhB9kfpPlTFAPx+mQkLImj//xPfz9nFBPdr5rUi2d/8PAvNQslqOJDX9+OfJvOHFccnN3AqUptfdIjffm9AVqLfuIGTvpCswxN6n6OHzv2LWnXspGznd5iEqAdcHAWrYsC6AMU=
-Received: from IA1PR12MB8311.namprd12.prod.outlook.com (2603:10b6:208:3fa::12)
- by CY8PR12MB8410.namprd12.prod.outlook.com (2603:10b6:930:6d::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8356.21; Wed, 22 Jan
- 2025 14:48:10 +0000
-Received: from IA1PR12MB8311.namprd12.prod.outlook.com
- ([fe80::ecc:e2bf:cb33:468f]) by IA1PR12MB8311.namprd12.prod.outlook.com
- ([fe80::ecc:e2bf:cb33:468f%4]) with mapi id 15.20.8377.009; Wed, 22 Jan 2025
- 14:48:10 +0000
-From: "Boyer, Andrew" <Andrew.Boyer@amd.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Christian Borntraeger <borntraeger@linux.ibm.com>, "Boyer, Andrew"
-	<Andrew.Boyer@amd.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini
-	<pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Eugenio Perez
-	<eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jens Axboe
-	<axboe@kernel.dk>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-block@vger.kernel.org"
-	<linux-block@vger.kernel.org>, "Nelson, Shannon" <Shannon.Nelson@amd.com>,
-	"Creeley, Brett" <Brett.Creeley@amd.com>, "Hubbe, Allen"
-	<Allen.Hubbe@amd.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hKV9WDcN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1737558845;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ce/QjhBqtYOPMLAkiHTYh++zKrz+BhDW7xpfx4DdWe4=;
+	b=hKV9WDcNEIddwIcs2HMIKeWcEp9UE0d3TrcpV6hIc1Yjo/suqfVeNjGwDKejj3APdVLab/
+	qfWVNZg7K1u413DI63boNZj1v0axSf+JCym06Z15A0Ilh9nkCWpszspaBj18LBEkNcinbF
+	w+dpbQVQEUak7hemgw39ow4iNCLDZ6A=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-438-ilHmDbzKPIy-rwalRlvMtA-1; Wed, 22 Jan 2025 10:14:03 -0500
+X-MC-Unique: ilHmDbzKPIy-rwalRlvMtA-1
+X-Mimecast-MFC-AGG-ID: ilHmDbzKPIy-rwalRlvMtA
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-388d1f6f3b2so3047003f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 07:14:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737558840; x=1738163640;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ce/QjhBqtYOPMLAkiHTYh++zKrz+BhDW7xpfx4DdWe4=;
+        b=UQJOLR+UmZMj1kQeLHz8bQmQi0i2GwIo9T6b3PDdoVzPaCdpuEwnkspB6X6rGSs4dx
+         Z9E1WXevCWDCR9aG3I66BBhNLcq7R4zmSImccOocW1yWmCU6SUv3m+EsGYXGmtjyT1CZ
+         UIAE5c9castF+jWXjTjLHOyruEKccLGgEXxp97DUuw/IpJJn90CTvf4I+uE1EdShzNJx
+         3e0+/97b0RIlmjzJCEKTa2euCLYWH7wLmQfG9m1+FswBmY5TiDjT07KERSf4XrtVsd7b
+         ReggxCcLFS+TQx2SGnnV36btRpfgnpje+a92i03pZZNR26a90LtTfe77MIQr1KO7zsg2
+         Pz6g==
+X-Forwarded-Encrypted: i=1; AJvYcCXZmydpZPNhN1oyXwNxuWcjDSFpwqirWs0aIB2vRADYSJkG/4sVkjTcV4FVChnKT89v3NGUx4LUa2j0jN90fw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwDQT+zBqNU4OksRhHxOBLtUCpRc7pWn1UGrCqRuhlYD3x5OxuQ
+	ec4b/VpRRboXHgCYt0WmCX1tDPBRZW7ABIIuvCUNqO5fBCHBWGyOPUTLTILStn+4Wfnhtq1IyMH
+	bbPx99yhkokit4S1M4ao8O5cNLeTJM7XTIPA8PE/yxJKkD9vMdty78A0ep9C6vidm
+X-Gm-Gg: ASbGncvufDhlO4J+dm347z8lHpsEl3zhpc32th1VodD7AWhgsgWk6bFOTHVXImRbLfq
+	XCKPmBhEWWvdRKZmMgy4bfdIeB2Yc3I64C/tLmNwly2T6HDS1chaVvcTBukGCA8Dl9KuNM1F2Yo
+	DmI3H5ZypNL7jCdhoExOIic/py3lbKrSBRhDcpY4SFw1slFzUgCm5c0SR28HW5MA++RRop0FkYr
+	SUUMf8cZg5yoTVPjWeUMSmkvNq9jvZx8pg6kgIR16LEUWc32agngj2ueZktUPq0
+X-Received: by 2002:a5d:6a92:0:b0:386:3403:7b63 with SMTP id ffacd0b85a97d-38bf57b3d42mr14263218f8f.36.1737558840596;
+        Wed, 22 Jan 2025 07:14:00 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG98aiW2exKzPtkQyluWhC+N2CzRYQXNIHtp1nt9tt6znbLOVgpTCijmWVYegbMuPepz+eENw==
+X-Received: by 2002:a5d:6a92:0:b0:386:3403:7b63 with SMTP id ffacd0b85a97d-38bf57b3d42mr14263193f8f.36.1737558840228;
+        Wed, 22 Jan 2025 07:14:00 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1ee:98b0:e487:57f1:2425:c846])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf327df79sm16929435f8f.91.2025.01.22.07.13.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jan 2025 07:13:59 -0800 (PST)
+Date: Wed, 22 Jan 2025 10:13:56 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Boyer, Andrew" <Andrew.Boyer@amd.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio Perez <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+	"Nelson, Shannon" <Shannon.Nelson@amd.com>,
+	"Creeley, Brett" <Brett.Creeley@amd.com>,
+	"Hubbe, Allen" <Allen.Hubbe@amd.com>
 Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
-Thread-Topic: [PATCH] virtio_blk: always post notifications under the lock
-Thread-Index: AQHbYTG5PPtb1U4eCUarxpU24+zL4bMOWgAAgAAcSQCAFICXAA==
-Date: Wed, 22 Jan 2025 14:48:10 +0000
-Message-ID: <FC65D558-44E2-468B-8EEC-3AF3A0CA15F4@amd.com>
+Message-ID: <20250122100622-mutt-send-email-mst@kernel.org>
 References: <20250107182516.48723-1-andrew.boyer@amd.com>
  <7a4f03a0-9640-4d15-9f0d-4e1ceb82aa8c@linux.ibm.com>
  <20250109083907-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250109083907-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA1PR12MB8311:EE_|CY8PR12MB8410:EE_
-x-ms-office365-filtering-correlation-id: b64e9222-967c-41df-80db-08dd3af3ca88
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|376014|7416014|1800799024|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?QU9sQkt5QjlaeXRkVkJLMFNvZC9BN1p6SWRDaXNaWmdkVWxNZnVKU0hJVTlN?=
- =?utf-8?B?bzloYTBzTDZRNGlOUENraTdTZFNJaFhQMTFHVm5la042VWtYUjk3UnVaQ0E3?=
- =?utf-8?B?d3dEWnhUOHczdjYzbStBZDRmUU54M0hMdUtZT2V0Q2c2ME9IcVNXallBdU1T?=
- =?utf-8?B?YmVwQUNZQXhhZkxmK3BGK0w5NUJjdnc3RHhvUmxGZzNsL3BqZHFEeE1xaXJI?=
- =?utf-8?B?MjFiU1VucWttNWo5d21EM3FhbnZwYi9vS2M4aEJRb1ptTFU5akpHcE82WDNn?=
- =?utf-8?B?K0c2SmFTREtLVUliQUtvOCtvRWVleXcwcHkya2QydTFqVDVvZnczM1plcFI1?=
- =?utf-8?B?NzQrSnBQaHZ0Y21XbmNCZGFoQko1eDM0ZGM2MlBRcnhTa25uTWNqWHYzMjFR?=
- =?utf-8?B?cDJnQkVXYjRYQTJlbUgveGRxQmlkc3g2RU1tTGE3RHVnbk9LOStHbTlPK2RN?=
- =?utf-8?B?YUJEZXA2ZGxkWW5Talk3WXFUTVQ4bzMvMCtqTTBTeGdMdTZZUzFzeW4xdHhr?=
- =?utf-8?B?c1d3enREaEVORTl5WEJQNVhLNTcrandRTHNpV0Q5NGZRWEZ0djRZY2VlanZP?=
- =?utf-8?B?TWFOYSs0ZDByOXdQWFhKUkZkNUVlcFpkRnU5ZHNleXpuTFpqd3MyVlZmOGRD?=
- =?utf-8?B?dGMwbTFNNTR6dkR5b3RIKzJSc29aNTZpSmZMVWtLelRaOEZjTjVDaUVQYlRU?=
- =?utf-8?B?NmljNkN2K25MVEJ5YkhXNXlzSGdIOENUQ3EyRG5pT09aOFZkY3hXUjJrZ05w?=
- =?utf-8?B?Snh2RUJFc0ZjQTNNVHBUMW94S0FJMlJsM21LcW1rNmc0TzFURGVwRHJtcUIr?=
- =?utf-8?B?T3JiZi9kS3lQWS9lYkpYOE55VUlvZEx5Njk2R0dHTDlSckJyenFoRWd6RzY2?=
- =?utf-8?B?WWttemtLV2lldlBoaSsxMHdKRG9DVy80N2xpS1U5TEJRaVF0RlR2bkZma09M?=
- =?utf-8?B?ZktMbHlXRkZEYUFNa1ZrTWpvT3ViZnJXMGs3K2Z1RndJeFJRZ0hiQ3F5aS84?=
- =?utf-8?B?cHZKL3NObmNPYzhNOHFEOHZQelBnQmNDT080U1NCUG1JVHJ6K0JERXNZVlhl?=
- =?utf-8?B?Y1VTM2RtT2FUclpaelQzVnp3RmExZzZwRTF6MzVseU9xaWEySWlyV09JNVY4?=
- =?utf-8?B?UnI4cXduM1diaHdpYkVUN2k1dktESTFmMWxiOCtDOXdXNjBJOXNPdTY3U3BU?=
- =?utf-8?B?YXE2QWpBQ3JUbVhGMjRXeFN5eXVZWVI2czRxUVBkaDV5SndVTUl0Q0VFRW45?=
- =?utf-8?B?eFhxUVFMa1EyTnpqN2hsUWF1Qmd1MXhXWkVQVElkeGp6dFdTaStqRVd3dmlL?=
- =?utf-8?B?WkNMc2VCUFNlV2FYcUV6V2lrTkVlNUVPaktqT0JOWDR6UE9VaEFIV3grczVG?=
- =?utf-8?B?UWkzcW9XQ1RSSTlEUDFZZzdLVXk0d3JscEVHa1Z5QmZtSmxRUEw5TnFoWmdJ?=
- =?utf-8?B?S3hvUVhQamJVVVljWGF1bXU2bStpK1VMQUhqek5hYTUxbHh6eWpaQm5nUFJz?=
- =?utf-8?B?dnNLZ1hTcUhEM1BEbG9pOUFHTTV3MDRaaWsrYVRTcmt2OEVoWFMwVUVmQlVv?=
- =?utf-8?B?VjdWZ3Zuc2tHNFA4TkxIM2NqOGluOW9rMXovVGFCQ3BlZmlNZDViYWk1RkR4?=
- =?utf-8?B?ZU9IVEVkY2h6Qkdmay81NTBKOVpJcmQ3VDkxUWhJWEd1anFVVlRyTHlyc0lO?=
- =?utf-8?B?b2p4ZUNXNmpJMVdiSVVMcDlwd1M4NWI3R2QyS3FvSHp3djJuYU9iby9ZM3pp?=
- =?utf-8?B?K1JiLzRrd2pFdElMRUZsZk84aGJaTDRZVnNseGg0c01sK3R6QlBFQU9LaTFr?=
- =?utf-8?B?M3ZRUzhzbEdqaDJuYXpWMGJiTnV3MVgwSnhnUEdkdnhIb0x4OXU3YWdxRk5s?=
- =?utf-8?B?M01SUUFGbnd4aUs3WjBseEhPOUdHd1pFQ3ZPNS9jenY0OFp6YXJzQVp4c0lS?=
- =?utf-8?Q?rQ9NxdL54wza5KurBgWVtd7QSY33846v?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB8311.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?bHRzR3FQaGZpMVdoVUtWZXFKQlZwbExYVVQ1M0UxdlF1TkFHckJ3d3VkOXdr?=
- =?utf-8?B?ZWFjdGtWMHdsWVprOUNScW05dVR1VjBnOFVEVGhuYmxvRGQ1bmpsQ25RNXd3?=
- =?utf-8?B?UlgxUEtrak9JelloRVFEZXVCUmlXZ0p4M2ppM0x6NnVFZUZjZHJSRkhoTlh0?=
- =?utf-8?B?NFBzWktYK0JCTGxKZm50UHVmb25DbzdJZitYYVlDKzh3T09BbmFtYWpsbG9G?=
- =?utf-8?B?SGpLUVFrRnlQN1lleG8vTlIvb1hpL1hJODBjTE40cStlOXVwT1VxM0ZKcVdF?=
- =?utf-8?B?VVpFV21YWStMTmZOZU42S2JtbDQ3QVVoM09XVENPdjJiQmI3NW5kUVl2QjVM?=
- =?utf-8?B?YldpQ3JLaHhyQ2xaVklwQldYWDFWMXZxSGxQd2lPZHBiZ0U5NE5JQTd4ZHFO?=
- =?utf-8?B?RzFGRnorN05Qdm00QUJnWk1qeFBnMHhMcFVRSExodVVHZkhyZzdFcndBSGRn?=
- =?utf-8?B?eU5pdUFrMmdFZkwvdThlVjMzbnRyRTAyU3ljaXhFMmppbGhya2VvMzU2OVBi?=
- =?utf-8?B?cEhwN2JleU43cFY3MmN0c2RaWUF4ZXRSbm1sSVRNUFBacy93VHJxR3lZZzJs?=
- =?utf-8?B?L29JS0h1Y3BBQkZYOHE1MjJDZmdJNm1sbnFrK2xUSnE5K3RUUFBWcWRib2RU?=
- =?utf-8?B?ZnVmT2djYWZBWDV4Qnh3SVIxZE9Cbmx2NHZ4WHJkbGpxRllGOXV2Y293VzJJ?=
- =?utf-8?B?ZlJ0Q0ZxckJxN3pGU0R3a1lSWDB5V3ByRkV2bDdUL1ZUT1U3d082RWJJZE12?=
- =?utf-8?B?TkV0d0NKZ0xLSE1sR1FLL1JsRnorejdjM3dFTmo2dnVvamhjSS9JUlhpWXEr?=
- =?utf-8?B?eDl5Z1F0SmVrUWJGMzBkNk13Z2lYb2tQZFpCOWZ3NHp1cE9VejNoTWY3dEJO?=
- =?utf-8?B?TFJJcGdwZXE1OWNYUXR2TDRLWFhaNUhZd2NsUDVlWHZZdmRFa2hZaVBTMFF3?=
- =?utf-8?B?UzhvYUhJVjdRaFdaV2Y0Rk01clA1OEhxYSszQjZydHBYSGdEMktCckFIdnNv?=
- =?utf-8?B?NkF3QjZFOWJISDhRUzgrVlRtbUhibDJhSXpvNG45N0FqQXhINHlNOGVFS21j?=
- =?utf-8?B?K2lBY05ZcmtrTmh3emxXbE9PRUNmZ1E1R0UvOU81ZFpobXZFVHNHYUlabnBG?=
- =?utf-8?B?cW4vM3B5WUczUWpsYlJ5REJra2h3MlJjMDlXRk9qbWxPMm51QW5JY1lEY0p5?=
- =?utf-8?B?T1krQmlPc1NwaFZOZER2SXlBY3FVY2JPSmNXaUpmeEM2VWV5cno1TGFKdnhm?=
- =?utf-8?B?K2pBYmI0SFZpSW9ZSkFVZUhUZktWeDI3TW95OC82ZE93R3pac1dNU0lNb001?=
- =?utf-8?B?cnhRTittMWJBamZaSUQ3RCtxcGFLZWhzMytWNjhLaVcrMXJEZy9nV2ZQNHoz?=
- =?utf-8?B?djVBWG9qYWM5VXE0YjB6NnRJNW55eWFaNThHRDRVS0xpZVR5bWp1TDVxb0s3?=
- =?utf-8?B?Sm1zUDkxeE51MXdZaGpjMTNHMzdrQVRFRjZMYjkzcSt6Mi9MaUFzL2pMYkcy?=
- =?utf-8?B?T3U4aEk1anZFVllZTTZyRE5VUytURjJBd0tJUEdCV2hBRW1tUnZwdWs2OW5q?=
- =?utf-8?B?c3FxZ2ZkOHpuL0hTSHZwdDJHTmVOTWpuU0Y1WFgxRW5hM2E0ZTRZWkt4amxQ?=
- =?utf-8?B?cmg3VzB0NmRUVk9QR2QxcDBFWWJpVSt3VzRkNkZ1TzZlWnhTTGNQSUJmek05?=
- =?utf-8?B?dWJVOEZtRDFBbm1JVFJLZ0srQjNpNUpNejJmNS96Z3BHL0F2Unc3VGQxTWJx?=
- =?utf-8?B?cGVzbTdWVDBzK1FEK3V1czBUMlBKOHdmY1lyL3JneHJOQ0xWZURyT0UrV0VL?=
- =?utf-8?B?U3R2ei8yUkxBZkxFWVBIU0IwSXJLdVQrbGhldDBhejR6TU1FV1pJcHlSSzE3?=
- =?utf-8?B?WDVZdTlxUmJDWkF2V3FKcktmMTN0cEhtZk0rSXloVFBHNWk4WVJCeTEyUERX?=
- =?utf-8?B?YkhjTG1hNmhxdGdCWFV3TGNpeDlLc0pMZm9xYUxSRXpyKzljaVJNNUlIeFpl?=
- =?utf-8?B?djk0R1lyOXJJai9CQlEyTUhIN0MxanJNYWZhWW5UbUUyem42dHhQTWxJL3No?=
- =?utf-8?B?NUpML1cwQTRpbk5tZHpVZjhLQS9hL3N5T01yWENUK09GaS9HRHVGUVBJVWFk?=
- =?utf-8?Q?jS5A8XDVzlCnu4CYe46NFdrgj?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <C75B3580C0A4774B8221E3AE2A2150AE@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB8311.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b64e9222-967c-41df-80db-08dd3af3ca88
-X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Jan 2025 14:48:10.5467
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: gYCSkwhcUzuA2vsIIS9P0ZaE6IRkTET5a9nFub+AxGqsuAs3C92PfUOuETUW9EnD
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB8410
+In-Reply-To: <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: C3-Gum35K69442i6R44QjJn4lBeYCGO4fXL74j4cJeE_1737558841
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-T24gSmFuIDksIDIwMjUsIGF0IDg6NDLigK9BTSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
-aGF0LmNvbT4gd3JvdGU6DQo+IA0KPiBPbiBUaHUsIEphbiAwOSwgMjAyNSBhdCAwMTowMToyMFBN
-ICswMTAwLCBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgd3JvdGU6DQo+PiANCj4+IA0KPj4gQW0gMDcu
-MDEuMjUgdW0gMTk6MjUgc2NocmllYiBBbmRyZXcgQm95ZXI6DQo+Pj4gQ29tbWl0IGFmOGVjZWNk
-YTE4NSAoInZpcnRpbzogYWRkIFZJUlRJT19GX05PVElGSUNBVElPTl9EQVRBIGZlYXR1cmUNCj4+
-PiBzdXBwb3J0IikgYWRkZWQgbm90aWZpY2F0aW9uIGRhdGEgc3VwcG9ydCB0byB0aGUgY29yZSB2
-aXJ0aW8gZHJpdmVyDQo+Pj4gY29kZS4gV2hlbiB0aGlzIGZlYXR1cmUgaXMgZW5hYmxlZCwgdGhl
-IG5vdGlmaWNhdGlvbiBpbmNsdWRlcyB0aGUNCj4+PiB1cGRhdGVkIHByb2R1Y2VyIGluZGV4IGZv
-ciB0aGUgcXVldWUuIFRodXMgaXQgaXMgbm93IGNyaXRpY2FsIHRoYXQNCj4+PiBub3RpZmljYXRp
-b25zIGFycml2ZSBpbiBvcmRlci4NCj4+PiANCj4+PiBUaGUgdmlydGlvX2JsayBkcml2ZXIgaGFz
-IGhpc3RvcmljYWxseSBub3Qgd29ycmllZCBhYm91dCBub3RpZmljYXRpb24NCj4+PiBvcmRlcmlu
-Zy4gTW9kaWZ5IGl0IHNvIHRoYXQgdGhlIHByZXBhcmUgYW5kIGtpY2sgc3RlcHMgYXJlIGJvdGgg
-ZG9uZQ0KPj4+IHVuZGVyIHRoZSB2cSBsb2NrLg0KPj4+IA0KPj4+IFNpZ25lZC1vZmYtYnk6IEFu
-ZHJldyBCb3llciA8YW5kcmV3LmJveWVyQGFtZC5jb20+DQo+Pj4gUmV2aWV3ZWQtYnk6IEJyZXR0
-IENyZWVsZXkgPGJyZXR0LmNyZWVsZXlAYW1kLmNvbT4NCj4+PiBGaXhlczogYWY4ZWNlY2RhMTg1
-ICgidmlydGlvOiBhZGQgVklSVElPX0ZfTk9USUZJQ0FUSU9OX0RBVEEgZmVhdHVyZSBzdXBwb3J0
-IikNCj4+PiBDYzogVmlrdG9yIFBydXR5YW5vdiA8dmlrdG9yQGRheW5peC5jb20+DQo+Pj4gQ2M6
-IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LmRldg0KPj4+IENjOiBsaW51eC1ibG9ja0B2Z2Vy
-Lmtlcm5lbC5vcmcNCj4+PiAtLS0NCj4+PiAgZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgfCAx
-OSArKysrLS0tLS0tLS0tLS0tLS0tDQo+Pj4gIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMo
-KyksIDE1IGRlbGV0aW9ucygtKQ0KPj4+IA0KPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2Jsb2Nr
-L3ZpcnRpb19ibGsuYyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jDQo+Pj4gaW5kZXggM2Vm
-ZTM3OGYxMzg2Li4xNGQ5ZTY2YmI4NDQgMTAwNjQ0DQo+Pj4gLS0tIGEvZHJpdmVycy9ibG9jay92
-aXJ0aW9fYmxrLmMNCj4+PiArKysgYi9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYw0KPj4+IEBA
-IC0zNzksMTQgKzM3OSwxMCBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fY29tbWl0X3JxcyhzdHJ1Y3Qg
-YmxrX21xX2h3X2N0eCAqaGN0eCkNCj4+PiAgew0KPj4+ICAgIHN0cnVjdCB2aXJ0aW9fYmxrICp2
-YmxrID0gaGN0eC0+cXVldWUtPnF1ZXVlZGF0YTsNCj4+PiAgICBzdHJ1Y3QgdmlydGlvX2Jsa192
-cSAqdnEgPSAmdmJsay0+dnFzW2hjdHgtPnF1ZXVlX251bV07DQo+Pj4gLSAgIGJvb2wga2ljazsN
-Cj4+PiAgICBzcGluX2xvY2tfaXJxKCZ2cS0+bG9jayk7DQo+Pj4gLSAgIGtpY2sgPSB2aXJ0cXVl
-dWVfa2lja19wcmVwYXJlKHZxLT52cSk7DQo+Pj4gKyAgIHZpcnRxdWV1ZV9raWNrKHZxLT52cSk7
-DQo+Pj4gICAgc3Bpbl91bmxvY2tfaXJxKCZ2cS0+bG9jayk7DQo+Pj4gLQ0KPj4+IC0gICBpZiAo
-a2ljaykNCj4+PiAtICAgICAgICAgICB2aXJ0cXVldWVfbm90aWZ5KHZxLT52cSk7DQo+Pj4gIH0N
-Cj4+IA0KPj4gSSB3b3VsZCBhc3N1bWUgdGhpcyB3aWxsIGJlIGEgcGVyZm9ybWFuY2UgbmlnaHRt
-YXJlIGZvciBub3JtYWwgSU8uDQo+IA0KDQpIZWxsbyBNaWNoYWVsIGFuZCBDaHJpc3RpYW4gYW5k
-IEphc29uLA0KVGhhbmsgeW91IGZvciB0YWtpbmcgYSBsb29rLg0KDQpJcyB0aGUgcGVyZm9ybWFu
-Y2UgY29uY2VybiB0aGF0IHRoZSB2bWV4aXQgbWlnaHQgbGVhZCB0byB0aGUgdW5kZXJseWluZyB2
-aXJ0dWFsIHN0b3JhZ2Ugc3RhY2sgZG9pbmcgdGhlIHdvcmsgaW1tZWRpYXRlbHk/IEFueSBvdGhl
-ciBqb2IgcG9zdGluZyB0byB0aGUgc2FtZSBxdWV1ZSB3b3VsZCBwcmVzdW1hYmx5IGJlIGJsb2Nr
-ZWQgb24gYSB2bWV4aXQgd2hlbiBpdCBnb2VzIHRvIGF0dGVtcHQgaXRzIG93biBub3RpZmljYXRp
-b24uIFRoYXQgd291bGQgYmUgYWxtb3N0IHRoZSBzYW1lIGFzIGhhdmluZyB0aGUgb3RoZXIgam9i
-IGJsb2NrIG9uIGEgbG9jayBkdXJpbmcgdGhlIG9wZXJhdGlvbiwgYWx0aG91Z2ggSSBndWVzcyBp
-ZiB5b3UgYXJlIHNraXBwaW5nIG5vdGlmaWNhdGlvbnMgc29tZWhvdyBpdCB3b3VsZCBsb29rIGRp
-ZmZlcmVudC4NCg0KSSBkb24ndCBoYXZlIGFueSBzb3J0IG9mIHNldHVwIHdoZXJlIEkgY2FuIHRy
-eSBpdCBidXQgSSB3b3VsZCBhcHByZWNpYXRlIGl0IGlmIHNvbWVvbmUgZWxzZSBjb3VsZC4NCg0K
-PiBIbW0uIE5vdCBnb29kLCBub3RpZnkgY2FuIGJlIHZlcnkgc2xvdywgaG9sZGluZyBhIGxvY2sg
-aXMgYSBiYWQgaWRlYS4NCj4gQmFzaWNhbGx5LCB2aXJ0cXVldWVfbm90aWZ5IG11c3Qgd29yayBv
-dXNpZGUgb2YgbG9ja3MsIHRoaXMNCj4gbWVhbnMgYWY4ZWNlY2RhMTg1IGlzIGJyb2tlbiBhbmQg
-d2UgZGlkIG5vdCBub3RpY2UuDQo+IA0KPiBMZXQncyBmaXggaXQgcGxlYXNlLg0KDQpXaXRoIHNv
-IG1hbnkgYnJva2VuIGtlcm5lbHMgYWxyZWFkeSBpbiB0aGUgd2lsZCwgSSB0aGluayBkaXNhYmxp
-bmcgRl9OT1RJRklDQVRJT05fREFUQSBmb3IgdmlydGlvLWJsayB3b3VsZCBiZSBhIHJlYXNvbmFi
-bGUgc29sdXRpb24uDQoNCj4gVHJ5IHNvbWUga2luZCBvZiBjb21wYXJlIGFuZCBzd2FwIHNjaGVt
-ZSB3aGVyZSB3ZSBkZXRlY3QgdGhhdCBpbmRleA0KPiB3YXMgdXBkYXRlZCBzaW5jZT8gV2lsbCBh
-bGxvdyBza2lwcGluZyBhIG5vdGlmaWNhdGlvbiwgdG9vLg0KDQpEbyB5b3UgaGF2ZSBhbiBpZGVh
-IG9mIGhvdyB0aGlzIG1pZ2h0IGJlIGRvbmU/IEFueXRoaW5nIEkndmUgY29tZSB1cCB3aXRoIGlu
-dm9sdmVzIGEgbG9jay4gV291bGQgaXQgYmUgZG9hYmxlIHRvIGhhdmUgYSBsb2NrIGZvciB0aGUg
-dnEgbWFuYWdlbWVudCBzdHVmZiBhbmQgYSBzZWNvbmQgb25lIHRvIHBvc3Qgbm90aWZpY2F0aW9u
-cz8NCg0KPiBBTUQgZ3V5cywgY2FuJ3QgZGV2aWNlIHN1cnZpdmUgd2l0aCByZW9yZGVyZWQgbm90
-aWZpY2F0aW9ucz8NCj4gQmFzaWNhbGx5IGp1c3QgZHJvcCBhIG5vdGlmaWNhdGlvbiBpZiB5b3Ug
-c2VlIGluZGV4DQo+IGdvaW5nIGJhY2s/DQoNClRoaXMgaXMgdGhlIGRyaXZlciBseWluZyB0byB1
-cyBhYm91dCB0aGUgc3RhdGUgb2YgdGhlIHF1ZXVlOyBpdCdzIG5vdCBnb2luZyB0byBiZSBwb3Nz
-aWJsZSBmb3IgdXMgdG8gd29yayBhcm91bmQgaXQgaW4gaGFyZHdhcmUuIEZvciBzdGFydGVycywg
-aG93IHdvdWxkIHdlIGRldGVjdCBxdWV1ZSB3cmFwIGFyb3VuZD8NCg0KVGhhbmsgeW91LA0KQW5k
-cmV3DQoNCihBcG9sb2dpZXMgZm9yIHNlbmRpbmcgdHdpY2UsIG1haWwgY2xpZW50IGlzc3VlKQ0K
-DQo=
+On Wed, Jan 22, 2025 at 02:44:50PM +0000, Boyer, Andrew wrote:
+> 
+> 
+>     On Jan 9, 2025, at 8:42 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> 
+>     On Thu, Jan 09, 2025 at 01:01:20PM +0100, Christian Borntraeger wrote:
+> 
+> 
+>         Am 07.01.25 um 19:25 schrieb Andrew Boyer:
+> 
+>             Commit af8ececda185 ("virtio: add VIRTIO_F_NOTIFICATION_DATA
+>             feature
+>             support") added notification data support to the core virtio driver
+>             code. When this feature is enabled, the notification includes the
+>             updated producer index for the queue. Thus it is now critical that
+>             notifications arrive in order.
+> 
+>             The virtio_blk driver has historically not worried about
+>             notification
+>             ordering. Modify it so that the prepare and kick steps are both
+>             done
+>             under the vq lock.
+> 
+>             Signed-off-by: Andrew Boyer <andrew.boyer@amd.com>
+>             Reviewed-by: Brett Creeley <brett.creeley@amd.com>
+>             Fixes: af8ececda185 ("virtio: add VIRTIO_F_NOTIFICATION_DATA
+>             feature support")
+>             Cc: Viktor Prutyanov <viktor@daynix.com>
+>             Cc: virtualization@lists.linux.dev
+>             Cc: linux-block@vger.kernel.org
+>             ---
+>              drivers/block/virtio_blk.c | 19 ++++---------------
+>              1 file changed, 4 insertions(+), 15 deletions(-)
+> 
+>             diff --git a/drivers/block/virtio_blk.c b/drivers/block/
+>             virtio_blk.c
+>             index 3efe378f1386..14d9e66bb844 100644
+>             --- a/drivers/block/virtio_blk.c
+>             +++ b/drivers/block/virtio_blk.c
+>             @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct
+>             blk_mq_hw_ctx *hctx)
+>              {
+>                struct virtio_blk *vblk = hctx->queue->queuedata;
+>                struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+>             -   bool kick;
+>                spin_lock_irq(&vq->lock);
+>             -   kick = virtqueue_kick_prepare(vq->vq);
+>             +   virtqueue_kick(vq->vq);
+>                spin_unlock_irq(&vq->lock);
+>             -
+>             -   if (kick)
+>             -           virtqueue_notify(vq->vq);
+>              }
+> 
+> 
+>         I would assume this will be a performance nightmare for normal IO.
+> 
+> 
+> 
+> 
+> Hello Michael and Christian and Jason,
+> Thank you for taking a look.
+> 
+> Is the performance concern that the vmexit might lead to the underlying virtual
+> storage stack doing the work immediately? Any other job posting to the same
+> queue would presumably be blocked on a vmexit when it goes to attempt its own
+> notification. That would be almost the same as having the other job block on a
+> lock during the operation, although I guess if you are skipping notifications
+> somehow it would look different.
+> 
+> I don't have any sort of setup where I can try it but I would appreciate it if
+> someone else could.
+> 
+> 
+>     Hmm. Not good, notify can be very slow, holding a lock is a bad idea.
+>     Basically, virtqueue_notify must work ouside of locks, this
+>     means af8ececda185 is broken and we did not notice.
+> 
+>     Let's fix it please.
+> 
+> 
+> With so many broken kernels already in the wild, I think disabling
+> F_NOTIFICATION_DATA for virtio-blk would be a reasonable solution.
+
+Some devices might fail feature negotiation then.
+I am not sure they are broken, devices might simply be able to
+handle out of order values.
+
+
+> 
+>     Try some kind of compare and swap scheme where we detect that index
+>     was updated since? Will allow skipping a notification, too.
+> 
+> 
+> Do you have an idea of how this might be done? Anything I've come up with
+> involves a lock.
+>
+> Would it be doable to have a lock for the vq management stuff
+> and a second one to post notifications?
+
+
+and only for when F_NOTIFICATION_DATA is set. not terrible ok I think.
+
+> 
+>     AMD guys, can't device survive with reordered notifications?
+>     Basically just drop a notification if you see index
+>     going back?
+> 
+> 
+> This is the driver lying to us about the state of the queue; it's not going to
+> be possible for us to work around it in hardware. For starters, how would we
+> detect queue wrap around?
+> 
+> Thank you,
+> Andrew
+
+The index is a running value for split, for wrap arounds, there is
+a special bit for that. No?
+
+
+> 
+> 
+>     --
+>     MST
+> 
+> 
+
