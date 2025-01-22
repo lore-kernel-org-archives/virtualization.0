@@ -1,165 +1,48 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA411AF0DB
-	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 06:16:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B21AF9FE
+	for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 06:32:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737526605; cv=none; b=hOY382KPXcnGp3Jh7KN/GRyfuuDXZYUqTyamtU2Dg8dfDm070+6pfbRuaLcGPPi/bjmP1l6HPXxxeC89Davr8gIg5INx+B0GSROCC98Hx85sbZ9YJkiMe1OpoxgqLnK7yof4yWF8ckY2xKaw7+2pGDs3TnQFlf4tPMo92eWLNG8=
+	t=1737527577; cv=none; b=eRxDtRY4VkeOPGfF+Ht/mGxP2bWo9XQM5n0hkJzMvua6xTRnenkpm9p9ZwLd8hYT5z0Osj/6muMa+B6CIeXpMjy9aIYGV0LqyHXqFlYvID9lWe0ckrNGyiOYEMVmSQF4vaCaQmdh2vqa45VdCKLbRD+GKrbJZxI/1nRyNS8mQ4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737526605; c=relaxed/simple;
-	bh=GZGUwVzWf5+5sjzsGJcUxmWjuTb6BhXtQolSlxaJT00=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZW+wS9NnA1G+qvuZXYjHUO8iI28kQRwcfV5hkXfH3lYeIDIptmIR2rMfktaSnU122aM2SL7TfF4u/BWAV4wnvuXzbSqbBYe9tIgG41sphcBP6KtGX/jLbxGN/Y7xKdXmL5NHlL308cni+SOH9Sp66AuMqg1sjV4i5v8PFyylh7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lva6Wf3L; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lva6Wf3L"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737526601;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TypPk55BtLKceg++bY0mZyDDDIxWVaP+cjWBoSEYbfM=;
-	b=Lva6Wf3Li8HQCaCVqE+bXhY3L71VO5tVADJ36od54vWpiHtWzM21rayl/G8JBa2oKYo2+d
-	ZBvDbtiT0d5Ty6kIjIPnvvt35lSUv0em1c9QRqjtl5y+P7Lfm3Q80Yp45eHirL7mumt5Fm
-	wNseOxeBJOYnjHMovh98TqChv4v2g8A=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-221-MofZaBIbNiyjfo_FPljYyg-1; Wed,
- 22 Jan 2025 01:16:38 -0500
-X-MC-Unique: MofZaBIbNiyjfo_FPljYyg-1
-X-Mimecast-MFC-AGG-ID: MofZaBIbNiyjfo_FPljYyg
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7007B19560B7;
-	Wed, 22 Jan 2025 06:16:36 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.72.112.209])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 97BBA195608A;
-	Wed, 22 Jan 2025 06:16:29 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next RFC 2/2] virtio-net: free old xmit skbs only in NAPI
-Date: Wed, 22 Jan 2025 14:16:00 +0800
-Message-ID: <20250122061600.16781-3-jasowang@redhat.com>
-In-Reply-To: <20250122061600.16781-1-jasowang@redhat.com>
-References: <20250122061600.16781-1-jasowang@redhat.com>
+	s=arc-20240116; t=1737527577; c=relaxed/simple;
+	bh=GYJzEwIQBHEGL7aDYcJ5bTXyzU9977MRchbIzgX7Uuk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CEOX3N+9qlxXYpSqLt9mpZuhL7pQEDUvAilGB5eG8Wekvz2OQMQxykpfUmgPuCyUpoUojBmovvNtoI4lB+x/aUa/E0tazdhiqPiOlNyydN7mKD5kMnKaNXSxBMWy22bIgRw18WcAJIgSgWO1BGgHGy3SaBBue7EGyJGx3V8APjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 5197C68D05; Wed, 22 Jan 2025 07:32:51 +0100 (CET)
+Date: Wed, 22 Jan 2025 07:32:51 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+	linux-block@vger.kernel.org, nbd@other.debian.org,
+	ceph-devel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-mtd@lists.infradead.org, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/2] loop: force GFP_NOIO for underlying file systems
+ allocations
+Message-ID: <20250122063251.GA31207@lst.de>
+References: <20250117074442.256705-1-hch@lst.de> <20250117074442.256705-2-hch@lst.de> <Z4pFgIqB50gz-ODi@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z4pFgIqB50gz-ODi@fedora>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-When NAPI mode is enabled, we try to free old transmited packets
-before sending a packet. This has several side effects:
+On Fri, Jan 17, 2025 at 07:56:48PM +0800, Ming Lei wrote:
+> If we call memalloc_noio_save() here, setting PF_MEMALLOC_NOIO can be removed
+> from loop_process_work().
 
-- transmitted packets need to be freed before sending a packet, this
-  introduces delay and increases the average packets transmit time.
-- more time in hold the TX lock that causes more TX lock contention
-  with the TX NAPI
-
-This would be more noticeable when using a fast device like
-vhost-user/DPDK. So this patch tries to avoid those issues by not
-cleaning transmitted packets in start_xmit() when TX NAPI is
-enabled. Notification will be disabled at the beginning of the
-start_xmit() but we can't enable delayed notification after TX is
-stopped. Instead, the delayed notification needs to be enabled if we
-need to kick the virtqueue.
-
-Performance numbers:
-
-1) pktgen_sample03_burst_single_flow.sh (burst 256) + testpmd (rxonly)
-   on the host:
-
-- When pinning TX IRQ to pktgen VCPU: split virtqueue PPS were
-  increased 62% from 6.45 Mpps to 10.5 Mpps; packed virtqueue PPS were
-  increased 60% from 7.8 Mpps to 12.5 Mpps.
-- When pinning TX IRQ to VCPU other than pktgen: split virtqueue PPS
-  were increased 25% from 6.15 Mpps to 7.7 Mpps; packed virtqueue PPS
-  were increased 50.6% from 8.3Mpps to 12.5 Mpps.
-
-2) Netperf:
-
-- Netperf in guest + vhost-net/TAP on the host doesn't show obvious
-  differences.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 27 ++++++++++++++++++---------
- 1 file changed, 18 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 2f6c3dc68ba0..3d5c44546dc1 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3271,15 +3271,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	bool use_napi = sq->napi.weight;
- 	bool kick;
- 
--	/* Free up any pending old buffers before queueing new ones. */
--	do {
--		if (use_napi)
--			virtqueue_disable_cb(sq->vq);
--
-+	if (!use_napi)
- 		free_old_xmit(sq, txq, false);
--
--	} while (use_napi && !xmit_more &&
--	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-+	else
-+		virtqueue_disable_cb(sq->vq);
- 
- 	/* timestamp packet in software */
- 	skb_tx_timestamp(skb);
-@@ -3305,7 +3300,18 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		nf_reset_ct(skb);
- 	}
- 
--	check_sq_full_and_disable(vi, dev, sq);
-+	if (tx_may_stop(vi, dev, sq) && !use_napi &&
-+	    unlikely(virtqueue_enable_cb_delayed(sq->vq))) {
-+		/* More just got used, free them then recheck. */
-+		free_old_xmit(sq, txq, false);
-+		if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
-+			netif_start_subqueue(dev, qnum);
-+			u64_stats_update_begin(&sq->stats.syncp);
-+			u64_stats_inc(&sq->stats.wake);
-+			u64_stats_update_end(&sq->stats.syncp);
-+			virtqueue_disable_cb(sq->vq);
-+		}
-+	}
- 
- 	kick = use_napi ? __netdev_tx_sent_queue(txq, skb->len, xmit_more) :
- 			  !xmit_more || netif_xmit_stopped(txq);
-@@ -3317,6 +3323,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		}
- 	}
- 
-+	if (use_napi && kick && unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
-+		virtqueue_napi_schedule(&sq->napi, sq->vq);
-+
- 	return NETDEV_TX_OK;
- }
- 
--- 
-2.34.1
+Nah, we can skip this patch as the explicit PF_MEMALLOC_NOIO does
+everything that is needed.
 
