@@ -1,201 +1,118 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF942201023
-	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 07:23:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6B911C5D7E
+	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 07:27:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737617012; cv=none; b=sdwOW2gMtJjJeI+ylD2J4hSVePzLJSCUkdHkZQW/R5QG+STzu1rG8sgr+Q6z4zDixsCHkVy606cr7u0gTeSQtTe+Ku2Nk0ZjEQNlmcp0utODgKGDuPdvsHyUiDyMy16s01LXsXba142s3UzplN4556/N/wbccTu4Vf9EDEZtkj8=
+	t=1737617260; cv=none; b=Gb2DFboyyLqcyU+QAaPuP31Y95NZnd0vV/ctw7ZKfkA1Z0oGz1fxbd7OkLFmCQftWxSvOF3LeXSJQkcC0n3XmsNqyeI6zipO2YoxPk6sCArP3akv5KmvzawBZMTCHYdYE6I7bYB2ajznMj5GIngm2TZmZex3EdpgyhZgMw6dx1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737617012; c=relaxed/simple;
-	bh=Cj26cskdJAfLewDEV5iNIb1OHKs1+zCO9WSBAIvdmIo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=cxJHp6pMmnBglZz9Nbqf5gWeB8k9vwui8eC+Xq5vQMhUAXxadJYsJpe27B8S4lXR+p/rNZkOxvOI+xSuspl5AgeI221t3si+OVlkO3pHD3UMYS56FloNWf8T0cHd7z+QrPutQE15EjrKB8WfQyvc/EzmrO2XfzgTvq3MPYuNLoc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dmPIAdfG; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1737617260; c=relaxed/simple;
+	bh=rs6V2RNFRSU7Ve/TlCDqWVo7idRb6m8c3aDkwTAIPk8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HLFj7RjM3/amAbbG1EnkWXtKnG+fZVbx/aLxus1RDAigYBHFoO4Kk9UEEvCuRSxg239HibLykQQXRPrIeXlljv4e+3x6NmRLhZ6mwFWWwJ5KyaSnsCHxLpjDqg9a7JYVaUCVSy/k2ZlIqumF0EOIKv1ACXCZUZkDhS2fwgbAZBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WDCSyjkF; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dmPIAdfG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WDCSyjkF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737617008;
+	s=mimecast20190719; t=1737617257;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=JEjZ3DIkUiMscnADmgxdYLnNl1viSPj/Nq8G2dSYRQk=;
-	b=dmPIAdfGNZdF/MJsiQ/TZYXsEh575hc5bgjWKNTVYEW0hBIEtbgF8gxy7kWKL8bCCxE3Bn
-	ru8b4OxeYG2AeLILfUosSmJv5ea2f08DT5csA8+VDWtyoMS5Utw+QAe/ch5Hhi1eXCzKjT
-	a3x/lD5mpk47uG2ya3BgdzdaVKquz3U=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=rs6V2RNFRSU7Ve/TlCDqWVo7idRb6m8c3aDkwTAIPk8=;
+	b=WDCSyjkFTTQnhhL/ad96+svY0/bE2qlB4NIoK3KWSKQNRcylvxzXQF7ak4ot1OqziV9gN9
+	Z+s26E2vKAtWIVUcQ5ohY0FUOL3bxv3qk8uzqI1398/D373qmR0yCAHWy63HViW+cxk3UN
+	7AcLLjUSMp+YieF/tUTrOZ9iYfEFBHc=
+Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
+ [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-502-AUnZtLHUNp6cbKvQvlAYdw-1; Thu, 23 Jan 2025 02:23:27 -0500
-X-MC-Unique: AUnZtLHUNp6cbKvQvlAYdw-1
-X-Mimecast-MFC-AGG-ID: AUnZtLHUNp6cbKvQvlAYdw
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-385e1fd40acso324875f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 23:23:26 -0800 (PST)
+ us-mta-331-Sy-rq4exNiKYXZxa5hI8BA-1; Thu, 23 Jan 2025 02:27:34 -0500
+X-MC-Unique: Sy-rq4exNiKYXZxa5hI8BA-1
+X-Mimecast-MFC-AGG-ID: Sy-rq4exNiKYXZxa5hI8BA
+Received: by mail-yb1-f197.google.com with SMTP id 3f1490d57ef6-e580dbfee3eso1317343276.0
+        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 23:27:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737617006; x=1738221806;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=JEjZ3DIkUiMscnADmgxdYLnNl1viSPj/Nq8G2dSYRQk=;
-        b=aV//UVfJcQ9Lyi3s4ELK8y5iNnGYcXo4L7xnEQOEinRodZsYQJDYhVO9XyNqW36Q5R
-         4vTEPMSAzhjVM2QetBSh7uUqisnaswHD3YLFE1pDn5fvxkob0U8+frTfNSwJt7SSVRuh
-         iZTsXvjM+UAY/wHMyhcCwM26kD9TetqDuxJ0nJCjqp4+8OPlc+zXrNcAM4VXnk/RjRZ8
-         +yvowiVNa7JDJzW9QGO4s10KorNFQathAQOdsKXKLNdAUkcru0CAYDY11NyFlSpXD1yU
-         1wpgH9ZhIn1T7iSS3eYYEJtSwiGrkXU3aJwl4qZeptyxjcJjXuHbawVlEMXQ4eOQcpjM
-         9VZw==
-X-Forwarded-Encrypted: i=1; AJvYcCV7PxCb0F1spv/b2MFEagdr6Ix0nbJoRJPJJTmn40SoKKyQDz2XTdsuTfwd1HDh7ZSeQ9yOJ+qy9XcU9aLkKw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywhew11Pr1aKu8U2QoQsgtT1BjqhJ8woxEGp+rY94x5xwunmqOF
-	nNQI+vOAAiAOiG/qtkLK6a7Ont8iA1Z+Swyi0sqAIXgz+MFken+W/WHIQgIq3++kk7IczHprGD+
-	g59bySV+bZ9JTdIIGA1ar0gIsk8kY6jKI3LlQQGMzzmGN+kRx3tvSAOggZmtBS/D+
-X-Gm-Gg: ASbGncusCP8YjPc/MoyxBz+5wwxNFdQwTTDuPY2U5NkEL663Ax0TxLiWzWKg3+jOswg
-	9M/rEqPXG8oj3pGcQKyuIjUjRNvy4/2wv7rpqUWA2rrf3lB3EKFxEaBrBok6o67z9b/vUEsidfl
-	Iximp3SBw3pOKWo+2gwxpvLZz1kajtgq9wmt4JwlznL5Ev0T6si+73FSDCEt7YnfLIMpHDAaE3o
-	RqVOD50JcojrH1tIFTTA0CrX2X8yGekuDFhYlnZ98bsmz+gTg+I2F5qtAr31Ug=
-X-Received: by 2002:a05:6000:2a7:b0:38a:615c:8225 with SMTP id ffacd0b85a97d-38bf577ff42mr24558323f8f.15.1737617005962;
-        Wed, 22 Jan 2025 23:23:25 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHPiImKfEJi/7FivTSc2UB3WJZJ0sYMW32d83TGxasXwFBmg/HvTr5DTVHuAiFshHvv5ywOeA==
-X-Received: by 2002:a05:6000:2a7:b0:38a:615c:8225 with SMTP id ffacd0b85a97d-38bf577ff42mr24558293f8f.15.1737617005572;
-        Wed, 22 Jan 2025 23:23:25 -0800 (PST)
-Received: from redhat.com ([2a02:14f:1f4:7f17:bbf:7fe7:5101:d895])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf322236csm18572097f8f.39.2025.01.22.23.23.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jan 2025 23:23:24 -0800 (PST)
-Date: Thu, 23 Jan 2025 02:23:17 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "Boyer, Andrew" <Andrew.Boyer@amd.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eugenio Perez <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-	"Nelson, Shannon" <Shannon.Nelson@amd.com>,
-	"Creeley, Brett" <Brett.Creeley@amd.com>,
-	"Hubbe, Allen" <Allen.Hubbe@amd.com>
-Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
-Message-ID: <20250123022305-mutt-send-email-mst@kernel.org>
-References: <20250107182516.48723-1-andrew.boyer@amd.com>
- <7a4f03a0-9640-4d15-9f0d-4e1ceb82aa8c@linux.ibm.com>
- <20250109083907-mutt-send-email-mst@kernel.org>
- <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
- <dcbce68c-f448-4bbf-8db9-c3cd3231b5dd@linux.ibm.com>
- <20250122165854-mutt-send-email-mst@kernel.org>
- <CB749FA4-79E2-49F0-9BDF-67B089A8EC35@amd.com>
- <20250122172108-mutt-send-email-mst@kernel.org>
- <CF92E813-EE94-4F61-A8A9-278CA1BD3629@amd.com>
+        d=1e100.net; s=20230601; t=1737617254; x=1738222054;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rs6V2RNFRSU7Ve/TlCDqWVo7idRb6m8c3aDkwTAIPk8=;
+        b=ZB+dfzfK+JAZ6PYWALGwZ9fBMTtTIbJi+o7OuzDKt6AkHMA+2NkIwWcFxAozbWS2cr
+         w0sg5DHHUpNoREbSoSPIZHr24MYmcXlbwguiswQillHi/USovFW7g3Wn6GRaZhf5aGh4
+         WPccJRq9Cxi9KCsJ30LGHqIPQFLuS1jHxgDqtt1NIFIzU6TVWYAdyRD97klOx0aUREOE
+         rYhyA/PioHBy1w3WKyRp3u9daUTUwIS5QHNFS0Ufnza4aGmfbCkIzidfajGEdIFmJZN9
+         701LCrJcR0Srb5+isRTsrdbx0Qh5O1eI6pfX8BZmM7MR9Kao8ksH8DDtmOJqEh9etLWg
+         iSJw==
+X-Forwarded-Encrypted: i=1; AJvYcCUwGOs4RNt91WjDLW8gpJjSnIa4VzptCLvclPXx6HDKHY8rzgkiYjxRDK2wSy1H2TF4OUGf/aQ3isp3xx5aDw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyoYcOeFIdmpT+ZUxq6YpH8Bxv+Um5sTbnCHRiKjH43oMd0an/r
+	V9XjtuEVC2Or95ZkhCgd5B25oUU5n1ezg3DWskoS1l742O6VJ2c9l4DssJi2a4lcK9Yaw/t+35d
+	fRwDaxdLUWvKsY3/+V0pupRV0kDTC1kfgTd13YketDeYKZCPa9Q8qBMQ5HaV3dlE7ym6hWln16n
+	ytMpBKXQyS5fYaSi0Ab1orHVyMCI8Csw2v/c8AaG0=
+X-Gm-Gg: ASbGncs43/mS1v/QUmJqAHEnYB+8M1TDFMLNVsCWgsA7NKajKgWh6VOmmUOxa5O0+du
+	4dxa11V0O1St6O1tWcG+QAYqQkqZMObgxpKMu2W4y9SALJ79QjA==
+X-Received: by 2002:a05:6902:1148:b0:e58:d62:1057 with SMTP id 3f1490d57ef6-e580d621318mr6312281276.32.1737617253798;
+        Wed, 22 Jan 2025 23:27:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF4ebAYMiIEKFUvXD6lUe6QE2LjlUAXDLNKNlZnqmA2wAiCE/8DxNlO2tgSIKo9jD8iZ6HR+FeWUntjzrrSfGw=
+X-Received: by 2002:a05:6902:1148:b0:e58:d62:1057 with SMTP id
+ 3f1490d57ef6-e580d621318mr6312273276.32.1737617253577; Wed, 22 Jan 2025
+ 23:27:33 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CF92E813-EE94-4F61-A8A9-278CA1BD3629@amd.com>
+References: <20250121103346.1030165-1-eperezma@redhat.com> <20250122154908.GB178738@fedora>
+ <CACGkMEtdMzr1chpneCTnpjHFKaN5YSZbsVjSLtHSt+ULpUHG4g@mail.gmail.com>
+In-Reply-To: <CACGkMEtdMzr1chpneCTnpjHFKaN5YSZbsVjSLtHSt+ULpUHG4g@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 23 Jan 2025 08:26:57 +0100
+X-Gm-Features: AbW1kvaoqRy9X1ptwkc9cMXsOkb5Cxyx2OlGEcIuIcZAFXzxm9QY96DkWTpZZdY
+Message-ID: <CAJaqyWdC-Tte+ao6pk22fq-mUym8C9guQFThSnG5gMxWNqWyXw@mail.gmail.com>
+Subject: Re: [PATCH] vduse: add virtio_fs to allowed dev id
+To: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: mst@redhat.com, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, Hanna Reitz <hreitz@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, German Maglione <gmaglione@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6xD3BGiZcRoe619HD4FLXSEYdq7RyfqZtS49n73IB90_1737617006
+X-Mimecast-MFC-PROC-ID: oPoCvu8SyooMNFStej67cbeqK4gfdkwF-LyOn99S_7Q_1737617254
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 22, 2025 at 10:34:25PM +0000, Boyer, Andrew wrote:
-> 
-> > On Jan 22, 2025, at 5:25 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > 
-> > Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
-> > 
-> > 
-> > On Wed, Jan 22, 2025 at 10:14:52PM +0000, Boyer, Andrew wrote:
-> >> 
-> >>> On Jan 22, 2025, at 5:07 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >>> 
-> >>> Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
-> >>> 
-> >>> 
-> >>> On Wed, Jan 22, 2025 at 06:33:04PM +0100, Christian Borntraeger wrote:
-> >>>> Am 22.01.25 um 15:44 schrieb Boyer, Andrew:
-> >>>> [...]
-> >>>> 
-> >>>>>>>> --- a/drivers/block/virtio_blk.c
-> >>>>>>>> +++ b/drivers/block/virtio_blk.c
-> >>>>>>>> @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
-> >>>>>>>> {
-> >>>>>>>>  struct virtio_blk *vblk = hctx->queue->queuedata;
-> >>>>>>>>  struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
-> >>>>>>>> -   bool kick;
-> >>>>>>>>  spin_lock_irq(&vq->lock);
-> >>>>>>>> -   kick = virtqueue_kick_prepare(vq->vq);
-> >>>>>>>> +   virtqueue_kick(vq->vq);
-> >>>>>>>>  spin_unlock_irq(&vq->lock);
-> >>>>>>>> -
-> >>>>>>>> -   if (kick)
-> >>>>>>>> -           virtqueue_notify(vq->vq);
-> >>>>>>>> }
-> >>>>>>> 
-> >>>>>>> I would assume this will be a performance nightmare for normal IO.
-> >>>>>> 
-> >>>>> 
-> >>>>> Hello Michael and Christian and Jason,
-> >>>>> Thank you for taking a look.
-> >>>>> 
-> >>>>> Is the performance concern that the vmexit might lead to the underlying virtual storage stack doing the work immediately? Any other job posting to the same queue would presumably be blocked on a vmexit when it goes to attempt its own notification. That would be almost the same as having the other job block on a lock during the operation, although I guess if you are skipping notifications somehow it would look different.
-> >>>> 
-> >>>> The performance concern is that you hold a lock and then exit. Exits are expensive and can schedule so you will increase the lock holding time significantly. This is begging for lock holder preemption.
-> >>>> Really, dont do it.
-> >>> 
-> >>> 
-> >>> The issue is with hardware that wants a copy of an index sent to
-> >>> it in a notification. Now, you have a race:
-> >>> 
-> >>> thread 1:
-> >>> 
-> >>>       index = 1
-> >>>               ->                      -> send 1 to hardware
-> >>> 
-> >>> 
-> >>> thread 2:
-> >>> 
-> >>>       index = 2
-> >>>               -> send 2 to hardware
-> >>> 
-> >>> the spec unfortunately does not say whether that is legal.
-> >>> 
-> >>> As far as I could tell, the device can easily use the
-> >>> wrap counter inside the notification to detect this
-> >>> and simply discard the "1" notification.
-> >>> 
-> >>> 
-> >>> If not, I'd like to understand why.
-> >> 
-> >> "Easily"?
-> >> 
-> >> This is a hardware doorbell block used for many different interfaces and devices. When the notification write comes through, the doorbell block updates the queue state and schedules the queue for work. If a second notification comes in and overwrites that update before the queue is able to run (going backwards but not wrapping), we'll have no way of detecting it.
-> >> 
-> >> -Andrew
-> >> 
-> > 
-> > Does not this work?
-> > 
-> > notification includes two values:
-> > 
-> > 1. offset
-> > 2. wrap_counter
-> > 
-> > if ((offset2 < offset1 && wrap_counter2 == wrap_counter1) ||
-> >     offset1 > offset1 && wrap_counter2 != wrap_counter1)) {
-> >        printf("going backwards, discard offset2");
-> > }
-> > 
-> 
-> No, Michael, this does not work in our programmable hardware device, because it is not software.
-> 
-> -Andrew
-> 
+On Thu, Jan 23, 2025 at 2:50=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Wed, Jan 22, 2025 at 11:49=E2=80=AFPM Stefan Hajnoczi <stefanha@redhat=
+.com> wrote:
+> >
+> > On Tue, Jan 21, 2025 at 11:33:46AM +0100, Eugenio P=C3=A9rez wrote:
+> > > A VDUSE device that implements virtiofs device works fine just by
+> > > adding the device id to the whitelist.
+> >
+> > The virtiofs DAX Window feature might require extra work. It is not
+> > widely enabled though, so must virtiofs devices will work fine with jus=
+t
+> > virtqueue and configuration space support.
+>
+> +1.
+>
+> The DAX Window may help to reduce the bounce buffer copying and fit
+> for the case where an AI application just accesses one single large
+> file.
+>
+> We need to consider implementing this via VDUSE.
+>
+> Thanks
+>
+>
 
-Of course. The hardware equivalent.
+I thought DAX can only be applied in the VM case. Is it possible to
+apply it using virtio_vdpa?
+
+Is it possible to detect that the device is trying to use DAX so it
+fails the negotiation?
 
