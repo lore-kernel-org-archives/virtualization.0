@@ -1,78 +1,78 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 558F6179A7
-	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 07:32:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A3F201100
+	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 07:34:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737617553; cv=none; b=WMQGmOqj3dwYy2H4uE47UgoDtULLkvUxL+nsNw/OiaMagAZOuDQZd8CD7d7xD+id+XTWqtiRJSozPL8D697JvZYhjktOYRdL0dLRpNU5gK5PwT1zJ8Y87KpV+Mz18riFT2CEpUsMFACd//Y5gao/sqwR/+1GHPZdufThOPIcwMA=
+	t=1737617651; cv=none; b=S67gMDIL1k0EFsd0vHGcRhFYO2pjh2/TXh1LnGEbYGzct1l8BdTm02GuKiaLkyBv0cfhFaiUvfjDDnIWkXeJtjUzENuK1Qm6cZ0m7oZ2+PmMUvQwGNzm6Di/r4sXZ6ey623HSW2rHHrl8EaEDL4KlTj0o8ul0zDAWGoGekwrxgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737617553; c=relaxed/simple;
-	bh=3AhFYwClJJLVUWVPtLzKmynsdK8yZIIqAdrxNjIAAW0=;
+	s=arc-20240116; t=1737617651; c=relaxed/simple;
+	bh=2dGuyGchfh3E6MHVDhtYFz65Pw/ikJlgAIs/GintMQ0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N4Rmosd8wOkUU8SVKfaX9UyOm2rYd6/7Lk9JYD5C/pofBusANgOuA8iBVVckdC+YCo/0pexEvggpZTEmVdTH/fBjYRl6CETnSfpzQ3abCuBropEfnxT21a+ZE/eeDWcgNncQTJaf+6Lxo6G9hSMAW8Sc20R8MNC1deJw9S7WCD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JIVpIsQL; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=hTfx7EAqU4rG/XberAf8jVa/0NwfP26YYLCJqoOMqnPIaqEL2ayo2Hn5pigcylx12pfvOWIer/nqP+eG4Qhwzb+hncbU0uAZRJVFp2CTStJ5KHMUhCI2XiavsNGnAXttvyuCpfF8gPdbWeUyCfuqVqpMCBU8kaOshS5wA7QrOg8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X3AyDQ7v; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JIVpIsQL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X3AyDQ7v"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737617550;
+	s=mimecast20190719; t=1737617648;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3AhFYwClJJLVUWVPtLzKmynsdK8yZIIqAdrxNjIAAW0=;
-	b=JIVpIsQLIAEfKgqvniUjsrn12ZxV7umDP2axWe1GbbzjLj7X52iLQINS3sYXxFK5vMKSUm
-	lKrOvpK5dpmEhacVL7KI0tEaYfIg5FQgOKe2fAM9jWoBeOd2sef8yn1jiagajK2/S+cQ1Q
-	dj+L+MX9LaZ6E8YuGLWkbR5dfJl47D8=
-Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
- [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/o5kY1iXBTWSkjsJ8GgX9mtxulcqnYFPpf7klRo1BNk=;
+	b=X3AyDQ7vofkFrbOsbuLzlxfj/SW86Ovw+3vttRpunUbh6NtNVcO/iDK7aMQWJVx5EC5vo6
+	34M5ZuSk3Vaaz5LEavt9dBGmgfk+QRWuavZfZcJE5oVrTApXZ87P43fhzKXPvHbowVJWNb
+	F1DUAx0aksOCD7MhTlFcyEmX+6ntpm4=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-543-hW1bqjFmN9-vsZkouTlVrw-1; Thu, 23 Jan 2025 02:32:28 -0500
-X-MC-Unique: hW1bqjFmN9-vsZkouTlVrw-1
-X-Mimecast-MFC-AGG-ID: hW1bqjFmN9-vsZkouTlVrw
-Received: by mail-yb1-f200.google.com with SMTP id 3f1490d57ef6-e579a939ec3so1324305276.1
-        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 23:32:28 -0800 (PST)
+ us-mta-526-qeBQBzi9OgO_Tp7vathh8g-1; Thu, 23 Jan 2025 02:34:06 -0500
+X-MC-Unique: qeBQBzi9OgO_Tp7vathh8g-1
+X-Mimecast-MFC-AGG-ID: qeBQBzi9OgO_Tp7vathh8g
+Received: by mail-yb1-f199.google.com with SMTP id 3f1490d57ef6-e54e14f7cbcso1764786276.1
+        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 23:34:06 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737617548; x=1738222348;
+        d=1e100.net; s=20230601; t=1737617646; x=1738222446;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=3AhFYwClJJLVUWVPtLzKmynsdK8yZIIqAdrxNjIAAW0=;
-        b=MceHw5mXa231ra8Kba8u2ODonOY1bMYqeWNEuE1fAtWHy7cmUsuMM8u+poNWVSFBk5
-         e4W8JsNzJbbm4emcgcc2p6qCkgPfEqTpnnXND2xc1vG89ryw2n/DKSpHaiYiWmQxSDxI
-         sOhlqtj1j8XaxVGif+J/xcQj5vJZuFljiAdGIRoChc1t20O7mNrvZ8ujZUQRlpM2tsEy
-         wdzr1N6AQ+2a7RQ30yS6FgLIYqakcVYkJqAs113emU372RCkh9YAgfbLscEEeJYSitQA
-         Ivc75w2TB8AmDdykHiMAPmtCHG/SzSnB9SoAkyXA6gq0Yg9FDNkswFYWciM20i48GHog
-         jh7g==
-X-Forwarded-Encrypted: i=1; AJvYcCXb7UU02tswvjZijvaNbYEWbu/JrT70WTjGT2m4Em10kzpU/icAeBjvOyuA3RRg2OSvfvPfJmuQpYBiUJIJNg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwzZEzS/sUUjUN8v+LROZG7NNS6vayxJZGnAH+tOKgoV+dSQsUO
-	mtf640RXqyupp9/2DBXtK8OlTAnAu3uAhlsBEhWqqjUtDsB8UoJUZlLBNiCx1+q2uYEvq/8LDMy
-	CrX/jIp6n9fTiyAl3JLqe29mhhao4RLcEVSm6+e2ev6zqs8UfsLIeAY+L11/r3Zc2aHY13uA2FV
-	aFqoNVGBx9KLvtlqUuip3r34YVtaXxfBAYQj2g+Ug=
-X-Gm-Gg: ASbGncvjEdMOKiylY0PwfQ+WcfSSZo0UxIFUxDQrqf9W/d8UQCGAm7HZHYtfT2qYfuf
-	DrQ9gELLjwEXQcb3gIgO9O5TOkCdEaOEn+0Qr/XNkNAvpXWdSpw==
-X-Received: by 2002:a05:6902:10cb:b0:e57:37d5:e275 with SMTP id 3f1490d57ef6-e57b105434amr15929010276.18.1737617548197;
-        Wed, 22 Jan 2025 23:32:28 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IESiZEIBZVnuv9O3d5ET7vTZeWBuZF165rAzXos0iRujimhkWpa6LSjaN7KvnvbcAYzufNx2V+a5BkeMT1KPjg=
-X-Received: by 2002:a05:6902:10cb:b0:e57:37d5:e275 with SMTP id
- 3f1490d57ef6-e57b105434amr15929002276.18.1737617547949; Wed, 22 Jan 2025
- 23:32:27 -0800 (PST)
+        bh=/o5kY1iXBTWSkjsJ8GgX9mtxulcqnYFPpf7klRo1BNk=;
+        b=noioKWIrJ8EYB6lWZCxgWFFzb+xUoPIrPJHcB3z0XesJpNGU7EqdHS5gQLmGcAWzJ1
+         IAmAiq4AO1ZGI7rcIyypaBBVjr1/TOypajDYig8apsoL6YBuppHkUECdrHHNZjtbkyxK
+         1+eNIAZzQY6BFFBIVrOgUzjKsBhn/jwmhdrcRZoy9LQDQlktjLn9klGz6el19KuE/Fmh
+         ag7QQD5hdUNvPPt4Y0N4nBys/PG+eT3f6ykNhHs2XyMcCSrg/Ad86TAfg7sLCv7TmdBL
+         F9gvho1BFT9f+hQgj04xMYXhp7cijixP4IyUy/kO9kg2El2UeourkyK48htXVNNxpSxk
+         Iu9A==
+X-Forwarded-Encrypted: i=1; AJvYcCVMy20tZaeOWqq2/FcaTOL0ZtiwLAC07+LTU0voZ8hQ/IscSPHjke/GxMO06gyIF4hqZbk9FPu/Iq+rSN7LXw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzyPTAa6nLKCj451ZTFv0gEtg0VZKlVwgQZqQTMJVYt6DVTN7tk
+	yY6DhnK5SsvyusqX20f3A+QAmbDaQgw5JatXSONnTOnrO8qp6OkF19lAz1kDJJ5WQ6eRytCphVQ
+	3kT+wecworF+3OmJGBPxzuXFlc77Xpi3tGVSafV3CmK2ZnviGUGYTsGWJ6+JhgQzQ3o57umRnBC
+	KkaXkrdDQ7r4Onoij3D3QrJGIzJyQ02QfFRV/dL1I=
+X-Gm-Gg: ASbGncs2/mDPQZQosE5PhRqLEDgfj+NbtnYCfDtJlAsHvKZw48Lh+VNcolzv7kcTWgA
+	GQ+u4X9Ik8Rz8cgvuXCnOlgLavtKYK4supGUFHOEeIlp2GfM4zw==
+X-Received: by 2002:a05:6902:2502:b0:e58:124d:ebdf with SMTP id 3f1490d57ef6-e582587134fmr1858331276.17.1737617645955;
+        Wed, 22 Jan 2025 23:34:05 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE9HeLeFh6hEK4cDs91T1wLQv0hQaLGG7RLbZ2CGUPBB6tjWyHhKXplbc5pCzaYiBBijstFT3noQuv7HvaIT7U=
+X-Received: by 2002:a05:6902:2502:b0:e58:124d:ebdf with SMTP id
+ 3f1490d57ef6-e582587134fmr1858318276.17.1737617645668; Wed, 22 Jan 2025
+ 23:34:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250122163154.1225353-1-eperezma@redhat.com> <20250122163154.1225353-3-eperezma@redhat.com>
- <CACGkMEt8djYRdSvwBK7QGoNV1iG-8nafOox0=pt6ix1m0NOZtA@mail.gmail.com>
-In-Reply-To: <CACGkMEt8djYRdSvwBK7QGoNV1iG-8nafOox0=pt6ix1m0NOZtA@mail.gmail.com>
+References: <20250122163154.1225353-1-eperezma@redhat.com> <20250122163154.1225353-4-eperezma@redhat.com>
+ <CACGkMEvgPAJcZW0EUuOK7byo2djOavT8Cai83=tH_dFJaVSY8Q@mail.gmail.com>
+In-Reply-To: <CACGkMEvgPAJcZW0EUuOK7byo2djOavT8Cai83=tH_dFJaVSY8Q@mail.gmail.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 23 Jan 2025 08:31:52 +0100
-X-Gm-Features: AbW1kvZmJZLZChXDs5ea9mvEr8Y7c6MT0ffo6AiyUv0Ek0_1dQav577Y5xxCR4w
-Message-ID: <CAJaqyWfpVfm6JgSanRBKrsprpKR6Nc+YsyFmsYzoNwBb+uZW-Q@mail.gmail.com>
-Subject: Re: [RFC 2/5] virtio_ring: introduce virtqueue_map/unmap_sgs()
+Date: Thu, 23 Jan 2025 08:33:29 +0100
+X-Gm-Features: AbW1kvYeg33litEtRfMgeLKErvp65PAOLLeMhXDkdjiQs2joMcEfu3qceEylaiE
+Message-ID: <CAJaqyWdoLEtNL5vO7qG7bzDUM3mTCrZUeRM0Lg-9+TJc59p2XQ@mail.gmail.com>
+Subject: Re: [RFC 3/5] virtiofs: Move stack sg to fuse_req
 To: Jason Wang <jasowang@redhat.com>
 Cc: linux-kernel@vger.kernel.org, mst@redhat.com, 
 	Hanna Reitz <hreitz@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
@@ -80,47 +80,193 @@ Cc: linux-kernel@vger.kernel.org, mst@redhat.com,
 	Miklos Szeredi <miklos@szeredi.hu>, German Maglione <gmaglione@redhat.com>, 
 	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 71gNCmdmOujVR6gTeYfHmxo1BjZ0rF8LJYAqHFPRoPc_1737617548
+X-Mimecast-MFC-PROC-ID: 9rsfd9NHgA6hZ2DE4EdPNMpyS9OEnWD8pjzQWGjVsEY_1737617646
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 23, 2025 at 2:51=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+On Thu, Jan 23, 2025 at 2:54=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
 ote:
 >
 > On Thu, Jan 23, 2025 at 12:32=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@red=
 hat.com> wrote:
 > >
-> > From: Jason Wang <jasowang@redhat.com>
+> > We need to move the map and unmap out of virtiofs queue lock.  We need =
+to
+> > store the unmap sgs to call virtqueue_unmap_sgs, so use the request
+> > itself.
 > >
-> > Introduce new virtqueue DMA operations which allows the drivers that
-> > want to make use of the premapping API but operate at the sg level.
+> > TODO: We need to store the forget sgs too.  In my tests it is not calle=
+d
+> > so we're safe.  Find a way to force-call it.
 > >
-> > Note that we still follow the assumtions if virtqueue_add() so
-> > dma_map_sg() is not used. This could be optimized in the future.
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > ---
+> >  fs/fuse/fuse_i.h    |  7 +++++++
+> >  fs/fuse/virtio_fs.c | 45 +++++++++++++++++++++------------------------
+> >  2 files changed, 28 insertions(+), 24 deletions(-)
+> >
+> > diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+> > index 74744c6f2860..e57664daa761 100644
+> > --- a/fs/fuse/fuse_i.h
+> > +++ b/fs/fuse/fuse_i.h
+> > @@ -18,6 +18,7 @@
+> >  #include <linux/mount.h>
+> >  #include <linux/wait.h>
+> >  #include <linux/list.h>
+> > +#include <linux/scatterlist.h>
+> >  #include <linux/spinlock.h>
+> >  #include <linux/mm.h>
+> >  #include <linux/backing-dev.h>
+> > @@ -434,6 +435,12 @@ struct fuse_req {
+> >  #if IS_ENABLED(CONFIG_VIRTIO_FS)
+> >         /** virtio-fs's physically contiguous buffer for in and out arg=
+s */
+> >         void *argbuf;
+> > +
+> > +       /** virtio-fs's pre-mapped stuff */
+> > +       struct scatterlist sg_inline_data[6]; /* optimization for short=
+ requests */
+> > +       struct scatterlist *sg;
+> > +       unsigned int out_sgs;
+> > +       unsigned int in_sgs;
+> >  #endif
+>
+> As this touches FUSE, I think we need to do a careful benchmark just
+> for this patch to make sure no regression is introduced.
+>
+
+Sure, I can do it. But the struct already has a virtiofs field (argbuf).
+
+> A dumb question (know little about FUSE), if this is only used by
+> virtio-fs, could we find a way to embed fuse_req in a virtio-fs
+> dedicated req structure?
+>
+
+I guess FUSE can ask virtiofs to allocate the struct for sure.
+
+> >
+> >         /** fuse_mount this request belongs to */
+> > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> > index 82afe78ec542..1344c5782a7c 100644
+> > --- a/fs/fuse/virtio_fs.c
+> > +++ b/fs/fuse/virtio_fs.c
+> > @@ -1377,14 +1377,10 @@ static int virtio_fs_enqueue_req(struct virtio_=
+fs_vq *fsvq,
+> >  {
+> >         /* requests need at least 4 elements */
+> >         struct scatterlist *stack_sgs[6];
+> > -       struct scatterlist stack_sg[ARRAY_SIZE(stack_sgs)];
+> >         struct scatterlist **sgs =3D stack_sgs;
+> > -       struct scatterlist *sg =3D stack_sg;
+> >         struct virtqueue *vq;
+> >         struct fuse_args *args =3D req->args;
+> >         unsigned int argbuf_used =3D 0;
+> > -       unsigned int out_sgs =3D 0;
+> > -       unsigned int in_sgs =3D 0;
+> >         unsigned int total_sgs;
+> >         unsigned int i;
+> >         int ret;
+> > @@ -1392,11 +1388,13 @@ static int virtio_fs_enqueue_req(struct virtio_=
+fs_vq *fsvq,
+> >         struct fuse_pqueue *fpq;
+> >
+> >         /* Does the sglist fit on the stack? */
+> > +       /* TODO replace magic 6 by a macro */
+> > +       req->sg =3D req->sg_inline_data;
+> >         total_sgs =3D sg_count_fuse_req(req);
+> > -       if (total_sgs > ARRAY_SIZE(stack_sgs)) {
+> > +       if (total_sgs > 6) {
+> >                 sgs =3D kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
+> > -               sg =3D kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
+> > -               if (!sgs || !sg) {
+> > +               req->sg =3D kmalloc_array(total_sgs, sizeof(req->sg[0])=
+, gfp);
+> > +               if (!sgs || !req->sg) {
+> >                         ret =3D -ENOMEM;
+> >                         goto out;
+> >                 }
+> > @@ -1408,26 +1406,25 @@ static int virtio_fs_enqueue_req(struct virtio_=
+fs_vq *fsvq,
+> >                 goto out;
+> >
+> >         /* Request elements */
+> > -       sg_init_one(&sg[out_sgs++], &req->in.h, sizeof(req->in.h));
+> > -       out_sgs +=3D sg_init_fuse_args(&sg[out_sgs], req,
+> > -                                    (struct fuse_arg *)args->in_args,
+> > -                                    args->in_numargs, args->in_pages,
+> > -                                    req->argbuf, &argbuf_used);
+> > +       sg_init_one(&req->sg[req->out_sgs++], &req->in.h, sizeof(req->i=
+n.h));
+> > +       req->out_sgs +=3D sg_init_fuse_args(&req->sg[req->out_sgs], req=
+,
+> > +                                         (struct fuse_arg *)args->in_a=
+rgs,
+> > +                                         args->in_numargs, args->in_pa=
+ges,
+> > +                                         req->argbuf, &argbuf_used);
+> >
+> >         /* Reply elements */
+> >         if (test_bit(FR_ISREPLY, &req->flags)) {
+> > -               sg_init_one(&sg[out_sgs + in_sgs++],
+> > +               sg_init_one(&req->sg[req->out_sgs + req->in_sgs++],
+> >                             &req->out.h, sizeof(req->out.h));
+> > -               in_sgs +=3D sg_init_fuse_args(&sg[out_sgs + in_sgs], re=
+q,
+> > -                                           args->out_args, args->out_n=
+umargs,
+> > -                                           args->out_pages,
+> > -                                           req->argbuf + argbuf_used, =
+NULL);
+> > +               req->in_sgs +=3D sg_init_fuse_args(&req->sg[req->out_sg=
+s + req->in_sgs], req,
+> > +                                                args->out_args, args->=
+out_numargs,
+> > +                                                args->out_pages,
+> > +                                                req->argbuf + argbuf_u=
+sed, NULL);
+> >         }
+> >
+> > -       WARN_ON(out_sgs + in_sgs !=3D total_sgs);
+> > -
+> >         for (i =3D 0; i < total_sgs; i++)
+> > -               sgs[i] =3D &sg[i];
+> > +               sgs[i] =3D &req->sg[i];
+> > +       WARN_ON(req->out_sgs + req->in_sgs !=3D total_sgs);
+> >
+> >         spin_lock(&fsvq->lock);
+> >
+> > @@ -1438,7 +1435,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs=
+_vq *fsvq,
+> >         }
+> >
+> >         vq =3D fsvq->vq;
+> > -       ret =3D virtqueue_add_sgs(vq, sgs, out_sgs, in_sgs, req, GFP_AT=
+OMIC);
+> > +       ret =3D virtqueue_add_sgs(vq, sgs, req->out_sgs, req->in_sgs, r=
+eq, GFP_ATOMIC);
+> >         if (ret < 0) {
+> >                 spin_unlock(&fsvq->lock);
+> >                 goto out;
+> > @@ -1467,10 +1464,10 @@ static int virtio_fs_enqueue_req(struct virtio_=
+fs_vq *fsvq,
+> >                 kfree(req->argbuf);
+> >                 req->argbuf =3D NULL;
+> >         }
+> > -       if (sgs !=3D stack_sgs) {
+> > +       if (ret < 0 && req->sg !=3D req->sg_inline_data)
+> > +               kfree(req->sg);
+> > +       if (sgs !=3D stack_sgs)
+> >                 kfree(sgs);
+> > -               kfree(sg);
+> > -       }
+> >
+> >         return ret;
+> >  }
 > > --
-> > Eugenio's changes: Remove blank
-> > TODO: Should we call directly dma_map instead of this? XDP do the direc=
-t
-> > call.
+> > 2.48.1
+> >
 >
-> Note that we should have an indirection layer as the device is not
-> necessarily DMA capable.
+> Thanks
 >
-
-Can you expand on this? virtqueue_map_sgs calls directly to
-dma_map_page for each entry in the sg. This indirection layer should
-be in the device's callback for DMA, isn't it?
-
-> And we probably need to rename the virtqueue_dma_map_XXX() to
-> virtqueue_map_XXX()
->
-
-Ok so maybe these functions are already enough without using
-dma_map_sgs. I"m ok with renaming these, but that should be done in a
-separate series, isn't it?
-
-Thanks!
 
