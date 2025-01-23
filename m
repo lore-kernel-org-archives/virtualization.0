@@ -1,212 +1,98 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CD13136E28
-	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 01:47:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5B8D8528E
+	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 01:48:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737596867; cv=none; b=qULjjhx5myZIW3bHh1tWsuLbolPJuI8SHvzIIfRyRS/Y0g48UP9VWFuzZom0lGZF9WcoOKMeOFIeExDBybiFyvUcW2HkC7hMXBZFxkZONLpT5IqGxQCDI1m7qie0JnCzyQ0Buq5vjZhMic04V0fQs+EoiHjtdaf4+5gAW1LjAcM=
+	t=1737596903; cv=none; b=Wyr/dIm8GQydCEaVgeVHU4sJE4/ogs2UYMhci5LL02cKQgDPhtvxxm0xwkbBAcPjYyv7NdWuXcq0bnCd8g8Lne7Vq8m2PzxNrlvc9xgTDYmUb3Ys6qSiWE7MVPxZqwgrsNZNAm7szuRHgMsta+OrqOar/cKQW6gAXoV6SHWr6ho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737596867; c=relaxed/simple;
-	bh=Z5RUeXjewdZrKMZoMK7Pqpm+bBakm0Sa9RBcpd7Nc0A=;
+	s=arc-20240116; t=1737596903; c=relaxed/simple;
+	bh=B63eHeRWNhXGoZMlIjO0/cWMhWAPSUOnw1mXi2+9rhQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rSXFa5zt5Uh9IkPQBLM6Q0y1k6SK70FcoATjg9pdj65c6YMpaE4Ib6XnYjE1y17j9ud314qsYNaBKFPKATkUvZ0qlKK8or3+ZVwUUzYA3XmpFNveWM4t4MjIAClG3BqVbZ55zZ7AMsaF++lRH1+wLgLipYWrrLplTF9j4L3clM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X8j/eZMG; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=HUDwW0odB3ZvCmqvRy+3qwKzXQMmZpVvb6sNpMHMFlkCqTHkmWAL9d+iVLfmsZJZMKFJKcN33Ob0ChKy9mRM6G7TxKaExACHPQLW62ciEsPGcjiiEzdwAMwcTvks4VfcmbiT3QDYVFnAoKF+5NZfyEV8GvSwxNvzuNnNEDURvV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ChcyKM20; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X8j/eZMG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ChcyKM20"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737596864;
+	s=mimecast20190719; t=1737596899;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=2w3Y/ryYxPYy1DTvoWZ1USlMPCnV5SBRkSrpIuoftOE=;
-	b=X8j/eZMGVEKRE0L4C8gPZMVy5HKXagF0Ob148fcxwpMiwwzzn7BDViNvf1PAZ4fCEUFAqw
-	+pPIbrf+oL6aJ1ECoc/FbjH5eI5qrE+OwEdbP0Slw3kJp8ASN2T18QuP22VvTXirWnhAhu
-	T5Ka2LRVKkHm4OXEGdn3e5lxhViMFEw=
+	bh=B63eHeRWNhXGoZMlIjO0/cWMhWAPSUOnw1mXi2+9rhQ=;
+	b=ChcyKM20GBs66EmZPBp0W4vx/0odlzPVgJ0MqTVFZb6oZXVcWQm1R/+iUSROCqzyT+1p+O
+	XtSvHC+xZAx1cCiPHYK2Eqj9NOqI7A3KzgHQYLukMudHdcse6zqyQnNiTZn7+Pt0TVBKgh
+	42ecctLxA4WvXzYKofQj1NTvUCXS+QQ=
 Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
  [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-505-9XbNZz89PeeRMSLoUnAJVg-1; Wed, 22 Jan 2025 20:47:42 -0500
-X-MC-Unique: 9XbNZz89PeeRMSLoUnAJVg-1
-X-Mimecast-MFC-AGG-ID: 9XbNZz89PeeRMSLoUnAJVg
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2ef909597d9so1308433a91.3
-        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 17:47:42 -0800 (PST)
+ us-mta-223-U5QGRRJ5PtWGkTt7-MmXsg-1; Wed, 22 Jan 2025 20:48:16 -0500
+X-MC-Unique: U5QGRRJ5PtWGkTt7-MmXsg-1
+X-Mimecast-MFC-AGG-ID: U5QGRRJ5PtWGkTt7-MmXsg
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2f2a9f056a8so880149a91.2
+        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 17:48:16 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737596861; x=1738201661;
+        d=1e100.net; s=20230601; t=1737596894; x=1738201694;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2w3Y/ryYxPYy1DTvoWZ1USlMPCnV5SBRkSrpIuoftOE=;
-        b=SEoiOamagpBis1kTTSScAdgR8+l56WwSgRe/cObE4R4qlMc0k5H7z9kdIOrIas8pOh
-         ZtjRcOWjzEFYpwtW9OpPJAJfs6k0U9mU0L1T6zYpLDS09oF4WIW88RaY514edkNL9Ej4
-         9obrqAoNAsGd2k6YeBaiGUKNw0gLMwKD0+YeFS9dlpqEYgBLTNFZUjedPNN32hwYU9Ia
-         o/QRnbdGQ28PCem3qecLBDrMwh6APw5ZWQQUyLWSeACStpOmmpC00l8Onoe+LTcwzk4W
-         AHApng1v9cLGrlRVIPtEj5hrSgXSIOJEjD/30hH47+TrGhng3ARrJsVYCo1IAniMZGMA
-         ivhg==
-X-Forwarded-Encrypted: i=1; AJvYcCUGdeTNVbJ89Onr8N3EOKPC0FPOpEKJaQtIZ0r27/9x2FqLK2RyafLIL1k+zYZq0Zkr1HrLYzJkrGsQokagQg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzktPw8cBr2XUIB1bAdzfLnYCU4PT6jmwAwAvcnnn4d1tGYokqG
-	8cMlk40bNMzKiM7NwxwrTd+hZVJV3/GeowZUBlAuh+2f5APeSKuFhsadrZVvkZEgIRiV86H3Ocf
-	Y9LA9Ww1AamDpu6zdOE3d39RgjJsD+/hoISaQEPoRpFdlPSaYf6ibWhiUzDoEyuWT21zMrenRIs
-	wJzMAx33Td7miyxf5F75pPbQX8dDa5d2hzx5wlfMM=
-X-Gm-Gg: ASbGncupz4tk+vIhC+EAOkVvDvqlwMjmyr8x2AnHUKyl2Ca+QFfba+5yg8V7rVwZ/9T
-	x1kMGKRN8tbIVGlv7qYIzhoPCVk30icr207quor0We4Qpnx157w==
-X-Received: by 2002:a05:6a20:7b07:b0:1e1:ae83:ad04 with SMTP id adf61e73a8af0-1eb215902cbmr28856211637.27.1737596861504;
-        Wed, 22 Jan 2025 17:47:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGdZdwwjJ5kCcRmJHzJl5lWj7E98LLPwdagwjLW/JUd5U0/kw+ztqsftXrAA274zp1e3eDzywK2qI832IR8A2w=
-X-Received: by 2002:a05:6a20:7b07:b0:1e1:ae83:ad04 with SMTP id
- adf61e73a8af0-1eb215902cbmr28856182637.27.1737596861043; Wed, 22 Jan 2025
- 17:47:41 -0800 (PST)
+        bh=B63eHeRWNhXGoZMlIjO0/cWMhWAPSUOnw1mXi2+9rhQ=;
+        b=mnznfB35FArKwqULu/5SxqYawC+DTm4iofSsRPw+eB/aj7v5ndgJss/S8aFVr9TuNo
+         Ew5bMU//DoMXI5vXQtDMBAk4DbGTQeG/TY0bfRWnG1Sd2zfdECgPCWt92/MuB1p75+UM
+         04PXkVhKukOQRPKkXmWVIkJoVjfObi0GvQWWiZquXzoInLF0JMVS09BrJwPQkudKNXzk
+         udSzKi+ICxPulRoafkyIKDzl/4KznnlThTOASXJ/wD9UOmFPg/5PUlChkdNbN3U6CEWS
+         e86CHTo8/atR13TYM+sdnKsVrx4VEjC1A7+nI0YWFM6XHWQj70mzg7s1froCZ5JfVcfN
+         pVXA==
+X-Forwarded-Encrypted: i=1; AJvYcCU9tLcEW0Uzr0Ei5Js1ZwnGFBGMfSB6vSfodnfcmFdqJRRauVZI1G8T9ET2uGhvUktQrP5MhlU/ppTMBiHpPQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyLQeddLRd1nmfI3tUEhlSOfb2cz+2hyckLZQ2RQrQEagzKvjVy
+	/FG8VdgLhsfGI2yRUfjJJuBR3+2FPIwh2+GZVfu0PnoZqPyAc9DDArcpzkfJf/4lsPcHO8778YA
+	1LV6uzTbYIZ3HdPLOHSud+tAgZbpmV500EuEBqzMoUjobKyb4EWWYOrjqVV16xcr3zRVwxTU3sm
+	mGgHm0X9SlcxMg98Bsd7K8+J2PASv/P7DJ1OD+uX4=
+X-Gm-Gg: ASbGncuLQRkQwyx2K7ATCPAfTcqwOMSqUT1E86Ul5+LM3sWKUobC0MVLi6Zlue149b7
+	5QK27RxLPpMv/dCj/ov07iG3b/PZZtOzZhKPCfmeA/10uFkTgig==
+X-Received: by 2002:a05:6a00:2183:b0:72a:bc6a:3a87 with SMTP id d2e1a72fcca58-72daf86eb81mr33752147b3a.0.1737596894742;
+        Wed, 22 Jan 2025 17:48:14 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFSK6H+eL2ekLeIrc0ScLWcz0cKMhYidBx2yNOfQSRNQN4FwvvLt2xp8lNsN63bWoE5nvU8d6FvcqD0unirHHs=
+X-Received: by 2002:a05:6a00:2183:b0:72a:bc6a:3a87 with SMTP id
+ d2e1a72fcca58-72daf86eb81mr33752107b3a.0.1737596894349; Wed, 22 Jan 2025
+ 17:48:14 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250107182516.48723-1-andrew.boyer@amd.com> <7a4f03a0-9640-4d15-9f0d-4e1ceb82aa8c@linux.ibm.com>
- <20250109083907-mutt-send-email-mst@kernel.org> <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
- <dcbce68c-f448-4bbf-8db9-c3cd3231b5dd@linux.ibm.com> <20250122165854-mutt-send-email-mst@kernel.org>
- <CB749FA4-79E2-49F0-9BDF-67B089A8EC35@amd.com> <20250122172108-mutt-send-email-mst@kernel.org>
- <CF92E813-EE94-4F61-A8A9-278CA1BD3629@amd.com>
-In-Reply-To: <CF92E813-EE94-4F61-A8A9-278CA1BD3629@amd.com>
+References: <20250122163154.1225353-1-eperezma@redhat.com> <20250122163154.1225353-2-eperezma@redhat.com>
+In-Reply-To: <20250122163154.1225353-2-eperezma@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 23 Jan 2025 09:47:24 +0800
-X-Gm-Features: AbW1kvYiXd_SnAMHtuoWs6gLhZS8a_9rFjsxfkS5q97ZP7kXQdo-f6txEA7Xkg0
-Message-ID: <CACGkMEuf2PgrOYvVdLjgQT53AH7pJFtk9L3bC55JZbkM78V_yA@mail.gmail.com>
-Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
-To: "Boyer, Andrew" <Andrew.Boyer@amd.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Eugenio Perez <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Jens Axboe <axboe@kernel.dk>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "Nelson, Shannon" <Shannon.Nelson@amd.com>, 
-	"Creeley, Brett" <Brett.Creeley@amd.com>, "Hubbe, Allen" <Allen.Hubbe@amd.com>
+Date: Thu, 23 Jan 2025 09:48:03 +0800
+X-Gm-Features: AbW1kvZcKMwaeZiw_kG1-QtQLZ_at00KR13FKyGmGWK7_0hA02wiFkHRJRH5CI4
+Message-ID: <CACGkMEsWKq396u7bpD5EsGnaWoMUTHL2Wj=86BG8b2ehTLuBMQ@mail.gmail.com>
+Subject: Re: [RFC 1/5] vduse: add virtio_fs to allowed dev id
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: linux-kernel@vger.kernel.org, mst@redhat.com, 
+	Hanna Reitz <hreitz@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Vivek Goyal <vgoyal@redhat.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, German Maglione <gmaglione@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6F5UaE839udoUU0b0Tc6xMmiopMB3Uz6eW_EoQioGec_1737596861
+X-Mimecast-MFC-PROC-ID: 5mAsOPl9rjifCV8AKVVHYzr8vY-bSU951AZKXU8jQyo_1737596895
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 23, 2025 at 6:34=E2=80=AFAM Boyer, Andrew <Andrew.Boyer@amd.com=
-> wrote:
+On Thu, Jan 23, 2025 at 12:32=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redha=
+t.com> wrote:
 >
+> A VDUSE device that implements virtiofs device works fine just by
+> adding the device id to the whitelist.
 >
-> > On Jan 22, 2025, at 5:25=E2=80=AFPM, Michael S. Tsirkin <mst@redhat.com=
-> wrote:
-> >
-> > Caution: This message originated from an External Source. Use proper ca=
-ution when opening attachments, clicking links, or responding.
-> >
-> >
-> > On Wed, Jan 22, 2025 at 10:14:52PM +0000, Boyer, Andrew wrote:
-> >>
-> >>> On Jan 22, 2025, at 5:07=E2=80=AFPM, Michael S. Tsirkin <mst@redhat.c=
-om> wrote:
-> >>>
-> >>> Caution: This message originated from an External Source. Use proper =
-caution when opening attachments, clicking links, or responding.
-> >>>
-> >>>
-> >>> On Wed, Jan 22, 2025 at 06:33:04PM +0100, Christian Borntraeger wrote=
-:
-> >>>> Am 22.01.25 um 15:44 schrieb Boyer, Andrew:
-> >>>> [...]
-> >>>>
-> >>>>>>>> --- a/drivers/block/virtio_blk.c
-> >>>>>>>> +++ b/drivers/block/virtio_blk.c
-> >>>>>>>> @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_m=
-q_hw_ctx *hctx)
-> >>>>>>>> {
-> >>>>>>>>  struct virtio_blk *vblk =3D hctx->queue->queuedata;
-> >>>>>>>>  struct virtio_blk_vq *vq =3D &vblk->vqs[hctx->queue_num];
-> >>>>>>>> -   bool kick;
-> >>>>>>>>  spin_lock_irq(&vq->lock);
-> >>>>>>>> -   kick =3D virtqueue_kick_prepare(vq->vq);
-> >>>>>>>> +   virtqueue_kick(vq->vq);
-> >>>>>>>>  spin_unlock_irq(&vq->lock);
-> >>>>>>>> -
-> >>>>>>>> -   if (kick)
-> >>>>>>>> -           virtqueue_notify(vq->vq);
-> >>>>>>>> }
-> >>>>>>>
-> >>>>>>> I would assume this will be a performance nightmare for normal IO=
-.
-> >>>>>>
-> >>>>>
-> >>>>> Hello Michael and Christian and Jason,
-> >>>>> Thank you for taking a look.
-> >>>>>
-> >>>>> Is the performance concern that the vmexit might lead to the underl=
-ying virtual storage stack doing the work immediately? Any other job postin=
-g to the same queue would presumably be blocked on a vmexit when it goes to=
- attempt its own notification. That would be almost the same as having the =
-other job block on a lock during the operation, although I guess if you are=
- skipping notifications somehow it would look different.
-> >>>>
-> >>>> The performance concern is that you hold a lock and then exit. Exits=
- are expensive and can schedule so you will increase the lock holding time =
-significantly. This is begging for lock holder preemption.
-> >>>> Really, dont do it.
-> >>>
-> >>>
-> >>> The issue is with hardware that wants a copy of an index sent to
-> >>> it in a notification. Now, you have a race:
-> >>>
-> >>> thread 1:
-> >>>
-> >>>       index =3D 1
-> >>>               ->                      -> send 1 to hardware
-> >>>
-> >>>
-> >>> thread 2:
-> >>>
-> >>>       index =3D 2
-> >>>               -> send 2 to hardware
-> >>>
-> >>> the spec unfortunately does not say whether that is legal.
-> >>>
-> >>> As far as I could tell, the device can easily use the
-> >>> wrap counter inside the notification to detect this
-> >>> and simply discard the "1" notification.
-> >>>
-> >>>
-> >>> If not, I'd like to understand why.
-> >>
-> >> "Easily"?
-> >>
-> >> This is a hardware doorbell block used for many different interfaces a=
-nd devices. When the notification write comes through, the doorbell block u=
-pdates the queue state and schedules the queue for work. If a second notifi=
-cation comes in and overwrites that update before the queue is able to run =
-(going backwards but not wrapping), we'll have no way of detecting it.
-> >>
-> >> -Andrew
-> >>
-> >
-> > Does not this work?
-> >
-> > notification includes two values:
-> >
-> > 1. offset
-> > 2. wrap_counter
-> >
-> > if ((offset2 < offset1 && wrap_counter2 =3D=3D wrap_counter1) ||
-> >     offset1 > offset1 && wrap_counter2 !=3D wrap_counter1)) {
-> >        printf("going backwards, discard offset2");
-> > }
-> >
->
-> No, Michael, this does not work in our programmable hardware device, beca=
-use it is not software.
->
-> -Andrew
->
+> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Should we send a patch to disable this feature and cc stable first
-then consider how to fix this?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
