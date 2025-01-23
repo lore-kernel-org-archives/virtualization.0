@@ -1,208 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CED52914
-	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 01:56:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 883AD3232;
+	Thu, 23 Jan 2025 02:20:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737597379; cv=none; b=U2SjFurnoFWi7TuuWGscXAwjI+heU+UR08Y/X85y7uyLnSv9i2Je2NmjWPnR7y+USFVHcwoKymBepjBt5Mguq/G2RKbT/sDs72f/DUruFMaeIVVXhQXUcxm4AgfgEthdry6AlJrIB5+PIMIVIbJMwiE2fDq1vEwpg/z18E7uFs4=
+	t=1737598853; cv=none; b=RwJu6tLZs4QnvOim2+z2YnhR5L6oUsDDw2XZFouc4v2Bz4eQ6rRfHnqxxdfiwqmE9UbXfmuo4UNSVS/K/sRnTiX8BWzmue0AnyL52MGZOnjxKA6qh3X+7WEpNqMhFxVYn0FTz4NZgvxh4VdNbSku8RpeOrKLvGam/B7XneEz+I8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737597379; c=relaxed/simple;
-	bh=XiEOoD4yzD2F81TdjyrRKaWKiuUNatsVv3GejtGvLy4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Mxn5vwVU32gx6koOkH02o8ZjFb4/1UxxVXAZNut8xRgeqszaf7+lApBqL5LlH8t15rAr8jG/mCAjaagzDmiH9T6UABLNokM4yH6XJMV6NlpJqYET3h05Ce8WlYy/b1ZtiogeVSpGmf5KjVrzuai9j6zyYU+vT0xhwnxalrRxvQc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NHmM9Ity; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1737598853; c=relaxed/simple;
+	bh=l/StfvmlLCHjYY/yKMI2jnYQai+YQWNw/5zxejp8VnM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HSaWy1B0Ba/RqD8M4l9G/fJ8l0a+AmKSu2z6qbUlG19yDoM5wwJG4CJ59snCnSt0rimVfU62ocaRmPIi+rQT3jjngGcLBO0tFFFPhBFTNzZivZ9Mr3HlPCOv1fCm5feqF6bYwkqXbW1wpFwG1v0B4x3ePJnCAfC9Pyzpz/1SczQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=j347b9I4; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NHmM9Ity"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737597376;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RYTUDeFLUf5sRvOpJXpQej/n7vd/1xg+Uhd8MOoxlnc=;
-	b=NHmM9ItyLSjJH4NIX653fjqrAzxFUfcBfWX0HJ7BCut6gzAUCXOvYAr8tAC/xfdYZX0pWi
-	x2Wh9rax9rLFYWIARzUDWLVRaHGYElmd7k6yMuRdPE6gFo/Po2soP+qWAWkY82c5z4BNCw
-	zl92xiCUQ+xtQj6qulMtep0uo/724jk=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-152-HsITRqEjMgW4vQ0-qDeCSw-1; Wed, 22 Jan 2025 20:56:14 -0500
-X-MC-Unique: HsITRqEjMgW4vQ0-qDeCSw-1
-X-Mimecast-MFC-AGG-ID: HsITRqEjMgW4vQ0-qDeCSw
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2ee46799961so1354510a91.2
-        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 17:56:14 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737597373; x=1738202173;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RYTUDeFLUf5sRvOpJXpQej/n7vd/1xg+Uhd8MOoxlnc=;
-        b=p0WpRsQSQhe8X8/YCRy0k5AlIkZ/8M5xoM9gILO+XNT0vvCEdKNE9GXr/7Np1AxutT
-         uXnNstjqBVZliPFHFhi/e+9f53s/kn6IX9+TZf0NzEbJ3nO2WY+1O0kML1L+Dhy6JR40
-         CRGd6R3qB9Uwr+LkgF1Bky3fbIdoFk9ZcbUIwTWQCgc2eagBelhTMNS2DNXSda72H8nm
-         ixcss5xsoC/ICMECDoroJNTO8+mBGk/OAoJ97iBrepehvTG1ldrkXZFoBg+fqs8/4uo/
-         BQjzxeeCALtBZCpWe9CKiRpbsoocFgxcrWhToRwPD9P2HhZGhhAZe8cofpQiBM9fVvZF
-         Exww==
-X-Forwarded-Encrypted: i=1; AJvYcCWoVxCNcE7hvCysqsA6GZBKYvgHkQiULaxRlkOeeSndT3hz8OhaAYvCqEeUN2CzsoLhEzAfnVZj2jyCZtJeXQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy54M/07fgzkuv/ByZy7Pse9e2Xw39Jkyi9j87JmRK2Am6C2wCs
-	waeBqvDv9wL9yL7uDdAl+m+J/C4SG9Aq0HUNiMHB1dANJ+8JBvYwrHNbF8Mx/hEPWm8Evp2YM91
-	7NzztWk02FckkCUId1nBEE+vLzZl4fulvVC5hJ+bwpl5S8LTzzAzQMGI2kO63aR/fYE+mzXxOvj
-	6aHN3j/n4fplYKcNIUlJWgovpm5Ii8Rs3pmwnLhS8=
-X-Gm-Gg: ASbGncuZrAcsY685pteN48r5pgwP6REWWL1wnG/qIjavpFVBlnD1k2yhmcdl/EGOj8a
-	OxZkPTRRgXSgF4PPsSRw+3mstB04NTPO5sgKBC20wjcMmrOHwqA==
-X-Received: by 2002:a05:6a00:17a7:b0:725:eb85:f7ef with SMTP id d2e1a72fcca58-72dafa10944mr34637945b3a.14.1737597373293;
-        Wed, 22 Jan 2025 17:56:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEFXtkfahLYX5yBy5EGvs4lhrrThFtq5+9mQOHcUMOEW0C358kRvr06x3nIDobdrPVGvo8KNoEOzhB2fAUvcro=
-X-Received: by 2002:a05:6a00:17a7:b0:725:eb85:f7ef with SMTP id
- d2e1a72fcca58-72dafa10944mr34637889b3a.14.1737597372787; Wed, 22 Jan 2025
- 17:56:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="j347b9I4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1737598851; x=1769134851;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=l/StfvmlLCHjYY/yKMI2jnYQai+YQWNw/5zxejp8VnM=;
+  b=j347b9I4RPTACDvDmMCCIw85Quw/o5wkgzBPGkb6ZFQqF21aNjk2R/bw
+   PhVfBSDYETjAd2/HpXVJuiAqd5z4wt9vpUwFZANKxRaPhoZVuo7Jda97z
+   H8WdX88wZxJeJ5xHbgdg0OyBLkK/L6UMMtm61UpN8KVcm80kvL/1vJDEH
+   z85h6LcpwS+xfoqt+S6rijDaKCTXcSEZWakZwa8oAa3VL/kRFzHghHUy7
+   Za7rbMRydC2adaylz7Crt+AMYbDix8v3VYlOecwWAZJVIci1EzE5WaY1f
+   wTrYFwnxoN9YdEfPQ3kSZVjdg0TK2ne0APUMJqRyTi6KAom1jMrlS2D91
+   g==;
+X-CSE-ConnectionGUID: teBLr02BTX+atdb1IHIleQ==
+X-CSE-MsgGUID: JMiOXmpbSVGG9FIt6FCvTw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11323"; a="40909793"
+X-IronPort-AV: E=Sophos;i="6.13,227,1732608000"; 
+   d="scan'208";a="40909793"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2025 18:20:50 -0800
+X-CSE-ConnectionGUID: 3n85Ta0JSaqGOmkesv0Qcw==
+X-CSE-MsgGUID: UWPh49TsQsiTplxHLgQS6w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="112433445"
+Received: from lkp-server01.sh.intel.com (HELO d63d4d77d921) ([10.239.97.150])
+  by orviesa005.jf.intel.com with ESMTP; 22 Jan 2025 18:20:47 -0800
+Received: from kbuild by d63d4d77d921 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tampo-000aYJ-11;
+	Thu, 23 Jan 2025 02:20:44 +0000
+Date: Thu, 23 Jan 2025 10:20:08 +0800
+From: kernel test robot <lkp@intel.com>
+To: Alexandre Courbot <gnurou@gmail.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Hans Verkuil <hverkuil@xs4all.nl>,
+	Albert Esteve <aesteve@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-media@vger.kernel.org,
+	gurchetansingh@google.com, daniel.almeida@collabora.com,
+	changyeon@google.com, nicolas.dufresne@collabora.com,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	Alexandre Courbot <acourbot@google.com>
+Subject: Re: [PATCH] media: add virtio-media driver
+Message-ID: <202501231055.JvzBf96Y-lkp@intel.com>
+References: <20250123-virtio-media-v1-1-81e2549b86b9@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250122163154.1225353-1-eperezma@redhat.com> <20250122163154.1225353-6-eperezma@redhat.com>
-In-Reply-To: <20250122163154.1225353-6-eperezma@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 23 Jan 2025 09:56:01 +0800
-X-Gm-Features: AbW1kvYPp1o_rP3qSdcoKKOeCxgylgXWTM4WEUCLE6G5ZJqW7pcPzq2KrovWuoI
-Message-ID: <CACGkMEu377y+Q+vV3b6Azc620B=TZQeYEfY6w7bKTNAWkEqy9Q@mail.gmail.com>
-Subject: Re: [RFC 5/5] virtiofs: perform DMA operations out of the spinlock
-To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: linux-kernel@vger.kernel.org, mst@redhat.com, 
-	Hanna Reitz <hreitz@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Vivek Goyal <vgoyal@redhat.com>, 
-	Miklos Szeredi <miklos@szeredi.hu>, German Maglione <gmaglione@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: PwO_0fzT2BiV9EmLcQ8yLlqhElqlOiLK2kReI5_Q_LY_1737597373
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250123-virtio-media-v1-1-81e2549b86b9@gmail.com>
 
-On Thu, Jan 23, 2025 at 12:32=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redha=
-t.com> wrote:
->
-> This is useful for some setups like swiotlb or VDUSE where the DMA
-> operations are expensive and/or need to be performed with a write lock.
->
-> After applying this patch, fio read test goes from 1201MiB/s to 1211MiB/s=
-.
+Hi Alexandre,
 
-The difference is too small to differentiate it from the noise.
+kernel test robot noticed the following build warnings:
 
-I would suggest to test with different setups.
+[auto build test WARNING on ffd294d346d185b70e28b1a28abe367bbfe53c04]
 
-1) SWIOTLB 2) VDUSE
+url:    https://github.com/intel-lab-lkp/linux/commits/Alexandre-Courbot/media-add-virtio-media-driver/20250123-085559
+base:   ffd294d346d185b70e28b1a28abe367bbfe53c04
+patch link:    https://lore.kernel.org/r/20250123-virtio-media-v1-1-81e2549b86b9%40gmail.com
+patch subject: [PATCH] media: add virtio-media driver
+reproduce: (https://download.01.org/0day-ci/archive/20250123/202501231055.JvzBf96Y-lkp@intel.com/reproduce)
 
-Note that SWIOTLB will do bouncing even for DMA_FROM_DEVICE, so I
-think we may see better performance there.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202501231055.JvzBf96Y-lkp@intel.com/
 
-And we need to try with different request size, I did a similar patch
-for virtio-blk and I see better performance for large request like 1M
-etc.
+versioncheck warnings: (new ones prefixed by >>)
+   INFO PATH=/opt/cross/rustc-1.78.0-bindgen-0.65.1/cargo/bin:/opt/cross/clang-19/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+   /usr/bin/timeout -k 100 3h /usr/bin/make KCFLAGS= -Wtautological-compare -Wno-error=return-type -Wreturn-type -Wcast-function-type -funsigned-char -Wundef -fstrict-flex-arrays=3 -Wformat-overflow -Wformat-truncation -Wenum-conversion W=1 --keep-going LLVM=1 -j32 ARCH=x86_64 versioncheck
+   find ./* \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS -o -name .pc -o -name .hg -o -name .git \) -prune -o \
+   	-name '*.[hcS]' -type f -print | sort \
+   	| xargs perl -w ./scripts/checkversion.pl
+>> ./drivers/media/virtio/virtio_media_driver.c: 22 linux/version.h not needed.
+   ./drivers/staging/gpib/lpvo_usb_gpib/lpvo_usb_gpib.c: 13 linux/version.h not needed.
+   ./samples/bpf/spintest.bpf.c: 8 linux/version.h not needed.
+   ./tools/lib/bpf/bpf_helpers.h: 424: need linux/version.h
+   ./tools/testing/selftests/bpf/progs/dev_cgroup.c: 9 linux/version.h not needed.
+   ./tools/testing/selftests/bpf/progs/netcnt_prog.c: 3 linux/version.h not needed.
+   ./tools/testing/selftests/bpf/progs/test_map_lock.c: 4 linux/version.h not needed.
+   ./tools/testing/selftests/bpf/progs/test_send_signal_kern.c: 4 linux/version.h not needed.
+   ./tools/testing/selftests/bpf/progs/test_spin_lock.c: 4 linux/version.h not needed.
+   ./tools/testing/selftests/bpf/progs/test_tcp_estats.c: 37 linux/version.h not needed.
+   ./tools/testing/selftests/wireguard/qemu/init.c: 27 linux/version.h not needed.
 
-Thanks
-
->
-> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c |  2 ++
->  fs/fuse/virtio_fs.c          | 25 +++++++++++++++++++++++--
->  2 files changed, 25 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index e49912fa77c5..eb22bfcb9100 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -580,6 +580,7 @@ int virtqueue_map_sgs(struct virtqueue *_vq,
->                                 goto unmap_release;
->
->                         sg_dma_address(sg) =3D addr;
-> +                       sg_dma_len(sg) =3D sg->length;
->                         mapped_sg++;
->                 }
->         }
-> @@ -592,6 +593,7 @@ int virtqueue_map_sgs(struct virtqueue *_vq,
->                                 goto unmap_release;
->
->                         sg_dma_address(sg) =3D addr;
-> +                       sg_dma_len(sg) =3D sg->length;
->                         mapped_sg++;
->                 }
->         }
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 1344c5782a7c..2b558b05d0f8 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -836,8 +836,21 @@ static void virtio_fs_requests_done_work(struct work=
-_struct *work)
->
->         /* End requests */
->         list_for_each_entry_safe(req, next, &reqs, list) {
-> +               struct scatterlist *stack_sgs[6];
-> +               struct scatterlist **sgs =3D stack_sgs;
-> +               unsigned int total_sgs =3D req->out_sgs + req->in_sgs;
-> +
->                 list_del_init(&req->list);
->
-> +               /* TODO replace magic 6 by a macro */
-> +               if (total_sgs > 6)
-> +                       sgs =3D kmalloc_array(total_sgs, sizeof(sgs[0]), =
-GFP_ATOMIC);
-> +
-> +               for (unsigned int i =3D 0; i < total_sgs; ++i)
-> +                       sgs[i] =3D &req->sg[i];
-> +
-> +               virtqueue_unmap_sgs(vq, sgs, req->out_sgs, req->in_sgs);
-> +
->                 /* blocking async request completes in a worker context *=
-/
->                 if (req->args->may_block) {
->                         struct virtio_fs_req_work *w;
-> @@ -850,6 +863,9 @@ static void virtio_fs_requests_done_work(struct work_=
-struct *work)
->                 } else {
->                         virtio_fs_request_complete(req, fsvq);
->                 }
-> +
-> +               if (sgs !=3D stack_sgs)
-> +                       kfree(sgs);
->         }
->
->         /* Try to push previously queued requests, as the queue might no =
-longer be full */
-> @@ -1426,6 +1442,11 @@ static int virtio_fs_enqueue_req(struct virtio_fs_=
-vq *fsvq,
->                 sgs[i] =3D &req->sg[i];
->         WARN_ON(req->out_sgs + req->in_sgs !=3D total_sgs);
->
-> +       // TODO can we change this ptr out of the lock?
-> +       vq =3D fsvq->vq;
-> +       // TODO handle this and following errors
-> +       ret =3D virtqueue_map_sgs(vq, sgs, req->out_sgs, req->in_sgs);
-> +       BUG_ON(ret < 0);
->         spin_lock(&fsvq->lock);
->
->         if (!fsvq->connected) {
-> @@ -1434,8 +1455,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_v=
-q *fsvq,
->                 goto out;
->         }
->
-> -       vq =3D fsvq->vq;
-> -       ret =3D virtqueue_add_sgs(vq, sgs, req->out_sgs, req->in_sgs, req=
-, GFP_ATOMIC);
-> +       ret =3D virtqueue_add_sgs_premapped(vq, sgs, req->out_sgs,
-> +                                         req->in_sgs, req, GFP_ATOMIC);
->         if (ret < 0) {
->                 spin_unlock(&fsvq->lock);
->                 goto out;
-> --
-> 2.48.1
->
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
