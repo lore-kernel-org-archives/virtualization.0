@@ -1,158 +1,213 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5AA0224FD
-	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 02:47:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF76B202C22
+	for <virtualization@lists.linux.dev>; Thu, 23 Jan 2025 06:51:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737600452; cv=none; b=W88dnphG56PfiJYI7NcGS5P2KfumgoHXjIXdHhNuUpXQMdw1eixLK7hzRkCBbCy7qvT6Le906wly+TdDAQxES6F3MVM8KsInq7ZiiSqO5eyKtuGQI4Oy+lqUvrtEo9zHO5j/AMFTRplI31CarVykX05bXTnVS4tJBNLIFq821sc=
+	t=1737615099; cv=none; b=LO32Y1YnOL5i3Q039DPoNre4XjSVxM8u/xsi6EAo3FotE9WAZRxC/kQt+gCOTOBKmUuObKH86spxtKNMNZfk4oumJ1EnbYJyyNY9Fi8oUOQt7/eZ4USloxvu+W7QyCw4C1j4p6yD1fVEm++wDaQPRrNSbIEzj92bxt08enGHAH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737600452; c=relaxed/simple;
-	bh=qpz5GHIV/q1Z6mS3ehwKqxMZzFsWsx5+0NpTvYpIx3c=;
+	s=arc-20240116; t=1737615099; c=relaxed/simple;
+	bh=Gd9ypQyot58b2a+7e+EmHzuaC0SRQ4SIeyMiB2cBhV0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pAHsbvSMOHDdZv8MdGfmdK59STioRgcwTQiGFZEedT3bH6LoI2ipI/sS7q7GB9NOOcjmd7k0KQvz+OWnMl5rfzLb2FNlvlIK3uHppUiUB4+BoLeeMlXPCA4wEmtRtrh8JHCCTmjpy7D9BWAQcbNXYR9INiw28b/B1L9rzhIeUXI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=fm08k6Yw; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=p95pn7MAbsswRcJEjfNCImRPcVCbww/f6ENKlkKhLuXiiuDmlEo9YnD2E8RSdpCLkh02SgxeQi5CkH09DSDI/Y1tLdLoOTYu1/6CddAprL+TVYWAHdkpbXMQmLJ3oJEXnacURvYpW0eER7ivTOly+yECtvmNDgUKNawoifM1Tnk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eusFY2bJ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="fm08k6Yw"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-21661be2c2dso5945745ad.1
-        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 18:47:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1737600450; x=1738205250; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=A2UgsPHwIKBOqMrfozZVw3t3KHtftNFDPhqp8M0WAbQ=;
-        b=fm08k6YwGYlSL92J8mPeY4Leg4RTDAeF4EZ5N9YV/+HBOkOkiRB4cHtvq5t7b4b++Q
-         6APDqnVpTyMulHjLY1tLVpulv7g6RBc78ay9nNCoCs+UQ+CmDkA4XlQzCwe90Q/SJLEb
-         OAMsYpIDm9XCDENnBdWzCDp5MSY+B+kQbjt1c=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eusFY2bJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1737615096;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BTxtP5GEqA9QhBeJ2GYcRCTnsRZJGXevVMPD+6qXWRs=;
+	b=eusFY2bJscxlMnBkygRKodsgVwBe0EfX50aEmkBiyv4FUm9q52XAPSX8dZtCF/giRXe9nN
+	EeW63TpD1DVfF4VlXwCe6Qa6hv9zDIymuDxFlBjc2vMRreED4JN4eFLHySsT4Fg7hMx3V7
+	L/xk84zAXgWY/XpoYNcKjYTQud/iJy8=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-685-Oc7LRJWLN9GPtaL5nBx90g-1; Thu, 23 Jan 2025 01:51:33 -0500
+X-MC-Unique: Oc7LRJWLN9GPtaL5nBx90g-1
+X-Mimecast-MFC-AGG-ID: Oc7LRJWLN9GPtaL5nBx90g
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ab367e406b3so51153866b.0
+        for <virtualization@lists.linux.dev>; Wed, 22 Jan 2025 22:51:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737600450; x=1738205250;
+        d=1e100.net; s=20230601; t=1737615092; x=1738219892;
         h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=A2UgsPHwIKBOqMrfozZVw3t3KHtftNFDPhqp8M0WAbQ=;
-        b=MikyXy+LShPjumkdEii2qk1ueXD3tf3g3bneu06xTPrv7APPTgOoCYdsgh8JxAflUL
-         wQGfhIdIfRVgW/Vm8D28G0UDH2KxKGSF81Wh6eMXyDtHro+rzcl2Hy9UuKvkVtdxW0nz
-         mGscJPG2W1nkxq5lVrImZxXuNrKb7pV0zjpEAjvOuCSRxw2enBIN0mlHaTVE/tU7fWQ0
-         MfrHput46NG5z6AUvdY6xbvUx2W2UVDW4JV6kbjkgBM0tgf/d50c7wWjlgIsi3X4cg9J
-         sCDOBbQgH5sWJK+1yEHwVjCkP8mRubM0QMC1pNRX2XuGwWF1ORuBXQffn5Nh/1thhZJc
-         jyTw==
-X-Forwarded-Encrypted: i=1; AJvYcCWXAWGUMyJ5n1Lzx5lw3gg1Yamnb9gAIFIglhNTGZNqpl/iUqH4qXQlTk4a7rhKJBWXg2knt0qsRDWQiFDvcw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxfivkEUZZBElPZYbQP3hUNAql3vlyhvzIcvxTigAGKtOHxANe5
-	kad41jCw7m5vocO/3Dztl2xXuBv0QDFybifuvfWaCvSMhtpCGg2WLjmI8vy+6T7PIKZJ+b7LWj2
-	H
-X-Gm-Gg: ASbGncsr5hHKeKncigLW2y/4c1EhUKiXNcEUfqzDTfQDktJknYyY9M6YvEdDZzU4n6R
-	hXwayIDMYS+bR3igPNBeLv6xGBJ0m53JVNYzF/+spQ4pSR2tbBlEdYTYc2PfMDyxPFYL2Df+HqG
-	bXayL9IkSOSYej//yzauRD7CsOPt2sRkHKL4DBRHdJN2nAqjoZ0NK34XVODA8zeyJ51kcBS2jiZ
-	5d/BGNejCFrgIb3rey/9SPdGivlxdtdvp8YeC5jW4d7UETW6cKFrwLEliaak2ebroFcMD468zZX
-	Im4azCNPhPZ50uc6ytHu7WO/a0S0bEXVv+FWO7WL4mpO5DtJGp5TVbQvMw==
-X-Google-Smtp-Source: AGHT+IFJpJzS0Tmwz6QJjW16olbKOsy6uoF4TTmtdWvfMVbO5XC6LPMoIN8L//vAPXE/Dy/lO1nFLA==
-X-Received: by 2002:a17:902:e5ca:b0:215:b473:1dc9 with SMTP id d9443c01a7336-21c355fa313mr312106225ad.46.1737600450217;
-        Wed, 22 Jan 2025 18:47:30 -0800 (PST)
-Received: from LQ3V64L9R2 (c-24-6-151-244.hsd1.ca.comcast.net. [24.6.151.244])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-a9bce3a7eedsm11353188a12.40.2025.01.22.18.47.27
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=BTxtP5GEqA9QhBeJ2GYcRCTnsRZJGXevVMPD+6qXWRs=;
+        b=PfarZZcRPPCG4LBPBySXaRtuDk12XaqO1in6KVjIBl5HEJijlNbxT+DirMv7LqwjZy
+         O40wPVnvX2bu2M5RQkEZDNcNCHGjK/greE9f/k0eO6nj9/xb5pjPbJwyMl6aJDmhQjJq
+         nPfXqMnflKlGHxyPWkpfcLCqRn0rvfW++Fbwo8c/M+5YXF8bdUl2ufBekZRaz0vTICvG
+         ixAg10JWh200mw8En0Ztir7aOvH9ApNy6SzEtgtbzCDAfyAfzS4/THiiER7NUIJwyapA
+         3012BYgEIqBUTKSJbHORO8x9d1DQvaYqCgbRsxSzAURB5mJdbH+iFUE0VxYYEIS6lf1G
+         8hIg==
+X-Forwarded-Encrypted: i=1; AJvYcCVmTHRIJ3yHQopcrpFf+4Lu4QC07z+vxYdraRDtf5S1sFjxFevT9SXKyL4w8dvTDIzJKj23tGa9w9sYbh+GCQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyRTnwBzZihE1echAW0pOWzgX0TP7K3jOVaAf/ItFFFu4M+isVL
+	3dKxAnjnItsiZDXiaJibgX6kOv5W2kkldGvJONKddh/6EDdmxmbkl/W6mfAAOKJpFdQtKjMLAxb
+	on+PbGxpjc1sHWsfw9yupE4AgODlTfipIV+lVeUfmYFKS/EKluQtPJnwCgDjWwK90
+X-Gm-Gg: ASbGnct5k5AGQrWgm0X7XdkGgL/39LAkBKy0uA1tzfHcaahO2bmID3FA4xEFpibfl+v
+	N1l0d7g8SjmutgzscvyEZK18nEanG5oAz7DdsK3xFjuPd9bMGrX8/Ev5XaKmEz6ioe2SKSTWLq4
+	TSsVmuahfp1navflQ123hCRfcS9JRDNySLi5/BLcS+xTpbbvx6LbFpOVbxlVUjH7rx9NLFscupv
+	GY90CjVX1fwDxSvHxVx6FIAZgj3THSqwVm/Yk6mfYLD+UcyTIwFlLTeqQCqFgV3sg==
+X-Received: by 2002:a17:907:7da5:b0:aab:8a9d:6d81 with SMTP id a640c23a62f3a-ab38b3afad9mr2437397666b.44.1737615091890;
+        Wed, 22 Jan 2025 22:51:31 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHCfe8A35vAG1ot6PB4Nlj6BGYBtkibvkWK+9XUCPly223g1+K17tOt4GvSJp7Z+sK7r+SnJg==
+X-Received: by 2002:a17:907:7da5:b0:aab:8a9d:6d81 with SMTP id a640c23a62f3a-ab38b3afad9mr2437395566b.44.1737615091458;
+        Wed, 22 Jan 2025 22:51:31 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc7:443:5f4e:8fd1:d298:3d75:448e])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab384c5c3e1sm1012134466b.7.2025.01.22.22.51.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jan 2025 18:47:29 -0800 (PST)
-Date: Wed, 22 Jan 2025 18:47:25 -0800
-From: Joe Damato <jdamato@fastly.com>
+        Wed, 22 Jan 2025 22:51:30 -0800 (PST)
+Date: Thu, 23 Jan 2025 01:51:26 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, gerhard@engleder-embedded.com,
-	leiyang@redhat.com, xuanzhuo@linux.alibaba.com,
-	mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC net-next v3 2/4] virtio_net: Prepare for NAPI to queue
- mapping
-Message-ID: <Z5Gtve0NoZwPNP4A@LQ3V64L9R2>
-Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
-	Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	gerhard@engleder-embedded.com, leiyang@redhat.com,
-	xuanzhuo@linux.alibaba.com, mkarsten@uwaterloo.ca,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-References: <20250121191047.269844-1-jdamato@fastly.com>
- <20250121191047.269844-3-jdamato@fastly.com>
- <CACGkMEvT=J4XrkGtPeiE+8fwLsMP_B-xebnocJV8c5_qQtCOTA@mail.gmail.com>
- <Z5EtqRrc_FAHbODM@LQ3V64L9R2>
- <CACGkMEu6XHx-1ST9GNYs8UnAZpSJhvkSYqa+AE8FKiwKO1=zXQ@mail.gmail.com>
+Cc: "Boyer, Andrew" <Andrew.Boyer@amd.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio Perez <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+	"Nelson, Shannon" <Shannon.Nelson@amd.com>,
+	"Creeley, Brett" <Brett.Creeley@amd.com>,
+	"Hubbe, Allen" <Allen.Hubbe@amd.com>
+Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
+Message-ID: <20250123014913-mutt-send-email-mst@kernel.org>
+References: <20250107182516.48723-1-andrew.boyer@amd.com>
+ <7a4f03a0-9640-4d15-9f0d-4e1ceb82aa8c@linux.ibm.com>
+ <20250109083907-mutt-send-email-mst@kernel.org>
+ <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
+ <dcbce68c-f448-4bbf-8db9-c3cd3231b5dd@linux.ibm.com>
+ <20250122165854-mutt-send-email-mst@kernel.org>
+ <CB749FA4-79E2-49F0-9BDF-67B089A8EC35@amd.com>
+ <20250122172108-mutt-send-email-mst@kernel.org>
+ <CF92E813-EE94-4F61-A8A9-278CA1BD3629@amd.com>
+ <CACGkMEuf2PgrOYvVdLjgQT53AH7pJFtk9L3bC55JZbkM78V_yA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <CACGkMEuf2PgrOYvVdLjgQT53AH7pJFtk9L3bC55JZbkM78V_yA@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: n4sgH1A8gHGKUP0J2ISJBLAeYq0fQc2_BElog8QeRsw_1737615092
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEu6XHx-1ST9GNYs8UnAZpSJhvkSYqa+AE8FKiwKO1=zXQ@mail.gmail.com>
 
-On Thu, Jan 23, 2025 at 10:40:43AM +0800, Jason Wang wrote:
-> On Thu, Jan 23, 2025 at 1:41 AM Joe Damato <jdamato@fastly.com> wrote:
+On Thu, Jan 23, 2025 at 09:47:24AM +0800, Jason Wang wrote:
+> On Thu, Jan 23, 2025 at 6:34 AM Boyer, Andrew <Andrew.Boyer@amd.com> wrote:
 > >
-> > On Wed, Jan 22, 2025 at 02:12:46PM +0800, Jason Wang wrote:
-> > > On Wed, Jan 22, 2025 at 3:11 AM Joe Damato <jdamato@fastly.com> wrote:
-> > > >
-> > > > Slight refactor to prepare the code for NAPI to queue mapping. No
-> > > > functional changes.
-> > > >
-> > > > Signed-off-by: Joe Damato <jdamato@fastly.com>
-> > > > Reviewed-by: Gerhard Engleder <gerhard@engleder-embedded.com>
-> > > > Tested-by: Lei Yang <leiyang@redhat.com>
-> > > > ---
-> > > >  v2:
-> > > >    - Previously patch 1 in the v1.
-> > > >    - Added Reviewed-by and Tested-by tags to commit message. No
-> > > >      functional changes.
-> > > >
-> > > >  drivers/net/virtio_net.c | 10 ++++++++--
-> > > >  1 file changed, 8 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index 7646ddd9bef7..cff18c66b54a 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -2789,7 +2789,8 @@ static void skb_recv_done(struct virtqueue *rvq)
-> > > >         virtqueue_napi_schedule(&rq->napi, rvq);
-> > > >  }
-> > > >
-> > > > -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
-> > > > +static void virtnet_napi_do_enable(struct virtqueue *vq,
-> > > > +                                  struct napi_struct *napi)
-> > > >  {
-> > > >         napi_enable(napi);
+> >
+> > > On Jan 22, 2025, at 5:25 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
 > > >
-> > > Nit: it might be better to not have this helper to avoid a misuse of
-> > > this function directly.
+> > > Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
+> > >
+> > >
+> > > On Wed, Jan 22, 2025 at 10:14:52PM +0000, Boyer, Andrew wrote:
+> > >>
+> > >>> On Jan 22, 2025, at 5:07 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >>>
+> > >>> Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
+> > >>>
+> > >>>
+> > >>> On Wed, Jan 22, 2025 at 06:33:04PM +0100, Christian Borntraeger wrote:
+> > >>>> Am 22.01.25 um 15:44 schrieb Boyer, Andrew:
+> > >>>> [...]
+> > >>>>
+> > >>>>>>>> --- a/drivers/block/virtio_blk.c
+> > >>>>>>>> +++ b/drivers/block/virtio_blk.c
+> > >>>>>>>> @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+> > >>>>>>>> {
+> > >>>>>>>>  struct virtio_blk *vblk = hctx->queue->queuedata;
+> > >>>>>>>>  struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+> > >>>>>>>> -   bool kick;
+> > >>>>>>>>  spin_lock_irq(&vq->lock);
+> > >>>>>>>> -   kick = virtqueue_kick_prepare(vq->vq);
+> > >>>>>>>> +   virtqueue_kick(vq->vq);
+> > >>>>>>>>  spin_unlock_irq(&vq->lock);
+> > >>>>>>>> -
+> > >>>>>>>> -   if (kick)
+> > >>>>>>>> -           virtqueue_notify(vq->vq);
+> > >>>>>>>> }
+> > >>>>>>>
+> > >>>>>>> I would assume this will be a performance nightmare for normal IO.
+> > >>>>>>
+> > >>>>>
+> > >>>>> Hello Michael and Christian and Jason,
+> > >>>>> Thank you for taking a look.
+> > >>>>>
+> > >>>>> Is the performance concern that the vmexit might lead to the underlying virtual storage stack doing the work immediately? Any other job posting to the same queue would presumably be blocked on a vmexit when it goes to attempt its own notification. That would be almost the same as having the other job block on a lock during the operation, although I guess if you are skipping notifications somehow it would look different.
+> > >>>>
+> > >>>> The performance concern is that you hold a lock and then exit. Exits are expensive and can schedule so you will increase the lock holding time significantly. This is begging for lock holder preemption.
+> > >>>> Really, dont do it.
+> > >>>
+> > >>>
+> > >>> The issue is with hardware that wants a copy of an index sent to
+> > >>> it in a notification. Now, you have a race:
+> > >>>
+> > >>> thread 1:
+> > >>>
+> > >>>       index = 1
+> > >>>               ->                      -> send 1 to hardware
+> > >>>
+> > >>>
+> > >>> thread 2:
+> > >>>
+> > >>>       index = 2
+> > >>>               -> send 2 to hardware
+> > >>>
+> > >>> the spec unfortunately does not say whether that is legal.
+> > >>>
+> > >>> As far as I could tell, the device can easily use the
+> > >>> wrap counter inside the notification to detect this
+> > >>> and simply discard the "1" notification.
+> > >>>
+> > >>>
+> > >>> If not, I'd like to understand why.
+> > >>
+> > >> "Easily"?
+> > >>
+> > >> This is a hardware doorbell block used for many different interfaces and devices. When the notification write comes through, the doorbell block updates the queue state and schedules the queue for work. If a second notification comes in and overwrites that update before the queue is able to run (going backwards but not wrapping), we'll have no way of detecting it.
+> > >>
+> > >> -Andrew
+> > >>
+> > >
+> > > Does not this work?
+> > >
+> > > notification includes two values:
+> > >
+> > > 1. offset
+> > > 2. wrap_counter
+> > >
+> > > if ((offset2 < offset1 && wrap_counter2 == wrap_counter1) ||
+> > >     offset1 > offset1 && wrap_counter2 != wrap_counter1)) {
+> > >        printf("going backwards, discard offset2");
+> > > }
+> > >
 > >
-> > Sorry, I'm probably missing something here.
+> > No, Michael, this does not work in our programmable hardware device, because it is not software.
 > >
-> > Both virtnet_napi_enable and virtnet_napi_tx_enable need the logic
-> > in virtnet_napi_do_enable.
+> > -Andrew
 > >
-> > Are you suggesting that I remove virtnet_napi_do_enable and repeat
-> > the block of code in there twice (in virtnet_napi_enable and
-> > virtnet_napi_tx_enable)?
 > 
-> I think I miss something here, it looks like virtnet_napi_tx_enable()
-> calls virtnet_napi_do_enable() directly.
+> Should we send a patch to disable this feature and cc stable first
+> then consider how to fix this?
 > 
-> I would like to know why we don't call netif_queue_set_napi() for TX NAPI here?
+> Thanks
 
-Please see both the cover letter and the commit message of the next
-commit which addresses this question.
+Given this has been out there for a long time, I do not see
+how this will contribute anything useful.
 
-TX-only NAPIs do not have NAPI IDs so there is nothing to map.
+-- 
+MST
+
