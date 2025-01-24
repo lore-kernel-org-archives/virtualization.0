@@ -1,92 +1,91 @@
-Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2F7B1E7C15;
-	Fri, 24 Jan 2025 22:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737759528; cv=none; b=orguzzh3pC4+hubIgkxgkZqGYug4kPhj/cM2q/gsjsv8UPebtaB1O2VoVI+GNhtbbyxKRACQ7rh3vXMNSMtPUecjA7lDyDC46EofcwHPg8UrnVadzrbq7RT9Xl5psEtyNRmeEqMVaXB4xziu9+LPoF0VZLiQVcm4FTfUKrme7sE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737759528; c=relaxed/simple;
-	bh=/93Ha41Q21AAZHCv7BUfdQaIjWnvH30El2DSHtnFFp0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HVJ9uMzNlaOILHA8aI68ad88ozm9ySV09oXn2Btyc0pWMqMAH7tv9yst5VchbQZte2mBNlh0hD86JdugXBuUBX/QCMLDQgnDZJAqpDNYTSBILSMyvz4JPVoy57CmcQ165XfxqtkbSpRZjq3QumvdSQMKgKbmvBSz/MKyB58OnL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I4cqhCQ2; arc=none smtp.client-ip=209.85.219.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB562B9BC;
+	Fri, 24 Jan 2025 23:34:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1737761688; cv=pass; b=lx8cLKCKtAFvN4ubkEFUouSXmX2S0pAusT0fVK80IfogOJibEVQyCmoncmaieoDcXw1ugeUMR71QkcxcnDjio56KqMdVOw54aQwDkWAm5Cts+ah8Uzg/NzuHGfHNJrRxJhiYTQAoy01EfSV0n7j8GeXjcOVD4b+ziCf/BCcEwiw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1737761688; c=relaxed/simple;
+	bh=342u/g6UlRf/JfMygBMrVVXYE3nO+ym1nwKrWu/YzQM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EJVG5DjjAzv+/H+A1dZhDXhedqdCkaAHLHgeWT0QEoLNfg+tJQsPQQbmHGnN2E197e0pZdZtaiO6LcjBszuNWCnjTNp+Bo1OS5/WKJbGlqhLik5uVXynPCkePD/RPB1jE37n30izuvq/IiFrqyM2KeuuPAZBHzFEbD4w0aDaxRo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=GjDtjGlI; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I4cqhCQ2"
-Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e399e904940so3874537276.2;
-        Fri, 24 Jan 2025 14:58:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737759525; x=1738364325; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=01g7VfIvMNEOaWq6cCJdpppjwXYnS+hFYnb/xI342vU=;
-        b=I4cqhCQ2DUmF9yhU7a0xJR9VojO1dPBh+z+H4K3TmNQb3ZnW7kbZ9VlMie5F0hO1+w
-         NjRhBCCZpp+bnld0uNSRaBQF5akAlnit/Rkyagks6AsyjqLz5h7cDx7rq6XDuXBZH8Bf
-         7TqHsOgb1dEt7FvdkimzN5vmv7FKX8LzAAFxgTa14uzyllVPgR5uuBYwz5vt73IsFWZ2
-         +19nL48xMAneWAAncWLSHEGpvDlqXE5UbtxJVbPJuwl9n01TDfHx2pksK0Ub2rM8NziB
-         nnwr4ji+KplNOA0uHHn+tI8MGtC4Nm91VOU9+OfhjYTAlMD95EbXSMUmnrwHfkAWT+6Q
-         P1yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737759525; x=1738364325;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=01g7VfIvMNEOaWq6cCJdpppjwXYnS+hFYnb/xI342vU=;
-        b=pgDFozXokgldq0O9vUjATl1kq+BaV5ODlAC3r9NeniU+W6TyGzcWvnCbjsEg0V6CdP
-         CgLk7kG+mannueRSKnCjh2hD8m8wIxfwywKfIUNXKQAf99R7LwS3skQYRrFo4NQqOUsD
-         VmKuWm3jymFOVCN0cUSnsWPDUDfkII6LHcq01rYg4xDqh+HQAutl6SBaVqKSd3u6VJ54
-         XrnTFq8cKMF3geFLyg9zB0vzqDkAWf6PA1fkf3jKXht1HVxjTAHrFF/ka0I1m1FNh0Zd
-         jrEhCO26lE7WvHilcf7YrLI9AQ3bWtmfkTaJznJKNDjb6vHveyNZyjEtkRjMMoT85TiV
-         fXoQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUOnp7pFHlM/IDe2blC+ukGlrGZF/eaN2bg67OVQnPcm3KQ7slozM/CiOv8GbqOBeFvUymoCNPHxArINNM7D3U=@lists.linux.dev, AJvYcCV1qV1GMC2oc9lt2dAzffmSU0HFl/XZNuEzBxgOE19Vh66MJH6nCVyKvgw4gvcXgcbas6LB7A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw1eDFMhLqSmXLvXeIXnaC5hro8/9DAutkedHX4wlYprhHpwCpA
-	IZ2AQiotxwOmHoBflxS00Bkodn8LILknGYB1HP6YdGaa9M33Y//5TTAuC4bABHxl0pNm39/H2X6
-	kvXRpWMFUnguJo1I6qBnEIDSY83M=
-X-Gm-Gg: ASbGncuw4OZ8UkVdE2p/4L8mHvqe/6uUrVPW+13bv+/hhxABqjnNd5jpSKfIS+C9UpC
-	C66AujJmiLr7HhGA05SInxsBIcGgoeAYdBgvxBVb72F5IDm9vWa76bTXOfyuQF3M=
-X-Google-Smtp-Source: AGHT+IEVBcD+CmGBESa7IU5MYg0rbfDjOSFuoXmzKfBgSK9QGJJWFRFyXFg6HVZ0R9P6cura5tbEBPVueLzrh4uh67A=
-X-Received: by 2002:a05:6902:709:b0:e58:33d2:6a24 with SMTP id
- 3f1490d57ef6-e5833d26bebmr7334673276.21.1737759525734; Fri, 24 Jan 2025
- 14:58:45 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="GjDtjGlI"
+ARC-Seal: i=1; a=rsa-sha256; t=1737761679; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=HC8laApkiQIv9c5nn8RyDLpTuNgM9uUk1V5ELoYvFi4noJW/HH8+hpWi0ZqtWNHI9tYlmzQORFXIioRkksY8GSQR7QVVErXCfDuhbMQbO5+9PscmzDkTH8jSeq/w8DCvJzRR2NpRJXrKXgDMHY1JFdHdCZ0vDdWTjTpL6pQEvk4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1737761679; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=lmgx5CgLHXPGRAIUPh1HNEJgkKltCBb8w5mud1sWVZY=; 
+	b=cZrGnkqwe8VUoWxeX5ILq/D2qC5Mf2ZqUPEgmDQkyRbiHqPFiRT2GcVV2FmqZpvetyFyu/zsAaJ/03AGOYJx7i9NTrjAscgXYpTpzuXkn4CoTa94R671Ptfh3XEPOTBgi8vozYrMpSFpg3O5EJfUkKvb8gfirywZOqer4tfaTGQ=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1737761679;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=lmgx5CgLHXPGRAIUPh1HNEJgkKltCBb8w5mud1sWVZY=;
+	b=GjDtjGlIjKMVHtswNtpynb7jNALUleYrZcMsn7XceGNywO//AqSWYFRI5yxERGIa
+	4VLS8+qUriyhaSlB7Q5VlxpjAAUlkMTERoauBXQeDZbixj+Axxn1cH5nhgGP9EGt8Bj
+	bMEuV1a8kYs2pxE/IsANrieB/eH8iK8oNKSiuM5Q=
+Received: by mx.zohomail.com with SMTPS id 1737761674301215.19811850842348;
+	Fri, 24 Jan 2025 15:34:34 -0800 (PST)
+Message-ID: <60b0bd4e-fcc3-470e-8294-4000731d6b6a@collabora.com>
+Date: Sat, 25 Jan 2025 02:34:28 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250124-virtgpu-mixed-page-size-v1-1-480403790bac@gmail.com> <a55eecdc-76cc-432e-a4b3-90e8753088ac@collabora.com>
-In-Reply-To: <a55eecdc-76cc-432e-a4b3-90e8753088ac@collabora.com>
-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
-Date: Fri, 24 Jan 2025 23:58:34 +0100
-X-Gm-Features: AWEUYZloMhoMIJiSQa9eMVpuRbfncotGHx1micWWVWVbtUX-Bb2DTmadzJhTzP0
-Message-ID: <CAMT+MTSHi26NduO4+2hc-CPwRXQ6qJ0=DwZq=4Tt1vNd7RKyvQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH RESEND] drm/virtio: Align host mapping request to maximum
  platform page size
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>, 
-	Rob Clark <robdclark@gmail.com>, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	asahi@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+To: Sasha Finkelstein <fnkl.kernel@gmail.com>
+Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>,
+ Rob Clark <robdclark@gmail.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ asahi@lists.linux.dev
+References: <20250124-virtgpu-mixed-page-size-v1-1-480403790bac@gmail.com>
+ <a55eecdc-76cc-432e-a4b3-90e8753088ac@collabora.com>
+ <CAMT+MTSHi26NduO4+2hc-CPwRXQ6qJ0=DwZq=4Tt1vNd7RKyvQ@mail.gmail.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Content-Language: en-US
+In-Reply-To: <CAMT+MTSHi26NduO4+2hc-CPwRXQ6qJ0=DwZq=4Tt1vNd7RKyvQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On Fri, 24 Jan 2025 at 23:52, Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
-> > -     ret = drm_mm_insert_node(&vgdev->host_visible_mm, &vram->vram_node,
-> > -                              bo->base.base.size);
-> > +     ret = drm_mm_insert_node_generic(&vgdev->host_visible_mm, &vram->vram_node,
-> > +                                      bo->base.base.size, MAX_PAGE_SIZE, 0, 0);
->
-> This change only reserves extra space in the memory allocator, but
-> doesn't change actual size of allocated BO. Instead, you likely need to
-> replace all ALIGN(size, PAGE_SIZE) occurrences in the driver code with
-> ALIGN(args->size, MAX_PAGE_SIZE)
+On 1/25/25 01:58, Sasha Finkelstein wrote:
+> On Fri, 24 Jan 2025 at 23:52, Dmitry Osipenko
+> <dmitry.osipenko@collabora.com> wrote:
+>>> -     ret = drm_mm_insert_node(&vgdev->host_visible_mm, &vram->vram_node,
+>>> -                              bo->base.base.size);
+>>> +     ret = drm_mm_insert_node_generic(&vgdev->host_visible_mm, &vram->vram_node,
+>>> +                                      bo->base.base.size, MAX_PAGE_SIZE, 0, 0);
+>>
+>> This change only reserves extra space in the memory allocator, but
+>> doesn't change actual size of allocated BO. Instead, you likely need to
+>> replace all ALIGN(size, PAGE_SIZE) occurrences in the driver code with
+>> ALIGN(args->size, MAX_PAGE_SIZE)
+> 
+> This approach is good enough for my usecase, where the vmm can
+> cope with sub-page gpu allocations (by rounding up to full page),
+> but can't deal with non page aligned ones.
 
-This approach is good enough for my usecase, where the vmm can
-cope with sub-page gpu allocations (by rounding up to full page),
-but can't deal with non page aligned ones.
+Driver should work properly with any VMM. Aligning BO size will work
+universally, but then you could do it too in a userspace.
+
+-- 
+Best regards,
+Dmitry
