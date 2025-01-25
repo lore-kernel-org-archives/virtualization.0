@@ -1,201 +1,165 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D92782AF00
-	for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 16:09:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EB51201261;
+	Sat, 25 Jan 2025 21:08:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737821350; cv=none; b=oBXWHt8wC9HGrR4F5IBF4QlBfuPXQ4FvqydxHDdrYFn2CjMX+82/N/GIlWpGYU7ukxlDxyCxcab/URMfTFgghRfdYAxEOUkoJiYmgKKNRVSUYAwTyd6/pvkzj71GE2TZtTyXbETJhi5vNdm3/2fOr+zuBQqXYov+7fduOevnJhg=
+	t=1737839302; cv=none; b=nbboZqNIzVe2GJrMST0W/yHWg/v0wxXGt3SfGqJzvl4ErghG/yi65vfQy77qnwyuK06Yp/FGxBP1H6u8xym2zj1Szu8hERU4ETETrRQ2Urkjgb1PDQE3+FWih+XPpL+l73CF72fZwbfcAX9zxh7g6vOAyycaGv6o0it3gcrcC/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737821350; c=relaxed/simple;
-	bh=4aHdVhjE3dT45JPRlogeFgKSzcW8drpdwHdO3UEY7Tg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CLgqnwWEkTgvYPPo1OQFwZvE1Hr0MQIv2T4hFWAWJupxj+rclxb8w7rOgaPlGRCygdVCWL5oU3Y/oWblkXisDfnkqzBNkP70xoOZv2cRZJ/93DQWKu3qzlgB454lKZGRSynF/U3H7Ek35qpA0G0PjWgZb02+SCgF5WRTaautP8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=virtualopensystems.com; spf=none smtp.mailfrom=virtualopensystems.com; dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b=0NUx/bXw; arc=none smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=virtualopensystems.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=virtualopensystems.com
+	s=arc-20240116; t=1737839302; c=relaxed/simple;
+	bh=YkJyOTErAt2tRZlqHy8myxEMmo2cnaskYaKMplVFxaA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=GUmIatWM572ZzrKQFsxcdJjzUyzzNTurWQpTsDid30QeeMxRqst6MIbHk4nE+eCGRYzBaArGuvBcydIgud8vhOcIqc/qZg7rnm0PLBXKAdA1LJUEyoNY6NraVaDOLqrCBiWZIhiwVyv92bkFVNv68At4aH6D5d5eZeMSfpJ6Rn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MsQyWJrJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b="0NUx/bXw"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-5d90a5581fcso5290054a12.1
-        for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 08:09:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=virtualopensystems-com.20230601.gappssmtp.com; s=20230601; t=1737821347; x=1738426147; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0yoXR3EBM0aj3oATIKb4zwFVhzdhN8vCY5JN0F8vdrM=;
-        b=0NUx/bXwu5mDOGx4zH2AGZUMrzYOI+dc5CYMSOZxRAU+EOIhtPvz/8NNtixNJxUtQI
-         ADBwkq9aoJDFQ0crd3UqmBa+OIFZmKVtirMJ1MbMhObdIf7SwzV5mo0W5KTONo1/gp2V
-         v2TQecYoaKoFn/AhHMmEyDTB7AS4Vet1qp1tl5ObfM9ago48KSFuNf6Ts/xJo3S52QZJ
-         cDVBcHp6fk87/Hsd0ihhfx2bx5b/G/GDy1KtOu4qH+s3v43P7yvt6gWfQQpiIljPvdzw
-         ug4BO7/lkxDzz6NRZORdJOkoMQCM6Hdx9O+Xj6zw/+N5qAz+f0VIfk7UjjbF5hNePITw
-         G00g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737821347; x=1738426147;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0yoXR3EBM0aj3oATIKb4zwFVhzdhN8vCY5JN0F8vdrM=;
-        b=BptnClLfFCQYMhMMSIYU3tzn3L8kEkXxKN0bKdf5IicbeG1/bbNrGjb/YSh368Weuh
-         fLtbBKad3yCbVX7YkvXcUkN/jFHvoiDi1qPi1iCgMagK20VzOWtK206V1lljhKgmBI0a
-         o1As7hunkTNotb6u/Naf29myMXA1RvZ950xtaNIlLDUobZyfKcqG1FFZ56aNuw1MrKZh
-         qLnksxv+ato1QflcRzcgNTTItTi6pcz7erqCvLWK29MdEnGR8Cot+4gVaUPIy+qkpmc5
-         2mK5oR7uT+jkX9ARUnETdSw5/l7ZxKJxU0Xht3GE2Ur0sSmGuUUb24+XbmkHIKprzKkL
-         Mkfg==
-X-Forwarded-Encrypted: i=1; AJvYcCVS0i0R2ooWmyrCDOW5dQ4RZpfrpvEQY2489sXgkHz4zaqxBuSFRJnOOZp0bdHfnprgtwD4GcCwxIsMLQ6O8Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzBKjjPaJW7wxSTRAXMnCqwfxUyYHacrMcsThkq3CSbXo0dDFH0
-	yGHyshnbt+x1gC/T2D6L2iQHZEmjPvlLPx/wpGjPZSrvaIXOs+TtaWgEpnx6mA4=
-X-Gm-Gg: ASbGncsWaSydtn194HNNUFhmW8vqJ7/vDS+REYXTOfuKT3zMzmV1znI0GB5xcXoecnc
-	IfjEXQ8zg59qTIA/Dt8svsqQ4R+VHK6s0UWTaG8D5vs6mVZTSUSLf11sClhDk1td0JC6RNw351b
-	MdTGXLVJwEbMzEbeyJS5g3g7qRFIKVoO3GG+qXsfwVqSA8riUCK9bD/tF2Uo40K+nPaLdWgKPe7
-	CbQAwOvJnXu/TZJ+ElSS5mQVo6/pEqYblE4TcGA7jbngiS96yW2Ohmuz6pPfQdxKr02FS3Tfcee
-	jxmZNJoIUDu/3eo0LNQyQeGrR+XC8a8=
-X-Google-Smtp-Source: AGHT+IG8iN2g+ooJvMiuB5UvslsGPh0LXpOq16Tznm1w5mZS6AWfYeqTCtzeujJ8TaTHWs2a3SrLNA==
-X-Received: by 2002:a17:907:7eaa:b0:ab3:398c:c989 with SMTP id a640c23a62f3a-ab38ada1546mr3685302566b.0.1737821346753;
-        Sat, 25 Jan 2025 08:09:06 -0800 (PST)
-Received: from ritos-ThinkPad.. ([45.66.41.93])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5dc186191f6sm2790134a12.13.2025.01.25.08.09.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jan 2025 08:09:05 -0800 (PST)
-From: t.ampelikiotis@virtualopensystems.com
-To: jasowang@redhat.com
-Cc: stefanha@gmail.com,
-	virtio-dev@lists.oasis-open.org,
-	anna@virtualopensystems.com,
-	a.rigo@virtualopensystems.com,
-	m.paolino@virtualopensystems.com,
-	s.raho@virtualopensystems.com,
-	chou.kensou@jp.panasonic.com,
-	wminer@linuxfoundation.org,
-	jsmoeller@linuxfoundation.org,
-	virtualization@lists.linux.dev,
-	stefanha@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	sgarzare@redhat.com
-Subject: Re: [virtio-dev] [RFC PATCH 1/1] Virtio-loopback: a virtio based HAL for non-virtualized environments
-Date: Sat, 25 Jan 2025 18:09:01 +0200
-Message-Id: <20250125160901.120419-1-t.ampelikiotis@virtualopensystems.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <CACGkMEt6hF+ZiWurKFAz3_uHLb66rXkVQ1io_C3ZdnLRkTMkNA@mail.gmail.com>
-References: <CACGkMEt6hF+ZiWurKFAz3_uHLb66rXkVQ1io_C3ZdnLRkTMkNA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MsQyWJrJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 73DEBC4CED6;
+	Sat, 25 Jan 2025 21:08:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1737839301;
+	bh=YkJyOTErAt2tRZlqHy8myxEMmo2cnaskYaKMplVFxaA=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=MsQyWJrJ9raaAtPtUbfjGRFFm1lholUMotclQ+t1ew9LzO/W1W5cMWTziYU6YV34Y
+	 LhoYzN5eTSPyWE5PgrFWePKcJrvNlTccpnR62xUHtm/1QnCJiq7kMgZF6b2Hhx5aHN
+	 VYH/LcqerNHk4aaBtnxVFoikcyWtE7ELZADoIHNIXPImD/JtAij7WdjvURv6U7zq+i
+	 acUUbSNe1kZMhRh8TjsuABF0YgCPMFkZRY7X9ROXPoLY6SIscWELLwCoRyOwULVVIw
+	 OsLw6+lZxxRvN6J4ojCA7qr4beFakvu5YsQwKIId23UcNzZEE+7sYJw7OvIEb44nFT
+	 XqD/BrxG6RiMw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CAB4C0218C;
+	Sat, 25 Jan 2025 21:08:21 +0000 (UTC)
+From: Sasha Finkelstein via B4 Relay <devnull+fnkl.kernel.gmail.com@kernel.org>
+Date: Sat, 25 Jan 2025 22:08:14 +0100
+Subject: [PATCH v2] drm/virtio: Align host mapping request to maximum
+ platform page size
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250125-virtgpu-mixed-page-size-v2-1-c40c555cf276@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAL1SlWcC/4WNQQ7CIBBFr9LM2jGANqGuvIfpAulAJ5G2gUrUh
+ rtLvYDL9/P/+xskikwJLs0GkTInnqcK6tCAHc3kCXmoDEqoVkjRYea4+uWJgV804GJqI/GHUGl
+ 11+5shHIW6nqJ5GplN9/6yiOndY7v31GWe/rfmSVKtNqRJKnbzp2uPhh+HO0coC+lfAGwCfYzv
+ gAAAA==
+X-Change-ID: 20250109-virtgpu-mixed-page-size-282b8f4a02fc
+To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+ Gurchetan Singh <gurchetansingh@chromium.org>, 
+ Chia-I Wu <olvaffe@gmail.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, asahi@lists.linux.dev, 
+ Sasha Finkelstein <fnkl.kernel@gmail.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1737839300; l=4035;
+ i=fnkl.kernel@gmail.com; s=20241124; h=from:subject:message-id;
+ bh=3zZcDtrmzU80dSYarHh3Szvvoc/9VAfbk8eEmWVbJzo=;
+ b=PPOumAdOAWKk1KG70bsAN/MNWYF7huqyDMnowaOgSyhe3GoaSGFvCKE86DPb9z2bZyswFuWGp
+ eDpxEj8Gh1QAn5irhJPGXzXU6BjymQjFyeXXWW5cJ0pqkJsCzR4PffE
+X-Developer-Key: i=fnkl.kernel@gmail.com; a=ed25519;
+ pk=aSkp1PdZ+eF4jpMO6oLvz/YfT5XkBUneWwyhQrOgmsU=
+X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20241124 with
+ auth_id=283
+X-Original-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+Reply-To: fnkl.kernel@gmail.com
 
-On Mon, Dec 23, 2024 at 6:03 AM Jason Wang <jasowang@redhat.com> wrote:
->
-> On Sat, Dec 21, 2024 at 9:44 PM Stefan Hajnoczi <stefanha@gmail.com> wrote:
-> >
-> > On Fri, 20 Dec 2024 at 10:56, Timos Ampelikiotis
-> > <t.ampelikiotis@virtualopensystems.com> wrote:
-> > >
-> > >
-> > >
-> > > On Wed, Dec 4, 2024 at 7:18 PM Stefan Hajnoczi <stefanha@gmail.com> wrote:
-> > >>
-> > >> On Wed, 4 Dec 2024 at 10:38, <t.ampelikiotis@virtualopensystems.com> wrote:
-> > >> >
-> > >> > From: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
-> > >> >
-> > >> > This commit, is based on virtio MMIO driver, adds support
-> > >> > for dynamic allocated (platform) virtio devices. This
-> > >> > allows applications running in native environments to use
-> > >> > virtio drivers as a HAL and eventually communicate with
-> > >> > user-space drivers (implementing the vhost-user protocol).
-> > >> >
+From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 
-[...]
+This allows running different page sizes between host and guest on
+platforms that support mixed page sizes.
 
-> > > Security wise this approach has to fulfill the following two
-> > > requirements:
-> > >
-> > > a) The first one is that we need to check efficiently if
-> > > the calling process (vhost-user device) can have access to
-> > > the requested pages. For example, assuming that we run a virtio
-> > > blk on top of virtio-loopback transport the vhost-user blk
-> > > should be able to access only pages which are related with
-> > > virtio-blk virtqueues and vrings. That challenge is solvable
-> > > and we can add those checks without changing the architecture.
-> >
-> > Once pages have been faulted in, how does the kernel revoke access
-> > when the request is complete? I'm thinking of the scenario where a
-> > page is used for virtio DMA but then later reused for other purposes.
-> > Userspace must not retain access once the page is reused for non-DMA
-> > purposes.
->
-> I guess it requires madvise(MADV_DONTNEED) or something similar.
->
+Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
+---
+Changes in v2:
+- Aligned all object sizes to MAX_PAGE_SIZE too.
+- Link to v1: https://lore.kernel.org/r/20250109-virtgpu-mixed-page-size-v1-1-c8fe1e1859f3@gmail.com
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h    | 6 ++++++
+ drivers/gpu/drm/virtio/virtgpu_gem.c    | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_vram.c   | 4 ++--
+ 5 files changed, 11 insertions(+), 5 deletions(-)
 
-Yes indeed, maybe "zap_vma_ptes" could be used when
-"vduse_domain_unmap_bounce_page" is called (for zero-copy cases).
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 64c236169db88acd6ba9afd20a1ab16c667490c4..b73844d6535e45402dc46898035eaa7492de935d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -61,6 +61,12 @@
+ /* See virtio_gpu_ctx_create. One additional character for NULL terminator. */
+ #define DEBUG_NAME_MAX_LEN 65
+ 
++#if defined(__powerpc64__) || defined(__aarch64__) || defined(__mips__) || defined(__loongarch__)
++#define MAX_PAGE_SIZE SZ_64K
++#else
++#define MAX_PAGE_SIZE PAGE_SIZE
++#endif
++
+ struct virtio_gpu_object_params {
+ 	unsigned long size;
+ 	bool dumb;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 7db48d17ee3a8a9c638a8c6f9e58f35bd004b453..8e625ccae308f46b11a390a0987fd5ea55ccbf8d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -73,7 +73,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 
+ 	pitch = args->width * 4;
+ 	args->size = pitch * args->height;
+-	args->size = ALIGN(args->size, PAGE_SIZE);
++	args->size = ALIGN(args->size, MAX_PAGE_SIZE);
+ 
+ 	params.format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
+ 	params.width = args->width;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index e4f76f31555049369000a50c0cb1d5edab68536b..e39ae008ac5f734ec52e9703413958b4ea4be7d6 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -167,7 +167,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	params.size = rc->size;
+ 	/* allocate a single page size object */
+ 	if (params.size == 0)
+-		params.size = PAGE_SIZE;
++		params.size = MAX_PAGE_SIZE;
+ 
+ 	fence = virtio_gpu_fence_alloc(vgdev, vgdev->fence_drv.context, 0);
+ 	if (!fence)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index c7e74cf130221bbed3aa447e416065b03bf3e2b4..5aab82028293b7d73bcc4e686e7e2ecba6108b7b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -190,7 +190,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 
+ 	*bo_ptr = NULL;
+ 
+-	params->size = roundup(params->size, PAGE_SIZE);
++	params->size = roundup(params->size, MAX_PAGE_SIZE);
+ 	shmem_obj = drm_gem_shmem_create(vgdev->ddev, params->size);
+ 	if (IS_ERR(shmem_obj))
+ 		return PTR_ERR(shmem_obj);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
+index 25df81c027837c248a746e41856b5aa7e216b8d5..18e773b036f7c8190d4e20ad3f2c85c36e7e295c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vram.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
+@@ -150,8 +150,8 @@ static int virtio_gpu_vram_map(struct virtio_gpu_object *bo)
+ 		return -EINVAL;
+ 
+ 	spin_lock(&vgdev->host_visible_lock);
+-	ret = drm_mm_insert_node(&vgdev->host_visible_mm, &vram->vram_node,
+-				 bo->base.base.size);
++	ret = drm_mm_insert_node_generic(&vgdev->host_visible_mm, &vram->vram_node,
++					 bo->base.base.size, MAX_PAGE_SIZE, 0, 0);
+ 	spin_unlock(&vgdev->host_visible_lock);
+ 
+ 	if (ret)
 
-In this way, the driver itself would remove pages from the
-application to be reused for non-DMA purposes and since the
-application has a page_fault handler, it can obtain access
-on that page again if it is needed.
+---
+base-commit: 643e2e259c2b25a2af0ae4c23c6e16586d9fd19c
+change-id: 20250109-virtgpu-mixed-page-size-282b8f4a02fc
 
-> > >
-> > > b) The second one is the fact that the current memory mapping
-> > > approach cannot guarantee safety for the remaining data on a page
-> > > when the virtio buffers do not cover the whole size of it.
-> > > In order to address that security issue, we should implement
-> > > an approach such the one proposed by Jason Wang below:
-> > > https://github.com/jasowang/net/tree/vduse-zerocopy
-> > >
-> > > In this way we utilize the bouncing buffer idea and we can
-> > > guarantee to not expose the remaining data when buffer_size <
-> > > PAGE_SIZE and insert the page into the process otherwise.
-> > >
-> > > Overall, we are aware of those two security points, the first
-> > > one will require the implementation of additional checks and
-> > > the second the modification of data sharing model to avoid
-> > > exposing kernel data.
-> > >
-> > > If you think that the overall approach is interesting we
-> > > continue the discussion and target any future work to address
-> > > the above described challenges.
-> >
-> > With regards to the overall approach, please work with Jason since
-> > there is an overlap with VDUSE. If you guys agree on how VDUSE and
-> > loopback fit together, then I'm happy.
->
->
-> Right, I think it would be better if we can find a way in VDUSE first
-> as a lot of works/codes could be reused.
 
-While investigating your newest zero-copy PoC on vDUSE with bouncing buffer
-I integrated the very same mechanism (iova_domain.c) in virtio-loopback
-and tested it with vhost-user-blk and vhost-user-can devices.
-
-In my opinion this combination has the following benefits:
-a) This implementation addresses the majority of security
-   concerns related to sharing page which might contain other
-   kernel data with the user-space.
-b) The new implementation of virtio-loopback adapter can leverage
-   the bouncing buffer and support vhost-user-blk and CAN. Support
-   for devices like vhost-user-sound, gpio, rng, input, console
-   should be in place with no effort but there are not tested yet.
-c) By making loopback work with bouncing buffer and not
-   introducing changes to iova_domain.c we can consider
-   that virtio-loopback is a shorter path to support
-   the above referenced vhost-user devs.
-
-Links to the new virtio-loopback implementation:
-- https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/virtio/virtio-loopback-adapter.git;a=commit;h=269f019fde391bffdfbd42dee45c0cc8721e8f4f
-- https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/virtio/virtio-loopback-driver.git;a=commit;h=26138fa91896b50748b3c17429d707ababf41cad
-
-Last point related to the vDUSE zc PoC, to fix the "madvice"
-issue and improve performance, I think it is worth to consider:
-1) utilizing "zap_vma_ptes" in order to avoid madvice and be
-   able to remove pages from user-space when are not used
-   anymore by the corresponding virtio-driver.
-2) extending the zero-copy mechanism for more than
-   "DMA_TO_DEVICE" cases
-
-Thanks,
-Timos
