@@ -1,287 +1,227 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD0C64C81
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Jan 2025 00:42:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E60EB28E37
+	for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 15:57:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737765757; cv=none; b=nrmGuEv4cLEqAOUZyatsaL/4JF+cB/KmJJ68YwkmSnqs0zIJBBnB3mZQNmvwvFVIiMEsad6bGhCZws8r/GdvGI6fjsR7ZFPYTOV/BkDlys/gU26BmQXud8GJlLgbO07dX8J0mqdG5fALfNJKQzSFE9wK2zTMs6u82IRLTa/F6Fo=
+	t=1737820653; cv=none; b=ESONox4/7KYOqCSKy5tWdlmmwHH6+LugDNLkQ2Kq10UnUICicF3EN9SCl3DpkSROHwIS0HLwafYCT7SAON/7xbTTQCwqEqhHvsn15hq8tNwk8VOnt8ABFzcpmLjmLB36QoMQlQpgw+ohGJ3HpGsoTWVZkkk5ucPCEJhjljqp/AU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737765757; c=relaxed/simple;
-	bh=9tpRYesiFFKKmyM2EoGaqB+vDc4e7pG7Q8bBNM/u+VU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=o4A9YAG69Rkp5oTBrp3g4bISb/2O+Q8D/HkpBEE/10096GLedCNkosXil0AW/Dy0IJd9OHM1WEx2GSUuEaam8NfMdmt84N4Ob2yu9cHlhEwuG46pEQ8XImcUVNwH9CAlb7P3t2HJ4NHPihDMCAEmk50l9TsLKlahYUBbkfZvTas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P6uUt6j2; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1737820653; c=relaxed/simple;
+	bh=/Zpjy5u9s282dqlcyNcBjv3a2sOTSP38Gg7wKXyAaLU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=I0EiZfKl9fFP9iES3zFFErKHmqcdLyjxhhDB+4NpC9AY+irz/OTmEdfOATzUoZ+3/BPcA9nAPAIS4X2+vZSxJnoNlAuPgPZSnOTHhcoouGdkXv8kpE9eTAqvtomts3RtW5LOv1oZOsWpDKwTE2qo4fPAXiDMB5bQohu83t2YfZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=virtualopensystems.com; spf=none smtp.mailfrom=virtualopensystems.com; dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b=dEuBouae; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=virtualopensystems.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=virtualopensystems.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P6uUt6j2"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 58D0841715
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Jan 2025 00:42:35 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id FdPCeOb7ABES for <virtualization@lists.linux-foundation.org>;
- Sat, 25 Jan 2025 00:42:34 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::832; helo=mail-qt1-x832.google.com; envelope-from=demiobenour@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C6E2A4170B
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C6E2A4170B
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=P6uUt6j2
-Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C6E2A4170B
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Jan 2025 00:42:33 +0000 (UTC)
-Received: by mail-qt1-x832.google.com with SMTP id d75a77b69052e-46c8474d8daso22124941cf.3
-        for <virtualization@lists.linux-foundation.org>; Fri, 24 Jan 2025 16:42:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b="dEuBouae"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-aaf900cc7fbso493271866b.3
+        for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 07:57:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737765752; x=1738370552; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=f7pKh/ag2j5qbT1Y4Wj1y1SyzQlx5R1LIQwzt6aLNy4=;
-        b=P6uUt6j2eAze6aRt4H0Z5SVXT6f7ClECMxfYm/1nzGZ7hTCsuEJNhToTS3qfoy5CA0
-         /0Xmll9FdZpgwCS4yw5G0QOYeKCIGox0VIvbf/7rO7Si+7Tlq1/SaaTD/sLIBvxAAGKO
-         ueWa3eCbJdF4U3jfARmxhgXeJp9ymMnXN8UthFkwiznwfFrZER2Trvev5Ul3RmQOdOJS
-         PNdjly07NCJIsXW2yFv4i/zw4QkeycYo8j6wfJYoBeUDgo2WRdhr8CNgdMUMPbhH8dtG
-         Jf/QmgQcIXEQ5qe0cD25KNWYBRxRo4LGIE81PjwheDYdNXDspd53buOaN/FwWjdX38X4
-         h4tw==
+        d=virtualopensystems-com.20230601.gappssmtp.com; s=20230601; t=1737820649; x=1738425449; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+PLMLtZK87EZSnbC21LohK4S0aY7cewELelChDtt+Bk=;
+        b=dEuBouaevFypp9b0nXSQIu/11lY+m9iXrGaQkvzbG2y0H4qwqzEI9sZdNlc6p9DtIz
+         mrGfH1IYXcffqKFH8qvxN0CCo/tOFaM+UwdO8nkObUfT0cGtSE+W176Mgrh2jIfbjCRx
+         2OMXb0ZMs0jkoeDlDvsm0Uzc4ZtJUKK3DrveKpIu92XnOGWsmnKLOFy0I6eUpsqN/AF5
+         lKEd28iI0Fe1YkzaR+1Gd/dH5BqGAFyPtoHhb0Y96XD3GUmYtlsbOaVk5ftHTjLJY1VC
+         i/iv/gX3DNfeQJBLTsc3D3oyXYAIbrpfe+d6R+5GkjNZCLFIBmslgh8EriIYGdNAekog
+         zPCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737765752; x=1738370552;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=f7pKh/ag2j5qbT1Y4Wj1y1SyzQlx5R1LIQwzt6aLNy4=;
-        b=qkOVHw4iX6ReQo8+4bkwNUhE1p0VBcbOVYzeTLHrfbMYVWdVWdQDPMD5NCdJ84HKX5
-         /rd0Tlth6N6k3pRFDzT1Soho8DXTt8//zfOlz8K8CMsNl2yzj2iBDlWfnRf+1k6DzRQo
-         AdGZAtdMZ57WmzW3vkQ2Rcu9cW/7iAtdfMwpfuI3HDmzFnYdG87DaFpm7w73wmvIvsKR
-         4wS73nPPEDEmGCyoDDCC/SgtEsp2rdlvfX+8132wltJCcqqNNfsjgfOQwZbTweBUFHGy
-         VrFoOkF7tqzUXa2AFe8q4KSc6WkD6HgC1pmXygOkbk6F/EyjqxyIxyhlEge3hHhpO47a
-         pk/g==
-X-Forwarded-Encrypted: i=1; AJvYcCVDRx7vxNeAiNbqjRkZXdOBj+O7mntUWR07pglE3/jr6651+kYcRcwNd2V3c1YSCuBMdCWBnZ76/ioENfOgHQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxYi2u+kG4ubVn91I/4GQJz2bhFXYUevXoSbZYIq2iLTrXf5VyJ
-	K8N7dhGq66ZuKjy7Nlseq4r+Xj8vYqWmmKA+6DCOGTt2pthzJqoO
-X-Gm-Gg: ASbGncs9oFd5T3u5Fvzu8rRAY+K61ETqCpbySwWPsVVsyv4zqQH1r6NI0XbWhSeuUYj
-	vEFsJA3x4gbDHRaqLdIEpUW+uO0O8Goh4g1pnYKjpjTEJoqrV3TdqwNIb5NSajbNZII90GrR5FG
-	qzPIwPB+Ai+By+hb4nR9GjZwdAQsXbk6Dnjh9fmJxOk3agSPqbzjMG++GWvq1rCasK6CkkWHCJ7
-	vj7LTA9RC284yoKXIB0L6IjVcwzkGI0R8tY13Swg5B/QpGZhgJohiqJHyjnHgKS2mmkaqPf2s4u
-	+sNzKh9TDGedSfxx+w==
-X-Google-Smtp-Source: AGHT+IEnGOd+kPcVlHlZsjUbmI+Oi6Y4XlM4fVBlprpEeOv1H7Hh7EYKP+1OkHfAbfni5jUvmEu0Zw==
-X-Received: by 2002:a05:622a:142:b0:461:4150:b8a4 with SMTP id d75a77b69052e-46e1284c93bmr456069491cf.0.1737765752365;
-        Fri, 24 Jan 2025 16:42:32 -0800 (PST)
-Received: from [10.138.7.94] ([163.5.171.73])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46e6687e729sm15510991cf.19.2025.01.24.16.42.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Jan 2025 16:42:31 -0800 (PST)
-Message-ID: <9572ba57-5552-4543-a3b0-6097520a12a3@gmail.com>
-Date: Fri, 24 Jan 2025 19:42:30 -0500
+        d=1e100.net; s=20230601; t=1737820649; x=1738425449;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+PLMLtZK87EZSnbC21LohK4S0aY7cewELelChDtt+Bk=;
+        b=TXuTD+/h2EG7BYhRJMykW4zkF88XiJwp21w06t0f4eyiW6WmB5Ne3WKQf8YHpJ5yGu
+         nDsMVDl916V6SZyJxC87uAx/Phc93+XCWvodpdF/YntMYQTpYGEl2hfXiRLHEs570vyX
+         AjfaS5Qd/cutXz07jsD6AX98rTkQhMnjIWisAgIIHpuRJggnMJaWaNqaWtkT/SfqRQnt
+         2z+EbW4WvegN9q4HL3ulpz5618jWEdmJ1MKPRzN69ZLIGNlR4LLRJ54f0c1/I9yNe7Cd
+         wblbCRSYit6xggaNpqCyj2x5X0gVo1zCLVmG0C1RxX5k6mLYrtvMFIKvcYbZeWEoHA+l
+         hGjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXD6HhEWJLgkT2kymmTZ3YbJoqyDo5pGJ7DOUOfW6JUQ0t/JQAxpMJcdAUA7mOvBSdf1ynAeeoekI7XFYlFEw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw/+l//IMJDLSRQEPbS1Gyc60uPlIJagCNUnpL1C8WAgX992HA2
+	vI5AIsCqyxuG76QFi3cr2cobfkHnuRYSKT3Og39KVLyxHFIrYgPqJAP49+SNXuE=
+X-Gm-Gg: ASbGncse/FjkmdtvYvDxlww3s8JFHNLQAylCa9H03mFB2pJnrY1QBnPYL1PM+j2d3L+
+	78PASOd69wHCcDIypSAt6BVOCXf/iyyRPPmGb9LBbEHzFCIP4jJj7D64el4sJOieG6aYcJ11g8m
+	vKZoKhd76nYPzwZhKMvxaG+MKUS1hZkQJe9RIC6YAlQ+y+tu0lzxYsHy7Og2O+2+eub9bgQxgHk
+	0l6G9Fvu83lxzDexli98JE+liT/a65uUxyzgzoy0vfr2eWkdCvn66JJ/OaT7JwcebodpH3yYkXz
+	K4Jn1YmDPNH058SDAFl9CO51PPy5QC4=
+X-Google-Smtp-Source: AGHT+IGak5gjPzMDUE+SC4/1d72QwMPUb/q5oPBi0ZeKGYu8Gitp+AGY2N/LlSjM4v2J36yZkiAwig==
+X-Received: by 2002:a17:906:d54f:b0:aa6:1e9a:e45a with SMTP id a640c23a62f3a-ab38b3893c1mr2885637966b.46.1737820649032;
+        Sat, 25 Jan 2025 07:57:29 -0800 (PST)
+Received: from ritos-ThinkPad.. ([45.66.41.93])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab693c63541sm54481066b.67.2025.01.25.07.57.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Jan 2025 07:57:28 -0800 (PST)
+From: t.ampelikiotis@virtualopensystems.com
+To: jasowang@redhat.com
+Cc: virtio-dev@lists.oasis-open.org,
+	anna@virtualopensystems.com,
+	a.rigo@virtualopensystems.com,
+	m.paolino@virtualopensystems.com,
+	s.raho@virtualopensystems.com,
+	chou.kensou@jp.panasonic.com,
+	wminer@linuxfoundation.org,
+	jsmoeller@linuxfoundation.org,
+	virtualization@lists.linux.dev,
+	stefanha@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	sgarzare@redhat.com
+Subject: Re: [virtio-dev] [RFC PATCH 0/1] Virtio-loopback: a virtio based HAL for non-virtualized environments
+Date: Sat, 25 Jan 2025 17:57:25 +0200
+Message-Id: <20250125155725.120284-1-t.ampelikiotis@virtualopensystems.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <CACGkMEug=QgyAEwKZfzn76O0A+_cQTt_JBpLhTfryNYzR-gc3g@mail.gmail.com>
+References: <CACGkMEug=QgyAEwKZfzn76O0A+_cQTt_JBpLhTfryNYzR-gc3g@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
- object
-To: "Huang, Honglei1" <Honglei1.Huang@amd.com>, Huang Rui
- <ray.huang@amd.com>, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, Dmitry Osipenko
- <dmitry.osipenko@collabora.com>, dri-devel@lists.freedesktop.org,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Akihiko Odaki <akihiko.odaki@daynix.com>,
- Lingshan Zhu <Lingshan.Zhu@amd.com>, Simona Vetter <simona.vetter@ffwll.ch>
-References: <20241220100409.4007346-1-honglei1.huang@amd.com>
- <20241220100409.4007346-3-honglei1.huang@amd.com>
- <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
- <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
- <de8ade34-eb67-4bff-a1c9-27cb51798843@amd.com>
- <Z36wV07M8B_wgWPl@phenom.ffwll.local>
-Content-Language: en-US
-From: Demi Marie Obenour <demiobenour@gmail.com>
-Autocrypt: addr=demiobenour@gmail.com; keydata=
- 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
- +MYSfkEjBz0E8CLOcAw7JIwAaeBT
-In-Reply-To: <Z36wV07M8B_wgWPl@phenom.ffwll.local>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 1/8/25 12:05 PM, Simona Vetter wrote:
-> On Fri, Dec 27, 2024 at 10:24:29AM +0800, Huang, Honglei1 wrote:
->>
->> On 2024/12/22 9:59, Demi Marie Obenour wrote:
->>> On 12/20/24 10:35 AM, Simona Vetter wrote:
->>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
->>>>> From: Honglei Huang <Honglei1.Huang@amd.com>
->>>>>
->>>>> A virtio-gpu userptr is based on HMM notifier.
->>>>> Used for let host access guest userspace memory and
->>>>> notice the change of userspace memory.
->>>>> This series patches are in very beginning state,
->>>>> User space are pinned currently to ensure the host
->>>>> device memory operations are correct.
->>>>> The free and unmap operations for userspace can be
->>>>> handled by MMU notifier this is a simple and basice
->>>>> SVM feature for this series patches.
->>>>> The physical PFNS update operations is splited into
->>>>> two OPs in here. The evicted memories won't be used
->>>>> anymore but remap into host again to achieve same
->>>>> effect with hmm_rang_fault.
->>>>
->>>> So in my opinion there are two ways to implement userptr that make sense:
->>>>
->>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
->>>>    notifier
->>>>
->>>> - unpinnned userptr where you entirely rely on userptr and do not hold any
->>>>    page references or page pins at all, for full SVM integration. This
->>>>    should use hmm_range_fault ideally, since that's the version that
->>>>    doesn't ever grab any page reference pins.
->>>>
->>>> All the in-between variants are imo really bad hacks, whether they hold a
->>>> page reference or a temporary page pin (which seems to be what you're
->>>> doing here). In much older kernels there was some justification for them,
->>>> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
->>>> now all sorted out. So there's really only fully pinned, or true svm left
->>>> as clean design choices imo.
->>>>
->>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
->>>> you?
->>>
->>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
->>> in complexity that pinning everything avoids.  Furthermore, this avoids the
->>> host having to take action in response to guest memory reclaim requests.
->>> This avoids additional complexity (and thus attack surface) on the host side.
->>> Furthermore, since this is for ROCm and not for graphics, I am less concerned
->>> about supporting systems that require swappable GPU VRAM.
->>
->> Hi Sima and Demi,
->>
->> I totally agree the flag FOLL_LONGTERM is needed, I will add it in next
->> version.
->>
->> And for the first pin variants implementation, the MMU notifier is also
->> needed I think.Cause the userptr feature in UMD generally used like this:
->> the registering of userptr always is explicitly invoked by user code like
->> "registerMemoryToGPU(userptrAddr, ...)", but for the userptr release/free,
->> there is no explicit API for it, at least in hsakmt/KFD stack. User just
->> need call system call "free(userptrAddr)", then kernel driver will release
->> the userptr by MMU notifier callback.Virtio-GPU has no other way to know if
->> user has been free the userptr except for MMU notifior.And in UMD theres is
->> no way to get the free() operation is invoked by user.The only way is use
->> MMU notifier in virtio-GPU driver and free the corresponding data in host by
->> some virtio CMDs as far as I can see.
->>
->> And for the second way that is use hmm_range_fault, there is a predictable
->> issues as far as I can see, at least in hsakmt/KFD stack. That is the memory
->> may migrate when GPU/device is working. In bare metal, when memory is
->> migrating KFD driver will pause the compute work of the device in
->> mmap_wirte_lock then use hmm_range_fault to remap the migrated/evicted
->> memories to GPU then restore the compute work of device to ensure the
->> correction of the data. But in virtio-GPU driver the migration happen in
->> guest kernel, the evict mmu notifier callback happens in guest, a virtio CMD
->> can be used for notify host but as lack of mmap_write_lock protection in
->> host kernel, host will hold invalid data for a short period of time, this
->> may lead to some issues. And it is hard to fix as far as I can see.
->>
->> I will extract some APIs into helper according to your request, and I will
->> refactor the whole userptr implementation, use some callbacks in page
->> getting path, let the pin method and hmm_range_fault can be choiced
->> in this series patches.
-> 
-> Ok, so if this is for svm, then you need full blast hmm, or the semantics
-> are buggy. You cannot fake svm with pin(FOLL_LONGTERM) userptr, this does
-> not work.
+On Mon, Dec 23, 2024 at 5:59 AM Jason Wang <jasowang@redhat.com> wrote:
+>
+> On Fri, Dec 20, 2024 at 11:49 PM Timos Ampelikiotis
+> <t.ampelikiotis@virtualopensystems.com> wrote:
+> >
+> >
+> >
+> > On Thu, Dec 5, 2024 at 10:17 AM Jason Wang <jasowang@redhat.com> wrote:
+> >>
+> >> Adding Eugenio and YongJi.
+> >>
+> >> On Wed, Dec 4, 2024 at 11:38 PM <t.ampelikiotis@virtualopensystems.com> wrote:
+> >> >
+> >> > From: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
+> >> >
+> >> > We would like to share with you an RFC for the Virtio-loopback
+> >> > technology which we have been working on at Virtual Open Systems in
+> >> > the context of the Automotive Grade Linux community (Software defined
+> >> > Vehicles expert group)
+> >> >
+> >> > We previously presented this activity (see [1]) and now we come back
+> >> > to you with latest development and updates.
+> >> >
+> >> > We believe that the technology is more mature today and we would like
+> >> > to assess the community interest in the technology itself and in
+> >> > merging the code.
+> >> >
+> >> > Below we provide a brief description of the technology, recent
+> >> > updates and a short comparison with vDUSE that might be seen as a
+> >> > similar technology.
+> >> >
+> >> > 1. Overview:
+> >> > -------
+> >> >
+> >> > Virtio-loopback is a hardware abstraction layer (HAL) designed for
+> >> > non-virtualized environments based on virtio. The main objective is
+> >> > to enable applications communication with vhost-user devices in a
+> >> > non-virtualized environment.
+> >> >
+> >> > More in details, Virtio-loopback architecture consists of a new
+> >> > transport (Virtio-loopback), a user-space application (Adapter) and
+> >> > the vhost-user devices.
+> >> >
+> >> > The data path has been implemented using the "zero-copy" principle,
+> >>
+> >> This need more clarification, for example, how could we prevent
+> >> malicious usersapce device from modifying kernel pages etc. Especially
+> >> consider not all buffer occupy full pages.
+> >>
+> >> Actually, after chatting with Yong Ji, I've played with a zerocopy POC
+> >> for VDUSE, but it tries to do zerocopy only for page aligned buffer:
+> >>
+> >> https://github.com/jasowang/net/tree/vduse-zerocopy
+> >>
+> >> The idea is to map the page directly to the userspace if the buffer
+> >> occupies a full page and usersapce is expected to recycle the page via
+> >> MADV_DONTNEED. It's far from mature but it can demonstrate the idea
+> >> somehow.
+> >
+> >
+> > I had a quick look into the POC and it seems like it improves
+> > performance (by reducing the copies) without compromising the security.
+>
+> Note that it has something left: e.g what if userspace doesn't
+> "recycle" pages via MADV_DONTNEED etc.
+>
+> >
+> > In general, it is similar to what we propose (though we focused on
+> > performance mainly). A brief introduction of how data are shared with
+> > the vhost-user devices without copies follows:
+> >
+> > In virtio-loopback, a page handler is assigned to the kernel memory
+> > when a vhost-user device tries to mmap a new memory region. Any time
+> > then the vhost-user device tries to actually access a page inside
+> > that memory region, a page-fault is generated and the driver decides
+> > which is the corresponding page to be inserted to the vhost-user
+> > process.
+>
+> Note that the page fault is really expensive, that's in my POC I
+> hacked the VDUSE to map the pages to avoid #PF. But it needs a concept
+> like "owner" so VDUSE can grab the mm_struct of the owner process to
+> do that.
+>
+> > Before sharing the page, we have intentionally left some
+> > space for security checks to be implemented in the future.
+> > At that point we can check if the page requested is related to the
+> > corresponding device and if not then do not share it with the user-space.
+> >
+> > As correctly said, that solution does not address the case of buffers
+> > being smaller than a page, and indeed, there is the chance for malicious
+> > applications to take advantage of the data padding the page after the buffer.
+> >
+> > Solving that issue would lead us to the solution you shared above. More
+> > specifically creating a bouncing buffer approach for those cases. I didn't
+> > have the chance to benchmark the above POC yet, but I believe that it should
+> > introduce a performance advantage over the upstream vDUSE solution.
+>
+> I had some tests through qsd. I can get at most 40% improvement when
+> I'm using 128K write etc.
+>
+> But when I was doing POC with OVS-DPDK, I didn't get good performance
+> as it involved too much madvise() per packet. I'm trying to seek a
+> good way to reduce the call to madvise.
+>
+> >
+> > I understand that security is a very important point here.
+> > So my first objectives for the virtio-loopback future development
+> > would be first to address all the security concerns about the
+> > technology.
+> >
+> > Before that, I would like to assess your interest in the technology
+> > and understand:
+> > a) if the community would be interested to merge a new virtio-transport
+> >   which does something similar with vDUSE but does not depend on vDPA?
+>
+> If there's an advantage of bypassing vDPA, I would like to know. Since
+> I'm seeking a way to accelerate VDUSE with zerocopy and the work was
+> kind of duplicated.
 
-Is this still broken in the virtualized case?  Page migration between host
-and device memory is completely transparent to the guest kernel, so pinning
-guest memory doesn't interfere with the host KMD at all.  In fact, the host
-KMD is not even aware of it.
+Performance wise, it might not introduce any additional benefit but since
+it is a simpler, more lightweight architecture with less components and
+dependencies might be also interesting to co-exist with vduse for serving
+as virtio HAL for non-virtualization environments.
 
-Allowing memory registered with AMDKFD to be pageable *by the guest* seems
-like a bad idea to me.  Paging would require a guest <=> host round-trip
-for _each_ call to mmu_interval_notifier_ops::invalidate().  That’s going
-to be _very_ slow if it happens with any regularity.  Worse, the userspace
-VMM will need to be notified if the GPU writes to the pages while the guest
-expects them to be stable.  Can this be done with userfaultfd, and if so,
-is it even a good idea?
+>
+> > b) if it would be interesting to make the adapter compatible with vDUSE
+> >   in order to add support for more devices in the current vDUSE
+> >   implementation?
+>
+> That would be welcomed.
 
-The reason I am not sure that using userfaultfd to notify the guest of
-changes is a good idea is that it seems intuitively rather risky.  At a
-minimum, it allows the guest to stall host accesses for an arbitrarily
-long period of time, which I suspect will make exploiting race conditions
-easier.  Furthermore, this seems very prone to deadlocks.  Suppose that
-that the guest causes a virtual device to access write-protected memory.
-The VMM’s virtual device implementation will cause a userfaultfd
-write-protect fault, which will then be passed to the guest to handle.
-Suppose that resolving the fault requires allocating memory, which in
-turn causes memory reclaim that waits for I/O on the same block device.
-If the virtual device is single-threaded, you just deadlocked.  Even
-if it is not single-threaded, operations like live migration might never
-complete.  It might be possible for userspace to check the cause of a
-write-protect fault and break the deadlock, but that is even more
-complexity.
+Nice! I look forward to see the vduse-agent when it is available.
+In the meantime feel free to have a look into the virtio-loopback
+adapter (user-space counterpart) available here:
 
-With FOLL_LONGTERM, this can’t happen.  The guest will never try to
-make the pages clean, so it never needs to write-protect them.  This
-means that the host does not need to worry about its device model
-stalling forever and that there is no risk of deadlock.  The only thing
-I know will break is using writable file-backed memory with SVM, but
-that seems like a very, _very_ niche thing to do as there is no
-consistency guarantee.  Read-only access would work fine.
+https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/virtio/virtio-loopback-adapter.git;a=commit;h=269f019fde391bffdfbd42dee45c0cc8721e8f4f
 
-> The other option is that hsakmt/kfd api is completely busted, and that's
-> kinda not a kernel problem.
-
-My understanding is that it _is_ busted, in that it is tied to address
-spaces, not contexts.  If my understanding is correct, the host-side
-device model must create a separate process for each guest process that
-wants to use KFD.  Otherwise, different guest processes that use the same
-GPU virtual address will conflict with each other.
--- 
-Sincerely,
-Demi Marie Obenour (she/her/hers)
+Thanks,
+Timos
