@@ -1,64 +1,64 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E60EB28E37
-	for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 15:57:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15EE217578
+	for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 16:02:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737820653; cv=none; b=ESONox4/7KYOqCSKy5tWdlmmwHH6+LugDNLkQ2Kq10UnUICicF3EN9SCl3DpkSROHwIS0HLwafYCT7SAON/7xbTTQCwqEqhHvsn15hq8tNwk8VOnt8ABFzcpmLjmLB36QoMQlQpgw+ohGJ3HpGsoTWVZkkk5ucPCEJhjljqp/AU=
+	t=1737820922; cv=none; b=JV3LNhf+xAZ2c1JvAWlcZfTLtOiJmUhBEf8yAmtJ9+2xsA63l7p3N4fmgV9rHX2unb+JM0wD93LST/xU5JxjDg41y3FmhiNEsrWnYY/BispJA9vKlkOPswNHcEkLCOPqH9RA89MKjDzLYeUaKBEf1XZekhM7cgLIKLLt73wYFss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737820653; c=relaxed/simple;
-	bh=/Zpjy5u9s282dqlcyNcBjv3a2sOTSP38Gg7wKXyAaLU=;
+	s=arc-20240116; t=1737820922; c=relaxed/simple;
+	bh=uE5Q+TPkQGHQlA8Hl9aBMXaZm5tKr+Bq4VsFQJyjFn4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=I0EiZfKl9fFP9iES3zFFErKHmqcdLyjxhhDB+4NpC9AY+irz/OTmEdfOATzUoZ+3/BPcA9nAPAIS4X2+vZSxJnoNlAuPgPZSnOTHhcoouGdkXv8kpE9eTAqvtomts3RtW5LOv1oZOsWpDKwTE2qo4fPAXiDMB5bQohu83t2YfZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=virtualopensystems.com; spf=none smtp.mailfrom=virtualopensystems.com; dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b=dEuBouae; arc=none smtp.client-ip=209.85.218.51
+	 MIME-Version:Content-Type; b=mqrsuebXFzvqrz6cH2jAsPPOYO+9qaK670OJbaO4lzNAOqSjPcy/YMeohchHXrUBtooGyBjXqNV293rxfL2hqn3gZNwhDE2J3+GtqThhgdAnQQ3xSykvBaPSRG0LttNMrVWCGIh+/pc9PJT2079T5mqSjo+Ymln2ay24u7YxpcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=virtualopensystems.com; spf=none smtp.mailfrom=virtualopensystems.com; dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b=aFbkmhyb; arc=none smtp.client-ip=209.85.218.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=virtualopensystems.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=virtualopensystems.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b="dEuBouae"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-aaf900cc7fbso493271866b.3
-        for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 07:57:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=virtualopensystems-com.20230601.gappssmtp.com header.i=@virtualopensystems-com.20230601.gappssmtp.com header.b="aFbkmhyb"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-aaee2c5ee6eso633599066b.1
+        for <virtualization@lists.linux.dev>; Sat, 25 Jan 2025 08:02:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=virtualopensystems-com.20230601.gappssmtp.com; s=20230601; t=1737820649; x=1738425449; darn=lists.linux.dev;
+        d=virtualopensystems-com.20230601.gappssmtp.com; s=20230601; t=1737820919; x=1738425719; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+PLMLtZK87EZSnbC21LohK4S0aY7cewELelChDtt+Bk=;
-        b=dEuBouaevFypp9b0nXSQIu/11lY+m9iXrGaQkvzbG2y0H4qwqzEI9sZdNlc6p9DtIz
-         mrGfH1IYXcffqKFH8qvxN0CCo/tOFaM+UwdO8nkObUfT0cGtSE+W176Mgrh2jIfbjCRx
-         2OMXb0ZMs0jkoeDlDvsm0Uzc4ZtJUKK3DrveKpIu92XnOGWsmnKLOFy0I6eUpsqN/AF5
-         lKEd28iI0Fe1YkzaR+1Gd/dH5BqGAFyPtoHhb0Y96XD3GUmYtlsbOaVk5ftHTjLJY1VC
-         i/iv/gX3DNfeQJBLTsc3D3oyXYAIbrpfe+d6R+5GkjNZCLFIBmslgh8EriIYGdNAekog
-         zPCg==
+        bh=uE5Q+TPkQGHQlA8Hl9aBMXaZm5tKr+Bq4VsFQJyjFn4=;
+        b=aFbkmhybOGLmGioAaSnI9K9XwmpJvVTLcPyXp0zHQIKVDiaf8WPAOCKwNj96ax1ps8
+         utxeFFGjl9JrQ0dVXNp2vguTnU3phbeNP0Z0EnoXXQjm5mh2FkP1ZpiDgP5dYhNJMIfo
+         m4+U9zL+LIzlFh5zalxRKadowgrkSlsk2LpiR+8EmoOvqn4DKRATKdcAjBhcS93THfe+
+         Mvdqn2SEHscfLfe7pXkCf3QoYQI2OYSNyOZnYmAiaiqhUYpQH7oZp+wN74U+mePlvlhV
+         XSrUwsDPAXX7GpKLuyvkTPzBa0RxivJxBSR3Xeut7c/u54yTYoZheDERp7byiGiZg2VN
+         3kjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737820649; x=1738425449;
+        d=1e100.net; s=20230601; t=1737820919; x=1738425719;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+PLMLtZK87EZSnbC21LohK4S0aY7cewELelChDtt+Bk=;
-        b=TXuTD+/h2EG7BYhRJMykW4zkF88XiJwp21w06t0f4eyiW6WmB5Ne3WKQf8YHpJ5yGu
-         nDsMVDl916V6SZyJxC87uAx/Phc93+XCWvodpdF/YntMYQTpYGEl2hfXiRLHEs570vyX
-         AjfaS5Qd/cutXz07jsD6AX98rTkQhMnjIWisAgIIHpuRJggnMJaWaNqaWtkT/SfqRQnt
-         2z+EbW4WvegN9q4HL3ulpz5618jWEdmJ1MKPRzN69ZLIGNlR4LLRJ54f0c1/I9yNe7Cd
-         wblbCRSYit6xggaNpqCyj2x5X0gVo1zCLVmG0C1RxX5k6mLYrtvMFIKvcYbZeWEoHA+l
-         hGjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXD6HhEWJLgkT2kymmTZ3YbJoqyDo5pGJ7DOUOfW6JUQ0t/JQAxpMJcdAUA7mOvBSdf1ynAeeoekI7XFYlFEw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw/+l//IMJDLSRQEPbS1Gyc60uPlIJagCNUnpL1C8WAgX992HA2
-	vI5AIsCqyxuG76QFi3cr2cobfkHnuRYSKT3Og39KVLyxHFIrYgPqJAP49+SNXuE=
-X-Gm-Gg: ASbGncse/FjkmdtvYvDxlww3s8JFHNLQAylCa9H03mFB2pJnrY1QBnPYL1PM+j2d3L+
-	78PASOd69wHCcDIypSAt6BVOCXf/iyyRPPmGb9LBbEHzFCIP4jJj7D64el4sJOieG6aYcJ11g8m
-	vKZoKhd76nYPzwZhKMvxaG+MKUS1hZkQJe9RIC6YAlQ+y+tu0lzxYsHy7Og2O+2+eub9bgQxgHk
-	0l6G9Fvu83lxzDexli98JE+liT/a65uUxyzgzoy0vfr2eWkdCvn66JJ/OaT7JwcebodpH3yYkXz
-	K4Jn1YmDPNH058SDAFl9CO51PPy5QC4=
-X-Google-Smtp-Source: AGHT+IGak5gjPzMDUE+SC4/1d72QwMPUb/q5oPBi0ZeKGYu8Gitp+AGY2N/LlSjM4v2J36yZkiAwig==
-X-Received: by 2002:a17:906:d54f:b0:aa6:1e9a:e45a with SMTP id a640c23a62f3a-ab38b3893c1mr2885637966b.46.1737820649032;
-        Sat, 25 Jan 2025 07:57:29 -0800 (PST)
+        bh=uE5Q+TPkQGHQlA8Hl9aBMXaZm5tKr+Bq4VsFQJyjFn4=;
+        b=uYs3Ip7a9FMhcyWbG0dn3CF3wyhmQKYYcf0MjOt6QALwYgMoLE+DhHZRGBSfdbDRBO
+         LEQaEpXjguKE4q+uPlHu1hBwuK+rbT7KWJzjUJEcppkKjz6AH6g/ZDbS3H5r3/qL1PR4
+         jYnAXygaDofKyQCWi4mQGVJ9uglWTPgIdHTNmbhdoM0cNhEz8i0m2WpTFf4246lTsszK
+         0KY1xEfEtb4aiaWQzFktOdAfAUl2TyNSmeF3PuML9PfFehP8ouRkdpbTtJCxZrzDRWcP
+         aQZIyIKClPvAfUatfmBJAiD5FTGRSfcelpNFSxKOPaBLY07g6B3Dc6rs5+7SzzRvUz+s
+         x8uw==
+X-Forwarded-Encrypted: i=1; AJvYcCVAEd4REF6SOypnEhJNtNDQNtQl6ufelYrgMB6WdtMmkdQo0BwRUEE4IzNtgP091lEm/V6c2RIdexdr67QC3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzCM9ZG8GL+Tq0vaSFNzc9ovteWSeLxX9tb1xHL/Sx4xfOSQqcL
+	jrDxNIKUdRnp3hOlz/TdsN5M3LjiRTmlThDm6lr+zy3c2fVMpNbpJbeQKSC9FB0=
+X-Gm-Gg: ASbGncvCUteoqH5oUrn/wIZXdJYbUCOVR4WXwIW4QD9XNoXKzFmdOJR8CBHzbk+aHL9
+	pmANoiOAuVjkOgF5dEKto7UoBrnTkuXFOKF51MBWgr5TB01XlEYBRzN9lxDtcU32eN9OAKT/Cn3
+	f5VSpoknZDu5jiQRnPPR0vcP+UG+TTErlpenPx5H7TjJyDB4dViYcPmMhlTECeDAPaWT4fllQ5m
+	gs1RkXmzeNs6oA1JqR4VpLaIzORGLxji5K0dfm15Sl+XntI7BmVVV2Mp1KGcgsetiKq1sn3BAYr
+	RJviZBKolk5kug9Vw7BlB+vj19YywZa2sWBWTI0pOA==
+X-Google-Smtp-Source: AGHT+IFAV3Tgpgl28GXyZGKy+h50Q+HKeIA9DuUrxTSTxEIlXQlE65gkXX+PKJ4CfS8KKTrCnL7Vhg==
+X-Received: by 2002:a17:907:d0f:b0:aa6:a9fe:46dd with SMTP id a640c23a62f3a-ab38b3aff9fmr3558037666b.38.1737820918687;
+        Sat, 25 Jan 2025 08:01:58 -0800 (PST)
 Received: from ritos-ThinkPad.. ([45.66.41.93])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab693c63541sm54481066b.67.2025.01.25.07.57.26
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab675e631a2sm300150066b.48.2025.01.25.08.01.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jan 2025 07:57:28 -0800 (PST)
+        Sat, 25 Jan 2025 08:01:58 -0800 (PST)
 From: t.ampelikiotis@virtualopensystems.com
-To: jasowang@redhat.com
+To: stefanha@gmail.com
 Cc: virtio-dev@lists.oasis-open.org,
 	anna@virtualopensystems.com,
 	a.rigo@virtualopensystems.com,
@@ -70,13 +70,14 @@ Cc: virtio-dev@lists.oasis-open.org,
 	virtualization@lists.linux.dev,
 	stefanha@redhat.com,
 	xuanzhuo@linux.alibaba.com,
-	sgarzare@redhat.com
-Subject: Re: [virtio-dev] [RFC PATCH 0/1] Virtio-loopback: a virtio based HAL for non-virtualized environments
-Date: Sat, 25 Jan 2025 17:57:25 +0200
-Message-Id: <20250125155725.120284-1-t.ampelikiotis@virtualopensystems.com>
+	sgarzare@redhat.com,
+	jasowang@redhat.com
+Subject: Re: [virtio-dev] [RFC PATCH 1/1] Virtio-loopback: a virtio based HAL for non-virtualized environments
+Date: Sat, 25 Jan 2025 18:01:54 +0200
+Message-Id: <20250125160154.120339-1-t.ampelikiotis@virtualopensystems.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <CACGkMEug=QgyAEwKZfzn76O0A+_cQTt_JBpLhTfryNYzR-gc3g@mail.gmail.com>
-References: <CACGkMEug=QgyAEwKZfzn76O0A+_cQTt_JBpLhTfryNYzR-gc3g@mail.gmail.com>
+In-Reply-To: <CAJSP0QXdvWWnp-61WMeWTLnDLPWiZVqvg3Nsc3zqLuEDkxARFw@mail.gmail.com>
+References: <CAJSP0QXdvWWnp-61WMeWTLnDLPWiZVqvg3Nsc3zqLuEDkxARFw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -86,142 +87,45 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Mon, Dec 23, 2024 at 5:59 AM Jason Wang <jasowang@redhat.com> wrote:
+On Sat, Dec 21, 2024 at 3:44 PM Stefan Hajnoczi <stefanha@gmail.com> wrote:
 >
-> On Fri, Dec 20, 2024 at 11:49 PM Timos Ampelikiotis
+> On Fri, 20 Dec 2024 at 10:56, Timos Ampelikiotis
 > <t.ampelikiotis@virtualopensystems.com> wrote:
 > >
 > >
 > >
-> > On Thu, Dec 5, 2024 at 10:17 AM Jason Wang <jasowang@redhat.com> wrote:
+> > On Wed, Dec 4, 2024 at 7:18 PM Stefan Hajnoczi <stefanha@gmail.com> wrote:
 > >>
-> >> Adding Eugenio and YongJi.
-> >>
-> >> On Wed, Dec 4, 2024 at 11:38 PM <t.ampelikiotis@virtualopensystems.com> wrote:
+> >> On Wed, 4 Dec 2024 at 10:38, <t.ampelikiotis@virtualopensystems.com> wrote:
 > >> >
 > >> > From: Timos Ampelikiotis <t.ampelikiotis@virtualopensystems.com>
 > >> >
-> >> > We would like to share with you an RFC for the Virtio-loopback
-> >> > technology which we have been working on at Virtual Open Systems in
-> >> > the context of the Automotive Grade Linux community (Software defined
-> >> > Vehicles expert group)
-> >> >
-> >> > We previously presented this activity (see [1]) and now we come back
-> >> > to you with latest development and updates.
-> >> >
-> >> > We believe that the technology is more mature today and we would like
-> >> > to assess the community interest in the technology itself and in
-> >> > merging the code.
-> >> >
-> >> > Below we provide a brief description of the technology, recent
-> >> > updates and a short comparison with vDUSE that might be seen as a
-> >> > similar technology.
-> >> >
-> >> > 1. Overview:
-> >> > -------
-> >> >
-> >> > Virtio-loopback is a hardware abstraction layer (HAL) designed for
-> >> > non-virtualized environments based on virtio. The main objective is
-> >> > to enable applications communication with vhost-user devices in a
-> >> > non-virtualized environment.
-> >> >
-> >> > More in details, Virtio-loopback architecture consists of a new
-> >> > transport (Virtio-loopback), a user-space application (Adapter) and
-> >> > the vhost-user devices.
-> >> >
-> >> > The data path has been implemented using the "zero-copy" principle,
-> >>
-> >> This need more clarification, for example, how could we prevent
-> >> malicious usersapce device from modifying kernel pages etc. Especially
-> >> consider not all buffer occupy full pages.
-> >>
-> >> Actually, after chatting with Yong Ji, I've played with a zerocopy POC
-> >> for VDUSE, but it tries to do zerocopy only for page aligned buffer:
-> >>
-> >> https://github.com/jasowang/net/tree/vduse-zerocopy
-> >>
-> >> The idea is to map the page directly to the userspace if the buffer
-> >> occupies a full page and usersapce is expected to recycle the page via
-> >> MADV_DONTNEED. It's far from mature but it can demonstrate the idea
-> >> somehow.
-> >
-> >
-> > I had a quick look into the POC and it seems like it improves
-> > performance (by reducing the copies) without compromising the security.
->
-> Note that it has something left: e.g what if userspace doesn't
-> "recycle" pages via MADV_DONTNEED etc.
->
-> >
-> > In general, it is similar to what we propose (though we focused on
-> > performance mainly). A brief introduction of how data are shared with
-> > the vhost-user devices without copies follows:
-> >
-> > In virtio-loopback, a page handler is assigned to the kernel memory
-> > when a vhost-user device tries to mmap a new memory region. Any time
-> > then the vhost-user device tries to actually access a page inside
-> > that memory region, a page-fault is generated and the driver decides
-> > which is the corresponding page to be inserted to the vhost-user
-> > process.
->
-> Note that the page fault is really expensive, that's in my POC I
-> hacked the VDUSE to map the pages to avoid #PF. But it needs a concept
-> like "owner" so VDUSE can grab the mm_struct of the owner process to
-> do that.
->
-> > Before sharing the page, we have intentionally left some
-> > space for security checks to be implemented in the future.
-> > At that point we can check if the page requested is related to the
-> > corresponding device and if not then do not share it with the user-space.
-> >
-> > As correctly said, that solution does not address the case of buffers
-> > being smaller than a page, and indeed, there is the chance for malicious
-> > applications to take advantage of the data padding the page after the buffer.
-> >
-> > Solving that issue would lead us to the solution you shared above. More
-> > specifically creating a bouncing buffer approach for those cases. I didn't
-> > have the chance to benchmark the above POC yet, but I believe that it should
-> > introduce a performance advantage over the upstream vDUSE solution.
->
-> I had some tests through qsd. I can get at most 40% improvement when
-> I'm using 128K write etc.
->
-> But when I was doing POC with OVS-DPDK, I didn't get good performance
-> as it involved too much madvise() per packet. I'm trying to seek a
-> good way to reduce the call to madvise.
->
-> >
-> > I understand that security is a very important point here.
-> > So my first objectives for the virtio-loopback future development
-> > would be first to address all the security concerns about the
-> > technology.
-> >
-> > Before that, I would like to assess your interest in the technology
-> > and understand:
-> > a) if the community would be interested to merge a new virtio-transport
-> >   which does something similar with vDUSE but does not depend on vDPA?
->
-> If there's an advantage of bypassing vDPA, I would like to know. Since
-> I'm seeking a way to accelerate VDUSE with zerocopy and the work was
-> kind of duplicated.
+> >> > This commit, is based on virtio MMIO driver, adds support
+> >> > for dynamic allocated (platform) virtio devices. This
+> >> > allows applications running in native environments to use
+> >> > virtio drivers as a HAL and eventually communicate with
+> >> > user-space drivers (implementing the vhost-user protocol).
 
-Performance wise, it might not introduce any additional benefit but since
-it is a simpler, more lightweight architecture with less components and
-dependencies might be also interesting to co-exist with vduse for serving
-as virtio HAL for non-virtualization environments.
+[...]
 
+> > The current implementation of the driver collaborates with our
+> > user-space counterpart (adapter application) in order to establish
+> > the control plane with the vhost-user device, and indeed there is
+> > partially a trust relationship.
+> >
+> > Currently we are working on updating the API between driver and the
+> > user-space counterpart in order to make the driver more robust
+> > and make sure that leaks like this do not happen.
 >
-> > b) if it would be interesting to make the adapter compatible with vDUSE
-> >   in order to add support for more devices in the current vDUSE
-> >   implementation?
+> Okay. Please take kernel lockdown into account:
+> https://www.man7.org/linux/man-pages/man7/kernel_lockdown.7.html
 >
-> That would be welcomed.
+> Userspace must not be able to modify arbitrary kernel memory or load
+> code. Even root cannot do this except for limited mechanisms like
+> loading signed kernel modules.
 
-Nice! I look forward to see the vduse-agent when it is available.
-In the meantime feel free to have a look into the virtio-loopback
-adapter (user-space counterpart) available here:
+Thanks, I fully agree!
 
-https://gerrit.automotivelinux.org/gerrit/gitweb?p=src/virtio/virtio-loopback-adapter.git;a=commit;h=269f019fde391bffdfbd42dee45c0cc8721e8f4f
-
-Thanks,
-Timos
+I have implemented a new version of virtio-loopback in which I am
+adapting the bouncing buffer logic from vDUSE which I believe it
+covers partially what you suggested.
