@@ -1,30 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8822185B72;
-	Sun, 26 Jan 2025 14:54:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 062821D5AAD;
+	Sun, 26 Jan 2025 14:56:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737903291; cv=none; b=XU+hmyZVwI5juwwHbnBT5Lu18EQ6u3W6VpLOL/UNFDznGuajDh64MkF3GPqvq1HY87lpx9qfKmHsZuS9eJXB7hL9RXixkRlHaQLCvEBnKZKpxjtxHtMWoHe+UXeUvVsBJrk43bDO+MKslKKUKvnsOcgb/0x1WgH0aqOSgn/hCac=
+	t=1737903378; cv=none; b=TVfHcJttO9BcDVc2Lm9cvEK6QYbcPXS5sZghgFT0ZyR1cynj+aCp4f4TD9j6HwpiyEA5mFbJ2YlRrQ84D3qB2CQOUyfYmwxgYGX2SlyfgnyOlFnzSMUxqaQP4GrIzp53D2puGMItB7O7FIOV29gqxeDDsnAXJTwvRflLf1/I+PM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737903291; c=relaxed/simple;
-	bh=YJVaQn5BsK2QkOM6IZNqXee7nhE2W2Be5XILTAtGU7M=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=eC9UHopgYgkYSONrJt0wDnP5qQGevb4rQYG0UhDuS9ojSx4vaZdsyRZcZjfFti2OO3W405opGJ9BydT/B5J/kodSWbKkjPF1auglNtgdbt4H37T1gc83AYSStuTSnUwUcXdssojXt5uL4PXmp7GCwnpWDiuR6Pco/zeidQGLccc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BgL1hWM8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1737903378; c=relaxed/simple;
+	bh=iDFms1I5hEBtyBWy0DYGk9/eU8/v/WiCVIyvJEol4oY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=t1RE7ZFARcS+MrfRCDmLUSsX7yRmKP9Mx1SYOc3wwsprqt3B7Kckdyzd0qGRUdnxohQpr6FwqtiR8jRU0/jDbOKlQlvUjCXSQdxwle0H2Gn4zy1XB7F4xca6/LxM8YV9EJW95dnpxSSb0aU12zChBVa2sA5m4erEzEmNml69n5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R2stPh/r; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BgL1hWM8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95990C4CEE7;
-	Sun, 26 Jan 2025 14:54:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R2stPh/r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8BB3C4CED3;
+	Sun, 26 Jan 2025 14:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737903291;
-	bh=YJVaQn5BsK2QkOM6IZNqXee7nhE2W2Be5XILTAtGU7M=;
+	s=k20201202; t=1737903375;
+	bh=iDFms1I5hEBtyBWy0DYGk9/eU8/v/WiCVIyvJEol4oY=;
 	h=From:To:Cc:Subject:Date:From;
-	b=BgL1hWM8j0i0FID06h1VwvsYBJe2bc9Kuq9P7FPt5pexMOFmReXSwY/DR/PT1p721
-	 mDU4IRTxZqlmTG0VsGUhFwhL74cb8AnO3aB8K0aNbU4xwj1DCVX4YwrzRVikYoPFfi
-	 e4wvaLL9/v9Wk7Cj6TOBQn1pxlZZoBciaFpUNSeDqqnH0nKjCdhJ4pJft9jmPWZEN5
-	 ealSl60qFYo2NjW1F2qRbihap9vi+yijt42+mJ3pyWfDTSt/yEYqQ9XBEs8aynlD1I
-	 lsY9iyHbUWx5guDsaNRI7HPENm980MWke2IfyZqrUGUC6HezLwqPP0Igmwo33MsSN+
-	 9FdT4+pN5IuWA==
+	b=R2stPh/rvTJ7pCTpe/U59tuZ2g5ESjjQkidSOLRGgWjk1lbpozkfDf5ax8WczfYC8
+	 jG+MNWKunWWrejMVcSfUCT5RxuHH4+DENr0emU0VK+165c6o8pLYHvKcp+uAIRGNud
+	 VfQY9rynbGtsvrJ15hBIY9inOQ4tsvLdA9r1g1zI9BjTX+IlJYLaVQIuucGBPGNxJk
+	 ts/R0Ciniub6zDMwS2hxi05YtHtlkTGTNByP15GFqNIvwYyBd0UMeK58lQen820fD5
+	 0zbUjP3DZ0IgQiEU/K/qXBfq8W/qi9oawH0zWFAf/KRVFxxEEZDvf2GFPR5EyeRGrF
+	 nLxUYd9t59AVg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -41,9 +41,9 @@ Cc: Dongwon Kim <dongwon.kim@intel.com>,
 	simona@ffwll.ch,
 	dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.12 01/31] drm/virtio: New fence for every plane update
-Date: Sun, 26 Jan 2025 09:54:17 -0500
-Message-Id: <20250126145448.930220-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 01/17] drm/virtio: New fence for every plane update
+Date: Sun, 26 Jan 2025 09:55:56 -0500
+Message-Id: <20250126145612.937679-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -53,7 +53,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.12.11
+X-stable-base: Linux 6.6.74
 Content-Transfer-Encoding: 8bit
 
 From: Dongwon Kim <dongwon.kim@intel.com>
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 46 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 64c236169db88..5dc8eeaf7123c 100644
+index 4126c384286bf..61fd37f95fbd9 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -194,6 +194,13 @@ struct virtio_gpu_framebuffer {
+@@ -191,6 +191,13 @@ struct virtio_gpu_framebuffer {
  #define to_virtio_gpu_framebuffer(x) \
  	container_of(x, struct virtio_gpu_framebuffer, base)
  
@@ -97,7 +97,7 @@ index 64c236169db88..5dc8eeaf7123c 100644
  	struct virtqueue *vq;
  	spinlock_t qlock;
 diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index a72a2dbda031c..7acd38b962c62 100644
+index a1ef657eba077..36de73e03bbfa 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
 @@ -66,11 +66,28 @@ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
