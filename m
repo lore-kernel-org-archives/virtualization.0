@@ -1,157 +1,222 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9E5DB64A
-	for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 22:32:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E0341DC9A8
+	for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 22:45:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738017126; cv=none; b=hkqJ7J9KLnuag70siB208kjVNyr7UpkjAf/AjvfM+vfdqdGSmbTJd2Ld3AlYlAzH+MtsUkjm1y3iDpOSU0EmDAAqzzu+vv2MXdfrUtRs3fehlqv+kLEjv6c0YFm1LYyuN1mh8WbHbyDROLLbbmDEHtpYIST9IyKu5LFkRhYv0rY=
+	t=1738017915; cv=none; b=iD3sbqPgdgSVmTSR/N3u0X+zhP5Sh8PYpiFN89HDoStMqIVD2rCAcGk4Y0oLlVc1OU6zNI0ZPzZ5XPmX9e6NAP8E3mfHA6wwwXoUq52TGsYIMRzFxOJDG6wZBGZ9kExMNikD+58yKBgit7d3+kyJBNiMSsEtlLXwAXcNkcuT+FM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738017126; c=relaxed/simple;
-	bh=18DsTnkG4dmQIgO4BZ+ZSqpV9RzfKM8cduBtIxYkLcs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PG/T5pSmlyEKOCopfuDpd1c9YKSgavi22ffwk7pXj/NNQHAtvulxlt6HT27b8O+3Pfkr4D+CO1OW1oN/cOeCHM6ULVWwpvTPgpejcbJd3h/oH7seRvnD0Dah8nZkjIogCR+c3k20/opC3dqbntnQirb1IDJOa6Rg8V9mrxK+fCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=RvRqkjJy; arc=none smtp.client-ip=209.85.222.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	s=arc-20240116; t=1738017915; c=relaxed/simple;
+	bh=BwWewtzAsBYHFCOY3YZWzHQsU7jCQDKA4zr4sKiwxn4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Iixk0WpxUu3k5wvrVQ1V72ki7q7OpTw9GloWMiuGYCIOoMVwSSa8WcMXZBW25FN9FgTxE/Er2CruynW7nzpnvVAbaQH9LqiGZmKH4BrN4Cv3h78J+nsdOBa/I0UEDqjbVQInnRT3/Yn608zm1UxftvPJ6xthSKBQreyp0jZxG7w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JOOTZv92; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="RvRqkjJy"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-7be3d681e74so450272085a.0
-        for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 14:32:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JOOTZv92"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-215740b7fb8so50845ad.0
+        for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 14:45:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1738017124; x=1738621924; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZjsGD1HTZWvnB4scix9ien1anGPvw1aSZgElOGgUWqg=;
-        b=RvRqkjJyaiWJgqxDr+iO500cpQvbjc0S1pcW3OCQGLziUZ/RczPoCqZczk0G0V31tH
-         yJbQvf33kcJ9JD22S1TogYXc6CkfvAbyIGRzvHVmULLkaZEpYt5bptaV0M40VrMlShip
-         B74FdJXUVcvUPK+e/6G1v1lsSx173kZGgOS9Q=
+        d=google.com; s=20230601; t=1738017913; x=1738622713; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8t3pPz+1JzaiHbPQBjjwELEPY7O87ftN71YRbgZtoQU=;
+        b=JOOTZv92o9YW/37Tuetz0p071reXusQ2k4RwWTKOaQzRAHycC7Bomtcd/iO93HbeGl
+         6zPDqt9U9JkInLcIKOJpvsXRv7xd0Fe4NKNlFcONEp4AKTqrAGbY93KuUBGLU5JD6Tat
+         pc4jIgoLTll/lrPDKNFbh83p8UBWMiGeXGurlFJX0BY7fihh7gDejMnKHnv9RBGvvsL5
+         /+QCsm5gJCaVvZZjFZ1/Uuu/BftqjFsaeWw9/vO+M0Tmd6wMOdELlPsiAgKLtTO1XReW
+         9ozJEECcmV3aezJOQvIbSWsld7eLjngRJnuM8KvruE5E8X6RkFYlCnQ+XdNuyFvkjytn
+         GgTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738017124; x=1738621924;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZjsGD1HTZWvnB4scix9ien1anGPvw1aSZgElOGgUWqg=;
-        b=PN7kUU5PAMgac/dXX5jCpxkIHMZAHi80u6ZUxKsGWb+ZTx8yAWlobNw4R1UB41947P
-         au5OdoQQwjc9aVEaymfsYshXe5O3D+5NVtf35AfvzjnZGnQcNgWy1ZzAZKzV3fpnJZaO
-         8NEVxGKEB8mXXzHB1EP8C6WTTUt5vKsdNgSaExg8Uqkm/0Woa2WaKOHalhpfiwjY9cjM
-         PVSqs/KQixVzGw1MUMYrOEqETKU0vnPSoDKn8rI8+9ByGdL6B+FI7fOvnDOtQK/S0C9M
-         mZW8D7hEn1im1Wuw4juAEijHbe7j5Vlj1mas9Jz5fmkCnAVQ/JdGMjUTjTArA5OX2Cjo
-         +HKg==
-X-Forwarded-Encrypted: i=1; AJvYcCU3XsY0hpU/gVYCQl1YUm+Xwa9AINq01OaEZ6XoaJ1CLERuAAaNHWXXvcvrBGf3fptwXRVLs9OXyvJ5Tavsdg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyMuuMVGtyGsMEnGzGtE8i6ZV6xhe6Sv2spvEPXoekP5p0t3gVT
-	06KjUOjh4/WW8rSMZF+mu+1uH/k3cS4PWAYQIxI4bakM1/qPG28GYBAbIL/HWv8=
-X-Gm-Gg: ASbGncukn10mE9D1ogF6nvUSkw1WlhYlGSBEEdzlyNP3bGSxPZPpZUn3FycNb8NnBlw
-	3iGKDCbThMTSby1IAnaMEfJPKqZHxWJqTH3zHwdsKZZrsuK4wsJD198Bf0WeNQQuTrHRqgHiIkC
-	Es92UH1f+cc9qbt9PnTHMevvP0lhJGpQMDdCWz/FMHy7EhOFX1bxSvGnR39DTrOvQJglo3kc9t1
-	M2YYuHA1u0WVYLpu+ndQdn6dHAguz9uStnvSRrPoxywMzc1GmJNV926Anmq5cBzPt+i5VbtEIa7
-	ioiY4ck7dUfGyV9OijQdpgZj8G5EbLGBzBg6DzOZeEw=
-X-Google-Smtp-Source: AGHT+IHdGKX0HVzNGGfdBDdxemuHmtZKvg7K5PVnECIhdt+MxpRUfGTD31xYKTRhW3YYIyuHcN82LQ==
-X-Received: by 2002:a05:620a:44ce:b0:7b7:2de:6fcb with SMTP id af79cd13be357-7be6320f420mr6624365285a.5.1738017123791;
-        Mon, 27 Jan 2025 14:32:03 -0800 (PST)
-Received: from LQ3V64L9R2 (ool-44c5a22e.dyn.optonline.net. [68.197.162.46])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7be9ae7ece0sm439931185a.8.2025.01.27.14.32.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jan 2025 14:32:02 -0800 (PST)
-Date: Mon, 27 Jan 2025 17:32:00 -0500
-From: Joe Damato <jdamato@fastly.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	gerhard@engleder-embedded.com, leiyang@redhat.com,
-	xuanzhuo@linux.alibaba.com, mkarsten@uwaterloo.ca,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC net-next v3 2/4] virtio_net: Prepare for NAPI to queue
- mapping
-Message-ID: <Z5gJYOAUVZH8-4Pt@LQ3V64L9R2>
-Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
-	Jakub Kicinski <kuba@kernel.org>, Jason Wang <jasowang@redhat.com>,
-	netdev@vger.kernel.org, gerhard@engleder-embedded.com,
-	leiyang@redhat.com, xuanzhuo@linux.alibaba.com,
-	mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-References: <CACGkMEu6XHx-1ST9GNYs8UnAZpSJhvkSYqa+AE8FKiwKO1=zXQ@mail.gmail.com>
- <Z5Gtve0NoZwPNP4A@LQ3V64L9R2>
- <CACGkMEvHVxZcp2efz5EEW96szHBeU0yAfkLy7qSQnVZmxm4GLQ@mail.gmail.com>
- <Z5P10c-gbVmXZne2@LQ3V64L9R2>
- <CACGkMEv4bamNB0KGeZqzuJRazTtwHOEvH2rHamqRr1s90FQ2Vg@mail.gmail.com>
- <Z5fHxutzfsNMoLxS@LQ3V64L9R2>
- <Z5ffCVsbasJKnW6Q@LQ3V64L9R2>
- <20250127133304.7898e4c2@kernel.org>
- <Z5gDut3Tuzd1npPe@LQ3V64L9R2>
- <20250127142400.24eca319@kernel.org>
+        d=1e100.net; s=20230601; t=1738017913; x=1738622713;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8t3pPz+1JzaiHbPQBjjwELEPY7O87ftN71YRbgZtoQU=;
+        b=OhyLGxsOwhzCQj7CtFsN/p8eedk+bLFWMPmQbF1Yu5aZLI0YUJUTuSqf/yyYWtpOCu
+         dsFiPW5IcUxAbrA62uZjox4TDoEaALSlFN6kYzJjAPREHAgYxlhPKrJP+oS8ClI0Do0t
+         LZqlFSji6juoEV8/PkJdX6g2QoE3cFU5UFennNzL7HqiPlT95OHLEcnw7wLSsaW90sbv
+         wW3kWXLi1VS1JIY3WVoD99bTC+GQ0sgFlEke3ePk8+xnJGkPQHFuduTx6U6TnEgBXjeQ
+         mFypww2mWmz7ogR9dcQqCzMhwAFJ5cCSkgzmSQn3Yd1MbfLOUcvbDO0bDm8adeIiOmGS
+         N8CQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXNIynNMVvFvVvX71NFC4qRH9EI3sgsS/IqY01Axc8zKBMLgCekxWcRZCAjaBawISYD3uhLOj2DcuOxxRi2Uw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw3KQ6vwmGmYneEaT7Wp0yT2Y1MB65U5413mqzxSSTt3vb7Rr3Q
+	coZFIire81ldkk1iQt00hEhwU/ghcmAXoT9yvMS6szf+bFgYrLc2VLHAd09U3HujHWCRWPO85HQ
+	MCbv7G6m1YXEVnUQ/49rUoy6n8FXFqGwzHdXU
+X-Gm-Gg: ASbGnctfTME0sS0Uzm+FGRvD/TINKY8pFrRW/0AkPhCn9omeYkfhklIjBQDNsV8P3ad
+	qmRTtD3H6gd01sNfO8m4GOM5KKeGTqOv6CcGg7PPfCMAOFtHa07yJgDoVqf1mfM4p+/K9dGf5vT
+	lssRtmGmsfY7mqTbQl
+X-Google-Smtp-Source: AGHT+IGExTjP7z3sH5xv4dUiC+Zf+Kk1XkUUyDOacm1rZ1hFNJpogpbUpdXTRa7a5h+RLDAp3SXDvxKAvw8QL//ENVE=
+X-Received: by 2002:a17:903:8c6:b0:216:201e:1b4c with SMTP id
+ d9443c01a7336-21dce2c7833mr240915ad.9.1738017913333; Mon, 27 Jan 2025
+ 14:45:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250127142400.24eca319@kernel.org>
+References: <20241221004236.2629280-1-almasrymina@google.com>
+ <20241221004236.2629280-2-almasrymina@google.com> <Z2ZKl_t5e6rutAZ1@mini-arch>
+In-Reply-To: <Z2ZKl_t5e6rutAZ1@mini-arch>
+From: Mina Almasry <almasrymina@google.com>
+Date: Mon, 27 Jan 2025 14:45:00 -0800
+X-Gm-Features: AWEUYZkWf-jlkKJU2y8g8OGRPiPeNCocxqRGzqd-lq7m0uBB6GUIWI0vZLU-iA0
+Message-ID: <CAHS8izOcQRjYYGwA_rx-zvX8dMV=40rzVJvEugY78jzCBHCq=A@mail.gmail.com>
+Subject: Re: [PATCH RFC net-next v1 1/5] net: add devmem TCP TX documentation
+To: Stanislav Fomichev <stfomichev@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Donald Hunter <donald.hunter@gmail.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, David Ahern <dsahern@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	Kaiyuan Zhang <kaiyuanz@google.com>, Pavel Begunkov <asml.silence@gmail.com>, 
+	Willem de Bruijn <willemb@google.com>, Samiullah Khawaja <skhawaja@google.com>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Joe Damato <jdamato@fastly.com>, dw@davidwei.uk
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 27, 2025 at 02:24:00PM -0800, Jakub Kicinski wrote:
-> On Mon, 27 Jan 2025 17:07:54 -0500 Joe Damato wrote:
-> > > Tx NAPIs are one aspect, whether they have ID or not we may want direct
-> > > access to the struct somewhere in the core, via txq, at some point, and
-> > > then people may forget the linking has an unintended effect of also
-> > > changing the netlink attrs. The other aspect is that driver may link
-> > > queue to a Rx NAPI instance before napi_enable(), so before ID is
-> > > assigned. Again, we don't want to report ID of 0 in that case.  
-> > 
-> > I'm sorry I'm not sure I'm following what you are saying here; I
-> > think there might be separate threads concurrently and I'm probably
-> > just confused :)
-> > 
-> > I think you are saying that netdev_nl_napi_fill_one should not
-> > report 0, which I think is fine but probably a separate patch?
-> > 
-> > I think, but am not sure, that Jason was asking for guidance on
-> > TX-only NAPIs and linking them with calls to netif_queue_set_napi.
-> > It seems that Jason may be suggesting that the driver shouldn't have
-> > to know that TX-only NAPIs have a NAPI ID of 0 and thus should call
-> > netif_queue_set_napi for all NAPIs and not have to deal think about
-> > TX-only NAPIs at all.
-> > 
-> > From you've written, Jakub, I think you are suggesting you agree
-> > with that, but with the caveat that netdev_nl_napi_fill_one should
-> > not report 0.
-> 
-> Right up to this point.
-> 
-> > Then, one day in the future, if TX-only NAPIs get an ID they will
-> > magically start to show up.
-> > 
-> > Is that right?
-> 
-> Sort of. I was trying to point out corner cases which would also
-> benefit from netdev_nl_queue_fill_one() being more careful about 
-> the NAPI IDs it reports. But the conclusion is the same.
-> 
-> > If so, I'll re-spin the RFC to call netif_queue_set_napi for all
-> > NAPIs in virtio_net, including TX-only NAPIs and see about including
-> > a patch to tweak netdev_nl_napi_fill_one, if necessary.
-> 
-> netdev_nl_queue_fill_one(), not netdev_nl_napi_fill_one()
+On Fri, Dec 20, 2024 at 8:56=E2=80=AFPM Stanislav Fomichev <stfomichev@gmai=
+l.com> wrote:
+>
+> On 12/21, Mina Almasry wrote:
+> > Add documentation outlining the usage and details of the devmem TCP TX
+> > API.
+> >
+> > Signed-off-by: Mina Almasry <almasrymina@google.com>
+> > ---
+> >  Documentation/networking/devmem.rst | 140 +++++++++++++++++++++++++++-
+> >  1 file changed, 136 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/Documentation/networking/devmem.rst b/Documentation/networ=
+king/devmem.rst
+> > index d95363645331..9be01cd96ee2 100644
+> > --- a/Documentation/networking/devmem.rst
+> > +++ b/Documentation/networking/devmem.rst
+> > @@ -62,15 +62,15 @@ More Info
+> >      https://lore.kernel.org/netdev/20240831004313.3713467-1-almasrymin=
+a@google.com/
+> >
+> >
+> > -Interface
+> > -=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > +RX Interface
+> > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> >
+> >
+> >  Example
+> >  -------
+> >
+> > -tools/testing/selftests/net/ncdevmem.c:do_server shows an example of s=
+etting up
+> > -the RX path of this API.
+> > +./tools/testing/selftests/drivers/net/hw/ncdevmem:do_server shows an e=
+xample of
+> > +setting up the RX path of this API.
+> >
+> >
+> >  NIC Setup
+> > @@ -235,6 +235,138 @@ can be less than the tokens provided by the user =
+in case of:
+> >  (a) an internal kernel leak bug.
+> >  (b) the user passed more than 1024 frags.
+> >
+> > +TX Interface
+> > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > +
+> > +
+> > +Example
+> > +-------
+> > +
+> > +./tools/testing/selftests/drivers/net/hw/ncdevmem:do_client shows an e=
+xample of
+> > +setting up the TX path of this API.
+> > +
+> > +
+> > +NIC Setup
+> > +---------
+> > +
+> > +The user must bind a TX dmabuf to a given NIC using the netlink API::
+> > +
+> > +        struct netdev_bind_tx_req *req =3D NULL;
+> > +        struct netdev_bind_tx_rsp *rsp =3D NULL;
+> > +        struct ynl_error yerr;
+> > +
+> > +        *ys =3D ynl_sock_create(&ynl_netdev_family, &yerr);
+> > +
+> > +        req =3D netdev_bind_tx_req_alloc();
+> > +        netdev_bind_tx_req_set_ifindex(req, ifindex);
+> > +        netdev_bind_tx_req_set_fd(req, dmabuf_fd);
+> > +
+> > +        rsp =3D netdev_bind_tx(*ys, req);
+> > +
+> > +        tx_dmabuf_id =3D rsp->id;
+> > +
+> > +
+> > +The netlink API returns a dmabuf_id: a unique ID that refers to this d=
+mabuf
+> > +that has been bound.
+> > +
+> > +The user can unbind the dmabuf from the netdevice by closing the netli=
+nk socket
+> > +that established the binding. We do this so that the binding is automa=
+tically
+> > +unbound even if the userspace process crashes.
+> > +
+> > +Note that any reasonably well-behaved dmabuf from any exporter should =
+work with
+> > +devmem TCP, even if the dmabuf is not actually backed by devmem. An ex=
+ample of
+> > +this is udmabuf, which wraps user memory (non-devmem) in a dmabuf.
+> > +
+> > +Socket Setup
+> > +------------
+> > +
+> > +The user application must use MSG_ZEROCOPY flag when sending devmem TC=
+P. Devmem
+> > +cannot be copied by the kernel, so the semantics of the devmem TX are =
+similar
+> > +to the semantics of MSG_ZEROCOPY.
+> > +
+> > +     ret =3D setsockopt(socket_fd, SOL_SOCKET, SO_ZEROCOPY, &opt, size=
+of(opt));
+> > +
+> > +Sending data
+> > +--------------
+> > +
+> > +Devmem data is sent using the SCM_DEVMEM_DMABUF cmsg.
+> > +
+>
+> [...]
+>
+> > +The user should create a msghdr with iov_base set to NULL and iov_len =
+set to the
+> > +number of bytes to be sent from the dmabuf.
+>
+> Should we verify that iov_base is NULL in the kernel?
+>
+> But also, alternatively, why not go with iov_base =3D=3D offset? This way=
+ we
+> can support several offsets in a single message, just like regular
+> sendmsg with host memory. Any reason to not do that?
+>
 
-Right, sorry for the typo/added confusion.
- 
-> Otherwise SG.
-> 
-> After net-next reopens I think the patch to netdev_nl_queue_fill_one()
-> could be posted separately. There may be drivers out there which already
-> link Tx NAPIs, we shouldn't delay making the reporting more careful.
+Sorry for the late reply. Some of these suggestions took a bit to
+investigate and other priorities pulled me a bit from this.
 
-OK, I'll start with that when net-next reopens while waiting on the
-locking changes to come later and do the actual linking.
+I've prototyped using iov_base as offset with some help from your
+published branch, and it works fine. It seems to me a big improvement
+to the UAPI. Will reupload RFC v2 while the tree is closed with this
+change.
+
+--=20
+Thanks,
+Mina
