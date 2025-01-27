@@ -1,206 +1,278 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F14725A658
-	for <virtualization@lists.linux.dev>; Sun, 26 Jan 2025 20:43:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737924208; cv=pass; b=j7qqc6f8NoBHUNmvpKThUA4VryCryUc9f0G2AGuz1nIvZPMv9bndpd4H1TLgTI9jnaxZ4ywpPA7ARXwOLlVM8y5sE3Ga/z2820t76UpV2wYT16L5wJ97Mpt9n5XZAwextn3iLyQplNAQcrGPPlelHT2Jj2HiwxsCEck03is0ARw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737924208; c=relaxed/simple;
-	bh=B11DyAkG4xiXe3exx4mGsiz+9KwFFrM9qCLIGzZxAa0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sYdH4+tSJkpiMjNcX+wWtqaVseE3dtmR+cY9D19mlNqt6SACh1LrczkQJF0eJ2wlyac8isP/sOUid8TkWjWY7uG4xYgbYs25TSFcR8jqsnwgY6hXemdhJG3yAxFo3EFTDf+skVPC08oV1igPAsOgq908y2Yk/pZe/lA+2Q+bf84=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=OFkV1SzK; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7473D1FCCEF;
+	Mon, 27 Jan 2025 07:31:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1737963078; cv=none; b=sYPlO5vCeAGIVFQmugxVzP60XvGnuFABjgYiGKx3u67eueXU0Utjz/NtnHAhP6fa/BR53SwyzRPBGnzd4n7DTVRWlsY5daJVuVSDHo7+tw6CaLlUJn96OAun0Oha9hAIqmuy+4PjsXMgFT2yiiZpqx3v0tnZR9xwZfrO3pJoYt0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1737963078; c=relaxed/simple;
+	bh=1+TQ2PM71CF8SXu1hsfhK4fmIT0/a7AtM9fEu/4E56s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IO+0s3M++6jP4lt5vnT4xhuRNMGX/hzbuwUfIhRuPlRIKzvE6rb5dVB58IYbBCm9ntuAOYwZd6Fb9BVEtnOzbAGN8auYXdlK7HFf1Qon5Z0qHgALKsxdRBtPt8s32wx+3CNAaFxcYoz+VLFltUbDcbWdlgSiNY67rM/oykvYylI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1PbuWr2O; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=vmEV+QYj; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FoU8vOBB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Bjc1CoH7; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="OFkV1SzK"
-ARC-Seal: i=1; a=rsa-sha256; t=1737924191; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=l777d6OcriSjXUtiJXGcuYLZM81jfizOB4OST4XmXWq9M2v/ww1Igo2KNFDq0w8vAp4i7MXZGB/aWoq/jn1Psamp/EbmCbN6OTffJSR8D+RPYQgdrL7MInl2lHJy0yftZg8KAHYiOKzw9Q1mpG2qb0oMhJInuOm4Ndm16/JgpnA=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1737924191; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=xEnBSKU8pnmvFJgSinvIT748Q11VxHBZbgkAD3qC4/s=; 
-	b=Xi8JMhT+qHL76BCTak6XS22qw4iDJzS7WM2BPKBx3h2/RJ/nfeMQd5awo5HWTJLyNevjx8gFxOHX0BVNuLoYGOuv8eDXPvB1oUqrT9ekAYegKS3jyXyBRp5JE+QrXkke/SVHn8GEUDGGKO516Mlctn71z7r0B7Nq3uVbzPq6jm0=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1737924190;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=xEnBSKU8pnmvFJgSinvIT748Q11VxHBZbgkAD3qC4/s=;
-	b=OFkV1SzKmrSJ8ydyfdkeKRLA+cr0oCTYLJTEozi39l2lea5wDTRDwPx9vGkqFHXb
-	TXJQdcc/UA3GnJcInUKYubJncTLGERyDoKZYfTUHkPIz5Zk17nSbdp5md9e1KmKhIUY
-	oEpPrjum4cZbFeAhL2G6jzWreWHUL2F/S2Wd1RNI=
-Received: by mx.zohomail.com with SMTPS id 173792418632813.028427511580276;
-	Sun, 26 Jan 2025 12:43:06 -0800 (PST)
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
-	Asahi Lina <lina@asahilina.net>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	kernel@collabora.com
-Subject: [PATCH v1] drm/virtio: Extend blob UAPI with deferred-mapping hinting
-Date: Sun, 26 Jan 2025 23:42:39 +0300
-Message-ID: <20250126204239.474847-1-dmitry.osipenko@collabora.com>
-X-Mailer: git-send-email 2.47.1
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1PbuWr2O";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="vmEV+QYj";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FoU8vOBB";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Bjc1CoH7"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 4E46E21151;
+	Mon, 27 Jan 2025 07:31:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1737963073; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=IrjE7Md0yLO+y3LEKxDOvKOZsXpSU/ntoaUMfI9RqYw=;
+	b=1PbuWr2OSp32uKi+VGAls9q5MUM+dnM6CbfTpc6SeFmih89rMuENSrn4qS3weLXhK7ZDTN
+	XeT1RK6/+OgQE8gPT37bPol3lzoSZ2Rld7JYbvUGwZ/GJ0qwuBend5Vtq0lr5lrIvHoxqS
+	wYsMqPDptkGt6q5CkgN/Dfa0QpKDOu0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1737963073;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=IrjE7Md0yLO+y3LEKxDOvKOZsXpSU/ntoaUMfI9RqYw=;
+	b=vmEV+QYjSDAPx9TIENV2/os0QSAL1CFRNBtlBvFmOQOmbiTFwfXSv4xBFAgdSf4T9r2IiI
+	Gwjzfl2AX0L+TICg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=FoU8vOBB;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=Bjc1CoH7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1737963071; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=IrjE7Md0yLO+y3LEKxDOvKOZsXpSU/ntoaUMfI9RqYw=;
+	b=FoU8vOBBpjtTEdEAZTq6f/Ldi7fYVyh6GGAzvLSii2lLGSBD6bI9yNkLk/9kUIkWKdlU+f
+	lP4A9spC9aD8UE9Vql6xmlETSOrN17TMF1FTVpH886YSckxVknk2yV4l1pkIwr3Uye6ZzI
+	OInVdHFj8w9C+wYuV5K6FIMVvch/Rfg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1737963071;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=IrjE7Md0yLO+y3LEKxDOvKOZsXpSU/ntoaUMfI9RqYw=;
+	b=Bjc1CoH7MtEi4oMNDwhQsBOrcWoQdlmvsSGs48yzjRNkB4ucyK0ZGSZ8K1nPNrufFzrCtt
+	SgHm9VrcIz7T+WCw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E7C48137C0;
+	Mon, 27 Jan 2025 07:31:10 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id i+WWNj42l2ctKQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 27 Jan 2025 07:31:10 +0000
+Message-ID: <4a1c7ab2-66b8-49ec-9662-6827c811ab69@suse.de>
+Date: Mon, 27 Jan 2025 08:31:10 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] drm/virtio: Align host mapping request to maximum
+ platform page size
+To: fnkl.kernel@gmail.com, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>,
+ "arnd@arndb.de" <arnd@arndb.de>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
+ Linux-Arch <linux-arch@vger.kernel.org>
+References: <20250125-virtgpu-mixed-page-size-v2-1-c40c555cf276@gmail.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20250125-virtgpu-mixed-page-size-v2-1-c40c555cf276@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 4E46E21151
+X-Spam-Score: -3.01
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	TO_DN_EQ_ADDR_SOME(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FREEMAIL_TO(0.00)[gmail.com,redhat.com,chromium.org,linux.intel.com,kernel.org,ffwll.ch,arndb.de];
+	MIME_TRACE(0.00)[0:+];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-If userspace never maps GEM object, then BO wastes hostmem space
-because VirtIO-GPU driver maps VRAM BO at the BO's creating time.
+Hi
 
-Make mappings on-demand by adding new RESOURCE_CREATE_BLOB IOCTL/UAPI
-hinting flag telling that host mapping should be deferred until first
-mapping is made when the flag is set by userspace.
 
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
- drivers/gpu/drm/virtio/virtgpu_gem.c   |  9 ++++++++
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  1 +
- drivers/gpu/drm/virtio/virtgpu_vram.c  | 30 +++++++++++++++++++++-----
- include/uapi/drm/virtgpu_drm.h         |  4 ++++
- 5 files changed, 41 insertions(+), 5 deletions(-)
+Am 25.01.25 um 22:08 schrieb Sasha Finkelstein via B4 Relay:
+> From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+>
+> This allows running different page sizes between host and guest on
+> platforms that support mixed page sizes.
+>
+> Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
+> ---
+> Changes in v2:
+> - Aligned all object sizes to MAX_PAGE_SIZE too.
+> - Link to v1: https://lore.kernel.org/r/20250109-virtgpu-mixed-page-size-v1-1-c8fe1e1859f3@gmail.com
+> ---
+>   drivers/gpu/drm/virtio/virtgpu_drv.h    | 6 ++++++
+>   drivers/gpu/drm/virtio/virtgpu_gem.c    | 2 +-
+>   drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 2 +-
+>   drivers/gpu/drm/virtio/virtgpu_object.c | 2 +-
+>   drivers/gpu/drm/virtio/virtgpu_vram.c   | 4 ++--
+>   5 files changed, 11 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index 64c236169db88acd6ba9afd20a1ab16c667490c4..b73844d6535e45402dc46898035eaa7492de935d 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -61,6 +61,12 @@
+>   /* See virtio_gpu_ctx_create. One additional character for NULL terminator. */
+>   #define DEBUG_NAME_MAX_LEN 65
+>   
+> +#if defined(__powerpc64__) || defined(__aarch64__) || defined(__mips__) || defined(__loongarch__)
+> +#define MAX_PAGE_SIZE SZ_64K
+> +#else
+> +#define MAX_PAGE_SIZE PAGE_SIZE
+> +#endif
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 64c236169db8..e5db91a3e8ba 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -85,6 +85,7 @@ struct virtio_gpu_object_params {
- 	uint32_t blob_mem;
- 	uint32_t blob_flags;
- 	uint64_t blob_id;
-+	uint32_t blob_hints;
- };
- 
- struct virtio_gpu_object {
-@@ -483,6 +484,7 @@ struct sg_table *virtio_gpu_vram_map_dma_buf(struct virtio_gpu_object *bo,
- void virtio_gpu_vram_unmap_dma_buf(struct device *dev,
- 				   struct sg_table *sgt,
- 				   enum dma_data_direction dir);
-+void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram);
- 
- /* virtgpu_submit.c */
- int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 7db48d17ee3a..c902b68cc25a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -103,12 +103,21 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
- 			      struct drm_device *dev,
- 			      uint32_t handle, uint64_t *offset_p)
- {
-+	struct virtio_gpu_object_vram *vram;
-+	struct virtio_gpu_object *bo;
- 	struct drm_gem_object *gobj;
- 
- 	BUG_ON(!offset_p);
- 	gobj = drm_gem_object_lookup(file_priv, handle);
- 	if (gobj == NULL)
- 		return -ENOENT;
-+
-+	bo = gem_to_virtio_gpu_obj(gobj);
-+	if (virtio_gpu_is_vram(bo)) {
-+		vram = to_virtio_gpu_vram(bo);
-+		virtio_gpu_vram_map_deferred(vram);
-+	}
-+
- 	*offset_p = drm_vma_node_offset_addr(&gobj->vma_node);
- 	drm_gem_object_put(gobj);
- 	return 0;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index e4f76f315550..51544ee8d3c3 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -489,6 +489,7 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
- 	params->size = rc_blob->size;
- 	params->blob = true;
- 	params->blob_flags = rc_blob->blob_flags;
-+	params->blob_hints = rc_blob->blob_hints;
- 	return 0;
- }
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
-index 25df81c02783..d72c93e06a4a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vram.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
-@@ -41,6 +41,11 @@ static int virtio_gpu_vram_mmap(struct drm_gem_object *obj,
- 	if (!(bo->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE))
- 		return -EINVAL;
- 
-+	virtio_gpu_vram_map_deferred(vram);
-+
-+	if (vram->map_state == STATE_INITIALIZING)
-+		virtio_gpu_notify(vgdev);
-+
- 	wait_event(vgdev->resp_wq, vram->map_state != STATE_INITIALIZING);
- 	if (vram->map_state != STATE_OK)
- 		return -EINVAL;
-@@ -215,14 +220,29 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *vgdev,
- 
- 	virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params, NULL,
- 					    0);
--	if (params->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE) {
--		ret = virtio_gpu_vram_map(&vram->base);
--		if (ret) {
--			virtio_gpu_vram_free(obj);
--			return ret;
-+	if (!(params->blob_hints & DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING)) {
-+		if (params->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE) {
-+			ret = virtio_gpu_vram_map(&vram->base);
-+			if (ret) {
-+				virtio_gpu_vram_free(obj);
-+				return ret;
-+			}
- 		}
- 	}
- 
- 	*bo_ptr = &vram->base;
- 	return 0;
- }
-+
-+void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram)
-+{
-+	static DEFINE_MUTEX(map_lock);
-+
-+	if (!(vram->base.blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE))
-+		return;
-+
-+	mutex_lock(&map_lock);
-+	if (!drm_mm_node_allocated(&vram->vram_node))
-+		virtio_gpu_vram_map(&vram->base);
-+	mutex_unlock(&map_lock);
-+}
-diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-index c2ce71987e9b..3004a1d08570 100644
---- a/include/uapi/drm/virtgpu_drm.h
-+++ b/include/uapi/drm/virtgpu_drm.h
-@@ -194,6 +194,10 @@ struct drm_virtgpu_resource_create_blob {
- 	__u32 cmd_size;
- 	__u64 cmd;
- 	__u64 blob_id;
-+
-+#define DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING        0x0001
-+	__u32 blob_hints;
-+	__u32 pad2;
- };
- 
- #define VIRTGPU_CONTEXT_PARAM_CAPSET_ID       0x0001
+This is per-architecture code and does not belong in a DRM driver.
+
+Best regards
+Thomas
+
+> +
+>   struct virtio_gpu_object_params {
+>   	unsigned long size;
+>   	bool dumb;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> index 7db48d17ee3a8a9c638a8c6f9e58f35bd004b453..8e625ccae308f46b11a390a0987fd5ea55ccbf8d 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> @@ -73,7 +73,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+>   
+>   	pitch = args->width * 4;
+>   	args->size = pitch * args->height;
+> -	args->size = ALIGN(args->size, PAGE_SIZE);
+> +	args->size = ALIGN(args->size, MAX_PAGE_SIZE);
+>   
+>   	params.format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
+>   	params.width = args->width;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> index e4f76f31555049369000a50c0cb1d5edab68536b..e39ae008ac5f734ec52e9703413958b4ea4be7d6 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> @@ -167,7 +167,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+>   	params.size = rc->size;
+>   	/* allocate a single page size object */
+>   	if (params.size == 0)
+> -		params.size = PAGE_SIZE;
+> +		params.size = MAX_PAGE_SIZE;
+>   
+>   	fence = virtio_gpu_fence_alloc(vgdev, vgdev->fence_drv.context, 0);
+>   	if (!fence)
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+> index c7e74cf130221bbed3aa447e416065b03bf3e2b4..5aab82028293b7d73bcc4e686e7e2ecba6108b7b 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> @@ -190,7 +190,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+>   
+>   	*bo_ptr = NULL;
+>   
+> -	params->size = roundup(params->size, PAGE_SIZE);
+> +	params->size = roundup(params->size, MAX_PAGE_SIZE);
+>   	shmem_obj = drm_gem_shmem_create(vgdev->ddev, params->size);
+>   	if (IS_ERR(shmem_obj))
+>   		return PTR_ERR(shmem_obj);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
+> index 25df81c027837c248a746e41856b5aa7e216b8d5..18e773b036f7c8190d4e20ad3f2c85c36e7e295c 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vram.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
+> @@ -150,8 +150,8 @@ static int virtio_gpu_vram_map(struct virtio_gpu_object *bo)
+>   		return -EINVAL;
+>   
+>   	spin_lock(&vgdev->host_visible_lock);
+> -	ret = drm_mm_insert_node(&vgdev->host_visible_mm, &vram->vram_node,
+> -				 bo->base.base.size);
+> +	ret = drm_mm_insert_node_generic(&vgdev->host_visible_mm, &vram->vram_node,
+> +					 bo->base.base.size, MAX_PAGE_SIZE, 0, 0);
+>   	spin_unlock(&vgdev->host_visible_lock);
+>   
+>   	if (ret)
+>
+> ---
+> base-commit: 643e2e259c2b25a2af0ae4c23c6e16586d9fd19c
+> change-id: 20250109-virtgpu-mixed-page-size-282b8f4a02fc
+>
+>
+
 -- 
-2.47.1
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
