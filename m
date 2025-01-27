@@ -1,58 +1,58 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDFA41DC994
-	for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 22:47:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F9E31DB365
+	for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 22:52:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738018041; cv=none; b=jaSBvx9+CmZBqxCFFyCp6f+GKcqzR+RqZ2RgsxORxjdPM+KxLLdBnJ6Qk01u1EVfvAkVR4dDkj+0RCPoqemHn1nsZA+71FzsqXWAvliAA1xLsD4XQSmWinIncLfCT/f8ZaHxOgeWVvngrGdByIgwMNKBna3lWIoVRVxeVPNbtWE=
+	t=1738018373; cv=none; b=BXDVVVVo8U6pCAwz7GB4iObEycc2+z2Pd3zDUuujuIYY5GBs8kJQBDXMoi4YzSG5tWaO0j5oNYr65df+IyyvoZ/ZKQH+x9Ndaut0xNJLjFdO2ZAuVf6wJSQ6c+iVYiUSJZKb1EuUcyl9JXlVuwi8PycOaK3p6KmR0ogwQLxYON8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738018041; c=relaxed/simple;
-	bh=t3bA5F2W65JXGhyTRu140mCuHtb5LN716DCfVuOfs+U=;
+	s=arc-20240116; t=1738018373; c=relaxed/simple;
+	bh=68yT7ctj8bEjZRs1enf6Riz6YgvO2oWyLb6AjHmiCg8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gJNGX3lQ5fYXVOahdJsNo/qbtmKs0PdLOiw92wR7Xg3qfeNG0Ql+yZ28hubNOVqVgHT/UaZCvx8n4KDHwKGUB1n8iz/rWR59FapwUckEwWu8WLty46nOzVg+/waff+He4qlKskcWEv5ul0+K2JQu/ZAnin38WXVwu8yvsU81HoY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WDCznzSJ; arc=none smtp.client-ip=209.85.214.172
+	 To:Cc:Content-Type; b=ghfvgxIlM1X74EJVECRx2wmhHiZ80o2pfLk7vTEJvdlwxPn9itUckYqG2dhf97jhTuKqh13cYYHP3/hj4jFHiSx/WsdV9aQX2+q80ObwMBR7xwMG7WSQqzDuoCoqUNGXFrp3+ZIpCnvOJ2PsDxu+chu5L8EtxclxHh9cKcLC7kw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=AyewJQhF; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WDCznzSJ"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-219f6ca9a81so18715ad.1
-        for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 14:47:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AyewJQhF"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2163affd184so19495ad.1
+        for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 14:52:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1738018039; x=1738622839; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1738018370; x=1738623170; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=q3ggzQ8ffa5aEYPb9vk8ap4m5/pZIAlh688tUvZLlmg=;
-        b=WDCznzSJjmo4FKHYJKZjPhIP5SSI7AMjqgMrOwF571IddwvsYq/Z/SpBdPY0q4JqC1
-         ajnpYibBqXX0GO6HQtgUiKUjiCQZXwiqQs+13G+jBZ1zaaIoEueDvEZ6vMuITfqXaCpp
-         wUTJWjhbj3KecMxSnBtMT1wOBuvYWFLPFE6ItVidr9jlk5WhHfs4vSBRhsJJ8IC+T5Te
-         1zJf9EC9WLAgw/ymVX8xw3iKRhmaFIOrhS6DXWtGzvv4LJ5ll3B+cZa2HgdB33Xj5Kfg
-         bMpwdNp7lV6WI2dpA2acgtPVTDQBvecHlt4e275euDDgv+qXdN38PVdyEUcWwKn9OlY6
-         Qvbg==
+        bh=Dt046zC8q+cHCBSEV8Sb8uhTY9mqKP4r1voWC0exUjg=;
+        b=AyewJQhF59uKGwbq8X3uiHhhHlP90ZOtP6ce3ZVnnf1bci8aiyBMFgyz1LoH2TPluG
+         iM/bLh1EJYD/q8RfI1ZqBCGaWsN+M1hjpyGpuX06zTw0frOUQyQuolSS4AbwjbmhX/bw
+         RSgb4p+e09B5/rDUUc6xXMwzyLd9m936RIvshqw3Zpc2pnneo+n0pOoiJlae90S+ENPa
+         B/X2ZF8PIk6APNIwHwI8J3FEu5GgFiDoHMEfavpvm1rE9vd6M5K1M1AfxXZ6lj1+DkW0
+         5jyXkOtvr1qMIqgLu1lLatmo8k9RFTDX2CCAsdZnSm8W7BubFfsUOzVFfgrn860zDv7V
+         a3Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738018039; x=1738622839;
+        d=1e100.net; s=20230601; t=1738018370; x=1738623170;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=q3ggzQ8ffa5aEYPb9vk8ap4m5/pZIAlh688tUvZLlmg=;
-        b=Zvjf+PriM4Vpusjz0D1BeA6l67qiFiGHYOddXDPRHUMdD4XFcNDy7F40vDfg2F5DQj
-         w+vrZrB6eheIgiDxw2lSbL/Hd9zOH8r/0SH3uUaKLkC+bmjhN6F9yhQl2s0Kh6ZJkKq3
-         zBUKjrCc7+vSsvIh7SAsT4qfZxvvcSaJYYWLWb1TtPIHNfDSEIW2DUh59eOSPcV1ALtO
-         CdA03ot5uw9g0J0H03aK7l9ILs3avr2deSoV0/Jo0VPf1AvqBFv1tsx3Bz7vRZ/MDeaK
-         IQYkweQj13CGXAxKgk+1exsClUMo/uSY99V+z/n/su6jXOpFJDVYaw3IOZ402g9iA6gZ
-         5dnA==
-X-Forwarded-Encrypted: i=1; AJvYcCXFlDAf2R5vjI6mMxhvfHVV/7wCgMsUcUxMH0q5zeKmZqeWIv97nfDvyyUipFNn1X2lSt5Xw1Y4R0u6dZ6/Kg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxqsAZVHI3GTgG9ulIgnIusNj4DJ/ylGo6W/WRD+FnudCKmVLQL
-	fXR1AIRYfI3wXfKOQsGOjLUtGvPmEqKzCDlEuT3PhvSEskhN+yPlASw2XYKB6rtV/ITUO77E0rr
-	FtcI/ikG8IXDNX3wlh5vccHbkvZWTl9iBCNqw
-X-Gm-Gg: ASbGncunxt3CS3X8keIrZFORrrRSbn/os2P6nPfskD8VNdzoLYgQkBUL5dAouYYeUsn
-	cWbb3w9mCWdaEvCniJRqnr0xmvZWAzI42DYSnujhOy91cdME4DfkAdTBFBag6WfYSLy7qp7oo+t
-	HmhJwZbxzHLnrxFq/V
-X-Google-Smtp-Source: AGHT+IFqML9+QvHHoFqJC9LKtRpfjaasVH9e6us8A8yTyrwAjKPnQICiAUxsKn/ru/d9mYtnRK877NZXyv5QlITTnzU=
-X-Received: by 2002:a17:902:f789:b0:215:367f:2967 with SMTP id
- d9443c01a7336-21dcce26186mr833575ad.2.1738018038858; Mon, 27 Jan 2025
- 14:47:18 -0800 (PST)
+        bh=Dt046zC8q+cHCBSEV8Sb8uhTY9mqKP4r1voWC0exUjg=;
+        b=osPNH556P1rNnm/s6Rng5QKi3XMIZ8V9skLW4klaIAPi0l5UjQ5xzSC7GfBYCma/af
+         B843n5Czy4xtYOL65VI61Aj59DEJi+sYeM+gtib0McsraLovZXeyCa6IPAqGpF771n6s
+         4dM8hwyKPSVuBoWOcXGerHcKwL7ySHuS0yzJEk9AF69TXbELQpRqwo78njKz/5/HlK8l
+         Y80qZY4mlpOVP+Dvn5wkV5dVkYuIfouuzwGnwracZP6O6o7uZ6I/++SzHVtC8xWYI021
+         jVgzxHVW+AxmvyswpzLQQLS4X3ShTDZj8wqxTKJRzpiIdk/NAPj2HMMrX0lbQux+eMHw
+         cl0Q==
+X-Forwarded-Encrypted: i=1; AJvYcCW2gd8h6WHa3ndxOlsNQOY79z32hN+n7ofVrN2X1YJUHSHfgrj02VIKah9z6LH1Ylk1dx0gUtW3CG0TliTPdQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx0knaydyYt4kJPR5vPRrHBv1HmyMHMS2yP8A7QUeBXAsx17vTr
+	57QTRHGh81onLTDLHy7jGUIjOrz6Nx8knqGfagCA43BRByQNxORubD7Dlfvk5UR8ncqS+jY5E4d
+	iATjiFQmemrnB12QbUu+YR7DIoGUztHWH6oWf
+X-Gm-Gg: ASbGncuScoaUzC9vG+Yj+I0b0rkXJLllbkRjEXmZz164FsWK5pcoZKONUSClZeDsYNf
+	OsLvkUkxPhNF8gvY/p7iWR2X8B8X3IZfJK+FfER4HUADb+WMHtKUU+HqPc3YHEGKAOzu7gNz97R
+	GVQzOjA1aErRlffOOk4d05dgdbc0E=
+X-Google-Smtp-Source: AGHT+IGnMwtsrtnKydiBNAxNPRr5z5y9ziqP6BqEtfZ64TIOYQJqCWiD2gAFKLfpOjZiYf94dEFeLv3VKxqstm1f4LE=
+X-Received: by 2002:a17:902:f611:b0:215:44af:313b with SMTP id
+ d9443c01a7336-21dccd2833dmr925035ad.0.1738018370394; Mon, 27 Jan 2025
+ 14:52:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,13 +60,14 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20241221004236.2629280-1-almasrymina@google.com>
- <20241221004236.2629280-4-almasrymina@google.com> <Z22pVRcr-B624UcG@mini-arch>
-In-Reply-To: <Z22pVRcr-B624UcG@mini-arch>
+ <20241221004236.2629280-6-almasrymina@google.com> <Z2ZNlGCbQXMondI7@mini-arch>
+ <Z22qCznFSWWyjyyq@mini-arch>
+In-Reply-To: <Z22qCznFSWWyjyyq@mini-arch>
 From: Mina Almasry <almasrymina@google.com>
-Date: Mon, 27 Jan 2025 14:47:06 -0800
-X-Gm-Features: AWEUYZmde949ve7En1vqYfCo-7RhN5LjsRnsvkGge4Hf0Xqf5fGcYM_37rushQI
-Message-ID: <CAHS8izMXKYBiTX_jCNcmN+4unBHXT9jF0CkNWBvjia9eP=Z3zA@mail.gmail.com>
-Subject: Re: [PATCH RFC net-next v1 3/5] net: add get_netmem/put_netmem support
+Date: Mon, 27 Jan 2025 14:52:36 -0800
+X-Gm-Features: AWEUYZnm6s4cike1pxqq6gw1uBcZE5P6ce8F2RNXnwtoS-1NKohoiPC1TO6Djb0
+Message-ID: <CAHS8izNQYj4z-8vjMk8ttv85Q0HbdTrguLZewUt=4K8+5=6g_g@mail.gmail.com>
+Subject: Re: [PATCH RFC net-next v1 5/5] net: devmem: Implement TX path
 To: Stanislav Fomichev <stfomichev@gmail.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-doc@vger.kernel.org, virtualization@lists.linux.dev, 
@@ -84,90 +85,74 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 26, 2024 at 11:07=E2=80=AFAM Stanislav Fomichev
+On Thu, Dec 26, 2024 at 11:10=E2=80=AFAM Stanislav Fomichev
 <stfomichev@gmail.com> wrote:
 >
-> On 12/21, Mina Almasry wrote:
-> > Currently net_iovs support only pp ref counts, and do not support a
-> > page ref equivalent.
+> On 12/20, Stanislav Fomichev wrote:
+> > On 12/21, Mina Almasry wrote:
+> > >  void netdev_nl_sock_priv_init(struct list_head *priv)
+> > > diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+> > > index 815245d5c36b..eb6b41a32524 100644
+> > > --- a/net/core/skbuff.c
+> > > +++ b/net/core/skbuff.c
+> > > @@ -1882,8 +1882,10 @@ EXPORT_SYMBOL_GPL(msg_zerocopy_ubuf_ops);
+> > >
+> > >  int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
+> > >                          struct msghdr *msg, int len,
+> > > -                        struct ubuf_info *uarg)
+> > > +                        struct ubuf_info *uarg,
+> > > +                        struct net_devmem_dmabuf_binding *binding)
+> > >  {
+> > > +   struct iov_iter *from =3D binding ? &binding->tx_iter : &msg->msg=
+_iter;
 > >
-> > This is fine for the RX path as net_iovs are used exclusively with the
-> > pp and only pp refcounting is needed there. The TX path however does no=
-t
-> > use pp ref counts, thus, support for get_page/put_page equivalent is
-> > needed for netmem.
+> > For tx, I feel like this needs a copy of binding->tx_iter:
 > >
-> > Support get_netmem/put_netmem. Check the type of the netmem before
-> > passing it to page or net_iov specific code to obtain a page ref
-> > equivalent.
+> >       struct iov_iter tx_iter =3D binding->tx_iter;
+> >       struct iov_iter *from =3D binding ? &tx_iter : &msg->msg_iter;
 > >
-> > For dmabuf net_iovs, we obtain a ref on the underlying binding. This
-> > ensures the entire binding doesn't disappear until all the net_iovs hav=
+> > Or something similar (rewind?). The tx_iter is advanced in
+> > zerocopy_fill_skb_from_devmem but never reset back it seems (or I'm
+> > missing something). In you case, if you call sendmsg twice with the sam=
 e
-> > been put_netmem'ed. We do not need to track the refcount of individual
-> > dmabuf net_iovs as we don't allocate/free them from a pool similar to
-> > what the buddy allocator does for pages.
-> >
-> > This code is written to be extensible by other net_iov implementers.
-> > get_netmem/put_netmem will check the type of the netmem and route it to
-> > the correct helper:
-> >
-> > pages -> [get|put]_page()
-> > dmabuf net_iovs -> net_devmem_[get|put]_net_iov()
-> > new net_iovs ->       new helpers
-> >
-> > Signed-off-by: Mina Almasry <almasrymina@google.com>
-> >
-> > ---
-> >  include/linux/skbuff_ref.h |  4 ++--
-> >  include/net/netmem.h       |  3 +++
-> >  net/core/devmem.c          | 10 ++++++++++
-> >  net/core/devmem.h          | 11 +++++++++++
-> >  net/core/skbuff.c          | 30 ++++++++++++++++++++++++++++++
-> >  5 files changed, 56 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/include/linux/skbuff_ref.h b/include/linux/skbuff_ref.h
-> > index 0f3c58007488..9e49372ef1a0 100644
-> > --- a/include/linux/skbuff_ref.h
-> > +++ b/include/linux/skbuff_ref.h
-> > @@ -17,7 +17,7 @@
-> >   */
-> >  static inline void __skb_frag_ref(skb_frag_t *frag)
-> >  {
-> > -     get_page(skb_frag_page(frag));
-> > +     get_netmem(skb_frag_netmem(frag));
-> >  }
-> >
-> >  /**
-> > @@ -40,7 +40,7 @@ static inline void skb_page_unref(netmem_ref netmem, =
-bool recycle)
-> >       if (recycle && napi_pp_put_page(netmem))
-> >               return;
-> >  #endif
+> > offset, the second one will copy from 2*offset.
 >
-> [..]
->
-> > -     put_page(netmem_to_page(netmem));
-> > +     put_netmem(netmem);
->
-> I moved the release operation onto a workqueue in my series [1] to avoid
-> calling dmabuf detach (which can sleep) from the socket close path
-> (which is called with bh disabled). You should probably do something simi=
-lar,
-> see the trace attached below.
->
-> 1: https://github.com/fomichev/linux/commit/3b3ad4f36771a376c204727e5a167=
-c4993d4c65a#diff-3c58b866674b2f9beb5ac7349f81566e4df595c25c647710203549589d=
-450f2dR436
->
-> (the condition to trigger that is to have an skb in the write queue
-> and call close from the userspace)
+> Can confirm that it's broken. We should probably have a mode in ncdevmem
+> to call sendmsg with the fixed sized chunks, something like this:
 >
 
-Thanks for catching this indeed. I've also changed the unbinding to
-scheduled_work, although I arrived at a slightly different
-implementation that is simpler to my eye. I'll upload what I have for
-review shortly as RFC.
+Thanks for catching. Yes, I've been able to repro and I believe I
+fixed it locally and will include a fix with the next iteration.
+
+I also agree using a binding->tx_iter here is not necessary, and it
+makes the code a bit confusing as there is an iteration in msg and
+another one in binding and we have to be careful which to
+advance/revert etc. I've prototyped implementation without
+binding->tx_iter with help from your series on github and seems to
+work fine in my tests.
+
+> @@ -912,7 +916,11 @@ static int do_client(struct memory_buffer *mem)
+>                                 line_size, off);
+>
+>                         iov.iov_base =3D NULL;
+> -                       iov.iov_len =3D line_size;
+> +                       iov.iov_len =3D line_size <=3D 4096 ?: 4096;
+>
+>                         msg.msg_iov =3D &iov;
+>                         msg.msg_iovlen =3D 1;
+> @@ -933,6 +941,8 @@ static int do_client(struct memory_buffer *mem)
+>                         ret =3D sendmsg(socket_fd, &msg, MSG_ZEROCOPY);
+>                         if (ret < 0)
+>                                 error(1, errno, "Failed sendmsg");
+> +                       if (ret =3D=3D 0)
+> +                               break;
+>
+>                         fprintf(stderr, "sendmsg_ret=3D%d\n", ret);
+>
+> I can put it on my todo to extend the selftests..
+
+FWIW I've been able to repro this and extended the tests to catch
+this; those changes should come with the next iteration.
 
 --=20
 Thanks,
