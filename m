@@ -1,66 +1,65 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A66617BEC5
-	for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 17:52:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1477C8C7
+	for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 19:31:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738000333; cv=none; b=EL7odfbQsr5gKcUIN1FzETosrtxX1L5lbhg3Ve1Lns65y5845XigQhNgoFoqMcOrCd9UddyFzzBrb/8KxGH3UuRNtymp46awgAZixyDFscu6GyHVXTkBzHPUhXN34L7+4bOxQ2Qh46APhU1VK7tmvLVEGh2V1fMeEg5YhjZt0cc=
+	t=1738006303; cv=none; b=QZPQyiZaliCPbC49RbhpbFO6j8Iet7nsdJyF0SqRV/qz7ffwbc6frE9NbiMrt/1bNft/Hc+P29isz4SaV982kjZkDWHZg2jWzlyd9BFnVLC8UF8PcM/VVtaFWlTzewc2f1SzXK76oR2EHlgVSBMwrFvsALOiTEaT5Zaxd4ApOFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738000333; c=relaxed/simple;
-	bh=LxEsmRsmjKHW34dRdKZW5bHq9jQ7yg1Weh7p5a1U+Yw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qo2L7ISNw8Q18inNM2ex1KBaqsphNqwVcKckeACz+S45eUZz3jHyrQ7O+80msZ9QNLuV2aJsWYi56MxylVssysNlpP4W1JlCOj46iFqHwfXpC93utGl5QlvvMe52iV1q4v02loFKinrBKv+B+n8GUNEDFTvYJZH3H3IsPL5cM0w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=nCuayFpf; arc=none smtp.client-ip=209.85.160.176
+	s=arc-20240116; t=1738006303; c=relaxed/simple;
+	bh=jYA3ZdaSchCq0wZNMqgMfovOur83ZIG1iWn9IxkKTOc=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SAVbs6gQG4fGDbnJCqKat5ENdGJ66WRas073nrgKaQzEf1IWpBWQaVd/Ra8lCmoeE4DOYZFJpOJ18btMjip7Us1JxOpCEPpev/oFC/mYq5YLeih6cm0JrTnBipvveH402hnl0QoRWgslGIKFqQO+Gwa9VThbZY6UBGiCVJduPoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=gFux8NXI; arc=none smtp.client-ip=209.85.222.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="nCuayFpf"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-46901d01355so46741941cf.0
-        for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 09:52:10 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="gFux8NXI"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-7b6e8814842so553501385a.0
+        for <virtualization@lists.linux.dev>; Mon, 27 Jan 2025 11:31:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1738000330; x=1738605130; darn=lists.linux.dev;
+        d=fastly.com; s=google; t=1738006300; x=1738611100; darn=lists.linux.dev;
         h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q99Pp2pABF1FmwKx8NKe2Hs1j8kidoliyjyY4l+h5dI=;
-        b=nCuayFpfkPtKsFAWTpey3XXLW9y2YRcPu2huHt/ahh7Ffb4gDeP8FfKFfVXGSyS/LN
-         n/N4ar5UbvIvvTsnwE7JKkIQXEL55nMjTtY9r0QZ4eZurJie9Coez83jTc8tCaGTRdcZ
-         QBzHxzZrpwNEkI+/j0UUaEeuBNh4pEUUrP5mw=
+         :mime-version:references:mail-followup-to:message-id:subject:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=crvuR4C0Wzq37Ox68vnGQkd0pKwwE3VZakrVpqMGG3w=;
+        b=gFux8NXI336h/yNE3mr90gWOR+lci1eSSzE5BpkCm4o8y1jA70ENoYLqHBjU3I768e
+         CJq2pR/dD0MJMSUP3XYTwABgJugRDyq9TG07R6NUpvc8OKnjckhz7j+A9elfbDnQHK3+
+         WPVrh+iSLLnyIITGqImCM3MbPd5oDnWaU5Cjg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738000330; x=1738605130;
+        d=1e100.net; s=20230601; t=1738006300; x=1738611100;
         h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Q99Pp2pABF1FmwKx8NKe2Hs1j8kidoliyjyY4l+h5dI=;
-        b=OZ64fU9JPKvs0JjMgTGEuxd8DLT6NhrtF9K/QwAV7AdCZAOZcT1RqDylA48Oc05LXS
-         pVYol4cjWxubhh8Es3Vsim2lLfdS0b6DqXm7ljsJtHqoNX4qpZoHQAZl6pepQibsR7px
-         ZSDtYxXC6oMg+DhUldyDs6ye1fKzZ1lZs1485PDFNfvxNJCElJNkXhTE06cHDQlZ+0cS
-         IoQIlsU4y3ZZz7vCBzVuqS22ZwNmmsMCSZlIlClNuzkE+O5D3ZN+GjCWwKzKcFhl36Jn
-         X+/z1sDgtt6+AveSCBfT30KdovlWlvtJSGqT9syi8a2uXkI+ASNYney0bCzoCKS342oL
-         LTcA==
-X-Forwarded-Encrypted: i=1; AJvYcCVQhHxGY+Xt5oI168hBMhtmkwDG/qNGosng9K5kbiNbFA7o81zQ22hS/mFrN/vUc1ZGaz/KpwPI3haoNV2+TQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxhTSztbPp87/6HIpw+4fCKeTKoy0wmMHcaTlurMAoorUCOAcey
-	TezoKLz6egibDYAFp3ER51CUdYHoI2WW50uZtKaja5bbEGCJIFrvwpF3n0sy0ig=
-X-Gm-Gg: ASbGncun3em/sMKwJqmjEsTTc1pn9KgYHKwwSnGsLgW+iu2QKfZwi0J5hX4ZvOHDGkQ
-	+ZQRMGmFrN58dovmmVjrh2Z30uHooyV8pqeEe/LBnwJYimcfbV2c6RUJZhpz7P8QXX8sEvju6Aq
-	CDeUKo1SAn5tMir5rsoMfEANWfSuKDBdoT6maSUUXL42DJCx3CWEhVYeWjOnUCNHcz1TxuzNXuJ
-	h9rsW6bok+VQKc6wWGcW1yiIcexT4q5BkwuYol8AsbKYfQFqsFucSCZqAC5fggL5awYYCVgARfz
-	Ay2bheZ48rRTuhPtD0Zy+72HmF93SQJX4Dt/+9A/X0IuHabh
-X-Google-Smtp-Source: AGHT+IGAD4PkQm++BE7tseFMIEH06/qp1iRxk/uszlis0YUNIMYMn61cw2qytsrr7qBhUDqEPk+f0Q==
-X-Received: by 2002:a05:622a:58e:b0:467:6cd9:3093 with SMTP id d75a77b69052e-46e12bc2747mr611419831cf.46.1738000329986;
-        Mon, 27 Jan 2025 09:52:09 -0800 (PST)
+         :mime-version:references:mail-followup-to:message-id:subject:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=crvuR4C0Wzq37Ox68vnGQkd0pKwwE3VZakrVpqMGG3w=;
+        b=Yojpr0mf2QOLVcOVF4WKYMTask6qoid69ln4XN2PXO+YY0MLbWWhy9gqX1fRkJB/7T
+         cZJo4+U7DmSfOotq436OSMb9XF9NFo5zx8m+oQiw1Gj/01UbL69iTQLEw34wlwdVTz2H
+         R3sqKpysmjVNFkwmkDIBAeSNHO3qtHaRlNcA5pwTWTG6iyj2Q9FqorNlnNLnDaigc697
+         xgffq6b1lsEEP0vxg/4htQTUJabejaDi3wjswkIaUC/6ZoirCLRwN5c1h9jjbbUvIEMX
+         /7QOpaGQAb50OtP03KyjcF4Yp5xbqAcp3h1PkuDfzfabvBn2T2f6odQTtAS74rcoa8+n
+         7Iig==
+X-Forwarded-Encrypted: i=1; AJvYcCVHomPmp0hHwcaLsKeaBU26aAw0788VcTfH0170X0BPj1fUGZ8JLLYjGG7+tuVuSHb2A/v3EHfa6FP0dyvd8A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyS+PjdLvW+PmywKQEclzgDMLpthtNRK6OIpGQ5e6505WwM7eAt
+	bp1/N+eZJOEyNYBWStE9i2QqUaLptjw9xT5KIkGSrRF/9niS5JJGx8pZPcuJbGg=
+X-Gm-Gg: ASbGncuV5q+9HPEtFbr2TgfA3O529cDDD4d4WouRpSVWs8tIbz4s8g0o5oWMCW9wzAn
+	XvPJ+Dq4+sX3u2yrTW27mkZYIwZaO0CxH9btSxZAfaYmw0rjfL06Rx0ySX3ouFSGNw/Pv/Y7Hho
+	AXC9D5POhXPlFtE5OrWTGFBYiV7Ijsrz2eEPusaDIXrobT3pqKo4sBBB+U2P7j11wGJVUfdOQDj
+	eN5HOI3GRk+N9DEgWb2VPSRArka0VlrUzuWKLZdy/mdEkv2+n9VOxa/EYPaCjMpK+QYEoW+/aq5
+	2k2Fbs5qHoO+7CfSxRd6gfGtOJtiS7bGl3sUEmI+Jb/rzZ0/
+X-Google-Smtp-Source: AGHT+IG1bN6WB8IKEPv4zC6FkCqrLYzIsDLpTGLJUuCnvXH9OMZ5TtZHoR7LW+wzA1TfDouWHICqTw==
+X-Received: by 2002:a05:620a:2687:b0:7b7:106a:19b0 with SMTP id af79cd13be357-7be6320be8dmr6444146185a.12.1738006300651;
+        Mon, 27 Jan 2025 11:31:40 -0800 (PST)
 Received: from LQ3V64L9R2 (ip-185-104-139-70.ptr.icomera.net. [185.104.139.70])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6e205136b0dsm36682946d6.1.2025.01.27.09.52.08
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7be9ae8aaa9sm419402985a.34.2025.01.27.11.31.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jan 2025 09:52:09 -0800 (PST)
-Date: Mon, 27 Jan 2025 12:52:06 -0500
+        Mon, 27 Jan 2025 11:31:40 -0800 (PST)
+Date: Mon, 27 Jan 2025 14:31:21 -0500
 From: Joe Damato <jdamato@fastly.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, gerhard@engleder-embedded.com,
-	leiyang@redhat.com, xuanzhuo@linux.alibaba.com,
-	mkarsten@uwaterloo.ca, "Michael S. Tsirkin" <mst@redhat.com>,
+To: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
+	gerhard@engleder-embedded.com, leiyang@redhat.com,
+	xuanzhuo@linux.alibaba.com, mkarsten@uwaterloo.ca,
+	"Michael S. Tsirkin" <mst@redhat.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
@@ -70,7 +69,7 @@ Cc: netdev@vger.kernel.org, gerhard@engleder-embedded.com,
 	open list <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC net-next v3 2/4] virtio_net: Prepare for NAPI to queue
  mapping
-Message-ID: <Z5fHxutzfsNMoLxS@LQ3V64L9R2>
+Message-ID: <Z5ffCVsbasJKnW6Q@LQ3V64L9R2>
 Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
 	Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
 	gerhard@engleder-embedded.com, leiyang@redhat.com,
@@ -92,6 +91,7 @@ References: <20250121191047.269844-1-jdamato@fastly.com>
  <CACGkMEvHVxZcp2efz5EEW96szHBeU0yAfkLy7qSQnVZmxm4GLQ@mail.gmail.com>
  <Z5P10c-gbVmXZne2@LQ3V64L9R2>
  <CACGkMEv4bamNB0KGeZqzuJRazTtwHOEvH2rHamqRr1s90FQ2Vg@mail.gmail.com>
+ <Z5fHxutzfsNMoLxS@LQ3V64L9R2>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -101,193 +101,124 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEv4bamNB0KGeZqzuJRazTtwHOEvH2rHamqRr1s90FQ2Vg@mail.gmail.com>
+In-Reply-To: <Z5fHxutzfsNMoLxS@LQ3V64L9R2>
 
-On Sun, Jan 26, 2025 at 04:04:02PM +0800, Jason Wang wrote:
-> On Sat, Jan 25, 2025 at 4:19 AM Joe Damato <jdamato@fastly.com> wrote:
-> >
-> > On Fri, Jan 24, 2025 at 09:14:54AM +0800, Jason Wang wrote:
-> > > On Thu, Jan 23, 2025 at 10:47 AM Joe Damato <jdamato@fastly.com> wrote:
-> > > >
-> > > > On Thu, Jan 23, 2025 at 10:40:43AM +0800, Jason Wang wrote:
-> > > > > On Thu, Jan 23, 2025 at 1:41 AM Joe Damato <jdamato@fastly.com> wrote:
-> > > > > >
-> > > > > > On Wed, Jan 22, 2025 at 02:12:46PM +0800, Jason Wang wrote:
-> > > > > > > On Wed, Jan 22, 2025 at 3:11 AM Joe Damato <jdamato@fastly.com> wrote:
-
-[...]
-
-> > > > > > > >
-> > > > > > > > -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
-> > > > > > > > +static void virtnet_napi_do_enable(struct virtqueue *vq,
-> > > > > > > > +                                  struct napi_struct *napi)
-> > > > > > > >  {
-> > > > > > > >         napi_enable(napi);
+On Mon, Jan 27, 2025 at 12:52:06PM -0500, Joe Damato wrote:
+> On Sun, Jan 26, 2025 at 04:04:02PM +0800, Jason Wang wrote:
+> > On Sat, Jan 25, 2025 at 4:19 AM Joe Damato <jdamato@fastly.com> wrote:
+> > >
+> > > On Fri, Jan 24, 2025 at 09:14:54AM +0800, Jason Wang wrote:
+> > > > On Thu, Jan 23, 2025 at 10:47 AM Joe Damato <jdamato@fastly.com> wrote:
+> > > > >
+> > > > > On Thu, Jan 23, 2025 at 10:40:43AM +0800, Jason Wang wrote:
+> > > > > > On Thu, Jan 23, 2025 at 1:41 AM Joe Damato <jdamato@fastly.com> wrote:
 > > > > > > >
-> > > > > > > Nit: it might be better to not have this helper to avoid a misuse of
-> > > > > > > this function directly.
+> > > > > > > On Wed, Jan 22, 2025 at 02:12:46PM +0800, Jason Wang wrote:
+> > > > > > > > On Wed, Jan 22, 2025 at 3:11 AM Joe Damato <jdamato@fastly.com> wrote:
+> 
+> [...]
+> 
+> > > > > > > > >
+> > > > > > > > > -static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
+> > > > > > > > > +static void virtnet_napi_do_enable(struct virtqueue *vq,
+> > > > > > > > > +                                  struct napi_struct *napi)
+> > > > > > > > >  {
+> > > > > > > > >         napi_enable(napi);
+> > > > > > > >
+> > > > > > > > Nit: it might be better to not have this helper to avoid a misuse of
+> > > > > > > > this function directly.
+> > > > > > >
+> > > > > > > Sorry, I'm probably missing something here.
+> > > > > > >
+> > > > > > > Both virtnet_napi_enable and virtnet_napi_tx_enable need the logic
+> > > > > > > in virtnet_napi_do_enable.
+> > > > > > >
+> > > > > > > Are you suggesting that I remove virtnet_napi_do_enable and repeat
+> > > > > > > the block of code in there twice (in virtnet_napi_enable and
+> > > > > > > virtnet_napi_tx_enable)?
 > > > > > >
-> > > > > > Sorry, I'm probably missing something here.
+> > > > > > I think I miss something here, it looks like virtnet_napi_tx_enable()
+> > > > > > calls virtnet_napi_do_enable() directly.
 > > > > > >
-> > > > > > Both virtnet_napi_enable and virtnet_napi_tx_enable need the logic
-> > > > > > in virtnet_napi_do_enable.
-> > > > > >
-> > > > > > Are you suggesting that I remove virtnet_napi_do_enable and repeat
-> > > > > > the block of code in there twice (in virtnet_napi_enable and
-> > > > > > virtnet_napi_tx_enable)?
+> > > > > > I would like to know why we don't call netif_queue_set_napi() for TX NAPI here?
 > > > > >
-> > > > > I think I miss something here, it looks like virtnet_napi_tx_enable()
-> > > > > calls virtnet_napi_do_enable() directly.
+> > > > > Please see both the cover letter and the commit message of the next
+> > > > > commit which addresses this question.
 > > > > >
-> > > > > I would like to know why we don't call netif_queue_set_napi() for TX NAPI here?
+> > > > > TX-only NAPIs do not have NAPI IDs so there is nothing to map.
 > > > >
-> > > > Please see both the cover letter and the commit message of the next
-> > > > commit which addresses this question.
+> > > > Interesting, but I have more questions
 > > > >
-> > > > TX-only NAPIs do not have NAPI IDs so there is nothing to map.
+> > > > 1) why need a driver to know the NAPI implementation like this?
 > > >
-> > > Interesting, but I have more questions
+> > > I'm not sure I understand the question, but I'll try to give an
+> > > answer and please let me know if you have another question.
 > > >
-> > > 1) why need a driver to know the NAPI implementation like this?
-> >
-> > I'm not sure I understand the question, but I'll try to give an
-> > answer and please let me know if you have another question.
-> >
-> > Mapping the NAPI IDs to queue IDs is useful for applications that
-> > use epoll based busy polling (which relies on the NAPI ID, see also
-> > SO_INCOMING_NAPI_ID and [1]), IRQ suspension [2], and generally
-> > per-NAPI configuration [3].
-> >
-> > Without this code added to the driver, the user application can get
-> > the NAPI ID of an incoming connection, but has no way to know which
-> > queue (or NIC) that NAPI ID is associated with or to set per-NAPI
-> > configuration settings.
-> >
-> > [1]: https://lore.kernel.org/all/20240213061652.6342-1-jdamato@fastly.com/
-> > [2]: https://lore.kernel.org/netdev/20241109050245.191288-5-jdamato@fastly.com/T/
-> > [3]: https://lore.kernel.org/lkml/20241011184527.16393-1-jdamato@fastly.com/
+> > > Mapping the NAPI IDs to queue IDs is useful for applications that
+> > > use epoll based busy polling (which relies on the NAPI ID, see also
+> > > SO_INCOMING_NAPI_ID and [1]), IRQ suspension [2], and generally
+> > > per-NAPI configuration [3].
+> > >
+> > > Without this code added to the driver, the user application can get
+> > > the NAPI ID of an incoming connection, but has no way to know which
+> > > queue (or NIC) that NAPI ID is associated with or to set per-NAPI
+> > > configuration settings.
+> > >
+> > > [1]: https://lore.kernel.org/all/20240213061652.6342-1-jdamato@fastly.com/
+> > > [2]: https://lore.kernel.org/netdev/20241109050245.191288-5-jdamato@fastly.com/T/
+> > > [3]: https://lore.kernel.org/lkml/20241011184527.16393-1-jdamato@fastly.com/
+> > 
+> > Yes, exactly. Sorry for being unclear, what I want to ask is actually:
+> > 
+> > 1) TX NAPI doesn't have a NAPI ID, this seems more like a NAPI
+> > implementation details which should be hidden from the driver.
+> > 2) If 1 is true, in the netif_queue_set_napi(), should it be better to
+> > add and check for whether or not NAPI has an ID and return early if it
+> > doesn't have one
+> > 3) Then driver doesn't need to know NAPI implementation details like
+> > NAPI stuffs?
 > 
-> Yes, exactly. Sorry for being unclear, what I want to ask is actually:
+> Sorry it just feels like this conversation is getting off track.
 > 
-> 1) TX NAPI doesn't have a NAPI ID, this seems more like a NAPI
-> implementation details which should be hidden from the driver.
-> 2) If 1 is true, in the netif_queue_set_napi(), should it be better to
-> add and check for whether or not NAPI has an ID and return early if it
-> doesn't have one
-> 3) Then driver doesn't need to know NAPI implementation details like
-> NAPI stuffs?
-
-Sorry it just feels like this conversation is getting off track.
-
-This change is about mapping virtio_net RX queues to NAPI IDs to
-allow for RX busy polling, per-NAPI config settings, etc.
-
-If you try to use netif_queue_set_napi with a TX-only NAPI, it will
-set the NAPI ID to 0.
-
-I already addressed this in the cover letter, would you mind
-carefully re-reading my cover letter and commit messages?
-
-If your main concern is that you want me to call
-netif_queue_set_napi for TX-only NAPIs in addition to the RX NAPIs
-in virtio_net, I can do that and resend an RFC.
-
-In that case, the output will show "0" for NAPI ID for the TX-only
-NAPIs. See the commit message of patch 3 and imagine that the output
-shows this instead:
-
-$ ./tools/net/ynl/pyynl/cli.py \
-       --spec Documentation/netlink/specs/netdev.yaml \
-       --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8289, 'type': 'rx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 8290, 'type': 'rx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 8291, 'type': 'rx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 8292, 'type': 'rx'},
- {'id': 0, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'}]
-
-If in the future the TX-only NAPIs get NAPI IDs, then nothing would
-need to be updated in the driver and the NAPI IDs would "just work"
-and appear.
-
-> >
-> > > 2) does NAPI know (or why it needs to know) whether or not it's a TX
-> > > or not? I only see the following code in napi_hash_add():
-> >
-> > Note that I did not write the original implementation of NAPI IDs or
-> > epoll-based busy poll, so I can only comment on what I know :)
-> >
-> > I don't know why TX-only NAPIs do not have NAPI IDs. My guess is
-> > that in the original implementation, the code was designed only for
-> > RX busy polling, so TX-only NAPIs were not assigned NAPI IDs.
-> >
-> > Perhaps in the future, TX-only NAPIs will be assigned NAPI IDs, but
-> > currently they do not have NAPI IDs.
+> This change is about mapping virtio_net RX queues to NAPI IDs to
+> allow for RX busy polling, per-NAPI config settings, etc.
 > 
-> Jakub, could you please help to clarify this part?
-
-Can you please explain what part needs clarification?
-
-Regardless of TX-only NAPIs, we can still set NAPI IDs for
-virtio_net RX queues and that would be immensely useful for users.
-
-There's two options for virtio_net as I've outlined above and in my
-cover letter and commit messages:
-
-1. This implementation as-is. Then if one day in the future
-   TX-only NAPIs get NAPI IDs, this driver (and others like mlx4)
-   can be updated.
-
-- OR -
-
-2. Calling netif_queue_set_napi for all NAPIs, which results in the
-   TX-only NAPIs displaying "0" as shown above.
-
-Please let me know which option you'd like to see; I don't have a
-preference, I just want to get support for this API in virtio_net.
-
-> >
-> > > static void napi_hash_add(struct napi_struct *napi)
-> > > {
-> > >         unsigned long flags;
-> > >
-> > >         if (test_bit(NAPI_STATE_NO_BUSY_POLL, &napi->state))
-> > >                 return;
-> > >
-> > > ...
-> > >
-> > >         __napi_hash_add_with_id(napi, napi_gen_id);
-> > >
-> > >         spin_unlock_irqrestore(&napi_hash_lock, flags);
-> > > }
-> > >
-> > > It seems it only matters with NAPI_STATE_NO_BUSY_POLL.
-> > >
-> > > And if NAPI knows everything, should it be better to just do the
-> > > linking in napi_enable/disable() instead of letting each driver do it
-> > > by itself?
-> >
-> > It would be nice if this were possible, I agree. Perhaps in the
-> > future some work could be done to make this possible.
-> >
-> > I believe that this is not currently possible because the NAPI does
-> > not know which queue ID it is associated with. That mapping of which
-> > queue is associated with which NAPI is established in patch 3
-> > (please see the commit message of patch 3 to see an example of the
-> > output).
-> >
-> > The driver knows both the queue ID and the NAPI for that queue, so
-> > the mapping can be established only by the driver.
-> >
-> > Let me know if that helps.
+> If you try to use netif_queue_set_napi with a TX-only NAPI, it will
+> set the NAPI ID to 0.
 > 
-> Yes, definitely.
+> I already addressed this in the cover letter, would you mind
+> carefully re-reading my cover letter and commit messages?
 > 
-> Let's see Jakub's comment.
+> If your main concern is that you want me to call
+> netif_queue_set_napi for TX-only NAPIs in addition to the RX NAPIs
+> in virtio_net, I can do that and resend an RFC.
+> 
+> In that case, the output will show "0" for NAPI ID for the TX-only
+> NAPIs. See the commit message of patch 3 and imagine that the output
+> shows this instead:
+> 
+> $ ./tools/net/ynl/pyynl/cli.py \
+>        --spec Documentation/netlink/specs/netdev.yaml \
+>        --dump queue-get --json='{"ifindex": 2}'
+> [{'id': 0, 'ifindex': 2, 'napi-id': 8289, 'type': 'rx'},
+>  {'id': 1, 'ifindex': 2, 'napi-id': 8290, 'type': 'rx'},
+>  {'id': 2, 'ifindex': 2, 'napi-id': 8291, 'type': 'rx'},
+>  {'id': 3, 'ifindex': 2, 'napi-id': 8292, 'type': 'rx'},
+>  {'id': 0, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'},
+>  {'id': 1, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'},
+>  {'id': 2, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'},
+>  {'id': 3, 'ifindex': 2, 'napi-id': 0, 'type': 'tx'}]
+> 
+> If in the future the TX-only NAPIs get NAPI IDs, then nothing would
+> need to be updated in the driver and the NAPI IDs would "just work"
+> and appear.
 
-As mentioned above, I'm not sure if we need to worry about TX-only
-NAPIs getting NAPI IDs.
+Actually, I missed a patch Jakub submit to net [1], which prevents
+dumping TX-only NAPIs.
 
-That seems pretty unrelated to this change as I've explained above.
+So, I think this RFC as-is (only calling netif_queue_set_napi
+for RX NAPIs) should be fine without changes.
+
+Please let me know.
+
+[1]: https://lore.kernel.org/netdev/20250103183207.1216004-1-kuba@kernel.org/
