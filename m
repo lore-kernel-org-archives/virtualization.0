@@ -1,203 +1,196 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47FC113AA27
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Jan 2025 14:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E900915D5C4;
+	Mon, 27 Jan 2025 15:52:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737989509; cv=none; b=LKTpzET2e6a7I+EusryRw544pkeaYTDvmCirjQqPnJpRuil5a7G+cH0DaQdVV2y5Xomby2C5U+4jCGF7ppznvTG1rtQzENec5zCEL97aq8stK7wjku2jTYMPYYCQr4EaYj3IP9E6B60TX1EfVp2/NtyUzNbHlAD1+eHixS4WmG8=
+	t=1737993125; cv=none; b=Yaixk2NT9g8JS+nz72wMIxpyoC41XThvZ1riCIksfXTtYLysSA3UrwSnQ9sWF0sHTwwS8wWOeWVqWQen2NztrCCfsLfCdgHNHMY4H5rsCkVvwW9iznH5ErGFppww+Q5Da+hytEGb2XF9MlAhdTCx+rDplukRrloFRxIriOjKrko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737989509; c=relaxed/simple;
-	bh=82o5UCZGVSA9UZesK2R8teTwT07ErbjUj7U5zfSimqY=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=l5SKfMYXwYDYek0UzQfDiaxRiLib5b2cR66ahf4Sqw6c1Xm2TRDQ9WDSpvrUsEPUT0H+8+PYSdjGN9mdmXiBRupNZgHd5ucRG2kyUHN7OdbybqrpKfvonlREVeVQEo72pP6PM9x+L0MHsHLbbWFMh78NJK5thGC94yu7dTktcI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aZZhpZHm; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1737993125; c=relaxed/simple;
+	bh=lKShl/TiOp2ZoXo/jImChQXPJ2hMZLXx2pOut7WiptI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DLKFJfUHVX4VaBF+Z2eMkHiaDRNcIR6mJIyT/JNL2m+bKkJMX3TblJtnnT54DblrKEvsX15pyDWE7kuIM35u8d4bjeX9e5pNGzLZ5ZEwTbUfkvo6RkcRoGtXuaRz0+LgTNClx5GXD3odvjFt/caxe4wrmdUclmbHwsiKuLhffKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Opi/ZOMV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aZZhpZHm"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AD43D40941
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Jan 2025 14:51:47 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Ocn19rdm5j0k for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jan 2025 14:51:46 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 537644093F
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 537644093F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aZZhpZHm
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 537644093F
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Jan 2025 14:51:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737989504;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=iau4JPbloeWL667asjULg/fQ3/zjcPRlyMvVrpALuFo=;
-	b=aZZhpZHmoSLOm1bWCLhp02AnyGk70G5DpfAHmZokFRGHmHpi8wyRHFGCP5/4WRm7T1D14+
-	2XJZB+Nv3EcYDCNe1UTyaG8MYM7MsiJa0x2Iv0VECn9Chw3BP6ig1jCbR9cycW8qVPwEFc
-	2IhQi0t9I9dG7+bqiAw3jeaxM5K8+xU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-444-vdiIywt-PVSFzM0RUZ5V8A-1; Mon, 27 Jan 2025 09:51:43 -0500
-X-MC-Unique: vdiIywt-PVSFzM0RUZ5V8A-1
-X-Mimecast-MFC-AGG-ID: vdiIywt-PVSFzM0RUZ5V8A
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4361a8fc3bdso22078935e9.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 27 Jan 2025 06:51:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737989502; x=1738594302;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=iau4JPbloeWL667asjULg/fQ3/zjcPRlyMvVrpALuFo=;
-        b=a+erIdXOKbQqhlZGhQoKAiWuj3WYcQpWfxexaPFFFsegHoVindSN0D+lNjj2g+grsx
-         Sp/4uKWr7nC2cQo/iaYc17tr4ZirOQJQ/BblMxsW5bZkBLgYMlpimgS7zMFcQVocUuGm
-         hgkha7w/AI1MhmL6fHuPkXzRb6f3n30aNLxzW8AQqP/5/bQOZBIFfTxwbhigMVSNNHba
-         qCF+PAsfVKZWDKwuDIAW5x2IB04z8a7zoxJAtk4Xo0pYztkUV3ceenbpd+k/DDP2DG1u
-         8AutQ2o2jAvkK1F56nfPIcfkUcxDc+BzZRNjbb1Bc6kUXB1eckG+0njAk6FRpZGm7ZVF
-         qF9g==
-X-Forwarded-Encrypted: i=1; AJvYcCWQEJLC69W7e83NKDd41E/awkd5iwm6cMnvPOgusfDEI2h+F1mr92YOP0o4TbQUsTQHT5SPqoiAP3+DMIJrwQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyszeYbwfKhckVvIUJdRcQ2+8SVmFt/xi5nNJ3uVr+6GneBU8sm
-	NrBZFEx1iWikaeKfrZM0Pk29sNfzrJElDgwX81qek/N+WZxfhPdG5w/RhKp/ihVmOCdOrCKrbhM
-	2/bsQwjvAFdK8hPLHGldILKBf8XKQe5xEL6pb/d/Cen1eDAMumeOVmHu+FucdkqGiRW54Tec43T
-	Kw+kw=
-X-Gm-Gg: ASbGncumb/ruSn2oO6g+it8ta2pWdc6z6hzIs5z9j7gRx5uK++hE7xoZ7RFBThfbEPb
-	eyhjF0FXnEix/0WyVlVPyHh/cwFg4yYRHCNjpQNfCpVn2GrXry3/rN+ZfOIlI6dcIt15umb9DHv
-	gLxrXazEk/yAS2+oM5Iyxm5K21RjBnoxaSqURfIoaHceY6t+67YeRoHxLAxPfaPOlEuTosZiR/f
-	VH+YOy8UWg8iei4Bj8mnF5HEN1QUzCguussvRBtddjpzhxMBgjRUQ2iJ1pEOLFKrqYP7kQDUMNf
-	Ug==
-X-Received: by 2002:a05:600c:8719:b0:434:9499:9e87 with SMTP id 5b1f17b1804b1-43891437217mr333777705e9.25.1737989501767;
-        Mon, 27 Jan 2025 06:51:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHuV4H4eM+0+8cCmZ4gGN82WCYmpRuJq01+bj07H2U3xuDnsFknD44BEnMwIVHwLR+uIAWc4g==
-X-Received: by 2002:a05:600c:8719:b0:434:9499:9e87 with SMTP id 5b1f17b1804b1-43891437217mr333777455e9.25.1737989501407;
-        Mon, 27 Jan 2025 06:51:41 -0800 (PST)
-Received: from redhat.com ([2a06:c701:740d:3500:7f3a:4e66:9c0d:1416])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-438b171e68bsm158813595e9.0.2025.01.27.06.51.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jan 2025 06:51:40 -0800 (PST)
-Date: Mon, 27 Jan 2025 09:51:38 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	akihiko.odaki@daynix.com, akpm@linux-foundation.org, bhe@redhat.com,
-	david@redhat.com, israelr@nvidia.com, jasowang@redhat.com,
-	mst@redhat.com, pstanner@redhat.com, sgarzare@redhat.com,
-	skoteshwar@marvell.com, sthotton@marvell.com,
-	xieyongji@bytedance.com, yuxue.liu@jaguarmicro.com,
-	zhangjiao2@cmss.chinamobile.com
-Subject: [GIT PULL] virtio: features, fixes, cleanups
-Message-ID: <20250127095138-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Opi/ZOMV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87519C4CED2;
+	Mon, 27 Jan 2025 15:51:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1737993124;
+	bh=lKShl/TiOp2ZoXo/jImChQXPJ2hMZLXx2pOut7WiptI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Opi/ZOMV/zfLovkaRrjcFN22SaJmB+XJGtnDJ/cIoGIjT25SkYRyAorU+UjcclWyd
+	 6DePEaUZ/QK4W0yHLc5Kb3ieU/uOi+zRZdhIrfh5zorrG9bSfVDQc9h0dR9gO+3bHq
+	 ul1VD9PJ3iJuekF+lfnqBztVCR/WhUeMwXxaqNSwUyFJREhVmoO8Vtntzw4FAiTB00
+	 00OvDbjpP1jbVZyUSglO9BK2uxJ3fZYicWL3MsWiS1eDM68OxCFUf3tPPbIQwtET/k
+	 cGteI6qIszlohfI51re4Bs3hb3htIsly4LrqymlfAEdhSawB5JdAEcLJmnZm2zRPZn
+	 N7W92SLp2WhHA==
+Date: Mon, 27 Jan 2025 15:51:47 +0000
+From: Will Deacon <will@kernel.org>
+To: Jann Horn <jannh@google.com>
+Cc: Valentin Schneider <vschneid@redhat.com>, linux-kernel@vger.kernel.org,
+	x86@kernel.org, virtualization@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
+	xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+	bcm-kernel-feedback-list@broadcom.com,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	"Liang, Kan" <kan.liang@linux.intel.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Jason Baron <jbaron@akamai.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Joel Fernandes <joel@joelfernandes.org>,
+	Josh Triplett <josh@joshtriplett.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Lai Jiangshan <jiangshanlai@gmail.com>,
+	Zqiang <qiang.zhang1211@gmail.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Clark Williams <williams@redhat.com>,
+	Yair Podemsky <ypodemsk@redhat.com>,
+	Tomas Glozar <tglozar@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Kees Cook <kees@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Shuah Khan <shuah@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Miguel Ojeda <ojeda@kernel.org>, Alice Ryhl <aliceryhl@google.com>,
+	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Rong Xu <xur@google.com>,
+	Nicolas Saenz Julienne <nsaenzju@redhat.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Yosry Ahmed <yosryahmed@google.com>,
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+	"Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+	Jinghao Jia <jinghao7@illinois.edu>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer
+ flush_tlb_kernel_range() targeting NOHZ_FULL CPUs
+Message-ID: <20250127155146.GB25757@willie-the-truck>
+References: <20250114175143.81438-1-vschneid@redhat.com>
+ <20250114175143.81438-30-vschneid@redhat.com>
+ <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
+ <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: k39h3v2ISoMtt4oVdlo2MhrmIghM-gbCOvovdhgoJKg_1737989502
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 
-There are still some known issues that I hope to address by rc2.
-Giving them more time to get tested for now - none of them are
-regressions.
+On Fri, Jan 17, 2025 at 04:52:19PM +0100, Jann Horn wrote:
+> On Fri, Jan 17, 2025 at 4:25 PM Valentin Schneider <vschneid@redhat.com> wrote:
+> > On 14/01/25 19:16, Jann Horn wrote:
+> > > On Tue, Jan 14, 2025 at 6:51 PM Valentin Schneider <vschneid@redhat.com> wrote:
+> > >> vunmap()'s issued from housekeeping CPUs are a relatively common source of
+> > >> interference for isolated NOHZ_FULL CPUs, as they are hit by the
+> > >> flush_tlb_kernel_range() IPIs.
+> > >>
+> > >> Given that CPUs executing in userspace do not access data in the vmalloc
+> > >> range, these IPIs could be deferred until their next kernel entry.
+> > >>
+> > >> Deferral vs early entry danger zone
+> > >> ===================================
+> > >>
+> > >> This requires a guarantee that nothing in the vmalloc range can be vunmap'd
+> > >> and then accessed in early entry code.
+> > >
+> > > In other words, it needs a guarantee that no vmalloc allocations that
+> > > have been created in the vmalloc region while the CPU was idle can
+> > > then be accessed during early entry, right?
+> >
+> > I'm not sure if that would be a problem (not an mm expert, please do
+> > correct me) - looking at vmap_pages_range(), flush_cache_vmap() isn't
+> > deferred anyway.
+> 
+> flush_cache_vmap() is about stuff like flushing data caches on
+> architectures with virtually indexed caches; that doesn't do TLB
+> maintenance. When you look for its definition on x86 or arm64, you'll
+> see that they use the generic implementation which is simply an empty
+> inline function.
+> 
+> > So after vmapping something, I wouldn't expect isolated CPUs to have
+> > invalid TLB entries for the newly vmapped page.
+> >
+> > However, upon vunmap'ing something, the TLB flush is deferred, and thus
+> > stale TLB entries can and will remain on isolated CPUs, up until they
+> > execute the deferred flush themselves (IOW for the entire duration of the
+> > "danger zone").
+> >
+> > Does that make sense?
+> 
+> The design idea wrt TLB flushes in the vmap code is that you don't do
+> TLB flushes when you unmap stuff or when you map stuff, because doing
+> TLB flushes across the entire system on every vmap/vunmap would be a
+> bit costly; instead you just do batched TLB flushes in between, in
+> __purge_vmap_area_lazy().
+> 
+> In other words, the basic idea is that you can keep calling vmap() and
+> vunmap() a bunch of times without ever doing TLB flushes until you run
+> out of virtual memory in the vmap region; then you do one big TLB
+> flush, and afterwards you can reuse the free virtual address space for
+> new allocations again.
+> 
+> So if you "defer" that batched TLB flush for CPUs that are not
+> currently running in the kernel, I think the consequence is that those
+> CPUs may end up with incoherent TLB state after a reallocation of the
+> virtual address space.
+> 
+> Actually, I think this would mean that your optimization is disallowed
+> at least on arm64 - I'm not sure about the exact wording, but arm64
+> has a "break before make" rule that forbids conflicting writable
+> address translations or something like that.
 
-The following changes since commit 9d89551994a430b50c4fffcb1e617a057fa76e20:
+Yes, that would definitely be a problem. There's also the more obvious
+issue that the CnP ("Common not Private") feature of some Arm CPUs means
+that TLB entries can be shared between cores, so the whole idea of using
+a CPU's exception level to predicate invalidation is flawed on such a
+system.
 
-  Linux 6.13-rc6 (2025-01-05 14:13:40 -0800)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 5820a3b08987951e3e4a89fca8ab6e1448f672e1:
-
-  virtio_blk: Add support for transport error recovery (2025-01-27 09:39:26 -0500)
-
-----------------------------------------------------------------
-virtio: features, fixes, cleanups
-
-A small number of improvements all over the place:
-
-vdpa/octeon gained support for multiple interrupts
-virtio-pci gained support for error recovery
-vp_vdpa gained support for notification with data
-vhost/net has been fixed to set num_buffers for spec compliance
-virtio-mem now works with kdump on s390
-
-Small cleanups all over the place.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Akihiko Odaki (1):
-      vhost/net: Set num_buffers for virtio 1.0
-
-David Hildenbrand (12):
-      fs/proc/vmcore: convert vmcore_cb_lock into vmcore_mutex
-      fs/proc/vmcore: replace vmcoredd_mutex by vmcore_mutex
-      fs/proc/vmcore: disallow vmcore modifications while the vmcore is open
-      fs/proc/vmcore: prefix all pr_* with "vmcore:"
-      fs/proc/vmcore: move vmcore definitions out of kcore.h
-      fs/proc/vmcore: factor out allocating a vmcore range and adding it to a list
-      fs/proc/vmcore: factor out freeing a list of vmcore ranges
-      fs/proc/vmcore: introduce PROC_VMCORE_DEVICE_RAM to detect device RAM ranges in 2nd kernel
-      virtio-mem: mark device ready before registering callbacks in kdump mode
-      virtio-mem: remember usable region size
-      virtio-mem: support CONFIG_PROC_VMCORE_DEVICE_RAM
-      s390/kdump: virtio-mem kdump support (CONFIG_PROC_VMCORE_DEVICE_RAM)
-
-Israel Rukshin (2):
-      virtio_pci: Add support for PCIe Function Level Reset
-      virtio_blk: Add support for transport error recovery
-
-Philipp Stanner (1):
-      vdpa: solidrun: Replace deprecated PCI functions
-
-Satha Rao (1):
-      vdpa/octeon_ep: handle device config change events
-
-Shijith Thotton (3):
-      vdpa/octeon_ep: enable support for multiple interrupts per device
-      virtio-pci: define type and header for PCI vendor data
-      vdpa/octeon_ep: read vendor-specific PCI capability
-
-Yongji Xie (1):
-      vduse: relicense under GPL-2.0 OR BSD-3-Clause
-
-Yuxue Liu (1):
-      vdpa/vp_vdpa: implement kick_vq_with_data callback
-
-zhang jiao (1):
-      virtio_balloon: Use outer variable 'page'
-
- arch/s390/Kconfig                        |   1 +
- arch/s390/kernel/crash_dump.c            |  39 ++++-
- drivers/block/virtio_blk.c               |  28 ++-
- drivers/vdpa/octeon_ep/octep_vdpa.h      |  32 +++-
- drivers/vdpa/octeon_ep/octep_vdpa_hw.c   |  38 ++++-
- drivers/vdpa/octeon_ep/octep_vdpa_main.c |  99 +++++++----
- drivers/vdpa/solidrun/snet_main.c        |  57 +++----
- drivers/vdpa/virtio_pci/vp_vdpa.c        |   9 +
- drivers/vhost/net.c                      |   5 +-
- drivers/virtio/virtio.c                  |  94 +++++++---
- drivers/virtio/virtio_balloon.c          |   2 +-
- drivers/virtio/virtio_mem.c              | 103 ++++++++++-
- drivers/virtio/virtio_pci_common.c       |  41 +++++
- fs/proc/Kconfig                          |  19 +++
- fs/proc/vmcore.c                         | 283 ++++++++++++++++++++++++-------
- include/linux/crash_dump.h               |  41 +++++
- include/linux/kcore.h                    |  13 --
- include/linux/virtio.h                   |   8 +
- include/uapi/linux/vduse.h               |   2 +-
- include/uapi/linux/virtio_pci.h          |  14 ++
- 20 files changed, 735 insertions(+), 193 deletions(-)
-
+Will
