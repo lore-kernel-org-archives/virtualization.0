@@ -1,142 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com [209.85.221.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3F951A3A8D
-	for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 13:25:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD9319AD48
+	for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 14:50:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738070749; cv=none; b=CSaRLrpew4xc7fWRu6+J6iEbcezRuzmjNgXjoeYDsX09ZGbSc5BVx1P3RXkwKf+GOzE4SUGUxnYBDqDqNrTH2eGHp6zZRhGDAeOECXCuD2SXQwyh6tzteFJT5sUwiBMEJy8CjHsSTrUbuYyBZydtpkmmVtngYBewuVKaQtrNzn8=
+	t=1738075804; cv=none; b=sQJaeqy8egEe0hf+9VEJMgsqOUMLx4rUJN9BH1QIhmgIE2u2icmc4M3eVBcUR8N2p6f9DLx6JW0rmn8FZlWnWknpSUzu7uQYT53JUi+ysCTpPQtHq6deNd9dlA84jzozgH1qV11qbOPcQ5ywQGYERl+5DObS9y2IR1cwqefACRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738070749; c=relaxed/simple;
-	bh=xXmQSPCOE/q0+j4J49P0P6RP4ItkqYK84im10n0cc6U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SAU+DEkHwb1tpOx85maIfOl+a3387rnAajbpRGrfkr5fIGTM5lS9fe5ot7IB0mZWmw1w5IMrEn9UQ0wZhUsDZsqH6Q9HqispWnGAWMlOuKa7ZSFcFeqGY3vr+r8i1KoTjjevjH2Wl0T0MiO6DqJ7O0zt6nkP/zZryT64TDrOEeA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xxn69lTI; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1738075804; c=relaxed/simple;
+	bh=8IpvaS1zfcVdWjXbEe4QmGoiJaTdnB3V6B3WOb2GQHs=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=tbEay3yn5nINFhWij7BeSiygJvpSs8wvbss4bL0D2ttfnsZhFroxbUU5X/KWNFVtS94slaRX2CW6rrqTCYQNjc1r36F5q0lJP862ghMtVCWpoIhBQuyLiF2tPyZglsMLbJw4DyqeVTEI/DFEPpGS1+5QPv4Glu1gn89RtbCi0bw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JZATh7J/; arc=none smtp.client-ip=209.85.221.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xxn69lTI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1738070745;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5n485xg/tbqT5XAK7sBKs4ZveDcXWXBDinLLkF7KVwU=;
-	b=Xxn69lTI1TXbsaxWXBCOxyQl3gNjscRJof4JD0LHnkudGBcJ4pwkGI+ZQ5sifH2WkR3t4S
-	+e8mGvv5fb3HlFsCJ0H94gzx50Qxkgp4Zh+XnuEXqi6B3yQkm+f9IHAg2W1D/5JRHRl7Q/
-	F56gneamqjqoaK2TM+3cKbrBtSOvM2E=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-600-aoh_RUCcNJOMMeO1uYYKRA-1; Tue, 28 Jan 2025 08:25:43 -0500
-X-MC-Unique: aoh_RUCcNJOMMeO1uYYKRA-1
-X-Mimecast-MFC-AGG-ID: aoh_RUCcNJOMMeO1uYYKRA
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-386333ea577so2093895f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 05:25:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738070742; x=1738675542;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JZATh7J/"
+Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-51619b06a1cso3402337e0c.3
+        for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 06:50:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1738075801; x=1738680601; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5n485xg/tbqT5XAK7sBKs4ZveDcXWXBDinLLkF7KVwU=;
-        b=bhSHUpjgr+h0hDfZohQJ6iEIl8uuFSZYeSMZhQ1y4SStB8NM1ySl5syZFWHpKnV0D/
-         u4eRgRmVfSXHxTix7m393GAmBpc6yU84rUQeyjH19K5Yf1Y9J1t6f6kvmHdNjNCC0u7E
-         gaAfd8RzaplQGvg6jFI1zAWKZhK4K13uhpUTE6XnhbyD7y1Vnr/yHqV+SIvYD88wBZEP
-         GXuZ7B5+nBWZwJRAIkULKXyIUWaPE+vndm63MtP4S+uz2YpUSBoZvfaxR8aryrg5OtUZ
-         GPrM1xUAZDCgqUIsuZ9eQDLX7NXHU89pRJCZGwPJVJtNa4Aea31VxkWc36K5XgNfrQ3G
-         ypEA==
-X-Forwarded-Encrypted: i=1; AJvYcCWALA7Ds5//BV9OXz3veBxYdkC75pzbIbksJFUsA2EmYUs4lK93793/K668ALgHwqX6rCUuWVn1Z8ZCdqBy2A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzrAiiNaaW6N8fhUpJbhxX550tJgTFsdRdwsoURq3L8kAvylXVn
-	pln2+TF8WGBYnjcOfzMvalV0QLyKcCpge4l7OHsAn9CbG8na4I0XBqrXzF+VIEW2AXG3Xz0j/l0
-	nmYTU5yRHYn2dg6+dSjc0CfAWwukvC2In67Kp++U8jWrdPiBdSEnDuy9MRVouwDZh
-X-Gm-Gg: ASbGnctDnmYj+yNhmOL1bmh4KnwIiYZK1T+5EjfQXaVew6J79NQPBp1boi/AlcIoUWE
-	L/TbT8WHtxBuS45lY/gBphbrdR5qcImCuYieM9LLYj6TFpqbIser4Ch0tsB84diEJ9I+h0Yvn49
-	ybd8zC8XscHAFXic348IqraO0yRy+IUSnTN38eXYuyYBzQDKfdBK2otdSrQKAUP6NiP+R5Q5y4J
-	nvFEM8XFU4cuAaPvVoX+JgEy5gYmjgspk0cWSFxoRCuzxnrMqomt3gUMYLtMKHwFqxvE038arWi
-	DocGpj6V
-X-Received: by 2002:a05:6000:2a3:b0:38a:888c:679c with SMTP id ffacd0b85a97d-38bf59e21d6mr38958524f8f.42.1738070742317;
-        Tue, 28 Jan 2025 05:25:42 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEI1ckDOGbH2Z/XjBCGkfB1aD+MOGF0AFxjkiOnY1C6dGrybeYxKyU2FFmlM6TSPD89uDvoSA==
-X-Received: by 2002:a05:6000:2a3:b0:38a:888c:679c with SMTP id ffacd0b85a97d-38bf59e21d6mr38958494f8f.42.1738070741914;
-        Tue, 28 Jan 2025 05:25:41 -0800 (PST)
-Received: from leonardi-redhat ([176.206.32.19])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-438bd507dc9sm172083215e9.19.2025.01.28.05.25.41
+        bh=Zb99191K64oonEm8sGz6Xg9hMLlXiUhPwruyb9S25aU=;
+        b=JZATh7J/zwfFGyvYasxPFTEsrigWJFNmpTz899bfVJvFy9NJcSkv1tkF4UpxRXGdQV
+         g1Ag1/S2rhS61dB5vAzVBZOiz+YJzVXta/8Ik7x6JFL41AoSABKUD9Rb24yi2BlGRVEB
+         SGXFbj36ovTPro+Vq0ev48dlBu2IrEqfOINiMl0ofLbrKNYZldyu65Cdwy15kMYAln+L
+         xVEh509NdVrtV69eiG9giDRqeEQKy5BYJj9wf7nSSnPLUmsTiYYwZcdBYV5JMeIK6ZRX
+         lYA8zs/uYMiR4peO4zA0fCxVEnuKNBBFST0ots0L5NZu9JWORRioaM0VmDGGhD6rphZ9
+         d8Cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738075801; x=1738680601;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Zb99191K64oonEm8sGz6Xg9hMLlXiUhPwruyb9S25aU=;
+        b=Unhzzc022Wg5bpILv+FgmEITb9R2LafLW6IIbRxGtKxQ+hcfSvTuIX+/L4lc0cQ4TT
+         IhB6QJ683EKwM5mCcgUdJAgPWoACgBs9b193HPuoWrReV0FMCyClTFcrrkmhMja1mPZw
+         RAqrdEfWi5AFZLagMGvg0e7+km0LSv81DFSHqI9TsNf9z7Z4y+oj8UANpL8StmZ7YVuP
+         oNc8mXQ9ZfKns5+W7ua/TbMsxF70qDBUP3+Z8ZY3ok0XyEjYPk9uDLHPdjayV9lS+hW9
+         XulU9vQzqDZ//gRgyCLyAWnfaAGQqKDYe/H4QO50EgzIXR4b5U3GlXSbYnXB1bnRE/vu
+         cK/A==
+X-Forwarded-Encrypted: i=1; AJvYcCWTCarcvpQOe2zYNC82SDFXklyc0jo/uqTUcxwxVg0oqleyNer9GqnVIe33gSAOIO2sQ9ruEAQwn90WB4jVDA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxa3kXz99NQTmbOidvHQkT/dpYRllPm+SuYgxngv1ZiEk1VeWV6
+	8UO89HAxWEYPYSRpHMqNKoniW8fakF9BSmi7izc4P/BssQgF4RNW
+X-Gm-Gg: ASbGncuaGPa78tKD5/FcBCjcAGWitxRsoPNN7IYSDvi9+WZ8xyQZl30KdCp6FKs4Elb
+	h+Y6Bu+sGMXoPzN9z87gsxq10pybcEtqUayoGy6wS4u+6ysbgTBHRVKwmcpNimxxmMYT1prc71B
+	EiC2Rc2uY9xBXWhBlcl4cj0pinl5ayf3UVwLm1nVgJ1T/ec/UbI04qIggZTmibxGWJYksFMuC18
+	G/6Huv79EZggnMuXCcvtRrsYJuRN0Hk9+6bcAk4RKKE0s9IJ7D9XX/68PHe6XwIJFbJUC6cYs+p
+	/VSYpimXj7RwaZhObPcsxtTDScY5MWzp8ISZSZTEJSHT7YmTZyo0Tz8GXCTHy2M=
+X-Google-Smtp-Source: AGHT+IHW31CLAfaZZ/6noX+17+d4mKCF+2r2fMRxUk8GJnrrJeBabGTvUIlBo05ZEujchzkiLC6htg==
+X-Received: by 2002:a05:6122:1698:b0:518:91b3:5e37 with SMTP id 71dfb90a1353d-51d5b26bbafmr36947933e0c.5.1738075801328;
+        Tue, 28 Jan 2025 06:50:01 -0800 (PST)
+Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-51e4ea71de3sm1791758e0c.12.2025.01.28.06.50.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jan 2025 05:25:41 -0800 (PST)
-Date: Tue, 28 Jan 2025 14:25:39 +0100
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	netdev@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH net v3 0/6] vsock: Transport reassignment and error
- handling issues
-Message-ID: <xqtxs5auazrrfqess6fewfjt3vc6t7jato3if3thnjtkwr5g34@anly3yn64yxo>
-References: <20250128-vsock-transport-vs-autobind-v3-0-1cf57065b770@rbox.co>
+        Tue, 28 Jan 2025 06:50:00 -0800 (PST)
+Date: Tue, 28 Jan 2025 09:49:59 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Mina Almasry <almasrymina@google.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ linux-doc@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ kvm@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, 
+ Donald Hunter <donald.hunter@gmail.com>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ David Ahern <dsahern@kernel.org>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ Shuah Khan <shuah@kernel.org>, 
+ Kaiyuan Zhang <kaiyuanz@google.com>, 
+ Pavel Begunkov <asml.silence@gmail.com>, 
+ Willem de Bruijn <willemb@google.com>, 
+ Samiullah Khawaja <skhawaja@google.com>, 
+ Stanislav Fomichev <sdf@fomichev.me>, 
+ Joe Damato <jdamato@fastly.com>, 
+ dw@davidwei.uk
+Message-ID: <6798ee97c73e1_987d9294d6@willemb.c.googlers.com.notmuch>
+In-Reply-To: <CAHS8izNzbEi_Dn+hDohF9Go=et7kts-BnmEpq=Znpot7o7B5wA@mail.gmail.com>
+References: <20241221004236.2629280-1-almasrymina@google.com>
+ <20241221004236.2629280-6-almasrymina@google.com>
+ <676dd022d1388_1d346b2947@willemb.c.googlers.com.notmuch>
+ <CAHS8izNzbEi_Dn+hDohF9Go=et7kts-BnmEpq=Znpot7o7B5wA@mail.gmail.com>
+Subject: Re: [PATCH RFC net-next v1 5/5] net: devmem: Implement TX path
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20250128-vsock-transport-vs-autobind-v3-0-1cf57065b770@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: W4Vvoch-nMtlgPob7ka-luPKRKmDSMWrleA8EAfOQSM_1738070742
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jan 28, 2025 at 02:15:26PM +0100, Michal Luczaj wrote:
->Series deals with two issues:
->- socket reference count imbalance due to an unforgiving transport release
->  (triggered by transport reassignment);
->- unintentional API feature, a failing connect() making the socket
->  impossible to use for any subsequent connect() attempts.
->
->Luigi, I took the opportunity to comment vsock_bind() (patch 3/6), and I've
->kept your Reviewed-by. Is this okay?
-Hi Michal,
+> > > +struct net_devmem_dmabuf_binding *
+> > > +net_devmem_get_sockc_binding(struct sock *sk, struct sockcm_cookie *sockc)
+> > > +{
+> > > +     struct net_devmem_dmabuf_binding *binding;
+> > > +     int err = 0;
+> > > +
+> > > +     binding = net_devmem_lookup_dmabuf(sockc->dmabuf_id);
+> >
+> > This lookup is from global xarray net_devmem_dmabuf_bindings.
+> >
+> > Is there a check that the socket is sending out through the device
+> > to which this dmabuf was bound with netlink? Should there be?
+> > (e.g., SO_BINDTODEVICE).
+> >
+> 
+> Yes, I think it may be an issue if the user triggers a send from a
+> different netdevice, because indeed when we bind a dmabuf we bind it
+> to a specific netdevice.
+> 
+> One option is as you say to require TX sockets to be bound and to
+> check that we're bound to the correct netdev. I also wonder if I can
+> make this work without SO_BINDTODEVICE, by querying the netdev the
+> sock is currently trying to send out on and doing a check in the
+> tcp_sendmsg. I'm not sure if this is possible but I'll give it a look.
 
-Yes, absolutely! Thanks for adding the comment :)
-
-Cheers,
-Luigi
-
->
->Signed-off-by: Michal Luczaj <mhal@rbox.co>
->---
->Changes in v3:
->- Rebase
->- Comment vsock_bind() (Luigi)
->- Collect Reviewed-by (Stefano, Luigi)
->- Link to v2: https://lore.kernel.org/r/20250121-vsock-transport-vs-autobind-v2-0-aad6069a4e8c@rbox.co
->
->Changes in v2:
->- Introduce vsock_connect_fd(), simplify the tests, stick to SOCK_STREAM,
->  collect Reviewed-by (Stefano)
->- Link to v1: https://lore.kernel.org/r/20250117-vsock-transport-vs-autobind-v1-0-c802c803762d@rbox.co
->
->---
->Michal Luczaj (6):
->      vsock: Keep the binding until socket destruction
->      vsock: Allow retrying on connect() failure
->      vsock/test: Introduce vsock_bind()
->      vsock/test: Introduce vsock_connect_fd()
->      vsock/test: Add test for UAF due to socket unbinding
->      vsock/test: Add test for connect() retries
->
-> net/vmw_vsock/af_vsock.c         |  13 ++++-
-> tools/testing/vsock/util.c       |  88 +++++++++++-----------------
-> tools/testing/vsock/util.h       |   2 +
-> tools/testing/vsock/vsock_test.c | 122 ++++++++++++++++++++++++++++++++++-----
-> 4 files changed, 153 insertions(+), 72 deletions(-)
->---
->base-commit: 9e6c4e6b605c1fa3e24f74ee0b641e95f090188a
->change-id: 20250116-vsock-transport-vs-autobind-2da49f1d5a0a
->
->Best regards,
->-- 
->Michal Luczaj <mhal@rbox.co>
->
+I was a bit quick on mentioning SO_BINDTODEVICE. Agreed that it is
+vastly preferable to not require that, but infer the device from
+the connected TCP sock.
 
