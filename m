@@ -1,138 +1,199 @@
-Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com [209.85.221.179])
+Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD9319AD48
-	for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 14:50:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F14B1A9B27
+	for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 16:46:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738075804; cv=none; b=sQJaeqy8egEe0hf+9VEJMgsqOUMLx4rUJN9BH1QIhmgIE2u2icmc4M3eVBcUR8N2p6f9DLx6JW0rmn8FZlWnWknpSUzu7uQYT53JUi+ysCTpPQtHq6deNd9dlA84jzozgH1qV11qbOPcQ5ywQGYERl+5DObS9y2IR1cwqefACRE=
+	t=1738082816; cv=none; b=ZqHZZmX16Jz5P9+0ztUj1SL0VhT/VqCYfMXdSP6jYuNMnZ1z+Ts2ytmcmeigeX0b78UAkOPcWHbMnxvid9WzU4Z1tmDnV1xHyQxf31sp0YYUKv/XdFqF91+NpxtsqWI6AaRlcTpeFPh4CyB0p/SZfsKfLiR7U6mfIY6QiF0hahc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738075804; c=relaxed/simple;
-	bh=8IpvaS1zfcVdWjXbEe4QmGoiJaTdnB3V6B3WOb2GQHs=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=tbEay3yn5nINFhWij7BeSiygJvpSs8wvbss4bL0D2ttfnsZhFroxbUU5X/KWNFVtS94slaRX2CW6rrqTCYQNjc1r36F5q0lJP862ghMtVCWpoIhBQuyLiF2tPyZglsMLbJw4DyqeVTEI/DFEPpGS1+5QPv4Glu1gn89RtbCi0bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JZATh7J/; arc=none smtp.client-ip=209.85.221.179
+	s=arc-20240116; t=1738082816; c=relaxed/simple;
+	bh=MnNisqc0NqM7r0VRLdYxL9biktVBMmD/OyitwnsNYBQ=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=gDUjPRSKraVFhT4NsJDdKHfpM0DOiwkyZ/hZRD6WtB+qVnA0QkW8YTFgRYreOwrpBtJMo3kG8F+XIu6FW619LK/WYujL3N4u8yphXI0dRYc80ATAN+k5d8ZuKlYRM9t7PXcCKBmqGnCv0DCy9nvD6kjQerfW5T3D/+FzLxyoGEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ClaXN4Rs; arc=none smtp.client-ip=209.85.219.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JZATh7J/"
-Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-51619b06a1cso3402337e0c.3
-        for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 06:50:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ClaXN4Rs"
+Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-e3a0acba5feso8139609276.2
+        for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 08:46:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1738075801; x=1738680601; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Zb99191K64oonEm8sGz6Xg9hMLlXiUhPwruyb9S25aU=;
-        b=JZATh7J/zwfFGyvYasxPFTEsrigWJFNmpTz899bfVJvFy9NJcSkv1tkF4UpxRXGdQV
-         g1Ag1/S2rhS61dB5vAzVBZOiz+YJzVXta/8Ik7x6JFL41AoSABKUD9Rb24yi2BlGRVEB
-         SGXFbj36ovTPro+Vq0ev48dlBu2IrEqfOINiMl0ofLbrKNYZldyu65Cdwy15kMYAln+L
-         xVEh509NdVrtV69eiG9giDRqeEQKy5BYJj9wf7nSSnPLUmsTiYYwZcdBYV5JMeIK6ZRX
-         lYA8zs/uYMiR4peO4zA0fCxVEnuKNBBFST0ots0L5NZu9JWORRioaM0VmDGGhD6rphZ9
-         d8Cw==
+        d=gmail.com; s=20230601; t=1738082812; x=1738687612; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y7I3FQn+a3IeKpvoyXVLY346phLoqlukuEhizyoucyY=;
+        b=ClaXN4Rsfi6FiGkLW7erCQPY3am/IvOPC6xDMNTMngVXgFun+bEH7iuNIyJ5ebYsUY
+         5kLqqYpfc4O5NTrwmehn9q9eU1sD4+7JvSvJ0eouUqWo6PCpkhXlR7jOg/g4GAhUj2WD
+         53mfXT49OuKQoVxbdZDEK7MU1LAOA+STprgakKAQcuKMIougu5Tt3IATxvRs0mObJcjP
+         mty8LrgWDzd21s0i0C0UP/vbfi53rA1SPSmdAIWAxqpFdzMIu1qqqdwRodpoCg6wabTf
+         41SoA7wZFHbt9sJ4bfqcEG3s4Gcrk4GJzDVRxUKrs7XTIbcUx4BjmiFmDZo8gf1r3atv
+         WQZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738075801; x=1738680601;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Zb99191K64oonEm8sGz6Xg9hMLlXiUhPwruyb9S25aU=;
-        b=Unhzzc022Wg5bpILv+FgmEITb9R2LafLW6IIbRxGtKxQ+hcfSvTuIX+/L4lc0cQ4TT
-         IhB6QJ683EKwM5mCcgUdJAgPWoACgBs9b193HPuoWrReV0FMCyClTFcrrkmhMja1mPZw
-         RAqrdEfWi5AFZLagMGvg0e7+km0LSv81DFSHqI9TsNf9z7Z4y+oj8UANpL8StmZ7YVuP
-         oNc8mXQ9ZfKns5+W7ua/TbMsxF70qDBUP3+Z8ZY3ok0XyEjYPk9uDLHPdjayV9lS+hW9
-         XulU9vQzqDZ//gRgyCLyAWnfaAGQqKDYe/H4QO50EgzIXR4b5U3GlXSbYnXB1bnRE/vu
-         cK/A==
-X-Forwarded-Encrypted: i=1; AJvYcCWTCarcvpQOe2zYNC82SDFXklyc0jo/uqTUcxwxVg0oqleyNer9GqnVIe33gSAOIO2sQ9ruEAQwn90WB4jVDA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxa3kXz99NQTmbOidvHQkT/dpYRllPm+SuYgxngv1ZiEk1VeWV6
-	8UO89HAxWEYPYSRpHMqNKoniW8fakF9BSmi7izc4P/BssQgF4RNW
-X-Gm-Gg: ASbGncuaGPa78tKD5/FcBCjcAGWitxRsoPNN7IYSDvi9+WZ8xyQZl30KdCp6FKs4Elb
-	h+Y6Bu+sGMXoPzN9z87gsxq10pybcEtqUayoGy6wS4u+6ysbgTBHRVKwmcpNimxxmMYT1prc71B
-	EiC2Rc2uY9xBXWhBlcl4cj0pinl5ayf3UVwLm1nVgJ1T/ec/UbI04qIggZTmibxGWJYksFMuC18
-	G/6Huv79EZggnMuXCcvtRrsYJuRN0Hk9+6bcAk4RKKE0s9IJ7D9XX/68PHe6XwIJFbJUC6cYs+p
-	/VSYpimXj7RwaZhObPcsxtTDScY5MWzp8ISZSZTEJSHT7YmTZyo0Tz8GXCTHy2M=
-X-Google-Smtp-Source: AGHT+IHW31CLAfaZZ/6noX+17+d4mKCF+2r2fMRxUk8GJnrrJeBabGTvUIlBo05ZEujchzkiLC6htg==
-X-Received: by 2002:a05:6122:1698:b0:518:91b3:5e37 with SMTP id 71dfb90a1353d-51d5b26bbafmr36947933e0c.5.1738075801328;
-        Tue, 28 Jan 2025 06:50:01 -0800 (PST)
-Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-51e4ea71de3sm1791758e0c.12.2025.01.28.06.50.00
+        d=1e100.net; s=20230601; t=1738082812; x=1738687612;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y7I3FQn+a3IeKpvoyXVLY346phLoqlukuEhizyoucyY=;
+        b=kLohZVfh1dhgyhd0HKvI7ff/HPAGfo7ioGl6H+ytoGRiEeNMKDmfEfcIzaSRsT35r8
+         8mVNwOF5VRxlQVPNJv2ay4KD8Gh01IZlDrpr74eKT7KZnmwvrhkIumkyFYzUH/LB6pOr
+         GXT8rPpyHjX2alk5Aw9Mp755fpUupcezM3gbBuFxk1zH6F57eXrD/46ekCTJWmWTwtwW
+         QWnq0N252Wl1e0f2nx524XUQ8qUA+N5h+hNhrcX8FvtA96/f7+XXtPIVZAGExs+Z2b1D
+         /oeToW/sq/RkEpaUR44otI+R6vH1/spsBUBmSs3MS4EP2+BUnZJqraj7Iyq6IxqJGOAt
+         Y/TQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWMNl0qj/bGim6ssB3Ck6b8LiN8Z3TNr5c43v7IhFVi1wu4LU1haadktsUqqJbnepQoyjr3q+7hugXxTfS2Zg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzosCojyhAjIMW3eLsSGKY73YK8YpaRnlmNVFJ0ArYTuHF6Jb8D
+	XlG0KJlVtH9AHzVbv+06dIoMLWX3/XziBSygCrTFYhUEM6NM9rLb
+X-Gm-Gg: ASbGnctN+2p8LusIboW6+ivvocjgJoCKfN8ZQMCmpJDLyQ1uA9eca+wHC5g4CZm15LU
+	ltaTNcBEXUeAWKy4jWrkmQv0/qah5CI71czdZubTsLoruQ8k2y2WTO/scR/WI8r8sFw4pYngtGP
+	Vh0DGh0g1f+jcIX0AXwOrFhu2I+t6D1x3e15ez+tdgeZKBITsHHRE+Paiq7rp/4ADI4YWqFuM06
+	ZIo8M3R0sqEVQWvUMR6ujIxtdvsvOgkyW20r9yY2Q7a0yHlANRdQtk9qaZw3Oq5UjFA5HNM26Ry
+	M0REgzsL4ztC0NY6w8FrR5cu480YeiSCGpWDD07beZyXmA4H6JI=
+X-Google-Smtp-Source: AGHT+IFvmgf54bypeg06iXMG7R6vW3zKyn1725RIYJUIjUALciExdJNbHjTn7B/5gtx7qirVGTp6aA==
+X-Received: by 2002:a05:6902:70c:b0:e58:5a:7694 with SMTP id 3f1490d57ef6-e58005a7945mr26770575276.20.1738082811957;
+        Tue, 28 Jan 2025 08:46:51 -0800 (PST)
+Received: from localhost (c-73-224-175-84.hsd1.fl.comcast.net. [73.224.175.84])
+        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e583b7697c9sm2098812276.16.2025.01.28.08.46.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jan 2025 06:50:00 -0800 (PST)
-Date: Tue, 28 Jan 2025 09:49:59 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Mina Almasry <almasrymina@google.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- linux-doc@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- kvm@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, 
- Donald Hunter <donald.hunter@gmail.com>, 
- Jonathan Corbet <corbet@lwn.net>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- David Ahern <dsahern@kernel.org>, 
- "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
- Stefan Hajnoczi <stefanha@redhat.com>, 
- Stefano Garzarella <sgarzare@redhat.com>, 
- Shuah Khan <shuah@kernel.org>, 
- Kaiyuan Zhang <kaiyuanz@google.com>, 
- Pavel Begunkov <asml.silence@gmail.com>, 
- Willem de Bruijn <willemb@google.com>, 
- Samiullah Khawaja <skhawaja@google.com>, 
- Stanislav Fomichev <sdf@fomichev.me>, 
- Joe Damato <jdamato@fastly.com>, 
- dw@davidwei.uk
-Message-ID: <6798ee97c73e1_987d9294d6@willemb.c.googlers.com.notmuch>
-In-Reply-To: <CAHS8izNzbEi_Dn+hDohF9Go=et7kts-BnmEpq=Znpot7o7B5wA@mail.gmail.com>
-References: <20241221004236.2629280-1-almasrymina@google.com>
- <20241221004236.2629280-6-almasrymina@google.com>
- <676dd022d1388_1d346b2947@willemb.c.googlers.com.notmuch>
- <CAHS8izNzbEi_Dn+hDohF9Go=et7kts-BnmEpq=Znpot7o7B5wA@mail.gmail.com>
-Subject: Re: [PATCH RFC net-next v1 5/5] net: devmem: Implement TX path
+        Tue, 28 Jan 2025 08:46:51 -0800 (PST)
+From: Yury Norov <yury.norov@gmail.com>
+To: linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-nvme@lists.infradead.org,
+	linux-hyperv@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-crypto@vger.kernel.org,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Haren Myneni <haren@linux.ibm.com>,
+	Rick Lindsley <ricklind@linux.ibm.com>,
+	Nick Child <nnac123@linux.ibm.com>,
+	Thomas Falcon <tlfalcon@linux.ibm.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Keith Busch <kbusch@kernel.org>,
+	Jens Axboe <axboe@kernel.dk>,
+	Christoph Hellwig <hch@lst.de>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	=?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+	Rob Herring <robh@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	James Smart <james.smart@broadcom.com>,
+	Dick Kennedy <dick.kennedy@broadcom.com>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Yury Norov <yury.norov@gmail.com>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Matt Wu <wuqiang.matt@bytedance.com>,
+	Steffen Klassert <steffen.klassert@secunet.com>,
+	Daniel Jordan <daniel.m.jordan@oracle.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Greg Kurz <groug@kaod.org>,
+	Peter Xu <peterx@redhat.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>
+Subject: [PATCH v2 00/13] cpumask: cleanup cpumask_next_wrap() implementation and usage
+Date: Tue, 28 Jan 2025 11:46:29 -0500
+Message-ID: <20250128164646.4009-1-yury.norov@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> > > +struct net_devmem_dmabuf_binding *
-> > > +net_devmem_get_sockc_binding(struct sock *sk, struct sockcm_cookie *sockc)
-> > > +{
-> > > +     struct net_devmem_dmabuf_binding *binding;
-> > > +     int err = 0;
-> > > +
-> > > +     binding = net_devmem_lookup_dmabuf(sockc->dmabuf_id);
-> >
-> > This lookup is from global xarray net_devmem_dmabuf_bindings.
-> >
-> > Is there a check that the socket is sending out through the device
-> > to which this dmabuf was bound with netlink? Should there be?
-> > (e.g., SO_BINDTODEVICE).
-> >
-> 
-> Yes, I think it may be an issue if the user triggers a send from a
-> different netdevice, because indeed when we bind a dmabuf we bind it
-> to a specific netdevice.
-> 
-> One option is as you say to require TX sockets to be bound and to
-> check that we're bound to the correct netdev. I also wonder if I can
-> make this work without SO_BINDTODEVICE, by querying the netdev the
-> sock is currently trying to send out on and doing a check in the
-> tcp_sendmsg. I'm not sure if this is possible but I'll give it a look.
+cpumask_next_wrap() is overly complicated, comparing to it's generic
+version find_next_bit_wrap(), not mentioning it duplicates the above.
+It roots to the times when the function was used in the implementation
+of for_each_cpu_wrap() iterator. The function has 2 additional parameters
+that were used to catch loop termination condition for the iterator.
+(Although, only one is needed.)
 
-I was a bit quick on mentioning SO_BINDTODEVICE. Agreed that it is
-vastly preferable to not require that, but infer the device from
-the connected TCP sock.
+Since 4fe49b3b97c262 ("lib/bitmap: introduce for_each_set_bit_wrap()
+macro"), for_each_cpu_wrap() is wired to corresponding generic
+wrapping bitmap iterator, and additional complexity of
+cpumask_next_wrap() is not needed anymore.
+
+All existing users call cpumask_next_wrap() in a manner that makes
+it possible to turn it to a straight and simple alias to
+find_next_bit_wrap().
+
+This series replaces historical 4-parameter cpumask_next_wrap() with a
+thin 2-parameter wrapper around find_next_bit_wrap().
+
+Where it's possible to use for_each_cpu_wrap() iterator, the code is
+switched to use it because it's always preferable to use iterators over
+open loops.
+
+This series touches various scattered subsystems and To-list for the
+whole series is quite a long. To minimize noise, I send cover-letter and
+key patches #5 and 6 to every person involved. All other patches are sent
+individually to those pointed by scripts/get_maintainers.pl.
+
+I'd like to move the series with my bitmap-for-next branch as a whole.
+
+v1: https://lore.kernel.org/netdev/20241228184949.31582-1-yury.norov@gmail.com/T/
+v2:
+ - rebase on top of today's origin/master;
+ - drop #v1-10: not needed since v6.14 @ Sagi Grinberg;
+ - #2, #3: fix picking next unused CPU @ Nick Child;
+ - fix typos, cleanup comments @ Bjorn Helgaas, Alexander Gordeev;
+ - CC Christoph Hellwig for the whole series.
+
+Yury Norov (13):
+  objpool: rework objpool_pop()
+  virtio_net: simplify virtnet_set_affinity()
+  ibmvnic: simplify ibmvnic_set_queue_affinity()
+  powerpc/xmon: simplify xmon_batch_next_cpu()
+  cpumask: deprecate cpumask_next_wrap()
+  cpumask: re-introduce cpumask_next{,_and}_wrap()
+  cpumask: use cpumask_next_wrap() where appropriate
+  padata: switch padata_find_next() to using cpumask_next_wrap()
+  s390: switch stop_machine_yield() to using cpumask_next_wrap()
+  scsi: lpfc: switch lpfc_irq_rebalance() to using cpumask_next_wrap()
+  scsi: lpfc: rework lpfc_next_{online,present}_cpu()
+  PCI: hv: Switch hv_compose_multi_msi_req_get_cpu() to using
+    cpumask_next_wrap()
+  cpumask: drop cpumask_next_wrap_old()
+
+ arch/powerpc/xmon/xmon.c            |  6 +--
+ arch/s390/kernel/processor.c        |  2 +-
+ drivers/net/ethernet/ibm/ibmvnic.c  | 18 +++++---
+ drivers/net/virtio_net.c            | 12 ++---
+ drivers/pci/controller/pci-hyperv.c |  3 +-
+ drivers/scsi/lpfc/lpfc.h            | 23 +++-------
+ drivers/scsi/lpfc/lpfc_init.c       |  2 +-
+ include/linux/cpumask.h             | 69 ++++++++++++++++++++---------
+ include/linux/objpool.h             |  7 ++-
+ kernel/padata.c                     |  2 +-
+ lib/cpumask.c                       | 37 +---------------
+ 11 files changed, 81 insertions(+), 100 deletions(-)
+
+-- 
+2.43.0
 
