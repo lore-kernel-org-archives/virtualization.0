@@ -1,45 +1,46 @@
 Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D841F1A9B2C
-	for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 13:16:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 417EC19AD48
+	for <virtualization@lists.linux.dev>; Tue, 28 Jan 2025 13:16:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738070173; cv=none; b=p54fcGw8jYy9i37ceXiQnHqb6H+M7CxAMKK/3C5JNBR2oa4yO1DS08eGStMTjNegYVN/KvogJPMyuKyt9szena6pNCWon9aX69M5wbWkMiJItbzYHxLvAnfIYIqPQOEd8k59ACg234do8JZ85nprUC7MtVBuVVPQYR7Tt6ft88E=
+	t=1738070174; cv=none; b=aem7CEFXHHDzqLvstiI9jJIoT1TrY5qDgkW9DMuKZm3uBSJSQUfqBUQIVTBuhtopOGanoysUGoHdNGQysHkyyrGQoZ5c7Q+no25HJkoLEorWU2d7BBHP+kpTHJMjZU/KjvuAoXEA2ysRWcaoYqjPYHm4EctFWS7i/01cv2GIp+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738070173; c=relaxed/simple;
-	bh=qEghCYw90LvLl/UsHV0yG5FBhJG01TkgMBGl7th78es=;
+	s=arc-20240116; t=1738070174; c=relaxed/simple;
+	bh=4vTZfG/WsAZmmSR9oQqJbrBcR86EKVVns6b9NBPyWKU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cVb1MNTTqtwu2tolluZJ+2wd5X7YJlVrlE1GtFRJeSLzaQiWlXSwrth9s8ocKm7iuwztGA25K7XDdtLFsRMKwGLOCnQxASOUH1rWSGcSwOT5dL2OJW185ZUtaDGUQKuxI6LdXYGrXEExy1/hNS877MN76EhqS4+F55atieKGbCg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Bb4urRsS; arc=none smtp.client-ip=185.226.149.38
+	 In-Reply-To:To:Cc; b=axQaynFCMcOWKHdkJpM4iyZSrFXs8YMhP/mP0wgDw72Meor141x8s7L+n3zXinnnjBEGlAOFI0fNcg7lhYQeOA6fjHJ/xps0UuLBUvwswjthcMKY47dH3h5miMIdn5Qh1hShCRY7wQr1boTcZ7wIHhS0Xv1gyNQwk4RvTFyU3oE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=bpOPLB9p; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Bb4urRsS"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="bpOPLB9p"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
 	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1tclRo-002o4k-Rt; Tue, 28 Jan 2025 14:16:08 +0100
+	id 1tclRp-002o4t-Un; Tue, 28 Jan 2025 14:16:09 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
 	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
 	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=50sw8+RLYxtrONIEeNuYTgWEQ2DmBdco7580O/YdZEI=; b=Bb4urRsSXepjlV/UbEYOiBfbza
-	Er9217poUVswq9HMXXkliZT3lvhKIPVnFq4lGMMgvl1ptLIEpVlBjl90JjyEKifaQe10Ozf45a+Zo
-	muvLjrhBTHFTnG4d1WnqNxDJgjaU+zyiQ2CQQLn2BqzvG/EzibdJx2knc3hvBXyHDJ1lti0bHIcNS
-	7LQ5ETDZws+CvCzcmosaDt0ELAAA9PbFJGUEaaIXJASC+UpVb3BxCuEHKO+/SruEUHMOo4HgTqf8B
-	N7kc3IyWy4yWl1LN3HXY+qgpIe22pxUIReM2ZsdK9kHE6/j+p7Vj3cspSNy0g6LxyUpEnUqxoaLGw
-	hsXiolSg==;
+	bh=0UPR/9uTU8H+wFdMtksGm6zkK6gKWlGALLlc0rnzklo=; b=bpOPLB9p+ll5q+YR2jLviUYgwY
+	K/mANLK1Skwc3ICHv80bO65hGX5I17aKd2kJVntB/0FKL3G/EoK3BndWiC1TB+n20kA7zAk/lNuJq
+	8srwTF09o4E4sACVAfwg33KTSyLG/wTUTp505WIK9ND164bryJyHrltQe1saLf6Yht+vIaxgSv9bf
+	/bcV3rEcWoF7FOh15Sjs7lDB269MS/NkqN46kocC3VmDK5klcG2GBrMK2fzYMwG1cYUHqXb1IQxEN
+	4k/yeQbwIsM0G5HRRT/qjgWM8/0dkjp1g6bZ25ox1rP/dZqiocTd3+M7TWP1SYYHHhivqj2B8op+o
+	lQKYPd3Q==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1tclRo-0006wY-DV; Tue, 28 Jan 2025 14:16:08 +0100
+	id 1tclRp-0007Kg-HZ; Tue, 28 Jan 2025 14:16:09 +0100
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1tclRJ-000mZg-Py; Tue, 28 Jan 2025 14:15:37 +0100
+	id 1tclRJ-000mZg-AI; Tue, 28 Jan 2025 14:15:37 +0100
 From: Michal Luczaj <mhal@rbox.co>
-Date: Tue, 28 Jan 2025 14:15:28 +0100
-Subject: [PATCH net v3 2/6] vsock: Allow retrying on connect() failure
+Date: Tue, 28 Jan 2025 14:15:27 +0100
+Subject: [PATCH net v3 1/6] vsock: Keep the binding until socket
+ destruction
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,7 +49,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250128-vsock-transport-vs-autobind-v3-2-1cf57065b770@rbox.co>
+Message-Id: <20250128-vsock-transport-vs-autobind-v3-1-1cf57065b770@rbox.co>
 References: <20250128-vsock-transport-vs-autobind-v3-0-1cf57065b770@rbox.co>
 In-Reply-To: <20250128-vsock-transport-vs-autobind-v3-0-1cf57065b770@rbox.co>
 To: Stefano Garzarella <sgarzare@redhat.com>, 
@@ -56,39 +57,130 @@ To: Stefano Garzarella <sgarzare@redhat.com>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
  Simon Horman <horms@kernel.org>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
- Michal Luczaj <mhal@rbox.co>, Luigi Leonardi <leonardi@redhat.com>
+ Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-sk_err is set when a (connectible) connect() fails. Effectively, this makes
-an otherwise still healthy SS_UNCONNECTED socket impossible to use for any
-subsequent connection attempts.
+Preserve sockets bindings; this includes both resulting from an explicit
+bind() and those implicitly bound through autobind during connect().
 
-Clear sk_err upon trying to establish a connection.
+Prevents socket unbinding during a transport reassignment, which fixes a
+use-after-free:
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+    1. vsock_create() (refcnt=1) calls vsock_insert_unbound() (refcnt=2)
+    2. transport->release() calls vsock_remove_bound() without checking if
+       sk was bound and moved to bound list (refcnt=1)
+    3. vsock_bind() assumes sk is in unbound list and before
+       __vsock_insert_bound(vsock_bound_sockets()) calls
+       __vsock_remove_bound() which does:
+           list_del_init(&vsk->bound_table); // nop
+           sock_put(&vsk->sk);               // refcnt=0
+
+BUG: KASAN: slab-use-after-free in __vsock_bind+0x62e/0x730
+Read of size 4 at addr ffff88816b46a74c by task a.out/2057
+ dump_stack_lvl+0x68/0x90
+ print_report+0x174/0x4f6
+ kasan_report+0xb9/0x190
+ __vsock_bind+0x62e/0x730
+ vsock_bind+0x97/0xe0
+ __sys_bind+0x154/0x1f0
+ __x64_sys_bind+0x6e/0xb0
+ do_syscall_64+0x93/0x1b0
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+
+Allocated by task 2057:
+ kasan_save_stack+0x1e/0x40
+ kasan_save_track+0x10/0x30
+ __kasan_slab_alloc+0x85/0x90
+ kmem_cache_alloc_noprof+0x131/0x450
+ sk_prot_alloc+0x5b/0x220
+ sk_alloc+0x2c/0x870
+ __vsock_create.constprop.0+0x2e/0xb60
+ vsock_create+0xe4/0x420
+ __sock_create+0x241/0x650
+ __sys_socket+0xf2/0x1a0
+ __x64_sys_socket+0x6e/0xb0
+ do_syscall_64+0x93/0x1b0
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+
+Freed by task 2057:
+ kasan_save_stack+0x1e/0x40
+ kasan_save_track+0x10/0x30
+ kasan_save_free_info+0x37/0x60
+ __kasan_slab_free+0x4b/0x70
+ kmem_cache_free+0x1a1/0x590
+ __sk_destruct+0x388/0x5a0
+ __vsock_bind+0x5e1/0x730
+ vsock_bind+0x97/0xe0
+ __sys_bind+0x154/0x1f0
+ __x64_sys_bind+0x6e/0xb0
+ do_syscall_64+0x93/0x1b0
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 7 PID: 2057 at lib/refcount.c:25 refcount_warn_saturate+0xce/0x150
+RIP: 0010:refcount_warn_saturate+0xce/0x150
+ __vsock_bind+0x66d/0x730
+ vsock_bind+0x97/0xe0
+ __sys_bind+0x154/0x1f0
+ __x64_sys_bind+0x6e/0xb0
+ do_syscall_64+0x93/0x1b0
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 7 PID: 2057 at lib/refcount.c:28 refcount_warn_saturate+0xee/0x150
+RIP: 0010:refcount_warn_saturate+0xee/0x150
+ vsock_remove_bound+0x187/0x1e0
+ __vsock_release+0x383/0x4a0
+ vsock_release+0x90/0x120
+ __sock_release+0xa3/0x250
+ sock_close+0x14/0x20
+ __fput+0x359/0xa80
+ task_work_run+0x107/0x1d0
+ do_exit+0x847/0x2560
+ do_group_exit+0xb8/0x250
+ __x64_sys_exit_group+0x3a/0x50
+ x64_sys_call+0xfec/0x14f0
+ do_syscall_64+0x93/0x1b0
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+
+Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- net/vmw_vsock/af_vsock.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/vmw_vsock/af_vsock.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index cfe18bc8fdbe7ced073c6b3644d635fdbfa02610..075695173648d3a4ecbd04e908130efdbb393b41 100644
+index fa9d1b49599bf219bdf9486741582cc8c547a354..cfe18bc8fdbe7ced073c6b3644d635fdbfa02610 100644
 --- a/net/vmw_vsock/af_vsock.c
 +++ b/net/vmw_vsock/af_vsock.c
-@@ -1523,6 +1523,11 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
- 		if (err < 0)
- 			goto out;
+@@ -337,7 +337,10 @@ EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
  
-+		/* sk_err might have been set as a result of an earlier
-+		 * (failed) connect attempt.
-+		 */
-+		sk->sk_err = 0;
+ void vsock_remove_sock(struct vsock_sock *vsk)
+ {
+-	vsock_remove_bound(vsk);
++	/* Transport reassignment must not remove the binding. */
++	if (sock_flag(sk_vsock(vsk), SOCK_DEAD))
++		vsock_remove_bound(vsk);
 +
- 		/* Mark sock as connecting and set the error code to in
- 		 * progress in case this is a non-blocking connect.
- 		 */
+ 	vsock_remove_connected(vsk);
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_sock);
+@@ -821,12 +824,13 @@ static void __vsock_release(struct sock *sk, int level)
+ 	 */
+ 	lock_sock_nested(sk, level);
+ 
++	sock_orphan(sk);
++
+ 	if (vsk->transport)
+ 		vsk->transport->release(vsk);
+ 	else if (sock_type_connectible(sk->sk_type))
+ 		vsock_remove_sock(vsk);
+ 
+-	sock_orphan(sk);
+ 	sk->sk_shutdown = SHUTDOWN_MASK;
+ 
+ 	skb_queue_purge(&sk->sk_receive_queue);
 
 -- 
 2.48.1
