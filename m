@@ -1,86 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA5FCC2ED;
-	Tue, 28 Jan 2025 09:40:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3943026ACD;
+	Tue, 28 Jan 2025 13:16:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738057202; cv=none; b=Oj9HHj/3jid3S9LMCzUSHhK+/k9hnu3ji1G1+/S1pE0s5hVXl0RJZ8PSyM+zHVuneedLsew0OE6hnjpDsA9KLgkqmCeKpoAjkiZ/8Borm9nzxmkKgwFiP8VIwEzelR43KKLo9mJzbBcEpBDGDxKDCw5SuzPXPmuzTyYH+mCD8CM=
+	t=1738070169; cv=none; b=ArKXtFzUASJLaWXgmA6T9rof394bYswPP6JLlceIzk/Wte/0SuDbYEt3LAQQnaPBr+ozk26ThSxSR0kFN1+3000pd7K7MSG4eVC3bIrITFEddqfkVxMgp5XgOq63n1IcFz8iR5Q5X8fQgGrQz9XoE/96zozDtsTvdSfU35NQkj0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738057202; c=relaxed/simple;
-	bh=u7WN9t/FFOUJYA27Q/Hh77m+GM0Q+RIl68RYJfkAe2I=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=NyvST400UeOiFP9/JM+gKEOBiZNDGJUO1x1XrieTx/CFKC7Kgk+h5imG2hM0UKu1LQoHedvFU1iJQPFzws4Xc8maWMFBVeAp4p8XyoXHSVqQhsyPdFfoGxR9BqYiiFjh0/4XsEatbtJYIBmMCkatCjoPrS+OAsWmcW7u3TtIAjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O6WS+qSo; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1738070169; c=relaxed/simple;
+	bh=oI1njKZ/0zBPQut765XFyPe7ZRA4d0h9ArgkXeasAkM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=NbVny9TW9FblDlLxwTCilINw8pWKYZH1lAhjjaQO59lQMUIO3gji+uX0JiAE9cDMwFzjDJKn/ox+D7eQdferzx+INxqHjVb1lSNrJRdIxSfPym1mb0U0F5w1HrF0diSP95gE09JJ3yMtlFGcvburzl56WcYcdeZwkgOoQcIvd9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=mK5kn2YI; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O6WS+qSo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFB23C4CED3;
-	Tue, 28 Jan 2025 09:40:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1738057202;
-	bh=u7WN9t/FFOUJYA27Q/Hh77m+GM0Q+RIl68RYJfkAe2I=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=O6WS+qSoyR5kflowep/C7NSmDdFy5PSLYKGOlymf32qTURnGY05dTh+szYBOK7pTg
-	 TVSFca5CDuqIu0+rP+va5vwgwdacxSHuypSxmhkbTg7511eRTk5GkuWnFiqNXd5008
-	 igSQ9HzUdY50ZNrMG3HLmJOy+oghMzlkwNkao1mDfiPI7k8C4LplR+2IM2agBja7qJ
-	 uwZFNt2AMihnndr1HKELQejA9VQqt/L0HE0OfTRP0KmNuIEbq6nOvcuvkTT/hNr/e4
-	 h2EeLlN7xk/Zo+gSnq4u6glPYfu+fgKiHUEda6hzYnvDtVyVSSkDRO9dB+Dc5jkM4I
-	 QVctFjdbSjI1w==
-Message-ID: <9a10b435045556f5625afe83bd41bc4d4f9be80b.camel@kernel.org>
-Subject: Re: [PATCH] virtio_console: Convert to use devm funcs
-From: Amit Shah <amit@kernel.org>
-To: oushixiong1025@163.com
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
-	 <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Shixiong Ou <oushixiong@kylinos.cn>
-Date: Tue, 28 Jan 2025 10:39:58 +0100
-In-Reply-To: <20250128055241.30760-1-oushixiong1025@163.com>
-References: <20250128055241.30760-1-oushixiong1025@163.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="mK5kn2YI"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tclRj-002o4M-GL; Tue, 28 Jan 2025 14:16:03 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=g5DPFjwAJruYCGKJSY8OTRgGKcoAebP9ZM1Trl+quIA=
+	; b=mK5kn2YIJ5Y7PnhCnR/m9P5BZEdoWAkQDFvOqPVKtxh7z63YJbn4gxCyV9W7rmAt90RxYOPc1
+	9MAWtODqYVSUVg0uqCpHBRtY9tTdHla1Q1NGL6PWBTdM1Wp9B1YZBEpem+HfOpi/3y9qbecd5/WOS
+	4lfNOP6k0nhAzJpPqwW6wHCQRJKLwTtLrP4LPS1QZDPMiLNIZefIIOPgkdDqTeUi6OiRBzAvqoBBJ
+	6cP4sZqPkAs/h0/u56s6OcACnT8P06/ezJ1cSXZEtg20G6rdmMY8x2fd3UKY+H2N6cDlwY6ZIugGP
+	Fp8Wvf3LBQkPRYVe5bVGquZ6LyEbJzflIY/UOg==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tclRi-0006w9-V3; Tue, 28 Jan 2025 14:16:03 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tclRI-000mZg-Rl; Tue, 28 Jan 2025 14:15:36 +0100
+From: Michal Luczaj <mhal@rbox.co>
+Subject: [PATCH net v3 0/6] vsock: Transport reassignment and error
+ handling issues
+Date: Tue, 28 Jan 2025 14:15:26 +0100
+Message-Id: <20250128-vsock-transport-vs-autobind-v3-0-1cf57065b770@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAG7YmGcC/33NwQrDIAyA4VcpOc+htrXtTnuPsUOqdpWBFnXSU
+ fruExlspx5y+BP4skHQ3ugAl2oDr5MJxtkc9akCOaN9aGJUbuCUt5QxQVJw8kmiRxsW52Nugq/
+ oRmMV4QqbYWKqRYqQhcXryaxFv4HVEe55OZsQnX+Xj4mV0xfvDvHECCWypzxP3Qmurn5061m6o
+ ib+J3F2LPEsISpBxYCN7uVP2vf9A3t21gcTAQAA
+X-Change-ID: 20250116-vsock-transport-vs-autobind-2da49f1d5a0a
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+ Michal Luczaj <mhal@rbox.co>, Luigi Leonardi <leonardi@redhat.com>
+X-Mailer: b4 0.14.2
 
-On Tue, 2025-01-28 at 13:52 +0800, oushixiong1025@163.com wrote:
-> From: Shixiong Ou <oushixiong@kylinos.cn>
->=20
-> Convert to devm_* funcs so that no need to manual free in error path.
->=20
-> Signed-off-by: Shixiong Ou <oushixiong@kylinos.cn>
-> ---
-> =C2=A0drivers/char/virtio_console.c | 43 ++++++++++++++------------------=
--
-> --
-> =C2=A01 file changed, 17 insertions(+), 26 deletions(-)
+Series deals with two issues:
+- socket reference count imbalance due to an unforgiving transport release
+  (triggered by transport reassignment);
+- unintentional API feature, a failing connect() making the socket
+  impossible to use for any subsequent connect() attempts.
 
-[...]
+Luigi, I took the opportunity to comment vsock_bind() (patch 3/6), and I've
+kept your Reviewed-by. Is this okay?
 
-> -		goto free;
-> +		return err;
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+Changes in v3:
+- Rebase
+- Comment vsock_bind() (Luigi)
+- Collect Reviewed-by (Stefano, Luigi)
+- Link to v2: https://lore.kernel.org/r/20250121-vsock-transport-vs-autobind-v2-0-aad6069a4e8c@rbox.co
 
-[...]
+Changes in v2:
+- Introduce vsock_connect_fd(), simplify the tests, stick to SOCK_STREAM,
+  collect Reviewed-by (Stefano)
+- Link to v1: https://lore.kernel.org/r/20250117-vsock-transport-vs-autobind-v1-0-c802c803762d@rbox.co
 
-> -
-> -free:
-> -	kfree(portdev->out_vqs);
-> -	kfree(portdev->in_vqs);
-> -	kfree(vqs_info);
-> -	kfree(vqs);
-> -
-> -	return err;
-> =C2=A0}
+---
+Michal Luczaj (6):
+      vsock: Keep the binding until socket destruction
+      vsock: Allow retrying on connect() failure
+      vsock/test: Introduce vsock_bind()
+      vsock/test: Introduce vsock_connect_fd()
+      vsock/test: Add test for UAF due to socket unbinding
+      vsock/test: Add test for connect() retries
 
-Hm, I'm not entirely sure about this - the devm_ interface is better,
-but to me that just says that it's an extra safety net that avoids
-memleaks when we forget to kfree, and not that we deliberately do not
-free and get lax about managing allocated memory.
+ net/vmw_vsock/af_vsock.c         |  13 ++++-
+ tools/testing/vsock/util.c       |  88 +++++++++++-----------------
+ tools/testing/vsock/util.h       |   2 +
+ tools/testing/vsock/vsock_test.c | 122 ++++++++++++++++++++++++++++++++++-----
+ 4 files changed, 153 insertions(+), 72 deletions(-)
+---
+base-commit: 9e6c4e6b605c1fa3e24f74ee0b641e95f090188a
+change-id: 20250116-vsock-transport-vs-autobind-2da49f1d5a0a
 
-So I'd prefer a patch that keeps all current frees as they are, but
-with the added advantage of using the devm interfaces.
+Best regards,
+-- 
+Michal Luczaj <mhal@rbox.co>
 
-		Amit
