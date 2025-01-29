@@ -1,291 +1,357 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A6201E2852
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 20:55:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738184105; cv=none; b=FYFFByZorIzFZdtTNMvuasNfcIOXuw09KXt9FbM16b5XtT0V8EkcyCaqXLc8t9zEYRfssD77+ThpDQf85CwDM8jGBAdINYD+zol4vkabGN1h2SPo4FFjGy4ywsFOgzUCPEXolpAfrE3QQzP9YVXRmfVjIwGWFMIIVhkuWZGcagY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738184105; c=relaxed/simple;
-	bh=oAUBgof2aIujkwQRJYbG9mhga1e78/p7HKpHVeQdrgg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=OcaXPAXu5hYKqEKbwVeTX9oEcIgHUp7lSm8xTVTHtTbzQf7ZeL4UxdZKYYmQQUUmjKV6+IwiGGGrZh+FElQonH7ppOkVcjj4Sw2olIa8mfN7go4hA5TJ23EEbnHfGJ9UHACavpObjrsfZ8fQ7MkiQ2QZCQewNanYmGesqxb8lDI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WXj0Hlob; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A0A242A92
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 21:09:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738184972; cv=fail; b=lxquFXZJORshmYrNPvkpn/Camhh80W46F0Gs2qE8gNACEdKd5/ws5i4ahuLOK6N9SBQs1wGU8WZ1zJyq3flUxTembNrwJHjtTkbkE3HfIPQumk/qWzmP+qV2vMZgGRGKovOB8k4qs2/cCT/l+hJX2pTs8VgspqA5xKPAX25xO0Y=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738184972; c=relaxed/simple;
+	bh=Qz/hROWSgw02Ftc8I3cdRqOVFWxb0McxspV3Jq6Zd70=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=CUPw3+W132s61o9dsWyg2N62l9/3buApZHuRzaBiasN8n8oXASXJMoeIdbNnoOAZe0f2sUfpzVqQxqA9ovG8NYnxMPsHTz7aJfVtJWKG8Rjm68DtJDaMe8uyuy/dG2hs9Uke9EqO4qYOHFMuJH+ZYpeDoAwq0nM/GKrLng7t0hA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=dvHilM0i; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=HCxd4tqO; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WXj0Hlob"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="dvHilM0i";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="HCxd4tqO"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 25AE680E62
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 20:55:04 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id B06EE607F5
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 21:09:30 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -6.492
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 3zB-F55HAV5v for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jan 2025 20:55:02 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b2a; helo=mail-yb1-xb2a.google.com; envelope-from=demiobenour@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B3D1980E57
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B3D1980E57
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=WXj0Hlob
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B3D1980E57
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 20:55:01 +0000 (UTC)
-Received: by mail-yb1-xb2a.google.com with SMTP id 3f1490d57ef6-e3c8ae3a3b2so263250276.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 12:55:01 -0800 (PST)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id YH-hqYvVRuFi for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Jan 2025 21:09:29 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C405160751
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C405160751
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=dvHilM0i;
+	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=HCxd4tqO
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C405160751
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 21:09:28 +0000 (UTC)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50TKtt87010002;
+	Wed, 29 Jan 2025 21:09:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=corp-2023-11-20; bh=bnziHzsRNvPhBzB/
+	O3TKo2B5t5nQRb2xeUGzOBMV6v8=; b=dvHilM0iqUjwerJefITpaNjRzqtDetLU
+	2aPZGEt+vSEsUorUnCO42EPmjNbJv1Xyl9qWcVcYt8oCmy+S8YISK3ZPcG4GigyL
+	/w8+nAqP9+CqRRYsMCW+Py719QzXLWJPm/NlIMBTW9xrDsBtEF/lhYP/hgKTf8oG
+	g3UILiMycxmBfVZFc3V/2XKYy6rcFkEH7ayS8EKC7M8AkIQG7R4HUJHYO06HH9WN
+	K7qbDJL7tjJHHsPqTp582UubDdYFWJ2krBoei8BcPuBSIULETlJehxeCgzGR0NZD
+	R7N49vlKX8be12KBqqa9eQXYtKXXABc2K54pqEZkyu9HR9cLhVlQ3Q==
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 44fu9p85tf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Jan 2025 21:09:27 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 50TKLfaV034111;
+	Wed, 29 Jan 2025 21:09:27 GMT
+Received: from nam04-mw2-obe.outbound.protection.outlook.com (mail-mw2nam04lp2173.outbound.protection.outlook.com [104.47.73.173])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44cpda8wet-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Jan 2025 21:09:27 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=SkDM7CcqV69f14nOQao+V8PTmnFClN7yQeVZRLmZzOf9oINCZe4l/bF03YSSa9V1FVSGWKlMSiGJbDErWdXmFM5FcnC3tc+rIPbwXXvxfrihmXs53gt6krTxzSyETGyxBtYZ4jRZr+6Ke3Ze2IEGAIO9HDVGzRlg9BsDOL6fjvTv7+1akPabQbdYKWVsMLGDEsNv6fnUMULjtAmjLRwEAWFfJ9X2u7I+A32cuh1Jdp3RE36ieHRZHMnx8b0yMh8AMHE79f0YUZo8poVxMQAKy9PeY7LoUCkYET5+qUW9WNWaasQhxEfdR1mGPnGtzdsMGp0uHI/wsowOwILZaDSs5g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bnziHzsRNvPhBzB/O3TKo2B5t5nQRb2xeUGzOBMV6v8=;
+ b=tFXREdozP9symeV6Sl0F2ojFs6i+EZGTlfpfbwpFq752BoTv0jtCFpXOyEW2C2Pem6tAIh173iQBeilucmliP9rHj+IPK6MKWD3uplCjQWr+GeG7ELPxpgl87HCuXayKz690Te1Bmfp2jH9HaIqrqI8cgJCUgCMXbxh+OhZLOMGMSv9vGYSlpWZT4Uvz/Zk7r2WTn8lPdY8e0vC2XiEHnn4tFpkt6NjhnD6TaVVUtMmQuZRERr21ApgUztIDL4EL2ylc2Kw6FAXgUu8APDL1mhp1zwcR5MlWNK8QW73NAa6SWBrQinmuUjdqGmz+B/YPtdAXtJc+FqQGhPwJeEiAog==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1738184100; x=1738788900; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ueZk4UbNoQ80hfj8dpqw2VgMTf7ByqVqHJz79+NLnU0=;
-        b=WXj0HlobcrhHpJLmBxwSvaak8Vqu4qjgXLLmCAB7UCEdj8lI3rVg0TbYn5iDHnamqS
-         s1A7d34JTPkomCXhXbgaMxuBJcnavtSh83AthnjPIKuZMXYHrI3hJJyDTENT90pkR/16
-         j/kGyW64LfRjSY414is2RePGGTw3uHmpIEkKzzWrO2zVvqvbXw/Fq8GLFcgCDUZq8fkj
-         kJqZ28HUMb5pbXGLf0xQYPd0yYMORTwPEBH43a6dyPyvcHljb4Ai0TCYhjLkLEkGOg9F
-         QLjI4hSkqI1/d78X9e24RPiDGvDRmvo4HB03sSF7j0bIjcojAaM28PZweRGWeIT7dPE2
-         pokw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738184100; x=1738788900;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ueZk4UbNoQ80hfj8dpqw2VgMTf7ByqVqHJz79+NLnU0=;
-        b=gwk3MEn4U+Ypx8lVqAengFOhkrbP4GWpHLyd4PuSEkSO5oCsHSZYGdpk4GZyeq2oMo
-         V9kbezQZ317ERgkie3vWayOso3xMLFOuuzdi/X3CA5NWwM/oCZ3gYuWpUq92PP6305T6
-         zTx8/30s87bSYXOPx4FnrcfM0t3jlylwFOB4AjL3SRyGt+cyp2UkiuZJhGBKS3DA1i5N
-         5cvyhSvlW+iJHqLqvavbzrhvu/JmJVQsSTVTiASlrTroH6WyHgeVgg4kG0261W+T52uS
-         LUlwOfJe4Hy52KlQwyKAbOFJP/4qGLy5deKa8wDeBo0/a8SIvmRZH1JP4oCVKlkTFy+W
-         JO6Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUX+xTdkviJ/SiZC5XUr/L+QG38ZtAxdhABkCYXXGvRYdlZm52HiTKRrpnjkeHuTrRcu4Y4E8yRvF2kv3orDQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz+PHiub1BPJ3H8uyBRWn8pA60T5DUnkNvu66Ko4tYklTu3IXzq
-	tLeDf/izhabU6zM76HlPTI9mU/AEhZrJjuib3dwboL9zL+o/ZKjw
-X-Gm-Gg: ASbGncugj+C/vcNus5S2z8eAht5bgOtou8wFXyW0ulRZk6yRyFGLb73t5Uyimn4RaEK
-	dF5GOl6qQPKgtHbzB+Fgygdw75jJiOm/VfP6zefpSWLOd5gLD5rFBdqRc7sNhJVhtG4lmXUzx3M
-	aNTaoJ+9+KAF8a2oCPC15JRbforB7k2CUSb7ZTnvNrFR1QGIeVbNajncvvhi4ay+jEOtuAwG5BL
-	JDRT7lOeYCdSUANt4NyAt92tbpLdrtRMI+GH2Peaj+1DP9THpC9QJ5cmVE9DA8dbH42EDZcbhqM
-	12cdXBoVAyyad73aMP0=
-X-Google-Smtp-Source: AGHT+IEWmX2x1u7n/vc0UVcEoX4V7EHvc3YO4LXHl+8qKvZBYQDsROpwgWkMjeON3KdFCpXBNEgtTQ==
-X-Received: by 2002:a05:690c:4808:b0:6ef:4fba:8143 with SMTP id 00721157ae682-6f7a836fbafmr43773547b3.18.1738184100325;
-        Wed, 29 Jan 2025 12:55:00 -0800 (PST)
-Received: from [10.138.7.94] ([45.134.140.51])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-6f757876fe8sm24376507b3.5.2025.01.29.12.54.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Jan 2025 12:54:59 -0800 (PST)
-Message-ID: <c42ae4f7-f5f4-4906-85aa-b049ed44d7e9@gmail.com>
-Date: Wed, 29 Jan 2025 15:54:59 -0500
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bnziHzsRNvPhBzB/O3TKo2B5t5nQRb2xeUGzOBMV6v8=;
+ b=HCxd4tqOLBT2+9Bvi9IsYww4tcG6Tz6knJAKVVLg6f2WXY/drQykendE/EsbFE9ZpZWUHBxQlD7Tu20I/bQ9CGC8YXCX6erepqpiNwl5n65YmA5Fk/LtFPcHgvYwlvLdvTEqFUNeR5D8APMQw8iS2V5AvTGhuKEIBT5NGGuMR2I=
+Received: from IA0PR10MB7255.namprd10.prod.outlook.com (2603:10b6:208:40c::10)
+ by LV3PR10MB7916.namprd10.prod.outlook.com (2603:10b6:408:218::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.18; Wed, 29 Jan
+ 2025 21:09:24 +0000
+Received: from IA0PR10MB7255.namprd10.prod.outlook.com
+ ([fe80::a82c:ceec:cd7f:8c64]) by IA0PR10MB7255.namprd10.prod.outlook.com
+ ([fe80::a82c:ceec:cd7f:8c64%4]) with mapi id 15.20.8377.021; Wed, 29 Jan 2025
+ 21:09:24 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        sgarzare@redhat.com, wh1sper@zju.edu.cn,
+        virtualization@lists.linux-foundation.org
+Cc: Mike Christie <michael.christie@oracle.com>
+Subject: [PATCH v2 1/1] vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
+Date: Wed, 29 Jan 2025 15:09:22 -0600
+Message-ID: <20250129210922.121533-1-michael.christie@oracle.com>
+X-Mailer: git-send-email 2.43.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: CH0PR04CA0084.namprd04.prod.outlook.com
+ (2603:10b6:610:74::29) To IA0PR10MB7255.namprd10.prod.outlook.com
+ (2603:10b6:208:40c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
- object
-Content-Language: en-US
-To: "Huang, Honglei1" <Honglei1.Huang@amd.com>, Huang Rui
- <ray.huang@amd.com>, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, Dmitry Osipenko
- <dmitry.osipenko@collabora.com>, dri-devel@lists.freedesktop.org,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Akihiko Odaki <akihiko.odaki@daynix.com>,
- Lingshan Zhu <Lingshan.Zhu@amd.com>,
- Xen developer discussion <xen-devel@lists.xenproject.org>,
- =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?=
- <marmarek@invisiblethingslab.com>,
- Kernel KVM virtualization development <kvm@vger.kernel.org>
-References: <20241220100409.4007346-1-honglei1.huang@amd.com>
- <20241220100409.4007346-3-honglei1.huang@amd.com>
- <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
- <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
- <de8ade34-eb67-4bff-a1c9-27cb51798843@amd.com>
- <Z36wV07M8B_wgWPl@phenom.ffwll.local>
-From: Demi Marie Obenour <demiobenour@gmail.com>
-Autocrypt: addr=demiobenour@gmail.com; keydata=
- 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
- +MYSfkEjBz0E8CLOcAw7JIwAaeBT
-In-Reply-To: <Z36wV07M8B_wgWPl@phenom.ffwll.local>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: IA0PR10MB7255:EE_|LV3PR10MB7916:EE_
+X-MS-Office365-Filtering-Correlation-Id: be0b978b-f347-46a9-c288-08dd40a93542
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?lQqpGQvHCSoKXkyLDzGychB/VjNATazVkGkbVZFrZ6JUkOyVbtU2RdkcNvQp?=
+ =?us-ascii?Q?CwuwIZJ6orKbeM+UE2adbByToql1YRj2CN1Fx2j8irYHv7Q0Vf3bzsw5Vsx5?=
+ =?us-ascii?Q?Vtwd39lUoP5iKdBpND59v5bjsCpOhTZlDGa2LMVAKeZXxq15hoTC57NUYZ5r?=
+ =?us-ascii?Q?+EE17ClFMS25bWcd1B5mqj+MZkyEmPxOUN/5WCuP5g237/S6cpgwVIj5f7Bl?=
+ =?us-ascii?Q?6C26s6R22iAvff16tLJxMdgfHFgoFJiltg+ZHK1uCxbGleKI8so3fo9m5u4a?=
+ =?us-ascii?Q?b+rq3/NdQs7C4Uxkyf3d6YmUtPcz4BecngkN5f8B+n/NXL9VAyc881uROOH5?=
+ =?us-ascii?Q?SzmfKirDhSMSWoKxxDE8mqaY5Br1RwpTW+a6FiyWCw/NZZMpcAGL7oi53FP5?=
+ =?us-ascii?Q?bXIEaDYpmGizFr73JQ8ncGAJIXdc1fLa+01N+kiLVLyLNR2ibJBgqmZzG+p8?=
+ =?us-ascii?Q?am5n0sqhnTipxfeHKOvYg+32lJHpn2ZUS33Kh77D+HfbJjGC2a5LQToVjCfY?=
+ =?us-ascii?Q?UCw8uqleU77x2S0I5QJLKONfH3btqUpkIVKkHvGqyWPNwfRQqribPhBbMYqV?=
+ =?us-ascii?Q?o9HtkFgI0HqN72vyrT25TeCeg93e1PMgn8iNjZOS5iBafU6ghlK/dEDKtHKl?=
+ =?us-ascii?Q?PwQ5pkOidXsXK8qIvBHwCb8RmoCaev/ApAFXYEfjvR3j9elhRkj3Wj0FPYHI?=
+ =?us-ascii?Q?mcoiL8YI+y9bIxPdZxad3X74gglrc/CHPrpFVAPLx/MHoY8AFtNXG2iJb02O?=
+ =?us-ascii?Q?YDMWznunPuL8fExWLWcMNe5nJDADePWlCqB9wIbMDD8l3yCNtFNXTqFs2b9c?=
+ =?us-ascii?Q?jfDYEqA0uMCRG2C96X4PkgAZbQDIBhUNvhiHHAzQZfGp1rWs/uttmq9d0J53?=
+ =?us-ascii?Q?LRYCVLlKcSu65JzDpXPVNWz4xby9zUa24UsUc7LOmZBUxaQwKpAiXR+GszbC?=
+ =?us-ascii?Q?1k0tyeWrjRFHcpXIl8+jJlEjSYZPezGjBIHCG221p7d2YdLte1bmlasgR4Ti?=
+ =?us-ascii?Q?3kZk0wdoi6e+Np3sbWIB2AWBvUwY8mem/v92xMB3hkXrILapVwM5RJ9VNFte?=
+ =?us-ascii?Q?d0+K5UcMQ3ppA7E6QXr0YKej5okpKq+1785QGDnFG9mnktUlbPE+60d76EHO?=
+ =?us-ascii?Q?7Mk7HS/rmbszggET4KP+68PCrRW0CwqgGuWoMIe7o5LqeW0anR/ykFcDyD8a?=
+ =?us-ascii?Q?/VnZwkapppsDlVVFp7T2WPTaoZjarGkfAEXd3MokTerFadhEQrYR5unJNURG?=
+ =?us-ascii?Q?95FfbDFceUVTRrLjbl97W1aOGFdiFC2bSVCL+DMsGbO2LLJb52/WvY6bQP7Y?=
+ =?us-ascii?Q?JNzjUnThMxlHmRYhCdeBtRuXeexcBVX+ZOgnELm15ZeG1Q=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR10MB7255.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?nIb4WYYmY/G7Tx1teNIpM4LLmyuun4bArOxzjqreQJc8Fuuz3fKV9+pt2ohX?=
+ =?us-ascii?Q?VZVArQgaVelxN9F9hYykMoy38r7f9bBCzpqSUlGuSi6gPjX0HJlCw89T3prc?=
+ =?us-ascii?Q?ppsQe+nrbox7QvtAR+xgcLeh8tVnvx7bmJtLE/Ta9SipQ6sGZ4xwFl72cJdM?=
+ =?us-ascii?Q?YlGuZI5ep0dqKIjb44BvToprOTGqyrI5LxQHsoYEW8X3VjFZ92sZWXBl9eJp?=
+ =?us-ascii?Q?lq405xD/ta8TmA+eetEtXv5luRq5TFipwuihEzxJdm6wsH4qlSxs7BB4BkSX?=
+ =?us-ascii?Q?yOD4Gmy0K2qcCkxgRiuvg9gRN/DhktxkeMq6r6S2ZusBXyA1FWyIwTStnNIq?=
+ =?us-ascii?Q?U/ktLWYpP6KNW7gnEMssnX1/psDNlz2La8q4CyQ15XOFMS3NX3hUgpUdSLEU?=
+ =?us-ascii?Q?lOcal3LWfCMAk0zLICFS/9QSwVKo+t2ngd9MH7/uVfskfbWEkYvmHgdfm95d?=
+ =?us-ascii?Q?VShx+TToPWtJRpYsU5ahXbtKHlHuuqwJMCZuDABVqhXj3OS8EAOEOKq1pGuh?=
+ =?us-ascii?Q?0Gesu2TaEyY0oX/+JipyNac29l83duCijs55m0VRuPvD4UG+n18wZxAXPuom?=
+ =?us-ascii?Q?Q/QOBN5rYf5l/6ZwIAXEL/0hDUZxmJFItbKNi9150gb0X1H7HQY6xl29Wjqo?=
+ =?us-ascii?Q?yLq3yQ99GZ8eSolMhzy+f01NEsroyHRNSZLarTyXOfLnggve+IULzMZStmJI?=
+ =?us-ascii?Q?rsAUrCsml1bAt1hSbE/o9kPkHwEX8t2BoHXJOH38MJL+eBtLD6JHkMpsHXTd?=
+ =?us-ascii?Q?GjyvbAw3w2WlbqYJvwi4QO6Nd87QkFIhHiC/1J/l8pFsIFFaTlQiDDZ7uSDq?=
+ =?us-ascii?Q?pDTEIQdNLWfw0++aZsvSYdN7XVuviSivGU0EZzA4RbS6H31sizzRyv6Tqd+k?=
+ =?us-ascii?Q?mXnS9cErZGeVtsHHWCwjSfv03Vc94wj+qP5PVaJKf7TDvoFuhU5swJBNPBuy?=
+ =?us-ascii?Q?MctL8URFf+KAVM8QWpSobD7s8LHoUJhTNtX0NXgEJt0H0U003jMHyfdBVCcH?=
+ =?us-ascii?Q?7Ako+40VuIWNErBTaE/H0T5+92aLmNzJlTcgVXDPszfr+/xMxKBciqr5XqFg?=
+ =?us-ascii?Q?8gkVnBDdAQH9AaKNRH4PXBiW3KTmoAaixhBkCfriFEit74xzeObRL4Lr90OD?=
+ =?us-ascii?Q?uLJdOO7TZof+s7/zHGHnKAS58rhLf6tjO8hDJbXHjiZbJJrIOLfrTqicSJKD?=
+ =?us-ascii?Q?j91PNQxHezN/b5DOzM+TrC77DvMcjoECHMuUAg42hOJRhxJLH5wCGL5ATK3N?=
+ =?us-ascii?Q?xrzqysa2Rpyt+u1+zvht2C4TiE8w17FruYhl0AivTUnPu2QftYC/5fLLcyVT?=
+ =?us-ascii?Q?LM9FZARNtS2Gpct6vuoGeGY8RX+s9ylfrLQiyeolSB1Z1N5mhQz1w1+KDP5Q?=
+ =?us-ascii?Q?X85AAMQrLsJHPDud4dJoMVrW1s2RLayex7PDrfpQTwgaXMWQoR/5txyI5fh8?=
+ =?us-ascii?Q?30GnWwGz/G9lbTT1ihRLAbpeJ3fbQGJ6PpJ5+RsrPTEXXIlNQWlXwmgIktSW?=
+ =?us-ascii?Q?vZa+X3s4zvenfN4tHnwAdTnaM/7bsKaVpWPelevCwjrHQAlq8eLzkGrBWWp+?=
+ =?us-ascii?Q?lyMofeRM7ZUfNKWvCaKsr3Rl0FxppZnhf9zfBo4sYLmNxwaCnV8aWBF61gD0?=
+ =?us-ascii?Q?Tw=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	QX/JLMVOeNIsFJPYcfEFRLBghb7At2kptwF6baU6/7oZsNN64u3hZsdlEi5Ueo6b9aYXdty4/SYvs10Kr42jPDQxAIKNubySQcTpxeDuNUid9tiQfy/hihLbK0JWAK2U2K5XUBZDhPVkhDE1Z6psNHiaZA2iGxAO6asnS2UahcQgh06ocDyZqFXq2lx9OCLID3I6hmwcpTDtGKdh88z721aIaxqUGn6s7ya1dnhp1ZfrLRQSIai6Hfc1197ZzbX+YfB7eIwSlTUSgffXIETGXkFO10/tNpvXOhoQIPrFpOVDfoWLC4ZDc50W1Ioxw3gLviZJ2Bqk6UoJ7dccijlBm/Banxg9LcA/qXD0vMSKQh+aTHs+qtSwCftnuy9gJK+/TvDymcA7pCXuwJgaYFtNXX4twIgRgWxnWDg+el7F0WEJcf94pxPtxG558C2v0g3OdJjyJbRw/+RfonjbEhT7HW2BmVOsb1z6FZG4ImPm3LeIFsPPIcCwa01TgI/bb0gOO29exhqkkFLOj/QW7FMVBBfEfA7sxScJV6AxsDN8Eb0jYSl1QmrpgpMnfxmfnXRJJ1F4T+v4klrrSUlEa+57vXpBFihx2UFg9eLvgqHG3dk=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: be0b978b-f347-46a9-c288-08dd40a93542
+X-MS-Exchange-CrossTenant-AuthSource: IA0PR10MB7255.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jan 2025 21:09:24.4948
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: MfnX1nlfhwZ+Ju/6BvKPqXv2APGK7rtM4AL4BonYlxniUXp4d1W5pWHNwJlTxfqOOnV4hbjfiEIvgPbijxi/k2TQwq/GKIXJjAH+Y/z8Cxs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR10MB7916
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-29_04,2025-01-29_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 suspectscore=0
+ mlxlogscore=999 phishscore=0 adultscore=0 mlxscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2411120000
+ definitions=main-2501290160
+X-Proofpoint-GUID: TXNTioyfgrUOqDEw-uaxDnA0Vsw_YbWx
+X-Proofpoint-ORIG-GUID: TXNTioyfgrUOqDEw-uaxDnA0Vsw_YbWx
 
-On 1/8/25 12:05 PM, Simona Vetter wrote:
-> On Fri, Dec 27, 2024 at 10:24:29AM +0800, Huang, Honglei1 wrote:
->>
->> On 2024/12/22 9:59, Demi Marie Obenour wrote:
->>> On 12/20/24 10:35 AM, Simona Vetter wrote:
->>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
->>>>> From: Honglei Huang <Honglei1.Huang@amd.com>
->>>>>
->>>>> A virtio-gpu userptr is based on HMM notifier.
->>>>> Used for let host access guest userspace memory and
->>>>> notice the change of userspace memory.
->>>>> This series patches are in very beginning state,
->>>>> User space are pinned currently to ensure the host
->>>>> device memory operations are correct.
->>>>> The free and unmap operations for userspace can be
->>>>> handled by MMU notifier this is a simple and basice
->>>>> SVM feature for this series patches.
->>>>> The physical PFNS update operations is splited into
->>>>> two OPs in here. The evicted memories won't be used
->>>>> anymore but remap into host again to achieve same
->>>>> effect with hmm_rang_fault.
->>>>
->>>> So in my opinion there are two ways to implement userptr that make sense:
->>>>
->>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
->>>>    notifier
->>>>
->>>> - unpinnned userptr where you entirely rely on userptr and do not hold any
->>>>    page references or page pins at all, for full SVM integration. This
->>>>    should use hmm_range_fault ideally, since that's the version that
->>>>    doesn't ever grab any page reference pins.
->>>>
->>>> All the in-between variants are imo really bad hacks, whether they hold a
->>>> page reference or a temporary page pin (which seems to be what you're
->>>> doing here). In much older kernels there was some justification for them,
->>>> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
->>>> now all sorted out. So there's really only fully pinned, or true svm left
->>>> as clean design choices imo.
->>>>
->>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
->>>> you?
->>>
->>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
->>> in complexity that pinning everything avoids.  Furthermore, this avoids the
->>> host having to take action in response to guest memory reclaim requests.
->>> This avoids additional complexity (and thus attack surface) on the host side.
->>> Furthermore, since this is for ROCm and not for graphics, I am less concerned
->>> about supporting systems that require swappable GPU VRAM.
->>
->> Hi Sima and Demi,
->>
->> I totally agree the flag FOLL_LONGTERM is needed, I will add it in next
->> version.
->>
->> And for the first pin variants implementation, the MMU notifier is also
->> needed I think.Cause the userptr feature in UMD generally used like this:
->> the registering of userptr always is explicitly invoked by user code like
->> "registerMemoryToGPU(userptrAddr, ...)", but for the userptr release/free,
->> there is no explicit API for it, at least in hsakmt/KFD stack. User just
->> need call system call "free(userptrAddr)", then kernel driver will release
->> the userptr by MMU notifier callback.Virtio-GPU has no other way to know if
->> user has been free the userptr except for MMU notifior.And in UMD theres is
->> no way to get the free() operation is invoked by user.The only way is use
->> MMU notifier in virtio-GPU driver and free the corresponding data in host by
->> some virtio CMDs as far as I can see.
->>
->> And for the second way that is use hmm_range_fault, there is a predictable
->> issues as far as I can see, at least in hsakmt/KFD stack. That is the memory
->> may migrate when GPU/device is working. In bare metal, when memory is
->> migrating KFD driver will pause the compute work of the device in
->> mmap_wirte_lock then use hmm_range_fault to remap the migrated/evicted
->> memories to GPU then restore the compute work of device to ensure the
->> correction of the data. But in virtio-GPU driver the migration happen in
->> guest kernel, the evict mmu notifier callback happens in guest, a virtio CMD
->> can be used for notify host but as lack of mmap_write_lock protection in
->> host kernel, host will hold invalid data for a short period of time, this
->> may lead to some issues. And it is hard to fix as far as I can see.
->>
->> I will extract some APIs into helper according to your request, and I will
->> refactor the whole userptr implementation, use some callbacks in page
->> getting path, let the pin method and hmm_range_fault can be choiced
->> in this series patches.
-> 
-> Ok, so if this is for svm, then you need full blast hmm, or the semantics
-> are buggy. You cannot fake svm with pin(FOLL_LONGTERM) userptr, this does
-> not work.
-> 
-> The other option is that hsakmt/kfd api is completely busted, and that's
-> kinda not a kernel problem.
-> -Sima
+If vhost_scsi_set_endpoint is called multiple times without a
+vhost_scsi_clear_endpoint between them, we can hit multiple bugs
+found by Haoran Zhang:
 
-On further thought, I believe the driver needs to migrate the pages to
-device memory (really a virtio-GPU blob object) *and* take a FOLL_LONGTERM
-pin on them.  The reason is that it isn’t possible to migrate these pages
-back to "host" memory without unmapping them from the GPU.  For the reasons
-I mention in [1], I believe that temporarily revoking access to virtio-GPU
-blob objects is not feasible.  Instead, the pages must be treated as if
-they are permanently in device memory until guest userspace unmaps them
-from the GPU, after which they must be migrated back to host memory.
+1. Use-after-free when no tpgs are found:
 
-The problems with other approaches are most obvious if one considers a Xen
-guest using a virtio-GPU backend that is not all-powerful.  Normal guest
-memory is not accessible to the GPU, and Xen uses the IOMMU to enforce this
-restriction.  Therefore, the guest must migrate pages to virtio-GPU blob
-objects before the GPU can access them.  From Xen’s perspective, virtio-GPU
-blob objects belong to the backend domain, so Xen allows the GPU to access
-them.  However, the pages in blob objects _cannot_ be used in Xen grant table
-operations, because Xen doesn’t consider them to belong to the guest!
-Similarly, if the guest has an assigned PCI device, that device will not
-be able to access the blob object’s pages.
+This fixes a use after free that occurs when vhost_scsi_set_endpoint is
+called more than once and calls after the first call do not find any
+tpgs to add to the vs_tpg. When vhost_scsi_set_endpoint first finds
+tpgs to add to the vs_tpg array match=true, so we will do:
 
-I’m no expert on Linux memory management, so I’m not sure how to implement
-this behavior.  What I _can_ say is that a blob object is I/O memory, and
-behaves somewhat similar to a PCI BAR in a system with no P2PDMA support:
-CPU access works, but DMA from other devices does not.  Furthermore, the
-memory can’t be used for page tables or granted to other Xen guests, and it
-will go away if the device is hot-unplugged.  In fact, if the PCI transport
-is used, the blob object is located in the BAR of an (emulated) device.
-There are non-PCI transports, though, so assuming that blob objects are
-located in a PCI BAR is not a good idea.
+vhost_vq_set_backend(vq, vs_tpg);
+...
 
-The reason that pinning the objects in "device" memory is a reasonable
-approach is that the host (or backend, in the Xen case) can still migrate
-pages between device and host memory and not allocate backing store for
-pages that are never accessed.  Therefore, it is not necessary for every
-CPU access to go across the PCIe bus even for dGPUs.  Instead, if guest
-CPU accesses are much more frequent than device accesses, the memory will
-be migrated to the host side.  It’s up to the virtio-GPU backend
-implementation to make sure that this happens.  For KVM, this should be
-automatic, but for Xen, this might need additional Xen patches so that
-the backend domain is notified when pages are accessed or dirtied.
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
 
-[1]: https://lore.kernel.org/dri-devel/9572ba57-5552-4543-a3b0-6097520a12a3@gmail.com
+If vhost_scsi_set_endpoint is called again and no tpgs are found
+match=false so we skip the vhost_vq_set_backend call leaving the
+pointer to the vs_tpg we then free via:
+
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
+
+If a scsi request is then sent we do:
+
+vhost_scsi_handle_vq -> vhost_scsi_get_req -> vhost_vq_get_backend
+
+which sees the vs_tpg we just did a kfree on.
+
+2. Tpg dir removal hang:
+
+This patch fixes an issue where we cannot remove a LIO/target layer
+tpg (and structs above it like the target) dir due to the refcount
+dropping to -1.
+
+The problem is that if vhost_scsi_set_endpoint detects a tpg is already
+in the vs->vs_tpg array or if the tpg has been removed so
+target_depend_item fails, the undepend goto handler will do
+target_undepend_item on all tpgs in the vs_tpg array dropping their
+refcount to 0. At this time vs_tpg contains both the tpgs we have added
+in the current vhost_scsi_set_endpoint call as well as tpgs we added in
+previous calls which are also in vs->vs_tpg.
+
+Later, when vhost_scsi_clear_endpoint runs it will do
+target_undepend_item on all the tpgs in the vs->vs_tpg which will drop
+their refcount to -1. Userspace will then not be able to remove the tpg
+and will hang when it tries to do rmdir on the tpg dir.
+
+3. Tpg leak:
+
+This fixes a bug where we can leak tpgs and cause them to be
+un-removable because the target name is overwritten when
+vhost_scsi_set_endpoint is called multiple times but with different
+target names.
+
+The bug occurs if a user has called VHOST_SCSI_SET_ENDPOINT and setup
+a vhost-scsi device to target/tpg mapping, then calls
+VHOST_SCSI_SET_ENDPOINT again with a new target name that has tpgs we
+haven't seen before (target1 has tpg1 but target2 has tpg2). When this
+happens we don't teardown the old target tpg mapping and just overwrite
+the target name and the vs->vs_tpg array. Later when we do
+vhost_scsi_clear_endpoint, we are passed in either target1 or target2's
+name and we will only match that target's tpgs when we loop over the
+vs->vs_tpg. We will then return from the function without doing
+target_undepend_item on the tpgs.
+
+Because of all these bugs, it looks like being able to call
+vhost_scsi_set_endpoint multiple times was never supported. The major
+user, QEMU, already has checks to prevent this use case. So to fix the
+issues, this patch prevents vhost_scsi_set_endpoint from being called
+if it's already successfully added tpgs. To add, remove or change the
+tpg config or target name, you must do a vhost_scsi_clear_endpoint
+first.
+
+Fixes: 25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
+Fixes: 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate if the endpoint is setup")
+Reported-by: Haoran Zhang <wh1sper@zju.edu.cn>
+Closes: https://lore.kernel.org/virtualization/e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com/T/#me6c0041ce376677419b9b2563494172a01487ecb
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+v2
+- Drop kfree that's no longer needed.
+- Update comment.
+
+ drivers/vhost/scsi.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 718fa4e0b31e..7aeff435c1d8 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1699,14 +1699,19 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 		}
+ 	}
+ 
++	if (vs->vs_tpg) {
++		pr_err("vhost-scsi endpoint already set for %s.\n",
++		       vs->vs_vhost_wwpn);
++		ret = -EEXIST;
++		goto out;
++	}
++
+ 	len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
+ 	vs_tpg = kzalloc(len, GFP_KERNEL);
+ 	if (!vs_tpg) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	if (vs->vs_tpg)
+-		memcpy(vs_tpg, vs->vs_tpg, len);
+ 
+ 	mutex_lock(&vhost_scsi_mutex);
+ 	list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
+@@ -1722,12 +1727,6 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 		tv_tport = tpg->tport;
+ 
+ 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
+-			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
+-				mutex_unlock(&tpg->tv_tpg_mutex);
+-				mutex_unlock(&vhost_scsi_mutex);
+-				ret = -EEXIST;
+-				goto undepend;
+-			}
+ 			/*
+ 			 * In order to ensure individual vhost-scsi configfs
+ 			 * groups cannot be removed while in use by vhost ioctl,
+@@ -1774,15 +1773,15 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 		}
+ 		ret = 0;
+ 	} else {
+-		ret = -EEXIST;
++		ret = -ENODEV;
++		goto free_tpg;
+ 	}
+ 
+ 	/*
+-	 * Act as synchronize_rcu to make sure access to
+-	 * old vs->vs_tpg is finished.
++	 * Act as synchronize_rcu to make sure requests after this point
++	 * see a fully setup device.
+ 	 */
+ 	vhost_scsi_flush(vs);
+-	kfree(vs->vs_tpg);
+ 	vs->vs_tpg = vs_tpg;
+ 	goto out;
+ 
+@@ -1802,6 +1801,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+ 		}
+ 	}
++free_tpg:
+ 	kfree(vs_tpg);
+ out:
+ 	mutex_unlock(&vs->dev.mutex);
+@@ -1904,6 +1904,7 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
+ 	vhost_scsi_flush(vs);
+ 	kfree(vs->vs_tpg);
+ 	vs->vs_tpg = NULL;
++	memset(vs->vs_vhost_wwpn, 0, sizeof(vs->vs_vhost_wwpn));
+ 	WARN_ON(vs->vs_events_nr);
+ 	mutex_unlock(&vs->dev.mutex);
+ 	return 0;
 -- 
-Sincerely,
-Demi Marie Obenour (she/her/hers)
+2.43.0
+
