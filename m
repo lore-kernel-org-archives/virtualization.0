@@ -1,30 +1,43 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8E97D1B395F
-	for <virtualization@lists.linux.dev>; Wed, 29 Jan 2025 11:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738151325; cv=none; b=ZTbDkZ47l5JkH/2gCDntvOCrvpF0I9+29dWgvspIA4xxcepCnm5UkDqgjQs4lfnCG82oJnkyv9eKCXvCgZxshAVI1qTvzGdl4OXey49TsFE4bh2cLqDAdhECA2abOuOzkip9Ypt6b2J7LA+KpZ6CKLEiJMUcDCOQycavjrz8xbM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738151325; c=relaxed/simple;
-	bh=EgGu8yvZZu0tDb3duQIbPOHmQVucGRG9fGhnuUYk2h8=;
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 268A542049;
+	Wed, 29 Jan 2025 14:40:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738161618; cv=pass; b=r7DLv360jkDdXro4L9k/rRqLAUBJT9109s82/ODCYdHXqq4+DV0p8MB1eZeCJCXNDZ9Nf9wJAy3hI2Iz3Jg5y7ZU09RqqKpSp/PIRITF89GIhJn0sDNbdPIryXXlsY+s7WDn0ERObJ0Bi5+LiEY7td7Iur2w7aTOP+erVPR+s6E=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738161618; c=relaxed/simple;
+	bh=nbhfGTGu+ZaxGxvts9+4JLgwkQsebKfP9phCqjLRmUA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bO/H8ghcq3qLPp/Wv+/j0i57d89C6dWnH4K9LuogldDI0lvCRSUWOzznAIWt4CcwkuFNMH1LctibV3asWFPDKBGVu7HhPp0F0XN1g3vCGir++oJXwB35RjjC1FKiFftwKCebK3w4kGwXS/wROjDKx4onnYxxq6jNvgSc9cKGK78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=UvQGfUzQ; arc=none smtp.client-ip=220.197.31.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	 In-Reply-To:Content-Type; b=dRbGBYHRVp+KgOU38OaaVdBV6bpze5gy6UHmm7XF2jpTcbi60CAu/XXmm4RnZI31XMmU4FeA0jMg4ZIIFpBWDvXqWMcnIIFf2yKCUP/Rua4SJwTjdLJPmXXedOyPn5sbJSYa3SSKIQp3A2tj4dCSlxIanxiJ1mjEJ3T8qiFnCKE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=DGfwX0nO; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="UvQGfUzQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:From:
-	Content-Type; bh=phhC6/CvuzsKujA1F3v2tZhD6uytqeJyjFFUGwSgc0s=;
-	b=UvQGfUzQjyDfmjd/e1Xwna8tuXtfoyp4v9zNOl/Ebz7mgYHnEGg/0HUU1Qx61m
-	za/sN5MTzRgyHBOeFP3TU7UXg4/1puVjAx1J3KFb3bEHd2S46kr5uGrjPglo2TaG
-	vfFSdwhIw3AevmyCSIqN3Sa5mLHfJCLecgqFfXYn9oO3U=
-Received: from [192.168.0.102] (unknown [])
-	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wD3dxB6FZpno6HKJA--.24380S2;
-	Wed, 29 Jan 2025 19:48:11 +0800 (CST)
-Message-ID: <0e5fcde2-140a-4896-8880-5f90f2a134c4@163.com>
-Date: Wed, 29 Jan 2025 19:48:10 +0800
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="DGfwX0nO"
+ARC-Seal: i=1; a=rsa-sha256; t=1738161606; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=DfbcYJ5AR+R8DsGvqmcb+/2BWUAKv8DnfNQzqyla9hmVme5gBFj4gfbGRJp9OW0N+PvAYxNlUOC49Q9zeesnNrBgRrpzsy687JigqHVPENfj9Z/pZmuChFgMCTg9mkPesWEOvfiRvkxLc5mvUSDaaaRGeqrHxoupnm8NDNMQlDg=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1738161606; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=PoONWoZjAfKHvZcII9BT/PJegJNZ5m/T3eW5vIBqcYw=; 
+	b=Bmmy9FDwFhlJp3622EBINBRcPwqOUZ2NWcijtiyP2e53LdSA8I5GHIoKBPrm/wkcv4gwgbdcfpkRtY77p4FD9kTEFbh8jgpGOOAjuPo33hoLdtoUIgMnEX2CMNKxaVcvw/lK0OTDfmQyWIVPw/tdNNV2Z3PSemWF5AjT4To5GZw=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1738161606;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=PoONWoZjAfKHvZcII9BT/PJegJNZ5m/T3eW5vIBqcYw=;
+	b=DGfwX0nOYwu5rhfFE+Binp3fTXeWAIuqEtGuP25N2CKiT/bx2R2K5KTZqdaIibNV
+	/+wyJCWhy9BWGlKnTYqglka44eSX7oRooH1xlY3kkldkuKbbQeBu+yzTAJqOAP+iO8P
+	8XPOqOnMnZOtiaBN4gJn+PZ0/RkAWVg36EERXTSI=
+Received: by mx.zohomail.com with SMTPS id 17381615971231003.7746563217795;
+	Wed, 29 Jan 2025 06:39:57 -0800 (PST)
+Message-ID: <2f3394a5-0c63-49bf-bc85-f43388050ab8@collabora.com>
+Date: Wed, 29 Jan 2025 17:39:51 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -32,71 +45,47 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_console: Convert to use devm funcs
-To: Amit Shah <amit@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- Shixiong Ou <oushixiong@kylinos.cn>
-References: <20250128055241.30760-1-oushixiong1025@163.com>
- <9a10b435045556f5625afe83bd41bc4d4f9be80b.camel@kernel.org>
-From: oushixiong <oushixiong1025@163.com>
-In-Reply-To: <9a10b435045556f5625afe83bd41bc4d4f9be80b.camel@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wD3dxB6FZpno6HKJA--.24380S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWrKr1kAFyfXFWUtw1fAw1UWrg_yoW8JF48pF
-	Z3WasxCr4Dtrs3Kr9Iv3yfZa1rZ3ykJr18WF1agw4SvrW5Ar9Fqr1vyr4rCayav3yxCa10
-	vF18ta43W3WUXFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07U4SoAUUUUU=
-X-CM-SenderInfo: xrxvxxx0lr0wirqskqqrwthudrp/1tbiXBzjD2eaBHV9CwAAsW
+Subject: Re: [PATCH v2] drm/virtio: Align host mapping request to maximum
+ platform page size
+To: fnkl.kernel@gmail.com, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, asahi@lists.linux.dev
+References: <20250125-virtgpu-mixed-page-size-v2-1-c40c555cf276@gmail.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20250125-virtgpu-mixed-page-size-v2-1-c40c555cf276@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
+On 1/26/25 00:08, Sasha Finkelstein via B4 Relay wrote:
+> --- a/drivers/gpu/drm/virtio/virtgpu_vram.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
+> @@ -150,8 +150,8 @@ static int virtio_gpu_vram_map(struct virtio_gpu_object *bo)
+>  		return -EINVAL;
+>  
+>  	spin_lock(&vgdev->host_visible_lock);
+> -	ret = drm_mm_insert_node(&vgdev->host_visible_mm, &vram->vram_node,
+> -				 bo->base.base.size);
+> +	ret = drm_mm_insert_node_generic(&vgdev->host_visible_mm, &vram->vram_node,
+> +					 bo->base.base.size, MAX_PAGE_SIZE, 0, 0);
+>  	spin_unlock(&vgdev->host_visible_lock);
 
-在 2025/1/28 17:39, Amit Shah 写道:
-> On Tue, 2025-01-28 at 13:52 +0800, oushixiong1025@163.com wrote:
->> From: Shixiong Ou <oushixiong@kylinos.cn>
->>
->> Convert to devm_* funcs so that no need to manual free in error path.
->>
->> Signed-off-by: Shixiong Ou <oushixiong@kylinos.cn>
->> ---
->>   drivers/char/virtio_console.c | 43 ++++++++++++++-------------------
->> --
->>   1 file changed, 17 insertions(+), 26 deletions(-)
-> [...]
->
->> -		goto free;
->> +		return err;
-> [...]
->
->> -
->> -free:
->> -	kfree(portdev->out_vqs);
->> -	kfree(portdev->in_vqs);
->> -	kfree(vqs_info);
->> -	kfree(vqs);
->> -
->> -	return err;
->>   }
-> Hm, I'm not entirely sure about this - the devm_ interface is better,
-> but to me that just says that it's an extra safety net that avoids
-> memleaks when we forget to kfree, and not that we deliberately do not
-> free and get lax about managing allocated memory.
->
-> So I'd prefer a patch that keeps all current frees as they are, but
-> with the added advantage of using the devm interfaces.
->
-> 		Amit
+The BO size is already aligned, no need to align it second time.
 
-Hi, I don't think driver need to  call kfree() by manual if driver use 
-the devm_ interface
+Anyways, we first should wait for a reply from Rob RE potential impact
+of this change on Freedreno and other non-x86 drivers and non-nctx contexts.
 
-in the probe() phase. This can simplifies the code.
+Otherwise, the proper solution would be to pass info about host's page
+size to guest using extended virtio protocol. This is very doable if you
+have time to work on this useful feature and want to contribute/learn more.
 
-This is similar to the  commit  "55dd7378ba94 (fbdev: imxfb: Convert to 
-devm_kmalloc_array())"
-
-Thanks!
-
-Shixiong Ou
+-- 
+Best regards,
+Dmitry
 
