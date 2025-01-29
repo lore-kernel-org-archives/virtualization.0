@@ -1,283 +1,296 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60E761DF747
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:51:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738169493; cv=fail; b=BPCwf8AOrd4C3Wq2uz0NbOH/bmJDjQowVQiBJ2bNMhT1NJiHrfQUesI64ClEVYGU8fpoZ2sXlOqr7aXfTjAQZNtBghXezCNXt2WTeFceTPXOd0cyzBvrJ4SwcDvyJd7Cg1Sy5MI3lmDVGsaI9BIIt2cyFSGIs2RNMk4NiW1NBF8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738169493; c=relaxed/simple;
-	bh=MHNOCR5qWu5HC44xbTNjCN4ctLHPlBcHOWLmect6+aM=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=n4uvnpOsFY6f79WcJjIAiHeHg61T1loYxqJsRBxhC7ZRTrhRqZ2KaQ2g9z3pbVtIOrdxd+VGvoRsRYi/rZhDGYV8S049F9E+/fVGI9D6sq8+rXlbIMr2ozxjDpPf2csUGmRrHI4DyOq/BWZD+rliA7ZGILrgrrk4D5dFEzHPcHg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=ZuP0JNWO; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=PYsGPJhj; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FB141E25F1
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 19:40:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738179656; cv=none; b=gjooJOR6aXIqFNWk39ozBSWDF1KMuwcaMwJ8f4QFqznIrgsn5tTlQHUCR7azVKCx73XRya9AgSmq0TOCPx/WTTPduzst5yBd1QG5fZ7jo8Chceo7GrjC2R5nTEvuve2oV0MKnkSwFCsv899tpr1/EfUpKB0VwoE9DJSWC+uC2SU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738179656; c=relaxed/simple;
+	bh=n0qc7hxwmQT3LcE9Yl45QXnZe+KyfZkh3DIPJkcoiBs=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:References:
+	 In-Reply-To:Content-Type; b=B3v2hrY2g2ddNrSR5lPT3GNmCyDQO5USxUgkPgI8Nv15BhS6lZjwPtSIhTNFJIriyNUNK8lkl3o6l821KvmtXOIDOHelFZXVMv0QAqcv8L5WE1HCEtdmRZ7GMsfkxTqCd4u79FqJwBWZ6Se0tW8LWRtgoA3ZrLGR4AwjnwQNVvI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CB84qRyT; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="ZuP0JNWO";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="PYsGPJhj"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CB84qRyT"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DE66A408A9
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:51:30 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id DD130414C3
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 19:40:54 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -6.489
+X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id OMi33mBQH_2P for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jan 2025 16:51:30 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8E9ED406DB
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E9ED406DB
+ id YpUYKr_esbse for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Jan 2025 19:40:53 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b36; helo=mail-yb1-xb36.google.com; envelope-from=demiobenour@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 721DA41464
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 721DA41464
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=ZuP0JNWO;
-	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=PYsGPJhj
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8E9ED406DB
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:51:29 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50TFsGcV003542;
-	Wed, 29 Jan 2025 16:51:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2023-11-20; bh=WrDayBjwHn4KoqYVfGoSGdXXMofr3Tc5nlmOAin8ofM=; b=
-	ZuP0JNWO1TRMZ2eZB4qGTyDwpRa9muUjyrVi+btj4DXExA/PZ7aPybkN6YYHX0ya
-	35myj0xyQum2wchcH0J4Eh16qgTzuNJMJvCJlAF/sM9DeLUeOXdM10DDfeUki3Qr
-	vjmH26dxvmb7Aftgpc1t3zduVCjSuI25WLhjEJrR6eCM4cBN7W+nthBL7lxJeVyf
-	+SdmvXSy9Ubf0wlQ6TZeQz8b6jr3Pih3srZ1srZDcnfr/Sr53lACjL7MTCrKX0uu
-	U5XTdW7r8tKe1chCoJI+JKNM6lnAxQZKyQ/NVWARXIjXmbm7GKIY7wzZjKgWT5pq
-	btUeW5ppLVzR14gan8OH5g==
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 44fqcp84mx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jan 2025 16:51:27 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 50TFdnDS036333;
-	Wed, 29 Jan 2025 16:51:26 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2049.outbound.protection.outlook.com [104.47.66.49])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44cpd9xch4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jan 2025 16:51:26 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=gA+Q+rbA9OsTfesON0WK/3ESd1cvvaxaXv/zj/65PP/I91B1ibSoiztllIMoEwipAu0k6n8Wvz3zhjDHGEFQ4slCjcGdJCwqrA1beMLSF7rNgwSjYiqlupsqsktZnWFGJTjKja7JPs1qJtXBMex9TgfAuBcp1Sw/SbJ0HVjIRMVWD7i/XtgAvEmsRCdJzvknTD3cjTs8DoxnfC4SzPLK3/nc9ISIW5FjKmmJQGKt8YyOgpQTtEcJYZINr18SMquozwrYVBahxK34SMBw0JvwOh0yjnPKQ24DnfzWKFm7Sre5YIZNRGrWAH7EslZWuzRI9QQBYQhjNICa0/rD/pV2LA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WrDayBjwHn4KoqYVfGoSGdXXMofr3Tc5nlmOAin8ofM=;
- b=wMhe54dNIttlA3Nw3KrDFgcJutcm4Insj0htZ3S8YnhPBPCOAZzNFJtIG9fmxsBfAoPPeUTeQRCj5ocbsqoFf03S0HLLa3w3RK/oHAp7upajzUzyuuhr9vpxtn++ii4GB82pehyYvmz1VwwxjEouLOihmWw7NrJkRquWHKQ0e6ROLqgeLd0CobYyJ5PvY1pPh2tvyVmA+oTwjXw7D62MzSVSPGThwbQgARR6KXNOucGtHEmfyJbZJSRbJvnn8QbFSdV8Lzn/x/dZpXZ0nZ9mOVZSHSI2co0XKVFSkHLvO4rKcECBd9vvvOemoYWh+Ylfnp6w4pcLWYXEJWwBFSUgiA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=CB84qRyT
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 721DA41464
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 19:40:53 +0000 (UTC)
+Received: by mail-yb1-xb36.google.com with SMTP id 3f1490d57ef6-e46c6547266so103857276.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 11:40:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WrDayBjwHn4KoqYVfGoSGdXXMofr3Tc5nlmOAin8ofM=;
- b=PYsGPJhjMuCcI2W7u3Hi+JcfAm62gsIb40gfjnrVdja8dX1FdouLlIYcklykpxdpGGhwGoB4xGTxy/VO6veYTNFMRVB/aTOCOKKKiHPEktBCuw3C4v37l/vlGWQ6mIOSTDGa09mF4lD0MYDtk0Whk2plzVPV5Kck8DroiYnpJdQ=
-Received: from IA0PR10MB7255.namprd10.prod.outlook.com (2603:10b6:208:40c::10)
- by BY5PR10MB4387.namprd10.prod.outlook.com (2603:10b6:a03:211::24) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.17; Wed, 29 Jan
- 2025 16:51:24 +0000
-Received: from IA0PR10MB7255.namprd10.prod.outlook.com
- ([fe80::a82c:ceec:cd7f:8c64]) by IA0PR10MB7255.namprd10.prod.outlook.com
- ([fe80::a82c:ceec:cd7f:8c64%4]) with mapi id 15.20.8377.021; Wed, 29 Jan 2025
- 16:51:24 +0000
-Message-ID: <466f4e29-5af3-4a51-9283-0f5c2ccb702c@oracle.com>
-Date: Wed, 29 Jan 2025 10:51:23 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] vhost-scsi: Fix handling of multiple calls to
- vhost_scsi_set_endpoint
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
-        pbonzini@redhat.com, wh1sper@zju.edu.cn,
-        virtualization@lists.linux-foundation.org
-References: <20250121213125.140333-1-michael.christie@oracle.com>
- <bte2rkiy7tvefzanh6hsym3xawuyjznpcoevxcdifw7jqqep5r@vdanwnpihn27>
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <bte2rkiy7tvefzanh6hsym3xawuyjznpcoevxcdifw7jqqep5r@vdanwnpihn27>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: CH0PR03CA0230.namprd03.prod.outlook.com
- (2603:10b6:610:e7::25) To IA0PR10MB7255.namprd10.prod.outlook.com
- (2603:10b6:208:40c::10)
+        d=gmail.com; s=20230601; t=1738179652; x=1738784452; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :references:to:from:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=YiAwe4ZwCv8Im80AYWWU2ZRBnO1Np7+D1TolCE4p/M0=;
+        b=CB84qRyTSHRVFSGqB6WqVJiPFb4RdAc5W3Y+0FkDdMQfO6dm/vKGohkjEvxKaDmX5E
+         RVoqyxjcVfWyIVDYAsC8JHLlRkxWcNGnCVkqCg7Za0A2j9OXv5ETLd9Vl/XYduDrx9cw
+         H98111zzw8+0nj+piEJB4tV9c0JH/olshc4JrSMxDwZ+6Tz9JEpIjsNm5nGCI7s4rJes
+         FbcQyTAhzk0LU2Z0vwy243nCvVeLq14RnIEP4u9DO2RGsq7tkVdcOZVVMa2BQ8mA4QOg
+         X9YghP97Om3zjbzSffck7u4jnRp+NJdyqUEdKtiqy920BR1fYLxTE+gB+UPwfJab1wiK
+         0qyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738179652; x=1738784452;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :references:to:from:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=YiAwe4ZwCv8Im80AYWWU2ZRBnO1Np7+D1TolCE4p/M0=;
+        b=gU4Ax7K09IjJbNafaeF72NAfcLI6EilmJBXEs1yoFmkdTdBDXaYvdY4qhLHOB2FnNh
+         ahOot4RF+xWDiUqSfIrpG4Q1bxQ6ieMCidonOmWXeTMHZwmg4qWSzfaP/Vp7vk/ua2k8
+         oskv7TVCY7MLxJgt/sax0pAi+th9UbECF8J5hpgoUSSjVNutL7owgMewI8lql7CHnFxA
+         3DOiaYV/H/ysVFDPVyrnjiVSroxksMeIS08dOpBkk2VYvbsV4l6stpqwiLwF+QAfdrkf
+         Y1PPDdoxBWVU8fPpLt2N9iT1Plxlx3H7GiE8o+VrOgLM5sWPytgKNvNO+nazVSURd1Kr
+         icsg==
+X-Forwarded-Encrypted: i=1; AJvYcCWWM/3wJoUOEWNbAIl/VRfmHBsckiHU8k9DeUa4m6kPrPXn1GVRZTheYaDz1kIR9aR3Sp5cPG4+mqW1mGbywQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yzcs0+9Nvr9tQaeVTMOMOPlj0TRr/vnniSq6tcMAh6OdeKJyBUx
+	moZZpumU5vpkK9VyQyppSWxO6VBZ4Trb4qA76Pd/hD/dQ8u/pW5K
+X-Gm-Gg: ASbGnculBglP3PeIQbh42k6UqggHAnJIsTtklsYbizUbHigU6nn0rN7bPehvWf9lK7v
+	6PXi3QuWatIuEmZXZESI0lGjScGZz9Zw9OvxZxSF1IAg9pDAHLZtkvhSP5q45NFlVKrdYTfPFj0
+	vmWrjLGrNGdogACAttvSLvwPcjNXHL078EG0fzzkkmA0gJ7Nd/UEKlBnBI6POfON0Cew2dI/eHa
+	onNQq30IGaM3aThDdTAgN6yNn34ImIdl+YiL4Bv61EDLYSrJzw0esGMzv3dTNl3WiJGtOv44/8o
+	4Y1+ojJrHw6KekDMKys=
+X-Google-Smtp-Source: AGHT+IFcm70cBzxdaG4YIpPTJqjr1mlkmvf4KaftoD5a2PQ8bLHewaoEFQM7aAbm4+WTw3yFJ6O+gg==
+X-Received: by 2002:a05:690c:4912:b0:6ef:805c:ea15 with SMTP id 00721157ae682-6f7a83fd04bmr32763617b3.23.1738179652005;
+        Wed, 29 Jan 2025 11:40:52 -0800 (PST)
+Received: from [10.138.7.94] ([45.134.140.51])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-6f757a2ac24sm23937107b3.103.2025.01.29.11.40.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 29 Jan 2025 11:40:51 -0800 (PST)
+Message-ID: <a0165511-b7c7-442a-84cc-15fef7ea53b9@gmail.com>
+Date: Wed, 29 Jan 2025 14:40:50 -0500
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA0PR10MB7255:EE_|BY5PR10MB4387:EE_
-X-MS-Office365-Filtering-Correlation-Id: 09b55a45-adf6-4895-388b-08dd40852a78
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?MTd3NWU0eEVBZmgrdTNNaGpmczJhYno3KzFjMEcvWUs1cnRXWUUxUElhQ2pI?=
- =?utf-8?B?cDRvTW0wWGNtY00wcVZqaXJWUDk5bzBpUlNoVmFpWTh2U2tjRmE5T3ZkZTdw?=
- =?utf-8?B?T3p1aTVZMlpBR2pubklxbDBjYmRVc2wrUU0rSzZ2QVJvbXRQR0NzZGR5U3NH?=
- =?utf-8?B?WlhrUmR1akk2QjZRdzlsNEtmOER5UkQ5eW15SXBWbE9yZ0JEOTRYcHBYSVdN?=
- =?utf-8?B?cnNJUWFVekpFODdwZ2lPeWd0N1VHM0Y0NmZFWDVhQ0xLakJGWkpxM2JUUzJ1?=
- =?utf-8?B?QnRHNGErUzJ5aWFoNlZ6QjZLSWFyelJSbTUyZWpGQzZIMS9FTEdDRFkvdVFr?=
- =?utf-8?B?YUIyYnQ3T0I2UHJVUFNBTWdaOXhzSXIzWHgreFY3MEdsbCtwUlMzVURUcU10?=
- =?utf-8?B?RTQ1a0d4SzA2OHc3Zm1yMXRxMmJ5UWpQRjNSV0tYcGZaOUtvVENtcE1XY0VV?=
- =?utf-8?B?NGFneE43Q2VES0h3L1ZLVWVYa1ExQTVuR29lRWovR3RQdmhGVUNCQjBnQThD?=
- =?utf-8?B?R2doaVNyQ1lHV01Tem82czVJK1lDSkRObVdyRnZZV0JCZTdwSy9VUkQ1Nm1G?=
- =?utf-8?B?bkpTTDJxNi9LS0tPeHgvQkdlTUR4SGVFUWpnU3dYVm5hNzBCaEsxNTVJVE5K?=
- =?utf-8?B?YmM0RVE3blNYMEcxajJJUWJ5VTB0bWpNb3h0MGFSeGtSditPOG02RDZOV25V?=
- =?utf-8?B?OXVvTCtrVVFDUk1qdjgxcktkUkhWSmFaMmxxd2QyQWR6L0ExRkhpRUNMM0tR?=
- =?utf-8?B?bTE3bU1ZQXhXcENjMVNrUUFnb3BkR2RNbWhoUkUwcjVmcklPdmtkU1BBaXBS?=
- =?utf-8?B?S3k3Sm9kY090ZCsvbzdSV3Jyd010eGVGVGFwSGs2R2NScWd0VFhTR3JGZHZ1?=
- =?utf-8?B?QVJmcDlXdDZpcmRkUlg3YkFkWkNUR3JXclp6dUN5eUFJWlJkc3pGdk1vcC8y?=
- =?utf-8?B?a1V3Nk1hQTZYQ2pUbmhMSmVqT3huK1RqQW0vTGt6WGxoMzJIdXZYNFE3aDJt?=
- =?utf-8?B?RmtuUjlJRk9JVlZydURTRmVkd1dUTEhxKzlGR2xCYURNc0krYUgxUTNtL3BI?=
- =?utf-8?B?WEFvNlZYQ0Z0cEFnY3RoZzNLaC8zMjN1cDNxRVB4UHdZT1ZsQnZwc3VZNWFj?=
- =?utf-8?B?UWVCWjN0eENIbXVGWmp4d2VZaGdTVk9xU3FkOERuM1ZML3plWUZvQXMvbmcz?=
- =?utf-8?B?cDNmQ0xHa2dkT0REV28vdXlIRjcrdktpcy81a0Z2RlViUUhYbHJoZmt2OXF3?=
- =?utf-8?B?a1JqRWp5K21YZE5KbURCV0lWa0JOS3hxWERsd0cyemdibWdkNWN3QUpwY2x1?=
- =?utf-8?B?eDZlVnphSExNWVZQdUxkQ0RFNXAzd2J3MVpoMllreU9mYnRoK0NqQW9tZUg3?=
- =?utf-8?B?L2tTamFvS0o2MnBva2pQSFNQN0xRbVJoVkh1SmgvKzFmZzNOQUVmUkhWbUZV?=
- =?utf-8?B?VHNJV0xwMnBodlE0bHdUMnZsZVc2aVY1dU5KQnlBMlNaWHRwNkpkZEN1Zmtz?=
- =?utf-8?B?TXh5eTdmd2ZqQ2IxNmVjSFpFUUh6eDdzMjF0S2w4Ym1ORkFCaytsZ2VRN1VW?=
- =?utf-8?B?eGVGMFUvSnhmdEJ2ck5vKzJRQ3hObkM4SHpkOTZLRXpiOGJGeldRNmsrQzhq?=
- =?utf-8?B?azY5di9TbTJEMUVDZU1TSUZPMGVPVVFzVzY1WXVQZUxENms0dHpGSThiSExi?=
- =?utf-8?B?ekpGRWd3VUxsWHpJMFZBcFVMd3gzSkhNVmVqYVFjaldhWjJPQ0JOTWdXODhh?=
- =?utf-8?B?YXJYd2grNHZJSVF3RnloWEVpMnkzd21sNFQxank1MytURVlOVEtEWjFLRCtq?=
- =?utf-8?B?SFJsVk9KR0FNdVdNVzdNMks1cWNrQkc0VHJOSWF4NUx6d0pBR0JoNnNoVlRF?=
- =?utf-8?Q?dSRNxLMmy71+V?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR10MB7255.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?ZmhkM1EvY2xhT1gvdjhnd0I4cTI2Y1l2NS8wTnNGNkJYZFVYL2dsZlFFWVZI?=
- =?utf-8?B?UnJaUEpjQXhzVElXT2wzR2dVY2plVjlqL3l0QkpPbEV6YXhCUm5zRkZvaW5X?=
- =?utf-8?B?NXZMN280T09scGM1eHdMZ3RranRLVGdsMDVZQ3dvanhwRXhpVzRiQTNmK2Ur?=
- =?utf-8?B?U3kvMlUwMDk3a2dIQUVRMGUzZUo4SVJxazh2YWdZdHhwM1gzQ2FSOWlLWE01?=
- =?utf-8?B?WTk1SjBFcWtCaXpTRlVpeDRZVUd4Q0kzR2M5V1k1NWQvc25JaWgxV29qQW9t?=
- =?utf-8?B?T2NNUW5mQ3gwRDlEd1FOcjBCUVA4SC9uR1U0K1BYQXlkSlJtbG4wblVMRXly?=
- =?utf-8?B?eG1tZFlmL1lOODZjY2wxNHE4UmtiZmJ4RUdobzZQaUY3UDNBeUt4eWlDK1FG?=
- =?utf-8?B?ekxHWEI2SW9xWU5temkrTDh5N1dTZy9YbUdxWmdGV0NQSzN6enhDUEZ2dEZM?=
- =?utf-8?B?bVdFZTZRSzI4YnN5aFUwWjI0VG15eUFMbDVCdkJLaENSZlVjbHNTMStqeDZE?=
- =?utf-8?B?Y1ZVaXVKNHkzSzZEWDR5Q0JJMXgwU3EwZXpJeXZxTDZyT0JjY05wZExaeVBm?=
- =?utf-8?B?NFVnVXBRVW1Pck53Nm5RMzR3UW5ndWMyUTZaaDgvWUFZeHRRaTF0WGptRWpT?=
- =?utf-8?B?QmtIZUEwWFlONFRyTjN0a3lwRnJ0ZHRqZ3Z6dnY5cmYrLzJFU3U3bDBlbnFE?=
- =?utf-8?B?SkdZZWVmdzhyN2NUM0Y2cjdMMVZXWWlnQ1NLYlhXNFFGMHBzaHVtcU00RjNI?=
- =?utf-8?B?a2dQOHVIaDF5bm9ycytoekl5ZWtIV20wK2RUNzl6bDF6a1lwaHpWUFhPZnlp?=
- =?utf-8?B?NGtQOWVKdTZCcng1VmpKNHQ0RXl5RGxibCtid1Y0WlJZcjd5emErL2FNYlhy?=
- =?utf-8?B?VWZlN3A3ZkJmNjRFT2MrbVIxUkdhU3dnSCtkck8wdlVrN05pWWRmclhJYjZH?=
- =?utf-8?B?U3BEa0crM25YTUVvQzB4WGRlQ09HbmhTZUhBSFlMOU5rckNUMmJXdzVTV1NJ?=
- =?utf-8?B?dHdIekFxZ3JFYXRrcXpMbFkvRGRWU1RQUzNhaC9uejluZ3ZNZ0g2d1BJZGJ0?=
- =?utf-8?B?dFZiV2FRUEIwbXdVak1hZFJyOUd6M1MyYzczWWNnc3c4Wi82TlBFWnpMZTQy?=
- =?utf-8?B?M09raXMwTXRzT2M4MEZWOStBYW4xcndycjMyVEZpYmhiOXBTcnI0Q1EreGF2?=
- =?utf-8?B?NmZTRERncEpHMjdoOHh3WjNFNmJOWWtuNzdUdVIvZGM4MjlCbGFWUGNIYkRU?=
- =?utf-8?B?OStURnBobEhoZkpKUGRZbExudytNVkM4Nmt4eCtjK1BoQmZXckJzVTdmMTh3?=
- =?utf-8?B?a3d0Z21VOVJ5Z0kzU0ZxTU9VbW5nUFVTTmdrcW5iUWIzaVIrVGgwa2xNWXo5?=
- =?utf-8?B?aVlBbmdPQ05XczQ2d21DTG9aQnhYNGJxVmZ4UW83MjdwY2FxSThJZkQvZWRH?=
- =?utf-8?B?RGRJWEVxN0tzVEI1ZW5aOVFSTzM1RW51QVVWV2RVNk9GcVJ5R0RiRWgxYTkw?=
- =?utf-8?B?STBSNDVhWUN2VXNVY3dFNkxRa2RzRVNuZjZwbjRwV1RiRU9OOVVNQng0OSta?=
- =?utf-8?B?dlU3U0xHdWM1N0owMGVWY09URWp5VHcrK1U0OVdMV0p4aXFobWJmY3kzTzdZ?=
- =?utf-8?B?eU9MbVRKQTZqcFFybkpZaysraUhUTXo5Z0RVRzZwS3BNTnA2R1dydUFQSEdC?=
- =?utf-8?B?ZUJRTFhkUjN1bTg3WUE1TjNycEY5UDlCanJrVlY4L2lBT2ZBNnBIRXBFZGFL?=
- =?utf-8?B?UEtJZXJiekxQbTlyWVlHdkNYa3plU1Y3SzlkS2gwRm02NytmTUtGQ3Z2RVBq?=
- =?utf-8?B?eENHbmxoc09YSWtzZlk5NGl6SUVBQUJHUGxabUlLNnpFeGpuMW9JdkxuWnVj?=
- =?utf-8?B?aVVSUEkyL1UzbG9JcHA5Z0g5V3hTWWNnNkNKeGNERk5RSG5mbE9SdGpkRGdh?=
- =?utf-8?B?ekd6N1BOeWtHODdZNFJWSXlXWjQzdEhQWDF5Sy9Hb09IeVdpN3hRekQwL2Y2?=
- =?utf-8?B?eDFRcUtBczc3VFozYnk0aWNFbDh5cGVoMFRadGFBTGtGaUxDVitRb3BMWnF2?=
- =?utf-8?B?RXR5V0ZwZ1R3Q2hkZ2N0N2s2dGFsSy9YVzNzc0xubUhkdmNYL21LUnZqK0pz?=
- =?utf-8?B?aW1FK01hTjZ3ZjhlT2doR3o3RjErZjdDQTYxWFpFNXhabDBaL3V3WGxPKzNs?=
- =?utf-8?B?REE9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	Z0Mqd4l+x9Fv1sMNQ4GvFdd9vTt5P55PRi22EQHCBXSALjasVDk8KoEJyjZk7zkSQ/k+tRYy4/X7rVCkf4HqaWqP0w/va3f/i7ON/JK20vT6jBk6yibJqcU8rvcpEdXFA1aU+SlipNxhqqBU6tBKDg8oz90jti9RXCaW5B4Py+OUaWruKj5VtoayoFIq640N6fBOOgw8WIYMmZu3C1KZO0XvchluDsHGoCgV19iMZ/DFEraOJ0POT8Dr1s5QirTY08RvucTNoFYxd3qW03fY0RKGGvk7oA7urg9JlZn7km+7efHortNyqHcTeCsJ2QGDcURRmfdSgDBGaRBiG9T9jpieYd3FwGZdlGu8ZnglId9HgG6ADtiCpJY0USxiWQveWW3rFetML7/gTZRN9ZNl/XTqYOs+26OgmOwIZQwaa3lr1J/G18ct8ZWicpyoKDzXdwFz/URscYm7Pu0tYiRGNrfj1Tc9bhehB1Z26q2d7gX4OwEuzmMY8tEolJCZ63JglQKkQy2VAxVyxPYu08N0sG0BXIVJ0lAqCgPrniYEJSSwM2Mr2zKwdtwuO2K4NG+G50Iu8KkKqgS7OReljbOZFZSF3MgJQK5sOn79Wp4dPdc=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 09b55a45-adf6-4895-388b-08dd40852a78
-X-MS-Exchange-CrossTenant-AuthSource: IA0PR10MB7255.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jan 2025 16:51:24.5500
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: zunpUJVtam7WBGNwvJ/8Zbc/o/uC6c+cFYTdLRigLhBRYxSITnm5EHuLOQQR06weIcvmNyKfjhThYrERO/Y3/QnQo8uR4N+LimId+xY0W+E=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4387
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-29_03,2025-01-29_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
- mlxlogscore=999 suspectscore=0 spamscore=0 mlxscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2411120000
- definitions=main-2501290134
-X-Proofpoint-GUID: xgq4t544iXAjyk8ud-1ZGl7_e3TvhLFn
-X-Proofpoint-ORIG-GUID: xgq4t544iXAjyk8ud-1ZGl7_e3TvhLFn
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
+ object
+From: Demi Marie Obenour <demiobenour@gmail.com>
+To: "Huang, Honglei1" <Honglei1.Huang@amd.com>, Huang Rui
+ <ray.huang@amd.com>, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, Dmitry Osipenko
+ <dmitry.osipenko@collabora.com>, dri-devel@lists.freedesktop.org,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Akihiko Odaki <akihiko.odaki@daynix.com>,
+ Lingshan Zhu <Lingshan.Zhu@amd.com>, Simona Vetter <simona.vetter@ffwll.ch>,
+ Xen developer discussion <xen-devel@lists.xenproject.org>,
+ Kernel KVM virtualization development <kvm@vger.kernel.org>,
+ =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
+References: <20241220100409.4007346-1-honglei1.huang@amd.com>
+ <20241220100409.4007346-3-honglei1.huang@amd.com>
+ <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
+ <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
+ <de8ade34-eb67-4bff-a1c9-27cb51798843@amd.com>
+ <Z36wV07M8B_wgWPl@phenom.ffwll.local>
+ <9572ba57-5552-4543-a3b0-6097520a12a3@gmail.com>
+Content-Language: en-US
+Autocrypt: addr=demiobenour@gmail.com; keydata=
+ xsFNBFp+A0oBEADffj6anl9/BHhUSxGTICeVl2tob7hPDdhHNgPR4C8xlYt5q49yB+l2nipd
+ aq+4Gk6FZfqC825TKl7eRpUjMriwle4r3R0ydSIGcy4M6eb0IcxmuPYfbWpr/si88QKgyGSV
+ Z7GeNW1UnzTdhYHuFlk8dBSmB1fzhEYEk0RcJqg4AKoq6/3/UorR+FaSuVwT7rqzGrTlscnT
+ DlPWgRzrQ3jssesI7sZLm82E3pJSgaUoCdCOlL7MMPCJwI8JpPlBedRpe9tfVyfu3euTPLPx
+ wcV3L/cfWPGSL4PofBtB8NUU6QwYiQ9Hzx4xOyn67zW73/G0Q2vPPRst8LBDqlxLjbtx/WLR
+ 6h3nBc3eyuZ+q62HS1pJ5EvUT1vjyJ1ySrqtUXWQ4XlZyoEFUfpJxJoN0A9HCxmHGVckzTRl
+ 5FMWo8TCniHynNXsBtDQbabt7aNEOaAJdE7to0AH3T/Bvwzcp0ZJtBk0EM6YeMLtotUut7h2
+ Bkg1b//r6bTBswMBXVJ5H44Qf0+eKeUg7whSC9qpYOzzrm7+0r9F5u3qF8ZTx55TJc2g656C
+ 9a1P1MYVysLvkLvS4H+crmxA/i08Tc1h+x9RRvqba4lSzZ6/Tmt60DPM5Sc4R0nSm9BBff0N
+ m0bSNRS8InXdO1Aq3362QKX2NOwcL5YaStwODNyZUqF7izjK4QARAQABzTxEZW1pIE1hcmll
+ IE9iZW5vdXIgKGxvdmVyIG9mIGNvZGluZykgPGRlbWlvYmVub3VyQGdtYWlsLmNvbT7CwXgE
+ EwECACIFAlp+A0oCGwMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJELKItV//nCLBhr8Q
+ AK/xrb4wyi71xII2hkFBpT59ObLN+32FQT7R3lbZRjVFjc6yMUjOb1H/hJVxx+yo5gsSj5LS
+ 9AwggioUSrcUKldfA/PKKai2mzTlUDxTcF3vKx6iMXKA6AqwAw4B57ZEJoMM6egm57TV19kz
+ PMc879NV2nc6+elaKl+/kbVeD3qvBuEwsTe2Do3HAAdrfUG/j9erwIk6gha/Hp9yZlCnPTX+
+ VK+xifQqt8RtMqS5R/S8z0msJMI/ajNU03kFjOpqrYziv6OZLJ5cuKb3bZU5aoaRQRDzkFIR
+ 6aqtFLTohTo20QywXwRa39uFaOT/0YMpNyel0kdOszFOykTEGI2u+kja35g9TkH90kkBTG+a
+ EWttIht0Hy6YFmwjcAxisSakBuHnHuMSOiyRQLu43ej2+mDWgItLZ48Mu0C3IG1seeQDjEYP
+ tqvyZ6bGkf2Vj+L6wLoLLIhRZxQOedqArIk/Sb2SzQYuxN44IDRt+3ZcDqsPppoKcxSyd1Ny
+ 2tpvjYJXlfKmOYLhTWs8nwlAlSHX/c/jz/ywwf7eSvGknToo1Y0VpRtoxMaKW1nvH0OeCSVJ
+ itfRP7YbiRVc2aNqWPCSgtqHAuVraBRbAFLKh9d2rKFB3BmynTUpc1BQLJP8+D5oNyb8Ts4x
+ Xd3iV/uD8JLGJfYZIR7oGWFLP4uZ3tkneDfYzsFNBFp+A0oBEAC9ynZI9LU+uJkMeEJeJyQ/
+ 8VFkCJQPQZEsIGzOTlPnwvVna0AS86n2Z+rK7R/usYs5iJCZ55/JISWd8xD57ue0eB47bcJv
+ VqGlObI2DEG8TwaW0O0duRhDgzMEL4t1KdRAepIESBEA/iPpI4gfUbVEIEQuqdqQyO4GAe+M
+ kD0Hy5JH/0qgFmbaSegNTdQg5iqYjRZ3ttiswalql1/iSyv1WYeC1OAs+2BLOAT2NEggSiVO
+ txEfgewsQtCWi8H1SoirakIfo45Hz0tk/Ad9ZWh2PvOGt97Ka85o4TLJxgJJqGEnqcFUZnJJ
+ riwoaRIS8N2C8/nEM53jb1sH0gYddMU3QxY7dYNLIUrRKQeNkF30dK7V6JRH7pleRlf+wQcN
+ fRAIUrNlatj9TxwivQrKnC9aIFFHEy/0mAgtrQShcMRmMgVlRoOA5B8RTulRLCmkafvwuhs6
+ dCxN0GNAORIVVFxjx9Vn7OqYPgwiofZ6SbEl0hgPyWBQvE85klFLZLoj7p+joDY1XNQztmfA
+ rnJ9x+YV4igjWImINAZSlmEcYtd+xy3Li/8oeYDAqrsnrOjb+WvGhCykJk4urBog2LNtcyCj
+ kTs7F+WeXGUo0NDhbd3Z6AyFfqeF7uJ3D5hlpX2nI9no/ugPrrTVoVZAgrrnNz0iZG2DVx46
+ x913pVKHl5mlYQARAQABwsFfBBgBAgAJBQJafgNKAhsMAAoJELKItV//nCLBwNIP/AiIHE8b
+ oIqReFQyaMzxq6lE4YZCZNj65B/nkDOvodSiwfwjjVVE2V3iEzxMHbgyTCGA67+Bo/d5aQGj
+ gn0TPtsGzelyQHipaUzEyrsceUGWYoKXYyVWKEfyh0cDfnd9diAm3VeNqchtcMpoehETH8fr
+ RHnJdBcjf112PzQSdKC6kqU0Q196c4Vp5HDOQfNiDnTf7gZSj0BraHOByy9LEDCLhQiCmr+2
+ E0rW4tBtDAn2HkT9uf32ZGqJCn1O+2uVfFhGu6vPE5qkqrbSE8TG+03H8ecU2q50zgHWPdHM
+ OBvy3EhzfAh2VmOSTcRK+tSUe/u3wdLRDPwv/DTzGI36Kgky9MsDC5gpIwNbOJP2G/q1wT1o
+ Gkw4IXfWv2ufWiXqJ+k7HEi2N1sree7Dy9KBCqb+ca1vFhYPDJfhP75I/VnzHVssZ/rYZ9+5
+ 1yDoUABoNdJNSGUYl+Yh9Pw9pE3Kt4EFzUlFZWbE4xKL/NPno+z4J9aWemLLszcYz/u3XnbO
+ vUSQHSrmfOzX3cV4yfmjM5lewgSstoxGyTx2M8enslgdXhPthZlDnTnOT+C+OTsh8+m5tos8
+ HQjaPM01MKBiAqdPgksm1wu2DrrwUi6ChRVTUBcj6+/9IJ81H2P2gJk3Ls3AVIxIffLoY34E
+ +MYSfkEjBz0E8CLOcAw7JIwAaeBT
+In-Reply-To: <9572ba57-5552-4543-a3b0-6097520a12a3@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 1/29/25 10:36 AM, Stefano Garzarella wrote:
->> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
->> index 9a4cbdc607fa..6bb64f3be7db 100644
->> --- a/drivers/vhost/scsi.c
->> +++ b/drivers/vhost/scsi.c
->> @@ -1828,14 +1828,19 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
->>         }
->>     }
+On 1/24/25 7:42 PM, Demi Marie Obenour wrote:
+> On 1/8/25 12:05 PM, Simona Vetter wrote:
+>> On Fri, Dec 27, 2024 at 10:24:29AM +0800, Huang, Honglei1 wrote:
+>>>
+>>> On 2024/12/22 9:59, Demi Marie Obenour wrote:
+>>>> On 12/20/24 10:35 AM, Simona Vetter wrote:
+>>>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
+>>>>>> From: Honglei Huang <Honglei1.Huang@amd.com>
+>>>>>>
+>>>>>> A virtio-gpu userptr is based on HMM notifier.
+>>>>>> Used for let host access guest userspace memory and
+>>>>>> notice the change of userspace memory.
+>>>>>> This series patches are in very beginning state,
+>>>>>> User space are pinned currently to ensure the host
+>>>>>> device memory operations are correct.
+>>>>>> The free and unmap operations for userspace can be
+>>>>>> handled by MMU notifier this is a simple and basice
+>>>>>> SVM feature for this series patches.
+>>>>>> The physical PFNS update operations is splited into
+>>>>>> two OPs in here. The evicted memories won't be used
+>>>>>> anymore but remap into host again to achieve same
+>>>>>> effect with hmm_rang_fault.
+>>>>>
+>>>>> So in my opinion there are two ways to implement userptr that make sense:
+>>>>>
+>>>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
+>>>>>    notifier
+>>>>>
+>>>>> - unpinnned userptr where you entirely rely on userptr and do not hold any
+>>>>>    page references or page pins at all, for full SVM integration. This
+>>>>>    should use hmm_range_fault ideally, since that's the version that
+>>>>>    doesn't ever grab any page reference pins.
+>>>>>
+>>>>> All the in-between variants are imo really bad hacks, whether they hold a
+>>>>> page reference or a temporary page pin (which seems to be what you're
+>>>>> doing here). In much older kernels there was some justification for them,
+>>>>> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
+>>>>> now all sorted out. So there's really only fully pinned, or true svm left
+>>>>> as clean design choices imo.
+>>>>>
+>>>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
+>>>>> you?
+>>>>
+>>>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
+>>>> in complexity that pinning everything avoids.  Furthermore, this avoids the
+>>>> host having to take action in response to guest memory reclaim requests.
+>>>> This avoids additional complexity (and thus attack surface) on the host side.
+>>>> Furthermore, since this is for ROCm and not for graphics, I am less concerned
+>>>> about supporting systems that require swappable GPU VRAM.
+>>>
+>>> Hi Sima and Demi,
+>>>
+>>> I totally agree the flag FOLL_LONGTERM is needed, I will add it in next
+>>> version.
+>>>
+>>> And for the first pin variants implementation, the MMU notifier is also
+>>> needed I think.Cause the userptr feature in UMD generally used like this:
+>>> the registering of userptr always is explicitly invoked by user code like
+>>> "registerMemoryToGPU(userptrAddr, ...)", but for the userptr release/free,
+>>> there is no explicit API for it, at least in hsakmt/KFD stack. User just
+>>> need call system call "free(userptrAddr)", then kernel driver will release
+>>> the userptr by MMU notifier callback.Virtio-GPU has no other way to know if
+>>> user has been free the userptr except for MMU notifior.And in UMD theres is
+>>> no way to get the free() operation is invoked by user.The only way is use
+>>> MMU notifier in virtio-GPU driver and free the corresponding data in host by
+>>> some virtio CMDs as far as I can see.
+>>>
+>>> And for the second way that is use hmm_range_fault, there is a predictable
+>>> issues as far as I can see, at least in hsakmt/KFD stack. That is the memory
+>>> may migrate when GPU/device is working. In bare metal, when memory is
+>>> migrating KFD driver will pause the compute work of the device in
+>>> mmap_wirte_lock then use hmm_range_fault to remap the migrated/evicted
+>>> memories to GPU then restore the compute work of device to ensure the
+>>> correction of the data. But in virtio-GPU driver the migration happen in
+>>> guest kernel, the evict mmu notifier callback happens in guest, a virtio CMD
+>>> can be used for notify host but as lack of mmap_write_lock protection in
+>>> host kernel, host will hold invalid data for a short period of time, this
+>>> may lead to some issues. And it is hard to fix as far as I can see.
+>>>
+>>> I will extract some APIs into helper according to your request, and I will
+>>> refactor the whole userptr implementation, use some callbacks in page
+>>> getting path, let the pin method and hmm_range_fault can be choiced
+>>> in this series patches.
 >>
->> +    if (vs->vs_tpg) {
->> +        pr_err("vhost-scsi endpoint already set for %s.\n",
->> +               vs->vs_vhost_wwpn);
->> +        ret = -EEXIST;
->> +        goto out;
->> +    }
->> +
->>     len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
->>     vs_tpg = kzalloc(len, GFP_KERNEL);
->>     if (!vs_tpg) {
->>         ret = -ENOMEM;
->>         goto out;
->>     }
->> -    if (vs->vs_tpg)
->> -        memcpy(vs_tpg, vs->vs_tpg, len);
->>
->>     mutex_lock(&vhost_scsi_mutex);
->>     list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
->> @@ -1851,12 +1856,6 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
->>         tv_tport = tpg->tport;
->>
->>         if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
->> -            if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
->> -                mutex_unlock(&tpg->tv_tpg_mutex);
->> -                mutex_unlock(&vhost_scsi_mutex);
->> -                ret = -EEXIST;
->> -                goto undepend;
->> -            }
->>             /*
->>              * In order to ensure individual vhost-scsi configfs
->>              * groups cannot be removed while in use by vhost ioctl,
->> @@ -1903,7 +1902,8 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
->>         }
->>         ret = 0;
->>     } else {
->> -        ret = -EEXIST;
->> +        ret = -ENODEV;
->> +        goto free_tpg;
->>     }
+>> Ok, so if this is for svm, then you need full blast hmm, or the semantics
+>> are buggy. You cannot fake svm with pin(FOLL_LONGTERM) userptr, this does
+>> not work.
 > 
-> After this block there this code:
-> 
->>
->>     /*
->      * Act as synchronize_rcu to make sure access to
->      * old vs->vs_tpg is finished.
->      */
->     vhost_scsi_flush(vs);
->     kfree(vs->vs_tpg);
->     vs->vs_tpg = vs_tpg;
->     goto out;
-> 
-> Should we adapt also that code, removing the kfree() and updating the comment?
-> 
-Yeah, I think I should. Will resend.
+> Is this still broken in the virtualized case?  Page migration between host
+> and device memory is completely transparent to the guest kernel, so pinning
+> guest memory doesn't interfere with the host KMD at all.  In fact, the host
+> KMD is not even aware of it.
 
-I think I originally was trying to make the patch smaller to make it easier
-to backport but seeing it again I think it makes more sense to do the cleanup
-in the same patch.
+To elaborate further:
+
+Memory in a KVM guest is *not* host physical memory, or even host kernel
+memory.  It is host *userspace* memory, and in particular, *it is fully pageable*.
+There *might* be a few exceptions involving structures that are accessed by
+the (physical) CPU, but none of these are relevant here.
+
+This means that memory management works very differently than in the
+non-virtualized case.  The host KMD can migrate pages between host memory
+and device memory without either the guest kernel or host userspace being
+aware that such migration has happened.  This means that pin(FOLL_LONGTERM)
+in the guest doesn't pin memory on the host.  Instead, it pins memory in the
+*guest*.  The host will continue to migrate pages between host and device
+as needed.  I’m no expert on SVM, but I suspect this is the desired behavior.
+
+Xen is significantly trickier, because most guest memory is provided by
+the Xen toolstack via the hypervisor and is _not_ pageable.  Therefore,
+it cannot be mapped into the GPU without using Xen grant tables.  Since
+Xen grants do not support non-cooperative revocation, this requires a
+FOLL_LONGTERM pin *anyway*.  Furthermore, granted pages _cannot_ be
+migrated from host to device, so unless the GPU is an iGPU all of its
+accesses will need to cross the PCI bus.  This will obviously be slow.
+
+The guest can avoid this problem by migrating userptr memory to virtio-GPU
+blob objects _before_ pinning it.  Virtio-GPU blob objects are backed by
+host userspace memory, so the host can migrate them between device and host
+memory just like in the KVM case.  Under KVM, such migration would be be
+slightly wasteful but otherwise harmless in the common case.  In the case
+where PCI passthrough is also in use, however, it might be necessary even
+for KVM guests.  This is because PCI passthrough requires pinned memory,
+and pinned memory cannot be migrated to the device.
+
+Since AMD’s automotive use-case uses Xen, and since KVM might also need
+page migration, I recommend that the initial implementation _always_
+migrate pages to blob objects no matter what the hypervisor is.  Direct
+GPU access to guest memory can be implemented as a KVM-specific optimization
+later.
+
+Also worth noting is that only pages that have been written need to be
+migrated.  If a page hasn't been written, it should not be migrated, because
+unwritten pages of a blob objects will read as zero.  However, the migration
+should almost certainly be done in 2M chunks, rather than 4K ones.  This is
+because the TLBs of at least AMD GPU are optimized for 2M pages, and GPU access
+to 4K pages takes a 30% performance penalty.  This nicely matches the penalty
+that AMD observed.
+-- 
+Sincerely,
+Demi Marie Obenour (she/her/hers)
