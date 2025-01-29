@@ -1,280 +1,283 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 024A81DE2DC
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:37:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738168634; cv=none; b=kVnituCmN3n88dR96qMfsEtxH5u1Fu+V+iS3qnzZLLI7OFtnfABUOmpO41txcNxd15hGCjKen8NKy5Terdkpd8whZ2hii7EFQRHNICI/5XOMBPx3TWMXqutlCoksknJ1zfZ2Rks2KVOG7MeNK2UkeaBOlGRUukMxlQ878fbIj+M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738168634; c=relaxed/simple;
-	bh=5FzrCibbxCCjjxTzx160tMVsayc7RC3gRwAItvJonj4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ai4Ey/0VTE5P2CtiCBoqwVVZGtXSIVO88fR09M2iP3ppHDjoEh2YwyniRPBQ+fSx6+pMMDyXKQHfIEuqlNKN4E7yU6gl7Ve+vZz2qMZ19TUW1YZSWPHHg5BH7zF8cWbg7472mRGs2fNI1KCAYN7mwjJMBgTA8fpy0KGZb61QLtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PZXe2nTP; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60E761DF747
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:51:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738169493; cv=fail; b=BPCwf8AOrd4C3Wq2uz0NbOH/bmJDjQowVQiBJ2bNMhT1NJiHrfQUesI64ClEVYGU8fpoZ2sXlOqr7aXfTjAQZNtBghXezCNXt2WTeFceTPXOd0cyzBvrJ4SwcDvyJd7Cg1Sy5MI3lmDVGsaI9BIIt2cyFSGIs2RNMk4NiW1NBF8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738169493; c=relaxed/simple;
+	bh=MHNOCR5qWu5HC44xbTNjCN4ctLHPlBcHOWLmect6+aM=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=n4uvnpOsFY6f79WcJjIAiHeHg61T1loYxqJsRBxhC7ZRTrhRqZ2KaQ2g9z3pbVtIOrdxd+VGvoRsRYi/rZhDGYV8S049F9E+/fVGI9D6sq8+rXlbIMr2ozxjDpPf2csUGmRrHI4DyOq/BWZD+rliA7ZGILrgrrk4D5dFEzHPcHg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=ZuP0JNWO; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=PYsGPJhj; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PZXe2nTP"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="ZuP0JNWO";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="PYsGPJhj"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6C4F0404CD
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:37:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id DE66A408A9
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:51:30 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.793
+X-Spam-Score: -6.489
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id NxGMZ7SXA4tN for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jan 2025 16:37:11 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E1A48403CE
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E1A48403CE
+ id OMi33mBQH_2P for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Jan 2025 16:51:30 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8E9ED406DB
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E9ED406DB
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PZXe2nTP
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E1A48403CE
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:37:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1738168629;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LkXx8zondeyhUCYuhAz6Lfn3PToEuRq9ZqfAdwuz1YI=;
-	b=PZXe2nTP5qYRgHkkl4B1PORF6eAREsUxJ4eTQ89xoCFnJcTYgZoj8Jy2pg2hEEt2DI65tV
-	zJsCkuLMJykOQ7XwJB93/fMc4rhepBDmcT9nNm/zct/OKea8sVyZmR8BSxY88zbRmN5wH6
-	zqabAdg4RomvZ0JmTXNBjI3o7CNuFkE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-98-TkTm0KmhMBSGP9orpV9kAw-1; Wed, 29 Jan 2025 11:37:08 -0500
-X-MC-Unique: TkTm0KmhMBSGP9orpV9kAw-1
-X-Mimecast-MFC-AGG-ID: TkTm0KmhMBSGP9orpV9kAw
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3862a49fbdaso2542775f8f.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 08:37:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738168626; x=1738773426;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LkXx8zondeyhUCYuhAz6Lfn3PToEuRq9ZqfAdwuz1YI=;
-        b=rDi6wsl+ABssn3ejz+d/3FMfyZzlWvFtBYdIQG1HkfitwQuJ31pWn6dMru2fqDO0cq
-         EZWFdGUV32z8+0t39ZP+aCMpFG32mPlVIZeLzFXlVSJEgATm3UlyaymWNOb/UxJtxT5r
-         VBk14moOH4s86IP+9wciKPPBkulxC75s4o+kSp73ExKf1K0J2CW2xNGUbX4JjqTifCo0
-         Jn95N6MIZbmI06wZbF1BtLUeXG52Mot1eZMXrnhl7g+uWH7kqfuA/jz9Q9c5OoQLUAn+
-         DJOhoYpgS9asXksM+PVTCmpyg5VJ8ROaBBZ4KKYBya0di13wm5I23Y9e0CaDajXB2qYO
-         LqVg==
-X-Forwarded-Encrypted: i=1; AJvYcCXCHh/MOF/Rau/Fr1bg3rd6gzswCtUSNQ7NNM3J501Z4GtNgg572p66/6DNkpB6Ii6dwp87+qmv6Mxk0cuaTQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzjXT8KuhDxq//LacU7fLawbBG4431A7rNXObDVqCDIr51RFlDy
-	WlyZXaOQWhm5ZKjfzoeRxvPCJUrNs/at1j8S3B3WiSaCRfzXx0kbA5LMNftcnK2l1OMPs8GIWuV
-	fT8DKCvXsG0PC+NfjvMVMitkYRWeJDnhQj5rIrtRMCs4BduFVSLNg30Tf87LIilPKoystoFClxu
-	bYoj4=
-X-Gm-Gg: ASbGncvUNTqXNCq/LDIoMzK6bwHDKBF4dyEQTyJQWk1YH9abTscUm9GuKVVTsgLdNeL
-	phwbeGPdLyIcha2VpDMYXwIdYvtaNITXxUsGENclehlfUnNSTkXQvngvhhRosAsTuBlNcdzb84l
-	MOgD07OsSVZDN21Ddmh521Zn0eXvcywWYZMWA/X0tE+pMfgHfXjOoQvYDqqALZmBMpXnYtIluNg
-	amhhL9XHp2ZDP0pyGayIlpYGOZCvJl8f0P5Nf1NXueR5Lht1nw7wh0IGr+gijR0oCBLG+9ZWlsR
-	liLsLWeIvQ==
-X-Received: by 2002:a05:6000:11c9:b0:38c:1270:f961 with SMTP id ffacd0b85a97d-38c520b7c7fmr2898334f8f.46.1738168626379;
-        Wed, 29 Jan 2025 08:37:06 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHV791ilXycUmlk1W6LWWwVp4j08qk2gkhUmlRuX2mypnrRVCaHxya2CY5DPiZ2ukrU63mTLg==
-X-Received: by 2002:a05:6000:11c9:b0:38c:1270:f961 with SMTP id ffacd0b85a97d-38c520b7c7fmr2898309f8f.46.1738168625742;
-        Wed, 29 Jan 2025 08:37:05 -0800 (PST)
-Received: from sgarzare-redhat ([185.121.209.52])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-438dcc24cefsm28319345e9.15.2025.01.29.08.37.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jan 2025 08:37:05 -0800 (PST)
-Date: Wed, 29 Jan 2025 17:36:58 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Cc: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com, 
-	pbonzini@redhat.com, wh1sper@zju.edu.cn, virtualization@lists.linux-foundation.org
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=ZuP0JNWO;
+	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=PYsGPJhj
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8E9ED406DB
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jan 2025 16:51:29 +0000 (UTC)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50TFsGcV003542;
+	Wed, 29 Jan 2025 16:51:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2023-11-20; bh=WrDayBjwHn4KoqYVfGoSGdXXMofr3Tc5nlmOAin8ofM=; b=
+	ZuP0JNWO1TRMZ2eZB4qGTyDwpRa9muUjyrVi+btj4DXExA/PZ7aPybkN6YYHX0ya
+	35myj0xyQum2wchcH0J4Eh16qgTzuNJMJvCJlAF/sM9DeLUeOXdM10DDfeUki3Qr
+	vjmH26dxvmb7Aftgpc1t3zduVCjSuI25WLhjEJrR6eCM4cBN7W+nthBL7lxJeVyf
+	+SdmvXSy9Ubf0wlQ6TZeQz8b6jr3Pih3srZ1srZDcnfr/Sr53lACjL7MTCrKX0uu
+	U5XTdW7r8tKe1chCoJI+JKNM6lnAxQZKyQ/NVWARXIjXmbm7GKIY7wzZjKgWT5pq
+	btUeW5ppLVzR14gan8OH5g==
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 44fqcp84mx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Jan 2025 16:51:27 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 50TFdnDS036333;
+	Wed, 29 Jan 2025 16:51:26 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2049.outbound.protection.outlook.com [104.47.66.49])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44cpd9xch4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Jan 2025 16:51:26 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=gA+Q+rbA9OsTfesON0WK/3ESd1cvvaxaXv/zj/65PP/I91B1ibSoiztllIMoEwipAu0k6n8Wvz3zhjDHGEFQ4slCjcGdJCwqrA1beMLSF7rNgwSjYiqlupsqsktZnWFGJTjKja7JPs1qJtXBMex9TgfAuBcp1Sw/SbJ0HVjIRMVWD7i/XtgAvEmsRCdJzvknTD3cjTs8DoxnfC4SzPLK3/nc9ISIW5FjKmmJQGKt8YyOgpQTtEcJYZINr18SMquozwrYVBahxK34SMBw0JvwOh0yjnPKQ24DnfzWKFm7Sre5YIZNRGrWAH7EslZWuzRI9QQBYQhjNICa0/rD/pV2LA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=WrDayBjwHn4KoqYVfGoSGdXXMofr3Tc5nlmOAin8ofM=;
+ b=wMhe54dNIttlA3Nw3KrDFgcJutcm4Insj0htZ3S8YnhPBPCOAZzNFJtIG9fmxsBfAoPPeUTeQRCj5ocbsqoFf03S0HLLa3w3RK/oHAp7upajzUzyuuhr9vpxtn++ii4GB82pehyYvmz1VwwxjEouLOihmWw7NrJkRquWHKQ0e6ROLqgeLd0CobYyJ5PvY1pPh2tvyVmA+oTwjXw7D62MzSVSPGThwbQgARR6KXNOucGtHEmfyJbZJSRbJvnn8QbFSdV8Lzn/x/dZpXZ0nZ9mOVZSHSI2co0XKVFSkHLvO4rKcECBd9vvvOemoYWh+Ylfnp6w4pcLWYXEJWwBFSUgiA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=WrDayBjwHn4KoqYVfGoSGdXXMofr3Tc5nlmOAin8ofM=;
+ b=PYsGPJhjMuCcI2W7u3Hi+JcfAm62gsIb40gfjnrVdja8dX1FdouLlIYcklykpxdpGGhwGoB4xGTxy/VO6veYTNFMRVB/aTOCOKKKiHPEktBCuw3C4v37l/vlGWQ6mIOSTDGa09mF4lD0MYDtk0Whk2plzVPV5Kck8DroiYnpJdQ=
+Received: from IA0PR10MB7255.namprd10.prod.outlook.com (2603:10b6:208:40c::10)
+ by BY5PR10MB4387.namprd10.prod.outlook.com (2603:10b6:a03:211::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.17; Wed, 29 Jan
+ 2025 16:51:24 +0000
+Received: from IA0PR10MB7255.namprd10.prod.outlook.com
+ ([fe80::a82c:ceec:cd7f:8c64]) by IA0PR10MB7255.namprd10.prod.outlook.com
+ ([fe80::a82c:ceec:cd7f:8c64%4]) with mapi id 15.20.8377.021; Wed, 29 Jan 2025
+ 16:51:24 +0000
+Message-ID: <466f4e29-5af3-4a51-9283-0f5c2ccb702c@oracle.com>
+Date: Wed, 29 Jan 2025 10:51:23 -0600
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 1/1] vhost-scsi: Fix handling of multiple calls to
  vhost_scsi_set_endpoint
-Message-ID: <bte2rkiy7tvefzanh6hsym3xawuyjznpcoevxcdifw7jqqep5r@vdanwnpihn27>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        pbonzini@redhat.com, wh1sper@zju.edu.cn,
+        virtualization@lists.linux-foundation.org
 References: <20250121213125.140333-1-michael.christie@oracle.com>
+ <bte2rkiy7tvefzanh6hsym3xawuyjznpcoevxcdifw7jqqep5r@vdanwnpihn27>
+Content-Language: en-US
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <bte2rkiy7tvefzanh6hsym3xawuyjznpcoevxcdifw7jqqep5r@vdanwnpihn27>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: CH0PR03CA0230.namprd03.prod.outlook.com
+ (2603:10b6:610:e7::25) To IA0PR10MB7255.namprd10.prod.outlook.com
+ (2603:10b6:208:40c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250121213125.140333-1-michael.christie@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xqgHf94Nxnv-GaQtJS004eCMqSOzJxLX8_N21p3OfaY_1738168627
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: IA0PR10MB7255:EE_|BY5PR10MB4387:EE_
+X-MS-Office365-Filtering-Correlation-Id: 09b55a45-adf6-4895-388b-08dd40852a78
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?MTd3NWU0eEVBZmgrdTNNaGpmczJhYno3KzFjMEcvWUs1cnRXWUUxUElhQ2pI?=
+ =?utf-8?B?cDRvTW0wWGNtY00wcVZqaXJWUDk5bzBpUlNoVmFpWTh2U2tjRmE5T3ZkZTdw?=
+ =?utf-8?B?T3p1aTVZMlpBR2pubklxbDBjYmRVc2wrUU0rSzZ2QVJvbXRQR0NzZGR5U3NH?=
+ =?utf-8?B?WlhrUmR1akk2QjZRdzlsNEtmOER5UkQ5eW15SXBWbE9yZ0JEOTRYcHBYSVdN?=
+ =?utf-8?B?cnNJUWFVekpFODdwZ2lPeWd0N1VHM0Y0NmZFWDVhQ0xLakJGWkpxM2JUUzJ1?=
+ =?utf-8?B?QnRHNGErUzJ5aWFoNlZ6QjZLSWFyelJSbTUyZWpGQzZIMS9FTEdDRFkvdVFr?=
+ =?utf-8?B?YUIyYnQ3T0I2UHJVUFNBTWdaOXhzSXIzWHgreFY3MEdsbCtwUlMzVURUcU10?=
+ =?utf-8?B?RTQ1a0d4SzA2OHc3Zm1yMXRxMmJ5UWpQRjNSV0tYcGZaOUtvVENtcE1XY0VV?=
+ =?utf-8?B?NGFneE43Q2VES0h3L1ZLVWVYa1ExQTVuR29lRWovR3RQdmhGVUNCQjBnQThD?=
+ =?utf-8?B?R2doaVNyQ1lHV01Tem82czVJK1lDSkRObVdyRnZZV0JCZTdwSy9VUkQ1Nm1G?=
+ =?utf-8?B?bkpTTDJxNi9LS0tPeHgvQkdlTUR4SGVFUWpnU3dYVm5hNzBCaEsxNTVJVE5K?=
+ =?utf-8?B?YmM0RVE3blNYMEcxajJJUWJ5VTB0bWpNb3h0MGFSeGtSditPOG02RDZOV25V?=
+ =?utf-8?B?OXVvTCtrVVFDUk1qdjgxcktkUkhWSmFaMmxxd2QyQWR6L0ExRkhpRUNMM0tR?=
+ =?utf-8?B?bTE3bU1ZQXhXcENjMVNrUUFnb3BkR2RNbWhoUkUwcjVmcklPdmtkU1BBaXBS?=
+ =?utf-8?B?S3k3Sm9kY090ZCsvbzdSV3Jyd010eGVGVGFwSGs2R2NScWd0VFhTR3JGZHZ1?=
+ =?utf-8?B?QVJmcDlXdDZpcmRkUlg3YkFkWkNUR3JXclp6dUN5eUFJWlJkc3pGdk1vcC8y?=
+ =?utf-8?B?a1V3Nk1hQTZYQ2pUbmhMSmVqT3huK1RqQW0vTGt6WGxoMzJIdXZYNFE3aDJt?=
+ =?utf-8?B?RmtuUjlJRk9JVlZydURTRmVkd1dUTEhxKzlGR2xCYURNc0krYUgxUTNtL3BI?=
+ =?utf-8?B?WEFvNlZYQ0Z0cEFnY3RoZzNLaC8zMjN1cDNxRVB4UHdZT1ZsQnZwc3VZNWFj?=
+ =?utf-8?B?UWVCWjN0eENIbXVGWmp4d2VZaGdTVk9xU3FkOERuM1ZML3plWUZvQXMvbmcz?=
+ =?utf-8?B?cDNmQ0xHa2dkT0REV28vdXlIRjcrdktpcy81a0Z2RlViUUhYbHJoZmt2OXF3?=
+ =?utf-8?B?a1JqRWp5K21YZE5KbURCV0lWa0JOS3hxWERsd0cyemdibWdkNWN3QUpwY2x1?=
+ =?utf-8?B?eDZlVnphSExNWVZQdUxkQ0RFNXAzd2J3MVpoMllreU9mYnRoK0NqQW9tZUg3?=
+ =?utf-8?B?L2tTamFvS0o2MnBva2pQSFNQN0xRbVJoVkh1SmgvKzFmZzNOQUVmUkhWbUZV?=
+ =?utf-8?B?VHNJV0xwMnBodlE0bHdUMnZsZVc2aVY1dU5KQnlBMlNaWHRwNkpkZEN1Zmtz?=
+ =?utf-8?B?TXh5eTdmd2ZqQ2IxNmVjSFpFUUh6eDdzMjF0S2w4Ym1ORkFCaytsZ2VRN1VW?=
+ =?utf-8?B?eGVGMFUvSnhmdEJ2ck5vKzJRQ3hObkM4SHpkOTZLRXpiOGJGeldRNmsrQzhq?=
+ =?utf-8?B?azY5di9TbTJEMUVDZU1TSUZPMGVPVVFzVzY1WXVQZUxENms0dHpGSThiSExi?=
+ =?utf-8?B?ekpGRWd3VUxsWHpJMFZBcFVMd3gzSkhNVmVqYVFjaldhWjJPQ0JOTWdXODhh?=
+ =?utf-8?B?YXJYd2grNHZJSVF3RnloWEVpMnkzd21sNFQxank1MytURVlOVEtEWjFLRCtq?=
+ =?utf-8?B?SFJsVk9KR0FNdVdNVzdNMks1cWNrQkc0VHJOSWF4NUx6d0pBR0JoNnNoVlRF?=
+ =?utf-8?Q?dSRNxLMmy71+V?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR10MB7255.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?ZmhkM1EvY2xhT1gvdjhnd0I4cTI2Y1l2NS8wTnNGNkJYZFVYL2dsZlFFWVZI?=
+ =?utf-8?B?UnJaUEpjQXhzVElXT2wzR2dVY2plVjlqL3l0QkpPbEV6YXhCUm5zRkZvaW5X?=
+ =?utf-8?B?NXZMN280T09scGM1eHdMZ3RranRLVGdsMDVZQ3dvanhwRXhpVzRiQTNmK2Ur?=
+ =?utf-8?B?U3kvMlUwMDk3a2dIQUVRMGUzZUo4SVJxazh2YWdZdHhwM1gzQ2FSOWlLWE01?=
+ =?utf-8?B?WTk1SjBFcWtCaXpTRlVpeDRZVUd4Q0kzR2M5V1k1NWQvc25JaWgxV29qQW9t?=
+ =?utf-8?B?T2NNUW5mQ3gwRDlEd1FOcjBCUVA4SC9uR1U0K1BYQXlkSlJtbG4wblVMRXly?=
+ =?utf-8?B?eG1tZFlmL1lOODZjY2wxNHE4UmtiZmJ4RUdobzZQaUY3UDNBeUt4eWlDK1FG?=
+ =?utf-8?B?ekxHWEI2SW9xWU5temkrTDh5N1dTZy9YbUdxWmdGV0NQSzN6enhDUEZ2dEZM?=
+ =?utf-8?B?bVdFZTZRSzI4YnN5aFUwWjI0VG15eUFMbDVCdkJLaENSZlVjbHNTMStqeDZE?=
+ =?utf-8?B?Y1ZVaXVKNHkzSzZEWDR5Q0JJMXgwU3EwZXpJeXZxTDZyT0JjY05wZExaeVBm?=
+ =?utf-8?B?NFVnVXBRVW1Pck53Nm5RMzR3UW5ndWMyUTZaaDgvWUFZeHRRaTF0WGptRWpT?=
+ =?utf-8?B?QmtIZUEwWFlONFRyTjN0a3lwRnJ0ZHRqZ3Z6dnY5cmYrLzJFU3U3bDBlbnFE?=
+ =?utf-8?B?SkdZZWVmdzhyN2NUM0Y2cjdMMVZXWWlnQ1NLYlhXNFFGMHBzaHVtcU00RjNI?=
+ =?utf-8?B?a2dQOHVIaDF5bm9ycytoekl5ZWtIV20wK2RUNzl6bDF6a1lwaHpWUFhPZnlp?=
+ =?utf-8?B?NGtQOWVKdTZCcng1VmpKNHQ0RXl5RGxibCtid1Y0WlJZcjd5emErL2FNYlhy?=
+ =?utf-8?B?VWZlN3A3ZkJmNjRFT2MrbVIxUkdhU3dnSCtkck8wdlVrN05pWWRmclhJYjZH?=
+ =?utf-8?B?U3BEa0crM25YTUVvQzB4WGRlQ09HbmhTZUhBSFlMOU5rckNUMmJXdzVTV1NJ?=
+ =?utf-8?B?dHdIekFxZ3JFYXRrcXpMbFkvRGRWU1RQUzNhaC9uejluZ3ZNZ0g2d1BJZGJ0?=
+ =?utf-8?B?dFZiV2FRUEIwbXdVak1hZFJyOUd6M1MyYzczWWNnc3c4Wi82TlBFWnpMZTQy?=
+ =?utf-8?B?M09raXMwTXRzT2M4MEZWOStBYW4xcndycjMyVEZpYmhiOXBTcnI0Q1EreGF2?=
+ =?utf-8?B?NmZTRERncEpHMjdoOHh3WjNFNmJOWWtuNzdUdVIvZGM4MjlCbGFWUGNIYkRU?=
+ =?utf-8?B?OStURnBobEhoZkpKUGRZbExudytNVkM4Nmt4eCtjK1BoQmZXckJzVTdmMTh3?=
+ =?utf-8?B?a3d0Z21VOVJ5Z0kzU0ZxTU9VbW5nUFVTTmdrcW5iUWIzaVIrVGgwa2xNWXo5?=
+ =?utf-8?B?aVlBbmdPQ05XczQ2d21DTG9aQnhYNGJxVmZ4UW83MjdwY2FxSThJZkQvZWRH?=
+ =?utf-8?B?RGRJWEVxN0tzVEI1ZW5aOVFSTzM1RW51QVVWV2RVNk9GcVJ5R0RiRWgxYTkw?=
+ =?utf-8?B?STBSNDVhWUN2VXNVY3dFNkxRa2RzRVNuZjZwbjRwV1RiRU9OOVVNQng0OSta?=
+ =?utf-8?B?dlU3U0xHdWM1N0owMGVWY09URWp5VHcrK1U0OVdMV0p4aXFobWJmY3kzTzdZ?=
+ =?utf-8?B?eU9MbVRKQTZqcFFybkpZaysraUhUTXo5Z0RVRzZwS3BNTnA2R1dydUFQSEdC?=
+ =?utf-8?B?ZUJRTFhkUjN1bTg3WUE1TjNycEY5UDlCanJrVlY4L2lBT2ZBNnBIRXBFZGFL?=
+ =?utf-8?B?UEtJZXJiekxQbTlyWVlHdkNYa3plU1Y3SzlkS2gwRm02NytmTUtGQ3Z2RVBq?=
+ =?utf-8?B?eENHbmxoc09YSWtzZlk5NGl6SUVBQUJHUGxabUlLNnpFeGpuMW9JdkxuWnVj?=
+ =?utf-8?B?aVVSUEkyL1UzbG9JcHA5Z0g5V3hTWWNnNkNKeGNERk5RSG5mbE9SdGpkRGdh?=
+ =?utf-8?B?ekd6N1BOeWtHODdZNFJWSXlXWjQzdEhQWDF5Sy9Hb09IeVdpN3hRekQwL2Y2?=
+ =?utf-8?B?eDFRcUtBczc3VFozYnk0aWNFbDh5cGVoMFRadGFBTGtGaUxDVitRb3BMWnF2?=
+ =?utf-8?B?RXR5V0ZwZ1R3Q2hkZ2N0N2s2dGFsSy9YVzNzc0xubUhkdmNYL21LUnZqK0pz?=
+ =?utf-8?B?aW1FK01hTjZ3ZjhlT2doR3o3RjErZjdDQTYxWFpFNXhabDBaL3V3WGxPKzNs?=
+ =?utf-8?B?REE9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	Z0Mqd4l+x9Fv1sMNQ4GvFdd9vTt5P55PRi22EQHCBXSALjasVDk8KoEJyjZk7zkSQ/k+tRYy4/X7rVCkf4HqaWqP0w/va3f/i7ON/JK20vT6jBk6yibJqcU8rvcpEdXFA1aU+SlipNxhqqBU6tBKDg8oz90jti9RXCaW5B4Py+OUaWruKj5VtoayoFIq640N6fBOOgw8WIYMmZu3C1KZO0XvchluDsHGoCgV19iMZ/DFEraOJ0POT8Dr1s5QirTY08RvucTNoFYxd3qW03fY0RKGGvk7oA7urg9JlZn7km+7efHortNyqHcTeCsJ2QGDcURRmfdSgDBGaRBiG9T9jpieYd3FwGZdlGu8ZnglId9HgG6ADtiCpJY0USxiWQveWW3rFetML7/gTZRN9ZNl/XTqYOs+26OgmOwIZQwaa3lr1J/G18ct8ZWicpyoKDzXdwFz/URscYm7Pu0tYiRGNrfj1Tc9bhehB1Z26q2d7gX4OwEuzmMY8tEolJCZ63JglQKkQy2VAxVyxPYu08N0sG0BXIVJ0lAqCgPrniYEJSSwM2Mr2zKwdtwuO2K4NG+G50Iu8KkKqgS7OReljbOZFZSF3MgJQK5sOn79Wp4dPdc=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 09b55a45-adf6-4895-388b-08dd40852a78
+X-MS-Exchange-CrossTenant-AuthSource: IA0PR10MB7255.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jan 2025 16:51:24.5500
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: zunpUJVtam7WBGNwvJ/8Zbc/o/uC6c+cFYTdLRigLhBRYxSITnm5EHuLOQQR06weIcvmNyKfjhThYrERO/Y3/QnQo8uR4N+LimId+xY0W+E=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4387
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-29_03,2025-01-29_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
+ mlxlogscore=999 suspectscore=0 spamscore=0 mlxscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2411120000
+ definitions=main-2501290134
+X-Proofpoint-GUID: xgq4t544iXAjyk8ud-1ZGl7_e3TvhLFn
+X-Proofpoint-ORIG-GUID: xgq4t544iXAjyk8ud-1ZGl7_e3TvhLFn
 
-On Tue, Jan 21, 2025 at 03:31:25PM -0600, Mike Christie wrote:
->If vhost_scsi_set_endpoint is called multiple times without a
->vhost_scsi_clear_endpoint between them, we can hit multiple bugs
->found by Haoran Zhang:
->
->1. Use-after-free when no tpgs are found:
->
->This fixes a use after free that occurs when vhost_scsi_set_endpoint is
->called more than once and calls after the first call do not find any
->tpgs to add to the vs_tpg. When vhost_scsi_set_endpoint first finds
->tpgs to add to the vs_tpg array match=true, so we will do:
->
->vhost_vq_set_backend(vq, vs_tpg);
->...
->
->kfree(vs->vs_tpg);
->vs->vs_tpg = vs_tpg;
->
->If vhost_scsi_set_endpoint is called again and no tpgs are found
->match=false so we skip the vhost_vq_set_backend call leaving the
->pointer to the vs_tpg we then free via:
->
->kfree(vs->vs_tpg);
->vs->vs_tpg = vs_tpg;
->
->If a scsi request is then sent we do:
->
->vhost_scsi_handle_vq -> vhost_scsi_get_req -> vhost_vq_get_backend
->
->which sees the vs_tpg we just did a kfree on.
->
->2. Tpg dir removal hang:
->
->This patch fixes an issue where we cannot remove a LIO/target layer
->tpg (and structs above it like the target) dir due to the refcount
->dropping to -1.
->
->The problem is that if vhost_scsi_set_endpoint detects a tpg is already
->in the vs->vs_tpg array or if the tpg has been removed so
->target_depend_item fails, the undepend goto handler will do
->target_undepend_item on all tpgs in the vs_tpg array dropping their
->refcount to 0. At this time vs_tpg contains both the tpgs we have added
->in the current vhost_scsi_set_endpoint call as well as tpgs we added in
->previous calls which are also in vs->vs_tpg.
->
->Later, when vhost_scsi_clear_endpoint runs it will do
->target_undepend_item on all the tpgs in the vs->vs_tpg which will drop
->their refcount to -1. Userspace will then not be able to remove the tpg
->and will hang when it tries to do rmdir on the tpg dir.
->
->3. Tpg leak:
->
->This fixes a bug where we can leak tpgs and cause them to be
->un-removable because the target name is overwritten when
->vhost_scsi_set_endpoint is called multiple times but with different
->target names.
->
->The bug occurs if a user has called VHOST_SCSI_SET_ENDPOINT and setup
->a vhost-scsi device to target/tpg mapping, then calls
->VHOST_SCSI_SET_ENDPOINT again with a new target name that has tpgs we
->haven't seen before (target1 has tpg1 but target2 has tpg2). When this
->happens we don't teardown the old target tpg mapping and just overwrite
->the target name and the vs->vs_tpg array. Later when we do
->vhost_scsi_clear_endpoint, we are passed in either target1 or target2's
->name and we will only match that target's tpgs when we loop over the
->vs->vs_tpg. We will then return from the function without doing
->target_undepend_item on the tpgs.
->
->Because of all these bugs, it looks like being able to call
->vhost_scsi_set_endpoint multiple times was never supported. The major
->user, QEMU, already has checks to prevent this use case. So to fix the
->issues, this patch prevents vhost_scsi_set_endpoint from being called
->if it's already successfully added tpgs. To add, remove or change the
->tpg config or target name, you must do a vhost_scsi_clear_endpoint
->first.
->
->Fixes: 25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
->Fixes: 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate if the endpoint is setup")
->Reported-by: Haoran Zhang <wh1sper@zju.edu.cn>
->Closes: https://lore.kernel.org/virtualization/e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com/T/#me6c0041ce376677419b9b2563494172a01487ecb
->Signed-off-by: Mike Christie <michael.christie@oracle.com>
->---
-> drivers/vhost/scsi.c | 20 +++++++++++---------
-> 1 file changed, 11 insertions(+), 9 deletions(-)
->
->diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
->index 9a4cbdc607fa..6bb64f3be7db 100644
->--- a/drivers/vhost/scsi.c
->+++ b/drivers/vhost/scsi.c
->@@ -1828,14 +1828,19 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
-> 		}
-> 	}
->
->+	if (vs->vs_tpg) {
->+		pr_err("vhost-scsi endpoint already set for %s.\n",
->+		       vs->vs_vhost_wwpn);
->+		ret = -EEXIST;
->+		goto out;
->+	}
->+
-> 	len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
-> 	vs_tpg = kzalloc(len, GFP_KERNEL);
-> 	if (!vs_tpg) {
-> 		ret = -ENOMEM;
-> 		goto out;
-> 	}
->-	if (vs->vs_tpg)
->-		memcpy(vs_tpg, vs->vs_tpg, len);
->
-> 	mutex_lock(&vhost_scsi_mutex);
-> 	list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
->@@ -1851,12 +1856,6 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
-> 		tv_tport = tpg->tport;
->
-> 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
->-			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
->-				mutex_unlock(&tpg->tv_tpg_mutex);
->-				mutex_unlock(&vhost_scsi_mutex);
->-				ret = -EEXIST;
->-				goto undepend;
->-			}
-> 			/*
-> 			 * In order to ensure individual vhost-scsi configfs
-> 			 * groups cannot be removed while in use by vhost ioctl,
->@@ -1903,7 +1902,8 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
-> 		}
-> 		ret = 0;
-> 	} else {
->-		ret = -EEXIST;
->+		ret = -ENODEV;
->+		goto free_tpg;
-> 	}
+On 1/29/25 10:36 AM, Stefano Garzarella wrote:
+>> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+>> index 9a4cbdc607fa..6bb64f3be7db 100644
+>> --- a/drivers/vhost/scsi.c
+>> +++ b/drivers/vhost/scsi.c
+>> @@ -1828,14 +1828,19 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+>>         }
+>>     }
+>>
+>> +    if (vs->vs_tpg) {
+>> +        pr_err("vhost-scsi endpoint already set for %s.\n",
+>> +               vs->vs_vhost_wwpn);
+>> +        ret = -EEXIST;
+>> +        goto out;
+>> +    }
+>> +
+>>     len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
+>>     vs_tpg = kzalloc(len, GFP_KERNEL);
+>>     if (!vs_tpg) {
+>>         ret = -ENOMEM;
+>>         goto out;
+>>     }
+>> -    if (vs->vs_tpg)
+>> -        memcpy(vs_tpg, vs->vs_tpg, len);
+>>
+>>     mutex_lock(&vhost_scsi_mutex);
+>>     list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
+>> @@ -1851,12 +1856,6 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+>>         tv_tport = tpg->tport;
+>>
+>>         if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
+>> -            if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
+>> -                mutex_unlock(&tpg->tv_tpg_mutex);
+>> -                mutex_unlock(&vhost_scsi_mutex);
+>> -                ret = -EEXIST;
+>> -                goto undepend;
+>> -            }
+>>             /*
+>>              * In order to ensure individual vhost-scsi configfs
+>>              * groups cannot be removed while in use by vhost ioctl,
+>> @@ -1903,7 +1902,8 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+>>         }
+>>         ret = 0;
+>>     } else {
+>> -        ret = -EEXIST;
+>> +        ret = -ENODEV;
+>> +        goto free_tpg;
+>>     }
+> 
+> After this block there this code:
+> 
+>>
+>>     /*
+>      * Act as synchronize_rcu to make sure access to
+>      * old vs->vs_tpg is finished.
+>      */
+>     vhost_scsi_flush(vs);
+>     kfree(vs->vs_tpg);
+>     vs->vs_tpg = vs_tpg;
+>     goto out;
+> 
+> Should we adapt also that code, removing the kfree() and updating the comment?
+> 
+Yeah, I think I should. Will resend.
 
-After this block there this code:
-
->
-> 	/*
-	 * Act as synchronize_rcu to make sure access to
-	 * old vs->vs_tpg is finished.
-	 */
-	vhost_scsi_flush(vs);
-	kfree(vs->vs_tpg);
-	vs->vs_tpg = vs_tpg;
-	goto out;
-
-Should we adapt also that code, removing the kfree() and updating the 
-comment?
-
-The rest LGTM!
-
-Thanks,
-Stefano
-
-
->@@ -1931,6 +1931,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
-> 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
-> 		}
-> 	}
->+free_tpg:
-> 	kfree(vs_tpg);
-> out:
-> 	mutex_unlock(&vs->dev.mutex);
->@@ -2033,6 +2034,7 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
-> 	vhost_scsi_flush(vs);
-> 	kfree(vs->vs_tpg);
-> 	vs->vs_tpg = NULL;
->+	memset(vs->vs_vhost_wwpn, 0, sizeof(vs->vs_vhost_wwpn));
-> 	WARN_ON(vs->vs_events_nr);
-> 	mutex_unlock(&vs->dev.mutex);
-> 	return 0;
->-- 
->2.43.0
->
-
+I think I originally was trying to make the patch smaller to make it easier
+to backport but seeing it again I think it makes more sense to do the cleanup
+in the same patch.
