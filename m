@@ -1,358 +1,137 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from fhigh-a1-smtp.messagingengine.com (fhigh-a1-smtp.messagingengine.com [103.168.172.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6F64683
-	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 00:41:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32243145B0B
+	for <virtualization@lists.linux.dev>; Fri, 31 Jan 2025 07:49:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738284074; cv=none; b=FgoRGpWkaD+pS4WtAPJF/t0b3kjOOKNfTLI/fRfRfQoGni7RQ+fJvUkjqMotYb7Squ46o9/6Jj/q2e2faHA1wZFdgygzTTdIw0LzETDftCyADAopegqg6X3z/f8rvQ4t10Lx1OMnircFjj03prJrXrCkxtiAv2VbOCryBt0Dsto=
+	t=1738309745; cv=none; b=jDwx5/+gBT5uvbO7Yaeg4dic35LwjfOgh7YoXUlc4bMn8gWAgE6uy1VAEmzgBClXA0swxVKwE+TweHbBNCmv+nVKot4bcukxYZJBRvcLfFMpK+F3uvxOkMyK2tO5vEhWzdOFDOgGM+VP5HlKX6P0L3CsN19yo+4+jvHWgCGO01M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738284074; c=relaxed/simple;
-	bh=TV47MtjmPBHhuYLr/wq6M9RAfqLB2IJkbs8azlx/L0U=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qWkdLH3+7I4fvgYEt+YXgUP1+bsvJ40WpT328dbYn2cT4doW4Zj1O4IqVacsb3YOKQ1Z640FB/c4CU91Ej+qXRfv5U7WWeHY1MKdMDh/wdBN2c6+W8Xblhs9q1sYA6jHHPejsfxWMevL0ktitN7uiAaG2Q2Mv07HSl2v9MmT3WU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b=fBvWEqNn; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ukhYcM46; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1738309745; c=relaxed/simple;
+	bh=AHtujq9AUL0r5JBnOO7rqiXl33q6R2L4lARHJfO+LgU=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=Di7xDtO9FNqdJd5/eH+W6qTmyE+Edd7GouIz2av5NNF3FEXYYyVEo8ZHO1oa7RFvfctqfVji8avEGjbioCuJ8FBJXz2RS/Hvv6j01IJ9sHakc9Fg8fF7KBUDnQu8jmAgIoVDIMnPKu9O+l2FP1hu2SAoxmonND26IfPvmjfrQRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=bZBHnLER; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=U05yoB8B; arc=none smtp.client-ip=103.168.172.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b="fBvWEqNn";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ukhYcM46"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DCF4240445
-	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 00:41:11 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -6.393
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id miKHbDiHyVdm for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Jan 2025 00:41:10 +0000 (UTC)
-X-Greylist: delayed 443 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 31 Jan 2025 00:41:10 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1F3E440413
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F3E440413
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.a=rsa-sha256 header.s=fm3 header.b=fBvWEqNn;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=ukhYcM46
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=202.12.124.147; helo=fout-b4-smtp.messagingengine.com; envelope-from=demi@invisiblethingslab.com; receiver=<UNKNOWN> 
-Received: from fout-b4-smtp.messagingengine.com (fout-b4-smtp.messagingengine.com [202.12.124.147])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1F3E440413
-	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 00:41:09 +0000 (UTC)
-Received: from phl-compute-09.internal (phl-compute-09.phl.internal [10.202.2.49])
-	by mailfout.stl.internal (Postfix) with ESMTP id 63355114015D;
-	Thu, 30 Jan 2025 19:33:46 -0500 (EST)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-09.internal (MEProxy); Thu, 30 Jan 2025 19:33:46 -0500
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="bZBHnLER";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="U05yoB8B"
+Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 0B39411401A1;
+	Fri, 31 Jan 2025 02:49:03 -0500 (EST)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-10.internal (MEProxy); Fri, 31 Jan 2025 02:49:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1738309743;
+	 x=1738396143; bh=CLs8lrMbTXfsWo526vCMom84HCVc8uRGSWPX9ea0vpk=; b=
+	bZBHnLERiC3ZUEdkZR536WxfHtQMTr+WQ1LGuux+1WLZTLEjbxW2Ft2PZXguvDi/
+	vlBUl0cnwN+tQOqh9fC0oqYlEa9F54sLfjA+ocYI83sC5LF82wameQbEmgcjnoBs
+	qDMe+Loyk+3DHgVYT6Ap3Tu7M/ApJ1k6dBKP2/ebzdyKajrGL501FNIu6j8oGhzI
+	UnJpmgEPwTIHlMEGrT7ZzuD4akonDJB3meHZ4MXjKFF233pAjqoMSDTgaNJ5zZv6
+	qsjxNfPM/yNfotF1Z9sGS+gGsa0PAsFoRJXUyRsB7cne4opZ0lE7aJ5mgbeRgXDK
+	qYMMu4158RHP0omWCSCjLQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	invisiblethingslab.com; h=cc:content-type:content-type:date:date
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
 	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1738283626;
-	 x=1738370026; bh=j99SJx9+IyZ7/r4OezmfhlavbnB02Ja7JSF+YJce3E0=; b=
-	fBvWEqNn3MrBQ97NnULtQxdiecq+Gb+3/PQbbJgjGP9Oj/2spdqMC6rYQ9hsgMRv
-	0Iwxxd/VZqqzzuaIadQ49dTCeyGCYAqNhUqBoDPiyelqNqQJYQx0s3bwD8GyNqVb
-	PjVUn+QUcBuBA54Lr6lwo1h63+6m2nCb2KvoqG2JUnD72Q+wkAVXRfIcOUn53sIZ
-	LAAIRYVZewWomimIxPCBviSXVSIHNwurPGnov/9NvX9bgj4jcIMyeN3BZ7+gUJDl
-	/fHS397ubeg0cjOj07jeuw9HFX0zG9ZhuLn6H4QtPLttdFmtWIbRN7Vr+knDXejq
-	uClXpbh7hcxYeP/liBmpBg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1738283626; x=1738370026; bh=j99SJx9+IyZ7/r4OezmfhlavbnB02Ja7JSF
-	+YJce3E0=; b=ukhYcM462h0Yyo5L/vjDR4BlFkf23xJOmGi6reGlSAdN6WQdCFm
-	ve6k9AiPziSvn7UwjoaP4ZuTjc4ZsQc7jvH3uTCVX+Jz5+l7cVloKyzG1HGiP52f
-	GhF0hjQhpRWV/WzIx8IXmVBagnRpxoc2GP7XgTIm3ZEe9Zboewn7QOgJo0AIPWms
-	tVPHBqn+dKkiHMCHuf0oUkF08OS/pAe4lcvekPB6MJ3IFN1Dl+/yhDA7gAYD7MqD
-	jHm4Rds3hp7uCESVeAElD8GAlwjlsH9oUWI1jETAGuuzEEei9MAPqjfehyR4w+e0
-	0ham+c9HxyMKMM/TloJLuhjLgHdDWSRcCUQ==
-X-ME-Sender: <xms:aRqcZ0MVWJjDOhA6w8yXek5zvl-ORa3WWrUa4XsxZc36yXrKNfAkUg>
-    <xme:aRqcZ69bVfwEKpRuUMAqCEBWm0bs4c3rlNc_n2xvzHH4sgD8j-YPsxUxjeEzsn-08
-    dEHQzlG1vkCwvg>
-X-ME-Received: <xmr:aRqcZ7Sba18NnKiQVem16eIihmKJrMzbK_cGsO374AImA2UpJ3sl5hLcr_Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdejfedtucetufdoteggodetrfdotf
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1738309743; x=
+	1738396143; bh=CLs8lrMbTXfsWo526vCMom84HCVc8uRGSWPX9ea0vpk=; b=U
+	05yoB8BUNrqVlfPxJEfz5c74geRWi4Ugio+7w06eLA9k2mNLplex3CdgW3HoZBLX
+	TMJolx/pjguUIaTYqKcM2QbyxShViKHimwH757ulQ0bSsoJRjeoECcuZnDllq7YA
+	R7PKRlBAH9rGBsM7uy0OJsqum0QuD0b0AP1LfkAH+qZy1jvkVnErkT/NdcT61S98
+	WGMtApYkLIdLL558hDjWqIYZQfziMP0YWAXWPhxGHc4cjkaXHfpFf5Wt0rMveQzn
+	ucGbNPUZ67Uqa3+JQ8icNCjauRFoeLN5aoqHsuYCCOx1p5erOMyA7x5YiDc1Yn0D
+	O7kLZFhILfYA8rTSTFHxg==
+X-ME-Sender: <xms:bYCcZ6_4JIzX-HybFr_crzqeUTIG78YR-mnMlpWF8u3y5o9sE9B1pw>
+    <xme:bYCcZ6s4dS6lz-_4TsZzg3WY1Va_plGsn14inSG4j26nIhj1Fqus2b1FTLNEsyA62
+    1NKnEQERAbxaUbRk0k>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdekudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
     rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepfffhvffukfhfgggtuggjsehgtderredttdejnecu
-    hfhrohhmpeffvghmihcuofgrrhhivgcuqfgsvghnohhurhcuoeguvghmihesihhnvhhish
-    hisghlvghthhhinhhgshhlrggsrdgtohhmqeenucggtffrrghtthgvrhhnpedttedtueei
-    vdefiedugfejtdeutdelfedvueekledtudegjedviedukeefhfeuteenucevlhhushhtvg
-    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpeguvghmihesihhnvhhishhi
-    sghlvghthhhinhhgshhlrggsrdgtohhmpdhnsggprhgtphhtthhopedukedpmhhouggvpe
-    hsmhhtphhouhhtpdhrtghpthhtohepuggvmhhiohgsvghnohhurhesghhmrghilhdrtgho
-    mhdprhgtphhtthhopehhohhnghhlvghiuddrhhhurghnghesrghmugdrtghomhdprhgtph
-    htthhopehrrgihrdhhuhgrnhhgsegrmhgurdgtohhmpdhrtghpthhtohepvhhirhhtuhgr
-    lhhiiigrthhiohhnsehlihhsthhsrdhlihhnuhigqdhfohhunhgurghtihhonhdrohhrgh
-    dprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhr
-    ghdprhgtphhtthhopegumhhithhrhidrohhsihhpvghnkhhosegtohhllhgrsghorhgrrd
-    gtohhmpdhrtghpthhtohepughrihdquggvvhgvlheslhhishhtshdrfhhrvggvuggvshhk
-    thhophdrohhrghdprhgtphhtthhopegrihhrlhhivggusehrvgguhhgrthdrtghomhdprh
-    gtphhtthhopehkrhgrgigvlhesrhgvughhrghtrdgtohhm
-X-ME-Proxy: <xmx:aRqcZ8tviDV2fH_Fig7gZuvUTO-Q2ol4AzOWoGY6D7TyyDHDWINsPQ>
-    <xmx:aRqcZ8e_77SMnr4hQcFkljV16wDIKgv2sZp6rruj-cfLrMVFShP_6w>
-    <xmx:aRqcZw0OvE4Bz0ERm413AjBj7Mxs2Yjx4z57hqQB8DctU261M1TGrg>
-    <xmx:aRqcZw87SycT_jcUZzUq_ZJ3fHdctwdGyN8z3rV_RtJajO_jZOXOYw>
-    <xmx:ahqcZ_VIDfYVUxJV9L-zEswUlE7cRIvQCdphyjywN14hUKE26-B8UQea>
-Feedback-ID: iac594737:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 30 Jan 2025 19:33:44 -0500 (EST)
-Date: Thu, 30 Jan 2025 19:33:37 -0500
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
-To: Demi Marie Obenour <demiobenour@gmail.com>,
-	"Huang, Honglei1" <Honglei1.Huang@amd.com>,
-	Huang Rui <ray.huang@amd.com>,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Akihiko Odaki <akihiko.odaki@daynix.com>,
-	Lingshan Zhu <Lingshan.Zhu@amd.com>,
-	Xen developer discussion <xen-devel@lists.xenproject.org>,
-	Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>,
-	Kernel KVM virtualization development <kvm@vger.kernel.org>,
-	Xenia Ragiadakou <burzalodowa@gmail.com>,
-	Stefano Stabellini <stefano.stabellini@amd.com>
-Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
- object
-Message-ID: <Z5waZsddenagCYtl@itl-email>
-References: <20241220100409.4007346-1-honglei1.huang@amd.com>
- <20241220100409.4007346-3-honglei1.huang@amd.com>
- <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
- <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
- <de8ade34-eb67-4bff-a1c9-27cb51798843@amd.com>
- <Z36wV07M8B_wgWPl@phenom.ffwll.local>
- <c42ae4f7-f5f4-4906-85aa-b049ed44d7e9@gmail.com>
+    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdej
+    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
+    guvgeqnecuggftrfgrthhtvghrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdeg
+    jedvfeehtdeggeevheefleejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepiedp
+    mhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepohhushhhihigihhonhhguddtvdehse
+    duieefrdgtohhmpdhrtghpthhtoheprghmihhtsehkvghrnhgvlhdrohhrghdprhgtphht
+    thhopehouhhshhhigihiohhngheskhihlhhinhhoshdrtghnpdhrtghpthhtohepghhrvg
+    hgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgpdhrtghpthhtohepvhhirhht
+    uhgrlhhiiigrthhiohhnsehlihhsthhsrdhlihhnuhigrdguvghvpdhrtghpthhtoheplh
+    hinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:bYCcZwAb15eDBb6IuvMnfxf0vAFOtz76pVigVbYmJdPv70D4NQ_8JQ>
+    <xmx:bYCcZyfruxHPxOugDZV13GbbxP2TGXrezQPMG0BSIhRk4zZKfzcsYA>
+    <xmx:bYCcZ_PtfzgVrpfYWD-OaH-OszitF21YD4AQnfKbskr7kd-GI_0Q4A>
+    <xmx:bYCcZ8k-K5WatFyPIgVE3hnUcVm69OyU6tUbaxT9MIWMcOtgS10E4w>
+    <xmx:b4CcZ60jJwYswira3C4qR2KmnseJUmxnV1iHwF7_V6jMX-7X9awDklJP>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 7D2C32220073; Fri, 31 Jan 2025 02:49:01 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="9QyKV9EEhg0eMfJA"
-Content-Disposition: inline
-In-Reply-To: <c42ae4f7-f5f4-4906-85aa-b049ed44d7e9@gmail.com>
-
-
---9QyKV9EEhg0eMfJA
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
+Date: Fri, 31 Jan 2025 08:48:39 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: oushixiong <oushixiong1025@163.com>, "Amit Shah" <amit@kernel.org>
+Cc: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ oushixiong <oushixiong@kylinos.cn>
+Message-Id: <6d092e0b-3b1d-4d5d-babf-f8c5a4c501d3@app.fastmail.com>
+In-Reply-To: <0e5fcde2-140a-4896-8880-5f90f2a134c4@163.com>
+References: <20250128055241.30760-1-oushixiong1025@163.com>
+ <9a10b435045556f5625afe83bd41bc4d4f9be80b.camel@kernel.org>
+ <0e5fcde2-140a-4896-8880-5f90f2a134c4@163.com>
+Subject: Re: [PATCH] virtio_console: Convert to use devm funcs
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Jan 2025 19:33:37 -0500
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
-To: Demi Marie Obenour <demiobenour@gmail.com>,
-	"Huang, Honglei1" <Honglei1.Huang@amd.com>,
-	Huang Rui <ray.huang@amd.com>,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Akihiko Odaki <akihiko.odaki@daynix.com>,
-	Lingshan Zhu <Lingshan.Zhu@amd.com>,
-	Xen developer discussion <xen-devel@lists.xenproject.org>,
-	Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>,
-	Kernel KVM virtualization development <kvm@vger.kernel.org>,
-	Xenia Ragiadakou <burzalodowa@gmail.com>,
-	Stefano Stabellini <stefano.stabellini@amd.com>
-Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
- object
 
-On Wed, Jan 29, 2025 at 03:54:59PM -0500, Demi Marie Obenour wrote:
-> On 1/8/25 12:05 PM, Simona Vetter wrote:
-> > On Fri, Dec 27, 2024 at 10:24:29AM +0800, Huang, Honglei1 wrote:
-> >>
-> >> On 2024/12/22 9:59, Demi Marie Obenour wrote:
-> >>> On 12/20/24 10:35 AM, Simona Vetter wrote:
-> >>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
-> >>>>> From: Honglei Huang <Honglei1.Huang@amd.com>
-> >>>>>
-> >>>>> A virtio-gpu userptr is based on HMM notifier.
-> >>>>> Used for let host access guest userspace memory and
-> >>>>> notice the change of userspace memory.
-> >>>>> This series patches are in very beginning state,
-> >>>>> User space are pinned currently to ensure the host
-> >>>>> device memory operations are correct.
-> >>>>> The free and unmap operations for userspace can be
-> >>>>> handled by MMU notifier this is a simple and basice
-> >>>>> SVM feature for this series patches.
-> >>>>> The physical PFNS update operations is splited into
-> >>>>> two OPs in here. The evicted memories won't be used
-> >>>>> anymore but remap into host again to achieve same
-> >>>>> effect with hmm_rang_fault.
-> >>>>
-> >>>> So in my opinion there are two ways to implement userptr that make s=
-ense:
-> >>>>
-> >>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
-> >>>>    notifier
-> >>>>
-> >>>> - unpinnned userptr where you entirely rely on userptr and do not ho=
-ld any
-> >>>>    page references or page pins at all, for full SVM integration. Th=
-is
-> >>>>    should use hmm_range_fault ideally, since that's the version that
-> >>>>    doesn't ever grab any page reference pins.
-> >>>>
-> >>>> All the in-between variants are imo really bad hacks, whether they h=
-old a
-> >>>> page reference or a temporary page pin (which seems to be what you're
-> >>>> doing here). In much older kernels there was some justification for =
-them,
-> >>>> because strange stuff happened over fork(), but with FOLL_LONGTERM t=
-his is
-> >>>> now all sorted out. So there's really only fully pinned, or true svm=
- left
-> >>>> as clean design choices imo.
-> >>>>
-> >>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not wor=
-k for
-> >>>> you?
-> >>>
-> >>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a hug=
-e cost
-> >>> in complexity that pinning everything avoids.  Furthermore, this avoi=
-ds the
-> >>> host having to take action in response to guest memory reclaim reques=
-ts.
-> >>> This avoids additional complexity (and thus attack surface) on the ho=
-st side.
-> >>> Furthermore, since this is for ROCm and not for graphics, I am less c=
-oncerned
-> >>> about supporting systems that require swappable GPU VRAM.
-> >>
-> >> Hi Sima and Demi,
-> >>
-> >> I totally agree the flag FOLL_LONGTERM is needed, I will add it in next
-> >> version.
-> >>
-> >> And for the first pin variants implementation, the MMU notifier is also
-> >> needed I think.Cause the userptr feature in UMD generally used like th=
-is:
-> >> the registering of userptr always is explicitly invoked by user code l=
-ike
-> >> "registerMemoryToGPU(userptrAddr, ...)", but for the userptr release/f=
-ree,
-> >> there is no explicit API for it, at least in hsakmt/KFD stack. User ju=
-st
-> >> need call system call "free(userptrAddr)", then kernel driver will rel=
-ease
-> >> the userptr by MMU notifier callback.Virtio-GPU has no other way to kn=
-ow if
-> >> user has been free the userptr except for MMU notifior.And in UMD ther=
-es is
-> >> no way to get the free() operation is invoked by user.The only way is =
-use
-> >> MMU notifier in virtio-GPU driver and free the corresponding data in h=
-ost by
-> >> some virtio CMDs as far as I can see.
-> >>
-> >> And for the second way that is use hmm_range_fault, there is a predict=
-able
-> >> issues as far as I can see, at least in hsakmt/KFD stack. That is the =
-memory
-> >> may migrate when GPU/device is working. In bare metal, when memory is
-> >> migrating KFD driver will pause the compute work of the device in
-> >> mmap_wirte_lock then use hmm_range_fault to remap the migrated/evicted
-> >> memories to GPU then restore the compute work of device to ensure the
-> >> correction of the data. But in virtio-GPU driver the migration happen =
-in
-> >> guest kernel, the evict mmu notifier callback happens in guest, a virt=
-io CMD
-> >> can be used for notify host but as lack of mmap_write_lock protection =
-in
-> >> host kernel, host will hold invalid data for a short period of time, t=
-his
-> >> may lead to some issues. And it is hard to fix as far as I can see.
-> >>
-> >> I will extract some APIs into helper according to your request, and I =
-will
-> >> refactor the whole userptr implementation, use some callbacks in page
-> >> getting path, let the pin method and hmm_range_fault can be choiced
-> >> in this series patches.
-> >=20
-> > Ok, so if this is for svm, then you need full blast hmm, or the semanti=
-cs
-> > are buggy. You cannot fake svm with pin(FOLL_LONGTERM) userptr, this do=
-es
-> > not work.
-> >=20
-> > The other option is that hsakmt/kfd api is completely busted, and that's
-> > kinda not a kernel problem.
-> > -Sima
->=20
-> On further thought, I believe the driver needs to migrate the pages to
-> device memory (really a virtio-GPU blob object) *and* take a FOLL_LONGTERM
-> pin on them.  The reason is that it isn=E2=80=99t possible to migrate the=
-se pages
-> back to "host" memory without unmapping them from the GPU.  For the reaso=
-ns
-> I mention in [1], I believe that temporarily revoking access to virtio-GPU
-> blob objects is not feasible.  Instead, the pages must be treated as if
-> they are permanently in device memory until guest userspace unmaps them
-> from the GPU, after which they must be migrated back to host memory.
+On Wed, Jan 29, 2025, at 12:48, oushixiong wrote:
+> =E5=9C=A8 2025/1/28 17:39, Amit Shah =E5=86=99=E9=81=93:
+>> On Tue, 2025-01-28 at 13:52 +0800, oushixiong1025@163.com wrote:
+>>
+>> Hm, I'm not entirely sure about this - the devm_ interface is better,
+>> but to me that just says that it's an extra safety net that avoids
+>> memleaks when we forget to kfree, and not that we deliberately do not
+>> free and get lax about managing allocated memory.
+>>
+>> So I'd prefer a patch that keeps all current frees as they are, but
+>> with the added advantage of using the devm interfaces.
+>>
+>
+> Hi, I don't think driver need to=C2=A0 call kfree() by manual if drive=
+r use=20
+> the devm_ interface
 
-Discussion on IRC indicates that migration isn't reliable.  This is
-because Linux core memory management is largely lock-free for
-performance reasons, so there is no way to prevent temporary elevation
-of a page's reference count.  A page with an elevated reference count
-cannot be migrated.
+Calling the plain kfree() on memory allocated by devm_kmalloc()
+is a bug, it has to be freed when the device is released or
+explicitly using devm_kfree(). The explicit devm_kfree() in
+turn is what you'd use only if memory has to be freed early
+while the device is still going to be used.
 
-The only alternative I can think of is for the hypervisor to perform the
-migration.  The hypervisor can revoke the guest's access to the page
-without the guest's consent or involvement.  The host can then replace
-the page with one of its own pages, which might be on the CPU or GPU.
-Further migration between the CPU and GPU is controlled by the host
-kernel-mode driver (KMD) and host kernel memory management.  The guest
-kernel driver must take a FOLL_LONGTERM pin before telling the host to
-use the pages, but that is all.
+> in the probe() phase. This can simplifies the code.
+>
+> This is similar to the=C2=A0 commit=C2=A0 "55dd7378ba94 (fbdev: imxfb:=
+ Convert to=20
+> devm_kmalloc_array())"
 
-On KVM, this should be essentially automatic, as guest memory really is
-just host userspace memory.  On Xen, this requires that the backend
-domain can revoke fronted access to _any_ frontend page, or at least
-frontend pages that have been granted to the backend.  The backend will
-then need to be able to handle page faults for the frontend pages, and
-replace the frontend pages with its own pages at will.  Furthermore,
-revoking pages that the backend has installed into the frontend must
-never fail, because the backend will panic if it does fail.
+I don't think it's worth converting drivers that correctly use
+kmalloc()/kfree() already. For new drivers, the devm_* functions
+are usually the easiest to use and review, and it makes sense to
+convert drivers that have known memory leaks from incorrect
+cleanup paths, but I don't think it's a good use of developer
+or reviewer time to convert drivers that are not wrong for the
+sake of simplicity. There is a memory overhead in the devm_*
+functions and there is a risk of introducing bugs if the conversion
+is done incorrectly, e.g. when a regular kfree() is left behind,
+or when changing allocations that are meant to be freed before
+.release() is called.
 
-Sima, is putting guest pages under host kernel control the only option?
-I thought that this could be avoided by leaving the pages on the CPU if
-migration fails, but that won't work because there will be no way to
-migrate them to the GPU later, causing performance problems that would
-be impossible to debug.  Is waiting (possibly forever) on migration to
-finish an option?  Otherwise, this might mean extra complexity in the
-Xen hypervisor, as I do not believe the primitives needed are currently
-available.  Specifically, in addition to the primitives discussed at Xen
-Project Summit 2024, the backend also needs to intercept access to, and
-replace the contents of, arbitrary frontend-controlled pages.
---=20
-Sincerely,
-Demi Marie Obenour (she/her/hers)
-Invisible Things Lab
-
---9QyKV9EEhg0eMfJA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEopQtqVJW1aeuo9/sszaHOrMp8lMFAmecGmEACgkQszaHOrMp
-8lMt/w/9EultembzZOpL8oYFzpDKH4QFhJkkcONDqVqYYE5kH122Mqj5GsprGGW0
-FqvHAgK5Qk/W+zz9LQrk+P6WEwJhP0XIo/TKJfSCOXqK6pEqwyZ8OPk1nHAiPli/
-D7bm3ocsg69tYGoLsCylZehwUe87ATZZ43KVsh+bf1h+lRHONd8yOs46nSzJuxzl
-zEOI373RpZVKzpRx3HQfyzS9oALVzvdyGzeX+1n3AmQyDbZtjs4ZInyyng4ruArL
-viZtevqVe6boeeemKkZaGtGOzaiVZAmwX3PjTNXbIygsogzscCrMUfL3ZOYbg9D/
-P18aWdQEu5f7+Vt5PL4sOfY6AsmArvlwAKWVQdmpk8eTTuW6fDk0651ogKcNFiV9
-cgCJhv5SBa/hoas8i4nj2pl58AdfjaZFGtdXsEuKzQ2D7N6LivWZGOsbwfK+NVdT
-AdzfuyH0M41tQw0Oy57NmnnbnC7clqk1wn8UTTSfxmtFWCVhBoMx25WgIK/fGUvp
-JOHj+9q/MfD0A+dY0jng45Y8Kf7saNMMWmpmT0NNoAAnNWZzSJgO7+2IHjjd6DTn
-K07huXex3wpOxtBnd42TWMb5fxiwtU48XhGRz7ZNyhPlakaK/ZKjJX8bE2WrLOrA
-bAwm93etZnI91f08VSApkuYCYUCAh8nk/k6GDDdAkvWTWfsJ09w=
-=U2FS
------END PGP SIGNATURE-----
-
---9QyKV9EEhg0eMfJA--
+       Arnd
