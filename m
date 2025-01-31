@@ -1,69 +1,62 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B23EED8
-	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:35:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39D723D66
+	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:40:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738312549; cv=none; b=jO8tJ1Cy36Jlv1U7yFJjUu6vgyQ0HFiMbMOIF5EBzir7dFRzwe02mS6tk9dviaFu6wk1Rxc/pZ7nGrpfQAsJnEqYLiDc0wqEUjz+iovcCRmggnS1gkMwYrdMzR9VQYs1nspBD+iOozLSbbN3q7qWiMEcvPtS37ZOXDEpv53O9XQ=
+	t=1738312848; cv=none; b=ma7yQ/rM+UB2AdM3Px5riE64HDHgqnxBJShny+ni4jqQD9O3lZoacN45kCR49F45gJJ7eQ6GJgY57Z2PlV3KKqsZ5IFp3Ek+9z3iAWFuHkkZX4lYAegCxof5gCwh0A1yVYj73LL5colXAcQuP9yc+vdl1T3UxrwU2BEn7hRhBCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738312549; c=relaxed/simple;
-	bh=1Vf7SraXgcAr4MrtkaSvZn1+sMqYM8V24q3OmaIeIME=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QHn6NBtDLWCaYs9XZRS0A83UvaxZOhpu3BxG6nqMDNtkg9vzAGx3xI18Uelhgkvt5qLf/bT0o9D8ZloYfBJ6U7IdAqMZw2WjAJGqWMcfLtPqgn0gbjlEUegltU58qSYNoGUwLWILyzYWbqs0C/CPtyUeCZt9q7rLmBkZsri5fz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b=BihgjZ0M; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1738312848; c=relaxed/simple;
+	bh=AByGzPZFCZg2nnvpayFZflvZL2RQLHf8zm5g6xZBZ5g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CffzRxPJ8O/cpaEAPlFxebVXk7vXL6bsBy1KX0cdQ5BFNg5Yd4pqFfOpj4VuA00y6GGAzBIuGoWlXgStNNo4uf7k9uv6IA8RLZEjhIycJAf+SreC2YUs2nebiqyeM3jIUVnI6GchF1YsybYlFGkXpbJ3ZJ4w5wC48e+vH22sWq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b=eYrS+97Z; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b="BihgjZ0M"
+	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b="eYrS+97Z"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CA34242658
-	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:35:47 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id B35E541957
+	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:40:46 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.791
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id v7hs2QiCV9Ox for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Jan 2025 08:35:46 +0000 (UTC)
+ id jJx4H9PPd_vx for <virtualization@lists.linux-foundation.org>;
+ Fri, 31 Jan 2025 08:40:45 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=95.143.211.150; helo=mx.swemel.ru; envelope-from=arefev@swemel.ru; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 65B9942657
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 5AF944247F
 Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 65B9942657
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5AF944247F
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=swemel.ru header.i=@swemel.ru header.a=rsa-sha256 header.s=mail header.b=BihgjZ0M
+	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.a=rsa-sha256 header.s=mail header.b=eYrS+97Z
 Received: from mx.swemel.ru (mx.swemel.ru [95.143.211.150])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 65B9942657
-	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:35:46 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5AF944247F
+	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:40:45 +0000 (UTC)
 From: Denis Arefev <arefev@swemel.ru>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=swemel.ru; s=mail;
-	t=1738312068;
+	t=1738312287;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w/LokgVE8APjfH1r2MM22fAxPhHX1CdEHBK2GYuUJ5w=;
-	b=BihgjZ0MdSz7PeJy6OHvV33pvxGG2mqGoWy4XcyfDsItZqwUiwxv+llPVl7wD/gPygbO3P
-	iGRQoFptbY/s2HjAvKw5bT07IDCtgxQUh5MoIxSRblBPvIj97LVrfwqESQgUJlQ835VbdE
-	5wu9BZQybWwzlygGzZzHJZAbU+Lqofo=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Wu5giTMaFtSko/rPqNi1xr1VxojhCVJ+Uc0s4BPi43k=;
+	b=eYrS+97Z/5DwP3cZB5Tz8GHJRD13exocQJ+QPr8rN/f/cHiEFvQbl2x0IBAWQyfTlrxiFy
+	qQmWt7WJtznmi0UGH/gdyYs/g+8oqLn91bBC8Zh5z7lQ2fpv3/5X9RhLU9ih7pC93N0MN2
+	tcRPP09adLsOM2EgDMSd07mXRZBitPg=
 To: stable@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	"David S. Miller" <davem@davemloft.net>,
-	Andrew Melnychenko <andrew@daynix.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Willem de Bruijn <willemb@google.com>,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org,
 	netdev@vger.kernel.org,
-	lvc-project@linuxtesting.org,
-	syzbot+01cdbc31e9c0ae9b33ac@syzkaller.appspotmail.com,
-	syzbot+c99d835ff081ca30f986@syzkaller.appspotmail.com,
-	Willem de Bruijn <willemb@google.com>,
-	Eric Dumazet <edumazet@google.com>
-Subject: [PATCH 5.10 1/5] net: more strict VIRTIO_NET_HDR_GSO_UDP_L4 validation
-Date: Fri, 31 Jan 2025 11:27:37 +0300
-Message-ID: <20250131082747.4101-2-arefev@swemel.ru>
-In-Reply-To: <20250131082747.4101-1-arefev@swemel.ru>
-References: <20250131082747.4101-1-arefev@swemel.ru>
+	lvc-project@linuxtesting.org
+Subject: [PATCH 5.10 3/5] net: tighten bad gso csum offset check in virtio_net_hdr
+Date: Fri, 31 Jan 2025 11:31:25 +0300
+Message-ID: <20250131083127.4204-1-arefev@swemel.ru>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -74,88 +67,60 @@ Content-Transfer-Encoding: 8bit
 
 From: Willem de Bruijn <willemb@google.com>
 
-commit fc8b2a619469378717e7270d2a4e1ef93c585f7a upstream.
+commit 6513eb3d3191574b58859ef2d6dc26c0277c6f81 upstream. 
 
-Syzbot reported two new paths to hit an internal WARNING using the
-new virtio gso type VIRTIO_NET_HDR_GSO_UDP_L4.
+The referenced commit drops bad input, but has false positives.
+Tighten the check to avoid these.
 
-    RIP: 0010:skb_checksum_help+0x4a2/0x600 net/core/dev.c:3260
-    skb len=64521 gso_size=344
-and
+The check detects illegal checksum offload requests, which produce
+csum_start/csum_off beyond end of packet after segmentation.
 
-    RIP: 0010:skb_warn_bad_offload+0x118/0x240 net/core/dev.c:3262
+But it is based on two incorrect assumptions:
 
-Older virtio types have historically had loose restrictions, leading
-to many entirely impractical fuzzer generated packets causing
-problems deep in the kernel stack. Ideally, we would have had strict
-validation for all types from the start.
+1. virtio_net_hdr_to_skb with VIRTIO_NET_HDR_GSO_TCP[46] implies GSO.
+True in callers that inject into the tx path, such as tap.
+But false in callers that inject into rx, like virtio-net.
+Here, the flags indicate GRO, and CHECKSUM_UNNECESSARY or
+CHECKSUM_NONE without VIRTIO_NET_HDR_F_NEEDS_CSUM is normal.
 
-New virtio types can have tighter validation. Limit UDP GSO packets
-inserted via virtio to the same limits imposed by the UDP_SEGMENT
-socket interface:
+2. TSO requires checksum offload, i.e., ip_summed == CHECKSUM_PARTIAL.
+False, as tcp[46]_gso_segment will fix up csum_start and offset for
+all other ip_summed by calling __tcp_v4_send_check.
 
-1. must use checksum offload
-2. checksum offload matches UDP header
-3. no more segments than UDP_MAX_SEGMENTS
-4. UDP GSO does not take modifier flags, notably SKB_GSO_TCP_ECN
+Because of 2, we can limit the scope of the fix to virtio_net_hdr
+that do try to set these fields, with a bogus value.
 
-Fixes: 860b7f27b8f7 ("linux/virtio_net.h: Support USO offload in vnet header.")
-Reported-by: syzbot+01cdbc31e9c0ae9b33ac@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/netdev/0000000000005039270605eb0b7f@google.com/
-Reported-by: syzbot+c99d835ff081ca30f986@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/netdev/0000000000005426680605eb0b9f@google.com/
+Link: https://lore.kernel.org/netdev/20240909094527.GA3048202@port70.net/
+Fixes: 89add40066f9 ("net: drop bad gso csum_start and offset in virtio_net_hdr")
 Signed-off-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://patch.msgid.link/20240910213553.839926-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 [Denis: minor fix to resolve merge conflict.]                                           
 Signed-off-by: Denis Arefev <arefev@swemel.ru>                                    
 ---
 Backport fix for CVE-2024-43817
-Link: https://nvd.nist.gov/vuln/detail/cve-2024-43817 
+Link: https://nvd.nist.gov/vuln/detail/cve-2024-43817
 ---
- include/linux/virtio_net.h | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ include/linux/virtio_net.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 6047058d6703..9bdba0c00c07 100644
+index 823e28042f41..62613d4d84b7 100644
 --- a/include/linux/virtio_net.h
 +++ b/include/linux/virtio_net.h
-@@ -3,8 +3,8 @@
- #define _LINUX_VIRTIO_NET_H
- 
- #include <linux/if_vlan.h>
-+#include <linux/udp.h>
- #include <uapi/linux/tcp.h>
--#include <uapi/linux/udp.h>
- #include <uapi/linux/virtio_net.h>
- 
- static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
-@@ -144,9 +144,22 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		unsigned int nh_off = p_off;
- 		struct skb_shared_info *shinfo = skb_shinfo(skb);
- 
--		/* UFO may not include transport header in gso_size. */
--		if (gso_type & SKB_GSO_UDP)
-+		switch (gso_type & ~SKB_GSO_TCP_ECN) {
-+		case SKB_GSO_UDP:
-+			/* UFO may not include transport header in gso_size. */
- 			nh_off -= thlen;
-+			break;
-+		case SKB_GSO_UDP_L4:
-+			if (!(hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM))
-+				return -EINVAL;
-+			if (skb->csum_offset != offsetof(struct udphdr, check))
-+				return -EINVAL;
-+			if (skb->len - p_off > gso_size * UDP_MAX_SEGMENTS)
-+				return -EINVAL;
-+			if (gso_type != SKB_GSO_UDP_L4)
-+				return -EINVAL;
-+			break;
-+		}
- 
- 		/* Kernel has a special handling for GSO_BY_FRAGS. */
- 		if (gso_size == GSO_BY_FRAGS)
+@@ -161,7 +161,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 			break;
+ 		case SKB_GSO_TCPV4:
+ 		case SKB_GSO_TCPV6:
+-			if (skb->csum_offset != offsetof(struct tcphdr, check))
++			if (skb->ip_summed == CHECKSUM_PARTIAL &&
++			    skb->csum_offset != offsetof(struct tcphdr, check))
+ 				return -EINVAL;
+ 			break;
+ 		}
 -- 
 2.43.0
 
