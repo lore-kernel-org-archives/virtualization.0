@@ -1,65 +1,63 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85E6DEED8
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99293146D6A
 	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:40:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738312848; cv=none; b=JleFG6ia5EOf5PAbV+D+YTWPzvQwpJHSQXySD90Zrsh/PZ7YCAg0I5D2OzJtNl+VonXqrIjHLz29Ku1VmfsJfThiBawaPuhWFs4chCjGnlIhN4WbCdvCR2UROYXkP4gfgAXswT8GYe5+r/NOsIwm3vRB8i32vieGi8xRvrvhq9Y=
+	t=1738312848; cv=none; b=Zxlf+/4wVzcqNIaTbxyZeGqQmWFLjY06M30dy/q/zu3GeYhiZ+VNuPdKR+rAcHI1f0y5YRO4mJL53DxkaHWbNs3tjc0ITbnuPABolPN5MVFwPYWyhpu1ZzS05lSQWEdz+5p5I/wRwVaVkBx7Nd30KIn28goYepkEjXMLhQ38aCY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1738312848; c=relaxed/simple;
-	bh=EdPxBgsK9ZXjj08v9WOwe/PgDxuv9DBDgwggEKvFXgo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=s9US8yNhvmuhhqm/sHr5OkxkpqqlY7iDzI5h8+WZBC5zhpbBg/EMngx3gp87Hpgg9ebGErxkIfLwLLiV28v3yhNCcG/cCtAKGwpeEDHb4MVcf8W2zXTWU2dhn+U29UGa9hcEX92HheONHQGITgi+NR3R+WNxqK8sHF15HkXzUHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b=rwBMZVXw; arc=none smtp.client-ip=140.211.166.133
+	bh=xchRIW1eUY/yAMi/gmRW7+GFWbW0I+i78YtWFUkL+tA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lhl84KyJ6GSUvJoSutIgegTS6g7Ob7jm0Wml1r3+3MBx50n/oDrZrWT2M6gBE5hxMokuUx86SzYZD95J7Wbxxi3T6RtTmzwouOLSaAftPpSitre1ER6IFARNFMQRpcUu3sj9qzRJ3US+G3S4InYaPev2ROclwHY7GTleQO6TP6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b=caORf6kk; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b="rwBMZVXw"
+	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b="caORf6kk"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 03044400BB
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1E1F383A5F
 	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:40:47 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.791
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id fiJQ-DLZorqu for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Jan 2025 08:40:45 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Spcei_HfuQYq for <virtualization@lists.linux-foundation.org>;
+ Fri, 31 Jan 2025 08:40:46 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=95.143.211.150; helo=mx.swemel.ru; envelope-from=arefev@swemel.ru; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6BBAC4022B
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6BBAC4022B
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=swemel.ru header.i=@swemel.ru header.a=rsa-sha256 header.s=mail header.b=rwBMZVXw
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8BF5283A65
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8BF5283A65
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=swemel.ru header.i=@swemel.ru header.a=rsa-sha256 header.s=mail header.b=caORf6kk
 Received: from mx.swemel.ru (mx.swemel.ru [95.143.211.150])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6BBAC4022B
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8BF5283A65
 	for <virtualization@lists.linux-foundation.org>; Fri, 31 Jan 2025 08:40:45 +0000 (UTC)
 From: Denis Arefev <arefev@swemel.ru>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=swemel.ru; s=mail;
-	t=1738312277;
+	t=1738312308;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding;
-	bh=TiZkqs3hb6Ha6sFHBsSXGkqzB4QUSc+pMjyMQC5X09c=;
-	b=rwBMZVXwAenRV8EYQFo1RecGiOPqgUEcvyA9VENEpUcQPhWZlhfPt5qfjLg/KuEcI2Fkkl
-	BcgvAzz2Ioz8OKVh2z3N7PNpNXI9u+WxNdwp7f/rggFjYdnzzNKwWgiyUtJmlscnl6DLJr
-	P+wdzy+2yMew4UCUeFoK1u0tn6yG5N8=
+	bh=BMZR7EBilYf15P4LgXGO3rdBEyqkDdi2+Bs83Fslgg0=;
+	b=caORf6kkDEbOaCMRQw5haOE11RNSsKryd21QEEKEO4UTd0LVFLSaiUidZQfWRtUkVe5RSU
+	L7CkIfR9HFeThZqlgAIIbkZRSk5D4wFy4UaspIqnXOuP/srZs3Y3OW+wiyokPjZbkibLwu
+	RIawHTjvJi+Tsjn0nUlmT00ExF6BwEI=
 To: stable@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
 	"David S. Miller" <davem@davemloft.net>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-	Jakub Kicinski <kuba@kernel.org>,
+	Willem de Bruijn <willemb@google.com>,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org,
 	lvc-project@linuxtesting.org,
 	netdev@vger.kernel.org,
-	Willem de Bruijn <willemb@google.com>
-Subject: [PATCH 5.10 2/5] net: drop bad gso csum_start and offset in virtio_net_hdr
-Date: Fri, 31 Jan 2025 11:31:15 +0300
-Message-ID: <20250131083117.4187-1-arefev@swemel.ru>
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 5/5] net: test for not too small csum_start in virtio_net_hdr_to_skb()
+Date: Fri, 31 Jan 2025 11:31:47 +0300
+Message-ID: <20250131083148.4238-1-arefev@swemel.ru>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,76 +66,88 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Willem de Bruijn <willemb@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 89add40066f9ed9abe5f7f886fe5789ff7e0c50e upstream.
+commit 49d14b54a527289d09a9480f214b8c586322310a upstream.
 
-Tighten csum_start and csum_offset checks in virtio_net_hdr_to_skb
-for GSO packets.
+syzbot was able to trigger this warning [1], after injecting a
+malicious packet through af_packet, setting skb->csum_start and thus
+the transport header to an incorrect value.
 
-The function already checks that a checksum requested with
-VIRTIO_NET_HDR_F_NEEDS_CSUM is in skb linear. But for GSO packets
-this might not hold for segs after segmentation.
+We can at least make sure the transport header is after
+the end of the network header (with a estimated minimal size).
 
-Syzkaller demonstrated to reach this warning in skb_checksum_help
+[1]
+[   67.873027] skb len=4096 headroom=16 headlen=14 tailroom=0
+mac=(-1,-1) mac_len=0 net=(16,-6) trans=10
+shinfo(txflags=0 nr_frags=1 gso(size=0 type=0 segs=0))
+csum(0xa start=10 offset=0 ip_summed=3 complete_sw=0 valid=0 level=0)
+hash(0x0 sw=0 l4=0) proto=0x0800 pkttype=0 iif=0
+priority=0x0 mark=0x0 alloc_cpu=10 vlan_all=0x0
+encapsulation=0 inner(proto=0x0000, mac=0, net=0, trans=0)
+[   67.877172] dev name=veth0_vlan feat=0x000061164fdd09e9
+[   67.877764] sk family=17 type=3 proto=0
+[   67.878279] skb linear:   00000000: 00 00 10 00 00 00 00 00 0f 00 00 00 08 00
+[   67.879128] skb frag:     00000000: 0e 00 07 00 00 00 28 00 08 80 1c 00 04 00 00 02
+[   67.879877] skb frag:     00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.880647] skb frag:     00000020: 00 00 02 00 00 00 08 00 1b 00 00 00 00 00 00 00
+[   67.881156] skb frag:     00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.881753] skb frag:     00000040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.882173] skb frag:     00000050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.882790] skb frag:     00000060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.883171] skb frag:     00000070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.883733] skb frag:     00000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.884206] skb frag:     00000090: 00 00 00 00 00 00 00 00 00 00 69 70 76 6c 61 6e
+[   67.884704] skb frag:     000000a0: 31 00 00 00 00 00 00 00 00 00 2b 00 00 00 00 00
+[   67.885139] skb frag:     000000b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.885677] skb frag:     000000c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.886042] skb frag:     000000d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.886408] skb frag:     000000e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.887020] skb frag:     000000f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.887384] skb frag:     00000100: 00 00
+[   67.887878] ------------[ cut here ]------------
+[   67.887908] offset (-6) >= skb_headlen() (14)
+[   67.888445] WARNING: CPU: 10 PID: 2088 at net/core/dev.c:3332 skb_checksum_help (net/core/dev.c:3332 (discriminator 2))
+[   67.889353] Modules linked in: macsec macvtap macvlan hsr wireguard curve25519_x86_64 libcurve25519_generic libchacha20poly1305 chacha_x86_64 libchacha poly1305_x86_64 dummy bridge sr_mod cdrom evdev pcspkr i2c_piix4 9pnet_virtio 9p 9pnet netfs
+[   67.890111] CPU: 10 UID: 0 PID: 2088 Comm: b363492833 Not tainted 6.11.0-virtme #1011
+[   67.890183] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   67.890309] RIP: 0010:skb_checksum_help (net/core/dev.c:3332 (discriminator 2))
+[   67.891043] Call Trace:
+[   67.891173]  <TASK>
+[   67.891274] ? __warn (kernel/panic.c:741)
+[   67.891320] ? skb_checksum_help (net/core/dev.c:3332 (discriminator 2))
+[   67.891333] ? report_bug (lib/bug.c:180 lib/bug.c:219)
+[   67.891348] ? handle_bug (arch/x86/kernel/traps.c:239)
+[   67.891363] ? exc_invalid_op (arch/x86/kernel/traps.c:260 (discriminator 1))
+[   67.891372] ? asm_exc_invalid_op (./arch/x86/include/asm/idtentry.h:621)
+[   67.891388] ? skb_checksum_help (net/core/dev.c:3332 (discriminator 2))
+[   67.891399] ? skb_checksum_help (net/core/dev.c:3332 (discriminator 2))
+[   67.891416] ip_do_fragment (net/ipv4/ip_output.c:777 (discriminator 1))
+[   67.891448] ? __ip_local_out (./include/linux/skbuff.h:1146 ./include/net/l3mdev.h:196 ./include/net/l3mdev.h:213 net/ipv4/ip_output.c:113)
+[   67.891459] ? __pfx_ip_finish_output2 (net/ipv4/ip_output.c:200)
+[   67.891470] ? ip_route_output_flow (./arch/x86/include/asm/preempt.h:84 (discriminator 13) ./include/linux/rcupdate.h:96 (discriminator 13) ./include/linux/rcupdate.h:871 (discriminator 13) net/ipv4/route.c:2625 (discriminator 13) ./include/net/route.h:141 (discriminator 13) net/ipv4/route.c:2852 (discriminator 13))
+[   67.891484] ipvlan_process_v4_outbound (drivers/net/ipvlan/ipvlan_core.c:445 (discriminator 1))
+[   67.891581] ipvlan_queue_xmit (drivers/net/ipvlan/ipvlan_core.c:542 drivers/net/ipvlan/ipvlan_core.c:604 drivers/net/ipvlan/ipvlan_core.c:670)
+[   67.891596] ipvlan_start_xmit (drivers/net/ipvlan/ipvlan_main.c:227)
+[   67.891607] dev_hard_start_xmit (./include/linux/netdevice.h:4916 ./include/linux/netdevice.h:4925 net/core/dev.c:3588 net/core/dev.c:3604)
+[   67.891620] __dev_queue_xmit (net/core/dev.h:168 (discriminator 25) net/core/dev.c:4425 (discriminator 25))
+[   67.891630] ? skb_copy_bits (./include/linux/uaccess.h:233 (discriminator 1) ./include/linux/uaccess.h:260 (discriminator 1) ./include/linux/highmem-internal.h:230 (discriminator 1) net/core/skbuff.c:3018 (discriminator 1))
+[   67.891645] ? __pskb_pull_tail (net/core/skbuff.c:2848 (discriminator 4))
+[   67.891655] ? skb_partial_csum_set (net/core/skbuff.c:5657)
+[   67.891666] ? virtio_net_hdr_to_skb.constprop.0 (./include/linux/skbuff.h:2791 (discriminator 3) ./include/linux/skbuff.h:2799 (discriminator 3) ./include/linux/virtio_net.h:109 (discriminator 3))
+[   67.891684] packet_sendmsg (net/packet/af_packet.c:3145 (discriminator 1) net/packet/af_packet.c:3177 (discriminator 1))
+[   67.891700] ? _raw_spin_lock_bh (./arch/x86/include/asm/atomic.h:107 (discriminator 4) ./include/linux/atomic/atomic-arch-fallback.h:2170 (discriminator 4) ./include/linux/atomic/atomic-instrumented.h:1302 (discriminator 4) ./include/asm-generic/qspinlock.h:111 (discriminator 4) ./include/linux/spinlock.h:187 (discriminator 4) ./include/linux/spinlock_api_smp.h:127 (discriminator 4) kernel/locking/spinlock.c:178 (discriminator 4))
+[   67.891716] __sys_sendto (net/socket.c:730 (discriminator 1) net/socket.c:745 (discriminator 1) net/socket.c:2210 (discriminator 1))
+[   67.891734] ? do_sock_setsockopt (net/socket.c:2335)
+[   67.891747] ? __sys_setsockopt (./include/linux/file.h:34 net/socket.c:2355)
+[   67.891761] __x64_sys_sendto (net/socket.c:2222 (discriminator 1) net/socket.c:2218 (discriminator 1) net/socket.c:2218 (discriminator 1))
+[   67.891772] do_syscall_64 (arch/x86/entry/common.c:52 (discriminator 1) arch/x86/entry/common.c:83 (discriminator 1))
+[   67.891785] entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:130)
 
-	offset = skb_checksum_start_offset(skb);
-	ret = -EINVAL;
-	if (WARN_ON_ONCE(offset >= skb_headlen(skb)))
-
-By injecting a TSO packet:
-
-WARNING: CPU: 1 PID: 3539 at net/core/dev.c:3284 skb_checksum_help+0x3d0/0x5b0
- ip_do_fragment+0x209/0x1b20 net/ipv4/ip_output.c:774
- ip_finish_output_gso net/ipv4/ip_output.c:279 [inline]
- __ip_finish_output+0x2bd/0x4b0 net/ipv4/ip_output.c:301
- iptunnel_xmit+0x50c/0x930 net/ipv4/ip_tunnel_core.c:82
- ip_tunnel_xmit+0x2296/0x2c70 net/ipv4/ip_tunnel.c:813
- __gre_xmit net/ipv4/ip_gre.c:469 [inline]
- ipgre_xmit+0x759/0xa60 net/ipv4/ip_gre.c:661
- __netdev_start_xmit include/linux/netdevice.h:4850 [inline]
- netdev_start_xmit include/linux/netdevice.h:4864 [inline]
- xmit_one net/core/dev.c:3595 [inline]
- dev_hard_start_xmit+0x261/0x8c0 net/core/dev.c:3611
- __dev_queue_xmit+0x1b97/0x3c90 net/core/dev.c:4261
- packet_snd net/packet/af_packet.c:3073 [inline]
-
-The geometry of the bad input packet at tcp_gso_segment:
-
-[   52.003050][ T8403] skb len=12202 headroom=244 headlen=12093 tailroom=0
-[   52.003050][ T8403] mac=(168,24) mac_len=24 net=(192,52) trans=244
-[   52.003050][ T8403] shinfo(txflags=0 nr_frags=1 gso(size=1552 type=3 segs=0))
-[   52.003050][ T8403] csum(0x60000c7 start=199 offset=1536
-ip_summed=3 complete_sw=0 valid=0 level=0)
-
-Mitigate with stricter input validation.
-
-csum_offset: for GSO packets, deduce the correct value from gso_type.
-This is already done for USO. Extend it to TSO. Let UFO be:
-udp[46]_ufo_fragment ignores these fields and always computes the
-checksum in software.
-
-csum_start: finding the real offset requires parsing to the transport
-header. Do not add a parser, use existing segmentation parsing. Thanks
-to SKB_GSO_DODGY, that also catches bad packets that are hw offloaded.
-Again test both TSO and USO. Do not test UFO for the above reason, and
-do not test UDP tunnel offload.
-
-GSO packet are almost always CHECKSUM_PARTIAL. USO packets may be
-CHECKSUM_NONE since commit 10154dbded6d6 ("udp: Allow GSO transmit
-from devices with no checksum offload"), but then still these fields
-are initialized correctly in udp4_hwcsum/udp6_hwcsum_outgoing. So no
-need to test for ip_summed == CHECKSUM_PARTIAL first.
-
-This revises an existing fix mentioned in the Fixes tag, which broke
-small packets with GSO offload, as detected by kselftests.
-
-Link: https://syzkaller.appspot.com/bug?extid=e1db31216c789f552871
-Link: https://lore.kernel.org/netdev/20240723223109.2196886-1-kuba@kernel.org
-Fixes: e269d79c7d35 ("net: missing check virtio")
-Cc: stable@vger.kernel.org
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Link: https://patch.msgid.link/20240729201108.1615114-1-willemdebruijn.kernel@gmail.com
+Fixes: 9181d6f8a2bb ("net: add more sanity check in virtio_net_hdr_to_skb()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://patch.msgid.link/20240926165836.3797406-1-edumazet@google.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 [Denis: minor fix to resolve merge conflict.]                                           
 Signed-off-by: Denis Arefev <arefev@swemel.ru>                                    
@@ -145,66 +155,25 @@ Signed-off-by: Denis Arefev <arefev@swemel.ru>
 Backport fix for CVE-2024-43817
 Link: https://nvd.nist.gov/vuln/detail/cve-2024-43817
 ---
- include/linux/virtio_net.h |  5 +++++
- net/ipv4/tcp_offload.c     |  3 +++
- net/ipv4/udp_offload.c     | 14 ++++++++++++++
- 3 files changed, 22 insertions(+)
+ include/linux/virtio_net.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 9bdba0c00c07..823e28042f41 100644
+index e9e681fab607..b56f032de16a 100644
 --- a/include/linux/virtio_net.h
 +++ b/include/linux/virtio_net.h
-@@ -159,6 +159,11 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 			if (gso_type != SKB_GSO_UDP_L4)
- 				return -EINVAL;
- 			break;
-+		case SKB_GSO_TCPV4:
-+		case SKB_GSO_TCPV6:
-+			if (skb->csum_offset != offsetof(struct tcphdr, check))
-+				return -EINVAL;
-+			break;
- 		}
+@@ -96,8 +96,10 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
  
- 		/* Kernel has a special handling for GSO_BY_FRAGS. */
-diff --git a/net/ipv4/tcp_offload.c b/net/ipv4/tcp_offload.c
-index fc61cd3fea65..357d3be04f84 100644
---- a/net/ipv4/tcp_offload.c
-+++ b/net/ipv4/tcp_offload.c
-@@ -71,6 +71,9 @@ struct sk_buff *tcp_gso_segment(struct sk_buff *skb,
- 	if (thlen < sizeof(*th))
- 		goto out;
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
++		if (skb_transport_offset(skb) < nh_min_len)
++			return -EINVAL;
  
-+	if (unlikely(skb_checksum_start(skb) != skb_transport_header(skb)))
-+		goto out;
-+
- 	if (!pskb_may_pull(skb, thlen))
- 		goto out;
- 
-diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
-index 6e36eb1ba276..9b757394ad4f 100644
---- a/net/ipv4/udp_offload.c
-+++ b/net/ipv4/udp_offload.c
-@@ -276,6 +276,20 @@ struct sk_buff *__udp_gso_segment(struct sk_buff *gso_skb,
- 	if (gso_skb->len <= sizeof(*uh) + mss)
- 		return ERR_PTR(-EINVAL);
- 
-+	if (unlikely(skb_checksum_start(gso_skb) !=
-+		     skb_transport_header(gso_skb)))
-+		return ERR_PTR(-EINVAL);
-+
-+	if (skb_gso_ok(gso_skb, features | NETIF_F_GSO_ROBUST)) {
-+		/* Packet is from an untrusted source, reset gso_segs. */
-+		skb_shinfo(gso_skb)->gso_segs = DIV_ROUND_UP(gso_skb->len - sizeof(*uh),
-+							     mss);
-+		return NULL;
-+	}
-+
-+	if (skb_shinfo(gso_skb)->gso_type & SKB_GSO_FRAGLIST)
-+		return __udp_gso_segment_list(gso_skb, features, is_ipv6);
-+
- 	skb_pull(gso_skb, sizeof(*uh));
- 
- 	/* clear destructor to avoid skb_segment assigning it to tail */
+-		nh_min_len = max_t(u32, nh_min_len, skb_transport_offset(skb));
++		nh_min_len = skb_transport_offset(skb);
+ 		p_off = nh_min_len + thlen;
+ 		if (!pskb_may_pull(skb, p_off))
+ 			return -EINVAL;
 -- 
 2.43.0
 
