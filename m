@@ -1,180 +1,137 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33BC5209668
-	for <virtualization@lists.linux.dev>; Mon,  3 Feb 2025 14:49:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0174209663
+	for <virtualization@lists.linux.dev>; Mon,  3 Feb 2025 15:09:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738594153; cv=none; b=ARs8YMaKjwLXobTqLJV6AgTlesYDlY0gZ6pumtFB7IiikDyDvjQhY3v2FzoTCtGbloy9HqEdbNrY7JPg18xuq52HsPPAEiIEcVm1TULcIOkbm4QNNwwBJsxkGsmQ4h6+LvpZpKQ5HhNdEZLDwTRcsaKsMRGcxk6izNrcKx8Tcm0=
+	t=1738595348; cv=none; b=iiwoVOS/wqy6yL6JbiBZ5Au81v7B0xjBYWTSSNebBx4eQ1vw/DhwTPWtJGQkcE67PuBUNSpkQa3quNRuvltikHtfn41xZMFVBQXuQ5wH8ViPiXy0PywwyUfR1bm8WlO7UbiVedQwDt1hDJdxruUnBbGjTdB8A3CTFRWnJYNljPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738594153; c=relaxed/simple;
-	bh=15kWMmNxkUMTSvkiTnVBrfsxV44/Ms3rMk3fOE2f0Q8=;
+	s=arc-20240116; t=1738595348; c=relaxed/simple;
+	bh=X9vv2KOumpKMXpLrOCA/JuTc7MZFGf4/fguoPOHeebg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NQxaULYGgjOgCsps2srXUq8LU7ZPBam9RhP03juLcZE5JTqfPpCVPBvXHgb+zbeyX9aKNU9xYTt3OAe52vvNE+upN3ICM9v9RBzxYgi1k9Q/SOoSi+y/mGW3iSQULmTzikxQkqTAf/YFurhP8tY3DDgKgYqPD7uEx5NAiYvKLrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CKJbdo8h; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=AmzLrZ7W5Bp8VjhW/Uj4CwGXwuxQkRLWJ9N1dMjUj2nEx9ptjOWNeUgEQ+d1snv3Hv5Ro//a4m/295kay9TlNMb5/PcbHdh1bcv0l/ZzX3780bYI6QA+CtwwV82WbVv74xVi+lPujnXg1QGBq9FFOUR497UvGLqIDWb6cQXdh2k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hayrZvFh; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CKJbdo8h"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1738594148;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=e4CveGpWscXAPpXhsgoWdG7ssIIW1D0dKJfj/YwXZHk=;
-	b=CKJbdo8h0PimArjgtG4wsdd1NQXGPjhDkcnxu07y5TyFIDcAzZIVwnWfyYO/HSyVv+IdIM
-	EhM0sMJaUIGg7k19kgfbOMbPwl+IyAZTmL0jBnjtsJmnx3z4hXo0htA40j0GM9YTFHZ+V3
-	cxEPhDObCEISwC2r/FIOulk+7suHZRQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-561-feHgvUysOx-1WDfxXVHO_A-1; Mon, 03 Feb 2025 09:49:05 -0500
-X-MC-Unique: feHgvUysOx-1WDfxXVHO_A-1
-X-Mimecast-MFC-AGG-ID: feHgvUysOx-1WDfxXVHO_A
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-38a873178f2so1945398f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 03 Feb 2025 06:49:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738594144; x=1739198944;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hayrZvFh"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-218c8aca5f1so90521135ad.0
+        for <virtualization@lists.linux.dev>; Mon, 03 Feb 2025 07:09:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1738595345; x=1739200145; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=e4CveGpWscXAPpXhsgoWdG7ssIIW1D0dKJfj/YwXZHk=;
-        b=FxgXEPr5HpAvf7953HidG7OQqVHr9N7wLIG5Gk0KdBDPSyjdHCHLhmRQhI1Tldvv6K
-         KrgjtNCU/FHb+LSw3HJUgqQuU2WWZHQJ00ztBGlkDFKFXeTh7PFUfF7NJ979eU8iPja4
-         IZUDV8V2PGLvu22amQK2EU/tQZOD/It8HoHKsPks8CjMCneuvA0IB16mgzXf2qxUg+5m
-         xNXKL/ikHmlcco8xBFLmORvgL2pQPiWeOQqOQkdnTlTTe9DqeYrjFcGwYNQsNq3tvQr2
-         emEWFeaEifwMbD04dWic1HKPSjHqYVoRM2qRYr7vQ6J1H1j1pR7plZqNXw+x2CmS18nT
-         UoDw==
-X-Forwarded-Encrypted: i=1; AJvYcCUCyMHaJJA9WUwAIvjI9oQWGxFjpZYFyWPpKmZlYhy9pHajEOfhuiYPb1KO9w0D17jfpwLFHqomliyDLQMwtw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxZLA995u3cA1wWnaYGYhtfQKRkiUCB9honPtBQFtasYkQi+kJ/
-	ZzW1kYwjM6lQcYDhE7wt7kkgKFttxrUia7p5Hbc4GlVAo2/4Y/toxiCGnEpx7+GnOYZQd2KAfOm
-	AdaL4w4Nkfp3CKA/nEhKG9S3ZdoVYpZBu+8gVYRsc4Hx65GMBPzc5YZqzdPd++x+B
-X-Gm-Gg: ASbGncsz/FycE1XpJP6mL0zIjsEQ2DctuYWh/o/puzOOuvS9dhWGscW5iwKoLpHaZiz
-	4ELC6wdalLkFRYN2RdVGAjzhL351wHZfEz2AeVqIN9/xTN10BoX7TTS0Xra6dmGvf8LuVcxUjmW
-	sBYDZrAuPsfWwU4lgGGgSc4TDIl8ddjuXHXhn+DBFXUSRRwcjBNIT5HPzkZt0VKp7BwR3k8h5PL
-	B/NptXhiSUAnZAblKuzHC6cPHOMmmuVwBpvJ/j4CUdyPize44jh3G8YH8WKXYfQ2eqk0FewUMQ=
-X-Received: by 2002:a05:6000:2a9:b0:385:fbb7:672d with SMTP id ffacd0b85a97d-38c5209753cmr17471725f8f.52.1738594143832;
-        Mon, 03 Feb 2025 06:49:03 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHFyFH+M2Te1TzwrsPgiAkNfzpyODrQhYKLHyFrAPwNqv4qZzpsT+b1HGtHLK7rKOHLDFMakQ==
-X-Received: by 2002:a05:6000:2a9:b0:385:fbb7:672d with SMTP id ffacd0b85a97d-38c5209753cmr17471694f8f.52.1738594143415;
-        Mon, 03 Feb 2025 06:49:03 -0800 (PST)
-Received: from redhat.com ([2a02:14f:1f2:ac69:6791:4264:88f3:ab93])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-438e244f0d2sm160681555e9.30.2025.02.03.06.48.59
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Liydz60cmndYD4qns14/Qbs4OC2qocuyXIy5gGvyjyg=;
+        b=hayrZvFhaYc0+UB//azNBmolGepQCkYCl6mryDXfOyhQeqjw0QofL9HGh0rdkpsdfq
+         WAoTgB4uSNV960tEGXZH0WYdb3cycA4Gh1N/KuV6ZN6YK3BhB/AedM3UZoj+Q7Y6YT5F
+         FbaXn4tp5e/Q1LDSam9LRMkNW4hz3weJlnFO9Qi029o7/i4hZqMN4KI36/dyDdtsUwnJ
+         yGp/5uwphhyduO8BCshRIi/mpABCnkEOW8ON6BdDMwp0blNBQeKe99ij7I0FTdm+gfmd
+         iXWkt/z4G5J8jfHjlGf7UB2Rxrkcr90bUX1gOC075PTov7YZiTAVJAVz1JfgBbCmNxEk
+         86bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738595345; x=1739200145;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Liydz60cmndYD4qns14/Qbs4OC2qocuyXIy5gGvyjyg=;
+        b=l0LgJVVWVTimxbOCGRQ2HY5Q+D+Xo7y2o9H2FEaZFrxFfp6G5w84AVing7ODY9uvdl
+         Bbl1F1/gDdY5Winw3zr7DsL5ZyjFqqhGvmpQAgWro/7R3LNO6w+fNM19ERX7RiEmv8V0
+         6G8IgqHtVkhRjYPgn5ZI6x41lIjxNosN/e0hI7NSijN4Jh09d0tfKj1oa4TGBG8pIddi
+         qwsGOQ83xha5NkHTNibs9jq+HGzYD+yVbcOzHHtGN2PlqTt758s3cNDVsVxdzTGJQjgj
+         JKnZn2fZ2b6fxzwDcwpSGW9wf8FD6E5xjAYoAC1Rvc50XBSEz5uylxkB1IXBgx83QYgk
+         +yWw==
+X-Forwarded-Encrypted: i=1; AJvYcCXcbkXrj9/Zz5gEMdpoHDDuurTZx4emptHwvinMl0xzBrhkcI/RGsbRgdO762x2JpeelJ7AnN989hkCj8Siyg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyWyIzkQhnfRVgIYLzQ5CQPI+133b/AEiB7PlrWjtOrLgEJvyhz
+	K6XUnBKLUYSMGkMXCQWrC3xkOeVz3twGIwS7dVFBSWRZWdGqLBVu
+X-Gm-Gg: ASbGncu3C7MSg6kv7cCWmJDoPjTpWjeu88RoBB+EJxXlbiS+sk0hFNNFRutKR1iz7EG
+	CEAjrza8V+88Yv5HHv+In/9cRrUOrWqiPC7+JDGkE0HM0UjW8/Sr4zxkOa8FfoFveb+TgqVruQa
+	BtXfoifTVvFbH0p2guYRUVFTWTUtJK8HMzoXs2S/9oLEvTGbhvVhm0i49u5vgT4ZS4ONX48Rf7m
+	Jt0aD78t6DV//cyLazznkc/6lTWK9mfYnZV4WrSh2rzN8Sn6nli8Y7AowxNtKPfd2SsU1MJWva+
+	cJLbNtgmmeXSMuu8ehnJpqeDhUP0
+X-Google-Smtp-Source: AGHT+IFUAkyxrkJaDrPwYodDQvzxDDTUk4r3atYHiHtcVu1uJFXauC2E5w6/RR2ly7RfMe7ktQE7aA==
+X-Received: by 2002:a17:903:188:b0:21d:dfae:300c with SMTP id d9443c01a7336-21ddfae34camr280680665ad.3.1738595344940;
+        Mon, 03 Feb 2025 07:09:04 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21de4a91af6sm76095175ad.17.2025.02.03.07.09.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Feb 2025 06:49:02 -0800 (PST)
-Date: Mon, 3 Feb 2025 09:48:56 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eric Auger <eauger@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Zhenzhong Duan <zhenzhong.duan@intel.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Hongyu Ning <hongyu.ning@linux.intel.com>
-Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
-Message-ID: <20250203094700-mutt-send-email-mst@kernel.org>
-References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
- <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
+        Mon, 03 Feb 2025 07:09:04 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Mon, 3 Feb 2025 07:09:02 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@redhat.com>,
+	linux-block@vger.kernel.org, nbd@other.debian.org,
+	ceph-devel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-mtd@lists.infradead.org, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] block: force noio scope in blk_mq_freeze_queue
+Message-ID: <2273ad20-ed56-429c-a6ef-ffdb3196782b@roeck-us.net>
+References: <20250131120352.1315351-1-hch@lst.de>
+ <20250131120352.1315351-2-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LepqJbteK6q-HpETosK8aYu4t0c2UUFg_IfvgzXWX6c_1738594144
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20250131120352.1315351-2-hch@lst.de>
 
-On Fri, Jan 31, 2025 at 10:53:15AM +0100, Eric Auger wrote:
-> Hi Kirill, Michael
+On Fri, Jan 31, 2025 at 01:03:47PM +0100, Christoph Hellwig wrote:
+> When block drivers or the core block code perform allocations with a
+> frozen queue, this could try to recurse into the block device to
+> reclaim memory and deadlock.  Thus all allocations done by a process
+> that froze a queue need to be done without __GFP_IO and __GFP_FS.
+> Instead of tying to track all of them down, force a noio scope as
+> part of freezing the queue.
 > 
-> On 8/8/24 9:51 AM, Kirill A. Shutemov wrote:
-> > Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
-> > accesses during the hang.
-> > 
-> > 	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
-> > 	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
-> > 	...
-> > 
-> > It was traced down to virtio-console. Kexec works fine if virtio-console
-> > is not in use.
-> > 
-> > Looks like virtio-console continues to write to the MMIO even after
-> > underlying virtio-pci device is removed.
-> > 
-> > The problem can be mitigated by removing all virtio devices on virtio
-> > bus shutdown.
-> > 
-> > Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> > Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+> Note that nvme is a bit of a mess here due to the non-owner freezes,
+> and they will be addressed separately.
 > 
-> Gentle ping on that patch that seems to have fallen though the cracks.
-> 
-> I think this fix is really needed. I have another test case with a
-> rebooting guest exposed with virtio-net (backed by vhost-net) and
-> viommu. Since there is currently no shutdown for the virtio-net, on
-> reboot, the IOMMU is disabled through the native_machine_shutdown()/
-> x86_platform.iommu_shutdown() while the virtio-net is still alive.
-> 
-> Normally device_shutdown() should call virtio-net shutdown before the
-> IOMMU tear down and we wouldn't see any spurious transactions after
-> iommu shutdown.
-> 
-> With that fix, the above test case is fixed and I do not see spurious
-> vhost IOTLB miss spurious requests.
-> 
-> For more details, see qemu thread ([PATCH] hw/virtio/vhost: Disable
-> IOTLB callbacks when IOMMU gets disabled,
-> https://lore.kernel.org/all/20250120173339.865681-1-eric.auger@redhat.com/)
-> 
-> 
-> Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> Tested-by: Eric Auger <eric.auger@redhat.com>
-> 
-> Thanks
-> 
-> Eric
-> 
-> > ---
-> >  drivers/virtio/virtio.c | 10 ++++++++++
-> >  1 file changed, 10 insertions(+)
-> > 
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index a9b93e99c23a..6c2f908eb22c 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
-> >  	of_node_put(dev->dev.of_node);
-> >  }
-> >  
-> > +static void virtio_dev_shutdown(struct device *_d)
-> > +{
-> > +	struct virtio_device *dev = dev_to_virtio(_d);
-> > +	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-> > +
-> > +	if (drv && drv->remove)
-> > +		drv->remove(dev);
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
+All sparc64 builds fail with this patch in the tree.
 
-I am concerned that full remove is a heavyweight operation.
-Do not want to slow down reboots even more.
-How about just doing a reset, instead?
+drivers/block/sunvdc.c: In function 'vdc_queue_drain':
+drivers/block/sunvdc.c:1130:9: error: too many arguments to function 'blk_mq_unquiesce_queue'
+ 1130 |         blk_mq_unquiesce_queue(q, memflags);
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+In file included from drivers/block/sunvdc.c:10:
+include/linux/blk-mq.h:895:6: note: declared here
+  895 | void blk_mq_unquiesce_queue(struct request_queue *q);
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+drivers/block/sunvdc.c:1131:9: error: too few arguments to function 'blk_mq_unfreeze_queue'
+ 1131 |         blk_mq_unfreeze_queue(q);
+      |         ^~~~~~~~~~~~~~~~~~~~~
+include/linux/blk-mq.h:914:1: note: declared here
+  914 | blk_mq_unfreeze_queue(struct request_queue *q, unsigned int memflags)
 
-> > +}
-> > +
-> >  static const struct bus_type virtio_bus = {
-> >  	.name  = "virtio",
-> >  	.match = virtio_dev_match,
-> > @@ -363,6 +372,7 @@ static const struct bus_type virtio_bus = {
-> >  	.uevent = virtio_uevent,
-> >  	.probe = virtio_dev_probe,
-> >  	.remove = virtio_dev_remove,
-> > +	.shutdown = virtio_dev_shutdown,
-> >  };
-> >  
-> >  int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
+Bisect log attached for reference.
+
+Guenter
+
+---
+# bad: [8d0efe18f567040a251aef1e00ea39bd3776f5e1] Merge branch 'fixes-v6.14' into testing
+# good: [69e858e0b8b2ea07759e995aa383e8780d9d140c] Merge tag 'uml-for-linus-6.14-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/uml/linux
+git bisect start 'HEAD' '69e858e0b8b2'
+# bad: [1b5f3c51fbb8042efb314484b47b2092cdd40bf6] Merge tag 'riscv-for-linus-6.14-mw1' of git://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux
+git bisect bad 1b5f3c51fbb8042efb314484b47b2092cdd40bf6
+# bad: [9755ffd989aa04c298d265c27625806595875895] Merge tag 'block-6.14-20250131' of git://git.kernel.dk/linux
+git bisect bad 9755ffd989aa04c298d265c27625806595875895
+# good: [626d1a1e99583f846e44d6eefdc9d1c8b82c372d] Merge tag 'ceph-for-6.14-rc1' of https://github.com/ceph/ceph-client
+git bisect good 626d1a1e99583f846e44d6eefdc9d1c8b82c372d
+# good: [8c8492ca64e79c6e0f433e8c9d2bcbd039ef83d0] io_uring/net: don't retry connect operation on EPOLLERR
+git bisect good 8c8492ca64e79c6e0f433e8c9d2bcbd039ef83d0
+# good: [95d7e8226106e3445b0d877015f4192c47d23637] Merge tag 'ata-6.14-rc1-part2' of git://git.kernel.org/pub/scm/linux/kernel/git/libata/linux
+git bisect good 95d7e8226106e3445b0d877015f4192c47d23637
+# good: [5aa21b0495df1fac6d39f45011c1572bb431c44c] loop: don't clear LO_FLAGS_PARTSCAN on LOOP_SET_STATUS{,64}
+git bisect good 5aa21b0495df1fac6d39f45011c1572bb431c44c
+# good: [14ef49657ff3b7156952b2eadcf2e5bafd735795] block: fix nr_hw_queue update racing with disk addition/removal
+git bisect good 14ef49657ff3b7156952b2eadcf2e5bafd735795
+# bad: [1e1a9cecfab3f22ebef0a976f849c87be8d03c1c] block: force noio scope in blk_mq_freeze_queue
+git bisect bad 1e1a9cecfab3f22ebef0a976f849c87be8d03c1c
+# first bad commit: [1e1a9cecfab3f22ebef0a976f849c87be8d03c1c] block: force noio scope in blk_mq_freeze_queue
 
