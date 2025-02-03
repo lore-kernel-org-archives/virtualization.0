@@ -1,92 +1,163 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2058.outbound.protection.outlook.com [40.107.237.58])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9548EEB2
-	for <virtualization@lists.linux.dev>; Mon,  3 Feb 2025 01:07:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E0028E37;
+	Mon,  3 Feb 2025 05:55:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.58
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738544852; cv=pass; b=QBYE4ZtdVa4rBgdBOsp13anWJ81DaThMdsngLfktsKo1jPWWekgjaQ1OY2Ncrb03LVhsaPiWjsuz5IBJHAG61CzHFuWRAxeFWrmmnMCa20VE5BOv754dFX6A9yCpvecgKnGtuQH8jj5g+ZJ0dWw3PCYdbCdofQSL+0bjUbqfaig=
+	t=1738562156; cv=fail; b=OJLK3Qt8JqzEbmFm/VExFyprn7mNslC+TXM+ORtxw8JuFOr0avzCKt5DZYkLQp31nPbZr4hGgUEsJoMK3QxSckig+aFKx6/OxwCAyYcDgT/5glW5/px9EPn8RitcLhj5g8wwzFn23jIUo5XopXwFxI3kgtRjEUd0+qGEx/wtIpw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738544852; c=relaxed/simple;
-	bh=Wqr2EkVFL2Enyi5Q6AQ3cOAHr+yM4TJjXKSOKedIOG8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rUsluEsLAA28wYbQIJHzr2wlJYfF17eXDgCmEUxYWIc4Y0LWqKklT4Hk2tnbB4ni/QXGhRLfLKneL3pRBFxhwgH8hHoioTwhSLdWbtJuF7hFPBiS+8hf2JpivvgLmPVN8M57c+QKO75E7LQBQT4pK4JAhh5Um0jgyksG5KobDH8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Ri8gky45; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1738562156; c=relaxed/simple;
+	bh=ONQXRVTtlQzRuZbbZ3ZnRQE0tQvI5XI5OAsy0bDaIuY=;
+	h=From:To:CC:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=uVnhsbhAYN/cBMEUq0LySJC65HrdcF98BJTSLtz7waLPfgMJorF+uYHi8Ouddqic2lmqkg0Ko7XeygNA71FuIOx+rTnRZnWDwAYYozQB5chdVHa3i0Wl5NGH1dtoE6S9p9DklHgwpg2BGmnjrkpOSNY08S7uxLZniqhGCCp3rnk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=AR/5oMM0; arc=fail smtp.client-ip=40.107.237.58
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Ri8gky45"
-ARC-Seal: i=1; a=rsa-sha256; t=1738544841; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=PAWag2A7a1OVTqEWxPEBABzr/en3f0pfIR7P/gedajimLiPSMcIbkNL0Gwx005BUwrnOjk1izQP6cTMltoLjmt8jLIGtj/tpstdJKLNXNKYcQY9jAGdziW4YMlTItOQ/E/C8X3p5haehrAUIsHLF/PuVzKItGNHsOC+CwnTehog=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1738544841; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=KnGTluyypwtazBIRrVkSvKuikw6cFhABGbbWmFW2RaU=; 
-	b=IkF66q/QuaoBGxJLPPQdrXWXQ4EB92JbYzhWn6GGTfqs0y9ku0y+N57XclzvyiIj/HMjJyEp8MD661hAvxXpw3qri16GOTeQzQZ3vy1udJ5ubYhztlnNunUt2RERmrRfWeNxsgZm1wu98MSEVcHG6iTWdF2uIJQV+a7i0nDUm1Y=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1738544841;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=KnGTluyypwtazBIRrVkSvKuikw6cFhABGbbWmFW2RaU=;
-	b=Ri8gky45buTDhbjOUQq6J3IB83+m70o013N/TwbbklDQuDh4V8cbe5XTVUUDw1i4
-	Y8BTk7EuubEXjs1qZfCj+6WjfGslR+isUEyZojA/ao69nVsxwNAVSxp2LwygQfB0VCP
-	b5pmdp/fTDp/+8meJiYsazgbWgsBED8CNXpmOtvI=
-Received: by mx.zohomail.com with SMTPS id 1738544837827544.081124145429;
-	Sun, 2 Feb 2025 17:07:17 -0800 (PST)
-Message-ID: <b3fe0f90-761b-4dea-aa43-e7187a2ffd5a@collabora.com>
-Date: Mon, 3 Feb 2025 04:07:13 +0300
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="AR/5oMM0"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=qe/HrCE+KcGzczlaNno3v3hblZvAvrNxga+jlDOUBmkF/9ogkFYAywUjsxSvaG4JApXyvzc4jkHUF2rP98eKSUtwKwpIdTFmL4AxvJxm13z/NdE6mRXv5KC/Uk1zDAegJcVefNatrYi2jtf2y/y34Mh3yy6fwzdoIr4Lq3/cx+K9/esXhgnJcQ6hKNZrflH5treVKtcEhnRpZYvnZqyrzdx3YAv4VtHiu4V+RclgMnxQjN/MbDLups/VZ7JuHLfbQGiA9PbR8lz25s0MxW+tmVKmlJNfaC2IlJtngI0rlUAGhLbefUcdAeNFOjSJPjMQVUVxT+TkV6qgQTwaZ0mIaw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=j8lK7oImK5GsAjjYujbZqwkRW6kPxfs15oiWYx+hDAA=;
+ b=bgWHLc407qUOi57kg9bzpjWa9aZ919VWnSlCF2aBiHfu44jkW9mrzCQks2lQLHm8nZevMwukv7luoOnxk/0OkaqO04NbyReGVRBTKFfeiCSC9VVvrqRnEIfuEjXHnS9CIre2lH3xgOUzwtaNqRXuYzfNDYSkTEaLQ8d+fvn85g6Jg+U63u2ua2mngHdWFVAgex6WmpxqwjJmCK9j4I/+4dQzjoGAlU+ikxeYjMf8Yaj+HdMNHW3Aar0/34O0atsWhE3v1JMQDKoiNlb1jDf6ZNKYxPTjXWQ0+mP29dCKGYiz6yMC9KNvLa5DiWBdrkmNCooeB8cTfhYBpGYJlm3jWQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=google.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=j8lK7oImK5GsAjjYujbZqwkRW6kPxfs15oiWYx+hDAA=;
+ b=AR/5oMM0Ep2Rp/Pgk6uw7drexzJo97IMWZ9SoskydpUVQHhYbAnb+qkwmXnDMnphDFBFEYk7Uv/RkiBRscQbvrNoauQBKVBJ35c6TQYopeHQLic8bWTTGy8Q10pX8PeY3t/7BUQBW39vUpqY/H0bLJ/yTLOU5FR37ZW2ENOKSlk=
+Received: from BYAPR06CA0060.namprd06.prod.outlook.com (2603:10b6:a03:14b::37)
+ by MW6PR12MB8957.namprd12.prod.outlook.com (2603:10b6:303:23a::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.23; Mon, 3 Feb
+ 2025 05:55:51 +0000
+Received: from CO1PEPF000066EC.namprd05.prod.outlook.com
+ (2603:10b6:a03:14b:cafe::89) by BYAPR06CA0060.outlook.office365.com
+ (2603:10b6:a03:14b::37) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8377.14 via Frontend Transport; Mon,
+ 3 Feb 2025 05:55:51 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1PEPF000066EC.mail.protection.outlook.com (10.167.249.8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.8398.14 via Frontend Transport; Mon, 3 Feb 2025 05:55:50 +0000
+Received: from BLR-L1-NDADHANI (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Sun, 2 Feb
+ 2025 23:55:15 -0600
+From: Nikunj A Dadhania <nikunj@amd.com>
+To: Sean Christopherson <seanjc@google.com>, Thomas Gleixner
+	<tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross
+	<jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang
+	<haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
+	<decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, "Alexey
+ Makhalov" <alexey.amakhalov@broadcom.com>, Jan Kiszka
+	<jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, "Andy
+ Lutomirski" <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+CC: <linux-kernel@vger.kernel.org>, <linux-coco@lists.linux.dev>,
+	<virtualization@lists.linux.dev>, <linux-hyperv@vger.kernel.org>,
+	<jailhouse-dev@googlegroups.com>, <kvm@vger.kernel.org>,
+	<xen-devel@lists.xenproject.org>, Sean Christopherson <seanjc@google.com>,
+	Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH 01/16] x86/tsc: Add a standalone helpers for getting TSC
+ info from CPUID.0x15
+In-Reply-To: <20250201021718.699411-2-seanjc@google.com>
+References: <20250201021718.699411-1-seanjc@google.com>
+ <20250201021718.699411-2-seanjc@google.com>
+Date: Mon, 3 Feb 2025 05:55:02 +0000
+Message-ID: <855xlra7yh.fsf@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] drm/virtio: Add drm_panic support
-To: Jocelyn Falempe <jfalempe@redhat.com>,
- Ryosuke Yasuoka <ryasuoka@redhat.com>, airlied@redhat.com,
- kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
- tzimmermann@suse.de, daniel@ffwll.ch, christophe.jaillet@wanadoo.fr
-Cc: virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
-References: <20241129122408.4167150-1-ryasuoka@redhat.com>
- <be01d2f7-8423-4e10-b65b-a84a7bc7c99e@collabora.com>
- <3ca0382c-a410-4424-a5a4-7c1b8be7ebed@collabora.com>
- <a0fc9b8c-e86d-46a2-a1d2-5ce8793ad2a5@redhat.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <a0fc9b8c-e86d-46a2-a1d2-5ce8793ad2a5@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+Content-Type: text/plain
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PEPF000066EC:EE_|MW6PR12MB8957:EE_
+X-MS-Office365-Filtering-Correlation-Id: a866d209-0981-4b8e-3556-08dd441769f8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|376014|7416014|1800799024|82310400026|7053199007|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?yHnpJxwWZjnytpYcAYL+LWwCw3QW/pQ9N+XyD8SerezGnn6wJ06BQIOh0seo?=
+ =?us-ascii?Q?EoP4uTnKYbj1cTrmJceqzOtAkPVwUrisXaKd6J/u7R6HdSLUWdlVQqBAW33q?=
+ =?us-ascii?Q?OOZq1bPgBtEmK65lvWVUaqN+BSTNwWNHZUQDR8tLC7s/husAIO3bXfifZZ5r?=
+ =?us-ascii?Q?icQeNcNOnB0zVNtMWFLiMaX8fohdfkHyJuGtUTUilPQr2RlTz8CpZbd7xE+E?=
+ =?us-ascii?Q?eVIW4r/dgceYuR4SIt9UKH/1qTOZCYq5GJtXONinVUPkqAMPWJIQ2jIW4p/G?=
+ =?us-ascii?Q?31CeABi/NYLLVxC/5A2W9ak6UsGhBSsKThCbgXc64nOdlxHX/GE9X4YeqVkX?=
+ =?us-ascii?Q?MPT+nd8swdb5yy1u90i4YZgq84qFMl+j2XriuUPkM6+OLYkDf+0c7b3Hm90x?=
+ =?us-ascii?Q?p6H8FGvPHASk8WMkMwGf9gm/xOW1CtNiKxSzTnkS6YeYIpRoqZPHmwQ4vHzT?=
+ =?us-ascii?Q?5Zhi3ejJ1+xOOT9MLIIxI/yU7DZQyozAF7Np7yKvfVDoyiduqmX1Gq5SMlkn?=
+ =?us-ascii?Q?gI6KRiA2H9tA3KyK+72lW0gyoiiNAcmF+8GYD2PjB0VktT8L4Y88yLc9whJQ?=
+ =?us-ascii?Q?NgBbnpgeE6u30+SeT3XyVQk5fd1wkUfUF0CCyyq0hk1EZxc0cOyuyidiDDVF?=
+ =?us-ascii?Q?wlhMeRwkTt31KRUekS9gLXKlYHHdQtbBtoHSI2cxZWhSjqB5ESKrVs2HzHi2?=
+ =?us-ascii?Q?ye9sVv6X8oXYzcIuLvVv0jAZVk3B5s/nP6gAJ79jMoyPf3YqYQqtQrR5bbTb?=
+ =?us-ascii?Q?pbI31BN+QSWmKU1m13/cdlpF0sXfF9hILz6kakMFcnmuxCORTPii2xikvYca?=
+ =?us-ascii?Q?886IcjHcQzRmvwL81r1uWJlsANVHO8Gqlnsykq5GBdzf7hZzqTA8mXxYAkHL?=
+ =?us-ascii?Q?c9hIDuACr7aSfvdmfUeYgkVhj1ZPGjEOgFRhogUDRvg3uNT3Eb0EkCfvmt9T?=
+ =?us-ascii?Q?nHTTWzAhBlrFB11XyCtnxH3wSrYzDaEav+CR2OjQ56ninqhwKNRmG2ELte9O?=
+ =?us-ascii?Q?KdCfD9KppmwbjLW2GGMN2zL0IFBXHWir267iLpHQ8Mmt5mewJqVb6BUZkDgf?=
+ =?us-ascii?Q?O8+TMZ+37oJRVw3qvikHV4eMuC5HwwCukX1xo9Zbd3WE7yEzPMukQLKxJSwD?=
+ =?us-ascii?Q?7yS/ZsRWkn8nmwo9dquNnEtvLBsY7AVk/HgSkMiLV/P9PEdXhyCsw8pgxzvl?=
+ =?us-ascii?Q?iHCheneNIq9/u8Dd8rHepKs90c7xW8OWsxdEzuuhWjJHBihBsT9uvOdWEXGa?=
+ =?us-ascii?Q?hwpVGtXUXnrYSTS3u2fM5j11TYuqMyzwUXdAY+FC9I7O2Xbam86vEN4rR5vm?=
+ =?us-ascii?Q?m/In9rYAVotUOQdOdec1SGLw7t9ktkpmlirztFxbw0IAP4vFUsh/25DrSk5D?=
+ =?us-ascii?Q?qwG0Cx2ZaITOdv50qYkddEtT0hRLsmDNeDnhFs2sraZ9bmViKFdAgWDuNVcI?=
+ =?us-ascii?Q?eIimnEZcqo/yrbsAJj1/hzdcGF2grP2MMQSW4ou43o1SLA928ouJmQGz8mLw?=
+ =?us-ascii?Q?SOhHHyidjVEjbbQ=3D?=
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700013)(376014)(7416014)(1800799024)(82310400026)(7053199007)(921020);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2025 05:55:50.8351
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: a866d209-0981-4b8e-3556-08dd441769f8
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CO1PEPF000066EC.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8957
 
-On 12/2/24 20:19, Jocelyn Falempe wrote:
->>>
->>> I've now noticed that drm_gem_shmem_vmap() expects BO reservation lock
->>> to be held and we can't take lock it at a panic time.
->>>
->>> https://elixir.bootlin.com/linux/v6.12.1/source/drivers/gpu/drm/
->>> drm_gem_shmem_helper.c#L330
->>>
->>> This resv warning isn't triggered because bo->base.vaddr is set for VT
->>> framebufffer BO when panic happens.
-> 
-> I usually test using gnome desktop in the VM, and in this case vaddr is
-> not set, and calling vmap() is needed. (and I don't get the warning, I
-> will check why).
+Sean Christopherson <seanjc@google.com> writes:
+> Extract retrieval of TSC frequency information from CPUID into standalone
+> helpers so that TDX guest support and kvmlock can reuse the logic.  Provide
 
-All those get_pages() and vmap() that drm_gem_shmem_vmap() uses may
-sleep. You'll need to add atomic variants for the vmap funcs if it's
-really needed.
+s/kvmlock/kvmclock
 
-Like I said in the comment to v6, let's start with rejecting BOs that
-aren't vmapped. If atomic vmap will become needed, it will be a separate
-problem to solve.
+> a version that includes the multiplier math as TDX in particular does NOT
+> want to use native_calibrate_tsc()'s fallback logic that derives the TSC
+> frequency based on CPUID.0x16 when the core crystal frequency isn't known.
+>
+> No functional change intended.
+>
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> ---
 
--- 
-Best regards,
-Dmitry
+...
 
+> +
+> +static inline int cpuid_get_tsc_freq(unsigned int *tsc_khz,
+> +				     unsigned int *crystal_khz)
+
+Should we add this in patch 6/16 where it is being used for the first time ?
+
+Regards
+Nikunj
