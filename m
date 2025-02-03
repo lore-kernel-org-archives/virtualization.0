@@ -1,163 +1,165 @@
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2058.outbound.protection.outlook.com [40.107.237.58])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E0028E37;
-	Mon,  3 Feb 2025 05:55:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.58
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738562156; cv=fail; b=OJLK3Qt8JqzEbmFm/VExFyprn7mNslC+TXM+ORtxw8JuFOr0avzCKt5DZYkLQp31nPbZr4hGgUEsJoMK3QxSckig+aFKx6/OxwCAyYcDgT/5glW5/px9EPn8RitcLhj5g8wwzFn23jIUo5XopXwFxI3kgtRjEUd0+qGEx/wtIpw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738562156; c=relaxed/simple;
-	bh=ONQXRVTtlQzRuZbbZ3ZnRQE0tQvI5XI5OAsy0bDaIuY=;
-	h=From:To:CC:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=uVnhsbhAYN/cBMEUq0LySJC65HrdcF98BJTSLtz7waLPfgMJorF+uYHi8Ouddqic2lmqkg0Ko7XeygNA71FuIOx+rTnRZnWDwAYYozQB5chdVHa3i0Wl5NGH1dtoE6S9p9DklHgwpg2BGmnjrkpOSNY08S7uxLZniqhGCCp3rnk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=AR/5oMM0; arc=fail smtp.client-ip=40.107.237.58
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72E3E1FBC87
+	for <virtualization@lists.linux-foundation.org>; Mon,  3 Feb 2025 08:26:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738571168; cv=none; b=bGUkMqNRJsBDazWv5zWt1B8EYBtKTylguk2FPHw+tKLVTrqXqnMoVeyXrRvsVIWz/jH2XKUEgeKiQzBI6MRWSGmkXZz8RKciW4hkkvRyjeFR68Tp7zByLa3pMQs2Y0NXPgBrMXWhvN94KsT8g/U4yBDnsF3yAFNdES13Tm/RofE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738571168; c=relaxed/simple;
+	bh=/Tr5JUZYV3LVg3vQ13XaGg/DMNKQjaE9ux4fHBb1RTM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=j0enm4Zpgp4C1/zJ5GFBJFsiawWVCZ/OAouQ0m7nwsh5JL76zN3KIf3FTIznxrMO1clel8o4Cv6l8P2Ot/QYW4Wy028mGdBwkfNVpGAqsBLo0JbdgjbF7w7HK4VxGeiDPn+my128r8i/SUXynCFNGuBcZNNE0EmoOpQ6F0VkcJ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=kTxrWLdO; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="AR/5oMM0"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=qe/HrCE+KcGzczlaNno3v3hblZvAvrNxga+jlDOUBmkF/9ogkFYAywUjsxSvaG4JApXyvzc4jkHUF2rP98eKSUtwKwpIdTFmL4AxvJxm13z/NdE6mRXv5KC/Uk1zDAegJcVefNatrYi2jtf2y/y34Mh3yy6fwzdoIr4Lq3/cx+K9/esXhgnJcQ6hKNZrflH5treVKtcEhnRpZYvnZqyrzdx3YAv4VtHiu4V+RclgMnxQjN/MbDLups/VZ7JuHLfbQGiA9PbR8lz25s0MxW+tmVKmlJNfaC2IlJtngI0rlUAGhLbefUcdAeNFOjSJPjMQVUVxT+TkV6qgQTwaZ0mIaw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=j8lK7oImK5GsAjjYujbZqwkRW6kPxfs15oiWYx+hDAA=;
- b=bgWHLc407qUOi57kg9bzpjWa9aZ919VWnSlCF2aBiHfu44jkW9mrzCQks2lQLHm8nZevMwukv7luoOnxk/0OkaqO04NbyReGVRBTKFfeiCSC9VVvrqRnEIfuEjXHnS9CIre2lH3xgOUzwtaNqRXuYzfNDYSkTEaLQ8d+fvn85g6Jg+U63u2ua2mngHdWFVAgex6WmpxqwjJmCK9j4I/+4dQzjoGAlU+ikxeYjMf8Yaj+HdMNHW3Aar0/34O0atsWhE3v1JMQDKoiNlb1jDf6ZNKYxPTjXWQ0+mP29dCKGYiz6yMC9KNvLa5DiWBdrkmNCooeB8cTfhYBpGYJlm3jWQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=google.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=j8lK7oImK5GsAjjYujbZqwkRW6kPxfs15oiWYx+hDAA=;
- b=AR/5oMM0Ep2Rp/Pgk6uw7drexzJo97IMWZ9SoskydpUVQHhYbAnb+qkwmXnDMnphDFBFEYk7Uv/RkiBRscQbvrNoauQBKVBJ35c6TQYopeHQLic8bWTTGy8Q10pX8PeY3t/7BUQBW39vUpqY/H0bLJ/yTLOU5FR37ZW2ENOKSlk=
-Received: from BYAPR06CA0060.namprd06.prod.outlook.com (2603:10b6:a03:14b::37)
- by MW6PR12MB8957.namprd12.prod.outlook.com (2603:10b6:303:23a::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.23; Mon, 3 Feb
- 2025 05:55:51 +0000
-Received: from CO1PEPF000066EC.namprd05.prod.outlook.com
- (2603:10b6:a03:14b:cafe::89) by BYAPR06CA0060.outlook.office365.com
- (2603:10b6:a03:14b::37) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8377.14 via Frontend Transport; Mon,
- 3 Feb 2025 05:55:51 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1PEPF000066EC.mail.protection.outlook.com (10.167.249.8) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.8398.14 via Frontend Transport; Mon, 3 Feb 2025 05:55:50 +0000
-Received: from BLR-L1-NDADHANI (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Sun, 2 Feb
- 2025 23:55:15 -0600
-From: Nikunj A Dadhania <nikunj@amd.com>
-To: Sean Christopherson <seanjc@google.com>, Thomas Gleixner
-	<tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross
-	<jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang
-	<haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
-	<decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, "Alexey
- Makhalov" <alexey.amakhalov@broadcom.com>, Jan Kiszka
-	<jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, "Andy
- Lutomirski" <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>
-CC: <linux-kernel@vger.kernel.org>, <linux-coco@lists.linux.dev>,
-	<virtualization@lists.linux.dev>, <linux-hyperv@vger.kernel.org>,
-	<jailhouse-dev@googlegroups.com>, <kvm@vger.kernel.org>,
-	<xen-devel@lists.xenproject.org>, Sean Christopherson <seanjc@google.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH 01/16] x86/tsc: Add a standalone helpers for getting TSC
- info from CPUID.0x15
-In-Reply-To: <20250201021718.699411-2-seanjc@google.com>
-References: <20250201021718.699411-1-seanjc@google.com>
- <20250201021718.699411-2-seanjc@google.com>
-Date: Mon, 3 Feb 2025 05:55:02 +0000
-Message-ID: <855xlra7yh.fsf@amd.com>
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="kTxrWLdO"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id DB837416DA
+	for <virtualization@lists.linux-foundation.org>; Mon,  3 Feb 2025 08:26:03 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id mUIo0iEjJCEi for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 Feb 2025 08:26:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C8EED416C5
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C8EED416C5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=kTxrWLdO
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C8EED416C5
+	for <virtualization@lists.linux-foundation.org>; Mon,  3 Feb 2025 08:26:01 +0000 (UTC)
+Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-2162c0f6a39so88123315ad.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 03 Feb 2025 00:26:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738571161; x=1739175961; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=t7lQIQ5MioRS7p56iXT3+pmVZjZaMiEEtNeyBXs9W1Y=;
+        b=kTxrWLdOgs0figNhc85qzlAgYBBU8CN0p5f+qKlI1Q+JyK5tJEhuUNCQGNj1J+wYY/
+         Nn7JNwlajXK7/eHQTi6jt35BzpWiWfSpxtl6fjdLAOfE8L3E2QPCw0dc44YfdTnedSG2
+         mQtXySYzMbA7Gbr8Gs6SiwjAsAXAILRuWizS+wBB0rV+o+XNPs7fM98PqMp5MtfD0QlK
+         pQgl3eiEi207C/UCD4PhxCohSrAd5GHgeWYLNGLBTldcVW+BfbBUg7CUtRjxYH6kXHpA
+         Igvycr8lGYuJgTLJk4bw0bKqG7syb4e8U4/wYcuDBcN2gwXZEXe86QMCbJgqgeYIs9Qq
+         xSRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738571161; x=1739175961;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=t7lQIQ5MioRS7p56iXT3+pmVZjZaMiEEtNeyBXs9W1Y=;
+        b=vcOFSL5AbCyPGair68fwMJBo200PCbYKaMsta0ZjvBnASYYypASnIAtLWJDIWBTWKD
+         UBQBMn8BmtjFvOkLL07wDbn/tS+tsFEttjZZDJnfuZ8e2ttvRT9TUbAINu/WN6ByFim3
+         VC/gnSI1SjDfVjgHka0mSe+VoGYJ+tGIpmpc8ZC5E1QU7d3fNtayNbKHf+5GrEw2p54K
+         0auIPBuk6RX2A32vs4chCw2h5v3Tuj+XRXDarOWgIRzYdCxQOJajULEPhmxyojI5/fjY
+         FkntI8w00rWyeUSRbO80ZLU/CE2ssYyvLWVyVFD83wXXijANJUBwZtlPhMR7+F61Yy+V
+         Pjyg==
+X-Forwarded-Encrypted: i=1; AJvYcCUHTEkYPAMJRMe9aH4WqB8IkB8IofETrIALZDXmLlOOfv+O5nNu4LupCxDSn2cHD0IZdpV+f4g5ZQuLHCcBOg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yx7OztdEL+PL3+3sPWzfWEItP15RvCHxmndv70cayXaEDRJSwIh
+	elu9DzxfHt+tOIwRQOa6GoU+e9Vgf67YMW7kSMAbG12kmb3eiCyh8GMzdfXA6gI=
+X-Gm-Gg: ASbGncsLSAt17WAOjj1b/+F6wCZhUk64qADZIX7TpzBdQpty3lGVZsPrTQ7VdF9zgVr
+	fr9QRH4s2cIgmOc+YrM3hGj3JSW+S9UrSs0srG15MCcsdb3J9khBuxDEr5k7VutwibtZ30iuEzC
+	/9DRVVpZWW0bOTLsgQP7NwY9kuRYhrBRXjlOomiWtsdPRcr+JegSXCAHGjzFJaMBMsowSj5OIAt
+	ZlH+2WTI28dDJB/qA8/0+7UgoNoleRiN6WrWoDrimbvsYtT6GTzyMlONHoto2kjMWFa5gbgJKpC
+	0x4sHi1juUICnroYdrfH7e0ucZ7K
+X-Google-Smtp-Source: AGHT+IHX7wiqWkH9ZcI1oVnOppZdCHPlnSWOncf4WEz8oSiauUBCNlHSvTET6Iebk8Cezdu9r3h0Aw==
+X-Received: by 2002:a05:6a21:9004:b0:1e1:e2d8:fd4a with SMTP id adf61e73a8af0-1ed872fe623mr26733156637.5.1738571159383;
+        Mon, 03 Feb 2025 00:25:59 -0800 (PST)
+Received: from [157.82.207.107] ([157.82.207.107])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72fe6424facsm7848454b3a.39.2025.02.03.00.25.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Feb 2025 00:25:58 -0800 (PST)
+Message-ID: <a8bf6c8b-5ee5-4150-a9a2-75345fd07432@daynix.com>
+Date: Mon, 3 Feb 2025 17:25:53 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PEPF000066EC:EE_|MW6PR12MB8957:EE_
-X-MS-Office365-Filtering-Correlation-Id: a866d209-0981-4b8e-3556-08dd441769f8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|376014|7416014|1800799024|82310400026|7053199007|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?yHnpJxwWZjnytpYcAYL+LWwCw3QW/pQ9N+XyD8SerezGnn6wJ06BQIOh0seo?=
- =?us-ascii?Q?EoP4uTnKYbj1cTrmJceqzOtAkPVwUrisXaKd6J/u7R6HdSLUWdlVQqBAW33q?=
- =?us-ascii?Q?OOZq1bPgBtEmK65lvWVUaqN+BSTNwWNHZUQDR8tLC7s/husAIO3bXfifZZ5r?=
- =?us-ascii?Q?icQeNcNOnB0zVNtMWFLiMaX8fohdfkHyJuGtUTUilPQr2RlTz8CpZbd7xE+E?=
- =?us-ascii?Q?eVIW4r/dgceYuR4SIt9UKH/1qTOZCYq5GJtXONinVUPkqAMPWJIQ2jIW4p/G?=
- =?us-ascii?Q?31CeABi/NYLLVxC/5A2W9ak6UsGhBSsKThCbgXc64nOdlxHX/GE9X4YeqVkX?=
- =?us-ascii?Q?MPT+nd8swdb5yy1u90i4YZgq84qFMl+j2XriuUPkM6+OLYkDf+0c7b3Hm90x?=
- =?us-ascii?Q?p6H8FGvPHASk8WMkMwGf9gm/xOW1CtNiKxSzTnkS6YeYIpRoqZPHmwQ4vHzT?=
- =?us-ascii?Q?5Zhi3ejJ1+xOOT9MLIIxI/yU7DZQyozAF7Np7yKvfVDoyiduqmX1Gq5SMlkn?=
- =?us-ascii?Q?gI6KRiA2H9tA3KyK+72lW0gyoiiNAcmF+8GYD2PjB0VktT8L4Y88yLc9whJQ?=
- =?us-ascii?Q?NgBbnpgeE6u30+SeT3XyVQk5fd1wkUfUF0CCyyq0hk1EZxc0cOyuyidiDDVF?=
- =?us-ascii?Q?wlhMeRwkTt31KRUekS9gLXKlYHHdQtbBtoHSI2cxZWhSjqB5ESKrVs2HzHi2?=
- =?us-ascii?Q?ye9sVv6X8oXYzcIuLvVv0jAZVk3B5s/nP6gAJ79jMoyPf3YqYQqtQrR5bbTb?=
- =?us-ascii?Q?pbI31BN+QSWmKU1m13/cdlpF0sXfF9hILz6kakMFcnmuxCORTPii2xikvYca?=
- =?us-ascii?Q?886IcjHcQzRmvwL81r1uWJlsANVHO8Gqlnsykq5GBdzf7hZzqTA8mXxYAkHL?=
- =?us-ascii?Q?c9hIDuACr7aSfvdmfUeYgkVhj1ZPGjEOgFRhogUDRvg3uNT3Eb0EkCfvmt9T?=
- =?us-ascii?Q?nHTTWzAhBlrFB11XyCtnxH3wSrYzDaEav+CR2OjQ56ninqhwKNRmG2ELte9O?=
- =?us-ascii?Q?KdCfD9KppmwbjLW2GGMN2zL0IFBXHWir267iLpHQ8Mmt5mewJqVb6BUZkDgf?=
- =?us-ascii?Q?O8+TMZ+37oJRVw3qvikHV4eMuC5HwwCukX1xo9Zbd3WE7yEzPMukQLKxJSwD?=
- =?us-ascii?Q?7yS/ZsRWkn8nmwo9dquNnEtvLBsY7AVk/HgSkMiLV/P9PEdXhyCsw8pgxzvl?=
- =?us-ascii?Q?iHCheneNIq9/u8Dd8rHepKs90c7xW8OWsxdEzuuhWjJHBihBsT9uvOdWEXGa?=
- =?us-ascii?Q?hwpVGtXUXnrYSTS3u2fM5j11TYuqMyzwUXdAY+FC9I7O2Xbam86vEN4rR5vm?=
- =?us-ascii?Q?m/In9rYAVotUOQdOdec1SGLw7t9ktkpmlirztFxbw0IAP4vFUsh/25DrSk5D?=
- =?us-ascii?Q?qwG0Cx2ZaITOdv50qYkddEtT0hRLsmDNeDnhFs2sraZ9bmViKFdAgWDuNVcI?=
- =?us-ascii?Q?eIimnEZcqo/yrbsAJj1/hzdcGF2grP2MMQSW4ou43o1SLA928ouJmQGz8mLw?=
- =?us-ascii?Q?SOhHHyidjVEjbbQ=3D?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700013)(376014)(7416014)(1800799024)(82310400026)(7053199007)(921020);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2025 05:55:50.8351
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a866d209-0981-4b8e-3556-08dd441769f8
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CO1PEPF000066EC.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8957
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/3] virtio-gpu api: add blob userptr resource
+To: Honglei Huang <honglei1.huang@amd.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Antonio Caggiano <quic_acaggian@quicinc.com>
+Cc: Lingshan Zhu <Lingshan.Zhu@amd.com>,
+ Demi Marie Obenour <demiobenour@gmail.com>, Huang Rui <ray.huang@amd.com>,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, Chia-I Wu <olvaffe@gmail.com>,
+ Daniel Vetter <daniel.vetter@ffwll.ch>
+References: <20241220100409.4007346-1-honglei1.huang@amd.com>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <20241220100409.4007346-1-honglei1.huang@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sean Christopherson <seanjc@google.com> writes:
-> Extract retrieval of TSC frequency information from CPUID into standalone
-> helpers so that TDX guest support and kvmlock can reuse the logic.  Provide
-
-s/kvmlock/kvmclock
-
-> a version that includes the multiplier math as TDX in particular does NOT
-> want to use native_calibrate_tsc()'s fallback logic that derives the TSC
-> frequency based on CPUID.0x16 when the core crystal frequency isn't known.
->
-> No functional change intended.
->
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+On 2024/12/20 19:04, Honglei Huang wrote:
+> From: Honglei Huang <Honglei1.Huang@amd.com>
+> 
+> Add a new resource for blob resource, called userptr, used for let
+> host access guest user space memory, to acquire a simple SVM features
+> in virtio GPU.
+> 
+> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
+> in this series patches only HSAKMT context can use the userptr
+> feature. HSAKMT is a GPU compute library in HSA stack, like
+> the role libdrm in mesa stack.
+> - New flag VIRTIO_GPU_BLOB_FLAG_USE_USERPTR used in blob create
+> to indicate the blob create ioctl is used for create a userptr
+> blob resource.
+> 
+> Signed-off-by: Honglei Huang <Honglei1.Huang@amd.com>
 > ---
+>   include/uapi/linux/virtio_gpu.h | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+> index b9a9783f0b14..0a6b56acbc13 100644
+> --- a/include/uapi/linux/virtio_gpu.h
+> +++ b/include/uapi/linux/virtio_gpu.h
+> @@ -323,6 +323,7 @@ struct virtio_gpu_cmd_submit {
+>   
+>   #define VIRTIO_GPU_CAPSET_VIRGL 1
+>   #define VIRTIO_GPU_CAPSET_VIRGL2 2
+> +#define VIRTIO_GPU_CAPSET_HSAKMT 7
 
-...
+The changes to add VIRTIO_GPU_CAPSET_VENUS and VIRTIO_GPU_CAPSET_DRM are 
+already merged so this should be rebased for clean apply.
 
-> +
-> +static inline int cpuid_get_tsc_freq(unsigned int *tsc_khz,
-> +				     unsigned int *crystal_khz)
+Number 7 is also occupied since 2023:
+https://chromium.googlesource.com/crosvm/crosvm/+/e4c1878733937042111fca58899a3a94002bfef0%5E%21/rutabaga_gfx/src/rutabaga_utils.rs
 
-Should we add this in patch 6/16 where it is being used for the first time ?
+VCL, a proposed VirtIO-GPU OpenCL driver, is also going to use that number:
+https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/31634/diffs?commit_id=55a1a8a32057e83819b046f2de03aca333b052b4
 
-Regards
-Nikunj
+I think you should talk with Antonio Caggiano, who picked the number for 
+VCL, to allocate a number without a conflict with VCL.
+
+Gurchetan (the author of Rutabaga change allocating the number), I think 
+you should notify the number usage by sending a patch for Linux or 
+virtio-spec.
+
+Regards,
+Akihiko Odaki
+
+>   
+>   /* VIRTIO_GPU_CMD_GET_CAPSET_INFO */
+>   struct virtio_gpu_get_capset_info {
+> @@ -415,6 +416,7 @@ struct virtio_gpu_resource_create_blob {
+>   #define VIRTIO_GPU_BLOB_FLAG_USE_MAPPABLE     0x0001
+>   #define VIRTIO_GPU_BLOB_FLAG_USE_SHAREABLE    0x0002
+>   #define VIRTIO_GPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
+> +#define VIRTIO_GPU_BLOB_FLAG_USE_USERPTR      0x0008
+>   	/* zero is invalid blob mem */
+>   	__le32 blob_mem;
+>   	__le32 blob_flags;
+
