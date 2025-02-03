@@ -1,68 +1,69 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F4F9204682
-	for <virtualization@lists.linux.dev>; Mon,  3 Feb 2025 19:52:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD661552EB
+	for <virtualization@lists.linux.dev>; Mon,  3 Feb 2025 22:03:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738612377; cv=none; b=jLSG9VRknCg87yZFO0nPR/N4OqwbQOXmDAwx1bLZC1VryPRy5ze5yD580nrrY9VaRtrYJTkVNSXT3IOEBCn2Anf6l7bfcwi6fNb24oPyy/izR+e8/VBtB9J2lwr8uqjim9f8oHPl0+dXOFqGNEONcLwTxuRgV/y5Nnlo4hcNxeY=
+	t=1738620204; cv=none; b=XGPzHfP8gL4W9jDtr2KSKXRc5kUCBGrlRkk0KJi3eA2h67d+Vn8j7wHQFRZffO0LOd3g3eBZHFCZzMKH1ix+yokoFFE3XKFS7hRZzSg6/wugxaFIiHW00xEBmYkaQJ+g4BYL6Qz+qhprBd3Hex/+iRmBHwFKtwDNMAqxi4o3scs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738612377; c=relaxed/simple;
-	bh=vqumdPUecpvskYi8VygICeGGt4cQpB2BlEoPCXjm++o=;
+	s=arc-20240116; t=1738620204; c=relaxed/simple;
+	bh=eUs8Te/3qXoZlaU+lsAvePAAnsKpOkJeJh7kJfdkLCY=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=N7T21+cQ0pFRxzgsLkc7U8JXhfp8mIlHWlb1xf3ZboPAqzjvYCV/o4EcMOky5dFdq3+dyjSNRGagGDaU5mXAXLOhIGq7OHIcNyPzH3y6AV1ohio6bmiAGuAFjzfsQc61gzOJTeWYxOepN+AEM3YONfvNn40jXOtqUNN8EZtWnHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bEQl7Hr1; arc=none smtp.client-ip=209.85.216.73
+	 To:Cc:Content-Type; b=SZXZtzS6vUS8r8J4m4z7Q4sLqtiPzKtz1qlDjQ3dUSqRXRqBgFO24vf1F6pIDksJ44bipE/GnAK/I5mACHlEHWArK6nvyLvoy9EP+mHpaKqP95ZWVHM2rZDSwN2vLYDk4/WMOC0yWHAkxAtgwbAQ5O2+iMEQv07AlG7qGRDjDv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cn4ipmJl; arc=none smtp.client-ip=209.85.216.74
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bEQl7Hr1"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2f5538a2356so8692270a91.2
-        for <virtualization@lists.linux.dev>; Mon, 03 Feb 2025 11:52:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cn4ipmJl"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2f780a3d6e5so9395134a91.0
+        for <virtualization@lists.linux.dev>; Mon, 03 Feb 2025 14:03:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1738612374; x=1739217174; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1738620201; x=1739225001; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Z4DCNVElxq2OdBlpMH7Nkzbl/aQqIemXOZXJQi0SM/U=;
-        b=bEQl7Hr1WU5bNoHWjYWPkbu86uGcvNXtgeEVTKcXJX8s+DhtYIdzuzEV5SsXz/azUo
-         cwDa+SgGSj+ziu89f2k2rib5iLSJeEsZvbESeiUOyEBmXzaI4qR34nY1bVIozR2Wvoy0
-         AcWgwlXcVoyNSQnp5L9dxrEtiWifC2MlfYtwgGlQIvNCWLVVD8a9WpPbhY2UXBl8qIl1
-         BRPdwLt5OE/TE+6gNkodrDpeM5p+yb7bQcN8Dn188yfnhJEezksmsPSj1lV26Hvdz/cW
-         +gEI9l21BQYbRF6i18PLAiJltP9eb7HCqj4Z4MRwk3R7wKbpkls5nA6wwE7HLWS1mKpt
-         cG8w==
+        bh=aKyU5o4qg4MzJLbHNBTuIVedrQGzcqdvvxUHOUnfSU8=;
+        b=cn4ipmJlWfwXkwk/w6QcY9qi1GKqHMKyRThiDv21MbsCGQCQiseZwWvb+L0C3muYey
+         r6J/FrtcG6hpUISZRaXE//3odYZ51iPxVv5/espc58x0KVaMF/xD54OeDNVJ2pqYaqZK
+         CcC2fF/yEl3TB4+sey3xp1mLXWiRL7vJUY6UZBIdetKVmeEFhx2pmqWpTphCHi7pzsi/
+         gHf6g54iRkfSEdxwvETBuVBfAO1/QCv2QaoL+BZkMVVCW+XgbQ3c6V47Vz9Q7hR6Rk8U
+         rkrlt/ItpraCCUI5CfPCD7E5ZcdqoqlXjLB+oYAJXQxiFoOs/8Gn1oof0Aa/RJK9kaWF
+         tlQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738612374; x=1739217174;
+        d=1e100.net; s=20230601; t=1738620201; x=1739225001;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Z4DCNVElxq2OdBlpMH7Nkzbl/aQqIemXOZXJQi0SM/U=;
-        b=RPtRDX3YG65iyxtYqBIdoN48QBFgx1l2gYQMOoID3MFZEPebASSn80hrZkScJmg/wQ
-         /M+BtebBmK2lAjofF/EZ+KnIbdLCboZRiRm/SkgYinloHVAMsAFh0mbziUqTK7V+1Hq7
-         8hnsVNDzNF6p2SbUF/GUsAc8RGDdh0OsAww2k+B1XZKhiuZ584CiXQ7teQO0KyJpQyhx
-         Ih+xLYqlKybkTFAkHIYLaFaIrBpGARt+wwKx22VeCoWcB7v2TV2r+V+QRuocpQ49P7Tb
-         fMARLLsvqkms0m2GO2tGAlt3NmQ/6wwBzFuTktgIph86+9xgRYLc1a9dp3StZoysnGi4
-         lqBA==
-X-Forwarded-Encrypted: i=1; AJvYcCW/c5De7+4h3gXkw9zd9vsimiYCwYaGt0M2sqi3GgPCrDKC9SwEl0bR1e/tZZ4QMf9Dt2Rt72Kx/s7rAwCbGA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxtNpzdYNG5D5SsnaSCNHyRFNflpzeR7A/SK+k24FC+xkNDHCUI
-	cBfejwYpRMBY6HSVXMSlfAgaxSjRCFKGzE+GUj+eisHoau2GcE9dJqdyXOjsfNV1hWuCOIMCXZn
-	m/Q==
-X-Google-Smtp-Source: AGHT+IGdTeFcZ8i5SvZ2bB5g1492lleQh9maGoQBlpXj01DaF5LbzkfV8PQhJ2gBHFVfNpv3sg2ev2woN1U=
-X-Received: from pfsq1.prod.google.com ([2002:a05:6a00:2a1:b0:72d:4132:7360])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:2287:b0:72d:a208:d366
- with SMTP id d2e1a72fcca58-72fd0c8bae3mr33309743b3a.20.1738612374524; Mon, 03
- Feb 2025 11:52:54 -0800 (PST)
-Date: Mon, 3 Feb 2025 11:52:53 -0800
-In-Reply-To: <fb1d32fb-f213-350f-95a4-766c88a6249c@amd.com>
+        bh=aKyU5o4qg4MzJLbHNBTuIVedrQGzcqdvvxUHOUnfSU8=;
+        b=M8YUUHGOjpAk1kL6alRP16CEM+pnBrZs/LVRH/7/pMYbbhn6cIaB1yetFcTBqBO7ZD
+         Hrv1koGdJJ8ecX57pQDs7c4FrTMCk2odBnThtbjqp5W+5LO0mgu87DPXpedNoMGtOEY7
+         kTgmUjqlbNJLgvNZ3mV3zJvyTfoRCWK4rputm9tg0taanhede6/aAeVKPO0B2nzSzreW
+         v4t/ftudp6H3OyfvIodWcewP1hQZPAbfuxCXTiioKK/9gkNYSBf3zl06XtA1+AvWVbMG
+         jnX1YWaJTrCbouJxGfHXMUQ4Oi26PZZB+sUb+V2h8aXK2jA23AMbV1bNc0cELXL3o6+a
+         RWlw==
+X-Forwarded-Encrypted: i=1; AJvYcCWs9Th4aQWWjc4DHysLL45r7fUbZoUlcZTPGjD+j8DYfrkeH1ll03Ow3C+sjjR/w0UfuUuXcie4ENtCgDoKxQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw0RlLAC8FwaTlZzVuBqb1WrmFjRwxRhx71DEEN3FL1PZC89j0U
+	iTI1Zdq2ee1UHF00V2aEcIYeJZ8Yc4fwM7vWHNKCTOFXnCYJxIP7mKMCqIpt6Zbx/MAynvkVr0a
+	GSw==
+X-Google-Smtp-Source: AGHT+IFdBp/YFKt3tvbP89npJlfJHjx2Z4+9Qkgevwe01Rjz28QPVaPLsqR/RKs2uDbYm8l82lXHNvJ4gI0=
+X-Received: from pfbfb39.prod.google.com ([2002:a05:6a00:2da7:b0:728:e945:d2c2])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:acc:b0:71d:f2e3:a878
+ with SMTP id d2e1a72fcca58-72fd0bc6c50mr33717772b3a.5.1738620200924; Mon, 03
+ Feb 2025 14:03:20 -0800 (PST)
+Date: Mon, 3 Feb 2025 14:03:19 -0800
+In-Reply-To: <855xlra7yh.fsf@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
-References: <20250201021718.699411-1-seanjc@google.com> <20250201021718.699411-9-seanjc@google.com>
- <fb1d32fb-f213-350f-95a4-766c88a6249c@amd.com>
-Message-ID: <Z6EelTYbVIcmGH5Q@google.com>
-Subject: Re: [PATCH 08/16] x86/tsc: Pass KNOWN_FREQ and RELIABLE as params to registration
+References: <20250201021718.699411-1-seanjc@google.com> <20250201021718.699411-2-seanjc@google.com>
+ <855xlra7yh.fsf@amd.com>
+Message-ID: <Z6E9JyybI6SUWlcG@google.com>
+Subject: Re: [PATCH 01/16] x86/tsc: Add a standalone helpers for getting TSC
+ info from CPUID.0x15
 From: Sean Christopherson <seanjc@google.com>
-To: Tom Lendacky <thomas.lendacky@amd.com>
+To: Nikunj A Dadhania <nikunj@amd.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
 	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross <jgross@suse.com>, 
@@ -74,67 +75,34 @@ Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borisl
 	linux-coco@lists.linux.dev, virtualization@lists.linux.dev, 
 	linux-hyperv@vger.kernel.org, jailhouse-dev@googlegroups.com, 
 	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	Nikunj A Dadhania <nikunj@amd.com>
+	Tom Lendacky <thomas.lendacky@amd.com>
 Content-Type: text/plain; charset="us-ascii"
 
-On Mon, Feb 03, 2025, Tom Lendacky wrote:
-> On 1/31/25 20:17, Sean Christopherson wrote:
-> > Add a "tsc_properties" set of flags and use it to annotate whether the
-> > TSC operates at a known and/or reliable frequency when registering a
-> > paravirtual TSC calibration routine.  Currently, each PV flow manually
-> > sets the associated feature flags, but often in haphazard fashion that
-> > makes it difficult for unfamiliar readers to see the properties of the
-> > TSC when running under a particular hypervisor.
-> > 
-> > The other, bigger issue with manually setting the feature flags is that
-> > it decouples the flags from the calibration routine.  E.g. in theory, PV
-> > code could mark the TSC as having a known frequency, but then have its
-> > PV calibration discarded in favor of a method that doesn't use that known
-> > frequency.  Passing the TSC properties along with the calibration routine
-> > will allow adding sanity checks to guard against replacing a "better"
-> > calibration routine with a "worse" routine.
-> > 
-> > As a bonus, the flags also give developers working on new PV code a heads
-> > up that they should at least mark the TSC as having a known frequency.
-> > 
+On Mon, Feb 03, 2025, Nikunj A Dadhania wrote:
+> Sean Christopherson <seanjc@google.com> writes:
+> > Extract retrieval of TSC frequency information from CPUID into standalone
+> > helpers so that TDX guest support and kvmlock can reuse the logic.  Provide
+> 
+> s/kvmlock/kvmclock
+> 
+> > a version that includes the multiplier math as TDX in particular does NOT
+> > want to use native_calibrate_tsc()'s fallback logic that derives the TSC
+> > frequency based on CPUID.0x16 when the core crystal frequency isn't known.
+> >
+> > No functional change intended.
+> >
 > > Signed-off-by: Sean Christopherson <seanjc@google.com>
 > > ---
-> >  arch/x86/coco/sev/core.c       |  6 ++----
-> >  arch/x86/coco/tdx/tdx.c        |  7 ++-----
-> >  arch/x86/include/asm/tsc.h     |  8 +++++++-
-> >  arch/x86/kernel/cpu/acrn.c     |  4 ++--
-> >  arch/x86/kernel/cpu/mshyperv.c | 10 +++++++---
-> >  arch/x86/kernel/cpu/vmware.c   |  7 ++++---
-> >  arch/x86/kernel/jailhouse.c    |  4 ++--
-> >  arch/x86/kernel/kvmclock.c     |  4 ++--
-> >  arch/x86/kernel/tsc.c          |  8 +++++++-
-> >  arch/x86/xen/time.c            |  4 ++--
-> >  10 files changed, 37 insertions(+), 25 deletions(-)
-> > 
 > 
-> > diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-> > index d6f079a75f05..6e4a2053857c 100644
-> > --- a/arch/x86/kernel/cpu/vmware.c
-> > +++ b/arch/x86/kernel/cpu/vmware.c
-> > @@ -385,10 +385,10 @@ static void __init vmware_paravirt_ops_setup(void)
-> >   */
-> >  static void __init vmware_set_capabilities(void)
-> >  {
-> > +	/* TSC is non-stop and reliable even if the frequency isn't known. */
-> >  	setup_force_cpu_cap(X86_FEATURE_CONSTANT_TSC);
-> >  	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
+> ...
 > 
-> Should this line be deleted, too, or does the VMware flow require this
-> to be done separate from the tsc_register_calibration_routines() call?
+> > +
+> > +static inline int cpuid_get_tsc_freq(unsigned int *tsc_khz,
+> > +				     unsigned int *crystal_khz)
+> 
+> Should we add this in patch 6/16 where it is being used for the first time ?
 
-No idea, I just didn't want to break existing setups.  I assume VMware hypervisors
-will always advertise the TSC frequency, but nothing in the code guarantees that.
-
-The check on the hypervisor providing the TSC frequency has existed since the
-original support was added, and the CONSTANT+RELIABLE logic was added immediately
-after.  So even if it the above code _shouldn't_ be needed, I don't want to be
-the sucker that finds out :-)
-
-  395628ef4ea12ff0748099f145363b5e33c69acb x86: Skip verification by the watchdog for TSC clocksource.
-  eca0cd028bdf0f6aaceb0d023e9c7501079a7dda x86: Add a synthetic TSC_RELIABLE feature bit.
-  88b094fb8d4fe43b7025ea8d487059e8813e02cd x86: Hypervisor detection and get tsc_freq from hypervisor
+No strong preference on my end.  I put it here mostly to keep each patch focused
+on a single subsystem where possible, since the series touches so many areas.  I
+also wanted to show the "full" API in a single patch, but I agree that adding a
+helper without a user is generally undesirable.
