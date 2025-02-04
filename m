@@ -1,205 +1,290 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2061.outbound.protection.outlook.com [40.107.236.61])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96164204F63;
-	Tue,  4 Feb 2025 10:16:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.61
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738664198; cv=fail; b=hbSUHcmWF1aEKqSBvjwdZApX/1jqLTGw2rsILmwDw3Hm+fUi8Lsx3V6+GqpUEfSe7ShLFiiGbXcYurMb+LCwLNZLXGvc7soncmHJJ4kFucaLLh2v+SE7ncnSZ0Jjbfj609zLHsmezwfLPqWbY1hnm9CbzGi8GI1RarvRg0Wmma8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738664198; c=relaxed/simple;
-	bh=x8bHo+6VdpLig/R+zhG/QKsg0B1rIvEgqquEjUAw8nc=;
-	h=From:To:CC:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=bu64j9Ktx2PJ73Sglv6y5h7rAiIix3euslAup1w3KsK/FFG76pMNqslFIA4EotEt4VZbPcYwyyMF/Y8597mMUGy5mpPpSj6Eql+8LtR3rz28dn27sndXLLjPjlx9RZ5ZUKiqqu8TwS4N5mWqS0jOFjGC9Ltgud8CZoFkfGr3SAk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=wN7Sl9Bf; arc=fail smtp.client-ip=40.107.236.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FCE92080DA
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Feb 2025 10:46:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738665969; cv=none; b=msiVezblgydsnfVJQ6Y1WdvaBICQtq1R+NcYfifQR4vk5ia5Cex8ckrpex6u+a2OLAfYFJHidwogZd6MOx8XkRowDWO7qigw/AfAHYaivQq7lO2MWOCZw0XZCBOrLn5UIECaL5YTQuAEdAwZJWdFHdlgrePZNZoPrhAe0zcL4e4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738665969; c=relaxed/simple;
+	bh=SAKZdCpF6VWRRRVgXzqc0IBfTpqzPm6KgOgVIbkAD1I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DYRLn98heE/5AZhuu0Yq8b+wE4ntQ6IHgg0t76WYIE8blHE4BvhqK8v/x4FKdloQktMoUeXT4azj1tfIyS8l04h7CZ41UB4AjSFVQzT3LIreGq0FhH+5GoOlVqN+gn8UJ26WT72vH8+fW+bAAbhatgWjnMoYvJ+RpN99/VrGwhg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=iSxWOXpo; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="wN7Sl9Bf"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=sdI+DsqcdvqSXA9zIj3r8YBkur/gf2oFLacX2KbQaugQ+ZQoYcIqemoWPL3gNjmd6zsMw0GZp6SlKvFF+yApyydqaHNZP16QU4SNGpiQEjm3kjqjVw7GLZr/yOwPUg3ZQnZhXrPSPqR+ivL6vOvs2FjyaGnXD/Liw/CtpEEK7BsWOPGIxb698Md7LQKNjSg9bmVqKoPbEw1gaRo3X/ptHOQ3a9cquiII2KIu5vCNK44bxkbQwEQtTjeogVkzeMy91wSTzlVCBfDuhG7UugjE5QKTm/e7veqrlnTrSI0P+51xUprS0520QE2nEJ7B0r1jy6Y3k1EwbILj5qlpcXIg6g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PYQPtGe3YL7mSqevDlxs0Eh/1R6bR/R1bDkYQ9bo7b8=;
- b=amphElKyq4jYfC7uvGY3e6MNv2O4rkLDeXoAHV4ZHrkkfqCckqtsBW8kkECQbe+2HYkLllUQ9TvwFou3ZuQ1ijZUqMRsnyuTD00cG5mkOd4OabYNFjDQ/j1nsu2kWjPxT/6aFnzU7cyhrN2363zKWRkU2xOMAPrTjdYoJI7qembIrj/DbLZZ/u0BDa4PP78AZzSHEfGc609eHKB7cH/Cy90jMTWQiI30ntSar//1q3o5SWDDZ5VjVMKcEAzep/Cejlp61rKa74anHDMMSnfRh+TN5nt4L3rAVBC19oBEa9a2f4lAijkelMGWXVhYapjTbYdhYJ5+/UbfCj5L/c/RPQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=google.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PYQPtGe3YL7mSqevDlxs0Eh/1R6bR/R1bDkYQ9bo7b8=;
- b=wN7Sl9Bfn73RYQ5bhJZu0apyNVM5M8oNLLKoFLBKRCxl9awNmhpNrySfmQuy6rT3L5pZUFDLj8Ets/nIl2/dN6++4LBCuRQGph4GF5PKfEWsNAAOKn8yO6BsCxZKrvGwmSDSzT+HS74FkUbaqMMdvvRqGoiNl6RWvCw8e/2BznE=
-Received: from CH2PR08CA0024.namprd08.prod.outlook.com (2603:10b6:610:5a::34)
- by IA1PR12MB6020.namprd12.prod.outlook.com (2603:10b6:208:3d4::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.24; Tue, 4 Feb
- 2025 10:16:32 +0000
-Received: from CH2PEPF00000140.namprd02.prod.outlook.com
- (2603:10b6:610:5a:cafe::5) by CH2PR08CA0024.outlook.office365.com
- (2603:10b6:610:5a::34) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8398.27 via Frontend Transport; Tue,
- 4 Feb 2025 10:16:32 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CH2PEPF00000140.mail.protection.outlook.com (10.167.244.72) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.8398.14 via Frontend Transport; Tue, 4 Feb 2025 10:16:32 +0000
-Received: from BLR-L1-NDADHANI (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Tue, 4 Feb
- 2025 04:16:24 -0600
-From: Nikunj A Dadhania <nikunj@amd.com>
-To: Sean Christopherson <seanjc@google.com>, Thomas Gleixner
-	<tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross
-	<jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang
-	<haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
-	<decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, "Alexey
- Makhalov" <alexey.amakhalov@broadcom.com>, Jan Kiszka
-	<jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, "Andy
- Lutomirski" <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>
-CC: <linux-kernel@vger.kernel.org>, <linux-coco@lists.linux.dev>,
-	<virtualization@lists.linux.dev>, <linux-hyperv@vger.kernel.org>,
-	<jailhouse-dev@googlegroups.com>, <kvm@vger.kernel.org>,
-	<xen-devel@lists.xenproject.org>, Sean Christopherson <seanjc@google.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH 06/16] x86/tdx: Override PV calibration routines with
- CPUID-based calibration
-In-Reply-To: <20250201021718.699411-7-seanjc@google.com>
-References: <20250201021718.699411-1-seanjc@google.com>
- <20250201021718.699411-7-seanjc@google.com>
-Date: Tue, 4 Feb 2025 10:16:22 +0000
-Message-ID: <85r04e5821.fsf@amd.com>
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="iSxWOXpo"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7CFB260608
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Feb 2025 10:46:06 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.998
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id YavkeQpVoYqh for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Feb 2025 10:46:03 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::42e; helo=mail-wr1-x42e.google.com; envelope-from=simona.vetter@ffwll.ch; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 02D2B6006A
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 02D2B6006A
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=iSxWOXpo
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 02D2B6006A
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Feb 2025 10:46:02 +0000 (UTC)
+Received: by mail-wr1-x42e.google.com with SMTP id ffacd0b85a97d-38632b8ae71so4559794f8f.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 04 Feb 2025 02:46:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google; t=1738665960; x=1739270760; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NTqSzT/TXDWQqYRy4tctsFxrDEke2AKGwuYUOQfB5/U=;
+        b=iSxWOXpooKUEACYDdfYiPFuqomHewHS7hmGJ23KX0fsgNkX79eLgCyKtBtUArxKnq6
+         tzGJBHQXeCLvw+sYddJxccNXaLjDwTUygD2cB51w0IZOkTixdA/gUO6cDVEdmyTehE8x
+         dWPWets6Y8vE+Rp1xlLKWoWzf1ovA5oll0k6U=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738665960; x=1739270760;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NTqSzT/TXDWQqYRy4tctsFxrDEke2AKGwuYUOQfB5/U=;
+        b=M1YIElC0up7ELB0fEquNAFlSdXnAIXiI2KoIgda4fN27QolfbMq9NDsxBcV40aOx13
+         C+SDxq5/pJ1SHPBKqp6iUXhKgD1aGdyR7n8DAv0m2ZDjSSsnueosi7XoUNuuPjlcOeTW
+         ppReACVmSow3syfOygO25xBaXlE/KunxdBnu35Ap6aAoOCp4DRGzHLvPz/jyDOCaMKNb
+         uG+UCVXj/ch7uFGnycA+BwbFcmcsBQ57/4vyfUwtCwEl7qwi9ye0wM8bSGqzjA2rPDjj
+         /5VBsG0rV74cBhx5t5x36Hc2UuJw4FVhcaaA+iBviqu0PwWeDMO7Z86mDYz1GNoRmU8n
+         9/xA==
+X-Forwarded-Encrypted: i=1; AJvYcCX4mRwIinA9U7yC7SmgenGcW/lQYVr7XegB+i9fvBpzWuaPnpaMHp7z0qn5UILd7NTarIsECqbSZAfR+N44sg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwNL/Lq9IcnkA2+pmea8aISdBmOC1Nck1qYaVsKGB1K8B6P445S
+	jIy+5jjTxeWoDxNhT8eXsx7VWAWQffqBrXp822rkGTszyc4DBnU5ISKRubfy+dg=
+X-Gm-Gg: ASbGncu7ZQMF545tu1F3QJhDgvXs4UVvlXTc5wruxG4w8cn3I6N/Awh+irGDpFFB7I0
+	WfdAkH2fi0cr952YccUOqJpKIg7ojIAiOw9SElSSEr2IdAQuDbii1YyT/sdDdh3QvF97EWWtq1z
+	SDFpkcaQAbrjpEAYIC/Sl7HTZYlEMwj8tUCJ0JQXgNgdmdW17Pt+v5JFkPismRhHTASKbCJL9hq
+	Fz+lvZ2ba51EQCT2OtIPquEl2ZrRhz055IdkYy/Yv0aa3DXrZAT/KIQqEst9qjiqNC5JGt8m5Ad
+	5dprUP6IEglLoX2bQxZD3mLETgM=
+X-Google-Smtp-Source: AGHT+IGWhHTEnUp8RUiWMKHvCVuyT8/rXL2ynOFabY336YUpw5mRZI1i4GZUr3SXSEIaoymXJPH+Tw==
+X-Received: by 2002:a05:6000:1faa:b0:385:fa3d:1988 with SMTP id ffacd0b85a97d-38c5194ca8emr22392899f8f.8.1738665960211;
+        Tue, 04 Feb 2025 02:46:00 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-438dcc13139sm220098775e9.3.2025.02.04.02.45.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Feb 2025 02:45:59 -0800 (PST)
+Date: Tue, 4 Feb 2025 11:45:57 +0100
+From: Simona Vetter <simona.vetter@ffwll.ch>
+To: "Huang, Honglei1" <Honglei1.Huang@amd.com>
+Cc: Demi Marie Obenour <demiobenour@gmail.com>,
+	Huang Rui <ray.huang@amd.com>,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Akihiko Odaki <akihiko.odaki@daynix.com>,
+	Lingshan Zhu <Lingshan.Zhu@amd.com>
+Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
+ object
+Message-ID: <Z6Hv5esGqHWU2TVe@phenom.ffwll.local>
+Mail-Followup-To: "Huang, Honglei1" <Honglei1.Huang@amd.com>,
+	Demi Marie Obenour <demiobenour@gmail.com>,
+	Huang Rui <ray.huang@amd.com>,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Akihiko Odaki <akihiko.odaki@daynix.com>,
+	Lingshan Zhu <Lingshan.Zhu@amd.com>
+References: <20241220100409.4007346-1-honglei1.huang@amd.com>
+ <20241220100409.4007346-3-honglei1.huang@amd.com>
+ <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
+ <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
+ <40485636-7ea3-4e34-b4bb-1ccaaadd4e47@amd.com>
+ <62aeac90-1ba6-4e22-9465-fee95973a6bf@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH2PEPF00000140:EE_|IA1PR12MB6020:EE_
-X-MS-Office365-Filtering-Correlation-Id: 819e76c7-674d-420e-8f62-08dd4504ff4f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|82310400026|36860700013|1800799024|7053199007|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?SjVsaXlpb0kwRG85WURkMTM3NmhwN1lJMU56bmIweHhTWDVYMWtJdXhVSkZu?=
- =?utf-8?B?bjZRdnJmSkZuZHI0a2R3bmQzODROSUVGVFlITGU4K3FNdlFwbWE2dXE1U2pS?=
- =?utf-8?B?bDV0U21ZeDNMRFNwU2d5c2c0dDVuY1dFTGxNQUZhbWRFUnRTZUY0dUVwWEo3?=
- =?utf-8?B?QVR5UFJVVUtiRjJCeXUrVWhyMU9jbDBRZEw1N0prNklUL0pDQmNrUkxOVUtM?=
- =?utf-8?B?Uk5najd1a0ZwWTdPbmxxMURtVm5CNGVmMlFLTVgrbzBWSzZ0ZzdMUXR5anhM?=
- =?utf-8?B?U2RMbGxsMkpFWStnZVBBdjFaTzdxM290d2I5RG1mT2NOenZMekRhQXRpV243?=
- =?utf-8?B?VktXNzZUMk1jUkNuMVFJVGlFN2JEQ05ac3cvWWg2ZHhjTWV6WVRUQ1dKMVAx?=
- =?utf-8?B?Y2hiUEJhR3phc0VnSDFJRjJ5dlhja1F5elF1eXltSFlGOWNvbnFSQkhVOWwz?=
- =?utf-8?B?cDhOcmR6Q1M4RldDelJnWUMrSWNzKytLeXhQeGRHV1R1U2J6VFNiYXNpWmJG?=
- =?utf-8?B?dHh4ektlYzZ6bmJzdmlSeG5qdnBxSTJadnZJR3hCVjRMQ1NCczlDbXdHK2Z3?=
- =?utf-8?B?ZFNMMDB6UFAxT2ROREdJU1NOcG1Kc3A1YkMrdmovbE5qN2x6bjFNaVhyc2Zq?=
- =?utf-8?B?QnhFdVJhaERvUWJ3Zk9DK1gxaElSd2d6N244RWFmeFhDWmd5UjI1Z2RTSmFn?=
- =?utf-8?B?UVRNcTd2NjA2TlVrSHR1WjdNTnpNd1UrdmNGWS9FVjdMVVpjald3bUEzaUdK?=
- =?utf-8?B?UStJcU9aQ2lFTkY2VllCdVdjbitVR1JwY3ZQVVNlenVBNHVabkpJQzJ6aThQ?=
- =?utf-8?B?amMra21rbWw1OE1OTUZUbG1hRC9JMXUyR0RGTUJBR3FJL3F1UUFVeU0xWmRo?=
- =?utf-8?B?aWJZczdVZFFQeXlxWlJ4dUhuN05aZS95ZzVqb244dDdHekhzdHRMcUhaL25v?=
- =?utf-8?B?dytLM2NGS05qdlhtRThqY0JVSlc5YXlyNmh6S0ZuL2dJWC96dEpLaWxKUnFL?=
- =?utf-8?B?Qm9QQisvUzV0d0t3NEE5NjhNdmZ6TmtEN2wwdWJOKzYrSTFpOWZwUFQwaSs2?=
- =?utf-8?B?aVZHVUdHN3R6eEtHaVhTajdwdldZOU9HQzZOaERhb0RwdGliVWgyWDUyOU9D?=
- =?utf-8?B?TkxkTUZLb2lyWUpMUzdDZU1uZzJKOFpIblMwbmNlY1paSnBrU2JTUXgybm9L?=
- =?utf-8?B?T1NjVVNoNWhKbU5sUzVmcWVhMGJCa29nenRDdzZ2dVc1SWZNcWw1YVk2dzVX?=
- =?utf-8?B?VzdPUmlGM1pNNFVMTEptZ3JFeXR6T0FnNTJjbW0xeVlGMWZJYmF0VEtzeHBn?=
- =?utf-8?B?ZUpoODFwSXIxTGZrc080TWxPQ1JGMStaRmFNbGdiYkpoSHZXR1U4VzBFUHps?=
- =?utf-8?B?Z0wxalFORS9QdlVOeVprTUFjY0pnbU5mcUZKbW4rSi9DeUJYZDN6ZUxBeCtC?=
- =?utf-8?B?eEh4emY5cm81eHEzdlVBbFZDNUV4OFhWMDVPaXkrbkQ3VmJjWlVZLytJSUIw?=
- =?utf-8?B?SzdSNzVNRXl5SWFMblliMDlwR1ZzTVJPQ01vR0phMUxCKzZNWEFIT3ZtNFBY?=
- =?utf-8?B?UEplRkpJdUNnNDhPTFJ0bHN3TzM2U0pTcUdoMmxxajhOOEhsSUlJZzVLVVBW?=
- =?utf-8?B?TXk4M0J4aXk1VmxFMzlHREtjRkpKUVhRT0luZFZ1Q1Y2VE1ZUkE1MFU3cnR0?=
- =?utf-8?B?R2V4MWJ1MW5oRXkzbFJQODM4Smo0OVFxMlNoaHh3K3R0c2dzNW40bm4ydUx3?=
- =?utf-8?B?cFB0eXVmbi9xb3ZrNG9yaHdiUUczdkhubkdyWGtzNmMxMWdvUHFMRVpwdDVD?=
- =?utf-8?B?S0lCd3haRnQzTmpuS0hvbGZVbE9iTEhFdm4yblBFZ0NGaDJURWNUTzYwYmgv?=
- =?utf-8?B?NGNTVGxXTDVqaDdMREFVc1hrZnRnU3M4T21EZ0NkQ0I5bzlxYmxybDdUMWtB?=
- =?utf-8?B?dXcxaFdRRCtDN0RKbUppVEVNMyt3a0h0eTFuMGdqNnhab1hWVkNBZUVPdTVk?=
- =?utf-8?Q?LyvLuDm9hjr5Fc1WuXL04KCWrDFcKo=3D?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(376014)(82310400026)(36860700013)(1800799024)(7053199007)(921020);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Feb 2025 10:16:32.1287
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 819e76c7-674d-420e-8f62-08dd4504ff4f
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH2PEPF00000140.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6020
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <62aeac90-1ba6-4e22-9465-fee95973a6bf@amd.com>
+X-Operating-System: Linux phenom 6.12.11-amd64 
 
-Sean Christopherson <seanjc@google.com> writes:
+On Mon, Jan 20, 2025 at 05:54:10PM +0800, Huang, Honglei1 wrote:
+> On 2024/12/27 10:02, Huang, Honglei1 wrote:
+> > On 2024/12/22 9:59, Demi Marie Obenour wrote:
+> > > On 12/20/24 10:35 AM, Simona Vetter wrote:
+> > > > On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
+> > > > > From: Honglei Huang<Honglei1.Huang@amd.com>
+> > > > > 
+> > > > > A virtio-gpu userptr is based on HMM notifier.
+> > > > > Used for let host access guest userspace memory and
+> > > > > notice the change of userspace memory.
+> > > > > This series patches are in very beginning state,
+> > > > > User space are pinned currently to ensure the host
+> > > > > device memory operations are correct.
+> > > > > The free and unmap operations for userspace can be
+> > > > > handled by MMU notifier this is a simple and basice
+> > > > > SVM feature for this series patches.
+> > > > > The physical PFNS update operations is splited into
+> > > > > two OPs in here. The evicted memories won't be used
+> > > > > anymore but remap into host again to achieve same
+> > > > > effect with hmm_rang_fault.
+> > > > So in my opinion there are two ways to implement userptr that make sense:
+> > > > 
+> > > > - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
+> > > >    notifier
+> > > > 
+> > > > - unpinnned userptr where you entirely rely on userptr and do not hold any
+> > > >    page references or page pins at all, for full SVM integration. This
+> > > >    should use hmm_range_fault ideally, since that's the version that
+> > > >    doesn't ever grab any page reference pins.
+> > > > 
+> > > > All the in-between variants are imo really bad hacks, whether they hold a
+> > > > page reference or a temporary page pin (which seems to be what you're
+> > > > doing here). In much older kernels there was some justification for them,
+> > > > because strange stuff happened over fork(), but with FOLL_LONGTERM this is
+> > > > now all sorted out. So there's really only fully pinned, or true svm left
+> > > > as clean design choices imo.
+> > > > 
+> > > > With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
+> > > > you?
+> > > +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
+> > > in complexity that pinning everything avoids.  Furthermore, this avoids the
+> > > host having to take action in response to guest memory reclaim requests.
+> > > This avoids additional complexity (and thus attack surface) on the host side.
+> > > Furthermore, since this is for ROCm and not for graphics, I am less concerned
+> > > about supporting systems that require swappable GPU VRAM.
 
-> When running as a TDX guest, explicitly override the TSC frequency
-> calibration routine with CPUID-based calibration instead of potentially
-> relying on a hypervisor-controlled PV routine.  For TDX guests, CPUID.0x15
-> is always emulated by the TDX-Module, i.e. the information from CPUID is
-> more trustworthy than the information provided by the hypervisor.
->
-> To maintain backwards compatibility with TDX guest kernels that use native
-> calibration, and because it's the least awful option, retain
-> native_calibrate_tsc()'s stuffing of the local APIC bus period using the
-> core crystal frequency.  While it's entirely possible for the hypervisor
-> to emulate the APIC timer at a different frequency than the core crystal
-> frequency, the commonly accepted interpretation of Intel's SDM is that AP=
-IC
-> timer runs at the core crystal frequency when that latter is enumerated v=
-ia
-> CPUID:
->
->   The APIC timer frequency will be the processor=E2=80=99s bus clock or c=
-ore
->   crystal clock frequency (when TSC/core crystal clock ratio is enumerated
->   in CPUID leaf 0x15).
->
-> If the hypervisor is malicious and deliberately runs the APIC timer at the
-> wrong frequency, nothing would stop the hypervisor from modifying the
-> frequency at any time, i.e. attempting to manually calibrate the frequency
-> out of paranoia would be futile.
->
-> Deliberately leave the CPU frequency calibration routine as is, since the
-> TDX-Module doesn't provide any guarantees with respect to CPUID.0x16.
+I kinda ignored this one, because from my point of view it's all clear.
+But I guess better to elaborate some more.
 
-Does TDX use kvmclock? If yes, kvmclock would have registered the CPU
-frequency calibration routine:
+> > Hi Sima and Demi, I totally agree the flag FOLL_LONGTERM is needed, I
+> > will add it in next version. And for the first pin variants
+> > implementation, the MMU notifier is also needed I think.
+> > Cause the userptr feature in UMD generally used like this: the
+> > registering of userptr
+> > always is explicitly invoked by user code like
+> > "registerMemoryToGPU(userptrAddr, ...)",
+> > but for the userptr release/free, there is no explicit API for it, at
+> > least in hsakmt/KFD stack.
+> > User just need call system call "free(userptrAddr)", thenkernel driver
+> > will release the userptr
+> > by MMU notifier callback.Virtio-GPU has no other way to know if user has
+> > been free the userptr
+> > except for MMU notifior.And in UMD theres is no way to get the free()
+> > operation is invoked by user.
+> > the only way is use MMU notifierin virtio-GPU driver and free the
+> > corresponding data in host
+> > by some virtio CMDs as far as I can see.
 
-	tsc_register_calibration_routines(kvm_get_tsc_khz, kvm_get_cpu_khz,
- 					  tsc_properties);
+Yes that's what I meant that you need real svm/hmm here. You cannot fake
+the amdkfd/hsakmt model with pin_user_pages, it fundamentally falls apart.
+One case is overcommit, where userspace malloc() a huge amount of virtual
+address space, registers it with the gpu, but only uses fairly little of
+it. If you pin that all, you run out of memory or at least thrash
+performance.
 
-so TDX will use kvm_get_cpu_khz(), which will either use CPUID.0x16 or
-PV clock, is this on the expected line ?
+For the hsa/kfd model, you must use hmm+mmu_notifier, or you're breaking
+the uapi contract.
 
-Regards
-Nikunj
+> > And for the second way that is use hmm_range_fault, there is a
+> > predictable issues as far as I can see, at least in hsakmt/KFD stack.
+> > That is the memory may migrate when GPU/device is working. In bare
+> > metal, when memory is migrating KFD driver will pause the compute work
+> > of the device in mmap_wirte_lock then use hmm_range_fault to remap the
+> > migrated/evicted memories to GPU then restore the compute work of device
+> > to ensure the correction of the data. But in virtio-GPU driver the
+> > migration happen in guest kernel, the evict mmu notifier callback
+> > happens in guest, a virtio CMD can be used for notify host but as lack
+> > of mmap_write_lock protection in host kernel, host will hold invalid
+> > data for a short period of time, this may lead to some issues. And it is
+> > hard to fix as far as I can see.
 
-> +
-> +void __init tdx_tsc_init(void)
-> +{
-> +	/* TSC is the only reliable clock in TDX guest */
-> +	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
-> +	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
-> +
-> +	/*
-> +	 * Override the PV calibration routines (if set) with more trustworthy
-> +	 * CPUID-based calibration.  The TDX module emulates CPUID, whereas any
-> +	 * PV information is provided by the hypervisor.
-> +	 */
-> +	tsc_register_calibration_routines(tdx_get_tsc_khz, NULL);
-> +}
+I forgot the exact details, but when I looked amdkfd was taking too big
+locks in the migration paths, which results in deadlocks. Those were
+worked around by taking even bigger locks, the mmap_write_lock. But that's
+a design issue with amdkfd, not something fundamental.
+
+hmm only needs the mmu_notifier callbacks to work, meaning either context
+preemption and restarting, or tlb invalidation and gpu page fault
+handling. Those you can forward between guest and host with no issues, and
+with hw support like pasid/ats in iommu this already happens.
+
+Note that the drm_gpusvm library that's under discussion for xe had the
+same issue in version 1 of relying on mmap_write_lock to paper over design
+issues. But the recent versions should be fixed. Would be really good to
+look at all that. And then probably do a full redo of the svm support for
+amd in amdgpu.ko using all these new helper libraries, because my personal
+take is that fixing amdkfd is probably more work than just writing new
+clean code.
+
+> > Finally I will extract some APIs into helper according to your request,
+> > and I will refactor the whole userptr
+> > implementation, use some callbacks in page getting path, let the pin
+> > method and hmm_range_fault can be choiced
+> > in this series patches.
+> > 
+> > Regards,
+> > Honglei
+> 
+> Hi Sima,
+> 
+> I modified the code, remove all the MMU nitifior and use pin_user_pages_fast
+> only. Under this implementation userptr fully
+> managed by UMD. We did a performance test, it decreased by 30% in
+> OpenCL stack in Geekbench6 benmark.
+> We use AMD V2000 for test:
+> use MMU notifior + pin_user_pages:
+> near 13000 score: https://browser.geekbench.com/v6/compute/3257793
+> 
+> use pin_user_pages only:
+> near 10000 socre: https://browser.geekbench.com/v6/compute/3496228
+> 
+> The code is under clean up, I will send out later.
+
+pin_user_pages is fundamentally broken for the hsa memory model, no amount
+of benchmarking different flavors of it against each another will change
+that.
+
+> And I found a another thing, it seems like in intel i915 userptr
+> implementation, the pin_user_pages is also used in MMU notifior.
+> Code path is: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915/gem/i915_gem_userptr.c?h=v6.13#:~:text=ret%20%3D%20pin_user_pages_fast(obj%2D%3Euserptr.ptr%20%2B%20pinned%20*%20PAGE_SIZE%2C
+
+Yeah i915-gem isn't great code and shouldn't be used as example for
+anything. This is Dave&me asked Xe developers to create a lot of the
+infrastructure in drm libraries, to make sure we have a solid design here
+and not what i915-gem did.
+
+Also note that i915-gem userptr is for buffer based userptr, like for
+VK_KHR_external_memory if I remember correctly. This is not the hsa memory
+model at all.
+> 
+> Patch set: https://lore.kernel.org/all/159353552439.22701.14005121342739071590@emeril.freedesktop.org/T/
+> https://patchwork.kernel.org/project/intel-gfx/patch/20210323155059.628690-17-maarten.lankhorst@linux.intel.com/#24064663
+> 
+> And I didn't find the hmm_range_fault code path, maybe I missed it?
+
+i915-gem never supported the svm/hsa memory model in upstream, so yeah
+it's not there. For drm/xe see the work from Matt Brost that's currently
+under discussion on dri-devel for what it should all look like.
+
+Cheers, Sima
+
+> 
+> Regards,
+> Honglei
+> 
+
+-- 
+Simona Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
