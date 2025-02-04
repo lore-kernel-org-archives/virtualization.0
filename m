@@ -1,180 +1,205 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2061.outbound.protection.outlook.com [40.107.236.61])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3F332080C3
-	for <virtualization@lists.linux.dev>; Tue,  4 Feb 2025 10:04:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738663461; cv=none; b=LfPCzjyY5Urg7CKB/PlsM1M6ImKik1SLOdOVIUMZN6IrG6/MGTP4nGeGna60aXkFcM/fVqACwTLBYSHkJA+58attuNEWMWXmYaM+8uqI68+3PjzZv5Rot7D2N85CNMLYuKR9XAJ5gAmBxzPhJPO6PmARTs7vOE1TmlH41t96SEw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738663461; c=relaxed/simple;
-	bh=mUDPToLx4m1t4OQh7RaNx1yOyqPbXSxV/uwU5GCkTBY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=O0Z1EFMoLOjqsxdN8aB3/dkpgK0MFN4CoY6ZlTPnCFUhhKMdBFW9HpHUaSrgKSfHY42QWr4aa/OLc7ojgCHDKt4swVTYbyYD0cSstEPPgY5w5SVQbvx7SCcILEJhExbAvSXvlEO5amKk/ee0cHgZ8LYhh3lWXDOA07rz7a09I+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z2AIqTi7; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96164204F63;
+	Tue,  4 Feb 2025 10:16:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.61
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738664198; cv=fail; b=hbSUHcmWF1aEKqSBvjwdZApX/1jqLTGw2rsILmwDw3Hm+fUi8Lsx3V6+GqpUEfSe7ShLFiiGbXcYurMb+LCwLNZLXGvc7soncmHJJ4kFucaLLh2v+SE7ncnSZ0Jjbfj609zLHsmezwfLPqWbY1hnm9CbzGi8GI1RarvRg0Wmma8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738664198; c=relaxed/simple;
+	bh=x8bHo+6VdpLig/R+zhG/QKsg0B1rIvEgqquEjUAw8nc=;
+	h=From:To:CC:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=bu64j9Ktx2PJ73Sglv6y5h7rAiIix3euslAup1w3KsK/FFG76pMNqslFIA4EotEt4VZbPcYwyyMF/Y8597mMUGy5mpPpSj6Eql+8LtR3rz28dn27sndXLLjPjlx9RZ5ZUKiqqu8TwS4N5mWqS0jOFjGC9Ltgud8CZoFkfGr3SAk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=wN7Sl9Bf; arc=fail smtp.client-ip=40.107.236.61
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z2AIqTi7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1738663458;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=r7QifqPZ9eDjVzOXnGpRwU072WD973YhoUOHzvFP/XY=;
-	b=Z2AIqTi7o1UcLFvVpjzXXwhP+5A0kStJNcmcUm4ly7MqhC4BIeghdtw66pIp8aU8CecT7M
-	LIkd6a53hfLCMRSLRJ1uLbrLOAEbqw70+k5VGSEIHQV+DUfHGcSsgkJzTmzTC+mRSihg2z
-	tXPZXyaNsdKCE55o/Y00g7IAm2F+/Rk=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-130-PYfLHwo9NI-wLpVJUpKyBQ-1; Tue, 04 Feb 2025 05:04:17 -0500
-X-MC-Unique: PYfLHwo9NI-wLpVJUpKyBQ-1
-X-Mimecast-MFC-AGG-ID: PYfLHwo9NI-wLpVJUpKyBQ
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-6f27dd44f86so62187807b3.0
-        for <virtualization@lists.linux.dev>; Tue, 04 Feb 2025 02:04:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738663457; x=1739268257;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=r7QifqPZ9eDjVzOXnGpRwU072WD973YhoUOHzvFP/XY=;
-        b=Nm0dAdy5a9L3XEUfVNVPK3eBBbNo/A68b3a9L6tl7EE/Xbs4puPVoZH07wx8P6cpn0
-         0ygquL0UWaegHnnP2TjIyq+9jxFhpoZINvoIlHKeMgVR1MSBcJ9EYg5yR4haYYAccMjE
-         Qyqm3ilXeJJhddq+sgpPpIcxoTwV+bDws4bq7AIjMZ9d8WzoQOk10SHbBpCmvYAcj4Xo
-         QhURoloUPSY0fLFRYK0ar8204WGZjHU04YB2mQHOnd0d5CCNqU59uON2mFJVcEy6ZSiV
-         nBuGdkfXrSIf29TeMvIUBSwIJYtx0axn3HTuPZ323jV5861tN+aMUMIW2DAxmVBSlEn9
-         8EcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX803uudlN+BRmJcXv2H/+jnr4D+SVrGZWyQb+91UXgRu0K2Ox099orqeTy2ESnhNWprdJvFBk1yo1+1/0Cyw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxZu8rF8gyS3f8DH+F0Mrpi0pGJkGvYt5/j5VPd6wX6fk5SwTz9
-	Bg3DG3LYxHwIekwsON8AHIYRDFT67fdOB6+s7bdgm0v7q1RwIlVIcR9Xdc7LMHs5X4Tn0ncHq9J
-	5+LrBAsQI1gYuHkwiO9Umoo428mh+O8eJIUafkHw0Em00CMTjEkZ3ROgxDnSYmGOA1WV1V7xySw
-	8Jk2/jyH7sDUNhWDS+7lhhGFixxakidcIr9q87098=
-X-Gm-Gg: ASbGncu812LH0jwuwqUTuR0PoyGrRsu0QFkMTnjLmYfN/6S860Qcce4w042pT4ifwHG
-	fEVA7gsXDKK9fObmfadc37lEzIjPmEXUibN4WjQBYYKMc+w3WG290U1Lc/YgqtFc=
-X-Received: by 2002:a05:690c:c99:b0:6f6:7ef2:fe74 with SMTP id 00721157ae682-6f7a8426a5dmr187992867b3.32.1738663457131;
-        Tue, 04 Feb 2025 02:04:17 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGObxnJlWUNYcPLXX3gTTHlz8ygcPRSBCSw4ZNWGPq56uQbjLmdeK3NSXxsGvATRJ7AZmu/F90tI28ywSsg0b4=
-X-Received: by 2002:a05:690c:c99:b0:6f6:7ef2:fe74 with SMTP id
- 00721157ae682-6f7a8426a5dmr187992617b3.32.1738663456785; Tue, 04 Feb 2025
- 02:04:16 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="wN7Sl9Bf"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=sdI+DsqcdvqSXA9zIj3r8YBkur/gf2oFLacX2KbQaugQ+ZQoYcIqemoWPL3gNjmd6zsMw0GZp6SlKvFF+yApyydqaHNZP16QU4SNGpiQEjm3kjqjVw7GLZr/yOwPUg3ZQnZhXrPSPqR+ivL6vOvs2FjyaGnXD/Liw/CtpEEK7BsWOPGIxb698Md7LQKNjSg9bmVqKoPbEw1gaRo3X/ptHOQ3a9cquiII2KIu5vCNK44bxkbQwEQtTjeogVkzeMy91wSTzlVCBfDuhG7UugjE5QKTm/e7veqrlnTrSI0P+51xUprS0520QE2nEJ7B0r1jy6Y3k1EwbILj5qlpcXIg6g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PYQPtGe3YL7mSqevDlxs0Eh/1R6bR/R1bDkYQ9bo7b8=;
+ b=amphElKyq4jYfC7uvGY3e6MNv2O4rkLDeXoAHV4ZHrkkfqCckqtsBW8kkECQbe+2HYkLllUQ9TvwFou3ZuQ1ijZUqMRsnyuTD00cG5mkOd4OabYNFjDQ/j1nsu2kWjPxT/6aFnzU7cyhrN2363zKWRkU2xOMAPrTjdYoJI7qembIrj/DbLZZ/u0BDa4PP78AZzSHEfGc609eHKB7cH/Cy90jMTWQiI30ntSar//1q3o5SWDDZ5VjVMKcEAzep/Cejlp61rKa74anHDMMSnfRh+TN5nt4L3rAVBC19oBEa9a2f4lAijkelMGWXVhYapjTbYdhYJ5+/UbfCj5L/c/RPQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=google.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=PYQPtGe3YL7mSqevDlxs0Eh/1R6bR/R1bDkYQ9bo7b8=;
+ b=wN7Sl9Bfn73RYQ5bhJZu0apyNVM5M8oNLLKoFLBKRCxl9awNmhpNrySfmQuy6rT3L5pZUFDLj8Ets/nIl2/dN6++4LBCuRQGph4GF5PKfEWsNAAOKn8yO6BsCxZKrvGwmSDSzT+HS74FkUbaqMMdvvRqGoiNl6RWvCw8e/2BznE=
+Received: from CH2PR08CA0024.namprd08.prod.outlook.com (2603:10b6:610:5a::34)
+ by IA1PR12MB6020.namprd12.prod.outlook.com (2603:10b6:208:3d4::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.24; Tue, 4 Feb
+ 2025 10:16:32 +0000
+Received: from CH2PEPF00000140.namprd02.prod.outlook.com
+ (2603:10b6:610:5a:cafe::5) by CH2PR08CA0024.outlook.office365.com
+ (2603:10b6:610:5a::34) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8398.27 via Frontend Transport; Tue,
+ 4 Feb 2025 10:16:32 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CH2PEPF00000140.mail.protection.outlook.com (10.167.244.72) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.8398.14 via Frontend Transport; Tue, 4 Feb 2025 10:16:32 +0000
+Received: from BLR-L1-NDADHANI (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Tue, 4 Feb
+ 2025 04:16:24 -0600
+From: Nikunj A Dadhania <nikunj@amd.com>
+To: Sean Christopherson <seanjc@google.com>, Thomas Gleixner
+	<tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross
+	<jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang
+	<haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
+	<decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, "Alexey
+ Makhalov" <alexey.amakhalov@broadcom.com>, Jan Kiszka
+	<jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, "Andy
+ Lutomirski" <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+CC: <linux-kernel@vger.kernel.org>, <linux-coco@lists.linux.dev>,
+	<virtualization@lists.linux.dev>, <linux-hyperv@vger.kernel.org>,
+	<jailhouse-dev@googlegroups.com>, <kvm@vger.kernel.org>,
+	<xen-devel@lists.xenproject.org>, Sean Christopherson <seanjc@google.com>,
+	Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH 06/16] x86/tdx: Override PV calibration routines with
+ CPUID-based calibration
+In-Reply-To: <20250201021718.699411-7-seanjc@google.com>
+References: <20250201021718.699411-1-seanjc@google.com>
+ <20250201021718.699411-7-seanjc@google.com>
+Date: Tue, 4 Feb 2025 10:16:22 +0000
+Message-ID: <85r04e5821.fsf@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <67a09300.050a0220.d7c5a.008b.GAE@google.com> <2483d8c1-961e-4a7f-9ce7-ffd21a380c70@rbox.co>
- <6fonjxxkozzmv7huzavck5nsfivx3nsyyicthulg5aiyrmjpql@o7pexllumdxt>
-In-Reply-To: <6fonjxxkozzmv7huzavck5nsfivx3nsyyicthulg5aiyrmjpql@o7pexllumdxt>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Tue, 4 Feb 2025 11:04:04 +0100
-X-Gm-Features: AWEUYZkRpQsQ3lL4HaavFbVzIcqyxyzO3RF8AiDQcOZb6x_hIpX856jwrL1eacs
-Message-ID: <CAGxU2F7CgVHUuPPATBzXw20fR1Z+MVpsJvgRO=kMFV1nis49SQ@mail.gmail.com>
-Subject: Re: [syzbot] [net?] general protection fault in add_wait_queue
-To: Michal Luczaj <mhal@rbox.co>
-Cc: syzbot <syzbot+9d55b199192a4be7d02c@syzkaller.appspotmail.com>, 
-	davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
-	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
-	pabeni@redhat.com, stefanha@redhat.com, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-X-Mimecast-Spam-Score: 1
-X-Mimecast-MFC-PROC-ID: NqeHtiJlbOkRMc6vStVopHmL3x3S9o1PZQBfEqlbxyg_1738663457
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH2PEPF00000140:EE_|IA1PR12MB6020:EE_
+X-MS-Office365-Filtering-Correlation-Id: 819e76c7-674d-420e-8f62-08dd4504ff4f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|82310400026|36860700013|1800799024|7053199007|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?SjVsaXlpb0kwRG85WURkMTM3NmhwN1lJMU56bmIweHhTWDVYMWtJdXhVSkZu?=
+ =?utf-8?B?bjZRdnJmSkZuZHI0a2R3bmQzODROSUVGVFlITGU4K3FNdlFwbWE2dXE1U2pS?=
+ =?utf-8?B?bDV0U21ZeDNMRFNwU2d5c2c0dDVuY1dFTGxNQUZhbWRFUnRTZUY0dUVwWEo3?=
+ =?utf-8?B?QVR5UFJVVUtiRjJCeXUrVWhyMU9jbDBRZEw1N0prNklUL0pDQmNrUkxOVUtM?=
+ =?utf-8?B?Uk5najd1a0ZwWTdPbmxxMURtVm5CNGVmMlFLTVgrbzBWSzZ0ZzdMUXR5anhM?=
+ =?utf-8?B?U2RMbGxsMkpFWStnZVBBdjFaTzdxM290d2I5RG1mT2NOenZMekRhQXRpV243?=
+ =?utf-8?B?VktXNzZUMk1jUkNuMVFJVGlFN2JEQ05ac3cvWWg2ZHhjTWV6WVRUQ1dKMVAx?=
+ =?utf-8?B?Y2hiUEJhR3phc0VnSDFJRjJ5dlhja1F5elF1eXltSFlGOWNvbnFSQkhVOWwz?=
+ =?utf-8?B?cDhOcmR6Q1M4RldDelJnWUMrSWNzKytLeXhQeGRHV1R1U2J6VFNiYXNpWmJG?=
+ =?utf-8?B?dHh4ektlYzZ6bmJzdmlSeG5qdnBxSTJadnZJR3hCVjRMQ1NCczlDbXdHK2Z3?=
+ =?utf-8?B?ZFNMMDB6UFAxT2ROREdJU1NOcG1Kc3A1YkMrdmovbE5qN2x6bjFNaVhyc2Zq?=
+ =?utf-8?B?QnhFdVJhaERvUWJ3Zk9DK1gxaElSd2d6N244RWFmeFhDWmd5UjI1Z2RTSmFn?=
+ =?utf-8?B?UVRNcTd2NjA2TlVrSHR1WjdNTnpNd1UrdmNGWS9FVjdMVVpjald3bUEzaUdK?=
+ =?utf-8?B?UStJcU9aQ2lFTkY2VllCdVdjbitVR1JwY3ZQVVNlenVBNHVabkpJQzJ6aThQ?=
+ =?utf-8?B?amMra21rbWw1OE1OTUZUbG1hRC9JMXUyR0RGTUJBR3FJL3F1UUFVeU0xWmRo?=
+ =?utf-8?B?aWJZczdVZFFQeXlxWlJ4dUhuN05aZS95ZzVqb244dDdHekhzdHRMcUhaL25v?=
+ =?utf-8?B?dytLM2NGS05qdlhtRThqY0JVSlc5YXlyNmh6S0ZuL2dJWC96dEpLaWxKUnFL?=
+ =?utf-8?B?Qm9QQisvUzV0d0t3NEE5NjhNdmZ6TmtEN2wwdWJOKzYrSTFpOWZwUFQwaSs2?=
+ =?utf-8?B?aVZHVUdHN3R6eEtHaVhTajdwdldZOU9HQzZOaERhb0RwdGliVWgyWDUyOU9D?=
+ =?utf-8?B?TkxkTUZLb2lyWUpMUzdDZU1uZzJKOFpIblMwbmNlY1paSnBrU2JTUXgybm9L?=
+ =?utf-8?B?T1NjVVNoNWhKbU5sUzVmcWVhMGJCa29nenRDdzZ2dVc1SWZNcWw1YVk2dzVX?=
+ =?utf-8?B?VzdPUmlGM1pNNFVMTEptZ3JFeXR6T0FnNTJjbW0xeVlGMWZJYmF0VEtzeHBn?=
+ =?utf-8?B?ZUpoODFwSXIxTGZrc080TWxPQ1JGMStaRmFNbGdiYkpoSHZXR1U4VzBFUHps?=
+ =?utf-8?B?Z0wxalFORS9QdlVOeVprTUFjY0pnbU5mcUZKbW4rSi9DeUJYZDN6ZUxBeCtC?=
+ =?utf-8?B?eEh4emY5cm81eHEzdlVBbFZDNUV4OFhWMDVPaXkrbkQ3VmJjWlVZLytJSUIw?=
+ =?utf-8?B?SzdSNzVNRXl5SWFMblliMDlwR1ZzTVJPQ01vR0phMUxCKzZNWEFIT3ZtNFBY?=
+ =?utf-8?B?UEplRkpJdUNnNDhPTFJ0bHN3TzM2U0pTcUdoMmxxajhOOEhsSUlJZzVLVVBW?=
+ =?utf-8?B?TXk4M0J4aXk1VmxFMzlHREtjRkpKUVhRT0luZFZ1Q1Y2VE1ZUkE1MFU3cnR0?=
+ =?utf-8?B?R2V4MWJ1MW5oRXkzbFJQODM4Smo0OVFxMlNoaHh3K3R0c2dzNW40bm4ydUx3?=
+ =?utf-8?B?cFB0eXVmbi9xb3ZrNG9yaHdiUUczdkhubkdyWGtzNmMxMWdvUHFMRVpwdDVD?=
+ =?utf-8?B?S0lCd3haRnQzTmpuS0hvbGZVbE9iTEhFdm4yblBFZ0NGaDJURWNUTzYwYmgv?=
+ =?utf-8?B?NGNTVGxXTDVqaDdMREFVc1hrZnRnU3M4T21EZ0NkQ0I5bzlxYmxybDdUMWtB?=
+ =?utf-8?B?dXcxaFdRRCtDN0RKbUppVEVNMyt3a0h0eTFuMGdqNnhab1hWVkNBZUVPdTVk?=
+ =?utf-8?Q?LyvLuDm9hjr5Fc1WuXL04KCWrDFcKo=3D?=
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(376014)(82310400026)(36860700013)(1800799024)(7053199007)(921020);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Feb 2025 10:16:32.1287
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 819e76c7-674d-420e-8f62-08dd4504ff4f
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH2PEPF00000140.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6020
 
-On Tue, 4 Feb 2025 at 10:59, Stefano Garzarella <sgarzare@redhat.com> wrote:
->
-> On Tue, Feb 04, 2025 at 01:38:50AM +0100, Michal Luczaj wrote:
-> >On 2/3/25 10:57, syzbot wrote:
-> >> Hello,
-> >>
-> >> syzbot found the following issue on:
-> >>
-> >> HEAD commit:    c2933b2befe2 Merge tag 'net-6.14-rc1' of git://git.kernel...
-> >> git tree:       net-next
-> >> console output: https://syzkaller.appspot.com/x/log.txt?x=16f676b0580000
-> >> kernel config:  https://syzkaller.appspot.com/x/.config?x=d033b14aeef39158
-> >> dashboard link: https://syzkaller.appspot.com/bug?extid=9d55b199192a4be7d02c
-> >> compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-> >> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=13300b24580000
-> >> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=12418518580000
-> >>
-> >> Downloadable assets:
-> >> disk image: https://storage.googleapis.com/syzbot-assets/c7667ae12603/disk-c2933b2b.raw.xz
-> >> vmlinux: https://storage.googleapis.com/syzbot-assets/944ca63002c1/vmlinux-c2933b2b.xz
-> >> kernel image: https://storage.googleapis.com/syzbot-assets/30748115bf0b/bzImage-c2933b2b.xz
-> >>
-> >> The issue was bisected to:
-> >>
-> >> commit fcdd2242c0231032fc84e1404315c245ae56322a
-> >> Author: Michal Luczaj <mhal@rbox.co>
-> >> Date:   Tue Jan 28 13:15:27 2025 +0000
-> >>
-> >>     vsock: Keep the binding until socket destruction
-> >
-> >syzbot is correct (thanks), bisected commit introduced a regression.
-> >
-> >sock_orphan(sk) is being called without taking into consideration that it
-> >does `sk->sk_wq = NULL`. Later, if SO_LINGER is set, sk->sk_wq gets
-> >dereferenced in virtio_transport_wait_close().
-> >
-> >Repro, as shown by syzbot, is simply
-> >from socket import *
-> >lis = socket(AF_VSOCK, SOCK_STREAM)
-> >lis.bind((1, 1234)) # VMADDR_CID_LOCAL
-> >lis.listen()
-> >s = socket(AF_VSOCK, SOCK_STREAM)
-> >s.setsockopt(SOL_SOCKET, SO_LINGER, (1<<32) | 1)
-> >s.connect(lis.getsockname())
-> >s.close()
-> >
-> >A way of fixing this is to put sock_orphan(sk) back where it was before the
-> >breaking patch and instead explicitly flip just the SOCK_DEAD bit, i.e.
-> >
-> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> >index 075695173648..06250bb9afe2 100644
-> >--- a/net/vmw_vsock/af_vsock.c
-> >+++ b/net/vmw_vsock/af_vsock.c
-> >@@ -824,13 +824,14 @@ static void __vsock_release(struct sock *sk, int level)
-> >        */
-> >       lock_sock_nested(sk, level);
-> >
-> >-      sock_orphan(sk);
-> >+      sock_set_flag(sk, SOCK_DEAD);
-> >
-> >       if (vsk->transport)
-> >               vsk->transport->release(vsk);
-> >       else if (sock_type_connectible(sk->sk_type))
-> >               vsock_remove_sock(vsk);
-> >
-> >+      sock_orphan(sk);
-> >       sk->sk_shutdown = SHUTDOWN_MASK;
-> >
-> >       skb_queue_purge(&sk->sk_receive_queue);
-> >
-> >I'm not sure this is the most elegant code (sock_orphan(sk) sets SOCK_DEAD
-> >on a socket that is already SOCK_DEAD), but here it goes:
-> >https://lore.kernel.org/netdev/20250204-vsock-linger-nullderef-v1-0-6eb1760fa93e@rbox.co/
->
-> What about the fix proposed here:
-> https://lore.kernel.org/lkml/20250203124959.114591-1-aha310510@gmail.com/
+Sean Christopherson <seanjc@google.com> writes:
 
-mmm, nope, that one will completely bypass the lingering, right?
+> When running as a TDX guest, explicitly override the TSC frequency
+> calibration routine with CPUID-based calibration instead of potentially
+> relying on a hypervisor-controlled PV routine.  For TDX guests, CPUID.0x15
+> is always emulated by the TDX-Module, i.e. the information from CPUID is
+> more trustworthy than the information provided by the hypervisor.
+>
+> To maintain backwards compatibility with TDX guest kernels that use native
+> calibration, and because it's the least awful option, retain
+> native_calibrate_tsc()'s stuffing of the local APIC bus period using the
+> core crystal frequency.  While it's entirely possible for the hypervisor
+> to emulate the APIC timer at a different frequency than the core crystal
+> frequency, the commonly accepted interpretation of Intel's SDM is that AP=
+IC
+> timer runs at the core crystal frequency when that latter is enumerated v=
+ia
+> CPUID:
+>
+>   The APIC timer frequency will be the processor=E2=80=99s bus clock or c=
+ore
+>   crystal clock frequency (when TSC/core crystal clock ratio is enumerated
+>   in CPUID leaf 0x15).
+>
+> If the hypervisor is malicious and deliberately runs the APIC timer at the
+> wrong frequency, nothing would stop the hypervisor from modifying the
+> frequency at any time, i.e. attempting to manually calibrate the frequency
+> out of paranoia would be futile.
+>
+> Deliberately leave the CPU frequency calibration routine as is, since the
+> TDX-Module doesn't provide any guarantees with respect to CPUID.0x16.
 
-Stefano
+Does TDX use kvmclock? If yes, kvmclock would have registered the CPU
+frequency calibration routine:
 
->
-> >
-> >One more note: man socket(7) says lingering also happens on shutdown().
-> >Should vsock follow that?
->
-> Good point, I think so.
-> IMHO we should handle both of them in af_vsock.c if it's possible, but
-> maybe we need a bit of refactoring.
->
-> Anyway, net-next material, right?
->
-> Stefano
+	tsc_register_calibration_routines(kvm_get_tsc_khz, kvm_get_cpu_khz,
+ 					  tsc_properties);
 
+so TDX will use kvm_get_cpu_khz(), which will either use CPUID.0x16 or
+PV clock, is this on the expected line ?
+
+Regards
+Nikunj
+
+> +
+> +void __init tdx_tsc_init(void)
+> +{
+> +	/* TSC is the only reliable clock in TDX guest */
+> +	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
+> +	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
+> +
+> +	/*
+> +	 * Override the PV calibration routines (if set) with more trustworthy
+> +	 * CPUID-based calibration.  The TDX module emulates CPUID, whereas any
+> +	 * PV information is provided by the hypervisor.
+> +	 */
+> +	tsc_register_calibration_routines(tdx_get_tsc_khz, NULL);
+> +}
