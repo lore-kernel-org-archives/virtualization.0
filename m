@@ -1,152 +1,178 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA8A2040B3
-	for <virtualization@lists.linux.dev>; Tue,  4 Feb 2025 19:29:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74579204F7F
+	for <virtualization@lists.linux.dev>; Tue,  4 Feb 2025 19:41:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738697381; cv=none; b=ToDFmYrfrHOu+0ycpjDsDpNYGskgsU8VX2UJgEE33WZgDPXL/MrqMHYEseT9pecHh1CdCqb48gIebp9R+MX+cPV7qrsBmRgkhlyRWbKKnx6IupdVCAt0NwV7079HHDlUewXnLifrA9PUFp52hJV37Winr4h+ZBPxcjvLo2q5VLE=
+	t=1738698076; cv=none; b=X2OmbcqymBjw+PiEPtT4S/9+cDz3iHIxrQ0i9GhTqgnng05Vp7IYTIqh7w4x07RJbtIw4SZmCJy0gD82hQbUWegFF97ry8GixdSdlQ7iDsBqEDJAWkdFZVbNVNwDnuzkQn1lEgpjMT+Vo0UArunB6oFbl1JPtYmkJw5l/Pk/EXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738697381; c=relaxed/simple;
-	bh=jR8glNKTcRvWQFyYWzpmeeHHaLx4f7ObdoeaqwwhgrA=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=q0R2C8O6d+EIAtsPo3tb+PNQe0ZC9Fv0L/8OK1FaNZby00TGmX7X+doac2rahxYEEXOFAOQAuTWRSEi05giF/h0czSuum07tqOf6ag+zA1ofDih2hP3A+Bcbb5OLtW7wvn5z/4/07qkVIpOCcKcCTOhGqcyvVjWtEL5nOZAhyzg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=1H5+aT8q; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1738698076; c=relaxed/simple;
+	bh=g8wOV25fc1TNoao6bsF+Qxx5FVzYFX03zAjdYVQ2UII=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Yj+8M/QXhKxPEhzEPU1SgMqQQFrRca1+anj0181WAAjCvXMBEl9YuA8qdyh3pcLi+xmHFrL5J1EqpOpyCNpqOkPnuQNp7tiyqHJwOe++a5uHNil5H3JlQFyw8FbDsstruoHzBSUy5NAc5ty8ylceaRg1PdFQjRILPGfuXNy7SQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e7tD/VXI; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="1H5+aT8q"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2ef114d8346so11242387a91.0
-        for <virtualization@lists.linux.dev>; Tue, 04 Feb 2025 11:29:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e7tD/VXI"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-21f169e9595so1209775ad.2
+        for <virtualization@lists.linux.dev>; Tue, 04 Feb 2025 11:41:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1738697379; x=1739302179; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5e8UEnGVo+4lDc1cH0GoOuL8F0MUw58BGLx/3p+5fdQ=;
-        b=1H5+aT8qTDNOPx5lDspr+1Ot1lPqmX/2vNoN0WUzq1yU1gZCHtEPJpkqb1GsU6mt+h
-         CfwFZJC9Shqku8T/VQhexyUZ7ylcy/sTGFkt3eQVRQRqewz3BSCMpfTXSqWuMkg0KQQb
-         Wovx9AhsVuHl6MKB8YHR6v1u4GqovkMY5qfP+0tUiR4xOXWjjly4ekStb8GLHgffP8AO
-         yorrHtpfE4/bxFRdvvOn99oxSIWfk0JoHMr91K4P0Lyiy07LazviRAqCtEnf/E2ZNksM
-         wuJ8a3yKIpfVy8/UcfHVf2ekytQOAQsnaDcegDRcL6KFvPnWVu8I76Jle5uCPTiM8iVY
-         q+0g==
+        d=gmail.com; s=20230601; t=1738698073; x=1739302873; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=moi/W+SxGPnzASf9/FXO/gMD1/604PmuIGFT4p/Ba5w=;
+        b=e7tD/VXIq934icFF+XZYIDFkKgM9ue0ciNUNGPm5I/mt6xI3cMhBL6e45ySV/JM4np
+         off1PvwY9DgiY6Nz+S7t0qEKid/Cq1fU2qfYpH+bkcq/0y4eRg3OOVUBf46xNdrX12Y3
+         7UMfxqKH9QzV3i3/pE3MDF5aN0wBXnh1Ma4xB9GBR+OpDIF3IR9438NiUOpMen+F/lg0
+         6bWsGgPK79nMWVmThidAoPqumyuLu2fFsg0WF2VFmBM6NGp8tdHYPA0UxGE4JMBpPiTK
+         mtOoNV0y9If3lRSZBTXXORKjaNMbxtB1epIf4jMVXHkAhijpVvO6a+P2DT53PWFl4GdB
+         eueQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738697379; x=1739302179;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=5e8UEnGVo+4lDc1cH0GoOuL8F0MUw58BGLx/3p+5fdQ=;
-        b=dtpOLuhb5/MRaWID9XM1JOn5lprMbOF7x92Wy8RnxvUE+JtiWjO8VoCyVCAgfyo8u/
-         bo0soWBCOh832tb5fjwlLmtmgqgTCon1MkSWcYg4aiHUuzxgRTDh1+Euf2EtmNEp/oSi
-         gMZ2MMzj0++vyUNkFEaBHNH+uCH3CoREsqkycsSkD6Hhq7l1pTsdVVeeqdbUFGt6Gu3n
-         EcRzYUrSuxLYI+hKS+adB+7wa9gkc8bw+WsHiWW4dK9ocijKYkfalHJ25IFzLtRChXo4
-         6qnNUpPIegUDtetNenk2HlzAtmkEe+niMTKrpSLjDxApsDalf0OdXCe+r/MM5wahzW3V
-         n7Hg==
-X-Forwarded-Encrypted: i=1; AJvYcCWEs01seb+u3zga7A35nzfVkcQonJ3qzJI6GvODrHwMFiyTLfcj6KE8ndGQoVZExN4dhq3DrxRIZ+X2PY83MQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzsqiG+a8Pr2gvw2zem8IU7lKLmPfPKI4bsjeUUVtnmeRfroj2b
-	dOtZ5vDmFv3aruFnRVbkiXtsGKGY9AypXDF3VAidp7TjfWJ6G9YA2/JYW94cclcu02F9OJpmsKR
-	ToA==
-X-Google-Smtp-Source: AGHT+IF+/fBR5/RvgfgkW+k0iOimknqvbfTCdp56sFN5T8R+lSkm/qjT6GD7VseImBDz4jdwECu7ieLsEjc=
-X-Received: from pjbsw5.prod.google.com ([2002:a17:90b:2c85:b0:2d3:d4ca:5fb0])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:5245:b0:2ee:ab29:1a65
- with SMTP id 98e67ed59e1d1-2f83abb4f94mr39965711a91.4.1738697379406; Tue, 04
- Feb 2025 11:29:39 -0800 (PST)
-Date: Tue, 4 Feb 2025 11:29:38 -0800
-In-Reply-To: <85r04e5821.fsf@amd.com>
+        d=1e100.net; s=20230601; t=1738698073; x=1739302873;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=moi/W+SxGPnzASf9/FXO/gMD1/604PmuIGFT4p/Ba5w=;
+        b=fRGCNEcGdolfnRCuBsUtqbqbWglfBZtEEaAZxBIz3NlYeWspiafQexnmE9fP4SZGyB
+         086u1nDHY0EM9fukGjrLmCk6H3rHg30ONZ9ZJ0o4odNIGhlv615v6+1NrqUT3hOUxlAj
+         R/FogbMQDZ8HitelRI4lurDXmuR+gujsXMxtxEraGHluhyCJ+6PMSy1SLL7Vd84S/h44
+         ypDYoaHK/6y4r3kUGSKXnnVACPaZPf3tLLKNXt/a2iDXbB6qPVDoHtyVPm92rJT36BEq
+         Olg42l9nhFhgntdzFkj3tZJ93z69vcvM0OXg2/bapfcUmgyusUP0oExqBXzPqLBwzcZv
+         l8pQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXI+cCvWe1X6uSM5rOBWZwO7PAtucRJ65DFryEsdxLQSsxa3ng+i1QL2Lq1WIcvXHdB5sg0r1s0FFkkjid1qQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxRz2t/mBeFebnpNfrnqKKDdpqLflQPWArzZ+s/mSRxco2n/cFv
+	Zlz4L5+VNxF32BBOspWvjqZOzJ0ifhAojuxACjrm8QjZNloQc8w=
+X-Gm-Gg: ASbGncvznX/p3NNaxndX+ahKwiP8/7MfjudrB1/+hW4SGCzYATKI0JucE3SuUMK+lNG
+	PnoqQgztMjUHC5jBLi4D/R9dLlYTTqpqSSVbqyf65iJL724ydi/ZkyvPfUHFzkgL2ecQxsFWiMG
+	MeQ+oH00hoD8FFKOUtUef11QBSdJaD2QBJQwfSAKGt22bpUb2NW6A4fFLGMi4/MOOefm125PAQa
+	RD2pyNjUwTZfRwiPxod1HMnPNv9fj+keYYyn7PDtXi3VLi4homXj7wewlNTNHFbmZk2e8flYDtp
+	JrKHFGWZHFhYBp0=
+X-Google-Smtp-Source: AGHT+IGgTUpEJBBZoo3WwK/fS9jkgh2la10H+C0J5rIPjISmNgP9ogZWiOD7UQ00ALqtKGAiUGE27Q==
+X-Received: by 2002:a17:902:f686:b0:21a:8769:302e with SMTP id d9443c01a7336-21f17e47727mr828805ad.14.1738698071707;
+        Tue, 04 Feb 2025 11:41:11 -0800 (PST)
+Received: from localhost ([2601:646:9e00:f56e:123b:cea3:439a:b3e3])
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-21de33076a8sm99835365ad.208.2025.02.04.11.41.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Feb 2025 11:41:11 -0800 (PST)
+Date: Tue, 4 Feb 2025 11:41:09 -0800
+From: Stanislav Fomichev <stfomichev@gmail.com>
+To: Mina Almasry <almasrymina@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-kselftest@vger.kernel.org,
+	Donald Hunter <donald.hunter@gmail.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Neal Cardwell <ncardwell@google.com>,
+	David Ahern <dsahern@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
+	asml.silence@gmail.com, dw@davidwei.uk,
+	Jamal Hadi Salim <jhs@mojatatu.com>,
+	Victor Nogueira <victor@mojatatu.com>,
+	Pedro Tammela <pctammela@mojatatu.com>,
+	Samiullah Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v3 0/6] Device memory TCP TX
+Message-ID: <Z6JtVUtsZL6cxsTO@mini-arch>
+References: <20250203223916.1064540-1-almasrymina@google.com>
+ <a97c4278-ea08-4693-a394-8654f1168fea@redhat.com>
+ <CAHS8izNZrKVXSXxL3JG3BuZdho2OQZp=nhLuVCrLZjJD1R0EPg@mail.gmail.com>
+ <Z6JXFRUobi-w73D0@mini-arch>
+ <60550f27-ea6a-4165-8eaa-a730d02a5ddc@redhat.com>
+ <CAHS8izMkfQpUQQLAkyfn8=YkGS1MhPN4DXbxFM6jzCKLAVhM2A@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250201021718.699411-1-seanjc@google.com> <20250201021718.699411-7-seanjc@google.com>
- <85r04e5821.fsf@amd.com>
-Message-ID: <Z6JqopU5LkDIZPq6@google.com>
-Subject: Re: [PATCH 06/16] x86/tdx: Override PV calibration routines with
- CPUID-based calibration
-From: Sean Christopherson <seanjc@google.com>
-To: Nikunj A Dadhania <nikunj@amd.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross <jgross@suse.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.amakhalov@broadcom.com>, Jan Kiszka <jan.kiszka@siemens.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, 
-	linux-coco@lists.linux.dev, virtualization@lists.linux.dev, 
-	linux-hyperv@vger.kernel.org, jailhouse-dev@googlegroups.com, 
-	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	Tom Lendacky <thomas.lendacky@amd.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHS8izMkfQpUQQLAkyfn8=YkGS1MhPN4DXbxFM6jzCKLAVhM2A@mail.gmail.com>
 
-On Tue, Feb 04, 2025, Nikunj A Dadhania wrote:
-> Sean Christopherson <seanjc@google.com> writes:
->=20
-> > When running as a TDX guest, explicitly override the TSC frequency
-> > calibration routine with CPUID-based calibration instead of potentially
-> > relying on a hypervisor-controlled PV routine.  For TDX guests, CPUID.0=
-x15
-> > is always emulated by the TDX-Module, i.e. the information from CPUID i=
-s
-> > more trustworthy than the information provided by the hypervisor.
+On 02/04, Mina Almasry wrote:
+> On Tue, Feb 4, 2025 at 10:32 AM Paolo Abeni <pabeni@redhat.com> wrote:
 > >
-> > To maintain backwards compatibility with TDX guest kernels that use nat=
-ive
-> > calibration, and because it's the least awful option, retain
-> > native_calibrate_tsc()'s stuffing of the local APIC bus period using th=
-e
-> > core crystal frequency.  While it's entirely possible for the hyperviso=
-r
-> > to emulate the APIC timer at a different frequency than the core crysta=
-l
-> > frequency, the commonly accepted interpretation of Intel's SDM is that =
-APIC
-> > timer runs at the core crystal frequency when that latter is enumerated=
- via
-> > CPUID:
+> > On 2/4/25 7:06 PM, Stanislav Fomichev wrote:
+> > > On 02/04, Mina Almasry wrote:
+> > >> On Tue, Feb 4, 2025 at 4:32 AM Paolo Abeni <pabeni@redhat.com> wrote:
+> > >>>
+> > >>> On 2/3/25 11:39 PM, Mina Almasry wrote:
+> > >>>> The TX path had been dropped from the Device Memory TCP patch series
+> > >>>> post RFCv1 [1], to make that series slightly easier to review. This
+> > >>>> series rebases the implementation of the TX path on top of the
+> > >>>> net_iov/netmem framework agreed upon and merged. The motivation for
+> > >>>> the feature is thoroughly described in the docs & cover letter of the
+> > >>>> original proposal, so I don't repeat the lengthy descriptions here, but
+> > >>>> they are available in [1].
+> > >>>>
+> > >>>> Sending this series as RFC as the winder closure is immenient. I plan on
+> > >>>> reposting as non-RFC once the tree re-opens, addressing any feedback
+> > >>>> I receive in the meantime.
+> > >>>
+> > >>> I guess you should drop this paragraph.
+> > >>>
+> > >>>> Full outline on usage of the TX path is detailed in the documentation
+> > >>>> added in the first patch.
+> > >>>>
+> > >>>> Test example is available via the kselftest included in the series as well.
+> > >>>>
+> > >>>> The series is relatively small, as the TX path for this feature largely
+> > >>>> piggybacks on the existing MSG_ZEROCOPY implementation.
+> > >>>
+> > >>> It looks like no additional device level support is required. That is
+> > >>> IMHO so good up to suspicious level :)
+> > >>>
+> > >>
+> > >> It is correct no additional device level support is required. I don't
+> > >> have any local changes to my driver to make this work. I think Stan
+> > >> on-list was able to run the TX path (he commented on fixes to the test
+> > >> but didn't say it doesn't work :D) and one other person was able to
+> > >> run it offlist.
+> > >
+> > > For BRCM I had shared this: https://lore.kernel.org/netdev/ZxAfWHk3aRWl-F31@mini-arch/
+> > > I have similar internal patch for mlx5 (will share after RX part gets
+> > > in). I agree that it seems like gve_unmap_packet needs some work to be more
+> > > careful to not unmap NIOVs (if you were testing against gve).
 > >
-> >   The APIC timer frequency will be the processor=E2=80=99s bus clock or=
- core
-> >   crystal clock frequency (when TSC/core crystal clock ratio is enumera=
-ted
-> >   in CPUID leaf 0x15).
+> > What happen if an user try to use devmem TX on a device not really
+> > supporting it? Silent data corruption?
 > >
-> > If the hypervisor is malicious and deliberately runs the APIC timer at =
-the
-> > wrong frequency, nothing would stop the hypervisor from modifying the
-> > frequency at any time, i.e. attempting to manually calibrate the freque=
-ncy
-> > out of paranoia would be futile.
+> 
+> So the tx dma-buf binding netlink API will bind the dma-buf to the
+> netdevice. If that fails, the uapi will return failure and devmem tx
+> will not be enabled.
+> 
+> If the dma-binding succeeds, then the device can indeed DMA into the
+> dma-addrs in the device. The TX path will dma from the dma-addrs in
+> the device just fine and it need not be aware that the dma-addrs are
+> coming from a device and not from host memory.
+> 
+> The only issue that Stan's patches is pointing to, is that the driver
+> will likely be passing these dma-buf addresses into dma-mapping APIs
+> like dma_unmap_*() and dma_sync_*() functions. Those, AFAIU, will be
+> no-ops with dma-buf addresses in most setups, but it's not 100% safe
+> to pass those dma-buf addresses to these dma-mapping APIs, so we
+> should avoid these calls entirely.
+> 
+> > Don't we need some way for the device to opt-in (or opt-out) and avoid
+> > such issues?
 > >
-> > Deliberately leave the CPU frequency calibration routine as is, since t=
-he
-> > TDX-Module doesn't provide any guarantees with respect to CPUID.0x16.
->=20
-> Does TDX use kvmclock?
+> 
+> Yeah, I think likely the driver needs to declare support (i.e. it's
+> not using dma-mapping API with dma-buf addresses).
 
-A TDX guest can.  That's up to the host (expose kvmclock) and the guest (en=
-able
-kvmclock).
-
-> If yes, kvmclock would have registered the CPU frequency calibration rout=
-ine:
->=20
-> 	tsc_register_calibration_routines(kvm_get_tsc_khz, kvm_get_cpu_khz,
->  					  tsc_properties);
->=20
-> so TDX will use kvm_get_cpu_khz(), which will either use CPUID.0x16 or
-> PV clock, is this on the expected line ?
-
-What do you mean by "is this on the expected line"?  If you are asking "is =
-this
-intended", then the answer is "yes, working as intended".  As above, the TD=
-X-Module
-doesn't emulate CPUID.0x16, so no matter what, the guest is relying on the =
-untrusted
-hypervisor to get the CPU frequency.  If someone thinks that TDX guests sho=
-uld
-assume the CPU runs as the same frequency as the TSC, a la SNP's Secure TSC=
-, then
-they are welcome to propose such a change.
+netif_skb_features/ndo_features_check seems like a good fit?
