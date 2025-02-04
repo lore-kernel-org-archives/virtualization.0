@@ -1,191 +1,152 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2044.outbound.protection.outlook.com [40.107.223.44])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B60F92063E2;
-	Tue,  4 Feb 2025 08:27:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738657643; cv=fail; b=dEz6lEbNSPRkN/qh6yvtnDWHdfeiNy2+Ts3VIOQfzYZAEQILtEp9qiZhrEwvt5baZbV1TUSYcXRu86UgGr2VHSxt+2mq2hCL4j3Ex9PsPvo4sA71ay+xM1i7rvGwqJ+RMU1aU/VWJDebe6dsrDpNh+cO1zdT8+jcV6Wr2TabTjM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738657643; c=relaxed/simple;
-	bh=Esk7YLIdIMg+yC/wjdAqqnzMchrPrU3/ebOW5IVgcHk=;
-	h=From:To:CC:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=WtDLNEqQvn7Hv0vF5iVjC2fz5OMHFwNGVH6+ToXi6Ww0VwnlBwJR3LleNsprQMj2yQX9BEYyWNu3EstBaq+Q0HulIyFhLqQsCSH82Ipm4XDQcZ6RBMSvO1U/YUNfkgwPFK3Jb/mTtR/usoFamncP15veZvGg0Ckv2uGe7P0ejsE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=KVIBnG9/; arc=fail smtp.client-ip=40.107.223.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9BAF2080D6
+	for <virtualization@lists.linux.dev>; Tue,  4 Feb 2025 09:59:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738663164; cv=none; b=VEp+VR4YJtGdwXqXCH870qHcAaGFOzH4mWCGFkVb+a4dIRnK3gIyX2qeNTUkd8ArpAf31i5u2PWLAjRp2eaSibgk1MRQG9Unq5DrF4IDveblOt676sJ5SZR/WDrcLAe+T8A1xE8+7TUO4OvPnzdhPeMEV2cZPZBfhH4I4nErLcw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738663164; c=relaxed/simple;
+	bh=GHHnPYOL+gRUE/196eOq/gj7fZDZsKf1B63nUWSuP1g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hfwXIyHJ+hC2i7LdDH1jdz3i+wkO4BWIZZpLq8dj4vX4QXd5igXk9BQIdqW5BZE8WDrBYtzspIYbIYqp7jBb4PRUERGOlqAjOHDkd/iUxC4PYkJ7XZsw0pchzI9ZorqZJiYzsfkBWOJQiRmPPpLN8q6Lpk5FbYxtWP0sokT+vGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hefdWeL3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="KVIBnG9/"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=G8QUtWGufmsKxflMLeAa7caiv/ghRg3leOKrTFzPukZ/GeC6THoCoVWx6hyH79V1xWKqnysEV18rnHSCZyiXXdNDZMScecyjmFCV3W55eeCzbqP7o9hgrw9e6d/DHA+8LQNn5bjfeQ66/0jaXW2I9w3/HkNm4aY4fFSclrfLdJpV5lYrf0ZJU/T3d1Q055yTkJ5Ig+a+D1mF8T3xzrqlslkejiIfB7XfFE6mEw3WkZlI2v4HCyoNYn87dxJuZfDWeuOvY6THRRLNayBIScVhL7birWvAk6Uak1vzbO9QnfmCZ6FqiDAZWSpfK7E+qeud9umBD6I+vg9x4q7ls2GQdw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5qTvRc4R7HQtNFKeYPVE6NHVmkklFcpzPun7h3HxzF8=;
- b=YZkpRzua3gSXx9oTdz7PH6ClNOOmuC0FVQeEaKqE3Ej2ZvxvF5M7OjSapWurW3LjX3EiAWNSjJnLsisatlA6X8N7IAnp0u5v77QxoHb9DcHfF2VZpEJxaGHPSq5tO6uU18XwSivgRw1Bdsm8MOOXqSKBOnw7VrNvr4vFbjCqz469U9PVoa6/F2taMc+qya7OncI/NmNEob8zJ0tfayhXUNbgyXD8LrOmDTWcjglvdGtV3cy4m4Tjhhljo50TtR3f/RQrpa9/kPbr5Lnpe10MX+GW1dOBs4olVxhJ7CqlavD7gVKwBoyIFv4Fezcg7DkmoCmrF3Lw7bPEfUr1qsOEoQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=google.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5qTvRc4R7HQtNFKeYPVE6NHVmkklFcpzPun7h3HxzF8=;
- b=KVIBnG9/L+UPrDXPjvnYSXRoOLTGnR16l4Vt/uTeMO+a2XjXykYNKDcMdUbsqnfBHNOHjneVkdn0KzZt5FZhIBG1lzOZsgGqBb/TTm4FBhqEW22zsMT8u8x+yKjLo4dpSjFyHm8pPxJFEEF6BSVYI4chQZD04rVsGMW4iGR8YYs=
-Received: from MW4PR03CA0297.namprd03.prod.outlook.com (2603:10b6:303:b5::32)
- by SA1PR12MB5659.namprd12.prod.outlook.com (2603:10b6:806:236::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.20; Tue, 4 Feb
- 2025 08:27:19 +0000
-Received: from SJ5PEPF000001F1.namprd05.prod.outlook.com
- (2603:10b6:303:b5:cafe::a) by MW4PR03CA0297.outlook.office365.com
- (2603:10b6:303:b5::32) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8398.20 via Frontend Transport; Tue,
- 4 Feb 2025 08:27:19 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- SJ5PEPF000001F1.mail.protection.outlook.com (10.167.242.69) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.8398.14 via Frontend Transport; Tue, 4 Feb 2025 08:27:18 +0000
-Received: from BLR-L1-NDADHANI (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Tue, 4 Feb
- 2025 02:27:06 -0600
-From: Nikunj A Dadhania <nikunj@amd.com>
-To: Sean Christopherson <seanjc@google.com>, Thomas Gleixner
-	<tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross
-	<jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang
-	<haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
-	<decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, "Alexey
- Makhalov" <alexey.amakhalov@broadcom.com>, Jan Kiszka
-	<jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, "Andy
- Lutomirski" <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>
-CC: <linux-kernel@vger.kernel.org>, <linux-coco@lists.linux.dev>,
-	<virtualization@lists.linux.dev>, <linux-hyperv@vger.kernel.org>,
-	<jailhouse-dev@googlegroups.com>, <kvm@vger.kernel.org>,
-	<xen-devel@lists.xenproject.org>, Sean Christopherson <seanjc@google.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH 05/16] x86/sev: Move check for SNP Secure TSC support to
- tsc_early_init()
-In-Reply-To: <20250201021718.699411-6-seanjc@google.com>
-References: <20250201021718.699411-1-seanjc@google.com>
- <20250201021718.699411-6-seanjc@google.com>
-Date: Tue, 4 Feb 2025 08:27:04 +0000
-Message-ID: <85v7tq5d47.fsf@amd.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hefdWeL3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1738663161;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8wGv2FsoKufVcLbYy1/87/ZPdb2v6fo4T2VRc/m1Duk=;
+	b=hefdWeL3EWD7nwa6+cS96ZK5loSQw6cBI+DaUHmbuuBYvAUoUAPp/ZgSPF87xSdYgv4c5r
+	m+1X06hpc56uGd6VThIQWwupbe69ow+d43qYNck01XYqqjYLNjRE9b/esiRPkLqfC7r8QF
+	WPqgmsHVd0ofQmPWtbsB7rQUOmRwCGc=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-582-vQjhPUA7OgOawPaHtbV2fQ-1; Tue, 04 Feb 2025 04:59:20 -0500
+X-MC-Unique: vQjhPUA7OgOawPaHtbV2fQ-1
+X-Mimecast-MFC-AGG-ID: vQjhPUA7OgOawPaHtbV2fQ
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ab2b300e5daso621733566b.1
+        for <virtualization@lists.linux.dev>; Tue, 04 Feb 2025 01:59:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738663159; x=1739267959;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8wGv2FsoKufVcLbYy1/87/ZPdb2v6fo4T2VRc/m1Duk=;
+        b=wZLw+bkfFae5gz46ka3BL5sBSyi5sEJC1aoOe+3rC+YLkXZE7RUFEQaTE88EWaVrDY
+         gw8I/ymh8YWNyjLVB9Otq2u8bWfNa3HuLiVdPUTrwAURKYjCX7GkEU+7wDmMvSPevHi9
+         hamMcKcYeSRLhiuL1WNDwR8FLRX0zlkTdAole6VlJSTkljQqSDyKRs2d9nF1BAAsZ0m5
+         Ppo8sCouGs73qrzqgCgm2YuDSmTMNMJjrhDwNxLeidK7KbU4q2WIlC5Z7IWLxmOWAx4X
+         /mzCGfiLb84VxyWTELRk+7djNN2gEM6BD9Yhm30D/kD9VRytGHG+q41vGwuSCarOAOLx
+         aJvw==
+X-Forwarded-Encrypted: i=1; AJvYcCW7TBFX9am1IfLU0qhm7nLTfbJO7ggcBMvki55Gx4HLNY9mZr1Wdih808+5mWCxwCePupHU6Xg/Vvl1Y/271A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz1HQnEhXaZDSUygxldSTekkB/FQnJi1s+MxuT0rkBb83vXrw6E
+	0Sx4tmcD7Q3QXNjzbz4fW3A+YR/s2rOwEBRbsYFLCzZOFOECBIaryLMNNil8OBSZxIOu28sHqW4
+	xjuMnheW/cnIa81f3UlTJW2LeLaSYA4vAehtKZRZgaqZXgynOECK/CsYD53CtVn+XckBj3m+Cl0
+	EzQ6+DHZb+wrHGrBbC9chpEusGpzCIXoK1e3CR9dPu/8IqBsQmQt94
+X-Gm-Gg: ASbGncsFiODExz0xdVi7X4+4TzjKtZ979EYuFNYJnAnAXY3crQ9RzgbWa5nlmpZLn/h
+	4x/a1KTWx5pf22G/u/tGxMKqxfZ3NAhccSl1/lcaYjpYbPyy1GBLc9x0VCrbgQbDVkfSy/R0nQr
+	9x8e7UEi/apqGp7qz56Q==
+X-Received: by 2002:a17:907:6d26:b0:aac:4324:977e with SMTP id a640c23a62f3a-ab6cfd076admr3317236766b.27.1738663159044;
+        Tue, 04 Feb 2025 01:59:19 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHXtRcEnuU6oA06Z0ReFSRWzAHGLOtGcVBMkSs7QVLQN14Wwp3N7kI/IyVUADKD48QX2iJ3nCKN8Er+Pj17+XI=
+X-Received: by 2002:a17:907:6d26:b0:aac:4324:977e with SMTP id
+ a640c23a62f3a-ab6cfd076admr3317235066b.27.1738663158657; Tue, 04 Feb 2025
+ 01:59:18 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ5PEPF000001F1:EE_|SA1PR12MB5659:EE_
-X-MS-Office365-Filtering-Correlation-Id: b8f94ebc-b63b-4f10-63a2-08dd44f5bd45
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|82310400026|376014|1800799024|36860700013|7053199007|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?zCJ24BYv/wWLmJTSQQ5/44NJ1N6nC4J5gTEacAoO4zK721UaG+uG1kjsPgZ0?=
- =?us-ascii?Q?TG8nfvPUQEK10C0VXAzMynA7CzZ2nRsbtJLJ8RqVccd98s54MPu/pBDcVyDq?=
- =?us-ascii?Q?FgFPXhxU7955krhe9pmeI0DLkzvJtqyn7Kh8j+1unZzW/NRyfRkIW5BjDQZb?=
- =?us-ascii?Q?/L50Tsd452RoFsRLsA0von92p5TgyXseA3mBTQNfKI6M1bNj1FJJviuIv6pK?=
- =?us-ascii?Q?1FlIIJl3QAwiohghcKk15o5sFCo3dfyBbhH/ekQiSDILJtXyWaSUBbEuTGAE?=
- =?us-ascii?Q?fVyuuVuT+pz0VrNswsgyeaigdZxdK2vntliX0XgUXoEgx90C2f882F3DLfe0?=
- =?us-ascii?Q?az3Y/YhUJaBU3g3MrNsHUt3s4VAJIKvYksxPghAmpd+AzvHwoDdpcG1rPGra?=
- =?us-ascii?Q?4wGkrBPKZEYdIDIVnAvpc3lozU17v/656UnrgKuQU7s5z4JNGaPqufT4hG8B?=
- =?us-ascii?Q?/30f+kiSjhcVl0hqVsqMlf7C27/DXfHc4NpvyGrpyqOfJ9S/kufYi0MAtU6Z?=
- =?us-ascii?Q?danZ15wHLnzk9dcc5i01YZf+638IRbInmPSzPKNvzcd9hsBtj2cJKEk7/4pV?=
- =?us-ascii?Q?u2zjTC4vkSE5yaAGvvsXMzoLNTaLz+V7SwcqQRVkMXcDTWnRLKzBHmyVEGM0?=
- =?us-ascii?Q?IgaE1x8eO1p+fLVcEwmBgwe1YPKMyPZEkjPJZ6QxevZggVUpKe7HIDmIIwMf?=
- =?us-ascii?Q?Y+zgMvId8u4OJIgOv8w8RGK7ROYyFMrcKkkFrwm4ogShZ1y99r/v6Nf9thbQ?=
- =?us-ascii?Q?V7jr2Ql/ZYkxV1O2+ajGIJSw7e7mm08fU0X7VH/tirQLu/5W7a6zz8HOOx+L?=
- =?us-ascii?Q?S8+lkSpoH5Ic7rgEgqlA1nytRku/rs9DoCI/9t8xihd8EESRDcwEq92VJIVx?=
- =?us-ascii?Q?0SVwv2BO3+m1N1L6m2vLzuuWnzuYaTdIPjJ2RYduH3I75UH/WNTpQsjxjjFA?=
- =?us-ascii?Q?Ln32UpYytBMu5qX2t8cSWKx6hDTC924a95Qt/jYRmiTMQ04soDd7AHsE7hQz?=
- =?us-ascii?Q?7yOnNNuQdgn9iJEmMV3ykvrdLyQUD0ybsayPFasTbSdCcFuhCMFkCJjeXXMc?=
- =?us-ascii?Q?nNCRlcvtfTDTflEGS8EEQMjlIU3mhYR4PsTSNdZawrOuePwmMPogUJ5VcqGl?=
- =?us-ascii?Q?r8OptXQXzQPWWPDy9oQrkIk0qTVbJEBue0KbnOy/ES7WcikBgjFuSi7Y/3SV?=
- =?us-ascii?Q?7D5M/s4QFErHs5dS2wnrYLoDNtyPoa9VAQHMzANwksci4EyVqTV4WGdsf+2x?=
- =?us-ascii?Q?tcG5Ly77SAEKMnyRNEaDWigI1G3S9D42y/eiUvl748kG2zn3s3Pny9ICn7hH?=
- =?us-ascii?Q?U7SRhFXwDPgcKMvC3USTPwXSDVTKnbShE+dJFYil4GiwFh8/SY7QUeOD61U5?=
- =?us-ascii?Q?R0jfbipXdw6X2dRBdgpvYQ/iYHkvvF2pbBys30RKKAGyaNGfnVq5q5FPuUDy?=
- =?us-ascii?Q?wtNAtKAPtQPdN2Fheu9CGtrWTaElgaFgJTvg2jolaguqyGGpUwhb6qcWZMOR?=
- =?us-ascii?Q?IGlTfN4G3ANdRs2iE12dLoUlPv4uJc8iG+lB?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(82310400026)(376014)(1800799024)(36860700013)(7053199007)(921020);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Feb 2025 08:27:18.8033
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8f94ebc-b63b-4f10-63a2-08dd44f5bd45
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ5PEPF000001F1.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB5659
+References: <20250130090517.201356-1-ryasuoka@redhat.com> <75cf3adc-400e-44a6-b653-bee1f0cb43ec@collabora.com>
+In-Reply-To: <75cf3adc-400e-44a6-b653-bee1f0cb43ec@collabora.com>
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+Date: Tue, 4 Feb 2025 18:59:07 +0900
+X-Gm-Features: AWEUYZl1gCs8i_nghDi3JecpQ0sWd8PMYpAqhqfVffZeODkRQxTx-IAv0cYMK8k
+Message-ID: <CAHpthZo=R=Csru2P8NVY8YKaasb2RTyrMYni-=8ri4K=xd8abA@mail.gmail.com>
+Subject: Re: [PATCH v6] drm/virtio: Add drm_panic support
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: airlied@redhat.com, kraxel@redhat.com, gurchetansingh@chromium.org, 
+	olvaffe@gmail.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, 
+	tzimmermann@suse.de, daniel@ffwll.ch, jfalempe@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: AeE8SmxcXCT32oN89oOOKxRszcm6EvaZGx_9wWib1O4_1738663159
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Sean Christopherson <seanjc@google.com> writes:
+Hi,
 
-> Move the check on having a Secure TSC to the common tsc_early_init() so
-> that it's obvious that having a Secure TSC is conditional, and to prepare
-> for adding TDX to the mix (blindly initializing *both* SNP and TDX TSC
-> logic looks especially weird).
-
-Agree.
-
+On Mon, Feb 3, 2025 at 2:18=E2=80=AFAM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
 >
-> No functional change intended.
+> Hi,
 >
-> Cc: Nikunj A Dadhania <nikunj@amd.com>
-> Cc: Tom Lendacky <thomas.lendacky@amd.com>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-
-Reviewed-by: Nikunj A Dadhania <nikunj@amd.com>
-
-> ---
->  arch/x86/coco/sev/core.c | 3 ---
->  arch/x86/kernel/tsc.c    | 3 ++-
->  2 files changed, 2 insertions(+), 4 deletions(-)
+> On 1/30/25 12:05, Ryosuke Yasuoka wrote:
+> ...
+> > +static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
+> > +                                      struct drm_scanout_buffer *sb)
+> > +{
+> > +     struct virtio_gpu_object *bo;
+> > +
+> > +     if (!plane->state || !plane->state->fb || !plane->state->visible)
+> > +             return -ENODEV;
+> > +
+> > +     bo =3D gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
+> > +     if (virtio_gpu_is_vram(bo) || bo->base.base.import_attach)
+> > +             return -ENODEV;
+> > +
+> > +     /* try to vmap it if possible */
+> > +     if (!bo->base.vaddr) {
+> > +             int ret;
+> > +
+> > +             ret =3D drm_gem_shmem_vmap(&bo->base, &sb->map[0]);
 >
-> diff --git a/arch/x86/coco/sev/core.c b/arch/x86/coco/sev/core.c
-> index e6ce4ca72465..dab386f782ce 100644
-> --- a/arch/x86/coco/sev/core.c
-> +++ b/arch/x86/coco/sev/core.c
-> @@ -3284,9 +3284,6 @@ void __init snp_secure_tsc_init(void)
->  {
->  	unsigned long long tsc_freq_mhz;
->  
-> -	if (!cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
-> -		return;
-> -
->  	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
->  	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
->  
-> diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-> index 5a16271b7a5c..09ca0cbd4f31 100644
-> --- a/arch/x86/kernel/tsc.c
-> +++ b/arch/x86/kernel/tsc.c
-> @@ -1514,7 +1514,8 @@ void __init tsc_early_init(void)
->  	if (is_early_uv_system())
->  		return;
->  
-> -	snp_secure_tsc_init();
-> +	if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
-> +		snp_secure_tsc_init();
->  
->  	if (!determine_cpu_tsc_frequencies(true))
->  		return;
-> -- 
-> 2.48.1.362.g079036d154-goog
+> drm_gem_shmem_vmap() requires BO resv to be locked, it also may invoke
+> drm_gem_shmem_get_pages() that sleeps. This function can't be used in
+> atomic context.
+>
+> For the starter, let's reject !bo->base.vaddr BOs. Normally, shmem FB
+> BOs are always vmapped.
+
+OK. I'll reject !bo->base.vaddr BO in the next patch. I think this panic
+feature won't work when I call panic in GUI environment (I test in Gnome)
+without vmap(). It is OK as the first version but I think I should mention
+it somewhere. Where should I mention, in a commit message or in code like b=
+elow?
+
+~~~
+static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
+struct drm_scanout_buffer *sb)
+{
+struct virtio_gpu_object *bo;
+
+if (!plane->state || !plane->state->fb || !plane->state->visible)
+return -ENODEV;
+
+bo =3D gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
+
+/* Only support mapped shmem bo */
+if (virtio_gpu_is_vram(bo) || bo->base.base.import_attach || !bo->base.vadd=
+r)
+return -ENODEV;
+~~~
+
+> --
+> Best regards,
+> Dmitry
+>
+
+Thank you for your comment.
+Ryosuke
+
