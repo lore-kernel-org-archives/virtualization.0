@@ -1,146 +1,153 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B87F0846F
-	for <virtualization@lists.linux.dev>; Wed,  5 Feb 2025 20:22:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F625214A90
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:06:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738786947; cv=none; b=kb/jjgUDiSEVsafnNTPQDMhhiZ9wb940BZ8QlRMrIiAu4w4Mt9XMcXsBwm053UAZ2NNKfEEtd4X92yUB5+iE0ba/VcsQN6l+sXw5dD2gnRZj60tnqsUcycGfjIrNE9kvlbQXsPKE7YsM12tZVm4yFFlXrjlNVQEv+g4wwNTdtrQ=
+	t=1738789621; cv=none; b=endEGlE6qAS4lX0gobmH0DDJybuA+Laa08LJH96BN7ABboqFCURYKHtruNOp9n4Ul25SbEpyftibGQZGx/V4QBlwPH0tN4gA6OV8i66W5qGf35FelCP4X7Xu8KabWS5LxCKRBTcy2w1kecCPFtCcNByyfl4+hn29LOdSyNT7sNk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738786947; c=relaxed/simple;
-	bh=W/BDzfS0731XNlp5uGEgPUbjHeZNHpyjqCYetUqQRxQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=T2fQSl+dxNZrKzYCpeUkOoddZ2Wnw8LjwPYYZdM97ChNmwDJExK5vytTlXKIGv+h6ScJ+fWC5mXzMtaZxdYk0T1h5xzjY/Z057LehUBU/Vm/vDx/rWQ61W06IvDQmjm9YpGln0KbIaRXE1a5uvrag8NNdNK19b76KHxcTzObP0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=LVE2yKLT; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1738789621; c=relaxed/simple;
+	bh=ROIwAIDYmaJQqhLYCi+LKXx1tCg3tkrGe92qJKALfGY=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=bW2iCsiPj6t6qCKACmS+/G+8m5MNv5I+r7qy5MVWmivPBJ85tH0INX9ZBsEfrv8P+VLLj33APW1amAgo6u5Zubv7x8jFU63DveqKv9aBnmhD0a9dodiWCJY7et/d/6uCVQAgpoVzs3KdorOT3vKnYnL46f62oVWjfh5sOPFzae8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bp8HgIVP; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="LVE2yKLT"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-219f6ca9a81so26485ad.1
-        for <virtualization@lists.linux.dev>; Wed, 05 Feb 2025 12:22:25 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bp8HgIVP"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9A7994268F
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:06:59 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id eL-InZWEX_iC for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Feb 2025 21:06:58 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::e32; helo=mail-vs1-xe32.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9E29542680
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9E29542680
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Bp8HgIVP
+Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9E29542680
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:06:58 +0000 (UTC)
+Received: by mail-vs1-xe32.google.com with SMTP id ada2fe7eead31-4b2c0a7ef74so114438137.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 05 Feb 2025 13:06:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1738786945; x=1739391745; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1738789617; x=1739394417; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qkxLeSmqP0bYGjmD83E3Y/4YIZD5CnHUYSNEP7lCym8=;
-        b=LVE2yKLTS8EZrazMvyesATY68whXlAukb4eZBqeONdNoo4Ixo0vgJeijSxni2wCv6/
-         AunXYCtzMhq0PIDsqToLo3y/xSS5Yr8e8fSOcyWX0PlD4WmU+VJUIz5chENF1QUcSMKf
-         aYNG59ZqNR/XSsEyKrhcuh1dKekc7Drj16GfuP6fCbtR4VgS25ySV6Y1Tehf6a1pfDbQ
-         Nw5pUtooo24O6gcOOmf3hfQGwFu3iV5W0MdrjZ64ysnMzuN74T7Ra4s7XAblIlUdf8xo
-         HV373tL1tcRynwMyVLWQaZcmDWmew3KyibVAChOsODG/+kj5oIPLvdbq/t7KThDqw8k4
-         vrhQ==
+        bh=321Yzdb9C7R/V5A/ZTrGrsUuNiJo9jCyp/WhHvYvkN8=;
+        b=Bp8HgIVP8UHJUQXebOv1c8OI3p9K7HwKGrRkJUkz5ByFQ4d6g8ZGTw/HmDIxbTB0SI
+         HdrXhYRc9ytuQkWih8Uh5ISN3lp5uSyWalf1w5G/mMr6VtMcAZX1rZqKkz5XGET/M6uf
+         7w+FQk3iR4TiBGt9kJDJHNREpk6iGptKpD6rvR6UEQ/4XhCe93H6H1Ipok+75SEzOXHP
+         eOZ2Fsm57dxpRy1NWiolyLFgt4ka87cMmGVfPV5xcSRiytVWt9rCwKTDXf+cQy0eJa0b
+         fg4DRtPiozsGFreOzzsbFRSNpGAhrlpmrQ3Pyx/m3R80NcWWPgJoZTw8XuKQ+DfZQzGC
+         E4wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738786945; x=1739391745;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=qkxLeSmqP0bYGjmD83E3Y/4YIZD5CnHUYSNEP7lCym8=;
-        b=WmsQW5HG8yI5Jx7J2r4g8LVbqqZ2taFBtPF0FkCeBw5/8UDfSQeu2HNfmgvPYvuwAw
-         A1o3O5dUv4HKUfFzajHacIp2oTIPxdJJwiP5RLlqPydevTgPe9v28e3lufb4yWsclI0f
-         X8qXv6GDSgp4WRiG+htwj3H+jb0SM6E/jK6o/+l1iWcpikpcUPVM9s8b84VwGEyx34d0
-         nk56ZUyICUp16891uPBk7FkfURDgt1X9GhTOz41l/4Bc1ueUbkVwI1nSF9mseEizCmoL
-         WfusdAzBQHFEyvz6l/A2Vpeuceo4wFVMt9UjrQ4sR4T+Nxmw2eFi4u1X/ISX6Z88shsj
-         R3Pw==
-X-Forwarded-Encrypted: i=1; AJvYcCUyreHczJAVf77xNLY0cmIj5yQZLmypdJqr/RJBKFgyVKV3EGdWcGeHbfUzbZ941FJFcD+iizo/8lfCX1h40w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz+pKSPvJr1gPOGSNUd310uiA6pfPq7UHPZ0zV0JdDfZpOI3Lmg
-	xAq5yWt4L+YxIkoP3RYfoMhXbgBYsaZP40Co+T1nqy1p5fHfF+KEQSwgS77K1nxfjF3g2Sbhot7
-	aZVYVI7RjeVoMPWlySBxzuepT2k34Qjtal+a2
-X-Gm-Gg: ASbGncs/B7WLUP3xwjXCAP9/0xjrv/imyVP/wc7lNF/NhLjY/TRjCiILhVJMcnZq2i6
-	Ws6nZuvFAcPC8ViTxOQbfDkjWee2nRPJqfAo0ZpwTlU/8WV07HgV2VGeVILE/YDK7L+pSjF/j
-X-Google-Smtp-Source: AGHT+IHe8klwDgJSKEW2jpBdb9Qr5QEYUblXIVK5qhpQjddp07M20x9TqO2J5WfJ10zWsmr9wDdoAZ9pqxtBzG8aw9E=
-X-Received: by 2002:a17:902:d582:b0:215:4bdd:9919 with SMTP id
- d9443c01a7336-21f311f9d6fmr275545ad.17.1738786944775; Wed, 05 Feb 2025
- 12:22:24 -0800 (PST)
+        d=1e100.net; s=20230601; t=1738789617; x=1739394417;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=321Yzdb9C7R/V5A/ZTrGrsUuNiJo9jCyp/WhHvYvkN8=;
+        b=eYx6SgSeTZq/kmHh9KpLXyr9OTyMY96bVPv3tDOUEabBp2mgyD3l5Xa0TsAePTQ7hV
+         RbNT6rRy/yQBGx2Omj1Il74ZSpO3Fcfgn1xzwVm1j2QjdRD3zjp6L78MsfdLBk36lzlY
+         l1C6p/Lz3xQoZLM4QBkD5VhcFA7UrqZGudd3vZq2MNx9801vZVInIZ5ljiLyyYKFtY+c
+         xyd2Yx2oVO6xDgslBjHpvawHBgiU1iU2yE981SX/i9hbFOOy4n9GuoIAbQNK+tw02xG3
+         r2cx6W1ddT7BqBYhqJtUu1S6Zga0fTpXCRF2fMDRp3CM+0MnUAOlQI8La3mRj2n35I2P
+         ScEg==
+X-Forwarded-Encrypted: i=1; AJvYcCXoDHjyUE2qFjX7ZMuDKmTKPlG1BFnmgukR05/VxzjicPg++PeSIvb9oudx4QXw7U9R5TLT+QQf4t2fg6dCWA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwUiZwfX9aIuuO9FwbL6quNV3fgwPReTWOzG/79xyU0d1C1lrxB
+	vvRQh6UPUBf+kvKYg/r+KwrqoDwTWCpTqL84B5ocj0tnhKMSu28z
+X-Gm-Gg: ASbGnctcq7XUb4NZmDgchTehzvcn/Qu3Pmp2cSpDoqZQstJ7d9qyfI77VkOmp3taJXO
+	AKX+ooy4sCh2bqBW4Jz0tX4FrQ8ngjzRgbWnesV8h6AU36ZcscK8Qr372GRssERUfAPIeQpvkG8
+	gCxucwa+uACk0qQ2F6lncTEuMib7UHkLvbGMJfxAWwKSsrrkQqnXLO3LCbUEJC0JWr736d8uZP4
+	8aNs8OKnQIbgU8wkkgwh812hZBpGeQpq0Pxr06sOCkBoR4NyCurLxYeJRCEI3qvZMhVQiBsT9Yw
+	dj71FHIaTcJ9eOoK8MyvfSrvf2l36qHEzFpwjkuvHfAeFoYVmAOUcgG/IgZGHNA=
+X-Google-Smtp-Source: AGHT+IGjmsT1CX6GHvVc7jQLN8frmEsrqlIM1ufKny6kJV9XpmTxVc/Kie419ULGnj052Qaq3kcQhw==
+X-Received: by 2002:a05:6102:5e86:b0:4b2:cc94:1d6a with SMTP id ada2fe7eead31-4ba47abaa0cmr3554439137.19.1738789617063;
+        Wed, 05 Feb 2025 13:06:57 -0800 (PST)
+Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-4b9baa8e4cfsm2451368137.11.2025.02.05.13.06.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Feb 2025 13:06:56 -0800 (PST)
+Date: Wed, 05 Feb 2025 16:06:55 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowang@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, 
+ kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, 
+ linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, 
+ gur.stavi@huawei.com, 
+ devel@daynix.com, 
+ Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Message-ID: <67a3d2efbba32_170d392944d@willemb.c.googlers.com.notmuch>
+In-Reply-To: <20250205-tun-v5-1-15d0b32e87fa@daynix.com>
+References: <20250205-tun-v5-0-15d0b32e87fa@daynix.com>
+ <20250205-tun-v5-1-15d0b32e87fa@daynix.com>
+Subject: Re: [PATCH net-next v5 1/7] tun: Refactor CONFIG_TUN_VNET_CROSS_LE
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20241221004236.2629280-1-almasrymina@google.com>
- <20241221004236.2629280-6-almasrymina@google.com> <676dd022d1388_1d346b2947@willemb.c.googlers.com.notmuch>
- <CAHS8izNzbEi_Dn+hDohF9Go=et7kts-BnmEpq=Znpot7o7B5wA@mail.gmail.com>
- <6798ee97c73e1_987d9294d6@willemb.c.googlers.com.notmuch> <53192c45-df3c-4a65-9047-bbd59d4aee47@gmail.com>
-In-Reply-To: <53192c45-df3c-4a65-9047-bbd59d4aee47@gmail.com>
-From: Mina Almasry <almasrymina@google.com>
-Date: Wed, 5 Feb 2025 12:22:10 -0800
-X-Gm-Features: AWEUYZmi_S38KTdRcwjGkZKd5Xr1UKSuxDipsps1bDEi3RA74FXERhOLWF6TuhY
-Message-ID: <CAHS8izMcs=3qo1jhZSM499mxHh10-oBL6Fhb2W0eKWhJGax4Bg@mail.gmail.com>
-Subject: Re: [PATCH RFC net-next v1 5/5] net: devmem: Implement TX path
-To: Pavel Begunkov <asml.silence@gmail.com>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>, David Ahern <dsahern@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
-	Kaiyuan Zhang <kaiyuanz@google.com>, Willem de Bruijn <willemb@google.com>, 
-	Samiullah Khawaja <skhawaja@google.com>, Stanislav Fomichev <sdf@fomichev.me>, Joe Damato <jdamato@fastly.com>, 
-	dw@davidwei.uk
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Feb 5, 2025 at 4:41=E2=80=AFAM Pavel Begunkov <asml.silence@gmail.c=
-om> wrote:
->
-> On 1/28/25 14:49, Willem de Bruijn wrote:
-> >>>> +struct net_devmem_dmabuf_binding *
-> >>>> +net_devmem_get_sockc_binding(struct sock *sk, struct sockcm_cookie =
-*sockc)
-> >>>> +{
-> >>>> +     struct net_devmem_dmabuf_binding *binding;
-> >>>> +     int err =3D 0;
-> >>>> +
-> >>>> +     binding =3D net_devmem_lookup_dmabuf(sockc->dmabuf_id);
-> >>>
-> >>> This lookup is from global xarray net_devmem_dmabuf_bindings.
-> >>>
-> >>> Is there a check that the socket is sending out through the device
-> >>> to which this dmabuf was bound with netlink? Should there be?
-> >>> (e.g., SO_BINDTODEVICE).
-> >>>
-> >>
-> >> Yes, I think it may be an issue if the user triggers a send from a
-> >> different netdevice, because indeed when we bind a dmabuf we bind it
-> >> to a specific netdevice.
-> >>
-> >> One option is as you say to require TX sockets to be bound and to
-> >> check that we're bound to the correct netdev. I also wonder if I can
-> >> make this work without SO_BINDTODEVICE, by querying the netdev the
-> >> sock is currently trying to send out on and doing a check in the
-> >> tcp_sendmsg. I'm not sure if this is possible but I'll give it a look.
-> >
-> > I was a bit quick on mentioning SO_BINDTODEVICE. Agreed that it is
-> > vastly preferable to not require that, but infer the device from
-> > the connected TCP sock.
->
-> I wonder why so? I'd imagine something like SO_BINDTODEVICE is a
-> better way to go. The user has to do it anyway, otherwise packets
-> might go to a different device and the user would suddenly start
-> getting errors with no good way to alleviate them (apart from
-> likes of SO_BINDTODEVICE). It's even worse if it works for a while
-> but starts to unpredictably fail as time passes. With binding at
-> least it'd fail fast if the setup is not done correctly.
->
+Akihiko Odaki wrote:
+> Check IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) to save some lines and make
+> future changes easier.
+> 
+> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+> Reviewed-by: Willem de Bruijn <willemb@google.com>
+> ---
+>  drivers/net/tun.c | 26 ++++++++------------------
+>  1 file changed, 8 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index e816aaba8e5f2ed06f8832f79553b6c976e75bb8..452fc5104260fe7ff5fdd5cedc5d2647cbe35c79 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -298,10 +298,10 @@ static bool tun_napi_frags_enabled(const struct tun_file *tfile)
+>  	return tfile->napi_frags_enabled;
+>  }
+>  
+> -#ifdef CONFIG_TUN_VNET_CROSS_LE
+>  static inline bool tun_legacy_is_little_endian(struct tun_struct *tun)
+>  {
+> -	return tun->flags & TUN_VNET_BE ? false :
+> +	return !(IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) &&
+> +		 (tun->flags & TUN_VNET_BE)) &&
+>  		virtio_legacy_is_little_endian();
 
-I think there may be a misunderstanding. There is nothing preventing
-the user from SO_BINDTODEVICE to make sure the socket is bound to the
-ifindex, and the test changes in the latest series actually do this
-binding.
+Since I have other comments to the series:
 
-It's just that on TX, we check what device we happen to be going out
-over, and fail if we're going out of a different device.
+Can we make this a bit simpler to the reader, by splitting the test:
 
-There are setups where the device will always be correct even without
-SO_BINDTODEVICE. Like if the host has only 1 interface or if the
-egress IP is only reachable over 1 interface. I don't see much reason
-to require the user to SO_BINDTODEVICE in these cases.
+    if (IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) && tun->flags & TUN_VNET_BE)
+            return false;
 
---=20
-Thanks,
-Mina
+    return virtio_legacy_is_little_endian();
+
