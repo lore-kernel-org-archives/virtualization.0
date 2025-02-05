@@ -1,81 +1,81 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ABDD214A73
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:13:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65B79214809
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:14:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738789982; cv=none; b=IjIN+r2bfXV5MF5/gR28Bustbgz5olYfBStWOc54YOFa7sUReQUpnGIb7N5cGqPIu6rpQQyibYbNoixTuqgw7Dq9F2mpfPC19zoXnRa+CYZOSu4uGNBAypdiNv0D20rRWh9vhkmwWB2oEawjDCO8FeJtmB1xQRsj/35011r3j7k=
+	t=1738790057; cv=none; b=lQ1NLoIWtaCLqxsTVc2YuwoiBALq/vtzGSY9AIl1BQqXo0SY9F3+VdkktdEu9cgYgGh/r6ryIkRGSsSu2f2lsrN/wk82cd3TZtRHmghQgZnwf3c8Frd/vzWSbekiSi32bl7+3ZnD0TQ/BzJ1pohymgvArDBtCZO+GDyRo6MqqWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738789982; c=relaxed/simple;
-	bh=JFEi2wLeGZOf8BHQEKqWbZM9NCkw6C1VmawHgv9xFhs=;
+	s=arc-20240116; t=1738790057; c=relaxed/simple;
+	bh=KugHMl11lphY7X+eKVMkQ7YSdoECqG16VgpjtDZyfhw=;
 	h=Date:From:To:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=tvOGG0/lqebXGwgaPDeIlJJJ6U0wcEM2SAC2yBgkUOT7d8CdMEL7T/K9YO/2XK0/W2GcecSGqKSUdJd+D4iUGLSjPVjHkH3IkwM3wsSvTfVCwUN85Vh9KyOI9JtMfz0oldQzGKLk4B9FZJezPgSi/GFy4C0WykV/W+RFPbh6md4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nCI/F77H; arc=none smtp.client-ip=140.211.166.137
+	 Mime-Version:Content-Type; b=TV+FsXHr80JEEqHeI+Q21Xx5O4LQypjWUWPkLLlrMJqMqa2c3ot1BKGgaOMtOt3HrIK+jPcGs4IdZnHwpW7nboISYQVWTOdIdWkGZUX3cP1jFkBa/LDC/jLHzhFuNP615/n+5TVxd3w7dXpecnndEhwu24RAQ4CCHXHi0fEk2Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z/ruoY8K; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nCI/F77H"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z/ruoY8K"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8B508413C4
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:13:00 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E8F0142693
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:14:15 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id FJLuJoB6vNXL for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Feb 2025 21:13:00 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::e2b; helo=mail-vs1-xe2b.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C13FD413DE
+ id 3C_eBtiC7H0N for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Feb 2025 21:14:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::a2f; helo=mail-vk1-xa2f.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 1EACC42591
 Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C13FD413DE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1EACC42591
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=nCI/F77H
-Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C13FD413DE
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:12:59 +0000 (UTC)
-Received: by mail-vs1-xe2b.google.com with SMTP id ada2fe7eead31-4afe4f1ce18so65472137.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 05 Feb 2025 13:12:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Z/ruoY8K
+Received: from mail-vk1-xa2f.google.com (mail-vk1-xa2f.google.com [IPv6:2607:f8b0:4864:20::a2f])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1EACC42591
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Feb 2025 21:14:14 +0000 (UTC)
+Received: by mail-vk1-xa2f.google.com with SMTP id 71dfb90a1353d-5174db4e34eso876844e0c.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 05 Feb 2025 13:14:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1738789978; x=1739394778; darn=lists.linux-foundation.org;
+        d=gmail.com; s=20230601; t=1738790054; x=1739394854; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ScPbdVpBxzYO8pUJQAAuO4Xb4212ZYcCAfsm5wTEeKs=;
-        b=nCI/F77HRdG1mzI4Ts+gYsmCWD1wdjGKsjbOBbVeDzP5y3i8NqjpvIQQT9oOrAl814
-         jO9WIF6fYSRww1od2qtZFxZjd0xqsEsc0rKoEFmZp+bsAsYly01wNpPG2bK0dkHQ5LnI
-         of7V37ZbAXBvp3tlGWwOkPfefsRHKdVZMuNnDzPLkH4hoidxvx6DGx2hiWO0IHCvF23X
-         dP2Wrnym8Oyo8/PFhJzqJaJEbvhOKhoom+dErvsL+1wJQcd66Dms+vwuNyUwtNqwg65K
-         GZzXrlfYv00BGfVGPqZy93BfIntzT3p15gWymyIwdhuRypX7OR8qU8Kgmm0Ylf4OKwM0
-         Q3EA==
+        bh=Atkob+jpFe5XAV3H/mgAKiaXJzCzAm2xhYQkiL8EHq0=;
+        b=Z/ruoY8KMFPOi2qPzp0ygM/DdyCh6EsPJ3wyRoaKYnIYFdJWT7a/ZsfkqIrpT7SDZV
+         x1xGSlYPnMw8dWJ9K/tSaZ/DoyTGwSMTvJakBN41oVZEX78K4QB4950kRxMlevWhKOxy
+         undnbSJmpCkjLdc7XOy38yh6o20ryUSy2E3fEEPPmwbdCiIoFd9xOsAOAwC7RNSHeTGX
+         HU1FKV8yUy2vcjvxQEpdUXUBUWan7kzOl70/7YjumW2ADjECHEIxXFlJIjCuBDU7yR9n
+         a3zI8VcBcLM8nJVsN3LLdHNnwBLu9ayy2f6nmB9cLp+rwrRRWRnJ7F0zpOKYr8uC5IqW
+         00ow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738789978; x=1739394778;
+        d=1e100.net; s=20230601; t=1738790054; x=1739394854;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ScPbdVpBxzYO8pUJQAAuO4Xb4212ZYcCAfsm5wTEeKs=;
-        b=ozzZOZTidpM+yrQhdSu+oKFRWlzRn9KoO/0eBQhzB46DiOwIUYJkrajLr6BkODQQzY
-         5UyWX1M4/KI18U68Z8LEh4xM8P0Wpkw4tQr8lt5wjO6eeNJxxvg3+6GL2nAGWiqxgKRb
-         lq94FWPtrS2/ioVqD5h7xR/GQJr6IlNpcFop+g3Iir5JuaVv/pMEo+sGNMTvsB3+Oh3V
-         n2W+Z0A3AXM7WQO63vw0xDaWYOGkAbB1m3fXI6ce4pG/mCGh0kmaXW0Vv+tyas2K4SiC
-         7MfkMh8XfVb//MaOJyXWBICexsSOFGcstfh4y6+fKY3E3Obc1KAG5WNxWAVGG7w8zMpG
-         7zLQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXzKuwQ6httvq416E6oBYKzKc+LRbxQqrgUAQEpO8Bx1UYBazaGngqxtFbi0g3omVOzmQkXR4KW2Lfq/9EiWg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyMVR18ZiRVLpCM5p69eQqfosq+ykekezHWj2pNwrlszw4PhXpv
-	1gYCv29TyBLXvlpVG0VW9PspvZqUu/2rO67o8Vq/PvOEEt287h3v
-X-Gm-Gg: ASbGnctWO85pTKkwf1lr/KjbvX4lbjF7EjOGGUo8JF18DaLR2WWAVpnmmGQzSf/nGQd
-	nKVRkRvcgwy6Ov8BafXLr2/zbqyLwkROO8MAJ2Wn3pQKXJXpLA7XeC/w2emRQDEJF6stiMW8OvP
-	rWkUaRWYuutVEE6nh/oluaGKnko0XKAQliSbG9njWCAeuyQpgNEp44AHfakKl33POfHVn2Kn7S0
-	JqPwvb8l5o8m3PuBtGvqka9p1RhYbQuV89K6AeOym9xjUBOVUpJJ9LauE066BHDdv+Yvlw/pSHm
-	ijE10xA0pqmlvd0nNoHRW58FtZSrQSvcBMQBX+Ol2PNgNnm3nqk8YvtGlINGxj0=
-X-Google-Smtp-Source: AGHT+IE/LhqpvYWyeg5YI138zii1Tf41J5g6QM100haEEOrAXQ0Rs3YYuJinwr+QJROJhcSFnZ0nWg==
-X-Received: by 2002:a05:6102:d94:b0:4b1:8b53:2987 with SMTP id ada2fe7eead31-4ba46fb5a4emr3251472137.1.1738789978520;
-        Wed, 05 Feb 2025 13:12:58 -0800 (PST)
+        bh=Atkob+jpFe5XAV3H/mgAKiaXJzCzAm2xhYQkiL8EHq0=;
+        b=aBpSWaNoM4kUhm9qQFRuoCfY6jeA7DR5Mk1MHFM8CcfbPae6/OlPMCk+HcB2krAjXT
+         4KSJuphkBGw5hG3D45DJOwZ069okBGQETDStQVHVp51XVwQEjWvC4S/adwu5BFhHrnQb
+         2Kw6jLBg6MEgxTm41InLnzzBMRZnl9cpsJ45gukukC/IWoQjno6tK7RMETvyAE2rop31
+         1dUztHvI3aefIXnuFpPOnLEjdXTo8NmWoxa4pspQaXTvuDOm4S0tToj03MBl3Udxeg48
+         RFbqp0/I8BMfgIv2R04uW7SSBzqxZyFzKT7OuWntF5KiNgPe8ehBftEV1mVBQFp8peme
+         ZHEg==
+X-Forwarded-Encrypted: i=1; AJvYcCV1tC+p7Q5G3ty1Mvm4x1K7OIrXOgh8nMK29SPJtGtz1GxEVlmlUgx8V5icI1qXo4rZ7GZy811FVICxgxtE+A==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwF3y0fU3ZBq2B6u42w+3onxblZI7cegh1cA1FZG1zu7OCmFQJY
+	+3mi6sBR3Qvbonp3j2QpdDOC/5jV5tocjqwvaxoLBnH4vsb9Z/lr
+X-Gm-Gg: ASbGncuSOd/vQN61jy8KkyoQEti+nvHHHJTC5IAAswCXsgy49djloPLSKooOapuxqEA
+	49bJCNBvSNELgAZueaJ4Jx0m3kks7qhvbFjUvBCsAo2A8Q7/2L/qnCtjV9hzHljvzRRcTzb0Skh
+	6oCAgkjSRbRKD/K41YmjIhPNN1YWwaJjXLd+9vp+F11lo7op845APRkY7eOev6decmqtOcuEHym
+	4cMK5H+5PO7jisf/x4RSEtJ+9quqtUGWbsnuPuQvS8xWFryxZAe5+WNfgtpEjiH3afJUDBao//o
+	x5qPJS3AFQQzRJThphc3Gj5sPMQD9EmbJ0QlXrwLvxgVGZ593q/j+Jv581JOA8Q=
+X-Google-Smtp-Source: AGHT+IEfZi+/l4M87UPw5/vyc7KRKZkS3vvwSExWhswz2jpE396W7WJFjzoCPLOYlEnFqXotGyeJHQ==
+X-Received: by 2002:a05:6122:1b0e:b0:50d:39aa:7881 with SMTP id 71dfb90a1353d-51f1b96557emr632876e0c.0.1738790053731;
+        Wed, 05 Feb 2025 13:14:13 -0800 (PST)
 Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-51eb1d947d7sm1928864e0c.48.2025.02.05.13.12.57
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-51eb1be86fasm1914516e0c.3.2025.02.05.13.14.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Feb 2025 13:12:57 -0800 (PST)
-Date: Wed, 05 Feb 2025 16:12:57 -0500
+        Wed, 05 Feb 2025 13:14:13 -0800 (PST)
+Date: Wed, 05 Feb 2025 16:14:12 -0500
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Akihiko Odaki <akihiko.odaki@daynix.com>, 
  Jonathan Corbet <corbet@lwn.net>, 
@@ -100,11 +100,11 @@ To: Akihiko Odaki <akihiko.odaki@daynix.com>,
  gur.stavi@huawei.com, 
  devel@daynix.com, 
  Akihiko Odaki <akihiko.odaki@daynix.com>
-Message-ID: <67a3d4595ad82_170d39294c0@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20250205-tun-v5-6-15d0b32e87fa@daynix.com>
+Message-ID: <67a3d4a47801f_170d392943c@willemb.c.googlers.com.notmuch>
+In-Reply-To: <20250205-tun-v5-7-15d0b32e87fa@daynix.com>
 References: <20250205-tun-v5-0-15d0b32e87fa@daynix.com>
- <20250205-tun-v5-6-15d0b32e87fa@daynix.com>
-Subject: Re: [PATCH net-next v5 6/7] tap: Keep hdr_len in tap_get_user()
+ <20250205-tun-v5-7-15d0b32e87fa@daynix.com>
+Subject: Re: [PATCH net-next v5 7/7] tap: Use tun's vnet-related code
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -116,7 +116,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Akihiko Odaki wrote:
-> hdr_len is repeatedly used so keep it in a local variable.
+> tun and tap implements the same vnet-related features so reuse the code.
 > 
 > Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 
