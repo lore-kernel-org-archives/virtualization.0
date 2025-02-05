@@ -1,175 +1,184 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C14A2217719
-	for <virtualization@lists.linux.dev>; Wed,  5 Feb 2025 22:22:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D03FF1519B4
+	for <virtualization@lists.linux.dev>; Wed,  5 Feb 2025 23:00:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738794148; cv=none; b=aUcXiBNPKttToWK3ASBzEZLg+vwGeRooiMU40omjk1kf0dCmSj+1DM+vv4MffNf0C0zmVVr60nx5qM9PpjqCIFXoI33HH8yimn7+JiaLP/qLrO1Ozb0Ijcup1MKdFjgnwaLbHnN9CO3d3q6vkXb7PRG5A/ZscNnZj8Z5HaFpImk=
+	t=1738796430; cv=none; b=uEBkqmLXSsAnjpQQwF2ArdLIepxu0DBxokPMvOfUv+n6c/b5ZrQBVWbh7h73z5J1nVkmtvGEqoJ6k9dx/xSMFfi7xKRl8jsyux1J1k7zCAdfm83Ott6Ln3vZ6stHePgHbkCGELACMvqX7FxpnsMAi+soLDVtyupft3i7YMHvr/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738794148; c=relaxed/simple;
-	bh=L5+gFo1PzgCs5Jp92HGhCtO8WHR+/AY/PyDVD8OBrdU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=rqLcOqX243kNR5bPp6vwgaLWmRFy8E7BrZDasEzuIxJG6V1C7mBRGXmIzRhFB0xYi/xwTuYTT8lNmp6I3JuIbq8k0mGr7AlH9BHYCSlCdD2xYzTJlf444j5c4POj/YGo6ltLmUV2oCAwGSdbKkhLbCFmmMH1A1j+6kVdunArgQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZZGlBdS7; arc=none smtp.client-ip=209.85.221.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1738796430; c=relaxed/simple;
+	bh=LaTI9Ovfik3rTkSpQhtpIz4SEx0LeILc9RAC6ekVtHg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lGTawcMaOJU87qVC9FAUNjqN3o7M7OoDOPBmfl0K7h5IZHorcFkXgKUEW9m7ZGQOFxuZDN+bej3FJMcEDGznWGPvEvTCM8bTMWxWFgYdd9c0N8hkS0FI4hp7byQXSitr8VVjUVe9rVW3XTPfM/z2AE79iq/EGfAXiJRzcwXhHGc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EpL72wEA; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZZGlBdS7"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-38db909acc9so177771f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 05 Feb 2025 14:22:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1738794145; x=1739398945; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=SwjF2roasaF9WKDWEuBN69sTQIF/a3x7vDSFw8cR7Hs=;
-        b=ZZGlBdS711ID1hXdVsxxOVPo1+oEGDGnqt0yhXrS8FFvLJ/s81nwx2t23NBjZtzOWu
-         vpU6UBWk+xofRk6+Bn0DJ1jLnLJaDG7QlN01AOhh/rbSyP5TsmVBz7vt2sSg3aM23glI
-         CTl8lmgGhYa5CLAR2x2q9raew45kKDeUAW3Hrq8kYSf4Vo4NuxgFX9dSFCBGKFd7DJzV
-         iQlSsGDZsJS1oUN3hLseZatoVVWFpht+3IijYB+Ihg8TSV7B2Vm7/QDVU94KmsRsaHhu
-         fLOvCmpBrTmtgcMXBH17S5qHL0XCubrA0qBENx/5K2D9tn8mGFRcWK0bwk06TWbeTEfL
-         Rvwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738794145; x=1739398945;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SwjF2roasaF9WKDWEuBN69sTQIF/a3x7vDSFw8cR7Hs=;
-        b=M6DroVHFc/E/B26wKTU1N7iswyDP6F3ahJ+prmL8Qkx45n2RW+M8HK7CsIb69gsos1
-         2ElSGl/hhp6LyZ45fvumyBFBht3WTIuCtH3tcqOb5dztUAtmA7Nsso4TzVdl5yE2fdmc
-         GdhI4/+Vc9DKRcVWcaY1G9nXekN01lR1Mj+Z0gwNGho2qsO0Neu4H2w0zX2iJvDpDFLk
-         nUZz3ZSLQTd5u5UPKPO8+74drbs8aIAAhLaKOIvFPka78KAr0FeDuE/OW3jF57ukOUXI
-         lWK2zpCb2IDEzeOmbg+wIU23v5tXynXqSzs96w6ZSysqZQFJQWOzk3vHsSFFi6hzJlJI
-         Irmg==
-X-Forwarded-Encrypted: i=1; AJvYcCXcFn445nffZzv4rLnUijlPQJiMWTW8ZUd46fIJ+3AQQ9H7c/PJycvzhmVgfuwHwFRNANCLm9+y4oTx9fLh8g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YylYuCMCy+cjnQGCa86I/wwI6PVzmLfsSsTXDxdnNW+EAjwx573
-	tdDgG0eJH+MPv1corprkR/s7LqmabAGRLBITaR8egJ+t+QZNNKgV
-X-Gm-Gg: ASbGncumvmhvxZ/F/vozxkQyKWOUN5C+g2BTg1JrL4wBa0x+l6lg2NyeGaXB7dFriyJ
-	q4atak10aHRVjizk9343zDBrnVCy2+r8ZeP9ECn51e6nnbiRL583QupV8pIXbp7Cg0RT9kyP4jV
-	/KcfBV3aD6dE24WtswBpjECOQnlh0RMR4YW6y+zPzs+RNZKfUs+uQJET0XlHtUTpNyRdBczEay5
-	0/vqIzO3KFAk8AN0zyx2FzS3SKlJ+XkX1XpcEsPfPnBq6ruwdV0cC4zGo7vmSB9vGK3T8PhO/Gx
-	s+bOa3KG3CQmE68xBBI+z6M=
-X-Google-Smtp-Source: AGHT+IGWIhR1wpIA15Y21sf5pVUB30nHoofpzKsEw372JxakdAjiAFVNteXkr2tTjpZZLcb+sr4t0g==
-X-Received: by 2002:a5d:588a:0:b0:38a:88ac:f115 with SMTP id ffacd0b85a97d-38db492a0e4mr3552492f8f.34.1738794144946;
-        Wed, 05 Feb 2025 14:22:24 -0800 (PST)
-Received: from [192.168.8.100] ([148.252.128.4])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4390d9335b6sm35078125e9.2.2025.02.05.14.22.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Feb 2025 14:22:24 -0800 (PST)
-Message-ID: <76880ee8-d5ce-458d-b165-c11ce1a23c76@gmail.com>
-Date: Wed, 5 Feb 2025 22:22:31 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EpL72wEA"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 515MWUX5011361;
+	Wed, 5 Feb 2025 23:00:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=Kyj4592/Vdaiqvqm+X1lwa8g7u23mB
+	IpzdJ84G1p7Lc=; b=EpL72wEAV2RCdpHNpIUMY5FRwchEr9BO8bLwc6tWB4nLux
+	n6Tqs7mdVK4NYBYvKJKRCkAEE7RSTjqtPB/6lzYOlaQykFg4T/WKZ5uWqvUvMLDA
+	GIJmC1aJNJvjEf6WVTWEKuQtfebLNKqjKblE1R+pGtoZ4hejLSWF9NvMttagWlsJ
+	KVGBhTdwGJa7sHREk/zFlVbGwv3WFfcuW0Vsu51M2bWzgv+3JbvbQF3OOkDT5ZbF
+	efns7zVnoS/JreYpTzGFZTsnYcZ1gZ84V0CJj+4VddaF6kemECV4dqQyb4sb63pl
+	RBKUJbGmUnWvivx4HZtQCXkkYHED1b+rl61v9YeQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29p39m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Feb 2025 23:00:25 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 515Mx37w032396;
+	Wed, 5 Feb 2025 23:00:25 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29p39k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Feb 2025 23:00:25 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 515KTrqk005251;
+	Wed, 5 Feb 2025 23:00:24 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44j05k31te-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Feb 2025 23:00:24 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 515N0N8D16450056
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Feb 2025 23:00:23 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8DE705806A;
+	Wed,  5 Feb 2025 23:00:23 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D93E58064;
+	Wed,  5 Feb 2025 23:00:23 +0000 (GMT)
+Received: from localhost (unknown [9.61.82.89])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  5 Feb 2025 23:00:23 +0000 (GMT)
+Date: Wed, 5 Feb 2025 17:00:23 -0600
+From: Nick Child <nnac123@linux.ibm.com>
+To: Yury Norov <yury.norov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: Re: [PATCH v2 02/13] virtio_net: simplify virtnet_set_affinity()
+Message-ID: <Z6PthznH5Tp-ZdHw@li-4c4c4544-0047-5210-804b-b8c04f323634.ibm.com>
+References: <20250128164646.4009-1-yury.norov@gmail.com>
+ <20250128164646.4009-3-yury.norov@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next v1 5/5] net: devmem: Implement TX path
-From: Pavel Begunkov <asml.silence@gmail.com>
-To: Mina Almasry <almasrymina@google.com>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>,
- Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
- David Ahern <dsahern@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
- Kaiyuan Zhang <kaiyuanz@google.com>, Willem de Bruijn <willemb@google.com>,
- Samiullah Khawaja <skhawaja@google.com>, Stanislav Fomichev
- <sdf@fomichev.me>, Joe Damato <jdamato@fastly.com>, dw@davidwei.uk
-References: <20241221004236.2629280-1-almasrymina@google.com>
- <20241221004236.2629280-6-almasrymina@google.com>
- <676dd022d1388_1d346b2947@willemb.c.googlers.com.notmuch>
- <CAHS8izNzbEi_Dn+hDohF9Go=et7kts-BnmEpq=Znpot7o7B5wA@mail.gmail.com>
- <6798ee97c73e1_987d9294d6@willemb.c.googlers.com.notmuch>
- <53192c45-df3c-4a65-9047-bbd59d4aee47@gmail.com>
- <CAHS8izMcs=3qo1jhZSM499mxHh10-oBL6Fhb2W0eKWhJGax4Bg@mail.gmail.com>
- <88cb8f03-7976-4846-a74d-e2d234c5cf8d@gmail.com>
-Content-Language: en-US
-In-Reply-To: <88cb8f03-7976-4846-a74d-e2d234c5cf8d@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250128164646.4009-3-yury.norov@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: K7D4TPrZFEYxpz2AL0sWv287fg2oxywf
+X-Proofpoint-ORIG-GUID: eJfy_3KbPsJRzD60u06T4ivUF-ntf4ce
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-05_08,2025-02-05_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0
+ suspectscore=0 adultscore=0 mlxlogscore=999 clxscore=1011
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2502050176
 
-On 2/5/25 22:16, Pavel Begunkov wrote:
-> On 2/5/25 20:22, Mina Almasry wrote:
->> On Wed, Feb 5, 2025 at 4:41 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
->>>
->>> On 1/28/25 14:49, Willem de Bruijn wrote:
->>>>>>> +struct net_devmem_dmabuf_binding *
->>>>>>> +net_devmem_get_sockc_binding(struct sock *sk, struct sockcm_cookie *sockc)
->>>>>>> +{
->>>>>>> +     struct net_devmem_dmabuf_binding *binding;
->>>>>>> +     int err = 0;
->>>>>>> +
->>>>>>> +     binding = net_devmem_lookup_dmabuf(sockc->dmabuf_id);
->>>>>>
->>>>>> This lookup is from global xarray net_devmem_dmabuf_bindings.
->>>>>>
->>>>>> Is there a check that the socket is sending out through the device
->>>>>> to which this dmabuf was bound with netlink? Should there be?
->>>>>> (e.g., SO_BINDTODEVICE).
->>>>>>
->>>>>
->>>>> Yes, I think it may be an issue if the user triggers a send from a
->>>>> different netdevice, because indeed when we bind a dmabuf we bind it
->>>>> to a specific netdevice.
->>>>>
->>>>> One option is as you say to require TX sockets to be bound and to
->>>>> check that we're bound to the correct netdev. I also wonder if I can
->>>>> make this work without SO_BINDTODEVICE, by querying the netdev the
->>>>> sock is currently trying to send out on and doing a check in the
->>>>> tcp_sendmsg. I'm not sure if this is possible but I'll give it a look.
->>>>
->>>> I was a bit quick on mentioning SO_BINDTODEVICE. Agreed that it is
->>>> vastly preferable to not require that, but infer the device from
->>>> the connected TCP sock.
->>>
->>> I wonder why so? I'd imagine something like SO_BINDTODEVICE is a
->>> better way to go. The user has to do it anyway, otherwise packets
->>> might go to a different device and the user would suddenly start
->>> getting errors with no good way to alleviate them (apart from
->>> likes of SO_BINDTODEVICE). It's even worse if it works for a while
->>> but starts to unpredictably fail as time passes. With binding at
->>> least it'd fail fast if the setup is not done correctly.
->>>
->>
->> I think there may be a misunderstanding. There is nothing preventing
->> the user from SO_BINDTODEVICE to make sure the socket is bound to the
-> 
-> Right, not arguing otherwise
-> 
->> ifindex, and the test changes in the latest series actually do this
->> binding.
->>
->> It's just that on TX, we check what device we happen to be going out
->> over, and fail if we're going out of a different device.
->>
->> There are setups where the device will always be correct even without
->> SO_BINDTODEVICE. Like if the host has only 1 interface or if the
->> egress IP is only reachable over 1 interface. I don't see much reason
->> to require the user to SO_BINDTODEVICE in these cases.
-> 
-> That's exactly the problem. People would test their code with one setup
-> where it works just fine, but then there will be a rare user of a
-> library used by some other framework or a lonely server where it starts
-> to fails for no apparent reason while "it worked before and nothing has
-> changed". It's more predictable if enforced.
-> 
-> I don't think we'd care about setup overhead one extra ioctl() here(?),
-> but with this option we'd need to be careful about not racing with
-> rebinding, if it's allowed.
+On Tue, Jan 28, 2025 at 11:46:31AM -0500, Yury Norov wrote:
+> The inner loop may be replaced with the dedicated for_each_online_cpu_wrap.
+> It helps to avoid setting the same bits in the @mask more than once, in
+> case of group_size is greater than number of online CPUs.
 
-FWIW, it's surely not a big deal, but it makes a clearer api.
-Hence my curiosity what are the other reasons.
+nit: Looking at the previous logic of how group_stride is calculated, I don't
+think there is possibility of "setting the same bits in the @mask more
+than once". group_stride = n_cpu / n_queues
 
--- 
-Pavel Begunkov
+nit: I see this more as 2 patches. The introduction of a new core
+helper function is a bit buried.
 
+> 
+> CC: Nick Child <nnac123@linux.ibm.com>
+> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+
+Don't know if my comments alone merit a v3 and I think the patch
+does simplify the codebase so:
+Reviewed-by: Nick Child <nnac123@linux.ibm.com>
+
+> ---
+>  drivers/net/virtio_net.c | 12 +++++++-----
+>  include/linux/cpumask.h  |  4 ++++
+>  2 files changed, 11 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7646ddd9bef7..9d7c37e968b5 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3826,7 +3826,7 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
+>  	cpumask_var_t mask;
+>  	int stragglers;
+>  	int group_size;
+> -	int i, j, cpu;
+> +	int i, start = 0, cpu;
+>  	int num_cpu;
+>  	int stride;
+>  
+> @@ -3840,16 +3840,18 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
+>  	stragglers = num_cpu >= vi->curr_queue_pairs ?
+>  			num_cpu % vi->curr_queue_pairs :
+>  			0;
+> -	cpu = cpumask_first(cpu_online_mask);
+>  
+>  	for (i = 0; i < vi->curr_queue_pairs; i++) {
+>  		group_size = stride + (i < stragglers ? 1 : 0);
+>  
+> -		for (j = 0; j < group_size; j++) {
+> +		for_each_online_cpu_wrap(cpu, start) {
+> +			if (!group_size--) {
+> +				start = cpu;
+> +				break;
+> +			}
+>  			cpumask_set_cpu(cpu, mask);
+> -			cpu = cpumask_next_wrap(cpu, cpu_online_mask,
+> -						nr_cpu_ids, false);
+>  		}
+> +
+>  		virtqueue_set_affinity(vi->rq[i].vq, mask);
+>  		virtqueue_set_affinity(vi->sq[i].vq, mask);
+>  		__netif_set_xps_queue(vi->dev, cpumask_bits(mask), i, XPS_CPUS);
+> diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
+> index 5cf69a110c1c..30042351f15f 100644
+> --- a/include/linux/cpumask.h
+> +++ b/include/linux/cpumask.h
+> @@ -1036,6 +1036,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
+>  
+>  #define for_each_possible_cpu_wrap(cpu, start)	\
+>  	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
+> +#define for_each_online_cpu_wrap(cpu, start)	\
+> +	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
+>  #else
+>  #define for_each_possible_cpu(cpu) for_each_cpu((cpu), cpu_possible_mask)
+>  #define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
+> @@ -1044,6 +1046,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
+>  
+>  #define for_each_possible_cpu_wrap(cpu, start)	\
+>  	for_each_cpu_wrap((cpu), cpu_possible_mask, (start))
+> +#define for_each_online_cpu_wrap(cpu, start)	\
+> +	for_each_cpu_wrap((cpu), cpu_online_mask, (start))
+>  #endif
+>  
+>  /* Wrappers for arch boot code to manipulate normally-constant masks */
+> -- 
+> 2.43.0
+> 
