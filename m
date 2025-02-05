@@ -1,98 +1,170 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD2412144A8
-	for <virtualization@lists.linux.dev>; Wed,  5 Feb 2025 22:13:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5BC11FC7E2
+	for <virtualization@lists.linux.dev>; Wed,  5 Feb 2025 22:16:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738793603; cv=none; b=O8S8CpAMg4YYtBSC2bLMogfUiMSo3hAUfYuMj+r1TcB3g91Z2f7Hs5yV+7BbWQhlM4qGRqCVXr7o//LXwDgUY9X4+4GSd/nOpznsChPkB6CLiYcRPIUtKrdAgvKFLVgI4HvoQJwtkB9xuQve6N06JLxKtIqZn9HW6ficY6vJ8bk=
+	t=1738793777; cv=none; b=kr7JbXkdwTQ62duDluCK1qq4VJiMuxI3vVFzENkpSDsMVQKoUplSOkDazvUR5E/NdXPGHnim1Y9RFuyhhrq7XCWpQGLgxE0D8GdgFOeLF/u49ZoP075Y1evkX9gIBbxNhTZZlv7vJ/NBaHAaLNFqJYys6NU02EInDubiluR8qNI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738793603; c=relaxed/simple;
-	bh=q7L8AfCkoiRYk6XD0LRMspwgS/hS3OT1u+Pk97yLlzY=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=YgEb+1IkUgZqqKIh8Xu+ViNSfrkxQ6w0i5j7V/t4wVwlAdHQrFmvlzfMN7acEu3LW/3vuj209L+Rqf7A2leztewH/3KQWrGSsAUpBChaiOlfo/NIzCReECkR6QG7MxUDK+6VFEcJrK1onDvzvBwtSYrHsG4/4B92d4Q2DUKRUH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hdFLoNMD; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1738793777; c=relaxed/simple;
+	bh=55U68o/HXEWOrqm9K4AOTOcQCPWE93DnNhIT8Ds+a4g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jGlu88TxDHbJ0m+t6I0LLV/TphcrOul6GUxE+A/vGQoiPR7MkJ9VT1WqF8ET73rI43ttpND+AACLAwTMwpbIFFWPXkP4dedsR+lB/CHtt5cAJanUNHPwk0oU50JfSHJAijGRhXiczi1Py69+l7KAawGJAjSZuyHD0gQ24abNMUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ajfg3Rdt; arc=none smtp.client-ip=209.85.221.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hdFLoNMD"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2f9cf77911eso453203a91.1
-        for <virtualization@lists.linux.dev>; Wed, 05 Feb 2025 14:13:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ajfg3Rdt"
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-38db2be2689so872652f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 05 Feb 2025 14:16:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1738793601; x=1739398401; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dVdg6lU59UKb0/TD/si7cIrxJXLN5wRx2BqZWD8EZQ0=;
-        b=hdFLoNMDTSJYVQV4cDmGtSGqDiWQbcxeoUgksLrhhHqlRlugOjiNsVDYfM6IlxKghJ
-         aMDjQ2vuhnrfn7fkKzHDmmMwCq2yPuqpTZe9wcb3NWeRkYbL4+6bYQdp0M9beT5+ZSik
-         pCeAkH+3ZuWr3+9SFpBKGChU1L2I116C44fCdEkwLccwIAmcyhWM8dyhWwXh3/TpVLB6
-         4Guan4sJbo6kCtE1ffUjEpLVGUUU8PE/ycK2WEmXjWKkScRDA4AQ0F4SjKuXt5jyPLxA
-         CQuTMKBGP99o0i7EolB6kelfLJMnIs3mXzfVajlLgxYHpdrBX7kg9d1BY5oZgyqBTwIa
-         xXUA==
+        d=gmail.com; s=20230601; t=1738793774; x=1739398574; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vdDVNZ5dZQ4AB4CLiIP63HC/J89SDxWWeBPv4iIwUpQ=;
+        b=Ajfg3RdtXoKPXxm4YghjyyECQzuLyp92IBrEqY3hVinu7zcOJmc36I58PNbD9AT9Sc
+         UIYtzK8JjtbF+5K7VT4wCPcLjQaxDcmyQc3tq223VM0Tz83P+OTIVOZ6oebzupEu44Gn
+         nf2hn4/zGMsU7heXFAfZmAyigccgxYX4xfJN3Wwqr2Nc3wX3HnxqtHX3u/L+e0C5MIcD
+         2KVbt4/ZOzEc+BuXMOs66opbMHT3Fxdo+O6A51UfTjEjEv3aiNIhSEVvftoyTX37h9hJ
+         p39rMS5n/0ABkw+Pn4glK9r1w8mbMbK7W30zpsOm7qBN994lKIlPNN9r4bfHYvQoe3aM
+         20WA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738793601; x=1739398401;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=dVdg6lU59UKb0/TD/si7cIrxJXLN5wRx2BqZWD8EZQ0=;
-        b=Z96nRl9h/bk3KP9FzjJVQs+FjVu6hG3qF+BIIcK29R7UyELvOcqmsCndTyq8FRzg2b
-         X7am4/yexLwuFbMT5xy7IbfXQOgZRohOfO4wsI+JL+PN1dEJkHiHbh1tNd285jcs+Oh2
-         Fszd0TRMZoMDza+eCHthYPyFRLqPDha1VlWlCtYdvEATzT6z5J3Ge41/VQXznsGDat/2
-         TGxxoVm2CWQ1A63jyemaUrLMIMPQB8fvRrjf8vC9vRMIg8Ix7QdGVoH0f6Ueie/OT8Jm
-         V9OpbtM5bcf7AkpfvapXfKv3NdS1zJ9ECyYnITZa3KEwmSw6weugdCjPMWf4QWtkYCCD
-         d7cA==
-X-Forwarded-Encrypted: i=1; AJvYcCVdUZk1v/wKtWw25Cy7SO+zNJGua4KBSCVdW41Z54J7q9+QxeHyqE+PGTih1cwdAT2QxwyJcaXfaoikaV/w0g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzNOYq5CnMtghz/mVpAB2bQmsu58B0/4EouaCmSabyt0bb+zvHt
-	vR5t5uqJxxq7y5Hqn2H5K4qB+N5Sj6w0YNXIceh8f2T2p3bLRv3HoxboWeiO6T28sZfiJezOJ4x
-	3sw==
-X-Google-Smtp-Source: AGHT+IEzBJXIxqY+Exe441l1aJjABmGJq/OUJpRwmw6f4+fEJCNQJEg3bbzDZBjxuP/ajdzYJPIfpzBr2jA=
-X-Received: from pjbsi5.prod.google.com ([2002:a17:90b:5285:b0:2ea:4a74:ac2])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90a:e707:b0:2f9:9c3a:ed3
- with SMTP id 98e67ed59e1d1-2f9ffb7ba78mr1633015a91.16.1738793601045; Wed, 05
- Feb 2025 14:13:21 -0800 (PST)
-Date: Wed, 5 Feb 2025 14:13:19 -0800
-In-Reply-To: <20250201021718.699411-2-seanjc@google.com>
+        d=1e100.net; s=20230601; t=1738793774; x=1739398574;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vdDVNZ5dZQ4AB4CLiIP63HC/J89SDxWWeBPv4iIwUpQ=;
+        b=ANfBt2gET+ouKTO9WEgS6hlDRt/A+GCqY+mLMqY6AIWSYmYtgGpLKG0Rv5qhFL7JoK
+         I5e4w0csiRgfQCuboI6o1gh8aQIXrVGRVkAVZGWS5ka6UiWdnvhn7zm4YszwFpuuLGDL
+         GEC4PHt3QX82PKcJbpd0GY8m4Slq7T7cDjkJSMs3RqBq6qm2xV7WfsrcMSgwhg7+ZaT+
+         agO8ZSgVHVxzIn1knArswkLQgD+2IhSqFahDIolDT7hNn2LgZSqWdJ7NLphmmRGbqa7J
+         l9lHOK9IGb4iU4QQXPNi3v4RXgZPb7Z23sHi+KqQkl1lxXC2BeknMztifGkdQPX1hUgY
+         /ONg==
+X-Forwarded-Encrypted: i=1; AJvYcCUxjlUC61zctQrb09Rt5owYSLR7gO0Nb8BE351cf6j4/KjVlPPh8HGjuYuewT7TMHYytR3scAsVmR9+bSWHlQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzMTlD9QG0CEvP7w4ob//uUjo8P3WsgdLOdqR5nWBqU5hcPMjAU
+	aq7PA+8vUziBg54QaIqirfIyddvXE6tl2zIVehhhHCbLy1RaI+4c
+X-Gm-Gg: ASbGnctin+kci+fp13WJ24WVvdK3EAidSZbYlWQrSB/Us1e2ZN2gmAxoxOBdkrDQIsq
+	zdO8vZCH7N4FRv4yy+XKrKU2UdQB9DzW57/wszWfCvwZtquI1/rXJagQyVeLgi9JuV+qk8lWUOH
+	094zbNszNaxsb9Z7H4aGtrVb5+seeU/tCJ0+R3hRL36jcVc6caZp+yE513/+VVvDi0nYHyl+Hhg
+	HIbw9/uJaFZMsNMbye+4mbYMRFAKLoKONnNeCFEwTNl8gK5WrSazyWzI8E3Yb8sipLefHrsoevJ
+	lkWe5Czhhop4bIoo759qlck=
+X-Google-Smtp-Source: AGHT+IEdwD8+gf+P54b0oq9+6IB9SKMe1dPj4BWvNK0K6VPumKorBNlE9GpHAOH2VL8CKukBAjBygw==
+X-Received: by 2002:a05:6000:4009:b0:38c:24f0:fc28 with SMTP id ffacd0b85a97d-38dbb20b3d7mr501077f8f.3.1738793773653;
+        Wed, 05 Feb 2025 14:16:13 -0800 (PST)
+Received: from [192.168.8.100] ([148.252.128.4])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38c5c122465sm20046771f8f.47.2025.02.05.14.16.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 05 Feb 2025 14:16:11 -0800 (PST)
+Message-ID: <88cb8f03-7976-4846-a74d-e2d234c5cf8d@gmail.com>
+Date: Wed, 5 Feb 2025 22:16:18 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250201021718.699411-1-seanjc@google.com> <20250201021718.699411-2-seanjc@google.com>
-Message-ID: <Z6Pif2CFE0o1eOnj@google.com>
-Subject: Re: [PATCH 01/16] x86/tsc: Add a standalone helpers for getting TSC
- info from CPUID.0x15
-From: Sean Christopherson <seanjc@google.com>
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross <jgross@suse.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.amakhalov@broadcom.com>, Jan Kiszka <jan.kiszka@siemens.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, 
-	linux-coco@lists.linux.dev, virtualization@lists.linux.dev, 
-	linux-hyperv@vger.kernel.org, jailhouse-dev@googlegroups.com, 
-	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	Nikunj A Dadhania <nikunj@amd.com>, Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Dan Carpenter <dan.carpenter@linaro.org>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC net-next v1 5/5] net: devmem: Implement TX path
+To: Mina Almasry <almasrymina@google.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>,
+ Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ David Ahern <dsahern@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
+ Kaiyuan Zhang <kaiyuanz@google.com>, Willem de Bruijn <willemb@google.com>,
+ Samiullah Khawaja <skhawaja@google.com>, Stanislav Fomichev
+ <sdf@fomichev.me>, Joe Damato <jdamato@fastly.com>, dw@davidwei.uk
+References: <20241221004236.2629280-1-almasrymina@google.com>
+ <20241221004236.2629280-6-almasrymina@google.com>
+ <676dd022d1388_1d346b2947@willemb.c.googlers.com.notmuch>
+ <CAHS8izNzbEi_Dn+hDohF9Go=et7kts-BnmEpq=Znpot7o7B5wA@mail.gmail.com>
+ <6798ee97c73e1_987d9294d6@willemb.c.googlers.com.notmuch>
+ <53192c45-df3c-4a65-9047-bbd59d4aee47@gmail.com>
+ <CAHS8izMcs=3qo1jhZSM499mxHh10-oBL6Fhb2W0eKWhJGax4Bg@mail.gmail.com>
+Content-Language: en-US
+From: Pavel Begunkov <asml.silence@gmail.com>
+In-Reply-To: <CAHS8izMcs=3qo1jhZSM499mxHh10-oBL6Fhb2W0eKWhJGax4Bg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 31, 2025, Sean Christopherson wrote:
-> +static inline int cpuid_get_tsc_freq(unsigned int *tsc_khz,
-> +				     unsigned int *crystal_khz)
-> +{
-> +	unsigned int denominator, numerator;
-> +
-> +	if (cpuid_get_tsc_info(tsc_khz, &denominator, &numerator))
+On 2/5/25 20:22, Mina Almasry wrote:
+> On Wed, Feb 5, 2025 at 4:41 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
+>>
+>> On 1/28/25 14:49, Willem de Bruijn wrote:
+>>>>>> +struct net_devmem_dmabuf_binding *
+>>>>>> +net_devmem_get_sockc_binding(struct sock *sk, struct sockcm_cookie *sockc)
+>>>>>> +{
+>>>>>> +     struct net_devmem_dmabuf_binding *binding;
+>>>>>> +     int err = 0;
+>>>>>> +
+>>>>>> +     binding = net_devmem_lookup_dmabuf(sockc->dmabuf_id);
+>>>>>
+>>>>> This lookup is from global xarray net_devmem_dmabuf_bindings.
+>>>>>
+>>>>> Is there a check that the socket is sending out through the device
+>>>>> to which this dmabuf was bound with netlink? Should there be?
+>>>>> (e.g., SO_BINDTODEVICE).
+>>>>>
+>>>>
+>>>> Yes, I think it may be an issue if the user triggers a send from a
+>>>> different netdevice, because indeed when we bind a dmabuf we bind it
+>>>> to a specific netdevice.
+>>>>
+>>>> One option is as you say to require TX sockets to be bound and to
+>>>> check that we're bound to the correct netdev. I also wonder if I can
+>>>> make this work without SO_BINDTODEVICE, by querying the netdev the
+>>>> sock is currently trying to send out on and doing a check in the
+>>>> tcp_sendmsg. I'm not sure if this is possible but I'll give it a look.
+>>>
+>>> I was a bit quick on mentioning SO_BINDTODEVICE. Agreed that it is
+>>> vastly preferable to not require that, but infer the device from
+>>> the connected TCP sock.
+>>
+>> I wonder why so? I'd imagine something like SO_BINDTODEVICE is a
+>> better way to go. The user has to do it anyway, otherwise packets
+>> might go to a different device and the user would suddenly start
+>> getting errors with no good way to alleviate them (apart from
+>> likes of SO_BINDTODEVICE). It's even worse if it works for a while
+>> but starts to unpredictably fail as time passes. With binding at
+>> least it'd fail fast if the setup is not done correctly.
+>>
+> 
+> I think there may be a misunderstanding. There is nothing preventing
+> the user from SO_BINDTODEVICE to make sure the socket is bound to the
 
-As pointed out by Dan, this is broken.  It should be crystal_khz, not tsc_khz.
-I fixed the bug in my test build but clobbered it before posting.
+Right, not arguing otherwise
 
-> +		return -ENOENT;
-> +
-> +	if (!*crystal_khz)
-> +		return -ENOENT;
-> +
-> +	*tsc_khz = *crystal_khz * numerator / denominator;
-> +	return 0;
-> +}
+> ifindex, and the test changes in the latest series actually do this
+> binding.
+> 
+> It's just that on TX, we check what device we happen to be going out
+> over, and fail if we're going out of a different device.
+> 
+> There are setups where the device will always be correct even without
+> SO_BINDTODEVICE. Like if the host has only 1 interface or if the
+> egress IP is only reachable over 1 interface. I don't see much reason
+> to require the user to SO_BINDTODEVICE in these cases.
+
+That's exactly the problem. People would test their code with one setup
+where it works just fine, but then there will be a rare user of a
+library used by some other framework or a lonely server where it starts
+to fails for no apparent reason while "it worked before and nothing has
+changed". It's more predictable if enforced.
+
+I don't think we'd care about setup overhead one extra ioctl() here(?),
+but with this option we'd need to be careful about not racing with
+rebinding, if it's allowed.
+
+-- 
+Pavel Begunkov
+
