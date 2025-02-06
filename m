@@ -1,184 +1,71 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D03FF1519B4
-	for <virtualization@lists.linux.dev>; Wed,  5 Feb 2025 23:00:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 482A34A06;
+	Thu,  6 Feb 2025 01:45:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738796430; cv=none; b=uEBkqmLXSsAnjpQQwF2ArdLIepxu0DBxokPMvOfUv+n6c/b5ZrQBVWbh7h73z5J1nVkmtvGEqoJ6k9dx/xSMFfi7xKRl8jsyux1J1k7zCAdfm83Ott6Ln3vZ6stHePgHbkCGELACMvqX7FxpnsMAi+soLDVtyupft3i7YMHvr/I=
+	t=1738806318; cv=none; b=E/WMOs2/jsPSP3knYLc21Z00fsAMQ4I+jxZthAKivJUPeQYMx/Bt5QzhrsW13y4GLGtN80o6BecWVPPeC7h6SZ3gJERKUmy6x6xKllePed1DVUvYtoZkEaE84Di+eMmGS5icYSu2ZHTwsUfwJ1nEv6XQ6VDy2ShNGGuBCFtzFUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738796430; c=relaxed/simple;
-	bh=LaTI9Ovfik3rTkSpQhtpIz4SEx0LeILc9RAC6ekVtHg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lGTawcMaOJU87qVC9FAUNjqN3o7M7OoDOPBmfl0K7h5IZHorcFkXgKUEW9m7ZGQOFxuZDN+bej3FJMcEDGznWGPvEvTCM8bTMWxWFgYdd9c0N8hkS0FI4hp7byQXSitr8VVjUVe9rVW3XTPfM/z2AE79iq/EGfAXiJRzcwXhHGc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EpL72wEA; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1738806318; c=relaxed/simple;
+	bh=3FKgirNXQBD9To5djYaaxMigf7vVsLObBwiIb3LzA+o=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=TMgkcCMwrjIDLtlBXYcBTkjsZh8fT2+s85x+D3blAaa8L6qx7SsRGxzsFkGbhpP3884JgENe8CpU92gRMXE5++hO7N61WTVxAq3AmdOxAvbFuJMOuI6GOzqN1c/ksNTGdLe4IP8SwyjeeMmDnnzI+njVQiTizMJEz/5eNy1lJVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D7ljF96j; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EpL72wEA"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 515MWUX5011361;
-	Wed, 5 Feb 2025 23:00:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Kyj4592/Vdaiqvqm+X1lwa8g7u23mB
-	IpzdJ84G1p7Lc=; b=EpL72wEAV2RCdpHNpIUMY5FRwchEr9BO8bLwc6tWB4nLux
-	n6Tqs7mdVK4NYBYvKJKRCkAEE7RSTjqtPB/6lzYOlaQykFg4T/WKZ5uWqvUvMLDA
-	GIJmC1aJNJvjEf6WVTWEKuQtfebLNKqjKblE1R+pGtoZ4hejLSWF9NvMttagWlsJ
-	KVGBhTdwGJa7sHREk/zFlVbGwv3WFfcuW0Vsu51M2bWzgv+3JbvbQF3OOkDT5ZbF
-	efns7zVnoS/JreYpTzGFZTsnYcZ1gZ84V0CJj+4VddaF6kemECV4dqQyb4sb63pl
-	RBKUJbGmUnWvivx4HZtQCXkkYHED1b+rl61v9YeQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29p39m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 23:00:25 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 515Mx37w032396;
-	Wed, 5 Feb 2025 23:00:25 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29p39k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 23:00:25 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 515KTrqk005251;
-	Wed, 5 Feb 2025 23:00:24 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44j05k31te-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 23:00:24 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 515N0N8D16450056
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Feb 2025 23:00:23 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8DE705806A;
-	Wed,  5 Feb 2025 23:00:23 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6D93E58064;
-	Wed,  5 Feb 2025 23:00:23 +0000 (GMT)
-Received: from localhost (unknown [9.61.82.89])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Feb 2025 23:00:23 +0000 (GMT)
-Date: Wed, 5 Feb 2025 17:00:23 -0600
-From: Nick Child <nnac123@linux.ibm.com>
-To: Yury Norov <yury.norov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: Re: [PATCH v2 02/13] virtio_net: simplify virtnet_set_affinity()
-Message-ID: <Z6PthznH5Tp-ZdHw@li-4c4c4544-0047-5210-804b-b8c04f323634.ibm.com>
-References: <20250128164646.4009-1-yury.norov@gmail.com>
- <20250128164646.4009-3-yury.norov@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D7ljF96j"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B58ECC4CED1;
+	Thu,  6 Feb 2025 01:45:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1738806317;
+	bh=3FKgirNXQBD9To5djYaaxMigf7vVsLObBwiIb3LzA+o=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=D7ljF96jPqObiWUUX4RymLnHDejsWlOf7Lh4b5TZjKhiZONmEp2keHrwrvyxBwKgr
+	 kolGt6oDUMXlHZRmAY/m6Wy20wyDBIrBnX9A/tcP3QMLWurszEB/C8PIMjTrgCmArk
+	 Owo1E2b80+dFU/jPNUGx4Y9jUvdY18131mp/EElXW28Pai9R/n/jpO/SMPyZfv7g4u
+	 ju2ndhmCTO7IcslYOLpsg2mQNQm4WZgY2yA9Wl/H3EjdgJJNWSqnhkWq8ZKjU//hpP
+	 kPZrZ+y4Vj9fEVLj0Qdwocc6n88tLyZZvS57Ko9hvFyo6QPFtqdBFvrEotocFp1m8+
+	 YPKn4GjB05R8A==
+Date: Wed, 5 Feb 2025 17:45:16 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Mina Almasry <almasrymina@google.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, Donald
+ Hunter <donald.hunter@gmail.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, Neal Cardwell <ncardwell@google.com>, David Ahern
+ <dsahern@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Stefan Hajnoczi
+ <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan
+ <shuah@kernel.org>, sdf@fomichev.me, asml.silence@gmail.com,
+ dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>, Victor Nogueira
+ <victor@mojatatu.com>, Pedro Tammela <pctammela@mojatatu.com>, Samiullah
+ Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v3 0/6] Device memory TCP TX
+Message-ID: <20250205174516.537a7101@kernel.org>
+In-Reply-To: <CAHS8izNxi+Dc6mXPNaQSjtmz5YzmeA-Sn8JdMWLpYRomJdCWMA@mail.gmail.com>
+References: <20250203223916.1064540-1-almasrymina@google.com>
+	<20250204180833.48cb40cb@kernel.org>
+	<CAHS8izNxi+Dc6mXPNaQSjtmz5YzmeA-Sn8JdMWLpYRomJdCWMA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250128164646.4009-3-yury.norov@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: K7D4TPrZFEYxpz2AL0sWv287fg2oxywf
-X-Proofpoint-ORIG-GUID: eJfy_3KbPsJRzD60u06T4ivUF-ntf4ce
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-05_08,2025-02-05_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
- bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0
- suspectscore=0 adultscore=0 mlxlogscore=999 clxscore=1011
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502050176
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jan 28, 2025 at 11:46:31AM -0500, Yury Norov wrote:
-> The inner loop may be replaced with the dedicated for_each_online_cpu_wrap.
-> It helps to avoid setting the same bits in the @mask more than once, in
-> case of group_size is greater than number of online CPUs.
-
-nit: Looking at the previous logic of how group_stride is calculated, I don't
-think there is possibility of "setting the same bits in the @mask more
-than once". group_stride = n_cpu / n_queues
-
-nit: I see this more as 2 patches. The introduction of a new core
-helper function is a bit buried.
-
+On Wed, 5 Feb 2025 11:52:20 -0800 Mina Almasry wrote:
+> > please stick to RFC until a driver implementation is ready and
+> > included  
 > 
-> CC: Nick Child <nnac123@linux.ibm.com>
-> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> For the RX path proposals I kept the driver implementation out of the
+> series and linked to it in the cover letter. Just to confirm, is that
+> OK for this series as well?
 
-Don't know if my comments alone merit a v3 and I think the patch
-does simplify the codebase so:
-Reviewed-by: Nick Child <nnac123@linux.ibm.com>
-
-> ---
->  drivers/net/virtio_net.c | 12 +++++++-----
->  include/linux/cpumask.h  |  4 ++++
->  2 files changed, 11 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7646ddd9bef7..9d7c37e968b5 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3826,7 +3826,7 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
->  	cpumask_var_t mask;
->  	int stragglers;
->  	int group_size;
-> -	int i, j, cpu;
-> +	int i, start = 0, cpu;
->  	int num_cpu;
->  	int stride;
->  
-> @@ -3840,16 +3840,18 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
->  	stragglers = num_cpu >= vi->curr_queue_pairs ?
->  			num_cpu % vi->curr_queue_pairs :
->  			0;
-> -	cpu = cpumask_first(cpu_online_mask);
->  
->  	for (i = 0; i < vi->curr_queue_pairs; i++) {
->  		group_size = stride + (i < stragglers ? 1 : 0);
->  
-> -		for (j = 0; j < group_size; j++) {
-> +		for_each_online_cpu_wrap(cpu, start) {
-> +			if (!group_size--) {
-> +				start = cpu;
-> +				break;
-> +			}
->  			cpumask_set_cpu(cpu, mask);
-> -			cpu = cpumask_next_wrap(cpu, cpu_online_mask,
-> -						nr_cpu_ids, false);
->  		}
-> +
->  		virtqueue_set_affinity(vi->rq[i].vq, mask);
->  		virtqueue_set_affinity(vi->sq[i].vq, mask);
->  		__netif_set_xps_queue(vi->dev, cpumask_bits(mask), i, XPS_CPUS);
-> diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> index 5cf69a110c1c..30042351f15f 100644
-> --- a/include/linux/cpumask.h
-> +++ b/include/linux/cpumask.h
-> @@ -1036,6 +1036,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
->  
->  #define for_each_possible_cpu_wrap(cpu, start)	\
->  	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
-> +#define for_each_online_cpu_wrap(cpu, start)	\
-> +	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
->  #else
->  #define for_each_possible_cpu(cpu) for_each_cpu((cpu), cpu_possible_mask)
->  #define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
-> @@ -1044,6 +1046,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
->  
->  #define for_each_possible_cpu_wrap(cpu, start)	\
->  	for_each_cpu_wrap((cpu), cpu_possible_mask, (start))
-> +#define for_each_online_cpu_wrap(cpu, start)	\
-> +	for_each_cpu_wrap((cpu), cpu_online_mask, (start))
->  #endif
->  
->  /* Wrappers for arch boot code to manipulate normally-constant masks */
-> -- 
-> 2.43.0
-> 
+No, the other series was large IIRC. This is just 6 patches, normal
+rules. 
