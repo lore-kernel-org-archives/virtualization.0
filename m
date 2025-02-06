@@ -1,173 +1,251 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E91F226522
-	for <virtualization@lists.linux.dev>; Thu,  6 Feb 2025 10:04:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738836280; cv=none; b=O25myE4dVx61id7+viKVzD3ru+BFrM5iJUkkcn+6SHzfFUACkovtu594yrOmyDRWx5jYk89lCp3sFUhm23mf1OxWW1dQm8Pp7I02z/rIPc41qsWzzMPcAJQF0wGJMSCy9QeKPyEu5UD+WtDPZVL0fUXzfuUCCkPJySGxKLOaOZs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738836280; c=relaxed/simple;
-	bh=pzwXnf2CUivg5l0fXHjyl9Qf6NkaFqUJy/SQ9lNidzc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wi5KG1SFftH81FcfFwGtkD5HHCT+M7248eVyDy22qjSu5pCYh1FAzXQwz8J88R4W7NWVDh90Y2bo2v1oMGRmAPAD1/kWTw9f9ND5kgbYW3Xkp4bhexLcwjhUvif5uUxQtFx2ZWq3geK+etrssaYLWP3g1+sf6Wl7r7wI/ng/HME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q0VeLl4v; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3377422688E
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 10:41:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738838477; cv=fail; b=bD8xL/sDI2EviLmGTbvv9IdA2bNCIl2iwwvwmt+1GNE058jwRmuBp4+gG1Sf3sJA+QpAOY1HEdZi4+O1et4gZi21cgxlJyNmaXsgDUcgsOUDwPEuMGekn2Ebf/4SKem+FomAeAPbLFrFK1w9euyaVtkrTLTOZCII4ny6vAq+BxE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738838477; c=relaxed/simple;
+	bh=r9k5HvBwGFv7dEptlyluK8p92ZZQzDLvsF0wK5ObLz0=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=ZtP4WqVIsLN3rIF4t9HF7FZdrGQ7EQ8iv6j+wCFVPMXFo3EKw08Va6hCi9yyE0xAYfr4TNasMFxn62pkUXhflwHpcAApwzLz35xo2JVYy0YxV1TBpiGHH0sx5ya4DIACwfen/Llkrd3ovCGX32TOAUf35USfXdJv8sf6yQVXKQw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=0GtMtzq6; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q0VeLl4v"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1738836279; x=1770372279;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=pzwXnf2CUivg5l0fXHjyl9Qf6NkaFqUJy/SQ9lNidzc=;
-  b=Q0VeLl4v1g6mVuL8Sfsh95anGdvjD+8kWLAvQweOg5VvTyQfQQ7xjGii
-   cj+m0Js1yVjKkXu+fmg4cdS748xkYTDw0FXgcHvbt4g6a3asmDvsNt7eK
-   tBIiKGbnm9huA+g6wyTGqIx6sYcv7vhQdM3SXEdFj9knvJ98saPx4c5YH
-   zsJ1dVqP1jwvLagrCscwSR9PXljx7dMSUz8p09YLIJJUp5dgP06niHN9y
-   KOniKNpAsEe188S8zYLkfnxV6FahYF23gCsAUXObbC1Tqd49Pkm25vaQ1
-   T5/QgFQcCVpDST7qwHZJLmFzA+PK8F1/RAPwSUXlreX50w9Gc13UpREuA
-   g==;
-X-CSE-ConnectionGUID: lNlmofUeQpekXGoQYfoMkQ==
-X-CSE-MsgGUID: 4q0sQ0jESTCs4GYEwcpi6w==
-X-IronPort-AV: E=McAfee;i="6700,10204,11336"; a="38660991"
-X-IronPort-AV: E=Sophos;i="6.13,264,1732608000"; 
-   d="scan'208";a="38660991"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2025 02:04:38 -0800
-X-CSE-ConnectionGUID: SsO8ILu0T5SHkrN1Q5HQ0w==
-X-CSE-MsgGUID: C60LQ62BS42v1VFSi0SVwA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,264,1732608000"; 
-   d="scan'208";a="111363400"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa008.fm.intel.com with ESMTP; 06 Feb 2025 02:04:36 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1000)
-	id BFACE164; Thu, 06 Feb 2025 12:04:34 +0200 (EET)
-Date: Thu, 6 Feb 2025 12:04:34 +0200
-From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-To: Eric Auger <eauger@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Zhenzhong Duan <zhenzhong.duan@intel.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Hongyu Ning <hongyu.ning@linux.intel.com>
-Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
-Message-ID: <pnpkqz6keacwz4myydc6aak6gkdmomqn2lo376przlhb3mscsq@tdsfxwb2ujpk>
-References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
- <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
- <20250203094700-mutt-send-email-mst@kernel.org>
- <7cee3c9e-515e-41de-a15c-04c7591e83eb@redhat.com>
- <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="0GtMtzq6"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id BB34760FE2
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 10:41:15 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id PL2pONR6GruY for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Feb 2025 10:41:14 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2415::603; helo=nam11-dm6-obe.outbound.protection.outlook.com; envelope-from=honglei1.huang@amd.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 67E5B60F4D
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 67E5B60F4D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=0GtMtzq6
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on20603.outbound.protection.outlook.com [IPv6:2a01:111:f403:2415::603])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 67E5B60F4D
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 10:41:12 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=iVOwJlBm5q7cqNcQWlK5r4L2Q8iAkFa3z70F56vifqHg1zQso6ZtFQzdUCoqM1HsHIMerbddzO1eLNeAanrQ52gYSMeY1EV7D8BNTURhsgOP2fYybwWoWYRqHD9PJ3p5dIzIOX2xKe91AIs6TgTWEDkZJsHOTi6T1uZTE9eBxZyQY7PI3rK5vzR0HP1nRuBUnHu/c8h6STHbhp6nSMl/InEntXEJtZBYPEM8p4l9bHw9SptR4ZGqglrUOxITiB16nzMlkhlceoMKMVwVyxMI9knLr3Qc7pkMRKsLmKfzm7Winc0uGJH5uuDvzUu1QDK2PQiTcAiBoAUxiC2IEECgfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=njiKBgt3IaJ97ZQoZU3mpx9NuCVpOEkFHb/SYW2S/Ws=;
+ b=rn96RwBT/f8JkF5/JY8MO4KS/vC+0GJ8DmVNSaTU8QZbzh5+eTWSofUDphSf9ETQD0jFTmqKsB1vedhUQ0fafK3bZjHpjJFa8d+G9sjJ8S/21EwcfxrZGSXlFdnVvorVYdXB9fMl4B+9XXRIixx7NQvqVnVBFEHGYJY/HM7NXw7aN13rny2Jln1QiOyllqpRgWWppNIm5YCZiO35oMKpgXmcmXmqVkeXa+H9Aj0kgfv1Bpno9eNoWG7GvcjcBi7bLf78SHoDT6vKUXYjFnjw9vaTDiaFWgayjtiIxvOd39UMVcmyvIYVya4MruooIxsKCX2XhPZ3ab7m7wJFz6zyaA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=njiKBgt3IaJ97ZQoZU3mpx9NuCVpOEkFHb/SYW2S/Ws=;
+ b=0GtMtzq6dacWWoBcwWcrgYSrHU3xLZwPe4Cnk/we7fja34grete1UmfxUeN6BJNJ3wUjPULVw//aKVDcAXvA+vOTtqNTsZ0HnhDIQOtzlrX6YSUwuWknOgrZj+rEfRW6qGDzG74xF00VY1XdZynrQsW+QHiYPwn7GCqMj9KwOcA=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
+ by PH7PR12MB7139.namprd12.prod.outlook.com (2603:10b6:510:1ef::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8398.25; Thu, 6 Feb
+ 2025 10:41:09 +0000
+Received: from IA1PR12MB6435.namprd12.prod.outlook.com
+ ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
+ ([fe80::273a:80c9:35fc:6941%4]) with mapi id 15.20.8422.010; Thu, 6 Feb 2025
+ 10:41:09 +0000
+Message-ID: <50949a09-fe90-4729-a8e2-28ab5903bee3@amd.com>
+Date: Thu, 6 Feb 2025 18:40:57 +0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/3] virtio-gpu api: add blob userptr resource
+To: Akihiko Odaki <akihiko.odaki@daynix.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Antonio Caggiano <quic_acaggian@quicinc.com>
+Cc: Lingshan Zhu <Lingshan.Zhu@amd.com>,
+ Demi Marie Obenour <demiobenour@gmail.com>, Huang Rui <ray.huang@amd.com>,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, Chia-I Wu <olvaffe@gmail.com>,
+ Daniel Vetter <daniel.vetter@ffwll.ch>
+References: <20241220100409.4007346-1-honglei1.huang@amd.com>
+ <a8bf6c8b-5ee5-4150-a9a2-75345fd07432@daynix.com>
+Content-Language: en-US
+From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
+In-Reply-To: <a8bf6c8b-5ee5-4150-a9a2-75345fd07432@daynix.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: SGBP274CA0004.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:b0::16)
+ To IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|PH7PR12MB7139:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2b99704d-f942-480b-4c5f-08dd469ac415
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?SlVGM3hPWjRBUXNSNFBzSEJlYWVwbzdQZXlpUnUyUFRxSVpkZWNnVS82alRK?=
+ =?utf-8?B?S0txdmdCdDRrUy9UcmJucWQrV1N1NWtneTAzYnBrNGZMYm53dHQvaTBTWEFG?=
+ =?utf-8?B?TWcwWXN6cnNpcGdWQnJSTWFjTkcrTkNTRHR4cTNuaDg1ZGhnWGk0S25QVkRO?=
+ =?utf-8?B?aGFPeW91bmp3S3AwcG5iZVZFQ25NRERhWmtJSk5kcTA0dlZ4OENqcmppVXFi?=
+ =?utf-8?B?VjFPaXl0V29IdUtEbk05d0tNKzNMMEpCZFliU2c3cW9CWTlua21lNit4Qjdq?=
+ =?utf-8?B?SkpxbGhHaDJEWEtNamlLNnpSZFBPQ2lMeCtZK3M0VU1aUzdMVFBSMWcxQU1l?=
+ =?utf-8?B?UHptZ2VkVTVzWC9LT09rQ0cyaDNuZ1ZQcEc2Y0N1SnpnbDQ1U016WVdWd0FC?=
+ =?utf-8?B?b2dUUGFKa24yc1V4blpERVBPR1JzZGRlK2ptWEVKT1ZPaXlXK1FTTnR3Z0FH?=
+ =?utf-8?B?TTNCRTh6RngwQzZLZWxJT0MwVUlrSUtDaVZPYzR3eEtpSUovMmdFTkVpYkoy?=
+ =?utf-8?B?ZklJNmN0WW00bGdpZndWZmw0MnpFamRQb3I2UDZ3RHMxSGlFU0gxNjhyU0Q2?=
+ =?utf-8?B?VXBqN05VRjgzelNpeXphL05FMDAySFBjWUt4TldxbjVXTTZWZXk1NGRCcnhS?=
+ =?utf-8?B?YkFoRUdleTJlKzdiNmdOdXp3ZmR3MFMweDNNazhGT2hNTmk2a3RHODk2c0Ra?=
+ =?utf-8?B?ZzRPdWdpdGNhL1U3NW9jd1ZPY3RJQzNzV3d2ejRDRm5CYkFueS9LZ2tWUTZs?=
+ =?utf-8?B?VTFiTlBXVkR4TmtzY044ZEVLVDhkTExSdXZ5V3ZHYktYeEpPdEFSMFJJYjd0?=
+ =?utf-8?B?SzBJNE1xTUlyWFpHRjYxd1NzZ1lrL204SkQzSktTNVJoWENkWWZrUFdsczJG?=
+ =?utf-8?B?TlFsRlo3UG1GK1FnVFdqR3JDM3R3UkNOQS9qZlBJckc4NUdWSmdXUTNIMTFy?=
+ =?utf-8?B?YXh3NUhzR0RQcWZDMXdBRGJqK05sOVBpODcvVjh6ZloyQURiNTd6VktyS1JJ?=
+ =?utf-8?B?UEFtdVlXNXdBUXFLTkVPdlNXbzlVb2laeFYxSndQSlZJYk9GY05uMkhKL3pi?=
+ =?utf-8?B?YnU1OHhIcHlrczBNdlpEQkVJdWJuK1FQQjJOQ1pVWkwwUkhTSjdpSkFHeUN2?=
+ =?utf-8?B?TFNDMVJYQ1Z4K1h5eWo0eHFCaGI1SWZIMVRVNjlWeWRKRm1rWUFEY2Jsazh3?=
+ =?utf-8?B?alYvZS9WU2FicGFlbThUZlJudXU4T01tRURaVVNxTUNlbHl0MzRsb29XeEFV?=
+ =?utf-8?B?d0o3VVZWemFJZzQ0M3kzZzFPWWNGOStvRVVsaENrUTh6YnlCWi9IZ1ZTcnBR?=
+ =?utf-8?B?QmtmaFZXckpweUdNclg2ZmR3ekhBQ3A0c1c2aERuQTZ0M2kvcXZJdzUxT3ZC?=
+ =?utf-8?B?YmpjMGc2Q3BaeDZoZHFYOEVKMzY5Q1NuVGtjTFpFQVFIS2ZWaGlHNElQUldi?=
+ =?utf-8?B?RTVoQlVGczRYOVFxYjhSSVVZL0tKUCtpUGQ1Q2ZKZ2pad2l6OURscDBiUHh0?=
+ =?utf-8?B?ZVZvc2JLeWlVMlZuTVRmMTQzZkFzZ1k3Y0k2UjlXRjlCRWdyQ3gyMFZReTlY?=
+ =?utf-8?B?eGl0cXYwL3RicEltU2NjTkhOS1grMk95aklNRFBETDhnWG9FZ1FuTlJZTThN?=
+ =?utf-8?B?TGVQYTBIVVZWYUZLQmpHZWRiN2VpR25EYktMQXFKdW83Q0ltRi9ER2dYR3Zk?=
+ =?utf-8?B?b0g1RHlBMS9vOU1ZVTY4K3dNcDFzRmpFb1hNODhXTGhxSkZNckN3aGdsL2Nr?=
+ =?utf-8?B?YTZ1Y3Btck9TOWd2enZsK0JjZjN3bk91T29OZHY1cFhLa1lndWlpa2VMT0Ni?=
+ =?utf-8?B?bkcyckNZc1FwbC9CbjF5Zz09?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?b2g1eUlIWmR1QVlKY2ZNREpjMzVRaXNMWllieHFqSzR6Yzl3YXZyUmoyc2RO?=
+ =?utf-8?B?NkEyNlo3a3lQZWcxM2UwQXNiOFRpdmFCWndIbjY5VFVtM0ZwN0dkbkw4K2x0?=
+ =?utf-8?B?akhuOFpLT012V3laUml5elJrNk1qc3RSdThocGJuZmlvc3lWTkJOU1hrUE1h?=
+ =?utf-8?B?UlJtZ0tFQStrRE9mNXZyMnUrUzJGeng1Ymk5eUdXYTZlenFudVB3OHZYWURP?=
+ =?utf-8?B?eHpwemU2T0Jmc1F1OUZ2ZU5MYnN4RG10enkzSXlKVlFlMGxSVTVaWkpGMzdF?=
+ =?utf-8?B?b0t3eXovMWRTTGw5Tno5QlZ5UlBiakZSYThOcmdZaXlMSjFXU1JWYXV3Vkcw?=
+ =?utf-8?B?SEpIUGp5SHRwemZsbXhjVXc3cGJKYzRHM2JlTitxamRMR1A0aHBZVWtIWlVR?=
+ =?utf-8?B?RDZodVhsM3N6R2ZBeklMYklGNnZHb21HWHArbkpjNGxRTWVCWkIvLy9Wbnhr?=
+ =?utf-8?B?S2NCZWlNcXl2YXAwNXlwRjZXSGpwOXgyeXpCOC9pNmxVRGxteWowV0ZLVXZu?=
+ =?utf-8?B?UzcySDA0YXljMFA0anJLZ21PNjREeUM3QmVLNmIxbTNKdUwyalhEQWdwZkJs?=
+ =?utf-8?B?a0tyaUNzbTI0STNTVWJ2Z29KSXF0N2JIcHN5MzlMRGxYTVNpci9FL0RtMFZY?=
+ =?utf-8?B?b2t1NkQ1TVV4ZXJQbnFUaHRQYjJzUkNKTVhGZm9LZXdaay96NW1NalFCa1Ux?=
+ =?utf-8?B?S0l4bHI4ZlJVN3pES1gvUGtOZVVyMVl5TmdrN2FHK0JiWVdsdDlOanVIZ2li?=
+ =?utf-8?B?bXlacGRqNmIvcXFKbHcvSE1VdWdKZk9JUHN2YldiaGRkZTBlUFZiN043czc2?=
+ =?utf-8?B?Yy9wS0RpYkFzZ3NQdk1oNUVqellEZGtmbW0wNURBWGhIUFBYTlJGcEFsWU5E?=
+ =?utf-8?B?RE9Iamw5ZUsxV3NtcUV2V0RGVTdFT0dqenBZR2dhT0U5QmhFZkMwSktXVkV4?=
+ =?utf-8?B?Vzh6NHkvNmllT2s5eXVOUmdCeUNmMWd6SDQ4aWpXVGloemtuVjJqeThIaVlG?=
+ =?utf-8?B?N0s1ZDFtbHBIWFVJR1NIQndORDJSRDNBelVtUnE3cVAzODVZZEJrZm9uSGU2?=
+ =?utf-8?B?UkIrL1R3cEs2M1dEdkZNS3REVnp3SWtpZlBmRXFPYWxOM2twVkU2NldVVmdW?=
+ =?utf-8?B?RW9jVW8wM3dKRmoxRGFCaFBXUjg5bHNoazk0ZEVuV3BiNDc2UlZTdnA0RkJo?=
+ =?utf-8?B?d1piYzBjK1EycnpxTkhvL2plRktxR3VlMXZ1Q09IR281Z29uZnZFWDlTdERa?=
+ =?utf-8?B?K0tvWXdRU3RxdWdqaVlDVGhUQ2NxV3h5RkphU2hpZUxla0c2bUsvanZOZFBS?=
+ =?utf-8?B?MlRTSWlYUVVvOTJZWkVJVGdVYlpFVGV3aStnWGFkQm96dEhlV3pjcDhWVUxp?=
+ =?utf-8?B?aURXeTA2SHM1eGdPQ1k4aEpRMVlTVHJWaE94OFZoS3F1WGZTK3J1L2E1Ymgr?=
+ =?utf-8?B?NXFsOW4xNGNlRVdIUkpEMG4vZGltanFIRUI1SHVwelMvM0YyQmNJZ3J6ejlQ?=
+ =?utf-8?B?YXgxV2pPYlNjRlBPSmZtVktXZC80NWZtT2w1YkplMXRuZ1ZVYWppc3NPVWMx?=
+ =?utf-8?B?d2N0VlovWkh3UlBLRjJhOWRUSTRiMEZ1RmdadHdXdVRkWklNMGFUNnZjd0dl?=
+ =?utf-8?B?OVhQYTRrdS9IOS93Vml0dHZHdkR1UE5GTkhBME9kc2t5Z1JYcnF3UGovNDRw?=
+ =?utf-8?B?YXcyWVlTbjYxMW1TVUZPbnhYM3hHZWFMczNPNU01WDRjdVM0aGJJRXZZWFVi?=
+ =?utf-8?B?NVVPckdDa1djdlJnTngrMFFZMGR6bTNFUWxzREUvaVNMWE9zZzJXZUhWWndu?=
+ =?utf-8?B?cytleXltZU83a2h4enRkNGQvUS9RUkRMRXMzc0VscTBOT3VjV3RNSDdlZEha?=
+ =?utf-8?B?eWJhc2FiQktPWmVBbWl3UTBLVU1ONWRmM2hWNnBzVm1Sd3pmVVlRZmpVRnhZ?=
+ =?utf-8?B?Ty90cUlzWXlndGg2RXg0MTFkZks3NTlyY0NHeFRPYm0rOFllTU0yNmdwSWRF?=
+ =?utf-8?B?UlZLRlRrb3JLQ1pQTDB0OGJVbDVWQll5dkNtZjRKNVFuZy82UXZQbWRBam03?=
+ =?utf-8?B?MEw2RWJ5SFBLcTNMb1pHM1o5STArSzBCVVNlY0VVZ0EyTVlWZFVhbC9jNW9X?=
+ =?utf-8?Q?qcjXxMaKPG4Vzm2J6cENLtaWW?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2b99704d-f942-480b-4c5f-08dd469ac415
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Feb 2025 10:41:08.9517
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: mR2dmatZ+8r2+H6hhP/Bd/fjJha2xiVqBMwJ8FYD2AyM1U7CEzNHGh/MMT242hQod3c5/VM/t/41eI39NN0QbQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7139
 
-On Thu, Feb 06, 2025 at 09:59:58AM +0100, Eric Auger wrote:
-> Hi,
+On 2025/2/3 16:25, Akihiko Odaki wrote:
+> On 2024/12/20 19:04, Honglei Huang wrote:
+>> From: Honglei Huang <Honglei1.Huang@amd.com>
+>>
+>> Add a new resource for blob resource, called userptr, used for let
+>> host access guest user space memory, to acquire a simple SVM features
+>> in virtio GPU.
+>>
+>> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
+>> in this series patches only HSAKMT context can use the userptr
+>> feature. HSAKMT is a GPU compute library in HSA stack, like
+>> the role libdrm in mesa stack.
+>> - New flag VIRTIO_GPU_BLOB_FLAG_USE_USERPTR used in blob create
+>> to indicate the blob create ioctl is used for create a userptr
+>> blob resource.
+>>
+>> Signed-off-by: Honglei Huang <Honglei1.Huang@amd.com>
+>> ---
+>>   include/uapi/linux/virtio_gpu.h | 2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/ 
+>> virtio_gpu.h
+>> index b9a9783f0b14..0a6b56acbc13 100644
+>> --- a/include/uapi/linux/virtio_gpu.h
+>> +++ b/include/uapi/linux/virtio_gpu.h
+>> @@ -323,6 +323,7 @@ struct virtio_gpu_cmd_submit {
+>>   #define VIRTIO_GPU_CAPSET_VIRGL 1
+>>   #define VIRTIO_GPU_CAPSET_VIRGL2 2
+>> +#define VIRTIO_GPU_CAPSET_HSAKMT 7
 > 
-> On 2/4/25 12:46 PM, Eric Auger wrote:
-> > Hi,
-> > 
-> > On 2/3/25 3:48 PM, Michael S. Tsirkin wrote:
-> >> On Fri, Jan 31, 2025 at 10:53:15AM +0100, Eric Auger wrote:
-> >>> Hi Kirill, Michael
-> >>>
-> >>> On 8/8/24 9:51 AM, Kirill A. Shutemov wrote:
-> >>>> Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
-> >>>> accesses during the hang.
-> >>>>
-> >>>> 	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
-> >>>> 	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
-> >>>> 	...
-> >>>>
-> >>>> It was traced down to virtio-console. Kexec works fine if virtio-console
-> >>>> is not in use.
-> >>>>
-> >>>> Looks like virtio-console continues to write to the MMIO even after
-> >>>> underlying virtio-pci device is removed.
-> >>>>
-> >>>> The problem can be mitigated by removing all virtio devices on virtio
-> >>>> bus shutdown.
-> >>>>
-> >>>> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> >>>> Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
-> >>>
-> >>> Gentle ping on that patch that seems to have fallen though the cracks.
-> >>>
-> >>> I think this fix is really needed. I have another test case with a
-> >>> rebooting guest exposed with virtio-net (backed by vhost-net) and
-> >>> viommu. Since there is currently no shutdown for the virtio-net, on
-> >>> reboot, the IOMMU is disabled through the native_machine_shutdown()/
-> >>> x86_platform.iommu_shutdown() while the virtio-net is still alive.
-> >>>
-> >>> Normally device_shutdown() should call virtio-net shutdown before the
-> >>> IOMMU tear down and we wouldn't see any spurious transactions after
-> >>> iommu shutdown.
-> >>>
-> >>> With that fix, the above test case is fixed and I do not see spurious
-> >>> vhost IOTLB miss spurious requests.
-> >>>
-> >>> For more details, see qemu thread ([PATCH] hw/virtio/vhost: Disable
-> >>> IOTLB callbacks when IOMMU gets disabled,
-> >>> https://lore.kernel.org/all/20250120173339.865681-1-eric.auger@redhat.com/)
-> >>>
-> >>>
-> >>> Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> >>> Tested-by: Eric Auger <eric.auger@redhat.com>
-> >>>
-> >>> Thanks
-> >>>
-> >>> Eric
-> >>>
-> >>>> ---
-> >>>>  drivers/virtio/virtio.c | 10 ++++++++++
-> >>>>  1 file changed, 10 insertions(+)
-> >>>>
-> >>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> >>>> index a9b93e99c23a..6c2f908eb22c 100644
-> >>>> --- a/drivers/virtio/virtio.c
-> >>>> +++ b/drivers/virtio/virtio.c
-> >>>> @@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
-> >>>>  	of_node_put(dev->dev.of_node);
-> >>>>  }
-> >>>>  
-> >>>> +static void virtio_dev_shutdown(struct device *_d)
-> >>>> +{
-> >>>> +	struct virtio_device *dev = dev_to_virtio(_d);
-> >>>> +	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-> >>>> +
-> >>>> +	if (drv && drv->remove)
-> >>>> +		drv->remove(dev);
-> >>
-> >>
-> >> I am concerned that full remove is a heavyweight operation.
-> >> Do not want to slow down reboots even more.
-> >> How about just doing a reset, instead?
-> > 
-> > I tested with
-> > 
-> > static void virtio_dev_shutdown(struct device *_d)
-> > {
-> >         struct virtio_device *dev = dev_to_virtio(_d);
-> > 
-> >         virtio_reset_device(dev);
-> > }
-> > 
-> > 
-> > and it fixes my issue.
-> > 
-> > Kirill, would that fix you issue too?
-> gentle ping.
+> The changes to add VIRTIO_GPU_CAPSET_VENUS and VIRTIO_GPU_CAPSET_DRM are 
+> already merged so this should be rebased for clean apply.
+> 
+> Number 7 is also occupied since 2023:
+> https://chromium.googlesource.com/crosvm/crosvm/+/ 
+> e4c1878733937042111fca58899a3a94002bfef0%5E%21/rutabaga_gfx/src/ 
+> rutabaga_utils.rs
+> 
+> VCL, a proposed VirtIO-GPU OpenCL driver, is also going to use that number:
+> https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/31634/diffs? 
+> commit_id=55a1a8a32057e83819b046f2de03aca333b052b4
+> 
+> I think you should talk with Antonio Caggiano, who picked the number for 
+> VCL, to allocate a number without a conflict with VCL.
+> 
+> Gurchetan (the author of Rutabaga change allocating the number), I think 
+> you should notify the number usage by sending a patch for Linux or 
+> virtio-spec.
+> 
+> Regards,
+> Akihiko Odaki
+> 
+>>   /* VIRTIO_GPU_CMD_GET_CAPSET_INFO */
+>>   struct virtio_gpu_get_capset_info {
+>> @@ -415,6 +416,7 @@ struct virtio_gpu_resource_create_blob {
+>>   #define VIRTIO_GPU_BLOB_FLAG_USE_MAPPABLE     0x0001
+>>   #define VIRTIO_GPU_BLOB_FLAG_USE_SHAREABLE    0x0002
+>>   #define VIRTIO_GPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
+>> +#define VIRTIO_GPU_BLOB_FLAG_USE_USERPTR      0x0008
+>>       /* zero is invalid blob mem */
+>>       __le32 blob_mem;
+>>       __le32 blob_flags;
+> 
+Hi Akihiko,
 
-I am on vacation this week. Will try to get around to it next week.
+Really thanks for the information, I think maybe using an unused number 
+is a better way. I will send a patch to virtio-spec to occupy a unused one.
 
--- 
-  Kiryl Shutsemau / Kirill A. Shutemov
+Regards,
+Honglei
