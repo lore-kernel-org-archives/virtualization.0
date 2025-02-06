@@ -1,82 +1,82 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56FD3224AEA
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:53:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 119492248BB
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:58:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738824817; cv=none; b=V7ku9pOl9vLLZH1X3uTOHrtH+U3aia35Pvn/4RJmKO6I7LLtxjD2ntRjZ8cwb1cqsVc8VBfocclm/qvOEteiX4H+NhoUYANk9OlwclOt94hBlqDmcFSBVVFJl1jQzXsfuKdP8z9nxl87iyv5SoObxpdgyArTSD1nA/rZW7c2juE=
+	t=1738825124; cv=none; b=h35Ew7StE0Of3L/zcYH1hBtBQ/rqjt2i2twI3VeSkIC2bnWVrBR0gnPpJKCyr8n9UvMZFEikUXpKLmq4ZTx9umtdbOGox3tR4RIv8tdNs/OORtFybL9NqI+XvjGuMK9Jx/AD6rxOX/Py6OEFqJQ4IJ7D38drQvwJcY2UUJzfk+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738824817; c=relaxed/simple;
-	bh=QFOprhmkYAckDmLpj8OaQpl0QIRArOwxk2YuENHmzqo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fWOkiRC04ha91X5J2RMQdziUxESp9Wyv42gvimJLij+5K7OX3etTJKpPgYtTnMRGUKNxty/okZZn8oQA+FjJKOUhsUkR+I4W4f+IKNtOxhRFMgRM34cidR5XxnXMd0ZkqiqpeHvymiyCd+xMXayTSeqBpzrakhl5PyC1xbo/7xA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=StZbqQTh; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1738825124; c=relaxed/simple;
+	bh=og3Aq1IjApPzY4pBlRJEpp2monYtKZMRFoZcCbo2WO8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=tlkJBtsQuERap5q+LikrULbXOvEmAuklf0cI23njRik0jNmvwa2V+ZvEsDCI2IHR9elg0+Tyow7+Sx8HNbZeUcLqLD6eGa1pfBzNcAIK8iVOLZuMubs8OB3bX4LWh0fXb8QLp8oYc8DispNsHvRmlhcglCZfX5LQ05c045Gtozk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=qZwwqrjT; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="StZbqQTh"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="qZwwqrjT"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DA7EE405BA
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:53:35 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8642A8121C
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:58:42 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id coU58KOUcQUg for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Feb 2025 06:53:34 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::1030; helo=mail-pj1-x1030.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 126AB405CC
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 126AB405CC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=StZbqQTh
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 126AB405CC
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:53:33 +0000 (UTC)
-Received: by mail-pj1-x1030.google.com with SMTP id 98e67ed59e1d1-2f9cd8ecbceso1033428a91.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 05 Feb 2025 22:53:33 -0800 (PST)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id UDSSQxE_eM6U for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Feb 2025 06:58:42 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DE64E8121F
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE64E8121F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=qZwwqrjT
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DE64E8121F
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:58:41 +0000 (UTC)
+Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-2163dc5155fso11022295ad.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 05 Feb 2025 22:58:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738824813; x=1739429613; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738825121; x=1739429921; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yfPzJgqGwInu62D/JbABqcLSTAUY1ivE7x32/lUlB+s=;
-        b=StZbqQTh3W3pGNdWHsY/NkdPLV6FBov2jYHEehXaByH54jAmXU64Cvmzl/HQ9bu27q
-         hIOrKFda2qVNQMYFnlYQ5Yt9W8aA1tDgxuHrUWlZwI6MfqRqur+WZ5nLVofsNbkyq684
-         Ou5SfRA4ju76/Bt5J2HAnaPap66eKpG7r6pESfEZgiVLlWlWF27D37ayQjQPxMvq5F2b
-         ZlPIqveXGxdVLMPDGza32dgETjpulfPPqKQZ5hjU2PIeUAr175dvrqjMmovE3tvtbC49
-         /KbI76Z7+T75DMM/5ncyzl5YjcnwvvKAEvGq0HRw4W6n331dNootTtxF+uwZA8PMyW5v
-         Suwg==
+         :references:to:subject:user-agent:mime-version:date:message-id:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=MfkFHRY4BuNO95W0YyldJMDcWeJ1g/mRAGw+u9+CPB0=;
+        b=qZwwqrjTE7qi/aEu/tqpdq6eFmDJocBlLF+9irorID8M1v77JOnGsk+vAwIiADlUG7
+         uybqvgJYqJTpa/kTGxjTybGp5mRZTk0iroaJX+ij3ATJ2VGPbd71np9PQaU5oG8ldzrq
+         k9uXwlMlcosV3a44VSonyf6t065UhB5I2DUd6s+lGa9T2C38YH095uptHejTo/Rr6y9y
+         j5KvTdcnVnJaADs65S6tcdza6k7OO3HOGhlhCiSjq6WAF+i4gPMDcOY8m432kZwqoNwP
+         Aln0NUPTg1T7ESinRSoU30+lzCUcl6oFCH8Bk22T9dKSWu7PwQLheifMMrpSbv2oXmBc
+         Xhkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738824813; x=1739429613;
+        d=1e100.net; s=20230601; t=1738825121; x=1739429921;
         h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :references:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yfPzJgqGwInu62D/JbABqcLSTAUY1ivE7x32/lUlB+s=;
-        b=w4qXc7QNic5ECCK3S02c3IYRI3fPdbaq9JmPOUKM/YvqTAoGoA6HflqTBmXmehI4mP
-         K7rUgbIMuyRqyvRe93cH2UOPxuV/yTiOBc0BKtUv0A1tmTqrAYcnJ6fdJeRepfoYTq72
-         yPt8V17JtvTE4BcpAhe0y0cz0ekmI2EsM5w3NqECO0MvIgbe7ToldEGrrDAdUdWn3jKz
-         PInGsyFe7HF1epa2gBQ+8ea4gmJas/zSVcKzxi0K9ovhUD9rhLQJtHUZ1h7lKjTiIUmu
-         HZ+CQ37PlNTutlrn5sOTIcSfEH0EIwnI9sux+3cfvBzdMf5j4cG+0jbIlu6EJqXw/64P
-         QF3Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWhjxxPeT3oZGNaOPUXfEsNdtuTRcyZK76NV8j8/QaTTmZKfOiHlWM9gq/FA8GsT2FMVwkpgWEbqUMCuWVrkA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yxc960uFtxHQq6ykHY1wzu2tMjxRvSARp4LIMPz1GqChyqkyFg+
-	QJ+EDQtpZBizwF2Twd6UCpCx/D4E76+V13gh5t4f3J+BNNQJwmAd6FVPupRpzyM=
-X-Gm-Gg: ASbGnctXeuxW64B7EKJam6q4uo14EZiAbSmdqr/X7ZVAiRPR4Jj0TUlm86b0HETNlWZ
-	3Xhcr7t9cJPcGrZ3BJxFgibli0peV3Ku1vcEA1Ze/+DQaN6utHhyAVMcuW4GpCQSuvcf5GRDYk3
-	VtqHboYf6VTIIz0heODZTM5qKOmP7GKjUeVTZPt3ZJPiVZgIc8DaLOeZj6t0KVZsnj49MvZBiDO
-	1O1I8z4HxChjF5PdXULsnwK6OLPy7SnOvKW0Vh9bAmR/ocpRazjqML58f9G5HqSshPSRVqOKNu+
-	7mJnKBEofjQJjvJlBgXknoBlQMic
-X-Google-Smtp-Source: AGHT+IER8psjFE80ifTWvoXn5WHFoV2OjIRpn8B020yOLPR0qnk21Bx82Mdy+x+4gwZSwLApBeX7OA==
-X-Received: by 2002:a17:90b:2d8e:b0:2ea:bf1c:1e3a with SMTP id 98e67ed59e1d1-2f9e0767573mr10783588a91.12.1738824813210;
-        Wed, 05 Feb 2025 22:53:33 -0800 (PST)
+        bh=MfkFHRY4BuNO95W0YyldJMDcWeJ1g/mRAGw+u9+CPB0=;
+        b=pVteghC8hiBQkU2qnvuI8/1AD+4S/vdWUR6GJIQKgKxPGxjK+lg4GGRu1F+y2CDlVQ
+         wp7uYcSrq1wQBxZwJP6/VTVrEGAlRAsY5TZVWCVqEVhFcbqlh70FSx8mVxGhhtkWLJ4z
+         nVcARqL8MvG/n2C2uxHUyJwJWK94WQrxoCB4nDRZMCJr5kNo6J4LyWFICTbC0lqiUpCN
+         gG73Gwuc5MgZBwI8sfKhRpnumZKSPbbHrye70ewlDJDhcunJqRHvyPtMo9srP3Kp1+J/
+         hfqkouz83YldFzBQGcpBBQtgjlUCXpzbwua4Au6prVjQUafPjx97oMyebNGrHQkcq2YS
+         1XyQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU+o7FsSQQob4wjSNMgc5gP+2DKcwFfFH4+USJOfGkJHsiPIdbWLLzPM+WXP4LXvLEdkriPETqeMT5wRPHLKg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yzo4H9Ux4rtD9ekihvbc6hn6OmdVfbYcjFdtcunDY8TbU11FXv6
+	iXoKgt5qafaK1SVaqDgKR/5iQiPdeIx9T6eSVT4SUK9ROrU1bqiWZi6QqB2bIcg=
+X-Gm-Gg: ASbGncv3rMtpuw+QxSSxHCt7f4VU6k+3ayZmhmmoQhxd2Zqlb9FuszQB3AiDz+O+CSF
+	0v5neCG6tqhCNaaw7BaEL3MkNUUna2sXyuh7O+wZPuMOOY7JsfiSLOJBFOlvbRXfxCuc1ap07fg
+	xgb3hE+iB5Mw4lgvCf+8zWwtFyuJ5d0q2ukHwvE5ym/1YyN4uGPXp/hSmH9n+0XH7EtAraydKma
+	67pWltzq8HljGHYB8peDUnnQSS/bjfY1AyGO4w9mvsj28Dy1QvewnCGbCc7sFlTLBPxNTFPSBCI
+	yOsV7WkHu3OML00QkEsbX51UfTWd
+X-Google-Smtp-Source: AGHT+IHSHvbDEBE36nUTLqiZtQMOf3j/rI2OoIwM0kMRTh5vyxMjVD4DwGY5i/68BnM7I5tCX5GUew==
+X-Received: by 2002:a05:6a21:1805:b0:1ed:a6d7:3c07 with SMTP id adf61e73a8af0-1ede881f0b3mr9719443637.4.1738825121065;
+        Wed, 05 Feb 2025 22:58:41 -0800 (PST)
 Received: from [157.82.207.107] ([157.82.207.107])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f9e1e24559sm2800958a91.31.2025.02.05.22.53.27
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73048ad292dsm590546b3a.61.2025.02.05.22.58.35
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Feb 2025 22:53:32 -0800 (PST)
-Message-ID: <12dbfa5e-32cc-4355-89e4-6c1cd4e12d1a@daynix.com>
-Date: Thu, 6 Feb 2025 15:53:26 +0900
+        Wed, 05 Feb 2025 22:58:40 -0800 (PST)
+Message-ID: <1c2a1bd6-9ce9-47d8-b89d-1a647575ce07@daynix.com>
+Date: Thu, 6 Feb 2025 15:58:34 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -84,7 +84,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 1/7] tun: Refactor CONFIG_TUN_VNET_CROSS_LE
+Subject: Re: [PATCH net-next v5 5/7] tun: Extract the vnet handling code
 To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
  Jonathan Corbet <corbet@lwn.net>, Jason Wang <jasowang@redhat.com>,
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
@@ -98,59 +98,46 @@ To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
  Andrew Melnychenko <andrew@daynix.com>,
  Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
  devel@daynix.com
-Cc: Willem de Bruijn <willemb@google.com>
 References: <20250205-tun-v5-0-15d0b32e87fa@daynix.com>
- <20250205-tun-v5-1-15d0b32e87fa@daynix.com>
- <67a3d2efbba32_170d392944d@willemb.c.googlers.com.notmuch>
+ <20250205-tun-v5-5-15d0b32e87fa@daynix.com>
+ <67a3d44d44f12_170d392947c@willemb.c.googlers.com.notmuch>
 Content-Language: en-US
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <67a3d2efbba32_170d392944d@willemb.c.googlers.com.notmuch>
+In-Reply-To: <67a3d44d44f12_170d392947c@willemb.c.googlers.com.notmuch>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2025/02/06 6:06, Willem de Bruijn wrote:
+On 2025/02/06 6:12, Willem de Bruijn wrote:
 > Akihiko Odaki wrote:
->> Check IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) to save some lines and make
->> future changes easier.
+>> The vnet handling code will be reused by tap.
 >>
 >> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
->> Reviewed-by: Willem de Bruijn <willemb@google.com>
 >> ---
->>   drivers/net/tun.c | 26 ++++++++------------------
->>   1 file changed, 8 insertions(+), 18 deletions(-)
->>
->> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->> index e816aaba8e5f2ed06f8832f79553b6c976e75bb8..452fc5104260fe7ff5fdd5cedc5d2647cbe35c79 100644
->> --- a/drivers/net/tun.c
->> +++ b/drivers/net/tun.c
->> @@ -298,10 +298,10 @@ static bool tun_napi_frags_enabled(const struct tun_file *tfile)
->>   	return tfile->napi_frags_enabled;
->>   }
->>   
->> -#ifdef CONFIG_TUN_VNET_CROSS_LE
->>   static inline bool tun_legacy_is_little_endian(struct tun_struct *tun)
->>   {
->> -	return tun->flags & TUN_VNET_BE ? false :
+>>   MAINTAINERS            |   2 +-
+>>   drivers/net/tun.c      | 179 +----------------------------------------------
+>>   drivers/net/tun_vnet.h | 184 +++++++++++++++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 187 insertions(+), 178 deletions(-)
+> 
+>> -static inline bool tun_legacy_is_little_endian(unsigned int flags)
+>> -{
+>> -	return !(IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) &&
+>> -		 (flags & TUN_VNET_BE)) &&
+>> -		virtio_legacy_is_little_endian();
+>> -}
+> 
+>> +static inline bool tun_vnet_legacy_is_little_endian(unsigned int flags)
+>> +{
 >> +	return !(IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) &&
->> +		 (tun->flags & TUN_VNET_BE)) &&
->>   		virtio_legacy_is_little_endian();
+>> +		 (flags & TUN_VNET_BE)) &&
+>> +		virtio_legacy_is_little_endian();
+>> +}
 > 
-> Since I have other comments to the series:
-> 
-> Can we make this a bit simpler to the reader, by splitting the test:
-> 
->      if (IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) && tun->flags & TUN_VNET_BE)
->              return false;
-> 
->      return virtio_legacy_is_little_endian();
-> 
+> In general LGTM. But why did you rename functions while moving them?
+> Please add an explanation in the commit message for any non obvious
+> changes like that.
 
-I kept all in one expression to show how different variables are reduced 
-into one bool value, but I agree it is too complicated.
-
-I'm adding a new variable to simplify this. The return statement will 
-look like: return !be && virtio_legacy_is_little_endian();
-
-It means: for tun, whether the legacy format is in little endian will be 
-determined from the tun-specific big-endian flag and the virtio's common 
-logic.
+I renamed them to clarify they are in a distinct, decoupled part of 
+code. It was obvious in the previous version as they are static 
+functions contained in a translation unit, but now they are part of a 
+header file so I'm clarifying that with this rename. I will add this 
+explanation to the commit message.
