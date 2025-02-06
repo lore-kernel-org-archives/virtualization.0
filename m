@@ -1,82 +1,82 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 119492248BB
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:58:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B97E2224AFB
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 07:04:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738825124; cv=none; b=h35Ew7StE0Of3L/zcYH1hBtBQ/rqjt2i2twI3VeSkIC2bnWVrBR0gnPpJKCyr8n9UvMZFEikUXpKLmq4ZTx9umtdbOGox3tR4RIv8tdNs/OORtFybL9NqI+XvjGuMK9Jx/AD6rxOX/Py6OEFqJQ4IJ7D38drQvwJcY2UUJzfk+o=
+	t=1738825462; cv=none; b=lOYAP6mRKx11ckzleZkU8W20yFRLMWe8A6Ms4B3m1TYKx/Kh6SZ9XZhRnV2S/FK2RS/TerCVgfWw9xOxSxjqQ3dBg8KlJIs+dPe/LBkQOB2xZhv1gvtQjujzk8i5Fn1S5+eMLW5+qM++wlSX5nmOAfDSokwzza2lJMmJAFfxxdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738825124; c=relaxed/simple;
-	bh=og3Aq1IjApPzY4pBlRJEpp2monYtKZMRFoZcCbo2WO8=;
+	s=arc-20240116; t=1738825462; c=relaxed/simple;
+	bh=6Z7n8UWnuTd40YxRqOUHsnsjz1hSaR5JYJ7mFXzEuEU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=tlkJBtsQuERap5q+LikrULbXOvEmAuklf0cI23njRik0jNmvwa2V+ZvEsDCI2IHR9elg0+Tyow7+Sx8HNbZeUcLqLD6eGa1pfBzNcAIK8iVOLZuMubs8OB3bX4LWh0fXb8QLp8oYc8DispNsHvRmlhcglCZfX5LQ05c045Gtozk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=qZwwqrjT; arc=none smtp.client-ip=140.211.166.138
+	 In-Reply-To:Content-Type; b=esy5z6bWk8kvUuPY8DFa4RUgn5USqc/1L6kSRvDnEX69IJF65cJD6BfPRVH0fJSCrZonfThGbGqOtmZqJnaV9cF3LRLVwT9EOpW1InGQQ2byk/tClBGtoZMCJQ5LABWAM3i7BalXg+u/X6D9I9i+1Hpzsiv1Gbs1/NQ8nPkhAF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=bQSRdT++; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="qZwwqrjT"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="bQSRdT++"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8642A8121C
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:58:42 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4BD3F81B98
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 07:04:19 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id UDSSQxE_eM6U for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Feb 2025 06:58:42 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DE64E8121F
+ id o23bL4e3-S-J for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Feb 2025 07:04:18 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::630; helo=mail-pl1-x630.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8F51A80AD1
 Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE64E8121F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F51A80AD1
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=qZwwqrjT
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DE64E8121F
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 06:58:41 +0000 (UTC)
-Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-2163dc5155fso11022295ad.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 05 Feb 2025 22:58:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=bQSRdT++
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8F51A80AD1
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 07:04:18 +0000 (UTC)
+Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-2165448243fso15407165ad.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 05 Feb 2025 23:04:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738825121; x=1739429921; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738825458; x=1739430258; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:to:subject:user-agent:mime-version:date:message-id:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=MfkFHRY4BuNO95W0YyldJMDcWeJ1g/mRAGw+u9+CPB0=;
-        b=qZwwqrjTE7qi/aEu/tqpdq6eFmDJocBlLF+9irorID8M1v77JOnGsk+vAwIiADlUG7
-         uybqvgJYqJTpa/kTGxjTybGp5mRZTk0iroaJX+ij3ATJ2VGPbd71np9PQaU5oG8ldzrq
-         k9uXwlMlcosV3a44VSonyf6t065UhB5I2DUd6s+lGa9T2C38YH095uptHejTo/Rr6y9y
-         j5KvTdcnVnJaADs65S6tcdza6k7OO3HOGhlhCiSjq6WAF+i4gPMDcOY8m432kZwqoNwP
-         Aln0NUPTg1T7ESinRSoU30+lzCUcl6oFCH8Bk22T9dKSWu7PwQLheifMMrpSbv2oXmBc
-         Xhkg==
+        bh=xSMzQMG1ZHF7w5vbC9dgevornaZeizWpfwbsJmx7bQk=;
+        b=bQSRdT++4K1aMVOqWh6cHm3kKHJuS2hoG1n9u383EGWelIeY6XwHcNBqL3EOQmGjZG
+         MJWl0UuOR4nqfd49GWMttZHDhzyRx59hFLbgAh/O6d9butRDOaaBNB8+Ubt/vb65f5tH
+         3eJBEwriITQQYME/paCfsKd2sH/WTMQB8Xg0pjOztToRDNEWUHDAd/uMXMC8674wfVpQ
+         Jg/NKgzfADXH7sJQcrd9lzxQHI7hNX0+4Py9UMi98XKD4UZ3i3XkFEr/EQw/9oMotoyf
+         U1HmYG6AGXtPgv5NzCxsreZgXdKhZLtnTi6TjU+WUg78c7Z4gRWvIKOudKbsSON94/In
+         JrZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738825121; x=1739429921;
+        d=1e100.net; s=20230601; t=1738825458; x=1739430258;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MfkFHRY4BuNO95W0YyldJMDcWeJ1g/mRAGw+u9+CPB0=;
-        b=pVteghC8hiBQkU2qnvuI8/1AD+4S/vdWUR6GJIQKgKxPGxjK+lg4GGRu1F+y2CDlVQ
-         wp7uYcSrq1wQBxZwJP6/VTVrEGAlRAsY5TZVWCVqEVhFcbqlh70FSx8mVxGhhtkWLJ4z
-         nVcARqL8MvG/n2C2uxHUyJwJWK94WQrxoCB4nDRZMCJr5kNo6J4LyWFICTbC0lqiUpCN
-         gG73Gwuc5MgZBwI8sfKhRpnumZKSPbbHrye70ewlDJDhcunJqRHvyPtMo9srP3Kp1+J/
-         hfqkouz83YldFzBQGcpBBQtgjlUCXpzbwua4Au6prVjQUafPjx97oMyebNGrHQkcq2YS
-         1XyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU+o7FsSQQob4wjSNMgc5gP+2DKcwFfFH4+USJOfGkJHsiPIdbWLLzPM+WXP4LXvLEdkriPETqeMT5wRPHLKg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yzo4H9Ux4rtD9ekihvbc6hn6OmdVfbYcjFdtcunDY8TbU11FXv6
-	iXoKgt5qafaK1SVaqDgKR/5iQiPdeIx9T6eSVT4SUK9ROrU1bqiWZi6QqB2bIcg=
-X-Gm-Gg: ASbGncv3rMtpuw+QxSSxHCt7f4VU6k+3ayZmhmmoQhxd2Zqlb9FuszQB3AiDz+O+CSF
-	0v5neCG6tqhCNaaw7BaEL3MkNUUna2sXyuh7O+wZPuMOOY7JsfiSLOJBFOlvbRXfxCuc1ap07fg
-	xgb3hE+iB5Mw4lgvCf+8zWwtFyuJ5d0q2ukHwvE5ym/1YyN4uGPXp/hSmH9n+0XH7EtAraydKma
-	67pWltzq8HljGHYB8peDUnnQSS/bjfY1AyGO4w9mvsj28Dy1QvewnCGbCc7sFlTLBPxNTFPSBCI
-	yOsV7WkHu3OML00QkEsbX51UfTWd
-X-Google-Smtp-Source: AGHT+IHSHvbDEBE36nUTLqiZtQMOf3j/rI2OoIwM0kMRTh5vyxMjVD4DwGY5i/68BnM7I5tCX5GUew==
-X-Received: by 2002:a05:6a21:1805:b0:1ed:a6d7:3c07 with SMTP id adf61e73a8af0-1ede881f0b3mr9719443637.4.1738825121065;
-        Wed, 05 Feb 2025 22:58:41 -0800 (PST)
+        bh=xSMzQMG1ZHF7w5vbC9dgevornaZeizWpfwbsJmx7bQk=;
+        b=BLMr7Oofp/aZsTa51jyUOvIzKDFSyxq1Hw84jJtaCMh3VoRJkPV+8DsywDews/jXl5
+         0bT11XbHfkW8TzB6rMq8Qr4Eg0fe5rkJKMRPTRuh9wcsrNeEIBOQdc3HIsKFc/KvpB1U
+         htNa6b2Vbwd6HJ+L2u7PjzhMljqVwDpKq+qPjE1z77RWvfkxgwLNnL4/hhY9EZeIiGWE
+         6wCbYcqUvOS3JCeA7GCEmwpHph87zRTD85/2Cv3r57VoXi0kP4n1IFTTLsceZs6mNV12
+         AeoaYn/e9G+Jyvu4YhDKGJKKRLbBXVN1H+6GFEwb3eatrmdfWV+ZoK9CrA2GCdhFp+YM
+         LTvQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWuWH5dFqsf8HnsfYQwdQ6y2lP+4fhiSQmhEJI7jofLx2dXwraNYgrwIo9ps86QVggshD0iK9cFJOMiA9gBEw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzotiFLlpbaRGkAAyg57AjCTwvfqxA2WRSOXmJthcrJ+Arbjsii
+	QNlI2WE370dRzKjGdUa5aA6PZOQrkd/fKRXogzRp74id7+1EajvP4UV5rF9rC+c=
+X-Gm-Gg: ASbGncupJLqp0sn8yDG8QuS/U7KCH+o9kIBwnPCLuEj+LANyXpZMbPeaFgBKTMuHny6
+	6+F0yIXdrcOaXObOtItQb3YNPyjBXizrKwY3F74CN4mgMr4b4mhzz22oqjnOxX5bJd0zJCsJ0Th
+	+NqBChCbbfa8uhrggrXuWfcBxdZQOJ/swJiWU5o859Vx07kw/Dux8uOT9aq3y3/HGz7IKd1S25w
+	XG415OgamFpKkcPgVRiGgpn08nnSXhncIrYDwaKfLOKUW/DU0KjfEHURf/lsUgyMUfIbOukgxEY
+	NVA11bl6frD0fn2qbC6xOgFKjqMB
+X-Google-Smtp-Source: AGHT+IEGoYiB8pxUq02irm/CU5MvTVOQlUDfWzGd8n7ZsLH5KxtqKlPFWXhqlXZi0kPwplHWCVM1fg==
+X-Received: by 2002:a17:902:f64f:b0:216:3e87:c9fc with SMTP id d9443c01a7336-21f17ddf80bmr102170675ad.5.1738825457907;
+        Wed, 05 Feb 2025 23:04:17 -0800 (PST)
 Received: from [157.82.207.107] ([157.82.207.107])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73048ad292dsm590546b3a.61.2025.02.05.22.58.35
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-ad51aecce52sm481627a12.18.2025.02.05.23.04.12
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Feb 2025 22:58:40 -0800 (PST)
-Message-ID: <1c2a1bd6-9ce9-47d8-b89d-1a647575ce07@daynix.com>
-Date: Thu, 6 Feb 2025 15:58:34 +0900
+        Wed, 05 Feb 2025 23:04:17 -0800 (PST)
+Message-ID: <8b389981-c04a-4d4f-8a5a-043b4cd6e8db@daynix.com>
+Date: Thu, 6 Feb 2025 16:04:11 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -84,7 +84,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 5/7] tun: Extract the vnet handling code
+Subject: Re: [PATCH net-next v5 6/7] tap: Keep hdr_len in tap_get_user()
 To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
  Jonathan Corbet <corbet@lwn.net>, Jason Wang <jasowang@redhat.com>,
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
@@ -99,45 +99,67 @@ To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
  Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
  devel@daynix.com
 References: <20250205-tun-v5-0-15d0b32e87fa@daynix.com>
- <20250205-tun-v5-5-15d0b32e87fa@daynix.com>
- <67a3d44d44f12_170d392947c@willemb.c.googlers.com.notmuch>
+ <20250205-tun-v5-6-15d0b32e87fa@daynix.com>
+ <67a3d6706c01a_170d3929436@willemb.c.googlers.com.notmuch>
 Content-Language: en-US
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <67a3d44d44f12_170d392947c@willemb.c.googlers.com.notmuch>
+In-Reply-To: <67a3d6706c01a_170d3929436@willemb.c.googlers.com.notmuch>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2025/02/06 6:12, Willem de Bruijn wrote:
+On 2025/02/06 6:21, Willem de Bruijn wrote:
 > Akihiko Odaki wrote:
->> The vnet handling code will be reused by tap.
+>> hdr_len is repeatedly used so keep it in a local variable.
 >>
 >> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
->> ---
->>   MAINTAINERS            |   2 +-
->>   drivers/net/tun.c      | 179 +----------------------------------------------
->>   drivers/net/tun_vnet.h | 184 +++++++++++++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 187 insertions(+), 178 deletions(-)
 > 
->> -static inline bool tun_legacy_is_little_endian(unsigned int flags)
->> -{
->> -	return !(IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) &&
->> -		 (flags & TUN_VNET_BE)) &&
->> -		virtio_legacy_is_little_endian();
->> -}
+>> @@ -682,11 +683,8 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+>>   	if (msg_control && sock_flag(&q->sk, SOCK_ZEROCOPY)) {
+>>   		struct iov_iter i;
+>>   
+>> -		copylen = vnet_hdr.hdr_len ?
+>> -			tap16_to_cpu(q, vnet_hdr.hdr_len) : GOODCOPY_LEN;
+>> -		if (copylen > good_linear)
+>> -			copylen = good_linear;
+>> -		else if (copylen < ETH_HLEN)
+>> +		copylen = min(hdr_len ? hdr_len : GOODCOPY_LEN, good_linear);
+>> +		if (copylen < ETH_HLEN)
+>>   			copylen = ETH_HLEN;
 > 
->> +static inline bool tun_vnet_legacy_is_little_endian(unsigned int flags)
->> +{
->> +	return !(IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) &&
->> +		 (flags & TUN_VNET_BE)) &&
->> +		virtio_legacy_is_little_endian();
->> +}
+> I forgot earlier: this can also use single line statement
 > 
-> In general LGTM. But why did you rename functions while moving them?
-> Please add an explanation in the commit message for any non obvious
-> changes like that.
+>      copylen = max(copylen, ETH_HLEN);
+> 
+> And perhaps easiest to follow is
+> 
+>      copylen = hdr_len ?: GOODCOPY_LEN;
+>      copylen = min(copylen, good_linear);
+>      copylen = max(copylen, ETH_HLEN);
 
-I renamed them to clarify they are in a distinct, decoupled part of 
-code. It was obvious in the previous version as they are static 
-functions contained in a translation unit, but now they are part of a 
-header file so I'm clarifying that with this rename. I will add this 
-explanation to the commit message.
+I introduced the min() usage as it now neatly fits in a line, but I 
+found even clamp() fits so I'll use it in the next version:
+copylen = clamp(hdr_len ?: GOODCOPY_LEN, ETH_HLEN, good_linear);
+
+Please tell me if you prefer hdr_len ?: GOODCOPY_LEN in a separate line:
+copylen = hdr_len ?: GOODCOPY_LEN;
+copylen = clamp(copylen, ETH_HLEN, good_linear);
+
+> 
+>>   		linear = copylen;
+>>   		i = *from;
+>> @@ -697,11 +695,9 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+>>   
+>>   	if (!zerocopy) {
+>>   		copylen = len;
+>> -		linear = tap16_to_cpu(q, vnet_hdr.hdr_len);
+>> -		if (linear > good_linear)
+>> -			linear = good_linear;
+>> -		else if (linear < ETH_HLEN)
+>> -			linear = ETH_HLEN;
+>> +		linear = min(hdr_len, good_linear);
+>> +		if (copylen < ETH_HLEN)
+>> +			copylen = ETH_HLEN;> > Same
+
+
+I realized I mistakenly replaced linear with copylen here. Using clamp() 
+will remove redundant variable references and fix the bug.
