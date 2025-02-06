@@ -1,98 +1,92 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2537E227593
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 10:54:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4995218EA8
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 11:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738839254; cv=fail; b=gkJN1sb2HgZK4ON/wLDorXHN/+Y43GffvcVDSU23elw4bIx2VqgDUsOBCiHjvE1eXdaR1gFACsJyUAqr7uvWXUD8z3G9XToV5ADkBdziDONnofZfD5LhaZkbHaHy4AfNrtmdHEu0o6zMtw6jI9C0oZmbRV3VXxbdlR313mba/Rw=
+	t=1738839960; cv=fail; b=W/8cZG8cLj5u5r0xaeGjYFfsVKDspICbtKRGw/HMhFS4u5SNeFVINYp9VjtwHHV+0cfOzlQJ+SdUz0n6wmQ4VgaA6nYXRaBYNvSyACimiKgmc3pkYUjWG1GcFocoRuyCBXzE0tfqiU1BWA5pXcQinh3pWVm7m0quBAx/iLwgOl4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738839254; c=relaxed/simple;
-	bh=REGVY1TY6qPF8UCncZ7oYyJV+z1NEf4UyoFStfwxX9M=;
-	h=Message-ID:Date:Subject:To:References:From:Cc:In-Reply-To:
-	 Content-Type:MIME-Version; b=nckRZcyS45iQrZcUdWFKGcTnGOmcfbc/wFlmXmvw2MXl/4Pe1W/6Sh4Gmcz74GU/O/x0iv9Pjlo9g98Q+DzmHjvGakxTKsr3PIVs4T9N5v9A/lO5RkhiLoVDc/Wpp89RzvAFf6MnzhAFpPaOV/ZrsfpPgkSUtXXz2QfNbucq/co=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=5bQdVR2a; arc=fail smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1738839960; c=relaxed/simple;
+	bh=Z8MXrYjQIphZKjZ5NMhyp2kbN9tYvNj+VFnW0AKWXMM=;
+	h=Message-ID:Date:Subject:To:References:Cc:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=iqtn1Vml9BwbDOgs5RgWYju69GRhYgKw55SiEjNDCjElnuRe7W+WYKsbZc1+W9XCqbr/yJ/gwu/23pK7i08pten7J5OEdLLdNS2tOkcZKAPnRKsfIkgB8ANl54Gf0UjTAZ9FdQcO9pWozHsvSs5AkoK6cjrIdiBq4KQhk+q5SPo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=e7Pe52wj; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="5bQdVR2a"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="e7Pe52wj"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7C31082C3C
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 10:54:12 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 35404401A4
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 11:05:58 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id S6WwB0WoYYFp for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Feb 2025 10:54:11 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2416::60a; helo=nam11-co1-obe.outbound.protection.outlook.com; envelope-from=honglei1.huang@amd.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 44A83824EE
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 44A83824EE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=5bQdVR2a
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2060a.outbound.protection.outlook.com [IPv6:2a01:111:f403:2416::60a])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 44A83824EE
-	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 10:54:11 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id QL_EuJYrPPns for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Feb 2025 11:05:56 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2412::62c; helo=nam10-mw2-obe.outbound.protection.outlook.com; envelope-from=honglei1.huang@amd.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6CB394148E
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6CB394148E
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=e7Pe52wj
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2062c.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::62c])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6CB394148E
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Feb 2025 11:05:56 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=nKmvNBkn+vZjOoLLjZxjEfbiL9XU3+RM7Uf2y+lzdSKhARxwnQgmtxxGQzYe+eugUqyz/koROmudcbWiaH9Wq94rtK6VtbZhITeISlhUevgkun1Md4elzAm9zvu+zAmxqLdSm9twlUO76U6B5KLRBfWQHtFGYOqfdigPe47SjOS5nHOY9mCl+04QZzUPjA87dZI9UFae/ftePgAIQbfS1sKptJRel8HofB8OZL7qWJlMH0akce+Sm+1V8Bc+/7Beun6ekygWqc+JRBuqdS2NNZQa5ULWoQthLVvoSdMbKahcs38BJ3GJx93V07Q6Kpp41qLmSgLPjFscxCz+KMRwHA==
+ b=VFb3lvCiYUrfcTdogogVi3JWCmSJP1MO400K99py9SoTHSke85u1GTx81tavSQ+zpqPRcCSjcm2j87NqQsts37fvWFGpcG/jj+a04f69tpp69x7hQz/FGO0sdTkNiPs5Z6AxVKxlpLvN362EJ0JCgu5HPFn6ALsI0ARfRt4lDepEZlJHrPdJnU+CmNTPcRjtq2TIhWjTC+Ift7hhYV3NKYpJHpUcPP6grrTWvgX+EWsGndn8SEh6hWCiVhmW8bZJ/JntP3CjYjkyEC9Pa+SK6NFuwMo4tUQpxIRjmeWMlBUVht+f+MUfD6wO/kd7Rc/+6atAK8FoXos1tZqTtZArBg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qDmEize+iPjX0oe4Dl2kscfEcCTQCStWFk54mU3UMw0=;
- b=cGrScOZvfz7Tng1vhzHw9saLJBNVLMomuj2tRdyafkLzT/4p9GCo90tm9R/qGehTU6qvL7da4/DTX1wlazUZuck2uQdMxHsdx/qPCUAEFJf5dduxlkgLGkyqeWG5y+EHCUYiClNWUCOu7dbHwnadnX3gUfbffDo8AbCC090zULZaj2DUhQaTxchrbH8/Hh9kqNdcVSG4PmkawpA1PDtdbT4hnu8Jqq4RCVH/dQDMiJ/dFAKWQ0OCs4oec82CXRD0hrOjzo6PUcPEhBRga0NHpoMsB+GihRgcWlyIAmXEQbMCBjkUJI3ng/82BGauYhl5jmymkopSOQdbIw0DwBnXXg==
+ bh=k+jHqYRpGFbpqfNiW+00SwjS0m2cG57GrMoYy92UGzY=;
+ b=P1y5AGMVAFxy+cwhgUccd/SGEU9UcBu/NfWdSi9h1lAXkncR9fj2E/eJ2o6V3RSgmoKfmQklF0bvF9IM7FAqkislzGLeL4xniR7n6VDvJlxRXQdkx50Z83xBNBNweQy8CC9Lt6sIqE9nRWB8g1EFSxZ5s5QTeC1l3/JJVK0dnyGNhVGAAIhZ9bUmx6Fgfq73Tzx42iS+vBArsuAyumBzkTXue0nB020MQa4P/ZxRYeVJqr0K64eoEIGGNCCQQZRo6NBecaQgreFeFoJFYUg9UOEZ4QRavbiZM0/8e/Kmw+I6k8uCOh/kv16bB4eRlmFf6yR7bhtH9VbTYDF2HHaYhQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
  header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qDmEize+iPjX0oe4Dl2kscfEcCTQCStWFk54mU3UMw0=;
- b=5bQdVR2ahtVJ2VtsSgSuHBVSoRQV+mFicQzhHgRaT+3dPfamrfliC+kx26Du5qpoU5X0aY+WoJesW3Fl8rOSgokMo6vubHzzgiLP5GQhaOutnzC6/zRQccSdRCvmf5owUfVLn4Ce0RkXdAA5QNMmWQS6XQaRxu7G8Dmc5Fq2v4w=
+ bh=k+jHqYRpGFbpqfNiW+00SwjS0m2cG57GrMoYy92UGzY=;
+ b=e7Pe52wjDwY80m8DBWWkbnTMMAIKvSFsK9lZviRDMgVMKsJRag1xzaM9FKBadhd0WuzXE4liQiH1RYQFLblEEiDIhVsnC+mkHGbzar1aCi6Tynx3TIb9Nh7OCs1LXtW/Br4H4+B3CYtWzndB/5J5aXvZBz2fTez3MU+K5DDUWvU=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=amd.com;
 Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
- by CH3PR12MB8332.namprd12.prod.outlook.com (2603:10b6:610:131::21) with
+ by CY8PR12MB7611.namprd12.prod.outlook.com (2603:10b6:930:9b::19) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8422.13; Thu, 6 Feb
- 2025 10:54:08 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8422.10; Thu, 6 Feb
+ 2025 11:05:52 +0000
 Received: from IA1PR12MB6435.namprd12.prod.outlook.com
  ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
  ([fe80::273a:80c9:35fc:6941%4]) with mapi id 15.20.8422.010; Thu, 6 Feb 2025
- 10:54:07 +0000
-Message-ID: <7b0bf2d5-700a-4cc7-b410-a9b2e2083b5d@amd.com>
-Date: Thu, 6 Feb 2025 18:53:55 +0800
+ 11:05:52 +0000
+Message-ID: <d2aebe45-92cd-43a8-9766-61a36c4539a8@amd.com>
+Date: Thu, 6 Feb 2025 19:05:42 +0800
 User-Agent: Mozilla Thunderbird
 Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
  object
-To: Demi Marie Obenour <demi@invisiblethingslab.com>
+To: Simona Vetter <simona.vetter@ffwll.ch>
 References: <20241220100409.4007346-1-honglei1.huang@amd.com>
  <20241220100409.4007346-3-honglei1.huang@amd.com>
  <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
  <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
- <de8ade34-eb67-4bff-a1c9-27cb51798843@amd.com>
- <Z36wV07M8B_wgWPl@phenom.ffwll.local>
- <c42ae4f7-f5f4-4906-85aa-b049ed44d7e9@gmail.com> <Z5waZsddenagCYtl@itl-email>
+ <40485636-7ea3-4e34-b4bb-1ccaaadd4e47@amd.com>
+ <62aeac90-1ba6-4e22-9465-fee95973a6bf@amd.com>
+ <Z6Hv5esGqHWU2TVe@phenom.ffwll.local>
 Content-Language: en-US
-From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
 Cc: Demi Marie Obenour <demiobenour@gmail.com>, Huang Rui
- <ray.huang@amd.com>, Stefano Stabellini <stefano.stabellini@amd.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
+ <ray.huang@amd.com>, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, Dmitry Osipenko
+ <dmitry.osipenko@collabora.com>, dri-devel@lists.freedesktop.org,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
  <olvaffe@gmail.com>, Akihiko Odaki <akihiko.odaki@daynix.com>,
- Lingshan Zhu <Lingshan.Zhu@amd.com>,
- Xen developer discussion <xen-devel@lists.xenproject.org>,
- Kernel KVM virtualization development <kvm@vger.kernel.org>,
- Xenia Ragiadakou <burzalodowa@gmail.com>,
- =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
-In-Reply-To: <Z5waZsddenagCYtl@itl-email>
+ Lingshan Zhu <Lingshan.Zhu@amd.com>
+From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
+In-Reply-To: <Z6Hv5esGqHWU2TVe@phenom.ffwll.local>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SG2PR02CA0071.apcprd02.prod.outlook.com
- (2603:1096:4:54::35) To IA1PR12MB6435.namprd12.prod.outlook.com
- (2603:10b6:208:3ad::10)
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SG3P274CA0011.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:be::23)
+ To IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -100,246 +94,272 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|CH3PR12MB8332:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1da46d50-dafb-468f-68cd-08dd469c9462
+X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|CY8PR12MB7611:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4e97a12a-e3c7-4bc3-e869-08dd469e389a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|7416014|376014;
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?RlhQdWJTRWVkNEZVUjFwcHRVbUxlY1ZOM0JlRVQyWTVWSmEvOFdtZ3FlTDRD?=
- =?utf-8?B?L3l0cTVEcFZ3VWZsSzZyME9LRDhSRFF4WjNrSkN5WjZ3QnBKS01OeWUzY3Y5?=
- =?utf-8?B?MXFhZEVZMlBlZ0JBM3g3WmYyb2VVQ1FNTE5PSHBPSDJFcnJlZWk1ZnQ0b05H?=
- =?utf-8?B?S1ZYb1JrV1h1bDVEVVFUQTBpNUpWVjFzbVpXNjJ4TkVJYUZMdTJvSzVYSzVx?=
- =?utf-8?B?YnplTUFFVk0zQzFoK2xCelByN25rbTVqZHRWUFlCR2gvNXEvVGZoNU1xR1ow?=
- =?utf-8?B?YzRWSjQ5M3RBRVpxZmpMaStRYVhmRkhNSFlTOTN6dzNreVFMNW93UTdQQXVp?=
- =?utf-8?B?Z2oydldkQXVFWWZOdlhaaFZLOWp2bWh4MkZ4TFlYOWRFblljOGxIVFBHWmxm?=
- =?utf-8?B?Yy92b2VxZ2JIMnJHZ2tsR2RpYmgwRzFGbU52T0M5K280U2wxWEIyNXcrZldi?=
- =?utf-8?B?ajdNZDk1aGhhbmFKYVFLZUl2b1cvNitSaEhNME5zRkRZRnlJZVRJQlRkeUhL?=
- =?utf-8?B?VXpBc0ZiM25nZXBIZVlrK05iYUVDbWpkcGd2a2ZadnYzMk1SK2FvSzJxNWZ5?=
- =?utf-8?B?U3YzYTRyRHh4WG93MFFWaHFkbUllRGNQS0xnZWY3eTNXVjNZV01aS2hPZW8x?=
- =?utf-8?B?Q0RsekpuQi9mbGM2SkdDaXZ0YzlXZ2hqdTRuNStaaWY0MXBWTFBNYzhCWXhz?=
- =?utf-8?B?NFBGenJzUmZ4VUhaNnRjaGsvNGsra0lPcVBoS3JBcHFLZEprRStvOGpjQmo4?=
- =?utf-8?B?SXJzT3NML0VvTzNmdEtwekZQQTE0Z3VKamlwQ29ieDJVU2lWN2Y2bUxxZ0dn?=
- =?utf-8?B?SUVkOHlPeUdOa0dNajArd0NjZEdBQnpSZTlMbjNRbWhsWXZMQUt6SEc1SDMz?=
- =?utf-8?B?djA3ZGdvdGFSa1VyMFlCZmVBL3NmbkFieGJISDhMUkJqSG1sWkorZVNpdER3?=
- =?utf-8?B?RTdIRlFtalJRWWdTM1MrRktJVFpVRk1udzI4bEIrYWFYdGpzT1NVdm9TMmFZ?=
- =?utf-8?B?OHJGU2RuYms1M0tCcFIyWHNqcWxNQVFBb21rL2xLK1pPVnYxZUhFeElzZU9F?=
- =?utf-8?B?YmFHTVZrZi9iSHRvNDlKY0xyWHBRQkpESTdDRW53S28xUzZWTUp2VzBMMVkx?=
- =?utf-8?B?clRNeGUyLy96RkhwYWRUaDZLR0dLSmNQMERTc0N0NzYvbFl0TDlQVGJYN1Zn?=
- =?utf-8?B?dElZYUpQQkhxQk5xdjI2czE5Rk4zbFMralc0ajNYcmcwUlZleWNmOElBcmRz?=
- =?utf-8?B?aVlpVWd2aUNKT1ZUei85OEdXTXRRYUxJNVg3UFBsTmNOK1h4ZmNiUkJ6YWl3?=
- =?utf-8?B?Zk9paDZmeldyellGL2dlSHM4TUxRL1JsaWFRNGtER1U4bGt3STc5cytrVnAx?=
- =?utf-8?B?VFZ5U1pBTW1lVkJ0dVJtSWlFdnF6Z0dVcWJsVHFoVTdsRDgvanNZN3ljdllw?=
- =?utf-8?B?SG9TaVV5UHpPV0gwbkdua1JCR2ZZZUZGNnR1R2o3S05CcldDb3dvYWNHVFFp?=
- =?utf-8?B?ZkVMblI2azhPMnNaMk1zMVpHVkttZ1ZnVFNEYlFDOGIyQlR4ckFwQitkVERy?=
- =?utf-8?B?NzJSOFBkNmlsRXErR0ZPYnJLbzFXKytBaVNETUJVUnhmNSs5dDNmd1ZzU2sv?=
- =?utf-8?B?VlVSMTB0SkpFSUFGS1BFclE5ZGVzOFJEdTNaU1NDUFkxOTd4TkRqVmVjNlUx?=
- =?utf-8?B?MlVtaTQ4bWY2Z29JUXpVaXd6cmNTQ0pTTFhlWTZjR0U0Nitta0JtK2x3TUxi?=
- =?utf-8?B?TmI2S2EwRVpJWGM3V0pxbHlRVEFQUzRGTm9wUG8rNU1HeThJeDRRTytoaUZw?=
- =?utf-8?B?c1p6V3czejZsNERiU3p0ZWFCajhFcmt0V0ZDRHhZWU5oSngrc2NZUHB5ejJZ?=
- =?utf-8?Q?kUZPYAzqx77WJ?=
+	=?utf-8?B?NHRSd3RsK053ZUdvdCt2MXdKczBQWVlLNzN2Y3l2Z21Cb3laMGcvUk1tc3BY?=
+ =?utf-8?B?UjB3dEt3ZHh4Y2VmL1E3RjdYVUxJbVZxWnF2RTFXUDJwN2MwSkZkSit2M3li?=
+ =?utf-8?B?WEFXank2ZHFneUtTbEJMUGVUNm1Tc3U1THNJS0pSeWkreUdvcll3ekFLVDBV?=
+ =?utf-8?B?R2Nhc2JkYmJ3ZGJuQ0VYVVJjRkxwZkJrZWg0a2o3M3I0M3hJZUpKMDBjVEdZ?=
+ =?utf-8?B?YWFsTzJXZGJoT3I2YlBhcXVOaWNtbGpYV1FYZlRKYjRjVXg1b28xcHlpL05U?=
+ =?utf-8?B?bDZUSHZJZ05jdUVJZGdWSjVEUnFwRnl5bk5iUlJHNEtMZkN0a2J4Z1dERHUr?=
+ =?utf-8?B?RjJzTkNtNm0vZ3RGUmhpNllsZGNiZ1dSeTJROXd0OXBPZ3dvUUR3eFhRZk43?=
+ =?utf-8?B?NmZqbTk0bEFuUTFTUFErZVJrOW1mZkVJWUIrZTB6VVd5S0gwbVRmSkZhOHUr?=
+ =?utf-8?B?UHo2cXgxZE1yWkExQVZCTFB0QW90bHdvSjJlTEJONzNQaWJnWTNNMnZiNVQr?=
+ =?utf-8?B?ajdiOUNKNVhKdVYxTWpNc3hOZkxLc0Uvc3dEVGt5bDV2cWF3TWt3bVFUUkJQ?=
+ =?utf-8?B?MUtlSzhIeW1BMDV4S1VJbnNkSk44ZDlCS2hnVWZybmt1aUFabWJKR1FISXkr?=
+ =?utf-8?B?VDZ0OUpIU0tYa04xSlkzQU5NTDJYSjJxcllkOXJPYk9ValF5dHphYTVWYURu?=
+ =?utf-8?B?Mld6WURodC9VbURjVHIrck1DcENKUjZpRnFTZjJrejV4Q2d1RFNrY1l6aHQ3?=
+ =?utf-8?B?VVMwUGhEZTk5dkU4L1NwSjVPa0lOS1dZN0ZXYXcwSlYrakxxMXJWUEhpdkN2?=
+ =?utf-8?B?aDlpd0pqSVNGdmozMWw4Q1g3WHovSnRacWpmamNYKzI4R0ROcUZUK3RzRWV4?=
+ =?utf-8?B?MHJOc3c3ZE1WMFNXQUlWbGhxVkpiUWlWNzlzVjFDazBpUWVNSTlnbnZhNXR6?=
+ =?utf-8?B?N09qejR5LzRTcGFiMGUxeWoxcGxIdWRPbmQ5VGRWVjhOdUVFOWNDbzN4K3NM?=
+ =?utf-8?B?QjhVbVBLRlZwMWNqUWtFb3lYdk10UzNnOVR3S0hncDd3a3dkVkFTUlZOcU9x?=
+ =?utf-8?B?aCs1eW1nL0NSQW1oYUIzZWxSNmNpMlBtcE5QWG8rZm16Uis1SU8yNjdNejJ0?=
+ =?utf-8?B?ZU9sWnJ4N1VJT3FNZkV5eXgxZTJ3SEYzdC96eTFDcVNLVFZmeWcwdUpqN2h2?=
+ =?utf-8?B?VHVYNDF2aEVTMmhzTUpacjgrR0g1bjBGWFZDRU1OUTRvRjNPUGZSaWk1U2tw?=
+ =?utf-8?B?Z2RHVTRWaXYwRFppc3RSck1iTUtoT3Nmd0dvaTh1YkZNalhCMEtWc0RybGMy?=
+ =?utf-8?B?dVFGckpRbnJHQzRqV1dFaHE5N1A4SE44SnJodFZRek1JbTNuT2ZjVmZxRE1D?=
+ =?utf-8?B?T0ZUc3JxMEJBL25NdGJBcXJBT1p1S3YzYVVqWHZvdTF2OGw3ajFtUTFuRm9Y?=
+ =?utf-8?B?WXN2UFVZRWRJYzlZemFvd2hkZ1JjT3BmeXkwVFBNbFpTSFJsVG1YVW84UmR6?=
+ =?utf-8?B?UTZmMHdyVGdOY3ozYzAwZmN2MFNpTEw0ZHJmb3B4WHhyOTkxSnFvS2Z0b1Bh?=
+ =?utf-8?B?cXdHekl0TFl1Nm5BUzlrUmJScjJSV0ZLamhZTTFFN0tscFFia1JiQU8zUVgx?=
+ =?utf-8?B?MVl5TE5LUDRoNy9MaVhLRldNZ2NtMExWWEQwM0s2Y0xoZURaREQyZ0pabXVv?=
+ =?utf-8?B?ZkJFcmM2WG84STJ1a3lJNlcyTTZzWlA4WVFCanQ2bkZvQmo5SGZYb2x5YUts?=
+ =?utf-8?B?b0ozRFA1QytpVGRpRmNEQ2ZyQTZwR0lxMGRpNzdsemNOQWtMQ3dRSmpsWGg5?=
+ =?utf-8?B?WEZjMEMzRUVaWVNFb1VkQT09?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?a3A0bFFLV2NROTF4dGVkazhtSDdBLzFaUHJRY1hiU1MzbW9vWGl4NGxZUDF2?=
- =?utf-8?B?RWFGSGwwMWlYbm1PejVqa3pkQjJlSnZobGZqdEdsU1dLNkI2UGdiZ3hYNjVv?=
- =?utf-8?B?bFpxeFRvQkkzTkZ5TGUxTVVhUEUvSHcvTVdmZVozRmU0SWQrYkxYcmZIUHcw?=
- =?utf-8?B?cUQ3M2tjeTRSUExiL25pa3dwS3RZL2UwNFdsK0ZFWUdLYTBNT0h6VmErUmds?=
- =?utf-8?B?YTM0c3M1UEJrZmhSZHVKUG1uNHh6eWc1R0JEQzE3WnErREZqNGVGbWVrZjA1?=
- =?utf-8?B?dFdObWw0QUhhMmdOWXZ4SkFaQ1Eycm9MTHhKeGh0R0cxYk0vR2pFOEFYaUcx?=
- =?utf-8?B?bkd6am1vek16VTZMYjJVbG5RQWNMMGpUS3czYXlnMk41WVZ4RHQ4dXRuZEly?=
- =?utf-8?B?clVKVklYVXNLTDc2SGU3VDZTdUU4NTZMTWNpcjZaYjdZNTZRazZTc2lMVmJM?=
- =?utf-8?B?U2pSWE93WmhrZksyVzh4TXpLcWNzMWRYaVVGem1ZRXZlUDdOMDYycERudDh5?=
- =?utf-8?B?VGFzaUVLbE9mUzZ4K1BWVGMzQnpyWW50ekRkVXJ0L3RYd2g3VTF2VUpvbG5z?=
- =?utf-8?B?MkR6QUgrdC9mcXRYTlpoRFA3cEFGajBzSEVXUGFDdW9ZdnB2QU5lQ0tKZ29P?=
- =?utf-8?B?VnYvdUkveExrR2hoNFRscXlwdURXdkt5NlRlMmJRR0I1dmw1UFA1YWRDUEVO?=
- =?utf-8?B?aEV2U0FXUVBKbkZVTGpLOHVidDdFK2k0aU9zREs3c2hwVnlDUEF3bTNpK3Y5?=
- =?utf-8?B?cnRna2V3dVNIaHpjQWVYTG9mZ0ZFK01YcU5TeFl6U290akI0UTMxVmxQMmM5?=
- =?utf-8?B?M1pLNFVpRUlSU0FYbUtIYVg1Y1F0OXQvaGVCSm9rRVpBaXd1WXliam1pTXFN?=
- =?utf-8?B?ekFOWXZEQWplNkxRODhIQkQyK0FSaWlhaDBkZHlVcUQ4NEZYNXBWL2VYN1dj?=
- =?utf-8?B?a2F4NDRyZFl6SkpRZUV4anNWcjc0MzVtdXVzRjVENTFqTklKbHJqd3Q1SHVx?=
- =?utf-8?B?U0VRdERVK2Q1TTBRTUdhd3FmWkkvajdTTlR4TDZPSkJoak5yNWdNektoVW1M?=
- =?utf-8?B?TUJkT1ZrN0pjVFF2WTBLQUxOMDYvYXJjemwvVFlITDBSeXdlOERGQUdvblVr?=
- =?utf-8?B?bWRtY3NiNFhQNzFuQWFOM2h5S3lwVkhvVkw4bnlsb1FJZDBwQ29zaVVpWTZx?=
- =?utf-8?B?VXBVRy9vc0FNZjY2azJGWUs2UFZkaVM1NUF4SG5nSndRZUlOTW5RV2N1NHVJ?=
- =?utf-8?B?d2V4UzVtU3R4bWRhdEtKOTNiMXluREEveXFoOVNrUmdSdG1zMW4vYnlDUGdL?=
- =?utf-8?B?YkttcWExUElzQUcyd2xFWWZ3MzgraG8rR2NCODVYUFlMbi9BSUVSYVRnNGNy?=
- =?utf-8?B?ajlrTzRXSWhVK3ZmQWl6Mks0dmhPY1ZJazNmdG5YalNWK2cyaEpoa2x1ZEhB?=
- =?utf-8?B?M2sxdCs1WWxIRVBGbi8xUnhiRWRTOFRrQUMxZnZpbk84b2hILzBRQmxzV21v?=
- =?utf-8?B?VXBIdktkZCtIZ1BMNEtPOUNmRDEvVkpsTkMra2xQTXZwSEMxbU50Z2twVmYx?=
- =?utf-8?B?TytOc3NDNVFyNWZDNVZmWmtiQ29Ca0ZWYzQ5d09xMmFkQ3MxSEVWWStOR0pt?=
- =?utf-8?B?WDlDYVNxN1UvMDhDZ1dOYlhUNlg1eEhmY3ZtckJ2QTNyTmtSVldiOEVCeDd1?=
- =?utf-8?B?ZkQ3RXgrTS81RldUSWJKang1STdVSVhFMUVJR3pZcDhROHVQTFdsZS9PeS81?=
- =?utf-8?B?RXg2RTg5czRBMWxWajAxcjZFK0tlZU9ZdGcrNW13b2NIeXQ3bG1hUVBJWmFo?=
- =?utf-8?B?eHZwNXh2VFNqRURSd0ZkczdJVFFZbFUrWnA1RTRvSHc0M1N3d2dmdHBjbG93?=
- =?utf-8?B?TVZNZzNraDZBd3Y3MjhORUdQNmFvWWhzSVBXTlM4UkQ0bkNoVjJJbUZDcWU3?=
- =?utf-8?B?NGUyMGZ5TkFxdVQ0K21IUTRadXVzdkJ2eXFTcmtmNDVRc2JWK3VNbVEzd2s1?=
- =?utf-8?B?WnlRV1RIRGVSU1VkUzJRYUhmRzMxOWprS0I2ZHhTRXNPZ0VFVWtZU3YzUTl6?=
- =?utf-8?B?c244WkR0ZktvUy9vTmE1cGs5RzNTaFhDd205TDhrcTJiSm5lNGNlTGRkeU5k?=
- =?utf-8?Q?6DZAT7+EjbTXi/SkEqsUs9yyl?=
+	=?utf-8?B?c21hYXFId000cnRVRzRrZXMvVDcrblpsWG5VeU5CUlFReVpZZG55UlNEQTU3?=
+ =?utf-8?B?N3dJeVpwTTA4OXVVbjRERkNpZkdJS29GYmdWcVk1U3d4RytqeEVkMVgxUG9J?=
+ =?utf-8?B?OWQ3M0tKcnlzOUp6WVJIQ3FPYTdnQldsdVV0RmswVFU3QTU5cThKZ3p2NHE3?=
+ =?utf-8?B?dHVUc3k3NFpvOGZteHI2bDBBS2pUMFI1R1J5aHhzdWpva0w1cktnYnQwbkZL?=
+ =?utf-8?B?NEhsenU3VHIxSjU0VWlQeU91dEo4QUdEdGJoQmZoMG1IVjl5blYyY1dnTG05?=
+ =?utf-8?B?SHhWaDEvZ0JMRUxKdU1LNDJEeUwwU0x3M2MvQ0IwRmxSK1E5UGpUSzhGRVBD?=
+ =?utf-8?B?QlhqWGhIQW9JMlE5RWk0cGFjSkFNWVVOd040S3orNjZxeTdOanpYN2ZxbFgv?=
+ =?utf-8?B?c2tkSzMrRzQ1eTdjS2dPR2ZHZWtOU0dtUUdwaVdMaWVUTUdQendQWG4vTWpv?=
+ =?utf-8?B?VUlEU3BUOWVxZm5FU1BraVRjVHI1aCtsMnBNSGtTc09ldHdRZUpsVGlaMlBl?=
+ =?utf-8?B?eDdpQ1NBZW80VGtYVFk4ZDRZWHh0VnhQeHh1dThFTjlwWE5LbExvT1hlQXhz?=
+ =?utf-8?B?b0hrNjNQY0ZXblZuMVNSUEpzeVIrODMwbXhKckdHWjBkdXJRM3VNVGh2cXk0?=
+ =?utf-8?B?SThOSXpGdkVuOXBhQzAzSzRLQWpJTFZTZUZsVkcwVEE2K0IvRUtwQ1JHRDh2?=
+ =?utf-8?B?RGh2a0paKzgvMXhlVDF4SlJ2SnNhV1JsSGhZWldLcVR2bVFTNGdjZW5EdUY2?=
+ =?utf-8?B?emdGT2d0cTV5RXRpb2VlNkxYVG9scGVoN1B1dUlHNXBRaERaSlNYMDFIWUJF?=
+ =?utf-8?B?NTdmUlBtcTNvZFk4YjZpL0xWL0xLTEVZVlEya2toNGZIdDA1Z1dYN0I0cDRq?=
+ =?utf-8?B?TXVLUDNxTzdoN05XbnVmVVVXY2N6b0x5QmxwVWFCWklvUTRld1puQm5taXMr?=
+ =?utf-8?B?RU5DSWIrWEs5WjFIMEJlWUpTU0RPYlFFWVkzTW1WdkVIbkF3ZzVLV0NsNjE1?=
+ =?utf-8?B?MWV6UWVWSE1GUjd3ZjJLR2VFTHNKOUZLSjJwNEsyN0dRaitEM283V3lVdEhp?=
+ =?utf-8?B?cE12cndyWVA4L3JWalRuaDZ2dmdsNjZTdi9hczR6QmRNMmJ5REtmK2VtZGV5?=
+ =?utf-8?B?YmhaSkNDRlEza2MwRFlmYzVsWkFKMTJpakM3QlFEWTlTWElZVzZpWjNNaWpP?=
+ =?utf-8?B?UG1lVW9JdDdjNmZ3OHJHNTlVQS9oT3VheWVzOS94a1BGN1NzWk5VMUt0UEhK?=
+ =?utf-8?B?VnZzdG1HZm5BU1VHbWNPSXBheHh2UnhCYmZ1TkIrVUJoM00xbmlmTDlXUFRR?=
+ =?utf-8?B?dTJwNHBwbjVXV1dibGlmZWN5cGZmUHNpTWloQTlDYUMyOVQ0NWJxdHZMYldR?=
+ =?utf-8?B?UENEdUUxamlLOWhEQ2NYU1U1S0hZZkU1VTRzR0tyNFhXK3RqVmZHK0N4anpT?=
+ =?utf-8?B?SUEyWHVDQmtpVkxBdTF2OTZBaHhWc213K1p6M3FrVmpZc2VIL284U2hLeE93?=
+ =?utf-8?B?ZlAxUlpFRlozR3RVdzZaWGxMb1dDUmJNdnh3Z0VUOFBRWFkrOExPZFZmUnla?=
+ =?utf-8?B?eEpIcE81bGlEejJDczI5amh2N0VGSnJycmpaYzROVHZEYkRkdktERzNGNlhh?=
+ =?utf-8?B?TEVtL2wyWW1MdFg5U1l1YnBPTnpZYzArcHh2alhkRE1BNFBxQ0UxZ0Q5Z1pS?=
+ =?utf-8?B?TjhkbndtTmJWUWlHY0tyOXdrL0s5dVF3dERVSnc4ZTJ3clA2ekNySERhcGx6?=
+ =?utf-8?B?eGYzU2ZDZ0t1eEpoNnRLMWc1MGxWdVgwM0tEMS9Rd28rVnY3T3RwSkxXdW1h?=
+ =?utf-8?B?YkNDbHJjOWxWZmtna1JxdmpHdmc5UUVZNk4yVzdRL1Y5cFNYc1dCc3dzWHhu?=
+ =?utf-8?B?enUyYy9QK05HQTdJYlMzSEI3RExuaGgyMzRmTWVkS1dMZGhtTmUvU2lFNVE5?=
+ =?utf-8?B?Y2RudXloNnNoSlRSNzdYU1N2TFM3eEJ6VG1sU3UzTTI3MDdod0w4Z0srcUVU?=
+ =?utf-8?B?TFpWVjFUTVRCaXF3L2laa2psNUx0K1JoT3FxU21hMVZDbTd3VXo2S1ZMbmh4?=
+ =?utf-8?B?WmtTdHBuMit0WHNUUTFoVnlCd2VaRVQzY2s0b2NiektGdlBFTVFKS1F6S2ky?=
+ =?utf-8?Q?TFi8iQZsLXVvzW0BtUZ310/xp?=
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1da46d50-dafb-468f-68cd-08dd469c9462
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4e97a12a-e3c7-4bc3-e869-08dd469e389a
 X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Feb 2025 10:54:07.8921
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Feb 2025 11:05:52.8144
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Zvce/j6+y4sf8kvv3mEx6CRxCqwtfeXLXlnzjyyd12WopDQwTlzukE7WKOehCnfsb4N3ghNv7Mq0nGUW+hyjyw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8332
+X-MS-Exchange-CrossTenant-UserPrincipalName: rXz0MC4r1QMqkUTKPVtpALjrbQFSkMGVEHzeNMtg++39VZyqxGn/mbOr23VR/Igy/1W9IPFzMYkGYBK/RArFxA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7611
 
-On 2025/1/31 8:33, Demi Marie Obenour wrote:
-> On Wed, Jan 29, 2025 at 03:54:59PM -0500, Demi Marie Obenour wrote:
->> On 1/8/25 12:05 PM, Simona Vetter wrote:
->>> On Fri, Dec 27, 2024 at 10:24:29AM +0800, Huang, Honglei1 wrote:
->>>>
->>>> On 2024/12/22 9:59, Demi Marie Obenour wrote:
->>>>> On 12/20/24 10:35 AM, Simona Vetter wrote:
->>>>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
->>>>>>> From: Honglei Huang <Honglei1.Huang@amd.com>
->>>>>>>
->>>>>>> A virtio-gpu userptr is based on HMM notifier.
->>>>>>> Used for let host access guest userspace memory and
->>>>>>> notice the change of userspace memory.
->>>>>>> This series patches are in very beginning state,
->>>>>>> User space are pinned currently to ensure the host
->>>>>>> device memory operations are correct.
->>>>>>> The free and unmap operations for userspace can be
->>>>>>> handled by MMU notifier this is a simple and basice
->>>>>>> SVM feature for this series patches.
->>>>>>> The physical PFNS update operations is splited into
->>>>>>> two OPs in here. The evicted memories won't be used
->>>>>>> anymore but remap into host again to achieve same
->>>>>>> effect with hmm_rang_fault.
+On 2025/2/4 18:45, Simona Vetter wrote:
+> On Mon, Jan 20, 2025 at 05:54:10PM +0800, Huang, Honglei1 wrote:
+>> On 2024/12/27 10:02, Huang, Honglei1 wrote:
+>>> On 2024/12/22 9:59, Demi Marie Obenour wrote:
+>>>> On 12/20/24 10:35 AM, Simona Vetter wrote:
+>>>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
+>>>>>> From: Honglei Huang<Honglei1.Huang@amd.com>
 >>>>>>
->>>>>> So in my opinion there are two ways to implement userptr that make sense:
->>>>>>
->>>>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
->>>>>>     notifier
->>>>>>
->>>>>> - unpinnned userptr where you entirely rely on userptr and do not hold any
->>>>>>     page references or page pins at all, for full SVM integration. This
->>>>>>     should use hmm_range_fault ideally, since that's the version that
->>>>>>     doesn't ever grab any page reference pins.
->>>>>>
->>>>>> All the in-between variants are imo really bad hacks, whether they hold a
->>>>>> page reference or a temporary page pin (which seems to be what you're
->>>>>> doing here). In much older kernels there was some justification for them,
->>>>>> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
->>>>>> now all sorted out. So there's really only fully pinned, or true svm left
->>>>>> as clean design choices imo.
->>>>>>
->>>>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
->>>>>> you?
+>>>>>> A virtio-gpu userptr is based on HMM notifier.
+>>>>>> Used for let host access guest userspace memory and
+>>>>>> notice the change of userspace memory.
+>>>>>> This series patches are in very beginning state,
+>>>>>> User space are pinned currently to ensure the host
+>>>>>> device memory operations are correct.
+>>>>>> The free and unmap operations for userspace can be
+>>>>>> handled by MMU notifier this is a simple and basice
+>>>>>> SVM feature for this series patches.
+>>>>>> The physical PFNS update operations is splited into
+>>>>>> two OPs in here. The evicted memories won't be used
+>>>>>> anymore but remap into host again to achieve same
+>>>>>> effect with hmm_rang_fault.
+>>>>> So in my opinion there are two ways to implement userptr that make sense:
 >>>>>
->>>>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
->>>>> in complexity that pinning everything avoids.  Furthermore, this avoids the
->>>>> host having to take action in response to guest memory reclaim requests.
->>>>> This avoids additional complexity (and thus attack surface) on the host side.
->>>>> Furthermore, since this is for ROCm and not for graphics, I am less concerned
->>>>> about supporting systems that require swappable GPU VRAM.
->>>>
->>>> Hi Sima and Demi,
->>>>
->>>> I totally agree the flag FOLL_LONGTERM is needed, I will add it in next
->>>> version.
->>>>
->>>> And for the first pin variants implementation, the MMU notifier is also
->>>> needed I think.Cause the userptr feature in UMD generally used like this:
->>>> the registering of userptr always is explicitly invoked by user code like
->>>> "registerMemoryToGPU(userptrAddr, ...)", but for the userptr release/free,
->>>> there is no explicit API for it, at least in hsakmt/KFD stack. User just
->>>> need call system call "free(userptrAddr)", then kernel driver will release
->>>> the userptr by MMU notifier callback.Virtio-GPU has no other way to know if
->>>> user has been free the userptr except for MMU notifior.And in UMD theres is
->>>> no way to get the free() operation is invoked by user.The only way is use
->>>> MMU notifier in virtio-GPU driver and free the corresponding data in host by
->>>> some virtio CMDs as far as I can see.
->>>>
->>>> And for the second way that is use hmm_range_fault, there is a predictable
->>>> issues as far as I can see, at least in hsakmt/KFD stack. That is the memory
->>>> may migrate when GPU/device is working. In bare metal, when memory is
->>>> migrating KFD driver will pause the compute work of the device in
->>>> mmap_wirte_lock then use hmm_range_fault to remap the migrated/evicted
->>>> memories to GPU then restore the compute work of device to ensure the
->>>> correction of the data. But in virtio-GPU driver the migration happen in
->>>> guest kernel, the evict mmu notifier callback happens in guest, a virtio CMD
->>>> can be used for notify host but as lack of mmap_write_lock protection in
->>>> host kernel, host will hold invalid data for a short period of time, this
->>>> may lead to some issues. And it is hard to fix as far as I can see.
->>>>
->>>> I will extract some APIs into helper according to your request, and I will
->>>> refactor the whole userptr implementation, use some callbacks in page
->>>> getting path, let the pin method and hmm_range_fault can be choiced
->>>> in this series patches.
+>>>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
+>>>>>     notifier
+>>>>>
+>>>>> - unpinnned userptr where you entirely rely on userptr and do not hold any
+>>>>>     page references or page pins at all, for full SVM integration. This
+>>>>>     should use hmm_range_fault ideally, since that's the version that
+>>>>>     doesn't ever grab any page reference pins.
+>>>>>
+>>>>> All the in-between variants are imo really bad hacks, whether they hold a
+>>>>> page reference or a temporary page pin (which seems to be what you're
+>>>>> doing here). In much older kernels there was some justification for them,
+>>>>> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
+>>>>> now all sorted out. So there's really only fully pinned, or true svm left
+>>>>> as clean design choices imo.
+>>>>>
+>>>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
+>>>>> you?
+>>>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
+>>>> in complexity that pinning everything avoids.  Furthermore, this avoids the
+>>>> host having to take action in response to guest memory reclaim requests.
+>>>> This avoids additional complexity (and thus attack surface) on the host side.
+>>>> Furthermore, since this is for ROCm and not for graphics, I am less concerned
+>>>> about supporting systems that require swappable GPU VRAM.
+> 
+> I kinda ignored this one, because from my point of view it's all clear.
+> But I guess better to elaborate some more.
+> 
+>>> Hi Sima and Demi, I totally agree the flag FOLL_LONGTERM is needed, I
+>>> will add it in next version. And for the first pin variants
+>>> implementation, the MMU notifier is also needed I think.
+>>> Cause the userptr feature in UMD generally used like this: the
+>>> registering of userptr
+>>> always is explicitly invoked by user code like
+>>> "registerMemoryToGPU(userptrAddr, ...)",
+>>> but for the userptr release/free, there is no explicit API for it, at
+>>> least in hsakmt/KFD stack.
+>>> User just need call system call "free(userptrAddr)", thenkernel driver
+>>> will release the userptr
+>>> by MMU notifier callback.Virtio-GPU has no other way to know if user has
+>>> been free the userptr
+>>> except for MMU notifior.And in UMD theres is no way to get the free()
+>>> operation is invoked by user.
+>>> the only way is use MMU notifierin virtio-GPU driver and free the
+>>> corresponding data in host
+>>> by some virtio CMDs as far as I can see.
+> 
+> Yes that's what I meant that you need real svm/hmm here. You cannot fake
+> the amdkfd/hsakmt model with pin_user_pages, it fundamentally falls apart.
+> One case is overcommit, where userspace malloc() a huge amount of virtual
+> address space, registers it with the gpu, but only uses fairly little of
+> it. If you pin that all, you run out of memory or at least thrash
+> performance.
+> 
+> For the hsa/kfd model, you must use hmm+mmu_notifier, or you're breaking
+> the uapi contract.
+> 
+>>> And for the second way that is use hmm_range_fault, there is a
+>>> predictable issues as far as I can see, at least in hsakmt/KFD stack.
+>>> That is the memory may migrate when GPU/device is working. In bare
+>>> metal, when memory is migrating KFD driver will pause the compute work
+>>> of the device in mmap_wirte_lock then use hmm_range_fault to remap the
+>>> migrated/evicted memories to GPU then restore the compute work of device
+>>> to ensure the correction of the data. But in virtio-GPU driver the
+>>> migration happen in guest kernel, the evict mmu notifier callback
+>>> happens in guest, a virtio CMD can be used for notify host but as lack
+>>> of mmap_write_lock protection in host kernel, host will hold invalid
+>>> data for a short period of time, this may lead to some issues. And it is
+>>> hard to fix as far as I can see.
+> 
+> I forgot the exact details, but when I looked amdkfd was taking too big
+> locks in the migration paths, which results in deadlocks. Those were
+> worked around by taking even bigger locks, the mmap_write_lock. But that's
+> a design issue with amdkfd, not something fundamental.
+> 
+> hmm only needs the mmu_notifier callbacks to work, meaning either context
+> preemption and restarting, or tlb invalidation and gpu page fault
+> handling. Those you can forward between guest and host with no issues, and
+> with hw support like pasid/ats in iommu this already happens.
+> 
+> Note that the drm_gpusvm library that's under discussion for xe had the
+> same issue in version 1 of relying on mmap_write_lock to paper over design
+> issues. But the recent versions should be fixed. Would be really good to
+> look at all that. And then probably do a full redo of the svm support for
+> amd in amdgpu.ko using all these new helper libraries, because my personal
+> take is that fixing amdkfd is probably more work than just writing new
+> clean code.
+> 
+>>> Finally I will extract some APIs into helper according to your request,
+>>> and I will refactor the whole userptr
+>>> implementation, use some callbacks in page getting path, let the pin
+>>> method and hmm_range_fault can be choiced
+>>> in this series patches.
 >>>
->>> Ok, so if this is for svm, then you need full blast hmm, or the semantics
->>> are buggy. You cannot fake svm with pin(FOLL_LONGTERM) userptr, this does
->>> not work.
->>>
->>> The other option is that hsakmt/kfd api is completely busted, and that's
->>> kinda not a kernel problem.
->>> -Sima
+>>> Regards,
+>>> Honglei
 >>
->> On further thought, I believe the driver needs to migrate the pages to
->> device memory (really a virtio-GPU blob object) *and* take a FOLL_LONGTERM
->> pin on them.  The reason is that it isn’t possible to migrate these pages
->> back to "host" memory without unmapping them from the GPU.  For the reasons
->> I mention in [1], I believe that temporarily revoking access to virtio-GPU
->> blob objects is not feasible.  Instead, the pages must be treated as if
->> they are permanently in device memory until guest userspace unmaps them
->> from the GPU, after which they must be migrated back to host memory.
+>> Hi Sima,
+>>
+>> I modified the code, remove all the MMU nitifior and use pin_user_pages_fast
+>> only. Under this implementation userptr fully
+>> managed by UMD. We did a performance test, it decreased by 30% in
+>> OpenCL stack in Geekbench6 benmark.
+>> We use AMD V2000 for test:
+>> use MMU notifior + pin_user_pages:
+>> near 13000 score: https://browser.geekbench.com/v6/compute/3257793
+>>
+>> use pin_user_pages only:
+>> near 10000 socre: https://browser.geekbench.com/v6/compute/3496228
+>>
+>> The code is under clean up, I will send out later.
 > 
-> Discussion on IRC indicates that migration isn't reliable.  This is
-> because Linux core memory management is largely lock-free for
-> performance reasons, so there is no way to prevent temporary elevation
-> of a page's reference count.  A page with an elevated reference count
-> cannot be migrated.
+> pin_user_pages is fundamentally broken for the hsa memory model, no amount
+> of benchmarking different flavors of it against each another will change
+> that.
 > 
-> The only alternative I can think of is for the hypervisor to perform the
-> migration.  The hypervisor can revoke the guest's access to the page
-> without the guest's consent or involvement.  The host can then replace
-> the page with one of its own pages, which might be on the CPU or GPU.
-> Further migration between the CPU and GPU is controlled by the host
-> kernel-mode driver (KMD) and host kernel memory management.  The guest
-> kernel driver must take a FOLL_LONGTERM pin before telling the host to
-> use the pages, but that is all.
+>> And I found a another thing, it seems like in intel i915 userptr
+>> implementation, the pin_user_pages is also used in MMU notifior.
+>> Code path is: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/i915/gem/i915_gem_userptr.c?h=v6.13#:~:text=ret%20%3D%20pin_user_pages_fast(obj%2D%3Euserptr.ptr%20%2B%20pinned%20*%20PAGE_SIZE%2C
 > 
-> On KVM, this should be essentially automatic, as guest memory really is
-> just host userspace memory.  On Xen, this requires that the backend
-> domain can revoke fronted access to _any_ frontend page, or at least
-> frontend pages that have been granted to the backend.  The backend will
-> then need to be able to handle page faults for the frontend pages, and
-> replace the frontend pages with its own pages at will.  Furthermore,
-> revoking pages that the backend has installed into the frontend must
-> never fail, because the backend will panic if it does fail.
+> Yeah i915-gem isn't great code and shouldn't be used as example for
+> anything. This is Dave&me asked Xe developers to create a lot of the
+> infrastructure in drm libraries, to make sure we have a solid design here
+> and not what i915-gem did.
 > 
-> Sima, is putting guest pages under host kernel control the only option?
-> I thought that this could be avoided by leaving the pages on the CPU if
-> migration fails, but that won't work because there will be no way to
-> migrate them to the GPU later, causing performance problems that would
-> be impossible to debug.  Is waiting (possibly forever) on migration to
-> finish an option?  Otherwise, this might mean extra complexity in the
-> Xen hypervisor, as I do not believe the primitives needed are currently
-> available.  Specifically, in addition to the primitives discussed at Xen
-> Project Summit 2024, the backend also needs to intercept access to, and
-> replace the contents of, arbitrary frontend-controlled pages.
+> Also note that i915-gem userptr is for buffer based userptr, like for
+> VK_KHR_external_memory if I remember correctly. This is not the hsa memory
+> model at all.
+>>
+>> Patch set: https://lore.kernel.org/all/159353552439.22701.14005121342739071590@emeril.freedesktop.org/T/
+>> https://patchwork.kernel.org/project/intel-gfx/patch/20210323155059.628690-17-maarten.lankhorst@linux.intel.com/#24064663
+>>
+>> And I didn't find the hmm_range_fault code path, maybe I missed it?
+> 
+> i915-gem never supported the svm/hsa memory model in upstream, so yeah
+> it's not there. For drm/xe see the work from Matt Brost that's currently
+> under discussion on dri-devel for what it should all look like.
+> 
+> Cheers, Sima
+> 
+>>
+>> Regards,
+>> Honglei
+>>
+> 
 
-Hi Demi,
-
-I agree that to achieve the complete SVM feature in virtio-GPU, it is 
-necessary to have the hypervisor deeply involved and add new features.
-It needs solid design, I saw the detailed reply in a another thread, it
-is very helpful,looking forward to the response from the Xen/hypervisor 
-experts.
-
-So for the current virito-GPU userptr implementation, It can not support 
-the full SVM feature, it just can only let GPU access the user space 
-memory, maybe can be called by userptr feature. I think I will finish 
-this small part firstly and then to try to complete the whole SVM feature.
+Understood, and really sorry for the misunderstanding on SVM feature. 
+This patch set is not going to implement the SVM/HSA feature for 
+virtio-gpu. Just to let host GPU access the guest userspace memory. I 
+will correct the feature description in patches. The full SVM/HSA are 
+heavyweight feature, need much more time to implement.
+The goal of this patch set is not to achieve the SVM/HSA feature, called 
+by "userptr" or "guest blob memory" maybe is better.
 
 Regards,
 Honglei
+
 
