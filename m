@@ -1,180 +1,183 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CF8942070
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 05:45:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6585D16DEB1
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738907117; cv=none; b=GhWMaGmAFOYizwTDB1frAZMEJ+QkmRlhxkSNvdEIOsugHvUTT6NTS/qysz0Kn6vbnr/T2eFWCaTsOLom+m2A3+XLCM8+NBf2P4wZCPwybuvFQSZB4jQWhoP4tx9Sh/m+vS8fjQAN+E76zg04QJB3vjYFwbStqc/9BwQujDPkFEw=
+	t=1738908665; cv=none; b=XWU0El6c1XYZ4Okv+iI24P9bD6z4pj8nIoNKdSv0vNCHmQkVhaFJVjTS7lIbtr2kjo60RdGLQ5vDH38g2iN/UykiXEZdICvLwKqS0TY2GFIFgnN9/9Amp1e/2k538aAaLVhVIdLA2WLsKy9jzRKgFSsvlaH6SnvKHKcqs7GHhtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738907117; c=relaxed/simple;
-	bh=cjRMI8k1TjxxbHaDRJMMOtxO9Rs62DlBNPtQVuJPDWY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type:
-	 References; b=tLrEblitsj77sNqK3NpL0spwcZeJsQxnDdJtqQfLAVUD8Krm7RWPQCMcWlpsqMb8eQeJaybtPbiDm3mUCG6k7bHiKtHD2G72zFDJgGnAG7z/kjWP7VuooaiTKEFCSyqxNIbcbJgvmKw0asdDbxWPdMnCu0RdxBho1tqHtjp+TV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=fuVgtOlY; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1738908665; c=relaxed/simple;
+	bh=luM/U1QzNcfOEe8jQ4dOzHmGDvHwvg9P0neXpfs/o3g=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=gYaesMHt8FfkhyY7ZcA2XdYgPl1lzpCFJsMxT089dhoOx4fx6nmgEnmqB7KqwPpJoPXc8XFNvlXgtM53U2TdssK4+F8aBcYn3hmTqAWapjDKoeeM9mZy09QxXI/Fvc6ztJpTcI3rkPS6drFqmzwGvIHnHe9vwTcjnpHul7D0bPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=atqE8d2U; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="fuVgtOlY"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="atqE8d2U"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9318860FCF
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 05:45:13 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id D65BE83661
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:03 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -8.092
+X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id VEzziA3GkYkb for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Feb 2025 05:45:13 +0000 (UTC)
-X-Greylist: delayed 334 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 07 Feb 2025 05:45:11 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 593D6607E6
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 593D6607E6
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=fuVgtOlY
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=203.254.224.33; helo=mailout3.samsung.com; envelope-from=junnan01.wu@samsung.com; receiver=<UNKNOWN> 
-Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 593D6607E6
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 05:45:11 +0000 (UTC)
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-	by mailout3.samsung.com (KnoxPortal) with ESMTP id 20250207053933epoutp0387509b45165409544fe7d2431d74a6ed~h1n9olLWD1051110511epoutp03G
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 05:39:33 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20250207053933epoutp0387509b45165409544fe7d2431d74a6ed~h1n9olLWD1051110511epoutp03G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1738906773;
-	bh=bETukrRy+BaCVaBPdi6kwcNgl47fiTggLPIFFE4Rw6A=;
-	h=From:To:Cc:Subject:Date:References:From;
-	b=fuVgtOlYp1WRbmIHpN8lxN8CH8cMETc4yxIzjrcR3GpsgK562XlRs2LsqtvzO2Onp
-	 LB8pwO9XUZoF1J6xlbmDhMO4zUMsyokOI3JHkejyQ18bBqFd2WI/3jn7cH+uK+YqEh
-	 +rlDhoVChey2BJnRAS0GMCrQLgsK3gZfkgRcOA/4=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-	20250207053933epcas5p4fca5154a4c70fe03dfabf58bee04330d~h1n9EvvJv1820918209epcas5p40;
-	Fri,  7 Feb 2025 05:39:33 +0000 (GMT)
-Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.178]) by
-	epsnrtp3.localdomain (Postfix) with ESMTP id 4Yq2pq1TtCz4x9QG; Fri,  7 Feb
-	2025 05:39:31 +0000 (GMT)
-Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
-	epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	15.6E.19710.39C95A76; Fri,  7 Feb 2025 14:39:31 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-	20250207051943epcas5p4b831a4f975232d67f5849c3a2ddbcb59~h1WpTmAFo0303303033epcas5p4C;
-	Fri,  7 Feb 2025 05:19:43 +0000 (GMT)
-Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
-	epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20250207051943epsmtrp1bcfa17ea0406fa16ee3f812202b4e666~h1WpKGv8A0593805938epsmtrp1v;
-	Fri,  7 Feb 2025 05:19:43 +0000 (GMT)
-X-AuditID: b6c32a44-36bdd70000004cfe-8d-67a59c93df51
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-	epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	F3.1E.18949.FE795A76; Fri,  7 Feb 2025 14:19:43 +0900 (KST)
-Received: from asg29.. (unknown [109.105.129.29]) by epsmtip2.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20250207051942epsmtip25c0a85294bbd1986114655a22884933b~h1Wn4iFrg0715807158epsmtip2Z;
-	Fri,  7 Feb 2025 05:19:42 +0000 (GMT)
-From: Junnan Wu <junnan01.wu@samsung.com>
-To: stefanha@redhat.com, sgarzare@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, mindong.zhao@samsung.com, q1.huang@samsung.com,
-	ying01.gao@samsung.com, ying123.xu@samsung.com, Junnan Wu
-	<junnan01.wu@samsung.com>
-Subject: [PATCH 1/2] vsock/virtio: Move rx_buf_nr and rx_buf_max_nr
- initialization position
-Date: Fri,  7 Feb 2025 13:20:32 +0800
-Message-Id: <20250207052033.2222629-1-junnan01.wu@samsung.com>
-X-Mailer: git-send-email 2.34.1
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9Xbqj3-wYAMo for <virtualization@lists.linux-foundation.org>;
+ Fri,  7 Feb 2025 06:11:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62a; helo=mail-pl1-x62a.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 2AC01834F2
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2AC01834F2
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=atqE8d2U
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2AC01834F2
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:01 +0000 (UTC)
+Received: by mail-pl1-x62a.google.com with SMTP id d9443c01a7336-21f4500a5c3so24630225ad.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 06 Feb 2025 22:11:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738908661; x=1739513461; darn=lists.linux-foundation.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ne/1UeulZde6sbRY8ZM9PE1LYrjRUVoPX8w/HsO/eUQ=;
+        b=atqE8d2UvxtlIuYD826lP48dxSWdZ8YmdPm3e4QuvCrClOLI8lLDU2isr4CMwlUwWw
+         5vtbe+QYaVBh5jOEIhLVNXJ52X9BR7ekNruyNPjJ0ye86lLmIIYNHkFPZSzzl+prAo4C
+         WIuNHp9HtT4i0YwCYMPemqqnQacK1JZo1+z7iNk5tjZX/46PZ7nzBZcoPLWKT4PfSXWa
+         VdfiOKuX6W3RmDJ91cKpmmqyg/5eyT7ewkxwWbhBwzBPMTmvEINa7luNOVqyfae6kqFO
+         EWJ0zkEzTM7dMKZioWgIBoI3gk9LS03/ZYLHvMGtFaDtb4jFFXwu3nIz0hV0Pajc2AmJ
+         tuJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738908661; x=1739513461;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ne/1UeulZde6sbRY8ZM9PE1LYrjRUVoPX8w/HsO/eUQ=;
+        b=joosctgITnGdHrgwkjQ+OvfCqPprFysHPCTI0R+92RL+97c/Z+vxgPwxgYAdNvXsu0
+         z9Ocggbvmy8Cu+3us2ltdVxe4MJj51LBkFK4IOLvhNWSleHYTAb2yIj+eRlru11oVNFJ
+         e71ZPIBb/M9Opf1BDdfMnQUyT2IFL5ySZV1p5A7m/yaSHpSX2RCeQMEDnnY+tO5vHHfh
+         Xixs0gUqraS/fuQrlaFcJ+BqaOTrDm66sF8UvvSoypq3jE6jt5dNMwLIkphi+JYfKRlC
+         xiL8IPTIPTeSFTnWenO/1Ki8vrivvmpldK/fldoBMNhhXklgqNP17zBKwXHfhWAQYAv2
+         atwQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVXSlwGqtkJttXn3ViRZSWSIl7JHgm2w3HF0r6TMRjihIva7tU1npB8cpH1YnAyZ/h9q+flTOI38l0T/o/ihA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yx3hqnXiD1/TLzDFQFkpFgkQSdUvmFNGGZF1n+Yq2zSrVjixaLQ
+	Fdiy1QfPx5iBGXzOJoDl9SFJ8rOzc7O53NkmGWoE/XNjCVLd6ajpE9nfMZPFmBs=
+X-Gm-Gg: ASbGnctagtfiCVa4SlGYdcMqt6/SqfpGxBDxSAy/00RPRAgJzLyc/8mnEC1kdWPiQbX
+	HZ2FO0HeyyJPJMuXy/Bpxe1omut6Gi/0SG9zdnmu4y42pyLN7sPneJht0O2zbPBmJp8I+fpqp0Y
+	lKC0ZQ9C5o2CkQujNUEvEfA+goVkuLyK1CMi/aOHfjqzxOhwQUUQXVrD5wzuelSlFJqg1MpHr5N
+	rWkmQzOzgFXF+iJOMeYnKHjvKTIsftgC1TWXSpf5xaaPghT65Ifxa9S1twEsCfDFJyXSdMUIqwb
+	dcUeGxxDGwQYvXmRYJI=
+X-Google-Smtp-Source: AGHT+IEXXUlF+ji1IwGpl49YDsSy/JRDfposJyyxja2xvI3d3x3Tj/H8aRWRC3xeiJezmKd3w1sGvg==
+X-Received: by 2002:a17:902:ce90:b0:216:2477:e4d3 with SMTP id d9443c01a7336-21f4e7f2c46mr34322025ad.51.1738908661173;
+        Thu, 06 Feb 2025 22:11:01 -0800 (PST)
+Received: from localhost ([157.82.205.237])
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-21f365517desm22712045ad.86.2025.02.06.22.10.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Feb 2025 22:11:00 -0800 (PST)
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: [PATCH net-next v6 0/7] tun: Unify vnet implementation
+Date: Fri, 07 Feb 2025 15:10:50 +0900
+Message-Id: <20250207-tun-v6-0-fb49cf8b103e@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprIJsWRmVeSWpSXmKPExsWy7bCmlu7kOUvTDZ7P57C4e83dYs7UQou2
-	HZdZLa4s6WG3OLZAzGLp27PMFmcnfGC1OD/nP7PF60n/WS2Wn53HZnHhyEp2i/2PZrI68HhM
-	vrGc0eP9vqtsHn1bVjF6fN4kF8ASlW2TkZqYklqkkJqXnJ+SmZduq+QdHO8cb2pmYKhraGlh
-	rqSQl5ibaqvk4hOg65aZA3SXkkJZYk4pUCggsbhYSd/Opii/tCRVISO/uMRWKbUgJafApECv
-	ODG3uDQvXS8vtcTK0MDAyBSoMCE748vqJYwF97grrh2wa2D8y9nFyMkhIWAiseXnEfYuRi4O
-	IYHdjBJfV71mg3A+MUo8vHKeHaRKSOAbo8SLneowHafadjFBFO1llHhzqhXKecYo8f/TLjaQ
-	KjYBTYkTe1aA2SICOhIb7uwHG8ss8JRRYs2zV6wgCWGBWInWhklgRSwCqhJ/9ywDi/MK2Els
-	bmhnhVgnL7H/4FlmiLigxMmZT1hAbGagePPW2cwQNS/ZJR4+84KwXSQu3mxghLCFJV4d38IO
-	YUtJvOxvg7KzJXqP/mKDsEskut9dgtplLXF+XTvQTA6g+ZoS63fpQ4RlJaaeWscEsZZPovf3
-	EyaIOK/EjnkgNgeQrSrxfkINRFhaYuWmTewQYQ+J27tqIGEYK/FlwXXmCYzys5D8MgvJL7MQ
-	9i5gZF7FKJlaUJybnppsWmCYl1oOj9Xk/NxNjOC0qeWyg/HG/H96hxiZOBgPMUpwMCuJ8E5Z
-	syRdiDclsbIqtSg/vqg0J7X4EKMpMIAnMkuJJucDE3deSbyhiaWBiZmZmYmlsZmhkjhv886W
-	dCGB9MSS1OzU1ILUIpg+Jg5OqQampx4H737bmFnbI3WDszfzyMc7+QzKqVdO/ew5PDu3iuf4
-	PD8P+bd6l1rucPS3vNkR+MN6CVNnA+M67qPBJSzPZtdGL38pGXB4B+fhKQekPn+Y4eTZPPWX
-	9LfEyT8mPX9/4rHYPRbTyxyWaj23X5aayX0UYzjUU2d9r+NMctBS1nOM9kZ3UmOfsFTdWPs3
-	flXsr7Z9jbdlbzvd+/I0yryZa8LiHS5J3yzyso+8yrzykX9x9xfBFxLzNrM/21GaubkthWn+
-	huD2hsUpq5QdV63e8TvpbK1VkVbwR8bPYtvTW9kuFgS9jZR7sisrTIPv/uRFFktEbiy8fSH3
-	Xrr+cRmHs0yFuvbrTdZE/PB68kSIQYmlOCPRUIu5qDgRACe20dIkBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrALMWRmVeSWpSXmKPExsWy7bCSvO776UvTDba+lrW4e83dYs7UQou2
-	HZdZLa4s6WG3OLZAzGLp27PMFmcnfGC1OD/nP7PF60n/WS2Wn53HZnHhyEp2i/2PZrI68HhM
-	vrGc0eP9vqtsHn1bVjF6fN4kF8ASxWWTkpqTWZZapG+XwJXxZfUSxoJ73BXXDtg1MP7l7GLk
-	5JAQMJE41baLqYuRi0NIYDejxM5Ls9ghEtISXb/bmCFsYYmV/56zQxQ9YZS4cvIKI0iCTUBT
-	4sSeFWwgtoiAnsSuk58ZQYqYBd4yStzo6GACSQgLREu0H1gKNpVFQFXi755lrCA2r4CdxOaG
-	dlaIDfIS+w+eZYaIC0qcnPmEBcRmBoo3b53NPIGRbxaS1CwkqQWMTKsYJVMLinPTc4sNC4zy
-	Usv1ihNzi0vz0vWS83M3MYIDWUtrB+OeVR/0DjEycTAeYpTgYFYS4Z2yZkm6EG9KYmVValF+
-	fFFpTmrxIUZpDhYlcd5vr3tThATSE0tSs1NTC1KLYLJMHJxSDUxTTjtn7zoru3jL13dLzJKP
-	nVVi6+XU0ZRTtb3Cqq+6rsa6s/6ifcvqRUH5D/7nnc2fJGmyQ6s6YtVbRh/pG/zVJ190T3TR
-	rj12kFFKb5nQ4l19YZNjliWIW2zLqll08Ok72aSadRM/Ni4q1v/f4K29fLbubR31Hh79R2bV
-	ecbfi9Y9bVZkkot746LmqHBqqQzfKtMQM7WlXaf+7g9z/XL00ES7+wwnrlSbr70wgXumaWl1
-	eHZT8Qo/IYby/EneARrMUnc2Pozuf+yyPOe1aHOf7vFXh15/tm+7x3i7XdOlw3lDDvuW+Yqv
-	Rf5Fh5i8VfOUWM+zWvXurzXmX4OveE42Zl5zkj1y22X5CdwXpZRYijMSDbWYi4oTAYFXf0nT
-	AgAA
-X-CMS-MailID: 20250207051943epcas5p4b831a4f975232d67f5849c3a2ddbcb59
-X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250207051943epcas5p4b831a4f975232d67f5849c3a2ddbcb59
-References: <CGME20250207051943epcas5p4b831a4f975232d67f5849c3a2ddbcb59@epcas5p4.samsung.com>
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAOqjpWcC/2XQPW7EIBAF4KusqEPEPzhV7hFtgc04SxGcYBZ5t
+ fLdM4IijlyOZr4neE+yQo6wkrfLk2SocY1LwsG8XMh08+kTaAw4E8GE4kIyWu6JGgOceTWMbLI
+ EL78zzHFrKR8kQaEJtkKuuLnFtSz50eIrb3tM0owz15Iqp4waG6xTo1TSqvfgHylur9Py1QKqO
+ KKhI4FIOhds0F44609IHhA3HUlEkxnxnsNgZ3tC6oBE/2hViAAcD8EzGex8QvoPCaY70oi4Dmy
+ UApyd/z9v731l+Llj2aWXdt33X7frixuKAQAA
+X-Change-ID: 20241230-tun-66e10a49b0c7
+To: Jonathan Corbet <corbet@lwn.net>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
+ devel@daynix.com, Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Willem de Bruijn <willemb@google.com>
+X-Mailer: b4 0.14.2
 
-From: Ying Gao <ying01.gao@samsung.com>
+When I implemented virtio's hash-related features to tun/tap [1],
+I found tun/tap does not fill the entire region reserved for the virtio
+header, leaving some uninitialized hole in the middle of the buffer
+after read()/recvmesg().
 
-In function virtio_vsock_probe, it initializes the variables
-"rx_buf_nr" and "rx_buf_max_nr",
-but in function virtio_vsock_restore it doesn't.
+This series fills the uninitialized hole. More concretely, the
+num_buffers field will be initialized with 1, and the other fields will
+be inialized with 0. Setting the num_buffers field to 1 is mandated by
+virtio 1.0 [2].
 
-Move the initizalition position into function virtio_vsock_vqs_start.
+The change to virtio header is preceded by another change that refactors
+tun and tap to unify their virtio-related code.
 
-Once executing s2r twice in a row without
-initializing rx_buf_nr and rx_buf_max_nr,
-the rx_buf_max_nr increased to three times vq->num_free,
-at this time, in function virtio_transport_rx_work,
-the conditions to fill rx buffer
-(rx_buf_nr < rx_buf_max_nr / 2) can't be met.
+[1]: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
+[2]: https://lore.kernel.org/r/20241227084256-mutt-send-email-mst@kernel.org/
 
-Signed-off-by: Ying Gao <ying01.gao@samsung.com>
-Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
- net/vmw_vsock/virtio_transport.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Changes in v6:
+- Added an intermediate variable in tun_vnet_legacy_is_little_endian()
+  to reduce a complexity of an expression.
+- Noted that functions are renamed in the message of patch
+  "tun: Extract the vnet handling code".
+- Used clamp() in patch "tap: Keep hdr_len in tap_get_user()".
+- Link to v5: https://lore.kernel.org/r/20250205-tun-v5-0-15d0b32e87fa@daynix.com
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index b58c3818f284..9eefd0fba92b 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -688,6 +688,8 @@ static void virtio_vsock_vqs_start(struct virtio_vsock *vsock)
- 	mutex_unlock(&vsock->tx_lock);
- 
- 	mutex_lock(&vsock->rx_lock);
-+	vsock->rx_buf_nr = 0;
-+	vsock->rx_buf_max_nr = 0;
- 	virtio_vsock_rx_fill(vsock);
- 	vsock->rx_run = true;
- 	mutex_unlock(&vsock->rx_lock);
-@@ -779,8 +781,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 
- 	vsock->vdev = vdev;
- 
--	vsock->rx_buf_nr = 0;
--	vsock->rx_buf_max_nr = 0;
- 	atomic_set(&vsock->queued_replies, 0);
- 
- 	mutex_init(&vsock->tx_lock);
+Changes in v5:
+- s/vnet_hdr_len_sz/vnet_hdr_sz/ for patch "tun: Decouple vnet handling"
+  (Willem de Bruijn)
+- Changed to inline vnet implementations to TUN and TAP.
+- Dropped patch "tun: Avoid double-tracking iov_iter length changes" and
+  "tap: Avoid double-tracking iov_iter length changes".
+- Link to v4: https://lore.kernel.org/r/20250120-tun-v4-0-ee81dda03d7f@daynix.com
+
+Changes in v4:
+- s/sz/vnet_hdr_len_sz/ for patch "tun: Decouple vnet handling"
+  (Willem de Bruijn)
+- Reverted to add CONFIG_TUN_VNET.
+- Link to v3: https://lore.kernel.org/r/20250116-tun-v3-0-c6b2871e97f7@daynix.com
+
+Changes in v3:
+- Dropped changes to fill the vnet header.
+- Splitted patch "tun: Unify vnet implementation".
+- Reverted spurious changes in patch "tun: Unify vnet implementation".
+- Merged tun_vnet.c into TAP.
+- Link to v2: https://lore.kernel.org/r/20250109-tun-v2-0-388d7d5a287a@daynix.com
+
+Changes in v2:
+- Fixed num_buffers endian.
+- Link to v1: https://lore.kernel.org/r/20250108-tun-v1-0-67d784b34374@daynix.com
+
+---
+Akihiko Odaki (7):
+      tun: Refactor CONFIG_TUN_VNET_CROSS_LE
+      tun: Keep hdr_len in tun_get_user()
+      tun: Decouple vnet from tun_struct
+      tun: Decouple vnet handling
+      tun: Extract the vnet handling code
+      tap: Keep hdr_len in tap_get_user()
+      tap: Use tun's vnet-related code
+
+ MAINTAINERS            |   2 +-
+ drivers/net/tap.c      | 166 +++++-------------------------------------
+ drivers/net/tun.c      | 193 ++++++-------------------------------------------
+ drivers/net/tun_vnet.h | 185 +++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 229 insertions(+), 317 deletions(-)
+---
+base-commit: a32e14f8aef69b42826cf0998b068a43d486a9e9
+change-id: 20241230-tun-66e10a49b0c7
+
+Best regards,
 -- 
-2.34.1
+Akihiko Odaki <akihiko.odaki@daynix.com>
 
