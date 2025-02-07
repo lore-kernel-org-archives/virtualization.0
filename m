@@ -1,84 +1,83 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B3CE154C05
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24C3D235BEB
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738908680; cv=none; b=DRjhkoXGyDWTnYIgh+w6IhI1GGYrNnoZf6NuNgy79uRUz3IfnEFtwfEZ5tL7q86VyojIzDHyQg+rLY4C0RzAZqh6ZigCISUOLMyQletnTpTEuSReCpjBwrpgPO5rs01JARtOYq8Qkr8ImZixRzUWtmiP63/2+8rQUfwyqRtD83I=
+	t=1738908687; cv=none; b=iNZzSwKUJiDZ9AZrgsDhxdRPDbn1y0x4eDe8EZZkF7kNbE78tIV3aaz1jGxZQktnVN6ju40bhq0g29iCO5XS8elkIRNDPU9CnHNB7Q8YGiZ+RRE0WWUpdl75mpNuZVgh06z8hBsNYyT9ElGI6Ch7FHAjvYjURpTbPNQmznk0Ulo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738908680; c=relaxed/simple;
-	bh=jE35WmComX5JeKqlu8MY6L9RXnyoavgFojt+bgtRKqY=;
+	s=arc-20240116; t=1738908687; c=relaxed/simple;
+	bh=bBQXhUVCx6X6zVGj6QFAXw2H5wdiIPqhAd8Xerl1xf4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=JETBFxO4chfU+7KcyNtWpLOzGM2iXXKRLQTBKE6yw9ZcrkxY1U9PqZeUsc1XtJGgZDUnBWiDFPmM8BWw0rjd/abPj3Hc3RCh/OF2z9TJzt43jR2ARcA+vEo8+Jp6MP8pmrUiJnnQQwqe8tWYEquV43jvhb26TBENihWeMFit9RA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=ecyN1Pp3; arc=none smtp.client-ip=140.211.166.136
+	 In-Reply-To:To:Cc; b=rKuwn724escG+F/IKRSx0A010UFGPUSREwZVnTTtrC33Rfk4PKVtxlFe3R7sOo32MEsvoayXONVVm9yZNPaPvdnExJoesRbAWnElp0IT4m9We8WLexsn1XcwvgpX06zh8p+mFboIDuTv5gpymZc8aXi7mrgGxpymGCvmBKlDB10=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=Nip0TgPi; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="ecyN1Pp3"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="Nip0TgPi"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E6D0E608B0
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:18 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BA32A4060C
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:25 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id wfcWzLc4Z-Je for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Feb 2025 06:11:17 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62f; helo=mail-pl1-x62f.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org EC53860A73
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EC53860A73
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=ecyN1Pp3
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EC53860A73
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:16 +0000 (UTC)
-Received: by mail-pl1-x62f.google.com with SMTP id d9443c01a7336-2163dc5155fso34466945ad.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 06 Feb 2025 22:11:16 -0800 (PST)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id WWRpH3_oSTc4 for <virtualization@lists.linux-foundation.org>;
+ Fri,  7 Feb 2025 06:11:24 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62e; helo=mail-pl1-x62e.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 5ADC640126
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5ADC640126
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=Nip0TgPi
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5ADC640126
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 06:11:24 +0000 (UTC)
+Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-21f20666e72so35854775ad.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 06 Feb 2025 22:11:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738908676; x=1739513476; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1738908684; x=1739513484; darn=lists.linux-foundation.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=vgBnzmCjscGqJo3YceNPZPrt+CM1bxg86tC2DNlkHjM=;
-        b=ecyN1Pp3IEaKjme3wjbZbQ3j6BO9/+w6QYYCIZVaaHjVgKvZDXAeaMy8rshdVEreH4
-         8iUcoB51GeWJ43on/sSYhMJCQdn3e0jPjsDSzo/UV361ZYR+/Yw/lZbdPyDKVt1VMp3U
-         mY4rSxbGFgBA5rT4z4MZ9U1zFk1um9jOnW9Oka9kWHBXWqdPtYBRUfIIKFyBD5qGffoo
-         gZ9Ve06gVY1PwT7q9Hcs2vzgmfKc6A/rpkFfClv8VwaN8hUuHm+BEOy6AM/9M2peP0zB
-         HqGJ44pbTDpdh9VhjSNgO7iL1z6sVcGBMHITgGx0w7waBz1c3bGSyAOrV8kRU1g4CVdG
-         lqkQ==
+        bh=t/RuN2hMDX+DTthFVqrAA3p7jQCQREQBjwaJUnbA1mI=;
+        b=Nip0TgPiU4kFSz9x8eAwjG46K5AmpKFMX6qdTWltEvHXtD0NwOkBC/LfFn5XrELqN+
+         DB0ZM1v98NE4ia8ulHHlNTHRlOApDoFcROGPBMLKBRSM1St37q4zpYjMDR9m1fxJ2BNp
+         vZts0a2LK9qy2VGAPdoq+oWnTpbCqVVZLOGctD30ZZyPlHqbD0S2KS4vTYqIbInpvhCo
+         bxCPrEmkL2+nOsdfOb7LB8BbdoWv5s5J7rxQxt8QcLQfnJ2zZI7AS4yPwMG5wB7Aiag5
+         Guisptq2Y3r3fclRbLN9X50vSAtiGSwaSWqfwvDAR6C6b4oPvrLPUpji6Pi15OtzkbQ8
+         xbtg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738908676; x=1739513476;
+        d=1e100.net; s=20230601; t=1738908684; x=1739513484;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vgBnzmCjscGqJo3YceNPZPrt+CM1bxg86tC2DNlkHjM=;
-        b=SFt+UjuA8jWdYQGkCDelhsO8+J7gjb/yjrmEXgTadIgffxPhUIz77qLO39FhveSbNO
-         9wuurY5iRJ7FHMDf2yQHfumTWbwDv4qL//xSFdZxfjY0P4rK2RP5iEyWGpJpBErjgftb
-         nMafHv3WfWhQ3PNvORrdOZ3+Us7wUA35yQfOMb3YVBXXydGotx07Arwnbtn2nX9Ypkjm
-         rGbcAY8XciFqFSvFldGVe24wfT/ts1FRN99mf625KJoE/9fGM+WXcLzpTbjnNJ7/6UTp
-         LUWtrDmIxf6nbR5wkl3s1bFaL+w1cpqxrnqAnkmMYLnAGy1fTU3Kjb9Qo/P8kCuttF4A
-         sqXA==
-X-Forwarded-Encrypted: i=1; AJvYcCX7Rphwa1YDYP3rKpg7Gy5uXjtKAbq2jWH3fLJ/9PPE4VELKsHxRgtoTTrVpO62rNmQbk9rWHixqBLUtpZfcw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzHNgVw/Y9Sf2S/diUA+UnfYHo3UOWHUR2cg9efhdeBBlJGXQRu
-	TNa4lUD9Y6S+fhtHF3pkx0OSpRiCUS2cLhDamn4Sf3q39G+QAMtNW1yZE2D0I9g1wSROx8WlMI3
-	OnAI=
-X-Gm-Gg: ASbGncuubR44R7TrNVR+YAr9y2u/WKTeCft7Pf104nN8nTsN4uykdDhXd8q53Wuc0/8
-	1ihjaggtBrkkIJ+KEjQY/i+osAiP3KtsB4NUHWcbLaAV0ggZzwm7e5b8TeHeu8tmvjQFbS++0Wg
-	Jd9lbP21Vv1brr9OHJvSyF6KqY7zomf0g5sQNhZWuyfAKghq1R3ejM+0iXzVS3hOiMYJDO695og
-	BTG1TxE9QUk8SCYY8J6tB7Cpg1WSv0H8BSFL45/EZ8QR2LE8DYxR6LoPzSLvl5uM9sXfIj19GOy
-	c6CTXcmMNzw5MpGasyo=
-X-Google-Smtp-Source: AGHT+IHNm8Qe5PeRd2q8oSkdrncjlnlT7yuIXN9pgtXzJ5BMLmj/G1sZ2QlSRnuDA+GVs8YfE9jCcA==
-X-Received: by 2002:a05:6a00:244e:b0:727:3c8f:3707 with SMTP id d2e1a72fcca58-7305d53a584mr3469430b3a.23.1738908676268;
-        Thu, 06 Feb 2025 22:11:16 -0800 (PST)
+        bh=t/RuN2hMDX+DTthFVqrAA3p7jQCQREQBjwaJUnbA1mI=;
+        b=dIp7Ss5gIkN0NHZnsgIzM6RSUbxLCA+PeEQFRs2iMCcfrMZqv93DnklhoNw8b5cUiB
+         K52B2VFykh4cRRHEudxU9/VsgB7GF8162zhpDPJoUFfv703M6PZqW9IuyyqFC8B+/Kyo
+         uvG3b/5SJzqmrJ+ZQpgWIcL72vvl7xYgrZyBYh6e83lbgmFx5gufamjLScceW85jWK0z
+         x+Y86QWQXiHh+Mlh+hLzzdXJ2pZuiBAbveHNPw1pZs595Ryzk8Q2QXuRZIAhQsxTlTYY
+         810nsWFC4brmEf2CnR6e/Wz3Dn/QGVVsGyDMguFUAfR9VpFQ8a4Rrf+e1YpFm06RrwQ3
+         VkPg==
+X-Forwarded-Encrypted: i=1; AJvYcCWAHWUTTNttJbViGMRWbqvQD++XY1timEJdY88VA7zcesS0c2p3V0CnRvSOTD6ewvguqc8veUbRWDG7N+03rg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzFp8+aiVc0RDZv3JIpN8lMRUzlAk8bWKUyvlD0cOWbmabT07wn
+	5JbTU9LkJPrx9uOP9uI0XtLP4Rg2eNm4TFEpjNKoTmv92DOHUx2VcbsIrEMBFj8=
+X-Gm-Gg: ASbGnct3rw70VXUTxZd8ileLut8zWHC3NGx3MAF3IAkMjXoCqCrCewfxTsqW4TXBo8R
+	7SWuzoQ+9DNu05z0YUQLmLSodNiZ84tEcxcnAZJLjmUDZ6dxAZfQScKIFsDoM4nVqtCe4kzEWrB
+	8IKCm4ESkoYZ2lbArTqfu/YJrVUFGroDu8oN/IT5bGfWtXhEqssH0D3aJe3T7Gjx9asnLvzmp1y
+	CrBx+bHMaXCOuVJSOWgIkIwYu7X9V2bm1KfjEModdWJf/v9iaYwaSH/lXjIPMB7hT0j643EKVf6
+	6nz0yZwcRjuSsoqTUKg=
+X-Google-Smtp-Source: AGHT+IGKXNfBtm98NzYUcrTp3XJuz6e3YpYHzpl1lbmzgAWqjm0gMeX4pN7AZUkDcA3OCHSyub6G8g==
+X-Received: by 2002:a17:902:ef09:b0:216:386e:dbc with SMTP id d9443c01a7336-21f4e6c22e7mr33527705ad.13.1738908683719;
+        Thu, 06 Feb 2025 22:11:23 -0800 (PST)
 Received: from localhost ([157.82.205.237])
-        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-73048ad2623sm2302419b3a.60.2025.02.06.22.11.10
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-21f3687c5d5sm22833125ad.166.2025.02.06.22.11.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Feb 2025 22:11:15 -0800 (PST)
+        Thu, 06 Feb 2025 22:11:23 -0800 (PST)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Fri, 07 Feb 2025 15:10:52 +0900
-Subject: [PATCH net-next v6 2/7] tun: Keep hdr_len in tun_get_user()
+Date: Fri, 07 Feb 2025 15:10:53 +0900
+Subject: [PATCH net-next v6 3/7] tun: Decouple vnet from tun_struct
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,7 +86,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250207-tun-v6-2-fb49cf8b103e@daynix.com>
+Message-Id: <20250207-tun-v6-3-fb49cf8b103e@daynix.com>
 References: <20250207-tun-v6-0-fb49cf8b103e@daynix.com>
 In-Reply-To: <20250207-tun-v6-0-fb49cf8b103e@daynix.com>
 To: Jonathan Corbet <corbet@lwn.net>, 
@@ -106,77 +105,170 @@ To: Jonathan Corbet <corbet@lwn.net>,
 Cc: Willem de Bruijn <willemb@google.com>
 X-Mailer: b4 0.14.2
 
-hdr_len is repeatedly used so keep it in a local variable.
+Decouple vnet-related functions from tun_struct so that we can reuse
+them for tap in the future.
 
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 Reviewed-by: Willem de Bruijn <willemb@google.com>
 ---
- drivers/net/tun.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ drivers/net/tun.c | 51 ++++++++++++++++++++++++++-------------------------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 4b189cbd28e63ec6325073d9a7678f4210bff3e1..c204c1c0d75bc7d336ec315099a5a60d5d70ea82 100644
+index c204c1c0d75bc7d336ec315099a5a60d5d70ea82..28a1af1de9d704ed5cc51aac3d99bc095cb28ba5 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -1747,6 +1747,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
- 	struct virtio_net_hdr gso = { 0 };
- 	int good_linear;
- 	int copylen;
-+	int hdr_len = 0;
- 	bool zerocopy = false;
- 	int err;
- 	u32 rxhash = 0;
-@@ -1773,19 +1774,21 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+@@ -298,17 +298,17 @@ static bool tun_napi_frags_enabled(const struct tun_file *tfile)
+ 	return tfile->napi_frags_enabled;
+ }
+ 
+-static inline bool tun_legacy_is_little_endian(struct tun_struct *tun)
++static inline bool tun_legacy_is_little_endian(unsigned int flags)
+ {
+ 	bool be = IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE) &&
+-		  (tun->flags & TUN_VNET_BE);
++		  (flags & TUN_VNET_BE);
+ 
+ 	return !be && virtio_legacy_is_little_endian();
+ }
+ 
+-static long tun_get_vnet_be(struct tun_struct *tun, int __user *argp)
++static long tun_get_vnet_be(unsigned int flags, int __user *argp)
+ {
+-	int be = !!(tun->flags & TUN_VNET_BE);
++	int be = !!(flags & TUN_VNET_BE);
+ 
+ 	if (!IS_ENABLED(CONFIG_TUN_VNET_CROSS_LE))
+ 		return -EINVAL;
+@@ -319,7 +319,7 @@ static long tun_get_vnet_be(struct tun_struct *tun, int __user *argp)
+ 	return 0;
+ }
+ 
+-static long tun_set_vnet_be(struct tun_struct *tun, int __user *argp)
++static long tun_set_vnet_be(unsigned int *flags, int __user *argp)
+ {
+ 	int be;
+ 
+@@ -330,27 +330,26 @@ static long tun_set_vnet_be(struct tun_struct *tun, int __user *argp)
+ 		return -EFAULT;
+ 
+ 	if (be)
+-		tun->flags |= TUN_VNET_BE;
++		*flags |= TUN_VNET_BE;
+ 	else
+-		tun->flags &= ~TUN_VNET_BE;
++		*flags &= ~TUN_VNET_BE;
+ 
+ 	return 0;
+ }
+ 
+-static inline bool tun_is_little_endian(struct tun_struct *tun)
++static inline bool tun_is_little_endian(unsigned int flags)
+ {
+-	return tun->flags & TUN_VNET_LE ||
+-		tun_legacy_is_little_endian(tun);
++	return flags & TUN_VNET_LE || tun_legacy_is_little_endian(flags);
+ }
+ 
+-static inline u16 tun16_to_cpu(struct tun_struct *tun, __virtio16 val)
++static inline u16 tun16_to_cpu(unsigned int flags, __virtio16 val)
+ {
+-	return __virtio16_to_cpu(tun_is_little_endian(tun), val);
++	return __virtio16_to_cpu(tun_is_little_endian(flags), val);
+ }
+ 
+-static inline __virtio16 cpu_to_tun16(struct tun_struct *tun, u16 val)
++static inline __virtio16 cpu_to_tun16(unsigned int flags, u16 val)
+ {
+-	return __cpu_to_virtio16(tun_is_little_endian(tun), val);
++	return __cpu_to_virtio16(tun_is_little_endian(flags), val);
+ }
+ 
+ static inline u32 tun_hashfn(u32 rxhash)
+@@ -1766,6 +1765,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 
+ 	if (tun->flags & IFF_VNET_HDR) {
+ 		int vnet_hdr_sz = READ_ONCE(tun->vnet_hdr_sz);
++		int flags = tun->flags;
+ 
+ 		if (len < vnet_hdr_sz)
+ 			return -EINVAL;
+@@ -1774,11 +1774,11 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
  		if (!copy_from_iter_full(&gso, sizeof(gso), from))
  			return -EFAULT;
  
--		if ((gso.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
--		    tun16_to_cpu(tun, gso.csum_start) + tun16_to_cpu(tun, gso.csum_offset) + 2 > tun16_to_cpu(tun, gso.hdr_len))
--			gso.hdr_len = cpu_to_tun16(tun, tun16_to_cpu(tun, gso.csum_start) + tun16_to_cpu(tun, gso.csum_offset) + 2);
-+		hdr_len = tun16_to_cpu(tun, gso.hdr_len);
+-		hdr_len = tun16_to_cpu(tun, gso.hdr_len);
++		hdr_len = tun16_to_cpu(flags, gso.hdr_len);
  
--		if (tun16_to_cpu(tun, gso.hdr_len) > len)
-+		if (gso.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
-+			hdr_len = max(tun16_to_cpu(tun, gso.csum_start) + tun16_to_cpu(tun, gso.csum_offset) + 2, hdr_len);
-+			gso.hdr_len = cpu_to_tun16(tun, hdr_len);
-+		}
-+
-+		if (hdr_len > len)
- 			return -EINVAL;
- 		iov_iter_advance(from, vnet_hdr_sz - sizeof(gso));
- 	}
- 
- 	if ((tun->flags & TUN_TYPE_MASK) == IFF_TAP) {
- 		align += NET_IP_ALIGN;
--		if (unlikely(len < ETH_HLEN ||
--			     (gso.hdr_len && tun16_to_cpu(tun, gso.hdr_len) < ETH_HLEN)))
-+		if (unlikely(len < ETH_HLEN || (hdr_len && hdr_len < ETH_HLEN)))
- 			return -EINVAL;
- 	}
- 
-@@ -1798,9 +1801,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
- 		 * enough room for skb expand head in case it is used.
- 		 * The rest of the buffer is mapped from userspace.
- 		 */
--		copylen = gso.hdr_len ? tun16_to_cpu(tun, gso.hdr_len) : GOODCOPY_LEN;
--		if (copylen > good_linear)
--			copylen = good_linear;
-+		copylen = min(hdr_len ? hdr_len : GOODCOPY_LEN, good_linear);
- 		linear = copylen;
- 		iov_iter_advance(&i, copylen);
- 		if (iov_iter_npages(&i, INT_MAX) <= MAX_SKB_FRAGS)
-@@ -1821,10 +1822,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
- 	} else {
- 		if (!zerocopy) {
- 			copylen = len;
--			if (tun16_to_cpu(tun, gso.hdr_len) > good_linear)
--				linear = good_linear;
--			else
--				linear = tun16_to_cpu(tun, gso.hdr_len);
-+			linear = min(hdr_len, good_linear);
+ 		if (gso.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+-			hdr_len = max(tun16_to_cpu(tun, gso.csum_start) + tun16_to_cpu(tun, gso.csum_offset) + 2, hdr_len);
+-			gso.hdr_len = cpu_to_tun16(tun, hdr_len);
++			hdr_len = max(tun16_to_cpu(flags, gso.csum_start) + tun16_to_cpu(flags, gso.csum_offset) + 2, hdr_len);
++			gso.hdr_len = cpu_to_tun16(flags, hdr_len);
  		}
  
- 		if (frags) {
+ 		if (hdr_len > len)
+@@ -1857,7 +1857,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 		}
+ 	}
+ 
+-	if (virtio_net_hdr_to_skb(skb, &gso, tun_is_little_endian(tun))) {
++	if (virtio_net_hdr_to_skb(skb, &gso, tun_is_little_endian(tun->flags))) {
+ 		atomic_long_inc(&tun->rx_frame_errors);
+ 		err = -EINVAL;
+ 		goto free_skb;
+@@ -2111,23 +2111,24 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+ 
+ 	if (vnet_hdr_sz) {
+ 		struct virtio_net_hdr gso;
++		int flags = tun->flags;
+ 
+ 		if (iov_iter_count(iter) < vnet_hdr_sz)
+ 			return -EINVAL;
+ 
+ 		if (virtio_net_hdr_from_skb(skb, &gso,
+-					    tun_is_little_endian(tun), true,
++					    tun_is_little_endian(flags), true,
+ 					    vlan_hlen)) {
+ 			struct skb_shared_info *sinfo = skb_shinfo(skb);
+ 
+ 			if (net_ratelimit()) {
+ 				netdev_err(tun->dev, "unexpected GSO type: 0x%x, gso_size %d, hdr_len %d\n",
+-					   sinfo->gso_type, tun16_to_cpu(tun, gso.gso_size),
+-					   tun16_to_cpu(tun, gso.hdr_len));
++					   sinfo->gso_type, tun16_to_cpu(flags, gso.gso_size),
++					   tun16_to_cpu(flags, gso.hdr_len));
+ 				print_hex_dump(KERN_ERR, "tun: ",
+ 					       DUMP_PREFIX_NONE,
+ 					       16, 1, skb->head,
+-					       min((int)tun16_to_cpu(tun, gso.hdr_len), 64), true);
++					       min((int)tun16_to_cpu(flags, gso.hdr_len), 64), true);
+ 			}
+ 			WARN_ON_ONCE(1);
+ 			return -EINVAL;
+@@ -2496,7 +2497,7 @@ static int tun_xdp_one(struct tun_struct *tun,
+ 	skb_reserve(skb, xdp->data - xdp->data_hard_start);
+ 	skb_put(skb, xdp->data_end - xdp->data);
+ 
+-	if (virtio_net_hdr_to_skb(skb, gso, tun_is_little_endian(tun))) {
++	if (virtio_net_hdr_to_skb(skb, gso, tun_is_little_endian(tun->flags))) {
+ 		atomic_long_inc(&tun->rx_frame_errors);
+ 		kfree_skb(skb);
+ 		ret = -EINVAL;
+@@ -3325,11 +3326,11 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
+ 		break;
+ 
+ 	case TUNGETVNETBE:
+-		ret = tun_get_vnet_be(tun, argp);
++		ret = tun_get_vnet_be(tun->flags, argp);
+ 		break;
+ 
+ 	case TUNSETVNETBE:
+-		ret = tun_set_vnet_be(tun, argp);
++		ret = tun_set_vnet_be(&tun->flags, argp);
+ 		break;
+ 
+ 	case TUNATTACHFILTER:
 
 -- 
 2.48.1
