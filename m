@@ -1,51 +1,51 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECAEE1917D4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1BE5190462
 	for <virtualization@lists.linux.dev>; Fri,  7 Feb 2025 18:43:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738953784; cv=none; b=g2zX49cE+olnGh882U15mjE8tfo621rnuh4VPGNKRnSd2XqVrtIQS+QaTMJerydgKBNsn5XKdd6VK2JTkUQMNohBQDXOg3Nk18tKo+pUjTuncYfBCrOCs+RRUhUpg2sT2+xOBcgghyTn2dEnJ1W1azm7/T7Qbavi2v8frI56G30=
+	t=1738953784; cv=none; b=Lhi6mQF7UzmpgCY7ln72tH9pyZ/564lox+pysFo8cT+LeCMUN5u887rJcqIN+QaurD4afay95WmDWGtnPMBGcVKJMLFSKLdAeT3JZFvoM5fSWiV3htFox2lyrtEzLXSBcka5axdH4ePKNuwEbKpJCS1p/cp8aDxGcsZ8BnKpxO0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1738953784; c=relaxed/simple;
-	bh=TheOBRcnGVBP3+zBn1fo/KIGp8ZORIbEsBySJSBTXRM=;
+	bh=fwr8OqvAlKugsufZvHpZOeNEgA7dt65mCk1pC0dH1Nk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hUZQKA0x86tqda3A9cmBmQHmb8zTS+m1wFUe7Apc6z0wdgjthxOK8mGIM5hz1eTgFNOQIoGIkfNur3bHBu5bPzaUPQ5ZuTJDJUfhIagEWzRq9NyOdBpmtT2T3SperN43mc4BAdlqJfu1OHvBNmelja8PkTbUQ/ZKQCW1/dQ3hdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=N+4NwIw5; arc=none smtp.client-ip=205.220.165.32
+	 MIME-Version; b=Ufa+AfKJGVFnZFK2LmF0+XO9wuStRLirxjDzSxaw3H09LkwNFRewM1dQDt8dfAisFX+XbfCoqMz0DjxuvNJ5LsMCLtY/cpgYyqMm7ESNTfh3MiH7zluVKR0V0EBDovotz8yfmhAeYwP3m9od0ltjaWdHmwlhv9/i7LTx8JxRnPk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=ngGWZne0; arc=none smtp.client-ip=205.220.177.32
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="N+4NwIw5"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 517Hg6XQ000481;
-	Fri, 7 Feb 2025 18:43:02 GMT
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="ngGWZne0"
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 517HfrNw009275;
+	Fri, 7 Feb 2025 18:43:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=corp-2023-11-20; bh=0f86d
-	riItZ6Voi0DN/wvEX77XPRc7/eHLKbBCszuiEc=; b=N+4NwIw5PBSjAHyk6ALR+
-	pe4ATEBVeT4lpSXndz9zZKXZ1SgrQQkbCbHzJSMNBNTWULJCYzEVQhi1j04l5VPz
-	ggiH4yteJjFkMDRdBXOI8KNXxzkcyQBVwCPvVsa8bPde7qyWjKG2xBrSfQAt0v3A
-	sghk1f6QVHeTNG/Zlp1UYyIaDWkH4q4C9FBp3eYYR0vB8uMCQQaCZf6zwN7jXGl7
-	gwprXXfkCWekxv/2gUowJEV7mCwwIZs3ZzXkQh+h3S+l/F485X9jcRF2UYNW+FF/
-	wfjV6lguJb6kb0t6Dvm0XeIXFK0tbUtNaSwYysNGZex7QZaO0mHXLzdnaHsKC68f
+	:mime-version:references:subject:to; s=corp-2023-11-20; bh=3NjNL
+	hMvEyqe/yXAgspbGPylieUE1KvOmQHbOi6+uLk=; b=ngGWZne0VAfmZs0sBiowD
+	zBTtIC3EozJ3CqfTWgJqRL0GZHEC3X/nqrU9FjVnMjl3rUt5R3VXa9a46n5qkgLd
+	1UwLaeT84jkUU/ZTFu5vNXi3iliBFBtXlP0B6Km4RyUjO3VYYP1FTu9E5fy3PdeG
+	+0BIlfQ3Mf/SeU39EjFsuFpuCWDbb0X/d/KHBmDJUA2/+FZjqfVdoqsVAETWbOt+
+	HFguAPZFL0WrTkIRGTi+x6gEK03lEJM9meAE2tcQE2hySO+ALxafWWeJwSwRvU83
+	jSB2sHfS0ocXEnjQLYhc7XDsCwsAICGdchmhvYTtvB+D9mqtC+2wPeg3l9QZWGca
 	g==
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 44mqk8bbhh-1
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 44mwwpjqsf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 07 Feb 2025 18:43:01 +0000 (GMT)
 Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 517HTvB2022565;
-	Fri, 7 Feb 2025 18:43:01 GMT
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 517Hbxg0022695;
+	Fri, 7 Feb 2025 18:43:00 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44j8ec86ar-1
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44j8ec86a4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 07 Feb 2025 18:43:01 +0000
+	Fri, 07 Feb 2025 18:43:00 +0000
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 517Idx9Z037660;
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 517Idx9X037660;
 	Fri, 7 Feb 2025 18:43:00 GMT
 Received: from localhost.localdomain (ca-dev80.us.oracle.com [10.211.9.80])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 44j8ec8665-9;
-	Fri, 07 Feb 2025 18:43:00 +0000
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 44j8ec8665-8;
+	Fri, 07 Feb 2025 18:42:59 +0000
 From: Dongli Zhang <dongli.zhang@oracle.com>
 To: virtualization@lists.linux.dev, netdev@vger.kernel.org,
         kvm@vger.kernel.org
@@ -53,9 +53,9 @@ Cc: mst@redhat.com, jasowang@redhat.com, eperezma@redhat.com,
         michael.christie@oracle.com, pbonzini@redhat.com, stefanha@redhat.com,
         joao.m.martins@oracle.com, joe.jin@oracle.com, si-wei.liu@oracle.com,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 8/9] vhost-scsi: protect vq->log_used with vq->mutex
-Date: Fri,  7 Feb 2025 10:41:52 -0800
-Message-ID: <20250207184212.20831-9-dongli.zhang@oracle.com>
+Subject: [PATCH 7/9] vhost: add WARNING if log_num is more than limit
+Date: Fri,  7 Feb 2025 10:41:51 -0800
+Message-ID: <20250207184212.20831-8-dongli.zhang@oracle.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20250207184212.20831-1-dongli.zhang@oracle.com>
 References: <20250207184212.20831-1-dongli.zhang@oracle.com>
@@ -73,64 +73,55 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxlo
  phishscore=0 adultscore=0 malwarescore=0 bulkscore=0 suspectscore=0
  mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2501170000 definitions=main-2502070139
-X-Proofpoint-GUID: fI64uTZGsKRvKXVVXcvMNBOXPI3Lm_Wb
-X-Proofpoint-ORIG-GUID: fI64uTZGsKRvKXVVXcvMNBOXPI3Lm_Wb
+X-Proofpoint-ORIG-GUID: Aa41DM9V3T4iNcwENIKSysJOHJhVkliw
+X-Proofpoint-GUID: Aa41DM9V3T4iNcwENIKSysJOHJhVkliw
 
-The vhost-scsi completion path may access vq->log_base when vq->log_used is
-already set to false.
+Since long time ago, the only user of vq->log is vhost-net. The concern is
+to add support for more devices (i.e. vhost-scsi or vsock) may reveals
+unknown issue in the vhost API. Add a WARNING.
 
-    vhost-thread                       QEMU-thread
-
-vhost_scsi_complete_cmd_work()
--> vhost_add_used()
-   -> vhost_add_used_n()
-      if (unlikely(vq->log_used))
-                                      QEMU disables vq->log_used
-                                      via VHOST_SET_VRING_ADDR.
-                                      mutex_lock(&vq->mutex);
-                                      vq->log_used = false now!
-                                      mutex_unlock(&vq->mutex);
-
-				      QEMU gfree(vq->log_base)
-        log_used()
-        -> log_write(vq->log_base)
-
-Assuming the VMM is QEMU. The vq->log_base is from QEMU userpace and can be
-reclaimed via gfree(). As a result, this causes invalid memory writes to
-QEMU userspace.
-
-The control queue path has the same issue.
-
+Suggested-by: Joao Martins <joao.m.martins@oracle.com>
 Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
 ---
- drivers/vhost/scsi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/vhost/vhost.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 40268b88f470..3b87d698adaf 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -645,7 +645,9 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 		if (likely(ret == sizeof(v_rsp))) {
- 			signal = true;
- 
-+			mutex_lock(&cmd->tvc_vq->mutex);
- 			vhost_add_used(cmd->tvc_vq, cmd->tvc_vq_desc, 0);
-+			mutex_unlock(&cmd->tvc_vq->mutex);
- 		} else
- 			pr_err("Faulted on virtio_scsi_cmd_resp\n");
- 
-@@ -1371,8 +1373,10 @@ static void vhost_scsi_tmf_resp_work(struct vhost_work *work)
- 	else
- 		resp_code = VIRTIO_SCSI_S_FUNCTION_REJECTED;
- 
-+	mutex_lock(&tmf->svq->vq.mutex);
- 	vhost_scsi_send_tmf_resp(tmf->vhost, &tmf->svq->vq, tmf->in_iovs,
- 				 tmf->vq_desc, &tmf->resp_iov, resp_code);
-+	mutex_unlock(&tmf->svq->vq.mutex);
- 
- 	if (unlikely(tmf->tmf_log_num)) {
- 		mutex_lock(&tmf->svq->vq.mutex);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index db3b30aba940..8368370b40f7 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2553,6 +2553,15 @@ static int get_indirect(struct vhost_virtqueue *vq,
+ 		if (access == VHOST_ACCESS_WO) {
+ 			*in_num += ret;
+ 			if (unlikely(log && ret)) {
++				/*
++				 * Since long time ago, the only user of
++				 * vq->log is vhost-net. The concern is to
++				 * add support for more devices (i.e.
++				 * vhost-scsi or vsock) may reveals unknown
++				 * issue in the vhost API. Add a WARNING.
++				 */
++				WARN_ON_ONCE(*log_num >= vq->dev->iov_limit);
++
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
+@@ -2673,6 +2682,15 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 			 * increment that count. */
+ 			*in_num += ret;
+ 			if (unlikely(log && ret)) {
++				/*
++				 * Since long time ago, the only user of
++				 * vq->log is vhost-net. The concern is to
++				 * add support for more devices (i.e.
++				 * vhost-scsi or vsock) may reveals unknown
++				 * issue in the vhost API. Add a WARNING.
++				 */
++				WARN_ON_ONCE(*log_num >= vq->dev->iov_limit);
++
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
 -- 
 2.39.3
 
