@@ -1,102 +1,63 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2087.outbound.protection.outlook.com [40.107.220.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40CDD1DED54
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 11:07:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD89B2594B5;
+	Fri,  7 Feb 2025 14:46:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.87
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738926448; cv=fail; b=T6m6OiIqu7h4u2OhlxBdY2McuBha8kZKpHb5VGrK2GPD+NLXNU4J5qJTCwtUpSq4CCu75xcsYVUGtbfL53/oyOIT9sOk32vnJWJxpxG5D9QdqtEq8XUHa0X1MX6TxahG+aVmOlvCfUcsfnOUhgmo4wU+wfgGaUVsvctHyNx9yjs=
+	t=1738939572; cv=fail; b=mwBV/pcfdNWtY/QvZb+9S13sjMvNBE0X4APsRCbFUDREHgjlYJFhsuV10LieAq08umNqaQ3pbJZQq4+4cO22I2NJylwk8cmMY8z4R35/Kb4dxWsHj8OVILPo28H8DXZOhIND776qXUYiKWisuRbUF6ORuGd/Dqri3PanEBDIxYw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738926448; c=relaxed/simple;
-	bh=UTXuw9tVgZQxmy7uyQAaXyy5h0kocrUnAFBRXk9q/R4=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=GqM5PfUGFxVDsiUfiUpQ4J16Mt6Bj3rsQK2/v4anisbJmXF6mtXxdNkwykHBmueO7gNGt6g8a4XhAzN6vDx+p1JDZTRIMZbOTSG2G69tefIAW85bUDerqWVRk/EwhzEPT6BgpLCHlIZI2wpQJjftSUBaSm48mrfnCUjZNUBkujQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=e9xKngKs; arc=fail smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1738939572; c=relaxed/simple;
+	bh=TIWfPLb9lZq/tvuvlXeKiUbCbkfZ/AszpTGAeZvfEOE=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=Qyz9ZECMGWG+w8X0c8zmq3HxPcNrrlXPY1zUbgBq3QwovHn0mmlgPYcgbqwwa7M4moDqWvILSyZUp7OOBl5zoKHqqNo0bJfzDbnNALF5W3ohyIfigdlfqLtqcezibTkJtn2WXIOYo6U/UyNxW0mSANtR5VGb2QPswQC6R+BDKsg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=SiZJC4cr; arc=fail smtp.client-ip=40.107.220.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="e9xKngKs"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C7E3240757
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 11:07:26 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id VYL1uBWEPaNP for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Feb 2025 11:07:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2414::61e; helo=nam11-bn8-obe.outbound.protection.outlook.com; envelope-from=honglei1.huang@amd.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 04EAC40471
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 04EAC40471
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=e9xKngKs
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2061e.outbound.protection.outlook.com [IPv6:2a01:111:f403:2414::61e])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 04EAC40471
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Feb 2025 11:07:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="SiZJC4cr"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=j76bhEZJsI1634eHq8WKAHIYVPWCvtPisAxTouVN0XO2hCWgyNJvLZ5y3/GSG8PGFzQ4I3gEKyQQQBeZ4lHeajNhrO/3T1gLjhX7FtGBiw5hFb8xay9AH9lESMfiwpmQlVtUejJPiDsIN3pI/80bKVvUu6AP5WavWtV+AGG3/60sU3wMIGaLzMK0D1fTxWJhP31i/5XpowZTINraIzdIiR9Zl2QrbzYjfFRpI1R7Tj3B4ndy2ckcSU32/LOsr97tAaZmknGabag9AG+JQ5Bi6d6gMNU5P+B0I/zgbYIAZAOjxe2bE1TLRVvLxDl01TLQlDaHJIBkY7TbWY9om5x9gA==
+ b=xKpwx6jC+Qtj1YDuA5C+H0mxVFOc4Rspmi0840JWXFLzGLy8svcZQHQ9Td9wS3gIyqxRKTGaNlS8jd80W3h0FJMYawV7C3EhBFzbtr6LZ+AS7v5AiwVreDcAQbch+TkbAWrykseS8OcZCL4rxI/51T5F5ETWx8uw1m54qtUmTTOg/5EMVlyZGv2TSo6qiQRaEso0ghTu/1r9fOpEBqUjh8I09zEQFc3FXIPiMgyXUUtdc+CoaRdeW/TJdrzMxIDoVatQWHbaX1/TOxD5cnkenObZm2DKFGzUPBvBhg1I3AEMCNw/XuvQEh/uYWQi7oxo/EZz/QjDdKp2+Cao2cE/AQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dOYpOiOqcJwV9wyQ3uq8fKYYgap7NX2YLfEGSDk83fI=;
- b=Ip+V8kCp5FKZmhmmffKzmP4+JZQoqLurr2nEXcKtv8OtvjRqy64BghQk8Xcbkh81ey+OmH26egg6c4X7DZrWdlVC12FVWOb4DD6AOrqHyvohDLWUIfVOnIrSgyqoedQ2dVxAjuzKSJH5VF/PHQ4BduDdV8TKNRICbyukmHHXCED0NF14wBRSxngQKfzJt0ewvidTHD0EP7iITIlpqsukJ0Q7TUZYv+YCCJLlIYI+iYbh97DMTe4jgid0YWukohGzNb3ANJBz3gqBz8qZx7UTsi229jwW/80r4XECQ6iDZcfLEOi+BtL0OhyKdpTRBfQz6g1WGL5YrEdkaRWRFP6KuA==
+ bh=SyEJyJP6g26YbjhPctOAsZmJem+GdQOyXzw7ylfeNws=;
+ b=kGxIFfmbZnIiW5EIHA6Q7lc/rdFVE0Bik9CObUFi5FsgID4b+Vk8USYOnfMloQs/1230mhrwR5lQhPj4g76dUSnHGeJQwkYO64DtXgIup6N8ZOsSK4zHh/V7heosZ2Q0IqCc4gEjTiS9qMa9+meav/qNAKwTBEe30scIJJrfnWtiRQczhWjeCc2mdakFU8tEGhpajkO6SU9g4lKdDXKGdkudjzOnlevBMnAJ9GZYvFG2OZnscmcm9IbIWVoCvGkH2uqW4C+4tLLK157IcD1cD7Q+5Vt+5RIYWy1Wsiq7asEs2Goe24s3/puOdsEBbVjK1QIVy9sVCQqttbFGJEkXwA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dOYpOiOqcJwV9wyQ3uq8fKYYgap7NX2YLfEGSDk83fI=;
- b=e9xKngKsUwX5aKshkXIEGkUDKnLBCyJPlfy2F6qekqPL1m0Xf9ijKO37MStFa3tFBpMu9WYJrbPGnUlVWi6bQpTLkHgv/D9fLkpWQsHt4Nbyi3inF8KnlinLE+f+Mrje9y3MkviAFMItjbdLnz8+RgIUnpqOx84M+7CfRNrYe2I=
+ bh=SyEJyJP6g26YbjhPctOAsZmJem+GdQOyXzw7ylfeNws=;
+ b=SiZJC4cr+8S2Csx0dlLc6/rxRXsqN9K6BfmJCssbt0390RLT/4RWjpxSH/3hWkLqhgjXo+WfujnT4dL2H6Uza2w1SKhYtFuWIYgJPIFOXlriiWYYsWgWDtnPCxMe/XsM9UuAxh5pAxyWnl2yTR3MNrPKQSJfM2a2RdWPxaQ1qqfmVF5Squ6HImpsvjkl/v0ULqcBcHq9ZkOQhn8hv/f11hEvmuzi8BWvfx7xXXJXR068SBne2Zse1chst/Meu75hK4vqUSUxu5TvC9Sysyg3saqLUrs04418A18DQ/n3IGbVUpE3tkcWbxGBD8UuneOKP/DP1u2kffreIEm4dumOmQ==
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
- by PH8PR12MB6770.namprd12.prod.outlook.com (2603:10b6:510:1c5::11) with
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
+ by MW4PR12MB7029.namprd12.prod.outlook.com (2603:10b6:303:1eb::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8422.11; Fri, 7 Feb
- 2025 11:07:21 +0000
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941%4]) with mapi id 15.20.8422.010; Fri, 7 Feb 2025
- 11:07:20 +0000
-Message-ID: <b5cf2939-5853-4c1f-90eb-68f281106f86@amd.com>
-Date: Fri, 7 Feb 2025 19:07:11 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 3/3] drm/virtio: implement blob userptr resource
- object
-To: Demi Marie Obenour <demi@invisiblethingslab.com>
-Cc: Demi Marie Obenour <demiobenour@gmail.com>, "Huang, Ray"
- <Ray.Huang@amd.com>, "Stabellini, Stefano" <stefano.stabellini@amd.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- David Airlie <airlied@redhat.com>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Akihiko Odaki <akihiko.odaki@daynix.com>,
- "Zhu, Lingshan" <Lingshan.Zhu@amd.com>,
- Xen developer discussion <xen-devel@lists.xenproject.org>,
- Kernel KVM virtualization development <kvm@vger.kernel.org>,
- Xenia Ragiadakou <burzalodowa@gmail.com>,
- =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
-References: <20241220100409.4007346-1-honglei1.huang@amd.com>
- <20241220100409.4007346-3-honglei1.huang@amd.com>
- <Z2WO2udH2zAEr6ln@phenom.ffwll.local>
- <2fb36b50-4de2-4060-a4b7-54d221db8647@gmail.com>
- <de8ade34-eb67-4bff-a1c9-27cb51798843@amd.com>
- <Z36wV07M8B_wgWPl@phenom.ffwll.local>
- <c42ae4f7-f5f4-4906-85aa-b049ed44d7e9@gmail.com> <Z5waZsddenagCYtl@itl-email>
- <7b0bf2d5-700a-4cc7-b410-a9b2e2083b5d@amd.com> <Z6T9lDSj8Y9ATE3k@itl-email>
-Content-Language: en-US
-From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
-In-Reply-To: <Z6T9lDSj8Y9ATE3k@itl-email>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8422.14; Fri, 7 Feb
+ 2025 14:46:07 +0000
+Received: from CH3PR12MB8659.namprd12.prod.outlook.com
+ ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
+ ([fe80::6eb6:7d37:7b4b:1732%6]) with mapi id 15.20.8422.011; Fri, 7 Feb 2025
+ 14:46:06 +0000
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: iommu@lists.linux.dev,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Joerg Roedel <joro@8bytes.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	virtualization@lists.linux.dev,
+	Will Deacon <will@kernel.org>
+Cc: Eric Auger <eric.auger@redhat.com>,
+	patches@lists.linux.dev
+Subject: [PATCH 0/5] Convert virtio-iommu to domain_alloc_paging()
+Date: Fri,  7 Feb 2025 10:46:00 -0400
+Message-ID: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: TY2PR02CA0011.apcprd02.prod.outlook.com
- (2603:1096:404:56::23) To IA1PR12MB6435.namprd12.prod.outlook.com
- (2603:10b6:208:3ad::10)
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0260.namprd13.prod.outlook.com
+ (2603:10b6:208:2ba::25) To CH3PR12MB8659.namprd12.prod.outlook.com
+ (2603:10b6:610:17c::13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -104,297 +65,131 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|PH8PR12MB6770:EE_
-X-MS-Office365-Filtering-Correlation-Id: b3cc64f2-cf37-4783-a109-08dd4767977b
+X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|MW4PR12MB7029:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6dee29fb-207d-4b4e-0136-08dd47862738
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024;
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?NE1Nb0VZRGQxSjU0K05ZMmZnSVdpQmUzNWRXMWl6aE5zdUdqY0ZvS2M5cjZq?=
- =?utf-8?B?cE1ybGJaU3A4NUgzbjlsaXhnRDFZZlg2MG1GOTk1dkgvaUNVZEEyZExtZG5r?=
- =?utf-8?B?eGVTeWxWUG9LRTcvYVpwYzVwRlpPRStkRVZmTVRleHVWd285b0tUa0d1bWNv?=
- =?utf-8?B?Zi9xU1hFTXJmRCt6d1JmN0xZUG15QWFZM2VObE9EV0lyd1RJZUVNSGFFdWZt?=
- =?utf-8?B?elY0VlpUazRuTjFJSGlheUUyZEx4ZFN0VEEzb1ZjdUtyS2NIRWUwVzBMelNa?=
- =?utf-8?B?d1k4Q1FOSUtBUjZtbVRQeS9KVUVpYXE3Z3RLdmY3N1A0Z1crc2Zad2VTc3FZ?=
- =?utf-8?B?Y0pZbWUzWDNCcjRNLzhjU0FwY2dyREJjazRVcXkydjlUeXA3WE5GUVh1SlU2?=
- =?utf-8?B?RXE5Y3ErVEJPaDBLN2ZJT09oYktudWIxRGZTMTNLSlNEakdNbVB6UFNCU25S?=
- =?utf-8?B?TytmdHdsdlhwWGM4YjlXREhLT3U3KzNZZi96dFhDZm1uZTUwNUlpZGNISWR4?=
- =?utf-8?B?RVdTTUI0K3BrSk5EZExYc3lPTmNYVGhvMzlHdkZVQVBZWHpwdndoZ2pQMU5P?=
- =?utf-8?B?Z1pTYittZk5GYTNlQjd4QUF6NGVhbi93SXkvNDhZOUhLb3Z5Zy9KclNpZSt4?=
- =?utf-8?B?eGxzdGxNOXhBbzRBUmEra3EwTTg1ZkhveTY4a0h5QU5rNjI1dE9MaC9uVEkw?=
- =?utf-8?B?NlIwVi9EeEsrOS9jUkpvanlmbXNtVXFwc3Z6UHNNeXlLYm5OK0VKMW53Yndy?=
- =?utf-8?B?MTNyTTVYckJvZDN5RTZsREpka3dGNlRIR1NHVXhuV0RmVDRjS0J2RjNnbWNu?=
- =?utf-8?B?UVZOaVZYZEQvU3JhK2RnRWlsS2NSTXFIcERpQXMySFJnNjAxWjBuU3VhWHhR?=
- =?utf-8?B?MDVXRHluTGRLaVJNU2pIUVlNeGVYSmMxMzZLSStqM0I1c0g2VktPUUI4VC9W?=
- =?utf-8?B?ZkhIY3JoSEhHU1hyOXRlSVlyNTBrTlRheWNod0xqS2ZVM2FpVjFXSFArdFlB?=
- =?utf-8?B?eDBtdUQ2WkdNTmpWWTZLOGVDQnRwRThXSlY1WkhJekJNQW9IaHl6WWgyckxj?=
- =?utf-8?B?S0E2RWFSeE53ZDRCWTI1RmxVa1plSmV0aUFWcUh1TXAzVnpYTTZhZzYvZ0xE?=
- =?utf-8?B?QU53MGFjaTJkOWxQV3NmK29SRndqWnZqemFvTUtxZHRZQ1hwM0NPaTNhRWhY?=
- =?utf-8?B?WU81ZkpxaThWUk1uWTNMMDZNQkMvcTVTRWp5MWRvYmtHc00yTXU0UlQvTkdZ?=
- =?utf-8?B?M241Ry8yRHBLQnZaV0tzTmdlR3FPVnVxaXc5VTYyc3FYcXVvblhIMmI5c3pZ?=
- =?utf-8?B?Rks2Y29DTmgzbHdITFJMNlltUXk3UGk5NDZyMXgyWnpaQnY3akE1b3FtKzJj?=
- =?utf-8?B?VEtoeW1VT1hZTVNwdWdJenlTN2ZwK01LMVRpb29SalJmTXU0aEVaRyt0a3pG?=
- =?utf-8?B?ODNIdEpTaHA1cmREN3NySGJURkZHdk5kQms2SVlweTJFcEFkdjU0RmF3Vi8y?=
- =?utf-8?B?dG4yVDBGMW1VSWg1bWdkaS82LzdVbkN6Q1FSUHpSRjNlT1FmUWpFRmREWEJP?=
- =?utf-8?B?ZytZMG1sTXpnUVZLaWdPbGxCTUs2N05CNk1saEFXUW56b3lUdXZnNzE1bjFH?=
- =?utf-8?B?R3hRWE5mVmFDZ2tYYXhpalIzOGhBSHNGR283Y3pKZzhRU1pCcndNdGFZam9J?=
- =?utf-8?B?cndJa3pUUTUraThKTVNNTVdrTmdPYXd2dm12V3hPZTdNUUZPZVZ5NXN6VmNn?=
- =?utf-8?B?K2dxVUp2T1JySlVFTlJNYkM2ZEROV0VOQjUySUJJcWl5QjF5RkFnTzdVNkRw?=
- =?utf-8?B?dmxPNzdFeVFMV3c3K1ViSFpDT0tCMENhTVB4bzRBVTZqVXVUdE9OZmpBcVBP?=
- =?utf-8?Q?D9yWQ4mEGk/ej?=
+	=?us-ascii?Q?PNsBGlQsy1qS5shs6VzNdtc9daWQMqC6IfzpOfc/Te10KNHKGJXBhQrRkcMY?=
+ =?us-ascii?Q?fy32KHWm6F26L7aZZLkn/x+JXgT5v8CpscTRpDPJ8GLSBYo2UENAt7CXyyAk?=
+ =?us-ascii?Q?/I65bFoR7WMjelJ8LFWoySFQ65kauIpVJfRzuGwQAFgX4CTYZRggMjCfPknO?=
+ =?us-ascii?Q?Bm2oiGeOcuHkm7lJipkh4P87yNGgPDXeBOIUjgdTyEPNIDx6aDn1xkrwS/JM?=
+ =?us-ascii?Q?W6WIrWi4Q3ICmE/wa9AdCKMIiTyUNga99S02jyPTfhtiKsTDI9jlYJRC2T9m?=
+ =?us-ascii?Q?203yZBEz7yy/dHRyL/4vGiDqJP5iWfvkG3hKRk+MkFliGaARSPo7GA6h9CWK?=
+ =?us-ascii?Q?WsUwE+i9CLiTUzexpNOUNd2qyKGWMUH+quFjzVnM99mjNes+ZfvxjCTatJ4a?=
+ =?us-ascii?Q?m0/yNtfos2cP+N0VGfTKU5Ph7ZrRGMNLLSqZhOPQVdLW1+X8lTJZ2THPuDHs?=
+ =?us-ascii?Q?X1QtIHwS1l3/SQnyOeCcZ5sxHxcDpCVlaBpRSXBo7EyPpnlAjUzhB4rEfEEA?=
+ =?us-ascii?Q?1Rzncx7ynGOO4/Q2Q1NJtNTnfSIs9Q3K4SoWLVc9r1KcAWI/d07BeltWFJSE?=
+ =?us-ascii?Q?ZiUNjc3ZZSnbKixyVuiY8P09HyJuFGW+49N9cCvM7pu4rOR5YCvuPKU2OaBi?=
+ =?us-ascii?Q?Tk62UoaPJqJ1QyAC1Z+oBHG7k+uDzTrWV+2JmY8lqoFPwEHOD8aAS76B7Qm5?=
+ =?us-ascii?Q?jPack/0xOv+mqhhJpmQJsP0ZXhcx5fTRzqt/6yY+2mt3j/4uvDLPY/aPMVBF?=
+ =?us-ascii?Q?/Lay3YS/GbrL5VgCJ/W6lxJyu+VHCDGdDuMCGC2K/HFNZrYxt+JANhTyWOa7?=
+ =?us-ascii?Q?7jWhEgLlRo9P2lKEzb58ZBw3fN2IMhbPiXVRiamfB11D2fEDhHJOH71OZbNZ?=
+ =?us-ascii?Q?3MHOlngUM6pi3aiH8rudcstIWI0me7GoOu4yZrylj4erb72UxHe6NBTEMzyh?=
+ =?us-ascii?Q?SQmqrAwPqKxPkZxlqIbKXjWeuQbTtooGTmtB6jMg3K90PzeiKA/+J5y+/IUE?=
+ =?us-ascii?Q?vF537al41GCR+Hk80FvTn62qmlCzHorxktXSVIs5s8HrbY8X/1/GrWGI+ZCU?=
+ =?us-ascii?Q?JJVlBiTJnY43ULSQSCxzD1gPpyRskQWKuhLkXMPJhrhpKIRP8l6GUVPUC1Nm?=
+ =?us-ascii?Q?VYpEVIDV6pfVE0WBa8RMfhe9+bGJjrMuvLPWA0UVBQ0VA+STEWi0CV6TSv2+?=
+ =?us-ascii?Q?Adeu29DkXOh7OUaZ2kQ37OT10S6ZmkRPeoj4BSY4SLzkJptwgTXHvAKG7HOj?=
+ =?us-ascii?Q?Ab1jLqEr94VsoI9Bem+F1+eTcyvHj8euWGqamZ/u+Hi6OQW6x6fcDFuKJ3lW?=
+ =?us-ascii?Q?8HDRz3BcSLVYQUSbzuj6HsvN7RF+CxvEPky7g7RBn2O8lnV8HmVmB6CmXkcW?=
+ =?us-ascii?Q?shwzxlt65IVLi7ecy9QRHgagt3wd?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?NWM4QXJVcThEdGxkNCtVNFlaYkVmby9ZcUtiVlRmcmhRVkgyM09VTlVyVFc0?=
- =?utf-8?B?eFl3SkF1U3lManY5N1hxTmoxY2dDYjJzU1pRQWZpME51b3ZCOFIwdElVNXQr?=
- =?utf-8?B?SGhRSTBFZk56MHU2eTkwdVpBc1NFbFFIYVB2bWY1MGY0ODlTT0NzZGJaU1Vx?=
- =?utf-8?B?WkNNTHRpR2pNeUllZ1BKU0ZjaXM0TUgrZE1PTTY0MXhSaTRRQ1NnSFVpOUc1?=
- =?utf-8?B?UjlQa0VmUFp3VUZtTU9DNGxnemV3YzVMeU1RQjV1OWNsSVpGWkxnRHpVZlpG?=
- =?utf-8?B?c1V4bXBpeklycEZMWHdIWTJJcTdHWmFJU1BhQi9xSVR1QjlNdjJkUjFHOTNt?=
- =?utf-8?B?TTlhdkRNLzdZL3dGcVZ1Mk1UOEtpTkVySXArZEtHSlB4TzhURFkwV3ArT3Jw?=
- =?utf-8?B?VFJOYjNzVkY2cEVkUitJU2F6YUxEejZ2QWhUbmtHZ2FYMmlCQk80OGRIMVkx?=
- =?utf-8?B?SWtaSVJFZS91UnlvU081d0Noa2NnYm8wUzFQTHRhKzdiN3hybXB0Ry9BK1Rl?=
- =?utf-8?B?bHkxVGkwdGpxdUtka0FVdjA5THRiSEFuVFpvaHV1cC9jWjNHN2FFVDlIVUdV?=
- =?utf-8?B?dVRmNXBBYi9JeitmV1hsZlBpbWRNQmlKN1pSblpLa0NOdjQrSWRVUVRaMUMx?=
- =?utf-8?B?Tk1yalF1anV1UFFKOUkvZDkvZllOakdSN1FYRXpWcitTdTdnZEFWZUJKOVB0?=
- =?utf-8?B?TVJoTlpMK0pWMnBKMi82K29XOG0venZ4clFEOGxQQVNyeUFtU1h5dUs4ODhs?=
- =?utf-8?B?WHBxSW5tNjF0TmVHQUZTK1l4SjFObndnV1RyVDRVSkxwY0F6YkZoY1hPL1Fr?=
- =?utf-8?B?R2ZOMHF5bTlWMW5CSTZ2QUU5SmdpREErTTMwbC9NWlhwWlFZTXNHK0JoRFNI?=
- =?utf-8?B?Z3VuZm55WGh3dzd3aFQxRG1ET3lFTmRac0FLdDNBeFRqZXp3ajg5TWprOEpt?=
- =?utf-8?B?Mm1vZDVnSFhuV2RtaU94MUIvYXcyZGNiQW1HMnBhZktzclFwOWYrdWM0ZjN3?=
- =?utf-8?B?djBBdC83NFBGQ2xmTE5WaGRQTEhXTzZWcmRGSTFLcWVZbWNZYW9tM1d4Njc3?=
- =?utf-8?B?dytpaTluOTNhTlc2bnU2blh6bDJ5QVl0QnZUOS9KeG1DTlR0bnFPcVdBbE8w?=
- =?utf-8?B?YzVGaTJqWk9vMVlEZ3YvaUMwZFJGd3RSa0RITzlyZFJXdWRhblh5bE1NYmRx?=
- =?utf-8?B?TGIzQ2RVWCsxejFoK0oyVkgvcVB4OFpTeFJPczVTclpGQ05RSjhkMVJsVGh4?=
- =?utf-8?B?N3grcmY3Z3NvZ3hQVHNKcHp2SUt2czlPZEttWFVkc3pHRmNDQTNpMC9ueUhy?=
- =?utf-8?B?dXJ0RXVNMENjRVdiR0tVY0dhVkVEOHdXOHhXeHo3bk1IbjViNE53eXVlNURV?=
- =?utf-8?B?U1NtbENqTlhmOFcyS041N0RET2RPcEExMWVtaitVZ1dCUFFIQ2t3dzE4aEJS?=
- =?utf-8?B?VlJZME5XMWpRekxSZ0RXbXBRRW1hWDVDN0NpdEJEM2hmdFdIWEtoSkVXSkFD?=
- =?utf-8?B?UWdzazkwa2prWmZoWXQ5S1dTTGZKSnpJcFAycjkvSzFuWWhGOHdnTjJRWUpn?=
- =?utf-8?B?SkFjLzlYOENoT1d3bUM0elp6dDFCMXdUaDNTVGNPcEFURTE1UDV4L0U5MHN5?=
- =?utf-8?B?WXR1Mmtma3RHVDVWUGNOQ1V0U1JmdXVXM1M1SFFtSXFuYWh1NXJnQzREbEZF?=
- =?utf-8?B?Umd0QW9DQWFMRXNPSk9yUGpJb0N3dWlTTnpLVzdpa0ZBSUhBbXJNU0Fzc1c5?=
- =?utf-8?B?K1I3SVBSck55ZTY4VFFrZlFjK3Z3VHhnNUhoWi9pOVR4OFVtbDlDaS9FYStx?=
- =?utf-8?B?VnpQMmNTZEZuM3I0Mzl0ekxXSCszcmJQOTlFYWcrcGlDaU80cXVlcjU3cEl1?=
- =?utf-8?B?REYvcHBSWXpMazRjSmgwTmcyWWhOQTVlUTYwNnVQbnlqQ3BSMmRZQWdmcnRi?=
- =?utf-8?B?TUZrcUxTdnV6dXlmR3Exb2k1RUI5Z1huenQwV0pZWWx0b3BaYXdaYjdEQUN6?=
- =?utf-8?B?Yzd0YmVRWUIvSFZ1c2t5MGNML1A1ZHkxT1ZpVS9SdEdCREhEODB0aFQ5OFR0?=
- =?utf-8?B?MGFIWkpxU01aMnBWUkQyajd0WktleUxBdERBemF3TEZZTWtaSGRxcWVHZmox?=
- =?utf-8?Q?HXi8YJenGiEDQcAZ27Tbiubum?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b3cc64f2-cf37-4783-a109-08dd4767977b
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
+	=?us-ascii?Q?bVpIeRZJ71np7YPu9WoqfG2tUstX5YpHwJb5vhf/mL1QLs0U8D4abxhqgped?=
+ =?us-ascii?Q?tcOkmWGHUq/6wePkidoUICer7n0K8AGDeQqkGYU9cnXpefLKz/cjkcPAaEyo?=
+ =?us-ascii?Q?NZYFdO/jyJpxWvQD9LOC9uFkLFEA0a738aCCgfn1mvWQ3mY4/CBxa+cpKotJ?=
+ =?us-ascii?Q?MOt7OtOdyREG2v8DzoowxY0mLeMA5WLYVjWs8xH1N/chQAyZSFXOsHWXiECN?=
+ =?us-ascii?Q?MEKFcGSqtLa9uuRuBsHsRMbnM9qQhaIj+svv08KEO+F/s1QSll0oWX/UasJ7?=
+ =?us-ascii?Q?MymAXg3/mvpb6vL9YrWlfEI6xNmLudKPfHwsy3TvKNXpf6oGtjHDglTmXajC?=
+ =?us-ascii?Q?2IlFU9kJiVHLWrcPUvSiRHCzIgoG1EgzeBZobWRewqTVXtqK7BbzgGivLe7B?=
+ =?us-ascii?Q?F4MdtL6aafvAjY2VGM/2h0Tvqpx/PFa+irKDUXe4tUPVS2FLs0cX8G/Ql6W5?=
+ =?us-ascii?Q?zCW5vf++ao1jJMPhBhrIYSrkcipnbWpFdixTg/z70L2c2+naieyvW9Mau/wN?=
+ =?us-ascii?Q?FmfosZ5NjN0OlmIxMkIpJjt43Gr+mNxHfJdsFAG7t+b3/p34Ixt1ZrI65899?=
+ =?us-ascii?Q?ntRHkvN4wtJlAW+QsgpIVwk3F/o8si3DBGxdGxq6U/WNIwhM8NUJSXKXb1hm?=
+ =?us-ascii?Q?fxSH/rlXfVlWoijY1EaVItmfMwgzdfDoypQPqD1EEvXkDFInzl62qa4LVgoN?=
+ =?us-ascii?Q?EmNPZZrWPt+inP0UAP6HiaLca8P2EP7g7ueKDes2YtqiIIeSCppAD5Mity2o?=
+ =?us-ascii?Q?IARSlaF9k8L6hO+dyFmNPmpjbGIoyrOleBEj41I0WBwJNAY8baBlWSc8bFVa?=
+ =?us-ascii?Q?mlBM2aXIXecbn75/BHPWFVCySlnWUCkk0/eTxnB5zD9jYVUWVHw4/oFYbhtK?=
+ =?us-ascii?Q?qYD72zp5VlZf99G91s64aV3YVcOPuRlvgfJgrThHUgqBMN6SKvWpSxFHkEWe?=
+ =?us-ascii?Q?YD9eUu8LPCdJQ/LhmpNwMHwBdARr+d3WywDjrqhV6XyDUQTQZlHhbywAb9FY?=
+ =?us-ascii?Q?ER1/4fhamUEuLeXjefe0e9hoWgE6cJKYeDm24EZ+Dd2qIfw+oCYxfdsqIT8W?=
+ =?us-ascii?Q?eAQGLqUb0gAM5q/XEh7LFAQ69HztIuuJp4watj4YJD8KLYDGR9AOXLg+tDw7?=
+ =?us-ascii?Q?uzSHzB0LDmuCRcf+zsB83Imj9IVbqx3UUHQBhTGUpM5XBXg8a1WObxJrD2Oy?=
+ =?us-ascii?Q?diNRdMQaQJ1ADZJhvLTUmhSCc435muNWLUpfn87yYn+EsHQvAvuSkIiUKrKb?=
+ =?us-ascii?Q?bZ5qrw09v/5zuMTfrWq3cKNABb0kyy0jIcyarKfyBDwzJRZLpzN9nS/oMxcY?=
+ =?us-ascii?Q?6deKrQyXHPzNiUMw+VmK9T2TF3mlh2KUjte2kZ1JFACPxzkO6uY/TDF0mcby?=
+ =?us-ascii?Q?dhxQqquBfL/+Rm1j5/h3w+hz/VQk0mGr2BKY4BwXuyK/h6CVafjjI/hiNj85?=
+ =?us-ascii?Q?cwLSNVpmXWVwAUM62LEb1GpRg3VAEhxp9ySgk0HEZAsneN40OgUBHlf2jd9s?=
+ =?us-ascii?Q?dGtNxJw8XDCEIQmwZ4qq5mJwBa1EwrwajJieycaNI9fm03H+Vx0EZbN+oawH?=
+ =?us-ascii?Q?/OK/EnH9HC9iQ8eYBOGQcp4AC+vyNf4vNYWsvF6/?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6dee29fb-207d-4b4e-0136-08dd47862738
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2025 11:07:20.8863
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2025 14:46:06.7082
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 2fY8gQciQUCtLJ7ZJfy3I8VV9KDG0U+RUd9dzUjkgkEbS3nRJoqo1OQpVpdJOCDQIDKfLJlBHvM9ONj7GdAjUQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB6770
+X-MS-Exchange-CrossTenant-UserPrincipalName: q6O68IxBCtzcb68v+5lv6iRQFtG8gZrNP1E1ozG7lBn28K8qMNYG1/3GeIxFGWtC
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7029
 
-On 2025/2/7 2:21, Demi Marie Obenour wrote:
-> On Thu, Feb 06, 2025 at 06:53:55PM +0800, Huang, Honglei1 wrote:
->> On 2025/1/31 8:33, Demi Marie Obenour wrote:
->>> On Wed, Jan 29, 2025 at 03:54:59PM -0500, Demi Marie Obenour wrote:
->>>> On 1/8/25 12:05 PM, Simona Vetter wrote:
->>>>> On Fri, Dec 27, 2024 at 10:24:29AM +0800, Huang, Honglei1 wrote:
->>>>>>
->>>>>> On 2024/12/22 9:59, Demi Marie Obenour wrote:
->>>>>>> On 12/20/24 10:35 AM, Simona Vetter wrote:
->>>>>>>> On Fri, Dec 20, 2024 at 06:04:09PM +0800, Honglei Huang wrote:
->>>>>>>>> From: Honglei Huang <Honglei1.Huang@amd.com>
->>>>>>>>>
->>>>>>>>> A virtio-gpu userptr is based on HMM notifier.
->>>>>>>>> Used for let host access guest userspace memory and
->>>>>>>>> notice the change of userspace memory.
->>>>>>>>> This series patches are in very beginning state,
->>>>>>>>> User space are pinned currently to ensure the host
->>>>>>>>> device memory operations are correct.
->>>>>>>>> The free and unmap operations for userspace can be
->>>>>>>>> handled by MMU notifier this is a simple and basice
->>>>>>>>> SVM feature for this series patches.
->>>>>>>>> The physical PFNS update operations is splited into
->>>>>>>>> two OPs in here. The evicted memories won't be used
->>>>>>>>> anymore but remap into host again to achieve same
->>>>>>>>> effect with hmm_rang_fault.
->>>>>>>>
->>>>>>>> So in my opinion there are two ways to implement userptr that make sense:
->>>>>>>>
->>>>>>>> - pinned userptr with pin_user_pages(FOLL_LONGTERM). there is not mmu
->>>>>>>>      notifier
->>>>>>>>
->>>>>>>> - unpinnned userptr where you entirely rely on userptr and do not hold any
->>>>>>>>      page references or page pins at all, for full SVM integration. This
->>>>>>>>      should use hmm_range_fault ideally, since that's the version that
->>>>>>>>      doesn't ever grab any page reference pins.
->>>>>>>>
->>>>>>>> All the in-between variants are imo really bad hacks, whether they hold a
->>>>>>>> page reference or a temporary page pin (which seems to be what you're
->>>>>>>> doing here). In much older kernels there was some justification for them,
->>>>>>>> because strange stuff happened over fork(), but with FOLL_LONGTERM this is
->>>>>>>> now all sorted out. So there's really only fully pinned, or true svm left
->>>>>>>> as clean design choices imo.
->>>>>>>>
->>>>>>>> With that background, why does pin_user_pages(FOLL_LONGTERM) not work for
->>>>>>>> you?
->>>>>>>
->>>>>>> +1 on using FOLL_LONGTERM.  Fully dynamic memory management has a huge cost
->>>>>>> in complexity that pinning everything avoids.  Furthermore, this avoids the
->>>>>>> host having to take action in response to guest memory reclaim requests.
->>>>>>> This avoids additional complexity (and thus attack surface) on the host side.
->>>>>>> Furthermore, since this is for ROCm and not for graphics, I am less concerned
->>>>>>> about supporting systems that require swappable GPU VRAM.
->>>>>>
->>>>>> Hi Sima and Demi,
->>>>>>
->>>>>> I totally agree the flag FOLL_LONGTERM is needed, I will add it in next
->>>>>> version.
->>>>>>
->>>>>> And for the first pin variants implementation, the MMU notifier is also
->>>>>> needed I think.Cause the userptr feature in UMD generally used like this:
->>>>>> the registering of userptr always is explicitly invoked by user code like
->>>>>> "registerMemoryToGPU(userptrAddr, ...)", but for the userptr release/free,
->>>>>> there is no explicit API for it, at least in hsakmt/KFD stack. User just
->>>>>> need call system call "free(userptrAddr)", then kernel driver will release
->>>>>> the userptr by MMU notifier callback.Virtio-GPU has no other way to know if
->>>>>> user has been free the userptr except for MMU notifior.And in UMD theres is
->>>>>> no way to get the free() operation is invoked by user.The only way is use
->>>>>> MMU notifier in virtio-GPU driver and free the corresponding data in host by
->>>>>> some virtio CMDs as far as I can see.
->>>>>>
->>>>>> And for the second way that is use hmm_range_fault, there is a predictable
->>>>>> issues as far as I can see, at least in hsakmt/KFD stack. That is the memory
->>>>>> may migrate when GPU/device is working. In bare metal, when memory is
->>>>>> migrating KFD driver will pause the compute work of the device in
->>>>>> mmap_wirte_lock then use hmm_range_fault to remap the migrated/evicted
->>>>>> memories to GPU then restore the compute work of device to ensure the
->>>>>> correction of the data. But in virtio-GPU driver the migration happen in
->>>>>> guest kernel, the evict mmu notifier callback happens in guest, a virtio CMD
->>>>>> can be used for notify host but as lack of mmap_write_lock protection in
->>>>>> host kernel, host will hold invalid data for a short period of time, this
->>>>>> may lead to some issues. And it is hard to fix as far as I can see.
->>>>>>
->>>>>> I will extract some APIs into helper according to your request, and I will
->>>>>> refactor the whole userptr implementation, use some callbacks in page
->>>>>> getting path, let the pin method and hmm_range_fault can be choiced
->>>>>> in this series patches.
->>>>>
->>>>> Ok, so if this is for svm, then you need full blast hmm, or the semantics
->>>>> are buggy. You cannot fake svm with pin(FOLL_LONGTERM) userptr, this does
->>>>> not work.
->>>>>
->>>>> The other option is that hsakmt/kfd api is completely busted, and that's
->>>>> kinda not a kernel problem.
->>>>> -Sima
->>>>
->>>> On further thought, I believe the driver needs to migrate the pages to
->>>> device memory (really a virtio-GPU blob object) *and* take a FOLL_LONGTERM
->>>> pin on them.  The reason is that it isn’t possible to migrate these pages
->>>> back to "host" memory without unmapping them from the GPU.  For the reasons
->>>> I mention in [1], I believe that temporarily revoking access to virtio-GPU
->>>> blob objects is not feasible.  Instead, the pages must be treated as if
->>>> they are permanently in device memory until guest userspace unmaps them
->>>> from the GPU, after which they must be migrated back to host memory.
->>>
->>> Discussion on IRC indicates that migration isn't reliable.  This is
->>> because Linux core memory management is largely lock-free for
->>> performance reasons, so there is no way to prevent temporary elevation
->>> of a page's reference count.  A page with an elevated reference count
->>> cannot be migrated.
->>>
->>> The only alternative I can think of is for the hypervisor to perform the
->>> migration.  The hypervisor can revoke the guest's access to the page
->>> without the guest's consent or involvement.  The host can then replace
->>> the page with one of its own pages, which might be on the CPU or GPU.
->>> Further migration between the CPU and GPU is controlled by the host
->>> kernel-mode driver (KMD) and host kernel memory management.  The guest
->>> kernel driver must take a FOLL_LONGTERM pin before telling the host to
->>> use the pages, but that is all.
->>>
->>> On KVM, this should be essentially automatic, as guest memory really is
->>> just host userspace memory.  On Xen, this requires that the backend
->>> domain can revoke fronted access to _any_ frontend page, or at least
->>> frontend pages that have been granted to the backend.  The backend will
->>> then need to be able to handle page faults for the frontend pages, and
->>> replace the frontend pages with its own pages at will.  Furthermore,
->>> revoking pages that the backend has installed into the frontend must
->>> never fail, because the backend will panic if it does fail.
->>>
->>> Sima, is putting guest pages under host kernel control the only option?
->>> I thought that this could be avoided by leaving the pages on the CPU if
->>> migration fails, but that won't work because there will be no way to
->>> migrate them to the GPU later, causing performance problems that would
->>> be impossible to debug.  Is waiting (possibly forever) on migration to
->>> finish an option?  Otherwise, this might mean extra complexity in the
->>> Xen hypervisor, as I do not believe the primitives needed are currently
->>> available.  Specifically, in addition to the primitives discussed at Xen
->>> Project Summit 2024, the backend also needs to intercept access to, and
->>> replace the contents of, arbitrary frontend-controlled pages.
->>
->> Hi Demi,
->>
->> I agree that to achieve the complete SVM feature in virtio-GPU, it is
->> necessary to have the hypervisor deeply involved and add new features.
->> It needs solid design, I saw the detailed reply in a another thread, it
->> is very helpful,looking forward to the response from the Xen/hypervisor
->> experts.
-> 
->  From further discussion with Sima, I suspect that virtio-GPU cannot
-> support SVM with reasonable performance.  Native contexts have such good
-> performance for graphics workloads because graphics workloads very rarely
-> perform blocking waits for host GPU operations to complete, so one can
-> make all frequently-used operations asynchronous and therefore hide the
-> guest <=> host latency.  SVM seems to require many synchronous GPU
-> operations, and I believe those will severely harm performance with
-> virtio-GPU.
-> 
-> If you need full SVM for your workloads, I recommend using hardware
-> SR-IOV.  This should allow the guest to perform GPU virtual memory
-> operations without host involvement, which I expect will be much faster
-> than paravirtualizing these operations.  Scalable I/O virtualization
-> might also work, but it might also require paravirtualizing the
-> performance-critical address-space operations unless the hardware has
-> stage 2 translation tables.
-> 
+virtio-iommu and fsl_pamu are the only two drivers left that still
+rely on ops.domain_alloc()
 
-Yes I think so, the SR-IOV or some other hardware virtualization are 
-clean design for ROCm/compute currently. But actually those hardware 
-features supported solution also have their own limitation, like high 
-hardware cost and the performance decreasing caused by different guest 
-VMs hardware workload schedule. We are trying a low-cost, 
-high-performance virtualization solution, it appears to be difficult to 
-support full feature VS SR-IOV at present. But it doesn't prevent us 
-from enabling part of functions.
+Update virtio-iommu to have a global static identity domain, implement
+domain_alloc_paging(), and finalize its domain during allocation instead
+of on first attach.
 
->> So for the current virito-GPU userptr implementation, It can not support the
->> full SVM feature, it just can only let GPU access the user space memory,
->> maybe can be called by userptr feature. I think I will finish this small
->> part firstly and then to try to complete the whole SVM feature.
-> 
-> I think you will still have problems if the host is able to migrate
-> pages in any way.  This requires that the host install an MMU notifier
-> for the pages it has received from the guest, which in turn implies that
-> the host must be able to prevent the guest from accessing the pages.
-> If the pages are used in grant table operations, this isn't possible.
-> 
-> If you are willing to have the pages be pinned on the host side things
-> are much simpler.  Such pages will always be in system memory, and will
-> never be able to migrate to VRAM.  This will result in a performance
-> penalty and will likely require explicit prefetching by programs using
-> ROCm, but this may be acceptable for your use-cases.  The performance
-> penalty is the same as that with XNACK disabled, which is the case for
-> all RDNA2+ GPUs, so all code that aims to be portable to recent consumer
-> hardware will have to account for it anyway.
+As virtio-iommu was the last real iommu driver using domain_alloc() update
+the core code to isolate the remains to fsl_pamu.
 
-Totally agreed. Actually memory migrating to VRAM is very common in GFX 
-side, but in ROCm/KFD, maybe it can be disabled and not often used as 
-far as I know. ROCm/KFD always uses SDMA to transfer or copy data maybe 
-this is faster than migrating to VRAM (needs further verification).
-But we have some method to workaround it. Really thanks for your reminding.
+I tested this using qemu x86 7.0.0 and 9.2.0 with a mlx5 VFIO PCI
+device. The kernel behaves the same after this series.
 
-Regards,
-Honglei
+However, there seem to be some unrelated qemu bugs. 7.0.0 does not have
+working VIRTIO_IOMMU_F_BYPASS_CONFIG and neither qemu works with an
+IDENTITY domain using !VIRTIO_IOMMU_F_BYPASS_CONFIG. It prints:
 
+ qemu-system-x86_64: iommu has granularity incompatible with target AS
+ qemu-system-x86_64: iommu map to non memory area 80000000
+ qemu-system-x86_64: iommu map to non memory area c0000000
+ qemu-system-x86_64: iommu map to non memory area e0000000
+ qemu-system-x86_64: iommu map to non memory area f0000000
+ qemu-system-x86_64: iommu map to non memory area f8000000
+ qemu-system-x86_64: iommu map to non memory area fc000000
+ qemu-system-x86_64: iommu map to non memory area fe000000
+ qemu-system-x86_64: iommu map to non memory area fe800000
+ qemu-system-x86_64: iommu map to non memory area 0
+ qemu-system-x86_64: iommu map to non memory area fef00000
+ qemu-system-x86_64: iommu map to non memory area ff000000
+ qemu-system-x86_64: iommu has granularity incompatible with target AS
+ qemu-system-x86_64: iommu map to non memory area 200000000
+ qemu-system-x86_64: iommu map to non memory area 400000000
+ qemu-system-x86_64: iommu map to non memory area 800000000
+ qemu-system-x86_64: iommu map to non memory area 1000000000
+ qemu-system-x86_64: iommu map to non memory area 2000000000
+ qemu-system-x86_64: iommu map to non memory area 4000000000
+
+Jason Gunthorpe (5):
+  iommu/virtio: Break out bypass identity support into a global static
+  iommu: Add domain_alloc_identity()
+  iommu/virtio: Move to domain_alloc_paging()
+  iommu: Do not call domain_alloc() in iommu_sva_domain_alloc()
+  iommu: Hide ops.domain_alloc behind CONFIG_FSL_PAMU
+
+ drivers/iommu/iommu-sva.c    |  15 ++-
+ drivers/iommu/iommu.c        |  16 +--
+ drivers/iommu/virtio-iommu.c | 200 +++++++++++++++++++++--------------
+ include/linux/iommu.h        |  10 +-
+ 4 files changed, 141 insertions(+), 100 deletions(-)
+
+
+base-commit: 2014c95afecee3e76ca4a56956a936e23283f05b
+-- 
+2.43.0
 
