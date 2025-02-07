@@ -1,51 +1,51 @@
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1BE5190462
-	for <virtualization@lists.linux.dev>; Fri,  7 Feb 2025 18:43:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A06071A5BB3
+	for <virtualization@lists.linux.dev>; Fri,  7 Feb 2025 18:43:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738953784; cv=none; b=Lhi6mQF7UzmpgCY7ln72tH9pyZ/564lox+pysFo8cT+LeCMUN5u887rJcqIN+QaurD4afay95WmDWGtnPMBGcVKJMLFSKLdAeT3JZFvoM5fSWiV3htFox2lyrtEzLXSBcka5axdH4ePKNuwEbKpJCS1p/cp8aDxGcsZ8BnKpxO0=
+	t=1738953787; cv=none; b=ER+LAal24MMw08tpDEdLRaj7WS/R5z09FPGY24t5joHKcXrNS5xLrr+/Kza/usVLxiEEzg/vu7/vstQdfWCa8LzlXQSjjna4hzgepUQPAeXo0PV22b6bFVm1TaGx1aDzsJhfHKojonLFhUbJSf9NGQkpW0JEhjRM2CMLnvn9F6M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738953784; c=relaxed/simple;
-	bh=fwr8OqvAlKugsufZvHpZOeNEgA7dt65mCk1pC0dH1Nk=;
+	s=arc-20240116; t=1738953787; c=relaxed/simple;
+	bh=nQnZYW52vb86coFPjs/TEXCK0Op+JRWUcCW/VbtdSps=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ufa+AfKJGVFnZFK2LmF0+XO9wuStRLirxjDzSxaw3H09LkwNFRewM1dQDt8dfAisFX+XbfCoqMz0DjxuvNJ5LsMCLtY/cpgYyqMm7ESNTfh3MiH7zluVKR0V0EBDovotz8yfmhAeYwP3m9od0ltjaWdHmwlhv9/i7LTx8JxRnPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=ngGWZne0; arc=none smtp.client-ip=205.220.177.32
+	 MIME-Version; b=SQHhRSi9qqZDOpBNfiz/EHxr3onRosHdkhYyRJCtKuwVDel9yKv3147E8+E0ULhq+cF1O8CjdXR+O8atoq6aqFiazpiEE49Zi5HJLT8gRJX8XbOt3EDD4BUB0xj/xfi8W2m/OHzN1/3CFoF0vadznBgshW9Zg2ZJ1jiJTqnb1Yc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=GjTBR9p0; arc=none smtp.client-ip=205.220.177.32
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="ngGWZne0"
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 517HfrNw009275;
-	Fri, 7 Feb 2025 18:43:01 GMT
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="GjTBR9p0"
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 517HfsNZ011643;
+	Fri, 7 Feb 2025 18:43:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=corp-2023-11-20; bh=3NjNL
-	hMvEyqe/yXAgspbGPylieUE1KvOmQHbOi6+uLk=; b=ngGWZne0VAfmZs0sBiowD
-	zBTtIC3EozJ3CqfTWgJqRL0GZHEC3X/nqrU9FjVnMjl3rUt5R3VXa9a46n5qkgLd
-	1UwLaeT84jkUU/ZTFu5vNXi3iliBFBtXlP0B6Km4RyUjO3VYYP1FTu9E5fy3PdeG
-	+0BIlfQ3Mf/SeU39EjFsuFpuCWDbb0X/d/KHBmDJUA2/+FZjqfVdoqsVAETWbOt+
-	HFguAPZFL0WrTkIRGTi+x6gEK03lEJM9meAE2tcQE2hySO+ALxafWWeJwSwRvU83
-	jSB2sHfS0ocXEnjQLYhc7XDsCwsAICGdchmhvYTtvB+D9mqtC+2wPeg3l9QZWGca
+	:mime-version:references:subject:to; s=corp-2023-11-20; bh=Ketic
+	Cnpyb6jzdEUojEwLtoo1PFBDN83aIYMiT5obl4=; b=GjTBR9p0xeWArPk1s37Au
+	5sIrtaE+u3yb8U1viPRg7anBbUsjTbNwb1so7Y5/vezhlwCdQ0RmhxzujoIPO8s2
+	vLJBZlCAt5zL3TmXC8Yd1hHqHySd1G4WGdRebDGTp3FSPHIRv4Ns9VrCIrcjV61l
+	kPgXTBge6TISpaCiKZgQfRMiFEHiXOBZy4mnVJRVCCHeCVX/2RKy+4PEJRznsy0W
+	CJDhdyaHTeOcjjSURvVlLgcW3hiAgQSkot7HSScvEwrhH8sCJ82cvMIvUjXXqZmG
+	iv3srz5BoDEmnGYx33Jtek38HqAgh5zlrkUcuyU1+aZERiokOdtHgoDPWwfKegku
 	g==
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 44mwwpjqsf-1
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 44m50udacn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 07 Feb 2025 18:43:01 +0000 (GMT)
+	Fri, 07 Feb 2025 18:43:03 +0000 (GMT)
 Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 517Hbxg0022695;
-	Fri, 7 Feb 2025 18:43:00 GMT
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 517HKTTq022731;
+	Fri, 7 Feb 2025 18:43:02 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44j8ec86a4-1
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44j8ec86b7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 07 Feb 2025 18:43:00 +0000
+	Fri, 07 Feb 2025 18:43:02 +0000
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 517Idx9X037660;
-	Fri, 7 Feb 2025 18:43:00 GMT
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 517Idx9b037660;
+	Fri, 7 Feb 2025 18:43:01 GMT
 Received: from localhost.localdomain (ca-dev80.us.oracle.com [10.211.9.80])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 44j8ec8665-8;
-	Fri, 07 Feb 2025 18:42:59 +0000
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 44j8ec8665-10;
+	Fri, 07 Feb 2025 18:43:01 +0000
 From: Dongli Zhang <dongli.zhang@oracle.com>
 To: virtualization@lists.linux.dev, netdev@vger.kernel.org,
         kvm@vger.kernel.org
@@ -53,9 +53,9 @@ Cc: mst@redhat.com, jasowang@redhat.com, eperezma@redhat.com,
         michael.christie@oracle.com, pbonzini@redhat.com, stefanha@redhat.com,
         joao.m.martins@oracle.com, joe.jin@oracle.com, si-wei.liu@oracle.com,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 7/9] vhost: add WARNING if log_num is more than limit
-Date: Fri,  7 Feb 2025 10:41:51 -0800
-Message-ID: <20250207184212.20831-8-dongli.zhang@oracle.com>
+Subject: [PATCH 9/9] vhost-scsi: Fix vhost_scsi_send_bad_target()
+Date: Fri,  7 Feb 2025 10:41:53 -0800
+Message-ID: <20250207184212.20831-10-dongli.zhang@oracle.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20250207184212.20831-1-dongli.zhang@oracle.com>
 References: <20250207184212.20831-1-dongli.zhang@oracle.com>
@@ -73,55 +73,108 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxlo
  phishscore=0 adultscore=0 malwarescore=0 bulkscore=0 suspectscore=0
  mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2501170000 definitions=main-2502070139
-X-Proofpoint-ORIG-GUID: Aa41DM9V3T4iNcwENIKSysJOHJhVkliw
-X-Proofpoint-GUID: Aa41DM9V3T4iNcwENIKSysJOHJhVkliw
+X-Proofpoint-GUID: cg1KL6VSm7q0IoyM47cXu2dE5uwnNUjn
+X-Proofpoint-ORIG-GUID: cg1KL6VSm7q0IoyM47cXu2dE5uwnNUjn
 
-Since long time ago, the only user of vq->log is vhost-net. The concern is
-to add support for more devices (i.e. vhost-scsi or vsock) may reveals
-unknown issue in the vhost API. Add a WARNING.
+Although the support of VIRTIO_F_ANY_LAYOUT + VIRTIO_F_VERSION_1 was
+signaled by the commit 664ed90e621c ("vhost/scsi: Set
+VIRTIO_F_ANY_LAYOUT + VIRTIO_F_VERSION_1 feature bits"),
+vhost_scsi_send_bad_target() still assumes the response in a single
+descriptor.
 
-Suggested-by: Joao Martins <joao.m.martins@oracle.com>
+In addition, although vhost_scsi_send_bad_target() is used by both I/O
+queue and control queue, the response header is always
+virtio_scsi_cmd_resp. It is required to use virtio_scsi_ctrl_tmf_resp or
+virtio_scsi_ctrl_an_resp for control queue.
+
+Fixes: 664ed90e621c ("vhost/scsi: Set VIRTIO_F_ANY_LAYOUT + VIRTIO_F_VERSION_1 feature bits")
 Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
 ---
- drivers/vhost/vhost.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/vhost/scsi.c | 50 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 38 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index db3b30aba940..8368370b40f7 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2553,6 +2553,15 @@ static int get_indirect(struct vhost_virtqueue *vq,
- 		if (access == VHOST_ACCESS_WO) {
- 			*in_num += ret;
- 			if (unlikely(log && ret)) {
-+				/*
-+				 * Since long time ago, the only user of
-+				 * vq->log is vhost-net. The concern is to
-+				 * add support for more devices (i.e.
-+				 * vhost-scsi or vsock) may reveals unknown
-+				 * issue in the vhost API. Add a WARNING.
-+				 */
-+				WARN_ON_ONCE(*log_num >= vq->dev->iov_limit);
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 3b87d698adaf..6aa3f3ad2695 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -989,23 +989,46 @@ static void vhost_scsi_target_queue_cmd(struct vhost_scsi_cmd *cmd)
+ 	target_submit(se_cmd);
+ }
+ 
++#define TYPE_IO_CMD	0
++#define TYPE_CTRL_TMF	1
++#define TYPE_CTRL_AN	2
 +
- 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
- 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
- 				++*log_num;
-@@ -2673,6 +2682,15 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 			 * increment that count. */
- 			*in_num += ret;
- 			if (unlikely(log && ret)) {
-+				/*
-+				 * Since long time ago, the only user of
-+				 * vq->log is vhost-net. The concern is to
-+				 * add support for more devices (i.e.
-+				 * vhost-scsi or vsock) may reveals unknown
-+				 * issue in the vhost API. Add a WARNING.
-+				 */
-+				WARN_ON_ONCE(*log_num >= vq->dev->iov_limit);
+ static void
+ vhost_scsi_send_bad_target(struct vhost_scsi *vs,
+ 			   struct vhost_virtqueue *vq,
+-			   int head, unsigned out)
++			   struct vhost_scsi_ctx *vc, int type)
+ {
+-	struct virtio_scsi_cmd_resp __user *resp;
+-	struct virtio_scsi_cmd_resp rsp;
++	union {
++		struct virtio_scsi_cmd_resp cmd;
++		struct virtio_scsi_ctrl_tmf_resp tmf;
++		struct virtio_scsi_ctrl_an_resp an;
++	} resp;
++	struct iov_iter iov_iter;
++	size_t resp_size;
+ 	int ret;
+ 
+-	memset(&rsp, 0, sizeof(rsp));
+-	rsp.response = VIRTIO_SCSI_S_BAD_TARGET;
+-	resp = vq->iov[out].iov_base;
+-	ret = __copy_to_user(resp, &rsp, sizeof(rsp));
+-	if (!ret)
+-		vhost_add_used_and_signal(&vs->dev, vq, head, 0);
++	memset(&resp, 0, sizeof(resp));
 +
- 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
- 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
- 				++*log_num;
++	if (type == TYPE_IO_CMD) {
++		resp_size = sizeof(struct virtio_scsi_cmd_resp);
++		resp.cmd.response = VIRTIO_SCSI_S_BAD_TARGET;
++	} else if (type == TYPE_CTRL_TMF) {
++		resp_size = sizeof(struct virtio_scsi_ctrl_tmf_resp);
++		resp.tmf.response = VIRTIO_SCSI_S_BAD_TARGET;
++	} else {
++		resp_size = sizeof(struct virtio_scsi_ctrl_an_resp);
++		resp.an.response = VIRTIO_SCSI_S_BAD_TARGET;
++	}
++
++	iov_iter_init(&iov_iter, ITER_DEST, &vq->iov[vc->out], vc->in,
++		      resp_size);
++
++	ret = copy_to_iter(&resp, resp_size, &iov_iter);
++
++	if (likely(ret == resp_size))
++		vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
+ 	else
+-		pr_err("Faulted on virtio_scsi_cmd_resp\n");
++		pr_err("Faulted on virtio scsi type=%d\n", type);
+ }
+ 
+ static int
+@@ -1332,7 +1355,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 		if (ret == -ENXIO)
+ 			break;
+ 		else if (ret == -EIO) {
+-			vhost_scsi_send_bad_target(vs, vq, vc.head, vc.out);
++			vhost_scsi_send_bad_target(vs, vq, &vc, TYPE_IO_CMD);
+ 			vhost_scsi_log_write(vq, vq_log, log_num);
+ 		}
+ 	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
+@@ -1594,7 +1617,10 @@ vhost_scsi_ctl_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 		if (ret == -ENXIO)
+ 			break;
+ 		else if (ret == -EIO) {
+-			vhost_scsi_send_bad_target(vs, vq, vc.head, vc.out);
++			vhost_scsi_send_bad_target(vs, vq, &vc,
++						   v_req.type == VIRTIO_SCSI_T_TMF ?
++						   TYPE_CTRL_TMF :
++						   TYPE_CTRL_AN);
+ 			vhost_scsi_log_write(vq, vq_log, log_num);
+ 		}
+ 	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
 -- 
 2.39.3
 
