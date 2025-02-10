@@ -1,141 +1,106 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF2341BD9DB
-	for <virtualization@lists.linux.dev>; Mon, 10 Feb 2025 08:23:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F2F31C549F
+	for <virtualization@lists.linux.dev>; Mon, 10 Feb 2025 09:59:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739175783; cv=none; b=CxNd/JVnCvUJw1PV3dD8P2zpjZdPtLKXsjcX07nn8Di6nJJEUZcLtqD2iQ64SORUiixBNODEi02E9ozri8f2KYmp5Gu4UJ5c1ZVrTLhAqrXI6zCJ6q3J/m34fdOgBuB1C7GO3rIT4ncX8xxFQr0+q0vV1B4esKJRHHCLQ4Zz8rs=
+	t=1739181595; cv=none; b=i61XfScf+WJolL2aOsFMr4W9YuCdhMJenAXRJTU0qptp2rxsECmYPmH/PDgnsqq0BTYMlY5PqwmlXk/E8s9x1eS7YXkRd4Ddpfew8YcM7cxVHGnFtk1YJTOr+fSmRicaDCzhLiWAvuhYfT2PG3C9EirWrhC/5W7XsSoZRYgGqeI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739175783; c=relaxed/simple;
-	bh=YkP0GghXk5rZxXF+bKkrcLZxMboqgkzN8bfvUUzqc+4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=COfLENlRn7ep636PHoZEi3c50CxFze5e1yKO9L4O2BMbziwL+dhzJG4n+AvzgnlO4dfNYfI9V9MCQHvYBFIBRFcWdZl/9A9BL5SjGsUjZDEmYmJJOBkghc7bruQetp4kOowt35a548AB/cLXZsVSKrBPXKA3CjZ6gOZ4IUdoHls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl; spf=none smtp.mailfrom=bgdev.pl; dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b=oYQnfRNf; arc=none smtp.client-ip=209.85.167.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bgdev.pl
+	s=arc-20240116; t=1739181595; c=relaxed/simple;
+	bh=E+6G9ivPSVsgFELSOBAAWHbWTTLXkPSljJe47y9F14w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gZjo+iGDifvmQ2Ix116T/eYgENs4yIrI72czjvb+4o+dJXeA+k2xxkOBKvyEVAKRZuE1d2uFjqK75j/+aYz5Tfu14HSJ2HtanT5heZGzdMFEtv/hlVvDkh6JMQSsE2qqeHJAJA74DynmgF2E3L6BsszLIfltVPlv9nfKo5GSJQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eQrJP15Q; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b="oYQnfRNf"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-54504bf07cdso1888123e87.2
-        for <virtualization@lists.linux.dev>; Mon, 10 Feb 2025 00:23:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1739175780; x=1739780580; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZoT+boRbhRr/jTb1oqMqPAiRLBIMVE1Brfce63wCwqw=;
-        b=oYQnfRNfQfBf20ZnYUNA4/m49LsuJ+T5ffVTdG+u1MH92SHdhru6Yp/d0s/wxG6pdJ
-         IUsAS0hECKOc67XTfSkYvEs2511W4lksH8oRc+Dki2JTQvM+fiX4EsmvC7R40X67v7dA
-         Wp0Us4XIFXE/1PieVsTVVCoDllaz5RvKsDrPWmX6BOFupuDkn39e4Bs4FsSHzqRd1/cW
-         8cyRTnj/lHCoU8B50TIqRu8f0tW5rnT7a8ZX77bSCJBQ4KFQiHegxkoW3Rzvdfy6IxVL
-         quyGhk9RYQjQRRQZbONQcTEp7GsqKMVFDVSID95tZqkp3OWqt7UYRWZlyRZ0dBhvIrnW
-         MpRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739175780; x=1739780580;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZoT+boRbhRr/jTb1oqMqPAiRLBIMVE1Brfce63wCwqw=;
-        b=H9ENfUpDH/0Prj6qio0bC/2WYRfTasNZ5rb+tIyDVK+42/E5KkKbRttJDmEBOa5zps
-         Hv0HssCFpNssvApzQE61hMoOkIcJtAr+0TEEQx0AXe7L6l8Y2hKK5PMQPY/vBlZPTHX8
-         JPLe1H8Uqpf2Bt6SAC9N0eyIDCcjqM5BfAwRSp2SrSjVbUSOuhnZMbH/EIvzQwUoaSrS
-         65ostBhtU+F/sKUhZGvhW+DbqmHryFnh35dPy9KTv13WoT25XmiwmP1Dx58uoT4nkmgb
-         7zClXShySFuk4LaSYlcup0cViEQUMQdVKKR32R/LUmMWfcq1ZRsDurwe+fhcKleZT42x
-         hehQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXoPfrWFhKpri5F312RtMtNSoo1Afoj1sUCmWs7XJi7aknzfhmrhMJ+5ddak75117d907xeas3MKC7BB/AaoQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw5n0fcvMGyky4OouAaIw7KvcWRhmyyi69NK+iuWwbj0fg/mdOS
-	5UhNSpzxEP+K3f7iRAQLdkbibszLHSR4FEPPGogqBkwi+iB8pSKNn8RB0pPTHi/+WWojknG1f82
-	p5u1u6lwVv2/HbPUobK5bbL1j9NMZhNjyRyQUdw==
-X-Gm-Gg: ASbGnct7lQMkOdvjZJPvkH5pqLqrWtLa5PCa6GLzLpss7J3hUcdVc4HabwDOt2gRoya
-	S43aMtQtOuo4t39UI8XWGPMwUf5F03iUmzPt2HSzoiDDT4xGczAeNko0M6GllOyB/UkxAV949V4
-	oKaN99gFSreFTaWFFBYBSG+gPh4dcg
-X-Google-Smtp-Source: AGHT+IFFAiFvMPMX5w5vYWoD1W4TlwXK4TNGtARGkVlKtIMWS7CPgk80bycWo/eBWUAIbKZuY1UA3HQ76st0rRLGm2U=
-X-Received: by 2002:ac2:47f3:0:b0:544:ffbe:cd22 with SMTP id
- 2adb3069b0e04-544ffbecdebmr2209076e87.46.1739175779838; Mon, 10 Feb 2025
- 00:22:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eQrJP15Q"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1739181594; x=1770717594;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=E+6G9ivPSVsgFELSOBAAWHbWTTLXkPSljJe47y9F14w=;
+  b=eQrJP15Q29GeQ4vRyKtux3UJbNMAfSaJ35ldeNQ5p8kE846h3DGSxyVp
+   Qf0HO4/P9zJqg0EPe8YCuR3cYYbWs3YK/LHGPU9GBqCv/gw06xVxsqXwr
+   2Kv4ZYXkBn91/fP69bPvQEc8BzyBBNZDx32WetQx+2yCtAGHuYTRRGcMa
+   4LFILxCdXzvuuUZCfgAShDTnuVPvgF25xniUBY5e24I5rQ1QKo5RnykX4
+   lqHfFzqKnq6ljbORcd3U+DTiNxQQAFdXR9dsoMBLPmyahaUL+tP/0gRLh
+   A5QLdi7IQLAU069oQDTMdd4T3QItUCxgpkCpPiUydl3T0SOp8UCPZQ75E
+   w==;
+X-CSE-ConnectionGUID: 7xQ1StprSSSCyKNcjmX9ag==
+X-CSE-MsgGUID: nVqG1xwdQli9/WYpkYzrLg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11340"; a="39666642"
+X-IronPort-AV: E=Sophos;i="6.13,274,1732608000"; 
+   d="scan'208";a="39666642"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2025 01:59:53 -0800
+X-CSE-ConnectionGUID: Lz+XmfaiRZuvKqZNFCS1sg==
+X-CSE-MsgGUID: T5+4AuQ0R7Sqoz3Biyq8rw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="112584355"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orviesa007.jf.intel.com with ESMTP; 10 Feb 2025 01:59:51 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+	id 7F6392F2; Mon, 10 Feb 2025 11:59:49 +0200 (EET)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: Amit Shah <amit@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] virtio_console: Get rid of unneeded temporary variable
+Date: Mon, 10 Feb 2025 11:59:45 +0200
+Message-ID: <20250210095946.4122771-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.45.1.3035.g276e886db78b
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250103083520.1764441-1-a909204013@gmail.com>
- <20250106043508.x3pwt3jzh37t265f@vireshk-i7> <20250107060044.hteiw6dgycz5rr7x@vireshk-i7>
- <CAHqiF6Aoe4eUShxpPfKczPF-bVneiyM0gpZ7xWF3artzoC__7Q@mail.gmail.com> <20250210045653.p5d6svdl4d32sttf@vireshk-i7>
-In-Reply-To: <20250210045653.p5d6svdl4d32sttf@vireshk-i7>
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Date: Mon, 10 Feb 2025 09:22:49 +0100
-X-Gm-Features: AWEUYZm0bjFLpqFBJMLvFtabmvBsH883FPmkZVriR3JJZIG8MQp8vYUvvpxS9Nc
-Message-ID: <CAMRc=MfocjJW_oYbePC2yOWZUHnTuUfkvs0d+ANz9=TDdegBxg@mail.gmail.com>
-Subject: Re: [PATCH] drivers:gpio: support multiple virtio-gpio controller instances
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Leng Cold <a909204013@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, info@metux.net, 
-	vireshk@kernel.org, linux-gpio@vger.kernel.org, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 10, 2025 at 5:56=E2=80=AFAM Viresh Kumar <viresh.kumar@linaro.o=
-rg> wrote:
->
-> +GPIO maintainers.
->
-> On 08-02-25, 15:54, Leng Cold wrote:
-> > ping
-> >
-> > Viresh Kumar <viresh.kumar@linaro.org> =E4=BA=8E2025=E5=B9=B41=E6=9C=88=
-7=E6=97=A5=E5=91=A8=E4=BA=8C 14:00=E5=86=99=E9=81=93=EF=BC=9A
-> >
-> > > On 06-01-25, 10:05, Viresh Kumar wrote:
-> > > > On 03-01-25, 16:35, hlleng wrote:
-> > > > > Modify the virtio-gpio driver to support multiple virtual GPIO
-> > > controller
-> > > > > instances. The previous static global irq_chip structure caused
-> > > conflicts
-> > > > > between multiple virtio-gpio device instances as they shared the =
-same
-> > > > > interrupt controller configuration.
-> > > >
-> > > > What is the conflict you are getting since all it has is callbacks =
-only,
-> > > I
-> > > > wonder why do we need to duplicate it.
-> > >
-> > > Ahh, so irq chip should be shared actually..
-> > >
-> > > static void gpiochip_set_irq_hooks(struct gpio_chip *gc)
-> > > {
-> > >         ...
-> > >
-> > >         /* Check if the irqchip already has this hook... */
-> > >         if (irqchip->irq_enable =3D=3D gpiochip_irq_enable ||
-> > >                 irqchip->irq_mask =3D=3D gpiochip_irq_mask) {
-> > >                 /*
-> > >                  * ...and if so, give a gentle warning that this is b=
-ad
-> > >                  * practice.
-> > >                  */
-> > >                 chip_info(gc,
-> > >                           "detected irqchip that is shared with multi=
-ple
-> > > gpiochips: please fix the driver.\n");
-> > >                 return;
-> > >         }
-> > >
-> > >         ...
-> > > }
-> > >
-> > > For your patch:
-> > >
-> > > Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
->
-> --
-> viresh
+When compiling a kernel with GCC using `make W=1` with CONFIG_WERROR=y
+(which is default nowadays), the build fails:
 
-The author would have had more success getting our attention if they
-used get_maintainer.pl. Also: the subject is wrong, should be "gpio:
-virtio: ...".
+drivers/char/virtio_console.c:1427:9: note: ‘snprintf’ output between 9 and 27 bytes into a destination of size 16
 
-Please resend a proper version with Viresh' tag collected.
+Indeed, GCC can't see the limits of the variables that are in use.
+Fix this by using dev_name() of the newly created device that is
+luckily the same as the string used for the DebugFS node name.
 
-Bart
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/char/virtio_console.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 24442485e73e..707464d2227c 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1321,7 +1321,6 @@ static void send_sigio_to_port(struct port *port)
+ 
+ static int add_port(struct ports_device *portdev, u32 id)
+ {
+-	char debugfs_name[16];
+ 	struct port *port;
+ 	dev_t devt;
+ 	int err;
+@@ -1424,9 +1423,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	 * Finally, create the debugfs file that we can use to
+ 	 * inspect a port's state at any time
+ 	 */
+-	snprintf(debugfs_name, sizeof(debugfs_name), "vport%up%u",
+-		 port->portdev->vdev->index, id);
+-	port->debugfs_file = debugfs_create_file(debugfs_name, 0444,
++	port->debugfs_file = debugfs_create_file(dev_name(port->dev), 0444,
+ 						 pdrvdata.debugfs_dir,
+ 						 port, &port_debugfs_fops);
+ 	return 0;
+-- 
+2.45.1.3035.g276e886db78b
+
