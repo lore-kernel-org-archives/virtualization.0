@@ -1,217 +1,176 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A0FF2586D8
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 16:52:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1DB24FBFC
+	for <virtualization@lists.linux.dev>; Mon, 10 Feb 2025 17:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739206354; cv=none; b=ibr8Un9r7SHeqVwNZuVBI4PY9zMO0BiSendqT2u5WfZh+j3A+mO/j4YUPRuKCmoxI05c8tYKJeBd2zOBOkITEzFdOHEjS3I1dDv/C2XT0JXLdDvUaa8Ka6xD6Jqw/MMmDSA1ryLhWwsfdtfMEA2ELZcE9aQ5OorBznzwQZbasg8=
+	t=1739208991; cv=none; b=mX/e9CMMgc6pIzLbiVE4OO7oQ6y2bp9z6SOsQUeB9ahz4YwlwMh76QMt7Xh4vYqv3gdxAMNLuxiEBvrGCfOgeFlwyigHvy5xDWHeAIPHPTIOFBq2vQ6olgqHVp7y5f502t/4Wihr8DNRvJ4ASnCuPl81pF1IYoR6u3GJUQsrjbQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739206354; c=relaxed/simple;
-	bh=0D7FejxdMSdNwq4d8Iw/FTH+8Vh58GxW2QYBqWIyCxo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DJScs8Tgsv0KoZDLlTc1LNBwUnZ2v5OJ3e2uJP5z9hj1sdqLXz5GI5f9f1nPOV+edLGiWQqf+cN/oXr3g3f6U11SnknTB+qiKzQflImq1oEayqvPkZj8ifveE4jA9waOIGe9wE4mRaNUiLXhMWI6ANorx/1XCdL3eRXLy6FvZvQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gvlJLmSY; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1739208991; c=relaxed/simple;
+	bh=u+xBAfgGtWSjK+lShNplBj7ifal6E7BNbQMyEHGnBJo=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=boQB6klf3HjtLQvndd3ALZ8IQsCP5SkIsd8RRMY+t/gNSnroApBmIbqzuVvnhCn6lyeH+j75Iq0vZpG9vDAJk/nmDnHxMVg5ElLfPADV8+Q/bBYmhlbbIXa8Ms0fuAT8UxaOnFGbB6UTK1YM8PP3nCZryZ1ndvU8QcuqiUjrpTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TNVef/C9; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gvlJLmSY"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B9E20405AD
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 16:52:32 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.793
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 3zTULao1VW8Q for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Feb 2025 16:52:31 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B0AFD4054E
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B0AFD4054E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gvlJLmSY
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B0AFD4054E
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 16:52:31 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TNVef/C9"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739206350;
+	s=mimecast20190719; t=1739208988;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jobaAwA+Fk2dqvWn152x6BfQDd/w8Mf+7rUPoxAJHww=;
-	b=gvlJLmSYOOvN0BcOAlILD4mv/+VhDydJ/G8VwTRXCqZUlkKNFKhTiT7wsljXyAsZ9O+iuj
-	H8+ThSoNzST1P6Kjiqg4ouAOx1HJTzM3dzzlYsXbmBB2j80a/Gco47KFxsn3fU4taXjKD3
-	V+iDj01+jtUiB6UuAzvGoimiATUOsVU=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=jmeQoovG0+h8NkGt8mJ7mUN4l2oR44byLjbsSTWDllc=;
+	b=TNVef/C9tVl7GrjDDWrrk4hKqiVtvBdY+TNx20ou+2MVywJjBiuRS+LAdusTTRCqabnRrS
+	2SiqpNifaNfl25SlyrgBFL3GpF+iEYwRuIyGr0R8M3DIJp2CSXAawX3L6JXmi/qYw5Lo2e
+	q6z9McKvrk7zmUsoFCctS6WLdDv4p8Y=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-526-CdwMDlXiNeKb1Of-JfJ7GQ-1; Mon, 10 Feb 2025 11:52:29 -0500
-X-MC-Unique: CdwMDlXiNeKb1Of-JfJ7GQ-1
-X-Mimecast-MFC-AGG-ID: CdwMDlXiNeKb1Of-JfJ7GQ
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43947979ce8so4925355e9.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 08:52:29 -0800 (PST)
+ us-mta-274-p-PiJ5HMMxuSVV-DXBxtcA-1; Mon, 10 Feb 2025 12:36:26 -0500
+X-MC-Unique: p-PiJ5HMMxuSVV-DXBxtcA-1
+X-Mimecast-MFC-AGG-ID: p-PiJ5HMMxuSVV-DXBxtcA
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-38de0201961so752272f8f.2
+        for <virtualization@lists.linux.dev>; Mon, 10 Feb 2025 09:36:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739206347; x=1739811147;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jobaAwA+Fk2dqvWn152x6BfQDd/w8Mf+7rUPoxAJHww=;
-        b=ToCZqQ4U8bRBsypwV9icSVfR65+btVb7Chekv+ZLWYEUihwaVK6DHrEE0Q56Q1C9bi
-         mnO4mMZjXkJ98XpbYVz3tUaAD69U2EV4F+h7VMz4obj+4jwDDb6CrnIs9xKgiPEs7/PG
-         6bFOQZaAnkTDu6dE6l0lWitOY1RwTo3JMQMhy2b2vFTsIKLo76D5vaOK0Hc3bm/5FKv8
-         HswPlYjl+EvcZ1lXN9SuNiPp5WH4oGNeN6jTxTJz/7Syyct6hudtit11O509F6PdsrHg
-         YAmh5ytSxGsNECOOopEu7v8A6K+ozvirtnzbx+5GAh5Sz9qyHlQ0Cm+c0kiZwI9UWks8
-         Q8ow==
-X-Forwarded-Encrypted: i=1; AJvYcCVUO7oBwkZnJ3uliiqR1z3Du0B7KmSetcV2CwR0lebPrK0PPfLxXFgq34/kHLOuPcpiK9iHi/I+IYynNmCqDg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yyy27ztTK0EAD6G2HM8q8BRT7a9wmZjIZk2L06Ny9fYVfC7f2ht
-	QcDgLB7zHLDEDpSCUcSKSN9SyptDcW0tWshSzb8ca5u2dvokr6FxG7lZpX2Ul7OV323lrG1zZhO
-	o5AUXo8pfUBlHoraYoNqk1+43pKiQXWqOZKvj9vsep3SVWw+ezN5N1I6aE9KWfUirvI8P+Ur+9F
-	Su1vBcLwUaVjc=
-X-Gm-Gg: ASbGncs1SGispdLs7BDC8LY86AVkemSl+sK6BAGqUN+ILIcxLqhBqf2rpiUCQSovNm8
-	PlrWgceUqgktP+8VHITvIdRSzdDYavUTUQDfKjo+TPhnLfbV0nqq1Q247UkpuCEVQkXAyIQhyYe
-	B+RT0Y9zG0aftgn+BM0X4QHRFhnJMsOzNsOYr59S5n0VOQQw/plDh8wmvsOt45/LEjvDcZ60AKK
-	hKUE/nwF4dcnQfnR90BRMMicxQSX6l5EsRIuKkoJ8Fh0EXYpaFnFNmw3fmg3gYcFPLnhjbzOMHv
-	ewlZr3+9SYbSJQI7DPecqQjZT65BWP2jkdZLNThuYZ7uJuLtIeT9Hw==
-X-Received: by 2002:a05:600c:4589:b0:434:f609:1af7 with SMTP id 5b1f17b1804b1-4394c808849mr5820105e9.4.1739206347628;
-        Mon, 10 Feb 2025 08:52:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHzQ/jMNKz482G2FvYPl7tsnY56iQpM2aodBvtMBbJOao7+wP//TbIwcCW+7o1f40GNOhLyTA==
-X-Received: by 2002:a05:600c:4589:b0:434:f609:1af7 with SMTP id 5b1f17b1804b1-4394c808849mr5819735e9.4.1739206346931;
-        Mon, 10 Feb 2025 08:52:26 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-29.retail.telecomitalia.it. [79.46.200.29])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38dcb88d5e6sm9636306f8f.1.2025.02.10.08.52.25
+        d=1e100.net; s=20230601; t=1739208985; x=1739813785;
+        h=content-transfer-encoding:mime-version:message-id:date:references
+         :in-reply-to:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jmeQoovG0+h8NkGt8mJ7mUN4l2oR44byLjbsSTWDllc=;
+        b=Lu1/jkLIPyxOx67O69SqVSEZevkKk+7/Qk1H5lV+C9Jd13sPOPEXbQs7BWIwFYkrUP
+         GPLUU0mZXGngCteRQHyzpOmCwvswzwz3h3gZpVpI3YL+TJeIIAtRsvz58/VHQZahG+VC
+         fHuNZzYrkO820Rzpo4nK4ki4VEASzIbYvROGC+PQ/q2nbYhqIjoGTK7FrKm7heVnPc4i
+         DkGyj0pfJBX9T9qaSCYIgsQC94YLegoyErJAwszS8+JpdZpKWtG8WtRinlSzdBrUK1Vf
+         iCCIvk3DFl1Wj92G0R6URtuhQRsDxWxYd/uqaDwzv2vVCspR7I78PKy6xBWD3dLrVyfu
+         t0kA==
+X-Forwarded-Encrypted: i=1; AJvYcCXp0H05LXC/DP5m9Zi0TDfyWOn4a+uYGVcXGa3OsB7CKaUgFVI+MVmDAqPqK24Ai+caNe7WNI7xvkj/x8RI6w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwbYAbIrKVsWz6qXU8p7XTv6eXXFXoRmFvVqAuP92dnr62JUl30
+	dtJE0qKw1o/ss/2Xnxac3JgUWoSpAjZw/8MyirE+92ZZBQhDxg5zZ6JuKBxmI3PzX78NaeV+iYX
+	zwmlzGLCvqrnwuCFELcgNxH6EP8zSG7aq+9rTsDG7IR1jKudRTAv+6qsSTy2/3+ua
+X-Gm-Gg: ASbGnctf5/Y6r2pBahpSkNxebkHtX0UEcIdC3bB8mBW7IM1ObodczJPF4MnP9lcpltS
+	Xv79n/FUbTEDBImAZOkRZXOKB1uJiu0ACi15+VaY93+W/Z/VTAhWNq0/mJfjtJhw9EqM8fVHyxf
+	w0hE8TqIJaGvbzmbVLAUih7uc3LrxJQUYAJ+/i5Hy9Upbk5QIJNepveoV3/1mEbIxl2hZbczHGu
+	QzWah3d9t2x/vivlF59PJfiaz1kUtjjds1jZAtAtd34yzThZvKU078QWvnBXLSOf5PS5d2yI5pU
+	MbzGCVB7Ju+P1itUY4vkeMwMVPDSc6Lv+7edGiAtIg+SEif4j1qSP2gisQmxMAemgg==
+X-Received: by 2002:a5d:598f:0:b0:38d:e250:d953 with SMTP id ffacd0b85a97d-38de250dbabmr3058686f8f.35.1739208985438;
+        Mon, 10 Feb 2025 09:36:25 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFxfTkrMg3Ut4KvVNhGVu91A0XAdGHvAD9T0QbpHzfP2OmSPgOw5f7LxHQ3fWHxL8NqTxJ5mQ==
+X-Received: by 2002:a5d:598f:0:b0:38d:e250:d953 with SMTP id ffacd0b85a97d-38de250dbabmr3058583f8f.35.1739208984820;
+        Mon, 10 Feb 2025 09:36:24 -0800 (PST)
+Received: from vschneid-thinkpadt14sgen2i.remote.csb (213-44-141-166.abo.bbox.fr. [213.44.141.166])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38dbf2ed900sm12687106f8f.53.2025.02.10.09.36.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Feb 2025 08:52:26 -0800 (PST)
-Date: Mon, 10 Feb 2025 17:52:19 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: leonardi@redhat.com, Junnan Wu <junnan01.wu@samsung.com>
-Cc: stefanha@redhat.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, mindong.zhao@samsung.com, 
-	q1.huang@samsung.com, ying01.gao@samsung.com, ying123.xu@samsung.com
-Subject: Re: [PATCH 2/2] vsock/virtio: Don't reset the created SOCKET during
- s2r
-Message-ID: <iv6oalr6yuwsfkoxnorp4t77fdjheteyojauwf2phshucdxatf@ominy3hfcpxb>
-References: <20250207052033.2222629-1-junnan01.wu@samsung.com>
- <CGME20250207051946epcas5p295a3f6455ad1dbd9658ed1bcf131ced5@epcas5p2.samsung.com>
- <20250207052033.2222629-2-junnan01.wu@samsung.com>
- <rnri3i5jues4rjgtb36purbjmct56u4m5e6swaqb3smevtlozw@ki7gdlbdbmve>
+        Mon, 10 Feb 2025 09:36:24 -0800 (PST)
+From: Valentin Schneider <vschneid@redhat.com>
+To: Frederic Weisbecker <frederic@kernel.org>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+ linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org,
+ kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-mm@kvack.org,
+ linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+ bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov
+ <alexey.amakhalov@broadcom.com>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Paul
+ Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave
+ Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Peter Zijlstra <peterz@infradead.org>, Arnaldo Carvalho de Melo
+ <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Mark Rutland
+ <mark.rutland@arm.com>, Alexander Shishkin
+ <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, Ian
+ Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>,
+ "Liang, Kan" <kan.liang@linux.intel.com>, Boris Ostrovsky
+ <boris.ostrovsky@oracle.com>, Josh Poimboeuf <jpoimboe@kernel.org>, Pawan
+ Gupta <pawan.kumar.gupta@linux.intel.com>, Sean Christopherson
+ <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski
+ <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, "Paul E. McKenney"
+ <paulmck@kernel.org>, Jason Baron <jbaron@akamai.com>, Steven Rostedt
+ <rostedt@goodmis.org>, Ard Biesheuvel <ardb@kernel.org>, Neeraj Upadhyay
+ <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>,
+ Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Uladzislau Rezki <urezki@gmail.com>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
+ Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli <juri.lelli@redhat.com>,
+ Clark Williams <williams@redhat.com>, Yair Podemsky <ypodemsk@redhat.com>,
+ Tomas Glozar <tglozar@redhat.com>, Vincent Guittot
+ <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Kees Cook
+ <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Christoph
+ Hellwig <hch@infradead.org>, Shuah Khan <shuah@kernel.org>, Sami Tolvanen
+ <samitolvanen@google.com>, Miguel Ojeda <ojeda@kernel.org>, Alice Ryhl
+ <aliceryhl@google.com>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+ Samuel Holland <samuel.holland@sifive.com>, Rong Xu <xur@google.com>,
+ Nicolas Saenz Julienne <nsaenzju@redhat.com>, Geert Uytterhoeven
+ <geert@linux-m68k.org>, Yosry Ahmed <yosryahmed@google.com>, "Kirill A.
+ Shutemov" <kirill.shutemov@linux.intel.com>, "Masami Hiramatsu (Google)"
+ <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, Luis
+ Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v4 22/30] context_tracking: Exit CT_STATE_IDLE upon
+ irq/nmi entry
+In-Reply-To: <Z6ZTBXUiEOLVcSKp@pavilion.home>
+References: <20250114175143.81438-1-vschneid@redhat.com>
+ <20250114175143.81438-23-vschneid@redhat.com>
+ <Z5A6NPqVGoZ32YsN@pavilion.home>
+ <xhsmh5xm0pkuo.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <xhsmhbjvdk7kq.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <Z6ZTBXUiEOLVcSKp@pavilion.home>
+Date: Mon, 10 Feb 2025 18:36:20 +0100
+Message-ID: <xhsmh8qqdk8h7.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <rnri3i5jues4rjgtb36purbjmct56u4m5e6swaqb3smevtlozw@ki7gdlbdbmve>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: AScUnnq7klf7R0mkacZXf-GAp_wdTHth3m4W4R1B4eg_1739206348
+X-Mimecast-MFC-PROC-ID: LiB8MsS_xdn7bwbHkbqUl4-L9a1bI6-zXHgT8DfORbM_1739208985
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 10, 2025 at 12:48:03PM +0100, leonardi@redhat.com wrote:
->Like for the other patch, some maintainers have not been CCd.
-
-Yes, please use `scripts/get_maintainer.pl`.
-
+On 07/02/25 19:37, Frederic Weisbecker wrote:
+> Le Fri, Feb 07, 2025 at 06:06:45PM +0100, Valentin Schneider a =C3=A9crit=
+ :
+>>
+>> Soooo I've been thinking...
+>>
+>> Isn't
+>>
+>>   (context_tracking.state & CT_RCU_WATCHING)
+>>
+>> pretty much a proxy for knowing whether a CPU is executing in kernelspac=
+e,
+>> including NMIs?
 >
->On Fri, Feb 07, 2025 at 01:20:33PM +0800, Junnan Wu wrote:
->>From: Ying Gao <ying01.gao@samsung.com>
->>
->>If suspend is executed during vsock communication and the
->>socket is reset, the original socket will be unusable after resume.
-
-Why? (I mean for a good commit description)
-
->>
->>Judge the value of vdev->priv in function virtio_vsock_vqs_del,
->>only when the function is invoked by virtio_vsock_remove,
->>all vsock connections will be reset.
->>
->The second part of the commit message is not that clear, do you mind 
->rephrasing it?
-
-+1 on that
-
-Also in this case, why checking `vdev->priv` fixes the issue?
-
+> You got it!
 >
->>Signed-off-by: Ying Gao <ying01.gao@samsung.com>
->Missing Co-developed-by?
->>Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
->
->
->>---
->>net/vmw_vsock/virtio_transport.c | 6 ++++--
->>1 file changed, 4 insertions(+), 2 deletions(-)
->>
->>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->>index 9eefd0fba92b..9df609581755 100644
->>--- a/net/vmw_vsock/virtio_transport.c
->>+++ b/net/vmw_vsock/virtio_transport.c
->>@@ -717,8 +717,10 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
->>	struct sk_buff *skb;
->>
->>	/* Reset all connected sockets when the VQs disappear */
->>-	vsock_for_each_connected_socket(&virtio_transport.transport,
->>-					virtio_vsock_reset_sock);
->I would add a comment explaining why you are adding this check.
 
-Yes, please.
-
->>+	if (!vdev->priv) {
->>+		vsock_for_each_connected_socket(&virtio_transport.transport,
->>+						virtio_vsock_reset_sock);
->>+	}
-
-Okay, after looking at the code I understood why, but please write it 
-into the commit next time!
-
-virtio_vsock_vqs_del() is called in 2 cases:
-1 - in virtio_vsock_remove() after setting `vdev->priv` to null since
-     the drive is about to be unloaded because the device is for example
-     removed (hot-unplug)
-
-2 - in virtio_vsock_freeze() when suspending, but in this case
-     `vdev->priv` is not touched.
-
-I don't think is a good idea using that because in the future it could 
-change. So better to add a parameter to virtio_vsock_vqs_del() to 
-differentiate the 2 use cases.
-
-
-That said, I think this patch is wrong:
-
-We are deallocating virtqueues, so all packets that are "in flight" will 
-be completely discarded. Our transport (virtqueues) has no mechanism to 
-retransmit them, so those packets would be lost forever. So we cannot 
-guarantee the reliability of SOCK_STREAM sockets for example.
-
-In any case, after a suspension, many connections will be expired in the 
-host anyway, so does it make sense to keep them open in the guest?
-
-If you want to support this use case, you must first provide a way to 
-keep those packets somewhere (e.g. avoiding to remove the virtqueues?), 
-but I honestly don't understand the use case.
-
-To be clear, this behavior is intended, and it's for example the same as 
-when suspending the VM is the hypervisor directly, which after that, it 
-sends an event to the guest, just to close all connections because it's 
-complicated to keep them active.
-
-Thanks,
-Stefano
+Yay!
 
 >>
->>	/* Stop all work handlers to make sure no one is accessing the device,
->>	 * so we can safely call virtio_reset_device().
->>-- 
->>2.34.1
+>> NMI interrupts userspace/VM/idle -> ct_nmi_enter()   -> it becomes true
+>> IRQ interrupts idle              -> ct_irq_enter()   -> it becomes true
+>> IRQ interrupts userspace         -> __ct_user_exit() -> it becomes true
+>> IRQ interrupts VM                -> __ct_user_exit() -> it becomes true
 >>
+>> IOW, if I gate setting deferred work by checking for this instead of
+>> explicitely CT_STATE_KERNEL, "it should work" and prevent the
+>> aforementioned issue? Or should I be out drinking instead? :-)
 >
->I am not familiar with freeze/resume, but I don't see any problems 
->with this patch.
+> Exactly it should work! Now that doesn't mean you can't go out
+> for a drink :-)
 >
->Thank you,
->Luigi
->
+
+Well, drinks were had very shortly after sending this email :D
+
+> Thanks.
 
