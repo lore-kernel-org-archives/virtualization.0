@@ -1,216 +1,217 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E81202580E4
-	for <virtualization@lists.linux.dev>; Mon, 10 Feb 2025 16:21:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A0FF2586D8
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 16:52:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739204514; cv=none; b=OzHg0r+5gUOURNEaOYy88W5t4QHmhuoTnkn6tROSb3D6xhBdgts9P/TtWJD00nrQ16tPwqpBRSRdZHaAmnwx59TvkCkRU1c9wGwsSDj5YJADvANKdCxRBZGseBm5EOGgAG13z93EOYA5ACxL+9E/3vyHB8BDSJuKgjuqMnat55c=
+	t=1739206354; cv=none; b=ibr8Un9r7SHeqVwNZuVBI4PY9zMO0BiSendqT2u5WfZh+j3A+mO/j4YUPRuKCmoxI05c8tYKJeBd2zOBOkITEzFdOHEjS3I1dDv/C2XT0JXLdDvUaa8Ka6xD6Jqw/MMmDSA1ryLhWwsfdtfMEA2ELZcE9aQ5OorBznzwQZbasg8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739204514; c=relaxed/simple;
-	bh=F1uW5ma3fdeyn5aBjyxZoVhGgZVM2t/lrZtQqYD9Oew=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=paKKqaPekYby0JbSQzeFsWuEm0fxDN6yv7ozW4W4T+wiDg1ceBBzlcZN+7SK7ZhtKfL/+KfqPuLeXYxvTEHhkPVt1yo6K1tSeq/zRa164EZ5oznLof2IjUe5SAe/0dYZT3j547sO9Nnbo9CACzvRDX+jVYmQ3DP4UmSxhosILz8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KCfAsL2B; arc=none smtp.client-ip=209.85.216.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1739206354; c=relaxed/simple;
+	bh=0D7FejxdMSdNwq4d8Iw/FTH+8Vh58GxW2QYBqWIyCxo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=DJScs8Tgsv0KoZDLlTc1LNBwUnZ2v5OJ3e2uJP5z9hj1sdqLXz5GI5f9f1nPOV+edLGiWQqf+cN/oXr3g3f6U11SnknTB+qiKzQflImq1oEayqvPkZj8ifveE4jA9waOIGe9wE4mRaNUiLXhMWI6ANorx/1XCdL3eRXLy6FvZvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gvlJLmSY; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KCfAsL2B"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2f83e54432dso14860218a91.2
-        for <virtualization@lists.linux.dev>; Mon, 10 Feb 2025 08:21:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1739204511; x=1739809311; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gjevNOj/bkd1TGaPwATIjylcH4KclWeK6tRAdAb+PbI=;
-        b=KCfAsL2B8oB94cuDJOZ8k5SnTsT6Q7UZwkTaP4LsWEyIlfCCf2PDhSFUhTJJ1Fh2TR
-         BRYpucCn9uuzStaG7Bf1zNd4F7Y3CjBPw4j6Z2IZDOSyDg0AJbztQQjDYuLAhw/dOB4j
-         OtOSgB93SSxyBoFhUj1ZFxpMlpInc5tTFzsZtD/RKOxQ9ARsovW7JLtN+/i75eq64b6L
-         JQY3bT3l4ychKLt/QroJ2PSe99OSsgGzAf+dmdjX7533ZwCSyEUGL+ELhkB2wJLINd/w
-         sxM4J6kNgBsYxaLRCS0PzfETyyP3Zp2wM2BpYwMk7YHd2PtYbctmzubVZyhaKnixj1GF
-         i7aA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gvlJLmSY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id B9E20405AD
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 16:52:32 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 3zTULao1VW8Q for <virtualization@lists.linux-foundation.org>;
+ Mon, 10 Feb 2025 16:52:31 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B0AFD4054E
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B0AFD4054E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gvlJLmSY
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B0AFD4054E
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 16:52:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1739206350;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jobaAwA+Fk2dqvWn152x6BfQDd/w8Mf+7rUPoxAJHww=;
+	b=gvlJLmSYOOvN0BcOAlILD4mv/+VhDydJ/G8VwTRXCqZUlkKNFKhTiT7wsljXyAsZ9O+iuj
+	H8+ThSoNzST1P6Kjiqg4ouAOx1HJTzM3dzzlYsXbmBB2j80a/Gco47KFxsn3fU4taXjKD3
+	V+iDj01+jtUiB6UuAzvGoimiATUOsVU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-526-CdwMDlXiNeKb1Of-JfJ7GQ-1; Mon, 10 Feb 2025 11:52:29 -0500
+X-MC-Unique: CdwMDlXiNeKb1Of-JfJ7GQ-1
+X-Mimecast-MFC-AGG-ID: CdwMDlXiNeKb1Of-JfJ7GQ
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43947979ce8so4925355e9.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 10 Feb 2025 08:52:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739204511; x=1739809311;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gjevNOj/bkd1TGaPwATIjylcH4KclWeK6tRAdAb+PbI=;
-        b=mu6Lcgd0BrBz502/I7Q6N0zboUL834QUKIxtQ68nafLq/361oT4UfD2aRzYRgc3gAX
-         8wmolIwz213jlKo1nCpzJKuVghMgq1lZ2MJ6cKNP1S0FoCI5PVbrb+KRfaIPuVgTxkid
-         Y+DPRONmKSQx32mRA3lUUOlE3bAA5dx4vfLYMzeS4GXx0NGn7dw2ajH4fWEXdxqPtg7n
-         2cw4QRzxBkRgZWyW6rnUzevMcDopwxNw6qsJuEs8bvw/iqvcn44H5H9vCARTKZljYC6i
-         cUFdghyYpzvmcBZOzEYGjdTe1DMDacydBYHy6odibp0gkw94uJTdnzGWaHW1phBmxBjE
-         aJ1Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUWbTzl3sa2FqaW4TvrYQTu0a6daYdhiO2XN9A3UODYhBrwhOZpYhfz5Ry7nO5aJpQr72elagwSWzQn5OjSyw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwPOKRuwVyZPzvxhCoMD69ZmUymEM+9TkvJlpOKYyawc6ssCyQ9
-	xNKHOYkiGl7kye8paqESqB/1815tAf2PMtLOgfUtaMVXB1MGvfOI8yfKsXvsNRr/mmWiiu6fz58
-	59g==
-X-Google-Smtp-Source: AGHT+IHvA6NXtBXVEFbtZeSWagFJPoake9uFGdSEz34GpfES659xPG5GoxHcGoeeTGEESr/Dcqf76t3tOTs=
-X-Received: from pjbsp15.prod.google.com ([2002:a17:90b:52cf:b0:2ee:53fe:d0fc])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4cd1:b0:2fa:b84:b304
- with SMTP id 98e67ed59e1d1-2fa243db921mr18907344a91.22.1739204511253; Mon, 10
- Feb 2025 08:21:51 -0800 (PST)
-Date: Mon, 10 Feb 2025 08:21:49 -0800
-In-Reply-To: <SN6PR02MB4157A85EC0B1B2D45CB611FAD4F02@SN6PR02MB4157.namprd02.prod.outlook.com>
+        d=1e100.net; s=20230601; t=1739206347; x=1739811147;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jobaAwA+Fk2dqvWn152x6BfQDd/w8Mf+7rUPoxAJHww=;
+        b=ToCZqQ4U8bRBsypwV9icSVfR65+btVb7Chekv+ZLWYEUihwaVK6DHrEE0Q56Q1C9bi
+         mnO4mMZjXkJ98XpbYVz3tUaAD69U2EV4F+h7VMz4obj+4jwDDb6CrnIs9xKgiPEs7/PG
+         6bFOQZaAnkTDu6dE6l0lWitOY1RwTo3JMQMhy2b2vFTsIKLo76D5vaOK0Hc3bm/5FKv8
+         HswPlYjl+EvcZ1lXN9SuNiPp5WH4oGNeN6jTxTJz/7Syyct6hudtit11O509F6PdsrHg
+         YAmh5ytSxGsNECOOopEu7v8A6K+ozvirtnzbx+5GAh5Sz9qyHlQ0Cm+c0kiZwI9UWks8
+         Q8ow==
+X-Forwarded-Encrypted: i=1; AJvYcCVUO7oBwkZnJ3uliiqR1z3Du0B7KmSetcV2CwR0lebPrK0PPfLxXFgq34/kHLOuPcpiK9iHi/I+IYynNmCqDg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yyy27ztTK0EAD6G2HM8q8BRT7a9wmZjIZk2L06Ny9fYVfC7f2ht
+	QcDgLB7zHLDEDpSCUcSKSN9SyptDcW0tWshSzb8ca5u2dvokr6FxG7lZpX2Ul7OV323lrG1zZhO
+	o5AUXo8pfUBlHoraYoNqk1+43pKiQXWqOZKvj9vsep3SVWw+ezN5N1I6aE9KWfUirvI8P+Ur+9F
+	Su1vBcLwUaVjc=
+X-Gm-Gg: ASbGncs1SGispdLs7BDC8LY86AVkemSl+sK6BAGqUN+ILIcxLqhBqf2rpiUCQSovNm8
+	PlrWgceUqgktP+8VHITvIdRSzdDYavUTUQDfKjo+TPhnLfbV0nqq1Q247UkpuCEVQkXAyIQhyYe
+	B+RT0Y9zG0aftgn+BM0X4QHRFhnJMsOzNsOYr59S5n0VOQQw/plDh8wmvsOt45/LEjvDcZ60AKK
+	hKUE/nwF4dcnQfnR90BRMMicxQSX6l5EsRIuKkoJ8Fh0EXYpaFnFNmw3fmg3gYcFPLnhjbzOMHv
+	ewlZr3+9SYbSJQI7DPecqQjZT65BWP2jkdZLNThuYZ7uJuLtIeT9Hw==
+X-Received: by 2002:a05:600c:4589:b0:434:f609:1af7 with SMTP id 5b1f17b1804b1-4394c808849mr5820105e9.4.1739206347628;
+        Mon, 10 Feb 2025 08:52:27 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHzQ/jMNKz482G2FvYPl7tsnY56iQpM2aodBvtMBbJOao7+wP//TbIwcCW+7o1f40GNOhLyTA==
+X-Received: by 2002:a05:600c:4589:b0:434:f609:1af7 with SMTP id 5b1f17b1804b1-4394c808849mr5819735e9.4.1739206346931;
+        Mon, 10 Feb 2025 08:52:26 -0800 (PST)
+Received: from sgarzare-redhat (host-79-46-200-29.retail.telecomitalia.it. [79.46.200.29])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38dcb88d5e6sm9636306f8f.1.2025.02.10.08.52.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Feb 2025 08:52:26 -0800 (PST)
+Date: Mon, 10 Feb 2025 17:52:19 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: leonardi@redhat.com, Junnan Wu <junnan01.wu@samsung.com>
+Cc: stefanha@redhat.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, mindong.zhao@samsung.com, 
+	q1.huang@samsung.com, ying01.gao@samsung.com, ying123.xu@samsung.com
+Subject: Re: [PATCH 2/2] vsock/virtio: Don't reset the created SOCKET during
+ s2r
+Message-ID: <iv6oalr6yuwsfkoxnorp4t77fdjheteyojauwf2phshucdxatf@ominy3hfcpxb>
+References: <20250207052033.2222629-1-junnan01.wu@samsung.com>
+ <CGME20250207051946epcas5p295a3f6455ad1dbd9658ed1bcf131ced5@epcas5p2.samsung.com>
+ <20250207052033.2222629-2-junnan01.wu@samsung.com>
+ <rnri3i5jues4rjgtb36purbjmct56u4m5e6swaqb3smevtlozw@ki7gdlbdbmve>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250201021718.699411-1-seanjc@google.com> <20250201021718.699411-17-seanjc@google.com>
- <Z6ZBjNdoULymGgxz@google.com> <SN6PR02MB4157A85EC0B1B2D45CB611FAD4F02@SN6PR02MB4157.namprd02.prod.outlook.com>
-Message-ID: <Z6onnUthSBUVAklf@google.com>
-Subject: Re: [PATCH 16/16] x86/kvmclock: Use TSC for sched_clock if it's
- constant and non-stop
-From: Sean Christopherson <seanjc@google.com>
-To: Michael Kelley <mhklinux@outlook.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross <jgross@suse.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Nikunj A Dadhania <nikunj@amd.com>, 
-	Tom Lendacky <thomas.lendacky@amd.com>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+In-Reply-To: <rnri3i5jues4rjgtb36purbjmct56u4m5e6swaqb3smevtlozw@ki7gdlbdbmve>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: AScUnnq7klf7R0mkacZXf-GAp_wdTHth3m4W4R1B4eg_1739206348
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Sat, Feb 08, 2025, Michael Kelley wrote:
-> From: Sean Christopherson <seanjc@google.com> Sent: Friday, February 7, 2025 9:23 AM
-> > 
-> > Dropping a few people/lists whose emails are bouncing.
-> > 
-> > On Fri, Jan 31, 2025, Sean Christopherson wrote:
-> > > @@ -369,6 +369,11 @@ void __init kvmclock_init(void)
-> > >  #ifdef CONFIG_X86_LOCAL_APIC
-> > >  	x86_cpuinit.early_percpu_clock_init = kvm_setup_secondary_clock;
-> > >  #endif
-> > > +	/*
-> > > +	 * Save/restore "sched" clock state even if kvmclock isn't being used
-> > > +	 * for sched_clock, as kvmclock is still used for wallclock and relies
-> > > +	 * on these hooks to re-enable kvmclock after suspend+resume.
-> > 
-> > This is wrong, wallclock is a different MSR entirely.
-> > 
-> > > +	 */
-> > >  	x86_platform.save_sched_clock_state = kvm_save_sched_clock_state;
-> > >  	x86_platform.restore_sched_clock_state = kvm_restore_sched_clock_state;
-> > 
-> > And usurping sched_clock save/restore is *really* wrong if kvmclock isn't being
-> > used as sched_clock, because when TSC is reset on suspend/hiberation, not doing
-> > tsc_{save,restore}_sched_clock_state() results in time going haywire.
-> > 
-> > Subtly, that issue goes all the way back to patch "x86/paravirt: Don't use a PV
-> > sched_clock in CoCo guests with trusted TSC" because pulling the rug out from
-> > under kvmclock leads to the same problem.
-> > 
-> > The whole PV sched_clock scheme is a disaster.
-> > 
-> > Hyper-V overrides the save/restore callbacks, but _also_ runs the old TSC callbacks,
-> > because Hyper-V doesn't ensure that it's actually using the Hyper-V clock for
-> > sched_clock.  And the code is all kinds of funky, because it tries to keep the
-> > x86 code isolated from the generic HV clock code, but (a) there's already x86 PV
-> > specific code in drivers/clocksource/hyperv_timer.c, and (b) splitting the code
-> > means that Hyper-V overides the sched_clock save/restore hooks even when
-> > PARAVIRT=n, i.e. when HV clock can't possibly be used as sched_clock.
-> 
-> Regarding (a), the one occurrence of x86 PV-specific code hyperv_timer.c is
-> the call to paravirt_set_sched_clock(), and it's under an #ifdef sequence so that
-> it's not built if targeting some other architecture. Or do you see something else
-> that is x86-specific?
-> 
-> Regarding (b), in drivers/hv/Kconfig, CONFIG_HYPERV always selects PARAVIRT.
-> So the #else clause (where PARAVIRT=n) in that #ifdef sequence could arguably
-> have a BUILD_BUG() added. If I recall correctly, other Hyper-V stuff breaks if
-> PARAVIRT is forced to "n". So I don't think there's a current problem with the
-> sched_clock save/restore hooks. i
+On Mon, Feb 10, 2025 at 12:48:03PM +0100, leonardi@redhat.com wrote:
+>Like for the other patch, some maintainers have not been CCd.
 
-Oh, there are no build issues, and all of the x86 bits are nicely cordoned off.
-My complaint is essentially that they're _too_ isolated; putting the sched_clock
-save/restore setup in arch/x86/kernel/cpu/mshyperv.c is well-intentioned, but IMO
-it does more harm than good because the split makes it difficult to connect the
-dots to hv_setup_sched_clock() in drivers/clocksource/hyperv_timer.c.
+Yes, please use `scripts/get_maintainer.pl`.
 
-> But I would be good with some restructuring so that setting the sched clock
-> save/restore hooks is more closely tied to the sched clock choice,
+>
+>On Fri, Feb 07, 2025 at 01:20:33PM +0800, Junnan Wu wrote:
+>>From: Ying Gao <ying01.gao@samsung.com>
+>>
+>>If suspend is executed during vsock communication and the
+>>socket is reset, the original socket will be unusable after resume.
 
-Yeah, this is the intent of my ranting.  After the dust settles, the code can
-look like this.
+Why? (I mean for a good commit description)
 
----
-#ifdef CONFIG_GENERIC_SCHED_CLOCK
-static __always_inline void hv_setup_sched_clock(void *sched_clock)
-{
-	/*
-	 * We're on an architecture with generic sched clock (not x86/x64).
-	 * The Hyper-V sched clock read function returns nanoseconds, not
-	 * the normal 100ns units of the Hyper-V synthetic clock.
-	 */
-	sched_clock_register(sched_clock, 64, NSEC_PER_SEC);
-}
-#elif defined CONFIG_PARAVIRT
-static u64 hv_ref_counter_at_suspend;
-/*
- * Hyper-V clock counter resets during hibernation. Save and restore clock
- * offset during suspend/resume, while also considering the time passed
- * before suspend. This is to make sure that sched_clock using hv tsc page
- * based clocksource, proceeds from where it left off during suspend and
- * it shows correct time for the timestamps of kernel messages after resume.
- */
-static void hv_save_sched_clock_state(void)
-{
-	hv_ref_counter_at_suspend = hv_read_reference_counter();
-}
+>>
+>>Judge the value of vdev->priv in function virtio_vsock_vqs_del,
+>>only when the function is invoked by virtio_vsock_remove,
+>>all vsock connections will be reset.
+>>
+>The second part of the commit message is not that clear, do you mind 
+>rephrasing it?
 
-static void hv_restore_sched_clock_state(void)
-{
-	/*
-	 * Adjust the offsets used by hv tsc clocksource to
-	 * account for the time spent before hibernation.
-	 * adjusted value = reference counter (time) at suspend
-	 *                - reference counter (time) now.
-	 */
-	hv_sched_clock_offset -= (hv_ref_counter_at_suspend - hv_read_reference_counter());
-}
++1 on that
 
-static __always_inline void hv_setup_sched_clock(void *sched_clock)
-{
-	/* We're on x86/x64 *and* using PV ops */
-	paravirt_set_sched_clock(sched_clock, hv_save_sched_clock_state,
-				 hv_restore_sched_clock_state);
-}
-#else /* !CONFIG_GENERIC_SCHED_CLOCK && !CONFIG_PARAVIRT */
-static __always_inline void hv_setup_sched_clock(void *sched_clock) {}
-#endif /* CONFIG_GENERIC_SCHED_CLOCK */
----
+Also in this case, why checking `vdev->priv` fixes the issue?
 
-> as long as the architecture independence of hyperv_timer.c is preserved.
+>
+>>Signed-off-by: Ying Gao <ying01.gao@samsung.com>
+>Missing Co-developed-by?
+>>Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+>
+>
+>>---
+>>net/vmw_vsock/virtio_transport.c | 6 ++++--
+>>1 file changed, 4 insertions(+), 2 deletions(-)
+>>
+>>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>>index 9eefd0fba92b..9df609581755 100644
+>>--- a/net/vmw_vsock/virtio_transport.c
+>>+++ b/net/vmw_vsock/virtio_transport.c
+>>@@ -717,8 +717,10 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
+>>	struct sk_buff *skb;
+>>
+>>	/* Reset all connected sockets when the VQs disappear */
+>>-	vsock_for_each_connected_socket(&virtio_transport.transport,
+>>-					virtio_vsock_reset_sock);
+>I would add a comment explaining why you are adding this check.
 
-LOL, ah yes, the architecture independence of MSRs and TSC :-D
+Yes, please.
 
-Teasing aside, the code is firmly x86-only at the moment.  It's selectable only
-by x86:
+>>+	if (!vdev->priv) {
+>>+		vsock_for_each_connected_socket(&virtio_transport.transport,
+>>+						virtio_vsock_reset_sock);
+>>+	}
 
-  config HYPERV_TIMER
-	def_bool HYPERV && X86
- 
-and since at least commit e39acc37db34 ("clocksource: hyper-v: Provide noinstr
-sched_clock()") there are references to symbols/functions that are provided only
-by x86.
+Okay, after looking at the code I understood why, but please write it 
+into the commit next time!
 
-I assume arm64 support is a WIP, but keeping the upstream code arch independent
-isn't very realistic if the code can't be at least compile-tested.  To help
-drive-by contributors like myself, maybe select HYPER_TIMER on arm64 for
-COMPILE_TEST=y builds?
+virtio_vsock_vqs_del() is called in 2 cases:
+1 - in virtio_vsock_remove() after setting `vdev->priv` to null since
+     the drive is about to be unloaded because the device is for example
+     removed (hot-unplug)
 
-  config HYPERV_TIMER
-	def_bool HYPERV && (X86 || (COMPILE_TEST && ARM64))
+2 - in virtio_vsock_freeze() when suspending, but in this case
+     `vdev->priv` is not touched.
 
-I have no plans to touch code outside of CONFIG_PARAVIRT, i.e. outside of code
-that is explicitly x86-only, but something along those lines would help people
-like me understand the goal/intent, and in theory would also help y'all maintain
-the code by detecting breakage.
+I don't think is a good idea using that because in the future it could 
+change. So better to add a parameter to virtio_vsock_vqs_del() to 
+differentiate the 2 use cases.
+
+
+That said, I think this patch is wrong:
+
+We are deallocating virtqueues, so all packets that are "in flight" will 
+be completely discarded. Our transport (virtqueues) has no mechanism to 
+retransmit them, so those packets would be lost forever. So we cannot 
+guarantee the reliability of SOCK_STREAM sockets for example.
+
+In any case, after a suspension, many connections will be expired in the 
+host anyway, so does it make sense to keep them open in the guest?
+
+If you want to support this use case, you must first provide a way to 
+keep those packets somewhere (e.g. avoiding to remove the virtqueues?), 
+but I honestly don't understand the use case.
+
+To be clear, this behavior is intended, and it's for example the same as 
+when suspending the VM is the hypervisor directly, which after that, it 
+sends an event to the guest, just to close all connections because it's 
+complicated to keep them active.
+
+Thanks,
+Stefano
+
+>>
+>>	/* Stop all work handlers to make sure no one is accessing the device,
+>>	 * so we can safely call virtio_reset_device().
+>>-- 
+>>2.34.1
+>>
+>
+>I am not familiar with freeze/resume, but I don't see any problems 
+>with this patch.
+>
+>Thank you,
+>Luigi
+>
+
