@@ -1,189 +1,200 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37BAA24C664
-	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 13:55:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 82292250C01;
+	Tue, 11 Feb 2025 14:03:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739282146; cv=none; b=MD7/36fjFqI9rp/acnC9MLHFV1Fm/jyVdVcjEWDjKkdJ4QiJDItaiQdLmp8uRFaQ77dwddb+4ijtN366oTloqskEW7PwDXBxSCPOB9An7piGbQ4DR0a2w5qSW+bOBMMlik48hU8i7UiJlh2csNPyStRfiWSBVUrDBJI53S0rqL4=
+	t=1739282605; cv=none; b=UkOtO5xnRDIwZuj5nQ3OS1o77SzyNj0zRIZzl3i0v/5KFfsr3zPgSnMhoGnM/eh4R0BgsuSjZCHtjw52zeCs5jFfJO5OReH0ta3A7NBZQ5Iqe8bd4lNsTmHAsF/1UpgltjIezEOmsaizWQHjv8noqrTUnGaQN4Z28M8jcQvOoWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739282146; c=relaxed/simple;
-	bh=y7YayNRV4hH9s4wGZvK6fVWRl8LnwHkoEGP4InwFH68=;
+	s=arc-20240116; t=1739282605; c=relaxed/simple;
+	bh=VBp6SRsPHyX31Y9rJF7ZNdaO7nnLMhnjuXNzJcp3Acc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dqa2ne9qS0f7+Mj3Yv+9CLhf2qNOYqyw3pGRxz7pAYHUyTTPASdeXW/cVdl9nOFVq9CeQFt4KSnidlHyiwqgp7ZHIw1BGqCZxPzcNf0KkYY14+gOor3jAzrlgP4N6OUb1pTn/coW086EeKvB5qaZl5kUbd4y2ZAVlKBFVgxYuo8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LZShc5lh; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LZShc5lh"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-21f48ab13d5so91615175ad.0
-        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 05:55:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739282144; x=1739886944; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Qe7Pjgx0u2jo3N4C797eHAMKjNj56h5zdwjXJ9xQddk=;
-        b=LZShc5lhe9rcdYY2+sfx5bHhd96Km3eWQpYGVs1/M1pBhazJ1Kk/YX8toDIoIr+H93
-         MhWmGp9RIUq78OiMCPYtEy1voEecGTVACeQXZ8FNUbhjAIVcMqKKs3YUHz+EocEUbEYS
-         qtXNs9mBRjoZKqaFAJ4j5yTsmULw43q4rPwfwtTPwj7gxew+TOol6rgJfCOANYiWS+00
-         QpWuoBE7vQ3kjgalBawp6zUjE6eZY9bPmLq83r348L6+xeQgRqXImokElFOpOzZPAfdJ
-         Jf8GFbJ7/ZAzgvudH51vUfOJIJhGAG+HmVeR5utarZcWPQgKC6LL0ObK14zXHPNdNR2i
-         9xIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739282144; x=1739886944;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Qe7Pjgx0u2jo3N4C797eHAMKjNj56h5zdwjXJ9xQddk=;
-        b=SPys/kYTwyWsMH+Ue0vSyY4fdoU/CfjAWykj7ZqzJNi84lKm0phhfJ/puwvENaJqFf
-         l+11eGswH4wq+TI8a6J3RFaehVpst5dBEEf3H/0hpKnnfjw82SiX9hDHr7FlmUWqgW7l
-         2/bRKS/HdKdckAv/po4QfkcyuDkXdJtgCQvVE4vKiAewGrysET/JzsyrtLbANp9a0mGJ
-         rkvsH5GUae9BUdquASuyUjlnXxohg/2rGRPBKXD20pDST9yZHeW0qIm6ruZnfg5wlpje
-         h5Hjz/vrI/L7ZX89kN164WOL/rUK8Nd6wPbG4Y3TWVz6iKpeQxdo78ipd9ZCy9x+EXwU
-         ws4g==
-X-Forwarded-Encrypted: i=1; AJvYcCU8lDJ7lAhh5BHxHS9PZzdGYs0gfIiD6gvckXz9NZFL7XyfQRKPAzyOZepEWhKYUUGVkPyOc5FqJ0LSZKqPTA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwF/yiDh2qR2/C7CaaNf2xGh9Yt6OzFZDjdoc70nVHdxeG7sXhJ
-	2JKorD7+HjAGIx5rjqGuFKOw9tOrOZkAS6QYQR7ZScrvNmY90V7Q
-X-Gm-Gg: ASbGncvAyYzTsvpXu+VTzXgGQE1steBLnYJH+Ti/DQgXv9bWWogjty/brLbQ+KMp2hS
-	91mAegCMTmVvs1G4D5qyQPc4rZfNdjkajb9aPMh6HpKtbJ9c+kkONwa6TuE4V6cFAIzq9MTYFRf
-	3DGYhXVEdNqFU5B2WPtXm1wN52xEymc6/tknIi2xNjk2Mmxb4CoO++OghbeO9RIX/SG/0QHyj5i
-	hmkNHBrLfhQrZXE8PJxkfkpaph/sZ3GzlQmCnB9FKzbrHuFETze1Opk0+MOFBq7EPXLbuIXoIxy
-	uPAxgIuf4nEbPsU=
-X-Google-Smtp-Source: AGHT+IGybmRTzGld1TJo5gAB8g3kZ8JmcrDOdKn90fdDr4CK+9X7m1Buo5kLQopA+emGVc4tEKr7fg==
-X-Received: by 2002:a17:903:2f91:b0:21f:90ae:bf83 with SMTP id d9443c01a7336-21f90aec1bcmr172463245ad.44.1739282144270;
-        Tue, 11 Feb 2025 05:55:44 -0800 (PST)
-Received: from localhost ([216.228.125.130])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21f368bb4bdsm95429665ad.235.2025.02.11.05.55.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2025 05:55:43 -0800 (PST)
-Date: Tue, 11 Feb 2025 08:55:41 -0500
-From: Yury Norov <yury.norov@gmail.com>
-To: Nick Child <nnac123@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Christoph Hellwig <hch@lst.de>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: Re: [PATCH v2 02/13] virtio_net: simplify virtnet_set_affinity()
-Message-ID: <Z6tW1VleHcUQ_9p3@thinkpad>
-References: <20250128164646.4009-1-yury.norov@gmail.com>
- <20250128164646.4009-3-yury.norov@gmail.com>
- <Z6PthznH5Tp-ZdHw@li-4c4c4544-0047-5210-804b-b8c04f323634.ibm.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=qhy6wU13/zz8y0Cez5o9FvfNV5XVsNeN73tIVsI56PvZh33uJk4lxPSBnRvlN060mPcYWX7WvEClxTFp1fHJxt+l9YOE+RkinI4pu3VxBum9immXBVlk/AXeFVIjONNJXh+aohlYNjUHcWftSmDHTKDWLOVy0wdcpBK/soViXNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D37F113D5;
+	Tue, 11 Feb 2025 06:03:43 -0800 (PST)
+Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DE72E3F6A8;
+	Tue, 11 Feb 2025 06:03:10 -0800 (PST)
+Date: Tue, 11 Feb 2025 14:03:08 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Valentin Schneider <vschneid@redhat.com>
+Cc: Jann Horn <jannh@google.com>, linux-kernel@vger.kernel.org,
+	x86@kernel.org, virtualization@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
+	xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-mm@kvack.org,
+	linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+	bcm-kernel-feedback-list@broadcom.com,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	"Liang, Kan" <kan.liang@linux.intel.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Jason Baron <jbaron@akamai.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Joel Fernandes <joel@joelfernandes.org>,
+	Josh Triplett <josh@joshtriplett.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Lai Jiangshan <jiangshanlai@gmail.com>,
+	Zqiang <qiang.zhang1211@gmail.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Clark Williams <williams@redhat.com>,
+	Yair Podemsky <ypodemsk@redhat.com>,
+	Tomas Glozar <tglozar@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Kees Cook <kees@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Shuah Khan <shuah@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Miguel Ojeda <ojeda@kernel.org>, Alice Ryhl <aliceryhl@google.com>,
+	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Rong Xu <xur@google.com>,
+	Nicolas Saenz Julienne <nsaenzju@redhat.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Yosry Ahmed <yosryahmed@google.com>,
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+	"Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+	Jinghao Jia <jinghao7@illinois.edu>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer
+ flush_tlb_kernel_range() targeting NOHZ_FULL CPUs
+Message-ID: <Z6tYnOEBkOlT_ehp@J2N7QTR9R3>
+References: <20250114175143.81438-1-vschneid@redhat.com>
+ <20250114175143.81438-30-vschneid@redhat.com>
+ <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
+ <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
+ <xhsmh5xlhk5p2.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <CAG48ez1EAATYcX520Nnw=P8XtUDSr5pe+qGH1YVNk3xN2LE05g@mail.gmail.com>
+ <xhsmh34gkk3ls.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Z6PthznH5Tp-ZdHw@li-4c4c4544-0047-5210-804b-b8c04f323634.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <xhsmh34gkk3ls.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 
-Thanks for review and testing, Nick!
-
-On Wed, Feb 05, 2025 at 05:00:23PM -0600, Nick Child wrote:
-> On Tue, Jan 28, 2025 at 11:46:31AM -0500, Yury Norov wrote:
-> > The inner loop may be replaced with the dedicated for_each_online_cpu_wrap.
-> > It helps to avoid setting the same bits in the @mask more than once, in
-> > case of group_size is greater than number of online CPUs.
+On Tue, Feb 11, 2025 at 02:33:51PM +0100, Valentin Schneider wrote:
+> On 10/02/25 23:08, Jann Horn wrote:
+> > On Mon, Feb 10, 2025 at 7:36 PM Valentin Schneider <vschneid@redhat.com> wrote:
+> >> What if isolated CPUs unconditionally did a TLBi as late as possible in
+> >> the stack right before returning to userspace? This would mean that upon
+> >> re-entering the kernel, an isolated CPU's TLB wouldn't contain any kernel
+> >> range translation - with the exception of whatever lies between the
+> >> last-minute flush and the actual userspace entry, which should be feasible
+> >> to vet? Then AFAICT there wouldn't be any work/flush to defer, the IPI
+> >> could be entirely silenced if it targets an isolated CPU.
+> >
+> > Two issues with that:
 > 
-> nit: Looking at the previous logic of how group_stride is calculated, I don't
-> think there is possibility of "setting the same bits in the @mask more
-> than once". group_stride = n_cpu / n_queues
+> Firstly, thank you for entertaining the idea :-)
 > 
-> nit: I see this more as 2 patches. The introduction of a new core
-> helper function is a bit buried.
+> > 1. I think the "Common not Private" feature Will Deacon referred to is
+> > incompatible with this idea:
+> > <https://developer.arm.com/documentation/101811/0104/Address-spaces/Common-not-Private>
+> > says "When the CnP bit is set, the software promises to use the ASIDs
+> > and VMIDs in the same way on all processors, which allows the TLB
+> > entries that are created by one processor to be used by another"
 > 
-> > 
-> > CC: Nick Child <nnac123@linux.ibm.com>
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> Sorry for being obtuse - I can understand inconsistent TLB states (old vs
+> new translations being present in separate TLBs) due to not sending the
+> flush IPI causing an issue with that, but not "flushing early". Even if TLB
+> entries can be shared/accessed between CPUs, a CPU should be allowed not to
+> have a shared entry in its TLB - what am I missing?
 > 
-> Don't know if my comments alone merit a v3 and I think the patch
-> does simplify the codebase so:
-> Reviewed-by: Nick Child <nnac123@linux.ibm.com>
+> > 2. It's wrong to assume that TLB entries are only populated for
+> > addresses you access - thanks to speculative execution, you have to
+> > assume that the CPU might be populating random TLB entries all over
+> > the place.
+> 
+> Gotta love speculation. Now it is supposed to be limited to genuinely
+> accessible data & code, right? Say theoretically we have a full TLBi as
+> literally the last thing before doing the return-to-userspace, speculation
+> should be limited to executing maybe bits of the return-from-userspace
+> code?
 
-I fixed the comments to #2 and #3 as you suggested and split-out new
-for_each() loops to the new patch.
+I think it's easier to ignore speculation entirely, and just assume that
+the MMU can arbitrarily fill TLB entries from any page table entries
+which are valid/accessible in the active page tables. Hardware
+prefetchers can do that regardless of the specific path of speculative
+execution.
 
-I also think those are trivial changes not worth v3. So it's in
-bitmap-for-next:
+Thus TLB fills are not limited to VAs which would be used on that
+return-to-userspace path.
 
-https://github.com/norov/linux/tree/bitmap-for-next
+> Furthermore, I would hope that once a CPU is executing in userspace, it's
+> not going to populate the TLB with kernel address translations - AIUI the
+> whole vulnerability mitigation debacle was about preventing this sort of
+> thing.
 
-Thanks for review, Nick!
+The CPU can definitely do that; the vulnerability mitigations are all
+about what userspace can observe rather than what the CPU can do in the
+background. Additionally, there are features like SPE and TRBE that use
+kernel addresses while the CPU is executing userspace instructions.
 
-Thanks,
-Yury
- 
-> > ---
-> >  drivers/net/virtio_net.c | 12 +++++++-----
-> >  include/linux/cpumask.h  |  4 ++++
-> >  2 files changed, 11 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 7646ddd9bef7..9d7c37e968b5 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -3826,7 +3826,7 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
-> >  	cpumask_var_t mask;
-> >  	int stragglers;
-> >  	int group_size;
-> > -	int i, j, cpu;
-> > +	int i, start = 0, cpu;
-> >  	int num_cpu;
-> >  	int stride;
-> >  
-> > @@ -3840,16 +3840,18 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
-> >  	stragglers = num_cpu >= vi->curr_queue_pairs ?
-> >  			num_cpu % vi->curr_queue_pairs :
-> >  			0;
-> > -	cpu = cpumask_first(cpu_online_mask);
-> >  
-> >  	for (i = 0; i < vi->curr_queue_pairs; i++) {
-> >  		group_size = stride + (i < stragglers ? 1 : 0);
-> >  
-> > -		for (j = 0; j < group_size; j++) {
-> > +		for_each_online_cpu_wrap(cpu, start) {
-> > +			if (!group_size--) {
-> > +				start = cpu;
-> > +				break;
-> > +			}
-> >  			cpumask_set_cpu(cpu, mask);
-> > -			cpu = cpumask_next_wrap(cpu, cpu_online_mask,
-> > -						nr_cpu_ids, false);
-> >  		}
-> > +
-> >  		virtqueue_set_affinity(vi->rq[i].vq, mask);
-> >  		virtqueue_set_affinity(vi->sq[i].vq, mask);
-> >  		__netif_set_xps_queue(vi->dev, cpumask_bits(mask), i, XPS_CPUS);
-> > diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> > index 5cf69a110c1c..30042351f15f 100644
-> > --- a/include/linux/cpumask.h
-> > +++ b/include/linux/cpumask.h
-> > @@ -1036,6 +1036,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
-> >  
-> >  #define for_each_possible_cpu_wrap(cpu, start)	\
-> >  	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
-> > +#define for_each_online_cpu_wrap(cpu, start)	\
-> > +	for ((void)(start), (cpu) = 0; (cpu) < 1; (cpu)++)
-> >  #else
-> >  #define for_each_possible_cpu(cpu) for_each_cpu((cpu), cpu_possible_mask)
-> >  #define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
-> > @@ -1044,6 +1046,8 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
-> >  
-> >  #define for_each_possible_cpu_wrap(cpu, start)	\
-> >  	for_each_cpu_wrap((cpu), cpu_possible_mask, (start))
-> > +#define for_each_online_cpu_wrap(cpu, start)	\
-> > +	for_each_cpu_wrap((cpu), cpu_online_mask, (start))
-> >  #endif
-> >  
-> >  /* Wrappers for arch boot code to manipulate normally-constant masks */
-> > -- 
-> > 2.43.0
-> > 
+The latest ARM Architecture Reference Manual (ARM DDI 0487 L.a) is fairly clear
+about that in section D8.16 "Translation Lookaside Buff", where it says
+(among other things):
+
+  When address translation is enabled, if a translation table entry
+  meets all of the following requirements, then that translation table
+  entry is permitted to be cached in a TLB or intermediate TLB caching
+  structure at any time:
+  • The translation table entry itself does not generate a Translation
+    fault, an Address size fault, or an Access flag fault.
+  • The translation table entry is not from a translation regime
+    configured by an Exception level that is lower than the current
+    Exception level.
+
+Here "permitted to be cached in a TLB" also implies that the HW is
+allowed to fetch the translation tabl entry (which is what ARM call page
+table entries).
+
+The PDF can be found at:
+
+  https://developer.arm.com/documentation/ddi0487/la/?lang=en
+
+Mark.
