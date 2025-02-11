@@ -1,58 +1,71 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 733CB1D88C3
-	for <virtualization@lists.linux-foundation.org>; Tue, 11 Feb 2025 03:30:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F0741EB9F4
+	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 07:23:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739244617; cv=none; b=ZqPA29mF/whX5UcV8VoWswZZEQBaF8cykTP/Kwcz097MpcuJPWcUgBduCg350SAUzb/btKSqiXcz6e05q/Xb7No6XPy+JoS+zdHBp+rHwaQB1pJO0FPIMdRThTPYtAcfXCl5mE9OfCja9HedynbbUb9Pnkcc7tw5PjuyID30Qg8=
+	t=1739258607; cv=none; b=iva+gD/x7eGXWj9PzO4XMXVV9OTn/bY9zalXqucBIrdhwFnl0l/k/ngVS+JC1feJv89bQTpvKInNOmnYa3/WAX+ZkXhdZ+VamfoB+DXGzCUPJz/osnI8yOOv+C6CdIpvlo9pirqHxcQIqUwCQdaGDD8ycme232fO74Sh7S7bxfQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739244617; c=relaxed/simple;
-	bh=Td1U0MsX4jwP0X608ibiA1txDzrYo+jkLqYHfL6unXc=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=AYLfBECQxCAKbxIGnzYQRr2lPABJWzzC6Ds4xHaV0b47krqJfM+XHFL4FXg1WIBLTYQ+aybDmrXWIe7F2dpQklG/qbyry2K0FK/IhE1BK++8m8B8BRU16qpSca5P7litkadK4NpqaCuGkWtItBluk25mU8rxhSDS/LzzLi3dKT8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gbt18T0R; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1739258607; c=relaxed/simple;
+	bh=5tQjiIQk2nuzxRJad588bn9deftW0ZNoEH56ATm3DXY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 References; b=f+aOlxAs7mSkQh/fPFeNH80b9NUsvFriwNNzM8maIjXZx6+4ecu48+Q4ODStgAjqYpwrydtj/bvOwEzIp8j+3VKSQuxEmT3QYTPrx+WaQqjYns1NbL6IeFsS1r6In+fyRCzpIndV+ROidrElC1dq9GFd9jpqb8PIc3fg20ZcGqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=b8DXhJMG; arc=none smtp.client-ip=203.254.224.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gbt18T0R"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D117B60E7B
-	for <virtualization@lists.linux-foundation.org>; Tue, 11 Feb 2025 03:30:15 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id gMycsFg5DWz8 for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Feb 2025 03:30:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=patchwork-bot+netdevbpf@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org E92A960E7C
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E92A960E7C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=gbt18T0R
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E92A960E7C
-	for <virtualization@lists.linux-foundation.org>; Tue, 11 Feb 2025 03:30:14 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 1C4875C623D;
-	Tue, 11 Feb 2025 03:29:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53A01C4CEEA;
-	Tue, 11 Feb 2025 03:30:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739244613;
-	bh=Td1U0MsX4jwP0X608ibiA1txDzrYo+jkLqYHfL6unXc=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=gbt18T0RcqqWiwoOTneZSCFnbdT9Fh21yaei243no3AOA6QOtjPweKQuRpUQSF1oP
-	 z9Lztst6r2SkNca/uGAtFwlQ2IquVXqAUCAHbPY7tuhm5fMn8ebzZAk7fu4WeD3hnn
-	 QOIQSJsL7MRnGD0JSM+yz9/9KmDw4PEuCi9rO5V+2O3lNm4INPGEfZsZba8sYwJVSi
-	 vfyPUVCxJ4HjKfZlK4LiJPMIQJEg6dzI5wSYXdlXkcwxf2qqGjKW0lJYwl76oeWDY7
-	 M+/QswcMvpB5c4SKp1VT6ExvkdahmqBBGejG54v2Ynq1kJPlPnNaSEO8Gu5gT97iWJ
-	 QRNI6EVZuTfVg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33DDF380AA7A;
-	Tue, 11 Feb 2025 03:30:43 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="b8DXhJMG"
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250211072316epoutp01f67d26506e854c71fdfb64075420f68a~jFnqT4Pnp1645316453epoutp01Q
+	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 07:23:16 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250211072316epoutp01f67d26506e854c71fdfb64075420f68a~jFnqT4Pnp1645316453epoutp01Q
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1739258596;
+	bh=G6avid1hrwNJPrhgZ7UQBMr1iT6oxnJhYUfx9eOouYA=;
+	h=From:To:Cc:Subject:Date:References:From;
+	b=b8DXhJMGXuEE9MQIJk36NgFENkhX3Zpz51zpRdYrijixuUOTqTMRkg+o3yRUkSRZ6
+	 3aVQul4maquBZkUqy31WVfFGUuwgcWHMxUmWNSeifcqXDE5mzw/K2ffDxcrOPMp8R6
+	 U9M/whJgKyhQq6D48eZSfD6mMJ4EnB1ZeOLxIJOk=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+	20250211072315epcas5p2e343d70ffe99c82d9313aaadff90e7ef~jFnpeOHZp2733327333epcas5p2K;
+	Tue, 11 Feb 2025 07:23:15 +0000 (GMT)
+Received: from epsmgec5p1-new.samsung.com (unknown [182.195.38.181]) by
+	epsnrtp1.localdomain (Postfix) with ESMTP id 4YsXwf4Tsbz4x9Q7; Tue, 11 Feb
+	2025 07:23:14 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+	epsmgec5p1-new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	47.B5.29212.2EAFAA76; Tue, 11 Feb 2025 16:23:14 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+	20250211071930epcas5p2dbb3a4171fbe04574c0fa7b3a6f1a0c2~jFkXYbuoh0889308893epcas5p2-;
+	Tue, 11 Feb 2025 07:19:30 +0000 (GMT)
+Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
+	epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+	20250211071930epsmtrp2d5e817728b2b7e36619d54991cd86cd4~jFkXXZJ4a0103201032epsmtrp2h;
+	Tue, 11 Feb 2025 07:19:30 +0000 (GMT)
+X-AuditID: b6c32a50-7ebff7000000721c-30-67aafae28315
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+	epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	D8.58.18949.20AFAA76; Tue, 11 Feb 2025 16:19:30 +0900 (KST)
+Received: from asg29.. (unknown [109.105.129.29]) by epsmtip1.samsung.com
+	(KnoxPortal) with ESMTPA id
+	20250211071927epsmtip18b2e100e232e16e03af55d6fa339fd3b~jFkUZCSIX1188211882epsmtip1B;
+	Tue, 11 Feb 2025 07:19:27 +0000 (GMT)
+From: Junnan Wu <junnan01.wu@samsung.com>
+To: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
+	jasowang@redhat.com, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, horms@kernel.org,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, q1.huang@samsung.com, ying01.gao@samsung.com,
+	ying123.xu@samsung.com, lei19.wang@samsung.com, Junnan Wu
+	<junnan01.wu@samsung.com>
+Subject: [Patch net 0/2] vsock suspend/resume fix
+Date: Tue, 11 Feb 2025 15:19:20 +0800
+Message-Id: <20250211071922.2311873-1-junnan01.wu@samsung.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,60 +73,64 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v6 0/7] tun: Unify vnet implementation
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173924464176.3948401.17256177133677367804.git-patchwork-notify@kernel.org>
-Date: Tue, 11 Feb 2025 03:30:41 +0000
-References: <20250207-tun-v6-0-fb49cf8b103e@daynix.com>
-In-Reply-To: <20250207-tun-v6-0-fb49cf8b103e@daynix.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: corbet@lwn.net, willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- mst@redhat.com, xuanzhuo@linux.alibaba.com, shuah@kernel.org,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- yuri.benditovich@daynix.com, andrew@daynix.com, stephen@networkplumber.org,
- gur.stavi@huawei.com, devel@daynix.com, willemb@google.com
+X-Brightmail-Tracker: H4sIAAAAAAAAA01TbUxbVRj29HLLhVh3B4jHIqNeRWWz0LpSDvLhFomr20yqxB8sLtjBTSGU
+	tuttxzSGzEIwYzDBMQa0W0C2Cp3bTKnIxncZCCgro4rDMBcKM3NAIVbAMBBLW3T/nvc57/M+
+	5zkfBBYyweYSuUotrVHKFBQ7OKC1L+YVvnPVLBeM9z2PjPbiAHR/wBmIps83ByLn54NsZBpz
+	s9Dd8X1otPU0joxnj6KSNgeOHDeMbPTTxbJAtLH6EEcD9eFo+Yc5gC7Nj2BopGIRR3bjBoZm
+	v9jAUf93zTga1yM0etMztdtZi+8Jl1ibJ1iSeotOYjGfZEuuTyVKHrTUAslC189syWmrGUjc
+	lh1S4lBecg4ty6Y1PFqZpcrOVcpTqAPpmW9mxosFQr4wESVQPKUsn06h0g5K+W/lKjzRKN4x
+	mULnoaQyhqHiUpM1Kp2W5uWoGG0KRauzFWqROpaR5TM6pTxWSWtfFwoEr8V7Gj/My7ls/xRX
+	r2PH1yqLwAlgxkpBEAFJEWzpnwOlIJgIITsAdC6f8hd/Arj4i5XtK5YBNNdUs7ckK/pxzLfQ
+	CeADy6xf8juAvznd3i42GQMHO5q88jCyEUB70xK+WWBkOws2/OoGm12hpBDenKz04gAyGq6W
+	urxqDpkKZ++acJ9fFOzuHcF8/HY4VDsTsIkxD1/0rcEfY5CAY+1hPpwG18+t+vcaCh9+bw30
+	YS50uzr9fB4s79/q0cJTrjG/VxK0X/3MM5PwzI+B127E+ehIeHb4Kstn+xQsfzTD8vEc2HZh
+	ExMeHA0XKj7x0RGw2WLxu0rgVxN/eROGkIfhVEcjXgGi6h4LU/dYmLr/jesBZgZcWs3ky+ms
+	eLWQr6QL/rvaLFW+BXjf+E5pG7j8zXqsDbAIYAOQwKgwjqihSR7CyZZ99DGtUWVqdAqasYF4
+	zxFXYtyns1SeT6LUZgpFiQKRWCwWJe4WC6lnOEXXi+UhpFympfNoWk1rtnQsIoh7glWTUKAT
+	BKem0W0/cqpvQcforTvHmr/edeDMkUXDnuqlJHfJYX3pu9EffPneC49Mb/BGSJcmadcTGdnc
+	96/s7ovP4Jycs6o3Il2N+6YyrtwZMSkO7gdnnmPqJMJq48Vp/iFVYWFP7Dy2LWogwrDWeFs/
+	/LZt5ll9Z8G1FXLIWhg83k8tlHcXF2zfZuzorRIU5K4XHpWz/ik7N8bd2GvTt6fFTavKXh3K
+	EkujS6s4+j8wPGhirS7yyXt73+kSrV5KH04PNcwZGuYmE1+ELkdEl2ktvfflnnt2ccbS3/Wt
+	t3sSVDtMyFES7lgpL6x5aZLhpyQvHK+Ou19lcI2V7G+pOjJPBTA5MuFOTMPI/gVzSuvUbAQA
+	AA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmphkeLIzCtJLcpLzFFi42LZdlhJTpfp16p0g0vHuS3mnG9hsXh67BG7
+	xeO5K9ktHvWfYLNYdukzk8Xda+4WF7b1sVrMmVpo0bbjMqvF5V1z2CyuLOlht/j/6xWrxbEF
+	YhbfTr9htFj69iyzxdkJH1gtzs/5z2zxetJ/Vouj21eyWlxrsrC4cARo6v5HM1kdxDy2rLzJ
+	5LFgU6nHplWdbB47H1p6vNg8k9Hj/b6rbB59W1YxenzeJBfAEcVlk5Kak1mWWqRvl8CVsfp8
+	I2vBX+aKPxObGRsYVzF3MXJySAiYSHxvugZkc3EICexmlPjYPhcqIS3R9bsNyhaWWPnvOTtE
+	0RNGiU/zN7CDJNgENCVO7FnBBmKLCKxllNi0zxCkiFngJJPErRkTwLqFBQwljtyZyAhiswio
+	SvzqegfWwCtgJ/H67jJWiA3yEvsPnmWGiAtKnJz5hAXEZgaKN2+dzTyBkW8WktQsJKkFjEyr
+	GCVTC4pz03OLDQuM8lLL9YoTc4tL89L1kvNzNzGCI0pLawfjnlUf9A4xMnEwHmKU4GBWEuE1
+	WbgiXYg3JbGyKrUoP76oNCe1+BCjNAeLkjjvt9e9KUIC6YklqdmpqQWpRTBZJg5OqQamSakH
+	a9k7z6wP2n28MmdTXHLAlJ6/h5qy5esarpy2nv1KrfdFZdfhgtbSf4tO3dhrZHzu9ZS3O+8F
+	v0l6GPbmbZJmkt+zyzHXpeIc51l+3D/LkCVX+8hCmUhnPetP6kJ+b3JFXq3RDnZ89/NH9rNq
+	Zln9j3I/d7AEfbwaeOspZymzzK4rTK8tNmSpR6qwBAaczja/lPTP77vNB52eSFOLxl61DW96
+	96cEbPcrujblete2LtZ326VrFv2/X7JdqHbCx1599l+2WW8PMZv9UtZwVg2ddTtgVvW1TO0b
+	2yoezz1zUSOG4ej6bZP4199fvrFegTsmPL708TzjLdODys6817wZU3z8fnDmCc0gzQYJJZbi
+	jERDLeai4kQAQC26ihcDAAA=
+X-CMS-MailID: 20250211071930epcas5p2dbb3a4171fbe04574c0fa7b3a6f1a0c2
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250211071930epcas5p2dbb3a4171fbe04574c0fa7b3a6f1a0c2
+References: <CGME20250211071930epcas5p2dbb3a4171fbe04574c0fa7b3a6f1a0c2@epcas5p2.samsung.com>
 
-Hello:
+CC all maintainers and reviews.
+Modify commits accroding to reviewers' comments.
+Re-organize the patches, cover letter, tag, Signed-Off, Co-worker etc.
 
-This series was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Junnan Wu (2):
+  vsock/virtio: initialize rx_buf_nr and rx_buf_max_nr when resuming
+  vsock/virtio: Don't reset the created SOCKET during suspend to ram
 
-On Fri, 07 Feb 2025 15:10:50 +0900 you wrote:
-> When I implemented virtio's hash-related features to tun/tap [1],
-> I found tun/tap does not fill the entire region reserved for the virtio
-> header, leaving some uninitialized hole in the middle of the buffer
-> after read()/recvmesg().
-> 
-> This series fills the uninitialized hole. More concretely, the
-> num_buffers field will be initialized with 1, and the other fields will
-> be inialized with 0. Setting the num_buffers field to 1 is mandated by
-> virtio 1.0 [2].
-> 
-> [...]
+ net/vmw_vsock/virtio_transport.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-Here is the summary with links:
-  - [net-next,v6,1/7] tun: Refactor CONFIG_TUN_VNET_CROSS_LE
-    https://git.kernel.org/netdev/net-next/c/5a9c5e5d8a1b
-  - [net-next,v6,2/7] tun: Keep hdr_len in tun_get_user()
-    https://git.kernel.org/netdev/net-next/c/07e8b3bae2f8
-  - [net-next,v6,3/7] tun: Decouple vnet from tun_struct
-    https://git.kernel.org/netdev/net-next/c/60df67b94804
-  - [net-next,v6,4/7] tun: Decouple vnet handling
-    https://git.kernel.org/netdev/net-next/c/2506251e81d1
-  - [net-next,v6,5/7] tun: Extract the vnet handling code
-    https://git.kernel.org/netdev/net-next/c/1d41e2fa93f7
-  - [net-next,v6,6/7] tap: Keep hdr_len in tap_get_user()
-    https://git.kernel.org/netdev/net-next/c/74212f20f366
-  - [net-next,v6,7/7] tap: Use tun's vnet-related code
-    https://git.kernel.org/netdev/net-next/c/6a53fc5a8770
 
-You are awesome, thank you!
+base-commit: a64dcfb451e254085a7daee5fe51bf22959d52d3
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.34.1
 
