@@ -1,133 +1,209 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13662F9C1;
-	Tue, 11 Feb 2025 15:01:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A94192586D4
+	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 16:09:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739286118; cv=none; b=CysB/bdwJXAKFjjQn5D8+akHhRmchkYTuQs7bLJrcbYBlkSP9wrm0tXTYYVWmxlzhDXBTlSxNZhdS4JD3SV/D3SFNLJ5X+uuvA0bvKqtEAmef14MpTbJovzy6PI3EoezaA1JQH2IO6efngGXkg1dRk+0M7u9HBrYf1AFZC1RYLk=
+	t=1739290199; cv=none; b=LzTO+i+pvK+jbM4Y+JFzL2lIks9xlIESNfQm9insIa3ZQm8nk7i1GKBFACNiFdo+iU65PYFyaVRG9rEbCD/wG8fxpy1u9Zzbg0RKeBChDkkAtNvbqbixdZDwvgOixf+DxtqfK6xBLIr40hx7wu7lwd0dutpjjZroC3bfYQUW7p4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739286118; c=relaxed/simple;
-	bh=NT4LdFuNL1mVF0er7FdAvKA0qLNJnpbCilHR7tk3ZCw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rbgyUNnlwET04hmjhlk6deMH0D2a5kTQWsaZdRtUilvnT9WycPLRPYW5dkpBlEo72ESoWrbz6n8FC2xcC1nHyjtDu3VpU7SDxr8lyAMKrU4TIhBb8ACeyMVft+Rk5pktGczHm3wmBw7oeNsuRBLVm4hhPIyrb7b3zM6pOikt/vk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=DpBI7Aqt; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1739290199; c=relaxed/simple;
+	bh=djk7Y7ajWHGUwmNBsUGYqINcVGjOOrYHNCM13HFGEf8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=SnwJv85ZzwEeUromn3Wh0nn7U4LY+nq7FdQi29Jh9l72V/DhNMDOGTjWDMOd4f0bAbp8fga7E8tbz3Jox63ia2PRoCr6HdA6lSoJm7YcDRgn1ix1fNXnBWn4wnKVrMzJtUNt93JuEExzXCC4w18OM4QTWZ7ypIHMCBm6ylYqdZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NMHkjWmU; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="DpBI7Aqt"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id C079340E0220;
-	Tue, 11 Feb 2025 15:01:53 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id vcaTo4I3qsTZ; Tue, 11 Feb 2025 15:01:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1739286109; bh=4lwHEX7loO/SRy+ZxkW2JvVT9zUzrCSHPE5+qCPs4Vc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DpBI7Aqt8XOmID6XpqbDT6/JpWJ5yVuWy4TG2lI1I2RyyHucsQiPgTTbMFr+3APKE
-	 vaRUG4GIlOzxTU7YUIqQaaJU7BZE3orP1yegfSTUKgT1lxeqrQgWZfKA3x6KXW4Qvh
-	 Fmod4YL2KZ9eM8+nBAFJX18wZO8dX+OVtTHO+ERgfD/COIHzZak/rQkWDrzM8OUJzt
-	 yDnh8pqfBZwKx5Pztz5ocTaM9hKiTWmb3XDQ+JYa8ptGy8Z9mlwqlbt5/zxlqajcrS
-	 nCDSCzOfOH8dW+quN4fuLfRtCcjkuB2YKjhDgIuGlwXcyxgxsv2xNu6BIHkfCIu57T
-	 dI3o6w7SJEYUnM3DccFMM2p7429H/Dbgolh0WNYMxImLZV9p3qVx1UCoLr1HOD5zEb
-	 XeYWpWM5TAizW4An75m3IzKvBguY8O+HEf2DgqgFMy6/UrWgRx9lnzMyfgmtZsybpk
-	 ewR38IijGkYWVNMTLoBdPuqnO+h1+ruRV3z2Cy2UoZdbRq67StoxJzL0dsuX5eyi4B
-	 KNjYQlmCCsqqCRM0TsE9OAC4ybr5CUT3UCUPvIcSwoYDHPKGVAFK3OhGZ8h6ekN5DA
-	 v+aqAFlzwhlYaJFyH+6bEW/HlTfbiwxSaatnuKXcl8tPmhFzoDDkuSgRm1lFyK7vYt
-	 mfLheS+6IIG/fb5cqt1E39HQ=
-Received: from zn.tnic (pd95303ce.dip0.t-ipconnect.de [217.83.3.206])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 7F6A240E01AE;
-	Tue, 11 Feb 2025 15:01:23 +0000 (UTC)
-Date: Tue, 11 Feb 2025 16:01:14 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-	Juergen Gross <jgross@suse.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, virtualization@lists.linux.dev,
-	linux-hyperv@vger.kernel.org, jailhouse-dev@googlegroups.com,
-	kvm@vger.kernel.org, xen-devel@lists.xenproject.org,
-	Nikunj A Dadhania <nikunj@amd.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH 01/16] x86/tsc: Add a standalone helpers for getting TSC
- info from CPUID.0x15
-Message-ID: <20250211150114.GCZ6tmOqV4rI04HVuY@fat_crate.local>
-References: <20250201021718.699411-1-seanjc@google.com>
- <20250201021718.699411-2-seanjc@google.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NMHkjWmU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1739290196;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vlqDgCP2DAkslcpgDFYXdlhhng4EN6BqWt/KN1sHhDc=;
+	b=NMHkjWmUgZquI7XNkmgx5ylybMsR4LnFUGx1BP6Dea78xg57/b0E6vBVoCuNtROJz9I3wd
+	hiKAXbcj5qSHH+9f8dsKviKAt5vN70N54A74V3b5fbufmI4cit0LgrvUspyW0DVFQAN5Ej
+	sVJSBotux5i8ftUv3bx0YqKdKWBfKuc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-175-l-xoa507NkyqmexULcoSfw-1; Tue, 11 Feb 2025 11:09:55 -0500
+X-MC-Unique: l-xoa507NkyqmexULcoSfw-1
+X-Mimecast-MFC-AGG-ID: l-xoa507NkyqmexULcoSfw
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-38dd533dad0so2017824f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 08:09:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739290194; x=1739894994;
+        h=content-transfer-encoding:mime-version:message-id:date:references
+         :in-reply-to:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cqBw0fvuK6HvmV212DNXANVYi4ije8UDstIz77BqBKI=;
+        b=HN2EyIPL9iyCy2eRhhsgLiZbhi41k43SqPN7p906aUkwxHP+h5vpbYRtsUXpj9Ew43
+         4bGkMysLgz46QiTWAL0u2TN/FZ2mw2suIfsjWPw8RINBWTRarb8wo4XUj8bMSwruwVqk
+         QXu6VOI4uISJeKqK2N+XLB3Q3Ooa+CiqUksi9D9rEiUuEwC+P5lYQ1RfHnKw4nQ/XKwW
+         VDsa2WTPttXM/F5VM1pwHm2wxm7oc7ZsqimHjMe7R8bB6g85h4eQwqzhubORQugbpnVv
+         BOIJ6aGNvCXq+CyGq+KDm3Ew3iUx/OtX5nmqoll89qNgWwRjA86r/A8MV9FK5axRQMMC
+         YVSg==
+X-Forwarded-Encrypted: i=1; AJvYcCUTE3buqvcdLKKRF2/H8Rq2DoHlkQppP6PMlDlAuK4LkNaEvSrmp0D6guovy35E4nkermv89tDz/p1o/5j1Ng==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz+GLCVG17Tgim1DIh5xgZdaUiuGKAX9HvrHlDYtz85yVGtgRsY
+	NEJAwMV2C3ATAXwFlc6LMygvDE8YSKAgfg6LpaNx+LldnlACFdhwMe6Xab7rjrBH96SOL8iShxj
+	43+nyGmDV3cg8sMtRVrpMikGr50nWQVP0kZfWPzPNLfmU6/jtzAMZhMMfV9Mqwfqd
+X-Gm-Gg: ASbGncufIDQxj2hqOe0p7MSeyf6V3FArWKPJBzFNCh0Q3xChgBt3i+eZtyccglf878Z
+	zdfL0tbOyLunLPQhZctedUjAtkmrbu9JVzWefATB303XOJwAQne+QqQsjHRtpZ+FySiU7jy+VGc
+	Q+Crx/stg+LpW7JohCWIUY1GrLchHFHfj2sGAoZRghn8rk2nrqdiMduKWxZchHdU6RbPIiZcdSE
+	d7hzB114ITd5cFRW5QpMrQOQPeL5YzMwea8P17N4GBtOCpUGL+FibOnZwWvWK2pPm94eqW0QS7Z
+	AgOiUyRZLw2HOJZXs54JUYP5vAjJHsOpD1wE4ES1C68heI6WmIDaA1asQpho7qVFpA==
+X-Received: by 2002:adf:b60f:0:b0:38d:b113:eb8 with SMTP id ffacd0b85a97d-38de918b920mr304812f8f.20.1739290193749;
+        Tue, 11 Feb 2025 08:09:53 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHK1ASMUo9/0VqOa8FhznHehFcHh+h1fB2eK6UH8SCGRKzMX4fpRgybDSM9A1NmLLMyPAzxtg==
+X-Received: by 2002:adf:b60f:0:b0:38d:b113:eb8 with SMTP id ffacd0b85a97d-38de918b920mr304770f8f.20.1739290193306;
+        Tue, 11 Feb 2025 08:09:53 -0800 (PST)
+Received: from vschneid-thinkpadt14sgen2i.remote.csb (213-44-141-166.abo.bbox.fr. [213.44.141.166])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38dbde1dfaesm15387623f8f.90.2025.02.11.08.09.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Feb 2025 08:09:52 -0800 (PST)
+From: Valentin Schneider <vschneid@redhat.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Jann Horn <jannh@google.com>, linux-kernel@vger.kernel.org,
+ x86@kernel.org, virtualization@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
+ xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-mm@kvack.org,
+ linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+ bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov
+ <alexey.amakhalov@broadcom.com>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Paul
+ Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave
+ Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Peter Zijlstra <peterz@infradead.org>, Arnaldo Carvalho de Melo
+ <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Alexander Shishkin
+ <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, Ian
+ Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>,
+ "Liang, Kan" <kan.liang@linux.intel.com>, Boris Ostrovsky
+ <boris.ostrovsky@oracle.com>, Josh Poimboeuf <jpoimboe@kernel.org>, Pawan
+ Gupta <pawan.kumar.gupta@linux.intel.com>, Sean Christopherson
+ <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski
+ <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Frederic Weisbecker
+ <frederic@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, Jason
+ Baron <jbaron@akamai.com>, Steven Rostedt <rostedt@goodmis.org>, Ard
+ Biesheuvel <ardb@kernel.org>, Neeraj Upadhyay
+ <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>,
+ Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Uladzislau Rezki <urezki@gmail.com>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
+ Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli <juri.lelli@redhat.com>,
+ Clark Williams <williams@redhat.com>, Yair Podemsky <ypodemsk@redhat.com>,
+ Tomas Glozar <tglozar@redhat.com>, Vincent Guittot
+ <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Kees Cook
+ <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Christoph
+ Hellwig <hch@infradead.org>, Shuah Khan <shuah@kernel.org>, Sami Tolvanen
+ <samitolvanen@google.com>, Miguel Ojeda <ojeda@kernel.org>, Alice Ryhl
+ <aliceryhl@google.com>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+ Samuel Holland <samuel.holland@sifive.com>, Rong Xu <xur@google.com>,
+ Nicolas Saenz Julienne <nsaenzju@redhat.com>, Geert Uytterhoeven
+ <geert@linux-m68k.org>, Yosry Ahmed <yosryahmed@google.com>, "Kirill A.
+ Shutemov" <kirill.shutemov@linux.intel.com>, "Masami Hiramatsu (Google)"
+ <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, Luis
+ Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer
+ flush_tlb_kernel_range() targeting NOHZ_FULL CPUs
+In-Reply-To: <Z6tYnOEBkOlT_ehp@J2N7QTR9R3>
+References: <20250114175143.81438-1-vschneid@redhat.com>
+ <20250114175143.81438-30-vschneid@redhat.com>
+ <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
+ <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
+ <xhsmh5xlhk5p2.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <CAG48ez1EAATYcX520Nnw=P8XtUDSr5pe+qGH1YVNk3xN2LE05g@mail.gmail.com>
+ <xhsmh34gkk3ls.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <Z6tYnOEBkOlT_ehp@J2N7QTR9R3>
+Date: Tue, 11 Feb 2025 17:09:49 +0100
+Message-ID: <xhsmhwmdwihte.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nqSmYx0ZSrURFasLQ7bpFxKTpoEiGF7DnwGqQuKRisw_1739290194
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250201021718.699411-2-seanjc@google.com>
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 31, 2025 at 06:17:03PM -0800, Sean Christopherson wrote:
-> Extract retrieval of TSC frequency information from CPUID into standalone
-> helpers so that TDX guest support and kvmlock can reuse the logic.  Provide
-> a version that includes the multiplier math as TDX in particular does NOT
-> want to use native_calibrate_tsc()'s fallback logic that derives the TSC
-> frequency based on CPUID.0x16 when the core crystal frequency isn't known.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> ---
->  arch/x86/include/asm/tsc.h | 41 ++++++++++++++++++++++++++++++++++++++
->  arch/x86/kernel/tsc.c      | 14 ++-----------
->  2 files changed, 43 insertions(+), 12 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/tsc.h b/arch/x86/include/asm/tsc.h
-> index 94408a784c8e..14a81a66b37c 100644
-> --- a/arch/x86/include/asm/tsc.h
-> +++ b/arch/x86/include/asm/tsc.h
+On 11/02/25 14:03, Mark Rutland wrote:
+> On Tue, Feb 11, 2025 at 02:33:51PM +0100, Valentin Schneider wrote:
+>> On 10/02/25 23:08, Jann Horn wrote:
+>> > 2. It's wrong to assume that TLB entries are only populated for
+>> > addresses you access - thanks to speculative execution, you have to
+>> > assume that the CPU might be populating random TLB entries all over
+>> > the place.
+>>
+>> Gotta love speculation. Now it is supposed to be limited to genuinely
+>> accessible data & code, right? Say theoretically we have a full TLBi as
+>> literally the last thing before doing the return-to-userspace, speculati=
+on
+>> should be limited to executing maybe bits of the return-from-userspace
+>> code?
+>
+> I think it's easier to ignore speculation entirely, and just assume that
+> the MMU can arbitrarily fill TLB entries from any page table entries
+> which are valid/accessible in the active page tables. Hardware
+> prefetchers can do that regardless of the specific path of speculative
+> execution.
+>
+> Thus TLB fills are not limited to VAs which would be used on that
+> return-to-userspace path.
+>
+>> Furthermore, I would hope that once a CPU is executing in userspace, it'=
+s
+>> not going to populate the TLB with kernel address translations - AIUI th=
+e
+>> whole vulnerability mitigation debacle was about preventing this sort of
+>> thing.
+>
+> The CPU can definitely do that; the vulnerability mitigations are all
+> about what userspace can observe rather than what the CPU can do in the
+> background. Additionally, there are features like SPE and TRBE that use
+> kernel addresses while the CPU is executing userspace instructions.
+>
+> The latest ARM Architecture Reference Manual (ARM DDI 0487 L.a) is fairly=
+ clear
+> about that in section D8.16 "Translation Lookaside Buff", where it says
+> (among other things):
+>
+>   When address translation is enabled, if a translation table entry
+>   meets all of the following requirements, then that translation table
+>   entry is permitted to be cached in a TLB or intermediate TLB caching
+>   structure at any time:
+>   =E2=80=A2 The translation table entry itself does not generate a Transl=
+ation
+>     fault, an Address size fault, or an Access flag fault.
+>   =E2=80=A2 The translation table entry is not from a translation regime
+>     configured by an Exception level that is lower than the current
+>     Exception level.
+>
+> Here "permitted to be cached in a TLB" also implies that the HW is
+> allowed to fetch the translation tabl entry (which is what ARM call page
+> table entries).
+>
 
-Bah, why in the header as inlines? Just leave them in tsc.c and call them...
+That's actually fairly clear all things considered, thanks for the
+education and for fishing out the relevant DDI section!
 
-> @@ -28,6 +28,47 @@ static inline cycles_t get_cycles(void)
->  }
->  #define get_cycles get_cycles
->  
-> +static inline int cpuid_get_tsc_info(unsigned int *crystal_khz,
-> +				     unsigned int *denominator,
-> +				     unsigned int *numerator)
+> The PDF can be found at:
+>
+>   https://developer.arm.com/documentation/ddi0487/la/?lang=3Den
+>
+> Mark.
 
-Can we pls do a
-
-struct cpuid_tsc_info {
-	unsigned int denominator;
-	unsigned int numerator;
-	unsigned int crystal_khz;
-	unsigned int tsc_khz;
-}
-
-and hand that around instead of those I/O pointers?
-
-It would make the code a bit saner to stare at and follow.
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
