@@ -1,65 +1,67 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A88224E4C3
-	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 16:28:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21104261380
+	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 17:25:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739291304; cv=none; b=NGbjArf7iBLKcd6yTTBM39s+bFR7ygTh9GMNV5xojBiB95vTVlSBkHPchEbnWQYjUeMxLLK3Hf4MNXFkpsAYCJ5DYAKFjxz5cHmSZ3jvRupKVENz7SoXx4Ssc6jjv+kW9PD6GbpU4HklWdnE6pEfpHVJ1ZmI+J5f83g8BdZUpr4=
+	t=1739294750; cv=none; b=ut5gP+TWqRotT8mg+ge5d8niFzeSoJmm8nWB8Lwh308Y4UlDSt/SOuo/bUYLcsPajShtQW78TxctPy8rptOXD7wWisFVwAFI26YRE22ZZjN8kiHRYQPH5OlkheZ6hM+sX5Y39FLdbpQNrq786QtSTREIZEEvFNTfy61ZnJDPPLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739291304; c=relaxed/simple;
-	bh=yilJGqWW4RYMKFOjUyyusb+5EmeDe91eA1bXhwR/YFI=;
+	s=arc-20240116; t=1739294750; c=relaxed/simple;
+	bh=yIyg4O5yYiMN7oIJCMQaW69afuHiK1Kltro4y0FMxoU=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=EzRqsAfxCQQbO+9+BCn/nFmo2dvXkWNB+ZJsZqqM7zG2Fxm5gwass5nW619Q95cjwaddwIzWKbVJ2gUP/C2lEuZ33/x52WAaYWDu1+ncqetvdUtaSyd+LyxWqYejzedGJzUT4AfhqAZt+mlxLcb/rLF5MJsJGH9krfLifXwS1XI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BV8gyqEQ; arc=none smtp.client-ip=209.85.216.74
+	 To:Cc:Content-Type; b=ciOqTxXnEDmRl3SpsB0QnqvKVIzARMYvQd79AsmAzw6la3QzZcdAb/3Ki+eW5YaDhcY7ee1R0ZWrYRj9lK2QHg7xSfRXiIGkjj25g2t7ms49ZuG4mVaJmSb/3FZKXznLhe+PMLraRhwb6YjsfkrIidLpBVkVnLQkThFghKgVXRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=wLFhnszD; arc=none smtp.client-ip=209.85.216.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BV8gyqEQ"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2fa3b466245so7334132a91.0
-        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 08:28:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="wLFhnszD"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2f9da17946fso18336488a91.3
+        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 09:25:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1739291301; x=1739896101; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1739294748; x=1739899548; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=5MEK/stSb+AMRyC9Zhx6OFHXRnHPVcvklj9Pc8LhwOQ=;
-        b=BV8gyqEQ8Bo/dEWAAdR3aL3XgwtOcqF7BNB7v5dn8HgnIE9gKi56z680tOVvcUJEl8
-         J++kUakbd2lfLWUYWsHqqEJTjiwSFTSbNQdsjeK3IHpuUSGtYiX+CyFiRGauYZPZqyqN
-         1Bp0BCRB1NHF9FALR69/4ynEpKTGBxqwUK3E2fdc8PgFD/YgL6oViU+g9Qv1cTlCzPnO
-         gcnJnTLlkPOybTrb+2R0Afk3210pMHRUtlDEEXN/OQeK7DRsr9qHpvCsKNuCAfUBa6MT
-         5ymvH4XwK27IGYqt0/084kzcv3qcDDYUXCeW3aOTTTnXwpLwDFX6cGfD9Su4OXXYUb0B
-         a29w==
+        bh=fehn8/FKPdzBZiJ7SaATTiqPDXAlgIYGKuuyWYqseyE=;
+        b=wLFhnszDRaMgAJH1f9bnylsQjBK17rx3PVDoY17cvvg42vnV1dgOQ8Ks838pFARoZr
+         4DE5ixx5f9WwIRzksVXQPAWUizPB2ncwdZCYRQElRHhkCP7g7dTK5mLRcHxMuLdEMjTw
+         uK5prPf/tiHVgbCLn55WrMixFCjtW/hWFfq6LEqIUaK2fjW9nsmJts6/8FQfM21rmUHN
+         6u85F+9KjfkVcpjtyLKQBf+wcs1/DH4OKnNfFx8m/uwcNOerjTxRl5V+p1Ffe9Bs3IB4
+         3RBQZUAnZvUYaFrI9vOCXOxqbSwprLtP18v4jNIRteolwqc/DmRH3ewzp2mMgcRc6szV
+         EoJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739291301; x=1739896101;
+        d=1e100.net; s=20230601; t=1739294748; x=1739899548;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5MEK/stSb+AMRyC9Zhx6OFHXRnHPVcvklj9Pc8LhwOQ=;
-        b=GKNLSD+wUgT3yRJt+hqGUgdyOlctffHAlTypVeX7yOjJ6Edr2nbkWA74j0qB0gZyaw
-         rPGpBjHiYBJFDdWybjp1Pys5ti6mstTGzReElvvZABgo/m8la5loH6YnOx9b+DuFp8Ng
-         H1me3zfdRUEQAeCmZ32SnQN8N0Jc4TYfTmt9ES8dE6Q7DWEzf2aF97FcRjR8023Xc0Xh
-         NKc2RdfevRsSndJ8JPugjRYw5uH3XY+r2V4c2WLF9us+GLf703a3MoWAytu8ffAsULfH
-         EzJNOHLwF7bxpnMTx5fC3760RPMcKlVx6Mx7RxEJs5x0GY28cV0K3GQbX5moPzopi5z3
-         2S3Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVnJ33OHrEULkm7hlHr2wh3keImiTryuQZRvCNgUP21fPowk0ZrAO6PeGxqQErMRQZrNYoC+MOTAo3hF3e15g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzPlThEHrWWzwOkFc3Wa3F+ctNI8B35OR5ESCNNvH1tWEUnDLeQ
-	7KTebQ43jWHVr+FwkG/O+r8F9KQXj7dLjjSdwifY1LWfd5d4MrJjZMLetGzwJlHA3tvT39gb6qJ
-	KKg==
-X-Google-Smtp-Source: AGHT+IEW6FT5SzWSOj0JB0UAPg+blRK0ibYMj54XT+2rd1e326WroNU4nUmkSnUDL4aqV/75Jp14hq1SYiM=
-X-Received: from pfrc11.prod.google.com ([2002:aa7:8e0b:0:b0:730:7648:7a74])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:188f:b0:732:2170:b69a
- with SMTP id d2e1a72fcca58-7322170b72bmr3189092b3a.18.1739291301572; Tue, 11
- Feb 2025 08:28:21 -0800 (PST)
-Date: Tue, 11 Feb 2025 16:28:20 +0000
-In-Reply-To: <20250211143919.GBZ6thF2Ryx-D2YpDz@fat_crate.local>
+        bh=fehn8/FKPdzBZiJ7SaATTiqPDXAlgIYGKuuyWYqseyE=;
+        b=boy7tGrvANZkT4IfjTVzojjTykkolzv5Vu7cqd78zxbhIzzus7bSAqZPtthOfr6t47
+         KlR1L+Rc7WSGhAVEcwksxDpoc3u5dLje+9pAoIOt4TaTTupyqfHp0i0zArRXO2ZUvpSM
+         k+bPdpRiJdaHJyL5JlktE5FZoqbD+tFQ79/BZ9RKqeaX4P8jwZk9YVmURTTZ66mVF+qv
+         wv154Kglb9H+HeKENKN/xIICK8RjyNjd4ZtFz/IYJEk1IJTaPgLWzo8fitp2DIn0dMCT
+         TJ1xbhpOd4iqFOE9vCDD804MwutOsdPRoBBx0hzqPr4IsSy/BVVczUiLt3kBxry+vg4H
+         RU2A==
+X-Forwarded-Encrypted: i=1; AJvYcCVfocDkX1wI5nwkrfy9+S+aZtkcqG09CeABBDmWYrONiC/O+q5HqXGdEgjMshFlKa1P4R6YRRog5g3p5nd56w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzP4py5bwNSOrfpCJK0W0XBIy7qmk7iEvMVtgnSBiLnZN1oJSRx
+	IQwHqiW0sCUtLd8SE7GCbRWiD3LV1L4uRY5ykiGScdE8vjMu4S/T1WukAw5Or7KgoPRMg7SIs2U
+	+kA==
+X-Google-Smtp-Source: AGHT+IFueIXltnSm3F29jVZndsq5T+j40lmj4UcIsQhmLdRSEShGqUPy9fjOgqE9JAinoOmES588AgdHP5k=
+X-Received: from pjyf5.prod.google.com ([2002:a17:90a:ec85:b0:2fa:1481:81f5])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:184d:b0:2ea:4c8d:c7a2
+ with SMTP id 98e67ed59e1d1-2fa243db893mr28913562a91.24.1739294748442; Tue, 11
+ Feb 2025 09:25:48 -0800 (PST)
+Date: Tue, 11 Feb 2025 09:25:47 -0800
+In-Reply-To: <20250211150114.GCZ6tmOqV4rI04HVuY@fat_crate.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
-References: <20250201021718.699411-1-seanjc@google.com> <20250211143919.GBZ6thF2Ryx-D2YpDz@fat_crate.local>
-Message-ID: <Z6t6pMgAjHckWMs_@google.com>
-Subject: Re: [PATCH 00/16] x86/tsc: Try to wrangle PV clocks vs. TSC
+References: <20250201021718.699411-1-seanjc@google.com> <20250201021718.699411-2-seanjc@google.com>
+ <20250211150114.GCZ6tmOqV4rI04HVuY@fat_crate.local>
+Message-ID: <Z6uIGwxx9HzZQ-N7@google.com>
+Subject: Re: [PATCH 01/16] x86/tsc: Add a standalone helpers for getting TSC
+ info from CPUID.0x15
 From: Sean Christopherson <seanjc@google.com>
 To: Borislav Petkov <bp@alien8.de>
 Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
@@ -77,26 +79,50 @@ Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
 Content-Type: text/plain; charset="us-ascii"
 
 On Tue, Feb 11, 2025, Borislav Petkov wrote:
-> On Fri, Jan 31, 2025 at 06:17:02PM -0800, Sean Christopherson wrote:
-> > And if the host provides the core crystal frequency in CPUID.0x15, then KVM
-> > guests can use that for the APIC timer period instead of manually
-> > calibrating the frequency.
+> On Fri, Jan 31, 2025 at 06:17:03PM -0800, Sean Christopherson wrote:
+> > Extract retrieval of TSC frequency information from CPUID into standalone
+> > helpers so that TDX guest support and kvmlock can reuse the logic.  Provide
+> > a version that includes the multiplier math as TDX in particular does NOT
+> > want to use native_calibrate_tsc()'s fallback logic that derives the TSC
+> > frequency based on CPUID.0x16 when the core crystal frequency isn't known.
+> > 
+> > No functional change intended.
+> > 
+> > Signed-off-by: Sean Christopherson <seanjc@google.com>
+> > ---
+> >  arch/x86/include/asm/tsc.h | 41 ++++++++++++++++++++++++++++++++++++++
+> >  arch/x86/kernel/tsc.c      | 14 ++-----------
+> >  2 files changed, 43 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/arch/x86/include/asm/tsc.h b/arch/x86/include/asm/tsc.h
+> > index 94408a784c8e..14a81a66b37c 100644
+> > --- a/arch/x86/include/asm/tsc.h
+> > +++ b/arch/x86/include/asm/tsc.h
 > 
-> Hmm, so that part: what's stopping the host from faking the CPUID leaf? I.e.,
-> I would think that actually doing the work to calibrate the frequency would be
-> more reliable/harder to fake to a guest than the guest simply reading some
-> untrusted values from CPUID...
+> Bah, why in the header as inlines?
 
-Not really.  Crafting an attack based on timing would be far more difficult than
-tricking the guest into thinking the APIC runs at the "wrong" frequency.  The
-APIC timer itself is controlled by the hypervisor, e.g. the host can emulate the
-timer at the "wrong" freuquency on-demand.  Detecting that the guest is post-boot
-and thus done calibrating is trivial.
+Because obviously optimizing code that's called once during boot is super
+critical?
 
-> Or are we saying here: oh well, there are so many ways for a normal guest to
-> be lied to so that we simply do the completely different approach and trust
-> the HV to be benevolent when we're not dealing with confidential guests which
-> have all those other things to keep the HV honest?
+> Just leave them in tsc.c and call them...
+> 
+> > @@ -28,6 +28,47 @@ static inline cycles_t get_cycles(void)
+> >  }
+> >  #define get_cycles get_cycles
+> >  
+> > +static inline int cpuid_get_tsc_info(unsigned int *crystal_khz,
+> > +				     unsigned int *denominator,
+> > +				     unsigned int *numerator)
+> 
+> Can we pls do a
+> 
+> struct cpuid_tsc_info {
+> 	unsigned int denominator;
+> 	unsigned int numerator;
+> 	unsigned int crystal_khz;
+> 	unsigned int tsc_khz;
+> }
+> 
+> and hand that around instead of those I/O pointers?
 
-This.  Outside of CoCo, the hypervisor is 100% trusted.  And there's zero reason
-for the hypervisor to lie, it can simply read/write all guest state.
+Ah, yeah, that's way better.
