@@ -1,183 +1,102 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71FDA254AFF
-	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 16:10:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A88224E4C3
+	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 16:28:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739290246; cv=none; b=Zo5adE7PPc6GruaR1zjVGOn1EOzJeR7QmPa9RwkbQwOCdEFhfNoA0uv0h4folDbSYE64g3AOyEM/jHqXbPbbqp5mH9KRFXV9XAkoDxXRup5o5c/6Loovf90zOUSckY0Ryk/rWwoyGxdTVLBYsKJ+9ynStiuDwqeV3iEG8DW8g8c=
+	t=1739291304; cv=none; b=NGbjArf7iBLKcd6yTTBM39s+bFR7ygTh9GMNV5xojBiB95vTVlSBkHPchEbnWQYjUeMxLLK3Hf4MNXFkpsAYCJ5DYAKFjxz5cHmSZ3jvRupKVENz7SoXx4Ssc6jjv+kW9PD6GbpU4HklWdnE6pEfpHVJ1ZmI+J5f83g8BdZUpr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739290246; c=relaxed/simple;
-	bh=nE7GJqZw+gIEdhcV99Kpd2q5ds+/vCptECGTizt6klE=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=pGtP1JqZa5z52bvlwVafWrSk3ZMBm1/i+a+fLjta7Gtv6Dbfosz1oAPWJmDVrleBJLBFbc+jA42WCymv5Y8DknWAl0lD6qCGALghx5Bk6h0sa8wE6BIGcPqbgMEFEXs9ZQ1cySMgRfQ2y4u1h9BD6EXUKe0UD9O/Ja3l9gW7fXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i1HUBeyt; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1739291304; c=relaxed/simple;
+	bh=yilJGqWW4RYMKFOjUyyusb+5EmeDe91eA1bXhwR/YFI=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=EzRqsAfxCQQbO+9+BCn/nFmo2dvXkWNB+ZJsZqqM7zG2Fxm5gwass5nW619Q95cjwaddwIzWKbVJ2gUP/C2lEuZ33/x52WAaYWDu1+ncqetvdUtaSyd+LyxWqYejzedGJzUT4AfhqAZt+mlxLcb/rLF5MJsJGH9krfLifXwS1XI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BV8gyqEQ; arc=none smtp.client-ip=209.85.216.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i1HUBeyt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739290243;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DkXKKRZIZ3B6nMXAUQwqba2hAbiJWDhaRaBNOU6/fJw=;
-	b=i1HUBeytVZQfuTjrexbgjP7YEuXhfQTbb6pRe91MQPsrHrNvdDzSOfyC/EERd6n8ZWPDjF
-	+lZ5tsIl54r4itAaxVJ7JLggTgV7punI/95D8cHSFkAUzbdWyJUgYCJxsfKBbdpQAXbDp7
-	n1YwDMda2zzuC6MFCw8XkhNYDMwIpOc=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-611-N5kfWU9lNP-XB94clDefoA-1; Tue, 11 Feb 2025 11:10:42 -0500
-X-MC-Unique: N5kfWU9lNP-XB94clDefoA-1
-X-Mimecast-MFC-AGG-ID: N5kfWU9lNP-XB94clDefoA
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-439385b08d1so22197045e9.1
-        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 08:10:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BV8gyqEQ"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2fa3b466245so7334132a91.0
+        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 08:28:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1739291301; x=1739896101; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5MEK/stSb+AMRyC9Zhx6OFHXRnHPVcvklj9Pc8LhwOQ=;
+        b=BV8gyqEQ8Bo/dEWAAdR3aL3XgwtOcqF7BNB7v5dn8HgnIE9gKi56z680tOVvcUJEl8
+         J++kUakbd2lfLWUYWsHqqEJTjiwSFTSbNQdsjeK3IHpuUSGtYiX+CyFiRGauYZPZqyqN
+         1Bp0BCRB1NHF9FALR69/4ynEpKTGBxqwUK3E2fdc8PgFD/YgL6oViU+g9Qv1cTlCzPnO
+         gcnJnTLlkPOybTrb+2R0Afk3210pMHRUtlDEEXN/OQeK7DRsr9qHpvCsKNuCAfUBa6MT
+         5ymvH4XwK27IGYqt0/084kzcv3qcDDYUXCeW3aOTTTnXwpLwDFX6cGfD9Su4OXXYUb0B
+         a29w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739290241; x=1739895041;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=DkXKKRZIZ3B6nMXAUQwqba2hAbiJWDhaRaBNOU6/fJw=;
-        b=lGVIw28zicBZZo3SZaZRdeNRqohrhChB43YNZnQ1PF4QdE0ThHo7Sd2Pg/TpoKGMxX
-         OyyUtvsxmKNYjH29+I9EfnNexiK4EEo9uDyYtBXrbHErGy1ex7wAcihW1MU5JzQaCAMh
-         ykhGs9ymn/LYUdojmjyfTiP2HQ8V12utkYBKQXEhPgDDxhYvC6nYQAp2uEQQKYyxx+lB
-         qwH02xH/TZ4diT4+l5BUnA7P3195+sTXMPmHLXfnY3blpRw7dv9CpkSuwb3/Lj6CI4t1
-         klm0QwWnmJ3M+EJ9V+Z6ncKjMLpzE1DhNylbDJYs+YICVxVxFFrPZB5kjKEZE+oUGTjD
-         IiJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUU1nkhB0ujXi6Vi2oiHUn1DJo9FLGV7bNNbg94PnivY73Y4EWkKUASeV/skGihPn/6yIVJyGnyXgBqNznlRg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwFSCIbEyyiWvQMGeBGqudkCuWnAEk7PBtw5RmeRsH+UYGTc2Kb
-	uio2bJxa7HITTKyRtQRzyAmnEHyFsZtw+PgdEMEMe0x3N9aCrwhbL13Elcb5AmEA5lqbQhT2anp
-	i2UDVSJgi1ZcPQF00FAbHw7WR5BRrKpU7jTVcZu/Z711Crhsc/S6eTzO9x9oLKAGU
-X-Gm-Gg: ASbGncuCK5K2aaLj8cdFg9Ej6zfn85cHLV+iKYOpOMG/b4CN3doDuSOaeMYuyDUK5rL
-	Tjq/dSBnxxfipvqENQ/skkexetKB0sgsrXGSV3Dt/vdL4XNKA3h6p2/62FrO4eg50QKb9OypLRS
-	HJpxyqj2DEYixb2e6MzxIezhCWaNP3KV44CDrviqkYWp9jD+v6VM0/8Cq+kC4g9siYYQaGH4cMZ
-	Nw5LT6ylk9V4Fmd7CPdnDd3Zw4zDY5zH3rJa+kdrIu+tzjyPDbiOBg9KPEcItDSRNaLe0IAjQNt
-	Z1Ggc2cHKK++2x0Rtpxt0/DXsC1+gbrDCUgkiHqonkvNs7quSbybcpm0iuVaWlEUdg==
-X-Received: by 2002:a05:600c:500b:b0:439:48d9:d8b0 with SMTP id 5b1f17b1804b1-43948d9dd41mr73108635e9.16.1739290240853;
-        Tue, 11 Feb 2025 08:10:40 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGxNXfn5PLr2I3O9shVB9BLvMIo6l6XNn4GHuv5+NRtXPlNDWEKqGeQnOp/tv15slnT46loqA==
-X-Received: by 2002:a05:600c:500b:b0:439:48d9:d8b0 with SMTP id 5b1f17b1804b1-43948d9dd41mr73107295e9.16.1739290240325;
-        Tue, 11 Feb 2025 08:10:40 -0800 (PST)
-Received: from vschneid-thinkpadt14sgen2i.remote.csb (213-44-141-166.abo.bbox.fr. [213.44.141.166])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38dc9ef8ac6sm12561610f8f.27.2025.02.11.08.10.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2025 08:10:39 -0800 (PST)
-From: Valentin Schneider <vschneid@redhat.com>
-To: Dave Hansen <dave.hansen@intel.com>, Jann Horn <jannh@google.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
- linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org,
- kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-mm@kvack.org,
- linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
- bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov
- <alexey.amakhalov@broadcom.com>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Paul
- Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave
- Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Peter Zijlstra <peterz@infradead.org>, Arnaldo Carvalho de Melo
- <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Mark Rutland
- <mark.rutland@arm.com>, Alexander Shishkin
- <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, Ian
- Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>,
- "Liang, Kan" <kan.liang@linux.intel.com>, Boris Ostrovsky
- <boris.ostrovsky@oracle.com>, Josh Poimboeuf <jpoimboe@kernel.org>, Pawan
- Gupta <pawan.kumar.gupta@linux.intel.com>, Sean Christopherson
- <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski
- <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Frederic Weisbecker
- <frederic@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, Jason
- Baron <jbaron@akamai.com>, Steven Rostedt <rostedt@goodmis.org>, Ard
- Biesheuvel <ardb@kernel.org>, Neeraj Upadhyay
- <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>,
- Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
- Uladzislau Rezki <urezki@gmail.com>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
- Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli <juri.lelli@redhat.com>,
- Clark Williams <williams@redhat.com>, Yair Podemsky <ypodemsk@redhat.com>,
- Tomas Glozar <tglozar@redhat.com>, Vincent Guittot
- <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Kees Cook
- <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Christoph
- Hellwig <hch@infradead.org>, Shuah Khan <shuah@kernel.org>, Sami Tolvanen
- <samitolvanen@google.com>, Miguel Ojeda <ojeda@kernel.org>, Alice Ryhl
- <aliceryhl@google.com>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
- Samuel Holland <samuel.holland@sifive.com>, Rong Xu <xur@google.com>,
- Nicolas Saenz Julienne <nsaenzju@redhat.com>, Geert Uytterhoeven
- <geert@linux-m68k.org>, Yosry Ahmed <yosryahmed@google.com>, "Kirill A.
- Shutemov" <kirill.shutemov@linux.intel.com>, "Masami Hiramatsu (Google)"
- <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, Luis
- Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
- Tiezhu Yang <yangtiezhu@loongson.cn>
-Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer
- flush_tlb_kernel_range() targeting NOHZ_FULL CPUs
-In-Reply-To: <352317e3-c7dc-43b4-b4cb-9644489318d0@intel.com>
-References: <20250114175143.81438-1-vschneid@redhat.com>
- <20250114175143.81438-30-vschneid@redhat.com>
- <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
- <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
- <xhsmh5xlhk5p2.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <CAG48ez1EAATYcX520Nnw=P8XtUDSr5pe+qGH1YVNk3xN2LE05g@mail.gmail.com>
- <xhsmh34gkk3ls.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <352317e3-c7dc-43b4-b4cb-9644489318d0@intel.com>
-Date: Tue, 11 Feb 2025 17:10:36 +0100
-Message-ID: <xhsmhv7tgihs3.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+        d=1e100.net; s=20230601; t=1739291301; x=1739896101;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5MEK/stSb+AMRyC9Zhx6OFHXRnHPVcvklj9Pc8LhwOQ=;
+        b=GKNLSD+wUgT3yRJt+hqGUgdyOlctffHAlTypVeX7yOjJ6Edr2nbkWA74j0qB0gZyaw
+         rPGpBjHiYBJFDdWybjp1Pys5ti6mstTGzReElvvZABgo/m8la5loH6YnOx9b+DuFp8Ng
+         H1me3zfdRUEQAeCmZ32SnQN8N0Jc4TYfTmt9ES8dE6Q7DWEzf2aF97FcRjR8023Xc0Xh
+         NKc2RdfevRsSndJ8JPugjRYw5uH3XY+r2V4c2WLF9us+GLf703a3MoWAytu8ffAsULfH
+         EzJNOHLwF7bxpnMTx5fC3760RPMcKlVx6Mx7RxEJs5x0GY28cV0K3GQbX5moPzopi5z3
+         2S3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVnJ33OHrEULkm7hlHr2wh3keImiTryuQZRvCNgUP21fPowk0ZrAO6PeGxqQErMRQZrNYoC+MOTAo3hF3e15g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzPlThEHrWWzwOkFc3Wa3F+ctNI8B35OR5ESCNNvH1tWEUnDLeQ
+	7KTebQ43jWHVr+FwkG/O+r8F9KQXj7dLjjSdwifY1LWfd5d4MrJjZMLetGzwJlHA3tvT39gb6qJ
+	KKg==
+X-Google-Smtp-Source: AGHT+IEW6FT5SzWSOj0JB0UAPg+blRK0ibYMj54XT+2rd1e326WroNU4nUmkSnUDL4aqV/75Jp14hq1SYiM=
+X-Received: from pfrc11.prod.google.com ([2002:aa7:8e0b:0:b0:730:7648:7a74])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:188f:b0:732:2170:b69a
+ with SMTP id d2e1a72fcca58-7322170b72bmr3189092b3a.18.1739291301572; Tue, 11
+ Feb 2025 08:28:21 -0800 (PST)
+Date: Tue, 11 Feb 2025 16:28:20 +0000
+In-Reply-To: <20250211143919.GBZ6thF2Ryx-D2YpDz@fat_crate.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xyquhBut5wSt2A4aeVQOhOgQfgZDsN3L48Cf8s3a-7U_1739290241
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+Mime-Version: 1.0
+References: <20250201021718.699411-1-seanjc@google.com> <20250211143919.GBZ6thF2Ryx-D2YpDz@fat_crate.local>
+Message-ID: <Z6t6pMgAjHckWMs_@google.com>
+Subject: Re: [PATCH 00/16] x86/tsc: Try to wrangle PV clocks vs. TSC
+From: Sean Christopherson <seanjc@google.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Juergen Gross <jgross@suse.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
+	Alexey Makhalov <alexey.amakhalov@broadcom.com>, Jan Kiszka <jan.kiszka@siemens.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, 
+	linux-coco@lists.linux.dev, virtualization@lists.linux.dev, 
+	linux-hyperv@vger.kernel.org, jailhouse-dev@googlegroups.com, 
+	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
+	Nikunj A Dadhania <nikunj@amd.com>, Tom Lendacky <thomas.lendacky@amd.com>
+Content-Type: text/plain; charset="us-ascii"
 
-On 11/02/25 06:22, Dave Hansen wrote:
-> On 2/11/25 05:33, Valentin Schneider wrote:
->>> 2. It's wrong to assume that TLB entries are only populated for
->>> addresses you access - thanks to speculative execution, you have to
->>> assume that the CPU might be populating random TLB entries all over
->>> the place.
->> Gotta love speculation. Now it is supposed to be limited to genuinely
->> accessible data & code, right? Say theoretically we have a full TLBi as
->> literally the last thing before doing the return-to-userspace, speculation
->> should be limited to executing maybe bits of the return-from-userspace
->> code?
->
-> In practice, it's mostly limited like that.
->
-> Architecturally, there are no promises from the CPU. It is within its
-> rights to cache anything from the page tables at any time. If it's in
-> the CR3 tree, it's fair game.
->
->> Furthermore, I would hope that once a CPU is executing in userspace, it's
->> not going to populate the TLB with kernel address translations - AIUI the
->> whole vulnerability mitigation debacle was about preventing this sort of
->> thing.
->
-> Nope, unfortunately. There's two big exception to this. First, "implicit
-> supervisor-mode accesses". There are structures for which the CPU gets a
-> virtual address and accesses it even while userspace is running. The LDT
-> and GDT are the most obvious examples, but there are some less
-> ubiquitous ones like the buffers for PEBS events.
->
-> Second, remember that user versus supervisor is determined *BY* the page
-> tables. Before Linear Address Space Separation (LASS), all virtual
-> memory accesses walk the page tables, even userspace accesses to kernel
-> addresses.  The User/Supervisor bit is *in* the page tables, of course.
->
-> A userspace access to a kernel address results in a page walk and the
-> CPU is completely free to cache all or part of that page walk. A
-> Meltdown-style _speculative_ userspace access to kernel memory won't
-> generate a fault either. It won't leak data like it used to, of course,
-> but it can still walk the page tables. That's one reason LASS is needed.
+On Tue, Feb 11, 2025, Borislav Petkov wrote:
+> On Fri, Jan 31, 2025 at 06:17:02PM -0800, Sean Christopherson wrote:
+> > And if the host provides the core crystal frequency in CPUID.0x15, then KVM
+> > guests can use that for the APIC timer period instead of manually
+> > calibrating the frequency.
+> 
+> Hmm, so that part: what's stopping the host from faking the CPUID leaf? I.e.,
+> I would think that actually doing the work to calibrate the frequency would be
+> more reliable/harder to fake to a guest than the guest simply reading some
+> untrusted values from CPUID...
 
-Bummer, now I have at least two architectures proving me wrong :-) Thank
-you as well for the education, I really appreciate it.
+Not really.  Crafting an attack based on timing would be far more difficult than
+tricking the guest into thinking the APIC runs at the "wrong" frequency.  The
+APIC timer itself is controlled by the hypervisor, e.g. the host can emulate the
+timer at the "wrong" freuquency on-demand.  Detecting that the guest is post-boot
+and thus done calibrating is trivial.
 
+> Or are we saying here: oh well, there are so many ways for a normal guest to
+> be lied to so that we simply do the completely different approach and trust
+> the HV to be benevolent when we're not dealing with confidential guests which
+> have all those other things to keep the HV honest?
+
+This.  Outside of CoCo, the hypervisor is 100% trusted.  And there's zero reason
+for the hypervisor to lie, it can simply read/write all guest state.
