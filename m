@@ -1,187 +1,113 @@
-Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com [209.85.222.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B8370807
-	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 11:24:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 661A71FAC26;
+	Tue, 11 Feb 2025 11:36:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739273060; cv=none; b=pUaXMT63HxyyD8ijvV2uXfYPu0Ih721KeqeDabVefGLm0GaZRNQEtaIHW6wnW6nyA3O+hbMktz/1CmQpt9PVO98Oij8t2Iq5T4ECmr/BBaZ4ZqfBETV2iPvTgmq72c4A9zZ9BA+DQcIQauWr/qPAb6Kab2B3VzkdfVdeazb9VR8=
+	t=1739273796; cv=none; b=fQrXpalsnE2NKD6RS5Cs4C7Y19fzUVo4DZ99WyK2i3ZHZDvg6Bh08DLV9Gr8MY+r9RtbRA205dySMWl54GLIs/LaISbhBbALbrs/Ic5tmaXAFVT9HAFoD26IljESwnoKNs50qBrVtD8boyW10yDN1N9w+7qpkebyEFnj1E+CliI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739273060; c=relaxed/simple;
-	bh=6+5HzJHoArW8KiuCIgTRGV34Mq0g4ZBMkNb+IArKXns=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=DuBkXdmAtc/MRL+qQ1pjNtp6P5BO1JVfpWsEFSMJ23fhnBCQEp1MAdmo5sN1SpRsQEjj2hl8qXCfJH1Zi57NUdD2i9xJ2U6Mki6yJlH0UA9EkB3A6xSLMiclUtTKbVAvFUFPtOiPDWbd9ghHAaDN07gZmVM3WioXSPqZRj7FXhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=al8Tv6YM; arc=none smtp.client-ip=209.85.222.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1739273796; c=relaxed/simple;
+	bh=4xoNSm4ByXoD5+xDuoZWxx31MECCpddaPp/6C8dOZ/c=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=f6crkT1bOg2FYNjJyWX4Ve09wxx391ZQvSCpuitzNjmuzTeSGEItF8jpKDzduqGeFWfX/FsyODtwZ/6ZIzcNq+bUpq7bYPjpdhrAxcPDQP2/Njoh9CFt7P0l2U0g3mI61n2qnjv0pjtITHCWFUdQHDXcx2RrFmFbxQ/9JjiNUzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nTFL3aeI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="al8Tv6YM"
-Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-86718541914so1565075241.1
-        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 03:24:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1739273057; x=1739877857; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=oOfjVZVb5Y6iDzKKUHv6/nHA/mRe1wtMuOb87tFD/sY=;
-        b=al8Tv6YMkueJa3W4ZqMnFI3Ur1WehHcZmljG5Gi9plmhs4dUvfigbzAmsJRrOgq8WB
-         7tTRlr/LYGJcpQQy3CJGrco0DO06vj2IWk6SFsvvhY/FrUZwLJYu7c0UON6Fta3AOKTf
-         4cqShFm7T8+PcEsrNzO1lLD8gGEM0bli7F1wTbc3P/wWZyIO3WEzIUdZpEtjlFVFEEYK
-         b2ZKBIhz9z6iALPVjiKh2WnfmwTdLstH98Gw9/r8B9LPHWY2ae/semtZoOH52X/3mEk0
-         /PcRHTpVwWamoNuNe24ZAPIdHsILjfsjyarHB0zEwYHqHb0Q3GcppB/xMdKZYT77IHrl
-         0I8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739273057; x=1739877857;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oOfjVZVb5Y6iDzKKUHv6/nHA/mRe1wtMuOb87tFD/sY=;
-        b=ZYQ+KjzcJwJ4jPuw7w+CsIDXreOB85QRx0CZDGJJmwIx6duoTZt6hM5RkvGF7/+kjj
-         bZ/DE/MREaupng+DyT8uFTlBTDLWtB578ygiV9B45tVwLEHodMQi3FcUC7rN1VTmZkDE
-         a26pB5dmtQSRDBY5A6d6Agf4t2DsHuT6zoHYP7pcx/bAvYBLeOciXRHZCrO/5xvKOS5c
-         R4trLrW73oqpj4/H3Eohk8W4eFXECazmm5DsS3bvklVDYjXnNwxlpWHNpAuRuhKyeJx+
-         otmA0XQ5HScSSeje5RyNx5XgdKh2nM/MTIM2AbuFk6UgUDzjRvr4kQCEns/Gj5zDCBe0
-         lnFQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXqaD7vkxGur9e7/3+qTi8dQD6LNa8Rt/PfnPXgbpZ1NpQkucsQd/OElztiJ8RZayWN7bdVGgZmdDFSJc0dZw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzMo7JIaMkF4/keM2PoigBb851Ga1sxXPNOazceMmuXsubrp1P+
-	elv12CZ0I7Sz9Qht117MtPnv9isqIEExuad59K9brQdO4FT+2LMVVOLMYjf0wFrAHr2pBdICFRg
-	fvw9c94xUZAy8a2UTd1Gz5secteBT6YKbp8S1+Q==
-X-Gm-Gg: ASbGncvoNKEHQgjMh/CK1dH9BHKkJGbSCy0w4EPwmbwNTZGfSjolWYplJieK5xUrEYW
-	U4cCx8fISfeSliWCTWN90u6u01WYgxAesz+FLgPB1g9k6ilXgBYNJBG4Yq/jSjSmCxqa8cOPBLa
-	E5I4U7iUppc0+DKcHvmhucQf2NzpFeZA==
-X-Google-Smtp-Source: AGHT+IEf4bAlc932Y8RjCqsdcVpRLNvZ7hqGahdwLKUrVi5zwhpmjI32Ih4rNqM1YHJ6OXhvHscn0v0mxu3EPZ63IlY=
-X-Received: by 2002:a05:6122:e53:b0:515:20e6:7861 with SMTP id
- 71dfb90a1353d-520584235ddmr1279904e0c.2.1739273057471; Tue, 11 Feb 2025
- 03:24:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nTFL3aeI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D10C7C4CEDD;
+	Tue, 11 Feb 2025 11:36:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739273795;
+	bh=4xoNSm4ByXoD5+xDuoZWxx31MECCpddaPp/6C8dOZ/c=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=nTFL3aeITjNxNrnmbueW9YyMWE0wHc1nXOowZ7B0nVPJIOTsGl+KW9UlHJfGakSd7
+	 l8ff7xeBR7J9BmV/TEFmjXmNejO/KsV4c0IbPYo2B52mu/Wlt6Oa0i67lyOsVkNo98
+	 S9CoYS4QYkT/rFEs8fFdhiFqDzpXTFFO/j8vt0XDkuJgynSfIIfZdggagXQSO2h9KA
+	 53kMCUh5M5coOsCuwGkqd3z9mirSW0OzPPsq4UxqLPHuyF/cus3roXfruPJ2LfM6vy
+	 im39UemlfJ01TErfqc9sFIxNs6hK1WG2MPRqP0k9Sjo9kfsW0agdhRQ9qzyEyMlW9m
+	 v3BGL8ffSgUPg==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.95)
+	(envelope-from <maz@kernel.org>)
+	id 1thoZ6-002x69-AB;
+	Tue, 11 Feb 2025 11:36:33 +0000
+Date: Tue, 11 Feb 2025 11:36:31 +0000
+Message-ID: <8634gku30g.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: kvmarm@lists.linux.dev,
+	Linux ARM <linux-arm-kernel@lists.infradead.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	virtualization@lists.linux.dev,
+	Mark Brown <broonie@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Anders Roxell <anders.roxell@linaro.org>,
+	Aishwarya TCV <Aishwarya.TCV@arm.com>
+Subject: Re: kvm: nVHE hyp panic at: __kvm_nvhe_kvm_hyp_handle_sysre
+In-Reply-To: <CA+G9fYt6Cuu6=OO9w80yhJbZB77Q0qf7nzYdvjbgDbgAw6t1jw@mail.gmail.com>
+References: <CA+G9fYt6Cuu6=OO9w80yhJbZB77Q0qf7nzYdvjbgDbgAw6t1jw@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/29.4
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Tue, 11 Feb 2025 16:54:06 +0530
-X-Gm-Features: AWEUYZn5KxAHY9nEhuLeVWZbiZhT9c81arMsoOohC1GNLVg1Ec6S2mvTF4MpJwg
-Message-ID: <CA+G9fYt6Cuu6=OO9w80yhJbZB77Q0qf7nzYdvjbgDbgAw6t1jw@mail.gmail.com>
-Subject: kvm: nVHE hyp panic at: __kvm_nvhe_kvm_hyp_handle_sysre
-To: kvmarm@lists.linux.dev, Linux ARM <linux-arm-kernel@lists.infradead.org>, 
-	open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux.dev
-Cc: Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Dan Carpenter <dan.carpenter@linaro.org>, Anders Roxell <anders.roxell@linaro.org>, 
-	Aishwarya TCV <Aishwarya.TCV@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: naresh.kamboju@linaro.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, broonie@kernel.org, catalin.marinas@arm.com, arnd@arndb.de, dan.carpenter@linaro.org, anders.roxell@linaro.org, Aishwarya.TCV@arm.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-Regression on rk3399-rock-pi-4b while running kvm-unit-tests with
-nvhe, protected and vhe mode with virtualization enabled.
+On Tue, 11 Feb 2025 11:24:06 +0000,
+Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> 
+> Regression on rk3399-rock-pi-4b while running kvm-unit-tests with
+> nvhe, protected and vhe mode with virtualization enabled.
 
-First seen on next-20250120
-Good: next-20250117
-Bad: next-20250120 till today's next-20250210
+I do not buy this. RK3399 only has ARMv8.0 cores, which by definition
+do not have VHE.
 
-This is always reproducible.
+> 
+> First seen on next-20250120
+> Good: next-20250117
+> Bad: next-20250120 till today's next-20250210
+> 
+> This is always reproducible.
 
-Regression on these devices with kernel command line boot modes.
-* rk3399-rock-pi-4b-nvhe
-* rk3399-rock-pi-4b-protected
-* rk3399-rock-pi-4b-vhe
+What about vanilla upstream?
 
-Test regression: kvm nVHE hyp panic at __kvm_nvhe_kvm_hyp_handle_sysreg
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> Regression on these devices with kernel command line boot modes.
+> * rk3399-rock-pi-4b-nvhe
+> * rk3399-rock-pi-4b-protected
+> * rk3399-rock-pi-4b-vhe
 
-## Test log
-ok 139 - psci: psci: cpu-off
-[  674.423092] kvm [6196]: nVHE hyp panic at:
-__kvm_nvhe_kvm_hyp_handle_sysreg (include/kvm/arm_arch_timer.h:174
-arch/arm64/kvm/hyp/include/hyp/switch.h:506
-arch/arm64/kvm/hyp/include/hyp/switch.h:559
-arch/arm64/kvm/hyp/include/hyp/switch.h:604)
-[  674.423987] kvm [6196]: nVHE call trace:
-[  674.424331] kvm [6196]: __kvm_nvhe_hyp_panic
-(arch/arm64/kvm/hyp/nvhe/switch.c:415)
-[  674.424950] kvm [6196]: __kvm_nvhe___kvm_vcpu_run
-(arch/arm64/kvm/hyp/include/hyp/switch.h:750 (discriminator 1)
-arch/arm64/kvm/hyp/nvhe/switch.c:355 (discriminator 1))
-[  674.425619] kvm [6196]: __kvm_nvhe___kvm_vcpu_run
-(arch/arm64/kvm/hyp/include/hyp/switch.h:750 (discriminator 1)
-arch/arm64/kvm/hyp/nvhe/switch.c:355 (discriminator 1))
-[  674.426288] kvm [6196]: __kvm_nvhe_handle___kvm_vcpu_run
-(arch/arm64/kvm/hyp/nvhe/hyp-main.c:231)
-[  674.427004] kvm [6196]: __kvm_nvhe_handle_trap
-(arch/arm64/kvm/hyp/nvhe/hyp-main.c:640
-arch/arm64/kvm/hyp/nvhe/hyp-main.c:673)
-[  674.427651] kvm [6196]: __kvm_nvhe___skip_pauth_save
-(arch/arm64/kvm/hyp/nvhe/host.S:67)
-[  674.428313] kvm [6196]: ---[ end nVHE call trace ]---
-[  674.428755] kvm [6196]: Hyp Offset: 0xfffea0df7d800000
-[  674.429208] Kernel panic - not syncing: HYP panic:
-[  674.429208] PS:600003c9 PC:0000df2103dc1610 ESR:0000000096000004
-[  674.429208] FAR:ffff00000d031ba0 HPFAR:0000000000000000 PAR:1d00007edbadc0de
-[  674.429208] VCPU:0000df21077a1bc0
-[  674.431040] CPU: 4 UID: 0 PID: 6196 Comm: qemu-system-aar Not
-tainted 6.14.0-rc2-next-20250210 #1
-[  674.431815] Hardware name: Radxa ROCK Pi 4B (DT)
-[  674.432219] Call trace:
-[  674.432437] show_stack (arch/arm64/kernel/stacktrace.c:468) (C)
-[  674.432763] dump_stack_lvl (lib/dump_stack.c:124)
-[  674.433090] dump_stack (lib/dump_stack.c:130)
-[  674.433384] panic (kernel/panic.c:354)
-[  674.433657] nvhe_hyp_panic_handler
-(arch/arm64/include/asm/current.h:19 arch/arm64/kvm/handle_exit.c:452)
-[  674.434056] kvm_arm_vcpu_enter_exit
-(arch/arm64/include/asm/alternative-macros.h:232
-arch/arm64/include/asm/cpufeature.h:453
-arch/arm64/include/asm/cpufeature.h:498
-arch/arm64/include/asm/virt.h:139 arch/arm64/kvm/arm.c:1084)
-[  674.434448] kvm_arch_vcpu_ioctl_run (arch/arm64/kvm/arm.c:1191)
-[  674.434855] kvm_vcpu_ioctl (arch/arm64/kvm/../../../virt/kvm/kvm_main.c:4377)
-[  674.435194] __arm64_sys_ioctl (fs/ioctl.c:51 (discriminator 1)
-fs/ioctl.c:906 (discriminator 1) fs/ioctl.c:892 (discriminator 1)
-fs/ioctl.c:892 (discriminator 1))
-[  674.435542] invoke_syscall (arch/arm64/include/asm/current.h:19
-arch/arm64/kernel/syscall.c:54)
-[  674.435875] el0_svc_common.constprop.0
-(include/linux/thread_info.h:135 (discriminator 2)
-arch/arm64/kernel/syscall.c:140 (discriminator 2))
-[  674.436289] do_el0_svc (arch/arm64/kernel/syscall.c:152)
-[  674.436583] el0_svc (arch/arm64/include/asm/irqflags.h:82
-(discriminator 1) arch/arm64/include/asm/irqflags.h:123 (discriminator
-1) arch/arm64/include/asm/irqflags.h:136 (discriminator 1)
-arch/arm64/kernel/entry-common.c:165 (discriminator 1)
-arch/arm64/kernel/entry-common.c:178 (discriminator 1)
-arch/arm64/kernel/entry-common.c:745 (discriminator 1))
-[  674.436860] el0t_64_sync_handler (arch/arm64/kernel/entry-common.c:763)
-[  674.437243] el0t_64_sync (arch/arm64/kernel/entry.S:600)
-[  674.437567] SMP: stopping secondary CPUs
-[  674.438032] Kernel Offset: disabled
-[  674.438338] CPU features: 0x100,0002082c,00800000,8200421b
-[  674.438819] Memory Limit: none
-[  674.439090] ---[ end Kernel panic - not syncing: HYP panic:
-[  674.439090] PS:600003c9 PC:0000df2103dc1610 ESR:0000000096000004
-[  674.439090] FAR:ffff00000d031ba0 HPFAR:0000000000000000 PAR:1d00007edbadc0de
-[  674.439090] VCPU:0000df21077a1bc0 ]---
+Please show me this device running in VHE mode.
 
-## Source
-* kernel version: 6.14.0-rc2-next-20250210
-* git tree: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
-* git sha: df5d6180169ae06a2eac57e33b077ad6f6252440
-* git describe: next-20250210
-* project details:
-https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250210/
-* architecture: arm64
-* device: rk3399-rock-pi-4b
-* toolchain: gcc-13
-* build config:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/config
-* build: https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/
+For the crash at hand, which clearly shows nVHE, can you report
+whether the following hack fixes it for you?
 
-## Boot log
-* test link-1: https://lkft.validation.linaro.org/scheduler/job/8117232#L1395
-* test link-2: https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250210/testrun/27250834/suite/log-parser-test/test/panic-multiline-kernel-panic-not-syncing-hyp-panic/log
-* build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/
-* config link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/config
-* linux-next-history:
-https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250207/testrun/27226044/suite/log-parser-test/test/panic-multiline-kernel-panic-not-syncing-hyp-panic/history/
-* linux-mainline-history:
-https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v6.14-rc2/testrun/27248845/suite/log-parser-test/test/panic-multiline-kernel-panic-not-syncing-hyp-panic/history/
+	M.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
+index f838a45665f26..cb57420a07de2 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/switch.h
++++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
+@@ -556,7 +556,7 @@ static bool kvm_handle_cntxct(struct kvm_vcpu *vcpu)
+ 		return false;
+ 	}
+ 
+-	val = compute_counter_value(ctxt);
++	val = compute_counter_value(kern_hyp_va(ctxt));
+ 
+ 	vcpu_set_reg(vcpu, kvm_vcpu_sys_get_rt(vcpu), val);
+ 	__kvm_skip_instr(vcpu);
+
+-- 
+Without deviation from the norm, progress is not possible.
