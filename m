@@ -1,165 +1,187 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com [209.85.222.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A32C1E5721
-	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 08:57:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B8370807
+	for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 11:24:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739264272; cv=none; b=G2USjq7pvNsSsGUrMRGyk2kpj+u7C7lw1kKTY0g+Q7XVOaOSQP0LIKRX21V+5cbLxyv059lq6sCIlapu3vshAvXZFr9vY++lIbcyy0Tt7kj6lXe/SWPzqjiV6A5oTThrP4yMEoVjfnCOYr/r5C/8FQPwtQ8+A+3PKAZFydFyHXk=
+	t=1739273060; cv=none; b=pUaXMT63HxyyD8ijvV2uXfYPu0Ih721KeqeDabVefGLm0GaZRNQEtaIHW6wnW6nyA3O+hbMktz/1CmQpt9PVO98Oij8t2Iq5T4ECmr/BBaZ4ZqfBETV2iPvTgmq72c4A9zZ9BA+DQcIQauWr/qPAb6Kab2B3VzkdfVdeazb9VR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739264272; c=relaxed/simple;
-	bh=HDnBlOyPw8QhBcGdjodP9zFRxyfM6MYgL5alIXcYcHU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HqbhGVXEGCd+nOtAOWQMOV1GOsm7c6koWbLYy3ZMYqS5RZXciXQzujvGrifsI9emqhgcJ+VIzNm2kukj2o3SvpeLQx/KSk2dCqzpcZ/54yVs5xUAHd+O+59dMSuFUr01EXNO4PjJP9MmwG5GZiVyHZ7Gan9+cDiKx8Q37ZjWhm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LyPA6XyV; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1739273060; c=relaxed/simple;
+	bh=6+5HzJHoArW8KiuCIgTRGV34Mq0g4ZBMkNb+IArKXns=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=DuBkXdmAtc/MRL+qQ1pjNtp6P5BO1JVfpWsEFSMJ23fhnBCQEp1MAdmo5sN1SpRsQEjj2hl8qXCfJH1Zi57NUdD2i9xJ2U6Mki6yJlH0UA9EkB3A6xSLMiclUtTKbVAvFUFPtOiPDWbd9ghHAaDN07gZmVM3WioXSPqZRj7FXhA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=al8Tv6YM; arc=none smtp.client-ip=209.85.222.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LyPA6XyV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739264269;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zIQbPjiqwmwUxZhJUEjUvnEZCNp6KfZmxpyLl8jvIIY=;
-	b=LyPA6XyVAdjwn8AdhpPcHzpjM+x8ib5qWeiEaK9HraQntPbi180TXgUUOZjujRhG0/Pjgh
-	3WSPfFYbs0Xsdq6ydUi5gVD0nYTzkdZcxnmzrdx6e7nwkmkpdVQVH+vc8TthXy2uph/qcV
-	aevO9HCzQ0MUsFSdeMh1fbq0NKGZcC0=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-10-laG-0nUONceDii3DYysBqQ-1; Tue, 11 Feb 2025 03:57:48 -0500
-X-MC-Unique: laG-0nUONceDii3DYysBqQ-1
-X-Mimecast-MFC-AGG-ID: laG-0nUONceDii3DYysBqQ_1739264267
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-38ddf4fa345so966006f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 00:57:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="al8Tv6YM"
+Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-86718541914so1565075241.1
+        for <virtualization@lists.linux.dev>; Tue, 11 Feb 2025 03:24:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1739273057; x=1739877857; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=oOfjVZVb5Y6iDzKKUHv6/nHA/mRe1wtMuOb87tFD/sY=;
+        b=al8Tv6YMkueJa3W4ZqMnFI3Ur1WehHcZmljG5Gi9plmhs4dUvfigbzAmsJRrOgq8WB
+         7tTRlr/LYGJcpQQy3CJGrco0DO06vj2IWk6SFsvvhY/FrUZwLJYu7c0UON6Fta3AOKTf
+         4cqShFm7T8+PcEsrNzO1lLD8gGEM0bli7F1wTbc3P/wWZyIO3WEzIUdZpEtjlFVFEEYK
+         b2ZKBIhz9z6iALPVjiKh2WnfmwTdLstH98Gw9/r8B9LPHWY2ae/semtZoOH52X/3mEk0
+         /PcRHTpVwWamoNuNe24ZAPIdHsILjfsjyarHB0zEwYHqHb0Q3GcppB/xMdKZYT77IHrl
+         0I8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739264267; x=1739869067;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zIQbPjiqwmwUxZhJUEjUvnEZCNp6KfZmxpyLl8jvIIY=;
-        b=O37mveiDwmaeoLqG80Xr2i/xqndBTWiUK7JmDulNtUSdsi3s3ee1l5esjW0/Ff243J
-         55ccViC1m6ovZen9/pgDOnW8WU6hwOAD55EylwlbQ+Ie+DXvtFWyFrhMwvj01+kdTYT6
-         4Dz7r5fXcZqvuz5mghPDPUf3ZriVda9SSdsuDAyBLiENs9Cn02vP6dPw5uD6aMzvgHEb
-         pDAHPNZs0TaEUFf7Zlv6Rvk96mUXbWmynE6lswdBVeIb4zMocpLA1tvLVOSUFkwU/TtR
-         JZRKztwO0ssYj4CuAeaar/dd+u0RpcY7CteUThg4lrsapqryTnxhDx6mMnhle8ucA/DN
-         Xmqg==
-X-Forwarded-Encrypted: i=1; AJvYcCVIOqONY1O17X1kkkbjC5XP5C6+5KFlU7hhnRQzNzdWvkfVdeDaEZPVgFq93XuDbcpLtHOuYMh99rB47GpTjQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzHp57U93hl+S/5wS5vaKDjG/Ss9naThMdZGHMVJI4XBQYB7bxQ
-	TUiAIcESVpcxPCWcc+kll0t16E2Dm/BL0lyIXXg6J6x9NbYi9q+JKqzLA4aH1apfNA9IuraKW/W
-	5pbSd6HY4B5WcR21+kn7ztkrnh2V7pJEnyhUL9zrcpg/inpwhzttdK5yhAthWYz4y
-X-Gm-Gg: ASbGncuhZNryRJSNyS+MHdZaLUGRwxDB03LzVc2M2mfHHJo0s/l/u+GcvpseX2Qfvm6
-	D70z2vk654DPpvfxARp7io9Ko69j3Z89DhzrG6g/10b7K0mae17wd9jnofxXhQrzq0WSPpPQXBG
-	KeZv0s1NhByDXaJdJe0IWqhdGcS4G1QPbyGiCaWlWis9GjAnNhIfHNpw2Co5BxIEfQeXNOzvjMY
-	E9UglLJrSQCdeYGxWnyWKjPUlPETTi1+E8AIek2EdMhMExlcAUEGCoix8I8NSAQsZZl2E5G+miJ
-	YFCNOKu8q0bydBYI3lXIQOcCW1MBZByCQ0AQwBWabWPWFBiPlVFCLA==
-X-Received: by 2002:a5d:438f:0:b0:386:3835:9fec with SMTP id ffacd0b85a97d-38dc935fba0mr13080920f8f.44.1739264266788;
-        Tue, 11 Feb 2025 00:57:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG9gS/8oWxy2/+63oWaWVYrKsS8WPZEr2M1pgDTFIO4r0DJWvdJ3n9OPtCV6k/zDtewXv+XUA==
-X-Received: by 2002:a5d:438f:0:b0:386:3835:9fec with SMTP id ffacd0b85a97d-38dc935fba0mr13080869f8f.44.1739264266036;
-        Tue, 11 Feb 2025 00:57:46 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-29.retail.telecomitalia.it. [79.46.200.29])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4391da9652bsm173908095e9.2.2025.02.11.00.57.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2025 00:57:45 -0800 (PST)
-Date: Tue, 11 Feb 2025 09:57:41 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Junnan Wu <junnan01.wu@samsung.com>
-Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, horms@kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	q1.huang@samsung.com, ying01.gao@samsung.com, ying123.xu@samsung.com, 
-	lei19.wang@samsung.com
-Subject: Re: [Patch net 1/2] vsock/virtio: initialize rx_buf_nr and
- rx_buf_max_nr when resuming
-Message-ID: <gr5rqfwb4qgc23dadpfwe74jvsq37udpeqwhpokhnvvin6biv2@6v5npbxf6kbn>
-References: <20250211071922.2311873-1-junnan01.wu@samsung.com>
- <CGME20250211071941epcas5p308a13898102cf851bc9988c0e2766c5e@epcas5p3.samsung.com>
- <20250211071922.2311873-2-junnan01.wu@samsung.com>
+        d=1e100.net; s=20230601; t=1739273057; x=1739877857;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oOfjVZVb5Y6iDzKKUHv6/nHA/mRe1wtMuOb87tFD/sY=;
+        b=ZYQ+KjzcJwJ4jPuw7w+CsIDXreOB85QRx0CZDGJJmwIx6duoTZt6hM5RkvGF7/+kjj
+         bZ/DE/MREaupng+DyT8uFTlBTDLWtB578ygiV9B45tVwLEHodMQi3FcUC7rN1VTmZkDE
+         a26pB5dmtQSRDBY5A6d6Agf4t2DsHuT6zoHYP7pcx/bAvYBLeOciXRHZCrO/5xvKOS5c
+         R4trLrW73oqpj4/H3Eohk8W4eFXECazmm5DsS3bvklVDYjXnNwxlpWHNpAuRuhKyeJx+
+         otmA0XQ5HScSSeje5RyNx5XgdKh2nM/MTIM2AbuFk6UgUDzjRvr4kQCEns/Gj5zDCBe0
+         lnFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXqaD7vkxGur9e7/3+qTi8dQD6LNa8Rt/PfnPXgbpZ1NpQkucsQd/OElztiJ8RZayWN7bdVGgZmdDFSJc0dZw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzMo7JIaMkF4/keM2PoigBb851Ga1sxXPNOazceMmuXsubrp1P+
+	elv12CZ0I7Sz9Qht117MtPnv9isqIEExuad59K9brQdO4FT+2LMVVOLMYjf0wFrAHr2pBdICFRg
+	fvw9c94xUZAy8a2UTd1Gz5secteBT6YKbp8S1+Q==
+X-Gm-Gg: ASbGncvoNKEHQgjMh/CK1dH9BHKkJGbSCy0w4EPwmbwNTZGfSjolWYplJieK5xUrEYW
+	U4cCx8fISfeSliWCTWN90u6u01WYgxAesz+FLgPB1g9k6ilXgBYNJBG4Yq/jSjSmCxqa8cOPBLa
+	E5I4U7iUppc0+DKcHvmhucQf2NzpFeZA==
+X-Google-Smtp-Source: AGHT+IEf4bAlc932Y8RjCqsdcVpRLNvZ7hqGahdwLKUrVi5zwhpmjI32Ih4rNqM1YHJ6OXhvHscn0v0mxu3EPZ63IlY=
+X-Received: by 2002:a05:6122:e53:b0:515:20e6:7861 with SMTP id
+ 71dfb90a1353d-520584235ddmr1279904e0c.2.1739273057471; Tue, 11 Feb 2025
+ 03:24:17 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250211071922.2311873-2-junnan01.wu@samsung.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Ko1V7qLayan4kH-wt4bkrXnynTdHp0cSwHw7IKL0MW0_1739264267
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Tue, 11 Feb 2025 16:54:06 +0530
+X-Gm-Features: AWEUYZn5KxAHY9nEhuLeVWZbiZhT9c81arMsoOohC1GNLVg1Ec6S2mvTF4MpJwg
+Message-ID: <CA+G9fYt6Cuu6=OO9w80yhJbZB77Q0qf7nzYdvjbgDbgAw6t1jw@mail.gmail.com>
+Subject: kvm: nVHE hyp panic at: __kvm_nvhe_kvm_hyp_handle_sysre
+To: kvmarm@lists.linux.dev, Linux ARM <linux-arm-kernel@lists.infradead.org>, 
+	open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux.dev
+Cc: Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Dan Carpenter <dan.carpenter@linaro.org>, Anders Roxell <anders.roxell@linaro.org>, 
+	Aishwarya TCV <Aishwarya.TCV@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 
+Regression on rk3399-rock-pi-4b while running kvm-unit-tests with
+nvhe, protected and vhe mode with virtualization enabled.
 
-You need to update the title now that you're moving also queued_replies.
+First seen on next-20250120
+Good: next-20250117
+Bad: next-20250120 till today's next-20250210
 
-On Tue, Feb 11, 2025 at 03:19:21PM +0800, Junnan Wu wrote:
->When executing suspend to ram twice in a row,
->the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
->Then after virtqueue_get_buf and `rx_buf_nr` decreased
->in function virtio_transport_rx_work,
->the condition to fill rx buffer
->(rx_buf_nr < rx_buf_max_nr / 2) will never be met.
->
->It is because that `rx_buf_nr` and `rx_buf_max_nr`
->are initialized only in virtio_vsock_probe(),
->but they should be reset whenever virtqueues are recreated,
->like after a suspend/resume.
->
->Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
->virtio_vsock_vqs_init(), so we are sure that they are properly
->initialized, every time we initialize the virtqueues, either when we
->load the driver or after a suspend/resume.
->At the same time, also move `queued_replies`.
+This is always reproducible.
 
-Why?
+Regression on these devices with kernel command line boot modes.
+* rk3399-rock-pi-4b-nvhe
+* rk3399-rock-pi-4b-protected
+* rk3399-rock-pi-4b-vhe
 
-As I mentioned the commit description should explain why the changes are 
-being made for both reviewers and future references to this patch.
+Test regression: kvm nVHE hyp panic at __kvm_nvhe_kvm_hyp_handle_sysreg
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-The rest LGTM.
+## Test log
+ok 139 - psci: psci: cpu-off
+[  674.423092] kvm [6196]: nVHE hyp panic at:
+__kvm_nvhe_kvm_hyp_handle_sysreg (include/kvm/arm_arch_timer.h:174
+arch/arm64/kvm/hyp/include/hyp/switch.h:506
+arch/arm64/kvm/hyp/include/hyp/switch.h:559
+arch/arm64/kvm/hyp/include/hyp/switch.h:604)
+[  674.423987] kvm [6196]: nVHE call trace:
+[  674.424331] kvm [6196]: __kvm_nvhe_hyp_panic
+(arch/arm64/kvm/hyp/nvhe/switch.c:415)
+[  674.424950] kvm [6196]: __kvm_nvhe___kvm_vcpu_run
+(arch/arm64/kvm/hyp/include/hyp/switch.h:750 (discriminator 1)
+arch/arm64/kvm/hyp/nvhe/switch.c:355 (discriminator 1))
+[  674.425619] kvm [6196]: __kvm_nvhe___kvm_vcpu_run
+(arch/arm64/kvm/hyp/include/hyp/switch.h:750 (discriminator 1)
+arch/arm64/kvm/hyp/nvhe/switch.c:355 (discriminator 1))
+[  674.426288] kvm [6196]: __kvm_nvhe_handle___kvm_vcpu_run
+(arch/arm64/kvm/hyp/nvhe/hyp-main.c:231)
+[  674.427004] kvm [6196]: __kvm_nvhe_handle_trap
+(arch/arm64/kvm/hyp/nvhe/hyp-main.c:640
+arch/arm64/kvm/hyp/nvhe/hyp-main.c:673)
+[  674.427651] kvm [6196]: __kvm_nvhe___skip_pauth_save
+(arch/arm64/kvm/hyp/nvhe/host.S:67)
+[  674.428313] kvm [6196]: ---[ end nVHE call trace ]---
+[  674.428755] kvm [6196]: Hyp Offset: 0xfffea0df7d800000
+[  674.429208] Kernel panic - not syncing: HYP panic:
+[  674.429208] PS:600003c9 PC:0000df2103dc1610 ESR:0000000096000004
+[  674.429208] FAR:ffff00000d031ba0 HPFAR:0000000000000000 PAR:1d00007edbadc0de
+[  674.429208] VCPU:0000df21077a1bc0
+[  674.431040] CPU: 4 UID: 0 PID: 6196 Comm: qemu-system-aar Not
+tainted 6.14.0-rc2-next-20250210 #1
+[  674.431815] Hardware name: Radxa ROCK Pi 4B (DT)
+[  674.432219] Call trace:
+[  674.432437] show_stack (arch/arm64/kernel/stacktrace.c:468) (C)
+[  674.432763] dump_stack_lvl (lib/dump_stack.c:124)
+[  674.433090] dump_stack (lib/dump_stack.c:130)
+[  674.433384] panic (kernel/panic.c:354)
+[  674.433657] nvhe_hyp_panic_handler
+(arch/arm64/include/asm/current.h:19 arch/arm64/kvm/handle_exit.c:452)
+[  674.434056] kvm_arm_vcpu_enter_exit
+(arch/arm64/include/asm/alternative-macros.h:232
+arch/arm64/include/asm/cpufeature.h:453
+arch/arm64/include/asm/cpufeature.h:498
+arch/arm64/include/asm/virt.h:139 arch/arm64/kvm/arm.c:1084)
+[  674.434448] kvm_arch_vcpu_ioctl_run (arch/arm64/kvm/arm.c:1191)
+[  674.434855] kvm_vcpu_ioctl (arch/arm64/kvm/../../../virt/kvm/kvm_main.c:4377)
+[  674.435194] __arm64_sys_ioctl (fs/ioctl.c:51 (discriminator 1)
+fs/ioctl.c:906 (discriminator 1) fs/ioctl.c:892 (discriminator 1)
+fs/ioctl.c:892 (discriminator 1))
+[  674.435542] invoke_syscall (arch/arm64/include/asm/current.h:19
+arch/arm64/kernel/syscall.c:54)
+[  674.435875] el0_svc_common.constprop.0
+(include/linux/thread_info.h:135 (discriminator 2)
+arch/arm64/kernel/syscall.c:140 (discriminator 2))
+[  674.436289] do_el0_svc (arch/arm64/kernel/syscall.c:152)
+[  674.436583] el0_svc (arch/arm64/include/asm/irqflags.h:82
+(discriminator 1) arch/arm64/include/asm/irqflags.h:123 (discriminator
+1) arch/arm64/include/asm/irqflags.h:136 (discriminator 1)
+arch/arm64/kernel/entry-common.c:165 (discriminator 1)
+arch/arm64/kernel/entry-common.c:178 (discriminator 1)
+arch/arm64/kernel/entry-common.c:745 (discriminator 1))
+[  674.436860] el0t_64_sync_handler (arch/arm64/kernel/entry-common.c:763)
+[  674.437243] el0t_64_sync (arch/arm64/kernel/entry.S:600)
+[  674.437567] SMP: stopping secondary CPUs
+[  674.438032] Kernel Offset: disabled
+[  674.438338] CPU features: 0x100,0002082c,00800000,8200421b
+[  674.438819] Memory Limit: none
+[  674.439090] ---[ end Kernel panic - not syncing: HYP panic:
+[  674.439090] PS:600003c9 PC:0000df2103dc1610 ESR:0000000096000004
+[  674.439090] FAR:ffff00000d031ba0 HPFAR:0000000000000000 PAR:1d00007edbadc0de
+[  674.439090] VCPU:0000df21077a1bc0 ]---
 
-Stefano
+## Source
+* kernel version: 6.14.0-rc2-next-20250210
+* git tree: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+* git sha: df5d6180169ae06a2eac57e33b077ad6f6252440
+* git describe: next-20250210
+* project details:
+https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250210/
+* architecture: arm64
+* device: rk3399-rock-pi-4b
+* toolchain: gcc-13
+* build config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/config
+* build: https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/
 
->
->Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
->Co-developed-by: Ying Gao <ying01.gao@samsung.com>
->Signed-off-by: Ying Gao <ying01.gao@samsung.com>
->Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
->---
-> net/vmw_vsock/virtio_transport.c | 10 +++++++---
-> 1 file changed, 7 insertions(+), 3 deletions(-)
->
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index b58c3818f284..f0e48e6911fc 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -670,6 +670,13 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
-> 	};
-> 	int ret;
->
->+	mutex_lock(&vsock->rx_lock);
->+	vsock->rx_buf_nr = 0;
->+	vsock->rx_buf_max_nr = 0;
->+	mutex_unlock(&vsock->rx_lock);
->+
->+	atomic_set(&vsock->queued_replies, 0);
->+
-> 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
-> 	if (ret < 0)
-> 		return ret;
->@@ -779,9 +786,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
->
-> 	vsock->vdev = vdev;
->
->-	vsock->rx_buf_nr = 0;
->-	vsock->rx_buf_max_nr = 0;
->-	atomic_set(&vsock->queued_replies, 0);
->
-> 	mutex_init(&vsock->tx_lock);
-> 	mutex_init(&vsock->rx_lock);
->-- 
->2.34.1
->
+## Boot log
+* test link-1: https://lkft.validation.linaro.org/scheduler/job/8117232#L1395
+* test link-2: https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250210/testrun/27250834/suite/log-parser-test/test/panic-multiline-kernel-panic-not-syncing-hyp-panic/log
+* build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/
+* config link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2spp0brZaSpWe7z5aIqZfQx4GhT/config
+* linux-next-history:
+https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250207/testrun/27226044/suite/log-parser-test/test/panic-multiline-kernel-panic-not-syncing-hyp-panic/history/
+* linux-mainline-history:
+https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v6.14-rc2/testrun/27248845/suite/log-parser-test/test/panic-multiline-kernel-panic-not-syncing-hyp-panic/history/
 
+--
+Linaro LKFT
+https://lkft.linaro.org
