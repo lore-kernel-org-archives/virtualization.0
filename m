@@ -1,227 +1,288 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7CFD261391
-	for <virtualization@lists.linux.dev>; Wed, 12 Feb 2025 19:19:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DC8DD262D33;
+	Wed, 12 Feb 2025 19:22:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739387947; cv=none; b=OzFveY8lcTOkDZsN9Az79iBQKmn2OU/DcUH0k23W4+tYft+JUK6suHbmJIj5L0N2a/RYk5wnNjxkK2zO54ZuDM7miVT6GHf3zGcQs/Y9lmlMOrzpOP58I0xdtw+xggSqTEnSDsc9z+VIv5hxu0COkfFx1PkJKO8Gtd/jaAn55tI=
+	t=1739388159; cv=none; b=o9qs60mzEDAWeQLpRT3Iyla84MKFed7o6UIvQOBFdCJCdWExFraGMurilecFt9+ZnyeAiYpcInP5GxYj8YAopLqVkZzFR1xjGVlrgz7gUBuwIfpfcd7iUz0ujCq0KteW3TjB7ubbZ7m5n9vUfuvvN34HrOgJKGACAveoIohh6ZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739387947; c=relaxed/simple;
-	bh=11Hy8cODuSDFHaJcx2Ju8aoOiOQIkeBngDRvi40dN6A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=syIzQpCarSj0j3ZRytvbpbE+je3rzrzG5w7OaIOI9mHpMLY7sBau4ahZl21EUHkmKMV/w437oLxLxAKBpLjUB2n0oNMuC9W8GThid5f7jUl2KaOhU0TlNgN8ftWehDVvucSnQStI7o/bhRMuhBpClwVD/yQ/N9kJozp4OWWNqDI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=EcQvb0L5; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1739388159; c=relaxed/simple;
+	bh=Z2GXWLajfC3wrkFzOHapQxWQinMH3NXa7ktcbqzBvTI=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=MRtkiFONX8XQmOBdgO+E4KN3Lf8uIUXus09TkptmaQBb56vxx4FPtT+ZkE/TGf8cUm5+1ZvEvDaglOLcWxb8jg91MamUoZ4meEB83NCRMEXLXm9FAl7QxHu297yU9m1ZnvTwnrvpadXlR1f7KP7OhVbJDeMct2z2WzWyoPlfmUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=TF99BrkW; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="EcQvb0L5"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-21f032484d4so240875ad.0
-        for <virtualization@lists.linux.dev>; Wed, 12 Feb 2025 11:19:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1739387943; x=1739992743; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TlrqapFW6dtOfJ+Ygfgx6q2yFRXVAGv+WlcsEV5abYE=;
-        b=EcQvb0L5IJpM9vIyvgiLRhfeK0yWcXf+zmg20nPaXDK6Sy1HYjEj64Cceo4B/qM7Ly
-         hV7tCZiJSgfliyzD5SVZyQkzY7835GnFh7cyyEKRYotGxmCg9tZzp1KxYYyJrzr97YrG
-         qI+tZxaP8YOQ3vSxqSjvjM579t8cFnvg52gNDPCWVcZoA0lY/59LxuKP4ofQwofdglMk
-         KbSJcHPHmFI60u/Tgm7QjR+cf5/QivVZFf8r7HFgACBsQcc+riK8impp9NhS3UHJQKzI
-         /9hJ8K3dkx2hm8BLf93KIsq2ZPBBjAwpiT0Ci+DgDaeWGcAmUr4RFfP4ObN/d9RDrtWD
-         /iyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739387943; x=1739992743;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TlrqapFW6dtOfJ+Ygfgx6q2yFRXVAGv+WlcsEV5abYE=;
-        b=CXrQkRkQwMU3AJV5nvdaAoJM6h9iWg0LOTpluNjKcxXx+COL2QxZ4EEzG+zoiNZS7d
-         zVgAZMVIZus4ZFebuNUr/GNp/5PJ7XoJr7l+tOncJLwBdWliMefCO9MivHhrBRubEpvl
-         z1UnI6M/lemH8TNZLAl6BMgVPFQin6L6/Nn0O39ztDfN0kCvd9hUop9Gde6/ylrL3KFE
-         0GPy8iDnZwWJJZMSPvtX4XfNInuqLur6DeeLhEJUJMeKjxJEWO1h+wjlHOCCpjOy8boy
-         y1MAZrTFYYo2Vd3GHV22zm3MtdNJ49yfhB5C40tiQ3ff7AvTxPSM7Ewrtr6fo5VDbhh5
-         +dGQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVv+N3l0Ap7ASgj08Q/WHaOEzoo9e9qlnqioRVETqT3aQDKnOQAXh78j0Ha6rSoJsQpyXnyh15XI7WQQbL3gA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzcMpdxpsuJk2YJzJTgIYwiNuprObIe5jOllzJKkTmEmIaBL3fr
-	q7GVF0C/mRXX5IA6zdQ4o1+EiDtOcj7uCKonfCg7HE5NpwQ0UuH1tNFvZzax4gRVIelR14TwU2Z
-	5FkM9maRuElAYcjlydlww/Lzy+/Wd5TRyMN8p
-X-Gm-Gg: ASbGncvCCoaMCmS9wasFSwVgAKbb+p/0C4P56clTEtcX3azkx0AWIRZc4Z2kR4rR4P7
-	pOmvek2COi7j4zCe5gZS47+9ze1Uva3SlNKE3ZZiDvV7oYAABJpaU6ZU3E2VTLzLZKbuUs0jX
-X-Google-Smtp-Source: AGHT+IGNugfx084SHply3CA0xWFW/29cP7ySkyiWEViy+SHvFCJOsIGeBkPN0hXf2z66fZ8oH82mGcxNE9IZpDD7YNc=
-X-Received: by 2002:a17:902:f708:b0:215:7ced:9d66 with SMTP id
- d9443c01a7336-220d33f6b21mr172265ad.10.1739387942876; Wed, 12 Feb 2025
- 11:19:02 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="TF99BrkW"
+Received: from DESKTOP-0403QTC. (unknown [20.236.10.120])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 0B07A203F3C3;
+	Wed, 12 Feb 2025 11:22:36 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0B07A203F3C3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1739388157;
+	bh=KQCyiSAgCqDWvrpS9KGoat/0RCvw9JqYBPo2Wxnl7lg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Reply-To:From;
+	b=TF99BrkWYRcqJuZu395dKYPZ7AVUYq/GWaFsgIeCD6wq1wyhasKH2dPGWfp/ed1p2
+	 5ROnpRYI3LWwsovHJAoV9pCCprEBo0qmMAZjsEKHMpQUc6dFvaCmZRXUmQXnl7V2vY
+	 WZYRQcIRm+3pCYqwfg8CTmbNZPssdMhpP3cfWZLo=
+Date: Wed, 12 Feb 2025 11:22:35 -0800
+From: Jacob Pan <jacob.pan@linux.microsoft.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: iommu@lists.linux.dev, Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
+ virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, Eric Auger
+ <eric.auger@redhat.com>, patches@lists.linux.dev,
+ jacob.pan@linux.microsoft.com
+Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
+Message-ID: <20250212112235.714b0a14@DESKTOP-0403QTC.>
+In-Reply-To: <3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+	<3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+Reply-To: jacob.pan@linux.microsoft.com
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250203223916.1064540-1-almasrymina@google.com>
- <20250203223916.1064540-6-almasrymina@google.com> <abc22620-d509-4b12-80ac-0c36b08b36d9@gmail.com>
- <CAHS8izNOqaFe_40gFh09vdBz6-deWdeGu9Aky-e7E+Wu2qtfdw@mail.gmail.com> <28343e83-6d93-4002-a691-f8273d4d24a8@gmail.com>
-In-Reply-To: <28343e83-6d93-4002-a691-f8273d4d24a8@gmail.com>
-From: Mina Almasry <almasrymina@google.com>
-Date: Wed, 12 Feb 2025 11:18:50 -0800
-X-Gm-Features: AWEUYZmMxO-D8gV-SzbNdeRwFeAQ7660IIm2vAphoidLeu_O5bDpvj8HGIH7jIY
-Message-ID: <CAHS8izOE-JzMszieHEXtYBs7_6D-ngVx2kJyMwp8eCWLK-c0cQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 5/6] net: devmem: Implement TX path
-To: Pavel Begunkov <asml.silence@gmail.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-doc@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, 
-	Donald Hunter <donald.hunter@gmail.com>, Jakub Kicinski <kuba@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, Neal Cardwell <ncardwell@google.com>, 
-	David Ahern <dsahern@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
-	sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>, 
-	Victor Nogueira <victor@mojatatu.com>, Pedro Tammela <pctammela@mojatatu.com>, 
-	Samiullah Khawaja <skhawaja@google.com>, Kaiyuan Zhang <kaiyuanz@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Feb 12, 2025 at 7:52=E2=80=AFAM Pavel Begunkov <asml.silence@gmail.=
-com> wrote:
->
-> On 2/10/25 21:09, Mina Almasry wrote:
-> > On Wed, Feb 5, 2025 at 4:20=E2=80=AFAM Pavel Begunkov <asml.silence@gma=
-il.com> wrote:
-> >>
-> >> On 2/3/25 22:39, Mina Almasry wrote:
-> >> ...
-> >>> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-> >>> index bb2b751d274a..3ff8f568c382 100644
-> >>> --- a/include/linux/skbuff.h
-> >>> +++ b/include/linux/skbuff.h
-> >>> @@ -1711,9 +1711,12 @@ struct ubuf_info *msg_zerocopy_realloc(struct =
-sock *sk, size_t size,
-> >> ...
-> >>>    int zerocopy_fill_skb_from_iter(struct sk_buff *skb,
-> >>>                                struct iov_iter *from, size_t length);
-> >>> @@ -1721,12 +1724,14 @@ int zerocopy_fill_skb_from_iter(struct sk_buf=
-f *skb,
-> >>>    static inline int skb_zerocopy_iter_dgram(struct sk_buff *skb,
-> >>>                                          struct msghdr *msg, int len)
-> >>>    {
-> >>> -     return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_ite=
-r, len);
-> >>> +     return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_ite=
-r, len,
-> >>> +                                    NULL);
-> >>
-> >> Instead of propagating it all the way down and carving a new path, why
-> >> not reuse the existing infra? You already hook into where ubuf is
-> >> allocated, you can stash the binding in there. And
-> >
-> > It looks like it's not possible to increase the side of ubuf_info at
-> > all, otherwise the BUILD_BUG_ON in msg_zerocopy_alloc() fires.
-> >
-> > It's asserting that sizeof(ubuf_info_msgzc) <=3D sizeof(skb->cb), and
-> > I'm guessing increasing skb->cb size is not really the way to go.
-> >
-> > What I may be able to do here is stash the binding somewhere in
-> > ubuf_info_msgzc via union with fields we don't need for devmem, and/or
->
-> It doesn't need to account the memory against the user, and you
-> actually don't want that because dmabuf should take care of that.
-> So, it should be fine to reuse ->mmp.
->
-> It's also not a real sk_buff, so maybe maintainers wouldn't mind
-> reusing some more space out of it, if that would even be needed.
->
+Hi Jason,
 
-netmem skb are real sk_buff, with the modification that frags are not
-readable, only in the case that the netmem is unreadable. I would not
-approve of considering netmem/devmem skbs "not real skbs", and start
-messing with the semantics of skb fields for devmem skbs, and having
-to start adding skb_is_devmem() checks through all code in the skb
-handlers that touch the fields being overwritten in the devmem case.
-No, I don't think we can re-use random fields in the skb for devmem.
+On Fri,  7 Feb 2025 10:46:03 -0400
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> > stashing the binding in ubuf_info_ops (very hacky). Neither approach
-> > seems ideal, but the former may work and may be cleaner.
-> >
-> > I'll take a deeper look here. I had looked before and concluded that
-> > we're piggybacking devmem TX on MSG_ZEROCOPY path, because we need
-> > almost all of the functionality there (no copying, send complete
-> > notifications, etc), with one minor change in the skb filling. I had
-> > concluded that if MSG_ZEROCOPY was never updated to use the existing
-> > infra, then it's appropriate for devmem TX piggybacking on top of it
->
-> MSG_ZEROCOPY does use the common infra, i.e. passing ubuf_info,
-> but doesn't need ->sg_from_iter as zerocopy_fill_skb_from_iter()
-> and it's what was there first.
->
+> virtio has the complication that it sometimes wants to return a paging
+> domain for IDENTITY which makes this conversion a little different
+> than other drivers.
+> 
+> Add a viommu_domain_alloc_paging() that combines
+> viommu_domain_alloc() and viommu_domain_finalise() to always return a
+> fully initialized and finalized paging domain.
+> 
+Slightly off the topic, still related to paging domain.
 
-But MSG_ZEROCOPY doesn't set msg->msg_ubuf. And not setting
-msg->msg_ubuf fails to trigger msg->sg_from_iter altogether.
+virtio spec for page table extension was introduced a while ago[1],
+which adds support for guest owned page tables for paging domains.
 
-And also currently sg_from_iter isn't set up to take in a ubuf_info.
-We'd need that if we stash the binding in the ubuf_info.
+Do you foresee the implementation can leverage your generic iommu_pt
+work? i.e. for building guest IO page tables. It will add a new flavor
+(page table based in addition to map/unmap) to
+viommu_domain_alloc_paging() i think.
 
-All in all I think I wanna prototype an msg->sg_from_iter approach and
-make a judgement call on whether it's cleaner than just passing the
-binding through a couple of helpers just as I'm doing here. My feeling
-is that the implementation in this patch may be cleaner than
-refactoring the entire msg_ubuf/sg_from_iter flows so we can sort of
-use it for MSG_ZEROCOPY with devmem when it currently doesn't use it.
+[1]
+https://lore.kernel.org/all/20231006160947.2227396-8-jean-philippe@linaro.org/T/
 
-> > to follow that. I would not want to get into a refactor of
-> > MSG_ZEROCOPY for no real reason.
-> >
-> > But I'll take a deeper look here and see if I can make something
-> > slightly cleaner work.
-> >
-> >> zerocopy_fill_skb_from_devmem can implement ->sg_from_iter,
-> >> see __zerocopy_sg_from_iter().
-> >>
-> >> ...
-> >>> diff --git a/net/core/datagram.c b/net/core/datagram.c
-> >>> index f0693707aece..c989606ff58d 100644
-> >>> --- a/net/core/datagram.c
-> >>> +++ b/net/core/datagram.c
-> >>> @@ -63,6 +63,8 @@
-> >>> +static int
-> >>> +zerocopy_fill_skb_from_devmem(struct sk_buff *skb, struct iov_iter *=
-from,
-> >>> +                           int length,
-> >>> +                           struct net_devmem_dmabuf_binding *binding=
-)
-> >>> +{
-> >>> +     int i =3D skb_shinfo(skb)->nr_frags;
-> >>> +     size_t virt_addr, size, off;
-> >>> +     struct net_iov *niov;
-> >>> +
-> >>> +     while (length && iov_iter_count(from)) {
-> >>> +             if (i =3D=3D MAX_SKB_FRAGS)
-> >>> +                     return -EMSGSIZE;
-> >>> +
-> >>> +             virt_addr =3D (size_t)iter_iov_addr(from);
-> >>
-> >> Unless I missed it somewhere it needs to check that the iter
-> >> is iovec based.
-> >>
-> >
-> > How do we end up here with an iterator that is not iovec based? Is the
-> > user able to trigger that somehow and I missed it?
->
-> Hopefully not, but for example io_uring passes bvecs for a number of
-> requests that can end up in tcp_sendmsg_locked(). Those probably
-> would work with the current patch, but check the order of some of the
-> checks it will break. And once io_uring starts passing bvecs for
-> normal send[msg] requests, it'd definitely be possible. And there
-> are other in kernel users apart from send(2) path, so who knows.
->
-> The api allows it and therefore should be checked, it's better to
-> avoid quite possible latent bugs.
->
 
-Sounds good.
+> Use viommu_domain_alloc_identity() to implement the special non-bypass
+> IDENTITY flow by calling viommu_domain_alloc_paging() then
+> viommu_domain_map_identity().
+> 
+> Remove support for deferred finalize and the vdomain->mutex.
+> 
+> Remove core support for domain_alloc() IDENTITY as virtio was the last
+> driver using it.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/iommu/iommu.c        |   6 --
+>  drivers/iommu/virtio-iommu.c | 114
+> ++++++++++++++++------------------- 2 files changed, 53
+> insertions(+), 67 deletions(-)
+> 
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index ee33d26dfcd40d..73a05b34de4768 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -1599,12 +1599,6 @@ static struct iommu_domain
+> *__iommu_alloc_identity_domain(struct device *dev) domain =
+> ops->domain_alloc_identity(dev); if (IS_ERR(domain))
+>  			return domain;
+> -	} else if (ops->domain_alloc) {
+> -		domain = ops->domain_alloc(IOMMU_DOMAIN_IDENTITY);
+> -		if (!domain)
+> -			return ERR_PTR(-ENOMEM);
+> -		if (IS_ERR(domain))
+> -			return domain;
+>  	} else {
+>  		return ERR_PTR(-EOPNOTSUPP);
+>  	}
+> diff --git a/drivers/iommu/virtio-iommu.c
+> b/drivers/iommu/virtio-iommu.c index c71a996760bddb..79b471c03b6ee4
+> 100644 --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -63,7 +63,6 @@ struct viommu_mapping {
+>  struct viommu_domain {
+>  	struct iommu_domain		domain;
+>  	struct viommu_dev		*viommu;
+> -	struct mutex			mutex; /* protects
+> viommu pointer */ unsigned int			id;
+>  	u32				map_flags;
+>  
+> @@ -97,6 +96,8 @@ struct viommu_event {
+>  	};
+>  };
+>  
+> +static struct viommu_domain viommu_identity_domain;
+> +
+>  #define to_viommu_domain(domain)	\
+>  	container_of(domain, struct viommu_domain, domain)
+>  
+> @@ -653,65 +654,45 @@ static void viommu_event_handler(struct
+> virtqueue *vq) 
+>  /* IOMMU API */
+>  
+> -static struct iommu_domain *viommu_domain_alloc(unsigned type)
+> +static struct iommu_domain *viommu_domain_alloc_paging(struct device
+> *dev) {
+> -	struct viommu_domain *vdomain;
+> -
+> -	if (type != IOMMU_DOMAIN_UNMANAGED &&
+> -	    type != IOMMU_DOMAIN_DMA &&
+> -	    type != IOMMU_DOMAIN_IDENTITY)
+> -		return NULL;
+> -
+> -	vdomain = kzalloc(sizeof(*vdomain), GFP_KERNEL);
+> -	if (!vdomain)
+> -		return NULL;
+> -
+> -	mutex_init(&vdomain->mutex);
+> -	spin_lock_init(&vdomain->mappings_lock);
+> -	vdomain->mappings = RB_ROOT_CACHED;
+> -
+> -	return &vdomain->domain;
+> -}
+> -
+> -static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+> -				  struct iommu_domain *domain)
+> -{
+> -	int ret;
+> -	unsigned long viommu_page_size;
+> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+>  	struct viommu_dev *viommu = vdev->viommu;
+> -	struct viommu_domain *vdomain = to_viommu_domain(domain);
+> +	unsigned long viommu_page_size;
+> +	struct viommu_domain *vdomain;
+> +	int ret;
+>  
+>  	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
+>  	if (viommu_page_size > PAGE_SIZE) {
+>  		dev_err(vdev->dev,
+>  			"granule 0x%lx larger than system page size
+> 0x%lx\n", viommu_page_size, PAGE_SIZE);
+> -		return -ENODEV;
+> +		return ERR_PTR(-ENODEV);
+>  	}
+>  
+> +	vdomain = kzalloc(sizeof(*vdomain), GFP_KERNEL);
+> +	if (!vdomain)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	spin_lock_init(&vdomain->mappings_lock);
+> +	vdomain->mappings = RB_ROOT_CACHED;
+> +
+>  	ret = ida_alloc_range(&viommu->domain_ids,
+> viommu->first_domain, viommu->last_domain, GFP_KERNEL);
+> -	if (ret < 0)
+> -		return ret;
+> -
+> -	vdomain->id		= (unsigned int)ret;
+> -
+> -	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
+> -	domain->geometry	= viommu->geometry;
+> -
+> -	vdomain->map_flags	= viommu->map_flags;
+> -	vdomain->viommu		= viommu;
+> -
+> -	if (domain->type == IOMMU_DOMAIN_IDENTITY) {
+> -		ret = viommu_domain_map_identity(vdev, vdomain);
+> -		if (ret) {
+> -			ida_free(&viommu->domain_ids, vdomain->id);
+> -			vdomain->viommu = NULL;
+> -			return ret;
+> -		}
+> +	if (ret < 0) {
+> +		kfree(vdomain);
+> +		return ERR_PTR(ret);
+>  	}
+>  
+> -	return 0;
+> +	vdomain->id = (unsigned int)ret;
+> +
+> +	vdomain->domain.pgsize_bitmap = viommu->pgsize_bitmap;
+> +	vdomain->domain.geometry = viommu->geometry;
+> +
+> +	vdomain->map_flags = viommu->map_flags;
+> +	vdomain->viommu = viommu;
+> +
+> +	return &vdomain->domain;
+>  }
+>  
+>  static void viommu_domain_free(struct iommu_domain *domain)
+> @@ -727,6 +708,28 @@ static void viommu_domain_free(struct
+> iommu_domain *domain) kfree(vdomain);
+>  }
+>  
+> +static struct iommu_domain *viommu_domain_alloc_identity(struct
+> device *dev) +{
+> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+> +	struct iommu_domain *domain;
+> +	int ret;
+> +
+> +	if (virtio_has_feature(vdev->viommu->vdev,
+> +			       VIRTIO_IOMMU_F_BYPASS_CONFIG))
+> +		return &viommu_identity_domain.domain;
+> +
+> +	domain = viommu_domain_alloc_paging(dev);
+> +	if (IS_ERR(domain))
+> +		return domain;
+> +
+> +	ret = viommu_domain_map_identity(vdev,
+> to_viommu_domain(domain));
+> +	if (ret) {
+> +		viommu_domain_free(domain);
+> +		return ERR_PTR(ret);
+> +	}
+> +	return domain;
+> +}
+> +
+>  static int viommu_attach_dev(struct iommu_domain *domain, struct
+> device *dev) {
+>  	int ret = 0;
+> @@ -734,20 +737,8 @@ static int viommu_attach_dev(struct iommu_domain
+> *domain, struct device *dev) struct viommu_endpoint *vdev =
+> dev_iommu_priv_get(dev); struct viommu_domain *vdomain =
+> to_viommu_domain(domain); 
+> -	mutex_lock(&vdomain->mutex);
+> -	if (!vdomain->viommu) {
+> -		/*
+> -		 * Properly initialize the domain now that we know
+> which viommu
+> -		 * owns it.
+> -		 */
+> -		ret = viommu_domain_finalise(vdev, domain);
+> -	} else if (vdomain->viommu != vdev->viommu) {
+> -		ret = -EINVAL;
+> -	}
+> -	mutex_unlock(&vdomain->mutex);
+> -
+> -	if (ret)
+> -		return ret;
+> +	if (vdomain->viommu != vdev->viommu)
+> +		return -EINVAL;
+>  
+>  	/*
+>  	 * In the virtio-iommu device, when attaching the endpoint
+> to a new @@ -1098,7 +1089,8 @@ static bool viommu_capable(struct
+> device *dev, enum iommu_cap cap) static struct iommu_ops viommu_ops =
+> { .identity_domain	= &viommu_identity_domain.domain,
+>  	.capable		= viommu_capable,
+> -	.domain_alloc		= viommu_domain_alloc,
+> +	.domain_alloc_identity	= viommu_domain_alloc_identity,
+> +	.domain_alloc_paging	= viommu_domain_alloc_paging,
+>  	.probe_device		= viommu_probe_device,
+>  	.release_device		= viommu_release_device,
+>  	.device_group		= viommu_device_group,
 
---=20
-Thanks,
-Mina
