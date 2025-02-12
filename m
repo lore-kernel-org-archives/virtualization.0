@@ -1,74 +1,128 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1C8A920F08F;
-	Wed, 12 Feb 2025 14:16:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4B2220E70B
+	for <virtualization@lists.linux.dev>; Wed, 12 Feb 2025 14:29:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739369821; cv=none; b=Qnl/EILpmd2faWVpZiZ2flGEhs8TakjRRyIe3qsrg2sNwie+NmIjIwUCSwwul5aJyfLfciSbKW9WCJVFTxao08akrlJl/gzug5E+PS0RQPR7MCNOumzEN4sXAFbn2SoVk8DF3yUY0W04QQFhdSmirdWS7bS1OQieqJHrYCU4j4w=
+	t=1739370558; cv=none; b=XKw8NBlxKH8nwAralHO4OCVOJJIgAyAS66sgN/BT7n7CO1vAYu/wwdYInyxHCyjeKOCDydbxOlorJW9cVhRxiUEwJ0BUsRQlfWbLY+Q14Kb4RJBfFDrLf5p5FHh7hkw++PW4gOtaNaPGVc2vacPGD0IKt2orjJydDBhhBgCY5iw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739369821; c=relaxed/simple;
-	bh=nJIt1x77AQg4AAepbl9YgW1/uaqkSdDOIWHzOh9PTgw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qEZfZn5D1cQPt6kGP0/gDLoJSMfGf1efNF+batsmoeBc4qCx4+gkuimQ4/YHrewOXofsXzb+aQKOGIDuhUwbvAI0/4HSI7u9xuU+ULm5PBolpR3GAE0VUTv0N/LW0vyVrS0lpqOobQMErfR892joyYYk5AiGljci/wllg6eCfPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 69BA912FC;
-	Wed, 12 Feb 2025 06:17:19 -0800 (PST)
-Received: from [10.57.36.235] (unknown [10.57.36.235])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 957DB3F6A8;
-	Wed, 12 Feb 2025 06:16:56 -0800 (PST)
-Message-ID: <021d006e-1fe3-4f58-8e79-b5e316de347f@arm.com>
-Date: Wed, 12 Feb 2025 14:16:54 +0000
+	s=arc-20240116; t=1739370558; c=relaxed/simple;
+	bh=p9WPEvkBQpOGn0vTtNVqi/6VObHeGOYD3hDmy0J7hXM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pv1e7053uDTRaH94hjJm/Cn7VT3vYyOQF4Kq319H7BMBTsZfXuQAuB7dEmkk4hv7H1aYkozbavGTV7Mj5OFCZ0wUkUec8Ncq1Y7Ih5QplppvkF5TzkS6h6T4yD4mKHU3xgpmaN45oEiWQuiAQqFs7z6xqWiYhz7bg91uryA1fcc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B/FGpSKB; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B/FGpSKB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1739370555;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=p9WPEvkBQpOGn0vTtNVqi/6VObHeGOYD3hDmy0J7hXM=;
+	b=B/FGpSKBjTvKvhXpsdIcpeUHumO0tmZO8M7KLfkzgfNeLujL5qsvFaRlEOYO5CxDaKAyi6
+	l61flJaNqX4P50ts1TtEPdxWNYKCKOIm498gUaGaxdaH095HrUEhQHhU9OUMJluDHFE4RH
+	7/nIlw+ViNK6lDC5y63NbpDDaHObqRY=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-127-hDYHPfRbN_aMt23jeWwCoA-1; Wed, 12 Feb 2025 09:29:14 -0500
+X-MC-Unique: hDYHPfRbN_aMt23jeWwCoA-1
+X-Mimecast-MFC-AGG-ID: hDYHPfRbN_aMt23jeWwCoA_1739370553
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ab78d23202cso443729466b.3
+        for <virtualization@lists.linux.dev>; Wed, 12 Feb 2025 06:29:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739370553; x=1739975353;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=p9WPEvkBQpOGn0vTtNVqi/6VObHeGOYD3hDmy0J7hXM=;
+        b=ODZn2KLZtuScEY9zJ3xbrh6MzYG4sOZKqyaTrLHkUFpnznohbSkCbWPuTFZIngXm1m
+         RYeFQziO1grkv+AgCESBAEKAakqHjvVteX1Thrj9P3qoeSgxLTCcNwnkF6YxP+MfN4NE
+         9xLAiW1Z6o5+i+VFK4RkdIb8KipUbO4RBNHoG88/H2CFvUzF09aeY4fV1W4xCQMo2LbI
+         HG42tm4btAitDtncn8o2TAJQsFeTe3JZ1Ko+kxVwrRr6xXfx5rCT+GBBQ4SobnW+qgUk
+         RAGwSO/zD1mGjQsKw4W7PxBt3N7TtaCmKxjNItVwGxJ8lIt+Cg8RdAXXMJAOLtwNPODN
+         bZEg==
+X-Forwarded-Encrypted: i=1; AJvYcCW8crV0TVWWdU01hFaoBnwOlRBN9rvqqsTWq1C4WoPrrOIffnlhEOrTq6p3TnCHCaXJYEEqRrYzCFk/hikwvQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzLDTc0ZQN3oGJgyEVacmPmjiqcC2DPvsNoW/AORxd7eYsS8bP5
+	ClVz6u8cU9q+8upyY7ar/AHSiyTAJABYGSU6UAC7bA68KHSEBW/idAjQ5yCkDh+y+7FB3nVBZxg
+	wV1ksEC9UGG9sL9Ek9GhUHNRsk6QboZ8+5En2zFIsi93s3V6Gvq1UAlbBxJ3HmaX+LHFIuNuJXD
+	7mP+4sMl3lRmjhHlibo9Vnu9n2wOvVwZyR1kQnNkg=
+X-Gm-Gg: ASbGncsghulKf32DKszH+bX6S36Rbqw7sBrcG2Z8weLI+WoRteSZRc0RdOEoHvOOtX+
+	fiZiJr5IUfE+Lm8kKn/lwmLvVZOToAXbnO9LbuB5826ywSnpoYdzXVpXntKcolrbmmGaVf+begf
+	ISvmAsh0DECRVML57N2A==
+X-Received: by 2002:a05:6402:3510:b0:5dc:7374:261d with SMTP id 4fb4d7f45d1cf-5deadd71ae6mr7994593a12.7.1739370552928;
+        Wed, 12 Feb 2025 06:29:12 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFODMyc0mg69LtDY6AULrP8h8emzE8pmqlTP7h4KHBaL4p+FpoBPUfEFgNkycdGMlVSlAMSgfgepus94exDBMg=
+X-Received: by 2002:a05:6402:3510:b0:5dc:7374:261d with SMTP id
+ 4fb4d7f45d1cf-5deadd71ae6mr7994548a12.7.1739370552594; Wed, 12 Feb 2025
+ 06:29:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/5] iommu: Add domain_alloc_identity()
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: iommu@lists.linux.dev, Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Joerg Roedel <joro@8bytes.org>, virtualization@lists.linux.dev,
- Will Deacon <will@kernel.org>, Eric Auger <eric.auger@redhat.com>,
- patches@lists.linux.dev, Alyssa Rosenzweig <alyssa@rosenzweig.io>,
- Sven Peter <sven@svenpeter.dev>, Janne Grunau <j@jannau.net>
-References: <2-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <f0164c18-9ded-4c41-a8c5-c225a978973d@arm.com>
- <20250212140316.GA3844591@nvidia.com>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20250212140316.GA3844591@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20250206104300.416014-1-ryasuoka@redhat.com> <d8a453e9-c8ce-4a7d-8fb9-08a13c44d7f3@collabora.com>
+ <3c0e06d4-b5b7-45cf-bc42-8f12b293b7da@redhat.com>
+In-Reply-To: <3c0e06d4-b5b7-45cf-bc42-8f12b293b7da@redhat.com>
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+Date: Wed, 12 Feb 2025 23:29:00 +0900
+X-Gm-Features: AWEUYZlZPWJuA_vK95ztJ7A8EkKN1A4KF5b4RIqvSAABBcmQQ3uMF8dJqmXE2rg
+Message-ID: <CAHpthZqYGwXCqZYSXgrbZ8AT58kXS+qm8LRE=SWkrQvgx9CUHw@mail.gmail.com>
+Subject: Re: [PATCH v7] drm/virtio: Add drm_panic support
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, Jocelyn Falempe <jfalempe@redhat.com>
+Cc: airlied@redhat.com, kraxel@redhat.com, gurchetansingh@chromium.org, 
+	olvaffe@gmail.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, 
+	tzimmermann@suse.de, daniel@ffwll.ch, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: yrcCuQF-EwBZjMsoebZIX7ubwO0JH6up_tHJ0H0TLr0_1739370553
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2025-02-12 2:03 pm, Jason Gunthorpe wrote:
-> On Wed, Feb 12, 2025 at 01:56:55PM +0000, Robin Murphy wrote:
->> On 2025-02-07 2:46 pm, Jason Gunthorpe wrote:
->>> virtio-iommu has a mode where the IDENTITY domain is actually a paging
->>> domain with an identity mapping covering some of the system address
->>> space manually created.
->>>
->>> To support this add a new domain_alloc_identity() op that accepts
->>> the struct device so that virtio can allocate and fully finalize a
->>> paging domain to return.
->>
->> Oh, I'd already managed to forget this idea - this could be convenient for
->> DART to implement per-instance identity domain support as well.
-> 
-> If we are going to broaden this someday then I suggest the core code should
-> implement it entirely buy asking the driver for a paging domain and
-> then mapping all of system memory into it. There is nothing special
-> here that needs to be in driver code.
+On Mon, Feb 10, 2025 at 8:14=E2=80=AFPM Jocelyn Falempe <jfalempe@redhat.co=
+m> wrote:
+>
+> On 09/02/2025 18:45, Dmitry Osipenko wrote:
+> > On 2/6/25 13:42, Ryosuke Yasuoka wrote:
+> >> Virtio gpu supports the drm_panic module, which displays a message to
+> >> the screen when a kernel panic occurs. It is supported where it has
+> >> vmapped shmem BO.
+> >>
+> >> Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+> >> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+> >> ---
+> >
+> > Applied to misc-next, thanks!
+> >
+> > I've tested v7 with a different capsets, works well. For a non-VT FB th=
+e
+> > vmap indeed will be needed. Looking forward to the atomic vmap support.
+> > The rough idea of the atomic vmap helper is to make vmap code paths fai=
+l
+> > whenever hitting path that needs to sleep. Likely will be easy to imple=
+ment.
+> >
+>
+> Thanks for your support.
+>
+> I will see if we can do something for atomic vmap support for shmem.
+>
+> Best regards,
+>
+> --
+>
+> Jocelyn
+>
 
-Sorry, that was just in terms of having a domain_alloc_identity() op 
-that's allowed to fail, being potentially neater than otherwise having 
-to register distinct per-instance ops with and without the static 
-identity_domain. I'm inclined to agree that if anyone really is 
-desperate for identity-mapped paging domains in the absence of true 
-identity support, then indeed we probably should handle that in core 
-code much like we do for improvised blocking domains.
+Thank you for your kind support.
+I'll try to write the atomic vmap support patch soon.
 
-Thanks,
-Robin.
+Best regards,
+Ryosuke
+
