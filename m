@@ -1,162 +1,285 @@
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2048.outbound.protection.outlook.com [40.107.101.48])
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E58A209F55;
-	Wed, 12 Feb 2025 23:30:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.101.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739403060; cv=fail; b=XQc+D0/GvcEy2LwzSlZl17sggCx+fQQ9SfB6nKzQM3mR9eUwVXZiV4SZQA6b2wkO0+Y9V1kT2e+kYdvxK2yYmbopOmhhFppaMION8X9cPp2eH7kao1kuxOe69nAJhEVxftj3o5m7zd8RShfrJTtaZbrdar05VI7E3DCAj/kn/Kg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739403060; c=relaxed/simple;
-	bh=2tplbflL2przCGBbAGZMYGvgnGeMLPPHMGMU3JICa1A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=J5w8ghWmBBgN5F80HPFPzaMEUL0Adh9bCeNvnjUneS0dyVj6PBurCnGiDzC0jtgM9qG3AAbo3XsnMwHSs8kMr6d+9Wqky8lVDTvPhUsEpA6wuxn5kOarEDwPf0EN8XM01yigp6IPtm16jf+leFaT72LCtxOqyOjEM4CyWz4XqG4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=b/z4H7VO; arc=fail smtp.client-ip=40.107.101.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74DB070810
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 00:54:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1739408070; cv=none; b=JnZpyeRAkawCgDsa/Eyr0ucg8wAhultAt5SIn2Nq2yEU9gEwFIPqxrwdYaSKDS9IzvA+cPt9tCQraVOgfSCxC90XdCDeKzEYTd4cqinToVLZIBWZjFTNgVhKZSBJr8sPEaFqLw6XSLO14DM/vFFhUsza3UuADkvXvU6uu7d12wU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1739408070; c=relaxed/simple;
+	bh=kgUFriaHckAX/UICIIOkdTeA5rYC2/8rEcYmDesObJk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
+	 Content-Type:References; b=FB3WXHlaKUb8D2T5StQDibepfTaaLPUk/BREhFAGVBf13G7mEZfKITF8ek9BkoarC2p5EOyKPSeNx07xI9VlFqc0DiewtpHXLvAoUidWmFdH5mRYHCktiM1wabJDfzrg3g7DZDtpxbStWDBIJoMc7ECXrV4hQyjtJ3wx65rJBYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=Uvxanwg7; arc=none smtp.client-ip=203.254.224.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="b/z4H7VO"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=J7SalfDmDaFttdR9qTZoBmolsUWIt1HkYo7iifbj7Rk5Um8krvt4FXSpwGjMSoT7q5ORULB9FSb2Vmrwbj6l28HXC9V4Ib9f9CYit6ZeDo5vxVtNjMickgQSBA0WxE3lwjyQMSs1Igj6k1zlSzTLrhujVOvyDoO6+e1vcfw24NKbh7MO4FsHn64htwlFlhhB1ZJyo6uwA2Fl/iv6q/JqqNL40+ypXDBoStY9KDjlXm7cwZY6+dFVPil3lt4rZhaLbyzDU+09YhF/7jCPIWSka8AmqUfhDJH3e667epB6Rt5HEqK0PeIRS49rxfYmdfhqzM8UcnPgpdzBHnSpx57KfQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2tplbflL2przCGBbAGZMYGvgnGeMLPPHMGMU3JICa1A=;
- b=R5ivndQ2GpWo9Xw6ls7OhkWyTeZmrgEIhtm95fooPZQH6LIkdtyJjWi7yYX/MKmTuIEXlpk5oQHLkJeinZ+HlIABDbyzW0+t+XR/eJ3DUtB96qMORchpVsFKni9fuy+T1HvUXweMVjIfQDgwITPMxu0MyfuMGi6/lKTBpiBTbCaJacfsnYnzGf4LaUgk4tlqzt7CnV+ibKqq4l+4g4pRWeVNcbrWRXc4eSoCUuNtjr/O/NL9cC9Oa/n8ikYu//kCOP1xHYRZ6utVL4Ohmqterl/XG/tAoBwiqSQFb2XIlWMwsYpbaM7cIpH5eOryF0Oa2DgxBrRLWyIYxfzxnG9xaw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2tplbflL2przCGBbAGZMYGvgnGeMLPPHMGMU3JICa1A=;
- b=b/z4H7VOIHL4+pg/mCq2eUnRAW8nmrZEeK5SXTVNsA3AnqYf0RDd9Psj7JSrihtBQ/xr3bhcmn8dUgCOgIANd+6X4nwBuKw7mY5MA2H3ZVLoOmzdGuRml+KYXEeu1rKjHzG2r+hE0cPvtPua8fh33wyVvW/xASH/yYl0pPkgXpuYwWV90L6+1rf2sMoDQNFd34fEmiyIN9V0Ev04xVkmDvdti9yXPE0wfC6lunuKwS9D+SO8AHEm6HcGrBmgmsrudTogdrKN5OdpYaw6vXJE5lVFs5S93cHAJqSPwADj1UldzqbI5zsun/N0UwSwWvKPDR2mEfkCFIwxyo6QMO26cg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
- by SA3PR12MB8762.namprd12.prod.outlook.com (2603:10b6:806:31f::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8445.15; Wed, 12 Feb
- 2025 23:30:55 +0000
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732%6]) with mapi id 15.20.8445.013; Wed, 12 Feb 2025
- 23:30:55 +0000
-Date: Wed, 12 Feb 2025 19:30:53 -0400
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Jacob Pan <jacob.pan@linux.microsoft.com>
-Cc: iommu@lists.linux.dev, Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
-Message-ID: <20250212233053.GV3754072@nvidia.com>
-References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <20250212112235.714b0a14@DESKTOP-0403QTC.>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250212112235.714b0a14@DESKTOP-0403QTC.>
-X-ClientProxiedBy: BN8PR15CA0045.namprd15.prod.outlook.com
- (2603:10b6:408:80::22) To CH3PR12MB8659.namprd12.prod.outlook.com
- (2603:10b6:610:17c::13)
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="Uvxanwg7"
+Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250213005425epoutp012c580c931f83b50c2a5b4ea1f4b7559b~jnmtsR_1u0963509635epoutp01C
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 00:54:25 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250213005425epoutp012c580c931f83b50c2a5b4ea1f4b7559b~jnmtsR_1u0963509635epoutp01C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1739408065;
+	bh=Udyyr3+c9lIf9GcZ3IJILI+Ye26O93De7LR99Gj/9uc=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=Uvxanwg7NRlXF3/LAqEPBmNQxfQKwWQTNuq3QQg+rrtyjYCFLgw3z6p5v9iY/je0g
+	 T+nNlhqiFysq5JLSebtUWq59BzafjePjr6PJ6tQUIdT4ajL7zx0LWwON741h7k8H/l
+	 6dKx77lOfcq33nbwfG3hL6k+n6qrrduMRhrFPbiU=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+	epcas5p4.samsung.com (KnoxPortal) with ESMTP id
+	20250213005424epcas5p4f032cb96bade799d688f14d852cd760a~jnms77Sy70467304673epcas5p4q;
+	Thu, 13 Feb 2025 00:54:24 +0000 (GMT)
+Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.175]) by
+	epsnrtp3.localdomain (Postfix) with ESMTP id 4YtcC30nT0z4x9Q0; Thu, 13 Feb
+	2025 00:54:23 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+	epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	CC.65.19710.EB24DA76; Thu, 13 Feb 2025 09:54:23 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+	20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594~jXJWfa6WE0590205902epcas5p2Y;
+	Wed, 12 Feb 2025 04:47:58 +0000 (GMT)
+Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
+	epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+	20250212044758epsmtrp2eb9ed694647f7cc135ec78bea36e710b~jXJWeRLdi1049510495epsmtrp2D;
+	Wed, 12 Feb 2025 04:47:58 +0000 (GMT)
+X-AuditID: b6c32a44-36bdd70000004cfe-12-67ad42be62a3
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+	epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	14.8B.18949.EF72CA76; Wed, 12 Feb 2025 13:47:58 +0900 (KST)
+Received: from asg29.. (unknown [109.105.129.29]) by epsmtip2.samsung.com
+	(KnoxPortal) with ESMTPA id
+	20250212044756epsmtip25c699e119d66b569633d23b44a6db2b9~jXJUAOdwh2400724007epsmtip2d;
+	Wed, 12 Feb 2025 04:47:55 +0000 (GMT)
+From: Junnan Wu <junnan01.wu@samsung.com>
+To: sgarzare@redhat.com
+Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
+	horms@kernel.org, jasowang@redhat.com, junnan01.wu@samsung.com,
+	kuba@kernel.org, kvm@vger.kernel.org, lei19.wang@samsung.com,
+	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+	pabeni@redhat.com, q1.huang@samsung.com, stefanha@redhat.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+	ying01.gao@samsung.com, ying123.xu@samsung.com
+Subject: RE: Re: [PATCH 2/2] vsock/virtio: Don't reset the created SOCKET
+ during s2r
+Date: Wed, 12 Feb 2025 12:48:43 +0800
+Message-Id: <20250212044843.254862-1-junnan01.wu@samsung.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <iv6oalr6yuwsfkoxnorp4t77fdjheteyojauwf2phshucdxatf@ominy3hfcpxb>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|SA3PR12MB8762:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6ae43bef-f481-4acf-317e-08dd4bbd4bbc
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?kTHE+PImLNZ7T710SAHwtQ3xmHHXR/D3L9Hmdx1e+SRP0xR2cI1L4rz4dkME?=
- =?us-ascii?Q?PUzB2kEX2ojhbjHU/b9TgYnKUKzsy0bwXwocowupX969SrcUe3Ei7eibFqWx?=
- =?us-ascii?Q?Ip4Wsld4yE4mQEA0fxnZMLbGMcTAbSV/TDCEOidIaKfzxQQrHXFGKGvvhPF4?=
- =?us-ascii?Q?ny34aUPFyeotqWnuuCxcbD+ge4ZH7pDCuNNuvyet3Y/hsaSH48zcEJuOEeAT?=
- =?us-ascii?Q?PmaqtoJdWUAv2OG/2uFuurrctfQFflBSwtA6Vk1xqK+12VKl9fakiGXJdk24?=
- =?us-ascii?Q?UWGiwmVha3KoCsf/KpLig73pIhbWXaISWaQ6V7Qj2Wb7JZOxnshnXEW0uwig?=
- =?us-ascii?Q?VxXOXfBmJuhAdg7vqZcl06/RDwG1wnaYkhc+2vhh3QM1gZEZ5XL3Q7DMpt1k?=
- =?us-ascii?Q?GNBSCKbCGrEC5vijrpl9gFeg/oam+iBmGSo0DLNKoWFYvCoQveC/lCqNnMBD?=
- =?us-ascii?Q?amH5hC00iH+zYBDTXeO0YsbNdyNam5iD1Eel3wu8RTF3SSc9t4hzMRjwnq3b?=
- =?us-ascii?Q?5uh3NtxbdyGNt4nY1sLAG9oa9QXmQHa/3lDuh6X1PLmzTnwuH1aU3l8er+dn?=
- =?us-ascii?Q?Fd48CY6dN6nuQ94rv9Kwr+t+f8EvrclMozXB4sHljvFuZBfeNzP9tQ4l2W+B?=
- =?us-ascii?Q?dvOQfdMf+0iyYZlMEliWQU3OshQ+/+JodUZsTM89249mlRER7ENbMZCDRojw?=
- =?us-ascii?Q?9Tev9prt3WO9EVPfIrRYF3z6+TUKI3vht0/56Ti6aIW1LR8txs2l0WiGghR+?=
- =?us-ascii?Q?k8R7JIq6KWBM8q3ed5z2pkQTfOhLKIADUEL4SCEjwkwSd24fmp3D7CR0MuFR?=
- =?us-ascii?Q?gKZ/tcdohyhBJocyirL8k1ukjZmQ6M8516/lvbkVeTgtYMSppXJhoIdeXuUn?=
- =?us-ascii?Q?81gl8t8gAQAqU5Vg/3GqxLTAPGswmU9pWFP80Lg8R/3t+GDK3X7v1xHB+xGR?=
- =?us-ascii?Q?xRGHTv5Boj70cqU2/SsWajdkAxTN/XCrU/7Uu8nRahZwkJk2Ko0kN9e6flEJ?=
- =?us-ascii?Q?aadabNTl7k/XIEwWFPYW6XLb0NmFXBy85EQy00Eny2KiU+jZ5XZvtOY/srvy?=
- =?us-ascii?Q?N7DMyv6aw1rmA60JzECNxH+fcv06L30ksfELz2sUBmQEgliR/wLBL1ZceL/A?=
- =?us-ascii?Q?QP7cBbMiNNuIL28K1AbzLKavGbeiDOAsabqIBfb2NEuhXbgFu8sDBg6doH9j?=
- =?us-ascii?Q?m6LAjKXSFjWylmm+jqKyoDV/cg2zIYyeO5gRYbQPvICNZvH1MP9Hewe3KwrZ?=
- =?us-ascii?Q?NXTBZuhFQRvNfelw2K3z/62oz0oMhDq1NbF2aCHFo2RxSNK6MfNf1PFNocGa?=
- =?us-ascii?Q?cSzf+Gw6aO4TX2LFQ9zF6HHfRi90KrAJDoImnrq9Nu+Di0XXWYFNpxwS1qn7?=
- =?us-ascii?Q?+uGoNV5gmPCT03cgquFNR7If1s66?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?DXN6QgAgNhDVGjrZD/TedTkTi8dxKbOuEA8fmrv7XFEQXO81OiCziscnE6Nt?=
- =?us-ascii?Q?h1TMBL+WgSRZxO6WEnRTCs41aCvxG1XC8tqml4GPBeGUWwp4DiLFZ6ZBwFsF?=
- =?us-ascii?Q?ayRsAA0E95qj1/lYcsTBzSoPQCB0g4DMjnVLWnJMJeyEvzNJpfJAdqiS0LHS?=
- =?us-ascii?Q?d9JA4A2Mn1d8OUurj+B8Mig946rR7pTz2k9Z8jkcKvyL6oJaAYInEHUr/rIO?=
- =?us-ascii?Q?k8BxQ3IAEhRv7T5QLeFbXLPb3MqsahmqHvveB4/kslhHGOxGM9uZ0TszSFVF?=
- =?us-ascii?Q?LpAo2SIHZ2bpT9UqBRbGY0YYz/AAb+MW2+n91pEy/VhEMgkKxdDk6LhRdALG?=
- =?us-ascii?Q?FWaupB5X2wnwhJUudwvLc+a5j1tZfO4QJueNoP8XD79tfuOVSMNCoKDAsQgc?=
- =?us-ascii?Q?pDF/rsXaRRiwssCxpvUZj2FrwiG8wE6UXZmxNvEtexqARbDrs2SfDdh1jNRL?=
- =?us-ascii?Q?URDCjwG5smnSbPrkxMTtgy3gR5uSXYV//0eIK7ss4+SotOON7gk26b7fvC5p?=
- =?us-ascii?Q?BXpZA1S7H0mqSIqX4p8xPB1YLO8vfQWOBf7dCVizeZfArqP4OuYpDS4Tv3t2?=
- =?us-ascii?Q?ks6DaArVgaRFBafwXM055IDuStKY4A/ZXKADg7+53/DCepOu0PqrKpF/hdnh?=
- =?us-ascii?Q?4f9PSRYcAy2eoInPMJ9trXxBUxUsztiYE9zqj5FRrX+U9q2W30afGMv5jcx9?=
- =?us-ascii?Q?fJEgeq60dUEpbmw+b+Vh1gENezfFL+gvhkJsgE+aOJc+p2ExTqvYmHGBm7fa?=
- =?us-ascii?Q?oDRfDExqcGWhcCVkDtve/7Th7pvOLVpFWXn5hgjghaIGSSnCCUWabMOz9Q8N?=
- =?us-ascii?Q?WrFdDSZ0JDzT2094wiiOU2hdCS+VYocsNb2H7fKKzEipstTj9P2wWuwgOIzB?=
- =?us-ascii?Q?bcSe7cqzb/zbKE2EfCkXatXAeOI+JO94lMhmJ/ZlP1tM34KSy8qamFloac4W?=
- =?us-ascii?Q?Nj/swpefc5LICpJjAadqN0JvjrFm5dB9wEIyIH98ISL8WDnY0OMWA7M+NkWh?=
- =?us-ascii?Q?J2nkIwoPZz4c5q4CZFjQo/2EVJC5odUv/73ixAwfbfEQHHyTJaEmaJIhvJ+f?=
- =?us-ascii?Q?AKpO4zhS6MQZh9By7n10Fd0KPpYRD7yiMrR1/klOuOWgZJzGbU7j5VN9TPyU?=
- =?us-ascii?Q?IWKfhQtFBucsjHpmJTESWdoYLSORzDdmKgOOL3gFUKr5J6DL76UXVaQTuWMD?=
- =?us-ascii?Q?9LSMoRli66ypE/yEMkNTS8sIVuTwfEIcJz2Wr3yfm1DsxaXcxr6hlNavmXYC?=
- =?us-ascii?Q?yZDHMNkneLuLuSw/DURQTWXOIZevyiiLKvpAX7+gquVSt20G+cK90/UCSlf9?=
- =?us-ascii?Q?6CbnUnE2W2fN3ZLavCiTqGMxTJsMnmfMOuVYv896NSOW220dBjJJNYBcOati?=
- =?us-ascii?Q?cCIc/1BU/1vjWv5RRbYIVQS6KaeT9p3kMr/xg3SzWSj6jYtSVKTifkQFhphI?=
- =?us-ascii?Q?Z7bMwFydy5Qsca3HeUTc/I8CS1GzYxxIsADex3a8RnmlrTKd/AZjCHd+crmJ?=
- =?us-ascii?Q?kq2+v/WXZFj7n9QJcbgrJgS1xutdr8OFuEYA7xdWMRLguygvsm3v2UVnHUXF?=
- =?us-ascii?Q?UGrq2WEkYGEKFy8PLEA=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6ae43bef-f481-4acf-317e-08dd4bbd4bbc
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Feb 2025 23:30:55.0150
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: aSSG/2Kuubn1mySrwrI8W7v0sqHwI7xqGF4JrwBOPXWobxGFhIY8R0cOsHwJmllR
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB8762
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA02TfUxbVRjGc3p7LxeS4h0gnGHYmm6okACto+zggOAks9kIIX4whkGs9K4l
+	hbb2Y26oWRnNkM+xZSWCyNCB0u7D0XUbhSGCljFIpRtjjCWgIF0ICt3EMC0KttxO99/vfc/z
+	vk+ec+4lsRAXEUkWKbS0WiEu5hFB7Kvfx7wY17f7gpRf9gkLNY8a2Mg1OBuAfvncFIBmTwwR
+	6Kvbyyw0dfc15Lxah6Nm4/voeNcYjsa6mwl0p60mAK17FnA02BqOVkZ+A6h90YEhR/1DHI02
+	r2Po11PrOLJfM+Ho7jGEnD94t/bNNuLp4SKraZIlarXoRBZzJSGyzSSL5i83ApH723FCVGc1
+	A9GyZUs2mSdPkdFiCa3m0opCpaRIIU3l7Xuj4NUCYRJfECdIRjt5XIW4hE7lZWRmx+0pKvZG
+	43EPiYt13la2WKPhJaSlqJU6Lc2VKTXaVB6tkhSrElXxGnGJRqeQxito7csCPv8loVf4rly2
+	draPUJ2KO3zruB7XA8v2KhBIQioRNtqmsSoQRIZQPQCev1GDM8XvAK48NAOmWAGwfs2FPxkp
+	tzv8B70ATrhbWUzxAMDZOWuAT0VQMXDoegfh4zAqAjpb2gifCKN6MPhzZ+XGQSiVAydOTm6s
+	ZVPR8NJCNeZjDpUK9cfOAcZuK+zrd2z0A6ks+M/9Lhaj2QRvNs6xfYx5NeVXPttIAal5EjrO
+	tbOY4QxYZpgKYDgULtyw+jkSLi/1EgzLYa3d42ctrF667c+5C45erPAuJb0GMfCb7gSmHQWN
+	wxdZjG8wrF2d81txYFeLj0kvR0N3/UdM+zloslj8riL4o76ZYC7rCwDvD7bj9YDb9FScpqfi
+	NP3v3AowM9hMqzQlUrpQqBIo6A/+e+ZCZYkFbHzvsRld4N6ZtfgBwCLBAIAkxgvjwIbz0hCO
+	RHyklFYrC9S6YlozAITe+z6JRT5bqPT+MAptgSAxmZ+YlJSUmLwjScCL4JTbDNIQSirW0nKa
+	VtHqJ3MsMjBSz2oav1yXy27xDN88ayoKx8d60r90cBI+NQ1o8lDQ4pnqnFtlpy2bdY3vDVfF
+	2F43NTRMjw3Nr/65C7e5RLbdWSORVvnWtbaftn0YU7ov2iqrlLf0O9dnOkdd3/W0ddSmGRzP
+	bDmYxXdL00wTb01nXsmX/LXjQQ7nRM3H1W+rBW+mXR+hJ2fyQ43JgS/slMxGVBy2h6s7Fkzu
+	o+/kdQvMj6XWImOULGw/hAdjdXLD0rb9XwdfKxUULkeluKZ6azcden5xadWdf+9vZ+c4WMg8
+	uufIKyvcx3srh7T2itwWt+5S997gvkcXPAeEi8P9EfSjO1V/6D0HjOVT6fr+uIztuflZPLZG
+	JhbEYmqN+F9x3znjeAQAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprNIsWRmVeSWpSXmKPExsWy7bCSvO4/9TXpBru7NC3mnG9hsXh67BG7
+	xeO5K9ktHvWfYLNYdukzk8Xda+4WF7b1sVrMmVpo0bbjMqvF5V1z2CyuLOlht/j/6xWrxbEF
+	YhbfTr9htFj69iyzxdkJH1gtzs/5z2zxetJ/Vouj21eyWlxrsrC4cARo6v5HM1kdxDy2rLzJ
+	5LFgU6nHplWdbB47H1p6vNg8k9Hj/b6rbB59W1YxenzeJBfAEcVlk5Kak1mWWqRvl8CV8W/x
+	fraCSboVF9saWBsYN6l0MXJySAiYSDQfPcvYxcjFISSwm1FiyvMjTBAJaYmu323MELawxMp/
+	z9lBbCGBJ4wS+14ogNhsApoSJ/asYAOxRQTEJS7MW8IGMohZ4DKzxLmfd8AahAVCJHr/bgcr
+	YhFQldjwqhtsKK+ArURD02pGiAXyEvsPngWLcwr4Sfy9tYMJYpmvRM+X44wQ9YISJ2c+YQGx
+	mYHqm7fOZp7AKDALSWoWktQCRqZVjJKpBcW56bnFhgVGeanlesWJucWleel6yfm5mxjB8ael
+	tYNxz6oPeocYmTgYDzFKcDArifCaLFyRLsSbklhZlVqUH19UmpNafIhRmoNFSZz32+veFCGB
+	9MSS1OzU1ILUIpgsEwenVAPTgdJjFd9fnzm4O2u2m23JhV+1VonaklfOHX/7hvNuVMmE3+b1
+	3FYsPwO6wk2nd75c3lRin8MT+lnd6THH/9jDCsovds+es1plf1Nt5DRVtzMeF9a+Dr3RaLwm
+	0d32lHRj5N2N35v8+bz8trOc2OR94FF1VtP9BXKep184XXs07bPI8ZPvLis87snf/Phi/e3k
+	2TPrnJev3PJM2njNeoe+5svnrugv4thoL7r/x5SPt24J2DaIL3m7t2q5mZJhjaT1v/zt3f0J
+	W0TfXk+9HPXwSW334pkmsUIHDb7KuJXvMzfYMiVB6fC97F/m2xPXq254qXtP/ci9eu1Zi+c9
+	3568Yu6rayeTnXM4k85NE0m/+UCJpTgj0VCLuag4EQALXMThLgMAAA==
+X-CMS-MailID: 20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594
+References: <iv6oalr6yuwsfkoxnorp4t77fdjheteyojauwf2phshucdxatf@ominy3hfcpxb>
+	<CGME20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594@epcas5p2.samsung.com>
 
-On Wed, Feb 12, 2025 at 11:22:35AM -0800, Jacob Pan wrote:
+>On Mon, Feb 10, 2025 at 12:48:03PM +0100, leonardi@redhat.com wrote:
+>>Like for the other patch, some maintainers have not been CCd.
+>
+>Yes, please use `scripts/get_maintainer.pl`.
+>
 
-> Do you foresee the implementation can leverage your generic iommu_pt
-> work? i.e. for building guest IO page tables. It will add a new flavor
-> (page table based in addition to map/unmap) to
-> viommu_domain_alloc_paging() i think.
+Ok, I will add other maintainers by this script in next push.
+ 
+>>
+>>On Fri, Feb 07, 2025 at 01:20:33PM +0800, Junnan Wu wrote:
+>>>From: Ying Gao <ying01.gao@samsung.com>
+>>>
+>>>If suspend is executed during vsock communication and the
+>>>socket is reset, the original socket will be unusable after resume.
+>
+>Why? (I mean for a good commit description)
+>
+>>>
+>>>Judge the value of vdev->priv in function virtio_vsock_vqs_del,
+>>>only when the function is invoked by virtio_vsock_remove,
+>>>all vsock connections will be reset.
+>>>
+>>The second part of the commit message is not that clear, do you mind 
+>>rephrasing it?
+>
+>+1 on that
+>
 
-Yes I do, I think it should be no problem and it will bring the
-missing x86 formats that are currently not available in iopgtbl
-wrappers.
+Well, I will rephrase it in next version.
 
-I'm working toward getting a cut back AMD only series ready to post,
-the other series on the iommu-pages should be the last preperation
-work.
+>Also in this case, why checking `vdev->priv` fixes the issue?
+>
+>>
+>>>Signed-off-by: Ying Gao <ying01.gao@samsung.com>
+>>Missing Co-developed-by?
+>>>Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+>>
+>>
+>>>---
+>>>net/vmw_vsock/virtio_transport.c | 6 ++++--
+>>>1 file changed, 4 insertions(+), 2 deletions(-)
+>>>
+>>>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>>>index 9eefd0fba92b..9df609581755 100644
+>>>--- a/net/vmw_vsock/virtio_transport.c
+>>>+++ b/net/vmw_vsock/virtio_transport.c
+>>>@@ -717,8 +717,10 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
+>>>	struct sk_buff *skb;
+>>>
+>>>	/* Reset all connected sockets when the VQs disappear */
+>>>-	vsock_for_each_connected_socket(&virtio_transport.transport,
+>>>-					virtio_vsock_reset_sock);
+>>I would add a comment explaining why you are adding this check.
+>
+>Yes, please.
+>
 
-Certainly I would be happy to help you get it implemented if that is
-your interest.
+Ok, I left a comment here in next version
+
+>>>+	if (!vdev->priv) {
+>>>+		vsock_for_each_connected_socket(&virtio_transport.transport,
+>>>+						virtio_vsock_reset_sock);
+>>>+	}
+>
+>Okay, after looking at the code I understood why, but please write it 
+>into the commit next time!
+>
+>virtio_vsock_vqs_del() is called in 2 cases:
+>1 - in virtio_vsock_remove() after setting `vdev->priv` to null since
+>     the drive is about to be unloaded because the device is for example
+>     removed (hot-unplug)
+>
+>2 - in virtio_vsock_freeze() when suspending, but in this case
+>     `vdev->priv` is not touched.
+>
+>I don't think is a good idea using that because in the future it could 
+>change. So better to add a parameter to virtio_vsock_vqs_del() to 
+>differentiate the 2 use cases.
+>
+>
+>That said, I think this patch is wrong:
+>
+>We are deallocating virtqueues, so all packets that are "in flight" will 
+>be completely discarded. Our transport (virtqueues) has no mechanism to 
+>retransmit them, so those packets would be lost forever. So we cannot 
+>guarantee the reliability of SOCK_STREAM sockets for example.
+>
+>In any case, after a suspension, many connections will be expired in the 
+>host anyway, so does it make sense to keep them open in the guest?
+>
+
+If host still holds vsock connection during suspend,
+I think guest should keep them open at this case.
+
+Because we find a scenario that when we do freeze at the time that vsock
+connection is communicating, and after restore, upper application
+is trying to continue sending msg via vsock, then error `ENOTCONN`
+returned in function `vsock_connectible_sendmsg`. But host does not realize
+this thing and still waiting to receive msg with old connect.
+If host doesn't close old connection, it will cause that guest
+can never connect to host via vsock because of error `EPIPE` returned.
+
+If we freeze vsock after sending and receiving data operation completed,
+this error will not happen, and guest can still connect to host after resume.
+
+For example:
+In suitaion 1), if we do following steps
+    step 1) Host start a vsock server
+    step 2) Guest start a vsock client which will no-limited sending data
+    step 3) Guest freeze and resume
+Then vsock connection will be broken and guest can never connect to host via
+vsock untill Host reset vsock server.
+
+And in suitaion 2), if we do following steps
+    step1) Host start a vsock server
+    step2) Guest start a vsock client and send some data
+    step3) After client completed transmit, Guest freeze and resume
+    step4) Guest start a new vsock client and send some data
+In this suitaion, host server don't need to reset, and guest client works well
+after resume.
+
+>If you want to support this use case, you must first provide a way to 
+>keep those packets somewhere (e.g. avoiding to remove the virtqueues?), 
+>but I honestly don't understand the use case.
+>
+
+In cases guest sending no-reply-required packet via vsock,
+when guest suspend, the sending action will also suspend
+and no packets will loss after resume.
+
+And when host is sending packet via vsock when guest suspend and Vq disapper,
+like you mentioned, those packets will loss.
+But I think those packets should be keep in host device side,
+and promise that once guest resume,
+get them in host device and continue sending.
 
 Thanks,
-Jason
+Junnan Wu
+
+>To be clear, this behavior is intended, and it's for example the same as 
+>when suspending the VM is the hypervisor directly, which after that, it 
+>sends an event to the guest, just to close all connections because it's 
+>complicated to keep them active.
+>
+>Thanks,
+>Stefano
+>
+>
+>
+>>>
+>>>	/* Stop all work handlers to make sure no one is accessing the device,
+>>>	 * so we can safely call virtio_reset_device().
+>>>-- 
+>>>2.34.1
+>>>
+>>
+>>I am not familiar with freeze/resume, but I don't see any problems 
+>>with this patch.
+>>
+>>Thank you,
+>>Luigi
+>>
