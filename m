@@ -1,198 +1,153 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2314227EBC
-	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 13:17:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BD04245024
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 14:47:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739452667; cv=none; b=rLqSg2CPAobZ5WWryfPdzUtMbkH0FRa+ArBDHqEZt88X0ny1kVxUs0gThQWnxFjDkKRGIalNcznSI98XU9xxHvbEfEhj1P/PNYTj7Yvcqqp4/J9bCHfYnx7Ox7KOfBsEKpI+bW7wvc04kljmLGi84cji96PdSkrOMRbSDj51/gg=
+	t=1739458045; cv=none; b=jBOAB2EZYkx6821I5JewSMQdgt1aTWziW3Y1SWOWEh6QK8Uz8DVS9oZR2sIS8aNuIJ3Fmw3OV8F+W8+kSJkzK90mY+cDt89PZTVh4M+9KkSI3i1MfhYMt0uvYDAD2mb9PBa3d4ln3Ph3WTHOSS07C0FbtgnovRCc5xw+hxf5DEY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739452667; c=relaxed/simple;
-	bh=ZOrVSjQ6x7PTk/9ctQhhG+ZGpSsFcwHe8JsFOyeSGXE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EocPFoguGi/aGRQbSEk54twDzGpEMATyKqMRUY7paJxkarNdHJufB5keuLifMYm4maU34p8q1+QDQZJTBfeN74b+uOxgkso67YM7jipkckXMewk8kkrIyBe/jX/dNSfOzcMrC0C749YvGbyDpqH1GfXbyikVw1AVENitNesvjxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JL7QpGKI; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1739458045; c=relaxed/simple;
+	bh=tPhyVVJDg+eB9kkF+HosG3iztKpJSHNf3iCVuHVuR0Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ecFibFLmWntMkh6Gh4oKOGCDHJHyKw7ox3x1vWBN7GNGj8Tlk9PO8vgDbgV48OfFOhL6UhAATxxGSFMj8x5WKHl4MbgL3DJ3bNGvEb6N4YQkGqBU/IYGj95DtVlQqI3ugmNGbtLeMz3B03BqDqzvrDlnkWAfZZj17bSRZih0yJw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ENTsJjDT; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JL7QpGKI"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-ab7c14b880dso191970066b.1
-        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 05:17:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739452664; x=1740057464; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=lcBu1mmfCOw9BS5+FJzHYiV0BhZGp25NekRfDcZi1qw=;
-        b=JL7QpGKIWPmOSvBOryrMzqzmLKgj8pIQ6a26awE3kI0rRkGKKA9O1MspPJem3BBwdL
-         9hQmc7CgtjdxeYTYRhdlvwdfFGSA1I49+XiPebrFwZfpcjZsPB+7nDjFMyoaas1P3qyz
-         GeAXl46o6FzfsBK+aOLqwYvRdbOu1zuix3Mbcj3376GZmC1Vc4awFVkVapitJYRiLOkr
-         Pm0SH4rfhiiOeRg4M2cW/8wPi/A5BWvS5yTdKDnJeOksbuh1QaAWfl9zzB9QLK2Su09y
-         3hbPyqyYtgHJJwe5kiUNiqOloVplB/25o+KHWB8+umm1wsf1Dyoc/WTCH7jlq0+/4h6l
-         LkQg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ENTsJjDT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1739458042;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZAKfOutKaK2ALg6/h1nMfRqlupNtDP/2Xy+rsmNojjc=;
+	b=ENTsJjDTM5+8wVNgEKEWPJlEFc7ttqtQtMT36YUqwRCQNDHrRUiosRx9A57Dt+f57HNKVT
+	g/M1QUm06byNA8WuovkNcHJuYUaiXul2MAi9JGWxfq4yyoptVL9a8ks0SbDfWLNbIfGdQG
+	LjirFsHh3JI0FuMTVAuWVnOQvIe7Q2E=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-288-1rmVIdkXNfy1olfs1USsEQ-1; Thu, 13 Feb 2025 09:47:19 -0500
+X-MC-Unique: 1rmVIdkXNfy1olfs1USsEQ-1
+X-Mimecast-MFC-AGG-ID: 1rmVIdkXNfy1olfs1USsEQ_1739458039
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-6f2793679ebso14365197b3.0
+        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 06:47:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739452664; x=1740057464;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=lcBu1mmfCOw9BS5+FJzHYiV0BhZGp25NekRfDcZi1qw=;
-        b=XXaYb266cwVe7suiEQa31CcvoCUJ5D9LA8mnY+Pxsf4kY98jBhAi7rj598xJVSeWmp
-         JYyifmdWVG/iQ1qnbtVjY5p/yxsqc/W/j4PWbP6CEHzp24pAgJm0tfhCk5R3RD7afVrJ
-         Y1Aewn0wa5R7OUgEPdsd4aOM32UKQTZ0pZvkNESBU57iz/eCeo+6vrfSprbjmFts+v5Y
-         08PwJZWR9CqBB6xzq8vv0O9XzhbrrEpo21WqBQj2d2XjdSvjrYVaB3ZT7qEZBeDHNlQb
-         AWD8G1jp39SO1gsRhXfshYy5vp9H8aYRqzNJor1Icw/MpVrxLddfwij4WVH9p1zlZffi
-         A0lw==
-X-Forwarded-Encrypted: i=1; AJvYcCUSwmk5g/JOGSfTJRBElRpIw8oZDOtnv+qssR0ceRAHSnSp0t2tgLYshliMhbMrrszFgQe/NBKUKnc78hSAsA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyZNim03b7FHp16aYrSyWk3Huh9cX+FTSh11qXeol2NfO+nlBdn
-	RE86155vSHInciJc/gqgva+Q/Xc3ZDltgayIZ8aYKAUIjRBO1pti/KD/N7Ke
-X-Gm-Gg: ASbGncsZOdmfjwuaU3NhpGe672mh0fGSnEwmi9lBpln3kyoAYicEq6cOvbr23wHkIH9
-	WqCxjbZO4fnvZibK3UlG9wARWpcOpg+tRatSWF9vq+wJRCWoFS/AFEVVGHg6wFRIMtYdpJPEoJ4
-	zZIWA6roFpms8oQkw97ZRftqBGEmguFPoru1JM47s+kTpt0Po3qIHUKu6bQ8GDD4SZ6xhXE43CL
-	Sot3zb5G6U1LDvpW/5sHu8L2SG9sHc8c9Blg3Z0Clby3cGi1xaA7cuTABGc4qITHaPuy9lAy5OU
-	nyB90MNeLmNPnjCYOpeXyuIJupSCVNeTwqyI2WAjLrHShVwo
-X-Google-Smtp-Source: AGHT+IHYSRmvacENlOHPaEcGh9qwXupY4qr9g756WVVr7uCCm+4s+x/aI/sqeelBWyHDGxCBfNiyaQ==
-X-Received: by 2002:a17:907:cf8a:b0:ab7:b878:e8bc with SMTP id a640c23a62f3a-ab7f387457fmr769377466b.38.1739452663746;
-        Thu, 13 Feb 2025 05:17:43 -0800 (PST)
-Received: from ?IPV6:2620:10d:c096:325:77fd:1068:74c8:af87? ([2620:10d:c092:600::1:1ba9])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aba53280ee4sm130506966b.78.2025.02.13.05.17.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Feb 2025 05:17:43 -0800 (PST)
-Message-ID: <9210a12c-9adb-46ba-b92c-90fd07e1980f@gmail.com>
-Date: Thu, 13 Feb 2025 13:18:42 +0000
+        d=1e100.net; s=20230601; t=1739458039; x=1740062839;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ZAKfOutKaK2ALg6/h1nMfRqlupNtDP/2Xy+rsmNojjc=;
+        b=lWYzBhAPvOYxSUDfMxVvgD2Mm6Jk4+sEXSImwDSijE8uve60UZYQOj9f+h5WKqk1dn
+         0BpEUOvlJt4GEkHVwZmoAesc/H7praDxSoUq5hHhRgoP4tWDGoKFS3IrbkEOqFYwbihY
+         jBuDNyD458DEo2C07mAeq4WWpkSgrODvaLvlkgZrlXvH7ji1HGSQEoKFZDhkRFLIAF1G
+         fdHQ9MmgPjBrchbAXzIENwXxNWmrGCyI3ikGDGUaVy0P2MZOMdLiSJuVmHCfuZbtGbab
+         +KQ3Nt6iQEKEqz5FayEHhCv/SrfXStmZRi7pZ7HZXv0yOP6DyU3HMwLPg7L7Y50lvL0I
+         FOtw==
+X-Forwarded-Encrypted: i=1; AJvYcCUUh+FSYabxpOyB3bP6nbqczLdEuLQ0jodTqC4ZA3E/rTTwFHOjzQxJ0TzMs7M4+3zWXlWKsu+fdY89cSNmIw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy1Xd9ub7PA8CnAN2ul8jRCuxbcfgXc9h7NGb35GdSYUfQPZW1W
+	G4ZyOr/E9Axnz9WPeYbgpHptB2HnaWmfo5K+q1csx1ILfK0F0edElOS2dBA/hsdWRafZ2zIXD3+
+	kAydn2baT7+IXHT17KguhyLMFC5UFqo7qmRIqZGM/BKPnlitj6FS1e1Ek2zHKXWtAyvCqpZy1/C
+	+FJ4oJ0rP7CbmPall0tZP8fE36Uc+0+tBnsDpWSMs=
+X-Gm-Gg: ASbGncsOgEvm4yf3mAqc3cQV/Ri1MbvQLllNx2qhNpgajCd/IztHF8SNoF6tZUfTYzT
+	cBpLmbLUBxDhcpe39YNb6sc+IuYxrwzoXbMdwNvWO08YRYZQMBCxbR4CCyVzx
+X-Received: by 2002:a05:690c:690e:b0:6f7:406e:48d with SMTP id 00721157ae682-6fb1f29bcfdmr76979537b3.35.1739458038735;
+        Thu, 13 Feb 2025 06:47:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHEeHYNZFDgV2vgtp07+EXLG6diJ0WLxws7MaPqF2P91HH13rbU2aou20GjoSl6bzof2WHxUqurRf5pGgUAIn4=
+X-Received: by 2002:a05:690c:690e:b0:6f7:406e:48d with SMTP id
+ 00721157ae682-6fb1f29bcfdmr76979187b3.35.1739458038365; Thu, 13 Feb 2025
+ 06:47:18 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3 5/6] net: devmem: Implement TX path
-To: Mina Almasry <almasrymina@google.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org,
- Donald Hunter <donald.hunter@gmail.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Neal Cardwell <ncardwell@google.com>, David Ahern <dsahern@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
- sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>,
- Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
- <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>,
- Kaiyuan Zhang <kaiyuanz@google.com>
-References: <20250203223916.1064540-1-almasrymina@google.com>
- <20250203223916.1064540-6-almasrymina@google.com>
- <abc22620-d509-4b12-80ac-0c36b08b36d9@gmail.com>
- <CAHS8izNOqaFe_40gFh09vdBz6-deWdeGu9Aky-e7E+Wu2qtfdw@mail.gmail.com>
- <28343e83-6d93-4002-a691-f8273d4d24a8@gmail.com>
- <CAHS8izOE-JzMszieHEXtYBs7_6D-ngVx2kJyMwp8eCWLK-c0cQ@mail.gmail.com>
-Content-Language: en-US
-From: Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <CAHS8izOE-JzMszieHEXtYBs7_6D-ngVx2kJyMwp8eCWLK-c0cQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <gr5rqfwb4qgc23dadpfwe74jvsq37udpeqwhpokhnvvin6biv2@6v5npbxf6kbn>
+ <CGME20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8@epcas5p2.samsung.com>
+ <20250213012805.2379064-1-junnan01.wu@samsung.com> <4n2lobgp2wb7v5vywbkuxwyd5cxldd2g4lxb6ox3qomphra2gd@zhrnboczbrbw>
+In-Reply-To: <4n2lobgp2wb7v5vywbkuxwyd5cxldd2g4lxb6ox3qomphra2gd@zhrnboczbrbw>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Thu, 13 Feb 2025 15:47:07 +0100
+X-Gm-Features: AWEUYZk5_r-tBhZvoaLYlDqhO9_sUVYkjzi-JYbjI9o8ZFZY67uC4S7eLbX9jnQ
+Message-ID: <CAGxU2F7PKH34N7Jd5d=STCAybJi-DDTB-XGiXSAS9BBvGVN4GA@mail.gmail.com>
+Subject: Re: [Patch net 1/2] vsock/virtio: initialize rx_buf_nr and
+ rx_buf_max_nr when resuming
+To: Junnan Wu <junnan01.wu@samsung.com>
+Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
+	lei19.wang@samsung.com, linux-kernel@vger.kernel.org, mst@redhat.com, 
+	netdev@vger.kernel.org, pabeni@redhat.com, q1.huang@samsung.com, 
+	stefanha@redhat.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com, ying01.gao@samsung.com, ying123.xu@samsung.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 6swp8ftF7OiGKk2Prr8HBbEntogrWpyx7iSmK9NV2Rs_1739458039
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 2/12/25 19:18, Mina Almasry wrote:
-> On Wed, Feb 12, 2025 at 7:52 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
->>
->> On 2/10/25 21:09, Mina Almasry wrote:
->>> On Wed, Feb 5, 2025 at 4:20 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
->>>>
->>>> On 2/3/25 22:39, Mina Almasry wrote:
->>>> ...
->>>>> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
->>>>> index bb2b751d274a..3ff8f568c382 100644
->>>>> --- a/include/linux/skbuff.h
->>>>> +++ b/include/linux/skbuff.h
->>>>> @@ -1711,9 +1711,12 @@ struct ubuf_info *msg_zerocopy_realloc(struct sock *sk, size_t size,
->>>> ...
->>>>>     int zerocopy_fill_skb_from_iter(struct sk_buff *skb,
->>>>>                                 struct iov_iter *from, size_t length);
->>>>> @@ -1721,12 +1724,14 @@ int zerocopy_fill_skb_from_iter(struct sk_buff *skb,
->>>>>     static inline int skb_zerocopy_iter_dgram(struct sk_buff *skb,
->>>>>                                           struct msghdr *msg, int len)
->>>>>     {
->>>>> -     return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_iter, len);
->>>>> +     return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_iter, len,
->>>>> +                                    NULL);
->>>>
->>>> Instead of propagating it all the way down and carving a new path, why
->>>> not reuse the existing infra? You already hook into where ubuf is
->>>> allocated, you can stash the binding in there. And
->>>
->>> It looks like it's not possible to increase the side of ubuf_info at
->>> all, otherwise the BUILD_BUG_ON in msg_zerocopy_alloc() fires.
->>>
->>> It's asserting that sizeof(ubuf_info_msgzc) <= sizeof(skb->cb), and
->>> I'm guessing increasing skb->cb size is not really the way to go.
->>>
->>> What I may be able to do here is stash the binding somewhere in
->>> ubuf_info_msgzc via union with fields we don't need for devmem, and/or
->>
->> It doesn't need to account the memory against the user, and you
->> actually don't want that because dmabuf should take care of that.
->> So, it should be fine to reuse ->mmp.
->>
->> It's also not a real sk_buff, so maybe maintainers wouldn't mind
->> reusing some more space out of it, if that would even be needed.
->>
-> 
-> netmem skb are real sk_buff, with the modification that frags are not
+On Thu, 13 Feb 2025 at 10:25, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>
+> On Thu, Feb 13, 2025 at 09:28:05AM +0800, Junnan Wu wrote:
+> >>You need to update the title now that you're moving also queued_replies.
+> >>
+> >
+> >Well, I will update the title in V3 version.
+> >
+> >>On Tue, Feb 11, 2025 at 03:19:21PM +0800, Junnan Wu wrote:
+> >>>When executing suspend to ram twice in a row,
+> >>>the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
+> >>>Then after virtqueue_get_buf and `rx_buf_nr` decreased
+> >>>in function virtio_transport_rx_work,
+> >>>the condition to fill rx buffer
+> >>>(rx_buf_nr < rx_buf_max_nr / 2) will never be met.
+> >>>
+> >>>It is because that `rx_buf_nr` and `rx_buf_max_nr`
+> >>>are initialized only in virtio_vsock_probe(),
+> >>>but they should be reset whenever virtqueues are recreated,
+> >>>like after a suspend/resume.
+> >>>
+> >>>Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
+> >>>virtio_vsock_vqs_init(), so we are sure that they are properly
+> >>>initialized, every time we initialize the virtqueues, either when we
+> >>>load the driver or after a suspend/resume.
+> >>>At the same time, also move `queued_replies`.
+> >>
+> >>Why?
+> >>
+> >>As I mentioned the commit description should explain why the changes are
+> >>being made for both reviewers and future references to this patch.
+> >>
+> >
+> >After your kindly remind, I have double checked all locations where `queued_replies`
+> >used, and we think for order to prevent erroneous atomic load operations
+> >on the `queued_replies` in the virtio_transport_send_pkt_work() function
+> >which may disrupt the scheduling of vsock->rx_work
+> >when transmitting reply-required socket packets,
+> >this atomic variable must undergo synchronized initialization
+> >alongside the preceding two variables after a suspend/resume.
+>
+> Yes, that was my concern!
+>
+> >
+> >If we reach agreement on it, I will add this description in V3 version.
+>
+> Yes, please, I just wanted to point out that we need to add an
+> explanation in the commit description.
+>
+> And in the title, in this case though listing all the variables would
+> get too long, so you can do something like that:
+>
+>      vsock/virtio: fix variables initialization during resuming
 
-We were discussing ubuf_info allocation, take a look at
-msg_zerocopy_alloc(), it has nothing to do with netmems and all that.
+I forgot to mention that IMHO it's better to split this series.
+This first patch (this one) seems ready, without controversy, and it's
+a real fix, so for me v3 should be a version ready to be merged.
 
-> readable, only in the case that the netmem is unreadable. I would not
-> approve of considering netmem/devmem skbs "not real skbs", and start
-> messing with the semantics of skb fields for devmem skbs, and having
-> to start adding skb_is_devmem() checks through all code in the skb
-> handlers that touch the fields being overwritten in the devmem case.
-> No, I don't think we can re-use random fields in the skb for devmem.
-> 
->>> stashing the binding in ubuf_info_ops (very hacky). Neither approach
->>> seems ideal, but the former may work and may be cleaner.
->>>
->>> I'll take a deeper look here. I had looked before and concluded that
->>> we're piggybacking devmem TX on MSG_ZEROCOPY path, because we need
->>> almost all of the functionality there (no copying, send complete
->>> notifications, etc), with one minor change in the skb filling. I had
->>> concluded that if MSG_ZEROCOPY was never updated to use the existing
->>> infra, then it's appropriate for devmem TX piggybacking on top of it
->>
->> MSG_ZEROCOPY does use the common infra, i.e. passing ubuf_info,
->> but doesn't need ->sg_from_iter as zerocopy_fill_skb_from_iter()
->> and it's what was there first.
->>
-> 
-> But MSG_ZEROCOPY doesn't set msg->msg_ubuf. And not setting
-> msg->msg_ubuf fails to trigger msg->sg_from_iter altogether.
-> 
-> And also currently sg_from_iter isn't set up to take in a ubuf_info.
-> We'd need that if we stash the binding in the ubuf_info.
+While the other patch is more controversial and especially not a fix
+but more of a new feature, so I don't think it makes sense to continue
+to have these two patches in a single series.
 
-https://github.com/isilence/linux.git sg-iter-ops
-
-I have old patches for all of that, they even rebased cleanly. That
-should do it for you, and I need to send then regardless of devmem.
-
-
-> All in all I think I wanna prototype an msg->sg_from_iter approach and
-> make a judgement call on whether it's cleaner than just passing the
-> binding through a couple of helpers just as I'm doing here. My feeling
-> is that the implementation in this patch may be cleaner than
-> refactoring the entire msg_ubuf/sg_from_iter flows so we can sort of
-> use it for MSG_ZEROCOPY with devmem when it currently doesn't use it.
-> 
->>> to follow that. I would not want to get into a refactor of
->>> MSG_ZEROCOPY for no real reason.
->>>
->>> But I'll take a deeper look here and see if I can make something
->>> slightly cleaner work.
-
--- 
-Pavel Begunkov
+Thanks,
+Stefano
 
