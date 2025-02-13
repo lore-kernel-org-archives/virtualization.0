@@ -1,58 +1,58 @@
 Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74DB070810
-	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 00:54:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0770B13792B
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 01:27:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739408070; cv=none; b=JnZpyeRAkawCgDsa/Eyr0ucg8wAhultAt5SIn2Nq2yEU9gEwFIPqxrwdYaSKDS9IzvA+cPt9tCQraVOgfSCxC90XdCDeKzEYTd4cqinToVLZIBWZjFTNgVhKZSBJr8sPEaFqLw6XSLO14DM/vFFhUsza3UuADkvXvU6uu7d12wU=
+	t=1739410056; cv=none; b=HmMfIcmY0iHdrETCKuzFpH6zld5aVv9nAb9FrJx/q/nKKPJ0y1pBSS8xBRbdNOfR1q9rZ4QjGfFb4AliMTr5X6IAeK1L6XM6ljRtlLBDzaESBSSKTDaTgjsrCueW7tnrQA6j6CcKjAip7RsdR5Tz3iQTY+CGWKoZdbIXuWyyGak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739408070; c=relaxed/simple;
-	bh=kgUFriaHckAX/UICIIOkdTeA5rYC2/8rEcYmDesObJk=;
+	s=arc-20240116; t=1739410056; c=relaxed/simple;
+	bh=K1KJcO/iMIszsejQubSSJo5rLiAltDSQBLIwlW4rkFI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=FB3WXHlaKUb8D2T5StQDibepfTaaLPUk/BREhFAGVBf13G7mEZfKITF8ek9BkoarC2p5EOyKPSeNx07xI9VlFqc0DiewtpHXLvAoUidWmFdH5mRYHCktiM1wabJDfzrg3g7DZDtpxbStWDBIJoMc7ECXrV4hQyjtJ3wx65rJBYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=Uvxanwg7; arc=none smtp.client-ip=203.254.224.24
+	 Content-Type:References; b=ZDg2zG7CYRw3waZVgwaFZEvECPPRAOiCQpl4h0iIZFeVoOfmu5uwClp+F8utJ7uLfaLiXsC8y/TzD4oVeiV7dfs0eu4rQyzPHvdJWlgyGUipVSLc3y5hhz46Q0ORY5ryd+8nWQLByjPkgcXdsKPrG5ss8xjkjWkvox6AeM31VlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=uhhqpX35; arc=none smtp.client-ip=203.254.224.24
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="Uvxanwg7"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="uhhqpX35"
 Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250213005425epoutp012c580c931f83b50c2a5b4ea1f4b7559b~jnmtsR_1u0963509635epoutp01C
-	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 00:54:25 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250213005425epoutp012c580c931f83b50c2a5b4ea1f4b7559b~jnmtsR_1u0963509635epoutp01C
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250213012732epoutp012f2135bcc76fa414e81141f62becd697~joDn-HL580892408924epoutp01A
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 01:27:32 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250213012732epoutp012f2135bcc76fa414e81141f62becd697~joDn-HL580892408924epoutp01A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1739408065;
-	bh=Udyyr3+c9lIf9GcZ3IJILI+Ye26O93De7LR99Gj/9uc=;
+	s=mail20170921; t=1739410052;
+	bh=cUNcxOwztr93Bkz78+ZRLsndQixwVjIGrEz9jLDFpWY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Uvxanwg7NRlXF3/LAqEPBmNQxfQKwWQTNuq3QQg+rrtyjYCFLgw3z6p5v9iY/je0g
-	 T+nNlhqiFysq5JLSebtUWq59BzafjePjr6PJ6tQUIdT4ajL7zx0LWwON741h7k8H/l
-	 6dKx77lOfcq33nbwfG3hL6k+n6qrrduMRhrFPbiU=
+	b=uhhqpX35kp9D1ni5no1E5IccHc23T2G9lyDkd13WwedzYz2vi0b8e4mi6Lnw4NDHZ
+	 sLPb0ZRzmLViLmp6nhMaD2gzJTXrY9PGP40QbkIY0sj0vU4txPjY767MljrQfxfTmL
+	 QCRlPdTB8LmR0rYCtZw0DAn7kDqTJ8I5ue5p3f6A=
 Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
 	epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-	20250213005424epcas5p4f032cb96bade799d688f14d852cd760a~jnms77Sy70467304673epcas5p4q;
-	Thu, 13 Feb 2025 00:54:24 +0000 (GMT)
-Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.175]) by
-	epsnrtp3.localdomain (Postfix) with ESMTP id 4YtcC30nT0z4x9Q0; Thu, 13 Feb
-	2025 00:54:23 +0000 (GMT)
-Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-	epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	CC.65.19710.EB24DA76; Thu, 13 Feb 2025 09:54:23 +0900 (KST)
+	20250213012730epcas5p414b410c5ac1edad9af12bc84dfc954bf~joDm3sUjB1474714747epcas5p4v;
+	Thu, 13 Feb 2025 01:27:30 +0000 (GMT)
+Received: from epsmges5p2new.samsung.com (unknown [182.195.38.174]) by
+	epsnrtp3.localdomain (Postfix) with ESMTP id 4YtcxF4CRTz4x9Q7; Thu, 13 Feb
+	2025 01:27:29 +0000 (GMT)
+Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
+	epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	81.B6.19933.18A4DA76; Thu, 13 Feb 2025 10:27:29 +0900 (KST)
 Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
 	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-	20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594~jXJWfa6WE0590205902epcas5p2Y;
-	Wed, 12 Feb 2025 04:47:58 +0000 (GMT)
-Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
+	20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8~joDezkhkP2020120201epcas5p2f;
+	Thu, 13 Feb 2025 01:27:22 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
 	epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-	20250212044758epsmtrp2eb9ed694647f7cc135ec78bea36e710b~jXJWeRLdi1049510495epsmtrp2D;
-	Wed, 12 Feb 2025 04:47:58 +0000 (GMT)
-X-AuditID: b6c32a44-36bdd70000004cfe-12-67ad42be62a3
+	20250213012722epsmtrp2151ed053faea735a7b8c7f91b215dcd6~joDesL5qW2391223912epsmtrp2B;
+	Thu, 13 Feb 2025 01:27:22 +0000 (GMT)
+X-AuditID: b6c32a4a-c1fda70000004ddd-79-67ad4a81014e
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-	epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	14.8B.18949.EF72CA76; Wed, 12 Feb 2025 13:47:58 +0900 (KST)
+	epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	F8.A4.18729.97A4DA76; Thu, 13 Feb 2025 10:27:21 +0900 (KST)
 Received: from asg29.. (unknown [109.105.129.29]) by epsmtip2.samsung.com
 	(KnoxPortal) with ESMTPA id
-	20250212044756epsmtip25c699e119d66b569633d23b44a6db2b9~jXJUAOdwh2400724007epsmtip2d;
-	Wed, 12 Feb 2025 04:47:55 +0000 (GMT)
+	20250213012719epsmtip2284086063341bdcb19d2c59a50b4a97f~joDcabYEG2733127331epsmtip2e;
+	Thu, 13 Feb 2025 01:27:19 +0000 (GMT)
 From: Junnan Wu <junnan01.wu@samsung.com>
 To: sgarzare@redhat.com
 Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
@@ -62,12 +62,12 @@ Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
 	pabeni@redhat.com, q1.huang@samsung.com, stefanha@redhat.com,
 	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
 	ying01.gao@samsung.com, ying123.xu@samsung.com
-Subject: RE: Re: [PATCH 2/2] vsock/virtio: Don't reset the created SOCKET
- during s2r
-Date: Wed, 12 Feb 2025 12:48:43 +0800
-Message-Id: <20250212044843.254862-1-junnan01.wu@samsung.com>
+Subject: Re: Re: [Patch net 1/2] vsock/virtio: initialize rx_buf_nr and
+ rx_buf_max_nr when resuming
+Date: Thu, 13 Feb 2025 09:28:05 +0800
+Message-Id: <20250213012805.2379064-1-junnan01.wu@samsung.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <iv6oalr6yuwsfkoxnorp4t77fdjheteyojauwf2phshucdxatf@ominy3hfcpxb>
+In-Reply-To: <gr5rqfwb4qgc23dadpfwe74jvsq37udpeqwhpokhnvvin6biv2@6v5npbxf6kbn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,211 +75,136 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA02TfUxbVRjGc3p7LxeS4h0gnGHYmm6okACto+zggOAks9kIIX4whkGs9K4l
-	hbb2Y26oWRnNkM+xZSWCyNCB0u7D0XUbhSGCljFIpRtjjCWgIF0ICt3EMC0KttxO99/vfc/z
-	vk+ec+4lsRAXEUkWKbS0WiEu5hFB7Kvfx7wY17f7gpRf9gkLNY8a2Mg1OBuAfvncFIBmTwwR
-	6Kvbyyw0dfc15Lxah6Nm4/voeNcYjsa6mwl0p60mAK17FnA02BqOVkZ+A6h90YEhR/1DHI02
-	r2Po11PrOLJfM+Ho7jGEnD94t/bNNuLp4SKraZIlarXoRBZzJSGyzSSL5i83ApH723FCVGc1
-	A9GyZUs2mSdPkdFiCa3m0opCpaRIIU3l7Xuj4NUCYRJfECdIRjt5XIW4hE7lZWRmx+0pKvZG
-	43EPiYt13la2WKPhJaSlqJU6Lc2VKTXaVB6tkhSrElXxGnGJRqeQxito7csCPv8loVf4rly2
-	draPUJ2KO3zruB7XA8v2KhBIQioRNtqmsSoQRIZQPQCev1GDM8XvAK48NAOmWAGwfs2FPxkp
-	tzv8B70ATrhbWUzxAMDZOWuAT0VQMXDoegfh4zAqAjpb2gifCKN6MPhzZ+XGQSiVAydOTm6s
-	ZVPR8NJCNeZjDpUK9cfOAcZuK+zrd2z0A6ks+M/9Lhaj2QRvNs6xfYx5NeVXPttIAal5EjrO
-	tbOY4QxYZpgKYDgULtyw+jkSLi/1EgzLYa3d42ctrF667c+5C45erPAuJb0GMfCb7gSmHQWN
-	wxdZjG8wrF2d81txYFeLj0kvR0N3/UdM+zloslj8riL4o76ZYC7rCwDvD7bj9YDb9FScpqfi
-	NP3v3AowM9hMqzQlUrpQqBIo6A/+e+ZCZYkFbHzvsRld4N6ZtfgBwCLBAIAkxgvjwIbz0hCO
-	RHyklFYrC9S6YlozAITe+z6JRT5bqPT+MAptgSAxmZ+YlJSUmLwjScCL4JTbDNIQSirW0nKa
-	VtHqJ3MsMjBSz2oav1yXy27xDN88ayoKx8d60r90cBI+NQ1o8lDQ4pnqnFtlpy2bdY3vDVfF
-	2F43NTRMjw3Nr/65C7e5RLbdWSORVvnWtbaftn0YU7ov2iqrlLf0O9dnOkdd3/W0ddSmGRzP
-	bDmYxXdL00wTb01nXsmX/LXjQQ7nRM3H1W+rBW+mXR+hJ2fyQ43JgS/slMxGVBy2h6s7Fkzu
-	o+/kdQvMj6XWImOULGw/hAdjdXLD0rb9XwdfKxUULkeluKZ6azcden5xadWdf+9vZ+c4WMg8
-	uufIKyvcx3srh7T2itwWt+5S997gvkcXPAeEi8P9EfSjO1V/6D0HjOVT6fr+uIztuflZPLZG
-	JhbEYmqN+F9x3znjeAQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprNIsWRmVeSWpSXmKPExsWy7bCSvO4/9TXpBru7NC3mnG9hsXh67BG7
+X-Brightmail-Tracker: H4sIAAAAAAAAA01Te0xTVxze6e29LSw1d6BygA2hDhfZgFZKORUhczLp1JGaLSRzcV1TbgoB
+	bksf2zAuwkQQFAcssBUYj4w5YKBYAXlKVh6DDQaTR1jASbEYAgpUJi4lGWt7cfO/7/f4ft/5
+	fuccLuZhJXy4SbSe0tKKFD7hzm7t3f9acOaxRpVg5q4vKh/NYqOFgXkOuv9tHQfNfzlIoKt3
+	1lno7lQsGmu9gqPy4jSU3TaOo/GOcgJN1FzmoC37Eo4GqnajjV8fAvT9oxEMjRSs4Wi0fAtD
+	y0VbOOq/VYejqS8QGutzTO2ZN+Jv7pY21/3BklaZDFJTfS4hbbdIpIs3jUC6enuSkF5prgfS
+	dZOfjHsq+VAipUigtP4UrVQnJNGqKP7x9+RH5OFigTBYKEERfH9akUpF8WNOyIKPJqU4rPH9
+	P1GkGBwpmUKn44dGH9KqDXrKP1Gt00fxKU1CikakCdEpUnUGWhVCU/qDQoHgQLij8ePkxI3c
+	ekIz7/VZUf8TkAH+8cwDblxIiuD9P2/iecCd60F2AmieWGYxwWMA/7rQBJhgA0BbexfxjGIu
+	aSeYQjeA31Vf3OY/ANAyVY07uwhyPxzsqnUxdpJecKyixsXAyE4Mzt3IdRU8SQoWPVxwEdhk
+	ILQNfe3CPDIajqzVchi5PbDnpxHMid3IOHjDuspmel6CQ0arC2OOnvMtZZhTAJJWLmzafOQ4
+	ONcRxMCJmmBmjidc+rl5e6YPXF/p3raTDPP77dtYDy+t3MEZHAlHr+VgzjGYw8z1jlAm/Qos
+	/uUai5HdAfM3rSwmz4NtFU7sVA2EqwVnmbQvrDOZtlWlDldDHGZX1QA+vprDKQD+pc+5KX3O
+	Ten/ylUAqwfelEaXqqJ04ZoDNPXpf7esVKeagOu5Bx1rA5a5tRAzYHGBGUAuxt/JgyUNKg9e
+	giL9DKVVy7WGFEpnBuGOdRdiPruUasd/ofVyoUgiEInFYpEkTCzke/HOt2epPEiVQk8lU5SG
+	0j7jsbhuPhks73OnopbSwi0yzu3MkuGI2oAhQUnowtshL4zPzkj2Xbe7W09bsivfVzaerGxr
+	3RFED0QX23Li5/TpEUGF8Q1xC0iJG5reZe/hrQ7abT8u9okjA//GYt0DRm99VHW2PS6jcNfe
+	d6ZZNWEfflVRkTnt2wrpDnl89oUu4/Lvh2V9cz60stiu4X5zsU4oOry3rFveUFnWVpj0op0Q
+	fJ5X5Pfq8NO3Zj1g5IPeN8K8+WemY0MpvOxgwLmWo4p8EhlmO23G07KV37IuvT67GbOVPpm9
+	OGxuuRc/V2O53NFI4DPpkoHJey3L6OWTx/clt3bybD8cedLrW/007UTPB36y/qUmIZ+tS1QI
+	gzCtTvEvluIvOHcEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprDIsWRmVeSWpSXmKPExsWy7bCSvG6l19p0gytTrS3mnG9hsXh67BG7
 	xeO5K9ktHvWfYLNYdukzk8Xda+4WF7b1sVrMmVpo0bbjMqvF5V1z2CyuLOlht/j/6xWrxbEF
 	YhbfTr9htFj69iyzxdkJH1gtzs/5z2zxetJ/Vouj21eyWlxrsrC4cARo6v5HM1kdxDy2rLzJ
-	5LFgU6nHplWdbB47H1p6vNg8k9Hj/b6rbB59W1YxenzeJBfAEcVlk5Kak1mWWqRvl8CV8W/x
-	fraCSboVF9saWBsYN6l0MXJySAiYSDQfPcvYxcjFISSwm1FiyvMjTBAJaYmu323MELawxMp/
-	z9lBbCGBJ4wS+14ogNhsApoSJ/asYAOxRQTEJS7MW8IGMohZ4DKzxLmfd8AahAVCJHr/bgcr
-	YhFQldjwqhtsKK+ArURD02pGiAXyEvsPngWLcwr4Sfy9tYMJYpmvRM+X44wQ9YISJ2c+YQGx
-	mYHqm7fOZp7AKDALSWoWktQCRqZVjJKpBcW56bnFhgVGeanlesWJucWleel6yfm5mxjB8ael
-	tYNxz6oPeocYmTgYDzFKcDArifCaLFyRLsSbklhZlVqUH19UmpNafIhRmoNFSZz32+veFCGB
-	9MSS1OzU1ILUIpgsEwenVAPTgdJjFd9fnzm4O2u2m23JhV+1VonaklfOHX/7hvNuVMmE3+b1
-	3FYsPwO6wk2nd75c3lRin8MT+lnd6THH/9jDCsovds+es1plf1Nt5DRVtzMeF9a+Dr3RaLwm
-	0d32lHRj5N2N35v8+bz8trOc2OR94FF1VtP9BXKep184XXs07bPI8ZPvLis87snf/Phi/e3k
-	2TPrnJev3PJM2njNeoe+5svnrugv4thoL7r/x5SPt24J2DaIL3m7t2q5mZJhjaT1v/zt3f0J
-	W0TfXk+9HPXwSW334pkmsUIHDb7KuJXvMzfYMiVB6fC97F/m2xPXq254qXtP/ci9eu1Zi+c9
-	3568Yu6rayeTnXM4k85NE0m/+UCJpTgj0VCLuag4EQALXMThLgMAAA==
-X-CMS-MailID: 20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594
+	5LFgU6nHplWdbB47H1p6vNg8k9Hj/b6rbB59W1YxenzeJBfAEcVlk5Kak1mWWqRvl8CV8a1z
+	FVvBI/GKSUe/MjYw/hPuYuTkkBAwkTg0bSdbFyMXh5DAbkaJo68WMEEkpCW6frcxQ9jCEiv/
+	PWeHKHrCKPFm4l92kASbgKbEiT0r2EBsEQFxiQvzloBNYha4zCxx7ucdsCJhgWSJw9d2gE1i
+	EVCV+HhyOiuIzStgJ3H2wwp2iA3yEvsPngWr4RTwk9j45D0LiC0k4Cux9W4vO0S9oMTJmU/A
+	4sxA9c1bZzNPYBSYhSQ1C0lqASPTKkbJ1ILi3PTcYsMCw7zUcr3ixNzi0rx0veT83E2M4AjU
+	0tzBuH3VB71DjEwcjIcYJTiYlUR4JaatSRfiTUmsrEotyo8vKs1JLT7EKM3BoiTOK/6iN0VI
+	ID2xJDU7NbUgtQgmy8TBKdXANHH3p8SOik+a38N6D1w+9Gi6+BUj5ZgvKv2pL1b+jmI0/te5
+	2/rDjHPv7pyLnbkjP/2xb6XUP2ZpG+v/Dvf623L+y9ls+7137T83rfyOzywmmtcZPXME2Ngd
+	vnW6HTvpt+iqEMeUN3FKJjP3pKnP++p7/6yGXkl7mHFccNkauR1ufzVYmCZniX2Z850nLyN/
+	h4CGvtQO2d/Mm714TXarLk73M10++73Xg6U/5nj+3GX6VFZJ63bV2ZZv3B0snO8mBp3Zd3zK
+	XaPcTx8/zVhovbh9sn/ncp0JMulVVnJyivefPZ2ewPuN+4mZw5p5TElO3f36xat9uz+Lvnx+
+	N/J5ksau6fELH5ZkPZpoJOPMq8RSnJFoqMVcVJwIAOvmwtgvAwAA
+X-CMS-MailID: 20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594
-References: <iv6oalr6yuwsfkoxnorp4t77fdjheteyojauwf2phshucdxatf@ominy3hfcpxb>
-	<CGME20250212044758epcas5p244c3add904f0ee06f669cd4c53a9e594@epcas5p2.samsung.com>
+X-CMS-RootMailID: 20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8
+References: <gr5rqfwb4qgc23dadpfwe74jvsq37udpeqwhpokhnvvin6biv2@6v5npbxf6kbn>
+	<CGME20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8@epcas5p2.samsung.com>
 
->On Mon, Feb 10, 2025 at 12:48:03PM +0100, leonardi@redhat.com wrote:
->>Like for the other patch, some maintainers have not been CCd.
->
->Yes, please use `scripts/get_maintainer.pl`.
+>You need to update the title now that you're moving also queued_replies.
 >
 
-Ok, I will add other maintainers by this script in next push.
- 
+Well, I will update the title in V3 version.
+
+>On Tue, Feb 11, 2025 at 03:19:21PM +0800, Junnan Wu wrote:
+>>When executing suspend to ram twice in a row,
+>>the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
+>>Then after virtqueue_get_buf and `rx_buf_nr` decreased
+>>in function virtio_transport_rx_work,
+>>the condition to fill rx buffer
+>>(rx_buf_nr < rx_buf_max_nr / 2) will never be met.
 >>
->>On Fri, Feb 07, 2025 at 01:20:33PM +0800, Junnan Wu wrote:
->>>From: Ying Gao <ying01.gao@samsung.com>
->>>
->>>If suspend is executed during vsock communication and the
->>>socket is reset, the original socket will be unusable after resume.
->
->Why? (I mean for a good commit description)
->
->>>
->>>Judge the value of vdev->priv in function virtio_vsock_vqs_del,
->>>only when the function is invoked by virtio_vsock_remove,
->>>all vsock connections will be reset.
->>>
->>The second part of the commit message is not that clear, do you mind 
->>rephrasing it?
->
->+1 on that
->
-
-Well, I will rephrase it in next version.
-
->Also in this case, why checking `vdev->priv` fixes the issue?
->
+>>It is because that `rx_buf_nr` and `rx_buf_max_nr`
+>>are initialized only in virtio_vsock_probe(),
+>>but they should be reset whenever virtqueues are recreated,
+>>like after a suspend/resume.
 >>
->>>Signed-off-by: Ying Gao <ying01.gao@samsung.com>
->>Missing Co-developed-by?
->>>Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
->>
->>
->>>---
->>>net/vmw_vsock/virtio_transport.c | 6 ++++--
->>>1 file changed, 4 insertions(+), 2 deletions(-)
->>>
->>>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->>>index 9eefd0fba92b..9df609581755 100644
->>>--- a/net/vmw_vsock/virtio_transport.c
->>>+++ b/net/vmw_vsock/virtio_transport.c
->>>@@ -717,8 +717,10 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
->>>	struct sk_buff *skb;
->>>
->>>	/* Reset all connected sockets when the VQs disappear */
->>>-	vsock_for_each_connected_socket(&virtio_transport.transport,
->>>-					virtio_vsock_reset_sock);
->>I would add a comment explaining why you are adding this check.
+>>Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
+>>virtio_vsock_vqs_init(), so we are sure that they are properly
+>>initialized, every time we initialize the virtqueues, either when we
+>>load the driver or after a suspend/resume.
+>>At the same time, also move `queued_replies`.
 >
->Yes, please.
+>Why?
+>
+>As I mentioned the commit description should explain why the changes are 
+>being made for both reviewers and future references to this patch.
 >
 
-Ok, I left a comment here in next version
+After your kindly remind, I have double checked all locations where `queued_replies`
+used, and we think for order to prevent erroneous atomic load operations 
+on the `queued_replies` in the virtio_transport_send_pkt_work() function
+which may disrupt the scheduling of vsock->rx_work
+when transmitting reply-required socket packets,
+this atomic variable must undergo synchronized initialization
+alongside the preceding two variables after a suspend/resume.
 
->>>+	if (!vdev->priv) {
->>>+		vsock_for_each_connected_socket(&virtio_transport.transport,
->>>+						virtio_vsock_reset_sock);
->>>+	}
->
->Okay, after looking at the code I understood why, but please write it 
->into the commit next time!
->
->virtio_vsock_vqs_del() is called in 2 cases:
->1 - in virtio_vsock_remove() after setting `vdev->priv` to null since
->     the drive is about to be unloaded because the device is for example
->     removed (hot-unplug)
->
->2 - in virtio_vsock_freeze() when suspending, but in this case
->     `vdev->priv` is not touched.
->
->I don't think is a good idea using that because in the future it could 
->change. So better to add a parameter to virtio_vsock_vqs_del() to 
->differentiate the 2 use cases.
->
->
->That said, I think this patch is wrong:
->
->We are deallocating virtqueues, so all packets that are "in flight" will 
->be completely discarded. Our transport (virtqueues) has no mechanism to 
->retransmit them, so those packets would be lost forever. So we cannot 
->guarantee the reliability of SOCK_STREAM sockets for example.
->
->In any case, after a suspension, many connections will be expired in the 
->host anyway, so does it make sense to keep them open in the guest?
->
+If we reach agreement on it, I will add this description in V3 version.
 
-If host still holds vsock connection during suspend,
-I think guest should keep them open at this case.
-
-Because we find a scenario that when we do freeze at the time that vsock
-connection is communicating, and after restore, upper application
-is trying to continue sending msg via vsock, then error `ENOTCONN`
-returned in function `vsock_connectible_sendmsg`. But host does not realize
-this thing and still waiting to receive msg with old connect.
-If host doesn't close old connection, it will cause that guest
-can never connect to host via vsock because of error `EPIPE` returned.
-
-If we freeze vsock after sending and receiving data operation completed,
-this error will not happen, and guest can still connect to host after resume.
-
-For example:
-In suitaion 1), if we do following steps
-    step 1) Host start a vsock server
-    step 2) Guest start a vsock client which will no-limited sending data
-    step 3) Guest freeze and resume
-Then vsock connection will be broken and guest can never connect to host via
-vsock untill Host reset vsock server.
-
-And in suitaion 2), if we do following steps
-    step1) Host start a vsock server
-    step2) Guest start a vsock client and send some data
-    step3) After client completed transmit, Guest freeze and resume
-    step4) Guest start a new vsock client and send some data
-In this suitaion, host server don't need to reset, and guest client works well
-after resume.
-
->If you want to support this use case, you must first provide a way to 
->keep those packets somewhere (e.g. avoiding to remove the virtqueues?), 
->but I honestly don't understand the use case.
->
-
-In cases guest sending no-reply-required packet via vsock,
-when guest suspend, the sending action will also suspend
-and no packets will loss after resume.
-
-And when host is sending packet via vsock when guest suspend and Vq disapper,
-like you mentioned, those packets will loss.
-But I think those packets should be keep in host device side,
-and promise that once guest resume,
-get them in host device and continue sending.
-
-Thanks,
+BRs
 Junnan Wu
 
->To be clear, this behavior is intended, and it's for example the same as 
->when suspending the VM is the hypervisor directly, which after that, it 
->sends an event to the guest, just to close all connections because it's 
->complicated to keep them active.
+>The rest LGTM.
 >
->Thanks,
 >Stefano
 >
->
->
->>>
->>>	/* Stop all work handlers to make sure no one is accessing the device,
->>>	 * so we can safely call virtio_reset_device().
->>>-- 
->>>2.34.1
->>>
 >>
->>I am not familiar with freeze/resume, but I don't see any problems 
->>with this patch.
+>>Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
+>>Co-developed-by: Ying Gao <ying01.gao@samsung.com>
+>>Signed-off-by: Ying Gao <ying01.gao@samsung.com>
+>>Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+>>---
+>> net/vmw_vsock/virtio_transport.c | 10 +++++++---
+>> 1 file changed, 7 insertions(+), 3 deletions(-)
 >>
->>Thank you,
->>Luigi
+>>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>>index b58c3818f284..f0e48e6911fc 100644
+>>--- a/net/vmw_vsock/virtio_transport.c
+>>+++ b/net/vmw_vsock/virtio_transport.c
+>>@@ -670,6 +670,13 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+>> 	};
+>> 	int ret;
+>>
+>>+	mutex_lock(&vsock->rx_lock);
+>>+	vsock->rx_buf_nr = 0;
+>>+	vsock->rx_buf_max_nr = 0;
+>>+	mutex_unlock(&vsock->rx_lock);
+>>+
+>>+	atomic_set(&vsock->queued_replies, 0);
+>>+
+>> 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
+>> 	if (ret < 0)
+>> 		return ret;
+>>@@ -779,9 +786,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+>>
+>> 	vsock->vdev = vdev;
+>>
+>>-	vsock->rx_buf_nr = 0;
+>>-	vsock->rx_buf_max_nr = 0;
+>>-	atomic_set(&vsock->queued_replies, 0);
+>>
+>> 	mutex_init(&vsock->tx_lock);
+>> 	mutex_init(&vsock->rx_lock);
+>>-- 
+>>2.34.1
 >>
