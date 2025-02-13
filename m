@@ -1,210 +1,101 @@
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0770B13792B
-	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 01:27:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3EF27EC4;
+	Thu, 13 Feb 2025 05:47:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739410056; cv=none; b=HmMfIcmY0iHdrETCKuzFpH6zld5aVv9nAb9FrJx/q/nKKPJ0y1pBSS8xBRbdNOfR1q9rZ4QjGfFb4AliMTr5X6IAeK1L6XM6ljRtlLBDzaESBSSKTDaTgjsrCueW7tnrQA6j6CcKjAip7RsdR5Tz3iQTY+CGWKoZdbIXuWyyGak=
+	t=1739425646; cv=none; b=IpcMzINsPbt5cPefIrS/OyKjcc4hXKVbFFo48m4YWBqPqgs+xRrBkyiVtQJ5KlmNJkG8iRX5IYRqQBW8ZvISLIhIVvCbwkrVmRXxcZA+FhPgMpwnDldQ449hHe2THheuZhPsZ+0e/4Q2RHVsSA96pDwvvDof6NRLx4DsLZICbEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739410056; c=relaxed/simple;
-	bh=K1KJcO/iMIszsejQubSSJo5rLiAltDSQBLIwlW4rkFI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=ZDg2zG7CYRw3waZVgwaFZEvECPPRAOiCQpl4h0iIZFeVoOfmu5uwClp+F8utJ7uLfaLiXsC8y/TzD4oVeiV7dfs0eu4rQyzPHvdJWlgyGUipVSLc3y5hhz46Q0ORY5ryd+8nWQLByjPkgcXdsKPrG5ss8xjkjWkvox6AeM31VlU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=uhhqpX35; arc=none smtp.client-ip=203.254.224.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1739425646; c=relaxed/simple;
+	bh=prolQBF6q3UBJQB4VkPy0upy3Xt7W32yLlCxZItHgdI=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=OyGriH1TK9P15lnDnPKYMXJubKWv/CNRn0Ql8/t/DRjYT74V9th1IwrcQ7cC64pu5sumX2v2KY5gYyeqfMoYK5eeWxGs+2EdKWSGYYMu23EvcWmfWNwfS+cA5z+FT4te8E5WpfsWR11U8Sd4pBjjxKbbWI8TDsHYwUJkzlJKOL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=Z4TBMtMi; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="uhhqpX35"
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250213012732epoutp012f2135bcc76fa414e81141f62becd697~joDn-HL580892408924epoutp01A
-	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 01:27:32 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250213012732epoutp012f2135bcc76fa414e81141f62becd697~joDn-HL580892408924epoutp01A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1739410052;
-	bh=cUNcxOwztr93Bkz78+ZRLsndQixwVjIGrEz9jLDFpWY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=uhhqpX35kp9D1ni5no1E5IccHc23T2G9lyDkd13WwedzYz2vi0b8e4mi6Lnw4NDHZ
-	 sLPb0ZRzmLViLmp6nhMaD2gzJTXrY9PGP40QbkIY0sj0vU4txPjY767MljrQfxfTmL
-	 QCRlPdTB8LmR0rYCtZw0DAn7kDqTJ8I5ue5p3f6A=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-	20250213012730epcas5p414b410c5ac1edad9af12bc84dfc954bf~joDm3sUjB1474714747epcas5p4v;
-	Thu, 13 Feb 2025 01:27:30 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.174]) by
-	epsnrtp3.localdomain (Postfix) with ESMTP id 4YtcxF4CRTz4x9Q7; Thu, 13 Feb
-	2025 01:27:29 +0000 (GMT)
-Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
-	epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	81.B6.19933.18A4DA76; Thu, 13 Feb 2025 10:27:29 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-	20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8~joDezkhkP2020120201epcas5p2f;
-	Thu, 13 Feb 2025 01:27:22 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-	epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-	20250213012722epsmtrp2151ed053faea735a7b8c7f91b215dcd6~joDesL5qW2391223912epsmtrp2B;
-	Thu, 13 Feb 2025 01:27:22 +0000 (GMT)
-X-AuditID: b6c32a4a-c1fda70000004ddd-79-67ad4a81014e
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-	epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	F8.A4.18729.97A4DA76; Thu, 13 Feb 2025 10:27:21 +0900 (KST)
-Received: from asg29.. (unknown [109.105.129.29]) by epsmtip2.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20250213012719epsmtip2284086063341bdcb19d2c59a50b4a97f~joDcabYEG2733127331epsmtip2e;
-	Thu, 13 Feb 2025 01:27:19 +0000 (GMT)
-From: Junnan Wu <junnan01.wu@samsung.com>
-To: sgarzare@redhat.com
-Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
-	horms@kernel.org, jasowang@redhat.com, junnan01.wu@samsung.com,
-	kuba@kernel.org, kvm@vger.kernel.org, lei19.wang@samsung.com,
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
-	pabeni@redhat.com, q1.huang@samsung.com, stefanha@redhat.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	ying01.gao@samsung.com, ying123.xu@samsung.com
-Subject: Re: Re: [Patch net 1/2] vsock/virtio: initialize rx_buf_nr and
- rx_buf_max_nr when resuming
-Date: Thu, 13 Feb 2025 09:28:05 +0800
-Message-Id: <20250213012805.2379064-1-junnan01.wu@samsung.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <gr5rqfwb4qgc23dadpfwe74jvsq37udpeqwhpokhnvvin6biv2@6v5npbxf6kbn>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Z4TBMtMi"
+Received: from DESKTOP-0403QTC. (unknown [50.53.30.84])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 593C5203F3CF;
+	Wed, 12 Feb 2025 21:47:24 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 593C5203F3CF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1739425644;
+	bh=s5+xYFUSjRfJypY4kS/R9cuXaiW/u4Res3wzREtZc3g=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Reply-To:From;
+	b=Z4TBMtMiRv2SfnjJRPFski7UW+GdtCHfSpa6uT5M6Y81GgljaAJS+C24wcteOwFoR
+	 fAjoHzLbR3yzXVZ7okgqQd0Ygyle085eUgYsrZl7r9cSI7F94GbnzcwpCgrWbggP07
+	 zL1qaUXtneTr0hUG4SvWqb72eLrXEL1RDVBqqT+E=
+Date: Wed, 12 Feb 2025 21:47:23 -0800
+From: Jacob Pan <jacob.pan@linux.microsoft.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: iommu@lists.linux.dev, Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
+ virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, Eric Auger
+ <eric.auger@redhat.com>, patches@lists.linux.dev,
+ jacob.pan@linux.microsoft.com
+Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
+Message-ID: <20250212214723.1ebf173e@DESKTOP-0403QTC.>
+In-Reply-To: <20250212233053.GV3754072@nvidia.com>
+References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+	<3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+	<20250212112235.714b0a14@DESKTOP-0403QTC.>
+	<20250212233053.GV3754072@nvidia.com>
+Reply-To: jacob.pan@linux.microsoft.com, Easwar Hariharan
+ <eahariha@linux.microsoft.com>, "zhangyu1@microsoft.com"
+ <zhangyu1@microsoft.com>
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA01Te0xTVxze6e29LSw1d6BygA2hDhfZgFZKORUhczLp1JGaLSRzcV1TbgoB
-	bksf2zAuwkQQFAcssBUYj4w5YKBYAXlKVh6DDQaTR1jASbEYAgpUJi4lGWt7cfO/7/f4ft/5
-	fuccLuZhJXy4SbSe0tKKFD7hzm7t3f9acOaxRpVg5q4vKh/NYqOFgXkOuv9tHQfNfzlIoKt3
-	1lno7lQsGmu9gqPy4jSU3TaOo/GOcgJN1FzmoC37Eo4GqnajjV8fAvT9oxEMjRSs4Wi0fAtD
-	y0VbOOq/VYejqS8QGutzTO2ZN+Jv7pY21/3BklaZDFJTfS4hbbdIpIs3jUC6enuSkF5prgfS
-	dZOfjHsq+VAipUigtP4UrVQnJNGqKP7x9+RH5OFigTBYKEERfH9akUpF8WNOyIKPJqU4rPH9
-	P1GkGBwpmUKn44dGH9KqDXrKP1Gt00fxKU1CikakCdEpUnUGWhVCU/qDQoHgQLij8ePkxI3c
-	ekIz7/VZUf8TkAH+8cwDblxIiuD9P2/iecCd60F2AmieWGYxwWMA/7rQBJhgA0BbexfxjGIu
-	aSeYQjeA31Vf3OY/ANAyVY07uwhyPxzsqnUxdpJecKyixsXAyE4Mzt3IdRU8SQoWPVxwEdhk
-	ILQNfe3CPDIajqzVchi5PbDnpxHMid3IOHjDuspmel6CQ0arC2OOnvMtZZhTAJJWLmzafOQ4
-	ONcRxMCJmmBmjidc+rl5e6YPXF/p3raTDPP77dtYDy+t3MEZHAlHr+VgzjGYw8z1jlAm/Qos
-	/uUai5HdAfM3rSwmz4NtFU7sVA2EqwVnmbQvrDOZtlWlDldDHGZX1QA+vprDKQD+pc+5KX3O
-	Ten/ylUAqwfelEaXqqJ04ZoDNPXpf7esVKeagOu5Bx1rA5a5tRAzYHGBGUAuxt/JgyUNKg9e
-	giL9DKVVy7WGFEpnBuGOdRdiPruUasd/ofVyoUgiEInFYpEkTCzke/HOt2epPEiVQk8lU5SG
-	0j7jsbhuPhks73OnopbSwi0yzu3MkuGI2oAhQUnowtshL4zPzkj2Xbe7W09bsivfVzaerGxr
-	3RFED0QX23Li5/TpEUGF8Q1xC0iJG5reZe/hrQ7abT8u9okjA//GYt0DRm99VHW2PS6jcNfe
-	d6ZZNWEfflVRkTnt2wrpDnl89oUu4/Lvh2V9cz60stiu4X5zsU4oOry3rFveUFnWVpj0op0Q
-	fJ5X5Pfq8NO3Zj1g5IPeN8K8+WemY0MpvOxgwLmWo4p8EhlmO23G07KV37IuvT67GbOVPpm9
-	OGxuuRc/V2O53NFI4DPpkoHJey3L6OWTx/clt3bybD8cedLrW/007UTPB36y/qUmIZ+tS1QI
-	gzCtTvEvluIvOHcEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprDIsWRmVeSWpSXmKPExsWy7bCSvG6l19p0gytTrS3mnG9hsXh67BG7
-	xeO5K9ktHvWfYLNYdukzk8Xda+4WF7b1sVrMmVpo0bbjMqvF5V1z2CyuLOlht/j/6xWrxbEF
-	YhbfTr9htFj69iyzxdkJH1gtzs/5z2zxetJ/Vouj21eyWlxrsrC4cARo6v5HM1kdxDy2rLzJ
-	5LFgU6nHplWdbB47H1p6vNg8k9Hj/b6rbB59W1YxenzeJBfAEcVlk5Kak1mWWqRvl8CV8a1z
-	FVvBI/GKSUe/MjYw/hPuYuTkkBAwkTg0bSdbFyMXh5DAbkaJo68WMEEkpCW6frcxQ9jCEiv/
-	PWeHKHrCKPFm4l92kASbgKbEiT0r2EBsEQFxiQvzloBNYha4zCxx7ucdsCJhgWSJw9d2gE1i
-	EVCV+HhyOiuIzStgJ3H2wwp2iA3yEvsPngWr4RTwk9j45D0LiC0k4Cux9W4vO0S9oMTJmU/A
-	4sxA9c1bZzNPYBSYhSQ1C0lqASPTKkbJ1ILi3PTcYsMCw7zUcr3ixNzi0rx0veT83E2M4AjU
-	0tzBuH3VB71DjEwcjIcYJTiYlUR4JaatSRfiTUmsrEotyo8vKs1JLT7EKM3BoiTOK/6iN0VI
-	ID2xJDU7NbUgtQgmy8TBKdXANHH3p8SOik+a38N6D1w+9Gi6+BUj5ZgvKv2pL1b+jmI0/te5
-	2/rDjHPv7pyLnbkjP/2xb6XUP2ZpG+v/Dvf623L+y9ls+7137T83rfyOzywmmtcZPXME2Ngd
-	vnW6HTvpt+iqEMeUN3FKJjP3pKnP++p7/6yGXkl7mHFccNkauR1ufzVYmCZniX2Z850nLyN/
-	h4CGvtQO2d/Mm714TXarLk73M10++73Xg6U/5nj+3GX6VFZJ63bV2ZZv3B0snO8mBp3Zd3zK
-	XaPcTx8/zVhovbh9sn/ncp0JMulVVnJyivefPZ2ewPuN+4mZw5p5TElO3f36xat9uz+Lvnx+
-	N/J5ksau6fELH5ZkPZpoJOPMq8RSnJFoqMVcVJwIAOvmwtgvAwAA
-X-CMS-MailID: 20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8
-References: <gr5rqfwb4qgc23dadpfwe74jvsq37udpeqwhpokhnvvin6biv2@6v5npbxf6kbn>
-	<CGME20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8@epcas5p2.samsung.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
->You need to update the title now that you're moving also queued_replies.
->
+Hi Jason,
 
-Well, I will update the title in V3 version.
+On Wed, 12 Feb 2025 19:30:53 -0400
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
->On Tue, Feb 11, 2025 at 03:19:21PM +0800, Junnan Wu wrote:
->>When executing suspend to ram twice in a row,
->>the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
->>Then after virtqueue_get_buf and `rx_buf_nr` decreased
->>in function virtio_transport_rx_work,
->>the condition to fill rx buffer
->>(rx_buf_nr < rx_buf_max_nr / 2) will never be met.
->>
->>It is because that `rx_buf_nr` and `rx_buf_max_nr`
->>are initialized only in virtio_vsock_probe(),
->>but they should be reset whenever virtqueues are recreated,
->>like after a suspend/resume.
->>
->>Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
->>virtio_vsock_vqs_init(), so we are sure that they are properly
->>initialized, every time we initialize the virtqueues, either when we
->>load the driver or after a suspend/resume.
->>At the same time, also move `queued_replies`.
->
->Why?
->
->As I mentioned the commit description should explain why the changes are 
->being made for both reviewers and future references to this patch.
->
+> On Wed, Feb 12, 2025 at 11:22:35AM -0800, Jacob Pan wrote:
+> 
+> > Do you foresee the implementation can leverage your generic iommu_pt
+> > work? i.e. for building guest IO page tables. It will add a new
+> > flavor (page table based in addition to map/unmap) to
+> > viommu_domain_alloc_paging() i think.  
+> 
+> Yes I do, I think it should be no problem and it will bring the
+> missing x86 formats that are currently not available in iopgtbl
+> wrappers.
+I guess the missing x86 formats are AMDv2 and VT-d S1?
 
-After your kindly remind, I have double checked all locations where `queued_replies`
-used, and we think for order to prevent erroneous atomic load operations 
-on the `queued_replies` in the virtio_transport_send_pkt_work() function
-which may disrupt the scheduling of vsock->rx_work
-when transmitting reply-required socket packets,
-this atomic variable must undergo synchronized initialization
-alongside the preceding two variables after a suspend/resume.
+> I'm working toward getting a cut back AMD only series ready to post,
+> the other series on the iommu-pages should be the last preperation
+> work.
+> 
+> Certainly I would be happy to help you get it implemented if that is
+> your interest.
 
-If we reach agreement on it, I will add this description in V3 version.
+Yes, that is definitely our interest! We are looking at expanding
+hyperv-iommu to include guest DMA remapping support (current code has
+IRQ remapping only). This expansion includes paging and sva domains. In
+terms of the need for paging domain, I believe it is identical to
+virtio-iommu page table extensions.
 
-BRs
-Junnan Wu
+It would be great if you could help adding/accommodating such usage to
+the generic iommu_pt. I think it will be a subset of features as
+intended for iommufd. I.e. map/unmap operation.
 
->The rest LGTM.
->
->Stefano
->
->>
->>Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
->>Co-developed-by: Ying Gao <ying01.gao@samsung.com>
->>Signed-off-by: Ying Gao <ying01.gao@samsung.com>
->>Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
->>---
->> net/vmw_vsock/virtio_transport.c | 10 +++++++---
->> 1 file changed, 7 insertions(+), 3 deletions(-)
->>
->>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->>index b58c3818f284..f0e48e6911fc 100644
->>--- a/net/vmw_vsock/virtio_transport.c
->>+++ b/net/vmw_vsock/virtio_transport.c
->>@@ -670,6 +670,13 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
->> 	};
->> 	int ret;
->>
->>+	mutex_lock(&vsock->rx_lock);
->>+	vsock->rx_buf_nr = 0;
->>+	vsock->rx_buf_max_nr = 0;
->>+	mutex_unlock(&vsock->rx_lock);
->>+
->>+	atomic_set(&vsock->queued_replies, 0);
->>+
->> 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
->> 	if (ret < 0)
->> 		return ret;
->>@@ -779,9 +786,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
->>
->> 	vsock->vdev = vdev;
->>
->>-	vsock->rx_buf_nr = 0;
->>-	vsock->rx_buf_max_nr = 0;
->>-	atomic_set(&vsock->queued_replies, 0);
->>
->> 	mutex_init(&vsock->tx_lock);
->> 	mutex_init(&vsock->rx_lock);
->>-- 
->>2.34.1
->>
+One difference/simplification than virtio-iommu is that Hyperv-iommu
+(backend) does not want to support map/unmap hypercall based paging
+domain. IOW, page table based paging domain only, let the guest own S1.
+
+Our code and backend support are still in the early stages, that is why
+I am attempting to convert virtio-iommu driver to iommu_pt. Not sure if
+anyone has done the QEMU part to support VIRTIO_IOMMU_F_ATTACH_TABLE?
+@Jean @Eric Do you know?
+
+Adding a couple developers from our side. @Yu Zhang @Easwar Hariharan.
+
+
