@@ -1,162 +1,127 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 567FA1CDA3F
-	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 15:53:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1A83288C2B
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 16:18:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739462001; cv=none; b=usoL82zhgG5FhNxyFCp3keQ/B/au8YnLWEcx6DIfzKTq0dx4PU49AOk1IerGpmmtH/S+ghjJD4zeH3ZV4oezwDEV2+PdhEE6rjwiJ+cBfBWLWof8se21Zky3fKcg/H6STQMsBq03UDRPZziqoSbDrRI357NJ198Xekmi34rjxhg=
+	t=1739463514; cv=none; b=kTTM9rTe8s1gTqqhQlO4rEwkW8co2JljUh+bWPrjKl+Fe5X6zDlp88smEBuqFdT6u53+H9DtmWebT9lR1BElZjtDEC6zPSQ7EyqMQQaVGMazvOl05WvfF85wesQsKcyjsqLbU+zbU0viXv8lsyi6HifCe4FzeHlObJm4e5RRGZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739462001; c=relaxed/simple;
-	bh=Fr0YTAU+jzS2hTVLmxjX355fDOiiw6bVHBgQDsvSUwQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AufLPJsqVlqJbPL0VRfaqtucjPE+O9AbYKO+Ptr62ks4+Pa8WWzBlGFA9dXKOGfmB69fZuHFcKpvJzkJy0PsnqWgqrcjxPSBZWLu5/vBEnOlpTp3soHFGUWlFTjCitu+uHyQYI9IUa+CDZxrp0J6FMvlR3c+C2PHpyDErzEQIsk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=acyRnW+L; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1739463514; c=relaxed/simple;
+	bh=Vrn/4vwdmsdokkCuLMXfyT1nZ/jStbBCx0QhOmJ6E80=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=gxB/j/4Igc5umgWbU1jTVuEGaoFt3w1Ftfc3n24FXMQQ0+vFlUoTfk5bUCMjGrSN2jL1nP7AOOViF/dvn00fQ9ciYF5mNpU4WwS9UZnpopISkh7CJ3vltqRdnMdcjThF+rz+KNkQgpjZOy/rlPChd8wGL1TTpuNQP005LtJG3BM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JUqOtsiR; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="acyRnW+L"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JUqOtsiR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739461998;
+	s=mimecast20190719; t=1739463511;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Wm65mUYAEbhhNi250l1nY6B0IiEBXXQj82KeWsM7Zn0=;
-	b=acyRnW+L3fVI948s6sQF35IfKmbp9iXRCKUwTDy47/kEdPoZjN92c3etynBAEwZQ1lP8nm
-	3mECY6ihs9xi4ecfh90EF+LUC9SAwkQ8Nbz7bAKdmQ65oodEX7KSuhXnkFXhEjLoh8kaCP
-	1GgAakidhOtz1Ads2Yy1x3IfouHrads=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=iKzjBSUkdHDLfZzf4JfzRiz+zb6GftCtkHoeHOHlZwU=;
+	b=JUqOtsiR+ODQNkafGefj2w0b50pdy6/eaUZ5DLluWK5OxQq8jt4t3FMRDos5dvJS7BTxKt
+	7tbfdTP7tRIRIfAiI1Gsm4w85V1lZXETqYFqjEnK80bSo4+KA7FY53flJ8jDxW/+rUzAa2
+	8aCDSA6y3YTWXbliUHYnHWCeQgrkprI=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-349-aZ9kBOBZNZ-p1Ow_45uRtg-1; Thu, 13 Feb 2025 10:53:13 -0500
-X-MC-Unique: aZ9kBOBZNZ-p1Ow_45uRtg-1
-X-Mimecast-MFC-AGG-ID: aZ9kBOBZNZ-p1Ow_45uRtg_1739461992
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-ab7ee928985so118948866b.0
-        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 07:53:13 -0800 (PST)
+ us-mta-617-pe-QVOTZNaS_OUp4bYiEOQ-1; Thu, 13 Feb 2025 11:18:30 -0500
+X-MC-Unique: pe-QVOTZNaS_OUp4bYiEOQ-1
+X-Mimecast-MFC-AGG-ID: pe-QVOTZNaS_OUp4bYiEOQ
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4395b5d6f8fso5839815e9.0
+        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 08:18:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739461992; x=1740066792;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Wm65mUYAEbhhNi250l1nY6B0IiEBXXQj82KeWsM7Zn0=;
-        b=kyhcYw5sme5NVs5yPZlW/OPGN86nq4IltQ0TzUnjiWZU8Do3ipkr7NWMSXCDXVpwU/
-         SNVf264mHPg9Qk0Tofe9yYDZSmkaPDWficrEMecOBOZ1NvGpseIB+jiLnFz6SUTG/kv3
-         KK/OKJsqI5WKPnfK3yfqmursTCvZ4aBN7UeoCVdh6TD2DNdLOouc/9P1AMY4WpeuuV57
-         uKVKBPuCcHMkgZf6dN0lLztpeyGKWnPrOVWRzOm6hHoHwbhcxfGqB6ix0q/+MwShNZLr
-         5Uyk/kwEX3NDAc3xUU5Fhe2ryX67b4nLRpboePbLbueLz8HO5Z5JkgF2hernuUBQLoOF
-         BSqQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVPkTF4pw3fRqTZvghOCWJGzf4P4vnqhuWHoiv9NTt1Hc9UDaWbtnh8Jt+ebyOMtEmHGye3cvAEVUK8KthCxA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx3rRKHdkcWLY05oUNaGzm4TAlTolUq3OCfP0ko0W5Gs/z15J9p
-	sBFnwDhgK7/ySNrA9sjg+JmNXGkay8igeIaZxpc4zRgL/l43dJDnC4e7Xy0xFm2SefKeL2CGB9N
-	Dkp8+Zn66x3nI8rziL5trnIMDNU7VuNTxG1nmu1hlA+pYv+DtLjqZ2XedRs2qIgEx
-X-Gm-Gg: ASbGnctM4wFvuuiK0uaG4XTj06QR6jeKusByee1g4VNp3t7UwiZJc9NpwLFty0BLXEE
-	TogGmS5HC8q9o6yfkJwNe12Yegd4T5fBSPvgG/Wi+7FX/wLOytJj/zWUz4H7KbRMHFrexCljgl0
-	Kfwky5fHuTbFk2FAtRlvuu15MNPu0a4Jo1pRpb034uTSVTTLaxDJPE+2N8V7FxmfuYabFhoYxgC
-	O30U74f9oKbHm3dXEj11TX2ZUwH4YSc0WrABr9V5w1cAZDsnd5YJxLcxnW2UGMWtDj8axeNTQ==
-X-Received: by 2002:a17:907:9710:b0:ab2:c1da:b725 with SMTP id a640c23a62f3a-ab7f33f5f15mr585698666b.30.1739461992359;
-        Thu, 13 Feb 2025 07:53:12 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGPYyt4663087uMZIIKURYrG8Pp4HqyogPBtf0brGd9uzETM6Wmccz2T6+v992nLi1pX3fRsA==
-X-Received: by 2002:a17:907:9710:b0:ab2:c1da:b725 with SMTP id a640c23a62f3a-ab7f33f5f15mr585695966b.30.1739461991960;
-        Thu, 13 Feb 2025 07:53:11 -0800 (PST)
-Received: from redhat.com ([2a02:14f:171:92b6:64de:62a8:325e:4f1d])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aba532581acsm156316266b.50.2025.02.13.07.53.09
+        d=1e100.net; s=20230601; t=1739463509; x=1740068309;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=iKzjBSUkdHDLfZzf4JfzRiz+zb6GftCtkHoeHOHlZwU=;
+        b=bfNUv/8Qlp2ABDMJHjHm1Wb4wIm2eY5G960xKtgbtZ70NiDlvMf4QEtqi3MJQMuZj3
+         +foNzE9h4JrtEGdP/t5Dd+FDQAvZ1uo7NiXR3u4sPtVU34+J+XjygK/j8+Q/wpGiJ/mj
+         eqzMylOJYoPracWtufaGjc2N9n88+/TPnwY73Wyoi3rcHCqq14XDO9RG1nj2g7SK9XdK
+         DI+9CQbrvcXVRYgu00WsT90XqDEUEJi9dEcvEHJRSXxsFZweI9UoUebnfnbcBQSbgTYz
+         ppzrLjjhcRL79LsLrbvwooCSfpHdboRs/iRitpsu4CcszXuRHV6NCxsTvC0zujgB6taF
+         ZdJQ==
+X-Gm-Message-State: AOJu0YzKXJ/E/xXygWPuHqHgFqDLFGboJk/9UKyJ2o5b6BqzD+4Hdwsn
+	3L+2pXpnSSoIzQPSe/QR7zfWZqkc7ceCGeJCXHwzVomrt7+nIjKy3ptTqZ4ba+71UTTSMSI9tP6
+	eri2+MZkMUHfhu+QndmpkXYltza4QQD7E7KY6OOgi3Hol63cYS2XMzfJJXEbUpwzrtWnUCzZooN
+	Cv9nkN7OHAwb0/4IM2/wo+naxMmZYHQHey8+BN4rAASqmrYMm1
+X-Gm-Gg: ASbGncsn0iHlYjCEG5tx/+sGD3cuOtl4j22v32Qjaj/vdQMfGP9fxlhodN2QTSptMjW
+	n8d3roebf5xNxHly+ECdccck+tPATw5SVk4WP0Xsj3bBnP7yjXGoqEz7vEZ8Gy7+h0jcwZh+0Lc
+	EQ+heGtUmPqMjZeljn/2fcokzjrHtZnftViD18iJRuHZygP/SBQ2aF2ERI4FTxThAiUo3AxNwM3
+	9lj35M6D0graKsxEMpgq1r+klNnfI4RWtVN2LJOkoPU81H2b42n2NMmGfC+VhsbsBDEuGobIvU+
+	OXpaPZLxkhfRU48r/XK3+Cet9hCDSEkAJTWDhuA73bqtoQ2zHAVLi7g=
+X-Received: by 2002:a05:600c:698d:b0:439:574c:bf76 with SMTP id 5b1f17b1804b1-43960179b7amr57710735e9.7.1739463509243;
+        Thu, 13 Feb 2025 08:18:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFu6y21w757rvE76+QUOv51wsc6Q/8KLtoBTuUd9R2tuHYuDtc916mYTl90tlTU0umnS7sdnA==
+X-Received: by 2002:a05:600c:698d:b0:439:574c:bf76 with SMTP id 5b1f17b1804b1-43960179b7amr57709765e9.7.1739463508492;
+        Thu, 13 Feb 2025 08:18:28 -0800 (PST)
+Received: from stex1.redhat.com (host-79-46-200-29.retail.telecomitalia.it. [79.46.200.29])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4395a06d237sm52922715e9.21.2025.02.13.08.18.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Feb 2025 07:53:11 -0800 (PST)
-Date: Thu, 13 Feb 2025 10:53:07 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Sergio Lopez <slp@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
+        Thu, 13 Feb 2025 08:18:27 -0800 (PST)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: virtualization@lists.linux.dev
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
+	linux-sound@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	fnkl.kernel@gmail.com, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: Re: [RFC PATCH 0/5] virtio: obtain SHM page size from device
-Message-ID: <20250213105231-mutt-send-email-mst@kernel.org>
-References: <20250213-virtio-shm-page-size-v1-0-5ee1f9984350@redhat.com>
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH] virtio_snd.h: clarify that `controls` depends on VIRTIO_SND_F_CTLS
+Date: Thu, 13 Feb 2025 17:18:25 +0100
+Message-ID: <20250213161825.139952-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250213-virtio-shm-page-size-v1-0-5ee1f9984350@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: GOIDYql50PE2kc-3zgouNrfLjeb5txzyHh7qtA20udo_1739461992
+X-Mimecast-MFC-PROC-ID: mYET__EDMSVOvfVBnsL6FnOW3YhsX6aix33PcaYDOAI_1739463510
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On Thu, Feb 13, 2025 at 04:49:14PM +0100, Sergio Lopez wrote:
-> There's an incresing number of machines supporting multiple page sizes
-> and, on these machines, the host and a guest can be running with
-> different pages sizes.
-> 
-> In addition to this, there might be devices that have a required and/or
-> preferred page size for mapping memory.
-> 
-> In this series, we extend virtio_shm_region with a field to hold the
-> page size. This field has a 16-bit size to accommodate into the existing
-> padding virtio_pci_cap, simplifying the introduction of this additional
-> data into the structure. The device will provide the page size in format
-> PAGE_SIZE >> 12.
-> 
-> The series also extends the PCI and MMIO transports to obtain the
-> corresponding value from the device. For the PCI one, it should be safe
-> since we're using an existing 16-bit padding in the virtio_pci_cap
-> struct. For MMIO, we need to access a new register, so there's a risk
-> the VMM may overreact and crash the VM. I've checked libkrun,
-> firecracker, cloud-hypervisor and crosvm, and all of them should deal
-> with the unexpected MMIO read gracefully. QEMU doesn't support SHM for
-> the MMIO transport, so that isn't a concern either.
-> 
-> How the SHM page size information is used depends on each device. Some
-> may silently round up allocations, some may expose this information to
-> userspace. This series includes a patch that extends virtio-gpu to
-> expose the information via the VIRTGPU_GETPARAM ioctl, as an example of
-> the second approach.
-> 
-> This patch series is an RFC because it requires changes to the VIRTIO
-> specifications. This patch series will be used as a reference to
-> propose such changes.
-> 
-> Signed-off-by: Sergio Lopez <slp@redhat.com>
+As defined in the specification, the `controls` field in the configuration
+space is only valid/present if VIRTIO_SND_F_CTLS is negotiated.
 
+  From https://docs.oasis-open.org/virtio/virtio/v1.3/virtio-v1.3.html:
 
-don't you want to negotiate the page size with the
-driver then?
+  5.14.4 Device Configuration Layout
+    ...
+    controls
+       (driver-read-only) indicates a total number of all available control
+       elements if VIRTIO_SND_F_CTLS has been negotiated.
 
-> ---
-> Sergio Lopez (5):
->       virtio_config: add page_size field to virtio_shm_region
->       virtio: introduce VIRTIO_F_SHM_PAGE_SIZE
->       virtio-pci: extend virtio_pci_cap to hold page_size
->       virtio-mmio: read shm region page size
->       drm/virtio: add VIRTGPU_PARAM_HOST_SHM_PAGE_SIZE to params
-> 
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  5 +++++
->  drivers/virtio/virtio_mmio.c           | 13 +++++++++++++
->  drivers/virtio/virtio_pci_modern.c     | 31 ++++++++++++++++++++++++++++---
->  drivers/virtio/virtio_ring.c           |  2 ++
->  include/linux/virtio_config.h          |  1 +
->  include/uapi/drm/virtgpu_drm.h         |  1 +
->  include/uapi/linux/virtio_config.h     |  7 ++++++-
->  include/uapi/linux/virtio_mmio.h       |  3 +++
->  include/uapi/linux/virtio_pci.h        |  2 +-
->  9 files changed, 60 insertions(+), 5 deletions(-)
-> ---
-> base-commit: 4dc1d1bec89864d8076e5ab314f86f46442bfb02
-> change-id: 20250213-virtio-shm-page-size-6e9a08c7ded1
-> 
-> Best regards,
-> -- 
-> Sergio Lopez <slp@redhat.com>
+Let's use the same style used in virtio_blk.h to clarify this and to avoid
+confusion as happened in QEMU (see link).
+
+Link: https://gitlab.com/qemu-project/qemu/-/issues/2805
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ include/uapi/linux/virtio_snd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/virtio_snd.h b/include/uapi/linux/virtio_snd.h
+index 5f4100c2cf04..a4cfb9f6561a 100644
+--- a/include/uapi/linux/virtio_snd.h
++++ b/include/uapi/linux/virtio_snd.h
+@@ -25,7 +25,7 @@ struct virtio_snd_config {
+ 	__le32 streams;
+ 	/* # of available channel maps */
+ 	__le32 chmaps;
+-	/* # of available control elements */
++	/* # of available control elements (if VIRTIO_SND_F_CTLS) */
+ 	__le32 controls;
+ };
+ 
+-- 
+2.48.1
 
