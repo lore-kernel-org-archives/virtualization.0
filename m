@@ -1,119 +1,151 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A583190468
-	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 18:08:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E7F9245AFC
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 19:23:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739470139; cv=none; b=mFqLjddzxoEyufCZYZP9gL8Eu/DnqfmFXKsgI9xN2a+IJMCHhYv0fupgQ9sPiR6eyAIngPQFEPne9Tnll5xHhfZUtllQQSnkWsE5jSplEtm+3gXhOtDoghEscS51YkgqeZaE8Ug/h8Hn8aeNuEoLD9PJxiysmFzCbdzzdEmRPbo=
+	t=1739474596; cv=none; b=nmFdRY6Eh8W0QwOkq6OXxc+Ez3Qn1d+cHQtli0JUOerRizUi92OuTvRSgM6ndrdcqcI2Bx81iWxzszWObjDWFmGUjpFJlHPpWSfUNe9MDNubDAetmElkO5A+q336cFzxKCO/MjCnfG7dk7Xok94LJOoqGBasykwWxEXThpVOEAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739470139; c=relaxed/simple;
-	bh=d0kEcihBGsGD5nDyvWyTxRr8mW/Cnur/oqUPU7wQLd8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ctK+LWetxtyQQ3MmJx3h2h3argShesybT1UR7RG2q1emFzygSRBeaKO7gPUgjrKLRSoi8HxTuk7M1qVUPORPbsiDeRSpvycOa/92ccn+2jh7g+ycQbebL09jNHuoU2uhrVobRv7yXR3mdnHgEX9/vPBo3iGmYeUaBL/lxua9TpM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=MkN61CqB; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1739474596; c=relaxed/simple;
+	bh=M3Xtj7RQJ68uhGe29VzgQq5XlLmgymGY4bXdENOCD3s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iwviu1cpleF574a8bxyxRS1eaV3/YODIZqet552/SlCSYaWZfg9mw0ZEZYff8ORNXdCdPe2PjPJNyWvvPu+2AKOdbCkltwPvDkH9Lyt973zm5oDyBdXcIdiQ019b2ptVLwO6PJwa0pIV4fUMpgEa9lFirih2eROLGfeY/G85M78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=kp4pkjdK; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="MkN61CqB"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-43690d4605dso8313185e9.0
-        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 10:08:56 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="kp4pkjdK"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-220c895af63so3065825ad.0
+        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 11:23:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1739470135; x=1740074935; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tjhyPWW7IENWta5YWXnWXfdvibFoyaw+P8ehIpKlekY=;
-        b=MkN61CqBaMFCT7atWsBuuWNfk8XVPrALwhO5MmUq4Pw2Zn4zexfCmErTKMQtwFnRcn
-         5mfL45mrgtspniq6i2f0AwXGXhIKxA4wDyc869qtX1F9WWF/W0Vo3A+/w6Nb7Jdz1foZ
-         BeWuNzOh/g8rGSSLi5rUdEe+p19FvZOZcfidnszKg6LkiAgpDmn6pxNnl1CfXlgVJ1ad
-         mGtHupVOrkrPvr9+npTrV3HOZETLHFfEVE32AkJqTHuBbFyoN2OVnaigVN5ozcbOl+bC
-         5khZVB1VotpAj4rSkwWWBL4knraUGeMnarDVOSXiUE3/SDt2hSN2vt/O1Oi6sdGFErPt
-         db6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739470135; x=1740074935;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1739474594; x=1740079394; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tjhyPWW7IENWta5YWXnWXfdvibFoyaw+P8ehIpKlekY=;
-        b=GY/elW/JvhQit2XfX4WKpAALV9zMw59MgI/3cDg0da6aFiCoJrfo8rmV3A2CeO0PAV
-         e83PU6MQfVT5kQXNc851EfQnqQQcfNH1/JG6V50J3n2pGDQ+xfmGW4Ox0iwbpxxPcohY
-         xj14PtXiADgqyc6VRWpxct46PsxWMamMoAPcwljXBOf3s5f+9YhV+C0i60LTyaR4DGMn
-         4yHbmAkYGx3j0DgDNz9Ur//imJwMvVKvryGoFKCSlqS/t38WkKCi9uA875RT5waLDQAI
-         tBsshMtWfYOtW9tzbexGnFbxLmkZ2C4rGzS/vCOqqn0BgzDy0GahpC8xNZ0ZC8qRDrET
-         v5SQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXbAL9J04uOSSX32CGv3SFp7yrNRW/40CeDa13lFDak6VmPEdgkHEiBP1g2Fda6y4G8tQqFL2yM3Om/nZE3CA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx0yl799WSBp3NHoZRooZJ4ImrP2HvU2K1raMH4LwPeuxF8vQyw
-	PrsCXURC0Q5bxEiQdJSzWpgw7VtoXbYpetC5kFFNfMcLaWYxNo/sBcLANIvcSPM=
-X-Gm-Gg: ASbGnctpktR+X50Tc5m9EAHNXLD3gjL1JAJYEKTOxL4Vn0iTrDALVUSC9xU9SCT5Era
-	DD10HRCgJYN4iW7TJEjjFk1sYN/vZcfPaSL8L0ktLdPe4z0BNaYcR578vptVqx3HdO7plnGThun
-	3yA0CIkMyQWu7GCIzYiySK5vVZHN43zSk7zHD3CoXaIVgPYAU7AFTBckwsLyRYQ0dWCvFhbYriN
-	xU6lSJxnV3WKXrLrRxj3keLebg4AdKFpm8hCh6ne3P067nRRUWevv6sbJ0VMzuytfoFoUutrE29
-	o6XHK4OoQlXYog==
-X-Google-Smtp-Source: AGHT+IHBorq/0LkWz12FFQh6I+j1iy+1Q+ZmebH36eKHS+Am0JM2CGK6dnXP/JraGzsTpnKadO9LAw==
-X-Received: by 2002:a05:6000:2cc:b0:38f:2a53:1d78 with SMTP id ffacd0b85a97d-38f2a531dbbmr2040183f8f.10.1739470135465;
-        Thu, 13 Feb 2025 10:08:55 -0800 (PST)
-Received: from myrica ([2.221.137.100])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-439618a9970sm23843215e9.33.2025.02.13.10.08.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Feb 2025 10:08:54 -0800 (PST)
-Date: Thu, 13 Feb 2025 18:09:19 +0000
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Yu Zhang <zhangyu1@linux.microsoft.com>
-Cc: jacob.pan@linux.microsoft.com,
-	Easwar Hariharan <eahariha@linux.microsoft.com>,
-	"zhangyu1@microsoft.com" <zhangyu1@microsoft.com>,
-	Jason Gunthorpe <jgg@nvidia.com>, iommu@lists.linux.dev,
-	Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev,
-	tina.zhang@intel.com
-Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
-Message-ID: <20250213180919.GC243081@myrica>
-References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <20250212112235.714b0a14@DESKTOP-0403QTC.>
- <20250212233053.GV3754072@nvidia.com>
- <67ad876d.170a0220.3c21dc.85ceSMTPIN_ADDED_BROKEN@mx.google.com>
- <20250213094601.GA243081@myrica>
- <5irmuy6xwrjsrdjy7tmfzlnotxqdoqagjdsdtqjrrit673zaka@r43nyvc5gcyf>
+        bh=KC+znPA2H1vB7HU6VZGH/VUzzp6EPafRFN/wfL/kwkY=;
+        b=kp4pkjdKXEw537q0h8WAr/w4cQR1rP4jeSYx3OpqU4T3jc3RVNODYmlH5GuQKwopF1
+         g+ZrEF2qCDSyFE2b8Aw9/yL99A2ijKDc331hMvyRDj3BzVpn8KVyTNU3K16S4X325+v0
+         cMYvqlI+XTtM1kHOeZ3pWEmhS2q/Ojt43V314=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739474594; x=1740079394;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KC+znPA2H1vB7HU6VZGH/VUzzp6EPafRFN/wfL/kwkY=;
+        b=pppTrWGRFUESx9zxlgRHXUI7C1kJXB3h5lyyAlqTRYcMHi7rTrFzo3frMxIjGeSbu4
+         KkKl7hieJK5598VUA9LXSCtz/cpxJvJfkfG7TSgCFRkbxYp4BfgVFocyCTS4241xlVBb
+         epbBviygh6achiGBAQXHs691TLkmeemLYPMLzrFNFyqQYuAERjnyQaTNbZ4CNoJkz5iy
+         hqLSGV1TRAqmnb3u7LP1xKi4P7gxOne3wr6eOQlMkINKP4DorVp7WkOn9dqt1aCK4C/W
+         UF4SGK17qs7JxTYIw7pyigTfNCEyNIZFzbrrx314kpI8qdx/DG++ddxS5w7oVvfkj1yG
+         RGpA==
+X-Forwarded-Encrypted: i=1; AJvYcCVrFOrsEMfWtiSfyn06Fc/lvRUu7MkG1naD1iqRurlnUmWq3+jusPnzRY3nfrKFHcV6b5yKGgwwODk1zzyPVw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwwEebtnmmZwLAMCAfadK8mBjHkQoYfHWloOqpjoM4WJ6PrdjYK
+	Se30vceJEcro3p5blPy+bOx0ZnLYP93prr/AF1t97ZvD/wT+MFRxvEFJ7uE/4EGV6+TpGim2WgJ
+	oqA==
+X-Gm-Gg: ASbGncvDwVsrktJwLc6C7rbwUASH7R1OYI15icYGEktx4v2EnyRavly38OV86J1hkTY
+	T1/EhjCkOJF/kxATDYeyWESUntO7/O7pBbiPxQYdqlYZsKAS4PVLq591+oevlfltlZAdYjrV96J
+	BAItWp/EGSMiLoFML/6GDDdJo3rm6stvh9mrRS69r2LUUvBw1xXqQTx+J4ZbW3tTkQc+/8Umtss
+	2fDXW86ZVjHXOu4WbFuyAAWqip6HDKG18npHTKxWBOHRO00htkDJbeXHZPQBcSJIAtDVuptUVfd
+	mHkVPd/PnXS5faiREm3zeVx7dw/7z3sIMUAgeyUHCBuUZM3IWhtph7I=
+X-Google-Smtp-Source: AGHT+IFLyxDEKe+yXvK/o2aj0nYEPuX7yJjfYp1sUPC8dQaERAv3a2opSnfUqaHStq634FdxXwYNuA==
+X-Received: by 2002:a05:6a00:1944:b0:72a:a7a4:99ca with SMTP id d2e1a72fcca58-7324f570edamr57240b3a.2.1739474594391;
+        Thu, 13 Feb 2025 11:23:14 -0800 (PST)
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com. [209.85.216.47])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7324273e715sm1663244b3a.93.2025.02.13.11.23.12
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 Feb 2025 11:23:13 -0800 (PST)
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-2fc0026eb79so2346488a91.0
+        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 11:23:12 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUAhrTHxtbV+WcLcVuVa6STEX+2aV9gUu3gITFxPE5v1BGIEJuJSWBet7msu+v6JstLchuteNU8hCA8ocRFDQ==@lists.linux.dev
+X-Received: by 2002:a17:90b:274e:b0:2fa:17d2:166 with SMTP id
+ 98e67ed59e1d1-2fbf5c6f900mr11663838a91.31.1739474591586; Thu, 13 Feb 2025
+ 11:23:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5irmuy6xwrjsrdjy7tmfzlnotxqdoqagjdsdtqjrrit673zaka@r43nyvc5gcyf>
+References: <20250213-virtio-shm-page-size-v1-0-5ee1f9984350@redhat.com> <20250213-virtio-shm-page-size-v1-3-5ee1f9984350@redhat.com>
+In-Reply-To: <20250213-virtio-shm-page-size-v1-3-5ee1f9984350@redhat.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Date: Thu, 13 Feb 2025 11:22:45 -0800
+X-Gmail-Original-Message-ID: <CABVzXA=r=X+GYnSxgeyktKzfKCW2DW+v++c4v_+BHBDHZ_Bzyw@mail.gmail.com>
+X-Gm-Features: AWEUYZnbyEFvCjOaJipQpOfb1MF9Gi7XhI32b8q-z-30QmKnx8ZNHSfRGuJzTvI
+Message-ID: <CABVzXA=r=X+GYnSxgeyktKzfKCW2DW+v++c4v_+BHBDHZ_Bzyw@mail.gmail.com>
+Subject: Re: [PATCH RFC 3/5] virtio-pci: extend virtio_pci_cap to hold page_size
+To: Sergio Lopez <slp@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>, 
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>, fnkl.kernel@gmail.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 14, 2025 at 01:03:43AM +0800, Yu Zhang wrote:
-> On Thu, Feb 13, 2025 at 09:46:01AM +0000, Jean-Philippe Brucker wrote:
-> > Hi Jacob,
-> > 
-> > On Wed, Feb 12, 2025 at 09:47:23PM -0800, Jacob Pan wrote:
-> > > Our code and backend support are still in the early stages, that is why
-> > > I am attempting to convert virtio-iommu driver to iommu_pt. Not sure if
-> > > anyone has done the QEMU part to support VIRTIO_IOMMU_F_ATTACH_TABLE?
-> > > @Jean @Eric Do you know?
-> > 
-> > As far as I know Tina worked on this most recently:
-> > https://github.com/TinaZhangZW/qemu/commits/virtio-iommu/vt-d-pgtable/
-> > https://lore.kernel.org/all/20231106071226.9656-1-tina.zhang@intel.com/
-> 
-> Thanks a lot for this information, Jean.
-> IIUC, these patches were trying to add VT-d IO page table support in
-> virtio-iommu, but it is not based on Jason's generic PT [1]. Just wondering,
-> does anyone have plan to do the incorporation? 
+On Thu, Feb 13, 2025 at 7:54=E2=80=AFAM Sergio Lopez <slp@redhat.com> wrote=
+:
+>
+> Turn the 16 bit padding into a page_size field to allow the device to
+> pass its required page size with format PAGE_SIZE >> 12.
+>
+> Signed-off-by: Sergio Lopez <slp@redhat.com>
+> ---
+>  drivers/virtio/virtio_pci_modern.c | 29 +++++++++++++++++++++++++----
+>  include/uapi/linux/virtio_pci.h    |  2 +-
+>  2 files changed, 26 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_p=
+ci_modern.c
+> index 79616ce5057bf3b2b88cae7e8fb7729efa9dd632..26e9cd5148c0f10209c34d12e=
+65d64490a855d75 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+[...]
+> +               if (__virtio_test_bit(vdev, VIRTIO_F_SHM_PAGE_SIZE)) {
+> +                       pci_read_config_word(dev, pos + offsetof(struct v=
+irtio_pci_cap,
+> +                                                                page_siz=
+e), &res_psize);
+> +                       if (!res_psize) {
+> +                               dev_err(&dev->dev, "%s: shm cap with inva=
+lid page size on "
+> +                                       "a device with VIRTIO_F_SHM_PAGE_=
+SIZE feature\n",
+> +                                       __func__);
 
-I'm not aware of anyone working on this at the moment. Something you will
-need for a portable pviommu is a library that manages PASID tables rather
-than page tables [1], because the Arm SMMUv3 arch only support assigning
-PASID tables to the guest. Alternatively you could implement opaque PASID
-table allocation via host calls, letting the guest allocate GPA space and
-the host manage the PASID table, but that idea didn't seem very popular at
-the time.
+Maybe this should also constrain the page size to be a power of 2?
 
-Thanks,
-Jean
+[...]
+> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_=
+pci.h
+> index 8549d4571257142ac6c9dad5c01369923791a85a..fb0ccb7a125d8178c1f78333c=
+4d2f43540e1764b 100644
+> --- a/include/uapi/linux/virtio_pci.h
+> +++ b/include/uapi/linux/virtio_pci.h
+> @@ -127,7 +127,7 @@ struct virtio_pci_cap {
+>         __u8 cfg_type;          /* Identifies the structure. */
+>         __u8 bar;               /* Where to find it. */
+>         __u8 id;                /* Multiple capabilities of the same type=
+ */
+> -       __u8 padding[2];        /* Pad to full dword. */
+> +       __u16 page_size;        /* Device page size (PAGE_SIZE >> 12). */
 
-[1] https://lore.kernel.org/all/20210115121342.15093-1-vivek.gautam@arm.com/
+This comment should probably clarify that the page_size field is only
+valid when cfg_type is VIRTIO_PCI_CAP_SHARED_MEMORY_CFG, assuming
+that's the case. Or should the device be expected to provide the
+page_size for all capabilities regardless of type?
+
+It seems like the name should also ideally make it clearer that this
+is page_size/4096 rather than the actual page size to avoid confusing
+device implementers.
+
+>         __le32 offset;          /* Offset within bar. */
+>         __le32 length;          /* Length of the structure, in bytes. */
+>  };
