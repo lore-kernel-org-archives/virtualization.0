@@ -1,203 +1,198 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7DBF20C490
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Feb 2025 09:24:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9068920E6E7
+	for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 09:25:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739438646; cv=none; b=RhBaDcXrIsvBIstcgLxjh2ZA9YaAxR2qhzdXgZxaSca8CFZA2VndzQ8od8/FVxJWZvt7LFe8nltw/hK42lXKfl1kzShAWNWAPtuoDuUnWBh6wRkXD6fhs9zrQdlD4kCCs+DpWr+9tW62gCgx5322ZektPJgFRL1v2ssGR7xFGfU=
+	t=1739438739; cv=none; b=GT6s4SOJ9AtNMDaU1PWPF5fZa5Cz6qLI1F//nbGx7UzpOWv/balYJqzS6dsWlKi0quEWmJv/TxkOaCYZB0dEA5jdbnOKvGYxRtsC6wVSkbON9r8hZk1FvGJDFEqJkxDHKw56qbXGJeeVH0ExI2ygB6hjt0Ol/5ZjbIGGZ/r3MK0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739438646; c=relaxed/simple;
-	bh=mfXNeTj+Q8ZX0NBisxbi4QQyQ/0LK4y+WrTTR40VPyo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qvw8iAEXTGJyLLCVi9Kr47vaiV9FNpbYpzI/OPeN16ktJ0BOvHELKa5ewqCuhwPyaq6hQJUq6Bifd4hfXszQSCf2ARLuN1utIBot69j/lo54BTGwu9npoM82Plo5h92TNXFmeeCRjQGyZzaWQAiBlrJCx5GqViav4ES7qMxVLos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=akZK25EO; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1739438739; c=relaxed/simple;
+	bh=kNZDvEJf3qJnJsEpcSDOQdrXDI+7ntqzAaEqCJM8JY0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Y7SZfi1tLU+7g4vEVkZWb9LYizXHxMYSQHgUoI5SO94a5qxzpLi9sNMVjTMbIjzitXVYb+KDkhypRSthNYjPk9yFhZGlj3W5D3yh/WAdygN49zmAr4LYp8Gb22Cs9nhcer0VVDt8BigHevQIfmQAuXtMuSc2YbyK6OFl3q1anBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LpC+1cHI; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="akZK25EO"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 42AD38386E
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Feb 2025 09:24:04 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id w6SLNo-r-376 for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Feb 2025 09:24:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::629; helo=mail-pl1-x629.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org CF6CB837C0
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CF6CB837C0
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=akZK25EO
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CF6CB837C0
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Feb 2025 09:24:02 +0000 (UTC)
-Received: by mail-pl1-x629.google.com with SMTP id d9443c01a7336-220bff984a0so10628425ad.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 13 Feb 2025 01:24:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1739438642; x=1740043442; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=s+g1corMoWLkqgaHyL0dUry18PBH1WwZj6geDsmEd1Y=;
-        b=akZK25EOaKUuggxmo4sFUO0SBEYlmZaEqia/9igEwguMT3mVPs6TjM/pExe8GOn45H
-         /GBzCUj0iQgzM5h24MI/nnVhYnBRBqm+0fTScuNHHnLjNqp9WDWO0N5xBRWTh41vYvfH
-         wsy8XzALXa58ruoPl+/XEPNN2A6IFgYjhNOmhdPeteZhxPV7np2SR00pRdcEOFRwYvVB
-         Vl5tjVMWFlOqb57wVLTZfFbK2WMMyZTE+/IU/1Kl8qhrqt9Oz9WKTXrPOQ+bIc+Y9nc0
-         49JAEi/+yDXeZu90s9TWVbGp5zRYa1lLOBzRyYn9uTXUVLw2r/UNS5ilg5T7jJoqHGmj
-         j+3w==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LpC+1cHI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1739438736;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gODipQT1RJ6DR0/GMvEisYcVEgWaoya2b4Hn/2vB8dw=;
+	b=LpC+1cHI5sfW/ui/1tBncX7KGX9dsW+iV00x1+2X8Mi5WOf3qfNRKpVOfBJ+59je+8uDzH
+	lUsv+ojAKw+zGqgEw38/mtCYuA52wuLT7j0MdNGAONAN1xxcBjfL1K92/97fAp86ZHrZ0m
+	GmZBSR5Df40h0moEc8ZNPb6V7tRy0iI=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-363-NfnGYYKVNgqD5YSXIQeWzA-1; Thu, 13 Feb 2025 04:25:35 -0500
+X-MC-Unique: NfnGYYKVNgqD5YSXIQeWzA-1
+X-Mimecast-MFC-AGG-ID: NfnGYYKVNgqD5YSXIQeWzA
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-38dc88ed9c0so314280f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 13 Feb 2025 01:25:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739438642; x=1740043442;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=s+g1corMoWLkqgaHyL0dUry18PBH1WwZj6geDsmEd1Y=;
-        b=FDyzNA20cnKXJOXhtyI6ikVkrokd+AZKYqYESoDp9KF2Q+Bjef9pwLvwArrDvQKrQy
-         VqzWYVTlWYAX+JywIvrKVr14Q0qA3P8Lv41NlZUzyR+zQi46CXln+Xg/vFGKPGnj+TYA
-         yFuQoPZcv6KTYj8rcdfFlahsrtIvgqoHGc83N5vAwgfBovpxnIvDE/LkqQtLyMfZzu1a
-         G9B3a5E3BmZyy2HISz6mb3evxhWKP7GoNbZJe/OK+/IjyftcxnoajpH8tJDkav4rAWA+
-         6AaAXKqFKrfAGdvpAcF/DPphwC5Uyj8qii+18u1HPrlRIz6ylfCqfhAQ+AoWERlDQ8o2
-         gIKA==
-X-Forwarded-Encrypted: i=1; AJvYcCWxPd8Bmw+rM2nqAA1d+i4m9HjkTnlAzaL3b8xLIE3e3KqRVDBQKv/iV6K2WD+ibcDXqlkeBDs7BSJu9OzH7Q==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyOGbM6bI97VoLQ5Ixz/STucWFMMZZbnsyEVvSdhnrHEbQnY937
-	D+nabmce8e34VLRo9zWiLyn8u/sWBTDF9veSq4P/GVrKq9qG+UNnvlw7SQAFEwk=
-X-Gm-Gg: ASbGncs7YmruUqwIClu4AJxLUqK06+crZElDt4Fevh5y2yxw99oumo7lECZ+tzeMfM9
-	8LF36rYKL3OaWAXFMS5CXxl/5hP80hXJR3lwhYwsSGXlO1aEHJYkSG0flCDHl3xMTf9ZSMdYNVR
-	hTLpmJlLMEuk8SxNQNp8kiFU3WsvxmbaLSew896xxZbCbpne9t4lO3W9147hmRrF15kGQAkAx78
-	nTGiF/iQGfgVTOTqxkF3R9zOqSrHdJ98PQSawsJaYdeKvpPRlj99sDL+OT1lLKkyW/X8/JAYli8
-	l2WDXUOSbTrjVDTmdCgYbXADhteD
-X-Google-Smtp-Source: AGHT+IGF+4e3Af2SCI8Rg8n4coZI7ErejXVy5bxQnzx65sHDQNZjtZ7hhVxDzaYqpoDifzZ7gAKFSQ==
-X-Received: by 2002:a17:902:e950:b0:220:c813:dfb2 with SMTP id d9443c01a7336-220d2153077mr52167375ad.44.1739438642097;
-        Thu, 13 Feb 2025 01:24:02 -0800 (PST)
-Received: from [157.82.205.237] ([157.82.205.237])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2fc13ad3fb8sm805579a91.26.2025.02.13.01.23.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Feb 2025 01:24:01 -0800 (PST)
-Message-ID: <0fa16c0e-8002-4320-b7d3-d3d36f80008c@daynix.com>
-Date: Thu, 13 Feb 2025 18:23:55 +0900
+        d=1e100.net; s=20230601; t=1739438734; x=1740043534;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gODipQT1RJ6DR0/GMvEisYcVEgWaoya2b4Hn/2vB8dw=;
+        b=MqKudqsFlUqf6NI/ZvuUQO30OcKdr+IjPLts7j/V/vTaJ2cL8SU97V1hKyPJRgWp3P
+         WvdJ4/TAa4Jr204L4L1xYAXqQn0hl3P7QeU5YtZB9YZmPIidJuXMh+VoWJK4/evX/Yxo
+         eJMzKlC6cdAxzKcnWukLkHNta/S1W8kI51d5yEdsl8iufYMnt21iPJlGQYbzNyf/yfyv
+         N/oJo0PALG1Egey82tyO0HzciSx2jv+d+YuCXwiJCW+kRbAp20Z7/DcTyyXZ+y6NEYKp
+         xQvpcuxHuU+V7cNxEzE/sHHt1v8SwbaLDOZL/pkHp7xgnDEXstUpl6Nlpl2t6GxKnM3F
+         YWtA==
+X-Forwarded-Encrypted: i=1; AJvYcCUBTcLxFq/LVU2wDDshm2idHMo+g1xByxa4bxFj4QSF4/o3Uh5cpteANbfQsNp2/p00YrS6yYXg7yEDhxW9UQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwIestbkwOPAjojHH3xq2drK/HL3Ke8Jf9yYs7cuwHQm6u0eItU
+	S8tt+sMXLuX9d3wyprFm3NKJvda0ftOMQoX+pgsOv7plepJ7S5KeeQ0xmuJxMD+jZJjx3GTpLwS
+	Z954fXQQJ29G3q14YFOjsznT0LTTZxUNMP3OZxkECDuGx7+x71I6JxJmR9ZDHO9ra
+X-Gm-Gg: ASbGncvDrzT+acTZunbJzB3Gw2wEYQUuBRBdXQKWsQlF0y7XcKGBaO51eHCOlSSdVPM
+	/RgvDEp9Ru8KT/eKP/mM861Ikwqw29lv+E6IKKakiyyPa1bVyM+oTnyLS0xls59nHB98CTQw5K9
+	/xMraiyhxcVyMz0TqXORMbtFCnOGhAi93bvR2lCe1PNq2LwZuqlTF4fmc6LC+n2MY79Bmn0Y15S
+	7K8BN7SWD/rlQolCGI4tfQvIW/qWV+69VGSb8fJjSWxTVmpnDcphCPyHKtLOySs6xU/m7SyM3vx
+	nfjCNRpdukbjFdgqy2f0qGb4wnLgrgPw7RZJ1djpZcQ6ABJok344iw==
+X-Received: by 2002:a5d:5984:0:b0:38f:2350:7f70 with SMTP id ffacd0b85a97d-38f235080e6mr2406587f8f.24.1739438733953;
+        Thu, 13 Feb 2025 01:25:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEoCVYCjHVfohwpNNaQmSzmtARyIP61OU3BHF6Vls4lswHDEoUel/X9vFTBA8VTVIJQ/jGE9g==
+X-Received: by 2002:a5d:5984:0:b0:38f:2350:7f70 with SMTP id ffacd0b85a97d-38f235080e6mr2406531f8f.24.1739438733293;
+        Thu, 13 Feb 2025 01:25:33 -0800 (PST)
+Received: from sgarzare-redhat (host-79-46-200-29.retail.telecomitalia.it. [79.46.200.29])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f259f8273sm1280846f8f.89.2025.02.13.01.25.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Feb 2025 01:25:32 -0800 (PST)
+Date: Thu, 13 Feb 2025 10:25:26 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Junnan Wu <junnan01.wu@samsung.com>
+Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
+	lei19.wang@samsung.com, linux-kernel@vger.kernel.org, mst@redhat.com, 
+	netdev@vger.kernel.org, pabeni@redhat.com, q1.huang@samsung.com, stefanha@redhat.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com, ying01.gao@samsung.com, 
+	ying123.xu@samsung.com
+Subject: Re: [Patch net 1/2] vsock/virtio: initialize rx_buf_nr and
+ rx_buf_max_nr when resuming
+Message-ID: <4n2lobgp2wb7v5vywbkuxwyd5cxldd2g4lxb6ox3qomphra2gd@zhrnboczbrbw>
+References: <gr5rqfwb4qgc23dadpfwe74jvsq37udpeqwhpokhnvvin6biv2@6v5npbxf6kbn>
+ <CGME20250213012722epcas5p23e1c903b7ef0711441514c5efb635ee8@epcas5p2.samsung.com>
+ <20250213012805.2379064-1-junnan01.wu@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] tun: Pad virtio headers
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Andrew Melnychenko <andrew@daynix.com>,
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
- devel@daynix.com
-References: <20250213-buffers-v1-1-ec4a0821957a@daynix.com>
- <20250213020702-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <20250213020702-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20250213012805.2379064-1-junnan01.wu@samsung.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: rJS8RBcXPjgSMFxmnDM54udvOiFRJHeImGLvtmaXyXo_1739438734
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 2025/02/13 16:18, Michael S. Tsirkin wrote:
-> 
-> Commit log needs some work.
-> 
-> So my understanding is, this patch does not do much functionally,
-> but makes adding the hash feature easier. OK.
-> 
-> On Thu, Feb 13, 2025 at 03:54:06PM +0900, Akihiko Odaki wrote:
->> tun used to simply advance iov_iter when it needs to pad virtio header,
->> which leaves the garbage in the buffer as is. This is especially
->> problematic
-> 
-> I think you mean "this will become especially problematic"
-> 
->> when tun starts to allow enabling the hash reporting
->> feature; even if the feature is enabled, the packet may lack a hash
->> value and may contain a hole in the virtio header because the packet
->> arrived before the feature gets enabled or does not contain the
->> header fields to be hashed. If the hole is not filled with zero, it is
->> impossible to tell if the packet lacks a hash value.
+On Thu, Feb 13, 2025 at 09:28:05AM +0800, Junnan Wu wrote:
+>>You need to update the title now that you're moving also queued_replies.
 >>
->> In theory, a user of tun can fill the buffer with zero before calling
->> read() to avoid such a problem, but leaving the garbage in the buffer is
->> awkward anyway so fill the buffer in tun.
-> 
-> 
-> What is missing here is description of what the patch does.
-> I think it is
-> "Replace advancing the iterator with writing zeros".
-> 
-> There could be performance cost to the dirtying extra cache lines, though.
-> Could you try checking that please?
-
-It will not dirty extra cache lines; an explanation follows later. 
-Because of that, any benchmark are likely to show only noises, but if 
-you have an idea of workloads that should be tested, please tell me.
-
-> 
-> I think we should mention the risks of the patch, too.
-> Maybe:
-> 
-> 	Also in theory, a user might have initialized the buffer
-> 	to some non-zero value, expecting tun to skip writing it.
-> 	As this was never a documented feature, this seems unlikely.
- > >
+>
+>Well, I will update the title in V3 version.
+>
+>>On Tue, Feb 11, 2025 at 03:19:21PM +0800, Junnan Wu wrote:
+>>>When executing suspend to ram twice in a row,
+>>>the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
+>>>Then after virtqueue_get_buf and `rx_buf_nr` decreased
+>>>in function virtio_transport_rx_work,
+>>>the condition to fill rx buffer
+>>>(rx_buf_nr < rx_buf_max_nr / 2) will never be met.
+>>>
+>>>It is because that `rx_buf_nr` and `rx_buf_max_nr`
+>>>are initialized only in virtio_vsock_probe(),
+>>>but they should be reset whenever virtqueues are recreated,
+>>>like after a suspend/resume.
+>>>
+>>>Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
+>>>virtio_vsock_vqs_init(), so we are sure that they are properly
+>>>initialized, every time we initialize the virtqueues, either when we
+>>>load the driver or after a suspend/resume.
+>>>At the same time, also move `queued_replies`.
 >>
->> The specification also says the device MUST set num_buffers to 1 when
->> the field is present so set it when the specified header size is big
->> enough to contain the field.
-> 
-> This part I dislike. tun has no idea what the number of buffers is.
-> Why 1 specifically?
+>>Why?
+>>
+>>As I mentioned the commit description should explain why the changes are
+>>being made for both reviewers and future references to this patch.
+>>
+>
+>After your kindly remind, I have double checked all locations where `queued_replies`
+>used, and we think for order to prevent erroneous atomic load operations
+>on the `queued_replies` in the virtio_transport_send_pkt_work() function
+>which may disrupt the scheduling of vsock->rx_work
+>when transmitting reply-required socket packets,
+>this atomic variable must undergo synchronized initialization
+>alongside the preceding two variables after a suspend/resume.
 
-That's a valid point. I rewrote the commit log to clarify, but perhaps 
-we can drop the code to set the num_buffers as "[PATCH] vhost/net: Set 
-num_buffers for virtio 1.0" already landed.
+Yes, that was my concern!
 
-Below is the rewritten commit log, which incorporates your suggestions 
-and is extended to cover the performance implication and reason the 
-num_buffers initialization:
+>
+>If we reach agreement on it, I will add this description in V3 version.
 
-tun simply advances iov_iter when it needs to pad virtio header,
-which leaves the garbage in the buffer as is. This will become
-especially problematic when tun starts to allow enabling the hash
-reporting feature; even if the feature is enabled, the packet may lack a
-hash value and may contain a hole in the virtio header because the
-packet arrived before the feature gets enabled or does not contain the
-header fields to be hashed. If the hole is not filled with zero, it is
-impossible to tell if the packet lacks a hash value.
+Yes, please, I just wanted to point out that we need to add an 
+explanation in the commit description.
 
-In theory, a user of tun can fill the buffer with zero before calling
-read() to avoid such a problem, but leaving the garbage in the buffer is
-awkward anyway so replace advancing the iterator with writing zeros.
+And in the title, in this case though listing all the variables would 
+get too long, so you can do something like that:
 
-A user might have initialized the buffer to some non-zero value,
-expecting tun to skip writing it. As this was never a documented
-feature, this seems unlikely. Neither is there a non-zero value that can
-be determined and set before receiving the packet; the only exception
-is the num_buffers field, which is expected to be 1 for version 1 when
-VIRTIO_NET_F_HASH_REPORT is not negotiated. This field is specifically
-set to 1 instead of 0.
+     vsock/virtio: fix variables initialization during resuming
 
-The overhead of filling the hole in the header is negligible as the
-entire header is already placed on the cache when a header size defined
-in the current specification is used even if the cache line is small
-(16 bytes for example).
+Thanks,
+Stefano
 
-Below are the header sizes possible with the current specification:
-a) 10 bytes if the legacy interface is used
-b) 12 bytes if the modern interface is used
-c) 20 bytes if VIRTIO_NET_F_HASH_REPORT is negotiated
+>
+>BRs
+>Junnan Wu
+>
+>>The rest LGTM.
+>>
+>>Stefano
+>>
+>>>
+>>>Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
+>>>Co-developed-by: Ying Gao <ying01.gao@samsung.com>
+>>>Signed-off-by: Ying Gao <ying01.gao@samsung.com>
+>>>Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+>>>---
+>>> net/vmw_vsock/virtio_transport.c | 10 +++++++---
+>>> 1 file changed, 7 insertions(+), 3 deletions(-)
+>>>
+>>>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>>>index b58c3818f284..f0e48e6911fc 100644
+>>>--- a/net/vmw_vsock/virtio_transport.c
+>>>+++ b/net/vmw_vsock/virtio_transport.c
+>>>@@ -670,6 +670,13 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+>>> 	};
+>>> 	int ret;
+>>>
+>>>+	mutex_lock(&vsock->rx_lock);
+>>>+	vsock->rx_buf_nr = 0;
+>>>+	vsock->rx_buf_max_nr = 0;
+>>>+	mutex_unlock(&vsock->rx_lock);
+>>>+
+>>>+	atomic_set(&vsock->queued_replies, 0);
+>>>+
+>>> 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
+>>> 	if (ret < 0)
+>>> 		return ret;
+>>>@@ -779,9 +786,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+>>>
+>>> 	vsock->vdev = vdev;
+>>>
+>>>-	vsock->rx_buf_nr = 0;
+>>>-	vsock->rx_buf_max_nr = 0;
+>>>-	atomic_set(&vsock->queued_replies, 0);
+>>>
+>>> 	mutex_init(&vsock->tx_lock);
+>>> 	mutex_init(&vsock->rx_lock);
+>>>--
+>>>2.34.1
+>>>
+>
 
-a) and b) obviously fit in a cache line. c) uses one extra cache line,
-but the cache line also contains the first 12 bytes of the packet so
-it is always placed on the cache.
