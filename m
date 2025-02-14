@@ -1,187 +1,256 @@
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37AFC347CC
-	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 01:22:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BA3220C03A
+	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 07:21:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739496161; cv=none; b=FwX6waAZT05U/+o5S6PlzgcvizhqTNVtdgkGbeAH1CXN2IKhTJeEBgadCbaGUzkevwq85gBfSwdyyJU+i+tS9uujXedeHavjNew2ekcUtsb8jJNW6aO/OI/FHPe3+JNHK9qvmgffwAOI0+qDYQ7iZ+KSq76CPhtfY7VsM4Reb5Q=
+	t=1739517680; cv=none; b=pbyIKzUDAzoO/EQXJjtuTRYsLqwOkdyl5Bkx+J3iTKek1hQefb+aebHf9in+BjlwP3Rd+lslWv3H8gBGT2w/QGL2SU+tvA98QlPATtgcW1gBBNAac5nJ2ixJCm0dbYTXNVr0AmSrBz6FNVrn/N5kJgfsoDnW8uv5gNkBKkCoGCk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739496161; c=relaxed/simple;
-	bh=IFVi1KzRLJQIhOXSQygfQ9egjuXlYGDLjPg29AdBZZI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=CK6LyqA4WE5ecyEzLaFsycDCyISa12wxaptE+ghPHbEHTGqLDcVGSWNHoG5IdkArjj33dCPzS9INKz64eknxhxx0OJg2QkZQ6wRO7OFO8l5WflWxMni8pocn/MdWysRRzHcxwkcuh/eXSDvrdRuEo8AqAr2nt4vHBaqGu7kGCjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=cbcAWgTl; arc=none smtp.client-ip=203.254.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1739517680; c=relaxed/simple;
+	bh=d6YvzmhZdp1UQthxLehfAcJuwXIc0kTIS+/CMh1p+gk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZGebEx/k1UYn/SI6Mmd6GVPJ9Sfbxzpgle0KGux1r2I+musk4vU9pTdoqRz54QML/rG3J5NHClnzgS8nw5EN73z7ryI0wo9Zne9h/ueSKOee3WLofOCQimqxsoNBqlL9wIWLK/tnqWb0DrDUAKq5F1eOAoqiTCtYvjv3teCc+GI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UXvphQHo; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="cbcAWgTl"
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20250214012237epoutp04bb103c95174d4eef1042b8b9b662128a~j7onlE4hg2295022950epoutp04S
-	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 01:22:37 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20250214012237epoutp04bb103c95174d4eef1042b8b9b662128a~j7onlE4hg2295022950epoutp04S
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1739496157;
-	bh=vWW0cMrxiqFDMldSnf+yvYR4SjlKf7GeaVFbQk4Idww=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=cbcAWgTlETlBzsl3TbMtQ2kLtbmoCFPXWZO8rRd3Mu74agy0cne2RUbE+VcCIro0F
-	 /F287O11PfM1qWb2IbzAqkOrhGol8egl7l9eAKVLAhCnrGhs1nvcGGWocqcfhuNHG/
-	 OIWSZk09vj0zu75ezNYfCZCgKY7vBtnZSHZPyQTg=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-	20250214012236epcas5p4fa21829d79194337f9979f2be5bdbf5e~j7om5ZjXq2587725877epcas5p4D;
-	Fri, 14 Feb 2025 01:22:36 +0000 (GMT)
-Received: from epsmges5p3new.samsung.com (unknown [182.195.38.181]) by
-	epsnrtp4.localdomain (Postfix) with ESMTP id 4YvDn60BTvz4x9Q7; Fri, 14 Feb
-	2025 01:22:34 +0000 (GMT)
-Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
-	epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	2F.78.19956.9DA9EA76; Fri, 14 Feb 2025 10:22:33 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-	20250214012219epcas5p2840feb4b4539929f37c171375e2f646b~j7oXE6qXm1410614106epcas5p2b;
-	Fri, 14 Feb 2025 01:22:19 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-	epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20250214012219epsmtrp18a9d38e9ea58dc827f9e3417383d6e5c~j7oXDyhMG0520605206epsmtrp1G;
-	Fri, 14 Feb 2025 01:22:19 +0000 (GMT)
-X-AuditID: b6c32a4b-fe9f470000004df4-b3-67ae9ad9c3ff
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-	epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	B9.FB.18729.BCA9EA76; Fri, 14 Feb 2025 10:22:19 +0900 (KST)
-Received: from asg29.. (unknown [109.105.129.29]) by epsmtip1.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20250214012217epsmtip1797d1fadbd3da2065d6d311b324c9e55~j7oU6oa-b1757717577epsmtip1k;
-	Fri, 14 Feb 2025 01:22:16 +0000 (GMT)
-From: Junnan Wu <junnan01.wu@samsung.com>
-To: sgarzare@redhat.com
-Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
-	horms@kernel.org, jasowang@redhat.com, junnan01.wu@samsung.com,
-	kuba@kernel.org, kvm@vger.kernel.org, lei19.wang@samsung.com,
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
-	pabeni@redhat.com, q1.huang@samsung.com, stefanha@redhat.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	ying01.gao@samsung.com, ying123.xu@samsung.com
-Subject: [Patch net v3] vsock/virtio: fix variables initialization during
- resuming
-Date: Fri, 14 Feb 2025 09:22:00 +0800
-Message-Id: <20250214012200.1883896-1-junnan01.wu@samsung.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <CAGxU2F7PKH34N7Jd5d=STCAybJi-DDTB-XGiXSAS9BBvGVN4GA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UXvphQHo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1739517678; x=1771053678;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=d6YvzmhZdp1UQthxLehfAcJuwXIc0kTIS+/CMh1p+gk=;
+  b=UXvphQHoNbXyYylhFgS+lDpHNdtpHP6jV0SMCqkzaleBn+x2dlgEAlVf
+   uoLP152+Mv+sgHSW3Fkfe9k69IzO7suIiTXcBybXRQkdeyOVipnVpMniJ
+   hM+QAGdk7VXa5Pr8iCNVdIcsiYvZcgYWwx36mOtKcXctOyhyKTO/5q0f2
+   /evEQSsZDT+Gklzy1uaFA6791jhoFdvEh4vBWLmWEplOcWVC14FjovAWQ
+   r2sApi0ORPX/4xBr6w6Pi69zmdxjEQAmjTnyg6cItXP6hGILbIifDxmfP
+   QAfCx7nPLlu8VsrdebQMlFjZGnLLNBlhVOMc97i5CsSt0/4mv+OGMN+TI
+   A==;
+X-CSE-ConnectionGUID: yINq/I/4QVun/a9XuX6c+g==
+X-CSE-MsgGUID: lPvvxgdqT9Swa7HG/3XSiQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11344"; a="40291859"
+X-IronPort-AV: E=Sophos;i="6.13,285,1732608000"; 
+   d="scan'208";a="40291859"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2025 23:21:17 -0800
+X-CSE-ConnectionGUID: KcWW0NhNREyHk/GliVO58A==
+X-CSE-MsgGUID: URM/KXm9TXCrxuvwjCKWrA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,285,1732608000"; 
+   d="scan'208";a="113575960"
+Received: from hongyuni-mobl.ccr.corp.intel.com (HELO [10.124.240.136]) ([10.124.240.136])
+  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2025 23:21:15 -0800
+Message-ID: <90a09ffa-e316-41f0-916b-25635b1d4bc6@linux.intel.com>
+Date: Fri, 14 Feb 2025 15:21:02 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrEJsWRmVeSWpSXmKPExsWy7bCmlu7NWevSDdpuWFrMOd/CYvH02CN2
-	i8dzV7JbPOo/wWax7NJnJou719wtLmzrY7WYM7XQom3HZVaLy7vmsFlcWdLDbvH/1ytWi2ML
-	xCy+nX7DaLH07Vlmi7MTPrBanJ/zn9ni9aT/rBZHt69ktbjWZGFx4QjQ1P2PZrI6iHlsWXmT
-	yWPBplKPTas62Tx2PrT0eLF5JqPH+31X2Tz6tqxi9Pi8SS6AIyrbJiM1MSW1SCE1Lzk/JTMv
-	3VbJOzjeOd7UzMBQ19DSwlxJIS8xN9VWycUnQNctMwfoNSWFssScUqBQQGJxsZK+nU1RfmlJ
-	qkJGfnGJrVJqQUpOgUmBXnFibnFpXrpeXmqJlaGBgZEpUGFCdsasM1IFl4Uqzs6aztTA+Jm/
-	i5GTQ0LAROLP//dMXYxcHEICuxklXu1pZ4RwPjFKnOi8xQ5SJSTwjVHiw+VimI7V35dDFe1l
-	lHi8+hUbhPOMUWLZwZMsIFVsApoSJ/asYAOxRQTEJS7MWwJWxCywm1niwcZOsISwQIjE4kdn
-	mUBsFgFViTs7VgKN5eDgFbCTmPg3D2KbvMT+g2eZQWxOgUCJC+t/gV3EKyAocXLmE7BdzEA1
-	zVtnM4PMlxB4wiFx6e0GNohmF4k3+++wQtjCEq+Ob2GHsKUkXva3QdnZEr1Hf0HVl0h0v7sE
-	VW8tcX5dOzPIPcxAz6zfpQ8RlpWYemodE8RePone30+YIOK8EjvmgdgcQLaqxPsJNRBhaYmV
-	mzZBbfKQeHDyCyskrJYwSkyb85ZtAqPCLCTvzELyziyEzQsYmVcxSqYWFOempxabFhjnpZbD
-	4zg5P3cTIzixa3nvYHz04IPeIUYmDsZDjBIczEoivBLT1qQL8aYkVlalFuXHF5XmpBYfYjQF
-	BvdEZinR5HxgbskriTc0sTQwMTMzM7E0NjNUEudt3tmSLiSQnliSmp2aWpBaBNPHxMEp1cBU
-	xNpYPEEriO11N/+mDUnhR6+f0ah8fqLL3Lzl6/qZv5VMoo7vfeUZL2staPlvl/Fy51kmmjc/
-	ZNxOOCCoUdZ19rtgU3waU4t1ZtY8xd0Lq+5G77Gd/K9gukKTa9RlpXArTf7MD0a5DSnR2zy8
-	Ivp1yyfelfuX1aDq9LVI92bpPSbbR6lfirfxdDxb/HvT233XmubkcBumx6hdWnpcyY2/vllb
-	0OFs++8GjuXMvIu3Cd/YtkP4w71vJ7l7r4ntVE58z2x8gXty/Iqikrnayw2bptqU/FPkLsj5
-	Lazus/2hrn6hYnp1IEde1MYOfemJDO8fvPq96uDd49OC9L46urQ+k5M3qtL4oiB04eN8fiWW
-	4oxEQy3mouJEAADRax11BAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprJIsWRmVeSWpSXmKPExsWy7bCSnO7pWevSDZ5t5beYc76FxeLpsUfs
-	Fo/nrmS3eNR/gs1i2aXPTBZ3r7lbXNjWx2oxZ2qhRduOy6wWl3fNYbO4sqSH3eL/r1esFscW
-	iFl8O/2G0WLp27PMFmcnfGC1OD/nP7PF60n/WS2Obl/JanGtycLiwhGgqfsfzWR1EPPYsvIm
-	k8eCTaUem1Z1snnsfGjp8WLzTEaP9/uusnn0bVnF6PF5k1wARxSXTUpqTmZZapG+XQJXxqwz
-	UgWXhSrOzprO1MD4mb+LkZNDQsBEYvX35YwgtpDAbkaJh0etIeLSEl2/25ghbGGJlf+es3cx
-	cgHVPGGUmDlxBjtIgk1AU+LEnhVsILaIgLjEhXlL2ECKmAUuM0uc+3kHrEhYIEii9cISsA0s
-	AqoSd3asBLI5OHgF7CQm/s2DWCAvsf/gWbBlnAKBEhfW/2KHOChA4sDkZrD5vAKCEidnPmEB
-	sZmB6pu3zmaewCgwC0lqFpLUAkamVYySqQXFuem5xYYFhnmp5XrFibnFpXnpesn5uZsYwbGn
-	pbmDcfuqD3qHGJk4GA8xSnAwK4nwSkxbky7Em5JYWZValB9fVJqTWnyIUZqDRUmcV/xFb4qQ
-	QHpiSWp2ampBahFMlomDU6qBKez5xE8SLhdCN7IuatA4Oukhv+rupNOLd3zmaGieJ33BlSdn
-	psWEFy+D9SX4t+v9ioq5tP3f45bA1xzpn2PigrN09u2NqA6bXLgtzVl28cF5u2a9L/Y9/e2w
-	+ZSsq59Lq/Yb5L7caXtI6d4n7u1sj34XW00zv7s/avGDjNqvSUlO6icMulVswzP9Szsn2/I4
-	LlbUn27t08t1v+HGji0qtorMpyf3S1dlfeDmn3n3y+/9LhVB1tLrus9eORWt+tnnRrS1sy3j
-	Fb0LQR8lD69bIXru7IydnD09a3w5jH/cPHdInrH0y8lFK+x4irn2bLkm9vj13gbeC5n3k/Y5
-	LZXw2Bg0tb6zYI5Uptj3ae1u+UosxRmJhlrMRcWJAAat4qYsAwAA
-X-CMS-MailID: 20250214012219epcas5p2840feb4b4539929f37c171375e2f646b
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250214012219epcas5p2840feb4b4539929f37c171375e2f646b
-References: <CAGxU2F7PKH34N7Jd5d=STCAybJi-DDTB-XGiXSAS9BBvGVN4GA@mail.gmail.com>
-	<CGME20250214012219epcas5p2840feb4b4539929f37c171375e2f646b@epcas5p2.samsung.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
+To: Eric Auger <eauger@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Zhenzhong Duan <zhenzhong.duan@intel.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
+ <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
+ <20250203094700-mutt-send-email-mst@kernel.org>
+ <7cee3c9e-515e-41de-a15c-04c7591e83eb@redhat.com>
+ <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
+Content-Language: en-US
+From: "Ning, Hongyu" <hongyu.ning@linux.intel.com>
+In-Reply-To: <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-When executing suspend to ram twice in a row,
-the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
-Then after virtqueue_get_buf and `rx_buf_nr` decreased
-in function virtio_transport_rx_work,
-the condition to fill rx buffer
-(rx_buf_nr < rx_buf_max_nr / 2) will never be met.
 
-It is because that `rx_buf_nr` and `rx_buf_max_nr`
-are initialized only in virtio_vsock_probe(),
-but they should be reset whenever virtqueues are recreated,
-like after a suspend/resume.
 
-Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
-virtio_vsock_vqs_init(), so we are sure that they are properly
-initialized, every time we initialize the virtqueues, either when we
-load the driver or after a suspend/resume.
+On 2025/2/6 16:59, Eric Auger wrote:
+> Hi,
+> 
+> On 2/4/25 12:46 PM, Eric Auger wrote:
+>> Hi,
+>>
+>> On 2/3/25 3:48 PM, Michael S. Tsirkin wrote:
+>>> On Fri, Jan 31, 2025 at 10:53:15AM +0100, Eric Auger wrote:
+>>>> Hi Kirill, Michael
+>>>>
+>>>> On 8/8/24 9:51 AM, Kirill A. Shutemov wrote:
+>>>>> Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
+>>>>> accesses during the hang.
+>>>>>
+>>>>> 	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
+>>>>> 	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
+>>>>> 	...
+>>>>>
+>>>>> It was traced down to virtio-console. Kexec works fine if virtio-console
+>>>>> is not in use.
+>>>>>
+>>>>> Looks like virtio-console continues to write to the MMIO even after
+>>>>> underlying virtio-pci device is removed.
+>>>>>
+>>>>> The problem can be mitigated by removing all virtio devices on virtio
+>>>>> bus shutdown.
+>>>>>
+>>>>> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+>>>>> Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+>>>>
+>>>> Gentle ping on that patch that seems to have fallen though the cracks.
+>>>>
+>>>> I think this fix is really needed. I have another test case with a
+>>>> rebooting guest exposed with virtio-net (backed by vhost-net) and
+>>>> viommu. Since there is currently no shutdown for the virtio-net, on
+>>>> reboot, the IOMMU is disabled through the native_machine_shutdown()/
+>>>> x86_platform.iommu_shutdown() while the virtio-net is still alive.
+>>>>
+>>>> Normally device_shutdown() should call virtio-net shutdown before the
+>>>> IOMMU tear down and we wouldn't see any spurious transactions after
+>>>> iommu shutdown.
+>>>>
+>>>> With that fix, the above test case is fixed and I do not see spurious
+>>>> vhost IOTLB miss spurious requests.
+>>>>
+>>>> For more details, see qemu thread ([PATCH] hw/virtio/vhost: Disable
+>>>> IOTLB callbacks when IOMMU gets disabled,
+>>>> https://lore.kernel.org/all/20250120173339.865681-1-eric.auger@redhat.com/)
+>>>>
+>>>>
+>>>> Reviewed-by: Eric Auger <eric.auger@redhat.com>
+>>>> Tested-by: Eric Auger <eric.auger@redhat.com>
+>>>>
+>>>> Thanks
+>>>>
+>>>> Eric
+>>>>
+>>>>> ---
+>>>>>   drivers/virtio/virtio.c | 10 ++++++++++
+>>>>>   1 file changed, 10 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>>>>> index a9b93e99c23a..6c2f908eb22c 100644
+>>>>> --- a/drivers/virtio/virtio.c
+>>>>> +++ b/drivers/virtio/virtio.c
+>>>>> @@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
+>>>>>   	of_node_put(dev->dev.of_node);
+>>>>>   }
+>>>>>   
+>>>>> +static void virtio_dev_shutdown(struct device *_d)
+>>>>> +{
+>>>>> +	struct virtio_device *dev = dev_to_virtio(_d);
+>>>>> +	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+>>>>> +
+>>>>> +	if (drv && drv->remove)
+>>>>> +		drv->remove(dev);
+>>>
+>>>
+>>> I am concerned that full remove is a heavyweight operation.
+>>> Do not want to slow down reboots even more.
+>>> How about just doing a reset, instead?
+>>
+>> I tested with
+>>
+>> static void virtio_dev_shutdown(struct device *_d)
+>> {
+>>          struct virtio_device *dev = dev_to_virtio(_d);
+>>
+>>          virtio_reset_device(dev);
+>> }
+>>
+>>
+>> and it fixes my issue.
+>>
+>> Kirill, would that fix you issue too?
 
-To prevent erroneous atomic load operations on the `queued_replies`
-in the virtio_transport_send_pkt_work() function
-which may disrupt the scheduling of vsock->rx_work
-when transmitting reply-required socket packets,
-this atomic variable must undergo synchronized initialization
-alongside the preceding two variables after a suspend/resume.
+Hi,
 
-Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
-Link: https://lore.kernel.org/virtualization/20250207052033.2222629-1-junnan01.wu@samsung.com/
-Co-developed-by: Ying Gao <ying01.gao@samsung.com>
-Signed-off-by: Ying Gao <ying01.gao@samsung.com>
-Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+sorry for my late response, I synced with Kirill offline and did a retest.
+
+The issue is still reproduced on my side, kexec will be stuck in case of 
+"console=hvc0" append in kernel cmdline and even with such patch applied.
+
+my kernel code base is 6.14.0-rc2.
+
+let me know if any more experiments needed.
+
 ---
- net/vmw_vsock/virtio_transport.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+  drivers/virtio/virtio.c | 8 ++++++++
+  1 file changed, 8 insertions(+)
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index b58c3818f284..f0e48e6911fc 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -670,6 +670,13 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
- 	};
- 	int ret;
- 
-+	mutex_lock(&vsock->rx_lock);
-+	vsock->rx_buf_nr = 0;
-+	vsock->rx_buf_max_nr = 0;
-+	mutex_unlock(&vsock->rx_lock);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index ba37665188b5..f9f885d04763 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -395,6 +395,13 @@ static const struct cpumask 
+*virtio_irq_get_affinity(struct device *_d,
+         return dev->config->get_vq_affinity(dev, irq_vec);
+  }
+
++static void virtio_dev_shutdown(struct device *_d)
++{
++        struct virtio_device *dev = dev_to_virtio(_d);
 +
-+	atomic_set(&vsock->queued_replies, 0);
++        virtio_reset_device(dev);
++}
 +
- 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
- 	if (ret < 0)
- 		return ret;
-@@ -779,9 +786,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 
- 	vsock->vdev = vdev;
- 
--	vsock->rx_buf_nr = 0;
--	vsock->rx_buf_max_nr = 0;
--	atomic_set(&vsock->queued_replies, 0);
- 
- 	mutex_init(&vsock->tx_lock);
- 	mutex_init(&vsock->rx_lock);
--- 
-2.34.1
+  static const struct bus_type virtio_bus = {
+         .name  = "virtio",
+         .match = virtio_dev_match,
+@@ -403,6 +410,7 @@ static const struct bus_type virtio_bus = {
+         .probe = virtio_dev_probe,
+         .remove = virtio_dev_remove,
+         .irq_get_affinity = virtio_irq_get_affinity,
++       .shutdown = virtio_dev_shutdown,
+  };
+
+  int __register_virtio_driver(struct virtio_driver *driver, struct 
+module *owner)
+--
+2.43.0
+
+
+> gentle ping.
+> 
+> this also fixes another issue with qemu vSMMU + virtio-scsi-pci. With
+> the above addition I get rid of spurious warning in qemu on guest reboot.
+> 
+> qemu-system-aarch64: virtio: zero sized buffers are not allowed
+> qemu-system-aarch64: vhost vring error in virtqueue 0: Invalid argument (22)
+> 
+> Would you mind if I respin?
+> 
+> Thanks
+> 
+> Eric
+> 
+> 
+> 
+> 
+>>
+>> Thanks
+>>
+>> Eric
+>>>
+>>>>> +}
+>>>>> +
+>>>>>   static const struct bus_type virtio_bus = {
+>>>>>   	.name  = "virtio",
+>>>>>   	.match = virtio_dev_match,
+>>>>> @@ -363,6 +372,7 @@ static const struct bus_type virtio_bus = {
+>>>>>   	.uevent = virtio_uevent,
+>>>>>   	.probe = virtio_dev_probe,
+>>>>>   	.remove = virtio_dev_remove,
+>>>>> +	.shutdown = virtio_dev_shutdown,
+>>>>>   };
+>>>>>   
+>>>>>   int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
+>>>
+>>
+> 
 
