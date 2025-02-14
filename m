@@ -1,162 +1,166 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFCE12063D8
-	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 12:17:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2815C264A85;
+	Fri, 14 Feb 2025 13:32:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739535453; cv=none; b=Iu55SACl0b4MurRQ/mdlY2ncqFdi4j944mhu2ssWhpcFDzNMN4A7KKje8y2BXDA3jE18ViNcudi/0XSzCCiWS9fWOocym65yLEBA+sD2uY2b7/FySaOuFGKn7hE87i45ZBDHptUpDsG6KiaUnSmdLUtLbpFRxpfp76bv6pULa58=
+	t=1739539940; cv=none; b=HzA/J8NsETmbAuGgVzyANExkGp0iFfCCFJBQbDcmPBL/j4xp7l3SE4I+jf72B/QFKHM1+888mr04wOszUH0nbkZDdMw8hV7kMji7WYZNGkVF3XCvfBVoJHvVm2lOD4A7pMpEq6FCzd2Jc3HeedJk2oFsyN1VRSf+n7wRrzPPe4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739535453; c=relaxed/simple;
-	bh=508bg14U3UMJ8jdr3pX2AL6akRM/QyTn1EwYOGL0phw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=aXcVUJK/V8JmomwpLBmRH7nDTNiwM9lOFSl2f+r5yCHHtP42r5v2RRKd9jSCR8YuO3neXETN12vlp0wzpdC6v9fRicbGYVN2kqGJHX9p0cBfXuSTzQo6z3o4SZ5h9Li0zu162vQ1+MTV3DSOPLYW5b2Kyn94x89Yx74UAJ88cQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J7N/9TGo; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1739539940; c=relaxed/simple;
+	bh=zIzezJTtZX7gF+P2Mi7uN3v642Mtp3pblVa5iR9oZSY=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=gtw+9M+XpAWwwoIRniqTvw2G2TSldexv9++FPnaonB85Uzofi4Riyyf0rS/yIt92kgXlETVY/9IQ6GgxBmS2wOXRVw4hmhoOmdi3mjBBddx8JPwvkdRtPEH1DThaslvsmSKfZu2qeThAYUyc2nGTQ7eQodgfuiVRENuvsy9CTI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lgCAfYa9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J7N/9TGo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739535451;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BZijvutShOwbMhwLPMjJwb8XWzeFIQw45xdK6ukivSY=;
-	b=J7N/9TGovXCge1ko/0xLQVccvL2XxhtJ1uUVxvQ7FI/oWVJLZfO4MnOjNNP119rIdfgkDD
-	TLI7Iw5ExEyybxgy8YFlNCSAILmlzeXbpXRSwVAfp62eNNFpLfOK1bti6p//jUC2jlj5Yq
-	SDxdcjnhaEDUyuK7YVdZKDLBM/wLhQw=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-196-Sh9mm4QOPOWS3H_ZGnt-hA-1; Fri, 14 Feb 2025 07:17:30 -0500
-X-MC-Unique: Sh9mm4QOPOWS3H_ZGnt-hA-1
-X-Mimecast-MFC-AGG-ID: Sh9mm4QOPOWS3H_ZGnt-hA_1739535449
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ab7ee92898fso227441866b.0
-        for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 04:17:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739535449; x=1740140249;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BZijvutShOwbMhwLPMjJwb8XWzeFIQw45xdK6ukivSY=;
-        b=EBl5Ok+zqq/9o2a5ExVWYrvIFapaxKWbmxdLnOKbTF33GlsqUr5t6ihgUiLMBkrPhn
-         a2ADdTboOoX4q7/DVlpFbABJFf/MbKzGHSJ3lXWTd5BgOANHU1bBXVgYnyqsHI4yjJW5
-         4bR5viBJGsBMKU1pl8vMicuW7noppSeJJ7xp8K73AJZgxTTzzG5IIgs+VzmU3zOcjSJF
-         pWtwn1w0SaqjDPEW/8A5Z8nGiWqSalvqI5ytslkULzLEG+uTf+gKppniAM5zkFK/vSgg
-         FSpyfPvEIxUcl40CMX9SXEmDz5SxvcapimAoSBfMN13LMzGwu2o87eMlWRl7uZ0gYDCm
-         lp9A==
-X-Forwarded-Encrypted: i=1; AJvYcCUvOIHlt028hCliPjFjCVH+VYgsI1s77Pv+B3MKuh+107oO5EGhn5R06Qc3xJDLml3n8FUs+bETFf1iiA51iw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx4vLbg/0g3RTjDh0/TsMmD6qWsSA10X+iSHDQ3Agl4pbVYQi3Q
-	SidRA7x3OjozCDNrMaiejNc0Gyt34HDBmO87gNUBW78B916VztyIkO9QUNCqrtTI6cRgpeHqVlx
-	3goz1Le2Yro8L7nQBsCS++HPccL+a5wEQRiaodLzuKcr4ySIQaYV0OWq6pAMh7V3G
-X-Gm-Gg: ASbGnctOeihLevV7VlgndXpEG6vYpklvibxQ6so6I5TAxp9UW+/PaGG7pDSTZghFoFN
-	YtyB8I01OHh5r6VUHrUiDAtxx4yPjK+c4XsnnqjX+/1xLSzdjEiCjVurC1Bb7IB2KgDXW9kH509
-	/u5sAfoIx6A0eg7Cpo4CEvHH/W410V8S3gxZq14n1lJpUESU2EiNv4tFAVagJ1fpZkAf6ScXMb9
-	QS9uRmppGT1ltKLV3p142qfM8+4hkNJSnvwabDAq+cy3WF6z3Qf8HGscsZx0QrczfQavA==
-X-Received: by 2002:a17:907:3fa2:b0:ab7:5b58:f467 with SMTP id a640c23a62f3a-ab7f347aa6cmr1198349266b.40.1739535448569;
-        Fri, 14 Feb 2025 04:17:28 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGPf+AeSUeRn24l529Z9ZendqwqQDqP06Hke8qwzwFNKUt9IcGq+7DW+H44R0X87YfMunCk/g==
-X-Received: by 2002:a17:907:3fa2:b0:ab7:5b58:f467 with SMTP id a640c23a62f3a-ab7f347aa6cmr1198344266b.40.1739535448190;
-        Fri, 14 Feb 2025 04:17:28 -0800 (PST)
-Received: from redhat.com ([2.55.187.107])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aba5323226asm334107966b.8.2025.02.14.04.17.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Feb 2025 04:17:26 -0800 (PST)
-Date: Fri, 14 Feb 2025 07:17:22 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Junnan Wu <junnan01.wu@samsung.com>
-Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
-	eperezma@redhat.com, horms@kernel.org, jasowang@redhat.com,
-	kuba@kernel.org, kvm@vger.kernel.org, lei19.wang@samsung.com,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	pabeni@redhat.com, q1.huang@samsung.com, stefanha@redhat.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	ying01.gao@samsung.com, ying123.xu@samsung.com
-Subject: Re: [Patch net v3] vsock/virtio: fix variables initialization during
- resuming
-Message-ID: <20250214071714-mutt-send-email-mst@kernel.org>
-References: <CAGxU2F7PKH34N7Jd5d=STCAybJi-DDTB-XGiXSAS9BBvGVN4GA@mail.gmail.com>
- <CGME20250214012219epcas5p2840feb4b4539929f37c171375e2f646b@epcas5p2.samsung.com>
- <20250214012200.1883896-1-junnan01.wu@samsung.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lgCAfYa9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E953C4CED1;
+	Fri, 14 Feb 2025 13:32:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739539939;
+	bh=zIzezJTtZX7gF+P2Mi7uN3v642Mtp3pblVa5iR9oZSY=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=lgCAfYa9SsAhyGVHe2CEmgmbU3qLsPxmDiuTPVvKyzAZbB+tJZebrI81Fqw5tn/vt
+	 MfVuRj6I2NTEmwGwt9/slmGeRzP8CIjFlhlKKEjZtoL0lU6B1zICFQLh3jluTOBqo/
+	 3nkXmV5cSHTDwdt2tuCQ6oc0VJ71Wkw7jmrcApr7AweFnTI+j2mG8HeoKi7bo6LHsI
+	 YbrO1IzJEI+w2ZZ6mhh5NEKbKP6EwPCmx/2myn1fP6rIjlue5ImXqhS03y7bd4rCcO
+	 VpjTlMe2LAaRA4XF+9kVNvgb5us+JB2CRqt9SIdKgIqTvn9tC9laytZjiyCs0fTZr6
+	 6B+HSNcHbpAww==
+Message-ID: <558f3faa22e5717872bf53acfe6007dc3118f17d.camel@kernel.org>
+Subject: Re: [PATCH] virtio: console: Prepare for making REMOTEPROC modular
+From: Amit Shah <amit@kernel.org>
+To: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
+	 <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Date: Fri, 14 Feb 2025 14:32:16 +0100
+In-Reply-To: <uo3h33wijb7mhjwgugpkjhqg7wusz6tpkh5u5fxbsxp3kzpq75@ggsdroemmdmj>
+References: <20250213115517.82975-2-u.kleine-koenig@baylibre.com>
+	 <34cb36503dae7a2d0ba94d1c367004a2d901e13b.camel@kernel.org>
+	 <uo3h33wijb7mhjwgugpkjhqg7wusz6tpkh5u5fxbsxp3kzpq75@ggsdroemmdmj>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250214012200.1883896-1-junnan01.wu@samsung.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: upRaQXr7z7sawi9FbpBFIg540D_Bid8cDUot8FY9EFk_1739535449
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Fri, Feb 14, 2025 at 09:22:00AM +0800, Junnan Wu wrote:
-> When executing suspend to ram twice in a row,
-> the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
-> Then after virtqueue_get_buf and `rx_buf_nr` decreased
-> in function virtio_transport_rx_work,
-> the condition to fill rx buffer
-> (rx_buf_nr < rx_buf_max_nr / 2) will never be met.
-> 
-> It is because that `rx_buf_nr` and `rx_buf_max_nr`
-> are initialized only in virtio_vsock_probe(),
-> but they should be reset whenever virtqueues are recreated,
-> like after a suspend/resume.
-> 
-> Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
-> virtio_vsock_vqs_init(), so we are sure that they are properly
-> initialized, every time we initialize the virtqueues, either when we
-> load the driver or after a suspend/resume.
-> 
-> To prevent erroneous atomic load operations on the `queued_replies`
-> in the virtio_transport_send_pkt_work() function
-> which may disrupt the scheduling of vsock->rx_work
-> when transmitting reply-required socket packets,
-> this atomic variable must undergo synchronized initialization
-> alongside the preceding two variables after a suspend/resume.
-> 
-> Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
-> Link: https://lore.kernel.org/virtualization/20250207052033.2222629-1-junnan01.wu@samsung.com/
-> Co-developed-by: Ying Gao <ying01.gao@samsung.com>
-> Signed-off-by: Ying Gao <ying01.gao@samsung.com>
-> Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+On Fri, 2025-02-14 at 12:14 +0100, Uwe Kleine-K=C3=B6nig wrote:
+> Hello Amit,
+>=20
+> On Fri, Feb 14, 2025 at 11:58:44AM +0100, Amit Shah wrote:
+> > On Thu, 2025-02-13 at 12:55 +0100, Uwe Kleine-K=C3=B6nig wrote:
+> > > virtio_console.c can make use of REMOTEPROC. Therefore it has
+> > > several
+> > > tests evaluating
+> > >=20
+> > > 	IS_ENABLED(CONFIG_REMOTEPROC)
+> > >=20
+> > > . This currently only does the right thing because
+> > > CONFIG_REMOTEPROC
+> > > cannot be modular. Otherwise the configuration
+> > >=20
+> > > 	CONFIG_REMOTEPROC=3Dm
+> > > 	CONFIG_VIRTIO_CONSOLE=3Dy
+> > >=20
+> > > would result in a build failure because then
+> > > IS_ENABLED(CONFIG_REMOTEPROC) evaluates to true but still the
+> > > built-
+> > > in
+> > > virtio_console.o must not use symbols from the remoteproc module.
+> > >=20
+> > > To prepare for making REMOTEPROC modular change the tests to use
+> > > IS_REACHABLE() instead of IS_ENABLED() which copes correctly for
+> > > the
+> > > above case as it evaluates to false then.
+> > >=20
+> > > Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@baylibre.com>
+> > > ---
+> > > Hello,
+> > >=20
+> > > I didn't check what else needs to be done to make
+> > > CONFIG_REMOTEPROC
+> > > tristate but even if it stays a bool using IS_REACHABLE() is
+> > > still
+> > > the
+> > > better choice.
+> >=20
+> > It might lead to a false sense of "better" -- the value of
+> > IS_ENABLED
+> > is cached in a variable which is determined at compile-time.
+>=20
+> Either I don't understand what you mean, or this is wrong.
+>=20
+> 	$ make allmodconfig drivers/char/virtio_console.i
+> 	$ grep CONFIG_REMOTEPROC=3D .config
+> 	CONFIG_REMOTEPROC=3Dm
+> 	$ cat drivers/char/virtio_console.i
+> 	...
+> 	static bool is_rproc_serial(const struct virtio_device
+> *vdev)
+> 	{
+> 	 return 1 && vdev->id.device =3D=3D 11;
+> 	}
+> 	...
+>=20
+>=20
+> so is_rproc_enabled is still constant and known at compile time.
 
+Well - so I was replying to your comment about what else is required.=20
+And if remoteproc becomes a module, this check will not happen at
+compile-time?
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+In any case, the next bit is the more important one:
 
-> ---
->  net/vmw_vsock/virtio_transport.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-> index b58c3818f284..f0e48e6911fc 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -670,6 +670,13 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
->  	};
->  	int ret;
->  
-> +	mutex_lock(&vsock->rx_lock);
-> +	vsock->rx_buf_nr = 0;
-> +	vsock->rx_buf_max_nr = 0;
-> +	mutex_unlock(&vsock->rx_lock);
-> +
-> +	atomic_set(&vsock->queued_replies, 0);
-> +
->  	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
->  	if (ret < 0)
->  		return ret;
-> @@ -779,9 +786,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
->  
->  	vsock->vdev = vdev;
->  
-> -	vsock->rx_buf_nr = 0;
-> -	vsock->rx_buf_max_nr = 0;
-> -	atomic_set(&vsock->queued_replies, 0);
->  
->  	mutex_init(&vsock->tx_lock);
->  	mutex_init(&vsock->rx_lock);
-> -- 
-> 2.34.1
+> > That
+> > caching, after this change, moves to driver init-time.=C2=A0 If the
+> > rproc
+> > module is loaded after virtio-console is initialized, there's no
+> > way
+> > it's going to be used.
+>=20
+> If both are modular, modprobe should make sure that rproc is ready
+> before virtio-console. If virtio-console is builtin and rproc is
+> modular, IS_REACHABLE(CONFIG_REMOTEPROC) evaluates to false and so
+> rproc
+> won't be used. (As is the case already today with
+> CONFIG_REMOTEPROC=3Dn).
+>=20
+> > Only if the rproc module is loaded before
+> > virtio-console will the rproc functionality be used -- which means
+> > that
+> > nothing changed in reality..
+>=20
+> With that patch indeed nothing changed yet, because CONFIG_REMOTEPROC
+> cannot be =3Dm today. Until this changes IS_REACHABLE() and
+> IS_ENABLED()
+> are equivalent.
+> =C2=A0
+> > To properly detect and use rproc if available would need the rproc
+> > initialization out of virtcons_probe() and into something that
+> > happens
+> > either via sysfs for existing ports, or when adding a new port to a
+> > device.=C2=A0 However, the current spec doesn't allow for that, so some
+> > more
+> > changes will need to be made to ensure current backwards compat,
+> > and a
+> > new specification that allows for a late init of rproc.
+>=20
+> I didn't understand that and hope it's irrelevant with the things I
+> wrote above.
 
+See
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/dri=
+vers/char/virtio_console.c#n1993
+
+The device is configured at probe time on how it's going to be used -
+all that will have to be reworked for making the remoteproc driver
+tristate.
+
+So in essence, this patch isn't changing anything; but it's not helping
+the case you want to enable either.
+
+		Amit
