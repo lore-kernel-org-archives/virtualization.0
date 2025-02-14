@@ -1,333 +1,162 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E66EB20C00B
-	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 12:16:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFCE12063D8
+	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 12:17:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739535400; cv=none; b=Oyji3iJqChFbEDacLblbqoRjM3JBHdAAlrWJ/ZhF6EblvuF++D/89ZuryvVRC4EhV4dxna1CKCwa1b51YvoV6O9C7K0PTm/2bI/A8usCd+/Zml3Hmw7L7kO5tbHm2b+C7hz2ljvmTVdOqolJJmARAFMJklCSC4EklsnBXb7SXLs=
+	t=1739535453; cv=none; b=Iu55SACl0b4MurRQ/mdlY2ncqFdi4j944mhu2ssWhpcFDzNMN4A7KKje8y2BXDA3jE18ViNcudi/0XSzCCiWS9fWOocym65yLEBA+sD2uY2b7/FySaOuFGKn7hE87i45ZBDHptUpDsG6KiaUnSmdLUtLbpFRxpfp76bv6pULa58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739535400; c=relaxed/simple;
-	bh=/o8fcaoZZy95Ve/jJBOP4FiNXTZNLQeMk1Fa6jY4dMM=;
+	s=arc-20240116; t=1739535453; c=relaxed/simple;
+	bh=508bg14U3UMJ8jdr3pX2AL6akRM/QyTn1EwYOGL0phw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=QeiCqN2QrMC6OEViR7BauBjhZcQyNIXwefsYXUaACBEctKExmeFGLN3Tn1BM33jlXqXBsB3OeS+Lycc1r1sQCbfpnHoHnTOv/mOnbAm7S67bpIFwOnq21kL9C/EvXZ6riccx7k5QXUKoilJHRaD12DD6/XyTOjH5Zrg1HSlt9ZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=egZvpCyS; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=aXcVUJK/V8JmomwpLBmRH7nDTNiwM9lOFSl2f+r5yCHHtP42r5v2RRKd9jSCR8YuO3neXETN12vlp0wzpdC6v9fRicbGYVN2kqGJHX9p0cBfXuSTzQo6z3o4SZ5h9Li0zu162vQ1+MTV3DSOPLYW5b2Kyn94x89Yx74UAJ88cQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J7N/9TGo; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="egZvpCyS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J7N/9TGo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739535397;
+	s=mimecast20190719; t=1739535451;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UA+7Z+yJbgdcOkkvDK35ReVebQSawPFeyqsCedXlO0E=;
-	b=egZvpCySG0l0NyzZqc1UpMWKA2UTAPMtpuaf73ppYiVWnLu2sW7QCX3HZqsemOn+ses5Pz
-	J3CFsnErQr5Tzskl8e62cQoYxx8X7frVNaLe5Gw8PV9XufC8Tqi81IMPrG/lTGzuF33029
-	Laq4BDm06aC8OQtkMKNPq8WaSC+hPOw=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=BZijvutShOwbMhwLPMjJwb8XWzeFIQw45xdK6ukivSY=;
+	b=J7N/9TGovXCge1ko/0xLQVccvL2XxhtJ1uUVxvQ7FI/oWVJLZfO4MnOjNNP119rIdfgkDD
+	TLI7Iw5ExEyybxgy8YFlNCSAILmlzeXbpXRSwVAfp62eNNFpLfOK1bti6p//jUC2jlj5Yq
+	SDxdcjnhaEDUyuK7YVdZKDLBM/wLhQw=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-68--d_mjT3wOxKtcfIVsPTGSQ-1; Fri, 14 Feb 2025 07:16:36 -0500
-X-MC-Unique: -d_mjT3wOxKtcfIVsPTGSQ-1
-X-Mimecast-MFC-AGG-ID: -d_mjT3wOxKtcfIVsPTGSQ_1739535395
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ab7f6d9f4bfso184617766b.1
-        for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 04:16:36 -0800 (PST)
+ us-mta-196-Sh9mm4QOPOWS3H_ZGnt-hA-1; Fri, 14 Feb 2025 07:17:30 -0500
+X-MC-Unique: Sh9mm4QOPOWS3H_ZGnt-hA-1
+X-Mimecast-MFC-AGG-ID: Sh9mm4QOPOWS3H_ZGnt-hA_1739535449
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ab7ee92898fso227441866b.0
+        for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 04:17:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739535395; x=1740140195;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UA+7Z+yJbgdcOkkvDK35ReVebQSawPFeyqsCedXlO0E=;
-        b=VgWFQR/b3HB5a5Fg3MmMXE5p39zmOHySKC2TSdwvIwY1yFa+ZXel1SEpH3tt09s1+k
-         i1G+63A76sLXifnsvouLahVjHEAPottg5MsW19skS2RIGF16D4YTMckiQ5CgpdPgiHUi
-         Xu/tY5eVGBkkiaaCAP8tVAQMeZhPVqQ5EvJztvuned8R47QCMnKO+Szk4gvxITnggsmW
-         ghZQq5wBZ2zazVgpvEdWHfxA9dGEEH5dyO0Pszg5MNT3sm0gg4iGxmILpaCfP4qbf9xq
-         9JIEu6HiPDS98+7VBeVaUk7Lmte3vVohOpWTXPdZuud8icLIabNbHWmpm5XectbvqBBg
-         8PTA==
-X-Forwarded-Encrypted: i=1; AJvYcCXayUZm5wojpf4A1/Y4KHEn6i8Zlr5X6D+fS+M8v0MPskl6tPQWL2k2+Kene40tkbzEBBIS15D7jXCi8IRh3g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzSw04FKI450WFkZyZbK4nW1qAgS5lVfwmqvdvbRAgc083OdvEs
-	hPXW5wCDQHZ9/Jj6vjZ0AfE/EHA+ArxEjjqth+0ya/dH8zwk9NOcxlvj5aJCw+Q5DveaHYGGZsn
-	OEHfpcmDzYpw+w+3T0GGADwd7KT916qhAJa+eNyzuuF1jDKTFj++Bca5h1oJDNKRC
-X-Gm-Gg: ASbGncssVREAy4i8sIhpefqDz30ezz6A4x+wzQdMuSrtEFNnrKlvopGTJwOCB5qQVr/
-	e4naEADE+UrbcTQEAeheQAxfAe2EpWzbDXuOnZ5F2dYZVPIp7TRPOVigVh6Shu8YOMHoEkt+vs/
-	jGR9kk1kCwa407/dNx6nVuYAmu2QUKT/ChwPZmb6bQBHZPE3qn7KU0163Pg/s5APKnhabHdPV25
-	7I2zekcZZ41dXILW9WdQQuR/0YNg4p/GByXtuwrVlJE/rhFO7OEhCmNxvOC1VsWsGa0+Q==
-X-Received: by 2002:a17:907:d15:b0:aa6:9503:aa73 with SMTP id a640c23a62f3a-aba501bc5admr737240366b.51.1739535395122;
-        Fri, 14 Feb 2025 04:16:35 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHzflie8j7cMepDFh5VNqCOhDNeSL2Ik5idlR4ZEhXPbKFLX9WkajJhHZ7aepnfCQqle/r6yA==
-X-Received: by 2002:a17:907:d15:b0:aa6:9503:aa73 with SMTP id a640c23a62f3a-aba501bc5admr737236866b.51.1739535394691;
-        Fri, 14 Feb 2025 04:16:34 -0800 (PST)
+        d=1e100.net; s=20230601; t=1739535449; x=1740140249;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BZijvutShOwbMhwLPMjJwb8XWzeFIQw45xdK6ukivSY=;
+        b=EBl5Ok+zqq/9o2a5ExVWYrvIFapaxKWbmxdLnOKbTF33GlsqUr5t6ihgUiLMBkrPhn
+         a2ADdTboOoX4q7/DVlpFbABJFf/MbKzGHSJ3lXWTd5BgOANHU1bBXVgYnyqsHI4yjJW5
+         4bR5viBJGsBMKU1pl8vMicuW7noppSeJJ7xp8K73AJZgxTTzzG5IIgs+VzmU3zOcjSJF
+         pWtwn1w0SaqjDPEW/8A5Z8nGiWqSalvqI5ytslkULzLEG+uTf+gKppniAM5zkFK/vSgg
+         FSpyfPvEIxUcl40CMX9SXEmDz5SxvcapimAoSBfMN13LMzGwu2o87eMlWRl7uZ0gYDCm
+         lp9A==
+X-Forwarded-Encrypted: i=1; AJvYcCUvOIHlt028hCliPjFjCVH+VYgsI1s77Pv+B3MKuh+107oO5EGhn5R06Qc3xJDLml3n8FUs+bETFf1iiA51iw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx4vLbg/0g3RTjDh0/TsMmD6qWsSA10X+iSHDQ3Agl4pbVYQi3Q
+	SidRA7x3OjozCDNrMaiejNc0Gyt34HDBmO87gNUBW78B916VztyIkO9QUNCqrtTI6cRgpeHqVlx
+	3goz1Le2Yro8L7nQBsCS++HPccL+a5wEQRiaodLzuKcr4ySIQaYV0OWq6pAMh7V3G
+X-Gm-Gg: ASbGnctOeihLevV7VlgndXpEG6vYpklvibxQ6so6I5TAxp9UW+/PaGG7pDSTZghFoFN
+	YtyB8I01OHh5r6VUHrUiDAtxx4yPjK+c4XsnnqjX+/1xLSzdjEiCjVurC1Bb7IB2KgDXW9kH509
+	/u5sAfoIx6A0eg7Cpo4CEvHH/W410V8S3gxZq14n1lJpUESU2EiNv4tFAVagJ1fpZkAf6ScXMb9
+	QS9uRmppGT1ltKLV3p142qfM8+4hkNJSnvwabDAq+cy3WF6z3Qf8HGscsZx0QrczfQavA==
+X-Received: by 2002:a17:907:3fa2:b0:ab7:5b58:f467 with SMTP id a640c23a62f3a-ab7f347aa6cmr1198349266b.40.1739535448569;
+        Fri, 14 Feb 2025 04:17:28 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGPf+AeSUeRn24l529Z9ZendqwqQDqP06Hke8qwzwFNKUt9IcGq+7DW+H44R0X87YfMunCk/g==
+X-Received: by 2002:a17:907:3fa2:b0:ab7:5b58:f467 with SMTP id a640c23a62f3a-ab7f347aa6cmr1198344266b.40.1739535448190;
+        Fri, 14 Feb 2025 04:17:28 -0800 (PST)
 Received: from redhat.com ([2.55.187.107])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aba532322dbsm336512866b.10.2025.02.14.04.16.32
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aba5323226asm334107966b.8.2025.02.14.04.17.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Feb 2025 04:16:33 -0800 (PST)
-Date: Fri, 14 Feb 2025 07:16:30 -0500
+        Fri, 14 Feb 2025 04:17:26 -0800 (PST)
+Date: Fri, 14 Feb 2025 07:17:22 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eric Auger <eauger@redhat.com>
-Cc: "Ning, Hongyu" <hongyu.ning@linux.intel.com>,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Zhenzhong Duan <zhenzhong.duan@intel.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
-Message-ID: <20250214070904-mutt-send-email-mst@kernel.org>
-References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
- <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
- <20250203094700-mutt-send-email-mst@kernel.org>
- <7cee3c9e-515e-41de-a15c-04c7591e83eb@redhat.com>
- <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
- <90a09ffa-e316-41f0-916b-25635b1d4bc6@linux.intel.com>
- <83b43e73-8599-44ff-8657-6d5f2f9b2de5@redhat.com>
+To: Junnan Wu <junnan01.wu@samsung.com>
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+	eperezma@redhat.com, horms@kernel.org, jasowang@redhat.com,
+	kuba@kernel.org, kvm@vger.kernel.org, lei19.wang@samsung.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	pabeni@redhat.com, q1.huang@samsung.com, stefanha@redhat.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+	ying01.gao@samsung.com, ying123.xu@samsung.com
+Subject: Re: [Patch net v3] vsock/virtio: fix variables initialization during
+ resuming
+Message-ID: <20250214071714-mutt-send-email-mst@kernel.org>
+References: <CAGxU2F7PKH34N7Jd5d=STCAybJi-DDTB-XGiXSAS9BBvGVN4GA@mail.gmail.com>
+ <CGME20250214012219epcas5p2840feb4b4539929f37c171375e2f646b@epcas5p2.samsung.com>
+ <20250214012200.1883896-1-junnan01.wu@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <83b43e73-8599-44ff-8657-6d5f2f9b2de5@redhat.com>
+In-Reply-To: <20250214012200.1883896-1-junnan01.wu@samsung.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 3aFWs3DhnVJuWNFbmWzOcHUCxMh8xConNfNF--ItiJE_1739535395
+X-Mimecast-MFC-PROC-ID: upRaQXr7z7sawi9FbpBFIg540D_Bid8cDUot8FY9EFk_1739535449
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Feb 14, 2025 at 08:56:56AM +0100, Eric Auger wrote:
-> Hi,
+On Fri, Feb 14, 2025 at 09:22:00AM +0800, Junnan Wu wrote:
+> When executing suspend to ram twice in a row,
+> the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
+> Then after virtqueue_get_buf and `rx_buf_nr` decreased
+> in function virtio_transport_rx_work,
+> the condition to fill rx buffer
+> (rx_buf_nr < rx_buf_max_nr / 2) will never be met.
 > 
-> On 2/14/25 8:21 AM, Ning, Hongyu wrote:
-> > 
-> > 
-> > On 2025/2/6 16:59, Eric Auger wrote:
-> >> Hi,
-> >>
-> >> On 2/4/25 12:46 PM, Eric Auger wrote:
-> >>> Hi,
-> >>>
-> >>> On 2/3/25 3:48 PM, Michael S. Tsirkin wrote:
-> >>>> On Fri, Jan 31, 2025 at 10:53:15AM +0100, Eric Auger wrote:
-> >>>>> Hi Kirill, Michael
-> >>>>>
-> >>>>> On 8/8/24 9:51 AM, Kirill A. Shutemov wrote:
-> >>>>>> Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
-> >>>>>> accesses during the hang.
-> >>>>>>
-> >>>>>>     Invalid read at addr 0x102877002, size 2, region '(null)',
-> >>>>>> reason: rejected
-> >>>>>>     Invalid write at addr 0x102877A44, size 2, region '(null)',
-> >>>>>> reason: rejected
-> >>>>>>     ...
-> >>>>>>
-> >>>>>> It was traced down to virtio-console. Kexec works fine if virtio-
-> >>>>>> console
-> >>>>>> is not in use.
-> >>>>>>
-> >>>>>> Looks like virtio-console continues to write to the MMIO even after
-> >>>>>> underlying virtio-pci device is removed.
-> >>>>>>
-> >>>>>> The problem can be mitigated by removing all virtio devices on virtio
-> >>>>>> bus shutdown.
-> >>>>>>
-> >>>>>> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> >>>>>> Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
-> >>>>>
-> >>>>> Gentle ping on that patch that seems to have fallen though the cracks.
-> >>>>>
-> >>>>> I think this fix is really needed. I have another test case with a
-> >>>>> rebooting guest exposed with virtio-net (backed by vhost-net) and
-> >>>>> viommu. Since there is currently no shutdown for the virtio-net, on
-> >>>>> reboot, the IOMMU is disabled through the native_machine_shutdown()/
-> >>>>> x86_platform.iommu_shutdown() while the virtio-net is still alive.
-> >>>>>
-> >>>>> Normally device_shutdown() should call virtio-net shutdown before the
-> >>>>> IOMMU tear down and we wouldn't see any spurious transactions after
-> >>>>> iommu shutdown.
-> >>>>>
-> >>>>> With that fix, the above test case is fixed and I do not see spurious
-> >>>>> vhost IOTLB miss spurious requests.
-> >>>>>
-> >>>>> For more details, see qemu thread ([PATCH] hw/virtio/vhost: Disable
-> >>>>> IOTLB callbacks when IOMMU gets disabled,
-> >>>>> https://lore.kernel.org/all/20250120173339.865681-1-
-> >>>>> eric.auger@redhat.com/)
-> >>>>>
-> >>>>>
-> >>>>> Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> >>>>> Tested-by: Eric Auger <eric.auger@redhat.com>
-> >>>>>
-> >>>>> Thanks
-> >>>>>
-> >>>>> Eric
-> >>>>>
-> >>>>>> ---
-> >>>>>>   drivers/virtio/virtio.c | 10 ++++++++++
-> >>>>>>   1 file changed, 10 insertions(+)
-> >>>>>>
-> >>>>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> >>>>>> index a9b93e99c23a..6c2f908eb22c 100644
-> >>>>>> --- a/drivers/virtio/virtio.c
-> >>>>>> +++ b/drivers/virtio/virtio.c
-> >>>>>> @@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
-> >>>>>>       of_node_put(dev->dev.of_node);
-> >>>>>>   }
-> >>>>>>   +static void virtio_dev_shutdown(struct device *_d)
-> >>>>>> +{
-> >>>>>> +    struct virtio_device *dev = dev_to_virtio(_d);
-> >>>>>> +    struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-> >>>>>> +
-> >>>>>> +    if (drv && drv->remove)
-> >>>>>> +        drv->remove(dev);
-> >>>>
-> >>>>
-> >>>> I am concerned that full remove is a heavyweight operation.
-> >>>> Do not want to slow down reboots even more.
-> >>>> How about just doing a reset, instead?
-> >>>
-> >>> I tested with
-> >>>
-> >>> static void virtio_dev_shutdown(struct device *_d)
-> >>> {
-> >>>          struct virtio_device *dev = dev_to_virtio(_d);
-> >>>
-> >>>          virtio_reset_device(dev);
-> >>> }
-> >>>
-> >>>
-> >>> and it fixes my issue.
-> >>>
-> >>> Kirill, would that fix you issue too?
-> > 
-> > Hi,
-> > 
-> > sorry for my late response, I synced with Kirill offline and did a retest.
-> > 
-> > The issue is still reproduced on my side, kexec will be stuck in case of
-> > "console=hvc0" append in kernel cmdline and even with such patch applied.
+> It is because that `rx_buf_nr` and `rx_buf_max_nr`
+> are initialized only in virtio_vsock_probe(),
+> but they should be reset whenever virtqueues are recreated,
+> like after a suspend/resume.
 > 
-> Thanks for testing!
+> Move the `rx_buf_nr` and `rx_buf_max_nr` initialization in
+> virtio_vsock_vqs_init(), so we are sure that they are properly
+> initialized, every time we initialize the virtqueues, either when we
+> load the driver or after a suspend/resume.
 > 
-> Michael, it looks like the initial patch from Kyrill is the one that
-> fixes both issues. virtio_reset_device() usage does not work for the
-> initial bug report while it works for me. Other ideas?
+> To prevent erroneous atomic load operations on the `queued_replies`
+> in the virtio_transport_send_pkt_work() function
+> which may disrupt the scheduling of vsock->rx_work
+> when transmitting reply-required socket packets,
+> this atomic variable must undergo synchronized initialization
+> alongside the preceding two variables after a suspend/resume.
 > 
-> Thanks
+> Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
+> Link: https://lore.kernel.org/virtualization/20250207052033.2222629-1-junnan01.wu@samsung.com/
+> Co-developed-by: Ying Gao <ying01.gao@samsung.com>
+> Signed-off-by: Ying Gao <ying01.gao@samsung.com>
+> Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  net/vmw_vsock/virtio_transport.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
 > 
-> Eric
-
-Ah, wait a second.
-
-Looks like virtio-console continues to write to the MMIO even after
-underlying virtio-pci device is removed.
-
-Hmm. I am not sure why that is a problem, but I assume some hypervisors just
-hang the system if you try to kick them after reset.
-Unfortunate that spec did not disallow it.
-
-If we want to prevent that, we want to do something like this:
-
-
-	/*
-	 * Some devices get wedged if you kick them after they are
-	 * reset. Mark all vqs as broken to make sure we don't.
-	 */
-        virtio_break_device(dev);
-        /*
-         * The below virtio_synchronize_cbs() guarantees that any
-         * interrupt for this line arriving after
-         * virtio_synchronize_vqs() has completed is guaranteed to see
-         * vq->broken as true.
-         */
-        virtio_synchronize_cbs(dev);
-        dev->config->reset(dev);
-
-
-I assume this still works for you, yes?
-
-
-
-> > 
-> > my kernel code base is 6.14.0-rc2.
-> > 
-> > let me know if any more experiments needed.
-> > 
-> > ---
-> >  drivers/virtio/virtio.c | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> > 
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index ba37665188b5..f9f885d04763 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -395,6 +395,13 @@ static const struct cpumask
-> > *virtio_irq_get_affinity(struct device *_d,
-> >         return dev->config->get_vq_affinity(dev, irq_vec);
-> >  }
-> > 
-> > +static void virtio_dev_shutdown(struct device *_d)
-> > +{
-> > +        struct virtio_device *dev = dev_to_virtio(_d);
-> > +
-> > +        virtio_reset_device(dev);
-> > +}
-> > +
-> >  static const struct bus_type virtio_bus = {
-> >         .name  = "virtio",
-> >         .match = virtio_dev_match,
-> > @@ -403,6 +410,7 @@ static const struct bus_type virtio_bus = {
-> >         .probe = virtio_dev_probe,
-> >         .remove = virtio_dev_remove,
-> >         .irq_get_affinity = virtio_irq_get_affinity,
-> > +       .shutdown = virtio_dev_shutdown,
-> >  };
-> > 
-> >  int __register_virtio_driver(struct virtio_driver *driver, struct
-> > module *owner)
-> > -- 
-> > 2.43.0
-> > 
-> > 
-> >> gentle ping.
-> >>
-> >> this also fixes another issue with qemu vSMMU + virtio-scsi-pci. With
-> >> the above addition I get rid of spurious warning in qemu on guest reboot.
-> >>
-> >> qemu-system-aarch64: virtio: zero sized buffers are not allowed
-> >> qemu-system-aarch64: vhost vring error in virtqueue 0: Invalid
-> >> argument (22)
-> >>
-> >> Would you mind if I respin?
-> >>
-> >> Thanks
-> >>
-> >> Eric
-> >>
-> >>
-> >>
-> >>
-> >>>
-> >>> Thanks
-> >>>
-> >>> Eric
-> >>>>
-> >>>>>> +}
-> >>>>>> +
-> >>>>>>   static const struct bus_type virtio_bus = {
-> >>>>>>       .name  = "virtio",
-> >>>>>>       .match = virtio_dev_match,
-> >>>>>> @@ -363,6 +372,7 @@ static const struct bus_type virtio_bus = {
-> >>>>>>       .uevent = virtio_uevent,
-> >>>>>>       .probe = virtio_dev_probe,
-> >>>>>>       .remove = virtio_dev_remove,
-> >>>>>> +    .shutdown = virtio_dev_shutdown,
-> >>>>>>   };
-> >>>>>>     int __register_virtio_driver(struct virtio_driver *driver,
-> >>>>>> struct module *owner)
-> >>>>
-> >>>
-> >>
-> > 
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index b58c3818f284..f0e48e6911fc 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -670,6 +670,13 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+>  	};
+>  	int ret;
+>  
+> +	mutex_lock(&vsock->rx_lock);
+> +	vsock->rx_buf_nr = 0;
+> +	vsock->rx_buf_max_nr = 0;
+> +	mutex_unlock(&vsock->rx_lock);
+> +
+> +	atomic_set(&vsock->queued_replies, 0);
+> +
+>  	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
+>  	if (ret < 0)
+>  		return ret;
+> @@ -779,9 +786,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+>  
+>  	vsock->vdev = vdev;
+>  
+> -	vsock->rx_buf_nr = 0;
+> -	vsock->rx_buf_max_nr = 0;
+> -	atomic_set(&vsock->queued_replies, 0);
+>  
+>  	mutex_init(&vsock->tx_lock);
+>  	mutex_init(&vsock->rx_lock);
+> -- 
+> 2.34.1
 
