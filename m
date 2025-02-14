@@ -1,248 +1,153 @@
-Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
+Received: from mail-wm1-f67.google.com (mail-wm1-f67.google.com [209.85.128.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1B75265CDE
-	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 17:46:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26E96267710
+	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 17:47:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.67
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739555166; cv=none; b=CGehN7jxU5Tc0sES6cHgqg/S3uB3tzhBHTvw2o5rRE3xELcfabWhIRF3jn+UfYpAitYQjJ88tklUFGhCnnbZ9gpbGekv1o7cz5WBq5MKBu/XciCNMroBIS79Ln9iqDHdQcw9cVNYvccnPorbTR2KSupEwjxOGehED6wDL9F5Duc=
+	t=1739555234; cv=none; b=VfEImNsVIKILx/Mazo09QAFTbXy47AqcRKWBjHGoFPuonUVbMO4Dz2ycLoLJfD4zcRpckg3/Gy+DpVaUD4hC/EocGNqkKsm+JrJjEA3OIXQ11wf2cxs9X1AoodXacuun61EKMxQ+N9muftz37Ji6TVYLTzu+lynOnyEqJs5tvmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739555166; c=relaxed/simple;
-	bh=VaDaHFXbfympdq/RFMsKB4HK2MmMMXbwWYqSJqqGjVE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tJE9Jxfcw47gr/SWp0kbWLbA954SfXXxI4SAdjQA2SB/gUWIGwKvlRESOFvC3FCWNMrRjWkinNWzzv36TU9m49fSL/+BAQMSNnTrdrqTkw7EisGNXpy9ccZGO3aXzLsWP7WZNUZONCwyu2OwPZh8TmvmzNHPAWIJbF4CimhbEw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y8XUMbud; arc=none smtp.client-ip=209.85.166.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1739555234; c=relaxed/simple;
+	bh=t3oWETlabnmfVg8DbBC0SNH2igt6njm5VPlQ2ZhjXkI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EOJ/Ja4nRwrjawzE0x9V4lSEiEpch/2hBtmN3oStoO1elP6txaZpEYzqR182iScQB6x0sGwF3FL/dI0AfmikT7H8o4T5pErkDacKhnCdZyqOy+ikXvYV7IN0Ha47U1clngQFT7CkZE8IojpU06OTAXNBeQnwU8a6jtxgYjQZp3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=fccOM7ci; arc=none smtp.client-ip=209.85.128.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y8XUMbud"
-Received: by mail-il1-f171.google.com with SMTP id e9e14a558f8ab-3d0465a8d34so18185685ab.0
-        for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 09:46:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="fccOM7ci"
+Received: by mail-wm1-f67.google.com with SMTP id 5b1f17b1804b1-436ce2ab251so17111735e9.1
+        for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 09:47:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739555163; x=1740159963; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MdHmmXoGeu+JiG7O9/5MQZwbG+iCEqiFjAryJoBKTeE=;
-        b=Y8XUMbud81CUfYVclVDvhUJjRBQOe9jXifSC8qFY4KEb1EjUd+Is0/LiKKobYE8Grk
-         rhDXCJcoa313WaIhUUPZE/FN5WAeENBy+5UJ5LVyWLeKlk1c2RtEkDf8U2L6PGeMeBTE
-         GR3zx/NuqrCE8wLs1OSvtFQphmKtjc0zkJiaXKKPL0weM9SCOaLQi9CXsWDVdnU9I4eW
-         gHUFNKnMMersyO1l4bqIzCctthcCPAzSC/ggSCsnVrr5qNM3pOicjMQ6MP6OJCIvnF8S
-         9UTk7LHVgPp95cWQtQDJVkkyY9Zya/YW1gXeWKVW4kogRDNHPaO5/yu2cKkgMK4AhdLh
-         cnoA==
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1739555230; x=1740160030; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=lazeQVqM8HBrkNbfoBLsm78c+HYiZJZx2UTk1PYr3WQ=;
+        b=fccOM7ciamXg+MKOxqcjDCJQ9/6nlsyez7Q5f9iRa4sLa2Ob6g21hx/B0uHKIy9Oaw
+         Oke+A7njRd6GXWC+4HZwH7BhUrCIQlZ8lvibTCJRC2IKBzoHp0Ueueax2AYEkFJB4zY+
+         oq6diGPvP9gqJD7RFxV2bIK8okkvzV9k9vmUQj63tT4AXEi/Z4Gao8W9KR2deTT4myr3
+         1f6H8iRR6sfVfBu+XxRKOVslf2/liaq7iZYj0KHT200Wuh7DfOmBMFgc+jTyA4m0rkjV
+         0bW5VnRcqI39XV8/wCklfcfwy44aIZ6/Yf/UPFH3c/t6vfywwlZX+zGdjo6bZ8nTfGMY
+         paFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739555163; x=1740159963;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MdHmmXoGeu+JiG7O9/5MQZwbG+iCEqiFjAryJoBKTeE=;
-        b=T/b+aVo0iwzRQX4SWS8XlDk+Xzv6ia/0BKsGs1m0bVFfzRNTS6iT/gnabjXovqlk8R
-         KHgyazWMT4Af419myPeyRs+pcUHHAk1FoGK5Z6pxDdfAnk6uLDldIZpmUlrL/0i2FiAr
-         VveNixTUTo+ZMJWODSW8AsQkqccBJQytjO9E+tuXPkszCLcPpQoiFIqAqCkJOcAWGkFq
-         VvvKGCYRbgTousKq3sPy6XMoCRfIPI2zwa4b4PNLaSB5jmtqU/W7FPAnhTnS2bUtGsfE
-         5Yfuy3Ruq/DQu2H7H53hTxMi2wmp5Rbeh+Rj+zuV8VWJST8JVOKKOMQLuqOm5aiyCxCp
-         FaYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUGrt6cJYZmA6aRXCCWZIEcSesdla420NtQyMwnnT/SjGNkwTizBuu6m1KCJBOXnFkogtIZvtGwAfKHLoONUA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw4YhKm+d/iLSlM9ByrO5klrCfnAT3qhCr0cTyUIhJJDOEfn2H/
-	PRUMSR7Cq9Zcp85s9bvdPql9AWLGzCPx8rq3LYSFsWPiuSko+8RsxYzrWNBuKtOgiIGPAu74Kii
-	S7rCoDzQmucvEbtYM0z/uEYSBZnw=
-X-Gm-Gg: ASbGnctUuNiFsdah/U6qrxbIh5mlEKTJqWwPRAahh9/XDnuV1vH2nD9fP+iVQLaYNYE
-	3eqUnH/eZQauYhCPTDPsFZh3/OzdxeXVYjjstR5Unjf5osPdOUvdU/OO67Zmf9FjLLf9ib2AhzL
-	jDu08gCy5ovnetkgRxRWb7x31ngw==
-X-Google-Smtp-Source: AGHT+IGJFHvnSl9GTHyqhkKVxMP/sSpy01siSVjv+TjhYmIRjgndz+v/byVwlFWN9Q72CCZtRy1DDX8TCXIzWp8/Ges=
-X-Received: by 2002:a05:6e02:170d:b0:3d0:1932:7695 with SMTP id
- e9e14a558f8ab-3d28088690fmr2314105ab.8.1739555162697; Fri, 14 Feb 2025
- 09:46:02 -0800 (PST)
+        d=1e100.net; s=20230601; t=1739555230; x=1740160030;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lazeQVqM8HBrkNbfoBLsm78c+HYiZJZx2UTk1PYr3WQ=;
+        b=S23U9ivazztbU/ii0yB7V4z2MIn88f/0GbkO9qSMuCW59RjMZD8da4cfk1lEv+HvfK
+         e8rmkHRrNRHYh09nwZcgYk5bG/W2sO/TvCPC2A906bFP7hUYkC8BOWKH4w1OKHWSWiUt
+         wI1az63otgOI1ZsMptn4/OBYkZ2ZK0bfOzhUUx/QkRwK/eacWFDKZlVfWa5dqjcUqR1r
+         YhUaHLYYMGo8HrPu6AlKSAGt7jtJIeokplyF6erLswZEutnaH2NqT/dW7kOX3Z8Yt6nm
+         wiSiN1/iXtUdaTxBKzyEBfo/rXcWMdoGHLUDO7hOvxAvIHgqXqPGI5Piu82DTzdyTNxI
+         Zagw==
+X-Forwarded-Encrypted: i=1; AJvYcCXWfSK0iav4oY41NofFH6FGlrBiyhAzFSuMuOPR6MUEkCLU6GLC0jXGfX4fjnB96sBSjdzLBLxTJl9SOgB8wQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwjNoO/slCuf8OqrRBvJCXmv96dbf7xPBW3CZpA/FR+eYcP/8ci
+	dg8VMDQOmXDN4avLAFrWaZI6JweJDnjE/152/s2Peb1yKhr4/Vt6azBzcOvNMZI=
+X-Gm-Gg: ASbGnctWG/1lI6fQvAYOYhOkC18p7Zlxnt08ZRG5lTe+JYNdMIAUpkXADWPje/hDJE7
+	YSspM5hYfEgH2Wnp414J75fIyMT8lxE41lE5ervnPat9/2INp8Hr4+OZMEZMhM5EcAPjXbzdK7a
+	QK/q/72LL7bLvik5QY34LuquaRqpVVawDOP33q9CMpSvne3v8OFbvROaMe6HZV401pKzYsq9VUl
+	iw4Z9FCTFIIdxezFjuuq2oP9PoYSywSV1cTGCOrOinodIFjsQmPVsCnX3NiK5z/riZyHqCFExoK
+	0IZlAFsvz5EY0zIFJij/iUY3Q3Iub/I3uFHlOhiwhfcEYu8XmBkFLQ+haw==
+X-Google-Smtp-Source: AGHT+IEs0d7y7ALPKarUJ4mTHnR3e/ikwhGCmRE/iYFLD7SdNQTwPJz+bIdLpQ+jOwOyuaxzGwSscQ==
+X-Received: by 2002:a05:600c:4711:b0:439:608f:a37f with SMTP id 5b1f17b1804b1-4396e699e92mr2382245e9.5.1739555230357;
+        Fri, 14 Feb 2025 09:47:10 -0800 (PST)
+Received: from localhost (p200300f65f083b0400000000000001b9.dip0.t-ipconnect.de. [2003:f6:5f08:3b04::1b9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4395afaf052sm77057895e9.13.2025.02.14.09.47.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Feb 2025 09:47:09 -0800 (PST)
+Date: Fri, 14 Feb 2025 18:47:07 +0100
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Amit Shah <amit@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio: console: Prepare for making REMOTEPROC modular
+Message-ID: <535ivi67jdmcuhns5q4r36fjpqde3clnqq7hr26gmg33jwoxyb@ahvuhhaewh3u>
+References: <20250213115517.82975-2-u.kleine-koenig@baylibre.com>
+ <34cb36503dae7a2d0ba94d1c367004a2d901e13b.camel@kernel.org>
+ <uo3h33wijb7mhjwgugpkjhqg7wusz6tpkh5u5fxbsxp3kzpq75@ggsdroemmdmj>
+ <558f3faa22e5717872bf53acfe6007dc3118f17d.camel@kernel.org>
+ <k72vfex6qy53xrunz5ohe24c2upfjcdwofozszi4l3k3rm6dou@bd6swzi3v5ng>
+ <606b16787920ff5e1807e4f8450add5889fdd1cb.camel@kernel.org>
+ <dard24qyuwm6plnswtz4to36w3fynb553aohf5i7u4ln37nhbk@pgrvhqwvwuzp>
+ <6d48bcfd0c6030c92f6a5a4a91c9b62f926b3b16.camel@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250126204239.474847-1-dmitry.osipenko@collabora.com>
-In-Reply-To: <20250126204239.474847-1-dmitry.osipenko@collabora.com>
-From: Rob Clark <robdclark@gmail.com>
-Date: Fri, 14 Feb 2025 09:45:50 -0800
-X-Gm-Features: AWEUYZlbQzYhMxEmBtfBqEpXdqgRBTAayEgifmUEUg9bYiGnlInLT6pNk87gOSE
-Message-ID: <CAF6AEGsHY+kh-k+=FqNzf=d=60JqkfFC=+U039XYK-7dTkXZmA@mail.gmail.com>
-Subject: Re: [PATCH v1] drm/virtio: Extend blob UAPI with deferred-mapping hinting
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>, Asahi Lina <lina@asahilina.net>, 
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	kernel@collabora.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="walgac2exdfodujc"
+Content-Disposition: inline
+In-Reply-To: <6d48bcfd0c6030c92f6a5a4a91c9b62f926b3b16.camel@kernel.org>
+
+
+--walgac2exdfodujc
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] virtio: console: Prepare for making REMOTEPROC modular
+MIME-Version: 1.0
 
-On Sun, Jan 26, 2025 at 12:43=E2=80=AFPM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
->
-> If userspace never maps GEM object, then BO wastes hostmem space
-> because VirtIO-GPU driver maps VRAM BO at the BO's creating time.
->
-> Make mappings on-demand by adding new RESOURCE_CREATE_BLOB IOCTL/UAPI
-> hinting flag telling that host mapping should be deferred until first
-> mapping is made when the flag is set by userspace.
->
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+On Fri, Feb 14, 2025 at 05:55:41PM +0100, Amit Shah wrote:
+> On Fri, 2025-02-14 at 17:52 +0100, Uwe Kleine-K=F6nig wrote:
+> > Hello Amit,
+> >=20
+> > On Fri, Feb 14, 2025 at 05:37:52PM +0100, Amit Shah wrote:
+> > > I'm thinking of the two combinations of interest: REMOTEPROC=3Dm,
+> > > VIRTIO_CONSOLE can be y or m.=A0 Say virtcons_probe() happens when
+> > > the
+> > > remoteproc module isn't yet loaded.=A0 Even after later loading
+> > > remoteproc, virtio console won't do anything interesting with
+> > > remoteproc.
+> >=20
+> > Where does the interesting thing happen if remoteproc is already
+> > loaded
+> > at that time? I'm not seeing anything interesting in that case either
+> > ...
+>=20
+> The code I pointed to,
+>=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/d=
+rivers/char/virtio_console.c#n1993
+>=20
+> either enables remoteproc if the module is present; or it enables
+> multiport, but not both at the same time.  If remoteproc isn't present
+> when this probe routine is executed, multiport might get enabled.  And
+> then there's no chance for remoteproc to get enabled.
 
-I suppose we could have just added a new blob_flag, but then userspace
-would need to probe the kernel to see whether the new flag was
-supported.  (Which isn't a big deal, that sort of thing is done in
-many places.)  But extending the struct does make it more transparent
-to userspace.  Either way,
+The only case where there is a difference between IS_REACHABLE and
+IS_ENABLED is:
 
-Reviewed-by: Rob Clark <robdclark@gmail.com
+	CONFIG_REMOTEPROC=3Dm
+	CONFIG_VIRTIO_CONSOLE=3Dy
 
+Iff in this case you never want to test for MULTIPORT (even though the
+remoteproc module might never get loaded), then my patch is wrong.
 
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
->  drivers/gpu/drm/virtio/virtgpu_gem.c   |  9 ++++++++
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  1 +
->  drivers/gpu/drm/virtio/virtgpu_vram.c  | 30 +++++++++++++++++++++-----
->  include/uapi/drm/virtgpu_drm.h         |  4 ++++
->  5 files changed, 41 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virti=
-o/virtgpu_drv.h
-> index 64c236169db8..e5db91a3e8ba 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -85,6 +85,7 @@ struct virtio_gpu_object_params {
->         uint32_t blob_mem;
->         uint32_t blob_flags;
->         uint64_t blob_id;
-> +       uint32_t blob_hints;
->  };
->
->  struct virtio_gpu_object {
-> @@ -483,6 +484,7 @@ struct sg_table *virtio_gpu_vram_map_dma_buf(struct v=
-irtio_gpu_object *bo,
->  void virtio_gpu_vram_unmap_dma_buf(struct device *dev,
->                                    struct sg_table *sgt,
->                                    enum dma_data_direction dir);
-> +void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram);
->
->  /* virtgpu_submit.c */
->  int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virti=
-o/virtgpu_gem.c
-> index 7db48d17ee3a..c902b68cc25a 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> @@ -103,12 +103,21 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file=
-_priv,
->                               struct drm_device *dev,
->                               uint32_t handle, uint64_t *offset_p)
->  {
-> +       struct virtio_gpu_object_vram *vram;
-> +       struct virtio_gpu_object *bo;
->         struct drm_gem_object *gobj;
->
->         BUG_ON(!offset_p);
->         gobj =3D drm_gem_object_lookup(file_priv, handle);
->         if (gobj =3D=3D NULL)
->                 return -ENOENT;
-> +
-> +       bo =3D gem_to_virtio_gpu_obj(gobj);
-> +       if (virtio_gpu_is_vram(bo)) {
-> +               vram =3D to_virtio_gpu_vram(bo);
-> +               virtio_gpu_vram_map_deferred(vram);
-> +       }
-> +
->         *offset_p =3D drm_vma_node_offset_addr(&gobj->vma_node);
->         drm_gem_object_put(gobj);
->         return 0;
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/vir=
-tio/virtgpu_ioctl.c
-> index e4f76f315550..51544ee8d3c3 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -489,6 +489,7 @@ static int verify_blob(struct virtio_gpu_device *vgde=
-v,
->         params->size =3D rc_blob->size;
->         params->blob =3D true;
->         params->blob_flags =3D rc_blob->blob_flags;
-> +       params->blob_hints =3D rc_blob->blob_hints;
->         return 0;
->  }
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virt=
-io/virtgpu_vram.c
-> index 25df81c02783..d72c93e06a4a 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vram.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
-> @@ -41,6 +41,11 @@ static int virtio_gpu_vram_mmap(struct drm_gem_object =
-*obj,
->         if (!(bo->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE))
->                 return -EINVAL;
->
-> +       virtio_gpu_vram_map_deferred(vram);
-> +
-> +       if (vram->map_state =3D=3D STATE_INITIALIZING)
-> +               virtio_gpu_notify(vgdev);
-> +
->         wait_event(vgdev->resp_wq, vram->map_state !=3D STATE_INITIALIZIN=
-G);
->         if (vram->map_state !=3D STATE_OK)
->                 return -EINVAL;
-> @@ -215,14 +220,29 @@ int virtio_gpu_vram_create(struct virtio_gpu_device=
- *vgdev,
->
->         virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params, N=
-ULL,
->                                             0);
-> -       if (params->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE) {
-> -               ret =3D virtio_gpu_vram_map(&vram->base);
-> -               if (ret) {
-> -                       virtio_gpu_vram_free(obj);
-> -                       return ret;
-> +       if (!(params->blob_hints & DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPI=
-NG)) {
-> +               if (params->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE) =
-{
-> +                       ret =3D virtio_gpu_vram_map(&vram->base);
-> +                       if (ret) {
-> +                               virtio_gpu_vram_free(obj);
-> +                               return ret;
-> +                       }
->                 }
->         }
->
->         *bo_ptr =3D &vram->base;
->         return 0;
->  }
-> +
-> +void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram)
-> +{
-> +       static DEFINE_MUTEX(map_lock);
-> +
-> +       if (!(vram->base.blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE))
-> +               return;
-> +
-> +       mutex_lock(&map_lock);
-> +       if (!drm_mm_node_allocated(&vram->vram_node))
-> +               virtio_gpu_vram_map(&vram->base);
-> +       mutex_unlock(&map_lock);
-> +}
-> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_dr=
-m.h
-> index c2ce71987e9b..3004a1d08570 100644
-> --- a/include/uapi/drm/virtgpu_drm.h
-> +++ b/include/uapi/drm/virtgpu_drm.h
-> @@ -194,6 +194,10 @@ struct drm_virtgpu_resource_create_blob {
->         __u32 cmd_size;
->         __u64 cmd;
->         __u64 blob_id;
-> +
-> +#define DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING        0x0001
-> +       __u32 blob_hints;
-> +       __u32 pad2;
->  };
->
->  #define VIRTGPU_CONTEXT_PARAM_CAPSET_ID       0x0001
-> --
-> 2.47.1
->
+When creating the patch I thought there is a hard dependency on
+remoteproc (like calling a function that is provided by
+CONFIG_REMOTEPROC). I don't understand how the remoteproc stuff
+interacts with the virtio_console driver, is this something in userspace
+which then would also autoload the remoteproc module?
+
+Best regards
+Uwe
+
+--walgac2exdfodujc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmevgZgACgkQj4D7WH0S
+/k7HTQf/Qu3c/c+WXh9ZVNVbAWLGM595jWag8q5Fnrvl5a5haHcpx3WNtyTyVcW+
+hz9ygSWroLlA3Mm4rvYjbsYTIwhqVSeXdhH3WvQ/ihfkJLLm2PizX/89foU/DfgT
+uHfEUWlCi3VdZ+IWRw/1V9vdjzNrS+88tjYXGHIJ2oGzxIbczuYrwFwgk7ecHA/Z
+0VcS1MbdvgNHoXN6y1kvvSiO0vPSXmBFos4bFfVGWxjxqt6ZHI2kHB8xt4E+wuFt
+Hmce87lyhSguCtF/tsbf1MU6BRv5VvhwYtkHxxxlsjRxF2vWDZ9fpte8z+nVD4yD
+sftqkZCLoiGOtr2PqZDxEiIvsJz55g==
+=QIOV
+-----END PGP SIGNATURE-----
+
+--walgac2exdfodujc--
