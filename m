@@ -1,92 +1,80 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CEEA134AB
-	for <virtualization@lists.linux.dev>; Fri, 14 Feb 2025 18:55:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739559340; cv=pass; b=qBoAddO4/mhaWPKm2zU3Mu42b9a9uFFcE6VCm0ZZArtm9HOPci5jr3FHpvShqD73wAbJNgdDfchVgaGVL9dmqBCqYiKYqtIOsxXtfqMMxSYq0tDmFeFcyuDok+RixF7stWVXgumvfIJRd7K2v23nrfPpsWCpRauaoWBwVYMNguc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739559340; c=relaxed/simple;
-	bh=k0DxnmifeXyVE1+vUH6QoJhM0epTblkp//xVs2rniS8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Py+/uxl0/61cxqOADvsoPpyKs4hVDveyvvy68caWDt44uHkFl0+8eufIx2uaZWB9We95bGkNsenmbOFBvx/JCCRWkHJqaoy38Aca4jWK9FzNAS2DaESjdfutJbk+27gcQYTSfkOTuBnKstXfejSOoCHVloSPrOP5hu5YqiHW2tA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=ORnvTjp+; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35A5C189BB8;
+	Sat, 15 Feb 2025 04:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1739592007; cv=none; b=aaanW/kj/kqqDU4+g2WFB0AOyVQAv0YCkEASMKpQM9WI0bxlk+vWK4OooFV5G16bhW14iGRpS52qKoedQ+fGe2Soo5XLIMZvQ0X/qiP4D4z/Sn8OB5IF+tGYPLzgoAHUmXfrusDqSYvZOpatjf5FJ2/CxdB+6gXhEiQCsdY5qQM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1739592007; c=relaxed/simple;
+	bh=ulhZIH8qu/KoCTkdFhojWRMot3sncbbRiEu6ZMsFa0o=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=mfvYq4TWPeUHXSr3AMaPZpBeDOx7qcNqTmqSXOIdwHw514ar1nAh5hZN1D6Go+dbihv6LZTFGlGFJX/MGQjtSjQlq/bhAxJTMrx7CVnDIeav6AMmFohckdUKEQ1TsKRHS0n1S0XnYcwP1L/uQzP4tRIUYCC0Q3ptcUeefF3EPwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ta0Xm+cR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="ORnvTjp+"
-ARC-Seal: i=1; a=rsa-sha256; t=1739559322; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Q7TQkltvlvtc3BlPowcFBXdvBn5F8IhZF06+b40ZYagQgecPUwLryWPVQ0LSuE/iLApTtl/m9pLX9pp46ItcdZ3+N3ALdkKq8h4Pir/GME46RysYn8Ch1Ex3NaKT9l0TxQRVYffIAm6eOJX5OM+bTgIhVrLgyYNDYxWFMUkp2Ho=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1739559322; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=5PPELiY6ciT1+8p7A5RDR516Gz4+788KY4S3xS43Ruc=; 
-	b=bQ0RFEhKYDLewQqNE41D6/ShRG9EkjOSIL9E8epsSx68oHw2QFBAeLCS7OOeH9zQcbA22mpSh/r7dVjWDtl2qBxQ2YAGqBclouRCnMuIVNbtydX60VB+NxYkyTQXmEIcoGC6O9yN04eeYpkr1pc0FHlWXXzzGVPRuuYKHuZdYcY=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1739559322;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=5PPELiY6ciT1+8p7A5RDR516Gz4+788KY4S3xS43Ruc=;
-	b=ORnvTjp+4qG2puKce7R9BGUPS6ycT2RlZx/n0ekRkcvmUtGaTLzcypaiqHHoyA53
-	zeDCRivHaM3y/DmGmIyzZPgQrC75NAwjL75J0MQvowsitmut1FPE0AjeNgfbV5Iq+EG
-	xVt95RvbLF1pFGnZoPekbLuVGe9O3nFdSUDwcgH8=
-Received: by mx.zohomail.com with SMTPS id 1739559319060353.5195199172622;
-	Fri, 14 Feb 2025 10:55:19 -0800 (PST)
-Message-ID: <04bb775b-9071-4bef-afaf-a0157bbce2fe@collabora.com>
-Date: Fri, 14 Feb 2025 21:55:13 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ta0Xm+cR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A363BC4CEE4;
+	Sat, 15 Feb 2025 04:00:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739592006;
+	bh=ulhZIH8qu/KoCTkdFhojWRMot3sncbbRiEu6ZMsFa0o=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=ta0Xm+cR25aPg93RJzFmnUsh7nAzUv2PF8ssNvZcshSsFxk2tegeHyhpt87Z0UHja
+	 Ald92xLNYRmCkq4UmpEPDSUBIlwumABhRjY6vNxsPR+PSRlALzB0l/wzS982peVThH
+	 Bub5ltUvgnKPoSn1DjJHHJz3QpoDhsyMKSregco+2OKwasOs+iv4ZesYzybtF7cTcW
+	 Qno6jDlT7KC9Oyjzq+0Kjno89BwNGclcR9uajNX8WgrQD5Mz3kvrDLsPiLmQQTzFEi
+	 2bbDACiqK/J7ur7W8AZ7Svp+bppIvxciWrrWQvEM/Sic9dQqPKRtLTIFtUtS+xTZZ3
+	 3s18OUY4r8aZw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70E08380CEE9;
+	Sat, 15 Feb 2025 04:00:37 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] drm/virtio: Extend blob UAPI with deferred-mapping
- hinting
-To: Rob Clark <robdclark@gmail.com>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>,
- Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
- Asahi Lina <lina@asahilina.net>, Alyssa Rosenzweig <alyssa@rosenzweig.io>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, kernel@collabora.com
-References: <20250126204239.474847-1-dmitry.osipenko@collabora.com>
- <CAF6AEGsHY+kh-k+=FqNzf=d=60JqkfFC=+U039XYK-7dTkXZmA@mail.gmail.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <CAF6AEGsHY+kh-k+=FqNzf=d=60JqkfFC=+U039XYK-7dTkXZmA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Subject: Re: [Patch net v3] vsock/virtio: fix variables initialization during
+ resuming
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173959203625.2185212.746025659708481674.git-patchwork-notify@kernel.org>
+Date: Sat, 15 Feb 2025 04:00:36 +0000
+References: <20250214012200.1883896-1-junnan01.wu@samsung.com>
+In-Reply-To: <20250214012200.1883896-1-junnan01.wu@samsung.com>
+To: Junnan Wu <junnan01.wu@samsung.com>
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ eperezma@redhat.com, horms@kernel.org, jasowang@redhat.com, kuba@kernel.org,
+ kvm@vger.kernel.org, lei19.wang@samsung.com, linux-kernel@vger.kernel.org,
+ mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com,
+ q1.huang@samsung.com, stefanha@redhat.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com, ying01.gao@samsung.com, ying123.xu@samsung.com
 
-On 2/14/25 20:45, Rob Clark wrote:
-> On Sun, Jan 26, 2025 at 12:43 PM Dmitry Osipenko
-> <dmitry.osipenko@collabora.com> wrote:
->>
->> If userspace never maps GEM object, then BO wastes hostmem space
->> because VirtIO-GPU driver maps VRAM BO at the BO's creating time.
->>
->> Make mappings on-demand by adding new RESOURCE_CREATE_BLOB IOCTL/UAPI
->> hinting flag telling that host mapping should be deferred until first
->> mapping is made when the flag is set by userspace.
->>
->> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Fri, 14 Feb 2025 09:22:00 +0800 you wrote:
+> When executing suspend to ram twice in a row,
+> the `rx_buf_nr` and `rx_buf_max_nr` increase to three times vq->num_free.
+> Then after virtqueue_get_buf and `rx_buf_nr` decreased
+> in function virtio_transport_rx_work,
+> the condition to fill rx buffer
+> (rx_buf_nr < rx_buf_max_nr / 2) will never be met.
 > 
-> I suppose we could have just added a new blob_flag, but then userspace
-> would need to probe the kernel to see whether the new flag was
-> supported.  (Which isn't a big deal, that sort of thing is done in
-> many places.)  But extending the struct does make it more transparent
-> to userspace.  Either way,
-> 
-> Reviewed-by: Rob Clark <robdclark@gmail.com
+> [...]
 
-Thanks for the review!
+Here is the summary with links:
+  - [net,v3] vsock/virtio: fix variables initialization during resuming
+    https://git.kernel.org/netdev/net/c/55eff109e76a
 
+You are awesome, thank you!
 -- 
-Best regards,
-Dmitry
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
