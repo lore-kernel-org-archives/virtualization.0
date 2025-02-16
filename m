@@ -1,100 +1,91 @@
-Received: from mout.web.de (mout.web.de [212.227.15.4])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC31F14F98
-	for <virtualization@lists.linux.dev>; Sat, 15 Feb 2025 14:26:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3F8179A3;
+	Sun, 16 Feb 2025 05:25:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739629591; cv=none; b=UE19SjR9vlGC6a+BsA5Nn/KpGySrNkmxGEfz0RsqH9q0HquLkuUfFI3w3NnjvZkWqLVCuvcnuY/cRyf/q4bp647rGs38D7wux7sRBNvfXEzxd/9vs34uxQW4ZLmTV9vy/RQn4uIOnjBxNiIFfXZNGKlO4VP+NAmOHHE7a/pCVJs=
+	t=1739683511; cv=none; b=EPNPB80eyZaX58wSQCWp46uTjw7/iyvhl627+pNM4ob0gXab8RAPFg8CKHRkMYOfDL7ExhUVyR8P3B2LBL7rvW5VRC+XQltR3mxDWwmZlNC+g7KvnFWewn4UkEdro7wRzwoZOj+37EQNawnh9fUC3tBKFXtC0T9w0AW7CEhzM8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739629591; c=relaxed/simple;
-	bh=DFut+FK2UpCi7ga43XWIytp2SuGLPekeCyiXPcSaPI8=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=uod/DVkOtPlTUuQym7blruN4b4RxFeUdmb39Qf4TmdTjXNE6+h11pt6FiqNChObpFOUouaTtjJGLxGkU7jTuniW5eyOFFStcy4Phm4IkwpZU64lNGD9LMmx1DmoqMBsTOowVzv15dO1un+yvcaShvEeF6uVnAjxLUYUC8Pcj7is=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=DUWKGwzu; arc=none smtp.client-ip=212.227.15.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1739683511; c=relaxed/simple;
+	bh=2k7jsRbX0DaWUoSSnWMxAc94Yy7zmLEnfPBfG0aBEmY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=D4xqx5ETBGIvO+4Gfnr0Y4QP+9DilJGEIlIxxLmft7mcmzPqwciy1QgFNDs6/UjBzoxrcZ+35nYJwA90c3UPg5FGl+37PfoM0jtvyULsOsszRcKYLNxymMBSI/lxx+63sNgpv+k/Gbgw7Ugf0+6tMuaHMJi8njsQAhfhkzzwzws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=TpVS7IJI; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="DUWKGwzu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1739629580; x=1740234380; i=markus.elfring@web.de;
-	bh=DFut+FK2UpCi7ga43XWIytp2SuGLPekeCyiXPcSaPI8=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=DUWKGwzuoNfJ2aWRuBbNtVEwR3nSB6d82Gzvinm38NZYVvRX2Nz8fCmRqkIJVnbk
-	 nXzi34KPtW4QJsz3h0UgDnPx0r/Wo4yRti9tclyl82+lzxnKSDNNALQsKIeEKCd/b
-	 D7lYuqkPThLIa0xVEummehKJtISNKmdlDaV6GrmgXeMlfUC0TzAPyDk8Yr9uAFOnn
-	 HRHIm63E+jZijEjgfhXfj/oeBf4rtR9A0jLR5D1q12ObBOMejbcLDIwPs+NZZRQ2H
-	 aSgUeiDHsEl3PQiloeb8Y19eaVUvsOFw9jRVs7B2ir2IyzrFzm6Pa2T9I6wsrSbB9
-	 1DVktkLaRc64Z+nEHg==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.29] ([94.31.93.21]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1MyO0u-1tQYuu3Pu0-014p8Z; Sat, 15
- Feb 2025 15:26:20 +0100
-Message-ID: <5a401aaa-b6cd-46d4-9fd8-96753599b440@web.de>
-Date: Sat, 15 Feb 2025 15:26:15 +0100
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="TpVS7IJI"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=BY0A3c1Li3XJjvwHRgkIRQoUbXu6gu2G0SOZZ3jPeog=; b=TpVS7IJIU7qjQRLoWFHHZOVq2z
+	dYlK0LpVicENiuQEMegVUknNDa41pzzQTWFR2bgq0eeZnA5noFHKCYnZ0AYWuhkfT2wjk4/MYlb92
+	m8hj9h5Y/SeYXaIZ+DktHhLXkVtsWysbgGCqcLP+IXuCFpef+dra93xYVZ+ATJHm4CY+be2930+eu
+	QRLUkLpCKFswH+jRACjz5E8bbF8FomfL7szuAdnjhsVFaMZS9KA97uAeDhjBFWoOZqUubqfFvC7Ok
+	xgz80sWZPPqLpXm2w+/SIMGeiYdS0leUdsWov957pXk/xgKcDnOHtAz/AlnuFHOu4DZQkgAPsVIEr
+	WUEzCU4A==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1tjWw2-000hJI-1v;
+	Sun, 16 Feb 2025 13:24:40 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sun, 16 Feb 2025 13:24:39 +0800
+Date: Sun, 16 Feb 2025 13:24:39 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Lukas Wunner <lukas@wunner.de>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, Gonglei <arei.gonglei@huawei.com>,
+	zhenwei pi <pizhenwei@bytedance.com>,
+	lei he <helei.sig11@bytedance.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio Perez <eperezma@redhat.com>, linux-crypto@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH 0/5] crypto virtio cleanups
+Message-ID: <Z7F2l98tVC7Wqybn@gondor.apana.org.au>
+References: <cover.1738562694.git.lukas@wunner.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: Junnan Wu <junnan01.wu@samsung.com>, Ying Gao <ying01.gao@samsung.com>,
- kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux.dev,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Jason Wang <jasowang@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Simon Horman <horms@kernel.org>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, lei19.wang@samsung.com,
- q1.huang@samsung.com, ying123.xu@samsung.com
-References: <20250211071922.2311873-3-junnan01.wu@samsung.com>
-Subject: Re: [Patch net 2/2] vsock/virtio: Don't reset the created SOCKET
- during suspend to ram
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20250211071922.2311873-3-junnan01.wu@samsung.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:eobdNOT+A98DE5H8v3OTataNkfwqaINt6wCZsbStgpwjzWbUtAM
- 7F3WLjApUwK1qGc4fL+2vZDMIHVxqXXpNSmH7tX6KKyRSAPTN3QZ9BGKpB5tlrygOaBEz0g
- camgspudC9sKlgF4oSNxT0K4DwsQi07hzKOoXSGbiJlO7cd+kMvsghpsaWqkB0eBPm5VAM+
- ZJaTlYE4CbhE0wr/zsRRw==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:3u/eZlVbUL0=;uCP56s0QJjJfwtaaUKLZEhfJqY9
- 2IuXXdu0f4AtavQAK6YUDDgMGHMyrDkkz7bjH9UXBRyqtbD8sWd7OZrCviCw7H3+jO4UROxe4
- fvJxXro3TyYXpyncpCAOmGFfpjekb6C9LEC7u5pbD+muRBHLbiAWDaD5caHgNFu2J8C5YWMzH
- /vnI8pwRRC3Qx3WtUbnGxaxCIS0r5jx1r41ZFqVHybYlAqjPca54Uis9PpmBywBl2gogn0uEM
- 6rWRn741IwrvIlPCQ6/cNj74KPYPEuR4u1xg2Mj6jH1h+OwQuCAJQhC2Ix9qkBKNiSWLsfGUq
- cadQvcVdJDrclvvDsCVUGogWtuA9G1TeVSRlmnFMx6lcbJ1z+hm9GUgrQsmtd7uZzZkN581j8
- JHWgLl9U6nf1qZCfqwx0iYNbtbhgrTKkz6+aR/gjrw5BCB3aowGMvu7mjhxnFoXWe+Pk2meJ4
- 7fXE9hBQoYT9fKKiMrRZGQebk4xBK2arI7/zUQ1ogK+Kak7NKjJyy38ieA1BSqDlIn/97Tnt9
- ZU2yxiFvmw2ffAhWaE+0iKWdXBFM+P/GTfcDZ5Qa2diAPEcgz/Tf/O/hUWfYuYEUVNaOlGETd
- 2WllLp1szJcvLHDFvKaFtzlZJ4A1Ax1IptskxQUEg1GDbEVA/jiq7wmw/uL07bU+Wnf1J1TnZ
- v14UaiLUjYT/jeFa1Byxyz3MTdSqn0XU+4RyALSBNZT4Uw1vvvO8bA0+EYKqyvCC+8fzPYuYr
- vxbVFAAKunx0WGyGCDZbZQyZgzj3osNatk5QE+Cqj3CSC+trquQgepmPlhuENsNkv206UIuO0
- IR6kRVVKXomnzXqF9RCebXqY/NzR7eQFAsLFJUt771mHACA7Ll8tUa+4fbsS4yejbxtSTa0r2
- GlhHS6RGeLaDX78y7BuvM2n2o4gYEePTIUSsxSd/nhSZpISqS9z8bojO5CGufvJPHQD2B/AcV
- +g9R9f7r9q5+GQsH6OZQmtDeC5lHvTw9r48VB0f/RTOFRv0EEuQgRRRbT8RuGIrLeNmP8LSlB
- ThxXdukrdVAAv5a/3OQ1Vgf+FCkUYVNgSDmQaoxjrAgPvN8cu0pTzyMIeZnCxBqZE8+219Iu1
- 2dE7WNvjLerFPRhfs7b2kQBbuzuFuqmwm8bdh7jFh/spby3LNdYEJBYkTAMdNIpa580UXKx3f
- ksvNCA0KnOZdAgjeoYxiZcz0NmhN1htkpe5MhbG9dxG9IJNCPE6itMwl32hcG46S4jGIAnLzD
- ncUdPaJnjpBIRYyGzHrYjsJ5KM0F3TqJXLGQxBxk3eYtw/jODoi4QwUKFmvyWbvGEabJl3rTe
- cSKEkJNvJvyFx0qQks19lqtvBNl5WW3a5kBR6JEdWoFiaUJzg1okOGFfuiWleez9AEcgerfA2
- U4nQAj582UGSVCoh5uQdrdDTE7GhtjCVgP5uDIjyued4xo1r30RBCEOwHoJEk51zACLM2vpnT
- Iodat3j1IuCbsqe3w61/JDYmVkkM=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1738562694.git.lukas@wunner.de>
 
-=E2=80=A6
-> and it will cause that socket can not be unusable after resume.
-=E2=80=A6
+On Mon, Feb 03, 2025 at 02:37:00PM +0100, Lukas Wunner wrote:
+> Here's an assortment of trivial crypto virtio cleanups
+> which I accumulated while working on commit 5b553e06b321
+> ("crypto: virtio - Drop sign/verify operations").
+> 
+> I've used qemu + libgcrypt backend to ascertain that all
+> boot-time crypto selftests still pass after these changes.
+> I've also verified that a KEYCTL_PKEY_ENCRYPT operation
+> using virtio-pkcs1-rsa produces correct output.
+> 
+> Thanks!
+> 
+> Lukas Wunner (5):
+>   crypto: virtio - Fix kernel-doc of virtcrypto_dev_stop()
+>   crypto: virtio - Simplify RSA key size caching
+>   crypto: virtio - Drop superfluous ctx->tfm backpointer
+>   crypto: virtio - Drop superfluous [as]kcipher_ctx pointer
+>   crypto: virtio - Drop superfluous [as]kcipher_req pointer
+> 
+>  .../virtio/virtio_crypto_akcipher_algs.c      | 41 ++++++++-----------
+>  drivers/crypto/virtio/virtio_crypto_mgr.c     |  2 +-
+>  .../virtio/virtio_crypto_skcipher_algs.c      | 17 ++------
+>  3 files changed, 21 insertions(+), 39 deletions(-)
+> 
+> -- 
+> 2.43.0
 
-I find such a wording confusing.
-Can the change description become clearer?
-
-Regards,
-Markus
+All applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
