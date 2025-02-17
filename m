@@ -1,184 +1,362 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93AF31A314E
-	for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 21:31:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712791A76AE
+	for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 23:20:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739827921; cv=none; b=riPx8rMJko3s/d8NwFjX1B5ruZXQO267I0gmj+VP6I9gYkITABNPccfig7NjOyMcnFWnLo7eS9/Wqo1xMqdGwH5rKuzqFXU9FZ5hxYvrZNCjzZ1EigupYDVkxsyQzRcDNt0FZ50qsfn9iyr/n6fWXPdn20/Oe2PksZctdIKikkI=
+	t=1739834428; cv=none; b=h6XUaxKdCEe6gojUxXZq0AkbTmK74pquyXJZ0hE8A5urm1D1HCrXSYqwTBboY1+IWi3vT5ooUD+MDj5KvDLITclrElKbpTdWUS6ZdhMNau102bCYEjuhnh1u0tDriJry8FZATgg0asEP/MqWThZn3IWvtM6qpZwuWCzK9jPt868=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739827921; c=relaxed/simple;
-	bh=5Z3w6D6rLKLuQ6zEjNL6ikv+CipM0JHOZMCbXFfqNBQ=;
+	s=arc-20240116; t=1739834428; c=relaxed/simple;
+	bh=viCMkJaguABg3O8W0SSjrxvUmaw6JK3mrEPIjSGKuq4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Mb9oc1IPBd9r+JJNtZGiP6Z59YB5TQyTENWAmThpsWZf5hfqWPaABebihCYswu9fh9u0fzJ5oXEN7aBt+MGXpo/nr07X/gKPG2WPP3uvilteTo98CuTAQSy+KxAT7HVO3dRf8jJEJmHC/vtXd7DxYcIpYgbyJxTRv7415Sj03i0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com; spf=pass smtp.mailfrom=fromorbit.com; dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b=LJjzSIIN; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fromorbit.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=BOMLJehIOIeN/nqDtFu6fN+fVhIve85fzSy0r6icwFLnGXUnoLiMYCvVe1rZcA8TsfHhlKIwcUabCyNwdit47BpLhLJFFl/rLR9SmrSaPOLSgDZKzBN6hOfGQYSATYz0d59TDVnDG3kOV1Ka8FZJYaAtYbR4nViscmdp/zg6rXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SY3p8HBV; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="LJjzSIIN"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-2fa48404207so9604176a91.1
-        for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 13:31:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1739827919; x=1740432719; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QhTfy1/ybvgYfqGEX8d/5gFaFMopC4YNbC7hGVBL/4c=;
-        b=LJjzSIINgTkKKBqRbJYO/Jb8iUQ5SCgka4Odq25WP2bDJDZv/AB4p7V2CmoQm2z/3J
-         kV5u+mDJMiVYmyKVQqFg8v+SyRH+w8N9Kd2OfSpHxa60und0l+JbhQY1qcssoWYwHbyT
-         NSutyAtaKTavELNIcLWZSNQ6SaGel5C1ZUgbKTJZB95ydxmpyvAOW7Qjv/KiqtNAWfGi
-         v87XP55tKcmjdcJkR1wDEMV3h2V3j+SZRD/GwHwB2iaXlE5Ax/0bfWiBkDfo5O53GJZz
-         W31ftttOKKXmGpNEmi47BwmWvIVwCentJ3hyoBHLFCp3/XgAwU9iSQzJI+Ir3MZEjaNr
-         MXng==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SY3p8HBV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1739834425;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NGgmxNh5kSJhTq/p1OO25Mo/qlvmdqIHbViecFk0pek=;
+	b=SY3p8HBVAboem+yrs0rsT8TQpxN0QQlMC0TxAnYX5K3OqJLcZrC8BJQIv2kRTaSbCIrpjp
+	vNz2ZP+/zHYQqKrsiSCjSExAHTVapeLUynpRQjC2KcQJx3eO4xYAhTjbEqmDLhRXfesnmX
+	KqNjiCkH85YnblQYodKAImdDhfBkvp4=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-588-DzxIfI2kPrqWGt6FkxUOBw-1; Mon, 17 Feb 2025 18:20:23 -0500
+X-MC-Unique: DzxIfI2kPrqWGt6FkxUOBw-1
+X-Mimecast-MFC-AGG-ID: DzxIfI2kPrqWGt6FkxUOBw_1739834422
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43942e82719so43487155e9.2
+        for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 15:20:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739827919; x=1740432719;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QhTfy1/ybvgYfqGEX8d/5gFaFMopC4YNbC7hGVBL/4c=;
-        b=adfYfNiAly6ZuHLcKX5Y1pp7QQYX1KnUruN3cp+g0lREtaO+pwMHIR6UnzHofiw1si
-         y8YB+QNeB2EeiPDU/69VFQTeN0PLaQrNv72C+b0EJSa5JvkBTq1ZMOf99ubxJgIOzRDA
-         JL27OpBY1m+Aq4J7sMXqMzMgYfRnY4QbDHMh9NY+yiXLbqBtA0D//H1M3vtquQIT218u
-         k0cuYtKMKt2ZPKA/HBXUQJ7Pla+AIbHhps2VIEP6fVFjngi6MN9agvmqrrcYzZbFkust
-         cHjiU70uAwzDHFz+ufjhEVn5bg68MbDwF5quApue5BVjnchm8MzyJKJaCX4Gwq21sQcv
-         V1Jw==
-X-Forwarded-Encrypted: i=1; AJvYcCXLBm84QyoNvAGrqArxqbMPiaOinmGmVm9zOS3j76qcYXrRRQ8dHxj4k1p2Fr9GcXZkmlVVdD/EIzxQa/FDBA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxvJfNe78RB2CrDTXJ12FxpEVQjGC8T2aBc7P7EtAjmJjVRGahM
-	j3rVA+gnns6G+g6Ug0K6LTJCpkKzbLjtVBHjPtbKKgN4yj4y71RZQZWOGm+dGlw=
-X-Gm-Gg: ASbGnct4XwsZDUg/7S8J1j1ha8nZLOsQ3r7EGsjsEMSdhKM2U5bplNdQxyLA3fqr/aP
-	dN2bL3hEIBePDH0EnMwSdWUZrkeGsqFD7jH3+bZsZjeowVk5GefnhN11HUtl51qsePLoWb0/tPL
-	Rdg9pahiqZVQQXQjeYsmcbJxricF/57ujxKKn8vfaXDeyWs5Uhce2uJxsGmFyJY+depIFjoiDEi
-	ftnwJ2feGmQPoMpB5R5cwUluYiJUZRLMiEsaVa1neNcXrOPt6l7kUopJ5JQvwzjEq39v6r7MdWR
-	BxvePlrH5izFx0auLjgwliIJqWUM5Ga3X50EtgvL6DT92wu2QlCErNILHp+Noy17Ptw=
-X-Google-Smtp-Source: AGHT+IGWbBJAtL2UtKSWCS6Jd9Ns/0Md8Y1s79IB++xb28sgasLU0+0/qaH46F3zNCw25wym7QqlJQ==
-X-Received: by 2002:a17:90b:3b4b:b0:2ee:fdf3:390d with SMTP id 98e67ed59e1d1-2fc4115087fmr15333822a91.31.1739827918683;
-        Mon, 17 Feb 2025 13:31:58 -0800 (PST)
-Received: from dread.disaster.area (pa49-186-89-135.pa.vic.optusnet.com.au. [49.186.89.135])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-220d53491d4sm76091525ad.4.2025.02.17.13.31.58
+        d=1e100.net; s=20230601; t=1739834422; x=1740439222;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NGgmxNh5kSJhTq/p1OO25Mo/qlvmdqIHbViecFk0pek=;
+        b=Qt3GrOs8Qho0zJgfBEg4vO0px+R0vpmzsmHZsBFZakKUUeInxA5qciqw7nw7HBeoer
+         rYti+x5OE9YBMUGsAbGjWopiwErehos0OSVniy75w5m9YGYMv+1ghyB4DVUZOsARxJoo
+         T7MQDPMzf6wZKqX6J7yN0B30yLivZ1fprL3weUqHIOEE+bxGARaP7z5D2Whcn0zkZ3VE
+         LXpg4KX8aqwbqNMPbOYAmSgqyBxpduHi1aXWA/6xfqewMjNcE3geGfwHIh/nKB9X1ZEy
+         JaW2+c9Pana/p6GvKNe9uNTV71TyQ2S9T8gmzP+VmZ+3dJrbD/9bv6/AagMKZTIoL4S0
+         m+DA==
+X-Forwarded-Encrypted: i=1; AJvYcCVsuEWs4idvaggI7xaVM2+EAM0TYmK+rN86kdd6PHXeC9aolq3y9QIajNPdIohdZ6NCwT6tMlgdoD8oXqKyLg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywp7ngWEfx7zv/VV8vzwyUS0NIHURzAbObL2tnyxW9UnHi5uMio
+	fYbQEMDjdyC14MopRzs917ehv1mn4gohD60yBbt0+gkxfG/AskNqas01KabGac5g8qPHFdmpKwC
+	vmHSkUR0n3FRO4Zo5Gl2MiODzkvx4bx+N881HQcaZppCJiH3D2+pO42w67x/4jWYT
+X-Gm-Gg: ASbGncsCFtGDvwJtrZWnMrSXScQ//AizTu/XrPbEpmLNkloOvcx4hln684J6/UpG4RR
+	Y5A1ksuZjMZt44gJTNm3TqaqK4Ek4z4fjQnWrKtsgD9LFfmMICK+h/JsFkyjXWGHOFLZGdUNeMX
+	zOqp3Mg9fRSg1HKKcmn/N6Jq98Uk3NntSGO7AChLAaq5F1kG+DLEQyEkoTQSi7PWij8DGGSp/cN
+	AGS1u+zuBmP/H6zYcPKN1OoIPMVaZJmjTekD2bORx9O6uI5oIqULzQmweoLv81ip4kvbto=
+X-Received: by 2002:a05:6000:18a9:b0:38d:deb4:4ee8 with SMTP id ffacd0b85a97d-38f33f2f8d3mr12291308f8f.28.1739834422355;
+        Mon, 17 Feb 2025 15:20:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHqcUqQDWXyXS+yXasXUh7eawGe8/yKuXmNZtdELoNSjmvRkQUIzJNCr+BIjIBS93gCq7Ufug==
+X-Received: by 2002:a05:6000:18a9:b0:38d:deb4:4ee8 with SMTP id ffacd0b85a97d-38f33f2f8d3mr12291287f8f.28.1739834421963;
+        Mon, 17 Feb 2025 15:20:21 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1f5:7ef9:8f0d:a8:10c1:4db])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f2580fe7dsm13409933f8f.0.2025.02.17.15.20.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Feb 2025 13:31:58 -0800 (PST)
-Received: from dave by dread.disaster.area with local (Exim 4.98)
-	(envelope-from <david@fromorbit.com>)
-	id 1tk8iZ-00000002XxN-2C1Y;
-	Tue, 18 Feb 2025 08:31:55 +1100
-Date: Tue, 18 Feb 2025 08:31:55 +1100
-From: Dave Chinner <david@fromorbit.com>
-To: Yunsheng Lin <linyunsheng@huawei.com>
-Cc: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
-	David Sterba <dsterba@suse.com>, Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Carlos Maiolino <cem@kernel.org>,
-	"Darrick J. Wong" <djwong@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Anna Schumaker <anna@kernel.org>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
-	Olga Kornievskaia <okorniev@redhat.com>,
-	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
-	Luiz Capitulino <luizcap@redhat.com>,
-	Mel Gorman <mgorman@techsingularity.net>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-xfs@vger.kernel.org, linux-mm@kvack.org,
-	netdev@vger.kernel.org, linux-nfs@vger.kernel.org
-Subject: Re: [RFC] mm: alloc_pages_bulk: remove assumption of populating only
- NULL elements
-Message-ID: <Z7Oqy2j4xew7FW9Z@dread.disaster.area>
-References: <20250217123127.3674033-1-linyunsheng@huawei.com>
+        Mon, 17 Feb 2025 15:20:21 -0800 (PST)
+Date: Mon, 17 Feb 2025 18:20:17 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eric Auger <eauger@redhat.com>
+Cc: "Ning, Hongyu" <hongyu.ning@linux.intel.com>,
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Zhenzhong Duan <zhenzhong.duan@intel.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
+Message-ID: <20250217181953-mutt-send-email-mst@kernel.org>
+References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
+ <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
+ <20250203094700-mutt-send-email-mst@kernel.org>
+ <7cee3c9e-515e-41de-a15c-04c7591e83eb@redhat.com>
+ <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
+ <90a09ffa-e316-41f0-916b-25635b1d4bc6@linux.intel.com>
+ <83b43e73-8599-44ff-8657-6d5f2f9b2de5@redhat.com>
+ <20250214070904-mutt-send-email-mst@kernel.org>
+ <a48ec78d-a86f-4332-87d0-e6071f72a7d1@redhat.com>
+ <7fb416d6-00b5-4e28-b257-151d3289e76d@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <7fb416d6-00b5-4e28-b257-151d3289e76d@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Rh9oyUp6AzNlSSgSPv8GdKzwXHY6FtM7ivBMZOIR0nE_1739834422
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20250217123127.3674033-1-linyunsheng@huawei.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 17, 2025 at 08:31:23PM +0800, Yunsheng Lin wrote:
-> As mentioned in [1], it seems odd to check NULL elements in
-> the middle of page bulk allocating, and it seems caller can
-> do a better job of bulk allocating pages into a whole array
-> sequentially without checking NULL elements first before
-> doing the page bulk allocation.
-....
+On Mon, Feb 17, 2025 at 05:59:30PM +0100, Eric Auger wrote:
+> Hi Michael,
+> 
+> On 2/17/25 10:25 AM, Eric Auger wrote:
+> > Hi Michael, Hongyu,
+> > 
+> > On 2/14/25 1:16 PM, Michael S. Tsirkin wrote:
+> >> On Fri, Feb 14, 2025 at 08:56:56AM +0100, Eric Auger wrote:
+> >>> Hi,
+> >>>
+> >>> On 2/14/25 8:21 AM, Ning, Hongyu wrote:
+> >>>>
+> >>>>
+> >>>> On 2025/2/6 16:59, Eric Auger wrote:
+> >>>>> Hi,
+> >>>>>
+> >>>>> On 2/4/25 12:46 PM, Eric Auger wrote:
+> >>>>>> Hi,
+> >>>>>>
+> >>>>>> On 2/3/25 3:48 PM, Michael S. Tsirkin wrote:
+> >>>>>>> On Fri, Jan 31, 2025 at 10:53:15AM +0100, Eric Auger wrote:
+> >>>>>>>> Hi Kirill, Michael
+> >>>>>>>>
+> >>>>>>>> On 8/8/24 9:51 AM, Kirill A. Shutemov wrote:
+> >>>>>>>>> Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
+> >>>>>>>>> accesses during the hang.
+> >>>>>>>>>
+> >>>>>>>>>     Invalid read at addr 0x102877002, size 2, region '(null)',
+> >>>>>>>>> reason: rejected
+> >>>>>>>>>     Invalid write at addr 0x102877A44, size 2, region '(null)',
+> >>>>>>>>> reason: rejected
+> >>>>>>>>>     ...
+> >>>>>>>>>
+> >>>>>>>>> It was traced down to virtio-console. Kexec works fine if virtio-
+> >>>>>>>>> console
+> >>>>>>>>> is not in use.
+> >>>>>>>>>
+> >>>>>>>>> Looks like virtio-console continues to write to the MMIO even after
+> >>>>>>>>> underlying virtio-pci device is removed.
+> >>>>>>>>>
+> >>>>>>>>> The problem can be mitigated by removing all virtio devices on virtio
+> >>>>>>>>> bus shutdown.
+> >>>>>>>>>
+> >>>>>>>>> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> >>>>>>>>> Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+> >>>>>>>>
+> >>>>>>>> Gentle ping on that patch that seems to have fallen though the cracks.
+> >>>>>>>>
+> >>>>>>>> I think this fix is really needed. I have another test case with a
+> >>>>>>>> rebooting guest exposed with virtio-net (backed by vhost-net) and
+> >>>>>>>> viommu. Since there is currently no shutdown for the virtio-net, on
+> >>>>>>>> reboot, the IOMMU is disabled through the native_machine_shutdown()/
+> >>>>>>>> x86_platform.iommu_shutdown() while the virtio-net is still alive.
+> >>>>>>>>
+> >>>>>>>> Normally device_shutdown() should call virtio-net shutdown before the
+> >>>>>>>> IOMMU tear down and we wouldn't see any spurious transactions after
+> >>>>>>>> iommu shutdown.
+> >>>>>>>>
+> >>>>>>>> With that fix, the above test case is fixed and I do not see spurious
+> >>>>>>>> vhost IOTLB miss spurious requests.
+> >>>>>>>>
+> >>>>>>>> For more details, see qemu thread ([PATCH] hw/virtio/vhost: Disable
+> >>>>>>>> IOTLB callbacks when IOMMU gets disabled,
+> >>>>>>>> https://lore.kernel.org/all/20250120173339.865681-1-
+> >>>>>>>> eric.auger@redhat.com/)
+> >>>>>>>>
+> >>>>>>>>
+> >>>>>>>> Reviewed-by: Eric Auger <eric.auger@redhat.com>
+> >>>>>>>> Tested-by: Eric Auger <eric.auger@redhat.com>
+> >>>>>>>>
+> >>>>>>>> Thanks
+> >>>>>>>>
+> >>>>>>>> Eric
+> >>>>>>>>
+> >>>>>>>>> ---
+> >>>>>>>>>   drivers/virtio/virtio.c | 10 ++++++++++
+> >>>>>>>>>   1 file changed, 10 insertions(+)
+> >>>>>>>>>
+> >>>>>>>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> >>>>>>>>> index a9b93e99c23a..6c2f908eb22c 100644
+> >>>>>>>>> --- a/drivers/virtio/virtio.c
+> >>>>>>>>> +++ b/drivers/virtio/virtio.c
+> >>>>>>>>> @@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
+> >>>>>>>>>       of_node_put(dev->dev.of_node);
+> >>>>>>>>>   }
+> >>>>>>>>>   +static void virtio_dev_shutdown(struct device *_d)
+> >>>>>>>>> +{
+> >>>>>>>>> +    struct virtio_device *dev = dev_to_virtio(_d);
+> >>>>>>>>> +    struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+> >>>>>>>>> +
+> >>>>>>>>> +    if (drv && drv->remove)
+> >>>>>>>>> +        drv->remove(dev);
+> >>>>>>>
+> >>>>>>>
+> >>>>>>> I am concerned that full remove is a heavyweight operation.
+> >>>>>>> Do not want to slow down reboots even more.
+> >>>>>>> How about just doing a reset, instead?
+> >>>>>>
+> >>>>>> I tested with
+> >>>>>>
+> >>>>>> static void virtio_dev_shutdown(struct device *_d)
+> >>>>>> {
+> >>>>>>          struct virtio_device *dev = dev_to_virtio(_d);
+> >>>>>>
+> >>>>>>          virtio_reset_device(dev);
+> >>>>>> }
+> >>>>>>
+> >>>>>>
+> >>>>>> and it fixes my issue.
+> >>>>>>
+> >>>>>> Kirill, would that fix you issue too?
+> >>>>
+> >>>> Hi,
+> >>>>
+> >>>> sorry for my late response, I synced with Kirill offline and did a retest.
+> >>>>
+> >>>> The issue is still reproduced on my side, kexec will be stuck in case of
+> >>>> "console=hvc0" append in kernel cmdline and even with such patch applied.
+> >>>
+> >>> Thanks for testing!
+> >>>
+> >>> Michael, it looks like the initial patch from Kyrill is the one that
+> >>> fixes both issues. virtio_reset_device() usage does not work for the
+> >>> initial bug report while it works for me. Other ideas?
+> >>>
+> >>> Thanks
+> >>>
+> >>> Eric
+> >>
+> >> Ah, wait a second.
+> >>
+> >> Looks like virtio-console continues to write to the MMIO even after
+> >> underlying virtio-pci device is removed.
+> >>
+> >> Hmm. I am not sure why that is a problem, but I assume some hypervisors just
+> >> hang the system if you try to kick them after reset.
+> >> Unfortunate that spec did not disallow it.
+> >>
+> >> If we want to prevent that, we want to do something like this:
+> >>
+> >>
+> >> 	/*
+> >> 	 * Some devices get wedged if you kick them after they are
+> >> 	 * reset. Mark all vqs as broken to make sure we don't.
+> >> 	 */
+> >>         virtio_break_device(dev);
+> >>         /*
+> >>          * The below virtio_synchronize_cbs() guarantees that any
+> >>          * interrupt for this line arriving after
+> >>          * virtio_synchronize_vqs() has completed is guaranteed to see
+> >>          * vq->broken as true.
+> >>          */
+> >>         virtio_synchronize_cbs(dev);
+> >>         dev->config->reset(dev);
+> I have tested that code as an implentation of the virtio shutdown
+> callback and yes it also fixes the viommu/vhost issue.
+> 
+> Michael, will you send a patch then?
+> 
+> Thanks
+> 
+> Eric
 
-IMO, the new API is a poor one, and you've demonstrated it clearly
-in this patch.
 
-.....
+Was hoping for a confirmation from Ning.
 
-> diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
-> index 15bb790359f8..9e1ce0ab9c35 100644
-> --- a/fs/xfs/xfs_buf.c
-> +++ b/fs/xfs/xfs_buf.c
-> @@ -377,16 +377,17 @@ xfs_buf_alloc_pages(
->  	 * least one extra page.
->  	 */
->  	for (;;) {
-> -		long	last = filled;
-> +		long	alloc;
->  
-> -		filled = alloc_pages_bulk(gfp_mask, bp->b_page_count,
-> -					  bp->b_pages);
-> +		alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
-> +					 bp->b_pages + refill);
-> +		refill += alloc;
->  		if (filled == bp->b_page_count) {
->  			XFS_STATS_INC(bp->b_mount, xb_page_found);
->  			break;
->  		}
->  
-> -		if (filled != last)
-> +		if (alloc)
->  			continue;
+> >>
+> >>
+> >> I assume this still works for you, yes?
+> > Would that still been done in the virtio_dev_shutdown()?
+> > 
+> > Is that what you tested Hongyu?
+> > 
+> > Eric
+> >>
+> >>
+> >>
+> >>>>
+> >>>> my kernel code base is 6.14.0-rc2.
+> >>>>
+> >>>> let me know if any more experiments needed.
+> >>>>
+> >>>> ---
+> >>>>  drivers/virtio/virtio.c | 8 ++++++++
+> >>>>  1 file changed, 8 insertions(+)
+> >>>>
+> >>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> >>>> index ba37665188b5..f9f885d04763 100644
+> >>>> --- a/drivers/virtio/virtio.c
+> >>>> +++ b/drivers/virtio/virtio.c
+> >>>> @@ -395,6 +395,13 @@ static const struct cpumask
+> >>>> *virtio_irq_get_affinity(struct device *_d,
+> >>>>         return dev->config->get_vq_affinity(dev, irq_vec);
+> >>>>  }
+> >>>>
+> >>>> +static void virtio_dev_shutdown(struct device *_d)
+> >>>> +{
+> >>>> +        struct virtio_device *dev = dev_to_virtio(_d);
+> >>>> +
+> >>>> +        virtio_reset_device(dev);
+> >>>> +}
+> >>>> +
+> >>>>  static const struct bus_type virtio_bus = {
+> >>>>         .name  = "virtio",
+> >>>>         .match = virtio_dev_match,
+> >>>> @@ -403,6 +410,7 @@ static const struct bus_type virtio_bus = {
+> >>>>         .probe = virtio_dev_probe,
+> >>>>         .remove = virtio_dev_remove,
+> >>>>         .irq_get_affinity = virtio_irq_get_affinity,
+> >>>> +       .shutdown = virtio_dev_shutdown,
+> >>>>  };
+> >>>>
+> >>>>  int __register_virtio_driver(struct virtio_driver *driver, struct
+> >>>> module *owner)
+> >>>> -- 
+> >>>> 2.43.0
+> >>>>
+> >>>>
+> >>>>> gentle ping.
+> >>>>>
+> >>>>> this also fixes another issue with qemu vSMMU + virtio-scsi-pci. With
+> >>>>> the above addition I get rid of spurious warning in qemu on guest reboot.
+> >>>>>
+> >>>>> qemu-system-aarch64: virtio: zero sized buffers are not allowed
+> >>>>> qemu-system-aarch64: vhost vring error in virtqueue 0: Invalid
+> >>>>> argument (22)
+> >>>>>
+> >>>>> Would you mind if I respin?
+> >>>>>
+> >>>>> Thanks
+> >>>>>
+> >>>>> Eric
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>>
+> >>>>>> Thanks
+> >>>>>>
+> >>>>>> Eric
+> >>>>>>>
+> >>>>>>>>> +}
+> >>>>>>>>> +
+> >>>>>>>>>   static const struct bus_type virtio_bus = {
+> >>>>>>>>>       .name  = "virtio",
+> >>>>>>>>>       .match = virtio_dev_match,
+> >>>>>>>>> @@ -363,6 +372,7 @@ static const struct bus_type virtio_bus = {
+> >>>>>>>>>       .uevent = virtio_uevent,
+> >>>>>>>>>       .probe = virtio_dev_probe,
+> >>>>>>>>>       .remove = virtio_dev_remove,
+> >>>>>>>>> +    .shutdown = virtio_dev_shutdown,
+> >>>>>>>>>   };
+> >>>>>>>>>     int __register_virtio_driver(struct virtio_driver *driver,
+> >>>>>>>>> struct module *owner)
+> >>>>>>>
+> >>>>>>
+> >>>>>
+> >>>>
+> >>
+> > 
 
-You didn't even compile this code - refill is not defined
-anywhere.
-
-Even if it did complile, you clearly didn't test it. The logic is
-broken (what updates filled?) and will result in the first
-allocation attempt succeeding and then falling into an endless retry
-loop.
-
-i.e. you stepped on the API landmine of your own creation where
-it is impossible to tell the difference between alloc_pages_bulk()
-returning "memory allocation failed, you need to retry" and
-it returning "array is full, nothing more to allocate". Both these
-cases now return 0.
-
-The existing code returns nr_populated in both cases, so it doesn't
-matter why alloc_pages_bulk() returns with nr_populated != full, it
-is very clear that we still need to allocate more memory to fill it.
-
-The whole point of the existing API is to prevent callers from
-making stupid, hard to spot logic mistakes like this. Forcing
-callers to track both empty slots and how full the array is itself,
-whilst also constraining where in the array empty slots can occur
-greatly reduces both the safety and functionality that
-alloc_pages_bulk() provides. Anyone that has code that wants to
-steal a random page from the array and then refill it now has a heap
-more complex code to add to their allocator wrapper.
-
-IOWs, you just demonstrated why the existing API is more desirable
-than a highly constrained, slightly faster API that requires callers
-to get every detail right. i.e. it's hard to get it wrong with the
-existing API, yet it's so easy to make mistakes with the proposed
-API that the patch proposing the change has serious bugs in it.
-
--Dave.
--- 
-Dave Chinner
-david@fromorbit.com
