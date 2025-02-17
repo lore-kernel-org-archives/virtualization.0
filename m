@@ -1,357 +1,171 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2060.outbound.protection.outlook.com [40.107.223.60])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5730D226554
-	for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 16:59:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739811579; cv=none; b=lQ7GuOPQDG8I6bJgvjR3PAz1quECkHfZ2q/b+KPWS5d5HbxpsGnvXFyPrRJxB7QSmPI2NvE/Cb3H8RCQoO7pnukZq+tpgXsX6nRvb96l9+9ING7OMeKMfaz74DUf/tkHV0bxkYqUqSXjuTwpeFnZAs2J5eyBVpf6R/9cfeZMX74=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739811579; c=relaxed/simple;
-	bh=LFfddsZxBXlITmL/+vGigj/geWMyNyFUYG9hBOPHVDA=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=J/mAy2KOGVn9n1FYxNVrjeW2OI1EGicHepxLnl8boF+6uTyrQ6154o8TJtASex+Y73TfZEHTMJq185Mv6/hL5K6vJoPz2d17+AtWe+tji1IUnnRQkjVEeVYwCD+9a5elBwtX2WxfiY4wz4kOWBI0i7rhu7NufQFoLRl3Vj8HJHQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RT4fwmRm; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEA901552FD
+	for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 19:45:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.60
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1739821515; cv=fail; b=LlMblHBDUDcH1Wshq4ih2vXB0KCRUZ2Anu1bubskn1fBGivbn5i3j10zAUQ7sLSAl8ef2TQmVRxEU5J8BWiXUeTLcFKXVGgQNUcqe9C9/AsiAJvZGy4+r4MFTRQXGU/B7wetC0+tc12J53DNeptp2h/mDEye4Mlbb/3ZE8g7fDc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1739821515; c=relaxed/simple;
+	bh=AJik8rY/aMlNbZPCp9DJwveZEOQHrYxtoHpFn5Q+aOk=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Enwacek/JLBYkZ4JdwFnRpsHE1sPIkGt35LRHcu5w5ts3ZFaQFNkbkSFHuFQWE7tzOKFui9mSkqi4HhThcyeP0YzTOiWt+9daRMlDuiVCUGc/1DfqpExZoHrTYlVtKJEdA3Y1/YQ6Mc9XOj+qQmb64pauv/AHV53ry8NIiOUV1Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YOAXb50L; arc=fail smtp.client-ip=40.107.223.60
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RT4fwmRm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739811576;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0W6qcikXZaQHJ5MmZumHOc5P/nL0OyRhrHq+XSV9Has=;
-	b=RT4fwmRmoGa09RPwq4m2VM5bkWUrD/HEHpAH1yCgyOyBeYzeNlCO2hYgyXdSGzpXFgY+cj
-	n85dybBAbfHoPSEXxFaWweS75LntuSus1X0zP7TWqAXBvACorc5ThYCsjeUvU73+ZeYEMW
-	02FLsnLflQuSBGXOFHyrT+Ugz7EsQsY=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-433-df8jHyM9P0e7sRstOywb6A-1; Mon, 17 Feb 2025 11:59:35 -0500
-X-MC-Unique: df8jHyM9P0e7sRstOywb6A-1
-X-Mimecast-MFC-AGG-ID: df8jHyM9P0e7sRstOywb6A_1739811574
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4398e841963so3105785e9.3
-        for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 08:59:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739811574; x=1740416374;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=0W6qcikXZaQHJ5MmZumHOc5P/nL0OyRhrHq+XSV9Has=;
-        b=eIsEwpCaHFsRr/9Weq7Ly11B/A4ujqyeL2dL6D0FMi2KltwvJ/vZV8GSXcNG6bpzsF
-         wG8Z+1u4mdRQWHjcArOPrZi6va1aE5AvUgW3nTDy3Lig8+X4jnwC7fe+0uJQJ+5u3t2z
-         63caphp1dCwoAuJ4c8rXeXS9nRhM21JoBYhghn5rnFn5++/axfG4LGLPGjnPMDJ383qV
-         +obl5oehAtU+C+A9J3d2c3S76lYX9jAqzuZnABf4+BehIAoakdayI+39J+x3N7ktFrXa
-         1gDuh5lKac12heU8wM8B/5PX4uMrqBJdQ0plByzPjW2SyDBQ2acBqdA6CyF48MZPPX7m
-         ah1g==
-X-Forwarded-Encrypted: i=1; AJvYcCWAfx0dd6vMmOO2n6Kpgye3NSaMj+Be0+Uzoy2io8jgaNfAawLKO8LDZ9oNmDDoBfpp29jihlweOlnGpry+vg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxgaFrjVBsQtnM8K/yRSS+BV7ItKOSFTWpBUB5hY5KMyrGf+Zmm
-	Eu30wXqFktAaHqkViBOIIdfmwpUkrR1cWv2Ee4bKXc+jdYXIp+mpQEi6K5aFQR8MiCyYNO3CJ+e
-	HnYeIBw6WNhXmioMfftIzt7Q51NYxpvrcx5pKukO/6aBHpe0LyvirHkTmZToH9JNS
-X-Gm-Gg: ASbGnctT5K/8rRbx0J4ZTCOPscYV3JPmycuto34tvp0chUaKJoYBGTrUvaaW4NHJLq8
-	oehpD0T2acqIbEmHRonulNpQdnRNRtsdsJ0w6YkVyKKpi46LxAIsT8dviMQQAwFMKXCKTOdsofS
-	9I/v9XHoXOJnrmBPQqg+BWSki2cmmSgUrfyaR4lQEpJRG/1WVSk8BXQQtICLNWWdfGUOnAl1523
-	c26q0Y3x93GZP/C9aOVqyc5aqiqC70BWTOHA+izFXfr8LU5goug5jnYJsaRl8ZN/fErd6nfVFlq
-	Y2IYE+igfaTDkZyycqTgt04I6rBrEZ1lG3vQkIniXNPCjJM=
-X-Received: by 2002:a05:600c:19d4:b0:434:a30b:5455 with SMTP id 5b1f17b1804b1-4396e75dbd7mr92775015e9.27.1739811573311;
-        Mon, 17 Feb 2025 08:59:33 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEOqZlM5EzB206Q+H0V17yPFgmin7Z3Uw/ompItL7QBdeJycXAdZjmpTyIaaffqdxx8zVUaug==
-X-Received: by 2002:a05:600c:19d4:b0:434:a30b:5455 with SMTP id 5b1f17b1804b1-4396e75dbd7mr92774785e9.27.1739811572818;
-        Mon, 17 Feb 2025 08:59:32 -0800 (PST)
-Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f258b44a7sm12956361f8f.12.2025.02.17.08.59.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Feb 2025 08:59:31 -0800 (PST)
-Message-ID: <7fb416d6-00b5-4e28-b257-151d3289e76d@redhat.com>
-Date: Mon, 17 Feb 2025 17:59:30 +0100
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YOAXb50L"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=stjAx0/4WhzEx3/sGCDbWgdQaHgvaELMObFVUmCyeDFdtsoUsXRzhcm9F51G9QvoefzvCRHOxeoiZ4h+9uedUHh+m/F28jzHstCQJ8JOgkX+1WS8EueH6VUi0T0gYdXzF6kHQm4JTPSBVtJODTkJGao91N8Ic1mckk2MxYWj3ueq05TnLik0jcRxg92KkVMMIC0BpB9qanC9ozuqV1YPIVq9oRfy5qo9ExJZTVsRoGhnguMqljiTgrL0iyzV9T+ixndCK3HEaLAurFSd37IGmtTwaVClixhEzvs3DAhS8Za4yK7OA1tvOUUZJgobC1v/EU0XURlUceGgoB3Q6Ik2fw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5dMux0PVRp6CcD9vwX61E0cMURaXaeRNgllS1ZJILqE=;
+ b=kHFO9xvM2fwT84RqFCMMqJIdGWxwU2LByhzVkLN1irHm+gQo8Z6rzalozkIwczdOKDMH34Sit9nOeeCDMnSMz/35QbLVwJIgKnLg4x+1tE8pgQLqgNTUB45hjmBfg9nin0H80IkkAxmCf7zelis2si7wCc9Gk4N0rUrQT9d3vVTIit91nrnsbGZSSkaTtvu3fFKXZR5iUA4BoX9GsdIj2TYQuBM45b4aY8kisLVSA9vUQ0hMeJAh1euu82otgNFuBRDRavtdKPE+WgaxhBT7+dS6IUZSgQJ/96T2+rt8fjIgfwQH+Ialu2Mm6AetmU2bRpQj/tGD9g386HJslbFy1A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5dMux0PVRp6CcD9vwX61E0cMURaXaeRNgllS1ZJILqE=;
+ b=YOAXb50LIuoNppxKwFf7Nkf1X6+MG0DBVVXjRhVXU8XLnWIfjRJZY8BMjRyLqS7xflaY9jX7/GHrdo5bRaG3ji6MRSN8P/C6J1BM4DZl48aUCsvy8J6j0Z9kPvNdF3t7BxE7EqITUgoJu2mkCia7WkhDETj7JuD2541+Gy1LJPVhAzxBre7tMRYmc6cW9SumwX0Bd521YdoSKya7n3dIOuCVFrVdz9NGV+TuipemP5ZD0H1tqnesAJzp25DNMKinuPQnTjyOqdDonAgWcsDcaqsLiufsFGUeN92dgMbLOWAo8KR4NJbxs2HhSy6M5WDKQiyBnL4lCqhuGu0+RhJdpg==
+Received: from MW4PR03CA0287.namprd03.prod.outlook.com (2603:10b6:303:b5::22)
+ by PH0PR12MB7813.namprd12.prod.outlook.com (2603:10b6:510:286::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8445.16; Mon, 17 Feb
+ 2025 19:45:07 +0000
+Received: from SJ1PEPF0000231A.namprd03.prod.outlook.com
+ (2603:10b6:303:b5:cafe::aa) by MW4PR03CA0287.outlook.office365.com
+ (2603:10b6:303:b5::22) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8445.19 via Frontend Transport; Mon,
+ 17 Feb 2025 19:45:07 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SJ1PEPF0000231A.mail.protection.outlook.com (10.167.242.231) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8466.11 via Frontend Transport; Mon, 17 Feb 2025 19:45:07 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 17 Feb
+ 2025 11:44:59 -0800
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Mon, 17 Feb
+ 2025 11:44:59 -0800
+Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
+ mail.nvidia.com (10.129.68.6) with Microsoft SMTP Server id 15.2.1544.14 via
+ Frontend Transport; Mon, 17 Feb 2025 11:44:56 -0800
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, <virtualization@lists.linux.dev>
+CC: Dragos Tatulea <dtatulea@nvidia.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu
+	<si-wei.liu@oracle.com>, <kvm@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Gal Pressman <gal@nvidia.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, <stable@vger.kernel.org>
+Subject: [PATCH vhost] vdpa/mlx5: Fix oversized null mkey longer than 32bit
+Date: Mon, 17 Feb 2025 21:44:43 +0200
+Message-ID: <20250217194443.145601-1-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
-From: Eric Auger <eauger@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Ning, Hongyu" <hongyu.ning@linux.intel.com>,
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Zhenzhong Duan <zhenzhong.duan@intel.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
- <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
- <20250203094700-mutt-send-email-mst@kernel.org>
- <7cee3c9e-515e-41de-a15c-04c7591e83eb@redhat.com>
- <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
- <90a09ffa-e316-41f0-916b-25635b1d4bc6@linux.intel.com>
- <83b43e73-8599-44ff-8657-6d5f2f9b2de5@redhat.com>
- <20250214070904-mutt-send-email-mst@kernel.org>
- <a48ec78d-a86f-4332-87d0-e6071f72a7d1@redhat.com>
-In-Reply-To: <a48ec78d-a86f-4332-87d0-e6071f72a7d1@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: PcoBcuEXFRyHkynlJoHbDyr8uEKPre6rFTIJm5hCOSg_1739811574
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: AnonymousSubmission
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ1PEPF0000231A:EE_|PH0PR12MB7813:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2c8781e2-d117-4030-37bc-08dd4f8b94ec
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|36860700013|376014|82310400026;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?o282xY0jv0B1+H7GyMWmxGyPJgufv42YtlaAYfsm4ADWo3J5PPa8RR/Q47Qz?=
+ =?us-ascii?Q?SrR++E9AWanCyh+2x7imPTjUFEaCGfOJVXlUzp2zXizZ6EEtkIHhm78FGuPn?=
+ =?us-ascii?Q?ZQVrA4V5W+22nGetcxot59FOzsh4E5c+pAY5GkePRBWec70EetM168Vj1yEz?=
+ =?us-ascii?Q?rhE0TQm2RjsouR4TSqOTFIrz6Y9Uqk/QY9+lbCC8K1cUkoLMc5giI7FrMs/W?=
+ =?us-ascii?Q?P6YYpYx4L0QxABq3XNd60ad0AFkG3vLVyKRM4sdnBpamHzvi66zF62q3en2n?=
+ =?us-ascii?Q?xXgMjqz4N/aE4TEfSONUCqUsV/QoA9Gc6fkIlV68XqyGKMo0lidxA2FhgYQT?=
+ =?us-ascii?Q?6EAw8gw6N7QwitH9AXXO37aUrhrLf6LAD9J9iesQoa89udt+pv8s8uWIuY9G?=
+ =?us-ascii?Q?VhB7zwbwJom8TbkwYd/970kbcfvJXoV767zJwdtk3hGaCopqNDWVLRfCwUdb?=
+ =?us-ascii?Q?sXT/356tUXxNNXJjNLSQABHycbVIAy7TWjooD2qehzl1eVw3nGwIpYeC3QC4?=
+ =?us-ascii?Q?AFlW7xwutp2blaSPyO1PZpWKb0nydL87cJnkaIW06WVVknMgeuuMq8zU7+fv?=
+ =?us-ascii?Q?sbp/i2F9kSPvuBHhStcjKQXCHnyjXrDPd1WtDmsyyC6ECbs3fWONpN1MV5x1?=
+ =?us-ascii?Q?c1j0Q7/PkslFy3wwfPs6Hcn8C9iCpkzLCL2KmDVpTH2Zz604U487C9NwOKku?=
+ =?us-ascii?Q?Hc/SBH5xjJR2MGdct9ASEHIV8DBDdeqwZjP5+XVZ64WM4zrUxugxoHrLp8xN?=
+ =?us-ascii?Q?X0sL4KJBqWNFYn4015Rn7b4Op8d0CanoX4QtpcjiQbhqGmr6d/HkN7yVjfWN?=
+ =?us-ascii?Q?WPB2Aq9cHUDQFcgalhdFgo4njTqZCuvtg7FhZhBi4N66Qac/BMaY12puhulZ?=
+ =?us-ascii?Q?JQ2ivNNIsBpwiH3UrEfl9xWeocoJvdTKCGJPHx8Imv+mMRl1EPCr3FtG1d0Y?=
+ =?us-ascii?Q?uJI8Urx2qgmpbGK+kUcYzxyZdaraYB9w3Q/UcdBpHjI2CtGIpIfFXiIXd5OP?=
+ =?us-ascii?Q?/02YrbbcFHUo4bux7IMpqbC5qtnEjuZnE1cdCmBEGoeFvIFj7n5w4nurM9sT?=
+ =?us-ascii?Q?j00tFtMpb5IsDLJUIn8WXYZggJk4vREPP9t7bZX7kFfaqs4Nyc0545/6r1E8?=
+ =?us-ascii?Q?GTZGWSt4Oyjg/dlAzqBqhJJ7/LSw7mj4ogfqoq6ih1NXhpR+nDSlBCDjUk9G?=
+ =?us-ascii?Q?bqxwf7ryIYXqW50hJmi3e2+5D3OW8eBE4bfHeh4dibGXo0bnZd7TbogW7U8i?=
+ =?us-ascii?Q?wXgk8OYgQ0vthDoFdzJqqjy4HxjIYVFuX0b6Tzr2vfUJjnISwXmcUaKk8Li6?=
+ =?us-ascii?Q?5wyYruyJqTSYMhdovV7nO0OlmxKZSRGjkexiC/F7BONDTscTeRHcZWskXkJg?=
+ =?us-ascii?Q?htPwgM5iZI7kkWrXhw8cGSNfo7FmE8nn4zpocUZ0QfeYF+dB8K2x18T3/jvR?=
+ =?us-ascii?Q?lgbcOzxO8+mRnUjYiCArMZ9Wj3+9tUMk9rhwgaxmhVZstb4U59O8Qw0mo4mL?=
+ =?us-ascii?Q?tm2k+qRmiqzZS1s=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(36860700013)(376014)(82310400026);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Feb 2025 19:45:07.3566
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2c8781e2-d117-4030-37bc-08dd4f8b94ec
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ1PEPF0000231A.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7813
 
-Hi Michael,
+From: Si-Wei Liu <si-wei.liu@oracle.com>
 
-On 2/17/25 10:25 AM, Eric Auger wrote:
-> Hi Michael, Hongyu,
-> 
-> On 2/14/25 1:16 PM, Michael S. Tsirkin wrote:
->> On Fri, Feb 14, 2025 at 08:56:56AM +0100, Eric Auger wrote:
->>> Hi,
->>>
->>> On 2/14/25 8:21 AM, Ning, Hongyu wrote:
->>>>
->>>>
->>>> On 2025/2/6 16:59, Eric Auger wrote:
->>>>> Hi,
->>>>>
->>>>> On 2/4/25 12:46 PM, Eric Auger wrote:
->>>>>> Hi,
->>>>>>
->>>>>> On 2/3/25 3:48 PM, Michael S. Tsirkin wrote:
->>>>>>> On Fri, Jan 31, 2025 at 10:53:15AM +0100, Eric Auger wrote:
->>>>>>>> Hi Kirill, Michael
->>>>>>>>
->>>>>>>> On 8/8/24 9:51 AM, Kirill A. Shutemov wrote:
->>>>>>>>> Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
->>>>>>>>> accesses during the hang.
->>>>>>>>>
->>>>>>>>>     Invalid read at addr 0x102877002, size 2, region '(null)',
->>>>>>>>> reason: rejected
->>>>>>>>>     Invalid write at addr 0x102877A44, size 2, region '(null)',
->>>>>>>>> reason: rejected
->>>>>>>>>     ...
->>>>>>>>>
->>>>>>>>> It was traced down to virtio-console. Kexec works fine if virtio-
->>>>>>>>> console
->>>>>>>>> is not in use.
->>>>>>>>>
->>>>>>>>> Looks like virtio-console continues to write to the MMIO even after
->>>>>>>>> underlying virtio-pci device is removed.
->>>>>>>>>
->>>>>>>>> The problem can be mitigated by removing all virtio devices on virtio
->>>>>>>>> bus shutdown.
->>>>>>>>>
->>>>>>>>> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
->>>>>>>>> Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
->>>>>>>>
->>>>>>>> Gentle ping on that patch that seems to have fallen though the cracks.
->>>>>>>>
->>>>>>>> I think this fix is really needed. I have another test case with a
->>>>>>>> rebooting guest exposed with virtio-net (backed by vhost-net) and
->>>>>>>> viommu. Since there is currently no shutdown for the virtio-net, on
->>>>>>>> reboot, the IOMMU is disabled through the native_machine_shutdown()/
->>>>>>>> x86_platform.iommu_shutdown() while the virtio-net is still alive.
->>>>>>>>
->>>>>>>> Normally device_shutdown() should call virtio-net shutdown before the
->>>>>>>> IOMMU tear down and we wouldn't see any spurious transactions after
->>>>>>>> iommu shutdown.
->>>>>>>>
->>>>>>>> With that fix, the above test case is fixed and I do not see spurious
->>>>>>>> vhost IOTLB miss spurious requests.
->>>>>>>>
->>>>>>>> For more details, see qemu thread ([PATCH] hw/virtio/vhost: Disable
->>>>>>>> IOTLB callbacks when IOMMU gets disabled,
->>>>>>>> https://lore.kernel.org/all/20250120173339.865681-1-
->>>>>>>> eric.auger@redhat.com/)
->>>>>>>>
->>>>>>>>
->>>>>>>> Reviewed-by: Eric Auger <eric.auger@redhat.com>
->>>>>>>> Tested-by: Eric Auger <eric.auger@redhat.com>
->>>>>>>>
->>>>>>>> Thanks
->>>>>>>>
->>>>>>>> Eric
->>>>>>>>
->>>>>>>>> ---
->>>>>>>>>   drivers/virtio/virtio.c | 10 ++++++++++
->>>>>>>>>   1 file changed, 10 insertions(+)
->>>>>>>>>
->>>>>>>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->>>>>>>>> index a9b93e99c23a..6c2f908eb22c 100644
->>>>>>>>> --- a/drivers/virtio/virtio.c
->>>>>>>>> +++ b/drivers/virtio/virtio.c
->>>>>>>>> @@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
->>>>>>>>>       of_node_put(dev->dev.of_node);
->>>>>>>>>   }
->>>>>>>>>   +static void virtio_dev_shutdown(struct device *_d)
->>>>>>>>> +{
->>>>>>>>> +    struct virtio_device *dev = dev_to_virtio(_d);
->>>>>>>>> +    struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
->>>>>>>>> +
->>>>>>>>> +    if (drv && drv->remove)
->>>>>>>>> +        drv->remove(dev);
->>>>>>>
->>>>>>>
->>>>>>> I am concerned that full remove is a heavyweight operation.
->>>>>>> Do not want to slow down reboots even more.
->>>>>>> How about just doing a reset, instead?
->>>>>>
->>>>>> I tested with
->>>>>>
->>>>>> static void virtio_dev_shutdown(struct device *_d)
->>>>>> {
->>>>>>          struct virtio_device *dev = dev_to_virtio(_d);
->>>>>>
->>>>>>          virtio_reset_device(dev);
->>>>>> }
->>>>>>
->>>>>>
->>>>>> and it fixes my issue.
->>>>>>
->>>>>> Kirill, would that fix you issue too?
->>>>
->>>> Hi,
->>>>
->>>> sorry for my late response, I synced with Kirill offline and did a retest.
->>>>
->>>> The issue is still reproduced on my side, kexec will be stuck in case of
->>>> "console=hvc0" append in kernel cmdline and even with such patch applied.
->>>
->>> Thanks for testing!
->>>
->>> Michael, it looks like the initial patch from Kyrill is the one that
->>> fixes both issues. virtio_reset_device() usage does not work for the
->>> initial bug report while it works for me. Other ideas?
->>>
->>> Thanks
->>>
->>> Eric
->>
->> Ah, wait a second.
->>
->> Looks like virtio-console continues to write to the MMIO even after
->> underlying virtio-pci device is removed.
->>
->> Hmm. I am not sure why that is a problem, but I assume some hypervisors just
->> hang the system if you try to kick them after reset.
->> Unfortunate that spec did not disallow it.
->>
->> If we want to prevent that, we want to do something like this:
->>
->>
->> 	/*
->> 	 * Some devices get wedged if you kick them after they are
->> 	 * reset. Mark all vqs as broken to make sure we don't.
->> 	 */
->>         virtio_break_device(dev);
->>         /*
->>          * The below virtio_synchronize_cbs() guarantees that any
->>          * interrupt for this line arriving after
->>          * virtio_synchronize_vqs() has completed is guaranteed to see
->>          * vq->broken as true.
->>          */
->>         virtio_synchronize_cbs(dev);
->>         dev->config->reset(dev);
-I have tested that code as an implentation of the virtio shutdown
-callback and yes it also fixes the viommu/vhost issue.
+create_user_mr() has correct code to count the number of null keys
+used to fill in a hole for the memory map. However, fill_indir()
+does not follow the same to cap the range up to the 1GB limit
+correspondinly. Fill in more null keys for the gaps in between,
+so that null keys are correctly populated.
 
-Michael, will you send a patch then?
+Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+---
+ drivers/vdpa/mlx5/core/mr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-Thanks
-
-Eric
->>
->>
->> I assume this still works for you, yes?
-> Would that still been done in the virtio_dev_shutdown()?
-> 
-> Is that what you tested Hongyu?
-> 
-> Eric
->>
->>
->>
->>>>
->>>> my kernel code base is 6.14.0-rc2.
->>>>
->>>> let me know if any more experiments needed.
->>>>
->>>> ---
->>>>  drivers/virtio/virtio.c | 8 ++++++++
->>>>  1 file changed, 8 insertions(+)
->>>>
->>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->>>> index ba37665188b5..f9f885d04763 100644
->>>> --- a/drivers/virtio/virtio.c
->>>> +++ b/drivers/virtio/virtio.c
->>>> @@ -395,6 +395,13 @@ static const struct cpumask
->>>> *virtio_irq_get_affinity(struct device *_d,
->>>>         return dev->config->get_vq_affinity(dev, irq_vec);
->>>>  }
->>>>
->>>> +static void virtio_dev_shutdown(struct device *_d)
->>>> +{
->>>> +        struct virtio_device *dev = dev_to_virtio(_d);
->>>> +
->>>> +        virtio_reset_device(dev);
->>>> +}
->>>> +
->>>>  static const struct bus_type virtio_bus = {
->>>>         .name  = "virtio",
->>>>         .match = virtio_dev_match,
->>>> @@ -403,6 +410,7 @@ static const struct bus_type virtio_bus = {
->>>>         .probe = virtio_dev_probe,
->>>>         .remove = virtio_dev_remove,
->>>>         .irq_get_affinity = virtio_irq_get_affinity,
->>>> +       .shutdown = virtio_dev_shutdown,
->>>>  };
->>>>
->>>>  int __register_virtio_driver(struct virtio_driver *driver, struct
->>>> module *owner)
->>>> -- 
->>>> 2.43.0
->>>>
->>>>
->>>>> gentle ping.
->>>>>
->>>>> this also fixes another issue with qemu vSMMU + virtio-scsi-pci. With
->>>>> the above addition I get rid of spurious warning in qemu on guest reboot.
->>>>>
->>>>> qemu-system-aarch64: virtio: zero sized buffers are not allowed
->>>>> qemu-system-aarch64: vhost vring error in virtqueue 0: Invalid
->>>>> argument (22)
->>>>>
->>>>> Would you mind if I respin?
->>>>>
->>>>> Thanks
->>>>>
->>>>> Eric
->>>>>
->>>>>
->>>>>
->>>>>
->>>>>>
->>>>>> Thanks
->>>>>>
->>>>>> Eric
->>>>>>>
->>>>>>>>> +}
->>>>>>>>> +
->>>>>>>>>   static const struct bus_type virtio_bus = {
->>>>>>>>>       .name  = "virtio",
->>>>>>>>>       .match = virtio_dev_match,
->>>>>>>>> @@ -363,6 +372,7 @@ static const struct bus_type virtio_bus = {
->>>>>>>>>       .uevent = virtio_uevent,
->>>>>>>>>       .probe = virtio_dev_probe,
->>>>>>>>>       .remove = virtio_dev_remove,
->>>>>>>>> +    .shutdown = virtio_dev_shutdown,
->>>>>>>>>   };
->>>>>>>>>     int __register_virtio_driver(struct virtio_driver *driver,
->>>>>>>>> struct module *owner)
->>>>>>>
->>>>>>
->>>>>
->>>>
->>
-> 
+diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+index 8455f08f5d40..61424342c096 100644
+--- a/drivers/vdpa/mlx5/core/mr.c
++++ b/drivers/vdpa/mlx5/core/mr.c
+@@ -190,9 +190,12 @@ static void fill_indir(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr *mkey, v
+ 			klm->bcount = cpu_to_be32(klm_bcount(dmr->end - dmr->start));
+ 			preve = dmr->end;
+ 		} else {
++			u64 bcount = min_t(u64, dmr->start - preve, MAX_KLM_SIZE);
++
+ 			klm->key = cpu_to_be32(mvdev->res.null_mkey);
+-			klm->bcount = cpu_to_be32(klm_bcount(dmr->start - preve));
+-			preve = dmr->start;
++			klm->bcount = cpu_to_be32(klm_bcount(bcount));
++			preve += bcount;
++
+ 			goto again;
+ 		}
+ 	}
+-- 
+2.43.0
 
