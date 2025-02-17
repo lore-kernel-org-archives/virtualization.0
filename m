@@ -1,151 +1,303 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1988A2165E2;
-	Mon, 17 Feb 2025 10:59:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F5B3216605
+	for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 12:38:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739789998; cv=none; b=diOnjcY+FHZduw6UNGM/gnZ5xmQrdNjqHfUMAVsysMelHVxRuIj5BgH4VaOFycdrG1KG/23tBk4E4OjABMW+Iwa4eRROddTRXbWdx9WwbWvGxuchvR+6AdTcsi1a9LyANRCbr81p7IPLE/OKePouo3KFDsf13vUrxYFa6qs23EQ=
+	t=1739795936; cv=none; b=pDYCS0ya6uVxa916Vo1XVaI+CMl2huP86jQRl+HlhPyOl7BQdMLjaSMTtO4FTPFQBH/7YxQez0nzrLJSX+KwcXx+mtA8+YKTPd2dPoW8s2k0HMhQeu84MVXTETIbLI1qLd9vuPVSRJ37RiIJ4bwy2WDPgnKS4i6XKRT/iNdfMC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739789998; c=relaxed/simple;
-	bh=ZF5/FtNJqQYUzLXezQqrfcgLga0oCwWgRODIlTj730s=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nZ+4Eq5rYylNNxyXwk7jA8ovZktc5ZxKSyGAJL1TNFn61owYBxFLqZPfrV+ZycOUn9iCWedp7dHF+NYsF1t3vPXDLb3Nq5MTzK/wBD6xKnuHOVGotZANd5QgpKKA/W65WN/22dduokA0y/cpIvHvgiEW9nC2pUfRFq6fFFA+tCQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=enH4Wm1e; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="enH4Wm1e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46DF8C4CED1;
-	Mon, 17 Feb 2025 10:59:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739789997;
-	bh=ZF5/FtNJqQYUzLXezQqrfcgLga0oCwWgRODIlTj730s=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=enH4Wm1e9AVNFYdTnvGwXNJkRvcLP/21gPwifBRBhUkdqB+fjWMMU2Zr5uSpwfrYL
-	 ISfXv/utxiMZVRsAXKFGnGM78RO8NjYn55CpXHzoP+Op15Q5hqEMQk07NVYwzD4gcO
-	 8iqMvKmqXniTYrOg4dtM36BNVsHQOQuh6uYPcIq0G6G1W+c7lMRr3nrT3EuMXX0FRQ
-	 xsTLL6OwgwColBFDU8r2Fu69UeYCffzRlARG380kHvXQ/THjMpmtjQs+eZpaFuG8Bq
-	 iYVlmygHab/bOu8+4iKT0UP1wK+uvsOf5xQPeRxbI6ZYoFsmc+63coiXDOoaxH/6Mj
-	 XXiJDX30KcvPA==
-Message-ID: <15729df921fa8718ee173963132a370de6aae9af.camel@kernel.org>
-Subject: Re: [PATCH] virtio: console: Prepare for making REMOTEPROC modular
-From: Amit Shah <amit@kernel.org>
-To: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
-	 <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Date: Mon, 17 Feb 2025 11:59:53 +0100
-In-Reply-To: <2c676a9910c2d5b1332bb9baa999cdd16763a730.camel@kernel.org>
-References: <20250213115517.82975-2-u.kleine-koenig@baylibre.com>
-		 <34cb36503dae7a2d0ba94d1c367004a2d901e13b.camel@kernel.org>
-		 <uo3h33wijb7mhjwgugpkjhqg7wusz6tpkh5u5fxbsxp3kzpq75@ggsdroemmdmj>
-		 <558f3faa22e5717872bf53acfe6007dc3118f17d.camel@kernel.org>
-		 <k72vfex6qy53xrunz5ohe24c2upfjcdwofozszi4l3k3rm6dou@bd6swzi3v5ng>
-		 <606b16787920ff5e1807e4f8450add5889fdd1cb.camel@kernel.org>
-		 <dard24qyuwm6plnswtz4to36w3fynb553aohf5i7u4ln37nhbk@pgrvhqwvwuzp>
-		 <6d48bcfd0c6030c92f6a5a4a91c9b62f926b3b16.camel@kernel.org>
-		 <535ivi67jdmcuhns5q4r36fjpqde3clnqq7hr26gmg33jwoxyb@ahvuhhaewh3u>
-	 <2c676a9910c2d5b1332bb9baa999cdd16763a730.camel@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+	s=arc-20240116; t=1739795936; c=relaxed/simple;
+	bh=jtBh+0XSHsZRj0wRyLE3pJ+jqzyYvfhHbJnuhElAk/8=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=eKPc86+aSc3P9VLQRt5j2AlrcTTVJCifvm/7TCoYQxWuxutfT6EbYGfSfVVbseNpgRv+vLXwg+WicObMuSPZolpc7hiSRnHcFAMx1OXfSXVHpeyIY4ezmIdT1cPWq1rzdtbgP3qEb0b3fuM/t0QfuGPNTNS5PmFZ/g3IFmCePQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.17])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4YxMYZ2qlTz1wn6x;
+	Mon, 17 Feb 2025 20:34:58 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 505561A0188;
+	Mon, 17 Feb 2025 20:38:51 +0800 (CST)
+Received: from localhost.localdomain (10.90.30.45) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 17 Feb 2025 20:38:50 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, Shameer
+ Kolothum <shameerali.kolothum.thodi@huawei.com>, Kevin Tian
+	<kevin.tian@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Chris
+ Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba
+	<dsterba@suse.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep
+ Dhavale <dhavale@google.com>, Carlos Maiolino <cem@kernel.org>, "Darrick J.
+ Wong" <djwong@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jesper
+ Dangaard Brouer <hawk@kernel.org>, Ilias Apalodimas
+	<ilias.apalodimas@linaro.org>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Trond Myklebust
+	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
+	<chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
+	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>
+CC: Yunsheng Lin <linyunsheng@huawei.com>, Luiz Capitulino
+	<luizcap@redhat.com>, Mel Gorman <mgorman@techsingularity.net>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <linux-btrfs@vger.kernel.org>,
+	<linux-erofs@lists.ozlabs.org>, <linux-xfs@vger.kernel.org>,
+	<linux-mm@kvack.org>, <netdev@vger.kernel.org>, <linux-nfs@vger.kernel.org>
+Subject: [RFC] mm: alloc_pages_bulk: remove assumption of populating only NULL elements
+Date: Mon, 17 Feb 2025 20:31:23 +0800
+Message-ID: <20250217123127.3674033-1-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.30.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On Mon, 2025-02-17 at 11:53 +0100, Amit Shah wrote:
-> On Fri, 2025-02-14 at 18:47 +0100, Uwe Kleine-K=C3=B6nig wrote:
-> > On Fri, Feb 14, 2025 at 05:55:41PM +0100, Amit Shah wrote:
-> > > On Fri, 2025-02-14 at 17:52 +0100, Uwe Kleine-K=C3=B6nig wrote:
-> > > > Hello Amit,
-> > > >=20
-> > > > On Fri, Feb 14, 2025 at 05:37:52PM +0100, Amit Shah wrote:
-> > > > > I'm thinking of the two combinations of interest:
-> > > > > REMOTEPROC=3Dm,
-> > > > > VIRTIO_CONSOLE can be y or m.=C2=A0 Say virtcons_probe() happens
-> > > > > when
-> > > > > the
-> > > > > remoteproc module isn't yet loaded.=C2=A0 Even after later loadin=
-g
-> > > > > remoteproc, virtio console won't do anything interesting with
-> > > > > remoteproc.
-> > > >=20
-> > > > Where does the interesting thing happen if remoteproc is
-> > > > already
-> > > > loaded
-> > > > at that time? I'm not seeing anything interesting in that case
-> > > > either
-> > > > ...
-> > >=20
-> > > The code I pointed to,
-> > >=20
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tr=
-ee/drivers/char/virtio_console.c#n1993
-> > >=20
-> > > either enables remoteproc if the module is present; or it enables
-> > > multiport, but not both at the same time.=C2=A0 If remoteproc isn't
-> > > present
-> > > when this probe routine is executed, multiport might get
-> > > enabled.=C2=A0
-> > > And
-> > > then there's no chance for remoteproc to get enabled.
-> >=20
-> > The only case where there is a difference between IS_REACHABLE and
-> > IS_ENABLED is:
-> >=20
-> > 	CONFIG_REMOTEPROC=3Dm
-> > 	CONFIG_VIRTIO_CONSOLE=3Dy
->=20
-> Well, also if CONFIG_VIRTIO_CONSOLE=3Dm; and virtio_console.ko is
-> loaded
-> before remoteproc.ko.
->=20
-> > Iff in this case you never want to test for MULTIPORT (even though
-> > the
-> > remoteproc module might never get loaded), then my patch is wrong.
-> >=20
-> > When creating the patch I thought there is a hard dependency on
-> > remoteproc (like calling a function that is provided by
-> > CONFIG_REMOTEPROC). I don't understand how the remoteproc stuff
-> > interacts with the virtio_console driver, is this something in
-> > userspace
-> > which then would also autoload the remoteproc module?
->=20
-> What's happening is that multiport and remoteproc are mutually
-> exclusive in the virtio_console code.
->=20
-> And, I'm also not sure of how remoteproc loads and configures itself.
-> Does loading remoteproc cause a load of virtio_console?=C2=A0 How?
->=20
-> So - based on our discussions, I think your assumptions are:
->=20
-> 1. remoteproc will load virtio_console when remoteproc is required
-> 2. virtio_console will never be loaded by itself
-> 3. General virtio_console functionality (including tty and multiport)
-> is never used when remoteproc is used
->=20
-> I think at least 3 needs more thought/justification why it's a valid
-> assumption.=C2=A0 Documenting it in the commit msg is fine.
->=20
-> At least assumptions 1 and 2 will cause remoteproc to not function
-> correctly with virtio_console, despite both of them being loaded
-> (because they can be loaded in the unexpected order -- virtio_console
-> before remoteproc).=C2=A0 Do you want to adjust the code so that
-> remoteproc
-> queries for already-existing virtio_console.ko, triggers the code
-> that
-> would otherwise be not triggered in virtcons_probe(), and makes
-> remoteproc functional in that case?
+As mentioned in [1], it seems odd to check NULL elements in
+the middle of page bulk allocating, and it seems caller can
+do a better job of bulk allocating pages into a whole array
+sequentially without checking NULL elements first before
+doing the page bulk allocation.
 
-... I just saw that virtcons_probe() doesn't have any setup in case of
-rproc.  So this last paragraph doesn't apply.
+Remove the above checking also enable the caller to not
+zero the array before calling the page bulk allocating API,
+which has about 1~2 ns performance improvement for the test
+case of time_bench_page_pool03_slow() for page_pool in a
+x86 vm system, this reduces some performance impact of
+fixing the DMA API misuse problem in [2], performance
+improves from 87.886 ns to 86.429 ns.
 
-So maybe just adding some notes in the commit log about why this will
-end up working, and why rproc usage and tty+multiport usage are
-mutually exclusive (and fine) will help.
+1. https://lore.kernel.org/all/bd8c2f5c-464d-44ab-b607-390a87ea4cd5@huawei.com/
+2. https://lore.kernel.org/all/20250212092552.1779679-1-linyunsheng@huawei.com/
+CC: Jesper Dangaard Brouer <hawk@kernel.org>
+CC: Luiz Capitulino <luizcap@redhat.com>
+CC: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+---
+ drivers/vfio/pci/virtio/migrate.c |  2 --
+ fs/btrfs/extent_io.c              |  8 +++++---
+ fs/erofs/zutil.c                  | 12 ++++++------
+ fs/xfs/xfs_buf.c                  |  9 +++++----
+ mm/page_alloc.c                   | 32 +++++--------------------------
+ net/core/page_pool.c              |  3 ---
+ net/sunrpc/svc_xprt.c             |  9 +++++----
+ 7 files changed, 26 insertions(+), 49 deletions(-)
 
-Thanks,
+diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
+index ba92bb4e9af9..9f003a237dec 100644
+--- a/drivers/vfio/pci/virtio/migrate.c
++++ b/drivers/vfio/pci/virtio/migrate.c
+@@ -91,8 +91,6 @@ static int virtiovf_add_migration_pages(struct virtiovf_data_buffer *buf,
+ 		if (ret)
+ 			goto err_append;
+ 		buf->allocated_length += filled * PAGE_SIZE;
+-		/* clean input for another bulk allocation */
+-		memset(page_list, 0, filled * sizeof(*page_list));
+ 		to_fill = min_t(unsigned int, to_alloc,
+ 				PAGE_SIZE / sizeof(*page_list));
+ 	} while (to_alloc > 0);
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index b2fae67f8fa3..d0466d795cca 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -626,10 +626,12 @@ int btrfs_alloc_page_array(unsigned int nr_pages, struct page **page_array,
+ 	unsigned int allocated;
+ 
+ 	for (allocated = 0; allocated < nr_pages;) {
+-		unsigned int last = allocated;
++		unsigned int new_allocated;
+ 
+-		allocated = alloc_pages_bulk(gfp, nr_pages, page_array);
+-		if (unlikely(allocated == last)) {
++		new_allocated = alloc_pages_bulk(gfp, nr_pages - allocated,
++						 page_array + allocated);
++		allocated += new_allocated;
++		if (unlikely(!new_allocated)) {
+ 			/* No progress, fail and do cleanup. */
+ 			for (int i = 0; i < allocated; i++) {
+ 				__free_page(page_array[i]);
+diff --git a/fs/erofs/zutil.c b/fs/erofs/zutil.c
+index 55ff2ab5128e..1c50b5e27371 100644
+--- a/fs/erofs/zutil.c
++++ b/fs/erofs/zutil.c
+@@ -85,13 +85,13 @@ int z_erofs_gbuf_growsize(unsigned int nrpages)
+ 
+ 		for (j = 0; j < gbuf->nrpages; ++j)
+ 			tmp_pages[j] = gbuf->pages[j];
+-		do {
+-			last = j;
+-			j = alloc_pages_bulk(GFP_KERNEL, nrpages,
+-					     tmp_pages);
+-			if (last == j)
++
++		for (last = j; last < nrpages; last += j) {
++			j = alloc_pages_bulk(GFP_KERNEL, nrpages - last,
++					     tmp_pages + last);
++			if (!j)
+ 				goto out;
+-		} while (j != nrpages);
++		}
+ 
+ 		ptr = vmap(tmp_pages, nrpages, VM_MAP, PAGE_KERNEL);
+ 		if (!ptr)
+diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+index 15bb790359f8..9e1ce0ab9c35 100644
+--- a/fs/xfs/xfs_buf.c
++++ b/fs/xfs/xfs_buf.c
+@@ -377,16 +377,17 @@ xfs_buf_alloc_pages(
+ 	 * least one extra page.
+ 	 */
+ 	for (;;) {
+-		long	last = filled;
++		long	alloc;
+ 
+-		filled = alloc_pages_bulk(gfp_mask, bp->b_page_count,
+-					  bp->b_pages);
++		alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
++					 bp->b_pages + refill);
++		refill += alloc;
+ 		if (filled == bp->b_page_count) {
+ 			XFS_STATS_INC(bp->b_mount, xb_page_found);
+ 			break;
+ 		}
+ 
+-		if (filled != last)
++		if (alloc)
+ 			continue;
+ 
+ 		if (flags & XBF_READ_AHEAD) {
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 579789600a3c..e0309532b6c4 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4541,9 +4541,6 @@ static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
+  * This is a batched version of the page allocator that attempts to
+  * allocate nr_pages quickly. Pages are added to the page_array.
+  *
+- * Note that only NULL elements are populated with pages and nr_pages
+- * is the maximum number of pages that will be stored in the array.
+- *
+  * Returns the number of pages in the array.
+  */
+ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+@@ -4559,29 +4556,18 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+ 	struct alloc_context ac;
+ 	gfp_t alloc_gfp;
+ 	unsigned int alloc_flags = ALLOC_WMARK_LOW;
+-	int nr_populated = 0, nr_account = 0;
+-
+-	/*
+-	 * Skip populated array elements to determine if any pages need
+-	 * to be allocated before disabling IRQs.
+-	 */
+-	while (nr_populated < nr_pages && page_array[nr_populated])
+-		nr_populated++;
++	int nr_populated = 0;
+ 
+ 	/* No pages requested? */
+ 	if (unlikely(nr_pages <= 0))
+ 		goto out;
+ 
+-	/* Already populated array? */
+-	if (unlikely(nr_pages - nr_populated == 0))
+-		goto out;
+-
+ 	/* Bulk allocator does not support memcg accounting. */
+ 	if (memcg_kmem_online() && (gfp & __GFP_ACCOUNT))
+ 		goto failed;
+ 
+ 	/* Use the single page allocator for one page. */
+-	if (nr_pages - nr_populated == 1)
++	if (nr_pages == 1)
+ 		goto failed;
+ 
+ #ifdef CONFIG_PAGE_OWNER
+@@ -4653,24 +4639,16 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+ 	/* Attempt the batch allocation */
+ 	pcp_list = &pcp->lists[order_to_pindex(ac.migratetype, 0)];
+ 	while (nr_populated < nr_pages) {
+-
+-		/* Skip existing pages */
+-		if (page_array[nr_populated]) {
+-			nr_populated++;
+-			continue;
+-		}
+-
+ 		page = __rmqueue_pcplist(zone, 0, ac.migratetype, alloc_flags,
+ 								pcp, pcp_list);
+ 		if (unlikely(!page)) {
+ 			/* Try and allocate at least one page */
+-			if (!nr_account) {
++			if (!nr_populated) {
+ 				pcp_spin_unlock(pcp);
+ 				goto failed_irq;
+ 			}
+ 			break;
+ 		}
+-		nr_account++;
+ 
+ 		prep_new_page(page, 0, gfp, 0);
+ 		set_page_refcounted(page);
+@@ -4680,8 +4658,8 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+ 	pcp_spin_unlock(pcp);
+ 	pcp_trylock_finish(UP_flags);
+ 
+-	__count_zid_vm_events(PGALLOC, zone_idx(zone), nr_account);
+-	zone_statistics(zonelist_zone(ac.preferred_zoneref), zone, nr_account);
++	__count_zid_vm_events(PGALLOC, zone_idx(zone), nr_populated);
++	zone_statistics(zonelist_zone(ac.preferred_zoneref), zone, nr_populated);
+ 
+ out:
+ 	return nr_populated;
+diff --git a/net/core/page_pool.c b/net/core/page_pool.c
+index f5e908c9e7ad..ae9e8c78e4bb 100644
+--- a/net/core/page_pool.c
++++ b/net/core/page_pool.c
+@@ -536,9 +536,6 @@ static noinline netmem_ref __page_pool_alloc_pages_slow(struct page_pool *pool,
+ 	if (unlikely(pool->alloc.count > 0))
+ 		return pool->alloc.cache[--pool->alloc.count];
+ 
+-	/* Mark empty alloc.cache slots "empty" for alloc_pages_bulk */
+-	memset(&pool->alloc.cache, 0, sizeof(void *) * bulk);
+-
+ 	nr_pages = alloc_pages_bulk_node(gfp, pool->p.nid, bulk,
+ 					 (struct page **)pool->alloc.cache);
+ 	if (unlikely(!nr_pages))
+diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
+index ae25405d8bd2..6321a4d2f2be 100644
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -663,9 +663,10 @@ static bool svc_alloc_arg(struct svc_rqst *rqstp)
+ 		pages = RPCSVC_MAXPAGES;
+ 	}
+ 
+-	for (filled = 0; filled < pages; filled = ret) {
+-		ret = alloc_pages_bulk(GFP_KERNEL, pages, rqstp->rq_pages);
+-		if (ret > filled)
++	for (filled = 0; filled < pages; filled += ret) {
++		ret = alloc_pages_bulk(GFP_KERNEL, pages - filled,
++				       rqstp->rq_pages + filled);
++		if (ret)
+ 			/* Made progress, don't sleep yet */
+ 			continue;
+ 
+@@ -674,7 +675,7 @@ static bool svc_alloc_arg(struct svc_rqst *rqstp)
+ 			set_current_state(TASK_RUNNING);
+ 			return false;
+ 		}
+-		trace_svc_alloc_arg_err(pages, ret);
++		trace_svc_alloc_arg_err(pages, filled);
+ 		memalloc_retry_wait(GFP_KERNEL);
+ 	}
+ 	rqstp->rq_page_end = &rqstp->rq_pages[pages];
+-- 
+2.33.0
 
-		Amit
