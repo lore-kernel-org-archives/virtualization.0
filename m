@@ -1,362 +1,218 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712791A76AE
-	for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 23:20:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3421AA1F4
+	for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 23:26:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739834428; cv=none; b=h6XUaxKdCEe6gojUxXZq0AkbTmK74pquyXJZ0hE8A5urm1D1HCrXSYqwTBboY1+IWi3vT5ooUD+MDj5KvDLITclrElKbpTdWUS6ZdhMNau102bCYEjuhnh1u0tDriJry8FZATgg0asEP/MqWThZn3IWvtM6qpZwuWCzK9jPt868=
+	t=1739834795; cv=none; b=tPnFBilFlPOPSpTRBMWLtpxnRg0F1O2F/iGWWZWID0vvnUKz2DsCkZVpv6JMaFNWQOMsUMq/krDpLIvdiLzSpO9l6JV8G5lWmCs5sWp30YF2QkbK9/U7sBj+jD4BUf+6PK5BsbgRBc/hZzhhb0rgjK5qHFfyr+AUKoQ9knTH/qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739834428; c=relaxed/simple;
-	bh=viCMkJaguABg3O8W0SSjrxvUmaw6JK3mrEPIjSGKuq4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=BOMLJehIOIeN/nqDtFu6fN+fVhIve85fzSy0r6icwFLnGXUnoLiMYCvVe1rZcA8TsfHhlKIwcUabCyNwdit47BpLhLJFFl/rLR9SmrSaPOLSgDZKzBN6hOfGQYSATYz0d59TDVnDG3kOV1Ka8FZJYaAtYbR4nViscmdp/zg6rXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SY3p8HBV; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1739834795; c=relaxed/simple;
+	bh=e15tfvqLJ167hVdakQyut1lmoKwKCOmcthYLadFB7bA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aL7to+04jNjB5XjbCssVIh2RDoduiukDpNkcGbhKELvkvv9nPuTFDWRWasChRC69be3odLRyyfFqVZXps2aHRfBNv10A6QFPrHFzaU8/ci50YaFHlGw8gJ7DHKtGoMqJ6zEwpY2tnrYr1KpDT5na0DmnLO8uzaMzpr2wJlc5oYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=2srINkEz; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SY3p8HBV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739834425;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NGgmxNh5kSJhTq/p1OO25Mo/qlvmdqIHbViecFk0pek=;
-	b=SY3p8HBVAboem+yrs0rsT8TQpxN0QQlMC0TxAnYX5K3OqJLcZrC8BJQIv2kRTaSbCIrpjp
-	vNz2ZP+/zHYQqKrsiSCjSExAHTVapeLUynpRQjC2KcQJx3eO4xYAhTjbEqmDLhRXfesnmX
-	KqNjiCkH85YnblQYodKAImdDhfBkvp4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-588-DzxIfI2kPrqWGt6FkxUOBw-1; Mon, 17 Feb 2025 18:20:23 -0500
-X-MC-Unique: DzxIfI2kPrqWGt6FkxUOBw-1
-X-Mimecast-MFC-AGG-ID: DzxIfI2kPrqWGt6FkxUOBw_1739834422
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43942e82719so43487155e9.2
-        for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 15:20:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="2srINkEz"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-219f6ca9a81so337355ad.1
+        for <virtualization@lists.linux.dev>; Mon, 17 Feb 2025 15:26:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1739834792; x=1740439592; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LU4/0cDqZHRnh9CiIVcjoIP2zXEWwJkeElU0iysFgw0=;
+        b=2srINkEzLjLCVYEjHbhjyiyCyaSG5Q3AyyGmFfEN5S5GIroZ8sb8kAhbSrljoxPMAX
+         GNswIG+6l4mAxVqqP9rJchtvc+lc8q7+ap9rRqaOuynhFNtO4oqL1K4NOZbYM1GGusVd
+         jl4aCvVrmGuyKGWO7d4Z1s3B9iWLgHe+W+S35TwA1M5dy83IL53I7KvPJtMmD2tgCgqB
+         edikREnKIBtNzRS4f/wiauOMApzrA3IcfT9qTiyOW+RYLz5yI12eds0Y3l5q19TFKKP4
+         X4xLjljSucPHQbTKITmJCTScemzcgVPQqXvwlMR712OFpOnm6eoqM9jXCo9CgkHLG8iw
+         1gEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739834422; x=1740439222;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=NGgmxNh5kSJhTq/p1OO25Mo/qlvmdqIHbViecFk0pek=;
-        b=Qt3GrOs8Qho0zJgfBEg4vO0px+R0vpmzsmHZsBFZakKUUeInxA5qciqw7nw7HBeoer
-         rYti+x5OE9YBMUGsAbGjWopiwErehos0OSVniy75w5m9YGYMv+1ghyB4DVUZOsARxJoo
-         T7MQDPMzf6wZKqX6J7yN0B30yLivZ1fprL3weUqHIOEE+bxGARaP7z5D2Whcn0zkZ3VE
-         LXpg4KX8aqwbqNMPbOYAmSgqyBxpduHi1aXWA/6xfqewMjNcE3geGfwHIh/nKB9X1ZEy
-         JaW2+c9Pana/p6GvKNe9uNTV71TyQ2S9T8gmzP+VmZ+3dJrbD/9bv6/AagMKZTIoL4S0
-         m+DA==
-X-Forwarded-Encrypted: i=1; AJvYcCVsuEWs4idvaggI7xaVM2+EAM0TYmK+rN86kdd6PHXeC9aolq3y9QIajNPdIohdZ6NCwT6tMlgdoD8oXqKyLg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywp7ngWEfx7zv/VV8vzwyUS0NIHURzAbObL2tnyxW9UnHi5uMio
-	fYbQEMDjdyC14MopRzs917ehv1mn4gohD60yBbt0+gkxfG/AskNqas01KabGac5g8qPHFdmpKwC
-	vmHSkUR0n3FRO4Zo5Gl2MiODzkvx4bx+N881HQcaZppCJiH3D2+pO42w67x/4jWYT
-X-Gm-Gg: ASbGncsCFtGDvwJtrZWnMrSXScQ//AizTu/XrPbEpmLNkloOvcx4hln684J6/UpG4RR
-	Y5A1ksuZjMZt44gJTNm3TqaqK4Ek4z4fjQnWrKtsgD9LFfmMICK+h/JsFkyjXWGHOFLZGdUNeMX
-	zOqp3Mg9fRSg1HKKcmn/N6Jq98Uk3NntSGO7AChLAaq5F1kG+DLEQyEkoTQSi7PWij8DGGSp/cN
-	AGS1u+zuBmP/H6zYcPKN1OoIPMVaZJmjTekD2bORx9O6uI5oIqULzQmweoLv81ip4kvbto=
-X-Received: by 2002:a05:6000:18a9:b0:38d:deb4:4ee8 with SMTP id ffacd0b85a97d-38f33f2f8d3mr12291308f8f.28.1739834422355;
-        Mon, 17 Feb 2025 15:20:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHqcUqQDWXyXS+yXasXUh7eawGe8/yKuXmNZtdELoNSjmvRkQUIzJNCr+BIjIBS93gCq7Ufug==
-X-Received: by 2002:a05:6000:18a9:b0:38d:deb4:4ee8 with SMTP id ffacd0b85a97d-38f33f2f8d3mr12291287f8f.28.1739834421963;
-        Mon, 17 Feb 2025 15:20:21 -0800 (PST)
-Received: from redhat.com ([2a02:14f:1f5:7ef9:8f0d:a8:10c1:4db])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f2580fe7dsm13409933f8f.0.2025.02.17.15.20.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Feb 2025 15:20:21 -0800 (PST)
-Date: Mon, 17 Feb 2025 18:20:17 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eric Auger <eauger@redhat.com>
-Cc: "Ning, Hongyu" <hongyu.ning@linux.intel.com>,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Zhenzhong Duan <zhenzhong.duan@intel.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio: Remove virtio devices on device_shutdown()
-Message-ID: <20250217181953-mutt-send-email-mst@kernel.org>
-References: <20240808075141.3433253-1-kirill.shutemov@linux.intel.com>
- <cc7312ca-2745-48a5-a5ac-9ee1d1c4bee0@redhat.com>
- <20250203094700-mutt-send-email-mst@kernel.org>
- <7cee3c9e-515e-41de-a15c-04c7591e83eb@redhat.com>
- <6bce0f4c-636f-456b-ab21-4a25d3dc8803@redhat.com>
- <90a09ffa-e316-41f0-916b-25635b1d4bc6@linux.intel.com>
- <83b43e73-8599-44ff-8657-6d5f2f9b2de5@redhat.com>
- <20250214070904-mutt-send-email-mst@kernel.org>
- <a48ec78d-a86f-4332-87d0-e6071f72a7d1@redhat.com>
- <7fb416d6-00b5-4e28-b257-151d3289e76d@redhat.com>
+        d=1e100.net; s=20230601; t=1739834792; x=1740439592;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LU4/0cDqZHRnh9CiIVcjoIP2zXEWwJkeElU0iysFgw0=;
+        b=T8o+xEBmsKoZYvR2pqBOuZxIbKQuySjA4xxX+z3y5nHDk2iQZlDBOIz7X75W3NuHVM
+         nlD145KbnJSU5U9VVWCDBxaQuKttf2K535dITludwNmWNWko5Ma0Gj9OE1tqTyJPGBE0
+         kX6gFneffYtugxvhEw+gwCdJfvNG9KbpL+jxBCOWcHQn5UJJ2AzuiJoa0v7r5THN656W
+         HphPVDkbGEjZyoCCGukCowtUh/AFd+ibcTxhgg+5pwuWIWRfOk2o478J+Js8iu+4Yg9n
+         cWNbceWH4bPAG0cPvX1810X7PIocwBCKhYl75ZWn9cf/JIiXffhnSnayuOr9zx3RuJ+S
+         jgBg==
+X-Forwarded-Encrypted: i=1; AJvYcCWiU4drxx6UdfAd20E4e0gucr758rnu/KUlj0FbIkRBFOnvH677CEzlOnXMgV64EW2cZRdfMYFFyeLHIcUzMg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxGMefbYQoAHnhtfjDryGAxwLALE72aI4HryKSwaO6OucnzEFDt
+	Q4EITiE/iwLJH7MqFcqawkj8LFIIkuAJH2X1NIzrv6K9an/TIogi+5RVUEY7zTf5E3ybtkD9LOM
+	Uhl9XGcuyGLSLSAO2l77NQn2wGRWxDi/wlH8v
+X-Gm-Gg: ASbGnctlRIslTG5E40e/42s55Z1cYtkF/RwNa7sN72UZ4Gspq+831yconSwRWOJMqWb
+	AkSQlqbxuyV+Pk+z1iPuu0vqb7G54hIbwYnUOl5JA7V8rwHAn1G5u4qbIzNn5wjUGPNCvwy/7
+X-Google-Smtp-Source: AGHT+IEz2Vjx4sspzRYyerWy/4H+lWv6VlJ3XI4nEpHd7psvEF5u3oZI0j4vbRhndLp+h57tbEMfk5dYT2aH2zu++aE=
+X-Received: by 2002:a17:903:1cc:b0:21f:40e8:6398 with SMTP id
+ d9443c01a7336-22104cf7bf5mr4662555ad.26.1739834791554; Mon, 17 Feb 2025
+ 15:26:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <7fb416d6-00b5-4e28-b257-151d3289e76d@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Rh9oyUp6AzNlSSgSPv8GdKzwXHY6FtM7ivBMZOIR0nE_1739834422
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+References: <20250203223916.1064540-1-almasrymina@google.com>
+ <20250203223916.1064540-6-almasrymina@google.com> <abc22620-d509-4b12-80ac-0c36b08b36d9@gmail.com>
+ <CAHS8izNOqaFe_40gFh09vdBz6-deWdeGu9Aky-e7E+Wu2qtfdw@mail.gmail.com>
+ <28343e83-6d93-4002-a691-f8273d4d24a8@gmail.com> <CAHS8izOE-JzMszieHEXtYBs7_6D-ngVx2kJyMwp8eCWLK-c0cQ@mail.gmail.com>
+ <9210a12c-9adb-46ba-b92c-90fd07e1980f@gmail.com>
+In-Reply-To: <9210a12c-9adb-46ba-b92c-90fd07e1980f@gmail.com>
+From: Mina Almasry <almasrymina@google.com>
+Date: Mon, 17 Feb 2025 15:26:17 -0800
+X-Gm-Features: AWEUYZkNcuzch3JnUQ41m7NwTl507Jdryfd99v6tS9trGnS4pxPErojvBtyR8mY
+Message-ID: <CAHS8izPHtk5x-W05_svxU53X-V4+++PiYErCgfr-3iDGgEaUig@mail.gmail.com>
+Subject: Re: [PATCH net-next v3 5/6] net: devmem: Implement TX path
+To: Pavel Begunkov <asml.silence@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, 
+	Donald Hunter <donald.hunter@gmail.com>, Jakub Kicinski <kuba@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, Neal Cardwell <ncardwell@google.com>, 
+	David Ahern <dsahern@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>, 
+	Victor Nogueira <victor@mojatatu.com>, Pedro Tammela <pctammela@mojatatu.com>, 
+	Samiullah Khawaja <skhawaja@google.com>, Kaiyuan Zhang <kaiyuanz@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 17, 2025 at 05:59:30PM +0100, Eric Auger wrote:
-> Hi Michael,
-> 
-> On 2/17/25 10:25 AM, Eric Auger wrote:
-> > Hi Michael, Hongyu,
-> > 
-> > On 2/14/25 1:16 PM, Michael S. Tsirkin wrote:
-> >> On Fri, Feb 14, 2025 at 08:56:56AM +0100, Eric Auger wrote:
-> >>> Hi,
-> >>>
-> >>> On 2/14/25 8:21 AM, Ning, Hongyu wrote:
+On Thu, Feb 13, 2025 at 5:17=E2=80=AFAM Pavel Begunkov <asml.silence@gmail.=
+com> wrote:
+>
+> On 2/12/25 19:18, Mina Almasry wrote:
+> > On Wed, Feb 12, 2025 at 7:52=E2=80=AFAM Pavel Begunkov <asml.silence@gm=
+ail.com> wrote:
+> >>
+> >> On 2/10/25 21:09, Mina Almasry wrote:
+> >>> On Wed, Feb 5, 2025 at 4:20=E2=80=AFAM Pavel Begunkov <asml.silence@g=
+mail.com> wrote:
 > >>>>
+> >>>> On 2/3/25 22:39, Mina Almasry wrote:
+> >>>> ...
+> >>>>> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+> >>>>> index bb2b751d274a..3ff8f568c382 100644
+> >>>>> --- a/include/linux/skbuff.h
+> >>>>> +++ b/include/linux/skbuff.h
+> >>>>> @@ -1711,9 +1711,12 @@ struct ubuf_info *msg_zerocopy_realloc(struc=
+t sock *sk, size_t size,
+> >>>> ...
+> >>>>>     int zerocopy_fill_skb_from_iter(struct sk_buff *skb,
+> >>>>>                                 struct iov_iter *from, size_t lengt=
+h);
+> >>>>> @@ -1721,12 +1724,14 @@ int zerocopy_fill_skb_from_iter(struct sk_b=
+uff *skb,
+> >>>>>     static inline int skb_zerocopy_iter_dgram(struct sk_buff *skb,
+> >>>>>                                           struct msghdr *msg, int l=
+en)
+> >>>>>     {
+> >>>>> -     return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_i=
+ter, len);
+> >>>>> +     return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_i=
+ter, len,
+> >>>>> +                                    NULL);
 > >>>>
-> >>>> On 2025/2/6 16:59, Eric Auger wrote:
-> >>>>> Hi,
-> >>>>>
-> >>>>> On 2/4/25 12:46 PM, Eric Auger wrote:
-> >>>>>> Hi,
-> >>>>>>
-> >>>>>> On 2/3/25 3:48 PM, Michael S. Tsirkin wrote:
-> >>>>>>> On Fri, Jan 31, 2025 at 10:53:15AM +0100, Eric Auger wrote:
-> >>>>>>>> Hi Kirill, Michael
-> >>>>>>>>
-> >>>>>>>> On 8/8/24 9:51 AM, Kirill A. Shutemov wrote:
-> >>>>>>>>> Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
-> >>>>>>>>> accesses during the hang.
-> >>>>>>>>>
-> >>>>>>>>>     Invalid read at addr 0x102877002, size 2, region '(null)',
-> >>>>>>>>> reason: rejected
-> >>>>>>>>>     Invalid write at addr 0x102877A44, size 2, region '(null)',
-> >>>>>>>>> reason: rejected
-> >>>>>>>>>     ...
-> >>>>>>>>>
-> >>>>>>>>> It was traced down to virtio-console. Kexec works fine if virtio-
-> >>>>>>>>> console
-> >>>>>>>>> is not in use.
-> >>>>>>>>>
-> >>>>>>>>> Looks like virtio-console continues to write to the MMIO even after
-> >>>>>>>>> underlying virtio-pci device is removed.
-> >>>>>>>>>
-> >>>>>>>>> The problem can be mitigated by removing all virtio devices on virtio
-> >>>>>>>>> bus shutdown.
-> >>>>>>>>>
-> >>>>>>>>> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> >>>>>>>>> Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
-> >>>>>>>>
-> >>>>>>>> Gentle ping on that patch that seems to have fallen though the cracks.
-> >>>>>>>>
-> >>>>>>>> I think this fix is really needed. I have another test case with a
-> >>>>>>>> rebooting guest exposed with virtio-net (backed by vhost-net) and
-> >>>>>>>> viommu. Since there is currently no shutdown for the virtio-net, on
-> >>>>>>>> reboot, the IOMMU is disabled through the native_machine_shutdown()/
-> >>>>>>>> x86_platform.iommu_shutdown() while the virtio-net is still alive.
-> >>>>>>>>
-> >>>>>>>> Normally device_shutdown() should call virtio-net shutdown before the
-> >>>>>>>> IOMMU tear down and we wouldn't see any spurious transactions after
-> >>>>>>>> iommu shutdown.
-> >>>>>>>>
-> >>>>>>>> With that fix, the above test case is fixed and I do not see spurious
-> >>>>>>>> vhost IOTLB miss spurious requests.
-> >>>>>>>>
-> >>>>>>>> For more details, see qemu thread ([PATCH] hw/virtio/vhost: Disable
-> >>>>>>>> IOTLB callbacks when IOMMU gets disabled,
-> >>>>>>>> https://lore.kernel.org/all/20250120173339.865681-1-
-> >>>>>>>> eric.auger@redhat.com/)
-> >>>>>>>>
-> >>>>>>>>
-> >>>>>>>> Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> >>>>>>>> Tested-by: Eric Auger <eric.auger@redhat.com>
-> >>>>>>>>
-> >>>>>>>> Thanks
-> >>>>>>>>
-> >>>>>>>> Eric
-> >>>>>>>>
-> >>>>>>>>> ---
-> >>>>>>>>>   drivers/virtio/virtio.c | 10 ++++++++++
-> >>>>>>>>>   1 file changed, 10 insertions(+)
-> >>>>>>>>>
-> >>>>>>>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> >>>>>>>>> index a9b93e99c23a..6c2f908eb22c 100644
-> >>>>>>>>> --- a/drivers/virtio/virtio.c
-> >>>>>>>>> +++ b/drivers/virtio/virtio.c
-> >>>>>>>>> @@ -356,6 +356,15 @@ static void virtio_dev_remove(struct device *_d)
-> >>>>>>>>>       of_node_put(dev->dev.of_node);
-> >>>>>>>>>   }
-> >>>>>>>>>   +static void virtio_dev_shutdown(struct device *_d)
-> >>>>>>>>> +{
-> >>>>>>>>> +    struct virtio_device *dev = dev_to_virtio(_d);
-> >>>>>>>>> +    struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-> >>>>>>>>> +
-> >>>>>>>>> +    if (drv && drv->remove)
-> >>>>>>>>> +        drv->remove(dev);
-> >>>>>>>
-> >>>>>>>
-> >>>>>>> I am concerned that full remove is a heavyweight operation.
-> >>>>>>> Do not want to slow down reboots even more.
-> >>>>>>> How about just doing a reset, instead?
-> >>>>>>
-> >>>>>> I tested with
-> >>>>>>
-> >>>>>> static void virtio_dev_shutdown(struct device *_d)
-> >>>>>> {
-> >>>>>>          struct virtio_device *dev = dev_to_virtio(_d);
-> >>>>>>
-> >>>>>>          virtio_reset_device(dev);
-> >>>>>> }
-> >>>>>>
-> >>>>>>
-> >>>>>> and it fixes my issue.
-> >>>>>>
-> >>>>>> Kirill, would that fix you issue too?
-> >>>>
-> >>>> Hi,
-> >>>>
-> >>>> sorry for my late response, I synced with Kirill offline and did a retest.
-> >>>>
-> >>>> The issue is still reproduced on my side, kexec will be stuck in case of
-> >>>> "console=hvc0" append in kernel cmdline and even with such patch applied.
+> >>>> Instead of propagating it all the way down and carving a new path, w=
+hy
+> >>>> not reuse the existing infra? You already hook into where ubuf is
+> >>>> allocated, you can stash the binding in there. And
 > >>>
-> >>> Thanks for testing!
+> >>> It looks like it's not possible to increase the side of ubuf_info at
+> >>> all, otherwise the BUILD_BUG_ON in msg_zerocopy_alloc() fires.
 > >>>
-> >>> Michael, it looks like the initial patch from Kyrill is the one that
-> >>> fixes both issues. virtio_reset_device() usage does not work for the
-> >>> initial bug report while it works for me. Other ideas?
+> >>> It's asserting that sizeof(ubuf_info_msgzc) <=3D sizeof(skb->cb), and
+> >>> I'm guessing increasing skb->cb size is not really the way to go.
 > >>>
-> >>> Thanks
+> >>> What I may be able to do here is stash the binding somewhere in
+> >>> ubuf_info_msgzc via union with fields we don't need for devmem, and/o=
+r
+> >>
+> >> It doesn't need to account the memory against the user, and you
+> >> actually don't want that because dmabuf should take care of that.
+> >> So, it should be fine to reuse ->mmp.
+> >>
+> >> It's also not a real sk_buff, so maybe maintainers wouldn't mind
+> >> reusing some more space out of it, if that would even be needed.
+> >>
+> >
+> > netmem skb are real sk_buff, with the modification that frags are not
+>
+> We were discussing ubuf_info allocation, take a look at
+> msg_zerocopy_alloc(), it has nothing to do with netmems and all that.
+>
+
+Yes. My response was regarding the suggestion that we can use space in
+devmem skbs however we want though.
+
+> > readable, only in the case that the netmem is unreadable. I would not
+> > approve of considering netmem/devmem skbs "not real skbs", and start
+> > messing with the semantics of skb fields for devmem skbs, and having
+> > to start adding skb_is_devmem() checks through all code in the skb
+> > handlers that touch the fields being overwritten in the devmem case.
+> > No, I don't think we can re-use random fields in the skb for devmem.
+> >
+> >>> stashing the binding in ubuf_info_ops (very hacky). Neither approach
+> >>> seems ideal, but the former may work and may be cleaner.
 > >>>
-> >>> Eric
+> >>> I'll take a deeper look here. I had looked before and concluded that
+> >>> we're piggybacking devmem TX on MSG_ZEROCOPY path, because we need
+> >>> almost all of the functionality there (no copying, send complete
+> >>> notifications, etc), with one minor change in the skb filling. I had
+> >>> concluded that if MSG_ZEROCOPY was never updated to use the existing
+> >>> infra, then it's appropriate for devmem TX piggybacking on top of it
 > >>
-> >> Ah, wait a second.
+> >> MSG_ZEROCOPY does use the common infra, i.e. passing ubuf_info,
+> >> but doesn't need ->sg_from_iter as zerocopy_fill_skb_from_iter()
+> >> and it's what was there first.
 > >>
-> >> Looks like virtio-console continues to write to the MMIO even after
-> >> underlying virtio-pci device is removed.
-> >>
-> >> Hmm. I am not sure why that is a problem, but I assume some hypervisors just
-> >> hang the system if you try to kick them after reset.
-> >> Unfortunate that spec did not disallow it.
-> >>
-> >> If we want to prevent that, we want to do something like this:
-> >>
-> >>
-> >> 	/*
-> >> 	 * Some devices get wedged if you kick them after they are
-> >> 	 * reset. Mark all vqs as broken to make sure we don't.
-> >> 	 */
-> >>         virtio_break_device(dev);
-> >>         /*
-> >>          * The below virtio_synchronize_cbs() guarantees that any
-> >>          * interrupt for this line arriving after
-> >>          * virtio_synchronize_vqs() has completed is guaranteed to see
-> >>          * vq->broken as true.
-> >>          */
-> >>         virtio_synchronize_cbs(dev);
-> >>         dev->config->reset(dev);
-> I have tested that code as an implentation of the virtio shutdown
-> callback and yes it also fixes the viommu/vhost issue.
-> 
-> Michael, will you send a patch then?
-> 
-> Thanks
-> 
-> Eric
+> >
+> > But MSG_ZEROCOPY doesn't set msg->msg_ubuf. And not setting
+> > msg->msg_ubuf fails to trigger msg->sg_from_iter altogether.
+> >
+> > And also currently sg_from_iter isn't set up to take in a ubuf_info.
+> > We'd need that if we stash the binding in the ubuf_info.
+>
+> https://github.com/isilence/linux.git sg-iter-ops
+>
+> I have old patches for all of that, they even rebased cleanly. That
+> should do it for you, and I need to send then regardless of devmem.
+>
+>
+
+These patches help a bit, but do not make any meaningful dent in
+addressing the concern I have in the earlier emails.
+
+The concern is that we're piggybacking devmem TX on MSG_ZEROCOPY, and
+currently the MSG_ZEROCOPY code carefully avoids any code paths
+setting msg->[sg_from_iter|msg_ubuf].
+
+If we want devmem to reuse both the MSG_ZEROCOPY mechanisms and the
+msg->[sg_from_iter|ubuf_info] mechanism, I have to dissect the
+MSG_ZEROCOPY code carefully so that it works with and without
+setting msg->[ubuf_info|msg->sg_from_iter]. Having gone through this
+rabbit hole so far I see that it complicates the implementation and
+adds more checks to the fast MSG_ZEROCOPY paths.
+
+The complication could be worth it if there was some upside, but I
+don't see one tbh. Passing the binding down to
+zerocopy_fill_skb_from_devmem seems like a better approach to my eye
+so far
+
+I'm afraid I'm going to table this for now. If there is overwhelming
+consensus that msg->sg_from_iter is the right approach here I will
+revisit, but it seems to me to complicate code without a significant
+upside.
 
 
-Was hoping for a confirmation from Ning.
-
-> >>
-> >>
-> >> I assume this still works for you, yes?
-> > Would that still been done in the virtio_dev_shutdown()?
-> > 
-> > Is that what you tested Hongyu?
-> > 
-> > Eric
-> >>
-> >>
-> >>
-> >>>>
-> >>>> my kernel code base is 6.14.0-rc2.
-> >>>>
-> >>>> let me know if any more experiments needed.
-> >>>>
-> >>>> ---
-> >>>>  drivers/virtio/virtio.c | 8 ++++++++
-> >>>>  1 file changed, 8 insertions(+)
-> >>>>
-> >>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> >>>> index ba37665188b5..f9f885d04763 100644
-> >>>> --- a/drivers/virtio/virtio.c
-> >>>> +++ b/drivers/virtio/virtio.c
-> >>>> @@ -395,6 +395,13 @@ static const struct cpumask
-> >>>> *virtio_irq_get_affinity(struct device *_d,
-> >>>>         return dev->config->get_vq_affinity(dev, irq_vec);
-> >>>>  }
-> >>>>
-> >>>> +static void virtio_dev_shutdown(struct device *_d)
-> >>>> +{
-> >>>> +        struct virtio_device *dev = dev_to_virtio(_d);
-> >>>> +
-> >>>> +        virtio_reset_device(dev);
-> >>>> +}
-> >>>> +
-> >>>>  static const struct bus_type virtio_bus = {
-> >>>>         .name  = "virtio",
-> >>>>         .match = virtio_dev_match,
-> >>>> @@ -403,6 +410,7 @@ static const struct bus_type virtio_bus = {
-> >>>>         .probe = virtio_dev_probe,
-> >>>>         .remove = virtio_dev_remove,
-> >>>>         .irq_get_affinity = virtio_irq_get_affinity,
-> >>>> +       .shutdown = virtio_dev_shutdown,
-> >>>>  };
-> >>>>
-> >>>>  int __register_virtio_driver(struct virtio_driver *driver, struct
-> >>>> module *owner)
-> >>>> -- 
-> >>>> 2.43.0
-> >>>>
-> >>>>
-> >>>>> gentle ping.
-> >>>>>
-> >>>>> this also fixes another issue with qemu vSMMU + virtio-scsi-pci. With
-> >>>>> the above addition I get rid of spurious warning in qemu on guest reboot.
-> >>>>>
-> >>>>> qemu-system-aarch64: virtio: zero sized buffers are not allowed
-> >>>>> qemu-system-aarch64: vhost vring error in virtqueue 0: Invalid
-> >>>>> argument (22)
-> >>>>>
-> >>>>> Would you mind if I respin?
-> >>>>>
-> >>>>> Thanks
-> >>>>>
-> >>>>> Eric
-> >>>>>
-> >>>>>
-> >>>>>
-> >>>>>
-> >>>>>>
-> >>>>>> Thanks
-> >>>>>>
-> >>>>>> Eric
-> >>>>>>>
-> >>>>>>>>> +}
-> >>>>>>>>> +
-> >>>>>>>>>   static const struct bus_type virtio_bus = {
-> >>>>>>>>>       .name  = "virtio",
-> >>>>>>>>>       .match = virtio_dev_match,
-> >>>>>>>>> @@ -363,6 +372,7 @@ static const struct bus_type virtio_bus = {
-> >>>>>>>>>       .uevent = virtio_uevent,
-> >>>>>>>>>       .probe = virtio_dev_probe,
-> >>>>>>>>>       .remove = virtio_dev_remove,
-> >>>>>>>>> +    .shutdown = virtio_dev_shutdown,
-> >>>>>>>>>   };
-> >>>>>>>>>     int __register_virtio_driver(struct virtio_driver *driver,
-> >>>>>>>>> struct module *owner)
-> >>>>>>>
-> >>>>>>
-> >>>>>
-> >>>>
-> >>
-> > 
-
+--
+Thanks,
+Mina
