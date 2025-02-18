@@ -1,174 +1,250 @@
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2045.outbound.protection.outlook.com [40.107.95.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFAE71C84DA;
-	Tue, 18 Feb 2025 20:01:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.95.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739908881; cv=fail; b=Ausgpway/o4WlJIhK1htI2wYSnVEcV3c7HOKERf4HioeXhjZVSCUzyD1+fJzMCq/Xthur1BcgC3P6FfWcA0bPUEbe3IttA0rFi7FNlmQvae55Clq8zVf8LSNkqMp1DTNloqKS3iZbVXyae+AjkUL+hxJl0/c/7d1YgZ0IhN4m0U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739908881; c=relaxed/simple;
-	bh=LnzpSOQLZ8oQNEWih9RTUIoI3D9V/QDSPzTa2kE3BqQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=bvqrI6cQi8YbRq7ti/sq+1JjSwO00huakDCqGRn7i0iID7/eSbs4oZx8Sd6wl7zpw7BaufPU4pWQigADdfJRPNv7vajlcuf2luykhQ10w3G83xSIvsvYFDMrkeMr4FyUA0mJOiB0VJ9Mahx10rJU/KQaUh/i4FV6F0K+pDTy/A4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FBRDBGVm; arc=fail smtp.client-ip=40.107.95.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BBED1B87CF
+	for <virtualization@lists.linux.dev>; Tue, 18 Feb 2025 21:14:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1739913277; cv=none; b=KUR6szsSIbI++C4wvtzD7qh2jEFse+EGKRNg+j2FRuah6pgGfrcDwNqDmkbEgLr76ngss+dljuNrC054Si/i0xo2rifcO6yTlMvNPym+hariUx1a9rZta5ISpP2ZIER2Za7eq2SQBpHSQdDLXSsMx6EhyFPAwVnRLCyYNDs7brM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1739913277; c=relaxed/simple;
+	bh=oGy55IJcEGgdNiLxbkXY33fp8cTKqWt1BWnOffz4MJM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SfrkPXucd5vVpAFEz3Yjip/eXEddqlxKwHpCJ8//15EwhuF76T0Zy1ATmsxT6k8PR1gfAcB+XIZ79DHP4vfiwk4nY6Vwf1hbnrn0ez3F0808NKSUyMqq9cPAbnI0Q2clf7I5PM48wsVgmYxh4mb6amu5P1kyuausD+cPSCOZjQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com; spf=pass smtp.mailfrom=fromorbit.com; dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b=Y3YVjRP2; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fromorbit.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FBRDBGVm"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=fp0euKN4/2i9/WrmfreN66w9us6E7o+m412Jo7Ve39mWuNKXTKpFVPUMuzLpceGO3aZDU0J/nOYECl3dhsRVGqd8Q/Pt8TTSksd4ZC68k+C58/ocOY0bLcdqR5lC/uuXKtq2THn/74h2i0fgNHnK+CTeOqMPmTeSNkYgZHyKbtyr1RTfDB9cgeCAsoVXY+M5oug7RPkae4g6EPjgJRbG+Hg9fer4M1QLvus4OByoJZVAKEgONIHGxEWLrxkE276tgbTOPxwjBfEGbn+P+aSl03FZFQt6gLi/g4CWELcUBKyrZ3LQqFyIoeNHbGtK+D9Ze59wkr5XlFw7xSH38FUf4A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=s/70i39Y/UfdYSza4yMPmBsI3S+RFRUGwAKa+8WCG20=;
- b=GCK8JTQf0DkX3JgIMMDYJr9wkco366pdSmqHP+2MF+Nano2e6iNkOnNZpPNr36QuARh0ve2bpJHQrHrd/mNX9AJc/8SOeJJinhXc4r3mr8Q2CubNzwETkwx0Vb7caHkVOSYfsq2regn38zBoPEnf/UsAdIbsKCEk4fltQQEEiNGGYf2o8PjLwwBWKrq/Z8WHgF/PstF4kjRpstAGPsZw0BoDQbIIa8RDGGihQZsMwcE4LbLXuVJwuCjx9nGE4A9fE/RmxGMbSYfKYFUV1n8JZyshfciv5KGYWG2Er22IGYQrGSFpHtY6zzrNrWhGUIJ1gC7Q5a1RHNBZ8jGuixIWow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=s/70i39Y/UfdYSza4yMPmBsI3S+RFRUGwAKa+8WCG20=;
- b=FBRDBGVmt3qEWn8n2L8ItwIWw3cAq6s6l5jZAVYEZ7WYC4f5Lo57ym91MkzLN61CjeBbmAGLyVC4H5WE7MNkTZU3WUVETbOWJv+9UGBDcncqZ2g0fM0fhaPQggxK2h2y4NIZE2mLhILSFzGuUFxXDLYZaUOsbMYj0Ic2sJ/xLNuZ7+5kxrcvw2gANs+iJ14APwfgiPwtV4hqLb6FnC4izCepL5Qhdf7N+Kr9/2tMKV5UhQXQ1C/y4HouW5kX3ZDJaTx3KvlUl6fe/s3h8rtrulXZ3BaGCo+ANlKiRNxJZtgMQ0i8vR7yEGOjaEsswuLOdelT1+iaWt97z2UpfGsmUg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
- by SA0PR12MB4461.namprd12.prod.outlook.com (2603:10b6:806:9c::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8445.20; Tue, 18 Feb
- 2025 20:01:17 +0000
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732%4]) with mapi id 15.20.8445.019; Tue, 18 Feb 2025
- 20:01:17 +0000
-Date: Tue, 18 Feb 2025 16:01:16 -0400
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: jacob.pan@linux.microsoft.com,
-	Easwar Hariharan <eahariha@linux.microsoft.com>,
-	"zhangyu1@microsoft.com" <zhangyu1@microsoft.com>
-Cc: iommu@lists.linux.dev, Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
-Message-ID: <20250218200116.GH4183890@nvidia.com>
-References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <20250212112235.714b0a14@DESKTOP-0403QTC.>
- <20250212233053.GV3754072@nvidia.com>
- <20250212214723.1ebf173e@DESKTOP-0403QTC.>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250212214723.1ebf173e@DESKTOP-0403QTC.>
-X-ClientProxiedBy: BN9PR03CA0585.namprd03.prod.outlook.com
- (2603:10b6:408:10d::20) To CH3PR12MB8659.namprd12.prod.outlook.com
- (2603:10b6:610:17c::13)
+	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="Y3YVjRP2"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2210d92292eso91661105ad.1
+        for <virtualization@lists.linux.dev>; Tue, 18 Feb 2025 13:14:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1739913273; x=1740518073; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=i/TFjjFVKbDA3nMhW4Nd4g/ebT5hNi/7fITiKNmhUzM=;
+        b=Y3YVjRP21fJlqYzESjWsFU4laU8ubT/NBX0/lGfZ87nTC6L7F9P9tE0ZJca291NMsm
+         /6O3IPkXM+PdNpTGlJ8ZtbYXAzpnPoNP5ZN29mwXPWi48lXmmwQeG+kul3qSl9L7dwf5
+         VM5K041ddIhl6B5t+ol/eJ2d9Rjrw2bmp/NVq1iyXQiyKN3YUCWCFfnFeYTeEw3TCbkp
+         lBVYEBEuhhaRoQEDEOzUKXwbIgfwizHosNTxrXhFbOlE/r7NC2ejFHt6I896ObhlKJU6
+         nGZBp569griWdwQf8Cep6JpseIAwJQGYwulxZe15FeMVFCCS6i/lh6IT+ON6yJgWqkoy
+         0JLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739913273; x=1740518073;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=i/TFjjFVKbDA3nMhW4Nd4g/ebT5hNi/7fITiKNmhUzM=;
+        b=SG3xdNBGj4woGU7+dwHZD+i0XZYEUZpx1lW5BHfhBRJ81qwHcHsqQKHBq0TdO9e8kF
+         mS0K4xnzaPDKndAriZrlya+UfkC9z9c4ggZCy+ow7hgNb9E0ugyFPK5cuZxnv2sCNEGi
+         LE1gu5Nla5XjA7vBz3Tn6w8HSDzY7SfazLPhkYoq1K/1qEsL06iDdJS77lMSeFy5j25D
+         d3JCpjZhwC18wJMuRRegVb1Gt3ZWc35frXyegdLQVCom04R5gP+8fC2gvGl3kVnI13e7
+         bx/rEb5L3O2fO/7/bmn60JQheK+nfQwDRAVynzJEs+kxF861ks77eo7PNKC092zkCMps
+         3WCw==
+X-Forwarded-Encrypted: i=1; AJvYcCUlHGCQFOWMytYel8EiMm2tdmRO+3yqU75xh4Tv91y2lppr32aP3LDoxvVp0vDXzBCiHFpspe4AANNBWab/EQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyWXh17FlltLyhO4JT2l/MASgxijUiLvT9ZLJBec9793N2pvMfl
+	7h/YXW5LckVA5/F/I4QAKuNjM7DdeXap/mz2s8k/1ddOwl7nHPCUzqqWTcYBMr4=
+X-Gm-Gg: ASbGncuXjcLZ5WHJrZpQIaNyoGV0CbtpH+yJTYhBOp36rGvXwi7h/fT8LTAHG0ktGj9
+	Cm3w69vVVfdpqTH22bw9SE9fqHSRUOcwts6EmLP1f0EQbdOCiz0WnJ9UQQj9MhC74F2vjhBVpdQ
+	mjFsDWgvIhoo6+28B52tFMjea+iPioIhXJbI5DXrxPa6bVOtlw6+L2qqUgWPi48ZWKMg0ORB7oN
+	fhan2XldX7UgQ/3uaMlNqLvcnoKH/dSns/dNWIT7w9yYOAVvYHDJoyba/5cXIN0MvBEFa6HjtuR
+	iEUJfTk3IF4towwqoEYEVfDKnk1sqgqSGMkHNkuRjdXHNFApfgWUIFOubQ6HxBW7RV8=
+X-Google-Smtp-Source: AGHT+IE4cq05OkjYUSAgnZzqAzKf40dxIlYKr7v+HOFdczvTt57phu0weZ5JY1SWVHQCE16yV/OTUA==
+X-Received: by 2002:a17:902:d50e:b0:221:337:4862 with SMTP id d9443c01a7336-2217086de01mr12977035ad.15.1739913273049;
+        Tue, 18 Feb 2025 13:14:33 -0800 (PST)
+Received: from dread.disaster.area (pa49-186-89-135.pa.vic.optusnet.com.au. [49.186.89.135])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-220d5348f34sm93829725ad.10.2025.02.18.13.14.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Feb 2025 13:14:32 -0800 (PST)
+Received: from dave by dread.disaster.area with local (Exim 4.98)
+	(envelope-from <david@fromorbit.com>)
+	id 1tkUvF-00000002xpK-2NTA;
+	Wed, 19 Feb 2025 08:14:29 +1100
+Date: Wed, 19 Feb 2025 08:14:29 +1100
+From: Dave Chinner <david@fromorbit.com>
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
+	David Sterba <dsterba@suse.com>, Gao Xiang <xiang@kernel.org>,
+	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>,
+	Sandeep Dhavale <dhavale@google.com>,
+	Carlos Maiolino <cem@kernel.org>,
+	"Darrick J. Wong" <djwong@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Trond Myklebust <trondmy@kernel.org>,
+	Anna Schumaker <anna@kernel.org>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
+	Olga Kornievskaia <okorniev@redhat.com>,
+	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+	Luiz Capitulino <luizcap@redhat.com>,
+	Mel Gorman <mgorman@techsingularity.net>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-xfs@vger.kernel.org, linux-mm@kvack.org,
+	netdev@vger.kernel.org, linux-nfs@vger.kernel.org
+Subject: Re: [RFC] mm: alloc_pages_bulk: remove assumption of populating only
+ NULL elements
+Message-ID: <Z7T4NZAn4wD_DLTl@dread.disaster.area>
+References: <20250217123127.3674033-1-linyunsheng@huawei.com>
+ <Z7Oqy2j4xew7FW9Z@dread.disaster.area>
+ <cf270a65-c9fa-453a-b7a0-01708063f73e@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|SA0PR12MB4461:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7c1c3647-bb06-4d93-13ee-08dd5057012d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?sdvisHQ3NhPsoU0k+o3bPtdd7qedypixtiH8OAQGUbON6yxDcgLbXpu2H8PD?=
- =?us-ascii?Q?p1Zm0UMWNyskWHyfzEJRSRuu4moR1xhmCrtP7OZE0tLMH/AWkPY8UEXfDlh+?=
- =?us-ascii?Q?+TxVvCdGXPbpbsqR9FqUbQ0qu9OWj/24owizft6b7OLgYYjUa4/vRJ9R1R7U?=
- =?us-ascii?Q?QQGuEAPEyKQ5khZy96Iq0C/wp6w1YYt8SMXc5Kpr1cbqtEkyLGygbZh7wRGb?=
- =?us-ascii?Q?eCMpwsUW0DuXmYd/g03Kc0sjGEkMUotNRle5HpYAvSr4uTLSpRrgBqHL6q0L?=
- =?us-ascii?Q?/o7LSZP0t+UAAfL8aElueOT+9AStle2bJ/QWbFpdao4raXELM/Ist3eyxnle?=
- =?us-ascii?Q?CeIlNlRmICwjpf3yuL6w+AWcrfM5ILoFze9U9j2+w3TNaHvvCe9nJ6dN+yBQ?=
- =?us-ascii?Q?wn5MiJP7iUUKpQcZIcbncPn+06JH8pYfLSWLfqhc2B4IetyB0DMUXD/kUFLs?=
- =?us-ascii?Q?ly0iE4Ublbet/GQHymsPk/1N4fpiBBZvlXbF9N8sSSGRTcgJby2HZitQTrR4?=
- =?us-ascii?Q?ZgVsR7zGiRNQJld+EDWKnUsENn9lD0EOtpqie0VAO+li29sax40BLp6WZ6dj?=
- =?us-ascii?Q?AFXXNxIhFGGxm/JeYbVy7UpABCuMgHV3cDNFjNEO9ft3twqSxv02DEMA8lq8?=
- =?us-ascii?Q?r1mRA3X7kp3P6pvSEQFD1rORKb8DOZHAcOcj8BHXdLeQDeG2WMP6uh1wgtD6?=
- =?us-ascii?Q?lgplyKkVbGKFvpnxacmfl6vC+JKLsq9GVbC2Zz92Q4e9S/fnEXqs/ntg/01R?=
- =?us-ascii?Q?sGAAdfLysvF4Kf+dsBmgFtgtDd1YqD2YUWeVuzO1LVcMw6+EuWlvYxm6UtP1?=
- =?us-ascii?Q?nVt1iTDVOGRfA/dpw6TU8jTwJK9FBSMGPaGUeIzjKLisrci6nKUizioVyF2t?=
- =?us-ascii?Q?/UPprBfHhrUm7YxJkJAccH7oLhYdaYMi0b9efSxj7brBoAQkX74LXlc4XbJA?=
- =?us-ascii?Q?HGTQMijP73RSVaB25iUWAX5qEoNTA4f+1DFcqJc+h7vP/LN35j+hcRMatyO3?=
- =?us-ascii?Q?bU40lHUDu9TDBFtWxZ+164yUhdPktR/iM3b/rSAOcqwLAZiAeYZPztSFvFI8?=
- =?us-ascii?Q?6zffu/23/5TO5oRNyrd05BG/gI79tev6hxgJIPJ+v5ipVJGoAtXLas7bNOIY?=
- =?us-ascii?Q?cfGw/Txb6MU7yUttFhxH8S8YI5wUtRUO0G1z9QIH1VIU5DszXdxnZrbhf6OS?=
- =?us-ascii?Q?5LhmGFWJ7pPfJoPaHR/KETcJ5/aHTC6F/DqDjE+9U5YsLBUJxCLkEJU+6ybV?=
- =?us-ascii?Q?Tw8A6Mdwl9+RPNxzaC68t/d3hSGxeLNHNRQSlNP4yL1bp3xkgYI/IL7cacpe?=
- =?us-ascii?Q?6OYuyxtt/7hqL/Ha5uSl7VDb10i/l8PKvPt4f3hP1HxWZ1bK4qeyc+wl6uQ2?=
- =?us-ascii?Q?MYry8SkEl406sZzzOaOstA4An2C/?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?WUiJoZ9ORSN9J/qA+QtYYmwxrFlrzVvgXhlAdvhT+6KXhja0OYBZB0+AUtDW?=
- =?us-ascii?Q?dDzT+3kg1Zx52aLD8/cjVQHsOrwzW1VTOYl6G+2sKRlMg4QGl18On/jvoiZz?=
- =?us-ascii?Q?0790/vCicn7i7Ct72vzbzkgUaKBPkcejBTDuBkmWzkyOCgz+rZjoEC5fgmMa?=
- =?us-ascii?Q?gjsI2xTxj2GP5nbSBCpyNXQ2GNYTsDZDnYZf6GpmVn/OWjGPAw1JGnQ7ZE9U?=
- =?us-ascii?Q?2WyAQ0GeJ28btO+95fp0iOtyURpbJspmytkCkEPxVvRrrU0dEdw3kWf7msq1?=
- =?us-ascii?Q?W1L+JaitFuw3YQBFwhctAEMyZeEdqrTDpR3EBqotx+qwlNOY4Owr+qVtsCyE?=
- =?us-ascii?Q?/Whkzqd5GEgmZSNA4kNGvdrKYShJqeFHkx4NtUCIvDGFpzFcZ5bQaZzM1y2/?=
- =?us-ascii?Q?rLE+oLv2Y8+Hyp+jF6JpJR7dumUb4WAS2NK8zeldEwAJKz7JaWv8O9pRRH2/?=
- =?us-ascii?Q?WUQ3CAQkiq+EpJ9E9YbyyWwzeBJLpHpT300KLXV4JpjzADukwgEMfPkV8aA5?=
- =?us-ascii?Q?4u4humtm1T55+HCqtzB1B41gyAKzKZ46+EEKb1o6nEFJwdIBiHE/QLlUKJRp?=
- =?us-ascii?Q?W3P7U80asytizJkl+7+oM6AG+vlc2Th32IVar+y28Pg73KoS8aBKKZMpgMsa?=
- =?us-ascii?Q?pOMnaAVsrZjoyFlLonhKT+tyutQU1Pn99SC/HufbheLsme5Htz5Ch+Obq3Fr?=
- =?us-ascii?Q?IkpAG8N02glcARDMt7BnhwZKjdqBfGWz+fu7S5sJiWtB1Fv2kYSV1ExujsFX?=
- =?us-ascii?Q?vCfHH9b55BvXGTwlq0SqcIezVHWmif9rOIJkiPvDtnWB20zMq+YF9cPcU6ON?=
- =?us-ascii?Q?rgi8q4rnYcX3qfKurb3gVw6yk9aSFPfO3h5KGe5g83ZydKAH0mjU29xpkyA5?=
- =?us-ascii?Q?iZSpGvmhd9+sFfpWGuh2vlfgx2AhNTlQ5FjbhFY40oREClG6Zcks1LUZ7n/l?=
- =?us-ascii?Q?NVHtQwD6zgUvdllzhF4SvAN+IGfOZlsPSEvjHaydHRRkBNcUgNk7cCj53iPZ?=
- =?us-ascii?Q?8zZb8IWydL1PhzUrfmqZ3EFxXoEN57Ark5tmAevzUEV691XrSZW/tqibTXBV?=
- =?us-ascii?Q?+UkMv5ZRTY8pvs7Z4+CNLZgfQwMvf6XaSIs6GGPyhvhoBeJttfPuI8WwYlXo?=
- =?us-ascii?Q?ri7eJ9FxnG5GVrnRtzUzDJKMTcEuUwUmcCvR14MbRiWZPBeomgNZIARSC3FD?=
- =?us-ascii?Q?dpZBlRVakttC1UhdYT7gLhpbd/wEcCEE+XDgZTTmaj0S85KBIJ301lrL09/s?=
- =?us-ascii?Q?4uKK4pFxAiyDrAfR44B9gmSEa50r7BiThqwmMR8/XOGWnb4tocROqhT5rZpQ?=
- =?us-ascii?Q?7Eqf+8sLxQjZ5/sp4vaWDgRZrsBVkM37QBFQJmXtcD1XMRUASk7PPLpIQUDJ?=
- =?us-ascii?Q?Dvxz3y3PlhKTVp3EdqM8ueMB4XtpD9S2Jgzbzp0i9Zf3jm38RyA978yChJtB?=
- =?us-ascii?Q?PIBg016a/0ZKmHcFFd4Ch8ZApyvT7Wc2T6uPmVDT/7qOnJv9kmtPkuLm3cXR?=
- =?us-ascii?Q?WSQTGDNIcqCoa49Pw2/zB79TrfCEzMLVySN+vQaNkbEID0rp/OCBohl3iHqQ?=
- =?us-ascii?Q?Me+dna1vlkhfC/IJrsbM6oLBgeZcgzcCrVfDLImz?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7c1c3647-bb06-4d93-13ee-08dd5057012d
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Feb 2025 20:01:16.9922
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: VZgrnTx9yj9DVwgWd8y9qOjZv+7MSXYitCdUv0XiViu/wff3vde4/mF+yQ9eFIiY
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4461
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cf270a65-c9fa-453a-b7a0-01708063f73e@huawei.com>
 
-On Wed, Feb 12, 2025 at 09:47:23PM -0800, Jacob Pan wrote:
-> Hi Jason,
+On Tue, Feb 18, 2025 at 05:21:27PM +0800, Yunsheng Lin wrote:
+> On 2025/2/18 5:31, Dave Chinner wrote:
 > 
-> On Wed, 12 Feb 2025 19:30:53 -0400
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
+> ...
 > 
-> > On Wed, Feb 12, 2025 at 11:22:35AM -0800, Jacob Pan wrote:
+> > .....
 > > 
-> > > Do you foresee the implementation can leverage your generic iommu_pt
-> > > work? i.e. for building guest IO page tables. It will add a new
-> > > flavor (page table based in addition to map/unmap) to
-> > > viommu_domain_alloc_paging() i think.  
+> >> diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+> >> index 15bb790359f8..9e1ce0ab9c35 100644
+> >> --- a/fs/xfs/xfs_buf.c
+> >> +++ b/fs/xfs/xfs_buf.c
+> >> @@ -377,16 +377,17 @@ xfs_buf_alloc_pages(
+> >>  	 * least one extra page.
+> >>  	 */
+> >>  	for (;;) {
+> >> -		long	last = filled;
+> >> +		long	alloc;
+> >>  
+> >> -		filled = alloc_pages_bulk(gfp_mask, bp->b_page_count,
+> >> -					  bp->b_pages);
+> >> +		alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
+> >> +					 bp->b_pages + refill);
+> >> +		refill += alloc;
+> >>  		if (filled == bp->b_page_count) {
+> >>  			XFS_STATS_INC(bp->b_mount, xb_page_found);
+> >>  			break;
+> >>  		}
+> >>  
+> >> -		if (filled != last)
+> >> +		if (alloc)
+> >>  			continue;
 > > 
-> > Yes I do, I think it should be no problem and it will bring the
-> > missing x86 formats that are currently not available in iopgtbl
-> > wrappers.
-> I guess the missing x86 formats are AMDv2 and VT-d S1?
+> > You didn't even compile this code - refill is not defined
+> > anywhere.
+> > 
+> > Even if it did complile, you clearly didn't test it. The logic is
+> > broken (what updates filled?) and will result in the first
+> > allocation attempt succeeding and then falling into an endless retry
+> > loop.
+> 
+> Ah, the 'refill' is a typo, it should be 'filled' instead of 'refill'.
+> The below should fix the compile error:
+> --- a/fs/xfs/xfs_buf.c
+> +++ b/fs/xfs/xfs_buf.c
+> @@ -379,9 +379,9 @@ xfs_buf_alloc_pages(
+>         for (;;) {
+>                 long    alloc;
+> 
+> -               alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
+> -                                        bp->b_pages + refill);
+> -               refill += alloc;
+> +               alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - filled,
+> +                                        bp->b_pages + filled);
+> +               filled += alloc;
+>                 if (filled == bp->b_page_count) {
+>                         XFS_STATS_INC(bp->b_mount, xb_page_found);
+>                         break;
+> 
+> > 
+> > i.e. you stepped on the API landmine of your own creation where
+> > it is impossible to tell the difference between alloc_pages_bulk()
+> > returning "memory allocation failed, you need to retry" and
+> > it returning "array is full, nothing more to allocate". Both these
+> > cases now return 0.
+> 
+> As my understanding, alloc_pages_bulk() will not be called when
+> "array is full" as the above 'filled == bp->b_page_count' checking
+> has ensured that if the array is not passed in with holes in the
+> middle for xfs.
 
-Those are the same thing :)
+You miss the point entirely. Previously, alloc_pages_bulk() would
+return a value that would tell us the array is full, even if we
+call it with a full array to begin with.
 
-> It would be great if you could help adding/accommodating such usage to
-> the generic iommu_pt. I think it will be a subset of features as
-> intended for iommufd. I.e. map/unmap operation.
+Now it fails to tell us that the array is full, and we have to track
+that precisely ourselves - it is impossible to tell the difference
+between "array is full" and "allocation failed". Not being able to
+determine from the allocation return value whether the array is
+ready for use or whether another go-around to fill it is needed is a
+very poor API choice, regardless of anything else.
 
-Yeah it should be no problem. hyperv handling the invalidation queue
-in its own way should not effect the logic that drives the page table.
+You've already demonstrated this: tracking array usage in every
+caller is error-prone and much harder to get right than just having
+alloc_pages_bulk() do everything for us.
 
-Jason
+> > The existing code returns nr_populated in both cases, so it doesn't
+> > matter why alloc_pages_bulk() returns with nr_populated != full, it
+> > is very clear that we still need to allocate more memory to fill it.
+> 
+> I am not sure if the array will be passed in with holes in the
+> middle for the xfs fs as mentioned above, if not, it seems to be
+> a typical use case like the one in mempolicy.c as below:
+> 
+> https://elixir.bootlin.com/linux/v6.14-rc1/source/mm/mempolicy.c#L2525
+
+That's not "typical" usage. That is implementing "try alloc" fast
+path that avoids memory reclaim with a slow path fallback to fill
+the rest of the array when the fast path fails.
+
+No other users of alloc_pages_bulk() is trying to do this.
+
+Indeed, it looks somewhat pointless to do this here (i.e. premature
+optimisation!), because the only caller of
+alloc_pages_bulk_mempolicy_noprof() has it's own fallback slowpath
+for when alloc_pages_bulk() can't fill the entire request.
+
+> > IOWs, you just demonstrated why the existing API is more desirable
+> > than a highly constrained, slightly faster API that requires callers
+> > to get every detail right. i.e. it's hard to get it wrong with the
+> > existing API, yet it's so easy to make mistakes with the proposed
+> > API that the patch proposing the change has serious bugs in it.
+> 
+> IMHO, if the API is about refilling pages for the only NULL elements,
+> it seems better to add a API like refill_pages_bulk() for that, as
+> the current API seems to be prone to error of not initializing the
+> array to zero before calling alloc_pages_bulk().
+
+How is requiring a well defined initial state for API parameters
+"error prone"?  What code is failing to do the well known, defined
+initialisation before calling alloc_pages_bulk()?
+
+Allowing uninitialised structures in an API (i.e. unknown initial
+conditions) means we cannot make assumptions about the structure
+contents within the API implementation.  We cannot assume that all
+variables are zero on the first use, nor can we assume that anything
+that is zero has a valid state.
+
+Again, this is poor API design - structures passed to interfaces
+-should- have a well defined initial state, either set by a *_init()
+function or by defining the initial state to be all zeros (i.e. via
+memset, kzalloc, etc).
+
+Performance and speed is not an excuse for writing fragile, easy to
+break code and APIs.
+
+-Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
