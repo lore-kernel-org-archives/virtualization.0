@@ -1,178 +1,173 @@
-Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A17B22FE03
-	for <virtualization@lists.linux.dev>; Tue, 18 Feb 2025 09:21:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF9ED23237C;
+	Tue, 18 Feb 2025 09:49:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739870496; cv=none; b=qtC2F061rk0OpIfBU2JYml89nsoNSG5JX56M6Q3TN0dd9BHUUCOpQr/ynwD9QdnrYPxbkyZdIBEZzrneu9pd7FWgyc7Yy3STd7a+GjdaePq4BOrq5iwIbbeIvugdtW1tmCuReJdeNLyG1nxWiFk0eEwtf2QG2TPvkcj54dBhycg=
+	t=1739872191; cv=none; b=py1eTJ+Q7h7R179wMmn3ciS/0QYY+/fOUpMR0wzmZ9In0Q8MMq/KR5bYYA50Uzwi8GeMKs/l+rb1tnr0Uz61znf2hmMEg9/H+03fOiR6VNx7+Switw7FaxjCHbwAG9Ru6PcEESzKKh2y8QL+purdbjIzZWRXecPy9BFyw/F1m3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739870496; c=relaxed/simple;
-	bh=CzZAcJv9dbjAo8bjJjXHZhCE9Q36XfB/XgaktEm5Lwg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=bd/GrqhmVsgagw68BMamOEWqNu/GMNjInS9xi5BewTRB/8VM7NZiqyGZntIYi+x5JBL2OqfSNB3b4/NTR9Jb67QyWFZAJr5gvnsDFRE8/nIkeY0mo6pK0dumKv79Pgi3D1Vm9EweKuWupVJ15vRmKhwj93/m0Yr+guyc4o/Jm1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Yxv7P5668z1wn7M;
-	Tue, 18 Feb 2025 17:17:37 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id B723E1A016C;
-	Tue, 18 Feb 2025 17:21:31 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 18 Feb 2025 17:21:27 +0800
-Message-ID: <cf270a65-c9fa-453a-b7a0-01708063f73e@huawei.com>
-Date: Tue, 18 Feb 2025 17:21:27 +0800
+	s=arc-20240116; t=1739872191; c=relaxed/simple;
+	bh=EGzJILY69KaBGAu/j6uhfg0Ns9AWmYI3DuY2Ll/vyO8=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=u0Cx0sspbLpM43v4GuBsJWMA5i2dXrxwJK5zn9ByN7j1QflWo1Ue9ERBIEW1cjzKU7bgb/RP004n3mZgRzb2akXJvSGpdMqrLWJzhs3I/7WZ5N5e0Snv9wkLs1GSmarq5faoPzIjpGG96GsfrYa1m4wErHGI+Y+CV8lg3d3hFbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LkZe9OjY; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LkZe9OjY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8CAC4CEE2;
+	Tue, 18 Feb 2025 09:49:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739872190;
+	bh=EGzJILY69KaBGAu/j6uhfg0Ns9AWmYI3DuY2Ll/vyO8=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=LkZe9OjY6T3AAmtxwj1Xb06j5/KNp2WW26IN5goY9IcWp90alPhD7SYEaEgX5rJHt
+	 ze3FQVUVUO5v51nu3K3QYfL+oLfPrhoIXu7ER/e+zBVjJCRW07zrE2cnuw1dCzn15o
+	 bbZvSpjdZnt1Dk1jF+ut/kFKA46eZrP4y2kbrmMhzLd3WRbmTSICgRLS+oCvqhJVgq
+	 sshopbF9SHGvBKNfCkG93sr0iG+cRUiJA6l9mDfhxDcS8KdVniFMdEdnfLuQlCPJDk
+	 tu4m75UUHPX9uGTbDWYeeoI3PggiN9llNx4LC8OxCNGW6Yj+1gc01U1xF56P07rC7B
+	 bunCvfIyD4N7Q==
+Message-ID: <4c7e30d960b101fbcc9b6b8356f3bd20d26b0982.camel@kernel.org>
+Subject: Re: [PATCH] virtio: console: Prepare for making REMOTEPROC modular
+From: Amit Shah <amit@kernel.org>
+To: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
+	 <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Date: Tue, 18 Feb 2025 10:49:47 +0100
+In-Reply-To: <15729df921fa8718ee173963132a370de6aae9af.camel@kernel.org>
+References: <20250213115517.82975-2-u.kleine-koenig@baylibre.com>
+			 <34cb36503dae7a2d0ba94d1c367004a2d901e13b.camel@kernel.org>
+			 <uo3h33wijb7mhjwgugpkjhqg7wusz6tpkh5u5fxbsxp3kzpq75@ggsdroemmdmj>
+			 <558f3faa22e5717872bf53acfe6007dc3118f17d.camel@kernel.org>
+			 <k72vfex6qy53xrunz5ohe24c2upfjcdwofozszi4l3k3rm6dou@bd6swzi3v5ng>
+			 <606b16787920ff5e1807e4f8450add5889fdd1cb.camel@kernel.org>
+			 <dard24qyuwm6plnswtz4to36w3fynb553aohf5i7u4ln37nhbk@pgrvhqwvwuzp>
+			 <6d48bcfd0c6030c92f6a5a4a91c9b62f926b3b16.camel@kernel.org>
+			 <535ivi67jdmcuhns5q4r36fjpqde3clnqq7hr26gmg33jwoxyb@ahvuhhaewh3u>
+		 <2c676a9910c2d5b1332bb9baa999cdd16763a730.camel@kernel.org>
+	 <15729df921fa8718ee173963132a370de6aae9af.camel@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC] mm: alloc_pages_bulk: remove assumption of populating only
- NULL elements
-To: Dave Chinner <david@fromorbit.com>
-CC: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, Shameer
- Kolothum <shameerali.kolothum.thodi@huawei.com>, Kevin Tian
-	<kevin.tian@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Chris
- Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba
-	<dsterba@suse.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep
- Dhavale <dhavale@google.com>, Carlos Maiolino <cem@kernel.org>, "Darrick J.
- Wong" <djwong@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jesper
- Dangaard Brouer <hawk@kernel.org>, Ilias Apalodimas
-	<ilias.apalodimas@linaro.org>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Trond Myklebust
-	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
-	<chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Luiz Capitulino
-	<luizcap@redhat.com>, Mel Gorman <mgorman@techsingularity.net>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <linux-btrfs@vger.kernel.org>,
-	<linux-erofs@lists.ozlabs.org>, <linux-xfs@vger.kernel.org>,
-	<linux-mm@kvack.org>, <netdev@vger.kernel.org>, <linux-nfs@vger.kernel.org>
-References: <20250217123127.3674033-1-linyunsheng@huawei.com>
- <Z7Oqy2j4xew7FW9Z@dread.disaster.area>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <Z7Oqy2j4xew7FW9Z@dread.disaster.area>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemf200006.china.huawei.com (7.185.36.61)
 
-On 2025/2/18 5:31, Dave Chinner wrote:
+On Mon, 2025-02-17 at 11:59 +0100, Amit Shah wrote:
+> On Mon, 2025-02-17 at 11:53 +0100, Amit Shah wrote:
+> > On Fri, 2025-02-14 at 18:47 +0100, Uwe Kleine-K=C3=B6nig wrote:
+> > > On Fri, Feb 14, 2025 at 05:55:41PM +0100, Amit Shah wrote:
+> > > > On Fri, 2025-02-14 at 17:52 +0100, Uwe Kleine-K=C3=B6nig wrote:
+> > > > > Hello Amit,
+> > > > >=20
+> > > > > On Fri, Feb 14, 2025 at 05:37:52PM +0100, Amit Shah wrote:
+> > > > > > I'm thinking of the two combinations of interest:
+> > > > > > REMOTEPROC=3Dm,
+> > > > > > VIRTIO_CONSOLE can be y or m.=C2=A0 Say virtcons_probe() happen=
+s
+> > > > > > when
+> > > > > > the
+> > > > > > remoteproc module isn't yet loaded.=C2=A0 Even after later
+> > > > > > loading
+> > > > > > remoteproc, virtio console won't do anything interesting
+> > > > > > with
+> > > > > > remoteproc.
+> > > > >=20
+> > > > > Where does the interesting thing happen if remoteproc is
+> > > > > already
+> > > > > loaded
+> > > > > at that time? I'm not seeing anything interesting in that
+> > > > > case
+> > > > > either
+> > > > > ...
+> > > >=20
+> > > > The code I pointed to,
+> > > >=20
+> > > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/=
+tree/drivers/char/virtio_console.c#n1993
+> > > >=20
+> > > > either enables remoteproc if the module is present; or it
+> > > > enables
+> > > > multiport, but not both at the same time.=C2=A0 If remoteproc isn't
+> > > > present
+> > > > when this probe routine is executed, multiport might get
+> > > > enabled.=C2=A0
+> > > > And
+> > > > then there's no chance for remoteproc to get enabled.
+> > >=20
+> > > The only case where there is a difference between IS_REACHABLE
+> > > and
+> > > IS_ENABLED is:
+> > >=20
+> > > 	CONFIG_REMOTEPROC=3Dm
+> > > 	CONFIG_VIRTIO_CONSOLE=3Dy
+> >=20
+> > Well, also if CONFIG_VIRTIO_CONSOLE=3Dm; and virtio_console.ko is
+> > loaded
+> > before remoteproc.ko.
+> >=20
+> > > Iff in this case you never want to test for MULTIPORT (even
+> > > though
+> > > the
+> > > remoteproc module might never get loaded), then my patch is
+> > > wrong.
+> > >=20
+> > > When creating the patch I thought there is a hard dependency on
+> > > remoteproc (like calling a function that is provided by
+> > > CONFIG_REMOTEPROC). I don't understand how the remoteproc stuff
+> > > interacts with the virtio_console driver, is this something in
+> > > userspace
+> > > which then would also autoload the remoteproc module?
+> >=20
+> > What's happening is that multiport and remoteproc are mutually
+> > exclusive in the virtio_console code.
+> >=20
+> > And, I'm also not sure of how remoteproc loads and configures
+> > itself.
+> > Does loading remoteproc cause a load of virtio_console?=C2=A0 How?
+> >=20
+> > So - based on our discussions, I think your assumptions are:
+> >=20
+> > 1. remoteproc will load virtio_console when remoteproc is required
+> > 2. virtio_console will never be loaded by itself
+> > 3. General virtio_console functionality (including tty and
+> > multiport)
+> > is never used when remoteproc is used
+> >=20
+> > I think at least 3 needs more thought/justification why it's a
+> > valid
+> > assumption.=C2=A0 Documenting it in the commit msg is fine.
+> >=20
+> > At least assumptions 1 and 2 will cause remoteproc to not function
+> > correctly with virtio_console, despite both of them being loaded
+> > (because they can be loaded in the unexpected order --
+> > virtio_console
+> > before remoteproc).=C2=A0 Do you want to adjust the code so that
+> > remoteproc
+> > queries for already-existing virtio_console.ko, triggers the code
+> > that
+> > would otherwise be not triggered in virtcons_probe(), and makes
+> > remoteproc functional in that case?
+>=20
+> ... I just saw that virtcons_probe() doesn't have any setup in case
+> of
+> rproc.=C2=A0 So this last paragraph doesn't apply.
 
-...
+... I knew I was missing something yesterday. There's the call to
+add_port() from virtcons_probe() that sets up the port for remoteproc.
+So that part will be entirely skipped in case the virtcons probe
+happens before remoteproc is loaded.
 
-> .....
-> 
->> diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
->> index 15bb790359f8..9e1ce0ab9c35 100644
->> --- a/fs/xfs/xfs_buf.c
->> +++ b/fs/xfs/xfs_buf.c
->> @@ -377,16 +377,17 @@ xfs_buf_alloc_pages(
->>  	 * least one extra page.
->>  	 */
->>  	for (;;) {
->> -		long	last = filled;
->> +		long	alloc;
->>  
->> -		filled = alloc_pages_bulk(gfp_mask, bp->b_page_count,
->> -					  bp->b_pages);
->> +		alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
->> +					 bp->b_pages + refill);
->> +		refill += alloc;
->>  		if (filled == bp->b_page_count) {
->>  			XFS_STATS_INC(bp->b_mount, xb_page_found);
->>  			break;
->>  		}
->>  
->> -		if (filled != last)
->> +		if (alloc)
->>  			continue;
-> 
-> You didn't even compile this code - refill is not defined
-> anywhere.
-> 
-> Even if it did complile, you clearly didn't test it. The logic is
-> broken (what updates filled?) and will result in the first
-> allocation attempt succeeding and then falling into an endless retry
-> loop.
+There's much too confusion here, better to start anew.
 
-Ah, the 'refill' is a typo, it should be 'filled' instead of 'refill'.
-The below should fix the compile error:
---- a/fs/xfs/xfs_buf.c
-+++ b/fs/xfs/xfs_buf.c
-@@ -379,9 +379,9 @@ xfs_buf_alloc_pages(
-        for (;;) {
-                long    alloc;
+> So maybe just adding some notes in the commit log about why this will
+> end up working, and why rproc usage and tty+multiport usage are
+> mutually exclusive (and fine) will help.
+>=20
+> Thanks,
+>=20
+> 		Amit
 
--               alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
--                                        bp->b_pages + refill);
--               refill += alloc;
-+               alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - filled,
-+                                        bp->b_pages + filled);
-+               filled += alloc;
-                if (filled == bp->b_page_count) {
-                        XFS_STATS_INC(bp->b_mount, xb_page_found);
-                        break;
-
-> 
-> i.e. you stepped on the API landmine of your own creation where
-> it is impossible to tell the difference between alloc_pages_bulk()
-> returning "memory allocation failed, you need to retry" and
-> it returning "array is full, nothing more to allocate". Both these
-> cases now return 0.
-
-As my understanding, alloc_pages_bulk() will not be called when
-"array is full" as the above 'filled == bp->b_page_count' checking
-has ensured that if the array is not passed in with holes in the
-middle for xfs.
-
-> 
-> The existing code returns nr_populated in both cases, so it doesn't
-> matter why alloc_pages_bulk() returns with nr_populated != full, it
-> is very clear that we still need to allocate more memory to fill it.
-
-I am not sure if the array will be passed in with holes in the
-middle for the xfs fs as mentioned above, if not, it seems to be
-a typical use case like the one in mempolicy.c as below:
-
-https://elixir.bootlin.com/linux/v6.14-rc1/source/mm/mempolicy.c#L2525
-
-> 
-> The whole point of the existing API is to prevent callers from
-> making stupid, hard to spot logic mistakes like this. Forcing
-> callers to track both empty slots and how full the array is itself,
-> whilst also constraining where in the array empty slots can occur
-> greatly reduces both the safety and functionality that
-> alloc_pages_bulk() provides. Anyone that has code that wants to
-> steal a random page from the array and then refill it now has a heap
-> more complex code to add to their allocator wrapper.
-
-Yes, I am agreed that it might be better to provide a common API or
-wrapper if there is some clear use case that need to pass in an array
-with holes in the middle by adding a new API like refill_pages_bulk()
-as below.
-
-> 
-> IOWs, you just demonstrated why the existing API is more desirable
-> than a highly constrained, slightly faster API that requires callers
-> to get every detail right. i.e. it's hard to get it wrong with the
-> existing API, yet it's so easy to make mistakes with the proposed
-> API that the patch proposing the change has serious bugs in it.
-
-IMHO, if the API is about refilling pages for the only NULL elements,
-it seems better to add a API like refill_pages_bulk() for that, as
-the current API seems to be prone to error of not initializing the
-array to zero before calling alloc_pages_bulk().
-
-> 
-> -Dave.
