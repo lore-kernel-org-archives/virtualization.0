@@ -1,179 +1,307 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F7F215746F
-	for <virtualization@lists.linux.dev>; Wed, 19 Feb 2025 02:01:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25CBE1C4A10
+	for <virtualization@lists.linux.dev>; Wed, 19 Feb 2025 08:08:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739930484; cv=none; b=h0b5JzXj1HlOPl3urlq7UDPn88m3ub2H5sTrHBhuhfV/VpvB129c1stmEaDxtvfamrC8yUg19CM39PBc3SBJ4WUKmzrMsm9hpShA7hYIX4z1lx0pJ4O+Y0z5iNDreRgXOfrfztzz+zrIxdb9H/i51axWgm5Rrj0t7+BnfpVgmqo=
+	t=1739952541; cv=none; b=LcvVZN2GcDkAj2b7+HAuztKior7eCXvBwLCHYfeYWGpDtnp+oGtdU6jjovs2QNygPTw/vkwpzenGasCa7lTqtgrHm/r4/xxmfX1N/WdYHp6lN42AJTNH/TOyoeKrFdEJyR3KXDVVXCoebv6MGF3Gkv8KTzd+ZPGWAhGrn+ESl0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739930484; c=relaxed/simple;
-	bh=gZqQM7O9ByYPgtbt8cvoz84LcIYYYPm2MVl/usKmDxM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pw5iAuYbPQJ8ulSZ5h8HUZtOMKaUnXVOXj/7CIARM4UXRgHQpkStYITfvTZi1d19fG72Q+ZDH19VXNhtI9PXiFU09Hbwwh14ZDhsT0oGmLJKemVyJ496YrALDTYadmGxVgOoop2OgMqUCH/WXxa4ImGYR96e3sc6M4KnqoxW1WE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ffICqp+O; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1739952541; c=relaxed/simple;
+	bh=2Atr0z9cDiWE8ZZw5L13sh5t8+bSvt59sEvU7MsXY78=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WEfocPeimYMcMR8kvcAUMF2l8ITUTXPYUW1+/GbmstEFYChcrG9512AtVQpUr1TIWcregAn1qsP4uMRj+d4cfYLgsKSZn4V2MiC365og5fsLOPJK8C6+KYCwnUMAP0Qpi7rXRr6CIucCMzOYlu+O0Hb0JrGtwWC4MIKccDJGNxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=fail smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fEytPdbB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=TDRvwp9j; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fEytPdbB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=TDRvwp9j; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ffICqp+O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739930481;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TTYk5mPgovr+xjBEyGONMlriCe8a4cY2bYNbOhvz11I=;
-	b=ffICqp+OY7uV393RJvFxjrrDYH5rsBIU5ORR3is9OGoXy04kGCm4N44Rnrp9pG+WwMgNPU
-	RLIn9DvhmowI1zP4prUPqX3hWfCUGyHa2UICZWuSQzCU9hqYi3B6N4CPlmOHHWBuxGXQlc
-	YlQZomcXnuXwdg8nKH4OJxlmYKmesD8=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-642-uHOYB5vsO6mICsb6iqyLHA-1; Tue,
- 18 Feb 2025 21:01:19 -0500
-X-MC-Unique: uHOYB5vsO6mICsb6iqyLHA-1
-X-Mimecast-MFC-AGG-ID: uHOYB5vsO6mICsb6iqyLHA_1739930477
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fEytPdbB";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="TDRvwp9j";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fEytPdbB";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="TDRvwp9j"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id ACDF81800875;
-	Wed, 19 Feb 2025 02:01:16 +0000 (UTC)
-Received: from localhost (unknown [10.2.16.53])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0B788300019F;
-	Wed, 19 Feb 2025 02:01:14 +0000 (UTC)
-Date: Wed, 19 Feb 2025 10:01:12 +0800
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Ferry Meng <mengferry@linux.alibaba.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, linux-block@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-	Christoph Hellwig <hch@infradead.org>,
-	Joseph Qi <joseph.qi@linux.alibaba.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>
-Subject: Re: [PATCH v1 0/3] virtio-blk: add io_uring passthrough support.
-Message-ID: <20250219020112.GB38164@fedora>
-References: <20241218092435.21671-1-mengferry@linux.alibaba.com>
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 42B4622320;
+	Wed, 19 Feb 2025 08:08:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1739952534; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=DXWxnFMHJa9a8U+SQEz26XZ3j5LfQZZJq9rvFv/nYcw=;
+	b=fEytPdbB7vEzobk73HzZO2QIAsu7xb9wuNWkksdZCOJs6EQWp17ICaXZxgxlHL1do3lcE6
+	ZTFpQzugbMFLPe/eKGVHbjoy60lQGBxhGmU22I1HkY4dXrwNTAmjM0RhwAvE0PPrVOAYmd
+	onM4b3Upsb8874P2K2/vnjsRzJyqcGU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1739952534;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=DXWxnFMHJa9a8U+SQEz26XZ3j5LfQZZJq9rvFv/nYcw=;
+	b=TDRvwp9jlCeS6uN5CbUeQlbXNO4Rbjt8LGgeabXDBgRB11pUqvwi0GuKFf1YvvOqk2favY
+	g5eex6t86X8xLrBw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=fEytPdbB;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=TDRvwp9j
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1739952534; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=DXWxnFMHJa9a8U+SQEz26XZ3j5LfQZZJq9rvFv/nYcw=;
+	b=fEytPdbB7vEzobk73HzZO2QIAsu7xb9wuNWkksdZCOJs6EQWp17ICaXZxgxlHL1do3lcE6
+	ZTFpQzugbMFLPe/eKGVHbjoy60lQGBxhGmU22I1HkY4dXrwNTAmjM0RhwAvE0PPrVOAYmd
+	onM4b3Upsb8874P2K2/vnjsRzJyqcGU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1739952534;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=DXWxnFMHJa9a8U+SQEz26XZ3j5LfQZZJq9rvFv/nYcw=;
+	b=TDRvwp9jlCeS6uN5CbUeQlbXNO4Rbjt8LGgeabXDBgRB11pUqvwi0GuKFf1YvvOqk2favY
+	g5eex6t86X8xLrBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BD52513806;
+	Wed, 19 Feb 2025 08:08:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id uHZlLJWRtWcmFwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 19 Feb 2025 08:08:53 +0000
+Message-ID: <c011ec88-3b68-486b-9fda-ef18a0906c8e@suse.de>
+Date: Wed, 19 Feb 2025 09:08:53 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="0EDesKCYBKGeMMyG"
-Content-Disposition: inline
-In-Reply-To: <20241218092435.21671-1-mengferry@linux.alibaba.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 02/25] drm/dumb-buffers: Provide helper to set pitch
+ and size
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
+ simona@ffwll.ch, dri-devel@lists.freedesktop.org,
+ linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
+ linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+ linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org,
+ linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org,
+ xen-devel@lists.xenproject.org
+References: <20250218142542.438557-1-tzimmermann@suse.de>
+ <20250218142542.438557-3-tzimmermann@suse.de>
+ <CAMuHMdV939ibJTRSaO-oW2Jz4zbkXGRpUYrmA7e=yQfF7W-k_g@mail.gmail.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <CAMuHMdV939ibJTRSaO-oW2Jz4zbkXGRpUYrmA7e=yQfF7W-k_g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 42B4622320
+X-Spam-Level: 
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[19];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_TLS_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[linux.intel.com,kernel.org,gmail.com,ffwll.ch,lists.freedesktop.org,lists.infradead.org,vger.kernel.org,lists.linux.dev,lists.xenproject.org];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid];
+	RCVD_COUNT_TWO(0.00)[2];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -3.01
+X-Spam-Flag: NO
 
+Hi
 
---0EDesKCYBKGeMMyG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Am 18.02.25 um 20:32 schrieb Geert Uytterhoeven:
+[...]
+>> +                                args->bpp);
+>> +                       fallthrough;
+>> +               case 12:
+>> +               case 15:
+>> +               case 30: /* see drm_gem_afbc_get_bpp() */
+>> +               case 10:
+> Perhaps keep them sorted numerically?
 
-On Wed, Dec 18, 2024 at 05:24:32PM +0800, Ferry Meng wrote:
-> This patchset implements io_uring passthrough surppot in virtio-blk
-> driver, bypass vfs and part of block layer logic, resulting in lower
-> submit latency and increased flexibility when utilizing virtio-blk.
+The first block comes from the afbc helper; the second block from Mesa; 
+hence the odd order. I'll reorder and comment each case individually.
 
-Hi,
-What is the status of this patch series?
+>
+>> +               case 64: /* used by Mesa */
+>> +                       pitch = args->width * DIV_ROUND_UP(args->bpp, SZ_8);
+>> +                       break;
+>> +               }
+>> +       }
+>> +
+>> +       if (!pitch || pitch > U32_MAX)
+>> +               return -EINVAL;
+>> +
+>> +       args->pitch = pitch;
+>> +
+>> +       return drm_mode_align_dumb(args, pitch_align, size_align);
+>> +}
+>> +EXPORT_SYMBOL(drm_mode_size_dumb);
+>> +
+>>   int drm_mode_create_dumb(struct drm_device *dev,
+>>                           struct drm_mode_create_dumb *args,
+>>                           struct drm_file *file_priv)
+>> diff --git a/include/drm/drm_dumb_buffers.h b/include/drm/drm_dumb_buffers.h
+>> new file mode 100644
+>> index 000000000000..6fe36004b19d
+>> --- /dev/null
+>> +++ b/include/drm/drm_dumb_buffers.h
+>> @@ -0,0 +1,14 @@
+>> +/* SPDX-License-Identifier: MIT */
+>> +
+>> +#ifndef __DRM_DUMB_BUFFERS_H__
+>> +#define __DRM_DUMB_BUFFERS_H__
+>> +
+>> +struct drm_device;
+>> +struct drm_mode_create_dumb;
+>> +
+>> +int drm_mode_size_dumb(struct drm_device *dev,
+>> +                      struct drm_mode_create_dumb *args,
+>> +                      unsigned long pitch_align,
+>> +                      unsigned long size_align);
+>> +
+>> +#endif
+>> diff --git a/include/uapi/drm/drm_mode.h b/include/uapi/drm/drm_mode.h
+>> index c082810c08a8..eea09103b1a6 100644
+>> --- a/include/uapi/drm/drm_mode.h
+>> +++ b/include/uapi/drm/drm_mode.h
+>> @@ -1058,7 +1058,7 @@ struct drm_mode_crtc_page_flip_target {
+>>    * struct drm_mode_create_dumb - Create a KMS dumb buffer for scanout.
+>>    * @height: buffer height in pixels
+>>    * @width: buffer width in pixels
+>> - * @bpp: bits per pixel
+>> + * @bpp: color mode
+>>    * @flags: must be zero
+>>    * @handle: buffer object handle
+>>    * @pitch: number of bytes between two consecutive lines
+>> @@ -1066,6 +1066,50 @@ struct drm_mode_crtc_page_flip_target {
+>>    *
+>>    * User-space fills @height, @width, @bpp and @flags. If the IOCTL succeeds,
+>>    * the kernel fills @handle, @pitch and @size.
+>> + *
+>> + * The value of @bpp is a color-mode number describing a specific format
+>> + * or a variant thereof. The value often corresponds to the number of bits
+>> + * per pixel for most modes, although there are exceptions. Each color mode
+>> + * maps to a DRM format plus a number of modes with similar pixel layout.
+>> + * Framebuffer layout is always linear.
+>> + *
+>> + * Support for all modes and formats is optional. Even if dumb-buffer
+>> + * creation with a certain color mode succeeds, it is not guaranteed that
+>> + * the DRM driver supports any of the related formats. Most drivers support
+>> + * a color mode of 32 with a format of DRM_FORMAT_XRGB8888 on their primary
+>> + * plane.
+>> + *
+>> + * +------------+------------------------+------------------------+
+>> + * | Color mode | Framebuffer format     | Compatibles            |
+>> + * +============+========================+========================+
+>> + * |     32     |  * DRM_FORMAT_XRGB8888 |  * DRM_FORMAT_XBGR8888 |
+>> + * |            |                        |  * DRM_FORMAT_RGBX8888 |
+>> + * |            |                        |  * DRM_FORMAT_BGRX8888 |
+>> + * +------------+------------------------+------------------------+
+>> + * |     24     |  * DRM_FORMAT_RGB888   |  * DRM_FORMAT_BGR888   |
+>> + * +------------+------------------------+------------------------+
+>> + * |     16     |  * DRM_FORMAT_RGB565   |  * DRM_FORMAT_BGR565   |
+>> + * +------------+------------------------+------------------------+
+>> + * |     15     |  * DRM_FORMAT_XRGB1555 |  * DRM_FORMAT_XBGR1555 |
+>> + * |            |                        |  * DRM_FORMAT_RGBX1555 |
+>> + * |            |                        |  * DRM_FORMAT_BGRX1555 |
+>> + * +------------+------------------------+------------------------+
+>> + * |      8     |  * DRM_FORMAT_C8       |  * DRM_FORMAT_R8       |
+> + DRM_FORMAT_D8? (and 4/2/1 below)
 
-Stefan
+Right, missed that.
 
->=20
-> In this version, currently only supports READ/WRITE vec/no-vec operations,
-> others like discard or zoned ops not considered in. So the userspace-rela=
-ted
-> struct is not complicated.
->=20
-> struct virtblk_uring_cmd {
-> 	__u32 type;
-> 	__u32 ioprio;
-> 	__u64 sector;
-> 	/* above is related to out_hdr */
-> 	__u64 data;  // user buffer addr or iovec base addr.
-> 	__u32 data_len; // user buffer length or iovec count.
-> 	__u32 flag;  // only contains whether a vector rw or not.
-> };=20
->=20
-> To test this patch series, I changed fio's code:=20
-> 1. Added virtio-blk support to engines/io_uring.c.
-> 2. Added virtio-blk support to the t/io_uring.c testing tool.
-> Link: https://github.com/jdmfr/fio
->=20
->=20
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> Performance
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->=20
-> Using t/io_uring-vblk, the performance of virtio-blk based on uring-cmd
-> scales better than block device access. (such as below, Virtio-Blk with Q=
-EMU,
-> 1-depth fio)=20
-> (passthru) read: IOPS=3D17.2k, BW=3D67.4MiB/s (70.6MB/s)=20
-> slat (nsec): min=3D2907, max=3D43592, avg=3D3981.87, stdev=3D595.10=20
-> clat (usec): min=3D38, max=3D285,avg=3D53.47, stdev=3D 8.28=20
-> lat (usec): min=3D44, max=3D288, avg=3D57.45, stdev=3D 8.28
-> (block) read: IOPS=3D15.3k, BW=3D59.8MiB/s (62.7MB/s)=20
-> slat (nsec): min=3D3408, max=3D35366, avg=3D5102.17, stdev=3D790.79=20
-> clat (usec): min=3D35, max=3D343, avg=3D59.63, stdev=3D10.26=20
-> lat (usec): min=3D43, max=3D349, avg=3D64.73, stdev=3D10.21
->=20
-> Testing the virtio-blk device with fio using 'engines=3Dio_uring_cmd'
-> and 'engines=3Dio_uring' also demonstrates improvements in submit latency.
-> (passthru) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O=
-0 -n1 -u1 /dev/vdcc0=20
-> IOPS=3D189.80K, BW=3D741MiB/s, IOS/call=3D4/3
-> IOPS=3D187.68K, BW=3D733MiB/s, IOS/call=3D4/3=20
-> (block) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -=
-n1 -u0 /dev/vdc=20
-> IOPS=3D101.51K, BW=3D396MiB/s, IOS/call=3D4/3
-> IOPS=3D100.01K, BW=3D390MiB/s, IOS/call=3D4/4
->=20
-> =3D=3D=3D=3D=3D=3D=3D
-> Changes
-> =3D=3D=3D=3D=3D=3D=3D
->=20
-> Changes in v1:
-> --------------
-> * remove virtblk_is_write() helper
-> * fix rq_flags type definition (blk_opf_t), add REQ_ALLOC_CACHE flag.
-> https://lore.kernel.org/io-uring/202412042324.uKQ5KdkE-lkp@intel.com/
->=20
-> RFC discussion:
-> ---------------
-> https://lore.kernel.org/io-uring/20241203121424.19887-1-mengferry@linux.a=
-libaba.com/
->=20
-> Ferry Meng (3):
->   virtio-blk: add virtio-blk chardev support.
->   virtio-blk: add uring_cmd support for I/O passthru on chardev.
->   virtio-blk: add uring_cmd iopoll support.
->=20
->  drivers/block/virtio_blk.c      | 320 +++++++++++++++++++++++++++++++-
->  include/uapi/linux/virtio_blk.h |  16 ++
->  2 files changed, 331 insertions(+), 5 deletions(-)
->=20
-> --=20
-> 2.43.5
->=20
+>
+> And DRM_FORMAT_Y8, if/when Tomi's series introducing that is accepted...
 
---0EDesKCYBKGeMMyG
-Content-Type: application/pgp-signature; name="signature.asc"
+Sure, if it is compatible, it can also go into the third column.
 
------BEGIN PGP SIGNATURE-----
+Best regards
+Thomas
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAme1O2gACgkQnKSrs4Gr
-c8g5MAf+O8k3P8AmJJwDbR4DW92CZdhXuLHVJZkQLtaxAhrAyTMb9MkmxoqnWQRc
-/hlcNOeoe3xO9vu53lnY5LiTjh1K77qW7abGrAtzLL4+2VGNmd8rfh/sy+E9Fgse
-LY4YnOupHx/1YlCn3KYabbToQcNqybbfgDD/Lv8zqt+2pFF7lWkAd+1FGOgYFyl2
-5kQhEWRwUiN9GRP7KfnESxjA92QSOFMYtqlhjy4FjYfgaPKePPVXAphfjGeqS1I/
-2IQSETYLfiXAMW6Q6AbL4HMYeSx0OPeozx7SJvG4m5g5aZBbq6tdgqVNvPWUDI1H
-kI7ySFuZWYp+g3EO9+COaYXrk6iJWQ==
-=X8Wb
------END PGP SIGNATURE-----
+>
+>> + * +------------+------------------------+------------------------+
+>> + * |      4     |  * DRM_FORMAT_C4       |  * DRM_FORMAT_R4       |
+>> + * +------------+------------------------+------------------------+
+>> + * |      2     |  * DRM_FORMAT_C2       |  * DRM_FORMAT_R2       |
+>> + * +------------+------------------------+------------------------+
+>> + * |      1     |  * DRM_FORMAT_C1       |  * DRM_FORMAT_R1       |
+>> + * +------------+------------------------+------------------------+
+>> + *
+>> + * Color modes of 10, 12, 15, 30 and 64 are only supported for use by
+>> + * legacy user space. Please don't use them in new code. Other modes
+>> + * are not support.
+>> + *
+>> + * Do not attempt to allocate anything but linear framebuffer memory
+>> + * with single-plane RGB data. Allocation of other framebuffer
+>> + * layouts requires dedicated ioctls in the respective DRM driver.
+>>    */
+>>   struct drm_mode_create_dumb {
+>>          __u32 height;
+> Gr{oetje,eeting}s,
+>
+>                          Geert
+>
 
---0EDesKCYBKGeMMyG--
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
