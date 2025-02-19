@@ -1,123 +1,235 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 773751D6DC5;
-	Wed, 19 Feb 2025 11:11:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 058A21DF724
+	for <virtualization@lists.linux.dev>; Wed, 19 Feb 2025 11:20:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739963508; cv=none; b=Jrap8TxnPigTaSWQkys/vRJX2BwkC70I+VB0zQywtxVPRT3/TpJFj0dS5QNdXpY/2xOmORVOIRum01r7WHTu4KrhJwPUXJSPZxKRblxum8nxRnzY9n3jdWtLTOwaOuUXhQpQnMqIfXS+qHxDygMH6uQhaiGh/jQ1gyKdjwM2ThI=
+	t=1739964021; cv=none; b=r9dBte2l+350wdXE/9p1opl/D4FkKJK9NFxwN6mr00vlWrpmL51GmviQNJbdVieTIRLdysfsu330W2zOSEaCquT8u552Gut+CwQHu9RUGo6X1W8b0q0Wmy5q0/1a2z/OhBXF2vDq9gMLxQ4RvtxVgJPYibFjob9YLt6yHvNsSSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739963508; c=relaxed/simple;
-	bh=P/QXVOHnKUXYAuGa7Zt43Uh/TJ4agr7FaxPqqsvGR3Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ttlTX4YZbomK2a2UX7btNw7HfFMCE08Pu47f2s5wg1IO0fcIgrMPrcJ0UojQg65WsiiLaa1xQ+/UnVDbyJ6T9H9gkOlJ+PCN0xngbWd0rXVz5pSbpz4rXJ70KfRviQeUBX/Q9G95qYSdj4jtbvXQXf8YWBSSmPMNvryAPngP5Rs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=WjfYoCF2; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="WjfYoCF2"
-Received: from localhost (unknown [167.220.255.121])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 51ABD20376F9;
-	Wed, 19 Feb 2025 03:11:46 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 51ABD20376F9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1739963506;
-	bh=246fIDKW3H0fAdd9jV3xEJkXBQHcypW1qTL/m0O/yJM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WjfYoCF2Aq9p/0kZ44k1pc10cYbzsF1fdnRAmP/j9C9NJvxkdBkl+OBGLIfhPaZ5y
-	 n/fxKThaslwA6zfq8wUPyO3plBTK8RIw2Slp2n9HJCQBS4G+g4pvNH9IbBZga9eH4F
-	 +JPdDKyKRkibSA/ydjxV1d2DwgJV/0pfy68RQVyA=
-Date: Wed, 19 Feb 2025 19:11:43 +0800
-From: Yu Zhang <zhangyu1@linux.microsoft.com>
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: jacob.pan@linux.microsoft.com, 
-	Easwar Hariharan <eahariha@linux.microsoft.com>, "zhangyu1@microsoft.com" <zhangyu1@microsoft.com>, 
-	Jason Gunthorpe <jgg@nvidia.com>, iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>, 
-	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, 
-	Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
-Message-ID: <jdyb4bxo5miiybkjbmnkszlcx5vwik7lqa5kgx4ptsage6tlu7@axsub4six2uu>
-References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <20250212112235.714b0a14@DESKTOP-0403QTC.>
- <20250212233053.GV3754072@nvidia.com>
- <67ad876d.170a0220.3c21dc.85ceSMTPIN_ADDED_BROKEN@mx.google.com>
- <20250213094601.GA243081@myrica>
- <5irmuy6xwrjsrdjy7tmfzlnotxqdoqagjdsdtqjrrit673zaka@r43nyvc5gcyf>
- <20250213180919.GC243081@myrica>
- <cu7lznx5bxnqoavt3ri4dtzwt7lu3loitn7a344rbnmahpnc6h@2e2dknchxjmd>
- <20250219103518.GA513544@myrica>
+	s=arc-20240116; t=1739964021; c=relaxed/simple;
+	bh=21iMGn5nmMgxSUhNifIphPXQHgu7d4Uv/JM64va/VIs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=RBGEt9IqNdWdDFyJxRAlcl6m/qNV1NRp/YZIs3Rut9bPK/dzpdxgpB3Ovwe1raa+DyFv59NdM6VpVoF7V9QpGbYvoW2SUq5tnRNmh25vtMfefEmlfUaN72nuvBx6eCZ8ON/DstnYeLNJq/tUiJGJIJ5BAMNhNIs8Aq4+1r7TeW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4YyYpr37n2z22kst;
+	Wed, 19 Feb 2025 19:20:36 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 9333E140360;
+	Wed, 19 Feb 2025 19:20:05 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Wed, 19 Feb 2025 19:20:05 +0800
+Message-ID: <c9950a79-7bcb-41c2-a59e-af315dc6d7ff@huawei.com>
+Date: Wed, 19 Feb 2025 19:20:04 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250219103518.GA513544@myrica>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC] mm: alloc_pages_bulk: remove assumption of populating only
+ NULL elements
+To: Dave Chinner <david@fromorbit.com>
+CC: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, Shameer
+ Kolothum <shameerali.kolothum.thodi@huawei.com>, Kevin Tian
+	<kevin.tian@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Chris
+ Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba
+	<dsterba@suse.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep
+ Dhavale <dhavale@google.com>, Carlos Maiolino <cem@kernel.org>, "Darrick J.
+ Wong" <djwong@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jesper
+ Dangaard Brouer <hawk@kernel.org>, Ilias Apalodimas
+	<ilias.apalodimas@linaro.org>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Trond Myklebust
+	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
+	<chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
+	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Luiz Capitulino
+	<luizcap@redhat.com>, Mel Gorman <mgorman@techsingularity.net>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <linux-btrfs@vger.kernel.org>,
+	<linux-erofs@lists.ozlabs.org>, <linux-xfs@vger.kernel.org>,
+	<linux-mm@kvack.org>, <netdev@vger.kernel.org>, <linux-nfs@vger.kernel.org>
+References: <20250217123127.3674033-1-linyunsheng@huawei.com>
+ <Z7Oqy2j4xew7FW9Z@dread.disaster.area>
+ <cf270a65-c9fa-453a-b7a0-01708063f73e@huawei.com>
+ <Z7T4NZAn4wD_DLTl@dread.disaster.area>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <Z7T4NZAn4wD_DLTl@dread.disaster.area>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On Wed, Feb 19, 2025 at 10:35:18AM +0000, Jean-Philippe Brucker wrote:
-> On Wed, Feb 19, 2025 at 05:39:19PM +0800, Yu Zhang wrote:
-> > On Thu, Feb 13, 2025 at 06:09:19PM +0000, Jean-Philippe Brucker wrote:
-> > > On Fri, Feb 14, 2025 at 01:03:43AM +0800, Yu Zhang wrote:
-> > > > On Thu, Feb 13, 2025 at 09:46:01AM +0000, Jean-Philippe Brucker wrote:
-> > > > > Hi Jacob,
-> > > > > 
-> > > > > On Wed, Feb 12, 2025 at 09:47:23PM -0800, Jacob Pan wrote:
-> > > > > > Our code and backend support are still in the early stages, that is why
-> > > > > > I am attempting to convert virtio-iommu driver to iommu_pt. Not sure if
-> > > > > > anyone has done the QEMU part to support VIRTIO_IOMMU_F_ATTACH_TABLE?
-> > > > > > @Jean @Eric Do you know?
-> > > > > 
-> > > > > As far as I know Tina worked on this most recently:
-> > > > > https://github.com/TinaZhangZW/qemu/commits/virtio-iommu/vt-d-pgtable/
-> > > > > https://lore.kernel.org/all/20231106071226.9656-1-tina.zhang@intel.com/
-> > > > 
-> > > > Thanks a lot for this information, Jean.
-> > > > IIUC, these patches were trying to add VT-d IO page table support in
-> > > > virtio-iommu, but it is not based on Jason's generic PT [1]. Just wondering,
-> > > > does anyone have plan to do the incorporation? 
-> > > 
-> > > I'm not aware of anyone working on this at the moment. Something you will
-> > > need for a portable pviommu is a library that manages PASID tables rather
-> > > than page tables [1], because the Arm SMMUv3 arch only support assigning
-> > > PASID tables to the guest. Alternatively you could implement opaque PASID
-> > > table allocation via host calls, letting the guest allocate GPA space and
-> > > the host manage the PASID table, but that idea didn't seem very popular at
-> > > the time.
-> > 
-> > Thank you, Jean. Just had a study of the spec. For ARM SMMUv3, letting
-> > the guest manage the PASID table, and then assigning it directly to the
-> > backend in ATTACH_TABLE request looks quite resonable. But for VT-d,
-> > my understanding is the PASID table shall be managed by host. By "that
-> > idea didn't seem very popular", do you mean that people also want the 
-> > ATTCH_TABLE request for VT-d also assign the PASID table(an virtual one
-> > managed by the guest). If yes, why? 
+On 2025/2/19 5:14, Dave Chinner wrote:
+> On Tue, Feb 18, 2025 at 05:21:27PM +0800, Yunsheng Lin wrote:
+>> On 2025/2/18 5:31, Dave Chinner wrote:
+>>
+>> ...
+>>
+>>> .....
+>>>
+>>>> diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+>>>> index 15bb790359f8..9e1ce0ab9c35 100644
+>>>> --- a/fs/xfs/xfs_buf.c
+>>>> +++ b/fs/xfs/xfs_buf.c
+>>>> @@ -377,16 +377,17 @@ xfs_buf_alloc_pages(
+>>>>  	 * least one extra page.
+>>>>  	 */
+>>>>  	for (;;) {
+>>>> -		long	last = filled;
+>>>> +		long	alloc;
+>>>>  
+>>>> -		filled = alloc_pages_bulk(gfp_mask, bp->b_page_count,
+>>>> -					  bp->b_pages);
+>>>> +		alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
+>>>> +					 bp->b_pages + refill);
+>>>> +		refill += alloc;
+>>>>  		if (filled == bp->b_page_count) {
+>>>>  			XFS_STATS_INC(bp->b_mount, xb_page_found);
+>>>>  			break;
+>>>>  		}
+>>>>  
+>>>> -		if (filled != last)
+>>>> +		if (alloc)
+>>>>  			continue;
+>>>
+>>> You didn't even compile this code - refill is not defined
+>>> anywhere.
+>>>
+>>> Even if it did complile, you clearly didn't test it. The logic is
+>>> broken (what updates filled?) and will result in the first
+>>> allocation attempt succeeding and then falling into an endless retry
+>>> loop.
+>>
+>> Ah, the 'refill' is a typo, it should be 'filled' instead of 'refill'.
+>> The below should fix the compile error:
+>> --- a/fs/xfs/xfs_buf.c
+>> +++ b/fs/xfs/xfs_buf.c
+>> @@ -379,9 +379,9 @@ xfs_buf_alloc_pages(
+>>         for (;;) {
+>>                 long    alloc;
+>>
+>> -               alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - refill,
+>> -                                        bp->b_pages + refill);
+>> -               refill += alloc;
+>> +               alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - filled,
+>> +                                        bp->b_pages + filled);
+>> +               filled += alloc;
+>>                 if (filled == bp->b_page_count) {
+>>                         XFS_STATS_INC(bp->b_mount, xb_page_found);
+>>                         break;
+>>
+>>>
+>>> i.e. you stepped on the API landmine of your own creation where
+>>> it is impossible to tell the difference between alloc_pages_bulk()
+>>> returning "memory allocation failed, you need to retry" and
+>>> it returning "array is full, nothing more to allocate". Both these
+>>> cases now return 0.
+>>
+>> As my understanding, alloc_pages_bulk() will not be called when
+>> "array is full" as the above 'filled == bp->b_page_count' checking
+>> has ensured that if the array is not passed in with holes in the
+>> middle for xfs.
 > 
-> No, the proposal for managing the PASID table in the host was done before
-> the VT-d architecture added Scalable mode, so at the time they also had to
-> assign whole PASID tables to the guest and weren't keen on managing it in
-> the host. I believe in revision 3 (2018) the architecture added support
-> for Scalable mode and the ability to manage PASID tables in the host.
+> You miss the point entirely. Previously, alloc_pages_bulk() would
+> return a value that would tell us the array is full, even if we
+> call it with a full array to begin with.
 > 
-> Nowadays it wouldn't make sense for a pvIOMMU to manage the VT-d PASID
-> tables in the guest, because as I understand it there is no demand for
-> supporting the legacy mode address translation of VT-d.
+> Now it fails to tell us that the array is full, and we have to track
+> that precisely ourselves - it is impossible to tell the difference
+> between "array is full" and "allocation failed". Not being able to
+> determine from the allocation return value whether the array is
+> ready for use or whether another go-around to fill it is needed is a
+> very poor API choice, regardless of anything else.
+> 
+> You've already demonstrated this: tracking array usage in every
+> caller is error-prone and much harder to get right than just having
+> alloc_pages_bulk() do everything for us.
 
-Thanks, Jean. Yeah, my understanding is that old revisions of VT-d looks
-more like the ARM SMMUv3. But with scalable mode introduced, there's no
-need for a pvIOMMU to allocate a guest version PASID table on VT-d.
-
-So my question becomes: why do we need a library that manages PASID
-tables in the guest? To also support AMD IOMMU besides ARM SMMUv3(
-I saw your spec proposed both ATTACH_TABLE request for AMD GCR3 table
-and ATTACH_TABLE request for AMD page table, but don't know which one
-is more preferred in practice)?
-
-B.R.
-Yu
-
-
+While I am agreed that it might be hard to track array usage in every
+caller to see if removing assumption of populating only NULL elements
+cause problem for them, I still think the page bulk alloc API before
+this patch have some space for improvement from performance and
+easy-to-use perspective as the most existing calllers of page bulk
+alloc API are trying to bulk allocate the page for the whole array
+sequentially.
 
 > 
-> Thanks,
-> Jean
+>>> The existing code returns nr_populated in both cases, so it doesn't
+>>> matter why alloc_pages_bulk() returns with nr_populated != full, it
+>>> is very clear that we still need to allocate more memory to fill it.
+>>
+>> I am not sure if the array will be passed in with holes in the
+>> middle for the xfs fs as mentioned above, if not, it seems to be
+>> a typical use case like the one in mempolicy.c as below:
+>>
+>> https://elixir.bootlin.com/linux/v6.14-rc1/source/mm/mempolicy.c#L2525
+> 
+> That's not "typical" usage. That is implementing "try alloc" fast
+> path that avoids memory reclaim with a slow path fallback to fill
+> the rest of the array when the fast path fails.
+> 
+> No other users of alloc_pages_bulk() is trying to do this.
+
+What I meant by "typical" usage is the 'page_array + nr_allocated'
+trick that avoids the NULL checking when page bulk allocation API
+is used in mm/mempolicy.c, most of existing callers for page bulk
+allocation in other places seems likely to be changed to do the
+similar trick as this patch does.
+
+> 
+> Indeed, it looks somewhat pointless to do this here (i.e. premature
+> optimisation!), because the only caller of
+> alloc_pages_bulk_mempolicy_noprof() has it's own fallback slowpath
+> for when alloc_pages_bulk() can't fill the entire request.
+> 
+>>> IOWs, you just demonstrated why the existing API is more desirable
+>>> than a highly constrained, slightly faster API that requires callers
+>>> to get every detail right. i.e. it's hard to get it wrong with the
+>>> existing API, yet it's so easy to make mistakes with the proposed
+>>> API that the patch proposing the change has serious bugs in it.
+>>
+>> IMHO, if the API is about refilling pages for the only NULL elements,
+>> it seems better to add a API like refill_pages_bulk() for that, as
+>> the current API seems to be prone to error of not initializing the
+>> array to zero before calling alloc_pages_bulk().
+> 
+> How is requiring a well defined initial state for API parameters
+> "error prone"?  What code is failing to do the well known, defined
+> initialisation before calling alloc_pages_bulk()?
+> 
+> Allowing uninitialised structures in an API (i.e. unknown initial
+> conditions) means we cannot make assumptions about the structure
+> contents within the API implementation.  We cannot assume that all
+> variables are zero on the first use, nor can we assume that anything
+> that is zero has a valid state.
+
+It seems the above is the main differenece we see from the API perspective,
+as I see the array as output parameter and you seems to treat the array as
+both input and output parameter?
+
+The kmem_cache_alloc_bulk() API related API seems to treat the array as
+output parameter too as this patch does, the difference from this patch
+is that if there is no enough memory, it will free the allocated memory
+and return 0 to the caller while this patch returns already allocated
+memory to its caller even when there is no enough memory.
+
+> 
+> Again, this is poor API design - structures passed to interfaces
+> -should- have a well defined initial state, either set by a *_init()
+> function or by defining the initial state to be all zeros (i.e. via
+> memset, kzalloc, etc).
+> 
+> Performance and speed is not an excuse for writing fragile, easy to
+> break code and APIs.
+> 
+> -Dave.
