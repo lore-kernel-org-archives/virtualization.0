@@ -1,317 +1,320 @@
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2083.outbound.protection.outlook.com [40.107.220.83])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 258F91FECAE;
-	Wed, 19 Feb 2025 17:09:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.83
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739984944; cv=fail; b=CvTA1yhO+YhgGKafRcG86TqQMJqZTqJRfcJx+QCowF1orTCbt1IYTn+UNr5w51ukjBZx48kEZ+bNgiOEMvICO55nf51GyC633Co+QAW/e83pSNvbAnA5mlKREmhN2hX+M1bg1rCSfa5F9IJfe4KnJ/bLTdEcssNdavmUigUObbU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739984944; c=relaxed/simple;
-	bh=+g2iqS7gxNKDGKjCrOh+NNsr62KDCK8zIhbL9qRQS/Q=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=p/f3DfQaQgH/1pRtmiDfwVZyBkMU9CrWrAkuBf9XP4Y0HsUsd4ZczHrnq7l2rwy3oJnXuOQ9U2UCnqVGm16+RtYFBbqE+O6T8u+CNrkSSX42xTrqqf56hLUqYcu2DGjYzdWUKTmMbqLsioNRMg7X6zt1BGadEWPNg6hMMJ5Ag54=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=PcIAafat; arc=fail smtp.client-ip=40.107.220.83
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7B56184F;
+	Wed, 19 Feb 2025 19:33:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1739993638; cv=none; b=Vo0ZQ9CdBkBKKx+fdDTsaPqAIin3Lo7tEKoTbFbmxIRHunChq9jROdPrn7yGalifOX+YX3AxHjoUGk0mU76VAlASfwNlTqZdhwrC2GGI9xy62dC2W0Eq8R4BgdeLKwl2JgFtownfJQ5oAWO4szAnydjyRxlqwrpmCYIvMzj5JVs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1739993638; c=relaxed/simple;
+	bh=teNRojGpOLNz5H/L6slazlSb8pZFQ/tNepdoY32xkYc=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=kst3xHWVf4I+4d0X5wKdTpVsGoTyevvTtPmhZ8JZ1dcoS0AQN6gGrpMqBg8cxUbdEGwJYEbm43PqSZEH1DY7oJ/LmU7eXlkT7/ivOpkRViGi1ap2205RRTGqTRxVR5y7399tAPIjfuEqPosvc/koefXfUByRsRhZUz2rSHg08Eo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=Hd2IIzP2; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="PcIAafat"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=VhEdIPwfVVwAv8rljE8SxK8GW9KWf0SLx+k1Yn8U8cDXV8zeGOUUU5tiNKVjgg1im51ajVrsgK1lw5HDQ7ApHqBRc2gSG8qUMLqoQlqyRffnEoj8mXBqmoGzJLMDQQCa6zaSekZvP3CqkGX2gPWdtVB1hT+bAAwHeDDONArQwRjyPcFlweGRVtPi/+Qqx3IogTAMBg8jwqvJnwyKWF1h8vEKv+txXbtm7R7sNSpHxRM41zO22FUXtvJgBD23CQuImxa2KUG2xq13ddf/IXJg/okpgJQR+ijxU+ReYVS1DQr8XrcuXPwZoCapH8VGBrgafh8ZDp/kcWwHuDoraIGd2g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=a71Dy6govVGCK2C4BT/D2qhMEQcwf3/MOIxsWp/NsjE=;
- b=ZyNNOM9ElvZfPFNfglEQUOLEegGiaH0XlWpv0OZPZQ1Sc6pvMYswZhpVwv80xJ8mjSIBNb/k45oJK8AOjVtPrah5tH4PF6LHFREP2MgdmYv8sEXM5KGmLK8jsuMq7algEPRCagJ9wMMIoQazxHPd8Jvrpp+8B1rqa1pdBgAGLGG8l8BJ9v7crWkZafi84w6x/B9445QOc9X0raz37WXC+hS5moRF9OFAfZH1aSIoLrZ7TSOsCwXrF4ulnOu8FKeecs2oJ3CLITctkeu20TqnlL68CzS00uQxbT4644000YHBS6NanS15d/lC4xS5N3KkVyfirIXXyd2RG4JIatEOrA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=a71Dy6govVGCK2C4BT/D2qhMEQcwf3/MOIxsWp/NsjE=;
- b=PcIAafatks0d49krke/tF/+jeCas3jCRsBx7ZdOOv99wpQS3m7JPCMdX6AeZcmSmd6M5OqFtJycPBC3rAKhQ/pBItJ3vIiGxMy8IjORfam7Lr0RvGAWJExJ+b8utfvQ3HW5pJRBSD6KSTBsCqme/JQ3FyiHLru7hOL4w48kttrDYwYbvZNB4qzpxVsuKsLkEwBU1P9Hmkzgi6DlW395Es/7/MJKBGP7zpBBHcFhp7kk1Uf59UkIMbgKJ7z63TRAFu+XTHgJ76TGBE93owMAb7QCq3cvg1MvXH7+to3aOWvZK+cDWnvohzJmegzgq9DAaDxBwAQuhpCn2aQ4SkrbD7g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SN7PR12MB8059.namprd12.prod.outlook.com (2603:10b6:806:32b::7)
- by SN7PR12MB8791.namprd12.prod.outlook.com (2603:10b6:806:32a::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8466.14; Wed, 19 Feb
- 2025 17:08:58 +0000
-Received: from SN7PR12MB8059.namprd12.prod.outlook.com
- ([fe80::4ee2:654e:1fe8:4b91]) by SN7PR12MB8059.namprd12.prod.outlook.com
- ([fe80::4ee2:654e:1fe8:4b91%5]) with mapi id 15.20.8445.017; Wed, 19 Feb 2025
- 17:08:58 +0000
-Message-ID: <adcf012e-57ef-4b54-8b19-2273aca41ec6@nvidia.com>
-Date: Wed, 19 Feb 2025 12:08:50 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer
- flush_tlb_kernel_range() targeting NOHZ_FULL CPUs
-To: Valentin Schneider <vschneid@redhat.com>
-Cc: Jann Horn <jannh@google.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, virtualization@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
- xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, rcu@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-mm@kvack.org,
- linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
- bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.amakhalov@broadcom.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>,
- "Liang, Kan" <kan.liang@linux.intel.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Josh Poimboeuf <jpoimboe@kernel.org>,
- Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
- Sean Christopherson <seanjc@google.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, Frederic Weisbecker <frederic@kernel.org>,
- "Paul E. McKenney" <paulmck@kernel.org>, Jason Baron <jbaron@akamai.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ard Biesheuvel <ardb@kernel.org>,
- Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
- Joel Fernandes <joel@joelfernandes.org>,
- Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
- Uladzislau Rezki <urezki@gmail.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Lai Jiangshan <jiangshanlai@gmail.com>, Zqiang <qiang.zhang1211@gmail.com>,
- Juri Lelli <juri.lelli@redhat.com>, Clark Williams <williams@redhat.com>,
- Yair Podemsky <ypodemsk@redhat.com>, Tomas Glozar <tglozar@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall
- <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
- Kees Cook <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- Christoph Hellwig <hch@infradead.org>, Shuah Khan <shuah@kernel.org>,
- Sami Tolvanen <samitolvanen@google.com>, Miguel Ojeda <ojeda@kernel.org>,
- Alice Ryhl <aliceryhl@google.com>,
- "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
- Samuel Holland <samuel.holland@sifive.com>, Rong Xu <xur@google.com>,
- Nicolas Saenz Julienne <nsaenzju@redhat.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Yosry Ahmed <yosryahmed@google.com>,
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
- "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
- Jinghao Jia <jinghao7@illinois.edu>, Luis Chamberlain <mcgrof@kernel.org>,
- Randy Dunlap <rdunlap@infradead.org>, Tiezhu Yang <yangtiezhu@loongson.cn>
-References: <20250114175143.81438-1-vschneid@redhat.com>
- <20250114175143.81438-30-vschneid@redhat.com>
- <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
- <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
- <xhsmhzfjpfkky.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <20250219145302.GA480110@joelnvbox>
- <xhsmhecztj4c9.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
-Content-Language: en-US
-From: Joel Fernandes <joelagnelf@nvidia.com>
-In-Reply-To: <xhsmhecztj4c9.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BN9PR03CA0508.namprd03.prod.outlook.com
- (2603:10b6:408:130::33) To SN7PR12MB8059.namprd12.prod.outlook.com
- (2603:10b6:806:32b::7)
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="Hd2IIzP2"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51JG6nh0026862;
+	Wed, 19 Feb 2025 19:33:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=ucERdosz3meDNO5pP8Ssls
+	dhIEqWUsTqCQuLLvq3r+c=; b=Hd2IIzP28GaXzyMBhOcQJsD6lRP8Dy83wI0fur
+	HcMCuqD4BFo60UqHZ1+ER5AS0eJzk4K+ABl2UV0hNbpANKTyPVZr88nr/twcpQ8t
+	paGo1embi7VDk2ihnSeb3tDzmz/QaesNj8BuiM4GkuPW0RS0UX1tvdUlpu2GWBJu
+	gS8oWWpDmv5GsP+xcy0pjaHp7syWF7H1NhYZQGYQ0BlyMqkdXxEoFbzo7z/pC3Ql
+	O5FYFTKUoRbyE/fC+W0DpBI7btoilj84zs0Yu1zyZ97kvMrM8BTiuIUxYn43oZpz
+	O/ywcNnzSP0NAS7+b8i000lzLR3HF5wiG9SOdueZ6whRpnqA==
+Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 44vyy0kscx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Feb 2025 19:33:35 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 51JJXZlD023787
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Feb 2025 19:33:35 GMT
+Received: from PHILBER.qualcomm.com (10.80.80.8) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 19 Feb
+ 2025 11:33:29 -0800
+From: Peter Hilber <quic_philber@quicinc.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+CC: Trilok Soni <quic_tsoni@quicinc.com>,
+        Srivatsa Vaddagiri
+	<quic_svaddagi@quicinc.com>,
+        Peter Hilber <quic_philber@quicinc.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        Richard Cochran
+	<richardcochran@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>, <linux-kernel@vger.kernel.org>,
+        <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        David Woodhouse <dwmw2@infradead.org>,
+        "Ridoux, Julien" <ridouxj@amazon.com>, Marc Zyngier <maz@kernel.org>,
+        "Mark
+ Rutland" <mark.rutland@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Parav Pandit
+	<parav@nvidia.com>,
+        Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>, <virtio-dev@lists.linux.dev>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH v5 0/4] Add virtio_rtc module
+Date: Wed, 19 Feb 2025 20:32:55 +0100
+Message-ID: <20250219193306.1045-1-quic_philber@quicinc.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN7PR12MB8059:EE_|SN7PR12MB8791:EE_
-X-MS-Office365-Filtering-Correlation-Id: 36a04553-16df-484a-fc0e-08dd51081954
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|366016|1800799024|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?eTNROEVvZVFZU21NZ3RVS2lMaFNFN09ZUjVnZlZkWG1WL2QybGxkNzNqNzRC?=
- =?utf-8?B?UjlwVkFYS29uQU9sM1BzSlVaWk5kdWJZYWNKK2xwL1BhYUV0RThGVVBvOWly?=
- =?utf-8?B?WjgxbEEreit4aDJQSEx5VG5YMEh2aHpVU3FTK3JKZGZ1a1RDWFA5QTIwTzdy?=
- =?utf-8?B?d2w0eklQTnBUQkhwRHN0QWxCZTd1TFRTWlJCbUVKdDJnN1dwbzRyanFaSW9X?=
- =?utf-8?B?cUlxWlIzdUZUdHU1dlQ4MU5YQStLRE9CK3BtdGZzZG9TTXhxVFJLUzg5TGRm?=
- =?utf-8?B?cWFBeGJrLzEyL2FlSDU0TVZGdlpIYitCS2RlWCt5L0I4VXQ2VW5TY243UVZh?=
- =?utf-8?B?dFF5VlpWdTkwN0U4Qzc1MStEMkV2cnUvM29MNldnK25DazNkZ3RXYm5nOVAv?=
- =?utf-8?B?TjBhbHphUWhlR0YxRm5kV0VIMXRaMUNoUHJjWENpMjUvQmo4S2xOelRqaFkv?=
- =?utf-8?B?dnhqWlZ2QW9CYXZtTHVyWmR5a0hkeVAyVE1Bdm4rZlRYSGUyZndndTJheEQ0?=
- =?utf-8?B?MFRGamNjU0hISDcxSW5YZllsdEM1NktUdG9SZnFxT2t2ZG9MUzVyL1J2WlU3?=
- =?utf-8?B?WkZFYkxzY3lSNEdqLzFjaXZZWlk2OHlVZ1dkTm5nZzluSHZHZWc2Mkk2NXpH?=
- =?utf-8?B?TkFCcEZ1TldVaWtrNnZ3TlJrWDhkTkpLeG9tYTBSaVpydSt5c2lTVHAxeUg1?=
- =?utf-8?B?N2hUc2JWZ24rakw1L1RsZlZDVHVzeEs4c1c1MDk2Z0lTSEQybjh4OE1CRytp?=
- =?utf-8?B?S0NPSXJIQjJiaTFrSUJmQ29NaC84WXlwQ1ZTbTVXYXdhRmVTVGpVR0NnRk1q?=
- =?utf-8?B?WFBPb2RWMlZUWDlWTWwydUZkaTZuc2JhZjRuWkpOM0J4RzhyckdUUWNGYm5B?=
- =?utf-8?B?VXZFWkUxK3Z4WDQzNkJidWlDTHdHSWRscHBsR0NsZ25MWi9IZmY5bkxkQzhF?=
- =?utf-8?B?QW9hcGd2SDNxTVFSWlBRZnJZekNwZVVZd3cvdzg1aTlTVHViM0U3RkJiR0xy?=
- =?utf-8?B?SEcyY1VYaW9YN0R1R0VNaHlZb01WTjhxcitQUkFLbk9wL1VhUkF4MUVCc2N3?=
- =?utf-8?B?UjdSdFR4RHMwbjk3RlZveG5HcVMwZGxuMUYybVc0ZTBYU0Z4OVRGN255T0dK?=
- =?utf-8?B?OTB6Mjd5T1pnRk9mWFlHN0lsR0swc3FsL1BsZTZmUkg2MHU0cjZJMVZnTVl0?=
- =?utf-8?B?QXBwSDhkWFNSVklhUzlYZEVtMEN3ZWF0ZHFSNVhUZmY0bVpXV3M2RXVJR2ds?=
- =?utf-8?B?aG15Qk5yK2FCZlFhWUxnaUNuYmVYKzY4R3UyVmMzT1lRL3dSeXJMWU12SmlX?=
- =?utf-8?B?M3ZGSGZLMTdnZTJ0eVNrWUpqa3ppY21WK0Z5UXdsTkFQSk8vVGxVZFNXN0Yy?=
- =?utf-8?B?TW15ZSsraHlFZ2lWSmVFT0JHbVR0Y3lVVmpNMmRFVmFDN2R0emRHYWdNUDJl?=
- =?utf-8?B?NElwcXZWRjJjREQxL05sWFVZejA3cWN0WVhka2Y3bkd0c2lUZkpmZ0JuYnJt?=
- =?utf-8?B?RFYya21sL1hVOHAySFFxWWxDdTJXWllJblRXb3N1SU14MTZNcndXYmgwMFRy?=
- =?utf-8?B?aUNIQ1R6MktvMG9XOUdGTnBGOForSXlrSWRSTmNyaDJUMm9mU3JzelVhYi9u?=
- =?utf-8?B?d3hPaS93Ym1CZXluQ0NRNUkyOURPbDBHTjhKcnNDRjlGOHBqajdtNk5FRGVU?=
- =?utf-8?B?WW5qSkNZVG5md1hGNGEwVHhIKzREUnVWOHh2RXZEQjN0bEpiZVhOV0NPeVV0?=
- =?utf-8?B?NDk0OHJLS3ZHYVZwb1FxUzFtVjJMMGlpbnNhVnRDVmk4YUowMGFIQVk4ODRu?=
- =?utf-8?B?cjliVzlud3JvWVhrZUUwTm01bXh1cFJwR2FKTDJYWk9zb3dxVkFKQmRObDdk?=
- =?utf-8?Q?QK2simDBBEOC0?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN7PR12MB8059.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?S09NWnJEbEZxTVZYemVXN1lxNGFGbjMreUhlWW5sdSs4VmQzR25ZemM5MGpk?=
- =?utf-8?B?dnljRjg1azhEKytSZkg4eFRLYVJsbXNxcjRPZXdRRnhEczVyYTNJay8wSFZa?=
- =?utf-8?B?cXV5Q2EyeFVQc0VLMXJkOVlOV3BiWFFYUkgrdHdxbTRZc2V3aDdZbER5a3Jo?=
- =?utf-8?B?RSt3ZVcyM0x5aWNMZm1HaHNNcGU3ZFNEM0xBSzFmUEtQS1hEU0dOYk5GNUto?=
- =?utf-8?B?ZzIwaS9xajBVK0dKQTU5aERiamVGTVFWdUpKWWZEMVJ0VWZJemVzcmZHN25k?=
- =?utf-8?B?TlNNZnAxYUNmcDlFblhjMUpSUnRITHBWZ1cwSXlsTXYwZnViUWhQcjQ1N3pT?=
- =?utf-8?B?S2tkZjl2aGIxMk1PZlFQZngwa2FxWkl5L1kzNjh5Nm42UU5wU2wxQnhYLy9v?=
- =?utf-8?B?ZTdUT2pxWkQwTDg2S3M3WWRFaGUyRlF4aE82d0ZqTWY5Rmhkc1hHZnhHVEJE?=
- =?utf-8?B?WmNJSGRpOXduNnRBeVI2RTYyb2ZPUDVsRE04Rkp4L2xxV0ZVRi93b2h1QURi?=
- =?utf-8?B?ZUFLWEJwR2FzdHAwZEVRa2o2TUJkL1NWZjJZMEFua2VFMkFsQy80bVBVN21Z?=
- =?utf-8?B?K0hQRis4UEJ4M1dNSGRlSFI5M29UM2VqcExFMFFXOENjbkFaN0kzeEFVd0tO?=
- =?utf-8?B?Y1JLMWZSWWppc1BkZmtGdVNxL0VOZmlNdWZlampoM0ZhNURCeU1BOFZ4OGli?=
- =?utf-8?B?eUQvVjRaYkRRbGxGM3NLRytoaTNpWWE2MmExdkFEQkk1RVp1MitxSndPM3Rv?=
- =?utf-8?B?eUIvSWF5S0d2c1VDNTdBbGp1RkgxTnoxUm56ZWJVaEdEVFYxSmZmV3F5aiti?=
- =?utf-8?B?RERVT2xzTnZhVG9RaGh6NjVCVlFPd0hHckhybzR2QmRTMzZOcllzZ09vanlw?=
- =?utf-8?B?T2dGck1jYkZWSzNJQ0lFZzVudnBDY200eGxpTi9uQUlyeXJZWFJIRVBWVVBH?=
- =?utf-8?B?a3JMSlNhTEo3NjdwYWlsMVVvRkZvSkdOMHMyakVGVzU4aXVtZnFCRWVVdzBZ?=
- =?utf-8?B?WHRWNVpaaFRZZDZuR21DUEM5c2tzUzE4Nklwa0FRN0E2ckd6YmhWK09OdHFk?=
- =?utf-8?B?bFh0NnZpSDkzZWFGakRHeURZUkNsVVhiRzhaZWtnTFo5aC8xSGJ1OVdIdW5j?=
- =?utf-8?B?VWdpZ0hhcVcwSFY2YjRaTUJ5TWN6MjBGSzFhRDJiaStjdGdqanZwYWF3eFYx?=
- =?utf-8?B?Y0NQUjNxN2Z3dWZGUTQyYzdGUkFLUXU5VTRoYXRxcHFuTGVOK3hSMVdEcS83?=
- =?utf-8?B?dzUxUS82T1pCWDg1WkZQSG5WN2pxbS91SWpMelZIT0MvMGF1NU9oSjZuMXhR?=
- =?utf-8?B?K2JMWDBSaTJEVlNKQlovK2l1M09sV2pZNzZpM1NubDdSSmNMcFRkWGNtZlRV?=
- =?utf-8?B?OEVreTRtZVNIVTc1OE9nay9aSkYxV0NiUGxKZjNkR0hYN1VLMUtuVzJWZ3E4?=
- =?utf-8?B?Q3NRRFRycXpGOGtYNm9VeXdJQVFKdUdNd1FJVkQ3dGtjaWs4cndNckVPYkNt?=
- =?utf-8?B?dzI5T3RaNzZFc0ZVQk1ZY1VLYThMcWgrVkkrRkFwYjhDTFZqQVZiaWhWdkdo?=
- =?utf-8?B?SDd3a1JPdHM4MWFJcGNjMXdzVzBQVXRuVHVCY29Fa2VBSzlTQW1nUWhSTHZT?=
- =?utf-8?B?Ymh2dHBYR1MxTFY3dmF1YysyOHM1eWt0WkxUaUpoVW9yVUdaei9ZNFdQWXdp?=
- =?utf-8?B?VWZET0YvWmwyOUY1WVV4ekg5alFsQmZGeTVtZ1AwM2lhSjhvcVNFR0N5UThS?=
- =?utf-8?B?VkgrNHBEd0NTaUZnRjk2VHlZRFpiSTEvK3U2ZGZZc1Y5RVo3dFRyREZyV1Uy?=
- =?utf-8?B?dUlhWTZDTm1HRXdXaitkODlBVnpMT2d0dWpUUnVDbmhtTGNGQXE4RXJLTGhX?=
- =?utf-8?B?VWROUTloQytWcERsaXVlb2srLzVqMlppajNyK2F4UUZLWGxQMWJmbXM2NlFG?=
- =?utf-8?B?L2M0K1A1UTRhdlBad1RYNEZBdFZDcGZ1RUhMZGFoT3BXNnBGRU8rSEx0bFJP?=
- =?utf-8?B?K0V2eGRBQlFialVhRTdVenZYNjkwMTl4WmRQUE42cnEzZWI4b245R0tlbnlq?=
- =?utf-8?B?ekRUL25ZRk82aitQb1BrLzB3bm05OHN0UE8yYS9Rdi81bDFrZlhpKzNDV3ps?=
- =?utf-8?Q?bxxoboLhp81jX5XyI3OZ92N8h?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 36a04553-16df-484a-fc0e-08dd51081954
-X-MS-Exchange-CrossTenant-AuthSource: SN7PR12MB8059.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Feb 2025 17:08:58.5442
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: CtOCbLN5mBwxeNT2wo6/ysIHFlRbIu1bJHIYLN+BTf6uBnYzMazev/cV31RgYeIC7NTsOki1riW1f1/ghuRh1g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB8791
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: RiMU8GsxwEQleUbPouAVE_-8jFDYWcbh
+X-Proofpoint-ORIG-GUID: RiMU8GsxwEQleUbPouAVE_-8jFDYWcbh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-19_08,2025-02-19_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ impostorscore=0 lowpriorityscore=0 mlxlogscore=999 spamscore=0
+ clxscore=1015 priorityscore=1501 phishscore=0 mlxscore=0 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2502190151
+
+This series implements a driver for a virtio-rtc device conforming to spec
+proposal v7 [1]. It includes a PTP clock driver and an RTC class driver
+with alarm.
+
+v5 updates
+==========
+
+Important changes compared to the previous driver series [3] are:
+
+- Update to spec proposal v7 [1].
+
+- Fix multiple initialization related bugs.
+
+- Drop the RFC tag, since no major outstanding issues are apparent.
+
+Overview
+========
+
+This patch series adds the virtio_rtc module, and related bugfixes. The
+virtio_rtc module implements a driver compatible with the proposed Virtio
+RTC device specification [1]. The Virtio RTC (Real Time Clock) device
+provides information about current time. The device can provide different
+clocks, e.g. for the UTC or TAI time standards, or for physical time
+elapsed since some past epoch. The driver can read the clocks with simple
+or more accurate methods. Optionally, the driver can set an alarm.
+
+For the Virtio RTC device, there is currently a proprietary implementation,
+which has been used for testing.
+
+PTP clock interface
+===================
+
+virtio_rtc exposes clocks as PTP clocks to userspace, similar to ptp_kvm.
+If both the Virtio RTC device and this driver have special support for the
+current clocksource, time synchronization programs can use
+cross-timestamping using ioctl PTP_SYS_OFFSET_PRECISE2 aka
+PTP_SYS_OFFSET_PRECISE. Similar to ptp_kvm, system time synchronization
+with single-digit ns precision is possible with a quiescent reference clock
+(from the Virtio RTC device). This works even when the Virtio device
+response is slow compared to ptp_kvm hypercalls.
+
+The following illustrates a test using PTP_SYS_OFFSET_PRECISE, with
+interspersed strace log and chrony [2] refclocks log, on arm64. In the
+example, chrony tracks a virtio_rtc PTP clock ("PHCV", /dev/ptp0). The raw
+offset between the virtio_rtc clock and CLOCK_REALTIME is 0 to 1 ns. At the
+device side, the Virtio RTC device artificially delays both the clock read
+request, and the response, by 50 ms. Cross-timestamp interpolation still
+works with this delay. chrony also monitors a ptp_kvm clock ("PHCK",
+/dev/ptp3) for comparison, which yields a similar offset.
+
+	ioctl(5</dev/ptp3>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) = 0 <0.000329>
+	===============================================================================
+	   Date (UTC) Time         Refid  DP L P  Raw offset   Cooked offset      Disp.
+	===============================================================================
+	2023-06-29 18:49:55.595742 PHCK    0 N 0  1.000000e-09  8.717931e-10  5.500e-08
+	2023-06-29 18:49:55.595742 PHCK    - N -       -        8.717931e-10  5.500e-08
+	ioctl(6</dev/ptp0>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) = 0 <0.101545>
+	2023-06-29 18:49:56.147766 PHCV    0 N 0  1.000000e-09  8.801870e-10  5.500e-08
+	2023-06-29 18:49:56.147766 PHCV    - N -       -        8.801870e-10  5.500e-08
+	ioctl(5</dev/ptp3>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) = 0 <0.000195>
+	2023-06-29 18:49:56.202446 PHCK    0 N 0  1.000000e-09  7.364180e-10  5.500e-08
+	2023-06-29 18:49:56.202446 PHCK    - N -       -        7.364180e-10  5.500e-08
+	ioctl(6</dev/ptp0>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) = 0 <0.101484>
+	2023-06-29 18:49:56.754641 PHCV    0 N 0  0.000000e+00 -2.617368e-10  5.500e-08
+	2023-06-29 18:49:56.754641 PHCV    - N -       -       -2.617368e-10  5.500e-08
+	ioctl(5</dev/ptp3>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) = 0 <0.000270>
+	2023-06-29 18:49:56.809282 PHCK    0 N 0  1.000000e-09  7.779321e-10  5.500e-08
+	2023-06-29 18:49:56.809282 PHCK    - N -       -        7.779321e-10  5.500e-08
+	ioctl(6</dev/ptp0>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) = 0 <0.101510>
+	2023-06-29 18:49:57.361376 PHCV    0 N 0  0.000000e+00 -2.198794e-10  5.500e-08
+	2023-06-29 18:49:57.361376 PHCV    - N -       -       -2.198794e-10  5.500e-08
+
+This patch series only adds special support for the Arm Generic Timer
+clocksource. At the driver side, it should be easy to support more
+clocksources.
+
+Fallback PTP clock interface
+----------------------------
+
+Without special support for the current clocksource, time synchronization
+programs can still use ioctl PTP_SYS_OFFSET_EXTENDED2 aka
+PTP_SYS_OFFSET_EXTENDED. In this case, precision will generally be worse
+and will depend on the Virtio device response characteristics.
+
+The following illustrates a test using PTP_SYS_OFFSET_EXTENDED, with
+interspersed strace log and chrony refclocks log, on x86-64 (with `ts'
+values omitted):
+
+	ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=10, ts=OMITTED}) = 0
+	===============================================================================
+	   Date (UTC) Time         Refid  DP L P  Raw offset   Cooked offset      Disp.
+	===============================================================================
+	2023-06-28 14:11:26.697782 PHCV    0 N 0  3.318200e-05  3.450891e-05  4.611e-06
+	2023-06-28 14:11:26.697782 PHCV    - N -       -        3.450891e-05  4.611e-06
+	ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=10, ts=OMITTED}) = 0
+	2023-06-28 14:11:27.208763 PHCV    0 N 0 -3.792800e-05 -4.023965e-05  4.611e-06
+	2023-06-28 14:11:27.208763 PHCV    - N -       -       -4.023965e-05  4.611e-06
+	ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=10, ts=OMITTED}) = 0
+	2023-06-28 14:11:27.722818 PHCV    0 N 0 -3.328600e-05 -3.134404e-05  4.611e-06
+	2023-06-28 14:11:27.722818 PHCV    - N -       -       -3.134404e-05  4.611e-06
+	ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=10, ts=OMITTED}) = 0
+	2023-06-28 14:11:28.233572 PHCV    0 N 0 -4.966900e-05 -4.584331e-05  4.611e-06
+	2023-06-28 14:11:28.233572 PHCV    - N -       -       -4.584331e-05  4.611e-06
+	ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=10, ts=OMITTED}) = 0
+	2023-06-28 14:11:28.742737 PHCV    0 N 0  4.902700e-05  5.361388e-05  4.611e-06
+	2023-06-28 14:11:28.742737 PHCV    - N -       -        5.361388e-05  4.611e-06
+
+PTP clock setup
+---------------
+
+The following udev rule can be used to get a symlink /dev/ptp_virtio to the
+UTC clock:
+
+	SUBSYSTEM=="ptp", ATTR{clock_name}=="Virtio PTP type 0, variant 0", SYMLINK += "ptp_virtio"
+
+The following chrony configuration directive can then be added in
+/etc/chrony/chrony.conf to synchronize to the Virtio UTC clock:
+
+	refclock PHC /dev/ptp_virtio refid PHCV poll -1 dpoll -1
+
+RTC interface
+=============
+
+This patch series adds virtio_rtc as a generic Virtio driver, including
+both a PTP clock driver and an RTC class driver.
+
+Feedback is greatly appreciated.
+
+[1] https://lore.kernel.org/virtio-comment/20250123101616.664-1-quic_philber@quicinc.com/
+[2] https://chrony.tuxfamily.org/
+[3] https://lore.kernel.org/lkml/20241219201118.2233-1-quic_philber@quicinc.com/
+
+Changelog
+=========
+
+v5:
+
+- Update to virtio-rtc spec v7, essentially removing definitions.
+
+- Fix multiple bugs after readying device during probe and restore.
+
+- Actually initialize Virtio clock id for RTC class device.
+
+- Add freeze/restore ops already in first patch.
+
+- Minor changes:
+
+  - Use new APIs devm_device_init_wakeup(), secs_to_jiffies().
+
+  - Fix style issues.
+
+  - Improve logging types and clarity.
+
+  - Drop unnecessary memory barrier pair.
+
+  - Return error status from device, whenever available.
+
+v4:
+
+- Update Virtio interface to spec v6.
+
+- Distinguish UTC-like clocks by handling of leap seconds (spec v6).
+
+- Do not create RTC class device for clocks which may step on leap seconds
+  (Alexandre Belloni).
+
+- Clear RTC class feature bit instead of defining reduced ops
+  (Alexandre Belloni).
+
+- For PTP clock name, always use numeric clock type, and numeric variant.
+
+- Use macros for 64-bit divisions.
+
+- Remove unnecessary memory barriers.
+
+- Cosmetic improvements.
+
+- Drop upstreamed timekeeping bugfixes from series.
+
+v3:
+
+- Update to conform to virtio spec RFC v3 (no significant behavioral
+  changes).
+
+- Add RTC class driver with alarm according to virtio spec RFC v3.
+
+- For cross-timestamp corner case fix, switch back to v1 style closed
+  interval test (Thomas Gleixner).
+
+v2:
+
+- Depend on patch series "treewide: Use clocksource id for
+  get_device_system_crosststamp()" to avoid requiring a clocksource pointer
+  with get_device_system_crosststamp().
+
+- Assume Arm Generic Timer will use CP15 virtual counter. Drop
+  arm_arch_timer helper functions (Marc Zyngier).
+
+- Improve cross-timestamp fixes problem description and implementation
+  (John Stultz).
 
 
+Peter Hilber (4):
+  virtio_rtc: Add module and driver core
+  virtio_rtc: Add PTP clocks
+  virtio_rtc: Add Arm Generic Timer cross-timestamping
+  virtio_rtc: Add RTC class driver
 
-On 2/19/2025 11:18 AM, Valentin Schneider wrote:
-> On 19/02/25 10:05, Joel Fernandes wrote:
->> On Fri, Jan 17, 2025 at 05:53:33PM +0100, Valentin Schneider wrote:
->>> On 17/01/25 16:52, Jann Horn wrote:
->>>> On Fri, Jan 17, 2025 at 4:25 PM Valentin Schneider <vschneid@redhat.com> wrote:
->>>>> On 14/01/25 19:16, Jann Horn wrote:
->>>>>> On Tue, Jan 14, 2025 at 6:51 PM Valentin Schneider <vschneid@redhat.com> wrote:
->>>>>>> vunmap()'s issued from housekeeping CPUs are a relatively common source of
->>>>>>> interference for isolated NOHZ_FULL CPUs, as they are hit by the
->>>>>>> flush_tlb_kernel_range() IPIs.
->>>>>>>
->>>>>>> Given that CPUs executing in userspace do not access data in the vmalloc
->>>>>>> range, these IPIs could be deferred until their next kernel entry.
->>>>>>>
->>>>>>> Deferral vs early entry danger zone
->>>>>>> ===================================
->>>>>>>
->>>>>>> This requires a guarantee that nothing in the vmalloc range can be vunmap'd
->>>>>>> and then accessed in early entry code.
->>>>>>
->>>>>> In other words, it needs a guarantee that no vmalloc allocations that
->>>>>> have been created in the vmalloc region while the CPU was idle can
->>>>>> then be accessed during early entry, right?
->>>>>
->>>>> I'm not sure if that would be a problem (not an mm expert, please do
->>>>> correct me) - looking at vmap_pages_range(), flush_cache_vmap() isn't
->>>>> deferred anyway.
->>>>
->>>> flush_cache_vmap() is about stuff like flushing data caches on
->>>> architectures with virtually indexed caches; that doesn't do TLB
->>>> maintenance. When you look for its definition on x86 or arm64, you'll
->>>> see that they use the generic implementation which is simply an empty
->>>> inline function.
->>>>
->>>>> So after vmapping something, I wouldn't expect isolated CPUs to have
->>>>> invalid TLB entries for the newly vmapped page.
->>>>>
->>>>> However, upon vunmap'ing something, the TLB flush is deferred, and thus
->>>>> stale TLB entries can and will remain on isolated CPUs, up until they
->>>>> execute the deferred flush themselves (IOW for the entire duration of the
->>>>> "danger zone").
->>>>>
->>>>> Does that make sense?
->>>>
->>>> The design idea wrt TLB flushes in the vmap code is that you don't do
->>>> TLB flushes when you unmap stuff or when you map stuff, because doing
->>>> TLB flushes across the entire system on every vmap/vunmap would be a
->>>> bit costly; instead you just do batched TLB flushes in between, in
->>>> __purge_vmap_area_lazy().
->>>>
->>>> In other words, the basic idea is that you can keep calling vmap() and
->>>> vunmap() a bunch of times without ever doing TLB flushes until you run
->>>> out of virtual memory in the vmap region; then you do one big TLB
->>>> flush, and afterwards you can reuse the free virtual address space for
->>>> new allocations again.
->>>>
->>>> So if you "defer" that batched TLB flush for CPUs that are not
->>>> currently running in the kernel, I think the consequence is that those
->>>> CPUs may end up with incoherent TLB state after a reallocation of the
->>>> virtual address space.
->>>>
->>>
->>> Ah, gotcha, thank you for laying this out! In which case yes, any vmalloc
->>> that occurred while an isolated CPU was NOHZ-FULL can be an issue if said
->>> CPU accesses it during early entry;
->>
->> So the issue is:
->>
->> CPU1: unmappes vmalloc page X which was previously mapped to physical page
->> P1.
->>
->> CPU2: does a whole bunch of vmalloc and vfree eventually crossing some lazy
->> threshold and sending out IPIs. It then goes ahead and does an allocation
->> that maps the same virtual page X to physical page P2.
->>
->> CPU3 is isolated and executes some early entry code before receving said IPIs
->> which are supposedly deferred by Valentin's patches.
->>
->> It does not receive the IPI becuase it is deferred, thus access by early
->> entry code to page X on this CPU results in a UAF access to P1.
->>
->> Is that the issue?
->>
-> 
-> Pretty much so yeah. That is, *if* there such a vmalloc'd address access in
-> early entry code - testing says it's not the case, but I haven't found a
-> way to instrumentally verify this.
-Ok, thanks for confirming. Maybe there is an address sanitizer way of verifying,
-but yeah it is subtle and there could be more than one way of solving it. Too
-much 'fun' ;)
+ MAINTAINERS                          |    7 +
+ drivers/virtio/Kconfig               |   64 ++
+ drivers/virtio/Makefile              |    5 +
+ drivers/virtio/virtio_rtc_arm.c      |   23 +
+ drivers/virtio/virtio_rtc_class.c    |  262 +++++
+ drivers/virtio/virtio_rtc_driver.c   | 1404 ++++++++++++++++++++++++++
+ drivers/virtio/virtio_rtc_internal.h |  122 +++
+ drivers/virtio/virtio_rtc_ptp.c      |  347 +++++++
+ include/uapi/linux/virtio_rtc.h      |  237 +++++
+ 9 files changed, 2471 insertions(+)
+ create mode 100644 drivers/virtio/virtio_rtc_arm.c
+ create mode 100644 drivers/virtio/virtio_rtc_class.c
+ create mode 100644 drivers/virtio/virtio_rtc_driver.c
+ create mode 100644 drivers/virtio/virtio_rtc_internal.h
+ create mode 100644 drivers/virtio/virtio_rtc_ptp.c
+ create mode 100644 include/uapi/linux/virtio_rtc.h
 
- - Joel
 
+base-commit: 8936cec5cb6e27649b86fabf383d7ce4113bba49
+-- 
+2.43.0
 
