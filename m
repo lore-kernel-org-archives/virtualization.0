@@ -1,50 +1,50 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AD091F2C5F;
-	Wed, 19 Feb 2025 20:32:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 784A023026F;
+	Wed, 19 Feb 2025 20:40:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739997155; cv=none; b=t2xVbq02snHqsZBVBTnYMOv+LUZjlnE2IJruFlSwuwqnkPykpkNi456dyo4xfkDdogMuQSLbrt0mVSuiV0G1NGWJqIbDmewzNwPe4us5miNHYGvWdjUy0KehCoZRyEuFh/osMxPdQfjx7mimghYAC9Ta7M0TkCmKdMMpYecUImE=
+	t=1739997604; cv=none; b=oDq39fi8XY0vHtO3SULBwfyGW0Svs3PDCOAaXNijxdwUYn2PgLULZo4d8YUaDitZ1teO3F+5UHM1TpDpJoldEz/DX2iMjtjT9YNTcXz/grn59Y0h2s58Mz6ux3TyGOvC0GnA7BGwodKgthSSo/kxTxFjgZ7ayL2SdkwAuizgMec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739997155; c=relaxed/simple;
-	bh=Zm4WQFfWOxnGe6yT6xbnXs6NIEcXQhce3hpE1nVfn3Y=;
+	s=arc-20240116; t=1739997604; c=relaxed/simple;
+	bh=rGBY5/kHIeuhdpEEYieZrWPAQNW4N0YtoxIZnp1FjK4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XleMJEqez26MEdppcImy6VsO62j+7tMSjB0455/R1aCUH8StRuoA2a2Qfr6wNli4d/Gef9LbH+HMVjBj1gsQ10rGxIzxEoZRFaAoiAq7SHGSw2BYRRhpD2RK3ZkrEvrc18dFwo5NJiEEMfoR5J5c2Ogy1iMjO+siN7q/+8FsW2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jDBuEwwA; arc=none smtp.client-ip=198.175.65.21
+	 In-Reply-To:Content-Type; b=L1sXTD4qOvGXYIN5tTqU0sYb5siRcGfTa7vLp+wfVDYy7v0lEjgd5+b6LxBQcQaT7H3+0me1HfxzU3NbxdQD2l/mzr2y7bJ+wZHFWP0A+uOGAYB+Y3DiwptIRNjKbiW3yXN9ZavlXX5V2y3mSsXklIcgi6Rh6hiFrN0I/irlpCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VNc4ZqDs; arc=none smtp.client-ip=198.175.65.21
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jDBuEwwA"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VNc4ZqDs"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1739997154; x=1771533154;
+  t=1739997603; x=1771533603;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=Zm4WQFfWOxnGe6yT6xbnXs6NIEcXQhce3hpE1nVfn3Y=;
-  b=jDBuEwwAjpDimsWWl52+yKt4mBv6uclMgf1fz0gkDZFelpYN3Sd2WELj
-   Qlg89Jz8P6k6aezl6ScJsUebeCHk6PRe3j/1c5PRzl7cmsg8dczBDR64G
-   JqRt7AXUG8BqJ6sNr7zkIESshg+6lqtOZhqhxnh4+cGuSEpeusDoqfAIO
-   GAw9CN5SPM5mJ9KiZ1GsTccYnACBg70YjzPI+FXT6zxo0loQf/SR9WPa3
-   KEP5PMLUU8le5arAqYqvtRGQkvalYVwR/qzzsZWULgDHuDV3XtFVbtExb
-   BXo9OOshtJR3OuwgGDh/di6Z2iqnd/Uw0poIBVgfzDQ4dyM6uoaGPQwW0
-   A==;
-X-CSE-ConnectionGUID: uKJ3jv6lQnemho6Ew3sh3g==
-X-CSE-MsgGUID: O7RjOuxmRqqPUk/d2MeKPg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11350"; a="40673949"
+  bh=rGBY5/kHIeuhdpEEYieZrWPAQNW4N0YtoxIZnp1FjK4=;
+  b=VNc4ZqDs+j8gJZcfbuVPkpHjgCAqHNXgbQI5pYgNePXXd6LWL5jUZfwi
+   hRcQdn2/bZ32mnOnm2fESruGNIrKRqvZftV7EH61QE5XqafJkxYX4eD2a
+   5jU7ux6jctL9hReQFJKOuHcTGbcH77Qya/EznrfX8etkBwHBrFWv5DTM5
+   azOlGo+YXgA3tGHm6f3N1LMqgoTRv9047Uk41KLVsuCG2BHrdKFhMjNf0
+   LSkUFgNgLkbl3UBwGKxhhGIS7ccTRq+lmzV2iAfKvrS4dMnWknGUCEetc
+   FTno4yU/q2fdzaG2hoNt+VhU3WrfuxI/a3L3HHHQC1GnwKwT4pDS5PWC+
+   w==;
+X-CSE-ConnectionGUID: 7ovwil1ERfCgFnmJmzZLDA==
+X-CSE-MsgGUID: shDP6srER2yapJjMDWIFOQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11350"; a="40674617"
 X-IronPort-AV: E=Sophos;i="6.13,299,1732608000"; 
-   d="scan'208";a="40673949"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 12:32:33 -0800
-X-CSE-ConnectionGUID: AzBw8FYiRHWSsjqY9yxeAA==
-X-CSE-MsgGUID: 5DkJqu/uRduefdPohtMHYg==
+   d="scan'208";a="40674617"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 12:39:51 -0800
+X-CSE-ConnectionGUID: 1VVKYEVlQzG4elUNxLPUXQ==
+X-CSE-MsgGUID: FjaqY8lwThKK4eTJECY/QA==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,299,1732608000"; 
-   d="scan'208";a="114770563"
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="115305818"
 Received: from kinlongk-mobl1.amr.corp.intel.com (HELO [10.125.109.250]) ([10.125.109.250])
-  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 12:32:30 -0800
-Message-ID: <e03a8e82-af4c-40fb-bd91-f268206f1d93@intel.com>
-Date: Wed, 19 Feb 2025 12:32:30 -0800
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 12:25:48 -0800
+Message-ID: <eef09bdc-7546-462b-9ac0-661a44d2ceae@intel.com>
+Date: Wed, 19 Feb 2025 12:25:44 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -54,14 +54,12 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer
  flush_tlb_kernel_range() targeting NOHZ_FULL CPUs
-To: Joel Fernandes <joelagnelf@nvidia.com>,
- Valentin Schneider <vschneid@redhat.com>
-Cc: Jann Horn <jannh@google.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, virtualization@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
- xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, rcu@vger.kernel.org,
+To: Valentin Schneider <vschneid@redhat.com>, Jann Horn <jannh@google.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+ linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org,
+ kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org,
  linux-hardening@vger.kernel.org, linux-mm@kvack.org,
  linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
  bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>,
@@ -118,10 +116,13 @@ References: <20250114175143.81438-1-vschneid@redhat.com>
  <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
  <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
  <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
- <xhsmhzfjpfkky.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <20250219145302.GA480110@joelnvbox>
- <xhsmhecztj4c9.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <adcf012e-57ef-4b54-8b19-2273aca41ec6@nvidia.com>
+ <xhsmh5xlhk5p2.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <CAG48ez1EAATYcX520Nnw=P8XtUDSr5pe+qGH1YVNk3xN2LE05g@mail.gmail.com>
+ <xhsmh34gkk3ls.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <352317e3-c7dc-43b4-b4cb-9644489318d0@intel.com>
+ <xhsmhjz9mj2qo.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+ <d0450bc8-6585-49ca-9cad-49e65934bd5c@intel.com>
+ <xhsmhh64qhssj.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 From: Dave Hansen <dave.hansen@intel.com>
 Content-Language: en-US
 Autocrypt: addr=dave.hansen@intel.com; keydata=
@@ -167,25 +168,34 @@ Autocrypt: addr=dave.hansen@intel.com; keydata=
  MTsCeQDdjpgHsj+P2ZDeEKCbma4m6Ez/YWs4+zDm1X8uZDkZcfQlD9NldbKDJEXLIjYWo1PH
  hYepSffIWPyvBMBTW2W5FRjJ4vLRrJSUoEfJuPQ3vW9Y73foyo/qFoURHO48AinGPZ7PC7TF
  vUaNOTjKedrqHkaOcqB185ahG2had0xnFsDPlx5y
-In-Reply-To: <adcf012e-57ef-4b54-8b19-2273aca41ec6@nvidia.com>
+In-Reply-To: <xhsmhh64qhssj.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 2/19/25 09:08, Joel Fernandes wrote:
->> Pretty much so yeah. That is, *if* there such a vmalloc'd address access in
->> early entry code - testing says it's not the case, but I haven't found a
->> way to instrumentally verify this.
-> Ok, thanks for confirming. Maybe there is an address sanitizer way of verifying,
-> but yeah it is subtle and there could be more than one way of solving it. Too
-> much 'fun' 😉
-For debugging, you could just make a copy of part or all of the page
-tables and run the NOHZ_FULL tasks from those while they're in
-userspace. Then, instead of flushing the TLB in the deferred work, you
-switch over to the "real" page tables.
+On 2/19/25 07:13, Valentin Schneider wrote:
+>> Maybe I missed part of the discussion though. Is VMEMMAP your only
+>> concern? I would have guessed that the more generic vmalloc()
+>> functionality would be harder to pin down.
+> Urgh, that'll teach me to send emails that late - I did indeed mean the
+> vmalloc() range, not at all VMEMMAP. IIUC *neither* are present in the user
+> kPTI page table and AFAICT the page table swap is done before the actual vmap'd
+> stack (CONFIG_VMAP_STACK=y) gets used.
 
-That would _behave_ like a CPU with a big TLB and really old, crusty TLB
-entries from the last time the kernel ran.
+OK, so rewriting your question... ;)
 
-BTW, the other option for all of this is just to say that if you want
-IPI-free TLB flushing that you need to go buy some hardware with it as
-opposed to all of this complexity.
+> So what if the vmalloc() range *isn't* in the CR3 tree when a CPU is
+> executing in userspace?
+
+The LDT and maybe the PEBS buffers are the only implicit supervisor
+accesses to vmalloc()'d memory that I can think of. But those are both
+handled specially and shouldn't ever get zapped while in use. The LDT
+replacement has its own IPIs separate from TLB flushing.
+
+But I'm actually not all that worried about accesses while actually
+running userspace. It's that "danger zone" in the kernel between entry
+and when the TLB might have dangerous garbage in it.
+
+BTW, I hope this whole thing is turned off on 32-bit. There, we can
+actually take and handle faults on the vmalloc() area. If you get one of
+those faults in your "danger zone", it'll start running page fault code
+which will branch out to god-knows-where and certainly isn't noinstr.
