@@ -1,175 +1,157 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D282C1E9B1C
-	for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 07:58:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D7941E9B2A
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 08:13:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740038330; cv=none; b=DAfvgU53oi1OsyAVlg9DS2kNtDljKiv5iBrmbVa9++L3RlQPN4uCyx2UqxREdqrOJUl7g79FV3EY+20CI0TupgPYzAbgkPBVktgKvlC4aIKLjnOk+6hm+gprmvxz8XWjCN+fLC22n6jSQqZ5R65Gz6lcZUlanz9XnDrfnqyF+uA=
+	t=1740039222; cv=none; b=qovDCj32+aw/KKEilBuqsURSqojpuXBCRj1G3eTUeR/pC/bIR4a0MjCED8zQJpCv7U1IKkZMw03UCciVTkox6ZdlY8011PFIAUv55aA5ABHu3Rop8ubODLETbHB4Bxl8zxSRA4WoWwUjiqRTgMy6XgW7XMXKRXE2eLzjAE6pqfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740038330; c=relaxed/simple;
-	bh=PpJNYD2lhmYApKCUTFbnIB2Oz9xNpyPKhkXzhRQ1kRc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=q9hlfMy4R40ZrB6B8V9rVMxRh4Ov/CRexkvZQ+AAlnLK+y047ir1clwRAF7poRmQj7Z1TxJ+ZWaePN1FYUbQTxO7zNcRk5h6I32I1z62Pvh9BagLS6Ix2tk0I1np34P6jPgBT2zEzhUQ7a2ehfR+syCdimrHOk6subtHzGLmFVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XE6RBLog; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1740039222; c=relaxed/simple;
+	bh=NR1AzEHW3X4hTDfCdv4wws5y6bJ4IHoskvMdZyfEWxQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GvAGPEZDpgyd8NHUMWfzAoSyL+Bq5sp4YQj/QA8Y5FTzMeGcvOo/m4I7s8hc2I97yFR3L8sRAxXjXDBf7UbXUjWl5/dQfolWovafazCww8U7FP00HmuZowLvjKSZ0RYE6BxlCt/OV4tsR9eZcNkDw9csJcP0vgKWfRRX+3rsxAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VIWs7Mxt; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XE6RBLog"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 569F2413A5
-	for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 07:58:48 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id lbskd8r__LCi for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Feb 2025 07:58:47 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=pabeni@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 28677402D0
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 28677402D0
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XE6RBLog
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 28677402D0
-	for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 07:58:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740038325;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=PDyq9aCOU4k6/OxS5NyOrQ8zBZnEHt3wS9LzAF8nhU4=;
-	b=XE6RBLogwAGAyaC8nSRcY5sY+KefFsdVfwnpGsX7noVe4dR+ge2TtxbfHnuArbBfblVp4C
-	JcfL+0rIh7nOc/So4R/7gBjKHatV6U4el0kt6gC96qXCQF/OZVoP3vBoYOPSpUn5i9SoQl
-	Dy8lkEy5AeJ16HISm+MqI7Vc2dmI64A=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-635-sp-YYHp_P9qDy_muEFeA8Q-1; Thu, 20 Feb 2025 02:58:43 -0500
-X-MC-Unique: sp-YYHp_P9qDy_muEFeA8Q-1
-X-Mimecast-MFC-AGG-ID: sp-YYHp_P9qDy_muEFeA8Q_1740038322
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4393b6763a3so2541245e9.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 19 Feb 2025 23:58:42 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VIWs7Mxt"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-220c92c857aso11511785ad.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 00:13:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1740039220; x=1740644020; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Hz/pGvR+evldl5mhlvuI0J68W2mI9FP4/s36oM1FYLQ=;
+        b=VIWs7MxtJtaBviMN79tVmNJ1c0csWLHPp85DKZydDcWtsI2DgDsLmNdu95m+aWtfgB
+         pEOWiHw4guuRkHNCEsz0JHnqBasXYB5nnyMPJaOTPskGqGdnNV35SBd3/TXVpPlVwTGS
+         7au/5PGD1izDSf+Ds1odYZXtLSKK9f+V7tv0pqJP+NIVTSSvmHSIzJjreVHzpEL405WK
+         Pg8gF7P9SJiCHk5dvPQv988zTj9jtxg9f9GmGHtQLZTS3wxpaKUozHsOGY9ucJCwG/QE
+         T6qQOOFO9+vgUpH3V13Gt802uYUM5NYQE8T9htZvlIfOYoEOUc2CDHA0d4drs7pGziYM
+         WMgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740038322; x=1740643122;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PDyq9aCOU4k6/OxS5NyOrQ8zBZnEHt3wS9LzAF8nhU4=;
-        b=GnT8OFTtbRWB/OXMt6UOHjL5uUz7UMMrPq3TrJHesR0DmHt7YU5qUoVCaIXhb4PWbx
-         jhSG7YY0Z8ukVTPJKFx90LYt4vCivdCftb5SeaqmGQ5/EHNQLBzPd87WBrkEmDIWpA3Z
-         hbGfVGKvYnPKmwB49ovTesMcRYVaqk11D4Tl05g4XJHfbEwHNZsLtEhz3o7UyP/BS14j
-         q69IcTMm2DVHZSvIUJ9ZKX59xsnyxZJbNafhIeep7+rRCUjtBlqhiuNIJ8dRDeI2vXDs
-         NVIBhcY1EHLdgGS/5Q28x0Izmu86iCF6kqd3+GdV/eAi5T4FDY7LV4fLq5nON9dzHj0S
-         YDBg==
-X-Forwarded-Encrypted: i=1; AJvYcCUpE9MtenFn9JXYMHisLKWwUFHA1rE9XrgQT7dAHjKupVxtlWoxooZaCF2KnSo9+G2lpF6UxD2cbrMZUMOyEw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwT4uCsexXVARcqaaATzm8jKvFjQLvKSGEtBS9bfPS7Muw5mBoW
-	Lf/pN1tN3D7xSCJjZ6ZZbi8ny806/lFVjrBb57BofTF933RKQgiafqDCkq6SiYR5khZmBPh5cAL
-	MrMK1GOfvDiv5j0ftEeYhsjLBkn5RpUSELLaEDJJLuvB6b3hROu0hQDIkiD8MFID27cDT0uJE5j
-	t2VKs=
-X-Gm-Gg: ASbGncvqWSjPbOLJjNBmR8yTOLxc8Kh6tg2tko/WY4L7iq7bc+dgbRZwdQTSoNWavAN
-	z6O4TFzVIpR3862PmwZNt5mXuG7bDuYcBALszt5FgbxEqozkYQlUIehjL9vtg3KHKH5EloDM36i
-	eOyFbhWiPxLGRYzOQ0Tflf14UfNqFr2uVLaC3+nUCD7VupOHTmlkPtdCCOcUW5vuVr9vCS8xNTO
-	X88y1smqRFLJwtUuJXy5yDS10m8TIMIXXaKfBSkX0H7ksuWUU0qbboNqvDtzWaY5AZ345fK8b0F
-	gODAy1fgJ3rXUoiSXo1yATlbcr+jerXOpvI=
-X-Received: by 2002:a05:600c:1e89:b0:439:9828:c447 with SMTP id 5b1f17b1804b1-439a7b81c85mr5230785e9.17.1740038321784;
-        Wed, 19 Feb 2025 23:58:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFMZ/J4mT4eh+w4zVIHYL3J2TeyMMFBaqTsZEuN7XJULLXJfI3m9ZBVAO4oeESyI4i7d0LvUQ==
-X-Received: by 2002:a05:600c:1e89:b0:439:9828:c447 with SMTP id 5b1f17b1804b1-439a7b81c85mr5230655e9.17.1740038321375;
-        Wed, 19 Feb 2025 23:58:41 -0800 (PST)
-Received: from [192.168.88.253] (146-241-89-107.dyn.eolo.it. [146.241.89.107])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4395a1aa7bcsm232584425e9.28.2025.02.19.23.58.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Feb 2025 23:58:40 -0800 (PST)
-Message-ID: <d4b7f8a0-db50-4b48-b5a3-f60eab76e96b@redhat.com>
-Date: Thu, 20 Feb 2025 08:58:38 +0100
+        d=1e100.net; s=20230601; t=1740039220; x=1740644020;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Hz/pGvR+evldl5mhlvuI0J68W2mI9FP4/s36oM1FYLQ=;
+        b=BTPiOLUVy65QFL8yWzTceJnkFxDkzAv1xQX2P6pU2f0X61LWMfG+/Q9Pj2sPvgTS0u
+         RSOl5cYZXl/n0Vn8mLg6oYEZtOblBTGgiaaw5xZWjQ+8KeHZWNDFMRAl6mjOEWpgi9kd
+         ettN29mNJC0n6cRMrCB8pfcVsQegjArZ+kZqE/y7y1HBlrhPcRwrqb6bBJEDjdb+GDvE
+         qlGllcAkVd8l6/eR5HPBY7C7dEFMMDdkiSeYUkQVfXvdWmX+KEG1+Wv8Qehdp9SOxGbQ
+         Uhv565el2QI4i+iYtNppwZSA0FGZ4cHon6gJMzw7QMJ0LNM8eaCUcE5RrodMzwXvhccv
+         2lsA==
+X-Forwarded-Encrypted: i=1; AJvYcCVVRdyAREt3W9KFrOzw7+Fd5ZqKE29JNn536QN166AHKZYTjrWAKilCyzJhcvTZyuQRntRVnOF/e+KJyuGVQg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx29NdpscASyNSP0PhvPgc78cuCPNtE3Hzcr1zaHoRZcPMqFlBd
+	5tqYcTt7N8wchGxYMNHBEsKwUx3vYRI1FrNfqzRejSmWe0ucolgJMzKRnA==
+X-Gm-Gg: ASbGncvEj2rEQ7O+6dQR4S4d5jup8DF5UcFl+OLtWkfjAS70ph6cI3NeCdsctSuH5M5
+	5JbPn7cxOwZSX+mgXalkeVUM0CHlcEGqy++oAsESUGCKh+yRuw351B+vGJq+Wjo5HUf2bCb5lfC
+	qxLmCxcvBek/TnB74bKaeJ61Sq5ZBA6p6poNVpM3oo3d/7f+mXvu/EW8taza8DP5KciQ7yPzsm8
+	H7trqA7U+ztUkPQOY2Q9jAgQJBSUIxhRzb/pvy3Mjwh9qUYC8qUEn0f0SndUgu7aO+y8456SBDu
+	KnqGmMCbvg1akPc=
+X-Google-Smtp-Source: AGHT+IF3zZoqfKWUfFNv+FPNQ0UuIwZSkcWXCgHzMPO8Q84I63xMG6/s+7OLxm4EjnPNFrOg1ROUQQ==
+X-Received: by 2002:a17:903:40cc:b0:215:58be:3349 with SMTP id d9443c01a7336-2218c41f67dmr48108495ad.14.1740039219629;
+        Thu, 20 Feb 2025 00:13:39 -0800 (PST)
+Received: from archie.me ([103.124.138.155])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-220d5349634sm114661275ad.31.2025.02.20.00.13.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Feb 2025 00:13:38 -0800 (PST)
+Received: by archie.me (Postfix, from userid 1000)
+	id C04B84208FB6; Thu, 20 Feb 2025 15:13:35 +0700 (WIB)
+Date: Thu, 20 Feb 2025 15:13:35 +0700
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+To: Mina Almasry <almasrymina@google.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	linux-kselftest@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Donald Hunter <donald.hunter@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Jeroen de Borst <jeroendb@google.com>,
+	Praveen Kaligineedi <pkaligineedi@google.com>,
+	Shailend Chand <shailend@google.com>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Willem de Bruijn <willemb@google.com>,
+	David Ahern <dsahern@kernel.org>,
+	Neal Cardwell <ncardwell@google.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
+	asml.silence@gmail.com, dw@davidwei.uk,
+	Jamal Hadi Salim <jhs@mojatatu.com>,
+	Victor Nogueira <victor@mojatatu.com>,
+	Pedro Tammela <pctammela@mojatatu.com>,
+	Samiullah Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v4 5/9] net: add devmem TCP TX documentation
+Message-ID: <Z7bkL7uuy8prxfTe@archie.me>
+References: <20250220020914.895431-1-almasrymina@google.com>
+ <20250220020914.895431-6-almasrymina@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2] tun: Pad virtio headers
-To: Akihiko Odaki <akihiko.odaki@daynix.com>, Jonathan Corbet
- <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Andrew Melnychenko <andrew@daynix.com>,
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
- devel@daynix.com
-References: <20250215-buffers-v2-1-1fbc6aaf8ad6@daynix.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250215-buffers-v2-1-1fbc6aaf8ad6@daynix.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: oVb53mm1MUZh8c2pCM55TAPEMia_qJ9vj50V5SuNuOs_1740038322
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="j3ck8zPX3Nllt0fQ"
+Content-Disposition: inline
+In-Reply-To: <20250220020914.895431-6-almasrymina@google.com>
 
-Hi,
 
-On 2/15/25 7:04 AM, Akihiko Odaki wrote:
-> tun simply advances iov_iter when it needs to pad virtio header,
-> which leaves the garbage in the buffer as is. This will become
-> especially problematic when tun starts to allow enabling the hash
-> reporting feature; even if the feature is enabled, the packet may lack a
-> hash value and may contain a hole in the virtio header because the
-> packet arrived before the feature gets enabled or does not contain the
-> header fields to be hashed. If the hole is not filled with zero, it is
-> impossible to tell if the packet lacks a hash value.
+--j3ck8zPX3Nllt0fQ
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Should virtio starting sending packets only after feature negotiation?
-In other words, can the above happen without another bug somewhere else?
+On Thu, Feb 20, 2025 at 02:09:10AM +0000, Mina Almasry wrote:
+> +The user application must use MSG_ZEROCOPY flag when sending devmem TCP.=
+ Devmem
+> +cannot be copied by the kernel, so the semantics of the devmem TX are si=
+milar
+> +to the semantics of MSG_ZEROCOPY.
+> +
+> +	setsockopt(socket_fd, SOL_SOCKET, SO_ZEROCOPY, &opt, sizeof(opt));
+> +
+> +It is also recommended that the user binds the TX socket to the same int=
+erface
+> +the dma-buf has been bound to via SO_BINDTODEVICE.
+> +
+> +	setsockopt(socket_fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen(ifnam=
+e) + 1);
+> +
 
-I guess the following question is mostly for Jason and Michael: could be
-possible (/would it make any sense) to use a virtio_net_hdr `flags` bit
-to explicitly signal the hash fields presence? i.e. making the actual
-virtio_net_hdr size 'dynamic'.
+Wrap both setsockopts above in literal code-block (just like other snippets
+for consistency).
 
-> In theory, a user of tun can fill the buffer with zero before calling
-> read() to avoid such a problem, but leaving the garbage in the buffer is
-> awkward anyway so replace advancing the iterator with writing zeros.
-> 
-> A user might have initialized the buffer to some non-zero value,
-> expecting tun to skip writing it. As this was never a documented
-> feature, this seems unlikely.
-> 
-> The overhead of filling the hole in the header is negligible when the
-> header size is specified according to the specification as doing so will
-> not make another cache line dirty under a reasonable assumption. Below
-> is a proof of this statement:
-> 
-> The first 10 bytes of the header is always written and tun also writes
-> the packet itself immediately after the 
-> packet unless the packet is
+> +The user should create a msghdr where,
+> +
+> +iov_base is set to the offset into the dmabuf to start sending from.
+> +iov_len is set to the number of bytes to be sent from the dmabuf.
 
- ^^^^^ this possibly should be 'virtio header'. Otherwise the sentence
-is hard to follow for me.
+Should above be bullet list?
 
-> empty. This makes a hole between these writes whose size is: sz - 10
-> where sz is the specified header size.
-> 
-> Therefore, we will never make another cache line dirty when:
-> sz < L1_CACHE_BYTES + 10
-> where L1_CACHE_BYTES is the cache line size. Assuming
-> L1_CACHE_BYTES >= 16, this inequation holds when: sz < 26.
-> 
-> sz <= 20 according to the current specification so we even have a
-> margin of 5 bytes in case that the header size grows in a future version
-> of the specification.
+Thanks.
 
-FTR, the upcoming GSO over UDP tunnel support will add other 4 bytes to
-the header. but that will still fit the given boundary.
+--=20
+An old man doll... just what I always wanted! - Clara
 
-/P
+--j3ck8zPX3Nllt0fQ
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZ7bkKQAKCRD2uYlJVVFO
+o2s0AQCqEcmu39fAQOLMTwOYkn6NbqUyjT/e6q34LK5lpFeB7gEAw4iw+0dFGzFm
+S+/rpVCO8Pfw8Mt4Xg/RDLmSlwuOhgs=
+=QlMN
+-----END PGP SIGNATURE-----
+
+--j3ck8zPX3Nllt0fQ--
