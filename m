@@ -1,210 +1,205 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3D4E1FF1B3;
-	Thu, 20 Feb 2025 17:38:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A1E51DE8A8
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 19:09:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740073126; cv=none; b=ju/VjpgINs0xX7gtuFqiQlLwhjKrUU7soeobDGrsRw9aJrc3xArOXOLdNkjl3tEELK6Q/HykMfXyw3wdsTpeUeCXwgCEucKwDEVUOxkHo75KRnBcuQreQj0rqHfUqg2E2pWn8lGWy1eiC0NWb9y87DkrMAYdHJM6Wko1rKL4B2Y=
+	t=1740078602; cv=none; b=Deb7yua4D5Av8CwEAoVBCHsLS33ish8NcT7r+mktAUfvs1lj1GaXfh9ya/vsWAZDF3z550nQrT1v1EuC1+ZdxJQiJq8xeyILwzxejpoXdPiap2crF4ut6KlqW+io+IRMgW0YyqAsj6Rov+7bsHSKJWOc4KqfWVBEj3QMlwl0wCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740073126; c=relaxed/simple;
-	bh=h8NKvwjpysRTbl1wf+xhpS9HjAsxrObYQPAQ0+Zk+cQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WESf3rfzvaa+4p2dKrR/o2NdnXp+2jNBQv0GckFYIvQtzytDP6AmCOqQihuAWKJL7vHGQal68U1OYD8Pz6kjhQ5E0EheLgVQsEDqFjolG2KbA/Bl2GDSHUfTmSVOJUJHI3jEiFgNjq+8Rms0VTKmH90ARkVbar4vvZqK2vRFQyc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Qtu12ke8; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1740078602; c=relaxed/simple;
+	bh=mpA/MrEeSlFfQy/SUQZrdZ86KKOSDip+BWmaXv9pjDs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Pm4Cw+SJFnZCWXQN3W/uWFebCKgb4ToQwyUwiqcCoXR3ck0AWovgnW8lkib71TyF7bg2d0TLK8sjwXNGGkmx0QkczSSTm1vGr69LhQUZ7lfltZ9t7G9G22LYM+jJnq0/PqKtDtJh5K9qwGo0r45XWoHZ2wJcQ2pN+xmjCHUNC7c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QYPCL3YR; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Qtu12ke8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740073125; x=1771609125;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=h8NKvwjpysRTbl1wf+xhpS9HjAsxrObYQPAQ0+Zk+cQ=;
-  b=Qtu12ke8lqWUTlRyhD+j/bHk8jmzFTZbCcTC1aw+UFkf0Ri9GwsfzOH/
-   KEygZZJU2fSgGyr/l9EZgpSEfCwKxoab3wctUZGRPmCXuTXNfjEUJvtiO
-   HEC5V0rwZHy+08+JAe9pZDRcQHKC5QFRX4DYhViixUK5TD9hfropfBdRE
-   wemaEPk/GZzlXc2xUk6LJgHcDqGSt0GPXwwLnXeDg8VZGbbIZgLQp+vBZ
-   eRlaAqhWnUwLH8dKH+aSkfvYFxI1I5sErym+xl1thNJJOUwzIm1O4s4tG
-   SjUeG+ojJdIbjpV5S5c7aK8McP9Ein6gIrbmBa4vy7irKxO2/KAaDJqeP
-   g==;
-X-CSE-ConnectionGUID: 42dzHmb4SCqgx9K1XXI4BQ==
-X-CSE-MsgGUID: 7+hma58ETfSxLJ0yyFK98g==
-X-IronPort-AV: E=McAfee;i="6700,10204,11351"; a="40789700"
-X-IronPort-AV: E=Sophos;i="6.13,302,1732608000"; 
-   d="scan'208";a="40789700"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 09:38:43 -0800
-X-CSE-ConnectionGUID: 2FkR9i9lRM+HImYsnGvcUw==
-X-CSE-MsgGUID: a8l0c6TSTG6oJVnuvZESCg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,302,1732608000"; 
-   d="scan'208";a="115637960"
-Received: from puneetse-mobl.amr.corp.intel.com (HELO [10.125.110.82]) ([10.125.110.82])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 09:38:39 -0800
-Message-ID: <408ebd8b-4bfb-4c4f-b118-7fe853c6e897@intel.com>
-Date: Thu, 20 Feb 2025 09:38:39 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QYPCL3YR"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2fc1f410186so4290635a91.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 11:09:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1740078599; x=1740683399; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=rQV/ZoI7XcCPA75+erkDe6R94FlXLvLV8fokf9ogYZQ=;
+        b=QYPCL3YRIemQ+YXhgD/bZ2Fvsuyi8IQH54D3RPCE4NADXHrodbA6bHYeL+RjK8qOvX
+         gu1Jb0RsITovEfPu0jAeXWQoICCn9dEbDa8W0VF2aZdTuJVuz55xLtsMsX0/HetDI4CX
+         rUyfitA+Q57Je15p3e8fZyUqBngIY8qZMwWF0YflNewnXqDp4lq2kGOfvmCsHZjGRtwY
+         NsWejO7WpigU3tQ2Z4Glq9/rCTSRMKaww9RfcnWOIfefm4LhCF63Rx4j0tAi9Y5YLFyF
+         a9TrvzDRGzEg1UiOUdJQe97rpWtMZzpFBRR8q3VaVAs4mPJeSX0VJIauSSc7b2LgaBR7
+         jHkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740078599; x=1740683399;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rQV/ZoI7XcCPA75+erkDe6R94FlXLvLV8fokf9ogYZQ=;
+        b=lewGF4HB5fDjl3C1QM9iHqZPoAmrlwMYkQGzyV+smzUbWFwbfpL6xBb0DfNisaz/yX
+         bz162r5qtN+lJdLDGpOmHaxmxL5e599TeHP6YrsyEf0GUCw49wooHTTVso6Kv2Qyjj5w
+         XpKYrKOlVwOrRslhWHYEpcUWhmAxDnCohE0Za5Mzs8fCIHrGHq8vzNuIzirKOQ9dBf2L
+         hB2SpnmaDHkPhFbQ3rMB4Kf8pCltUCg9zJAWD8V8nR+kCgsr92NQBRzvF50bj7xnfC/J
+         dMXpxKxn+fDkUaF2ftHamUBELlgxHbKY7/3t/5HNTe/Psx33XGT9nT0GkDENEBNpj2Ea
+         O9Jg==
+X-Forwarded-Encrypted: i=1; AJvYcCWGhDbTDiUcsGdUJq7InVFQvymPrFMmCIByxTSZEnT77wSRkbmmhwwL+VKYDzQGk/zCQLE7PKk99Zko2xNnSQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywx+fgwZ6VBzNEyk7QX69Ymz1dY6yIjAa/RLgtkMJ/ay+R3tBGx
+	m7LlI3eA/zqWcbW+IzLJbUWMGw9o6PUDaMeb9F1o6Nt4DSRDKWU=
+X-Gm-Gg: ASbGncvsjS4FjIN/5wHNfod67FVTGZWw8rPBzsF1mYQ0ZhnX8QQ27ODFhmO1VdsMYGr
+	Yzse8At+ZM5ynDkgvlJBx3baKQVLvNalqidT0QcYijV2j0FfQwcZNbmOQR9WVCAEVW5eLHYxc/+
+	jzbI5Ken0tfXOyEtENdcKd9C883It1tSGRf337HM1oMgPuA7qjuAXcYNjtBczDU9wQ94RdVYghh
+	75zQcAACTWPTi7SAdbqWS/aFJy+DuDbJdvIrPBa0iRImFo/G7aqS3mqHp19HXbxJXXPNsSB3QyA
+	7+eIFVSM+jnKfyE=
+X-Google-Smtp-Source: AGHT+IEvQXeZzfRjz714HfRbuoChSJiph3o3vx35z1y6/TWaF62kBH0YqfkLwI1WQdwkSFnjKYBxnA==
+X-Received: by 2002:a05:6a00:8a17:b0:732:6a48:22f6 with SMTP id d2e1a72fcca58-7341410bb54mr6308200b3a.9.1740078597790;
+        Thu, 20 Feb 2025 11:09:57 -0800 (PST)
+Received: from localhost ([2601:646:9e00:f56e:123b:cea3:439a:b3e3])
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-7326b5ef448sm10144080b3a.173.2025.02.20.11.09.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Feb 2025 11:09:57 -0800 (PST)
+Date: Thu, 20 Feb 2025 11:09:55 -0800
+From: Stanislav Fomichev <stfomichev@gmail.com>
+To: Mina Almasry <almasrymina@google.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Donald Hunter <donald.hunter@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Jeroen de Borst <jeroendb@google.com>,
+	Praveen Kaligineedi <pkaligineedi@google.com>,
+	Shailend Chand <shailend@google.com>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Willem de Bruijn <willemb@google.com>,
+	David Ahern <dsahern@kernel.org>,
+	Neal Cardwell <ncardwell@google.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
+	asml.silence@gmail.com, dw@davidwei.uk,
+	Jamal Hadi Salim <jhs@mojatatu.com>,
+	Victor Nogueira <victor@mojatatu.com>,
+	Pedro Tammela <pctammela@mojatatu.com>,
+	Samiullah Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v4 9/9] selftests: ncdevmem: Implement devmem
+ TCP TX
+Message-ID: <Z7d-A7yhzH1t8D_3@mini-arch>
+References: <20250220020914.895431-1-almasrymina@google.com>
+ <20250220020914.895431-10-almasrymina@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer
- flush_tlb_kernel_range() targeting NOHZ_FULL CPUs
-To: Valentin Schneider <vschneid@redhat.com>, Jann Horn <jannh@google.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
- linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org,
- kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-mm@kvack.org,
- linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
- bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.amakhalov@broadcom.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>,
- "Liang, Kan" <kan.liang@linux.intel.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Josh Poimboeuf <jpoimboe@kernel.org>,
- Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
- Sean Christopherson <seanjc@google.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Andy Lutomirski <luto@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, Frederic Weisbecker <frederic@kernel.org>,
- "Paul E. McKenney" <paulmck@kernel.org>, Jason Baron <jbaron@akamai.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ard Biesheuvel <ardb@kernel.org>,
- Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
- Joel Fernandes <joel@joelfernandes.org>,
- Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
- Uladzislau Rezki <urezki@gmail.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Lai Jiangshan <jiangshanlai@gmail.com>, Zqiang <qiang.zhang1211@gmail.com>,
- Juri Lelli <juri.lelli@redhat.com>, Clark Williams <williams@redhat.com>,
- Yair Podemsky <ypodemsk@redhat.com>, Tomas Glozar <tglozar@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall
- <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
- Kees Cook <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- Christoph Hellwig <hch@infradead.org>, Shuah Khan <shuah@kernel.org>,
- Sami Tolvanen <samitolvanen@google.com>, Miguel Ojeda <ojeda@kernel.org>,
- Alice Ryhl <aliceryhl@google.com>,
- "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
- Samuel Holland <samuel.holland@sifive.com>, Rong Xu <xur@google.com>,
- Nicolas Saenz Julienne <nsaenzju@redhat.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Yosry Ahmed <yosryahmed@google.com>,
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
- "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
- Jinghao Jia <jinghao7@illinois.edu>, Luis Chamberlain <mcgrof@kernel.org>,
- Randy Dunlap <rdunlap@infradead.org>, Tiezhu Yang <yangtiezhu@loongson.cn>
-References: <20250114175143.81438-1-vschneid@redhat.com>
- <20250114175143.81438-30-vschneid@redhat.com>
- <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
- <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
- <xhsmh5xlhk5p2.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <CAG48ez1EAATYcX520Nnw=P8XtUDSr5pe+qGH1YVNk3xN2LE05g@mail.gmail.com>
- <xhsmh34gkk3ls.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <352317e3-c7dc-43b4-b4cb-9644489318d0@intel.com>
- <xhsmhjz9mj2qo.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <d0450bc8-6585-49ca-9cad-49e65934bd5c@intel.com>
- <xhsmhh64qhssj.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <eef09bdc-7546-462b-9ac0-661a44d2ceae@intel.com>
- <xhsmhfrk84k5k.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <xhsmhfrk84k5k.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250220020914.895431-10-almasrymina@google.com>
 
-On 2/20/25 09:10, Valentin Schneider wrote:
->> The LDT and maybe the PEBS buffers are the only implicit supervisor
->> accesses to vmalloc()'d memory that I can think of. But those are both
->> handled specially and shouldn't ever get zapped while in use. The LDT
->> replacement has its own IPIs separate from TLB flushing.
->>
->> But I'm actually not all that worried about accesses while actually
->> running userspace. It's that "danger zone" in the kernel between entry
->> and when the TLB might have dangerous garbage in it.
->>
-> So say we have kPTI, thus no vmalloc() mapped in CR3 when running
-> userspace, and do a full TLB flush right before switching to userspace -
-> could the TLB still end up with vmalloc()-range-related entries when we're
-> back in the kernel and going through the danger zone?
+On 02/20, Mina Almasry wrote:
+> Add support for devmem TX in ncdevmem.
+> 
+> This is a combination of the ncdevmem from the devmem TCP series RFCv1
+> which included the TX path, and work by Stan to include the netlink API
+> and refactored on top of his generic memory_provider support.
+> 
+> Signed-off-by: Mina Almasry <almasrymina@google.com>
+> Signed-off-by: Stanislav Fomichev <sdf@fomichev.me>
+> 
+> ---
+> 
+> v4:
+> - Add TX test to devmem.py (Paolo).
+> 
+> v3:
+> - Update ncdevmem docs to run validation with RX-only and RX-with-TX.
+> - Fix build warnings (Stan).
+> - Make the validation expect new lines in the pattern so we can have the
+>   TX path behave like netcat (Stan).
+> - Change ret to errno in error() calls (Stan).
+> - Handle the case where client_ip is not provided (Stan).
+> - Don't assume mid is <= 2000 (Stan).
+> 
+> v2:
+> - make errors a static variable so that we catch instances where there
+>   are less than 20 errors across different buffers.
+> - Fix the issue where the seed is reset to 0 instead of its starting
+>   value 1.
+> - Use 1000ULL instead of 1000 to guard against overflow (Willem).
+> - Do not set POLLERR (Willem).
+> - Update the test to use the new interface where iov_base is the
+>   dmabuf_offset.
+> - Update the test to send 2 iov instead of 1, so we get some test
+>   coverage over sending multiple iovs at once.
+> - Print the ifindex the test is using, useful for debugging issues where
+>   maybe the test may fail because the ifindex of the socket is different
+>   from the dmabuf binding.
+> 
+> ---
+>  .../selftests/drivers/net/hw/devmem.py        |  28 +-
+>  .../selftests/drivers/net/hw/ncdevmem.c       | 300 +++++++++++++++++-
+>  2 files changed, 312 insertions(+), 16 deletions(-)
+> 
+> diff --git a/tools/testing/selftests/drivers/net/hw/devmem.py b/tools/testing/selftests/drivers/net/hw/devmem.py
+> index 1223f0f5c10c..3d4f7fc5e63f 100755
+> --- a/tools/testing/selftests/drivers/net/hw/devmem.py
+> +++ b/tools/testing/selftests/drivers/net/hw/devmem.py
+> @@ -1,6 +1,7 @@
+>  #!/usr/bin/env python3
+>  # SPDX-License-Identifier: GPL-2.0
+>  
+> +from os import path
+>  from lib.py import ksft_run, ksft_exit
+>  from lib.py import ksft_eq, KsftSkipEx
+>  from lib.py import NetDrvEpEnv
+> @@ -10,8 +11,7 @@ from lib.py import ksft_disruptive
+>  
+>  def require_devmem(cfg):
+>      if not hasattr(cfg, "_devmem_probed"):
+> -        port = rand_port()
+> -        probe_command = f"./ncdevmem -f {cfg.ifname}"
+> +        probe_command = f"{cfg.bin_local} -f {cfg.ifname}"
+>          cfg._devmem_supported = cmd(probe_command, fail=False, shell=True).ret == 0
+>          cfg._devmem_probed = True
+>  
+> @@ -25,18 +25,36 @@ def check_rx(cfg) -> None:
+>      require_devmem(cfg)
+>  
+>      port = rand_port()
+> -    listen_cmd = f"./ncdevmem -l -f {cfg.ifname} -s {cfg.v6} -p {port}"
+> +    listen_cmd = f"{cfg.bin_local} -l -f {cfg.ifname} -s {cfg.v6} -p {port}"
 
-Yes, because the danger zone includes the switch back to the kernel CR3
-with vmalloc() fully mapped. All bets are off about what's in the TLB
-the moment that CR3 write occurs.
+Commit de94e8697405 ("selftests: drv-net: store addresses in dict indexed by
+ipver") just went it, so v6 needs to be addr_v['6'] and remote_v6 needs
+to be remote_addr_v['6'].
 
-Actually, you could probably use that.
+>  
+>      with bkg(listen_cmd) as socat:
+>          wait_port_listen(port)
+> -        cmd(f"echo -e \"hello\\nworld\"| socat -u - TCP6:[{cfg.v6}]:{port}", host=cfg.remote, shell=True)
+> +        cmd(f"echo -e \"hello\\nworld\"| socat -u - TCP6:{cfg.v6}:{port},bind={cfg.remote_v6}:{port}", host=cfg.remote, shell=True)
+> +
 
-If a mapping is in the PTI user page table, you can't defer the flushes
-for it. Basically the same rule for text poking in the danger zone.
+[..]
 
-If there's a deferred flush pending, make sure that all of the
-SWITCH_TO_KERNEL_CR3's fully flush the TLB. You'd need something similar
-to user_pcid_flush_mask.
+> +    ksft_eq(ncdevmem.stdout.strip(), "hello\nworld")
 
-But, honestly, I'm still not sure this is worth all the trouble. If
-folks want to avoid IPIs for TLB flushes, there are hardware features
-that *DO* that. Just get new hardware instead of adding this complicated
-pile of software that we have to maintain forever. In 10 years, we'll
-still have this software *and* 95% of our hardware has the hardware
-feature too.
+s/ncdevmem/socat/ (or rename socat in the with block above)
+
+> +@ksft_disruptive
+> +def check_tx(cfg) -> None:
+
+[..]
+
+> +    cfg.require_v6()
+
+This is also now require_ipver("6") I think..
+
+Gonna try to run the selftest and see if anything else pops up...
