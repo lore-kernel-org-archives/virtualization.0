@@ -1,117 +1,175 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D558D1CDA0B;
-	Thu, 20 Feb 2025 03:44:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D282C1E9B1C
+	for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 07:58:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740023092; cv=none; b=ipt1CLGQeqmwr6VspisC8FBgAF9OTfk9jLgMPlbMsCjI2gAazuxKbcI37n5PfYO20FBQq6nFLdNmsfb5By2HvqkVcsLuSGnB07LUlzkoo8jH9sykoqySR8/YTsXttk751XDF9/dD/zl7Md/C/sOEeMbGdrKKOVpASZSSlhwPGDY=
+	t=1740038330; cv=none; b=DAfvgU53oi1OsyAVlg9DS2kNtDljKiv5iBrmbVa9++L3RlQPN4uCyx2UqxREdqrOJUl7g79FV3EY+20CI0TupgPYzAbgkPBVktgKvlC4aIKLjnOk+6hm+gprmvxz8XWjCN+fLC22n6jSQqZ5R65Gz6lcZUlanz9XnDrfnqyF+uA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740023092; c=relaxed/simple;
-	bh=t1f78zJ3zL/tABySKpou1GNLxAEfIHw4nDPssypqD5k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QVg20wQibdYxxVuQFbO3fSxWnMp92vUYOB60TqmaQBOaa73+vHwADJCwgm7qyr+183pPUEN2aBds9NBe0YZGAfD2uYY/Jw6uxNVy2POUVyoElHpsJIkB/Si2+gR6c6BoezMGjyOXME7+zUmJGO9Kt51+iAvoa1m+jKAarSr4YNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=ptqCmpz1; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1740038330; c=relaxed/simple;
+	bh=PpJNYD2lhmYApKCUTFbnIB2Oz9xNpyPKhkXzhRQ1kRc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=q9hlfMy4R40ZrB6B8V9rVMxRh4Ov/CRexkvZQ+AAlnLK+y047ir1clwRAF7poRmQj7Z1TxJ+ZWaePN1FYUbQTxO7zNcRk5h6I32I1z62Pvh9BagLS6Ix2tk0I1np34P6jPgBT2zEzhUQ7a2ehfR+syCdimrHOk6subtHzGLmFVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XE6RBLog; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ptqCmpz1"
-Received: from localhost (unknown [167.220.232.230])
-	by linux.microsoft.com (Postfix) with ESMTPSA id C51512043DF3;
-	Wed, 19 Feb 2025 19:44:49 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C51512043DF3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1740023090;
-	bh=1boQEHta3r4wEo6Z2Lff0ZlqJmutPdDJsjmXWcQa570=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ptqCmpz1rsRLesosO7xLo11cOxOhY8D+L3GE+V2cL10EfQlklXXsbwIPVJAws8YJv
-	 Vftunh8kbOX9ax1asqsiqVU1tQDLKz8ArvCU8fHqZdkN4Yw2uyqRHd2o2T5YeF9b/m
-	 M8kLJ0bL6ynGnv9SaKrcC66YMONz9kCDx6XSpuVA=
-Date: Thu, 20 Feb 2025 11:44:47 +0800
-From: Yu Zhang <zhangyu1@linux.microsoft.com>
-To: Baolu Lu <baolu.lu@linux.intel.com>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, 
-	jacob.pan@linux.microsoft.com, Easwar Hariharan <eahariha@linux.microsoft.com>, 
-	"zhangyu1@microsoft.com" <zhangyu1@microsoft.com>, Jason Gunthorpe <jgg@nvidia.com>, iommu@lists.linux.dev, 
-	Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>, 
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, 
-	Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
-Message-ID: <woysdxaprpf7nb2w3swwr46yyri5gnz3mi4sgw6ad4bn4weis3@fveqqcc45fhq>
-References: <3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <20250212112235.714b0a14@DESKTOP-0403QTC.>
- <20250212233053.GV3754072@nvidia.com>
- <67ad876d.170a0220.3c21dc.85ceSMTPIN_ADDED_BROKEN@mx.google.com>
- <20250213094601.GA243081@myrica>
- <5irmuy6xwrjsrdjy7tmfzlnotxqdoqagjdsdtqjrrit673zaka@r43nyvc5gcyf>
- <20250213180919.GC243081@myrica>
- <cu7lznx5bxnqoavt3ri4dtzwt7lu3loitn7a344rbnmahpnc6h@2e2dknchxjmd>
- <20250219103518.GA513544@myrica>
- <98298574-66b6-4b14-be3b-28291f1551a8@linux.intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XE6RBLog"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 569F2413A5
+	for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 07:58:48 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id lbskd8r__LCi for <virtualization@lists.linux-foundation.org>;
+ Thu, 20 Feb 2025 07:58:47 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=pabeni@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 28677402D0
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 28677402D0
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XE6RBLog
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 28677402D0
+	for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 07:58:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740038325;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PDyq9aCOU4k6/OxS5NyOrQ8zBZnEHt3wS9LzAF8nhU4=;
+	b=XE6RBLogwAGAyaC8nSRcY5sY+KefFsdVfwnpGsX7noVe4dR+ge2TtxbfHnuArbBfblVp4C
+	JcfL+0rIh7nOc/So4R/7gBjKHatV6U4el0kt6gC96qXCQF/OZVoP3vBoYOPSpUn5i9SoQl
+	Dy8lkEy5AeJ16HISm+MqI7Vc2dmI64A=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-635-sp-YYHp_P9qDy_muEFeA8Q-1; Thu, 20 Feb 2025 02:58:43 -0500
+X-MC-Unique: sp-YYHp_P9qDy_muEFeA8Q-1
+X-Mimecast-MFC-AGG-ID: sp-YYHp_P9qDy_muEFeA8Q_1740038322
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4393b6763a3so2541245e9.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 19 Feb 2025 23:58:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740038322; x=1740643122;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=PDyq9aCOU4k6/OxS5NyOrQ8zBZnEHt3wS9LzAF8nhU4=;
+        b=GnT8OFTtbRWB/OXMt6UOHjL5uUz7UMMrPq3TrJHesR0DmHt7YU5qUoVCaIXhb4PWbx
+         jhSG7YY0Z8ukVTPJKFx90LYt4vCivdCftb5SeaqmGQ5/EHNQLBzPd87WBrkEmDIWpA3Z
+         hbGfVGKvYnPKmwB49ovTesMcRYVaqk11D4Tl05g4XJHfbEwHNZsLtEhz3o7UyP/BS14j
+         q69IcTMm2DVHZSvIUJ9ZKX59xsnyxZJbNafhIeep7+rRCUjtBlqhiuNIJ8dRDeI2vXDs
+         NVIBhcY1EHLdgGS/5Q28x0Izmu86iCF6kqd3+GdV/eAi5T4FDY7LV4fLq5nON9dzHj0S
+         YDBg==
+X-Forwarded-Encrypted: i=1; AJvYcCUpE9MtenFn9JXYMHisLKWwUFHA1rE9XrgQT7dAHjKupVxtlWoxooZaCF2KnSo9+G2lpF6UxD2cbrMZUMOyEw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwT4uCsexXVARcqaaATzm8jKvFjQLvKSGEtBS9bfPS7Muw5mBoW
+	Lf/pN1tN3D7xSCJjZ6ZZbi8ny806/lFVjrBb57BofTF933RKQgiafqDCkq6SiYR5khZmBPh5cAL
+	MrMK1GOfvDiv5j0ftEeYhsjLBkn5RpUSELLaEDJJLuvB6b3hROu0hQDIkiD8MFID27cDT0uJE5j
+	t2VKs=
+X-Gm-Gg: ASbGncvqWSjPbOLJjNBmR8yTOLxc8Kh6tg2tko/WY4L7iq7bc+dgbRZwdQTSoNWavAN
+	z6O4TFzVIpR3862PmwZNt5mXuG7bDuYcBALszt5FgbxEqozkYQlUIehjL9vtg3KHKH5EloDM36i
+	eOyFbhWiPxLGRYzOQ0Tflf14UfNqFr2uVLaC3+nUCD7VupOHTmlkPtdCCOcUW5vuVr9vCS8xNTO
+	X88y1smqRFLJwtUuJXy5yDS10m8TIMIXXaKfBSkX0H7ksuWUU0qbboNqvDtzWaY5AZ345fK8b0F
+	gODAy1fgJ3rXUoiSXo1yATlbcr+jerXOpvI=
+X-Received: by 2002:a05:600c:1e89:b0:439:9828:c447 with SMTP id 5b1f17b1804b1-439a7b81c85mr5230785e9.17.1740038321784;
+        Wed, 19 Feb 2025 23:58:41 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFMZ/J4mT4eh+w4zVIHYL3J2TeyMMFBaqTsZEuN7XJULLXJfI3m9ZBVAO4oeESyI4i7d0LvUQ==
+X-Received: by 2002:a05:600c:1e89:b0:439:9828:c447 with SMTP id 5b1f17b1804b1-439a7b81c85mr5230655e9.17.1740038321375;
+        Wed, 19 Feb 2025 23:58:41 -0800 (PST)
+Received: from [192.168.88.253] (146-241-89-107.dyn.eolo.it. [146.241.89.107])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4395a1aa7bcsm232584425e9.28.2025.02.19.23.58.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 19 Feb 2025 23:58:40 -0800 (PST)
+Message-ID: <d4b7f8a0-db50-4b48-b5a3-f60eab76e96b@redhat.com>
+Date: Thu, 20 Feb 2025 08:58:38 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98298574-66b6-4b14-be3b-28291f1551a8@linux.intel.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2] tun: Pad virtio headers
+To: Akihiko Odaki <akihiko.odaki@daynix.com>, Jonathan Corbet
+ <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>,
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
+ devel@daynix.com
+References: <20250215-buffers-v2-1-1fbc6aaf8ad6@daynix.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250215-buffers-v2-1-1fbc6aaf8ad6@daynix.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: oVb53mm1MUZh8c2pCM55TAPEMia_qJ9vj50V5SuNuOs_1740038322
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Feb 20, 2025 at 10:58:05AM +0800, Baolu Lu wrote:
-> On 2/19/25 18:35, Jean-Philippe Brucker wrote:
-> > On Wed, Feb 19, 2025 at 05:39:19PM +0800, Yu Zhang wrote:
-> > > On Thu, Feb 13, 2025 at 06:09:19PM +0000, Jean-Philippe Brucker wrote:
-> > > > On Fri, Feb 14, 2025 at 01:03:43AM +0800, Yu Zhang wrote:
-> > > > > On Thu, Feb 13, 2025 at 09:46:01AM +0000, Jean-Philippe Brucker wrote:
-> > > > > > Hi Jacob,
-> > > > > > 
-> > > > > > On Wed, Feb 12, 2025 at 09:47:23PM -0800, Jacob Pan wrote:
-> > > > > > > Our code and backend support are still in the early stages, that is why
-> > > > > > > I am attempting to convert virtio-iommu driver to iommu_pt. Not sure if
-> > > > > > > anyone has done the QEMU part to support VIRTIO_IOMMU_F_ATTACH_TABLE?
-> > > > > > > @Jean @Eric Do you know?
-> > > > > > As far as I know Tina worked on this most recently:
-> > > > > > https://github.com/TinaZhangZW/qemu/commits/virtio-iommu/vt-d-pgtable/
-> > > > > > https://lore.kernel.org/all/20231106071226.9656-1-tina.zhang@intel.com/
-> > > > > Thanks a lot for this information, Jean.
-> > > > > IIUC, these patches were trying to add VT-d IO page table support in
-> > > > > virtio-iommu, but it is not based on Jason's generic PT [1]. Just wondering,
-> > > > > does anyone have plan to do the incorporation?
-> > > > I'm not aware of anyone working on this at the moment. Something you will
-> > > > need for a portable pviommu is a library that manages PASID tables rather
-> > > > than page tables [1], because the Arm SMMUv3 arch only support assigning
-> > > > PASID tables to the guest. Alternatively you could implement opaque PASID
-> > > > table allocation via host calls, letting the guest allocate GPA space and
-> > > > the host manage the PASID table, but that idea didn't seem very popular at
-> > > > the time.
-> > > Thank you, Jean. Just had a study of the spec. For ARM SMMUv3, letting
-> > > the guest manage the PASID table, and then assigning it directly to the
-> > > backend in ATTACH_TABLE request looks quite resonable. But for VT-d,
-> > > my understanding is the PASID table shall be managed by host. By "that
-> > > idea didn't seem very popular", do you mean that people also want the
-> > > ATTCH_TABLE request for VT-d also assign the PASID table(an virtual one
-> > > managed by the guest). If yes, why?
-> > No, the proposal for managing the PASID table in the host was done before
-> > the VT-d architecture added Scalable mode, so at the time they also had to
-> > assign whole PASID tables to the guest and weren't keen on managing it in
-> > the host. I believe in revision 3 (2018) the architecture added support
-> > for Scalable mode and the ability to manage PASID tables in the host.
-> > 
-> > Nowadays it wouldn't make sense for a pvIOMMU to manage the VT-d PASID
-> > tables in the guest, because as I understand it there is no demand for
-> > supporting the legacy mode address translation of VT-d.
+Hi,
+
+On 2/15/25 7:04 AM, Akihiko Odaki wrote:
+> tun simply advances iov_iter when it needs to pad virtio header,
+> which leaves the garbage in the buffer as is. This will become
+> especially problematic when tun starts to allow enabling the hash
+> reporting feature; even if the feature is enabled, the packet may lack a
+> hash value and may contain a hole in the virtio header because the
+> packet arrived before the feature gets enabled or does not contain the
+> header fields to be hashed. If the hole is not filled with zero, it is
+> impossible to tell if the packet lacks a hash value.
+
+Should virtio starting sending packets only after feature negotiation?
+In other words, can the above happen without another bug somewhere else?
+
+I guess the following question is mostly for Jason and Michael: could be
+possible (/would it make any sense) to use a virtio_net_hdr `flags` bit
+to explicitly signal the hash fields presence? i.e. making the actual
+virtio_net_hdr size 'dynamic'.
+
+> In theory, a user of tun can fill the buffer with zero before calling
+> read() to avoid such a problem, but leaving the garbage in the buffer is
+> awkward anyway so replace advancing the iterator with writing zeros.
 > 
-> Are you talking about ECS mode? There is no hardware or software
+> A user might have initialized the buffer to some non-zero value,
+> expecting tun to skip writing it. As this was never a documented
+> feature, this seems unlikely.
+> 
+> The overhead of filling the hole in the header is negligible when the
+> header size is specified according to the specification as doing so will
+> not make another cache line dirty under a reasonable assumption. Below
+> is a proof of this statement:
+> 
+> The first 10 bytes of the header is always written and tun also writes
+> the packet itself immediately after the 
+> packet unless the packet is
 
-Thanks, Baolu. I suppose so (by 'legacy', Jean was refers to ECS, and he
-knows this is no longer supported).
+ ^^^^^ this possibly should be 'virtio header'. Otherwise the sentence
+is hard to follow for me.
 
-> implementation for this mode, so we don't need to consider it.
+> empty. This makes a hole between these writes whose size is: sz - 10
+> where sz is the specified header size.
+> 
+> Therefore, we will never make another cache line dirty when:
+> sz < L1_CACHE_BYTES + 10
+> where L1_CACHE_BYTES is the cache line size. Assuming
+> L1_CACHE_BYTES >= 16, this inequation holds when: sz < 26.
+> 
+> sz <= 20 according to the current specification so we even have a
+> margin of 5 bytes in case that the header size grows in a future version
+> of the specification.
 
-It seems we have now reached a consensus that no PASID table needs to be
-managed by a pvIOMMU for VT-d.
+FTR, the upcoming GSO over UDP tunnel support will add other 4 bytes to
+the header. but that will still fit the given boundary.
 
-Meanwhile, it's worth noting that this is not the case for ARM SMMUv3,
-which is the opposite. And as to AMD IOMMU, we may choose either.
+/P
 
-B.R.
-Yu
