@@ -1,116 +1,123 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82FAC1DF735
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 21:05:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A387426461E
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 21:16:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740085509; cv=none; b=QkPFPG99z5P1LNfWS7WJ3WUgX9XqKUl0g3vO4Xi/3EFUm6ZyJmKJV+0YfcTVEOQiEEXZ0ImNHIIkr3HbPY+dmaSCB7QLb73mH403JdPEald1/WO5rQArsBczEXPWDTQc+TPTCmpxlY71djK6tE6FB4sfZWq8LFY18731WwjPCr0=
+	t=1740086194; cv=none; b=ePQwWrQ8kKRXfwB7WyyFEWtX8h6rOfL+eNee8gMbhpz39UkN6lgTex3JKNJGSk5mSRpDybgddoc8QTcnHXdSznZ56jH2PBUp9/nlT/R+jfFtcyPlYIgNlazzLQj5iDFGJwSsEvJM7FSzZn1H0QH8ynRy879gDwl7gN7hzu2bIZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740085509; c=relaxed/simple;
-	bh=yO0vl3vl6r85XRczqqyFXg3rFR9Qwz/DloafjuQ7Igk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ijstmmLlgHx2wOdzN9PGhMDXTwrE3c/eTJiCZb3P3Vl8znZx0mNyJcgxQqJguEPqgKS4N1oLp27c3GwGhjpFpCxGoy2noYWOezxFmp/HNMMzkYbBbAy2qBU3h0xrQlMkyDn4Lmq/CmHKCNmpzBTs2EBBkg320McI+0mYaLOaHwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=REiFEBh9; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1740086194; c=relaxed/simple;
+	bh=AKgJ4IGqSbL/a88cyY+H0QYMx/Z7oG6hVYBBX9CiYOY=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=pxUNwKHl8bNGB660WwzTEhBZhd+TYRpAZ7xenNAECzRVEkTswEzure8n7O3FB6dw5rQUmBaOVKTCSu7++ZSAx/UASmlCdr5NLsOVp2MPyTzex9EgB8eJCR5FgIYJqhKdsgF0S16Vfda45OTMMhx1HK4ofn/u5ZrcROIeZ+OJuLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--vannapurve.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=AEcXL8TZ; arc=none smtp.client-ip=209.85.216.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--vannapurve.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="REiFEBh9"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-220bfdfb3f4so30766845ad.2
-        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:05:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AEcXL8TZ"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2fc46431885so4309089a91.2
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:16:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740085508; x=1740690308; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=2oxhd4XT/zCoDOMejdSRLbrpeHrRuTkeG6alk6G3I8Q=;
-        b=REiFEBh9Mut61XM9nR9YtLIx/2b+ZM6/eoV2PfdBs6rW1RQYuuWIeQO4GctZ5plD0R
-         2kOEueh6hEsBwsK13zXk5wf5EHukwx3UFv1KvgHMyRdQEbugHb10pwEOKDZYsxc/uJPV
-         gqppf3XdNe4aee1wJyf+xSTyIPkhFFM2D631xswsTV5pzG+BvJkr2QpO9xgHL08/J3O9
-         UlT2s8K+SuBA9zELrbpBfdBwc0W4+V+I2pafUhMDvhii99/NFwdVkhics1694B0P+3q8
-         ddVtBUBp4g0uNvHh01J73Cv8NOmaLOo3lLaQ0qth5yormPLY2/Pj3lE8EJVji2TIeVm4
-         I9jw==
+        d=google.com; s=20230601; t=1740086192; x=1740690992; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=8qvrVN9kBrozRo5CUBDtUXOgIdzDynxQKxj+1pBd5xY=;
+        b=AEcXL8TZ99XCX9LXM4MjDzbw1Pd5AGS8u77zPOXa+13zeteIi7epX9lCQc6VcFCEn1
+         dBhDZvNsDEnyWV48wnwISCJC8r7VneC7uJi5nx4XZDxEBDZ7HkXgb9fztRezn+69/hYl
+         SqQIy1sb1lYb9MoDKHKkd3a0O/Q79nFXZNKyg9gsJwM8M9vosJj8dqwx0wgEdmy9EGg8
+         wHIAJjaR52jqyiuDHipKiVFWeMejWmQ3E5ujOM/drGld3qEE92qEZPJ77Tq97X9GQgIV
+         NqrfVcqerC05DIMW8X7R7a81Ai5HqZyGsy8/olADXR17Mwokrncdq6fP5O5rQNKOOP3S
+         Q/aA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740085508; x=1740690308;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2oxhd4XT/zCoDOMejdSRLbrpeHrRuTkeG6alk6G3I8Q=;
-        b=WX8Gllaco6lDZwQBh4QtKiIOrSq/N36bjeVSqKu96u2n8JCfLnK0T8vbjnSNU2ZZ3d
-         Mkyo5uutK11Nn+zSHoEduRbofL81pm7szGD1Nyos1tKzI0qModA+Mdw9wRMWDxzv9XSA
-         T0TuwBS7s052Nu4pjgY8Fs+xrJg06qOaRUuE0696xXGaB+zyXBLdCt7SHDHHuqGeHBDt
-         Z9W0ILx8AN1P6gqtJ9jy04F9RS2MgLM56/YbdyPm2l+mkwgU+Hdbkzg1qLFBvBC/u1mI
-         WVAWZeKKGlnEgPVSAW0wrYHQdEEQg1sZFj9EBcDI+WbQoJ70BAPwsKhbCAUVWFmIIPsR
-         glXA==
-X-Forwarded-Encrypted: i=1; AJvYcCW5tX/retGBpxXLcFfK6pi66YAEdqDxgzXIu5Ij7R1LheFfYRQUpaegzz99f2sx/hpboz1rDV59HRRA/lpXMQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwECGSmFfscnymkVBb26AuPSTqLBT+H8aW0ZEX5q3MadnbRTcao
-	4z314WT7wg4laHeun7pOIjgwQ3o2tyq2UTOA7WrWI8O67tuYojc=
-X-Gm-Gg: ASbGncuTzESheIPIrM/aEVstZEvALxLqjuZVJ5RELGo7Xg2QOuB3Fu+ix5B+fdZ2mvp
-	i9G3jGe3KVhe7TgYgmq7s3S2h4JqUfuRW3W0Rnq1rCI3vsr2GQvS4rdt2fhp05Ei7HI+O3W+vYX
-	I2v0Ee59+rx+1dR6bPiKegl1EfCHNWHulHhT1pqGMUuZKlX/tVF0PtGMCpIT7oTyyC13ycvaV8y
-	tN47+bpWH1o9EWgJgkyO+p6ZnKC4fuKBuXtNOY2E1QMXXs3I7UScgrFEziE/dYdzK+V4VqB/aG/
-	iPcz3t4B62W6A1s=
-X-Google-Smtp-Source: AGHT+IGyI5hMvhiDLYNc7OSURvPKm2QVi6I1a+B2WeRwUY5Bk4xeWkg2HE+1oCupSYjRz9XCcRNZHw==
-X-Received: by 2002:a17:903:41d0:b0:221:337:4862 with SMTP id d9443c01a7336-2219ff50e97mr9604975ad.15.1740085507661;
-        Thu, 20 Feb 2025 13:05:07 -0800 (PST)
-Received: from localhost ([2601:646:9e00:f56e:123b:cea3:439a:b3e3])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-220d5586141sm126353825ad.227.2025.02.20.13.05.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Feb 2025 13:05:07 -0800 (PST)
-Date: Thu, 20 Feb 2025 13:05:06 -0800
-From: Stanislav Fomichev <stfomichev@gmail.com>
-To: Mina Almasry <almasrymina@google.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Donald Hunter <donald.hunter@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Jeroen de Borst <jeroendb@google.com>,
-	Praveen Kaligineedi <pkaligineedi@google.com>,
-	Shailend Chand <shailend@google.com>,
-	Kuniyuki Iwashima <kuniyu@amazon.com>,
-	Willem de Bruijn <willemb@google.com>,
-	David Ahern <dsahern@kernel.org>,
-	Neal Cardwell <ncardwell@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
-	asml.silence@gmail.com, dw@davidwei.uk,
-	Jamal Hadi Salim <jhs@mojatatu.com>,
-	Victor Nogueira <victor@mojatatu.com>,
-	Pedro Tammela <pctammela@mojatatu.com>,
-	Samiullah Khawaja <skhawaja@google.com>
-Subject: Re: [PATCH net-next v4 8/9] net: check for driver support in netmem
- TX
-Message-ID: <Z7eZAo3M06ZnLMve@mini-arch>
-References: <20250220020914.895431-1-almasrymina@google.com>
- <20250220020914.895431-9-almasrymina@google.com>
+        d=1e100.net; s=20230601; t=1740086192; x=1740690992;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=8qvrVN9kBrozRo5CUBDtUXOgIdzDynxQKxj+1pBd5xY=;
+        b=eOVnCnYJDfcHdzH8Gt/kj9pUTTCBsCS+/Kap7afMHyURgwchiM8aCcagSfSgPl6MqE
+         00vYRV15rG+vJB9xdLwLYiDa2JCANtYrs17ZZLwrD+rOsOuaJVMjV4BAdxVU5mupAeAI
+         1Wrq9KwxcEwD3MGej8gbP2rgDNmjyvqMvqodh++PekblZxgIVWQHowN6i9q1xBCNCsJr
+         ss/+A6fu1pBCCAyD0AVgLVxiLj7le8rhVHh1sKvq5fTEoUljmFRM855tsw8cbpIlSqeo
+         Jkszox2fr//U13nSd0GSMdEXd6n33fTx+4fVoquLpL3rSougPw0C7Qy3klrfS2dnlosv
+         Pcnw==
+X-Forwarded-Encrypted: i=1; AJvYcCUGlqX9rBpOYO/XNtcElRsIhxegwrJlbXDzfhIjouKL1ljRCeqmGH7pQ7wRlnlZ6dFX8L9Ziw93vC3u2kn3Cw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx3sQkVaKmmy7gLDdJl8NCDRMNZZuS9ZkvuvIjENfgAnr/csnUG
+	CtPKr2QR50tKSxQ07r+DRryIPRNaPN7bfNZZ63SUpll+8Wc3hFKK9Rtka+Kmor5rKcL80X/SEGi
+	u5fCsVDfRxl2zlOUa+g==
+X-Google-Smtp-Source: AGHT+IH/8YsBcP5uZYl0bmlmhw3cSkjvn5V2r10re47N885FbaitMXwjoVcr1y27PxvOM4eurK+/YRXaGJnRVEqq
+X-Received: from pfbei26.prod.google.com ([2002:a05:6a00:80da:b0:730:b665:d832])
+ (user=vannapurve job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:6a00:3d0a:b0:730:888a:251d with SMTP id d2e1a72fcca58-73426d9ee22mr716372b3a.20.1740086191802;
+ Thu, 20 Feb 2025 13:16:31 -0800 (PST)
+Date: Thu, 20 Feb 2025 21:16:24 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250220020914.895431-9-almasrymina@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.48.1.601.g30ceb7b040-goog
+Message-ID: <20250220211628.1832258-1-vannapurve@google.com>
+Subject: [PATCH V5 0/4] x86/tdx: Fix HLT logic execution for TDX VMs
+From: Vishal Annapurve <vannapurve@google.com>
+To: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	virtualization@lists.linux.dev
+Cc: pbonzini@redhat.com, seanjc@google.com, erdemaktas@google.com, 
+	ackerleytng@google.com, jxgao@google.com, sagis@google.com, oupton@google.com, 
+	pgonda@google.com, kirill@shutemov.name, dave.hansen@linux.intel.com, 
+	chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com, 
+	sathyanarayanan.kuppuswamy@linux.intel.com, jgross@suse.com, 
+	ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com, 
+	Vishal Annapurve <vannapurve@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 02/20, Mina Almasry wrote:
-> We should not enable netmem TX for drivers that don't declare support.
-> 
-> Check for driver netmem TX support during devmem TX binding and fail if
-> the driver does not have the functionality.
-> 
-> Check for driver support in validate_xmit_skb as well.
-> 
-> Signed-off-by: Mina Almasry <almasrymina@google.com>
+Direct HLT instruction execution causes #VEs for TDX VMs which is routed
+to hypervisor via TDCALL. safe_halt() routines execute HLT in STI-shadow
+so IRQs need to remain disabled until the TDCALL to ensure that pending
+IRQs are correctly treated as wake events. So "sti;hlt" sequence needs to
+be replaced for TDX VMs with TDCALL execution followed by enabling of
+interrupts.
 
-Acked-by: Stanislav Fomichev <sdf@fomichev.me>
+Changes introduced by the series include:
+- Move *halt() variants outside CONFIG_PARAVIRT_XXL and under
+  CONFIG_PARAVIRT [1].
+- Route "sti; hlt" sequences via tdx_safe_halt() for reliability.
+- Route "hlt" sequences via tdx_halt() to avoid unnecessary #VEs.
+- Add explicit dependency on CONFIG_PARAVIRT for TDX VMs.
+- Warn and fail emulation if HLT #VE emulation executes with interrupts
+  enabled.
+- Clean up TDX specific idle routine override.
+
+Changes since v4:
+1) Addressed Kirill's comments.
+
+v4: https://lore.kernel.org/lkml/20250212000747.3403836-1-vannapurve@google.com/
+
+Changes since v3:
+1) Addressed comments from Sean.
+2) Included [1] in the series to fix the scenarios where
+CONFIG_PARAVIRT_XXL could be disabled.
+v3: https://lore.kernel.org/all/20250206222714.1079059-1-vannapurve@google.com/
+
+[1] https://lore.kernel.org/lkml/20210517235008.257241-1-sathyanarayanan.kuppuswamy@linux.intel.com/
+
+Kirill A. Shutemov (1):
+  x86/paravirt: Move halt paravirt calls under CONFIG_PARAVIRT
+
+Vishal Annapurve (3):
+  x86/tdx: Route safe halt execution via tdx_safe_halt()
+  x86/tdx: Emit warning if IRQs are enabled during HLT #VE handling
+  x86/tdx: Remove TDX specific idle routine
+
+ arch/x86/Kconfig                      |  1 +
+ arch/x86/coco/tdx/tdx.c               | 30 +++++++++++++++++++-
+ arch/x86/include/asm/irqflags.h       | 40 +++++++++++++++------------
+ arch/x86/include/asm/paravirt.h       | 20 +++++++-------
+ arch/x86/include/asm/paravirt_types.h |  3 +-
+ arch/x86/include/asm/tdx.h            |  2 --
+ arch/x86/kernel/paravirt.c            | 14 ++++++----
+ arch/x86/kernel/process.c             |  3 --
+ 8 files changed, 71 insertions(+), 42 deletions(-)
+
+-- 
+2.48.1.601.g30ceb7b040-goog
+
