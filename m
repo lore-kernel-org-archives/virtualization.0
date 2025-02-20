@@ -1,166 +1,142 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BA871EE006
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 23:42:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE72020E718
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 23:51:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740094968; cv=none; b=F5zfQXdm5FPv+ZKxgTGTlWu/kmkgIoze3kAkr+gQW/kkDfYTF2ylfiFY3hLNllYrxtU8TAsm8UaEoFm/aHXipi2mCkvLaDFto3jPiQYwc6FDae7kYXKxa59d5dsJBT1xJ3BRTcpLXLnOQl/BtyJAd2xW+4bip0O9i7OUcPagx44=
+	t=1740095476; cv=none; b=D9+obeZlY2Bhv9+NLwRZ+lzjlc3y7BoW//pFQpLEiW1K5z73JTcYgklF007bL0fggGhfUEfBrn1tdEvwfOHB0GCh1QSYFxnNoVWHlKZwN62qBPpJ1O03lgDtZpud/LVLsi5p+9Yng/gQSNB8K5ss0v1OvEWIm6pe22eOHCI3VN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740094968; c=relaxed/simple;
-	bh=cUeKf4PCCVtFVO53wxl3QweJJfWATQQ7W81yy0YfVQQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=LzapDVfRe9R3vW6yRRNPGRVW72+qwmZoAob4tGhAQCiNX/0JoGieWF/CXQ1ke8C1k8UV1mKqOrDsyGqyS4q9/vOEa+IgK5YukV8n6myET8S2gT3iKBjkS8kqzeSBOK9k8njSvP3Y5Z0Vwf/8qOUyhwTWToz5AkYhJmR/44sVPxA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IuO6zDlP; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1740095476; c=relaxed/simple;
+	bh=UdWhNOUBSdT4syJ+kosIuq0AfZUSJ0WGNQkI3p+ncvM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sI9dN44WnCO+t6vr+oiFSwYWVSBtB2JkF/cZc8UdsuR2IsLbmyNQsaYkIPqeHc+2Uh/K9BuYDcjvnxhC8bQSQqEAUq187xJbt5GHrSNZ9kZOWRT9vwZXuTnSjf+DBGa+0z/9Y391fK2S3Pqjq4pr8/DVOBJKwGRBDXotYQrpUpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dYqJVCB6; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IuO6zDlP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740094965;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=64ZpdAsvcI+F+rxDlYFyucFy3wRloEAxpqLq+Ucj4cI=;
-	b=IuO6zDlPoAHOFGewXh1wjoFrYUczC8rNbhfSckjPBFjX9VbqZ1Ep9iWrOX3YN6REguhLOe
-	Cc/8Ays4V4WSbQIlrVE4suF25pzwDUWxmvYQeFZqIUPBTAGt84nxVDGJvm1g96QIj5YmJC
-	z4REoRxtRPUC9KFEJy4zRNWShdzQDOs=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-659-RclReYImMrGtZyis6nVk1g-1; Thu, 20 Feb 2025 18:42:42 -0500
-X-MC-Unique: RclReYImMrGtZyis6nVk1g-1
-X-Mimecast-MFC-AGG-ID: RclReYImMrGtZyis6nVk1g_1740094961
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-abbe5ac36a9so255807466b.2
-        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 15:42:42 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dYqJVCB6"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-54522e82e7dso3125e87.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 15:51:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1740095472; x=1740700272; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cF2FkYUFOzGpOUac93fgsUwfXQ+Ch5dCBcOjNCGwr4o=;
+        b=dYqJVCB6xU9HEsdpKeQoYHR8BZO6QoDtl255pkj6PaAi21Fhxn+QkUA1PtNLQfXQj2
+         3sxnbNNjuhUId5Sn4XYGwcEG+3snGyu1cf9D+D/C7pcUN//9IcmZQU29+Hw1QzVsS+qy
+         54mDj6DE91eumNKrciWz2Wc6NTiQpLar/ZlqVqSTMsUphgGSPW6jcVCNzREBRcFLv+Ot
+         4wN/7o5kHjP0S8KMOSatEPfyB/tJknnDF7KScZm7i7FEkgA1N6fmsL5xCYtLCbyBXYre
+         ZVLtFTjkR6819UDrlORL81RjBMDXuabcmYrs2yAZmg6bhvDoKjCh0NFBdKK5v3Tgi8s+
+         mzlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740094961; x=1740699761;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=64ZpdAsvcI+F+rxDlYFyucFy3wRloEAxpqLq+Ucj4cI=;
-        b=Bk58mQY9gjKEoOGa4e95mitwmYV3xGu7hzTVFj2t4iJ2fW6xf6sm02GfD9tlAK466t
-         kaxFhMX9OQqT7ChJKCkqxTwHXilWI+bYrDzeo/yfMly4vCEAwnuDeojGhUf6RTRtpG9a
-         zP5jeajbdlpKyeH7F6Zn6oGZFPNgHdBpH5qEHoDMIMM/K/7cPu2mIZNgR7MDbzsHFyuz
-         J0+NeZB+hA8s7mHKr0wmeKXndTKRD5EONnfYUxhEWEpFVRMP7yvPpkNrbGSxBGgRt4S4
-         pRPlBgjNpiiA6biHNwE0L/HHX3Gxmszl7BZwrsd/vzLa0pop0wvt7OyLa2FYJWlWQ3Ex
-         rj1g==
-X-Forwarded-Encrypted: i=1; AJvYcCV93dHPloBC/okdnWBpArzbSRySJ7vSYnletb/7BeODrPes1M/47fAKCUJqwDgPT1cKnhuxJGybS7vTBYjyYw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyel4q9GP1j3QZ6Na32pfVPF3nA1wX6OCbSpKl68s5WOr9Ecay6
-	+ywDYXVEwLsVWafqZQzHbDu2vbNXblMMCwN19/S7sfgzoDw0mI2Vc3/PyONsHVDR+UoypqzaoKE
-	477L+le1UrP3Pl/LpVQp1B5LixTpxJsRlubWOxZdTsx2UtSTMKUsfeq3kqlq3VvIu
-X-Gm-Gg: ASbGncsPUHfsFtbV6vQbQXi3UXVSoZ4Ls9iIBsMMJd3HMm4RWAw19TCNZWLFg0ssBcL
-	DED+TAoXr3V8N57CgEqnNGQh7p/w16DJRD/Mp81HjUmWbodmM/p3AGB4jLctUdsqI7krXJg97yn
-	j4sa38oPJX2lGnLwFJTkdnH29lx7TeO72vBwes6D8sBVFoNffYgKe3xY7fkEJMgPWPBgYzc1RcJ
-	XAILfGpvAH6RY2XjhxVXmZLR2ut3wHipddaRSdaE84pa7mZ/TOpl+kZMkI4jmMIghl3RA==
-X-Received: by 2002:a17:907:7eaa:b0:ab7:c00c:680f with SMTP id a640c23a62f3a-abc0de4f6f8mr58469266b.53.1740094960931;
-        Thu, 20 Feb 2025 15:42:40 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHhhgQ2tD8HKuJBp4jMU5+KqRB/WeK8wqr6fsH8j2hzo2w7lM401/yo0RsV3QgWvZIqWnWv5g==
-X-Received: by 2002:a17:907:7eaa:b0:ab7:c00c:680f with SMTP id a640c23a62f3a-abc0de4f6f8mr58468066b.53.1740094960585;
-        Thu, 20 Feb 2025 15:42:40 -0800 (PST)
-Received: from redhat.com ([2.55.163.174])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-abb945da4a1sm934223766b.132.2025.02.20.15.42.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Feb 2025 15:42:38 -0800 (PST)
-Date: Thu, 20 Feb 2025 18:42:35 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Eric Auger <eauger@redhat.com>,
-	Hongyu Ning <hongyu.ning@linux.intel.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH] virtio: break and reset virtio devices on device_shutdown()
-Message-ID: <c1dbc7dbad9b445245d3348f19e6742b0be07347.1740094946.git.mst@redhat.com>
+        d=1e100.net; s=20230601; t=1740095472; x=1740700272;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cF2FkYUFOzGpOUac93fgsUwfXQ+Ch5dCBcOjNCGwr4o=;
+        b=csRtTxOU/o9AXNXYD1CiQKZbnYQHVxhTD6UREKi049/mYzJjnSZRGpRVuSlFjgU+1Q
+         6PGC5r/cjOkgdKotPuoV+n/ny976LtmoKbuV4BkF6oyEvT9QZcIUYyS/s9VAXjycFCVQ
+         XoKH0NrX7926BwmpXHwSoLUBIPBJCHftd9Y+w6OodTGW+V9g+xTxXiu/nkvpce4tJutQ
+         XyJvjwMgZdPu0sSywnsRdXATK66AFQZFn60fRu7BeyiY1JJ5fCmEJHWDEwuffKNX7gTK
+         uUzoWazOZcI4MRsROHMVxdI+68H8uK0vX67htSknsMLMGwzhlniG4KHbid+FdUDWFhCy
+         EtRA==
+X-Forwarded-Encrypted: i=1; AJvYcCX7FLrbWSv/oYcD9os7ofFskJiAy8iT1xwc9f1wzfMIZUJXV6H09xWiDuRv6mH+2T9WvccnN2oqYxRy5yV0Sw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw/lwrn4P1UzwmU7LwTyBVMb9x43Fkv603pUU0WDQcZehGbEA1H
+	+M+n8VtEOXRJW8stbd6QXrAxLmkpB2rOhSCZ/E6lP34CVp1lXtEuzkqcRSFyYIaCYE0ntBYzFQ8
+	pBZarrVTF4ej7pH7dxScwkXrmWWOnluRB5W9L
+X-Gm-Gg: ASbGncukvsp76tdA8HX8N0Cj/GZln9Nmlq7vIvhBF0LQbh5DrR8/vQdB75fbZSjCJRm
+	yf6q5h+5qcVnvsxmCZJ9F1X+0IS/GtrfT+GPifu+Ysc3XVBYLJCKrXbCn1xFkIGxfIezymKJQLO
+	UZHpMQLkJc8bRiYmvhpj89cxcu0IgQ
+X-Google-Smtp-Source: AGHT+IHNrahV1BDNb6HGmIpADFoAfSxQLvTQMK+ss0Zxtwi9sdNu6MrrXOWs+BR87xWGqTxyWHbSATFC1ErU9+Atf8g=
+X-Received: by 2002:a05:6512:eaa:b0:543:e5ac:8ba9 with SMTP id
+ 2adb3069b0e04-5483912c478mr118346e87.6.1740095472207; Thu, 20 Feb 2025
+ 15:51:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: n7yO3ISv2BRz4X15XiU7rzJpRJ4b8Vsh0B30cS03cZU_1740094961
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20250220211628.1832258-1-vannapurve@google.com>
+ <20250220211628.1832258-3-vannapurve@google.com> <9053a4ef-2de6-47b4-a2f7-62d3ded24cfa@intel.com>
+In-Reply-To: <9053a4ef-2de6-47b4-a2f7-62d3ded24cfa@intel.com>
+From: Vishal Annapurve <vannapurve@google.com>
+Date: Thu, 20 Feb 2025 15:51:00 -0800
+X-Gm-Features: AWEUYZnHtnB_aHba-KEBGxrwDPSTc-BtBIYPfsyILXR2O2qhE2mk2NxqrmEtVUY
+Message-ID: <CAGtprH_z=4nsDj2GSnCrhwQkKESBqLTcUK3aNZO+2BzMc7P00g@mail.gmail.com>
+Subject: Re: [PATCH V5 2/4] x86/tdx: Route safe halt execution via tdx_safe_halt()
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	virtualization@lists.linux.dev, pbonzini@redhat.com, seanjc@google.com, 
+	erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com, 
+	sagis@google.com, oupton@google.com, pgonda@google.com, kirill@shutemov.name, 
+	dave.hansen@linux.intel.com, chao.p.peng@linux.intel.com, 
+	isaku.yamahata@gmail.com, sathyanarayanan.kuppuswamy@linux.intel.com, 
+	jgross@suse.com, ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
-accesses during the hang.
+On Thu, Feb 20, 2025 at 3:00=E2=80=AFPM Dave Hansen <dave.hansen@intel.com>=
+ wrote:
+>
+> On 2/20/25 13:16, Vishal Annapurve wrote:
+> > Direct HLT instruction execution causes #VEs for TDX VMs which is route=
+d
+> > to hypervisor via TDCALL. safe_halt() routines execute HLT in STI-shado=
+w
+> > so IRQs need to remain disabled until the TDCALL to ensure that pending
+> > IRQs are correctly treated as wake events.
+>
+> This isn't quite true. There's only one paravirt safe_halt() and it
+> doesn't do HLT or STI.
 
-	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
-	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
-	...
+pv_native_safe_halt() -> native_safe_halt() -> "sti; hlt".
 
-It was traced down to virtio-console. Kexec works fine if virtio-console
-is not in use.
+>
+> I think it's more true to say that "safe" halts are entered with IRQs
+> disabled. They logically do the halt operation and then enable
+> interrupts before returning.
+>
+> > So "sti;hlt" sequence needs to be replaced for TDX VMs with "TDCALL;
+> > *_irq_enable()" to keep interrupts disabled during TDCALL execution.
+> But this isn't new. TDX already tried to avoid "sti;hlt". It just
+> screwed up the implementation.
+>
+> > Commit bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+> > prevented the idle routines from using "sti;hlt". But it missed the
+> > paravirt routine which can be reached like this as an example:
+> >         acpi_safe_halt() =3D>
+> >         raw_safe_halt()  =3D>
+> >         arch_safe_halt() =3D>
+> >         irq.safe_halt()  =3D>
+> >         pv_native_safe_halt()
+>
+> This, on the other hand, *is* important.
+>
+> > Modify tdx_safe_halt() to implement the sequence "TDCALL;
+> > raw_local_irq_enable()" and invoke tdx_halt() from idle routine which j=
+ust
+> > executes TDCALL without toggling interrupt state. Introduce dependency
+> > on CONFIG_PARAVIRT and override paravirt halt()/safe_halt() routines fo=
+r
+> > TDX VMs.
+>
+> This changelog glosses over one of the key points: Why *MUST* TDX use
+> paravirt? It further confuses the reasoning by alluding to the idea that
+> "Direct HLT instruction execution ... is routed to hypervisor via TDCALL"=
+.
+>
+> It gives background and a solution, but it's not obvious what the
+> problem is or how the solution _fixes_ the problem.
+>
+> What must TDX now depend on PARAVIRT?
+>
+> Why not just route the HLT to a TDXCALL via the #VE code?
+>
+>
 
-The issue is that virtio-console continues to write to the MMIO even after
-underlying virtio-pci device is reset.
-
-Additionally, Eric noticed that IOMMUs are reset before devices, if
-devices are not reset on shutdown they continue to poke at guest memory
-and get errors from the IOMMU. Some devices get wedged then.
-
-The problem can be solved by breaking all virtio devices on virtio
-bus shutdown, then resetting them.
-
-Reported-by: Eric Auger <eauger@redhat.com>
-Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index c1cc1157b380..e5b29520d3b2 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -377,6 +377,36 @@ static void virtio_dev_remove(struct device *_d)
- 	of_node_put(dev->dev.of_node);
- }
- 
-+static void virtio_dev_shutdown(struct device *_d)
-+{
-+	struct virtio_device *dev = dev_to_virtio(_d);
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+
-+	/*
-+	 * Stop accesses to or from the device.
-+	 * We only need to do it if there's a driver - no accesses otherwise.
-+	 */
-+	if (!drv)
-+		return;
-+
-+	/*
-+	 * Some devices get wedged if you kick them after they are
-+	 * reset. Mark all vqs as broken to make sure we don't.
-+	 */
-+	virtio_break_device(dev);
-+	/*
-+	 * The below virtio_synchronize_cbs() guarantees that any interrupt
-+	 * for this line arriving after virtio_synchronize_vqs() has completed
-+	 * is guaranteed to see vq->broken as true.
-+	 */
-+	virtio_synchronize_cbs(dev);
-+	/*
-+	 * As IOMMUs are reset on shutdown, this will block device access to memory.
-+	 * Some devices get wedged if this happens, so reset to make sure it does not.
-+	 */
-+	dev->config->reset(dev);
-+}
-+
- static const struct bus_type virtio_bus = {
- 	.name  = "virtio",
- 	.match = virtio_dev_match,
-@@ -384,6 +414,7 @@ static const struct bus_type virtio_bus = {
- 	.uevent = virtio_uevent,
- 	.probe = virtio_dev_probe,
- 	.remove = virtio_dev_remove,
-+	.shutdown = virtio_dev_shutdown,
- };
- 
- int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
--- 
-MST
-
+Makes sense, I will update the commit message in the next version to
+clearly answer these questions and address the above comments.
