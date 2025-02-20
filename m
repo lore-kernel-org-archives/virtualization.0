@@ -1,233 +1,115 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3D49213248
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 19:13:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 592D02641DF
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 19:20:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740078833; cv=none; b=Hoz71X+g2tsjwuPXozAOYBk9epN3y/JVUG24ncjJY8kd/Kx9w5IdwjJJJqBtPliF0No+DBHamlfq8pIR2Mw5RbgnRnWHJ5HeEI+IYZvcw8EGWPsNBNKTvtCSgokKmPBVj2iIuOk+sbVnrWHXqnppMyOHxND1WpeGUzZEMMN2KTE=
+	t=1740079221; cv=none; b=sL9awqZIlIzGrBhRQNN46ggr16dGoTOsnu/+9FgiQByedux9fEOmeBeocKEV+3Qj96a3qEW4kExTY4pRKfXW1ntpQqdNjSXvraOryZWbrMS7oKiNlXZm8LMbLxCxPbrq4csq2wh7XxnwkpzdHmQxSU5nNBQyrcPlIIPYJC+n4eE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740078833; c=relaxed/simple;
-	bh=bYvpIuR6+4V4p0e3j5E3/HYm2LJSdnNVx04OJcQ01F4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bVUySxgwvgAKlsrvbv3WZVqB6NKgsIZmnlsR7gUc5OkZq8y+6WN/eD93vQUkh/G415gbduFqlRaeCynZMLd8/K0yFkYw8JoXIuO6sAYz8wL9Cx8g2xHxlH5hYzzvrqcGLOwWPHR2k6WcoAzyWQT3BPM3nJDSmLCXXEzAz5Wd4as=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EepkNBBH; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1740079221; c=relaxed/simple;
+	bh=BF/qm35P4uKsbrKBn/gLwoY0GozMrLl3uevc+2xL6YQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cr2/nuJWK7+eJiF1wCmB+EtBZWgecgRq6oa9bS+iS+g593RhsIHSnv/88/vp16T9OP6Ubfo3diJ/Q4C5yZKQPotRwVJ2S7TBqSGNlOnB1dyjmF9n2931bGOlDOfFiioEKiLTiawSpc6mD+xnGceoKxgKyzXh8NQTK3038wL+ayk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=fyeY54JE; arc=none smtp.client-ip=209.85.216.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EepkNBBH"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2211cd4463cso27547705ad.2
-        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 11:13:51 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="fyeY54JE"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-2fc29ac55b5so312604a91.2
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 11:20:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740078831; x=1740683631; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JkQa+dhEgsqTxqH9wwhvXJ34Tn9uVSWrpA8SXTi2VJk=;
-        b=EepkNBBHKDlfxpSbs7t8hk6B9liUDFNF05t9MH+oFid6KWgerNPQWe7G4W16HH8ppw
-         zyhtUx5mkEFeRWxct7ZwrT1DVoY28xLh2ET7w0emNQQ1GNHSNnUAfLRYny9n+kqx8MNu
-         CfMoJ30gL2phwfcX/7/j25dauk5HjgBUQy0nqt7FGQ6FD+TD0wYDqTWwDAUbQHGDD/Ij
-         2ghV5dhNtLp1W85vBDg986PV9tpyoMFuRCdoQp2bcUVw+NIzeoGwxv8jA5AK5P4N1kfs
-         K70hGxoKV/hMOMPHH9E8L3XVds8ioaCsPJQSsUy1qMKTlY4BO0QfNR31DTih1qgWQY6Y
-         VjHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740078831; x=1740683631;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1740079219; x=1740684019; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JkQa+dhEgsqTxqH9wwhvXJ34Tn9uVSWrpA8SXTi2VJk=;
-        b=ZUWE9eLeVzuf3j/Q44R/R71tjqUZUsNMd5Lz3bVwdIlrRygOLxgfiiVWQFvlRJf2Uk
-         2EhmaaPIxl7Qe4zCpdD6/BqP+RqeBsZTjg3XvfPQ39Zt/8lzypJKO9/4IE5AHd6bGHC3
-         IGsPkbdpBACTE7MmV4dY2pGOR5oMZXdhedDrirZNOfsO/UNQDz7mVBU4sFUiTdDv8O+e
-         w1InGl7hEYFJr1VriDPiTWH5Ukqun6nsE7nqKmNhLFNxySqBZRlc31v334/XnFA2l4pO
-         s9WMBLtIuaG5VgxQ22MP9weyVNqfQDkP6fmh8aq3K/DYhl4eMnk6T2azWywLNRhBBEMK
-         wGXQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXOWeIb0F8tZsrby9NS8hbESyQO/xPFfQojM0Qx4E87qFUsa065x0kXvvOmfQDC67kwa9RRJihLOyWo2Ew2vw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyYri5XFnqWluc3X2unmH5FbkAxq9gud+8sSRf7k8WgNetTXKbW
-	wP5TVPZJa5GngSmAXHkYLS8ck4VSYMwpwb9Rez4NEmtVgfBwIeU=
-X-Gm-Gg: ASbGncuXbxeGxUGMNF31ujtVH6Vgsc3qIGu3U1ekiTWnHP2+4OdS+RbPbzA4GnHRK1d
-	2edN2s4pTpsygfXJdtyg/Z+DjLnStaKCjWqFOCsD65vSW+M1Ff+FppuZQsSOMeVFBvxXhnboXoV
-	ZX1MVnyXC6xmO3FPdMB9ZIvp6yHZkfy51vECD2iwjbenWltlIU6spx+Wq3IYA6PArISw+rzu0tJ
-	la/BtC6JPhF0tKVypQGj4pcex70hycRvXEH6mza5PmO+P2sSD4XSwpPc1i/HjDRufTEt9TQN4pf
-	F3gUC2pDEZ4mu0I=
-X-Google-Smtp-Source: AGHT+IHIIuxiMZMBBkbPNcC5zirNHq1feMk9yHBECVzOv1p5m8kEN9+wL54cjusKTa4cy0GyMsGD0w==
-X-Received: by 2002:a05:6a21:7002:b0:1ee:cd18:d3f5 with SMTP id adf61e73a8af0-1eef3cb9b92mr517626637.23.1740078830809;
-        Thu, 20 Feb 2025 11:13:50 -0800 (PST)
-Received: from localhost ([2601:646:9e00:f56e:123b:cea3:439a:b3e3])
-        by smtp.gmail.com with UTF8SMTPSA id 41be03b00d2f7-add2e0ad0dfsm10759682a12.78.2025.02.20.11.13.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Feb 2025 11:13:50 -0800 (PST)
-Date: Thu, 20 Feb 2025 11:13:48 -0800
-From: Stanislav Fomichev <stfomichev@gmail.com>
-To: Mina Almasry <almasrymina@google.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Donald Hunter <donald.hunter@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Jeroen de Borst <jeroendb@google.com>,
-	Praveen Kaligineedi <pkaligineedi@google.com>,
-	Shailend Chand <shailend@google.com>,
-	Kuniyuki Iwashima <kuniyu@amazon.com>,
-	Willem de Bruijn <willemb@google.com>,
-	David Ahern <dsahern@kernel.org>,
-	Neal Cardwell <ncardwell@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
-	asml.silence@gmail.com, dw@davidwei.uk,
-	Jamal Hadi Salim <jhs@mojatatu.com>,
-	Victor Nogueira <victor@mojatatu.com>,
-	Pedro Tammela <pctammela@mojatatu.com>,
-	Samiullah Khawaja <skhawaja@google.com>
-Subject: Re: [PATCH net-next v4 6/9] net: enable driver support for netmem TX
-Message-ID: <Z7d-7P8kPthyr3bG@mini-arch>
-References: <20250220020914.895431-1-almasrymina@google.com>
- <20250220020914.895431-7-almasrymina@google.com>
+        bh=RpS2FnqN2TDBERxg5I5MCZqVN24rvf9DEtZLCeAzcmo=;
+        b=fyeY54JEF5UU+3FUwKC/s+SyWsRpTYL2ULGqGq+VrGVq6B+naLsgcK1P9Sg6jhEu/B
+         b/vDHATx9hi2xBeB9bHfBq/MkU3gs9seTw8Y/TmBLSYQjrUSjyDzbzLIvijJjzvsBrPC
+         NZDGCvXNtMeYRDGtzLhTQPSzWivxvDpGClb2w=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740079219; x=1740684019;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=RpS2FnqN2TDBERxg5I5MCZqVN24rvf9DEtZLCeAzcmo=;
+        b=tbr+EBnm2Tbml+L5p4bHEmcCIT5dyQYpkCETsuGbz7aU9kovsOGuj0LAbUf14zzRW5
+         u/qB3YeuywKxewny3cOVLqfyOIbTcD2kpi9H6huhhH0kmHcSMV52xR09+qQSFOnTO5US
+         WEW+uuGxJkZWOppJ2bisBiJNXoYHg2c17Cum1gFUd8GNQafgzHqf7OIN8gZhBbf99qKT
+         OpDfF6P3HlfqOD8yIBBZF9DbCKtka93/DLgTUC57dJDObkn/uXaCQtH98Kf1zItOxxUF
+         mkB0ylWQg6ZkWEsQ5tQOmAoCEGCbMlfG0O5XXa/K2v0Nga2eHgN9AiffoGZ3db26zp0b
+         hgog==
+X-Forwarded-Encrypted: i=1; AJvYcCWZQQtuA1p+FgA54KH5byj/7xcFrVpQfnkjBSahkwCx3Y09526eRMoDZzmFm5HJRj2Knoe0u3C7t7RXyubp1Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyMewhO41Zvnd4CiwkGBB0aobzvLmjE6H/dWFMm0RtSwKdi85wS
+	HWmjZVsiSgjAX8S9xp6vBc6QsCC7oxGMH6GCZ6UPcpwcmGqjPAdGcWwWC8FCj+/61jpb33HYmVT
+	O3g==
+X-Gm-Gg: ASbGnctHHaN2jrJLuYYj4XW6Y/7I9/kJsyOzMCWq9q9OpxSDps0jOaae2eCT7jMz69W
+	JoAaJ1MVHB+Zj5+M8LedY0fkKbQID6IAyZeOfAG/smZ2sAlJq64W2Rb2HJmtdS3IhAUH7nKQs1I
+	tKar+o06klI0rajSaoi3fqqxz3Q1m08iYREwll6pOqHiJrIyqDjOmZ+uerTipJlEcABp8o1cjWz
+	hErNQCGYOm24QWa7sVmvDYoWmY81MMvBStCn5Qjg/yPPy0wrwUqjRzb8UNR9qxXWkimD+D1rTLX
+	BHFkUXwpG2ziVsQusXYhHuYMGToxLsBJi2RlwjgF9ehA/eptmPlAr0U=
+X-Google-Smtp-Source: AGHT+IFe4Mo/OlZ+LFspfaW67QMf+9oXJiMO6/V9vVwDxDc95mQuR2EoPJt5Z6LF6b5eFMhjRaqtlA==
+X-Received: by 2002:a05:6a00:92a9:b0:730:9a85:c931 with SMTP id d2e1a72fcca58-73426dc2e35mr20449b3a.7.1740079218041;
+        Thu, 20 Feb 2025 11:20:18 -0800 (PST)
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com. [209.85.216.50])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73277135839sm8618331b3a.20.2025.02.20.11.20.15
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 20 Feb 2025 11:20:16 -0800 (PST)
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-2fa48404207so2738983a91.1
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 11:20:15 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVK+kP+mOhfoj94kXO5BbLlEUdZKY3xaTtaWsMbnida4l0onxDy0czhu0UilLlHzEAKuedbvhai63LwLQEHmw==@lists.linux.dev
+X-Received: by 2002:a17:90b:3946:b0:2f4:434d:c7ed with SMTP id
+ 98e67ed59e1d1-2fce78c7fd8mr609023a91.16.1740079215301; Thu, 20 Feb 2025
+ 11:20:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250220020914.895431-7-almasrymina@google.com>
+References: <20250220-virtio-shm-page-size-v3-0-874fff6f3979@redhat.com> <20250220-virtio-shm-page-size-v3-2-874fff6f3979@redhat.com>
+In-Reply-To: <20250220-virtio-shm-page-size-v3-2-874fff6f3979@redhat.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Date: Thu, 20 Feb 2025 11:19:47 -0800
+X-Gmail-Original-Message-ID: <CABVzXA=_S2in+OzfwK6vGQR3VK3YhGRu4B+tp5oCZKHt0Qz=gw@mail.gmail.com>
+X-Gm-Features: AWEUYZlJc2Ri_gGb-xTYNfHBI9nY3KXtKqjPGrNSl2kv5ni8-vqVm6Z_S9XKcC4
+Message-ID: <CABVzXA=_S2in+OzfwK6vGQR3VK3YhGRu4B+tp5oCZKHt0Qz=gw@mail.gmail.com>
+Subject: Re: [PATCH RFC v3 2/4] virtio-pci: extend virtio_pci_cap with page_shift
+To: Sergio Lopez <slp@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>, 
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>, fnkl.kernel@gmail.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 02/20, Mina Almasry wrote:
-> Drivers need to make sure not to pass netmem dma-addrs to the
-> dma-mapping API in order to support netmem TX.
-> 
-> Add helpers and netmem_dma_*() helpers that enables special handling of
-> netmem dma-addrs that drivers can use.
-> 
-> Document in netmem.rst what drivers need to do to support netmem TX.
-> 
-> Signed-off-by: Mina Almasry <almasrymina@google.com>
-> 
-> ---
-> 
-> v4:
-> - New patch
-> ---
->  .../networking/net_cachelines/net_device.rst  |  1 +
->  Documentation/networking/netdev-features.rst  |  5 +++++
->  Documentation/networking/netmem.rst           | 14 +++++++++++--
->  include/linux/netdevice.h                     |  2 ++
->  include/net/netmem.h                          | 20 +++++++++++++++++++
->  5 files changed, 40 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/networking/net_cachelines/net_device.rst b/Documentation/networking/net_cachelines/net_device.rst
-> index 15e31ece675f..e3043b033647 100644
-> --- a/Documentation/networking/net_cachelines/net_device.rst
-> +++ b/Documentation/networking/net_cachelines/net_device.rst
-> @@ -10,6 +10,7 @@ Type                                Name                        fastpath_tx_acce
->  =================================== =========================== =================== =================== ===================================================================================
->  unsigned_long:32                    priv_flags                  read_mostly                             __dev_queue_xmit(tx)
->  unsigned_long:1                     lltx                        read_mostly                             HARD_TX_LOCK,HARD_TX_TRYLOCK,HARD_TX_UNLOCK(tx)
-> +unsigned long:1			    netmem_tx:1;	        read_mostly
->  char                                name[16]
->  struct netdev_name_node*            name_node
->  struct dev_ifalias*                 ifalias
-> diff --git a/Documentation/networking/netdev-features.rst b/Documentation/networking/netdev-features.rst
-> index 5014f7cc1398..02bd7536fc0c 100644
-> --- a/Documentation/networking/netdev-features.rst
-> +++ b/Documentation/networking/netdev-features.rst
-> @@ -188,3 +188,8 @@ Redundancy) frames from one port to another in hardware.
->  This should be set for devices which duplicate outgoing HSR (High-availability
->  Seamless Redundancy) or PRP (Parallel Redundancy Protocol) tags automatically
->  frames in hardware.
-> +
-> +* netmem-tx
-> +
-> +This should be set for devices which support netmem TX. See
-> +Documentation/networking/netmem.rst
-> diff --git a/Documentation/networking/netmem.rst b/Documentation/networking/netmem.rst
-> index 7de21ddb5412..43054d44c407 100644
-> --- a/Documentation/networking/netmem.rst
-> +++ b/Documentation/networking/netmem.rst
-> @@ -19,8 +19,8 @@ Benefits of Netmem :
->  * Simplified Development: Drivers interact with a consistent API,
->    regardless of the underlying memory implementation.
->  
-> -Driver Requirements
-> -===================
-> +Driver RX Requirements
-> +======================
->  
->  1. The driver must support page_pool.
->  
-> @@ -77,3 +77,13 @@ Driver Requirements
->     that purpose, but be mindful that some netmem types might have longer
->     circulation times, such as when userspace holds a reference in zerocopy
->     scenarios.
-> +
-> +Driver TX Requirements
-> +======================
-> +
-> +1. Driver should use netmem_dma_unmap_page_attrs() in lieu of
-> +   dma_unmap_page[_attrs](), and netmem_dma_unmap_addr_set() in lieu of
-> +   dma_unmap_addr_set(). The netmem variants will handle netmems that should
-> +   not be dma-unmapped by the driver, such as dma-buf netmems.
+On Thu, Feb 20, 2025 at 6:30=E2=80=AFAM Sergio Lopez <slp@redhat.com> wrote=
+:
+[...]
+> @@ -829,6 +839,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *de=
+v, u8 required_id,
+>                 *bar =3D res_bar;
+>                 *offset =3D res_offset;
+>                 *len =3D res_length;
+> +               *page_size =3D 1 << (page_shift + 12);
 
-Not all drivers use dma_unmap_addr_xxx APIs (looking at mlx5). Might
-be worth mentioning that for the drivers managing the mappings
-differently, care might be taken to not unmap netmems?
+Maybe this should validate that page_shift is in range to avoid any
+funny business from the device; since page_size is u32, this needs
+page_shift + 12 < 32. (If it's out of range, I am not sure what this
+should do; maybe just warn and set it to the default 4096?)
 
-> +2. Driver should declare support by setting `netdev->netmem_tx = true`
-> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> index fccc03cd2164..d8cfd5d69ddf 100644
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -1753,6 +1753,7 @@ enum netdev_reg_state {
->   *	@lltx:		device supports lockless Tx. Deprecated for real HW
->   *			drivers. Mainly used by logical interfaces, such as
->   *			bonding and tunnels
-> + *	@netmem_tx:	device support netmem_tx.
->   *
->   *	@name:	This is the first field of the "visible" part of this structure
->   *		(i.e. as seen by users in the "Space.c" file).  It is the name
-> @@ -2061,6 +2062,7 @@ struct net_device {
->  	struct_group(priv_flags_fast,
->  		unsigned long		priv_flags:32;
->  		unsigned long		lltx:1;
-> +		unsigned long		netmem_tx:1;
->  	);
->  	const struct net_device_ops *netdev_ops;
->  	const struct header_ops *header_ops;
-> diff --git a/include/net/netmem.h b/include/net/netmem.h
-> index a2148ffb203d..1fb39ad63290 100644
-> --- a/include/net/netmem.h
-> +++ b/include/net/netmem.h
-> @@ -8,6 +8,7 @@
->  #ifndef _NET_NETMEM_H
->  #define _NET_NETMEM_H
->  
-> +#include <linux/dma-mapping.h>
->  #include <linux/mm.h>
->  #include <net/net_debug.h>
->  
-> @@ -267,4 +268,23 @@ static inline unsigned long netmem_get_dma_addr(netmem_ref netmem)
->  void get_netmem(netmem_ref netmem);
->  void put_netmem(netmem_ref netmem);
->  
+Also shifting into the sign bit is technically undefined (or
+implementation-defined? I don't recall) behavior, so perhaps make the
+constant unsigned, e.g. `1U << (page_shift + 12)`.
 
-[..]
+Other than that, looks reasonable to me:
+Reviewed-by: Daniel Verkamp <dverkamp@chromium.org>
 
-> +#define netmem_dma_unmap_addr_set(NETMEM, PTR, ADDR_NAME, VAL)   \
-> +	do {                                                     \
-> +		if (!netmem_is_net_iov(NETMEM))                  \
-> +			dma_unmap_addr_set(PTR, ADDR_NAME, VAL); \
-> +		else                                             \
-> +			dma_unmap_addr_set(PTR, ADDR_NAME, 0);   \
-> +	} while (0)
-
-Any reason not do to static inline instaed?
+Thanks,
+-- Daniel
