@@ -1,164 +1,113 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D93E1C3316;
-	Thu, 20 Feb 2025 23:00:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56F75264631
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 23:17:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740092445; cv=none; b=hCpQmKZ417s3LKUxQlBqDRbF4980MpqFA1t7MRDAr1ZBvi/JCsSXIZrcQGca+iG3O9+TWxvHY8CJUMriLKbD2InMEsw/2mm3xSm8BTdScVZPbF+It1lRd279hL+y7kdG/w2DJiw76SXYOlyCRECiK5+tbrmeYSqlaOxnKVdn6+8=
+	t=1740093446; cv=none; b=aGxQ82l+djwkWlBnSsBkndM1vNJwQolg9zzZgHt6In1zc7q68clr1Q8YP66StllWPzmmoLEOcepD2PTpPj4RG28DrYEzshWFe9RPK9OndsSfZYR71p2N3DC5Kef4WhQe/GA7TnPHLNqn97nCopBDUn5r/Nr4Qo3tFjiwq6yQKRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740092445; c=relaxed/simple;
-	bh=TOLmmrM+n+DIDbBKh5x0eyfWVSXmehGi7z9iNV/nTko=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ujhg3avMNP/UJUCul5jRmqAddVP9uzIW5oDtXqn/aaF0ed0ecOMqA+Vm+jKkPz4C8rQgfJKhoy71o32+DdXCJzzGmdSHDHH22bsHG7gi2d5qgubZhAueSRTea+j/4aFS+j/89TINTEzxlRyjPT9800NI066pZ1hHG3nMS+HaxNM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=X4q/Ak/b; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1740093446; c=relaxed/simple;
+	bh=1cIjuvp4munwp36O0Su27G+k3yaY66vxM/AalS2J9ro=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=M2bf7scXE/4FC7A5viTg1l3S12OQi2IjSkD08WNtbuNRupMLsOhM43No/M8SHIAPpSR3L/lyU6ST7N9jmHFsYZsb1LMR3yjIl/PY1FiI5JDJ9G0ydXV5ZOrVlQc2LYGbykJuerIL/zXQia6fEXd5SSvKh8mBgwBffIjPRxlqMz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KNV5v92b; arc=none smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="X4q/Ak/b"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740092444; x=1771628444;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=TOLmmrM+n+DIDbBKh5x0eyfWVSXmehGi7z9iNV/nTko=;
-  b=X4q/Ak/b4xepV32zsRRkLOSiHjP603gvhzRfEK6bs8Nl8NBoaPdpjog0
-   mk0p+Wrpt4wWeZLjw/NTLl0E7t/S5dw/5dQU50oSMzg/nD1IsTx3QF/gH
-   +wT1R7AuHLIvoceVTGPM3TWZXrAu8SKXYUagFfDlGnu+6MnuP3jGpF8/e
-   SrGWVXG3Wrlmdf9ijWAwbkcqQHgpduhFWaX7+vWNKUcq6dAfjtzgz2YwE
-   O9kKUyueIsTpMqNP159oU1Hhww9adXnW4jJlAQbraCQn3G0GfWvIicW7W
-   0DXPjNR/Yjr7a+C0YplyucLtzPDXIUeN6KyLel+IE+NXd1w2xQ5ymZXOS
-   A==;
-X-CSE-ConnectionGUID: GG8iPdpZQ12UInbDoorDdw==
-X-CSE-MsgGUID: D2UCg9JTRsy9R4/5SlBYzQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11351"; a="44813768"
-X-IronPort-AV: E=Sophos;i="6.13,302,1732608000"; 
-   d="scan'208";a="44813768"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 15:00:43 -0800
-X-CSE-ConnectionGUID: 555xKCyBQcaqzopAHLdo/A==
-X-CSE-MsgGUID: 53EqsSUlSrqMna1u14ATsg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,302,1732608000"; 
-   d="scan'208";a="138402913"
-Received: from jdoman-mobl3.amr.corp.intel.com (HELO [10.125.110.142]) ([10.125.110.142])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 15:00:42 -0800
-Message-ID: <9053a4ef-2de6-47b4-a2f7-62d3ded24cfa@intel.com>
-Date: Thu, 20 Feb 2025 15:00:43 -0800
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KNV5v92b"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-54522e82e7dso2937e87.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 15:17:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1740093442; x=1740698242; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yRORyKgcdd4uVm+XGlcno7rV+y967/k6WA8VcDaJDCw=;
+        b=KNV5v92bUGO82CB6XfHMGJs9DqAMh7c4qf8UNKwNSs6eOhuTBQ16n2oktA3f5jUJVI
+         nsKQoa3GeduA65YcHhmcgbRVtr/AsLUSvtZ15mCh00efqPqUCUfCl8q4gei0jV7VlppG
+         O/cfA1wFYcJrpKsgLKnJ0R4E9wBFS/Rb3//55kZ1WB9Zt7qePueDGiOWEBzKyCrO7eMO
+         dG28eJjyj24+DmeYrSRocIPghDH6IDDZF338JiGepICYOdFpF48dVFikMYN9koG6/oyu
+         xt+b9qGlV9QUeDTOTwyZOfjUrB7k2sE5BOLBX0X6+4tMWDYG7X7GF1EL0xgSsA/SU7qV
+         YtuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740093442; x=1740698242;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yRORyKgcdd4uVm+XGlcno7rV+y967/k6WA8VcDaJDCw=;
+        b=wyIXTI6matu8fsMfS83qKh9xjGy5DaAFoa+qpcnvq1ng33RPZa1qPawjTzFwi1TFWT
+         /hUUqrYoIKqiIdPl4JGQ4tLzypWJQsFvn92LJLBEmfCvKVsf55FLsqipbP6a/iX0TI7x
+         MyZqz6QuoE9i5YmYgzwwxxPRLYPYOfq54kmunSVXqatWOuh0U9Q1WOC2eegQLC3/q5Zz
+         yNHjD7vUOY6mjVCVxWL4D0Fm1d2xzNOBmIn389k1KAB3k4akHoDX2hvsqrwmnLwSd64S
+         h6ctGnxPtb03PzktR9tB03FhZNDdWtN5YitkLde7CLgGDBeE3CCR9Vp6MP7xmet85PYv
+         mRew==
+X-Forwarded-Encrypted: i=1; AJvYcCULeK7eARFsQLcTNS1BEHnqUhTTsyMx8vve+n9h3zGxrmUR2iGcFuySL4xzH9dREVqqY/lOfZsgAkL1xH2byQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw9rjfQLDSVdDLHPMjCwEbQTgV2Er7cTXE47e/T9ztKIimimOUq
+	yR/tKVBxV9LBJpp0WWOuJWnExo3OYFAZ9rHRwCURYRwZgkWeMPWTQagVIdYsi2TscYZylapq7X/
+	toaE4YomxioQHbD4IaWNbYxdZKyqSIpnEDzYd
+X-Gm-Gg: ASbGncsFCzMFOtxWTKaDdiaJ8bTMdsvL/1DOIOcj8aJIQJqD1h5ZivNjs8qTlie7XyS
+	AJZ7YFjasIUlfGJ3RP5b16xcxIXu+46VvaTgD8gj9S2AwGRKIkuPvxqwohmI/zWjFlFLoyHtvFn
+	/O4SVYC9ZLg1ChW0p79uP8tMqBk1oZ
+X-Google-Smtp-Source: AGHT+IEWQiBc288yYrLCTppIrbxa3qN0HBmgiL7WK6l/eN2zlTxhCP/B74cPGse/0Iz95hyG2RtMrjG+GdCe2cYgGKw=
+X-Received: by 2002:a05:6512:124f:b0:545:2301:b1c6 with SMTP id
+ 2adb3069b0e04-54839f9c24dmr36007e87.7.1740093442260; Thu, 20 Feb 2025
+ 15:17:22 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V5 2/4] x86/tdx: Route safe halt execution via
- tdx_safe_halt()
-To: Vishal Annapurve <vannapurve@google.com>, x86@kernel.org,
- linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
- virtualization@lists.linux.dev
-Cc: pbonzini@redhat.com, seanjc@google.com, erdemaktas@google.com,
- ackerleytng@google.com, jxgao@google.com, sagis@google.com,
- oupton@google.com, pgonda@google.com, kirill@shutemov.name,
- dave.hansen@linux.intel.com, chao.p.peng@linux.intel.com,
- isaku.yamahata@gmail.com, sathyanarayanan.kuppuswamy@linux.intel.com,
- jgross@suse.com, ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com,
- stable@vger.kernel.org
 References: <20250220211628.1832258-1-vannapurve@google.com>
- <20250220211628.1832258-3-vannapurve@google.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <20250220211628.1832258-3-vannapurve@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+ <20250220211628.1832258-2-vannapurve@google.com> <9120e074-52af-4ae5-a08c-e62a879c7ebb@intel.com>
+In-Reply-To: <9120e074-52af-4ae5-a08c-e62a879c7ebb@intel.com>
+From: Vishal Annapurve <vannapurve@google.com>
+Date: Thu, 20 Feb 2025 15:17:10 -0800
+X-Gm-Features: AWEUYZlcMEtt0DdUpswWfn-2RnJ9b7h7OlP4aU2QsZo74T1M7MMOMNFwfs29_Zg
+Message-ID: <CAGtprH-utPk=u938odDYAWAFLSZj+OhVH_k_RCHc87k3eqm0jQ@mail.gmail.com>
+Subject: Re: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under CONFIG_PARAVIRT
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	virtualization@lists.linux.dev, pbonzini@redhat.com, seanjc@google.com, 
+	erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com, 
+	sagis@google.com, oupton@google.com, pgonda@google.com, kirill@shutemov.name, 
+	dave.hansen@linux.intel.com, chao.p.peng@linux.intel.com, 
+	isaku.yamahata@gmail.com, sathyanarayanan.kuppuswamy@linux.intel.com, 
+	jgross@suse.com, ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com, 
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, stable@vger.kernel.org, 
+	Andi Kleen <ak@linux.intel.com>, Tony Luck <tony.luck@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2/20/25 13:16, Vishal Annapurve wrote:
-> Direct HLT instruction execution causes #VEs for TDX VMs which is routed
-> to hypervisor via TDCALL. safe_halt() routines execute HLT in STI-shadow
-> so IRQs need to remain disabled until the TDCALL to ensure that pending
-> IRQs are correctly treated as wake events.
+On Thu, Feb 20, 2025 at 1:47=E2=80=AFPM Dave Hansen <dave.hansen@intel.com>=
+ wrote:
+>
+> On 2/20/25 13:16, Vishal Annapurve wrote:
+> > Since enabling CONFIG_PARAVIRT_XXL is too bloated for TDX guest
+> > like platforms, move HLT and SAFE_HLT paravirt calls under
+> > CONFIG_PARAVIRT.
+>
+> I guess it's just one patch, but doesn't this expose CONFIG_PARAVIRT=3Dy
+> users to what _was_ specific to CONFIG_PARAVIRT_XXL=3Dy? According to the
+> changelog, TDX users shouldn't have to use use PARAVIRT_XXL, so
+> PARAVIRT=3Dy and PARAVIRT_XXL=3Dn must be an *IMPORTANT* configuration fo=
+r
+> TDX users.
+>
+> Before this patch, those users would have no way to hit the
+> unsafe-for-TDX pv_native_safe_halt(). After this patch, they will hit it.
 
-This isn't quite true. There's only one paravirt safe_halt() and it
-doesn't do HLT or STI.
+Before this patch, those users had access to arch_safe_halt() ->
+native_safe_halt() path. With this patch, such users can execute
+arch_safe_halt -> pv_native_safe_halt() -> native_safe_halt(), so this
+patch doesn't cause any additional regression.
 
-I think it's more true to say that "safe" halts are entered with IRQs
-disabled. They logically do the halt operation and then enable
-interrupts before returning.
-
-> So "sti;hlt" sequence needs to be replaced for TDX VMs with "TDCALL;
-> *_irq_enable()" to keep interrupts disabled during TDCALL execution.
-But this isn't new. TDX already tried to avoid "sti;hlt". It just
-screwed up the implementation.
-
-> Commit bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
-> prevented the idle routines from using "sti;hlt". But it missed the
-> paravirt routine which can be reached like this as an example:
->         acpi_safe_halt() =>
->         raw_safe_halt()  =>
->         arch_safe_halt() =>
->         irq.safe_halt()  =>
->         pv_native_safe_halt()
-
-This, on the other hand, *is* important.
-
-> Modify tdx_safe_halt() to implement the sequence "TDCALL;
-> raw_local_irq_enable()" and invoke tdx_halt() from idle routine which just
-> executes TDCALL without toggling interrupt state. Introduce dependency
-> on CONFIG_PARAVIRT and override paravirt halt()/safe_halt() routines for
-> TDX VMs.
-
-This changelog glosses over one of the key points: Why *MUST* TDX use
-paravirt? It further confuses the reasoning by alluding to the idea that
-"Direct HLT instruction execution ... is routed to hypervisor via TDCALL".
-
-It gives background and a solution, but it's not obvious what the
-problem is or how the solution _fixes_ the problem.
-
-What must TDX now depend on PARAVIRT?
-
-Why not just route the HLT to a TDXCALL via the #VE code?
-
-
+>
+> So, there are two possibilities:
+>
+>  1. This patch breaks bisection for an important TDX configuration
+>  2. This patch's conjecture that PARAVIRT_XXL=3Dn is important for TDX
+>     is wrong and it is not necessary in the first place.
+>
+> What am I missing?
