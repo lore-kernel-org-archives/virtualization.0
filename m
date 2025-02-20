@@ -1,62 +1,62 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 243F01420DD
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 21:00:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8423122087
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 21:00:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740085231; cv=none; b=gFhmjLJzAMM35DxZtt58Kas2a4VLiQbtkPFTbAKZxzI8loRyFtvsyvJQl0up4N2UKcPtz9DncuxULT8/iFXDgyBDtcJK6ICLVJGSVS8HHGDCuOREzJ3LYmn0guwAy6JZoNcG2WosFrH/cnBpmyRXIJ5kP5v/mNdOvWzDP629VGY=
+	t=1740085253; cv=none; b=RKGKi03hJaCfc9cqRrmsd00YjL/lMcneC8ML7U35F1YEeqImGDBik5Gx56co8APWuox+CG0VfyCS6Ys7SVc+Z6HkIGDCE+QQBGvo+pWRUGwJroNdP+O0YskY3B0tecWD5LjQ1ErJvTi7O02Sx0gX6MkC5ftEsUvfV7EtHjbekR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740085231; c=relaxed/simple;
-	bh=wjKQPQ8w1mhfkx3/7oMVDnQGTMOD5B2byO68pcXjvio=;
+	s=arc-20240116; t=1740085253; c=relaxed/simple;
+	bh=wyE+JSDxuV/hZTOQ0u1ZwPe//2YlrT8Ib5nCs1cadyM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XVMRsTQg37jmHFf8ex+bjca+xhKad5fY/d9YY4s+g7sKbGKFgUhDYBDXdiKCbBUt9bbvprYchy5eUIs5A1pxfwCHxayWVXdRRAR7vLDZFFzWwyLOMNUP918H0Vzof2Pe34EUW2WWZMsCiG7uvL73q/vuaAL2GvHzsIj0AnMoOEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=caQZgLGa; arc=none smtp.client-ip=209.85.216.48
+	 Content-Type:Content-Disposition:In-Reply-To; b=XCQkAaR/yjYW5igwcKQ3/SPCBqBh5RzsJcybKmgs+WU+DMNz7vP+cnbyX3hISoHEuq8XnoX1Fhyd50Sewb+QFD+KMc9oFby5v1J44oF7OD848yTXro9T4u+s4xgjP5YAuq+5g6FYHLr7y/vxyl8KmaMIR2WE6d6Wur82hgsM+hE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cAkS5Pcy; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="caQZgLGa"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-2fa48404207so2907416a91.1
-        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:00:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cAkS5Pcy"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-221050f3f00so29933885ad.2
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:00:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740085229; x=1740690029; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1740085251; x=1740690051; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ocAZMQJdnmPkwi++slUrJsYlfsHZyAYOpg1sHJK7ARg=;
-        b=caQZgLGabV6UowNdm7cekNqV6OW2YzLbTlrLbGlKjO8Cuvx4NHWUGCcZTi58d4hKkh
-         58/3sGzF0lp/YnM0Mz5SfHQET1WDWJ1qPgSVJMRzP/zXPLcvTbDZhbtuOJVvbOgkntju
-         ukThtIRygfTb1AQSXPMtvncX44Yujhqv4RJFmDNzMXqRhRTJ61VZZe+D08c8e4saOcrR
-         5Zh2qeDd5c757MHQo+ZLkb6akYmJsnsy3j14lV82efP4DtlTIvPIp5B2Ji6XuNN5PjEk
-         LKiC3/1rS6x2avuNI1OqqEsYG0lKzy3anShxJ4wobLlA6PrLPdk6TVVQzF0tL63KF0BF
-         jKOg==
+        bh=goRxPis4fiR0KiYF8m/mmzbs8TD+l7fkkxSQ1nIdOy8=;
+        b=cAkS5PcyW+5OBHqFRMki4iRaIRWgPBA93kIVKG1eblhUEGwF0J1Grc1JT8S6/hk9l0
+         5tDV6hAtAEfUhVsLK5ysEtrcV3ggvFsxowwPBQ72+5Mf94WKflALKoPM1YE5hoydjBCe
+         u5LDZ1gmd3v773Vbir54trMQlZFGNRRmRJwNq+U7GuyUjPaIGI5vy0Sdc6e4G8BzlQGZ
+         Yh3WaK/nKYclNzfk1ALLgTciK9l4NvA9wP4yVp7MxjuabmvfrZIjAVuxaEEsTNPm27CY
+         UvTitlY1eaYwRYyq/S71ci1Si8K+5topq/XRipowJWLQRx7qAVePGKkCbS9lL1EP6iJH
+         j0wA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740085229; x=1740690029;
+        d=1e100.net; s=20230601; t=1740085251; x=1740690051;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ocAZMQJdnmPkwi++slUrJsYlfsHZyAYOpg1sHJK7ARg=;
-        b=GTdUwOgEB+Tc4uX3s1sednyBkaRxhWL6LgPZoQ9HMt8GOz+DVlgjwBYbGHWLaRuscm
-         RMcSQdCru4bJ+yWNLJ1VpjtzvKklzqY7sFFELgCRAE9ruUODJe2oWstEfTn4VD4mg4I5
-         5YPQazK7+8oh+gIBz5nwaMBKcbJZbb2RG/vGgUt/Yf0iurqWjBv/ykx1+L3/NY62V7Im
-         TfzRo+CbbMCr/D67sA/W3XMJy2X/DOacXzsmMcPTKtaI65s7kb8xJX45IQlnf69rp1hB
-         ptVfpuPZtaaXlrfxCugFXyAQWj8Wr4xPoMSaNWLUBTxWl5VWSlcv6FMrW3HfxeMh9LmA
-         tM1Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXBN7szAsHuyVpmQieXk0uzjqaphbjVN+LEDr2XDyQTKUkh+lcE759RV4mG+jFjsc0eOsJd6/w0RdSq6Sf59g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzW2+2Bg3p6X+f4Fw/wZwfwYKFuwH0bozBIs5mY4dckY/KD1LkX
-	iPX0eaxBREu1X9t8vdlyVxDtTlQ5ECjFFxH0KQCjAvooamFN5iE=
-X-Gm-Gg: ASbGncterV/leHhtkRYefrdXpHhTBpioTfAxQRYYDgeAViGZDXpgRMNGL0mZFreFn7b
-	/9xWssSiqmrGFNKiexPpXLyWoJ6NqJf4bUOTKLDgKqZP07/6Kp8FMUxJxMJywj0HdynDHjdsXE0
-	0VTi5CKsF79D4NmwTbKd4e5pRO4wmS38D8xgU6nHJ2wj65V6M4rBG0vavfDJPEDjxxW6X5qatCf
-	AYlSZe7qOc0X6vyfdnZMrSwVBv1//Y2SCiBlJi5gSUuCky3pg0AbeXCkHUrA4wgcRyyjNYDHC6U
-	Q0YLw5Wek2qYBZc=
-X-Google-Smtp-Source: AGHT+IFtOMuMQhxcIAllXScRB6FKHAtOBoya+bQ7QQWvGb6kPdplhyv4FFHw5xoxXDq9Yn1+KHBWWg==
-X-Received: by 2002:a17:90b:3d0e:b0:2ee:f687:6acb with SMTP id 98e67ed59e1d1-2fce78a584dmr1036201a91.13.1740085229080;
-        Thu, 20 Feb 2025 13:00:29 -0800 (PST)
+        bh=goRxPis4fiR0KiYF8m/mmzbs8TD+l7fkkxSQ1nIdOy8=;
+        b=s1NrvGgaX4QoHqUDnpjID/D+Iwgew9UUoc/oScEgUF8I1BD0JccEY/ZxhOvbltPe4A
+         uo1baY+XBsPiPYBK+JHvoKZi6/K2AP8rnRcWlw0WpBlC/AX/mTfliK36lRIKPobgEnNO
+         Khe/G3R0aNXjLMnIndQkvWBiuglNGsN0Wi0o5tpWNnRZy9L98h5Ed35utCBU+gfN+JZe
+         dBcfI1rzAp3tGnkiRCEsBZ9XXRNNicytSoy9dHonO/YIjNlvN15LCYeZbygtd/EQ7dV/
+         rRbhLZE48zwPKoD/zq3dGcqrjTc/cfajylzZS5gZ1uVoKcLYbHGgacBxOIthkvWgf8VB
+         dPIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV/QKMwnRrTJQM1yjrDbltnm0ou+VwA/2rCf9SYyoepFNRPSW0TzSPF71Sr8DhRx35roRokOFj2pRjvTQb9fw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx6C/9O8Cb00vMDwdyIHmxozxwvXb+61EIwqCen09rS2py0V7pX
+	Hvh6iL94NoB81oj9fBb6ie8ZllguuKQhxbnMldW58ZClke/ulII=
+X-Gm-Gg: ASbGncvOo7OLyGeRxqmniOprvNorY5v5Ciwxp6y491r64c6Kr2yTiHVhsAUAkUIpo0O
+	5+z3eQ0lkXIeqJrOeUKLFKYFyAyMx1PiCLslQoaBaD3ppn3CFMGQQaOh1Ok8y3Rn0yzhmjdk3A4
+	mRGruC6f7GhC9tNm+BE/9uCOPGCwdSk5fYIWJo1HK1YLJpAfmTe0WxY2a4CuIW9OSiSSD+hxm5G
+	6dh8RGehVNJPs4WM72y3K6vLJGVyYyb3C1cFTS4q9ixN06AI6BJdwcPk00j37bYfYDUh84sKKzF
+	PpIg1eNd0YdVqmE=
+X-Google-Smtp-Source: AGHT+IGslSk8vgGnidZWgpsWLCS9e9O5Moku2z8DGhJIxx0KDO4cfjuxSXj1umr7Y2mV/3IdPW96jw==
+X-Received: by 2002:a17:902:d2c8:b0:216:5294:619b with SMTP id d9443c01a7336-2219ffbd671mr8961765ad.47.1740085250617;
+        Thu, 20 Feb 2025 13:00:50 -0800 (PST)
 Received: from localhost ([2601:646:9e00:f56e:123b:cea3:439a:b3e3])
-        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-2fc13ad35absm14225674a91.25.2025.02.20.13.00.28
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-220d47ba84fsm126080825ad.0.2025.02.20.13.00.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Feb 2025 13:00:28 -0800 (PST)
-Date: Thu, 20 Feb 2025 13:00:27 -0800
+        Thu, 20 Feb 2025 13:00:50 -0800 (PST)
+Date: Thu, 20 Feb 2025 13:00:49 -0800
 From: Stanislav Fomichev <stfomichev@gmail.com>
 To: Mina Almasry <almasrymina@google.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -87,12 +87,12 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Jamal Hadi Salim <jhs@mojatatu.com>,
 	Victor Nogueira <victor@mojatatu.com>,
 	Pedro Tammela <pctammela@mojatatu.com>,
-	Samiullah Khawaja <skhawaja@google.com>,
-	Kaiyuan Zhang <kaiyuanz@google.com>
-Subject: Re: [PATCH net-next v4 3/9] net: devmem: Implement TX path
-Message-ID: <Z7eX6yaRsGqmSzy7@mini-arch>
+	Samiullah Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v4 4/9] net: devmem: make dmabuf unbinding
+ scheduled work
+Message-ID: <Z7eYAXxPNx59OTcS@mini-arch>
 References: <20250220020914.895431-1-almasrymina@google.com>
- <20250220020914.895431-4-almasrymina@google.com>
+ <20250220020914.895431-5-almasrymina@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -101,343 +101,74 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20250220020914.895431-4-almasrymina@google.com>
+In-Reply-To: <20250220020914.895431-5-almasrymina@google.com>
 
 On 02/20, Mina Almasry wrote:
-> Augment dmabuf binding to be able to handle TX. Additional to all the RX
-> binding, we also create tx_vec needed for the TX path.
+> The TX path may release the dmabuf in a context where we cannot wait.
+> This happens when the user unbinds a TX dmabuf while there are still
+> references to its netmems in the TX path. In that case, the netmems will
+> be put_netmem'd from a context where we can't unmap the dmabuf,
+> resulting in a BUG like seen by Stan:
 > 
-> Provide API for sendmsg to be able to send dmabufs bound to this device:
+> [    1.548495] BUG: sleeping function called from invalid context at drivers/dma-buf/dma-buf.c:1255
+> [    1.548741] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 149, name: ncdevmem
+> [    1.548926] preempt_count: 201, expected: 0
+> [    1.549026] RCU nest depth: 0, expected: 0
+> [    1.549197]
+> [    1.549237] =============================
+> [    1.549331] [ BUG: Invalid wait context ]
+> [    1.549425] 6.13.0-rc3-00770-gbc9ef9606dc9-dirty #15 Tainted: G        W
+> [    1.549609] -----------------------------
+> [    1.549704] ncdevmem/149 is trying to lock:
+> [    1.549801] ffff8880066701c0 (reservation_ww_class_mutex){+.+.}-{4:4}, at: dma_buf_unmap_attachment_unlocked+0x4b/0x90
+> [    1.550051] other info that might help us debug this:
+> [    1.550167] context-{5:5}
+> [    1.550229] 3 locks held by ncdevmem/149:
+> [    1.550322]  #0: ffff888005730208 (&sb->s_type->i_mutex_key#11){+.+.}-{4:4}, at: sock_close+0x40/0xf0
+> [    1.550530]  #1: ffff88800b148f98 (sk_lock-AF_INET6){+.+.}-{0:0}, at: tcp_close+0x19/0x80
+> [    1.550731]  #2: ffff88800b148f18 (slock-AF_INET6){+.-.}-{3:3}, at: __tcp_close+0x185/0x4b0
+> [    1.550921] stack backtrace:
+> [    1.550990] CPU: 0 UID: 0 PID: 149 Comm: ncdevmem Tainted: G        W          6.13.0-rc3-00770-gbc9ef9606dc9-dirty #15
+> [    1.551233] Tainted: [W]=WARN
+> [    1.551304] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Arch Linux 1.16.3-1-1 04/01/2014
+> [    1.551518] Call Trace:
+> [    1.551584]  <TASK>
+> [    1.551636]  dump_stack_lvl+0x86/0xc0
+> [    1.551723]  __lock_acquire+0xb0f/0xc30
+> [    1.551814]  ? dma_buf_unmap_attachment_unlocked+0x4b/0x90
+> [    1.551941]  lock_acquire+0xf1/0x2a0
+> [    1.552026]  ? dma_buf_unmap_attachment_unlocked+0x4b/0x90
+> [    1.552152]  ? dma_buf_unmap_attachment_unlocked+0x4b/0x90
+> [    1.552281]  ? dma_buf_unmap_attachment_unlocked+0x4b/0x90
+> [    1.552408]  __ww_mutex_lock+0x121/0x1060
+> [    1.552503]  ? dma_buf_unmap_attachment_unlocked+0x4b/0x90
+> [    1.552648]  ww_mutex_lock+0x3d/0xa0
+> [    1.552733]  dma_buf_unmap_attachment_unlocked+0x4b/0x90
+> [    1.552857]  __net_devmem_dmabuf_binding_free+0x56/0xb0
+> [    1.552979]  skb_release_data+0x120/0x1f0
+> [    1.553074]  __kfree_skb+0x29/0xa0
+> [    1.553156]  tcp_write_queue_purge+0x41/0x310
+> [    1.553259]  tcp_v4_destroy_sock+0x127/0x320
+> [    1.553363]  ? __tcp_close+0x169/0x4b0
+> [    1.553452]  inet_csk_destroy_sock+0x53/0x130
+> [    1.553560]  __tcp_close+0x421/0x4b0
+> [    1.553646]  tcp_close+0x24/0x80
+> [    1.553724]  inet_release+0x5d/0x90
+> [    1.553806]  sock_close+0x4a/0xf0
+> [    1.553886]  __fput+0x9c/0x2b0
+> [    1.553960]  task_work_run+0x89/0xc0
+> [    1.554046]  do_exit+0x27f/0x980
+> [    1.554125]  do_group_exit+0xa4/0xb0
+> [    1.554211]  __x64_sys_exit_group+0x17/0x20
+> [    1.554309]  x64_sys_call+0x21a0/0x21a0
+> [    1.554400]  do_syscall_64+0xec/0x1d0
+> [    1.554487]  ? exc_page_fault+0x8a/0xf0
+> [    1.554585]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> [    1.554703] RIP: 0033:0x7f2f8a27abcd
 > 
-> - Provide a new dmabuf_tx_cmsg which includes the dmabuf to send from.
-> - MSG_ZEROCOPY with SCM_DEVMEM_DMABUF cmsg indicates send from dma-buf.
+> Resolve this by making __net_devmem_dmabuf_binding_free schedule_work'd.
 > 
-> Devmem is uncopyable, so piggyback off the existing MSG_ZEROCOPY
-> implementation, while disabling instances where MSG_ZEROCOPY falls back
-> to copying.
-> 
-> We additionally pipe the binding down to the new
-> zerocopy_fill_skb_from_devmem which fills a TX skb with net_iov netmems
-> instead of the traditional page netmems.
-> 
-> We also special case skb_frag_dma_map to return the dma-address of these
-> dmabuf net_iovs instead of attempting to map pages.
-> 
-> Based on work by Stanislav Fomichev <sdf@fomichev.me>. A lot of the meat
-> of the implementation came from devmem TCP RFC v1[1], which included the
-> TX path, but Stan did all the rebasing on top of netmem/net_iov.
-> 
-> Cc: Stanislav Fomichev <sdf@fomichev.me>
-> Signed-off-by: Kaiyuan Zhang <kaiyuanz@google.com>
+> Suggested-by: Stanislav Fomichev <sdf@fomichev.me>
 > Signed-off-by: Mina Almasry <almasrymina@google.com>
-> 
-> ---
-> 
-> v4:
-> - Remove dmabuf_tx_cmsg definition and just use __u32 for the dma-buf id
->   (Willem).
-> - Check that iov_iter_type() is ITER_IOVEC in
->   zerocopy_fill_skb_from_iter() (Pavel).
-> - Fix binding->tx_vec not being freed on error paths (Paolo).
-> - Make devmem patch mutually exclusive with msg->ubuf_info path (Pavel).
-> - Check that MSG_ZEROCOPY and SOCK_ZEROCOPY are provided when
->   sockc.dmabuf_id is provided.
-> - Don't mm_account_pinned_pages() on devmem TX (Pavel).
-> 
-> v3:
-> - Use kvmalloc_array instead of kcalloc (Stan).
-> - Fix unreachable code warning (Simon).
-> 
-> v2:
-> - Remove dmabuf_offset from the dmabuf cmsg.
-> - Update zerocopy_fill_skb_from_devmem to interpret the
->   iov_base/iter_iov_addr as the offset into the dmabuf to send from
->   (Stan).
-> - Remove the confusing binding->tx_iter which is not needed if we
->   interpret the iov_base/iter_iov_addr as offset into the dmabuf (Stan).
-> - Remove check for binding->sgt and binding->sgt->nents in dmabuf
->   binding.
-> - Simplify the calculation of binding->tx_vec.
-> - Check in net_devmem_get_binding that the binding we're returning
->   has ifindex matching the sending socket (Willem).
-> 
-> ---
->  include/linux/skbuff.h                  |  17 +++-
->  include/net/sock.h                      |   1 +
->  net/core/datagram.c                     |  48 +++++++++++-
->  net/core/devmem.c                       | 100 ++++++++++++++++++++++--
->  net/core/devmem.h                       |  41 +++++++++-
->  net/core/netdev-genl.c                  |  64 ++++++++++++++-
->  net/core/skbuff.c                       |  18 +++--
->  net/core/sock.c                         |   6 ++
->  net/ipv4/ip_output.c                    |   3 +-
->  net/ipv4/tcp.c                          |  46 ++++++++---
->  net/ipv6/ip6_output.c                   |   3 +-
->  net/vmw_vsock/virtio_transport_common.c |   5 +-
->  12 files changed, 309 insertions(+), 43 deletions(-)
-> 
-> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-> index bb2b751d274a..b8783aa94c1e 100644
-> --- a/include/linux/skbuff.h
-> +++ b/include/linux/skbuff.h
-> @@ -1707,13 +1707,16 @@ static inline void skb_set_end_offset(struct sk_buff *skb, unsigned int offset)
->  extern const struct ubuf_info_ops msg_zerocopy_ubuf_ops;
->  
->  struct ubuf_info *msg_zerocopy_realloc(struct sock *sk, size_t size,
-> -				       struct ubuf_info *uarg);
-> +				       struct ubuf_info *uarg, bool devmem);
->  
->  void msg_zerocopy_put_abort(struct ubuf_info *uarg, bool have_uref);
->  
-> +struct net_devmem_dmabuf_binding;
-> +
->  int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
->  			    struct sk_buff *skb, struct iov_iter *from,
-> -			    size_t length);
-> +			    size_t length,
-> +			    struct net_devmem_dmabuf_binding *binding);
->  
->  int zerocopy_fill_skb_from_iter(struct sk_buff *skb,
->  				struct iov_iter *from, size_t length);
-> @@ -1721,12 +1724,14 @@ int zerocopy_fill_skb_from_iter(struct sk_buff *skb,
->  static inline int skb_zerocopy_iter_dgram(struct sk_buff *skb,
->  					  struct msghdr *msg, int len)
->  {
-> -	return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_iter, len);
-> +	return __zerocopy_sg_from_iter(msg, skb->sk, skb, &msg->msg_iter, len,
-> +				       NULL);
->  }
->  
->  int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
->  			     struct msghdr *msg, int len,
-> -			     struct ubuf_info *uarg);
-> +			     struct ubuf_info *uarg,
-> +			     struct net_devmem_dmabuf_binding *binding);
->  
->  /* Internal */
->  #define skb_shinfo(SKB)	((struct skb_shared_info *)(skb_end_pointer(SKB)))
-> @@ -3697,6 +3702,10 @@ static inline dma_addr_t __skb_frag_dma_map(struct device *dev,
->  					    size_t offset, size_t size,
->  					    enum dma_data_direction dir)
->  {
-> +	if (skb_frag_is_net_iov(frag)) {
-> +		return netmem_to_net_iov(frag->netmem)->dma_addr + offset +
-> +		       frag->offset;
-> +	}
->  	return dma_map_page(dev, skb_frag_page(frag),
->  			    skb_frag_off(frag) + offset, size, dir);
->  }
-> diff --git a/include/net/sock.h b/include/net/sock.h
-> index fac65ed30983..aac7e9d92ba5 100644
-> --- a/include/net/sock.h
-> +++ b/include/net/sock.h
-> @@ -1823,6 +1823,7 @@ struct sockcm_cookie {
->  	u32 tsflags;
->  	u32 ts_opt_id;
->  	u32 priority;
-> +	u32 dmabuf_id;
->  };
->  
->  static inline void sockcm_init(struct sockcm_cookie *sockc,
-> diff --git a/net/core/datagram.c b/net/core/datagram.c
-> index f0693707aece..3e60c83305cc 100644
-> --- a/net/core/datagram.c
-> +++ b/net/core/datagram.c
-> @@ -63,6 +63,8 @@
->  #include <net/busy_poll.h>
->  #include <crypto/hash.h>
->  
-> +#include "devmem.h"
-> +
->  /*
->   *	Is a socket 'connection oriented' ?
->   */
-> @@ -692,9 +694,49 @@ int zerocopy_fill_skb_from_iter(struct sk_buff *skb,
->  	return 0;
->  }
->  
-> +static int
-> +zerocopy_fill_skb_from_devmem(struct sk_buff *skb, struct iov_iter *from,
-> +			      int length,
-> +			      struct net_devmem_dmabuf_binding *binding)
-> +{
-> +	int i = skb_shinfo(skb)->nr_frags;
-> +	size_t virt_addr, size, off;
-> +	struct net_iov *niov;
-> +
-> +	/* Devmem filling works by taking an IOVEC from the user where the
-> +	 * iov_addrs are interpreted as an offset in bytes into the dma-buf to
-> +	 * send from. We do not support other iter types.
-> +	 */
-> +	if (iov_iter_type(from) != ITER_IOVEC)
-> +		return -EINVAL;
 
-It seems like the caller (skb_zerocopy_iter_stream) needs to special case
-EINVAL. Right now it only expects EFAULT or EMSGSIZE (and backtracks). The
-rest of errors are ignored and it reports the number of bytes copied
-(which will be zero in your case, but still not what we want).
-
-Or maybe this check needs to happen earlier? In tcp_sendmsg_locked?
-
-> +
-> +	while (length && iov_iter_count(from)) {
-> +		if (i == MAX_SKB_FRAGS)
-> +			return -EMSGSIZE;
-> +
-> +		virt_addr = (size_t)iter_iov_addr(from);
-> +		niov = net_devmem_get_niov_at(binding, virt_addr, &off, &size);
-> +		if (!niov)
-> +			return -EFAULT;
-> +
-> +		size = min_t(size_t, size, length);
-> +		size = min_t(size_t, size, iter_iov_len(from));
-> +
-> +		get_netmem(net_iov_to_netmem(niov));
-> +		skb_add_rx_frag_netmem(skb, i, net_iov_to_netmem(niov), off,
-> +				       size, PAGE_SIZE);
-> +		iov_iter_advance(from, size);
-> +		length -= size;
-> +		i++;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
->  			    struct sk_buff *skb, struct iov_iter *from,
-> -			    size_t length)
-> +			    size_t length,
-> +			    struct net_devmem_dmabuf_binding *binding)
->  {
->  	unsigned long orig_size = skb->truesize;
->  	unsigned long truesize;
-> @@ -702,6 +744,8 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
->  
->  	if (msg && msg->msg_ubuf && msg->sg_from_iter)
->  		ret = msg->sg_from_iter(skb, from, length);
-> +	else if (unlikely(binding))
-> +		ret = zerocopy_fill_skb_from_devmem(skb, from, length, binding);
->  	else
->  		ret = zerocopy_fill_skb_from_iter(skb, from, length);
->  
-> @@ -735,7 +779,7 @@ int zerocopy_sg_from_iter(struct sk_buff *skb, struct iov_iter *from)
->  	if (skb_copy_datagram_from_iter(skb, 0, from, copy))
->  		return -EFAULT;
->  
-> -	return __zerocopy_sg_from_iter(NULL, NULL, skb, from, ~0U);
-> +	return __zerocopy_sg_from_iter(NULL, NULL, skb, from, ~0U, NULL);
->  }
->  EXPORT_SYMBOL(zerocopy_sg_from_iter);
->  
-> diff --git a/net/core/devmem.c b/net/core/devmem.c
-> index b1aafc66ebb7..2e576f80b1d8 100644
-> --- a/net/core/devmem.c
-> +++ b/net/core/devmem.c
-> @@ -17,6 +17,7 @@
->  #include <net/netdev_rx_queue.h>
->  #include <net/page_pool/helpers.h>
->  #include <net/page_pool/memory_provider.h>
-> +#include <net/sock.h>
->  #include <trace/events/page_pool.h>
->  
->  #include "devmem.h"
-> @@ -73,8 +74,10 @@ void __net_devmem_dmabuf_binding_free(struct net_devmem_dmabuf_binding *binding)
->  	dma_buf_detach(binding->dmabuf, binding->attachment);
->  	dma_buf_put(binding->dmabuf);
->  	xa_destroy(&binding->bound_rxqs);
-> +	kvfree(binding->tx_vec);
->  	kfree(binding);
->  }
-> +EXPORT_SYMBOL(__net_devmem_dmabuf_binding_free);
->  
->  struct net_iov *
->  net_devmem_alloc_dmabuf(struct net_devmem_dmabuf_binding *binding)
-> @@ -119,6 +122,13 @@ void net_devmem_unbind_dmabuf(struct net_devmem_dmabuf_binding *binding)
->  	unsigned long xa_idx;
->  	unsigned int rxq_idx;
->  
-> +	xa_erase(&net_devmem_dmabuf_bindings, binding->id);
-> +
-> +	/* Ensure no tx net_devmem_lookup_dmabuf() are in flight after the
-> +	 * erase.
-> +	 */
-> +	synchronize_net();
-> +
->  	if (binding->list.next)
->  		list_del(&binding->list);
->  
-> @@ -133,8 +143,6 @@ void net_devmem_unbind_dmabuf(struct net_devmem_dmabuf_binding *binding)
->  		WARN_ON(netdev_rx_queue_restart(binding->dev, rxq_idx));
->  	}
->  
-> -	xa_erase(&net_devmem_dmabuf_bindings, binding->id);
-> -
->  	net_devmem_dmabuf_binding_put(binding);
->  }
->  
-> @@ -197,8 +205,9 @@ int net_devmem_bind_dmabuf_to_queue(struct net_device *dev, u32 rxq_idx,
->  }
->  
->  struct net_devmem_dmabuf_binding *
-> -net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
-> -		       struct netlink_ext_ack *extack)
-> +net_devmem_bind_dmabuf(struct net_device *dev,
-> +		       enum dma_data_direction direction,
-> +		       unsigned int dmabuf_fd, struct netlink_ext_ack *extack)
->  {
->  	struct net_devmem_dmabuf_binding *binding;
->  	static u32 id_alloc_next;
-> @@ -241,7 +250,7 @@ net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
->  	}
->  
->  	binding->sgt = dma_buf_map_attachment_unlocked(binding->attachment,
-> -						       DMA_FROM_DEVICE);
-> +						       direction);
->  	if (IS_ERR(binding->sgt)) {
->  		err = PTR_ERR(binding->sgt);
->  		NL_SET_ERR_MSG(extack, "Failed to map dmabuf attachment");
-> @@ -252,13 +261,23 @@ net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
->  	 * binding can be much more flexible than that. We may be able to
->  	 * allocate MTU sized chunks here. Leave that for future work...
->  	 */
-> -	binding->chunk_pool =
-> -		gen_pool_create(PAGE_SHIFT, dev_to_node(&dev->dev));
-> +	binding->chunk_pool = gen_pool_create(PAGE_SHIFT,
-> +					      dev_to_node(&dev->dev));
->  	if (!binding->chunk_pool) {
->  		err = -ENOMEM;
->  		goto err_unmap;
->  	}
->  
-> +	if (direction == DMA_TO_DEVICE) {
-> +		binding->tx_vec = kvmalloc_array(dmabuf->size / PAGE_SIZE,
-> +						 sizeof(struct net_iov *),
-> +						 GFP_KERNEL);
-> +		if (!binding->tx_vec) {
-> +			err = -ENOMEM;
-> +			goto err_free_chunks;
-> +		}
-> +	}
-> +
->  	virtual = 0;
->  	for_each_sgtable_dma_sg(binding->sgt, sg, sg_idx) {
->  		dma_addr_t dma_addr = sg_dma_address(sg);
-> @@ -300,6 +319,8 @@ net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
->  			niov->owner = &owner->area;
->  			page_pool_set_dma_addr_netmem(net_iov_to_netmem(niov),
->  						      net_devmem_get_dma_addr(niov));
-> +			if (direction == DMA_TO_DEVICE)
-> +				binding->tx_vec[owner->area.base_virtual / PAGE_SIZE + i] = niov;
->  		}
->  
->  		virtual += len;
-> @@ -311,6 +332,9 @@ net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
->  	gen_pool_for_each_chunk(binding->chunk_pool,
->  				net_devmem_dmabuf_free_chunk_owner, NULL);
->  	gen_pool_destroy(binding->chunk_pool);
-> +
-> +	if (direction == DMA_TO_DEVICE)
-> +		kvfree(binding->tx_vec);
-
-nit: we might unconditionally kvfree() here? worst case we do
-kvfree(NULL)
+Acked-by: Stanislav Fomichev <sdf@fomichev.me>
