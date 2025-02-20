@@ -1,125 +1,117 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AC21D88BE
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 03:20:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740021631; cv=pass; b=fBvoJsSxM43jUU7qpjDt6wbWMBzQJi/RfYQb+1NUGSP522lQ9ZFSZYKXJmhg7qUK1rLRfWO/wZ4/Www/fIca9tGGRDDR9qSIpWCZsxnDwR+jybENAv3CLmPBZb9pXtk16cqJuYw6s1oQ+LnB/p95HjYeZd5ZfpjiyfdmkAl8zEs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740021631; c=relaxed/simple;
-	bh=FFRqQD38fqHqNNra69YMR0ZnN6Yry8+yeUHE07ibhpE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Hr9pR2ddzxII0r9VEzFCw7sbl0Pyw0Kkl/KjVHTNG7+6bvuOmnShEDYZiVVF0ep2nmR+Dl06Fj5i8Q6WQDEn/O5USPegndOkYBTdkIvbCiQCNrVJlVEmX/nYgc/QI38jt/5HSxkLdfXgbGI41aWIMXVG+RYDpYEjxznck9bK/Uw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Td0u68vs; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D558D1CDA0B;
+	Thu, 20 Feb 2025 03:44:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740023092; cv=none; b=ipt1CLGQeqmwr6VspisC8FBgAF9OTfk9jLgMPlbMsCjI2gAazuxKbcI37n5PfYO20FBQq6nFLdNmsfb5By2HvqkVcsLuSGnB07LUlzkoo8jH9sykoqySR8/YTsXttk751XDF9/dD/zl7Md/C/sOEeMbGdrKKOVpASZSSlhwPGDY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740023092; c=relaxed/simple;
+	bh=t1f78zJ3zL/tABySKpou1GNLxAEfIHw4nDPssypqD5k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QVg20wQibdYxxVuQFbO3fSxWnMp92vUYOB60TqmaQBOaa73+vHwADJCwgm7qyr+183pPUEN2aBds9NBe0YZGAfD2uYY/Jw6uxNVy2POUVyoElHpsJIkB/Si2+gR6c6BoezMGjyOXME7+zUmJGO9Kt51+iAvoa1m+jKAarSr4YNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=ptqCmpz1; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Td0u68vs"
-ARC-Seal: i=1; a=rsa-sha256; t=1740021622; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=n5Hb6jI2YOgJvoMOM5AWZuWfhIARag7BXle+ouX0gV5c6s51QOVvsw3NtDIsCUchYAHjQFel8rTKqYn3QLRVfKENIl48sp/BlQ9JTT4Y0U3iRehjoZPP+VfSglEBa9AU9H83jPpfKk/yyXcg0YP74XQChTd+7CCrhKHBej1rl3Y=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1740021622; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=goELxg5KRmIAVFiFo0WsH6I8YxpNZKoXy3YbksbDQ5Q=; 
-	b=chzILRRNTBRD5OlJP++5hnxNeiLgiK2ci+77QBz+S7LC73NVuJwAkpeUK7nTQgmg7sRaqrsKDVNZYksvyMcKBmfqvo63GpZ+ub//mRFd3xQIn32dJ2DqJ9aV0sIEejuy09qwaLFykOCPhjBSskTONO3qfNnTq2hZDRztTbGtf5g=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1740021622;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=goELxg5KRmIAVFiFo0WsH6I8YxpNZKoXy3YbksbDQ5Q=;
-	b=Td0u68vsLAKi/a2k0vTvbI3wCZO97WtRkuQMBG5u46ytyqT0OMcsqLR7WtrNEI9/
-	AP1r7MgliczWKsJ2ZsXvqLuiwbqYrfOH9qZ1GgcC6mmGDIpg1gRtrADszhkCt+CCV4B
-	mmHCq2oqfNEYe53OGEtgBTW953lSrKsEy2lxE/Ao=
-Received: by mx.zohomail.com with SMTPS id 1740021619797826.5630263636273;
-	Wed, 19 Feb 2025 19:20:19 -0800 (PST)
-Message-ID: <1f9a86a5-97d6-41d5-9a30-0422fc9ec137@collabora.com>
-Date: Thu, 20 Feb 2025 06:20:13 +0300
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ptqCmpz1"
+Received: from localhost (unknown [167.220.232.230])
+	by linux.microsoft.com (Postfix) with ESMTPSA id C51512043DF3;
+	Wed, 19 Feb 2025 19:44:49 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C51512043DF3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1740023090;
+	bh=1boQEHta3r4wEo6Z2Lff0ZlqJmutPdDJsjmXWcQa570=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ptqCmpz1rsRLesosO7xLo11cOxOhY8D+L3GE+V2cL10EfQlklXXsbwIPVJAws8YJv
+	 Vftunh8kbOX9ax1asqsiqVU1tQDLKz8ArvCU8fHqZdkN4Yw2uyqRHd2o2T5YeF9b/m
+	 M8kLJ0bL6ynGnv9SaKrcC66YMONz9kCDx6XSpuVA=
+Date: Thu, 20 Feb 2025 11:44:47 +0800
+From: Yu Zhang <zhangyu1@linux.microsoft.com>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, 
+	jacob.pan@linux.microsoft.com, Easwar Hariharan <eahariha@linux.microsoft.com>, 
+	"zhangyu1@microsoft.com" <zhangyu1@microsoft.com>, Jason Gunthorpe <jgg@nvidia.com>, iommu@lists.linux.dev, 
+	Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>, 
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, 
+	Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 3/5] iommu/virtio: Move to domain_alloc_paging()
+Message-ID: <woysdxaprpf7nb2w3swwr46yyri5gnz3mi4sgw6ad4bn4weis3@fveqqcc45fhq>
+References: <3-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+ <20250212112235.714b0a14@DESKTOP-0403QTC.>
+ <20250212233053.GV3754072@nvidia.com>
+ <67ad876d.170a0220.3c21dc.85ceSMTPIN_ADDED_BROKEN@mx.google.com>
+ <20250213094601.GA243081@myrica>
+ <5irmuy6xwrjsrdjy7tmfzlnotxqdoqagjdsdtqjrrit673zaka@r43nyvc5gcyf>
+ <20250213180919.GC243081@myrica>
+ <cu7lznx5bxnqoavt3ri4dtzwt7lu3loitn7a344rbnmahpnc6h@2e2dknchxjmd>
+ <20250219103518.GA513544@myrica>
+ <98298574-66b6-4b14-be3b-28291f1551a8@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v2 4/5] virtio-mmio: read shm region page size
-To: Sergio Lopez <slp@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Daniel Verkamp <dverkamp@chromium.org>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
- fnkl.kernel@gmail.com
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org
-References: <20250214-virtio-shm-page-size-v2-0-aa1619e6908b@redhat.com>
- <20250214-virtio-shm-page-size-v2-4-aa1619e6908b@redhat.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20250214-virtio-shm-page-size-v2-4-aa1619e6908b@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <98298574-66b6-4b14-be3b-28291f1551a8@linux.intel.com>
 
-On 2/14/25 18:16, Sergio Lopez wrote:
-> Use the newly introduced SHM_PAGE_SHIFT register to read the page shift
-> for the shared memory region, derive the page size from it and store the
-> resulting value into virtio_shm_region.
+On Thu, Feb 20, 2025 at 10:58:05AM +0800, Baolu Lu wrote:
+> On 2/19/25 18:35, Jean-Philippe Brucker wrote:
+> > On Wed, Feb 19, 2025 at 05:39:19PM +0800, Yu Zhang wrote:
+> > > On Thu, Feb 13, 2025 at 06:09:19PM +0000, Jean-Philippe Brucker wrote:
+> > > > On Fri, Feb 14, 2025 at 01:03:43AM +0800, Yu Zhang wrote:
+> > > > > On Thu, Feb 13, 2025 at 09:46:01AM +0000, Jean-Philippe Brucker wrote:
+> > > > > > Hi Jacob,
+> > > > > > 
+> > > > > > On Wed, Feb 12, 2025 at 09:47:23PM -0800, Jacob Pan wrote:
+> > > > > > > Our code and backend support are still in the early stages, that is why
+> > > > > > > I am attempting to convert virtio-iommu driver to iommu_pt. Not sure if
+> > > > > > > anyone has done the QEMU part to support VIRTIO_IOMMU_F_ATTACH_TABLE?
+> > > > > > > @Jean @Eric Do you know?
+> > > > > > As far as I know Tina worked on this most recently:
+> > > > > > https://github.com/TinaZhangZW/qemu/commits/virtio-iommu/vt-d-pgtable/
+> > > > > > https://lore.kernel.org/all/20231106071226.9656-1-tina.zhang@intel.com/
+> > > > > Thanks a lot for this information, Jean.
+> > > > > IIUC, these patches were trying to add VT-d IO page table support in
+> > > > > virtio-iommu, but it is not based on Jason's generic PT [1]. Just wondering,
+> > > > > does anyone have plan to do the incorporation?
+> > > > I'm not aware of anyone working on this at the moment. Something you will
+> > > > need for a portable pviommu is a library that manages PASID tables rather
+> > > > than page tables [1], because the Arm SMMUv3 arch only support assigning
+> > > > PASID tables to the guest. Alternatively you could implement opaque PASID
+> > > > table allocation via host calls, letting the guest allocate GPA space and
+> > > > the host manage the PASID table, but that idea didn't seem very popular at
+> > > > the time.
+> > > Thank you, Jean. Just had a study of the spec. For ARM SMMUv3, letting
+> > > the guest manage the PASID table, and then assigning it directly to the
+> > > backend in ATTACH_TABLE request looks quite resonable. But for VT-d,
+> > > my understanding is the PASID table shall be managed by host. By "that
+> > > idea didn't seem very popular", do you mean that people also want the
+> > > ATTCH_TABLE request for VT-d also assign the PASID table(an virtual one
+> > > managed by the guest). If yes, why?
+> > No, the proposal for managing the PASID table in the host was done before
+> > the VT-d architecture added Scalable mode, so at the time they also had to
+> > assign whole PASID tables to the guest and weren't keen on managing it in
+> > the host. I believe in revision 3 (2018) the architecture added support
+> > for Scalable mode and the ability to manage PASID tables in the host.
+> > 
+> > Nowadays it wouldn't make sense for a pvIOMMU to manage the VT-d PASID
+> > tables in the guest, because as I understand it there is no demand for
+> > supporting the legacy mode address translation of VT-d.
 > 
-> Signed-off-by: Sergio Lopez <slp@redhat.com>
-> ---
->  drivers/virtio/virtio_mmio.c     | 11 ++++++++++-
->  include/uapi/linux/virtio_mmio.h |  3 +++
->  2 files changed, 13 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 1f594b626d7a7734e8ec58766737a118c26bad94..0f892770739ea84b3e7be5615332773049b10ab1 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -537,6 +537,7 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
->  			      struct virtio_shm_region *region, u8 id)
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> +	u8 page_shift = 0;
->  	u64 len, addr;
->  
->  	/* Select the region we're interested in */
-> @@ -560,7 +561,15 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
->  
->  	region->addr = addr;
->  
-> -	region->page_size = 4096;
-> +	/* If supported by the device transport, read the region page size.
-> +	 * The page_shift variable is initialized to zero above, so if this
-> +	 * feature isn't supported it will result in a page_size of 4096, a
-> +	 * default safe value.
-> +	 */
-> +	if (__virtio_test_bit(vdev, VIRTIO_F_SHM_PAGE_SIZE))
-> +		page_shift = (u8) readl(vm_dev->base + VIRTIO_MMIO_SHM_PAGE_SHIFT);
-> +
-> +	region->page_size = 1 << (page_shift + 12);
->  
->  	return true;
->  }
-> diff --git a/include/uapi/linux/virtio_mmio.h b/include/uapi/linux/virtio_mmio.h
-> index 0650f91bea6c70f935764070d825d181a2379afb..43348be30eff90ee228b6490b9d3c35ba4c50aa5 100644
-> --- a/include/uapi/linux/virtio_mmio.h
-> +++ b/include/uapi/linux/virtio_mmio.h
-> @@ -133,6 +133,9 @@
->  #define VIRTIO_MMIO_SHM_BASE_LOW        0x0b8
->  #define VIRTIO_MMIO_SHM_BASE_HIGH       0x0bc
->  
-> +/* Shared memory region page shift */
-> +#define VIRTIO_MMIO_SHM_PAGE_SHIFT      0x0c4
+> Are you talking about ECS mode? There is no hardware or software
 
-What's the logic behind choosing 0x0c4, why not 0x0c0?
+Thanks, Baolu. I suppose so (by 'legacy', Jean was refers to ECS, and he
+knows this is no longer supported).
 
--- 
-Best regards,
-Dmitry
+> implementation for this mode, so we don't need to consider it.
+
+It seems we have now reached a consensus that no PASID table needs to be
+managed by a pvIOMMU for VT-d.
+
+Meanwhile, it's worth noting that this is not the case for ARM SMMUv3,
+which is the opposite. And as to AMD IOMMU, we may choose either.
+
+B.R.
+Yu
