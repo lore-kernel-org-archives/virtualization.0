@@ -1,137 +1,161 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C7A82BD11
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:31:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740058293; cv=pass; b=QYVmTkDhfQPZ/gsLL7veeXtv0UFSBj5k1gtOeReY9T/EU/JH2LUhXphzyGqiWewAv7W1hZ49HHXunJSoWoLVg6Nw7Yo82ipN84I57+ri6hlx78wdsbj2vjdT5ma6A8SMHC6JjZu7/v8qMCHysPt/YLCUN/nOTw3GVwTAR5P+TFo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740058293; c=relaxed/simple;
-	bh=38UpxZeOUsXipbUwygCbrqOljhMT3i+SL0fC+IRIiNY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gBQR0eN4fz09ZW6KGl2jqq4TvcZHIBMp9RpYAZxivCqFxVoys4RFKopOB161Q5eoLKGJimAjSTug3YnUXX7a4cnPWXDKNmLszHWNbhLEu3y441/lx2vOTUNLLUb/mKDLOaBbTz3USuzKFw1vGgqXQ/NufRwz84c7wTn7+lyWLs8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=UXoL0xvt; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA0851F7916
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 14:29:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740061788; cv=none; b=TjWwz9eJhEUUR2uximLtHub3iQcBWfRb9dvWoVheJyexV5HuAUq1ceN2N+I0TDK5UIB7ZE8BQpmkOyv11hznBdm8StfLWxwhg+ztAzLRh2/ohmHqbydC7nQSUdvx81YsriBcfv6+Gktki+Sm6NGpAGSjcydfZrAUOgQ9aky7zJc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740061788; c=relaxed/simple;
+	bh=UEjXDAWuT1WK+CR+e8rDydDEIw+8ZqX6zIyfhUMCRok=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=tEJ4huxH3CdQIiSCnv4JDtZXYn+7MJN2gqjmCeZYviA+i0SRQP0xJsppN7tagQO0nt4ghX2E7ArT+tuDkfTlx9VsKhRriuoXbWaylkU65hTE8tTa2RNWw6VYVvlMHjE8TgDIaPZD+1T9zmSCK8buKRH18AXxdy4aFkHPtYDV7YQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S8WPxhs/; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="UXoL0xvt"
-ARC-Seal: i=1; a=rsa-sha256; t=1740058282; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=nZ+99W4l2bOwH34wjrLy0cykDdkPJYNYyEnfRIVnig2i8J8r+j2f9e0y30C9hLSucrchccpVIPt9Uad4Pjqi5nbXVv22R8ssGE4WmGwX4pBG/MyyM0wIpImqtBw95f8N5NZfJXJ/E1WZzMzVcRvfc6ufuUpSDhIuqsi5fimDcw4=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1740058282; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=WwGtYpVbiHbXyNtzNp28/hsmWCNhDI4FpbukfWmffb0=; 
-	b=iefjYKVOzPMb3GNZCgitH+a2lYbiFWDw4Bcl3xX73CZw9VXUFjYVEQLjL8V6uetqHMNehd0zXeb7wOacMf6M/NR72Fp2ocfN0mr2VLCSqafXqV4Hd2c2fy55KTLbGx3cfodvL46iG3NVEbE8c5QxwvZusn+GisBHU8Z1lGjiSb4=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1740058282;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=WwGtYpVbiHbXyNtzNp28/hsmWCNhDI4FpbukfWmffb0=;
-	b=UXoL0xvtm1lIvSi8Qhx3+eUWHgoWc6aT95gQemoue/dUPAH5uIAJ59Wxr8AUxK4Q
-	O53477u7GJjPs/aAThqhTxS4zQ0ghojo/vdGMtf5DM/o4b7VMWXm9640ZgsixJDsvYV
-	YSbGscqSf2gKSTkPxE6L7OsNsie8FYZPqsv+DEPQ=
-Received: by mx.zohomail.com with SMTPS id 1740058280296164.49908263796294;
-	Thu, 20 Feb 2025 05:31:20 -0800 (PST)
-Message-ID: <ca0dfb6d-4fc6-4963-a092-f4c0b3afb7a4@collabora.com>
-Date: Thu, 20 Feb 2025 16:31:14 +0300
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S8WPxhs/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740061785;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=34Pwf2YzB9+5/yrq+BsahBOzUfkk/RYCd6NadSU6ifk=;
+	b=S8WPxhs/QQGkF3lagxtjIkjWLBCsKQruP33dpmgxHunYZaTfrnVQvHA7jNjfDK1fmf7tV9
+	x5icAP1HwE2Jmm74dHw4apxNOowbv1Q2gs35TLqaQnikWvxXU9SrBDgZqD0aV7Pc/zz78I
+	Um7z1HB/+/nodboKLBd4j4rovyE2H1s=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-689-Lm159x9TMkac0O8uw4CkmQ-1; Thu,
+ 20 Feb 2025 09:29:42 -0500
+X-MC-Unique: Lm159x9TMkac0O8uw4CkmQ-1
+X-Mimecast-MFC-AGG-ID: Lm159x9TMkac0O8uw4CkmQ_1740061780
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5091D1903085;
+	Thu, 20 Feb 2025 14:29:40 +0000 (UTC)
+Received: from [127.0.1.1] (unknown [10.45.225.137])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 051A1180034D;
+	Thu, 20 Feb 2025 14:29:32 +0000 (UTC)
+From: Sergio Lopez <slp@redhat.com>
+Subject: [RFC PATCH v3 0/4] virtio: obtain SHM page size from device
+Date: Thu, 20 Feb 2025 15:28:49 +0100
+Message-Id: <20250220-virtio-shm-page-size-v3-0-874fff6f3979@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v2 4/5] virtio-mmio: read shm region page size
-To: Sergio Lopez Pascual <slp@redhat.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Daniel Verkamp <dverkamp@chromium.org>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
- fnkl.kernel@gmail.com
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org
-References: <20250214-virtio-shm-page-size-v2-0-aa1619e6908b@redhat.com>
- <20250214-virtio-shm-page-size-v2-4-aa1619e6908b@redhat.com>
- <1f9a86a5-97d6-41d5-9a30-0422fc9ec137@collabora.com>
- <CAAiTLFXihV_DUpd25Mc-OcgsNJ5tVJx7XYsETgxh+7cFuicuHA@mail.gmail.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <CAAiTLFXihV_DUpd25Mc-OcgsNJ5tVJx7XYsETgxh+7cFuicuHA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+X-B4-Tracking: v=1; b=H4sIACE8t2cC/4XNOw7CMAyA4atUnjFK0gcNE/dADKFxiYeSKqkio
+ OrdSTvBgBh/W/48Q6TAFOFYzBAocWR/z1HuCuicud8I2eYGJVQtlCwxcZjYY3QDjiavI78IG9J
+ GtN3BkpWQT8dAPT829nzJ7ThOPjy3L0mu0z9gkiiwJpK91m1V1uIUyDoz7Ts/wCom9alUPxSVF
+ WNkIzU1WrTXL2VZljc4gw4j/wAAAA==
+X-Change-ID: 20250213-virtio-shm-page-size-6e9a08c7ded1
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Daniel Verkamp <dverkamp@chromium.org>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+ Gurchetan Singh <gurchetansingh@chromium.org>, 
+ Chia-I Wu <olvaffe@gmail.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>, 
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>, fnkl.kernel@gmail.com
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, Sergio Lopez <slp@redhat.com>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3259; i=slp@redhat.com;
+ h=from:subject:message-id; bh=UEjXDAWuT1WK+CR+e8rDydDEIw+8ZqX6zIyfhUMCRok=;
+ b=owEBbQKS/ZANAwAIAfRpJ40vDAI1AcsmYgBntzxHMlmRQMk1+Erj7LL3dGYB/TVpVnTnxfhzx
+ RCqrXQQTmSJAjMEAAEIAB0WIQS+1fz3US2GgJFC6KL0aSeNLwwCNQUCZ7c8RwAKCRD0aSeNLwwC
+ NQO9D/9+7bcx1mUz/ccUkbJ8scz/nshK3ECZjM1epseg8bST1T7cwWA5I8q/t2hr/ewhSUVHHDs
+ NUsgDcjmjDcrXHZkr5cVGSLyflxrY6r46VgteOwwYLDtiRqC6liXfKeo7sShi6assTK1DJo+6ge
+ IJ5VHrxNfD5hr/8bBkTOGrP9mnJsf2Du3xrdgx2tt4KiYaSTe9pfHDALhE/agE1zZhQHt2GjI6N
+ J3FNXhQ1FaNzZ5BbWZPyvU90c5eo5U8Co59swYDkhsmTEi22+gw/q8QzmCTPykK13/JMLL7OrYI
+ xufHR0rF96yjQg0mUr9wh9ivqJZkeIUzIbFzV2eaSBSw7ZE/cpHZHctw7tv+JYvKZ4bISWCmPgp
+ 9oJScG6X2+Ac8eMRMros1OJMBD/Dxkx8qb3KBRguXGEXQmYqulSUPq0FO/aMTABtQhepQEkqBfF
+ I5O7eAFjk/v8ZmxIDabqF7CFRvPqOYVYD5FmV/YBxkcfuJp1ptlxfCtP6RPTQ/MVkiDJH9ol+XA
+ O3M0NHoAbhHM3CkpgQqfaxHLEKtG97g2EtqSWmHNvFni9ysuP+ZvRjwBKFYA0ErKa56/uIBoU+5
+ hAclojCxkfeN+IyP171gus6FrdSMRDF4Aa1n2K95qlH5FkjzIAYo39T9mrYSrZ7hV3NhIcAQR5N
+ 0lZQpgUzI3ISmqA==
+X-Developer-Key: i=slp@redhat.com; a=openpgp;
+ fpr=BED5FCF7512D86809142E8A2F469278D2F0C0235
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On 2/20/25 13:24, Sergio Lopez Pascual wrote:
-> Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
-> 
->> On 2/14/25 18:16, Sergio Lopez wrote:
->>> Use the newly introduced SHM_PAGE_SHIFT register to read the page shift
->>> for the shared memory region, derive the page size from it and store the
->>> resulting value into virtio_shm_region.
->>>
->>> Signed-off-by: Sergio Lopez <slp@redhat.com>
->>> ---
->>>  drivers/virtio/virtio_mmio.c     | 11 ++++++++++-
->>>  include/uapi/linux/virtio_mmio.h |  3 +++
->>>  2 files changed, 13 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
->>> index 1f594b626d7a7734e8ec58766737a118c26bad94..0f892770739ea84b3e7be5615332773049b10ab1 100644
->>> --- a/drivers/virtio/virtio_mmio.c
->>> +++ b/drivers/virtio/virtio_mmio.c
->>> @@ -537,6 +537,7 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
->>>  			      struct virtio_shm_region *region, u8 id)
->>>  {
->>>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
->>> +	u8 page_shift = 0;
->>>  	u64 len, addr;
->>>
->>>  	/* Select the region we're interested in */
->>> @@ -560,7 +561,15 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
->>>
->>>  	region->addr = addr;
->>>
->>> -	region->page_size = 4096;
->>> +	/* If supported by the device transport, read the region page size.
->>> +	 * The page_shift variable is initialized to zero above, so if this
->>> +	 * feature isn't supported it will result in a page_size of 4096, a
->>> +	 * default safe value.
->>> +	 */
->>> +	if (__virtio_test_bit(vdev, VIRTIO_F_SHM_PAGE_SIZE))
->>> +		page_shift = (u8) readl(vm_dev->base + VIRTIO_MMIO_SHM_PAGE_SHIFT);
->>> +
->>> +	region->page_size = 1 << (page_shift + 12);
->>>
->>>  	return true;
->>>  }
->>> diff --git a/include/uapi/linux/virtio_mmio.h b/include/uapi/linux/virtio_mmio.h
->>> index 0650f91bea6c70f935764070d825d181a2379afb..43348be30eff90ee228b6490b9d3c35ba4c50aa5 100644
->>> --- a/include/uapi/linux/virtio_mmio.h
->>> +++ b/include/uapi/linux/virtio_mmio.h
->>> @@ -133,6 +133,9 @@
->>>  #define VIRTIO_MMIO_SHM_BASE_LOW        0x0b8
->>>  #define VIRTIO_MMIO_SHM_BASE_HIGH       0x0bc
->>>
->>> +/* Shared memory region page shift */
->>> +#define VIRTIO_MMIO_SHM_PAGE_SHIFT      0x0c4
->>
->> What's the logic behind choosing 0x0c4, why not 0x0c0?
-> 
-> It seems like Linux doesn't support it yet, but in the specs 0x0c0 is
-> already reserved for QueueReset.
+There's an incresing number of machines supporting multiple page sizes
+and, on these machines, the host and a guest can be running with
+different pages sizes.
 
-See QueueReset in the spec now, thanks.
+In addition to this, there might be devices that have a required and/or
+preferred page size for mapping memory.
 
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In this series, we extend virtio_shm_region with a field to hold the
+page size. The PCI and MMIO transports are updated to read the page
+shift for each region and derive the page size accordingly. For the PCI
+transport we're borrowing 8 bits from the 16 bit padding, so the
+transition is seamless. But for MMIO we need to access a new register,
+which could potentially be interpreted by the VMM as an error. For this
+reason we're gating this behavior, for every transport, behind the
+VIRTIO_F_SHM_PAGE_SIZE feature bit.
 
--- 
+How the SHM page size information is used depends on each device. Some
+may silently round up allocations, some may expose this information to
+userspace. This series includes a patch that extends virtio-gpu to
+expose the information via the VIRTGPU_GETPARAM ioctl, as an example of
+the second approach.
+
+This patch series is an RFC because it requires changes to the VIRTIO
+specifications. This patch series will be used as a reference to
+propose such changes.
+
+Signed-off-by: Sergio Lopez <slp@redhat.com>
+---
+Changes in v3:
+- Merge patch 2 (virtio: introduce VIRTIO_F_SHM_PAGE_SIZE) into the
+  changes for virtio-pci (thanks Dmitry Osipenko).
+- In virtio_gpu_getparam_ioctl(), return ENOENT instead of EINVAL
+  if the device lacks a host visible region (thanks Dmitry Osipenko).
+- Link to v2: https://lore.kernel.org/r/20250214-virtio-shm-page-size-v2-0-aa1619e6908b@redhat.com
+
+Changes in v2:
+- Use "page_shift" instead of "page_size" in the transport-related
+  structures to clarify its contents (thanks Daniel Verkamp).
+- Update the command for "page_shift" in "virtio_pci_cap" to clarify
+  that it's only relevant for VIRTIO_PCI_CAP_SHARED_MEMORY_CFG regions.
+  (thanks Daniel Verkamp).
+- Instead of a derived value, store page size in virtio_shm_region.
+- Update the cover page to reflect that the functionality is gated
+  behind the VIRTIO_F_SHM_PAGE_SIZE feature bit.
+- Link to v1: https://lore.kernel.org/r/20250213-virtio-shm-page-size-v1-0-5ee1f9984350@redhat.com
+
+---
+Sergio Lopez (4):
+      virtio: introduce VIRTIO_F_SHM_PAGE_SIZE
+      virtio-pci: extend virtio_pci_cap with page_shift
+      virtio-mmio: read shm region page size
+      drm/virtio: add VIRTGPU_PARAM_HOST_SHM_PAGE_SIZE to params
+
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c |  5 +++++
+ drivers/virtio/virtio_mmio.c           | 11 +++++++++++
+ drivers/virtio/virtio_pci_modern.c     | 24 ++++++++++++++++++++----
+ drivers/virtio/virtio_ring.c           |  2 ++
+ include/linux/virtio_config.h          |  1 +
+ include/uapi/drm/virtgpu_drm.h         |  1 +
+ include/uapi/linux/virtio_config.h     |  7 ++++++-
+ include/uapi/linux/virtio_mmio.h       |  3 +++
+ include/uapi/linux/virtio_pci.h        |  3 ++-
+ 9 files changed, 51 insertions(+), 6 deletions(-)
+---
+base-commit: 4dc1d1bec89864d8076e5ab314f86f46442bfb02
+change-id: 20250213-virtio-shm-page-size-6e9a08c7ded1
+
 Best regards,
-Dmitry
+-- 
+Sergio Lopez <slp@redhat.com>
+
