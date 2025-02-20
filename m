@@ -1,132 +1,149 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C7F41F1509;
-	Thu, 20 Feb 2025 10:08:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBB251F0E37
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 10:24:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740046123; cv=none; b=tW+qNeaT5JdKrSAy1Soh3GkLYLAsuHGmvBvWPQkDNLYkrClFXrw9BokLAXCrFObP0fbhGopMHby/Kjfm1gks+jkL0rS7vMS2jz4IDap5BzhdbBt52d4cCQ/y1/LxI1mNre6OAsieFo5jFr1JB239NIPaPReOpA4mbpAqE1pqSnw=
+	t=1740047057; cv=none; b=gHJRqnrdBNEtwA7t0FKTjBplrU3O9ofhQ1m1OV1dRFY+90Tr+WlU0LlM7dMgjq36BGAX/tUX1l7grpjH1mWHpgQcWcKu9zNDGdBzZBzMV7KxtZ57OAVG8pNwKfU05th3oFHoVHbX40+rjVcqcmf8/V5pYquo6tgNtLv/0JV9BFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740046123; c=relaxed/simple;
-	bh=qEEkaGFEKdByIXhxlRz4s/blmxr0i3FKT7WWs7RYcVE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Rzt8O2zvgjaCutDXkPax04BGJfGafJtg+OUIAuYfLgw+M0ayaM9v+0Goaz7lorkBHZB6vcayEwsqVD6sZoDI/YR4XiboqHV6y7JMDFGULvD76oxBg2Fpy+azvchx5pSCE+BHj1tgCrhIx+JrNktE9RuVenzVvQFLoi5Zp0YZ+uA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Js2YtSm2; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1740047057; c=relaxed/simple;
+	bh=RikVMgwNlogdSzT23fODXi0t9zjQvH0kEweEh095GcE=;
+	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=b3hjvvT4eDiDITVRFRy+UiTReYHQ4eiEnvtfIf2OyktM50MJEVdnPvJyANGl+wgcDHmyXdGshs0ov/rvW1+75C0F39IAJAOTSTwC9aCkBbE1VwqSp8zrjTXb6a27WjsilAr/dVRHf549QtY/4oEk0000I++k8Hwi1TYDcJxDYFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WQladiNX; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Js2YtSm2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740046121; x=1771582121;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=qEEkaGFEKdByIXhxlRz4s/blmxr0i3FKT7WWs7RYcVE=;
-  b=Js2YtSm23SX09ECAeyG+E0bWqFZk8fw8HtXh+EazJvcBVjkWoaUmFc9i
-   YcXcso8mk/RXYY2t90n1aDS3b5Nne4uLFwkm8gX+zrDJFxwLYb7K7PcPi
-   H+JxIjnqpu/KHTXIt9osI76mChz0+aM0ggGLJd78JWjiRWt1ZHRiDJ/h8
-   fV+CetiDk3baXJKMnajlkikHuobf1y5fVY5C/zgkaygJ8MrS1f6QYfkXK
-   SpMDy7wNnipsgrepEnA8KuDjFzKhAfbqxXOEna7kRJwyKZ+tk/2yETxnj
-   X3HAoZCDZ/qT6uzNeMTVDah/Qx8MLyD3m3oENWtW6XNniKk+mg1UzkOFH
-   Q==;
-X-CSE-ConnectionGUID: YMPePXoJSEuBNg6RcFxP7w==
-X-CSE-MsgGUID: 938og7vRSG6xaBI/hTTo/A==
-X-IronPort-AV: E=McAfee;i="6700,10204,11350"; a="44734930"
-X-IronPort-AV: E=Sophos;i="6.13,301,1732608000"; 
-   d="scan'208";a="44734930"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 02:08:40 -0800
-X-CSE-ConnectionGUID: UUemawqKTUWXKRiDeorKDQ==
-X-CSE-MsgGUID: hc9L0Du1SByRgSK2VuJbDQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="120221268"
-Received: from dhhellew-desk2.ger.corp.intel.com (HELO [10.245.244.161]) ([10.245.244.161])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 02:08:36 -0800
-Message-ID: <92c1b182-5a0b-4d13-9b16-172ac970b62e@intel.com>
-Date: Thu, 20 Feb 2025 10:08:33 +0000
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WQladiNX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740047055;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PCfNk2irYZhiAVEAeMF3jzWLVhPjMhVSnPe0uvp0LKw=;
+	b=WQladiNX3kmGPXs7DkYsk/LemS+Koi5CQvbK3ZRxhAG35j0e+QQxUxOGC01mhOPPTwzU1U
+	GBGtyV/PQvRs0Fw8ulI6loCUNh75jSKYnkw9lDSXYwY04A2PVhl18HLF3D4R4Qkmwuhsb5
+	KcPXBXMHUdMKRlA6ur6SIvX9SJ7tsWU=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-549--FyIGBOuPz27Lg6wsvceKQ-1; Thu, 20 Feb 2025 05:24:11 -0500
+X-MC-Unique: -FyIGBOuPz27Lg6wsvceKQ-1
+X-Mimecast-MFC-AGG-ID: -FyIGBOuPz27Lg6wsvceKQ_1740047051
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-220d9d98ea6so25025155ad.3
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 02:24:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740047050; x=1740651850;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=PCfNk2irYZhiAVEAeMF3jzWLVhPjMhVSnPe0uvp0LKw=;
+        b=YbGEnUZvPLht73HZ5WPu9AIrQ86ulOfUEKooiasW5MBjWsAQrUzlEp1g8FtPrfmhbn
+         JLAkGlkqvVESCPV8r2P7cTBVd4zWFCxsyUPooSQ/kIUAQqo0S+My6JOMU/kIwk3IB7Nn
+         kiSg9+/xFLmYUt5Ewc/AVLPWBCowE0B/EMnRJePs5Q3eF6f5A/Gu6Wdxqj0Q+JkRVF08
+         HuGyG22R47bjN05rrImaQTiwxr6Mjk4C5Fjpkd4m7Ezq0hBE1/EXNRZdJKav0ZoapYPd
+         IHa0di+p+xuR9HjsGLNARyKKflWfE4CjtzrYr+1lUuZfGFJf4JpS3qCjfCbPK9AvoX5/
+         Nlsw==
+X-Gm-Message-State: AOJu0Yy5Qgl4e79XRVUjU0vsSAg8O52By35/6qjWimj4E2EkIVxn//wA
+	knFEwJ6Of79jzZ1hBUkB/YuVq6abL0ozOfsXJw0c8kUy1yynVw4rfv0Z7UU+ClhigTHWyfnvy8A
+	+Btz+NVXf5ll2VZ9b8gtJxN3qVHDOr7io3nkKgVi7l4XUS00EfewV4jwKdQXDVqpfTuJMfR82yp
+	NrPOB73ERHK3UIAIHr55GVQbdPhC651gSbAeWbiAw=
+X-Gm-Gg: ASbGncukm+YzBbr+0l320bkhOZFW+phdVjUOCMcIEB/olmopORmONydSTrHncr4MKe0
+	z/NNheUkxEmLvaRjFgt6dIFEfmVj3dqDjo7pJVcY67pm1V+SVBLPwvzON2w==
+X-Received: by 2002:a17:902:e803:b0:216:1543:196c with SMTP id d9443c01a7336-221040620b2mr340108585ad.27.1740047050652;
+        Thu, 20 Feb 2025 02:24:10 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGhBmKY/Jd/FJcL0J0umaKdIJTK407yNESWW6lHPZ4yPs84G32nsvPhs1j0n5aPenBrC+US2evK7mAnibRfM8Q=
+X-Received: by 2002:a17:902:e803:b0:216:1543:196c with SMTP id
+ d9443c01a7336-221040620b2mr340108255ad.27.1740047050275; Thu, 20 Feb 2025
+ 02:24:10 -0800 (PST)
+Received: from 753933720722 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 20 Feb 2025 02:24:08 -0800
+From: Sergio Lopez Pascual <slp@redhat.com>
+In-Reply-To: <1f9a86a5-97d6-41d5-9a30-0422fc9ec137@collabora.com>
+References: <20250214-virtio-shm-page-size-v2-0-aa1619e6908b@redhat.com>
+ <20250214-virtio-shm-page-size-v2-4-aa1619e6908b@redhat.com> <1f9a86a5-97d6-41d5-9a30-0422fc9ec137@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 23/25] drm/xe: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-To: Thomas Zimmermann <tzimmermann@suse.de>,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>
-References: <20250218142542.438557-1-tzimmermann@suse.de>
- <20250218142542.438557-24-tzimmermann@suse.de>
-Content-Language: en-GB
-From: Matthew Auld <matthew.auld@intel.com>
-In-Reply-To: <20250218142542.438557-24-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Date: Thu, 20 Feb 2025 02:24:08 -0800
+X-Gm-Features: AWEUYZlfgST3-O9VCrzw5HD0jnPovA3jL5BWDBB878el2RF0dCmg4Z8bMopNsuE
+Message-ID: <CAAiTLFXihV_DUpd25Mc-OcgsNJ5tVJx7XYsETgxh+7cFuicuHA@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 4/5] virtio-mmio: read shm region page size
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Daniel Verkamp <dverkamp@chromium.org>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>, 
+	fnkl.kernel@gmail.com
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: e8H7O2XTVG4MFgZW-QIOkFkAUlRoNUPrE1wlNYLxIso_1740047051
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 18/02/2025 14:23, Thomas Zimmermann wrote:
-> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch
-> and buffer size. Align the pitch to a multiple of 8. Align the
-> buffer size according to hardware requirements.
-> 
-> Xe's internal calculation allowed for 64-bit wide buffer sizes, but
-> the ioctl's internal checks always verified against 32-bit wide limits.
-> Hance, it is safe to limit the driver code to 32-bit calculations as
-> well.
-> 
-> v3:
-> - mention 32-bit calculation in commit description (Matthew)
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-> Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
-> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
 
+> On 2/14/25 18:16, Sergio Lopez wrote:
+>> Use the newly introduced SHM_PAGE_SHIFT register to read the page shift
+>> for the shared memory region, derive the page size from it and store the
+>> resulting value into virtio_shm_region.
+>>
+>> Signed-off-by: Sergio Lopez <slp@redhat.com>
+>> ---
+>>  drivers/virtio/virtio_mmio.c     | 11 ++++++++++-
+>>  include/uapi/linux/virtio_mmio.h |  3 +++
+>>  2 files changed, 13 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+>> index 1f594b626d7a7734e8ec58766737a118c26bad94..0f892770739ea84b3e7be5615332773049b10ab1 100644
+>> --- a/drivers/virtio/virtio_mmio.c
+>> +++ b/drivers/virtio/virtio_mmio.c
+>> @@ -537,6 +537,7 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
+>>  			      struct virtio_shm_region *region, u8 id)
+>>  {
+>>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+>> +	u8 page_shift = 0;
+>>  	u64 len, addr;
+>>
+>>  	/* Select the region we're interested in */
+>> @@ -560,7 +561,15 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
+>>
+>>  	region->addr = addr;
+>>
+>> -	region->page_size = 4096;
+>> +	/* If supported by the device transport, read the region page size.
+>> +	 * The page_shift variable is initialized to zero above, so if this
+>> +	 * feature isn't supported it will result in a page_size of 4096, a
+>> +	 * default safe value.
+>> +	 */
+>> +	if (__virtio_test_bit(vdev, VIRTIO_F_SHM_PAGE_SIZE))
+>> +		page_shift = (u8) readl(vm_dev->base + VIRTIO_MMIO_SHM_PAGE_SHIFT);
+>> +
+>> +	region->page_size = 1 << (page_shift + 12);
+>>
+>>  	return true;
+>>  }
+>> diff --git a/include/uapi/linux/virtio_mmio.h b/include/uapi/linux/virtio_mmio.h
+>> index 0650f91bea6c70f935764070d825d181a2379afb..43348be30eff90ee228b6490b9d3c35ba4c50aa5 100644
+>> --- a/include/uapi/linux/virtio_mmio.h
+>> +++ b/include/uapi/linux/virtio_mmio.h
+>> @@ -133,6 +133,9 @@
+>>  #define VIRTIO_MMIO_SHM_BASE_LOW        0x0b8
+>>  #define VIRTIO_MMIO_SHM_BASE_HIGH       0x0bc
+>>
+>> +/* Shared memory region page shift */
+>> +#define VIRTIO_MMIO_SHM_PAGE_SHIFT      0x0c4
+>
+> What's the logic behind choosing 0x0c4, why not 0x0c0?
 
-> ---
->   drivers/gpu/drm/xe/xe_bo.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/xe/xe_bo.c b/drivers/gpu/drm/xe/xe_bo.c
-> index 78d09c5ed26d..b34f446ad57d 100644
-> --- a/drivers/gpu/drm/xe/xe_bo.c
-> +++ b/drivers/gpu/drm/xe/xe_bo.c
-> @@ -9,6 +9,7 @@
->   #include <linux/nospec.h>
->   
->   #include <drm/drm_drv.h>
-> +#include <drm/drm_dumb_buffers.h>
->   #include <drm/drm_gem_ttm_helper.h>
->   #include <drm/drm_managed.h>
->   #include <drm/ttm/ttm_device.h>
-> @@ -2672,14 +2673,13 @@ int xe_bo_dumb_create(struct drm_file *file_priv,
->   	struct xe_device *xe = to_xe_device(dev);
->   	struct xe_bo *bo;
->   	uint32_t handle;
-> -	int cpp = DIV_ROUND_UP(args->bpp, 8);
->   	int err;
->   	u32 page_size = max_t(u32, PAGE_SIZE,
->   		xe->info.vram_flags & XE_VRAM_FLAGS_NEED64K ? SZ_64K : SZ_4K);
->   
-> -	args->pitch = ALIGN(args->width * cpp, 64);
-> -	args->size = ALIGN(mul_u32_u32(args->pitch, args->height),
-> -			   page_size);
-> +	err = drm_mode_size_dumb(dev, args, SZ_64, page_size);
-> +	if (err)
-> +		return err;
->   
->   	bo = xe_bo_create_user(xe, NULL, NULL, args->size,
->   			       DRM_XE_GEM_CPU_CACHING_WC,
+It seems like Linux doesn't support it yet, but in the specs 0x0c0 is
+already reserved for QueueReset.
+
+Sergio.
 
