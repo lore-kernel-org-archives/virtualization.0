@@ -1,55 +1,55 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4EDC264630
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 21:16:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 215B6264F8E
+	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 21:16:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740086196; cv=none; b=ZeWI1z58GhGPysQEjlKueFueSJot5amYMV5/D4215P4fZiWGFf+ahEoUIgpTMDuxBK2n9dmJ5chboxZUGVCGWlVwAvMGUQ3mdvlEMyfmuzOu5ecbdJ6oIucVyaLPPFyFbAGoNtiDB7SG+2a9TY/dPPRVUq8FJhzzgvZR7krRNxo=
+	t=1740086198; cv=none; b=uqz11XrQarEudZ7QUk8nIGkPSZAp0JjFpCMZN8t9XX8ONEKuRsECtohc/gKDPy+cwvIuMay9GniAsjRBcrsvLHmtHjdG6U3HfbAVQn62acdyv0FJh2uAu6XDR0H9bfe1C17gS7SIIR+Jzz7261YHPI6SS9hbIHa+vXD9y8N/+4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740086196; c=relaxed/simple;
-	bh=j64/0D+IOGaTxz7ldob5ClxxcvWyfLbFUvwD5VjZvRI=;
+	s=arc-20240116; t=1740086198; c=relaxed/simple;
+	bh=jR3mLIaiTeoa+eMLo/cxTYfU6MgHYfLBM6TtUFuwv2U=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=VUq3Z3XiuqkH3rIY2TJ+o83L86WrFCIKXCD4NhRH0/PIlc35CZt/WJAU5wBec9pXZMQNPZVeam2LPlWo/lu4JcHRaNePWkJNKsCtlmlotqff5jXo8lCaQVRC+uC0pVCputTZvrhNjfqeyNsuSX6yEA7zRTt9fHE7Q0YB4RR/5oQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--vannapurve.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ssvwZvcN; arc=none smtp.client-ip=209.85.216.74
+	 To:Cc:Content-Type; b=KKVH3b+j1nFVRwP6QLp2LneD01wJSBWIJEtJKO2reBZGuBEdSL0CwiuyrN6b3QQ7OKiaftsQ9t+zCFIy3taFxDr5RgMaaK2Y2Il1eztjg8DXgSqysoMBSB4sf2VAeYfh9Dnueu3diYiq6EOonfXXjm15HpMbCJBH/QpxF47bWHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--vannapurve.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bIBhyKsO; arc=none smtp.client-ip=209.85.216.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--vannapurve.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ssvwZvcN"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2fc2e648da3so2728321a91.3
-        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:16:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bIBhyKsO"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2fc0bc05afdso3189160a91.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:16:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1740086194; x=1740690994; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1740086196; x=1740690996; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=jucUA/JQ/T9NlUFyZCz7f9ZdCRPjESGeAo7rjRd6P8s=;
-        b=ssvwZvcNhzWebIMyeW7ED3YHQxbI5mDVajpYEBmJvOxYBRm7N2HUaSog4SsLBYSd/A
-         hsy+SWDydPmq/VtU5BW1F/8eQ/8PKV9TLGYL/DYRR4XD7o1Pa7q3p9XiO+8Lm0ErBTyo
-         oGAImsfwGtkV1Vc03sbh+aKnUcb1HwM2tiZCcE4ms9S5RX2EYo1LG10wZAfAzwwv3fd/
-         vKQJNy/zNoAlTfyNSqI9FupTKcGAUYbJbU3/gVf2z1etGdbBHeunEvGSyGm2p58dvirZ
-         oAB6pAg2/WapY0kUZvWdzYlge7Rl2BBQ+P4jIYtNz+dfLJTQp7kwYRJjKYnjI+pkwFA9
-         jKYg==
+        bh=qwgJNMEdiT1vhkG5lo7+qzuUnmeEBfj5pFKSBW8oyKM=;
+        b=bIBhyKsOqBDELjm5RQMEhsNNuAI0WEaKStgc1YKsqINg9fRL+muyQy1tpg+ss31Z2k
+         7M2FnhXYSeKhh6+ZUuhR3JLoImSSvf1Jgy16Qda2PLHsl57evYItBOmyf4ybTF067bMd
+         H+9rkpbEG6qWh7IjDglhzb+zZT1dszCKefaI4ke8x8C4PBWte17l+6tUIAR94BrXe1cs
+         77wRwW2PN5rZawYzyQFpOe3r/EznDJcuaezai9a8tEkaLhV3G7EIkCSKRgsYwUJoZpLz
+         qA2lca4tCgSxsFgs6ys/kO0kBbJs9f8LaYWfteRaUtxPXZibQHkRoze18wuonw3Je5eg
+         bXyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740086194; x=1740690994;
+        d=1e100.net; s=20230601; t=1740086196; x=1740690996;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jucUA/JQ/T9NlUFyZCz7f9ZdCRPjESGeAo7rjRd6P8s=;
-        b=mcIjSYvrvAYKMRfGofE0ZcfPE0o8GDSTEvDFsQD9/TPbfvNp+s5j7XzG9sEPqsku57
-         tZAOOppn7ao83rrgC7PCLJfnpmPcFoCh4eZ2TV/+x2gcGhJN/UgiQdBimwglUvvCuQ3z
-         7a74lVw924JITciGjq/3jfLY8p3yyQaLjEZuFbQN4t7Fm7eQdhZ3cr4zQvdDpH+cenBA
-         Bh7WPoo8YRj91Chd5dbJK+NUFbAPDBHYnqrb12PoaBxSx/yxXMGNzREfaOXekeTOOOtG
-         L906LLk9yolGLZAfLyPsWU0AVyEFFP8dvTTRMZrc9ZRi9cvKDOkESBilhCFi8sXl6Kxz
-         LZdg==
-X-Forwarded-Encrypted: i=1; AJvYcCVrFJBG0P8tKGS27BiBJOW+zQ7qQcLdrZJaN3Y0h6tikwQ7F9mjoczuyXhRkG0/mNOWvoBTt3EZx9k4JYqafQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/KdKI6iD+3Eemsq3SMu4u+r8ok8rywtmxL37Ub/i07CD/3X5o
-	N3HZEzvHOUkusfaoKtaKN9lwho0Hw/oenE0CrunguoXYqp/FNpVu8oCY86NIkmuyrrlgTZIcfhq
-	gBJOU9ArHGgC8tPZ3uQ==
-X-Google-Smtp-Source: AGHT+IHh3x3EGS74NK++hfT4v9NtijBoByW8UYHF5iGLBomtROq0LcUnyfxIslhZqBj2B6aLVfi3E50UL6QRSyPs
-X-Received: from pjz8.prod.google.com ([2002:a17:90b:56c8:b0:2fc:c98:ea47])
+        bh=qwgJNMEdiT1vhkG5lo7+qzuUnmeEBfj5pFKSBW8oyKM=;
+        b=KU6g77aP1HGA8zDbQM3ynA1Xf9GfL/0hMCFZBKRJ8QdMvpW6RuhV5YXNFqf9mu7TGD
+         ImoV9gBG9DyOksvTGGBbsQirQrUHcv+Tr21HjBRb6wZTZS8v4s5S1TfdAZaP+VrMnYgf
+         ZF2DOn1guOOWKE2iAU+g2AgMByL36293cDnHHDFmZPQNbBMEpMGiYHre4/Jg0H1FsEZR
+         kfJetYXGPHmOOl+OKu66XQW9gmrc/UUL+doydd9rlXFcyXXiHo0htMgo3zZ2Tji8HcQ+
+         W9FCie+iyNc7QZdwDdFJuzPzIR7YaB0QvbU1UGVxgvRO/41LbTuo4tK6z+5qGcwJ0O++
+         Fbvw==
+X-Forwarded-Encrypted: i=1; AJvYcCX7e7xJztpB8Waoowedo0oUe7rVleyWVruasL28utQN7T812bcXwF0PV0T1AruNlvjVs8+bU9QyBf7LcbO9ow==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywm2bspSHN25uHbsP/7rOhVoEKlh6C6GUcKiTcmashISFkTfkGK
+	S/3klLJl7wAyfsbRfhUwKjxqeg3AnEmeST3TxHz1qS0v1ESsGkZy5R2n1yvoLb5eq/ZBoXMRlUm
+	stddJjOsiU9OfBv2Gdg==
+X-Google-Smtp-Source: AGHT+IEUy6fUyPlY/43Esb54TIEMhhhxJkccpoUI9fpWZbCJIo3NCSM5KuRkfyBLlkcAsmHOkWWxQmMvctwYKaNK
+X-Received: from pjbsx14.prod.google.com ([2002:a17:90b:2cce:b0:2f2:ea3f:34c3])
  (user=vannapurve job=prod-delivery.src-stubby-dispatcher) by
- 2002:a17:90b:3904:b0:2ee:c918:cd60 with SMTP id 98e67ed59e1d1-2fce78cda3fmr1090173a91.20.1740086194135;
- Thu, 20 Feb 2025 13:16:34 -0800 (PST)
-Date: Thu, 20 Feb 2025 21:16:25 +0000
+ 2002:a17:90b:3806:b0:2f7:4cce:ae37 with SMTP id 98e67ed59e1d1-2fce78cb5afmr1247829a91.18.1740086196337;
+ Thu, 20 Feb 2025 13:16:36 -0800 (PST)
+Date: Thu, 20 Feb 2025 21:16:26 +0000
 In-Reply-To: <20250220211628.1832258-1-vannapurve@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20250220211628.1832258-1-vannapurve@google.com>
 X-Mailer: git-send-email 2.48.1.601.g30ceb7b040-goog
-Message-ID: <20250220211628.1832258-2-vannapurve@google.com>
-Subject: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under CONFIG_PARAVIRT
+Message-ID: <20250220211628.1832258-3-vannapurve@google.com>
+Subject: [PATCH V5 2/4] x86/tdx: Route safe halt execution via tdx_safe_halt()
 From: Vishal Annapurve <vannapurve@google.com>
 To: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
 	virtualization@lists.linux.dev
@@ -70,198 +70,133 @@ Cc: pbonzini@redhat.com, seanjc@google.com, erdemaktas@google.com,
 	chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com, 
 	sathyanarayanan.kuppuswamy@linux.intel.com, jgross@suse.com, 
 	ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com, 
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, stable@vger.kernel.org, 
-	Andi Kleen <ak@linux.intel.com>, Tony Luck <tony.luck@intel.com>, 
-	Vishal Annapurve <vannapurve@google.com>
+	Vishal Annapurve <vannapurve@google.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Direct HLT instruction execution causes #VEs for TDX VMs which is routed
+to hypervisor via TDCALL. safe_halt() routines execute HLT in STI-shadow
+so IRQs need to remain disabled until the TDCALL to ensure that pending
+IRQs are correctly treated as wake events. So "sti;hlt" sequence needs to
+be replaced for TDX VMs with "TDCALL; *_irq_enable()" to keep interrupts
+disabled during TDCALL execution.
 
-CONFIG_PARAVIRT_XXL is mainly defined/used by XEN PV guests. For
-other VM guest types, features supported under CONFIG_PARAVIRT
-are self sufficient. CONFIG_PARAVIRT mainly provides support for
-TLB flush operations and time related operations.
+Commit bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+prevented the idle routines from using "sti;hlt". But it missed the
+paravirt routine which can be reached like this as an example:
+        acpi_safe_halt() =>
+        raw_safe_halt()  =>
+        arch_safe_halt() =>
+        irq.safe_halt()  =>
+        pv_native_safe_halt()
 
-For TDX guest as well, paravirt calls under CONFIG_PARVIRT meets
-most of its requirement except the need of HLT and SAFE_HLT
-paravirt calls, which is currently defined under
-CONFIG_PARAVIRT_XXL.
-
-Since enabling CONFIG_PARAVIRT_XXL is too bloated for TDX guest
-like platforms, move HLT and SAFE_HLT paravirt calls under
-CONFIG_PARAVIRT.
-
-Moving HLT and SAFE_HLT paravirt calls are not fatal and should not
-break any functionality for current users of CONFIG_PARAVIRT.
+Modify tdx_safe_halt() to implement the sequence "TDCALL;
+raw_local_irq_enable()" and invoke tdx_halt() from idle routine which just
+executes TDCALL without toggling interrupt state. Introduce dependency
+on CONFIG_PARAVIRT and override paravirt halt()/safe_halt() routines for
+TDX VMs.
 
 Cc: stable@vger.kernel.org
 Fixes: bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
-Co-developed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Vishal Annapurve <vannapurve@google.com>
 ---
- arch/x86/include/asm/irqflags.h       | 40 +++++++++++++++------------
- arch/x86/include/asm/paravirt.h       | 20 +++++++-------
- arch/x86/include/asm/paravirt_types.h |  3 +-
- arch/x86/kernel/paravirt.c            | 14 ++++++----
- 4 files changed, 41 insertions(+), 36 deletions(-)
+ arch/x86/Kconfig           |  1 +
+ arch/x86/coco/tdx/tdx.c    | 22 +++++++++++++++++++++-
+ arch/x86/include/asm/tdx.h |  2 +-
+ arch/x86/kernel/process.c  |  2 +-
+ 4 files changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
-index cf7fc2b8e3ce..1c2db11a2c3c 100644
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -76,6 +76,28 @@ static __always_inline void native_local_irq_restore(unsigned long flags)
- 
- #endif
- 
-+#ifndef CONFIG_PARAVIRT
-+#ifndef __ASSEMBLY__
-+/*
-+ * Used in the idle loop; sti takes one instruction cycle
-+ * to complete:
-+ */
-+static __always_inline void arch_safe_halt(void)
-+{
-+	native_safe_halt();
-+}
-+
-+/*
-+ * Used when interrupts are already enabled or to
-+ * shutdown the processor:
-+ */
-+static __always_inline void halt(void)
-+{
-+	native_halt();
-+}
-+#endif /* __ASSEMBLY__ */
-+#endif /* CONFIG_PARAVIRT */
-+
- #ifdef CONFIG_PARAVIRT_XXL
- #include <asm/paravirt.h>
- #else
-@@ -97,24 +119,6 @@ static __always_inline void arch_local_irq_enable(void)
- 	native_irq_enable();
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 87198d957e2f..afcdbc9693dc 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -902,6 +902,7 @@ config INTEL_TDX_GUEST
+ 	depends on X86_64 && CPU_SUP_INTEL
+ 	depends on X86_X2APIC
+ 	depends on EFI_STUB
++	depends on PARAVIRT
+ 	select ARCH_HAS_CC_PLATFORM
+ 	select X86_MEM_ENCRYPT
+ 	select X86_MCE
+diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
+index 32809a06dab4..7ab427e85bd3 100644
+--- a/arch/x86/coco/tdx/tdx.c
++++ b/arch/x86/coco/tdx/tdx.c
+@@ -14,6 +14,7 @@
+ #include <asm/ia32.h>
+ #include <asm/insn.h>
+ #include <asm/insn-eval.h>
++#include <asm/paravirt_types.h>
+ #include <asm/pgtable.h>
+ #include <asm/set_memory.h>
+ #include <asm/traps.h>
+@@ -398,7 +399,7 @@ static int handle_halt(struct ve_info *ve)
+ 	return ve_instr_len(ve);
  }
  
--/*
-- * Used in the idle loop; sti takes one instruction cycle
-- * to complete:
-- */
--static __always_inline void arch_safe_halt(void)
--{
--	native_safe_halt();
--}
--
--/*
-- * Used when interrupts are already enabled or to
-- * shutdown the processor:
-- */
--static __always_inline void halt(void)
--{
--	native_halt();
--}
--
- /*
-  * For spinlocks, etc:
-  */
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 041aff51eb50..29e7331a0c98 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -107,6 +107,16 @@ static inline void notify_page_enc_status_changed(unsigned long pfn,
- 	PVOP_VCALL3(mmu.notify_page_enc_status_changed, pfn, npages, enc);
- }
- 
-+static __always_inline void arch_safe_halt(void)
-+{
-+	PVOP_VCALL0(irq.safe_halt);
-+}
-+
-+static inline void halt(void)
-+{
-+	PVOP_VCALL0(irq.halt);
-+}
-+
- #ifdef CONFIG_PARAVIRT_XXL
- static inline void load_sp0(unsigned long sp0)
+-void __cpuidle tdx_safe_halt(void)
++void __cpuidle tdx_halt(void)
  {
-@@ -170,16 +180,6 @@ static inline void __write_cr4(unsigned long x)
- 	PVOP_VCALL1(cpu.write_cr4, x);
+ 	const bool irq_disabled = false;
+ 
+@@ -409,6 +410,16 @@ void __cpuidle tdx_safe_halt(void)
+ 		WARN_ONCE(1, "HLT instruction emulation failed\n");
  }
  
--static __always_inline void arch_safe_halt(void)
--{
--	PVOP_VCALL0(irq.safe_halt);
--}
--
--static inline void halt(void)
--{
--	PVOP_VCALL0(irq.halt);
--}
--
- static inline u64 paravirt_read_msr(unsigned msr)
- {
- 	return PVOP_CALL1(u64, cpu.read_msr, msr);
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index fea56b04f436..abccfccc2e3f 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -120,10 +120,9 @@ struct pv_irq_ops {
- 	struct paravirt_callee_save save_fl;
- 	struct paravirt_callee_save irq_disable;
- 	struct paravirt_callee_save irq_enable;
--
-+#endif
- 	void (*safe_halt)(void);
- 	void (*halt)(void);
--#endif
- } __no_randomize_layout;
- 
- struct pv_mmu_ops {
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 1ccaa3397a67..c5bb980b8a67 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -110,6 +110,11 @@ int paravirt_disable_iospace(void)
- 	return request_resource(&ioport_resource, &reserve_ioports);
- }
- 
-+static noinstr void pv_native_safe_halt(void)
++static void __cpuidle tdx_safe_halt(void)
 +{
-+	native_safe_halt();
++	tdx_halt();
++	/*
++	 * "__cpuidle" section doesn't support instrumentation, so stick
++	 * with raw_* variant that avoids tracing hooks.
++	 */
++	raw_local_irq_enable();
 +}
 +
- #ifdef CONFIG_PARAVIRT_XXL
- static noinstr void pv_native_write_cr2(unsigned long val)
+ static int read_msr(struct pt_regs *regs, struct ve_info *ve)
  {
-@@ -125,11 +130,6 @@ static noinstr void pv_native_set_debugreg(int regno, unsigned long val)
- {
- 	native_set_debugreg(regno, val);
- }
--
--static noinstr void pv_native_safe_halt(void)
--{
--	native_safe_halt();
--}
- #endif
+ 	struct tdx_module_args args = {
+@@ -1109,6 +1120,15 @@ void __init tdx_early_init(void)
+ 	x86_platform.guest.enc_kexec_begin	     = tdx_kexec_begin;
+ 	x86_platform.guest.enc_kexec_finish	     = tdx_kexec_finish;
  
- struct pv_info pv_info = {
-@@ -186,9 +186,11 @@ struct paravirt_patch_template pv_ops = {
- 	.irq.save_fl		= __PV_IS_CALLEE_SAVE(pv_native_save_fl),
- 	.irq.irq_disable	= __PV_IS_CALLEE_SAVE(pv_native_irq_disable),
- 	.irq.irq_enable		= __PV_IS_CALLEE_SAVE(pv_native_irq_enable),
-+#endif /* CONFIG_PARAVIRT_XXL */
++	/*
++	 * "sti;hlt" execution in TDX guests will induce a #VE in the STI-shadow
++	 * which will enable interrupts before HLT TDCALL inocation possibly
++	 * resulting in missed wakeup events. Modify all possible HLT
++	 * execution paths to use TDCALL for performance/reliability reasons.
++	 */
++	pv_ops.irq.safe_halt = tdx_safe_halt;
++	pv_ops.irq.halt = tdx_halt;
 +
-+	/* Irq HLT ops. */
- 	.irq.safe_halt		= pv_native_safe_halt,
- 	.irq.halt		= native_halt,
--#endif /* CONFIG_PARAVIRT_XXL */
+ 	/*
+ 	 * TDX intercepts the RDMSR to read the X2APIC ID in the parallel
+ 	 * bringup low level code. That raises #VE which cannot be handled
+diff --git a/arch/x86/include/asm/tdx.h b/arch/x86/include/asm/tdx.h
+index b4b16dafd55e..393ee2dfaab1 100644
+--- a/arch/x86/include/asm/tdx.h
++++ b/arch/x86/include/asm/tdx.h
+@@ -58,7 +58,7 @@ void tdx_get_ve_info(struct ve_info *ve);
  
- 	/* Mmu ops. */
- 	.mmu.flush_tlb_user	= native_flush_tlb_local,
+ bool tdx_handle_virt_exception(struct pt_regs *regs, struct ve_info *ve);
+ 
+-void tdx_safe_halt(void);
++void tdx_halt(void);
+ 
+ bool tdx_early_handle_ve(struct pt_regs *regs);
+ 
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index 6da6769d7254..d11956a178df 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -934,7 +934,7 @@ void __init select_idle_routine(void)
+ 		static_call_update(x86_idle, mwait_idle);
+ 	} else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
+ 		pr_info("using TDX aware idle routine\n");
+-		static_call_update(x86_idle, tdx_safe_halt);
++		static_call_update(x86_idle, tdx_halt);
+ 	} else {
+ 		static_call_update(x86_idle, default_idle);
+ 	}
 -- 
 2.48.1.601.g30ceb7b040-goog
 
