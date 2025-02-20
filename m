@@ -1,230 +1,140 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79A8F1E9B07
-	for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 21:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55C401922E7;
+	Thu, 20 Feb 2025 21:47:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740086740; cv=none; b=HoG59x/B7nciRH4bedKdx9F6pYXpc8qfQaEZWCUmBOo5bgS9aEllf5rRd1vJZ72GBzrtaUQxnf6TYbLWifdpjoF4fZhZbSIv0ksRylC0RoAYn999dQRl1UfwU/tDvP0DSRHLWq20CrL37iGwBPHlRgKmpGy6aQIKkI/Ax0skCE0=
+	t=1740088025; cv=none; b=aJOEfUV9fxwFH/pp8wCb9lrPJlkLHBMYyxzLly1edxC0FDANPhuxvcxaGcLFnOk52eBHcm6FnzLBYV7k+tQqE3Z4vhMX3gDC7Zl8CbGsf0n1i+sJUhPcc8f0ChlLRHeZCQpXS75co4zUdHSAhxzSJxdxwUv6zOfmXCkMm9MggpM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740086740; c=relaxed/simple;
-	bh=x7rBl2z18pUs53vExXjZWpBRXv/IZMZTi6N+JNBqaBs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=b3bguw2llt1yttJS7fUm+tNToI/VzR9lcq4II6Zc6VN+F0tvF1si0969Z6U5zP7GTLF2ltA/RxnEvKLfBubFP3CQRok5vWB6A2G8mjgIu9sKq+ylgU8PvmspQEp8BtT8wenvvxkYzz3szxhWhISphGofkB9Q/V9TGtddkImUFQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DoURM7a9; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1740088025; c=relaxed/simple;
+	bh=L3QrTpd1BPugPCKTgZe3z6juRICwh3qRiVDvGhdOcr0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PRENM6OrUuRejqRLtpzPPDxW2KCdv7TyXZgfhQVk9DuSVqdPTBnbdtAQtV0JVl2Bhbi2xMoRaAGu8rZXJDgF4ostZV6BivRvOhX+0C87SE+QGm/ycx2Y/EQGdqcHhpB61mcPjxp/fi/oIoUKl9avD1TV90OVH1qyij/tLQmyxwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QUyF19NE; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DoURM7a9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740086737;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=unrDTS7QCI25KAS4sCB3l7J3lV8KCBJAU/xxoJQKS8w=;
-	b=DoURM7a9tQ72boXi1weGrio/k2A2MpJOVN/xq+A5vJRkhNcIgL1WIEspjY+jXPdMD1+LQa
-	iklGRr5U9NklEVCiIQT+9KIUpul5MNTF860hgdQXGhT0lw38vP5ovcyT3dOyA4Xwp7QpoP
-	5P54BpuYIoXvq/DRRGpyKRr+Kx5sijg=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-683-Z7LTRz5lOem9Fub60FkjPQ-1; Thu, 20 Feb 2025 16:25:35 -0500
-X-MC-Unique: Z7LTRz5lOem9Fub60FkjPQ-1
-X-Mimecast-MFC-AGG-ID: Z7LTRz5lOem9Fub60FkjPQ_1740086735
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5e095e02b69so1731387a12.0
-        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 13:25:35 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740086734; x=1740691534;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=unrDTS7QCI25KAS4sCB3l7J3lV8KCBJAU/xxoJQKS8w=;
-        b=iasl5JvO3tDGMK3jSn7uqBNF+xJqy/zblODTmeI4YzZ1qRFCCPEw0jvy3Q5kwHKNLG
-         /VO5mn9FYV4ZtIKtjkGu1/CCYg+dv9hGfaD0scnMLoUOonhdV0dbHoCKKnfU4N+TrLEh
-         dVGEGMsFksXaggSryycsWJ72Gm34hTQDkljtwR6n6ctOW8wjy+VG5tT13xcPUTSzKke1
-         awGJhgPto2ttKYzQfPaXWvkd3s85Fus4kDe90GcCZewPrzF6HQSE2Xy2mA9ghJekpKF5
-         wga3M+XSPdmH8dRGz8Qu622+oi4uiS0uSgCFbz1+BFQHSKxWtTNIbGPxeI7beTQ1k5pB
-         UJfQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXq+1hqoRBbbh8seOLwRWIuqntV+WHW2voZFE+MLutPn2talK3O2VY+XhkvlAQZL2qCA26J3GfcipWSRZ7UjQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywhe6zus+OfaM3N4TZPmGrq3SoWiujZPLo2Wunlbbsw1aCDYQG7
-	UlSxay1T/QERBI6jvnWVhI445ZSmAs7Piq+UEpLqLFNiNq5V5s00pJKbshaKDv5UrU4FSgWCmHN
-	V2zer6L20QAyZN8eIRLZbUrnNzsUzMZ3Ag3+jEJqPZ36KYIZj4wNy8hmFD638bIbr
-X-Gm-Gg: ASbGnctpU+ZvIKN+sJXgB+oilwRauhN33iE1FNF51VXyOAQG4OjBPnIfqo4RuMFtqOu
-	LaVsCrZvnwnsfCfcNNwLG2Oz+TS+aRqbwR4QAZujZgiqleMPNicPMPjMhe7jadJosSwfK9SQYV3
-	oR00R9PlnewuduCbRL+AZHMfwNcjC7foAnFFGH+XI2yRWsciFm9C/+32NODzBBDz7YFkLzalRhp
-	CmEzcu8Y/nwQnCrHPXQ9+grooW5XUQb8JrQI3NTw7N+zjmWD3bh3EdQy7lcp3XgIlnGpQ==
-X-Received: by 2002:a05:6402:2381:b0:5dc:8fc1:b3b5 with SMTP id 4fb4d7f45d1cf-5e0b63746femr543899a12.15.1740086734514;
-        Thu, 20 Feb 2025 13:25:34 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH5v3Yl+txcCz5/XdiQPZHOqYI0qvokO2xkWoSI5C9U/U0H41NLIvQ3f0aIpX8wcg7Zxg0iug==
-X-Received: by 2002:a05:6402:2381:b0:5dc:8fc1:b3b5 with SMTP id 4fb4d7f45d1cf-5e0b63746femr543882a12.15.1740086734132;
-        Thu, 20 Feb 2025 13:25:34 -0800 (PST)
-Received: from redhat.com ([2.55.163.174])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5dece1d3624sm12881090a12.40.2025.02.20.13.25.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Feb 2025 13:25:32 -0800 (PST)
-Date: Thu, 20 Feb 2025 16:25:28 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	pabeni@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] virtio-net: tweak for better TX performance in
- NAPI mode
-Message-ID: <20250220162359-mutt-send-email-mst@kernel.org>
-References: <20250218023908.1755-1-jasowang@redhat.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QUyF19NE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740088024; x=1771624024;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=L3QrTpd1BPugPCKTgZe3z6juRICwh3qRiVDvGhdOcr0=;
+  b=QUyF19NEX8J6FyChoz+o0c9cGxwzD5OadzEALrlb+b8LTNLeGyB0YPgp
+   evokTODAeHGLf+I6Kob3t9FFwLI2TRnv3/j4R4gr2ETBUz3auYyDTpciN
+   /XeSC3AFnvtWL3vxwZxhw88d1fch8LqBHkJzQjJhkdwCmcRYFYDX5LZQp
+   VVWHu+b44YasbF17zddo8wnm+o7vxm3jQM5Z4JztQbCEdoBrgFz21rvTU
+   Q/yRX5LUN+yiwtoPxe5EhValgYUn1kUPNCO+knmFq80WCDd3yhtxPdikz
+   hCSsXzMFSL66y1/Cb+y/R84qXaZCjgfzf9mNKdF6SD2H7oJsGc22Wjo9W
+   Q==;
+X-CSE-ConnectionGUID: bLibgyTJS6u7DY8hKEE87w==
+X-CSE-MsgGUID: 1i+vI1alRg6u7RHw+KlEFg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11351"; a="51106522"
+X-IronPort-AV: E=Sophos;i="6.13,302,1732608000"; 
+   d="scan'208";a="51106522"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 13:47:04 -0800
+X-CSE-ConnectionGUID: M28zZGI5SPOQJa/x8CM7xg==
+X-CSE-MsgGUID: Qzbr/pLyTgiihLY8/14XVg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,302,1732608000"; 
+   d="scan'208";a="115005774"
+Received: from jdoman-mobl3.amr.corp.intel.com (HELO [10.125.110.142]) ([10.125.110.142])
+  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2025 13:47:04 -0800
+Message-ID: <9120e074-52af-4ae5-a08c-e62a879c7ebb@intel.com>
+Date: Thu, 20 Feb 2025 13:47:03 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250218023908.1755-1-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bKPdG479QxrKK456eoTfmxGbuDbCt3K96ytI98cX4Ic_1740086735
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under
+ CONFIG_PARAVIRT
+To: Vishal Annapurve <vannapurve@google.com>, x86@kernel.org,
+ linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+ virtualization@lists.linux.dev
+Cc: pbonzini@redhat.com, seanjc@google.com, erdemaktas@google.com,
+ ackerleytng@google.com, jxgao@google.com, sagis@google.com,
+ oupton@google.com, pgonda@google.com, kirill@shutemov.name,
+ dave.hansen@linux.intel.com, chao.p.peng@linux.intel.com,
+ isaku.yamahata@gmail.com, sathyanarayanan.kuppuswamy@linux.intel.com,
+ jgross@suse.com, ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+ stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+ Tony Luck <tony.luck@intel.com>
+References: <20250220211628.1832258-1-vannapurve@google.com>
+ <20250220211628.1832258-2-vannapurve@google.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20250220211628.1832258-2-vannapurve@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Feb 18, 2025 at 10:39:08AM +0800, Jason Wang wrote:
-> There are several issues existed in start_xmit():
-> 
-> - Transmitted packets need to be freed before sending a packet, this
->   introduces delay and increases the average packets transmit
->   time. This also increase the time that spent in holding the TX lock.
-> - Notification is enabled after free_old_xmit_skbs() which will
->   introduce unnecessary interrupts if TX notification happens on the
->   same CPU that is doing the transmission now (actually, virtio-net
->   driver are optimized for this case).
-> 
-> So this patch tries to avoid those issues by not cleaning transmitted
-> packets in start_xmit() when TX NAPI is enabled and disable
-> notifications even more aggressively. Notification will be since the
-> beginning of the start_xmit(). But we can't enable delayed
-> notification after TX is stopped as we will lose the
-> notifications. Instead, the delayed notification needs is enabled
-> after the virtqueue is kicked for best performance.
-> 
-> Performance numbers:
-> 
-> 1) single queue 2 vcpus guest with pktgen_sample03_burst_single_flow.sh
->    (burst 256) + testpmd (rxonly) on the host:
-> 
-> - When pinning TX IRQ to pktgen VCPU: split virtqueue PPS were
->   increased 55% from 6.89 Mpps to 10.7 Mpps and 32% TX interrupts were
->   eliminated. Packed virtqueue PPS were increased 50% from 7.09 Mpps to
->   10.7 Mpps, 99% TX interrupts were eliminated.
-> 
-> - When pinning TX IRQ to VCPU other than pktgen: split virtqueue PPS
->   were increased 96% from 5.29 Mpps to 10.4 Mpps and 45% TX interrupts
->   were eliminated; Packed virtqueue PPS were increased 78% from 6.12
->   Mpps to 10.9 Mpps and 99% TX interrupts were eliminated.
-> 
-> 2) single queue 1 vcpu guest + vhost-net/TAP on the host: single
->    session netperf from guest to host shows 82% improvement from
->    31Gb/s to 58Gb/s, %stddev were reduced from 34.5% to 1.9% and 88%
->    of TX interrupts were eliminated.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+On 2/20/25 13:16, Vishal Annapurve wrote:
+> Since enabling CONFIG_PARAVIRT_XXL is too bloated for TDX guest
+> like platforms, move HLT and SAFE_HLT paravirt calls under
+> CONFIG_PARAVIRT.
 
+I guess it's just one patch, but doesn't this expose CONFIG_PARAVIRT=y
+users to what _was_ specific to CONFIG_PARAVIRT_XXL=y? According to the
+changelog, TDX users shouldn't have to use use PARAVIRT_XXL, so
+PARAVIRT=y and PARAVIRT_XXL=n must be an *IMPORTANT* configuration for
+TDX users.
 
-okay
+Before this patch, those users would have no way to hit the
+unsafe-for-TDX pv_native_safe_halt(). After this patch, they will hit it.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+So, there are two possibilities:
 
-but tell me something, would it be even better to schedule
-napi once, and have that deal with enabling notifications?
+ 1. This patch breaks bisection for an important TDX configuration
+ 2. This patch's conjecture that PARAVIRT_XXL=n is important for TDX
+    is wrong and it is not necessary in the first place.
 
-> ---
->  drivers/net/virtio_net.c | 45 ++++++++++++++++++++++++++++------------
->  1 file changed, 32 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7646ddd9bef7..ac26a6201c44 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1088,11 +1088,10 @@ static bool is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
->  		return false;
->  }
->  
-> -static void check_sq_full_and_disable(struct virtnet_info *vi,
-> -				      struct net_device *dev,
-> -				      struct send_queue *sq)
-> +static bool tx_may_stop(struct virtnet_info *vi,
-> +			struct net_device *dev,
-> +			struct send_queue *sq)
->  {
-> -	bool use_napi = sq->napi.weight;
->  	int qnum;
->  
->  	qnum = sq - vi->sq;
-> @@ -1114,6 +1113,25 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
->  		u64_stats_update_begin(&sq->stats.syncp);
->  		u64_stats_inc(&sq->stats.stop);
->  		u64_stats_update_end(&sq->stats.syncp);
-> +
-> +		return true;
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> +static void check_sq_full_and_disable(struct virtnet_info *vi,
-> +				      struct net_device *dev,
-> +				      struct send_queue *sq)
-> +{
-> +	bool use_napi = sq->napi.weight;
-> +	int qnum;
-> +
-> +	qnum = sq - vi->sq;
-> +
-> +	if (tx_may_stop(vi, dev, sq)) {
-> +		struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
-> +
->  		if (use_napi) {
->  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
->  				virtqueue_napi_schedule(&sq->napi, sq->vq);
-> @@ -3253,15 +3271,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  	bool use_napi = sq->napi.weight;
->  	bool kick;
->  
-> -	/* Free up any pending old buffers before queueing new ones. */
-> -	do {
-> -		if (use_napi)
-> -			virtqueue_disable_cb(sq->vq);
-> -
-> +	if (!use_napi)
->  		free_old_xmit(sq, txq, false);
-> -
-> -	} while (use_napi && !xmit_more &&
-> -	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> +	else
-> +		virtqueue_disable_cb(sq->vq);
->  
->  	/* timestamp packet in software */
->  	skb_tx_timestamp(skb);
-> @@ -3287,7 +3300,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  		nf_reset_ct(skb);
->  	}
->  
-> -	check_sq_full_and_disable(vi, dev, sq);
-> +	if (use_napi)
-> +		tx_may_stop(vi, dev, sq);
-> +	else
-> +		check_sq_full_and_disable(vi, dev,sq);
->  
->  	kick = use_napi ? __netdev_tx_sent_queue(txq, skb->len, xmit_more) :
->  			  !xmit_more || netif_xmit_stopped(txq);
-> @@ -3299,6 +3315,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  		}
->  	}
->  
-> +	if (use_napi && kick && unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
-> +		virtqueue_napi_schedule(&sq->napi, sq->vq);
-> +
->  	return NETDEV_TX_OK;
->  }
->  
-> -- 
-> 2.34.1
-
+What am I missing?
