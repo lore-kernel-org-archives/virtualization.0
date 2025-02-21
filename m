@@ -1,108 +1,150 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A25E1DA53
-	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 01:12:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0603745948
+	for <virtualization@lists.linux-foundation.org>; Fri, 21 Feb 2025 01:15:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740100378; cv=none; b=SwnoRhWKOwJqS+4HjZ1vuz3qO+JdUsK9g6+q0b6TxmQJiZH0DiEQsQMUQa/X5OEuvN3w84DEjqmfDi4o7YrZ6iEupUOwru2DYifcKI9sbxE/cazfsXXMG2e4PpSC9dqStTecYOtjaDeHvmI0ye+r3N8zHGQugSCrG226YbRH99o=
+	t=1740100517; cv=none; b=sTNvQ+fep8hB+yZ5dTQL5i17i3GKyJ3Mb2sjcN6uP092fmPI0gMF9QFOsS1S1MSPojQiHgu2ZabedrZhWTfrKGJ202gq8siOpMZYd54V61aSd9lFrQu/GFXjaGuJeqKH9AqIPygA57swoVnLyuqgEiplFcu3yEWtxJeUU1nrtPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740100378; c=relaxed/simple;
-	bh=Uq7GzPfQ3uC0UiGgLsywtL1UAOYX+nwobFKbFtjrYR8=;
+	s=arc-20240116; t=1740100517; c=relaxed/simple;
+	bh=/bGiavS8jq7e1a/UcoH9zlpN1YkLl+PW6P8a+yl2sIA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UodT1fNblctkgXW1b+ztvMnGyONRGSZXVLplChtO/hU2RwVOUnLrfloDvkrNP1vG2zGVGD6oc1s78Hd1Ar7KEWYjnKpeT1yhPVoGy3s06DU3DLqMm6KUDB8JOr5VSENPcB58rEYgr0nOxq1ytN1YY75vUia7HRcl0VV33uoEEJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UMhE0wdj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=Y7fSzFZGaUGVI2scjBW0Q2ONBzxjsJqimLInmbGcvqwhulwH4q1eb/JWBiCYkxVFLn9rYWj2SdfNifjnWu5mk1X4J7MHME0ebb+IW1OlT17ZB3ryrmFJY8JmyGYCjL8b2ILxQufkaxglUfUEfT/ckllygKNsvHivQeAYqpf+SBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O0o4AW0S; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UMhE0wdj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O0o4AW0S"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8763E814B6
+	for <virtualization@lists.linux-foundation.org>; Fri, 21 Feb 2025 01:15:14 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id OLRILvnylNoj for <virtualization@lists.linux-foundation.org>;
+ Fri, 21 Feb 2025 01:15:14 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B288E814B1
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B288E814B1
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=O0o4AW0S
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B288E814B1
+	for <virtualization@lists.linux-foundation.org>; Fri, 21 Feb 2025 01:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740100375;
+	s=mimecast20190719; t=1740100510;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Uq7GzPfQ3uC0UiGgLsywtL1UAOYX+nwobFKbFtjrYR8=;
-	b=UMhE0wdjntk/SC0jXR7Is/t1BFsTVOgExCqEXSkKvHOwc+Z0I7lJCpSIHMI2wccFznpZSI
-	AilLbBME2+DSuJ2M78dE+jSBX3DCeqsrXrJBFiQMX8VJJrmNjwUQrSpJKgYT8Njy8G/YyF
-	r6K0PPPMyKgVU240Xxsv1SjEUjHMHSo=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/bGiavS8jq7e1a/UcoH9zlpN1YkLl+PW6P8a+yl2sIA=;
+	b=O0o4AW0S4KF4+1E1qQeOtCSp2vnpW40WlgKXQMJhSXp3bg0QIKJXbPSOAq9abp8GrjmZuE
+	kuWSpIZwxH3rHfGeuadNJ/MYs9oDmap3VGg0sC5SyiXxgGcyge6fGqoRar3vRx7WKswtci
+	auH4iWwP1TuLpGulNsdYEKkNT+W4S4Y=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-561-qLWt_55XM2-QZBTVEK8KiQ-1; Thu, 20 Feb 2025 20:12:54 -0500
-X-MC-Unique: qLWt_55XM2-QZBTVEK8KiQ-1
-X-Mimecast-MFC-AGG-ID: qLWt_55XM2-QZBTVEK8KiQ_1740100373
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2fc0bc05c00so5053107a91.2
-        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 17:12:54 -0800 (PST)
+ us-mta-221-Rp7qyRcEOA-Rtzzq08nsEw-1; Thu, 20 Feb 2025 20:15:09 -0500
+X-MC-Unique: Rp7qyRcEOA-Rtzzq08nsEw-1
+X-Mimecast-MFC-AGG-ID: Rp7qyRcEOA-Rtzzq08nsEw_1740100508
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2217a4bfcc7so34681925ad.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 17:15:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740100373; x=1740705173;
+        d=1e100.net; s=20230601; t=1740100508; x=1740705308;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Uq7GzPfQ3uC0UiGgLsywtL1UAOYX+nwobFKbFtjrYR8=;
-        b=i7sgPd4hw+ois+BDX/C4MBM5M+n/VhS1VjzRe/8ia6emDSDyjb6zZtLveRY0VJGsPw
-         vqtiIJUxgFcdvv9VyQiTlXCyF/EM3dTKH4S2TP/QY3FTCC62X8RngsoGyuo4locA3qpY
-         JUFQT8vvUE/jQo9cRgwwVSKn9paCzJrh6xlALn2EuIQU014F5d2do7pmQkbadkhCZc9G
-         57GEMk+PIZjYJERVtA7CO+Tdvg0i3zvKyRh9UTDL/YEgAAR1Aa8jbGsZkyKqfUPqlXvp
-         CEL0KSfpS7ja7WEtsw8KW59ZewAVWoZYMpgcZy+QYZ0cpEm7+B7IpjTIecIa2SwLpm3U
-         Rpyw==
-X-Forwarded-Encrypted: i=1; AJvYcCWGOrGUklTm8zOEU2ehZy3bowQlaL6A5TcfWKmKTpMqPLNDddaPmsPcCbLpVqPnAemZRF8V56r5cxc8Zg6dBQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw6TTp8dtyNXZDFhMusdzHWJjMd8uzj2LBb394H2tr9PqQmclTP
-	+CmPWdz2iDQ+vknKgh374EAx1e2nOn0YSMYQh9AAwiKXLj2LwgKY9gVfax7JqYmwx6csCySWS9a
-	M1+Ipn/B00UUINGb/6uoByIdO6oYM43DDe2LNxBS39bypEArBz3veiK7Ee9Ip1BpzJdADwChCEe
-	pUdhUIEcYWIIE8CfAg/Tq4XM8/fqDT50BttQfA4ik=
-X-Gm-Gg: ASbGncuDnSX+ueSTVLTCfO3GleLBVTugDsSJnCLwNY8Tg3GpHRQjrUqETjQHKI19rSl
-	tuhwgSj7TwPlOXDK6KjWZsFr3xceZGw1HyoI/n9UapzTYPsPsKbg2ZI147tpwo7s=
-X-Received: by 2002:a17:90b:5310:b0:2ea:696d:732f with SMTP id 98e67ed59e1d1-2fce7b271a4mr2148908a91.29.1740100373613;
-        Thu, 20 Feb 2025 17:12:53 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGnQJ9hWU4v+2TwwECUtm6Pf8c9YX7B6ZUHd/Hqnqd2kx0Bc2ftH5qx2hCH5z2BE+GZRURxv4Goas3NlmOaXUg=
-X-Received: by 2002:a17:90b:5310:b0:2ea:696d:732f with SMTP id
- 98e67ed59e1d1-2fce7b271a4mr2148854a91.29.1740100372927; Thu, 20 Feb 2025
- 17:12:52 -0800 (PST)
+        bh=/bGiavS8jq7e1a/UcoH9zlpN1YkLl+PW6P8a+yl2sIA=;
+        b=YvVxJAut7TNMCYq4uuq83ox1ACYqzpsa1w0C+SYIBLp+eEZE7A1EBEJsJG/3CBF7cU
+         5h/DAVuzx/K/yfyWkMWSSwqpAzxnVC5yannorA5RJXP85w86RsdHo5OsD7ZK1eSuJiTc
+         5Z/05eDEBcOgCM25y19xMwjw1xTw3Kz+p/q2EVlrDx8F2ShuA7yjxX32U/Z0L1jcJKBK
+         +9pxW5daU9Y6ckiKjfudIdBdzCX2CVFriN0f9UfCPsPyVk/TxcycKEA2s0e98fFH30VO
+         ZGo0xgG3sHfScWmmFITrGQuvybxZ7FtiJCD2EDES1pMVrZEkeFkjVmwOUW5GYsA16m4o
+         T36g==
+X-Forwarded-Encrypted: i=1; AJvYcCWIhw4MhXtSP4GC1izZK4XGmr+9h9w54WTm0cTNjGmujO3r3Jy0xnM8oJu0zW7CIaH+MKkL+zEEm3oeAVI4xw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzR5OjqPqIgMdxL6HnNoTtnUGMmiikDcWEZTyJCKVapMMTDUrVz
+	5m3GAQuoVdWTdVikakPsUOUfu9O6ruK7a7yIgJjgn1DtytrSTGAY+B0VtpcR19n++H75p+CSU0z
+	YIN42lMqPaFJx1Q2WD4yhyDsfOuzJJGPhQIDk7hFYGN+g8bzsZU10d+YxFMe+zgDs/wV7cspN2q
+	7EIneNg8NpOPmytgx1wtrDo8ca07sNIFcTpY/Uua0oXxPX5Oc6m0OdAA==
+X-Gm-Gg: ASbGnctL2X7+FNQI0TMSuXJ6RAvozQ1D73c6S1A8r9bs4w38+OhZBmU4XLnzPqmhwLD
+	BgLRqjL4tOFshPQsiJbIbSicNEN5l8YjUxKcuxpzR1CS3k9YnUegoG+BnLNI8B30=
+X-Received: by 2002:a17:902:fc44:b0:215:bb50:6a05 with SMTP id d9443c01a7336-221a0ec944cmr13551735ad.9.1740100508428;
+        Thu, 20 Feb 2025 17:15:08 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHNUoAtdLLCDrmQ4E0KhxP1/v8E8OjE3hwAErurd7Thltd/lsB3alr0YyGDAyw/Vnr52MolQRVxcb5jecipEJY=
+X-Received: by 2002:a17:902:fc44:b0:215:bb50:6a05 with SMTP id
+ d9443c01a7336-221a0ec944cmr13551285ad.9.1740100507900; Thu, 20 Feb 2025
+ 17:15:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250220193732.521462-2-dtatulea@nvidia.com>
-In-Reply-To: <20250220193732.521462-2-dtatulea@nvidia.com>
+References: <20250215-buffers-v2-1-1fbc6aaf8ad6@daynix.com>
+ <d4b7f8a0-db50-4b48-b5a3-f60eab76e96b@redhat.com> <20250220034042-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250220034042-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 21 Feb 2025 09:12:41 +0800
-X-Gm-Features: AWEUYZkw-CTw854l_MFE994dYvtfLs30K1XdrnaRr8wNLayyzmZm48vwiDxgk6A
-Message-ID: <CACGkMEuUsh-wH=fWPp66XAFeE_xux-drf1gatSQSiGuS_rO_zQ@mail.gmail.com>
-Subject: Re: [PATCH vhost v2] vdpa/mlx5: Fix oversized null mkey longer than 32bit
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, stable@vger.kernel.org, 
-	Cong Meng <cong.meng@oracle.com>
+Date: Fri, 21 Feb 2025 09:14:56 +0800
+X-Gm-Features: AWEUYZk12eKYMoRdAhOr_VqKFdK71rl0l2JCQtxsCVicbAIDmOs5Fp4sSGUmfl4
+Message-ID: <CACGkMEtN1K7jRVmZwxah1vET=p5k_Nd0cpov=R0B8sP=bjC-sA@mail.gmail.com>
+Subject: Re: [PATCH net-next v2] tun: Pad virtio headers
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, Akihiko Odaki <akihiko.odaki@daynix.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
+	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, devel@daynix.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: dm-4KBHDcOlyRtTu28ovNQmbI484Fgu3y7i5jZHUQcQ_1740100373
+X-Mimecast-MFC-PROC-ID: U0-5Y_kd_05cGg7VFJYRHl2JvvBm7khkHNjWUIIPbH8_1740100508
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 21, 2025 at 3:40=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
+On Thu, Feb 20, 2025 at 4:45=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> From: Si-Wei Liu <si-wei.liu@oracle.com>
+> On Thu, Feb 20, 2025 at 08:58:38AM +0100, Paolo Abeni wrote:
+> > Hi,
+> >
+> > On 2/15/25 7:04 AM, Akihiko Odaki wrote:
+> > > tun simply advances iov_iter when it needs to pad virtio header,
+> > > which leaves the garbage in the buffer as is. This will become
+> > > especially problematic when tun starts to allow enabling the hash
+> > > reporting feature; even if the feature is enabled, the packet may lac=
+k a
+> > > hash value and may contain a hole in the virtio header because the
+> > > packet arrived before the feature gets enabled or does not contain th=
+e
+> > > header fields to be hashed. If the hole is not filled with zero, it i=
+s
+> > > impossible to tell if the packet lacks a hash value.
+> >
+> > Should virtio starting sending packets only after feature negotiation?
+> > In other words, can the above happen without another bug somewhere else=
+?
 >
-> create_user_mr() has correct code to count the number of null keys
-> used to fill in a hole for the memory map. However, fill_indir()
-> does not follow the same to cap the range up to the 1GB limit
-> correspondingly. Fill in more null keys for the gaps in between,
-> so that null keys are correctly populated.
 >
-> Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
-> Cc: stable@vger.kernel.org
-> Reported-by: Cong Meng <cong.meng@oracle.com>
-> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> Not if this is connected with a guest with the standard virtio driver, no=
+.
+> The issue is that tun has no concept of feature negotiation,
+> and we don't know who uses the vnet header feature, or why.
+>
+> > I guess the following question is mostly for Jason and Michael: could b=
+e
+> > possible (/would it make any sense) to use a virtio_net_hdr `flags` bit
+> > to explicitly signal the hash fields presence? i.e. making the actual
+> > virtio_net_hdr size 'dynamic'.
+>
+> But it is dynamic - that is why we have TUNSETVNETHDRSZ.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Yes, tun currently only recognizes a subset of the whole virtio-net header.
 
 Thanks
 
