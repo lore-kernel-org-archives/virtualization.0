@@ -1,81 +1,31 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A5281C3F02
-	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 09:19:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF5C2045B9
+	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 09:34:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740129583; cv=none; b=c4kC9cniCBW2et57G1qspLipyvb02EEtJLG9+F9IyltmSbPn4QiOX0indhhjToOQ927kPDQLBiW18rNw4fFPQzXPKbVXOCIvn2EUURRRbtDBj40vEEvXcPpfvwfIOk3cBnf7UIKYzP01TGdY6jlKv3nk3QeF94OcpzsQu2JhUHA=
+	t=1740130475; cv=none; b=nkn5hnSjvnb1hnRAD/aQEN5qR+Sl0X80VAslbPS4y4el6CvUu9wJ/BtRzeVCUw59TD9+PPr2SSzcwqkpLtxF3m0f8ThvfhyIUxK64PFI5d/9OhtMq6BAUwEpFzFV3TAdCVT8QiYcm/SIzZCkAEMswIKhba583JUjU9fVDwF2yko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740129583; c=relaxed/simple;
-	bh=ZOVk97NBF1UcENXzsdd8a56egVxmjA/4HaMb4vmh9Ds=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OiDA/2mK0AVM+dcg73M+hVY2p3JKKp4HdejDmPxkdyQG0jve2DS8ODDELO9EEZCdATXwS5gq3uKG3K1kkzuOI4jSr318guWSQMLJ8CR1VXM/LSiiSSlpOCU+F3a2PxWh9BPX6ZX4qsRkOq8t9COkTvDYAC/jgfTFEv+KWIEAK24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Y5OD0ODW; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=apiGdSL5; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Ix9uY6zy; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=GXuVcphr; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Y5OD0ODW";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="apiGdSL5";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Ix9uY6zy";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="GXuVcphr"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 016201F38C;
-	Fri, 21 Feb 2025 09:19:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1740129579; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=XEszpDYKL3MVEwZqleFHNbIiqH/hiHMJcxYVx498oDU=;
-	b=Y5OD0ODW05Ir6K44W9oHAHrgQsGFXLTe2qXLi/jaIBFZ8ei3bph+xdvoGyv2xycuuIUEmU
-	lfhDd0FD0MKqUsASX/kbFrYVayo06HxIfkIBglJZ5y6xJsUEh1UQO7cOjfhKiWv2u8LZKu
-	ovMgo9SssgX3HXtwBDBEB/mDQQQS6Mk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1740129579;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=XEszpDYKL3MVEwZqleFHNbIiqH/hiHMJcxYVx498oDU=;
-	b=apiGdSL53jreK8uUb7XtKwQfvrR9lvbOm4fC4bhVEsCnP7K54jIhH0RLvsx+aZh30OOeHO
-	abABtQE13t+7TJAg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=Ix9uY6zy;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=GXuVcphr
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1740129578; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=XEszpDYKL3MVEwZqleFHNbIiqH/hiHMJcxYVx498oDU=;
-	b=Ix9uY6zyz6ad3maDw2OFPsPm2XBJ85n9s/O4q80iEfN1M4Sjj0LK+j1n5z0I0DOmlcCTU0
-	QX+/2L+jPArpkRRDyHTlwd8SaIdpzIX1XprnwUzKPIITRhTlNeFlUdbbne1BuTtAlKMruC
-	phhskGETcHdVTLH59sXknrkluxvm0jQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1740129578;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=XEszpDYKL3MVEwZqleFHNbIiqH/hiHMJcxYVx498oDU=;
-	b=GXuVcphrlbiIlthAB83vu/yp4aJDLPDw8m4egDsZDmriwuukeFiXh2qEeTFvm8HWr1Utjp
-	69K/s2r3yTN1o+Bg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7780C13806;
-	Fri, 21 Feb 2025 09:19:37 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id hlHRGylFuGdGIwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 21 Feb 2025 09:19:37 +0000
-Message-ID: <87ca2b81-a67a-468b-ae2b-30d02a3a64bc@suse.de>
-Date: Fri, 21 Feb 2025 10:19:37 +0100
+	s=arc-20240116; t=1740130475; c=relaxed/simple;
+	bh=UrE4zNeA6rGUajNEitvvWzIh6MglysOpeI2P5JxANP8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=WU55k9ffti/1mCydPUJ82xGOQpXMrMkL5tnQreBqwBJyw/yr5pNBA/VfG6kTwdGxpgmd+hwh+OoTse7BVfPFREkMsWM7KmPnya/X3cLlI1v7OoD4ttF1EeXO8+KXe9RXjdijPcO5BNcAROYNCi1I7irotd+LMukh7XNENgOq3mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.105])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4YzlG03WHwzdb9B;
+	Fri, 21 Feb 2025 17:29:44 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 57A03140158;
+	Fri, 21 Feb 2025 17:34:23 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Fri, 21 Feb 2025 17:34:22 +0800
+Message-ID: <e55e4dd4-9f80-4b2b-a84e-4bcfa4cf40be@huawei.com>
+Date: Fri, 21 Feb 2025 17:34:22 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,238 +33,128 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 02/25] drm/dumb-buffers: Provide helper to set pitch
- and size
-To: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-References: <20250218142542.438557-1-tzimmermann@suse.de>
- <20250218142542.438557-3-tzimmermann@suse.de>
- <dcd59a75-7945-4a2e-99f9-3abbb3e9de14@ideasonboard.com>
- <355ed315-61fa-4a9d-b72b-8d5bc7b5a16c@suse.de>
- <596b960e-71f8-4c2c-9abe-058206df1dfb@ideasonboard.com>
+Subject: Re: [RFC] mm: alloc_pages_bulk: remove assumption of populating only
+ NULL elements
+To: Chuck Lever <chuck.lever@oracle.com>, Yishai Hadas <yishaih@nvidia.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Shameer Kolothum
+	<shameerali.kolothum.thodi@huawei.com>, Kevin Tian <kevin.tian@intel.com>,
+	Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>, Josef
+ Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Gao Xiang
+	<xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>,
+	Carlos Maiolino <cem@kernel.org>, "Darrick J. Wong" <djwong@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>, Jesper Dangaard Brouer
+	<hawk@kernel.org>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+	<horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
+	<anna@kernel.org>, Jeff Layton <jlayton@kernel.org>, Neil Brown
+	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>
+CC: Luiz Capitulino <luizcap@redhat.com>, Mel Gorman
+	<mgorman@techsingularity.net>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+	<linux-btrfs@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+	<linux-xfs@vger.kernel.org>, <linux-mm@kvack.org>, <netdev@vger.kernel.org>,
+	<linux-nfs@vger.kernel.org>
+References: <20250217123127.3674033-1-linyunsheng@huawei.com>
+ <abc3ae0b-620a-4e4a-8dd8-f8e7d3764b3a@oracle.com>
+ <cc6fc730-e5f4-485b-b0b6-ec70374b3ab1@huawei.com>
+ <7b7492c0-a3a7-470b-b7aa-697ac790a94b@oracle.com>
 Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <596b960e-71f8-4c2c-9abe-058206df1dfb@ideasonboard.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <7b7492c0-a3a7-470b-b7aa-697ac790a94b@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 016201F38C
-X-Spam-Level: 
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-0.998];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCPT_COUNT_TWELVE(0.00)[20];
-	ARC_NA(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FREEMAIL_TO(0.00)[ideasonboard.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
-	MIME_TRACE(0.00)[0:+];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim,suse.de:mid,bootlin.com:url]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -3.01
-X-Spam-Flag: NO
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-Hi
-
-Am 20.02.25 um 11:53 schrieb Tomi Valkeinen:
-> Hi,
->
-> On 20/02/2025 12:05, Thomas Zimmermann wrote:
->> Hi
->>
->> Am 20.02.25 um 10:18 schrieb Tomi Valkeinen:
->> [...]
->>>> + * Color modes of 10, 12, 15, 30 and 64 are only supported for use by
->>>> + * legacy user space. Please don't use them in new code. Other modes
->>>> + * are not support.
->>>> + *
->>>> + * Do not attempt to allocate anything but linear framebuffer memory
->>>> + * with single-plane RGB data. Allocation of other framebuffer
->>>> + * layouts requires dedicated ioctls in the respective DRM driver.
+On 2025/2/18 22:17, Chuck Lever wrote:
+> On 2/18/25 4:16 AM, Yunsheng Lin wrote:
+>> On 2025/2/17 22:20, Chuck Lever wrote:
+>>> On 2/17/25 7:31 AM, Yunsheng Lin wrote:
+>>>> As mentioned in [1], it seems odd to check NULL elements in
+>>>> the middle of page bulk allocating,
 >>>
->>> According to this, every driver that supports, say, NV12, should 
->>> implement their own custom ioctl to do the exact same thing? And, of 
->>> course, every userspace app that uses, say, NV12, should then add 
->>> code for all these platforms to call the custom ioctls?
->>
->> Yes, that's exactly the current status.
->>
->> There has been discussion about a new dumb-create ioctl that takes a 
->> DRM format as parameter. I'm all for it, but it's out of the scope 
->> for this series.
->>
+>>> I think I requested that check to be added to the bulk page allocator.
 >>>
->>> As libdrm's modetest currently supports YUV formats with dumb 
->>> buffers, should we remove that code, as it's not correct and I'm 
->>> sure people use libdrm code as a reference?
+>>> When sending an RPC reply, NFSD might release pages in the middle of
 >>
->> Of course not.
->>
+>> It seems there is no usage of the page bulk allocation API in fs/nfsd/
+>> or fs/nfs/, which specific fs the above 'NFSD' is referring to?
+> 
+> NFSD is in fs/nfsd/, and it is the major consumer of
+> net/sunrpc/svc_xprt.c.
+> 
+> 
+>>> the rq_pages array, marking each of those array entries with a NULL
+>>> pointer. We want to ensure that the array is refilled completely in this
+>>> case.
 >>>
->>> Well, I'm not serious above, but I think all my points from the 
->>> earlier version are still valid. I don't like this. It changes the 
->>> parameters of the ioctl (bpp used to be bits-per-pixel, not it's 
->>> "color mode"), and the behavior of the ioctl, behavior that we've 
->>> had for a very long time, and we have no idea how many users there 
->>> are that will break (could be none, of course). And the 
->>> documentation changes make the current behavior and uses wrong or 
->>> legacy.
 >>
->> Before I go into details about this statement, what use case exactly 
->> are you referring to when you say that behavior changes?
->
-> For every dumb_buffer allocation with bpp that is not divisible by 8, 
-> the result is different, i.e. instead of DIV_ROUND_UP(width * bpp, 8), 
-> we now have width * DIV_ROUND_UP(bpp, 8). This, of course, depends on 
-> the driver implementation. Some already do the latter.
+>> I did some researching, it seems you requested that in [1]?
+>> It seems the 'holes are always at the start' for the case in that
+>> discussion too, I am not sure if the case is referring to the caller
+>> in net/sunrpc/svc_xprt.c? If yes, it seems caller can do a better
+>> job of bulk allocating pages into a whole array sequentially without
+>> checking NULL elements first before doing the page bulk allocation
+>> as something below:
+>>
+>> +++ b/net/sunrpc/svc_xprt.c
+>> @@ -663,9 +663,10 @@ static bool svc_alloc_arg(struct svc_rqst *rqstp)
+>>                 pages = RPCSVC_MAXPAGES;
+>>         }
+>>
+>> -       for (filled = 0; filled < pages; filled = ret) {
+>> -               ret = alloc_pages_bulk(GFP_KERNEL, pages, rqstp->rq_pages);
+>> -               if (ret > filled)
+>> +       for (filled = 0; filled < pages; filled += ret) {
+>> +               ret = alloc_pages_bulk(GFP_KERNEL, pages - filled,
+>> +                                      rqstp->rq_pages + filled);
+>> +               if (ret)
+>>                         /* Made progress, don't sleep yet */
+>>                         continue;
+>>
+>> @@ -674,7 +675,7 @@ static bool svc_alloc_arg(struct svc_rqst *rqstp)
+>>                         set_current_state(TASK_RUNNING);
+>>                         return false;
+>>                 }
+>> -               trace_svc_alloc_arg_err(pages, ret);
+>> +               trace_svc_alloc_arg_err(pages, filled);
+>>                 memalloc_retry_wait(GFP_KERNEL);
+>>         }
+>>         rqstp->rq_page_end = &rqstp->rq_pages[pages];
+>>
+>>
+>> 1. https://lkml.iu.edu/hypermail/linux/kernel/2103.2/09060.html
+> 
+> I still don't see what is broken about the current API.
 
-The current dumb-buffer code does a stride computation at [1], which is 
-correct for all cases; although over-allocates sometimes. It's the one 
-you describe as "width * DIV_ROUND_UP(bpp, 8)". It's in the ioctl entry 
-point, so it's somewhat authoritative for all driver's implementations. 
-It's also used by several drivers.
+As mentioned in [1], the page bulk alloc API before this patch may
+have some space for improvement from performance and easy-to-use
+perspective as the most existing calllers of page bulk alloc API
+are trying to bulk allocate the page for the whole array sequentially.
 
-The other variant, "DIV_ROUND_UP(width * bpp, 8)", is used by gem-dma, 
-gem-shmem and others. It can give incorrect results and possibly OOBs. 
-To give a simple example, let's allocate 15-bit XRGB1555. Bpp is 15. 
-With a width of 1024, that would result in 1920 bytes per scanline. But 
-because XRGB1555 has a filler bit, so the pixel is actually 16 bit and a 
-scanline needs to be 2048 bytes. The new code fixes that. This is not 
-just a hypothetical scenario: we do have drivers that support XRGB1555 
-and some of them also export a preferred_depth of 15 to userspace. [2]  
-In the nearby comment, you'll see that this value is meant for dumb buffers.
+1. https://lore.kernel.org/all/c9950a79-7bcb-41c2-a59e-af315dc6d7ff@huawei.com/
 
-Rounding up the depth value in user space is possible for RGB, but not 
-for YUV. Here different pixel planes have a different number of bits. 
-Sometimes pixels are sharing bits. The value of bits-per-pixel becomes 
-meaningless. That's why it's also deprecated in struct drm_format_info. 
-The struct instead uses a more complicated per-plane calculation to 
-compute the number of bits per plane. [3] The user-space code currently 
-doing YUV on dumb buffers simply got lucky.
+> 
+> Anyway, any changes in svc_alloc_arg() will need to be run through the
+> upstream NFSD CI suite before they are merged.
 
-[1] 
-https://elixir.bootlin.com/linux/v6.13.3/source/drivers/gpu/drm/drm_dumb_buffers.c#L77
-[2] 
-https://elixir.bootlin.com/linux/v6.13.3/source/include/drm/drm_mode_config.h#L885
-[3] 
-https://elixir.bootlin.com/linux/v6.13.3/source/include/drm/drm_fourcc.h#L83
+Is there any web link pointing to the above NFSD CI suite, so that I can
+test it if removing assumption of populating only NULL elements is indeed
+possible?
 
->
-> This change also first calls the drm_driver_color_mode_format(), which 
-> could change the behavior even more, but afaics at the moment does not. 
+Look more closely, it seems svc_rqst_release_pages()/svc_rdma_save_io_pages()
+does set rqstp->rq_respages[i] to NULL based on rqstp->rq_next_page,
+and the original code before using the page bulk alloc API does seem to only
+allocate page for NULL elements as can see from the below patch：
+https://lore.kernel.org/all/20210325114228.27719-8-mgorman@techsingularity.net/T/#u
 
-Because currently each driver does its own thing, it can be hard to 
-write user space that reliably allocates on all drivers. That's why it's 
-important that parameters are not just raw numbers, but have 
-well-defined semantics. The raw bpp is meaningless; it's also important 
-to know which formats are associated with each value. Otherwise, you 
-might get a dumb buffer with a bpp of 15, but it will be displayed 
-incorrectly. This patch series finally implements this and clearly 
-documents the assumptions behind the interfaces. The assumptions 
-themselves have always existed.
+The clearing of rqstp->rq_respages[] to NULL does seems sequentially, is it
+possible to only pass NULL elements in rqstp->rq_respages[] to alloc_pages_bulk()
+so that bulk alloc API does not have to do the NULL checking and use the array only
+as output parameter?
 
-The color modes in drm_driver_color_mode_format() are set in stone and 
-will not change incompatibly. It's already a user interface. I've taken 
-care that the results do not change incompatibly compared to what the 
-dumb-buffer ioctl currently assumes. (C1-C4 are special, see below.)
-
-> Although, maybe some platform does width * DIV_ROUND_UP(bpp, 8) even 
-> for bpp < 8, and then this series changes it for 1, 2 and 4 bpps (but 
-> not for 3, 5, 6, 7, if I'm not mistaken).
-
-True. 1, 2 and 4 would currently over-allocate significantly on some 
-drivers and the series will reduce this to actual requirements. Yet our 
-most common memory managers, gem-dma and gem-shmem, compute the sizes 
-correctly.
-
-But there are currently no drivers that support C4, C2 or C1 formats; 
-hence there's likely no user space either. I know that Geert is 
-interested in making a driver that uses these formats on very low-end 
-hardware (something Atari or Amiga IIRC). Over-allocating on such 
-hardware is likely not an option.
-
-The other values (3, 5, 6, 7) have no meaning I know of. 6 could be 
-XRGB2222, but I not aware of anything using that. We don't even have a 
-format constant for this.
-
->
-> However, as the bpp is getting rounded up, this probably won't break 
-> any user. But it _is_ a change in the behavior of a uapi, and every 
-> time we change a uapi that's been out there for a long time, I'm 
-> getting slightly uncomfortable.
-
-As I tried to explain, we currently have both versions in drivers: 
-rounding up bpp and rounding up (bpp*width). User-space code already has 
-to deal with both cases.
-
-Best regards
-Thomas
-
->
-> So, as a summary, I have a feeling that nothing will break, but I 
-> can't say for sure. And as I'm having trouble seeing the benefit of 
-> this change for the user, I get even more uncomfortable.
->
->  Tomi
->
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
-
+> 
+> 
