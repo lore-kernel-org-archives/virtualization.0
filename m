@@ -1,73 +1,73 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08A71202F95
-	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 11:35:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DCEE205ADA
+	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 11:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740137706; cv=none; b=AXi0bsEqqiU0Mi8i+n5CKBY0zlCFqFP/IFw+4Qa/uYf4maRpgZRXP4hbe8P7BHv7adsEFSQROu8KF96WFJnxSClOI4TsQvlRC//bV9hfDEcDuJmysbpLxmHSgGySw88pdbPiLYQk/4MkyVBLugx+3viAKzwMbpbDJmQ7+INbuiM=
+	t=1740138105; cv=none; b=cf47KIoaBNVWXGYLpMlU4y+BEhoeYUpLff5O9DbKT+gy/r2TlUOlNUMk1toz9gerb8c7inBbjepAukG33ONs1PJGfaPgbRUobWHFWjiQfgezZFOx6CiU5tpxPm2KHzaplMxtHAmCpQd4Qz1NUWKdxQ0ql4uLOzWu3jjBaX4Cpv0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740137706; c=relaxed/simple;
-	bh=5JO7MAU2pNeHSO0R7VF3GsD5XvtNiBXra9ry7n54Zr0=;
+	s=arc-20240116; t=1740138105; c=relaxed/simple;
+	bh=SvjxmZauslII2+Ca1ZFCYVVzR/2EOh8sGT3TqK6IOHk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GS5C/4c20WkpEhzjaPiLk2oXHqRpWvrSc1Q/nPIj6xHFm7oifVr4w+6/3QZqdmN0fg352ii1knmskQP77DONxqtkBpIGsQiPFkwkGMlh2iWtqXOL/0dVr1G3wV8h9L1hJq3xIQjLuYJKYLUAH1CyR6Btxq1P6uNOdnP+Tl3jzyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=lPR7Dg85; arc=none smtp.client-ip=209.85.128.43
+	 Content-Type:Content-Disposition:In-Reply-To; b=RHQ0mTrjERVKIN2smkzUX7RCQgAXIzg3yZMy9k8XrrINeXJ17PhSuoxS3dv58SSGDmMwT+98eq4Z0i3aqatgcrhR3OqCGc05qdunReal+5KURszaEXuBW2jsJR6ea4PegOxwLdPuWgtlZFgQ3yUcAC4goGc6B1/U8CXNSY0WJNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=iQaVvLe6; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="lPR7Dg85"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-439846bc7eeso12499655e9.3
-        for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 03:35:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="iQaVvLe6"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4398ec2abc2so17206995e9.1
+        for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 03:41:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1740137702; x=1740742502; darn=lists.linux.dev;
+        d=linaro.org; s=google; t=1740138101; x=1740742901; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y3hcxNqTV9LVIYXXbWCIdDjS+CvuYnmWv2VTJipyhvM=;
-        b=lPR7Dg85lB0OLZrXtu+jlsZXhcWeTvWjCdwg0jGQ3hdnI3uRrP0CkavB9YIh9ulxcn
-         NHKbJ+v6tpLNalgtjACyraM9gew2pDUTDZ1soPb7eASG/xyqkUpRbyzoB0guUqu/Uxq0
-         8TOOqG+IZ2rTj4MdbhxWk12MUwe8Mw89tumQDjxZoSFozH7Iu73RvuIA74Up1EHYdN4A
-         kxgV2C/aEkWD4yxVLbEPo5vib7RwjlSkVYn327CSxVBjaG23cms4+PAa/imqvus7eu5G
-         syahExbfsrqdEq+p1tHcExS7iJuv4GLWG0m3C3W2yWtwgtajEd3eEwkpPLjxyOyTwnyp
-         j9wQ==
+        bh=8Hjqn4Gzw1MqP1NTAwTa5QXz+1IZXGfOQwpEgvNl05E=;
+        b=iQaVvLe6EXCJRQ/e+PtRn/wv+GbG+g8QQjl4lhK6QJGZfvGWZcQQb3L+c0UeLaajQk
+         5kzcCcXlVpoqHGrweGmwdDvlZjBM6+x7EI0I7zTL9t6LZYFOLCsuVYjXQoHBtUR1JyIb
+         SgTTr+P5P0VZzPzRM+P8Z0li8J8Ii4ydf20j+uL5z+xCgLVpksVSyMKClM+rqnpLvxWi
+         n7yqxoRXfeb4xqRXFBLjGdX3L5LKFNW5/WcpvoQZvp4X9hIrKurasKJn14G5GteA0+vA
+         wCNpnjhtCGYw/7LY8Xf4g7a39VzVC6Mfxahlur5OAd9jB0mZ1cjIIbNJvKEgqL/gi49K
+         s0FA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740137702; x=1740742502;
+        d=1e100.net; s=20230601; t=1740138101; x=1740742901;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Y3hcxNqTV9LVIYXXbWCIdDjS+CvuYnmWv2VTJipyhvM=;
-        b=bCbBehQ4o/P96DekgsBMPT4U6SDWNFvHm1eTtn+IqBIYuNS9squeustoipK1Rq2qZm
-         Z7yrxzXDQ9t1QFlpuR2TVYmRBtQv7nGlamJm6iSNYvdjmQOuQyLkS3iCC7+oL2Z0vHzN
-         tvxDrMlp9t9nVnKcmxnZP/Sp9rlvmMzHiyj1d3x35VnRHA2p3+QSKii5ULRtE8a6+3Se
-         GOPYqaDb5iJYE6iSGkjNIzVW5d0ADTmDDGx0/IWrWLh1Ex8xoGpWtpf/KvA2q5mgWZSa
-         opD1uCipfZX4AkY08WLP0xEwef4r3TUDg55yprJAz9roCtb6fUefvx9On7pIPNSW2sCY
-         GdFA==
-X-Forwarded-Encrypted: i=1; AJvYcCWL9AXmUJ6kvXqQG3teP7XzclWBwHsNN6Af6PvsuYPr0JMaVMTH9+iNs5nK3ff0fBYB9cUYM1B61e/akecyvA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyHxpUA9qidYjrhiGM6RLicjZ3Aj25XxyVnZ7DWmE8dO5UrSLIL
-	Iu1IX+UyJn39ACVC/52s4mvFSTXMg7Z4+SljjIKlAEVy/YZwdYULPIO3eFBi0hM=
-X-Gm-Gg: ASbGnctj38P+MMH1Y0oFldSALOb4tARGonxd1QzfM1yDDCwSxry89/50/byc7JH+BZ8
-	doiNk/UacXEbV+iWaTPzJ8Itnob6Kyrs6WP9tWohaEINzV/UrvAuRePl2ikin5n8iwnejrz2sLv
-	LJ4mOBQj9VJPlohnR0o4vvS3DLqx4heH8hipntF+BwER2SVo8rX07wpGzs/AV5y213oSG+T8g2V
-	0rO06pCJz58MnE/mKvja1Q3ln5hJz/eIGmSzd9Ym4GxNwjOxVUpqmhVLfCfLimjSrbS9iM0oD9p
-	fHk0r3OrqM3fB1gP+gLJR9hk
-X-Google-Smtp-Source: AGHT+IFxvYtlAjXtBQ2UW7OEyJ/vTf6nWVmNgpDNCzqY7J4jHXDBefIwgjYoeK3O/AT6rlCvE4nfqg==
-X-Received: by 2002:a05:600c:19cc:b0:439:5766:7232 with SMTP id 5b1f17b1804b1-439ae212996mr21449415e9.21.1740137702192;
-        Fri, 21 Feb 2025 03:35:02 -0800 (PST)
+        bh=8Hjqn4Gzw1MqP1NTAwTa5QXz+1IZXGfOQwpEgvNl05E=;
+        b=kPZT7rG6CUxVE8TxrWr67jgc7UUL79XfqpkIif55U5w+YNMyRFZREo6ah+13nZXHCj
+         SfBvXttleS2gppveTB2dozIKUFH0o8AflhRsvC72WL3Rzi+6KsIOA1kUSxx7wnu2I9MR
+         sUHj0wz7ftMBI3MQ0f/rh1RZw29HawwdhsI0vdjP5moPpw3VARFWyrfp8OdRukto/ZMn
+         HFQ+9/NS+r+3AATKOvc8QTMFUZIZsNid4dETh+RTcEEXsbGvrDk8xXkSqXl/q9m4wWUi
+         aX1iPIHDxZo5EP5xE+6l33TfK8oPbmQHRymZbQhQX8yhirGNU6TDba36W8dDZBc9AVEt
+         MeMg==
+X-Forwarded-Encrypted: i=1; AJvYcCX039mFABrNt7C9XWK3YJB4oKMbHsMTY8hd+SKeSVHHZ/JE/Yju7ABHR8wXw7tEQ3Qar+MtSGHDxcYu/IK64A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyd7SKkWqurqcZ4guM6dzaZ03j4QhsB33qgIH0c3Z2qySUNQwZx
+	pqHj9ecElwnq3ZfcT2GXKL26QQvASQKB0iOjo5Pq7CBuSR/TkLeA8fDzN4irV6c=
+X-Gm-Gg: ASbGnctKzHACO7jKjWXqlLGVk5EJ7qJ4Es6+g1ystkyRoukCHwiMiNQx9wjQeMBVGpG
+	CFlAzZ7wswYvlQ0HQxCeQoV9QACWx4nednN0W5kBPMI6RX6QR49AZuKBWM4x11Lknnd11mZ2VoJ
+	fdsp17tmRuERVvG6nZPxsgbdd7nsTy+9d8tmD/jhtCkX+jkPrvF2jfh8CiqUrjK9U2ZbXKriEqp
+	a126cLeFyAzIk7xkdtYUbK+zHA8mVs3ywLbKCMUz+V5YrkpmHo1YQRcwwxNTdiTykSkOs8wrBU8
+	8zySi2cG+t/UCY2xtmw9WFXC
+X-Google-Smtp-Source: AGHT+IFsNsE6nwYIxjV3tb1IOYQfAHzudn/bvPIeUKbaIvn1PvgigfMsE/xHa387zcqeYKxGoOg7pA==
+X-Received: by 2002:a05:600c:4590:b0:439:95b9:91fc with SMTP id 5b1f17b1804b1-439ae1e6e9emr24389505e9.12.1740138101489;
+        Fri, 21 Feb 2025 03:41:41 -0800 (PST)
 Received: from myrica ([2.221.137.100])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-439b02d854csm14508535e9.15.2025.02.21.03.35.01
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-439b02d5610sm14624925e9.11.2025.02.21.03.41.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Feb 2025 03:35:01 -0800 (PST)
-Date: Fri, 21 Feb 2025 11:35:27 +0000
+        Fri, 21 Feb 2025 03:41:41 -0800 (PST)
+Date: Fri, 21 Feb 2025 11:42:06 +0000
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>,
-	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
-	Will Deacon <will@kernel.org>, Eric Auger <eric.auger@redhat.com>,
-	patches@lists.linux.dev
-Subject: Re: [PATCH 1/5] iommu/virtio: Break out bypass identity support into
- a global static
-Message-ID: <20250221113527.GA719702@myrica>
+Cc: Jacob Pan <jacob.pan@linux.microsoft.com>, iommu@lists.linux.dev,
+	Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 0/5] Convert virtio-iommu to domain_alloc_paging()
+Message-ID: <20250221114206.GB719702@myrica>
 References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
- <1-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+ <20250211164151.723cfce0@DESKTOP-0403QTC.>
+ <20250212125007.GP3754072@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -76,200 +76,30 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+In-Reply-To: <20250212125007.GP3754072@nvidia.com>
 
-On Fri, Feb 07, 2025 at 10:46:01AM -0400, Jason Gunthorpe wrote:
-> To make way for a domain_alloc_paging conversion add the typical global
-> static IDENTITY domain. This supports VMMs that have a
-> VIRTIO_IOMMU_F_BYPASS_CONFIG config.
+On Wed, Feb 12, 2025 at 08:50:07AM -0400, Jason Gunthorpe wrote:
+> On Tue, Feb 11, 2025 at 04:41:51PM -0800, Jacob Pan wrote:
 > 
-> If the VMM does not have support then the domain_alloc path is still used,
-> which creates an IDENTITY domain out of a paging domain.
+> > I see the same on arm64 with v9.0, assigned an ixgbe nic via VFIO.
 > 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/iommu/virtio-iommu.c | 86 ++++++++++++++++++++++++++++--------
->  1 file changed, 67 insertions(+), 19 deletions(-)
+> Huh, I figured it worked on ARM..
+
+Crosvm would be a more useful test because it doesn't implement any BYPASS
+feature, but I don't have it set up at the moment. It's not a problem on
+QEMU since it supports the BYPASS feature and doesn't need identity-mapped
+domains.
+
 > 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index b85ce6310ddbda..c71a996760bddb 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -48,6 +48,7 @@ struct viommu_dev {
->  	u64				pgsize_bitmap;
->  	u32				first_domain;
->  	u32				last_domain;
-> +	u32				identity_domain_id;
->  	/* Supported MAP flags */
->  	u32				map_flags;
->  	u32				probe_size;
-> @@ -70,7 +71,6 @@ struct viommu_domain {
->  	struct rb_root_cached		mappings;
->  
->  	unsigned long			nr_endpoints;
-> -	bool				bypass;
->  };
->  
->  struct viommu_endpoint {
-> @@ -305,6 +305,22 @@ static int viommu_send_req_sync(struct viommu_dev *viommu, void *buf,
->  	return ret;
->  }
->  
-> +static int viommu_send_attach_req(struct viommu_dev *viommu, struct device *dev,
-> +				  struct virtio_iommu_req_attach *req)
-> +{
-> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +	int ret;
-> +	int i;
-> +
-> +	for (i = 0; i < fwspec->num_ids; i++) {
-> +		req->endpoint = cpu_to_le32(fwspec->ids[i]);
-> +		ret = viommu_send_req_sync(viommu, req, sizeof(*req));
-> +		if (ret)
-> +			return ret;
-> +	}
-> +	return 0;
-> +}
-> +
->  /*
->   * viommu_add_mapping - add a mapping to the internal tree
->   *
-> @@ -687,12 +703,6 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
->  	vdomain->viommu		= viommu;
->  
->  	if (domain->type == IOMMU_DOMAIN_IDENTITY) {
-> -		if (virtio_has_feature(viommu->vdev,
-> -				       VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
-> -			vdomain->bypass = true;
-> -			return 0;
-> -		}
-> -
->  		ret = viommu_domain_map_identity(vdev, vdomain);
->  		if (ret) {
->  			ida_free(&viommu->domain_ids, vdomain->id);
-> @@ -719,10 +729,8 @@ static void viommu_domain_free(struct iommu_domain *domain)
->  
->  static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->  {
-> -	int i;
->  	int ret = 0;
->  	struct virtio_iommu_req_attach req;
-> -	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
->  	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
->  	struct viommu_domain *vdomain = to_viommu_domain(domain);
->  
-> @@ -761,16 +769,9 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->  		.domain		= cpu_to_le32(vdomain->id),
->  	};
->  
-> -	if (vdomain->bypass)
-> -		req.flags |= cpu_to_le32(VIRTIO_IOMMU_ATTACH_F_BYPASS);
-> -
-> -	for (i = 0; i < fwspec->num_ids; i++) {
-> -		req.endpoint = cpu_to_le32(fwspec->ids[i]);
-> -
-> -		ret = viommu_send_req_sync(vdomain->viommu, &req, sizeof(req));
-> -		if (ret)
-> -			return ret;
-> -	}
-> +	ret = viommu_send_attach_req(vdomain->viommu, dev, &req);
-> +	if (ret)
-> +		return ret;
->  
->  	if (!vdomain->nr_endpoints) {
->  		/*
-> @@ -788,6 +789,40 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->  	return 0;
->  }
->  
-> +static int viommu_attach_identity_domain(struct iommu_domain *domain,
-> +					 struct device *dev)
-> +{
-> +	int ret = 0;
-> +	struct virtio_iommu_req_attach req;
-> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	req = (struct virtio_iommu_req_attach) {
-> +		.head.type	= VIRTIO_IOMMU_T_ATTACH,
-> +		.domain		= cpu_to_le32(vdev->viommu->identity_domain_id),
-> +		.flags          = cpu_to_le32(VIRTIO_IOMMU_ATTACH_F_BYPASS),
-> +	};
-> +
-> +	ret = viommu_send_attach_req(vdev->viommu, dev, &req);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (vdev->vdomain) {
-> +		vdev->vdomain->nr_endpoints--;
-> +		vdomain->nr_endpoints++;
-> +		vdev->vdomain = vdomain;
+> There is no requirement that an iommu driver implement identity, this
+> is all an optimization. If it doesn't work in alot of cases can we
+> just remove it? It would simplfy a lot..
 
-These two need to be unconditional
-
-> +	}
-> +	return 0;
-> +}
-> +
-> +static struct viommu_domain viommu_identity_domain = {
-> +	.domain = { .type = IOMMU_DOMAIN_IDENTITY,
-> +		    .ops =
-> +			    &(const struct iommu_domain_ops){
-> +				    .attach_dev = viommu_attach_identity_domain,
-> +			    } }
-> +};
-
-nit: how about
-
-	static struct viommu_domain viommu_identity_domain = {
-		.domain = {
-			.type = IOMMU_DOMAIN_IDENTITY,
-			.ops = &(const struct iommu_domain_ops) {
-				.attach_dev = viommu_attach_identity_domain,
-			},
-		},
-	};
-
-> +
->  static void viommu_detach_dev(struct viommu_endpoint *vdev)
->  {
->  	int i;
-> @@ -1061,6 +1096,7 @@ static bool viommu_capable(struct device *dev, enum iommu_cap cap)
->  }
->  
->  static struct iommu_ops viommu_ops = {
-> +	.identity_domain	= &viommu_identity_domain.domain,
->  	.capable		= viommu_capable,
->  	.domain_alloc		= viommu_domain_alloc,
->  	.probe_device		= viommu_probe_device,
-> @@ -1184,6 +1220,18 @@ static int viommu_probe(struct virtio_device *vdev)
->  	if (virtio_has_feature(vdev, VIRTIO_IOMMU_F_MMIO))
->  		viommu->map_flags |= VIRTIO_IOMMU_MAP_F_MMIO;
->  
-> +	/* Reserve an ID to use as the bypass domain */
-> +	if (virtio_has_feature(viommu->vdev, VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
-> +		viommu->identity_domain_id = viommu->first_domain;
-> +		viommu->first_domain++;
-> +	} else {
-> +		/*
-> +		 * Assume the VMM is sensible and it either supports bypass on
-> +		 * all instances or no instances.
-> +		 */
-
-Maybe also a WARN_ON(!viommu_ops.identity_domain) above?
+No objection.  Identity domains are useful if the use-case of virtio-iommu
+is assigning devices to guest userspace, in which case you'd want to
+bypass the IOMMU for the devices that are still owned by the kernel. But
+VMMs have at least two alternatives to identity-mapping (BYPASS feature
+and tailored topology).
 
 Thanks,
 Jean
-
-
-
-> +		viommu_ops.identity_domain = NULL;
-> +	}
-> +
->  	viommu_ops.pgsize_bitmap = viommu->pgsize_bitmap;
->  
->  	virtio_device_ready(vdev);
-> -- 
-> 2.43.0
-> 
-> 
