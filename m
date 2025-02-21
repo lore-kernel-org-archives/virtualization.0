@@ -1,234 +1,275 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC7AA204C02
-	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 10:08:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08A71202F95
+	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 11:35:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740132504; cv=none; b=ej/zOy42YtDgnRzPeEBrs3qnxBZzkVniBxXH2fbeD4TnEySaO4GWJVqmRVX7otVMSh0iselQbiktM70+N+uV/0TTPrlrkyVe6Iq47lMhcaASzZjTF3R8sxBNvdJ3gsT1g5mbb6syLRvFFULubfilkaYbevq0iyFndBi9bJi4Q7k=
+	t=1740137706; cv=none; b=AXi0bsEqqiU0Mi8i+n5CKBY0zlCFqFP/IFw+4Qa/uYf4maRpgZRXP4hbe8P7BHv7adsEFSQROu8KF96WFJnxSClOI4TsQvlRC//bV9hfDEcDuJmysbpLxmHSgGySw88pdbPiLYQk/4MkyVBLugx+3viAKzwMbpbDJmQ7+INbuiM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740132504; c=relaxed/simple;
-	bh=qWhmsFDSGAW2AefAUv9Cw78El34kaM//jsi1KIkxJPk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mU9+oqTnOUal52ui45EEdt8HFfDmRqdgZNgnW65MuKjZRKyqK8ofX90Pq+HpdbWuaShio81W1ScNpc9FmNEpthDyXPkeUBYVLfoYPeVsB2wijgQx7YhqN9qdeoEvMXVJ6ZWc3MG60tDQwYmFF2VkMXmoGpxolPkUpPdFvgjDyM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=LQF5AnVY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=WLcapchc; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=lKrGFb/s; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Oulub/yC; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1740137706; c=relaxed/simple;
+	bh=5JO7MAU2pNeHSO0R7VF3GsD5XvtNiBXra9ry7n54Zr0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GS5C/4c20WkpEhzjaPiLk2oXHqRpWvrSc1Q/nPIj6xHFm7oifVr4w+6/3QZqdmN0fg352ii1knmskQP77DONxqtkBpIGsQiPFkwkGMlh2iWtqXOL/0dVr1G3wV8h9L1hJq3xIQjLuYJKYLUAH1CyR6Btxq1P6uNOdnP+Tl3jzyk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=lPR7Dg85; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="LQF5AnVY";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="WLcapchc";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="lKrGFb/s";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Oulub/yC"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id EBE8C1F78A;
-	Fri, 21 Feb 2025 10:08:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1740132501; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=M2e6KH/BHcFK6w9SYbHcPx6nqA1qpuxt618HD/sPm9I=;
-	b=LQF5AnVYcLPwoUAaF2Bux+O59hCHAg6pl0zqiienZa7pQ4gvMY1PpgPpjwuZVrF8ZDKKpf
-	LjOteY2AeuwSxMSm1St3s7ejjMGetWwS66KGBEGLl6z5snb3SAsox8bmKkKYu8xbUpOlBJ
-	13eVsZCCqwC2ZqgfhDzxXWYmlFTZ0zo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1740132501;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=M2e6KH/BHcFK6w9SYbHcPx6nqA1qpuxt618HD/sPm9I=;
-	b=WLcapchcQAQV8ZOFP+V3hwPjvdEPgPjJgGK+oZwFKvo+c3s2ayOg9oH8N7jbf3H7oR3eou
-	4NxoU8q4tY+j4BAA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1740132499; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=M2e6KH/BHcFK6w9SYbHcPx6nqA1qpuxt618HD/sPm9I=;
-	b=lKrGFb/skhwoYPPUVwSDcJW0EBjnr2uy+nfYrcyElx4exsS5CnMWZrAHIeQaS2BxLRzSTH
-	LRhrkqsBRDfwgbOjbZ+zLPS2INLgWtN1L/nPh51l6Cps3I/LPfxVyC6WAPQqpTRm3vrsEp
-	4gh0h4aiWJXnVu93NI8oLcHmwg2Ypkc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1740132499;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=M2e6KH/BHcFK6w9SYbHcPx6nqA1qpuxt618HD/sPm9I=;
-	b=Oulub/yCIhXM878lgyw9zPHPgLLNUSxAK7kXdKfRRv6S9EWcIdOxS23F73zZol16noWM+X
-	DGDIsV61UNIiQ5Dw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 74CDB136AD;
-	Fri, 21 Feb 2025 10:08:19 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id sywjG5NQuGd7MwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 21 Feb 2025 10:08:19 +0000
-Message-ID: <cde8b955-a846-4be9-942b-64ca05550368@suse.de>
-Date: Fri, 21 Feb 2025 11:08:19 +0100
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="lPR7Dg85"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-439846bc7eeso12499655e9.3
+        for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 03:35:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1740137702; x=1740742502; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y3hcxNqTV9LVIYXXbWCIdDjS+CvuYnmWv2VTJipyhvM=;
+        b=lPR7Dg85lB0OLZrXtu+jlsZXhcWeTvWjCdwg0jGQ3hdnI3uRrP0CkavB9YIh9ulxcn
+         NHKbJ+v6tpLNalgtjACyraM9gew2pDUTDZ1soPb7eASG/xyqkUpRbyzoB0guUqu/Uxq0
+         8TOOqG+IZ2rTj4MdbhxWk12MUwe8Mw89tumQDjxZoSFozH7Iu73RvuIA74Up1EHYdN4A
+         kxgV2C/aEkWD4yxVLbEPo5vib7RwjlSkVYn327CSxVBjaG23cms4+PAa/imqvus7eu5G
+         syahExbfsrqdEq+p1tHcExS7iJuv4GLWG0m3C3W2yWtwgtajEd3eEwkpPLjxyOyTwnyp
+         j9wQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740137702; x=1740742502;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Y3hcxNqTV9LVIYXXbWCIdDjS+CvuYnmWv2VTJipyhvM=;
+        b=bCbBehQ4o/P96DekgsBMPT4U6SDWNFvHm1eTtn+IqBIYuNS9squeustoipK1Rq2qZm
+         Z7yrxzXDQ9t1QFlpuR2TVYmRBtQv7nGlamJm6iSNYvdjmQOuQyLkS3iCC7+oL2Z0vHzN
+         tvxDrMlp9t9nVnKcmxnZP/Sp9rlvmMzHiyj1d3x35VnRHA2p3+QSKii5ULRtE8a6+3Se
+         GOPYqaDb5iJYE6iSGkjNIzVW5d0ADTmDDGx0/IWrWLh1Ex8xoGpWtpf/KvA2q5mgWZSa
+         opD1uCipfZX4AkY08WLP0xEwef4r3TUDg55yprJAz9roCtb6fUefvx9On7pIPNSW2sCY
+         GdFA==
+X-Forwarded-Encrypted: i=1; AJvYcCWL9AXmUJ6kvXqQG3teP7XzclWBwHsNN6Af6PvsuYPr0JMaVMTH9+iNs5nK3ff0fBYB9cUYM1B61e/akecyvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyHxpUA9qidYjrhiGM6RLicjZ3Aj25XxyVnZ7DWmE8dO5UrSLIL
+	Iu1IX+UyJn39ACVC/52s4mvFSTXMg7Z4+SljjIKlAEVy/YZwdYULPIO3eFBi0hM=
+X-Gm-Gg: ASbGnctj38P+MMH1Y0oFldSALOb4tARGonxd1QzfM1yDDCwSxry89/50/byc7JH+BZ8
+	doiNk/UacXEbV+iWaTPzJ8Itnob6Kyrs6WP9tWohaEINzV/UrvAuRePl2ikin5n8iwnejrz2sLv
+	LJ4mOBQj9VJPlohnR0o4vvS3DLqx4heH8hipntF+BwER2SVo8rX07wpGzs/AV5y213oSG+T8g2V
+	0rO06pCJz58MnE/mKvja1Q3ln5hJz/eIGmSzd9Ym4GxNwjOxVUpqmhVLfCfLimjSrbS9iM0oD9p
+	fHk0r3OrqM3fB1gP+gLJR9hk
+X-Google-Smtp-Source: AGHT+IFxvYtlAjXtBQ2UW7OEyJ/vTf6nWVmNgpDNCzqY7J4jHXDBefIwgjYoeK3O/AT6rlCvE4nfqg==
+X-Received: by 2002:a05:600c:19cc:b0:439:5766:7232 with SMTP id 5b1f17b1804b1-439ae212996mr21449415e9.21.1740137702192;
+        Fri, 21 Feb 2025 03:35:02 -0800 (PST)
+Received: from myrica ([2.221.137.100])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-439b02d854csm14508535e9.15.2025.02.21.03.35.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Feb 2025 03:35:01 -0800 (PST)
+Date: Fri, 21 Feb 2025 11:35:27 +0000
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>,
+	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
+	Will Deacon <will@kernel.org>, Eric Auger <eric.auger@redhat.com>,
+	patches@lists.linux.dev
+Subject: Re: [PATCH 1/5] iommu/virtio: Break out bypass identity support into
+ a global static
+Message-ID: <20250221113527.GA719702@myrica>
+References: <0-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
+ <1-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 02/25] drm/dumb-buffers: Provide helper to set pitch
- and size
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch, dri-devel@lists.freedesktop.org,
- linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
- linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
- linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
- virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org,
- linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org,
- xen-devel@lists.xenproject.org,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-References: <20250218142542.438557-1-tzimmermann@suse.de>
- <20250218142542.438557-3-tzimmermann@suse.de>
- <dcd59a75-7945-4a2e-99f9-3abbb3e9de14@ideasonboard.com>
- <355ed315-61fa-4a9d-b72b-8d5bc7b5a16c@suse.de>
- <596b960e-71f8-4c2c-9abe-058206df1dfb@ideasonboard.com>
- <87ca2b81-a67a-468b-ae2b-30d02a3a64bc@suse.de>
- <CAMuHMdVnZTj-8bqsbbZdhp0H7Bwib8GkEuXPcKNZjdo_jRRXgg@mail.gmail.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <CAMuHMdVnZTj-8bqsbbZdhp0H7Bwib8GkEuXPcKNZjdo_jRRXgg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[21];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[ideasonboard.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,lists.freedesktop.org,lists.infradead.org,vger.kernel.org,lists.linux.dev,lists.xenproject.org];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email]
-X-Spam-Flag: NO
-X-Spam-Level: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1-v1-91eed9c8014a+53a37-iommu_virtio_domains_jgg@nvidia.com>
 
-Hi
+On Fri, Feb 07, 2025 at 10:46:01AM -0400, Jason Gunthorpe wrote:
+> To make way for a domain_alloc_paging conversion add the typical global
+> static IDENTITY domain. This supports VMMs that have a
+> VIRTIO_IOMMU_F_BYPASS_CONFIG config.
+> 
+> If the VMM does not have support then the domain_alloc path is still used,
+> which creates an IDENTITY domain out of a paging domain.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/iommu/virtio-iommu.c | 86 ++++++++++++++++++++++++++++--------
+>  1 file changed, 67 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index b85ce6310ddbda..c71a996760bddb 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -48,6 +48,7 @@ struct viommu_dev {
+>  	u64				pgsize_bitmap;
+>  	u32				first_domain;
+>  	u32				last_domain;
+> +	u32				identity_domain_id;
+>  	/* Supported MAP flags */
+>  	u32				map_flags;
+>  	u32				probe_size;
+> @@ -70,7 +71,6 @@ struct viommu_domain {
+>  	struct rb_root_cached		mappings;
+>  
+>  	unsigned long			nr_endpoints;
+> -	bool				bypass;
+>  };
+>  
+>  struct viommu_endpoint {
+> @@ -305,6 +305,22 @@ static int viommu_send_req_sync(struct viommu_dev *viommu, void *buf,
+>  	return ret;
+>  }
+>  
+> +static int viommu_send_attach_req(struct viommu_dev *viommu, struct device *dev,
+> +				  struct virtio_iommu_req_attach *req)
+> +{
+> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+> +	int ret;
+> +	int i;
+> +
+> +	for (i = 0; i < fwspec->num_ids; i++) {
+> +		req->endpoint = cpu_to_le32(fwspec->ids[i]);
+> +		ret = viommu_send_req_sync(viommu, req, sizeof(*req));
+> +		if (ret)
+> +			return ret;
+> +	}
+> +	return 0;
+> +}
+> +
+>  /*
+>   * viommu_add_mapping - add a mapping to the internal tree
+>   *
+> @@ -687,12 +703,6 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+>  	vdomain->viommu		= viommu;
+>  
+>  	if (domain->type == IOMMU_DOMAIN_IDENTITY) {
+> -		if (virtio_has_feature(viommu->vdev,
+> -				       VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
+> -			vdomain->bypass = true;
+> -			return 0;
+> -		}
+> -
+>  		ret = viommu_domain_map_identity(vdev, vdomain);
+>  		if (ret) {
+>  			ida_free(&viommu->domain_ids, vdomain->id);
+> @@ -719,10 +729,8 @@ static void viommu_domain_free(struct iommu_domain *domain)
+>  
+>  static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>  {
+> -	int i;
+>  	int ret = 0;
+>  	struct virtio_iommu_req_attach req;
+> -	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+>  	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+>  	struct viommu_domain *vdomain = to_viommu_domain(domain);
+>  
+> @@ -761,16 +769,9 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>  		.domain		= cpu_to_le32(vdomain->id),
+>  	};
+>  
+> -	if (vdomain->bypass)
+> -		req.flags |= cpu_to_le32(VIRTIO_IOMMU_ATTACH_F_BYPASS);
+> -
+> -	for (i = 0; i < fwspec->num_ids; i++) {
+> -		req.endpoint = cpu_to_le32(fwspec->ids[i]);
+> -
+> -		ret = viommu_send_req_sync(vdomain->viommu, &req, sizeof(req));
+> -		if (ret)
+> -			return ret;
+> -	}
+> +	ret = viommu_send_attach_req(vdomain->viommu, dev, &req);
+> +	if (ret)
+> +		return ret;
+>  
+>  	if (!vdomain->nr_endpoints) {
+>  		/*
+> @@ -788,6 +789,40 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>  	return 0;
+>  }
+>  
+> +static int viommu_attach_identity_domain(struct iommu_domain *domain,
+> +					 struct device *dev)
+> +{
+> +	int ret = 0;
+> +	struct virtio_iommu_req_attach req;
+> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
+> +
+> +	req = (struct virtio_iommu_req_attach) {
+> +		.head.type	= VIRTIO_IOMMU_T_ATTACH,
+> +		.domain		= cpu_to_le32(vdev->viommu->identity_domain_id),
+> +		.flags          = cpu_to_le32(VIRTIO_IOMMU_ATTACH_F_BYPASS),
+> +	};
+> +
+> +	ret = viommu_send_attach_req(vdev->viommu, dev, &req);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (vdev->vdomain) {
+> +		vdev->vdomain->nr_endpoints--;
+> +		vdomain->nr_endpoints++;
+> +		vdev->vdomain = vdomain;
 
-Am 21.02.25 um 10:57 schrieb Geert Uytterhoeven:
-> Hi Thomas,
->
-> On Fri, 21 Feb 2025 at 10:19, Thomas Zimmermann <tzimmermann@suse.de> wrote:
->> Am 20.02.25 um 11:53 schrieb Tomi Valkeinen:
->>> This change also first calls the drm_driver_color_mode_format(), which
->>> could change the behavior even more, but afaics at the moment does not.
->> Because currently each driver does its own thing, it can be hard to
->> write user space that reliably allocates on all drivers. That's why it's
->> important that parameters are not just raw numbers, but have
->> well-defined semantics. The raw bpp is meaningless; it's also important
->> to know which formats are associated with each value. Otherwise, you
->> might get a dumb buffer with a bpp of 15, but it will be displayed
->> incorrectly. This patch series finally implements this and clearly
->> documents the assumptions behind the interfaces. The assumptions
->> themselves have always existed.
->>
->> The color modes in drm_driver_color_mode_format() are set in stone and
->> will not change incompatibly. It's already a user interface. I've taken
->> care that the results do not change incompatibly compared to what the
->> dumb-buffer ioctl currently assumes. (C1-C4 are special, see below.)
->>
->>> Although, maybe some platform does width * DIV_ROUND_UP(bpp, 8) even
->>> for bpp < 8, and then this series changes it for 1, 2 and 4 bpps (but
->>> not for 3, 5, 6, 7, if I'm not mistaken).
->> True. 1, 2 and 4 would currently over-allocate significantly on some
->> drivers and the series will reduce this to actual requirements. Yet our
->> most common memory managers, gem-dma and gem-shmem, compute the sizes
->> correctly.
->>
->> But there are currently no drivers that support C4, C2 or C1 formats;
->> hence there's likely no user space either. I know that Geert is
->> interested in making a driver that uses these formats on very low-end
->> hardware (something Atari or Amiga IIRC). Over-allocating on such
->> hardware is likely not an option.
-> Note that the gud and ssd130x drivers do support R1, and I believe
-> work is underway to add grayscale formats to ssd130x.
+These two need to be unconditional
 
-Nice find. Both use gem-shmem, which allocates without much overhead. So 
-any possible userspace should already be prepared for this scenario.
+> +	}
+> +	return 0;
+> +}
+> +
+> +static struct viommu_domain viommu_identity_domain = {
+> +	.domain = { .type = IOMMU_DOMAIN_IDENTITY,
+> +		    .ops =
+> +			    &(const struct iommu_domain_ops){
+> +				    .attach_dev = viommu_attach_identity_domain,
+> +			    } }
+> +};
 
->
->> The other values (3, 5, 6, 7) have no meaning I know of. 6 could be
->> XRGB2222, but I not aware of anything using that. We don't even have a
->> format constant for this.
-> Yeah, e.g. Amiga supports 3, 5, 6, and 7 bpp, but that is using
-> bitplanes.  There is already some sort of consensus to not expose
-> bitplanes to userspace in DRM, so limiting to 1, 2, 4, and 8 bpp
-> (which can be converted from C[1248]) is fine.
+nit: how about
 
-There's been discussion about a new dumb-buffer ioctl that receives a 
-format constant and returns individual buffers for each plane. This 
-would allow for these use cases.
+	static struct viommu_domain viommu_identity_domain = {
+		.domain = {
+			.type = IOMMU_DOMAIN_IDENTITY,
+			.ops = &(const struct iommu_domain_ops) {
+				.attach_dev = viommu_attach_identity_domain,
+			},
+		},
+	};
 
-Best regards
-Thomas
+> +
+>  static void viommu_detach_dev(struct viommu_endpoint *vdev)
+>  {
+>  	int i;
+> @@ -1061,6 +1096,7 @@ static bool viommu_capable(struct device *dev, enum iommu_cap cap)
+>  }
+>  
+>  static struct iommu_ops viommu_ops = {
+> +	.identity_domain	= &viommu_identity_domain.domain,
+>  	.capable		= viommu_capable,
+>  	.domain_alloc		= viommu_domain_alloc,
+>  	.probe_device		= viommu_probe_device,
+> @@ -1184,6 +1220,18 @@ static int viommu_probe(struct virtio_device *vdev)
+>  	if (virtio_has_feature(vdev, VIRTIO_IOMMU_F_MMIO))
+>  		viommu->map_flags |= VIRTIO_IOMMU_MAP_F_MMIO;
+>  
+> +	/* Reserve an ID to use as the bypass domain */
+> +	if (virtio_has_feature(viommu->vdev, VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
+> +		viommu->identity_domain_id = viommu->first_domain;
+> +		viommu->first_domain++;
+> +	} else {
+> +		/*
+> +		 * Assume the VMM is sensible and it either supports bypass on
+> +		 * all instances or no instances.
+> +		 */
 
->
-> Gr{oetje,eeting}s,
->
->                          Geert
->
+Maybe also a WARN_ON(!viommu_ops.identity_domain) above?
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+Thanks,
+Jean
 
+
+
+> +		viommu_ops.identity_domain = NULL;
+> +	}
+> +
+>  	viommu_ops.pgsize_bitmap = viommu->pgsize_bitmap;
+>  
+>  	virtio_device_ready(vdev);
+> -- 
+> 2.43.0
+> 
+> 
