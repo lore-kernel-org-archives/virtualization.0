@@ -1,150 +1,234 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0603745948
-	for <virtualization@lists.linux-foundation.org>; Fri, 21 Feb 2025 01:15:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 084C9192B86
+	for <virtualization@lists.linux.dev>; Fri, 21 Feb 2025 01:37:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740100517; cv=none; b=sTNvQ+fep8hB+yZ5dTQL5i17i3GKyJ3Mb2sjcN6uP092fmPI0gMF9QFOsS1S1MSPojQiHgu2ZabedrZhWTfrKGJ202gq8siOpMZYd54V61aSd9lFrQu/GFXjaGuJeqKH9AqIPygA57swoVnLyuqgEiplFcu3yEWtxJeUU1nrtPk=
+	t=1740101829; cv=none; b=eEGTw36hwh4TYKrOPC7PI8ERWYBLwhCykMNIqMnUdbW0reC3hdHMRNJhalnJmEb+WE6mejPkcR1cGoYk4t2aXnNRg6RMhEEyC/oDvjilypp/kTLouuLU+9T0f62E1mGNSrdhANQvo3gs3RDqGYKcE1VUPLNQTDgBKFboJizeA3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740100517; c=relaxed/simple;
-	bh=/bGiavS8jq7e1a/UcoH9zlpN1YkLl+PW6P8a+yl2sIA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y7fSzFZGaUGVI2scjBW0Q2ONBzxjsJqimLInmbGcvqwhulwH4q1eb/JWBiCYkxVFLn9rYWj2SdfNifjnWu5mk1X4J7MHME0ebb+IW1OlT17ZB3ryrmFJY8JmyGYCjL8b2ILxQufkaxglUfUEfT/ckllygKNsvHivQeAYqpf+SBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O0o4AW0S; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1740101829; c=relaxed/simple;
+	bh=0lgTIhJ/W8ZvGJamupVG+BpNT7q4Ut+GzjEnDq7q66Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=dSBpazG1vxBg06bd1mK9WFkGvxJPaIIMb5xnCQZPTQaokB22JYCwR+8iPfwX1oqLgKdAPMa9OK3o4a/yBZki9U+R4UzEhZauCQTF6lbR+WeXeMrRiqK8pdvXNLmIPFo77GWS63McOwAvN2i85NoDgaBhKH9HKPZs9KyOEdXjhEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fr/TDDFe; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O0o4AW0S"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8763E814B6
-	for <virtualization@lists.linux-foundation.org>; Fri, 21 Feb 2025 01:15:14 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id OLRILvnylNoj for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Feb 2025 01:15:14 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B288E814B1
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B288E814B1
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=O0o4AW0S
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B288E814B1
-	for <virtualization@lists.linux-foundation.org>; Fri, 21 Feb 2025 01:15:11 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fr/TDDFe"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740100510;
+	s=mimecast20190719; t=1740101824;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/bGiavS8jq7e1a/UcoH9zlpN1YkLl+PW6P8a+yl2sIA=;
-	b=O0o4AW0S4KF4+1E1qQeOtCSp2vnpW40WlgKXQMJhSXp3bg0QIKJXbPSOAq9abp8GrjmZuE
-	kuWSpIZwxH3rHfGeuadNJ/MYs9oDmap3VGg0sC5SyiXxgGcyge6fGqoRar3vRx7WKswtci
-	auH4iWwP1TuLpGulNsdYEKkNT+W4S4Y=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=mu/6TYww2CF+OKFrEBrIeYBZqIuSZlhwqee7pcE4gAE=;
+	b=fr/TDDFelU7efb4/UzgDDeXPhnfoyvKmHhYAs9OZQ8pAyQ96exEkMQLNnI4ljvEVDlTfzi
+	snt0yQdgNau4e9b14E+qaZi0t+6FI7OgaKxtHFZbnqYbSQ622br35AimBGj8yTVTfaa7Ku
+	EOP57N3DDGUrpH68qwO3lC7MWYI7p2Q=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-221-Rp7qyRcEOA-Rtzzq08nsEw-1; Thu, 20 Feb 2025 20:15:09 -0500
-X-MC-Unique: Rp7qyRcEOA-Rtzzq08nsEw-1
-X-Mimecast-MFC-AGG-ID: Rp7qyRcEOA-Rtzzq08nsEw_1740100508
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2217a4bfcc7so34681925ad.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 20 Feb 2025 17:15:09 -0800 (PST)
+ us-mta-244-n7T-f6j-NzKDPJXdsbiU0Q-1; Thu, 20 Feb 2025 20:37:03 -0500
+X-MC-Unique: n7T-f6j-NzKDPJXdsbiU0Q-1
+X-Mimecast-MFC-AGG-ID: n7T-f6j-NzKDPJXdsbiU0Q_1740101822
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5da14484978so1446172a12.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Feb 2025 17:37:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740100508; x=1740705308;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/bGiavS8jq7e1a/UcoH9zlpN1YkLl+PW6P8a+yl2sIA=;
-        b=YvVxJAut7TNMCYq4uuq83ox1ACYqzpsa1w0C+SYIBLp+eEZE7A1EBEJsJG/3CBF7cU
-         5h/DAVuzx/K/yfyWkMWSSwqpAzxnVC5yannorA5RJXP85w86RsdHo5OsD7ZK1eSuJiTc
-         5Z/05eDEBcOgCM25y19xMwjw1xTw3Kz+p/q2EVlrDx8F2ShuA7yjxX32U/Z0L1jcJKBK
-         +9pxW5daU9Y6ckiKjfudIdBdzCX2CVFriN0f9UfCPsPyVk/TxcycKEA2s0e98fFH30VO
-         ZGo0xgG3sHfScWmmFITrGQuvybxZ7FtiJCD2EDES1pMVrZEkeFkjVmwOUW5GYsA16m4o
-         T36g==
-X-Forwarded-Encrypted: i=1; AJvYcCWIhw4MhXtSP4GC1izZK4XGmr+9h9w54WTm0cTNjGmujO3r3Jy0xnM8oJu0zW7CIaH+MKkL+zEEm3oeAVI4xw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzR5OjqPqIgMdxL6HnNoTtnUGMmiikDcWEZTyJCKVapMMTDUrVz
-	5m3GAQuoVdWTdVikakPsUOUfu9O6ruK7a7yIgJjgn1DtytrSTGAY+B0VtpcR19n++H75p+CSU0z
-	YIN42lMqPaFJx1Q2WD4yhyDsfOuzJJGPhQIDk7hFYGN+g8bzsZU10d+YxFMe+zgDs/wV7cspN2q
-	7EIneNg8NpOPmytgx1wtrDo8ca07sNIFcTpY/Uua0oXxPX5Oc6m0OdAA==
-X-Gm-Gg: ASbGnctL2X7+FNQI0TMSuXJ6RAvozQ1D73c6S1A8r9bs4w38+OhZBmU4XLnzPqmhwLD
-	BgLRqjL4tOFshPQsiJbIbSicNEN5l8YjUxKcuxpzR1CS3k9YnUegoG+BnLNI8B30=
-X-Received: by 2002:a17:902:fc44:b0:215:bb50:6a05 with SMTP id d9443c01a7336-221a0ec944cmr13551735ad.9.1740100508428;
-        Thu, 20 Feb 2025 17:15:08 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHNUoAtdLLCDrmQ4E0KhxP1/v8E8OjE3hwAErurd7Thltd/lsB3alr0YyGDAyw/Vnr52MolQRVxcb5jecipEJY=
-X-Received: by 2002:a17:902:fc44:b0:215:bb50:6a05 with SMTP id
- d9443c01a7336-221a0ec944cmr13551285ad.9.1740100507900; Thu, 20 Feb 2025
- 17:15:07 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740101822; x=1740706622;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=mu/6TYww2CF+OKFrEBrIeYBZqIuSZlhwqee7pcE4gAE=;
+        b=dq1BftGl6q2N37UhdIokgC8O8rLZGHFFv0OFQjEb+/eRGFSXRPZZ5L/gjBx+z17M0L
+         rWMYg4dwNLLeor0tx69W7ZnGxhY5SkQ2zrJezA2FuLE/9kvFdnvBl0UAxfLWcu6bpLiL
+         HhgDOKCsy/pK0QhgskCoCB/N2x5Lin0GjEpbPTKtzzB+riQRUY8Gev9dK1gMAJpxBGAu
+         RlNru01lLWD9h2G2yVinjOkMRX9Y729H7VndrIpm+nSqtf4fpJFjq00MWZYXlH9aufyh
+         3p7Yfl3HpLfIEBfpZGF6DUX3PiqHw5dSZGHBkDtP7kpqW6RMOJpGqi11Z4QiPgZ7GGg5
+         e4sA==
+X-Forwarded-Encrypted: i=1; AJvYcCUQeeaPa8XVxUVf716JnY2NgsaSgMEewMFUWBT8tak7m3nlgCnzEeqYr0+OZplRez7JUMZawjnx0FZE6cObCg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzxBRV5Cdqwm7HocIZob25ha/jVoyqGtEjmCmu9EEtBhEDSkj2h
+	xTxwLhw5Qm0KnUzpxu43F/1jFgI94anxIHmsIaHBp8jlcNYFg4iMhOH0+eZg2KRhUQGIVkVz7zR
+	c/4EEskUavAPAq28VWVPD8Us/dxrg08OiXSLAqPeZp+HcpMPI8o7Roicsl6Sq8Vls
+X-Gm-Gg: ASbGncvUDaBvIaCjggRYJKj+4Po00QR/3cdK84hCN3NmU5i0EKaVEADdvE1GiyTIDlT
+	RR9CQG+9QV3x7sPCwS1Qzby84mOWcAV2mhj7TArvdc5+Qe7j9b+23lZ1u+CilhuUEGeOMEmqLbO
+	SXBOWFiRo2BWfOa46fUDKSrgyDDHdYwTGuLgqBPTjN/5PkpVfprALuBXwKTP7c8tkHuO0JPHU9R
+	v6BLWJOLw5wY83Y/vicK4J2Q9Xo48E/nIhndrQ2J/9xM7nhycZM1xtNN0cxjptP89rMFJdwo6v5
+	qLRm
+X-Received: by 2002:a05:6402:348d:b0:5dc:7823:e7e4 with SMTP id 4fb4d7f45d1cf-5e0b70f8732mr832242a12.12.1740101822161;
+        Thu, 20 Feb 2025 17:37:02 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFz/3ZI9S1ZBKYSKaIf/9/ImJu3ySJ3bUZkAYEGTF9kx/0kyVGHLCMk7qMBrVOD1kMJ9Ct66A==
+X-Received: by 2002:a05:6402:348d:b0:5dc:7823:e7e4 with SMTP id 4fb4d7f45d1cf-5e0b70f8732mr832231a12.12.1740101821741;
+        Thu, 20 Feb 2025 17:37:01 -0800 (PST)
+Received: from redhat.com ([2.55.163.174])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5dece1c58e2sm13020685a12.20.2025.02.20.17.36.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Feb 2025 17:37:00 -0800 (PST)
+Date: Thu, 20 Feb 2025 20:36:56 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Eric Auger <eauger@redhat.com>,
+	Hongyu Ning <hongyu.ning@linux.intel.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH] virtio: break and reset virtio devices on
+ device_shutdown()
+Message-ID: <20250220202425-mutt-send-email-mst@kernel.org>
+References: <c1dbc7dbad9b445245d3348f19e6742b0be07347.1740094946.git.mst@redhat.com>
+ <CACGkMEsK5Z_5B9Lz46kYYB_ndOG=CrvtZE_tLbRjL7=fT7OxbQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250215-buffers-v2-1-1fbc6aaf8ad6@daynix.com>
- <d4b7f8a0-db50-4b48-b5a3-f60eab76e96b@redhat.com> <20250220034042-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250220034042-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 21 Feb 2025 09:14:56 +0800
-X-Gm-Features: AWEUYZk12eKYMoRdAhOr_VqKFdK71rl0l2JCQtxsCVicbAIDmOs5Fp4sSGUmfl4
-Message-ID: <CACGkMEtN1K7jRVmZwxah1vET=p5k_Nd0cpov=R0B8sP=bjC-sA@mail.gmail.com>
-Subject: Re: [PATCH net-next v2] tun: Pad virtio headers
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, Akihiko Odaki <akihiko.odaki@daynix.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
-	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
-	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, devel@daynix.com
+In-Reply-To: <CACGkMEsK5Z_5B9Lz46kYYB_ndOG=CrvtZE_tLbRjL7=fT7OxbQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: U0-5Y_kd_05cGg7VFJYRHl2JvvBm7khkHNjWUIIPbH8_1740100508
+X-Mimecast-MFC-PROC-ID: YqWuJveeCF4D0A6WX2WZ4XPac4Kijy6sd7SfgClb5Jo_1740101822
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Feb 20, 2025 at 4:45=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Thu, Feb 20, 2025 at 08:58:38AM +0100, Paolo Abeni wrote:
-> > Hi,
+On Fri, Feb 21, 2025 at 09:11:51AM +0800, Jason Wang wrote:
+> On Fri, Feb 21, 2025 at 7:42 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > On 2/15/25 7:04 AM, Akihiko Odaki wrote:
-> > > tun simply advances iov_iter when it needs to pad virtio header,
-> > > which leaves the garbage in the buffer as is. This will become
-> > > especially problematic when tun starts to allow enabling the hash
-> > > reporting feature; even if the feature is enabled, the packet may lac=
-k a
-> > > hash value and may contain a hole in the virtio header because the
-> > > packet arrived before the feature gets enabled or does not contain th=
-e
-> > > header fields to be hashed. If the hole is not filled with zero, it i=
-s
-> > > impossible to tell if the packet lacks a hash value.
+> > Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
+> > accesses during the hang.
 > >
-> > Should virtio starting sending packets only after feature negotiation?
-> > In other words, can the above happen without another bug somewhere else=
-?
->
->
-> Not if this is connected with a guest with the standard virtio driver, no=
-.
-> The issue is that tun has no concept of feature negotiation,
-> and we don't know who uses the vnet header feature, or why.
->
-> > I guess the following question is mostly for Jason and Michael: could b=
-e
-> > possible (/would it make any sense) to use a virtio_net_hdr `flags` bit
-> > to explicitly signal the hash fields presence? i.e. making the actual
-> > virtio_net_hdr size 'dynamic'.
->
-> But it is dynamic - that is why we have TUNSETVNETHDRSZ.
+> >         Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
+> >         Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
+> >         ...
+> >
+> > It was traced down to virtio-console. Kexec works fine if virtio-console
+> > is not in use.
+> >
+> > The issue is that virtio-console continues to write to the MMIO even after
+> > underlying virtio-pci device is reset.
+> 
+> Some of my questions were not answered so I need to post them again.
+> 
+> Do we need to fix vitio-console?
 
-Yes, tun currently only recognizes a subset of the whole virtio-net header.
+this fixes all devices so no.
 
-Thanks
+> Note that we've already break the device in virtio_pci_remove():
+> 
+> static void virtio_pci_remove(struct pci_dev *pci_dev)
+> {
+>   struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+>         struct device *dev = get_device(&vp_dev->vdev.dev);
+> 
+>         /*
+>          * Device is marked broken on surprise removal so that virtio upper
+>          * layers can abort any ongoing operation.
+>          */
+>         if (!pci_device_is_present(pci_dev))
+>                 virtio_break_device(&vp_dev->vdev);
+> 
+> ...
+
+
+shutdown path does not invoke remove, and I do not want to,
+since that will slow down reboots for no good reason.
+
+> >
+> > Additionally, Eric noticed that IOMMUs are reset before devices, if
+> > devices are not reset on shutdown they continue to poke at guest memory
+> > and get errors from the IOMMU. Some devices get wedged then.
+> >
+> > The problem can be solved by breaking all virtio devices on virtio
+> > bus shutdown, then resetting them.
+> >
+> > Reported-by: Eric Auger <eauger@redhat.com>
+> > Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/virtio/virtio.c | 31 +++++++++++++++++++++++++++++++
+> >  1 file changed, 31 insertions(+)
+> >
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index c1cc1157b380..e5b29520d3b2 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -377,6 +377,36 @@ static void virtio_dev_remove(struct device *_d)
+> >         of_node_put(dev->dev.of_node);
+> >  }
+> >
+> > +static void virtio_dev_shutdown(struct device *_d)
+> > +{
+> > +       struct virtio_device *dev = dev_to_virtio(_d);
+> > +       struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+> > +
+> > +       /*
+> > +        * Stop accesses to or from the device.
+> > +        * We only need to do it if there's a driver - no accesses otherwise.
+> > +        */
+> > +       if (!drv)
+> > +               return;
+> > +
+> > +       /*
+> > +        * Some devices get wedged if you kick them after they are
+> > +        * reset. Mark all vqs as broken to make sure we don't.
+> > +        */
+> > +       virtio_break_device(dev);
+> > +       /*
+> > +        * The below virtio_synchronize_cbs() guarantees that any interrupt
+> > +        * for this line arriving after virtio_synchronize_vqs() has completed
+> > +        * is guaranteed to see vq->broken as true.
+> > +        */
+> > +       virtio_synchronize_cbs(dev);
+> 
+> This looks like a partial re-introduction of the hardening work, but
+> the ccw part is still in-completed e.g the synchronization requires a
+> read_lock() and depends on CONFIG_VIRTIO_HARDEN_NOTIFICATION (which is
+> marked as broken now).
+
+Hmm I don't understand why we can not just take a subchannel lock.
+worth thinking about it. as this doesn't regress i think
+I can live with it for now.
+
+> Should it better to
+> 
+> 1) fix the virtio-console
+
+the problem is not unique to console. it was just observed there.
+any device can trigger this.
+
+> 2) simply rest in shutdown
+
+then we are back with devices wedged as they are kicked
+while reset.
+
+> 3) wait for the hardening work to be done in the future?
+> 
+> Thanks
+
+as users are seeing this on x86, I want to fix it.
+finding a way to fix virtio_synchronize_cbs seems best.
+
+does not need to block this patch.
+
+> > +       /*
+> > +        * As IOMMUs are reset on shutdown, this will block device access to memory.
+> > +        * Some devices get wedged if this happens, so reset to make sure it does not.
+> > +        */
+> > +       dev->config->reset(dev);
+> > +}
+> > +
+> >  static const struct bus_type virtio_bus = {
+> >         .name  = "virtio",
+> >         .match = virtio_dev_match,
+> > @@ -384,6 +414,7 @@ static const struct bus_type virtio_bus = {
+> >         .uevent = virtio_uevent,
+> >         .probe = virtio_dev_probe,
+> >         .remove = virtio_dev_remove,
+> > +       .shutdown = virtio_dev_shutdown,
+> >  };
+> >
+> >  int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
+> > --
+> > MST
+> >
 
