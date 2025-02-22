@@ -1,55 +1,55 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AE4420B805
-	for <virtualization@lists.linux.dev>; Sat, 22 Feb 2025 19:15:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C0B821517C
+	for <virtualization@lists.linux.dev>; Sat, 22 Feb 2025 19:15:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740251735; cv=none; b=cl3tC/ZTEhr3PanvFGpE6EK+R0wo+Ir5v4NrHyBHsf99ePO4+alIoDXnoerw7QjoIwTZB8XuxAfn+7mbhFPcWZ2YjSerK9NnelOnA7VxBlzFJQGivEGChAemx3sQ8I2GLTkq0q87jVnmTshJg6VU7I6gGnLnE9GGR13jLbBaCcQ=
+	t=1740251736; cv=none; b=PoOchhPg/XG7tm9KH3qSGLhTj+hlshw6RokxrvTCvFyj5XTNp602f3Eala3ZLj0o60t3QFZbaIsHjtuHa5u+zfySfg/Ekn9WxIbaEhH+5WwcmhwEaG6qhFc/LAOAdHEiDckstqV3cqIQ2dh6pc5HY1YZBeEz3bNLsSaggVEQr+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740251735; c=relaxed/simple;
-	bh=S4WIdcIymEnObCKW8hFtjmYPsUwr3C9vEUbedDCBePY=;
+	s=arc-20240116; t=1740251736; c=relaxed/simple;
+	bh=8Y2ZMgshy3DSser0k2/0xpJbIFztqzldqJ0EgMTN7TA=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=fr1hX8xL9/qikpX9MJPHX4aASHPOYZ82hCrXVy0Tu6E82/4eH0lAXjRXcvMJBEOGF0xaPR588NiORpkddHi0czViXH8F49GiJzOCP9lqOJSvDKjmM/Anpsv0+3w6BO4tS/SMBlN7+oXVF/Up3Qp6WtMKD7bRmZraXLEzjcR6G24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=gku1PzXF; arc=none smtp.client-ip=209.85.216.73
+	 To:Cc:Content-Type; b=q2qoJxfZuuIUN2y/BW7JvN6yBvHlhzfdZgEET3Grbfz/d9Dj+qBkNYqwnvtr2FRZuOvSCZ3HcylVzYo28i7G9XDMsDs3E1hoLdr5O71H3/hAWk1Bg3OZvPxAMAxGi3H2UzKjMmS643BJ2P8DLPiWsxZaCc6cnDzMFaatfuzl7nk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bO+FWVMA; arc=none smtp.client-ip=209.85.214.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gku1PzXF"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2fc1e7efe00so6756307a91.2
-        for <virtualization@lists.linux.dev>; Sat, 22 Feb 2025 11:15:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bO+FWVMA"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-21f6cb3097bso84734665ad.3
+        for <virtualization@lists.linux.dev>; Sat, 22 Feb 2025 11:15:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1740251732; x=1740856532; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1740251734; x=1740856534; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=biWDWCpFQb1l1Z/yT0zgxnecEVUj+cBj8CVtcecqD6k=;
-        b=gku1PzXFyeAH39XkreoCE4TdHHt/TfjzDwB5VsbEVlQ0sfy3HKLBJJPU+QAbIY831T
-         bf4myFPUv9m27Lv/BrZ6G4oEAedyQiDNrRCuHYHg9pLEBDs+FcWyma/iAo9iPMwFXkGv
-         IaxfDo5oESZ+Awq4C+pZ6HLCsaNBUTl/uTNFTVecyCFENA9yr5KKMutqj3rk05gnMR+3
-         YV3fR+DcxSA4Z6t3YxaKTmwfwZ6z0eJHLGJJwgJIVC0vzXV6d+8tEPaQB/7jSLPJt2EI
-         M1EOYB1Vs/GEv2O9ugc/PtE8v4jfffVT9v6ZOV406eoHd80+tk9GXrWqgxtM0TJNy+nd
-         skAg==
+        bh=Bokme88KuMNdn1f3MKxdjhr0HIEvbFywaglPVkH9x/0=;
+        b=bO+FWVMAuv2Y6It5pcMW9AQLKZDCdaQNQTE9EwXG73qVAbPcewKRcNOqH6Vs43/HSj
+         HBCunVzS/5ceULFbhkYU+FGv2Vp+jjkJIV60VctChDuwoxrRutcDsdAivQmtfRF9/lVq
+         KaQ3q9DpBJKzMvRfNEGp43kEkY4aYkWQvIKrxNh3+PWBnWqKMzNZPTtwedoW5/27u9RB
+         YsWhsR5kCsCAfI2O+A1dWd2PBdM0j/VZRO0pZILte99MV6Hvlu6GX09K+hZZu6mtQe6c
+         7U8gMk3rBqYSp17cIptKNkwgtKylMQpE2mCPIQyVMh2HRUBd29urHYWL/DOCpdwerKJL
+         HycA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740251732; x=1740856532;
+        d=1e100.net; s=20230601; t=1740251734; x=1740856534;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=biWDWCpFQb1l1Z/yT0zgxnecEVUj+cBj8CVtcecqD6k=;
-        b=E+D3XSDHU4/bR7hx0QUwh8zEK889B4g3fAKMaN39cAddpk4Nx6tRJmAP0/uHxa1SVK
-         56nFFnIk1PJ6L7rgt29MXSQ3CJfrJyx/krH43WO+L7u3wxSlaS+nPpqMJqs9sHf/JZCF
-         3BpdYhIe/2Solk2gQvPDQ+SsW0BAeoxtwlH8oISogl+HCsutbhfxCZnuOmPUmHTpxKHU
-         zX1IX2yGdyoDlMEUegn6Td/EXAB3qzdiiCDUoFLmE/RGK/ID4qZAqaO9O7WVEzA9TCva
-         b7AA8pkAs1LqrhObcVcxKK3WQeKHaqgYNBdXOFI/3f3rD1wDFUjslwb1FaJsM/zKOesC
-         rmDw==
-X-Forwarded-Encrypted: i=1; AJvYcCXpMJ7THvQ3vPZ73ebr/m5ncj/eplPsYU8k/iBGYLwnJRFJroNQVT+qTCNPMYsFyvpts2QK37T9119d9M8hmA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzTuwSz17QfsEsjTZfO/PAlB8AIL8fU+ASBale7lTqA8rQnkij7
-	hxMrHOI4+MRkaYisvSfao4MwsiaawmvzcSFRBIp/iBm5tx4FU0ScO88NxjG3nxWomojdyzn2K8B
-	2QS1801/RARP4PjvlAZm/oQ==
-X-Google-Smtp-Source: AGHT+IF3RH6VzHVCehHRbpJJLJjV+rVcxv8rDd/2+CtDFFrrVHzDHLPS8NaJht7KEp7lWFwHwxhOI4KSFp5QbSD+AA==
-X-Received: from pjbdj7.prod.google.com ([2002:a17:90a:d2c7:b0:2fc:2b96:2d4b])
+        bh=Bokme88KuMNdn1f3MKxdjhr0HIEvbFywaglPVkH9x/0=;
+        b=puH25Me0HsbOnbE11tZ69Q2CX+9oRmKqM4eYBGru1Ylgrsyec8535LtdFtz/RK1Ci/
+         P1Ze2Hb8yEEdUMB8XTOdqNoxjWbq/KcqwhKJH5lUU8TbKjSIWdlIwOASYqIV6tvF4r+Y
+         IYA4fSkG5hIpK/wed4ypzUC15hBs0lR79Sf3RhTX/lhtAqJxOGY5wtXYZ0C2I5X6xRhL
+         4S7BW/mllV+OhuGHWfLa/USaLdnEM6HFPkZD1embxobCstkMIPovSxOKkz1EZnKChdqG
+         04aUwjbxuEiysuSIyHw0l9lYaG1ZRYFRVBt3fp4D5/H5XCsDoapJeseUgHkNL7kaCYEk
+         Y+YA==
+X-Forwarded-Encrypted: i=1; AJvYcCW1zSe90G3eWVXUJbUnz6nat5rL4bF9+G/n6O5Ziu86IDpZ4FEhVaGrWFX3sAeVdFbVVjQ2t0ov8UI3P4qjOg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyJmstI/Bw/DqKnlHJuqgfpxs9S5fEWjdER0XQ68UXoLubfQ9FF
+	60bCIEXeSE4W+M8m/z78/UvXzg8lIm7DxseCtGX3VcN8I9uSi63RIsuQW5wfxdbOoNL4x5bsBnG
+	3sATsF7bZ1rd6PoVrgfeQOQ==
+X-Google-Smtp-Source: AGHT+IEFy9MOMqoUL+PCw3IyeJmCuFhQ91qsxJxZ5c9JuF+IqC2mtPSjn0iWhVp1Rk9Pf+OhOvRwARWSRX9mbFDPmw==
+X-Received: from pful4.prod.google.com ([2002:a05:6a00:1404:b0:732:3440:ffcc])
  (user=almasrymina job=prod-delivery.src-stubby-dispatcher) by
- 2002:a17:90b:3b4a:b0:2fa:1a8a:cffc with SMTP id 98e67ed59e1d1-2fce875d403mr10219694a91.34.1740251732332;
- Sat, 22 Feb 2025 11:15:32 -0800 (PST)
-Date: Sat, 22 Feb 2025 19:15:15 +0000
+ 2002:a05:6a00:1746:b0:730:8d0c:1066 with SMTP id d2e1a72fcca58-73426da62camr15650719b3a.24.1740251733766;
+ Sat, 22 Feb 2025 11:15:33 -0800 (PST)
+Date: Sat, 22 Feb 2025 19:15:16 +0000
 In-Reply-To: <20250222191517.743530-1-almasrymina@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20250222191517.743530-1-almasrymina@google.com>
 X-Mailer: git-send-email 2.48.1.601.g30ceb7b040-goog
-Message-ID: <20250222191517.743530-8-almasrymina@google.com>
-Subject: [PATCH net-next v5 7/9] gve: add netmem TX support to GVE DQO-RDA mode
+Message-ID: <20250222191517.743530-9-almasrymina@google.com>
+Subject: [PATCH net-next v5 8/9] net: check for driver support in netmem TX
 From: Mina Almasry <almasrymina@google.com>
 To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-doc@vger.kernel.org, virtualization@lists.linux.dev, 
@@ -80,63 +80,58 @@ Cc: Mina Almasry <almasrymina@google.com>, Donald Hunter <donald.hunter@gmail.co
 	Samiullah Khawaja <skhawaja@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-Use netmem_dma_*() helpers in gve_tx_dqo.c DQO-RDA paths to
-enable netmem TX support in that mode.
+We should not enable netmem TX for drivers that don't declare support.
 
-Declare support for netmem TX in GVE DQO-RDA mode.
+Check for driver netmem TX support during devmem TX binding and fail if
+the driver does not have the functionality.
+
+Check for driver support in validate_xmit_skb as well.
 
 Signed-off-by: Mina Almasry <almasrymina@google.com>
+Acked-by: Stanislav Fomichev <sdf@fomichev.me>
 
 ---
 
 v4:
 - New patch
----
- drivers/net/ethernet/google/gve/gve_main.c   | 4 ++++
- drivers/net/ethernet/google/gve/gve_tx_dqo.c | 8 +++++---
- 2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 029be8342b7b..0f11c8455149 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -2817,6 +2817,10 @@ static int gve_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+---
+ net/core/dev.c         | 3 +++
+ net/core/netdev-genl.c | 7 +++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 8c7ee7ada6a3..ba83b18fa703 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3921,6 +3921,9 @@ static struct sk_buff *validate_xmit_skb(struct sk_buff *skb, struct net_device
  
- 	dev_info(&pdev->dev, "GVE version %s\n", gve_version_str);
- 	dev_info(&pdev->dev, "GVE queue format %d\n", (int)priv->queue_format);
+ 	skb = validate_xmit_xfrm(skb, features, again);
+ 
++	if (!skb_frags_readable(skb) && !dev->netmem_tx)
++		goto out_kfree_skb;
 +
-+	if (!gve_is_gqi(priv) && !gve_is_qpl(priv))
-+		dev->netmem_tx = true;
-+
- 	gve_clear_probe_in_progress(priv);
- 	queue_work(priv->gve_wq, &priv->service_task);
- 	return 0;
-diff --git a/drivers/net/ethernet/google/gve/gve_tx_dqo.c b/drivers/net/ethernet/google/gve/gve_tx_dqo.c
-index 394debc62268..e74580dc7ebe 100644
---- a/drivers/net/ethernet/google/gve/gve_tx_dqo.c
-+++ b/drivers/net/ethernet/google/gve/gve_tx_dqo.c
-@@ -667,7 +667,8 @@ static int gve_tx_add_skb_no_copy_dqo(struct gve_tx_ring *tx,
- 			goto err;
+ 	return skb;
  
- 		dma_unmap_len_set(pkt, len[pkt->num_bufs], len);
--		dma_unmap_addr_set(pkt, dma[pkt->num_bufs], addr);
-+		netmem_dma_unmap_addr_set(skb_frag_netmem(frag), pkt,
-+					  dma[pkt->num_bufs], addr);
- 		++pkt->num_bufs;
- 
- 		gve_tx_fill_pkt_desc_dqo(tx, desc_idx, skb, len, addr,
-@@ -1045,8 +1046,9 @@ static void gve_unmap_packet(struct device *dev,
- 	dma_unmap_single(dev, dma_unmap_addr(pkt, dma[0]),
- 			 dma_unmap_len(pkt, len[0]), DMA_TO_DEVICE);
- 	for (i = 1; i < pkt->num_bufs; i++) {
--		dma_unmap_page(dev, dma_unmap_addr(pkt, dma[i]),
--			       dma_unmap_len(pkt, len[i]), DMA_TO_DEVICE);
-+		netmem_dma_unmap_page_attrs(dev, dma_unmap_addr(pkt, dma[i]),
-+					    dma_unmap_len(pkt, len[i]),
-+					    DMA_TO_DEVICE, 0);
+ out_kfree_skb:
+diff --git a/net/core/netdev-genl.c b/net/core/netdev-genl.c
+index 6e7cd6a5c177..6c5d62df0d65 100644
+--- a/net/core/netdev-genl.c
++++ b/net/core/netdev-genl.c
+@@ -972,6 +972,13 @@ int netdev_nl_bind_tx_doit(struct sk_buff *skb, struct genl_info *info)
+ 		goto err_unlock;
  	}
- 	pkt->num_bufs = 0;
- }
+ 
++	if (!netdev->netmem_tx) {
++		err = -EOPNOTSUPP;
++		NL_SET_ERR_MSG(info->extack,
++			       "Driver does not support netmem TX");
++		goto err_unlock;
++	}
++
+ 	binding = net_devmem_bind_dmabuf(netdev, DMA_TO_DEVICE, dmabuf_fd,
+ 					 info->extack);
+ 	if (IS_ERR(binding)) {
 -- 
 2.48.1.601.g30ceb7b040-goog
 
