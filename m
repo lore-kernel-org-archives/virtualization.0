@@ -1,145 +1,177 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8077134AB
-	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 07:45:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8801F18B464
+	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 07:49:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740383122; cv=none; b=YpMy7pkmZcbNOTr84f6LOJH7SSYF1g2wdB61BKPY1PZJfBbWZa97CPyLta1zg/WpNbFH9gIYe++ieNoY8e6FngP307nkcRjsmoY2uEFDRsp/Ez1TRPKdF5/xgB8xgb/wmiXwYD1avMuINw1skb3eLlKwqzVVbDD/Z9Rx/cMafLM=
+	t=1740383357; cv=none; b=BBzn3cxrp1N5v/j3HGkxBA+L5J7hVAIT69G59nGMiqwLOuE/9AEgesOBm8AHWAnU2lMnUu286H3JN5UfM7Yf0q45G0uHwjJixO2+1xkRM+DjpYmUozOu9PVJguKxweaiBK/QIJvpyWICk3aeWFni56sKBdSuWQwYEEMmjCuEBHQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740383122; c=relaxed/simple;
-	bh=NH8pA/rRIuhJj2dTHWRNlJwy4WjedINerJ+EuN1qX8U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Znlfn0bu2b5GXDqM9aqX5sjrttgur47eSSJgJI70msVTY7aHDT7P5P54yLuoAbBfifjGuSK4Iyw9x17EReh0WeL+KzvK4dWgAoncculTVkIilAOAyK5rt4hCze4IObAsoguTz7pMx51SmDrtUCx4bwo6W+z44jwQxaKqnT4gmLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q5fuKkfC; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1740383357; c=relaxed/simple;
+	bh=xStK9CH4TU3I3+rtYUJpOH1tSFucpQmlqd3Apil2Wjg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FkVRT3MUgpBHcYGnjhuJz8fTxtZSxvLZ5Y16dsD48kEPdiv2Nl+Fjr/Xsel3zc4Wd3PQ+cOVL4f/b58Mo+Hh5sexOZDbATk0mVm2wf9lJH93CVpzTLrJU3hT9u6bcN/PeympPwil/t2mcnwF+VBjb3hyRq8ABDdXkpuo9KJTKqc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Tvg3BVkE; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q5fuKkfC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tvg3BVkE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740383119;
+	s=mimecast20190719; t=1740383354;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=TqqJsStYSzgw6zPnJ9OVQt4WMGE6BKA9vAfMMXb1jqY=;
-	b=Q5fuKkfCvEWkY1pPl6bQPz+tlvA8PELP3mAPrZXCdenjlYXGDGB+88LQ4weQxxbuT1IG3j
-	Lo8OOYcQkBIvlYs05PwGiTV4F3M0c+n2F4/HlSEspuTQeNaH/oM5fW6wUxSsadO2gfaeav
-	ZUnVa5u39i94UZyV1sdcHbtDhKMZgHM=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=E00VN6HxPgl9KvZBGjXBkxL6RT0gnJ7DSIyLW3UOh1w=;
+	b=Tvg3BVkEF9U+5+aaMI5OjsxOWN/ViYl+KIDvtcOEZZI7NYY/OSRDdOFJEZ7WR6HXyS4OcF
+	AxA3WPqb0p/8wXlTEAs2Fr6P9xXpgaCVzE/h/az26tPTZjwyC2Tzkx3eU/k4H4J1vclPKe
+	FhFrZdsceSK6pJmrJgbamNgkbCtTIGU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-681-gWiwK3TANca3IeGYvn0W-Q-1; Mon, 24 Feb 2025 02:45:18 -0500
-X-MC-Unique: gWiwK3TANca3IeGYvn0W-Q-1
-X-Mimecast-MFC-AGG-ID: gWiwK3TANca3IeGYvn0W-Q_1740383117
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2fc1a70935fso8714604a91.1
-        for <virtualization@lists.linux.dev>; Sun, 23 Feb 2025 23:45:18 -0800 (PST)
+ us-mta-456-GRWqBtpiO5O9PR0uw8Aq8A-1; Mon, 24 Feb 2025 02:49:12 -0500
+X-MC-Unique: GRWqBtpiO5O9PR0uw8Aq8A-1
+X-Mimecast-MFC-AGG-ID: GRWqBtpiO5O9PR0uw8Aq8A_1740383351
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4399c5baac3so28989055e9.2
+        for <virtualization@lists.linux.dev>; Sun, 23 Feb 2025 23:49:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740383116; x=1740987916;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TqqJsStYSzgw6zPnJ9OVQt4WMGE6BKA9vAfMMXb1jqY=;
-        b=KRDEzZBKhjvLfe6OjpiNjffkvxdEffdu/UOT7ubn+awfjqhBS6wSSpBYALg72cBb66
-         124mApkBWBWCjpTrWvC7WsyLHF3GFeBztgVA+xkq0gwO5BGtYgcK4z9dp1GTBToH04eU
-         SH2tENkRwlmO46/mhKtCe+mfk2RJlr0qDGkmTJ0ppIqfwKUBxl6KA0EtHZLiHmTFCf4U
-         uzkgZXc2SP6nBucJfv7vSY4iTZsCDjPQ/RhDw7M+9BimH3VfQUPRoWPJVrSq4BHRb2aC
-         ZFUnj2b3p2o54v1179cfH6pW445RFIykE7G7riq0Y/Zwtv+hUt+pAqZQ9zdHLRELEVQm
-         dYog==
-X-Forwarded-Encrypted: i=1; AJvYcCVzwk6A8jt7gmhe0mbni/dZEpEjJ9SgRnZjf+UMmozzAyo1eY/njw08Py4OWCKI07HQLPI7S8RarAL/Mzg7YQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz7S7j6KmZHHUVXLZQ44BvP2+FG0kU67NXLmG5FTm/SYrWFGvUS
-	YxyC5k5PFKlaC8BoqusL+5K8el4GLYpr78pTYnolXZiBTW+gd+qJducTZdtxs6kZR64UM1bWjv+
-	8uhlkVp8wCeKXSY0Um+Hn/3aB9dZqlzpmbH1+djQmM1dFfnrDDkUd118ot8F52rT7qs9ZvEWLG4
-	RmEI6Pa3VLYQGrXhZJqxcoKdtYfeLklKVvHAxvhn27EZCIt8AnTXB7
-X-Gm-Gg: ASbGncv57iRh9lCEMniQNgMjgSAevbMuRclMDWy2MwXijABoTE6DQlVIsifY1beNAE1
-	GBlOeLFFnKG82GaFlWH7+7oHqVR2uMoNpmgqgcKTKsHdhiMqcPZDu1ULOkhAKqx1Au/Vut7c=
-X-Received: by 2002:a17:90b:35ce:b0:2ee:c9b6:c26a with SMTP id 98e67ed59e1d1-2fce78afc47mr22453434a91.11.1740383116368;
-        Sun, 23 Feb 2025 23:45:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGd03NCJKapA0K4R+wH4X2B5nqwHMlKA6kza08T2BGLCU3PC/BSlrcq1ri4MQU6KVoRSv045FU2aIywSuBF4Y0=
-X-Received: by 2002:a17:90b:35ce:b0:2ee:c9b6:c26a with SMTP id
- 98e67ed59e1d1-2fce78afc47mr22453410a91.11.1740383116074; Sun, 23 Feb 2025
- 23:45:16 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740383351; x=1740988151;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=E00VN6HxPgl9KvZBGjXBkxL6RT0gnJ7DSIyLW3UOh1w=;
+        b=JTosOznlF1feAAJT8NHsB1cxgFwERh30uDWi4+eXa8YyBtQ8WzX8g+a/Wm55IkK9hS
+         DN3GC9cNTo5QPics6Vh55uVjFJe5bgUTh/nTP96RIhGLJntYTz6aQyZUVsV/VwXzMgIH
+         z7hgfjf3JAtvnIl7LCG+PqNbqDJ7bzZX+4deKYQ4/pndgMF+sjsT4e5hBOflau9L8BDe
+         rIftJ458ergY3r9LyctNWQ3GBii/Kpg5Ckl1HqnGgt8NNeBukVuSGovl2uAJmYs0c9Mi
+         DAvv2pnGG05Ur3ovfcpZG6L0unGSPmwkxVVTT0bza8CKkvXWC/wHbgUS/gE/rDYn6Eum
+         i0ag==
+X-Forwarded-Encrypted: i=1; AJvYcCWGe2WVI+QkCIr9c9vX/G8Ps5MOAze38+U0CLKZkzmKAXzj2WZa5sKOY1wXWUYOQF0m+rx2h7XrD8MZ+zQzyg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz3AqdnVPqxo9Nc73p/mCo5DaGHKhmer4NEBv77MAg9GwpO+e1/
+	1sAvfsII+fpQu4OYUkuAelvbq6Jd1tdnV1+T8Eh3slR+es1MkjX9gVGEhEevwyLisDJ/V3uhJRY
+	TqypR1q5njn9tLgZfpH3qLrlCuYS1qoE06ADLEH9aWFkywtyGIzbifB/NC6cBk+Z7
+X-Gm-Gg: ASbGncuuY8wKjbpcvIhELuH6D3whQOPbx/C4sOoqltZexDfwnUu0jviwv+2jRYXI9E4
+	RLdzu+FQ59w2Wfhyyu0TiM3WhlJ5n6sPMz/rXH7T4UgMZIvPKvOAQujQYpZni9Lpfv0oIH6e1Zr
+	4tf3hmluPUtmE2vjvmt/IqzXxnEDyvQoO9KeJVc7snK2NaofbGKey1T6vGb96LNj2DfUAI0QAWo
+	wnQoMYOnjt57WUUmmznTTaLNwyVx52zX9JXsb+IJH4P10XDSgwiiJivQrCFJVg9sviAWliW/db+
+	iqazeJM+IfinRZFd0p9+OJrWBJlssUTMYdEEVq+M3mBTkjMOla5Y4fLJlg==
+X-Received: by 2002:a05:600c:4fd3:b0:439:9543:9488 with SMTP id 5b1f17b1804b1-439ae2196a6mr79412475e9.21.1740383351205;
+        Sun, 23 Feb 2025 23:49:11 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFrYr6P7ROjGu/VT+mFoE6+CidQWRd3kw5YrS7WdRG0vovSVW/3wpDXzVzz04F1ymunuqV9nQ==
+X-Received: by 2002:a05:600c:4fd3:b0:439:9543:9488 with SMTP id 5b1f17b1804b1-439ae2196a6mr79412305e9.21.1740383350822;
+        Sun, 23 Feb 2025 23:49:10 -0800 (PST)
+Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-439b030be6fsm97665715e9.31.2025.02.23.23.49.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 23 Feb 2025 23:49:10 -0800 (PST)
+Message-ID: <7fa37894-7d73-4087-a849-2957f31ad7f4@redhat.com>
+Date: Mon, 24 Feb 2025 08:49:09 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250221170626.261687-1-eperezma@redhat.com> <20250221170626.261687-6-eperezma@redhat.com>
- <CACGkMEtdWhdPt6yOjBsMuqF5wv6kjHH2OV_HHN3gedXDUe2T5Q@mail.gmail.com> <CAJaqyWcxWvYrFoocHD6e4ccZxQp9J=rQ_Ou+s3zcwmXQt4xMYA@mail.gmail.com>
-In-Reply-To: <CAJaqyWcxWvYrFoocHD6e4ccZxQp9J=rQ_Ou+s3zcwmXQt4xMYA@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 24 Feb 2025 08:44:39 +0100
-X-Gm-Features: AWEUYZlg1nXAbWMa31gRfSEy_may4MYKmRmSOpCZy6ZQMcIzQZvycxAkt7cnt7M
-Message-ID: <CAJaqyWfwPCOSrgJ=rBFm4oJph5wPG2xu4Gvr-WFntqoA0n4o=Q@mail.gmail.com>
-Subject: Re: [RFC v2 5/5] virtiofs: Disable notifications more aggresively
-To: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Hanna Reitz <hreitz@redhat.com>, linux-kernel@vger.kernel.org, 
-	German Maglione <gmaglione@redhat.com>, virtualization@lists.linux.dev, 
-	Stefano Garzarella <sgarzare@redhat.com>, yama@redhat.com, Vivek Goyal <vgoyal@redhat.com>, 
-	Miklos Szeredi <miklos@szeredi.hu>, mst@redhat.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio: break and reset virtio devices on
+ device_shutdown()
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Hongyu Ning <hongyu.ning@linux.intel.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ virtualization@lists.linux.dev
+References: <c1dbc7dbad9b445245d3348f19e6742b0be07347.1740094946.git.mst@redhat.com>
+From: Eric Auger <eauger@redhat.com>
+In-Reply-To: <c1dbc7dbad9b445245d3348f19e6742b0be07347.1740094946.git.mst@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1Y63PUGE4rkVuAo8BBETv5LVczqDkBFly4q9SxfNpWI_1740383117
+X-Mimecast-MFC-PROC-ID: GDyDGgug45HzZL0c9735QpPT9ODyRWAC-pAbJLTPNj8_1740383351
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Feb 24, 2025 at 7:44=E2=80=AFAM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Mon, Feb 24, 2025 at 3:01=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-> >
-> > On Sat, Feb 22, 2025 at 1:07=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@re=
-dhat.com> wrote:
-> > >
-> > > Disable notifications right before scheduling, instead of waiting unt=
-il
-> > > the work is running.
-> > >
-> > > After applying this patch, fio read test goes from 1191MiB/s to
-> > > 1263.14Mib/s
-> >
-> > Let's describe more about the testing. E.g FIO parameters, test setups.
-> >
-> > >
-> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > ---
-> > >  fs/fuse/virtio_fs.c | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> > >
-> > > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> > > index e19c78f2480e..3d6981c0f3c3 100644
-> > > --- a/fs/fuse/virtio_fs.c
-> > > +++ b/fs/fuse/virtio_fs.c
-> > > @@ -915,6 +915,8 @@ static void virtio_fs_vq_done(struct virtqueue *v=
-q)
-> > >
-> > >         dev_dbg(&vq->vdev->dev, "%s %s\n", __func__, fsvq->name);
-> > >
-> > > +       /* Shceduled, don't send more notifications */
-> >
-> > Typo, and I think we can just drop this commnet.
->
-> Agree.
->
-> >
-> > > +       virtqueue_disable_cb(vq);
-> >
-> > Do we need to tweak the virtio_fs_requests_done_work() as well?
->
-> I don't think so, as virtqueue_disable_cb can be called multiple times
-> without consequences.
->
-> To control it in virtio_fs_requests_done_work imply to create a new
-> boolean somewhere and add a conditional there, redundant with the
-> conditional in virtio_fs_requests_done_work.
+Hi Michael,
 
-I meant it would be redundant with the conditional in
-virtqueue_disable_cb_split and _packed, as they store the avail flags
-set so the operation is idempotent :).
+On 2/21/25 12:42 AM, Michael S. Tsirkin wrote:
+> Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
+> accesses during the hang.
+> 
+> 	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
+> 	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
+> 	...
+> 
+> It was traced down to virtio-console. Kexec works fine if virtio-console
+> is not in use.
+> 
+> The issue is that virtio-console continues to write to the MMIO even after
+> underlying virtio-pci device is reset.
+> 
+> Additionally, Eric noticed that IOMMUs are reset before devices, if
+> devices are not reset on shutdown they continue to poke at guest memory
+> and get errors from the IOMMU. Some devices get wedged then.
+> 
+> The problem can be solved by breaking all virtio devices on virtio
+> bus shutdown, then resetting them.
+> 
+> Reported-by: Eric Auger <eauger@redhat.com>
+> Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Tested-by: Eric Auger <eric.auger@redhat.com>
 
-Is it worth reordering this patch so it can be profiled and applied in
-current code?
+Thanks!
+
+Eric
+> ---
+>  drivers/virtio/virtio.c | 31 +++++++++++++++++++++++++++++++
+>  1 file changed, 31 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index c1cc1157b380..e5b29520d3b2 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -377,6 +377,36 @@ static void virtio_dev_remove(struct device *_d)
+>  	of_node_put(dev->dev.of_node);
+>  }
+>  
+> +static void virtio_dev_shutdown(struct device *_d)
+> +{
+> +	struct virtio_device *dev = dev_to_virtio(_d);
+> +	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+> +
+> +	/*
+> +	 * Stop accesses to or from the device.
+> +	 * We only need to do it if there's a driver - no accesses otherwise.
+> +	 */
+> +	if (!drv)
+> +		return;
+> +
+> +	/*
+> +	 * Some devices get wedged if you kick them after they are
+> +	 * reset. Mark all vqs as broken to make sure we don't.
+> +	 */
+> +	virtio_break_device(dev);
+> +	/*
+> +	 * The below virtio_synchronize_cbs() guarantees that any interrupt
+> +	 * for this line arriving after virtio_synchronize_vqs() has completed
+> +	 * is guaranteed to see vq->broken as true.
+> +	 */
+> +	virtio_synchronize_cbs(dev);
+> +	/*
+> +	 * As IOMMUs are reset on shutdown, this will block device access to memory.
+> +	 * Some devices get wedged if this happens, so reset to make sure it does not.
+> +	 */
+> +	dev->config->reset(dev);
+> +}
+> +
+>  static const struct bus_type virtio_bus = {
+>  	.name  = "virtio",
+>  	.match = virtio_dev_match,
+> @@ -384,6 +414,7 @@ static const struct bus_type virtio_bus = {
+>  	.uevent = virtio_uevent,
+>  	.probe = virtio_dev_probe,
+>  	.remove = virtio_dev_remove,
+> +	.shutdown = virtio_dev_shutdown,
+>  };
+>  
+>  int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
 
