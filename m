@@ -1,228 +1,175 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6324233706
-	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 12:19:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740399552; cv=fail; b=WH/ThvXuF2PlO4uC2Bl2l60NxzfKI0kXJLJ+kA45nCoqFg/mFZImNdlhD6fzBoWu1/7UkOSuixzR+FmSSSDlTm/NqQGvYDkEOs1kRP59gS4FS7dDLxdgPymjcoNxXlEddaX9z8lkoNZPSW+FbpEWssGMbnphqwB199N/rHSXRXo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740399552; c=relaxed/simple;
-	bh=AsG3v6+t9T/xo7WE6hvO5BVe3/fGU8xnb2vo4YxlXNk=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=dB7ksb9oH+267GayrhlGswEz/NBsKkBM837e4Q/n7rrbkfgwlVL6LVcjbCpyYJ2gjDye23ZTbuAfN+YQYZqbUQhKc+GMWWiMCciMlVWkdD2JVXNZBoYNSWhwOIKsJWIldUdJxUNhDYmiyFAHKTOeCLCYq2UCndjjKzbK6euC1Mc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=PjfhETfR; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E6B01632D3
+	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 15:14:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740410063; cv=none; b=jYAsefTdBDl/B5wFdx+0h21LotfErHpAVAKil6taHYMw2G7MJ8+3yMacNQ9TD9xbgQOmt04EqCoy3sF1EZjl6ft4k1p3r3pTPdpD9aEjGhOT42TXSnybari0Cy5v8X/TF58Qn8ZOiaPSMHpkPu2eES20fMC20xzd29L70aFd+Oc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740410063; c=relaxed/simple;
+	bh=60EDANKSZrkagzc6tUmC3fbQGdwCC6BeIMq8eEB8aPI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VEpXgeQnQgwHQklIzxvqTM6woS+jxHaPrWGBoGecRoj1cm93n7huNyPZ2dJ4wpwbDFDlszTFP5Dtni28ZKJjkSVMCK6WHTfpukG3TXG4LUGIVikpJSLDmpIwIPpenTmO+VRQkPAwkv8YQlE9mxzUyYoclceCW8WsZEj22o9y1Ic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M6cF9bst; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="PjfhETfR"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M6cF9bst"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3D6AD405D5
-	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 12:19:10 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id AA55F81B6D
+	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 15:14:21 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id cLjDrPWUmtiq for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Feb 2025 12:19:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2405::62c; helo=nam02-dm3-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 1C1FE405E9
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1C1FE405E9
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=PjfhETfR
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2062c.outbound.protection.outlook.com [IPv6:2a01:111:f403:2405::62c])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 1C1FE405E9
-	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 12:19:08 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ajKNKGRpmZv+LG9Kzb3uO/GkDzVz2h1lPCfTpD0M3tQLZefvytHVfSWAbQ/GiMq4CjgMn3wlJVtz3qlaibhsJlu3wAemoQn2AX8+PRdPYX8AT8i0jfoNXT42TSkTJjF+OaL0TCM0nLFMLoIZjAmEZoAtRBMyZ/JMrF+81cmdRGjJwAYQnRZgXakyI87pFLte9hGlyo0QTIDHp0gK6515iB3I33GEk8U84me/hCxafkOyeDKq82Is96jCEXEgz/H4ZTg7lAuv6/uNlyRv0LFrdrXndNcs3en+0K3SX3JDn2nu0cWbx5+VEt9D+Fa0XtFYc+6bYJE+Eh14BVn+d0dVBQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KC93mkPLpw6G49PenUw0bnsfhM5sba03ejCruH89h/Y=;
- b=HXpuksgaHb+6WyD/dPglCjr+y+t1kK7VZZJVcPHe4mAS+piytstDpctD4okkpcpykxJKqZktZFgMMN3lZddTu/gCGfI5thh3JyhWpp/WCEsPWuGgaeltaW6bhchovdrah8ZxoBLb4D194Ovaxhh+iCF88Nc7simu+kV8mUMjlfKTT6habmkQVezKJXBfzR2OWRdEHlggiaDrjjCkBCSDDidnfjZsMkJBerKatzpnZbajylZZMkZk+G3SP8//bJyYy3KFPxzge54fhyNBHJj5/zUGpFr9SCefbe+Qc2+MUVbYj+U3tWrhXq26SRTHngrvoE+dpm0Rboyj3PmU05IEmA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.233) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KC93mkPLpw6G49PenUw0bnsfhM5sba03ejCruH89h/Y=;
- b=PjfhETfRh+Lw6iYG4spuK2II5aUt3omsGN7iONYxphdwt8KLCoKvHuxC/LUsho5kOPnd4e2MabhLr8pzTqCiF4kHE3f7Jh93ImA6Xzz2HHkwBeSNPf0yWOFwlUwSx3r0Cv6WP2bppTnRuM8uPUh23OxNBRI1j+nQhK6zsyA6q6rLGEgmePm38eRCqvnrSkTovAPtaBLxBb0Jfgf+7AZEMYjQ6FWa+NJ2GH3fI+OTyT4h0CNScOKtmVU+JhiKa5u+jSWh/rfxEo/DLTjhwSHV9P9jU/ITtA8CZGSlSole0c/8T3FcFJe7B4zPVESRb0JZ8r1h3wtKqc995cXF+nauLA==
-Received: from SJ0PR05CA0198.namprd05.prod.outlook.com (2603:10b6:a03:330::23)
- by PH0PR12MB7469.namprd12.prod.outlook.com (2603:10b6:510:1e9::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8466.20; Mon, 24 Feb
- 2025 12:18:59 +0000
-Received: from MWH0EPF000989EC.namprd02.prod.outlook.com
- (2603:10b6:a03:330:cafe::1c) by SJ0PR05CA0198.outlook.office365.com
- (2603:10b6:a03:330::23) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8489.15 via Frontend Transport; Mon,
- 24 Feb 2025 12:18:59 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.233) by
- MWH0EPF000989EC.mail.protection.outlook.com (10.167.241.139) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8489.16 via Frontend Transport; Mon, 24 Feb 2025 12:18:59 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
- (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 24 Feb
- 2025 04:18:54 -0800
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Mon, 24 Feb 2025 04:18:53 -0800
-Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server id 15.2.1544.14 via Frontend
- Transport; Mon, 24 Feb 2025 04:18:51 -0800
-From: Yishai Hadas <yishaih@nvidia.com>
-To: <alex.williamson@redhat.com>, <jgg@nvidia.com>, <mst@redhat.com>
-CC: <jasowang@redhat.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <parav@nvidia.com>,
-	<israelr@nvidia.com>, <kevin.tian@intel.com>, <joao.m.martins@oracle.com>,
-	<yishaih@nvidia.com>, <maorg@nvidia.com>
-Subject: [PATCH vfio] vfio/virtio: Enable support for virtio-block live migration
-Date: Mon, 24 Feb 2025 14:18:30 +0200
-Message-ID: <20250224121830.229905-1-yishaih@nvidia.com>
-X-Mailer: git-send-email 2.21.0
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 8RfmsvFtVeTo for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Feb 2025 15:14:21 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DCFF181B48
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DCFF181B48
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=M6cF9bst
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DCFF181B48
+	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 15:14:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740410059;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C/OIVsN35hJS55OzGv2ukuVUaJw07LiZohQKwUs4joY=;
+	b=M6cF9bstJvG6RaMTJRDUu+eO5pRUeVcDiFc7Se9VIpTjFrdW21FvvVXRO9MSDAXNtVsIyk
+	vKA16S1eSnPEBFdo6apQtWp6FRqU4kXTtUfZEptJekTyBOY6LrZcSkLd5nC6l+kOdllDKF
+	nQ2xG0AAGRH5KQiSWr0LCr+LG1DG5Gs=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-49-UNFcQgfgOluMvCjq4b1a-w-1; Mon, 24 Feb 2025 10:14:17 -0500
+X-MC-Unique: UNFcQgfgOluMvCjq4b1a-w-1
+X-Mimecast-MFC-AGG-ID: UNFcQgfgOluMvCjq4b1a-w_1740410057
+Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-5dc0de54194so6411643a12.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 07:14:17 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740410056; x=1741014856;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=C/OIVsN35hJS55OzGv2ukuVUaJw07LiZohQKwUs4joY=;
+        b=vHZMNYRNpo4zNDK7vYmFMpjyhezVIA6ACta2aWZMBNuE1zMD1t/WxFmP5dv7ij4RFC
+         0V8j3tQIKLqKExABgW8FFIdwPgiHtnTOWjO88qRzWwsPwd4tPObJ0gXnVk7kel6JGsrj
+         +P5PHoexpPjWXK8MNLJcgku8BgaILHU2yudqNfKu+epOA1CX8ctLPPku0oNCQqi+2S4F
+         zJcmbJRoStVHu9dAl3q076v2k90EcTFpk3yyDiIzD6db8SD5y5HhxBK4TcCLqEcsJ33l
+         9dKWei+9qFMwZ6eq+HYj2Wo5APVmHHpJstZG/en3XbaLHgCX241Nzdo8PYpVBCTaQB4v
+         S61Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWXLZJrW36yxDdr75rj3DHEeyr9h4x6dkFbJY+ZMvzmrJSZ3YBB3PnYL6kNRorf/yXbBZNv4Tz7E8YphQ4fdw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyI1RjsJsRNvVZFcWAjVwx2x3RowfgXwnr3tVBOZO+xlRMe+NTa
+	LJiDHTHWuP2iK4q6++na0A87NOAl94RF87eUy50J93RyO/s36hwrpY4afOnGhTizgusiBogAGbp
+	2zw3FdGtqvwewxUN+wzWqrxmT7coIorVL68Cb+xOBqVLn5olIBbXH3dTVq0DQenjQzf0jJ7QGQV
+	2KA4mTEPaNb2HEaW7wLQjrbB2rQrNCHwatAFASkhACFAIOyIQ8teW9/w==
+X-Gm-Gg: ASbGncvL1yMHoWZU5iSF3zu6vl8U57d5zJWJ4/f0JYSb8CixDhgGVivyl+PI9jUGp+h
+	x3+DxvH0UG91jx0YPP/pNVU/G0+51WdGVJvMYoYHcyOEQY8HtTik8xEh5NER71zxdJC6Ps8stgQ
+	==
+X-Received: by 2002:a05:6402:42c7:b0:5e0:8840:5032 with SMTP id 4fb4d7f45d1cf-5e0a11ffb02mr17044071a12.3.1740410056588;
+        Mon, 24 Feb 2025 07:14:16 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEZmaNvoGvIZVGGdIwMY93Wp0Yy1Q6TK+nzx9SOVjoSDw+yiizvIm0X3myqUTvD89H31D2GF15UCAEoQ7Xt6T0=
+X-Received: by 2002:a05:6402:42c7:b0:5e0:8840:5032 with SMTP id
+ 4fb4d7f45d1cf-5e0a11ffb02mr17044043a12.3.1740410056200; Mon, 24 Feb 2025
+ 07:14:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: AnonymousSubmission
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000989EC:EE_|PH0PR12MB7469:EE_
-X-MS-Office365-Filtering-Correlation-Id: c79ade99-6609-4897-e1db-08dd54cd6b0d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|82310400026|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?t3vo8LCg8Q97WD3vbbR4aYYYMkW6c2kwQjVkqod4rrr6EEH7nDTqzt7AiE5h?=
- =?us-ascii?Q?5HB2yxyVHrLzTdWfvwTUc48khS2Ac7iKYUKLDUWtd6rk/Ano69cFSld/V5JL?=
- =?us-ascii?Q?x/7h+3oyRFPVBHRxD7C24pv4p+fxApYdmaI7AG/7N4Qlk6qhX4kb0TFA3VDe?=
- =?us-ascii?Q?MfKlPKQ7YaYQQYrivAEM8IMvMVgAjRnZUvDLOYIGFvB3VsLWIOm3Zc3Os25A?=
- =?us-ascii?Q?v7Tz33uRqggElK+CXNBQUcFlALcnpYj3x5I4jTUfwIKNZM9+04p64TiqvPbi?=
- =?us-ascii?Q?7OO9JSFkP65WpDvM/SolC8eFwdMepTZNRTnhGAv37tMyjl5iz4cDwVBRq1DW?=
- =?us-ascii?Q?4+gdv8iMImLCb5V7Fq2K6URwzrtB319ruLVVrjeJ8zdgRlsCHqL7zdCsfn5B?=
- =?us-ascii?Q?GkFUSMZD82HDmfbBWG6/4w5+DALzlB1m57RqWS1FBDYkCRcx9xGJWQzHJWJQ?=
- =?us-ascii?Q?990oziX3X/9rCF2uXLI8dZimKuxyBnE2XnENK7t/XUXve+pa3gH7vALg3OQ5?=
- =?us-ascii?Q?9B1aluy2xyd49NUxx6qaC71GefDGvxsjZkeV0N0sxyphUFNKwK/OT9emtdiV?=
- =?us-ascii?Q?Zs7AgF5Jxc06O3amadZzfzBzYQe57jSWeb3/kp6gXIkFVsdLWaWByNRdXguZ?=
- =?us-ascii?Q?sv4ibAkcC3G2k/1JSK6iK9WDcv2fYDvoY/u8b7QAAC8pYuPacfFCD0S+Lu/T?=
- =?us-ascii?Q?8ssxiYDJFg/HE8cMnlagTR7ZpxZPuFf/3AItHeFQcpZhCWfuWBp0OOsbS8g8?=
- =?us-ascii?Q?svXXLkPG/2JKFRvuzfq4c6u2oTcI9njDxRyU8zblv24HHSDHAcpm4jFJ3fsR?=
- =?us-ascii?Q?gKNNaZr6aoBMGGZLxYSAr85IuOE+LX7/QpzXjz2t1FP/CGN3inAW43HHYhoz?=
- =?us-ascii?Q?pKecXq3bTVn5ft5KMDXUd4j0mVQo64G8KctkJMwCfrXHPFc+VVm9SbzN6P7e?=
- =?us-ascii?Q?rsrVZ+iWGLQij9Pjk7miHH85BAyICKbZhHKtG9xNaiZeOB8I54k2BL5VrSiE?=
- =?us-ascii?Q?uIT8+4K/ctNJcVlIORSdLMEuw6FEy/K5jf4WJlPHy5bfiFjwE9CyBgFiDq18?=
- =?us-ascii?Q?464w2ZDvsZrDBfr324bsgpvnteEtk4V7qp3OgwQopLNmZdKEGdB/suh9abZl?=
- =?us-ascii?Q?STxckYaSgpl0GIJQZpn9h+dN4JBBuh+dWp4rOT6jK0pgKNKnHgkRr66kSa0h?=
- =?us-ascii?Q?l0iv3AaYaKthH1RFIHjNd1W0dN6eXkVa/UW/zlPqv/sIcVaciCjJg1KKJMJj?=
- =?us-ascii?Q?En6ylJXOkuL2vBaFx9mV4raGDwdLqJ7l1x2BMXDyFnHJu9ZeUZU2Y2OUmJy9?=
- =?us-ascii?Q?ppVUU/mzNZYViyq3QSMNdqal7k3bBi79GCNS8SpGNWUz69C26LLp4001Gkjf?=
- =?us-ascii?Q?AblAbj/VM7s0K/9asBY0fZvkJ6iknpzOB6LTX9Is6aPGMXEjpWOW0TSzIaOl?=
- =?us-ascii?Q?OO2sB7wv440M9MAzFw1qB6JPczrDNXwsI9xesLNRUh8caGKIc3bUE9k5+h7M?=
- =?us-ascii?Q?z6eb9W7ClyznOvc=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Feb 2025 12:18:59.6641
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: c79ade99-6609-4897-e1db-08dd54cd6b0d
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MWH0EPF000989EC.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7469
+References: <20250223154042.556001-1-lulu@redhat.com>
+In-Reply-To: <20250223154042.556001-1-lulu@redhat.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 24 Feb 2025 23:13:38 +0800
+X-Gm-Features: AWEUYZmPagj9OOZEPQeCs835JiaQmlpElW3pT8viTwfAfpqqaO40WKocPzM1el8
+Message-ID: <CAPpAL=wQY3uknaDSiW_AJV4inkC5speMnvO0dGc3+NojK9TXng@mail.gmail.com>
+Subject: Re: [PATCH v6 0/6] vhost: Add support of kthread API
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
+	sgarzare@redhat.com, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: KSW1qZxgaWrGPtc-dmHqMEHEqtOvcS_j7FT_r9mgSoo_1740410057
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-With a functional and tested backend for virtio-block live migration,
-add the virtio-block device ID to the pci_device_id table.
+I tested this series of patches with virtio-net regression tests,
+everything works fine.
 
-Currently, the driver supports legacy IO functionality only for
-virtio-net, and it is accounted for in specific parts of the code.
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-To enforce this limitation, an explicit check for virtio-net, has been
-added in virtiovf_support_legacy_io(). Once a backend implements legacy
-IO functionality for virtio-block, the necessary support will be added
-to the driver, and this additional check should be removed.
 
-The module description was updated accordingly.
-
-Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
----
- drivers/vfio/pci/virtio/Kconfig     | 6 +++---
- drivers/vfio/pci/virtio/legacy_io.c | 4 +++-
- drivers/vfio/pci/virtio/main.c      | 5 +++--
- 3 files changed, 9 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/vfio/pci/virtio/Kconfig b/drivers/vfio/pci/virtio/Kconfig
-index 2770f7eb702c..a279cb2b8b8a 100644
---- a/drivers/vfio/pci/virtio/Kconfig
-+++ b/drivers/vfio/pci/virtio/Kconfig
-@@ -1,11 +1,11 @@
- # SPDX-License-Identifier: GPL-2.0-only
- config VIRTIO_VFIO_PCI
--	tristate "VFIO support for VIRTIO NET PCI VF devices"
-+	tristate "VFIO support for VIRTIO NET,BLOCK PCI VF devices"
- 	depends on VIRTIO_PCI
- 	select VFIO_PCI_CORE
- 	help
--	  This provides migration support for VIRTIO NET PCI VF devices
--	  using the VFIO framework. Migration support requires the
-+	  This provides migration support for VIRTIO NET,BLOCK PCI VF
-+	  devices using the VFIO framework. Migration support requires the
- 	  SR-IOV PF device to support specific VIRTIO extensions,
- 	  otherwise this driver provides no additional functionality
- 	  beyond vfio-pci.
-diff --git a/drivers/vfio/pci/virtio/legacy_io.c b/drivers/vfio/pci/virtio/legacy_io.c
-index 20382ee15fac..832af5ba267c 100644
---- a/drivers/vfio/pci/virtio/legacy_io.c
-+++ b/drivers/vfio/pci/virtio/legacy_io.c
-@@ -382,7 +382,9 @@ static bool virtiovf_bar0_exists(struct pci_dev *pdev)
- 
- bool virtiovf_support_legacy_io(struct pci_dev *pdev)
- {
--	return virtio_pci_admin_has_legacy_io(pdev) && !virtiovf_bar0_exists(pdev);
-+	/* For now, the legacy IO functionality is supported only for virtio-net */
-+	return pdev->device == 0x1041 && virtio_pci_admin_has_legacy_io(pdev) &&
-+	       !virtiovf_bar0_exists(pdev);
- }
- 
- int virtiovf_init_legacy_io(struct virtiovf_pci_core_device *virtvdev)
-diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
-index d534d48c4163..ab1129a20e4d 100644
---- a/drivers/vfio/pci/virtio/main.c
-+++ b/drivers/vfio/pci/virtio/main.c
-@@ -187,8 +187,9 @@ static void virtiovf_pci_remove(struct pci_dev *pdev)
- }
- 
- static const struct pci_device_id virtiovf_pci_table[] = {
--	/* Only virtio-net is supported/tested so far */
-+	/* Only virtio-net and virtio-block are supported/tested so far */
- 	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1041) },
-+	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1042) },
- 	{}
- };
- 
-@@ -221,4 +222,4 @@ module_pci_driver(virtiovf_pci_driver);
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Yishai Hadas <yishaih@nvidia.com>");
- MODULE_DESCRIPTION(
--	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO NET devices");
-+	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO NET,BLOCK devices");
--- 
-2.18.1
+On Sun, Feb 23, 2025 at 11:41=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+>
+> In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),
+> the vhost now uses vhost_task and operates as a child of the
+> owner thread. This aligns with containerization principles.
+> However, this change has caused confusion for some legacy
+> userspace applications. Therefore, we are reintroducing
+> support for the kthread API.
+>
+> In this series, a new UAPI is implemented to allow
+> userspace applications to configure their thread mode.
+>
+> Changelog v2:
+>  1. Change the module_param's name to enforce_inherit_owner, and the defa=
+ult value is true.
+>  2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
+>
+> Changelog v3:
+>  1. Change the module_param's name to inherit_owner_default, and the defa=
+ult value is true.
+>  2. Add a structure for task function; the worker will select a different=
+ mode based on the value inherit_owner.
+>  3. device will have their own inherit_owner in struct vhost_dev
+>  4. Address other comments
+>
+> Changelog v4:
+>  1. remove the module_param, only keep the UAPI
+>  2. remove the structure for task function; change to use the function po=
+inter in vhost_worker
+>  3. fix the issue in vhost_worker_create and vhost_dev_ioctl
+>  4. Address other comments
+>
+> Changelog v5:
+>  1. Change wakeup and stop function pointers in struct vhost_worker to vo=
+id.
+>  2. merging patches 4, 5, 6 in a single patch
+>  3. Fix spelling issues and address other comments.
+>
+> Changelog v6:
+>  1. move the check of VHOST_NEW_WORKER from vhost_scsi to vhost
+>  2. Change the ioctl name VHOST_SET_INHERIT_FROM_OWNER to VHOST_FORK_FROM=
+_OWNER
+>  3. reuse the function __vhost_worker_flush
+>  4. use a ops sturct to support worker relates function
+>  5. reset the value of inherit_owner in vhost_dev_reset_owner
+>
+> Tested with QEMU with kthread mode/task mode/kthread+task mode
+>
+> Cindy Lu (6):
+>   vhost: Add a new parameter in vhost_dev to allow user select kthread
+>   vhost: Reintroduce vhost_worker to support kthread
+>   vhost: Add the cgroup related function
+>   vhost: introduce worker ops to support multiple thread models
+>   vhost: Add new UAPI to support change to task mode
+>   vhost: Add check for inherit_owner status
+>
+>  drivers/vhost/vhost.c      | 227 +++++++++++++++++++++++++++++++++----
+>  drivers/vhost/vhost.h      |  13 +++
+>  include/uapi/linux/vhost.h |  18 +++
+>  3 files changed, 234 insertions(+), 24 deletions(-)
+>
+> --
+> 2.45.0
+>
+>
 
