@@ -1,174 +1,209 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3F3B166F32
-	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 21:03:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 483FF1CEAB2
+	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 21:19:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740430998; cv=none; b=SsNQAiNfrIwTOLqdyy2y/wVHxrd7H6858Ug+56XM0ZNURuCX46pzn1ifrlbbn8gW95r+KX0LeFnqUM5wzubr4qQCw8pzXe/ufMsJdMw6JlwpWlXU3Su0DSC0iHyPUvTmjTgGITixP4fYjzSNmEIFj80GA3U7xpdWNawRjzivWgQ=
+	t=1740431942; cv=none; b=DXrG5xl5LK4cB/FXxQp/lb7146PPgpDEznvooBMqRULshZqC+TwO7ojQfV7iwQ/wSXYEOwSLi0abC3rAt2SB1CDP17SwMaBPs6PjT65sqQuhx5rqyz+pTL5jcQArohedQIAEQc5Tqva5sTw+ZhJ2irCG1ZmPWkdfJsbQTa5xyvk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740430998; c=relaxed/simple;
-	bh=//OiUEZ/X3sjEzyvVlXMOA2Qq03xThrZHJgCXBrnqBA=;
+	s=arc-20240116; t=1740431942; c=relaxed/simple;
+	bh=/PQO7ZUzimjU555KfQCQmRzVBItJMZqfMDY7mblzjks=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rtZ3aI7D6m3sEeY1GJz12lX1txy9gcT5Hoq9uGWXt3qPCOiZ7Bq2uU0tbwobCNlpmGK+6SqInK1ah+Jk3snnSOO/U3hfApUL/iTOm117sVe17y0sujVU+RdKN93YJMZDsNQlO8r1QZL9S69pT4yCf0jKY8wmAMVe6Qbqutmjnn4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J4QrTnn7; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=SZRWmRcAuOkCsZQpN6jZ3qK2eY3PJBgyy5j1NDA/+D0jw63lUSFf2Ewk4B+gMkRCgpYC6dcoBGycdUJnHVpgN8oVEdgg0J6IZRKKwLXhUtBM+x5NdcvxR2HAFpkTF9EHAnqGrlojI7A04F9gIE13kOkzlHl4IJokX8TcEZi1JHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OA6vU+Dp; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J4QrTnn7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OA6vU+Dp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740430995;
+	s=mimecast20190719; t=1740431940;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ZjdPdlDxUaWDLsqY/y3GlKK8NuQp7ebfGK8Kn9MiIrU=;
-	b=J4QrTnn7WCAilqCyJycyML/n9caa2t0ATXwhxd5FuFY0h1BhmR1zgQidHkx1lMmWFd+q4F
-	REGT9YWtmBw8SfMJhjE16KP7vNIPdxqJPp4HaHl42LjyeVq/3k4N4keUWfs9PQ9fW0cw2E
-	P+xjngIvNLrcqgxmFOTDikarlaoLvgU=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=b4ChK7d4tTnyUI2qkV4nzn6rGiBQ0dJ69F8Ua/liB9M=;
+	b=OA6vU+DpQ5QFlPkhsXvUdfCi/a5Izx8aOLUZMgeeW4QroIhmONsw/SktqPGNu+DYsJmvEH
+	94LXojjmzsPJBvM6ejG78ck/68aJwS+ghkX3567LnfRTA4vCIDWWaS2wLdO/mwRXNYhxi1
+	TydZBVURawAbTHqRIJXFwpxUqN/IW5w=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-183-r3_ZomQ-MMW9BHQHKup9RQ-1; Mon, 24 Feb 2025 16:03:14 -0500
-X-MC-Unique: r3_ZomQ-MMW9BHQHKup9RQ-1
-X-Mimecast-MFC-AGG-ID: r3_ZomQ-MMW9BHQHKup9RQ_1740430993
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-abecbdb4272so59113166b.0
-        for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 13:03:13 -0800 (PST)
+ us-mta-682-XQKoibRrMCa1rzghf5lbDA-1; Mon, 24 Feb 2025 16:18:57 -0500
+X-MC-Unique: XQKoibRrMCa1rzghf5lbDA-1
+X-Mimecast-MFC-AGG-ID: XQKoibRrMCa1rzghf5lbDA_1740431937
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5e0bff433cbso2823929a12.2
+        for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 13:18:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740430993; x=1741035793;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZjdPdlDxUaWDLsqY/y3GlKK8NuQp7ebfGK8Kn9MiIrU=;
-        b=NjyNNsIvJ3SyLK0g3+wAIMjjqxBFZgZdy7oaGJPWYb/f1uvvYMj3AArrIcwx1KCBA3
-         WwJ4dAxiZKhQ3oC/bbjjygPp0ia9X8za96heu9r8rJoMY+IAn66ammmL02P8u/gIw4SZ
-         LyNpIagzZG0HwoB5W9xVDhLg/6cC/X+lPcFMGa4yDgcGGP/mY70iq1f4ev8pJGy+TJZ8
-         HvwCz6TWJuMRfZgAdPTYucDuDu04W6BH5sgufkdvHTcRZzxSqZzUfnkyL4+ty5OizHV0
-         u7YHKnN+/T2XfeVweEF8Y225aopLhPNvS0uB0fBjTUmU+ibhhbX44R1i4a2YjHSsgOJ+
-         GG8g==
-X-Forwarded-Encrypted: i=1; AJvYcCV53+8d7M+quVD6317MTkt8DQ8WlFa0LFFvVgTez+gS4gRCfkN30KCLa5L1Gh+xtxxgJh+/oaETF+FlKbFheg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzQ+rQqDtIDLhbf3KRRfe2YpoL/6WuLSn51t6ZoVer+PsQ7Gei
-	CKb75c9OjFx6xf8kjZQPcME0nN3agPa5Sb08/PyoYXJtENaTy5HDptQFUJyZaL22U34JS9iv4PM
-	V2s9CUVDjGuiwB4Hifzx2rwj5Y6WwU1TW0U+mIZOpS05VeZJNxenmi9NMIr5UmS20
-X-Gm-Gg: ASbGncswCJe1bAoJlWTnlUnmLawAUmyfRIHMhYl0TBeSp30tIGa1qha835vLasH8MbL
-	VbicIDz8c8T71hpU94Umw63h1Uh6hLoYntY+8cuFchNOj8jL1RcfufC9t60c8gM5wOQr0u1D6uC
-	36UoYyUfOsd6p+hn+hIP1EWbm4sNJbn2PmzH9QqHiwoOb9SfhJI83IaWR/ctsQEEUPtNw5InK8q
-	HZCegGSv92jZf+Onj4ATAKeVkGhZKVFMDbaBk20kv01oWW8xOhy0vYKr2g1G/nZdoEi8YhOaYa1
-	czEmBu/YaA==
-X-Received: by 2002:a17:907:72d6:b0:ab6:dace:e763 with SMTP id a640c23a62f3a-abed100fee4mr65181666b.38.1740430992709;
-        Mon, 24 Feb 2025 13:03:12 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHNHu1uQVxpwWyvs9fUXZ7i+eEr8RS9n4WkZiFY7UxnzH8miFb2ujF0374rCn8fkM/IBKiHYQ==
-X-Received: by 2002:a17:907:72d6:b0:ab6:dace:e763 with SMTP id a640c23a62f3a-abed100fee4mr65179466b.38.1740430992316;
-        Mon, 24 Feb 2025 13:03:12 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740431937; x=1741036737;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=b4ChK7d4tTnyUI2qkV4nzn6rGiBQ0dJ69F8Ua/liB9M=;
+        b=vEpwKv7AY0jgaVueaK/ShV6mOextitJpcDIIYmu/0cfKzthTo3ronFnCOAzYbx6MQd
+         jm9E9f7XKkHjM9zv4t7ErlRfCUagH6BX/3OPaaKmVmamGXlEczyKpQBBqvpWApNYoYL4
+         963mi4Lxb0OeoxgFO435A4Uat5pZq4Sc+jysNVogSwihAMtlx/ze74fDoGJjwosZ2LYZ
+         BWN/xVVm05pj62YQuo52dtFgKRUvhtoCgKCFgJ/93iEKfJkh7BltqNkQ8xgMAatGHfMK
+         I/4SmC2Yq4GUsyjrpKoBQrQ0/LDWoZM1e/MIqfR8IgsOFrI94XCIFdaiP3Gk4n5IUa7Q
+         jbuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUl7UHcdcvLcaCk94842norzCZRKE+oLiv1K2yzxZ/T5Y+Pym6j9X8Dxy4x9c0v4sRg19xFLCMWNHzbvKtVWg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyymr1AjshHIy05mnC6kJnRNfScRPXyn8auOnAjQ+Wf2OVdZu3n
+	Zl9UhWikRtEhQo1Mf7D9DXvAAxEaGZJjbps0cW61PVz9eNNe7N8uTJSjEPCcaaaN0JUBdIXx4dE
+	Zlr8tgmMEkV3J0Ts3Ov6V40OS3UWzBz0UpBaubmdmTtURiNkd1byUicSLOlAzzoTB
+X-Gm-Gg: ASbGnct3U47DgU2D2rU5MRZ9BerqTK2oy56eNaI2G7VPTNtFVMWODCz1xyWBAKiw7RF
+	EX32tg65xetRlW+L6Gg4hWGpWZScbk6mY0xOTLplAb6pMqQ3l0KF1I65lls8GIbk8hvn95FakY8
+	Q1hxkrlFqVsZdX10p3ZRF3UW6BqKTDvb/KqM+BsjMkKi4IDNfZl1nmHW8WqaA/SotCohhF3i1ye
+	roL1kyVVHfsEcFhRhgcl4in7G6a+p7aWV+JqG5vDgs1F596KWEmTtEonltb5BDvA0s0hRtO5kvj
+	ggVBqla2Gw==
+X-Received: by 2002:a17:906:3151:b0:aba:5e50:6984 with SMTP id a640c23a62f3a-abc099ead3amr1385574566b.2.1740431936621;
+        Mon, 24 Feb 2025 13:18:56 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHYEBC44CLKnEsK0LbK9e6zpwdED/WRkdl8e2EWDOlyh5Ynisvb1G99K7KkazLO1N5pYn2zMA==
+X-Received: by 2002:a17:906:3151:b0:aba:5e50:6984 with SMTP id a640c23a62f3a-abc099ead3amr1385570066b.2.1740431936166;
+        Mon, 24 Feb 2025 13:18:56 -0800 (PST)
 Received: from redhat.com ([2a0d:6fc7:441:1929:22c5:4595:d9bc:489e])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-abed1cd5f9asm22617566b.34.2025.02.24.13.03.09
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-abed20134fdsm23497166b.94.2025.02.24.13.18.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Feb 2025 13:03:11 -0800 (PST)
-Date: Mon, 24 Feb 2025 16:03:07 -0500
+        Mon, 24 Feb 2025 13:18:55 -0800 (PST)
+Date: Mon, 24 Feb 2025 16:18:47 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: "Boyer, Andrew" <Andrew.Boyer@amd.com>,
+To: Yury Norov <yury.norov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-crypto@vger.kernel.org,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Haren Myneni <haren@linux.ibm.com>,
+	Rick Lindsley <ricklind@linux.ibm.com>,
+	Nick Child <nnac123@linux.ibm.com>,
+	Thomas Falcon <tlfalcon@linux.ibm.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eugenio Perez <eperezma@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-	"Nelson, Shannon" <Shannon.Nelson@amd.com>,
-	"Creeley, Brett" <Brett.Creeley@amd.com>,
-	"Hubbe, Allen" <Allen.Hubbe@amd.com>
-Subject: Re: [PATCH] virtio_blk: always post notifications under the lock
-Message-ID: <20250224160208-mutt-send-email-mst@kernel.org>
-References: <20250107182516.48723-1-andrew.boyer@amd.com>
- <7a4f03a0-9640-4d15-9f0d-4e1ceb82aa8c@linux.ibm.com>
- <20250109083907-mutt-send-email-mst@kernel.org>
- <FE77DD4F-AB39-4781-9D24-06F171F47FED@amd.com>
- <dcbce68c-f448-4bbf-8db9-c3cd3231b5dd@linux.ibm.com>
- <20250122165854-mutt-send-email-mst@kernel.org>
- <5952f58f-9b80-4706-adb4-555f1489f2cf@linux.ibm.com>
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+	Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+	James Smart <james.smart@broadcom.com>,
+	Dick Kennedy <dick.kennedy@broadcom.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Matt Wu <wuqiang.matt@bytedance.com>,
+	Steffen Klassert <steffen.klassert@secunet.com>,
+	Daniel Jordan <daniel.m.jordan@oracle.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Greg Kurz <groug@kaod.org>, Peter Xu <peterx@redhat.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>
+Subject: Re: [PATCH v2 00/13] cpumask: cleanup cpumask_next_wrap()
+ implementation and usage
+Message-ID: <20250224161832-mutt-send-email-mst@kernel.org>
+References: <20250128164646.4009-1-yury.norov@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5952f58f-9b80-4706-adb4-555f1489f2cf@linux.ibm.com>
+In-Reply-To: <20250128164646.4009-1-yury.norov@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: WLKhhCoQGjLq82qJEt5PPPXOzhL1TUdcNUNlHeEwwAk_1740430993
+X-Mimecast-MFC-PROC-ID: sjEyJnXxlm0JrOX5nAZIddWd5OeJwXp1sjygwdYAQpk_1740431937
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 23, 2025 at 09:39:44AM +0100, Christian Borntraeger wrote:
+On Tue, Jan 28, 2025 at 11:46:29AM -0500, Yury Norov wrote:
+> cpumask_next_wrap() is overly complicated, comparing to it's generic
+> version find_next_bit_wrap(), not mentioning it duplicates the above.
+> It roots to the times when the function was used in the implementation
+> of for_each_cpu_wrap() iterator. The function has 2 additional parameters
+> that were used to catch loop termination condition for the iterator.
+> (Although, only one is needed.)
 > 
-> Am 22.01.25 um 23:07 schrieb Michael S. Tsirkin:
-> > On Wed, Jan 22, 2025 at 06:33:04PM +0100, Christian Borntraeger wrote:
-> > > Am 22.01.25 um 15:44 schrieb Boyer, Andrew:
-> > > [...]
-> > > 
-> > > > > > > --- a/drivers/block/virtio_blk.c
-> > > > > > > +++ b/drivers/block/virtio_blk.c
-> > > > > > > @@ -379,14 +379,10 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
-> > > > > > >   {
-> > > > > > >     struct virtio_blk *vblk = hctx->queue->queuedata;
-> > > > > > >     struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
-> > > > > > > -   bool kick;
-> > > > > > >     spin_lock_irq(&vq->lock);
-> > > > > > > -   kick = virtqueue_kick_prepare(vq->vq);
-> > > > > > > +   virtqueue_kick(vq->vq);
-> > > > > > >     spin_unlock_irq(&vq->lock);
-> > > > > > > -
-> > > > > > > -   if (kick)
-> > > > > > > -           virtqueue_notify(vq->vq);
-> > > > > > >   }
-> > > > > > 
-> > > > > > I would assume this will be a performance nightmare for normal IO.
-> > > > > 
-> > > > 
-> > > > Hello Michael and Christian and Jason,
-> > > > Thank you for taking a look.
-> > > > 
-> > > > Is the performance concern that the vmexit might lead to the underlying virtual storage stack doing the work immediately? Any other job posting to the same queue would presumably be blocked on a vmexit when it goes to attempt its own notification. That would be almost the same as having the other job block on a lock during the operation, although I guess if you are skipping notifications somehow it would look different.
-> > > 
-> > > The performance concern is that you hold a lock and then exit. Exits are expensive and can schedule so you will increase the lock holding time significantly. This is begging for lock holder preemption.
-> > > Really, dont do it.
-> > 
-> > 
-> > The issue is with hardware that wants a copy of an index sent to
-> > it in a notification. Now, you have a race:
-> > 
-> > 
-> > thread 1:
-> > 
-> > 	index = 1
-> > 		-> 			-> send 1 to hardware
-> > 
-> > thread 2:
-> > 
-> > 	index = 2
-> > 		-> send 2 to hardware
-> > 
-> > 
-> > 
-> > 
-> > the spec unfortunately does not say whether that is legal.
-> > 
-> > As far as I could tell, the device can easily use the
-> > wrap counter inside the notification to detect this
-> > and simply discard the "1" notification.
-> > 
-> > 
-> > If not, I'd like to understand why.
+> Since 4fe49b3b97c262 ("lib/bitmap: introduce for_each_set_bit_wrap()
+> macro"), for_each_cpu_wrap() is wired to corresponding generic
+> wrapping bitmap iterator, and additional complexity of
+> cpumask_next_wrap() is not needed anymore.
 > 
-> Yes I agree with you here.
-> I just want to emphasize that holding a lock during notify is not a workable solution.
+> All existing users call cpumask_next_wrap() in a manner that makes
+> it possible to turn it to a straight and simple alias to
+> find_next_bit_wrap().
+> 
+> This series replaces historical 4-parameter cpumask_next_wrap() with a
+> thin 2-parameter wrapper around find_next_bit_wrap().
+> 
+> Where it's possible to use for_each_cpu_wrap() iterator, the code is
+> switched to use it because it's always preferable to use iterators over
+> open loops.
+> 
+> This series touches various scattered subsystems and To-list for the
+> whole series is quite a long. To minimize noise, I send cover-letter and
+> key patches #5 and 6 to every person involved. All other patches are sent
+> individually to those pointed by scripts/get_maintainers.pl.
+> 
+> I'd like to move the series with my bitmap-for-next branch as a whole.
 
 
-Andrew, what do you say?
+virtio-net changes are straight-forward, so
 
--- 
-MST
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
+> v1: https://lore.kernel.org/netdev/20241228184949.31582-1-yury.norov@gmail.com/T/
+> v2:
+>  - rebase on top of today's origin/master;
+>  - drop #v1-10: not needed since v6.14 @ Sagi Grinberg;
+>  - #2, #3: fix picking next unused CPU @ Nick Child;
+>  - fix typos, cleanup comments @ Bjorn Helgaas, Alexander Gordeev;
+>  - CC Christoph Hellwig for the whole series.
+> 
+> Yury Norov (13):
+>   objpool: rework objpool_pop()
+>   virtio_net: simplify virtnet_set_affinity()
+>   ibmvnic: simplify ibmvnic_set_queue_affinity()
+>   powerpc/xmon: simplify xmon_batch_next_cpu()
+>   cpumask: deprecate cpumask_next_wrap()
+>   cpumask: re-introduce cpumask_next{,_and}_wrap()
+>   cpumask: use cpumask_next_wrap() where appropriate
+>   padata: switch padata_find_next() to using cpumask_next_wrap()
+>   s390: switch stop_machine_yield() to using cpumask_next_wrap()
+>   scsi: lpfc: switch lpfc_irq_rebalance() to using cpumask_next_wrap()
+>   scsi: lpfc: rework lpfc_next_{online,present}_cpu()
+>   PCI: hv: Switch hv_compose_multi_msi_req_get_cpu() to using
+>     cpumask_next_wrap()
+>   cpumask: drop cpumask_next_wrap_old()
+> 
+>  arch/powerpc/xmon/xmon.c            |  6 +--
+>  arch/s390/kernel/processor.c        |  2 +-
+>  drivers/net/ethernet/ibm/ibmvnic.c  | 18 +++++---
+>  drivers/net/virtio_net.c            | 12 ++---
+>  drivers/pci/controller/pci-hyperv.c |  3 +-
+>  drivers/scsi/lpfc/lpfc.h            | 23 +++-------
+>  drivers/scsi/lpfc/lpfc_init.c       |  2 +-
+>  include/linux/cpumask.h             | 69 ++++++++++++++++++++---------
+>  include/linux/objpool.h             |  7 ++-
+>  kernel/padata.c                     |  2 +-
+>  lib/cpumask.c                       | 37 +---------------
+>  11 files changed, 81 insertions(+), 100 deletions(-)
+> 
+> -- 
+> 2.43.0
 
