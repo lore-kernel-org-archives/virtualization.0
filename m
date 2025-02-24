@@ -1,62 +1,63 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7DCB263C7F
-	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 17:38:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6F85263C7F
+	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 17:54:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740418716; cv=none; b=mRq2xlBz08MY+Azy/i7oliqDzrn9lehtv2UOR5qH6PX23D7ayowy6Gw4FWk1CxZJmsp6cwgqGMo6zHApgg2Mlc59TfDXRqB/E++P8bKNYl+YUzM95D1fgdHQkkj7qEWdlfOQHGTGouPhFNNU9Ppf86yCpY5i9e1vKbMcFjqwZC8=
+	t=1740419659; cv=none; b=WE9ogaOuDaECSRkGozb3KKlf31C9681bGu+N39n73a+0gYAKfFsIXlq58qDznrlnjttHIWb3KvIY1jYcC1BuluZVGrISg3orO0X6WXgK1nO8fDoK7DWK4o6H7wHTizyQxIWOdypJfeNHlmKj2lsIu2gLeK+t5sotu68oStYgdwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740418716; c=relaxed/simple;
-	bh=6WDWAvw45opfe01BXQoV2J9T4wPwlIJFh7kOtE0s2h4=;
+	s=arc-20240116; t=1740419659; c=relaxed/simple;
+	bh=XnnclfgnjJGNnAA52fTfntiaxNx9k5+h16ZPEYb+gJU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aSAdVv8czAxJ8PsgChdkjs3/e5w9oxNxHsTbpsMiKWaYkfIKJ9gaZPV5uD78HRk1Al+yjVcoW3QtKXcauCR1MKGqx1waA4e3Wgzf6glDrRQY4ZIhS/mig2SdrMusEaDJxHImpa84omSTkiwjevP121H9wpPbCpuUSdxfmoLl/Ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EO8pMMFy; arc=none smtp.client-ip=209.85.214.171
+	 Content-Type:Content-Disposition:In-Reply-To; b=UnkrsjpBMJuMMw1b0ObZ5gaqXG8e8QOHI7QjkpRB5J0QlwgIc2Y5+jHFKeO2IYQyspbK/BFo0vNbzhLa1hQjyswKRjzDxNGkx044bIZLAMdmk/0Al9GCSqCaUYyQ8S7T91cXtIgkhkJz2CV5LFk8mMdqeIcu4OQqImo+EyZbBCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YhSLF1g7; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EO8pMMFy"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-22114b800f7so92976945ad.2
-        for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 09:38:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YhSLF1g7"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-220ca204d04so76249715ad.0
+        for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 09:54:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740418714; x=1741023514; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UX4AozQfD/+Q4V/98VBsuhZOuZnT8f3wxe/fXFwxJI4=;
-        b=EO8pMMFyNMib9NGREHJSnWVRoclVucRmZDnv4ZXT9duZJmrTySa2fXNkwHGeQx1DXX
-         69CZ6z87tDBC3mPavzdxLHSzDbB6IdQPHY0tR4hKnDL8UK1MUhSzLa5xCC1D5K8SODIn
-         YUCm0EmBVnrCIRlAOKkUa+tFlH6/Id9cppElCGeWgwDuPOApQidU2JspW0XixdYKqxse
-         rj2TR2jNryi8XoXvFLEH6mwT3ennzN2rGQz7937KiQWEhGSBqiCiqntMl85z7VAqhNGD
-         XPPw5imugSJImy/kwdU8NECZ/f/qwnyDAfHGY+B349l9nddXhfCwSoJ0PB/fdWuk62wU
-         iq3g==
+        d=gmail.com; s=20230601; t=1740419657; x=1741024457; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=49hFWAS6BPi17cq0UX9zIx62B0WnB3kN7+csrm3gvss=;
+        b=YhSLF1g7Q3LlGrCQPhKVlhNqtc2s7apWBcIk7yGkNM8ZDICCrq/eKFKYDR0/xDCfm0
+         6i/bwMtijPUdKeWsgi3f3wJvdTSa49X18YGF/pGeHjzSY+FQXWhS4szB96zoPnr/r7pj
+         geH3kgUyb3jz+1Csrbymwlmj9Pr0ED37DtfOvO29GxqZQYSC4OYPH8Ae9k8jSoHby+dg
+         qhQJ35DGg+P79NkyNh7PxzoHNJtLyNVwICWdmVpUn3Gfx6M+oDMim/uOwPit92zqLEO0
+         U4TFCD83FWAQS1QXSrf4Y5JR0JImNSZqE3mGmwpi7wCc2SPszhdZpxEswT/U0S+tESjw
+         tKpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740418714; x=1741023514;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UX4AozQfD/+Q4V/98VBsuhZOuZnT8f3wxe/fXFwxJI4=;
-        b=U7jkPlOeY0KfBM5Erq3PcpvmI8iXDIVvvnNYREDfRCn2c3/EiQDZaXGNCPOsjqedQ5
-         MnFSVYWRUoXJLQStZUmLKlZDDIPVsPOjOtL9IAm3MSH8nc2Sf2gepPN/zI3JlYCcEh46
-         pHSzUVA6pdZsVwiQEhLYlpKSbTUjDdnQnkJBsYy4uSr2SaKhLZDNpcwB85/aEXMj0QBr
-         TXyqVQavX5Hacf/R4cUlxMdeCr8ma/7OGCTHnJRn/nhM5BrytDQ+lIfbLUUQMaaluqMD
-         52HXR4rrNG3P+vOVyAAK9cc7nGlGdHSrQQhUF2mX1U3FHGaAtoF6P4hbGgiq+HZMVc4a
-         DAmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWVX6VCfkAHsYAY54JKV0FnEo4quvndwbi/EZTg88/uhZWHbuvzb5sBEOmyPv07VSWbBwVTWD8z2XgA04m3ZA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz+4DHvNJHltBv0t9EJRVNX5bhl9WaJcpAolNO0fHbUciSsc0bX
-	oNcg+sJhGANzjeP3NukpN+RJFNgTx9XQFQp8qL62dT00eEp+olk=
-X-Gm-Gg: ASbGncujb629IdUMGG6iLJdyQlsH0FT6PpsB/3d3IVSEKTE1DkBDvPdH6W6L+P0Dbuq
-	c8dN3ZuqgZuT2Gx+0zDD7RkhJzZFNFiCyknC0pUC2tD7Zsg0AlWzP4rG798KdytY4gWwwqme9G9
-	RDu0jB59iBuFaT7JdQssNiguSJyg2Hs3eJzwyHuiF626zm1f4rz6nC/X1qP4Rf42dxjVN+pkGFg
-	N30AJxgrsvjlUOt03KmfSMvb/P0O+tX3h/ltwvJr7qlaebqiHIevWS6QReDz4zp3DHIkR0T2Iua
-	kspFU4Qzic9LHKulfu6H4g4XWg==
-X-Google-Smtp-Source: AGHT+IEOY3jvw3d20B761rhLccrQlmDTz3/D4N2sGGq3MNqiiZ11e3nLJ+fNVmPINvJS8+U0KTPG+Q==
-X-Received: by 2002:a17:902:f550:b0:220:e63c:5b13 with SMTP id d9443c01a7336-2219fff4ef2mr211596935ad.46.1740418713456;
-        Mon, 24 Feb 2025 09:38:33 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740419657; x=1741024457;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=49hFWAS6BPi17cq0UX9zIx62B0WnB3kN7+csrm3gvss=;
+        b=e+gk7XZPqTJI/VsbGcthmQoL0Yli0UoW9VtEeGnmwtC7UNnYdwqf3vXEhuMozGgpCN
+         BhLgJR7wcLJ/Fd57NiXEiPJ9Ym4i49ExLqum6YycnLe69MO6anWR1xLqJ7UM/c3MW5yl
+         OfH5GreldJVE7nwGI9m9YrC3sUPoxGPpkUSZBQuSenY+ZG0XdiyzIKfSTGzTQbj58bwO
+         CdOxBAMJi0Fb6CHBmgbgbC4OR4TpC0E1mOYjMkmNGRegcQ5sn48PbwmMQad53NhP9uU5
+         ZN4+EXefCNjstdMr/0HRwnXI2XBJ5YCzmR4sgMeycNU49lHZsUwoD1QrOfQXb/SbwCLl
+         KiZg==
+X-Forwarded-Encrypted: i=1; AJvYcCU+ZU77eY8zMoMIAtF2Js8blPpMRUMzt42ypH+zEk5zu4W+b4bY0zYboWbW/JFgGUi80wUGPkZW4K/zk6wZrA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzD4R0fOpiU0+sbH2ZDxJ+4a/oRNv/d4ubsk/vEJe7O8zwBYzKA
+	AN+KaKlAlPBtvtZnUAys94wZKqWmciJIOq1OvaVZQzrBhg1ntZQ=
+X-Gm-Gg: ASbGncun7Kc1tZoul2O8/YGrjHBQiolSImWAvNNPlxSd6Pipc3Ej+YvLyIGvXdu3PY1
+	DZC/FTMarmYLOvWlsNSXEkGwa3LAvqJ/1z1viClvog0QHlpGDmw78frI89mJuWEsI0QVDgg1Zif
+	0ScSAJV5WhbCa47+OJ7xm5nYFRuAuTM1FpeZx0MJjy/HQ/QifSCNKP6rjnM52l/wwqJvoOwNN4i
+	seL0gauBhFJZ+r/9K/yk8iA+B++JCtgyFcuvsNwDoHnAy7czYiFTxDBTEr1dezGiTGEbVJXkXPI
+	oC2QppkTOzT9maOo0EHzt8rIEg==
+X-Google-Smtp-Source: AGHT+IEo+qn0GrfRoEoT6iMqO7/d+JhNhLZkzb0haVeC/Qk31b9/5jQycW3R+yfCTVCSg4EuX/UngA==
+X-Received: by 2002:a17:903:2343:b0:220:fb23:48df with SMTP id d9443c01a7336-2219ffa759bmr230045575ad.36.1740419656914;
+        Mon, 24 Feb 2025 09:54:16 -0800 (PST)
 Received: from localhost ([2601:646:9e00:f56e:123b:cea3:439a:b3e3])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-220d534afadsm185575355ad.26.2025.02.24.09.38.32
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-732581df0bbsm18607889b3a.156.2025.02.24.09.54.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Feb 2025 09:38:32 -0800 (PST)
-Date: Mon, 24 Feb 2025 09:38:32 -0800
+        Mon, 24 Feb 2025 09:54:16 -0800 (PST)
+Date: Mon, 24 Feb 2025 09:54:15 -0800
 From: Stanislav Fomichev <stfomichev@gmail.com>
 To: Mina Almasry <almasrymina@google.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -85,12 +86,14 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Jamal Hadi Salim <jhs@mojatatu.com>,
 	Victor Nogueira <victor@mojatatu.com>,
 	Pedro Tammela <pctammela@mojatatu.com>,
-	Samiullah Khawaja <skhawaja@google.com>,
-	Kaiyuan Zhang <kaiyuanz@google.com>
-Subject: Re: [PATCH net-next v5 3/9] net: devmem: Implement TX path
-Message-ID: <Z7yumPB749GdF26X@mini-arch>
+	Samiullah Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v5 9/9] selftests: ncdevmem: Implement devmem
+ TCP TX
+Message-ID: <Z7yyR9oRhHXv9a9z@mini-arch>
 References: <20250222191517.743530-1-almasrymina@google.com>
- <20250222191517.743530-4-almasrymina@google.com>
+ <20250222191517.743530-10-almasrymina@google.com>
+ <Z7ypMjORvm99q6L0@mini-arch>
+ <CAHS8izM9xMqWnJB5Cm=DMMBV1BuUemFjKSv9So8V_xQ8ToTRqA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -99,36 +102,29 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20250222191517.743530-4-almasrymina@google.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHS8izM9xMqWnJB5Cm=DMMBV1BuUemFjKSv9So8V_xQ8ToTRqA@mail.gmail.com>
 
-On 02/22, Mina Almasry wrote:
-> Augment dmabuf binding to be able to handle TX. Additional to all the RX
-> binding, we also create tx_vec needed for the TX path.
+On 02/24, Mina Almasry wrote:
+> On Mon, Feb 24, 2025 at 9:15 AM Stanislav Fomichev <stfomichev@gmail.com> wrote:
+> >
+> > On 02/22, Mina Almasry wrote:
+> > > Add support for devmem TX in ncdevmem.
+> > >
+> > > This is a combination of the ncdevmem from the devmem TCP series RFCv1
+> > > which included the TX path, and work by Stan to include the netlink API
+> > > and refactored on top of his generic memory_provider support.
+> > >
+> > > Signed-off-by: Mina Almasry <almasrymina@google.com>
+> > > Signed-off-by: Stanislav Fomichev <sdf@fomichev.me>
+> >
+> > Acked-by: Stanislav Fomichev <sdf@fomichev.me>
+> >
+> > We need exit_wait=True for check_rx as well, but I'll send this change
+> > separately.
 > 
-> Provide API for sendmsg to be able to send dmabufs bound to this device:
-> 
-> - Provide a new dmabuf_tx_cmsg which includes the dmabuf to send from.
-> - MSG_ZEROCOPY with SCM_DEVMEM_DMABUF cmsg indicates send from dma-buf.
-> 
-> Devmem is uncopyable, so piggyback off the existing MSG_ZEROCOPY
-> implementation, while disabling instances where MSG_ZEROCOPY falls back
-> to copying.
-> 
-> We additionally pipe the binding down to the new
-> zerocopy_fill_skb_from_devmem which fills a TX skb with net_iov netmems
-> instead of the traditional page netmems.
-> 
-> We also special case skb_frag_dma_map to return the dma-address of these
-> dmabuf net_iovs instead of attempting to map pages.
-> 
-> Based on work by Stanislav Fomichev <sdf@fomichev.me>. A lot of the meat
-> of the implementation came from devmem TCP RFC v1[1], which included the
-> TX path, but Stan did all the rebasing on top of netmem/net_iov.
-> 
-> Cc: Stanislav Fomichev <sdf@fomichev.me>
-> Signed-off-by: Kaiyuan Zhang <kaiyuanz@google.com>
-> Signed-off-by: Mina Almasry <almasrymina@google.com>
+> Yes, I discovered the same thing, and I have that change locally along
+> with some other fix ups I'm readying up for review in a separate
+> series.
 
-Acked-by: Stanislav Fomichev <sdf@fomichev.me>
-
-(assuming Eric/Willem will also take a look at this)
+Perfect, then I'll wait for you to address it separately!
