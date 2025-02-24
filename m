@@ -1,78 +1,78 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C03F119C55E
-	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 01:57:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701442F2F
+	for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 02:01:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740362275; cv=none; b=PLjcAtwitBFcVgeEHvvZJasBcAnyptZ2rrje6Xq/n41ZiML/koKLgq1XSij35TcqxO4+jthXYNIP9E9UA53S0NeIv+kFYtxWVZxZwmLm3AMU2HAtABdg3REuhrWFsMLQSd2+EgQUnH/LE0FSRHJXRXX+SrJ+kCpg2BJIuEjbaDk=
+	t=1740362513; cv=none; b=n78DKVd/LtmJcjJshAsq0zI6J0tTI6u9NI8dHV/CnflCiO+Vje1MC6OaZOEarpdt3+RdbUf3SIKYHEemHhYqT+LU+aj2aKySYCGUgpn6PgOU74fy+Du/i7vEUXEox5pHqPcB+YHhjz+IreipCpYkxmjw9AJV0yJAJ98HbZSPaBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740362275; c=relaxed/simple;
-	bh=vaLbHjmidwioWvktfwCGhYibt4VsmiTOJwXQD5tcJAE=;
+	s=arc-20240116; t=1740362513; c=relaxed/simple;
+	bh=9KMHWPkt/mzP2FxeLtx7HSsZuineo0SUwsWbbSwMoJk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hHTuLprQZr65X5GjpUniC7cmMSe8xw9nQ2MV2AOf7yzxZ/eTu0d9QWVGJSHqrG8pf0lL2ZluddC+ZZ3yBF8RumZrRsH5/P+LpH72kMvSYGKPCyDUwnsNd90v7LXOi15p2Bo8VOZ6P4fmXwnBTATT9pp5uD96poxHIM9kMdF0bQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XsqrljAt; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=nmOxPqaOIXHgHIGB6wy1oza29qab3TxtFoA2xoEDn/GlEPaInv7vFiv8FXWYcF7DxPTYTPdcNhNEy9tS0/tJEeubrCIuaOlOIN/pIRvfJ0wghTwXYfujoiFFtIiq9NfK2NyeVSZGWqcXZWwj9lqRjZDueLz2vtW4lUqIQ4COvcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KVwFPVFR; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XsqrljAt"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KVwFPVFR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740362272;
+	s=mimecast20190719; t=1740362510;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vaLbHjmidwioWvktfwCGhYibt4VsmiTOJwXQD5tcJAE=;
-	b=XsqrljAtLk2wvNJoaoOVcOz/Q5Jns3bIdPtkGFNZvhU64iSmK3gU9Zg9dC+uL0hPtFy0qX
-	HRWoxdLzzsm3xmgrFMXcxVUd5o4My9azjI1gK1OTAbS5k8ld6Z3EoM16M88AyjvcBAUqFl
-	JEAt5C5bnVce6RlYXWfDgi8urh6YcHI=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7/JSF4EW8sAz0SacUsjOJsB92EZAvekc+D7nVVJHuZQ=;
+	b=KVwFPVFRC+Ay7ZEGF5KKz8v6kNk/SHcpwmh4A3bnATDs+vAzdqeteaZl88MhUT1bAMj4wo
+	dMMh8O5se386vNxaQBRLXAkwHrCJHG7rKP7XrWfph6Bn0TJRKDt6CO1oVDo5RPhsH3bB7M
+	jpiahMKO/bwwijdgmdspn/M6YcVxiwQ=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-608-zje38Au4PXStwsVtcrXHcQ-1; Sun, 23 Feb 2025 20:57:51 -0500
-X-MC-Unique: zje38Au4PXStwsVtcrXHcQ-1
-X-Mimecast-MFC-AGG-ID: zje38Au4PXStwsVtcrXHcQ_1740362270
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2fc17c3eeb5so8214829a91.1
-        for <virtualization@lists.linux.dev>; Sun, 23 Feb 2025 17:57:51 -0800 (PST)
+ us-mta-681-l-Y7hJSkMvmnNde-FqK7wA-1; Sun, 23 Feb 2025 21:01:49 -0500
+X-MC-Unique: l-Y7hJSkMvmnNde-FqK7wA-1
+X-Mimecast-MFC-AGG-ID: l-Y7hJSkMvmnNde-FqK7wA_1740362508
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2fc0bc05bb5so8324758a91.2
+        for <virtualization@lists.linux.dev>; Sun, 23 Feb 2025 18:01:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740362270; x=1740967070;
+        d=1e100.net; s=20230601; t=1740362508; x=1740967308;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vaLbHjmidwioWvktfwCGhYibt4VsmiTOJwXQD5tcJAE=;
-        b=N1uDskFacEMlmFx+fdlAHsIxRpegetiBeVjwffLYkeG593DhXw23LTcTbQcVRMGvQJ
-         sYv8JgirAbnkyWfyKbZuiO9MZSKeo2D5UG4OLghqqTMi8NgY1pXFxotLKkVaBLw+zdLN
-         97ls5av+agzpFCUZyAXmuS9ZgEfI9JfQ5h+Fub5/NNV5xg/POA862GsQzEsEPXsvXNUU
-         ZzKikKr6uFOJre9vw06QylrjLBEB8UU2hvrX0BNXKqi1gpgIPxPQvP0v6hSMyIkamYYz
-         S5r+HdjApT8c0Nfr9rwLZBADRp9sBgIlfPPjQq4vq/4XY3xcX+I+qUChShB6dHzCtPGx
-         t3iw==
-X-Forwarded-Encrypted: i=1; AJvYcCWt5aBLfq1EcISoWh1Hf1rAZimwcsE3TmAEmVRoVrKLVwdxbIW+epzFSY9sMneKIrvdozq7mEwKswx1Jcq/uA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxbW7OgaBZn5LFlcHc4Y1mOdw3PWbZ+J+Vmryk9Z6gHSDsIKYgn
-	FPKkB8TbjIwfcwDjKlKHLIR12LRIow+Uo6iG4BuQlQt/nucrr/v44NkAJhgrOLqWoABCxjsASyu
-	Pd4pNvnDCjeDC3apK+Izu2XZ6WMIUkwergOQNUszlxsd223JxH7ntq+xJow7DuI64pxq48reTai
-	YSU1OvJ7oMz8M19gBVTeQlDDdEK5wcoA8GeM9u8Z4=
-X-Gm-Gg: ASbGncvCmODh300Y6jMI3mgBERmoce9xxZu3+n151wMxQ+8fkvq5e4ZSG9WmVaT6beW
-	uofjY5cqtE5NNk+WR6U9ew7egOmJdCh2gWNezvNE1OLNKUBADYL899TiFCWJ7AgGtkLtscp+Zpg
+        bh=7/JSF4EW8sAz0SacUsjOJsB92EZAvekc+D7nVVJHuZQ=;
+        b=hx8VdPQGaR5Pn97U030jVEDAnbP9+sfhfajh/QITaY9pj3ofLjegM8AEhk8/1ZfOn5
+         7lD6J/ZoHKUkYI/aC27bi7OWKIp3Se8T2EtuWnLx1iD16g68ilVqkElMNgszSQpURw3B
+         kBhJCZBqo2avY6H+ioiZEdyNpcCtJEYUAGyH46CRmCs4KpoQLJN5bA6Oah10KJ55VlmH
+         ca+7g6y/OkTFTQt23e7OD6xIdctpYhBGuzlWYEewv1xYlt8SZcb0s3Wh88k+wrGOenQd
+         eM8eZd+6ckQ5lkRX7FXe2lU3PPXAPUsxzFZtbELscwTu3llcrQF0tuSGZRpf7KYxL4ii
+         bGgA==
+X-Forwarded-Encrypted: i=1; AJvYcCWFGIadGdcNHpSUB6W3pq14rprO8oJcdkBovbMAonWpSHMRT705jQB4gAUtrITUQ0kbsSbzews4AkCIg6Dh0A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzvObsYXCqEYVk4Xml8bDW8hfcioEEcf4D0CvCLqeedNfAWP2IF
+	VX6JakqXZaHqemZXjVtHe8siXmQimN9w7LwLakhnMteZfbtmOOsqBRVRNi+gSg6uRR7VyfK0EUO
+	JC1DJJ2BoKIQYyj1N5KlhK90/fg/mXJ3QeDwulH2p+O8UuGNkRiXJj4iGswKvAZhV45ULbx4OB6
+	SPUZ4RsFlJNcgSoDMV3nUXCcDdQy4dmyMkiXYbvP4=
+X-Gm-Gg: ASbGnctW7uZtErNnSCEVLh+u4QzS4QGzlDlO+4ndQlez1AyfkPgRquyxgC98Jk7qj6Z
+	tyE1SKgxXrR1CE18l4fCyrEm+McjCqiTt5U7YsRE+FwVa7gKhPndfQZJFjZhh0J6nJz+ZFJ63QA
 	==
-X-Received: by 2002:a17:90b:4c10:b0:2ee:b4bf:2d06 with SMTP id 98e67ed59e1d1-2fce86d0e70mr17216794a91.19.1740362270357;
-        Sun, 23 Feb 2025 17:57:50 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGA6Evp1R/AVQM43Rg9j9ev6km34s4eDr/KxTbJj7NcHwjPHvLjbL/J1ySnYtiKgEU50Z9QwUmLV9TIPv82Ck4=
-X-Received: by 2002:a17:90b:4c10:b0:2ee:b4bf:2d06 with SMTP id
- 98e67ed59e1d1-2fce86d0e70mr17216773a91.19.1740362270040; Sun, 23 Feb 2025
- 17:57:50 -0800 (PST)
+X-Received: by 2002:a17:90b:5292:b0:2ee:5bc9:75c7 with SMTP id 98e67ed59e1d1-2fce789e6acmr18362351a91.5.1740362507937;
+        Sun, 23 Feb 2025 18:01:47 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE3byH8eo8Yb3n98mptZs0KnZVtNYk3QfL7gWdOG/0QZCy+k/iRcwVcIGwP8Q5J+01dl8JyIjK7VJiXYwtLwks=
+X-Received: by 2002:a17:90b:5292:b0:2ee:5bc9:75c7 with SMTP id
+ 98e67ed59e1d1-2fce789e6acmr18362322a91.5.1740362507538; Sun, 23 Feb 2025
+ 18:01:47 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250221170626.261687-1-eperezma@redhat.com> <20250221170626.261687-2-eperezma@redhat.com>
-In-Reply-To: <20250221170626.261687-2-eperezma@redhat.com>
+References: <20250221170626.261687-1-eperezma@redhat.com> <20250221170626.261687-6-eperezma@redhat.com>
+In-Reply-To: <20250221170626.261687-6-eperezma@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 24 Feb 2025 09:57:38 +0800
-X-Gm-Features: AWEUYZkwPGV2vcMfr-OnyHZZ9WyqXX4DsYi3NmTeAiBb2tUM_BD0LSWZEVb2-QY
-Message-ID: <CACGkMEurYAGHx1FF5YgS=T-4CDY8dn4B2sQJB_ojRxDdiqB2YQ@mail.gmail.com>
-Subject: Re: [RFC v2 1/5] vduse: add virtio_fs to allowed dev id
+Date: Mon, 24 Feb 2025 10:01:36 +0800
+X-Gm-Features: AWEUYZnr6SSmyz0c1upMGLe9FqKMYegAAGYeATevh8dBr6bWe1ZabFTLnQtaRl8
+Message-ID: <CACGkMEtdWhdPt6yOjBsMuqF5wv6kjHH2OV_HHN3gedXDUe2T5Q@mail.gmail.com>
+Subject: Re: [RFC v2 5/5] virtiofs: Disable notifications more aggresively
 To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
 	Hanna Reitz <hreitz@redhat.com>, linux-kernel@vger.kernel.org, 
@@ -80,22 +80,51 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Stefan Hajnoczi <stefanha@redhat.com
 	Stefano Garzarella <sgarzare@redhat.com>, yama@redhat.com, Vivek Goyal <vgoyal@redhat.com>, 
 	Miklos Szeredi <miklos@szeredi.hu>, mst@redhat.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XMh0QcUqMY6AIE9HabES7iLu5Q8VZSPGfjn0OLSvXYc_1740362270
+X-Mimecast-MFC-PROC-ID: fXqO5VD1K8cjyoEc35z220QczcWZ9CBp8QM-DY5jvn0_1740362508
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Feb 22, 2025 at 1:06=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redhat=
+On Sat, Feb 22, 2025 at 1:07=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redhat=
 .com> wrote:
 >
-> A VDUSE device that implements virtiofs device works fine just by
-> adding the device id to the whitelist.
+> Disable notifications right before scheduling, instead of waiting until
+> the work is running.
+>
+> After applying this patch, fio read test goes from 1191MiB/s to
+> 1263.14Mib/s
+
+Let's describe more about the testing. E.g FIO parameters, test setups.
+
 >
 > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
 > ---
+>  fs/fuse/virtio_fs.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index e19c78f2480e..3d6981c0f3c3 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -915,6 +915,8 @@ static void virtio_fs_vq_done(struct virtqueue *vq)
+>
+>         dev_dbg(&vq->vdev->dev, "%s %s\n", __func__, fsvq->name);
+>
+> +       /* Shceduled, don't send more notifications */
 
-Let's separate this from this series.
+Typo, and I think we can just drop this commnet.
+
+> +       virtqueue_disable_cb(vq);
+
+Do we need to tweak the virtio_fs_requests_done_work() as well?
+
+>         schedule_work(&fsvq->done_work);
+>  }
 
 Thanks
+
+>
+> --
+> 2.48.1
+>
 
