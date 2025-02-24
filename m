@@ -1,92 +1,228 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C336D24BC07
-	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 10:30:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740393037; cv=none; b=rlCZGFt33qAPxyM7eIdc24qejyKumkIcWvJ4VUNNHK+cjPSSCli/ZtGsr3jYckNhdkoLJE5tYPl4pUk1ZuhoYaBC1zazH1MkyyOl2IG9Zl2EduiTPrRZdTJqxFX0jtR5ucLBiWN6izIhTKNLX++84fdqCgRd7+sor/z7TIx2OqU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740393037; c=relaxed/simple;
-	bh=Vg68Rt+0evcFSSjTW58a3A/RXYo+L+pezfDP3CXzaa0=;
-	h=MIME-Version:Date:From:To:Subject:Message-ID:Content-Type; b=EmDWIpUqB1Xj7TdXam136frK5AE9yH0Xvv4dJNEyRgtQ+GZPIaxBjCJRcq9FYi2kv9w/pOFtJINtxeHVq0f9iukHPdOFresiOFrSshQTjILdhHaufvLoax1HfClijbbKFAtYoVB3Mpwihuq1wDn7VewjGRI2ZFLafaoy51BVVyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicklogowebsitedesigning.com header.i=@quicklogowebsitedesigning.com header.b=bpw3f1dr; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6324233706
+	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 12:19:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740399552; cv=fail; b=WH/ThvXuF2PlO4uC2Bl2l60NxzfKI0kXJLJ+kA45nCoqFg/mFZImNdlhD6fzBoWu1/7UkOSuixzR+FmSSSDlTm/NqQGvYDkEOs1kRP59gS4FS7dDLxdgPymjcoNxXlEddaX9z8lkoNZPSW+FbpEWssGMbnphqwB199N/rHSXRXo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740399552; c=relaxed/simple;
+	bh=AsG3v6+t9T/xo7WE6hvO5BVe3/fGU8xnb2vo4YxlXNk=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=dB7ksb9oH+267GayrhlGswEz/NBsKkBM837e4Q/n7rrbkfgwlVL6LVcjbCpyYJ2gjDye23ZTbuAfN+YQYZqbUQhKc+GMWWiMCciMlVWkdD2JVXNZBoYNSWhwOIKsJWIldUdJxUNhDYmiyFAHKTOeCLCYq2UCndjjKzbK6euC1Mc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=PjfhETfR; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicklogowebsitedesigning.com header.i=@quicklogowebsitedesigning.com header.b="bpw3f1dr"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="PjfhETfR"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3CBE540B38
-	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 10:30:35 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3D6AD405D5
+	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 12:19:10 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -3.48
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id jJ6BU0TkxJP1 for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Feb 2025 10:30:34 +0000 (UTC)
-Received-SPF: Permerror (mailfrom) identity=mailfrom; client-ip=103.133.214.27; helo=host.quicklogowebsitedesigning.com; envelope-from=celina.jones@quicklogowebsitedesigning.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 13B0240AF8
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=quicklogowebsitedesigning.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 13B0240AF8
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=quicklogowebsitedesigning.com header.i=@quicklogowebsitedesigning.com header.a=rsa-sha256 header.s=202407 header.b=bpw3f1dr
-Received: from host.quicklogowebsitedesigning.com (host.quicklogowebsitedesigning.com [103.133.214.27])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 13B0240AF8
-	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 10:30:33 +0000 (UTC)
-Received: from quicklogowebsitedesigning.com (localhost [IPv6:::1])
-	by host.quicklogowebsitedesigning.com (Postfix) with ESMTPA id C1C6BAB17D
-	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 15:52:27 +0530 (IST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.quicklogowebsitedesigning.com C1C6BAB17D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=quicklogowebsitedesigning.com; s=202407; t=1740392547;
-	bh=h3Re4ZyxmIjLjbC3kGNe4/eRd55jarqXuwjXB2zIetQ=;
-	h=Date:From:To:Subject:From;
-	b=bpw3f1drrFVScFVuoUpwfppxWZ1zczD34JL5POcMZtJuMQd2ogh9FU1KP4gzKxBaw
-	 lkUSNECEkX6BZJVR0cQdtwFz/aFoMbew5kNZHQ8avwzfnIpXEW+851jGO7G/Kl+d+K
-	 NLrH+dVMaVmPk2OIUzjC5YG8pzujVmm1IKTgLloPewOgKfuyqsKZH6KwtyEebWPz6X
-	 uncx2DMDyiDGda6NpNHsth+ciRt//VkN4VvUXsRxf8rNf2qrkik0qWU/TE3TvAo1pk
-	 GZMyrZTLFEU+4AwSOhVUEVSDRoQPF4XqIvJ4VNFCpEbGWEfHNQR2REA+1pbrtOvbgF
-	 F73IfUalxmeMQ==
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id cLjDrPWUmtiq for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Feb 2025 12:19:09 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2405::62c; helo=nam02-dm3-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 1C1FE405E9
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1C1FE405E9
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=PjfhETfR
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2062c.outbound.protection.outlook.com [IPv6:2a01:111:f403:2405::62c])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1C1FE405E9
+	for <virtualization@lists.linux-foundation.org>; Mon, 24 Feb 2025 12:19:08 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ajKNKGRpmZv+LG9Kzb3uO/GkDzVz2h1lPCfTpD0M3tQLZefvytHVfSWAbQ/GiMq4CjgMn3wlJVtz3qlaibhsJlu3wAemoQn2AX8+PRdPYX8AT8i0jfoNXT42TSkTJjF+OaL0TCM0nLFMLoIZjAmEZoAtRBMyZ/JMrF+81cmdRGjJwAYQnRZgXakyI87pFLte9hGlyo0QTIDHp0gK6515iB3I33GEk8U84me/hCxafkOyeDKq82Is96jCEXEgz/H4ZTg7lAuv6/uNlyRv0LFrdrXndNcs3en+0K3SX3JDn2nu0cWbx5+VEt9D+Fa0XtFYc+6bYJE+Eh14BVn+d0dVBQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KC93mkPLpw6G49PenUw0bnsfhM5sba03ejCruH89h/Y=;
+ b=HXpuksgaHb+6WyD/dPglCjr+y+t1kK7VZZJVcPHe4mAS+piytstDpctD4okkpcpykxJKqZktZFgMMN3lZddTu/gCGfI5thh3JyhWpp/WCEsPWuGgaeltaW6bhchovdrah8ZxoBLb4D194Ovaxhh+iCF88Nc7simu+kV8mUMjlfKTT6habmkQVezKJXBfzR2OWRdEHlggiaDrjjCkBCSDDidnfjZsMkJBerKatzpnZbajylZZMkZk+G3SP8//bJyYy3KFPxzge54fhyNBHJj5/zUGpFr9SCefbe+Qc2+MUVbYj+U3tWrhXq26SRTHngrvoE+dpm0Rboyj3PmU05IEmA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KC93mkPLpw6G49PenUw0bnsfhM5sba03ejCruH89h/Y=;
+ b=PjfhETfRh+Lw6iYG4spuK2II5aUt3omsGN7iONYxphdwt8KLCoKvHuxC/LUsho5kOPnd4e2MabhLr8pzTqCiF4kHE3f7Jh93ImA6Xzz2HHkwBeSNPf0yWOFwlUwSx3r0Cv6WP2bppTnRuM8uPUh23OxNBRI1j+nQhK6zsyA6q6rLGEgmePm38eRCqvnrSkTovAPtaBLxBb0Jfgf+7AZEMYjQ6FWa+NJ2GH3fI+OTyT4h0CNScOKtmVU+JhiKa5u+jSWh/rfxEo/DLTjhwSHV9P9jU/ITtA8CZGSlSole0c/8T3FcFJe7B4zPVESRb0JZ8r1h3wtKqc995cXF+nauLA==
+Received: from SJ0PR05CA0198.namprd05.prod.outlook.com (2603:10b6:a03:330::23)
+ by PH0PR12MB7469.namprd12.prod.outlook.com (2603:10b6:510:1e9::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8466.20; Mon, 24 Feb
+ 2025 12:18:59 +0000
+Received: from MWH0EPF000989EC.namprd02.prod.outlook.com
+ (2603:10b6:a03:330:cafe::1c) by SJ0PR05CA0198.outlook.office365.com
+ (2603:10b6:a03:330::23) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8489.15 via Frontend Transport; Mon,
+ 24 Feb 2025 12:18:59 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ MWH0EPF000989EC.mail.protection.outlook.com (10.167.241.139) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8489.16 via Frontend Transport; Mon, 24 Feb 2025 12:18:59 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 24 Feb
+ 2025 04:18:54 -0800
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14; Mon, 24 Feb 2025 04:18:53 -0800
+Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com
+ (10.126.190.180) with Microsoft SMTP Server id 15.2.1544.14 via Frontend
+ Transport; Mon, 24 Feb 2025 04:18:51 -0800
+From: Yishai Hadas <yishaih@nvidia.com>
+To: <alex.williamson@redhat.com>, <jgg@nvidia.com>, <mst@redhat.com>
+CC: <jasowang@redhat.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux-foundation.org>, <parav@nvidia.com>,
+	<israelr@nvidia.com>, <kevin.tian@intel.com>, <joao.m.martins@oracle.com>,
+	<yishaih@nvidia.com>, <maorg@nvidia.com>
+Subject: [PATCH vfio] vfio/virtio: Enable support for virtio-block live migration
+Date: Mon, 24 Feb 2025 14:18:30 +0200
+Message-ID: <20250224121830.229905-1-yishaih@nvidia.com>
+X-Mailer: git-send-email 2.21.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Mon, 24 Feb 2025 15:52:27 +0530
-From: celina.jones@quicklogowebsitedesigning.com
-To: virtualization@lists.linux-foundation.org
-Subject: Audio & Video Transcription / Translation Service at 70 cents/min
-Message-ID: <2c7a8e0e5f05e2d3457c1d52e9f7e89a@quicklogowebsitedesigning.com>
-X-Sender: celina.jones@quicklogowebsitedesigning.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: AnonymousSubmission
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWH0EPF000989EC:EE_|PH0PR12MB7469:EE_
+X-MS-Office365-Filtering-Correlation-Id: c79ade99-6609-4897-e1db-08dd54cd6b0d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|82310400026|1800799024|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?t3vo8LCg8Q97WD3vbbR4aYYYMkW6c2kwQjVkqod4rrr6EEH7nDTqzt7AiE5h?=
+ =?us-ascii?Q?5HB2yxyVHrLzTdWfvwTUc48khS2Ac7iKYUKLDUWtd6rk/Ano69cFSld/V5JL?=
+ =?us-ascii?Q?x/7h+3oyRFPVBHRxD7C24pv4p+fxApYdmaI7AG/7N4Qlk6qhX4kb0TFA3VDe?=
+ =?us-ascii?Q?MfKlPKQ7YaYQQYrivAEM8IMvMVgAjRnZUvDLOYIGFvB3VsLWIOm3Zc3Os25A?=
+ =?us-ascii?Q?v7Tz33uRqggElK+CXNBQUcFlALcnpYj3x5I4jTUfwIKNZM9+04p64TiqvPbi?=
+ =?us-ascii?Q?7OO9JSFkP65WpDvM/SolC8eFwdMepTZNRTnhGAv37tMyjl5iz4cDwVBRq1DW?=
+ =?us-ascii?Q?4+gdv8iMImLCb5V7Fq2K6URwzrtB319ruLVVrjeJ8zdgRlsCHqL7zdCsfn5B?=
+ =?us-ascii?Q?GkFUSMZD82HDmfbBWG6/4w5+DALzlB1m57RqWS1FBDYkCRcx9xGJWQzHJWJQ?=
+ =?us-ascii?Q?990oziX3X/9rCF2uXLI8dZimKuxyBnE2XnENK7t/XUXve+pa3gH7vALg3OQ5?=
+ =?us-ascii?Q?9B1aluy2xyd49NUxx6qaC71GefDGvxsjZkeV0N0sxyphUFNKwK/OT9emtdiV?=
+ =?us-ascii?Q?Zs7AgF5Jxc06O3amadZzfzBzYQe57jSWeb3/kp6gXIkFVsdLWaWByNRdXguZ?=
+ =?us-ascii?Q?sv4ibAkcC3G2k/1JSK6iK9WDcv2fYDvoY/u8b7QAAC8pYuPacfFCD0S+Lu/T?=
+ =?us-ascii?Q?8ssxiYDJFg/HE8cMnlagTR7ZpxZPuFf/3AItHeFQcpZhCWfuWBp0OOsbS8g8?=
+ =?us-ascii?Q?svXXLkPG/2JKFRvuzfq4c6u2oTcI9njDxRyU8zblv24HHSDHAcpm4jFJ3fsR?=
+ =?us-ascii?Q?gKNNaZr6aoBMGGZLxYSAr85IuOE+LX7/QpzXjz2t1FP/CGN3inAW43HHYhoz?=
+ =?us-ascii?Q?pKecXq3bTVn5ft5KMDXUd4j0mVQo64G8KctkJMwCfrXHPFc+VVm9SbzN6P7e?=
+ =?us-ascii?Q?rsrVZ+iWGLQij9Pjk7miHH85BAyICKbZhHKtG9xNaiZeOB8I54k2BL5VrSiE?=
+ =?us-ascii?Q?uIT8+4K/ctNJcVlIORSdLMEuw6FEy/K5jf4WJlPHy5bfiFjwE9CyBgFiDq18?=
+ =?us-ascii?Q?464w2ZDvsZrDBfr324bsgpvnteEtk4V7qp3OgwQopLNmZdKEGdB/suh9abZl?=
+ =?us-ascii?Q?STxckYaSgpl0GIJQZpn9h+dN4JBBuh+dWp4rOT6jK0pgKNKnHgkRr66kSa0h?=
+ =?us-ascii?Q?l0iv3AaYaKthH1RFIHjNd1W0dN6eXkVa/UW/zlPqv/sIcVaciCjJg1KKJMJj?=
+ =?us-ascii?Q?En6ylJXOkuL2vBaFx9mV4raGDwdLqJ7l1x2BMXDyFnHJu9ZeUZU2Y2OUmJy9?=
+ =?us-ascii?Q?ppVUU/mzNZYViyq3QSMNdqal7k3bBi79GCNS8SpGNWUz69C26LLp4001Gkjf?=
+ =?us-ascii?Q?AblAbj/VM7s0K/9asBY0fZvkJ6iknpzOB6LTX9Is6aPGMXEjpWOW0TSzIaOl?=
+ =?us-ascii?Q?OO2sB7wv440M9MAzFw1qB6JPczrDNXwsI9xesLNRUh8caGKIc3bUE9k5+h7M?=
+ =?us-ascii?Q?z6eb9W7ClyznOvc=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(1800799024)(376014);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Feb 2025 12:18:59.6641
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: c79ade99-6609-4897-e1db-08dd54cd6b0d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MWH0EPF000989EC.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7469
 
-Hello,
+With a functional and tested backend for virtio-block live migration,
+add the virtio-block device ID to the pci_device_id table.
 
-  Are you looking for a transcriber / translator for transcribing your 
-audios / videos ? Many researchers / students are not aware of who to 
-reach out to get their research audios and videos transcribed with 
-confidentiality.
+Currently, the driver supports legacy IO functionality only for
+virtio-net, and it is accounted for in specific parts of the code.
 
-  We have been working for university students across the globe for over 
-10 years now and provide transcription service to students, researchers, 
-coaches, news agencies / reporters, writers at a very reasonable cost 
-and quick turnaround.
+To enforce this limitation, an explicit check for virtio-net, has been
+added in virtiovf_support_legacy_io(). Once a backend implements legacy
+IO functionality for virtio-block, the necessary support will be added
+to the driver, and this additional check should be removed.
 
-  Whether it's interviews, podcasts, meetings, or lectures, we can 
-quickly and accurately convert your audio / video into a written format.
+The module description was updated accordingly.
 
-  Our rates start at USD 0.70 per audio / video minute for up to 3 
-different voices in the audio / video.
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+---
+ drivers/vfio/pci/virtio/Kconfig     | 6 +++---
+ drivers/vfio/pci/virtio/legacy_io.c | 4 +++-
+ drivers/vfio/pci/virtio/main.c      | 5 +++--
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-  Should you be interested, please do feel free to reach out for a free 
-sample transcript of any audio / video of your choice.
+diff --git a/drivers/vfio/pci/virtio/Kconfig b/drivers/vfio/pci/virtio/Kconfig
+index 2770f7eb702c..a279cb2b8b8a 100644
+--- a/drivers/vfio/pci/virtio/Kconfig
++++ b/drivers/vfio/pci/virtio/Kconfig
+@@ -1,11 +1,11 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config VIRTIO_VFIO_PCI
+-	tristate "VFIO support for VIRTIO NET PCI VF devices"
++	tristate "VFIO support for VIRTIO NET,BLOCK PCI VF devices"
+ 	depends on VIRTIO_PCI
+ 	select VFIO_PCI_CORE
+ 	help
+-	  This provides migration support for VIRTIO NET PCI VF devices
+-	  using the VFIO framework. Migration support requires the
++	  This provides migration support for VIRTIO NET,BLOCK PCI VF
++	  devices using the VFIO framework. Migration support requires the
+ 	  SR-IOV PF device to support specific VIRTIO extensions,
+ 	  otherwise this driver provides no additional functionality
+ 	  beyond vfio-pci.
+diff --git a/drivers/vfio/pci/virtio/legacy_io.c b/drivers/vfio/pci/virtio/legacy_io.c
+index 20382ee15fac..832af5ba267c 100644
+--- a/drivers/vfio/pci/virtio/legacy_io.c
++++ b/drivers/vfio/pci/virtio/legacy_io.c
+@@ -382,7 +382,9 @@ static bool virtiovf_bar0_exists(struct pci_dev *pdev)
+ 
+ bool virtiovf_support_legacy_io(struct pci_dev *pdev)
+ {
+-	return virtio_pci_admin_has_legacy_io(pdev) && !virtiovf_bar0_exists(pdev);
++	/* For now, the legacy IO functionality is supported only for virtio-net */
++	return pdev->device == 0x1041 && virtio_pci_admin_has_legacy_io(pdev) &&
++	       !virtiovf_bar0_exists(pdev);
+ }
+ 
+ int virtiovf_init_legacy_io(struct virtiovf_pci_core_device *virtvdev)
+diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
+index d534d48c4163..ab1129a20e4d 100644
+--- a/drivers/vfio/pci/virtio/main.c
++++ b/drivers/vfio/pci/virtio/main.c
+@@ -187,8 +187,9 @@ static void virtiovf_pci_remove(struct pci_dev *pdev)
+ }
+ 
+ static const struct pci_device_id virtiovf_pci_table[] = {
+-	/* Only virtio-net is supported/tested so far */
++	/* Only virtio-net and virtio-block are supported/tested so far */
+ 	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1041) },
++	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1042) },
+ 	{}
+ };
+ 
+@@ -221,4 +222,4 @@ module_pci_driver(virtiovf_pci_driver);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Yishai Hadas <yishaih@nvidia.com>");
+ MODULE_DESCRIPTION(
+-	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO NET devices");
++	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO NET,BLOCK devices");
+-- 
+2.18.1
 
-  In addition, we also provide service for logo / graphic designing, 
-website designing and development or any kind of software development as 
-well. Please feel free to ask for our portfolio.
-
-  Regards,
-  Celina Jones
