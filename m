@@ -1,129 +1,205 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED809267721;
-	Tue, 25 Feb 2025 11:28:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3793B267B63
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 11:31:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740482936; cv=none; b=R9N+kpUieNSUhdmHArctrtaPdV8lHV7Foh1OKi1+u0s/0y6Lf0lF0L0rgixNEC3nhILtD0OFfVzuUuyVOfao//5ajszHbbR2qMmNk76pVa22D1FjKorQwUBpL/b4bzy2Wm6VB37UgjbWedW2p7xRNTgPsJMHTjani2MDaVTzam4=
+	t=1740483080; cv=none; b=c7PuxbWbIW38F8xePz6F64rTOkB4NTos3J7rrSnRlaYFvRzO9h+qxCiSauAuM2g/0eOgldJ9Vc5UmdQA23545bPG2X2r2o0xgU3qYtKQGo6A2rpO1bL+PxFgahsba/zeCSYQWjHV8n6quLD8oAcqIIQ5maI/9/l1Kn6g50JGCeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740482936; c=relaxed/simple;
-	bh=4sgbNAfckysK5yUpsHXkpcHylYnfBrrpT1xYb428eDc=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dISyY6WKKHD8zDMnVqpWoUlkXCO1t8/ElAJmTp1nAtY9Cns1f6zJV8+HIKXs8KpaNvGVKXzAsA6V0BTfFCUIwZrZQ3D3n4sv3qmJpIzPUjIX7iTimY7+n9uDtCD2I9XcpbwN6gkh0t0scf/rwtb65ZnnzITDK+gnJ71FvX8KS0o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=aDNjx0O6; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1740483080; c=relaxed/simple;
+	bh=JNsvBkbU/xeGUA2wB24yiaAwvMR0TShWcVfnwYO9psk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Ju4/aO/wk46J8pAGXHVSohU5h3L6gD0JVpy/oADlxpfYwkfgYd5GCId2rp6Yvs6P/It2Z1BnVkNQzajnZhdLWDOhIRrUvo/Zb8/Ymc54m+Gz/QVJ3ZH/bjF7lDGjG1wPZvys5Pt/aYbKPvSVPZ2YxV39oaddLUBKVmhTOJqDTV0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BAuU4mwF; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="aDNjx0O6"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51P8Dmgu009109;
-	Tue, 25 Feb 2025 11:28:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=AH6XyKMQKy1L5/1/4qcQ3Dq5
-	+Ibr/w74DoNERr7pYSI=; b=aDNjx0O6kRUrZmxs1FJNFDwlArHvEk4P1kDlXtSl
-	+TwgnKsIULHWmVIlIBfrmBYQUDcILJ8a2LCogStr90Np0sZgk9Em7NfA1P9jX/li
-	gC3CuPC0+JKmfDAWoEly+Gy5Ga85wX/6mSInUc6XaH7fvLWsaU+5aFj9rdIwPktc
-	BgTvgYPBVAi9gvfL/xEZMnJsn46DCWy0eUTuHAoA5n/zI06TlEXpWEOjTn0noRTP
-	WBmKG7D/o3u3cHVqORlaUf5+NpVcP9lHr8HtS5iKmSat+bOaJV9AaHae4Sf4/rLR
-	gEqsuxsN3jDL170vvn+wdhEAw0kmzEUxiOUoFHRMC8j4ng==
-Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 44y6y6rp38-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 11:28:33 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 51PBSW8O029297
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 11:28:32 GMT
-Received: from PHILBER.na.qualcomm.com (10.80.80.8) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Tue, 25 Feb 2025 03:28:27 -0800
-Date: Tue, 25 Feb 2025 12:28:24 +0100
-From: Peter Hilber <quic_philber@quicinc.com>
-To: Simon Horman <horms@kernel.org>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        Trilok Soni <quic_tsoni@quicinc.com>,
-        Srivatsa Vaddagiri
-	<quic_svaddagi@quicinc.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio
- =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-        Richard Cochran
-	<richardcochran@gmail.com>,
-        <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
-        <netdev@vger.kernel.org>, David Woodhouse
-	<dwmw2@infradead.org>,
-        "Ridoux, Julien" <ridouxj@amazon.com>, Marc Zyngier
-	<maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Daniel Lezcano
-	<daniel.lezcano@linaro.org>,
-        Alexandre Belloni
-	<alexandre.belloni@bootlin.com>,
-        Parav Pandit <parav@nvidia.com>,
-        "Matias
- Ezequiel Vara Larsen" <mvaralar@redhat.com>,
-        Cornelia Huck
-	<cohuck@redhat.com>, <virtio-dev@lists.linux.dev>,
-        <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v5 2/4] virtio_rtc: Add PTP clocks
-Message-ID: <vhlhes7wepjrtfo6qsnw5tmtvw6pdt2tfi4woqdejlit5ruczj@4cs2yvffhx74>
-References: <20250219193306.1045-1-quic_philber@quicinc.com>
- <20250219193306.1045-3-quic_philber@quicinc.com>
- <20250224175618.GG1615191@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BAuU4mwF"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id B72384060C
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 11:31:18 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id lD1_PvPLCCvh for <virtualization@lists.linux-foundation.org>;
+ Tue, 25 Feb 2025 11:31:17 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 3D1E040ACE
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3D1E040ACE
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BAuU4mwF
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3D1E040ACE
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 11:31:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740483075;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=amu6qNJ2XLnE1PzLc9Jh3MOyLPKxqhaqigKuNJC2nTU=;
+	b=BAuU4mwFFyQQo5LANcgQnZZzzO3DGucodasAnZm846hFNCRnGZfludpvM8Nq39k0O3bA2m
+	v89YOZdfNoiNcfMl8PD6QlWM/m8pdfMlIp1Q7FlB2GcRkZOsY1H3thNgKBgzkVwHwcSWUk
+	RijtBHlycow7b8aPy169mAfhla2YlVs=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-694-qxT35tQ7MeifeK32oh5tmw-1; Tue, 25 Feb 2025 06:31:14 -0500
+X-MC-Unique: qxT35tQ7MeifeK32oh5tmw-1
+X-Mimecast-MFC-AGG-ID: qxT35tQ7MeifeK32oh5tmw_1740483073
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4394c747c72so23713655e9.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 03:31:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740483073; x=1741087873;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=amu6qNJ2XLnE1PzLc9Jh3MOyLPKxqhaqigKuNJC2nTU=;
+        b=J7w4S5Ye378iFHxdpOdZFH6ZWuDDipwFKWwJyN/6CjnZ2jcb/GkBrNC8dDIdSgXf24
+         SSyWvgVAPN1LswneR1WPnxUcOZ6bgzUQ6+oXNaGl1J7OmfsSR7ZKHu4dd0vrcJmDNTCz
+         FE84LREQKX1NtqEzXpTGg38Px5Z6zaAmi5F5xgGk5gziPtZIWqOyIOY9PYzw2Rj6Vorq
+         oN5GM9jaaviXurLaw10CRaVx1hVpzDCbao37jodztVEpTTHvrYyaXKDUPSt2D4QWbu1e
+         g44YYHme2Gf2Jce1rnqpNGWl9XDMWGl+uOK/cEWQzpy2TnfqnPCOOGKsZrMTe6Xe1N/p
+         PBpQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXYcta+krNzpd5lNFFQFbhnFPiXK9F6Tuwuyu1YjGqUIgvENRfWaqyJbfxBWw+vGeLs5FbdRki437hUPEzpLg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyAfK9FNChNfVrqpEGpigUpDEVgDfkFz7ryK+iD9E8RP4RQ24er
+	qx9C+LNGngC6AlxR/gADGQpmdyhLKeYxxgGenemSfb6xfkUhd6z4O4xccnKdBbaaN41ZnQ1kHZf
+	mqSrQk2dsIgv/XToAMGpGV3vh+0oqjlviv6wZAjWWOCOhP6ygDsfNsfFCArHKAx8URa14rjogaK
+	0+c+k=
+X-Gm-Gg: ASbGnctjhVdfcdXTNo9m2KUbyAH0ivWRzurwtKF+sbBXAeEMAEolw5TFB+whV8EvhAx
+	YlvH8LYTHaDekU+a8Ylhg8dgKFojXC1wBflqXt75yrSm8EiFobjKXmAsAj7ylf5CxC2+jrNxWAC
+	3d/25lORD/FNggOl4SJCIkCH/q7ZMi6DfnkH/9XAzLXzwZP1HBhyy84WxnD7jcz3zLK51nBGAgU
+	IdxsCYI2BFKuJKF6DhVc7AO9LX6yQNqyUjq0h3vs5y//OE8wKO4pBh69ydkU+BMGm7aKVsWy4My
+	2gm3ZsNzzHYXXfM=
+X-Received: by 2002:a5d:584f:0:b0:38f:1e87:cc6e with SMTP id ffacd0b85a97d-38f6e74f270mr14234552f8f.9.1740483073113;
+        Tue, 25 Feb 2025 03:31:13 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFtz5zkAxf+n06y+uM0vFkhN66Z0eIXxRWu45tZA+nsHTF3VLjPSb93B6lqTibRPrNYImW8BA==
+X-Received: by 2002:a5d:584f:0:b0:38f:1e87:cc6e with SMTP id ffacd0b85a97d-38f6e74f270mr14234497f8f.9.1740483072522;
+        Tue, 25 Feb 2025 03:31:12 -0800 (PST)
+Received: from sgarzare-redhat ([5.77.102.3])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-390cd883934sm1996643f8f.59.2025.02.25.03.31.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Feb 2025 03:31:12 -0800 (PST)
+Date: Tue, 25 Feb 2025 12:31:05 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+Subject: Re: [PATCH v6 5/6] vhost: Add new UAPI to support change to task mode
+Message-ID: <6vadeadshznfijaugusnwqprssqirxjtbtpprvokdk6yvvo6br@5ngvuz7peqoz>
+References: <20250223154042.556001-1-lulu@redhat.com>
+ <20250223154042.556001-6-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <20250223154042.556001-6-lulu@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Vb4nMpdjttnSRsUPo6jym8iFtpf4vupgAm-ntAAhbSM_1740483073
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20250224175618.GG1615191@kernel.org>
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: HaD8-URwhEOYl4JEkmXZIwXbLt2o3JAj
-X-Proofpoint-GUID: HaD8-URwhEOYl4JEkmXZIwXbLt2o3JAj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-25_04,2025-02-25_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 spamscore=0
- malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- mlxlogscore=537 impostorscore=0 priorityscore=1501 bulkscore=0 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2502250081
 
-On Mon, Feb 24, 2025 at 05:56:18PM +0000, Simon Horman wrote:
-> On Wed, Feb 19, 2025 at 08:32:57PM +0100, Peter Hilber wrote:
-> 
-> ...
-> 
-> > +/**
-> > + * viortc_ptp_gettimex64() - PTP clock gettimex64 op
-> > + *
-> 
-> Hi Peter,
-> 
-> Tooling recognises this as a kernel doc, and complains
-> that there is no documentation present for the function's
-> parameters: ptp, ts, and sts.
-> 
-> Flagged by W=1 builds.
-> 
+On Sun, Feb 23, 2025 at 11:36:20PM +0800, Cindy Lu wrote:
+>Add a new UAPI to enable setting the vhost device to task mode.
+>The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
+>to configure the mode if necessary.
+>This setting must be applied before VHOST_SET_OWNER, as the worker
+>will be created in the VHOST_SET_OWNER function
+>
+>Signed-off-by: Cindy Lu <lulu@redhat.com>
+>---
+> drivers/vhost/vhost.c      | 24 ++++++++++++++++++++++--
+> include/uapi/linux/vhost.h | 18 ++++++++++++++++++
+> 2 files changed, 40 insertions(+), 2 deletions(-)
+>
+>diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>index d8c0ea118bb1..45d8f5c5bca9 100644
+>--- a/drivers/vhost/vhost.c
+>+++ b/drivers/vhost/vhost.c
+>@@ -1133,7 +1133,7 @@ void vhost_dev_reset_owner(struct vhost_dev *dev, struct vhost_iotlb *umem)
+> 	int i;
+>
+> 	vhost_dev_cleanup(dev);
+>-
+>+	dev->inherit_owner = true;
+> 	dev->umem = umem;
+> 	/* We don't need VQ locks below since vhost_dev_cleanup makes sure
+> 	 * VQs aren't running.
+>@@ -2278,15 +2278,35 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+> {
+> 	struct eventfd_ctx *ctx;
+> 	u64 p;
+>-	long r;
+>+	long r = 0;
+> 	int i, fd;
+>+	u8 inherit_owner;
+>
+> 	/* If you are not the owner, you can become one */
+> 	if (ioctl == VHOST_SET_OWNER) {
+> 		r = vhost_dev_set_owner(d);
+> 		goto done;
+> 	}
+>+	if (ioctl == VHOST_FORK_FROM_OWNER) {
+>+		/*inherit_owner can only be modified before owner is set*/
+>+		if (vhost_dev_has_owner(d)) {
+>+			r = -EBUSY;
+>+			goto done;
+>+		}
+>+		if (copy_from_user(&inherit_owner, argp, sizeof(u8))) {
+>+			r = -EFAULT;
+>+			goto done;
+>+		}
+>+		/* Validate the inherit_owner value, ensuring it is either 0 or 1 */
+>+		if (inherit_owner > 1) {
+>+			r = -EINVAL;
+>+			goto done;
+>+		}
+>+
+>+		d->inherit_owner = (bool)inherit_owner;
+>
+>+		goto done;
+>+	}
+> 	/* You must be the owner to do anything else */
+> 	r = vhost_dev_check_owner(d);
+> 	if (r)
+>diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+>index b95dd84eef2d..8f558b433536 100644
+>--- a/include/uapi/linux/vhost.h
+>+++ b/include/uapi/linux/vhost.h
+>@@ -235,4 +235,22 @@
+>  */
+> #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
+> 					      struct vhost_vring_state)
+>+
+>+/**
+>+ * VHOST_FORK_FROM_OWNER - Set the inherit_owner flag for the vhost device
+>+ *
+>+ * @param inherit_owner: An 8-bit value that determines the vhost thread mode
+>+ *
+>+ * When inherit_owner is set to 1:
+>+ *   - The VHOST worker threads inherit its values/checks from
+>+ *     the thread that owns the VHOST device, The vhost threads will
+>+ *     be counted in the nproc rlimits.
+>+ *
+>+ * When inherit_owner is set to 0:
+>+ *   - The VHOST worker threads will use the traditional kernel thread (kthread)
+>+ *     implementation, which may be preferred by older userspace applications that
+>+ *     do not utilize the newer vhost_task concept.
+>+ */
+>+#define VHOST_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, __u8)
 
-Thanks, I will change the offending documentation to non kernel-doc. I
-was not aware that these warnings are always considered a problem.
+I don't think we really care of the size of the parameter, so can we 
+just use `bool` or `unsigned int` or `int` for this IOCTL?
 
-Peter
+As we did for other IOCTLs where we had to enable/disable something (e.g 
+VHOST_VSOCK_SET_RUNNING, VHOST_VDPA_SET_VRING_ENABLE).
 
-> > + * Context: Process context.
-> > + */
-> > +static int viortc_ptp_gettimex64(struct ptp_clock_info *ptp,
-> > +				 struct timespec64 *ts,
-> > +				 struct ptp_system_timestamp *sts)
-> 
-> ...
+Thanks,
+Stefano
+
