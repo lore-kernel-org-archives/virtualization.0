@@ -1,121 +1,181 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from MA0PR01CU012.outbound.protection.outlook.com (mail-southindiaazolkn19011031.outbound.protection.outlook.com [52.103.67.31])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93FE5242913;
-	Tue, 25 Feb 2025 09:21:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740475311; cv=none; b=CQ7C9Gd2XUoDhpAVPcJJ03BCaboT1qy+k2PdM7DgzykguK9eZWb1dUNV5de9wk5vaoYRF1FxRPXpej8E8b6LqfXG1YtsiKCXlk2BXvWVXdEC7JUYROxbGgy4QUqtCq9H8U3aJQE9405wnX4zwS1rEwz7VhVZfWinro/jrWkNONs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740475311; c=relaxed/simple;
-	bh=JyNOQvzqmUn51V0d92KRSJ6eRcVIn3Yww23zfrVDL54=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IO3+pdX536S/ErD/VQ9Yx+4IynUMhw/WHiyUOJqEyj6Rw14duM2McYysV56fSh3kmlsszGZAFOpED7jhHxCRqQB29APFzYHoFy6vFFnoXwzWF4cIcBYxTwTCSycYMHHDwTT5Vj9peXsmLEs4TqCKGMlScYarXnfF5lekXmTZ52k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IjqIBeyD; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4259B264A7C
+	for <virtualization@lists.linux.dev>; Tue, 25 Feb 2025 11:05:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.67.31
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740481533; cv=fail; b=t6gEQw7ftt26sse731CNpHciOCm9+KpTaRANzaAw84BG5Zug8wdAw2LGzkeeNWWZvMa0kPKzq5VOhojIKFob07rkuMkJVM7kPFo8XaMjYDKdoV8dBK+PWRhGhH8nQZI6na7kLA/qVQ6HNY0couDKGvyzW49yTgQPe699jKsojrc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740481533; c=relaxed/simple;
+	bh=GVgX3H2OOz8QGLbR68As7uo8wFvtij8OMOhxgTGS+QY=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=us3c4akBcd8zCwzzLcvyRaqShmsB6/potWkyf9AjNMUreGINfL2jM7xbNUS3t6/lxJnv4i1s9NUVFaMQ0l1yVAphkFihfyp2kH3EPHkqUA+nwfjetIKjRbYl0oaGCucu3UvEKoCyBNUcnOySW1B9wS0HXRNB0qUSGDwcJflIjqU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com; spf=pass smtp.mailfrom=live.com; dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b=bDBcPXdN; arc=fail smtp.client-ip=52.103.67.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=live.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IjqIBeyD"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51P6PXq4019441;
-	Tue, 25 Feb 2025 09:21:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=5+drL0zdm39qhap2TEZNvewTHtRKjJk1QxMeZnwbS
-	xM=; b=IjqIBeyDWH4QNZckBTC7gsbPwFPJ1OBMHcEWpYkpcfeNiis5rb91xFmpM
-	JYOckG8r+4kJq2th2nmT/GGiVe3HI5QM+QA0AkWE06dDuzSGGGmxCTlwTXCoSkPc
-	CaiCa06pcIlgqI9544GYVw67hLryrO5JixuCaouMeck9nslgmqyWYckldj7aENGa
-	Jr0h2SBwf+HIgn4IERmaY1oMWeBm4xfGivJmo/IReObLX51kmFJtZsok2RRdGqhT
-	QIJ6ewm3kQ+iG4pe5HbXLoNy2OEGN51Pcm4FFxMaV71fUx/rlq17tdtEoq7HrckL
-	KfDoWsM7+Jl9JrbHXB0ljbVa2Wz/g==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4518k68q8v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 09:21:42 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51P87kZY002578;
-	Tue, 25 Feb 2025 09:21:41 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yu4jkps7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 09:21:41 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51P9LcjZ42991970
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Feb 2025 09:21:38 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 38BE920364;
-	Tue, 25 Feb 2025 09:21:38 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0F99C20363;
-	Tue, 25 Feb 2025 09:21:38 +0000 (GMT)
-Received: from li-9b52914c-2c8b-11b2-a85c-a36f6d484b4a.boeblingen.de.ibm.com (unknown [9.155.199.15])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Feb 2025 09:21:38 +0000 (GMT)
-From: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
-Cc: amit@kernel.org, arnd@arndb.de, gregkh@linuxfoundation.org,
-        brueckner@linux.ibm.com, schnelle@linux.ibm.com, pasic@linux.ibm.com,
-        maxbr@linux.ibm.com
-Subject: [PATCH] virtio: console: Make resizing compliant with virtio spec
-Date: Tue, 25 Feb 2025 10:21:35 +0100
-Message-ID: <20250225092135.1200551-1-maxbr@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b="bDBcPXdN"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=fPPmjORme1xK63vbmN8un7WUe1ERf/ofboa6KmeB/LCkx4Ko6IauEWP1WCxx0vVd1ApPKA8/9GSSHcNpVx+XSgMac/QDEMgLgs6qCYz7UZ4PumLrNoq0tXtGJyCjlNnkg7cUqE6wbsL6I09ezvUsoSSeBCapJx03Xam3u4DicoAtZx7sWPcsV24BVbalgailaN1uzZlV4WC3/kz7K/ysPcesvFeYeG+7mxAztjYO91PfL2ElO0l16hfLoyguOjid2CBrrTWNoC2kMz8HLHG2HY79jDmtE0NooBPin2l4PPH/HF7a4+HqvM1MgLoWOG4OtOqSvpmmSSIw59U/AO9hIA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QLWwzwbpbd5xpPF3ZCQL8jDvqsW4lMuOOmP/GFwm/p8=;
+ b=sWn/qW6IOWuCBawWuT03eS76P5r0jaujC17H01epSNjNTMMcxC8uHfsDo9b8tJZkVE7FicqjbTok5phvCpBHhZUDUtvmHTf55TnpgGkOpFMbXPKeBFnt+2b5PxL7MYIY/wp4QTF0nJ4iFbGZdAcfxO+dqX9G213fbEaoGJiWena1qjaFwL/H8ikTVW6+Z6yLJfnmqaIWwSY4xl7qdAzU929c5KZCKkfFycMTVLFIuNPQ0GGZNa9pn+1nWn8stBpDzi3Wfgy8GhWIr+dhXGgh3Yr/hH9fwLYIyxFw/INfDGyXn6oKJxcaBo0L0uQdW5SOzXPZZkJzDgJOHcmt8wYgfQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QLWwzwbpbd5xpPF3ZCQL8jDvqsW4lMuOOmP/GFwm/p8=;
+ b=bDBcPXdN0lxs4hAbGCrsFPG3A7Yh/CYTYKsL/cd603/GhhQU16uu1EgbGScMXbjikzXiY+8t3x96858g4judwko1PdaFWXHYTHC2waFWi6bg9Ud9VlIVt1fKRZTHUj/VKVBVdFdH7G9xMdFWVFZ+apsldVs63OL+nQBfdbIlis9qeOr2r+2R5VXoOccj8tNWPl0tHfX1LzqT6s9DbG3k8Ffxo2pXfU2Vt594FSWrcazJcaGxKp8nc693EwnHyd95f10odOCphrRSZODIuOAu9WLu2i+WaRmotugN+jmhp5hRrwKkibeV1+xrFCqwBU0cX4VqJCprne8xWRwF2xTSwQ==
+Received: from PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:f7::14)
+ by MAZPR01MB8050.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a01:83::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8466.23; Tue, 25 Feb
+ 2025 11:05:24 +0000
+Received: from PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::324:c085:10c8:4e77]) by PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::324:c085:10c8:4e77%7]) with mapi id 15.20.8466.016; Tue, 25 Feb 2025
+ 11:05:24 +0000
+From: Aditya Garg <gargaditya08@live.com>
+To: "airlied@redhat.com" <airlied@redhat.com>, "tzimmermann@suse.de"
+	<tzimmermann@suse.de>, "jfalempe@redhat.com" <jfalempe@redhat.com>,
+	"maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+	"mripard@kernel.org" <mripard@kernel.org>, "airlied@gmail.com"
+	<airlied@gmail.com>, "simona@ffwll.ch" <simona@ffwll.ch>, "kraxel@redhat.com"
+	<kraxel@redhat.com>, "javierm@redhat.com" <javierm@redhat.com>
+CC: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 0/6] drm: remove redundant else across drivers
+Thread-Topic: [PATCH 0/6] drm: remove redundant else across drivers
+Thread-Index: AQHbh3UrfSW2kiCPIEe4LvWM4YIbiQ==
+Date: Tue, 25 Feb 2025 11:05:24 +0000
+Message-ID: <C8A4C8F8-1568-423E-A656-05D914D9933F@live.com>
+Accept-Language: en-IN, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PN3PR01MB9597:EE_|MAZPR01MB8050:EE_
+x-ms-office365-filtering-correlation-id: 102750c1-6062-431c-ff2d-08dd558c4dc0
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|19110799003|8062599003|8060799006|5062599005|7092599003|15080799006|12121999004|461199028|10035399004|4302099013|3412199025|440099028|41001999003|102099032|1602099012;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?tg51dGkHr/h1UN+oGDBaEx0qzoskniwD17mJPUgWWg7At8nlZO2rfDVb3404?=
+ =?us-ascii?Q?JMh3I13NmtUOj2btXwwrvV7kZAk8j/k4fyT0Ip5zp+jHTQxF3aYrIJj3yzUz?=
+ =?us-ascii?Q?hRi6/wG4GvUxtbaDxll9F4AHiSog8+h3WD02/HkyFBPxAxc5K5pILxvqgFj9?=
+ =?us-ascii?Q?pJ9x9HQUNAK9CtRry88zwXf1/yEVOaU5f5qTcBqoI/N7IxRx0GzNAMhoIrdc?=
+ =?us-ascii?Q?YRgDYEdQNUDqLlrTSX0gAaXzpO9Y5ofHKdWGCseHuFwAOi2ubD/sAOBPTNX5?=
+ =?us-ascii?Q?+oggyJjrduEZNWfyLvD+i6S7s9DSozsmWW4zImlSB59LZX02PC6ZuPwWAd2r?=
+ =?us-ascii?Q?UWaIc6ejEZ+Uh4ec4Li8OOOYnrBzo6NzkEYaZy5UEWp7xuqDRzjvj2z5ppyh?=
+ =?us-ascii?Q?yuYL1rG79G7fgVQ5+KHvVhVrhFAgnbqO/hENjVclaY6E/XQ2WoMSNMSWnud8?=
+ =?us-ascii?Q?5nx3s+Q9J1gzMcwWw62aZ8E/W7DQwDp9mnOUQWqkBEjfKXC+yueVSuunVfAn?=
+ =?us-ascii?Q?ftJKPGjc9yoSq6zk7yNC6KexDZtytYqMhmt0rrNyUfQNU2A0VbT3jQkylqRJ?=
+ =?us-ascii?Q?ODidaMEnHAJmTuP2bsQnzPjvvWwX+adnv3kIKR91YbLjD5o4SmQGSev1Rgau?=
+ =?us-ascii?Q?c7AMjgEyHQm9Xznt+mT60DVkaMoM1pYghPJjkbuVbwqmo3+omJg11h8BXKKy?=
+ =?us-ascii?Q?jiy9+ylnG3q1x05q+ejie7BMkCrVh7+AD5wWAaVITPHgPZK95ba9jTpg9Lnh?=
+ =?us-ascii?Q?FdE0gpSmB7aUgVE5OPkWKE4G8Or/ESHgjQDZFVnPlCxFnfupPjaxhr7vd9Fd?=
+ =?us-ascii?Q?D77ngPzJxbteUf76+Yi8Z5PCP69Ly3OMXMGOs7MbzWg0sJJvBTVmh7cfIg5k?=
+ =?us-ascii?Q?4GTTmvFCzzJdjEVakGQLpxLXc2X4gay0+c7iF5NX4+JWfsW6W847K7cqHBmZ?=
+ =?us-ascii?Q?RTsmjk7orax5Hgze/OcNtSPQ8tteLiZBR7WSoULnMna6+csB6KcZveXUfbG2?=
+ =?us-ascii?Q?HJVoIqkAzANPXx3FGKFN1EAg6cfAozK0LFs5Kg9Y09fG0ZJ1ZQYZl2YrX2fZ?=
+ =?us-ascii?Q?QSQuDpRUgmlvyJnF0z4AoZALu8SQoOk6ICjx7QmnLdbfqWkmYfu5XzVhlma2?=
+ =?us-ascii?Q?wRKfDKDsy+YcF4jCQjCbMwIzg+3zSQsLYkueMOvxAADKorswCv3/ASVb/1jU?=
+ =?us-ascii?Q?V4OdrN04Q5cB58VnL6wm0XPeKpsxxCvD9QHEVN/camor6z+haCiYhuJNLuxh?=
+ =?us-ascii?Q?Rrdz46o2N0gNrRK8szVquBpHkUoU2cWhFIZlt7XbaPYkRxcg0B6LOcmrPnAy?=
+ =?us-ascii?Q?Tq3OevNG1gtpWufFBdOBnx0hankmKE6YEcEbQsMGb/urvQ=3D=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?2eK2l98bw4jx87Jk7NcgN607T4GPeyzbC2MtGPCt/LUOGQbR6HjZ/uj/KUXT?=
+ =?us-ascii?Q?4kJnmMX66xuFtLFT0GfTvC5uSqPzGusSJA2jLSdNmf6zTV3c0yi8DCv+N2qr?=
+ =?us-ascii?Q?eno8YYAs8SUBKvkOEiwCXk0FDzhhYvrwWJv4yXZTmk9Oowz62u8pytCOCy/K?=
+ =?us-ascii?Q?xePaRlAeGknNuxOuLZnhl8wUVvIlZreSW2UT0PbJkAwAMV0M9IPFD05ElHEx?=
+ =?us-ascii?Q?GBUyIPijXkvqL5jr71pJysCRcXq5vIjGHKXuMXsOqD754RVRhcSqkxK2o/K3?=
+ =?us-ascii?Q?6BQdXmngw3p0x4vVZWPq5nUvbyCntx4xMTx1IyNhtQjPOwhcNuQ13Y7ArU2J?=
+ =?us-ascii?Q?UU2jwhgGtqVsQ8djyL2IY8zaI8y+NZKus7Z+zV2wiFbsxNOHjNrdHkBIqUtS?=
+ =?us-ascii?Q?JhWd5+pHcKR4crPf3pYtwIvlW98NZahing82VTvhMmU+vaDzRWqEuHHPZKC0?=
+ =?us-ascii?Q?X0ueG//jFfyrPf1lI2QN4+JuUWtpYaQDdb/jGRQ9D2Tx2j2ty+Nw0uN11JOV?=
+ =?us-ascii?Q?F4MDorSIwc8ZPQmh6txp+EodWopXaZcwQjicqf7DD8WmERmmATtG7ssMUiyL?=
+ =?us-ascii?Q?AOyvXmN311Q9J0KscbzYUGEyxSsrsVRN6QDhswMO+y+BImFSulYJJHhqwZSu?=
+ =?us-ascii?Q?mw/biU2SCmDnkuBh/+Tm2JFv/axLhPuzX/kyRiGgshjqJiNWcqoXCZoHUCw9?=
+ =?us-ascii?Q?5D95MPljUSlEvr0Ju4RevwxwpqXwhMY8rluhmiZ5AxQ7jbByGbbbsv4g3R8O?=
+ =?us-ascii?Q?oOnXwL0i+aTpywsROlxVTsNlxKT4PeYjyUd5xWq3HR2k/i2p7tsztd2fobB4?=
+ =?us-ascii?Q?9fAhvCZm75KPrf/RzNzPZFbFJOInh1U+DyjqMacCxic9aVO7hA5GxQRwljkR?=
+ =?us-ascii?Q?bT5Qt5fJ/cij30+LyPIfNsaL/ZiRniyfbZ1dJztxUuqGtVOJ6WvOEcSF3gDo?=
+ =?us-ascii?Q?7CF/z/5QMjY45tNukus8Smogxvv7NVadHwHcv7x5M2ku0YlKLDkELlJ/lyB7?=
+ =?us-ascii?Q?zLjldJYJ2tb5+fM+Y7uN88MhSIRF0IXtfFsoPqjfOJ+IoYS2epnW36HVV2A6?=
+ =?us-ascii?Q?sTWMBy/PvP9xs5emJ4Cy83+O2UnPxDFKyymEU70YCIbeTAop9hsGBjfrFPxK?=
+ =?us-ascii?Q?nfIXS/lVh5/UTLaEeJuymRFbJzLX+8hdKoilWk97os4Vpt4FPQaMCO3R9b+J?=
+ =?us-ascii?Q?AmS6+Jy3QtP1qSE7utJOV409OHfUUmJLX081504U3vjUlvZACrEh3+vihb0o?=
+ =?us-ascii?Q?X8tg+Edoco9TAP5rDu4R0NMiXiot7MWG+Kym2tvtRuEj6nEICsvrXGyVnE7a?=
+ =?us-ascii?Q?unTnVgteBcZ6FV7zqrIChbb9?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <B51B9389BCE4B64A8D0AF7B67AAD75E9@INDPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wvEaYDokX0k1_5WsJP9rVDo7PQRAgsm6
-X-Proofpoint-GUID: wvEaYDokX0k1_5WsJP9rVDo7PQRAgsm6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-25_03,2025-02-24_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- impostorscore=0 adultscore=0 bulkscore=0 malwarescore=0 suspectscore=0
- clxscore=1011 phishscore=0 spamscore=0 mlxlogscore=999 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502100000
- definitions=main-2502250061
+X-OriginatorOrg: sct-15-20-7719-20-msonline-outlook-ae5c4.templateTenant
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 102750c1-6062-431c-ff2d-08dd558c4dc0
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Feb 2025 11:05:24.4705
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MAZPR01MB8050
 
-According to the virtio spec[0] the virtio console resize struct defines
-cols before rows. In the kernel implementation it is the other way around
-resulting in the two properties being switched.
-While QEMU doesn't currently support resizing consoles, TinyEMU
-does[1](and they implement resizing according to the spec). CrosVM has
-prototypes for virtio console resizing, but no user[2]. With the JSLinux
-kernel[3] and alpine config[4] resizing the kernel works. It strongly
-seems that they patch the issue downstream as patching their kernel to
-use the upstream ordering breaks resizing.
+In primary_plane_helper_atomic_check of various drm drivers, a redundant
+else statement is there. All these statements match this pattern:
 
-[0] https://docs.oasis-open.org/virtio/virtio/v1.2/virtio-v1.2.pdf
-[1] https://bellard.org/tinyemu/
-[2] https://github.com/search?q=repo%3Agoogle/crosvm%20virtio_console_resize&type=code
-[3] https://bellard.org/jslinux/kernel-x86.bin
-[4] https://bellard.org/jslinux/alpine-x86.cfg
+if (foo)
+	return foo;
+else if (bar)
+	return bar;
 
-Fixes: 8345adbf96fc1 ("virtio: console: Accept console size along with resize control message")
-Signed-off-by: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
-Cc: stable@vger.kernel.org # v2.6.35+
----
- drivers/char/virtio_console.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Which is equivalent to:
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 24442485e73e..9668e89873cf 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1579,8 +1579,8 @@ static void handle_control_message(struct virtio_device *vdev,
- 		break;
- 	case VIRTIO_CONSOLE_RESIZE: {
- 		struct {
--			__u16 rows;
- 			__u16 cols;
-+			__u16 rows;
- 		} size;
- 
- 		if (!is_console_port(port))
--- 
-2.48.1
+if (foo)
+	return foo;
+
+if (bar)
+	return bar;
+
+This error was observed by Andy Shevchenko [1] while reviewing the
+appletbdrm driver, which has been submitted upstream.
+
+A simple grep was used to find such errors.
+
+Most likely a common code was copied and pasted among these drivers.
+Some of them also seem to have been ported to use atomic helpers instead
+of simple_display_pipe.
+
+[1]: https://lore.kernel.org/dri-devel/Z7igVXqvRYTVFpXU@smile.fi.intel.com/
+
+Aditya Garg (6):
+  drm/ast: Remove redundant else in atomic_check
+  drm/cirrus-qemu: Remove redundant else in atomic_check
+  drm/offdrm: Remove redundant else in atomic_check
+  drm/bochs: Remove redundant else in atomic_check
+  drm/simpledrm: Remove redundant else in atomic_check
+  drm/mgag200: Remove redundant else in atomic_check
+
+ drivers/gpu/drm/ast/ast_mode.c         | 5 +++--
+ drivers/gpu/drm/mgag200/mgag200_mode.c | 3 ++-
+ drivers/gpu/drm/tiny/bochs.c           | 3 ++-
+ drivers/gpu/drm/tiny/cirrus-qemu.c     | 6 ++++--
+ drivers/gpu/drm/tiny/ofdrm.c           | 3 ++-
+ drivers/gpu/drm/tiny/simpledrm.c       | 3 ++-
+ 6 files changed, 15 insertions(+), 8 deletions(-)
+
+--=20
+2.43.0
 
