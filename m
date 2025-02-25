@@ -1,155 +1,149 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CBC6156F57
-	for <virtualization@lists.linux.dev>; Tue, 25 Feb 2025 02:05:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E597A14E2C2
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 02:36:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740449118; cv=none; b=kUQwaj87lA33n5s6GQ/lfi+pbhtDr9/NmTNRBtnm0VxBTabm99dqdkk66OuaACkLzq954MHa6wivkrDwYxs/3Sd/PQ+Kv6MC/ssac8SegvKT/bORE5ZayjdENGBBoTaCPE4OLAZl4inH8XF/ILZXLmLl9NxxVDfqT7dcYPXV8ko=
+	t=1740450988; cv=none; b=VYjMMmjcsJ5FTG7N3BCgnAz39dK5jT9gPwpaOkc19w8dnMnH4tVK2YWcW05xLathK8PEwU1sScJA9g7vYBlsHqiZPW4UxNv9axrYIdEsSMEhWnkpju8kptNUqjmSMOV/yETHUlxgNueYUodj2AIrJBQ9x5h7TGevKNPgnTm2mQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740449118; c=relaxed/simple;
-	bh=sqHw+hydx5+J+3nTg7GiF/z4kDtuYCJJCVEcYQMUN3E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VioV/4FFyHMHG25LSpmGvXeM9eGmApLS/OICgd621eSxUYb49NV2kyS3pjpCgt4SVh78TudDfz0JelAYTdmThLU65ykx67FneSS0HTRRYnrn+TB3YIyZTxTXe+3aOpfmSndB2FPb3G1F8LAJ+dlrKdh3nDpBamIjmASUHf5Y6kY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=mJdlvzek; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	s=arc-20240116; t=1740450988; c=relaxed/simple;
+	bh=BCGQGMljga26411sT5xP4jNnIMcUcH9wHX8obGdlcoA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=k7nzhyF9d/AxVEMGFsu+OE0ZOJlDWjoMKKwrnh23YQK6kqpt4el+Y1gkIn61GfUjH+V/2I2tJvqA8tBkaIOnjtdN+IDUYPzC4tUv22gkfPSlQrBoEH+a1rFgiGkON19KusF/1VTi7kcCzPmtmYLt7x25SjRuH+0CA6xLGsQRv3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NQbuF0jf; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="mJdlvzek"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2fbfc9ff0b9so7894291a91.2
-        for <virtualization@lists.linux.dev>; Mon, 24 Feb 2025 18:05:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1740449116; x=1741053916; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6jTrPXbJae2NFrVRDORH6UMqB3L+3yI0Uf5GqI0AUQw=;
-        b=mJdlvzekf7eZ6PtV5kVsZWbm1gED9mqot/dCRAcKsnpT8WIPYjq/IH58yevKoGoPOf
-         fgY/h5BrO/Tc22KEPpTjtQbGwdKicYUgiM3agPzzJSBcuzdHNCQ2TiEHeLtIUGsNjvBv
-         oHk5bTLkE0iZ1L8K0E1Z28314YPs/v51Ww7uA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740449116; x=1741053916;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6jTrPXbJae2NFrVRDORH6UMqB3L+3yI0Uf5GqI0AUQw=;
-        b=PFK1cwwPWyW8+7d9jYqQ35GTsA/HAMvwZOTCkhC8t/h8ONfLOZefcgdBg2VRLAgDib
-         rEOkvudL18f9zWSnBxkQqSXY+o+UsMmR7FKSQ59i/+xFR+QnWh7hyrSwb24s8hcqSj0q
-         u5NpZvI0hsQ/ncDB5DMQ18j6OO0byKlfmn5vUEIhl7O2aDNO/j7fhmsjKjl6JHd9Rg4o
-         tHQEg3Q9ZBE0P49y9sbQVKn3NeiOO/kjbXeWHhYumcb57pGxnYdpxoT5i9u4Z71RtoKV
-         0U4oyQiidtidCv1CUQCB7c+l6OnZBfa6ni3v2p1YHASGiCdjIxHDPA4CBMcP6HHYp9Sy
-         eUsw==
-X-Forwarded-Encrypted: i=1; AJvYcCVme1Idq0glTeaBsPIvICsQtPljRBiulEXSh4afTUczpEYwhHuxZF8Opf9qTyGClSFYziBYIH3JGeBMVyjlTw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzM+14eqGB5nOUJhrLXIAzB3v9Hug9TgcG/twWH5z3TJG+rJWJk
-	glp5bi5diaEasw4ydcT+DdiSyRtWXsP2FEzk7Xvjrv/mWgcLaTNlzSFq5u+zk98=
-X-Gm-Gg: ASbGncsa9PjVA0vi4PxZ7r8T3fQdw7J+DwbcnDxT/Ku609tsO2yVuzicuppq4qG8Lg1
-	LDc1PndtiIqjPUAJrak1wqFuEbP9SVymrDLyFQs5QfVb+4JweDEouXWkSC9L03tcs9HPE8NiUZ8
-	8ErBz/NBiXWaCzc7xgM9mJFIahaqQCAoGiW3Vp4LTSYzjPx23juXf978s0X7TMIo7M2MAK1MO9B
-	ZO7i2snK2Wp7Uj9c0Z9FIF2YKliSOeZTEhpbwAmvC20FwPnzOkIUJKISPWAsEYxZNiL6nw9KUxN
-	w1jQ5oCspm9usAFr1bu7fcwRC21SPRJcoQ==
-X-Google-Smtp-Source: AGHT+IGbedvJQbC1f3rBktTR2fDXpQeCE8dIxMRlL1M+qlTRLacNZdzhniWMjgESJ1sAs0pz8D4XNA==
-X-Received: by 2002:a17:90b:4a41:b0:2ee:4b8f:a5b1 with SMTP id 98e67ed59e1d1-2fe68cf3fc4mr2493123a91.24.1740449116365;
-        Mon, 24 Feb 2025 18:05:16 -0800 (PST)
-Received: from localhost.localdomain ([2620:11a:c019:0:65e:3115:2f58:c5fd])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2230a021909sm2926985ad.94.2025.02.24.18.05.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Feb 2025 18:05:16 -0800 (PST)
-From: Joe Damato <jdamato@fastly.com>
-To: netdev@vger.kernel.org
-Cc: mkarsten@uwaterloo.ca,
-	gerhard@engleder-embedded.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	kuba@kernel.org,
-	Joe Damato <jdamato@fastly.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH net-next v4 4/4] virtio-net: Use persistent NAPI config
-Date: Tue, 25 Feb 2025 02:04:51 +0000
-Message-ID: <20250225020455.212895-5-jdamato@fastly.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250225020455.212895-1-jdamato@fastly.com>
-References: <20250225020455.212895-1-jdamato@fastly.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NQbuF0jf"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 758B760E78
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 02:36:26 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id suqfRydLpB-t for <virtualization@lists.linux-foundation.org>;
+ Tue, 25 Feb 2025 02:36:25 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4034D60721
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4034D60721
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=NQbuF0jf
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4034D60721
+	for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 02:36:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740450985; x=1771986985;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=BCGQGMljga26411sT5xP4jNnIMcUcH9wHX8obGdlcoA=;
+  b=NQbuF0jfn6AqBHMm9OUXPFeMelxex4bop7tUdFDyqTLloQaOj/rLomjj
+   p5x8Alwmss8BGqRLOsM9biSJ2WHEDdhiJ7WDwuI4TTwYRWUuIiqg0+2uh
+   j+VYmisr91kdfbbjtog7y9MPjy3ofQcVX+z4tSoAMZ5SEyM2cP2s0xm9A
+   Teoqsk+vJi6JOxI2SzBYUPSroExNv55ahlsUHsJ5ANbRi3gcjxWUHtZWs
+   unuuGegLqRwKTNk+QdIT4Qa/wbyhyz33RjDM3ouziRMOLIwUjEFjPRhUc
+   4BwCBSymuObbjXSSlTWBBthIoGMjahvmZ47+KJCrC7kGnMyvvKVv9SSX/
+   Q==;
+X-CSE-ConnectionGUID: BEw32Cf2QD2LGsrl6mAEZQ==
+X-CSE-MsgGUID: 3NSMUNCdTYCR/gR+qP722A==
+X-IronPort-AV: E=McAfee;i="6700,10204,11355"; a="40427844"
+X-IronPort-AV: E=Sophos;i="6.13,312,1732608000"; 
+   d="scan'208";a="40427844"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Feb 2025 18:36:23 -0800
+X-CSE-ConnectionGUID: iahtX+s+TBylmQ62GnhRlQ==
+X-CSE-MsgGUID: zXweUOBFQV6DheV6xB0S7Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="120351003"
+Received: from lkp-server02.sh.intel.com (HELO 76cde6cc1f07) ([10.239.97.151])
+  by fmviesa003.fm.intel.com with ESMTP; 24 Feb 2025 18:36:21 -0800
+Received: from kbuild by 76cde6cc1f07 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tmknz-0009fD-1D;
+	Tue, 25 Feb 2025 02:36:19 +0000
+Date: Tue, 25 Feb 2025 10:35:23 +0800
+From: kernel test robot <lkp@intel.com>
+To: Cindy Lu <lulu@redhat.com>, jasowang@redhat.com, mst@redhat.com,
+	michael.christie@oracle.com, sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH v6 3/6] vhost: Add the cgroup related function
+Message-ID: <202502251038.6UlCIMJy-lkp@intel.com>
+References: <20250223154042.556001-4-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250223154042.556001-4-lulu@redhat.com>
 
-Use persistent NAPI config so that NAPI IDs are not renumbered as queue
-counts change.
+Hi Cindy,
 
-$ sudo ethtool -l ens4  | tail -5 | egrep -i '(current|combined)'
-Current hardware settings:
-Combined:       4
+kernel test robot noticed the following build warnings:
 
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 8194, 'type': 'rx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 8195, 'type': 'rx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 8196, 'type': 'rx'},
- {'id': 0, 'ifindex': 2, 'type': 'tx'},
- {'id': 1, 'ifindex': 2, 'type': 'tx'},
- {'id': 2, 'ifindex': 2, 'type': 'tx'},
- {'id': 3, 'ifindex': 2, 'type': 'tx'}]
+[auto build test WARNING on v6.14-rc3]
+[also build test WARNING on linus/master next-20250224]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Now adjust the queue count, note that the NAPI IDs are not renumbered:
+url:    https://github.com/intel-lab-lkp/linux/commits/Cindy-Lu/vhost-Add-a-new-parameter-in-vhost_dev-to-allow-user-select-kthread/20250223-234405
+base:   v6.14-rc3
+patch link:    https://lore.kernel.org/r/20250223154042.556001-4-lulu%40redhat.com
+patch subject: [PATCH v6 3/6] vhost: Add the cgroup related function
+config: x86_64-buildonly-randconfig-002-20250224 (https://download.01.org/0day-ci/archive/20250225/202502251038.6UlCIMJy-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250225/202502251038.6UlCIMJy-lkp@intel.com/reproduce)
 
-$ sudo ethtool -L ens4 combined 1
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 0, 'ifindex': 2, 'type': 'tx'}]
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202502251038.6UlCIMJy-lkp@intel.com/
 
-$ sudo ethtool -L ens4 combined 8
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 8194, 'type': 'rx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 8195, 'type': 'rx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 8196, 'type': 'rx'},
- {'id': 4, 'ifindex': 2, 'napi-id': 8197, 'type': 'rx'},
- {'id': 5, 'ifindex': 2, 'napi-id': 8198, 'type': 'rx'},
- {'id': 6, 'ifindex': 2, 'napi-id': 8199, 'type': 'rx'},
- {'id': 7, 'ifindex': 2, 'napi-id': 8200, 'type': 'rx'},
- [...]
+All warnings (new ones prefixed by >>):
 
-Signed-off-by: Joe Damato <jdamato@fastly.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Reviewed-by: Gerhard Engleder <gerhard@engleder-embedded.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+>> drivers/vhost/vhost.c:275: warning: Function parameter or struct member 'ignore_attachment' not described in '__vhost_worker_flush'
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 13bb4a563073..186030693eeb 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -6454,8 +6454,9 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 	INIT_DELAYED_WORK(&vi->refill, refill_work);
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		vi->rq[i].pages = NULL;
--		netif_napi_add_weight(vi->dev, &vi->rq[i].napi, virtnet_poll,
--				      napi_weight);
-+		netif_napi_add_config(vi->dev, &vi->rq[i].napi, virtnet_poll,
-+				      i);
-+		vi->rq[i].napi.weight = napi_weight;
- 		netif_napi_add_tx_weight(vi->dev, &vi->sq[i].napi,
- 					 virtnet_poll_tx,
- 					 napi_tx ? napi_weight : 0);
+
+vim +275 drivers/vhost/vhost.c
+
+0921dddcb589803 Mike Christie 2023-06-26  266  
+228a27cf78afc63 Mike Christie 2023-06-26  267  /**
+ba704ff4e142fd3 Mike Christie 2024-03-15  268   * __vhost_worker_flush - flush a worker
+228a27cf78afc63 Mike Christie 2023-06-26  269   * @worker: worker to flush
+228a27cf78afc63 Mike Christie 2023-06-26  270   *
+ba704ff4e142fd3 Mike Christie 2024-03-15  271   * The worker's flush_mutex must be held.
+228a27cf78afc63 Mike Christie 2023-06-26  272   */
+84e88426e3bc18f Cindy Lu      2025-02-23  273  static void __vhost_worker_flush(struct vhost_worker *worker,
+84e88426e3bc18f Cindy Lu      2025-02-23  274  				 bool ignore_attachment)
+a6fc04739be7cd8 Mike Christie 2023-06-26 @275  {
+228a27cf78afc63 Mike Christie 2023-06-26  276  	struct vhost_flush_struct flush;
+228a27cf78afc63 Mike Christie 2023-06-26  277  
+84e88426e3bc18f Cindy Lu      2025-02-23  278  	if ((!ignore_attachment && !worker->attachment_cnt) || worker->killed)
+ba704ff4e142fd3 Mike Christie 2024-03-15  279  		return;
+ba704ff4e142fd3 Mike Christie 2024-03-15  280  
+228a27cf78afc63 Mike Christie 2023-06-26  281  	init_completion(&flush.wait_event);
+228a27cf78afc63 Mike Christie 2023-06-26  282  	vhost_work_init(&flush.work, vhost_flush_work);
+228a27cf78afc63 Mike Christie 2023-06-26  283  
+228a27cf78afc63 Mike Christie 2023-06-26  284  	vhost_worker_queue(worker, &flush.work);
+ba704ff4e142fd3 Mike Christie 2024-03-15  285  	/*
+ba704ff4e142fd3 Mike Christie 2024-03-15  286  	 * Drop mutex in case our worker is killed and it needs to take the
+ba704ff4e142fd3 Mike Christie 2024-03-15  287  	 * mutex to force cleanup.
+ba704ff4e142fd3 Mike Christie 2024-03-15  288  	 */
+ba704ff4e142fd3 Mike Christie 2024-03-15  289  	mutex_unlock(&worker->mutex);
+228a27cf78afc63 Mike Christie 2023-06-26  290  	wait_for_completion(&flush.wait_event);
+ba704ff4e142fd3 Mike Christie 2024-03-15  291  	mutex_lock(&worker->mutex);
+ba704ff4e142fd3 Mike Christie 2024-03-15  292  }
+ba704ff4e142fd3 Mike Christie 2024-03-15  293  
+
 -- 
-2.45.2
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
