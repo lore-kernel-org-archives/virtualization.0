@@ -1,230 +1,229 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D56873596D
-	for <virtualization@lists.linux-foundation.org>; Wed, 26 Feb 2025 06:16:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740550615; cv=none; b=JV9rsb4mG18RMjKEC0g6DyjSfJIqONe1ePiKlchDlfvRM2O2mHSb92jBhRxDqjlfeACT4MdsaVR4nCZfrV8ghDPoUaK3g4/0iJ5PFj46yLqONvDFaCN2HlKqB/B6uysz7BRjGnO/QZV9ozZwgFSZ/nKOsawGN4QKIqgw/u/gYIU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740550615; c=relaxed/simple;
-	bh=s7RNNwS1VeCqaA1MtGD3SocRHTpkYCAIDVHP7LurC8E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=C/IcLk7gdZ/nkxCO7pA/3xh9FTGUG87hBLDPtiwA7tW9FmGkimkU3U6f4QbZkv5dilHHTyWqVb0+h82gAIxz7ID1N5j42PMgFseoXtms+nFtwVICviJQuCMKrsP6jGOPPUQ9WtwhEqdxOe9VwPh6Bb0e313gVOyzC6K0Ht60nms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LJRw2dJw; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A35D0258CE7
+	for <virtualization@lists.linux-foundation.org>; Wed, 26 Feb 2025 08:06:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740557190; cv=fail; b=N0Y3v+2+LvKooXlREInO6F25tvS7M3PB78VojuKfh6xm55UnHcSAxodpgUTzcPVxuqMt/AuNoXoYs2RyXEudgeMensB3R0znjK5bzLyS68YZQ3cgg0dwEdVooiu1tH6R2nXXds42JlWTZckwWktv00dKL67KX+ZUZwzy3TZjZio=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740557190; c=relaxed/simple;
+	bh=etWFaFxiZXGHlxBnM7PXPhSmfDvalO7lJjLq8vryacc=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=F5phX64ZCkBZE7fhGee2cxH788oaUXq6QickDyOSiNQuT+ua7+mGtIyHlyUSyBaACNRAVHIC1fmAPWyCk0kQcom7mIApCfu9QjPGGXerNoAsLcLgJzlVz7EZcEBXHriXjksa8gQmBU3Rc5VTnvsuWfaozXLkKQI2qjX+DQXOMsU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eZTD7lVh; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LJRw2dJw"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eZTD7lVh"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 56164410F0
-	for <virtualization@lists.linux-foundation.org>; Wed, 26 Feb 2025 06:16:53 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 37F814021D
+	for <virtualization@lists.linux-foundation.org>; Wed, 26 Feb 2025 08:06:29 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.793
+X-Spam-Score: -8.092
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id sfP-Ce2WNLqI for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Feb 2025 06:16:52 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 431E3410EA
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 431E3410EA
+ id m90zhHcFFCBN for <virtualization@lists.linux-foundation.org>;
+ Wed, 26 Feb 2025 08:06:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.13; helo=mgamail.intel.com; envelope-from=kevin.tian@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 4FFE1401B1
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4FFE1401B1
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LJRw2dJw
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 431E3410EA
-	for <virtualization@lists.linux-foundation.org>; Wed, 26 Feb 2025 06:16:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740550611;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1FB4LOVmyku7dBx/0yNo7XDVAzCNkcepNULZYDZTsFo=;
-	b=LJRw2dJwUhgUDRbsNf92s6C++zkQ38XoxngBfkkkoTodp/uEVMNQsTwAUNFDWtiGd33k0X
-	QcU6tBpad3DjeYgQxR0aI3x76/MTOga/TWbQCRUDN10eS3zgPtwgPdNMrokHkWH/QfZy3E
-	RwNsaHwL3yGftTk3a1EyD4jFFAB12xQ=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-124-VHsjjIfTN9yM_isIYKNnkw-1; Wed, 26 Feb 2025 01:16:49 -0500
-X-MC-Unique: VHsjjIfTN9yM_isIYKNnkw-1
-X-Mimecast-MFC-AGG-ID: VHsjjIfTN9yM_isIYKNnkw_1740550608
-Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-5dec9d39295so9931397a12.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 25 Feb 2025 22:16:49 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740550608; x=1741155408;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1FB4LOVmyku7dBx/0yNo7XDVAzCNkcepNULZYDZTsFo=;
-        b=wS0xpDn+S68NywEl2r+JGBqVNz2YiDAXoW8zxEww/zGFdRmhl5dLmXB0bN1Yt+xhCT
-         kA/krb38I9CQfQR66306WZhQEZcMKBpcYCqz09dgCT8KlTpgPFyBrfIsG6kRVF8yiB5x
-         dEO5ZYCsm3hE4Rb4oaR3PuGPhQuoGrjgqGGBKz01qVlcokLM8DALb3VUmutnukoFspg8
-         dYZmnbWNmYFiDaw71pnaAd4p5NNlsT4AjkVNjxwhiv4LuykixymDXjcNHL88an1kuTG5
-         4IhnKqEKF2VtjXw9W60W4cmQH53nlmpFSSwuczuRARVsuHDKxvFKc3eFJ4j4lMUTQCxF
-         Qn6A==
-X-Forwarded-Encrypted: i=1; AJvYcCVTWqu3E25OcPkpBVXKxNFdRYsbPS7GNkwbH5fI0FPMIilmy85n7FDvML9/ipazG6BWdxMPVsY98JUrvp8IPQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyJalXelGTn/TJVE+3+8ur2gcdFmZhxyGx72vqCePehaJ082fKk
-	a4aS6DFXtnhvEdqCHYBQPF0KdNchviz0wvIRRJJ+cUjag3AqpAts/xdXz4slysKuXbJZrpbKJ7W
-	gdxoiS82z048eJl9KDlWHk0Q2MZS3v2P+2zrxrq6XKmj51LD3OVwsHr+/gUk9oArJE5t0OHS0qU
-	2YkP6EXHv1ckl/dSU5hjwxHygtjZL0v+4kaMX7VYvW8CMjw0NblwcvSQ==
-X-Gm-Gg: ASbGncvsxCse/ZwLSlI3PbzTp6jw6Rgq+oatullMLQSlWg59wEy7w1dmFja8tKoD7TU
-	LPOMYyCqzBohRT7rLGCMveII5ZN4n5I8xExY9lgbAyiOwWr+lWtcPPSZh71Kf2/hawgRNQM6p4A
-	==
-X-Received: by 2002:a05:6402:34cc:b0:5dc:cfc5:9305 with SMTP id 4fb4d7f45d1cf-5e4a0dfc8b9mr2496863a12.25.1740550607945;
-        Tue, 25 Feb 2025 22:16:47 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH1Svm9zCE7jvsU1DaFVhMr5yn9In9YqFnmIGZJOqqstdyPg6Py8o1nFKh/wslu91Gg/91zZXUIrxektg2nXhQ=
-X-Received: by 2002:a05:6402:34cc:b0:5dc:cfc5:9305 with SMTP id
- 4fb4d7f45d1cf-5e4a0dfc8b9mr2496837a12.25.1740550607523; Tue, 25 Feb 2025
- 22:16:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eZTD7lVh
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4FFE1401B1
+	for <virtualization@lists.linux-foundation.org>; Wed, 26 Feb 2025 08:06:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740557188; x=1772093188;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=etWFaFxiZXGHlxBnM7PXPhSmfDvalO7lJjLq8vryacc=;
+  b=eZTD7lVhJMcSjqx4EXnBVqH3mPH+YJmEIv4lUeKK0ahNTVHbKs7VLcrv
+   N5HNC8ETawlmnCwWLx2DgPe8i8GtJq5ZmkSIEiajps8Uz3hyZXTiCXqbx
+   vUsb++3gJM5TRxcIJOdZ6cf6VnnYCbL7k+Q7jkbeHSC/giWzKOu7EBKtY
+   HYj2+N48ctmaHy5Rcy90WXM+6Foj9Pv7bwWhRuFbM+CvZKnSPWRHbmgJg
+   tXK7gj32J67dK7oBSY3vzjuseWD7s19t+8eMmCHeT1qYOlIuNE83jd36S
+   qrQJ2AbpY6jPlKPRJTZu2AbuS9JIR++2ezdG07GgHS7pY3UYVTYXfm0Yh
+   Q==;
+X-CSE-ConnectionGUID: EaWjiICaT2uB+rWXUTdf7w==
+X-CSE-MsgGUID: xL7a5TJ2SEKj1afqGXukAQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11356"; a="44215809"
+X-IronPort-AV: E=Sophos;i="6.13,316,1732608000"; 
+   d="scan'208";a="44215809"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Feb 2025 00:06:28 -0800
+X-CSE-ConnectionGUID: jAAEdp2/TSeRBedcHZIQEA==
+X-CSE-MsgGUID: RYCAFtlTSo6Hq1JPlw3O2g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="116485287"
+Received: from orsmsx901.amr.corp.intel.com ([10.22.229.23])
+  by orviesa010.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Feb 2025 00:06:27 -0800
+Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14; Wed, 26 Feb 2025 00:06:26 -0800
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14 via Frontend Transport; Wed, 26 Feb 2025 00:06:26 -0800
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.45) by
+ edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.44; Wed, 26 Feb 2025 00:06:26 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=yD5HOtqKuPr2CZ3key6QNu9L86fu5Vxdxjq7JkhaN1gXHavb0PsII1DS+Hjl51zoLGOavEllg0kvfpkYeGuBObunhhHOIngVx79mLkszxiWRVdOESvnY99ne+hLZGCGKkMD4sIlg/mNNknr0M5zS+7xDhoNhRcVeMBWJoEyBrrLH0nkP4FrwMJTWuzLGEeLevIt0gSJqwq8NZSO78wIdBSrb+pfLTxUbe+gxec1abKkgzXCQC1ReSl4iDA1ZpSvkIWPW1ZVvoQS3OvUjjAgUPd/Fo8Wl5BFbocKL5GpikUjZOcZN3kIMOMAE/GhQiSw6sguUZuK0izWNY3m1m5DMLw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=llwBxc3YukJbTmGeyOpZHHIEMWKAH/1jMyYS6h8vves=;
+ b=IWBN2g4XpMe728lpvuzbuLJlLGSVK6NwneC2OeOccEbVxoZ1VAKOjR5kPqsd2RJS1jfz47Hes/TJRucuFx4sxOeFy3Byo4vfvhYpkUuMgfJq6uqScEBA4UNSp2MTk28YHRI6s9OlcySzQv2L/8PLRJOA0BHlfXoq+z/8CXqYx54qwTS3IxfNbsoLlwhDKfHH0QVfTItQz/y9G8YXTCtIGD7Q3NtqSOMT1BGno4dkQ5ZPy16C2GUYqnoKW1ZbNadZNZhzeVNQn995mkA/y2J/037pnZc6pde/YCXaXFE7HDvv+b5pco3Sz8/tmydJPr2T5IMeUsjPzWL1QUESMJ/Hlw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by CO1PR11MB5185.namprd11.prod.outlook.com (2603:10b6:303:6e::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8466.21; Wed, 26 Feb
+ 2025 08:06:25 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1%6]) with mapi id 15.20.8466.020; Wed, 26 Feb 2025
+ 08:06:24 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: Yishai Hadas <yishaih@nvidia.com>, "alex.williamson@redhat.com"
+	<alex.williamson@redhat.com>, "jgg@nvidia.com" <jgg@nvidia.com>,
+	"mst@redhat.com" <mst@redhat.com>
+CC: "jasowang@redhat.com" <jasowang@redhat.com>, "kvm@vger.kernel.org"
+	<kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "parav@nvidia.com"
+	<parav@nvidia.com>, "israelr@nvidia.com" <israelr@nvidia.com>,
+	"joao.m.martins@oracle.com" <joao.m.martins@oracle.com>, "maorg@nvidia.com"
+	<maorg@nvidia.com>
+Subject: RE: [PATCH vfio] vfio/virtio: Enable support for virtio-block live
+ migration
+Thread-Topic: [PATCH vfio] vfio/virtio: Enable support for virtio-block live
+ migration
+Thread-Index: AQHbhrZYFkmSOD+lUkGgOFaMskgigbNZPJPw
+Date: Wed, 26 Feb 2025 08:06:24 +0000
+Message-ID: <BN9PR11MB527605EBEB4D6E35994EB8068CC22@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20250224121830.229905-1-yishaih@nvidia.com>
+In-Reply-To: <20250224121830.229905-1-yishaih@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|CO1PR11MB5185:EE_
+x-ms-office365-filtering-correlation-id: d1d2156f-d47e-4bf5-79f5-08dd563c76eb
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024|38070700018;
+x-microsoft-antispam-message-info: =?us-ascii?Q?7pXjtfVBfCQtTIQcAR8p9aFXCxGd3ut8CJoF+bwEtXTLRkNwpiG1PJM0GdCo?=
+ =?us-ascii?Q?LnX7YPoXfSP+0HbNFXbtFqQxkk8uL4881dI3R3wd2yQRqNB/uX0pgSJyS3Lm?=
+ =?us-ascii?Q?2isNFJc80mUs68DCXu1UMw6n0YZ7AllrcxmlkTPlNK1IQmk/om71PrIsAEZ7?=
+ =?us-ascii?Q?kOCMXUad4vt+LmOD1cb0+UzJdJsMc5xd8dudSTzl25V8bbwv2TVfxyBuIz6S?=
+ =?us-ascii?Q?cyouKgCYvA4zqRMw3TO4VEif6y8NnoE2FT/r5YU3uA9/7AuH54I4soMHxnjp?=
+ =?us-ascii?Q?RFKT5CsnT5yHTmO5G5O0JJBU8hG0A+8NJVvq7437q/1G2UCQ95eDbb44A80Z?=
+ =?us-ascii?Q?EFPZUjoeEVO6QRb0tdRVNH8xk5MmNkrkX56804bRxBjQCS3rfHF7lw0v6pC6?=
+ =?us-ascii?Q?Gqa9+NM0b6oapf0wZq3ZY2G8QLtceSAIclB/6xlZoJJpv+IvOwuMVBKViLrR?=
+ =?us-ascii?Q?JG5Z6u2Aj2xBQaNQnDnMJY+z34+HASVLHeNqMmj8J1YaTIzwZtOnq2TVQa7L?=
+ =?us-ascii?Q?g/LdKM37Jn8Z7s7Xdtq96CX/v//r8Xu0KpnfHWRk3p/djPqIveqLlvsspKLG?=
+ =?us-ascii?Q?ut9cgB3OaddAiwUP8QreV65EEnU+j1VeuK6JklB+IibB/S9UuZ+ff2knQzrC?=
+ =?us-ascii?Q?2us/GPCvuxnT0ZpJA20hXaeskPVyby1Ie1Wu2odZ1OVSjfnEQcQYF6gq9slD?=
+ =?us-ascii?Q?bPUiV+1iriHwsfnelrRhcOjekBbHJyWhG1+L551LPfNACsbnOVzPcPaENJ2M?=
+ =?us-ascii?Q?hBha5J5VME5cKSbC06x1voZpB9CdScLgxUtQFh3lLLzLr36yDX9PBqUauiIJ?=
+ =?us-ascii?Q?/e+hg8LR52Mgx/oRTrZxwDT5JSqv2uaPAZVoZEeRVvfWK0vL38jZhf8jmoCn?=
+ =?us-ascii?Q?f5iYyWTn/UxHKG6Cf0jx9G418EXQ+BkTL3zGYSI9nNDnBdntKYajIQVjGgGD?=
+ =?us-ascii?Q?2KEgFMxUlyYjozMxYSjYB+VbdSHgR6Flbp8MqbXuGwdxzjN/coP3FjatHqKC?=
+ =?us-ascii?Q?UpOycaMG7ZQgvCxvUgDAr8Zl7ozPJd7Yx+aH6XC8ENBWZHPeDgMzl8ntw6zN?=
+ =?us-ascii?Q?r3yc5Pp+FVXP/LigMM2y8yI7uP74p4dDL47GaoZPSGLFbBl8WHRYQYOROAfK?=
+ =?us-ascii?Q?xOUCZDy02ipRaTaXECjU/VjR6o4QK6FTXgdOjrqcuXEPlrjkME63tw38KryM?=
+ =?us-ascii?Q?PlrpZYuZ3GKhMMZ3tHtcmm6GKOnkn0FrgWQ9HKlfBxQc+AeNSTAPsoYObqxp?=
+ =?us-ascii?Q?qZvRptZ/d4OWzU1xzGhiUCFBpnxwwJMWOZopNEgX0Upkzuip0HugyGK78Siz?=
+ =?us-ascii?Q?VWEPqu2ps3nVk47svwc/FaYeSJsV2HJN+FgirYHzCOcRVbv6CHoDsmKcPexh?=
+ =?us-ascii?Q?pjYvSHw0zaYeoPyGkOcM0lBAz/BpC4nIDWqALL8IadarP8RXo7CrT8W90i9K?=
+ =?us-ascii?Q?yEbRIG3yr+4=3D?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?8lsyK/0OLWdt7NJ9H2i9IYVSKCn+WbA5Hp5YKvo8wABYBSYxZLil8KkZn7xr?=
+ =?us-ascii?Q?x8xaU9PdANP/lceXtU2um/2hG/3h2ZjhXQ18yqCfhHWW4Gz3EAS1EjfWJjys?=
+ =?us-ascii?Q?6zPX4szfmaYREd54PPjUkUw23jqYcNY/zZN09BXpV0b/k4aA+x54k7Lvl+VK?=
+ =?us-ascii?Q?Mwqm2niCL+8UMiphB16Z6UmW3Teqbb9YYEg2qzEPXk+cyA6fwisE38N4s94u?=
+ =?us-ascii?Q?GbrTUdVxN6uYYuHN5sLp15ER+QCPTHodnLDY2smC0TJQGXeUGIPQbkgz8qL9?=
+ =?us-ascii?Q?KunuQkPfZkBURq+NOu3cID6tXbSU4gQs8LIr66HdopsNqZY3MLi5JAEGqr96?=
+ =?us-ascii?Q?kRkmFkcsKUR58VRsl8tdBz38ViW2T1jlEHDBpmuf+NO9YYeBoQCzQSPz296I?=
+ =?us-ascii?Q?V3+I9oRv8p/vL85ZybIRwjwuWAS2Hv/rPQTBlWSKvTMOsszjfEsUYfeg1fMJ?=
+ =?us-ascii?Q?4F1W2urvRiU0llqOmHPJblt7M/StM3Fbh+rNdLyQLWgUe83NMnY9LRG2fIjY?=
+ =?us-ascii?Q?sCez2Zj2xTrNOe+jUhYUOM/Bi0jZXfALnC03UD4CPmUzWIJro0UdpTkUf/Q/?=
+ =?us-ascii?Q?GnFVQcoI4RJ56b/r5Iig4AklHseUYJGLppjyFbOKhi8knpHAEXz7Q/vRWwK5?=
+ =?us-ascii?Q?9hHdJFnlcX25AhrS/afhXP7f5RjsxHUXUPW7VjEJ4UZTVhmfMOEn0THtvM1o?=
+ =?us-ascii?Q?whNQR330MZkHt0xG89I+xSQsWrMn86LehaAskyFpiy0jvq/TUxw3AX99Vhs7?=
+ =?us-ascii?Q?Xt2cyc8ZbygsIfsM30/Qt5TnqdbpNVCjjXIHKFeGMfItoQ/9fqIso3GBH7Da?=
+ =?us-ascii?Q?p7wWE9cf4HqkZDy3wQNX7rdIMZi7ULXKkkrGjDBerhOaAuA1x07XCcvlg6bA?=
+ =?us-ascii?Q?4sRpPCYDqG/cB/Q8F3FzpMozMZlVmRfLFLZSUqEeVBWqH+ncy9T67mrF/WbU?=
+ =?us-ascii?Q?0ffKhEaZ9LWvWsuFkdQSGQmgfjTFsgw1E2G60UOHAdaX9tGAACW/bdJWEhAg?=
+ =?us-ascii?Q?1SpX2aScgu+LS5ZEjVOf/e0kLxl2xaC8IUmPv6VMUjFliKBEyvcI1exWfSho?=
+ =?us-ascii?Q?eca0aU6m2TA6h+Ua/Qy0shjjSzANWps4XHzWGLthqPmKUiN9HAHrxIeLBgYR?=
+ =?us-ascii?Q?+OghorFbPt8d/Qcs2gjZVIPkB+6S9lISLFVwMW/X+aZpTLXOsuE/gIX02D0l?=
+ =?us-ascii?Q?1OlM2uJzJ4oBVBcc3ZYoH4ztrzLCdvFNjXAlqg24HLUD8sT6B5JTqChC20CJ?=
+ =?us-ascii?Q?H2qkOdw4ClDCsyjXIEmmS37oz/U265Vx4jL9e4FI+zePZq5pQsbiC+gZROTc?=
+ =?us-ascii?Q?b+r/KE98UO7Ix5wHhI9hem62ij6SXArWzKdKFWT2gOxRAqkYplpafItfLmRK?=
+ =?us-ascii?Q?shFHmxHMum4T+Aa4gKyH8fwGC41m0dCjk+nglUrl6U8OOegjy+zsscmedc0S?=
+ =?us-ascii?Q?tnQ4lJqzNM8ZQ+4+o/SEZedCeXzcPPgkZgSXvNtaJd6tQ0AkOMB1o9maFE8A?=
+ =?us-ascii?Q?CdzwqnvRxcwpWEHC7/rJzIt6GtmMV/QgqEm4gyZcRJ3/DR9gOKe7UJxv7vqr?=
+ =?us-ascii?Q?YXW9dLnbPgg2KoYyrV7NO4JkYTG/A6t0+aXay9wC?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250223154042.556001-1-lulu@redhat.com> <20250223154042.556001-6-lulu@redhat.com>
- <20250224164312-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250224164312-mutt-send-email-mst@kernel.org>
-From: Cindy Lu <lulu@redhat.com>
-Date: Wed, 26 Feb 2025 14:16:09 +0800
-X-Gm-Features: AQ5f1JoQwYeVFJ0uSnuf6OMlUOLtzkJzFZrJtoyQ-MQBSJ8pPR3vnflY_UdihLw
-Message-ID: <CACLfguWpj=-Ad3o731xbRdGRr3NT6oEQ67Z-FPBmd93gYEhAXw@mail.gmail.com>
-Subject: Re: [PATCH v6 5/6] vhost: Add new UAPI to support change to task mode
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: qOlr_N1sPA8H6qu1hyt4jgz30wnznOTlnvyMTPG-6a0_1740550608
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d1d2156f-d47e-4bf5-79f5-08dd563c76eb
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Feb 2025 08:06:24.9306
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 8ZOcptHuOp3TC6Xec1L/rwNGQGdtx+tBX8yMXXeyUKEnvDvbnHyIzzpPSDDsMIvzS0NHWLYHDebPV97koh8vlw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR11MB5185
+X-OriginatorOrg: intel.com
 
-On Tue, Feb 25, 2025 at 5:46=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> better subject:
->
-> vhost: uapi to control task mode (owner vs kthread)
->
->
-> On Sun, Feb 23, 2025 at 11:36:20PM +0800, Cindy Lu wrote:
-> > Add a new UAPI to enable setting the vhost device to task mode.
->
-> better:
->
-> Add a new UAPI to configure the vhost device to use the kthread mode
->
-Thanks MST, will change this
->
-> > The userspace application can use VHOST_SET_INHERIT_FROM_OWNER
-> > to configure the mode
->
-> ... to either owner or kthread.
->
-sure, will change this
-thanks
-cindy
->
-> > if necessary.
-> > This setting must be applied before VHOST_SET_OWNER, as the worker
-> > will be created in the VHOST_SET_OWNER function
-> >
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > ---
-> >  drivers/vhost/vhost.c      | 24 ++++++++++++++++++++++--
-> >  include/uapi/linux/vhost.h | 18 ++++++++++++++++++
-> >  2 files changed, 40 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index d8c0ea118bb1..45d8f5c5bca9 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -1133,7 +1133,7 @@ void vhost_dev_reset_owner(struct vhost_dev *dev,=
- struct vhost_iotlb *umem)
-> >       int i;
-> >
-> >       vhost_dev_cleanup(dev);
-> > -
-> > +     dev->inherit_owner =3D true;
-> >       dev->umem =3D umem;
-> >       /* We don't need VQ locks below since vhost_dev_cleanup makes sur=
-e
-> >        * VQs aren't running.
-> > @@ -2278,15 +2278,35 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsig=
-ned int ioctl, void __user *argp)
-> >  {
-> >       struct eventfd_ctx *ctx;
-> >       u64 p;
-> > -     long r;
-> > +     long r =3D 0;
-> >       int i, fd;
-> > +     u8 inherit_owner;
-> >
-> >       /* If you are not the owner, you can become one */
-> >       if (ioctl =3D=3D VHOST_SET_OWNER) {
-> >               r =3D vhost_dev_set_owner(d);
-> >               goto done;
-> >       }
-> > +     if (ioctl =3D=3D VHOST_FORK_FROM_OWNER) {
-> > +             /*inherit_owner can only be modified before owner is set*=
-/
-> > +             if (vhost_dev_has_owner(d)) {
-> > +                     r =3D -EBUSY;
-> > +                     goto done;
-> > +             }
-> > +             if (copy_from_user(&inherit_owner, argp, sizeof(u8))) {
-> > +                     r =3D -EFAULT;
-> > +                     goto done;
-> > +             }
-> > +             /* Validate the inherit_owner value, ensuring it is eithe=
-r 0 or 1 */
-> > +             if (inherit_owner > 1) {
-> > +                     r =3D -EINVAL;
-> > +                     goto done;
-> > +             }
-> > +
-> > +             d->inherit_owner =3D (bool)inherit_owner;
-> >
-> > +             goto done;
-> > +     }
-> >       /* You must be the owner to do anything else */
-> >       r =3D vhost_dev_check_owner(d);
-> >       if (r)
-> > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> > index b95dd84eef2d..8f558b433536 100644
-> > --- a/include/uapi/linux/vhost.h
-> > +++ b/include/uapi/linux/vhost.h
-> > @@ -235,4 +235,22 @@
-> >   */
-> >  #define VHOST_VDPA_GET_VRING_SIZE    _IOWR(VHOST_VIRTIO, 0x82,       \
-> >                                             struct vhost_vring_state)
-> > +
-> > +/**
-> > + * VHOST_FORK_FROM_OWNER - Set the inherit_owner flag for the vhost de=
-vice
-> > + *
-> > + * @param inherit_owner: An 8-bit value that determines the vhost thre=
-ad mode
-> > + *
-> > + * When inherit_owner is set to 1:
-> > + *   - The VHOST worker threads inherit its values/checks from
-> > + *     the thread that owns the VHOST device, The vhost threads will
-> > + *     be counted in the nproc rlimits.
-> > + *
-> > + * When inherit_owner is set to 0:
-> > + *   - The VHOST worker threads will use the traditional kernel thread=
- (kthread)
-> > + *     implementation, which may be preferred by older userspace appli=
-cations that
-> > + *     do not utilize the newer vhost_task concept.
-> > + */
-> > +#define VHOST_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, __u8)
-> > +
-> >  #endif
-> > --
-> > 2.45.0
->
+> From: Yishai Hadas <yishaih@nvidia.com>
+> Sent: Monday, February 24, 2025 8:19 PM
+>=20
+>  config VIRTIO_VFIO_PCI
+> -	tristate "VFIO support for VIRTIO NET PCI VF devices"
+> +	tristate "VFIO support for VIRTIO NET,BLOCK PCI VF devices"
+>  	depends on VIRTIO_PCI
+>  	select VFIO_PCI_CORE
+>  	help
+> -	  This provides migration support for VIRTIO NET PCI VF devices
+> -	  using the VFIO framework. Migration support requires the
+> +	  This provides migration support for VIRTIO NET,BLOCK PCI VF
+> +	  devices using the VFIO framework. Migration support requires the
+>  	  SR-IOV PF device to support specific VIRTIO extensions,
+>  	  otherwise this driver provides no additional functionality
+>  	  beyond vfio-pci.
 
+Probably just describe it as "VFIO support for VIRTIO PCI VF devices"?
+Anyway one needs to check out the specific id table in the driver for
+which devices are supported. and the config option is called as
+VIRTIO_VFIO_PCI
+
+>  MODULE_DESCRIPTION(
+> -	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO NET devices");
+> +	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO NET,BLOCK
+> devices");
+
+Same here.
+
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
