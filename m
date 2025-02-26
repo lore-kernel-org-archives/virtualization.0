@@ -1,50 +1,54 @@
 Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E42425EF8A
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 21:38:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6697F25C719
+	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 21:39:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740605942; cv=none; b=FSIvhFp0QWVO4Lxq2zfrq3SL49AkN5cfCM1Og4/fMkS87IwG110pBUSPEcUgG9dPA7C1Dv4adk/+X7pKecQ24Lvh6I4cWM++ekH2frGC+uTfuH+r9dKeiXwEEI4ImzfZTxtASoioL5eqFdPbRzra5w41KQKBqfvIcSCTWcMzwTE=
+	t=1740605943; cv=none; b=XAIuTHab5imq9E6crNOFOajgugBKZSulAvRlY1uc0PFQAEkX4TfC/kj6e23PHiisq/KzbjqFGWf2CQh3Ct6QjmsmKxp/IjlL+I6ICvThInOoWwOyDj9SzIy9nkcN4L6aXszaV9K0Yf73nZ65bvsEKK2L7p9/L5The5Dmv62ZnmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740605942; c=relaxed/simple;
-	bh=ZNex3sNHO1gK7hwC1yQ98UDg1F2Y+2a1P6/fzIJSBx0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=GKn+el+RTAHsuB3qn3Q+2fqKLya203dvijpNMYKtwHUtNPUZGgKsdQagx+ohQ9tPxI/neBNObs2AcQ9LEwcxQSmb84pPSOkjiGSe4noS/V9NnCS2eoxfpyA0I2DhJlRanhq1o8V73Jv86muKoalHFST22ZM2UZ7xS9AHdsYchP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=NvaNvXKm; arc=none smtp.client-ip=67.231.145.42
+	s=arc-20240116; t=1740605943; c=relaxed/simple;
+	bh=V0nqe9pGk9+j+rvT7OsE68sn/woHcCy9DXCv+4P0T4s=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=gZec9KxkWJyz14x4DjTpV6HmnUj8d5noOVCcMHASGr9r6gZmnDlpTvHq91B8MwWgJE5lVBOg8jbk+FigTZ3dZDvqkiRo/lDMMXKkywwtCrjuEsd+OqrAZjvtYgE9YFS5yXxw2MLv4jmy8m5Sy/y7p87FIqub+rP3A9sqftUOQAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=gO5fv8h7; arc=none smtp.client-ip=67.231.145.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="NvaNvXKm"
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="gO5fv8h7"
 Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51QLbeOO001971
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:38:59 -0800
+	by mx0a-00082601.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51QLbeOQ001971
+	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:39:00 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=s2048-2021-q4; bh=TZ9PNSGnUmWogA7wUt
-	UsRsbdSZ0fPSdGDef34CF3mKc=; b=NvaNvXKmNEp8xMkea0V3voYEGwyamwIAEc
-	yUcTFhwRAzEEl72WsQhNIGl9YoLXu8g0FTvA7tQUp9U3xJQHculrU/05MYvfI9sV
-	Cs+dj2bs6cUVJAzIWBECGPEQ7RH25m0w0ZLKR4iON2/OMzi35ATYhy5o8l+O+O3l
-	peEK3NUYMd+h6lHELU9Pe99XUJCv31X508SZk7y83sUIcSq3YoHekWhxSjw4E0sD
-	lBCdNVieBer5VdKzGAnUCl3g8sq+4lGc4s78pEmucM7ZCMpOr8W0Z/fzr33fBXhF
-	8cSPYd9mvzujbh0H5rVRoni/+2WoPPDgka2DGt3Wh8E1TisqtnlQ==
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=s2048-2021-q4;
+	 bh=+lNJAllL67o7hUjzAbl5N9quGu7zuBmVuph1MeFnj+0=; b=gO5fv8h7LaQF
+	RBnT+7NHPmaCb6v5InxilkVDqkewGj4ZDzDuB6bk+rpSeyq61Lj+BuZiWLxNOgDR
+	NMP1D9XcqlFF58dfvFTKHSAhg6lgqGqm/u0qOs2wau1IHDH+q1gEImfA+RtLPDs6
+	jtFnsOBcVS83e3ZgZsRMWlIBqvsMetBO9Qbgw28kogB4hs8fXRj4mIKSN8cRgbxe
+	72LKtoULSmoW5wul5I1isdB9KU4o0ZmFyC6qfYtqaBMXGmxV2vUhvr4oLM7kP0WB
+	RshhYYJFgIp5P1INS5+Ok8bPgQpczBZ/BaGrg3gvUu1enK1YdjOG7M93UM/cgfXQ
+	abcXOs7/SQ==
 Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4528hu9ae6-3
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4528hu9ae6-5
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:38:58 -0800 (PST)
-Received: from twshared11145.37.frc1.facebook.com (2620:10d:c085:108::4) by
+	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:39:00 -0800 (PST)
+Received: from twshared11145.37.frc1.facebook.com (2620:10d:c085:208::7cb7) by
  mail.thefacebook.com (2620:10d:c08b:78::c78f) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
  15.2.1544.14; Wed, 26 Feb 2025 21:38:49 +0000
 Received: by devbig638.nha1.facebook.com (Postfix, from userid 544533)
-	id 2E7EB187DD4FE; Wed, 26 Feb 2025 13:38:45 -0800 (PST)
+	id 3AC4E187DD503; Wed, 26 Feb 2025 13:38:45 -0800 (PST)
 From: Keith Busch <kbusch@meta.com>
 To: <pbonzini@redhat.com>, <seanjc@google.com>, <kvm@vger.kernel.org>
 CC: <x86@kernel.org>, <virtualization@lists.linux.dev>,
         <linux-kernel@vger.kernel.org>, Keith Busch <kbusch@kernel.org>
-Subject: [PATCHv2 0/2] kvm/x86: vhost task creation failure handling
-Date: Wed, 26 Feb 2025 13:38:42 -0800
-Message-ID: <20250226213844.3826821-1-kbusch@meta.com>
+Subject: [PATCHv2 2/2] kvm: retry nx_huge_page_recovery_thread creation
+Date: Wed, 26 Feb 2025 13:38:44 -0800
+Message-ID: <20250226213844.3826821-3-kbusch@meta.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250226213844.3826821-1-kbusch@meta.com>
+References: <20250226213844.3826821-1-kbusch@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -54,51 +58,107 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-FB-Internal: Safe
 Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: cFblljKX_FBDTAiB_d3UrEpe6AQwFso2
-X-Proofpoint-GUID: cFblljKX_FBDTAiB_d3UrEpe6AQwFso2
+X-Proofpoint-ORIG-GUID: OuKZQ75u_WW3TReIvMQPXbVOmwmE0M3q
+X-Proofpoint-GUID: OuKZQ75u_WW3TReIvMQPXbVOmwmE0M3q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-02-26_06,2025-02-26_01,2024-11-22_01
 
-From: Keith Busch <kbusch@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-The suggestion from Sean appears to be successful, so sending out a new
-version for consideration.
+A VMM may send a signal to its threads while they've entered KVM_RUN. If
+that thread happens to be trying to make the huge page recovery vhost
+task, it will fail with -ERESTARTNOINTR. We need to retry if that
+happens, so make call_once complete only if what it called was
+successful.
 
-Background:
-
-The crosvm VMM might send signals to its threads that have entered
-KVM_RUN. The signal specifically is SIGRTRMIN from here:
-
-  https://github.com/google/crosvm/blob/main/src/crosvm/sys/linux/vcpu.rs=
-#L651
-
-If this happens to occur when the huge page recovery is trying to create
-its vhost task, that will fail with ERESTARTNOINTR. Once this happens,
-all KVM_RUN calls will fail with ENOMEM despite memory not being the
-problem.
-
-This series propogates the error up so we can distinguish that from the
-current defaulting to ENOMEM and replaces the call_once since we need to
-be able to call it repeatedly due to this condition.
-
-Changes from the v1 (prefixed as an "RFC", really) patch:
-
-  Instead of using a VM-wide mutex, update the call_once pattern to
-  complete only if what it calls is successful (from Sean).
-
-Keith Busch (1):
-  vhost: return task creation error instead of NULL
-
-Sean Christopherson (1):
-  kvm: retry nx_huge_page_recovery_thread creation
-
- arch/x86/kvm/mmu/mmu.c    | 12 +++++-------
- drivers/vhost/vhost.c     |  2 +-
+Based-on-a-patch-by: Sean Christopherson <seanjc@google.com>
+[implemented caller side, commit log]
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+---
+ arch/x86/kvm/mmu/mmu.c    | 10 ++++------
  include/linux/call_once.h | 16 +++++++++++-----
- kernel/vhost_task.c       |  4 ++--
- 4 files changed, 19 insertions(+), 15 deletions(-)
+ 2 files changed, 15 insertions(+), 11 deletions(-)
 
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 18ca1ea6dc240..8160870398b90 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -7460,7 +7460,7 @@ static bool kvm_nx_huge_page_recovery_worker(void *=
+data)
+ 	return true;
+ }
+=20
+-static void kvm_mmu_start_lpage_recovery(struct once *once)
++static int kvm_mmu_start_lpage_recovery(struct once *once)
+ {
+ 	struct kvm_arch *ka =3D container_of(once, struct kvm_arch, nx_once);
+ 	struct kvm *kvm =3D container_of(ka, struct kvm, arch);
+@@ -7472,12 +7472,13 @@ static void kvm_mmu_start_lpage_recovery(struct o=
+nce *once)
+ 				      kvm, "kvm-nx-lpage-recovery");
+=20
+ 	if (IS_ERR(nx_thread))
+-		return;
++		return PTR_ERR(nx_thread);
+=20
+ 	vhost_task_start(nx_thread);
+=20
+ 	/* Make the task visible only once it is fully started. */
+ 	WRITE_ONCE(kvm->arch.nx_huge_page_recovery_thread, nx_thread);
++	return 0;
+ }
+=20
+ int kvm_mmu_post_init_vm(struct kvm *kvm)
+@@ -7485,10 +7486,7 @@ int kvm_mmu_post_init_vm(struct kvm *kvm)
+ 	if (nx_hugepage_mitigation_hard_disabled)
+ 		return 0;
+=20
+-	call_once(&kvm->arch.nx_once, kvm_mmu_start_lpage_recovery);
+-	if (!kvm->arch.nx_huge_page_recovery_thread)
+-		return -ENOMEM;
+-	return 0;
++	return call_once(&kvm->arch.nx_once, kvm_mmu_start_lpage_recovery);
+ }
+=20
+ void kvm_mmu_pre_destroy_vm(struct kvm *kvm)
+diff --git a/include/linux/call_once.h b/include/linux/call_once.h
+index 6261aa0b3fb00..ddcfd91493eaa 100644
+--- a/include/linux/call_once.h
++++ b/include/linux/call_once.h
+@@ -26,20 +26,26 @@ do {									\
+ 	__once_init((once), #once, &__key);				\
+ } while (0)
+=20
+-static inline void call_once(struct once *once, void (*cb)(struct once *=
+))
++static inline int call_once(struct once *once, int (*cb)(struct once *))
+ {
++	int r;
++
+         /* Pairs with atomic_set_release() below.  */
+         if (atomic_read_acquire(&once->state) =3D=3D ONCE_COMPLETED)
+-                return;
++		return 0;
+=20
+         guard(mutex)(&once->lock);
+         WARN_ON(atomic_read(&once->state) =3D=3D ONCE_RUNNING);
+         if (atomic_read(&once->state) !=3D ONCE_NOT_STARTED)
+-                return;
++                return -EINVAL;
+=20
+         atomic_set(&once->state, ONCE_RUNNING);
+-        cb(once);
+-        atomic_set_release(&once->state, ONCE_COMPLETED);
++	r =3D cb(once);
++	if (r)
++		atomic_set(&once->state, ONCE_NOT_STARTED);
++	else
++		atomic_set_release(&once->state, ONCE_COMPLETED);
++	return r;
+ }
+=20
+ #endif /* _LINUX_CALL_ONCE_H */
 --=20
 2.43.5
 
