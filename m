@@ -1,164 +1,297 @@
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6697F25C719
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 21:39:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C83F426B95B
+	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 22:11:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740605943; cv=none; b=XAIuTHab5imq9E6crNOFOajgugBKZSulAvRlY1uc0PFQAEkX4TfC/kj6e23PHiisq/KzbjqFGWf2CQh3Ct6QjmsmKxp/IjlL+I6ICvThInOoWwOyDj9SzIy9nkcN4L6aXszaV9K0Yf73nZ65bvsEKK2L7p9/L5The5Dmv62ZnmU=
+	t=1740607886; cv=none; b=FL2T5XHRsuyhutCEVyID3PNQe2hczzkSIzeBEO7K67d5l0o3Du9UEJtOYCCIQdWLfguJIxUeN+wfHyzvgt4MYdXoIYbmU4V+nGQ7aiOHvBz3mZyqq+rWlm3NUJ5kqP8r5Ws5VRjxeLjrGYeihJ+Vh/5TJ7xHYoqLaA3yz1B+ELA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740605943; c=relaxed/simple;
-	bh=V0nqe9pGk9+j+rvT7OsE68sn/woHcCy9DXCv+4P0T4s=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gZec9KxkWJyz14x4DjTpV6HmnUj8d5noOVCcMHASGr9r6gZmnDlpTvHq91B8MwWgJE5lVBOg8jbk+FigTZ3dZDvqkiRo/lDMMXKkywwtCrjuEsd+OqrAZjvtYgE9YFS5yXxw2MLv4jmy8m5Sy/y7p87FIqub+rP3A9sqftUOQAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=gO5fv8h7; arc=none smtp.client-ip=67.231.145.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	s=arc-20240116; t=1740607886; c=relaxed/simple;
+	bh=V++Xmlo2Nswu93mayQmVsWDhp4ss6pyFSfa1fzm2HeM=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=IAOwOEbzF3mB0S70qffTNttgA179JJfMHHyelq6Tgn4cskSkl4hNQhrP010pCQ08COJkGhzI5D+Qs0r1JXYNvQzQrVdMKSlvZnejNNgoZZnKgE6xYcmdSyybr4I/fG+chg4B+1aXlEbYJ1R6OgA1govWdyCAWjG116XJq/Mux+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LEugKU2W; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="gO5fv8h7"
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51QLbeOQ001971
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:39:00 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=s2048-2021-q4;
-	 bh=+lNJAllL67o7hUjzAbl5N9quGu7zuBmVuph1MeFnj+0=; b=gO5fv8h7LaQF
-	RBnT+7NHPmaCb6v5InxilkVDqkewGj4ZDzDuB6bk+rpSeyq61Lj+BuZiWLxNOgDR
-	NMP1D9XcqlFF58dfvFTKHSAhg6lgqGqm/u0qOs2wau1IHDH+q1gEImfA+RtLPDs6
-	jtFnsOBcVS83e3ZgZsRMWlIBqvsMetBO9Qbgw28kogB4hs8fXRj4mIKSN8cRgbxe
-	72LKtoULSmoW5wul5I1isdB9KU4o0ZmFyC6qfYtqaBMXGmxV2vUhvr4oLM7kP0WB
-	RshhYYJFgIp5P1INS5+Ok8bPgQpczBZ/BaGrg3gvUu1enK1YdjOG7M93UM/cgfXQ
-	abcXOs7/SQ==
-Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4528hu9ae6-5
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:39:00 -0800 (PST)
-Received: from twshared11145.37.frc1.facebook.com (2620:10d:c085:208::7cb7) by
- mail.thefacebook.com (2620:10d:c08b:78::c78f) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.2.1544.14; Wed, 26 Feb 2025 21:38:49 +0000
-Received: by devbig638.nha1.facebook.com (Postfix, from userid 544533)
-	id 3AC4E187DD503; Wed, 26 Feb 2025 13:38:45 -0800 (PST)
-From: Keith Busch <kbusch@meta.com>
-To: <pbonzini@redhat.com>, <seanjc@google.com>, <kvm@vger.kernel.org>
-CC: <x86@kernel.org>, <virtualization@lists.linux.dev>,
-        <linux-kernel@vger.kernel.org>, Keith Busch <kbusch@kernel.org>
-Subject: [PATCHv2 2/2] kvm: retry nx_huge_page_recovery_thread creation
-Date: Wed, 26 Feb 2025 13:38:44 -0800
-Message-ID: <20250226213844.3826821-3-kbusch@meta.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20250226213844.3826821-1-kbusch@meta.com>
-References: <20250226213844.3826821-1-kbusch@meta.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LEugKU2W"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740607883;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SDLn/itlfNCF0HlLfDkYsSVrwBFlxuyO81r68eizKZU=;
+	b=LEugKU2WMJMt+Hxfxagjb0yMraDJiyMbQU2eSDGaPbx8BxHOwTJzGbD+eHZw+BIXaWxw4+
+	lgYuSJRoqsQ2Dt3v1WaPMscnrnK7BVUupiKO71caje+ncYlIqo/rvjMat+wYtte2Iljith
+	E6dthLxtl80b/hNp9luKY+oR+jXrkdg=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-100-dz-2D1cbMDurc0pK8ZlhTg-1; Wed, 26 Feb 2025 17:11:22 -0500
+X-MC-Unique: dz-2D1cbMDurc0pK8ZlhTg-1
+X-Mimecast-MFC-AGG-ID: dz-2D1cbMDurc0pK8ZlhTg_1740607881
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43ab456333aso3359725e9.1
+        for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 14:11:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740607881; x=1741212681;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SDLn/itlfNCF0HlLfDkYsSVrwBFlxuyO81r68eizKZU=;
+        b=tZ9herAipF2ruPXIVo2zt+lM59LXWGmPAFDwhyt3Y8JkvhNm9EXRDYY59OfT6C5W2f
+         pwgU//J5j08qyz9akfxnGSDEDMXqWPh5QoWYXmlLAfaEtrMQTQxOq1Ui08RN+0GcoQL9
+         2qZAsv5H1hwApk0XgfeTGTbQ9nIulZLq4kelwXbTnJy7Esa+RvXAU1PXumaht8HLY7tb
+         rsEG/1rGgPRFrg7BntU4y3TvTijGD9e81arfuwkSdLa6uFUzaIn2YMB52Lfr9+j5/DC7
+         f8KRjFP0Dqhgmu/P0BWfFLkQbjE+pqpVxmUUmNFz3dONciXmJBNQ2bAl4SsP/4NzkCvP
+         J0YQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVHK5RcbAvWc6vou/kFZg13zcM2hUhahhOYixM6MomCUAR0KCcqoKWchzExNRkxrVHKuJsyfFv/PWSQweF/vw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwEzcJvKmUsl2tw0p0NMvL1BhcEyz5SCDL1GNgPeM1VtXH1zDk/
+	s1HkWo69dHcj6uZlYck59bq+UE7YL8Fc+GHe7O+Rexc6SUkfoIHl2l/4kTpp8Y8ZaXpuYZrLhCs
+	ReJcGHjvl9zWshQ34Tietk9+GcOUQRzAlfZ5kqmVFsI6b6uRSUA/MxmvAMvaJOq3p
+X-Gm-Gg: ASbGncttoVULFYBRLZLE32FNwUxD7EDE0jGA1fXwZPpcqVdr13yzi3Ue1pBXIdMLhtO
+	FgNIlPgJ0ChtOZ39VuXmI8PLlWvguvkI4H+avQ5Zk2nrNFpPN/qiNQQofYDibMM2rUU7maexMLn
+	uNpsbe/WcewGcWFix5KtzVtDeQSTgyrxMdod81tzzWzPqWusSsa7A37tFRSgwj7VyFeB+poyaQ7
+	PxxP87vIlc7sgPPytQNVnoma2Z///Wx2dG+0ug3rL5s+nWcEh6/xIXrDMHS2DA7q7okzLtM4q5O
+	Ln8jyNhMvw==
+X-Received: by 2002:a05:600c:3b12:b0:439:86c4:a8ec with SMTP id 5b1f17b1804b1-43ad6834cedmr18689455e9.15.1740607880652;
+        Wed, 26 Feb 2025 14:11:20 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEaelfXZLDUuHI3CpMumlbbQdNQDUp+SKRLlXHIvXK8BQFYRaYdUr1OnrM+q+ZUTw6/bJjjHA==
+X-Received: by 2002:a05:600c:3b12:b0:439:86c4:a8ec with SMTP id 5b1f17b1804b1-43ad6834cedmr18689355e9.15.1740607880188;
+        Wed, 26 Feb 2025 14:11:20 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1eb:e270:8595:184c:7546:3597])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43b7a28bcfdsm2512865e9.40.2025.02.26.14.11.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Feb 2025 14:11:19 -0800 (PST)
+Date: Wed, 26 Feb 2025 17:11:15 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Joe Damato <jdamato@fastly.com>, Jason Wang <jasowang@redhat.com>,
+	netdev@vger.kernel.org, mkarsten@uwaterloo.ca,
+	gerhard@engleder-embedded.com, xuanzhuo@linux.alibaba.com,
+	kuba@kernel.org,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next v4 3/4] virtio-net: Map NAPIs to queues
+Message-ID: <20250226171034-mutt-send-email-mst@kernel.org>
+References: <20250225020455.212895-1-jdamato@fastly.com>
+ <20250225020455.212895-4-jdamato@fastly.com>
+ <CACGkMEv6y+TkZnWWLPG4UE59iyREhkiaby8kj==cnp=6chmu+w@mail.gmail.com>
+ <Z79XXQjp9Dz7OYYQ@LQ3V64L9R2>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: OuKZQ75u_WW3TReIvMQPXbVOmwmE0M3q
-X-Proofpoint-GUID: OuKZQ75u_WW3TReIvMQPXbVOmwmE0M3q
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-26_06,2025-02-26_01,2024-11-22_01
+In-Reply-To: <Z79XXQjp9Dz7OYYQ@LQ3V64L9R2>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: KgsQEGEweHptK0KW8JopcC4pDme1pm1zrjgJFTSFuGE_1740607881
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-From: Sean Christopherson <seanjc@google.com>
+On Wed, Feb 26, 2025 at 01:03:09PM -0500, Joe Damato wrote:
+> On Wed, Feb 26, 2025 at 01:48:50PM +0800, Jason Wang wrote:
+> > On Tue, Feb 25, 2025 at 10:05 AM Joe Damato <jdamato@fastly.com> wrote:
+> > >
+> > > Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
+> > > can be accessed by user apps, taking care to hold RTNL as needed.
+> > 
+> > I may miss something but I wonder whether letting the caller hold the
+> > lock is better.
+> 
+> Hmm...
+> 
+> Double checking all the paths over again, here's what I see:
+>   - refill_work, delayed work that needs RTNL so this change seems
+>     right?
+> 
+>   - virtnet_disable_queue_pair, called from virtnet_open and
+>     virtnet_close. When called via NDO these are safe and hold RTNL,
+>     but they can be called from power management and need RTNL.
+> 
+>   - virtnet_enable_queue_pair called from virtnet_open, safe when
+>     used via NDO but needs RTNL when used via power management.
+> 
+>   - virtnet_rx_pause called in both paths as you mentioned, one
+>     which needs RTNL and one which doesn't.
+> 
+> I think there are a couple ways to fix this:
+> 
+>   1. Edit this patch to remove the virtnet_queue_set_napi helper,
+>      and call netif_queue_set_napi from the napi_enable and
+>      napi_disable helpers directly. Modify code calling into these
+>      paths to hold rtnl (or not) as described above.
+> 
+>   2. Modify virtnet_enable_queue_pair, virtnet_disable_queue_pair,
+>      and virtnet_rx_pause to take a "bool need_rtnl" as an a
+>      function argument and pass that through.
+> 
+> I'm not sure which is cleaner and I do not have a preference.
+> 
+> Can you let me know which you prefer? I am happy to implement either
+> one for the next revision.
 
-A VMM may send a signal to its threads while they've entered KVM_RUN. If
-that thread happens to be trying to make the huge page recovery vhost
-task, it will fail with -ERESTARTNOINTR. We need to retry if that
-happens, so make call_once complete only if what it called was
-successful.
 
-Based-on-a-patch-by: Sean Christopherson <seanjc@google.com>
-[implemented caller side, commit log]
-Signed-off-by: Keith Busch <kbusch@kernel.org>
----
- arch/x86/kvm/mmu/mmu.c    | 10 ++++------
- include/linux/call_once.h | 16 +++++++++++-----
- 2 files changed, 15 insertions(+), 11 deletions(-)
+1  seems cleaner.
+taking locks depending on paths is confusing
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 18ca1ea6dc240..8160870398b90 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -7460,7 +7460,7 @@ static bool kvm_nx_huge_page_recovery_worker(void *=
-data)
- 	return true;
- }
-=20
--static void kvm_mmu_start_lpage_recovery(struct once *once)
-+static int kvm_mmu_start_lpage_recovery(struct once *once)
- {
- 	struct kvm_arch *ka =3D container_of(once, struct kvm_arch, nx_once);
- 	struct kvm *kvm =3D container_of(ka, struct kvm, arch);
-@@ -7472,12 +7472,13 @@ static void kvm_mmu_start_lpage_recovery(struct o=
-nce *once)
- 				      kvm, "kvm-nx-lpage-recovery");
-=20
- 	if (IS_ERR(nx_thread))
--		return;
-+		return PTR_ERR(nx_thread);
-=20
- 	vhost_task_start(nx_thread);
-=20
- 	/* Make the task visible only once it is fully started. */
- 	WRITE_ONCE(kvm->arch.nx_huge_page_recovery_thread, nx_thread);
-+	return 0;
- }
-=20
- int kvm_mmu_post_init_vm(struct kvm *kvm)
-@@ -7485,10 +7486,7 @@ int kvm_mmu_post_init_vm(struct kvm *kvm)
- 	if (nx_hugepage_mitigation_hard_disabled)
- 		return 0;
-=20
--	call_once(&kvm->arch.nx_once, kvm_mmu_start_lpage_recovery);
--	if (!kvm->arch.nx_huge_page_recovery_thread)
--		return -ENOMEM;
--	return 0;
-+	return call_once(&kvm->arch.nx_once, kvm_mmu_start_lpage_recovery);
- }
-=20
- void kvm_mmu_pre_destroy_vm(struct kvm *kvm)
-diff --git a/include/linux/call_once.h b/include/linux/call_once.h
-index 6261aa0b3fb00..ddcfd91493eaa 100644
---- a/include/linux/call_once.h
-+++ b/include/linux/call_once.h
-@@ -26,20 +26,26 @@ do {									\
- 	__once_init((once), #once, &__key);				\
- } while (0)
-=20
--static inline void call_once(struct once *once, void (*cb)(struct once *=
-))
-+static inline int call_once(struct once *once, int (*cb)(struct once *))
- {
-+	int r;
-+
-         /* Pairs with atomic_set_release() below.  */
-         if (atomic_read_acquire(&once->state) =3D=3D ONCE_COMPLETED)
--                return;
-+		return 0;
-=20
-         guard(mutex)(&once->lock);
-         WARN_ON(atomic_read(&once->state) =3D=3D ONCE_RUNNING);
-         if (atomic_read(&once->state) !=3D ONCE_NOT_STARTED)
--                return;
-+                return -EINVAL;
-=20
-         atomic_set(&once->state, ONCE_RUNNING);
--        cb(once);
--        atomic_set_release(&once->state, ONCE_COMPLETED);
-+	r =3D cb(once);
-+	if (r)
-+		atomic_set(&once->state, ONCE_NOT_STARTED);
-+	else
-+		atomic_set_release(&once->state, ONCE_COMPLETED);
-+	return r;
- }
-=20
- #endif /* _LINUX_CALL_ONCE_H */
---=20
-2.43.5
+> [...]
+> 
+> > > ---
+> > >  drivers/net/virtio_net.c | 73 ++++++++++++++++++++++++++++------------
+> > >  1 file changed, 52 insertions(+), 21 deletions(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index e578885c1093..13bb4a563073 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -2807,6 +2807,20 @@ static void skb_recv_done(struct virtqueue *rvq)
+> > >         virtqueue_napi_schedule(&rq->napi, rvq);
+> > >  }
+> > >
+> > > +static void virtnet_queue_set_napi(struct net_device *dev,
+> > > +                                  struct napi_struct *napi,
+> > > +                                  enum netdev_queue_type q_type, int qidx,
+> > > +                                  bool need_rtnl)
+> > > +{
+> > > +       if (need_rtnl)
+> > > +               rtnl_lock();
+> > > +
+> > > +       netif_queue_set_napi(dev, qidx, q_type, napi);
+> > > +
+> > > +       if (need_rtnl)
+> > > +               rtnl_unlock();
+> > > +}
+> > > +
+> > >  static void virtnet_napi_do_enable(struct virtqueue *vq,
+> > >                                    struct napi_struct *napi)
+> > >  {
+> > > @@ -2821,15 +2835,21 @@ static void virtnet_napi_do_enable(struct virtqueue *vq,
+> > >         local_bh_enable();
+> > >  }
+> > >
+> > > -static void virtnet_napi_enable(struct receive_queue *rq)
+> > > +static void virtnet_napi_enable(struct receive_queue *rq, bool need_rtnl)
+> > >  {
+> > > +       struct virtnet_info *vi = rq->vq->vdev->priv;
+> > > +       int qidx = vq2rxq(rq->vq);
+> > > +
+> > >         virtnet_napi_do_enable(rq->vq, &rq->napi);
+> > > +       virtnet_queue_set_napi(vi->dev, &rq->napi,
+> > > +                              NETDEV_QUEUE_TYPE_RX, qidx, need_rtnl);
+> > >  }
+> > >
+> > > -static void virtnet_napi_tx_enable(struct send_queue *sq)
+> > > +static void virtnet_napi_tx_enable(struct send_queue *sq, bool need_rtnl)
+> > >  {
+> > >         struct virtnet_info *vi = sq->vq->vdev->priv;
+> > >         struct napi_struct *napi = &sq->napi;
+> > > +       int qidx = vq2txq(sq->vq);
+> > >
+> > >         if (!napi->weight)
+> > >                 return;
+> > > @@ -2843,20 +2863,31 @@ static void virtnet_napi_tx_enable(struct send_queue *sq)
+> > >         }
+> > >
+> > >         virtnet_napi_do_enable(sq->vq, napi);
+> > > +       virtnet_queue_set_napi(vi->dev, napi, NETDEV_QUEUE_TYPE_TX, qidx,
+> > > +                              need_rtnl);
+> > >  }
+> > >
+> > > -static void virtnet_napi_tx_disable(struct send_queue *sq)
+> > > +static void virtnet_napi_tx_disable(struct send_queue *sq, bool need_rtnl)
+> > >  {
+> > > +       struct virtnet_info *vi = sq->vq->vdev->priv;
+> > >         struct napi_struct *napi = &sq->napi;
+> > > +       int qidx = vq2txq(sq->vq);
+> > >
+> > > -       if (napi->weight)
+> > > +       if (napi->weight) {
+> > > +               virtnet_queue_set_napi(vi->dev, NULL, NETDEV_QUEUE_TYPE_TX,
+> > > +                                      qidx, need_rtnl);
+> > >                 napi_disable(napi);
+> > > +       }
+> > >  }
+> > >
+> > > -static void virtnet_napi_disable(struct receive_queue *rq)
+> > > +static void virtnet_napi_disable(struct receive_queue *rq, bool need_rtnl)
+> > >  {
+> > > +       struct virtnet_info *vi = rq->vq->vdev->priv;
+> > >         struct napi_struct *napi = &rq->napi;
+> > > +       int qidx = vq2rxq(rq->vq);
+> > >
+> > > +       virtnet_queue_set_napi(vi->dev, NULL, NETDEV_QUEUE_TYPE_TX, qidx,
+> > > +                              need_rtnl);
+> > >         napi_disable(napi);
+> > >  }
+> > >
+> > > @@ -2870,9 +2901,9 @@ static void refill_work(struct work_struct *work)
+> > >         for (i = 0; i < vi->curr_queue_pairs; i++) {
+> > >                 struct receive_queue *rq = &vi->rq[i];
+> > >
+> > > -               virtnet_napi_disable(rq);
+> > > +               virtnet_napi_disable(rq, true);
+> > >                 still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
+> > > -               virtnet_napi_enable(rq);
+> > > +               virtnet_napi_enable(rq, true);
+> > >
+> > >                 /* In theory, this can happen: if we don't get any buffers in
+> > >                  * we will *never* try to fill again.
+> > > @@ -3069,8 +3100,8 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+> > >
+> > >  static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
+> > >  {
+> > > -       virtnet_napi_tx_disable(&vi->sq[qp_index]);
+> > > -       virtnet_napi_disable(&vi->rq[qp_index]);
+> > > +       virtnet_napi_tx_disable(&vi->sq[qp_index], false);
+> > > +       virtnet_napi_disable(&vi->rq[qp_index], false);
+> > >         xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+> > >  }
+> > >
+> > > @@ -3089,8 +3120,8 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+> > >         if (err < 0)
+> > >                 goto err_xdp_reg_mem_model;
+> > >
+> > > -       virtnet_napi_enable(&vi->rq[qp_index]);
+> > > -       virtnet_napi_tx_enable(&vi->sq[qp_index]);
+> > > +       virtnet_napi_enable(&vi->rq[qp_index], false);
+> > > +       virtnet_napi_tx_enable(&vi->sq[qp_index], false);
+> > >
+> > >         return 0;
+> > >
+> > > @@ -3342,7 +3373,7 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
+> > >         bool running = netif_running(vi->dev);
+> > >
+> > >         if (running) {
+> > > -               virtnet_napi_disable(rq);
+> > > +               virtnet_napi_disable(rq, true);
+> > 
+> > During the resize, the rtnl lock has been held on the ethtool path
+> > 
+> >         rtnl_lock();
+> >         rc = __dev_ethtool(net, ifr, useraddr, ethcmd, state);
+> >         rtnl_unlock();
+> > 
+> > virtnet_rx_resize()
+> >     virtnet_rx_pause()
+> > 
+> > and in the case of XSK binding, I see ASSERT_RTNL in xp_assign_dev() at least.
+> 
+> Thanks for catching this. I re-read all the paths and I think I've
+> outlined a few other issues above.
+> 
+> Please let me know which of the proposed methods above you'd like me
+> to implement to get this merged.
+> 
+> Thanks.
+> 
+> ---
+> pw-bot: cr
 
