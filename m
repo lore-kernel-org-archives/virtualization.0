@@ -1,348 +1,134 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04E5714D2BB
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 20:27:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A1025E448
+	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 21:38:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740601668; cv=none; b=dApYNrouWIq4dMOrwahpy6jAD8gP9EupwEoJjqv0jMUwQ9eKqgwTYL7e2/dulyJqcCXK3P365NkUSAhlGEjNGo55kpEm6TaaiThiha9nbH0PazPaspayaFMCjgxl+KX8T7kPVjBUaYGlPNLyYdGaC30hOPt6yBDcGLjhWzpMhlw=
+	t=1740605941; cv=none; b=oae94VvbOJ0cbYFYsyo3hY0ynEoo4KG33fTk5a4gdglY8inrqCYPDSgdivYId8ZBOyOytf9CgUuHxYMRauo4X/o+JnyUTu1BVYhT9w+TtzEwtTV+/R5dgSf9SqugzXWD1qwH5UiGwAEvtqdcZb8CNwqtbgHwBXHYqkY9UcTlACs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740601668; c=relaxed/simple;
-	bh=k+QDB4VYH0R9a9+nYzNmvEIhcYQPChkqjyD9WG2Hmh4=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h+GzqZFi8U+GyHfCL+9udShJgzKoypn4PrtFil85Z1L/xndbxDZQKF6MAn/ifKR/9/pj3dl9bGvo4gUtiI8nDL1QbVHicsGcWvHFdsmgW4hKYtk2yGAJC0B+SjbedxRLR9xNz3i9RSmlIpsKGQ1tYFNa44ZBL/6whQIQS5ZxY1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=sJGmUD3v; arc=none smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	s=arc-20240116; t=1740605941; c=relaxed/simple;
+	bh=QrmEP8tN0yyZl54302laf2o0i1y0v20R661+ErCqyqE=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=enrfeA8Ifvr7e8WkyWyD6v4xf6nBRSF5p+mJRHg6it3gx7k/y3ini8bPudaFbPRbbz396Rb4GMaFXLr9HyCdwdmP4LJyF1ecUQiL+OyviHzliXUaN2YW24vJOn7j6WrVZ6JiOLrfr/4Sn/V9KroNaBZp05suT++QpoFKOEuGl8E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=EhJ+rQ5g; arc=none smtp.client-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="sJGmUD3v"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-7c24ae82de4so20479085a.1
-        for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 12:27:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1740601666; x=1741206466; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ySARA6axU/KgaQ0dVNI+ZmJXsucfopJX3wr+2O18FBA=;
-        b=sJGmUD3vGjeX6kPWCr5/MHVXaqDDmK/vlgyKedo8jbKIzFrlgzmsu2H9bsztmUr4Im
-         /Rd5q2oqSNisquYod3l+Yn78LhXUdBHTvPAh4Dz/DetYULcSRyLoWoDEHtlTSh2dhTLz
-         +dfANUB70yy8tW+wm9POGBEFzHjN/7xve1Dwc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740601666; x=1741206466;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ySARA6axU/KgaQ0dVNI+ZmJXsucfopJX3wr+2O18FBA=;
-        b=rc4G65OWePpZGHlBXLzMkt7NwqRTRw815GGVitBLJjksuhdJL14PAcoJNc9aHfseAk
-         ZUKA7RcT14T3n6esy8Ms/OiaGhr0OcWWCNY+kMi1xivwFCIzzqeIH5iVfz8e1ZWLUGTs
-         7dPjRbtypSLhcoVaWB/4LOdpC+s8S2LM58Yn/LI2HpV3bsQ4cbGTlJTxDdR+kN9DZOVc
-         TY7TD7AiFmHiOHCTo4SLKX/LKEZrhDtG3iEcFQVnYbAI1Ukt8DxuDpbq8UvUIJd1pk9M
-         WZnhnOD0aPZh4U9+I5cokT2rxb9bxlgTtaejbaqgrU5BmTF/ULZ5md1K1JvisAhni8LG
-         6cww==
-X-Forwarded-Encrypted: i=1; AJvYcCXUlw8KBOVZaj5D0GIraygucI9F2hso4LvCsDdKUC0uJJ1eupZLrKI9DTRf4uyfU7iep5GCyhbkz1uFI+lNRA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx+mj/LB6HfRXJPiWSCTZnnotoHE0rAHIViafpW7ydoefuGSP9N
-	OXRESedA1NK1BDaDxMucpIgfSDBtiyp27so43myVVP1cf0MWBMSfqvVpi2s8Yzk=
-X-Gm-Gg: ASbGncuoKPpbRWndoTG8jM5idIlbj1S8t1Mx4MbcZWXrR3bCXU4UXp3Q2KQPa74jpCr
-	nkpCW/MkyKsfo42tIhRqRHA1aMHW04vtsFezkQrJG4erW2NtWEsK/Zvwo7KT3LFQbPcYzdFsHSq
-	yUWLW3vCoeMsY0PX4sL+llyVDKXyOECHgZZrpAq/uhXExUiRiYc06iod8r4eYGFR3HZX+hP/yDf
-	zAMfYQf/viFvSKZN66/pYEfao4Y1W1lsy27OKgeY5vo0ea7ewFreGP1WMQypaMor3PjSaGC339M
-	vVHfxzTcWKzqoQ8DfFNynwik/2C4M4GUiRsDXvTMNFfJpTCyf1kq6+XLtCef3mta
-X-Google-Smtp-Source: AGHT+IEv7viTJhM0Js6vvlYUnBH9P9HF8SbdCpdZLNRgMY6wPWIHhpmuyL0yIEE3uUMtvehXKZHFUA==
-X-Received: by 2002:a05:620a:4415:b0:7c0:c0e0:8beb with SMTP id af79cd13be357-7c0cf96e406mr2798739585a.57.1740601665863;
-        Wed, 26 Feb 2025 12:27:45 -0800 (PST)
-Received: from LQ3V64L9R2 (ool-44c5a22e.dyn.optonline.net. [68.197.162.46])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c23c33f3ddsm292586885a.93.2025.02.26.12.27.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Feb 2025 12:27:45 -0800 (PST)
-Date: Wed, 26 Feb 2025 15:27:42 -0500
-From: Joe Damato <jdamato@fastly.com>
-To: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
-	xuanzhuo@linux.alibaba.com, kuba@kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next v4 3/4] virtio-net: Map NAPIs to queues
-Message-ID: <Z795Pt_RnfnvC-1N@LQ3V64L9R2>
-Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
-	Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
-	xuanzhuo@linux.alibaba.com, kuba@kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-References: <20250225020455.212895-1-jdamato@fastly.com>
- <20250225020455.212895-4-jdamato@fastly.com>
- <CACGkMEv6y+TkZnWWLPG4UE59iyREhkiaby8kj==cnp=6chmu+w@mail.gmail.com>
- <Z79XXQjp9Dz7OYYQ@LQ3V64L9R2>
- <Z79YseiGrzYxoyvr@LQ3V64L9R2>
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="EhJ+rQ5g"
+Received: from pps.filterd (m0148460.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51QKcdj4011306
+	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:38:58 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=s2048-2021-q4;
+	 bh=6QWMRWFJaMkolJ4N5fn/a7XdpweKZa/QIaMY7SwUwCE=; b=EhJ+rQ5gnA22
+	LPjCW3FVCVOMYRKkT8w6EINOcbZO2B++l2lp1qwEq18MH8Dbp0mNAASd790R/86m
+	5+BDX8Wu4McTHfEwdGQWTOssNXUmeIY5SnWPYUBjsQrb8U7MhrMr11R7zp17HVe+
+	ViGB+0HL1JA1rYNpZGTI+lW4T6FR7zzUuqUWGPguNxCnZMC71CAaRUdBldwKacJm
+	c9JxXoHIY1WOfXcUMetvPH+ACcCodqvTiLzV9L1oOL6n44jAFMEyXxsqv8DIp7TJ
+	5nqChHZmU/bt7e/OjCRx8q6VsOZ5Q3ZtbSv5jGGZI7+Dd1xnCVJTjEP2x3wLZ8RA
+	lh7k6PZGKA==
+Received: from maileast.thefacebook.com ([163.114.135.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 45257gu747-3
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 13:38:58 -0800 (PST)
+Received: from twshared11082.06.ash8.facebook.com (2620:10d:c0a8:1b::8e35) by
+ mail.thefacebook.com (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.2.1544.14; Wed, 26 Feb 2025 21:38:48 +0000
+Received: by devbig638.nha1.facebook.com (Postfix, from userid 544533)
+	id 32A80187DD500; Wed, 26 Feb 2025 13:38:45 -0800 (PST)
+From: Keith Busch <kbusch@meta.com>
+To: <pbonzini@redhat.com>, <seanjc@google.com>, <kvm@vger.kernel.org>
+CC: <x86@kernel.org>, <virtualization@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>, Keith Busch <kbusch@kernel.org>
+Subject: [PATCHv2 1/2] vhost: return task creation error instead of NULL
+Date: Wed, 26 Feb 2025 13:38:43 -0800
+Message-ID: <20250226213844.3826821-2-kbusch@meta.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250226213844.3826821-1-kbusch@meta.com>
+References: <20250226213844.3826821-1-kbusch@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Z79YseiGrzYxoyvr@LQ3V64L9R2>
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-Proofpoint-GUID: _6fAGQORR7DwmzUIS5q32RB5kLszRtlZ
+X-Proofpoint-ORIG-GUID: _6fAGQORR7DwmzUIS5q32RB5kLszRtlZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-26_06,2025-02-26_01,2024-11-22_01
 
-On Wed, Feb 26, 2025 at 01:08:49PM -0500, Joe Damato wrote:
-> On Wed, Feb 26, 2025 at 01:03:09PM -0500, Joe Damato wrote:
-> > On Wed, Feb 26, 2025 at 01:48:50PM +0800, Jason Wang wrote:
-> > > On Tue, Feb 25, 2025 at 10:05 AM Joe Damato <jdamato@fastly.com> wrote:
-> > > >
-> > > > Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
-> > > > can be accessed by user apps, taking care to hold RTNL as needed.
-> > > 
-> > > I may miss something but I wonder whether letting the caller hold the
-> > > lock is better.
-> > 
-> > Hmm...
-> > 
-> > Double checking all the paths over again, here's what I see:
-> >   - refill_work, delayed work that needs RTNL so this change seems
-> >     right?
-> > 
-> >   - virtnet_disable_queue_pair, called from virtnet_open and
-> >     virtnet_close. When called via NDO these are safe and hold RTNL,
-> >     but they can be called from power management and need RTNL.
-> > 
-> >   - virtnet_enable_queue_pair called from virtnet_open, safe when
-> >     used via NDO but needs RTNL when used via power management.
-> > 
-> >   - virtnet_rx_pause called in both paths as you mentioned, one
-> >     which needs RTNL and one which doesn't.
-> 
-> Sorry, I missed more paths:
-> 
->     - virtnet_rx_resume
->     - virtnet_tx_pause and virtnet_tx_resume
-> 
-> which are similar to path you mentioned (virtnet_rx_pause) and need
-> rtnl in one of two different paths.
-> 
-> Let me know if I missed any paths and what your preferred way to fix
-> this would be?
-> 
-> I think both options below are possible and I have no strong
-> preference.
+From: Keith Busch <kbusch@kernel.org>
 
-OK, my apologies. I read your message and the code wrong. Sorry for
-the back-to-back emails from me.
+Lets callers distinguish why the vhost task creation failed. No one
+currently cares why it failed, so no runtime change from this patch, but
+that will not be the case for long.
 
-Please ignore my message above... I think after re-reading the code,
-here's where I've arrived:
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+---
+ arch/x86/kvm/mmu/mmu.c | 2 +-
+ drivers/vhost/vhost.c  | 2 +-
+ kernel/vhost_task.c    | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-  - refill_work needs to hold RTNL (as in the existing patch)
-
-  - virtnet_rx_pause, virtnet_rx_resume, virtnet_tx_pause,
-    virtnet_tx_resume -- all do NOT need to hold RTNL because it is
-    already held in the ethtool resize path and the XSK path, as you
-    explained, but I mis-read (sorry).
-
-  - virtnet_disable_queue_pair and virtnet_enable_queue_pair both
-    need to hold RTNL only when called via power management, but not
-    when called via ndo_open or ndo_close
-
-Is my understanding correct and does it match your understanding?
-
-If so, that means there are two issues:
-
-  1. Fixing the hardcoded bools in rx_pause, rx_resume, tx_pause,
-     tx_resume (all should be false, RTNL is not needed).
-
-  2. Handling the power management case which calls virtnet_open and
-     virtnet_close.
-
-I made a small diff included below as an example of a possible
-solution:
-
-  1. Modify virtnet_disable_queue_pair and virtnet_enable_queue_pair
-     to take a "bool need_rtnl" and pass it through to the helpers
-     they call.
-
-  2. Create two helpers, virtnet_do_open and virt_do_close both of
-     which take struct net_device *dev, bool need_rtnl. virtnet_open
-     and virtnet_close are modified to call the helpers and pass
-     false for need_rtnl. The power management paths call the
-     helpers and pass true for need_rtnl. (fixes issue 2 above)
-
-  3. Fix the bools for rx_pause, rx_resume, tx_pause, tx_resume to
-     pass false since all paths that I could find that lead to these
-     functions hold RTNL. (fixes issue 1 above)
-
-See the diff below (which can be applied on top of patch 3) to see
-what it looks like.
-
-If you are OK with this approach, I will send a v5 where patch 3
-includes the changes shown in this diff.
-
-Please let me know what you think:
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 13bb4a563073..76ecb8f3ce9a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3098,14 +3098,16 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	return received;
- }
- 
--static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
-+static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index,
-+				       bool need_rtnl)
- {
--	virtnet_napi_tx_disable(&vi->sq[qp_index], false);
--	virtnet_napi_disable(&vi->rq[qp_index], false);
-+	virtnet_napi_tx_disable(&vi->sq[qp_index], need_rtnl);
-+	virtnet_napi_disable(&vi->rq[qp_index], need_rtnl);
- 	xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
- }
- 
--static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-+static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index,
-+				     bool need_rtnl)
- {
- 	struct net_device *dev = vi->dev;
- 	int err;
-@@ -3120,8 +3122,8 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
- 	if (err < 0)
- 		goto err_xdp_reg_mem_model;
- 
--	virtnet_napi_enable(&vi->rq[qp_index], false);
--	virtnet_napi_tx_enable(&vi->sq[qp_index], false);
-+	virtnet_napi_enable(&vi->rq[qp_index], need_rtnl);
-+	virtnet_napi_tx_enable(&vi->sq[qp_index], need_rtnl);
- 
- 	return 0;
- 
-@@ -3156,7 +3158,7 @@ static void virtnet_update_settings(struct virtnet_info *vi)
- 		vi->duplex = duplex;
- }
- 
--static int virtnet_open(struct net_device *dev)
-+static int virtnet_do_open(struct net_device *dev, bool need_rtnl)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int i, err;
-@@ -3169,7 +3171,7 @@ static int virtnet_open(struct net_device *dev)
- 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
- 				schedule_delayed_work(&vi->refill, 0);
- 
--		err = virtnet_enable_queue_pair(vi, i);
-+		err = virtnet_enable_queue_pair(vi, i, need_rtnl);
- 		if (err < 0)
- 			goto err_enable_qp;
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index d4ac4a1f8b81b..18ca1ea6dc240 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -7471,7 +7471,7 @@ static void kvm_mmu_start_lpage_recovery(struct onc=
+e *once)
+ 				      kvm_nx_huge_page_recovery_worker_kill,
+ 				      kvm, "kvm-nx-lpage-recovery");
+=20
+-	if (!nx_thread)
++	if (IS_ERR(nx_thread))
+ 		return;
+=20
+ 	vhost_task_start(nx_thread);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9ac25d08f473e..61dd19c7f99f1 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -666,7 +666,7 @@ static struct vhost_worker *vhost_worker_create(struc=
+t vhost_dev *dev)
+=20
+ 	vtsk =3D vhost_task_create(vhost_run_work_list, vhost_worker_killed,
+ 				 worker, name);
+-	if (!vtsk)
++	if (!IS_ERR(vtsk))
+ 		goto free_worker;
+=20
+ 	mutex_init(&worker->mutex);
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index 8800f5acc0071..2ef2e1b800916 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -133,7 +133,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void =
+*),
+=20
+ 	vtsk =3D kzalloc(sizeof(*vtsk), GFP_KERNEL);
+ 	if (!vtsk)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	init_completion(&vtsk->exited);
+ 	mutex_init(&vtsk->exit_mutex);
+ 	vtsk->data =3D arg;
+@@ -145,7 +145,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void =
+*),
+ 	tsk =3D copy_process(NULL, 0, NUMA_NO_NODE, &args);
+ 	if (IS_ERR(tsk)) {
+ 		kfree(vtsk);
+-		return NULL;
++		return ERR_PTR(PTR_ERR(tsk));
  	}
-@@ -3190,13 +3192,18 @@ static int virtnet_open(struct net_device *dev)
- 	cancel_delayed_work_sync(&vi->refill);
- 
- 	for (i--; i >= 0; i--) {
--		virtnet_disable_queue_pair(vi, i);
-+		virtnet_disable_queue_pair(vi, i, need_rtnl);
- 		virtnet_cancel_dim(vi, &vi->rq[i].dim);
- 	}
- 
- 	return err;
- }
- 
-+static int virtnet_open(struct net_device *dev)
-+{
-+	return virtnet_do_open(dev, false);
-+}
-+
- static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- {
- 	struct send_queue *sq = container_of(napi, struct send_queue, napi);
-@@ -3373,7 +3380,7 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
- 	bool running = netif_running(vi->dev);
- 
- 	if (running) {
--		virtnet_napi_disable(rq, true);
-+		virtnet_napi_disable(rq, false);
- 		virtnet_cancel_dim(vi, &rq->dim);
- 	}
- }
-@@ -3386,7 +3393,7 @@ static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
- 		schedule_delayed_work(&vi->refill, 0);
- 
- 	if (running)
--		virtnet_napi_enable(rq, true);
-+		virtnet_napi_enable(rq, false);
- }
- 
- static int virtnet_rx_resize(struct virtnet_info *vi,
-@@ -3415,7 +3422,7 @@ static void virtnet_tx_pause(struct virtnet_info *vi, struct send_queue *sq)
- 	qindex = sq - vi->sq;
- 
- 	if (running)
--		virtnet_napi_tx_disable(sq, true);
-+		virtnet_napi_tx_disable(sq, false);
- 
- 	txq = netdev_get_tx_queue(vi->dev, qindex);
- 
-@@ -3449,7 +3456,7 @@ static void virtnet_tx_resume(struct virtnet_info *vi, struct send_queue *sq)
- 	__netif_tx_unlock_bh(txq);
- 
- 	if (running)
--		virtnet_napi_tx_enable(sq, true);
-+		virtnet_napi_tx_enable(sq, false);
- }
- 
- static int virtnet_tx_resize(struct virtnet_info *vi, struct send_queue *sq,
-@@ -3708,7 +3715,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 	return 0;
- }
- 
--static int virtnet_close(struct net_device *dev)
-+static int virtnet_do_close(struct net_device *dev, bool need_rtnl)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int i;
-@@ -3727,7 +3734,7 @@ static int virtnet_close(struct net_device *dev)
- 	cancel_work_sync(&vi->config_work);
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
--		virtnet_disable_queue_pair(vi, i);
-+		virtnet_disable_queue_pair(vi, i, need_rtnl);
- 		virtnet_cancel_dim(vi, &vi->rq[i].dim);
- 	}
- 
-@@ -3736,6 +3743,11 @@ static int virtnet_close(struct net_device *dev)
- 	return 0;
- }
- 
-+static int virtnet_close(struct net_device *dev)
-+{
-+	return virtnet_do_close(dev, false);
-+}
-+
- static void virtnet_rx_mode_work(struct work_struct *work)
- {
- 	struct virtnet_info *vi =
-@@ -5682,7 +5694,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
- 	netif_device_detach(vi->dev);
- 	netif_tx_unlock_bh(vi->dev);
- 	if (netif_running(vi->dev))
--		virtnet_close(vi->dev);
-+		virtnet_do_close(vi->dev, true);
- }
- 
- static int init_vqs(struct virtnet_info *vi);
-@@ -5702,7 +5714,7 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 	enable_rx_mode_work(vi);
- 
- 	if (netif_running(vi->dev)) {
--		err = virtnet_open(vi->dev);
-+		err = virtnet_do_open(vi->dev, false);
- 		if (err)
- 			return err;
- 	}
+=20
+ 	vtsk->task =3D tsk;
+--=20
+2.43.5
+
