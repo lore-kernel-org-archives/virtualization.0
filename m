@@ -1,146 +1,143 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3726A213E77
-	for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 11:10:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83D1D2163AB;
+	Wed, 26 Feb 2025 11:49:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740568247; cv=none; b=QxiA9LDbCUj8jlrRg5dqCNAz2PyzKJrBor0pgHb8inLHpnyEKnvCezvq7tPCAiGSTttlF1qqT5SwriXfbfnypt9lAgy8YPML1egYuz8FZNYRaLPS+/WlR1MVnfl1l3OR5iD4SKnZ1xaZ+Lz9GNZ+q9LvcQNiUEu90vEOFs9lGwk=
+	t=1740570589; cv=none; b=S+XkE7QZGva2jR2oqgtw/MHnh3R15Ach4IFZPlq9tRWf117n0kLtkryV8EYZHQGOBKOKDw4bEtZkSCyIlyehMCMujwWMB3E38MGrxOr9TBwbVIMsySt7KvQTRRhcEeuHFXAMT+Il0MHtqOD/I9chIKH3iQDLQOm1fNtfMSnNxsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740568247; c=relaxed/simple;
-	bh=4I7omasySoZo/JUrFqUPmohfcJJOJWXiXsJQizCs3DE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P19+NuYTG+8gyoZ2vwvt53ETQaILoXiSIsVdaca9pgNaFaeUqVjb58rBgzyzU6E9OFvDqURvLgL04ae7S40C51WLwX5zuF5eVi2p2ZqjhT5oL5tbglCoVCE32bP+sM4GQktS30QBOprIDU/n3Olh251bb9HjRoUYPAk09BGNHW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=X7FSIOYi; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1740570589; c=relaxed/simple;
+	bh=VpmMUY7wY/BS7Pk+f5B3auP2ZypMNupjv4juq8FsjbM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oeLL4hHQCUUvnLKjieao6BSLBncpueVPtgTOBDQ63PP5SFDCjykNnlpAIhzJiJqddOhJNlDs9uFS9dOrjM8Nd3DtKZNjKKUWGm1Q5zXXAsUphUCIthEXkcuPrNwUu99rOuW2mN2wlLx/wM2acB5XV+u4livaKHnsJ0GidwRbZAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=shutemov.name; spf=pass smtp.mailfrom=shutemov.name; dkim=pass (2048-bit key) header.d=shutemov.name header.i=@shutemov.name header.b=Y+3lYlte; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=34ZhmKcj; arc=none smtp.client-ip=103.168.172.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=shutemov.name
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shutemov.name
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="X7FSIOYi"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1740568240; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=vpAtcTJM/EJCDxxy2WMQ1RGo3EUw0Xe3GtPnY0G1MaE=;
-	b=X7FSIOYiW7AQXN6HaL0cIs7ZBQGdggEOG+3rwVAF2jfu9W17aoLsBFHyvYXNVJeH9OD4ACZV87APtHPAGvp+UdOqIuQQ+aNwQC24R5ixXBTVl8IvXqwB60m9Lqe+5GwLMGggNvvxFqKRdHCy7Db+owu2W2AQPz7tFP9gO7DyhtE=
-Received: from 30.221.130.195(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0WQI5T1B_1740568238 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 26 Feb 2025 19:10:38 +0800
-Message-ID: <be8704b0-81a4-403b-8b42-d3612099279f@linux.alibaba.com>
-Date: Wed, 26 Feb 2025 19:10:36 +0800
+	dkim=pass (2048-bit key) header.d=shutemov.name header.i=@shutemov.name header.b="Y+3lYlte";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="34ZhmKcj"
+Received: from phl-compute-04.internal (phl-compute-04.phl.internal [10.202.2.44])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 8A77011401BD;
+	Wed, 26 Feb 2025 06:49:45 -0500 (EST)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-04.internal (MEProxy); Wed, 26 Feb 2025 06:49:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shutemov.name;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1740570585; x=
+	1740656985; bh=NUV6XQ7b1xL3JnX+3WnfxkiyKE8c72Tyb0qS0broJwE=; b=Y
+	+3lYlte5EmJcJWEt2f+7MS4Os164ocN+bPsGNY/MYlMGWulxvxPfJdtvl2fDv9ik
+	bTXyQScCciCHsr1LCCauwhbpedXl5l03/ApwRcwr/HP6sphRpH2K25aPLn0Qyqzy
+	VHaGthhvGNNbq84N/Sgo92KE45v7ywb1MFpm2n6CMvNmo0bLxVbQ9kAM7MpqRyj1
+	9HpUYZLFqQDqeQTcFuKPcHIxNUWxEq0GN/c2yxkP6aVVaKVz6fwr7f7gWOvAtcim
+	U+6MkxWj1bAxCgRaEh04GJfBOIx2P3Q1h5rEfFBHTATBapXynS8DeZMlC151RjhU
+	P7/QqIHw5MW9dO/+6R5Aw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1740570585; x=1740656985; bh=NUV6XQ7b1xL3JnX+3WnfxkiyKE8c72Tyb0q
+	S0broJwE=; b=34ZhmKcjT4ByBDZWw2nHG1CfFp0CXR9QQuD2S5LS7RiK1aRryuk
+	U9nq1PdX8Ng6nAo4KydzMu4ExzgBvxfxV+6uu6N4R5jbpSc9Awe7/X/9MT7bn+G0
+	inT4pSBexS4Dtnj/nvWpdx69Tv29q93HvCx8scG0MH9L1m7oA6sL9jlcmlKW/fYE
+	bvjcQW9QrsQhD2crdRf1+uzjFdlwArmRBPWJFLU82CJKHWii3WOGP+t2WdW1cR3g
+	/4/uf80M4/9+rwc+XQRljMCINZAHIidlqP/rXr/jWHb2pEHYOVACOjDG1h4cmQgr
+	r3MO3u+lSJfRghYCESD7zHbrzwT91VJ1FKw==
+X-ME-Sender: <xms:2P--Z0xjIADr4gf4kqZzE6XbVlHMc9jNVZdNJA85a7RR6x3I6qzHYg>
+    <xme:2P--Z4SrBuFVusf8FOAmIWtrw9nGZmL4KRzW-cPAzeVzAohRQu5-Izo0J3QFqxjLs
+    9Ls09odPimvYmbv5oY>
+X-ME-Received: <xmr:2P--Z2X3_1pSDndN3W4CcUAt6CG4kHsSzNyVcHPeaNNpTblmw2lW3vE5HQ1-ZlMm39uZrA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdekgeehtdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
+    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
+    hnthhsucdlqddutddtmdenucfjughrpeffhffvvefukfhfgggtuggjsehttdfstddttddv
+    necuhfhrohhmpedfmfhirhhilhhlucetrdcuufhhuhhtvghmohhvfdcuoehkihhrihhllh
+    esshhhuhhtvghmohhvrdhnrghmvgeqnecuggftrfgrthhtvghrnhepffdvveeuteduhffh
+    ffevlefhteefveevkeelveejudduvedvuddvleetudevhfeknecuvehluhhsthgvrhfuih
+    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepkhhirhhilhhlsehshhhuthgvmhho
+    vhdrnhgrmhgvpdhnsggprhgtphhtthhopeefvddpmhhouggvpehsmhhtphhouhhtpdhrtg
+    hpthhtohepvhgrnhhnrghpuhhrvhgvsehgohhoghhlvgdrtghomhdprhgtphhtthhopegu
+    rghvvgdrhhgrnhhsvghnsehlihhnuhigrdhinhhtvghlrdgtohhmpdhrtghpthhtohepkh
+    hirhhilhhlrdhshhhuthgvmhhovheslhhinhhugidrihhnthgvlhdrtghomhdprhgtphht
+    thhopehjghhrohhsshesshhushgvrdgtohhmpdhrtghpthhtoheprghjrgihrdhkrghhvg
+    hrsegsrhhorggutghomhdrtghomhdprhgtphhtthhopegrkheslhhinhhugidrihhnthgv
+    lhdrtghomhdprhgtphhtthhopehtohhnhidrlhhutghksehinhhtvghlrdgtohhmpdhrtg
+    hpthhtohepthhhohhmrghsrdhlvghnuggrtghkhiesrghmugdrtghomhdprhgtphhtthho
+    pehtghhlgieslhhinhhuthhrohhnihigrdguvg
+X-ME-Proxy: <xmx:2P--ZyiAQKOFRnxyOzpeqCouZL8yXR5O0Z1uAGDl2AzgePchztVPLA>
+    <xmx:2P--Z2BFvoasHzlVzsB6ZwmpavJNmNunVnf_ozZVmCxuQcwxCQ7a7g>
+    <xmx:2P--ZzJmvgbpt5_9r6nXFhFSK3m76UBuDJRveiN9f9YKuSIEO60fsg>
+    <xmx:2P--Z9AAmPPQje4t-8vfSh04lk6sCU__6b4u3BnCegBa-MQ6XPC8TQ>
+    <xmx:2f--Z-a27CiKqq2ElAYuuRFNsyxas3XqkH1PFWDhpzTloP3iA4ZefGzk>
+Feedback-ID: ie3994620:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 26 Feb 2025 06:49:34 -0500 (EST)
+Date: Wed, 26 Feb 2025 13:49:31 +0200
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
+To: Vishal Annapurve <vannapurve@google.com>
+Cc: dave.hansen@linux.intel.com, kirill.shutemov@linux.intel.com, 
+	jgross@suse.com, ajay.kaher@broadcom.com, ak@linux.intel.com, tony.luck@intel.com, 
+	thomas.lendacky@amd.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+	hpa@zytor.com, pbonzini@redhat.com, seanjc@google.com, kai.huang@intel.com, 
+	chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com, 
+	sathyanarayanan.kuppuswamy@linux.intel.com, erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com, 
+	sagis@google.com, afranji@google.com, kees@kernel.org, jikos@kernel.org, 
+	peterz@infradead.org, x86@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-coco@lists.linux.dev, virtualization@lists.linux.dev, 
+	bcm-kernel-feedback-list@broadcom.com, stable@vger.kernel.org
+Subject: Re: [PATCH v6 2/3] x86/tdx: Fix arch_safe_halt() execution for TDX
+ VMs
+Message-ID: <pvbwlmkknw7cwln4onmi5mujpykyaxisb73khlriq7pzqhgno2@nvu3cbchp4am>
+References: <20250225004704.603652-1-vannapurve@google.com>
+ <20250225004704.603652-3-vannapurve@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 0/3] virtio-blk: add io_uring passthrough support.
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- io-uring@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
- Joseph Qi <joseph.qi@linux.alibaba.com>,
- Jeffle Xu <jefflexu@linux.alibaba.com>
-References: <20241218092435.21671-1-mengferry@linux.alibaba.com>
- <20250219020112.GB38164@fedora>
-Content-Language: en-US
-From: Ferry Meng <mengferry@linux.alibaba.com>
-In-Reply-To: <20250219020112.GB38164@fedora>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250225004704.603652-3-vannapurve@google.com>
 
+On Tue, Feb 25, 2025 at 12:47:03AM +0000, Vishal Annapurve wrote:
+> Direct HLT instruction execution causes #VEs for TDX VMs which is routed
+> to hypervisor via TDCALL. If HLT is executed in STI-shadow, resulting #VE
+> handler will enable interrupts before TDCALL is routed to hypervisor
+> leading to missed wakeup events.
+> 
+> Current TDX spec doesn't expose interruptibility state information to
+> allow #VE handler to selectively enable interrupts. To bypass this
+> issue, TDX VMs need to replace "sti;hlt" execution with direct TDCALL
+> followed by explicit interrupt flag update.
+> 
+> Commit bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+> prevented the idle routines from executing HLT instruction in STI-shadow.
+> But it missed the paravirt routine which can be reached like this as an
+> example:
+>         acpi_safe_halt() =>
+>         raw_safe_halt()  =>
+>         arch_safe_halt() =>
+>         irq.safe_halt()  =>
+>         pv_native_safe_halt()
 
-On 2/19/25 10:01 AM, Stefan Hajnoczi wrote:
-> On Wed, Dec 18, 2024 at 05:24:32PM +0800, Ferry Meng wrote:
->> This patchset implements io_uring passthrough surppot in virtio-blk
->> driver, bypass vfs and part of block layer logic, resulting in lower
->> submit latency and increased flexibility when utilizing virtio-blk.
-> Hi,
-> What is the status of this patch series?
->
-> Stefan
+I would rather use paravirt spinlock example. It is less controversial.
+I still see no point in ACPI cpuidle be a thing in TDX guests.
 
-I apologize for the delayed response. It seems that the maintainer has 
-not yet provided feedback on this patch series, and I was actually 
-waiting for his comments before proceeding. I have received the feedback 
-from the other reviewers & have already discovered some obvious mistakes 
-in v1 series.
+> 
+> To reliably handle arch_safe_halt() for TDX VMs, introduce explicit
+> dependency on CONFIG_PARAVIRT and override paravirt halt()/safe_halt()
+> routines with TDX-safe versions that execute direct TDCALL and needed
+> interrupt flag updates. Executing direct TDCALL brings in additional
+> benefit of avoiding HLT related #VEs altogether.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+> Signed-off-by: Vishal Annapurve <vannapurve@google.com>
 
+Reviewed-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
-Although I'm occupied with other tasks recently, I expect to send out v2 
-patches *in a week*.
-
-
-Thanks.
-
->> In this version, currently only supports READ/WRITE vec/no-vec operations,
->> others like discard or zoned ops not considered in. So the userspace-related
->> struct is not complicated.
->>
->> struct virtblk_uring_cmd {
->> 	__u32 type;
->> 	__u32 ioprio;
->> 	__u64 sector;
->> 	/* above is related to out_hdr */
->> 	__u64 data;  // user buffer addr or iovec base addr.
->> 	__u32 data_len; // user buffer length or iovec count.
->> 	__u32 flag;  // only contains whether a vector rw or not.
->> };
->>
->> To test this patch series, I changed fio's code:
->> 1. Added virtio-blk support to engines/io_uring.c.
->> 2. Added virtio-blk support to the t/io_uring.c testing tool.
->> Link: https://github.com/jdmfr/fio
->>
->>
->> ===========
->> Performance
->> ===========
->>
->> Using t/io_uring-vblk, the performance of virtio-blk based on uring-cmd
->> scales better than block device access. (such as below, Virtio-Blk with QEMU,
->> 1-depth fio)
->> (passthru) read: IOPS=17.2k, BW=67.4MiB/s (70.6MB/s)
->> slat (nsec): min=2907, max=43592, avg=3981.87, stdev=595.10
->> clat (usec): min=38, max=285,avg=53.47, stdev= 8.28
->> lat (usec): min=44, max=288, avg=57.45, stdev= 8.28
->> (block) read: IOPS=15.3k, BW=59.8MiB/s (62.7MB/s)
->> slat (nsec): min=3408, max=35366, avg=5102.17, stdev=790.79
->> clat (usec): min=35, max=343, avg=59.63, stdev=10.26
->> lat (usec): min=43, max=349, avg=64.73, stdev=10.21
->>
->> Testing the virtio-blk device with fio using 'engines=io_uring_cmd'
->> and 'engines=io_uring' also demonstrates improvements in submit latency.
->> (passthru) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u1 /dev/vdcc0
->> IOPS=189.80K, BW=741MiB/s, IOS/call=4/3
->> IOPS=187.68K, BW=733MiB/s, IOS/call=4/3
->> (block) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -O0 -n1 -u0 /dev/vdc
->> IOPS=101.51K, BW=396MiB/s, IOS/call=4/3
->> IOPS=100.01K, BW=390MiB/s, IOS/call=4/4
->>
->> =======
->> Changes
->> =======
->>
->> Changes in v1:
->> --------------
->> * remove virtblk_is_write() helper
->> * fix rq_flags type definition (blk_opf_t), add REQ_ALLOC_CACHE flag.
->> https://lore.kernel.org/io-uring/202412042324.uKQ5KdkE-lkp@intel.com/
->>
->> RFC discussion:
->> ---------------
->> https://lore.kernel.org/io-uring/20241203121424.19887-1-mengferry@linux.alibaba.com/
->>
->> Ferry Meng (3):
->>    virtio-blk: add virtio-blk chardev support.
->>    virtio-blk: add uring_cmd support for I/O passthru on chardev.
->>    virtio-blk: add uring_cmd iopoll support.
->>
->>   drivers/block/virtio_blk.c      | 320 +++++++++++++++++++++++++++++++-
->>   include/uapi/linux/virtio_blk.h |  16 ++
->>   2 files changed, 331 insertions(+), 5 deletions(-)
->>
->> -- 
->> 2.43.5
->>
+-- 
+  Kiryl Shutsemau / Kirill A. Shutemov
