@@ -1,158 +1,132 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D44126E96B
-	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 18:50:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DAD526E951
+	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 19:27:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740682249; cv=none; b=Ea8CxsZ8Gl2ocuUXgkz4d2G9OHYhKeqaKK85vfhwDnLyUkLdOWPZOzc17hxoniE717MsUDIwLo4lmyDXE8AY/pz4LQh0TxmYis203FaNMIOWj5vskd7LRbBxQIsbBlarmJHv0qwqEa95UI5SLmn5ldHW3GI2bsyJS0kt36Cy0JU=
+	t=1740684430; cv=none; b=QIx5wNbKzAYw+jF1qFlu3MECYtN2Y2PVNmbJDT0HcPqT5qby7eftvZeobRMtfj0S8OYluK84oudhiw7GAS5tTyPaPQl0H1c3SDaXWTnkJ01L7g3xX51cvfKmmmScYlQsnJroqmd6rjCj9FkVBsZgMbn6t8wHD6WfcRfWykVZpDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740682249; c=relaxed/simple;
-	bh=+SIdCL906LeLrhIoYRKYJT9sFHmdHFgcMAfsYXihQ1M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a20qY+bvnkzo5mcCZB+9q+r5eoYlUFXcT24LlyjGYRJgpk3/nHWl2ujOdh0uNj2+B/OSMM74G4a+gBwNSLE3Zgx7HtA4pN2e0Xbc2M8ggSRAlhm6gibE5aoa3k8/XRIQKreDqNs9L7He74xvA1bM3g4+OwYIsIf+pKAncVwsdNs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=s3lxNv/h; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	s=arc-20240116; t=1740684430; c=relaxed/simple;
+	bh=d1Qxg472CkVrkJspIto61QqE2XsIjtKw5J3xPkJikcY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uQkvF9/37XkMyOgQknNt9Md6SofqYb32jBi5AnBAxIXr/Bm6f9kXV/OQTGxubSVdrlnxSz3+btfrc2ZsK+DzCmIjZn2i84jnOcFG01azn4mRpNn5SMb6wPpvoVM3I7+V7EBNzBZLBkPQKdd+bPAT+gtcm97VaQ18ovbSHhj5Lpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ncujX4Qa; arc=none smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="s3lxNv/h"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-22339936bbfso21832715ad.1
-        for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 10:50:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ncujX4Qa"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-54843052b67so1284e87.0
+        for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 11:27:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1740682247; x=1741287047; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=google.com; s=20230601; t=1740684426; x=1741289226; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Nb0M0TRCtHIEHCHSiRXPcmJ/ChrocE4CL7Co5HwgWeE=;
-        b=s3lxNv/h4hJ/Mq6QKDScvyy/7bdJpTV6AKVai3fwbFAiWeTXv4rNAmtvGCTWc3s3BS
-         vmGz2Omqc7iISKKQ4GSL8NvnozVskKIIjNKgGvK5NEXVqmDOTX16cu/cD1qFH6L4Rnt9
-         2ir36oz70+4hIVAM4sNit7ACOtqQVVPUpGmPk=
+        bh=UtLSNJVT+92AMNNdy2v/ceT4EU9CKE0f6wRbNLrZ7oU=;
+        b=ncujX4QaZiLCXbCo0ltrqrD69sRWGEqsbvsdzCXWVFO1BkheGVTrH0V5Qqc+Jo2Fhx
+         1MxzXzbdswKUDx1fJmCl0jlSgB6axGY/nldV+gk2TbvB3bD5Dt+g1tg/qdCiQ3YdSjtp
+         ZfsKlHqYJyih0aU6y6o1P821WsA94JOPdZjj3Z+HRovtvT4N75vjPBoZdT9X3wpJexnJ
+         0fbFdJOl85FoDoVXiTLE+yHKT/dOLOmzOHXeVY5LeUYdTDq3Te2vkTYTba3BZNMYuhZL
+         sOC8Gasc5OF5cFfHaRE++fCFzWQ8exMpMsekZZ5KmDGFL1caPDcetxIUTl5HqRcAym6D
+         krVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740682247; x=1741287047;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1740684426; x=1741289226;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Nb0M0TRCtHIEHCHSiRXPcmJ/ChrocE4CL7Co5HwgWeE=;
-        b=B+V4ecB9m8YSbEBaL7tZ2SGsw65q6hkhn4aqGDLqDgp+GX+iblPu0KuqdwmJET/qk2
-         b8dpVLipUtps+XxynF3QCLdWnMsirH+lXr1wzhMCFMu7wn8rAAcBKfdIGi0enJOLjvEH
-         LCgm3ZRHqeYJYVinQkIVx9tS+TCyt+aknF4CmV/zSjfQLo5PgjvkvsKOOsyQ9EMi2GeQ
-         gHEOPWvcXI7PzqAf3WZCTXlWnVDe6E/JbvGoI3gnIJwh93BKGAGD2mWFVN2T8EubmUkS
-         4/HcumQq7dGI0wY9vvSe6UPsX6f4os3O8OWxH9NbbJAFVzkkrQmNAVtq7z0+s0pbr9Eg
-         82Ow==
-X-Forwarded-Encrypted: i=1; AJvYcCWJgg+0//fziex1Vt/V8N7OM9BXP1uqh2dWo59CfxeW7UtGzuiCunzzoAvYtNiI/o0fRS5ipFPmdzZ46npkbg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwSv91QZmtlyihzcWpKr2cFl8flAey8Zb2G8up6OFu0Hcsq0DBz
-	82ZDAtX7DyE86IuUpUhieD1Fq1XfbJxbHZZ/Rm4DBORsXsxzhtR86eR3ge/psIA=
-X-Gm-Gg: ASbGncuIR9cuQolWYpKG8Qi6iFbMfEDRE4Gdbu6AtRhsOz6nRiTP9OhxICjq0X1ChzU
-	vibzH/+M/vosQ5NjBgwwj609ycZK3da8GwRolxbq4g5V0XDT2qGULawdNmBfJrVDAqUt8XMVIP3
-	Trmba23rRJYYYpEzsWkdtATlV1R9I5qzJznMb6dO0yX2dpxynsdCNrlA2M3EeiOuA5DSN2PRSDC
-	hxJZ521cWd4HkvoRqjEmnsygIU+/3fubDAIGdNz+ZLYQDWAcj3WI63THXGWKTqqKV6u2ZXN6TqE
-	2P0QWzD+6LoXXjxuU1NoU891fzGBdQ+K7Q==
-X-Google-Smtp-Source: AGHT+IG09PRDodbXU23HoxlyyGWid4dyJeVF4PnAlwJOPsZe6tyJoXz4u2UsXV4jPCtXuFyfiaBoWQ==
-X-Received: by 2002:a17:902:c951:b0:221:78a1:27fb with SMTP id d9443c01a7336-22368f72060mr3908095ad.11.1740682247418;
-        Thu, 27 Feb 2025 10:50:47 -0800 (PST)
-Received: from localhost.localdomain ([2620:11a:c019:0:65e:3115:2f58:c5fd])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22350503eb9sm18275985ad.193.2025.02.27.10.50.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Feb 2025 10:50:46 -0800 (PST)
-From: Joe Damato <jdamato@fastly.com>
-To: netdev@vger.kernel.org
-Cc: mkarsten@uwaterloo.ca,
-	gerhard@engleder-embedded.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	kuba@kernel.org,
-	mst@redhat.com,
-	leiyang@redhat.com,
-	Joe Damato <jdamato@fastly.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH net-next v5 4/4] virtio_net: Use persistent NAPI config
-Date: Thu, 27 Feb 2025 18:50:14 +0000
-Message-ID: <20250227185017.206785-5-jdamato@fastly.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250227185017.206785-1-jdamato@fastly.com>
-References: <20250227185017.206785-1-jdamato@fastly.com>
+        bh=UtLSNJVT+92AMNNdy2v/ceT4EU9CKE0f6wRbNLrZ7oU=;
+        b=b0+Jd2jf2/8CUGPtfheuG4UGO14uRf9BdPldGY7/C2lvt/w3No8IsQUZgy8lKwiGvF
+         EdcQLRTFc/C/VUX+IlxpG8UBRKwlcl+cOHkJ+PkQMI7PTsgFnLXnnbLw3FMTuiNcvBJq
+         E2FHS8AM/cYsJ+Mwo2azpUlZXL0rdg2P29+yLzCtrGQG2cGfAItjE0/jiGUKKAB+nbYQ
+         WWnRX5muHOALF+GcHvDM5uob+ePlUsaKDS+3i633cCKNBirXOWEL52U/aK7QfPW9e8uO
+         Q/lC2cdYr9Uve8/EcoUEq0TinR8vl5jqzZPsioODDfuXr+ncwz7Bbuh2AdqoGUj2UQDX
+         04EQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW92hGMCrusnagg7FxAQ51wBAz/TYdwZT8YGqDMEtqcpqRp4OmAafJZUfq6rhSbXbWpCJ7rSHcihzNYBFtZiw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YycCDQQ3PeKODDGZeY4S+hiPlLCQy3z68eH4IMc6MoVPT8ATecs
+	XHuY0yyqRjTgvFsbb9H4JHAb4YS6CVLS/v+8m6a+3uQQTR41yuBspn3b7mRwXrMLMGpt9ogwU7r
+	XETA31Whrmkdc7cZ5VMgtYzXjsuy4CzeZiQ1A
+X-Gm-Gg: ASbGncsvTB34W30okxT+SdtiAGAZYgeN0TiUHed2u3/SM+NwgB0SOJfzwWgU6XLQD8w
+	owvNf6UreBaD36W60CoyBQ2jdYipD8lZlf0askhz/nV8SjRpw4OCC+4RDfqNalQdh4AtLV66hnb
+	J2oRnpdu4guyeFycpOAs1TGBTwheYl7nhEiiNc5xbd
+X-Google-Smtp-Source: AGHT+IEdSIwybUjSkkV5vNkBMcDTqOmFlDjP0ogUFLrcyG7hy/eEgdi+TbKAXYt1FUTQRVem2blej27QUoMzQ6ig7ik=
+X-Received: by 2002:a05:6512:3a84:b0:543:cf0c:ed14 with SMTP id
+ 2adb3069b0e04-5494debd8fdmr16005e87.5.1740684425486; Thu, 27 Feb 2025
+ 11:27:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250225004704.603652-1-vannapurve@google.com>
+ <20250225004704.603652-3-vannapurve@google.com> <pvbwlmkknw7cwln4onmi5mujpykyaxisb73khlriq7pzqhgno2@nvu3cbchp4am>
+In-Reply-To: <pvbwlmkknw7cwln4onmi5mujpykyaxisb73khlriq7pzqhgno2@nvu3cbchp4am>
+From: Vishal Annapurve <vannapurve@google.com>
+Date: Thu, 27 Feb 2025 11:26:53 -0800
+X-Gm-Features: AQ5f1JpNkvOxWDJlk_d64tma-tOWc1scSvqjWSXHu6nUjd70ID7CCmOSArfFMN8
+Message-ID: <CAGtprH8mxENaH-Y0=b0kKJio=EG0OKt_qeguRBJECagXL4poPA@mail.gmail.com>
+Subject: Re: [PATCH v6 2/3] x86/tdx: Fix arch_safe_halt() execution for TDX VMs
+To: "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc: dave.hansen@linux.intel.com, kirill.shutemov@linux.intel.com, 
+	jgross@suse.com, ajay.kaher@broadcom.com, ak@linux.intel.com, 
+	tony.luck@intel.com, thomas.lendacky@amd.com, tglx@linutronix.de, 
+	mingo@redhat.com, bp@alien8.de, hpa@zytor.com, pbonzini@redhat.com, 
+	seanjc@google.com, kai.huang@intel.com, chao.p.peng@linux.intel.com, 
+	isaku.yamahata@gmail.com, sathyanarayanan.kuppuswamy@linux.intel.com, 
+	erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com, 
+	sagis@google.com, afranji@google.com, kees@kernel.org, jikos@kernel.org, 
+	peterz@infradead.org, x86@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-coco@lists.linux.dev, virtualization@lists.linux.dev, 
+	bcm-kernel-feedback-list@broadcom.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Use persistent NAPI config so that NAPI IDs are not renumbered as queue
-counts change.
+On Wed, Feb 26, 2025 at 3:49=E2=80=AFAM Kirill A. Shutemov <kirill@shutemov=
+.name> wrote:
+>
+> On Tue, Feb 25, 2025 at 12:47:03AM +0000, Vishal Annapurve wrote:
+> > Direct HLT instruction execution causes #VEs for TDX VMs which is route=
+d
+> > to hypervisor via TDCALL. If HLT is executed in STI-shadow, resulting #=
+VE
+> > handler will enable interrupts before TDCALL is routed to hypervisor
+> > leading to missed wakeup events.
+> >
+> > Current TDX spec doesn't expose interruptibility state information to
+> > allow #VE handler to selectively enable interrupts. To bypass this
+> > issue, TDX VMs need to replace "sti;hlt" execution with direct TDCALL
+> > followed by explicit interrupt flag update.
+> >
+> > Commit bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+> > prevented the idle routines from executing HLT instruction in STI-shado=
+w.
+> > But it missed the paravirt routine which can be reached like this as an
+> > example:
+> >         acpi_safe_halt() =3D>
+> >         raw_safe_halt()  =3D>
+> >         arch_safe_halt() =3D>
+> >         irq.safe_halt()  =3D>
+> >         pv_native_safe_halt()
+>
+> I would rather use paravirt spinlock example. It is less controversial.
+> I still see no point in ACPI cpuidle be a thing in TDX guests.
+>
 
-$ sudo ethtool -l ens4  | tail -5 | egrep -i '(current|combined)'
-Current hardware settings:
-Combined:       4
+I will modify the description to include a paravirt spinlock example.
 
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 8194, 'type': 'rx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 8195, 'type': 'rx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 8196, 'type': 'rx'},
- {'id': 0, 'ifindex': 2, 'type': 'tx'},
- {'id': 1, 'ifindex': 2, 'type': 'tx'},
- {'id': 2, 'ifindex': 2, 'type': 'tx'},
- {'id': 3, 'ifindex': 2, 'type': 'tx'}]
-
-Now adjust the queue count, note that the NAPI IDs are not renumbered:
-
-$ sudo ethtool -L ens4 combined 1
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 0, 'ifindex': 2, 'type': 'tx'}]
-
-$ sudo ethtool -L ens4 combined 8
-$ ./tools/net/ynl/pyynl/cli.py \
-    --spec Documentation/netlink/specs/netdev.yaml \
-    --dump queue-get --json='{"ifindex": 2}'
-[{'id': 0, 'ifindex': 2, 'napi-id': 8193, 'type': 'rx'},
- {'id': 1, 'ifindex': 2, 'napi-id': 8194, 'type': 'rx'},
- {'id': 2, 'ifindex': 2, 'napi-id': 8195, 'type': 'rx'},
- {'id': 3, 'ifindex': 2, 'napi-id': 8196, 'type': 'rx'},
- {'id': 4, 'ifindex': 2, 'napi-id': 8197, 'type': 'rx'},
- {'id': 5, 'ifindex': 2, 'napi-id': 8198, 'type': 'rx'},
- {'id': 6, 'ifindex': 2, 'napi-id': 8199, 'type': 'rx'},
- {'id': 7, 'ifindex': 2, 'napi-id': 8200, 'type': 'rx'},
- [...]
-
-Signed-off-by: Joe Damato <jdamato@fastly.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Reviewed-by: Gerhard Engleder <gerhard@engleder-embedded.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Tested-by: Lei Yang <leiyang@redhat.com>
----
- drivers/net/virtio_net.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 76dcd65ec0f2..8569b600337f 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -6447,8 +6447,9 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 	INIT_DELAYED_WORK(&vi->refill, refill_work);
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		vi->rq[i].pages = NULL;
--		netif_napi_add_weight(vi->dev, &vi->rq[i].napi, virtnet_poll,
--				      napi_weight);
-+		netif_napi_add_config(vi->dev, &vi->rq[i].napi, virtnet_poll,
-+				      i);
-+		vi->rq[i].napi.weight = napi_weight;
- 		netif_napi_add_tx_weight(vi->dev, &vi->sq[i].napi,
- 					 virtnet_poll_tx,
- 					 napi_tx ? napi_weight : 0);
--- 
-2.45.2
-
+> >
+> > To reliably handle arch_safe_halt() for TDX VMs, introduce explicit
+> > dependency on CONFIG_PARAVIRT and override paravirt halt()/safe_halt()
+> > routines with TDX-safe versions that execute direct TDCALL and needed
+> > interrupt flag updates. Executing direct TDCALL brings in additional
+> > benefit of avoiding HLT related #VEs altogether.
+> >
+> > Cc: stable@vger.kernel.org
+> > Fixes: bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+> > Signed-off-by: Vishal Annapurve <vannapurve@google.com>
+>
+> Reviewed-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+>
+> --
+>   Kiryl Shutsemau / Kirill A. Shutemov
