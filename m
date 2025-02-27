@@ -1,162 +1,219 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0C8722F177
-	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 10:22:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CEC81EEE6;
+	Thu, 27 Feb 2025 13:15:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740651736; cv=none; b=FRVrRx3Wm0hf8uJ6+H6csJbzZIKwIVPlY0QW8EmdxVDkY5K4wIgui7y3QATZ2TKpiKcOqlp0U3w13XpLjQUMuxG5cxZvvCFfg+R8tLMWHQZBim4C964Xp1R3cmhNusMD1Z3JADVYHmy756+lYJRUB/924ZApX0d3O+Z3jQrLyg4=
+	t=1740662132; cv=none; b=Rm9pQHU4FOo1DDSr38NIRQvszgrFBpGDgAGdsHF619CzvrLOmUjnW01S7ryvz9rUQB/dE3H6cPMiqG5kzEFDOBrrzjSQuc5MlAgihutBMMgb8L8+NWpTZkAHHZoenJVvQHetuAe49rZu9/7NBGPUesFmVjezO4XFcoSB/iNGTo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740651736; c=relaxed/simple;
-	bh=T9BHAcLO2Fi8F/is/hh9AfEDFJvEd2NLh8ELZM2jcp4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g7cPpPFCnOR8UCn9QasK17r9R7kmS0yf6/C80o38IiFJUFDKgfauQqtG36n7bT9zFJlBrC69HyGx7Fn3Q9tzsClzKocEZUBBl8t8jOQMP6oyABLHAvJ7KA4FEd51+UEZtBVjF3Gxc9CwUpR7VQOJqysY5+aEu6zFkiYgGRJoVrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XDX1htN1; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1740662132; c=relaxed/simple;
+	bh=10uz/6GHPznmkoEebLO3Ry9z1Iblsqs6tsAuZLbb6pM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GoTuIZQqFj0KVjbXRJ5AjgLJ6F0+3ERY371jS2t0wmZC035UQ+ktvdaxwNHJ7IUGIU8gkN5XtR1QGSVeVXGxRiuRnasBAl4OU2jM1uQIh68Pn44FnrYRdCByJJEEsPbt5mOTkjzeIS7qpS0K8su4hWzBxOtIv/uJhZUeK0ZtWIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LYFX06Ck; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XDX1htN1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740651734;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UlN7ERFRgkJUG+zgZJ963Qv4eKnSMi6hs0/GkrW6sYs=;
-	b=XDX1htN1522u9PF7oyQqBZZohXGLKXlXpI1SpDHAToT7Z15ybPFLhRhiLoE0S+cNsM+i74
-	/pUTRv7QHYPbUlmA9DwDeA2N699Z392zapIMXogcpUHdxmYXYn2vwdzGhSpL3bkfcsp80A
-	InIndWPAIXuM3v2Ty6Oyb2iWc+Eeugc=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-Rq6rMTmgP7avHmp9DjUoRg-1; Thu, 27 Feb 2025 05:22:12 -0500
-X-MC-Unique: Rq6rMTmgP7avHmp9DjUoRg-1
-X-Mimecast-MFC-AGG-ID: Rq6rMTmgP7avHmp9DjUoRg_1740651731
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5df498f31ccso758201a12.1
-        for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 02:22:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740651731; x=1741256531;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UlN7ERFRgkJUG+zgZJ963Qv4eKnSMi6hs0/GkrW6sYs=;
-        b=RuBKzx21fKKE/PncjgBBW3y2jY2S+ZlOE/d2DTZ3sZ5Qicddch9JlUi0rEw/yh2KEx
-         s/gPHCZqJiCHOBXegjxXoYz5RMX0CvDPBckrhl0uMdw65Nt2T1LXysSWy+swkPHj3bkO
-         zrkt1YJX5Td4qikK/IE+Tr90diYuodjxwV0QVeC2LQuh9/3ep2GiDvEsgN+/oOHuh48Q
-         FgTMsz4akcDWltvWDG2ugHaCru55Ig95puvxZvI8SYptof9Qu7ZwngfmeewR04S2pRSR
-         jC+WGE2JL1YzhDrd7Yy2pwdevZFFnbVyJqt2zbt34yNHEIzoKH45N/LywhWRMW4spKix
-         YmjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU3DqAyzQ6PJPP5G+pb70n1d3B+Ac7556KhLom3Wqh4K/SgWy7ebwYkzAOVQco8kqHMgm/EARP2lfnE9rxk3w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzQvBCMGs5CZ4sylSS/Z5zSX8DuCa8Js0fb4PR2I+bmWw+jEo1c
-	DCTZiOSblv9+nWl2oz7oEnVPYuf+xz6pdeyJe9DlP12U5oSI8vjPgPgD3REEAHb2fNBN6Lb3tdl
-	y5aitLNqmWqSMzGyUZEefgj2kWy1MWgZueI8tpIH/tWsKAtcdxRyH4AL2G3goQADyc601oU542B
-	QJbWbxbId4X/pRcGgHX267MZxU12tE+eQzhbgZIDw=
-X-Gm-Gg: ASbGncu8uSqvjEetPsGmLv5nJ4zh903+Ysw0sSaqnQBURejOocjig2RQZw4tRkjntoN
-	V6Nw9k4DT9qSPReHUhybHTk3Qp2x14PaheceGJ+GRXqC5DHnw+TrraofLZ+dItHIBkZca6XJo9w
-	==
-X-Received: by 2002:a05:6402:238f:b0:5e4:9348:72c3 with SMTP id 4fb4d7f45d1cf-5e493487986mr7779704a12.10.1740651730970;
-        Thu, 27 Feb 2025 02:22:10 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF3pM8WlV3oQBfytyyeOaQOimRV0KwS4EKHWJ5i0zUzAv1yCmDn5hX3VcUGzB4vcvxPmQuMR1bS9CT94wGST18=
-X-Received: by 2002:a05:6402:238f:b0:5e4:9348:72c3 with SMTP id
- 4fb4d7f45d1cf-5e493487986mr7779686a12.10.1740651730586; Thu, 27 Feb 2025
- 02:22:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LYFX06Ck"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740662131; x=1772198131;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=10uz/6GHPznmkoEebLO3Ry9z1Iblsqs6tsAuZLbb6pM=;
+  b=LYFX06CkwC+gqCyG3pnqEIG85r6LcJ44amr7ziTISBfi3LW9L/bRnNWh
+   T3YnJ8Dehcc5HrrwwVnapXBCmdnqi2n+4wXwAeM4Hb21F7NkmZDETjXwa
+   hy/pr5ROdtqXYbplzDyEc6F6vq6bSmWSCqbEEv+pZOOWt3qX/64Qh5WA0
+   hu2Y7h/JgUQKpPOfT+nft/rOLldWaZPdeH2bWQYPRebwSJtaPF+980hKi
+   U1LM9wbrZk0LGJydSvUHK4uJ3dkRbhXUcts5yOprY5k88RURTAWkaww08
+   hnnKCU3peWjioL3ppBxYiwl4fxc/XxF4CI3WD1Xr8BnvI5/AG7UNWhvXu
+   w==;
+X-CSE-ConnectionGUID: Uejk03lKSdyZRjU+hRxW6w==
+X-CSE-MsgGUID: yBJITMkJQO6SETeEkaJILA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11358"; a="52945600"
+X-IronPort-AV: E=Sophos;i="6.13,319,1732608000"; 
+   d="scan'208";a="52945600"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 05:15:30 -0800
+X-CSE-ConnectionGUID: YSzANlW6TheqXNJb8PsEYQ==
+X-CSE-MsgGUID: IW3p7XzcS9++CSw8VxGIiQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="147939679"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmviesa001.fm.intel.com with ESMTP; 27 Feb 2025 05:15:24 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1000)
+	id 8582D2D5; Thu, 27 Feb 2025 15:15:23 +0200 (EET)
+Date: Thu, 27 Feb 2025 15:15:23 +0200
+From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Paolo Bonzini <pbonzini@redhat.com>, Juergen Gross <jgross@suse.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, 
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Jan Kiszka <jan.kiszka@siemens.com>, 
+	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Daniel Lezcano <daniel.lezcano@linaro.org>, John Stultz <jstultz@google.com>, linux-kernel@vger.kernel.org, 
+	linux-coco@lists.linux.dev, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, 
+	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>
+Subject: Re: [PATCH v2 06/38] x86/tdx: Override PV calibration routines with
+ CPUID-based calibration
+Message-ID: <buq5hn27q7r5ktb33rxejp7i54s22zqu3vw44bie6vzcouzzdc@btjgkdpoeclw>
+References: <20250227021855.3257188-1-seanjc@google.com>
+ <20250227021855.3257188-7-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250226213844.3826821-1-kbusch@meta.com>
-In-Reply-To: <20250226213844.3826821-1-kbusch@meta.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Thu, 27 Feb 2025 18:21:34 +0800
-X-Gm-Features: AQ5f1JpeYWXlUn8jsieYhOpf1esALXljPtGnrofbGi8hLpfdoH4ms9lz0ZIIMxk
-Message-ID: <CAPpAL=yffyhUrdEJHtAw4BDpV-=Z5mZq0r1ZFcoj1v1OBLnp_g@mail.gmail.com>
-Subject: Re: [PATCHv2 0/2] kvm/x86: vhost task creation failure handling
-To: Keith Busch <kbusch@meta.com>
-Cc: pbonzini@redhat.com, seanjc@google.com, kvm@vger.kernel.org, 
-	x86@kernel.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Keith Busch <kbusch@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jMG3umsGhlSMDhCuzqvQk03nG1_FJ3rakgonH4JOcDo_1740651731
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250227021855.3257188-7-seanjc@google.com>
 
-Hi Keith
+On Wed, Feb 26, 2025 at 06:18:22PM -0800, Sean Christopherson wrote:
+> When running as a TDX guest, explicitly override the TSC frequency
+> calibration routine with CPUID-based calibration instead of potentially
+> relying on a hypervisor-controlled PV routine.  For TDX guests, CPUID.0x15
+> is always emulated by the TDX-Module, i.e. the information from CPUID is
+> more trustworthy than the information provided by the hypervisor.
+> 
+> To maintain backwards compatibility with TDX guest kernels that use native
+> calibration, and because it's the least awful option, retain
+> native_calibrate_tsc()'s stuffing of the local APIC bus period using the
+> core crystal frequency.  While it's entirely possible for the hypervisor
+> to emulate the APIC timer at a different frequency than the core crystal
+> frequency, the commonly accepted interpretation of Intel's SDM is that APIC
+> timer runs at the core crystal frequency when that latter is enumerated via
+> CPUID:
+> 
+>   The APIC timer frequency will be the processor’s bus clock or core
+>   crystal clock frequency (when TSC/core crystal clock ratio is enumerated
+>   in CPUID leaf 0x15).
+> 
+> If the hypervisor is malicious and deliberately runs the APIC timer at the
+> wrong frequency, nothing would stop the hypervisor from modifying the
+> frequency at any time, i.e. attempting to manually calibrate the frequency
+> out of paranoia would be futile.
+> 
+> Deliberately leave the CPU frequency calibration routine as is, since the
+> TDX-Module doesn't provide any guarantees with respect to CPUID.0x16.
+> 
+> Opportunistically add a comment explaining that CoCo TSC initialization
+> needs to come after hypervisor specific initialization.
+> 
+> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> ---
+>  arch/x86/coco/tdx/tdx.c    | 30 +++++++++++++++++++++++++++---
+>  arch/x86/include/asm/tdx.h |  2 ++
+>  arch/x86/kernel/tsc.c      |  8 ++++++++
+>  3 files changed, 37 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
+> index 32809a06dab4..42cdaa98dc5e 100644
+> --- a/arch/x86/coco/tdx/tdx.c
+> +++ b/arch/x86/coco/tdx/tdx.c
+> @@ -8,6 +8,7 @@
+>  #include <linux/export.h>
+>  #include <linux/io.h>
+>  #include <linux/kexec.h>
+> +#include <asm/apic.h>
+>  #include <asm/coco.h>
+>  #include <asm/tdx.h>
+>  #include <asm/vmx.h>
+> @@ -1063,9 +1064,6 @@ void __init tdx_early_init(void)
+>  
+>  	setup_force_cpu_cap(X86_FEATURE_TDX_GUEST);
+>  
+> -	/* TSC is the only reliable clock in TDX guest */
+> -	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
+> -
+>  	cc_vendor = CC_VENDOR_INTEL;
+>  
+>  	/* Configure the TD */
+> @@ -1122,3 +1120,29 @@ void __init tdx_early_init(void)
+>  
+>  	tdx_announce();
+>  }
+> +
+> +static unsigned long tdx_get_tsc_khz(void)
+> +{
+> +	struct cpuid_tsc_info info;
+> +
+> +	if (WARN_ON_ONCE(cpuid_get_tsc_freq(&info)))
+> +		return 0;
+> +
+> +	lapic_timer_period = info.crystal_khz * 1000 / HZ;
+> +
+> +	return info.tsc_khz;
+> +}
+> +
+> +void __init tdx_tsc_init(void)
+> +{
+> +	/* TSC is the only reliable clock in TDX guest */
+> +	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
+> +	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
+> +
+> +	/*
+> +	 * Override the PV calibration routines (if set) with more trustworthy
+> +	 * CPUID-based calibration.  The TDX module emulates CPUID, whereas any
+> +	 * PV information is provided by the hypervisor.
+> +	 */
+> +	tsc_register_calibration_routines(tdx_get_tsc_khz, NULL);
+> +}
+> diff --git a/arch/x86/include/asm/tdx.h b/arch/x86/include/asm/tdx.h
+> index b4b16dafd55e..621fbdd101e2 100644
+> --- a/arch/x86/include/asm/tdx.h
+> +++ b/arch/x86/include/asm/tdx.h
+> @@ -53,6 +53,7 @@ struct ve_info {
+>  #ifdef CONFIG_INTEL_TDX_GUEST
+>  
+>  void __init tdx_early_init(void);
+> +void __init tdx_tsc_init(void);
+>  
+>  void tdx_get_ve_info(struct ve_info *ve);
+>  
+> @@ -72,6 +73,7 @@ void __init tdx_dump_td_ctls(u64 td_ctls);
+>  #else
+>  
+>  static inline void tdx_early_init(void) { };
+> +static inline void tdx_tsc_init(void) { }
+>  static inline void tdx_safe_halt(void) { };
+>  
+>  static inline bool tdx_early_handle_ve(struct pt_regs *regs) { return false; }
+> diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
+> index 6a011cd1ff94..472d6c71d3a5 100644
+> --- a/arch/x86/kernel/tsc.c
+> +++ b/arch/x86/kernel/tsc.c
+> @@ -32,6 +32,7 @@
+>  #include <asm/topology.h>
+>  #include <asm/uv/uv.h>
+>  #include <asm/sev.h>
+> +#include <asm/tdx.h>
+>  
+>  unsigned int __read_mostly cpu_khz;	/* TSC clocks / usec, not used here */
+>  EXPORT_SYMBOL(cpu_khz);
+> @@ -1563,8 +1564,15 @@ void __init tsc_early_init(void)
+>  	if (is_early_uv_system())
+>  		return;
+>  
+> +	/*
+> +	 * Do CoCo specific "secure" TSC initialization *after* hypervisor
+> +	 * platform initialization so that the secure variant can override the
+> +	 * hypervisor's PV calibration routine with a more trusted method.
+> +	 */
+>  	if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
+>  		snp_secure_tsc_init();
+> +	else if (boot_cpu_has(X86_FEATURE_TDX_GUEST))
+> +		tdx_tsc_init();
 
-There are some error messages from qemu output when I tested this
-series of patches with the virtio-net regression test. It can
-reproduced by boot up a guest with vhost device after applied your
-patches.
-Error messages:
-Qemu output:
-qemu-kvm: -netdev {"id": "idoejzv8", "type": "tap", "vhost": true,
-"vhostfd": "16", "fd": "10"}: vhost_set_owner failed: Cannot allocate
-memory
-qemu-kvm: -netdev {"id": "idoejzv8", "type": "tap", "vhost": true,
-"vhostfd": "16", "fd": "10"}: vhost-net requested but could not be
-initialized
-
-My tests based on this commit:
-# git log -1
-commit dd83757f6e686a2188997cb58b5975f744bb7786 (HEAD -> master,
-origin/master, origin/HEAD)
-Merge: 102c16a1f9a9 eb54d2695b57
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed Feb 26 16:55:30 2025 -0800
-
-    Merge tag 'bcachefs-2025-02-26' of git://evilpiepirate.org/bcachefs
-
-Thanks
-Lei
+Maybe a x86_platform.guest callback for this?
 
 
-
-On Thu, Feb 27, 2025 at 5:40=E2=80=AFAM Keith Busch <kbusch@meta.com> wrote=
-:
->
-> From: Keith Busch <kbusch@kernel.org>
->
-> The suggestion from Sean appears to be successful, so sending out a new
-> version for consideration.
->
-> Background:
->
-> The crosvm VMM might send signals to its threads that have entered
-> KVM_RUN. The signal specifically is SIGRTRMIN from here:
->
->   https://github.com/google/crosvm/blob/main/src/crosvm/sys/linux/vcpu.rs=
-#L651
->
-> If this happens to occur when the huge page recovery is trying to create
-> its vhost task, that will fail with ERESTARTNOINTR. Once this happens,
-> all KVM_RUN calls will fail with ENOMEM despite memory not being the
-> problem.
->
-> This series propogates the error up so we can distinguish that from the
-> current defaulting to ENOMEM and replaces the call_once since we need to
-> be able to call it repeatedly due to this condition.
->
-> Changes from the v1 (prefixed as an "RFC", really) patch:
->
->   Instead of using a VM-wide mutex, update the call_once pattern to
->   complete only if what it calls is successful (from Sean).
->
-> Keith Busch (1):
->   vhost: return task creation error instead of NULL
->
-> Sean Christopherson (1):
->   kvm: retry nx_huge_page_recovery_thread creation
->
->  arch/x86/kvm/mmu/mmu.c    | 12 +++++-------
->  drivers/vhost/vhost.c     |  2 +-
->  include/linux/call_once.h | 16 +++++++++++-----
->  kernel/vhost_task.c       |  4 ++--
->  4 files changed, 19 insertions(+), 15 deletions(-)
->
-> --
-> 2.43.5
->
->
-
+-- 
+  Kiryl Shutsemau / Kirill A. Shutemov
