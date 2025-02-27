@@ -1,160 +1,185 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4EB11AF0CA;
-	Thu, 27 Feb 2025 16:25:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D44A258CF1
+	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 18:50:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740673556; cv=none; b=oTXOJcrthu2jTpWEpepiyS9UUmcFmt9ebRd3WvQOKCCBCgUvZNRnCAtcfLqcoeKgPPxHNUOl4qEwu1Tb/2cgzKx30IhXRill7QGWMsGbSe7Br0EoxTApvDpZDgh387as+75invwj1pqi9P/thmb5zgCKLbGvChzxJ1FxfGT1EJk=
+	t=1740682242; cv=none; b=Vzm1Z55W18WnPdDwXXuyfnVqrwLoszT8Z175yTzbOW6lckYb6C0KEh63pptfjbSIQdcuYjfx5EWppJXQyd1TawPT7jr0U3HzfZAxxML0mg4/9q0yb1Jhve7pYZLoNV7ekaar5SayZJTbnxna7nN4/1SJgpGfyD40bQBixFKgCqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740673556; c=relaxed/simple;
-	bh=zhNYYeMAow0BtxLxQNwrj/TtNhqr/Fl7bOoE8dZ4AHU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JbTYuxjuveyq5PyMj2Oq2MaAWbgzejLnbWK3NP1R+oRI+xY/R5YuUZrvgC2LKWRAFLnG2xyIx8E93GiBJ197o04BDNbD4rLitWzbV+D5LGQjSauEGljNKAfUAQF6rw5C0ojo3kKWt1IivI1cS3X99HsC0SZrVicgrWw0+8D/xVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RKv2jqK/; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1740682242; c=relaxed/simple;
+	bh=JVrLUQPdhierVvVB9T39WHViYQpGOg8iWAODC6R6k+E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V1yuUejTN7xwcsvCoe1nZ4ceh6gUzoZpy5V9BtF5BlfYegyPli8h/s/zenoBclaKrNlydHqbIDEkEqiZ59RouVBorCajTo2N2k5Cg1M59l9EEUebPxBeFgn/cQhJp8Vdzx4YFeDvjWd+jd6uhT9RxJezuatP1phuOWi6YoFFJ6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=Oj+zy9FC; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RKv2jqK/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740673555; x=1772209555;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=zhNYYeMAow0BtxLxQNwrj/TtNhqr/Fl7bOoE8dZ4AHU=;
-  b=RKv2jqK/w93NNCgMgNvkMuSiE9WKnN/IsEXJBDdyb5CN+plHlargJZKd
-   Jpeh9JtbtVwij1FOlzV5k/LB/vnGBBqAZ8F3NtATkochiQKCr7gJj/U2/
-   HA0oOXrxdCA6suiFjagdlMOomup2/XadgG8pPybklUjs/YJLV6hIusN/Y
-   rWIXKhdYG3DyybhqpJ9rGZTs1HI4SgZ7JQv3ZonbJCD+nFAQNrW2nmktn
-   VZI8Flhgda90JB56FXHfiHRVYWVbnndeC3CNxSa5CHswqYtSg+PD2L7Md
-   A/n2qkFsmJAyX18lcE2Hhc4kJJ5BrjqG8Jw/39ENPwACv3Nm70KSyXTz+
-   A==;
-X-CSE-ConnectionGUID: vAdmvRI5R3OP/Ndi05Tmfg==
-X-CSE-MsgGUID: q0+5oKw8QOWdLtnn5RMjBw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11358"; a="66945547"
-X-IronPort-AV: E=Sophos;i="6.13,320,1732608000"; 
-   d="scan'208";a="66945547"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 08:25:54 -0800
-X-CSE-ConnectionGUID: 7IEA9UGeS66Ek9lDDETxMg==
-X-CSE-MsgGUID: B3+jANRvR3KSDN2PK8w0mA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="122313333"
-Received: from lkp-server02.sh.intel.com (HELO 76cde6cc1f07) ([10.239.97.151])
-  by orviesa005.jf.intel.com with ESMTP; 27 Feb 2025 08:25:46 -0800
-Received: from kbuild by 76cde6cc1f07 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tnggn-000DgL-1J;
-	Thu, 27 Feb 2025 16:25:03 +0000
-Date: Fri, 28 Feb 2025 00:19:49 +0800
-From: kernel test robot <lkp@intel.com>
-To: Vishal Annapurve <vannapurve@google.com>, dave.hansen@linux.intel.com,
-	kirill.shutemov@linux.intel.com, jgross@suse.com,
-	ajay.kaher@broadcom.com, ak@linux.intel.com, tony.luck@intel.com,
-	thomas.lendacky@amd.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, tglx@linutronix.de,
-	mingo@redhat.com, bp@alien8.de, hpa@zytor.com, pbonzini@redhat.com,
-	seanjc@google.com, kai.huang@intel.com, chao.p.peng@linux.intel.com,
-	isaku.yamahata@gmail.com,
-	sathyanarayanan.kuppuswamy@linux.intel.com, erdemaktas@google.com,
-	ackerleytng@google.com, jxgao@google.com, sagis@google.com,
-	afranji@google.com, kees@kernel.org, jikos@kernel.org,
-	peterz@infradead.org, x86@kernel.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com
-Subject: Re: [PATCH v6 2/3] x86/tdx: Fix arch_safe_halt() execution for TDX
- VMs
-Message-ID: <202502272346.iiQ6Dptt-lkp@intel.com>
-References: <20250225004704.603652-3-vannapurve@google.com>
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="Oj+zy9FC"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-220e83d65e5so24977585ad.1
+        for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 10:50:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1740682240; x=1741287040; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=DooASBqDq2Su1Kjlyvffy6QfBZOl14ihxJCQdnbxEeA=;
+        b=Oj+zy9FC8ZfFFa2RyGGd6wEZVLmVXiFI3l4SIrXC+DyxvbP+i/SqPbW1cXwXvbzEtp
+         Hj1TLKErQXV2ZMkP74aQUab380tPTZeu+aM2efRtFXARZJY2Y8WyZlBSXonaNJtBpzrx
+         nRkzTehxwt+bl2f6x9vbLKKv/5zrUs5z57OHQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740682240; x=1741287040;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DooASBqDq2Su1Kjlyvffy6QfBZOl14ihxJCQdnbxEeA=;
+        b=TQGhjwqZ6F4dYDrKkTdQ4pS9R8TDFld3k6OeMbiDH8fNyG4MqizrZZqPR/aUX9A688
+         5FRE0+e/YH+yRBiDliJaADyaTxkh1399lnVs1lw+N8V2e8Ks4a9q7b5GyAK4GqIUzD5N
+         D1Mz22533f7s0jmoMvxQeru7rKrjfOb2pZX1pfeqJf3VBRkVyydeL1lgnY67/x1vh1yj
+         7AJ3VIMDz/agCwRx4T+D/OAWCG7EFNGV8dUDEF9lCkg78vg0lKp7s5C5jNojh3s4++RU
+         mJ7YyQ0ubgDYarXKDnDkdlcMeU8KBCPIE0ciNcCXRR5uxLDfaV3KMINouLTd3+lpF4pS
+         GW0A==
+X-Forwarded-Encrypted: i=1; AJvYcCVR1/5MKqXNXoI6w68f4t/4PuMhJIOXgMG00SXfLxNLtTtdDMN1NofMPXCoDQR/CtujeMbkKYeHxrFYYOBf5g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxR2Z/FckuWcW/d8M3tMtltx2H+HX7/Q0hetBSzawpfGwGzwyB/
+	P0QW0UdkIZUz1pbH/RGezLlqvViMIQNfa0cn3FF2xACnghLkM7hXImwwUARb9oCVtKjcFga4K9f
+	sqWo=
+X-Gm-Gg: ASbGncsG0Z0hh5AVvZ456bhIJNqa0GgzoyvUP0k13Y4r7tOFvpdM0SIrh3tJDSX8INI
+	ziwMHEXevVcCMOx6fKWwfehhruiS7te1Plt+vUIROMBjbMFftCu2n8njGpaqZKu/8RbO+U+Y0G6
+	XlTWV+LMQgKx/Dzmy6UjQ8oadiSrRfYew/L8rYpVLniX98oLkIIyX+pQXy2pz4CNm0sXPyYBQ1v
+	iVusYDn6g+YttZZT2t9TFnFR7TgcPMmOgKjmlE0MF3XGUn0x69r0qOuLT91sPObMkaSXHRoiIRh
+	8pEmI23SoGXqrrbqirOU1q+40+U8E6I0zg==
+X-Google-Smtp-Source: AGHT+IFA0MRx4/wAs809zakde3f4qVOiG47vG98z/6mWwQFds5bqMOu206vyHM1cjUG7RCAYoliRcg==
+X-Received: by 2002:a17:902:d510:b0:220:f140:f7be with SMTP id d9443c01a7336-2236924e3f6mr3183985ad.41.1740682240355;
+        Thu, 27 Feb 2025 10:50:40 -0800 (PST)
+Received: from localhost.localdomain ([2620:11a:c019:0:65e:3115:2f58:c5fd])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22350503eb9sm18275985ad.193.2025.02.27.10.50.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Feb 2025 10:50:39 -0800 (PST)
+From: Joe Damato <jdamato@fastly.com>
+To: netdev@vger.kernel.org
+Cc: mkarsten@uwaterloo.ca,
+	gerhard@engleder-embedded.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	kuba@kernel.org,
+	mst@redhat.com,
+	leiyang@redhat.com,
+	Joe Damato <jdamato@fastly.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	bpf@vger.kernel.org (open list:XDP (eXpress Data Path):Keyword:(?:\b|_)xdp(?:\b|_)),
+	Daniel Borkmann <daniel@iogearbox.net>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	linux-kernel@vger.kernel.org (open list),
+	Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS)
+Subject: [PATCH net-next v5 0/4] virtio-net: Link queues to NAPIs
+Date: Thu, 27 Feb 2025 18:50:10 +0000
+Message-ID: <20250227185017.206785-1-jdamato@fastly.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250225004704.603652-3-vannapurve@google.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Vishal,
+Greetings:
 
-kernel test robot noticed the following build errors:
+Welcome to v5. Patches 1, 2, and 4 have no functional changes only
+updated tags. Patch 3 was refactored as requested by Jason. See the
+changelog below and the commit message for details.
 
-[auto build test ERROR on tip/x86/core]
-[also build test ERROR on tip/master linus/master v6.14-rc4 next-20250227]
-[cannot apply to tip/x86/tdx tip/auto-latest]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Jakub recently commented [1] that I should not hold this series on
+virtio-net linking queues to NAPIs behind other important work that is
+on-going and suggested I re-spin, so here we are :)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Vishal-Annapurve/x86-paravirt-Move-halt-paravirt-calls-under-CONFIG_PARAVIRT/20250225-085043
-base:   tip/x86/core
-patch link:    https://lore.kernel.org/r/20250225004704.603652-3-vannapurve%40google.com
-patch subject: [PATCH v6 2/3] x86/tdx: Fix arch_safe_halt() execution for TDX VMs
-config: i386-buildonly-randconfig-003-20250227 (https://download.01.org/0day-ci/archive/20250227/202502272346.iiQ6Dptt-lkp@intel.com/config)
-compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250227/202502272346.iiQ6Dptt-lkp@intel.com/reproduce)
+As per the discussion on the v3 [2], now both RX and TX NAPIs use the
+API to link queues to NAPIs. Since TX-only NAPIs don't have a NAPI ID,
+commit 6597e8d35851 ("netdev-genl: Elide napi_id when not present") now
+correctly elides the TX-only NAPIs (instead of printing zero) when the
+queues and NAPIs are linked.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202502272346.iiQ6Dptt-lkp@intel.com/
+As per the discussion on the v4 [3], patch 3 has been refactored to hold
+RTNL only in the specific locations which need it as Jason requested.
 
-All errors (new ones prefixed by >>):
+See the commit message of patch 3 for an example of how to get the NAPI
+to queue mapping information.
 
-   In file included from arch/x86/kernel/process.c:6:
-   In file included from include/linux/mm.h:2224:
-   include/linux/vmstat.h:504:43: warning: arithmetic between different enumeration types ('enum zone_stat_item' and 'enum numa_stat_item') [-Wenum-enum-conversion]
-     504 |         return vmstat_text[NR_VM_ZONE_STAT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~ ^
-     505 |                            item];
-         |                            ~~~~
-   include/linux/vmstat.h:511:43: warning: arithmetic between different enumeration types ('enum zone_stat_item' and 'enum numa_stat_item') [-Wenum-enum-conversion]
-     511 |         return vmstat_text[NR_VM_ZONE_STAT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~ ^
-     512 |                            NR_VM_NUMA_EVENT_ITEMS +
-         |                            ~~~~~~~~~~~~~~~~~~~~~~
->> arch/x86/kernel/process.c:937:32: error: use of undeclared identifier 'tdx_halt'; did you mean 'tdx_init'?
-     937 |                 static_call_update(x86_idle, tdx_halt);
-         |                                              ^~~~~~~~
-         |                                              tdx_init
-   include/linux/static_call.h:154:42: note: expanded from macro 'static_call_update'
-     154 |         typeof(&STATIC_CALL_TRAMP(name)) __F = (func);                  \
-         |                                                 ^
-   arch/x86/include/asm/tdx.h:123:20: note: 'tdx_init' declared here
-     123 | static inline void tdx_init(void) { }
-         |                    ^
-   2 warnings and 1 error generated.
+See the commit message of patch 4 for an example of how NAPI IDs are
+persistent despite queue count changes.
+
+Thanks,
+Joe
+
+[1]: https://lore.kernel.org/netdev/20250221142650.3c74dcac@kernel.org/
+[2]: https://lore.kernel.org/netdev/20250127142400.24eca319@kernel.org/
+[3]: https://lore.kernel.org/netdev/CACGkMEv=ejJnOWDnAu7eULLvrqXjkMkTL4cbi-uCTUhCpKN_GA@mail.gmail.com/
+
+v5:
+  - Patch 1 added Acked-by's from Michael and Jason. Added Tested-by
+    from Lei. No functional changes.
+  - Patch 2 added Acked-by's from Michael and Jason. Added Tested-by
+    from Lei. No functional changes.
+  - Patch 3:
+    - Refactored as Jason requested, eliminating the
+      virtnet_queue_set_napi helper entirely, and explicitly holding
+      RTNL in the 3 locations where needed (refill_work, freeze, and
+      restore).
+    - Commit message updated to outline the known paths at the time the
+      commit was written.
+  - Patch 4 added Acked-by from Michael. Added Tested-by from Lei. No
+    functional changes.
+
+v4: https://lore.kernel.org/lkml/20250225020455.212895-1-jdamato@fastly.com/
+  - Dropped Jakub's patch (previously patch 1).
+  - Significant refactor from v3 affecting patches 1-3.
+  - Patch 4 added tags from Jason and Gerhard.
+
+rfcv3: https://lore.kernel.org/netdev/20250121191047.269844-1-jdamato@fastly.com/
+  - patch 3:
+    - Removed the xdp checks completely, as Gerhard Engleder pointed
+      out, they are likely not necessary.
+
+  - patch 4:
+    - Added Xuan Zhuo's Reviewed-by.
+
+v2: https://lore.kernel.org/netdev/20250116055302.14308-1-jdamato@fastly.com/
+  - patch 1:
+    - New in the v2 from Jakub.
+
+  - patch 2:
+    - Previously patch 1, unchanged from v1.
+    - Added Gerhard Engleder's Reviewed-by.
+    - Added Lei Yang's Tested-by.
+
+  - patch 3:
+    - Introduced virtnet_napi_disable to eliminate duplicated code
+      in virtnet_xdp_set, virtnet_rx_pause, virtnet_disable_queue_pair,
+      refill_work as suggested by Jason Wang.
+    - As a result of the above refactor, dropped Reviewed-by and
+      Tested-by from patch 3.
+
+  - patch 4:
+    - New in v2. Adds persistent NAPI configuration. See commit message
+      for more details.
+
+v1: https://lore.kernel.org/netdev/20250110202605.429475-1-jdamato@fastly.com/
+
+Joe Damato (4):
+  virtio-net: Refactor napi_enable paths
+  virtio-net: Refactor napi_disable paths
+  virtio-net: Map NAPIs to queues
+  virtio_net: Use persistent NAPI config
+
+ drivers/net/virtio_net.c | 95 ++++++++++++++++++++++++++++------------
+ 1 file changed, 67 insertions(+), 28 deletions(-)
 
 
-vim +937 arch/x86/kernel/process.c
-
-   919	
-   920	void __init select_idle_routine(void)
-   921	{
-   922		if (boot_option_idle_override == IDLE_POLL) {
-   923			if (IS_ENABLED(CONFIG_SMP) && __max_threads_per_core > 1)
-   924				pr_warn_once("WARNING: polling idle and HT enabled, performance may degrade\n");
-   925			return;
-   926		}
-   927	
-   928		/* Required to guard against xen_set_default_idle() */
-   929		if (x86_idle_set())
-   930			return;
-   931	
-   932		if (prefer_mwait_c1_over_halt()) {
-   933			pr_info("using mwait in idle threads\n");
-   934			static_call_update(x86_idle, mwait_idle);
-   935		} else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
-   936			pr_info("using TDX aware idle routine\n");
- > 937			static_call_update(x86_idle, tdx_halt);
-   938		} else {
-   939			static_call_update(x86_idle, default_idle);
-   940		}
-   941	}
-   942	
-
+base-commit: 7fe0353606d77a32c4c7f2814833dd1c043ebdd2
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.45.2
+
