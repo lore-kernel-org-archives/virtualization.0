@@ -1,160 +1,162 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 795491F16B
-	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 08:53:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0C8722F177
+	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 10:22:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740646411; cv=none; b=V5MvkpfmTh0PBG4a5Oe+39CLNuFbY5u2iV1Gclvmb7qlbc8nt5BHgOtxhGHHugGwNU95Qu88eTeIrlWwbtsXvCcX3UqWUB426NUia5tvFzc5uyZkb7LVTDrDFYwIdjkGj0U7M2f8FDEW3CTU5yqQ1O6ZZL2EAk3aqCgxkpnlN3M=
+	t=1740651736; cv=none; b=FRVrRx3Wm0hf8uJ6+H6csJbzZIKwIVPlY0QW8EmdxVDkY5K4wIgui7y3QATZ2TKpiKcOqlp0U3w13XpLjQUMuxG5cxZvvCFfg+R8tLMWHQZBim4C964Xp1R3cmhNusMD1Z3JADVYHmy756+lYJRUB/924ZApX0d3O+Z3jQrLyg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740646411; c=relaxed/simple;
-	bh=3GpRrQB1DypQLUYLxyCLDjQ561KIZeotsWfmMyEWDf4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Q1X6yUs0JAV7tsTIU9lXSuln3eH1N4enEIKClUttGtun8wGf5wGJlvPkM2OrMxtgZTZ+X2gSwWxS362CL8S9pe6rP/1CsdkvT1BSX/7mh9kl99d2XZ4ZshQMzmtKMgLYKPHEO1ZAc78mOXH8CWVNMM6aHndYrAWgAIs/W5DYpHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jIcoOAiX; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1740651736; c=relaxed/simple;
+	bh=T9BHAcLO2Fi8F/is/hh9AfEDFJvEd2NLh8ELZM2jcp4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=g7cPpPFCnOR8UCn9QasK17r9R7kmS0yf6/C80o38IiFJUFDKgfauQqtG36n7bT9zFJlBrC69HyGx7Fn3Q9tzsClzKocEZUBBl8t8jOQMP6oyABLHAvJ7KA4FEd51+UEZtBVjF3Gxc9CwUpR7VQOJqysY5+aEu6zFkiYgGRJoVrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XDX1htN1; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jIcoOAiX"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XDX1htN1"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740646408;
+	s=mimecast20190719; t=1740651734;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EyvlqtbZaeJM3spFnINaDI06hIqM+bBC6L0QBlOLKJ8=;
-	b=jIcoOAiX1Kd2ws3NqXtvZGwPPxLOQf2jPwaBTSS9u8PQ/kDTYAHZFg4GZ+nk/+Xq91RDa8
-	4jQHVd/kUfckeLaPf9P+02EWPBFrKCjAXrFQVcFtwOyNaousZ+Gfh0MVF3yTWZ14oOPP7/
-	iowTVR/M02nTiFNpecZkbpKV+qrnRHI=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=UlN7ERFRgkJUG+zgZJ963Qv4eKnSMi6hs0/GkrW6sYs=;
+	b=XDX1htN1522u9PF7oyQqBZZohXGLKXlXpI1SpDHAToT7Z15ybPFLhRhiLoE0S+cNsM+i74
+	/pUTRv7QHYPbUlmA9DwDeA2N699Z392zapIMXogcpUHdxmYXYn2vwdzGhSpL3bkfcsp80A
+	InIndWPAIXuM3v2Ty6Oyb2iWc+Eeugc=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-425-u4-_J--KP1KFCaxoATW60g-1; Thu, 27 Feb 2025 03:53:27 -0500
-X-MC-Unique: u4-_J--KP1KFCaxoATW60g-1
-X-Mimecast-MFC-AGG-ID: u4-_J--KP1KFCaxoATW60g_1740646406
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-38f4c0c1738so570472f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 00:53:26 -0800 (PST)
+ us-mta-118-Rq6rMTmgP7avHmp9DjUoRg-1; Thu, 27 Feb 2025 05:22:12 -0500
+X-MC-Unique: Rq6rMTmgP7avHmp9DjUoRg-1
+X-Mimecast-MFC-AGG-ID: Rq6rMTmgP7avHmp9DjUoRg_1740651731
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5df498f31ccso758201a12.1
+        for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 02:22:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740646406; x=1741251206;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EyvlqtbZaeJM3spFnINaDI06hIqM+bBC6L0QBlOLKJ8=;
-        b=Q/xiz1LBKEua6kzIwcEZaLilhwTqLJBEATqzMQkcr3FTE7WnrJKURnzKi76Zdr/x34
-         27wXKNl9gC48N3HIyW4YgWIrGArO9Tm9a7hJbPZsz+ooIMAlL/R+WFWg6hyu4K5KMBfZ
-         Fjlx6Gn5bUyjJ+Dy4Ejlg499hcgZ/X8ZCUTDRHH9NyTFoY82Dp31pKEiuUcdgFxTUgt4
-         +20Kr5LeonpWLHowqhntzfC9f/bXaRZhq2WPHFmxZO2PP5NL7ASrfSWGq3ISqyuEMhjR
-         vYxkHaGFy3Nwyl8J5O/DnRXDNEZPI4z3E6xXFiIOqNjEXj4ChARtG/hQz0crO4bqMsXr
-         kcRg==
-X-Forwarded-Encrypted: i=1; AJvYcCV21aMH5h81+QEo5MfBb2HOupgALJXB0OenTuFwmT80fiLCdktkybV8wqrWPFpoasqqOh2dTXqwNtrCR1hv0A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YysSb6gC1cOkf26H2N6nenUWLrl7ywbVEH4fDfKfzSYUXzAer95
-	E78ZLQHgPn+xvs50lzQo3M6EM8N0owuaNTPk8wKl90cbgS+XsDBF1k5Y5+NKqV3IXjWpJnWOQXm
-	YBrl7iAjfFNTwJ1TZagEsDaMhYkwT21npa1CDm6gBK2nTYWdevGPtuDdeS+YOuLK7
-X-Gm-Gg: ASbGncvBLv/qZcK+1sJeG8ebJc7BS+0tRHrNjQjpmGpxtZIExk6nU9URYgMrwAr1rt/
-	cyRUpzIz0UiSkkyYpq2G+1cgbGE3RKlW44F/uaj6eZkydqOHA6RzF7WKXUnVwo3HHQbELX6mo+X
-	/4R24Qqpk2YS9Bi2fOgbUWO4oGtZzjYQzHgVysOC2pdcPdS0DnCOCQw9TVV5CQ1QhEc/Pw7u+lc
-	Vw7/2AA5qsRpr4MuFokUqtDoi043WTFBF7gcSAJOSX1Uv6Jzbh3h9KiVld0s/IY5nWw8KC4qqRC
-X-Received: by 2002:a05:6000:188d:b0:390:de67:2661 with SMTP id ffacd0b85a97d-390de672726mr3623246f8f.14.1740646405856;
-        Thu, 27 Feb 2025 00:53:25 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGZtPZ71xXc3/ezwCo25Ggz6REeCkcCkX8Y7Z6psxHYAImpw+ef4XDuShBy1cgFq9Op/H86MA==
-X-Received: by 2002:a05:6000:188d:b0:390:de67:2661 with SMTP id ffacd0b85a97d-390de672726mr3623228f8f.14.1740646405519;
-        Thu, 27 Feb 2025 00:53:25 -0800 (PST)
-Received: from redhat.com ([2.52.7.97])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-390e47b7d12sm1361883f8f.58.2025.02.27.00.53.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Feb 2025 00:53:24 -0800 (PST)
-Date: Thu, 27 Feb 2025 03:53:20 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, israelr@nvidia.com,
-	virtualization@lists.linux.dev, linux-block@vger.kernel.org,
-	oren@nvidia.com, nitzanc@nvidia.com, dbenbasat@nvidia.com,
-	smalin@nvidia.com, larora@nvidia.com, izach@nvidia.com,
-	aaptel@nvidia.com, parav@nvidia.com, kvm@vger.kernel.org
-Subject: Re: [PATCH v1 0/2] virtio: Add length checks for device writable
- portions
-Message-ID: <20250227034434-mutt-send-email-mst@kernel.org>
-References: <20250224233106.8519-1-mgurtovoy@nvidia.com>
- <20250227081747.GE85709@fedora>
+        d=1e100.net; s=20230601; t=1740651731; x=1741256531;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UlN7ERFRgkJUG+zgZJ963Qv4eKnSMi6hs0/GkrW6sYs=;
+        b=RuBKzx21fKKE/PncjgBBW3y2jY2S+ZlOE/d2DTZ3sZ5Qicddch9JlUi0rEw/yh2KEx
+         s/gPHCZqJiCHOBXegjxXoYz5RMX0CvDPBckrhl0uMdw65Nt2T1LXysSWy+swkPHj3bkO
+         zrkt1YJX5Td4qikK/IE+Tr90diYuodjxwV0QVeC2LQuh9/3ep2GiDvEsgN+/oOHuh48Q
+         FgTMsz4akcDWltvWDG2ugHaCru55Ig95puvxZvI8SYptof9Qu7ZwngfmeewR04S2pRSR
+         jC+WGE2JL1YzhDrd7Yy2pwdevZFFnbVyJqt2zbt34yNHEIzoKH45N/LywhWRMW4spKix
+         YmjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU3DqAyzQ6PJPP5G+pb70n1d3B+Ac7556KhLom3Wqh4K/SgWy7ebwYkzAOVQco8kqHMgm/EARP2lfnE9rxk3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzQvBCMGs5CZ4sylSS/Z5zSX8DuCa8Js0fb4PR2I+bmWw+jEo1c
+	DCTZiOSblv9+nWl2oz7oEnVPYuf+xz6pdeyJe9DlP12U5oSI8vjPgPgD3REEAHb2fNBN6Lb3tdl
+	y5aitLNqmWqSMzGyUZEefgj2kWy1MWgZueI8tpIH/tWsKAtcdxRyH4AL2G3goQADyc601oU542B
+	QJbWbxbId4X/pRcGgHX267MZxU12tE+eQzhbgZIDw=
+X-Gm-Gg: ASbGncu8uSqvjEetPsGmLv5nJ4zh903+Ysw0sSaqnQBURejOocjig2RQZw4tRkjntoN
+	V6Nw9k4DT9qSPReHUhybHTk3Qp2x14PaheceGJ+GRXqC5DHnw+TrraofLZ+dItHIBkZca6XJo9w
+	==
+X-Received: by 2002:a05:6402:238f:b0:5e4:9348:72c3 with SMTP id 4fb4d7f45d1cf-5e493487986mr7779704a12.10.1740651730970;
+        Thu, 27 Feb 2025 02:22:10 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF3pM8WlV3oQBfytyyeOaQOimRV0KwS4EKHWJ5i0zUzAv1yCmDn5hX3VcUGzB4vcvxPmQuMR1bS9CT94wGST18=
+X-Received: by 2002:a05:6402:238f:b0:5e4:9348:72c3 with SMTP id
+ 4fb4d7f45d1cf-5e493487986mr7779686a12.10.1740651730586; Thu, 27 Feb 2025
+ 02:22:10 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250227081747.GE85709@fedora>
+References: <20250226213844.3826821-1-kbusch@meta.com>
+In-Reply-To: <20250226213844.3826821-1-kbusch@meta.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Thu, 27 Feb 2025 18:21:34 +0800
+X-Gm-Features: AQ5f1JpeYWXlUn8jsieYhOpf1esALXljPtGnrofbGi8hLpfdoH4ms9lz0ZIIMxk
+Message-ID: <CAPpAL=yffyhUrdEJHtAw4BDpV-=Z5mZq0r1ZFcoj1v1OBLnp_g@mail.gmail.com>
+Subject: Re: [PATCHv2 0/2] kvm/x86: vhost task creation failure handling
+To: Keith Busch <kbusch@meta.com>
+Cc: pbonzini@redhat.com, seanjc@google.com, kvm@vger.kernel.org, 
+	x86@kernel.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Keith Busch <kbusch@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: KTc2zLdo-OWsDbN3K_st28IGtywJg6Wb8EeDlZeJ-j0_1740646406
+X-Mimecast-MFC-PROC-ID: jMG3umsGhlSMDhCuzqvQk03nG1_FJ3rakgonH4JOcDo_1740651731
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 27, 2025 at 04:17:47PM +0800, Stefan Hajnoczi wrote:
-> On Tue, Feb 25, 2025 at 01:31:04AM +0200, Max Gurtovoy wrote:
-> > Hi,
-> > 
-> > This patch series introduces safety checks in virtio-blk and virtio-fs
-> > drivers to ensure proper handling of device-writable buffer lengths as
-> > specified by the virtio specification.
-> > 
-> > The virtio specification states:
-> > "The driver MUST NOT make assumptions about data in device-writable
-> > buffers beyond the first len bytes, and SHOULD ignore this data."
-> > 
-> > To align with this requirement, we introduce checks in both drivers to
-> > verify that the length of data written by the device is at least as
-> > large as the expected/needed payload.
-> > 
-> > If this condition is not met, we set an I/O error status to prevent
-> > processing of potentially invalid or incomplete data.
-> > 
-> > These changes improve the robustness of the drivers and ensure better
-> > compliance with the virtio specification.
-> > 
-> > Max Gurtovoy (2):
-> >   virtio_blk: add length check for device writable portion
-> >   virtio_fs: add length check for device writable portion
-> > 
-> >  drivers/block/virtio_blk.c | 20 ++++++++++++++++++++
-> >  fs/fuse/virtio_fs.c        |  9 +++++++++
-> >  2 files changed, 29 insertions(+)
-> > 
-> > -- 
-> > 2.18.1
-> > 
-> 
-> There are 3 cases:
-> 1. The device reports len correctly.
-> 2. The device reports len incorrectly, but the in buffers contain valid
->    data.
-> 3. The device reports len incorrectly and the in buffers contain invalid
->    data.
-> 
-> Case 1 does not change behavior.
-> 
-> Case 3 never worked in the first place. This patch might produce an
-> error now where garbage was returned in the past.
-> 
-> It's case 2 that I'm worried about: users won't be happy if the driver
-> stops working with a device that previously worked.
-> 
-> Should we really risk breakage for little benefit?
-> 
-> I remember there were cases of invalid len values reported by devices in
-> the past. Michael might have thoughts about this.
-> 
-> Stefan
+Hi Keith
+
+There are some error messages from qemu output when I tested this
+series of patches with the virtio-net regression test. It can
+reproduced by boot up a guest with vhost device after applied your
+patches.
+Error messages:
+Qemu output:
+qemu-kvm: -netdev {"id": "idoejzv8", "type": "tap", "vhost": true,
+"vhostfd": "16", "fd": "10"}: vhost_set_owner failed: Cannot allocate
+memory
+qemu-kvm: -netdev {"id": "idoejzv8", "type": "tap", "vhost": true,
+"vhostfd": "16", "fd": "10"}: vhost-net requested but could not be
+initialized
+
+My tests based on this commit:
+# git log -1
+commit dd83757f6e686a2188997cb58b5975f744bb7786 (HEAD -> master,
+origin/master, origin/HEAD)
+Merge: 102c16a1f9a9 eb54d2695b57
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed Feb 26 16:55:30 2025 -0800
+
+    Merge tag 'bcachefs-2025-02-26' of git://evilpiepirate.org/bcachefs
+
+Thanks
+Lei
 
 
-Indeed, there were. This is where Jason's efforts to validate
-length stalled.
 
-See message id 20230526063041.18359-1-jasowang@redhat.com
-
-I am not sure I get the motivation for this patch. And yes, seems to
-risky especially for blk. If it's to help device validation, I suggest a
-Kconfig option.
-
-
--- 
-MST
+On Thu, Feb 27, 2025 at 5:40=E2=80=AFAM Keith Busch <kbusch@meta.com> wrote=
+:
+>
+> From: Keith Busch <kbusch@kernel.org>
+>
+> The suggestion from Sean appears to be successful, so sending out a new
+> version for consideration.
+>
+> Background:
+>
+> The crosvm VMM might send signals to its threads that have entered
+> KVM_RUN. The signal specifically is SIGRTRMIN from here:
+>
+>   https://github.com/google/crosvm/blob/main/src/crosvm/sys/linux/vcpu.rs=
+#L651
+>
+> If this happens to occur when the huge page recovery is trying to create
+> its vhost task, that will fail with ERESTARTNOINTR. Once this happens,
+> all KVM_RUN calls will fail with ENOMEM despite memory not being the
+> problem.
+>
+> This series propogates the error up so we can distinguish that from the
+> current defaulting to ENOMEM and replaces the call_once since we need to
+> be able to call it repeatedly due to this condition.
+>
+> Changes from the v1 (prefixed as an "RFC", really) patch:
+>
+>   Instead of using a VM-wide mutex, update the call_once pattern to
+>   complete only if what it calls is successful (from Sean).
+>
+> Keith Busch (1):
+>   vhost: return task creation error instead of NULL
+>
+> Sean Christopherson (1):
+>   kvm: retry nx_huge_page_recovery_thread creation
+>
+>  arch/x86/kvm/mmu/mmu.c    | 12 +++++-------
+>  drivers/vhost/vhost.c     |  2 +-
+>  include/linux/call_once.h | 16 +++++++++++-----
+>  kernel/vhost_task.c       |  4 ++--
+>  4 files changed, 19 insertions(+), 15 deletions(-)
+>
+> --
+> 2.43.5
+>
+>
 
