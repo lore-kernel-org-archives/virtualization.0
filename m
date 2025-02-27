@@ -1,320 +1,206 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 849B819C553
-	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 04:48:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19437213E71
+	for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 06:57:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740631688; cv=none; b=VZ/SEliRY5GcDi6CY6SB13/KqvrbS/0p4TWKSgJUva6iY2v4VHiEO01LWQnS82CfUPHkGqq30Rv/Ir/Ko36W3kDTYldqKmHT8N5ytPpwRyVeGKz/YTFGTkVcnMISKDv8ar2BvrCKoMNKUDijVKk7k0GGzDrqhGm7Rs8stz1DyxU=
+	t=1740639445; cv=none; b=j6EhcjeJikyn+q6chviQMiYG54ZjX7JeyAlYfgK3pwquE0dmo5/Z3N/71a8YaPzCOGb4G1tHHRLiadt2yQ6tZy2X83TfZj7dRBABppNkagJ9Y5UAlm/ad1nnfAqmmQN/83XI7OhInCxZwe8/ZoM0zVC0RP20Nzo4ftyg7RDS77A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740631688; c=relaxed/simple;
-	bh=Dz5CLJbJtxhty0xg8roq/GxXUaSa9CenQ02zc3yTaa8=;
+	s=arc-20240116; t=1740639445; c=relaxed/simple;
+	bh=+t1vB+e+bOKQTWYHRPeG3VR1xS2UIFEHDuINsmtsQSU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g1iMhX/x5COviBnzVY8R6Tw4oMnsIAiLfqS4pDLHhlzE3i1XgnZai3zo0L63F27NuRmSXWCwLZukx9OQfkTjnjvtVK4RW0CYJjEXbv9wOtVL/5LdMR+uFna90U1IkBxz5xsbGrKhSDI1Bkon8O/eWlCK/6D4zvOoecctrkcUGvo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=nSKKrvYh; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ndx2A0Q7DLCuwcBwxy4HIkXmtlXGLOFxiD03FK46A402vVoaSY5cRGlzs84bJAKKEbhQ68OkLa5RddpDDQpexBlAIZggCBirtWVkVt+repUNF4Kjm6Ym/BHJ7fal70eO4amXRyclvSHVJ6aDtQaranhaQ5PRZL3ffcbcouReeRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ASXAwwAv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="nSKKrvYh"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4720a115d15so14513651cf.1
-        for <virtualization@lists.linux.dev>; Wed, 26 Feb 2025 20:48:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1740631685; x=1741236485; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=j9RrWBQnGmr7pfCKfDKI3Or5JbQRE5y4Ygu5ENY7AJw=;
-        b=nSKKrvYhW4VZB82TvrzVN47x4xt6MtInYzO13vUU3oUyy2n8L0jt6FTMcBhueQkJjw
-         pBaoAwrU9KX9g8b3CFDoqLs9NDdLDvX2gZH4kzqIPwKq/ykk6STQk+xzQhxEYk0eAiJ7
-         3wtimZRWPxxixUBlbzbU/AHtxkrDyp79R9Cq0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740631685; x=1741236485;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=j9RrWBQnGmr7pfCKfDKI3Or5JbQRE5y4Ygu5ENY7AJw=;
-        b=pvZf68L8y2gxh41wq243BjIuCtEa4RnWbF8RwAqDtm0Kk5ypxGFH41VuD9ZVwz1Kkm
-         aODKjtQEk0pcKGpjw3TR5fRftc2R7DNxtaSpWIYWhR+qYCzUJRPY6CvMoy0TXfNDTd2W
-         09Qgi8LpXZg8nDlhnGQU45i9UPliet1w6/znhQzXz+v4EfZ2tYywEsDtzYw8/yxYdyNS
-         BXDFDlLawEKrOsqNk1V8rm7Wjp+eNGLoWO6Sgo1JoZgG8caLIax3TvxV22k3MYaBLZgz
-         ewn91tbBsAzBXfjtBfHAyVBpEZIsKNoDVTo97Npi6/p7SrJG54D1a9FMTPLMPbIXlvPB
-         puYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXH4tUQs1MrZDW/qPivOS7Tee3yW6QOZd0W3Mnn1fPY1toEsAyAUt+bm6aNbjOIYKJ++bt/wiOezsEhhH/DhA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy5RZ1ediXX5VB3R2+v1mUnaznFDXF18OfmJSNWfWHldHE9hWNl
-	RFO71ZuLI5d7QW9MOX6oriVxHKyVL1hL5MLavRRnv7CM+DgrHjvlzKiI6mQD6GI=
-X-Gm-Gg: ASbGncsGHxsH638B8UhE2Srs8l8Q9EH0jB063zsPJnPCLBPVXnX/gtj5EzyRU7mGAlO
-	86Gwh0/DWwm3eWbHdJky4h3w36sdkXHD2jhK3uGbN96cfuwHG/B/6krBJS3j/OzX1/DhRHkKKL7
-	418r5VTlTnYcXEb9QaN8hN+oST4JCHQA2dCEv6CXIUTMM0DRagy3DDuQ6YU4ZIXT0K3nX5H2pyL
-	CdyJy+oyfMc9v+lmkZGrI7Or+REjmD6S6NAlaCoMhyTAnomtQOlDEQOibXrgauqNxNgU43JBkFu
-	RH6dEVe0ZKpd2FtFnGhxunjTHy7x+iMKiFDk94sR0rkXbmnfVNV6tTkS+y0b7kdp
-X-Google-Smtp-Source: AGHT+IG6AMaCEtuGDNAymqPMHPgx7iO0OQVDvaKjbVaa0iyhzZP9jJJbU8LowBwmScd9NGrAxjr9OQ==
-X-Received: by 2002:a05:622a:1187:b0:46f:d6c3:2ddc with SMTP id d75a77b69052e-473d8f7f11emr31340551cf.1.1740631685293;
-        Wed, 26 Feb 2025 20:48:05 -0800 (PST)
-Received: from LQ3V64L9R2 (ool-44c5a22e.dyn.optonline.net. [68.197.162.46])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-47472409ac2sm6469901cf.58.2025.02.26.20.48.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Feb 2025 20:48:04 -0800 (PST)
-Date: Wed, 26 Feb 2025 23:48:01 -0500
-From: Joe Damato <jdamato@fastly.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
-	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
-	xuanzhuo@linux.alibaba.com, kuba@kernel.org,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next v4 3/4] virtio-net: Map NAPIs to queues
-Message-ID: <Z7_ugUyyE1WPV_bb@LQ3V64L9R2>
-Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
-	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
-	xuanzhuo@linux.alibaba.com, kuba@kernel.org,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-References: <20250225020455.212895-1-jdamato@fastly.com>
- <20250225020455.212895-4-jdamato@fastly.com>
- <CACGkMEv6y+TkZnWWLPG4UE59iyREhkiaby8kj==cnp=6chmu+w@mail.gmail.com>
- <Z79XXQjp9Dz7OYYQ@LQ3V64L9R2>
- <Z79YseiGrzYxoyvr@LQ3V64L9R2>
- <Z795Pt_RnfnvC-1N@LQ3V64L9R2>
- <20250226171252-mutt-send-email-mst@kernel.org>
- <CACGkMEv=ejJnOWDnAu7eULLvrqXjkMkTL4cbi-uCTUhCpKN_GA@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ASXAwwAv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740639443;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=fN9zyRpTMvyZXcI47Dudh0fWxP2P2sHISATio+64sck=;
+	b=ASXAwwAvyVZC27bA1WwDJIMGvoYCgAX+GmfxPtV+GqOZRlS+mC3yTRcogD9yKq+5HbHJJv
+	98XDup0R3MS6MsdckbB6CxmKX1Tv3uCJ/TV85pxxNjtKdY1sBdUDn76F5btdV+g8ZLusmG
+	7oTNAfK5FHlRdxQc+xFb27C8gsGpSTw=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-563-HLnvhgB0Or-cduU6yFqZwQ-1; Thu,
+ 27 Feb 2025 01:57:17 -0500
+X-MC-Unique: HLnvhgB0Or-cduU6yFqZwQ-1
+X-Mimecast-MFC-AGG-ID: HLnvhgB0Or-cduU6yFqZwQ_1740639436
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A3F411800874;
+	Thu, 27 Feb 2025 06:57:15 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.46])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6771D19560AE;
+	Thu, 27 Feb 2025 06:57:13 +0000 (UTC)
+Date: Thu, 27 Feb 2025 14:57:11 +0800
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Ferry Meng <mengferry@linux.alibaba.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, linux-block@vger.kernel.org,
+	Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>,
+	Joseph Qi <joseph.qi@linux.alibaba.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>
+Subject: Re: [PATCH v1 0/3] virtio-blk: add io_uring passthrough support.
+Message-ID: <20250227065711.GB85709@fedora>
+References: <20241218092435.21671-1-mengferry@linux.alibaba.com>
+ <20250219020112.GB38164@fedora>
+ <be8704b0-81a4-403b-8b42-d3612099279f@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="QutFJKJ1ZBtQgHGb"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEv=ejJnOWDnAu7eULLvrqXjkMkTL4cbi-uCTUhCpKN_GA@mail.gmail.com>
+In-Reply-To: <be8704b0-81a4-403b-8b42-d3612099279f@linux.alibaba.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On Thu, Feb 27, 2025 at 12:18:33PM +0800, Jason Wang wrote:
-> On Thu, Feb 27, 2025 at 6:13 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Feb 26, 2025 at 03:27:42PM -0500, Joe Damato wrote:
-> > > On Wed, Feb 26, 2025 at 01:08:49PM -0500, Joe Damato wrote:
-> > > > On Wed, Feb 26, 2025 at 01:03:09PM -0500, Joe Damato wrote:
-> > > > > On Wed, Feb 26, 2025 at 01:48:50PM +0800, Jason Wang wrote:
-> > > > > > On Tue, Feb 25, 2025 at 10:05 AM Joe Damato <jdamato@fastly.com> wrote:
-> > > > > > >
-> > > > > > > Use netif_queue_set_napi to map NAPIs to queue IDs so that the mapping
-> > > > > > > can be accessed by user apps, taking care to hold RTNL as needed.
-> > > > > >
-> > > > > > I may miss something but I wonder whether letting the caller hold the
-> > > > > > lock is better.
-> > > > >
-> > > > > Hmm...
-> > > > >
-> > > > > Double checking all the paths over again, here's what I see:
-> > > > >   - refill_work, delayed work that needs RTNL so this change seems
-> > > > >     right?
-> > > > >
-> > > > >   - virtnet_disable_queue_pair, called from virtnet_open and
-> > > > >     virtnet_close. When called via NDO these are safe and hold RTNL,
-> > > > >     but they can be called from power management and need RTNL.
-> > > > >
-> > > > >   - virtnet_enable_queue_pair called from virtnet_open, safe when
-> > > > >     used via NDO but needs RTNL when used via power management.
-> > > > >
-> > > > >   - virtnet_rx_pause called in both paths as you mentioned, one
-> > > > >     which needs RTNL and one which doesn't.
-> > > >
-> > > > Sorry, I missed more paths:
-> > > >
-> > > >     - virtnet_rx_resume
-> > > >     - virtnet_tx_pause and virtnet_tx_resume
-> > > >
-> > > > which are similar to path you mentioned (virtnet_rx_pause) and need
-> > > > rtnl in one of two different paths.
-> > > >
-> > > > Let me know if I missed any paths and what your preferred way to fix
-> > > > this would be?
-> > > >
-> > > > I think both options below are possible and I have no strong
-> > > > preference.
-> > >
-> > > OK, my apologies. I read your message and the code wrong. Sorry for
-> > > the back-to-back emails from me.
-> > >
-> > > Please ignore my message above... I think after re-reading the code,
-> > > here's where I've arrived:
-> > >
-> > >   - refill_work needs to hold RTNL (as in the existing patch)
-> > >
-> > >   - virtnet_rx_pause, virtnet_rx_resume, virtnet_tx_pause,
-> > >     virtnet_tx_resume -- all do NOT need to hold RTNL because it is
-> > >     already held in the ethtool resize path and the XSK path, as you
-> > >     explained, but I mis-read (sorry).
-> > >
-> > >   - virtnet_disable_queue_pair and virtnet_enable_queue_pair both
-> > >     need to hold RTNL only when called via power management, but not
-> > >     when called via ndo_open or ndo_close
-> > >
-> > > Is my understanding correct and does it match your understanding?
-> > >
-> > > If so, that means there are two issues:
-> > >
-> > >   1. Fixing the hardcoded bools in rx_pause, rx_resume, tx_pause,
-> > >      tx_resume (all should be false, RTNL is not needed).
-> > >
-> > >   2. Handling the power management case which calls virtnet_open and
-> > >      virtnet_close.
-> > >
-> > > I made a small diff included below as an example of a possible
-> > > solution:
-> > >
-> > >   1. Modify virtnet_disable_queue_pair and virtnet_enable_queue_pair
-> > >      to take a "bool need_rtnl" and pass it through to the helpers
-> > >      they call.
-> > >
-> > >   2. Create two helpers, virtnet_do_open and virt_do_close both of
-> > >      which take struct net_device *dev, bool need_rtnl. virtnet_open
-> > >      and virtnet_close are modified to call the helpers and pass
-> > >      false for need_rtnl. The power management paths call the
-> > >      helpers and pass true for need_rtnl. (fixes issue 2 above)
-> > >
-> > >   3. Fix the bools for rx_pause, rx_resume, tx_pause, tx_resume to
-> > >      pass false since all paths that I could find that lead to these
-> > >      functions hold RTNL. (fixes issue 1 above)
-> > >
-> > > See the diff below (which can be applied on top of patch 3) to see
-> > > what it looks like.
-> > >
-> > > If you are OK with this approach, I will send a v5 where patch 3
-> > > includes the changes shown in this diff.
-> > >
-> > > Please let me know what you think:
-> >
-> >
-> >
-> > Looks ok I think.
-> >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 13bb4a563073..76ecb8f3ce9a 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -3098,14 +3098,16 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
-> > >       return received;
-> > >  }
-> > >
-> > > -static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
-> > > +static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index,
-> > > +                                    bool need_rtnl)
-> > >  {
-> > > -     virtnet_napi_tx_disable(&vi->sq[qp_index], false);
-> > > -     virtnet_napi_disable(&vi->rq[qp_index], false);
-> > > +     virtnet_napi_tx_disable(&vi->sq[qp_index], need_rtnl);
-> > > +     virtnet_napi_disable(&vi->rq[qp_index], need_rtnl);
-> > >       xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
-> > >  }
-> > >
-> > > -static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-> > > +static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index,
-> > > +                                  bool need_rtnl)
-> > >  {
-> > >       struct net_device *dev = vi->dev;
-> > >       int err;
-> > > @@ -3120,8 +3122,8 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-> > >       if (err < 0)
-> > >               goto err_xdp_reg_mem_model;
-> > >
-> > > -     virtnet_napi_enable(&vi->rq[qp_index], false);
-> > > -     virtnet_napi_tx_enable(&vi->sq[qp_index], false);
-> > > +     virtnet_napi_enable(&vi->rq[qp_index], need_rtnl);
-> > > +     virtnet_napi_tx_enable(&vi->sq[qp_index], need_rtnl);
-> > >
-> > >       return 0;
-> > >
-> > > @@ -3156,7 +3158,7 @@ static void virtnet_update_settings(struct virtnet_info *vi)
-> > >               vi->duplex = duplex;
-> > >  }
-> > >
-> > > -static int virtnet_open(struct net_device *dev)
-> > > +static int virtnet_do_open(struct net_device *dev, bool need_rtnl)
-> > >  {
-> > >       struct virtnet_info *vi = netdev_priv(dev);
-> > >       int i, err;
-> > > @@ -3169,7 +3171,7 @@ static int virtnet_open(struct net_device *dev)
-> > >                       if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> > >                               schedule_delayed_work(&vi->refill, 0);
-> > >
-> > > -             err = virtnet_enable_queue_pair(vi, i);
-> > > +             err = virtnet_enable_queue_pair(vi, i, need_rtnl);
-> > >               if (err < 0)
-> > >                       goto err_enable_qp;
-> > >       }
-> > > @@ -3190,13 +3192,18 @@ static int virtnet_open(struct net_device *dev)
-> > >       cancel_delayed_work_sync(&vi->refill);
-> > >
-> > >       for (i--; i >= 0; i--) {
-> > > -             virtnet_disable_queue_pair(vi, i);
-> > > +             virtnet_disable_queue_pair(vi, i, need_rtnl);
-> > >               virtnet_cancel_dim(vi, &vi->rq[i].dim);
-> > >       }
-> > >
-> > >       return err;
-> > >  }
-> > >
-> > > +static int virtnet_open(struct net_device *dev)
-> > > +{
-> > > +     return virtnet_do_open(dev, false);
-> > > +}
-> > > +
-> > >  static int virtnet_poll_tx(struct napi_struct *napi, int budget)
-> > >  {
-> > >       struct send_queue *sq = container_of(napi, struct send_queue, napi);
-> > > @@ -3373,7 +3380,7 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
-> > >       bool running = netif_running(vi->dev);
-> > >
-> > >       if (running) {
-> > > -             virtnet_napi_disable(rq, true);
-> > > +             virtnet_napi_disable(rq, false);
-> > >               virtnet_cancel_dim(vi, &rq->dim);
-> > >       }
-> > >  }
-> > > @@ -3386,7 +3393,7 @@ static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
-> > >               schedule_delayed_work(&vi->refill, 0);
-> > >
-> > >       if (running)
-> > > -             virtnet_napi_enable(rq, true);
-> > > +             virtnet_napi_enable(rq, false);
-> > >  }
-> > >
-> > >  static int virtnet_rx_resize(struct virtnet_info *vi,
-> > > @@ -3415,7 +3422,7 @@ static void virtnet_tx_pause(struct virtnet_info *vi, struct send_queue *sq)
-> > >       qindex = sq - vi->sq;
-> > >
-> > >       if (running)
-> > > -             virtnet_napi_tx_disable(sq, true);
-> > > +             virtnet_napi_tx_disable(sq, false);
-> > >
-> > >       txq = netdev_get_tx_queue(vi->dev, qindex);
-> > >
-> > > @@ -3449,7 +3456,7 @@ static void virtnet_tx_resume(struct virtnet_info *vi, struct send_queue *sq)
-> > >       __netif_tx_unlock_bh(txq);
-> > >
-> > >       if (running)
-> > > -             virtnet_napi_tx_enable(sq, true);
-> > > +             virtnet_napi_tx_enable(sq, false);
-> 
-> Instead of this, it looks to me it would be much simpler if we can
-> just hold the rtnl lock in freeze/restore.
 
-I disagree.
+--QutFJKJ1ZBtQgHGb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Holding RTNL for all of open and close instead of just the 1 API
-call that needs it has the possibility of introducing other lock
-ordering bugs now or in the future.
+On Wed, Feb 26, 2025 at 07:10:36PM +0800, Ferry Meng wrote:
+>=20
+> On 2/19/25 10:01 AM, Stefan Hajnoczi wrote:
+> > On Wed, Dec 18, 2024 at 05:24:32PM +0800, Ferry Meng wrote:
+> > > This patchset implements io_uring passthrough surppot in virtio-blk
+> > > driver, bypass vfs and part of block layer logic, resulting in lower
+> > > submit latency and increased flexibility when utilizing virtio-blk.
+> > Hi,
+> > What is the status of this patch series?
+> >=20
+> > Stefan
+>=20
+> I apologize for the delayed response. It seems that the maintainer has not
+> yet provided feedback on this patch series, and I was actually waiting for
+> his comments before proceeding. I have received the feedback from the oth=
+er
+> reviewers & have already discovered some obvious mistakes in v1 series.
+>=20
+>=20
+> Although I'm occupied with other tasks recently, I expect to send out v2
+> patches *in a week*.
 
-We only need RTNL for 1 API, why hold it for all of open or close?
+Great. I'll review the next revision in more detail.
+
+Thanks,
+Stefan
+
+>=20
+>=20
+> Thanks.
+>=20
+> > > In this version, currently only supports READ/WRITE vec/no-vec operat=
+ions,
+> > > others like discard or zoned ops not considered in. So the userspace-=
+related
+> > > struct is not complicated.
+> > >=20
+> > > struct virtblk_uring_cmd {
+> > > 	__u32 type;
+> > > 	__u32 ioprio;
+> > > 	__u64 sector;
+> > > 	/* above is related to out_hdr */
+> > > 	__u64 data;  // user buffer addr or iovec base addr.
+> > > 	__u32 data_len; // user buffer length or iovec count.
+> > > 	__u32 flag;  // only contains whether a vector rw or not.
+> > > };
+> > >=20
+> > > To test this patch series, I changed fio's code:
+> > > 1. Added virtio-blk support to engines/io_uring.c.
+> > > 2. Added virtio-blk support to the t/io_uring.c testing tool.
+> > > Link: https://github.com/jdmfr/fio
+> > >=20
+> > >=20
+> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > > Performance
+> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > >=20
+> > > Using t/io_uring-vblk, the performance of virtio-blk based on uring-c=
+md
+> > > scales better than block device access. (such as below, Virtio-Blk wi=
+th QEMU,
+> > > 1-depth fio)
+> > > (passthru) read: IOPS=3D17.2k, BW=3D67.4MiB/s (70.6MB/s)
+> > > slat (nsec): min=3D2907, max=3D43592, avg=3D3981.87, stdev=3D595.10
+> > > clat (usec): min=3D38, max=3D285,avg=3D53.47, stdev=3D 8.28
+> > > lat (usec): min=3D44, max=3D288, avg=3D57.45, stdev=3D 8.28
+> > > (block) read: IOPS=3D15.3k, BW=3D59.8MiB/s (62.7MB/s)
+> > > slat (nsec): min=3D3408, max=3D35366, avg=3D5102.17, stdev=3D790.79
+> > > clat (usec): min=3D35, max=3D343, avg=3D59.63, stdev=3D10.26
+> > > lat (usec): min=3D43, max=3D349, avg=3D64.73, stdev=3D10.21
+> > >=20
+> > > Testing the virtio-blk device with fio using 'engines=3Dio_uring_cmd'
+> > > and 'engines=3Dio_uring' also demonstrates improvements in submit lat=
+ency.
+> > > (passthru) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B=
+0 -O0 -n1 -u1 /dev/vdcc0
+> > > IOPS=3D189.80K, BW=3D741MiB/s, IOS/call=3D4/3
+> > > IOPS=3D187.68K, BW=3D733MiB/s, IOS/call=3D4/3
+> > > (block) taskset -c 0 t/io_uring-vblk -b4096 -d8 -c4 -s4 -p0 -F1 -B0 -=
+O0 -n1 -u0 /dev/vdc
+> > > IOPS=3D101.51K, BW=3D396MiB/s, IOS/call=3D4/3
+> > > IOPS=3D100.01K, BW=3D390MiB/s, IOS/call=3D4/4
+> > >=20
+> > > =3D=3D=3D=3D=3D=3D=3D
+> > > Changes
+> > > =3D=3D=3D=3D=3D=3D=3D
+> > >=20
+> > > Changes in v1:
+> > > --------------
+> > > * remove virtblk_is_write() helper
+> > > * fix rq_flags type definition (blk_opf_t), add REQ_ALLOC_CACHE flag.
+> > > https://lore.kernel.org/io-uring/202412042324.uKQ5KdkE-lkp@intel.com/
+> > >=20
+> > > RFC discussion:
+> > > ---------------
+> > > https://lore.kernel.org/io-uring/20241203121424.19887-1-mengferry@lin=
+ux.alibaba.com/
+> > >=20
+> > > Ferry Meng (3):
+> > >    virtio-blk: add virtio-blk chardev support.
+> > >    virtio-blk: add uring_cmd support for I/O passthru on chardev.
+> > >    virtio-blk: add uring_cmd iopoll support.
+> > >=20
+> > >   drivers/block/virtio_blk.c      | 320 +++++++++++++++++++++++++++++=
+++-
+> > >   include/uapi/linux/virtio_blk.h |  16 ++
+> > >   2 files changed, 331 insertions(+), 5 deletions(-)
+> > >=20
+> > > --=20
+> > > 2.43.5
+> > >=20
+>=20
+
+--QutFJKJ1ZBtQgHGb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmfADMYACgkQnKSrs4Gr
+c8jz7gf/c3Twnw6cmUIGZ/fNaLP0eld0k8vAGDGtBoL4DmX6CVcdgbnhvoYfvAca
+lXiz+VFWI1azdrIkU1cuvHfInJgVFrL9Rkq9F6pAEZEplHesY5iRR53l45+eKeM+
+/YVI4jJaZQkEsr9YyNkY0TBLLom0o2de0npgg7Plu1j6Bfn7f/omyvyBBCgqEk8x
+/RBA8JQ/b2ltF5KV8aIEoXTUiiN43O205Lqx0UlVvahvlWY29WY5k70bFy9Wn7gK
+TnDL4NrddTl6vvP5CCo5TQDHZBZNRyQegTpJbc1g7cR6egz5RsNrJ1OeOA7MVpxL
+hNoD9AKorcwvOiA7VNcgL6lvIFG6Mw==
+=Ccdx
+-----END PGP SIGNATURE-----
+
+--QutFJKJ1ZBtQgHGb--
+
