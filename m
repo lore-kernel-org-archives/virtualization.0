@@ -1,116 +1,119 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62960160783
-	for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 01:44:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5708125B2;
+	Fri, 28 Feb 2025 02:03:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740707071; cv=none; b=f/Rn9Nb742XG0GjvKlpGF6b9pcPrK7us1wMbkwReTBt0C1KkOUuJxseSQKxhizMfb9UPDrtdrTYpNwBvEpr9Rjz5PqC1lU2iMzVtpdY9kR764cjWSCToQW0ZH/TW9mamCgf8AN1t7zoMhfPsFmylKUJZe5kRWXi4tRL2Q6sKfEA=
+	t=1740708195; cv=none; b=Vmq/KrMWVSDUYBEM/vZTehqELayhL8Bwsp16GaqkpY7v9pVT+3jhhVsTkQRyMd2AiotC0bViOtDw+cbW3mgL05vA6qhiOuKZfEqywr0D0bK8+pZkav62MUPpBO8FpnHhmJXzi2KebKRFIOgonaIR9bHFP23nPad3JaSK5FtoWX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740707071; c=relaxed/simple;
-	bh=FrAg2JyorIe0/fbtZ6H1UBDcm6ZSzN4dgaVrSF/c0jI=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=slvBF+Fxh7Wh4PPWAOI7ar9y80gEleHk6DU2eQk8JwfaY2biGLd57++bL54PzAlyOphaIxkElcmr1IFD4++EY5MTz4hC1iKkj5D3SWcUXpAar+JHhYFRA5JWkDd/GcfuIa66g3yH/DKi4UeljYBGDBVe6rcl33U4nslUH4hzINo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--vannapurve.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KNGAUIVW; arc=none smtp.client-ip=209.85.216.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--vannapurve.bounces.google.com
+	s=arc-20240116; t=1740708195; c=relaxed/simple;
+	bh=0T6aoo2qvY2WxdM4miNaYXLV2tFSlh9l306+7DiV4kw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uc6x3MjLxphX2CKEDjJw1Ms+wG+Xq6jn9sMwSmPK3JUPlvoKotKerxwNTi4r4w0NajUOQwbntSO9zpX52w0SxbIU8eQg7jafpy1oCAX67Ptib3TDIpcLk9qhut87BJMzw17ieFAyHS/E5AEIcelGpzyXO8JuKOYV5hbKkh4ZEuk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NW9DlG0S; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KNGAUIVW"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2fe8fa38f6eso3499364a91.2
-        for <virtualization@lists.linux.dev>; Thu, 27 Feb 2025 17:44:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1740707070; x=1741311870; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=rgg6TdslREem8G9twRIimDeFP8lrtGahRwRwSo3/dXc=;
-        b=KNGAUIVWHmihG08YuSF+jYzmroBjIdFee6l8eqXrI8zdAOGnZLbIfMCIDsNssXewwI
-         YYpNCZGmxOpzYw8kyrJrSyB1EVyI2KfK1mVBbuEX61dKvZ9jP8HTAAbZwmQ9FGpBm8J0
-         6H36pqLgYfKeTvzQP9tXy/KwxUMYb2HLIp7adTquF5wFbkDuwWJUCM57m7zwFOMiOBCp
-         0CeDG87HAnjwoFajXqmTcysVLFpCOHZdUx1eElBfROBNNK1d3nKcRHeEfi+xYPr1PMUN
-         rOO4scG3v6IkTy7Gtlw21CGjEWpkxXePFTq5glr7zL3iVN64aXAqe8OKEjGHHNaEqJXy
-         1GNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740707070; x=1741311870;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rgg6TdslREem8G9twRIimDeFP8lrtGahRwRwSo3/dXc=;
-        b=LxQYqL8e6avXZPXfANlm+1w8WvJQwZCDpOiKT8SfkLfRfP//qEBLuXYWHWyeCcZVap
-         gtFDPCQ04ZfE3AVIN9MlCGS2Tmn4GbI2wCFI1LAYE66AEvGCBkvzjFoRD59JEfoyuwKV
-         dvTnsg08ZF6jwVh8J07XVET8y1Kgg+D29CXSHd6faEfPfjp+F6EreX2A2zzLazp+pFpT
-         5JseSS2Y9kab23dK+I/ygTGkfCNZl24xIBbiifB9/2tjhbaLLvcsF9vyJu3dnwUWitQg
-         9HBF/5qJ87MCWKJZXPjQFCPXu6zRcrwb2kPctJgnnu6Q12n3xbAc9Ik4OSFqDwPojN2c
-         KCeg==
-X-Forwarded-Encrypted: i=1; AJvYcCXlvLvBqLNZlo4wttmVWeFeTXL4Mu6b3qtENzVA2NSKv8grN+ch/6eXLEA9RH5yv1Ib6uDgVAOS/VebKKQdSQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzZbAbkX+GVtvn3Fw3mhHOXfaYEIOfG7BFT4g8uHpVOAuNhorQp
-	LVX6aOFUuSXsgcoOs1J0hEUbw3X/Dwj1IsocnI69CwogG8YtfqkLVOQX4+9DKriK8zFsLfy3rRE
-	c6D8LR2KTav1w9/260g==
-X-Google-Smtp-Source: AGHT+IEKbeYwPp3VufcnDG3oxb1HHJhquHFRS3WK6izEh4VhCj6uAX2NGWoxcV/iyT0wqgmgDGn12hkLp0j/InU1
-X-Received: from pjn11.prod.google.com ([2002:a17:90b:570b:b0:2f5:4762:e778])
- (user=vannapurve job=prod-delivery.src-stubby-dispatcher) by
- 2002:a17:90a:d40e:b0:2ee:c9b6:c26a with SMTP id 98e67ed59e1d1-2febab50df6mr2614956a91.11.1740707069702;
- Thu, 27 Feb 2025 17:44:29 -0800 (PST)
-Date: Fri, 28 Feb 2025 01:44:16 +0000
-In-Reply-To: <20250228014416.3925664-1-vannapurve@google.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NW9DlG0S"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740708194; x=1772244194;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=0T6aoo2qvY2WxdM4miNaYXLV2tFSlh9l306+7DiV4kw=;
+  b=NW9DlG0StS6WnvWS4MQDkivQdTQcWssdmtjMLgShmvRcXR4s5Co5qHR/
+   KbC8NmpjqBKk7jyl5CdZqApW2bKS70w5Oo0aMl4/A8g00to5gOEg+Ir1b
+   ijkQBokJsaQc7q0qgppzjaaz6lRQFfaxiJFNW3VdCAfmWUkPWSts5Ypys
+   ubIeie86m66CBAn+xVLwxOjPhGRWyghW058GDeuKx4xKWXg6KNj6ZGAno
+   irVqcePUtHMe6/3rOxsh8e0A2A3LoQu5igH5GsW8JsfCWMdiUlZo9c1Ql
+   VKraKMdW4p41hVhTk4tPpi86ms+OCD3d7x6mAh77lRsmR6lyw7Fxr8yTS
+   g==;
+X-CSE-ConnectionGUID: j/oKwD5nTfSu6dOX33JANQ==
+X-CSE-MsgGUID: idRjVG1ETYu/JXYrOA6HTg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11358"; a="64092565"
+X-IronPort-AV: E=Sophos;i="6.13,321,1732608000"; 
+   d="scan'208";a="64092565"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 18:03:13 -0800
+X-CSE-ConnectionGUID: Czi05ndaRMakUgVxLemY1Q==
+X-CSE-MsgGUID: NJcZ0i+IQYW1EVywxPpzsQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,321,1732608000"; 
+   d="scan'208";a="117184811"
+Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 18:03:11 -0800
+Message-ID: <3e8c4615-7f46-44a3-91fd-74da59c5b13d@linux.intel.com>
+Date: Fri, 28 Feb 2025 09:59:53 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250228014416.3925664-1-vannapurve@google.com>
-X-Mailer: git-send-email 2.48.1.711.g2feabab25a-goog
-Message-ID: <20250228014416.3925664-4-vannapurve@google.com>
-Subject: [PATCH v7 3/3] x86/tdx: Emit warning if IRQs are enabled during HLT
- #VE handling
-From: Vishal Annapurve <vannapurve@google.com>
-To: dave.hansen@linux.intel.com, kirill.shutemov@linux.intel.com, 
-	jgross@suse.com, ajay.kaher@broadcom.com, ak@linux.intel.com, 
-	tony.luck@intel.com, thomas.lendacky@amd.com
-Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, 
-	pbonzini@redhat.com, seanjc@google.com, kai.huang@intel.com, 
-	chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com, 
-	sathyanarayanan.kuppuswamy@linux.intel.com, erdemaktas@google.com, 
-	ackerleytng@google.com, jxgao@google.com, sagis@google.com, 
-	afranji@google.com, kees@kernel.org, jikos@kernel.org, peterz@infradead.org, 
-	x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
-	virtualization@lists.linux.dev, bcm-kernel-feedback-list@broadcom.com, 
-	Vishal Annapurve <vannapurve@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/5] iommu: Add domain_alloc_identity()
+To: Jason Gunthorpe <jgg@nvidia.com>, iommu@lists.linux.dev,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
+ virtualization@lists.linux.dev, Will Deacon <will@kernel.org>
+Cc: Eric Auger <eric.auger@redhat.com>, patches@lists.linux.dev
+References: <2-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <2-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Direct HLT instruction execution causes #VEs for TDX VMs which is routed
-to hypervisor via TDCALL. safe_halt() routines execute HLT in STI-shadow
-so IRQs need to remain disabled until the TDCALL to ensure that pending
-IRQs are correctly treated as wake events.
+On 2/28/25 08:20, Jason Gunthorpe wrote:
+> virtio-iommu has a mode where the IDENTITY domain is actually a paging
+> domain with an identity mapping covering some of the system address
+> space manually created.
+> 
+> To support this add a new domain_alloc_identity() op that accepts
+> the struct device so that virtio can allocate and fully finalize a
+> paging domain to return.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>   drivers/iommu/iommu.c        | 20 ++++++++++++--------
+>   drivers/iommu/virtio-iommu.c | 11 ++---------
+>   include/linux/iommu.h        |  4 ++++
+>   3 files changed, 18 insertions(+), 17 deletions(-)
+> 
 
-Emit warning and fail emulation if IRQs are enabled during HLT #VE handling
-to avoid running into scenarios where IRQ wake events are lost resulting in
-indefinite HLT execution times.
+[...]
 
-Reviewed-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Vishal Annapurve <vannapurve@google.com>
----
- arch/x86/coco/tdx/tdx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index 38c65e92ecd091..6389d59178ba3f 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -557,6 +557,9 @@ iommu_copy_struct_from_full_user_array(void *kdst, size_t kdst_entry_size,
+>    * @domain_alloc: allocate and return an iommu domain if success. Otherwise
+>    *                NULL is returned. The domain is not fully initialized until
+>    *                the caller iommu_domain_alloc() returns.
+> + * @domain_alloc_identity: allocate an IDENTITY domain. Drivers should prefer to
+> + *                         use identity_domain instead. This should only be used
+> + *                         if dynamic logic is necessary.
+>    * @domain_alloc_paging_flags: Allocate an iommu domain corresponding to the
+>    *                     input parameters as defined in
+>    *                     include/uapi/linux/iommufd.h. The @user_data can be
+> @@ -615,6 +618,7 @@ struct iommu_ops {
+>   
+>   	/* Domain allocation and freeing by the iommu driver */
+>   	struct iommu_domain *(*domain_alloc)(unsigned iommu_domain_type);
+> +	struct iommu_domain *(*domain_alloc_identity)(struct device *dev);
+>   	struct iommu_domain *(*domain_alloc_paging_flags)(
+>   		struct device *dev, u32 flags,
+>   		const struct iommu_user_data *user_data);
 
-diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
-index 6aad910d119d..a97ddc6a52c3 100644
---- a/arch/x86/coco/tdx/tdx.c
-+++ b/arch/x86/coco/tdx/tdx.c
-@@ -393,6 +393,14 @@ static int handle_halt(struct ve_info *ve)
- {
- 	const bool irq_disabled = irqs_disabled();
- 
-+	/*
-+	 * HLT with IRQs enabled is unsafe, as an IRQ that is intended to be a
-+	 * wake event may be consumed before requesting HLT emulation, leaving
-+	 * the vCPU blocking indefinitely.
-+	 */
-+	if (WARN_ONCE(!irq_disabled, "HLT emulation with IRQs enabled"))
-+		return -EIO;
-+
- 	if (__halt(irq_disabled))
- 		return -EIO;
- 
--- 
-2.48.1.711.g2feabab25a-goog
+This seems to be a paging domain with identity mappings for some
+specific ranges. We make it an IDENTITY domain type because it should be
+static and drivers are not allowed to change the mappings once it is
+created.
 
+So perhaps naming the callback as domain_alloc_paging_identity, or
+domain_alloc_paging_static?
+
+Thanks,
+baolu
