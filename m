@@ -1,257 +1,262 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C61C11F09B2
-	for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 17:03:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740762221; cv=none; b=FLn95hsjvompaHRZfiPV/cJIXpFMsHCyoPmt8AG8prez1N2tI0OmV0MzdSzyGYwadZT6MwQvNVEzf9pX1DLCfHgeQJx1szE9lF3rBgAkPT8tfko331TW3hrJFRPxlhUmmCbbOwE/3z4os8ym6h5HdALgJyMq/IaoedJoM7IQ6mI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740762221; c=relaxed/simple;
-	bh=rP2OpEz+UAqHglzOnri3Z0W/UW2I3t2l0gHiBGr0QYI=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=gwNiJWUS75bHCouRAYyP8teDju8Ym9XFr8Ot0MJJ/6s5WuFjoUJTo+ajSpOlMP1OkG4LQii3r7JvzJvtuQN5hH4DK13ELv4N2tECRXs0jj3k/DFpeuGRcGfaUXIh6OyAVJvuRSeyFEyadpjK+m+uNkUGyM4Z8+RX7t47Lb3mvDg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pqFCZEGb; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3888230BD0
+	for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 18:35:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740767712; cv=fail; b=inPWWKuGspJrc8bliG+soc1WHO6KYThvkYYRjL7WYrWAAdGUlNlMU8ieVCEkj7OK9Z4rmoJO/ZPi4HDlg/Z39LgBVVUx1agNv0NF+8jmvd9kBz1vJORRdYhw2dyTkjAVJnoxfqyqKPFoUGoqghmdOf/T5L3w+vMjRLOuot/SoiQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740767712; c=relaxed/simple;
+	bh=pdgiHLBWR4BiJuG4QPBUYIs8T6m8pvY5A/vckH1/v9s=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=TX+bfDewz2ha0y9K2RT93cAxS8NL50OYN9uCixDf8F03l87p17V8Eqbmt86VhfP5GkwVEYqp52ilYkBkkL3ZNHcmrpoTqxv31ksZC73J95vuSvJgmWQT8TsLXAuwVlmCkYojhw/o/MemlNLBz4odZIa3C27Yx5FF5cWyOGBQ7Ys=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=BG2hcEgv; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=S4vwFx09; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pqFCZEGb"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2fea1685337so4326618a91.0
-        for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 09:03:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="BG2hcEgv";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="S4vwFx09"
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51SEGZv5004581;
+	Fri, 28 Feb 2025 18:34:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2023-11-20; bh=r0GladK1WZ85gX+DGr+9cxe0sk8JDB5xR8tWxvbwQxg=; b=
+	BG2hcEgv4CoSxDrBQO/P6j+2qv0Wjz43zXLY728XxCWGbZ6BJ9ZBS8Oh4DuEcVmH
+	MX8yF6PL91txHwmT3ak8cFQYrpWRuwg0tcZA7vbTa9Q77i2EMioR2IaQaPNomle3
+	YRsfYUr0FLbfLOaCU3c8opTLnqyO0mhskUYXKi/Flr8LGa2+pzx4gs9H0vEZPxt9
+	ZfIr4jM0jQKYpqXOe0wj71qaVcQmICz+ykyRtQHQiOKNy86nXwkcjhB7Uk6Mbdj+
+	R9LoTbYKJbwmryh89B419tHcXXH0Z32BsP018no8KLUXGDjZ/cg2EFWg9OR+p0ck
+	PCmAj64Ib0HOpDq8LZc0sg==
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 451psf6759-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 28 Feb 2025 18:34:59 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 51SI0Y6e010256;
+	Fri, 28 Feb 2025 18:34:58 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2049.outbound.protection.outlook.com [104.47.66.49])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 44y51dpj7f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 28 Feb 2025 18:34:58 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=rXHZHTltoPhUqk4Uv/GzzI8RGAxsWCJ3F5Qdg9Wu7Y083vH5ZuzCqdPRISdXhsPmdawR0ZLqRSx08Y/8+qoc9CmQe3oW8UE5FT4TPGVCYonX46P+2m9QLrvd+SGg06wU050wZVMoDRI/H2Rn86fQpAe5i+PbVh/rZpJeeDs9nx1gHfMAcWE5Mf2RBmvcduom+x0Z52W7RPpM59lA9uGXzdeUmg8vYItnhipvdo1qBqwIG/dAhuNMHvLY0vZdu08drcsTs9e0rGEKX5izHq6znniU+raOxesB+3P5G3Ybisi93cOh2FjfNwTkWGEkWhIBsmN3TxUMQWesNy0k/68n9g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=r0GladK1WZ85gX+DGr+9cxe0sk8JDB5xR8tWxvbwQxg=;
+ b=Pi2/tuEjYgRlEaTPDEdEKVpo6wlixBtxoGh7kk7mgbnPJVDSop2QOQwY2BxONWXL/PjzkLlHB++fWG8DFBN/H/vDjxWXhotH9exVoF7fu4Z595ZUjDjYfKqjgqKNmpSA4OvzKclzXeuV2xTDDY4JioNYsr63LpEkPinWBnfpL4QGZ2xxtdIFKw7XqDnmZt0lMl6EbgSNwrB2I0pCLD3h99HDEXyG2pc8mL0RTlMsv9n5MmtSFgNa6K5dp/AA9BbSQw+w7GU5IujJaznYMdYQhJ1PvKlUo2NiC2jazzRwGj6Cam84hRlT6D8wnzIwsboy6qCG6U2V/7NhpuBMiznOJQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1740762219; x=1741367019; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=yBae22rC1ZZWAm9wgaOrOy67AIEryr2XvHSDCCw/B3A=;
-        b=pqFCZEGbee1YR5W6kbXYKJzLmTjrMeKr0/pcG8Nf/8kOTd8EPViAg3jq57kvnoP9m9
-         NbQcLuELMyfHP71fNVKwOyj41LlD+u2OpE2FIg+blp39wkEqsVl83TD+/1277SRgsDML
-         pBBOAq5UxBGH0oy64wBAcbC25hm+oVlFw5qfE+JpHidoK3OUkxGyuVOUqkPwYw27Y2CP
-         wU8RFNXSY8xlUMjkVyUpG+byc5b276DKyo+N+m+7wSvX+HZ64fdinFDIdsPifVcmZYxM
-         VRAaeMxqhUQ59b93TWXcBQc7TxFzqGIoQt59vgcl3kKmuaHF0vLS2jHh65r01ZpXTh4H
-         +DKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740762219; x=1741367019;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yBae22rC1ZZWAm9wgaOrOy67AIEryr2XvHSDCCw/B3A=;
-        b=RO2fnUNe6rmAVyTJ0gcptJureue74Pc80b/2AXPwhqRoYOlwY0FuVxmZ1gWKWijdvf
-         PL1Tbz/fU9Ju321WvX3THfxlGMlHeS1YP8PyrIF8EUvby7YJRKw7Clg2fyR/+fAMdSDe
-         M9bCh0hI4fO/eUj6m4K881L7Fn3gl2uwhU4Bw4owhB0zXYR/JvYQdtjOosTMAKWBEK6t
-         H1jhRJPFFwZUUWoM+sCsHbWeLUFaYpUT2DXbFrfvkh+t3ocJPVi68fQ86kSGL/0a5xDf
-         1d6VP3kGNY03lfFXyVzAnasPIOlVxrm2OsztN3H7mYKQwf0KSDBVp31Qo2Kk51g2Tyzs
-         5AvQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXY/pkSjHQ/fHnRotxW8MhF7m5aCYz8GDcf8SO5FTqB5H2oaMYJ4gLOCvU1OonJXkmjwhqHmGBdgqyAGJs6Ug==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwAMd97SikvPmcXNm/6pAfg3SmMgyUT1mFPJ4wqXKY0o1CHTTYA
-	ZLUf4Kltagv32EDDssImNtHv0MKrKxYY3hqLrofLICKSGEUDpzpyCU6FZMCWekpFEfbTVB4Kxmv
-	ptw==
-X-Google-Smtp-Source: AGHT+IHfvWvtYClW4D8XZivqOIxKPdkMKph7B/KmPkdLz5hq7e1uqYxbJLhAYv1E7edLxL02jG9Sop91PHI=
-X-Received: from pjbsr16.prod.google.com ([2002:a17:90b:4e90:b0:2fa:2891:e310])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4ac6:b0:2f6:e47c:1750
- with SMTP id 98e67ed59e1d1-2feba9325ffmr7047907a91.13.1740762219054; Fri, 28
- Feb 2025 09:03:39 -0800 (PST)
-Date: Fri, 28 Feb 2025 09:03:37 -0800
-In-Reply-To: <3b1046fb-962c-4c15-9c4e-9356171532a0@redhat.com>
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=r0GladK1WZ85gX+DGr+9cxe0sk8JDB5xR8tWxvbwQxg=;
+ b=S4vwFx09t3jdkrSOVz4D+MpuiY4N4fYz0UhSo64eo/FBVFmmhpIobRayp/YC/ZWltrzCq9AIrdvtxiolP9bP32Xk63VxZ/dXxQOPUi5LmjleYuXfOs9hQjFSTnd0l9TUX+RPE8pDCSfxYYyQFipunDHCDgN5RUpI3iYFY4fVzAE=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by CH3PR10MB7331.namprd10.prod.outlook.com (2603:10b6:610:131::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8489.22; Fri, 28 Feb
+ 2025 18:34:56 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0%4]) with mapi id 15.20.8489.018; Fri, 28 Feb 2025
+ 18:34:56 +0000
+Message-ID: <e04b172f-f137-4d9a-a99d-e757088df4cf@oracle.com>
+Date: Fri, 28 Feb 2025 12:34:53 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCHv3 1/2] vhost: return task creation error instead of NULL
+To: Keith Busch <kbusch@meta.com>, seanjc@google.com, pbonzini@redhat.com,
+        kvm@vger.kernel.org
+Cc: leiyang@redhat.com, virtualization@lists.linux.dev, x86@kernel.org,
+        netdev@vger.kernel.org, Keith Busch <kbusch@kernel.org>
+References: <20250227230631.303431-1-kbusch@meta.com>
+ <20250227230631.303431-2-kbusch@meta.com>
+Content-Language: en-US
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <20250227230631.303431-2-kbusch@meta.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: DS7PR03CA0312.namprd03.prod.outlook.com
+ (2603:10b6:8:2b::21) To CY8PR10MB7243.namprd10.prod.outlook.com
+ (2603:10b6:930:7c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250227230631.303431-1-kbusch@meta.com> <CAPpAL=zmMXRLDSqe6cPSHoe51=R5GdY0vLJHHuXLarcFqsUHMQ@mail.gmail.com>
- <Z8HE-Ou-_9dTlGqf@google.com> <Z8HJD3m6YyCPrFMR@google.com>
- <Z8HPENTMF5xZikVd@kbusch-mbp> <Z8HWab5J5O29xsJj@google.com>
- <Z8HYAtCxKD8-tfAP@kbusch-mbp> <3b1046fb-962c-4c15-9c4e-9356171532a0@redhat.com>
-Message-ID: <Z8HsaS9r_OkpCGYk@google.com>
-Subject: Re: [PATCHv3 0/2]
-From: Sean Christopherson <seanjc@google.com>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Keith Busch <kbusch@kernel.org>, Lei Yang <leiyang@redhat.com>, Keith Busch <kbusch@meta.com>, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org, 
-	netdev@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|CH3PR10MB7331:EE_
+X-MS-Office365-Filtering-Correlation-Id: def125c7-51a0-4bce-dd1c-08dd58269982
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?RzhDLzE2MGoxc2xsbTRSM2t0aXlZK1JHNGFpUzdBZVFTckJ2RVUyMC9aSkM2?=
+ =?utf-8?B?ajEyODRRNTc2SVR0REJWMytrM2szZStoQS93MEVuUDJSN2RvZHVvRGtFaDVD?=
+ =?utf-8?B?RkdDQk9KMWVyKzFLNm1qRzd2U25JalMvRm1PcmJTcDNoODFsck4zSVR3c2ho?=
+ =?utf-8?B?MnNoZTZaQU1MNEhMcnZudS9vUjlIVzJyUzVycTg4YUdvdWpybEtCNGtWbXhO?=
+ =?utf-8?B?UjZxcVozWmlXT3h5N3FwREN6MWJmZVlOZHgyZjQweGloN3Q2UVFoUlRvdmli?=
+ =?utf-8?B?cUVEeDYybmcvaGd2d0tydVl1bFRwS1RWVll0ZWtPS054eXRucnRwY3pQVjBo?=
+ =?utf-8?B?c3RNS2FoMnNRZG14RlR3QVZ0U1FINnFUeDFQbDBMOThqM3dJSEVRWDhlWi82?=
+ =?utf-8?B?andWa0d4eWpDTmlLNFR3ZWp0anFXNFpKaFVYNnlQTUVhUEM2bVJQRUNGRCt1?=
+ =?utf-8?B?T0lpL1pMRFdlMHI3R0NIQmpMZHNNbFNZMWpHTzgzbXEyYThvQnJxQjNWL0VC?=
+ =?utf-8?B?SFVXMlV0STBDSmZNS2drNDNHVzhNaElNcGpxcHVpS0Y5VFZVajk4dDlqWFhi?=
+ =?utf-8?B?emlnT2I3aitzRkhINWtEeWp4Mk5ONGdhUksxZ3l0NTBGTDlpemI5cldYT1lu?=
+ =?utf-8?B?VGNOL0kvcEJEblpLSlMzUUZkRFBLaWJvdHEzT0Vvbzl6cTUyWG5tb3c3UXd5?=
+ =?utf-8?B?bk9tQzZDbHBLbE9zb3RlL0V1RHBUcjlWWjFrUnZBeVY2WmpYVzhBeFNNVC83?=
+ =?utf-8?B?Q2s2UkRZNFZ0WDViNE8rMm5jWldsWnhRcStmRGwrdk9XSVFOTjhqNlptbmZl?=
+ =?utf-8?B?QnVUZlpVTHh2YnZxcUVzSjRxNTQrU1U1OEpPRkxVMTVjZ1l2b3FFbUhqcEl5?=
+ =?utf-8?B?L2pHcm1GSVRubm5wa2gvVzFiaDk2LzIrTHN5VEIrTDI3WGw5bnRpNGIzUVRQ?=
+ =?utf-8?B?UjVVaGxIUEtEc2hEaW1lUFZlS3FVV3V6MEl3TXV4VEc5VGFBbWVXM0RIcWZF?=
+ =?utf-8?B?R3dVdGZPakRvNWhoa00zaHNuSUk2Y0RVOVJObGVjWTFxY2x2dlNyUDVubXk5?=
+ =?utf-8?B?NTRWZ2JmTld5U0dsWm5hZkV0QmZzeFo0L1MrQURsanlhdDQ0enBRVTNwNEFx?=
+ =?utf-8?B?R3ZwVmdLVC9KT3Q5WEt0K3k0OEFRRzFseis5SHI3YWVhUTZxQk9zZkhhQU53?=
+ =?utf-8?B?WTZnbm5ZV0UxRkJTM0REbjUycW5MdGhaV2NHQjBtVnFjRmVMb2N6aDhzM0hs?=
+ =?utf-8?B?S3RST0haRVB6dkp1aUpGZ2JjQ3VkcHliNEFiWkJobm1rUGZnMDdDM2RYekI1?=
+ =?utf-8?B?dGlsWXJGb29KWWVaNGJ5aURmbTl6bW9KNm9RY0RSZW1OeFR0MHpVTHlmOUNu?=
+ =?utf-8?B?QkdFdjFPYkpTSVp5bDMrbkJkMVAvOXdtYm1DbWVhK0ZBcHZqU0U5Y1dZMjZC?=
+ =?utf-8?B?TnFVYWdMZWxTd3YvazhXWXVtdDRDM0owejd3SUdhR0JLSmdqSUV2TnlvWnhW?=
+ =?utf-8?B?cTRxQnhrbFY5b0k3VWt6dHBMR0VPL1JPdG41SWZuSWxjaEZvT1JpZmxnMGlo?=
+ =?utf-8?B?cm94VjBZQ0tPeUFuem9IMUV6WmVUL3ZIWllJTGNhb0VqWStJd3phL2pXQWJO?=
+ =?utf-8?B?RFIwaFk2NkpTQmlVMmtCeG9JbGN4U1NsM2RuOFViTW1xRUR4S2hVZXVuRk8y?=
+ =?utf-8?B?em54SG5QbFBOdEZjdlJyeVBhRkMydTc1MXNNZzBTbWZucGhOWHc4dTROS1pq?=
+ =?utf-8?B?Y2U5UitXNjJhZFRraHBYQTdXMmloMC9LRytoRnhYWWZtRHQ5dkNtNWNPNXdP?=
+ =?utf-8?B?dDRSSG9xQUdqQmNRSEJzbE5LeEhjQjRqQU5DSHZJZjBUSndHbWJyaUo3bXB2?=
+ =?utf-8?Q?8SfqRc+I4+e0Q?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?SHVzc2t0VE05U2pMR1I5YWplbDI5Mzk4enBUVlBTcSt1aUp6R2ZnU1ZBZ0xZ?=
+ =?utf-8?B?NzUwZGhoU0VTQml6cDFhUUhKOC9YLzJTOEVCWnVDMGZSZFBobW1McjM2UHdj?=
+ =?utf-8?B?TzdaTjRSTnFGcDFXOURqRnlNRUZuVUhLYjI0MENJUzdSSnJlTGhqTkZkUXRR?=
+ =?utf-8?B?UWlKSnllL1l4QkxUNzVJWWFOalp0dnJMbFF4SGRUQnFBR3BPVEVWdTlTS0o3?=
+ =?utf-8?B?T1pVUWFaK1lpMHpvUHlzbWt0SjVWYTlVd3puUlRxR2EzN1NyeXArcWhUdk9G?=
+ =?utf-8?B?MmhjTDBaVjhNaE5rR3hudXVEN1Rlb0pRUEF1dUJ0czNzQ3NseEY0SzhSdno0?=
+ =?utf-8?B?cUFjNW1jekFtbGcrSEZ1ZktsVnBIUXNHbEIyd3RqTlJCQ1QxdU01RmpvRWJ2?=
+ =?utf-8?B?eXFoQktZS1A3OHRMaWpjTG1vZE44bUpoNU50R00ydElxUmtLVWdCSmpqQ3Fk?=
+ =?utf-8?B?d2pzTWk0RHhUSDZwcS84MTVxYnRmdWVFbkVMOEdINm1TL3NVTUFpazl0SUZx?=
+ =?utf-8?B?M3hzR2N2WFlMRzNkYVdPSjhyTUV6bEpMSUxtbHRTQitOMHU3UStNSVQrQkd2?=
+ =?utf-8?B?VThDbm04N2JjVUZxUjBRQUltOTZOT2NmZDZSc1JNaFlXbUVPNTBPam9LMGdz?=
+ =?utf-8?B?dVdkd25ndHR5UHBzV1hKY1hZb2pXblUwaHIvVDd2alpJbXRzSFNkcDZPRWdu?=
+ =?utf-8?B?NmNTNDBKbjYwQjhYWk1PdDJ0WDNmRnNvRUJHRGdZU21RNHpKalExcVRISW56?=
+ =?utf-8?B?RFBBcVkzYlFzbERLSFBpUlBJbk5SVFVjVWRlSFFWeTlXa0RsUUJyaVN2RU8y?=
+ =?utf-8?B?eHFRV2tPa0VUTytHcGpmNUNjbjFWRUpucEhIcFh2S0t4QXF0bkk0Q09tQXBK?=
+ =?utf-8?B?cXB0TVdTcGxJeldaRWliZnB6bHhJbjNXcXVrNTFsN1ZJNS9HbG0rOHFydVZ6?=
+ =?utf-8?B?dGJiY24vSXNSZmhJYW1XaDg1MzF6eHVZNzVQMXVUSzVicmpBSWhtVXhjVmpj?=
+ =?utf-8?B?SWxNNkpKTjR5QWxhOW9PcEc3aDNVcGpvd0NIdFYyL3NmVERGK0RrbFpiWHFR?=
+ =?utf-8?B?ZFg5N3B2WWhvNmdUVTY1RFJZTWlrcTZsTzlrTlJZTDIrcFF4TjEwcldPQ1o3?=
+ =?utf-8?B?YW9qeXNaS2ZiTDFyVzZNNUZhOUNDVVE4cTlxdTR6cUhnWkNXeFR2TmVBbHFB?=
+ =?utf-8?B?dkFkL2c1NEg4VTFmWFdpWThOdkJQbVlCS1FSclU1TTBYU2J4dDlqSlYrbzVI?=
+ =?utf-8?B?M1YydjFrSitKTEtlc0dyRGtkNzQzKzk4SE1jQzBXTE5tZ2lENXZwUDl3RlAy?=
+ =?utf-8?B?Y0tRRGhyT1FXMjYzNFNrR2RqOHdpcTBvaUU1YkZneW93K003SVBxNDRDR0Q0?=
+ =?utf-8?B?V0tSbk9kdExheHZEbGNlTGVadW1yakI1eGx4S3VnZEl0NmU0emxVekJFMUJs?=
+ =?utf-8?B?Z2dqaFU2TDNIRTZLWlV3dWVoaFUzOWpqMXlGVm5uNHkzMklKZFhnQllSVW16?=
+ =?utf-8?B?TVVKWWh2MXFxd0RJRXBtQ3NzaEt6Ty9meEI5Vnh3clY0cW1iL2Juc0xlTnJU?=
+ =?utf-8?B?aUlJd0RLMFo4cWNxbTk1RTlTVkxBZHlPNEFwakpuSXRZVlJUUzduc0lkQ1R5?=
+ =?utf-8?B?MlhUR1ZVWVk5cXpscFpzbnpwbFlNeVhqMlNjS2JNZlVqdXAveEw4ZlBEWGRV?=
+ =?utf-8?B?ekM4RjI5YUJ3YUFPSFhyeG9KTE1kMjJRVVhpMklJTHNhdVJrTGFKNUdrMVgx?=
+ =?utf-8?B?aWxHb2RnY2lGNFFDSGlEU0VjYlI4QkdmRjBmNldZR1pJQjIrUmU4dVRRd0hv?=
+ =?utf-8?B?R2JNcWo5Zkt3dTA0MkJWN1F5WlVVV0JsZ1I3UWhnUnNtT1p1QlhSWFlkckor?=
+ =?utf-8?B?czJNTkh0OTJtU0ZzYms0Wk1XcVRwanlUUGcxR2FQSGE2OHY2R3ltSkw4RXFP?=
+ =?utf-8?B?T3BZRVRreW8wdVUya3UzVHV6eERQNjJUckR1WjFydEpNWDQ0a0tRaTRPZDBI?=
+ =?utf-8?B?bjN4Rk91ZFZwcHR1enI4elRVMnNQRkdCWVQ2MkVvRmNlL3BSS29yR21YbzFy?=
+ =?utf-8?B?SEFKSlYvOCt1UGNTYng5M3hmcXc2bU82YThsQklFL2FFbks3UVlucFN0c05Q?=
+ =?utf-8?B?a3J3OHI1cmxValNhb1pueHB2Vy9abjN0dGFaSHM0SytIYmRIRFVJM2ZQQmdC?=
+ =?utf-8?B?Qnc9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	bsTLz3cwHvH8EkHDhF78sCkXuWfgVS6dxyfM8jnDuMl9NNVNeM8RfZqHKJj8Zg32lQRuuh9zoW/gSwCewTByOEATAYjzzwCLV3Wz8Z27CH/YU5Y2G8VxKXVcgaC8uu68vlu9qRzuWMKr+gYfBGVKK6UDHHifD9AMJoXILTVGF8slrL7xqlVAbD9OC7kgOSG/AK9jl63am10bL6hLBMGSTpUtdfmzWcmbdYLM1U1MzGhmnYekPuKQkYePQcyd+kYC4SbNb7GPH57RwirsCXunWdmUChOsFNmg//GlP7EW/bV8VWdo+p9GOm6eVW83dQEdZmgEDFXoQFnhZj+C3PU4+BH5MhJ0AwJVopkCJ1LxxajXQiWEgDnvzM8SkCq1PFA74bCRsL8pd48S+0uEJXpFkzz7HrSkYnOvSHvANpjkuXifytJsf5dcWHg9Iz6HRw/m28jhtMzzjF2hGPBdm9yKlVJcLNGftEaWkwRBxNcRfgL2jRZ3IbfsXdGitmJVyk4yKmIZEr2zEMU1XlQ9XXmqND75W4xHGo49L6qo79gWWw/1s3UYDCggGWawwwjyY1MzhnRWRVKROd2dpAEorphCeQmB+4XQxyQ9hYy0+ytSnto=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: def125c7-51a0-4bce-dd1c-08dd58269982
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2025 18:34:56.5072
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: y6byYpFq67L9U/EcLXz1Hfq1thcToSFz6A8WAUxdVxIve93Woi8ML/BWAd92q40JnKpsWXA19xhZJE7upPQ/0ImhRkyhz0RunGo/Ry02YZE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR10MB7331
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-28_05,2025-02-28_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 adultscore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=0 malwarescore=0 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2502100000 definitions=main-2502280136
+X-Proofpoint-ORIG-GUID: kBWnHiaPAE1lNv24So19k8bUQbiTS94E
+X-Proofpoint-GUID: kBWnHiaPAE1lNv24So19k8bUQbiTS94E
 
-On Fri, Feb 28, 2025, Paolo Bonzini wrote:
-> On 2/28/25 16:36, Keith Busch wrote:
-> > On Fri, Feb 28, 2025 at 07:29:45AM -0800, Sean Christopherson wrote:
-> > > On Fri, Feb 28, 2025, Keith Busch wrote:
-> > > > On Fri, Feb 28, 2025 at 06:32:47AM -0800, Sean Christopherson wrote:
-> > > > > > @@ -35,10 +35,12 @@ static inline int call_once(struct once *once, int (*cb)(struct once *))
-> > > > > >                  return 0;
-> > > > > >           guard(mutex)(&once->lock);
-> > > > > > -        WARN_ON(atomic_read(&once->state) == ONCE_RUNNING);
-> > > > > > -        if (atomic_read(&once->state) != ONCE_NOT_STARTED)
-> > > > > > +        if (WARN_ON(atomic_read(&once->state) == ONCE_RUNNING))
-> > > > > >                   return -EINVAL;
-> > > > > > +        if (atomic_read(&once->state) == ONCE_COMPLETED)
-> > > > > > +                return 0;
-> > > > > > +
-> > > > > >           atomic_set(&once->state, ONCE_RUNNING);
-> > > > > >          r = cb(once);
-> > > > > >          if (r)
-> > > > 
-> > > > Possible suggestion since it seems odd to do an atomic_read twice on the
-> > > > same value.
-> > > 
-> > > Yeah, good call.  At the risk of getting too cute, how about this?
-> > 
-> > Sure, that also looks good to me.
+On 2/27/25 5:06 PM, Keith Busch wrote:
+> From: Keith Busch <kbusch@kernel.org>
 > 
-> Just to overthink it a bit more, I'm changing "if (r)" to "if (r < 0)". Not
-> because it's particularly useful to return a meaningful nonzero value on the
-> first initialization, but more because 0+ for success and -errno for failure
-> is a more common.
+> Lets callers distinguish why the vhost task creation failed. No one
+> currently cares why it failed, so no real runtime change from this
+> patch, but that will not be the case for long.
 > 
-> Queued with this change, thanks.
+> Signed-off-by: Keith Busch <kbusch@kernel.org>
+> ---
+>  arch/x86/kvm/mmu/mmu.c | 2 +-
+>  drivers/vhost/vhost.c  | 2 +-
+>  kernel/vhost_task.c    | 4 ++--
+>  3 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+> index d4ac4a1f8b81b..18ca1ea6dc240 100644
+> --- a/arch/x86/kvm/mmu/mmu.c
+> +++ b/arch/x86/kvm/mmu/mmu.c
+> @@ -7471,7 +7471,7 @@ static void kvm_mmu_start_lpage_recovery(struct once *once)
+>  				      kvm_nx_huge_page_recovery_worker_kill,
+>  				      kvm, "kvm-nx-lpage-recovery");
+>  
+> -	if (!nx_thread)
+> +	if (IS_ERR(nx_thread))
+>  		return;
+>  
+>  	vhost_task_start(nx_thread);
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 9ac25d08f473e..63612faeab727 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -666,7 +666,7 @@ static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
+>  
+>  	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
+>  				 worker, name);
+> -	if (!vtsk)
+> +	if (IS_ERR(vtsk))
+>  		goto free_worker;
+>  
+>  	mutex_init(&worker->mutex);
+> diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+> index 8800f5acc0071..2ef2e1b800916 100644
+> --- a/kernel/vhost_task.c
+> +++ b/kernel/vhost_task.c
+> @@ -133,7 +133,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
+>  
+>  	vtsk = kzalloc(sizeof(*vtsk), GFP_KERNEL);
+>  	if (!vtsk)
+> -		return NULL;
+> +		return ERR_PTR(-ENOMEM);
+>  	init_completion(&vtsk->exited);
+>  	mutex_init(&vtsk->exit_mutex);
+>  	vtsk->data = arg;
+> @@ -145,7 +145,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
+>  	tsk = copy_process(NULL, 0, NUMA_NO_NODE, &args);
+>  	if (IS_ERR(tsk)) {
+>  		kfree(vtsk);
+> -		return NULL;
+> +		return ERR_PTR(PTR_ERR(tsk));
+>  	}
+>  
+>  	vtsk->task = tsk;
 
-If it's not too late, the first patch can/should use ERR_CAST() instead of a
-PTR_ERR() => ERR_PTR():
 
-	tsk = copy_process(NULL, 0, NUMA_NO_NODE, &args);
-	if (IS_ERR(tsk)) {
-		kfree(vtsk);
-		return ERR_CAST(tsk);
-	}
+The vhost task parts look ok to me.
 
-And I was going to get greedy and replace spaces with tabs in call_once.
-
-The changelog for this patch is also misleading.  KVM_RUN doesn't currently return
--ERESTARTNOINTR, it only ever returns -ENOMEN.  copy_process() is what returns
--ERESTARTNOINTR.
-
-I also think it's worth calling out that it's a non-fatal signal.
-
---
-From: Sean Christopherson <seanjc@google.com>
-Date: Thu, 27 Feb 2025 15:06:31 -0800
-Subject: [PATCH] KVM: x86/mmu: Allow retry of nx_huge_page_recovery_thread
- creation
-
-A VMM may send a non-fatal signal to its threads, including vCPU tasks,
-at any time, and thus may signal vCPU tasks during KVM_RUN.  If a vCPU
-task receives the signal while its trying to spawn the huge page recovery
-vhost task, then KVM_RUN will fail due to copy_process() returning
--ERESTARTNOINTR.
-
-Rework call_once() to mark the call complete if and only if the called
-function succeeds, and plumb the function's true error code back to the
-call_once() invoker.  This provides userspace with the correct, non-fatal
-error code so that the VMM doesn't terminate the VM on -ENOMEM, and allows
-subsequent KVM_RUN a succeed by virtue of retrying creation of the NX huge
-page task.
-
-Opportunistically replace spaces with tabs in call_once.h.
-
-Fixes: 931656b9e2ff ("kvm: defer huge page recovery vhost task to later")
-Co-developed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
----
- arch/x86/kvm/mmu/mmu.c    | 10 ++++------
- include/linux/call_once.h | 36 +++++++++++++++++++++---------------
- 2 files changed, 25 insertions(+), 21 deletions(-)
-
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 70af12b693a3..63bb77ee1bb1 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -7633,7 +7633,7 @@ static bool kvm_nx_huge_page_recovery_worker(void *data)
- 	return true;
- }
- 
--static void kvm_mmu_start_lpage_recovery(struct once *once)
-+static int kvm_mmu_start_lpage_recovery(struct once *once)
- {
- 	struct kvm_arch *ka = container_of(once, struct kvm_arch, nx_once);
- 	struct kvm *kvm = container_of(ka, struct kvm, arch);
-@@ -7645,12 +7645,13 @@ static void kvm_mmu_start_lpage_recovery(struct once *once)
- 				      kvm, "kvm-nx-lpage-recovery");
- 
- 	if (IS_ERR(nx_thread))
--		return;
-+		return PTR_ERR(nx_thread);
- 
- 	vhost_task_start(nx_thread);
- 
- 	/* Make the task visible only once it is fully started. */
- 	WRITE_ONCE(kvm->arch.nx_huge_page_recovery_thread, nx_thread);
-+	return 0;
- }
- 
- int kvm_mmu_post_init_vm(struct kvm *kvm)
-@@ -7658,10 +7659,7 @@ int kvm_mmu_post_init_vm(struct kvm *kvm)
- 	if (nx_hugepage_mitigation_hard_disabled)
- 		return 0;
- 
--	call_once(&kvm->arch.nx_once, kvm_mmu_start_lpage_recovery);
--	if (!kvm->arch.nx_huge_page_recovery_thread)
--		return -ENOMEM;
--	return 0;
-+	return call_once(&kvm->arch.nx_once, kvm_mmu_start_lpage_recovery);
- }
- 
- void kvm_mmu_pre_destroy_vm(struct kvm *kvm)
-diff --git a/include/linux/call_once.h b/include/linux/call_once.h
-index 6261aa0b3fb0..56cb9625b48b 100644
---- a/include/linux/call_once.h
-+++ b/include/linux/call_once.h
-@@ -9,15 +9,15 @@
- #define ONCE_COMPLETED   2
- 
- struct once {
--        atomic_t state;
--        struct mutex lock;
-+	atomic_t state;
-+	struct mutex lock;
- };
- 
- static inline void __once_init(struct once *once, const char *name,
- 			       struct lock_class_key *key)
- {
--        atomic_set(&once->state, ONCE_NOT_STARTED);
--        __mutex_init(&once->lock, name, key);
-+	atomic_set(&once->state, ONCE_NOT_STARTED);
-+	__mutex_init(&once->lock, name, key);
- }
- 
- #define once_init(once)							\
-@@ -26,20 +26,26 @@ do {									\
- 	__once_init((once), #once, &__key);				\
- } while (0)
- 
--static inline void call_once(struct once *once, void (*cb)(struct once *))
-+static inline int call_once(struct once *once, int (*cb)(struct once *))
- {
--        /* Pairs with atomic_set_release() below.  */
--        if (atomic_read_acquire(&once->state) == ONCE_COMPLETED)
--                return;
-+	int r, state;
- 
--        guard(mutex)(&once->lock);
--        WARN_ON(atomic_read(&once->state) == ONCE_RUNNING);
--        if (atomic_read(&once->state) != ONCE_NOT_STARTED)
--                return;
-+	/* Pairs with atomic_set_release() below.  */
-+	if (atomic_read_acquire(&once->state) == ONCE_COMPLETED)
-+		return 0;
- 
--        atomic_set(&once->state, ONCE_RUNNING);
--        cb(once);
--        atomic_set_release(&once->state, ONCE_COMPLETED);
-+	guard(mutex)(&once->lock);
-+	state = atomic_read(&once->state);
-+	if (unlikely(state != ONCE_NOT_STARTED))
-+		return WARN_ON_ONCE(state != ONCE_COMPLETED) ? -EINVAL : 0;
-+
-+	atomic_set(&once->state, ONCE_RUNNING);
-+	r = cb(once);
-+	if (r)
-+		atomic_set(&once->state, ONCE_NOT_STARTED);
-+	else
-+		atomic_set_release(&once->state, ONCE_COMPLETED);
-+	return r;
- }
- 
- #endif /* _LINUX_CALL_ONCE_H */
-
-base-commit: 7d2322b0472eb402e8a206ba9b332b6c75f6f130
--- 
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
