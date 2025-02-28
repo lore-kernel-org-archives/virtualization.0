@@ -1,245 +1,243 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A84FE1C07D8
-	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 06:44:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740725057; cv=fail; b=dbGwqR5KgrMgNg5O6V9sajey367YfafExeWZmIIqQ1AgD6JhKPwmuJJEX4AWZBt63Fkh6mx3zCgsaqQUQtE1Cj11DxQbVIU/FaPvmZsbjMnn4WKLJb99L1j/AE0po/9xXFGc2g2YH785SDL+N1zXZBBvjsgpR5C1ONdKinElHWg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740725057; c=relaxed/simple;
-	bh=Petppoy66yXbQIRyDUwPkHv4FM+QIRrkILYTEzOMMvM=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=SSsAlq/wShUqKOnyBUDMMQfEtf/w9UKeJXGwKhyCMPnX9KdscSxttn7/7TEw40Ph7xwQWgNbs07M+5Ja+WpVUEf//3MmgTbm4rfsbNRZ1xWG+5HLAE88RAnI5/zM9SFfy/4OCq76Z9fqiHFr5zRNL67thgQ3h741o35qInVyc1U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FCKeqHMq; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B0241DE2C7
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 07:59:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740729545; cv=none; b=b2TiEd3jVfrZGG2W2c6ELiqP7sr77wvdn5JJ69DZp8MP9plZWYy1h9y2/ZX3Y9CdCCajJFodXqu+SZmyT/2ATlKjJtUUDw0Wa+PclI3kE33l16z9Z3Sr9LLzFMB5UTyWRo4QX5qVaT1V/DWKrtC1Io/HrQCDNvPUk0JXtseYgdM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740729545; c=relaxed/simple;
+	bh=4nEG4dQa9iUzcHtN9a84NI2JKhWt96F/Bn6sKNrBOG0=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To; b=EIVOCNr7Y2iUZy7e954CArhh65jjrL4tO83kocNsmXOIEGR0aRlLtFPmTnBfCem5CCBI0caRRRVUHcA3EeH/FioPsrVhY0o/LcnYjmkmAfrzYY6ZywMwCUoJRZBDpsUwULJ5PjaEEHMSb/58FXIdjlF1UM+2saW23NqSuAfrXhQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=NW/skLnz; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FCKeqHMq"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="NW/skLnz"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2AEDD404D5
-	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 06:44:14 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 99AB94043C
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 07:59:03 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -8.092
+X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id FnUTNOJrtfoT for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Feb 2025 06:44:13 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.13; helo=mgamail.intel.com; envelope-from=kevin.tian@intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A1353413B7
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A1353413B7
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=FCKeqHMq
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A1353413B7
-	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 06:44:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740725052; x=1772261052;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=Petppoy66yXbQIRyDUwPkHv4FM+QIRrkILYTEzOMMvM=;
-  b=FCKeqHMqPyrcxB1FWNe0NgY4q7ec/WNDJobxIPr6LX8TILtRO+IaYhUJ
-   i1sDXikMfL4BzrgeFHMn1uYmntVZ8SjNCaBbJ6Eebu9CK3k1igc1+/nx6
-   tzbob3mQpn3sh0oR/D4qEhHVzTxlHg/3K/WxEF6SDG+0829pV8ANkjQPR
-   bpOVhc6PKucRPf6I70VAY9hxpwxrgGn/bscd0H4OaVsJf/prvbdIDujuP
-   OeMINx7BlSsoL7N8zrWjNcy7XLSWBwS10XXxHmIs9KYehDpeQTij4y3vI
-   UPBW8Z2HplScaytDWpI1OT8oyKWbCIla+DgFW4RkpDrFbBoqKSdzJzYK3
-   w==;
-X-CSE-ConnectionGUID: hQPup+aNSdeI41Hv9+jIrA==
-X-CSE-MsgGUID: cuiOA2aXSWG5l44Yv57N4w==
-X-IronPort-AV: E=McAfee;i="6700,10204,11358"; a="44461175"
-X-IronPort-AV: E=Sophos;i="6.13,321,1732608000"; 
-   d="scan'208";a="44461175"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 22:44:11 -0800
-X-CSE-ConnectionGUID: HtAOwHTWTg6rTahRQLqnNg==
-X-CSE-MsgGUID: CqvdSTiLT6OzmD6GfAq6mw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,321,1732608000"; 
-   d="scan'208";a="117015475"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by orviesa009.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 22:44:11 -0800
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Thu, 27 Feb 2025 22:44:10 -0800
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14 via Frontend Transport; Thu, 27 Feb 2025 22:44:10 -0800
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (104.47.58.168)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.44; Thu, 27 Feb 2025 22:44:10 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QVT0aL6Kd7t+/0XCiqidP2KrbHHpkzyYoDeTCeBdEI2fQxH+ColezkPxEVivtMbBi4bkqS0GcX70Nj7GH2e4xoXx5HvANzKTusa3XE4gyuPhhZeDB2Bbb1zyvE5Zl5pNdtR1cKpJ805g3E5WHe1Oh9DSiYxwe80UcAX/soPthylP+fASw1k5I7uAkGFxeKgoaqJGvc6MeXGy20r29BG3kAmG2R+jf8npnJRuKjEdd8VkVctLCE3y2tOkyIG7pD+75wmFazPSOQsUAi6U92hZH0GgLOLojq98RCaHAes4R4VU8+eRJNuEjdm1bxR0QpqvmOmN8h//vQsFXy06e5iZFw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YRYNm8ay0vqFQIwspRpoM5Gdl0kicm+goSciLu8nbMM=;
- b=N7by3Y69xHmEcBBgc+u7Z+XVL53MxEI7415a7s89ABjaGzt8ZI25d29Z7N8kljZ73Qau0Vsev3yBYj+908WMtHWwIRYUFFtuDvMfXu17u2rNz0fpZycJMXUi2jF1wbb0fJ0sehULbDEBGA1tg9H2UYQy8xDwUBNvjoEvkBk4eRhrkH19LUEp+suzy7mMg58n367UvfP6s7Mev8n92tMica0pQsKyAEisQ5W/65EDPS/hoy2gUOooe+SYkrCFNPCKt9rGAf1+wo1i1jDJo95LJij1T702zq5i4hZ3oowHwBH2W6hl+fH/cOOCs5W6TLu7xj79xplyHrkAqdd2D59H4Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by IA1PR11MB7247.namprd11.prod.outlook.com (2603:10b6:208:42d::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8466.20; Fri, 28 Feb
- 2025 06:43:49 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1%6]) with mapi id 15.20.8489.021; Fri, 28 Feb 2025
- 06:43:49 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Alex Williamson <alex.williamson@redhat.com>, Yishai Hadas
-	<yishaih@nvidia.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-CC: "jgg@nvidia.com" <jgg@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "parav@nvidia.com"
-	<parav@nvidia.com>, "israelr@nvidia.com" <israelr@nvidia.com>,
-	"joao.m.martins@oracle.com" <joao.m.martins@oracle.com>, "maorg@nvidia.com"
-	<maorg@nvidia.com>
-Subject: RE: [PATCH vfio] vfio/virtio: Enable support for virtio-block live
- migration
-Thread-Topic: [PATCH vfio] vfio/virtio: Enable support for virtio-block live
- migration
-Thread-Index: AQHbhrZYFkmSOD+lUkGgOFaMskgigbNZPJPwgAA/fICAAkuzAIAAgnkA
-Date: Fri, 28 Feb 2025 06:43:49 +0000
-Message-ID: <BN9PR11MB52767CE76111FF0A5D463D278CCC2@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20250224121830.229905-1-yishaih@nvidia.com>
-	<BN9PR11MB527605EBEB4D6E35994EB8068CC22@BN9PR11MB5276.namprd11.prod.outlook.com>
-	<8adbe43a-49f8-470c-be67-d343853b17f5@nvidia.com>
- <20250227155444.57354e74.alex.williamson@redhat.com>
-In-Reply-To: <20250227155444.57354e74.alex.williamson@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|IA1PR11MB7247:EE_
-x-ms-office365-filtering-correlation-id: 9e014680-ce14-4561-37fe-08dd57c341d5
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016|38070700018;
-x-microsoft-antispam-message-info: =?us-ascii?Q?DTT+Jz8hZo3Ssclj/O5KlZBVE/hgmZPsTFrp9SFCfwRJGbpfuEkZBGAX8W07?=
- =?us-ascii?Q?/CLN3RD1XUq/Lh84QX/nu/G/SsoNaYK0WVVEyuTdJKQSRXowR7P8Jm7XrsM3?=
- =?us-ascii?Q?z9Au6wOTVy4j672v7elD6Suakw5tz63HSIQ8jua4o4ylVq3U9wCe+7SIF3b2?=
- =?us-ascii?Q?s4YXfnB186n0pu9IUgecV1teMCftf26vQAro0gQw6v3tHK5zyBDkMCUKaRBl?=
- =?us-ascii?Q?KnXR09YCQkgfv+yI/VgjJE+vmH4JTArZ8D2jq76xItM7pbXLEb6GN+9hF5Nv?=
- =?us-ascii?Q?vkiR8CIuntICK7B9WWXkJBpXo8y1CRUuLLAMFuJP4RmpuHg4Dd4kxwT/fvoq?=
- =?us-ascii?Q?mZ8QE7kn+lKpbvI/0df6lSNwyUDQpYKQIJRv2R1qUVJzlLRBKTu3FnPutRcJ?=
- =?us-ascii?Q?Rp49zHlM8zl0/Csop2oI5/DorTiQH1/AnLLsncIc4bJLbLW8fwz2BBwYTvsr?=
- =?us-ascii?Q?Y+kOTgg1alHAoh6cA+NCaiUIP9xNcMOpoLWMnM3L/40nM6JSzoXP9wAFjrJp?=
- =?us-ascii?Q?WDbCQ6Kk9sk9g8TT80XyeAiym9QvGU6p+R2FytNN30VR81CLA+dTZh83056G?=
- =?us-ascii?Q?69x0Ix89P80Sd9pc7s+QGfgucDISsR6oqsEF+9rHiE3fXxf6PR/i9ssN0FrE?=
- =?us-ascii?Q?92OtRdF1b261dwJ0JRi30WTCh8nDnwhqWECYhxqJWz26UdNp5W0+DuUPcPXs?=
- =?us-ascii?Q?wekishL5hw0lFkKCRjjTyAQslvzi1hzWD/pa3XWVg9QgeEkUrpIS3nVgvE0R?=
- =?us-ascii?Q?GcKPPKF+CCZcxPbXGzK3V46RKu1sECoMzpOBHSj1cYNl5AMhGbGRT3bBuxRk?=
- =?us-ascii?Q?IqdhL2Kohoz4xGNl0rQVz1/vV4WIA3lR4xkysXC0sU7Qc/w0qYQAAMH6X5GJ?=
- =?us-ascii?Q?D9Lfh3/rs1wDQtyqMB7BUnNTCwY8kVFCBKCKmCBlFR1EH5duzVIZfZ0zIGL2?=
- =?us-ascii?Q?7Y2VLr+rebMIi12IA3XZCmdr1mphdcyBUA8n3P8NV5pfp6F/aPncL5R//Djr?=
- =?us-ascii?Q?S633FJGAKOuZ59iY9u2JQ7HMHTNiZ87ABqZNuECd5Y+5aX6t9+W+22pirTRo?=
- =?us-ascii?Q?J3j13ySeCsAlTHY+uT21Ezs4rWBLCdftSWibYDoAF/KJE5iPU2iG6bT/Zw2Y?=
- =?us-ascii?Q?iHfvUqPRMUhcoYDLWxxkw1sOLib7PZSYtHwfbgJh1YMI33QRnU44TOQ4g972?=
- =?us-ascii?Q?KRJLvHGVsLHHiXJL1Vnh/Nt6EVApnWRPDmCDiwbfRIWL+YyruWalf90wfnNr?=
- =?us-ascii?Q?uv92Njk6pejbOTvSZBISVVgN3zR43ByoG6PgLoRLDnaIHkc4au1PkU3qTgrJ?=
- =?us-ascii?Q?QrkqDzPOo5tnHVuQRxxY+NiPwH2kVk3WKyxjtZ0Xylg7FEc8wOWANu6rxkXV?=
- =?us-ascii?Q?0cMG1bBOW1nKQ3uhlXjT4+1EjqrJ4XZYI95XjVrlTJsmpSKmykYwxrxslGYE?=
- =?us-ascii?Q?dWU2qdYFXBSVXEDi7lQqUWNZJxEJ0L8x?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?s7mFs3hi67wG4wdl9ocQv5ghhp6V7Z2JWLctiUKAx/QhSd2llgy3K//1yLdY?=
- =?us-ascii?Q?nmL1ZbsESU9PfZ4kKLQNaBjSAOVodo1cGxKsTLljmWChOIALQHLWcfUZpIAM?=
- =?us-ascii?Q?zQbwa6k0H5L/EJA6CfLPk5r0zE+SfpMbG1V1eWRiyJVzJI08wakJzaJ8mINk?=
- =?us-ascii?Q?mQBNvYajnkwIa+M8IRdM8MOEqUdrRMyfsMrqeaemTxeg/LS+0c17+4r+ekSw?=
- =?us-ascii?Q?NikhGF5dDQanFuh85LO1m3sFwZjrqeYABLSLCxxQbIDm7nZK4/WCm3XNqYbu?=
- =?us-ascii?Q?dzGn/TFJdmoxBmg1TKgbbgDIl32G/sc6TFhoGLuZPBMjN5hyYgbDzX3mW1zq?=
- =?us-ascii?Q?93SCdgYiG+Wf/7u/dmMzKOdKjGeBTDr7NM/ftGAB4T4PXbDEOPPCzV2leHV1?=
- =?us-ascii?Q?aYhVWWTipsP63fblSV8yS75QhoO1Y+TG6pq2iiLkLFWNIYLIh0h5m3g5KZ5s?=
- =?us-ascii?Q?g/xdEnwEcZN7CzTqVNWftWdnwMD3LC5+EVOIVui4wJGgdSTk4ZpS/skmju2u?=
- =?us-ascii?Q?R6fW9Dk9FGwRonQ/nUrEzd+zLcq1F7/MjcULo77bpmU3YwU3zkkLzRdnbr/w?=
- =?us-ascii?Q?TM6ynUDMS4jbF5tTj5iLLn9sI25mMfV0yBCdqHD19Fzqu640faenS+dBU+kT?=
- =?us-ascii?Q?hVKknvYgpok20qJ4oTh9/orVmPy8jRsPHW5SzhDZyvRW56sGnPg0jyF9s1nn?=
- =?us-ascii?Q?yrK3RLmUVu3gryT1sivxlQ1w/8whY4vIB7doeFMzzUzvfFQ15UFRwQR09H9R?=
- =?us-ascii?Q?M+n/fjt1+/gcBp6l2dfRO7yhUKDFxkqfB9Yzpz0CwqecEL3Jmq+THSV9SvsA?=
- =?us-ascii?Q?mxdP3ccJB6W/f/nb7xmYFpyZZZM5CMOns807HIhQp5uaDLlG7dMUPe0i3rfQ?=
- =?us-ascii?Q?JeCjb7jHUfRJfHBXut5CzyL+jlQQatkCnyCi3DAx+wdW8VenAKw7EiO/392b?=
- =?us-ascii?Q?VyoH2FADx/jq1xfbQ/c1t0s6jx7BJdntP+ToYkrYC3kirChP9JEcRkqB2lW7?=
- =?us-ascii?Q?fdqqoBcj/NywIFv+9evDTvJie/YiQAGa3m7rhU7Q8CD/FSMv0LF83oJIVXl9?=
- =?us-ascii?Q?gKSxlPukra9H1wMfAvTj6k2u7AwlxCLG8PKMF8mP0kttGtQY7rYFiWRWiODL?=
- =?us-ascii?Q?7osTW9CEgpzA1j4gO/hiMKYV18deGhkJ0ssdnYHQUPNONUm82UwRAOrizEKG?=
- =?us-ascii?Q?icOXyGfJB044TdBTv7h36Ysln0vo1qncIws6J3vf9Rf8k53ZvRV2hjthwbFv?=
- =?us-ascii?Q?pEdVD+dDID72DxWTBk+f+8UR8F80fE8DcTb3/Iris4v0y2LbD/Bp5ISIMGo9?=
- =?us-ascii?Q?SSrxttUpVKOeKx6G9p5GVXWSQpNLlXhDIHy6wdK+0sQ0UgBJOh8wKkqLeweu?=
- =?us-ascii?Q?JWadyMiRUYk7IMEBL3/JnDnuK6vR3IYZqg5jQp6kUJVLGOAnVRK1bqm56nyZ?=
- =?us-ascii?Q?nhP5U3O92nxOcwdRULjeAzkBjl06LZSHuibCIZ66f1pmHkvhxcxDkTR5U1qh?=
- =?us-ascii?Q?A8AXtOaAG3FoxnpisgeXkd90jL+X78/UU/9i7mjS6rLkONIxy/sGxtbw+M09?=
- =?us-ascii?Q?oi21xRtifr2rOT1k/618MfdmPghL5HF38pUTS/de?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id vh4IobFTwD-b for <virtualization@lists.linux-foundation.org>;
+ Fri, 28 Feb 2025 07:59:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62d; helo=mail-pl1-x62d.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org BF1D24000B
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF1D24000B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=NW/skLnz
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BF1D24000B
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 07:59:00 +0000 (UTC)
+Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-22349bb8605so36719045ad.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 27 Feb 2025 23:59:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1740729540; x=1741334340; darn=lists.linux-foundation.org;
+        h=to:content-transfer-encoding:mime-version:message-id:date:subject
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fHii6osorRJQXx/ZnOpfs5YFL5tumSc91k0n7WT/jqA=;
+        b=NW/skLnz2W0mfymUcAiwwdFLBH/ictXwdZyoqAnl2N0ioimFydygoFWjHRWvFWS+rC
+         1NGm/mXPL/TXx897kBAid0r67zwS6Xc8kB8Z+ejZYMcT9qCX/8yYyEgh4lBRFzLgBN/g
+         7CfF52vIeyeI0iEW0b2ESgZ2BHENnqPxwePjZbw10JIUVCmEdKNd1UGpRsL9H+q/sW+H
+         JL6id96GFG/ziRZy42TkuHv9ZY5YbRYLcGgzuR9mxf8KsqrhwpA3VADE2iqDD7wotyIo
+         QpICd9/B0BTf2F5ErjxEquwXvdx39IaTJop5mzSNY2W7kjM5HpzJX7Ms97w7EEnpMdzB
+         kr0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740729540; x=1741334340;
+        h=to:content-transfer-encoding:mime-version:message-id:date:subject
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fHii6osorRJQXx/ZnOpfs5YFL5tumSc91k0n7WT/jqA=;
+        b=ah+lq5LVklVawImj2GU1hc5Gu28ox/MYgkkxkHBpirFgKIqoSD00g14lw4BK1W3j8a
+         ZeN9uplS9gRqSAlU7wziov52BeODs1lg5/YWNXwSkdx/iocphaIJKgmZqff06VMY8QKf
+         D8EMdAjpVpLxErjjhlagA2mnlLovn91fdVg0mvoHG78duNpiyd3SX0L9KaMHs+NtX5pt
+         1LaQGqXS+U5Z0eegD6/63d0xFbK/O2HqRKj7nmQnfANIirp90Tob6ls3e17uUIqoXlNr
+         QqiAdIMx/PZ1wpeJLDKoN4EBCl9xFNMefgqHCDovRFO9ETKnmIMc8SnM+vpjorMT/hSF
+         hEBw==
+X-Forwarded-Encrypted: i=1; AJvYcCVVCpzWOjfiBNe164fVz89aeehh5ichhfszAu1Ad4M/X3l/+JinQWtJ15ml3kF/+zXUxaGbaNlMa3DFDXSUGg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzHmafM6ND3X3rlmm05FoxZF8ZvO5tg0ruMjDmoXpDiXRVSbt5b
+	IxZ686d+BBmJyXCgvQulxa2HvI/aGGAYgLo2hZAnRscBEQmxO9lsACp8xYc6bG2RlRlCWh6l2Yz
+	DIuA=
+X-Gm-Gg: ASbGncu9x244zplI88HzvFPL4zlWvUSIuXPFmN4Vf2i6svri/fXCyhkSnPf53azlJtl
+	3u9gqCFsVpfAXpa8gAPF5a2P5FJp+pvk9Ru1Ybo4CUyajHYHmXi4b8j6qO1wQSGAS929RcuOH2g
+	/71qjzu2UlVtRhLT7pNVasfLeiMuZJgwLUru4SW65HEN9nQVFT+0687tPns0Tlli9Q8tgMui+4C
+	LcLurVg3kqSWmRZachqyZ0pWhi8guK5JOFFyZoAhbKjStcv3XdZKpoNsQ6W2e3dmRkV0WK+m6AO
+	9sMVm/QtVXq9wAHZ0YvxZ7UAdQFOUQ==
+X-Google-Smtp-Source: AGHT+IEdlXioAUsEy2VjDZ5O865zmhvVYGdC7Nj/tdHBiMSrFhxj1TlLd05OwC/C1bWSfZUhN5yZWQ==
+X-Received: by 2002:a17:902:e54b:b0:21f:7880:8472 with SMTP id d9443c01a7336-2236924fa13mr39977565ad.35.1740729539710;
+        Thu, 27 Feb 2025 23:58:59 -0800 (PST)
+Received: from localhost ([157.82.207.107])
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-734a003eb97sm3180799b3a.148.2025.02.27.23.58.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 27 Feb 2025 23:58:59 -0800 (PST)
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: [PATCH net-next v7 0/6] tun: Introduce virtio-net hashing feature
+Date: Fri, 28 Feb 2025 16:58:46 +0900
+Message-Id: <20250228-rss-v7-0-844205cbbdd6@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9e014680-ce14-4561-37fe-08dd57c341d5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Feb 2025 06:43:49.0991
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: W8GvA16hyIXzzarqpu3EYdQwPP2D36UxdOhnrvt0GM7uU/38ewXA0ZXmY8dgtkJAAOcMaROlVfHZbcH5E/aBHg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR11MB7247
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIALZswWcC/4WRwW7bMAyGXyXweQooiaIkn/YeQw+WRC1CUbu1n
+ SBBkHcv56xFhhx2E6H/+0n+vHYLz42Xrt9du5lPbWnTKIX/sevyYRh/s2pF6s6AQUCwal4Wxd7
+ 6EiLXwftOlO8z13beXH51I69q5PPavcjPoS3rNF82+5Pe/sXJaoAAzmjQe42Ixiithtd2aK/Tf
+ iry+lmGy9jO+zy9bT4n88Bqp1ET4t4QENJ/WfvFIkTttg1OVoHKZEHMSoJgniB8gAzeIRQoIEd
+ rOANTfoLcN/RnwzvkBKo2VwqlArjyBNEX5EBDvEMkUNI5wlA8hEr/QLd75DN/HOVe69/cv8/V7
+ 7YBjAW1HkdFxBoGjAmy76XZ42U3qbTVpNKxVp4XFUWOqUrQNfcSu8jTsLCSzm9t7XelBOudr8Q
+ UaDA6hBh9Ti4kF72rHjEl7wPJmLdPMoDyj14CAAA=
+X-Change-ID: 20240403-rss-e737d89efa77
+To: Jonathan Corbet <corbet@lwn.net>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, kvm@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+ Yuri Benditovich <yuri.benditovich@daynix.com>, 
+ Andrew Melnychenko <andrew@daynix.com>, 
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
+ Lei Yang <leiyang@redhat.com>, Akihiko Odaki <akihiko.odaki@daynix.com>
+X-Mailer: b4 0.14.2
 
-> From: Alex Williamson <alex.williamson@redhat.com>
-> Sent: Friday, February 28, 2025 6:55 AM
->=20
-> On Wed, 26 Feb 2025 13:51:17 +0200
-> Yishai Hadas <yishaih@nvidia.com> wrote:
->=20
-> > On 26/02/2025 10:06, Tian, Kevin wrote:
-> > >> From: Yishai Hadas <yishaih@nvidia.com>
-> > >> Sent: Monday, February 24, 2025 8:19 PM
-> > >>
-> > >>   config VIRTIO_VFIO_PCI
-> > >> -	tristate "VFIO support for VIRTIO NET PCI VF devices"
-> > >> +	tristate "VFIO support for VIRTIO NET,BLOCK PCI VF devices"
-> > >>   	depends on VIRTIO_PCI
-> > >>   	select VFIO_PCI_CORE
-> > >>   	help
-> > >> -	  This provides migration support for VIRTIO NET PCI VF devices
-> > >> -	  using the VFIO framework. Migration support requires the
-> > >> +	  This provides migration support for VIRTIO NET,BLOCK PCI VF
-> > >> +	  devices using the VFIO framework. Migration support requires the
-> > >>   	  SR-IOV PF device to support specific VIRTIO extensions,
-> > >>   	  otherwise this driver provides no additional functionality
-> > >>   	  beyond vfio-pci.
-> > >
-> > > Probably just describe it as "VFIO support for VIRTIO PCI VF devices"=
-?
-> > > Anyway one needs to check out the specific id table in the driver for
-> > > which devices are supported. and the config option is called as
-> > > VIRTIO_VFIO_PCI
-> >
-> > I'm OK with that as well, both can work.
-> >
-> > Alex,
-> > Any preference here ?
->=20
-> What's actually the proposal?  It's fine with me if we want to make the
-> tristate summary more generic, but I'd keep the mention of the specific
-> devices in the help text.  I don't know many users that preemptively
-> look at the id table.
->=20
+virtio-net have two usage of hashes: one is RSS and another is hash
+reporting. Conventionally the hash calculation was done by the VMM.
+However, computing the hash after the queue was chosen defeats the
+purpose of RSS.
 
-I proposed to remove specific devices from both the summary and
-the description. Fine to do it only for the summary.
+Another approach is to use eBPF steering program. This approach has
+another downside: it cannot report the calculated hash due to the
+restrictive nature of eBPF.
+
+Introduce the code to compute hashes to the kernel in order to overcome
+thse challenges.
+
+An alternative solution is to extend the eBPF steering program so that it
+will be able to report to the userspace, but it is based on context
+rewrites, which is in feature freeze. We can adopt kfuncs, but they will
+not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
+and vhost_net).
+
+The patches for QEMU to use this new feature was submitted as RFC and
+is available at:
+https://patchew.org/QEMU/20240915-hash-v3-0-79cb08d28647@daynix.com/
+
+This work was presented at LPC 2024:
+https://lpc.events/event/18/contributions/1963/
+
+V1 -> V2:
+  Changed to introduce a new BPF program type.
+
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+---
+Changes in v7:
+- Ensured to set hash_report to VIRTIO_NET_HASH_REPORT_NONE for
+  VHOST_NET_F_VIRTIO_NET_HDR.
+- s/4/sizeof(u32)/ in patch "virtio_net: Add functions for hashing".
+- Added tap_skb_cb type.
+- Rebased.
+- Link to v6: https://lore.kernel.org/r/20250109-rss-v6-0-b1c90ad708f6@daynix.com
+
+Changes in v6:
+- Extracted changes to fill vnet header holes into another series.
+- Squashed patches "skbuff: Introduce SKB_EXT_TUN_VNET_HASH", "tun:
+  Introduce virtio-net hash reporting feature", and "tun: Introduce
+  virtio-net RSS" into patch "tun: Introduce virtio-net hash feature".
+- Dropped the RFC tag.
+- Link to v5: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
+
+Changes in v5:
+- Fixed a compilation error with CONFIG_TUN_VNET_CROSS_LE.
+- Optimized the calculation of the hash value according to:
+  https://git.dpdk.org/dpdk/commit/?id=3fb1ea032bd6ff8317af5dac9af901f1f324cab4
+- Added patch "tun: Unify vnet implementation".
+- Dropped patch "tap: Pad virtio header with zero".
+- Added patch "selftest: tun: Test vnet ioctls without device".
+- Reworked selftests to skip for older kernels.
+- Documented the case when the underlying device is deleted and packets
+  have queue_mapping set by TC.
+- Reordered test harness arguments.
+- Added code to handle fragmented packets.
+- Link to v4: https://lore.kernel.org/r/20240924-rss-v4-0-84e932ec0e6c@daynix.com
+
+Changes in v4:
+- Moved tun_vnet_hash_ext to if_tun.h.
+- Renamed virtio_net_toeplitz() to virtio_net_toeplitz_calc().
+- Replaced htons() with cpu_to_be16().
+- Changed virtio_net_hash_rss() to return void.
+- Reordered variable declarations in virtio_net_hash_rss().
+- Removed virtio_net_hdr_v1_hash_from_skb().
+- Updated messages of "tap: Pad virtio header with zero" and
+  "tun: Pad virtio header with zero".
+- Fixed vnet_hash allocation size.
+- Ensured to free vnet_hash when destructing tun_struct.
+- Link to v3: https://lore.kernel.org/r/20240915-rss-v3-0-c630015db082@daynix.com
+
+Changes in v3:
+- Reverted back to add ioctl.
+- Split patch "tun: Introduce virtio-net hashing feature" into
+  "tun: Introduce virtio-net hash reporting feature" and
+  "tun: Introduce virtio-net RSS".
+- Changed to reuse hash values computed for automq instead of performing
+  RSS hashing when hash reporting is requested but RSS is not.
+- Extracted relevant data from struct tun_struct to keep it minimal.
+- Added kernel-doc.
+- Changed to allow calling TUNGETVNETHASHCAP before TUNSETIFF.
+- Initialized num_buffers with 1.
+- Added a test case for unclassified packets.
+- Fixed error handling in tests.
+- Changed tests to verify that the queue index will not overflow.
+- Rebased.
+- Link to v2: https://lore.kernel.org/r/20231015141644.260646-1-akihiko.odaki@daynix.com
+
+---
+Akihiko Odaki (6):
+      virtio_net: Add functions for hashing
+      net: flow_dissector: Export flow_keys_dissector_symmetric
+      tun: Introduce virtio-net hash feature
+      selftest: tun: Test vnet ioctls without device
+      selftest: tun: Add tests for virtio-net hashing
+      vhost/net: Support VIRTIO_NET_F_HASH_REPORT
+
+ Documentation/networking/tuntap.rst  |   7 +
+ drivers/net/Kconfig                  |   1 +
+ drivers/net/tap.c                    |  62 +++-
+ drivers/net/tun.c                    |  89 ++++-
+ drivers/net/tun_vnet.h               | 180 +++++++++-
+ drivers/vhost/net.c                  |  49 +--
+ include/linux/if_tap.h               |   2 +
+ include/linux/skbuff.h               |   3 +
+ include/linux/virtio_net.h           | 188 +++++++++++
+ include/net/flow_dissector.h         |   1 +
+ include/uapi/linux/if_tun.h          |  75 +++++
+ net/core/flow_dissector.c            |   3 +-
+ net/core/skbuff.c                    |   4 +
+ tools/testing/selftests/net/Makefile |   2 +-
+ tools/testing/selftests/net/tun.c    | 627 ++++++++++++++++++++++++++++++++++-
+ 15 files changed, 1231 insertions(+), 62 deletions(-)
+---
+base-commit: dd83757f6e686a2188997cb58b5975f744bb7786
+change-id: 20240403-rss-e737d89efa77
+prerequisite-change-id: 20241230-tun-66e10a49b0c7:v6
+prerequisite-patch-id: 871dc5f146fb6b0e3ec8612971a8e8190472c0fb
+prerequisite-patch-id: 2797ed249d32590321f088373d4055ff3f430a0e
+prerequisite-patch-id: ea3370c72d4904e2f0536ec76ba5d26784c0cede
+prerequisite-patch-id: 837e4cf5d6b451424f9b1639455e83a260c4440d
+prerequisite-patch-id: ea701076f57819e844f5a35efe5cbc5712d3080d
+prerequisite-patch-id: 701646fb43ad04cc64dd2bf13c150ccbe6f828ce
+prerequisite-patch-id: 53176dae0c003f5b6c114d43f936cf7140d31bb5
+prerequisite-change-id: 20250116-buffers-96e14bf023fc:v2
+prerequisite-patch-id: 25fd4f99d4236a05a5ef16ab79f3e85ee57e21cc
+
+Best regards,
+-- 
+Akihiko Odaki <akihiko.odaki@daynix.com>
+
