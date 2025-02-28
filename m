@@ -1,103 +1,107 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 902E626D5B8
-	for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 14:32:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4D8D26FDB3
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 14:39:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740753171; cv=none; b=krHW8Gt98LnBjT7zVAk+nFyz/WDgKg0a4oE30CMSfbBeZH6sct/2dBsPv10UVigI5R5AiVab4Y7MH3PURiZ4OTzDiA51B62aka/FsJNytSgUMw8S0MWDvdbW2VLXSxsVXiRVHIYUDaJjNiPDY5mwy4EQ2WvmKVqma4nAVVT/xb0=
+	t=1740753597; cv=none; b=L6D0bfoB5W3/vRP/XG4mjp5IireQRzI53jTm9E6M8zHFcwvL1ed7AeJPDv+nmtTxB/o2Pcnga+bW7OA7sW7zGy4z6sUWiF6zb8T+nHk3PhbDxMOAGB7SBe/pnXy9SwNFwyuBAS3Zr2vU6JhIkUhpT9aLW4KHadOMJ6cBfziUpl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740753171; c=relaxed/simple;
-	bh=CkGIJQuiqe49itaAI2kGn76UNrSRVXquqJYxAstk/Pc=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=FFooVqfVnLL5HfijzK5D+q4Z30vmy4ngdK2PLdbky3ibRd4irOCi3YZw7YfthLd6c9KusFzgS9gdCjU5SOv1KgTV0LH+wtl84F6SSp3yTU+af/iD7oCVAF6BH+Y3GI0F3XBi3H4L4oV4EJ9G1XBz5FhVCdcsZ02ps1Gh6xJ8D+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PbCgF93q; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1740753597; c=relaxed/simple;
+	bh=AY6KTggfG+2NZyh4MNhPng9mblge+5h8fWPaN9vRs4g=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=YIYTRULPoS+FHrnY7z8bPq8lpbOtEtRflmfM6rnQQhFmRMAa8mcNbHu4oxp6HeTRm+wBTuUgWm+IcmjOphvj305oXgjq3rAnwnQat9kOSaxVyAjtU2OOhrretMillYRrIQR8eHPTGiaRL1GkphA8Xdu5Feh21y//Nk1EjgRsqHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PY5O/cwx; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PbCgF93q"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2fec1f46678so2390155a91.1
-        for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 06:32:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1740753169; x=1741357969; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7JGZceXrqb3JDH8Ghpfp/+cyR/E9//d9mR4kGrL6APs=;
-        b=PbCgF93qxwvNB7mq1U4roH6jo1Ln88LX0Xr9PBjuABbZFe+Fg6AMb4d1g/zoTAtbkd
-         9oDLnBgyS8YTi3w/dnkGvH+OB5FfXwpRlD2k/4v+U0MB6oa8VcaRp0KeIRWnAUIeAb1s
-         0QHARg0q6h3aOQ5CgkrvxTOCJHoLEzirm3auuOwuLZBiKACzlAqA9XcRObZdJ1q1+fME
-         wBVgjxgK+eCbxlyR+qMVOundzeiPOSQLZ4GVZLlu+ya6nkbm995dk7smfW1y6OtL3te8
-         XEIyauCAGOT2nDsvFOmXQWKpSBEtUOUtcJBZro8jVNQzynvpNNIS1nstLYdjR8xl9MPK
-         dXMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740753169; x=1741357969;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7JGZceXrqb3JDH8Ghpfp/+cyR/E9//d9mR4kGrL6APs=;
-        b=u3z+jE7kl0tPFVKR9EaoVNT8h42QL/T4qTR9KWvBayqqFDjN+CwjXtqUTz7ghHVEk6
-         prTtcima8YB9XCB2KdkrCuyOk39DZkuPWw/CZ0EH4Lo03jocibt8ah3hMue3ZPm2P2c/
-         ZVKXL0qwIq3cQYP6xblstdlGJ98GRnmGOLaejouPEDVGztL7mGCeiuhEsQGW9KBGfmys
-         0n41WUSUutcnTGVVst+ndW8RiOXFzC03yKSGHoOmSQ4endLQocyUmhbjpl0TrLykxkAR
-         a1IXPYtjsG8WNZ3/mAtDQEVGjEWKyXL2XzgdEJFmFhhRBsH4na2wNPH6yn+I4Ha/Jn1+
-         XszQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUhMYtYxmy/9jlb437MtGPF6gU4LmpPcmmEUPmk/u24bar6jcjjSLhcCVOmUWBPUIdGXzyw/QFb0c7wKDXYTQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy6dsWYllK5u6mpVK1F4pS4r+yj7SqCMoibU/c6fn/fedFGuB6/
-	4NK1peVYrCGOTb/8cAtLTaFnh9tmIi2kJR5h7mvWwEjwe+NhEHHQSR//BJbD5t5ONilo42kjsF4
-	dCg==
-X-Google-Smtp-Source: AGHT+IH1DxS6eOUmZ9xvim3EQOmiQTWoEVkgytjLr2ne7i9BwMNqJZxk8yPz2qlW8r5e1PwFWv8SejB/SnU=
-X-Received: from pjbqc9.prod.google.com ([2002:a17:90b:2889:b0:2fa:15aa:4d2b])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4acb:b0:2ee:45fd:34f2
- with SMTP id 98e67ed59e1d1-2febab2eca7mr5752926a91.6.1740753168923; Fri, 28
- Feb 2025 06:32:48 -0800 (PST)
-Date: Fri, 28 Feb 2025 06:32:47 -0800
-In-Reply-To: <Z8HE-Ou-_9dTlGqf@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PY5O/cwx"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8544080D0D
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 14:39:55 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.726
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id LI7XTbs_CoiQ for <virtualization@lists.linux-foundation.org>;
+ Fri, 28 Feb 2025 14:39:55 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04::f03c:95ff:fe5e:7468; helo=tor.source.kernel.org; envelope-from=kuba@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org DE48880CDD
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE48880CDD
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=PY5O/cwx
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04::f03c:95ff:fe5e:7468])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DE48880CDD
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Feb 2025 14:39:54 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by tor.source.kernel.org (Postfix) with ESMTP id F015961F5B;
+	Fri, 28 Feb 2025 14:29:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6891EC4CED6;
+	Fri, 28 Feb 2025 14:29:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1740752989;
+	bh=AY6KTggfG+2NZyh4MNhPng9mblge+5h8fWPaN9vRs4g=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=PY5O/cwxqxGLSaoACpfVg8SBBsGU7X8sCCbwt2WaNaSJM188KFrQ1NJlA1llaK1h5
+	 W8+lMdcP7Ed0rrxJ9K8q68rCEeFhpCBYO+rCwVYvY2pXkef3HQSjICnUnoh0I6VLlp
+	 YNERk5kXkPB0RyuYIQedzL61nc49kcQq897Ga/IiFWrWPnwwcZeU45v1m9wFelEktG
+	 PCfg1foDNZykiybW+k42CR878DQ85frAgVgDbj41geD2PWGYKSMmbYCLxSxP0L1M3p
+	 m07ouhO/PQ/yMy7+FB5N5jlDEoHo8SzaoBh3AV5576HyXpb2G2Ponp5l53ssIqcTXk
+	 93Cj4wOH1T+PA==
+Date: Fri, 28 Feb 2025 06:29:47 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn
+ <willemdebruijn.kernel@gmail.com>, Jason Wang <jasowang@redhat.com>, "David
+ S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
+ Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko
+ <andrew@daynix.com>, Stephen Hemminger <stephen@networkplumber.org>,
+ gur.stavi@huawei.com, Lei Yang <leiyang@redhat.com>
+Subject: Re: [PATCH net-next v7 5/6] selftest: tun: Add tests for virtio-net
+ hashing
+Message-ID: <20250228062947.7864a59c@kernel.org>
+In-Reply-To: <20250228-rss-v7-5-844205cbbdd6@daynix.com>
+References: <20250228-rss-v7-0-844205cbbdd6@daynix.com>
+	<20250228-rss-v7-5-844205cbbdd6@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250227230631.303431-1-kbusch@meta.com> <CAPpAL=zmMXRLDSqe6cPSHoe51=R5GdY0vLJHHuXLarcFqsUHMQ@mail.gmail.com>
- <Z8HE-Ou-_9dTlGqf@google.com>
-Message-ID: <Z8HJD3m6YyCPrFMR@google.com>
-Subject: Re: [PATCHv3 0/2]
-From: Sean Christopherson <seanjc@google.com>
-To: Lei Yang <leiyang@redhat.com>
-Cc: Keith Busch <kbusch@meta.com>, pbonzini@redhat.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, x86@kernel.org, netdev@vger.kernel.org, 
-	Keith Busch <kbusch@kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Feb 28, 2025, Sean Christopherson wrote:
-> On Fri, Feb 28, 2025, Lei Yang wrote:
-> > Hi Keith
-> > 
-> > V3 introduced a new bug, the following error messages from qemu output
-> > after applying this patch to boot up a guest.
-> 
-> Doh, my bug.  Not yet tested, but this should fix things.  Assuming it does, I'll
-> post a v3 so I can add my SoB.
-         v4
+On Fri, 28 Feb 2025 16:58:51 +0900 Akihiko Odaki wrote:
+> The added tests confirm tun can perform RSS and hash reporting, and
+> reject invalid configurations for them.
 
-Confirmed that it worked, but deleting the pre-mutex check for ONCE_COMPLETED.
-Will post v4 later today.
+The tests may benefit from using FIXTURE_VARIANT(), up to you.
 
-> diff --git a/include/linux/call_once.h b/include/linux/call_once.h
-> index ddcfd91493ea..b053f4701c94 100644
-> --- a/include/linux/call_once.h
-> +++ b/include/linux/call_once.h
-> @@ -35,10 +35,12 @@ static inline int call_once(struct once *once, int (*cb)(struct once *))
->                 return 0;
->  
->          guard(mutex)(&once->lock);
-> -        WARN_ON(atomic_read(&once->state) == ONCE_RUNNING);
-> -        if (atomic_read(&once->state) != ONCE_NOT_STARTED)
-> +        if (WARN_ON(atomic_read(&once->state) == ONCE_RUNNING))
->                  return -EINVAL;
->  
-> +        if (atomic_read(&once->state) == ONCE_COMPLETED)
-> +                return 0;
-> +
->          atomic_set(&once->state, ONCE_RUNNING);
->         r = cb(once);
->         if (r)
+The IPv4 tests fail reliably on a VM with a debug kernel
+(kernel/configs/debug.config included in the config):
+
+# 5.90 [+0.00] ok 14 tun_vnet_hash.unclassified
+# 5.90 [+0.00] #  RUN           tun_vnet_hash.ipv4 ...
+# 6.18 [+0.28] # tun.c:669:ipv4:Expected 0 (0) != tun_vnet_hash_check(self->source_fd, self->dest_fds, &packet, sizeof(packet), 0, VIRTIO_NET_HASH_REPORT_IPv4, 0x6e45d952) (0)
+# 15.09 [+8.92] # ipv4: Test failed
+# 15.10 [+0.00] #          FAIL  tun_vnet_hash.ipv4
+# 15.10 [+0.00] not ok 15 tun_vnet_hash.ipv4
+# 15.10 [+0.00] #  RUN           tun_vnet_hash.tcpv4 ...
+# 15.36 [+0.26] # tun.c:689:tcpv4:Expected 0 (0) != tun_vnet_hash_check(self->source_fd, self->dest_fds, &packet, sizeof(packet), VIRTIO_NET_HDR_F_DATA_VALID, VIRTIO_NET_HASH_REPORT_TCPv4, 0xfb63539a) (0)
+# 24.76 [+9.40] # tcpv4: Test failed
+# 24.76 [+0.00] #          FAIL  tun_vnet_hash.tcpv4
+# 24.76 [+0.00] not ok 16 tun_vnet_hash.tcpv4
+# 24.77 [+0.00] #  RUN           tun_vnet_hash.udpv4 ...
+# 25.05 [+0.28] # tun.c:710:udpv4:Expected 0 (0) != tun_vnet_hash_check(self->source_fd, self->dest_fds, &packet, sizeof(packet), VIRTIO_NET_HDR_F_DATA_VALID, VIRTIO_NET_HASH_REPORT_UDPv4, 0xfb63539a) (0)
+# 32.11 [+7.06] # udpv4: Test failed
+# 32.11 [+0.00] #          FAIL  tun_vnet_hash.udpv4
+# 32.11 [+0.00] not ok 17 tun_vnet_hash.udpv4
+-- 
+pw-bot: cr
