@@ -1,148 +1,383 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63EA11D90A5
-	for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 21:22:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740777722; cv=none; b=u6mzIOaE3fbFNkkbAKZPPweE0270cqreT+8iys9mM9okW2tNeF769OhocPast0A6Jpj4UviRPrlA1Gtfe2XT+YuEq74tt5NbUPYw+DxlsmtRUpip5RO0tye00ZUqI33N3xunh/i9AZmWYzZ7kHl+DGhVbRBg0EhhbjGdBAnJNnY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740777722; c=relaxed/simple;
-	bh=pCMIRHkcA6YzDHXJByuX51TTRjCk2oBGI7ANXlxd+z8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qZTcB0tbARMdJkuzkMKvyaj7rplYNhJzuPfPBuZ9mIBWarv+167PV9enyKIbhLlxBDEAwiGaIXynoPGIdpgmmSScI8tLSnap09KajjBBZqUG28LSG/+jkAted+a9EDxmoPqe4QqSsTlwaWTAQpyJ74xiJQUMolNh+T31aK+NLhE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YnBraIVG; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ECBE1DC04A;
+	Fri, 28 Feb 2025 21:48:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740779313; cv=fail; b=bHdxTXejbgcUkLqFjlqOH53ybDfV1WXZk1VG0hM3B1VvgPCqFhIUHCV2hIOSlq45uxq+KxXQbvt2+stJhqsPlLpbnbd5PxnHxCtczuqMy7JnUCKS8a7p6CCwDpBxShyMRiBcdSMjGgw+EV6uIxadhgxPy6pp31Z7p41y2SWBPTA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740779313; c=relaxed/simple;
+	bh=DAq8BBC5Ycv2E21N+a7ZoiTEfd8IxtTq7ZsFosIXOlA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=mtIbSYTfRKYWS/3EuAmRKm2gWDABzK1TKT8DWKs2w/2OidbJWFheTeQ9KDqJpmE7ju4joryy7JFQfofZUbsb0twCuzsQgmr82czuHncSMERQaGlB5i7KQjag53P7Me2YBt3vRG7LV7k0gdNIYVxLohR07fzlGOqp/oEutISOK4w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=B7SPU+X1; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=NJPainqT; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YnBraIVG"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-6fd22658e26so17020107b3.0
-        for <virtualization@lists.linux.dev>; Fri, 28 Feb 2025 13:22:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="B7SPU+X1";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="NJPainqT"
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51SJLAqI008736;
+	Fri, 28 Feb 2025 21:48:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2023-11-20; bh=0oC+YjqvqIxqXaFoyP
+	fNkEZEW7+FFNhPNIWV2TB/Jrc=; b=B7SPU+X1qwutAaC4tpuW1K14ArzVLb/G3+
+	/RLQ9A6Yru+WbZF5azox1RH9bYbj456ejz+MQ+yvIEe7Yf8iO6GqFsb52jd1mBLk
+	Ors+VNSyYDVlLebHBmeq27TBzZVAtMztRNpRNw5rDws+kmtruQYmHMYXAOYhsdNk
+	+RWzj/utJzyS8Zk6qf5nO2SG8+tG2uwL0KO5izdcdriyXzIW+kVrASe2lzKTeHTN
+	6G6yLEEoRKxpRf/8Hwa21JwQdGDdysNkhzouCOfqw4CIZeWgloP4qJ3gvY2eIeRL
+	39moqhou5DtJHZDHXbL8IzwhUZJwRcluqy5qGm7877ONUyM5fn2w==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 451psceheh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 28 Feb 2025 21:48:20 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 51SKK9VO025584;
+	Fri, 28 Feb 2025 21:48:20 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2177.outbound.protection.outlook.com [104.47.58.177])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 44y51mte6e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 28 Feb 2025 21:48:20 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=zBXo8nlZ1eqc8Hqvf4FUpEjTnfCJOXt32iKvdJIaN2iP5k5Ht3w62HLxTB9xbt2gHTbnnU1s6C7C3Jye4t4ulythvlSsl819cUS4oSBIiGNb9bL0mETqd5BnP8dZVacquzRf2PBcHYOZUkEZN/pblnEnmG5hbpoCk5+eF4Civ6QQQa+A0elr4PXsm8nBBSS+ldYXgotXcfcv4Nez4qqEdUtM4zl+aOE3k8G0poQBoLCtpoDa1mciOtAJh5Uc/6HD/e4B2zkaoS9YSpKEUI5vBktqXKDcISjoDH0WZrTu4yfxoy1Dtc+eGoWXUITT0HNOW8ajRvJdO2fxmmvZ1Z3n2w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0oC+YjqvqIxqXaFoyPfNkEZEW7+FFNhPNIWV2TB/Jrc=;
+ b=pJG+OWvXfB4VK9j5ri49kKL3q5r7x8/7uuXAiKK4S5+WnjF/r7yAFjsexxEq8ZuXWSuTC50W/0vFYUQC7i8szUU+hm+D09H/Fk9LWIbDPelrnXw+clfODNvJbbK2lIrZqrKhrl3UPWP6bu6CsZ+oQEs6DqktjkHsF048nZTX7g64n4s6wLOv9HtTXKg8VMw6hdFmnEtxuuBDj+T5V5WRQFBIf9BOs+iDhF3SPW+B8hklLGu90Jh9NtWEA1GZR3ViYuRX4q18thqxi1RCTNaQd483sNOpKtrllHwk8w3ehHW4Xnoxv2syt82dRbcFENVjy8+pNDIlkOwbaYlo9zSQtA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740777720; x=1741382520; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=PcCKf2vQjE3H4ps6lNORm4N0nTYQNrHLGbX+LIFyoMM=;
-        b=YnBraIVGLhrVBF4BPT4wRbwXxuQxROnr3GyYodcuRa06ygdVhwaNXe98c+EN6dvkJ8
-         0XVONB05+qw4OwgkLBcOG4gi/Nfmq4h8rvRI1GWPAxzEvBTPYz3zCwbekTCpZOvBsbxv
-         UqwXIBJGG/WIjnQOnNCG7GmhjgjYRaSVqrbIKpi3ZYYWn4nDcE+QwKwz/pgx3QVv0Qst
-         5o0O4wbuBwEkrJsQNLgAp95tN8G6VLctKvLq2XbGJ9kTNVUvuymCbg4LFgnNsc0GIYzh
-         en2rHp4ZLLeaQuvKv6FGHrcyXeKR1B11gShTQ+oiyijwAKFtVtPTVW1ADvRTA46r4pnU
-         1Egg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740777720; x=1741382520;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PcCKf2vQjE3H4ps6lNORm4N0nTYQNrHLGbX+LIFyoMM=;
-        b=oIXfjKVNa3koEFegb6aWzTOA4MB4+9lz/fNleICzGVKacmvaxkRWlfYvnrQBZglTw3
-         5jOcsSqlvMe1ydlsntY5Se51rPKv9LtS41Rp+/YjcjD48mZfqLx5yPoJt6o/w6Ekf00L
-         fhY7Ynho0r9n8o2trLRCfLb716nrHH7A1DpiWC9/0Mc7jaQo/72lMfliMHYPRVMWuD+q
-         dZOsFb5L6m03nrQnStH0zuxkQKmkbg6ncUlQWn26l/OHnuIQSMAGlNEGq6XkTXkBdFcS
-         hAY9SbJGeL9U6bsDQdXrW96azOWE56mKKzptKV7zyOoBQUucO4sYh6ja+i2CXVS+YlsC
-         eFVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUTKrqIHESZALsvfINbMCu+SvoVSogpDObLQtd4HQuIbR67skIuFk6VXWBCT3IzES2Ng/NvnUkJLA2PwYN7vg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzk0FhmemVC2BCsLaMWd+70hzGWyHAOxsVLqPi0qgY3YVNmknv1
-	A45mGBzGeYdKrLSBy7QojubEKs1Yy+MYLzGvWhbg7JYgKLDaXd0k
-X-Gm-Gg: ASbGncu3IK6w9fgirC29EfJapG26C60/Hjahoqnq1lY90sBV5Jv2PdQGBLGw0yozxat
-	05618nroE5TJ/7+fLFWswfdEs3n3Cyl9KacDMeW8m9v+ElOhUppFAbbNOa4dK2ufohtJwfde3sU
-	wKBwEWtZ78gQTcd5m2DKObd12Wh/N5Yk2lpeZviohjmFP8ujjI6y7Rqggwkg/jbN48YyN/m6dP1
-	RMNlCP5Iek5ExBD7fWbcY3a6DqbfHWFo0WYHWNDnJIfuzzx8Zecj2UniW3dPCeJ5gw2Wc5+kR3I
-	bea4Bai2RH0EeKnoHVy7eb+L8Xu/0A==
-X-Google-Smtp-Source: AGHT+IHV8+BalWjQQ98R2YG+axIWdSnQZGCo2W2tqEj6EZziT6FUzgu+VloUaTcDIlnVMEjvpHuDfA==
-X-Received: by 2002:a05:690c:360d:b0:6e2:1527:446b with SMTP id 00721157ae682-6fd4a08e916mr65064037b3.3.1740777720274;
-        Fri, 28 Feb 2025 13:22:00 -0800 (PST)
-Received: from [10.138.7.94] ([45.134.140.51])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-6fd3ca679a1sm8891797b3.62.2025.02.28.13.21.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 28 Feb 2025 13:21:59 -0800 (PST)
-Message-ID: <cd9f85a5-0d99-4007-bba2-d792ac9d84da@gmail.com>
-Date: Fri, 28 Feb 2025 16:21:58 -0500
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0oC+YjqvqIxqXaFoyPfNkEZEW7+FFNhPNIWV2TB/Jrc=;
+ b=NJPainqTXgnQJ4VP45Q8uy4kUvB4C+z/dJ1jn5khpRIXKtLGZWVrFeIg4P34r+cDSPtBJrYaCcCocVdZARvlcFmzepcy3slWbiVeD4OcG0X7sY2KG4UFmyPYgHZwZjQ4d4MMbP7zIeeeFDpxBi2uUGoZFXhzM6tNl4T4ftEaaOo=
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com (2603:10b6:8:1cc::16)
+ by SA1PR10MB5758.namprd10.prod.outlook.com (2603:10b6:806:235::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8489.20; Fri, 28 Feb
+ 2025 21:48:16 +0000
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2]) by DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2%7]) with mapi id 15.20.8489.021; Fri, 28 Feb 2025
+ 21:48:16 +0000
+Date: Fri, 28 Feb 2025 16:47:57 -0500
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To: Vishal Annapurve <vannapurve@google.com>
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+        virtualization@lists.linux.dev, pbonzini@redhat.com, seanjc@google.com,
+        erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com,
+        sagis@google.com, oupton@google.com, pgonda@google.com,
+        kirill@shutemov.name, dave.hansen@linux.intel.com,
+        chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com,
+        sathyanarayanan.kuppuswamy@linux.intel.com, jgross@suse.com,
+        ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under
+ CONFIG_PARAVIRT
+Message-ID: <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
+References: <20250220211628.1832258-1-vannapurve@google.com>
+ <20250220211628.1832258-2-vannapurve@google.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250220211628.1832258-2-vannapurve@google.com>
+X-ClientProxiedBy: SJ0PR13CA0208.namprd13.prod.outlook.com
+ (2603:10b6:a03:2c3::33) To DM4PR10MB8218.namprd10.prod.outlook.com
+ (2603:10b6:8:1cc::16)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/7] virtio-gpu api: add blob userptr resource
-To: Honglei Huang <honglei1.huang@amd.com>, David Airlie
- <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
- Huang Rui <ray.huang@amd.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Dmitry Osipenko <dmitry.osipenko@collabora.com>
-References: <20250228053650.393646-1-honglei1.huang@amd.com>
- <20250228053650.393646-2-honglei1.huang@amd.com>
-Content-Language: en-US
-From: Demi Marie Obenour <demiobenour@gmail.com>
-Autocrypt: addr=demiobenour@gmail.com; keydata=
- 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
- +MYSfkEjBz0E8CLOcAw7JIwAaeBT
-In-Reply-To: <20250228053650.393646-2-honglei1.huang@amd.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR10MB8218:EE_|SA1PR10MB5758:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3252805a-95b9-496e-ec5a-08dd58419b5d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|376014|366016|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?oV80LuenjPACITRWZ2kSXLpscNNFW37GCoBDYV+bxjBjP+zrh1LouuXjhWJ7?=
+ =?us-ascii?Q?pVaJV1ugOA8DJZCfCgJl2dite4m7GmQy0x9Rg75rhq0o99fpbVrijz97VvQ5?=
+ =?us-ascii?Q?eFOE/M880iUW9hX0fz1oPKmrd4lOLgoLnaF4rv+Vg1HnG1GvIQ4F1F4XBUgD?=
+ =?us-ascii?Q?6y5bBdfau2R5NHezx/OPrmFi/486yU2ebULnCLpWlbkMDLOZ8cMJ8DtAo09I?=
+ =?us-ascii?Q?38CZXLwldwxtOKtVYo1pZcpXicXXzudEU9+CZWxkLnXd6TUEOyb0FQBEWP6a?=
+ =?us-ascii?Q?WvwJb/mjlE75VoQc+GkGZmsbtjZIpGrhyqaOgAlSOhLyrZSG7zJVGULwn1/f?=
+ =?us-ascii?Q?6+6GyluPoXJ62bVJtoAKVGpD1AyB4kg3het2FRHu8HNWqUAalmRjQhMLTBo2?=
+ =?us-ascii?Q?HuxqA2gu3FGLKrolg7t3g71VHVqAfoWuCgLBkr2gmWglwJBZh2km8TPKEZh/?=
+ =?us-ascii?Q?9RvQfhJjag0hM5osYzZ5YOH9WhVHjEnI8k5UaLHosdXusD+80m112C8pg4fM?=
+ =?us-ascii?Q?ElfzqHBN0H0LlISIQjGF7C5t/hhCRWYJ4J3aPhzWuly5QPFiYdeXWAqJlQWz?=
+ =?us-ascii?Q?Db2HtGY35O4AJiL7PxBivLh5O38PvhV/18o6LIuS8YNZtB/PkpPH8nPGJxke?=
+ =?us-ascii?Q?oUFS2mp+RYASodWet4nDd70na34S3pxyelUW6Q3XUcGjPeQT0iromTwAned2?=
+ =?us-ascii?Q?yD4V4Ei0oX1KW2erBpge1tL/3hPtZGfLXRCB1yvMFsKukaZmIrC8y+rP2eOk?=
+ =?us-ascii?Q?+YFqjIqBlvx8Kozg1jTe6Xg0l1mcrywFjaCrNG9aTCWdeUEYyEfmqp1zTuNX?=
+ =?us-ascii?Q?sQr1S4t9JE5Az/mWxWW3KMt1h+7oLUWq5s8c5eA/3S+et3BAfidbav94S+Z2?=
+ =?us-ascii?Q?qGDB96TBMN9gMGyJsE/Pw8jf7czRv7vzDmkdnY3TNmysQ7fQ7hcoEzBspXH0?=
+ =?us-ascii?Q?Msa4PRKipV3Q+WEpehCSHGeggmmSFpMmNMa4lr3BxjU7oKnyw1kBvt5VEBPx?=
+ =?us-ascii?Q?rFmb+/zfOQ9f5XztpGKpXI03rgI7B/m85dd9l1/QOls9YVruiyFmCOawgO0y?=
+ =?us-ascii?Q?UKYf+5L+NF9jHuA+djVDCa7ip+ntEgsQkA9ajmRDAvX11Ri0s00/QzHZJNK8?=
+ =?us-ascii?Q?oGJKG6PoPe3R5t9HiDpRNo6/tILHsPor4zhKKLF6G2aUZMctIvGDjMoSE+Yo?=
+ =?us-ascii?Q?MAaXka9cLQJb6ZDAgN1IsIimhRmCzr4Se2rQX3cDi9ef87y+z4J46WawF6/H?=
+ =?us-ascii?Q?iYZJk2Yols4QhWIcpy0ZEAds2ffWI+lpBypjTeVAOhiGcRnAtWo7dO34kZdJ?=
+ =?us-ascii?Q?ASZsbXjZseuw65SuAvLHu7G++hRgjf+JMLRQtD1IgPFaYb8tS5Y7n8PbsHV3?=
+ =?us-ascii?Q?GjVjDZ6vecWcTdDWiAW42yCtH4Yx?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR10MB8218.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?VGW3Dos8Hn5mNOQUC7y0g0ZPtQIxhOh9rFgvMwRA71PkqYjnao1yvWXuIejq?=
+ =?us-ascii?Q?z+1XPbfL0spXLO2Ffe5kR+rG0ZjwYUT+HUPeT02Q+VVeQHfDTCTKUc4sGUwq?=
+ =?us-ascii?Q?GA2GPdeGpmE9kZqM3SpdiIrXRXZV0xTQFQ5mxKagAxkIjClhVwwT8HCppxBW?=
+ =?us-ascii?Q?Ve10lCh+pjtGAYY+/G022zxgmOj33mA/HPpwsKgQ2zHW/qeqmmuKxAfqqC1s?=
+ =?us-ascii?Q?h0tCJjoe2y8k452jPs0DyU0B+wr5BmdoWzld+8abg8EDd53oOOZuaZi3H7sO?=
+ =?us-ascii?Q?UhoCgR3mctFDRIHBMSHVYDaj+YM2QWaEPMeYfMLlMq7m90lmgC4Pro2OY7yo?=
+ =?us-ascii?Q?ksacmG1CM1WzULn+wVilA1QVq2zvJTEtWoGhNhwrRgtgekn+sxbEIvh5vA3r?=
+ =?us-ascii?Q?Ed+bQXnExi8XxzFOdIGfUZ2HbphnRAzePuuwibDV5OJ71+pAd++tq+g4k6NN?=
+ =?us-ascii?Q?Z9bfa3C+QIWidRmD1zGC6MBWUx6edKxWV0c9hBWUMMOq72W/VPGJRCBJ0khi?=
+ =?us-ascii?Q?ts/5FTLxs7y2WjK7m9NUeKGufMtkpYukw9TWSHZ52dpCGgT1+hnfcYDEIJqh?=
+ =?us-ascii?Q?+RWGt8drnExZUOL1swCopJL2rqb/nBqK/uyGyOp2HuHC/dmVBpyU/DJVhKUO?=
+ =?us-ascii?Q?EMSCGYwmkZ5Lt40Y6zaIUMaayymGNZjkJK4v6vOTFAfjcPrxyVLYMvjdCfrf?=
+ =?us-ascii?Q?InQZTfIMiaWBFOLlZZCpwtovfvFAkra5UaOa/z8NSFBFcjWYc3Z9T1wbXnAb?=
+ =?us-ascii?Q?aEzHMtNhigJyegK/OQjTxLdoCk4qK1bNH87OJ1Jjlxt+/W2OosOUu3wGFQz/?=
+ =?us-ascii?Q?eTWMyqU0B+FfhBfvySWc4z4pWWt+MwYtgOBpUBFvCysAlfIsYhvJsfY/VOXf?=
+ =?us-ascii?Q?ySIV092mGhBXwhBiBsgXZ+fmp1K42EP43Vxr8ThTeIfs4EHB6NXZfweElb+U?=
+ =?us-ascii?Q?6NRKS92hQQsrct5Zfdy7OZdxPeUwiTBr/dRSGEuVkOnZ3skxD6lH3S3a3p2A?=
+ =?us-ascii?Q?LCWCXCE1qJMB+wVPR5v5RZYHoVVoaZGyx0JKrRH1X4yp5MF4Hr9j+YC6ZC4w?=
+ =?us-ascii?Q?CsCGzQjt8xJHrrmRDu7A8wCSpBGf7vqw2ukFDwuykjKvYOGCeccSnQ7HA3LY?=
+ =?us-ascii?Q?eI1TUYgUUFU2+gfXLZdwXgNXpGq3oeM/j8TCW7PE8OAEjspNlH4eu5I3QBiG?=
+ =?us-ascii?Q?DB8ZBVKDPyq+NjUlJJaC127oTxTpOsf8F0eZOV7rB3NmYolGFGuqbut4fLND?=
+ =?us-ascii?Q?WarnU1OEwjf07VJx0SZu3LBGEuIGag5MBurso1odBIMNvK3qMIW3XRFRj8kC?=
+ =?us-ascii?Q?vO69G9qUtYVrtlQI/m2PIqiKJjWtzm+EJnO+qexuEyRaXHv5SOvrCpZghNUy?=
+ =?us-ascii?Q?+UXFJDF/Ck4T4ByeuJrM3mbfo5QkmXHBQp7RVaI56uiStGmwt1JNMZuvb8Sy?=
+ =?us-ascii?Q?hKFdBQddlUCfKQHVsZ8yBbQ7JVgsDzEsSHIk69RW4Z/HPB4UP6qpxKxGbiTW?=
+ =?us-ascii?Q?oJEkgt1pqKz37XuZ1xuPQRRtFI6CbDGQYpG5mUIUbjoFXPn/OicBlNJN5Ioc?=
+ =?us-ascii?Q?fN/avpbeYLfoo1Hn/GurT+AHMR0MCfHpXVO4iCgv7Wlmkv4tRjIQgHq6CmTz?=
+ =?us-ascii?Q?qQ=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	JVnapIgrzlIQx/b8q3mLb0j06KNcpDbstN6r9X+OW6o5DKhPwIjJ6aYha/uwcCvCDZCiY/JEM+r4zJXRFmr69WzLrNHU15AeBgXOM+oWo1Fw9Ra4n+ifkZ1PH1ETdB/qfS6dUHZVODYGYu24Jmo95w3TN163ZXXg3yhsaODe2dW6FMPxRDZ29RrqJCZVre/dg8tI3GLdhGgAWT+YMapHSbgBhTWdd6ng68n5bAUBtuYvEdK35/NN7DIgrSPasaWXnG9PCFS9MUcsPU6y7V66d172XyNGmaJUPYbaVQi18XH7Usy7hd3HtGxsTvAGjExeTu8SwWgvtaWkX6XQxcyOfSRoIANN4kWMf5+vPEgAr1PT1SnrCf1/oNANO2UvrsnsRGisTtkj6en9o4/ZhRAXi0VGaQ6OjsasZ6wp4YfrV4/Z7s/7MprK6RWRurm3jyshSwhr7YoMEomVIjeN+dur/GOGAi2CK3CE/S4V0iHmEM7tLU2YNTA9LbKtRlNDXUxLojeqtCZc/w0FSge/yiTbM7oV9YCTEW6zLpAJhdjGuLVM5a4NaJ980zCOwnupKPNKcHUkF/8V+g2sKDUDE7N2oYq44byMKRFR3epsqP4IIVs=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3252805a-95b9-496e-ec5a-08dd58419b5d
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR10MB8218.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2025 21:48:16.0962
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: +DMph/XpXyP/hAq9ewncvivPtUqOlPX12vPhxyTcY4PSu0G+vhyyBzmlJ2uJmmFJCEipg+nGu/FrTQz3rITtwQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB5758
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-28_06,2025-02-28_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 mlxlogscore=640
+ phishscore=0 mlxscore=0 suspectscore=0 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2502100000
+ definitions=main-2502280158
+X-Proofpoint-GUID: kjoryVdBJEhbvMFtGEv-9sFB_nWmNouc
+X-Proofpoint-ORIG-GUID: kjoryVdBJEhbvMFtGEv-9sFB_nWmNouc
 
-On 2/28/25 12:36 AM, Honglei Huang wrote:
-> From: Honglei Huang <Honglei1.Huang@amd.com>
+On Thu, Feb 20, 2025 at 09:16:25PM +0000, Vishal Annapurve wrote:
+> From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 > 
-> Add a new resource for blob resource, called userptr, used for let
-> host access guest user space memory, to acquire buffer based userptr
-> feature in virtio GPU.
+> CONFIG_PARAVIRT_XXL is mainly defined/used by XEN PV guests. For
+> other VM guest types, features supported under CONFIG_PARAVIRT
+> are self sufficient. CONFIG_PARAVIRT mainly provides support for
+> TLB flush operations and time related operations.
 > 
-> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
-> in this series patches only HSAKMT context can use the userptr
-> feature. HSAKMT is a GPU compute library in HSA stack, like
-> the role libdrm in mesa stack.
+> For TDX guest as well, paravirt calls under CONFIG_PARVIRT meets
+> most of its requirement except the need of HLT and SAFE_HLT
+> paravirt calls, which is currently defined under
+> CONFIG_PARAVIRT_XXL.
+> 
+> Since enabling CONFIG_PARAVIRT_XXL is too bloated for TDX guest
+> like platforms, move HLT and SAFE_HLT paravirt calls under
+> CONFIG_PARAVIRT.
 
-Userptr should not be limited to HSMKMT contexts.  Userptr can
-accelerate shm buffers by avoiding a copy from guest to host, and
-it can be implemented using grant tables on Xen.
--- 
-Sincerely,
-Demi Marie Obenour (she/her/hers)
+Could you use the bloat-o-meter to give an idea of the savings?
+
+Also .. aren't most distros building with Xen support so they will
+always have the full paravirt support?
+
+> 
+> Moving HLT and SAFE_HLT paravirt calls are not fatal and should not
+> break any functionality for current users of CONFIG_PARAVIRT.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+> Co-developed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> Reviewed-by: Andi Kleen <ak@linux.intel.com>
+> Reviewed-by: Tony Luck <tony.luck@intel.com>
+> Signed-off-by: Vishal Annapurve <vannapurve@google.com>
+> ---
+>  arch/x86/include/asm/irqflags.h       | 40 +++++++++++++++------------
+>  arch/x86/include/asm/paravirt.h       | 20 +++++++-------
+>  arch/x86/include/asm/paravirt_types.h |  3 +-
+>  arch/x86/kernel/paravirt.c            | 14 ++++++----
+>  4 files changed, 41 insertions(+), 36 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
+> index cf7fc2b8e3ce..1c2db11a2c3c 100644
+> --- a/arch/x86/include/asm/irqflags.h
+> +++ b/arch/x86/include/asm/irqflags.h
+> @@ -76,6 +76,28 @@ static __always_inline void native_local_irq_restore(unsigned long flags)
+>  
+>  #endif
+>  
+> +#ifndef CONFIG_PARAVIRT
+> +#ifndef __ASSEMBLY__
+> +/*
+> + * Used in the idle loop; sti takes one instruction cycle
+> + * to complete:
+> + */
+> +static __always_inline void arch_safe_halt(void)
+> +{
+> +	native_safe_halt();
+> +}
+> +
+> +/*
+> + * Used when interrupts are already enabled or to
+> + * shutdown the processor:
+> + */
+> +static __always_inline void halt(void)
+> +{
+> +	native_halt();
+> +}
+> +#endif /* __ASSEMBLY__ */
+> +#endif /* CONFIG_PARAVIRT */
+> +
+>  #ifdef CONFIG_PARAVIRT_XXL
+>  #include <asm/paravirt.h>
+>  #else
+> @@ -97,24 +119,6 @@ static __always_inline void arch_local_irq_enable(void)
+>  	native_irq_enable();
+>  }
+>  
+> -/*
+> - * Used in the idle loop; sti takes one instruction cycle
+> - * to complete:
+> - */
+> -static __always_inline void arch_safe_halt(void)
+> -{
+> -	native_safe_halt();
+> -}
+> -
+> -/*
+> - * Used when interrupts are already enabled or to
+> - * shutdown the processor:
+> - */
+> -static __always_inline void halt(void)
+> -{
+> -	native_halt();
+> -}
+> -
+>  /*
+>   * For spinlocks, etc:
+>   */
+> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+> index 041aff51eb50..29e7331a0c98 100644
+> --- a/arch/x86/include/asm/paravirt.h
+> +++ b/arch/x86/include/asm/paravirt.h
+> @@ -107,6 +107,16 @@ static inline void notify_page_enc_status_changed(unsigned long pfn,
+>  	PVOP_VCALL3(mmu.notify_page_enc_status_changed, pfn, npages, enc);
+>  }
+>  
+> +static __always_inline void arch_safe_halt(void)
+> +{
+> +	PVOP_VCALL0(irq.safe_halt);
+> +}
+> +
+> +static inline void halt(void)
+> +{
+> +	PVOP_VCALL0(irq.halt);
+> +}
+> +
+>  #ifdef CONFIG_PARAVIRT_XXL
+>  static inline void load_sp0(unsigned long sp0)
+>  {
+> @@ -170,16 +180,6 @@ static inline void __write_cr4(unsigned long x)
+>  	PVOP_VCALL1(cpu.write_cr4, x);
+>  }
+>  
+> -static __always_inline void arch_safe_halt(void)
+> -{
+> -	PVOP_VCALL0(irq.safe_halt);
+> -}
+> -
+> -static inline void halt(void)
+> -{
+> -	PVOP_VCALL0(irq.halt);
+> -}
+> -
+>  static inline u64 paravirt_read_msr(unsigned msr)
+>  {
+>  	return PVOP_CALL1(u64, cpu.read_msr, msr);
+> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+> index fea56b04f436..abccfccc2e3f 100644
+> --- a/arch/x86/include/asm/paravirt_types.h
+> +++ b/arch/x86/include/asm/paravirt_types.h
+> @@ -120,10 +120,9 @@ struct pv_irq_ops {
+>  	struct paravirt_callee_save save_fl;
+>  	struct paravirt_callee_save irq_disable;
+>  	struct paravirt_callee_save irq_enable;
+> -
+> +#endif
+>  	void (*safe_halt)(void);
+>  	void (*halt)(void);
+> -#endif
+>  } __no_randomize_layout;
+>  
+>  struct pv_mmu_ops {
+> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+> index 1ccaa3397a67..c5bb980b8a67 100644
+> --- a/arch/x86/kernel/paravirt.c
+> +++ b/arch/x86/kernel/paravirt.c
+> @@ -110,6 +110,11 @@ int paravirt_disable_iospace(void)
+>  	return request_resource(&ioport_resource, &reserve_ioports);
+>  }
+>  
+> +static noinstr void pv_native_safe_halt(void)
+> +{
+> +	native_safe_halt();
+> +}
+> +
+>  #ifdef CONFIG_PARAVIRT_XXL
+>  static noinstr void pv_native_write_cr2(unsigned long val)
+>  {
+> @@ -125,11 +130,6 @@ static noinstr void pv_native_set_debugreg(int regno, unsigned long val)
+>  {
+>  	native_set_debugreg(regno, val);
+>  }
+> -
+> -static noinstr void pv_native_safe_halt(void)
+> -{
+> -	native_safe_halt();
+> -}
+>  #endif
+>  
+>  struct pv_info pv_info = {
+> @@ -186,9 +186,11 @@ struct paravirt_patch_template pv_ops = {
+>  	.irq.save_fl		= __PV_IS_CALLEE_SAVE(pv_native_save_fl),
+>  	.irq.irq_disable	= __PV_IS_CALLEE_SAVE(pv_native_irq_disable),
+>  	.irq.irq_enable		= __PV_IS_CALLEE_SAVE(pv_native_irq_enable),
+> +#endif /* CONFIG_PARAVIRT_XXL */
+> +
+> +	/* Irq HLT ops. */
+>  	.irq.safe_halt		= pv_native_safe_halt,
+>  	.irq.halt		= native_halt,
+> -#endif /* CONFIG_PARAVIRT_XXL */
+>  
+>  	/* Mmu ops. */
+>  	.mmu.flush_tlb_user	= native_flush_tlb_local,
+> -- 
+> 2.48.1.601.g30ceb7b040-goog
+> 
+> 
