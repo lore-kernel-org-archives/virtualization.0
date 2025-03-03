@@ -1,255 +1,133 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E35AF53365
-	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 15:22:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC4EC238D3A;
+	Mon,  3 Mar 2025 16:30:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741015340; cv=none; b=kkw93/PnxhYBLcYVReK75XXo3HvHh88PlRgwJhcS59ObMQzCN3NLErjKNFtw0NTojmvc5tYNoALDy3Y0LBepOez7X/pUBhkdSZwkAnpDbAhFQ++MiuFsmq7oogd2TMaczRB5l7tMY5v5QW5DQSaxD6x734VjHu9IYwkmaTV0EuY=
+	t=1741019429; cv=none; b=D8kjkv0iYvWRB7+hx/0l8zMGfWpK0xhRTGD3soYNjqN6qDpkFxW2sYrxBquiliAF6DAO14ll/STIs0HDEuOwd98ByCwbkj/+w9x889VoLm4anUN5KsDD+2p9/6K2RChX/gHgxFNN7hyXEpObl5rQvMzrlf6AlX4FKCae1YDKEjw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741015340; c=relaxed/simple;
-	bh=KeAOhF/tSRbbUNCZ1cXZMEVaaaHzf0ZSwQV/BU3ATG8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=olAVPH/lIEsq/2pZt/mytMvkd+BHYdIwIBxxOTwvFi4Kzx7ZQA9JSZ2OiQtDKO6/UYyB+spzH+O//KZ1tNGxWzKW3cyKdRr2Jny0OTkXV6x7yenPt1gPkSL52/y+zkVS7Qrd6bTqVSUqFMqmND2R4rJCsN+MEKUlUz8LsfMWYH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=kAeTMZDO; arc=none smtp.client-ip=209.85.221.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1741019429; c=relaxed/simple;
+	bh=VO4PNxXKaKhQhc8WyvjllaRN4o+RXV2Z6WojniXYwY4=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=HFMI9NtFAOuGYCckRrrUkZatuvhGOcW5GELSTtHaEhdZzVNQjnUr4detUpCKHyVRSLZSq86kje8PxoXQauP3bMZ+NsolZYUnHr1vMdATAzpJCrD7i5u+P9rYsQ7bLPoaITSwbSfSNxx0ZqPBY6JVu4kbos4sOCRAv1yuD4Gu73c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jMxruLLA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="kAeTMZDO"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-390e3b3d432so3154881f8f.2
-        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 07:22:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1741015337; x=1741620137; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DcZCKiDmcDV+Zl6nxjCvDXnjag3dxzpo0yD3ZrEqp+8=;
-        b=kAeTMZDOKQt0VRrL4DwG3ZV3G/7B0v3T2OIoDGpdEbZBOOF3LrrI7qn5k6mv9tn+N0
-         14NijCrQ058cGJuqDvnBJA+b8UPNTR/cIMrMckqIf8vesBZ69u9VBCW/kF6h3GRL+h2o
-         FRbO0FAdOm5R8iGl57tmxzOLFmIceevu3DIVJevj66rMntsyKCo0ljSoQBSxAFvSdbLc
-         mpn3WWy1oh24Yu5+DqOcRjLOrVSFexrRlVaFceSwVXTBvbeoB51n9DzrwKpnRXnDQ+zN
-         xH0uNp7kIXQAQgFqEDcgUJTQ9jLzgsSXkOvB7spZomWELNl08j4kHyBOLk8z6jTyoV3V
-         TxVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741015337; x=1741620137;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DcZCKiDmcDV+Zl6nxjCvDXnjag3dxzpo0yD3ZrEqp+8=;
-        b=EsqmroMHvX7JAuDECeOynuRZgQkGfLXGdcZrx7tnJRQPu6uZrbxqQNWlqtY1y6RTPU
-         RpW1ksjPE7sxEso3ks1e244LESO1gOahJzQlufQyXPjwviOqXZpfgROICCO5QLzX2ek0
-         8YG3mDw0r9XW8Yku7oj0tpqL2RUiE8SK6M+ESL3wnLHSXsvIf23vhd9o0yvvweRyiDwA
-         5AoXpNMIGMKfBSRf/U0HNGzHv9YHL28mgamt7OfxBZgQapwjEF/wJUINCza6tEFefu97
-         uf9YCjy+BukANvKVkcIoIlPw007TVwdEHRRbYqkFTh1XRyhdHssiRxLKOx1O0m5yLt4p
-         xBBg==
-X-Forwarded-Encrypted: i=1; AJvYcCWNc/Q0wezk/sr92KIGxzyVks1PWxdrk3A6syqPGMzs8JBk0mF+OCC+2gP704uTX8uXi4M/zGc2LVLIeWw4Yw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzSIIDQ2fYVWJlWX0VDe1MOXWCKhzfzHrss2Ed1ryNTqTdx60nG
-	OVCVoYNGJDtul81z8dITkQt0jKy3jzgyq40DnXkhHtkwQjyYbziK6olfGDzs+Zc=
-X-Gm-Gg: ASbGncu5SYmo9kIV5WfuYvTC6eVLfElpRntpRvYdAbQYZeg4vu9KPRxdv29fvaUGWnm
-	UVRMGMF5ojMIt7TpbMxRoOTkF26NIlf4ySR7dYVeQfR28aD1O3B1Nh972LeGP/ca8/wQf0VyRSh
-	q2hvZ50FB8v4fLwaOlRk6MZguYlmBK2D6IcR7tolhJ1LaK+lIqjR1uuc6CPpC0HLoGt40gsX5ql
-	lMJOgVf4F65UhRROpE1xSEhdx0LfN534iJKCY25i+cpcA3N5AuHXf8E1t04zuItUjVZHPXXnlD7
-	quXN1r4bZKdmUuCQ0/OMin7m1xflF/xODezxsSf72fQ=
-X-Google-Smtp-Source: AGHT+IF2RZ18jiutaNwmQgyXw9Sya7CxFe3BwwYu1EQNCljMSVJq5RUCGSWLg0nAeTOJ0v5+o9CEEA==
-X-Received: by 2002:a05:6000:280f:b0:390:e84f:c594 with SMTP id ffacd0b85a97d-390eca41cffmr7152457f8f.37.1741015337171;
-        Mon, 03 Mar 2025 07:22:17 -0800 (PST)
-Received: from myrica ([2.221.137.100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-390e485dcc1sm14481904f8f.87.2025.03.03.07.22.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Mar 2025 07:22:16 -0800 (PST)
-Date: Mon, 3 Mar 2025 15:22:43 +0000
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>,
-	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
-	Will Deacon <will@kernel.org>, Eric Auger <eric.auger@redhat.com>,
-	patches@lists.linux.dev
-Subject: Re: [PATCH v2 1/5] iommu/virtio: Break out bypass identity support
- into a global static
-Message-ID: <20250303152243.GB2083810@myrica>
-References: <0-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
- <1-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jMxruLLA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43FD8C4CEE6;
+	Mon,  3 Mar 2025 16:30:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741019429;
+	bh=VO4PNxXKaKhQhc8WyvjllaRN4o+RXV2Z6WojniXYwY4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=jMxruLLAzDKnwWuDlNzB5pcWPrmqSqhUBWFIKEDrnrtzMa2CpB7QstjVzp7jckw8I
+	 /tbIrLRYFeX1JtjGfh+OCDTmrhrYsn/ZV3Wvlkt7iDxHl2iKIRQrmfDTf69MbysbQS
+	 ZL619hGx/QjHPIRgBGerct529D39hPNILU/mUW+Siw7GHhs9YAwuH0KCXGMif51BRm
+	 nR8V4/BmVrPVbSlUGqwmH5ULf9BRiYV/qWN/noDe0ZtUibrm8/rSKN/A+z8kGqzBwF
+	 rc48C6H35xdOKpf17+wo/hCB0R5jsUU+xLKaR8yzS7HCd8CdMYKg+F4DWovaL/wx3U
+	 UYH4eYWDO3+jg==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Keith Busch <kbusch@kernel.org>,
+	Mike Christie <michael.christie@oracle.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sasha Levin <sashal@kernel.org>,
+	seanjc@google.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.13 17/17] vhost: return task creation error instead of NULL
+Date: Mon,  3 Mar 2025 11:29:49 -0500
+Message-Id: <20250303162951.3763346-17-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20250303162951.3763346-1-sashal@kernel.org>
+References: <20250303162951.3763346-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.13.5
+Content-Transfer-Encoding: 8bit
 
-On Thu, Feb 27, 2025 at 08:19:59PM -0400, Jason Gunthorpe wrote:
-> To make way for a domain_alloc_paging conversion add the typical global
-> static IDENTITY domain. This supports VMMs that have a
-> VIRTIO_IOMMU_F_BYPASS_CONFIG config.
-> 
-> If the VMM does not have support then the domain_alloc path is still used,
-> which creates an IDENTITY domain out of a paging domain.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+From: Keith Busch <kbusch@kernel.org>
 
-Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+[ Upstream commit cb380909ae3b1ebf14d6a455a4f92d7916d790cb ]
 
-> ---
->  drivers/iommu/virtio-iommu.c | 86 ++++++++++++++++++++++++++++--------
->  1 file changed, 67 insertions(+), 19 deletions(-)
-> 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index b85ce6310ddbda..55a2188197c621 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -48,6 +48,7 @@ struct viommu_dev {
->  	u64				pgsize_bitmap;
->  	u32				first_domain;
->  	u32				last_domain;
-> +	u32				identity_domain_id;
->  	/* Supported MAP flags */
->  	u32				map_flags;
->  	u32				probe_size;
-> @@ -70,7 +71,6 @@ struct viommu_domain {
->  	struct rb_root_cached		mappings;
->  
->  	unsigned long			nr_endpoints;
-> -	bool				bypass;
->  };
->  
->  struct viommu_endpoint {
-> @@ -305,6 +305,22 @@ static int viommu_send_req_sync(struct viommu_dev *viommu, void *buf,
->  	return ret;
->  }
->  
-> +static int viommu_send_attach_req(struct viommu_dev *viommu, struct device *dev,
-> +				  struct virtio_iommu_req_attach *req)
-> +{
-> +	int ret;
-> +	unsigned int i;
-> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +
-> +	for (i = 0; i < fwspec->num_ids; i++) {
-> +		req->endpoint = cpu_to_le32(fwspec->ids[i]);
-> +		ret = viommu_send_req_sync(viommu, req, sizeof(*req));
-> +		if (ret)
-> +			return ret;
-> +	}
-> +	return 0;
-> +}
-> +
->  /*
->   * viommu_add_mapping - add a mapping to the internal tree
->   *
-> @@ -687,12 +703,6 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
->  	vdomain->viommu		= viommu;
->  
->  	if (domain->type == IOMMU_DOMAIN_IDENTITY) {
-> -		if (virtio_has_feature(viommu->vdev,
-> -				       VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
-> -			vdomain->bypass = true;
-> -			return 0;
-> -		}
-> -
->  		ret = viommu_domain_map_identity(vdev, vdomain);
->  		if (ret) {
->  			ida_free(&viommu->domain_ids, vdomain->id);
-> @@ -719,10 +729,8 @@ static void viommu_domain_free(struct iommu_domain *domain)
->  
->  static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->  {
-> -	int i;
->  	int ret = 0;
->  	struct virtio_iommu_req_attach req;
-> -	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
->  	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
->  	struct viommu_domain *vdomain = to_viommu_domain(domain);
->  
-> @@ -761,16 +769,9 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->  		.domain		= cpu_to_le32(vdomain->id),
->  	};
->  
-> -	if (vdomain->bypass)
-> -		req.flags |= cpu_to_le32(VIRTIO_IOMMU_ATTACH_F_BYPASS);
-> -
-> -	for (i = 0; i < fwspec->num_ids; i++) {
-> -		req.endpoint = cpu_to_le32(fwspec->ids[i]);
-> -
-> -		ret = viommu_send_req_sync(vdomain->viommu, &req, sizeof(req));
-> -		if (ret)
-> -			return ret;
-> -	}
-> +	ret = viommu_send_attach_req(vdomain->viommu, dev, &req);
-> +	if (ret)
-> +		return ret;
->  
->  	if (!vdomain->nr_endpoints) {
->  		/*
-> @@ -788,6 +789,40 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->  	return 0;
->  }
->  
-> +static int viommu_attach_identity_domain(struct iommu_domain *domain,
-> +					 struct device *dev)
-> +{
-> +	int ret = 0;
-> +	struct virtio_iommu_req_attach req;
-> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	req = (struct virtio_iommu_req_attach) {
-> +		.head.type	= VIRTIO_IOMMU_T_ATTACH,
-> +		.domain		= cpu_to_le32(vdev->viommu->identity_domain_id),
-> +		.flags          = cpu_to_le32(VIRTIO_IOMMU_ATTACH_F_BYPASS),
-> +	};
-> +
-> +	ret = viommu_send_attach_req(vdev->viommu, dev, &req);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (vdev->vdomain)
-> +		vdev->vdomain->nr_endpoints--;
-> +	vdomain->nr_endpoints++;
-> +	vdev->vdomain = vdomain;
-> +	return 0;
-> +}
-> +
-> +static struct viommu_domain viommu_identity_domain = {
-> +	.domain = {
-> +		.type = IOMMU_DOMAIN_IDENTITY,
-> +		.ops = &(const struct iommu_domain_ops) {
-> +			.attach_dev = viommu_attach_identity_domain,
-> +		},
-> +	},
-> +};
-> +
->  static void viommu_detach_dev(struct viommu_endpoint *vdev)
->  {
->  	int i;
-> @@ -1061,6 +1096,7 @@ static bool viommu_capable(struct device *dev, enum iommu_cap cap)
->  }
->  
->  static struct iommu_ops viommu_ops = {
-> +	.identity_domain	= &viommu_identity_domain.domain,
->  	.capable		= viommu_capable,
->  	.domain_alloc		= viommu_domain_alloc,
->  	.probe_device		= viommu_probe_device,
-> @@ -1184,6 +1220,18 @@ static int viommu_probe(struct virtio_device *vdev)
->  	if (virtio_has_feature(vdev, VIRTIO_IOMMU_F_MMIO))
->  		viommu->map_flags |= VIRTIO_IOMMU_MAP_F_MMIO;
->  
-> +	/* Reserve an ID to use as the bypass domain */
-> +	if (virtio_has_feature(viommu->vdev, VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
-> +		viommu->identity_domain_id = viommu->first_domain;
-> +		viommu->first_domain++;
-> +	} else {
-> +		/*
-> +		 * Assume the VMM is sensible and it either supports bypass on
-> +		 * all instances or no instances.
-> +		 */
-> +		viommu_ops.identity_domain = NULL;
-> +	}
-> +
->  	viommu_ops.pgsize_bitmap = viommu->pgsize_bitmap;
->  
->  	virtio_device_ready(vdev);
-> -- 
-> 2.43.0
-> 
-> 
+Lets callers distinguish why the vhost task creation failed. No one
+currently cares why it failed, so no real runtime change from this
+patch, but that will not be the case for long.
+
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Message-ID: <20250227230631.303431-2-kbusch@meta.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/x86/kvm/mmu/mmu.c | 2 +-
+ drivers/vhost/vhost.c  | 2 +-
+ kernel/vhost_task.c    | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index e102505735a7b..0e6bf24093f75 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -7435,7 +7435,7 @@ static void kvm_mmu_start_lpage_recovery(struct once *once)
+ 				      kvm_nx_huge_page_recovery_worker_kill,
+ 				      kvm, "kvm-nx-lpage-recovery");
+ 
+-	if (!nx_thread)
++	if (IS_ERR(nx_thread))
+ 		return;
+ 
+ 	vhost_task_start(nx_thread);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9ac25d08f473e..63612faeab727 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -666,7 +666,7 @@ static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
+ 
+ 	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
+ 				 worker, name);
+-	if (!vtsk)
++	if (IS_ERR(vtsk))
+ 		goto free_worker;
+ 
+ 	mutex_init(&worker->mutex);
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index 8800f5acc0071..2ef2e1b800916 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -133,7 +133,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
+ 
+ 	vtsk = kzalloc(sizeof(*vtsk), GFP_KERNEL);
+ 	if (!vtsk)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	init_completion(&vtsk->exited);
+ 	mutex_init(&vtsk->exit_mutex);
+ 	vtsk->data = arg;
+@@ -145,7 +145,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
+ 	tsk = copy_process(NULL, 0, NUMA_NO_NODE, &args);
+ 	if (IS_ERR(tsk)) {
+ 		kfree(vtsk);
+-		return NULL;
++		return ERR_PTR(PTR_ERR(tsk));
+ 	}
+ 
+ 	vtsk->task = tsk;
+-- 
+2.39.5
+
