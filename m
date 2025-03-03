@@ -1,262 +1,122 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 517981F152D
-	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 09:54:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B3220CCE6;
+	Mon,  3 Mar 2025 11:54:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740995676; cv=none; b=oM18Sy0+jQ2bHF0XWd/7c+3EJbbvR1Lgcxvx4Zo7l0M4X634KQx0sFvv1t25hn1VT8E20ghUbEQFPL1qaMLBFAhaO+TIFyAG4mXlQCLeuwX8cQEGzdF79rCGxY+bZ4++6w2gEuaWyrVuhtZXK/sgo9ikb6DmbedQQmbwGcMl00E=
+	t=1741002860; cv=none; b=NGP2qCJjl2C8JvrNAKP3sTKANne46NqJ+flgooEvKiYQ0JVSh4t7v3YqmsEsKotmP2gzpm2xUr0q0C5wnr/clueJT24x6WMjJQvkmB+n474pch7V23GKnCTTH44HTvcdrrVrOQZb4uqp1ISAUGOEgGGKeKM2fa6FbXdbOC/YoB4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740995676; c=relaxed/simple;
-	bh=A58wzXqspOCF7y1nRcqMkTGPyro87VFDTZ78HorgFs8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tFZVblnCX0Y09OkpfLGX0Lver4oMli9sI5WK6Ptn+CJds7b+/KPA00o72M5gUS49ViyI7Ud+AMtS8W1yFUaylj5kcnG9wUM51cJC6N44NREgjxFqO2WGyhyKktiXrTCP33uPG5fMutTbiMKZFHscPXdjW35NdbazY3prnwP3YWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=BPBl6yfz; arc=none smtp.client-ip=209.85.208.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1741002860; c=relaxed/simple;
+	bh=oQAhDNZZHIdM8IkJONvRddVJgR3R9DzHAQ1ARr50o4w=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QZBzZZsXNX/g6ZRfh/b5W4Bp4KlvYCZEKVrngxipYIRgddsGyMDIadT7Q7ZvdhsPpZp/cdbV2db2yPzZ0elmyivcoXL/kPXZHINcZb8ayLo6zNoCWfwHCtJLJFN9rfXVc6e3Rir5l8ExPU1tvne0gF8i94/+G18LjssB85zwW3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YHt35s6t; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="BPBl6yfz"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-5e4bed34bccso5708117a12.3
-        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 01:54:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1740995672; x=1741600472; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=A58wzXqspOCF7y1nRcqMkTGPyro87VFDTZ78HorgFs8=;
-        b=BPBl6yfzYTdE/AJ1h/IyISRYqZ23d3qMN0xNEv2NuuULyEbCcc3vnEfRW0Olu8TRKI
-         Xen3gEQZcOAiIJmp92HN84JT8RsPWnVcXdkknu9dEiPJ+Fllxf84617Yk9iYFUTSnp7/
-         7nMlYMO/ygZKwkjxnEwtrN1rKvo2WdwPrXE64SaI1JRoSJZDcVSLQd7WrNexrPwri5uB
-         GIwCSsqYMCtPnHSXBIl8u997gaKDgdZV0epqgcKbzHuLRyt66nGCpxOFrTiNiNpEu5mJ
-         WvtxAIPrOpbEnvJ3IPhA3U/hAqqCkFHKbHxCMYp6phVo+cY8Tvqkz8UA17Gr/V7NBo9/
-         eQ/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740995672; x=1741600472;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=A58wzXqspOCF7y1nRcqMkTGPyro87VFDTZ78HorgFs8=;
-        b=c32GVpUqqe/ZVyBKy/dTeA2J6uV9XwtKjTnuv8ZNAArSJmShnvYtT4FK5vZcnOUcJ/
-         wUVIRbdF1LLKxd68/YHEeiLZPfbfOIyjgVvfpl6uGG14QjdxjnDrF/ovyaEyIKYQIY5U
-         ncD0T8Mw1Ct9hddKZI8gM3yHWIKrLiT2GElaLSJN46XtgbOEUTJf4sBnfB81bwNPqLsi
-         m4isRGz/qghsBDdQDNeR9WVyxHDot/h+p86vQsx9LNVdkE/ZRKKsX1jNBXgYtsVGlVw7
-         EJEp4IZwHj/ex7W94eOplSA027nETNLKz3XzIRP0svqXNZJXpotAav38BHv7/WBOq1fT
-         Zsjg==
-X-Forwarded-Encrypted: i=1; AJvYcCU6efgwYCYoYgAS2VUvCONfY4S5uIa0UFKJ6mRAlDMJeolHZmjNlRyU/hsdmMjfpdtsE3H53KRy1y5lrjZqCg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yygy05HGtXMW4zOKYYiEWRll0EW+G/W6CV3q3AjwqCICGCmixNA
-	Drgr3TBbmc33W1AFUeqPiKR2btBpZT1WJavfl5qm/qT3Ro0okfjQGwoNYgulpaoqHZ/6ACr27RJ
-	tgN7jog==
-X-Gm-Gg: ASbGnctINYeu9Pf6mC7zL3/CPwZaFpBiUO0CQgN2DGYp+hcAkhn21knLvO6fgKBZ8pt
-	SulPVHFca5rSjwwQw2btB8MBF3zNhQ9Dzsyro4TfK/ZdvqKEWpf+RQx9nvUFLvkOVJxjT1Diub4
-	xDEDBTTReIPh9tPk4KXYn4md5CNGQhEHi/b7bqI/cRbax4LR4HVIWsIQASAibj3MARZ+FVEK7tw
-	UxrEAYV7n+efkfksn4a7VVE3j4dTHZt22ceJnsustHbTv1okfUBvtE7SJdQ03KhfUFQa5v0CgOl
-	JfTvYItG49ZuuCp9oO6DWof63Ea3/DL1eRJCSdE2kKmVu5u0iI45vrPyuPi9K8LZoAgYz6E3AEM
-	50mk7AnouM6ntsO2x7YXcTHY/dycx79R0J5lNq8rX8F/peV67u/8wl55vZdjNPSrWtLI=
-X-Google-Smtp-Source: AGHT+IGW4m97/5Z6mzGE+FtM7OG3AsUThkKvGu7Efn6SS4sBYUvLGkxkFKD9S/u/8MdUzBtxBFwR1w==
-X-Received: by 2002:a05:6402:26c9:b0:5e0:34b5:13c0 with SMTP id 4fb4d7f45d1cf-5e4d6b05015mr11608759a12.19.1740995672489;
-        Mon, 03 Mar 2025 01:54:32 -0800 (PST)
-Received: from ?IPV6:2003:e5:8714:500:2aea:6ec9:1d88:c1ef? (p200300e5871405002aea6ec91d88c1ef.dip0.t-ipconnect.de. [2003:e5:8714:500:2aea:6ec9:1d88:c1ef])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5e4c43a6ab7sm6603426a12.74.2025.03.03.01.54.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Mar 2025 01:54:32 -0800 (PST)
-Message-ID: <e49c22e8-04df-4a1b-b68e-378f73a861f9@suse.com>
-Date: Mon, 3 Mar 2025 10:54:31 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YHt35s6t"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505B4C4CEE8;
+	Mon,  3 Mar 2025 11:54:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741002860;
+	bh=oQAhDNZZHIdM8IkJONvRddVJgR3R9DzHAQ1ARr50o4w=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=YHt35s6t01Ze5P7mJ3/0Qr824U8rW/eB3bCnSoYVjbseNMmDzgtsKkKlK26uYT3ib
+	 TItoFMKSD+C98d4zTtNDgaYFEZOAsNeCnE3UZwi1Mns9O4bMEPFjJOtUeAD056oXBM
+	 NobX724F5a/rAmOcUCWa7FwrliPpSnk8RSRSmvQnjqWA/tzD/iv9susiJnNjFF98Qe
+	 nr6ybnyOfDWXGMyAmFMd7+YBQrmc+fm0PChhtHZD5tY8j1ViMUBbNPB0WWOKCXND8C
+	 9ykLjojN6i03Bf4cBGCt3mhQZHo2S8J48GvvETucW/trH9vVNmGTO/HfyufhfJdwo3
+	 gPAkVdCeLnC0Q==
+Message-ID: <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
+Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio
+ spec
+From: Amit Shah <amit@kernel.org>
+To: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
+Cc: arnd@arndb.de, gregkh@linuxfoundation.org, brueckner@linux.ibm.com, 
+	schnelle@linux.ibm.com, pasic@linux.ibm.com
+Date: Mon, 03 Mar 2025 12:54:16 +0100
+In-Reply-To: <20250225092135.1200551-1-maxbr@linux.ibm.com>
+References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under
- CONFIG_PARAVIRT
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
- Vishal Annapurve <vannapurve@google.com>
-Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
- virtualization@lists.linux.dev, pbonzini@redhat.com, seanjc@google.com,
- erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com,
- sagis@google.com, oupton@google.com, pgonda@google.com,
- kirill@shutemov.name, dave.hansen@linux.intel.com,
- chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com,
- sathyanarayanan.kuppuswamy@linux.intel.com, ajay.kaher@broadcom.com,
- alexey.amakhalov@broadcom.com,
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
- stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
- Tony Luck <tony.luck@intel.com>
-References: <20250220211628.1832258-1-vannapurve@google.com>
- <20250220211628.1832258-2-vannapurve@google.com>
- <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
-Content-Language: en-US
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------5LLYudiyGxvk0eCeMC0cD70G"
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------5LLYudiyGxvk0eCeMC0cD70G
-Content-Type: multipart/mixed; boundary="------------Uen3bzhHMfNu8u1d60iDkUwy";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
- Vishal Annapurve <vannapurve@google.com>
-Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
- virtualization@lists.linux.dev, pbonzini@redhat.com, seanjc@google.com,
- erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com,
- sagis@google.com, oupton@google.com, pgonda@google.com,
- kirill@shutemov.name, dave.hansen@linux.intel.com,
- chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com,
- sathyanarayanan.kuppuswamy@linux.intel.com, ajay.kaher@broadcom.com,
- alexey.amakhalov@broadcom.com,
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
- stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
- Tony Luck <tony.luck@intel.com>
-Message-ID: <e49c22e8-04df-4a1b-b68e-378f73a861f9@suse.com>
-Subject: Re: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under
- CONFIG_PARAVIRT
-References: <20250220211628.1832258-1-vannapurve@google.com>
- <20250220211628.1832258-2-vannapurve@google.com>
- <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
-In-Reply-To: <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
+On Tue, 2025-02-25 at 10:21 +0100, Maximilian Immanuel Brandtner wrote:
+> According to the virtio spec[0] the virtio console resize struct
+> defines
+> cols before rows. In the kernel implementation it is the other way
+> around
+> resulting in the two properties being switched.
 
---------------Uen3bzhHMfNu8u1d60iDkUwy
-Content-Type: multipart/mixed; boundary="------------jshMhZZ1nAInseKi0TepNMrO"
+Not true, see below.
 
---------------jshMhZZ1nAInseKi0TepNMrO
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+> While QEMU doesn't currently support resizing consoles, TinyEMU
 
-T24gMjguMDIuMjUgMjI6NDcsIEtvbnJhZCBSemVzenV0ZWsgV2lsayB3cm90ZToNCj4gT24g
-VGh1LCBGZWIgMjAsIDIwMjUgYXQgMDk6MTY6MjVQTSArMDAwMCwgVmlzaGFsIEFubmFwdXJ2
-ZSB3cm90ZToNCj4+IEZyb206ICJLaXJpbGwgQS4gU2h1dGVtb3YiIDxraXJpbGwuc2h1dGVt
-b3ZAbGludXguaW50ZWwuY29tPg0KPj4NCj4+IENPTkZJR19QQVJBVklSVF9YWEwgaXMgbWFp
-bmx5IGRlZmluZWQvdXNlZCBieSBYRU4gUFYgZ3Vlc3RzLiBGb3INCj4+IG90aGVyIFZNIGd1
-ZXN0IHR5cGVzLCBmZWF0dXJlcyBzdXBwb3J0ZWQgdW5kZXIgQ09ORklHX1BBUkFWSVJUDQo+
-PiBhcmUgc2VsZiBzdWZmaWNpZW50LiBDT05GSUdfUEFSQVZJUlQgbWFpbmx5IHByb3ZpZGVz
-IHN1cHBvcnQgZm9yDQo+PiBUTEIgZmx1c2ggb3BlcmF0aW9ucyBhbmQgdGltZSByZWxhdGVk
-IG9wZXJhdGlvbnMuDQo+Pg0KPj4gRm9yIFREWCBndWVzdCBhcyB3ZWxsLCBwYXJhdmlydCBj
-YWxscyB1bmRlciBDT05GSUdfUEFSVklSVCBtZWV0cw0KPj4gbW9zdCBvZiBpdHMgcmVxdWly
-ZW1lbnQgZXhjZXB0IHRoZSBuZWVkIG9mIEhMVCBhbmQgU0FGRV9ITFQNCj4+IHBhcmF2aXJ0
-IGNhbGxzLCB3aGljaCBpcyBjdXJyZW50bHkgZGVmaW5lZCB1bmRlcg0KPj4gQ09ORklHX1BB
-UkFWSVJUX1hYTC4NCj4+DQo+PiBTaW5jZSBlbmFibGluZyBDT05GSUdfUEFSQVZJUlRfWFhM
-IGlzIHRvbyBibG9hdGVkIGZvciBURFggZ3Vlc3QNCj4+IGxpa2UgcGxhdGZvcm1zLCBtb3Zl
-IEhMVCBhbmQgU0FGRV9ITFQgcGFyYXZpcnQgY2FsbHMgdW5kZXINCj4+IENPTkZJR19QQVJB
-VklSVC4NCj4gDQo+IENvdWxkIHlvdSB1c2UgdGhlIGJsb2F0LW8tbWV0ZXIgdG8gZ2l2ZSBh
-biBpZGVhIG9mIHRoZSBzYXZpbmdzPw0KPiANCj4gQWxzbyAuLiBhcmVuJ3QgbW9zdCBkaXN0
-cm9zIGJ1aWxkaW5nIHdpdGggWGVuIHN1cHBvcnQgc28gdGhleSB3aWxsDQo+IGFsd2F5cyBo
-YXZlIHRoZSBmdWxsIHBhcmF2aXJ0IHN1cHBvcnQ/DQoNCkFkZGluZyBQQVJBVklSVF9YWEwg
-dXNlcnMgc2hvdWxkIGJlIGF2b2lkZWQgaWYgcG9zc2libGUuDQoNCk1haW4gcmVhc29uIGlz
-IHRoYXQgdGhlIHdvcmsgdG8gbWFrZSBQVkggZG9tMCBmdWxseSBmdW5jdGlvbmFsIGNvbXBh
-cmVkDQp0byBQViBkb20wIHdpbGwgbWFrZSBpdCBwb3NzaWJsZSB0byBkZXByZWNhdGUgUFYg
-bW9kZSBpbiB0aGUgbG9uZyBydW4uDQoNCg0KSnVlcmdlbg0K
---------------jshMhZZ1nAInseKi0TepNMrO
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+QEMU does support console resizing - just that it uses the classical
+way of doing it: via the config space, and not via a control message
+(yet).
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
+/drivers/char/virtio_console.c#n1787
 
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjri
-oyspZKOBycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2
-kaV2KL9650I1SJvedYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i
-1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/B
-BLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xqG7/377qptDmrk42GlSK
-N4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR3Jvc3Mg
-PGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsE
-FgIDAQIeAQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4F
-UGNQH2lvWAUy+dnyThpwdtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3Tye
-vpB0CA3dbBQp0OW0fgCetToGIQrg0MbD1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u
-+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbvoPHZ8SlM4KWm8rG+lIkGurq
-qu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v5QL+qHI3EIP
-tyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVy
-Z2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJ
-CAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4
-RF7HoZhPVPogNVbC4YA6lW7DrWf0teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz7
-8X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC/nuAFVGy+67q2DH8As3KPu0344T
-BDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0LhITTd9jLzdDad1pQ
-SToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLmXBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkM
-nQfvUewRz80hSnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMB
-AgAjBQJTjHDXAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/
-Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJnFOXgMLdBQgBlVPO3/D9R8LtF9DBAFPN
-hlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1jnDkfJZr6jrbjgyoZHi
-w/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0N51N5Jf
-VRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwP
-OoE+lotufe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK
-/1xMI3/+8jbO0tsn1tqSEUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1
-c2UuZGU+wsB5BBMBAgAjBQJTjHDrAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-F4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3g3OZUEBmDHVVbqMtzwlmNC4
-k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5dM7wRqzgJpJ
-wK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu
-5D+jLRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzB
-TNh30FVKK1EvmV2xAKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37Io
-N1EblHI//x/e2AaIHpzK5h88NEawQsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6
-AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpWnHIs98ndPUDpnoxWQugJ6MpMncr
-0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZRwgnBC5mVM6JjQ5x
-Dk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNVbVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mm
-we0icXKLkpEdIXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0I
-v3OOImwTEe4co3c1mwARAQABwsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMv
-Q/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEwTbe8YFsw2V/Buv6Z4Mysln3nQK5ZadD
-534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1vJzQ1fOU8lYFpZXTXIH
-b+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8VGiwXvT
-yJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqc
-suylWsviuGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5B
-jR/i1DG86lem3iBDXzXsZDn8R3/CwO0EGAEIACAWIQSFEmdy6PYElKXQl/ew3p3W
-KL8TLwUCWt3w0AIbAgCBCRCw3p3WKL8TL3YgBBkWCAAdFiEEUy2wekH2OPMeOLge
-gFxhu0/YY74FAlrd8NAACgkQgFxhu0/YY75NiwD/fQf/RXpyv9ZX4n8UJrKDq422
-bcwkujisT6jix2mOOwYBAKiip9+mAD6W5NPXdhk1XraECcIspcf2ff5kCAlG0DIN
-aTUH/RIwNWzXDG58yQoLdD/UPcFgi8GWtNUp0Fhc/GeBxGipXYnvuWxwS+Qs1Qay
-7/Nbal/v4/eZZaWs8wl2VtrHTS96/IF6q2o0qMey0dq2AxnZbQIULiEndgR625EF
-RFg+IbO4ldSkB3trsF2ypYLij4ZObm2casLIP7iB8NKmQ5PndL8Y07TtiQ+Sb/wn
-g4GgV+BJoKdDWLPCAlCMilwbZ88Ijb+HF/aipc9hsqvW/hnXC2GajJSAY3Qs9Mib
-4Hm91jzbAjmp7243pQ4bJMfYHemFFBRaoLC7ayqQjcsttN2ufINlqLFPZPR/i3IX
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+https://lists.nongnu.org/archive/html/qemu-devel/2010-05/msg00031.html
 
---------------jshMhZZ1nAInseKi0TepNMrO--
+> diff --git a/drivers/char/virtio_console.c
+> b/drivers/char/virtio_console.c
+> index 24442485e73e..9668e89873cf 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1579,8 +1579,8 @@ static void handle_control_message(struct
+> virtio_device *vdev,
+> =C2=A0		break;
+> =C2=A0	case VIRTIO_CONSOLE_RESIZE: {
+> =C2=A0		struct {
+> -			__u16 rows;
+> =C2=A0			__u16 cols;
+> +			__u16 rows;
+> =C2=A0		} size;
+> =C2=A0
+> =C2=A0		if (!is_console_port(port))
 
---------------Uen3bzhHMfNu8u1d60iDkUwy--
+This VIRTIO_CONSOLE_RESIZE message is a control message, as opposed to
+the config space row/col values that is documented in the spec.
 
---------------5LLYudiyGxvk0eCeMC0cD70G
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+Maybe more context will be helpful:
 
------BEGIN PGP SIGNATURE-----
+Initially, virtio_console was just a way to create one hvc console port
+over the virtio transport.  The size of that console port could be
+changed by changing the size parameters in the virtio device's
+configuration space.  Those are the values documented in the spec.=20
+These are read via virtio_cread(), and do not have a struct
+representation.
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmfFfFcFAwAAAAAACgkQsN6d1ii/Ey+4
-gwgAjrMMPRApBqvCdhGtxXLUvaKbrAWmodQYmqbOQ/crvyMlpszoJIjIfkMV7jL1OQBvz9E42wrP
-gt5UqElNT/CGt/teMeWGqvX8fmR25Yy6QAInCAa788M+g3qjxnbgBNF4kdstU4ejihHuEdfCNW7f
-aPudvRQk32GnVtYjLZX82MuHTHziub5ySmuuDY8AVNIVDm5f4Sj49dGDdC1WuaYl927Gc0iNCOJy
-mO+nmJ++ysZHqYhCtMReG75fPLnjrRkXHERjOAOxSXm+dFMRJCp5RNF0Jvd7nd8HAdFhDxpzOP0j
-QPWONYei2pGbVzafpTgjHSTnwqGxp9iIMUdmVbV0gA==
-=QRkL
------END PGP SIGNATURE-----
+When the MULTIPORT feature was added to the virtio_console.c driver,
+more than one console port could be associated with the single device.
+Eg. we could have hvc0, hvc1, hvc2 all as part of the same device.=20
+With this, the single config space value for row/col could not be used
+for the "extra" hvc1/hvc2 devices -- so a new VIRTIO_CONSOLE_RESIZE
+control message was added that conveys each console's dimensions.
 
---------------5LLYudiyGxvk0eCeMC0cD70G--
+Your patch is trying to change the control message, and not the config
+space.
+
+Now - the lack of the 'struct size' definition for the control message
+in the spec is unfortunate, but that can be easily added -- and I
+prefer we add it based on this Linux implementation (ie. first rows,
+then cols).
+
+But note that all this only affects devices that implement multiport
+support, and have multiple console ports on a single device.  I don't
+recall there are any implementations using such a configuration.
+
+... which all leads me to ask if you've actually seen a
+misconfiguration happen when trying to resize consoles which led to
+this patch.
+
+		Amit
