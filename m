@@ -1,122 +1,262 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5333C1F03F4
-	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 09:29:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 517981F152D
+	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 09:54:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740994164; cv=none; b=NquxFrTbDxM87YalT+yFX6h76pKLVKGcranUfMFmbGyWIdV248K2hXHe8TvWUKCInXUO/rJUcKUasGmts1P278kTlyz+uZHPCvqriTOlRI9E0gth3hRSv3SdFSJOLeObBWydoBJzT3t4jXNU2Pa4z/q94iBPdUx3VY7diIakl0Q=
+	t=1740995676; cv=none; b=oM18Sy0+jQ2bHF0XWd/7c+3EJbbvR1Lgcxvx4Zo7l0M4X634KQx0sFvv1t25hn1VT8E20ghUbEQFPL1qaMLBFAhaO+TIFyAG4mXlQCLeuwX8cQEGzdF79rCGxY+bZ4++6w2gEuaWyrVuhtZXK/sgo9ikb6DmbedQQmbwGcMl00E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740994164; c=relaxed/simple;
-	bh=hO/1w0WIreFcCNOGOIiuvQHBGfGmx0RKyWkuiZ5OENQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nQLgKSQjuHTyldFdas9Bsm1eq8FzBG3ZOtjVzIxaXWeas43UzfYlCvSNAkgncPlJ0yORFFxQxuLa/9tTPRId3F6f2clFTD4yOMlYwpkYRH77BuqaekS/mp2fxKt+4S4KUxNTnVwomAw4rCY5UyZXZJOFPptLAiWmIEgrrHUIRSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WYprvMfY; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1740995676; c=relaxed/simple;
+	bh=A58wzXqspOCF7y1nRcqMkTGPyro87VFDTZ78HorgFs8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tFZVblnCX0Y09OkpfLGX0Lver4oMli9sI5WK6Ptn+CJds7b+/KPA00o72M5gUS49ViyI7Ud+AMtS8W1yFUaylj5kcnG9wUM51cJC6N44NREgjxFqO2WGyhyKktiXrTCP33uPG5fMutTbiMKZFHscPXdjW35NdbazY3prnwP3YWU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=BPBl6yfz; arc=none smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WYprvMfY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740994161;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dm+Ad9vtaxKH6b/jFWjk7lOEkc1nxwN4lmuVSAb6Ah0=;
-	b=WYprvMfYqbkU4GyHddEmOdyletLkVi88pqzKR3O7RyGah1cY/GW+VOOk8M8677Jm7pkoBH
-	hTMvXoZAh+aaWh/DyqTb1aLmzzpI8RIoNoi9X2cr7qmyJnaM+ZfrpOvh5usxBtE5ieOpMp
-	y+NsmZolO64uYDPq+3TqmaH+Wu+q6H8=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-618-ttv5gzkBMnGqDApOhRUI0w-1; Mon, 03 Mar 2025 04:29:15 -0500
-X-MC-Unique: ttv5gzkBMnGqDApOhRUI0w-1
-X-Mimecast-MFC-AGG-ID: ttv5gzkBMnGqDApOhRUI0w_1740994154
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-22367f4e9b9so53172615ad.0
-        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 01:29:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="BPBl6yfz"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-5e4bed34bccso5708117a12.3
+        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 01:54:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1740995672; x=1741600472; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=A58wzXqspOCF7y1nRcqMkTGPyro87VFDTZ78HorgFs8=;
+        b=BPBl6yfzYTdE/AJ1h/IyISRYqZ23d3qMN0xNEv2NuuULyEbCcc3vnEfRW0Olu8TRKI
+         Xen3gEQZcOAiIJmp92HN84JT8RsPWnVcXdkknu9dEiPJ+Fllxf84617Yk9iYFUTSnp7/
+         7nMlYMO/ygZKwkjxnEwtrN1rKvo2WdwPrXE64SaI1JRoSJZDcVSLQd7WrNexrPwri5uB
+         GIwCSsqYMCtPnHSXBIl8u997gaKDgdZV0epqgcKbzHuLRyt66nGCpxOFrTiNiNpEu5mJ
+         WvtxAIPrOpbEnvJ3IPhA3U/hAqqCkFHKbHxCMYp6phVo+cY8Tvqkz8UA17Gr/V7NBo9/
+         eQ/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740994154; x=1741598954;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dm+Ad9vtaxKH6b/jFWjk7lOEkc1nxwN4lmuVSAb6Ah0=;
-        b=FoWSV23eBzKJhfPU4UNXpyGGEOEyxuLoaxbUrPX9ndk5xOKv04+3RmePH61O11efQt
-         jEWf6KoxJRx51iMQX/YLMoGCcaMBEhwg/4NR/hF6Aq1hTHJ6r9/yl3vaYbvEha0U/2Rn
-         ZIbdouMPQjkB2yJdKfoEpf5zuAO4Tg87er7OQG7Op8e/aO4tmrVgXJABftfjaL6XcfSN
-         HRZd57Q7GAoNjEtiEk7imvVLUGF/XXDeAXfT9xqmlOSNltwo2WqRBGXuYhlKOZBTsXHj
-         hCcuMK3NYXONNgZkmJzfAra8HrX9yZjc8AcFXIHNmMeW0j0jSxBaNwKgDLr16BuJPTdR
-         7SwQ==
-X-Gm-Message-State: AOJu0YyMRAby3jG76oPOv9auC5CbRfQu1EfGrAFeoMpmbtB42NuNnsT4
-	t6EFjDjGNYNMLYV4FQ2824HBGEw1W8yHyez9+vZ8a0kx3E5h21VMbAAYmIiOEzPL0YScfVsg5OQ
-	Sq5euaFP6BIqIYDlNII5u3DBpLGVXGVm/n1MwN6EagDUZbyj6x6MokJeR5k5xE8e5TV9WMcxN4f
-	oE7YrfRWjP0VXURp8Nw0RGb0Ko/5qAfqdbyGB2ixg=
-X-Gm-Gg: ASbGncuF2hENTLWxAc6Q/d+sxQbL79HCvXJP/79c7H4T7Iiq3ueif53PE471pxlW/1l
-	ZBp1N66ZyiSnO4ZEyy5GsymqLEw/bQ8JjzOTMPz6kOlz/n5/lLQF9kVEMqA9hKHru1qT9Zzo=
-X-Received: by 2002:a17:902:f547:b0:220:f7bb:842 with SMTP id d9443c01a7336-22369255811mr196196055ad.42.1740994154024;
-        Mon, 03 Mar 2025 01:29:14 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEeh8T/Isef6u47m5QPpp9NHgJMkJl3dnUE8Ylea44Ny6EY1sjUVU9fZMYGnxlnkM9rFe7Jpp6zS4k5VEsVFKw=
-X-Received: by 2002:a17:902:f547:b0:220:f7bb:842 with SMTP id
- d9443c01a7336-22369255811mr196195835ad.42.1740994153774; Mon, 03 Mar 2025
- 01:29:13 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740995672; x=1741600472;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=A58wzXqspOCF7y1nRcqMkTGPyro87VFDTZ78HorgFs8=;
+        b=c32GVpUqqe/ZVyBKy/dTeA2J6uV9XwtKjTnuv8ZNAArSJmShnvYtT4FK5vZcnOUcJ/
+         wUVIRbdF1LLKxd68/YHEeiLZPfbfOIyjgVvfpl6uGG14QjdxjnDrF/ovyaEyIKYQIY5U
+         ncD0T8Mw1Ct9hddKZI8gM3yHWIKrLiT2GElaLSJN46XtgbOEUTJf4sBnfB81bwNPqLsi
+         m4isRGz/qghsBDdQDNeR9WVyxHDot/h+p86vQsx9LNVdkE/ZRKKsX1jNBXgYtsVGlVw7
+         EJEp4IZwHj/ex7W94eOplSA027nETNLKz3XzIRP0svqXNZJXpotAav38BHv7/WBOq1fT
+         Zsjg==
+X-Forwarded-Encrypted: i=1; AJvYcCU6efgwYCYoYgAS2VUvCONfY4S5uIa0UFKJ6mRAlDMJeolHZmjNlRyU/hsdmMjfpdtsE3H53KRy1y5lrjZqCg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yygy05HGtXMW4zOKYYiEWRll0EW+G/W6CV3q3AjwqCICGCmixNA
+	Drgr3TBbmc33W1AFUeqPiKR2btBpZT1WJavfl5qm/qT3Ro0okfjQGwoNYgulpaoqHZ/6ACr27RJ
+	tgN7jog==
+X-Gm-Gg: ASbGnctINYeu9Pf6mC7zL3/CPwZaFpBiUO0CQgN2DGYp+hcAkhn21knLvO6fgKBZ8pt
+	SulPVHFca5rSjwwQw2btB8MBF3zNhQ9Dzsyro4TfK/ZdvqKEWpf+RQx9nvUFLvkOVJxjT1Diub4
+	xDEDBTTReIPh9tPk4KXYn4md5CNGQhEHi/b7bqI/cRbax4LR4HVIWsIQASAibj3MARZ+FVEK7tw
+	UxrEAYV7n+efkfksn4a7VVE3j4dTHZt22ceJnsustHbTv1okfUBvtE7SJdQ03KhfUFQa5v0CgOl
+	JfTvYItG49ZuuCp9oO6DWof63Ea3/DL1eRJCSdE2kKmVu5u0iI45vrPyuPi9K8LZoAgYz6E3AEM
+	50mk7AnouM6ntsO2x7YXcTHY/dycx79R0J5lNq8rX8F/peV67u/8wl55vZdjNPSrWtLI=
+X-Google-Smtp-Source: AGHT+IGW4m97/5Z6mzGE+FtM7OG3AsUThkKvGu7Efn6SS4sBYUvLGkxkFKD9S/u/8MdUzBtxBFwR1w==
+X-Received: by 2002:a05:6402:26c9:b0:5e0:34b5:13c0 with SMTP id 4fb4d7f45d1cf-5e4d6b05015mr11608759a12.19.1740995672489;
+        Mon, 03 Mar 2025 01:54:32 -0800 (PST)
+Received: from ?IPV6:2003:e5:8714:500:2aea:6ec9:1d88:c1ef? (p200300e5871405002aea6ec91d88c1ef.dip0.t-ipconnect.de. [2003:e5:8714:500:2aea:6ec9:1d88:c1ef])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5e4c43a6ab7sm6603426a12.74.2025.03.03.01.54.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Mar 2025 01:54:32 -0800 (PST)
+Message-ID: <e49c22e8-04df-4a1b-b68e-378f73a861f9@suse.com>
+Date: Mon, 3 Mar 2025 10:54:31 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250303085237.19990-1-sgarzare@redhat.com>
-In-Reply-To: <20250303085237.19990-1-sgarzare@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 3 Mar 2025 10:28:37 +0100
-X-Gm-Features: AQ5f1JpYz8RUYj9eXvkfBI5yoVaRYAPygFZFSo69WGk-H92b36v2eBIN9Cg-xmM
-Message-ID: <CAJaqyWfNieVxJu0pGCcjRc++wRnRpyHqfkuYpAqnKCLUjbW6Xw@mail.gmail.com>
-Subject: Re: [PATCH] vhost: fix VHOST_*_OWNER documentation
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	kvm@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 84RPp8hD6aZFl1duDvXPWfRxv2RcG2hietBJ4izol6c_1740994154
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under
+ CONFIG_PARAVIRT
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+ Vishal Annapurve <vannapurve@google.com>
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+ virtualization@lists.linux.dev, pbonzini@redhat.com, seanjc@google.com,
+ erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com,
+ sagis@google.com, oupton@google.com, pgonda@google.com,
+ kirill@shutemov.name, dave.hansen@linux.intel.com,
+ chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com,
+ sathyanarayanan.kuppuswamy@linux.intel.com, ajay.kaher@broadcom.com,
+ alexey.amakhalov@broadcom.com,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+ stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+ Tony Luck <tony.luck@intel.com>
+References: <20250220211628.1832258-1-vannapurve@google.com>
+ <20250220211628.1832258-2-vannapurve@google.com>
+ <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
+Content-Language: en-US
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------5LLYudiyGxvk0eCeMC0cD70G"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------5LLYudiyGxvk0eCeMC0cD70G
+Content-Type: multipart/mixed; boundary="------------Uen3bzhHMfNu8u1d60iDkUwy";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+ Vishal Annapurve <vannapurve@google.com>
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+ virtualization@lists.linux.dev, pbonzini@redhat.com, seanjc@google.com,
+ erdemaktas@google.com, ackerleytng@google.com, jxgao@google.com,
+ sagis@google.com, oupton@google.com, pgonda@google.com,
+ kirill@shutemov.name, dave.hansen@linux.intel.com,
+ chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com,
+ sathyanarayanan.kuppuswamy@linux.intel.com, ajay.kaher@broadcom.com,
+ alexey.amakhalov@broadcom.com,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+ stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+ Tony Luck <tony.luck@intel.com>
+Message-ID: <e49c22e8-04df-4a1b-b68e-378f73a861f9@suse.com>
+Subject: Re: [PATCH V5 1/4] x86/paravirt: Move halt paravirt calls under
+ CONFIG_PARAVIRT
+References: <20250220211628.1832258-1-vannapurve@google.com>
+ <20250220211628.1832258-2-vannapurve@google.com>
+ <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
+In-Reply-To: <Z8IvDeIJH2EJuPo-@char.us.oracle.com>
+
+--------------Uen3bzhHMfNu8u1d60iDkUwy
+Content-Type: multipart/mixed; boundary="------------jshMhZZ1nAInseKi0TepNMrO"
+
+--------------jshMhZZ1nAInseKi0TepNMrO
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+T24gMjguMDIuMjUgMjI6NDcsIEtvbnJhZCBSemVzenV0ZWsgV2lsayB3cm90ZToNCj4gT24g
+VGh1LCBGZWIgMjAsIDIwMjUgYXQgMDk6MTY6MjVQTSArMDAwMCwgVmlzaGFsIEFubmFwdXJ2
+ZSB3cm90ZToNCj4+IEZyb206ICJLaXJpbGwgQS4gU2h1dGVtb3YiIDxraXJpbGwuc2h1dGVt
+b3ZAbGludXguaW50ZWwuY29tPg0KPj4NCj4+IENPTkZJR19QQVJBVklSVF9YWEwgaXMgbWFp
+bmx5IGRlZmluZWQvdXNlZCBieSBYRU4gUFYgZ3Vlc3RzLiBGb3INCj4+IG90aGVyIFZNIGd1
+ZXN0IHR5cGVzLCBmZWF0dXJlcyBzdXBwb3J0ZWQgdW5kZXIgQ09ORklHX1BBUkFWSVJUDQo+
+PiBhcmUgc2VsZiBzdWZmaWNpZW50LiBDT05GSUdfUEFSQVZJUlQgbWFpbmx5IHByb3ZpZGVz
+IHN1cHBvcnQgZm9yDQo+PiBUTEIgZmx1c2ggb3BlcmF0aW9ucyBhbmQgdGltZSByZWxhdGVk
+IG9wZXJhdGlvbnMuDQo+Pg0KPj4gRm9yIFREWCBndWVzdCBhcyB3ZWxsLCBwYXJhdmlydCBj
+YWxscyB1bmRlciBDT05GSUdfUEFSVklSVCBtZWV0cw0KPj4gbW9zdCBvZiBpdHMgcmVxdWly
+ZW1lbnQgZXhjZXB0IHRoZSBuZWVkIG9mIEhMVCBhbmQgU0FGRV9ITFQNCj4+IHBhcmF2aXJ0
+IGNhbGxzLCB3aGljaCBpcyBjdXJyZW50bHkgZGVmaW5lZCB1bmRlcg0KPj4gQ09ORklHX1BB
+UkFWSVJUX1hYTC4NCj4+DQo+PiBTaW5jZSBlbmFibGluZyBDT05GSUdfUEFSQVZJUlRfWFhM
+IGlzIHRvbyBibG9hdGVkIGZvciBURFggZ3Vlc3QNCj4+IGxpa2UgcGxhdGZvcm1zLCBtb3Zl
+IEhMVCBhbmQgU0FGRV9ITFQgcGFyYXZpcnQgY2FsbHMgdW5kZXINCj4+IENPTkZJR19QQVJB
+VklSVC4NCj4gDQo+IENvdWxkIHlvdSB1c2UgdGhlIGJsb2F0LW8tbWV0ZXIgdG8gZ2l2ZSBh
+biBpZGVhIG9mIHRoZSBzYXZpbmdzPw0KPiANCj4gQWxzbyAuLiBhcmVuJ3QgbW9zdCBkaXN0
+cm9zIGJ1aWxkaW5nIHdpdGggWGVuIHN1cHBvcnQgc28gdGhleSB3aWxsDQo+IGFsd2F5cyBo
+YXZlIHRoZSBmdWxsIHBhcmF2aXJ0IHN1cHBvcnQ/DQoNCkFkZGluZyBQQVJBVklSVF9YWEwg
+dXNlcnMgc2hvdWxkIGJlIGF2b2lkZWQgaWYgcG9zc2libGUuDQoNCk1haW4gcmVhc29uIGlz
+IHRoYXQgdGhlIHdvcmsgdG8gbWFrZSBQVkggZG9tMCBmdWxseSBmdW5jdGlvbmFsIGNvbXBh
+cmVkDQp0byBQViBkb20wIHdpbGwgbWFrZSBpdCBwb3NzaWJsZSB0byBkZXByZWNhdGUgUFYg
+bW9kZSBpbiB0aGUgbG9uZyBydW4uDQoNCg0KSnVlcmdlbg0K
+--------------jshMhZZ1nAInseKi0TepNMrO
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 3, 2025 at 9:52=E2=80=AFAM Stefano Garzarella <sgarzare@redhat.=
-com> wrote:
->
-> VHOST_OWNER_SET and VHOST_OWNER_RESET are used in the documentation
-> instead of VHOST_SET_OWNER and VHOST_RESET_OWNER respectively.
->
-> To avoid confusion, let's use the right names in the documentation.
-> No change to the API, only the documentation is involved.
->
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Reviewed-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  include/uapi/linux/vhost.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index b95dd84eef2d..d4b3e2ae1314 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -28,10 +28,10 @@
->
->  /* Set current process as the (exclusive) owner of this file descriptor.=
-  This
->   * must be called before any other vhost command.  Further calls to
-> - * VHOST_OWNER_SET fail until VHOST_OWNER_RESET is called. */
-> + * VHOST_SET_OWNER fail until VHOST_RESET_OWNER is called. */
->  #define VHOST_SET_OWNER _IO(VHOST_VIRTIO, 0x01)
->  /* Give up ownership, and reset the device to default values.
-> - * Allows subsequent call to VHOST_OWNER_SET to succeed. */
-> + * Allows subsequent call to VHOST_SET_OWNER to succeed. */
->  #define VHOST_RESET_OWNER _IO(VHOST_VIRTIO, 0x02)
->
->  /* Set up/modify memory layout */
-> --
-> 2.48.1
->
+--------------jshMhZZ1nAInseKi0TepNMrO--
 
+--------------Uen3bzhHMfNu8u1d60iDkUwy--
+
+--------------5LLYudiyGxvk0eCeMC0cD70G
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmfFfFcFAwAAAAAACgkQsN6d1ii/Ey+4
+gwgAjrMMPRApBqvCdhGtxXLUvaKbrAWmodQYmqbOQ/crvyMlpszoJIjIfkMV7jL1OQBvz9E42wrP
+gt5UqElNT/CGt/teMeWGqvX8fmR25Yy6QAInCAa788M+g3qjxnbgBNF4kdstU4ejihHuEdfCNW7f
+aPudvRQk32GnVtYjLZX82MuHTHziub5ySmuuDY8AVNIVDm5f4Sj49dGDdC1WuaYl927Gc0iNCOJy
+mO+nmJ++ysZHqYhCtMReG75fPLnjrRkXHERjOAOxSXm+dFMRJCp5RNF0Jvd7nd8HAdFhDxpzOP0j
+QPWONYei2pGbVzafpTgjHSTnwqGxp9iIMUdmVbV0gA==
+=QRkL
+-----END PGP SIGNATURE-----
+
+--------------5LLYudiyGxvk0eCeMC0cD70G--
