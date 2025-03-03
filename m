@@ -1,203 +1,194 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11E4E215F7D
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Mar 2025 17:33:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF2F51E7C03
+	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 18:33:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741023202; cv=none; b=p8kQhmaeVaD7cz9CTDGN+yi95/wzarVYwhcwRczKXGGF57lxVUlbyDDReTXycvXacDbpievuwSjzLlph9CzBmTD07e7df8OPtYzv+Eqarob3GUXNPldOD1iEPYgNRoJSOMeMTZTh2vdUMqVN9zm49EAZwMJNSkY2S1eLUSvDABw=
+	t=1741026796; cv=none; b=OkAEZgSWFS4/WcHGni7Lj9uM0ry6GFy6Qi04oKD6QEpCj3TfZoZj1Ps8Zl9Wjt+xNw9fGiBZXJ35M6USFkFEbcjmHyi+SkYBBkHVUlweWvMK1j0jcYrpdY5OaLt5GWjcbFNG1rjYbOQ0ZzNX+4K0PhqdA0NB76sJY1/7jaoM5Cc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741023202; c=relaxed/simple;
-	bh=Kqke1zXRTdE0PHPb+71qhUA9lMSBTCX8sSQVT4I2Ut4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=KFOhIAcSWboH5VeKVYv/7ffdfccL72o87x3lOynQBfISKXX9ZujGGuRG+dxGt1HPQVqM2u32UokFjKzTYooZr8YvyDrlxDRjhrWiJQ4/eaj7YR8HlKwMqQy1UlHBMj6ZdZ1QjbV/9hFuRIShoonMM8r/K7y4QTWMrbYWH+N9cg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QAGSqzCe; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1741026796; c=relaxed/simple;
+	bh=nLsZQWU52zNpjADgh0ICFnQQGW+rEKz5WdNIEuaOhHc=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Vef3FKd9IPH3uMEeZw9u/8VUgmU/i2NZNV9eHXa2sA+kxp0ECyT+bSrNc+ipRmhdgdz3deaIcTY1h5KVhvoFNIbVnhPRDQmhplF2PmLAWlU3CaaoESg4CHGH0MGiz3S2nP8KusV0AKI7yH182jBunEbywLNQRFtyMRruYXP3G0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=MHY253SS; arc=none smtp.client-ip=209.85.160.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QAGSqzCe"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9D93F60842
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Mar 2025 17:33:20 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id fJS_XwHHCyRH for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Mar 2025 17:33:19 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org A2734605FF
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2734605FF
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QAGSqzCe
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A2734605FF
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Mar 2025 17:33:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741023197;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=riX1iNIQhseaZsPbJjiHdH5ZxszgBUyrqDQWObE9EXo=;
-	b=QAGSqzCe1ir92rMZd2fBt+C+zuirk+G/6LRPAP2UvnQ6I8RASUkiomPI/0AzBqj2ZM5n4u
-	Q9SCaF8wrIE046n3cDDkwLIdno16iOHj7i4sJc9Ipr0lXYEEZhd80wBYlLzMx3WxavthHF
-	7FXi4X9TJgq4Q8rGhW0lp21BaopEIVA=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-43-cljPc2cKPZK8-ZgCQPZhUw-1; Mon, 03 Mar 2025 12:33:16 -0500
-X-MC-Unique: cljPc2cKPZK8-ZgCQPZhUw-1
-X-Mimecast-MFC-AGG-ID: cljPc2cKPZK8-ZgCQPZhUw_1741023195
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-390f3652842so1720359f8f.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 03 Mar 2025 09:33:16 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="MHY253SS"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-474bc1aaf5fso63412701cf.0
+        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 10:33:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1741026793; x=1741631593; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=eue7H577BiYj6J1iAvYYX1Oj2dBdZtr+Y46C5Co92Q0=;
+        b=MHY253SSHiVKv9B2XOUXTPXXA6cq5p70WYD8kHzzM1faONY5nmZhIjaJo+aRFDMcOk
+         DqyksJ9jxbRPGhbd04Tp5bLZVQH7EL39CQloo0sAA8YTIvWwJGvkhTGK82F2erHl60BN
+         zXt5t2aNI2tjP1qt8i4wUEEQpb2d5CGcKSQnU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741023195; x=1741627995;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=riX1iNIQhseaZsPbJjiHdH5ZxszgBUyrqDQWObE9EXo=;
-        b=D5tz5ZuMCbHIdM7LHB4sQIgYnnPmeaMGvogES/sIIL7Ceov1IWtzvEBQJ5WRoxZ5rU
-         logTJg4xZafRBfoWOFhy6zjjsAPRPJ9cyk3sAVM5sAsreviJCQcaPzJYCdVzlQSJZKsW
-         aWvmtITFLuIdcZiflhgnghOkhKHMRJJ71IFI8goNmvN77Fz9pvpUiqtMkdexz5vDdj4I
-         G1kVgxUvhPzKty6hItDaGyPpo0x9hCzcmaNBdy4asxDqM90Z1SHsKnCDL0WbQRe+MJpY
-         XXiVqEIxwohKEIQPhs1xf/FsnlAO+gqfC1/PS3gpDaitcFfr5StvTpC/A51bvIJ9Fcbg
-         lI6A==
-X-Forwarded-Encrypted: i=1; AJvYcCX6vzPah/dM+vNKacA3PSo+/PgGw0eNHJFU6UlvmegNTPxQuP3+hRzRzcN6e5C9D9Lu4AjiaGZyy0/gFn1+Ng==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyMolJxPpEpzDQKNc61Ope3IV7j0az2FJQUdPkYFzn+qicdkWxD
-	yk4jHlnggUINZxBvs9qn/9XC5OdV4ShwHc7KYKBGfRfHce51+OCix0ysFJiLgJPIa/9I5GXtbkO
-	UdAhHbOmwrl32w3fo66YuFUIVhwG0WGzDgwmegKeybcrphF9JWmk3L27q+PyMfUL/MxMprbO0Mo
-	i+HS8=
-X-Gm-Gg: ASbGncsK7eo9HlNY19jAtZ+tgLaqbCpb0ABzzhc9KiA+xkfcfy5q1EljeEApP0loA7M
-	Egh89OGQYd+EMzF95FpkUoBvIUExggllRO0eJF5LlczOlHagnXwEIIgULNzP2TAmCOgxsbjVPNg
-	6Sc1Nj2P4JKcYKEK+IaK6QZAbQFMuNgYKpClm+Y4VbSOamZ9wINQq6aL5UD5NQD6/MQfrEdXxy0
-	jNGlAiMz3B/J/amdvonP3zOMbn2/XqW80MqCSFCUkgap4hCKMn7TNEvfMc4scYHz73Le1TxinYD
-	UGox4t0sIw==
-X-Received: by 2002:a5d:6da3:0:b0:390:e9ea:59a with SMTP id ffacd0b85a97d-390ec7c8eb6mr11963050f8f.5.1741023195328;
-        Mon, 03 Mar 2025 09:33:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG0GmDlZsbzQlj1pj5FfLVE18PQfmrSwJDhwqCdM5eQRgnv/LJj6Wq+AmT8QxKX5JIr/1sNZA==
-X-Received: by 2002:a5d:6da3:0:b0:390:e9ea:59a with SMTP id ffacd0b85a97d-390ec7c8eb6mr11963001f8f.5.1741023194570;
-        Mon, 03 Mar 2025 09:33:14 -0800 (PST)
-Received: from redhat.com ([2a0d:6fc0:1514:ea00:6409:9e94:fe6f:3eb6])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-390e485db6csm15218056f8f.91.2025.03.03.09.33.12
+        d=1e100.net; s=20230601; t=1741026793; x=1741631593;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=eue7H577BiYj6J1iAvYYX1Oj2dBdZtr+Y46C5Co92Q0=;
+        b=q5+nmDU1fPaN7sc/OmK8CTnWSkSsWPlnzf0znLR4uVQ/IoHrbDPs3nuNA4iZykzGwj
+         Wrkw83ar6aYLNSKlyIZ6ctzRSx5DHVfnIlTFfyrJvGIuoFgCHnG2QHYKDJXhiW0wrUZI
+         1RWF4rGCf7/YGBtSMDNJBjOBXEnHAwkefv2MdTIs8FTnvsRJeXEXzS3ixsBoIGIg/oI6
+         rSI7xmvkf0hetzIzWzWDctPGpXtS4KdGrfIZy3u2E/I6JqUu7Zh2vWQveA3UC9aQeSF+
+         uROwzXpmOvlxToMOpsgrZYWqwxpICNn1JqB/J5PFrNnpZ8sxc0j/6gz5tlV6+NL4zNvF
+         +McA==
+X-Forwarded-Encrypted: i=1; AJvYcCWHfZka/0F+WQ3BQl6JP6BYCepvWptA9IhWh53nmknDz1QSdtl41h8bkjhL/Xrb2elPf8CUkgJ1KqgU8gUSBQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw/KexvAhT3NvGqvJOo4iqMpH5lL/U49SJH1OmsxK+f46+SoPEt
+	nErIx3n3jm53Ic7jxKFAnvuwwTuE3k+w/Chd0HezFEKOWdXMxE7MzMJtVwL21KLchSul5nnJ/q/
+	9
+X-Gm-Gg: ASbGncuK3zHlVN3mqf8j1L5dje0EBT0kZCxOPZSWZIMw0Ucw5X6g7pHPdy5BQOOC+ns
+	hXDzwnjUxh9u44j8l56o532A7eH3cP/gZ/ZCdTKcpitDYRQfKdOyVOl+PV9L6oTKfOfMpp8ymbD
+	bcw3MpyTeOmIQl9MrNaDmivWmYJSWdlNXjJ1rB88gD5LraG8b6PYXapvx5UwAq9akV0AqV9ZSRB
+	SZiuS4ndDm7U27ewqUW7Py+pzD1Hr56wjbc3TJNU7ITKnoHtuGxDZelQ4QNOi+PmGhW3x+AX6d+
+	rXFSh0IWkfv9m/LuospLH1x1ZLJDvM6PjBpd7Emf7bLC8pC4miognWT0Q5iJdvMmJSglfttb6pN
+	Fb745BFE=
+X-Google-Smtp-Source: AGHT+IF6Vz0gCa5XLjA6WsMMc9U4S/ofS/vlbDvCV4hoA9DNJ2ex3Jp7A+0DKEqmWTWUFP8908I9Cw==
+X-Received: by 2002:a05:622a:1a9d:b0:471:f9e7:5042 with SMTP id d75a77b69052e-474bc083cc3mr236149171cf.14.1741026793293;
+        Mon, 03 Mar 2025 10:33:13 -0800 (PST)
+Received: from LQ3V64L9R2 (ool-44c5a22e.dyn.optonline.net. [68.197.162.46])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-474721bf582sm61201591cf.37.2025.03.03.10.33.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Mar 2025 09:33:14 -0800 (PST)
-Date: Mon, 3 Mar 2025 12:33:10 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, michael.christie@oracle.com,
-	sgarzare@redhat.com, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v7 8/8] vhost: Add a KConfig knob to enable IOCTL
- VHOST_FORK_FROM_OWNER
-Message-ID: <20250303122619-mutt-send-email-mst@kernel.org>
-References: <20250302143259.1221569-1-lulu@redhat.com>
- <20250302143259.1221569-9-lulu@redhat.com>
- <CACGkMEv7WdOds0D+QtfMSW86TNMAbjcdKvO1x623sLANkE5jig@mail.gmail.com>
+        Mon, 03 Mar 2025 10:33:12 -0800 (PST)
+Date: Mon, 3 Mar 2025 13:33:10 -0500
+From: Joe Damato <jdamato@fastly.com>
+To: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, mst@redhat.com,
+	leiyang@redhat.com,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
+Message-ID: <Z8X15hxz8t-vXpPU@LQ3V64L9R2>
+Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
+	Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, mst@redhat.com,
+	leiyang@redhat.com,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+References: <20250227185017.206785-1-jdamato@fastly.com>
+ <20250227185017.206785-4-jdamato@fastly.com>
+ <20250228182759.74de5bec@kernel.org>
+ <Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
+ <Z8XgGrToAD7Bak-I@LQ3V64L9R2>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEv7WdOds0D+QtfMSW86TNMAbjcdKvO1x623sLANkE5jig@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: NYMUM50oDYMPU73I9Y9D5q-kU11tXzd_zMJGFg83Ra0_1741023195
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <Z8XgGrToAD7Bak-I@LQ3V64L9R2>
 
-On Mon, Mar 03, 2025 at 01:52:06PM +0800, Jason Wang wrote:
-> On Sun, Mar 2, 2025 at 10:34 PM Cindy Lu <lulu@redhat.com> wrote:
-> >
-> > Introduce a new config knob `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL`,
-> > to control the availability of the `VHOST_FORK_FROM_OWNER` ioctl.
-> > When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is set to n, the ioctl
-> > is disabled, and any attempt to use it will result in failure.
-> >
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > ---
-> >  drivers/vhost/Kconfig | 15 +++++++++++++++
-> >  drivers/vhost/vhost.c | 11 +++++++++++
-> >  2 files changed, 26 insertions(+)
-> >
-> > diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> > index b455d9ab6f3d..e5b9dcbf31b6 100644
-> > --- a/drivers/vhost/Kconfig
-> > +++ b/drivers/vhost/Kconfig
-> > @@ -95,3 +95,18 @@ config VHOST_CROSS_ENDIAN_LEGACY
-> >           If unsure, say "N".
-> >
-> >  endif
-> > +
-> > +config VHOST_ENABLE_FORK_OWNER_IOCTL
-> > +       bool "Enable IOCTL VHOST_FORK_FROM_OWNER"
-> > +       default n
-> > +       help
-> > +         This option enables the IOCTL VHOST_FORK_FROM_OWNER, which allows
-> > +         userspace applications to modify the thread mode for vhost devices.
-> > +
-> > +          By default, `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL` is set to `n`,
-> > +          meaning the ioctl is disabled and any operation using this ioctl
-> > +          will fail.
-> > +          When the configuration is enabled (y), the ioctl becomes
-> > +          available, allowing users to set the mode if needed.
-> > +
-> > +         If unsure, say "N".
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index fb0c7fb43f78..09e5e44dc516 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -2294,6 +2294,8 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
-> >                 r = vhost_dev_set_owner(d);
-> >                 goto done;
-> >         }
-> > +
-> > +#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
-> >         if (ioctl == VHOST_FORK_FROM_OWNER) {
-> >                 u8 inherit_owner;
-> >                 /*inherit_owner can only be modified before owner is set*/
-> > @@ -2313,6 +2315,15 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
-> >                 r = 0;
-> >                 goto done;
-> >         }
-> > +
-> > +#else
-> > +       if (ioctl == VHOST_FORK_FROM_OWNER) {
-> > +               /* When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is 'n', return error */
-> > +               r = -ENOTTY;
-> > +               goto done;
+On Mon, Mar 03, 2025 at 12:00:10PM -0500, Joe Damato wrote:
+> On Mon, Mar 03, 2025 at 11:46:10AM -0500, Joe Damato wrote:
+> > On Fri, Feb 28, 2025 at 06:27:59PM -0800, Jakub Kicinski wrote:
+> > > On Thu, 27 Feb 2025 18:50:13 +0000 Joe Damato wrote:
+> > > > @@ -2870,9 +2883,15 @@ static void refill_work(struct work_struct *work)
+> > > >  	for (i = 0; i < vi->curr_queue_pairs; i++) {
+> > > >  		struct receive_queue *rq = &vi->rq[i];
+> > > >  
+> > > > +		rtnl_lock();
+> > > >  		virtnet_napi_disable(rq);
+> > > > +		rtnl_unlock();
+> > > > +
+> > > >  		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
+> > > > +
+> > > > +		rtnl_lock();
+> > > >  		virtnet_napi_enable(rq);
+> > > > +		rtnl_unlock();
+> > > 
+> > > Looks to me like refill_work is cancelled _sync while holding rtnl_lock
+> > > from the close path. I think this could deadlock?
+> > 
+> > Good catch, thank you!
+> > 
+> > It looks like this is also the case in the failure path on
+> > virtnet_open.
+> > 
+> > Jason: do you have any suggestions?
+> > 
+> > It looks like in both open and close disable_delayed_refill is
+> > called first, before the cancel_delayed_work_sync.
+> > 
+> > Would something like this solve the problem?
+> > 
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 76dcd65ec0f2..457115300f05 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -2880,6 +2880,13 @@ static void refill_work(struct work_struct *work)
+> >         bool still_empty;
+> >         int i;
+> > 
+> > +       spin_lock(&vi->refill_lock);
+> > +       if (!vi->refill_enabled) {
+> > +               spin_unlock(&vi->refill_lock);
+> > +               return;
 > > +       }
-
-why do we need this? won't it fail as any other unsupported ioctl?
-
-> > +#endif
+> > +       spin_unlock(&vi->refill_lock);
 > > +
-> >         /* You must be the owner to do anything else */
-> >         r = vhost_dev_check_owner(d);
-> >         if (r)
-> > --
-> > 2.45.0
-> 
-> Do we need to change the default value of the inhert_owner? For example:
-> 
-> #ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
-> inherit_owner = false;
-> #else
-> inherit_onwer = true;
-> #endif
-> 
-> ?
-
-I feel it is best to keep the default consistent.
-All the kconfig should do, is block the ioctl.
-
-
-> Other patches look good to me.
-> 
-> Thanks
-> 
+> >         for (i = 0; i < vi->curr_queue_pairs; i++) {
+> >                 struct receive_queue *rq = &vi->rq[i];
 > >
+> 
+> Err, I suppose this also doesn't work because:
+> 
+> CPU0                       CPU1
+> rtnl_lock                  (before CPU0 calls disable_delayed_refill) 
+>   virtnet_close            refill_work
+>                              rtnl_lock()
+>   cancel_sync <= deadlock
+> 
+> Need to give this a bit more thought.
 
+How about we don't use the API at all from refill_work?
+
+Patch 4 adds consistent NAPI config state and refill_work isn't a
+queue resize maybe we don't need to call the netif_queue_set_napi at
+all since the NAPI IDs are persisted in the NAPI config state and
+refill_work shouldn't change that?
+
+In which case, we could go back to what refill_work was doing
+before and avoid the problem entirely.
+
+What do you think ?
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 76dcd65ec0f2..d6c8fe670005 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2883,15 +2883,9 @@ static void refill_work(struct work_struct *work)
+        for (i = 0; i < vi->curr_queue_pairs; i++) {
+                struct receive_queue *rq = &vi->rq[i];
+
+-               rtnl_lock();
+-               virtnet_napi_disable(rq);
+-               rtnl_unlock();
+-
++               napi_disable(&rq->napi);
+                still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
+-
+-               rtnl_lock();
+-               virtnet_napi_enable(rq);
+-               rtnl_unlock();
++               virtnet_napi_do_enable(rq->vq, &rq->napi);
+
+                /* In theory, this can happen: if we don't get any buffers in
+                 * we will *never* try to fill again.
