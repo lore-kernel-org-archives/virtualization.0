@@ -1,156 +1,172 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2087.outbound.protection.outlook.com [40.107.244.87])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0490E236A63
-	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 17:00:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741021215; cv=none; b=j7qdM1yNcwUpQEsVLHjtRKPVYy0ncwFWpwIM15VBjT/wUuAOkz0rgYM3/ok6qg9ZUNKDRBQxyUD9H00EFGgWHYa74n66IidvGE3ANEwE0t7ueohsNqRHt7LqzqdPJVlZzAPPXcj0fn6neYNyy4bzFQMUg1Ht3kXQmhLGRAZSMeY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741021215; c=relaxed/simple;
-	bh=PuyMo56E1J04N+xRFHQpuOme3py1aZX9AvRAkMmg0TQ=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UwJ4JMKcBhQm5QOMQW+03x97IeXGq8vBOJqLZP+adguqsLnay3yVJ/gmCh2DKshaAzcP/WvxFftWwp/rLcg9LC1O0PtH7s8Uorouqm5s++Tbb8yC/S3qVwgspNMz5Ui2zK1EXyGyMrtpL2jFyqWugX5DUmbnULlw1p2Cqlu+blY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=CrgBQViW; arc=none smtp.client-ip=209.85.222.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47EDB21CFFF;
+	Mon,  3 Mar 2025 17:02:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.87
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1741021334; cv=fail; b=qbzP8blY8WgNNp50YIGhw1Cye7guvoZti2lIPowTtxu9/Nqa86bV11UqJ6DnwQ3xoaksqNo3phsQ1TaeDUiL775h8eQraNQfYeM0o8FMcrDTtsoYqbXn44N1ijvBr0CbVkbUdveX/W5vpKAhAekd9PNeam1bbcS97YXIkAyhxLo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1741021334; c=relaxed/simple;
+	bh=94wSBvwz2RtQL7V9OzNqmm+QFdLB4oYUxnvmpQfuIG8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=CKCE7e/ynUQQg4rs0BgZu5jmo2TSEfdebEmO0kyl9li/NHZE7AiW6jDvewpXmJNeYaFmI2C0sGoTmHSUC203MqVmrm/2krfelwazuc0cp3ysTHmuN9GsHNvfVubSUNurNhS2NTjdoZ7DsOTeya8Tw1dVKku01O+1pfswM34cmb8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=KAlao/qI; arc=fail smtp.client-ip=40.107.244.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="CrgBQViW"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-7c07b65efeeso429818585a.2
-        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 09:00:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1741021213; x=1741626013; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=yL69mmP3AaHszBSiFbdb5IOP3AgAgn4Zq7i8mgBTtbc=;
-        b=CrgBQViWVGqP2lbsKLWk8Mah0gU0L702Jx0bX3Eg3fNuwN940rngI2OpgJHR6Oln0a
-         icxKtJ+UT7HgVD+TSW077hRnBhquDe+2XjVnswQiihGUg8VU/O5WEB0fC7kDnWl4Q4o7
-         AfJsIaRxc8oYGrxQJtaKNKaKGtKrK2olYYEfc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741021213; x=1741626013;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yL69mmP3AaHszBSiFbdb5IOP3AgAgn4Zq7i8mgBTtbc=;
-        b=uk9NadsTpC9JSDklBQd7cflhPpF1u0vUEurp0MR3gIZjLOW6acAc44uHKBC6Y6iCyA
-         l4otyHQiab5EaWuINJbXF4JfUgEPDuFXxeA0Xrop8V92Pmd/ZqPjImrj0va8LcUlUuTq
-         i+fXfKYthCFyguKTCnTeXKToYBeDk6c8CH4cNfkbillKLGkoEadEF7ZlEG7nwQ5thPfJ
-         JJXsQ/KYJ2g2cH+b6UvkXMmmZjmktRyWYkVGbAi9yKHuNsJcEivSKQUpQlYxnhKeolzP
-         z+cV7v/7Rekf0HzNxQMutHg8NwDpTux4AzZZUo6n2Jd5niUVn2pNEcEqezJk/6ONIkuf
-         YIiQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVTAyuSdly71tnWfJT1lLWJQ+RAI2gIiLWvlNqIHDRUNoZVmfdez7IzZ5G9SK2Cp/avzSmCWggswecdalGwFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzWhQHcf7nJWvbL+Y9nSmv5IRxlf1HY165hLcUYrh6owFAhKAb1
-	t+5tAocrN7O0Hvowt/UvxM3Rde55oOnb7k2KE92sVS6FyrqG78YKnki8CBlom48=
-X-Gm-Gg: ASbGncuS685DX9J4B0yOZvBwYRnEm177YVgptRmcUjBS+iBJJtVvqJB1Ls1iwDZ9Ytn
-	ft7rHkyzyqJ3JFKvKcAB+cTVzwked8GGsfIBlV4ZsFwvRGcotKJ6gFSa7H91DKYo/v2QZEWqeRH
-	B3D+KMdlSI4GFVCOFxcyVZ6lQazFAgr9ngRO3XzRl1u31pdpa4+MIb72vLsO1kRfkFXW9RvN130
-	lP4sxY2pBnu4NYZgUG8NdLZuUUTV281782x5cO+2O88LBI6M+k2nWgqu6SwOp9EYYA2nFY6bRpI
-	UsM+Gq016GCj67HFQgBcNxGTXmI4b5+pgeJAv0nyQqlQVYcfhMAtVv7uqhJRre3oQ7sJuqQrMzO
-	SNb+Z13o=
-X-Google-Smtp-Source: AGHT+IHlpeyEa5ZH06VbJgoLcEMoTEGviZJYbrPAPhw4YUCksto74AOTT5BgLi6sgiQez9Vt7bG6ig==
-X-Received: by 2002:a05:620a:27c7:b0:7c3:bcb2:f44f with SMTP id af79cd13be357-7c3bcb3000emr677131585a.17.1741021212762;
-        Mon, 03 Mar 2025 09:00:12 -0800 (PST)
-Received: from LQ3V64L9R2 (ool-44c5a22e.dyn.optonline.net. [68.197.162.46])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c36ff0f3c0sm621367685a.56.2025.03.03.09.00.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Mar 2025 09:00:12 -0800 (PST)
-Date: Mon, 3 Mar 2025 12:00:10 -0500
-From: Joe Damato <jdamato@fastly.com>
-To: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, mst@redhat.com,
-	leiyang@redhat.com,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
-Message-ID: <Z8XgGrToAD7Bak-I@LQ3V64L9R2>
-Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
-	Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, mst@redhat.com,
-	leiyang@redhat.com,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-References: <20250227185017.206785-1-jdamato@fastly.com>
- <20250227185017.206785-4-jdamato@fastly.com>
- <20250228182759.74de5bec@kernel.org>
- <Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="KAlao/qI"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Zx2ShuEl0tOrH1YBVV0OqoVEexrozA2m1xoRHU4iEbp4yjupDHfXxCMWFcxsVutRUIxroW0278x5+iZ9N1DPOoVTMBYBCSAyLbvvyxSDwFBoxQ4xeyFasqYnh91VlZNtnaUBym/hLL7BQgvj43tB//rEgtv6yPlC1Wfu+HJGrDAdlO68cJjqNimQK4uAhjks6hp33u+h50Z+u9pD/3F8ZDIC94dS1rjD+BqkhRSvbavZ/UJoy/JTPWLxym/5ypTNVQ+s+o4qfGgQRjzu0zP92G2YEeqhuS86QE+ESJP0ofzFnC6qFl7ncXPVKEocxg3CovEBQQFWTtavMKxWSk9jSQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=07B2E61Z0kNe5nZ8bxWtRKpTBGgwHIHCwTKgn87WVNU=;
+ b=Y4JasNG7aCGQl0PipHZ1HUCmo6WExcgl7+Kx7a+JuEkfLWASdBdxuT35JZJ8ayBitGywGqk/M2ptIB21UsRy1/3WHzRKoU9FmHEjGVMPXjW816JsqACCsxOpHwJIyPXhp2AIH9xrS1PPZGfyumuUWGzwOICbPqfh5xXiIb0D1b6nQRR4t7HXfPrcyNuGAFc8dyOlOWYj82kcYRG6Vg7n/nN08UesS0jRJsZiFDv6S0X3sJZWbMOBVe0PUuoo9Ee2RVlE+nNWxNS12OOzxBUcDZBVh+5Tgd9U4T8DmmoRUxQrLTVIZMA0KbvR0OOfhT7Qg+fNEXigfD7JwGmfCXorPA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=07B2E61Z0kNe5nZ8bxWtRKpTBGgwHIHCwTKgn87WVNU=;
+ b=KAlao/qILOraAuj5LTMBxZKAc81jaQRHXCP6LXp1LIvOJCjQv3CzKaJtKAvzJpxrnBZcJYLRLzlHr6s5IcaJ31U2yhJiMcAgjzwmCRpUZRB0jdtWV7+Ugw4/eMObJkZI9LCmpuqsGzbeZtRsPQ/GY50I/Kq4Exfcvoz6GwbN3Iv3R3wTAigfqa3rsUNDol9bIWk7wICx6F21x3P3Kwq55UdWo3qHwlXaBbeV6xvu/OYSjlLbU8N/OuMUG1+6p6q0rAPx+a7LHf59CCeK4c3qZokV+PHCyT65eSD9rLU7oGcC9cC0l8ymcqh0PPmq+xsUc7VfArKa85ik3uh+HAfc6g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
+ by MN0PR12MB5956.namprd12.prod.outlook.com (2603:10b6:208:37f::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8489.29; Mon, 3 Mar
+ 2025 17:02:09 +0000
+Received: from CH3PR12MB8659.namprd12.prod.outlook.com
+ ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
+ ([fe80::6eb6:7d37:7b4b:1732%4]) with mapi id 15.20.8489.025; Mon, 3 Mar 2025
+ 17:02:09 +0000
+Date: Mon, 3 Mar 2025 13:02:08 -0400
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>,
+	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
+	Will Deacon <will@kernel.org>, Eric Auger <eric.auger@redhat.com>,
+	patches@lists.linux.dev
+Subject: Re: [PATCH v2 3/5] iommu/virtio: Move to domain_alloc_paging()
+Message-ID: <20250303170208.GA133783@nvidia.com>
+References: <0-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
+ <3-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
+ <20250303152143.GA2083810@myrica>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250303152143.GA2083810@myrica>
+X-ClientProxiedBy: BN9PR03CA0602.namprd03.prod.outlook.com
+ (2603:10b6:408:106::7) To CH3PR12MB8659.namprd12.prod.outlook.com
+ (2603:10b6:610:17c::13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|MN0PR12MB5956:EE_
+X-MS-Office365-Filtering-Correlation-Id: fa66a6d3-3956-44c4-3fb7-08dd5a752255
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?q0lLwH/EqbdxASY6O5Bw1qLmKd7bVYxx7tAkSDfZ2qpvnT341TEoELjZuX6I?=
+ =?us-ascii?Q?uLVAX0PXxVS0nRFXiGmGfs0ToVdqtIxcMKCS7mAaSjyt1MB4jPzMSDiJoVTR?=
+ =?us-ascii?Q?gjeTg19AHZZKv9TXY9S+tZjiL/i0s2eQsD2xeC8Q4ZZu5Lb/V+NjuUy5uLb7?=
+ =?us-ascii?Q?mJkZb5A2Cm8Fn61qaP6D9gPdH9zNv7S5JLBCyxz4M0kGgw2uP/2Y4zUgt0As?=
+ =?us-ascii?Q?8sLAKprNVD0WvH198zniHTii3Yg0Or8sgPJAtQO1R78mIlyif6//627HIlKo?=
+ =?us-ascii?Q?jdWTgfCyYgHurzSws0JYbCBUkkcPVOL4I9MZDNCGwOlDhRETF6hutw951gtt?=
+ =?us-ascii?Q?AMhG4/Ns5Nf4Bf5SLDP7BFvh5w2LTY4Yhum6Kgjcgv3070VJtRxXmOG4M6w8?=
+ =?us-ascii?Q?m1gEIlry1WHs1tvLeFsSGgtLKEqM2kXb9vsDyC4CuuMBoyL4FaFBfaacXysK?=
+ =?us-ascii?Q?qlFFRJE1cB+vV4xOB5mbhcp0auF8m8plLiLOZm9yll7+bqz0IT4BS1Tk9VfD?=
+ =?us-ascii?Q?4/Oa56ABOBIMy0xTPx+hXX0ihuwupxl8ZzpYVwvuY9UeGSiAcIUCmkUe9jTU?=
+ =?us-ascii?Q?4ONPzPZ5GmjqbjbHlHhTm02EH1JZLIG7AiZtaqF10c/oi40JbtmS7keN/wJe?=
+ =?us-ascii?Q?0uczyERoKH0rGAd4AM1v6q59kq6hf7KcncBa38Im6MjRxlVfWF0QerirdjMj?=
+ =?us-ascii?Q?spRBno3xLi9H7IVMq+A0Zt/2pp+HelOYxp+GoBgRjuaUNA1W2zJTwynxJdR+?=
+ =?us-ascii?Q?vAey9FSLdJxdv2Jgl+BHiq7hyikhco8IMs2AAuTSXsSN4D9No02giJEeO88v?=
+ =?us-ascii?Q?F07qKBEPQhB2oTLPqo4mH6slUn5S9lTIt1sho8xAsN+cZMmpStthHKO/Dcs2?=
+ =?us-ascii?Q?BkXmmRiyp9/3DE9etfz6dQs2xfu9wV5mLc+zvL1g5EwY+xTX3ORTO/RaCCIU?=
+ =?us-ascii?Q?rFZ+8X981SzvP02aLEPstsz9Cc4W1fx51xwN5fTvkc8EHWurInGa8rODzm57?=
+ =?us-ascii?Q?/YTT0GhjsjCqkFvWCf8AiTwfSo68+gKVyJFe1JQZ5OV2m7iuXPt9QRzOSOb3?=
+ =?us-ascii?Q?n0C4zUUa+TNmDxutQzs1p9disytrVSyUi+ioKH9q8x97+p/uyR0qPddk2FYs?=
+ =?us-ascii?Q?vgaAbZlStCOOFb7YJ6lEdQkX7PLea5poRnksdYlv7hOYHoH3nZ5lkOp37rC2?=
+ =?us-ascii?Q?lriyFCnCOU2DlyTT5xgWyAFah/3PgIox8KuN1vX+nDfk5TgWwqss41EaY73R?=
+ =?us-ascii?Q?Yh8g5BCEMETEbB5k2ShcGvTz9MWzfFZuDfmXkuOF8mdQo7MZYaOXl2Fz5A8m?=
+ =?us-ascii?Q?d+Zfebr3pTvcdq6eCMU45vYdIlMVtiFPCp/iT/pzUI9y1UVqW3e7rZprMImS?=
+ =?us-ascii?Q?h9Z3w6n1/YKrBcGkW3dI2LZvjrp4?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?LIo+sGOMNnmh1PmZBZ5jMKZ1lYK5D5kg4uWse9/dVqJMnjnN1gisDEF8Pw3R?=
+ =?us-ascii?Q?BR0S2GnFd8o9gzHTriZjqBCilezYkyW0P30zelQTkNTjSyR3ZVcoppJKEFuG?=
+ =?us-ascii?Q?U4Nv/Ac17a15qOkFCjQKLFW8jOmXhCay/jX+9jTKFz984iDqEphlC/Yk4CsK?=
+ =?us-ascii?Q?4LokaeRBKCHtDPOwzMwTuQdfKMy53bXZODlBeZnCJvoWFxtQSf2vCa50FSTC?=
+ =?us-ascii?Q?MQcmmhSG25VY9p3H1j75NYWsXYAsMqRmjEt/iX5IQ9Dkh17l4kt3QxVG1SZL?=
+ =?us-ascii?Q?e32RKzS7xPe54Rw8h1LrucTBQriJivLMhjJM4LPKf0aq435817/iaRZVIbm+?=
+ =?us-ascii?Q?vhS7a9mX8x84B2UtbVZKd+bp5G53soXXLoKcl2qz4Mxd6QkiqutultDh3ihd?=
+ =?us-ascii?Q?04GoCY8OUleePknbMPevmXENPUIOk0iGmZKu2OKMlqmDEXgYMDIvReXd8Y8C?=
+ =?us-ascii?Q?izTsfHDowjyT0Vgcvcm9hae8y6MSqbKdhxP+sWuPkKE/cYzwnRx2SSY0ftIb?=
+ =?us-ascii?Q?4HqUvR8owul0AY3Fp7Yx+m2RsD5e8Jv8kb47hR14j8dMYQQY2j89FSstNWbC?=
+ =?us-ascii?Q?6k23ryhzTNl9OiSQO4hKtXqD7TSrWcZUZfwDVzwCE2FNbAWv01IWSvDxgI30?=
+ =?us-ascii?Q?5nuU8aPpaJX90aByIMXed2jXEq+3cEvwOpbazZpUcfN5z+6P57JwWHyzj6N6?=
+ =?us-ascii?Q?hzZ8XOU2KCCqyzgEb/tXTEQp7AUF7voa0rZBR2uBhh2+jRWuO2D8Ub2FEkhI?=
+ =?us-ascii?Q?wAEJJcXESjpWihny0QzN5zXZUIIo2tOkxV9NzhsrHnxyhrJR2x0r+qrB4eDC?=
+ =?us-ascii?Q?8npJSIPVh6gUc5F3ChU78M7S6gQiIiBNeLxzhyitp4selZO73oXJ2J3p7QaT?=
+ =?us-ascii?Q?E/DumEWBmlF/uFQPQG9wAfJJPhqPHCKCquE/y8X3BPb/ayhi4WM7+Yy0Pzbc?=
+ =?us-ascii?Q?vPCqpYO48FbvO4Bt+rqBal05nSfjKxiMmDwyHk13bnGES2RZ8tfTp2M4QzKU?=
+ =?us-ascii?Q?I8e4wRrI7hAvGKOVo4PVn0EcJiSLZIwUjwrlQhAEUeJuT5AioGVWfvle7vZu?=
+ =?us-ascii?Q?+3OZW5poAwD4jj+qan7IbO5pnnkRzL2FHOKtvrT/Tf0AG7yfowlAo4b+z1OA?=
+ =?us-ascii?Q?FDHGIRDFmNEIJPo/mQbFgAgf/CotT8CbuUGYStJJmH7FyMDHKgbMtp6NFYm5?=
+ =?us-ascii?Q?0IAzSu8PUCnI/HGESP8NkOz61pV7mS1DIcG9hMLRcB2AQmKJvk4e9aIK8bI3?=
+ =?us-ascii?Q?JDIxFNmi4L+Bo3P84rizkcmywJv5M+VcXjd2/WfaDhzviY3oVKqEsc+u7n8e?=
+ =?us-ascii?Q?R+fv43TUEgsn2i2H3iJSt9coDvfIjhuZBTIPmnvlmfC7Y+EMRPztM/PAeQbc?=
+ =?us-ascii?Q?O8nYiGkfvNTybfqokZqg8LbqZKs3crsPJSjpvdjDgXlAx1xNtLGVYEgw6Gvo?=
+ =?us-ascii?Q?Z5DuUEnU/B2ewG4pv67WrcT58K0ml2rpxf9Yyj64CArWj38e6J+z4uCofYJ1?=
+ =?us-ascii?Q?Q5YNchKpcEK6HB1RCYfjw9cfr//W7nBSuANwuKWMyubb8KI2QC7V5bF0S3EH?=
+ =?us-ascii?Q?GgEmJesKs7wCXRO8HjU=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fa66a6d3-3956-44c4-3fb7-08dd5a752255
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Mar 2025 17:02:09.2180
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: C/LAz6CbZcsQcLttRcyn0RP4OZULZ4yCsRLbaHG9l9BYyd5ck2VaXbAVEpG0d1SM
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB5956
 
-On Mon, Mar 03, 2025 at 11:46:10AM -0500, Joe Damato wrote:
-> On Fri, Feb 28, 2025 at 06:27:59PM -0800, Jakub Kicinski wrote:
-> > On Thu, 27 Feb 2025 18:50:13 +0000 Joe Damato wrote:
-> > > @@ -2870,9 +2883,15 @@ static void refill_work(struct work_struct *work)
-> > >  	for (i = 0; i < vi->curr_queue_pairs; i++) {
-> > >  		struct receive_queue *rq = &vi->rq[i];
-> > >  
-> > > +		rtnl_lock();
-> > >  		virtnet_napi_disable(rq);
-> > > +		rtnl_unlock();
-> > > +
-> > >  		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
-> > > +
-> > > +		rtnl_lock();
-> > >  		virtnet_napi_enable(rq);
-> > > +		rtnl_unlock();
+On Mon, Mar 03, 2025 at 03:21:43PM +0000, Jean-Philippe Brucker wrote:
+> On Thu, Feb 27, 2025 at 08:20:01PM -0400, Jason Gunthorpe wrote:
+> > virtio has the complication that it sometimes wants to return a paging
+> > domain for IDENTITY which makes this conversion a little different than
+> > other drivers.
 > > 
-> > Looks to me like refill_work is cancelled _sync while holding rtnl_lock
-> > from the close path. I think this could deadlock?
+> > Add a viommu_domain_alloc_paging() that combines viommu_domain_alloc() and
+> > viommu_domain_finalise() to always return a fully initialized and
+> > finalized paging domain.
+> > 
+> > Use viommu_domain_alloc_identity() to implement the special non-bypass
+> > IDENTITY flow by calling viommu_domain_alloc_paging() then
+> > viommu_domain_map_identity().
+> > 
+> > Remove support for deferred finalize and the vdomain->mutex.
+> > 
+> > Remove core support for domain_alloc() IDENTITY as virtio was the last
+> > driver using it.
+> > 
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > 
-> Good catch, thank you!
+> Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 > 
-> It looks like this is also the case in the failure path on
-> virtnet_open.
-> 
-> Jason: do you have any suggestions?
-> 
-> It looks like in both open and close disable_delayed_refill is
-> called first, before the cancel_delayed_work_sync.
-> 
-> Would something like this solve the problem?
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 76dcd65ec0f2..457115300f05 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2880,6 +2880,13 @@ static void refill_work(struct work_struct *work)
->         bool still_empty;
->         int i;
-> 
-> +       spin_lock(&vi->refill_lock);
-> +       if (!vi->refill_enabled) {
-> +               spin_unlock(&vi->refill_lock);
-> +               return;
-> +       }
-> +       spin_unlock(&vi->refill_lock);
-> +
->         for (i = 0; i < vi->curr_queue_pairs; i++) {
->                 struct receive_queue *rq = &vi->rq[i];
->
+> And my tests still pass (after fixing the build issue on patch 2)
 
-Err, I suppose this also doesn't work because:
+Yeah, my mistake, my tree has a different fix for that in a followup
+series :\ I will resend it
 
-CPU0                       CPU1
-rtnl_lock                  (before CPU0 calls disable_delayed_refill) 
-  virtnet_close            refill_work
-                             rtnl_lock()
-  cancel_sync <= deadlock
-
-Need to give this a bit more thought.
+Thanks,
+Jason
