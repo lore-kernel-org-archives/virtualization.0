@@ -1,122 +1,303 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B3220CCE6;
-	Mon,  3 Mar 2025 11:54:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3CC98489
+	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 15:21:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741002860; cv=none; b=NGP2qCJjl2C8JvrNAKP3sTKANne46NqJ+flgooEvKiYQ0JVSh4t7v3YqmsEsKotmP2gzpm2xUr0q0C5wnr/clueJT24x6WMjJQvkmB+n474pch7V23GKnCTTH44HTvcdrrVrOQZb4uqp1ISAUGOEgGGKeKM2fa6FbXdbOC/YoB4=
+	t=1741015281; cv=none; b=tRJeCn48nsYQ/IUu+dzuYLy5uNnBaQRn0BnPyjFQPCHsw6owTdfWZ00HMj3q9RkWdXSZ6+udKFcCXJgPL45KRCuZ9L48+uI7KIu1nCZ6asGenvLoNO3eqIg80+bzYmVbt6j+mnDr5lnamN2tUjSJf++vFFljNTLzvsU80BiJAm0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741002860; c=relaxed/simple;
-	bh=oQAhDNZZHIdM8IkJONvRddVJgR3R9DzHAQ1ARr50o4w=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=QZBzZZsXNX/g6ZRfh/b5W4Bp4KlvYCZEKVrngxipYIRgddsGyMDIadT7Q7ZvdhsPpZp/cdbV2db2yPzZ0elmyivcoXL/kPXZHINcZb8ayLo6zNoCWfwHCtJLJFN9rfXVc6e3Rir5l8ExPU1tvne0gF8i94/+G18LjssB85zwW3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YHt35s6t; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1741015281; c=relaxed/simple;
+	bh=sVXFpb1vNNztgXcdoJKcrrt5Z9f/aNmySmYPD7wuYto=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=afocpNbWwOE3n1Z/kL68SQpXSXviK/7v/OJbvl7+kS8PuqfrKQLxEV3p0CISfraBI9n9VLFKIzG259uCCEGTE8rCf8V1ecCnmdR9wXnhA2jbmLnhR38nK8mzkRuo6PQiQXXGG0rNZ2g5cc7bHXLXW3+tIjjp4NDcDnPhDRFvCx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=U1Ro5Dkd; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YHt35s6t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505B4C4CEE8;
-	Mon,  3 Mar 2025 11:54:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741002860;
-	bh=oQAhDNZZHIdM8IkJONvRddVJgR3R9DzHAQ1ARr50o4w=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=YHt35s6t01Ze5P7mJ3/0Qr824U8rW/eB3bCnSoYVjbseNMmDzgtsKkKlK26uYT3ib
-	 TItoFMKSD+C98d4zTtNDgaYFEZOAsNeCnE3UZwi1Mns9O4bMEPFjJOtUeAD056oXBM
-	 NobX724F5a/rAmOcUCWa7FwrliPpSnk8RSRSmvQnjqWA/tzD/iv9susiJnNjFF98Qe
-	 nr6ybnyOfDWXGMyAmFMd7+YBQrmc+fm0PChhtHZD5tY8j1ViMUBbNPB0WWOKCXND8C
-	 9ykLjojN6i03Bf4cBGCt3mhQZHo2S8J48GvvETucW/trH9vVNmGTO/HfyufhfJdwo3
-	 gPAkVdCeLnC0Q==
-Message-ID: <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
-Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio
- spec
-From: Amit Shah <amit@kernel.org>
-To: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
-Cc: arnd@arndb.de, gregkh@linuxfoundation.org, brueckner@linux.ibm.com, 
-	schnelle@linux.ibm.com, pasic@linux.ibm.com
-Date: Mon, 03 Mar 2025 12:54:16 +0100
-In-Reply-To: <20250225092135.1200551-1-maxbr@linux.ibm.com>
-References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="U1Ro5Dkd"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-43996e95114so31451395e9.3
+        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 07:21:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1741015278; x=1741620078; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=rqk2BSH8qHpDZaF2t2aMg9t55BaASSSCPMcqYvAYF3s=;
+        b=U1Ro5Dkdv8gFIF2sSmoDS+3wW1SS4t/1cMqgjUyOhJtpfT4qfcnqzUHhbDirE1S6sd
+         osk7/3pw3FQPlIRs6J7EGAWEgT66CQ3sytE7Y72wG8qe1m/NUtEd9Ht9+cw1ql8edRlv
+         XtcJsC/J0hkpwpG+NAcEHhZ6zD0g/ZzVIyEW17eSSn4406s4rCshhiPN7j/Yf4dsHnCa
+         S2SfHd6mG9Uqn2g4Dq33JZZVXXRLwl5nTQaGNU21/dwgq8Flx5f51TFz+QUpTQSiWN6z
+         ZPqC1YhI91G5qfIDsUPk3f80nIWrEwBTpclrdDtwfjjcZJzP9/GEDk1bDjtPxDEXhmLd
+         csGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741015278; x=1741620078;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rqk2BSH8qHpDZaF2t2aMg9t55BaASSSCPMcqYvAYF3s=;
+        b=VGmrJqpUz6l5CxggOTkSbjb/T2rHmSMkI7Om6pAf99QDge0ZVg8qI9XXUBRJpJILWB
+         lwQhGmL3C4dwTh2xydw+473ZJ9wOOv5/RdViRvxVonA+4BMJ0kSTuiFJ7Ig6rsEKODRx
+         F8hmGoIYgwWR69jdU49pSCsqFTeugTphWWmoQPn5LSthRLoLamkTeCoP9JrfCRPJYDax
+         nvYLvDw8f99ZqN+KXfTq7F2TYrwajV2gSFfexfA2+2bJJvdeI9tj+z6SftfbXDZDoKna
+         S/l74Xx637kSDYt+bJCRMXGyhS8TJSmjlwEN4aBEcUQOmlndWh4fXiXAlosP+QOsXCzo
+         u4aA==
+X-Forwarded-Encrypted: i=1; AJvYcCXpTcVoSW+ruTuyGyz+l1QttWJ5nQanVpAt8I6fTrpoIuJO1OUutj+bLch4g2oA56O/0U3KV4GJfCwVSkSiQg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YznZ98WRVsMIck9b94q+cUd9cH6KI53AwMHS+SencJOugIM0OxM
+	BzGCkVTRk3OMQL6xf2KSW8Pc9RCGx2HcxJR9wFvcQFBLXmzIHjBKTXIPSgDR/IA=
+X-Gm-Gg: ASbGncsqkKpFYJ6Tk//v/e5eWf42Iegqaog31dEgaDFO6IwDcR6E0mfN7Lph7pYrUsV
+	f3ToVKb1SmrZ5XLxgMzL2PQUHrtgYJgRzC+pyEYQ/jsW4hcil+08RvpN+4oaOcT4+c9I8O8V3r8
+	KwG7wfGFzYsr2kEPg9WbTOaA8T7/VbwcPI9YEdlDEtdAbBWq3arVg7Q1zf6GcCKXSiJhVmwhtwM
+	jDawDw6iSNtReN2exLi6NoxbEChVgeHGhHWs9g9UnEI4rhAvgnyKEZEF/nKlO0JhE1HXlOVTr0j
+	4fmANYE9rfsNSafYoCqt8ku3+MCmnfNYtisRJoPtWGU=
+X-Google-Smtp-Source: AGHT+IFcaBMZpOjCK8gQ2QsCdipEfz5tcc2MWFn+tkjIsqIEc3l9Q7yngfldgElId2H3IqVaSJqjZw==
+X-Received: by 2002:a05:600c:a581:b0:43b:ba80:4393 with SMTP id 5b1f17b1804b1-43bba80467emr39209465e9.3.1741015278172;
+        Mon, 03 Mar 2025 07:21:18 -0800 (PST)
+Received: from myrica ([2.221.137.100])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43b694524c6sm169018685e9.0.2025.03.03.07.21.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Mar 2025 07:21:17 -0800 (PST)
+Date: Mon, 3 Mar 2025 15:21:43 +0000
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>,
+	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
+	Will Deacon <will@kernel.org>, Eric Auger <eric.auger@redhat.com>,
+	patches@lists.linux.dev
+Subject: Re: [PATCH v2 3/5] iommu/virtio: Move to domain_alloc_paging()
+Message-ID: <20250303152143.GA2083810@myrica>
+References: <0-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
+ <3-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3-v2-a3b72fd4b99a+1b6-iommu_virtio_domains_jgg@nvidia.com>
 
-On Tue, 2025-02-25 at 10:21 +0100, Maximilian Immanuel Brandtner wrote:
-> According to the virtio spec[0] the virtio console resize struct
-> defines
-> cols before rows. In the kernel implementation it is the other way
-> around
-> resulting in the two properties being switched.
+On Thu, Feb 27, 2025 at 08:20:01PM -0400, Jason Gunthorpe wrote:
+> virtio has the complication that it sometimes wants to return a paging
+> domain for IDENTITY which makes this conversion a little different than
+> other drivers.
+> 
+> Add a viommu_domain_alloc_paging() that combines viommu_domain_alloc() and
+> viommu_domain_finalise() to always return a fully initialized and
+> finalized paging domain.
+> 
+> Use viommu_domain_alloc_identity() to implement the special non-bypass
+> IDENTITY flow by calling viommu_domain_alloc_paging() then
+> viommu_domain_map_identity().
+> 
+> Remove support for deferred finalize and the vdomain->mutex.
+> 
+> Remove core support for domain_alloc() IDENTITY as virtio was the last
+> driver using it.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Not true, see below.
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-> While QEMU doesn't currently support resizing consoles, TinyEMU
+And my tests still pass (after fixing the build issue on patch 2)
 
-QEMU does support console resizing - just that it uses the classical
-way of doing it: via the config space, and not via a control message
-(yet).
-
-https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
-/drivers/char/virtio_console.c#n1787
-
-https://lists.nongnu.org/archive/html/qemu-devel/2010-05/msg00031.html
-
-> diff --git a/drivers/char/virtio_console.c
-> b/drivers/char/virtio_console.c
-> index 24442485e73e..9668e89873cf 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1579,8 +1579,8 @@ static void handle_control_message(struct
-> virtio_device *vdev,
-> =C2=A0		break;
-> =C2=A0	case VIRTIO_CONSOLE_RESIZE: {
-> =C2=A0		struct {
-> -			__u16 rows;
-> =C2=A0			__u16 cols;
-> +			__u16 rows;
-> =C2=A0		} size;
-> =C2=A0
-> =C2=A0		if (!is_console_port(port))
-
-This VIRTIO_CONSOLE_RESIZE message is a control message, as opposed to
-the config space row/col values that is documented in the spec.
-
-Maybe more context will be helpful:
-
-Initially, virtio_console was just a way to create one hvc console port
-over the virtio transport.  The size of that console port could be
-changed by changing the size parameters in the virtio device's
-configuration space.  Those are the values documented in the spec.=20
-These are read via virtio_cread(), and do not have a struct
-representation.
-
-When the MULTIPORT feature was added to the virtio_console.c driver,
-more than one console port could be associated with the single device.
-Eg. we could have hvc0, hvc1, hvc2 all as part of the same device.=20
-With this, the single config space value for row/col could not be used
-for the "extra" hvc1/hvc2 devices -- so a new VIRTIO_CONSOLE_RESIZE
-control message was added that conveys each console's dimensions.
-
-Your patch is trying to change the control message, and not the config
-space.
-
-Now - the lack of the 'struct size' definition for the control message
-in the spec is unfortunate, but that can be easily added -- and I
-prefer we add it based on this Linux implementation (ie. first rows,
-then cols).
-
-But note that all this only affects devices that implement multiport
-support, and have multiple console ports on a single device.  I don't
-recall there are any implementations using such a configuration.
-
-... which all leads me to ask if you've actually seen a
-misconfiguration happen when trying to resize consoles which led to
-this patch.
-
-		Amit
+> ---
+>  drivers/iommu/iommu.c        |   6 --
+>  drivers/iommu/virtio-iommu.c | 114 ++++++++++++++++-------------------
+>  2 files changed, 53 insertions(+), 67 deletions(-)
+> 
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index ee33d26dfcd40d..73a05b34de4768 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -1599,12 +1599,6 @@ static struct iommu_domain *__iommu_alloc_identity_domain(struct device *dev)
+>  		domain = ops->domain_alloc_identity(dev);
+>  		if (IS_ERR(domain))
+>  			return domain;
+> -	} else if (ops->domain_alloc) {
+> -		domain = ops->domain_alloc(IOMMU_DOMAIN_IDENTITY);
+> -		if (!domain)
+> -			return ERR_PTR(-ENOMEM);
+> -		if (IS_ERR(domain))
+> -			return domain;
+>  	} else {
+>  		return ERR_PTR(-EOPNOTSUPP);
+>  	}
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 2287b89967067d..cdb8034ece9bde 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -63,7 +63,6 @@ struct viommu_mapping {
+>  struct viommu_domain {
+>  	struct iommu_domain		domain;
+>  	struct viommu_dev		*viommu;
+> -	struct mutex			mutex; /* protects viommu pointer */
+>  	unsigned int			id;
+>  	u32				map_flags;
+>  
+> @@ -97,6 +96,8 @@ struct viommu_event {
+>  	};
+>  };
+>  
+> +static struct viommu_domain viommu_identity_domain;
+> +
+>  #define to_viommu_domain(domain)	\
+>  	container_of(domain, struct viommu_domain, domain)
+>  
+> @@ -653,65 +654,45 @@ static void viommu_event_handler(struct virtqueue *vq)
+>  
+>  /* IOMMU API */
+>  
+> -static struct iommu_domain *viommu_domain_alloc(unsigned type)
+> +static struct iommu_domain *viommu_domain_alloc_paging(struct device *dev)
+>  {
+> -	struct viommu_domain *vdomain;
+> -
+> -	if (type != IOMMU_DOMAIN_UNMANAGED &&
+> -	    type != IOMMU_DOMAIN_DMA &&
+> -	    type != IOMMU_DOMAIN_IDENTITY)
+> -		return NULL;
+> -
+> -	vdomain = kzalloc(sizeof(*vdomain), GFP_KERNEL);
+> -	if (!vdomain)
+> -		return NULL;
+> -
+> -	mutex_init(&vdomain->mutex);
+> -	spin_lock_init(&vdomain->mappings_lock);
+> -	vdomain->mappings = RB_ROOT_CACHED;
+> -
+> -	return &vdomain->domain;
+> -}
+> -
+> -static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+> -				  struct iommu_domain *domain)
+> -{
+> -	int ret;
+> -	unsigned long viommu_page_size;
+> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+>  	struct viommu_dev *viommu = vdev->viommu;
+> -	struct viommu_domain *vdomain = to_viommu_domain(domain);
+> +	unsigned long viommu_page_size;
+> +	struct viommu_domain *vdomain;
+> +	int ret;
+>  
+>  	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
+>  	if (viommu_page_size > PAGE_SIZE) {
+>  		dev_err(vdev->dev,
+>  			"granule 0x%lx larger than system page size 0x%lx\n",
+>  			viommu_page_size, PAGE_SIZE);
+> -		return -ENODEV;
+> +		return ERR_PTR(-ENODEV);
+>  	}
+>  
+> +	vdomain = kzalloc(sizeof(*vdomain), GFP_KERNEL);
+> +	if (!vdomain)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	spin_lock_init(&vdomain->mappings_lock);
+> +	vdomain->mappings = RB_ROOT_CACHED;
+> +
+>  	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
+>  			      viommu->last_domain, GFP_KERNEL);
+> -	if (ret < 0)
+> -		return ret;
+> -
+> -	vdomain->id		= (unsigned int)ret;
+> -
+> -	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
+> -	domain->geometry	= viommu->geometry;
+> -
+> -	vdomain->map_flags	= viommu->map_flags;
+> -	vdomain->viommu		= viommu;
+> -
+> -	if (domain->type == IOMMU_DOMAIN_IDENTITY) {
+> -		ret = viommu_domain_map_identity(vdev, vdomain);
+> -		if (ret) {
+> -			ida_free(&viommu->domain_ids, vdomain->id);
+> -			vdomain->viommu = NULL;
+> -			return ret;
+> -		}
+> +	if (ret < 0) {
+> +		kfree(vdomain);
+> +		return ERR_PTR(ret);
+>  	}
+>  
+> -	return 0;
+> +	vdomain->id = (unsigned int)ret;
+> +
+> +	vdomain->domain.pgsize_bitmap = viommu->pgsize_bitmap;
+> +	vdomain->domain.geometry = viommu->geometry;
+> +
+> +	vdomain->map_flags = viommu->map_flags;
+> +	vdomain->viommu = viommu;
+> +
+> +	return &vdomain->domain;
+>  }
+>  
+>  static void viommu_domain_free(struct iommu_domain *domain)
+> @@ -727,6 +708,28 @@ static void viommu_domain_free(struct iommu_domain *domain)
+>  	kfree(vdomain);
+>  }
+>  
+> +static struct iommu_domain *viommu_domain_alloc_identity(struct device *dev)
+> +{
+> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+> +	struct iommu_domain *domain;
+> +	int ret;
+> +
+> +	if (virtio_has_feature(vdev->viommu->vdev,
+> +			       VIRTIO_IOMMU_F_BYPASS_CONFIG))
+> +		return &viommu_identity_domain.domain;
+> +
+> +	domain = viommu_domain_alloc_paging(dev);
+> +	if (IS_ERR(domain))
+> +		return domain;
+> +
+> +	ret = viommu_domain_map_identity(vdev, to_viommu_domain(domain));
+> +	if (ret) {
+> +		viommu_domain_free(domain);
+> +		return ERR_PTR(ret);
+> +	}
+> +	return domain;
+> +}
+> +
+>  static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>  {
+>  	int ret = 0;
+> @@ -734,20 +737,8 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>  	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+>  	struct viommu_domain *vdomain = to_viommu_domain(domain);
+>  
+> -	mutex_lock(&vdomain->mutex);
+> -	if (!vdomain->viommu) {
+> -		/*
+> -		 * Properly initialize the domain now that we know which viommu
+> -		 * owns it.
+> -		 */
+> -		ret = viommu_domain_finalise(vdev, domain);
+> -	} else if (vdomain->viommu != vdev->viommu) {
+> -		ret = -EINVAL;
+> -	}
+> -	mutex_unlock(&vdomain->mutex);
+> -
+> -	if (ret)
+> -		return ret;
+> +	if (vdomain->viommu != vdev->viommu)
+> +		return -EINVAL;
+>  
+>  	/*
+>  	 * In the virtio-iommu device, when attaching the endpoint to a new
+> @@ -1097,7 +1088,8 @@ static bool viommu_capable(struct device *dev, enum iommu_cap cap)
+>  
+>  static const struct iommu_ops viommu_ops = {
+>  	.capable		= viommu_capable,
+> -	.domain_alloc		= viommu_domain_alloc,
+> +	.domain_alloc_identity	= viommu_domain_alloc_identity,
+> +	.domain_alloc_paging	= viommu_domain_alloc_paging,
+>  	.probe_device		= viommu_probe_device,
+>  	.release_device		= viommu_release_device,
+>  	.device_group		= viommu_device_group,
+> -- 
+> 2.43.0
+> 
+> 
