@@ -1,122 +1,119 @@
-Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C61B27462;
-	Mon,  3 Mar 2025 00:45:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.229.95
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 019A3188CDB
+	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 04:06:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740962702; cv=none; b=Wj2QW6xJosx9aopln3hO9KVBIyYMxxtp15myKjFdpuuc0UspWn9cfUbyzF+y3Shq7uUj7BbSmYzmaosLLgJtPxakgabOI8qy5AuWJBeyQMXjV4unuxKc+eGtwemQXLOXsZ9lcd5iUvwkMNhcq3ZFO0SIRj9vNYlIwj35Gza/f1E=
+	t=1740974814; cv=none; b=fBI+MOQ6l7zxOGzeoWN2cUQQl/RkUXi+b5cnt9SiTR3uLnktH6V4ep4331Qjpt7GgU7HDZVqnfv8uxrJPW6vwG2gd71Ki8FqYhEDT/nvlpdhiOXButkWk71U+9ai6cZi8ReqEXa4CI6/ooHR8DHOOepwjCqJcCPQps7iszgiHF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740962702; c=relaxed/simple;
-	bh=9WY/hzSH4v14e9UoCLK2v1IoOtJBktAuWSMTCZOu0sA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=L7lz/8ahGMqoeQx3HVV+JNOsRjY8e7+4M19rMdHnOGoOfCIzxpB2PMXPHG4IInuKENRNs7SAk+F7gybrCY/NXQLsIl2MnEzsCuiQoJaOqNwxTD7o84C/GsFkpp3aDkYtQhU574Hw0ik8kn5itKKb5043ZsYztTONA6lspVh+NgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=LVN1QoDz; arc=none smtp.client-ip=46.235.229.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
+	s=arc-20240116; t=1740974814; c=relaxed/simple;
+	bh=1wzdOirKyTsZVCC1Ram2ZbDslf5ecQQUi0CW6qdxLA4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NxmVMz9s4eEsFywVrE25DI0YeAXqTCTP1Q2YmXi8aJY8UzOtGaPhB/RrmplGGb8PU2k6am1wP2ptfRYzywDcEAfH3m+otKpxXKK9JfJ5vRTaZeNkfEnrshcK6766ma+0uKDPOOpcoUYUffamLCeYqyzmH0z+dsMcJPOdGfw4H4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hc6u9pgw; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="LVN1QoDz"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
-	; s=bytemarkmx; h=MIME-Version:Message-ID:Date:Subject:From:Content-Type:From
-	:Subject; bh=J9CZvuUehL5MwrosRBDizgtQSpCUzvOD5nGdOU5im9Y=; b=LVN1QoDzKPBgLJrE
-	r72TaAVorxjZV701wseKpp2x1JTvAguwxZuNf3+QryD+WhslREcyQ2/DX2Ld6A2Zx0gHRgnZ4sR98
-	3NoaEAlideQ/6VsW6Gy4OBtxa34XSXUrs5Xf/RhnP9qvCynSOiwWGkTpl4OL7BzVmYE5OtD7DNTJI
-	mlSV8R17fzwhZ1Ea8JplVpklkKn+HmRD/+Lk+qJiIizM3CDrTf/8CymbLOdUfbhiV3TePOhzMebPk
-	f8fCndVVCT4q0kFWduTKar5dewKjD9qx9bprxYcrRLSdQixnSTweqiMZihQWWk8RdKXSrAgFqQp48
-	bjGaaznIAne5WgXgSQ==;
-Received: from localhost ([127.0.0.1] helo=dalek.home.treblig.org)
-	by mx.treblig.org with esmtp (Exim 4.96)
-	(envelope-from <linux@treblig.org>)
-	id 1totvH-001zYn-2h;
-	Mon, 03 Mar 2025 00:44:43 +0000
-From: linux@treblig.org
-To: jgross@suse.com,
-	ajay.kaher@broadcom.com,
-	alexey.amakhalov@broadcom.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	dave.hansen@linux.intel.com,
-	hpa@zytor.com
-Cc: x86@kernel.org,
-	virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com,
-	linux-kernel@vger.kernel.org,
-	"Dr. David Alan Gilbert" <linux@treblig.org>
-Subject: [PATCH v2] x86/paravirt: Remove unused paravirt_disable_iospace
-Date: Mon,  3 Mar 2025 00:44:41 +0000
-Message-ID: <20250303004441.250451-1-linux@treblig.org>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hc6u9pgw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740974811;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1wzdOirKyTsZVCC1Ram2ZbDslf5ecQQUi0CW6qdxLA4=;
+	b=hc6u9pgwVV5NjNAHCrQzOlQyxCqeYVoR4Nsu4tHN5xGf1NVr+gQiFQwtTT6y18fwXFmZLw
+	2zJNt+w+bCan+SDspVLgI8/p+5+26d6mJoz4XIrJoRGqPFfwUn+87h+zulJzzp3FyPc2c1
+	fSiqT56bk3ByFFE0YdCFzCJQvX2NZ/U=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-278-2FkHJsbcNx-tGGENJjfIOw-1; Sun, 02 Mar 2025 23:06:50 -0500
+X-MC-Unique: 2FkHJsbcNx-tGGENJjfIOw-1
+X-Mimecast-MFC-AGG-ID: 2FkHJsbcNx-tGGENJjfIOw_1740974809
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-abf78df3bbcso59837266b.3
+        for <virtualization@lists.linux.dev>; Sun, 02 Mar 2025 20:06:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740974809; x=1741579609;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1wzdOirKyTsZVCC1Ram2ZbDslf5ecQQUi0CW6qdxLA4=;
+        b=SCkD9SEJe92rHg5seSJuWpoLRvncC4FLXOtMH9q3S/Jwf7zaPXTubPzbNfu/L5jE/C
+         66YRLIrEl3J+PxmDBib7g1qidEbM4j40tItkeH+eU2C/2Q01LjM5hy+JIPaPJnlLYjsN
+         ohEUWPj8R7fttzJQuLwrtQV5ckMYXqpgPLItfO65ONwtqoPaS9y7wV+VK3nK7+I3cJ2J
+         FUgq519Ns3g0/bcUBwv/RH1GRLR9cy2qWKFwTN3RDnGoW523me9rymlbY+zt9AMTBFVG
+         2Pa7FoNtSNiKsrajr9gWH795jUbAnhWewj0LetxeDFeMKGXQ3ziDfgXITW+fsNPP0aTS
+         BMBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXCe2r7S+ywHA3wfCjEtDWkI8GWX5fDAbMf5ijTSYGkpyap4T0vEDl29W+4bNpc2HhQv8XjAZX0vPRfO4CvDw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxW9aqmIQ6TiGF4kDH5MhYIXOI4fT7EHi4oOzha2sYuZuiizT4E
+	sI7PEJ3/663KmIlQU7JmBivcaAJ7m5hIEJTCEXBmMeSiATO6yFRgppoiy1t4VrS9OzVU3bWLzDd
+	kdo1Q+8IRuZGiDQtFp9jlof0HWzGGU55BbyWheKWKaPF5kDjjV03JaV2mpACsZnRQ3E0h7wi04b
+	ndAlQWK9zIZnK8iMDepikKl1HqryQKUWtKT6m5SiQ=
+X-Gm-Gg: ASbGnctCcr7wUYA9btM1+jSkIvxdTv+gd3ycC6AMmRiZbbNlNl6u9osTJ0AdpVwjBNo
+	Axqnxiu+Pvfi/Abcq6tonOtUtlAvGH0cpSGScTIc13mN27RQ2wZsQGdqywUY4Omf7UcCLa/1Rcw
+	==
+X-Received: by 2002:a17:907:6d27:b0:abf:7a26:c485 with SMTP id a640c23a62f3a-abf7a26c67fmr190821266b.50.1740974809384;
+        Sun, 02 Mar 2025 20:06:49 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEmtrdRGgr7U86+kr7f7l+xUDJuXUAyByaCCPcM629oXjBKkXRBVGvEXjN66jpswo1w8JgxuIRD6C81df5Lbfo=
+X-Received: by 2002:a17:907:6d27:b0:abf:7a26:c485 with SMTP id
+ a640c23a62f3a-abf7a26c67fmr190819866b.50.1740974809047; Sun, 02 Mar 2025
+ 20:06:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250220193732.521462-2-dtatulea@nvidia.com> <CACGkMEuUsh-wH=fWPp66XAFeE_xux-drf1gatSQSiGuS_rO_zQ@mail.gmail.com>
+In-Reply-To: <CACGkMEuUsh-wH=fWPp66XAFeE_xux-drf1gatSQSiGuS_rO_zQ@mail.gmail.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 3 Mar 2025 12:06:11 +0800
+X-Gm-Features: AQ5f1JqUG0YYBVOhwWGb6YuP75KRc_vcIL7Lh2pD9dN004pjvXLXIThnUsVJvbs
+Message-ID: <CAPpAL=zfKkWD8BVio__qHezhs-UDht6rq7mp6Rn5Z-tQG8RW6w@mail.gmail.com>
+Subject: Re: [PATCH vhost v2] vdpa/mlx5: Fix oversized null mkey longer than 32bit
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
+	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, stable@vger.kernel.org, 
+	Jason Wang <jasowang@redhat.com>, Cong Meng <cong.meng@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ilE8FZToiB4UmtBciPiQBZjOYFLdZiBZTiXDEtbvU-Y_1740974809
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
+I tested this patch with virtio-net and mlx5 vdpa regression tests,
+everything works fine.
 
-The last use of paravirt_disable_iospace() was removed in 2015 by
-commit d1c29465b8a5 ("lguest: don't disable iospace.")
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-Remove it.
-
-Note the comment above it about 'entry.S' is unrelated to this
-but stayed when intervening code got deleted.
-
-Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
----
-v2
-  Cleaned up the header
-
- arch/x86/include/asm/paravirt_types.h |  2 --
- arch/x86/kernel/paravirt.c            | 20 --------------------
- 2 files changed, 22 deletions(-)
-
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index fea56b04f436..3c54ac5a9af4 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -242,8 +242,6 @@ extern struct paravirt_patch_template pv_ops;
- 
- #define paravirt_ptr(op)	[paravirt_opptr] "m" (pv_ops.op)
- 
--int paravirt_disable_iospace(void);
--
- /* This generates an indirect call based on the operation type number. */
- #define PARAVIRT_CALL					\
- 	ANNOTATE_RETPOLINE_SAFE				\
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 1ccaa3397a67..debe92854774 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -90,26 +90,6 @@ void paravirt_set_sched_clock(u64 (*func)(void))
- 	static_call_update(pv_sched_clock, func);
- }
- 
--/* These are in entry.S */
--static struct resource reserve_ioports = {
--	.start = 0,
--	.end = IO_SPACE_LIMIT,
--	.name = "paravirt-ioport",
--	.flags = IORESOURCE_IO | IORESOURCE_BUSY,
--};
--
--/*
-- * Reserve the whole legacy IO space to prevent any legacy drivers
-- * from wasting time probing for their hardware.  This is a fairly
-- * brute-force approach to disabling all non-virtual drivers.
-- *
-- * Note that this must be called very early to have any effect.
-- */
--int paravirt_disable_iospace(void)
--{
--	return request_resource(&ioport_resource, &reserve_ioports);
--}
--
- #ifdef CONFIG_PARAVIRT_XXL
- static noinstr void pv_native_write_cr2(unsigned long val)
- {
--- 
-2.48.1
+On Fri, Feb 21, 2025 at 9:13=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Fri, Feb 21, 2025 at 3:40=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.c=
+om> wrote:
+> >
+> > From: Si-Wei Liu <si-wei.liu@oracle.com>
+> >
+> > create_user_mr() has correct code to count the number of null keys
+> > used to fill in a hole for the memory map. However, fill_indir()
+> > does not follow the same to cap the range up to the 1GB limit
+> > correspondingly. Fill in more null keys for the gaps in between,
+> > so that null keys are correctly populated.
+> >
+> > Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
+> > Cc: stable@vger.kernel.org
+> > Reported-by: Cong Meng <cong.meng@oracle.com>
+> > Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> > Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> > Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+>
+> Thanks
+>
+>
 
