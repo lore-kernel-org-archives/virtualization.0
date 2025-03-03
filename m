@@ -1,133 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0483125A34F;
-	Mon,  3 Mar 2025 16:31:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1597224FC03
+	for <virtualization@lists.linux.dev>; Mon,  3 Mar 2025 16:46:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741019469; cv=none; b=pzecrfVsUnrO4F6V/E+3/s681ttooRMgdmgf42SqHoPyUd8bfuVzaVYFTMJ7t6OaqtcFd5t+mEjQmCu3iHYIj4GjZuzKycSMVQX+kLAFlzW5XKggnBMKNRs2cGYDcHRwi5sCJ2KygX1zlIMb8BG/FrJUUBeBc1YKYJO2LP/2Stc=
+	t=1741020375; cv=none; b=QxORuWFg7NmPwHG2ARgVo2meMtTnu/oEKXjm4uqdCLUAyZ2YPzBw+VLAbNn03hwbDA0dIOd7M7EaqfJ5rf5VGVcluU314p+oqhLZwb26uIvfhKOYZLnbcwVxMOfbqvjY5oIrX9gpnA3lDxs1qpeA6AZuqFSsLjJYFtuYY75dF7o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741019469; c=relaxed/simple;
-	bh=QAc7evtpX6AqI49vOKse04iag3hTzb61yE0wSfOm6Zg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=TmlRc/7yk5+l3mKIuVggVZHv56oUhR4xRNgckMTaexb7wlUdgDB/mHZrw9D1kRt8r5lC86YfucPz+djpiWU7XqaEVufvYJsgO5LlXZrTmmrMzuOX6gvsOjOYVcSEgR2x9OTJzUIcrT6T+IydcrjP/s1b/SZqvQrPi2Izr6OdlII=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IVN0nrEu; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1741020375; c=relaxed/simple;
+	bh=4a3Js/QSUPm1CO0AmuaBEQTQLE/ky9K8nLFdDZq450M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QHHflSydyn/qcgVEZMRE9f9XqWyHpuyt95s9xK8OqEe/qZnnWMdRTuwGC65KF7acazZjnvblDZ6QklTIboeukT8rCRYTguv07RpVQVwuRTRLgS6VNoKg6yu5PuW7wANU2YxJuzD8PYaBLaQe6J5+hu3IXXpDS7hk14DUl9vp77A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=xd/JcQ6h; arc=none smtp.client-ip=209.85.219.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IVN0nrEu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2612C4CEE4;
-	Mon,  3 Mar 2025 16:31:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741019468;
-	bh=QAc7evtpX6AqI49vOKse04iag3hTzb61yE0wSfOm6Zg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=IVN0nrEu0oGdjRbFgldbAWLCtR8AgRFmjy3es51+tLZzOoy+KbLZcDAV3rHIm8Xd8
-	 FXhMDAZuqiOKZ313zd+cGmWvYtFIquOFbGmWDRkwZpKdMfSYXX3z8u41pz5JCg7gIn
-	 SAqfw6vpiOf5vTiXm7GLHhqTIr0zQwyIImGox2WcTXKD7oAtcC1JJChVomWvH/obzB
-	 JcmAuRYPD1i4ZqyJHeVPD0joYC56bHv9ewpqIMKZ7dewbj7tqZPfydVpOv29f3chVl
-	 Ad9NCWbEQRthfrwdsmu/HA1HOSOcfmQQSw5s1xsSg17B4T2FfVPl1Bd3nx5UhiJsl2
-	 NtsPgOhxI2l/Q==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Keith Busch <kbusch@kernel.org>,
-	Mike Christie <michael.christie@oracle.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	seanjc@google.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	dave.hansen@linux.intel.com,
-	x86@kernel.org,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.12 17/17] vhost: return task creation error instead of NULL
-Date: Mon,  3 Mar 2025 11:30:29 -0500
-Message-Id: <20250303163031.3763651-17-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250303163031.3763651-1-sashal@kernel.org>
-References: <20250303163031.3763651-1-sashal@kernel.org>
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="xd/JcQ6h"
+Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-6dd049b5428so42868216d6.2
+        for <virtualization@lists.linux.dev>; Mon, 03 Mar 2025 08:46:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1741020373; x=1741625173; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8X1eRghCbAiXOwCl3h9CNpVTl3lfWmjRfbNCLQzdf/o=;
+        b=xd/JcQ6hpk0y+8Y9sgUCageeVcwIXWDsFg/Yb3xISwbod3KJKEMUm4xrDoz2ja2kly
+         3CI3YSJdxgXlJTSsFuTlc5Cp2/Tf6DpQrfQgrYkvFJspj8JH7t2zOL+H0gpWH3mkLEfj
+         TpM06KF1bo4VEqyISElNd26Ays/FD1xzYXndI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741020373; x=1741625173;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8X1eRghCbAiXOwCl3h9CNpVTl3lfWmjRfbNCLQzdf/o=;
+        b=h/wogyYq8eqKmGmSRL1tfqLVthMOtbCiXO+RuQIL/ORpP5INBbHpdpmor7Nw2QNYjq
+         gl4zmqFXdy/YHxJbELzk59Z2JzRx58ILergodi/btPN1Ow1yiSxTm2Xl3XcklpnRRdEJ
+         kySFpv8az/afhGpwO6Hf5vfWqarhFJQcnHpCC0sny9YScykvTC2YCovvcjBWoLhhQNGz
+         L8k1UzyX3X/Q0jPO4Ma1iOihg+4FabXaADhsqDK5nyGEp81a4jleyMftFLs2NZDavEte
+         q8HU1ZnaKfs21NHkkh1ASwEfFQymIW1oK7KA7nrkgL45/TcvodEm1I0vs817qncDvPP/
+         Vz2A==
+X-Forwarded-Encrypted: i=1; AJvYcCXfGpDoKEZ/e0jPBRUVgTyYh2WP4pz+Ywj9qPegsdMn1Sylu4/mdTOBuI1/VKdYLwLOQ3cwZa301Y3j8gvJlg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy5+J8pqbVocOptMnZ/o4Lx/U7yPqr1Sln0WePy6/xxdLpaYTss
+	pNF0K70UHQ7e+bq9PSUC6k7lQmZCXZBkaI95Tb0Zvau8t47YwhuaEiuCz03RC+Q=
+X-Gm-Gg: ASbGncsCDmlhtfi1cYIBNbxhkP6PaqEa0XyMcQMtwC5a6znEG8KOUpyVmmBrGPh1hmH
+	n7TtCmK9CkT67UDIdmVma9ptkanUd9PNoNJ+t/QwCOnz/m90nw+/aN64nz57bhJuA4zrsQA1cyj
+	H3VYuqnzlF4Y40r1gP2ni4+RTLjWvJdey/Tm6qT5+qlGMZkV5aNaXm4cOOSbdxqz2HO4BOsDJGv
+	yZ/AlG6KBLqkDtfNHd6K01YspzPvMouTaFKnt9DZvT0KPIpKPRodaP6pNrELDwkfdbOcpLgXGoe
+	/3UyDpAb0TAMT9qPCRlUdfOcV6BASFt8sPx3hQkqcyjuma7gmajCWIuVxv3zeenmHsMuXmxzmTj
+	K2VHHi6I=
+X-Google-Smtp-Source: AGHT+IHkzyITDdW3vLOmKpMop+SV7m+wXZtHTB86svSFry2DpAQLcSAU+s3Ys44u2tdDtQuD6QzsPg==
+X-Received: by 2002:ad4:5de6:0:b0:6cb:c54c:b782 with SMTP id 6a1803df08f44-6e8a0d84e3dmr230430596d6.32.1741020372960;
+        Mon, 03 Mar 2025 08:46:12 -0800 (PST)
+Received: from LQ3V64L9R2 (ool-44c5a22e.dyn.optonline.net. [68.197.162.46])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6e897653667sm54834896d6.32.2025.03.03.08.46.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Mar 2025 08:46:12 -0800 (PST)
+Date: Mon, 3 Mar 2025 11:46:10 -0500
+From: Joe Damato <jdamato@fastly.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, mkarsten@uwaterloo.ca,
+	gerhard@engleder-embedded.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, mst@redhat.com, leiyang@redhat.com,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
+Message-ID: <Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
+Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
+	Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, mst@redhat.com,
+	leiyang@redhat.com,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+References: <20250227185017.206785-1-jdamato@fastly.com>
+ <20250227185017.206785-4-jdamato@fastly.com>
+ <20250228182759.74de5bec@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.12.17
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250228182759.74de5bec@kernel.org>
 
-From: Keith Busch <kbusch@kernel.org>
+On Fri, Feb 28, 2025 at 06:27:59PM -0800, Jakub Kicinski wrote:
+> On Thu, 27 Feb 2025 18:50:13 +0000 Joe Damato wrote:
+> > @@ -2870,9 +2883,15 @@ static void refill_work(struct work_struct *work)
+> >  	for (i = 0; i < vi->curr_queue_pairs; i++) {
+> >  		struct receive_queue *rq = &vi->rq[i];
+> >  
+> > +		rtnl_lock();
+> >  		virtnet_napi_disable(rq);
+> > +		rtnl_unlock();
+> > +
+> >  		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
+> > +
+> > +		rtnl_lock();
+> >  		virtnet_napi_enable(rq);
+> > +		rtnl_unlock();
+> 
+> Looks to me like refill_work is cancelled _sync while holding rtnl_lock
+> from the close path. I think this could deadlock?
 
-[ Upstream commit cb380909ae3b1ebf14d6a455a4f92d7916d790cb ]
+Good catch, thank you!
 
-Lets callers distinguish why the vhost task creation failed. No one
-currently cares why it failed, so no real runtime change from this
-patch, but that will not be the case for long.
+It looks like this is also the case in the failure path on
+virtnet_open.
 
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Message-ID: <20250227230631.303431-2-kbusch@meta.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/kvm/mmu/mmu.c | 2 +-
- drivers/vhost/vhost.c  | 2 +-
- kernel/vhost_task.c    | 4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+Jason: do you have any suggestions?
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 19c96278ba755..9242c0649adf1 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -7589,7 +7589,7 @@ static void kvm_mmu_start_lpage_recovery(struct once *once)
- 				      kvm_nx_huge_page_recovery_worker_kill,
- 				      kvm, "kvm-nx-lpage-recovery");
- 
--	if (!nx_thread)
-+	if (IS_ERR(nx_thread))
- 		return;
- 
- 	vhost_task_start(nx_thread);
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 9ac25d08f473e..63612faeab727 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -666,7 +666,7 @@ static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
- 
- 	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
- 				 worker, name);
--	if (!vtsk)
-+	if (IS_ERR(vtsk))
- 		goto free_worker;
- 
- 	mutex_init(&worker->mutex);
-diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
-index 8800f5acc0071..2ef2e1b800916 100644
---- a/kernel/vhost_task.c
-+++ b/kernel/vhost_task.c
-@@ -133,7 +133,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
- 
- 	vtsk = kzalloc(sizeof(*vtsk), GFP_KERNEL);
- 	if (!vtsk)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 	init_completion(&vtsk->exited);
- 	mutex_init(&vtsk->exit_mutex);
- 	vtsk->data = arg;
-@@ -145,7 +145,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
- 	tsk = copy_process(NULL, 0, NUMA_NO_NODE, &args);
- 	if (IS_ERR(tsk)) {
- 		kfree(vtsk);
--		return NULL;
-+		return ERR_PTR(PTR_ERR(tsk));
- 	}
- 
- 	vtsk->task = tsk;
--- 
-2.39.5
+It looks like in both open and close disable_delayed_refill is
+called first, before the cancel_delayed_work_sync.
+
+Would something like this solve the problem?
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 76dcd65ec0f2..457115300f05 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2880,6 +2880,13 @@ static void refill_work(struct work_struct *work)
+        bool still_empty;
+        int i;
+
++       spin_lock(&vi->refill_lock);
++       if (!vi->refill_enabled) {
++               spin_unlock(&vi->refill_lock);
++               return;
++       }
++       spin_unlock(&vi->refill_lock);
++
+        for (i = 0; i < vi->curr_queue_pairs; i++) {
+                struct receive_queue *rq = &vi->rq[i];
 
