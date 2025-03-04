@@ -1,146 +1,160 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8F2C204C1A
-	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 14:13:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFB1A27932E
+	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 15:08:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741097625; cv=none; b=ej8i0usoQ3vMEyGaVRgvtktWXIu+s97ENG7SqQb4kr4Kva7Irbx6YHZQj6aEYEbgv8/9eGOhAFfXzlBluwoLJPwU9Ro6a8jguTOC7pPedJRrBjPF52lCXvkdAdz/aKQY6bMCno1Q+5wT+64HBiHsWa1fcieOUt9BGnzofBefOkc=
+	t=1741100942; cv=none; b=N7AFHUzrYXyh4NLv+WZXu4n7Az9ayvXM3IchRvEfd0CFX48KxLG3puS33SEfsmteshmxlLS3eqjHxaznobK+AFSsOZnAX1iIkeTzVMtMaSyGhqDRdvSNvB4hfJLckjwVYFiYgVxErwNNhpjPx03zoL4rjzpLBEF4f0GNVrTN6fY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741097625; c=relaxed/simple;
-	bh=RkAdbbyUQqjk2EqBpPCG94Sc14gbb5422sQin3wFOho=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tUl/ls7j0asLbi+t8aVaRnIq1IW+QWKr+FwY5IJBC/sym6uHILdd0SSGoDyZVLiUHOZgOOZQMqC721SHnBCullnz3LEVKGNE9AQZMW7zMDGUNAuS9qUg4+pYPTvBNs9CCFJCVpVVWn9AD9Gr7U5X3ltkDxmNhdoOXtaWaXzUlQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id D5D8D210F9;
-	Tue,  4 Mar 2025 14:13:41 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
-	none
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A402D1393C;
-	Tue,  4 Mar 2025 14:13:41 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id iImOJpUKx2fdLAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 04 Mar 2025 14:13:41 +0000
-Message-ID: <f6441c24-667d-4127-ba34-0a600361e788@suse.de>
-Date: Tue, 4 Mar 2025 15:13:41 +0100
+	s=arc-20240116; t=1741100942; c=relaxed/simple;
+	bh=8PdHR+go0LZyaSvswv9QdAwopu5SDegpWFTZMMMm+JI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bGc6AikkzgEIoYBfAv1Xbh4D/0A6EDGogfp/ARKGlzHabayfL7VM4fJq86JFB99+TXIiqFbUCm4znh6M012d5yfpGOw/pUaX89Cch4k+gD1GUVeS2unUbsvDYo2bzuAQGLUjC/9qum8vxtg1FPwHjfnzLqsEXbxk3QqVMV/vIrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=qwkI7scy; arc=none smtp.client-ip=209.85.160.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="qwkI7scy"
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-474bc1aaf52so49339021cf.1
+        for <virtualization@lists.linux.dev>; Tue, 04 Mar 2025 07:08:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fastly.com; s=google; t=1741100939; x=1741705739; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BAJF5oZvK4kDimU1hi8HyGe8Ni5obiEempBFfdSb2no=;
+        b=qwkI7scyyPIIdUV4/SO9/cR0ucwUqe9JgNTQP+TQOsszQ8bB+mPMytFQcQosD3vr/V
+         zIkfxGVPI8BBsT36drxfMsjvbnYBllqsXay0+EzM5zSYwqXSd97LDdYq+X44TFzVdO1c
+         Y9kzNjdKKIS1/WlvP8dMI/z1l5BjxeB+mzVSw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741100939; x=1741705739;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=BAJF5oZvK4kDimU1hi8HyGe8Ni5obiEempBFfdSb2no=;
+        b=oSZiz3oA/yO5ElahCfvfCf+VZ/2QdXwdvRiITiffWwjKnQf0KHRCkLEkUeq4q5USrI
+         Rp+QG41rxit9S/zH5yqDsd/FProURq1Tcy2+atKi80K4bK54EmPyp9FTF9ChnvBzjtpl
+         58aWeD7SE89oQ9NXk95n36olSqcKTt3Cq0Rl1vitgEOpLF4ddxzTAMClAKA/WpnWKOcm
+         Pz2/6VRBLm092JZUBZSXL7mqm6fDanh/gxxt71kyq9+pVywMDyIeormMySkjNDN7u8PI
+         4aRBWmSKWKR9TVNSEOq7VQ9kqw/RLz59zOkluqGTkBQpIPdlPxxpckyW+JqM2mTiR54V
+         GI5Q==
+X-Forwarded-Encrypted: i=1; AJvYcCW3wzWlFh6PvE05zHYMZCvs3wE0YwOU4w3PtDoIDgF9X+QG66cSOIN0hi2q3BT1AfbHkmnjJklaIDBs28a4Pw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyj6A4z0daWmsTtxSxK2kMzNwAVMvJf1M5cmNVjy0wiaNlusj3a
+	BAWrD1JbRYdZGjQxkEZF6Yq3nJVWqNVvgPKC0Ks3QYr5mvCQ0dWrFqnwLbWZIpc=
+X-Gm-Gg: ASbGnctwJJEKLoVkUoPXcYlbiWHt/NMyB6CrSHWFL4xAwxNb9e0DenDRYD6KlfvME0O
+	M7WS025+EJ6ZLDDrgfQ967DoWQqWAQBlumfuyE1L3qktJnE/8THFHI6PBNVqOTFLEpxOlU2x3Bx
+	04qMxjnFTduPjqxMg1aZOKgYCASR6Nhm+QCs2bXLpQkfIK74Mvjcx0sTvJMnREMp4gcNRk3fQAV
+	vRW5RhFdWp19rYGjbaDXpZLCrstMz39oN8g2eLsPcJFUnPPg1u5T8dnBzQqogArgdWnz00x4mTt
+	5naLbI8fRQmCsSO1UHY8wDkIS3eX54zsOWwy1AUl0+WwVWw46FXVhMLPZRlN4HP2mwydOgSb+XF
+	tJaF4/wg=
+X-Google-Smtp-Source: AGHT+IFN7StRwj2Ft1J/Us75lrKPTPd2o+N24d4I6qj5+wKxsZNxpj1S/cF2hLsjZ4/ip/QBD/Wuaw==
+X-Received: by 2002:ac8:5a49:0:b0:471:bcb7:7897 with SMTP id d75a77b69052e-474bc066ee2mr231531011cf.1.1741100938725;
+        Tue, 04 Mar 2025 07:08:58 -0800 (PST)
+Received: from LQ3V64L9R2 (ool-44c5a22e.dyn.optonline.net. [68.197.162.46])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-474721bf582sm74153761cf.37.2025.03.04.07.08.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Mar 2025 07:08:58 -0800 (PST)
+Date: Tue, 4 Mar 2025 10:08:55 -0500
+From: Joe Damato <jdamato@fastly.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, mkarsten@uwaterloo.ca,
+	gerhard@engleder-embedded.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, mst@redhat.com, leiyang@redhat.com,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
+Message-ID: <Z8cXh43GJq2lolxE@LQ3V64L9R2>
+Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
+	Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, mst@redhat.com,
+	leiyang@redhat.com,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+References: <20250227185017.206785-1-jdamato@fastly.com>
+ <20250227185017.206785-4-jdamato@fastly.com>
+ <20250228182759.74de5bec@kernel.org>
+ <Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
+ <Z8XgGrToAD7Bak-I@LQ3V64L9R2>
+ <Z8X15hxz8t-vXpPU@LQ3V64L9R2>
+ <20250303160355.5f8d82d8@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/bochs: Fix DPMS regression
-To: Takashi Iwai <tiwai@suse.de>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, virtualization@lists.linux.dev,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-References: <20250304134203.20534-1-tiwai@suse.de>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20250304134203.20534-1-tiwai@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[];
-	ASN(0.00)[asn:25478, ipnet:::/0, country:RU]
-X-Spam-Score: -4.00
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: D5D8D210F9
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250303160355.5f8d82d8@kernel.org>
 
+On Mon, Mar 03, 2025 at 04:03:55PM -0800, Jakub Kicinski wrote:
+> On Mon, 3 Mar 2025 13:33:10 -0500 Joe Damato wrote:
+> > > > @@ -2880,6 +2880,13 @@ static void refill_work(struct work_struct *work)
+> > > >         bool still_empty;
+> > > >         int i;
+> > > > 
+> > > > +       spin_lock(&vi->refill_lock);
+> > > > +       if (!vi->refill_enabled) {
+> > > > +               spin_unlock(&vi->refill_lock);
+> > > > +               return;
+> > > > +       }
+> > > > +       spin_unlock(&vi->refill_lock);
+> > > > +
+> > > >         for (i = 0; i < vi->curr_queue_pairs; i++) {
+> > > >                 struct receive_queue *rq = &vi->rq[i];
+> > > >  
+> > > 
+> > > Err, I suppose this also doesn't work because:
+> > > 
+> > > CPU0                       CPU1
+> > > rtnl_lock                  (before CPU0 calls disable_delayed_refill) 
+> > >   virtnet_close            refill_work
+> > >                              rtnl_lock()
+> > >   cancel_sync <= deadlock
+> > > 
+> > > Need to give this a bit more thought.  
+> > 
+> > How about we don't use the API at all from refill_work?
+> > 
+> > Patch 4 adds consistent NAPI config state and refill_work isn't a
+> > queue resize maybe we don't need to call the netif_queue_set_napi at
+> > all since the NAPI IDs are persisted in the NAPI config state and
+> > refill_work shouldn't change that?
+> > 
+> > In which case, we could go back to what refill_work was doing
+> > before and avoid the problem entirely.
+> > 
+> > What do you think ?
+> 
+> Should work, I think. Tho, I suspect someone will want to add queue API
+> support to virtio sooner or later, and they will run into the same
+> problem with the netdev instance lock, as all of ndo_close() will then
+> be covered with netdev->lock.
+> 
+> More thorough and idiomatic way to solve the problem would be to cancel
+> the work non-sync in ndo_close, add cancel with _sync after netdev is
+> unregistered (in virtnet_remove()) when the lock is no longer held, then
+> wrap the entire work with a relevant lock and check if netif_running()
+> to return early in case of a race.
 
+Thanks for the guidance. I am happy to make an attempt at
+implementing this in a future, separate series that follows this
+one (probably after netdev conf in a few weeks :).
 
-Am 04.03.25 um 14:41 schrieb Takashi Iwai:
-> The recent rewrite with the use of regular atomic helpers broke the
-> DPMS unblanking on X11.  Fix it by moving the call of
-> bochs_hw_blank(false) from CRTC mode_set_nofb() to atomic_enable().
->
-> Fixes: 2037174993c8 ("drm/bochs: Use regular atomic helpers")
-> Link: https://bugzilla.suse.com/show_bug.cgi?id=1238209
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> Middle ground would be to do what you suggested above and just leave 
+> a well worded comment somewhere that will show up in diffs adding queue
+> API support?
 
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-
-Thanks for the patch.
-
-> ---
->   drivers/gpu/drm/tiny/bochs.c | 5 +++--
->   1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-> index 76e29950a807..c1c7d6c9e85f 100644
-> --- a/drivers/gpu/drm/tiny/bochs.c
-> +++ b/drivers/gpu/drm/tiny/bochs.c
-> @@ -323,8 +323,6 @@ static void bochs_hw_setmode(struct bochs_device *bochs, struct drm_display_mode
->   			 bochs->xres, bochs->yres, bochs->bpp,
->   			 bochs->yres_virtual);
->   
-> -	bochs_hw_blank(bochs, false);
-> -
->   	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,      0);
->   	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BPP,         bochs->bpp);
->   	bochs_dispi_write(bochs, VBE_DISPI_INDEX_XRES,        bochs->xres);
-> @@ -494,6 +492,9 @@ static int bochs_crtc_helper_atomic_check(struct drm_crtc *crtc,
->   static void bochs_crtc_helper_atomic_enable(struct drm_crtc *crtc,
->   					    struct drm_atomic_state *state)
->   {
-> +	struct bochs_device *bochs = to_bochs_device(crtc->dev);
-> +
-> +	bochs_hw_blank(bochs, false);
->   }
->   
->   static void bochs_crtc_helper_atomic_disable(struct drm_crtc *crtc,
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
-
+Jason, Michael, et. al.:  what do you think ? I don't want to spin
+up a v6 if you are opposed to proceeding this way. Please let me
+know.
