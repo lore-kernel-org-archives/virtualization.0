@@ -1,146 +1,146 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF162040BA
-	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 13:42:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8F2C204C1A
+	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 14:13:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741095735; cv=none; b=j0yJJjRs7TIZ0t1f1u3gZE0Z1Fj2Z46ndfeINNx9HxYn7D1N+cK1f++Bu18wIcxI0yWOjjts7Fv+FPuBiVaBqiBDJafj/FbfPwiFKQyOqn1wWzkxsaty3oBRy391Q9hRypYvzcmrYvNU98FwfHI57fGOhlIEtqTNfhWk7YWSJYI=
+	t=1741097625; cv=none; b=ej8i0usoQ3vMEyGaVRgvtktWXIu+s97ENG7SqQb4kr4Kva7Irbx6YHZQj6aEYEbgv8/9eGOhAFfXzlBluwoLJPwU9Ro6a8jguTOC7pPedJRrBjPF52lCXvkdAdz/aKQY6bMCno1Q+5wT+64HBiHsWa1fcieOUt9BGnzofBefOkc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741095735; c=relaxed/simple;
-	bh=UKqD0GvTjTS5WLgbUwb8EpI54GC7Klx6kteW/PeGvcQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iaihnYr+yE/vy/+/0J6skNkWrGeXacp10d1qUTXT955yyNFLvrH67qPcSy43FXQ/5+qZXXkGxEI1xX3wp73icISLycUVMJAXXs+ye7WovrqvblxnkDZq0TjhfkqV64PnkRU1/nXT8ILydgX3hYjX7bHbenZXWW0vn2LehZx8qFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=j74GWCPR; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kbWyiGTU; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=j74GWCPR; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kbWyiGTU; arc=none smtp.client-ip=195.135.223.131
+	s=arc-20240116; t=1741097625; c=relaxed/simple;
+	bh=RkAdbbyUQqjk2EqBpPCG94Sc14gbb5422sQin3wFOho=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tUl/ls7j0asLbi+t8aVaRnIq1IW+QWKr+FwY5IJBC/sym6uHILdd0SSGoDyZVLiUHOZgOOZQMqC721SHnBCullnz3LEVKGNE9AQZMW7zMDGUNAuS9qUg4+pYPTvBNs9CCFJCVpVVWn9AD9Gr7U5X3ltkDxmNhdoOXtaWaXzUlQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="j74GWCPR";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kbWyiGTU";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="j74GWCPR";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kbWyiGTU"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C87F71F74C;
-	Tue,  4 Mar 2025 13:42:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1741095731; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
-	b=j74GWCPRpYz4zVw2x8/0H9aqWSI25IIQFAnNLLlx2WvUQlTz5Ds14UCSt3IHqvvpqKrkeI
-	B7kyL+eUFn94wRmVqdREAMQBekAYKAzQiirg1cpfNGI00qBpU/ien359JBdu2BnsPwYi3u
-	kKKyjGEehyTM2VVx0eiSc4piyoK2AZs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1741095731;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
-	b=kbWyiGTU6+GQhDxR3HzAaJMzkDtXYNKGC5u1G3Si5DAnCVDqB2THNdevcJk6hI/ltfxMrT
-	moihjhh498C+XjBA==
-Authentication-Results: smtp-out2.suse.de;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D5D8D210F9;
+	Tue,  4 Mar 2025 14:13:41 +0000 (UTC)
+Authentication-Results: smtp-out1.suse.de;
 	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1741095731; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
-	b=j74GWCPRpYz4zVw2x8/0H9aqWSI25IIQFAnNLLlx2WvUQlTz5Ds14UCSt3IHqvvpqKrkeI
-	B7kyL+eUFn94wRmVqdREAMQBekAYKAzQiirg1cpfNGI00qBpU/ien359JBdu2BnsPwYi3u
-	kKKyjGEehyTM2VVx0eiSc4piyoK2AZs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1741095731;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
-	b=kbWyiGTU6+GQhDxR3HzAaJMzkDtXYNKGC5u1G3Si5DAnCVDqB2THNdevcJk6hI/ltfxMrT
-	moihjhh498C+XjBA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A9D5E13967;
-	Tue,  4 Mar 2025 13:42:11 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A402D1393C;
+	Tue,  4 Mar 2025 14:13:41 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id LmDXKDMDx2eNIgAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Tue, 04 Mar 2025 13:42:11 +0000
-From: Takashi Iwai <tiwai@suse.de>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/bochs: Fix DPMS regression
-Date: Tue,  4 Mar 2025 14:41:57 +0100
-Message-ID: <20250304134203.20534-1-tiwai@suse.de>
-X-Mailer: git-send-email 2.43.0
+	id iImOJpUKx2fdLAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 04 Mar 2025 14:13:41 +0000
+Message-ID: <f6441c24-667d-4127-ba34-0a600361e788@suse.de>
+Date: Tue, 4 Mar 2025 15:13:41 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/bochs: Fix DPMS regression
+To: Takashi Iwai <tiwai@suse.de>, Gerd Hoffmann <kraxel@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, virtualization@lists.linux.dev,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+References: <20250304134203.20534-1-tiwai@suse.de>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20250304134203.20534-1-tiwai@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
 X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid,suse.com:url];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU]
+X-Spam-Score: -4.00
 X-Spam-Flag: NO
+X-Rspamd-Queue-Id: D5D8D210F9
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 
-The recent rewrite with the use of regular atomic helpers broke the
-DPMS unblanking on X11.  Fix it by moving the call of
-bochs_hw_blank(false) from CRTC mode_set_nofb() to atomic_enable().
 
-Fixes: 2037174993c8 ("drm/bochs: Use regular atomic helpers")
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1238209
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
----
- drivers/gpu/drm/tiny/bochs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 76e29950a807..c1c7d6c9e85f 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -323,8 +323,6 @@ static void bochs_hw_setmode(struct bochs_device *bochs, struct drm_display_mode
- 			 bochs->xres, bochs->yres, bochs->bpp,
- 			 bochs->yres_virtual);
- 
--	bochs_hw_blank(bochs, false);
--
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,      0);
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BPP,         bochs->bpp);
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_XRES,        bochs->xres);
-@@ -494,6 +492,9 @@ static int bochs_crtc_helper_atomic_check(struct drm_crtc *crtc,
- static void bochs_crtc_helper_atomic_enable(struct drm_crtc *crtc,
- 					    struct drm_atomic_state *state)
- {
-+	struct bochs_device *bochs = to_bochs_device(crtc->dev);
-+
-+	bochs_hw_blank(bochs, false);
- }
- 
- static void bochs_crtc_helper_atomic_disable(struct drm_crtc *crtc,
+Am 04.03.25 um 14:41 schrieb Takashi Iwai:
+> The recent rewrite with the use of regular atomic helpers broke the
+> DPMS unblanking on X11.  Fix it by moving the call of
+> bochs_hw_blank(false) from CRTC mode_set_nofb() to atomic_enable().
+>
+> Fixes: 2037174993c8 ("drm/bochs: Use regular atomic helpers")
+> Link: https://bugzilla.suse.com/show_bug.cgi?id=1238209
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+
+Thanks for the patch.
+
+> ---
+>   drivers/gpu/drm/tiny/bochs.c | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+> index 76e29950a807..c1c7d6c9e85f 100644
+> --- a/drivers/gpu/drm/tiny/bochs.c
+> +++ b/drivers/gpu/drm/tiny/bochs.c
+> @@ -323,8 +323,6 @@ static void bochs_hw_setmode(struct bochs_device *bochs, struct drm_display_mode
+>   			 bochs->xres, bochs->yres, bochs->bpp,
+>   			 bochs->yres_virtual);
+>   
+> -	bochs_hw_blank(bochs, false);
+> -
+>   	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,      0);
+>   	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BPP,         bochs->bpp);
+>   	bochs_dispi_write(bochs, VBE_DISPI_INDEX_XRES,        bochs->xres);
+> @@ -494,6 +492,9 @@ static int bochs_crtc_helper_atomic_check(struct drm_crtc *crtc,
+>   static void bochs_crtc_helper_atomic_enable(struct drm_crtc *crtc,
+>   					    struct drm_atomic_state *state)
+>   {
+> +	struct bochs_device *bochs = to_bochs_device(crtc->dev);
+> +
+> +	bochs_hw_blank(bochs, false);
+>   }
+>   
+>   static void bochs_crtc_helper_atomic_disable(struct drm_crtc *crtc,
+
 -- 
-2.43.0
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
