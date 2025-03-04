@@ -1,109 +1,131 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C8CC2D1;
-	Tue,  4 Mar 2025 00:03:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E66F33C9;
+	Tue,  4 Mar 2025 00:20:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741046637; cv=none; b=rEbdaBNMQasaxJudbWmFeaorLrhuaAN8tUPegRSaB3c3JfhlErM6XBvh91BbhZg/XiDcjfYrJTTX/Z1ab6qThmyaxlgnCB+q/HUtJuoSoOWTKTZDCeayzV6WVj9zywqlGzaJwEibCe8umKL/vkT2HU4o1rInoFgC2kwlFRm0EtY=
+	t=1741047653; cv=none; b=ggmmnjm0+TKXlJvHIs/CnsEzu+9DWAY6FPKG0ToUJX/CiYuZpfIsOXRlGJZFBo1z1J3kkbyeBcE7kaZ5Y1HN6kuXepg1fU2qR02uRJkXleQi7A7TABjVO1zMSnCphTQ0Sjr3WaUYLI2s624WqHgBXcC8NwH2ymPpJvbBV6zTzHE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741046637; c=relaxed/simple;
-	bh=PodGSYAN2PRqPznGy1o8bGNv8tT3sasFzN7rH8DbDzw=;
+	s=arc-20240116; t=1741047653; c=relaxed/simple;
+	bh=LAmMGSLnzR2OYEFOo+PYZBnSaJVgzfYYZgo38RaUpuo=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=M8+kggRpZLg53aLg2vGhWOlMwRZhrphgp/3G9m1cRcS9SAOVaFAG7ru1IIxUKzKy/gig9OzPDwNZQAq7dklv+voS6RNJ+54fNHDmMhk658XRJ2/LWdWxlET8ZXuS4i73ccQO81pDEWj0mgUMSoh1KBN2iy1wpm6fO09cELKfn74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u5+2RKW2; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=pdLlzSvwHyTIbdQkgpg7knzXNgNRbDf/uEKvaOSZ/Gh7y6MRc31i0ME0OnW9WKF/jSxGwOl3+KF68/k1IdMbC6cnJzdlmKWsX+H4P74Hd7urxtwqa60ORXq5UqbsVbJJ2DehKdXTsPGyYw/1/LxoiywQi9MKMjtu92up14UUHd4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VdEJYkF+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u5+2RKW2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD89C4CEE4;
-	Tue,  4 Mar 2025 00:03:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VdEJYkF+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0518EC4CEE4;
+	Tue,  4 Mar 2025 00:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741046636;
-	bh=PodGSYAN2PRqPznGy1o8bGNv8tT3sasFzN7rH8DbDzw=;
+	s=k20201202; t=1741047653;
+	bh=LAmMGSLnzR2OYEFOo+PYZBnSaJVgzfYYZgo38RaUpuo=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=u5+2RKW275a+1qk3Btczy9vu4F6fSXqzr0EAFRS1d7exuLigQNzYleSDbBi/IXbsT
-	 L1HsXBng2OdDAYfXnknoWHQgp5zahNu96V1MlqGXbhGnKQAtMMqqfThugjTtnF8Bhn
-	 zAdJP9NATi+KyhcNlReKbCeqL78HRE6lb4Ak/mOlgMzRPQl/yOvUsX2BNcjCEtJMxn
-	 3EW07GrYaEXAmlxAiMuGQ6xExLHdAsqZSc47J5qDfNJRtgYwxkmSxm0MAdXICruF3Z
-	 rZkl3h3Ip+j0sfViQ714aKMyI/QQnV1ddrfxvPawVaJiKcbAS+3TL2pviJ1oWuIBx5
-	 Ooy619yCHvFNA==
-Date: Mon, 3 Mar 2025 16:03:55 -0800
+	b=VdEJYkF+m3mlxf6SR3CFwP3oyKzjWYw8MAPmnO1z77oytFmcxQDBgTr+afanslctg
+	 sOf01BrUaQxvUZ88qIJQ4W3m9uTFk0rn02xns4oeH7HMwGFIuo4Bz6Z0Q+YWILxkH7
+	 IpqteCYfEKKPhC2ckdEIHuNElC8f/lnqy7asMBIfGqgxgJL4fiZUz0NqiCOOCBXurH
+	 D/ftQR1TsqPQXoEi9Z5gsAYn6ZeZ22nSSWs2GGT7HRdqPgmxMksdPoa2vPTpWImRtu
+	 5D8XYGYyKXodzmyuLdroedCpOxZLzSv6H26mQiZQ0dPCQgrfoZ+o/acjBX/N5zplWP
+	 ACtePg0dD+7+Q==
+Date: Mon, 3 Mar 2025 16:20:51 -0800
 From: Jakub Kicinski <kuba@kernel.org>
-To: Joe Damato <jdamato@fastly.com>
-Cc: netdev@vger.kernel.org, mkarsten@uwaterloo.ca,
- gerhard@engleder-embedded.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, mst@redhat.com, leiyang@redhat.com, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
- <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "open
- list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>, open
- list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
-Message-ID: <20250303160355.5f8d82d8@kernel.org>
-In-Reply-To: <Z8X15hxz8t-vXpPU@LQ3V64L9R2>
-References: <20250227185017.206785-1-jdamato@fastly.com>
-	<20250227185017.206785-4-jdamato@fastly.com>
-	<20250228182759.74de5bec@kernel.org>
-	<Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
-	<Z8XgGrToAD7Bak-I@LQ3V64L9R2>
-	<Z8X15hxz8t-vXpPU@LQ3V64L9R2>
+To: Mina Almasry <almasrymina@google.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, Donald
+ Hunter <donald.hunter@gmail.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, Jeroen de Borst <jeroendb@google.com>, Harshitha
+ Ramamurthy <hramamurthy@google.com>, Kuniyuki Iwashima <kuniyu@amazon.com>,
+ Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano
+ Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
+ sdf@fomichev.me, asml.silence@gmail.com, dw@davidwei.uk, Jamal Hadi Salim
+ <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
+ <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v6 1/8] net: add get_netmem/put_netmem support
+Message-ID: <20250303162051.09ad684e@kernel.org>
+In-Reply-To: <CAHS8izNQnTW7sad_oABtxhy3cHxGR0FWJucrHTSVX7ZAA6jT3Q@mail.gmail.com>
+References: <20250227041209.2031104-1-almasrymina@google.com>
+	<20250227041209.2031104-2-almasrymina@google.com>
+	<20250228163846.0a59fb40@kernel.org>
+	<CAHS8izNQnTW7sad_oABtxhy3cHxGR0FWJucrHTSVX7ZAA6jT3Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 3 Mar 2025 13:33:10 -0500 Joe Damato wrote:
-> > > @@ -2880,6 +2880,13 @@ static void refill_work(struct work_struct *work)
-> > >         bool still_empty;
-> > >         int i;
-> > > 
-> > > +       spin_lock(&vi->refill_lock);
-> > > +       if (!vi->refill_enabled) {
-> > > +               spin_unlock(&vi->refill_lock);
-> > > +               return;
-> > > +       }
-> > > +       spin_unlock(&vi->refill_lock);
-> > > +
-> > >         for (i = 0; i < vi->curr_queue_pairs; i++) {
-> > >                 struct receive_queue *rq = &vi->rq[i];
-> > >  
-> > 
-> > Err, I suppose this also doesn't work because:
-> > 
-> > CPU0                       CPU1
-> > rtnl_lock                  (before CPU0 calls disable_delayed_refill) 
-> >   virtnet_close            refill_work
-> >                              rtnl_lock()
-> >   cancel_sync <= deadlock
-> > 
-> > Need to give this a bit more thought.  
-> 
-> How about we don't use the API at all from refill_work?
-> 
-> Patch 4 adds consistent NAPI config state and refill_work isn't a
-> queue resize maybe we don't need to call the netif_queue_set_napi at
-> all since the NAPI IDs are persisted in the NAPI config state and
-> refill_work shouldn't change that?
-> 
-> In which case, we could go back to what refill_work was doing
-> before and avoid the problem entirely.
-> 
-> What do you think ?
+On Fri, 28 Feb 2025 17:29:13 -0800 Mina Almasry wrote:
+> On Fri, Feb 28, 2025 at 4:38=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> =
+wrote:
+> > On Thu, 27 Feb 2025 04:12:02 +0000 Mina Almasry wrote: =20
+> > >  static inline void __skb_frag_ref(skb_frag_t *frag)
+> > >  {
+> > > -     get_page(skb_frag_page(frag));
+> > > +     get_netmem(skb_frag_netmem(frag));
+> > >  } =20
+> >
+> > Silently handling types of memory the caller may not be expecting
+> > always worries me. =20
+>=20
+> Sorry, I'm not following. What caller is not expecting netmem?
+> Here we're making sure __skb_frag_ref() handles netmem correctly,
+> i.e. we were not expecting netmem here before, and after this patch
+> we'll handle it correctly.
+>=20
+> > Why do we need this?
+> > =20
+>=20
+> The MSG_ZEROCOPY TX path takes a page reference on the passed memory
+> in zerocopy_fill_skb_from_iter() that kfree_skb() later drops when the
+> skb is sent. We need an equivalent for netmem, which only supports pp
+> refs today. This is my attempt at implementing a page_ref equivalent
+> to net_iov and generic netmem.
+>=20
+> I think __skb_frag_[un]ref is used elsewhere in the TX path too,
+> tcp_mtu_probe for example calls skb_frag_ref eventually.
 
-Should work, I think. Tho, I suspect someone will want to add queue API
-support to virtio sooner or later, and they will run into the same
-problem with the netdev instance lock, as all of ndo_close() will then
-be covered with netdev->lock.
+Any such caller must be inspected to make sure it generates
+/ anticipates skbs with appropriate pp_recycle and readable settings.
+It's possible that adding a set of _netmem APIs would be too much
+churn, but if it's not - it'd make it clear which parts of the kernel
+we have inspected.
 
-More thorough and idiomatic way to solve the problem would be to cancel
-the work non-sync in ndo_close, add cancel with _sync after netdev is
-unregistered (in virtnet_remove()) when the lock is no longer held, then
-wrap the entire work with a relevant lock and check if netif_running()
-to return early in case of a race.
+> > In general, I'm surprised by the lack of bug reports for devmem. =20
+>=20
+> I guess we did a good job making sure we don't regress the page paths.
 
-Middle ground would be to do what you suggested above and just leave 
-a well worded comment somewhere that will show up in diffs adding queue
-API support?
+:)
+
+> The lack of support in any driver that qemu will run is an issue. I
+> wonder if also the fact that devmem needs some setup is also an issue.
+> We need headersplit enabled, udmabuf created, netlink API bound, and
+> then a connection referring to created and we don't support loopback.
+> I think maybe it all may make it difficult for syzbot to repro. I've
+> had it on my todo list to investigate this more.
+>=20
+> > Can you think of any way we could expose this more to syzbot?
+> > First thing that comes to mind is a simple hack in netdevsim,
+> > to make it insert a netmem handle (allocated locally, not a real
+> > memory provider), every N packets (controllable via debugfs).
+> > Would that work? =20
+>=20
+> Yes, great idea. I don't see why it wouldn't work.
+>=20
+> We don't expect mixing of net_iovs and pages in the same skb, but
+> netdevsim could create one net_iov skb every N skbs.
+>=20
+> I guess I'm not totally sure something is discoverable to syzbot. Is a
+> netdevsim hack toggleable via a debugfs sufficient for syzbot? I'll
+> investigate and ask.
+
+Yeah, my unreliable memory is that syzbot has a mixed record discovering
+problems with debugfs. If you could ask Dmitry for advice that'd be
+ideal.
