@@ -1,206 +1,146 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48F99201025
-	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 12:09:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF162040BA
+	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 13:42:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741090192; cv=none; b=oUqUBVFzjHIiG9VvxH+P7JHgl2guJqS9k9/gJMCLQBofMIWhV7PO1bbQQgg6Zl73w1X/N07NV7L+SXa2RhvndFYU2wuAJCafEbGc5wE8HyQ3C9T/VO54NY5UDredp+JX3LbufdrwMieu/lyRH9DLFpHtKJ1Qy1kHCk6PAAWkyS0=
+	t=1741095735; cv=none; b=j0yJJjRs7TIZ0t1f1u3gZE0Z1Fj2Z46ndfeINNx9HxYn7D1N+cK1f++Bu18wIcxI0yWOjjts7Fv+FPuBiVaBqiBDJafj/FbfPwiFKQyOqn1wWzkxsaty3oBRy391Q9hRypYvzcmrYvNU98FwfHI57fGOhlIEtqTNfhWk7YWSJYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741090192; c=relaxed/simple;
-	bh=4S8tqaK0XJCLIv/7Rv3hJVe8rj1mH8s+KkdKMp6uzeo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=uGZ4SX4hz3OTMGy+I4kSbXJaZub5addoOGAIxfZgl1L4rWE3NGBDrQ/7QkPlPTSt+Y3AoiZPmwUz/f9kDAPMOJkLdBAMzXOy5zI2Afg1UKa8USxFYOlxoyQ1YK3BhD6mG9UNuJAj2k6gRpF+bpvGdB0LvsryD1mB+rvmrIyx8jw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4Z6ZBX3494z2DkHc;
-	Tue,  4 Mar 2025 20:05:24 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id D7E721A016C;
-	Tue,  4 Mar 2025 20:09:35 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 4 Mar 2025 20:09:35 +0800
-Message-ID: <91fcdfca-3e7b-417c-ab26-7d5e37853431@huawei.com>
-Date: Tue, 4 Mar 2025 20:09:35 +0800
+	s=arc-20240116; t=1741095735; c=relaxed/simple;
+	bh=UKqD0GvTjTS5WLgbUwb8EpI54GC7Klx6kteW/PeGvcQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iaihnYr+yE/vy/+/0J6skNkWrGeXacp10d1qUTXT955yyNFLvrH67qPcSy43FXQ/5+qZXXkGxEI1xX3wp73icISLycUVMJAXXs+ye7WovrqvblxnkDZq0TjhfkqV64PnkRU1/nXT8ILydgX3hYjX7bHbenZXWW0vn2LehZx8qFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=j74GWCPR; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kbWyiGTU; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=j74GWCPR; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kbWyiGTU; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="j74GWCPR";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kbWyiGTU";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="j74GWCPR";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kbWyiGTU"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C87F71F74C;
+	Tue,  4 Mar 2025 13:42:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741095731; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
+	b=j74GWCPRpYz4zVw2x8/0H9aqWSI25IIQFAnNLLlx2WvUQlTz5Ds14UCSt3IHqvvpqKrkeI
+	B7kyL+eUFn94wRmVqdREAMQBekAYKAzQiirg1cpfNGI00qBpU/ien359JBdu2BnsPwYi3u
+	kKKyjGEehyTM2VVx0eiSc4piyoK2AZs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741095731;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
+	b=kbWyiGTU6+GQhDxR3HzAaJMzkDtXYNKGC5u1G3Si5DAnCVDqB2THNdevcJk6hI/ltfxMrT
+	moihjhh498C+XjBA==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741095731; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
+	b=j74GWCPRpYz4zVw2x8/0H9aqWSI25IIQFAnNLLlx2WvUQlTz5Ds14UCSt3IHqvvpqKrkeI
+	B7kyL+eUFn94wRmVqdREAMQBekAYKAzQiirg1cpfNGI00qBpU/ien359JBdu2BnsPwYi3u
+	kKKyjGEehyTM2VVx0eiSc4piyoK2AZs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741095731;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=nyc6J/gksMhLhuBouY5xml3nE5EEMor2jUfF0ZTd8DU=;
+	b=kbWyiGTU6+GQhDxR3HzAaJMzkDtXYNKGC5u1G3Si5DAnCVDqB2THNdevcJk6hI/ltfxMrT
+	moihjhh498C+XjBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A9D5E13967;
+	Tue,  4 Mar 2025 13:42:11 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id LmDXKDMDx2eNIgAAD6G6ig
+	(envelope-from <tiwai@suse.de>); Tue, 04 Mar 2025 13:42:11 +0000
+From: Takashi Iwai <tiwai@suse.de>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] drm/bochs: Fix DPMS regression
+Date: Tue,  4 Mar 2025 14:41:57 +0100
+Message-ID: <20250304134203.20534-1-tiwai@suse.de>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
- only NULL elements
-To: Dave Chinner <david@fromorbit.com>
-CC: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, Shameer
- Kolothum <shameerali.kolothum.thodi@huawei.com>, Kevin Tian
-	<kevin.tian@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Chris
- Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba
-	<dsterba@suse.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep
- Dhavale <dhavale@google.com>, Carlos Maiolino <cem@kernel.org>, "Darrick J.
- Wong" <djwong@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jesper
- Dangaard Brouer <hawk@kernel.org>, Ilias Apalodimas
-	<ilias.apalodimas@linaro.org>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Trond Myklebust
-	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
-	<chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Luiz Capitulino
-	<luizcap@redhat.com>, Mel Gorman <mgorman@techsingularity.net>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <linux-btrfs@vger.kernel.org>,
-	<linux-erofs@lists.ozlabs.org>, <linux-xfs@vger.kernel.org>,
-	<linux-mm@kvack.org>, <netdev@vger.kernel.org>, <linux-nfs@vger.kernel.org>
-References: <20250228094424.757465-1-linyunsheng@huawei.com>
- <Z8a3WSOrlY4n5_37@dread.disaster.area>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <Z8a3WSOrlY4n5_37@dread.disaster.area>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCPT_COUNT_SEVEN(0.00)[7];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid,suse.com:url];
+	RCVD_TLS_ALL(0.00)[]
+X-Spam-Score: -2.80
+X-Spam-Flag: NO
 
-On 2025/3/4 16:18, Dave Chinner wrote:
+The recent rewrite with the use of regular atomic helpers broke the
+DPMS unblanking on X11.  Fix it by moving the call of
+bochs_hw_blank(false) from CRTC mode_set_nofb() to atomic_enable().
 
-...
+Fixes: 2037174993c8 ("drm/bochs: Use regular atomic helpers")
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1238209
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+ drivers/gpu/drm/tiny/bochs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-> 
->>
->> 1. https://lore.kernel.org/all/bd8c2f5c-464d-44ab-b607-390a87ea4cd5@huawei.com/
->> 2. https://lore.kernel.org/all/20250212092552.1779679-1-linyunsheng@huawei.com/
->> CC: Jesper Dangaard Brouer <hawk@kernel.org>
->> CC: Luiz Capitulino <luizcap@redhat.com>
->> CC: Mel Gorman <mgorman@techsingularity.net>
->> CC: Dave Chinner <david@fromorbit.com>
->> CC: Chuck Lever <chuck.lever@oracle.com>
->> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
->> Acked-by: Jeff Layton <jlayton@kernel.org>
->> ---
->> V2:
->> 1. Drop RFC tag and rebased on latest linux-next.
->> 2. Fix a compile error for xfs.
-> 
-> And you still haven't tested the code changes to XFS, because
-> this patch is also broken.
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index 76e29950a807..c1c7d6c9e85f 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -323,8 +323,6 @@ static void bochs_hw_setmode(struct bochs_device *bochs, struct drm_display_mode
+ 			 bochs->xres, bochs->yres, bochs->bpp,
+ 			 bochs->yres_virtual);
+ 
+-	bochs_hw_blank(bochs, false);
+-
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,      0);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BPP,         bochs->bpp);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_XRES,        bochs->xres);
+@@ -494,6 +492,9 @@ static int bochs_crtc_helper_atomic_check(struct drm_crtc *crtc,
+ static void bochs_crtc_helper_atomic_enable(struct drm_crtc *crtc,
+ 					    struct drm_atomic_state *state)
+ {
++	struct bochs_device *bochs = to_bochs_device(crtc->dev);
++
++	bochs_hw_blank(bochs, false);
+ }
+ 
+ static void bochs_crtc_helper_atomic_disable(struct drm_crtc *crtc,
+-- 
+2.43.0
 
-I tested XFS using the below cmd and testcase, testing seems
-to be working fine, or am I missing something obvious here
-as I am not realy familiar with fs subsystem yet:
-
-Step to setup the xfs:
-dd if=/dev/zero of=xfs_image bs=1M count=1024
-losetup -f xfs_image
-losetup -a
-./mkfs.xfs /dev/loop0
-mkdir xfs_test
-mount /dev/loop0 xfs_test/
-
-Test shell file:
-#!/bin/bash
-
-# Configuration parameters
-DIR="/home/xfs_test"              # Directory to perform file operations
-FILE_COUNT=100              # Maximum number of files to create in each loop
-MAX_FILE_SIZE=1024          # Maximum file size in KB
-MIN_FILE_SIZE=10            # Minimum file size in KB
-OPERATIONS=10               # Number of create/delete operations per loop
-TOTAL_RUNS=10000               # Total number of loops to run
-
-# Check if the directory exists
-if [ ! -d "$DIR" ]; then
-    echo "Directory $DIR does not exist. Please create the directory first!"
-    exit 1
-fi
-
-echo "Starting file system test on: $DIR"
-
-for ((run=1; run<=TOTAL_RUNS; run++)); do
-    echo "Run $run of $TOTAL_RUNS"
-
-    # Randomly create files
-    for ((i=1; i<=OPERATIONS; i++)); do
-        # Generate a random file size between MIN_FILE_SIZE and MAX_FILE_SIZE (in KB)
-        FILE_SIZE=$((RANDOM % (MAX_FILE_SIZE - MIN_FILE_SIZE + 1) + MIN_FILE_SIZE))
-        # Generate a unique file name using timestamp and random number
-        FILE_NAME="$DIR/file_$(date +%s)_$RANDOM"
-        # Create a file with random content
-        dd if=/dev/urandom of="$FILE_NAME" bs=1K count=$FILE_SIZE &>/dev/null
-        echo "Created file: $FILE_NAME, Size: $FILE_SIZE KB"
-    done
-
-    # Randomly delete files
-    for ((i=1; i<=OPERATIONS; i++)); do
-        # List all files in the directory
-        FILE_LIST=($(ls $DIR))
-        # Check if there are any files to delete
-        if [ ${#FILE_LIST[@]} -gt 0 ]; then
-            # Randomly select a file to delete
-            RANDOM_FILE=${FILE_LIST[$RANDOM % ${#FILE_LIST[@]}]}
-            rm -f "$DIR/$RANDOM_FILE"
-            echo "Deleted file: $DIR/$RANDOM_FILE"
-        fi
-    done
-
-    echo "Completed run $run"
-done
-
-echo "Test completed!"
-
-
-> 
->> diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
->> index 5d560e9073f4..b4e95b2dd0f0 100644
->> --- a/fs/xfs/xfs_buf.c
->> +++ b/fs/xfs/xfs_buf.c
->> @@ -319,16 +319,17 @@ xfs_buf_alloc_pages(
->>  	 * least one extra page.
->>  	 */
->>  	for (;;) {
->> -		long	last = filled;
->> +		long	alloc;
->>  
->> -		filled = alloc_pages_bulk(gfp_mask, bp->b_page_count,
->> -					  bp->b_pages);
->> +		alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - filled,
->> +					 bp->b_pages + filled);
->> +		filled += alloc;
->>  		if (filled == bp->b_page_count) {
->>  			XFS_STATS_INC(bp->b_mount, xb_page_found);
->>  			break;
->>  		}
->>  
->> -		if (filled != last)
->> +		if (alloc)
->>  			continue;
-> 
-> alloc_pages_bulk() now returns the number of pages allocated in the
-> array. So if we ask for 4 pages, then get 2, filled is now 2. Then
-> we loop, ask for another 2 pages, get those two pages and it returns
-> 4. Now filled is 6, and we continue.
-
-It will be returning 2 instead of 4 for the second loop if I understand
-it correctly as 'bp->b_pages + filled' and 'bp->b_page_count - filled'
-is passing to alloc_pages_bulk() API now.
-
-> 
-> Now we ask alloc_pages_bulk() for -2 pages, which returns 4 pages...
-> 
-> Worse behaviour: second time around, no page allocation succeeds
-> so it returns 2 pages. Filled is now 4, which is the number of pages
-> we need, so we break out of the loop with only 2 pages allocated.
-> There's about to be kernel crashes occur.....
-> 
-> Once is a mistake, twice is compeltely unacceptable.  When XFS stops
-> using alloc_pages_bulk (probably 6.15) I won't care anymore. But
-> until then, please stop trying to change this code.
-> 
-> NACK.
-> 
-> -Dave.
