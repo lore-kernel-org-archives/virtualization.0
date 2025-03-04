@@ -1,113 +1,236 @@
-Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A0E3278111
-	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 17:39:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3306F251781
+	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 20:44:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741109990; cv=none; b=MW9EKrUzPYExXyOw9TDiimFWGgWCf6oxvENP407Q1+tmcUNDcwyJBKnwBKGtGB96c5FacwujU2a1LLg0hPH40Bvsd85sqvfo/Oyxa3HeKg0cBcJbolupWvRcgXdWbEoayclHsC18JAabd9j3GEiiwumajtBVPcXz0uLB67PAZNs=
+	t=1741121060; cv=none; b=W1TvD1opL6Xyy8TwlwzKvwG2D7j2kH7o3Hm6ufcaCTdvy2E25gvneFbfmCklxiPBSKdA2qCIfQfO9AAESaNE1ZlxKxKrVFNdDOsNvTB67H4uRrEJW7LgQxoPsVsoZZRTq1a8JHTCVovNVZom86f5Bbpcj+Rb6AsX0CHKTM+t7j0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741109990; c=relaxed/simple;
-	bh=i50rufOwf6vwyAuooSNBHw4J8VhV9XZ8F0ZF8cluBGI=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=WIlR16pjdFoYJk8dYgdR9G0kPbFR/Clg1DRwNpf4QXhHhz0qpml8ClSFcAnHM5bKnnXURiO2bQ/lWHfjy15ZZfbtfAFUa80Q9yfZjOGXH0O51YKPLZzK0pqwRXLQbYq8mAvXs9wWKH43IHKgfQ58aPH1HNVnGZwNAuTpnAl85Bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=YxzjTcJd; arc=none smtp.client-ip=209.85.214.202
+	s=arc-20240116; t=1741121060; c=relaxed/simple;
+	bh=7y6Ozzze4KwoBgjyzA+U/rpI+/mDiB9TlO4Of3/kd6A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MV9MuGz0W6wHtR9VyAzVMdY6GtYNoJkqznRFmBJDDdSsfw7TUIYq34sXaZxUyvYl4ccz0ac2jG7t/BNUECVfwsYBw+wzWBk6752Fq9Furvp9GFbMgs6WvD7JXLwOgIQ9AE72Y5D7H7MGe5H69i79aM1TP3OaFXm53ZpqRU0Urfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cgtsn+EA; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="YxzjTcJd"
-Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-22334230880so79945305ad.1
-        for <virtualization@lists.linux.dev>; Tue, 04 Mar 2025 09:39:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cgtsn+EA"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2237a32c03aso275ad.1
+        for <virtualization@lists.linux.dev>; Tue, 04 Mar 2025 12:44:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1741109989; x=1741714789; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=TI3FoVeE0Ra2glCU+l7ZrrB58ecOTFnnVt+cs3oYhCA=;
-        b=YxzjTcJdvr8cZm5Z333BpkRAbVng5UVXGX8ZW8qGp3M/aJl+AQSg6qVuz0R385Sr2M
-         6Kk6NuXMuHVvypLko/03b4vXcNnCRePJ9p+fp9uYee/En6ASe50D0aC9QbPlAVkKU8j6
-         qYxecn2iyESRdyaWtxjujV62UYvzYO5V8kSt+0aFMr5UOzi1B7ZjXUBDIkI/urKJtzHM
-         S28Ba7E1y5YsIB8TJDWwnWivIHMkH66JLWlNamZ40xMTQUYVfsyiKGs47XQ22d+boKsY
-         5US4pwmtPzDhIOzRzwqnH+WcPIoF8tl3alHJlZnulr2IyfPnvWVkm1vlraub4ptYrcg0
-         O/aw==
+        d=google.com; s=20230601; t=1741121056; x=1741725856; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=P6GyiO/b+/JHP4j/mZ3p/+VCJ12NtmyK1qhKdqkLMCk=;
+        b=cgtsn+EAVBwljfP9K0SCG81a2WminrI1zHv88FupcvJrA5JHlYR5y4cgjMhB1CTuvc
+         FvxsfgEA1U9QUKB+jklGhhRLb/l3DHa7IaLHLCKP+2ypUAduEAmXdLpeAS5TWk4AQxqM
+         RKemzwPkJYfmbx+1Mmkk9ZmT6yTjRxs9331IBul9T6e28lvrNLvhdeKoEGJWgFdqoUSY
+         k2p2gjs2mpV0QqJVgoAsVLu6UQevlJYVHjcdqjBRQSGJKRXmCAGceVqtldTzvqNA+VpL
+         ygWggw7I/usmPIiOCgHx8DfzLuF9yxOINqSIi22tnLunmDnagHxqf2xvmPU6Qjuhrv0Q
+         bAIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741109989; x=1741714789;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=TI3FoVeE0Ra2glCU+l7ZrrB58ecOTFnnVt+cs3oYhCA=;
-        b=Ubf7Gb0td0j9xJH0qJM3rL0OkLCmXl5SmhC+AUfcF6w4phFVMRMlnd/SuxgXuU8yvX
-         wZb5COzG1VdLojl38G2VlQWeO2G4Ma6IgaPm4QLb8AxDhci8r2hVIuQSB11mhWRljPC2
-         f2zGDKNj4Q8KJ2ubhXXPgFSn6gXr/xlGqvs6P+5zx9gn5fFpkXpYo6B4Yub/0xqxgNJR
-         LAm5e5Oe/gomdUdV2qERzGDSNMcFfu8Yrn0C5e+kQkXriirlpvtJLYrSDT40UGTs+s3H
-         SInbkwGV8hhhGtL15gPxD8NgJEdqJLGoYK0vLqqM4P1ULpPi8PFwD49hNu4fdTLADQ0d
-         DIKA==
-X-Forwarded-Encrypted: i=1; AJvYcCVr2PC7xeALc+e8O3yRDUt21mjs4PePSWdbbBmjhkSiMF38Oc9RYhtKTugPFqFMZtkQqJT8s7xFD8rkfA7QXw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyYXbMt5nSD6n1McZ/9A3EBD1MGlq6FeqhoHwNyfu4n7k8jm4wZ
-	IKIr6uupPp6DiY2NbSN2dMXciwf/ZFoGbqvENaBEy9A4CfW2qc1l8gwDWxlo19FF2Kkx6ab0WeW
-	g6Q==
-X-Google-Smtp-Source: AGHT+IGZddoSY2oyJ60dCyqtZiF8YnS+v36sYEMEslkao7NI/8RRXlf38IKWdXRybiMidO4JcJg+/iNohU8=
-X-Received: from pfbfw3.prod.google.com ([2002:a05:6a00:61c3:b0:730:76c4:7144])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:734b:b0:1ee:d418:f758
- with SMTP id adf61e73a8af0-1f2f4cdb421mr28532451637.17.1741109988705; Tue, 04
- Mar 2025 09:39:48 -0800 (PST)
-Date: Tue, 4 Mar 2025 09:39:47 -0800
-In-Reply-To: <SN6PR02MB41576973AC66F8515F6C81F0D4C82@SN6PR02MB4157.namprd02.prod.outlook.com>
+        d=1e100.net; s=20230601; t=1741121056; x=1741725856;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=P6GyiO/b+/JHP4j/mZ3p/+VCJ12NtmyK1qhKdqkLMCk=;
+        b=Q3euA+7sqzXvdzt/UKw4gZuNzNQnH8IVUGQbO4mU47vYSS5FaT+Mm9GJuFPW7w1fSP
+         UMmZRQWwaLxbmSpfpdv2MXjei38keU2GMRHWjVjQLZEx7Lsa9dwPJLJihDdbzb2p4zU4
+         PQaQYT1Lfu7ZbLF3HhVmonLV5CM5pW3NNsFmWpCvS3PnGRw1RqVPvkSs7sdBiyHb70J1
+         d7iSfscrAKaMzRkzls0qhNOgL/R1BZm6ZewjGOp19PvNMylwEAljaT6cT3MRPGJ8hol2
+         BemM83yrfCLGWv58DRpi/h0n1rz/mv9ZHGjuDiRxvgxoMVxM4y2m1s3EtVYaPBBnvVd/
+         OCkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUshLZyaHS0faG3FvJr5625ylYUuhziPo8KlJAtAcTszfKJBC85OPnbBoHFDaPwfwUs+YV70Ot6zpQgoSC3Ng==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzdloDLUmFMOUrxlh3y/Qq2ok5txdIw/LHXT4J6PGMjQQQ3l0Mi
+	y31pTWjvOJ5vrc6O7mdiRarM37EKE5wVsZltA7uHULwtQckk6QHuX+ZvV1j9Gg==
+X-Gm-Gg: ASbGncsXIHO9+L8sv3BXNYDlBFRuz/dNN95QrVO4ZTjWJ9B4o8IoODv2dvGhBYTqgFh
+	zOA1eba0Mx/kI8fIoiLcsPhk4xGgPIIAW7xq0bTRVeHmi7baquLT5zyjQHyiyYsx96WXPepnh90
+	xbGJSAJ87kj5KThUT+a0JZ59IoaR+mHUiyDsH8cVKhCdeJKegARpOsodou+dyw1LTh9t9qFrrO8
+	1M4oW090EcEl5hl4Ve6QtH+oLhqrSOe7IR6qrrOpJEM0Lyj2rCTumNFk4AZf7VAMbgjFjHoFJzL
+	uje35W66gv4lQbEgg7WjePU1t2TLFzItOSxSZzjwwGPnlKZMBcF9Q8Y8FBkzLL0gf5h0o8gIVqf
+	lSIJUeQ==
+X-Google-Smtp-Source: AGHT+IF9jAAYtjI1xJD9q8aFzdqcCf3EBmPfCXO9SbqGxq/rnItvqWNyYmnWqD98oJASF+nZMTNy6g==
+X-Received: by 2002:a17:902:f681:b0:21f:56e5:daee with SMTP id d9443c01a7336-223f268a154mr502695ad.6.1741121056131;
+        Tue, 04 Mar 2025 12:44:16 -0800 (PST)
+Received: from google.com (169.224.198.35.bc.googleusercontent.com. [35.198.224.169])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-223504c5c5csm100141995ad.113.2025.03.04.12.44.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Mar 2025 12:44:15 -0800 (PST)
+Date: Tue, 4 Mar 2025 20:44:02 +0000
+From: Pranjal Shrivastava <praan@google.com>
+To: Mina Almasry <almasrymina@google.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org,
+	Donald Hunter <donald.hunter@gmail.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Jeroen de Borst <jeroendb@google.com>,
+	Harshitha Ramamurthy <hramamurthy@google.com>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Willem de Bruijn <willemb@google.com>,
+	David Ahern <dsahern@kernel.org>,
+	Neal Cardwell <ncardwell@google.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
+	asml.silence@gmail.com, dw@davidwei.uk,
+	Jamal Hadi Salim <jhs@mojatatu.com>,
+	Victor Nogueira <victor@mojatatu.com>,
+	Pedro Tammela <pctammela@mojatatu.com>,
+	Samiullah Khawaja <skhawaja@google.com>,
+	Kaiyuan Zhang <kaiyuanz@google.com>
+Subject: Re: [PATCH net-next v6 3/8] net: devmem: Implement TX path
+Message-ID: <Z8dmEu_p68X7tfq7@google.com>
+References: <20250227041209.2031104-1-almasrymina@google.com>
+ <20250227041209.2031104-4-almasrymina@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250227021855.3257188-1-seanjc@google.com> <20250227021855.3257188-9-seanjc@google.com>
- <SN6PR02MB41576973AC66F8515F6C81F0D4C82@SN6PR02MB4157.namprd02.prod.outlook.com>
-Message-ID: <Z8c641D3AuWNXGVB@google.com>
-Subject: Re: [PATCH v2 08/38] clocksource: hyper-v: Register sched_clock
- save/restore iff it's necessary
-From: Sean Christopherson <seanjc@google.com>
-To: Michael Kelley <mhklinux@outlook.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Juergen Gross <jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, 
-	John Stultz <jstultz@google.com>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, 
-	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Tom Lendacky <thomas.lendacky@amd.com>, 
-	Nikunj A Dadhania <nikunj@amd.com>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250227041209.2031104-4-almasrymina@google.com>
 
-On Tue, Mar 04, 2025, Michael Kelley wrote:
-> From: Sean Christopherson <seanjc@google.com> Sent: Wednesday, February 26, 2025 6:18 PM
-> > 
-> > Register the Hyper-V timer callbacks or saving/restoring its PV sched_clock
-> 
-> s/or/for/
-> 
-> > if and only if the timer is actually being used for sched_clock.
-> > Currently, Hyper-V overrides the save/restore hooks if the reference TSC
-> > available, whereas the Hyper-V timer code only overrides sched_clock if
-> > the reference TSC is available *and* it's not invariant.  The flaw is
-> > effectively papered over by invoking the "old" save/restore callbacks as
-> > part of save/restore, but that's unnecessary and fragile.
-> 
-> The Hyper-V specific terminology here isn't quite right.  There is a
-> PV "Hyper-V timer", but it is loaded by the guest OS with a specific value
-> and generates an interrupt when that value is reached.  In Linux, it is used
-> for clockevents, but it's not a clocksource and is not used for sched_clock.
-> The correct Hyper-V term is "Hyper-V reference counter" (or "refcounter"
-> for short).  The refcounter behaves like the TSC -- it's a monotonically
-> increasing value that is read-only, and can serve as the sched_clock.
-> 
-> And yes, both the Hyper-V timer and Hyper-V refcounter code is in a
-> source file with a name containing "timer" but not "refcounter". But
-> that seems to be the pattern for many of the drivers in
-> drivers/clocksource. :-)
+On Thu, Feb 27, 2025 at 04:12:04AM +0000, Mina Almasry wrote:
+>  int mp_dmabuf_devmem_init(struct page_pool *pool)
+> diff --git a/net/core/devmem.h b/net/core/devmem.h
+> index 946f2e015746..67168aae5e5b 100644
+> --- a/net/core/devmem.h
+> +++ b/net/core/devmem.h
+> @@ -23,8 +23,9 @@ struct net_devmem_dmabuf_binding {
+>  
+>  	/* The user holds a ref (via the netlink API) for as long as they want
+>  	 * the binding to remain alive. Each page pool using this binding holds
+> -	 * a ref to keep the binding alive. Each allocated net_iov holds a
+> -	 * ref.
+> +	 * a ref to keep the binding alive. The page_pool does not release the
+> +	 * ref until all the net_iovs allocated from this binding are released
+> +	 * back to the page_pool.
+>  	 *
+>  	 * The binding undos itself and unmaps the underlying dmabuf once all
+>  	 * those refs are dropped and the binding is no longer desired or in
+> @@ -32,7 +33,10 @@ struct net_devmem_dmabuf_binding {
+>  	 *
+>  	 * net_devmem_get_net_iov() on dmabuf net_iovs will increment this
+>  	 * reference, making sure that the binding remains alive until all the
+> -	 * net_iovs are no longer used.
+> +	 * net_iovs are no longer used. net_iovs allocated from this binding
+> +	 * that are stuck in the TX path for any reason (such as awaiting
+> +	 * retransmits) hold a reference to the binding until the skb holding
+> +	 * them is freed.
+>  	 */
+>  	refcount_t ref;
+>  
+> @@ -48,6 +52,14 @@ struct net_devmem_dmabuf_binding {
+>  	 * active.
+>  	 */
+>  	u32 id;
+> +
+> +	/* Array of net_iov pointers for this binding, sorted by virtual
+> +	 * address. This array is convenient to map the virtual addresses to
+> +	 * net_iovs in the TX path.
+> +	 */
+> +	struct net_iov **tx_vec;
+> +
+> +	struct work_struct unbind_w;
+>  };
+>  
+>  #if defined(CONFIG_NET_DEVMEM)
+> @@ -64,14 +76,17 @@ struct dmabuf_genpool_chunk_owner {
+>  	dma_addr_t base_dma_addr;
+>  };
+>  
+> -void __net_devmem_dmabuf_binding_free(struct net_devmem_dmabuf_binding *binding);
+> +void __net_devmem_dmabuf_binding_free(struct work_struct *wq);
+>  struct net_devmem_dmabuf_binding *
+> -net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
+> -		       struct netlink_ext_ack *extack);
+> +net_devmem_bind_dmabuf(struct net_device *dev,
+> +		       enum dma_data_direction direction,
+> +		       unsigned int dmabuf_fd, struct netlink_ext_ack *extack);
+> +struct net_devmem_dmabuf_binding *net_devmem_lookup_dmabuf(u32 id);
+>  void net_devmem_unbind_dmabuf(struct net_devmem_dmabuf_binding *binding);
+>  int net_devmem_bind_dmabuf_to_queue(struct net_device *dev, u32 rxq_idx,
+>  				    struct net_devmem_dmabuf_binding *binding,
+>  				    struct netlink_ext_ack *extack);
+> +void net_devmem_bind_tx_release(struct sock *sk);
+>  
+>  static inline struct dmabuf_genpool_chunk_owner *
+>  net_devmem_iov_to_chunk_owner(const struct net_iov *niov)
+> @@ -100,10 +115,10 @@ static inline unsigned long net_iov_virtual_addr(const struct net_iov *niov)
+>  	       ((unsigned long)net_iov_idx(niov) << PAGE_SHIFT);
+>  }
+>  
+> -static inline void
+> +static inline bool
+>  net_devmem_dmabuf_binding_get(struct net_devmem_dmabuf_binding *binding)
+>  {
+> -	refcount_inc(&binding->ref);
+> +	return refcount_inc_not_zero(&binding->ref);
+>  }
+>  
+>  static inline void
+> @@ -112,7 +127,8 @@ net_devmem_dmabuf_binding_put(struct net_devmem_dmabuf_binding *binding)
+>  	if (!refcount_dec_and_test(&binding->ref))
+>  		return;
+>  
+> -	__net_devmem_dmabuf_binding_free(binding);
+> +	INIT_WORK(&binding->unbind_w, __net_devmem_dmabuf_binding_free);
+> +	schedule_work(&binding->unbind_w);
+>  }
+>  
+>  void net_devmem_get_net_iov(struct net_iov *niov);
+> @@ -123,6 +139,11 @@ net_devmem_alloc_dmabuf(struct net_devmem_dmabuf_binding *binding);
+>  void net_devmem_free_dmabuf(struct net_iov *ppiov);
+>  
+>  bool net_is_devmem_iov(struct net_iov *niov);
+> +struct net_devmem_dmabuf_binding *
+> +net_devmem_get_binding(struct sock *sk, unsigned int dmabuf_id);
+> +struct net_iov *
+> +net_devmem_get_niov_at(struct net_devmem_dmabuf_binding *binding, size_t addr,
+> +		       size_t *off, size_t *size);
+>  
+>  #else
+>  struct net_devmem_dmabuf_binding;
+> @@ -140,18 +161,23 @@ static inline void net_devmem_put_net_iov(struct net_iov *niov)
+>  {
+>  }
+>  
+> -static inline void
+> -__net_devmem_dmabuf_binding_free(struct net_devmem_dmabuf_binding *binding)
+> +static inline void __net_devmem_dmabuf_binding_free(struct work_struct *wq)
+>  {
+>  }
+>  
+>  static inline struct net_devmem_dmabuf_binding *
+>  net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
+> +		       enum dma_data_direction direction,
+>  		       struct netlink_ext_ack *extack)
 
-Heh, wading through misleading naming is basically a right of passage in the kernel.
+The order of arguments differs from the above definition (and also with
+the one in the net/core/devmem.c file) which could cause a failure in
+case CONFIG_NET_DEVMEM=n. I think it should instead be:
 
-Thanks for the reviews and testing!  I'll fixup all the changelogs.
+ static inline struct net_devmem_dmabuf_binding *
+ net_devmem_bind_dmabuf(struct net_device *dev, 
++		       enum dma_data_direction direction,
++		       unsigned int dmabuf_fd, struct netlink_ext_ack *extack)
+
+>  {
+>  	return ERR_PTR(-EOPNOTSUPP);
+>  }
+>  
+
+Thanks,
+Praan
