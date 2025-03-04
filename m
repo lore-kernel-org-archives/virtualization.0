@@ -1,76 +1,51 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7D01198A2F
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Mar 2025 22:34:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C8CC2D1;
+	Tue,  4 Mar 2025 00:03:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741041247; cv=none; b=jMjP00bQEUA3k3MqYo+jK2rFYlYBxybSm65WAcq17g/5wVKIv4gf89p78WIo2PC5FYakj97vyxwQb/j9yUMPLA34Z7sGFzqsVO7JpxZU75sT4Jyaffn10884GBRN/Nzoy6Mei43tSnXqGe6IehkHPAK66EKZfKBRIx54rVBUhHI=
+	t=1741046637; cv=none; b=rEbdaBNMQasaxJudbWmFeaorLrhuaAN8tUPegRSaB3c3JfhlErM6XBvh91BbhZg/XiDcjfYrJTTX/Z1ab6qThmyaxlgnCB+q/HUtJuoSoOWTKTZDCeayzV6WVj9zywqlGzaJwEibCe8umKL/vkT2HU4o1rInoFgC2kwlFRm0EtY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741041247; c=relaxed/simple;
-	bh=mXqIacAC3RLc1tYiomnB+ph7/jwRad1h/08sQbaQrKg=;
+	s=arc-20240116; t=1741046637; c=relaxed/simple;
+	bh=PodGSYAN2PRqPznGy1o8bGNv8tT3sasFzN7rH8DbDzw=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rEK0sxIH2tz+dokX542U8sbXYu49DEvtNvdosyxa9H/xRUVUCvmJYaxoahDWTnD4sgQjkkOxBOQMUPCiVoQotKd8m4xFXxrkXKNra6xVmTALg70Lhm4u30WPPDNIhQ6XE8DQ+/rf8m8TLwxe98W1MU+b17Xj1kUG+Fjyh4VayIw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nzCGyc0A; arc=none smtp.client-ip=140.211.166.137
+	 MIME-Version:Content-Type; b=M8+kggRpZLg53aLg2vGhWOlMwRZhrphgp/3G9m1cRcS9SAOVaFAG7ru1IIxUKzKy/gig9OzPDwNZQAq7dklv+voS6RNJ+54fNHDmMhk658XRJ2/LWdWxlET8ZXuS4i73ccQO81pDEWj0mgUMSoh1KBN2iy1wpm6fO09cELKfn74=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u5+2RKW2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nzCGyc0A"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2A11C40611
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Mar 2025 22:34:05 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -10.792
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ufRNuI8Aw3Yo for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Mar 2025 22:34:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=kuba@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 02C31405DC
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 02C31405DC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nzCGyc0A
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 02C31405DC
-	for <virtualization@lists.linux-foundation.org>; Mon,  3 Mar 2025 22:34:00 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 12DB65C2EDD;
-	Mon,  3 Mar 2025 22:31:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E73E9C4CED6;
-	Mon,  3 Mar 2025 22:33:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u5+2RKW2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD89C4CEE4;
+	Tue,  4 Mar 2025 00:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741041234;
-	bh=mXqIacAC3RLc1tYiomnB+ph7/jwRad1h/08sQbaQrKg=;
+	s=k20201202; t=1741046636;
+	bh=PodGSYAN2PRqPznGy1o8bGNv8tT3sasFzN7rH8DbDzw=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=nzCGyc0ACZ4YdrUHbJuOX/zRI9wJJHe9tJrLmln3cGv7f5a4ExHBkfa6nyB0NA4/T
-	 05CadXsIjbbLOjIDu7qJIfi+7SlFPB7Dvyf0gTAYG7NMTPzooHI6WQKaQJeOAtSWVQ
-	 7xckCLhk5n7rPFK/iz1cQ640OhIOfPjdnP85lVp986kRIK6Osx36Oi/l+P2skCcrvQ
-	 iUqTWLdMcwbuBy4H7/YsekYHSoIV4TBphHWU2yHOKUHlI5c952/hZwAWE0KFEfBloj
-	 iiDAljQ5a/aM4CFvHvANKyLa+vibaunMplD1jcsef+oMYzGkf0nGd8w3Vemt8xIdmf
-	 tzzvYxHgeg5Zw==
-Date: Mon, 3 Mar 2025 14:33:53 -0800
+	b=u5+2RKW275a+1qk3Btczy9vu4F6fSXqzr0EAFRS1d7exuLigQNzYleSDbBi/IXbsT
+	 L1HsXBng2OdDAYfXnknoWHQgp5zahNu96V1MlqGXbhGnKQAtMMqqfThugjTtnF8Bhn
+	 zAdJP9NATi+KyhcNlReKbCeqL78HRE6lb4Ak/mOlgMzRPQl/yOvUsX2BNcjCEtJMxn
+	 3EW07GrYaEXAmlxAiMuGQ6xExLHdAsqZSc47J5qDfNJRtgYwxkmSxm0MAdXICruF3Z
+	 rZkl3h3Ip+j0sfViQ714aKMyI/QQnV1ddrfxvPawVaJiKcbAS+3TL2pviJ1oWuIBx5
+	 Ooy619yCHvFNA==
+Date: Mon, 3 Mar 2025 16:03:55 -0800
 From: Jakub Kicinski <kuba@kernel.org>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn
- <willemdebruijn.kernel@gmail.com>, Jason Wang <jasowang@redhat.com>, "David
- S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko
- <andrew@daynix.com>, Stephen Hemminger <stephen@networkplumber.org>,
- gur.stavi@huawei.com, Lei Yang <leiyang@redhat.com>
-Subject: Re: [PATCH net-next v7 5/6] selftest: tun: Add tests for virtio-net
- hashing
-Message-ID: <20250303143353.42219664@kernel.org>
-In-Reply-To: <0ec77558-bdfb-4471-a44b-0a37a9422f72@daynix.com>
-References: <20250228-rss-v7-0-844205cbbdd6@daynix.com>
-	<20250228-rss-v7-5-844205cbbdd6@daynix.com>
-	<20250228062947.7864a59c@kernel.org>
-	<0ec77558-bdfb-4471-a44b-0a37a9422f72@daynix.com>
+To: Joe Damato <jdamato@fastly.com>
+Cc: netdev@vger.kernel.org, mkarsten@uwaterloo.ca,
+ gerhard@engleder-embedded.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, mst@redhat.com, leiyang@redhat.com, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "open
+ list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>, open
+ list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
+Message-ID: <20250303160355.5f8d82d8@kernel.org>
+In-Reply-To: <Z8X15hxz8t-vXpPU@LQ3V64L9R2>
+References: <20250227185017.206785-1-jdamato@fastly.com>
+	<20250227185017.206785-4-jdamato@fastly.com>
+	<20250228182759.74de5bec@kernel.org>
+	<Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
+	<Z8XgGrToAD7Bak-I@LQ3V64L9R2>
+	<Z8X15hxz8t-vXpPU@LQ3V64L9R2>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,29 +55,55 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Mon, 3 Mar 2025 15:20:33 +0900 Akihiko Odaki wrote:
-> > # 5.90 [+0.00] ok 14 tun_vnet_hash.unclassified
-> > # 5.90 [+0.00] #  RUN           tun_vnet_hash.ipv4 ...
-> > # 6.18 [+0.28] # tun.c:669:ipv4:Expected 0 (0) != tun_vnet_hash_check(self->source_fd, self->dest_fds, &packet, sizeof(packet), 0, VIRTIO_NET_HASH_REPORT_IPv4, 0x6e45d952) (0)
-> > # 15.09 [+8.92] # ipv4: Test failed
-> > # 15.10 [+0.00] #          FAIL  tun_vnet_hash.ipv4
-> > # 15.10 [+0.00] not ok 15 tun_vnet_hash.ipv4
-> > # 15.10 [+0.00] #  RUN           tun_vnet_hash.tcpv4 ...
-> > # 15.36 [+0.26] # tun.c:689:tcpv4:Expected 0 (0) != tun_vnet_hash_check(self->source_fd, self->dest_fds, &packet, sizeof(packet), VIRTIO_NET_HDR_F_DATA_VALID, VIRTIO_NET_HASH_REPORT_TCPv4, 0xfb63539a) (0)
-> > # 24.76 [+9.40] # tcpv4: Test failed
-> > # 24.76 [+0.00] #          FAIL  tun_vnet_hash.tcpv4
-> > # 24.76 [+0.00] not ok 16 tun_vnet_hash.tcpv4
-> > # 24.77 [+0.00] #  RUN           tun_vnet_hash.udpv4 ...
-> > # 25.05 [+0.28] # tun.c:710:udpv4:Expected 0 (0) != tun_vnet_hash_check(self->source_fd, self->dest_fds, &packet, sizeof(packet), VIRTIO_NET_HDR_F_DATA_VALID, VIRTIO_NET_HASH_REPORT_UDPv4, 0xfb63539a) (0)
-> > # 32.11 [+7.06] # udpv4: Test failed
-> > # 32.11 [+0.00] #          FAIL  tun_vnet_hash.udpv4
-> > # 32.11 [+0.00] not ok 17 tun_vnet_hash.udpv4  
+On Mon, 3 Mar 2025 13:33:10 -0500 Joe Damato wrote:
+> > > @@ -2880,6 +2880,13 @@ static void refill_work(struct work_struct *work)
+> > >         bool still_empty;
+> > >         int i;
+> > > 
+> > > +       spin_lock(&vi->refill_lock);
+> > > +       if (!vi->refill_enabled) {
+> > > +               spin_unlock(&vi->refill_lock);
+> > > +               return;
+> > > +       }
+> > > +       spin_unlock(&vi->refill_lock);
+> > > +
+> > >         for (i = 0; i < vi->curr_queue_pairs; i++) {
+> > >                 struct receive_queue *rq = &vi->rq[i];
+> > >  
+> > 
+> > Err, I suppose this also doesn't work because:
+> > 
+> > CPU0                       CPU1
+> > rtnl_lock                  (before CPU0 calls disable_delayed_refill) 
+> >   virtnet_close            refill_work
+> >                              rtnl_lock()
+> >   cancel_sync <= deadlock
+> > 
+> > Need to give this a bit more thought.  
 > 
-> I cannot reproduce the failure. What commit did you apply this patch 
-> series on? What architecture did the kernel run on?
+> How about we don't use the API at all from refill_work?
+> 
+> Patch 4 adds consistent NAPI config state and refill_work isn't a
+> queue resize maybe we don't need to call the netif_queue_set_napi at
+> all since the NAPI IDs are persisted in the NAPI config state and
+> refill_work shouldn't change that?
+> 
+> In which case, we could go back to what refill_work was doing
+> before and avoid the problem entirely.
+> 
+> What do you think ?
 
-x86 inside vng, see this for exact details:
-https://github.com/linux-netdev/nipa/wiki/How-to-run-netdev-selftests-CI-style
+Should work, I think. Tho, I suspect someone will want to add queue API
+support to virtio sooner or later, and they will run into the same
+problem with the netdev instance lock, as all of ndo_close() will then
+be covered with netdev->lock.
 
-The tests are run on top of net-next + net (the two networking trees
-merged together).
+More thorough and idiomatic way to solve the problem would be to cancel
+the work non-sync in ndo_close, add cancel with _sync after netdev is
+unregistered (in virtnet_remove()) when the lock is no longer held, then
+wrap the entire work with a relevant lock and check if netif_running()
+to return early in case of a race.
+
+Middle ground would be to do what you suggested above and just leave 
+a well worded comment somewhere that will show up in diffs adding queue
+API support?
