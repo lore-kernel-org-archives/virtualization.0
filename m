@@ -1,62 +1,102 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43E7B1D95B4
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Mar 2025 11:14:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741086889; cv=pass; b=m7bPuN7pQF1huNhYGsVJIB9DQjdCAH2EkElq5jEy8JaR1ShNGDti6rTeRnCFtrqM1N7zfCpUr4Fxu9bieUGDN2b6ttGsP/LOdHLCjYR0Dd5dBNcvkV3Pel8tQ79HdWCsO+ysIUen3HJmAx0COH+R+aZ4tx8ubI9Me8Il65P62Dc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741086889; c=relaxed/simple;
-	bh=mt7hEnVoH9ixJLgXuCnPk+QEtURpCqfN/VDQ8rFvN+o=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB6821FFC6E
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Mar 2025 11:43:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1741088600; cv=none; b=StnqxXgY329Jvc0Ou/Rjm5EoYkbLHevAKxALwKUg1nxZcusf6593KvyqGK+G/Ha2mzwpKuzKd6C1OFOrNMvv5prXx30/yXJS1A0LIM4vWSJirCXadOVvehKyZEWHnMAMbOqiwngF+fCdpYdJ3hQgH32HUMIpgzkCD8qS2VK7+bE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1741088600; c=relaxed/simple;
+	bh=yKIGqILu+t2U/a7DjSz4T6ZMkX8w87MBMShH0PJ1Pr4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cKNinDWJQDPBxP/hjBMEuxBO0bU7e8IURIFrh1CvcpsL+vE3opMybxM5gFTxekYPKfOUGoZLshfFMRgJBFMxZbLXIzsz1s4PejD6gIvbApA0DmKsuXYI2LW/piP9pB4uv2O0uLeLAPmZRGbyP6+Q66j8w4hw0INDSVwnUYCVmCc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=AE6MV5R4; arc=pass smtp.client-ip=140.211.166.136
+	 In-Reply-To:Content-Type; b=Mpxv3KPcWWFCBw+zxtb9kuqM8wc5FsznOcToXdD4BwW0tUTjkt8Q7dEi2/q5GN9tYl64Pa+4DNG7A5BUUe805L0f45Bz/qBejnfvRWp/GGXyWIlWWE8Wbm+lX53PusvJ+u2cPZUc4JH7RYqMlENxhjy1paTa1OH/tyvg+pQBQ04=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=OdL4K2ab; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=g6PYtemt; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=r6cC35uM; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=5TDelq9/; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="AE6MV5R4"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="OdL4K2ab";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="g6PYtemt";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="r6cC35uM";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="5TDelq9/"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C4444605BD
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Mar 2025 11:14:47 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4EB4C607EF
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Mar 2025 11:43:18 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.789
+X-Spam-Score: -8.091
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id hSxiOlHCx177 for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Mar 2025 11:14:47 +0000 (UTC)
-X-Greylist: delayed 904 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 04 Mar 2025 11:14:46 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 17CE2605AD
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17CE2605AD
+ id ftzJJkdmDLvv for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Mar 2025 11:43:17 +0000 (UTC)
+X-Greylist: delayed 4404 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 04 Mar 2025 11:43:16 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 2BB166071C
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=suse.de
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2BB166071C
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=AE6MV5R4
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=136.143.188.112; helo=sender4-pp-f112.zoho.com; envelope-from=dmitry.osipenko@collabora.com; receiver=<UNKNOWN> 
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 17CE2605AD
-	for <virtualization@lists.linux-foundation.org>; Tue,  4 Mar 2025 11:14:46 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; t=1741085958; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=JgfciHxqZYyFSSfuhuv5vjVyq//D99mHx5wTVSy9RmDJQHUdgiW35c7twCWqZwXHJg5n6De5YA97iavK7rHFe4ZhbZrbqOVRu/MIFqxTAl3i8Ek8/V8XpRONF2QR1vml1jp/0laKIYlgLGG3QbMSkM3f3s5kXuhHBZoeS38vm3E=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1741085958; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=Dbsr2DzMdYZQ4tGo8UWZqeyiKrIzRaj9gxDPB5xSI+M=; 
-	b=ctwWrTWsqBfu/EzXaZS6O/bRL5u2s6IExQLG1qbNHnvSx8k8iZ9bK0sE/9ULBOFKRSJTUDAon6fCTw/HUDAvSeHwoTkpAt7BNLXRQiubBqCUxdcGNrLUVG7DuzWQ8fUweLmWJVQDDXKwcBylXbhxF5UqpwIeqAY79vC5LK9HvtY=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1741085958;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=Dbsr2DzMdYZQ4tGo8UWZqeyiKrIzRaj9gxDPB5xSI+M=;
-	b=AE6MV5R4+ndvbYnirTlQbXoIphSwJhAjOCrPYHODCALnoq6TCaJFUpwnUQgu8B7B
-	GoVR7tT2Yh2PDT2PxyUJotLWTUnWda1TM2n6wQzgI2GQAy8Ml7LBrxMm159NK0pzL7j
-	Xn8UXuv45TdXfxx1lLGgOpgsOVxmEW8NByqxB3NI=
-Received: by mx.zohomail.com with SMTPS id 174108595555814.859596015899456;
-	Tue, 4 Mar 2025 02:59:15 -0800 (PST)
-Message-ID: <6b7d95b7-a9dd-43c9-b1db-8a636b85ad51@collabora.com>
-Date: Tue, 4 Mar 2025 13:59:09 +0300
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=OdL4K2ab;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=g6PYtemt;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=r6cC35uM;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=5TDelq9/
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=195.135.223.130; helo=smtp-out1.suse.de; envelope-from=tzimmermann@suse.de; receiver=<UNKNOWN> 
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2BB166071C
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Mar 2025 11:43:16 +0000 (UTC)
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D2C5321197;
+	Tue,  4 Mar 2025 11:43:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741088594; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=3xat5MAD5sqlPWHFzE2952kcqEJ11StBzDEZP7zDYkc=;
+	b=OdL4K2abqHUgbNsIixJkpTfHow9oRccA5YUnX5H7y9a8H7gF0wj+Kog5wy8WylQquZU+oy
+	F6gKm/kdIEGBpN+9lb9SCAfMNPEuSmoEp6bhrL6LtabFjwqqFJJ+Ig6XtHHjsowazH4UJ8
+	9vQTYJzAYNMlBB5OU4IzPvWajkeZPu4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741088594;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=3xat5MAD5sqlPWHFzE2952kcqEJ11StBzDEZP7zDYkc=;
+	b=g6PYtemthGlyeu3CY0HaLCw1xogvcVyuGTUVeW+EghJLNIQcdUShIcZ4j5sz9gjZ11T9Te
+	xy8LrcAoUtmzDODg==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741088593; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=3xat5MAD5sqlPWHFzE2952kcqEJ11StBzDEZP7zDYkc=;
+	b=r6cC35uMrr4y0W+bskb9f5F9Ttw/EfKuszfLF93FaX8tyx4fOHUUuBDM8bdfthjNmhEAjA
+	+oQP4rjBw3NLEyfa9+dB3dn3djHbikkkPXISQveHqGekJUyPXjRCuXAEK18ngumEtC0PUb
+	ba+VJzidU/9m6Hl4w5YdEEzSHI8A/HM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741088593;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=3xat5MAD5sqlPWHFzE2952kcqEJ11StBzDEZP7zDYkc=;
+	b=5TDelq9/NZqHReBy+pUvMqOkUa4B4A3YH8NHZFVzi0BzCH2/3VOyeWUO1IJ7/dgRWL/3Tj
+	DI17jgZguWtYHbAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 613B413967;
+	Tue,  4 Mar 2025 11:43:13 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id mNLiFVHnxmcZegAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 04 Mar 2025 11:43:13 +0000
+Message-ID: <d777ab50-51cf-4eed-bfec-a44eca7ba3c5@suse.de>
+Date: Tue, 4 Mar 2025 12:43:13 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,8 +105,8 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v19 22/30] drm/shmem-helper: Add common memory shrinker
-To: Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
- <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
  <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
  Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
@@ -80,29 +120,97 @@ Cc: kernel@collabora.com, linux-kernel@vger.kernel.org,
 References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
  <20240105184624.508603-23-dmitry.osipenko@collabora.com>
  <d1f856c7-47dd-4f1d-a124-973064dcd1f0@suse.de>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+ <6b7d95b7-a9dd-43c9-b1db-8a636b85ad51@collabora.com>
 Content-Language: en-US
-In-Reply-To: <d1f856c7-47dd-4f1d-a124-973064dcd1f0@suse.de>
-Content-Type: text/plain; charset=UTF-8
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <6b7d95b7-a9dd-43c9-b1db-8a636b85ad51@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_TO(0.00)[collabora.com,gmail.com,redhat.com,chromium.org,ffwll.ch,linux.intel.com,kernel.org,amd.com,arm.com,anholt.net,igalia.com];
+	RCPT_COUNT_TWELVE(0.00)[18];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid]
 
-On 3/4/25 13:29, Thomas Zimmermann wrote:
-> Hi
-> 
-> Am 05.01.24 um 19:46 schrieb Dmitry Osipenko:
->> Introduce common drm-shmem shrinker for DRM drivers.
-> 
-> What's the status of this patch?
+Hi
 
-It was de-prioritized on my list a year ago as I had to move to a higher
-priority problems. Rebasing and re-testing these patches takes much
-time, it either has to be split up in a smaller parts or applied in one go.
+Am 04.03.25 um 11:59 schrieb Dmitry Osipenko:
+> On 3/4/25 13:29, Thomas Zimmermann wrote:
+>> Hi
+>>
+>> Am 05.01.24 um 19:46 schrieb Dmitry Osipenko:
+>>> Introduce common drm-shmem shrinker for DRM drivers.
+>> What's the status of this patch?
+> It was de-prioritized on my list a year ago as I had to move to a higher
+> priority problems. Rebasing and re-testing these patches takes much
+> time, it either has to be split up in a smaller parts or applied in one go.
 
-The current status is that I started to work on v20 rather long time ago
-and the patches need to be rebased and re-tested again. Heard that
-Panthor driver may want shmem shrinker more than others today.
+The first 11 patches seem uncontroversial to me; maybe except for patch 
+9. Could they be merged any time soon?
+
+The next batch could then be patches up to #20, which seem to be 
+reviewed as well.
+
+>
+> The current status is that I started to work on v20 rather long time ago
+> and the patches need to be rebased and re-tested again. Heard that
+> Panthor driver may want shmem shrinker more than others today.
+
+I've been receiving reports about low performance of ast plus gem-shmem 
+recently. I suspect that the vmap/vunmap overhead could be related and 
+this series would likely lessen the problem.
+
+Best regards
+Thomas
+
+>
 
 -- 
-Best regards,
-Dmitry
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
+
