@@ -1,165 +1,182 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB5385103F
-	for <virtualization@lists.linux.dev>; Wed,  5 Mar 2025 05:12:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FF681DB34E
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 05:47:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741151534; cv=none; b=EQDgF6fYHcTZgpYIOFaaoFwRkI555kIkrtt/exZUYBoEE1/mY2RXbwqnC/NJrZF70UUujG8EGNYNYUZqRbQZFLFn9zleLGU/wyfmy6Wmtow1V7q6xu3Gw7J5LGLt9k1HUKxhMSGbev5huEiz+aOcynwqF4KCv1owPE53ZUXIYlk=
+	t=1741153634; cv=none; b=Ct7Pf7Oybq9E/71/fOu1XKkf4BxYJ2mdyiutgP6NSyXaHuta9X9m339lBNgqk9WTiHZdWXfv1arSAd3RdLKAz54TRyW+Ghe/oxPU69xTEBS3WHTfiAdcQBFQX0OoAMpZXOtcr8gwFN0LNLQ98WeMhgF9sT9ryDFscR+SgoSGFTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741151534; c=relaxed/simple;
-	bh=CfwmeBhi7xvo6WZWBaowlCH0XYczkdoGhtIg86fxDKU=;
+	s=arc-20240116; t=1741153634; c=relaxed/simple;
+	bh=Yr2zEleQP5OB9VQnCOvN96Nz1sM+C0j+qfjDSd3R7qM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=MExYkxc5WiymVBnQiKN17l6Yrgwqo8Yny24Av/HZFYarcKZ6AmcShi7dqxM/7ubPAW0ZWleN1QUyR4zieOUspPTp1Sr7fLd9pv2WIk/X0+fedwi6670ryn8YUes1kHHFuKMWGXYs/LZj4dOOm1Q0Dn7Q8IFP6qwJj/RQzicNd/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DUdghxzh; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=mogadVfdLKtduH0R+FrHWTZcmdcKY9ZoM277KSjlAYdxmB9YJ4zYqy6pxakSEkQeP/iA2Wzu2mGP2K7UfO6ckLSXlJCjIZ1YCW6xzKVuAyk7obrUMoAxCKjSuMVHnUmOWc9oCU+VjYTBWC2foSsDP4fx7+LiSRYeYphBu9NadO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MP4e13DS; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUdghxzh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MP4e13DS"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9E325411CE
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 05:47:12 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.793
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id SOFRhAwhIsgf for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Mar 2025 05:47:11 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 83389411CD
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 83389411CD
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MP4e13DS
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 83389411CD
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 05:47:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741151531;
+	s=mimecast20190719; t=1741153629;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=eKER1pFGFjikEAnNCNXBpJMTxeI/ofA+XLS16uxxVuw=;
-	b=DUdghxzhe3zPYzPU7b4woAHLtt+3Z07/XvKTOwjyitmwLUwWoIqeUc82OeIvazFMZQ/cLF
-	jo7bBz2+qteIblU6JRBrH0wMfWCRx4C67Sax+Zv6ZZxDcKxZick4mm7OzEjK1I0Ar99w/e
-	xEnTgaIElg0rCUHOiNIRfbvnnse8W1Y=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=TckiHzoidmvghQ6zu3pJdp/CUVWbSHOgWhuCociTv5w=;
+	b=MP4e13DSP8GrWaJJOc1aGnMtzaCTvmRk3WFx1PSgx0UGjAn7Ro07JHfr0YhNBk/KMLTIiK
+	x84/JOLp0f/SqOmwW+Wq+r+r1IkRGPwG/XzjA+jWjYxerSwMcm2L6/mf2u2SqBJ+JNkdSA
+	+NETmOhvMQTN+k9/J2wzm/yGUiRTx04=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-644-6OD1ip3uN1ySIaAtkwQMtw-1; Wed, 05 Mar 2025 00:12:10 -0500
-X-MC-Unique: 6OD1ip3uN1ySIaAtkwQMtw-1
-X-Mimecast-MFC-AGG-ID: 6OD1ip3uN1ySIaAtkwQMtw_1741151529
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2fe9527c041so12582081a91.0
-        for <virtualization@lists.linux.dev>; Tue, 04 Mar 2025 21:12:10 -0800 (PST)
+ us-mta-688-Dl4o2QioPsSN6cNL784HvA-1; Wed, 05 Mar 2025 00:47:07 -0500
+X-MC-Unique: Dl4o2QioPsSN6cNL784HvA-1
+X-Mimecast-MFC-AGG-ID: Dl4o2QioPsSN6cNL784HvA_1741153627
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2fee7f85d03so11007266a91.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 04 Mar 2025 21:47:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741151529; x=1741756329;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1741153627; x=1741758427;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=eKER1pFGFjikEAnNCNXBpJMTxeI/ofA+XLS16uxxVuw=;
-        b=sJKY7+L+hR6+CpKd3hnb8whBOTAK/YEDiCdGGCJdoY9v4nFn10rBl1535bjfrJKjwn
-         x24mkxuXSgUuLtCahwJFaGmZijH7C2wGEl6iLE27YqQeq/8Er7X3u5iBBlD40MWCc1y3
-         CJz4FFoazaO06uYw2rL44Yw1sJK67Prsceb5TqZz1EE6IgXptVLQtIvDO4CRsiWZ4WJt
-         +0jQPHvNPJvWzziYFaeooJlDY1l52NJloBbMwKuLc+Vxzbw0IGRd+8MkekNoEGEOpLP1
-         amrppyPPSHiZXOrY+ypKkhyk/jMRk1P9dWBgTawyOkU981mjqAbkaMRtxHf5B2oyiYIO
-         FmdA==
-X-Forwarded-Encrypted: i=1; AJvYcCWn7yNCQbwzC2/u3bj2EJQrXf70IcRrdngeiq2U8enyt9AUL+4ywFKkE5FPpMLVTUAf2K9zod7vJRlYMzlsng==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxJR4jUr1lhKKFYykqiplJ9Rr5R5MwyT4EmlJwMwpsO+/czCKKC
-	I2vNzQXAu2dbGlPUwGJXrMPWDeb2veipFeSSGrYQ6JezV1ZfW68ynezUPTyMnsVOu8qj8r9/OZL
-	iPKuy7lvPT4OJodjitor4a7ioJiBxhZzbqD1I0lWA12LILmx3RbuaRAQUNkjYD5NplPVMJsUpj/
-	LRqR6V6rWg0Svz8iguuEueJjfoubNiUCHv3QRAt34=
-X-Gm-Gg: ASbGncuLMM/qA2NNISwypXUaKdLQYhJLC4atB0cJR81Dy+P0PcpVje3c53siRb4wRtj
-	ipUXtyCkmSSazSuzr0+TAs+dXoVR+0ngwvE0tpFvNmoXP8Fl0JMmWNz6hTIMBxOqGtTOP1tw5/Q
+        bh=TckiHzoidmvghQ6zu3pJdp/CUVWbSHOgWhuCociTv5w=;
+        b=FbT8vWMJl1AItWJob3TtUpnlFuK6eF4kMVwIqrhaoN1rgLj73ajowehpC99ZSVdX9O
+         rbngC/eYEOcFbwN6007Iuj4+7uU9jtDtMpWt6qq4TdGUh2+kguBLd8ROljrvlwy5oeGZ
+         6cbLfx2YANL5vkycehdbMgO0veFhDgoJO8U/+YWIG4nMEAgIbiutvynrOGI6ywcaqCxj
+         rfjHz3hoQ8C8wmtaCfXXCWLdjCnzi6ZsTvxoPnNf+yMGuwFpWbt/F2ICJuNuj2RQnUhX
+         e1Nq0OIhmyTBc+6HukiiAn8QLJsGJVK22iYkK4tMO9IyosFouzWzfvzzWd6Zdl2z8hUM
+         cGNQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXx9W8SDDwXCDU4vGoL8VBpyHfoZrDtQBAXyjXiOesHEY0RabOYnRYn00iCqZkyZXAa6/5+eEsYkElduHY7Sw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzZP5W3GRiTRg2xokfU7HjKVUxN7QwtnGFev/mzThrTOp6zVp/+
+	UjylzMNO2klsAGUUMvhrBdoM7jxq20amRFkz6xRqX1hagHWCiseeQR7eofuflkC4ri4oqdpvBvo
+	yuUDud5YqUfbbD6X1JLQ80yRWVsAKCRGKVd6AKDHaKsIBRCEXz2saHI3oWjhFuUI6uFb6E/d+iC
+	M7oT2VC4VFpk8iFITe5wq5GgTMPoBw7PhH00oBudsbyxYbKRg+lJiO0w==
+X-Gm-Gg: ASbGnctuSEiLFSNJfxHCBNnS3YKN06Fv49wxgh/xL4qRNcGEwpoT1+go8DY+K73+Qls
+	1lO/bPFQsaYlxMkQQ2JCrjVYssPZNPMwOrKUvWdRCf5rnebAmWLHhUcthYuKCvM3hsY6Tx02qRQ
 	==
-X-Received: by 2002:a17:90b:4a42:b0:2fe:b5d1:dbf4 with SMTP id 98e67ed59e1d1-2ff497c37e0mr3665281a91.33.1741151529250;
-        Tue, 04 Mar 2025 21:12:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGwoTZpCDXZkQN3+w+8fH27hU4eingYXDiIkwh+yrUc9B+d0J180VQppV6nfoxu0TePQBVI+utB2XeDswtDOWc=
-X-Received: by 2002:a17:90b:4a42:b0:2fe:b5d1:dbf4 with SMTP id
- 98e67ed59e1d1-2ff497c37e0mr3665239a91.33.1741151528845; Tue, 04 Mar 2025
- 21:12:08 -0800 (PST)
+X-Received: by 2002:a17:90b:1d52:b0:2ee:dcf6:1c8f with SMTP id 98e67ed59e1d1-2ff497cb040mr4004283a91.16.1741153626852;
+        Tue, 04 Mar 2025 21:47:06 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE7tLwkzpVQv2Fhj6KJP/g5jr88+NKViP8f9P/MLEqloHXqeIoNFWMkg7gOLyvweXjBE7QjXpxFd7/tryglpqM=
+X-Received: by 2002:a17:90b:1d52:b0:2ee:dcf6:1c8f with SMTP id
+ 98e67ed59e1d1-2ff497cb040mr4004247a91.16.1741153626527; Tue, 04 Mar 2025
+ 21:47:06 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250227185017.206785-1-jdamato@fastly.com> <20250227185017.206785-4-jdamato@fastly.com>
- <20250228182759.74de5bec@kernel.org> <Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
- <Z8XgGrToAD7Bak-I@LQ3V64L9R2> <Z8X15hxz8t-vXpPU@LQ3V64L9R2>
- <20250303160355.5f8d82d8@kernel.org> <Z8cXh43GJq2lolxE@LQ3V64L9R2>
-In-Reply-To: <Z8cXh43GJq2lolxE@LQ3V64L9R2>
+References: <20200116172428.311437-1-sgarzare@redhat.com> <20200427142518.uwssa6dtasrp3bfc@steredhat>
+ <224cdc10-1532-7ddc-f113-676d43d8f322@redhat.com> <20200428160052.o3ihui4262xogyg4@steredhat>
+ <Z8edJjqAqAaV3Vkt@devvm6277.cco0.facebook.com>
+In-Reply-To: <Z8edJjqAqAaV3Vkt@devvm6277.cco0.facebook.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 5 Mar 2025 13:11:55 +0800
-X-Gm-Features: AQ5f1JoNaFI6XmMuO_pCqrh6RtY2sOjnpKaruYcRus0Q59xqFrHV28gVCLfLvsc
-Message-ID: <CACGkMEug5+zjTjEiaUtvU6XtTe+tc7MEBaQSFbXG5YP_7tcPiQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
-To: Joe Damato <jdamato@fastly.com>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, 
-	mkarsten@uwaterloo.ca, gerhard@engleder-embedded.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, mst@redhat.com, leiyang@redhat.com, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>
+Date: Wed, 5 Mar 2025 13:46:54 +0800
+X-Gm-Features: AQ5f1JrNByKY7PtEfXG0ORfP7FScyD2MAlIYCt0mdU5F_0VbeZRH2Dv5bfH1am0
+Message-ID: <CACGkMEtTgmFVDU+ftDKEvy31JkV9zLLUv25LrEPKQyzgKiQGSQ@mail.gmail.com>
+Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>, davem@davemloft.net, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
+	Jorgen Hansen <jhansen@vmware.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, 
+	Dexuan Cui <decui@microsoft.com>, netdev@vger.kernel.org, 
+	Jakub Kicinski <kuba@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: BzIRWEDnBe5LvkkHXi3MgJebiL7xsDXeyj_G2-4fELk_1741151529
+X-Mimecast-MFC-PROC-ID: t8xSRuxxrHSZtX8Mc1WYZ6y3OJZY0mwBvKoUbAziAg4_1741153627
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 4, 2025 at 11:09=E2=80=AFPM Joe Damato <jdamato@fastly.com> wro=
-te:
+On Wed, Mar 5, 2025 at 8:39=E2=80=AFAM Bobby Eshleman <bobbyeshleman@gmail.=
+com> wrote:
 >
-> On Mon, Mar 03, 2025 at 04:03:55PM -0800, Jakub Kicinski wrote:
-> > On Mon, 3 Mar 2025 13:33:10 -0500 Joe Damato wrote:
-> > > > > @@ -2880,6 +2880,13 @@ static void refill_work(struct work_struct=
- *work)
-> > > > >         bool still_empty;
-> > > > >         int i;
-> > > > >
-> > > > > +       spin_lock(&vi->refill_lock);
-> > > > > +       if (!vi->refill_enabled) {
-> > > > > +               spin_unlock(&vi->refill_lock);
-> > > > > +               return;
-> > > > > +       }
-> > > > > +       spin_unlock(&vi->refill_lock);
-> > > > > +
-> > > > >         for (i =3D 0; i < vi->curr_queue_pairs; i++) {
-> > > > >                 struct receive_queue *rq =3D &vi->rq[i];
-> > > > >
-> > > >
-> > > > Err, I suppose this also doesn't work because:
-> > > >
-> > > > CPU0                       CPU1
-> > > > rtnl_lock                  (before CPU0 calls disable_delayed_refil=
-l)
-> > > >   virtnet_close            refill_work
-> > > >                              rtnl_lock()
-> > > >   cancel_sync <=3D deadlock
-> > > >
-> > > > Need to give this a bit more thought.
+> On Tue, Apr 28, 2020 at 06:00:52PM +0200, Stefano Garzarella wrote:
+> > On Tue, Apr 28, 2020 at 04:13:22PM +0800, Jason Wang wrote:
 > > >
-> > > How about we don't use the API at all from refill_work?
 > > >
-> > > Patch 4 adds consistent NAPI config state and refill_work isn't a
-> > > queue resize maybe we don't need to call the netif_queue_set_napi at
-> > > all since the NAPI IDs are persisted in the NAPI config state and
-> > > refill_work shouldn't change that?
+> > > As we've discussed, it should be a netdev probably in either guest or=
+ host
+> > > side. And it would be much simpler if we want do implement namespace =
+then.
+> > > No new API is needed.
 > > >
-> > > In which case, we could go back to what refill_work was doing
-> > > before and avoid the problem entirely.
-> > >
-> > > What do you think ?
 > >
-> > Should work, I think. Tho, I suspect someone will want to add queue API
-> > support to virtio sooner or later, and they will run into the same
-> > problem with the netdev instance lock, as all of ndo_close() will then
-> > be covered with netdev->lock.
+> > Thanks Jason!
 > >
-> > More thorough and idiomatic way to solve the problem would be to cancel
-> > the work non-sync in ndo_close, add cancel with _sync after netdev is
-> > unregistered (in virtnet_remove()) when the lock is no longer held, the=
-n
-> > wrap the entire work with a relevant lock and check if netif_running()
-> > to return early in case of a race.
+> > It would be cool, but I don't have much experience on netdev.
+> > Do you see any particular obstacles?
+> >
+> > I'll take a look to understand how to do it, surely in the guest would
+> > be very useful to have the vsock device as a netdev and maybe also in t=
+he host.
+> >
 >
-> Thanks for the guidance. I am happy to make an attempt at
-> implementing this in a future, separate series that follows this
-> one (probably after netdev conf in a few weeks :).
->
-> > Middle ground would be to do what you suggested above and just leave
-> > a well worded comment somewhere that will show up in diffs adding queue
-> > API support?
->
-> Jason, Michael, et. al.:  what do you think ? I don't want to spin
-> up a v6 if you are opposed to proceeding this way. Please let me
-> know.
->
+> WRT netdev, do we foresee big gains beyond just leveraging the netdev's
+> namespace?
 
-Maybe, but need to make sure there's no use-after-free (etc.
-virtnet_close() has several callers).
+It's a leverage of the network subsystem (netdevice, steering, uAPI,
+tracing, probably a lot of others), not only its namespace. It can
+avoid duplicating existing mechanisms in a vsock specific way. If we
+manage to do that, namespace support will be a "byproduct".
+
+>
+> IIUC, the idea is that we could follow the tcp/ip model and introduce
+> vsock-supported netdevs. This would allow us to have a netdev associated
+> with the virtio-vsock device and create virtual netdev pairs (i.e.,
+> veth) that can bridge namespaces. Then, allocate CIDs or configure port
+> mappings for those namespaces?
+
+Probably.
+
+>
+> I think it might be a lot of complexity to bring into the picture from
+> netdev, and I'm not sure there is a big win since the vsock device could
+> also have a vsock->net itself?
+
+Yes, it can. I think we need to evaluate both approaches (that's why I
+raise the approach of reusing netdevice). We can hear from others.
+
+> I think the complexity will come from the
+> address translation, which I don't think netdev buys us because there
+> would still be all of the work work to support vsock in netfilter?
+
+Netfilter should not work as vsock will behave as a separate protocol
+other than TCP/IP (e.g ETH_P_VSOCK)  if we try to implement netdevice.
+
+>
+> Some other thoughts I had: netdev's flow control features would all have
+> to be ignored or disabled somehow (I think dev_direct_xmit()?), because
+> queueing introduces packet loss and the vsock protocol is unable to
+> survive packet loss.
+
+Or just allow it and then configuring a qdisc that may drop packets
+could be treated as a misconfiguration.
+
+> Netfilter's ability to drop packets would have to
+> be disabled too.
+>
+> Best,
+> Bobby
+>
 
 Thanks
 
