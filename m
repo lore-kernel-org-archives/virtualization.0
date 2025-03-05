@@ -1,204 +1,315 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AEFC233704
-	for <virtualization@lists.linux.dev>; Wed,  5 Mar 2025 12:18:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B992459E0;
+	Wed,  5 Mar 2025 12:34:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741177089; cv=none; b=gglnmQevzzihrZ5nfe7Y4Ka07vmQYQp4GLI5iskRmfjqzXg2jiNfbv4cCfPUhCs/VBHq/5UpjuH4eaiAPkOpYz7m4rdC0q+hn04/NOpJ78gIjDugyCyLtvBiLUz5dX2sNlUwkukxG3ON79097AVSmDCNCJBqrR3R9plaHPv0HiI=
+	t=1741178051; cv=none; b=ttZqYTHUjNOiRniNcD5gNHbkw/ia2IJOH+8rW11Yn+frb700vvQ31LgdKiWN1ozL1twKGYpxtw5dfo5XFARb/WxBUsbf7ohVDldCLIaGXnCMIVwgMGocbH6e9BJYb8imnd/+CIy1AsIyGqT/bX11YHhWgzucngTysrPRCsw3HUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741177089; c=relaxed/simple;
-	bh=2l5BK6BIIKBvzAzekAB/HIgAAJ8CjsnHPnqO0JmxTPU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=pj5xln6ZnkrpPWHHbBbJfDCGh2fi76GchEgZfC+d9kHPaoS4E5DTozPB8y8iOdO8gHli8Cc/Zeyvx6uAxSOLHStlkTQiEMmhQqmiXz/SrFVjc0r5ThT7VTruD4Wao4gIoRSevlgnRWSixULcSXWv5xUvtOa7AEzrWgKRwdyqjLQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.48])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Z7BJz4R0yzwWy8;
-	Wed,  5 Mar 2025 20:13:07 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id 2AA2318009E;
-	Wed,  5 Mar 2025 20:18:02 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 5 Mar 2025 20:17:59 +0800
-Message-ID: <18c68e7a-88c9-49d1-8ff8-17c63bcc44f4@huawei.com>
-Date: Wed, 5 Mar 2025 20:17:59 +0800
+	s=arc-20240116; t=1741178051; c=relaxed/simple;
+	bh=VM0sc02B1R+owjb3sJPnnBVjoAeWTzgpg2BnVkdA6PQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=uRHtkOHGteSZiclaKk2crADqBSob6motrE5nU7zlBCJaJhqU/qqDX8FpF3Is2bFxMyjazw3lfpOuWF6QnFCXPRs9NG1YfJsw1zHSEdROsp7SGvG/ZLK22/9UQRZaTQluyoYReYpt6wU7whXIzmdSNPnrierIZ3iFolfiy7/H3AE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LZA7Y5Cx; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LZA7Y5Cx"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5257OFJQ025100;
+	Wed, 5 Mar 2025 12:34:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=VM0sc0
+	2B1R+owjb3sJPnnBVjoAeWTzgpg2BnVkdA6PQ=; b=LZA7Y5CxyEhMHdh6SZOpkZ
+	m62IltWvPDdiaX1/F0yP4mHeWlz6iW2zEb+o6ge2xrM+zVRMNYbtcTvxEm/yKFKF
+	Ftq8C+nBhTO82G1sA8FbJjf2gcEng7rClD8+wEVheB3ttVNXS+LTl0wLq6GEo7fO
+	NLtkYxNgK6KCKi5qUeeIrG0WaFfobkcX4iOrf00kADZeZk8QecXUeFrUAOZNgRWF
+	HdB0SpecebfJ5HxWW3NO1rR95SsR7GanrMMhD2m8TjZfmOkei8r5tEknU5ZqaK/Q
+	BzPA54E+9WofRlmAy+cessPfng/QtcrnMs2ugOW5/202zyPY2nHhHVKwdnzp0RWA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4568x53eyv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Mar 2025 12:34:03 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5259f8N4025026;
+	Wed, 5 Mar 2025 12:34:03 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 454f922aj6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Mar 2025 12:34:03 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 525CXxOv36569502
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Mar 2025 12:33:59 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9740420049;
+	Wed,  5 Mar 2025 12:33:59 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 58D6620040;
+	Wed,  5 Mar 2025 12:33:59 +0000 (GMT)
+Received: from li-9b52914c-2c8b-11b2-a85c-a36f6d484b4a.boeblingen.de.ibm.com (unknown [9.155.199.15])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  5 Mar 2025 12:33:59 +0000 (GMT)
+Message-ID: <92132076726e8c61253f0c7ba64501aff1da5d76.camel@linux.ibm.com>
+Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio
+ spec
+From: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>, Amit Shah <amit@kernel.org>,
+        linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
+Cc: arnd@arndb.de, gregkh@linuxfoundation.org, brueckner@linux.ibm.com,
+        pasic@linux.ibm.com
+Date: Wed, 05 Mar 2025 13:33:59 +0100
+In-Reply-To: <12d78b156c65130c60503b3925b4440d570fa245.camel@linux.ibm.com>
+References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
+	 <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
+	 <67efe42ea8c10120f13f14838f7a3d883184ecf5.camel@linux.ibm.com>
+	 <35286574f42ae6a413eaca14633a11d50cbadb2b.camel@linux.ibm.com>
+	 <12d78b156c65130c60503b3925b4440d570fa245.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
- only NULL elements
-To: Qu Wenruo <wqu@suse.com>, Yishai Hadas <yishaih@nvidia.com>, Jason
- Gunthorpe <jgg@ziepe.ca>, Shameer Kolothum
-	<shameerali.kolothum.thodi@huawei.com>, Kevin Tian <kevin.tian@intel.com>,
-	Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>, Josef
- Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Gao Xiang
-	<xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>,
-	Carlos Maiolino <cem@kernel.org>, "Darrick J. Wong" <djwong@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>, Jesper Dangaard Brouer
-	<hawk@kernel.org>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
-	<horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
-	<anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>, Jeff Layton
-	<jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga Kornievskaia
-	<okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
-	<tom@talpey.com>
-CC: Luiz Capitulino <luizcap@redhat.com>, Mel Gorman
-	<mgorman@techsingularity.net>, Dave Chinner <david@fromorbit.com>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <linux-btrfs@vger.kernel.org>,
-	<linux-erofs@lists.ozlabs.org>, <linux-xfs@vger.kernel.org>,
-	<linux-mm@kvack.org>, <netdev@vger.kernel.org>, <linux-nfs@vger.kernel.org>
-References: <20250228094424.757465-1-linyunsheng@huawei.com>
- <6f4017dc-2b3d-4b1a-b819-423acb42d999@suse.com>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <6f4017dc-2b3d-4b1a-b819-423acb42d999@suse.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uffaunYVZAMiXhC2-B8q08kcURAkCmU9
+X-Proofpoint-ORIG-GUID: uffaunYVZAMiXhC2-B8q08kcURAkCmU9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-05_05,2025-03-05_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 mlxlogscore=999
+ suspectscore=0 impostorscore=0 priorityscore=1501 malwarescore=0
+ bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2503050099
 
-On 2025/3/4 17:17, Qu Wenruo wrote:
-> 
-> 
-> 在 2025/2/28 20:14, Yunsheng Lin 写道:
->> As mentioned in [1], it seems odd to check NULL elements in
->> the middle of page bulk allocating, and it seems caller can
->> do a better job of bulk allocating pages into a whole array
->> sequentially without checking NULL elements first before
->> doing the page bulk allocation for most of existing users.
->>
->> Through analyzing of bulk allocation API used in fs, it
->> seems that the callers are depending on the assumption of
->> populating only NULL elements in fs/btrfs/extent_io.c and
->> net/sunrpc/svc_xprt.c while erofs and btrfs don't, see:
-
-I should have said 'while erofs and xfs don't depend on the
-assumption of populating only NULL elements'.
-
->> commit 91d6ac1d62c3 ("btrfs: allocate page arrays using bulk page allocator")
-> 
-> If you want to change the btrfs part, please run full fstests with SCRATCH_DEV_POOL populated at least.
-
-The above is a helpful suggestion/comment to someone like me, who
-is not very familiar with fs yet, thanks for the suggestion.
-
-But I am not sure about some of the other comments below.
-
-> 
-> [...]
->> diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
->> index f0a1da40d641..ef52cedd9873 100644
->> --- a/fs/btrfs/extent_io.c
->> +++ b/fs/btrfs/extent_io.c
->> @@ -623,13 +623,26 @@ int btrfs_alloc_page_array(unsigned int nr_pages, struct page **page_array,
->>                  bool nofail)
->>   {
->>       const gfp_t gfp = nofail ? (GFP_NOFS | __GFP_NOFAIL) : GFP_NOFS;
->> -    unsigned int allocated;
->> +    unsigned int allocated, ret;
->>   -    for (allocated = 0; allocated < nr_pages;) {
->> -        unsigned int last = allocated;
->> +    /* Defragment page_array so pages can be bulk allocated into remaining
->> +     * NULL elements sequentially.
->> +     */
->> +    for (allocated = 0, ret = 0; ret < nr_pages; ret++) {
->> +        if (page_array[ret]) {
-> 
-> You just prove how bad the design is.
-> 
-
-Below is the reason you think the design is bad? If not, it would be
-good to be more specific about why it is a bad design.
-
-> All the callers have their page array members to initialized to NULL, or do not care and just want alloc_pages_bulk() to overwrite the uninitialized values.
-
-Actually there are two use cases here as mentioned in the commit log:
-1. Allocating an array of pages sequentially by providing an array as
-   output parameter.
-2. Refilling pages to NULL elements in an array by providing an array
-   as both input and output parameter.
-
-Most of users calling the bulk alloc API is allocating an array of pages
-sequentially except btrfs and sunrpc, the current page bulk alloc API
-implementation is not only doing the unnecessay NULL checking for most
-users, but also require most of its callers to pass all NULL array via
-memset, kzalloc, etc, which is also unnecessary overhead.
-
-That means there is some space for improvement from performance and
-easy-to-use perspective for most existing use cases here, this patch
-just change alloc_pages_bulk() API to treat the page_array as only
-the output parameter by mirroring kmem_cache_alloc_bulk() API.
-
-For the existing btrfs and sunrpc case, I am agreed that there
-might be valid use cases too, we just need to discuss how to
-meet the requirements of different use cases using simpler, more
-unified and effective APIs.
-
-> 
-> The best example here is btrfs_encoded_read_regular().
-> Now your code will just crash encoded read.
-
-It would be good to be more specific about the 'crash' here,
-as simple testing mentioned in below seems fine for btrfs fs
-too, but I will do more testing by running full fstests with
-SCRATCH_DEV_POOL populated after I learn how to use the fstests.
-
-https://lore.kernel.org/all/91fcdfca-3e7b-417c-ab26-7d5e37853431@huawei.com/
-
-> 
-> Read the context before doing stupid things.
-> 
-> I find it unacceptable that you just change the code, without any testing, nor even just check all the involved callers.
-
-What exactly is the above 'context' is referring to? If it is a good advice,
-I think I will take it seriously.
-
-May I suggest that it might be better to be more humble and discuss
-more before jumpping to conclusion here as it seems hard for one
-person to be familiar with all the subsystem in the kernel?
-
-> 
->> +            page_array[allocated] = page_array[ret];
->> +            if (ret != allocated)
->> +                page_array[ret] = NULL;
->> +
->> +            allocated++;
->> +        }
->> +    }
->>   -        allocated = alloc_pages_bulk(gfp, nr_pages, page_array);
->> -        if (unlikely(allocated == last)) {
->> +    while (allocated < nr_pages) {
->> +        ret = alloc_pages_bulk(gfp, nr_pages - allocated,
->> +                       page_array + allocated);
-> 
-> I see the new interface way worse than the existing one.
-> 
-> All btrfs usage only wants a simple retry-until-all-fulfilled behavior.
-
-As above, I am agreed that the above might be what btrfs usage want, so
-let's discuss how to meet the requirements of different use cases using
-simpler, more unified and effective API, like introducing a function like
-alloc_pages_refill_array() to meet the above requirement as mentioned in
-below?
-https://lore.kernel.org/all/74827bc7-ec6e-4e3a-9d19-61c4a9ba6b2c@huawei.com/
-
-> 
-> NACK for btrfs part, and I find you very unresponsible not even bother running any testsuit and just submit such a mess.
-> 
-> Just stop this, no one will ever take you serious anymore.
-> 
+On Wed, 2025-03-05 at 13:15 +0100, Niklas Schnelle wrote:
+> On Wed, 2025-03-05 at 13:13 +0100, Niklas Schnelle wrote:
+> > On Wed, 2025-03-05 at 10:53 +0100, Maximilian Immanuel Brandtner
+> > wrote:
+> > > On Mon, 2025-03-03 at 12:54 +0100, Amit Shah wrote:
+> > > > On Tue, 2025-02-25 at 10:21 +0100, Maximilian Immanuel
+> > > > Brandtner
+> > > > wrote:
+> > > > > According to the virtio spec[0] the virtio console resize
+> > > > > struct
+> > > > > defines
+> > > > > cols before rows. In the kernel implementation it is the
+> > > > > other way
+> > > > > around
+> > > > > resulting in the two properties being switched.
+> > > >=20
+> > > > Not true, see below.
+> > > >=20
+> > > > > While QEMU doesn't currently support resizing consoles,
+> > > > > TinyEMU
+> > > >=20
+> > > > QEMU does support console resizing - just that it uses the
+> > > > classical
+> > > > way of doing it: via the config space, and not via a control
+> > > > message
+> > > > (yet).
+> > > >=20
+> > > > https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.=
+git/tree/drivers/char/virtio_console.c#n1787
+> > > >=20
+> > > > https://lists.nongnu.org/archive/html/qemu-devel/2010-05/msg00031.h=
+tml
+> > >=20
+> > > I didn't know about this patch-set, however as of right now QEMU
+> > > does
+> > > not set VIRTIO_CONSOLE_F_SIZE, never uses VIRTIO_CONSOLE_RESIZE,
+> > > and
+> > > resizing is never mentioned in hw/char/virtio-console.c or
+> > > hw/char/virtio-serial-bus.c. Suffice to say I don't see any
+> > > indicating
+> > > of resize currently being used under QEMU. Perhaps QEMU supported
+> > > resizing at one point, but not anymore. If you disagree please
+> > > send me
+> > > where the resizing logic can currently be found in the QEMU
+> > > source
+> > > code. I at least was unable to find it.
+> > >=20
+> > > >=20
+> > > > > diff --git a/drivers/char/virtio_console.c
+> > > > > b/drivers/char/virtio_console.c
+> > > > > index 24442485e73e..9668e89873cf 100644
+> > > > > --- a/drivers/char/virtio_console.c
+> > > > > +++ b/drivers/char/virtio_console.c
+> > > > > @@ -1579,8 +1579,8 @@ static void
+> > > > > handle_control_message(struct
+> > > > > virtio_device *vdev,
+> > > > > =C2=A0 break;
+> > > > > =C2=A0 case VIRTIO_CONSOLE_RESIZE: {
+> > > > > =C2=A0 struct {
+> > > > > - __u16 rows;
+> > > > > =C2=A0 __u16 cols;
+> > > > > + __u16 rows;
+> > > > > =C2=A0 } size;
+> > > > > =C2=A0
+> > > > > =C2=A0 if (!is_console_port(port))
+> > > >=20
+> > > > This VIRTIO_CONSOLE_RESIZE message is a control message, as
+> > > > opposed
+> > > > to
+> > > > the config space row/col values that is documented in the spec.
+> > > >=20
+> > > > Maybe more context will be helpful:
+> > > >=20
+> > > > Initially, virtio_console was just a way to create one hvc
+> > > > console
+> > > > port
+> > > > over the virtio transport.=C2=A0 The size of that console port coul=
+d
+> > > > be
+> > > > changed by changing the size parameters in the virtio device's
+> > > > configuration space.=C2=A0 Those are the values documented in the
+> > > > spec.=20
+> > > > These are read via virtio_cread(), and do not have a struct
+> > > > representation.
+> > > >=20
+> > > > When the MULTIPORT feature was added to the virtio_console.c
+> > > > driver,
+> > > > more than one console port could be associated with the single
+> > > > device.
+> > > > Eg. we could have hvc0, hvc1, hvc2 all as part of the same
+> > > > device.=20
+> > > > With this, the single config space value for row/col could not
+> > > > be
+> > > > used
+> > > > for the "extra" hvc1/hvc2 devices -- so a new
+> > > > VIRTIO_CONSOLE_RESIZE
+> > > > control message was added that conveys each console's
+> > > > dimensions.
+> > > >=20
+> > > > Your patch is trying to change the control message, and not the
+> > > > config
+> > > > space.
+> > > >=20
+> > > > Now - the lack of the 'struct size' definition for the control
+> > > > message
+> > > > in the spec is unfortunate, but that can be easily added -- and
+> > > > I
+> > > > prefer we add it based on this Linux implementation (ie. first
+> > > > rows,
+> > > > then cols).
+> > > >=20
+> > > > But note that all this only affects devices that implement
+> > > > multiport
+> > > > support, and have multiple console ports on a single device.=C2=A0 =
+I
+> > > > don't
+> > > > recall there are any implementations using such a
+> > > > configuration.
+> > > >=20
+> > > > ... which all leads me to ask if you've actually seen a
+> > > > misconfiguration happen when trying to resize consoles which
+> > > > led to
+> > > > this patch.
+> > > >=20
+> > > > =C2=A0Amit
+> > >=20
+> > > I'm working on implementing console resizing for virtio in QEMU
+> > > and
+> > > Libvirt. As SIGWINCH is raised on the virsh frontend the new
+> > > console
+> > > size needs to be transfered to QEMU (in my RFC patch via QOM,
+> > > which
+> > > then causes QEMU to trigger a virtio control msg in the
+> > > chr_resize
+> > > function of the virtio-console chardev). (The patch-set should
+> > > make its
+> > > way unto the QEMU mailing-list soon). The way I implemented it
+> > > QEMU
+> > > sends a resize control message where the control message has the
+> > > following format:
+> > >=20
+> > > ```
+> > > struct {
+> > > =C2=A0=C2=A0=C2=A0 le32 id;=C2=A0=C2=A0=C2=A0 // port->id
+> > > =C2=A0=C2=A0=C2=A0 le16 event; // VIRTIO_CONSOLE_RESIZE
+> > > =C2=A0=C2=A0=C2=A0 le16 value; // 0
+> > > =C2=A0=C2=A0=C2=A0 le16 cols;=C2=A0 // ws.ws_col
+> > > =C2=A0=C2=A0=C2=A0 le16 rows;=C2=A0 // ws.ws_row
+> > > }
+> > > ```
+> > >=20
+> > > This strongly seems to me to be in accordance with the spec[0].
+> > > It
+> > > resulted in the rows and cols being switched after a resize
+> > > event. I
+> > > was able to track the issue down to this part of the kernel.
+> > > Applying
+> > > the patch I sent upstream, fixed the issue.
+> > > As of right now I only implemented resize for multiport (because
+> > > in the
+> > > virtio spec I was only able to find references to resizing as a
+> > > control
+> > > message which requires multiport. In your email you claimed that
+> > > config
+> > > space resizing exists as well. I was only able to find references
+> > > to
+> > > resizing as a control message in the spec. I would love to see
+> > > what
+> > > part of the spec you are refering to specifically, as it would
+> > > allow me
+> > > to implement resizing without multiport as well).=20
+> > > It seems to me that either the spec or the kernel implementation
+> > > has to
+> > > change. If you prefer changing the spec that would be fine by me
+> > > as
+> > > well, however there seems to be no implementation that uses the
+> > > linux
+> > > ordering and Alpine seems to patch their kernel to use the spec
+> > > ordering instead (as described in the initial email)(this was
+> > > really
+> > > Niklas Schnelle's finding so for further questions I would refer
+> > > to
+> > > him).
+> >=20
+> > I don't think this was patched in the (official) alpine kernel.
+> > What
+> > happened is that I tested TinyEMU[0] with the kernel + initrd from
+> > the
+> > JSLinux site and that has working console resizing. In the TinyEMU
+> > code
+> > this is implemented in
+> > TinyEMU/virtio.c:virtio_console_resize_event():
+> >=20
+> > void virtio_console_resize_event(VIRTIODevice *s, int width, int
+> > height)
+> > {
+> > =C2=A0=C2=A0=C2=A0 /* indicate the console size */
+> > =C2=A0=C2=A0=C2=A0 put_le16(s->config_space + 0, width);
+> > =C2=A0=C2=A0=C2=A0 put_le16(s->config_space + 2, height);
+> >=20
+> > =C2=A0=C2=A0=C2=A0 virtio_config_change_notify(s);
+> > }
+> >=20
+> > On second look this indeed seems to use the config space. It writes
+> > first the width then height which matches config_work_handler().
+> > But
+> > like Maximilian I could only find the VIRTIO_CONSOLE_RESIZE message
+> > mechanism in the spec, also with width (cols) then height (rows)
+> > but
+> > not matching the kernel struct changed by this patch.
+> >=20
+>=20
+> Forgot to note, the idea that Alpine was patched came because the
+> kernel used in TinyEMU has '-dirty' in the local version so we were
+> wondering if it was patched for this. But seeing the
+> config_work_handler() it's probably just using that.
+>=20
 > Thanks,
-> Qu
-> 
-> 
+> Niklas
+
+In that case it might be better to change the spec to reflect the
+kernel implementation of resize control messages.
+
+Max
