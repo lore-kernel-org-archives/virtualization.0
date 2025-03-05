@@ -1,143 +1,236 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47D06208D0
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:39:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0F853B7A8
+	for <virtualization@lists.linux.dev>; Wed,  5 Mar 2025 01:39:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741135148; cv=none; b=oDHXXwm7iwU565ifS836ZbdTqdFO6cANfo5Nu2ghCa2xZpTl3nGHuhfkZBoJvj/2FO9g4QErZOCkO3NYpRIi9XAAuiGkdhFHdQUIyDlXcFVeGCXkb2vpPhtipkD2vrnNr2rocsvyPlpS43z7hH68F5huoQiOJ6ZlG8hlS6PfioQ=
+	t=1741138793; cv=none; b=SkZOw2YvS73I9cZAyyJp5ArvbRV/FhlUB7XOlhtYYuV5QouGyZAL+p3WGtTeI5nfGxjH8SY8WZ56b8OiIBKEF5hJfHjHn45MjBqc1gX7BHl0Qe6svnSj9XFCZxxQZ4d8GUDJw4LJiab4NvY7L7BEaqBwigvvEicetVWGlPiZy70=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741135148; c=relaxed/simple;
-	bh=GffaeRHQ+IZsy69KXO82DY5gWnWpz0RqxgHkgUms0Rg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BDlA5lU3an+RSyrVMAkIHfPXRHlRho55Fst+qyqGdujVCab+e6trwCt+nxuYQrJmY5U0wk3/BeLxF9GpeZvPBwcxf148MbUptLTv5cvOvJQpcfosbwQpdcMDoCFTy0YuTYqCQo9RAGfdADWGS8lRWeA3pPPea0oIta3rTFPOqxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dvszArKR; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1741138793; c=relaxed/simple;
+	bh=dqWsSzrccmVHnLHCLmkQRVxxeSfQIVPPMj9Ba8t5jOk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gM7a3a4rP0opYAYefpOoihoqnEONA5395gFW3M66G4DtusCcf6xJCaDFgnacp8fBWk0qgnM7lxLQ0LMo3OsHvwTO1XCJIyiymMQe8c68yp2tlk56DsQLvJBghu08ixZxDbcXwPPA5FaXQrrp3nE98MGewBOb60j/2ArrSaOkGro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=AWYUUIoO; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dvszArKR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D095B82C21
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:39:06 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id zTII8J3ST_l7 for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Mar 2025 00:39:06 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62c; helo=mail-pl1-x62c.google.com; envelope-from=bobbyeshleman@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 2F0AB82C75
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2F0AB82C75
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=dvszArKR
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2F0AB82C75
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:39:05 +0000 (UTC)
-Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-2237cf6a45dso62315145ad.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 04 Mar 2025 16:39:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AWYUUIoO"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2237a32c03aso43615ad.1
+        for <virtualization@lists.linux.dev>; Tue, 04 Mar 2025 17:39:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741135145; x=1741739945; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UprHo0WfBiVLbk323XZc3dMbOaIjPzElNygx0f4wgwc=;
-        b=dvszArKRgiThtdRlc109yY+2NLfeZUiYRoR0gqRTBOIoUDgBk4VEEgw59vak+js2DX
-         cl6R9TMXJjQ1AQvnFRXnvNuT/OCDdm5MqUpl/hmf1GpuC7pWRWRtBj2SqbwnVpTgk5uZ
-         OVvxjmwCz7eFgCSFR4aEV3l3gvdgl808T3W2Fjo3GU+6lNfGSAlm4weiC+dMIzgtPD0b
-         71SPFrvk7DjIqPrZWNHHXzFQ67P/0PknmPWEoAgeuRZV9TFBHBEaJKrbfxRdS/xTAnn+
-         8Z383kJu1EzPRgrU9WRYwkYelGKprJoy6oX8PZhjWqg2YQpPZnbZNZVtvJX7lCexH2XA
-         06eA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741135145; x=1741739945;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=google.com; s=20230601; t=1741138791; x=1741743591; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UprHo0WfBiVLbk323XZc3dMbOaIjPzElNygx0f4wgwc=;
-        b=Q+EpYHl/oybyuaAB/EeRCSLUNuMXXnV+uT7d9whsjsuSqMCTTH/EsUk9a5eqslHeu0
-         vQvJgVlBIJIsmYfQPjB7F1H9Zx/TaRA6MWhFrnKttBNgjWFZWzibAlWIgfxBaK8V+sTs
-         4zMOhWi6FmV5MCPTMC78fjJrhIOzL61lK24PgBQ3D4iz1+mwc5QxEkzEwYG/vfaVE1AE
-         T8A5fZ/bnz/2RsR26IbuCzs8xXPRMeOKX31q2yOs9Riq+b5UDiuiCvoNH3tr8V7yQJDL
-         Tmoc87YWR7g2v3/365ycvUTN082YSSRqpFSplq6Y4NEZ2pz0GRmlxX965Nco047GuE4E
-         yYEg==
-X-Forwarded-Encrypted: i=1; AJvYcCW9oTov/F9jI2IqC+k6JkH4lxNMdS/R2tCyGS5TSBwHRjblhmcOC0CRIJZ8unh3D+QV5mS4tC4y0vEhpmmA5A==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzNGkKbys6MtJUXFt8u1eImarILcfPWAhdMIEk4YCierEgQ8RSB
-	/XnQ5XIDrKgv7+NAEwHobL3td7Exrk3zApJdHO7Mij94XA8h0twc
-X-Gm-Gg: ASbGncsuq/Cf0QIQ7RIzpnKA1DgZu+XnDtPi5Y+jwSFx25PTYyofvw37hUy+KMviOC0
-	wXs+vB7m9cH6ORQe2s15gOooiulUdm+0H9V5m59DqHIzNc60upkoxsu+TYISbZSRQs526phgx8t
-	Z3th2YX+t0F+SFgnZIVg4g4Pgw69VI6+1ZXN8bQ9Ijxvb3ujX96QJ880Bq2iMmBQjWmJMYTrePh
-	qhmKwpq6KSklSwZeapgWpyAxZTveGakamEyfaG4TYwg7FX5hPepLJiuZK2iexv5wZWE/8OREVkp
-	0GOBqR+NnQFuBvUtDbTrUBLoml311WQjMjt7tNiCYyroYeQeXxU5uJ5a88MdyAdTBQ==
-X-Google-Smtp-Source: AGHT+IECiYjFVxf6raN09EdNcRoqe9t6RTi4k2HhtgndswCUxU53XDMOZQ0P2qwRcfTEsZetXhEh+g==
-X-Received: by 2002:a17:902:d50f:b0:223:5e76:637a with SMTP id d9443c01a7336-223f1c97445mr13662535ad.23.1741135145249;
-        Tue, 04 Mar 2025 16:39:05 -0800 (PST)
-Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:3::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-223501d28desm102409635ad.16.2025.03.04.16.39.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Mar 2025 16:39:04 -0800 (PST)
-Date: Tue, 4 Mar 2025 16:39:02 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, davem@davemloft.net,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
-	Jorgen Hansen <jhansen@vmware.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-	netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
-Message-ID: <Z8edJjqAqAaV3Vkt@devvm6277.cco0.facebook.com>
-References: <20200116172428.311437-1-sgarzare@redhat.com>
- <20200427142518.uwssa6dtasrp3bfc@steredhat>
- <224cdc10-1532-7ddc-f113-676d43d8f322@redhat.com>
- <20200428160052.o3ihui4262xogyg4@steredhat>
+        bh=9fA2KYQHik2cIQjoxJaa3twCTPuvqgtb1JUSNyfAxYc=;
+        b=AWYUUIoOj2my38ZVf05tCVGdP7HvJsXNap36GvjXzEVRiIRLLRX/S28Nsmlu3c3ybU
+         0HOIozREz+LEsK8eP39jeHzNBrVq8zimosun3k7PQw/3C6sm18q4X3rNFPnAZjJMIlbr
+         DPO8ymPLZ0jZXV4s2TCxNlpN6OFIZ6WWG3LHsNMPYi8Kh3Ci5/cnU3Ya3nuCoxEGSb/T
+         5YspcuyjaHGxPxRpAUn0aW24ho+kUpeyX+UAbs3bkd/P/E7nIlnUqgu/x25EN3PNZP4F
+         oEBnNTJegXr9fGJDwnVLB4Q//OOWRDYXagSfy+7HotJW+46rH0GaChIyVDOi6wTG5ZmR
+         hzFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741138791; x=1741743591;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9fA2KYQHik2cIQjoxJaa3twCTPuvqgtb1JUSNyfAxYc=;
+        b=H8G8dJsOhforzxjrea+/fDfjFMhiv6u3hz2TMJd37yk6UvOSBqryO2rcSF5O0olyol
+         mGRuFpjwusqUk1YKOrvJ7kOhv5hms8g7mxmS5zthxf7QABJckS63Eg93FZxCN9teICbL
+         pEyWkzp+IzCwTGQm4kp/BNJ1hD4jgmNbtueqlZtVVc9Yggi/1FXjFuXU3XXgm40SNger
+         j84hgh3I405325r7w34RRGSFYJlqmmAtPMoBZr+OA7CbQ9SaHxJ7w7IB1RP1i2HwOnVp
+         kq77sMS56dfH2AToi+l4krnF6A9I7dUvIVafmzdDAW6lLMyJEKWNfmXr8kOGEIPn+I2v
+         e+ZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX3cC5KrXwOkNKDd0BBFFJ7VDSP+jyVWy4VO8womCQXgDHMKvUTU8r2ONF2nVyTV9PaadFUGwoFwd4915+usw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxX8BcL4ddIqNrb2wW0z+68scqocuJKkc4HSy0OtpWa1m+a/ehL
+	PJVFJt3p4rexVdGngbfHIT70aNgCGeIqCoQpfCSQ489Aep8TzThJI8ee9416kgQD5X7yrNteJQz
+	gUdUoWOjxkL8ZtN+nQkacVQQu2PWSE9bTA7j0
+X-Gm-Gg: ASbGnctNQiVQjOmMNB/xOuZTbfl3rf4H/RNApki9Yx6Jtrx6msisnugMFvv/+fPCD/N
+	768/IthWs7eGgDmE1rx9h5D6VHeO3z+Dje73M22VgJBy4NzXT8FbzqV00ysO9HyVPUNSjQz7Xdj
+	WDZUXuLR2fReuoRIjsTfntVNaGUNmyA1CC2NHF53l3l1ZcX0P3qq2C3cD2
+X-Google-Smtp-Source: AGHT+IH5gXmkQSdJDrmvDbhcX1gVqatKumUNqefxFocuBrCcwtKWp6uWzxr+bTikNvWZpTgRK27RGaHlzULM/jBATGw=
+X-Received: by 2002:a17:903:494:b0:216:2839:145 with SMTP id
+ d9443c01a7336-223f44abcf5mr798995ad.1.1741138790491; Tue, 04 Mar 2025
+ 17:39:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200428160052.o3ihui4262xogyg4@steredhat>
+References: <20250227041209.2031104-1-almasrymina@google.com>
+ <20250227041209.2031104-2-almasrymina@google.com> <20250228163846.0a59fb40@kernel.org>
+ <CAHS8izNQnTW7sad_oABtxhy3cHxGR0FWJucrHTSVX7ZAA6jT3Q@mail.gmail.com> <20250303162051.09ad684e@kernel.org>
+In-Reply-To: <20250303162051.09ad684e@kernel.org>
+From: Mina Almasry <almasrymina@google.com>
+Date: Tue, 4 Mar 2025 17:39:37 -0800
+X-Gm-Features: AQ5f1JokmBfu9vApWvP6OeSWBJnA3SLQMcYEIWf9RLvx2TEKaGIWTz1vBTgX4iM
+Message-ID: <CAHS8izNWt2-1bC2f0jv4Qpk_A9VpEXNvVRoXUtL43_16d-Ui-A@mail.gmail.com>
+Subject: Re: [PATCH net-next v6 1/8] net: add get_netmem/put_netmem support
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, 
+	Donald Hunter <donald.hunter@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	Jeroen de Borst <jeroendb@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>, 
+	Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, 
+	Neal Cardwell <ncardwell@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	sdf@fomichev.me, asml.silence@gmail.com, dw@davidwei.uk, 
+	Jamal Hadi Salim <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, 
+	Pedro Tammela <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 28, 2020 at 06:00:52PM +0200, Stefano Garzarella wrote:
-> On Tue, Apr 28, 2020 at 04:13:22PM +0800, Jason Wang wrote:
-> > 
-> > 
-> > As we've discussed, it should be a netdev probably in either guest or host
-> > side. And it would be much simpler if we want do implement namespace then.
-> > No new API is needed.
-> > 
-> 
-> Thanks Jason!
-> 
-> It would be cool, but I don't have much experience on netdev.
-> Do you see any particular obstacles?
-> 
-> I'll take a look to understand how to do it, surely in the guest would
-> be very useful to have the vsock device as a netdev and maybe also in the host.
-> 
+On Mon, Mar 3, 2025 at 4:20=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> wro=
+te:
+>
+> On Fri, 28 Feb 2025 17:29:13 -0800 Mina Almasry wrote:
+> > On Fri, Feb 28, 2025 at 4:38=E2=80=AFPM Jakub Kicinski <kuba@kernel.org=
+> wrote:
+> > > On Thu, 27 Feb 2025 04:12:02 +0000 Mina Almasry wrote:
+> > > >  static inline void __skb_frag_ref(skb_frag_t *frag)
+> > > >  {
+> > > > -     get_page(skb_frag_page(frag));
+> > > > +     get_netmem(skb_frag_netmem(frag));
+> > > >  }
+> > >
+> > > Silently handling types of memory the caller may not be expecting
+> > > always worries me.
+> >
+> > Sorry, I'm not following. What caller is not expecting netmem?
+> > Here we're making sure __skb_frag_ref() handles netmem correctly,
+> > i.e. we were not expecting netmem here before, and after this patch
+> > we'll handle it correctly.
+> >
+> > > Why do we need this?
+> > >
+> >
+> > The MSG_ZEROCOPY TX path takes a page reference on the passed memory
+> > in zerocopy_fill_skb_from_iter() that kfree_skb() later drops when the
+> > skb is sent. We need an equivalent for netmem, which only supports pp
+> > refs today. This is my attempt at implementing a page_ref equivalent
+> > to net_iov and generic netmem.
+> >
+> > I think __skb_frag_[un]ref is used elsewhere in the TX path too,
+> > tcp_mtu_probe for example calls skb_frag_ref eventually.
+>
+> Any such caller must be inspected to make sure it generates
+> / anticipates skbs with appropriate pp_recycle and readable settings.
+> It's possible that adding a set of _netmem APIs would be too much
+> churn, but if it's not - it'd make it clear which parts of the kernel
+> we have inspected.
+>
 
-WRT netdev, do we foresee big gains beyond just leveraging the netdev's
-namespace?
+I see, you're concerned about interactions between skb->pp_recycle and
+skb->unreadable. My strategy to handle this is to take what works for
+pages, and extend it as carefully as possible to unreadable
+net_iovs/skbs. Abstractly speaking, I think skb_frag_ref/unref should
+be able to obtain/drop a ref on a frag regardless of what the
+underlying memory type is.
 
-IIUC, the idea is that we could follow the tcp/ip model and introduce
-vsock-supported netdevs. This would allow us to have a netdev associated
-with the virtio-vsock device and create virtual netdev pairs (i.e.,
-veth) that can bridge namespaces. Then, allocate CIDs or configure port
-mappings for those namespaces?
+Currently __skb_frag_ref() obtains a page ref regardless of
+skb->pp_recycle setting, and skb_page_unref() drops a page_ref if
+!skb->pp_recycle and a pp ref if skb->pp_recycle. I extend the logic
+so that it applies as-is to net_iovs and unreadable skbs.
 
-I think it might be a lot of complexity to bring into the picture from
-netdev, and I'm not sure there is a big win since the vsock device could
-also have a vsock->net itself? I think the complexity will come from the
-address translation, which I don't think netdev buys us because there
-would still be all of the work work to support vsock in netfilter?
+After this patch, __skb_frag_ref() obtains a 'page ref equivalent' on
+the net_iov regardless of the pp_recycle setting. My conjecture is
+that since that works for pages, it should also work for net_iovs.
 
-Some other thoughts I had: netdev's flow control features would all have
-to be ignored or disabled somehow (I think dev_direct_xmit()?), because
-queueing introduces packet loss and the vsock protocol is unable to
-survive packet loss. Netfilter's ability to drop packets would have to
-be disabled too.
+Also after this patch, skb_page_unref will drop a pp ref on the
+net_iov if skb->pp_recycle is set, and drop a 'page ref equivalent' on
+the net_iov if !skb->pp_recycle. The conjecture again is that since
+that works for pages, it should extend to net_iovs.
 
-Best,
-Bobby
+With regards to the callers, my thinking is that since we preserved
+the semantics of __skb_frag_ref and skb_page_unref (and so
+skb_frag_ref/skb_frag_unref by extension), then all existing callers
+of skb_frag_[un]ref should work as is. Here is some code analysis of
+individual callers:
+
+1. skb_release_data
+      __skb_frag_unref
+        skb_page_unref
+
+This code path expects to drop a pp_ref if skb->pp_recycle, and drop a
+page ref if !skb->pp_recycle. We make sure to do this regardless if
+the skb is actually filled with net_iovs or pages, and the conjecture
+is that since the logic to acquire/drop a pp=3Dpage ref works for pages,
+it should work for the net_iovs as well.
+
+2. __skb_zcopy_downgrade_managed
+      skb_frag_ref
+
+Same thing here, since this code expects to get a page ref on the
+frag, we obtain the net_iov equivalent of a page_ref and that should
+work as well for net_iovs as pages. I could look at more callers, but
+the general thinking is the same. Am I off the rails here?
+
+Of course, we could leave skb_frag_[un]ref as-is and create an
+skb_frag_[un]ref_netmem which support net_iovs, but my ambition here
+was to make skb_frag_[un]ref itself support netmem rather than fork
+the frag refcounting - if it seems like a good idea?
+
+> > > In general, I'm surprised by the lack of bug reports for devmem.
+> >
+> > I guess we did a good job making sure we don't regress the page paths.
+>
+> :)
+>
+> > The lack of support in any driver that qemu will run is an issue. I
+> > wonder if also the fact that devmem needs some setup is also an issue.
+> > We need headersplit enabled, udmabuf created, netlink API bound, and
+> > then a connection referring to created and we don't support loopback.
+> > I think maybe it all may make it difficult for syzbot to repro. I've
+> > had it on my todo list to investigate this more.
+> >
+> > > Can you think of any way we could expose this more to syzbot?
+> > > First thing that comes to mind is a simple hack in netdevsim,
+> > > to make it insert a netmem handle (allocated locally, not a real
+> > > memory provider), every N packets (controllable via debugfs).
+> > > Would that work?
+> >
+> > Yes, great idea. I don't see why it wouldn't work.
+> >
+> > We don't expect mixing of net_iovs and pages in the same skb, but
+> > netdevsim could create one net_iov skb every N skbs.
+> >
+> > I guess I'm not totally sure something is discoverable to syzbot. Is a
+> > netdevsim hack toggleable via a debugfs sufficient for syzbot? I'll
+> > investigate and ask.
+>
+> Yeah, my unreliable memory is that syzbot has a mixed record discovering
+> problems with debugfs. If you could ask Dmitry for advice that'd be
+> ideal.
+
+Yes, I took a look here and discussed with Willem. Long story short is
+that syzbot support is possible but with a handful of changes. We'll
+look into that.
+
+Long story long, for syzbot support I don't think netdevsim itself
+will be useful. Its our understanding so far that syzbot doesn't do
+anything special with netdevsim. We'll need to add queue
+API/page_pool/unreadable netmem support to one of the drivers qemu
+(syzbot) uses, and that should get syzbot fuzzing the control plane.
+
+To get syzbot to fuzz the data plane, I think we need to set up a
+special syzbot instance which configures udmabuf/rss/flow
+steering/netlink binding and start injecting packets through the data
+path. Syzbot would not discover a working config on its own. I'm told
+it's rare to set up specialized syzbot instances but we could sell
+that this coverage is important enough.
+
+Hacking netdevsim like you suggested would be useful as well, but
+outside of syzbot, AFAICT so far. We can run existing netdevsim data
+path tests with netdevsim in 'unreadable netmem mode' and see if it
+can reproduce issues. Although I'm not sure how to integrate that with
+continuous testing yet.
+
+--
+Thanks,
+Mina
