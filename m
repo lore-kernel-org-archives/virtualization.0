@@ -1,183 +1,159 @@
-Received: from mail-il1-f208.google.com (mail-il1-f208.google.com [209.85.166.208])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA2261FC10E
-	for <virtualization@lists.linux.dev>; Tue,  4 Mar 2025 21:52:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.208
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 380D0FC0A
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:06:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741125149; cv=none; b=O+fjJm609KDXROq3FE9skcbeRpJdI+b84oI56jeDCd31sFGIYcbfMz0uYudKUcC6U/FPjRT8B82aALiFmaepc5xn7CHivvk1ol+vBklkxgcVsly59Hm3aYuc2Zr8CbsYUYqPXXYzK+KpcUOB4GqmbNP0vtKjvFtLJ2njcOwp+Gg=
+	t=1741133172; cv=none; b=uDhqDMXRo4LJ23vXrb/LMT/6btp8bFlYvP1jNPOjsxjJzlgfm4klqC+sCFJWiuoTkiT8okDmnYTwuWawbBmUtc2Z4Ne5FtPvq7sPsOFd1sj1wL373aqw146svxQAOMKinKYU7UH27gbC7GSD3fn2HFxg5K/2kSBVKo5MmiCW03I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741125149; c=relaxed/simple;
-	bh=fPEkJZTWhWGkSvyHQx9qG+VOs+4MAg2FdojLghrzEUs=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=N6T4EZydNW7bCL49mUZI+zArDQt5SsVEi15LTqIWmOB/8prN18xo6Pf5FNiobU2IPMoEQZOgPAza2gIV0At1NMWvv07DslrWKq2z690fd/GTkkGnHbJf9Fs9zwXYMZhMiJrgwRnG1za7Ca4qHC5SlmIGg0F2WvhxhDBlAl5aEkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.208
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f208.google.com with SMTP id e9e14a558f8ab-3d3e14f3638so110658475ab.1
-        for <virtualization@lists.linux.dev>; Tue, 04 Mar 2025 13:52:27 -0800 (PST)
+	s=arc-20240116; t=1741133172; c=relaxed/simple;
+	bh=yumEBOrSKRVXTEceLp63BWKfaVOLc1xa6xzRclgxWJ0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iqonKoYtVJwOrj+LTBdJHDQY7LTSRSbsbq3NezV+h9I0zpvaCV7Wst51OuafDbr0VC4kb9erKpbea3Hs3cRea04cPy9iGQNtyXRiMbuKylrXRbIKEGrLlvOiC+1hCM48NcBNC3jsreqovSnCS3P6ENdOj5WQUF2DO4WQMCkwjKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vpkz5G1i; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vpkz5G1i"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id C3FA5605C0
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:06:10 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id FoRfrufKBgDb for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Mar 2025 00:06:06 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62d; helo=mail-pl1-x62d.google.com; envelope-from=bobbyeshleman@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org DFEE46069C
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DFEE46069C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Vpkz5G1i
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DFEE46069C
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:06:05 +0000 (UTC)
+Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-22385253e2bso85037275ad.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 04 Mar 2025 16:06:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1741133165; x=1741737965; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=1bX8gifnWEanUXpwx5uYv2DpmwKxBi/IwZcv/puhYts=;
+        b=Vpkz5G1iCjRsuxkiF1tyZNEl51ykZBXj/COwOb/QEYNPOG5CqtQ1kOMNVL7Vc2VJtg
+         zk2noPPegKEE1IsU/7rzL1fkFGC8arizKDJvrSN4eJ1+j2xFgYDQgpbm8ffv+3P9cbyI
+         BmHvW3BeOyGgdyP2++f2XiW/lDHdd60VSRk/udg9Vl9eEd0ofWbiOLQN1uwXOgSKK/Fd
+         CQfZskPGV/L5kh47nH0bny5g/krUaAnVuHyo+EVBw49tbITXuQtuoO+1COl9qxsNFfO+
+         6JI9PGR/Nn9IAxH4bWODTu6OEtRsyWZPLsF06N8Ca91S0EXwbJ/xrjjlB0MqxkXtKt96
+         wpeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741125147; x=1741729947;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Eh7fZ3momAvYKWET6wtFNtqSRFn0GlnN16QrylaRDhA=;
-        b=ne2m5hzKGirf4nbALmwglkt1orsnU0PR3ONKB1M/w/PR0H2Uv2yVWFxXeZ08p+7zsQ
-         77qrk0rtgcwMqOslr6/sgy+FoHhe0IQgHgZZiGIu2FB4E6kgpOleGKwuVMXHqhAP6H0H
-         8d+UuWAKsmqxcrYcwsWi5T3FlZaDPHhudu8vlrREoQKzKuWfKWYePfbkZ7eDQH8cvc5l
-         1ds+MmUG4Uxqe7OQyNkDeFCC69QfnwbVDYS/IUFULFIn0fiYeEeOpUpjGri59BSXeH0s
-         nIxMgqeBrCVpEEM07MsqSMYmsgusQzLwoqwN45U6gRUJ1xHHuiR10C6dmlHBgz+0uzVf
-         KL0g==
-X-Forwarded-Encrypted: i=1; AJvYcCU01UkZRXbUN7SDXY4iihVOtjKdp0o/vjzyOKHNOKKMZ64BkCznHtbCfWVVxlqVDykD2BAPzBILZrrecTHrzA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwU071XAZO00zuQpuMQTq5JwWalU+7W0dxEFpNXqffekCavRyDb
-	8QBO7o0E9Yn6wWi0GEjLWCPtQmzXMvfQKbRENav+sljNFdVIbA5wQS0khP50OwzywT0cdy+8TAA
-	7u+6nRaKy9re1SLURYzgWRUSYaAGDxJeLXheFotKUuKHcNYdkVBYgxuA=
-X-Google-Smtp-Source: AGHT+IEAxg5QDO8kH0xAi4FrGX5hac33JkTNqmJapyMQzfnaHUGv0Vh5PB+zgboDoI66FUPJrf+EV/P9S9CJYeN05ff7wv5Rkzb3
+        d=1e100.net; s=20230601; t=1741133165; x=1741737965;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1bX8gifnWEanUXpwx5uYv2DpmwKxBi/IwZcv/puhYts=;
+        b=sB9ZxhXNPTr7Ni0wL9GOMHJckvXv68ITRcNlLHP0g114j7pgL9XEWmDzd9hfdc0Bal
+         OlhQL3z9glX29PIOuHJ2KCBYooPMQEr6Dhh7od3fJUwoL1ikf9Oq0Ms1BJd2W3EMGpw6
+         RIT3knAcqIBGioMlqEPVw9NgMCMzo6ljfKAtMWvMfioCMD4NZdrrCsxfOIg8gTJp+U1c
+         B87CMidlHIx0L1wL+mSfcHmhYgMq6uyfM9L3H0Mq7sPeNkBmO7V9Gp+/tfZe7SYd3GEE
+         s4mnWegu1pWqUnC7djemaYs08TUUpTDhlfDQciMNSY/0h1QrMfV9/2AN3Fwz+mfPPCTg
+         Q1AQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX0DBH1PnoxSkCXrGWmDqZGbB3ETu9kN70vCroepBDR9FD9lcbsnb6jlO/txlZEnZZdXDpysMLDHsUGWd5aXA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxYA31CUdJaJwqKXZVo4kx1Q5OIyvWcwwT2yVq2DS4Nibgy16h1
+	Wd/FehOd7lolDHNfqeV759nv+X1wFAcY5NPR7+CqPHiUumm+R7Tc
+X-Gm-Gg: ASbGncsDfuuVtiS/owG/ZOArPzeIAPO0ioVhIynymibLLCR75Z+ei+BGM92NofsZxDo
+	f3r9pPkIW+eW4czHPNv+3iai0LEvW9uO67ezMaXqXqFrHJ9gsBJlIsrQ2YjXp+l2XZWz5P9rPG3
+	vPk416T4cddrUI1XcIqCSPO45o9Cr8XfT6ue68JlPgBGdx8F+u1E42Br/a3j9mdPxSQ7qZgLGQ0
+	OJQE0prPsWciciMPYWJhEKCpcOQZXOx2w5P2IvQ3tTHBP9iWo27r/Zn30HXxTQYNotb5u7VXbgi
+	jsFTrR81n6OY3FEhk5TdubfaFXCvzTzQDNTJYFeYu6FSCzlhdesrlj2BqqPl6KWjdw==
+X-Google-Smtp-Source: AGHT+IH4ftklKoOo2W4okOysYcXlnHpssR8tMCp5JJW1u2ezJYFalFzx+cpxzztCmDjNwc5X5W1I0w==
+X-Received: by 2002:a05:6a00:2311:b0:736:728b:5f1f with SMTP id d2e1a72fcca58-73682c89fb9mr1219777b3a.19.1741133164866;
+        Tue, 04 Mar 2025 16:06:04 -0800 (PST)
+Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:2::])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7365bb4090csm4251725b3a.35.2025.03.04.16.06.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Mar 2025 16:06:04 -0800 (PST)
+Date: Tue, 4 Mar 2025 16:06:02 -0800
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: davem@davemloft.net, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>,
+	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	virtualization@lists.linux-foundation.org,
+	linux-hyperv@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+	Dexuan Cui <decui@microsoft.com>, Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
+Message-ID: <Z8eVanBR7r90FK7m@devvm6277.cco0.facebook.com>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:12c4:b0:3d1:a75e:65f6 with SMTP id
- e9e14a558f8ab-3d42b97733cmr12768325ab.18.1741125146944; Tue, 04 Mar 2025
- 13:52:26 -0800 (PST)
-Date: Tue, 04 Mar 2025 13:52:26 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <67c7761a.050a0220.15b4b9.0018.GAE@google.com>
-Subject: [syzbot] [virt?] KCSAN: data-race in virtqueue_disable_cb /
- virtqueue_enable_cb_delayed (9)
-From: syzbot <syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com>
-To: eperezma@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org, 
-	mst@redhat.com, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200116172428.311437-1-sgarzare@redhat.com>
 
-Hello,
-
-syzbot found the following issue on:
-
-HEAD commit:    99fa936e8e4f Merge tag 'affs-6.14-rc5-tag' of git://git.ke..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=14629464580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=523b0e2f15224775
-dashboard link: https://syzkaller.appspot.com/bug?extid=efe683d57990864b8c8e
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/a28c1cb92a01/disk-99fa936e.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/229349d043c8/vmlinux-99fa936e.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/49768322c46d/bzImage-99fa936e.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com
-
-==================================================================
-BUG: KCSAN: data-race in virtqueue_disable_cb / virtqueue_enable_cb_delayed
-
-write to 0xffff8881025bc452 of 1 bytes by task 3288 on cpu 0:
- virtqueue_enable_cb_delayed+0x42/0x3c0 drivers/virtio/virtio_ring.c:2653
- start_xmit+0x230/0x1310 drivers/net/virtio_net.c:3264
- __netdev_start_xmit include/linux/netdevice.h:5151 [inline]
- netdev_start_xmit include/linux/netdevice.h:5160 [inline]
- xmit_one net/core/dev.c:3800 [inline]
- dev_hard_start_xmit+0x119/0x3f0 net/core/dev.c:3816
- sch_direct_xmit+0x1a9/0x580 net/sched/sch_generic.c:343
- __dev_xmit_skb net/core/dev.c:4039 [inline]
- __dev_queue_xmit+0xf6a/0x2090 net/core/dev.c:4615
- dev_queue_xmit include/linux/netdevice.h:3313 [inline]
- neigh_hh_output include/net/neighbour.h:523 [inline]
- neigh_output include/net/neighbour.h:537 [inline]
- ip_finish_output2+0x71d/0x880 net/ipv4/ip_output.c:236
- ip_finish_output+0x11a/0x2a0 net/ipv4/ip_output.c:324
- NF_HOOK_COND include/linux/netfilter.h:303 [inline]
- ip_output+0xab/0x170 net/ipv4/ip_output.c:434
- dst_output include/net/dst.h:459 [inline]
- ip_local_out net/ipv4/ip_output.c:130 [inline]
- __ip_queue_xmit+0xb2c/0xb50 net/ipv4/ip_output.c:528
- ip_queue_xmit+0x38/0x50 net/ipv4/ip_output.c:542
- __tcp_transmit_skb+0x15ca/0x19d0 net/ipv4/tcp_output.c:1471
- tcp_transmit_skb net/ipv4/tcp_output.c:1489 [inline]
- tcp_write_xmit+0x1217/0x3020 net/ipv4/tcp_output.c:2832
- __tcp_push_pending_frames+0x6a/0x1a0 net/ipv4/tcp_output.c:3015
- tcp_push+0x320/0x340 net/ipv4/tcp.c:751
- tcp_sendmsg_locked+0x21a1/0x26a0 net/ipv4/tcp.c:1326
- tcp_sendmsg+0x30/0x50 net/ipv4/tcp.c:1358
- inet_sendmsg+0x77/0xd0 net/ipv4/af_inet.c:851
- sock_sendmsg_nosec net/socket.c:718 [inline]
- __sock_sendmsg+0x102/0x180 net/socket.c:733
- sock_write_iter+0x15e/0x1a0 net/socket.c:1137
- new_sync_write fs/read_write.c:586 [inline]
- vfs_write+0x77b/0x920 fs/read_write.c:679
- ksys_write+0xe8/0x1b0 fs/read_write.c:731
- __do_sys_write fs/read_write.c:742 [inline]
- __se_sys_write fs/read_write.c:739 [inline]
- __x64_sys_write+0x42/0x50 fs/read_write.c:739
- x64_sys_call+0x287e/0x2dc0 arch/x86/include/generated/asm/syscalls_64.h:2
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-read to 0xffff8881025bc452 of 1 bytes by interrupt on cpu 1:
- virtqueue_disable_cb_split drivers/virtio/virtio_ring.c:880 [inline]
- virtqueue_disable_cb+0x92/0x180 drivers/virtio/virtio_ring.c:2566
- skb_xmit_done+0x5f/0x140 drivers/net/virtio_net.c:777
- vring_interrupt+0x161/0x190 drivers/virtio/virtio_ring.c:2715
- __handle_irq_event_percpu+0x95/0x490 kernel/irq/handle.c:158
- handle_irq_event_percpu kernel/irq/handle.c:193 [inline]
- handle_irq_event+0x64/0xf0 kernel/irq/handle.c:210
- handle_edge_irq+0x16d/0x5b0 kernel/irq/chip.c:831
- generic_handle_irq_desc include/linux/irqdesc.h:173 [inline]
- handle_irq arch/x86/kernel/irq.c:249 [inline]
- call_irq_handler arch/x86/kernel/irq.c:261 [inline]
- __common_interrupt+0x58/0xe0 arch/x86/kernel/irq.c:287
- common_interrupt+0x7c/0x90 arch/x86/kernel/irq.c:280
- asm_common_interrupt+0x26/0x40 arch/x86/include/asm/idtentry.h:693
- rep_movs_alternative+0x33/0x70 arch/x86/lib/copy_user_64.S:57
- copy_user_generic arch/x86/include/asm/uaccess_64.h:126 [inline]
- raw_copy_from_user arch/x86/include/asm/uaccess_64.h:141 [inline]
- _inline_copy_from_user include/linux/uaccess.h:178 [inline]
- _copy_from_user+0x6f/0xa0 lib/usercopy.c:18
- copy_from_user include/linux/uaccess.h:212 [inline]
- copy_msghdr_from_user+0x54/0x2a0 net/socket.c:2503
- recvmsg_copy_msghdr net/socket.c:2759 [inline]
- ___sys_recvmsg net/socket.c:2831 [inline]
- do_recvmmsg+0x256/0x6d0 net/socket.c:2930
- __sys_recvmmsg net/socket.c:3004 [inline]
- __do_sys_recvmmsg net/socket.c:3027 [inline]
- __se_sys_recvmmsg net/socket.c:3020 [inline]
- __x64_sys_recvmmsg+0xe2/0x170 net/socket.c:3020
- x64_sys_call+0x2a9a/0x2dc0 arch/x86/include/generated/asm/syscalls_64.h:300
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-value changed: 0x01 -> 0x00
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 UID: 0 PID: 4167 Comm: syz.0.259 Not tainted 6.14.0-rc5-syzkaller-00013-g99fa936e8e4f #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 02/12/2025
-==================================================================
+On Thu, Jan 16, 2020 at 06:24:25PM +0100, Stefano Garzarella wrote:
+> RFC -> v1:
+>  * added 'netns' module param to vsock.ko to enable the
+>    network namespace support (disabled by default)
+>  * added 'vsock_net_eq()' to check the "net" assigned to a socket
+>    only when 'netns' support is enabled
+> 
+> RFC: https://patchwork.ozlabs.org/cover/1202235/
+> 
+> Now that we have multi-transport upstream, I started to take a look to
+> support network namespace in vsock.
+> 
+> As we partially discussed in the multi-transport proposal [1], it could
+> be nice to support network namespace in vsock to reach the following
+> goals:
+> - isolate host applications from guest applications using the same ports
+>   with CID_ANY
+> - assign the same CID of VMs running in different network namespaces
+> - partition VMs between VMMs or at finer granularity
+> 
+> This new feature is disabled by default, because it changes vsock's
+> behavior with network namespaces and could break existing applications.
+> It can be enabled with the new 'netns' module parameter of vsock.ko.
+> 
+> This implementation provides the following behavior:
+> - packets received from the host (received by G2H transports) are
+>   assigned to the default netns (init_net)
+> - packets received from the guest (received by H2G - vhost-vsock) are
+>   assigned to the netns of the process that opens /dev/vhost-vsock
+>   (usually the VMM, qemu in my tests, opens the /dev/vhost-vsock)
+>     - for vmci I need some suggestions, because I don't know how to do
+>       and test the same in the vmci driver, for now vmci uses the
+>       init_net
+> - loopback packets are exchanged only in the same netns
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Hey Stefano,
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+I recently picked up this series and am hoping to help update it / get
+it merged to address a known use case. I have some questions and
+thoughts (in other parts of this thread) and would love some
+suggestions!
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+I already have a local branch with this updated with skbs and using
+/dev/vhost-vsock-netns to opt-in the VM as per the discussion in this
+thread.
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+One question: what is the behavior we expect from guest namespaces?  In
+v2, you mentioned prototyping a /dev/vsock ioctl() to define the
+namespace for the virtio-vsock device. This would mean only one
+namespace could use vsock in the guest? Do we want to make sure that our
+design makes it possible to support multiple namespaces in the future if
+the use case arrives?
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+More questions/comments in other parts of this thread.
 
-If you want to undo deduplication, reply with:
-#syz undup
+Thanks!
+
+- Bobby
+
