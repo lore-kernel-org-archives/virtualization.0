@@ -1,127 +1,158 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 396412561BB
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 20:19:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0950720767C
+	for <virtualization@lists.linux.dev>; Wed,  5 Mar 2025 23:41:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741205973; cv=none; b=LrnJTNz0x7FHURiBnks+E0M/2rb5RXukG23YqoDa/VklKs5ZhYV0f5Lzu+a21q7FDMHca4bPk3HioGEFVIB9HzP9uCFkhRVH25NueIPAoX2/VGp9SKQodkOpvHMthxUljbu48iYg1d0tjfJ4+WqLCgIPL1nmTMAuHGAvDl2JfhE=
+	t=1741218110; cv=none; b=dzGV23ocrqpl3+ZFLaB//z9pbZKiBJl7EuYqqQbtzOtVArqw7roA1oYA8rSqQ8OLzWmUe/nAJh3BGWYmDmmy7DThNycW3PTzqFgERgFL+3ltifRDLU71ekcz/7LP+SHdnPk5qk78xq1DqZ2CP/nJ1gwJNrOCLf21YDL3nQtkElU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741205973; c=relaxed/simple;
-	bh=DFv/aofqC6RxYldakRl4YDuw3IKqapk4Psuo0zdjGi4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I5syhJZw1MqxuvccDIgf4N1Jwqqe7hkZ4wz1BHBPfUNArLkyNFE8CGSdfGcHXU4WTIgVc+txt9I1iptLEpaFLpQ8QKSXbz+U2yebVvGbY9r+9PUO/X2IhJdcrLHJri+P9Fe5COoU2Lnvr/Ukm8HujRXJaZJp4yTeRSE6DAZ5SCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dj2b9y15; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1741218110; c=relaxed/simple;
+	bh=79A9Xcxf22LN1wRxVN/wCq4MVv4De/k36OytnK/R+PU=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=aygVdK5QXbob8KaoIdybqtphyw2a8wqGccj2t9njJi7rzQcs8AOtv2kgFyebSqnPO7K1PIDvoxe0jH/Jc7k1wnzTooFTNC+jrR9za/z3xXh4QITfH3MIIcTBo/xcE3uEbEMCR/MfV+65Br4sj1V8psgtGdfS7wcwjl6aSAWbPD8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YjCN5sm0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SeO+07Dw; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YjCN5sm0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SeO+07Dw; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dj2b9y15"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B4B7A40484
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 20:19:30 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id J8WTfDcE-cZE for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Mar 2025 20:19:30 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::636; helo=mail-pl1-x636.google.com; envelope-from=bobbyeshleman@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org D049240527
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D049240527
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Dj2b9y15
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D049240527
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 20:19:29 +0000 (UTC)
-Received: by mail-pl1-x636.google.com with SMTP id d9443c01a7336-223f4c06e9fso21301355ad.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 05 Mar 2025 12:19:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741205969; x=1741810769; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ggSYKjNiS8Boto5d0Yt8S4og/EP9GTSZBqieM3le2yU=;
-        b=Dj2b9y15Ojo5qDTtP02MQMKIrJUp2wuj86mh1wPKQr9sNgr6YFrW7ZUKK/WRL9Erc/
-         mWfLLedaMOCySMpXGi7an5IbXbWN7UvQtloKuHrlL/CdZ74b4DtqqnfjAMUDQbTk8zT9
-         i5HY2dCMrxVyy0z7DuZds2jNJqSFXZAjdYufGLZ9DfdKs7/NkSCTLe8n/WTy6kJuEX3E
-         DBSvdzwhcDPbo7dF2FqERnRcX0gk5DmuZ/oWYfDWABO4X2tumAnM5AKuTHGNvc4kxmYp
-         PaMW8gqdw5SiRPtdvLwNnn/YfpfT2W8XwiFNU7kJK5IcTEcqLFYqW2r7yV14I+pAjQdi
-         d3SQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741205969; x=1741810769;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ggSYKjNiS8Boto5d0Yt8S4og/EP9GTSZBqieM3le2yU=;
-        b=pKjb4TWHvaWyVnkmXiJ2jFymOLAngHddCSrgwY7WJhJ+vz46/jUtl+F8gGnOO32IPw
-         g9RWtWrxVQuKx2Ax31w/AqycEbd1slvYSOx06OVoQBtuoVdenTQj6eP1FZIdGOOX3LZ3
-         DcCGQgc0hrazLQ55i7DPNn5Fw4kS6BOAdkjIbWmZ18ZeYlttZQjzXXGil1Mw9oMuBylU
-         fOALQzZHNYqxv2Y5XE6oA8EfROx0QQ7Q0js9Q9JzHcQgTBlGfm2+s0touEdHNLOJTHNH
-         61EqpNbhwZ26LhWIbk0w/5nFTW5KG+raSErR7UNBcQoOZqH1knpFi98vx1ia6GMOBdgo
-         E8Hg==
-X-Forwarded-Encrypted: i=1; AJvYcCXVKaHeSCCXxGhgo8fFktLBFuOp8LN9qudfXp0EF6aQWccHw0EmN0rKjrGkhmaormRlvunRg/v5jMDjhDClEQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyGkw2Sge8dT5V5OPU+4i27K0F0sav959/vGnRKgUZyYGivsse2
-	0f/tkKL1d+egV0gWR0eRUXQ1c6L+tVzwyKPcaxT9BvEMakJYqk6X
-X-Gm-Gg: ASbGncsSgmuuJzKJK7FifAZgiHbgV+bPfAnZPjgI3s52k/VwuCYG1DMd5L9+C/FHVAD
-	cdl4U25ujKox2bLfCYFE1DpuxMZjrNbSVj74CzHd8Cj6BI28gx0p3LTKmM2N5sTT+7RAjLprApx
-	6ZhILvN4PYHsQ9OEDEXQWdw5tnk1S+tKJ4S30uq3BvDByvZ41FvxiqUKvc4Eh5aOvIfNO3JAufC
-	JoFLGVTliFRARy9bGdgRgPHAbP3w/PKhosKCq5ERcX3NmXyoMZKSePdEekm/UJeqm+rNUSnAIyH
-	dxZ3c+EDhkCf6vnZ11U+09t/zBLYqwijELFx+5WlMVPPeW6DzNTRBZ3L05La2x/ejbg=
-X-Google-Smtp-Source: AGHT+IHr2tihJ0au2ICgSWnpCRu00yBghmKv/sVI+EDCEbOk0rg+rxUiD5JA8UUFm0k+OdDJoEO2eA==
-X-Received: by 2002:a17:903:1aab:b0:223:fb95:b019 with SMTP id d9443c01a7336-224094a3c17mr11459415ad.24.1741205968892;
-        Wed, 05 Mar 2025 12:19:28 -0800 (PST)
-Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:71::])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7363fa7f540sm8189030b3a.38.2025.03.05.12.19.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Mar 2025 12:19:27 -0800 (PST)
-Date: Wed, 5 Mar 2025 12:19:26 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
-	davem@davemloft.net, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>,
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	virtualization@lists.linux-foundation.org,
-	linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>
-Subject: Re: [PATCH net-next 1/3] vsock: add network namespace support
-Message-ID: <Z8ixzohy9a0b9QZ2@devvm6277.cco0.facebook.com>
-References: <20200116172428.311437-1-sgarzare@redhat.com>
- <20200116172428.311437-2-sgarzare@redhat.com>
- <20250305022900-mutt-send-email-mst@kernel.org>
- <CAGxU2F5C1kTN+z2XLwATvs9pGq0HAvXhKp6NUULos7O3uarjCA@mail.gmail.com>
- <Z8hzu3+VQKKjlkRN@devvm6277.cco0.facebook.com>
- <CAGxU2F5EBpC1z7QY1VoPewxgEy3zU7P1nZH48PtOV1BtgN=Eyg@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YjCN5sm0";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SeO+07Dw";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YjCN5sm0";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SeO+07Dw"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id B7C171F385;
+	Wed,  5 Mar 2025 23:41:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741218106; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
+	b=YjCN5sm09/Vik1hnIVgY/KAn9Bl+M9/Qo0xPTOFQNF8Y/8QdKDvee6BGLO7x9pn9iJ9kyi
+	n5vDga3YY2IqVkMq8j71+tXA/lQqxgbYINFt4chYC7lsJ2wAc09oTXOcOZ0cfwMxqE/8JT
+	f5K7ko5CR+elv4J6T28XRXDqa8DqvvY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741218106;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
+	b=SeO+07DwVmMuxGIdJ6uBjWre+ET8YmfEvWdD+64YO1xDmbJOxMvVwYwNFQ+y51t6511CM8
+	Xk9d1WRKq6le82BQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741218106; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
+	b=YjCN5sm09/Vik1hnIVgY/KAn9Bl+M9/Qo0xPTOFQNF8Y/8QdKDvee6BGLO7x9pn9iJ9kyi
+	n5vDga3YY2IqVkMq8j71+tXA/lQqxgbYINFt4chYC7lsJ2wAc09oTXOcOZ0cfwMxqE/8JT
+	f5K7ko5CR+elv4J6T28XRXDqa8DqvvY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741218106;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
+	b=SeO+07DwVmMuxGIdJ6uBjWre+ET8YmfEvWdD+64YO1xDmbJOxMvVwYwNFQ+y51t6511CM8
+	Xk9d1WRKq6le82BQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E44A013939;
+	Wed,  5 Mar 2025 23:41:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id zc4kJSzhyGdbdAAAD6G6ig
+	(envelope-from <neilb@suse.de>); Wed, 05 Mar 2025 23:41:32 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGxU2F5EBpC1z7QY1VoPewxgEy3zU7P1nZH48PtOV1BtgN=Eyg@mail.gmail.com>
+From: "NeilBrown" <neilb@suse.de>
+To: "Yunsheng Lin" <linyunsheng@huawei.com>
+Cc: "Qu Wenruo" <wqu@suse.com>, "Yishai Hadas" <yishaih@nvidia.com>,
+ "Jason Gunthorpe" <jgg@ziepe.ca>,
+ "Shameer Kolothum" <shameerali.kolothum.thodi@huawei.com>,
+ "Kevin Tian" <kevin.tian@intel.com>,
+ "Alex Williamson" <alex.williamson@redhat.com>, "Chris Mason" <clm@fb.com>,
+ "Josef Bacik" <josef@toxicpanda.com>, "David Sterba" <dsterba@suse.com>,
+ "Gao Xiang" <xiang@kernel.org>, "Chao Yu" <chao@kernel.org>,
+ "Yue Hu" <zbestahu@gmail.com>, "Jeffle Xu" <jefflexu@linux.alibaba.com>,
+ "Sandeep Dhavale" <dhavale@google.com>, "Carlos Maiolino" <cem@kernel.org>,
+ "Darrick J. Wong" <djwong@kernel.org>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Jesper Dangaard Brouer" <hawk@kernel.org>,
+ "Ilias Apalodimas" <ilias.apalodimas@linaro.org>,
+ "David S. Miller" <davem@davemloft.net>, "Eric Dumazet" <edumazet@google.com>,
+ "Jakub Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>,
+ "Simon Horman" <horms@kernel.org>, "Trond Myklebust" <trondmy@kernel.org>,
+ "Anna Schumaker" <anna@kernel.org>, "Chuck Lever" <chuck.lever@oracle.com>,
+ "Jeff Layton" <jlayton@kernel.org>, "Olga Kornievskaia" <okorniev@redhat.com>,
+ "Dai Ngo" <Dai.Ngo@oracle.com>, "Tom Talpey" <tom@talpey.com>,
+ "Luiz Capitulino" <luizcap@redhat.com>,
+ "Mel Gorman" <mgorman@techsingularity.net>,
+ "Dave Chinner" <david@fromorbit.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-xfs@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org,
+ linux-nfs@vger.kernel.org
+Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
+ only NULL elements
+In-reply-to: <18c68e7a-88c9-49d1-8ff8-17c63bcc44f4@huawei.com>
+References: <>, <18c68e7a-88c9-49d1-8ff8-17c63bcc44f4@huawei.com>
+Date: Thu, 06 Mar 2025 10:41:24 +1100
+Message-id: <174121808436.33508.1242845473359255682@noble.neil.brown.name>
+X-Spam-Score: -4.30
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.998];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[44];
+	MISSING_XM_UA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[suse.com,nvidia.com,ziepe.ca,huawei.com,intel.com,redhat.com,fb.com,toxicpanda.com,kernel.org,gmail.com,linux.alibaba.com,google.com,linux-foundation.org,linaro.org,davemloft.net,oracle.com,talpey.com,techsingularity.net,fromorbit.com,vger.kernel.org,lists.linux.dev,lists.ozlabs.org,kvack.org];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	R_RATELIMIT(0.00)[from(RLewrxuus8mos16izbn),to_ip_from(RL4q5k5kyydt8nhc3xa4shdp4c)]
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-On Wed, Mar 05, 2025 at 05:07:13PM +0100, Stefano Garzarella wrote:
-> On Wed, 5 Mar 2025 at 16:55, Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
-> >
-> > Do you know of any use cases for guest-side vsock netns?
+On Wed, 05 Mar 2025, Yunsheng Lin wrote:
 > 
-> Yep, as I mentioned in another mail this morning, the use case is
-> nested VMs or containers running in the L1 guests.
-> Users (e.g. Kata) would like to hide the L0<->L1 vsock channel in the
-> container, so anything running there can't talk with the L0 host.
-> 
-> BTW we can do that incrementally if it's too complicated.
-> 
+> For the existing btrfs and sunrpc case, I am agreed that there
+> might be valid use cases too, we just need to discuss how to
+> meet the requirements of different use cases using simpler, more
+> unified and effective APIs.
 
-Got it! I will try your solution with /dev/vsock-netns (unless there are
-strong feelings otherwise), and if it becomes hairy maybe I'll omit it
-in the next rev.
+We don't need "more unified".
 
-I don't think my earlier concern about port collissions in the G2H
-scenario is worth worrying about without a real use case, that doesn't
-sound expected by any users right now.
+If there are genuinely two different use cases with clearly different
+needs - even if only slightly different - then it is acceptable to have
+two different interfaces.  Be sure to choose names which emphasise the
+differences.
 
 Thanks,
-Bobby
+NeilBrown
