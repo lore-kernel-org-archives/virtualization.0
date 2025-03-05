@@ -1,159 +1,97 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 380D0FC0A
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:06:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B391C288DA;
+	Wed,  5 Mar 2025 00:17:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741133172; cv=none; b=uDhqDMXRo4LJ23vXrb/LMT/6btp8bFlYvP1jNPOjsxjJzlgfm4klqC+sCFJWiuoTkiT8okDmnYTwuWawbBmUtc2Z4Ne5FtPvq7sPsOFd1sj1wL373aqw146svxQAOMKinKYU7UH27gbC7GSD3fn2HFxg5K/2kSBVKo5MmiCW03I=
+	t=1741133871; cv=none; b=nWpEkgWyHGDzEN3mavyv3mQQciUjkimd3WWqYKmVoeS5CJxV4A0gareEgaVapwPauvmrD3mk0WG06bxNgmX7U8BasspzCJ7RrkUkOwwdhHhm4ketbFJl4VGkRDIokXd8IAjvJiK+/lCAsvN2lR8tfrmGnrgXQHutWEjKR0ASchM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741133172; c=relaxed/simple;
-	bh=yumEBOrSKRVXTEceLp63BWKfaVOLc1xa6xzRclgxWJ0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iqonKoYtVJwOrj+LTBdJHDQY7LTSRSbsbq3NezV+h9I0zpvaCV7Wst51OuafDbr0VC4kb9erKpbea3Hs3cRea04cPy9iGQNtyXRiMbuKylrXRbIKEGrLlvOiC+1hCM48NcBNC3jsreqovSnCS3P6ENdOj5WQUF2DO4WQMCkwjKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vpkz5G1i; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1741133871; c=relaxed/simple;
+	bh=0yno/DE+/JPPbpjlTDp+6AS6Y5WufQLFUtooXTkZzOg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hcMEaSGBb0En8C0lPS38caGpxDPLEg7yZOSOgV6vMyADODspEw6gKYWNVXy2ICL8HZ1562v8svTXGifliNah8SE+MJrK0m/2mQFJwDX5+RYMgas9FCIVYxzFPFxxeKpnmoY3xqLHd8s7fx75so4Dkmc+aC2Hr0kBoe2hXJBVZrg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qiy9Zl6y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vpkz5G1i"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C3FA5605C0
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:06:10 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id FoRfrufKBgDb for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Mar 2025 00:06:06 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62d; helo=mail-pl1-x62d.google.com; envelope-from=bobbyeshleman@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org DFEE46069C
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DFEE46069C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Vpkz5G1i
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id DFEE46069C
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Mar 2025 00:06:05 +0000 (UTC)
-Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-22385253e2bso85037275ad.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 04 Mar 2025 16:06:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741133165; x=1741737965; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=1bX8gifnWEanUXpwx5uYv2DpmwKxBi/IwZcv/puhYts=;
-        b=Vpkz5G1iCjRsuxkiF1tyZNEl51ykZBXj/COwOb/QEYNPOG5CqtQ1kOMNVL7Vc2VJtg
-         zk2noPPegKEE1IsU/7rzL1fkFGC8arizKDJvrSN4eJ1+j2xFgYDQgpbm8ffv+3P9cbyI
-         BmHvW3BeOyGgdyP2++f2XiW/lDHdd60VSRk/udg9Vl9eEd0ofWbiOLQN1uwXOgSKK/Fd
-         CQfZskPGV/L5kh47nH0bny5g/krUaAnVuHyo+EVBw49tbITXuQtuoO+1COl9qxsNFfO+
-         6JI9PGR/Nn9IAxH4bWODTu6OEtRsyWZPLsF06N8Ca91S0EXwbJ/xrjjlB0MqxkXtKt96
-         wpeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741133165; x=1741737965;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1bX8gifnWEanUXpwx5uYv2DpmwKxBi/IwZcv/puhYts=;
-        b=sB9ZxhXNPTr7Ni0wL9GOMHJckvXv68ITRcNlLHP0g114j7pgL9XEWmDzd9hfdc0Bal
-         OlhQL3z9glX29PIOuHJ2KCBYooPMQEr6Dhh7od3fJUwoL1ikf9Oq0Ms1BJd2W3EMGpw6
-         RIT3knAcqIBGioMlqEPVw9NgMCMzo6ljfKAtMWvMfioCMD4NZdrrCsxfOIg8gTJp+U1c
-         B87CMidlHIx0L1wL+mSfcHmhYgMq6uyfM9L3H0Mq7sPeNkBmO7V9Gp+/tfZe7SYd3GEE
-         s4mnWegu1pWqUnC7djemaYs08TUUpTDhlfDQciMNSY/0h1QrMfV9/2AN3Fwz+mfPPCTg
-         Q1AQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX0DBH1PnoxSkCXrGWmDqZGbB3ETu9kN70vCroepBDR9FD9lcbsnb6jlO/txlZEnZZdXDpysMLDHsUGWd5aXA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxYA31CUdJaJwqKXZVo4kx1Q5OIyvWcwwT2yVq2DS4Nibgy16h1
-	Wd/FehOd7lolDHNfqeV759nv+X1wFAcY5NPR7+CqPHiUumm+R7Tc
-X-Gm-Gg: ASbGncsDfuuVtiS/owG/ZOArPzeIAPO0ioVhIynymibLLCR75Z+ei+BGM92NofsZxDo
-	f3r9pPkIW+eW4czHPNv+3iai0LEvW9uO67ezMaXqXqFrHJ9gsBJlIsrQ2YjXp+l2XZWz5P9rPG3
-	vPk416T4cddrUI1XcIqCSPO45o9Cr8XfT6ue68JlPgBGdx8F+u1E42Br/a3j9mdPxSQ7qZgLGQ0
-	OJQE0prPsWciciMPYWJhEKCpcOQZXOx2w5P2IvQ3tTHBP9iWo27r/Zn30HXxTQYNotb5u7VXbgi
-	jsFTrR81n6OY3FEhk5TdubfaFXCvzTzQDNTJYFeYu6FSCzlhdesrlj2BqqPl6KWjdw==
-X-Google-Smtp-Source: AGHT+IH4ftklKoOo2W4okOysYcXlnHpssR8tMCp5JJW1u2ezJYFalFzx+cpxzztCmDjNwc5X5W1I0w==
-X-Received: by 2002:a05:6a00:2311:b0:736:728b:5f1f with SMTP id d2e1a72fcca58-73682c89fb9mr1219777b3a.19.1741133164866;
-        Tue, 04 Mar 2025 16:06:04 -0800 (PST)
-Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:2::])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7365bb4090csm4251725b3a.35.2025.03.04.16.06.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Mar 2025 16:06:04 -0800 (PST)
-Date: Tue, 4 Mar 2025 16:06:02 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: davem@davemloft.net, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>,
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	virtualization@lists.linux-foundation.org,
-	linux-hyperv@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-	Dexuan Cui <decui@microsoft.com>, Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
-Message-ID: <Z8eVanBR7r90FK7m@devvm6277.cco0.facebook.com>
-References: <20200116172428.311437-1-sgarzare@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qiy9Zl6y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E4BDC4CEE5;
+	Wed,  5 Mar 2025 00:17:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741133871;
+	bh=0yno/DE+/JPPbpjlTDp+6AS6Y5WufQLFUtooXTkZzOg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Qiy9Zl6yv/aKjE9r7FltyhR99JNSR3mZEy7tHtEeAZwJx9e8I+OyYUOIVNR/AvgN4
+	 8y/TJexVAPwro/TnXD3bQGzwmuDowlMMQPnXQozziTqqfk4ft5fYlNG2Ew0+QbtsnO
+	 eIyPdgpKMmQ/18DHZ7SRDJQb5iNtOpCEkY2L7uSer+P0ci0NrVCxLl100RUgrg3zvo
+	 nx1DwfGtnJq5RIvZj/2QasoTO5Pwq+9XrYxDI9iJO7LOaPsIW5g2kdovUQlNW0r6l7
+	 j9E0YzHkyykZLrOevBWIxL8cVwlHZEmcr6184buXgx5OLsUD/wTj9miuN8+PRGiuqt
+	 lYFzVKL3eR5nQ==
+Date: Tue, 4 Mar 2025 16:17:48 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Mina Almasry <almasrymina@google.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, Donald
+ Hunter <donald.hunter@gmail.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, Jeroen de Borst <jeroendb@google.com>, Harshitha
+ Ramamurthy <hramamurthy@google.com>, Kuniyuki Iwashima <kuniyu@amazon.com>,
+ Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano
+ Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
+ sdf@fomichev.me, asml.silence@gmail.com, dw@davidwei.uk, Jamal Hadi Salim
+ <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
+ <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
+Subject: Re: [PATCH net-next v6 7/8] net: check for driver support in netmem
+ TX
+Message-ID: <20250304161748.42b71228@kernel.org>
+In-Reply-To: <CAHS8izOJfSCM+qZ=npPOK3kwuA1pyGHrPo73brRq2VXg8G450g@mail.gmail.com>
+References: <20250227041209.2031104-1-almasrymina@google.com>
+	<20250227041209.2031104-8-almasrymina@google.com>
+	<20250228164301.07af6753@kernel.org>
+	<CAHS8izO-N4maVtjhgH7CFv5D-QEtjQaYKSrHUrth=aJje4NZgg@mail.gmail.com>
+	<20250303162901.7fa57cd0@kernel.org>
+	<CAHS8izOJfSCM+qZ=npPOK3kwuA1pyGHrPo73brRq2VXg8G450g@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200116172428.311437-1-sgarzare@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jan 16, 2020 at 06:24:25PM +0100, Stefano Garzarella wrote:
-> RFC -> v1:
->  * added 'netns' module param to vsock.ko to enable the
->    network namespace support (disabled by default)
->  * added 'vsock_net_eq()' to check the "net" assigned to a socket
->    only when 'netns' support is enabled
+On Mon, 3 Mar 2025 19:53:44 -0800 Mina Almasry wrote:
+> > Upper devices and BPF access is covered I think, by the skbuff checks.
+> > But I think we missed adding a check in validate_xmit_skb() to protect
+> > the xmit paths of HW|virt drivers. You can try to add a TC rule which
+> > forwards all traffic from your devmem flow back out to the device and
+> > see if it crashes on net-next ?  
 > 
-> RFC: https://patchwork.ozlabs.org/cover/1202235/
+> No crash, but by adding debug logs I'm detecting that we're passing
+> unreadable netmem dma-addresses to the dma_unmap_*() APIs, which is
+> known to be unsafe. I just can't reproduce an issue because my
+> platform has the IOMMU disabled.
 > 
-> Now that we have multi-transport upstream, I started to take a look to
-> support network namespace in vsock.
+> I guess I do need to send the hunk from validate_xmit_skb() as a fix
+> to net and CC stable.
 > 
-> As we partially discussed in the multi-transport proposal [1], it could
-> be nice to support network namespace in vsock to reach the following
-> goals:
-> - isolate host applications from guest applications using the same ports
->   with CID_ANY
-> - assign the same CID of VMs running in different network namespaces
-> - partition VMs between VMMs or at finer granularity
-> 
-> This new feature is disabled by default, because it changes vsock's
-> behavior with network namespaces and could break existing applications.
-> It can be enabled with the new 'netns' module parameter of vsock.ko.
-> 
-> This implementation provides the following behavior:
-> - packets received from the host (received by G2H transports) are
->   assigned to the default netns (init_net)
-> - packets received from the guest (received by H2G - vhost-vsock) are
->   assigned to the netns of the process that opens /dev/vhost-vsock
->   (usually the VMM, qemu in my tests, opens the /dev/vhost-vsock)
->     - for vmci I need some suggestions, because I don't know how to do
->       and test the same in the vmci driver, for now vmci uses the
->       init_net
-> - loopback packets are exchanged only in the same netns
+> Another thing I'm worried about is ip_forward() inserting an
+> unreadable skb into the tx path somewhere higher up the stack which
+> calls more code that isn't expecting unreadable skbs? Specifically
+> worried about skb_frag_ref/unref. Does this sound like a concern as
+> well? Or is it a similar code path to tc?
 
+I'd say similar to tc. We can protect drivers with a check in
+validate_xmit_skb(). The second API surface we need to filter on
+is skb / skb_frag helpers. The third is socket API / opt-in for
+in-kernel socket readers.
 
-Hey Stefano,
-
-I recently picked up this series and am hoping to help update it / get
-it merged to address a known use case. I have some questions and
-thoughts (in other parts of this thread) and would love some
-suggestions!
-
-I already have a local branch with this updated with skbs and using
-/dev/vhost-vsock-netns to opt-in the VM as per the discussion in this
-thread.
-
-One question: what is the behavior we expect from guest namespaces?  In
-v2, you mentioned prototyping a /dev/vsock ioctl() to define the
-namespace for the virtio-vsock device. This would mean only one
-namespace could use vsock in the guest? Do we want to make sure that our
-design makes it possible to support multiple namespaces in the future if
-the use case arrives?
-
-More questions/comments in other parts of this thread.
-
-Thanks!
-
-- Bobby
-
+Driver and socket should be "easy" to cover with an explicit
+opt in. You already covered skb APIs but it's less centralized
+and there may be some abuses we are not aware of. Which is why
+patch 1 worries me a little.
