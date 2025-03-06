@@ -1,140 +1,150 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 111681865E2
-	for <virtualization@lists.linux.dev>; Thu,  6 Mar 2025 15:52:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A8B1212D69
+	for <virtualization@lists.linux.dev>; Thu,  6 Mar 2025 16:10:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741276335; cv=none; b=kw8U9cFSBePoPOP3y/vCD8g/ad7mwzIqVzuLh0l30jCUXZgJeu4gRe+j1BtmAJ4vM2ofq+qpIX7Ri5TWmcd9tDJibu1dZ4rjw9kPA/KouKNfsISeh5uWZ3LxDngJ77OYq/3WabngK46Hl8Ld1JvAzfoMUdnzeVsGlzsfPfqQSJk=
+	t=1741277438; cv=none; b=cBCk7xICWiuXMYQhJCwYgTFstUUKzBWw0PlTVOWLYAuwOIQ04/EK/wVJoskfQssollMVaXjdJra4ut7A989ooTU7wXMIuvgNLRTOES4gF/tis7rF8rs0NEZq6767SE9kJ0q/+cDP/+qd1kWIbSwWbY/TGVyB3/hYA0zTM80H2Gs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741276335; c=relaxed/simple;
-	bh=1mrQA3uTO5h6ZiINd3iS+tcdz2BagICZLJWut1QbQmE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EIGg9ibAInMNitcyd2c5ZcveOIDqz/qD91ke7WTK8r+mfwid4yRCG2Qrqu7vDca29w7NSDiA11/HQWq7su2ShuoHsI+ADjfBpTrYBIkk8YC2bGS20lMWPyGwHrETDYpNzwyibLT42knTW3Llr+BdvUsxdlcDACMLf9/6aMBZDMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=IE48niZy; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
+	s=arc-20240116; t=1741277438; c=relaxed/simple;
+	bh=Pt96Uovd1mpbJtnbuJAU2P1Aa68DKtd8BuptUSAoifY=;
+	h=From:Date:Subject:MIME-Version:Message-Id:References:In-Reply-To:
+	 To:Cc:Content-Type; b=Mpd4rDpFyXsS2tuJ27QJt3xRNZp0JWfeUUs3pBsi20JX5KC5R0R7dnc/k4gD0ak4TO3SJhEFfpYTX1CQzRB7F7CmBSkL7pFSLtQgz4rDMaHDN3CPMEGptVgfek+QaT/hup6ZG0bd1ba0WyI3XQbt5F7wjX1JGsVeqMsl4FDxxzs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UhnoMWYw; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="IE48niZy"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-43bc638686eso14002985e9.1
-        for <virtualization@lists.linux.dev>; Thu, 06 Mar 2025 07:52:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google; t=1741276332; x=1741881132; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=65Y7a4qK+Y/6ES6G6BlQKGj/GPIU9m2PJUgZAs9+KOM=;
-        b=IE48niZyRyPna27uxX0mh4Tn3nnTeXCTeHsik6LwARRF+OAPkKx92qLU+oaVIPWuQ6
-         8php37/DlHoZs48c/ek4uep7ahee9MvHZNI882zselUzYNZoP577wO80OODVG53+OFsa
-         AV6Rnw0SScBIMW/ewXiac131sPQ0FE2eQRKsY=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UhnoMWYw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741277435;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TFLrlOS+5ld0nvFR1DksJ9cDKB3+2CeK8laqLKQbEAA=;
+	b=UhnoMWYwJZIoNfd1tem/JKi8nuVJgnyIImVdmrNYG6KyaOTGO62NpJq5UYiYXiU1QZZjIZ
+	9577cDvWAt9A6kg7H153lAMy4486uIoBgY4rRxZG1nS8aXn9csjDN+SdRj/UtKEMLbM7Cx
+	aJRg0YzYhdbJrDqGsopN1ZokaaZUOzg=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-661-wrA_C4zCN_mVVuorrMg57g-1; Thu, 06 Mar 2025 11:10:32 -0500
+X-MC-Unique: wrA_C4zCN_mVVuorrMg57g-1
+X-Mimecast-MFC-AGG-ID: wrA_C4zCN_mVVuorrMg57g_1741277431
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4388eee7073so10793445e9.0
+        for <virtualization@lists.linux.dev>; Thu, 06 Mar 2025 08:10:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741276332; x=1741881132;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=65Y7a4qK+Y/6ES6G6BlQKGj/GPIU9m2PJUgZAs9+KOM=;
-        b=TK8VT772HGDUWSTTPc7QrNm735jqnzWKPSEkNICl9/Kx+k2SZk2CKA6lTi4iuWwQ7R
-         KrA1/kVPGHZg/+tM7R/eR81QOaqXE1hAcnQM7esKBILNQu+CVgCVhLRIfDCs32FHX9PX
-         DS4t6JV2RvcPS0JIfwYud3nUQwMHSJeWqJYvg3HVjtU8fyMr1hAB7QYNbKaxH9G4MTAm
-         Cgdk+fw/uiAcW9aoc1D6Mt60p/cRCFiHyZE9+2Z5CjO0GkosiqldqIYlUHxSoC5TDCL4
-         drYv1W1590YvQ7fFYY6AhZbwygU5BxtkMlPjnZaDlwUxyFzzUZcBKh+0D1wEELI3ZYSd
-         abmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXVvZsVr1NTCGtnp43BvHFCQo4mdHBa2DaNYaEDbPVVpMGrMPYeM8DZ/r7lu7bSwFeLVMvCOp3lsoNBxIJtfg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy8LUXjnBHOoVaUeZW6Xx+skOvDp7EJCxoi6EIjbdykfn0mjB3n
-	m8AEe5ZGPzFdaNErMDS59r3ut9JJazuISGRq18HtPGCi20O91RfbLVc8ewWnpEk=
-X-Gm-Gg: ASbGncufN0FA/QFsNzg6JOIKuG3e0Ol24Nx7oP552PZhG6+6AzNG9EXHuyr5l/zmMFi
-	hNdgeS/bYIOFbvdlWw0lVTVNErlNbXJvGWXDNqv0hVNjxNjKGZJPkQZcLpaLOsCd9mb5GZXLmcF
-	a8L6kpFP03lAY/rVeRs+Lq8LbtygmcSrW3/E1ExWJxxOF0p/TA91ATGKZT7VRxJU91x8H7Q3WLr
-	+x0he1RQD/XcZq2+VyXWQm0CksbA6xu8eaQ3DDneerV/faVoWghyxDxmMxZ0A2qrJ+rIgRDGtHH
-	4nrJMcnT2hinWCXTN0p8jzF8lazjP38HSOwQF/crXCAw//r+o2vYouoT
-X-Google-Smtp-Source: AGHT+IHeuGIWVWKb5j99SUKnlkK36tGpar1+KKK0aAa1IuGT6GpOgqR53OExqVvUKbkpEbvf2dKyFQ==
-X-Received: by 2002:a05:600c:3b17:b0:43b:c857:e9d7 with SMTP id 5b1f17b1804b1-43c5a6014b5mr36395e9.5.1741276332172;
-        Thu, 06 Mar 2025 07:52:12 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43bcc135676sm65178565e9.1.2025.03.06.07.52.10
+        d=1e100.net; s=20230601; t=1741277431; x=1741882231;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TFLrlOS+5ld0nvFR1DksJ9cDKB3+2CeK8laqLKQbEAA=;
+        b=xDfq9WBBCQUyZSh0fhts3HE0ZCSd5MwlB6hQdkAcwiYDi0pds05Hdezb+LH5aAthLq
+         SXPWMI96nT7T3jzh3NbfJ9kls8iSDOex9mCcEGN238B/XD5Lvd+/yU+uDDAbyKHi4Egw
+         9Wy0Usi69elIoypBHjGWbV2I719R8fI8prXQKmk2Ub0+zY2+4a025Jt4q1tSQ+8JsERY
+         lwNNSou5/9R6okI3Tjy5s02lsIuVAtqHkdiNhkyKFXJaAOfA8XVRryUusB6pSaUrkvPp
+         cV8SEFbvWA1JXa7n7CFZCq1XzlF4v7HDkf+lOFHBUjouFJtl8ivlWT/nvsAMjXit0lGh
+         +eiw==
+X-Gm-Message-State: AOJu0Yyt+47KDKbpG5WkGdhPlFXB0iV1eAD5XyT4JxLA7lgHAqGRO40U
+	BTH6Xbm4r5Q4O5BFb2cKS95RQXUEkV+4HnHXPYspKflyxNX/4t5JNJiXZS3mh4ZpeIXdvPj6lD2
+	dkPGZLZb9RU4MztJzzYrf3/TMRjppWa0VDMZWPWdKFor19voXXCgdbr87vK96fr+e
+X-Gm-Gg: ASbGnctHhZhlPkRSrKqRavnpB6+iRO8fTRym+X/C9T1wjQaXdx9dZ4Tf1u8UpIRAyu1
+	oO5Eb6VSnKV/1kRamZw4g5bWvCQPc3SIqYJ4swnCNuDzCOLlOiCvDdls9SaauWBIOlyI/uAH00L
+	8gIPM10BSU3i0Wg4JVHeDIu4LSiLam1wEwN8wVFrBc06uYRysbdyUU+GqowD3Z5dVaYJvM6WNp8
+	9P82aGemttyI/b+MhtRQVAN1EHMyarp6Hze2D5oLqqLduQ8DCms3r56zsFx9nJxhdTIXjmgmBa1
+	0l0dKND2zRfuNtrasxMniTYmFr6wx+vd4Ey0a1f6wHOz
+X-Received: by 2002:a05:6000:1842:b0:38d:b52d:e11c with SMTP id ffacd0b85a97d-391320a39c5mr75408f8f.15.1741277431046;
+        Thu, 06 Mar 2025 08:10:31 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHdg1mu+YRP1IQFJUy+MGaPyfw9bRzO4/4jxtF7UGS83/MvazwuQz4R3F7VzC0vThUykW3fnQ==
+X-Received: by 2002:a05:6000:1842:b0:38d:b52d:e11c with SMTP id ffacd0b85a97d-391320a39c5mr75368f8f.15.1741277430721;
+        Thu, 06 Mar 2025 08:10:30 -0800 (PST)
+Received: from lleonard-thinkpadp16vgen1.rmtit.csb ([151.29.33.62])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3912c01cd31sm2477950f8f.52.2025.03.06.08.10.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Mar 2025 07:52:10 -0800 (PST)
-Date: Thu, 6 Mar 2025 16:52:08 +0100
-From: Simona Vetter <simona.vetter@ffwll.ch>
-To: Jocelyn Falempe <jfalempe@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>,
-	Ryosuke Yasuoka <ryasuoka@redhat.com>,
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-	tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch,
-	kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
-	akpm@linux-foundation.org, urezki@gmail.com, hch@infradead.org,
-	dmitry.osipenko@collabora.com, dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-mm@kvack.org
-Subject: Re: [PATCH drm-next 1/2] vmalloc: Add atomic_vmap
-Message-ID: <Z8nEqDQhjU-Ly8Js@phenom.ffwll.local>
-Mail-Followup-To: Jocelyn Falempe <jfalempe@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Ryosuke Yasuoka <ryasuoka@redhat.com>,
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-	tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch,
-	kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
-	akpm@linux-foundation.org, urezki@gmail.com, hch@infradead.org,
-	dmitry.osipenko@collabora.com, dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-mm@kvack.org
-References: <20250305152555.318159-1-ryasuoka@redhat.com>
- <20250305152555.318159-2-ryasuoka@redhat.com>
- <Z8kp9Z9VgTpQmV9d@casper.infradead.org>
- <3bfd4238-6954-41a3-a5a3-8515a3ac9dce@redhat.com>
+        Thu, 06 Mar 2025 08:10:30 -0800 (PST)
+From: Luigi Leonardi <leonardi@redhat.com>
+Date: Thu, 06 Mar 2025 17:09:32 +0100
+Subject: [PATCH net-next 1/2] vsock/test: Add new function to check for
+ timeout
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3bfd4238-6954-41a3-a5a3-8515a3ac9dce@redhat.com>
-X-Operating-System: Linux phenom 6.12.11-amd64 
+Message-Id: <20250306-test_vsock-v1-1-0320b5accf92@redhat.com>
+References: <20250306-test_vsock-v1-0-0320b5accf92@redhat.com>
+In-Reply-To: <20250306-test_vsock-v1-0-0320b5accf92@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>, Michal Luczaj <mhal@rbox.co>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Luigi Leonardi <leonardi@redhat.com>
+X-Mailer: b4 0.14.2
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: -IfSFzWbVLXGXaSKg2HVZfO5uHnQYr1H1tVQE2vZjDk_1741277431
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
-On Thu, Mar 06, 2025 at 02:24:51PM +0100, Jocelyn Falempe wrote:
-> On 06/03/2025 05:52, Matthew Wilcox wrote:
-> > On Thu, Mar 06, 2025 at 12:25:53AM +0900, Ryosuke Yasuoka wrote:
-> > > Some drivers can use vmap in drm_panic, however, vmap is sleepable and
-> > > takes locks. Since drm_panic will vmap in panic handler, atomic_vmap
-> > > requests pages with GFP_ATOMIC and maps KVA without locks and sleep.
-> > 
-> > In addition to the implicit GFP_KERNEL allocations Vlad mentioned, how
-> > is this supposed to work?
-> > 
-> > > +	vn = addr_to_node(va->va_start);
-> > > +
-> > > +	insert_vmap_area(va, &vn->busy.root, &vn->busy.head);
-> > 
-> > If someone else is holding the vn->busy.lock because they're modifying the
-> > busy tree, you'll corrupt the tree.  You can't just say "I can't take a
-> > lock here, so I won't bother".  You need to figure out how to do something
-> > safe without taking the lock.  For example, you could preallocate the
-> > page tables and reserve a vmap area when the driver loads that would
-> > then be usable for the panic situation.  I don't know that we have APIs
-> > to let you do that today, but it's something that could be added.
-> > 
-> Regarding the lock, it should be possible to use the trylock() variant, and
-> fail if the lock is already taken. (In the panic handler, only 1 CPU remain
-> active, so it's unlikely the lock would be released anyway).
-> 
-> If we need to pre-allocate the page table and reserve the vmap area, maybe
-> it would be easier to just always vmap() the primary framebuffer, so it can
-> be used in the panic handler?
+Add `timeout_check_expired` function that returns true if the timeout
+counter has expired.
 
-Yeah I really don't like the idea of creating some really brittle one-off
-core mm code just so we don't have to vmap a buffer unconditionally. I
-think even better would be if drm_panic can cope with non-linear buffers,
-it's entirely fine if the drawing function absolutely crawls and sets each
-individual byte ...
+This is useful in situations where a timeout does not necessarily mean a
+failure.
 
-The only thing you're allowed to do in panic is try_lock on a raw spinlock
-(plus some really scare lockless tricks), imposing that on core mm sounds
-like a non-starter to me.
+Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
+---
+ tools/testing/vsock/timeout.c | 7 ++++++-
+ tools/testing/vsock/timeout.h | 3 +++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-Cheers, Sima
+diff --git a/tools/testing/vsock/timeout.c b/tools/testing/vsock/timeout.c
+index 44aee49b6cee07deb9443e3c2595ef680b726053..d6c69b14a0385befa6204a311c0a7f0c148ab021 100644
+--- a/tools/testing/vsock/timeout.c
++++ b/tools/testing/vsock/timeout.c
+@@ -18,7 +18,6 @@
+  */
+ 
+ #include <stdlib.h>
+-#include <stdbool.h>
+ #include <unistd.h>
+ #include <stdio.h>
+ #include "timeout.h"
+@@ -43,6 +42,12 @@ void timeout_begin(unsigned int seconds)
+ 	alarm(seconds);
+ }
+ 
++/* Check if timer has expired */
++bool timeout_check_expired(void)
++{
++	return timeout;
++}
++
+ /* Exit with an error message if the timeout has expired */
+ void timeout_check(const char *operation)
+ {
+diff --git a/tools/testing/vsock/timeout.h b/tools/testing/vsock/timeout.h
+index ecb7c840e65ae5d40419bf5f9ca57fdf4051aa41..cbb183e3a73784b82b2139fbf7a00fd62521ad77 100644
+--- a/tools/testing/vsock/timeout.h
++++ b/tools/testing/vsock/timeout.h
+@@ -2,6 +2,8 @@
+ #ifndef TIMEOUT_H
+ #define TIMEOUT_H
+ 
++#include <stdbool.h>
++
+ enum {
+ 	/* Default timeout */
+ 	TIMEOUT = 10 /* seconds */
+@@ -10,6 +12,7 @@ enum {
+ void sigalrm(int signo);
+ void timeout_begin(unsigned int seconds);
+ void timeout_check(const char *operation);
++bool timeout_check_expired(void);
+ void timeout_end(void);
+ 
+ #endif /* TIMEOUT_H */
+
 -- 
-Simona Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.48.1
+
