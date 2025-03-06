@@ -1,129 +1,203 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ED6A26E639;
-	Thu,  6 Mar 2025 19:26:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3448520E315
+	for <virtualization@lists.linux.dev>; Thu,  6 Mar 2025 21:14:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741289201; cv=none; b=G8yUilEHPJNX3NgB8ftBGxrDMRWCvU0etupPK+6Lf1Rs+h8E9b5KsLD26BSQzceVuKTurxXJWfZqo/INle5lpET1AWxeIsWPpH1Qatac4axfb+snBvb6Gu7UOaM7WxpbQ7g+5fbszb+ljEi3QetCxCsSuWjV6jIvpAGMGDsph24=
+	t=1741295679; cv=none; b=eBl4LOUxDAz/tjsJXCvV//6MeAya7di0ma9Azhz1RoFP0K1EritlVGHkr4QKt6hxRocjFs9irvaCVfZ00CRdurCcaqLxM3hFxdZr2ckXZxz6G+av4fCnSnBKgsJu9NgHdOujcgHiyT5oCFwXwTiEoCt8BaIlrhtricZAEMgZ6vw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741289201; c=relaxed/simple;
-	bh=TYNF5uSYA4qLy4+0N6piNIXODyphiWdbD9W6y3Or87U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XVrgnweYfy5WDzrVT/GpRZfh8KaaIk6XsMHnHQhwC/4qixo1kWurzftzWlVmp3xt6vpv1JcMKSofJKHCs7xDIkY1rYgF3yuZIzUOZ1mUPS1AdB97rlSqiOIE7HpIzt7IRJSXi9AFF4iZtyIjYyQbilCSrSKqZjUXB9Jxr3JO6B4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ctJ1zHO3; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1741295679; c=relaxed/simple;
+	bh=13kDV5whj4L1YS0AqHhMEuwczR+U+UAB5GvMyPo/ScA=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=pS28GSlo2Otu96LeRaiHfKoL962ysg3S30ilfPwt2bkxaZ3lNXrqez4iC3QqRn8OjZeRa/yTpyr2pTU3+LLZLmyNs4D7FLC25TMFmwP+L/8w+vkbeyoMS35tT++8lWQ/3wy7CNsvr7uTnhSlkuJ4m9vVKUjHp89Vohaf7Ll2BY0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tKlJ2CN0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cuwYJRYL; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tKlJ2CN0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cuwYJRYL; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ctJ1zHO3"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-38f2f391864so647945f8f.3;
-        Thu, 06 Mar 2025 11:26:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741289198; x=1741893998; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=yNcfgkruRbdQ2LTcDlb82l2rtv263h9UvbuoZgmPSdM=;
-        b=ctJ1zHO3fQ/fA/HO1UswN5wc69n2qhcTDDxQeWaQFrq4Qk58wxh/akN23Oe6mwRqZZ
-         HwiSeCBrsXh9cdX9jw4gAzW5ETTVhs59j5EB+FcP/z34kp7THIUmX/gYVKbnP/2qU1UF
-         lfMpF3/U5bZBPuOnGM2N8wLGdYkJ3xcDD8soJbvKXSxTJSDUlgjfmW9cLynEZJi+uX9u
-         MtP1yR0loHvEcnzLLGcJHMvukpQZ2NUatF6W6HQ+PggkjZCeJr0MTQL67rUS1YQ26NcS
-         IhJULhKmTUt75+frJwhDIHfHi8lQdUXLYMhSYbfKkVRCqR+yQKW4KRabC87UfwDz2w/m
-         kuaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741289198; x=1741893998;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yNcfgkruRbdQ2LTcDlb82l2rtv263h9UvbuoZgmPSdM=;
-        b=cMrDNqN6/ZkeyTpHmKs1Dt5Iy+3XUUr25pGEiZFrFlOy5Fuachf1HmSBc2jTEZAVSr
-         A+aW5CDrUWd1PNN5FPwGb8wOlu7M//3AztnZBgheMXpw6DNBxWONgsACGwpHSr81785f
-         SVsDYbf0ACcUqHcTtak5etUCSSPfRdaRMSOKM/nb4DruU352J4tH63lEdtb3lhSwnd5/
-         LJGA14oacxMpVqAGnkkVFMWuLAE4K2hIThTWeBa2GNSfR7VzyB1e0PxWuHS6Lm2u72Ib
-         oWTk1KdfJU6x4LI1K548WaGakOrtJz76zNCI30n2YOKmmGMjfCL4klwtKk6XsrszAXKf
-         M/2g==
-X-Forwarded-Encrypted: i=1; AJvYcCWKHJExyPoGGiRqjwOpbeoHeKpmpwDXCqJ/e8z0eWjfmKP3LPurpyVCRd1Na5WEDWkdsQs=@lists.linux.dev, AJvYcCXFwhZOan5AkY+DiCJPsoaPsGCIvsGdpSe/0BsPPNe67Cq5VbnnymA3yyjs8IXGO7pYJLYRl7qtQcYMihLUtDM=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxw5aiwy1zA8lnV5SYyeZXsDDhQ8o2c32Oy//MQOzMFCEw7mk32
-	CJ/k/tlo4diVJ4F0be98/KCD2DHcJzg1nblgofSTvF16EXH10+7+
-X-Gm-Gg: ASbGnctWPo/9N38fhyeVnVj9GaHr6Xt/OupnpeNDel8/drmlK2VoFaOXjmhefYnfv+p
-	cQ54jEdizW5l7G9WMjhfGKamBzd8+MMBcsn6PrbcIyDHHMOs3/0H+J+3WDMiYEs85hNLnxAuuBf
-	ox7eUMRtTnwecNQupHGwxS8zch3AeG9/yHJLNQNg7WHG1mHrtHCT23lGtJsGloo1gg+ULjjwtmR
-	aIW2/DlkU5gg1Fmy/qdttkWXUFa6q56kVRO0Jb/AwQZJB92NvmNDYx/sdmjaXelIiOZozSXe+Qs
-	xudjzuepSh3Pdlil1mUO/bAesy4DsNS59YQK61xJeWa9B2jCjlvQ11YFxFpeO77D9JVq4y+W1B/
-	AbBvyKauqxLzFAvLVHycvbNSeInNNmb8=
-X-Google-Smtp-Source: AGHT+IGse2HrwvQit3ez+Tb+IZmcWPgul6Oz1Of3MncB8IKv5GiNEYehZwUGHa/gmdRGfttFwUyGrw==
-X-Received: by 2002:a5d:5f45:0:b0:390:eebc:6f32 with SMTP id ffacd0b85a97d-39132da8fecmr291664f8f.48.1741289198054;
-        Thu, 06 Mar 2025 11:26:38 -0800 (PST)
-Received: from orome (p200300e41f3a9f00f22f74fffe1f3a53.dip0.t-ipconnect.de. [2003:e4:1f3a:9f00:f22f:74ff:fe1f:3a53])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3912c0e1d67sm2905872f8f.74.2025.03.06.11.26.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Mar 2025 11:26:36 -0800 (PST)
-Date: Thu, 6 Mar 2025 20:26:33 +0100
-From: Thierry Reding <thierry.reding@gmail.com>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org, 
-	airlied@gmail.com, simona@ffwll.ch, dri-devel@lists.freedesktop.org, 
-	linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
-	imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org, 
-	linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org, 
-	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org, 
-	Mikko Perttunen <mperttunen@nvidia.com>
-Subject: Re: [PATCH v3 20/25] drm/tegra: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-Message-ID: <mtsi7lohn4nq75y3mdzk7eomloxvswjn4blsmruutpejhppd5i@wexuiu7yfea3>
-References: <20250218142542.438557-1-tzimmermann@suse.de>
- <20250218142542.438557-21-tzimmermann@suse.de>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tKlJ2CN0";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cuwYJRYL";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tKlJ2CN0";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cuwYJRYL"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D3BE321172;
+	Thu,  6 Mar 2025 21:14:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741295675; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=W8wPE8KKZYE0b2eeWO1d4HM7Dis42luxW+pjVxoJ1rs=;
+	b=tKlJ2CN0wPg7rRWhJblyU+m6/5JlLhvjqJs9DUQdv95bf35qpGhbrKpwR4L1ubUl6HHzMC
+	ojHovccIPbw0DHajEIngncj4h9SzsPp7jcDSVykyVxYvu+K6xi485lt2OJtDUqbxaO8V2q
+	1Vt+eGq4eU93co2ldGDFw3X1pdN63uY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741295675;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=W8wPE8KKZYE0b2eeWO1d4HM7Dis42luxW+pjVxoJ1rs=;
+	b=cuwYJRYLTPadg9cLaIfWHdAJDR33+mWHNeymeUhWYbcZ+XGJ68tR+aeh5VXxvpzyhsQA8a
+	TbH2enWt9B0YdnCg==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1741295675; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=W8wPE8KKZYE0b2eeWO1d4HM7Dis42luxW+pjVxoJ1rs=;
+	b=tKlJ2CN0wPg7rRWhJblyU+m6/5JlLhvjqJs9DUQdv95bf35qpGhbrKpwR4L1ubUl6HHzMC
+	ojHovccIPbw0DHajEIngncj4h9SzsPp7jcDSVykyVxYvu+K6xi485lt2OJtDUqbxaO8V2q
+	1Vt+eGq4eU93co2ldGDFw3X1pdN63uY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1741295675;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=W8wPE8KKZYE0b2eeWO1d4HM7Dis42luxW+pjVxoJ1rs=;
+	b=cuwYJRYLTPadg9cLaIfWHdAJDR33+mWHNeymeUhWYbcZ+XGJ68tR+aeh5VXxvpzyhsQA8a
+	TbH2enWt9B0YdnCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1D40E13A61;
+	Thu,  6 Mar 2025 21:14:21 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id MBkAMC0QymdSewAAD6G6ig
+	(envelope-from <neilb@suse.de>); Thu, 06 Mar 2025 21:14:21 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="y6cp6aqkj6w24xiu"
-Content-Disposition: inline
-In-Reply-To: <20250218142542.438557-21-tzimmermann@suse.de>
+From: "NeilBrown" <neilb@suse.de>
+To: "Yunsheng Lin" <linyunsheng@huawei.com>
+Cc: "Qu Wenruo" <wqu@suse.com>, "Yishai Hadas" <yishaih@nvidia.com>,
+ "Jason Gunthorpe" <jgg@ziepe.ca>,
+ "Shameer Kolothum" <shameerali.kolothum.thodi@huawei.com>,
+ "Kevin Tian" <kevin.tian@intel.com>,
+ "Alex Williamson" <alex.williamson@redhat.com>, "Chris Mason" <clm@fb.com>,
+ "Josef Bacik" <josef@toxicpanda.com>, "David Sterba" <dsterba@suse.com>,
+ "Gao Xiang" <xiang@kernel.org>, "Chao Yu" <chao@kernel.org>,
+ "Yue Hu" <zbestahu@gmail.com>, "Jeffle Xu" <jefflexu@linux.alibaba.com>,
+ "Sandeep Dhavale" <dhavale@google.com>, "Carlos Maiolino" <cem@kernel.org>,
+ "Darrick J. Wong" <djwong@kernel.org>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Jesper Dangaard Brouer" <hawk@kernel.org>,
+ "Ilias Apalodimas" <ilias.apalodimas@linaro.org>,
+ "David S. Miller" <davem@davemloft.net>, "Eric Dumazet" <edumazet@google.com>,
+ "Jakub Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>,
+ "Simon Horman" <horms@kernel.org>, "Trond Myklebust" <trondmy@kernel.org>,
+ "Anna Schumaker" <anna@kernel.org>, "Chuck Lever" <chuck.lever@oracle.com>,
+ "Jeff Layton" <jlayton@kernel.org>, "Olga Kornievskaia" <okorniev@redhat.com>,
+ "Dai Ngo" <Dai.Ngo@oracle.com>, "Tom Talpey" <tom@talpey.com>,
+ "Luiz Capitulino" <luizcap@redhat.com>,
+ "Mel Gorman" <mgorman@techsingularity.net>,
+ "Dave Chinner" <david@fromorbit.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-xfs@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org,
+ linux-nfs@vger.kernel.org
+Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
+ only NULL elements
+In-reply-to: <f834a7cd-ca0a-4495-a787-134810aa0e4d@huawei.com>
+References: <>, <f834a7cd-ca0a-4495-a787-134810aa0e4d@huawei.com>
+Date: Fri, 07 Mar 2025 08:14:14 +1100
+Message-id: <174129565467.33508.7106343513316364028@noble.neil.brown.name>
+X-Spam-Score: -4.30
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.993];
+	MIME_GOOD(-0.10)[text/plain];
+	RCPT_COUNT_TWELVE(0.00)[44];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[suse.com,nvidia.com,ziepe.ca,huawei.com,intel.com,redhat.com,fb.com,toxicpanda.com,kernel.org,gmail.com,linux.alibaba.com,google.com,linux-foundation.org,linaro.org,davemloft.net,oracle.com,talpey.com,techsingularity.net,fromorbit.com,vger.kernel.org,lists.linux.dev,lists.ozlabs.org,kvack.org];
+	R_RATELIMIT(0.00)[to_ip_from(RL4q5k5kyydt8nhc3xa4shdp4c),from(RLewrxuus8mos16izbn)];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Level: 
 
+On Thu, 06 Mar 2025, Yunsheng Lin wrote:
+> On 2025/3/6 7:41, NeilBrown wrote:
+> > On Wed, 05 Mar 2025, Yunsheng Lin wrote:
+> >>
+> >> For the existing btrfs and sunrpc case, I am agreed that there
+> >> might be valid use cases too, we just need to discuss how to
+> >> meet the requirements of different use cases using simpler, more
+> >> unified and effective APIs.
+> > 
+> > We don't need "more unified".
+> 
+> What I meant about 'more unified' is how to avoid duplicated code as
+> much as possible for two different interfaces with similar‌ functionality.
+> 
+> The best way I tried to avoid duplicated code as much as possible is
+> to defragment the page_array before calling the alloc_pages_bulk()
+> for the use case of btrfs and sunrpc so that alloc_pages_bulk() can
+> be removed of the assumption populating only NULL elements, so that
+> the API is simpler and more efficient.
+> 
+> > 
+> > If there are genuinely two different use cases with clearly different
+> > needs - even if only slightly different - then it is acceptable to have
+> > two different interfaces.  Be sure to choose names which emphasise the
+> > differences.
+> 
+> The best name I can come up with for the use case of btrfs and sunrpc
+> is something like alloc_pages_bulk_refill(), any better suggestion about
+> the naming?
 
---y6cp6aqkj6w24xiu
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v3 20/25] drm/tegra: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-MIME-Version: 1.0
+I think alloc_pages_bulk_refill() is a good name.
 
-On Tue, Feb 18, 2025 at 03:23:43PM +0100, Thomas Zimmermann wrote:
-> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
-> buffer size. Align the pitch according to hardware requirements.
->=20
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Thierry Reding <thierry.reding@gmail.com>
-> Cc: Mikko Perttunen <mperttunen@nvidia.com>
-> ---
->  drivers/gpu/drm/tegra/gem.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+So:
+- alloc_pages_bulk() would be given an uninitialised array of page
+  pointers and a required count and would return the number of pages
+  that were allocated
+- alloc_pages_bulk_refill() would be given an initialised array of page
+  pointers some of which might be NULL.  It would attempt to allocate
+  pages for the non-NULL pointers and return the total number of
+  allocated pages in the array - just like the current
+  alloc_pages_bulk().
 
-Acked-by: Thierry Reding <treding@nvidia.com>
+sunrpc could usefully use both of these interfaces.
 
---y6cp6aqkj6w24xiu
-Content-Type: application/pgp-signature; name="signature.asc"
+alloc_pages_bulk() could be implemented by initialising the array and
+then calling alloc_pages_bulk_refill().  Or alloc_pages_bulk_refill()
+could be implemented by compacting the pages and then calling
+alloc_pages_bulk().
+If we could duplicate the code and have two similar but different
+functions.
 
------BEGIN PGP SIGNATURE-----
+The documentation for _refill() should make it clear that the pages
+might get re-ordered.
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmfJ9ukACgkQ3SOs138+
-s6GThw/9F553EWmmWz8ONopI5pY7Fy+Pu8kzqsU5bhKSKO2aqJ8y4PFOQAzaacO8
-2HuvhLXsP6l91B+R49oebJTWnbgcl9ThzcA4njgdKRFc7yZU/EZUEUGdwDkU6qsh
-/rkDnM+a+MzIAd3Z31B0Kvb0tUsl4e0UBueDHmjfP554dbtnMr94eIHuqLVRb1/D
-LB6ddm8DbZVoDKT9Ji2gLQpW84oFuIzRZPOV8JmPe+wE8Xf6A9sLloqJndErnvHg
-B8X2K8PzxkNNJGaZtQMUpiJ+S1oDNZnnKtzt0Wb+b9itJqUgykve29vGBDBImsb5
-8JLFlkdPFdKpFsbAvGyHv8b+F2rDVu4Oelg88WWDUSMc9Ut274u5/a2DTUOwF806
-DtCADAFUOOcIyDZKfPpeQuWDPeScN3/ANW8iQMlyPaNO5fBKlisFjiF1Bh0gS+vQ
-shkKb74wChg/4jgq1+M+I4DPdCQRe0kGIqbNZ4yK71owOjoSE6WIxxEt0UUKxPwh
-XZyf8ZF2O9TCPMigN6Qw2AGUhaC3HsAG9KbhOTSeUAsOwohFtYY+3B6Hkb8SQHEM
-i05OutqXEhtdSZgBK+HuweZtYWCBfy/BcMeD99Rkg01C+aMZcNPGVLpvGqpryNaB
-Ga0hQwFdIjbnMbXxjzyfJfs7GqNyTAJtpiqBO3uDhWH2LxJHZ7M=
-=2m1E
------END PGP SIGNATURE-----
+Having looked at some of the callers I agree that the current interface
+is not ideal for many of them, and that providing a simpler interface
+would help.
 
---y6cp6aqkj6w24xiu--
+Thanks,
+NeilBrown
