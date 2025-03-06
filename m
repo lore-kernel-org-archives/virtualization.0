@@ -1,66 +1,62 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716081547D8
-	for <virtualization@lists.linux.dev>; Thu,  6 Mar 2025 14:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 111681865E2
+	for <virtualization@lists.linux.dev>; Thu,  6 Mar 2025 15:52:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741269879; cv=none; b=Yx4qp8LuSyihHpyR3AAEDffe0l5YC0ITQDiV7zUH+Ty+OcA4btCxfb9sXFw/DRHSMS7o6pNlDzthHpbOVGYUi8ioMeGHcrMg3ZsmWvJUPs9I98WkXokHfoElMXW8SbHfKfWc7aO4gsbjdV14D1nEk7iDMMpHogAq+nyU3qOoBKg=
+	t=1741276335; cv=none; b=kw8U9cFSBePoPOP3y/vCD8g/ad7mwzIqVzuLh0l30jCUXZgJeu4gRe+j1BtmAJ4vM2ofq+qpIX7Ri5TWmcd9tDJibu1dZ4rjw9kPA/KouKNfsISeh5uWZ3LxDngJ77OYq/3WabngK46Hl8Ld1JvAzfoMUdnzeVsGlzsfPfqQSJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741269879; c=relaxed/simple;
-	bh=R8Sm3svdW/goUTU5rLDpziJHP2XsdLH8VJwkfv4HNAo=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DEUiGlA9BszusYawAqmNHJd2HI2nNXEbAlx6llyixqETOt1ob9SRPwwo9W+HLNkM0R5wzXTaft16Z/3BJBcESgU3i9kUPNOP6czp7eQ6cG0jrwtPQy2gDl224vvrnTilnOE2gxflzaUPTboY/eUaLBkzD5rl+7PzSXfKxxenjy8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UjwHxAum; arc=none smtp.client-ip=209.85.167.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1741276335; c=relaxed/simple;
+	bh=1mrQA3uTO5h6ZiINd3iS+tcdz2BagICZLJWut1QbQmE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EIGg9ibAInMNitcyd2c5ZcveOIDqz/qD91ke7WTK8r+mfwid4yRCG2Qrqu7vDca29w7NSDiA11/HQWq7su2ShuoHsI+ADjfBpTrYBIkk8YC2bGS20lMWPyGwHrETDYpNzwyibLT42knTW3Llr+BdvUsxdlcDACMLf9/6aMBZDMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=IE48niZy; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UjwHxAum"
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-549880cdb1fso790456e87.2
-        for <virtualization@lists.linux.dev>; Thu, 06 Mar 2025 06:04:37 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="IE48niZy"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-43bc638686eso14002985e9.1
+        for <virtualization@lists.linux.dev>; Thu, 06 Mar 2025 07:52:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741269875; x=1741874675; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9w1loW1D93ByGjxUH+v0w87cRUrgY5imRrAfL3a+uhQ=;
-        b=UjwHxAumoo8OHhaJPyBpjPHwjqHwwjP7XC8SLMTK+1z52Ar2ZLzbzhRwXBhYBBh+TM
-         yNSGyXOIC+VCaDOwcnM4gVHjJHMH0zVJfW0EVgZszyK64gv+qrECtaLBzJNCspjaVzVn
-         xm35HD6A/3YKM4e9mLxN+zZnc1u7aP8TylSe+dZuBqaZZYn820LqWDQb8NGJ6MAMYdzC
-         BS8LNYw1webxeTQbj6yMPW4Zm/EFuXP+3ANt1clIKfUE4S0i1Kvk+WqN2TZOZvNFRtbP
-         Mq2XR9VNFdjtdI5LA+0/SR0Xm3jRfSO2XSuIC5MSmk/qYqbsgM/4ql+nyhyrnQYs4pbz
-         Zl+Q==
+        d=ffwll.ch; s=google; t=1741276332; x=1741881132; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=65Y7a4qK+Y/6ES6G6BlQKGj/GPIU9m2PJUgZAs9+KOM=;
+        b=IE48niZyRyPna27uxX0mh4Tn3nnTeXCTeHsik6LwARRF+OAPkKx92qLU+oaVIPWuQ6
+         8php37/DlHoZs48c/ek4uep7ahee9MvHZNI882zselUzYNZoP577wO80OODVG53+OFsa
+         AV6Rnw0SScBIMW/ewXiac131sPQ0FE2eQRKsY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741269875; x=1741874675;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9w1loW1D93ByGjxUH+v0w87cRUrgY5imRrAfL3a+uhQ=;
-        b=D8CeXeqFz5VxpyPxL+iCB6LtK+EwmcIjSH2j4TUzdNR3zAYx+Lpz8a3uH/sSbpt77m
-         FxyVEnTSv7rV1hJJQ7sCas4jvcSfs5cnPdFMMJLI55nGXeDlxvXhNCmqp1CHF0VMBIlf
-         D2DYmP5aZM5YOgqKAWKXtKxhfa9YgvyUBc3yJzCk1FQLg88ltsZhw97bfBbudnsP3bVs
-         enCnX3/0mxan39/RQbQKDWvQev32GIWDv82CmxgJ45eie0JaCG0qBsjhH6qEHDRyH057
-         50su+Doa53VuiBI2HQt4fUUCR1MAvFoPqFEoCTDjGyMcYNzWMflzNZkDlzxJu5usEMS6
-         qLAg==
-X-Forwarded-Encrypted: i=1; AJvYcCVraeRPoTRXSaTD7Q28VDzHZnFGSdQeXeZgXSuHKz8BgTdxO/FEjtzbletF6Cx2ajBH2xS2v7ngo5p73OB9rA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YynK7l7mIlwAnQv7RZW1eCuZKA9CujmqlUOpLCcjTiLyHje5upm
-	7hVADXcoptRjFaFn59yKB4iWyAHR8nksQoBAYFOZokN/kGEWvKEa
-X-Gm-Gg: ASbGncu2s7qVgctwAH9HQ94zqjv6kKY7bkjAQLTKpTX6D6OuTQ+2dmoaW0YmCVeXYaK
-	v2horqPKioPoPDZMLSWm+ZufRN4HPDfnE4DIDzp+YsbDgHJsAmZK8BQAT52BtPGlo0PAIY+JXNz
-	AQj6prbA2dOx/rrZFy+xRIa5mowF+y8lZG2bnr+zhEDkv5gicCgoRQyytBM7e6V7BHarY+oMhLR
-	3lyPvcy5Lp2zxDnXGdsGFNh/eGnNHqJwDG1WCppErudKS4KFBgqUga3ngwrTFfY9YPqu/6sCJd+
-	nruzn0EiuFDzcTCsX+tRmp8FneK4yr9dRNbklIB2WkMU0IxS6eUdAFH0Zchw9QZNhCY=
-X-Google-Smtp-Source: AGHT+IGonnW2BIlqC2FdXER3bXAFv4ISuWErmmFhIv+nnElrcZtI1jJxe9rCZw7FGgE21qslHhMlvg==
-X-Received: by 2002:a05:6512:281d:b0:549:5b54:2c66 with SMTP id 2adb3069b0e04-5497d345ea7mr2751359e87.23.1741269875014;
-        Thu, 06 Mar 2025 06:04:35 -0800 (PST)
-Received: from pc636 (host-95-203-6-24.mobileonline.telia.com. [95.203.6.24])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5498b0bcf82sm185064e87.154.2025.03.06.06.04.33
+        d=1e100.net; s=20230601; t=1741276332; x=1741881132;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=65Y7a4qK+Y/6ES6G6BlQKGj/GPIU9m2PJUgZAs9+KOM=;
+        b=TK8VT772HGDUWSTTPc7QrNm735jqnzWKPSEkNICl9/Kx+k2SZk2CKA6lTi4iuWwQ7R
+         KrA1/kVPGHZg/+tM7R/eR81QOaqXE1hAcnQM7esKBILNQu+CVgCVhLRIfDCs32FHX9PX
+         DS4t6JV2RvcPS0JIfwYud3nUQwMHSJeWqJYvg3HVjtU8fyMr1hAB7QYNbKaxH9G4MTAm
+         Cgdk+fw/uiAcW9aoc1D6Mt60p/cRCFiHyZE9+2Z5CjO0GkosiqldqIYlUHxSoC5TDCL4
+         drYv1W1590YvQ7fFYY6AhZbwygU5BxtkMlPjnZaDlwUxyFzzUZcBKh+0D1wEELI3ZYSd
+         abmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXVvZsVr1NTCGtnp43BvHFCQo4mdHBa2DaNYaEDbPVVpMGrMPYeM8DZ/r7lu7bSwFeLVMvCOp3lsoNBxIJtfg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy8LUXjnBHOoVaUeZW6Xx+skOvDp7EJCxoi6EIjbdykfn0mjB3n
+	m8AEe5ZGPzFdaNErMDS59r3ut9JJazuISGRq18HtPGCi20O91RfbLVc8ewWnpEk=
+X-Gm-Gg: ASbGncufN0FA/QFsNzg6JOIKuG3e0Ol24Nx7oP552PZhG6+6AzNG9EXHuyr5l/zmMFi
+	hNdgeS/bYIOFbvdlWw0lVTVNErlNbXJvGWXDNqv0hVNjxNjKGZJPkQZcLpaLOsCd9mb5GZXLmcF
+	a8L6kpFP03lAY/rVeRs+Lq8LbtygmcSrW3/E1ExWJxxOF0p/TA91ATGKZT7VRxJU91x8H7Q3WLr
+	+x0he1RQD/XcZq2+VyXWQm0CksbA6xu8eaQ3DDneerV/faVoWghyxDxmMxZ0A2qrJ+rIgRDGtHH
+	4nrJMcnT2hinWCXTN0p8jzF8lazjP38HSOwQF/crXCAw//r+o2vYouoT
+X-Google-Smtp-Source: AGHT+IHeuGIWVWKb5j99SUKnlkK36tGpar1+KKK0aAa1IuGT6GpOgqR53OExqVvUKbkpEbvf2dKyFQ==
+X-Received: by 2002:a05:600c:3b17:b0:43b:c857:e9d7 with SMTP id 5b1f17b1804b1-43c5a6014b5mr36395e9.5.1741276332172;
+        Thu, 06 Mar 2025 07:52:12 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43bcc135676sm65178565e9.1.2025.03.06.07.52.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Mar 2025 06:04:34 -0800 (PST)
-From: Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@pc636>
-Date: Thu, 6 Mar 2025 15:04:31 +0100
-To: Jocelyn Falempe <jfalempe@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>
+        Thu, 06 Mar 2025 07:52:10 -0800 (PST)
+Date: Thu, 6 Mar 2025 16:52:08 +0100
+From: Simona Vetter <simona.vetter@ffwll.ch>
+To: Jocelyn Falempe <jfalempe@redhat.com>
 Cc: Matthew Wilcox <willy@infradead.org>,
 	Ryosuke Yasuoka <ryasuoka@redhat.com>,
 	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
@@ -71,7 +67,17 @@ Cc: Matthew Wilcox <willy@infradead.org>,
 	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
 	linux-mm@kvack.org
 Subject: Re: [PATCH drm-next 1/2] vmalloc: Add atomic_vmap
-Message-ID: <Z8mrb_zcou6Hn7hF@pc636>
+Message-ID: <Z8nEqDQhjU-Ly8Js@phenom.ffwll.local>
+Mail-Followup-To: Jocelyn Falempe <jfalempe@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Ryosuke Yasuoka <ryasuoka@redhat.com>,
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+	tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch,
+	kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
+	akpm@linux-foundation.org, urezki@gmail.com, hch@infradead.org,
+	dmitry.osipenko@collabora.com, dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-mm@kvack.org
 References: <20250305152555.318159-1-ryasuoka@redhat.com>
  <20250305152555.318159-2-ryasuoka@redhat.com>
  <Z8kp9Z9VgTpQmV9d@casper.infradead.org>
@@ -85,6 +91,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <3bfd4238-6954-41a3-a5a3-8515a3ac9dce@redhat.com>
+X-Operating-System: Linux phenom 6.12.11-amd64 
 
 On Thu, Mar 06, 2025 at 02:24:51PM +0100, Jocelyn Falempe wrote:
 > On 06/03/2025 05:52, Matthew Wilcox wrote:
@@ -115,13 +122,19 @@ On Thu, Mar 06, 2025 at 02:24:51PM +0100, Jocelyn Falempe wrote:
 > If we need to pre-allocate the page table and reserve the vmap area, maybe
 > it would be easier to just always vmap() the primary framebuffer, so it can
 > be used in the panic handler?
-> 
-We can reserve a vmap space for ATOMIC or NOWAIT allocations. As for PTE
-part, we can also populate reserved space, because after that operation
-those are never get released.
 
-The question is how many users need this. As for this particular case i
-am in line with Jocelyn Falempe. Allocate for DRM and write on panic.
+Yeah I really don't like the idea of creating some really brittle one-off
+core mm code just so we don't have to vmap a buffer unconditionally. I
+think even better would be if drm_panic can cope with non-linear buffers,
+it's entirely fine if the drawing function absolutely crawls and sets each
+individual byte ...
 
---
-Uladzislau Rezki
+The only thing you're allowed to do in panic is try_lock on a raw spinlock
+(plus some really scare lockless tricks), imposing that on core mm sounds
+like a non-starter to me.
+
+Cheers, Sima
+-- 
+Simona Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
