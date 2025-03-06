@@ -1,158 +1,161 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0950720767C
-	for <virtualization@lists.linux.dev>; Wed,  5 Mar 2025 23:41:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21146184E
+	for <virtualization@lists.linux.dev>; Thu,  6 Mar 2025 00:15:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741218110; cv=none; b=dzGV23ocrqpl3+ZFLaB//z9pbZKiBJl7EuYqqQbtzOtVArqw7roA1oYA8rSqQ8OLzWmUe/nAJh3BGWYmDmmy7DThNycW3PTzqFgERgFL+3ltifRDLU71ekcz/7LP+SHdnPk5qk78xq1DqZ2CP/nJ1gwJNrOCLf21YDL3nQtkElU=
+	t=1741220118; cv=none; b=DNLDWRVIX0ZpMmJW3oseK/F2mjaTJI6KunQrPgZS/tN0O7KNYCd8QLC2IELSdHvwznSsCRzMOhDIuz+E7z/L3/tPvAkgTlUWYQVq6kJy/7fMsm+b2FemtSCyYSN+8FFHDaDmaDuhHMWU0pJ7SxXiiZuSCBY3a7veojDWp/Ezbyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741218110; c=relaxed/simple;
-	bh=79A9Xcxf22LN1wRxVN/wCq4MVv4De/k36OytnK/R+PU=;
-	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
-	 References:Date:Message-id; b=aygVdK5QXbob8KaoIdybqtphyw2a8wqGccj2t9njJi7rzQcs8AOtv2kgFyebSqnPO7K1PIDvoxe0jH/Jc7k1wnzTooFTNC+jrR9za/z3xXh4QITfH3MIIcTBo/xcE3uEbEMCR/MfV+65Br4sj1V8psgtGdfS7wcwjl6aSAWbPD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YjCN5sm0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SeO+07Dw; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YjCN5sm0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SeO+07Dw; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1741220118; c=relaxed/simple;
+	bh=/6IEXb3+kPC8h38g1+n1WPXpZUCUEbiDTLSputptZro=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=AVQ93FaZBFHrjpdOjohfIBNnGv/KQJGzw7q058lJOzWnkiygS7Xtca2lWpcJlRywlAcDrtt8W0ayVh45nTUI4O0c+ENO1XjxlU7paw3dEaeeAOu2elXAXYxP0USqZ5L2s4o26XYHnutIXi1iQtRTk9gZ6E9UNI2BfBpiiUnIWp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GdBMeMom; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YjCN5sm0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SeO+07Dw";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YjCN5sm0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SeO+07Dw"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id B7C171F385;
-	Wed,  5 Mar 2025 23:41:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1741218106; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GdBMeMom"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741220116;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
-	b=YjCN5sm09/Vik1hnIVgY/KAn9Bl+M9/Qo0xPTOFQNF8Y/8QdKDvee6BGLO7x9pn9iJ9kyi
-	n5vDga3YY2IqVkMq8j71+tXA/lQqxgbYINFt4chYC7lsJ2wAc09oTXOcOZ0cfwMxqE/8JT
-	f5K7ko5CR+elv4J6T28XRXDqa8DqvvY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1741218106;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
-	b=SeO+07DwVmMuxGIdJ6uBjWre+ET8YmfEvWdD+64YO1xDmbJOxMvVwYwNFQ+y51t6511CM8
-	Xk9d1WRKq6le82BQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1741218106; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
-	b=YjCN5sm09/Vik1hnIVgY/KAn9Bl+M9/Qo0xPTOFQNF8Y/8QdKDvee6BGLO7x9pn9iJ9kyi
-	n5vDga3YY2IqVkMq8j71+tXA/lQqxgbYINFt4chYC7lsJ2wAc09oTXOcOZ0cfwMxqE/8JT
-	f5K7ko5CR+elv4J6T28XRXDqa8DqvvY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1741218106;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=evnk/GxliDTjNMMgAFyfCNZGfvqVt47nI9LnubvMvxc=;
-	b=SeO+07DwVmMuxGIdJ6uBjWre+ET8YmfEvWdD+64YO1xDmbJOxMvVwYwNFQ+y51t6511CM8
-	Xk9d1WRKq6le82BQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E44A013939;
-	Wed,  5 Mar 2025 23:41:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id zc4kJSzhyGdbdAAAD6G6ig
-	(envelope-from <neilb@suse.de>); Wed, 05 Mar 2025 23:41:32 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	bh=yzkSOfMIvpfEW3kC3MKb1XgIDTgn62WcB2Xn0huNZiQ=;
+	b=GdBMeMom3+XwNBvW2fVl/VlYUXVeECuQjJmCYkQ7+w8ZZ9Ud49CnrIA36YjuYb3uGBNWpp
+	7NqGRg3w+6HR1nLOoC+J+xGZIm001XdOmfxLa4DtDj71JIyS9vVqtoIJx5XVGsquo7EY/z
+	cNBfe9RV6+LrCsvkloQGTSTUOgrbe2o=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-376-XTkLxjyfPcOKQhS8FtSZtQ-1; Wed, 05 Mar 2025 19:15:14 -0500
+X-MC-Unique: XTkLxjyfPcOKQhS8FtSZtQ-1
+X-Mimecast-MFC-AGG-ID: XTkLxjyfPcOKQhS8FtSZtQ_1741220114
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-22379af38e0so801965ad.2
+        for <virtualization@lists.linux.dev>; Wed, 05 Mar 2025 16:15:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741220113; x=1741824913;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yzkSOfMIvpfEW3kC3MKb1XgIDTgn62WcB2Xn0huNZiQ=;
+        b=sYCollQ832jXwvLrKHp4qs2X7vb03Mb75vllcAvr75pT3yiLEOcVhtt75x/fyvoOkz
+         qtCR6Sfvju7NpX4QHWx/IXZHZpJHlzXYpwKgTvwmpp4eY+qQGLAHQoxC4AoYJz2RRFkR
+         T3cs7/OX3gDnXPKqNK7+n/lHxv7GgZNSk09tuXyKozqJ7f/u4aFWnSEsBCjP5hD+H4Zg
+         VeyEi4czmKJLXQOvWREC4H50OmMK2bBhqKDx89k0ngXDKU2PjBaYaqpJKDi1/aJQbEVw
+         lVllziH94WCmoUyEUaoCzEftXOyU5bVNzI77B8grDHOJAp2TQZeGw6vgT+fa2WozcvR/
+         pmpg==
+X-Forwarded-Encrypted: i=1; AJvYcCUFQzS5vDB4h0FKfx8CKha7OCCtnKf7cbTudxx7j2yKMMjIAKCANqGdXHf8v8k1HSOuc8EhotLTeoR4b2uN7A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw0GYBpMQggQcAydrBMPnHoPWjjGHnyPCW1LNwMgIADVI4hYmKk
+	TsavkvT/wNM7XCkl6cpk23VBXxoXRW7lJxs7yoE63b0MSlPLBv7KURQ9brbkT2pBE77uQF84+C6
+	Txpmp2917PKDGzSDhjxFHzl2r6m6l7Ngb4xeX8cTSV7N2R1n/MN9b/D5XfseDqbAoZn5U8ggRuR
+	Y75udgiFze7YGxSSm7wwhlJzZpK+iLP3Hc7AuoCecpP3qj9GY8YTLj
+X-Gm-Gg: ASbGncuY+2QgpVMfFz6RqjFbENUQitEXzXy7+CKyY1MIh5M8vAQSGuHW8iurvOtVVOf
+	URaWmD1QLn7KFDAq8MnMQCnyO6vPZSm5ZRCBj/QYCffB+ddT78mpzAIFGdriLdchQMX02c7MW/h
+	k=
+X-Received: by 2002:a05:6a00:3d0f:b0:736:3c6a:be02 with SMTP id d2e1a72fcca58-73682bfe22amr6348869b3a.11.1741220112722;
+        Wed, 05 Mar 2025 16:15:12 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG+Pz3spV69sGxcycRcHq7WRbf81Tq+kwPwJB61GZMQ3BtGGM82dqOuykRK2W4wGAVBuZATFe4m7QNuLdjS0w0=
+X-Received: by 2002:a05:6a00:3d0f:b0:736:3c6a:be02 with SMTP id
+ d2e1a72fcca58-73682bfe22amr6348836b3a.11.1741220112304; Wed, 05 Mar 2025
+ 16:15:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: "NeilBrown" <neilb@suse.de>
-To: "Yunsheng Lin" <linyunsheng@huawei.com>
-Cc: "Qu Wenruo" <wqu@suse.com>, "Yishai Hadas" <yishaih@nvidia.com>,
- "Jason Gunthorpe" <jgg@ziepe.ca>,
- "Shameer Kolothum" <shameerali.kolothum.thodi@huawei.com>,
- "Kevin Tian" <kevin.tian@intel.com>,
- "Alex Williamson" <alex.williamson@redhat.com>, "Chris Mason" <clm@fb.com>,
- "Josef Bacik" <josef@toxicpanda.com>, "David Sterba" <dsterba@suse.com>,
- "Gao Xiang" <xiang@kernel.org>, "Chao Yu" <chao@kernel.org>,
- "Yue Hu" <zbestahu@gmail.com>, "Jeffle Xu" <jefflexu@linux.alibaba.com>,
- "Sandeep Dhavale" <dhavale@google.com>, "Carlos Maiolino" <cem@kernel.org>,
- "Darrick J. Wong" <djwong@kernel.org>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Jesper Dangaard Brouer" <hawk@kernel.org>,
- "Ilias Apalodimas" <ilias.apalodimas@linaro.org>,
- "David S. Miller" <davem@davemloft.net>, "Eric Dumazet" <edumazet@google.com>,
- "Jakub Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>,
- "Simon Horman" <horms@kernel.org>, "Trond Myklebust" <trondmy@kernel.org>,
- "Anna Schumaker" <anna@kernel.org>, "Chuck Lever" <chuck.lever@oracle.com>,
- "Jeff Layton" <jlayton@kernel.org>, "Olga Kornievskaia" <okorniev@redhat.com>,
- "Dai Ngo" <Dai.Ngo@oracle.com>, "Tom Talpey" <tom@talpey.com>,
- "Luiz Capitulino" <luizcap@redhat.com>,
- "Mel Gorman" <mgorman@techsingularity.net>,
- "Dave Chinner" <david@fromorbit.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-xfs@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org,
- linux-nfs@vger.kernel.org
-Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
- only NULL elements
-In-reply-to: <18c68e7a-88c9-49d1-8ff8-17c63bcc44f4@huawei.com>
-References: <>, <18c68e7a-88c9-49d1-8ff8-17c63bcc44f4@huawei.com>
-Date: Thu, 06 Mar 2025 10:41:24 +1100
-Message-id: <174121808436.33508.1242845473359255682@noble.neil.brown.name>
-X-Spam-Score: -4.30
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.998];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[44];
-	MISSING_XM_UA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[suse.com,nvidia.com,ziepe.ca,huawei.com,intel.com,redhat.com,fb.com,toxicpanda.com,kernel.org,gmail.com,linux.alibaba.com,google.com,linux-foundation.org,linaro.org,davemloft.net,oracle.com,talpey.com,techsingularity.net,fromorbit.com,vger.kernel.org,lists.linux.dev,lists.ozlabs.org,kvack.org];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	R_RATELIMIT(0.00)[from(RLewrxuus8mos16izbn),to_ip_from(RL4q5k5kyydt8nhc3xa4shdp4c)]
-X-Spam-Flag: NO
-X-Spam-Level: 
+References: <20250227185017.206785-1-jdamato@fastly.com> <20250227185017.206785-4-jdamato@fastly.com>
+ <20250228182759.74de5bec@kernel.org> <Z8Xc0muOV8jtHBkX@LQ3V64L9R2>
+ <Z8XgGrToAD7Bak-I@LQ3V64L9R2> <Z8X15hxz8t-vXpPU@LQ3V64L9R2>
+ <20250303160355.5f8d82d8@kernel.org> <Z8cXh43GJq2lolxE@LQ3V64L9R2>
+ <CACGkMEug5+zjTjEiaUtvU6XtTe+tc7MEBaQSFbXG5YP_7tcPiQ@mail.gmail.com> <Z8h9IKvGh4z8h35Y@LQ3V64L9R2>
+In-Reply-To: <Z8h9IKvGh4z8h35Y@LQ3V64L9R2>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 6 Mar 2025 08:15:00 +0800
+X-Gm-Features: AQ5f1JrbAXMd3bdeu_op8lg8kCwD5-0ozvqwDnLIuAighSIhe17FVCeIQAOl_N8
+Message-ID: <CACGkMEvWuRjBbc3PvOUpDFkjcby5QNLw5hA_FpNSPyWjkEXD_Q@mail.gmail.com>
+Subject: Re: [PATCH net-next v5 3/4] virtio-net: Map NAPIs to queues
+To: Joe Damato <jdamato@fastly.com>, Jason Wang <jasowang@redhat.com>, 
+	Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, mkarsten@uwaterloo.ca, 
+	gerhard@engleder-embedded.com, xuanzhuo@linux.alibaba.com, mst@redhat.com, 
+	leiyang@redhat.com, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: uWybVXQKDD8qLR1oKNNqP5_Tz8zcNe4e7TyyxQqOBck_1741220114
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 05 Mar 2025, Yunsheng Lin wrote:
-> 
-> For the existing btrfs and sunrpc case, I am agreed that there
-> might be valid use cases too, we just need to discuss how to
-> meet the requirements of different use cases using simpler, more
-> unified and effective APIs.
+On Thu, Mar 6, 2025 at 12:34=E2=80=AFAM Joe Damato <jdamato@fastly.com> wro=
+te:
+>
+> On Wed, Mar 05, 2025 at 01:11:55PM +0800, Jason Wang wrote:
+> > On Tue, Mar 4, 2025 at 11:09=E2=80=AFPM Joe Damato <jdamato@fastly.com>=
+ wrote:
+> > >
+> > > On Mon, Mar 03, 2025 at 04:03:55PM -0800, Jakub Kicinski wrote:
+> > > > On Mon, 3 Mar 2025 13:33:10 -0500 Joe Damato wrote:
+>
+> [...]
+>
+> > > > Middle ground would be to do what you suggested above and just leav=
+e
+> > > > a well worded comment somewhere that will show up in diffs adding q=
+ueue
+> > > > API support?
+> > >
+> > > Jason, Michael, et. al.:  what do you think ? I don't want to spin
+> > > up a v6 if you are opposed to proceeding this way. Please let me
+> > > know.
+> > >
+> >
+> > Maybe, but need to make sure there's no use-after-free (etc.
+> > virtnet_close() has several callers).
+>
+> Sorry, I think I am missing something. Can you say more?
+>
+> I was asking: if I add the following diff below to patch 3, will
+> that be acceptable for you as a middle ground until a more idiomatic
+> implementation can be done ?
 
-We don't need "more unified".
+Yes, I misunderstand you before.
 
-If there are genuinely two different use cases with clearly different
-needs - even if only slightly different - then it is acceptable to have
-two different interfaces.  Be sure to choose names which emphasise the
-differences.
+>
+> Since this diff leaves refill_work as it functioned before, it
+> avoids the problem Jakub pointed out and shouldn't introduce any
+> bugs since refill_work isn't changing from the original
+> implementation ?
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 76dcd65ec0f2..d6c8fe670005 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2883,15 +2883,9 @@ static void refill_work(struct work_struct *work)
+>         for (i =3D 0; i < vi->curr_queue_pairs; i++) {
+>                 struct receive_queue *rq =3D &vi->rq[i];
+>
+> -               rtnl_lock();
+> -               virtnet_napi_disable(rq);
+> -               rtnl_unlock();
+> -
+> +               napi_disable(&rq->napi);
+>                 still_empty =3D !try_fill_recv(vi, rq, GFP_KERNEL);
+> -
+> -               rtnl_lock();
+> -               virtnet_napi_enable(rq);
+> -               rtnl_unlock();
+> +               virtnet_napi_do_enable(rq->vq, &rq->napi);
+>
+>                 /* In theory, this can happen: if we don't get any buffer=
+s in
+>                  * we will *never* try to fill again.
+>
 
-Thanks,
-NeilBrown
+Works for me.
+
+Thanks
+
