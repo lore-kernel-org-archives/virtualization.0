@@ -1,44 +1,31 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0682015382E;
-	Fri,  7 Mar 2025 09:32:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D5C31DE3BD
+	for <virtualization@lists.linux.dev>; Fri,  7 Mar 2025 09:41:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741339972; cv=none; b=qSoAhIcucWLXJ2iUdkuI08UpaIuyZ05k0+daXcG93Ir3bWW7ZR1pltI747QhLoX17Ze1N1diHbvey/gI6oqCFxO2drRxLQOmJrjWB71RG3uf9J8E4eXPQyW4QdH/3yDVtZG2/1yYwV1JF/uxPq7RGlhbUYu3/cStNoxurMVdgnE=
+	t=1741340492; cv=none; b=RFG9b4k9da65RdauouB8ggfGXSpYMBkXElxRz/hEssRaKo/JziAxOSuhWXb6IylxfhYN1u49VLuWw9XYaoOwBR6Xh/Ai2L0yuobU5jcsfv4qzwOz1EOcmkcib6mD6MHhnl95lPbb+53D3zP7CFzWUzwhpqUmmunsXiC1Ks2LcvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741339972; c=relaxed/simple;
-	bh=kUGNhKndVnG4lvy0lWi69O4G6X3wRJgHqMdT0byLlYc=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=rCCjRtofDP6379liJbQkmbFAe8jTW7o0JxNcfWp9bTO2BVMb+ZgGBh+taulSZhtfrjq6Q2j1k1sBKxwITyEhsE3ehWxnt+Ic6ScDFPYcphRPmwrEJhPCPwGUZ4uC4Pm+7qNndMnQ/FTIuhIQx3Q3qCFJNATDBmtYzFikT2NbrEU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=lwfzFAp+; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="lwfzFAp+"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1tqU4T-0032It-7r; Fri, 07 Mar 2025 10:32:45 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
-	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
-	bh=I6WduNgDa6X5BJ/G54SlQLFV0rIsjm0NYn74kwGYfC4=; b=lwfzFAp++zSl/XVJsfmLsgAb7b
-	rMO4Kh38ac0I6Ab0OhU0JPnLpcW5I1oNrMnwGwPXWAQw8Rvf5b1QCyodGeykF6W9WVremiubCW9Qk
-	8j5ZhQOM2oA3tl3LFuSUAvQ+5x2ybKTtu54pNSGxXoXmmlXG4BmQlFjVcuJiUNbRBYeNH3Azylo8i
-	oXMZvtllBUWdbosyzX2XzQGWFNYV7vFm8YkZCMTZk9cNO0p1oWpMxZymLEFS68ZIUzdJ2OYVzZ4pO
-	bch9zFw7um2YBOFSiR83u8fciR7qKwN4dV/WqYENXZMZ1EhAZJtlOqqgyNNN1qcTvyLKq+SV19wek
-	ihOJwMHQ==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1tqU4S-0002Qc-Ls; Fri, 07 Mar 2025 10:32:44 +0100
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1tqU4C-0064FB-VN; Fri, 07 Mar 2025 10:32:29 +0100
-Message-ID: <7e3ccc22-0028-4cb6-829f-67d93cb5c14e@rbox.co>
-Date: Fri, 7 Mar 2025 10:32:27 +0100
+	s=arc-20240116; t=1741340492; c=relaxed/simple;
+	bh=sHnV9GEozz+Opv61zRjqJ4zv0AEgNaF9oXU1zOBaCs4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=ndrwAd1fq7Tsl7riwMoA7E/TYOw/91KKBiHw8TrW5ntAe3r89CEiJrCIsb2RaPziauW74h0qYI1CJ1ZwluBRT7mHQ/B3XozrtKFfms8QfQ9/P+ZkjxsjWd5RjR3UMDbrVSDB2uEAReCvP3Wk0J9vcoiKQmHtrXChmT4NvNW29k0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Z8LQ532WYz1R6Dn;
+	Fri,  7 Mar 2025 17:21:33 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 59CC61402CE;
+	Fri,  7 Mar 2025 17:23:12 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Fri, 7 Mar 2025 17:23:11 +0800
+Message-ID: <180818a1-b906-4a0b-89d3-34cb71cc26c9@huawei.com>
+Date: Fri, 7 Mar 2025 17:23:11 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,45 +33,128 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Michal Luczaj <mhal@rbox.co>
-Subject: Re: [PATCH net-next 2/2] vsock/test: Add test for null ptr deref when
- transport changes
-To: Luigi Leonardi <leonardi@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20250306-test_vsock-v1-0-0320b5accf92@redhat.com>
- <20250306-test_vsock-v1-2-0320b5accf92@redhat.com>
-Content-Language: pl-PL, en-GB
-In-Reply-To: <20250306-test_vsock-v1-2-0320b5accf92@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
+ only NULL elements
+To: NeilBrown <neilb@suse.de>
+CC: Qu Wenruo <wqu@suse.com>, Yishai Hadas <yishaih@nvidia.com>, Jason
+ Gunthorpe <jgg@ziepe.ca>, Shameer Kolothum
+	<shameerali.kolothum.thodi@huawei.com>, Kevin Tian <kevin.tian@intel.com>,
+	Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>, Josef
+ Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Gao Xiang
+	<xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>,
+	Carlos Maiolino <cem@kernel.org>, "Darrick J. Wong" <djwong@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>, Jesper Dangaard Brouer
+	<hawk@kernel.org>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+	<horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
+	<anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>, Jeff Layton
+	<jlayton@kernel.org>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Luiz Capitulino
+	<luizcap@redhat.com>, Mel Gorman <mgorman@techsingularity.net>, Dave Chinner
+	<david@fromorbit.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+	<linux-btrfs@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+	<linux-xfs@vger.kernel.org>, <linux-mm@kvack.org>, <netdev@vger.kernel.org>,
+	<linux-nfs@vger.kernel.org>
+References: <> <f834a7cd-ca0a-4495-a787-134810aa0e4d@huawei.com>
+ <174129565467.33508.7106343513316364028@noble.neil.brown.name>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <174129565467.33508.7106343513316364028@noble.neil.brown.name>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On 3/6/25 17:09, Luigi Leonardi wrote:
-> Add a new test to ensure that when the transport changes a null pointer
-> dereference does not occur[1].
+On 2025/3/7 5:14, NeilBrown wrote:
+> On Thu, 06 Mar 2025, Yunsheng Lin wrote:
+>> On 2025/3/6 7:41, NeilBrown wrote:
+>>> On Wed, 05 Mar 2025, Yunsheng Lin wrote:
+>>>>
+>>>> For the existing btrfs and sunrpc case, I am agreed that there
+>>>> might be valid use cases too, we just need to discuss how to
+>>>> meet the requirements of different use cases using simpler, more
+>>>> unified and effective APIs.
+>>>
+>>> We don't need "more unified".
+>>
+>> What I meant about 'more unified' is how to avoid duplicated code as
+>> much as possible for two different interfaces with similar‌ functionality.
+>>
+>> The best way I tried to avoid duplicated code as much as possible is
+>> to defragment the page_array before calling the alloc_pages_bulk()
+>> for the use case of btrfs and sunrpc so that alloc_pages_bulk() can
+>> be removed of the assumption populating only NULL elements, so that
+>> the API is simpler and more efficient.
+>>
+>>>
+>>> If there are genuinely two different use cases with clearly different
+>>> needs - even if only slightly different - then it is acceptable to have
+>>> two different interfaces.  Be sure to choose names which emphasise the
+>>> differences.
+>>
+>> The best name I can come up with for the use case of btrfs and sunrpc
+>> is something like alloc_pages_bulk_refill(), any better suggestion about
+>> the naming?
 > 
-> Note that this test does not fail, but it may hang on the client side if
-> it triggers a kernel oops.
+> I think alloc_pages_bulk_refill() is a good name.
 > 
-> This works by creating a socket, trying to connect to a server, and then
-> executing a second connect operation on the same socket but to a
-> different CID (0). This triggers a transport change. If the connect
-> operation is interrupted by a signal, this could cause a null-ptr-deref.
-> 
-> Since this bug is non-deterministic, we need to try several times. It
-> is safe to assume that the bug will show up within the timeout period.
-> 
-> If there is a G2H transport loaded in the system, the bug is not
-> triggered and this test will always pass.
-> 
-> [1]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
-> 
-> Suggested-by: Michal Luczaj <mhal@rbox.co>
-> Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
-> ---
+> So:
+> - alloc_pages_bulk() would be given an uninitialised array of page
+>   pointers and a required count and would return the number of pages
+>   that were allocated
+> - alloc_pages_bulk_refill() would be given an initialised array of page
+>   pointers some of which might be NULL.  It would attempt to allocate
+>   pages for the non-NULL pointers and return the total number of
 
-I think the credit should be given to Hyunwoo Kim, not me.
+You meant 'NULL pointers' instead of 'non-NULL pointers' above?
 
-Thanks though,
-Michal
+>   allocated pages in the array - just like the current
+>   alloc_pages_bulk().
+
+I guess 'the total number of allocated pages in the array ' include
+the pages which are already in the array before calling the above
+API?
+
+I guess it is worth mentioning that the current alloc_pages_bulk()
+may return different value with the same size of arrays, but with
+different layout of the same number of NULL pointers.
+For the same size of arrays with different layout for the NULL pointer
+below('*' indicate NULL pointer), and suppose buddy allocator is only
+able to allocate two pages:
+1. P**P*P: will return 4.
+2. P*PP**: will return 5.
+
+If the new API do the page defragmentation, then it will always return
+the same value for different layout of the same number of NULL pointers.
+I guess the new one is the more perfered behavior as it provides a more
+defined semantic.
+
+> 
+> sunrpc could usefully use both of these interfaces.
+> 
+> alloc_pages_bulk() could be implemented by initialising the array and
+> then calling alloc_pages_bulk_refill().  Or alloc_pages_bulk_refill()
+> could be implemented by compacting the pages and then calling
+> alloc_pages_bulk().
+> If we could duplicate the code and have two similar but different
+> functions.
+> 
+> The documentation for _refill() should make it clear that the pages
+> might get re-ordered.
+
+Does 'the pages might get re-ordered' mean defragmenting the page_array?
+If yes, it makes sense to make it clear.
+
+> 
+> Having looked at some of the callers I agree that the current interface
+> is not ideal for many of them, and that providing a simpler interface
+> would help.
+
++1
+
+> 
+> Thanks,
+> NeilBrown
