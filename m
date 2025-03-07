@@ -1,271 +1,363 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8821C84B5
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 08:16:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 516661C8637
+	for <virtualization@lists.linux.dev>; Fri,  7 Mar 2025 08:42:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741335384; cv=none; b=PNBP6fGd0cDhe2G4/7qP5h3iBnX0x9QrVQjftAANN2Y6Z5VJRBpl66nGopvEWOwTQsimijkyO+JqbOS6woiLveVLdmJ8KHX1Ui+ODFaM4ei3TQTdv/YwaXyi30edlpLNyPUxrRkUzD2gGJwUB0BejBQ/qdEwFM5pvaxS6pp5jCY=
+	t=1741336953; cv=none; b=HwraAfbqm0nu57ulfz7LlVuNOP4wryq2OA7wmw7Eg7/zqC0jeTmU/nCFjt1TPNgedE0mx8yv04g7K6X/nCeIJ234dzvxTYt3UmNpIn550IuEG3P8dMNooqLEq7NVVA3iSfp8xsPMNpb5195KAcuVAk6CtdoFAEBZCYKilqVRaak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741335384; c=relaxed/simple;
-	bh=8iK73HDtnodJf4E+o2bk11fOzCqvrCxUPy7pZ3SGbPA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A+5JWhifZH5CFE6G/brEmd0DCQsN2ijn0A4nS3ZRM9hvDKUlyZUramlBChfph7G/fwwYrjiFOyaR+XH5tHjmcMxUrPobQ4+yP3NsWQQBA0mChK1Kp9h8bty2C3QRsnM5hqbQeChECMnqLzLx6AzG0dxkm+QhrNOmVitf8ryw20k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RnycyZUU; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1741336953; c=relaxed/simple;
+	bh=NezRrEajn89sTmk3UPPm40W2iyvWDVfpdziorgHF5oo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IWEmONP0P5av09981ChNUuge7CYry/bsbrvjI/us9lztufapXwcLwTJgpObO3wRWUYYEzqG5evUohtqVVKHFXtMuE4ZdkdCeEPri7jzQTCS+x+UYaIfoXUhoranXiHWnqyICKrj+Ibp4nDMnVg+vNDDhuoDtkdCo0GJXNWqCWds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=iCJHtdHG; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RnycyZUU"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B3CCC81E55
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 08:16:20 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id h-NFJVjfdHd3 for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Mar 2025 08:16:19 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 0207E81E48
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0207E81E48
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RnycyZUU
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0207E81E48
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 08:16:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741335377;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=iZrf9VZerfCz+3LtZgJyVuy/gTZIWP83G1q+dqmxlOg=;
-	b=RnycyZUUFk19nsgapskhr7hdy8DSW3aww3HpSqe2aFNPX7NftbY90XTy5nLlobWN/SaATM
-	w/UlnuKlkxqB22+iR4lQSQwRtj6Gq81xwx2hI4T+PBXpFq4kD4bWd0Gu6hxYM0mRCXTcjO
-	0Q9oLlHuA/6v+m5VOUX/nPhATEMHjyI=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-611-P-0TrBXoNeiz_nlRdTzxhA-1; Fri, 07 Mar 2025 03:16:15 -0500
-X-MC-Unique: P-0TrBXoNeiz_nlRdTzxhA-1
-X-Mimecast-MFC-AGG-ID: P-0TrBXoNeiz_nlRdTzxhA_1741335374
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-ac21697a8ebso132221866b.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 07 Mar 2025 00:16:15 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="iCJHtdHG"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-43948f77f1aso9247205e9.0
+        for <virtualization@lists.linux.dev>; Fri, 07 Mar 2025 00:42:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google; t=1741336948; x=1741941748; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=US2Wc6icG0i9/47aJ/pkH3GP4es8yYK0BFMiCt7We04=;
+        b=iCJHtdHGg03ajBkblIZ3jBJaL1GhoPB1lWsCSeSpEw0Gc1bHUWgKZtXMu/F748T+b/
+         rL6gjAFSizNGDDPh+PFDpH82lKEUXqbeFeT/foV/clJohMiPwQGCrbYn4aPUCiR4Pdaf
+         kkHD5QumyrYcNF0dmbYzqy6W8bdSbKgBXjXUU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741335374; x=1741940174;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iZrf9VZerfCz+3LtZgJyVuy/gTZIWP83G1q+dqmxlOg=;
-        b=QfwaM02YSsGVqN5YEvYclh5vwHGqEGc+/Md7WClAnQKo3SwFiTI90SBnwBUldBTenM
-         y+w2kSz7KFKhOqGef7Ovs0nVyGVUJ1tJEisf5qkxFsTgzu0dDE8E3ZXkRarbcnB2esj4
-         GZE1ahsLOFERW2F/dS392P/pnIm9tzTRDm5xIWBH96ffGfncd0Wbwg27MVe26xpPsSFI
-         +GR/C0e45qRCRLtCQ3hwQF/RmHL08eZFU2Gn1EHoCv8yXMWfU0BgFEb9h/rYiUtdoQ7o
-         A5G8a7a3gR/PyTEfknRlS8p2+vZXuIOTwolDon/QMJF4BoNfTBfAq/DohPFS9fhWRQKk
-         hlWQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWr3PmOTWNga/XiiA4GRCudLozya9RQC6DmhqTrnozPG5V4uUNXttc6YugnKNMtNPyUGyTtdekp3A6Fp8hjhA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Ywejk797g/4l66M+uLii4PsbkfGrgOHxZ22wwBa/oPKvar7Hkmc
-	YS9y1KdVP79ovBe76zGwhR94u1jcCcHR7YnM5SENAccfiXeG8trYiLa3xmSFIsWNMtevqoe/Y4e
-	OYMZjLhQ6fgrI3OxgeumveQCT0T8ZnJ+IxNmYMqNoDQENPWXTTQjL/uu1ZYVw/F8lICc/lGZApp
-	M/ilp8klsErVhayV8T6lqc7J6BlbjAQzV1P2+LTx4A2hQEVgoMg6V9tA==
-X-Gm-Gg: ASbGncs6EWuLHdASb4nfhf1DmVRk+Jc9sdigCILsty8k3xjcZ4/ZrU3SihuRWYYQtis
-	+fivXxGkKb+eIiturYFc91Zppu/hmtsWnVIog8cKwFsEdSFoIAZGyZQWRui3aou6TBCGt6+MDqA
-	==
-X-Received: by 2002:a17:907:94c5:b0:ac1:ed46:7bf0 with SMTP id a640c23a62f3a-ac2526e27d2mr239234966b.18.1741335374161;
-        Fri, 07 Mar 2025 00:16:14 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFgLcTM2uhO+on92z9g6p+54NDe9IMQAVzUJJCRAi3KR79ymKuEXtqOu2IjH6Kh+QOxAHohHZehq/lE/kWEFhg=
-X-Received: by 2002:a17:907:94c5:b0:ac1:ed46:7bf0 with SMTP id
- a640c23a62f3a-ac2526e27d2mr239230566b.18.1741335373694; Fri, 07 Mar 2025
- 00:16:13 -0800 (PST)
+        d=1e100.net; s=20230601; t=1741336948; x=1741941748;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=US2Wc6icG0i9/47aJ/pkH3GP4es8yYK0BFMiCt7We04=;
+        b=NStN+3jgyPJxZ6SGhcShgOwEBPcHlgYSmSWwRw4DSAdbE+8HXD6Y+C1YQRNhJZId2W
+         9O1q6ykJNMdF2OPhteDwXmwMmtZiJkLsBgrRWmjN5NgPw28fB3IL76czB9d4FJa1P15t
+         nfokdyARxy5IXfRJ7M3FE3P98/tCp7Cwm4uWBZXbONAkbbLomRY49ggYPmGMeDIvNl3F
+         vHqEavA9MhHbY8JYuV62fetpAjlQ2VUY43khjFUiIMskWkPSxrtVALKaRxAuKWQcclkm
+         Ho6Ag+PmzkxH9onICmAoXNpJtAzpLDGKBmsBXH5WAZLFmg8vXJmRFJzNNFj1tBOHa3Jm
+         s2Kg==
+X-Forwarded-Encrypted: i=1; AJvYcCUt7uA8s0raxhTa78MH8JvJHKubqgsOH8DG68FsySzkUrfyPQsr3qT3if50acetGh5ISHzhqT3m6rjJ/psIBw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx2lzLM9tNX8glEtg1IA1pMZY/Xir9hYqEP7uUOPF8ejOVH2xu5
+	5tk5xhPZ+G+ViBIPC5x4ZO4JvzPVSf/Uj8pOkSGWc7JvQ9gvBnZGxYc39VxDCQs=
+X-Gm-Gg: ASbGnct0bNPK1vm5N3SMKpMJb298tFy8FfGm0PuBzqqwT0kGHQXyp89c44y29FqD9Hf
+	B5Kg91nqp1gC3OKqxAVcAQLpLMkPwmF/SX9ABP/9SRBztI4wrdMrh2FVCvQkpYIE+nQYSDq9eSq
+	wH1zDdUCJvqfEONPDisGpRxKyQU31PUjvfg0/xqGJhnosW8nKcwqOl+wCnVB3OEBjG2MoIvCHIY
+	lnNi+Pu1jV+ymzkqM9uYoEND/k54pYA264FTHZgSI9Nk4os/hJy4zSMmGuKoGp+Ddt0lP+6+9xC
+	+3xJyK59X+FgmMlvIvE1BQaq8cOjeKhWk4SP+2rZckMyYXjb42tUseL4
+X-Google-Smtp-Source: AGHT+IHeHcCAYfYIfg5Jap/0uuzQ6Oi2iytybYQTlJnuwARBxYqbc0PxFDylyktyJP3I4EPX9/4QPQ==
+X-Received: by 2002:a05:600c:1c19:b0:439:a1ef:c238 with SMTP id 5b1f17b1804b1-43c601e1162mr16070975e9.13.1741336948296;
+        Fri, 07 Mar 2025 00:42:28 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3912c0194f2sm4703188f8f.54.2025.03.07.00.42.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Mar 2025 00:42:27 -0800 (PST)
+Date: Fri, 7 Mar 2025 09:42:25 +0100
+From: Simona Vetter <simona.vetter@ffwll.ch>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+	airlied@gmail.com, simona@ffwll.ch, dri-devel@lists.freedesktop.org,
+	linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
+	linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
+	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v3 02/25] drm/dumb-buffers: Provide helper to set pitch
+ and size
+Message-ID: <Z8qxcTIcD4W5OGwL@phenom.ffwll.local>
+References: <20250218142542.438557-1-tzimmermann@suse.de>
+ <20250218142542.438557-3-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250306-rss-v8-0-7ab4f56ff423@daynix.com>
-In-Reply-To: <20250306-rss-v8-0-7ab4f56ff423@daynix.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Fri, 7 Mar 2025 16:15:35 +0800
-X-Gm-Features: AQ5f1JoMsWd52mQ25sAe2CdSF0AxW5CvjF_1Je5ZaJ6Fwt_3vbSGK6lNF7K_Srk
-Message-ID: <CAPpAL=zJyfDyvL4vRKTWmas4xCJM7sR9HQsq0JjNuEuotSE3iQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v8 0/6] tun: Introduce virtio-net hashing feature
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
-	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
-	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
-	Simon Horman <horms@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _7bBrVrj3vmGXzp-Rd6WcjR4V4tfRxxfX0P2ekGn51I_1741335374
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250218142542.438557-3-tzimmermann@suse.de>
+X-Operating-System: Linux phenom 6.12.11-amd64 
 
-QE tested this series of patches with virtio-net regression tests,
-everything works fine.
-
-Tested-by: Lei Yang <leiyang@redhat.com>
-
-On Thu, Mar 6, 2025 at 5:57=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix.=
-com> wrote:
->
-> virtio-net have two usage of hashes: one is RSS and another is hash
-> reporting. Conventionally the hash calculation was done by the VMM.
-> However, computing the hash after the queue was chosen defeats the
-> purpose of RSS.
->
-> Another approach is to use eBPF steering program. This approach has
-> another downside: it cannot report the calculated hash due to the
-> restrictive nature of eBPF.
->
-> Introduce the code to compute hashes to the kernel in order to overcome
-> thse challenges.
->
-> An alternative solution is to extend the eBPF steering program so that it
-> will be able to report to the userspace, but it is based on context
-> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
-> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
-> and vhost_net).
->
-> The patches for QEMU to use this new feature was submitted as RFC and
-> is available at:
-> https://patchew.org/QEMU/20240915-hash-v3-0-79cb08d28647@daynix.com/
->
-> This work was presented at LPC 2024:
-> https://lpc.events/event/18/contributions/1963/
->
-> V1 -> V2:
->   Changed to introduce a new BPF program type.
->
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+On Tue, Feb 18, 2025 at 03:23:25PM +0100, Thomas Zimmermann wrote:
+> Add drm_modes_size_dumb(), a helper to calculate the dumb-buffer
+> scanline pitch and allocation size. Implementations of struct
+> drm_driver.dumb_create can call the new helper for their size
+> computations.
+> 
+> There is currently quite a bit of code duplication among DRM's
+> memory managers. Each calculates scanline pitch and buffer size
+> from the given arguments, but the implementations are inconsistent
+> in how they treat alignment and format support. Later patches will
+> unify this code on top of drm_mode_size_dumb() as much as possible.
+> 
+> drm_mode_size_dumb() uses existing 4CC format helpers to interpret
+> the given color mode. This makes the dumb-buffer interface behave
+> similar the kernel's video= parameter. Current per-driver implementations
+> again likely have subtle differences or bugs in how they support color
+> modes.
+> 
+> The dumb-buffer UAPI is only specified for known color modes. These
+> values describe linear, single-plane RGB color formats or legacy index
+> formats. Other values should not be specified. But some user space
+> still does. So for unknown color modes, there are a number of known
+> exceptions for which drm_mode_size_dumb() calculates the pitch from
+> the bpp value, as before. All other values work the same but print
+> an error.
+> 
+> v3:
+> - document the UAPI semantics
+> - compute scanline pitch from for unknown color modes (Andy, Tomi)
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
-> Changes in v8:
-> - Disabled IPv6 to eliminate noises in tests.
-> - Added a branch in tap to avoid unnecessary dissection when hash
->   reporting is disabled.
-> - Removed unnecessary rtnl_lock().
-> - Extracted code to handle new ioctls into separate functions to avoid
->   adding extra NULL checks to the code handling other ioctls.
-> - Introduced variable named "fd" to __tun_chr_ioctl().
-> - s/-/=3D/g in a patch message to avoid confusing Git.
-> - Link to v7: https://lore.kernel.org/r/20250228-rss-v7-0-844205cbbdd6@da=
-ynix.com
->
-> Changes in v7:
-> - Ensured to set hash_report to VIRTIO_NET_HASH_REPORT_NONE for
->   VHOST_NET_F_VIRTIO_NET_HDR.
-> - s/4/sizeof(u32)/ in patch "virtio_net: Add functions for hashing".
-> - Added tap_skb_cb type.
-> - Rebased.
-> - Link to v6: https://lore.kernel.org/r/20250109-rss-v6-0-b1c90ad708f6@da=
-ynix.com
->
-> Changes in v6:
-> - Extracted changes to fill vnet header holes into another series.
-> - Squashed patches "skbuff: Introduce SKB_EXT_TUN_VNET_HASH", "tun:
->   Introduce virtio-net hash reporting feature", and "tun: Introduce
->   virtio-net RSS" into patch "tun: Introduce virtio-net hash feature".
-> - Dropped the RFC tag.
-> - Link to v5: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@da=
-ynix.com
->
-> Changes in v5:
-> - Fixed a compilation error with CONFIG_TUN_VNET_CROSS_LE.
-> - Optimized the calculation of the hash value according to:
->   https://git.dpdk.org/dpdk/commit/?id=3D3fb1ea032bd6ff8317af5dac9af901f1=
-f324cab4
-> - Added patch "tun: Unify vnet implementation".
-> - Dropped patch "tap: Pad virtio header with zero".
-> - Added patch "selftest: tun: Test vnet ioctls without device".
-> - Reworked selftests to skip for older kernels.
-> - Documented the case when the underlying device is deleted and packets
->   have queue_mapping set by TC.
-> - Reordered test harness arguments.
-> - Added code to handle fragmented packets.
-> - Link to v4: https://lore.kernel.org/r/20240924-rss-v4-0-84e932ec0e6c@da=
-ynix.com
->
-> Changes in v4:
-> - Moved tun_vnet_hash_ext to if_tun.h.
-> - Renamed virtio_net_toeplitz() to virtio_net_toeplitz_calc().
-> - Replaced htons() with cpu_to_be16().
-> - Changed virtio_net_hash_rss() to return void.
-> - Reordered variable declarations in virtio_net_hash_rss().
-> - Removed virtio_net_hdr_v1_hash_from_skb().
-> - Updated messages of "tap: Pad virtio header with zero" and
->   "tun: Pad virtio header with zero".
-> - Fixed vnet_hash allocation size.
-> - Ensured to free vnet_hash when destructing tun_struct.
-> - Link to v3: https://lore.kernel.org/r/20240915-rss-v3-0-c630015db082@da=
-ynix.com
->
-> Changes in v3:
-> - Reverted back to add ioctl.
-> - Split patch "tun: Introduce virtio-net hashing feature" into
->   "tun: Introduce virtio-net hash reporting feature" and
->   "tun: Introduce virtio-net RSS".
-> - Changed to reuse hash values computed for automq instead of performing
->   RSS hashing when hash reporting is requested but RSS is not.
-> - Extracted relevant data from struct tun_struct to keep it minimal.
-> - Added kernel-doc.
-> - Changed to allow calling TUNGETVNETHASHCAP before TUNSETIFF.
-> - Initialized num_buffers with 1.
-> - Added a test case for unclassified packets.
-> - Fixed error handling in tests.
-> - Changed tests to verify that the queue index will not overflow.
-> - Rebased.
-> - Link to v2: https://lore.kernel.org/r/20231015141644.260646-1-akihiko.o=
-daki@daynix.com
->
-> ---
-> Akihiko Odaki (6):
->       virtio_net: Add functions for hashing
->       net: flow_dissector: Export flow_keys_dissector_symmetric
->       tun: Introduce virtio-net hash feature
->       selftest: tun: Test vnet ioctls without device
->       selftest: tun: Add tests for virtio-net hashing
->       vhost/net: Support VIRTIO_NET_F_HASH_REPORT
->
->  Documentation/networking/tuntap.rst  |   7 +
->  drivers/net/Kconfig                  |   1 +
->  drivers/net/tap.c                    |  67 +++-
->  drivers/net/tun.c                    |  98 +++++-
->  drivers/net/tun_vnet.h               | 159 ++++++++-
->  drivers/vhost/net.c                  |  49 +--
->  include/linux/if_tap.h               |   2 +
->  include/linux/skbuff.h               |   3 +
->  include/linux/virtio_net.h           | 188 ++++++++++
->  include/net/flow_dissector.h         |   1 +
->  include/uapi/linux/if_tun.h          |  75 ++++
->  net/core/flow_dissector.c            |   3 +-
->  net/core/skbuff.c                    |   4 +
->  tools/testing/selftests/net/Makefile |   2 +-
->  tools/testing/selftests/net/tun.c    | 656 +++++++++++++++++++++++++++++=
-+++++-
->  15 files changed, 1254 insertions(+), 61 deletions(-)
-> ---
-> base-commit: dd83757f6e686a2188997cb58b5975f744bb7786
-> change-id: 20240403-rss-e737d89efa77
-> prerequisite-change-id: 20241230-tun-66e10a49b0c7:v6
-> prerequisite-patch-id: 871dc5f146fb6b0e3ec8612971a8e8190472c0fb
-> prerequisite-patch-id: 2797ed249d32590321f088373d4055ff3f430a0e
-> prerequisite-patch-id: ea3370c72d4904e2f0536ec76ba5d26784c0cede
-> prerequisite-patch-id: 837e4cf5d6b451424f9b1639455e83a260c4440d
-> prerequisite-patch-id: ea701076f57819e844f5a35efe5cbc5712d3080d
-> prerequisite-patch-id: 701646fb43ad04cc64dd2bf13c150ccbe6f828ce
-> prerequisite-patch-id: 53176dae0c003f5b6c114d43f936cf7140d31bb5
-> prerequisite-change-id: 20250116-buffers-96e14bf023fc:v2
-> prerequisite-patch-id: 25fd4f99d4236a05a5ef16ab79f3e85ee57e21cc
->
-> Best regards,
-> --
-> Akihiko Odaki <akihiko.odaki@daynix.com>
->
+>  drivers/gpu/drm/drm_dumb_buffers.c | 116 +++++++++++++++++++++++++++++
+>  include/drm/drm_dumb_buffers.h     |  14 ++++
+>  include/uapi/drm/drm_mode.h        |  46 +++++++++++-
+>  3 files changed, 175 insertions(+), 1 deletion(-)
+>  create mode 100644 include/drm/drm_dumb_buffers.h
+> 
+> diff --git a/drivers/gpu/drm/drm_dumb_buffers.c b/drivers/gpu/drm/drm_dumb_buffers.c
+> index 9916aaf5b3f2..600ab281712b 100644
+> --- a/drivers/gpu/drm/drm_dumb_buffers.c
+> +++ b/drivers/gpu/drm/drm_dumb_buffers.c
+> @@ -25,6 +25,8 @@
+>  
+>  #include <drm/drm_device.h>
+>  #include <drm/drm_drv.h>
+> +#include <drm/drm_dumb_buffers.h>
+> +#include <drm/drm_fourcc.h>
+>  #include <drm/drm_gem.h>
+>  #include <drm/drm_mode.h>
+>  
+> @@ -57,6 +59,120 @@
+>   * a hardware-specific ioctl to allocate suitable buffer objects.
+>   */
+>  
+> +static int drm_mode_align_dumb(struct drm_mode_create_dumb *args,
+> +			       unsigned long pitch_align,
+> +			       unsigned long size_align)
+> +{
+> +	u32 pitch = args->pitch;
+> +	u32 size;
+> +
+> +	if (!pitch)
+> +		return -EINVAL;
+> +
+> +	if (pitch_align)
+> +		pitch = roundup(pitch, pitch_align);
+> +
+> +	/* overflow checks for 32bit size calculations */
+> +	if (args->height > U32_MAX / pitch)
+> +		return -EINVAL;
+> +
+> +	if (!size_align)
+> +		size_align = PAGE_SIZE;
+> +	else if (!IS_ALIGNED(size_align, PAGE_SIZE))
+> +		return -EINVAL;
+> +
+> +	size = ALIGN(args->height * pitch, size_align);
+> +	if (!size)
+> +		return -EINVAL;
+> +
+> +	args->pitch = pitch;
+> +	args->size = size;
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * drm_mode_size_dumb - Calculates the scanline and buffer sizes for dumb buffers
+> + * @dev: DRM device
+> + * @args: Parameters for the dumb buffer
+> + * @pitch_align: Scanline alignment in bytes
+> + * @size_align: Buffer-size alignment in bytes
+> + *
+> + * The helper drm_mode_size_dumb() calculates the size of the buffer
+> + * allocation and the scanline size for a dumb buffer. Callers have to
+> + * set the buffers width, height and color mode in the argument @arg.
+> + * The helper validates the correctness of the input and tests for
+> + * possible overflows. If successful, it returns the dumb buffer's
+> + * required scanline pitch and size in &args.
+> + *
+> + * The parameter @pitch_align allows the driver to specifies an
+> + * alignment for the scanline pitch, if the hardware requires any. The
+> + * calculated pitch will be a multiple of the alignment. The parameter
+> + * @size_align allows to specify an alignment for buffer sizes. The
+> + * returned size is always a multiple of PAGE_SIZE.
+> + *
+> + * Returns:
+> + * Zero on success, or a negative error code otherwise.
+> + */
+> +int drm_mode_size_dumb(struct drm_device *dev,
+> +		       struct drm_mode_create_dumb *args,
+> +		       unsigned long pitch_align,
+> +		       unsigned long size_align)
+> +{
+> +	u64 pitch = 0;
+> +	u32 fourcc;
+> +
+> +	/*
+> +	 * The scanline pitch depends on the buffer width and the color
+> +	 * format. The latter is specified as a color-mode constant for
+> +	 * which we first have to find the corresponding color format.
+> +	 *
+> +	 * Different color formats can have the same color-mode constant.
+> +	 * For example XRGB8888 and BGRX8888 both have a color mode of 32.
+> +	 * It is possible to use different formats for dumb-buffer allocation
+> +	 * and rendering as long as all involved formats share the same
+> +	 * color-mode constant.
+> +	 */
+> +	fourcc = drm_driver_color_mode_format(dev, args->bpp);
+> +	if (fourcc != DRM_FORMAT_INVALID) {
+> +		const struct drm_format_info *info = drm_format_info(fourcc);
+> +
+> +		if (!info)
+> +			return -EINVAL;
+> +		pitch = drm_format_info_min_pitch(info, 0, args->width);
+> +	} else if (args->bpp) {
+> +		/*
+> +		 * Some userspace throws in arbitrary values for bpp and
+> +		 * relies on the kernel to figure it out. In this case we
+> +		 * fall back to the old method of using bpp directly. The
+> +		 * over-commitment of memory from the rounding is acceptable
+> +		 * for compatibility with legacy userspace. We have a number
+> +		 * of deprecated legacy values that are explicitly supported.
+> +		 */
+> +		switch (args->bpp) {
+> +		default:
+> +			drm_warn(dev, "Unknown color mode %d; guessing buffer size.\n",
+> +				 args->bpp);
+> +			fallthrough;
 
+We cannot let userspace trigger dmesg warnings (or anything else really
+that spams logs). Also I think for future proofing it would be good if we
+just reject anything we don't currently know about instead of silently
+letting this mess become worse. Hence my vote is to reject unknown bpp
+hack values.
+
+> +		case 12:
+> +		case 15:
+> +		case 30: /* see drm_gem_afbc_get_bpp() */
+
+This is a bit too cryptic to me, I think if you want to do comments I'd
+just put a long-form one above each value that explains where we've found
+it and why it happens. I'm also assuming these all have depth = 0, which I
+guess is something we should check just to keep this as strict as
+possible? Or do they have matching depth?
+
+Cheers, Sima
+
+> +		case 10:
+> +		case 64: /* used by Mesa */
+> +			pitch = args->width * DIV_ROUND_UP(args->bpp, SZ_8);
+> +			break;
+> +		}
+> +	}
+> +
+> +	if (!pitch || pitch > U32_MAX)
+> +		return -EINVAL;
+> +
+> +	args->pitch = pitch;
+> +
+> +	return drm_mode_align_dumb(args, pitch_align, size_align);
+> +}
+> +EXPORT_SYMBOL(drm_mode_size_dumb);
+> +
+>  int drm_mode_create_dumb(struct drm_device *dev,
+>  			 struct drm_mode_create_dumb *args,
+>  			 struct drm_file *file_priv)
+> diff --git a/include/drm/drm_dumb_buffers.h b/include/drm/drm_dumb_buffers.h
+> new file mode 100644
+> index 000000000000..6fe36004b19d
+> --- /dev/null
+> +++ b/include/drm/drm_dumb_buffers.h
+> @@ -0,0 +1,14 @@
+> +/* SPDX-License-Identifier: MIT */
+> +
+> +#ifndef __DRM_DUMB_BUFFERS_H__
+> +#define __DRM_DUMB_BUFFERS_H__
+> +
+> +struct drm_device;
+> +struct drm_mode_create_dumb;
+> +
+> +int drm_mode_size_dumb(struct drm_device *dev,
+> +		       struct drm_mode_create_dumb *args,
+> +		       unsigned long pitch_align,
+> +		       unsigned long size_align);
+> +
+> +#endif
+> diff --git a/include/uapi/drm/drm_mode.h b/include/uapi/drm/drm_mode.h
+> index c082810c08a8..eea09103b1a6 100644
+> --- a/include/uapi/drm/drm_mode.h
+> +++ b/include/uapi/drm/drm_mode.h
+> @@ -1058,7 +1058,7 @@ struct drm_mode_crtc_page_flip_target {
+>   * struct drm_mode_create_dumb - Create a KMS dumb buffer for scanout.
+>   * @height: buffer height in pixels
+>   * @width: buffer width in pixels
+> - * @bpp: bits per pixel
+> + * @bpp: color mode
+>   * @flags: must be zero
+>   * @handle: buffer object handle
+>   * @pitch: number of bytes between two consecutive lines
+> @@ -1066,6 +1066,50 @@ struct drm_mode_crtc_page_flip_target {
+>   *
+>   * User-space fills @height, @width, @bpp and @flags. If the IOCTL succeeds,
+>   * the kernel fills @handle, @pitch and @size.
+> + *
+> + * The value of @bpp is a color-mode number describing a specific format
+> + * or a variant thereof. The value often corresponds to the number of bits
+> + * per pixel for most modes, although there are exceptions. Each color mode
+> + * maps to a DRM format plus a number of modes with similar pixel layout.
+> + * Framebuffer layout is always linear.
+> + *
+> + * Support for all modes and formats is optional. Even if dumb-buffer
+> + * creation with a certain color mode succeeds, it is not guaranteed that
+> + * the DRM driver supports any of the related formats. Most drivers support
+> + * a color mode of 32 with a format of DRM_FORMAT_XRGB8888 on their primary
+> + * plane.
+> + *
+> + * +------------+------------------------+------------------------+
+> + * | Color mode | Framebuffer format     | Compatibles            |
+> + * +============+========================+========================+
+> + * |     32     |  * DRM_FORMAT_XRGB8888 |  * DRM_FORMAT_XBGR8888 |
+> + * |            |                        |  * DRM_FORMAT_RGBX8888 |
+> + * |            |                        |  * DRM_FORMAT_BGRX8888 |
+> + * +------------+------------------------+------------------------+
+> + * |     24     |  * DRM_FORMAT_RGB888   |  * DRM_FORMAT_BGR888   |
+> + * +------------+------------------------+------------------------+
+> + * |     16     |  * DRM_FORMAT_RGB565   |  * DRM_FORMAT_BGR565   |
+> + * +------------+------------------------+------------------------+
+> + * |     15     |  * DRM_FORMAT_XRGB1555 |  * DRM_FORMAT_XBGR1555 |
+> + * |            |                        |  * DRM_FORMAT_RGBX1555 |
+> + * |            |                        |  * DRM_FORMAT_BGRX1555 |
+> + * +------------+------------------------+------------------------+
+> + * |      8     |  * DRM_FORMAT_C8       |  * DRM_FORMAT_R8       |
+> + * +------------+------------------------+------------------------+
+> + * |      4     |  * DRM_FORMAT_C4       |  * DRM_FORMAT_R4       |
+> + * +------------+------------------------+------------------------+
+> + * |      2     |  * DRM_FORMAT_C2       |  * DRM_FORMAT_R2       |
+> + * +------------+------------------------+------------------------+
+> + * |      1     |  * DRM_FORMAT_C1       |  * DRM_FORMAT_R1       |
+> + * +------------+------------------------+------------------------+
+> + *
+> + * Color modes of 10, 12, 15, 30 and 64 are only supported for use by
+> + * legacy user space. Please don't use them in new code. Other modes
+> + * are not support.
+> + *
+> + * Do not attempt to allocate anything but linear framebuffer memory
+> + * with single-plane RGB data. Allocation of other framebuffer
+> + * layouts requires dedicated ioctls in the respective DRM driver.
+>   */
+>  struct drm_mode_create_dumb {
+>  	__u32 height;
+> -- 
+> 2.48.1
+> 
+
+-- 
+Simona Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
