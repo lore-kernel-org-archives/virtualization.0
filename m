@@ -1,233 +1,270 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 633052135D3
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:02:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83112185B1
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:50:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741345331; cv=none; b=haZ1TH5jrW0OSTxP73eQE0Ih8DwrZn9w6baN2hcSl5yjmO5jEpEMCatOytpZH2cA+oOmZ+v4h0XwU9ar52CR0E9FZqbUZ0izYqGnG/EtEkThN5y8nKHtJE0wsORNCfZqGXtxLHP2KigvBULTgGkOZ6iiIDjR0yx2+BKK1Mv+0U0=
+	t=1741348238; cv=none; b=HrCKkf96IckcF0Sp7RwY4AsU/FqOTzoMm1IwA+8cta0bUukTKVF/l2OrOZiaaekJJHrUqIk5nahILR+KPUdSbuWEehK1FhtribXi4voXNldSTAFcmBjjvOXUqaEXqLz3h1VaGvcwFQd3T633ACSy9ReZri369IfVgSrsJKRtuUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741345331; c=relaxed/simple;
-	bh=bUqgi3dszTeuIO6Jayt7FNCSfLxGF0Q3vs9yEXuCbLI=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To; b=qwtOaMginhf/11EOw4vr63P6Taoe1wwFLPEhXjShJ9v70mMmzRdxV0d1mGbzo3rLhBnENb5oDIDkiK20xOaEZym6ecPi+DxcPteJwuYD3TBIjkQA7hX30GHDdpPryxrfWTgSdQRt3nYDp7AN1YgFaIcFlNNUtHFGaG31RKxH17k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=wQx3JD13; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1741348238; c=relaxed/simple;
+	bh=T+Orm0wQjlNfpFi4uG0aCx02nXd2HC1pXE9JVAR8020=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hoFs3pNPrrVz6AUMqZIfhj71x0aN6QlUrn4GxYgsJpUVPWeiIhXnZnAh70vUOISKcBK+uNEofLB+T6wxRg0QPV0dqZjeh9R59MA9NmNc6hbIJ2WtygCELZi7k14WNBCQD0ZjvIiPE6rAopyJqIaEPVNohMGe7o4pqcUICJVI5hQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jDWnw6xR; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="wQx3JD13"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jDWnw6xR"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E1CBD413E5
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:02:09 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 828F94024C
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:50:36 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.9
+X-Spam-Score: -8.092
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Oxf26unYFV-I for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Mar 2025 11:02:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E0CC8413D1
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E0CC8413D1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=wQx3JD13
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E0CC8413D1
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:02:08 +0000 (UTC)
-Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-223fd89d036so33441535ad.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 07 Mar 2025 03:02:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741345328; x=1741950128; darn=lists.linux-foundation.org;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Y12vdXD8IUD5lnVxvCmdhC+FVPs9nLD3u7Whh+JFE1I=;
-        b=wQx3JD13ocZW/JUpXzIU9J8l3l7IqjAmtsuZAauLdGCWJqQnAFmQZ9D+Aczk10wC/t
-         Ra4oP6/7AYBScdeXGQicuzJoDNXskK+u4qJz3OFva4k+1n+VqzvYypxjXfUc5tI+/StP
-         RWVT2M8NzvRgqIaal1CcZ+ELiVlQ9KhZadjs0T6KQ0A4ZhVox7k5SciOG8+vYAhrX8x9
-         WBr0IOhaW+lOQDVDob9h3XpKmcYoXeclB/6R/ybdcmTPl8HErxCwhXwUWy3tI9wXXkoJ
-         QdEiQdjGcR9+LoNqPPHyAADZf6kZMTDb9UV/UqGmAY/Q9lJj+xMSfiMQxzQgY7+kYsAD
-         tveg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741345328; x=1741950128;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Y12vdXD8IUD5lnVxvCmdhC+FVPs9nLD3u7Whh+JFE1I=;
-        b=IZe4aeqEboAngbZUAPQhY7t8NJdLaiPhSsOYheLvUdJBtk2DMyEDOF9jCXAbo20Tv+
-         K6tmYDHVhYo+kEchVJhecAYGi1G1N9gMZDh9YRBec0rJe9DYA+uzzRtOGB3+Jsg0p1oC
-         Djc/RiwINrILzVaB93cKiMYOXC/EDg2PFn7kprtuyIMa05a2HxKYLtLYU0K3/WS0qMDJ
-         p/i3VdkZxy0F0LG5NXbnUEplodrQH1bHfWsElrh2pHgmC6zwR0RHBIH619QsktX4bsdE
-         Mpt3rT05k7hhKeT6TOCt6yec4orq6YcgM+mr9SY568WbjGU4fhT8tJdOoBD2kzsWtVkh
-         mtew==
-X-Forwarded-Encrypted: i=1; AJvYcCUqG2neKR92Bxy6GooY5hlKksoqkvNNsIN7L9L4nIeUy6ResK7rFV6mp4GVX9IajIFvnTZYN4n97WalxywJaQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yzbp0Aatmgbdrap6NVoLVVCpsQE6ssqJr62pwrfDEO1Jo9MZWqF
-	IkSYWsdx49rBzIUJ7+TScOe4REacKxe0COt23FK17/JB+07wBd+xDZ7yHEwqsDU=
-X-Gm-Gg: ASbGnctVn/OCssJj4DT93nKibFgB83+jlamTXKeq2UJdAw6v2Aw2cmnmwSQMeDxwfH5
-	mPY1Kpg8uKsEsPWWhOm18aB4affp/R41bTksZllNFmXlnY7D3lFCNRb7XiplgMgssFg8mB+k7Ax
-	qkUEQr5CInYB5hy6o6wb4ZBooNwx0EsOpmxUZ+upM7/+LGNHqeQfimIpDvhduLece6OmNNG5np6
-	RGJhIm5DrDppWsJJEwUM2uMHH9ugs9ieMH+sPZY9XXRqqjpaxZTmAKXn0AB76j7dM5S8Bd/oNlw
-	E+il4+LlgHwto+P0/vuMRnvqBl9zQtR7iJr761jzF65Yshsj
-X-Google-Smtp-Source: AGHT+IF6zWuYi6fdLJEcdg62jGV3EWL/4omMjcZtlNvZShjxdxWSb6A2HX3eGBs7ZpbGb0lfsNdgeA==
-X-Received: by 2002:a17:903:283:b0:21f:6a36:7bf3 with SMTP id d9443c01a7336-224288974admr56342095ad.12.1741345328248;
-        Fri, 07 Mar 2025 03:02:08 -0800 (PST)
-Received: from localhost ([157.82.205.237])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-224109ddfd2sm27280985ad.39.2025.03.07.03.02.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 07 Mar 2025 03:02:07 -0800 (PST)
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Fri, 07 Mar 2025 20:01:22 +0900
-Subject: [PATCH net-next v9 6/6] vhost/net: Support
- VIRTIO_NET_F_HASH_REPORT
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Ljwr-q1rPzLR for <virtualization@lists.linux-foundation.org>;
+ Fri,  7 Mar 2025 11:50:35 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.15; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6C12A40025
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6C12A40025
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=jDWnw6xR
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6C12A40025
+	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:50:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1741348235; x=1772884235;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=T+Orm0wQjlNfpFi4uG0aCx02nXd2HC1pXE9JVAR8020=;
+  b=jDWnw6xRryroPQMMDUYOWz40FKGSgDEEO2me+T0f8CZC12C6blftaM00
+   ktgenbTJgith/uhUOZeM8Hw+zzIUOFkN2rzEUtBA4rN8zmNaanzfJkTCw
+   G/8tDtkoXR9XwkFTj8r9IJyrTYYApmejdG7Jr2MfvPsEfDotybsgj7g54
+   Y9NIzR86VaZTY/u8Occ3FzMYNQpbkcWBCL12N/qmJDkeDdlEaEQiLxKEI
+   PCddUnXhPWpR+Wspczu42VT1hhkV40M1GMO9ghLMvYRJuq+inEthiSMpH
+   YxLPSr6uPIFJYR+0SeR/K9pB7WnOGDeXdKLXzCUQm+kycEuKEO0F/oxMB
+   A==;
+X-CSE-ConnectionGUID: 2EsdTzWZTwGuayPWk3JxvA==
+X-CSE-MsgGUID: 8TyZavjlRHq5rCY0GXL4ZQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11365"; a="46048714"
+X-IronPort-AV: E=Sophos;i="6.14,229,1736841600"; 
+   d="scan'208";a="46048714"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2025 03:50:34 -0800
+X-CSE-ConnectionGUID: E0BrROxpTHqLf8kj9yuT+w==
+X-CSE-MsgGUID: O2Lf7UYNTs2kDv3mgNZ5Xw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="124526006"
+Received: from lkp-server02.sh.intel.com (HELO a4747d147074) ([10.239.97.151])
+  by orviesa005.jf.intel.com with ESMTP; 07 Mar 2025 03:50:27 -0800
+Received: from kbuild by a4747d147074 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tqWDh-0000Pb-1J;
+	Fri, 07 Mar 2025 11:50:25 +0000
+Date: Fri, 7 Mar 2025 19:50:12 +0800
+From: kernel test robot <lkp@intel.com>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	linux-kselftest@vger.kernel.org,
+	Yuri Benditovich <yuri.benditovich@daynix.com>,
+	Andrew Melnychenko <andrew@daynix.com>,
+	Stephen Hemminger <stephen@networkplumber.org>,
+	gur.stavi@huawei.com, Lei Yang <leiyang@redhat.com>,
+	Simon Horman <horms@kernel.org>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH net-next v8 3/6] tun: Introduce virtio-net hash feature
+Message-ID: <202503071936.EzoojQZO-lkp@intel.com>
+References: <20250306-rss-v8-3-7ab4f56ff423@daynix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250307-rss-v9-6-df76624025eb@daynix.com>
-References: <20250307-rss-v9-0-df76624025eb@daynix.com>
-In-Reply-To: <20250307-rss-v9-0-df76624025eb@daynix.com>
-To: Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
- Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-X-Mailer: b4 0.14.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250306-rss-v8-3-7ab4f56ff423@daynix.com>
 
-VIRTIO_NET_F_HASH_REPORT allows to report hash values calculated on the
-host. When VHOST_NET_F_VIRTIO_NET_HDR is employed, it will report no
-hash values (i.e., the hash_report member is always set to
-VIRTIO_NET_HASH_REPORT_NONE). Otherwise, the values reported by the
-underlying socket will be reported.
+Hi Akihiko,
 
-VIRTIO_NET_F_HASH_REPORT requires VIRTIO_F_VERSION_1.
+kernel test robot noticed the following build warnings:
 
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-Tested-by: Lei Yang <leiyang@redhat.com>
----
- drivers/vhost/net.c | 49 +++++++++++++++++++++++++++++--------------------
- 1 file changed, 29 insertions(+), 20 deletions(-)
+[auto build test WARNING on dd83757f6e686a2188997cb58b5975f744bb7786]
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index b9b9e9d40951856d881d77ac74331d914473cd56..16b241b44f89820a42c302f3586ea6bb5e0d4289 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -73,6 +73,7 @@ enum {
- 	VHOST_NET_FEATURES = VHOST_FEATURES |
- 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
- 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			 (1ULL << VIRTIO_NET_F_HASH_REPORT) |
- 			 (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
- 			 (1ULL << VIRTIO_F_RING_RESET)
- };
-@@ -1097,9 +1098,11 @@ static void handle_rx(struct vhost_net *net)
- 		.msg_controllen = 0,
- 		.msg_flags = MSG_DONTWAIT,
- 	};
--	struct virtio_net_hdr hdr = {
--		.flags = 0,
--		.gso_type = VIRTIO_NET_HDR_GSO_NONE
-+	struct virtio_net_hdr_v1_hash hdr = {
-+		.hdr = {
-+			.flags = 0,
-+			.gso_type = VIRTIO_NET_HDR_GSO_NONE
-+		}
- 	};
- 	size_t total_len = 0;
- 	int err, mergeable;
-@@ -1110,7 +1113,6 @@ static void handle_rx(struct vhost_net *net)
- 	bool set_num_buffers;
- 	struct socket *sock;
- 	struct iov_iter fixup;
--	__virtio16 num_buffers;
- 	int recv_pkts = 0;
- 
- 	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
-@@ -1191,30 +1193,30 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_discard_vq_desc(vq, headcount);
- 			continue;
- 		}
-+		hdr.hdr.num_buffers = cpu_to_vhost16(vq, headcount);
- 		/* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR */
- 		if (unlikely(vhost_hlen)) {
--			if (copy_to_iter(&hdr, sizeof(hdr),
--					 &fixup) != sizeof(hdr)) {
-+			if (copy_to_iter(&hdr, vhost_hlen,
-+					 &fixup) != vhost_hlen) {
- 				vq_err(vq, "Unable to write vnet_hdr "
- 				       "at addr %p\n", vq->iov->iov_base);
- 				goto out;
- 			}
--		} else {
-+		} else if (likely(set_num_buffers)) {
- 			/* Header came from socket; we'll need to patch
- 			 * ->num_buffers over if VIRTIO_NET_F_MRG_RXBUF
- 			 */
--			iov_iter_advance(&fixup, sizeof(hdr));
-+			iov_iter_advance(&fixup, offsetof(struct virtio_net_hdr_v1, num_buffers));
-+
-+			if (copy_to_iter(&hdr.hdr.num_buffers, sizeof(hdr.hdr.num_buffers),
-+					 &fixup) != sizeof(hdr.hdr.num_buffers)) {
-+				vq_err(vq, "Failed num_buffers write");
-+				vhost_discard_vq_desc(vq, headcount);
-+				goto out;
-+			}
- 		}
- 		/* TODO: Should check and handle checksum. */
- 
--		num_buffers = cpu_to_vhost16(vq, headcount);
--		if (likely(set_num_buffers) &&
--		    copy_to_iter(&num_buffers, sizeof num_buffers,
--				 &fixup) != sizeof num_buffers) {
--			vq_err(vq, "Failed num_buffers write");
--			vhost_discard_vq_desc(vq, headcount);
--			goto out;
--		}
- 		nvq->done_idx += headcount;
- 		if (nvq->done_idx > VHOST_NET_BATCH)
- 			vhost_net_signal_used(nvq);
-@@ -1607,10 +1609,13 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 	size_t vhost_hlen, sock_hlen, hdr_len;
- 	int i;
- 
--	hdr_len = (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
--			       (1ULL << VIRTIO_F_VERSION_1))) ?
--			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
--			sizeof(struct virtio_net_hdr);
-+	if (features & (1ULL << VIRTIO_NET_F_HASH_REPORT))
-+		hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
-+	else if (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			     (1ULL << VIRTIO_F_VERSION_1)))
-+		hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-+	else
-+		hdr_len = sizeof(struct virtio_net_hdr);
- 	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
- 		/* vhost provides vnet_hdr */
- 		vhost_hlen = hdr_len;
-@@ -1691,6 +1696,10 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 		if (features & ~VHOST_NET_FEATURES)
- 			return -EOPNOTSUPP;
-+		if ((features & ((1ULL << VIRTIO_F_VERSION_1) |
-+				 (1ULL << VIRTIO_NET_F_HASH_REPORT))) ==
-+		    (1ULL << VIRTIO_NET_F_HASH_REPORT))
-+			return -EINVAL;
- 		return vhost_net_set_features(n, features);
- 	case VHOST_GET_BACKEND_FEATURES:
- 		features = VHOST_NET_BACKEND_FEATURES;
+url:    https://github.com/intel-lab-lkp/linux/commits/Akihiko-Odaki/virtio_net-Add-functions-for-hashing/20250306-180546
+base:   dd83757f6e686a2188997cb58b5975f744bb7786
+patch link:    https://lore.kernel.org/r/20250306-rss-v8-3-7ab4f56ff423%40daynix.com
+patch subject: [PATCH net-next v8 3/6] tun: Introduce virtio-net hash feature
+config: x86_64-buildonly-randconfig-001-20250307 (https://download.01.org/0day-ci/archive/20250307/202503071936.EzoojQZO-lkp@intel.com/config)
+compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250307/202503071936.EzoojQZO-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202503071936.EzoojQZO-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/net/tap.c:1056:2: warning: unannotated fall-through between switch labels [-Wimplicit-fallthrough]
+    1056 |         case SIOCGIFHWADDR:
+         |         ^
+   drivers/net/tap.c:1056:2: note: insert '__attribute__((fallthrough));' to silence this warning
+    1056 |         case SIOCGIFHWADDR:
+         |         ^
+         |         __attribute__((fallthrough)); 
+   drivers/net/tap.c:1056:2: note: insert 'break;' to avoid fall-through
+    1056 |         case SIOCGIFHWADDR:
+         |         ^
+         |         break; 
+   1 warning generated.
+
+
+vim +1056 drivers/net/tap.c
+
+2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25   964  
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   965  /*
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   966   * provide compatibility with generic tun/tap interface
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   967   */
+635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   968  static long tap_ioctl(struct file *file, unsigned int cmd,
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   969  		      unsigned long arg)
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   970  {
+635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   971  	struct tap_queue *q = file->private_data;
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10   972  	struct tap_dev *tap;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   973  	void __user *argp = (void __user *)arg;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   974  	struct ifreq __user *ifr = argp;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   975  	unsigned int __user *up = argp;
+39ec7de7092ba9 drivers/net/macvtap.c Michael S. Tsirkin 2014-12-16   976  	unsigned short u;
+55afbd0810922a drivers/net/macvtap.c Michael S. Tsirkin 2010-04-29   977  	int __user *sp = argp;
+7f460d30c8e130 drivers/net/macvtap.c Justin Cormack     2015-05-13   978  	struct sockaddr sa;
+55afbd0810922a drivers/net/macvtap.c Michael S. Tsirkin 2010-04-29   979  	int s;
+02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18   980  	int ret;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   981  
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   982  	switch (cmd) {
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   983  	case TUNSETIFF:
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   984  		/* ignore the name, just look at flags */
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   985  		if (get_user(u, &ifr->ifr_flags))
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   986  			return -EFAULT;
+b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   987  
+b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   988  		ret = 0;
+635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   989  		if ((u & ~TAP_IFFEATURES) != (IFF_NO_PI | IFF_TAP))
+b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   990  			ret = -EINVAL;
+b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   991  		else
+635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   992  			q->flags = (q->flags & ~TAP_IFFEATURES) | u;
+b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   993  
+b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   994  		return ret;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   995  
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   996  	case TUNGETIFF:
+441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25   997  		rtnl_lock();
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10   998  		tap = tap_get_tap_dev(q);
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10   999  		if (!tap) {
+441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1000  			rtnl_unlock();
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1001  			return -ENOLINK;
+441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1002  		}
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1003  
+02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18  1004  		ret = 0;
+39ec7de7092ba9 drivers/net/macvtap.c Michael S. Tsirkin 2014-12-16  1005  		u = q->flags;
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1006  		if (copy_to_user(&ifr->ifr_name, tap->dev->name, IFNAMSIZ) ||
+39ec7de7092ba9 drivers/net/macvtap.c Michael S. Tsirkin 2014-12-16  1007  		    put_user(u, &ifr->ifr_flags))
+02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18  1008  			ret = -EFAULT;
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1009  		tap_put_tap_dev(tap);
+441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1010  		rtnl_unlock();
+02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18  1011  		return ret;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1012  
+815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1013  	case TUNSETQUEUE:
+815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1014  		if (get_user(u, &ifr->ifr_flags))
+815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1015  			return -EFAULT;
+441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1016  		rtnl_lock();
+635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10  1017  		ret = tap_ioctl_set_queue(file, u);
+441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1018  		rtnl_unlock();
+82a19eb8c02ab9 drivers/net/macvtap.c Jason Wang         2013-07-16  1019  		return ret;
+815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1020  
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1021  	case TUNGETFEATURES:
+635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10  1022  		if (put_user(IFF_TAP | IFF_NO_PI | TAP_IFFEATURES, up))
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1023  			return -EFAULT;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1024  		return 0;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1025  
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1026  	case TUNSETSNDBUF:
+3ea79249e81e5e drivers/net/macvtap.c Michael S. Tsirkin 2015-09-18  1027  		if (get_user(s, sp))
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1028  			return -EFAULT;
+93161922c658c7 drivers/net/tap.c     Craig Gallek       2017-10-30  1029  		if (s <= 0)
+93161922c658c7 drivers/net/tap.c     Craig Gallek       2017-10-30  1030  			return -EINVAL;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1031  
+3ea79249e81e5e drivers/net/macvtap.c Michael S. Tsirkin 2015-09-18  1032  		q->sk.sk_sndbuf = s;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1033  		return 0;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1034  
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1035  	case TUNSETOFFLOAD:
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1036  		/* let the user check for future flags */
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1037  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
+399e0827642f6a drivers/net/tap.c     Andrew Melnychenko 2022-12-07  1038  			    TUN_F_TSO_ECN | TUN_F_UFO |
+399e0827642f6a drivers/net/tap.c     Andrew Melnychenko 2022-12-07  1039  			    TUN_F_USO4 | TUN_F_USO6))
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1040  			return -EINVAL;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1041  
+2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1042  		rtnl_lock();
+2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1043  		ret = set_offload(q, arg);
+2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1044  		rtnl_unlock();
+2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1045  		return ret;
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1046  
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1047  	case TUNGETVNETHASHCAP:
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1048  		return tun_vnet_ioctl_gethashcap(argp);
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1049  
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1050  	case TUNSETVNETHASH:
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1051  		rtnl_lock();
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1052  		tap = rtnl_dereference(q->tap);
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1053  		ret = tap ? tun_vnet_ioctl_sethash(&tap->vnet_hash, true, argp) : -EBADFD;
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1054  		rtnl_unlock();
+2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1055  
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11 @1056  	case SIOCGIFHWADDR:
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1057  		rtnl_lock();
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1058  		tap = tap_get_tap_dev(q);
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1059  		if (!tap) {
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1060  			rtnl_unlock();
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1061  			return -ENOLINK;
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1062  		}
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1063  		ret = 0;
+3b23a32a63219f drivers/net/tap.c     Cong Wang          2021-02-11  1064  		dev_get_mac_address(&sa, dev_net(tap->dev), tap->dev->name);
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1065  		if (copy_to_user(&ifr->ifr_name, tap->dev->name, IFNAMSIZ) ||
+3b23a32a63219f drivers/net/tap.c     Cong Wang          2021-02-11  1066  		    copy_to_user(&ifr->ifr_hwaddr, &sa, sizeof(sa)))
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1067  			ret = -EFAULT;
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1068  		tap_put_tap_dev(tap);
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1069  		rtnl_unlock();
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1070  		return ret;
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1071  
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1072  	case SIOCSIFHWADDR:
+7f460d30c8e130 drivers/net/macvtap.c Justin Cormack     2015-05-13  1073  		if (copy_from_user(&sa, &ifr->ifr_hwaddr, sizeof(sa)))
+7f460d30c8e130 drivers/net/macvtap.c Justin Cormack     2015-05-13  1074  			return -EFAULT;
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1075  		rtnl_lock();
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1076  		tap = tap_get_tap_dev(q);
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1077  		if (!tap) {
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1078  			rtnl_unlock();
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1079  			return -ENOLINK;
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1080  		}
+3b23a32a63219f drivers/net/tap.c     Cong Wang          2021-02-11  1081  		ret = dev_set_mac_address_user(tap->dev, &sa, NULL);
+6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1082  		tap_put_tap_dev(tap);
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1083  		rtnl_unlock();
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1084  		return ret;
+b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1085  
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1086  	default:
+69113cb5de68da drivers/net/tap.c     Akihiko Odaki      2025-02-07  1087  		return tun_vnet_ioctl(&q->vnet_hdr_sz, &q->flags, cmd, sp);
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1088  	}
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1089  }
+20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1090  
 
 -- 
-2.48.1
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
