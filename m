@@ -1,106 +1,167 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from out199-8.us.a.mail.aliyun.com (out199-8.us.a.mail.aliyun.com [47.90.199.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 519E42E822;
-	Fri,  7 Mar 2025 03:08:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C10602FB2
+	for <virtualization@lists.linux.dev>; Fri,  7 Mar 2025 06:49:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.199.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741316924; cv=none; b=XUh2YRQW7Liexa04XLpcOC89JXUaH0Z+Arq9BSHzHBFWURBZVBIZOTmdT5tbIaZ2HxBpS0WlOSos365/F7kpLYwCt53bMLA1OOJuCIXft4jui7SkEnXnivZehxfjsNXfa3aKtDVpnhBUO0Loq1hEIWpIcf511TKQJdZLglMxMrE=
+	t=1741330163; cv=none; b=IwJS21BmVnCJrJ8Per9h4pWhhipbQYdRDCOINZycqcVPn3IQVEDuM9nn07AyNCBYoiltu7lFzwDsjeMPp8aCUOEbx6qoUzGzmR4gg9Vk03HeYu1kqglsqox1XH83u4RNvKtAfKHmOpKzrHQPEQ+LEu7h6nFXPgrS4vF83rgZuhA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741316924; c=relaxed/simple;
-	bh=DcLJ9aKimVNyrW/43nsjmeGTwBj8U+eyVkMor5z0OH0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hlzJNjFkIrK8bBBgSQh6krkALjWhwNrby3czd3XWAaqJthstuiMAOXu+YY/VkVQvU7v4dg/+0JQxTeoMnNCAEoTxPQYX7lo7TsdMse4P9QPwgfeDC1FarVHDLt+1800mZVDSEF1P1h9AuJSICR2M/e6LJEjzb0eKx+77rqgIJRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BmYVNQH1; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1741330163; c=relaxed/simple;
+	bh=+si5xtfKaTrCo5XkcrRh9/5zv/jMenw3VsyRd5+2yic=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=PAtbWRGtTKAphEeUkSpBgtix/lKW1OkFSbtwCGS5g2pUQPxjlZdDD7M8xKTXlebirXRteWORH593MRtiJHdu1LZVUxUzsOHUuIatYEdj2UMWC8sANUovXzkNJYqEH1fF0lfjKpgkzVnTLXfQ2WU85yQ7qV7tE6RXSyVPXMjjBRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Uum4hQ7v; arc=none smtp.client-ip=47.90.199.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BmYVNQH1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1741316920; x=1772852920;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=DcLJ9aKimVNyrW/43nsjmeGTwBj8U+eyVkMor5z0OH0=;
-  b=BmYVNQH16msb0sJQ9GcjMHOLg4n+SuJln+cjl6Ke/kh2mO9bb7duYuwM
-   r5oNeYB25w8pwb7YbClYDSd5eY9BZrELjd8h3Yca/RY2JDgMDHMkwHJaQ
-   b4G3ql67IYQfIRsFyb0tEl+ItKuBaBcVkHoKemBeaiQ9BFxGCxbQhb/wb
-   5UTsmhT8ednU81eS40qfqxiBhwqh1GvpXIZJAG/BfpqFeT2te2vRGyxjm
-   E/522LTTBSgjHkTZX4nuvt4KGvWllyj2AcskmAoMQIC0DxDK65l4NUwgq
-   H9OOTvkjVI6u896BhHXoz78mJmmjKYyNizSA+rnWLcQxCOg8jMyFg3Icb
-   A==;
-X-CSE-ConnectionGUID: P7CMQSibSoChL0lofLTLAw==
-X-CSE-MsgGUID: sMz398i+Tmq3GWh7HcmEog==
-X-IronPort-AV: E=McAfee;i="6700,10204,11365"; a="52996206"
-X-IronPort-AV: E=Sophos;i="6.14,227,1736841600"; 
-   d="scan'208";a="52996206"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Mar 2025 19:08:39 -0800
-X-CSE-ConnectionGUID: NYB16Ma0QrSPRJ6pD9Bw5g==
-X-CSE-MsgGUID: UPRbNo95TJeuYJ1WV0owAw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="119130707"
-Received: from lkp-server02.sh.intel.com (HELO 76cde6cc1f07) ([10.239.97.151])
-  by orviesa010.jf.intel.com with ESMTP; 06 Mar 2025 19:08:35 -0800
-Received: from kbuild by 76cde6cc1f07 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tqO4d-000O7i-2r;
-	Fri, 07 Mar 2025 03:08:31 +0000
-Date: Fri, 7 Mar 2025 11:07:31 +0800
-From: kernel test robot <lkp@intel.com>
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>,
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-	tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch,
-	kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
-	akpm@linux-foundation.org, urezki@gmail.com, hch@infradead.org,
-	dmitry.osipenko@collabora.com, jfalempe@redhat.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Ryosuke Yasuoka <ryasuoka@redhat.com>,
-	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-mm@kvack.org
-Subject: Re: [PATCH drm-next 2/2] drm/virtio: Use atomic_vmap to work
- drm_panic in GUI
-Message-ID: <202503071022.q1pg7suf-lkp@intel.com>
-References: <20250305152555.318159-3-ryasuoka@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Uum4hQ7v"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1741330147; h=Message-ID:Subject:Date:From:To;
+	bh=COzCScwAqWPN27zgbIWMNSKbrRKvc4+xm4mvYs8QRho=;
+	b=Uum4hQ7v/b+ObwFWCQox46tyt+8/hckL/zQbIRPLJ+EKF8gQsqOFmMpCSVFPmRnG/YYyhz3/qeJhZNpkJnXlO5FuDAVgud2q74ftfpo5fk7rmgQLL+WY/raGFA1o7s6k86VVQElmmZUdIz2jCR6SETKWN8onQsRWHe7NJiBQkvg=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WQr6i8Z_1741330146 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 07 Mar 2025 14:49:06 +0800
+Message-ID: <1741330136.4796808-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 0/4] virtio-net: Link queues to NAPIs
+Date: Fri, 7 Mar 2025 14:48:56 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Joe Damato <jdamato@fastly.com>
+Cc: mkarsten@uwaterloo.ca,
+ gerhard@engleder-embedded.com,
+ jasowang@redhat.com,
+ kuba@kernel.org,
+ mst@redhat.com,
+ leiyang@redhat.com,
+ Joe Damato <jdamato@fastly.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ bpf@vger.kernel.org (open list:XDP (eXpress Data Path):Keyword:(?:\b|_)xdp(?:\b|_)),
+ Daniel Borkmann <daniel@iogearbox.net>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ linux-kernel@vger.kernel.org (open list),
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
+ netdev@vger.kernel.org
+References: <20250307011215.266806-1-jdamato@fastly.com>
+In-Reply-To: <20250307011215.266806-1-jdamato@fastly.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250305152555.318159-3-ryasuoka@redhat.com>
 
-Hi Ryosuke,
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-kernel test robot noticed the following build errors:
-
-[auto build test ERROR on e21cba704714c301d04c5fd37a693734b623872a]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Ryosuke-Yasuoka/vmalloc-Add-atomic_vmap/20250305-232918
-base:   e21cba704714c301d04c5fd37a693734b623872a
-patch link:    https://lore.kernel.org/r/20250305152555.318159-3-ryasuoka%40redhat.com
-patch subject: [PATCH drm-next 2/2] drm/virtio: Use atomic_vmap to work drm_panic in GUI
-config: i386-buildonly-randconfig-003-20250306 (https://download.01.org/0day-ci/archive/20250307/202503071022.q1pg7suf-lkp@intel.com/config)
-compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250307/202503071022.q1pg7suf-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202503071022.q1pg7suf-lkp@intel.com/
-
-All errors (new ones prefixed by >>, old ones prefixed by <<):
-
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/fpga/tests/fpga-mgr-test.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/fpga/tests/fpga-bridge-test.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/fpga/tests/fpga-region-test.o
-ERROR: modpost: "drm_gem_atomic_get_pages" [drivers/gpu/drm/drm_shmem_helper.ko] undefined!
-ERROR: modpost: "atomic_vmap" [drivers/gpu/drm/drm_shmem_helper.ko] undefined!
->> ERROR: modpost: "drm_gem_shmem_atomic_vmap" [drivers/gpu/drm/virtio/virtio-gpu.ko] undefined!
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+On Fri,  7 Mar 2025 01:12:08 +0000, Joe Damato <jdamato@fastly.com> wrote:
+> Greetings:
+>
+> Welcome to v6. Only patch updated is patch 3. See changelog below.
+>
+> Jakub recently commented [1] that I should not hold this series on
+> virtio-net linking queues to NAPIs behind other important work that is
+> on-going and suggested I re-spin, so here we are :)
+>
+> As per the discussion on the v3 [2], now both RX and TX NAPIs use the
+> API to link queues to NAPIs. Since TX-only NAPIs don't have a NAPI ID,
+> commit 6597e8d35851 ("netdev-genl: Elide napi_id when not present") now
+> correctly elides the TX-only NAPIs (instead of printing zero) when the
+> queues and NAPIs are linked.
+>
+> As per the discussion on the v4 [3], patch 3 has been refactored to hold
+> RTNL only in the specific locations which need it as Jason requested.
+>
+> As per the discussion on the v5 [4], patch 3 now leaves refill_work
+> as-is and does not use the API to unlink and relink queues and NAPIs. A
+> comment has been left as suggested by Jakub [5] for future work.
+>
+> See the commit message of patch 3 for an example of how to get the NAPI
+> to queue mapping information.
+>
+> See the commit message of patch 4 for an example of how NAPI IDs are
+> persistent despite queue count changes.
+>
+> Thanks,
+> Joe
+>
+> [1]: https://lore.kernel.org/netdev/20250221142650.3c74dcac@kernel.org/
+> [2]: https://lore.kernel.org/netdev/20250127142400.24eca319@kernel.org/
+> [3]: https://lore.kernel.org/netdev/CACGkMEv=ejJnOWDnAu7eULLvrqXjkMkTL4cbi-uCTUhCpKN_GA@mail.gmail.com/
+> [4]: https://lore.kernel.org/lkml/Z8X15hxz8t-vXpPU@LQ3V64L9R2/
+> [5]: https://lore.kernel.org/lkml/20250303160355.5f8d82d8@kernel.org/
+>
+> v6:
+>   - Patch 3 has been updated to avoid using the queue linking API from
+>     refill_work and a comment has been added to instruct future
+>     work on the code.
+>
+> v5: https://lore.kernel.org/lkml/20250227185017.206785-1-jdamato@fastly.com/
+>   - Patch 1 added Acked-by's from Michael and Jason. Added Tested-by
+>     from Lei. No functional changes.
+>   - Patch 2 added Acked-by's from Michael and Jason. Added Tested-by
+>     from Lei. No functional changes.
+>   - Patch 3:
+>     - Refactored as Jason requested, eliminating the
+>       virtnet_queue_set_napi helper entirely, and explicitly holding
+>       RTNL in the 3 locations where needed (refill_work, freeze, and
+>       restore).
+>     - Commit message updated to outline the known paths at the time the
+>       commit was written.
+>   - Patch 4 added Acked-by from Michael. Added Tested-by from Lei. No
+>     functional changes.
+>
+> v4: https://lore.kernel.org/lkml/20250225020455.212895-1-jdamato@fastly.com/
+>   - Dropped Jakub's patch (previously patch 1).
+>   - Significant refactor from v3 affecting patches 1-3.
+>   - Patch 4 added tags from Jason and Gerhard.
+>
+> rfcv3: https://lore.kernel.org/netdev/20250121191047.269844-1-jdamato@fastly.com/
+>   - patch 3:
+>     - Removed the xdp checks completely, as Gerhard Engleder pointed
+>       out, they are likely not necessary.
+>
+>   - patch 4:
+>     - Added Xuan Zhuo's Reviewed-by.
+>
+> v2: https://lore.kernel.org/netdev/20250116055302.14308-1-jdamato@fastly.com/
+>   - patch 1:
+>     - New in the v2 from Jakub.
+>
+>   - patch 2:
+>     - Previously patch 1, unchanged from v1.
+>     - Added Gerhard Engleder's Reviewed-by.
+>     - Added Lei Yang's Tested-by.
+>
+>   - patch 3:
+>     - Introduced virtnet_napi_disable to eliminate duplicated code
+>       in virtnet_xdp_set, virtnet_rx_pause, virtnet_disable_queue_pair,
+>       refill_work as suggested by Jason Wang.
+>     - As a result of the above refactor, dropped Reviewed-by and
+>       Tested-by from patch 3.
+>
+>   - patch 4:
+>     - New in v2. Adds persistent NAPI configuration. See commit message
+>       for more details.
+>
+> v1: https://lore.kernel.org/netdev/20250110202605.429475-1-jdamato@fastly.com/
+>
+>
+> Joe Damato (4):
+>   virtio-net: Refactor napi_enable paths
+>   virtio-net: Refactor napi_disable paths
+>   virtio-net: Map NAPIs to queues
+>   virtio_net: Use persistent NAPI config
+>
+>  drivers/net/virtio_net.c | 101 ++++++++++++++++++++++++++++-----------
+>  1 file changed, 74 insertions(+), 27 deletions(-)
+>
+>
+> base-commit: 8e0e8bef484160ac01ea7bcc3122cc1f0405c982
+> --
+> 2.45.2
+>
