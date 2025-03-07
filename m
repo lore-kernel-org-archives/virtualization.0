@@ -1,95 +1,76 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83112185B1
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:50:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 840D3219EB8
+	for <virtualization@lists.linux.dev>; Fri,  7 Mar 2025 13:19:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741348238; cv=none; b=HrCKkf96IckcF0Sp7RwY4AsU/FqOTzoMm1IwA+8cta0bUukTKVF/l2OrOZiaaekJJHrUqIk5nahILR+KPUdSbuWEehK1FhtribXi4voXNldSTAFcmBjjvOXUqaEXqLz3h1VaGvcwFQd3T633ACSy9ReZri369IfVgSrsJKRtuUE=
+	t=1741353560; cv=none; b=KZIsMpY4X/T3qaG4eYDWGDa8frs7hvnMUM7QPekwIDZZEICbO02RAYKpOF2LrdBcdjr9+kEi5RMgNYrcCSxREYYKy9SV/xAh+vD0VP73gOdiEwTIw4Xjt8tRemHAVZRnYy2Im1cVjQoF9Y6Ufgx8miQpTMetJu0MOFdAMFTGsRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741348238; c=relaxed/simple;
-	bh=T+Orm0wQjlNfpFi4uG0aCx02nXd2HC1pXE9JVAR8020=;
+	s=arc-20240116; t=1741353560; c=relaxed/simple;
+	bh=jt+9rA9ZPCCaYRIrwyfR3Op0oyoIsDZhOFigxKin82U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hoFs3pNPrrVz6AUMqZIfhj71x0aN6QlUrn4GxYgsJpUVPWeiIhXnZnAh70vUOISKcBK+uNEofLB+T6wxRg0QPV0dqZjeh9R59MA9NmNc6hbIJ2WtygCELZi7k14WNBCQD0ZjvIiPE6rAopyJqIaEPVNohMGe7o4pqcUICJVI5hQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jDWnw6xR; arc=none smtp.client-ip=140.211.166.133
+	 Content-Type:Content-Disposition:In-Reply-To; b=RoW/OdDdlJiB+3zEQQVszWQoBp/NUlzOHocMfli/rF8XEOnPbXGz3dvJifNN0IVBsOK4XAXH0ASGOt1IIpRcKimHrXdzhCqkV9uNvho6pvmhelRYbquP4u0cb0X8ntEAVDQsm0bUZpdf8FIG7ZxVITn+uhzLQvKNf5Qgi/q3+rQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=WZ+iZ1II; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jDWnw6xR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 828F94024C
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:50:36 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -8.092
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Ljwr-q1rPzLR for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Mar 2025 11:50:35 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.15; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6C12A40025
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6C12A40025
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=jDWnw6xR
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6C12A40025
-	for <virtualization@lists.linux-foundation.org>; Fri,  7 Mar 2025 11:50:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1741348235; x=1772884235;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=T+Orm0wQjlNfpFi4uG0aCx02nXd2HC1pXE9JVAR8020=;
-  b=jDWnw6xRryroPQMMDUYOWz40FKGSgDEEO2me+T0f8CZC12C6blftaM00
-   ktgenbTJgith/uhUOZeM8Hw+zzIUOFkN2rzEUtBA4rN8zmNaanzfJkTCw
-   G/8tDtkoXR9XwkFTj8r9IJyrTYYApmejdG7Jr2MfvPsEfDotybsgj7g54
-   Y9NIzR86VaZTY/u8Occ3FzMYNQpbkcWBCL12N/qmJDkeDdlEaEQiLxKEI
-   PCddUnXhPWpR+Wspczu42VT1hhkV40M1GMO9ghLMvYRJuq+inEthiSMpH
-   YxLPSr6uPIFJYR+0SeR/K9pB7WnOGDeXdKLXzCUQm+kycEuKEO0F/oxMB
-   A==;
-X-CSE-ConnectionGUID: 2EsdTzWZTwGuayPWk3JxvA==
-X-CSE-MsgGUID: 8TyZavjlRHq5rCY0GXL4ZQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11365"; a="46048714"
-X-IronPort-AV: E=Sophos;i="6.14,229,1736841600"; 
-   d="scan'208";a="46048714"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2025 03:50:34 -0800
-X-CSE-ConnectionGUID: E0BrROxpTHqLf8kj9yuT+w==
-X-CSE-MsgGUID: O2Lf7UYNTs2kDv3mgNZ5Xw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="124526006"
-Received: from lkp-server02.sh.intel.com (HELO a4747d147074) ([10.239.97.151])
-  by orviesa005.jf.intel.com with ESMTP; 07 Mar 2025 03:50:27 -0800
-Received: from kbuild by a4747d147074 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tqWDh-0000Pb-1J;
-	Fri, 07 Mar 2025 11:50:25 +0000
-Date: Fri, 7 Mar 2025 19:50:12 +0800
-From: kernel test robot <lkp@intel.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	linux-kselftest@vger.kernel.org,
-	Yuri Benditovich <yuri.benditovich@daynix.com>,
-	Andrew Melnychenko <andrew@daynix.com>,
-	Stephen Hemminger <stephen@networkplumber.org>,
-	gur.stavi@huawei.com, Lei Yang <leiyang@redhat.com>,
-	Simon Horman <horms@kernel.org>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH net-next v8 3/6] tun: Introduce virtio-net hash feature
-Message-ID: <202503071936.EzoojQZO-lkp@intel.com>
-References: <20250306-rss-v8-3-7ab4f56ff423@daynix.com>
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="WZ+iZ1II"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-5e095d47a25so3390836a12.0
+        for <virtualization@lists.linux.dev>; Fri, 07 Mar 2025 05:19:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google; t=1741353556; x=1741958356; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GmXXr/GHvAGv2swMlIkbl+Www19HcX8d7ze1AMoIM9w=;
+        b=WZ+iZ1IIbk9MFjwI5ZeIuXX1hcZswRKwWnLmx9YDPh/0i0t1CHTTcun3MjzgGUNMOa
+         oASBF4hywL2u82f2LxfXF9Oiqm4xDEsW3eOYYsHfML4sofjb46UQ+0YDrwXGK/otH2GQ
+         XdY9VqC43/FYIpnyNQ99jE3DZBgLBt4JOl/Vw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741353556; x=1741958356;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GmXXr/GHvAGv2swMlIkbl+Www19HcX8d7ze1AMoIM9w=;
+        b=mgK7T+fmkEF0A1nJ38EIqAmPQpjdhbkoW/xcO8qHsXP2mAz3R4jQhSeP+vTf+MRsDY
+         3APjJSrqLn4HZC3KwWF1iwjwvpVpxgHHF9qr0z3VTtFnI3YIJgn/OnRRE4Q2nJ88PASl
+         b/MDMc7YPab1O8xzGRy0uQnWmhqMCs7YUT77bGYnKXIcykSQrIbwM3UrIo8+Y1heA7Ee
+         XHzxCNcgwQrrsa4I2HVkcByQF4i1t2CQMf8sYQH5dYjpPiRSZPBbpumyAe97UmMzDUmn
+         nkOnl12ql6Q2uw1SnzSB4PaRMtdroz5+XYfNU21sjOiVJBIez6cYnx06kGjzNvGxnGp7
+         yjFg==
+X-Forwarded-Encrypted: i=1; AJvYcCU8l2LpeG9lFW1asXBRUlbcv0mEs7pwLoARQeJ0iM2hsh8ZInMrI4enA0CrGnEuF9QH30gNbaCiJnjDAaNf0A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy4Iooma1J5SZYEvJTCRVQ0pdS7ZCmAMjehTnUFMEDALVoH97EG
+	7nyyuskj6Jvo7aYaJMy5uQYYoMgR8ii3oZztTVXsOHdBypDD8UM59t6U8UXh5lM=
+X-Gm-Gg: ASbGnctT/XuhTVW8urfUPj7mUK3smStQ4B600qiNkGkCVmeuiAxR+uvhWZ3IbGfnRmT
+	ASy9w3oczn5oWX/6EQaN0tyk+dBS84AGfirbfjezs2M94v2uTd1e3QSX7XtwSj/bW/01JIGFSNz
+	ZiJQpRa9vnpJu9HERQsrdIwjDyBlpGUo8P64OcjHDKafwAVQTe60TLmAonqm5pwo4SG3dD44Z1J
+	1vBmoy1DyGIEDkchm5c+cgEEcaW2HrAJxMFhn7m3bO8VOCn1DQq5peCwMqgZkWizk7mayZhqYxG
+	JYrjohpQaWtmz8TPkkn6RnlDdc5EwnJM6HZ8JF3czfhGrTi5X62ikTt3
+X-Google-Smtp-Source: AGHT+IGWJEXpT4oFObUhXEX1baZSA5ka+RDW0BObeZF31pqEHYIrQhNdRsTwmr/EHhhCwd6ldgP0tQ==
+X-Received: by 2002:a17:907:7ea9:b0:abf:6b30:7a94 with SMTP id a640c23a62f3a-ac252f4c9eamr387695566b.45.1741353555414;
+        Fri, 07 Mar 2025 05:19:15 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac2399d2dd8sm272788966b.166.2025.03.07.05.19.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Mar 2025 05:19:14 -0800 (PST)
+Date: Fri, 7 Mar 2025 14:19:12 +0100
+From: Simona Vetter <simona.vetter@ffwll.ch>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+	airlied@gmail.com, simona@ffwll.ch, dri-devel@lists.freedesktop.org,
+	linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
+	linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
+	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v3 02/25] drm/dumb-buffers: Provide helper to set pitch
+ and size
+Message-ID: <Z8ryUGgxqVTEw9pe@phenom.ffwll.local>
+References: <20250218142542.438557-1-tzimmermann@suse.de>
+ <20250218142542.438557-3-tzimmermann@suse.de>
+ <Z8qxcTIcD4W5OGwL@phenom.ffwll.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -98,173 +79,299 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250306-rss-v8-3-7ab4f56ff423@daynix.com>
+In-Reply-To: <Z8qxcTIcD4W5OGwL@phenom.ffwll.local>
+X-Operating-System: Linux phenom 6.12.11-amd64 
 
-Hi Akihiko,
+On Fri, Mar 07, 2025 at 09:42:25AM +0100, Simona Vetter wrote:
+> On Tue, Feb 18, 2025 at 03:23:25PM +0100, Thomas Zimmermann wrote:
+> > Add drm_modes_size_dumb(), a helper to calculate the dumb-buffer
+> > scanline pitch and allocation size. Implementations of struct
+> > drm_driver.dumb_create can call the new helper for their size
+> > computations.
+> > 
+> > There is currently quite a bit of code duplication among DRM's
+> > memory managers. Each calculates scanline pitch and buffer size
+> > from the given arguments, but the implementations are inconsistent
+> > in how they treat alignment and format support. Later patches will
+> > unify this code on top of drm_mode_size_dumb() as much as possible.
+> > 
+> > drm_mode_size_dumb() uses existing 4CC format helpers to interpret
+> > the given color mode. This makes the dumb-buffer interface behave
+> > similar the kernel's video= parameter. Current per-driver implementations
+> > again likely have subtle differences or bugs in how they support color
+> > modes.
+> > 
+> > The dumb-buffer UAPI is only specified for known color modes. These
+> > values describe linear, single-plane RGB color formats or legacy index
+> > formats. Other values should not be specified. But some user space
+> > still does. So for unknown color modes, there are a number of known
+> > exceptions for which drm_mode_size_dumb() calculates the pitch from
+> > the bpp value, as before. All other values work the same but print
+> > an error.
+> > 
+> > v3:
+> > - document the UAPI semantics
+> > - compute scanline pitch from for unknown color modes (Andy, Tomi)
+> > 
+> > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> > ---
+> >  drivers/gpu/drm/drm_dumb_buffers.c | 116 +++++++++++++++++++++++++++++
+> >  include/drm/drm_dumb_buffers.h     |  14 ++++
+> >  include/uapi/drm/drm_mode.h        |  46 +++++++++++-
+> >  3 files changed, 175 insertions(+), 1 deletion(-)
+> >  create mode 100644 include/drm/drm_dumb_buffers.h
+> > 
+> > diff --git a/drivers/gpu/drm/drm_dumb_buffers.c b/drivers/gpu/drm/drm_dumb_buffers.c
+> > index 9916aaf5b3f2..600ab281712b 100644
+> > --- a/drivers/gpu/drm/drm_dumb_buffers.c
+> > +++ b/drivers/gpu/drm/drm_dumb_buffers.c
+> > @@ -25,6 +25,8 @@
+> >  
+> >  #include <drm/drm_device.h>
+> >  #include <drm/drm_drv.h>
+> > +#include <drm/drm_dumb_buffers.h>
+> > +#include <drm/drm_fourcc.h>
+> >  #include <drm/drm_gem.h>
+> >  #include <drm/drm_mode.h>
+> >  
+> > @@ -57,6 +59,120 @@
+> >   * a hardware-specific ioctl to allocate suitable buffer objects.
+> >   */
+> >  
+> > +static int drm_mode_align_dumb(struct drm_mode_create_dumb *args,
+> > +			       unsigned long pitch_align,
+> > +			       unsigned long size_align)
+> > +{
+> > +	u32 pitch = args->pitch;
+> > +	u32 size;
+> > +
+> > +	if (!pitch)
+> > +		return -EINVAL;
+> > +
+> > +	if (pitch_align)
+> > +		pitch = roundup(pitch, pitch_align);
+> > +
+> > +	/* overflow checks for 32bit size calculations */
+> > +	if (args->height > U32_MAX / pitch)
+> > +		return -EINVAL;
+> > +
+> > +	if (!size_align)
+> > +		size_align = PAGE_SIZE;
+> > +	else if (!IS_ALIGNED(size_align, PAGE_SIZE))
+> > +		return -EINVAL;
+> > +
+> > +	size = ALIGN(args->height * pitch, size_align);
+> > +	if (!size)
+> > +		return -EINVAL;
+> > +
+> > +	args->pitch = pitch;
+> > +	args->size = size;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/**
+> > + * drm_mode_size_dumb - Calculates the scanline and buffer sizes for dumb buffers
+> > + * @dev: DRM device
+> > + * @args: Parameters for the dumb buffer
+> > + * @pitch_align: Scanline alignment in bytes
+> > + * @size_align: Buffer-size alignment in bytes
+> > + *
+> > + * The helper drm_mode_size_dumb() calculates the size of the buffer
+> > + * allocation and the scanline size for a dumb buffer. Callers have to
+> > + * set the buffers width, height and color mode in the argument @arg.
+> > + * The helper validates the correctness of the input and tests for
+> > + * possible overflows. If successful, it returns the dumb buffer's
+> > + * required scanline pitch and size in &args.
+> > + *
+> > + * The parameter @pitch_align allows the driver to specifies an
+> > + * alignment for the scanline pitch, if the hardware requires any. The
+> > + * calculated pitch will be a multiple of the alignment. The parameter
+> > + * @size_align allows to specify an alignment for buffer sizes. The
+> > + * returned size is always a multiple of PAGE_SIZE.
+> > + *
+> > + * Returns:
+> > + * Zero on success, or a negative error code otherwise.
+> > + */
+> > +int drm_mode_size_dumb(struct drm_device *dev,
+> > +		       struct drm_mode_create_dumb *args,
+> > +		       unsigned long pitch_align,
+> > +		       unsigned long size_align)
+> > +{
+> > +	u64 pitch = 0;
+> > +	u32 fourcc;
+> > +
+> > +	/*
+> > +	 * The scanline pitch depends on the buffer width and the color
+> > +	 * format. The latter is specified as a color-mode constant for
+> > +	 * which we first have to find the corresponding color format.
+> > +	 *
+> > +	 * Different color formats can have the same color-mode constant.
+> > +	 * For example XRGB8888 and BGRX8888 both have a color mode of 32.
+> > +	 * It is possible to use different formats for dumb-buffer allocation
+> > +	 * and rendering as long as all involved formats share the same
+> > +	 * color-mode constant.
+> > +	 */
+> > +	fourcc = drm_driver_color_mode_format(dev, args->bpp);
+> > +	if (fourcc != DRM_FORMAT_INVALID) {
+> > +		const struct drm_format_info *info = drm_format_info(fourcc);
+> > +
+> > +		if (!info)
+> > +			return -EINVAL;
+> > +		pitch = drm_format_info_min_pitch(info, 0, args->width);
+> > +	} else if (args->bpp) {
+> > +		/*
+> > +		 * Some userspace throws in arbitrary values for bpp and
+> > +		 * relies on the kernel to figure it out. In this case we
+> > +		 * fall back to the old method of using bpp directly. The
+> > +		 * over-commitment of memory from the rounding is acceptable
+> > +		 * for compatibility with legacy userspace. We have a number
+> > +		 * of deprecated legacy values that are explicitly supported.
+> > +		 */
+> > +		switch (args->bpp) {
+> > +		default:
+> > +			drm_warn(dev, "Unknown color mode %d; guessing buffer size.\n",
+> > +				 args->bpp);
+> > +			fallthrough;
+> 
+> We cannot let userspace trigger dmesg warnings (or anything else really
+> that spams logs). Also I think for future proofing it would be good if we
+> just reject anything we don't currently know about instead of silently
+> letting this mess become worse. Hence my vote is to reject unknown bpp
+> hack values.
+> 
+> > +		case 12:
+> > +		case 15:
+> > +		case 30: /* see drm_gem_afbc_get_bpp() */
+> 
+> This is a bit too cryptic to me, I think if you want to do comments I'd
+> just put a long-form one above each value that explains where we've found
+> it and why it happens. I'm also assuming these all have depth = 0, which I
+> guess is something we should check just to keep this as strict as
+> possible? Or do they have matching depth?
 
-kernel test robot noticed the following build warnings:
+Correction from irc: Thomas pointed out that there's no depth in the
+create_dumb ioctl, I was mixing this up with addfb and failed to check. So
+please disregard this part, I was fabricating stuff out of some very thin
+air (and probably not enough coffee in the brain too).
+-Sima
 
-[auto build test WARNING on dd83757f6e686a2188997cb58b5975f744bb7786]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Akihiko-Odaki/virtio_net-Add-functions-for-hashing/20250306-180546
-base:   dd83757f6e686a2188997cb58b5975f744bb7786
-patch link:    https://lore.kernel.org/r/20250306-rss-v8-3-7ab4f56ff423%40daynix.com
-patch subject: [PATCH net-next v8 3/6] tun: Introduce virtio-net hash feature
-config: x86_64-buildonly-randconfig-001-20250307 (https://download.01.org/0day-ci/archive/20250307/202503071936.EzoojQZO-lkp@intel.com/config)
-compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250307/202503071936.EzoojQZO-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202503071936.EzoojQZO-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/net/tap.c:1056:2: warning: unannotated fall-through between switch labels [-Wimplicit-fallthrough]
-    1056 |         case SIOCGIFHWADDR:
-         |         ^
-   drivers/net/tap.c:1056:2: note: insert '__attribute__((fallthrough));' to silence this warning
-    1056 |         case SIOCGIFHWADDR:
-         |         ^
-         |         __attribute__((fallthrough)); 
-   drivers/net/tap.c:1056:2: note: insert 'break;' to avoid fall-through
-    1056 |         case SIOCGIFHWADDR:
-         |         ^
-         |         break; 
-   1 warning generated.
-
-
-vim +1056 drivers/net/tap.c
-
-2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25   964  
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   965  /*
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   966   * provide compatibility with generic tun/tap interface
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   967   */
-635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   968  static long tap_ioctl(struct file *file, unsigned int cmd,
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   969  		      unsigned long arg)
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   970  {
-635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   971  	struct tap_queue *q = file->private_data;
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10   972  	struct tap_dev *tap;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   973  	void __user *argp = (void __user *)arg;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   974  	struct ifreq __user *ifr = argp;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   975  	unsigned int __user *up = argp;
-39ec7de7092ba9 drivers/net/macvtap.c Michael S. Tsirkin 2014-12-16   976  	unsigned short u;
-55afbd0810922a drivers/net/macvtap.c Michael S. Tsirkin 2010-04-29   977  	int __user *sp = argp;
-7f460d30c8e130 drivers/net/macvtap.c Justin Cormack     2015-05-13   978  	struct sockaddr sa;
-55afbd0810922a drivers/net/macvtap.c Michael S. Tsirkin 2010-04-29   979  	int s;
-02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18   980  	int ret;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   981  
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   982  	switch (cmd) {
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   983  	case TUNSETIFF:
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   984  		/* ignore the name, just look at flags */
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   985  		if (get_user(u, &ifr->ifr_flags))
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   986  			return -EFAULT;
-b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   987  
-b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   988  		ret = 0;
-635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   989  		if ((u & ~TAP_IFFEATURES) != (IFF_NO_PI | IFF_TAP))
-b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   990  			ret = -EINVAL;
-b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   991  		else
-635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10   992  			q->flags = (q->flags & ~TAP_IFFEATURES) | u;
-b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   993  
-b9fb9ee07e67fc drivers/net/macvtap.c Arnd Bergmann      2010-02-18   994  		return ret;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   995  
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30   996  	case TUNGETIFF:
-441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25   997  		rtnl_lock();
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10   998  		tap = tap_get_tap_dev(q);
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10   999  		if (!tap) {
-441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1000  			rtnl_unlock();
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1001  			return -ENOLINK;
-441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1002  		}
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1003  
-02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18  1004  		ret = 0;
-39ec7de7092ba9 drivers/net/macvtap.c Michael S. Tsirkin 2014-12-16  1005  		u = q->flags;
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1006  		if (copy_to_user(&ifr->ifr_name, tap->dev->name, IFNAMSIZ) ||
-39ec7de7092ba9 drivers/net/macvtap.c Michael S. Tsirkin 2014-12-16  1007  		    put_user(u, &ifr->ifr_flags))
-02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18  1008  			ret = -EFAULT;
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1009  		tap_put_tap_dev(tap);
-441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1010  		rtnl_unlock();
-02df55d28c6001 drivers/net/macvtap.c Arnd Bergmann      2010-02-18  1011  		return ret;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1012  
-815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1013  	case TUNSETQUEUE:
-815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1014  		if (get_user(u, &ifr->ifr_flags))
-815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1015  			return -EFAULT;
-441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1016  		rtnl_lock();
-635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10  1017  		ret = tap_ioctl_set_queue(file, u);
-441ac0fcaadc76 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1018  		rtnl_unlock();
-82a19eb8c02ab9 drivers/net/macvtap.c Jason Wang         2013-07-16  1019  		return ret;
-815f236d622721 drivers/net/macvtap.c Jason Wang         2013-06-05  1020  
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1021  	case TUNGETFEATURES:
-635b8c8ecdd271 drivers/net/tap.c     Sainath Grandhi    2017-02-10  1022  		if (put_user(IFF_TAP | IFF_NO_PI | TAP_IFFEATURES, up))
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1023  			return -EFAULT;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1024  		return 0;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1025  
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1026  	case TUNSETSNDBUF:
-3ea79249e81e5e drivers/net/macvtap.c Michael S. Tsirkin 2015-09-18  1027  		if (get_user(s, sp))
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1028  			return -EFAULT;
-93161922c658c7 drivers/net/tap.c     Craig Gallek       2017-10-30  1029  		if (s <= 0)
-93161922c658c7 drivers/net/tap.c     Craig Gallek       2017-10-30  1030  			return -EINVAL;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1031  
-3ea79249e81e5e drivers/net/macvtap.c Michael S. Tsirkin 2015-09-18  1032  		q->sk.sk_sndbuf = s;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1033  		return 0;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1034  
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1035  	case TUNSETOFFLOAD:
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1036  		/* let the user check for future flags */
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1037  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
-399e0827642f6a drivers/net/tap.c     Andrew Melnychenko 2022-12-07  1038  			    TUN_F_TSO_ECN | TUN_F_UFO |
-399e0827642f6a drivers/net/tap.c     Andrew Melnychenko 2022-12-07  1039  			    TUN_F_USO4 | TUN_F_USO6))
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1040  			return -EINVAL;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1041  
-2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1042  		rtnl_lock();
-2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1043  		ret = set_offload(q, arg);
-2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1044  		rtnl_unlock();
-2be5c76794b0e5 drivers/net/macvtap.c Vlad Yasevich      2013-06-25  1045  		return ret;
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1046  
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1047  	case TUNGETVNETHASHCAP:
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1048  		return tun_vnet_ioctl_gethashcap(argp);
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1049  
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1050  	case TUNSETVNETHASH:
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1051  		rtnl_lock();
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1052  		tap = rtnl_dereference(q->tap);
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1053  		ret = tap ? tun_vnet_ioctl_sethash(&tap->vnet_hash, true, argp) : -EBADFD;
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1054  		rtnl_unlock();
-2c592c9b450ea4 drivers/net/tap.c     Akihiko Odaki      2025-03-06  1055  
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11 @1056  	case SIOCGIFHWADDR:
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1057  		rtnl_lock();
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1058  		tap = tap_get_tap_dev(q);
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1059  		if (!tap) {
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1060  			rtnl_unlock();
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1061  			return -ENOLINK;
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1062  		}
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1063  		ret = 0;
-3b23a32a63219f drivers/net/tap.c     Cong Wang          2021-02-11  1064  		dev_get_mac_address(&sa, dev_net(tap->dev), tap->dev->name);
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1065  		if (copy_to_user(&ifr->ifr_name, tap->dev->name, IFNAMSIZ) ||
-3b23a32a63219f drivers/net/tap.c     Cong Wang          2021-02-11  1066  		    copy_to_user(&ifr->ifr_hwaddr, &sa, sizeof(sa)))
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1067  			ret = -EFAULT;
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1068  		tap_put_tap_dev(tap);
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1069  		rtnl_unlock();
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1070  		return ret;
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1071  
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1072  	case SIOCSIFHWADDR:
-7f460d30c8e130 drivers/net/macvtap.c Justin Cormack     2015-05-13  1073  		if (copy_from_user(&sa, &ifr->ifr_hwaddr, sizeof(sa)))
-7f460d30c8e130 drivers/net/macvtap.c Justin Cormack     2015-05-13  1074  			return -EFAULT;
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1075  		rtnl_lock();
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1076  		tap = tap_get_tap_dev(q);
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1077  		if (!tap) {
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1078  			rtnl_unlock();
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1079  			return -ENOLINK;
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1080  		}
-3b23a32a63219f drivers/net/tap.c     Cong Wang          2021-02-11  1081  		ret = dev_set_mac_address_user(tap->dev, &sa, NULL);
-6fe3faf86757eb drivers/net/tap.c     Sainath Grandhi    2017-02-10  1082  		tap_put_tap_dev(tap);
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1083  		rtnl_unlock();
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1084  		return ret;
-b5082083392224 drivers/net/macvtap.c Justin Cormack     2015-05-11  1085  
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1086  	default:
-69113cb5de68da drivers/net/tap.c     Akihiko Odaki      2025-02-07  1087  		return tun_vnet_ioctl(&q->vnet_hdr_sz, &q->flags, cmd, sp);
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1088  	}
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1089  }
-20d29d7a916a47 drivers/net/macvtap.c Arnd Bergmann      2010-01-30  1090  
+> 
+> Cheers, Sima
+> 
+> > +		case 10:
+> > +		case 64: /* used by Mesa */
+> > +			pitch = args->width * DIV_ROUND_UP(args->bpp, SZ_8);
+> > +			break;
+> > +		}
+> > +	}
+> > +
+> > +	if (!pitch || pitch > U32_MAX)
+> > +		return -EINVAL;
+> > +
+> > +	args->pitch = pitch;
+> > +
+> > +	return drm_mode_align_dumb(args, pitch_align, size_align);
+> > +}
+> > +EXPORT_SYMBOL(drm_mode_size_dumb);
+> > +
+> >  int drm_mode_create_dumb(struct drm_device *dev,
+> >  			 struct drm_mode_create_dumb *args,
+> >  			 struct drm_file *file_priv)
+> > diff --git a/include/drm/drm_dumb_buffers.h b/include/drm/drm_dumb_buffers.h
+> > new file mode 100644
+> > index 000000000000..6fe36004b19d
+> > --- /dev/null
+> > +++ b/include/drm/drm_dumb_buffers.h
+> > @@ -0,0 +1,14 @@
+> > +/* SPDX-License-Identifier: MIT */
+> > +
+> > +#ifndef __DRM_DUMB_BUFFERS_H__
+> > +#define __DRM_DUMB_BUFFERS_H__
+> > +
+> > +struct drm_device;
+> > +struct drm_mode_create_dumb;
+> > +
+> > +int drm_mode_size_dumb(struct drm_device *dev,
+> > +		       struct drm_mode_create_dumb *args,
+> > +		       unsigned long pitch_align,
+> > +		       unsigned long size_align);
+> > +
+> > +#endif
+> > diff --git a/include/uapi/drm/drm_mode.h b/include/uapi/drm/drm_mode.h
+> > index c082810c08a8..eea09103b1a6 100644
+> > --- a/include/uapi/drm/drm_mode.h
+> > +++ b/include/uapi/drm/drm_mode.h
+> > @@ -1058,7 +1058,7 @@ struct drm_mode_crtc_page_flip_target {
+> >   * struct drm_mode_create_dumb - Create a KMS dumb buffer for scanout.
+> >   * @height: buffer height in pixels
+> >   * @width: buffer width in pixels
+> > - * @bpp: bits per pixel
+> > + * @bpp: color mode
+> >   * @flags: must be zero
+> >   * @handle: buffer object handle
+> >   * @pitch: number of bytes between two consecutive lines
+> > @@ -1066,6 +1066,50 @@ struct drm_mode_crtc_page_flip_target {
+> >   *
+> >   * User-space fills @height, @width, @bpp and @flags. If the IOCTL succeeds,
+> >   * the kernel fills @handle, @pitch and @size.
+> > + *
+> > + * The value of @bpp is a color-mode number describing a specific format
+> > + * or a variant thereof. The value often corresponds to the number of bits
+> > + * per pixel for most modes, although there are exceptions. Each color mode
+> > + * maps to a DRM format plus a number of modes with similar pixel layout.
+> > + * Framebuffer layout is always linear.
+> > + *
+> > + * Support for all modes and formats is optional. Even if dumb-buffer
+> > + * creation with a certain color mode succeeds, it is not guaranteed that
+> > + * the DRM driver supports any of the related formats. Most drivers support
+> > + * a color mode of 32 with a format of DRM_FORMAT_XRGB8888 on their primary
+> > + * plane.
+> > + *
+> > + * +------------+------------------------+------------------------+
+> > + * | Color mode | Framebuffer format     | Compatibles            |
+> > + * +============+========================+========================+
+> > + * |     32     |  * DRM_FORMAT_XRGB8888 |  * DRM_FORMAT_XBGR8888 |
+> > + * |            |                        |  * DRM_FORMAT_RGBX8888 |
+> > + * |            |                        |  * DRM_FORMAT_BGRX8888 |
+> > + * +------------+------------------------+------------------------+
+> > + * |     24     |  * DRM_FORMAT_RGB888   |  * DRM_FORMAT_BGR888   |
+> > + * +------------+------------------------+------------------------+
+> > + * |     16     |  * DRM_FORMAT_RGB565   |  * DRM_FORMAT_BGR565   |
+> > + * +------------+------------------------+------------------------+
+> > + * |     15     |  * DRM_FORMAT_XRGB1555 |  * DRM_FORMAT_XBGR1555 |
+> > + * |            |                        |  * DRM_FORMAT_RGBX1555 |
+> > + * |            |                        |  * DRM_FORMAT_BGRX1555 |
+> > + * +------------+------------------------+------------------------+
+> > + * |      8     |  * DRM_FORMAT_C8       |  * DRM_FORMAT_R8       |
+> > + * +------------+------------------------+------------------------+
+> > + * |      4     |  * DRM_FORMAT_C4       |  * DRM_FORMAT_R4       |
+> > + * +------------+------------------------+------------------------+
+> > + * |      2     |  * DRM_FORMAT_C2       |  * DRM_FORMAT_R2       |
+> > + * +------------+------------------------+------------------------+
+> > + * |      1     |  * DRM_FORMAT_C1       |  * DRM_FORMAT_R1       |
+> > + * +------------+------------------------+------------------------+
+> > + *
+> > + * Color modes of 10, 12, 15, 30 and 64 are only supported for use by
+> > + * legacy user space. Please don't use them in new code. Other modes
+> > + * are not support.
+> > + *
+> > + * Do not attempt to allocate anything but linear framebuffer memory
+> > + * with single-plane RGB data. Allocation of other framebuffer
+> > + * layouts requires dedicated ioctls in the respective DRM driver.
+> >   */
+> >  struct drm_mode_create_dumb {
+> >  	__u32 height;
+> > -- 
+> > 2.48.1
+> > 
+> 
+> -- 
+> Simona Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Simona Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
