@@ -1,65 +1,65 @@
-Received: from mail-pl1-f195.google.com (mail-pl1-f195.google.com [209.85.214.195])
+Received: from mail-pl1-f193.google.com (mail-pl1-f193.google.com [209.85.214.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 077771CAA81
-	for <virtualization@lists.linux.dev>; Sun,  9 Mar 2025 13:23:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9910B2576
+	for <virtualization@lists.linux.dev>; Sun,  9 Mar 2025 13:41:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741526634; cv=none; b=FRCUr91vkl7REMzQfLH/04K+Qlv16/yIAfU7uHfFH/Cr6g/RGT3WmbvJDkVIFbCBoClJeMX1ePWMCGRFY/QHgEyU0Ne2/EP1IXFBp3YUyCkNhW+g7d6wfc1Q9plXFqgDcH40bj0fbd9wxuqQ6aHmbXWKekC+C56a94PMROwasHw=
+	t=1741527670; cv=none; b=NiWsOPgOM9rKi+vmRHHNaHJTMYDA200cjmCBmGExozqPt7A7H+8gtQ5J1JHoMetMghK0kf6zV/yZbjja58SOdrdivikO3voLcx3BoHd21koTLfRUqgET4g7WPEJ/V0QcdiMuw34XwQhX4quzWsqlX+GjV0ZlcfXK5g/eAYyfV2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741526634; c=relaxed/simple;
-	bh=amviRZAng65qhSPsIn/ez8PlX5/EY5IcXVvOyQBoCh4=;
+	s=arc-20240116; t=1741527670; c=relaxed/simple;
+	bh=fLQGO5wiRlZUKjdUjb206YTBiUBA4D9ukOUBp9rUGdo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rZNGvFCWFmn8to73uMN3GfOjykI1pgpoWD0gAsAaqyv/MgeSi4QgEcTuUKpAkkijCaXTEppVADyJGL8MOIjazSryjWGTiGcWW9ptIaMat+vVneLFz3barGNIWcCItoRDQD0W6+HJwBhL76Br1DCzq61GaOtkYKWAxheslRee0uI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cgR/v5KD; arc=none smtp.client-ip=209.85.214.195
+	 In-Reply-To:Content-Type; b=pVZdJh3pH/MJCkmowACkVdNLpbYBHA+fKCFcWVxGl041bWcPoFfDnWYZKAw2gQJfCEpeAqXHT8Ypl/rlxaH8GVEyqRLNdHA3nlbdNbTFW2bIat+CmH30Psg4NLFO3eB0nRFP9UHC5GGOEEhRwzneTnrMYylUUdUXpqWsklq6pJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bnq9ggbj; arc=none smtp.client-ip=209.85.214.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cgR/v5KD"
-Received: by mail-pl1-f195.google.com with SMTP id d9443c01a7336-223a7065ff8so43494505ad.0
-        for <virtualization@lists.linux.dev>; Sun, 09 Mar 2025 06:23:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bnq9ggbj"
+Received: by mail-pl1-f193.google.com with SMTP id d9443c01a7336-223fd89d036so64907605ad.1
+        for <virtualization@lists.linux.dev>; Sun, 09 Mar 2025 06:41:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741526632; x=1742131432; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1741527668; x=1742132468; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=78f5GfsZLdHs7HcZYqhufn9bqBeaLB9GfsmUNDdGsAU=;
-        b=cgR/v5KDzX7eyyZqdioD0NJ84n+WMd0OMEkBCY9ivz9OMjHAfjNehqpU0jve6NBUfQ
-         iylUrVyC/7aQ+erdAu9QAp0986CVLKaPAoKnZ7QOgPh76JScGNYRUJieX+0YRw/dp57C
-         ARzx6iD5nYGF9JJV5ggNZiC19twLL90ow6rVisin61NKMXz1sDsygj9Lv7eLQGvexR42
-         n8fqiAK4jNEGxiifi65ij5qqebc9SzNlSki5quectav3AytVYBIHsC9XOWwR8p+wPD0N
-         o1BZSawz2LERH79fRp8eaQrbQ8ZrhqEmiGAJq2PArVVbiVQ5PAXFM6NubCE0Gti4B9nh
-         pmhw==
+        bh=LbqFVYGZKiXAHZ9rqZe+rnsj7EpBf3DH/8Ue+vs/s7U=;
+        b=bnq9ggbjjCqvH1rLgW9lI9I+rK/ClUHmHPb9FFzLRStwOBeYIwsCtIkUy6XQj9U/bH
+         2K+CP3I5dNYdKSLL2TBueqa0tHQvwIQx4aJPAGkXS285/T1x8NiBuH+E4thN5NPANXwp
+         sur8lQxPljaZqbN38fPrZkK8epEQ2DOUmpKXHRLzGOwiCGEZAL6eAU/J2nlHa2b+x8D7
+         wlP/UUQRQwGjOVodbMM2wkQQut+SyFDe1bMIt1Ha2VIOVMXSC4Yj2bxZyKIpWLuQmIua
+         Vqd//O16ll2yUtJC6KwYodEkeQO8kSAeEXvDOjE9ylossmXWaz+/6RvFfgp5UVQDCV/4
+         PrrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741526632; x=1742131432;
+        d=1e100.net; s=20230601; t=1741527668; x=1742132468;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=78f5GfsZLdHs7HcZYqhufn9bqBeaLB9GfsmUNDdGsAU=;
-        b=V5tbCd+8V28Mpsupe7oO0zmepr36UNRpakDxJScQd+ljfaJTpg2JLErwpGh94gwmgV
-         5YeyT/MlaA9McrOVq9EbAfVOJWaKJob8K/fZtixaGrrXbXziqp95uMK3CxwiRlDwk1SA
-         P8PLahrqVnLxXXjoCbqSMmHvzJrtiX4R0cX36YTThRYFJaAPKenhIFNgDlaBXTBiZF28
-         EEYjr0ySFK+qWyRv6UgqxROgAQAj7y+ziqlA+XAyYczEB3G5XayZGAifg+HH2QGmbcD3
-         Pbqt5R8omU0nKmLHBM0+TIf9o2GuXnrKwVm/PaUKO8lXmANw26Td8QQwMDEJYyGvdon/
-         iNyw==
-X-Forwarded-Encrypted: i=1; AJvYcCXT+Px8uaFd8n+uenjOYWQ6E0rBoi/ZF6NEJh6pGTQ08f46BOcLySSmqjBJDeBa7AiRaDloML6kWE4hqq3g7g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxzTw8iUkctZIRhypOYw/A09Xyq+J2K5UCD22LV/IOtGRnEgR3C
-	P4+e1eIUSfrYHL/nJjlXRgZWP75/gk9JlO0d7skwS5sEbm7GGhsA
-X-Gm-Gg: ASbGncvaXlhzIEcMEAViHeIiHztxeXezdKvRvqgaQxr/8MsPZNgIuamnFsa0l+2Bqe+
-	mhXKZWvLt+PgZZCMUToszCeQ1PnvinP+pQa0Kz/maoRRmwV6R8zNbvoBevrJVh+EuP0dFs/Kauu
-	2SbpiYYaohpmdvLjXbKiTE79wTsgx3kx8sCcpos+cIsviWI7O2Z1NfIoXYCpAy5j5HMB24jE1bw
-	PF5ourSY6ZPGr+YVH0t8LYWCDQUvCnyNsgRKsRXiI6bAkGeBf7wWN9WcI8Ec6eR6d8+GfgmHVSZ
-	E1oMo4yfjQPYtkZKhJc0DlltUfvuf+jwTzXYYpdIkSDd5M4Gkq4VSeKMszw1k7+ar/OzZPd3Kof
-	jiahRWdRjSa45tv02GapsBGYfJcmMvOeXET8RFeSm
-X-Google-Smtp-Source: AGHT+IFtC936bSg/3HregqNsD+RiIvE+I7Cf0Sja++qaGUNlZeLkZuXJlqOzuqqV2Wpl3dx1MeKXQQ==
-X-Received: by 2002:a17:902:eb81:b0:220:c86d:d7eb with SMTP id d9443c01a7336-22428ab863cmr167985465ad.36.1741526632153;
-        Sun, 09 Mar 2025 06:23:52 -0700 (PDT)
+        bh=LbqFVYGZKiXAHZ9rqZe+rnsj7EpBf3DH/8Ue+vs/s7U=;
+        b=w3Xeh0woeqDuWnuuL/BhoxqA9SHzaU/wVvYG2LuZsGIbjqgfiMiavFfD1EZHB6fKMm
+         Gctt5/zdRP+TKcTlIWh7nKJctwEzbGzBJllHCO6opZ4+/WPf1sKIcYO6FccygeaCok5S
+         HgWauBmb7vMa9eaBR/uqaAymSUWL8q4Lzo7RmTKo6Tylo8hg+b81izfSUjA21Tl6dEZQ
+         km9LfHJtVl9wuffzBF76vuX0tQ4w4qrGnDlSL7getZ2RbABDR1Tm/KTNCgDdCSaT1Uhb
+         gCZi7Dr67Igx9KNAMm5QvsS7FZ3Iyj/T1JAtrn7ZXrcRlCf18LYi9pzIAkd7debNuh5f
+         hOvg==
+X-Forwarded-Encrypted: i=1; AJvYcCXyzzTRgqDoOQFvDC2q301k57wKmCEjCtXdkK63fU4v/6BROZApVYgcgc13MgLeSGp/E8P11JZK6EUVFpeKXA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yww1L6b7/UFchdMXRJL9p9496TDNWKTkIJ+NokDpbUdOAzoCP+S
+	ha+1HNS+KQxMPNop5kE+lzNKPiQq1pV2v0BdZbVzVfc+QW6Vyhqk
+X-Gm-Gg: ASbGnctFKj2QhkfBPvYXR7QSFtE6qLSk/LYRz1Y02uw7EqAZfeZ2hxPo7N14TNH3psW
+	sbt1r1zsn7OQzXXSSIMk1TzqIIaepKaLQ8hQ34UDmdZ5lym7qq23OQ6qX4dVXdnD3nUqC7XJF6K
+	ft/SOAHLnw6SNHl7ElmfNeDZCzdyic2WqnYdNvRaGUNwLRAPAf9nzWbYATarMu392vbYgpim1zY
+	22wLEmMJUGDT/Cc8sJvLwbE3CHkEHoDdm4+HSfFlPgad5hqsVEuUD8I3V2/ceeiI1OWw/s6j3jl
+	D8iZp15um7WW+147V9nEG2FsCeVJVmPLpkPlZwFRkPwsuE6GBezhFEhOJgCzZGQtUmNZzdAbPrO
+	E5B4PHH6DI3LmQ1nKRMf9DRXLyPcY5Q==
+X-Google-Smtp-Source: AGHT+IFypNCMIn41ibdTDNx4lnj5ojm64dR+2U0xpw0STk3CxsR4PZycEa3AfGJqpDAqBoyMWdx6gQ==
+X-Received: by 2002:a05:6a00:2e17:b0:736:5c8e:bab8 with SMTP id d2e1a72fcca58-736aa9c1effmr17581861b3a.3.1741527667817;
+        Sun, 09 Mar 2025 06:41:07 -0700 (PDT)
 Received: from ?IPV6:2409:8a55:301b:e120:c508:514a:4065:877? ([2409:8a55:301b:e120:c508:514a:4065:877])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-736d4f20913sm597161b3a.13.2025.03.09.06.23.43
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-736d4d14f66sm619646b3a.82.2025.03.09.06.40.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 09 Mar 2025 06:23:51 -0700 (PDT)
-Message-ID: <7abb0e8c-f565-48f0-a393-8dabbabc3fe2@gmail.com>
-Date: Sun, 9 Mar 2025 21:23:35 +0800
+        Sun, 09 Mar 2025 06:41:07 -0700 (PDT)
+Message-ID: <cce03970-d66f-4344-b496-50ecf59483a6@gmail.com>
+Date: Sun, 9 Mar 2025 21:40:52 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -69,9 +69,8 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
  only NULL elements
-To: NeilBrown <neilb@suse.de>, Yunsheng Lin <linyunsheng@huawei.com>
-Cc: Qu Wenruo <wqu@suse.com>, Yishai Hadas <yishaih@nvidia.com>,
- Jason Gunthorpe <jgg@ziepe.ca>,
+To: Dave Chinner <david@fromorbit.com>, Yunsheng Lin <linyunsheng@huawei.com>
+Cc: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
  Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
  Kevin Tian <kevin.tian@intel.com>,
  Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>,
@@ -87,109 +86,47 @@ Cc: Qu Wenruo <wqu@suse.com>, Yishai Hadas <yishaih@nvidia.com>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  Simon Horman <horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>,
  Anna Schumaker <anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>,
- Jeff Layton <jlayton@kernel.org>, Olga Kornievskaia <okorniev@redhat.com>,
- Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
- Luiz Capitulino <luizcap@redhat.com>,
- Mel Gorman <mgorman@techsingularity.net>, Dave Chinner
- <david@fromorbit.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-xfs@vger.kernel.org, linux-mm@kvack.org,
- netdev@vger.kernel.org, linux-nfs@vger.kernel.org
-References: <> <180818a1-b906-4a0b-89d3-34cb71cc26c9@huawei.com>
- <174138137096.33508.11446632870562394754@noble.neil.brown.name>
+ Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
+ Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>,
+ Tom Talpey <tom@talpey.com>, Luiz Capitulino <luizcap@redhat.com>,
+ Mel Gorman <mgorman@techsingularity.net>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-xfs@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org,
+ linux-nfs@vger.kernel.org
+References: <20250228094424.757465-1-linyunsheng@huawei.com>
+ <Z8a3WSOrlY4n5_37@dread.disaster.area>
+ <91fcdfca-3e7b-417c-ab26-7d5e37853431@huawei.com>
+ <Z8vnKRJlP78DHEk6@dread.disaster.area>
 Content-Language: en-US
 From: Yunsheng Lin <yunshenglin0825@gmail.com>
-In-Reply-To: <174138137096.33508.11446632870562394754@noble.neil.brown.name>
+In-Reply-To: <Z8vnKRJlP78DHEk6@dread.disaster.area>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 3/8/2025 5:02 AM, NeilBrown wrote:
+On 3/8/2025 2:43 PM, Dave Chinner wrote:
 
 ...
 
->>
->>>    allocated pages in the array - just like the current
->>>    alloc_pages_bulk().
->>
->> I guess 'the total number of allocated pages in the array ' include
->> the pages which are already in the array before calling the above
->> API?
+>> I tested XFS using the below cmd and testcase, testing seems
+>> to be working fine, or am I missing something obvious here
+>> as I am not realy familiar with fs subsystem yet:
 > 
-> Yes - just what the current function does.
-> Though I don't know that we really need that detail.
-> I think there are three interesting return values:
+> That's hardly what I'd call a test. It barely touches the filesystem
+> at all, and it is not exercising memory allocation failure paths at
+> all.
 > 
-> - hard failure - don't bother trying again soon:   maybe -ENOMEM
-> - success - all pages are allocated:  maybe 0 (or 1?)
-> - partial success - at least one page allocated, ok to try again
->    immediately - maybe -EAGAIN (or 0).
+> Go look up fstests and use that to test the filesystem changes you
+> are making. You can use that to test btrfs and NFS, too.
 
-Yes, the above makes sense. And I guess returning '-ENOMEM' & '0' &
-'-EAGAIN' seems like a more explicit value.
+Thanks for the suggestion.
+I used the below xfstests to do the testing in a VM, the smoke testing
+seems fine for now, will do a full testing too:
+https://github.com/tytso/xfstests-bld
+
+Also, it seems the fstests doesn't support erofs yet?
 
 > 
->>
-
-...
-
->>
-> 
-> If I were do work on this (and I'm not, so you don't have to follow my
-> ideas) I would separate the bulk_alloc into several inline functions and
-> combine them into the different interfaces that you want.  This will
-> result in duplicated object code without duplicated source code.  The
-> object code should be optimal.
-
-Thanks for the detailed suggestion, it seems feasible.
-If the 'add to a linked list' dispose was not removed in the [1],
-I guess it is worth trying.
-But I am not sure if it is still worth it at the cost of the above
-mentioned 'duplicated object code' considering the array defragmenting
-seem to be able to unify the dispose of 'add to end of array' and
-'add to next hole in array'.
-
-I guess I can try with the easier one using array defragmenting first,
-and try below if there is more complicated use case.
-
-1. 
-https://lore.kernel.org/all/f1c75db91d08cafd211eca6a3b199b629d4ffe16.1734991165.git.luizcap@redhat.com/
-
-> 
-> The parts of the function are:
->   - validity checks - fallback to single page allocation
->   - select zone - fallback to single page allocation
->   - allocate multiple pages in the zone and dispose of them
->   - allocate a single page
-> 
-> The "dispose of them" is one of
->    - add to a linked list
->    - add to end of array
->    - add to next hole in array
-> 
-> These three could be inline functions that the "allocate multiple pages"
-> and "allocate single page" functions call.  We can pass these as
-> function arguments and the compile will inline them.
-> I imagine these little function would take one page and return
-> a bool indicating if any more are wanted.
-> 
-> The three functions: alloc_bulk_array alloc_bulk_list
-> alloc_bulk_refill_array would each look like:
-> 
->    validity checks: do we need to allocate anything?
-> 
->    if want more than one page &&
->       am allowed to do mulipage (e.g. not __GFP_ACCOUNT) &&
->       zone = choose_zone() {
->          alloc_multi_from_zone(zone, dispose_function)
->    }
->    if nothing allocated
->       alloc_single_page(dispose_function)
-> 
-> Each would have a different dispose_function and the initial checks
-> would be quite different, as would the return value.
-> 
-> Thanks for working on this.
-> 
-> NeilBrown
+> -Dave.
 > 
 
