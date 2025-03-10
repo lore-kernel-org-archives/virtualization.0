@@ -1,82 +1,82 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97E8E2222CF
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:45:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A8DF222575
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:59:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741592713; cv=none; b=VLbX3s5XIpFhGhOIYbhmXXLAVmtWREBiYNCQ1r6oRexXpbMbgeEPm38FSCpcwav3rYKNqLNdENdI2nDphuayLtlrjBuVhLEWg70XO7NnJO242IQsFp/9OD4hr54enB6ViU3mFq8Rz7EWykgwVxKC27V/oAvC4WtK65zh25J/BX0=
+	t=1741593543; cv=none; b=dHoFwZam48xLKV0QteM7cdVPURnBCHjgVzHY/0NW40+qtWcxgk5pwpbRidQW/yX7TwO/nce8e1dE4d/ZfFBKq2Nz9x7sn7uW9cgSl5LsEvMeNig9djqzlO/loH/Opd5wgXb+5aeUHNIiDRA6Wycklm5gSEAUezGt1hydjC/b7yk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741592713; c=relaxed/simple;
-	bh=tHiHn3s9vD0nLGAqUJPxoU7l5rggJB8iHytXk8ikjYQ=;
+	s=arc-20240116; t=1741593543; c=relaxed/simple;
+	bh=Z6kPl+TNurLSgXcNyvIU5Ktsb4DyJyfVr5gXes2clGc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A+vR/CyujH02x6xhpRHjhus4lKXgqZ+0u6S4XdcA1BLaXqQ6pJM3RIJhXhNd6uONmNcy35xQlXflCW6dyoVm9/U5hVkJPVPJrIBSEMx1BPc9QaXbj184BWPskLnuqe80NiEgUgcj3KQqzDBXXM8KfLsWmgovJ00tHkvt3roBlSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=Rvxb/g6a; arc=none smtp.client-ip=140.211.166.136
+	 In-Reply-To:Content-Type; b=SpqxrQIQ4zECcZlkLQS/om659bBpJPKOR720sure2YiUVfmAJT1Esl7OHywonIh9FWZTpXQOhokJsBvGOp83fFqg/9VGT0j2liLyfCQ0p2UPdBJRfWWkSpGObE7Gaq0pRrIZVgm3llAc5De4Juoh8o/hb04JnQCKzwZgWT+EHnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=ZqZm3yqv; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="Rvxb/g6a"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="ZqZm3yqv"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F3035607CF
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:45:10 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C4F4960774
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:59:00 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id J12JF-Uhh094 for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Mar 2025 07:45:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::635; helo=mail-pl1-x635.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org E1EF16076F
+ id 3Sj3K_sP0Zer for <virtualization@lists.linux-foundation.org>;
+ Mon, 10 Mar 2025 07:58:59 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::632; helo=mail-pl1-x632.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 8E29D606F2
 Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E1EF16076F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8E29D606F2
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=Rvxb/g6a
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E1EF16076F
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:45:08 +0000 (UTC)
-Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-22355618fd9so68488415ad.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 00:45:08 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=ZqZm3yqv
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8E29D606F2
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:58:58 +0000 (UTC)
+Received: by mail-pl1-x632.google.com with SMTP id d9443c01a7336-223959039f4so74960485ad.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 00:58:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741592708; x=1742197508; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741593537; x=1742198337; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=6pY68u9Ou8/riV0dmStydkY3YDCSuwxcU9M4Zvwz340=;
-        b=Rvxb/g6a2vVhiGhFCvUee1mB89QBEUoYvA1bplWJxKSmhtVPvRuOJ3eVMb4/wUTCD9
-         Or6aTyN9nZ0DUO7A4pME64C4sIZL6IyLoJvElfHXLwNxhSaIDB2Tn1zL/3q6u+2YK8nC
-         ESS0R66LeLods21jSzLyrozee24A9xPNimc2c5WgzckLKA+iLDkfJO+GsqVm+HH2lPGY
-         bbiAjY8gjaa25pDC0xRIRuXeVgP+1kIwViasxKQVhE1QDkZDTYxs9D/cYYGK8lvrcsRv
-         tpT+5X81jlG9a5YRvA2mBQvITIoimuQzPTVq7xTJKy3oALjhh20XjIbg5vJoxLegcxAd
-         nnBA==
+        bh=CuinJZdYfL3sYdpJV9vUwPAjr6IlWlVerzStKP2bH3M=;
+        b=ZqZm3yqvXRClRNFcCJWIyBMSHvPQLw2Hird4gCn67Id5rUWxClBpJ5Q0cYe7QKgILh
+         ABSPp4C0kt08M2aEPmlRRqSxiDOKqxQ2pKP3uptTTQuyIPomiLKGgFTJm4ECRU76HebQ
+         llkjl5xHaj1sqW+LCBwU/4tU6RpMsghzdv8nTvUI1gmz+gGfBIlXO0Ih6MLunxsL5yJr
+         wRTENcriDozMr8tZ2I6V2qrfCcpQ5p8Ti6FlwvDYqfo4n+hFI4iJsGiRCo1Y51h6TDxb
+         bw0ZD9RVlhz0+ft0wmJIwPyTMsY3BVl4nT6dHNW9Xl0WWtTXvHKe2KqqZm/6dOZaEbEH
+         zl2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741592708; x=1742197508;
+        d=1e100.net; s=20230601; t=1741593537; x=1742198337;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6pY68u9Ou8/riV0dmStydkY3YDCSuwxcU9M4Zvwz340=;
-        b=AWLdCJdeg2V5gzvkaDJ4WCImlgom7z+57t5dyTTR3Xz8exMSJTe5pDZYJuv3F8Rct9
-         KLoM/QwtwizSUP+fMX1P+/aa5DDKBNN3NUYNXCg2LeIcSIzbG2UDvl68fUxL0c3ILeAb
-         ly5nrMNevFS3yjJrxi3Kfv/yXdn2RaF1ma5WCIaDpQjValAONrTa0W8LsHCZJ1xYWCO9
-         0ci4ovvWlLxWdkLYZCNRZvyyXtV1OBTvo/72xCcU/YTNPTP0Ys+DcbnrzuROn2kiJEmd
-         d4MqUD/Tb31PWCQ0CgRdB+dxHcOJZhd1MAOQoxX1n9lb405KnC8ABXTZwtScH2F7DdGC
-         VtLA==
-X-Forwarded-Encrypted: i=1; AJvYcCV3ABeUFLDwA2YeATMhfq3u6gdJbikPj42PizfOuOfulCkSFAxPkTkzbWhIPdBJIJ0fY4MI7DU2XYaFQe5ecA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzyfBJAyo9771FkDRU4sL9LX6nFFRGaFCS+vCer3mYL0iWmAUI+
-	s6BTsE5zLzBrWlZ2NirWUvDBjAwxbpaVniqDBK1Z1ziHiyz49tN4wR5+hBWW9Ms=
-X-Gm-Gg: ASbGnctG4xPIv0fYgpjIbyQTZtxyMtKAkxPhJYO5jiI28O5IL8oGWdosXWJlPf4QlLd
-	sV0jizp4/TQN6V68m5cljv7ilkIb5pdbKDbl1RNvspa1rqRB6X+sN94bLayavmeV7svHdfvJUrx
-	kUTVK0gZm96E3H+VJkBIPMeK8sq/G7da/6rYGYyE4Dmb5dcV2ey5n7nhDfO6NJc6TgDm/OaCpMh
-	avr72t1aWlIEuO3K63lGeJddtNh/FiKQ5TFZE9ZaXMFCP5bUDPIpkvFfOTcT0wDP2HJqGysRtRT
-	ODV2obk8Rr/LZaMkQKBlNRRv4gTQyMmAVdUsd/hB/X+7ndRaRM/e/L8NzA==
-X-Google-Smtp-Source: AGHT+IH5OnNTMQMwrNlPP4KvzwEZBP42Z/Nth++O8tP5+uA86E+EDheMj8ptxmDf6vBXBNBY+MsPuw==
-X-Received: by 2002:aa7:8d11:0:b0:736:ba49:97bb with SMTP id d2e1a72fcca58-736ba499889mr10689952b3a.5.1741592707659;
-        Mon, 10 Mar 2025 00:45:07 -0700 (PDT)
+        bh=CuinJZdYfL3sYdpJV9vUwPAjr6IlWlVerzStKP2bH3M=;
+        b=rUml8ijuw8YXRw4QqIdIjdDwKaVMrWF+X/AqSkXjYycmL7HCdc3n9NJb7MrpbO5ykf
+         2WkQvfKIA8jZRttOGqUscK2AOaOD/m06uS4bu/9WMG/a424AEscU8ThadiZZyPSqeO5T
+         nwgX7kT3anpYmRBwlk9XJdFzN/8U47KsCVOOwHfVkTDqUhKi0/vtFt6g0/wX/sVNA+O3
+         U19lVI1qBPK41voidxPp+zF74eR3jCoAHFK+YN4Y0c76NhFiETwJr8Xr8Cufk4Y7cu/D
+         la9IEtFBXnZKXXfllJjkSIKFEpGksKxyc5GoaWxMtXXPn2JrExzFH/Nf+vNEPOfV6Nq/
+         hr2A==
+X-Forwarded-Encrypted: i=1; AJvYcCUquM+jKZM2WjLLg2ao7RZOY+OGJRHI7tkSZSvBgpKpmaIHCVMB4xIuv8TV3cY0Jr/as7ea6iST0OGQQwcL9w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzbUdTc2CJMFIVB7QEO7IC0oil0LeWWqqBNDBbVeRB0s6xyvQMV
+	lL9cmgl4/GyLcfHdS1HSTLKWj80aH40XhQ8ariSBY+gaIxv+sDHogTuI+9N7aXI=
+X-Gm-Gg: ASbGncugZgNDIZ13Zi/XbyKb3ojj3F3+KDoAyTNqxQWZjnucSA0aP7msHB7t4JJxG4K
+	JLjjJkY/52TL3pdumNjDi9iqpfrefqtozWc8aXPAEnf0bCbV6DiTTFoBpJnNVK0YpX4h2ND3DWX
+	+WLnrJZN/kZ1/FnRpXhT1kc/tA0M85+5tmyq8M/KjEWf/vsBa7yGtw1NP0GGxviIntK0jTRhxlK
+	+QRzILmZX7X6SlOb+wsq+sma7lfrfDHfxHWr50R/kiPEezgBrCZGIS7WgbUv644IDljQYuNM06s
+	bbR8i/96oxTgYSDAQxHQtt38qrklyQme8IGVhFHCCT1a5uTTO+1rzwN3AMS6aQaHEskj
+X-Google-Smtp-Source: AGHT+IFai33dRhjgpjNH1WGMGVaznnxRBw9Drs0u6stMxt3l7ETz1Axi7V9JZikbrbLhUxQ1gOIDNA==
+X-Received: by 2002:a05:6a21:6016:b0:1f5:87a0:60ed with SMTP id adf61e73a8af0-1f587a062femr546658637.19.1741593536869;
+        Mon, 10 Mar 2025 00:58:56 -0700 (PDT)
 Received: from [157.82.205.237] ([157.82.205.237])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-736a7d6e54bsm6291666b3a.44.2025.03.10.00.45.03
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af5083d4c7fsm5220479a12.0.2025.03.10.00.58.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Mar 2025 00:45:07 -0700 (PDT)
-Message-ID: <7978dfd5-8499-44f3-9c30-e53a01449281@daynix.com>
-Date: Mon, 10 Mar 2025 16:45:02 +0900
+        Mon, 10 Mar 2025 00:58:56 -0700 (PDT)
+Message-ID: <5d81246c-1e69-4301-ae6f-63838733672d@daynix.com>
+Date: Mon, 10 Mar 2025 16:58:51 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -545,6 +545,15 @@ On 2025/03/10 12:55, Jason Wang wrote:
 >> +       struct tun_vnet_hash common;
 > 
 > I'd rename this as hash.
+
+Everything in this structure is about hash. "common" represents its 
+feature well.
+
+I see a few alternative options though I don't prefer them either; they 
+make the code verbose and I don't think they are worthwhile:
+1. Rename tun_vnet_hash to tun_vnet_hash_common.
+2. Prefix the other fields with "hash_" for consistency.
+
 > 
 >> +       struct tun_vnet_hash_rss rss;
 >> +       u32 rss_key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
@@ -574,11 +583,6 @@ On 2025/03/10 12:55, Jason Wang wrote:
 > Let's has a consistent name for this and the uapi to be consistent
 > with TUNSETIFF/TUNGETIFF. Probably TUNSETVNETHASH and
 > tun_vnet_ioctl_gethash().
-
-They have different semantics so they should have different names. 
-TUNGETIFF reports the value currently set while TUNGETVNETHASHCAP 
-reports the value that can be set later.
-
 > 
 >> +}
 >> +
@@ -593,16 +597,6 @@ reports the value that can be set later.
 > What's more, we didn't try (or even can't) to make automq and eBPF to
 > be mutually exclusive. So I still didn't see what we gain from this
 > and it complicates the codes and may lead to ambiguous uAPI/behaviour.
-
-automq and eBPF are mutually exclusive; automq is disabled when an eBPF 
-steering program is set so I followed the example here.
-
-We don't even have an interface for eBPF to let it fall back to another 
-alogirhtm. I could make it fall back to RSS if the eBPF steeering 
-program is designed to fall back to automq when it returns e.g., -1. But 
-such an interface is currently not defined and defining one is out of 
-scope of this patch series.
-
 > 
 >> +{
 >> +       struct tun_vnet_hash hash_buf;
@@ -663,13 +657,6 @@ scope of this patch series.
 > I still didn't understand the trick here. E.g we use very simple
 > primitives in synchronizing ebpf program through RCU in
 > __tun_set_ebpf().
-
-It is even simpler than __tun_set_ebpf(). The differences from 
-__tun_set_ebpf() are:
-1. This uses the rtnl lock instead of TUN-specific one. It makes the 
-code simpler as the rtnl lock is already taken in __tun_chr_ioctl().
-2. This does not add rcu_head and uses blocking APIs for simplicity.
-
 > 
 >> +       return 0;
 >> +}
@@ -696,10 +683,6 @@ code simpler as the rtnl lock is already taken in __tun_chr_ioctl().
 > 
 > What's the advantage of using Designated Initializers here? Simple
 > assignment can save two lines of code.
-
-It automatically fills other fileds with zero. Simple assignments will 
-need more tokens for zeroing.
-
 > 
 >> +}
 >> +
@@ -728,11 +711,6 @@ need more tokens for zeroing.
 > 
 > Is there a chance that we can reach here without TUN_VNET_HASH_REPORT?
 > If yes, it should be a bug.
-
-It is possible to use RSS without TUN_VNET_HASH_REPORT. It is more of a 
-feature instead of a bug; it behaves like QEMU's eBPF program but 
-requires no privilege and is more optimized with native code and ffs().
-
 > 
 >> +
 >> +       index = ret.value & hash->rss.indirection_table_mask;
@@ -742,10 +720,6 @@ requires no privilege and is more optimized with native code and ffs().
 > we need READ_ONCE here, is this paired with something? If yes, let's
 > add a comment here. If rss_indirection_table need why
 > indirection_table_mask doesn't need this?
-
-I'll drop it. I think it's just a left-over of previous versions without 
-RCU.
-
 > 
 >> +
 >> +       return txq % numqueues;
@@ -765,16 +739,6 @@ RCU.
 > To be more robust, we can tweak the function to accept a vnet_hdr_len
 > parameter then we can avoid touching this every time when we need to
 > extend vnet hdr in the future?
-
-I think you meant vnet_hdr_sz instead of vnet_hdr_len. It is already 
-passed just as "sz" here as the function name already says it's about 
-the header.
-
-It is possible to add another parameter for sizeof(*hdr) and convert the 
-hdr parameter to void * to avoid future changes. But I rather keep it as 
-is because the current form ensures the hdr is large enough and 
-statically avoids buffer overrun.
-
 > 
 >> +       int content_sz = MIN(sizeof(*hdr), sz);
 >> +
@@ -906,14 +870,6 @@ statically avoids buffer overrun.
 > suggest to split this into rss and hash as they are separated
 > features. Then we can use separate data structure for them instead of
 > a container struct.
-
-I added a dependency check and found it is complicating the code and 
-requires additional tests. I need a reason to justify the complexity if 
-we are going to split it.
-
-Regards,
-Akihiko Odaki
-
 > 
 >> + *
 >> + * The members added to the legacy header by %TUN_VNET_HASH_REPORT flag will
