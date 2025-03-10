@@ -1,129 +1,132 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 968141E32DA
-	for <virtualization@lists.linux.dev>; Mon, 10 Mar 2025 10:26:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F17AEEAA
+	for <virtualization@lists.linux.dev>; Mon, 10 Mar 2025 12:31:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741602398; cv=none; b=RepbFs1av1CnpHQ4+CwR4gHyqFcWf4L/GfgjSSeQeoRT67dGdvtFt+s4hT7srzPi/4z69Sv1B6cwhwX/CgodKajaoaFi0aw34V7EMgKXgSYt0Lb6j/u6bgVFJjIKudZaYih4vgACrAmCoXG2o/DmBsMWqMTvT6TUqpzkK3UyEyA=
+	t=1741609916; cv=none; b=kyA0T3aoeF0QUBIOXvtDKMxFpUVTiYqAwPm0wVxyXpmRP6xDat2p78cLCUB9nxTwD4zyWMQKn7zt8v6GwKYa6EC0z9Dyg7jsdjx0HbuzMwK4WftNeM/BwmfbebdbdL6pVexXYAxmEKYd8qcmK44akugKZxCbnDGE/KII77NEOuc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741602398; c=relaxed/simple;
-	bh=oCS5Xfj4X/FFcAUnAUdKi51IRu8AeeZmD8qMXspWZeA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i3fhuaQwTJMyOK6XDHwLqZrJRN81ET8Cr0pUPVWSy0jkt3fhScrasaLQNg9xf84iaKbfkYBHUwxVDSBgse5Iiw+FrCRmIBYO1A7Hvk7cTNrEM7WtduXpdjeTEFe+OqbF64dXyTQpxuK/zTa0vehtRnhMZazgG0g13Dx+ZSh2YDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=GANWGPn4; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="GANWGPn4"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 6407840E01AD;
-	Mon, 10 Mar 2025 10:26:34 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id QWrDmRuwhB90; Mon, 10 Mar 2025 10:26:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1741602389; bh=evJgpKIxgP0x4EAJW7cWZK1RzQrhPq55MehaqfbmoOA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=GANWGPn4iQ+WgUAcQPG5O9CfcQQhbw0AMMRmVaDQmH9CNZFuIUT2BMAs6P/fuAB6u
-	 nr842tG4sHdHv60lhNi4Cy92DF1LCgIvMHeecMWE4PvOH935Fku+1/6tu6kwTdkrDd
-	 hVftCNIfmAdkUAl2UwszYf7dZ0y/nB30WjqCdtXsO51+ZlqKDNxmXQ6xPFYQ36AXxI
-	 JL6Cezwtnf6hbkiA2cZz6NsVSUn9gQGf+wNBMnsnBxzb/v0tVOdOQ/4TErF4PqfiD7
-	 yCz1KCYxxft/ipSgZloWiRt3wKDWZYVzxVX3l8PSELiWeaycJEbU7R8aBXdT4D+H1a
-	 aXDcONaWk/WI86l7s/FZHLwiQZ/Q1WTX/3uI8wxkT8zKmIlDcblfeylJj4bgE1oB0Z
-	 3nS/DvgVh5d/2L7AMpOAxQXk5RYscX6ck7LfhSWQqbUFqHUwktQ72UaRTHb8gljAf1
-	 6koFq5WF37zOcwXgDejf+S9Z6WjKYqNwIU8GMeL7swC4lbCBT4apf5dJSCQV6Tvw/B
-	 Ssuud/EgefXnrgb/YW/QwoHnDbYw/jnlSJLtK7nYI1o+x5yjRHzKzE+19GJwcrx1H9
-	 qagMukFdUc3kUuCAc38FfSiS1ij+K5xHPYH8snYq++Z1d7JFKdf2VIb94iUPGWub16
-	 PBWRWLo3t7Kv6Q32Tjjd1/IM=
-Received: from zn.tnic (pd95303ce.dip0.t-ipconnect.de [217.83.3.206])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 2B6C140E015D;
-	Mon, 10 Mar 2025 10:26:13 +0000 (UTC)
-Date: Mon, 10 Mar 2025 11:26:07 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Ajay Kaher <ajay.kaher@broadcom.com>
-Cc: kevinloughlin@google.com, bcm-kernel-feedback-list@broadcom.com,
-	tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com,
-	x86@kernel.org, hpa@zytor.com, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, ye.li@broadcom.com,
-	bo.gan@broadcom.com, vamsi-krishna.brahmajosyula@broadcom.com,
-	alexey.makhalov@broadcom.com, vasavi.sirnapalli@broadcom.com,
-	florian.fainelli@broadcom.com
-Subject: Re: [PATCH] sev-snp: parse MP tables for VMware hypervisor
-Message-ID: <20250310102607.GDZ86-P3VFA-x2iy4l@fat_crate.local>
-References: <20241219114400.858980-1-ajay.kaher@broadcom.com>
+	s=arc-20240116; t=1741609916; c=relaxed/simple;
+	bh=1ZwnqL9ML/dpqcBnkz6H0OCsWG84Kk1V+/wHoG2v/rA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=SZ2RD5RTRQyzCl50C5b1hCJPLs3XXAIIRiTAdY0usw4rfoyhbtiqe6fDErhs6vfzNFb8knWSFr1aBtzbE9Y2Ayq2k2D2pfBsZgOmkVIUPCiI798HTxoNHssl+6R6EEGrk+Hhou9KS33XmYhijB7r0HaEYSCXSK10aXhjbeDAYzk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.105])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4ZBGSX4JpGzqVYH;
+	Mon, 10 Mar 2025 20:30:20 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 351CC140361;
+	Mon, 10 Mar 2025 20:31:50 +0800 (CST)
+Received: from [10.67.120.129] (10.67.120.129) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 10 Mar 2025 20:31:49 +0800
+Message-ID: <14170f7f-97d0-40b4-9b07-92e74168e030@huawei.com>
+Date: Mon, 10 Mar 2025 20:31:49 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20241219114400.858980-1-ajay.kaher@broadcom.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
+ only NULL elements
+To: Gao Xiang <hsiangkao@linux.alibaba.com>, Yunsheng Lin
+	<yunshenglin0825@gmail.com>, Dave Chinner <david@fromorbit.com>
+CC: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, Shameer
+ Kolothum <shameerali.kolothum.thodi@huawei.com>, Kevin Tian
+	<kevin.tian@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Chris
+ Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba
+	<dsterba@suse.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep
+ Dhavale <dhavale@google.com>, Carlos Maiolino <cem@kernel.org>, "Darrick J.
+ Wong" <djwong@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jesper
+ Dangaard Brouer <hawk@kernel.org>, Ilias Apalodimas
+	<ilias.apalodimas@linaro.org>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Trond Myklebust
+	<trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
+	<chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
+	<neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Luiz Capitulino
+	<luizcap@redhat.com>, Mel Gorman <mgorman@techsingularity.net>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <linux-btrfs@vger.kernel.org>,
+	<linux-erofs@lists.ozlabs.org>, <linux-xfs@vger.kernel.org>,
+	<linux-mm@kvack.org>, <netdev@vger.kernel.org>, <linux-nfs@vger.kernel.org>
+References: <20250228094424.757465-1-linyunsheng@huawei.com>
+ <Z8a3WSOrlY4n5_37@dread.disaster.area>
+ <91fcdfca-3e7b-417c-ab26-7d5e37853431@huawei.com>
+ <Z8vnKRJlP78DHEk6@dread.disaster.area>
+ <cce03970-d66f-4344-b496-50ecf59483a6@gmail.com>
+ <625983f8-7e52-4f6c-97bb-629596341181@linux.alibaba.com>
+Content-Language: en-US
+From: Yunsheng Lin <linyunsheng@huawei.com>
+In-Reply-To: <625983f8-7e52-4f6c-97bb-629596341181@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On Thu, Dec 19, 2024 at 11:44:00AM +0000, Ajay Kaher wrote:
-> For VMware hypervisor, SEV-SNP enabled VM's could boot without UEFI.
-> In this case, mpparse_find_mptable() has to be called to parse MP
-> tables which contains boot information.
+On 2025/3/10 8:32, Gao Xiang wrote:
+
+...
+
+>>
+>> Also, it seems the fstests doesn't support erofs yet?
 > 
-> Fixes: 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation for SEV-SNP guests")
-> Signed-off-by: Ajay Kaher <ajay.kaher@broadcom.com>
-> Signed-off-by: Ye Li <ye.li@broadcom.com>
-> Tested-by: Ye Li <ye.li@broadcom.com>
-
-That SOB chain is wrong. Ye's SOB means, he's sending the patch but that
-doesn't look like it.
-
-> ---
->  arch/x86/kernel/cpu/vmware.c | 7 +++++++
->  1 file changed, 7 insertions(+)
+> erofs is an read-only filesystem, and almost all xfstests
+> cases is unsuitable for erofs since erofs needs to preset
+> dataset in advance for runtime testing and only
+> read-related interfaces are cared:
 > 
-> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-> index 00189cd..3e2594d 100644
-> --- a/arch/x86/kernel/cpu/vmware.c
-> +++ b/arch/x86/kernel/cpu/vmware.c
-> @@ -26,6 +26,7 @@
->  #include <linux/export.h>
->  #include <linux/clocksource.h>
->  #include <linux/cpu.h>
-> +#include <linux/efi.h>
->  #include <linux/reboot.h>
->  #include <linux/static_call.h>
->  #include <asm/div64.h>
-> @@ -35,6 +36,8 @@
->  #include <asm/apic.h>
->  #include <asm/vmware.h>
->  #include <asm/svm.h>
-> +#include <asm/mem_encrypt.h>
-> +#include <asm/efi.h>
->  
->  #undef pr_fmt
->  #define pr_fmt(fmt)	"vmware: " fmt
-> @@ -429,6 +432,10 @@ static void __init vmware_platform_setup(void)
->  		pr_warn("Failed to get TSC freq from the hypervisor\n");
->  	}
->  
-> +	if (sev_status & MSR_AMD64_SEV_SNP_ENABLED &&
+> You could check erofs-specfic test cases here:
+> https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/log/?h=experimental-tests
+> 
+> Also the stress test:
+> https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?id=6fa861e282408f8df9ab1654b77b563444b17ea1
 
-cpu_feature_enabled(X86_FEATURE_SEV_SNP)
+Thanks.
 
-> +	    !efi_enabled(EFI_BOOT))
-> +		x86_init.mpparse.find_mptable = mpparse_find_mptable;
-> +
->  	vmware_paravirt_ops_setup();
->  
->  #ifdef CONFIG_X86_IO_APIC
-> -- 
+> 
+> BTW, I don't like your new interface either, I don't know
+> why you must insist on this work now that others are
+> already nak this.  Why do you insist on it so much?
 
--- 
-Regards/Gruss,
-    Boris.
+If the idea was not making any sense to me and it was nack'ed
+with clearer reasoning and without any supporting of the idea,
+I would have stopped working on it.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+The background I started working at is something like below
+in the commit log:
+"As mentioned in [1], it seems odd to check NULL elements in
+the middle of page bulk allocating, and it seems caller can
+do a better job of bulk allocating pages into a whole array
+sequentially without checking NULL elements first before
+doing the page bulk allocation for most of existing users."
+
+"Remove assumption of populating only NULL elements and treat
+page_array as output parameter like kmem_cache_alloc_bulk().
+Remove the above assumption also enable the caller to not
+zero the array before calling the page bulk allocating API,
+which has about 1~2 ns performance improvement for the test
+case of time_bench_page_pool03_slow() for page_pool in a
+x86 vm system, this reduces some performance impact of
+fixing the DMA API misuse problem in [2], performance
+improves from 87.886 ns to 86.429 ns."
+
+1. https://lore.kernel.org/all/bd8c2f5c-464d-44ab-b607-390a87ea4cd5@huawei.com/
+2. https://lore.kernel.org/all/20250212092552.1779679-1-linyunsheng@huawei.com/
+
+There is no 'must' here, it is just me taking some of my
+hoppy time and some of my work time trying to make the
+alloc_pages_bulk API simpler and more efficient here, and I
+also learnt a lot during that process.
+
+Anyway, if there is still any hard nack after all the
+discussion, it would be good to make it more explicit with
+a clearer reasoning.
