@@ -1,82 +1,82 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A8DF222575
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:59:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96E112206B7
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 08:13:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741593543; cv=none; b=dHoFwZam48xLKV0QteM7cdVPURnBCHjgVzHY/0NW40+qtWcxgk5pwpbRidQW/yX7TwO/nce8e1dE4d/ZfFBKq2Nz9x7sn7uW9cgSl5LsEvMeNig9djqzlO/loH/Opd5wgXb+5aeUHNIiDRA6Wycklm5gSEAUezGt1hydjC/b7yk=
+	t=1741594439; cv=none; b=D5rb/fCtd0Bsn7Mf5kFnrAbiLrqrAY3159gWuX03WmO1yEjplAyek3RUTX3OPsflFqRVlUKsIRO71J3IOzZY/bFCCQIGiJvMJZf4cSUDQGxBuIbdHySUH35RrppCSo4yVxLbOe/FtMzVMWsjS/XbA51rpNQVfDEuaGcnagBtEPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741593543; c=relaxed/simple;
-	bh=Z6kPl+TNurLSgXcNyvIU5Ktsb4DyJyfVr5gXes2clGc=;
+	s=arc-20240116; t=1741594439; c=relaxed/simple;
+	bh=l5QxKBa4JfStg+sXRIsl0I3xs+e6o84ekAC2JD3dCuE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SpqxrQIQ4zECcZlkLQS/om659bBpJPKOR720sure2YiUVfmAJT1Esl7OHywonIh9FWZTpXQOhokJsBvGOp83fFqg/9VGT0j2liLyfCQ0p2UPdBJRfWWkSpGObE7Gaq0pRrIZVgm3llAc5De4Juoh8o/hb04JnQCKzwZgWT+EHnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=ZqZm3yqv; arc=none smtp.client-ip=140.211.166.136
+	 In-Reply-To:Content-Type; b=lqfJEOl005gpyef56HDpBzTj6r2mRhqGrePa35anh/+ono123KaAIqWJj3WT35w1O47k4LPd5ZMWazvAzjkDrsF7K/bwD1Uza4ucd8KVhLUHdke4aCPmMMCqjB80vNLCGvZV5N2wInuvDK8EYPUa/LA2eFLwHlnHwClAYmeMXb8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=rX4bj3G5; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="ZqZm3yqv"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="rX4bj3G5"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C4F4960774
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:59:00 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1712181F90
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 08:13:57 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 3Sj3K_sP0Zer for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Mar 2025 07:58:59 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::632; helo=mail-pl1-x632.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 8E29D606F2
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8E29D606F2
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=ZqZm3yqv
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8E29D606F2
-	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 07:58:58 +0000 (UTC)
-Received: by mail-pl1-x632.google.com with SMTP id d9443c01a7336-223959039f4so74960485ad.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 00:58:58 -0700 (PDT)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id IRG4336NyVzk for <virtualization@lists.linux-foundation.org>;
+ Mon, 10 Mar 2025 08:13:55 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::633; helo=mail-pl1-x633.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 426AB81F8F
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 426AB81F8F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=rX4bj3G5
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 426AB81F8F
+	for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 08:13:54 +0000 (UTC)
+Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-22548a28d0cso39262595ad.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 01:13:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741593537; x=1742198337; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741594434; x=1742199234; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=CuinJZdYfL3sYdpJV9vUwPAjr6IlWlVerzStKP2bH3M=;
-        b=ZqZm3yqvXRClRNFcCJWIyBMSHvPQLw2Hird4gCn67Id5rUWxClBpJ5Q0cYe7QKgILh
-         ABSPp4C0kt08M2aEPmlRRqSxiDOKqxQ2pKP3uptTTQuyIPomiLKGgFTJm4ECRU76HebQ
-         llkjl5xHaj1sqW+LCBwU/4tU6RpMsghzdv8nTvUI1gmz+gGfBIlXO0Ih6MLunxsL5yJr
-         wRTENcriDozMr8tZ2I6V2qrfCcpQ5p8Ti6FlwvDYqfo4n+hFI4iJsGiRCo1Y51h6TDxb
-         bw0ZD9RVlhz0+ft0wmJIwPyTMsY3BVl4nT6dHNW9Xl0WWtTXvHKe2KqqZm/6dOZaEbEH
-         zl2g==
+        bh=A7hhmG3ESx++bI7IHuCTuE0EN1/zYuG2eR6g+4b9Ed0=;
+        b=rX4bj3G5KZVgFxOb874QST9aP02f4ERe/uKVYzcLckWuyHJezjTqDqbSffw8H80tiU
+         xVpN80wmbGy9oZuZCIUM5hxEcFDu7v3FxnmcVY0sO57MSuXxUtMS3NnOMaPFK8G9UPIL
+         MkbR9aqF1tBfdXqFVgJeoO1Ira2LGShRdiDAeG5uWD2ESpNsS3oMhdP0KAk5pbvMuOSJ
+         6gqMfY0sWwElFi89XZTu3tw0NbVNjjEioXDVPb+KN0t2e1WQ9tv0/f5N+1L6tzP4SpFT
+         iyJ7+9AwmwFBFNc3M0ZUc74cbrmV9sncuZjZLA4paWxlbzZASAek6rCOY9cYFtgA16cx
+         0psQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741593537; x=1742198337;
+        d=1e100.net; s=20230601; t=1741594434; x=1742199234;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CuinJZdYfL3sYdpJV9vUwPAjr6IlWlVerzStKP2bH3M=;
-        b=rUml8ijuw8YXRw4QqIdIjdDwKaVMrWF+X/AqSkXjYycmL7HCdc3n9NJb7MrpbO5ykf
-         2WkQvfKIA8jZRttOGqUscK2AOaOD/m06uS4bu/9WMG/a424AEscU8ThadiZZyPSqeO5T
-         nwgX7kT3anpYmRBwlk9XJdFzN/8U47KsCVOOwHfVkTDqUhKi0/vtFt6g0/wX/sVNA+O3
-         U19lVI1qBPK41voidxPp+zF74eR3jCoAHFK+YN4Y0c76NhFiETwJr8Xr8Cufk4Y7cu/D
-         la9IEtFBXnZKXXfllJjkSIKFEpGksKxyc5GoaWxMtXXPn2JrExzFH/Nf+vNEPOfV6Nq/
-         hr2A==
-X-Forwarded-Encrypted: i=1; AJvYcCUquM+jKZM2WjLLg2ao7RZOY+OGJRHI7tkSZSvBgpKpmaIHCVMB4xIuv8TV3cY0Jr/as7ea6iST0OGQQwcL9w==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzbUdTc2CJMFIVB7QEO7IC0oil0LeWWqqBNDBbVeRB0s6xyvQMV
-	lL9cmgl4/GyLcfHdS1HSTLKWj80aH40XhQ8ariSBY+gaIxv+sDHogTuI+9N7aXI=
-X-Gm-Gg: ASbGncugZgNDIZ13Zi/XbyKb3ojj3F3+KDoAyTNqxQWZjnucSA0aP7msHB7t4JJxG4K
-	JLjjJkY/52TL3pdumNjDi9iqpfrefqtozWc8aXPAEnf0bCbV6DiTTFoBpJnNVK0YpX4h2ND3DWX
-	+WLnrJZN/kZ1/FnRpXhT1kc/tA0M85+5tmyq8M/KjEWf/vsBa7yGtw1NP0GGxviIntK0jTRhxlK
-	+QRzILmZX7X6SlOb+wsq+sma7lfrfDHfxHWr50R/kiPEezgBrCZGIS7WgbUv644IDljQYuNM06s
-	bbR8i/96oxTgYSDAQxHQtt38qrklyQme8IGVhFHCCT1a5uTTO+1rzwN3AMS6aQaHEskj
-X-Google-Smtp-Source: AGHT+IFai33dRhjgpjNH1WGMGVaznnxRBw9Drs0u6stMxt3l7ETz1Axi7V9JZikbrbLhUxQ1gOIDNA==
-X-Received: by 2002:a05:6a21:6016:b0:1f5:87a0:60ed with SMTP id adf61e73a8af0-1f587a062femr546658637.19.1741593536869;
-        Mon, 10 Mar 2025 00:58:56 -0700 (PDT)
+        bh=A7hhmG3ESx++bI7IHuCTuE0EN1/zYuG2eR6g+4b9Ed0=;
+        b=sQwxLKfAlkrVezZwshrJgajIfNkfexJOigOLeGa+Oi4WVP3k+U4CwAb6qW6KeEbVNy
+         4K2P72/Cxelfr07tXe8cH5Zw6hRqMdpeCsfolbApWUihwzo9YPLB7hhizotnL9H84yKv
+         P5WEKMa5z7+DKBzaJydOF+40RxdYQg9NYRki/Z6d2/jyvtrhl9qNw/eCRuOGEiDgm8o5
+         oEWXw6jUz/9ZqcY5zwsjC0wFGPb5iLdfVEe/7iGDdiezguo+dJiusb9xWDI+4j3xurok
+         kM4e0AtOuUsdm+2gpcS4WL6tvAe4dO9RQYkNym9jw68l7JlHem+19RH0qRhVlfe9XuJq
+         a9GA==
+X-Forwarded-Encrypted: i=1; AJvYcCWvHBTDKR9xmHLtu6f3jlp89QEPscqiA2hORlO40N9iGOOcGr8h4IqLnB4QA2mlYb68s5IiYIyLTzHbYbOFMw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzSq2ChdRZWu/+Kx234HAjnY2SndWlPn786MNbrJDLmpERbbzkp
+	zU0DcswJxSwNAwz/fRx5QL2+pBA4o0NZQj271l5d3BRyEDxR+Ua4NVJ3yOjnx0k=
+X-Gm-Gg: ASbGnctKZvIQSVFffCQqB4hmD6bBNAdhBFUONSjxLwymG4vcfczhz7ZaPnvETzwrXhY
+	B4Mn+o7qd2fGif19iOacLmO1wZUsejeg8hftQExYe84uXg7E8QkNb9mDVFJPX7y07IXbHMaKrlQ
+	7/bFCA/LdJrfMeHQKNyMx6do1UGjPVhtGjJkABPMyFNjLlyqp9SFX6CWX/sX1AhYEHa3oBf4net
+	rQjpI5RDalibWfK+WJ0VxjI9ju8OvIu00KzomXBYKVeizql+fXbIIhU+IPKVvDpMudactLltvNs
+	BdWhTLHGvba0A+yBmFOSdNebS+LU/qBGni07VXqdmTpkc0m/kMIpElBuAQ==
+X-Google-Smtp-Source: AGHT+IHzKwPV/Ovx8c4LYYTOSKnr1xnOkAWl+LxiQxSEz4MCTJ+LfouK7wod9vlOFvq5enBzl/Vj/A==
+X-Received: by 2002:a05:6a00:2e17:b0:730:95a6:3761 with SMTP id d2e1a72fcca58-736aa9e745amr21709601b3a.3.1741594433992;
+        Mon, 10 Mar 2025 01:13:53 -0700 (PDT)
 Received: from [157.82.205.237] ([157.82.205.237])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af5083d4c7fsm5220479a12.0.2025.03.10.00.58.52
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-736aead3439sm5926374b3a.64.2025.03.10.01.13.49
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Mar 2025 00:58:56 -0700 (PDT)
-Message-ID: <5d81246c-1e69-4301-ae6f-63838733672d@daynix.com>
-Date: Mon, 10 Mar 2025 16:58:51 +0900
+        Mon, 10 Mar 2025 01:13:53 -0700 (PDT)
+Message-ID: <e5a4d519-9bac-4824-a763-af87a9fd1a02@daynix.com>
+Date: Mon, 10 Mar 2025 17:13:48 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -545,15 +545,6 @@ On 2025/03/10 12:55, Jason Wang wrote:
 >> +       struct tun_vnet_hash common;
 > 
 > I'd rename this as hash.
-
-Everything in this structure is about hash. "common" represents its 
-feature well.
-
-I see a few alternative options though I don't prefer them either; they 
-make the code verbose and I don't think they are worthwhile:
-1. Rename tun_vnet_hash to tun_vnet_hash_common.
-2. Prefix the other fields with "hash_" for consistency.
-
 > 
 >> +       struct tun_vnet_hash_rss rss;
 >> +       u32 rss_key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
@@ -648,6 +639,21 @@ make the code verbose and I don't think they are worthwhile:
 >> +                       return -ENOMEM;
 > 
 > Do we need to validate the hash here (at least against the types we supported?)
+
+Sorry for repeateadly sending emails; I find comments not addressed each 
+time I read this email.
+
+This ioctl does not check unknown bits in the flags, pad, and types. 
+Please tell me if you want to have them rejected instead.
+
+Existing ioctls behave differ in such a situation. TUNSETOFFLOAD rejects 
+unknown bits so that the userspace can know features unsupported. On the 
+other hand, TUNSETIFF ignores unknown bits, and provides the 
+TUNGETFEATURES ioctl for feature detection.
+
+This patch follows the example of TUNSETIFF; TUNSETVNETHASH ignores 
+unknown bits, and TUNGETVNETHASHCAP allows feature detection.
+
 > 
 >> +       }
 >> +
