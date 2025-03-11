@@ -1,82 +1,82 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EEF61E7C2F
-	for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 06:19:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9AD81EE7B9
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 06:24:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741673995; cv=none; b=sUKjVoFhoao/KxA/M8Hdk60vLbpmGE44rJDHsogg92o7C6Dh0fH/EY9hzdBR1nM8tGqVSlwVvb1aK2vC2nm5A5l/2VShd2QR5pjSN+FejfrW9BhTuMRbef2z/lzTt/f89yQ6657kHxAEPadsLrEvjZeZdgtkcLOZ6y/T+DCu8cI=
+	t=1741674255; cv=none; b=Tk+yViUgdnXZv150r248G4xPxrFXx5lgGRVLkSaO4wwlhtuE1/ZAfJROaoK7i1aUVkIoOGwqntsAhZSvNnK2aMK/qqHWBevoEmPZagYWrgvxUZM970MFFWzkUDL0K2vue5hbWsoY3QK0qet21fLEBEsJshYWT3MPpmjyWU97zms=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741673995; c=relaxed/simple;
-	bh=ZP4EaVCBU43ETX1tsWfetopJ677SR8acZVhOJLrcrw0=;
+	s=arc-20240116; t=1741674255; c=relaxed/simple;
+	bh=DsqDEHlBUwS8fyV8/WMCNPW7k1Q8GQhlh9GKPXRNGBY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XWZh5loYjQPxUju5NmAYBM3zaCLyEaBZycwsYoD/sOjkXJeXkiEqk5r+M914t1aQ8P16EoCuZBU6czij2k12BeONEMPEJMQXIJVRlzO5PmbtFiT/w+b/ooqybjrKZq4235P8G8upAgl9rmsh2hz6EKMAHJPF/ZJYCBLInRYOLDI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=qUfoHDcN; arc=none smtp.client-ip=140.211.166.138
+	 In-Reply-To:Content-Type; b=Pm5aQTUy3kSB7V8XUbpsT9YVEAo54vZ/xb6mnoKLgjO2IjikBXHS8L0bq033ENmA0C/SPXRoV7XFsNcPRgYwimgCZY6LSJLHvy6uNitNUxciFiZoIOufhK0P4MCojaNA99dDyohbVqFLb8wjHg9Y2lg6qBcWrhuM3BqOtp6/ugI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=PYqbQoz0; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="qUfoHDcN"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="PYqbQoz0"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 20FEE81B17
-	for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 06:19:54 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 27B9B40275
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 06:24:14 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id wTbvOEIFZA8k for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Mar 2025 06:19:53 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::631; helo=mail-pl1-x631.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 3786181325
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3786181325
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=qUfoHDcN
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3786181325
-	for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 06:19:53 +0000 (UTC)
-Received: by mail-pl1-x631.google.com with SMTP id d9443c01a7336-2254e0b4b79so2243845ad.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 23:19:53 -0700 (PDT)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id nLCY4HyodY6n for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 Mar 2025 06:24:13 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2E452400FC
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2E452400FC
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=PYqbQoz0
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2E452400FC
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 06:24:12 +0000 (UTC)
+Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-2239c066347so88493415ad.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 10 Mar 2025 23:24:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741673992; x=1742278792; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741674252; x=1742279052; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=EbcW5/eDAGhdpWi7HyX3jjOdHbLTgrUim/DP0OQGuWo=;
-        b=qUfoHDcNDU0BL+dCQANFE5Ri9KXIG+7Er8l4eyY3N+NcEjgUt9WHRdct4wRO84weqR
-         B9ZpfuL7gf6XMbR8TsLkHy+OLNT/TEZg+bVZsVLkF4mePSeVxmCg1cE63/5Ul2ai/9tu
-         ytVaV7ufKOViIgoyRd4cdzgvgdvd35IFmLsb1nNiGXK35cAk9SJBEh+KeNLQ8bimGHuc
-         ts0K6d+cOzqPBk5N/c9l8zjvjhbl5etW8A5tZk1+k4Tf//vGoJ9ZpE/hL+RFDHXmcjAH
-         A7pZ7EFmxxEk2GtBDDmSgezVWzVoxXxV7+Z4w++eC4nAJUbk3L8wEvraWskp9GbthKbD
-         jC1g==
+        bh=hcOWo3MpfkZwJWARJhxBJx9ftvSTMuCRJKTKMNfQ2T0=;
+        b=PYqbQoz0c+MZTvgmAo4kvW6BYGG0+WsWfMwAFTOox8TxLJj0kvt7TlfI82QNc+8uaL
+         7LI3GC0u4mjra9JCV3q9xXMEiNE2kIDVLURD09k/wzX3mfsnJbZVE2xGK4z53aJStNU1
+         nopBeHu65jdSy15s5A9E/8jdViWEozBiZoTpY0mFagGj3JHS4Ky7ai0rLr1O2HvquPLi
+         zIwJl7CHC+e50yhpJ8MRjRWHV0D5PT0TZy+mak6QsWkp6vcguj2jlWdFFwH2gb2Nojwu
+         yG5ULg7/ZNxCqtUc7bjcUs0dfeWO/SZTL1iU/PrLzcon2zfxEK5gDLL6At5yBK5M4zRW
+         RjNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741673992; x=1742278792;
+        d=1e100.net; s=20230601; t=1741674252; x=1742279052;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=EbcW5/eDAGhdpWi7HyX3jjOdHbLTgrUim/DP0OQGuWo=;
-        b=rRDy+cTNzHotm/1AWPtJxa4mfDryZX6oXpFJ/YYdXH2R6cZtyzf58NKtv1vNReX7Xo
-         aDRoHxQK8MtgDYuyczLdOCdv67eaZlkzYzIJoH2zxPq/btH5kL56p1vinZD7zJ250rfn
-         k23vHF5dz/IpmOOh0WyBghNhkZdAjXJEC3/4tO0mFpGKf5jxrJh7uv7QCnfndtEZjFWQ
-         F9ahnEZv4dZlvTQrZKxL3YnIyucyS1WczgdfqLdDlfcsA8y3o6ZXftYCYaqR/s3YB+pR
-         RbpmyikFFKcrqoNOh01CHgxiK8AdujmdarssT95cLRAVV3qHZ9dE5rlfFNL1pCBkXdk3
-         hEzg==
-X-Forwarded-Encrypted: i=1; AJvYcCVjTroTHq27o/NYoScYuPgsmfFzMtC3dTsGSrv9+7k+4eAlJQ4Tr7HFws5Hnz9Cc2aM8DmXRpREDYjPx3MQaA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz5NTPtQM48t5rsO+iTl7vM6Nskj8MkG6qb0tedJnr5RMT5Q3zC
-	JAoG57+WyovQsNnQ8XPzDxrCwX9Db84cf9cYrRQM9MPbUKtxCoXoLLQlyeNq3N4=
-X-Gm-Gg: ASbGncuYSwwgPCuDf87uhA8Nb4lCNsn6zGsNop8ZwVsKZC2m9cofnbiCF72p3RDdh8Q
-	Xf4Uc3w+/2w5tJoOHcgmVBzkEGf21+pCYdeQHQKeyHTVtAgp/nVCfEb90BNdhRj1mrW5k5itmrZ
-	uB31d3Vlot2fbjUiKnjEwuhSt796k3RIVhrj+o9xi1lLUHKYsR8D+fIY0+/aYdc0ZbrQkk+oeYF
-	55Dpn3Y2OY9ADJwWv+SW25jJw552ugXU4uy2fdY1DG+0XbaFwV0STF1/U94NCE1X8/ZPOcS5hPm
-	dLEH7ra+nFNNJerdAjQG9oZL1TagOvit945XRfhIxw1TSDNFytauKAYmrw==
-X-Google-Smtp-Source: AGHT+IEO1Addst46ofGtxfDAcyJAfRa7cWyZNqzRhdZXtyiIrODFKfx6qBjS5jqvhrfaOM+pKspNkg==
-X-Received: by 2002:a17:902:e802:b0:223:26da:4b6f with SMTP id d9443c01a7336-22428895abfmr268969215ad.14.1741673992501;
-        Mon, 10 Mar 2025 23:19:52 -0700 (PDT)
+        bh=hcOWo3MpfkZwJWARJhxBJx9ftvSTMuCRJKTKMNfQ2T0=;
+        b=RS3/O5JUsSMrHR7SRl/F4tBY+//bN9O2H/JO2vCDxEfi5VK6ick/5RMtzpSfAccX4C
+         9udJzn5bxl8Srb9zGrDJM6Re0lLHMloCuBCZ5oPAapS8KCtzdhR8f9CXRTn4Nr7Pk/Bn
+         rhF/lAitmmnR7j+B4URUxMSCyuMJF7axbboV8zSVb1xma0WCRy4xBQTd2qXTCVMOU4lO
+         csKvv3LRBn6HYs2joMPwzvLyd87DcKSMHj9Kz3Rny9HWC9qqpSrf/MokOgZr7WgBi0XB
+         dOoU31G5PSVpH+EyoLOwVjtGrRBhtLYaHJoAW8HyhFYoE9yWygR8r5WmLzX+FE0T0cuM
+         PaRw==
+X-Forwarded-Encrypted: i=1; AJvYcCVyzbpTpR8f98A1XREhAvajOI2hCplJK2phC9T8PIicE5LGLypL/72Tjo+6evVqMU1/WOx1BEwKtZn+FrvGRg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yy148Q6S+zXgHfGa0Ew0QeqfNMWLCL9WhbBRK05yKPznArqK2+B
+	lDnYE5Q3+OZD1jp2BWVbI3r50+NwUxyQP7+phNY09U48cAp6bl8WCcVGXX0rxbo=
+X-Gm-Gg: ASbGncsEd8z52cH9SH67hWifYKnUgOr1zZuWiw7wXm2LJTUN77Yv3xeQEWyosE3KdRz
+	dyyHQnbGHuFTyCtj7/nZactGS8Ii8T3MOUed+5WIl6E0q+/c958aDE4D4DN+saFGk0/QabMUcuQ
+	Ph3f758hwD1dQJw7pexZ4GZ+fPD4CZzIkEWKsI+6pbCR1QU9RwfLwGsKGQqG8hLJmDOSpVV4rrK
+	xSU2V0mDoBlwHwORYHJ4VUuft2Eo2m2fJtyNX5SXQhUcrxzvRn0gr4+wS3YyZLi51VW8kV59aLr
+	ms6j2luHGbPf1/eInInMbCPOpMvZd7EMrwFZHng80Hi7GOReZgs/544eLg==
+X-Google-Smtp-Source: AGHT+IGn18ZSOeDi0OtiFl4e+mdyHaJbBZUtxUxoxSL45HZJeEfhcKnA+r8VKFVTyGuyQbzX9uCMeA==
+X-Received: by 2002:a05:6a00:1a92:b0:730:d5ca:aee with SMTP id d2e1a72fcca58-736aaae81e6mr21317990b3a.23.1741674252333;
+        Mon, 10 Mar 2025 23:24:12 -0700 (PDT)
 Received: from [157.82.205.237] ([157.82.205.237])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22410a7f5dasm89029115ad.137.2025.03.10.23.19.48
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-736a336010dsm9010979b3a.59.2025.03.10.23.24.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Mar 2025 23:19:52 -0700 (PDT)
-Message-ID: <217fb3ef-336d-4141-b47e-3236f2c22ec3@daynix.com>
-Date: Tue, 11 Mar 2025 15:19:47 +0900
+        Mon, 10 Mar 2025 23:24:12 -0700 (PDT)
+Message-ID: <1dd2417a-3246-44b0-b4ba-feadfd6f794e@daynix.com>
+Date: Tue, 11 Mar 2025 15:24:06 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -84,8 +84,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9 5/6] selftest: tun: Add tests for virtio-net
- hashing
+Subject: Re: [PATCH net-next v9 6/6] vhost/net: Support
+ VIRTIO_NET_F_HASH_REPORT
 To: Jason Wang <jasowang@redhat.com>
 Cc: Jonathan Corbet <corbet@lwn.net>,
  Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
@@ -101,138 +101,137 @@ Cc: Jonathan Corbet <corbet@lwn.net>,
  Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
  Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>
 References: <20250307-rss-v9-0-df76624025eb@daynix.com>
- <20250307-rss-v9-5-df76624025eb@daynix.com>
- <CACGkMEuTwd4+DP1Cb+ZgJtxTiJj4N_NMPHiKusd8a4Tn3+B_3A@mail.gmail.com>
+ <20250307-rss-v9-6-df76624025eb@daynix.com>
+ <CACGkMEuccQ6ah-aZ3tcW1VRuetEoPA_NaLxLT+9fb0uAab8Agg@mail.gmail.com>
+ <2e550452-a716-4c3f-9d5a-3882d2c9912a@daynix.com>
+ <CACGkMEu9tynRgTh__3p_vSqOekSirbVgS90rd5dUiJru9oV1eg@mail.gmail.com>
 Content-Language: en-US
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <CACGkMEuTwd4+DP1Cb+ZgJtxTiJj4N_NMPHiKusd8a4Tn3+B_3A@mail.gmail.com>
+In-Reply-To: <CACGkMEu9tynRgTh__3p_vSqOekSirbVgS90rd5dUiJru9oV1eg@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 2025/03/10 13:03, Jason Wang wrote:
-> On Fri, Mar 7, 2025 at 7:02 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+On 2025/03/11 9:42, Jason Wang wrote:
+> On Mon, Mar 10, 2025 at 3:04 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
 >>
->> The added tests confirm tun can perform RSS and hash reporting, and
->> reject invalid configurations for them.
+>> On 2025/03/10 13:43, Jason Wang wrote:
+>>> On Fri, Mar 7, 2025 at 7:02 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>>
+>>>> VIRTIO_NET_F_HASH_REPORT allows to report hash values calculated on the
+>>>> host. When VHOST_NET_F_VIRTIO_NET_HDR is employed, it will report no
+>>>> hash values (i.e., the hash_report member is always set to
+>>>> VIRTIO_NET_HASH_REPORT_NONE). Otherwise, the values reported by the
+>>>> underlying socket will be reported.
+>>>>
+>>>> VIRTIO_NET_F_HASH_REPORT requires VIRTIO_F_VERSION_1.
+>>>>
+>>>> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+>>>> Tested-by: Lei Yang <leiyang@redhat.com>
+>>>> ---
+>>>>    drivers/vhost/net.c | 49 +++++++++++++++++++++++++++++--------------------
+>>>>    1 file changed, 29 insertions(+), 20 deletions(-)
+>>>>
+>>>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+>>>> index b9b9e9d40951856d881d77ac74331d914473cd56..16b241b44f89820a42c302f3586ea6bb5e0d4289 100644
+>>>> --- a/drivers/vhost/net.c
+>>>> +++ b/drivers/vhost/net.c
+>>>> @@ -73,6 +73,7 @@ enum {
+>>>>           VHOST_NET_FEATURES = VHOST_FEATURES |
+>>>>                            (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
+>>>>                            (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+>>>> +                        (1ULL << VIRTIO_NET_F_HASH_REPORT) |
+>>>>                            (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
+>>>>                            (1ULL << VIRTIO_F_RING_RESET)
+>>>>    };
+>>>> @@ -1097,9 +1098,11 @@ static void handle_rx(struct vhost_net *net)
+>>>>                   .msg_controllen = 0,
+>>>>                   .msg_flags = MSG_DONTWAIT,
+>>>>           };
+>>>> -       struct virtio_net_hdr hdr = {
+>>>> -               .flags = 0,
+>>>> -               .gso_type = VIRTIO_NET_HDR_GSO_NONE
+>>>> +       struct virtio_net_hdr_v1_hash hdr = {
+>>>> +               .hdr = {
+>>>> +                       .flags = 0,
+>>>> +                       .gso_type = VIRTIO_NET_HDR_GSO_NONE
+>>>> +               }
+>>>>           };
+>>>>           size_t total_len = 0;
+>>>>           int err, mergeable;
+>>>> @@ -1110,7 +1113,6 @@ static void handle_rx(struct vhost_net *net)
+>>>>           bool set_num_buffers;
+>>>>           struct socket *sock;
+>>>>           struct iov_iter fixup;
+>>>> -       __virtio16 num_buffers;
+>>>>           int recv_pkts = 0;
+>>>>
+>>>>           mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
+>>>> @@ -1191,30 +1193,30 @@ static void handle_rx(struct vhost_net *net)
+>>>>                           vhost_discard_vq_desc(vq, headcount);
+>>>>                           continue;
+>>>>                   }
+>>>> +               hdr.hdr.num_buffers = cpu_to_vhost16(vq, headcount);
+>>>>                   /* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR */
+>>>>                   if (unlikely(vhost_hlen)) {
+>>>> -                       if (copy_to_iter(&hdr, sizeof(hdr),
+>>>> -                                        &fixup) != sizeof(hdr)) {
+>>>> +                       if (copy_to_iter(&hdr, vhost_hlen,
+>>>> +                                        &fixup) != vhost_hlen) {
+>>>>                                   vq_err(vq, "Unable to write vnet_hdr "
+>>>>                                          "at addr %p\n", vq->iov->iov_base);
+>>>>                                   goto out;
+>>>
+>>> Is this an "issue" specific to RSS/HASH? If it's not, we need a separate patch.
+>>>
+>>> Honestly, I'm not sure if it's too late to fix this.
+>>
+>> There is nothing wrong with the current implementation.
 > 
-> Let's be more verbose here. E.g what's the network topology used here.
-
-The network topology doesn't matter because this only tests the rx of 
-one device.
-
-I can still add more details; it tests all supported hash types, and 
-tests both the queue selection and reported hash values.
-
-And this message is wrong in terms that it does not test validation of 
-configuration so it also needs correction.
-
+> Note that I meant the vhost_hlen part, and the current code is tricky.
 > 
->>
->> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
->> Tested-by: Lei Yang <leiyang@redhat.com>
->> ---
->>   tools/testing/selftests/net/Makefile |   2 +-
->>   tools/testing/selftests/net/tun.c    | 584 ++++++++++++++++++++++++++++++++++-
->>   2 files changed, 576 insertions(+), 10 deletions(-)
->>
->> diff --git a/tools/testing/selftests/net/Makefile b/tools/testing/selftests/net/Makefile
->> index 73ee88d6b043004be23b444de667a1d99a6045de..9772f691a9a011d99212df32463cdb930cf0a1a0 100644
->> --- a/tools/testing/selftests/net/Makefile
->> +++ b/tools/testing/selftests/net/Makefile
->> @@ -123,6 +123,6 @@ $(OUTPUT)/reuseport_bpf_numa: LDLIBS += -lnuma
->>   $(OUTPUT)/tcp_mmap: LDLIBS += -lpthread -lcrypto
->>   $(OUTPUT)/tcp_inq: LDLIBS += -lpthread
->>   $(OUTPUT)/bind_bhash: LDLIBS += -lpthread
->> -$(OUTPUT)/io_uring_zerocopy_tx: CFLAGS += -I../../../include/
->> +$(OUTPUT)/io_uring_zerocopy_tx $(OUTPUT)/tun: CFLAGS += -I../../../include/
->>
->>   include bpf.mk
->> diff --git a/tools/testing/selftests/net/tun.c b/tools/testing/selftests/net/tun.c
->> index 463dd98f2b80b1bdcb398cee43c834e7dc5cf784..acadeea7194eaea9416a605b47f99f7a5f1f80cd 100644
->> --- a/tools/testing/selftests/net/tun.c
->> +++ b/tools/testing/selftests/net/tun.c
->> @@ -2,21 +2,38 @@
->>
->>   #define _GNU_SOURCE
->>
->> +#include <endian.h>
->>   #include <errno.h>
->>   #include <fcntl.h>
->> +#include <sched.h>
+> The comment said:
 > 
-> Is this needed?
-
-Yes, it is for unshare().
-
+> """
+> /* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR */
+> """
 > 
->> +#include <stddef.h>
->>   #include <stdio.h>
->>   #include <stdlib.h>
->>   #include <string.h>
->>   #include <unistd.h>
->> -#include <linux/if.h>
->> +#include <net/if.h>
->> +#include <netinet/ip.h>
->> +#include <sys/ioctl.h>
->> +#include <sys/socket.h>
->> +#include <linux/compiler.h>
->> +#include <linux/icmp.h>
->> +#include <linux/if_arp.h>
->>   #include <linux/if_tun.h>
->> +#include <linux/ipv6.h>
->>   #include <linux/netlink.h>
->>   #include <linux/rtnetlink.h>
->> -#include <sys/ioctl.h>
->> -#include <sys/socket.h>
->> +#include <linux/sockios.h>
->> +#include <linux/tcp.h>
->> +#include <linux/udp.h>
->> +#include <linux/virtio_net.h>
->>
->>   #include "../kselftest_harness.h"
->>
->> +#define TUN_HWADDR_SOURCE { 0x02, 0x00, 0x00, 0x00, 0x00, 0x00 }
->> +#define TUN_HWADDR_DEST { 0x02, 0x00, 0x00, 0x00, 0x00, 0x01 }
->> +#define TUN_IPADDR_SOURCE htonl((172 << 24) | (17 << 16) | 0)
->> +#define TUN_IPADDR_DEST htonl((172 << 24) | (17 << 16) | 1)
->> +
->>   static int tun_attach(int fd, char *dev)
->>   {
->>          struct ifreq ifr;
->> @@ -39,7 +56,7 @@ static int tun_detach(int fd, char *dev)
->>          return ioctl(fd, TUNSETQUEUE, (void *) &ifr);
->>   }
->>
->> -static int tun_alloc(char *dev)
->> +static int tun_alloc(char *dev, short flags)
->>   {
->>          struct ifreq ifr;
->>          int fd, err;
->> @@ -52,7 +69,8 @@ static int tun_alloc(char *dev)
->>
->>          memset(&ifr, 0, sizeof(ifr));
->>          strcpy(ifr.ifr_name, dev);
->> -       ifr.ifr_flags = IFF_TAP | IFF_NAPI | IFF_MULTI_QUEUE;
->> +       ifr.ifr_flags = flags | IFF_TAP | IFF_NAPI | IFF_NO_PI |
->> +                       IFF_MULTI_QUEUE;
->>
->>          err = ioctl(fd, TUNSETIFF, (void *) &ifr);
->>          if (err < 0) {
->> @@ -64,6 +82,40 @@ static int tun_alloc(char *dev)
->>          return fd;
->>   }
->>
->> +static bool tun_add_to_bridge(int local_fd, const char *name)
->> +{
+> So it tries to only offer virtio_net_hdr even if vhost_hlen is the set
+> to mrg_rxbuf len.
 > 
-> I wonder if a packet socket is more convenient here.
+> And this patch changes this behaviour.
 
-I'll try it. Thanks for suggestion.
+mrg_rxbuf only adds the num_buffers field, which is always set for 
+mrg_rxbuf.
+
+The num_buffers was not set for VIRTIO_F_VERSION_1 in the past, but this 
+was also fixed with commit a3b9c053d82a ("vhost/net: Set num_buffers for 
+virtio 1.0")
+
+So there is no behavioral change for existing features with this patch.
 
 Regards,
 Akihiko Odaki
 
 > 
 > Thanks
+> 
+>> The current
+>> implementation fills the header with zero except num_buffers, which it
+>> fills some real value. This functionality is working fine with
+>> VIRTIO_NET_F_MRG_RXBUF and VIRTIO_F_VERSION_1, which change the header size.
+>>
+>> Now I'm adding VIRTIO_NET_F_HASH_REPORT and it adds the hash_report
+>> field, which also needs to be initialized with zero, so I'm making sure
+>> vhost_net will also initialize it.
+>>
+>> Regards,
+>> Akihiko Odaki
+>>
+>>>
+>>> Others look fine.
+>>>
+>>> Thanks
+>>>
+>>
 > 
 
