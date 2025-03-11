@@ -1,78 +1,78 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0121260A5A
-	for <virtualization@lists.linux.dev>; Tue, 11 Mar 2025 15:55:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A063025FA24
+	for <virtualization@lists.linux.dev>; Tue, 11 Mar 2025 15:55:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741708552; cv=none; b=pdLotiUy70PfZd6X8P8hNnabWZ3zN7x0Z3BlpB3xX+umtbV9U+ft97ww6i79v4BK7FDKmL/fT9jsP6AjNiAGU69k+bYfTZziAc5nlZ6QkgQWxbY8nTzP3QTRcB1jyif9hsWGj4gXgM86CBYGQac4I8gcYFJ9UzuNVlXToe6LA5s=
+	t=1741708557; cv=none; b=dX7HzRccXF3ZKR07D0vMeJGBY9/Go5fvyFeLFgI+YvAgK2PocgU6TsVpOllCpYviKJS31vVMaWDEg3ILlCUl/4LBIuTKC31R/otlRkqyxjBN8faSEU7jAlnRCAvjPQtvCvm/i3Zw18DC5RZVPC8SY3DvErYZSSGLJNvduz/ffks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741708552; c=relaxed/simple;
-	bh=sc4/TLToQmqJ9IbZBVJ+FgWDNHEsIssQeUVmR9Z5sPo=;
+	s=arc-20240116; t=1741708557; c=relaxed/simple;
+	bh=xYs8oGWRq2LYTA8YKgkU194x6bu4gm+T0o9xMcmO9Sk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i9hx4nGafz3iuTqpgkYD4bl0BWp/ytO4kwuZ3fP7Skri5/AFHG0fo/Aj5kugm5n/38DA+OOfkfIb6dAXR+NfCEhaWGAiqrOrgNLt2GWjHle7EUJ52Jqrsf3PdfSCaNCWbbInjRJrh84Bnnyjx252otIQ5OqgLBz2rv41n5u/rSk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bGXHt34G; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=o1iQLl7E; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bGXHt34G; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=o1iQLl7E; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version:Content-Type; b=lEkq4vlBtjJMQ6NOQ8KZdIOHN9gj1ZPwUs68ndhcMaAmihPHH6eszmxqd+1vgDBoIdLUn8doLQGAVxxVhklI1oDzBHrdCNYbwLk2+K2Lx3Nv4P0CmfML956j1eu0vLx62zvafnSlvTv11fenPYRkoWt3woeVYDF3aB3UESCGY7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SjvLLsHe; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=8JlPHdv8; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SjvLLsHe; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=8JlPHdv8; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bGXHt34G";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="o1iQLl7E";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bGXHt34G";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="o1iQLl7E"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SjvLLsHe";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="8JlPHdv8";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SjvLLsHe";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="8JlPHdv8"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 52AEC21169;
-	Tue, 11 Mar 2025 15:55:01 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 5D69D1F454;
+	Tue, 11 Mar 2025 15:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1741708501; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	t=1741708499; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KOh7UhW3mzXlPJpIdVaeXaNgF5WuI+vmkqbjw0/CGbs=;
-	b=bGXHt34Gpav7fo6WDGENxocm8ZOXTBKe5nTTa5pLITFQZPl7ywYtmfRqnHuZsAiOtD4KLY
-	Vqpl5pCLeZFQitGjMPD4BXT22rYrfAhW3vDZUvRZjVC+PAETroXEUk/iDXTtRFjTC4K8Mh
-	wQbK6D8o7dkSyqVeoLWR3m4j8OpzhnU=
+	bh=WWelbGgEbCkjP4y//d+vHYWhnPzSt4ULU4ovN7MHpM8=;
+	b=SjvLLsHe3qdAudRrPrvpBK0EcmYh0ziskEqZ8i1KeyCbS8EoQF35cAWsAqAja7EffcDZb1
+	fIEZJoPmJn+2dwknAWAyxuY1lRlE5OUWrPkCfw94F2oTZGJXbFUrDY5vLFhUGUjfOQfNKv
+	FWAY5liILNKzPBENjIraE7hsoSqf4rQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1741708501;
+	s=susede2_ed25519; t=1741708499;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KOh7UhW3mzXlPJpIdVaeXaNgF5WuI+vmkqbjw0/CGbs=;
-	b=o1iQLl7EJXR9UTZRWc/7J0dG+WP5cTmvuhpsPU+/rkXPy8gutWMLokEraZ70USxfAFYJsZ
-	IE1Je4IL+ndcxiBQ==
-Authentication-Results: smtp-out1.suse.de;
+	bh=WWelbGgEbCkjP4y//d+vHYWhnPzSt4ULU4ovN7MHpM8=;
+	b=8JlPHdv8s9lKjhTcW1rII9sjGNksn1+b0e760I1x5NvI2xbQRT5vdls1e73VWOugZnQgmb
+	nUuTB0vZ76vY93AQ==
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1741708501; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	t=1741708499; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KOh7UhW3mzXlPJpIdVaeXaNgF5WuI+vmkqbjw0/CGbs=;
-	b=bGXHt34Gpav7fo6WDGENxocm8ZOXTBKe5nTTa5pLITFQZPl7ywYtmfRqnHuZsAiOtD4KLY
-	Vqpl5pCLeZFQitGjMPD4BXT22rYrfAhW3vDZUvRZjVC+PAETroXEUk/iDXTtRFjTC4K8Mh
-	wQbK6D8o7dkSyqVeoLWR3m4j8OpzhnU=
+	bh=WWelbGgEbCkjP4y//d+vHYWhnPzSt4ULU4ovN7MHpM8=;
+	b=SjvLLsHe3qdAudRrPrvpBK0EcmYh0ziskEqZ8i1KeyCbS8EoQF35cAWsAqAja7EffcDZb1
+	fIEZJoPmJn+2dwknAWAyxuY1lRlE5OUWrPkCfw94F2oTZGJXbFUrDY5vLFhUGUjfOQfNKv
+	FWAY5liILNKzPBENjIraE7hsoSqf4rQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1741708501;
+	s=susede2_ed25519; t=1741708499;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KOh7UhW3mzXlPJpIdVaeXaNgF5WuI+vmkqbjw0/CGbs=;
-	b=o1iQLl7EJXR9UTZRWc/7J0dG+WP5cTmvuhpsPU+/rkXPy8gutWMLokEraZ70USxfAFYJsZ
-	IE1Je4IL+ndcxiBQ==
+	bh=WWelbGgEbCkjP4y//d+vHYWhnPzSt4ULU4ovN7MHpM8=;
+	b=8JlPHdv8s9lKjhTcW1rII9sjGNksn1+b0e760I1x5NvI2xbQRT5vdls1e73VWOugZnQgmb
+	nUuTB0vZ76vY93AQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id ACF69134A0;
-	Tue, 11 Mar 2025 15:55:00 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B4C5413AB8;
+	Tue, 11 Mar 2025 15:54:58 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id yMjrKNRc0GdUdQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 11 Mar 2025 15:55:00 +0000
+	id cO/UKtJc0GdUdQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 11 Mar 2025 15:54:58 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: simona@ffwll.ch,
 	airlied@gmail.com,
@@ -95,11 +95,12 @@ Cc: dri-devel@lists.freedesktop.org,
 	intel-xe@lists.freedesktop.org,
 	xen-devel@lists.xenproject.org,
 	Thomas Zimmermann <tzimmermann@suse.de>,
-	Zack Rusin <zack.rusin@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Subject: [PATCH v4 22/25] drm/vmwgfx: Compute dumb-buffer sizes with drm_mode_size_dumb()
-Date: Tue, 11 Mar 2025 16:47:26 +0100
-Message-ID: <20250311155120.442633-23-tzimmermann@suse.de>
+	Heiko Stuebner <heiko@sntech.de>,
+	Sandy Huang <hjc@rock-chips.com>,
+	Andy Yan <andy.yan@rock-chips.com>
+Subject: [PATCH v4 19/25] drm/rockchip: Compute dumb-buffer sizes with drm_mode_size_dumb()
+Date: Tue, 11 Mar 2025 16:47:23 +0100
+Message-ID: <20250311155120.442633-20-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250311155120.442633-1-tzimmermann@suse.de>
 References: <20250311155120.442633-1-tzimmermann@suse.de>
@@ -109,84 +110,78 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -1.30
-X-Spamd-Result: default: False [-1.30 / 50.00];
+X-Spam-Level: 
+X-Spamd-Result: default: False [-1.80 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	SUSPICIOUS_RECIPS(1.50)[];
 	MID_CONTAINS_FROM(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
 	MIME_GOOD(-0.10)[text/plain];
-	RCVD_COUNT_TWO(0.00)[2];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[23];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,broadcom.com:email,suse.de:mid,suse.de:email];
 	TO_DN_SOME(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[24];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLqirfcw6gnbcr9a9yhi49fhi6),to(RLbwen1niosrcqbxsafh1)];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[sntech.de:email,rock-chips.com:email,imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid]
+X-Spam-Score: -1.80
 X-Spam-Flag: NO
-X-Spam-Level: 
 
-Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch
-and buffer size. No alignment required.
+Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
+buffer size. Align the pitch to a multiple of 64.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Zack Rusin <zack.rusin@broadcom.com>
-Cc: Zack Rusin <zack.rusin@broadcom.com>
-Cc: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Acked-by: Heiko Stuebner <heiko@sntech.de>
+Cc: Sandy Huang <hjc@rock-chips.com>
+Cc: "Heiko Stübner" <heiko@sntech.de>
+Cc: Andy Yan <andy.yan@rock-chips.com>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 21 ++++-----------------
- 1 file changed, 4 insertions(+), 17 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_gem.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-index 02ab65cc63ec..c3a4ea713559 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-@@ -15,6 +15,7 @@
- #include "vmw_surface_cache.h"
- #include "device_include/svga3d_surfacedefs.h"
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
+index 6330b883efc3..3bd06202e232 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
+@@ -9,6 +9,7 @@
+ #include <linux/vmalloc.h>
  
+ #include <drm/drm.h>
 +#include <drm/drm_dumb_buffers.h>
- #include <drm/ttm/ttm_placement.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem.h>
+ #include <drm/drm_gem_dma_helper.h>
+@@ -403,13 +404,12 @@ int rockchip_gem_dumb_create(struct drm_file *file_priv,
+ 			     struct drm_mode_create_dumb *args)
+ {
+ 	struct rockchip_gem_object *rk_obj;
+-	int min_pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
++	int ret;
  
- #define SVGA3D_FLAGS_64(upper32, lower32) (((uint64_t)upper32 << 32) | lower32)
-@@ -2270,23 +2271,9 @@ int vmw_dumb_create(struct drm_file *file_priv,
- 	 * contents is going to be rendered guest side.
- 	 */
- 	if (!dev_priv->has_mob || !vmw_supports_3d(dev_priv)) {
--		int cpp = DIV_ROUND_UP(args->bpp, 8);
--
--		switch (cpp) {
--		case 1: /* DRM_FORMAT_C8 */
--		case 2: /* DRM_FORMAT_RGB565 */
--		case 4: /* DRM_FORMAT_XRGB8888 */
--			break;
--		default:
--			/*
--			 * Dumb buffers don't allow anything else.
--			 * This is tested via IGT's dumb_buffers
--			 */
--			return -EINVAL;
--		}
--
--		args->pitch = args->width * cpp;
--		args->size = ALIGN(args->pitch * args->height, PAGE_SIZE);
-+		ret = drm_mode_size_dumb(dev, args, 0, 0);
-+		if (ret)
-+			return ret;
+-	/*
+-	 * align to 64 bytes since Mali requires it.
+-	 */
+-	args->pitch = ALIGN(min_pitch, 64);
+-	args->size = args->pitch * args->height;
++	/* 64-byte alignment required by Mali */
++	ret = drm_mode_size_dumb(dev, args, SZ_64, 0);
++	if (ret)
++		return ret;
  
- 		ret = vmw_gem_object_create_with_handle(dev_priv, file_priv,
- 							args->size, &args->handle,
+ 	rk_obj = rockchip_gem_create_with_handle(file_priv, dev, args->size,
+ 						 &args->handle);
 -- 
 2.48.1
 
