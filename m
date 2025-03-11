@@ -1,46 +1,47 @@
 Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD0842356D3;
-	Tue, 11 Mar 2025 10:44:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12E2B23F385;
+	Tue, 11 Mar 2025 10:44:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741689851; cv=none; b=arS73R8Jdj5/yWfacITHuNJdqJ9EuQdj1QObS9LYe9GyEMNTgCXoRNsJyywsvdbTUhDQu2yoX811Ox3Ft623mj+KaMe9N9AvKNW2/V2vKakp12SSTtD0JEKG8sJD5GKVNur89KXe8IBJiWgFHjqpGre5AVvMlXUrLyaoYUrCkjw=
+	t=1741689853; cv=none; b=CgqgrB4yNJ0WmFw8qMvkwNeOQpPQ8P35OCZcXfWGfH8b/BtO7iR/KwOKspvIZXBt34OZ6W6RC7J47xlCL50RTTJ5QTJDSAdFmRvPl5RNZCj00fnhp9PcgW7f+wG6E28jnlZGKAf19MFu8V/sKknsYys5lfIW3WxlFQkrQl1SW6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741689851; c=relaxed/simple;
-	bh=tOzGi1+oE4i2IJoUxhsL9xdE2CFvuKnrU3TH/IWp1Uw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FzV5TwJIsJZ0CkmSOCx0EabxGckDMieoJT1+eZXGXkQ2roNu6z+p4FrwxdHPgJBcQPQ0gws2obdc9wxHgWsUXodam2mlwLRflBjLEyP/R8vUIa7IogqU9sGWDIzabksWTQatYrjNQF0mQP7Pzn+kxsUcbZie8zHZyCcpq6PNlH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=WhLfVkP2; arc=none smtp.client-ip=68.232.143.124
+	s=arc-20240116; t=1741689853; c=relaxed/simple;
+	bh=V/8yzlzSQwzG4hlLjx8C1beV8wQX1kn+h5Nq6Xl7qMs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=PTuAUqNjv0tFe0IJejm19WNQOrrPizCPuVBptYOr35TZvmUcv9h2P7eTSPxkX7zvKBcaKbNuRyGvsxc1o72vocirRIdDtZEUM48+mYw0XyX7+12PS85SyfrpkvZTWYQoe30knzGDyZxNoVDuN9EbvG56Zo5WNEcr2/XxQ2TlPaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=nz8kt2us; arc=none smtp.client-ip=68.232.143.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="WhLfVkP2"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="nz8kt2us"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1741689849; x=1773225849;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=tOzGi1+oE4i2IJoUxhsL9xdE2CFvuKnrU3TH/IWp1Uw=;
-  b=WhLfVkP2QKhSGgS8eIWZtQk+z+EY2KprwA7AFzeJTQ71J1S6q72ZLBNh
-   tQrBfTajgq1+J8bXzGC01GfIQBPQKYvEhVW+lWcQlBZ9Cfa7lad5Bhv5M
-   TtsQB2RomAsxYZZSkzgBOtCFz0OGOXIZzCpmcb8XEbKQOBifOZfr3igzj
-   d7KZxMk0PgnfWZHV1FUIS2p1EOQFFZjCQCJF1lD0KBPSdgCKylnB+Cb2W
-   kXWJtlIpnKIGihOYLWHzGEhvTcmxy2xlM07W0TmbgYC0whukLD/ZummFR
-   MrTjs1vL7N+RDfpFErDrDHBvkkbnPQZsLCnpVPBfmMQBKAvyjNC6MdmVW
+  t=1741689851; x=1773225851;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=V/8yzlzSQwzG4hlLjx8C1beV8wQX1kn+h5Nq6Xl7qMs=;
+  b=nz8kt2usODhFkCswmfWdgGw963Nj9pVbHvSn+X9EGmQ9DXZ+EEpEZulM
+   WieoBJQeKyezobW+fNXz1O/99kUzZ8A2utaSzpmijFtsld/ad4+FLw5W7
+   OenO5sD+bMn/gZk8mxNxPpgdgB2TPup1BYL3D7qrx3opWD1gZsZhJjP8M
+   UzR8Gydff9KXMW+0CmrKI8Q0DrPxxLQsfcQjRRyVn/cXIkFH+8sZw8cFB
+   17qAKMmlf4OLGF0MT2Bj7/BLHaOi7giEXY+C8cxGzrJlVWe7Z6jlUwv5W
+   N4Sz2MJJ+Sd5KeI/hUKV2xr69WbPmXc7TEFHtOxh2HAaqk9ussei012I3
    g==;
-X-CSE-ConnectionGUID: GXH8IgrFSJ6PCLI32KKlpg==
-X-CSE-MsgGUID: 0xG1Jhb9SWW1ugCPT8EfWA==
+X-CSE-ConnectionGUID: kU1sd/FPT2qnvsTbq5eu0Q==
+X-CSE-MsgGUID: Esbx+aTNRxq1An/sBal1Vw==
 X-IronPort-AV: E=Sophos;i="6.14,238,1736784000"; 
-   d="scan'208";a="47728707"
+   d="scan'208";a="47728726"
 Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 11 Mar 2025 18:44:02 +0800
-IronPort-SDR: 67d0061d_jl0FgI4kEXCFm7V4DqvKXrJam9/zYQmhcQVQhY9bHLcgX3q
- ZQy6MS6152w4bSBhvBqdG2LCy9kxCBQiydYIRuA==
+  by ob1.hgst.iphmx.com with ESMTP; 11 Mar 2025 18:44:08 +0800
+IronPort-SDR: 67d00622_hC+tRfu/3x3L70GJxjEhuft2TZ4Lq35Got1VkTuXOoEs2xb
+ lb2VZ/PF44JPvnECiXOXdoFfHjWhGd+pKCIRczQ==
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 11 Mar 2025 02:45:01 -0700
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 11 Mar 2025 02:45:06 -0700
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 11 Mar 2025 03:43:59 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 11 Mar 2025 03:44:05 -0700
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: linux-block@vger.kernel.org,
 	linux-nvme@lists.infradead.org,
@@ -63,10 +64,12 @@ Cc: virtualization@lists.linux.dev,
 	Janne Grunau <j@jannau.net>,
 	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 0/2] block: nvme: fix blktests nvme/039 failure
-Date: Tue, 11 Mar 2025 19:43:57 +0900
-Message-ID: <20250311104359.1767728-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 2/2] block: change blk_mq_add_to_batch() third argument type to bool
+Date: Tue, 11 Mar 2025 19:43:59 +0900
+Message-ID: <20250311104359.1767728-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.47.0
+In-Reply-To: <20250311104359.1767728-1-shinichiro.kawasaki@wdc.com>
+References: <20250311104359.1767728-1-shinichiro.kawasaki@wdc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -76,37 +79,144 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
 Commit 1f47ed294a2b ("block: cleanup and fix batch completion adding
-conditions") in the kernel tag v6.14-rc3 triggered blktests nvme/039
-failure [1].
+conditions") modified the evaluation criteria for the third argument,
+'ioerror', in the blk_mq_add_to_batch() function. Initially, the
+function had checked if 'ioerror' equals zero. Following the commit, it
+started checking for negative error values, with the presumption that
+such values, for instance -EIO, would be passed in.
 
-The test case injects errors to the NVMe driver and confirms the errors
-are logged. The first half of the test checks it for non-passthrough
-requests, and the second half checks for passthrough requests. The
-commit made both halves fail.
+However, blk_mq_add_to_batch() callers do not pass negative error
+values. Instead, they pass status codes defined in various ways:
 
-This series addresses the test case failure. The first patch covers the
-passthrough requests, and the second patch covers the non-passthrough
-requests.
+- NVMe PCI and Apple drivers pass NVMe status code
+- virtio_blk driver passes the virtblk request header status byte
+- null_blk driver passes blk_status_t
 
-[1] https://lkml.kernel.org/linux-block/y7m5kyk5r2eboyfsfprdvhmoo27ur46pz3r2kwb4puhxjhbvt6@zgh4dg3ewya3/
+These codes are either zero or positive, therefore the revised check
+fails to function as intended. Specifically, with the NVMe PCI driver,
+this modification led to the failure of the blktests test case nvme/039.
+In this test scenario, errors are artificially injected to the NVMe
+driver, resulting in positive NVMe status codes passed to
+blk_mq_add_to_batch(), which unexpectedly processes the failed I/O in a
+batch. Hence the failure.
 
-Changes from v1:
-* 1st patch: Added Reviewed-by tags
-* 2nd patch: Replaced argument blk_status_t with boolean 'is_error'
-             Added kerneldoc of blk_mq_add_to_batch() arguments
+To correct the ioerror check within blk_mq_add_to_batch(), make all
+callers to uniformly pass the argument as boolean. Modify the callers to
+check their specific status codes and pass the boolean value 'is_error'.
+Also describe the arguments of blK_mq_add_to_batch as kerneldoc.
 
-Shin'ichiro Kawasaki (2):
-  nvme: move error logging from nvme_end_req() to __nvme_end_req()
-  block: change blk_mq_add_to_batch() third argument type to bool
-
+Fixes: 1f47ed294a2b ("block: cleanup and fix batch completion adding conditions")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
  drivers/block/null_blk/main.c |  4 ++--
  drivers/block/virtio_blk.c    |  5 +++--
  drivers/nvme/host/apple.c     |  3 ++-
- drivers/nvme/host/core.c      | 12 ++++++------
  drivers/nvme/host/pci.c       |  5 +++--
  include/linux/blk-mq.h        | 11 ++++++++---
- 6 files changed, 24 insertions(+), 16 deletions(-)
+ 5 files changed, 18 insertions(+), 10 deletions(-)
 
+diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
+index d94ef37480bd..fdc7a0b2af10 100644
+--- a/drivers/block/null_blk/main.c
++++ b/drivers/block/null_blk/main.c
+@@ -1549,8 +1549,8 @@ static int null_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
+ 		cmd = blk_mq_rq_to_pdu(req);
+ 		cmd->error = null_process_cmd(cmd, req_op(req), blk_rq_pos(req),
+ 						blk_rq_sectors(req));
+-		if (!blk_mq_add_to_batch(req, iob, (__force int) cmd->error,
+-					blk_mq_end_request_batch))
++		if (!blk_mq_add_to_batch(req, iob, cmd->error != BLK_STS_OK,
++					 blk_mq_end_request_batch))
+ 			blk_mq_end_request(req, cmd->error);
+ 		nr++;
+ 	}
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 6a61ec35f426..91cde76a4b3e 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1207,11 +1207,12 @@ static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
+ 
+ 	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
+ 		struct request *req = blk_mq_rq_from_pdu(vbr);
++		u8 status = virtblk_vbr_status(vbr);
+ 
+ 		found++;
+ 		if (!blk_mq_complete_request_remote(req) &&
+-		    !blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr),
+-						virtblk_complete_batch))
++		    !blk_mq_add_to_batch(req, iob, status != VIRTIO_BLK_S_OK,
++					 virtblk_complete_batch))
+ 			virtblk_request_done(req);
+ 	}
+ 
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index a060f69558e7..8971aca41e63 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -599,7 +599,8 @@ static inline void apple_nvme_handle_cqe(struct apple_nvme_queue *q,
+ 	}
+ 
+ 	if (!nvme_try_complete_req(req, cqe->status, cqe->result) &&
+-	    !blk_mq_add_to_batch(req, iob, nvme_req(req)->status,
++	    !blk_mq_add_to_batch(req, iob,
++				 nvme_req(req)->status != NVME_SC_SUCCESS,
+ 				 apple_nvme_complete_batch))
+ 		apple_nvme_complete_rq(req);
+ }
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 640590b21728..75de86e235ad 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1130,8 +1130,9 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq,
+ 
+ 	trace_nvme_sq(req, cqe->sq_head, nvmeq->sq_tail);
+ 	if (!nvme_try_complete_req(req, cqe->status, cqe->result) &&
+-	    !blk_mq_add_to_batch(req, iob, nvme_req(req)->status,
+-					nvme_pci_complete_batch))
++	    !blk_mq_add_to_batch(req, iob,
++				 nvme_req(req)->status != NVME_SC_SUCCESS,
++				 nvme_pci_complete_batch))
+ 		nvme_pci_complete_rq(req);
+ }
+ 
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index 71f4f0cc3dac..d904e870e72d 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -855,9 +855,14 @@ static inline bool blk_mq_is_reserved_rq(struct request *rq)
+ /*
+  * Batched completions only work when there is no I/O error and no special
+  * ->end_io handler.
++ *
++ * @req: The request to add to batch
++ * @iob: The batch to add the request
++ * @is_error: Specify true if the request failed with an error
++ * @io_comp_batch: The completaion handler for the request
+  */
+ static inline bool blk_mq_add_to_batch(struct request *req,
+-				       struct io_comp_batch *iob, int ioerror,
++				       struct io_comp_batch *iob, bool is_error,
+ 				       void (*complete)(struct io_comp_batch *))
+ {
+ 	/*
+@@ -865,7 +870,7 @@ static inline bool blk_mq_add_to_batch(struct request *req,
+ 	 * 1) No batch container
+ 	 * 2) Has scheduler data attached
+ 	 * 3) Not a passthrough request and end_io set
+-	 * 4) Not a passthrough request and an ioerror
++	 * 4) Not a passthrough request and failed with an error
+ 	 */
+ 	if (!iob)
+ 		return false;
+@@ -874,7 +879,7 @@ static inline bool blk_mq_add_to_batch(struct request *req,
+ 	if (!blk_rq_is_passthrough(req)) {
+ 		if (req->end_io)
+ 			return false;
+-		if (ioerror < 0)
++		if (is_error)
+ 			return false;
+ 	}
+ 
 -- 
 2.47.0
 
