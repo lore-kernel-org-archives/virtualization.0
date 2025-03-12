@@ -1,114 +1,143 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DA1924293C
-	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 12:41:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52021282F1
+	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 13:04:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741783285; cv=none; b=Zvy8XS3CWJ4/TaFQVfKFIVU+wUU9FcRvIl0TwHGHj+nhvcj1VMJpsxFHm91E0IssBLms1jThJO/OKiyKpW25GsoFHsSjAgR+Sh+nQuf4jOmoPy1mgFFef6E2zmwRYoDEAlAbfhwQXLZWH+DEt99qReiOV3n40TZ1sC3/hQNJxAQ=
+	t=1741784679; cv=none; b=pab+08QkSsk+CzCJzawaAjp0xpyY34syn7CzhjL/Y2/zjPqvdRW5RCOQ79idLiYcYOjbQwkxH8nM8JALz3F/NlkeeO34qFTVZSxoq/NfKGWken7VI2d8ED8EtTCDSx13+J2GLxjL/qWTzj173FP2LbBDHvcfViBxMcZApDOnQFg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741783285; c=relaxed/simple;
-	bh=/gFBfjP5wMjeSlpjUQ0wcsO/6jE1wnulS8MRvTH6J/0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PAaD8Fm6hPYNYaKL1OgXByCFFlJ2/7GdZczCaUUQ55WiS/DTrTj8SqF2TK4H5QXgxmYjQ1g3B7QchdBnWpOGAXmeLUGQaDoyhjEAAiznQxAPnSPn0P5/92FFYY8hofI/vnO4luS6qhO0blbZmfbhjmCMqVxDuYY+9DNhlYckY68=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=cEi5E9jL; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1741784679; c=relaxed/simple;
+	bh=slq8/rAAeLehgPMQo7knT6Z5SvGJQgGqgulyfodlFcU=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=RnrgzendXJ0moyrHW2x7tzMN1piMvMrUoW1rMF8VhVEbw8WNBxBI2XMzM54log3E7wllAFeNkjMj+eB57aOvTiZ+SYYh0oev5fllMhGJ7ygde+R+7BxGl89OeHXqcuzadj2hp/dDTw4Dmzn7t1HaPVmMtkn7SYMl+djQrZuLBEs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=iuqcVX/4; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="cEi5E9jL"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1741783278; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=byoy4lGPHlk+/7jnyQFo8ZlkUybA3oGJHC4262MlS70=;
-	b=cEi5E9jLFprm8Xw8VE8tUeXpIaz/jyq7/J8QPl5WgDvZQhLhhNKBIyxh0YFlgwo4iMgTXREp/QrQwJPFq0dlARdvuC4Sp3YvviEtRgob/qWas8gHg0wf+gUQJypmlfMo+stc6MNLoR4D8n61F/kR45byqdJ4lmpeM8jQk4mr0lE=
-Received: from 30.74.129.75(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WRCvGy4_1741783275 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 12 Mar 2025 20:41:15 +0800
-Message-ID: <0ca82e20-1424-4564-972f-4f7ffb73ccaf@linux.alibaba.com>
-Date: Wed, 12 Mar 2025 20:41:14 +0800
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="iuqcVX/4"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52CA4pOJ015977;
+	Wed, 12 Mar 2025 13:04:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	Ayksc6D+xHlqR49pbNWw4frTWGGdWf72gVChQ20uti0=; b=iuqcVX/4lMRoqvpB
+	DC3haUrm9ubLLS9TKWCPBSwKTbcDfBmdinnhkYqgzj80GAu24ThY4EqBMl4Nfvv2
+	DuC/pWhx23ddWcJW0DV0zgHqq0iKp8HbgVJicw0cRN4B50EdHl4toBl78G/uJpCr
+	5fMhcxXCC5qLU+qQQ8NWtkmIBOS1yt6wmunlUlu+F8IaJ+XQoZaGtM0MBYYCck7e
+	nBArC2aUQMpP/DAWRJWxTF8/yLrFyLwepblSXZDXTD2+2EBiFkP6NeV222yUnra0
+	xzdwKWmBAgrtBp/Tb9beBMtD/m+gajNU3Vrw1NSVV99I/ufRXahXfDiUIzJew9ED
+	GwDHXQ==
+Received: from nasanppmta05.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45au2ntfju-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Mar 2025 13:04:29 +0000 (GMT)
+Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.45.79.139])
+	by NASANPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 52CD4TS4005641
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Mar 2025 13:04:29 GMT
+Received: from zhonhan-gv.qualcomm.com (10.80.80.8) by
+ nasanex01c.na.qualcomm.com (10.45.79.139) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.9; Wed, 12 Mar 2025 06:04:27 -0700
+From: Zhongqiu Han <quic_zhonhan@quicinc.com>
+To: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+        <eperezma@redhat.com>,
+        <syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com>
+CC: <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <quic_zhonhan@quicinc.com>, <syzkaller-bugs@googlegroups.com>
+Subject: [PATCH v2] virtio_ring: Fix data race by tagging event_triggered as racy for KCSAN
+Date: Wed, 12 Mar 2025 21:04:12 +0800
+Message-ID: <20250312130412.3516307-1-quic_zhonhan@quicinc.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <67c7761a.050a0220.15b4b9.0018.GAE@google.com>
+References: <67c7761a.050a0220.15b4b9.0018.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
- only NULL elements
-To: Yunsheng Lin <linyunsheng@huawei.com>, NeilBrown <neilb@suse.de>
-Cc: Yunsheng Lin <yunshenglin0825@gmail.com>,
- Dave Chinner <david@fromorbit.com>, Yishai Hadas <yishaih@nvidia.com>,
- Jason Gunthorpe <jgg@ziepe.ca>,
- Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
- Kevin Tian <kevin.tian@intel.com>,
- Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>,
- Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>,
- Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Carlos Maiolino <cem@kernel.org>,
- "Darrick J. Wong" <djwong@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>,
- Anna Schumaker <anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>,
- Jeff Layton <jlayton@kernel.org>, Olga Kornievskaia <okorniev@redhat.com>,
- Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
- Luiz Capitulino <luizcap@redhat.com>,
- Mel Gorman <mgorman@techsingularity.net>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-xfs@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org,
- linux-nfs@vger.kernel.org
-References: <> <316d62c1-0e56-4b11-aacf-86235fba808d@linux.alibaba.com>
- <174173371062.33508.12685894810362310394@noble.neil.brown.name>
- <14ef70cc-beba-4abb-b206-e9fb29381023@linux.alibaba.com>
- <c5cdd730-1e11-4440-849d-8841b5ce86ef@huawei.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <c5cdd730-1e11-4440-849d-8841b5ce86ef@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nasanex01c.na.qualcomm.com (10.45.79.139)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: LBLol1QfKaoy8lny2JDC6jkJKmOkTuxP
+X-Authority-Analysis: v=2.4 cv=ZObXmW7b c=1 sm=1 tr=0 ts=67d1865e cx=c_pps a=JYp8KDb2vCoCEuGobkYCKw==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17 a=GEpy-HfZoHoA:10 a=Vs1iUdzkB0EA:10 a=VwQbUJbxAAAA:8 a=1XWaLZrsAAAA:8 a=COk6AnOGAAAA:8 a=hSkVLCK3AAAA:8
+ a=ulxwteFbzBnXTliP4V8A:9 a=TjNXssC_j7lpFel5tvFf:22 a=cQPPKAXgyycSBL8etih5:22
+X-Proofpoint-ORIG-GUID: LBLol1QfKaoy8lny2JDC6jkJKmOkTuxP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-12_05,2025-03-11_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
+ suspectscore=0 adultscore=0 impostorscore=0 spamscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503120091
 
+syzbot reports a data-race when accessing the event_triggered, here is the
+simplified stack when the issue occurred:
 
+==================================================================
+BUG: KCSAN: data-race in virtqueue_disable_cb / virtqueue_enable_cb_delayed
 
-On 2025/3/12 20:05, Yunsheng Lin wrote:
-> On 2025/3/12 9:45, Gao Xiang wrote:
->>
->>
->> On 2025/3/12 06:55, NeilBrown wrote:
->>> On Mon, 10 Mar 2025, Gao Xiang wrote:
->>>>
->>>>     - Your new api covers narrow cases compared to the existing
->>>>       api, although all in-tree callers may be converted
->>>>       properly, but it increases mental burden of all users.
->>>>       And maybe complicate future potential users again which
->>>>       really have to "check NULL elements in the middle of page
->>>>       bulk allocating" again.
->>>
->>> I think that the current API adds a mental burden for most users.  For
->>> most users, their code would be much cleaner if the interface accepted
->>> an uninitialised array with length, and were told how many pages had
->>> been stored in that array.> A (very) few users benefit from the complexity.  So having two
->>> interfaces, one simple and one full-featured, makes sense.
-> 
-> Thanks for the above clear summarization.
-> 
->>
->> Ok, I think for this part, diferrent people has different
->> perference on API since there is no absolutely right and
->> wrong in the API design area.
->>
->> But I have no interest to follow this for now.
-> 
-> Just to be clearer, as erofs seems to be able to be changed to
-> use a simple interface, do you prefer to keep using the full-featured
-> interface or change to use the simple interface?
+write to 0xffff8881025bc452 of 1 bytes by task 3288 on cpu 0:
+ virtqueue_enable_cb_delayed+0x42/0x3c0 drivers/virtio/virtio_ring.c:2653
+ start_xmit+0x230/0x1310 drivers/net/virtio_net.c:3264
+ __netdev_start_xmit include/linux/netdevice.h:5151 [inline]
+ netdev_start_xmit include/linux/netdevice.h:5160 [inline]
+ xmit_one net/core/dev.c:3800 [inline]
 
-Please keep using the old interface because I don't have any
-bandwidth on this considering no real benefit.
+read to 0xffff8881025bc452 of 1 bytes by interrupt on cpu 1:
+ virtqueue_disable_cb_split drivers/virtio/virtio_ring.c:880 [inline]
+ virtqueue_disable_cb+0x92/0x180 drivers/virtio/virtio_ring.c:2566
+ skb_xmit_done+0x5f/0x140 drivers/net/virtio_net.c:777
+ vring_interrupt+0x161/0x190 drivers/virtio/virtio_ring.c:2715
+ __handle_irq_event_percpu+0x95/0x490 kernel/irq/handle.c:158
+ handle_irq_event_percpu kernel/irq/handle.c:193 [inline]
 
-Thanks,
-Gao Xiang
+value changed: 0x01 -> 0x00
+==================================================================
+
+When the data race occurs, the function virtqueue_enable_cb_delayed() sets
+event_triggered to false, and virtqueue_disable_cb_split/packed() reads it
+as false due to the race condition. Since event_triggered is an unreliable
+hint used for optimization, this should only cause the driver temporarily
+suggest that the device not send an interrupt notification when the event
+index is used.
+
+Fix this KCSAN reported data-race issue by explicitly tagging the access as
+data_racy.
+
+Reported-by: syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/67c7761a.050a0220.15b4b9.0018.GAE@google.com/
+Signed-off-by: Zhongqiu Han <quic_zhonhan@quicinc.com>
+---
+v1 -> v2:
+- Use data_race() instead of memory barriers.
+- Simplify and rewrite commit messages.
+- Link to v1: https://lore.kernel.org/all/20250311131735.3205493-1-quic_zhonhan@quicinc.com/
+
+ drivers/virtio/virtio_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index fdd2d2b07b5a..b784aab66867 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2650,7 +2650,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+ 	if (vq->event_triggered)
+-		vq->event_triggered = false;
++		data_race(vq->event_triggered = false);
+ 
+ 	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
+ 				 virtqueue_enable_cb_delayed_split(_vq);
+-- 
+2.25.1
 
