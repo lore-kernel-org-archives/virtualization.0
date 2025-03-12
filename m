@@ -1,122 +1,125 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4425C1E8327
-	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 10:31:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 161E01DB124
+	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 10:41:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741775481; cv=none; b=Kq/fsvtidLaHpuVGcrbiLbus8MgOwSxSaWeXPcoK/dQe/l42tXuFyPFus/sadGAw5QO+Lcn4ceun3RHQXn3Ia7z46b91C7gWW71MMORHPg0siMkNzb4f59jF0RPa5xYqTIvLjJs3AGicHi7+IZ00BwCmj5Rye8TmTvg1ku8cjrI=
+	t=1741776102; cv=none; b=ML58cxjHSD3fMcvFB68FpP3mQbdJEIWxfdQblsdg/X8pU2LVt16KIHktQnn3C1RrEca2OLdw/elR9QCF8d81cQdonux9PV/BADt6LQn3toWaWfUun1G3UofC6HsvpnMz2RDNOcsC3IzA27fz2Y5sOyJkvp31xicSphn+3qMow74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741775481; c=relaxed/simple;
-	bh=P99lE3mJwXPj+GEbmP0xwX+rf4eTqzBXZGRaykWQ8v4=;
+	s=arc-20240116; t=1741776102; c=relaxed/simple;
+	bh=oP9DBHr7ZaAbB6keJAm59XCkp9krTFc8WFqNo8LwXrI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=IdAhAVb0Yo6aLA+tJoWjHRPqybsbcJPvT6AjCnYtI+aOErlSKiPm1kFjikjSvCPcEUPVZCrkUXFGO9GxPl9K2P3yvT9t71RSDOzuWo8lCU5+31uOvPj+otyjGiWLZk9XFaLM7N/XMiLmpUnBWZhxkNNE5J7Lruy93rGbBWrVrtw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f88oE9Zp; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f88oE9Zp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741775479;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cx0qYAqk+Ndkh+zCqVoXeKfQLXTHj6djYkow7w5DHN4=;
-	b=f88oE9Zpbv7MKzJlry80YO3Tca2m5WPgHReWHoyXPRdhPyEiIdvwSxOd2n6jFXBLCqpTpt
-	TlTdbVIrdkj9rCWdoM0OcXJV3NPun3QBp9VEULPb4+86ZhG3PWRFdSJ39GcdRFvdgHqLwq
-	fg9HRy3ubEA596nsZvUQpC1EJI7rrfo=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-377-wiWEF_W1Piu_N-KMChhrBg-1; Wed, 12 Mar 2025 06:31:17 -0400
-X-MC-Unique: wiWEF_W1Piu_N-KMChhrBg-1
-X-Mimecast-MFC-AGG-ID: wiWEF_W1Piu_N-KMChhrBg_1741775476
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43d007b2c79so19065005e9.2
-        for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 03:31:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741775476; x=1742380276;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cx0qYAqk+Ndkh+zCqVoXeKfQLXTHj6djYkow7w5DHN4=;
-        b=kOoiBWrS1IGfmLjrqK5zFV0LadcUS0F0958BalLULfpHzrK2Kxqaf6YOI6OqD99GT/
-         o2cULMQi7J5v1Qo1xXBPLIqu202WItyZqj+S9I6NrQq3rPyE6wO4puypj9Ic6cD/WYw9
-         GLURkbAvMC5cxvl+YR79Qnes2AQl7rv4xG2m2dOtA2dgWdBqAQoiHaLV98RN4rNsybPS
-         j7LST3lwhALooJDkRrTV/MjHeFvRDgNbdbWaFI2SNvdtaWWyue644m+j+qeVVr3CJVCt
-         ST/94lK7wt+hpN0jHDMN/XnywtPXW0aTeGqbhxxZO3enEDwGsNidpju5lovYFSLLG7yw
-         g2xQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVWOvlI/BNlq+0fAF+PN2n2CPTKAiB92VXvb/QvyFyK7fotlh/qN2Mgwo1klfybV5JsPVfzYBMWcUoJznKfnQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyUTAK0T7GpQ+ctsM7Ueeqj0pzBbJ5OpE7LyqHdIK/3Yma7DtwO
-	cQiWHp3Y//uAotK16aXjQ0uRiuj3bALIGWjU3JCYHAhsADRDaLFOEj0C/n5YOKkfEF4JxmRw2Je
-	gSkULjhfZXHpPcOhEjj0MFTu1AyryI7jTuyTNLoJnZuC/qhJCLM7v4FpaYUtoOix8
-X-Gm-Gg: ASbGncvCFGRKRBDo2cncK0ZVXytsYk/5d1Fk9NOa1AyekO69HXgrRwP/p5nW5bUDRPf
-	vSzW2N/3k6sSIeAeyKlqKeJSufr+ujGX0V4F4ZKRD2sy4Zdkqf8GXyhM1ygGAx9PVnVWYowcTxb
-	RATZ0LEw74jQR/YjyaTfx8sObOESp2f1j+474A/tXgyOTnr1jazhlKiCOS0qwwV+rHxxOQ0p2to
-	O/mZ3QjSzc6j59AEaje12VKEzkaZaVUMeh0zIMUz5ExYpyhQ0HGgiqOmFXrFN/2Vw4mfMDuowDc
-	aYdY4PEm0A==
-X-Received: by 2002:a05:600c:1c81:b0:43c:efed:733e with SMTP id 5b1f17b1804b1-43d01be6389mr90683955e9.14.1741775475785;
-        Wed, 12 Mar 2025 03:31:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFMo39VgoZH85nAphCFnLGhSo95m+X8Gu22NIYuOsLFerRQWzuG2jF+y+KHgzz3MHJwbiYZow==
-X-Received: by 2002:a05:600c:1c81:b0:43c:efed:733e with SMTP id 5b1f17b1804b1-43d01be6389mr90683655e9.14.1741775475423;
-        Wed, 12 Mar 2025 03:31:15 -0700 (PDT)
-Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d0a72eb5fsm17374525e9.8.2025.03.12.03.31.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Mar 2025 03:31:14 -0700 (PDT)
-Date: Wed, 12 Mar 2025 11:31:12 +0100
-From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-To: Harald Mommer <harald.mommer@opensynergy.com>
-Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
-	Wolfgang Grandegger <wg@grandegger.com>,
-	Marc Kleine-Budde <mkl@pengutronix.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
-	linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jge4VfCKLj5UE3QkYut7A0UlAGfiXkbqNTL9WGCOUXNbG/Vb15LINSL5LWa8+0RKmUsDmpHV4xMeFKP0JdL/2ZAqjgubh4mwEFF/XA5TZNJbw7nwVtrOTAvX89q99dyStDiTwG/MmM4bpuOtpmLu8RtKsbT5R99wBKQ0E4JgTZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1tsJWj-0001L5-Vr; Wed, 12 Mar 2025 11:41:30 +0100
+Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1tsJWh-005LKd-0u;
+	Wed, 12 Mar 2025 11:41:27 +0100
+Received: from pengutronix.de (p5b1645f7.dip0.t-ipconnect.de [91.22.69.247])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange secp256r1 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	(Authenticated sender: mkl-all@blackshift.org)
+	by smtp.blackshift.org (Postfix) with ESMTPSA id CE4123D8C12;
+	Wed, 12 Mar 2025 10:41:26 +0000 (UTC)
+Date: Wed, 12 Mar 2025 11:41:26 +0100
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: Harald Mommer <harald.mommer@opensynergy.com>, 
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>, 
+	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>, Wolfgang Grandegger <wg@grandegger.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>, 
+	linux-kernel@vger.kernel.org, linux-can@vger.kernel.org, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev
 Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
-Message-ID: <Z9FicA7bHAYZWJAb@fedora>
+Message-ID: <20250312-conscious-sloppy-pegasus-b5099d-mkl@pengutronix.de>
 References: <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
  <a366f529-c901-4cd1-a1a6-c3958562cace@wanadoo.fr>
  <0878aedf-35c2-4901-8662-2688574dd06f@opensynergy.com>
+ <Z9FicA7bHAYZWJAb@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <0878aedf-35c2-4901-8662-2688574dd06f@opensynergy.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: DYrEu0Rjr1Hm1xmGr4gEDeve2gPlu9jk3aw3ND4qXCE_1741775476
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="r2js27gw2phijjja"
 Content-Disposition: inline
+In-Reply-To: <Z9FicA7bHAYZWJAb@fedora>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: virtualization@lists.linux.dev
 
-Hello,
 
-On Thu, Feb 01, 2024 at 07:57:45PM +0100, Harald Mommer wrote:
-> Hello,
-> 
-> I thought there would be some more comments coming and I could address
-> everything in one chunk. Not the case, besides your comments silence.
-> 
-> On 08.01.24 20:34, Christophe JAILLET wrote:
-> > 
-> > Hi,
-> > a few nits below, should there be a v6.
-> > 
-> 
-> I'm sure there will be but not so soon. Probably after acceptance of the
-> virtio CAN specification or after change requests to the specification are
-> received and the driver has to be adapted to an updated draft.
-> 
-> 
-What is the status of this series?
+--r2js27gw2phijjja
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
+MIME-Version: 1.0
 
-Thanks, Matias.
+On 12.03.2025 11:31:12, Matias Ezequiel Vara Larsen wrote:
+> On Thu, Feb 01, 2024 at 07:57:45PM +0100, Harald Mommer wrote:
+> > Hello,
+> >=20
+> > I thought there would be some more comments coming and I could address
+> > everything in one chunk. Not the case, besides your comments silence.
+> >=20
+> > On 08.01.24 20:34, Christophe JAILLET wrote:
+> > >=20
+> > > Hi,
+> > > a few nits below, should there be a v6.
+> > >=20
+> >=20
+> > I'm sure there will be but not so soon. Probably after acceptance of the
+> > virtio CAN specification or after change requests to the specification =
+are
+> > received and the driver has to be adapted to an updated draft.
+> >=20
+> What is the status of this series?
 
+There has been no movement from the Linux side. The patch series is
+quite extensive. To get this mainline, we need not only a proper Linux
+CAN driver, but also a proper VirtIO specification. This whole project
+is too big for me to do it as a collaborative effort.
+
+regards,
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde          |
+Embedded Linux                   | https://www.pengutronix.de |
+Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
+
+--r2js27gw2phijjja
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEn/sM2K9nqF/8FWzzDHRl3/mQkZwFAmfRZNMACgkQDHRl3/mQ
+kZxzCgf+Js8qoTJ0nTwATrNdTHqpf2wSPVGJQNeAsLPsRgZYNeOdPPAsNgrYtpfP
+HxGRKv3QWJW3qLjtpzVTnb5AZBpDQhLRHaOrvkf5Mi1pwMQTLgQhGqQR1yXQVqp1
+O+fYBVqFT0MDCvHuwyn3F/rKid1WmoV0EQiNXueiRGRpdA45XfoPUh66xETqpVVU
+tuCGyW8lFOGV7mNsIrV8JfZVHSeGKx7Du17L6yUnmvqSnCFR2/5rsAd7oKNlr9pW
+9A2rLf/XAU4nMfTEDnSiBPAmcJ7Y8e78vLNTapU+Ey2JLuADaYCJufE99u27sZDS
+510o9vHMJusuQoeFxed0pQXFYFysrg==
+=xIkD
+-----END PGP SIGNATURE-----
+
+--r2js27gw2phijjja--
