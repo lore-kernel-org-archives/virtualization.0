@@ -1,82 +1,82 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 159721DE3C0
-	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:03:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE6C91DF975
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:55:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741755824; cv=none; b=KptpaFnCV1JWrFJw7TMldjL6rfqLs1MFFa9pwtKHkl3td8DhyPFMN1d+CTIhwGsUGScuMzyh3H+D68MJoUKNP+ANw5KSZfXMxFT1VgFavUUKenyWQfLrokzKocJkjM+18CZt/kOOcjrQPKDld/TaObSB8fqECC8yXGxkrnQVook=
+	t=1741758945; cv=none; b=oWO1vKzfMsVVb4o4FGyTKbEbQ7eKStLmDpBfvZ+9c+HTOnRjnq+RpBo+scibysCfT9Z3sluOeOAOrtLizhGnm+qji+gHzbG+uUzVGs6M7zjCmrK8MUJUy5mtHteq/+ZUu1EyDf2+ksasn1mI7o4kOt9xOOJhMxjW5R6CVrhhrR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741755824; c=relaxed/simple;
-	bh=JvJ/7O10ZNpWh7VduRBNGBUH6gCm5z8D1KTrvXZNrO0=;
+	s=arc-20240116; t=1741758945; c=relaxed/simple;
+	bh=alhU20ihOlc5cJCMuHBajEc7EUqehBtkqo5iRv29oVg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Szc6HRAZEYSHVZLfaP1Sn4DDSl93r/M0XSRG+Iixwtdd9hD/aRcEH1mQruDSTxVO++AqbLB89cEpqYhDyQh98/IBQCm2/iejav/traBg89t6/Yz4FVog+EeGiDpMRxWj6/sdfWq6MVPh3hLpXb3/abS8LjZ+pAHGDLwVwO7kQP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=oUAr7KfA; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type; b=J/ErbSbBUGcb1RL+LytvP72LPmL8Z5DrCtQgL8bL1P/SNCZoUpKMtLlG2totMXuvK/eMmUk1ln6iVaxrgwo1IV22rOWndDi6Ag0CKUWG6U6CBGjTb2KZhJldb+OY2LvF7Up8+RP7K6BgvGocHuMMH9AbhHzO03AofxiyuZxugu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=gzmpj6z1; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="oUAr7KfA"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="gzmpj6z1"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 909CE412AA
-	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:03:42 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5A65640908
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:55:43 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.9
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id LZVAwx9F417m for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Mar 2025 05:03:41 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::635; helo=mail-pl1-x635.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A4A1C412A6
+ id RYgxRK7av_H7 for <virtualization@lists.linux-foundation.org>;
+ Wed, 12 Mar 2025 05:55:42 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::102f; helo=mail-pj1-x102f.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 5797A40DCE
 Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A4A1C412A6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5797A40DCE
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=oUAr7KfA
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A4A1C412A6
-	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:03:40 +0000 (UTC)
-Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-224171d6826so26291175ad.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 22:03:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=gzmpj6z1
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5797A40DCE
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:55:42 +0000 (UTC)
+Received: by mail-pj1-x102f.google.com with SMTP id 98e67ed59e1d1-300fefb8e06so3344911a91.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 22:55:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741755820; x=1742360620; darn=lists.linux-foundation.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741758941; x=1742363741; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=6QiFc6SJG2kyM7Br5fhaU7GX9dr8/OrkWYxYdeRvaF4=;
-        b=oUAr7KfA+nHGNJXZ6gQcMFNEyxIbChCmeQKWPPnND9LPGgrPjaCFkYSUgrPgh81sBq
-         aQmnBij+VtDMcdJrHcJGoFeRE6fD9ddyQk/lEWFcuDe62S0Blk4C1VACtlgsN4Z6pg3A
-         qY2nl5HZvkBqwtjpZqQufsS0qFLhL46f0wfpzXIt6lRpdHDmCL9qjroIm86Xp+MVsMUS
-         EnOoWn0fIVbbZukwpUb8W8ah+pqAKa1CCqc9dI3BloxHA85EV5qEdlHrICEKDUH2RL2I
-         QsXloWS0zYYkRO7ClDW8V3iI2axkHETqpY0S5mpSqcSon9IXWSye/5tvYifIdc1D6GPd
-         EaxA==
+        bh=oSOfwAcbQA4fo8Ww+ZUfjP/u2KZyMzcNTNHmT2zLzAs=;
+        b=gzmpj6z1mNuoxJQA4WmTgGjP+t6GqBMeG5CXZ01Ba1DLKAqjtGfQ4TELJHEb0vmkSo
+         TiyYmEaC8JAQ4F57mD53r5d+QiIaQBTrFkoglRoqY0NSTXQC+00kH7bdppWF5kXQ7pCt
+         txT5bkGvcBnqwWRqPmVp+C6HtvpywQ9SvgdE+QhHe7+HDgxneA2uqPP6inE5OZT0enO0
+         HMGSWy3e0KxOoZharWMB7DOKSnxBQ3Ge7K3pifDCGZL52+q7YUd83keerd170fcICGev
+         0BXU0KiVj3PIp4EryVeV1LmsGb9sIZdio7eD013hHVY8+e/rQX71FpAVlGF98vhz3OyC
+         mbmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741755820; x=1742360620;
+        d=1e100.net; s=20230601; t=1741758941; x=1742363741;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6QiFc6SJG2kyM7Br5fhaU7GX9dr8/OrkWYxYdeRvaF4=;
-        b=SGKvnV/A+xmSUJ3yUyfFmF/mizBPYaVHItiqdlyD/sYMMGfCYYhFT48g3QqebeFMli
-         NebpLkjXWTQzSXr9lh1waAlcJuPIhcRBLsoPEdomwh00lbArWaKvQOlGxCYxCZ230gcl
-         jbWW9czf9o8V37/lsBDNRU8iwFpqIou4V1oc7hEKYdZ7ezwZucLuF2nU+SSdq1PXeZpy
-         9yQ8fCYq0tieK4JWkRmrTC58/KDg7WhLRfDUEbu/EMhLDA1cnhdQrcL0umCF/o3jR1hJ
-         XD/tN2p4h5iAfhN4x8cCkRtTm/7W79KciOqNVelZEntvHksM4kxT1xAuxLfMjUK1VpZP
-         Je0w==
-X-Forwarded-Encrypted: i=1; AJvYcCWasYqS7tJBZr8WrtN5p6QQcMSrQ6SDh9cBgi6KeB9IjYdh02it2P1d3bESVpXT2cUO9W4cQ+9/n+w4Ry+RDQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YybigNJke2NZzKMEASzeh+wK6v9kMQFL7c5B+TlSRalCoCZQmSC
-	MaHM3ugy1NnnK3mtMykzirWVyxlhfnZe+EUFz+urF3zbXml5k8F4wzIAeRbjpPk=
-X-Gm-Gg: ASbGncueItrPZO47VVi2EB1K930CjDMbnk6rn6wFkt8rB7f5KF6wvhtpKGHmianQ/ZD
-	kLaAEDmViIplMRrIFuQ6oH4eCOf4Dzi8gAcfKqwwXDd790cJUJT+KevAc67Hczz8qZ/T6HnUNEW
-	ZErIycijbME4nsi114pPcn6aESAhVaoc/X9jwfdIQ6V6zNFhg9syMSq8NH8Km+BrVEyE3bH9f+M
-	mBE1YafpE0cr37kE2vw6arvqaFv8bivIiIrceNXK1eV0o6nNmIPKgMAGNPttWHuGa8k8UfQPXaf
-	ltQvX+ebNws+90l2gRCkl588TKV1IfY5B1s2EUloCVj4NdF2449niq8Ndg==
-X-Google-Smtp-Source: AGHT+IENgVGmOQ2e2sjFoBtOxZ+KC1QlBkq4WVH7vBx21DbhpzjmB/6EMIeKK8qnTk6hoj/TMUiufQ==
-X-Received: by 2002:a17:902:e80a:b0:224:de2:7fd6 with SMTP id d9443c01a7336-2242889f527mr316528595ad.25.1741755819696;
-        Tue, 11 Mar 2025 22:03:39 -0700 (PDT)
+        bh=oSOfwAcbQA4fo8Ww+ZUfjP/u2KZyMzcNTNHmT2zLzAs=;
+        b=aWbYZwJNtZce/SM+fN3AvL+wsI9RRqUJcST7YYumV8trVAWYWlab9aOF1jKwAFxYo1
+         w3TY958uwwNuN2Kd7pscZU4b9wHTnr/MAHRTHQwGEKVzUP9i6cObavRGLuo1QKhhw9Yj
+         Soc5kI2wYM80by2e/tzFApVV79vPIEjCY2JXESVvdN1TcRbBpMOC6jfuzyONlNtnAy5b
+         XKf0c4AwhDHt1zTHGRUeoI6/2Vs/QIKGEu7BzZ2GLL5/xukwSs5Wvb2ddn1AawtWrWfV
+         p/bvJAztLc5qmI+hhyOSVjktkvgD8zexyKLXfuhT0Go0btERgw0z/Vpm/T6GZlPT1IxB
+         MKNg==
+X-Forwarded-Encrypted: i=1; AJvYcCXPQGBbMjAeuUclYXqnDKKgIxOvgtLGnSYDqg2w4o5SgWGqvencFUcwU/Gv8cyea39E0OzcJGfjjulEjGYe4w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwgbSvFAVo6epiWubO6l6QzIl0lNwSBoMyth/bCfMv3A9/AsXui
+	5S1hHcGfeBjB3M225BD4+17f7NEH6H6XdelIdonGtw7vhvc+53Bplkfb/0cMttA=
+X-Gm-Gg: ASbGnctkyTNC2i3cQfVVZazRzfCgMEW3XETMraBjT9i4YFmAXHJ4muB93YIIIRuvLtF
+	wQhaBVGBzJ15DUYdwczI3qr805p0lZzQ/3Zl80DXDl2BWHYZT6hGGRouloQ7EGY9xhROfQ05z0k
+	bHJTi7LQPf4xgJx4VdNuYvb9Q9uS2AD6NDkO1r0IbF+IkmQRERLAaBiS1Zf9pLZREr9hQdcprJo
+	Fw1lNIhLyjqt4iEeK/Km7oRFE9QhNdIrjAQCP2jpkEFAQ4WW7kEyVEDoLbTr3r+pSBe6gGazpT/
+	9zhfI0wpDOCBA9JGwZTtg1zGU1mXGU3IvKME1WadFV17wmKdNW0J95tiRg==
+X-Google-Smtp-Source: AGHT+IEnYwIq0Gmg9aXj/gdoHcpx7iSAd8arSmzyKfzCe7K3tIJUhpfLuzs4l56U190AWHzReGvYOg==
+X-Received: by 2002:a17:90b:48cc:b0:2ee:d371:3227 with SMTP id 98e67ed59e1d1-300ff104f1emr9530678a91.17.1741758941650;
+        Tue, 11 Mar 2025 22:55:41 -0700 (PDT)
 Received: from [157.82.205.237] ([157.82.205.237])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22410a7f7d6sm106724155ad.107.2025.03.11.22.03.35
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-301190bbd78sm748839a91.39.2025.03.11.22.55.37
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Mar 2025 22:03:39 -0700 (PDT)
-Message-ID: <ff7916cf-8a9c-4c27-baaf-ca408817c063@daynix.com>
-Date: Wed, 12 Mar 2025 14:03:34 +0900
+        Tue, 11 Mar 2025 22:55:41 -0700 (PDT)
+Message-ID: <39c059c9-fe67-46e4-8c81-854a3de8d726@daynix.com>
+Date: Wed, 12 Mar 2025 14:55:36 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -104,16 +104,16 @@ References: <20250307-rss-v9-0-df76624025eb@daynix.com>
  <CACGkMEsNHba=PY5UQoH1zdGQRiHC8FugMG1nkXqOj1TBdOQrww@mail.gmail.com>
  <7978dfd5-8499-44f3-9c30-e53a01449281@daynix.com>
  <CACGkMEsR4_RreDbYQSEk5Cr29_26WNUYheWCQBjyMNUn=1eS2Q@mail.gmail.com>
- <edf41317-2191-458f-a315-87d5af42a264@daynix.com>
- <CACGkMEta3k_JOhKv44XiBXZb=WuS=KbSeJNpYxCdeiAgRY2azg@mail.gmail.com>
+ <5e67a0a6-f613-4b0a-b64e-67f649e45c3e@daynix.com>
+ <CACGkMEv83iR0vU00XGOGonL1fkd=K1b-shCcNb1K8yJ9O+0BDQ@mail.gmail.com>
 Content-Language: en-US
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <CACGkMEta3k_JOhKv44XiBXZb=WuS=KbSeJNpYxCdeiAgRY2azg@mail.gmail.com>
+In-Reply-To: <CACGkMEv83iR0vU00XGOGonL1fkd=K1b-shCcNb1K8yJ9O+0BDQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 2025/03/12 11:35, Jason Wang wrote:
-> On Tue, Mar 11, 2025 at 2:11 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+On 2025/03/12 11:59, Jason Wang wrote:
+> On Tue, Mar 11, 2025 at 2:17 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
 >>
 >> On 2025/03/11 9:38, Jason Wang wrote:
 >>> On Mon, Mar 10, 2025 at 3:45 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
@@ -162,180 +162,66 @@ On 2025/03/12 11:35, Jason Wang wrote:
 >>>>>>     net/core/skbuff.c                   |   4 +
 >>>>>>     9 files changed, 386 insertions(+), 31 deletions(-)
 >>>>>>
->>>>>> diff --git a/Documentation/networking/tuntap.rst b/Documentation/networking/tuntap.rst
->>>>>> index 4d7087f727be5e37dfbf5066a9e9c872cc98898d..86b4ae8caa8ad062c1e558920be42ce0d4217465 100644
->>>>>> --- a/Documentation/networking/tuntap.rst
->>>>>> +++ b/Documentation/networking/tuntap.rst
->>>>>> @@ -206,6 +206,13 @@ enable is true we enable it, otherwise we disable it::
->>>>>>           return ioctl(fd, TUNSETQUEUE, (void *)&ifr);
->>>>>>       }
->>>>>>
 > 
 > [...]
 > 
->>>>>> +static inline long tun_vnet_ioctl_sethash(struct tun_vnet_hash_container __rcu **hashp,
->>>>>> +                                         bool can_rss, void __user *argp)
->>>>>
->>>>> So again, can_rss seems to be tricky. Looking at its caller, it tires
->>>>> to make eBPF and RSS mutually exclusive. I still don't understand why
->>>>> we need this. Allow eBPF program to override some of the path seems to
->>>>> be common practice.
->>>>>
->>>>> What's more, we didn't try (or even can't) to make automq and eBPF to
->>>>> be mutually exclusive. So I still didn't see what we gain from this
->>>>> and it complicates the codes and may lead to ambiguous uAPI/behaviour.
+>>>>> Let's has a consistent name for this and the uapi to be consistent
+>>>>> with TUNSETIFF/TUNGETIFF. Probably TUNSETVNETHASH and
+>>>>> tun_vnet_ioctl_gethash().
 >>>>
->>>> automq and eBPF are mutually exclusive; automq is disabled when an eBPF
->>>> steering program is set so I followed the example here.
+>>>> They have different semantics so they should have different names.
+>>>> TUNGETIFF reports the value currently set while TUNGETVNETHASHCAP
+>>>> reports the value that can be set later.
 >>>
->>> I meant from the view of uAPI, the kernel doesn't or can't reject eBPF
->>> while using automq.
->>   > >>
->>>> We don't even have an interface for eBPF to let it fall back to another
->>>> alogirhtm.
+>>> I'm not sure I will get here. I meant a symmetric name
 >>>
->>> It doesn't even need this, e.g XDP overrides the default receiving path.
->>>
->>>> I could make it fall back to RSS if the eBPF steeering
->>>> program is designed to fall back to automq when it returns e.g., -1. But
->>>> such an interface is currently not defined and defining one is out of
->>>> scope of this patch series.
->>>
->>> Just to make sure we are on the same page, I meant we just need to
->>> make the behaviour consistent: allow eBPF to override the behaviour of
->>> both automq and rss.
+>>> TUNSETVNETHASH and TUNVETVNETHASH.
 >>
->> That assumes eBPF takes precedence over RSS, which is not obvious to me.
+>> TUNGETVNETHASHCAP does not correspond to TUNGETIFF. The correspondence
+>> of ioctl names is as follows:
+>> TUNGETFEATURES - TUNGETVNETHASHCAP
 > 
-> Well, it's kind of obvious. Not speaking the eBPF selector, we have
-> other eBPF stuffs like skbedit etc.
+> TUNGETFEATURES returns the value set from TUNSETIFF. This differs from
+> TUNGETVNETHASHCAP semantic which just return the capabilities.
 > 
->>
->> Let's add an interface for the eBPF steering program to fall back to
->> another steering algorithm. I said it is out of scope before, but it
->> makes clear that the eBPF steering program takes precedence over other
->> algorithms and allows us to delete the code for the configuration
->> validation in this patch.
+> +static inline long tun_vnet_ioctl_gethashcap(void __user *argp)
+> +{
+> +       static const struct tun_vnet_hash cap = {
+> +               .flags = TUN_VNET_HASH_REPORT | TUN_VNET_HASH_RSS,
+> +               .types = VIRTIO_NET_SUPPORTED_HASH_TYPES
+> +       };
+> +
+> +       return copy_to_user(argp, &cap, sizeof(cap)) ? -EFAULT : 0;
+> +}
 > 
-> Fallback is out of scope but it's not what I meant.
+> TUNGETFEATURES doesn't' help too much for non-persist TAP as userspace
+> knows what value it set before.
 > 
-> I meant in the current uAPI take eBPF precedence over automq. It's
-> much more simpler to stick this precedence unless we see obvious
-> advanatge.
-
-We still have three different design options that preserve the current 
-precedence:
-
-1) Precedence order: eBPF -> RSS -> automq
-2) Precedence order: RSS -> eBPF -> automq
-3) Precedence order: eBPF OR RSS -> automq where eBPF and RSS are 
-mutually exclusive
-
-I think this is a unique situation for this steering program and I could 
-not find another example in other eBPF stuffs.
-
-The current version implements 3) because it is not obvious whether we 
-should choose either 1) or 2). But 1) will be the most capable option if 
-eBPF has a fall-back feature.
-
+>> TUNSETIFF - TUNSETVNETHASH
+>> TUNGETIFF - no corresponding ioctl for the virtio-net hash features
 > 
->>
->>>
->>>>
->>>>>
-> 
-> [...]
-> 
->>>>> Is there a chance that we can reach here without TUN_VNET_HASH_REPORT?
->>>>> If yes, it should be a bug.
->>>>
->>>> It is possible to use RSS without TUN_VNET_HASH_REPORT.
->>>
->>> Another call to separate the ioctls then.
->>
->> RSS and hash reporting are not completely independent though.
-> 
-> Spec said:
-> 
-> """
-> VIRTIO_NET_F_RSSRequires VIRTIO_NET_F_CTRL_VQ.
-> """
+> And this sounds odd and a hint for a incomplete uAPI as userspace
+> needs to know knowing what can set before doing TUNSETVNETHASH.
 
-I meant the features can be enabled independently, but they will share 
-the hash type set when they are enabled at the same time.
-
-> 
->>
->> A plot twist is the "types" parameter; it is a parameter that is
->> "common" for RSS and hash reporting.
-> 
-> So we can share part of the structure through the uAPI.
-
-Isn't that what this patch does?
-
-> 
->> RSS and hash reporting must share
->> this parameter when both are enabled at the same time; otherwise RSS may
->> compute hash values that are not suited for hash reporting.
-> 
-> Is this mandated by the spec? If yes, we can add a check. If not,
-> userspace risk themselves as a mis-configuration which we don't need
-> to bother.
-
-Yes, it is mandated. 5.1.6.4.3 Hash calculation for incoming packets says:
- > A device attempts to calculate a per-packet hash in the following
- > cases:
- >
- >   - The feature VIRTIO_NET_F_RSS was negotiated. The device uses the
- >     hash to determine the receive virtqueue to place incoming packets.
- >   - The feature VIRTIO_NET_F_HASH_REPORT was negotiated. The device
- >     reports the hash value and the hash type with the packet.
- >
- > If the feature VIRTIO_NET_F_RSS was negotiated:
- >
- >   - The device uses hash_types of the virtio_net_rss_config structure
- >     as ’Enabled hash types’ bitmask.
- >   - The device uses a key as defined in hash_key_data and
-       hash_key_length of the virtio_net_rss_config structure (see
- >      5.1.6.5.7.1).
- >
- > If the feature VIRTIO_NET_F_RSS was not negotiated:
- >
- >   - The device uses hash_types of the virtio_net_hash_config structure
- >     as ’Enabled hash types’ bitmask.
- >   - The device uses a key as defined in hash_key_data and
- >     hash_key_length of the virtio_net_hash_config structure (see
- >      .1.6.5.6.4).
-
-So when both VIRTIO_NET_F_RSS and VIRTIO_NET_F_HASH_REPORT are 
-negotiated, virtio_net_rss_config not only controls RSS but also the 
-reported hash values and types. They cannot be divergent.
-
-> 
-> Note that spec use different commands for hash_report and rss.
-
-TUNSETVNETHASH is different from these commands in terms that it also 
-negotiates VIRTIO_NET_F_HASH_REPORT and VIRTIO_NET_F_RSS.
-
-In the virtio-net specification, it is not defined what would happen if 
-these features are negotiated but the VIRTIO_NET_CTRL_MQ_RSS_CONFIG or 
-VIRTIO_NET_CTRL_MQ_HASH_CONFIG commands are not sent. There is no such 
-ambiguity with TUNSETVNETHASH.
+You are confused with TUNGETFEATURES and TUNGETIFF. Below is the code 
+that implements TUNGETFEATURES:
+if (cmd == TUNGETFEATURES) {
+	/* Currently this just means: "what IFF flags are valid?".
+	 * This is needed because we never checked for invalid flags on
+	 * TUNSETIFF.
+	 */
+	return put_user(IFF_TUN | IFF_TAP | IFF_NO_CARRIER |
+			TUN_FEATURES, (unsigned int __user*)argp);
+} else if (cmd == TUNSETQUEUE) {
 
 Regards,
 Akihiko Odaki
 
 > 
 >>
->> The paramter will be duplicated if we have separate ioctls for RSS and
->> hash reporting, and the kernel will have a chiken-egg problem when
->> ensuring they are synchronized; when the ioctl for RSS is issued, should
->> the kernel ensure the "types" parameter is identical with one specified
->> for hash reporting? It will not work if the userspace may decide to
->> configure hash reporting after RSS.
+>> Regards,
+>> Akihiko Odaki
 >>
-> 
-> See my reply above.
 > 
 > Thanks
 > 
