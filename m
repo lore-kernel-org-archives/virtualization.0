@@ -1,168 +1,172 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E5681F0E33
-	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 22:19:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CA351EE7A5
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 22:29:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741817961; cv=none; b=WwYAQNNNmPdp0MCHiOjyiInxlLk7nY9F/xY2JCd/hWFtLvJoDeqIMT6GhDJtkkCeRlJ2/wP08b+sHTezMqB7pmnRcIZY80sx/99J72np89jZSwS6k/9m+UcUAR6eWsgrzrTeLSjcyN8EAF6Kx4q9u6JY3GjdRPaRcR4pe5wMxV4=
+	t=1741818553; cv=none; b=mqplUPOriB1qhO0W0XNsURNViOPiIdtm48NBYxM+Brvz4vlj5Jp1rkWk4xyBMCnNzZ7xvu1T3YwG/wSawJwQHKybZXbLz9tXhjjREj9kXiVgoUpAAMtTZzt7bEXZRGSNb5bGcjv1CY66nDuYhFysJq4LrvY8/qwOgvreSHJEyjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741817961; c=relaxed/simple;
-	bh=ED08Mt6RpE3YuROU8cM9sysjsMYzGtrc8SaX4I53Zqo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LbmxMBT0S6TWo1//IuC9IzDp2YvPVl+LLdWJq1/cz0UiRfCn0Szs0ChLYpdwQjUPzkO6Fjsl6K/GtnTRHhOD5fSIznfdahNzmOl6uQl04Wc+C7Ir2ayWlSX0fk4WYFrU1c5vzZ+6erlLSnfsPDGzMy0UjMn+l1HyoZtr5jtsMqs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gc/TBFl8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1741818553; c=relaxed/simple;
+	bh=6PSD8Ihb5wqTIoMhe00VHOCE57HyMwiB7MEagGbuhZI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=m4H15aH2eSqsxpa6mPzFHvPF/2b+riaOCXKELqUnLvAe5xjVCjPLL7i2jVnrvV/UkH7kBHgbQtk3STE0aOKpR+pOfTa7NchGC4GUg6AAWNuzmyJmAI6nKLYmsw/ishyxnza8jj3hETR35oZU5z5bOfr8I8TOIABMwVGX0h50W0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b/ksHQGY; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gc/TBFl8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741817956;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=YKs6c5vd6BryHi5UgmvOyl94KmjrndKcyGQFDHLGkR0=;
-	b=Gc/TBFl8B/gUSHMg7Z/2DgIOY4s1kfKtFgEMCrEfSGUxqn+J0fDf/Y9fxoc8s+tmjrvEcb
-	WaqbhToER+o4nrRrgvVihW7xv5XGLpxGkGmo/OLwFw/cA1CrFwdplIFs0CJXPKQ01gYUY5
-	CYKn2Ls7Jl+lw6CTi3w4PA6oz2Wbjsk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-wrty-1bOMzKkoXqeRs3h4A-1; Wed, 12 Mar 2025 18:19:12 -0400
-X-MC-Unique: wrty-1bOMzKkoXqeRs3h4A-1
-X-Mimecast-MFC-AGG-ID: wrty-1bOMzKkoXqeRs3h4A_1741817950
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4394040fea1so1849645e9.0
-        for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 15:19:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b/ksHQGY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2D21A83886
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 22:29:12 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id DEAb-IYPphpQ for <virtualization@lists.linux-foundation.org>;
+ Wed, 12 Mar 2025 22:29:11 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62f; helo=mail-pl1-x62f.google.com; envelope-from=bobbyeshleman@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 269BD8387D
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 269BD8387D
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=b/ksHQGY
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 269BD8387D
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 22:29:11 +0000 (UTC)
+Received: by mail-pl1-x62f.google.com with SMTP id d9443c01a7336-22355618fd9so6597815ad.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 15:29:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1741818550; x=1742423350; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=7Zt5RBTdS4tu9y1ZkvHvMS6PvikbgYBd+xanSqGhaSs=;
+        b=b/ksHQGYT56GKvPrGGSKKE9uOknzp1uSgeVSxiRpLawGqWOEN7dfEC2dPz+BIkwtyJ
+         AgQ1cEAa1VDAmkNred+36kxmJjt8rc0bQtTRMfeXeYxVbaeej6KkFMu91kdDGf19+b/Q
+         YJqTtfd5hXvoYXP3d7RSjMR+GgAmBpBA4wv3zObk6P1CqKXH5pv66eutv2BgnNMU1l9S
+         Ng41sf1//ZpJ0Hq+wo8Xmb29ovVvrlj+Aj6I7alTHGQto/LlCzH0adpCSwZdnyB7Nay1
+         qPGUhXm7Zn+cWbrcSOs+UA6Ft3MnmOGXd+22c6rM2ZImfjpf/jNuKDsjf7dSkUKf2QP+
+         Aj3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741817950; x=1742422750;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=YKs6c5vd6BryHi5UgmvOyl94KmjrndKcyGQFDHLGkR0=;
-        b=lscmptJy5oHeZLGD5vzT6HM1oINWvu/h8UeQyvzLCk9Bhf8K21vVDI525lDh4B7lro
-         LB3N7v6hQ2Jut2MLmwyeHU9lEEy5g2/Is5rh9Ig3mDPwCdlI2JvH+SjxWDBBv55v5PKe
-         m35zUJlaIu6v1pHGeQ4t3b/gI4hXu87UtHq/NnjDh7LPRa6E9AROHDrwPP2tBduYLDUN
-         3+Q8YuCl9U0jDE42pJH5URsXn0ca8a+f8YkWlyl37ldM2VbCIScpc7/5VwPrbj/b3DPl
-         326ECmYPlX0gy1bkBj8eFxzbhYRpeXsOCa+GzCA3jAvjgCdrUceKeEjUJKoQce8fQ8yd
-         SFCg==
-X-Forwarded-Encrypted: i=1; AJvYcCXWNbohraSzT3GJrHutVyTuABhPxpkGGxu0SSzlxJ29/IBg1nCRIzjXFW0N7Ow7u4XvpVHlNpXHLwiJInnCvQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw1YcQ2jqDLkqFOyntsx6nKKnKAGxw4j5o6q1cVoFba/Edrj1Az
-	XRQNjCLmHo2oz4yMPimNRaNWvOlxKyTFy8gvNp32E08mVjy+jhWHVeWoXkFYKoqOpF7fHp3sp+f
-	CcFgcuZsgxSuLdFTHnNGqFbHohIMvTtsSK8+WLPBOCZhbjIqtFWU1Bveb+ZFC3wKY
-X-Gm-Gg: ASbGncvSJQP4gpGWojDjlG1/IWIqpqImj4tX1kBToFNvG8OnMRtx1NymngVnVJQKB/j
-	oUZVS3v9Y/i/aP774ofFNgKndBrFTZ8eLaANh70dvuAsGsQFvJugebJPKqYvZgGmhaffg6j/8Zz
-	6ycv0bFp4L003gPLR+qdkRB+LKihlB4rkkVt574ih/ojEZGngT/FOA3r3TfXtDi2V/A0og97mF4
-	o1YattjW7e3wDBGuy7A3M9kRZGPyVQsjjsR2lpISUz32vxBG+eCiBvzWC0SK5F4Nf7fx7wIlix1
-	go5rGQnfliGzD/wHUpkke1OEMR3/7027v7ENBDFvuJxbncsFXjBwxkUw0FqUnO1zUbYpH7fM4tl
-	L9Op5WHppnBU1So1yUMepBXQoS8C2Li1vCY67wPOpmSs=
-X-Received: by 2002:a05:600c:5687:b0:43d:186d:a4bf with SMTP id 5b1f17b1804b1-43d186da55cmr561325e9.0.1741817949895;
-        Wed, 12 Mar 2025 15:19:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEFCZMzMhDcHcPaUJ7ZYKRB5yd0dTr+9E10/9yIGc6tvXc+O0vqyF/Y1Un5pGyf0sl4Nfe9rg==
-X-Received: by 2002:a05:600c:5687:b0:43d:186d:a4bf with SMTP id 5b1f17b1804b1-43d186da55cmr561065e9.0.1741817949555;
-        Wed, 12 Mar 2025 15:19:09 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f? (p200300d82f1a7c004ac1c2c441678a0f.dip0.t-ipconnect.de. [2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d0a73127esm34510605e9.8.2025.03.12.15.19.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 Mar 2025 15:19:08 -0700 (PDT)
-Message-ID: <c4229ea5-d991-4f5e-a0ff-45dce78a242a@redhat.com>
-Date: Wed, 12 Mar 2025 23:19:06 +0100
+        d=1e100.net; s=20230601; t=1741818550; x=1742423350;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=7Zt5RBTdS4tu9y1ZkvHvMS6PvikbgYBd+xanSqGhaSs=;
+        b=YgRAOyxF/iVivDe1sAZlQ4hhW5C7JNazdWkGND8AZ5LvYzACYJPT381KSve6lPx5Wk
+         8pO+HIlcmdtDEI6RpxPfNIWFfP7CMFS3BkD+g608VLBNYUxPWJL3xHSzEe3w8PTiKVVE
+         su3ekj03KGjHZf9kR7gjo7F5RnJl8NNCJ/LXstaNgwiMPrMd0DbsdvvHQTrYsbvUAQFO
+         x/QB5poB/wY6Wfttkf2a9iHfStYTm8DdNmlnuoNePcZ+GA/Crljjv3b6cQKC2ZmZMCoe
+         XdxVw3J2MRRhGOu1M9fJAe8n8nSBRknczOrVJ9YIvT++H3jMElFPd7hTeFy2b4EaTD4p
+         REZw==
+X-Forwarded-Encrypted: i=1; AJvYcCXD6JJgIWelKaguR4ZBuPYvrNNNQ4DarBDcOk/0G9fgDzyLh1B0QP65ucCYorCiKgsLlqdaht+5Me52EUvb3Q==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxzKN7VuKBA6WtQB/qIDKwORjSBdzyHSrR+XglngbQQQP3TgbHv
+	NKWXEYvKAzs2+2zKGozMamCwuM+5tfsyEUBtA970bgqhEFgOM6+3
+X-Gm-Gg: ASbGncuKwa7C4GLuRnLW0W1jakOUw6v5AALdjUTM2V79BtQ+ukzl+raewHtbRHCHY60
+	oqWozhD5/PDO6Hwxcww6RU3WUCxJ5E6W0QL+m/8YwdiHxaXPJB7Nq2hgpI+zS+YkdZUL/kscm3u
+	6HK9V6tPN3i3IsH41gsAom+6/OjlsX4siKXQAzkON0MgjV+dlyLp8hnx/4mGe7z2XL1ULxV2hYP
+	ePoU8B+c+abpu5C3mf9ksw90XDc9PoIL3OSkK4meXjarfPWuG3QPA3IRoppCCrUrBugB7EjU3hu
+	mkMzmM9EXroAe2DlzPLYRF2lu6RwDfltips0Zr33FGp1HUlByrYQRe146B506xXsUEgMwJ5izdF
+	c
+X-Google-Smtp-Source: AGHT+IG5eB7LsgG76qzryME3xovo7CXpCBzbsMGvNvGwS4V4Ch2lCvncSSjVtCrUYYynhYS0YR2b6g==
+X-Received: by 2002:a05:6a20:160c:b0:1f5:7007:9eb1 with SMTP id adf61e73a8af0-1f58cbc4a43mr14791625637.34.1741818550325;
+        Wed, 12 Mar 2025 15:29:10 -0700 (PDT)
+Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:5::])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af56ea7c87csm46437a12.57.2025.03.12.15.29.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Mar 2025 15:29:09 -0700 (PDT)
+Date: Wed, 12 Mar 2025 15:29:07 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>, davem@davemloft.net,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+	Jorgen Hansen <jhansen@vmware.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+	netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
+Message-ID: <Z9IKs15jhjaaj5px@devvm6277.cco0.facebook.com>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
+ <20200427142518.uwssa6dtasrp3bfc@steredhat>
+ <224cdc10-1532-7ddc-f113-676d43d8f322@redhat.com>
+ <20200428160052.o3ihui4262xogyg4@steredhat>
+ <Z8edJjqAqAaV3Vkt@devvm6277.cco0.facebook.com>
+ <CACGkMEtTgmFVDU+ftDKEvy31JkV9zLLUv25LrEPKQyzgKiQGSQ@mail.gmail.com>
+ <Z89ILjEUU12CuVwk@devvm6277.cco0.facebook.com>
+ <CACGkMEskp720d+UKm_aPUtGZC5NzH+mp_YKoY2NQV6_YBbRz9g@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC 1/5] meminfo: add a per node counter for balloon drivers
-To: Nico Pache <npache@redhat.com>, linux-hyperv@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
- linux-mm@kvack.org, cgroups@vger.kernel.org
-Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
- decui@microsoft.com, jerrin.shaji-george@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de,
- gregkh@linuxfoundation.org, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgross@suse.com,
- sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
- akpm@linux-foundation.org, hannes@cmpxchg.org, mhocko@kernel.org,
- roman.gushchin@linux.dev, shakeel.butt@linux.dev, muchun.song@linux.dev,
- nphamcs@gmail.com, yosry.ahmed@linux.dev, kanchana.p.sridhar@intel.com,
- alexander.atanasov@virtuozzo.com
-References: <20250312000700.184573-1-npache@redhat.com>
- <20250312000700.184573-2-npache@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20250312000700.184573-2-npache@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XTI75aATGez9gXLkI7Abh4x6dlSZN4MSzKkJbTvMzpk_1741817950
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CACGkMEskp720d+UKm_aPUtGZC5NzH+mp_YKoY2NQV6_YBbRz9g@mail.gmail.com>
 
-On 12.03.25 01:06, Nico Pache wrote:
-> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
-> expose it through /proc/meminfo and other memory reporting interfaces.
+On Tue, Mar 11, 2025 at 08:59:44AM +0800, Jason Wang wrote:
+> On Tue, Mar 11, 2025 at 4:14 AM Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
+> >
+> > On Wed, Mar 05, 2025 at 01:46:54PM +0800, Jason Wang wrote:
+> > > On Wed, Mar 5, 2025 at 8:39 AM Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
+> > > >
+> > > > On Tue, Apr 28, 2020 at 06:00:52PM +0200, Stefano Garzarella wrote:
+> > > > > On Tue, Apr 28, 2020 at 04:13:22PM +0800, Jason Wang wrote:
+> > > >
+> > > > WRT netdev, do we foresee big gains beyond just leveraging the netdev's
+> > > > namespace?
+> > >
+> > > It's a leverage of the network subsystem (netdevice, steering, uAPI,
+> > > tracing, probably a lot of others), not only its namespace. It can
+> > > avoid duplicating existing mechanisms in a vsock specific way. If we
+> > > manage to do that, namespace support will be a "byproduct".
+> > >
+> > [...]
+> > >
+> > > Yes, it can. I think we need to evaluate both approaches (that's why I
+> > > raise the approach of reusing netdevice). We can hear from others.
+> > >
+> >
+> > I agree it is worth evaluating. If netdev is being considered, then it
+> > is probably also worth considering your suggestion from a few years back
+> > to add these capabilities by building vsock on top of virtio-net [1].
+> >
+> > [1] https://lore.kernel.org/all/2747ac1f-390e-99f9-b24e-f179af79a9da@redhat.com/
+> 
+> Yes. I think having a dedicated netdev might be simpler than reusing
+> the virito-net.
+> 
+> >
+> > Considering that the current vsock protocol will only ever be able to
+> > enjoy a restricted feature set of these other net subsystems due to its
+> > lack of tolerance for packet loss (e.g., no multiqueue steering, no
+> > packet scheduling), I wonder if it would be best to a) wait until a user
+> > requires these capabilities, and b) at that point extend vsock to tolerate
+> > packet loss (add a seqnum)?
+> 
+> Maybe, a question back to this proposal. What's the plan for the
+> userspace? For example, do we expect to extend iproute2 and other and
+> how (e.g having a new vsock dedicated tool)?
+> 
 
-In balloon_page_enqueue_one(), we perform a
+If we were going to add a seqnum and start bringing in other systems, we
+would probably want to add support into iproute2. For example, when I
+played with qdisc, using ip seemed like the best from the user side.
+The iproute2 changes weren't bad at all[1]. We'd probably need the
+device to carry a new feature bit too.
 
-__count_vm_event(BALLOON_INFLATE)
+That said, all of this still creates the problem of adding new
+system-level ways to disrupt AF_VSOCK users. I think we could offer this
+in a way that is orthogonal to prior vsock, possibly AF_VSOCK2, a
+sockopt, or ioctl to opt-in to using net features... so that we aren't
+violating commitment to existing users that vsock should work regardless
+of network configuration? letting the user that holds the fd of the
+socket make the choice might be the best way to safeguard the contract?
 
-and in balloon_page_list_dequeue
+[1]:	https://github.com/beshleman/iproute2/commit/55fd8a6c133335cda4ede6f8928eb3cea54534b8
 
-__count_vm_event(BALLOON_DEFLATE);
-
-
-Should we maybe simply do the per-node accounting similarly there?
-
--- 
-Cheers,
-
-David / dhildenb
-
+Best,
+Bobby
