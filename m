@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD8431EF370
-	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 22:17:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E5681F0E33
+	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 22:19:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741817846; cv=none; b=Dzs2m8ufpnrP2Whkc9Mbd7Et0R1rJ4NHRRzupIJCosBe57iN2Y0u+gy3PylSbNMslF2O0gJ61VFizdP8b3CShYYzJrmklKpTNcS27Ws3BWHirjQ1gyWh5aqUBVSo+1P7AYpywqwOJnl0xyWtzg4AvqHyPf15Ig6W3ZCbbcfyvd4=
+	t=1741817961; cv=none; b=WwYAQNNNmPdp0MCHiOjyiInxlLk7nY9F/xY2JCd/hWFtLvJoDeqIMT6GhDJtkkCeRlJ2/wP08b+sHTezMqB7pmnRcIZY80sx/99J72np89jZSwS6k/9m+UcUAR6eWsgrzrTeLSjcyN8EAF6Kx4q9u6JY3GjdRPaRcR4pe5wMxV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741817846; c=relaxed/simple;
-	bh=4tzBduGpo4HlaH1Lba8OlV8YQVTkSgbFX9CeezO16SY=;
+	s=arc-20240116; t=1741817961; c=relaxed/simple;
+	bh=ED08Mt6RpE3YuROU8cM9sysjsMYzGtrc8SaX4I53Zqo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=d8kfHRa1ivAMPCUFUXg44r5HvWvbuemFmmjfc2DQK0D3Xrrb2mb4X230ul1O4yWJCH97NBYH2EHjWSShPLNcq8YqXKrqSWWAEvBC6/kttvFPqDdQ1cBXRj7oPgcaCZHvSoM/XvTp0cw2tADQhsrNEdFRr9MQAPuboiMqS7PbxWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a+AX29wF; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=LbmxMBT0S6TWo1//IuC9IzDp2YvPVl+LLdWJq1/cz0UiRfCn0Szs0ChLYpdwQjUPzkO6Fjsl6K/GtnTRHhOD5fSIznfdahNzmOl6uQl04Wc+C7Ir2ayWlSX0fk4WYFrU1c5vzZ+6erlLSnfsPDGzMy0UjMn+l1HyoZtr5jtsMqs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gc/TBFl8; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a+AX29wF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gc/TBFl8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741817843;
+	s=mimecast20190719; t=1741817956;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GjIBl5yndOQdnleTRVmAst04zzkiJlZJAcEZZ6NnjC8=;
-	b=a+AX29wF91m3ImC3olix5lJ3VJzQwi6z+p8YQvDocuhBeUtNEUWdwBim2ub5htH0lXhfaC
-	WDCggcnngRWBuXNXqc/bzuxZek/dad8Z1Bqso4p9Ev9kbSG7vkPnaKdJO5lkb0hMeLg2y9
-	6SMOJXVDoAy5Oj+veY84SjRz9gJKrtA=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YKs6c5vd6BryHi5UgmvOyl94KmjrndKcyGQFDHLGkR0=;
+	b=Gc/TBFl8B/gUSHMg7Z/2DgIOY4s1kfKtFgEMCrEfSGUxqn+J0fDf/Y9fxoc8s+tmjrvEcb
+	WaqbhToER+o4nrRrgvVihW7xv5XGLpxGkGmo/OLwFw/cA1CrFwdplIFs0CJXPKQ01gYUY5
+	CYKn2Ls7Jl+lw6CTi3w4PA6oz2Wbjsk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-503-Kx5GfJjQNLCEYvJkr8scpA-1; Wed, 12 Mar 2025 18:17:22 -0400
-X-MC-Unique: Kx5GfJjQNLCEYvJkr8scpA-1
-X-Mimecast-MFC-AGG-ID: Kx5GfJjQNLCEYvJkr8scpA_1741817841
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-39130f02631so140814f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 15:17:22 -0700 (PDT)
+ us-mta-186-wrty-1bOMzKkoXqeRs3h4A-1; Wed, 12 Mar 2025 18:19:12 -0400
+X-MC-Unique: wrty-1bOMzKkoXqeRs3h4A-1
+X-Mimecast-MFC-AGG-ID: wrty-1bOMzKkoXqeRs3h4A_1741817950
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4394040fea1so1849645e9.0
+        for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 15:19:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741817841; x=1742422641;
+        d=1e100.net; s=20230601; t=1741817950; x=1742422750;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=GjIBl5yndOQdnleTRVmAst04zzkiJlZJAcEZZ6NnjC8=;
-        b=rz1zMnUC/b/xlWLDirLB39hYyVEy5VymvGhW9oDB4xWuUpJukLxRN9QO6UhR7j5Utf
-         NXDWF3xawZ7AXQHDg0oxeMMn9q1P+Lyz7rZYDHN3U/60V5xNBLjrD8k5IL4H6+lKCvaU
-         lzUrYWViT2qkABb/JSLKiV7vgxHV+Do22rI1WTtl2jbtBk+k/DPwu8PYieysrAbdpFxT
-         45SjlBY0dRdxZnyzK9Nem5vo35sb610r7LcDV816Ymq4h0Io6OLAiIkxk2L3ckjpu0dt
-         oo9/5k8xmzJevFTzcGQNDXbMVYGEE5xgVAWcZR38miGAWv+KbcdhiHdqzSrhfVNv8I1a
-         VXJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXrmP8nItV4RjJCyheYQx6xo7OSFWm9tYeYM2lFhqHwzpw1S9p9tTt0ZckD2QeBempH8H+/o5JPe1MYk5MgcQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy0VT3SEmjmD+JTqn0+yS+1dtMikYfU4vDVga81VsAfeKXE/Ey3
-	B4ydqB6kvTgA/PvEMK02WDBTKIb3P/d9cMyNHiOC6yI/BT6veGFhIPM5M3tiQUImtUw5UV2/qnK
-	tAA8Lu4uiFsGnyS2dYGSdwkn1mfiDnj1yerioj+qdH91/9TsU97orLJ6acnwBzWaX
-X-Gm-Gg: ASbGncuLUmvX5Lu134/ShEpu6w88aPMwDZ0O2LyZn9B3Qx0qK+Gp7DM9x/kqxDMa96V
-	DXpqkBnTUEQpDoCofENygnoyghuCGCtVAP6DAaWWLDUm1cF5V8medWFc0eh0OhQ0WvY9BceNFKP
-	K9Dm6OPRY+jI9bT1TNmC10rhoVwOacaB0K1BExHRZyav+cOyf5/cINuvbUoIH/mKkcYVBcJV44l
-	EeEiFVdVht1zT5K1jReem5KKXGY3tHuecUFZLgP7nk3tDOlKOTIx31uvStwNlCYLSxoC4wQ147e
-	qiw2L/jx5hXlz+A8sZtq+qWt0Pa7v0C/GMh+x0PT9N+VQnz2/U+Gao4pjwgQ38Lw2bxvSwSS2Gy
-	34kzlJ5Rq/4ivzAkiRUP66UiWL4LLxfz9OKMTRt4fDe4=
-X-Received: by 2002:a05:6000:156d:b0:391:2192:ccd6 with SMTP id ffacd0b85a97d-3926c1cd9e5mr10444688f8f.39.1741817841282;
-        Wed, 12 Mar 2025 15:17:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE7ajs+DbkvWkZrtvS3kgtwWoElT+oDfxGjlF1xcQLWnYsT+dOgzewtbm0o82DOv1DRYwzp5A==
-X-Received: by 2002:a05:6000:156d:b0:391:2192:ccd6 with SMTP id ffacd0b85a97d-3926c1cd9e5mr10444674f8f.39.1741817840917;
-        Wed, 12 Mar 2025 15:17:20 -0700 (PDT)
+        bh=YKs6c5vd6BryHi5UgmvOyl94KmjrndKcyGQFDHLGkR0=;
+        b=lscmptJy5oHeZLGD5vzT6HM1oINWvu/h8UeQyvzLCk9Bhf8K21vVDI525lDh4B7lro
+         LB3N7v6hQ2Jut2MLmwyeHU9lEEy5g2/Is5rh9Ig3mDPwCdlI2JvH+SjxWDBBv55v5PKe
+         m35zUJlaIu6v1pHGeQ4t3b/gI4hXu87UtHq/NnjDh7LPRa6E9AROHDrwPP2tBduYLDUN
+         3+Q8YuCl9U0jDE42pJH5URsXn0ca8a+f8YkWlyl37ldM2VbCIScpc7/5VwPrbj/b3DPl
+         326ECmYPlX0gy1bkBj8eFxzbhYRpeXsOCa+GzCA3jAvjgCdrUceKeEjUJKoQce8fQ8yd
+         SFCg==
+X-Forwarded-Encrypted: i=1; AJvYcCXWNbohraSzT3GJrHutVyTuABhPxpkGGxu0SSzlxJ29/IBg1nCRIzjXFW0N7Ow7u4XvpVHlNpXHLwiJInnCvQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw1YcQ2jqDLkqFOyntsx6nKKnKAGxw4j5o6q1cVoFba/Edrj1Az
+	XRQNjCLmHo2oz4yMPimNRaNWvOlxKyTFy8gvNp32E08mVjy+jhWHVeWoXkFYKoqOpF7fHp3sp+f
+	CcFgcuZsgxSuLdFTHnNGqFbHohIMvTtsSK8+WLPBOCZhbjIqtFWU1Bveb+ZFC3wKY
+X-Gm-Gg: ASbGncvSJQP4gpGWojDjlG1/IWIqpqImj4tX1kBToFNvG8OnMRtx1NymngVnVJQKB/j
+	oUZVS3v9Y/i/aP774ofFNgKndBrFTZ8eLaANh70dvuAsGsQFvJugebJPKqYvZgGmhaffg6j/8Zz
+	6ycv0bFp4L003gPLR+qdkRB+LKihlB4rkkVt574ih/ojEZGngT/FOA3r3TfXtDi2V/A0og97mF4
+	o1YattjW7e3wDBGuy7A3M9kRZGPyVQsjjsR2lpISUz32vxBG+eCiBvzWC0SK5F4Nf7fx7wIlix1
+	go5rGQnfliGzD/wHUpkke1OEMR3/7027v7ENBDFvuJxbncsFXjBwxkUw0FqUnO1zUbYpH7fM4tl
+	L9Op5WHppnBU1So1yUMepBXQoS8C2Li1vCY67wPOpmSs=
+X-Received: by 2002:a05:600c:5687:b0:43d:186d:a4bf with SMTP id 5b1f17b1804b1-43d186da55cmr561325e9.0.1741817949895;
+        Wed, 12 Mar 2025 15:19:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEFCZMzMhDcHcPaUJ7ZYKRB5yd0dTr+9E10/9yIGc6tvXc+O0vqyF/Y1Un5pGyf0sl4Nfe9rg==
+X-Received: by 2002:a05:600c:5687:b0:43d:186d:a4bf with SMTP id 5b1f17b1804b1-43d186da55cmr561065e9.0.1741817949555;
+        Wed, 12 Mar 2025 15:19:09 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f? (p200300d82f1a7c004ac1c2c441678a0f.dip0.t-ipconnect.de. [2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-395c4f9d59dsm62270f8f.0.2025.03.12.15.17.18
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d0a73127esm34510605e9.8.2025.03.12.15.19.07
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 Mar 2025 15:17:20 -0700 (PDT)
-Message-ID: <26e942e3-4e06-4644-b19b-ae0301bf9b2a@redhat.com>
-Date: Wed, 12 Mar 2025 23:17:18 +0100
+        Wed, 12 Mar 2025 15:19:08 -0700 (PDT)
+Message-ID: <c4229ea5-d991-4f5e-a0ff-45dce78a242a@redhat.com>
+Date: Wed, 12 Mar 2025 23:19:06 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,25 +75,23 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC 4/5] vmx_balloon: update the NR_BALLOON_PAGES state
-To: Nico Pache <npache@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
- linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, cgroups@vger.kernel.org,
- kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+Subject: Re: [RFC 1/5] meminfo: add a per node counter for balloon drivers
+To: Nico Pache <npache@redhat.com>, linux-hyperv@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
+ linux-mm@kvack.org, cgroups@vger.kernel.org
+Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
  decui@microsoft.com, jerrin.shaji-george@broadcom.com,
  bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de,
- gregkh@linuxfoundation.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, jgross@suse.com, sstabellini@kernel.org,
- oleksandr_tyshchenko@epam.com, akpm@linux-foundation.org,
- hannes@cmpxchg.org, mhocko@kernel.org, roman.gushchin@linux.dev,
- shakeel.butt@linux.dev, muchun.song@linux.dev, nphamcs@gmail.com,
- yosry.ahmed@linux.dev, kanchana.p.sridhar@intel.com,
+ gregkh@linuxfoundation.org, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgross@suse.com,
+ sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
+ akpm@linux-foundation.org, hannes@cmpxchg.org, mhocko@kernel.org,
+ roman.gushchin@linux.dev, shakeel.butt@linux.dev, muchun.song@linux.dev,
+ nphamcs@gmail.com, yosry.ahmed@linux.dev, kanchana.p.sridhar@intel.com,
  alexander.atanasov@virtuozzo.com
 References: <20250312000700.184573-1-npache@redhat.com>
- <20250312000700.184573-5-npache@redhat.com>
- <20250312025607-mutt-send-email-mst@kernel.org>
- <CAA1CXcDjEErb2L85gi+W=1sFn73VHLto09nG6f1vS+10o4PctA@mail.gmail.com>
+ <20250312000700.184573-2-npache@redhat.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -140,57 +138,28 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <CAA1CXcDjEErb2L85gi+W=1sFn73VHLto09nG6f1vS+10o4PctA@mail.gmail.com>
+In-Reply-To: <20250312000700.184573-2-npache@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: yjKE_sCxFrMNwv8uby2n4DbhEjJtHxFvqddcccaGyJI_1741817841
+X-Mimecast-MFC-PROC-ID: XTI75aATGez9gXLkI7Abh4x6dlSZN4MSzKkJbTvMzpk_1741817950
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 12.03.25 21:11, Nico Pache wrote:
-> On Wed, Mar 12, 2025 at 12:57 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->>
->> On Tue, Mar 11, 2025 at 06:06:59PM -0600, Nico Pache wrote:
->>> Update the NR_BALLOON_PAGES counter when pages are added to or
->>> removed from the VMware balloon.
->>>
->>> Signed-off-by: Nico Pache <npache@redhat.com>
->>> ---
->>>   drivers/misc/vmw_balloon.c | 5 ++++-
->>>   1 file changed, 4 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
->>> index c817d8c21641..2c70b08c6fb3 100644
->>> --- a/drivers/misc/vmw_balloon.c
->>> +++ b/drivers/misc/vmw_balloon.c
->>> @@ -673,6 +673,8 @@ static int vmballoon_alloc_page_list(struct vmballoon *b,
->>>
->>>                        vmballoon_stats_page_inc(b, VMW_BALLOON_PAGE_STAT_ALLOC,
->>>                                                 ctl->page_size);
->>> +                     mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES,
->>> +                             vmballoon_page_in_frames(ctl->page_size));
->>
->>
->> same issue as virtio I think - this counts frames not pages.
-> I agree with the viritio issue since PAGE_SIZE can be larger than
-> VIRTIO_BALLOON_PFN_SHIFT, resulting in multiple virtio_balloon pages
-> for each page. I fixed that one, thanks!
-> 
-> For the Vmware one, the code is littered with mentions of counting in
-> 4k or 2M but as far as I can tell from looking at the code it actually
-> operates in PAGE_SIZE or PMD size chunks and this count would be
-> correct.
-> Perhaps I am missing something though.
+On 12.03.25 01:06, Nico Pache wrote:
+> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
+> expose it through /proc/meminfo and other memory reporting interfaces.
 
-vmballoon_page_in_frames() documents to "Return: the number of 4k 
-frames.", because it supports either 4k or 2M chunks IIRC.
+In balloon_page_enqueue_one(), we perform a
 
-I think the catch is that PAGE_SIZE will in these configs always be 4k. 
-Otherwise things like vmballoon_mark_page_offline() wouldn't work as 
-expected.
+__count_vm_event(BALLOON_INFLATE)
 
-So I think this is correct.
+and in balloon_page_list_dequeue
+
+__count_vm_event(BALLOON_DEFLATE);
+
+
+Should we maybe simply do the per-node accounting similarly there?
 
 -- 
 Cheers,
