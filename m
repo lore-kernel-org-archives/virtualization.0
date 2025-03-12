@@ -1,106 +1,342 @@
-Received: from out-186.mta0.migadu.com (out-186.mta0.migadu.com [91.218.175.186])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B366A7B3E1
-	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 04:21:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 159721DE3C0
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:03:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741753271; cv=none; b=LSuO709n9dSVyOZ8nrJ3QfIDuR821bctBRMDOvwwukzWxjylj0wZ4WppYmxKyrx3UU+Exeh0rcoNEN3DJ4EY9ii5Er0/boVMiUq3GCkyCR3XOCpjjdQD7BJLpba6a7O8R+vfPVI+5e46Gb4uIr+21fTTfweTVdXicdZVnruhtqA=
+	t=1741755824; cv=none; b=KptpaFnCV1JWrFJw7TMldjL6rfqLs1MFFa9pwtKHkl3td8DhyPFMN1d+CTIhwGsUGScuMzyh3H+D68MJoUKNP+ANw5KSZfXMxFT1VgFavUUKenyWQfLrokzKocJkjM+18CZt/kOOcjrQPKDld/TaObSB8fqECC8yXGxkrnQVook=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741753271; c=relaxed/simple;
-	bh=EJpdB3K7Aqx8sUGEayv5OStg/0y5kyWQ/JNPv5NMGMA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ueayxI/F9JMQVTiZKgTRo29GXEff71Svkr//p5e8mmXKh2GlUiCc+XaEO04y0O5P548zESi2M4mhWhvdebJ+0mfScoXu7VZu1B1OkoczEEWjAg86RYT6Lyf2YHFCosBnzcVkRDKs0at0DtvQ2qeDvG8T7kT1un7L5QiNyGoGT78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=XEwUyIMD; arc=none smtp.client-ip=91.218.175.186
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1741755824; c=relaxed/simple;
+	bh=JvJ/7O10ZNpWh7VduRBNGBUH6gCm5z8D1KTrvXZNrO0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Szc6HRAZEYSHVZLfaP1Sn4DDSl93r/M0XSRG+Iixwtdd9hD/aRcEH1mQruDSTxVO++AqbLB89cEpqYhDyQh98/IBQCm2/iejav/traBg89t6/Yz4FVog+EeGiDpMRxWj6/sdfWq6MVPh3hLpXb3/abS8LjZ+pAHGDLwVwO7kQP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=oUAr7KfA; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="XEwUyIMD"
-Date: Tue, 11 Mar 2025 21:20:48 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1741753256;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hDVW5paXvofauniZLpqYiGX3ZDGr6k7FCnVsxIQYmDI=;
-	b=XEwUyIMDWawoG5pdblTStI90HquR/rc4o2V0eGwG0KkonQod7nUPqLyItShqetqdquXcQh
-	/yNdl28wY6m6OKfmu15G0wheicZLL/xdftO1L8QhhRgbxANOz3ePyhU5QqTYAF2M9I/7F7
-	NOKfvHIcb5lldr/IXRtr3hANfUg4T5w=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Shakeel Butt <shakeel.butt@linux.dev>
-To: Nico Pache <npache@redhat.com>
-Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org, 
-	linux-mm@kvack.org, cgroups@vger.kernel.org, kys@microsoft.com, 
-	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com, 
-	jerrin.shaji-george@broadcom.com, bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de, 
-	gregkh@linuxfoundation.org, mst@redhat.com, david@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgross@suse.com, sstabellini@kernel.org, 
-	oleksandr_tyshchenko@epam.com, akpm@linux-foundation.org, hannes@cmpxchg.org, mhocko@kernel.org, 
-	roman.gushchin@linux.dev, muchun.song@linux.dev, nphamcs@gmail.com, yosry.ahmed@linux.dev, 
-	kanchana.p.sridhar@intel.com, alexander.atanasov@virtuozzo.com
-Subject: Re: [RFC 1/5] meminfo: add a per node counter for balloon drivers
-Message-ID: <oiues63fvb5xx45pue676iso3d3mcqboxdtmcfldwj4xm7q4g7@rxrgpz5l23ok>
-References: <20250312000700.184573-1-npache@redhat.com>
- <20250312000700.184573-2-npache@redhat.com>
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="oUAr7KfA"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 909CE412AA
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:03:42 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id LZVAwx9F417m for <virtualization@lists.linux-foundation.org>;
+ Wed, 12 Mar 2025 05:03:41 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::635; helo=mail-pl1-x635.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A4A1C412A6
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A4A1C412A6
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=oUAr7KfA
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A4A1C412A6
+	for <virtualization@lists.linux-foundation.org>; Wed, 12 Mar 2025 05:03:40 +0000 (UTC)
+Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-224171d6826so26291175ad.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 11 Mar 2025 22:03:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741755820; x=1742360620; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6QiFc6SJG2kyM7Br5fhaU7GX9dr8/OrkWYxYdeRvaF4=;
+        b=oUAr7KfA+nHGNJXZ6gQcMFNEyxIbChCmeQKWPPnND9LPGgrPjaCFkYSUgrPgh81sBq
+         aQmnBij+VtDMcdJrHcJGoFeRE6fD9ddyQk/lEWFcuDe62S0Blk4C1VACtlgsN4Z6pg3A
+         qY2nl5HZvkBqwtjpZqQufsS0qFLhL46f0wfpzXIt6lRpdHDmCL9qjroIm86Xp+MVsMUS
+         EnOoWn0fIVbbZukwpUb8W8ah+pqAKa1CCqc9dI3BloxHA85EV5qEdlHrICEKDUH2RL2I
+         QsXloWS0zYYkRO7ClDW8V3iI2axkHETqpY0S5mpSqcSon9IXWSye/5tvYifIdc1D6GPd
+         EaxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741755820; x=1742360620;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6QiFc6SJG2kyM7Br5fhaU7GX9dr8/OrkWYxYdeRvaF4=;
+        b=SGKvnV/A+xmSUJ3yUyfFmF/mizBPYaVHItiqdlyD/sYMMGfCYYhFT48g3QqebeFMli
+         NebpLkjXWTQzSXr9lh1waAlcJuPIhcRBLsoPEdomwh00lbArWaKvQOlGxCYxCZ230gcl
+         jbWW9czf9o8V37/lsBDNRU8iwFpqIou4V1oc7hEKYdZ7ezwZucLuF2nU+SSdq1PXeZpy
+         9yQ8fCYq0tieK4JWkRmrTC58/KDg7WhLRfDUEbu/EMhLDA1cnhdQrcL0umCF/o3jR1hJ
+         XD/tN2p4h5iAfhN4x8cCkRtTm/7W79KciOqNVelZEntvHksM4kxT1xAuxLfMjUK1VpZP
+         Je0w==
+X-Forwarded-Encrypted: i=1; AJvYcCWasYqS7tJBZr8WrtN5p6QQcMSrQ6SDh9cBgi6KeB9IjYdh02it2P1d3bESVpXT2cUO9W4cQ+9/n+w4Ry+RDQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YybigNJke2NZzKMEASzeh+wK6v9kMQFL7c5B+TlSRalCoCZQmSC
+	MaHM3ugy1NnnK3mtMykzirWVyxlhfnZe+EUFz+urF3zbXml5k8F4wzIAeRbjpPk=
+X-Gm-Gg: ASbGncueItrPZO47VVi2EB1K930CjDMbnk6rn6wFkt8rB7f5KF6wvhtpKGHmianQ/ZD
+	kLaAEDmViIplMRrIFuQ6oH4eCOf4Dzi8gAcfKqwwXDd790cJUJT+KevAc67Hczz8qZ/T6HnUNEW
+	ZErIycijbME4nsi114pPcn6aESAhVaoc/X9jwfdIQ6V6zNFhg9syMSq8NH8Km+BrVEyE3bH9f+M
+	mBE1YafpE0cr37kE2vw6arvqaFv8bivIiIrceNXK1eV0o6nNmIPKgMAGNPttWHuGa8k8UfQPXaf
+	ltQvX+ebNws+90l2gRCkl588TKV1IfY5B1s2EUloCVj4NdF2449niq8Ndg==
+X-Google-Smtp-Source: AGHT+IENgVGmOQ2e2sjFoBtOxZ+KC1QlBkq4WVH7vBx21DbhpzjmB/6EMIeKK8qnTk6hoj/TMUiufQ==
+X-Received: by 2002:a17:902:e80a:b0:224:de2:7fd6 with SMTP id d9443c01a7336-2242889f527mr316528595ad.25.1741755819696;
+        Tue, 11 Mar 2025 22:03:39 -0700 (PDT)
+Received: from [157.82.205.237] ([157.82.205.237])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22410a7f7d6sm106724155ad.107.2025.03.11.22.03.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 11 Mar 2025 22:03:39 -0700 (PDT)
+Message-ID: <ff7916cf-8a9c-4c27-baaf-ca408817c063@daynix.com>
+Date: Wed, 12 Mar 2025 14:03:34 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250312000700.184573-2-npache@redhat.com>
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v9 3/6] tun: Introduce virtio-net hash feature
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>,
+ Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com,
+ Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>
+References: <20250307-rss-v9-0-df76624025eb@daynix.com>
+ <20250307-rss-v9-3-df76624025eb@daynix.com>
+ <CACGkMEsNHba=PY5UQoH1zdGQRiHC8FugMG1nkXqOj1TBdOQrww@mail.gmail.com>
+ <7978dfd5-8499-44f3-9c30-e53a01449281@daynix.com>
+ <CACGkMEsR4_RreDbYQSEk5Cr29_26WNUYheWCQBjyMNUn=1eS2Q@mail.gmail.com>
+ <edf41317-2191-458f-a315-87d5af42a264@daynix.com>
+ <CACGkMEta3k_JOhKv44XiBXZb=WuS=KbSeJNpYxCdeiAgRY2azg@mail.gmail.com>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <CACGkMEta3k_JOhKv44XiBXZb=WuS=KbSeJNpYxCdeiAgRY2azg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 11, 2025 at 06:06:56PM -0600, Nico Pache wrote:
-> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
-> expose it through /proc/meminfo and other memory reporting interfaces.
+On 2025/03/12 11:35, Jason Wang wrote:
+> On Tue, Mar 11, 2025 at 2:11 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>
+>> On 2025/03/11 9:38, Jason Wang wrote:
+>>> On Mon, Mar 10, 2025 at 3:45 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>>
+>>>> On 2025/03/10 12:55, Jason Wang wrote:
+>>>>> On Fri, Mar 7, 2025 at 7:01 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>>>>
+>>>>>> Hash reporting
+>>>>>> ==============
+>>>>>>
+>>>>>> Allow the guest to reuse the hash value to make receive steering
+>>>>>> consistent between the host and guest, and to save hash computation.
+>>>>>>
+>>>>>> RSS
+>>>>>> ===
+>>>>>>
+>>>>>> RSS is a receive steering algorithm that can be negotiated to use with
+>>>>>> virtio_net. Conventionally the hash calculation was done by the VMM.
+>>>>>> However, computing the hash after the queue was chosen defeats the
+>>>>>> purpose of RSS.
+>>>>>>
+>>>>>> Another approach is to use eBPF steering program. This approach has
+>>>>>> another downside: it cannot report the calculated hash due to the
+>>>>>> restrictive nature of eBPF steering program.
+>>>>>>
+>>>>>> Introduce the code to perform RSS to the kernel in order to overcome
+>>>>>> thse challenges. An alternative solution is to extend the eBPF steering
+>>>>>> program so that it will be able to report to the userspace, but I didn't
+>>>>>> opt for it because extending the current mechanism of eBPF steering
+>>>>>> program as is because it relies on legacy context rewriting, and
+>>>>>> introducing kfunc-based eBPF will result in non-UAPI dependency while
+>>>>>> the other relevant virtualization APIs such as KVM and vhost_net are
+>>>>>> UAPIs.
+>>>>>>
+>>>>>> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+>>>>>> Tested-by: Lei Yang <leiyang@redhat.com>
+>>>>>> ---
+>>>>>>     Documentation/networking/tuntap.rst |   7 ++
+>>>>>>     drivers/net/Kconfig                 |   1 +
+>>>>>>     drivers/net/tap.c                   |  68 ++++++++++++++-
+>>>>>>     drivers/net/tun.c                   |  98 +++++++++++++++++-----
+>>>>>>     drivers/net/tun_vnet.h              | 159 ++++++++++++++++++++++++++++++++++--
+>>>>>>     include/linux/if_tap.h              |   2 +
+>>>>>>     include/linux/skbuff.h              |   3 +
+>>>>>>     include/uapi/linux/if_tun.h         |  75 +++++++++++++++++
+>>>>>>     net/core/skbuff.c                   |   4 +
+>>>>>>     9 files changed, 386 insertions(+), 31 deletions(-)
+>>>>>>
+>>>>>> diff --git a/Documentation/networking/tuntap.rst b/Documentation/networking/tuntap.rst
+>>>>>> index 4d7087f727be5e37dfbf5066a9e9c872cc98898d..86b4ae8caa8ad062c1e558920be42ce0d4217465 100644
+>>>>>> --- a/Documentation/networking/tuntap.rst
+>>>>>> +++ b/Documentation/networking/tuntap.rst
+>>>>>> @@ -206,6 +206,13 @@ enable is true we enable it, otherwise we disable it::
+>>>>>>           return ioctl(fd, TUNSETQUEUE, (void *)&ifr);
+>>>>>>       }
+>>>>>>
 > 
-> Signed-off-by: Nico Pache <npache@redhat.com>
-> ---
->  fs/proc/meminfo.c      | 2 ++
->  include/linux/mmzone.h | 1 +
->  mm/memcontrol.c        | 1 +
->  mm/show_mem.c          | 4 +++-
->  mm/vmstat.c            | 1 +
->  5 files changed, 8 insertions(+), 1 deletion(-)
+> [...]
 > 
-> diff --git a/fs/proc/meminfo.c b/fs/proc/meminfo.c
-> index 8ba9b1472390..83be312159c9 100644
-> --- a/fs/proc/meminfo.c
-> +++ b/fs/proc/meminfo.c
-> @@ -162,6 +162,8 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
->  	show_val_kb(m, "Unaccepted:     ",
->  		    global_zone_page_state(NR_UNACCEPTED));
->  #endif
-> +	show_val_kb(m, "Balloon:        ",
-> +		    global_node_page_state(NR_BALLOON_PAGES));
->  
->  	hugetlb_report_meminfo(m);
->  
-> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-> index 9540b41894da..71d3ff19267a 100644
-> --- a/include/linux/mmzone.h
-> +++ b/include/linux/mmzone.h
-> @@ -223,6 +223,7 @@ enum node_stat_item {
->  #ifdef CONFIG_HUGETLB_PAGE
->  	NR_HUGETLB,
->  #endif
-> +	NR_BALLOON_PAGES,
->  	NR_VM_NODE_STAT_ITEMS
->  };
->  
-> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> index 4de6acb9b8ec..182b44646bfa 100644
-> --- a/mm/memcontrol.c
-> +++ b/mm/memcontrol.c
-> @@ -1377,6 +1377,7 @@ static const struct memory_stat memory_stats[] = {
->  #ifdef CONFIG_HUGETLB_PAGE
->  	{ "hugetlb",			NR_HUGETLB			},
->  #endif
-> +	{ "nr_balloon_pages",		NR_BALLOON_PAGES		},
+>>>>>> +static inline long tun_vnet_ioctl_sethash(struct tun_vnet_hash_container __rcu **hashp,
+>>>>>> +                                         bool can_rss, void __user *argp)
+>>>>>
+>>>>> So again, can_rss seems to be tricky. Looking at its caller, it tires
+>>>>> to make eBPF and RSS mutually exclusive. I still don't understand why
+>>>>> we need this. Allow eBPF program to override some of the path seems to
+>>>>> be common practice.
+>>>>>
+>>>>> What's more, we didn't try (or even can't) to make automq and eBPF to
+>>>>> be mutually exclusive. So I still didn't see what we gain from this
+>>>>> and it complicates the codes and may lead to ambiguous uAPI/behaviour.
+>>>>
+>>>> automq and eBPF are mutually exclusive; automq is disabled when an eBPF
+>>>> steering program is set so I followed the example here.
+>>>
+>>> I meant from the view of uAPI, the kernel doesn't or can't reject eBPF
+>>> while using automq.
+>>   > >>
+>>>> We don't even have an interface for eBPF to let it fall back to another
+>>>> alogirhtm.
+>>>
+>>> It doesn't even need this, e.g XDP overrides the default receiving path.
+>>>
+>>>> I could make it fall back to RSS if the eBPF steeering
+>>>> program is designed to fall back to automq when it returns e.g., -1. But
+>>>> such an interface is currently not defined and defining one is out of
+>>>> scope of this patch series.
+>>>
+>>> Just to make sure we are on the same page, I meant we just need to
+>>> make the behaviour consistent: allow eBPF to override the behaviour of
+>>> both automq and rss.
+>>
+>> That assumes eBPF takes precedence over RSS, which is not obvious to me.
+> 
+> Well, it's kind of obvious. Not speaking the eBPF selector, we have
+> other eBPF stuffs like skbedit etc.
+> 
+>>
+>> Let's add an interface for the eBPF steering program to fall back to
+>> another steering algorithm. I said it is out of scope before, but it
+>> makes clear that the eBPF steering program takes precedence over other
+>> algorithms and allows us to delete the code for the configuration
+>> validation in this patch.
+> 
+> Fallback is out of scope but it's not what I meant.
+> 
+> I meant in the current uAPI take eBPF precedence over automq. It's
+> much more simpler to stick this precedence unless we see obvious
+> advanatge.
 
-Please remove the above counter from memcontrol.c as I don't think this
-memory is accounted towards memcg.
+We still have three different design options that preserve the current 
+precedence:
+
+1) Precedence order: eBPF -> RSS -> automq
+2) Precedence order: RSS -> eBPF -> automq
+3) Precedence order: eBPF OR RSS -> automq where eBPF and RSS are 
+mutually exclusive
+
+I think this is a unique situation for this steering program and I could 
+not find another example in other eBPF stuffs.
+
+The current version implements 3) because it is not obvious whether we 
+should choose either 1) or 2). But 1) will be the most capable option if 
+eBPF has a fall-back feature.
+
+> 
+>>
+>>>
+>>>>
+>>>>>
+> 
+> [...]
+> 
+>>>>> Is there a chance that we can reach here without TUN_VNET_HASH_REPORT?
+>>>>> If yes, it should be a bug.
+>>>>
+>>>> It is possible to use RSS without TUN_VNET_HASH_REPORT.
+>>>
+>>> Another call to separate the ioctls then.
+>>
+>> RSS and hash reporting are not completely independent though.
+> 
+> Spec said:
+> 
+> """
+> VIRTIO_NET_F_RSSRequires VIRTIO_NET_F_CTRL_VQ.
+> """
+
+I meant the features can be enabled independently, but they will share 
+the hash type set when they are enabled at the same time.
+
+> 
+>>
+>> A plot twist is the "types" parameter; it is a parameter that is
+>> "common" for RSS and hash reporting.
+> 
+> So we can share part of the structure through the uAPI.
+
+Isn't that what this patch does?
+
+> 
+>> RSS and hash reporting must share
+>> this parameter when both are enabled at the same time; otherwise RSS may
+>> compute hash values that are not suited for hash reporting.
+> 
+> Is this mandated by the spec? If yes, we can add a check. If not,
+> userspace risk themselves as a mis-configuration which we don't need
+> to bother.
+
+Yes, it is mandated. 5.1.6.4.3 Hash calculation for incoming packets says:
+ > A device attempts to calculate a per-packet hash in the following
+ > cases:
+ >
+ >   - The feature VIRTIO_NET_F_RSS was negotiated. The device uses the
+ >     hash to determine the receive virtqueue to place incoming packets.
+ >   - The feature VIRTIO_NET_F_HASH_REPORT was negotiated. The device
+ >     reports the hash value and the hash type with the packet.
+ >
+ > If the feature VIRTIO_NET_F_RSS was negotiated:
+ >
+ >   - The device uses hash_types of the virtio_net_rss_config structure
+ >     as ’Enabled hash types’ bitmask.
+ >   - The device uses a key as defined in hash_key_data and
+       hash_key_length of the virtio_net_rss_config structure (see
+ >      5.1.6.5.7.1).
+ >
+ > If the feature VIRTIO_NET_F_RSS was not negotiated:
+ >
+ >   - The device uses hash_types of the virtio_net_hash_config structure
+ >     as ’Enabled hash types’ bitmask.
+ >   - The device uses a key as defined in hash_key_data and
+ >     hash_key_length of the virtio_net_hash_config structure (see
+ >      .1.6.5.6.4).
+
+So when both VIRTIO_NET_F_RSS and VIRTIO_NET_F_HASH_REPORT are 
+negotiated, virtio_net_rss_config not only controls RSS but also the 
+reported hash values and types. They cannot be divergent.
+
+> 
+> Note that spec use different commands for hash_report and rss.
+
+TUNSETVNETHASH is different from these commands in terms that it also 
+negotiates VIRTIO_NET_F_HASH_REPORT and VIRTIO_NET_F_RSS.
+
+In the virtio-net specification, it is not defined what would happen if 
+these features are negotiated but the VIRTIO_NET_CTRL_MQ_RSS_CONFIG or 
+VIRTIO_NET_CTRL_MQ_HASH_CONFIG commands are not sent. There is no such 
+ambiguity with TUNSETVNETHASH.
+
+Regards,
+Akihiko Odaki
+
+> 
+>>
+>> The paramter will be duplicated if we have separate ioctls for RSS and
+>> hash reporting, and the kernel will have a chiken-egg problem when
+>> ensuring they are synchronized; when the ioctl for RSS is issued, should
+>> the kernel ensure the "types" parameter is identical with one specified
+>> for hash reporting? It will not work if the userspace may decide to
+>> configure hash reporting after RSS.
+>>
+> 
+> See my reply above.
+> 
+> Thanks
+> 
+
