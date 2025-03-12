@@ -1,489 +1,199 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 802D81F30DD
-	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 20:59:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD8431EF370
+	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 22:17:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741813187; cv=none; b=PLZlM0NQt51my0t0ig0qoDceY3QZMnKlIHNQzqdpkdNflKLgfa8pdaw68ZWMP3TEU2xWVDVc7Xqb3eqwpyyyJWKiUlqtg+GngFycYSr8AQnIbKR7Hbcaa+yAwK4IRi7ArKvLLRU1+dtGTLwPMToL0q0dRRZQ+hxa1pSrd7S62Ak=
+	t=1741817846; cv=none; b=Dzs2m8ufpnrP2Whkc9Mbd7Et0R1rJ4NHRRzupIJCosBe57iN2Y0u+gy3PylSbNMslF2O0gJ61VFizdP8b3CShYYzJrmklKpTNcS27Ws3BWHirjQ1gyWh5aqUBVSo+1P7AYpywqwOJnl0xyWtzg4AvqHyPf15Ig6W3ZCbbcfyvd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741813187; c=relaxed/simple;
-	bh=Do16I5bAYzmzhFhoe8gnWsx5863bMKTjbneEuRXGaqU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Y/3KvWGIw0IbIbwzlibJ8wqi/SOCmMWM3ojiOi+WsVpxtVkdS4z3w14016Hw0Bj8K3vgGo5arJCjaRhm4FMgtqPcVORcB/BW+apbE17nkEfzaZ+IG5iq/ozb6Fru3Y1J1OQggiCJooLEkJ1CyAL6f1byuRYRNFaBRlAXPAvIwB8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W+/eGZgu; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1741817846; c=relaxed/simple;
+	bh=4tzBduGpo4HlaH1Lba8OlV8YQVTkSgbFX9CeezO16SY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=d8kfHRa1ivAMPCUFUXg44r5HvWvbuemFmmjfc2DQK0D3Xrrb2mb4X230ul1O4yWJCH97NBYH2EHjWSShPLNcq8YqXKrqSWWAEvBC6/kttvFPqDdQ1cBXRj7oPgcaCZHvSoM/XvTp0cw2tADQhsrNEdFRr9MQAPuboiMqS7PbxWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a+AX29wF; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W+/eGZgu"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-2ff80290debso672766a91.3
-        for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 13:59:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741813185; x=1742417985; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lCaQyn2/uqo7QNM9DADy6R5q4JezG8pI2E1+WaA9IUU=;
-        b=W+/eGZguxqzujOFcy9V32aL/L6p86Klr6Gej531pq4nHIFOvcn9ZdaYhLi3Pnu8F2t
-         LoQ/bYg+r2PqyDDel1/Z1b+iUfYilAY3Z2zULCgted8HDN1tuq/WWskNocMjb0Fg16hl
-         9MmuQcZltSVOOmIKL6pf/OEgyzqtIj2FX/WsjdasAxsJ+TVAJ3p0C5LzRn2Qs3EowNI0
-         gpnkh6mGitQWbMozUKVO+HqY9OqdaIBc6CbCc9U7P2lfjFNUOupRH2AT9U3xRQ0hdC3k
-         81313ZRmVf4ZHQQ6kRs7Q9Gki1PQhqH1nA26jyTQFCqdgQO4vGEuzIIt5AA10/wR3Ged
-         n5GQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a+AX29wF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741817843;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=GjIBl5yndOQdnleTRVmAst04zzkiJlZJAcEZZ6NnjC8=;
+	b=a+AX29wF91m3ImC3olix5lJ3VJzQwi6z+p8YQvDocuhBeUtNEUWdwBim2ub5htH0lXhfaC
+	WDCggcnngRWBuXNXqc/bzuxZek/dad8Z1Bqso4p9Ev9kbSG7vkPnaKdJO5lkb0hMeLg2y9
+	6SMOJXVDoAy5Oj+veY84SjRz9gJKrtA=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-503-Kx5GfJjQNLCEYvJkr8scpA-1; Wed, 12 Mar 2025 18:17:22 -0400
+X-MC-Unique: Kx5GfJjQNLCEYvJkr8scpA-1
+X-Mimecast-MFC-AGG-ID: Kx5GfJjQNLCEYvJkr8scpA_1741817841
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-39130f02631so140814f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 15:17:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741813185; x=1742417985;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lCaQyn2/uqo7QNM9DADy6R5q4JezG8pI2E1+WaA9IUU=;
-        b=QdWyK2En1jGduL94gO3jO4yav54WOrJWwBnYFTCPNaZyADL87DmjBeiSP9BXWEfVHi
-         uxPTd3bHVqdhRUWs+mCRjgAEv5tD5aYCHPvmYz5zk/QLhccNoF05Y9tTBMQUwmdrAt73
-         iWy1xgaIJnwXr2vdvn710HbsK1UoUTU2/Bw44MYNPzW1PE5AyfL93MOIhKTKi4NJPlgQ
-         qOOn8AOlDjzKb4Sk38XCyZbRwe6/1/8R5QTGuvSI7Fcvywsq9J2DtyIdJ+kADkU/2sDJ
-         oEoH8FBS4IzsLBjMH+y7iyBKJxqatIuLhleqzu15h4QYlq3GCZlVGThzAT8GvvkTz2ct
-         IMNQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXATBKV7KbcAYU0fnSH6jWg2VV6TAs2WBO28fWNhmZM3xNoSM8eLkxB7mKs4EGHpvQ0h32vGQ4k6K4xi5Q6SA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwN7ETXtMVoJVQetrkQ3HKthE5R5AhSZo+Pqec6KSd/z8h/Z/Vj
-	ANFKIt/b3PItVDbodd0DM2hcMvv90aaEdcvs34aViIK9uaQccu0K
-X-Gm-Gg: ASbGncuZ5S9UPfJLPLZL/c+u7QAWmdgeZFpLukrezWmEobcOXWNVMNAIo3tOJksf01T
-	TS0ehrbNp2f/QOuszcL3U3FbnL8NhuvtSTj2UJhfeGqTb/mU48BDMUEeV3hvV+7ZQU8Ba0VUaPf
-	qnusKziqGRsNAzIuwlzV5kJReZQn2bL53PAG6tSiVqXYrO7PN4nJtdVG8nGaPShKG/EdwDlkJ59
-	5HD/dFavFtqm3Cd3kEgEpVmbTCJSMM033gqlaRjSq+tMjCCGGJeSYzAYYYqLG7VYwSOtYl4OJ7J
-	DnHHEPNrqNnnl61/SUqrdQCdHD+ga+RbHCqQ0iZiTJA=
-X-Google-Smtp-Source: AGHT+IG8o4T4fQgM/ljNeiMXid+znFHo/f0a3WcQ7wf4lTgAMYEbvfs/XE+5hQSFsAZ5+QRpMt+LWA==
-X-Received: by 2002:a17:90b:1d0a:b0:2ea:83a0:47a5 with SMTP id 98e67ed59e1d1-2ff7ce457acmr33164596a91.4.1741813184517;
-        Wed, 12 Mar 2025 13:59:44 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:70::])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-301190b98ebsm2342609a91.36.2025.03.12.13.59.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Mar 2025 13:59:43 -0700 (PDT)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Wed, 12 Mar 2025 13:59:37 -0700
-Subject: [PATCH v2 3/3] vhost/vsock: use netns of process that opens the
- vhost-vsock-netns device
+        d=1e100.net; s=20230601; t=1741817841; x=1742422641;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=GjIBl5yndOQdnleTRVmAst04zzkiJlZJAcEZZ6NnjC8=;
+        b=rz1zMnUC/b/xlWLDirLB39hYyVEy5VymvGhW9oDB4xWuUpJukLxRN9QO6UhR7j5Utf
+         NXDWF3xawZ7AXQHDg0oxeMMn9q1P+Lyz7rZYDHN3U/60V5xNBLjrD8k5IL4H6+lKCvaU
+         lzUrYWViT2qkABb/JSLKiV7vgxHV+Do22rI1WTtl2jbtBk+k/DPwu8PYieysrAbdpFxT
+         45SjlBY0dRdxZnyzK9Nem5vo35sb610r7LcDV816Ymq4h0Io6OLAiIkxk2L3ckjpu0dt
+         oo9/5k8xmzJevFTzcGQNDXbMVYGEE5xgVAWcZR38miGAWv+KbcdhiHdqzSrhfVNv8I1a
+         VXJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXrmP8nItV4RjJCyheYQx6xo7OSFWm9tYeYM2lFhqHwzpw1S9p9tTt0ZckD2QeBempH8H+/o5JPe1MYk5MgcQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy0VT3SEmjmD+JTqn0+yS+1dtMikYfU4vDVga81VsAfeKXE/Ey3
+	B4ydqB6kvTgA/PvEMK02WDBTKIb3P/d9cMyNHiOC6yI/BT6veGFhIPM5M3tiQUImtUw5UV2/qnK
+	tAA8Lu4uiFsGnyS2dYGSdwkn1mfiDnj1yerioj+qdH91/9TsU97orLJ6acnwBzWaX
+X-Gm-Gg: ASbGncuLUmvX5Lu134/ShEpu6w88aPMwDZ0O2LyZn9B3Qx0qK+Gp7DM9x/kqxDMa96V
+	DXpqkBnTUEQpDoCofENygnoyghuCGCtVAP6DAaWWLDUm1cF5V8medWFc0eh0OhQ0WvY9BceNFKP
+	K9Dm6OPRY+jI9bT1TNmC10rhoVwOacaB0K1BExHRZyav+cOyf5/cINuvbUoIH/mKkcYVBcJV44l
+	EeEiFVdVht1zT5K1jReem5KKXGY3tHuecUFZLgP7nk3tDOlKOTIx31uvStwNlCYLSxoC4wQ147e
+	qiw2L/jx5hXlz+A8sZtq+qWt0Pa7v0C/GMh+x0PT9N+VQnz2/U+Gao4pjwgQ38Lw2bxvSwSS2Gy
+	34kzlJ5Rq/4ivzAkiRUP66UiWL4LLxfz9OKMTRt4fDe4=
+X-Received: by 2002:a05:6000:156d:b0:391:2192:ccd6 with SMTP id ffacd0b85a97d-3926c1cd9e5mr10444688f8f.39.1741817841282;
+        Wed, 12 Mar 2025 15:17:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE7ajs+DbkvWkZrtvS3kgtwWoElT+oDfxGjlF1xcQLWnYsT+dOgzewtbm0o82DOv1DRYwzp5A==
+X-Received: by 2002:a05:6000:156d:b0:391:2192:ccd6 with SMTP id ffacd0b85a97d-3926c1cd9e5mr10444674f8f.39.1741817840917;
+        Wed, 12 Mar 2025 15:17:20 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f? (p200300d82f1a7c004ac1c2c441678a0f.dip0.t-ipconnect.de. [2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-395c4f9d59dsm62270f8f.0.2025.03.12.15.17.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Mar 2025 15:17:20 -0700 (PDT)
+Message-ID: <26e942e3-4e06-4644-b19b-ae0301bf9b2a@redhat.com>
+Date: Wed, 12 Mar 2025 23:17:18 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250312-vsock-netns-v2-3-84bffa1aa97a@gmail.com>
-References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
-In-Reply-To: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- Jakub Kicinski <kuba@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Bryan Tan <bryan-bt.tan@broadcom.com>, 
- Vishnu Dasa <vishnu.dasa@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, 
- Bobby Eshleman <bobbyeshleman@gmail.com>
-X-Mailer: b4 0.14.2
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC 4/5] vmx_balloon: update the NR_BALLOON_PAGES state
+To: Nico Pache <npache@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+ linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, cgroups@vger.kernel.org,
+ kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+ decui@microsoft.com, jerrin.shaji-george@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de,
+ gregkh@linuxfoundation.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, jgross@suse.com, sstabellini@kernel.org,
+ oleksandr_tyshchenko@epam.com, akpm@linux-foundation.org,
+ hannes@cmpxchg.org, mhocko@kernel.org, roman.gushchin@linux.dev,
+ shakeel.butt@linux.dev, muchun.song@linux.dev, nphamcs@gmail.com,
+ yosry.ahmed@linux.dev, kanchana.p.sridhar@intel.com,
+ alexander.atanasov@virtuozzo.com
+References: <20250312000700.184573-1-npache@redhat.com>
+ <20250312000700.184573-5-npache@redhat.com>
+ <20250312025607-mutt-send-email-mst@kernel.org>
+ <CAA1CXcDjEErb2L85gi+W=1sFn73VHLto09nG6f1vS+10o4PctA@mail.gmail.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
+ 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
+ rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
+ wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
+ 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
+ pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
+ KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
+ BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
+ 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
+ 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
+ M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
+ Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
+ T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
+ 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
+ CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
+ NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
+ 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
+ 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
+ lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
+ AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
+ N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
+ AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
+ boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
+ 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
+ XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
+ a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
+ Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
+ 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
+ kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
+ th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
+ jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <CAA1CXcDjEErb2L85gi+W=1sFn73VHLto09nG6f1vS+10o4PctA@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: yjKE_sCxFrMNwv8uby2n4DbhEjJtHxFvqddcccaGyJI_1741817841
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+On 12.03.25 21:11, Nico Pache wrote:
+> On Wed, Mar 12, 2025 at 12:57 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>>
+>> On Tue, Mar 11, 2025 at 06:06:59PM -0600, Nico Pache wrote:
+>>> Update the NR_BALLOON_PAGES counter when pages are added to or
+>>> removed from the VMware balloon.
+>>>
+>>> Signed-off-by: Nico Pache <npache@redhat.com>
+>>> ---
+>>>   drivers/misc/vmw_balloon.c | 5 ++++-
+>>>   1 file changed, 4 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+>>> index c817d8c21641..2c70b08c6fb3 100644
+>>> --- a/drivers/misc/vmw_balloon.c
+>>> +++ b/drivers/misc/vmw_balloon.c
+>>> @@ -673,6 +673,8 @@ static int vmballoon_alloc_page_list(struct vmballoon *b,
+>>>
+>>>                        vmballoon_stats_page_inc(b, VMW_BALLOON_PAGE_STAT_ALLOC,
+>>>                                                 ctl->page_size);
+>>> +                     mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES,
+>>> +                             vmballoon_page_in_frames(ctl->page_size));
+>>
+>>
+>> same issue as virtio I think - this counts frames not pages.
+> I agree with the viritio issue since PAGE_SIZE can be larger than
+> VIRTIO_BALLOON_PFN_SHIFT, resulting in multiple virtio_balloon pages
+> for each page. I fixed that one, thanks!
+> 
+> For the Vmware one, the code is littered with mentions of counting in
+> 4k or 2M but as far as I can tell from looking at the code it actually
+> operates in PAGE_SIZE or PMD size chunks and this count would be
+> correct.
+> Perhaps I am missing something though.
 
-This patch assigns the network namespace of the process that opened
-vhost-vsock-netns device (e.g. VMM) to the packets coming from the
-guest, allowing only host sockets in the same network namespace to
-communicate with the guest.
+vmballoon_page_in_frames() documents to "Return: the number of 4k 
+frames.", because it supports either 4k or 2M chunks IIRC.
 
-This patch also allows having different VMs, running in different
-network namespace, with the same CID/port.
+I think the catch is that PAGE_SIZE will in these configs always be 4k. 
+Otherwise things like vmballoon_mark_page_offline() wouldn't work as 
+expected.
 
-This patch brings namespace support only to vhost-vsock, but not
-to virtio-vsock, hyperv, or vmci.
-
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
----
-v1 -> v2
- * removed 'netns' module param
- * renamed vsock_default_net() to vsock_global_net() to reflect new
-   semantics
- * reserved NULL net to indicate "global" vsock namespace
-
-RFC -> v1
-* added 'netns' module param
-* added 'vsock_net_eq()' to check the "net" assigned to a socket
-  only when 'netns' support is enabled
----
- drivers/vhost/vsock.c            | 97 +++++++++++++++++++++++++++++++++-------
- include/linux/miscdevice.h       |  1 +
- include/net/af_vsock.h           |  3 +-
- net/vmw_vsock/af_vsock.c         | 30 ++++++++++++-
- net/vmw_vsock/virtio_transport.c |  4 +-
- net/vmw_vsock/vsock_loopback.c   |  4 +-
- 6 files changed, 117 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 02e2a3551205a4398a74a167a82802d950c962f6..8702beb8238aa290b6d901e53c36481637840017 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -46,6 +46,7 @@ static DEFINE_READ_MOSTLY_HASHTABLE(vhost_vsock_hash, 8);
- struct vhost_vsock {
- 	struct vhost_dev dev;
- 	struct vhost_virtqueue vqs[2];
-+	struct net *net;
- 
- 	/* Link to global vhost_vsock_hash, writes use vhost_vsock_mutex */
- 	struct hlist_node hash;
-@@ -67,8 +68,9 @@ static u32 vhost_transport_get_local_cid(void)
- /* Callers that dereference the return value must hold vhost_vsock_mutex or the
-  * RCU read lock.
-  */
--static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
-+static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net, bool global_fallback)
- {
-+	struct vhost_vsock *fallback = NULL;
- 	struct vhost_vsock *vsock;
- 
- 	hash_for_each_possible_rcu(vhost_vsock_hash, vsock, hash, guest_cid) {
-@@ -78,11 +80,18 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
- 		if (other_cid == 0)
- 			continue;
- 
--		if (other_cid == guest_cid)
--			return vsock;
-+		if (other_cid == guest_cid) {
-+			if (net_eq(net, vsock->net))
-+				return vsock;
- 
-+			if (net_eq(vsock->net, vsock_global_net()))
-+				fallback = vsock;
-+		}
- 	}
- 
-+	if (global_fallback)
-+		return fallback;
-+
- 	return NULL;
- }
- 
-@@ -272,13 +281,14 @@ static int
- vhost_transport_send_pkt(struct sk_buff *skb)
- {
- 	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
-+	struct net *net = VIRTIO_VSOCK_SKB_CB(skb)->net;
- 	struct vhost_vsock *vsock;
- 	int len = skb->len;
- 
- 	rcu_read_lock();
- 
- 	/* Find the vhost_vsock according to guest context id  */
--	vsock = vhost_vsock_get(le64_to_cpu(hdr->dst_cid));
-+	vsock = vhost_vsock_get(le64_to_cpu(hdr->dst_cid), net, true);
- 	if (!vsock) {
- 		rcu_read_unlock();
- 		kfree_skb(skb);
-@@ -305,7 +315,8 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
- 	rcu_read_lock();
- 
- 	/* Find the vhost_vsock according to guest context id  */
--	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
-+	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid,
-+				sock_net(sk_vsock(vsk)), true);
- 	if (!vsock)
- 		goto out;
- 
-@@ -403,7 +414,7 @@ static bool vhost_transport_msgzerocopy_allow(void)
- 	return true;
- }
- 
--static bool vhost_transport_seqpacket_allow(u32 remote_cid);
-+static bool vhost_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid);
- 
- static struct virtio_transport vhost_transport = {
- 	.transport = {
-@@ -459,13 +470,14 @@ static struct virtio_transport vhost_transport = {
- 	.send_pkt = vhost_transport_send_pkt,
- };
- 
--static bool vhost_transport_seqpacket_allow(u32 remote_cid)
-+static bool vhost_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
- {
-+	struct net *net = sock_net(sk_vsock(vsk));
- 	struct vhost_vsock *vsock;
- 	bool seqpacket_allow = false;
- 
- 	rcu_read_lock();
--	vsock = vhost_vsock_get(remote_cid);
-+	vsock = vhost_vsock_get(remote_cid, net, true);
- 
- 	if (vsock)
- 		seqpacket_allow = vsock->seqpacket_allow;
-@@ -525,7 +537,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 			continue;
- 		}
- 
--		VIRTIO_VSOCK_SKB_CB(skb)->net = vsock_global_net();
-+		VIRTIO_VSOCK_SKB_CB(skb)->net = vsock->net;
- 		total_len += sizeof(*hdr) + skb->len;
- 
- 		/* Deliver to monitoring devices all received packets */
-@@ -650,7 +662,7 @@ static void vhost_vsock_free(struct vhost_vsock *vsock)
- 	kvfree(vsock);
- }
- 
--static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
-+static int __vhost_vsock_dev_open(struct inode *inode, struct file *file, struct net *net)
- {
- 	struct vhost_virtqueue **vqs;
- 	struct vhost_vsock *vsock;
-@@ -669,6 +681,8 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
- 		goto out;
- 	}
- 
-+	vsock->net = net;
-+
- 	vsock->guest_cid = 0; /* no CID assigned yet */
- 	vsock->seqpacket_allow = false;
- 
-@@ -693,6 +707,22 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
- 	return ret;
- }
- 
-+static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
-+{
-+	return __vhost_vsock_dev_open(inode, file, vsock_global_net());
-+}
-+
-+static int vhost_vsock_netns_dev_open(struct inode *inode, struct file *file)
-+{
-+	struct net *net;
-+
-+	net = get_net_ns_by_pid(current->pid);
-+	if (IS_ERR(net))
-+		return PTR_ERR(net);
-+
-+	return __vhost_vsock_dev_open(inode, file, net);
-+}
-+
- static void vhost_vsock_flush(struct vhost_vsock *vsock)
- {
- 	vhost_dev_flush(&vsock->dev);
-@@ -708,7 +738,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
- 	 */
- 
- 	/* If the peer is still valid, no need to reset connection */
--	if (vhost_vsock_get(vsk->remote_addr.svm_cid))
-+	if (vhost_vsock_get(vsk->remote_addr.svm_cid, sock_net(sk), true))
- 		return;
- 
- 	/* If the close timeout is pending, let it expire.  This avoids races
-@@ -753,6 +783,8 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
- 	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
- 
- 	vhost_dev_cleanup(&vsock->dev);
-+	if (vsock->net)
-+		put_net(vsock->net);
- 	kfree(vsock->dev.vqs);
- 	vhost_vsock_free(vsock);
- 	return 0;
-@@ -777,9 +809,15 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
- 	if (vsock_find_cid(guest_cid))
- 		return -EADDRINUSE;
- 
-+	/* If this namespace has already connected to this CID, then report
-+	 * that this address is already in use.
-+	 */
-+	if (vsock->net && vsock_net_has_connected(vsock->net, guest_cid))
-+		return -EADDRINUSE;
-+
- 	/* Refuse if CID is already in use */
- 	mutex_lock(&vhost_vsock_mutex);
--	other = vhost_vsock_get(guest_cid);
-+	other = vhost_vsock_get(guest_cid, vsock->net, false);
- 	if (other && other != vsock) {
- 		mutex_unlock(&vhost_vsock_mutex);
- 		return -EADDRINUSE;
-@@ -931,6 +969,24 @@ static struct miscdevice vhost_vsock_misc = {
- 	.fops = &vhost_vsock_fops,
- };
- 
-+static const struct file_operations vhost_vsock_netns_fops = {
-+	.owner          = THIS_MODULE,
-+	.open           = vhost_vsock_netns_dev_open,
-+	.release        = vhost_vsock_dev_release,
-+	.llseek		= noop_llseek,
-+	.unlocked_ioctl = vhost_vsock_dev_ioctl,
-+	.compat_ioctl   = compat_ptr_ioctl,
-+	.read_iter      = vhost_vsock_chr_read_iter,
-+	.write_iter     = vhost_vsock_chr_write_iter,
-+	.poll           = vhost_vsock_chr_poll,
-+};
-+
-+static struct miscdevice vhost_vsock_netns_misc = {
-+	.minor = VHOST_VSOCK_NETNS_MINOR,
-+	.name = "vhost-vsock-netns",
-+	.fops = &vhost_vsock_netns_fops,
-+};
-+
- static int __init vhost_vsock_init(void)
- {
- 	int ret;
-@@ -941,17 +997,26 @@ static int __init vhost_vsock_init(void)
- 		return ret;
- 
- 	ret = misc_register(&vhost_vsock_misc);
--	if (ret) {
--		vsock_core_unregister(&vhost_transport.transport);
--		return ret;
--	}
-+	if (ret)
-+		goto out_vt;
-+
-+	ret = misc_register(&vhost_vsock_netns_misc);
-+	if (ret)
-+		goto out_vvm;
- 
- 	return 0;
-+
-+out_vvm:
-+	misc_deregister(&vhost_vsock_misc);
-+out_vt:
-+	vsock_core_unregister(&vhost_transport.transport);
-+	return ret;
- };
- 
- static void __exit vhost_vsock_exit(void)
- {
- 	misc_deregister(&vhost_vsock_misc);
-+	misc_deregister(&vhost_vsock_netns_misc);
- 	vsock_core_unregister(&vhost_transport.transport);
- };
- 
-diff --git a/include/linux/miscdevice.h b/include/linux/miscdevice.h
-index 69e110c2b86a9b16c1637778a25e1eebb3fd0111..a7e11b70a5398a225c4d63d50ac460e6388e022c 100644
---- a/include/linux/miscdevice.h
-+++ b/include/linux/miscdevice.h
-@@ -71,6 +71,7 @@
- #define USERIO_MINOR		240
- #define VHOST_VSOCK_MINOR	241
- #define RFKILL_MINOR		242
-+#define VHOST_VSOCK_NETNS_MINOR	243
- #define MISC_DYNAMIC_MINOR	255
- 
- struct device;
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index 41afbc18648c953da27a93571d408de968aa7668..1e37737689a741d91e64b8c0ed0a931fc7376194 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -143,7 +143,7 @@ struct vsock_transport {
- 				     int flags);
- 	int (*seqpacket_enqueue)(struct vsock_sock *vsk, struct msghdr *msg,
- 				 size_t len);
--	bool (*seqpacket_allow)(u32 remote_cid);
-+	bool (*seqpacket_allow)(struct vsock_sock *vsk, u32 remote_cid);
- 	u32 (*seqpacket_has_data)(struct vsock_sock *vsk);
- 
- 	/* Notification. */
-@@ -258,4 +258,5 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
- }
- 
- struct net *vsock_global_net(void);
-+bool vsock_net_has_connected(struct net *net, u64 guest_cid);
- #endif /* __AF_VSOCK_H__ */
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index d206489bf0a81cf989387c7c8063be91a7c21a7d..58fa415555d6aae5043b5ca2bfc4783af566cf28 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -391,6 +391,34 @@ void vsock_for_each_connected_socket(struct vsock_transport *transport,
- }
- EXPORT_SYMBOL_GPL(vsock_for_each_connected_socket);
- 
-+bool vsock_net_has_connected(struct net *net, u64 guest_cid)
-+{
-+	bool ret = false;
-+	int i;
-+
-+	spin_lock_bh(&vsock_table_lock);
-+
-+	for (i = 0; i < ARRAY_SIZE(vsock_connected_table); i++) {
-+		struct vsock_sock *vsk;
-+
-+		list_for_each_entry(vsk, &vsock_connected_table[i],
-+				    connected_table) {
-+			if (sock_net(sk_vsock(vsk)) != net)
-+				continue;
-+
-+			if (vsk->remote_addr.svm_cid == guest_cid) {
-+				ret = true;
-+				goto out;
-+			}
-+		}
-+	}
-+
-+out:
-+	spin_unlock_bh(&vsock_table_lock);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(vsock_net_has_connected);
-+
- void vsock_add_pending(struct sock *listener, struct sock *pending)
- {
- 	struct vsock_sock *vlistener;
-@@ -537,7 +565,7 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 
- 	if (sk->sk_type == SOCK_SEQPACKET) {
- 		if (!new_transport->seqpacket_allow ||
--		    !new_transport->seqpacket_allow(remote_cid)) {
-+		    !new_transport->seqpacket_allow(vsk, remote_cid)) {
- 			module_put(new_transport->module);
- 			return -ESOCKTNOSUPPORT;
- 		}
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 163ddfc0808529ad6dda7992f9ec48837dd7337c..60bf3f1f39c51d44768fd2f04df3abee9f966252 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -536,7 +536,7 @@ static bool virtio_transport_msgzerocopy_allow(void)
- 	return true;
- }
- 
--static bool virtio_transport_seqpacket_allow(u32 remote_cid);
-+static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid);
- 
- static struct virtio_transport virtio_transport = {
- 	.transport = {
-@@ -593,7 +593,7 @@ static struct virtio_transport virtio_transport = {
- 	.can_msgzerocopy = virtio_transport_can_msgzerocopy,
- };
- 
--static bool virtio_transport_seqpacket_allow(u32 remote_cid)
-+static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
- {
- 	struct virtio_vsock *vsock;
- 	bool seqpacket_allow;
-diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
-index 6e78927a598e07cf77386a420b9d05d3f491dc7c..1b2fab73e0d0a6c63ed60d29fc837da58f6fb121 100644
---- a/net/vmw_vsock/vsock_loopback.c
-+++ b/net/vmw_vsock/vsock_loopback.c
-@@ -46,7 +46,7 @@ static int vsock_loopback_cancel_pkt(struct vsock_sock *vsk)
- 	return 0;
- }
- 
--static bool vsock_loopback_seqpacket_allow(u32 remote_cid);
-+static bool vsock_loopback_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid);
- static bool vsock_loopback_msgzerocopy_allow(void)
- {
- 	return true;
-@@ -106,7 +106,7 @@ static struct virtio_transport loopback_transport = {
- 	.send_pkt = vsock_loopback_send_pkt,
- };
- 
--static bool vsock_loopback_seqpacket_allow(u32 remote_cid)
-+static bool vsock_loopback_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
- {
- 	return true;
- }
+So I think this is correct.
 
 -- 
-2.47.1
+Cheers,
+
+David / dhildenb
 
