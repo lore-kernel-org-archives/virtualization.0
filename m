@@ -1,81 +1,146 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB741E1C09;
-	Wed, 12 Mar 2025 05:59:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06CAE1CA9C
+	for <virtualization@lists.linux.dev>; Wed, 12 Mar 2025 06:55:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741759201; cv=none; b=pu2MiYpvlxGERQgoDSh8kZeKe4g7C4nwUIMJcNVpMJDRlP4AVpsaL7Q5bKNeTBBfH2xzSIAloEiYfOySO545KDuDtKOfJ97odN7JdAwDJ1zrr97eLTZsv1MOtxKFpCwAjn7OHqgS+kTrCFkN19n++FRpv6goA83UN4S2HKHBKGQ=
+	t=1741762556; cv=none; b=N+Pvm5V7DznlS84c/PciClXfiZNVUCIXn44JPsigX3dyQGiwEHH6UezjGL0CErkjIb0MrMubKEeFu9f/3sOmW6tq6lZnTvtDYZ1lneDDkNKgipYIVH2W2jeUv9uqvMS8/+1IvBrRjxcplYUgzl3pqYQOmIIe6licfzNjz/1NrKY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741759201; c=relaxed/simple;
-	bh=w2bWWcvUWJL51NtS1GMZcwVGuTpZ9zHBGMLxwaUwCZc=;
+	s=arc-20240116; t=1741762556; c=relaxed/simple;
+	bh=mmZWO8rrKBhcxVobJcb1/dMSVYN+sIlK9Rb8Ecs/XBY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KJ8ij6fUWcspCqGd/pRl+yF9Uf39IJFeeXFRWTcUWe0KyLK8ttOQbvFRxcZgtT68F+nDksWtCYZZe6VosZ0VKYQVzfaTNLOPV/psFL8Ur++Jz+WYHT9/yUNZOIrHgs71Ib7H9rT0QUtyaquY7hhRR8lrJ1EsLZelH2dQdEo0KMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=U/1nE9hn; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	 In-Reply-To:Content-Type:Content-Disposition; b=aCvlqTLR9WKyqNtQhRo9W5vg6wBwLXpXTki6UKgKqDMNqJtA19W9d9nsqVLmRo9eJWKyz/w0UVZwSDpQnOiKwv/r6c+BqzbkT4tRCn7a1Eptg8oIxbK5NZVzph76vC1CQ9u6LS/7GD2wLg4jO1K+gcpW6eBE/weGDO1P8dk/5L4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UP8LTRJ8; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="U/1nE9hn"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=QcXOYRCH0+rzrtF5eKJ9mNGNA8kBZEbH+ucO4R4KXyE=; b=U/1nE9hnYPBulm4i10QfSh0WL+
-	Q33SCEtiLE/AuUap1bJrCFr9azMjGbdVTgK2EsHSQnnwVD+CqINw3ncjoIP7TMbi7Eg28PbxgSNzj
-	8S5tvAVeCLPbgLe2yQhJK7mXRNejQmHhrftJd7g83LQpbRYva2KoOu/CwnZEv63K1rAqWkiitg0oh
-	dAWhSuDF+Zt0rop+r9wOOc3Qjb6ewyeg9CSH4073KS9jXBLOFxkX4iAXSR7coZuI4k9nODUEOffc8
-	nRttjjhWwc80c/H73E5lTpcwG4V8/4DT1NnoS2QOj6iVy/xwWza/AUSip+ujFCjN7goF26oTYJPTN
-	Umc6FxOQ==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1tsF8E-00000007YHO-3CIm;
-	Wed, 12 Mar 2025 05:59:54 +0000
-Date: Tue, 11 Mar 2025 22:59:54 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Alan Adamson <alan.adamson@oracle.com>,
-	virtualization@lists.linux.dev, asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	Hannes Reinecke <hare@suse.de>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Sven Peter <sven@svenpeter.dev>, Janne Grunau <j@jannau.net>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>
-Subject: Re: [PATCH v2 2/2] block: change blk_mq_add_to_batch() third
- argument type to bool
-Message-ID: <Z9Ei2t7z_7QbEWXW@infradead.org>
-References: <20250311104359.1767728-1-shinichiro.kawasaki@wdc.com>
- <20250311104359.1767728-3-shinichiro.kawasaki@wdc.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UP8LTRJ8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741762553;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=M5urNoJLNtNizXgsJBqJ+K7FyEmcih4A00lRbzK+XcU=;
+	b=UP8LTRJ8v85e7Eaju3OAjVCAXXvvjOp5V9F1TrGi8KdtSmprRB5Q7oGYfj+rhzyNjRNxOj
+	pnKqPW2g5jGrI+2c16L8usdF6rJpKWBi4RZ+PVgIMrx7p9mUMdEYWvo9I8derGCH++Wgh6
+	665Z6ZySXN8wWXpRFYFsmy/k4JBoBIg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-10-CyHwhbopMqu1OGmR08v8PA-1; Wed, 12 Mar 2025 02:55:52 -0400
+X-MC-Unique: CyHwhbopMqu1OGmR08v8PA-1
+X-Mimecast-MFC-AGG-ID: CyHwhbopMqu1OGmR08v8PA_1741762551
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3912d5f6689so4013447f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 11 Mar 2025 23:55:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741762551; x=1742367351;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=M5urNoJLNtNizXgsJBqJ+K7FyEmcih4A00lRbzK+XcU=;
+        b=qhRUb71fk7q41KhJ7IRT5OMbLMZZk5VasAL7EiNZRX8MehOMUlJ5QuX9aWXl7zOj2h
+         iJwX2djLornw/ccUjgfHPen/LE5QeO/9BaYLAzJKYij+GnTWB79i/hBC4Rg5yWz0JW/h
+         1TCAMGwg4lnM1po50DLj+93rcYVYSxbMb8PfXDxAWycelSpDRcQ1WejfIF9xS17oxc8t
+         J8R/YRVY98dzy7XBTQpIhkMRglPxfrLcLqltjd5Gjf1H8elczNP8omaDziVJIN4OSIPO
+         ta6eAO6emyHRr75cB+hOggNm24xoZLnKxMCJAE7ybXsqfehoWS6aXiEn9oF1B0rak/OW
+         0d/w==
+X-Forwarded-Encrypted: i=1; AJvYcCWTy83dN8fDgyWqyldIuEtw1XQKa3UThRcO/7FzO7d7vZBOo1Y6E5NqFJBRrpw1EPyh0aZtAIIdsSTfXi5q0g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyiPvWPAwukovuDHfwsx1Pgvb/EgBxhQWujUx3N7mbinaHxygcP
+	bfNaPNEFzeDJrUl0t4aSKlFW/Gslo39FdSO+3tBvYDjmsfiTxTfNFpAAmA9MkCcMtM5jmcSuof3
+	dkM8e6LydpBnIVvOqRkxNbxNZ6Clmqeqpm8Pqdbs0FrWF9jEWVlcoBUQ5ixN6Yzz+
+X-Gm-Gg: ASbGncujzLzfrI4tFrhxyVZUXds82HwO1wHYlr6RJlrfbXNrcTrXswShaNZh7nWfdbG
+	2hbOOX8euTbW1OoHViCal7wU7GRpVHiWxC4wgBVGUVsE1KW1O7buPRbZ0vXg55sVBu9dO/vc7jL
+	nmGw294DMKM6+0yJU5mU9+Uv9c1hAmLezSaFtWU+swlk104lu5Mg/tDtDixbCFIHQdWwElNC/p2
+	iVpIJdxzqBYnPojZZQ/puWTIS0Z9AwoLzP3zV4VyN9EtM5wfXSnm8CV8ziHMYHAb4c1k/1udcXe
+	eCb7/kajRw==
+X-Received: by 2002:a05:6000:402a:b0:390:ed05:aa26 with SMTP id ffacd0b85a97d-39132d30c22mr15005789f8f.5.1741762551530;
+        Tue, 11 Mar 2025 23:55:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFDerobH2f/muGrjnyAjilHqba0+0kowFg3s8AIPcyJb001SG0K4ObuoiA+X/VxHvC5d0rDfQ==
+X-Received: by 2002:a05:6000:402a:b0:390:ed05:aa26 with SMTP id ffacd0b85a97d-39132d30c22mr15005774f8f.5.1741762551189;
+        Tue, 11 Mar 2025 23:55:51 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-394a8a5a304sm565705f8f.40.2025.03.11.23.55.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Mar 2025 23:55:50 -0700 (PDT)
+Date: Wed, 12 Mar 2025 02:55:45 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Nico Pache <npache@redhat.com>
+Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+	cgroups@vger.kernel.org, kys@microsoft.com, haiyangz@microsoft.com,
+	wei.liu@kernel.org, decui@microsoft.com,
+	jerrin.shaji-george@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de,
+	gregkh@linuxfoundation.org, david@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgross@suse.com,
+	sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
+	akpm@linux-foundation.org, hannes@cmpxchg.org, mhocko@kernel.org,
+	roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+	muchun.song@linux.dev, nphamcs@gmail.com, yosry.ahmed@linux.dev,
+	kanchana.p.sridhar@intel.com, alexander.atanasov@virtuozzo.com
+Subject: Re: [RFC 2/5] virtio_balloon: update the NR_BALLOON_PAGES state
+Message-ID: <20250312025331-mutt-send-email-mst@kernel.org>
+References: <20250312000700.184573-1-npache@redhat.com>
+ <20250312000700.184573-3-npache@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20250312000700.184573-3-npache@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: SJMYBjED9-2iX7LfWQvlyAx8XuHyXjz_jFWu13BcwE4_1741762551
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250311104359.1767728-3-shinichiro.kawasaki@wdc.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On Tue, Mar 11, 2025 at 07:43:59PM +0900, Shin'ichiro Kawasaki wrote:
->  /*
->   * Batched completions only work when there is no I/O error and no special
->   * ->end_io handler.
-> + *
-> + * @req: The request to add to batch
-> + * @iob: The batch to add the request
-> + * @is_error: Specify true if the request failed with an error
-> + * @io_comp_batch: The completaion handler for the request
->   */
+On Tue, Mar 11, 2025 at 06:06:57PM -0600, Nico Pache wrote:
+> Update the NR_BALLOON_PAGES counter when pages are added to or
+> removed from the virtio balloon.
+> 
+> Signed-off-by: Nico Pache <npache@redhat.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 89da052f4f68..406414dbb477 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -274,6 +274,8 @@ static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
+>  
+>  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+>  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+> +		mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES,
+> +			VIRTIO_BALLOON_PAGES_PER_PAGE);
+>  		if (!virtio_has_feature(vb->vdev,
+>  					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+>  			adjust_managed_page_count(page, -1);
 
-This needs more work to be a proper kerneldoc comment, i.e. start with
-"/*8", mention the function name, etc.
 
-The logic changes themselves look good.
+This means the counter is in virtio balloon page units, which
+runs counter to the declared goal of making the interface
+hypervisor-agnostic.
+
+
+> @@ -324,6 +326,8 @@ static unsigned int leak_balloon(struct virtio_balloon *vb, size_t num)
+>  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+>  		list_add(&page->lru, &pages);
+>  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+> +		mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES,
+> +			-VIRTIO_BALLOON_PAGES_PER_PAGE);
+
+
+Same.
+
+Thanks,
+
+>  	}
+>  
+>  	num_freed_pages = vb->num_pfns;
+> -- 
+> 2.48.1
+
