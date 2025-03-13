@@ -1,73 +1,71 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D9FB1FBE86
-	for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 08:22:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABEB2266191
+	for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 10:47:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741854176; cv=none; b=CK9lKIhl9hn4hXB6/ANKX3JPh0qPzvsA5+Zfq0c1VKxpU6QMlOUhM119VtkCnFcs3P/QybLD9m1KBaXuQfY0Jswgq5bQmASp/LC429yJTH7YBvT1iMAzlpcoNZBAS5ywaXRZJOecNqFRNGcxPZdwqGt4mGGCiZNDVOWkTTAYPaU=
+	t=1741862877; cv=none; b=u3w7yXO36iajLPf8UnEKsv9bKfSG5qxUnwODuZynVdKGqDYCuokOb5cPYcvBSj6pVT0un0Mv13FF0oMoOohCcHi+oKI2L9z1+94aw+MBemx0GQjTBmdW36WRXvmxlEMfdX2/VfXpOg0TmRnQ2AuChyPfti50CJN3OVeYktDgyX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741854176; c=relaxed/simple;
-	bh=TJNOeBMjx4/7smApHsBD4VsBRDugKyG6Q4orRPpRGlE=;
+	s=arc-20240116; t=1741862877; c=relaxed/simple;
+	bh=flFI4F9iJbigAdLeH1msK0WPNSRRKGt+NPtx2Z0lY7g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gFoAWWY5BzZ5idLBhc+lBKtsD7seFXUEVR5OBDEUBn9cuzbWivL8a2YUEm/cvghEirU9axQnCfxwl/GUG95W65zesfI/3nlerlr7GA26YEqFaUKpkyaeMPDQvOLo0Sp9toRa2KLUfNP4kByCxhCL9C1mf6LAE7iSrO2h/l11W48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TlJm0ZSH; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=F97FlaRYGcJ2z8yEceCFgCC+6Rj8yg4t9TFD92K7SV/GtdaqbhCRYoCdC2u/GbntRNUSMBjZFZyJ1WVOHSRdcvh1J1ggD/Hyhvwoa5h+EEQ7FIEnhJ/vUJDuXnEimVS0pNiYu2oTbM7u+JzPFzCvxOGT7+6h+tgUoD+LnmwQzIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ftzECcAp; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TlJm0ZSH"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ftzECcAp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741854173;
+	s=mimecast20190719; t=1741862874;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=JKb8bhfHMFiRwZ59jdxdcm6FlzuySG9mYwbfnUAEPPE=;
-	b=TlJm0ZSHDvvyBuIqEMwXf3NU2C5dqdplylthZppcGrda24HB0sneOgwPjpG/DfMu55SWJr
-	ZadkpaZCtQ0pRclt1Iem+SZMpqblkN2evxNSRJ8zcBCgwdD5KXSq/PPSu7py+CuxRnkcZ8
-	aCGb22ROwwRqxLdk1JSL+eL8bsiwCgE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=mKlH8svYGZq8nS9wIHoOZaP2tIWMcEGLEEAOkrVCTz8=;
+	b=ftzECcApN1hfG7Xn3xvn3iEG+4j3SqtRIbnnpYg9pZWzcP7/yJVRkEupciYpMmXXRe846C
+	tmuDSL2atyfhTiCWK50BXthoKHknYN+cdBgtZ51Dys57rABi8jAzlEEeqhraA3NygY1te6
+	2qPkG0FMFcFhsfihyHvgeGqNhf8IMRg=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-163-HzRGPG9APLC0U0wtqe7mjQ-1; Thu, 13 Mar 2025 04:22:52 -0400
-X-MC-Unique: HzRGPG9APLC0U0wtqe7mjQ-1
-X-Mimecast-MFC-AGG-ID: HzRGPG9APLC0U0wtqe7mjQ_1741854170
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3912a0439afso279002f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 01:22:51 -0700 (PDT)
+ us-mta-190-TJMWiHoxOQ2j7yuBYubfiw-1; Thu, 13 Mar 2025 06:47:49 -0400
+X-MC-Unique: TJMWiHoxOQ2j7yuBYubfiw-1
+X-Mimecast-MFC-AGG-ID: TJMWiHoxOQ2j7yuBYubfiw_1741862868
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4394c489babso4064855e9.1
+        for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 03:47:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741854170; x=1742458970;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=JKb8bhfHMFiRwZ59jdxdcm6FlzuySG9mYwbfnUAEPPE=;
-        b=CNlK6+1XRaHucUHhXf1hYjcNFKGk76YETCNGa/oMImJsnl+NeeV57G1/X5uqGV2XLU
-         JyciV8wRiutudSpzTn64DWEO7BbXjEsoSf7fD9NHQ480lfbqHpUfv0weZl58Ys5LCaZ+
-         mNOaYvyp/zH+kxrBtvhtmgRk1pxwHY7AtdzXje2qtEy5aFbgZAMbJHO8O7Np1N7epU1k
-         vPWJJH+lpPFKLIKhNrPcAohm9NUShbs7BVBBXOgSBAonWhZOb2altknpVilO87BSo86S
-         WXTE/sGJSaW66FBK3hEp+TETBIDzkVvjk8hwTcfZ1uLUssGJHolhSZItkG/TBKfiL9dW
-         B0ww==
-X-Forwarded-Encrypted: i=1; AJvYcCW11liXlQZcMa0w1vKk7h+L5bH9ZTc/mIumZPld68PRdkpOdKQhIRSo8h96c3AaiXXVWZ+rXK+c69RF/aFaNg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzvpLziYo+r2p7Bt9EpqLR0BCW9O65BaEkXildrCPRQttNQLzww
-	YUHOgqAmMniHUk+pGr8o+SpZOxhgp9aeAmZ6IrsFf5tcZCxAV5AlWor1gP5rYWw+N3zLtCOXg0n
-	KmO8GnGhTNT634Mzh9rkol8T+Udyh1WNZZcSn9SkcmExecUVYnaY3+IuTpR9juflY
-X-Gm-Gg: ASbGncv91xClCbzaDxe8w52XpgJemlmgl5L7h1U1xJZgTzrFyZDKWdtU377DovzXe06
-	IYvyssLtk4KzeKUrUYlsNzNlYoVZIF3S8AHu98YcBm0U46SWOQOP2a0+Ob5TPiEVzCU7agQMMpu
-	zkbwC9uPVirJkwQ7QavbNeJUggQOpun0uVLyUgGrNWHB4ETTyiXiOe0NJlaALV4hnqhtS//XAmN
-	fh8ek1tY0fb3eTmxD8dOr06BgwrBQ7D1f4cuBvaxIJouClNCaDcwrdB52iByz+8hhAWG+QadW6Q
-	1vlohsDXanr1wKmHaUUl7yFJkIJ3nT0O76HZNGK2xIkHdZDjuSvu85yo2bH5znC5cDjlqpZfEiP
-	uurXPLYdy0cOLQlw67gj/lB45s36s9OU7aP9BLwOtGCI=
-X-Received: by 2002:a5d:59a7:0:b0:391:1139:2653 with SMTP id ffacd0b85a97d-39132de145bmr19688699f8f.52.1741854170236;
-        Thu, 13 Mar 2025 01:22:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE43rHs3WgvOTi5LsVwj2SLALb9R3gJ6Te0W53zkDxInnxOJ+3GIwgQhD4YjNmuEA7ot9BSDw==
-X-Received: by 2002:a5d:59a7:0:b0:391:1139:2653 with SMTP id ffacd0b85a97d-39132de145bmr19688649f8f.52.1741854169787;
-        Thu, 13 Mar 2025 01:22:49 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f? (p200300d82f1a7c004ac1c2c441678a0f.dip0.t-ipconnect.de. [2003:d8:2f1a:7c00:4ac1:c2c4:4167:8a0f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-395c8975ae2sm1308783f8f.51.2025.03.13.01.22.48
+        d=1e100.net; s=20230601; t=1741862868; x=1742467668;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=mKlH8svYGZq8nS9wIHoOZaP2tIWMcEGLEEAOkrVCTz8=;
+        b=IoPt2Iz5pFcKln+vr9iuxtBuS35HsOnrq0xHv0FgPV2uz7bprqZAR2qPU6X0XKetTM
+         ES80L59GDH2fR93gSUItG3W7/lBj4WEaQAN4hqqzthlrepGM+w5+VehfMwdWsyG5Vdzc
+         X26qbZMJrnGJTWG7yGzoDXnt5tJX9Ue2z3WUmBW7X/tkuXrGRj8ZNiuKqmevjWQ6xDTu
+         VZ7hTl4MmhqgHMVOVJybCsz2rJ5NvcQaNCU+Xx3cbtZ0BSCJW6kLFAty3V64LMIt3RZj
+         rVuTvmUOcsuj8p7YMLPDvMcul2Tte9UTQ1LN/rT22xGVHuE6vE733JSMjnZfu62tsY+X
+         /BtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV7bCHuDJmaQIePiMq5dcpLfqXBDJfV5mVy/u06Au+jwqLQLlmnLTvk6xAivn9B6HWIvvSPU3HOFSh/lT76ug==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwHE7+UZhBKw8wuIbVWC+GZsBqOu2k+FEBfd4cSh1l0h/3Tg7LI
+	hTZkt/9gO2d3/FF84FmIbOhJxTdavvb+eNchhOTXBnXHhWOFmGCrWE/AMfmVrYjjIBRmXKW0ow4
+	UgQ6GUh3ugnToZnbVNQ3tSt4cYN/PxM4AUJicxS+nq2B11RHI4TbEBQr0vRf+WCdU
+X-Gm-Gg: ASbGncuaksx8jGkwkz3z8f618GfSwMija23m3OuhOgn/vFW6JLj/6HIehECLpwjD4Em
+	IiOauqsABzeTBTLKnMUhjG366yv/nnhNQ7x85trKgEHCqaWrLWu58v9mC35bzCToSCSvhS6/DFV
+	p2MSvbKjGWbk6q9rVXibHNXpPi0a2eQ8+Qx9s9YIY0JI5S1A3eIGsHyHldbAeFF+9nNrrUm/xcy
+	hxquPrrIJqul/BsWSZfU5yDg9/iGSzRz9Z+2/5WYzlK/7oCxs97E25ZnFPmo3+gg2ufsg2oSyuG
+	KvYiFJGJeFxxDWuZslW/OYvcQSSNxttKhhw9BuF9
+X-Received: by 2002:a05:600c:524c:b0:43d:563:6fef with SMTP id 5b1f17b1804b1-43d05637140mr66351335e9.21.1741862868070;
+        Thu, 13 Mar 2025 03:47:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFuof90DCs7eJ3JwItRCIRpwATmH/3XNmF4IhoW7PyjbpLbTIbp4p7z1rZXGN+i2daYNGVW0g==
+X-Received: by 2002:a05:600c:524c:b0:43d:563:6fef with SMTP id 5b1f17b1804b1-43d05637140mr66350925e9.21.1741862867674;
+        Thu, 13 Mar 2025 03:47:47 -0700 (PDT)
+Received: from [192.168.88.253] (146-241-6-87.dyn.eolo.it. [146.241.6.87])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d04004240sm38333535e9.3.2025.03.13.03.47.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Mar 2025 01:22:49 -0700 (PDT)
-Message-ID: <e9570319-a766-40f6-a8ea-8d9af5f03f81@redhat.com>
-Date: Thu, 13 Mar 2025 09:22:47 +0100
+        Thu, 13 Mar 2025 03:47:47 -0700 (PDT)
+Message-ID: <87e8bde7-b05e-4a1b-bcef-f6bb3a12315a@redhat.com>
+Date: Thu, 13 Mar 2025 11:47:44 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,123 +73,88 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC 1/5] meminfo: add a per node counter for balloon drivers
-To: Nico Pache <npache@redhat.com>
-Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
- linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, cgroups@vger.kernel.org,
- kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
- decui@microsoft.com, jerrin.shaji-george@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de,
- gregkh@linuxfoundation.org, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgross@suse.com,
- sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
- akpm@linux-foundation.org, hannes@cmpxchg.org, mhocko@kernel.org,
- roman.gushchin@linux.dev, shakeel.butt@linux.dev, muchun.song@linux.dev,
- nphamcs@gmail.com, yosry.ahmed@linux.dev, kanchana.p.sridhar@intel.com,
- alexander.atanasov@virtuozzo.com
-References: <20250312000700.184573-1-npache@redhat.com>
- <20250312000700.184573-2-npache@redhat.com>
- <c4229ea5-d991-4f5e-a0ff-45dce78a242a@redhat.com>
- <CAA1CXcCv20TW+Xgn18E0Jn1rbT003+3gR-KAxxE9GLzh=EHNmQ@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CAA1CXcCv20TW+Xgn18E0Jn1rbT003+3gR-KAxxE9GLzh=EHNmQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v7 2/9] net: add get_netmem/put_netmem support
+To: Mina Almasry <almasrymina@google.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kselftest@vger.kernel.org
+Cc: Donald Hunter <donald.hunter@gmail.com>, Jakub Kicinski
+ <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
+ Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Jeroen de Borst <jeroendb@google.com>,
+ Harshitha Ramamurthy <hramamurthy@google.com>,
+ Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
+ <willemb@google.com>, David Ahern <dsahern@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
+ asml.silence@gmail.com, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>,
+ Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
+ <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
+References: <20250308214045.1160445-1-almasrymina@google.com>
+ <20250308214045.1160445-3-almasrymina@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250308214045.1160445-3-almasrymina@google.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -UQJglhY0YU56TUnIEIc6ASp3jqEkEUmduasX_dCnaU_1741854170
+X-Mimecast-MFC-PROC-ID: FFDDa4GZrbca8TdcypTNmVGTBHvQg355M7obQDM02Co_1741862868
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 13.03.25 00:04, Nico Pache wrote:
-> On Wed, Mar 12, 2025 at 4:19 PM David Hildenbrand <david@redhat.com> wrote:
->>
->> On 12.03.25 01:06, Nico Pache wrote:
->>> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
->>> expose it through /proc/meminfo and other memory reporting interfaces.
->>
->> In balloon_page_enqueue_one(), we perform a
->>
->> __count_vm_event(BALLOON_INFLATE)
->>
->> and in balloon_page_list_dequeue
->>
->> __count_vm_event(BALLOON_DEFLATE);
->>
->>
->> Should we maybe simply do the per-node accounting similarly there?
+On 3/8/25 10:40 PM, Mina Almasry wrote:
+> Currently net_iovs support only pp ref counts, and do not support a
+> page ref equivalent.
 > 
-> I think the issue is that some balloon drivers use the
-> balloon_compaction interface while others use their own.
+> This is fine for the RX path as net_iovs are used exclusively with the
+> pp and only pp refcounting is needed there. The TX path however does not
+> use pp ref counts, thus, support for get_page/put_page equivalent is
+> needed for netmem.
 > 
-> This would require unifying all the drivers under a single api which
-> may be tricky if they all have different behavior
+> Support get_netmem/put_netmem. Check the type of the netmem before
+> passing it to page or net_iov specific code to obtain a page ref
+> equivalent.
+> 
+> For dmabuf net_iovs, we obtain a ref on the underlying binding. This
+> ensures the entire binding doesn't disappear until all the net_iovs have
+> been put_netmem'ed. We do not need to track the refcount of individual
+> dmabuf net_iovs as we don't allocate/free them from a pool similar to
+> what the buddy allocator does for pages.
+> 
+> This code is written to be extensible by other net_iov implementers.
+> get_netmem/put_netmem will check the type of the netmem and route it to
+> the correct helper:
+> 
+> pages -> [get|put]_page()
+> dmabuf net_iovs -> net_devmem_[get|put]_net_iov()
+> new net_iovs ->	new helpers
+> 
+> Signed-off-by: Mina Almasry <almasrymina@google.com>
+> Acked-by: Stanislav Fomichev <sdf@fomichev.me>
+> 
+> ---
+> 
+> v5: https://lore.kernel.org/netdev/20250227041209.2031104-2-almasrymina@google.com/
+> 
+> - Updated to check that the net_iov is devmem before calling
+>   net_devmem_put_net_iov().
+> 
+> - Jakub requested that callers of __skb_frag_ref()/skb_page_unref be
+>   inspected to make sure that they generate / anticipate skbs with the
+>   correct pp_recycle and unreadable setting:
+> 
+> skb_page_unref
+> ==============
+> 
+> - callers that are unreachable for unreadable skbs:
+> 
+> gro_pull_from_frag0, skb_copy_ubufs, __pskb_pull_tail
 
-Why would that be required? Simply implement it in the balloon 
-compaction logic, and in addition separately in the ones that don't 
-implement it.
+Why `__pskb_pull_tail` is not reachable? it's called by __pskb_trim(),
+via skb_condense().
 
-That's the same as how we handle PageOffline today.
-
-In summary, we have
-
-virtio-balloon: balloon compaction
-hv-balloon: no balloon compaction
-xen-balloon: no balloon compaction
-vmx-balloon: balloon compaction
-pseries-cmm: balloon compaction
-
-So you'd handle 3 balloon drivers in one go.
-
-(this series didn't touch pseries-cmm)
-
--- 
-Cheers,
-
-David / dhildenb
+/P
 
