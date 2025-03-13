@@ -1,131 +1,161 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 018D62AC17
-	for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 17:31:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2C0318FC9D
+	for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 17:36:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741887107; cv=none; b=UolD0BYXKcREPscGYcxQYApfEFC2erQUhyjEAS6AnHNpyP0LbC1em/VoDOsYKIgs5mI/uAyNNBtuVSgagPvIC1xjZNXSJ3NALMll+nlciuSmxKalEu5O2pIBOHJ9lGYziI+ZITfoY5l1U5MP/xlt+FxjAX4mOMojpEM5SVz01js=
+	t=1741887382; cv=none; b=HNJ2BGIyNW2h0XJBBWjvhGx/jeaFnxxuySveSa2OgIsdPU+jyDeUBTYFDF3QQvPMdFd4giG99A1XkZY5Uz0i/qK4Yq4BQ79w+rAik8plKxa01T4+JlCOgW+tmxhu7Zz201T/38AhCmnDcU516WD3xgM7ZBTS10p2kCzN34yCAMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741887107; c=relaxed/simple;
-	bh=yfW1gIa1MbRIx3vJ4nkUHmJnpytrI2/a0Qk/PMxYlCI=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=kbRD37FileTuH8kyBZzUbJ8CVeC0Z9Tr/n5VkZtC6Zg4Iom3K6CgFBL/XIOlmm2vJAEJDzBi4/iQ3D+6hdZWnfOJ5wUbgqzeoC66XaEqJa6lYptSD0/x2WWLT01kh2iQS7Bhzr/npQPe230HdCQQYwkn/e1tNsQfHc3pGw4KPt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=IL06jyZD; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1741887382; c=relaxed/simple;
+	bh=74LdO3L2papOXx6onu8X7dux3CgaxYMbpnbfEZf5vfs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hYr/lnv/Q4DVCPJux0nSi9jmcgMzX+zoUvrHNUOKm0stjhKYbHkEbNnRttM8WQ3eex1EkV/ykBNj5Baw+kanrb/3o5mvbbKhmRQM4aa/UHQvNQZrXLSYKdnHrY9nGejHBniWkBKrBP0tu7Zkj8/UeF9LobxNtRJAqsX3cMppWwY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eTQ6A8nm; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="IL06jyZD"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-22334203781so45886455ad.0
-        for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 10:31:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1741887101; x=1742491901; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ggMXVBojLEYrYjpK3rBBG/mb1zKKBgNArl4a0+lTQ20=;
-        b=IL06jyZDmE+VargFkFDYuTIDquUzRw+UyxIcehvlF2fVgrz43bBc9C1fsDeCdB5uLn
-         gH7IkmARZfXBuIttGrO2gfHW3coGGhl5MksxEOLiCCB3o+dUlwyaKM9kayP+r6dsHizS
-         HwzHd8d/yjsJjiQJkAMUJP3FRtluv41utFWYk=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eTQ6A8nm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741887379;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=74LdO3L2papOXx6onu8X7dux3CgaxYMbpnbfEZf5vfs=;
+	b=eTQ6A8nmI7dVD7E6N4IgfYSqM/PuLRRlGKIyGAvEZ4vecoNWmCkq17DPCdZFAN8HFZCFBw
+	jmSH5Q2IeM8gq0W1h7l6yVZQuJyW6p2MHKekpZ+6NvBsb/pNnNDzk8wTUJ2nWnhH3LVORA
+	LVOK9YMBv1NHxH4jYXmjNDZDFqQvdbo=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-681--U3R5dbcOkiMSb7a6wbdEw-1; Thu, 13 Mar 2025 13:36:18 -0400
+X-MC-Unique: -U3R5dbcOkiMSb7a6wbdEw-1
+X-Mimecast-MFC-AGG-ID: -U3R5dbcOkiMSb7a6wbdEw_1741887377
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-6fec6c91630so20303067b3.2
+        for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 10:36:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741887101; x=1742491901;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ggMXVBojLEYrYjpK3rBBG/mb1zKKBgNArl4a0+lTQ20=;
-        b=b/mQIyBkV98DTqFzMwNSQKLWAtA8mNHo7HLB1AoeT6x+hkgv+QQKi3aQHCLJcTria2
-         5z59bD6W50AcFMLpKPfULB9lHjmI1zXTlubZLifIVHodt9NKiUT9CKF/XygqI9q6GFnY
-         O+ArgCcDfUkSoWALepIacESptA7HAHmmuYczsz4V4TUlSsyv0rwi+HQV7erS0wjfw90x
-         yISqcD/Nkub98CUShTOje1W8tQYFsj/S3NFHsemYFa8+Ok36Jo4bfTxqr4AwkG702IfI
-         OTJklJUps4iVdn5pMgWaoDQgr49VMRrYJCAfRB9mTAzm/rDOfNEFrMfepOIuk7DlwF7i
-         pGHg==
-X-Forwarded-Encrypted: i=1; AJvYcCV9AvwQrzz36wY5uAa6rfWhcEg77J8Xntnwkw38L4i1FMbGr0NM29n2PXUSY6iwvjx8o9XJtVLco2xrcCVekA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzpHi4/OitPSbYKcSB9ZivMiv/Xs3y2WP/r5kzTRWNmLeX7GiW2
-	PHXsFbk7GatDj6Ra3v16hAOWOtupogWdXuHuDQ/opQlJu1rWBpPW/2/g1ybM6Q==
-X-Gm-Gg: ASbGncvuDycR8j160fbKWKR5rpKKNHnCKFNfceVOEsRk5+FEuj+MTWiBWZObL3NWCG4
-	7lPrYHNgnMIkHbgg2YRh8X3SKb7GbUImgdQsVWh2SmBVKup2+FIwcQwcW2LD1Y37xxou/BIO1xu
-	TuItVekagWGTRcgSPfA1BPiNHpAVUUWjwX4u3aBtt+Ry4628+23oMY09LYQErRAfrm0QRA5jPd9
-	6pNVwGvUoHusPKE5X8HtEso/y4YvGAQLB8pWr+1fc1yHuAueBci6fNJz52oC0Q+eChBpXZoNiEw
-	TUwIwN7+BfuPrE1mKwTHt0jCjYiGYnoFctldhFoSA8B1tyW2qohDdkKHmxE7vjtpJPnwpwmZzw=
-	=
-X-Google-Smtp-Source: AGHT+IHTh9DQK18PXTqgsKvgHuC0vEOJvBIRPhsGggDCXl4nz4ApyCfoHStC5pwpS2+3w/OHm4FWkQ==
-X-Received: by 2002:a05:6a00:844:b0:725:41c4:dbc7 with SMTP id d2e1a72fcca58-737107120d6mr4984412b3a.4.1741887101113;
-        Thu, 13 Mar 2025 10:31:41 -0700 (PDT)
-Received: from photon-dev.. ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7371167d89asm1646471b3a.94.2025.03.13.10.31.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Mar 2025 10:31:40 -0700 (PDT)
-From: Ajay Kaher <ajay.kaher@broadcom.com>
-To: bp@alien8.de,
-	thomas.lendacky@amd.com
-Cc: ajay.kaher@broadcom.com,
-	alexey.makhalov@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	bo.gan@broadcom.com,
-	dave.hansen@linux.intel.com,
-	florian.fainelli@broadcom.com,
-	hpa@zytor.com,
-	kevinloughlin@google.com,
-	linux-kernel@vger.kernel.org,
-	mingo@redhat.com,
-	tglx@linutronix.de,
-	vamsi-krishna.brahmajosyula@broadcom.com,
-	vasavi.sirnapalli@broadcom.com,
-	virtualization@lists.linux.dev,
-	x86@kernel.org,
-	ye.li@broadcom.com
-Subject: [PATCH v2] sev-snp: parse MP tables for VMware hypervisor
-Date: Thu, 13 Mar 2025 17:31:11 +0000
-Message-Id: <20250313173111.10918-1-ajay.kaher@broadcom.com>
-X-Mailer: git-send-email 2.39.4
+        d=1e100.net; s=20230601; t=1741887377; x=1742492177;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=74LdO3L2papOXx6onu8X7dux3CgaxYMbpnbfEZf5vfs=;
+        b=GzBeiQvo468mBtGEIZDem2ctbZvd/FQdb+C2sOoXWlst/7YenT8PmiSJwGf74VdZ68
+         l8S4pOCGObBpo5oRyuU+7GIi8Y/UdXRMrNOI17wddzags5pP2qSN3SpylCbO7kHuA4cE
+         KHR3tzt+fT/UX2kXwtDD1rujJhmCrCnQvCTdWALJQ7Xu321ylCuMsU2uJyjQqH4yqIWV
+         grmFRlk2FAzRZwyF/n+SPeZOgWeu/enM4Ho3rL17kkDtRxd1tkHhyjP4U7eWEVQWbKMc
+         N8jsNDvJjdA2Ucn7vD+332FbB7eqlFDd/NvAFUgt+lu0/yfunk+mgO7KGZbS7LLFsDic
+         Hm4A==
+X-Forwarded-Encrypted: i=1; AJvYcCWOtU1oTsdetS4I5iPXk5XwLfMpFm0nGkv2t3yUa58CaBjjBD3GPtLZt23pONRIqyZ6Nry3OklgjE/ClCUzWg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwtyOw2rtrGqoW//7Iw5KjcS8Hq53z+8LruraWEyfBzLK4u1Lsv
+	th3Q20OtG8SZBTgEPf9JyWI83dXNAnxPsTT/hX5J8tkrIRRFxEIuurjFzjDVC8OU44GfSQq6Qbs
+	qBbPDa9joWZBhma6r4CSah5nzybYqXB4QYvd2bIo5IXLxjEbuR8RxXl/0aS8WktqHDoxCOLmpxl
+	8fusQPbWG/8DMRMyEIpYJJucXKIKudqb5x9zMuSoc=
+X-Gm-Gg: ASbGnctdYyZGWulLqvEtz4pR5KwXxJqi3/lrZ4KpxxhEXx3Azr5T/no6fjoWSONNXfD
+	EsDBsmLyJRonsIE6Eti0SxboeQv/vNjpwbvoqox181fgN9NuPIi+1s0PFEKl9k+QCKB1bQtwgPO
+	qvXFvUoN3rgw==
+X-Received: by 2002:a05:6902:11cc:b0:e5d:d6b8:231d with SMTP id 3f1490d57ef6-e63f3c1ab89mr394100276.46.1741887377135;
+        Thu, 13 Mar 2025 10:36:17 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IESNapqN0/McTxEgf1yThn7lvo6wBYo3eRd0NunIcEjHGxMwrpjR53TwIJsg0lBT1jUk9YB7r7WxOStKAHssG0=
+X-Received: by 2002:a05:6902:11cc:b0:e5d:d6b8:231d with SMTP id
+ 3f1490d57ef6-e63f3c1ab89mr394058276.46.1741887376762; Thu, 13 Mar 2025
+ 10:36:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250312000700.184573-1-npache@redhat.com> <20250312000700.184573-2-npache@redhat.com>
+ <c4229ea5-d991-4f5e-a0ff-45dce78a242a@redhat.com> <CAA1CXcCv20TW+Xgn18E0Jn1rbT003+3gR-KAxxE9GLzh=EHNmQ@mail.gmail.com>
+ <e9570319-a766-40f6-a8ea-8d9af5f03f81@redhat.com>
+In-Reply-To: <e9570319-a766-40f6-a8ea-8d9af5f03f81@redhat.com>
+From: Nico Pache <npache@redhat.com>
+Date: Thu, 13 Mar 2025 11:35:49 -0600
+X-Gm-Features: AQ5f1JrzcM5gNtNPl-Fo_pToh0DelHZYtUioYU9wKMINK1ALGT_dvw_uu_EmSak
+Message-ID: <CAA1CXcBsnbj1toxZNbks+NxrR_R_xuUb76X4ANin551Fi0WROA@mail.gmail.com>
+Subject: Re: [RFC 1/5] meminfo: add a per node counter for balloon drivers
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, 
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, cgroups@vger.kernel.org, 
+	kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org, 
+	decui@microsoft.com, jerrin.shaji-george@broadcom.com, 
+	bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de, 
+	gregkh@linuxfoundation.org, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgross@suse.com, 
+	sstabellini@kernel.org, oleksandr_tyshchenko@epam.com, 
+	akpm@linux-foundation.org, hannes@cmpxchg.org, mhocko@kernel.org, 
+	roman.gushchin@linux.dev, shakeel.butt@linux.dev, muchun.song@linux.dev, 
+	nphamcs@gmail.com, yosry.ahmed@linux.dev, kanchana.p.sridhar@intel.com, 
+	alexander.atanasov@virtuozzo.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: xhmU88zm2RFqCJVcfIuWj5CFTmKraIhOceLF_FpF8-o_1741887377
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-For VMware hypervisor, SEV-SNP enabled VM's could boot without UEFI.
-In this case, mpparse_find_mptable() has to be called to parse MP
-tables which contains boot information.
+On Thu, Mar 13, 2025 at 2:22=E2=80=AFAM David Hildenbrand <david@redhat.com=
+> wrote:
+>
+> On 13.03.25 00:04, Nico Pache wrote:
+> > On Wed, Mar 12, 2025 at 4:19=E2=80=AFPM David Hildenbrand <david@redhat=
+.com> wrote:
+> >>
+> >> On 12.03.25 01:06, Nico Pache wrote:
+> >>> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers =
+and
+> >>> expose it through /proc/meminfo and other memory reporting interfaces=
+.
+> >>
+> >> In balloon_page_enqueue_one(), we perform a
+> >>
+> >> __count_vm_event(BALLOON_INFLATE)
+> >>
+> >> and in balloon_page_list_dequeue
+> >>
+> >> __count_vm_event(BALLOON_DEFLATE);
+> >>
+> >>
+> >> Should we maybe simply do the per-node accounting similarly there?
+> >
+> > I think the issue is that some balloon drivers use the
+> > balloon_compaction interface while others use their own.
+> >
+> > This would require unifying all the drivers under a single api which
+> > may be tricky if they all have different behavior
+>
+> Why would that be required? Simply implement it in the balloon
+> compaction logic, and in addition separately in the ones that don't
+> implement it.
 
-Fixes: 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation for SEV-SNP guests")
-Co-developed-by: Ye Li <ye.li@broadcom.com>
-Signed-off-by: Ye Li <ye.li@broadcom.com>
-Signed-off-by: Ajay Kaher <ajay.kaher@broadcom.com>
-Tested-by: Ye Li <ye.li@broadcom.com>
-Reviewed-by: Kevin Loughlin <kevinloughlin@google.com>
----
-Changes since v1:
-https://lore.kernel.org/lkml/20241219114400.858980-1-ajay.kaher@broadcom.com/
-        - use cc_platform_has(CC_ATTR_GUEST_SEV_SNP) instead of
-          (sev_status & MSR_AMD64_SEV_SNP_ENABLED)
-	- remove unwanted header files
----
- arch/x86/kernel/cpu/vmware.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Ah ok that makes sense!
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 00189cdeb..cb3f900c4 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -26,6 +26,7 @@
- #include <linux/export.h>
- #include <linux/clocksource.h>
- #include <linux/cpu.h>
-+#include <linux/efi.h>
- #include <linux/reboot.h>
- #include <linux/static_call.h>
- #include <asm/div64.h>
-@@ -429,6 +430,9 @@ static void __init vmware_platform_setup(void)
- 		pr_warn("Failed to get TSC freq from the hypervisor\n");
- 	}
- 
-+	if (cc_platform_has(CC_ATTR_GUEST_SEV_SNP) && !efi_enabled(EFI_BOOT))
-+		x86_init.mpparse.find_mptable = mpparse_find_mptable;
-+
- 	vmware_paravirt_ops_setup();
- 
- #ifdef CONFIG_X86_IO_APIC
--- 
-2.39.4
+>
+> That's the same as how we handle PageOffline today.
+>
+> In summary, we have
+>
+> virtio-balloon: balloon compaction
+> hv-balloon: no balloon compaction
+> xen-balloon: no balloon compaction
+> vmx-balloon: balloon compaction
+> pseries-cmm: balloon compaction
+
+I'm having a hard time verifying this... it looks like only
+vmx-balloon uses the balloon_compaction balloon_page_list_enqueue
+function that calls balloon_page_enqueue_one.
+
+>
+> So you'd handle 3 balloon drivers in one go.
+>
+> (this series didn't touch pseries-cmm)
+Ah I didn't realize that was a balloon driver. Ill add that one to the todo=
+.
+>
+> --
+> Cheers,
+>
+> David / dhildenb
+>
 
