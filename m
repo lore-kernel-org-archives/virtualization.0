@@ -1,104 +1,121 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17E6A15DBC1
-	for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 17:52:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39EAD1D63D5
+	for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 18:49:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741888378; cv=none; b=jGayUSTYV13tJp0nu2nrKLE7NAdvtyB+bKaQ7LZu0CvfjH9cKyjOAVYttcKMZc1AmDfE5xJa6MlgeIknEOuOjwfeGt2q+c3PQ9vumIv1GZtHohZ5JFYjKG4Aa/eBQCIOqdDxSAyFov3F5yHrDy4fCbA7GUddOJ3KRGtNgK0HU+E=
+	t=1741891750; cv=none; b=d4Ssk/7Tt7XR8KslGe6TAdr1irfzumcQeFDshIPLUIqLiry7KI89k+GHi5ICIO7/gFV8RoYrCGedqRdk81dbuIF7rArMkFXdzno7BHNBUn5PCD0v5KOIL0Nc0l+b/FhizObnjwyQQSGfZXH5sOhAx+B/eC7nzfp8nn2nF2pnWdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741888378; c=relaxed/simple;
-	bh=qta9zjCgN7jZ+PWtJVuJ3fMLrb2Pvtnoo7xNpROmcGg=;
+	s=arc-20240116; t=1741891750; c=relaxed/simple;
+	bh=vGaveTKeKgCxAmnC9EQ4sn2CMv/qBrgjuvuYfa1RVkY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WRaxNmZQWaIfAw9G69LFPDGQ0+cpIntCQ2EF3dpAFXLS/Brrsdk4UdFDXdJstnexeFbAxVaLTbLahEfBv/z8tfe1AQb0w/5UsSpp95EdP+/AoZamA7ut2ztfb/mb/oyB8fzYdTRXFjqAKByrV+bxFs+ozeVEFD6iD1FLyLgfOaw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=O1URm7vD; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	 In-Reply-To:Content-Type:Content-Disposition; b=dTLNny7v11sgnfvNen3t8IZ/F00jJ+FUMET8+pzvjD1DJQa8kYI2Nn9EkZ5U71XwEAfVp13J7piZz5nK5hmci6u3rOVd8ZyyXys2OS88WE0YqEPvLK4R/LWlkxtPmLI6GGh6AgXw3MxWCvOdWDXq0uaqJzaVklURT7mnx9R6H20=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OsR2FsKb; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="O1URm7vD"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id CD51B40E0232;
-	Thu, 13 Mar 2025 17:52:54 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id mRNq1ZtsJE5L; Thu, 13 Mar 2025 17:52:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1741888369; bh=tPEJDRMG2yx1Hj/lqU3Fh9xedOg7UYhyq7ITvKKAv6I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=O1URm7vDn7ESzL4QE+cS3IvAjioyjwddWdd41W9iDIy2N612TbijoQ+4ic+nUXzTN
-	 a3/jQHKTHG1uT2zthR664pk5KFS+eHxfxjQAVhAxV0zTE6QgB12gace55CktZVBoH8
-	 5jYw4rp4ifmqkf/5rEzQEjBWK2j+162VSHKxZuz6UE2NS7E6dE7Hj+Lq8dPliNXS6a
-	 K2lZPbpGP844E56X2zK8h4OcTE31Q6g8BREWrTwy77c1jcOlgjk2FJGfGeWiL/Y7fC
-	 TELT3KicLf8zjAVt9hxBSPWsAGOTf6DqnbYvOd7j4qUYBkn44Xkz7bXPjFYUWDD3tB
-	 nwZVnr6Pn+SGm2F87ipu9LamC0YptivNf5EjWde/H5WyBZZPmLR740ET5eFHNB6VZE
-	 cWVM6m1Us19NvYmCF8QXjUuAlBotNpzeNVI7gDUh7Gt17OfbHvpcND+hPIsK4Q5Xgj
-	 lgOtyLozc9dxe6iwz7Hy11tyebg1p7P3k80ZTj4r71leVZIt9KlqG2X+ycityBmjgl
-	 GpC0/LoAVHoKs5t89mOIc71F944sA8/7ZkNmGN3EfDqBShcKP5NWGV1DflYEOphaxE
-	 e6rSlyFGplTh4kt3D0wcTdNwhqx9OIAg+cWtKLICQUs/NfjIlS6WxvTiZwtoFR+Uyg
-	 uKQrRO0wiKPtZKMpc+w8oH2Y=
-Received: from zn.tnic (pd95303ce.dip0.t-ipconnect.de [217.83.3.206])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 810F640E0213;
-	Thu, 13 Mar 2025 17:52:32 +0000 (UTC)
-Date: Thu, 13 Mar 2025 18:52:26 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Ajay Kaher <ajay.kaher@broadcom.com>
-Cc: thomas.lendacky@amd.com, alexey.makhalov@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com, bo.gan@broadcom.com,
-	dave.hansen@linux.intel.com, florian.fainelli@broadcom.com,
-	hpa@zytor.com, kevinloughlin@google.com,
-	linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de,
-	vamsi-krishna.brahmajosyula@broadcom.com,
-	vasavi.sirnapalli@broadcom.com, virtualization@lists.linux.dev,
-	x86@kernel.org, ye.li@broadcom.com
-Subject: Re: [PATCH v2] sev-snp: parse MP tables for VMware hypervisor
-Message-ID: <20250313175226.GEZ9MbWuPkPQweJo1U@fat_crate.local>
-References: <20250313173111.10918-1-ajay.kaher@broadcom.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OsR2FsKb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741891748;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D9aZe+iaudDpMDo0mPe7/sxlSIcMfnUdZ2EM2OaZ1sk=;
+	b=OsR2FsKbcKOIQ2NO4ex2AUaP5RsapStbiaazWEwSaJI3x0ur/4z7BSVRJy4rBGzCH0efS8
+	1snKELsbtOIENb1Y8N+LZNabBmNlKE/rr1rAK4CKRTF3UpzOGvTeApt9FD5H+OTL1WSEqJ
+	qRjLccObvjzXHRfrobdaIctnzZokzug=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-326-UJWAnH6BM9WWUoIKvHthXg-1; Thu, 13 Mar 2025 14:49:04 -0400
+X-MC-Unique: UJWAnH6BM9WWUoIKvHthXg-1
+X-Mimecast-MFC-AGG-ID: UJWAnH6BM9WWUoIKvHthXg_1741891738
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43cf172ff63so6540835e9.3
+        for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 11:49:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741891738; x=1742496538;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=D9aZe+iaudDpMDo0mPe7/sxlSIcMfnUdZ2EM2OaZ1sk=;
+        b=wNW4KqmpAvnd+a6h35SJxd+jpYpE/2PvLkR9y556vvzrToSGEzttYrkrAG3GZBa2Nh
+         irEDdL+gznpur5nvuMXL/4wI3NiJCDSlAmOqLxiqt6+b9PheoMfQxxD4FehGjtjkTmbI
+         DdsQ9Lr9f2CsP0vaL7P5Try07IkroYRovP2IKdHymzCWDNottJaBcHrSJlxBRc5GaikF
+         qH5TlRsU/xDyMFmDv4Wuzbtcj/zCKRKycAu0vczP7IC1hTrzTjDGSljIJjrP2wN4rfQT
+         bU95kboMMfaG31e4RIjPWKve9jFXCLhgCryrcfElPVSyPFz447O8/pDqiPZN3xGi4dJY
+         CIGw==
+X-Forwarded-Encrypted: i=1; AJvYcCUY3C/4u7NvbOvWZ/EsWtkZiZX+T6jwwU+HvFPiKh9eSLrEB3MA+CzarD8XUpzV3jUcNXXZTTFisU0x3oZfhw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YysZAaJutZxMVaHPVXpaEdp28Ho9KSGzOdzgyYHGBlr/RlxXkoi
+	3HWuU49ioZzLxIwbyAWF9FZNAfR8SDO590QCRvAUNADpgLSTGWMrsqhfJqMNWkm7HcNf+E1vYNr
+	2TslFZf1O3Q5BQM+Sn3PKcgTStgZQnK0uIaIPcfgX/BkImb1bFLK0TgPpWsOi+zzb
+X-Gm-Gg: ASbGnctmH6gPAiq/fVMYP7DOGN6Yq/DFJwRoQ4q+ww1DIDslD+R7urbyA1Vd8tRDXQI
+	dj2n+3RcHY4kZ677xGowI8hWLZFmkN9ErH7HNvuNX6izMOFcREmWcEEHk7F32Gt35w2AvSRNjIT
+	i6TpZ+1pRkNdvgJwdBz7DU7WFyjFF3AHcZuAJf/UUnUN7/AjWWS9Tui438BcCn3D08RNDAOn0Qf
+	v3R1YTtEYrkiLhrd/2xlEWV8A3sACO2WoTAa43TDemS05ajujgWGN+Zk4UB4r1RsVPxoV5gg/Di
+	SFtiNuTYaQ==
+X-Received: by 2002:a05:6000:178b:b0:391:c78:8895 with SMTP id ffacd0b85a97d-396eb8c4c24mr52383f8f.50.1741891738539;
+        Thu, 13 Mar 2025 11:48:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEFiTFy8KH7Dv3eYYsTrcbBbEoTNapIuB3vn5zSLGQGf/vt0sASshS9p0fTfDPLfBsj9yQoDA==
+X-Received: by 2002:a05:6000:178b:b0:391:c78:8895 with SMTP id ffacd0b85a97d-396eb8c4c24mr52362f8f.50.1741891738209;
+        Thu, 13 Mar 2025 11:48:58 -0700 (PDT)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-395c7df3506sm3076694f8f.11.2025.03.13.11.48.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Mar 2025 11:48:57 -0700 (PDT)
+Date: Thu, 13 Mar 2025 19:48:55 +0100
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Harald Mommer <harald.mommer@opensynergy.com>
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
+	linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
+Message-ID: <Z9Molw9U+1MYCtFh@fedora>
+References: <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
+ <a366f529-c901-4cd1-a1a6-c3958562cace@wanadoo.fr>
+ <0878aedf-35c2-4901-8662-2688574dd06f@opensynergy.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <0878aedf-35c2-4901-8662-2688574dd06f@opensynergy.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: rdYLPlFkR8zIZMMmVgh_AsOtUc9xqFBWXjmhv0vmM6A_1741891738
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250313173111.10918-1-ajay.kaher@broadcom.com>
 
-On Thu, Mar 13, 2025 at 05:31:11PM +0000, Ajay Kaher wrote:
-> For VMware hypervisor, SEV-SNP enabled VM's could boot without UEFI.
-
-VMs
-
-mingo, pls fix up while applying.
-
-> In this case, mpparse_find_mptable() has to be called to parse MP
-> tables which contains boot information.
+On Thu, Feb 01, 2024 at 07:57:45PM +0100, Harald Mommer wrote:
+> Hello,
 > 
-> Fixes: 0f4a1e80989a ("x86/sev: Skip ROM range scans and validation for SEV-SNP guests")
-> Co-developed-by: Ye Li <ye.li@broadcom.com>
-> Signed-off-by: Ye Li <ye.li@broadcom.com>
-> Signed-off-by: Ajay Kaher <ajay.kaher@broadcom.com>
-> Tested-by: Ye Li <ye.li@broadcom.com>
-> Reviewed-by: Kevin Loughlin <kevinloughlin@google.com>
-> ---
-> Changes since v1:
-> https://lore.kernel.org/lkml/20241219114400.858980-1-ajay.kaher@broadcom.com/
->         - use cc_platform_has(CC_ATTR_GUEST_SEV_SNP) instead of
->           (sev_status & MSR_AMD64_SEV_SNP_ENABLED)
-> 	- remove unwanted header files
-> ---
->  arch/x86/kernel/cpu/vmware.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> I thought there would be some more comments coming and I could address
+> everything in one chunk. Not the case, besides your comments silence.
+> 
+> On 08.01.24 20:34, Christophe JAILLET wrote:
+> > 
+> > Hi,
+> > a few nits below, should there be a v6.
+> > 
+> 
+> I'm sure there will be but not so soon. Probably after acceptance of the
+> virtio CAN specification or after change requests to the specification are
+> received and the driver has to be adapted to an updated draft.
+> 
 
-Acked-by: Borislav Petkov (AMD) <bp@alien8.de>
+What are the changes in the specification that should be taken into
+account for the next series?
 
--- 
-Regards/Gruss,
-    Boris.
+Thanks, Matias.
 
-https://people.kernel.org/tglx/notes-about-netiquette
