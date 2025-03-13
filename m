@@ -1,244 +1,125 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98B93204C3E
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Mar 2025 07:02:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 623A21FC7E8
+	for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 07:20:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741849350; cv=none; b=jH5K/lDENgC9ynnzvSfyvZIBH7MKYXsuGeGUCCR6RxfZnfr+sYKZ+QP0YY05gFB/6S00GgysbdV3QEqLq1H1ZFN0mZ5rwON96dOHEpHSr9wW0rL3jOrCknQ17C8v4egF2AGq7f5fxO3tf9EcRYcX6IoaXc6Loa3m1Eo/L/BW/NQ=
+	t=1741850450; cv=none; b=ecgbjuh2Xsu3l/V+2wQlIUTH9g4Rs1Q018cxrVG31xYbq9WK/fMSqrc1W5yRVZw7QAar7y58yfVTXzI4rVAqogpKRfVEe9mbaq/xXqZNY17uBV8QCCq9BguPhdPixPUxjg3MyncPbxpaPDzIcAzztOT2plB5zE3hV7dYPPng+ss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741849350; c=relaxed/simple;
-	bh=QysKwJMoIqaKFtrng8JoZjRW/Qn7QIvbuXMh0UY/638=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To; b=fF29jmoyc5HqUELplu7L2g9aUq6CQA31n+m7bEFnOiILj1oo7UnQU9SFQ7IgK31MbStBwujUI8T8LKy4C6EpnrnROlscpY1Ptb4Ny3aPDQ7CoUVDSpFuLWL2bhvM2Xx3kfer03aPtL0nlbhpTfhp5JO+w3xEjgolzIJJ44qfgmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=sA7Uy7gG; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1741850450; c=relaxed/simple;
+	bh=KtmKrH0Gsv0sBFL6B7nZq6RHI/4HDfiECApPAP1vOr4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=lG6LL+pP3UddnzIVCnfZUE323jdPj+zEb/0l74Cw1h7UStw/vv37Vz6I4tMSQW+H4fmyaLDYIDHIVEcIvnB1GFnnBaXaDi7ewwpD8DA/PKDlVqbJWbM3X/D/H1PMpboRj1hoyKVHKJ5GQLccBCo/VCITIwHXtB7EXcwL/Wbp/Vo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FqJo5nOP; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="sA7Uy7gG"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4A61B41018
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Mar 2025 07:02:29 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id jhURARzhcjrB for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Mar 2025 07:02:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::102a; helo=mail-pj1-x102a.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C0A0B403F0
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C0A0B403F0
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=sA7Uy7gG
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C0A0B403F0
-	for <virtualization@lists.linux-foundation.org>; Thu, 13 Mar 2025 07:02:27 +0000 (UTC)
-Received: by mail-pj1-x102a.google.com with SMTP id 98e67ed59e1d1-2ff694d2d4dso1170450a91.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 13 Mar 2025 00:02:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1741849347; x=1742454147; darn=lists.linux-foundation.org;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jXhv781+liPB0AwwevhkbIFrQwob4kiywxMETbO/hoM=;
-        b=sA7Uy7gGVdzbiPHWv/SUECps1n554edrYQn4cvjOJVquY/YF7AlMrYGLzHNqJUl27s
-         cbv7mzGckVxoIpbZQ5jjDhkcASHaUmaQM46Ex+t0urTO2vUlSVYFy6RxXuH3NyR9zW+y
-         iLgblvpDqN3tyViMOWa7BgK7CkCLrKQO45Aqf7raBhyUA8kZEXN4k7nG/FM1VbaRZyKy
-         773JtBcZYX7cm89nkgArpzF/0Sbd0cJ0DPuZv89BM7sHyailFauM40WS8P1EG5qCCL3Z
-         62EQHpJaEIKSr+uydrJftTUe85tktHzymR7eakH8vcNVsLUdQBYN2RiruJFs/+V3qaNq
-         a9og==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FqJo5nOP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741850447;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=o4bfYEIbp/kS2X2cwGn1CJqsR/J4F2IpC4H45RKU2a4=;
+	b=FqJo5nOPWDZvXMnUaMq8yz7DAur3XgvRRlldH1KzVjncJ0fRNlVzjqNZFuXxvAjubh5CLt
+	5jKxjXawWTfdH8AWnvBzqXRPxrEq0ySpYNjo+t4cSIWfVKj7VHmk6qIelpyJAHuOg2rHkT
+	6r9zYLj7QvIxHGSArTietsOR7zVC46A=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-164-xTpmmoLJNLuy0dNips_wlg-1; Thu, 13 Mar 2025 03:20:46 -0400
+X-MC-Unique: xTpmmoLJNLuy0dNips_wlg-1
+X-Mimecast-MFC-AGG-ID: xTpmmoLJNLuy0dNips_wlg_1741850445
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43ce8f82e66so2673235e9.3
+        for <virtualization@lists.linux.dev>; Thu, 13 Mar 2025 00:20:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741849347; x=1742454147;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jXhv781+liPB0AwwevhkbIFrQwob4kiywxMETbO/hoM=;
-        b=WANRnWQEN67stN59bX3bfhHWKAjgaNdIjXmiqyu3fedw7jhtHSII8evCk85sG5RPZw
-         71O2yb+kIH796avsfbRz4OQTGvCzHq5DmtTDTszFREnjslV+X1b8JPppIJS5clkCugSW
-         pM+D4ZXh3umzpzjbWIvPraMce6AIlBFSNSoFqYSUdU/vEFE1nfund8m4bLyjTKeGyVnv
-         iz3YNa6X1Lu0cAolly/LJzweu6R+oiGantGwG+Wi/gLzNtFPUjV3lORoE8Wk8utXwvp0
-         UrKP7LQ5z7LHo6wcptCFOor6dK+BmfBYMTThs61wug7G64bPgbRE3ctpxtPhtF6SSqO0
-         BsZg==
-X-Forwarded-Encrypted: i=1; AJvYcCVrz1JqCoBOM7StQ4tSDMFAxmGCDQiVGr4pZT4NmwcXUHjCowJV92N+CuqV9V5mAyQwG9g3Mro5UdgHVxXbHQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yx6b+CafDuqOAF0Fi0JD0BKEpz73MFfYKA+wvS+NCWztcS6Kg/R
-	Wcm7e9aRB4PbtuSF2anGWN+CwegpyBh0ds1uTdm9PoSzSTodO5uaIIp+wZiB64Q=
-X-Gm-Gg: ASbGncsERdraM1W/1DWwiX6JunKiqOEGhwBFic6eUwkwFIGfKN7GkASiJGVaKjrkOvI
-	7Dr9nV1d8+moMWX41ERWk9Ztl1wSDfZLwtw6aKtrm0pIB0rPLg1Z9SdNjDwFV8iAYKkgXroj31c
-	tOU0I4OQ1IMgi7ePLfmX9FU+d4GpJ26pJXOTYz1TfNQYXJfDZ4w9nXxnPxYvcxeO+RtL4+26LpW
-	nayFx8BlCwclNxKWa+DholuSxCGEzJHOjZ8ealHy5krvYCyMJKc92CGYi+aGfQ8V9P77SaQOgd0
-	N/aPrSpZ/A6TLcWWb6ma3CRIk6wqHyq0l/f5BKc8YT529cWp
-X-Google-Smtp-Source: AGHT+IGccZgOJLORtXOMA8FoHHhk3Vs+fThzqAecT9XzOzLOKltyG5QMhk3cYTHxosFWc0Sd5b9x1g==
-X-Received: by 2002:a17:90b:3e4f:b0:2ff:7b15:813b with SMTP id 98e67ed59e1d1-2ff7ce93a00mr40091027a91.17.1741849346958;
-        Thu, 13 Mar 2025 00:02:26 -0700 (PDT)
-Received: from localhost ([157.82.205.237])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-225c68a4095sm6633235ad.66.2025.03.13.00.02.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Mar 2025 00:02:26 -0700 (PDT)
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Thu, 13 Mar 2025 16:01:13 +0900
-Subject: [PATCH net-next v10 10/10] vhost/net: Support
- VIRTIO_NET_F_HASH_REPORT
+        d=1e100.net; s=20230601; t=1741850444; x=1742455244;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=o4bfYEIbp/kS2X2cwGn1CJqsR/J4F2IpC4H45RKU2a4=;
+        b=jP6N/8W4j87xV3fee8ZeplKsegK5EB4x3sXoLLIC9Hz7i3nFmwA+pVRkexKl/QJIlR
+         u3jDI7redYdTBskbgnbxR/L7N9JCpkmY/WSxh4wLejuKmf/IhPGnFcLmGUy0xJaIgrjW
+         VNiz3ieUOr0npIZf5GvfoTaNzOzRNutzGdGQTFNqHD6rE6Gr2EPBdq+1OdqNFPLJF7AB
+         vwTtnbb5V7B95iFoesAo4iRdhkWzuBt7jUQ4bhO7ttAtexrrHUjKR36d7WvQUGornOja
+         Q5lzM13h9svgBtok3Rcn35vdoFYL5Al7KTdPMC7ulK+DtXMbuCKcBtmzLiKlqVOiXSSL
+         NSEQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVFBapznrTJJrdO/C5TYX9bk2Fk26xkXpdARC8CQhjs6hzpG++xnWFJdGAP+d/by1rui3X45vbLCJLWx2gwPw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzcKtLscAJPqMOgB5hN9S2LANAEeTDateYUhhk8Xh49adD0B5rG
+	9iHH6rVfJVLerA4EiOI9oX2MXNaMd+OeOWKPXXkK4vsOVVMjT6EKowlLmc5DnTrWt/Qf8c9t1VD
+	SWr6I/Xfmm8Kkh3Zw1mnM8GAJuag48EjSBxPyvGlL76yndJnA/5EUi/u3mB+RvO6PlemUJAD+
+X-Gm-Gg: ASbGncuJ1TV6Mv9x9l8N41I5DRPqOtPWqSUOErvnYghuADLSdT+gIn2vAMz2H9GZpfn
+	quw6d7koMW/be+lIm7nOMSIyeQI468uTDj/582Pe/6caaRYN67MYC8+9ZVM+VWMa5MNaIOdBrgb
+	o7KlrbHu35gayrl+IeUPkj7GZ1MKmdNM2YWmiHrgvHHNVo86Uy5fNEU4sQI1DdSE1wPVA7KFyUb
+	EbeFdwVdtTbRGaXzTNyHICWEVML7j7Est+rT0ONW3CSQiADf3nG2wIKczKxdy1U+FDpVzmxtM69
+	Q1b6iuQITQ==
+X-Received: by 2002:a05:6000:144d:b0:391:2e58:f085 with SMTP id ffacd0b85a97d-39132dab192mr19228453f8f.54.1741850444462;
+        Thu, 13 Mar 2025 00:20:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGdSno6hSKVsk5d06B4EsgagrhEFS5vVdfXL2wu7cQUeZCwJ3oOQpqMw11c+iVNeKk+NLYSpA==
+X-Received: by 2002:a05:6000:144d:b0:391:2e58:f085 with SMTP id ffacd0b85a97d-39132dab192mr19228411f8f.54.1741850444109;
+        Thu, 13 Mar 2025 00:20:44 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d18a2af42sm10316185e9.32.2025.03.13.00.20.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Mar 2025 00:20:43 -0700 (PDT)
+Date: Thu, 13 Mar 2025 03:20:37 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Nico Pache <npache@redhat.com>, linux-hyperv@vger.kernel.org,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org, cgroups@vger.kernel.org, kys@microsoft.com,
+	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+	jerrin.shaji-george@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de,
+	gregkh@linuxfoundation.org, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgross@suse.com,
+	sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
+	akpm@linux-foundation.org, hannes@cmpxchg.org, mhocko@kernel.org,
+	roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+	muchun.song@linux.dev, nphamcs@gmail.com, yosry.ahmed@linux.dev,
+	kanchana.p.sridhar@intel.com, alexander.atanasov@virtuozzo.com
+Subject: Re: [RFC 1/5] meminfo: add a per node counter for balloon drivers
+Message-ID: <20250313032001-mutt-send-email-mst@kernel.org>
+References: <20250312000700.184573-1-npache@redhat.com>
+ <20250312000700.184573-2-npache@redhat.com>
+ <c4229ea5-d991-4f5e-a0ff-45dce78a242a@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250313-rss-v10-10-3185d73a9af0@daynix.com>
-References: <20250313-rss-v10-0-3185d73a9af0@daynix.com>
-In-Reply-To: <20250313-rss-v10-0-3185d73a9af0@daynix.com>
-To: Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
- Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-X-Mailer: b4 0.15-dev-edae6
+In-Reply-To: <c4229ea5-d991-4f5e-a0ff-45dce78a242a@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: gZs_18pzDLQtjPXuh22pSEQXro3EQcXCusgs-WCjTCs_1741850445
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-VIRTIO_NET_F_HASH_REPORT allows to report hash values calculated on the
-host. When VHOST_NET_F_VIRTIO_NET_HDR is employed, it will report no
-hash values (i.e., the hash_report member is always set to
-VIRTIO_NET_HASH_REPORT_NONE). Otherwise, the values reported by the
-underlying socket will be reported.
+On Wed, Mar 12, 2025 at 11:19:06PM +0100, David Hildenbrand wrote:
+> On 12.03.25 01:06, Nico Pache wrote:
+> > Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
+> > expose it through /proc/meminfo and other memory reporting interfaces.
+> 
+> In balloon_page_enqueue_one(), we perform a
+> 
+> __count_vm_event(BALLOON_INFLATE)
+> 
+> and in balloon_page_list_dequeue
+> 
+> __count_vm_event(BALLOON_DEFLATE);
+> 
+> 
+> Should we maybe simply do the per-node accounting similarly there?
 
-VIRTIO_NET_F_HASH_REPORT requires VIRTIO_F_VERSION_1.
 
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-Tested-by: Lei Yang <leiyang@redhat.com>
----
- drivers/vhost/net.c | 68 +++++++++++++++++++++++++++--------------------------
- 1 file changed, 35 insertions(+), 33 deletions(-)
+BTW should virtio mem be tied into this too, in some way? or is it too
+different?
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index b9b9e9d40951..fc5b43e43a06 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -73,6 +73,7 @@ enum {
- 	VHOST_NET_FEATURES = VHOST_FEATURES |
- 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
- 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			 (1ULL << VIRTIO_NET_F_HASH_REPORT) |
- 			 (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
- 			 (1ULL << VIRTIO_F_RING_RESET)
- };
-@@ -1097,10 +1098,6 @@ static void handle_rx(struct vhost_net *net)
- 		.msg_controllen = 0,
- 		.msg_flags = MSG_DONTWAIT,
- 	};
--	struct virtio_net_hdr hdr = {
--		.flags = 0,
--		.gso_type = VIRTIO_NET_HDR_GSO_NONE
--	};
- 	size_t total_len = 0;
- 	int err, mergeable;
- 	s16 headcount;
-@@ -1174,11 +1171,15 @@ static void handle_rx(struct vhost_net *net)
- 		/* We don't need to be notified again. */
- 		iov_iter_init(&msg.msg_iter, ITER_DEST, vq->iov, in, vhost_len);
- 		fixup = msg.msg_iter;
--		if (unlikely((vhost_hlen))) {
--			/* We will supply the header ourselves
--			 * TODO: support TSO.
--			 */
--			iov_iter_advance(&msg.msg_iter, vhost_hlen);
-+		/*
-+		 * Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR
-+		 * TODO: support TSO.
-+		 */
-+		if (unlikely(vhost_hlen) &&
-+		    iov_iter_zero(vhost_hlen, &msg.msg_iter) != vhost_hlen) {
-+			vq_err(vq, "Unable to write vnet_hdr at addr %p\n",
-+			       vq->iov->iov_base);
-+			goto out;
- 		}
- 		err = sock->ops->recvmsg(sock, &msg,
- 					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
-@@ -1191,30 +1192,24 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_discard_vq_desc(vq, headcount);
- 			continue;
- 		}
--		/* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR */
--		if (unlikely(vhost_hlen)) {
--			if (copy_to_iter(&hdr, sizeof(hdr),
--					 &fixup) != sizeof(hdr)) {
--				vq_err(vq, "Unable to write vnet_hdr "
--				       "at addr %p\n", vq->iov->iov_base);
--				goto out;
--			}
--		} else {
--			/* Header came from socket; we'll need to patch
--			 * ->num_buffers over if VIRTIO_NET_F_MRG_RXBUF
--			 */
--			iov_iter_advance(&fixup, sizeof(hdr));
--		}
- 		/* TODO: Should check and handle checksum. */
- 
-+		/*
-+		 * We'll need to patch ->num_buffers over if
-+		 * VIRTIO_NET_F_MRG_RXBUF or VIRTIO_F_VERSION_1
-+		 */
- 		num_buffers = cpu_to_vhost16(vq, headcount);
--		if (likely(set_num_buffers) &&
--		    copy_to_iter(&num_buffers, sizeof num_buffers,
--				 &fixup) != sizeof num_buffers) {
--			vq_err(vq, "Failed num_buffers write");
--			vhost_discard_vq_desc(vq, headcount);
--			goto out;
-+		if (likely(set_num_buffers)) {
-+			iov_iter_advance(&fixup, offsetof(struct virtio_net_hdr_v1, num_buffers));
-+
-+			if (copy_to_iter(&num_buffers, sizeof(num_buffers),
-+					 &fixup) != sizeof(num_buffers)) {
-+				vq_err(vq, "Failed num_buffers write");
-+				vhost_discard_vq_desc(vq, headcount);
-+				goto out;
-+			}
- 		}
-+
- 		nvq->done_idx += headcount;
- 		if (nvq->done_idx > VHOST_NET_BATCH)
- 			vhost_net_signal_used(nvq);
-@@ -1607,10 +1602,13 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 	size_t vhost_hlen, sock_hlen, hdr_len;
- 	int i;
- 
--	hdr_len = (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
--			       (1ULL << VIRTIO_F_VERSION_1))) ?
--			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
--			sizeof(struct virtio_net_hdr);
-+	if (features & (1ULL << VIRTIO_NET_F_HASH_REPORT))
-+		hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
-+	else if (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			     (1ULL << VIRTIO_F_VERSION_1)))
-+		hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-+	else
-+		hdr_len = sizeof(struct virtio_net_hdr);
- 	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
- 		/* vhost provides vnet_hdr */
- 		vhost_hlen = hdr_len;
-@@ -1691,6 +1689,10 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 		if (features & ~VHOST_NET_FEATURES)
- 			return -EOPNOTSUPP;
-+		if ((features & ((1ULL << VIRTIO_F_VERSION_1) |
-+				 (1ULL << VIRTIO_NET_F_HASH_REPORT))) ==
-+		    (1ULL << VIRTIO_NET_F_HASH_REPORT))
-+			return -EINVAL;
- 		return vhost_net_set_features(n, features);
- 	case VHOST_GET_BACKEND_FEATURES:
- 		features = VHOST_NET_BACKEND_FEATURES;
-
--- 
-2.48.1
+> -- 
+> Cheers,
+> 
+> David / dhildenb
 
