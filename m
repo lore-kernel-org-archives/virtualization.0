@@ -1,45 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82806130AC8
-	for <virtualization@lists.linux.dev>; Fri, 14 Mar 2025 21:38:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55BA32040B7
+	for <virtualization@lists.linux.dev>; Fri, 14 Mar 2025 21:38:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741988304; cv=none; b=I9/zeZhZPoakQfrS8lkYRfrTSmtb7mtdL/nyAblxOAxpV00TlzLStX0Dka5J2yffQsa7NJpWcdyPwVdejuY1thO6qgfVsdNfITGJeDiWG2sFqeHL9Mge/BVdaJwnTvSa2lVOsHCx6pz+cg2JQpa+nXtxhQp9CFT+w+NjUmhFZv0=
+	t=1741988306; cv=none; b=Nnbce+k/8c3e09UrgXvdPSUCcE3yb9Wz547gIiTBoTV1gf41A1Awsmf67zkxviPp2uBhy6KtzicNs2th3m9iQ1e0aBJB34XBZTZoMWXQKvwOKN1gJvR2vwAHJhxyF+luVzdCyMS/G0HChj5YoGshZayLEBuU5hSVMwwRsBQeh2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741988304; c=relaxed/simple;
-	bh=wUKSvD8vwF3thpgoejutr15OJKzXA/OuDmMmmBeuNF0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CbUr8a1oVUBMayJlF8tzbpxfJ+j4bl4lmFn4OSiS9n6GyOmB1sGHeycr9UtmxXajFbc/hFAAoeu7dxz02iKbxyGyeXZNoKE0GTiF03PdozXg21DVPHQgwtTPaJCZwF1DLgs8cieqMoGlessri8jVW23O3oaFSG9VAZTIbZTrRmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ElnJ1fcO; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1741988306; c=relaxed/simple;
+	bh=KR7Rgigui5nMqE+lqkr212HsL5acvMFEx4PkGQEmMBE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Lh20p4yXJ5RXHo+QeUWahWKQjxWeCpeHFhxTBSWdp79/gUkInOH4SMqqlcdDzp1R9RxPIdbtUgPAoqHkaJE8IBulO1eXgR/tD7ztG/amozXKArSaffsEX5tv3T7Qx3qiyPhZjEcKTsuNum30kYyzdRSaTdhAMs1m+zTfq0rtjiM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CtrgY4pF; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ElnJ1fcO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CtrgY4pF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741988301;
+	s=mimecast20190719; t=1741988304;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=x8R8SnT0xlNk6NOCsego5+xxOFgcolEZepoyw3FUxJU=;
-	b=ElnJ1fcOW07n+mt4t6nHqTXTKPjrtpVBcTXyj0cKMLX3dofdWjhVqHzCBLfP5Dtm3X1/Ih
-	yZTP4sYZ8D6CVY8yy5Vd55cP8wb3/BS3yP+0iVZaZ1UXgm/BUB0CvPjMVIgRmylFwMOgml
-	Sd1vmy8zW4rqWRs4LtJmpzBI4BnPlpU=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Syhhy4ulIUlWqTYydvlvGA6nZmvGM1l/r4DiZeh/SB8=;
+	b=CtrgY4pF4HK/xRtrdtzhwGvSyf7wQ/oSw54uAhsMrYwEmcYlgu7v4FNzbG0DkIwXAT2y23
+	eYTrTmo5jmEukZiJPMa0Uo7sOfOERvRaw8FfrcUhCryxsrH/OdW29LGgNc0xRVjhXdCHUP
+	ubZKdCEBQ04dF9O1X9kDSGUH3UoGtMs=
 Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-546-Z7N13xufNW6XUwaNZpccyg-1; Fri,
- 14 Mar 2025 17:38:15 -0400
-X-MC-Unique: Z7N13xufNW6XUwaNZpccyg-1
-X-Mimecast-MFC-AGG-ID: Z7N13xufNW6XUwaNZpccyg_1741988292
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-116-ltqb4lcePE69hcWXSe8vYA-1; Fri,
+ 14 Mar 2025 17:38:21 -0400
+X-MC-Unique: ltqb4lcePE69hcWXSe8vYA-1
+X-Mimecast-MFC-AGG-ID: ltqb4lcePE69hcWXSe8vYA_1741988298
 Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 898481800258;
-	Fri, 14 Mar 2025 21:38:11 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 28885180034D;
+	Fri, 14 Mar 2025 21:38:17 +0000 (UTC)
 Received: from h1.redhat.com (unknown [10.22.80.88])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 20D901944E42;
-	Fri, 14 Mar 2025 21:38:03 +0000 (UTC)
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B05D41944DC5;
+	Fri, 14 Mar 2025 21:38:11 +0000 (UTC)
 From: Nico Pache <npache@redhat.com>
 To: linux-hyperv@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
@@ -68,9 +70,11 @@ Cc: alexander.atanasov@virtuozzo.com,
 	kanchana.p.sridhar@intel.com,
 	llong@redhat.com,
 	shakeel.butt@linux.dev
-Subject: [PATCH v2 0/4] track memory used by balloon drivers
-Date: Fri, 14 Mar 2025 15:37:53 -0600
-Message-ID: <20250314213757.244258-1-npache@redhat.com>
+Subject: [PATCH v2 1/4] meminfo: add a per node counter for balloon drivers
+Date: Fri, 14 Mar 2025 15:37:54 -0600
+Message-ID: <20250314213757.244258-2-npache@redhat.com>
+In-Reply-To: <20250314213757.244258-1-npache@redhat.com>
+References: <20250314213757.244258-1-npache@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,44 +84,76 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-This series introduces a way to track memory used by balloon drivers.
+Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
+expose it through /proc/meminfo and other memory reporting interfaces.
 
-Add a NR_BALLOON_PAGES counter to track how many pages are reclaimed by the
-balloon drivers. First add the accounting, then updates the balloon drivers
-(virtio, Hyper-V, VMware, Pseries-cmm, and Xen) to maintain this counter. The
-virtio, Vmware, and pseries-cmm balloon drivers utilize the balloon_compaction
-interface to allocate and free balloon pages. Other balloon drivers will have to
-maintain this counter manually.
-
-This makes the information visible in memory reporting interfaces like
-/proc/meminfo, show_mem, and OOM reporting.
-
-This provides admins visibility into their VM balloon sizes without
-requiring different virtualization tooling. Furthermore, this information
-is helpful when debugging an OOM inside a VM.
-
-V2 changes:
-- Add counter to the balloon_compaction interface
-- Dropped patches for virtio and VMware as they use balloon_compaction interface
-
-Tested: virtio_balloon, run stress-ng, inflate balloon, oom prints
 Signed-off-by: Nico Pache <npache@redhat.com>
+---
+ fs/proc/meminfo.c      | 2 ++
+ include/linux/mmzone.h | 1 +
+ mm/show_mem.c          | 4 +++-
+ mm/vmstat.c            | 1 +
+ 4 files changed, 7 insertions(+), 1 deletion(-)
 
-Nico Pache (4):
-  meminfo: add a per node counter for balloon drivers
-  balloon_compaction: update the NR_BALLOON_PAGES state
-  hv_balloon: update the NR_BALLOON_PAGES state
-  xen: balloon: update the NR_BALLOON_PAGES state
-
- drivers/hv/hv_balloon.c | 2 ++
- drivers/xen/balloon.c   | 4 ++++
- fs/proc/meminfo.c       | 2 ++
- include/linux/mmzone.h  | 1 +
- mm/balloon_compaction.c | 2 ++
- mm/show_mem.c           | 4 +++-
- mm/vmstat.c             | 1 +
- 7 files changed, 15 insertions(+), 1 deletion(-)
-
+diff --git a/fs/proc/meminfo.c b/fs/proc/meminfo.c
+index 8ba9b1472390..83be312159c9 100644
+--- a/fs/proc/meminfo.c
++++ b/fs/proc/meminfo.c
+@@ -162,6 +162,8 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
+ 	show_val_kb(m, "Unaccepted:     ",
+ 		    global_zone_page_state(NR_UNACCEPTED));
+ #endif
++	show_val_kb(m, "Balloon:        ",
++		    global_node_page_state(NR_BALLOON_PAGES));
+ 
+ 	hugetlb_report_meminfo(m);
+ 
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index 9540b41894da..71d3ff19267a 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -223,6 +223,7 @@ enum node_stat_item {
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	NR_HUGETLB,
+ #endif
++	NR_BALLOON_PAGES,
+ 	NR_VM_NODE_STAT_ITEMS
+ };
+ 
+diff --git a/mm/show_mem.c b/mm/show_mem.c
+index 43afb56abbd3..6af13bcd2ab3 100644
+--- a/mm/show_mem.c
++++ b/mm/show_mem.c
+@@ -260,6 +260,7 @@ static void show_free_areas(unsigned int filter, nodemask_t *nodemask, int max_z
+ 			" pagetables:%lukB"
+ 			" sec_pagetables:%lukB"
+ 			" all_unreclaimable? %s"
++			" Balloon:%lukB"
+ 			"\n",
+ 			pgdat->node_id,
+ 			K(node_page_state(pgdat, NR_ACTIVE_ANON)),
+@@ -285,7 +286,8 @@ static void show_free_areas(unsigned int filter, nodemask_t *nodemask, int max_z
+ #endif
+ 			K(node_page_state(pgdat, NR_PAGETABLE)),
+ 			K(node_page_state(pgdat, NR_SECONDARY_PAGETABLE)),
+-			str_yes_no(pgdat->kswapd_failures >= MAX_RECLAIM_RETRIES));
++			str_yes_no(pgdat->kswapd_failures >= MAX_RECLAIM_RETRIES),
++			K(node_page_state(pgdat, NR_BALLOON_PAGES)));
+ 	}
+ 
+ 	for_each_populated_zone(zone) {
+diff --git a/mm/vmstat.c b/mm/vmstat.c
+index 16bfe1c694dd..d3b11891a942 100644
+--- a/mm/vmstat.c
++++ b/mm/vmstat.c
+@@ -1276,6 +1276,7 @@ const char * const vmstat_text[] = {
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	"nr_hugetlb",
+ #endif
++	"nr_balloon_pages",
+ 	/* system-wide enum vm_stat_item counters */
+ 	"nr_dirty_threshold",
+ 	"nr_dirty_background_threshold",
 -- 
 2.48.1
 
