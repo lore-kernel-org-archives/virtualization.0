@@ -1,46 +1,45 @@
 Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43B3D200132;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A81E200BA3;
 	Fri, 14 Mar 2025 15:20:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741965644; cv=none; b=G9tH3dgqg+C2Nlk7Ekfnu2pmyyAMf+K4XW/xQddrOKSRvGkWteX8LcXA1gZyefxnYDDig/BZhGrYa9jSF8xKu6ZVBM0q22xH4ceV1LUTJnBEtfypshLBJsEInl+u/TN2FfC8+Mi/wZPP8gmh9pc+Ey2hVBnxejKJbCv0DXrElTo=
+	t=1741965644; cv=none; b=FbYBg2cnQutYnovBHucYlSJygHIAHM1P70DebHxwhn0My0wso0T12z1a3+4zpDmySV85lSjhj1tvc6fpgj0kuRQxwA80bmFJ+7phyO8Zvyw2Y227EzGslQrOUO7ADjlbzRJnBoNO2aaa9wlaajgKWAO+hZr4NCnAsCvYexKjiVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1741965644; c=relaxed/simple;
-	bh=WKSI5tQo2ZCmquUaEjyal9KCtNxILWDmnnMtd21oT78=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TgzxMb0sJA1P1gVnUYd1yKUmbCC2Z3nKLmQMN+AZJAA7h3hq2q1C2BMy8vWIxGfX9mj+4v18ZnelDbGmqf3YzftHaa4RYuXq5s1vj9QQn+blepLKYpKqyzVzlj51fRV5MRjrhY/d8lLlNyr05iq8Lo6sH1khVD4W/FNyw2FkD5A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=bn4hJ/iq; arc=none smtp.client-ip=185.226.149.37
+	bh=NTuhSRcIjIKwu/EhWlBaePFWOMZukrVSx2sagJ05bQY=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=AR24VkGhsESafa2/ZxhGmhCAg5U0cGoF0tnXDsv++/L9f5ItTpYA8wZLVTk3kmSuxLycl5m1zDoCQFpNNw5t/yNG7WOTW3u7xKamfUt+0tpETHIsOPL8fl81M9zrxWcKD9/2ksibmk0w08GpcLIpFtNFpLriVjMYk2B3A1UxR7w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=ZaKdfTcQ; arc=none smtp.client-ip=185.226.149.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="bn4hJ/iq"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="ZaKdfTcQ"
 Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
 	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1tt6pq-006UW3-D6; Fri, 14 Mar 2025 16:20:30 +0100
+	id 1tt6pt-006UWb-Gh; Fri, 14 Mar 2025 16:20:33 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=Qx6Q42lUm6Tq+A/H1tasLuFXsBAYaSnDK2lri+KURPw=; b=bn4hJ/iqB8WiNBQ9Ccf5shTW20
-	aBi3RSEWKDobUnKud5rd5EIXvRZqw41woieCigLRiuOJhZEfEbIjqbVodZSr0m/9vt7G2B6mKbTkJ
-	PKU/b8I2DIaWBpMwNYIHA+T5HAXcVtM6Qkt7uk6SfQ8FRUxDf1LpmE7NXb2HnT7XnjLti0Wf8GatN
-	ugezptK8n9pqm8KE6HMQwNe+2miDMDjhJGctXhhqoeUksEdm7oCo8VM5BaRyz+SYKDihzanWLsbX1
-	yHFoTY14+2YZzvs43I5CFEeQgBXlFtjA9rJNUrL7kfKpstH2QS9N/DnVbzSW5cSTv8K4YsXfMaNvz
-	HwXpvApg==;
+	s=selector1; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=V3VbFr18RuFUXg+1KPmBQkgSb64jtIsc05hljXlhkhE=
+	; b=ZaKdfTcQGOKnSbvx3bKPtjhJaxiKejhpXrvSJcVNDGReRW53gI0eFsK26uY2Z8oEOUwpTKZLA
+	VoMawNVj7zYVpqq0xoeBx6cEHqA/TMgZvESKoBENynb1BPU19m37Lpq8t53d0MZnBNihRx+jFbt0E
+	UZSsPL69OdpugpBbrAy6+anCT7CwplfFu0QB+4MHRnD/V0nO0a7197dqyJyTbZ980bxSaH1z7i9OL
+	Um5IOtVY8SjYhP3wa8nPuDlyuLnMKc9q7csmiTbb8YUijWN8TsreeEVAGwGeWAhPbW9kEeb/toktH
+	CAF1C/s2JS528bVkoOz8mjGq1z9W4xoHo3i0CQ==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
 	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1tt6pp-0004Nj-WE; Fri, 14 Mar 2025 16:20:30 +0100
+	id 1tt6pt-0004Nz-15; Fri, 14 Mar 2025 16:20:33 +0100
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1tt6pd-00H06E-71; Fri, 14 Mar 2025 16:20:17 +0100
+	id 1tt6pZ-00H06E-PD; Fri, 14 Mar 2025 16:20:13 +0100
 From: Michal Luczaj <mhal@rbox.co>
-Date: Fri, 14 Mar 2025 16:19:36 +0100
-Subject: [PATCH net v2 3/3] vsock/bpf: Fix bpf recvmsg() racing transport
- reassignment
+Subject: [PATCH net v2 0/3] vsock/bpf: Handle races between sockmap update
+ and connect() disconnecting
+Date: Fri, 14 Mar 2025 16:19:33 +0100
+Message-Id: <20250314-vsock-trans-signal-race-v2-0-421a41f60f42@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,9 +48,11 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250314-vsock-trans-signal-race-v2-3-421a41f60f42@rbox.co>
-References: <20250314-vsock-trans-signal-race-v2-0-421a41f60f42@rbox.co>
-In-Reply-To: <20250314-vsock-trans-signal-race-v2-0-421a41f60f42@rbox.co>
+X-B4-Tracking: v=1; b=H4sIAAVJ1GcC/3WNwQ6CMBBEf4Xs2TVtCaKe/A/DobQLNJrW7JIGQ
+ /h3K/Hq8c1k3qwgxIEErtUKTDlISLGAOVTgJhtHwuALg1GmUbVqMEtyD5zZRkEJY7RPZOsI/ck
+ MbavPXl0uUNYvpiEsu/kOkWboSjgFmRO/97es9+onbv+Ks0aNtXW2/vqH3t+4T8vRJei2bfsAc
+ 0bry8EAAAA=
+X-Change-ID: 20250305-vsock-trans-signal-race-d62f7718d099
 To: Stefano Garzarella <sgarzare@redhat.com>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -70,116 +71,39 @@ Cc: netdev@vger.kernel.org, bpf@vger.kernel.org,
  linux-kselftest@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-Signal delivery during connect() may lead to a disconnect of an already
-established socket. That involves removing socket from any sockmap and
-resetting state to SS_UNCONNECTED. While it correctly restores socket's
-proto, a call to vsock_bpf_recvmsg() might have been already under way in
-another thread. If the connect()ing thread reassigns the vsock transport to
-NULL, the recvmsg()ing thread may trigger a WARN_ON_ONCE.
+Signal delivery during connect() may disconnect an already established
+socket. Problem is that such socket might have been placed in a sockmap
+before the connection was closed.
 
-connect
-  / state = SS_CONNECTED /
-                                sock_map_update_elem
-                                vsock_bpf_recvmsg
-                                  psock = sk_psock_get()
-  lock sk
-  if signal_pending
-    unhash
-      sock_map_remove_links
-    state = SS_UNCONNECTED
-  release sk
+PATCH 1 ensures this race won't lead to an unconnected vsock staying in the
+sockmap. PATCH 2 selftests it.
 
-connect
-  transport = NULL
-                                  lock sk
-                                  WARN_ON_ONCE(!vsk->transport)
+PATCH 3 fixes a related race. Note that here the race window is rather
+difficult to hit and I can't think of an easy way of testing it.
 
-Protect recvmsg() from racing against transport reassignment. Enforce the
-sockmap invariant that psock implies transport: lock socket before getting
-psock.
-
-WARNING: CPU: 9 PID: 1222 at net/vmw_vsock/vsock_bpf.c:92 vsock_bpf_recvmsg+0xb55/0xe00
-CPU: 9 UID: 0 PID: 1222 Comm: a.out Not tainted 6.14.0-rc5+
-RIP: 0010:vsock_bpf_recvmsg+0xb55/0xe00
- sock_recvmsg+0x1b2/0x220
- __sys_recvfrom+0x190/0x270
- __x64_sys_recvfrom+0xdc/0x1b0
- do_syscall_64+0x93/0x1b0
- entry_SYSCALL_64_after_hwframe+0x76/0x7e
-
-Fixes: 634f1a7110b4 ("vsock: support sockmap")
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- net/vmw_vsock/vsock_bpf.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+Changes in v2:
+- Handle one more path of tripping the warning
+- Add a selftest
+- Collect R-b [Stefano]
+- Link to v1: https://lore.kernel.org/r/20250307-vsock-trans-signal-race-v1-1-3aca3f771fbd@rbox.co
 
-diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-index c68fdaf09046b68254dac3ea70ffbe73dfa45cef..5138195d91fb258d4bc09b48e80e13651d62863a 100644
---- a/net/vmw_vsock/vsock_bpf.c
-+++ b/net/vmw_vsock/vsock_bpf.c
-@@ -73,28 +73,35 @@ static int __vsock_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int
- 	return err;
- }
- 
--static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
--			     size_t len, int flags, int *addr_len)
-+static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
-+			     int flags, int *addr_len)
- {
- 	struct sk_psock *psock;
- 	struct vsock_sock *vsk;
- 	int copied;
- 
-+	/* Since signal delivery during connect() may reset the state of socket
-+	 * that's already in a sockmap, take the lock before checking on psock.
-+	 * This serializes a possible transport reassignment, protecting this
-+	 * function from running with NULL transport.
-+	 */
-+	lock_sock(sk);
-+
- 	psock = sk_psock_get(sk);
--	if (unlikely(!psock))
-+	if (unlikely(!psock)) {
-+		release_sock(sk);
- 		return __vsock_recvmsg(sk, msg, len, flags);
-+	}
- 
--	lock_sock(sk);
- 	vsk = vsock_sk(sk);
--
- 	if (WARN_ON_ONCE(!vsk->transport)) {
- 		copied = -ENODEV;
- 		goto out;
- 	}
- 
- 	if (vsock_has_data(sk, psock) && sk_psock_queue_empty(psock)) {
--		release_sock(sk);
- 		sk_psock_put(sk, psock);
-+		release_sock(sk);
- 		return __vsock_recvmsg(sk, msg, len, flags);
- 	}
- 
-@@ -108,8 +115,8 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 		}
- 
- 		if (sk_psock_queue_empty(psock)) {
--			release_sock(sk);
- 			sk_psock_put(sk, psock);
-+			release_sock(sk);
- 			return __vsock_recvmsg(sk, msg, len, flags);
- 		}
- 
-@@ -117,8 +124,8 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 	}
- 
- out:
--	release_sock(sk);
- 	sk_psock_put(sk, psock);
-+	release_sock(sk);
- 
- 	return copied;
- }
+---
+Michal Luczaj (3):
+      vsock/bpf: Fix EINTR connect() racing sockmap update
+      selftest/bpf: Add test for AF_VSOCK connect() racing sockmap update
+      vsock/bpf: Fix bpf recvmsg() racing transport reassignment
 
+ net/vmw_vsock/af_vsock.c                           |  10 +-
+ net/vmw_vsock/vsock_bpf.c                          |  24 +++--
+ .../selftests/bpf/prog_tests/sockmap_basic.c       | 111 +++++++++++++++++++++
+ 3 files changed, 136 insertions(+), 9 deletions(-)
+---
+base-commit: da9e8efe7ee10e8425dc356a9fc593502c8e3933
+change-id: 20250305-vsock-trans-signal-race-d62f7718d099
+
+Best regards,
 -- 
-2.48.1
+Michal Luczaj <mhal@rbox.co>
 
