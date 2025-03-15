@@ -1,193 +1,81 @@
-Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azolkn19010010.outbound.protection.outlook.com [52.103.10.10])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81CC817578
-	for <virtualization@lists.linux.dev>; Sat, 15 Mar 2025 04:09:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.10.10
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742011772; cv=fail; b=Cv0ZbQQe6mIL6ODIag8EqPZBBESc4FjZJmDXyVnd0Kp5Go/CFgSP8EXSxqWhIvlKaMSvPP8Pgfx8XuqKuFUI8LDXc9GkqZwj202xvwYYMHny2NrLAqAMSI0wipGm/jXn/jkqTCqunKoTSbt+7Q6qTWNRCPl5e67DCNbvLQezNY8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742011772; c=relaxed/simple;
-	bh=5xGxf7aDhr8h0zdWRw2/FkLNzZUr0huGTdOjNQlc2jI=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Q8WIRWMH5etZUmbZZwSI02+mCbfF0eBKTr4LXwlSZA3+M2dD6sbiofm4jdiqytVBYiwe6OTwRUll3VZTfKBzGhr7YLfJcifu493ewLnX7e705icHic4dPyJ5PZO8jLSpW1SNzErv1IDabNBu3mzS2NFqV4Y+FlsuQ6CZaqYha8Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=dmkMH3Mf; arc=fail smtp.client-ip=52.103.10.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582F81F4284;
+	Sat, 15 Mar 2025 09:07:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1742029648; cv=none; b=L+apQmyJB4b/IvlBpaZKfZ2RpO/xr1+NfsWODOOknGTH9ECqDHJ7uUvWlOpWw+0klwpM4zVY6Y+jwzMYHOnfck8oUuO8hQ4Cmwft7t/rpvwDtXG4ExFFnjVC9oKqLIodvlGS4gYZD85pkeudu/Van/v2HrEhbknVkZQ+cC9W2hY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1742029648; c=relaxed/simple;
+	bh=KA9FoAr3X6y1QqTfYBdPvKLl5hXk8A9+ar4Z+NuiuPc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qIZSkrL0BSWIXvSuarn/2mwfD6u17PzQpK3mlrdViRgtZ3Wwo8hCoWPbc40g5SZauBpwyq+/9HQLJ4TmI70PceB1VhwWwaMhxz+0rC8yT+fJvloiALkbL+TxQcu/cfGtc4Lve30y8DvXJWIic5UdiS/2pvXZgKnjh0PQIOW8KdU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=Tw9ONim0; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="dmkMH3Mf"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uQzpwH+lO9jpic+ItF7Ii44puVZpqFWqXsjSWNtZaUAg6Qb2oF4d4JpQuOrR9d/B+nNFTqYGlQDPNXHMU1+4uWOTqyFCJx4j7jvj7Ew2gW7SOvlnlCiAcvDIk6MvvmhMxzZtmsrM2oIkGLNLpTvrjk/x23pqEYy6hOU3RSzSRI4xPL2F1WPYj0LJIv3uMzHmeZB3RQnSz6493JDyGkvjkmGS8P7V905ICOTq65W47OkXMj9YVOGOnQsYYoosMhfC2U0sLywzyW2qn9J30f0Qr/P2eMzZivSnsx/2WGbPBiorPWoe6Jws5w4hWAl9F1Z+yUborijhAD13TD6Cl34W8A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=64mYpXW+f131fQnCaBygXOJ3YNrUCNaVkPytPqvI030=;
- b=LewznFo4SQK2O2qXcvtznpeehv6IbEO4LAZG6bh/oSMZlAGjV/xAuXEpA93i+rBBE8GjKb0sINNd3DS2FOgxDgwq8HJrqDe1C3/zQOD62yPKMhmezNipK5H4PREWvbnERD1bO+XFVoXe9jSi3ZnBvNT5QGocOc8gSdSagtUKrYqUHyrsTzCoLkFmNEoJiF1588HH0ITCQ72I04kEgpzqR+42sCixy9Yd3i/4S50BOttt5MgXOxgjXzh9gARXJtZuAp7YHNAEpctNveJ7fL//TIjfhulsuG5ABDPL97OlyvgLZjhnSJkfUMdaY81CT41TOOA+c8/kdKUIy5SpDar9KQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=64mYpXW+f131fQnCaBygXOJ3YNrUCNaVkPytPqvI030=;
- b=dmkMH3Mf6gOpsbjQIfw63N1BpGauARGZJk0bPAOt9+9M9oJ1iDdWukeciis/rmit41rrw7oFalkGnqF2GjPuYY0mGfEF0AZnBVpE1H5HuJp8pDXiXWpwbfKpsvY5cxEjkVX0mMml2k6q9FLndH1KV4X1/poA2ACNe/8/dr4tYtBwo7GbpVWPiBvFrvXaaedZxmvzvdl48Z52WzVlXf0fmgAUnAMvdr6gNGQ5rHY48KgdAikzfxNXZCSdDjRkbWqdjsF/Jk0nEb1wFFC+W65EztZk7xpr03tl7oD2XeID5d0G0rm8Q/I7f8HzGdZN40IRmIw+80XN7GAwZtWFkElxkQ==
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
- by MW4PR02MB7153.namprd02.prod.outlook.com (2603:10b6:303:65::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8511.28; Sat, 15 Mar
- 2025 04:09:26 +0000
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::cedd:1e64:8f61:b9df]) by SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::cedd:1e64:8f61:b9df%3]) with mapi id 15.20.8511.026; Sat, 15 Mar 2025
- 04:09:26 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: Nico Pache <npache@redhat.com>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "xen-devel@lists.xenproject.org"
-	<xen-devel@lists.xenproject.org>, "linux-fsdevel@vger.kernel.org"
-	<linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-CC: "alexander.atanasov@virtuozzo.com" <alexander.atanasov@virtuozzo.com>,
-	"muchun.song@linux.dev" <muchun.song@linux.dev>, "roman.gushchin@linux.dev"
-	<roman.gushchin@linux.dev>, "mhocko@kernel.org" <mhocko@kernel.org>,
-	"kys@microsoft.com" <kys@microsoft.com>, "haiyangz@microsoft.com"
-	<haiyangz@microsoft.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
-	"decui@microsoft.com" <decui@microsoft.com>, "jgross@suse.com"
-	<jgross@suse.com>, "sstabellini@kernel.org" <sstabellini@kernel.org>,
-	"oleksandr_tyshchenko@epam.com" <oleksandr_tyshchenko@epam.com>,
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mst@redhat.com"
-	<mst@redhat.com>, "david@redhat.com" <david@redhat.com>,
-	"yosry.ahmed@linux.dev" <yosry.ahmed@linux.dev>, "hannes@cmpxchg.org"
-	<hannes@cmpxchg.org>, "nphamcs@gmail.com" <nphamcs@gmail.com>,
-	"chengming.zhou@linux.dev" <chengming.zhou@linux.dev>,
-	"kanchana.p.sridhar@intel.com" <kanchana.p.sridhar@intel.com>,
-	"llong@redhat.com" <llong@redhat.com>, "shakeel.butt@linux.dev"
-	<shakeel.butt@linux.dev>
-Subject: RE: [PATCH v2 3/4] hv_balloon: update the NR_BALLOON_PAGES state
-Thread-Topic: [PATCH v2 3/4] hv_balloon: update the NR_BALLOON_PAGES state
-Thread-Index: AQHblSmRG3n+QHZh2UuvvmIQtVK9S7Nzk1Gg
-Date: Sat, 15 Mar 2025 04:09:25 +0000
-Message-ID:
- <SN6PR02MB4157924B97EF67299E751082D4DD2@SN6PR02MB4157.namprd02.prod.outlook.com>
-References: <20250314213757.244258-1-npache@redhat.com>
- <20250314213757.244258-4-npache@redhat.com>
-In-Reply-To: <20250314213757.244258-4-npache@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|MW4PR02MB7153:EE_
-x-ms-office365-filtering-correlation-id: 5e196a76-6ccf-4672-aa10-08dd63772cba
-x-microsoft-antispam:
- BCL:0;ARA:14566002|461199028|15080799006|8060799006|19110799003|8062599003|3412199025|102099032|440099028|21061999003|12071999003|41001999003|12091999003;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?Joa5iZXqQKE7NVUcCzXjSnFMEIgdycBpAyBc8g5GNyArUUVMIhxfohXYA7MT?=
- =?us-ascii?Q?nVscz1F/GjckkqFqVTRb4sTDvZMrPhuQVFYeYJM1xv0xiJgIFM6+huWTB3Tq?=
- =?us-ascii?Q?JX4rjbbjpiryUwmssA7NZTzoKf6KuX39c3UqGwmjXax2u4CnEhJplupbXzJE?=
- =?us-ascii?Q?OCv53VXg/TssJJO2JEVKG9If+OirO6cJ0LIptXWW4tlMZZLBUVMZ8vyH2m60?=
- =?us-ascii?Q?3Je1xp5z2/IWu1znH6pZBBGJhy8hkjk8ny1yS3VIs0u33jCyTBQHehWbl+pc?=
- =?us-ascii?Q?jABCzIKG3ZiamgfExxCnI5a5i+QW+BfOM4XCNyIX57NY1EQxzMNddjA6iWz/?=
- =?us-ascii?Q?oxAdToaXP/0En8wlEyDEpHlFVz+xsdkFemyRubGG17h1EmYNj+zhcKaODvQ2?=
- =?us-ascii?Q?ShORWOs3MfubnnSDmMhPB/ejD7b9AWkvNvK5bcCnMMD/SV80wlRlou3R/fcP?=
- =?us-ascii?Q?EQ/EPpHXEB2shhtcS4YzZ3tDNZ1uL//bcKyQcIk+OGzhiI3Qtt2KR4W5OtCg?=
- =?us-ascii?Q?bsCZdQdsW7MtfVciEsvIsaHT+kHkwlrJXGWfl+m2dC+1cGjQ43485nqXghJM?=
- =?us-ascii?Q?mN6auZ9JZgZewfhaPu+nDDwUBAuy1OAUziSoVMKRHtb1pq49P2W6S0te9+xX?=
- =?us-ascii?Q?uyb3BnfPyKqwUcYKruWcATl8OyuI+AiljrN1rUUmS6Vy4IEKBZkii98d22Dm?=
- =?us-ascii?Q?DI7pT/aY1RFeyF1urZr8F9u6FfWVq4JfX+EzLgm7IpPpTDAFwoBRQenFKAQL?=
- =?us-ascii?Q?FQ1iS2Q2gp+wI14KVYIBzEteR2tN7/hBbIJy8kLD59gxq+fLAGrVOs7U5WUd?=
- =?us-ascii?Q?jDJjwWyWwr6Kgmo5QvYTKxh8etMjBKH8jDfnvCjQRo3kQ4xyASNdJqt5TAad?=
- =?us-ascii?Q?B+b2lsqtlVJMjMbNQ77OBIB6GwQbDtJsnFreL3FIdnsIkKUk3usDNf2w39NQ?=
- =?us-ascii?Q?eAWP5G/kZUx5QXxMDa0GD9LvuJBjclzsVeOslRzNas5k98hcUEOATSolB1SP?=
- =?us-ascii?Q?1mK4M8C9Q5fTjkfG2TjE7c8MSImWLUNOp8rYk8DdsFZjk8kt+lcrUYAtPeGJ?=
- =?us-ascii?Q?dykh+tIi5GNdb4P0H2NlhDOAeZmtyRsIF18Nau128bUVY71ak4M8xm7fjqzF?=
- =?us-ascii?Q?KKTXVtBsn50qTv/pt0a0GffSoeCJ4O/r7/10hlKW8rlXRiyXkisyjqsAwe5h?=
- =?us-ascii?Q?VtpIsLxOKIFgTWP8Rzwj74p7dx0QrivHjrQhMQ=3D=3D?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?eScN9FUXkCFumpPxKilEpYL3A6pcx2OeV9QVYttctOZtaFitafTQwH/BR9Sm?=
- =?us-ascii?Q?cQrs4WjbYFhWVZAFnnpSgW6/O0kFUUgKDDVScjJS+9ZOzQgVPFfWV/WAiPsJ?=
- =?us-ascii?Q?9ACDbtKenrqV0C6eLpjPLb45dwB+9hF7k9iDmd9ohbTvIkt6Ce1BhXOaeV6F?=
- =?us-ascii?Q?KbRJ6QJUG/S4BBrJIBFow5M6xY/Kr7NnNriWQdJf3Fivwu1tIg2y0Sr1HhM5?=
- =?us-ascii?Q?aS13crVE/cNy2yHlI7eiyh+XzMGoeTP8lJxfkXTxnlWOKGhorxTGw0wNEK9k?=
- =?us-ascii?Q?ujrLXAWNaHqPZOM3pQDnaovsX5oVj9uwodKSKX6wsvsMcv8o1nXLp2Z3M4yn?=
- =?us-ascii?Q?br5+o+Nps5786UQsunf4GBIRQsJaP01AVqF0S3C23e0HQM+His4K+FhTEyJ/?=
- =?us-ascii?Q?1aYCv9PlMrB0YDTPYYdzydplPWB78ACTwrXGZ44PyiFTMTJZ8lgZ8zoav0O7?=
- =?us-ascii?Q?PaF8nzH47xjpQs+xp2alSe05e2jf27vMvBeQ7vy76uDwuMfImy7ORvMRN9PO?=
- =?us-ascii?Q?uFRVR1Vk7pRB8Gqbv/hQHhtO5XW4EmMT6JBPNDHvnjg3/iyWmw9POxTx877g?=
- =?us-ascii?Q?OlfgBvR+DYJG7axa0cS0ABmHtge75SCfJOHTg6Mb3Nu5NzkbavQfj36Aprx0?=
- =?us-ascii?Q?aSalBwu+EZnhKr2iwojXjut/9aqJyZ78+6wj0NMp6TDI2bgA/wCWvE+4yW/1?=
- =?us-ascii?Q?IDAZIB4h4PQ5SlCYmXv5WXlmY89K9X7hGHQrGihegqpz4LFdIlcqXddRO3S8?=
- =?us-ascii?Q?/26HultOgyKovp6i/dEBGMc7+BGBlvn3xWqd/famkzqlOLTE1QLJ2IYyXCXe?=
- =?us-ascii?Q?xndnIX2oOzVrIYqqy9v9Y1Wlst0KFdAeAbPtWN/xOXg4j0zWE7oz8axwb1ke?=
- =?us-ascii?Q?TBG55JqFXh1uzcllR1TcC6e+UXcEhh3aRTYaVgAOzFemfz6tM/kERy4zlKmq?=
- =?us-ascii?Q?oaBl8WO8YcIXKqp6uJhKR+CAn7xozXulwpEWXIPt1toprBCsnCYblQ7lz7Cy?=
- =?us-ascii?Q?XNQlpAfN7yEAaBSRj/fG7jFaQLfRB4Ul6U9Abc3x9TviK3XtmjgdH/WRuIiO?=
- =?us-ascii?Q?0jcN3nT4AFg2pYa8JPBzL/Aoeh79w9hJ54UN89XJ8udKyQKRcQShxvh3IuC8?=
- =?us-ascii?Q?+Qxv27OQjjmHrj/PgJfwMe5E+7fwJKE0maocY5B1AdrssLa0VYHThfghwar3?=
- =?us-ascii?Q?EHEv/T/U1QajrdOZ8Ia+5hBiH07HZ4N7MfAyzy+xEMWX0nXouv4tYqT8M18?=
- =?us-ascii?Q?=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="Tw9ONim0"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=WTaJq2dr7kQo17UrW45KOR9ii1tHsbKoupP4Nqjp0MQ=; b=Tw9ONim0qWRppwpLzt20xa0shI
+	3rBUNxKc9jkOJmDglOJxUkWFdHGeYZ6YJa3icgxzqBoDbwFDYYsKPG5Zh+4k6ZT1sY9PJNX+d4rwb
+	jGRqzzjX5EI6XDuCyVbd81Bq24p7fnbVrNV/RS983qpFmEZ56xgi0sUltk+W2uNodT9rcLKoDEpch
+	ne8zgW18rGcXfdMQ0aJeonT3TzSA7v+s2GqTTCsfejuveeBxEk++T9WrfkKXv2JLkNeqK5WMJMVJx
+	SLG1vgQDW3PqL4CcHKnz8JsIW69BkyQExipP8maQye2RK/LqNcQOljLgKJEPWSkSs1+2jLf4CqHcy
+	53X8eRDw==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1ttNU0-006nxY-04;
+	Sat, 15 Mar 2025 17:07:05 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 15 Mar 2025 17:07:04 +0800
+Date: Sat, 15 Mar 2025 17:07:04 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Gonglei <arei.gonglei@huawei.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-crypto@vger.kernel.org
+Subject: Re: [PATCH] crypto: virtio - Erase some sensitive memory when it is
+ freed
+Message-ID: <Z9VDOK2c9JAfJZ_i@gondor.apana.org.au>
+References: <a18fc6cf356bc338c69b3cc44d7be8bd35c6d7d0.1741028854.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5e196a76-6ccf-4672-aa10-08dd63772cba
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Mar 2025 04:09:25.8815
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR02MB7153
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a18fc6cf356bc338c69b3cc44d7be8bd35c6d7d0.1741028854.git.christophe.jaillet@wanadoo.fr>
 
-From: Nico Pache <npache@redhat.com> Sent: Friday, March 14, 2025 2:38 PM
->=20
-> Update the NR_BALLOON_PAGES counter when pages are added to or
-> removed from the Hyper-V balloon.
->=20
-> Signed-off-by: Nico Pache <npache@redhat.com>
+On Mon, Mar 03, 2025 at 08:08:04PM +0100, Christophe JAILLET wrote:
+> virtcrypto_clear_request() does the same as the code here, but uses
+> kfree_sensitive() for one of the free operation.
+> 
+> So, better safe than sorry, use virtcrypto_clear_request() directly to
+> save a few lines of code and cleanly free the memory.
+> 
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 > ---
->  drivers/hv/hv_balloon.c | 2 ++
->  1 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
-> index fec2f18679e3..2b4080e51f97 100644
-> --- a/drivers/hv/hv_balloon.c
-> +++ b/drivers/hv/hv_balloon.c
-> @@ -1192,6 +1192,7 @@ static void free_balloon_pages(struct hv_dynmem_dev=
-ice *dm,
->  		__ClearPageOffline(pg);
->  		__free_page(pg);
->  		dm->num_pages_ballooned--;
-> +		mod_node_page_state(page_pgdat(pg), NR_BALLOON_PAGES, -1);
->  		adjust_managed_page_count(pg, 1);
->  	}
->  }
-> @@ -1221,6 +1222,7 @@ static unsigned int alloc_balloon_pages(struct hv_d=
-ynmem_device *dm,
->  			return i * alloc_unit;
->=20
->  		dm->num_pages_ballooned +=3D alloc_unit;
-> +		mod_node_page_state(page_pgdat(pg), NR_BALLOON_PAGES, alloc_unit);
->=20
->  		/*
->  		 * If we allocatted 2M pages; split them so we
-> --
-> 2.48.1
->=20
+> I've no idea if this is needed or not, but it looks not consistent to me.
+> 
+> If safe as-is, maybe the kfree_sensitive() in virtcrypto_clear_request()
+> should be removed instead.
+> ---
+>  drivers/crypto/virtio/virtio_crypto_core.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 
-As is evident from the code, the hv_balloon driver already has accounting
-for the number of pages that have been ballooned out of the VM. This
-accounting and other details of the hv_balloon driver state is available in
-/sys/kernel/debug/hv-balloon when CONFIG_DEBUGFS=3Dy. But it seems OK
-to also report the # of pages ballooned through /proc/meminfo, which
-works even if CONFIG_DEBUGFS=3Dn.
-
-Reviewed-by: Michael Kelley <mhklinux@outlook.com>
-
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
