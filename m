@@ -1,119 +1,71 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9586B1DEFE0
-	for <virtualization@lists.linux.dev>; Fri, 14 Mar 2025 21:38:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB1554C8E;
+	Sat, 15 Mar 2025 01:06:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741988324; cv=none; b=Sy8mvkNLF/iDb4AS3kQP16VqG9wCBJPKFdJi0Tt/KsSHkruC93T/SURxBx4+peLjI0uvMUF7kKeNp37iat+V9EWhjfZELaQCgTzhK3PWh7Qelcdvs9uRm4BQC7ze8U6TUJtxiJCwH+FrPofGeFE22HM/O3+BddGsCJ/l1lauIT8=
+	t=1742000787; cv=none; b=Ynp/37rZORhljUWwb7XLxS07YtOKwfuS5dGCDTQsl8I6SwT4e+yFmO9acmOvJrVuzE89wiYfZKvcK9/xdUnwFxLJc4Wl7S4KV2CthMB4vAyVmUt7H0A2uqleASW71OO74fiQ+A2ybY7hvl82isQZntZFfZeIBqHMwmK4JBEPb60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741988324; c=relaxed/simple;
-	bh=7JAKR1B2EJs5OMc3kDKDyMYaNnMBEQeVe+0pTH470+w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=L/Ug0Xo14f55RpNdClXIFTLzVMEIOCvF19kgXhD2tmDlqf9vd0fxttJ/3w4gydKBbewTxfQownv3bnMlxukC5g1nN8SjOiEq5czfmtkEskhISEIrLA+HplqA1Bufdb0N6Xl2CtvqQGWdoGi9yJq51+3VtZdqO6c7BuIRbQmcQfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cBzdXIRQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1742000787; c=relaxed/simple;
+	bh=9oWnsRrteEppsIdl5wrmRTiQSvICywXOfyVLBTYkPCI=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=DCqrOskG+tEroBqGuvA5rPA64AoPn05gPWN6ORUUc8CrJ7miNFVVURZYiOmyEeWV8JOxLwPcwF7alhVFzAwNhl291qVT7hd2D2YzBnqT3jcfQ2wJovbXJDyJLpQJ8UBMGhyWGo/2B6+5G3TQObTd168QL3WickLinBYaDf3MAAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=hiDkEE6J; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cBzdXIRQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1741988321;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dGPxM9RdXtkX+Els8nvXOJm60GkYwZd/fztNUeVaxvI=;
-	b=cBzdXIRQtbdcHqo+9ADP3RB8MxDuJYfDH5HBSodysz86gvelytsrvOy4lPEeXrB93kYL/9
-	BsbXhe44dFlpmF32toZlsNorO9lrdm5+zAzggFoOz+n6qGyVsAZ2FxfnB/Cvrrbikq+h5k
-	Rx+1BLVObHiAIFywjfVIc3kmSnrTKoY=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-171-4j3QuXoCNQOrm0DeJ5-F4Q-1; Fri,
- 14 Mar 2025 17:38:37 -0400
-X-MC-Unique: 4j3QuXoCNQOrm0DeJ5-F4Q-1
-X-Mimecast-MFC-AGG-ID: 4j3QuXoCNQOrm0DeJ5-F4Q_1741988314
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1B7E419560BB;
-	Fri, 14 Mar 2025 21:38:34 +0000 (UTC)
-Received: from h1.redhat.com (unknown [10.22.80.88])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A74201944E42;
-	Fri, 14 Mar 2025 21:38:28 +0000 (UTC)
-From: Nico Pache <npache@redhat.com>
-To: linux-hyperv@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	xen-devel@lists.xenproject.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org,
-	virtualization@lists.linux.dev
-Cc: alexander.atanasov@virtuozzo.com,
-	muchun.song@linux.dev,
-	roman.gushchin@linux.dev,
-	mhocko@kernel.org,
-	kys@microsoft.com,
-	haiyangz@microsoft.com,
-	wei.liu@kernel.org,
-	decui@microsoft.com,
-	jgross@suse.com,
-	sstabellini@kernel.org,
-	oleksandr_tyshchenko@epam.com,
-	akpm@linux-foundation.org,
-	mst@redhat.com,
-	david@redhat.com,
-	yosry.ahmed@linux.dev,
-	hannes@cmpxchg.org,
-	nphamcs@gmail.com,
-	chengming.zhou@linux.dev,
-	kanchana.p.sridhar@intel.com,
-	llong@redhat.com,
-	shakeel.butt@linux.dev
-Subject: [PATCH v2 4/4] xen: balloon: update the NR_BALLOON_PAGES state
-Date: Fri, 14 Mar 2025 15:37:57 -0600
-Message-ID: <20250314213757.244258-5-npache@redhat.com>
-In-Reply-To: <20250314213757.244258-1-npache@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="hiDkEE6J"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50731C4CEE3;
+	Sat, 15 Mar 2025 01:06:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1742000787;
+	bh=9oWnsRrteEppsIdl5wrmRTiQSvICywXOfyVLBTYkPCI=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=hiDkEE6J0GX+v0+CdESRoz6zAHZRHQZ72O5QKVYZ5LGWrjOEvbGY+IX/tGmhLRq9z
+	 4EoNAziY4xo2uHV9ZoPku2B4MfYlNMovYNZdeyRXjA2Jx/wWHrU4V1izR9ldGxdxtk
+	 4iph9jC++nXZzJojFvQ59UmAE6u4XbopROzZAjq0=
+Date: Fri, 14 Mar 2025 18:06:25 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Nico Pache <npache@redhat.com>
+Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+ xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
+ linux-mm@kvack.org, virtualization@lists.linux.dev,
+ alexander.atanasov@virtuozzo.com, muchun.song@linux.dev,
+ roman.gushchin@linux.dev, mhocko@kernel.org, kys@microsoft.com,
+ haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+ jgross@suse.com, sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
+ mst@redhat.com, david@redhat.com, yosry.ahmed@linux.dev,
+ hannes@cmpxchg.org, nphamcs@gmail.com, chengming.zhou@linux.dev,
+ kanchana.p.sridhar@intel.com, llong@redhat.com, shakeel.butt@linux.dev
+Subject: Re: [PATCH v2 1/4] meminfo: add a per node counter for balloon
+ drivers
+Message-Id: <20250314180625.8c3a2a5a990a132a7b0b9072@linux-foundation.org>
+In-Reply-To: <20250314213757.244258-2-npache@redhat.com>
 References: <20250314213757.244258-1-npache@redhat.com>
+	<20250314213757.244258-2-npache@redhat.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Update the NR_BALLOON_PAGES counter when pages are added to or
-removed from the Xen balloon.
+On Fri, 14 Mar 2025 15:37:54 -0600 Nico Pache <npache@redhat.com> wrote:
 
-Signed-off-by: Nico Pache <npache@redhat.com>
----
- drivers/xen/balloon.c | 4 ++++
- 1 file changed, 4 insertions(+)
+> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
+> expose it through /proc/meminfo and other memory reporting interfaces.
+> 
+> ...
+>
+> --- a/fs/proc/meminfo.c
+> +++ b/fs/proc/meminfo.c
+> @@ -162,6 +162,8 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
+>  	show_val_kb(m, "Unaccepted:     ",
+>  		    global_zone_page_state(NR_UNACCEPTED));
+>  #endif
+> +	show_val_kb(m, "Balloon:        ",
+> +		    global_node_page_state(NR_BALLOON_PAGES));
 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index 163f7f1d70f1..65d4e7fa1eb8 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -157,6 +157,8 @@ static void balloon_append(struct page *page)
- 		list_add(&page->lru, &ballooned_pages);
- 		balloon_stats.balloon_low++;
- 	}
-+	inc_node_page_state(page, NR_BALLOON_PAGES);
-+
- 	wake_up(&balloon_wq);
- }
- 
-@@ -179,6 +181,8 @@ static struct page *balloon_retrieve(bool require_lowmem)
- 		balloon_stats.balloon_low--;
- 
- 	__ClearPageOffline(page);
-+	dec_node_page_state(page, NR_BALLOON_PAGES);
-+
- 	return page;
- }
- 
--- 
-2.48.1
-
+Please update Documentation/filesystems/proc.rst for this.
