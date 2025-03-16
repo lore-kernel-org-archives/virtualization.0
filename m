@@ -1,81 +1,114 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582F81F4284;
-	Sat, 15 Mar 2025 09:07:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4211B2F36;
+	Sun, 16 Mar 2025 22:46:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742029648; cv=none; b=L+apQmyJB4b/IvlBpaZKfZ2RpO/xr1+NfsWODOOknGTH9ECqDHJ7uUvWlOpWw+0klwpM4zVY6Y+jwzMYHOnfck8oUuO8hQ4Cmwft7t/rpvwDtXG4ExFFnjVC9oKqLIodvlGS4gYZD85pkeudu/Van/v2HrEhbknVkZQ+cC9W2hY=
+	t=1742165166; cv=none; b=cKfA9uvJYuLQq3oBU9JJa8lvoGfYiQlo2jz2ewOYucQklxTWT/tSmWGXNDu372JOz1afAVhJjhNVh6V9CQyEGhovY1kcyU9gYQjyp6sC7HUDovyp8GigLsIBr73+dBCWhtP0kJT37DQhoZNdcVp7J3fO8Z0BYZ1A8wSN6FNifl8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742029648; c=relaxed/simple;
-	bh=KA9FoAr3X6y1QqTfYBdPvKLl5hXk8A9+ar4Z+NuiuPc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qIZSkrL0BSWIXvSuarn/2mwfD6u17PzQpK3mlrdViRgtZ3Wwo8hCoWPbc40g5SZauBpwyq+/9HQLJ4TmI70PceB1VhwWwaMhxz+0rC8yT+fJvloiALkbL+TxQcu/cfGtc4Lve30y8DvXJWIic5UdiS/2pvXZgKnjh0PQIOW8KdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=Tw9ONim0; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1742165166; c=relaxed/simple;
+	bh=McSjGIXHh2Av65DgZBMYpMB/ZRpB7P7THV652GDGw5s=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=vAFiQB9qeuIo7yEncMpY6NEK6ZeEDU6DtA0CwpZcKloV52WUTrPFGbtWofv7+zsn2JlVoars+Xvjh2t/2pWe/xJ3iG6Y+ZU2LWg7RNohOu1ZjPqSIrO0epQoFcVWZDRT/ULVMntzkbWX4d9WaDOLXvswotYeJasBI5g7/VyM/z8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=QAuAOimv; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="Tw9ONim0"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=WTaJq2dr7kQo17UrW45KOR9ii1tHsbKoupP4Nqjp0MQ=; b=Tw9ONim0qWRppwpLzt20xa0shI
-	3rBUNxKc9jkOJmDglOJxUkWFdHGeYZ6YJa3icgxzqBoDbwFDYYsKPG5Zh+4k6ZT1sY9PJNX+d4rwb
-	jGRqzzjX5EI6XDuCyVbd81Bq24p7fnbVrNV/RS983qpFmEZ56xgi0sUltk+W2uNodT9rcLKoDEpch
-	ne8zgW18rGcXfdMQ0aJeonT3TzSA7v+s2GqTTCsfejuveeBxEk++T9WrfkKXv2JLkNeqK5WMJMVJx
-	SLG1vgQDW3PqL4CcHKnz8JsIW69BkyQExipP8maQye2RK/LqNcQOljLgKJEPWSkSs1+2jLf4CqHcy
-	53X8eRDw==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1ttNU0-006nxY-04;
-	Sat, 15 Mar 2025 17:07:05 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 15 Mar 2025 17:07:04 +0800
-Date: Sat, 15 Mar 2025 17:07:04 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Gonglei <arei.gonglei@huawei.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH] crypto: virtio - Erase some sensitive memory when it is
- freed
-Message-ID: <Z9VDOK2c9JAfJZ_i@gondor.apana.org.au>
-References: <a18fc6cf356bc338c69b3cc44d7be8bd35c6d7d0.1741028854.git.christophe.jaillet@wanadoo.fr>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="QAuAOimv"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1ttwjw-00CYLO-AB; Sun, 16 Mar 2025 23:45:52 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=iUCl0YULHWl7vWJvbzTS4dRqJAjTHZgdzbK+wMY/LZc=
+	; b=QAuAOimvOadcMKk1FkrV9MvInc+5xyiaYjQgn8YovY1gLq3AoAEXFnWynWCoH1cnmaEYmYz/J
+	OsvkXpC/62LkGxrq9evoeeq3ixtkFBYh9sCfwRx1XZOWW2B0e1qA27D7QLClVHpNcSJfSvKhOqYZ+
+	wROp5xUOULmbm4qFefjbhtlNmcHrGud3y2eT6BXZI4cmK8ADfRFidIPP7mShJFQZS6oowkHeqRcgw
+	BhenvkxoeS4cRreZbu7nWuqU0fWWSbo1nEGRrOo2o/NxXxkr67l8eFk35UVRNHxYTXeUmXsIGbmMV
+	xU9mY55ifYG3dPLf/IO+WdnAR9MciujoPaaiIw==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1ttwjq-0007fM-GB; Sun, 16 Mar 2025 23:45:46 +0100
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1ttwjo-00AYw2-1x; Sun, 16 Mar 2025 23:45:44 +0100
+From: Michal Luczaj <mhal@rbox.co>
+Subject: [PATCH net v3 0/3] vsock/bpf: Handle races between sockmap update
+ and connect() disconnecting
+Date: Sun, 16 Mar 2025 23:45:05 +0100
+Message-Id: <20250316-vsock-trans-signal-race-v3-0-17a6862277c9@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a18fc6cf356bc338c69b3cc44d7be8bd35c6d7d0.1741028854.git.christophe.jaillet@wanadoo.fr>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAHFU12cC/3XNywrCMBAF0F8ps3Ykr7bWlf8hLtI82qAkkpRQK
+ f13YxF00+Wdy5y7QDLRmQTnaoFosksu+BL4oQI1Sj8YdLpkYITVhJMacwrqjlOUPmFyg5cPjFI
+ Z1A2zbUtPmnQdlO9nNNbNm3wFbya4lePo0hTia1vLdKu+cLsLZ4oUuVSSf3zb60vsw3xUYRMz+
+ 1Oo2FcYEhSMSkFtQ6xgP2Vd1zdkctakBwEAAA==
+X-Change-ID: 20250305-vsock-trans-signal-race-d62f7718d099
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Bobby Eshleman <bobby.eshleman@bytedance.com>, 
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+ Mykola Lysenko <mykolal@fb.com>, Alexei Starovoitov <ast@kernel.org>, 
+ Daniel Borkmann <daniel@iogearbox.net>, 
+ Martin KaFai Lau <martin.lau@linux.dev>, Song Liu <song@kernel.org>, 
+ Yonghong Song <yonghong.song@linux.dev>, 
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
+ Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, 
+ Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>
+Cc: netdev@vger.kernel.org, bpf@vger.kernel.org, 
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.14.2
 
-On Mon, Mar 03, 2025 at 08:08:04PM +0100, Christophe JAILLET wrote:
-> virtcrypto_clear_request() does the same as the code here, but uses
-> kfree_sensitive() for one of the free operation.
-> 
-> So, better safe than sorry, use virtcrypto_clear_request() directly to
-> save a few lines of code and cleanly free the memory.
-> 
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> ---
-> I've no idea if this is needed or not, but it looks not consistent to me.
-> 
-> If safe as-is, maybe the kfree_sensitive() in virtcrypto_clear_request()
-> should be removed instead.
-> ---
->  drivers/crypto/virtio/virtio_crypto_core.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+Signal delivery during connect() may disconnect an already established
+socket. Problem is that such socket might have been placed in a sockmap
+before the connection was closed.
 
-Patch applied.  Thanks.
+PATCH 1 ensures this race won't lead to an unconnected vsock staying in the
+sockmap. PATCH 2 selftests it. 
+
+PATCH 3 fixes a related race. Note that selftest in PATCH 2 does test this
+code as well, but winning this race variant may take more than 2 seconds,
+so I'm not advertising it.
+
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+Changes in v3:
+- Selftest: drop unnecessary variable initialization and reorder the calls
+- Link to v2: https://lore.kernel.org/r/20250314-vsock-trans-signal-race-v2-0-421a41f60f42@rbox.co
+
+Changes in v2:
+- Handle one more path of tripping the warning
+- Add a selftest
+- Collect R-b [Stefano]
+- Link to v1: https://lore.kernel.org/r/20250307-vsock-trans-signal-race-v1-1-3aca3f771fbd@rbox.co
+
+---
+Michal Luczaj (3):
+      vsock/bpf: Fix EINTR connect() racing sockmap update
+      selftest/bpf: Add test for AF_VSOCK connect() racing sockmap update
+      vsock/bpf: Fix bpf recvmsg() racing transport reassignment
+
+ net/vmw_vsock/af_vsock.c                           | 10 ++-
+ net/vmw_vsock/vsock_bpf.c                          | 24 ++++--
+ .../selftests/bpf/prog_tests/sockmap_basic.c       | 97 ++++++++++++++++++++++
+ 3 files changed, 122 insertions(+), 9 deletions(-)
+---
+base-commit: da9e8efe7ee10e8425dc356a9fc593502c8e3933
+change-id: 20250305-vsock-trans-signal-race-d62f7718d099
+
+Best regards,
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Michal Luczaj <mhal@rbox.co>
+
