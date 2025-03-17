@@ -1,193 +1,163 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C31323F369
-	for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 13:22:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2D291F5855
+	for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 22:37:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742217765; cv=none; b=ZYhZ9GbOCY9b1C1tuWa0PiMXTAce1XDV1pd3MubRRfjBIVDI+Kgb5ybyyVwnraLwcr4tgMhjqvaEa+WmFLMww5ThQlbJtvXVg4P6APuWhLzPC6/8WmhTukG6MnXXV8/ZXdSrOxU75d/WSAHFgeSu1OVSbBmWnBy8++3gXC3FxG8=
+	t=1742251070; cv=none; b=UVfpSH+Ils480UhCiSCl18emwJSsCVXvzlpVfEG6M98VsXOINOWJ/QhLuLovYj9SIdnZUOLPyJZueOaOMVMD3mKGYqOmKvA1Aio/S+R4g9QdYeLZdqmPFK9Ns4LGlt02SI36UDLSoTGBpGfdryQ/0JrnoOdtsI9yolhUDr4vbe8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742217765; c=relaxed/simple;
-	bh=Bl1lH+leE4JeIyQfzwYCikfCvsRJ41mDVussZo9Yzhs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Hq1UBIKEPMr0Ukqpi9omQcv/OLUAg2i2ta207FsVyuYydTyY3PUiI+0rvMQBqVSUXFOWkxzedE1LxAEPJqkbte1hd14tLG6lh8srhEcjkzX/JPkma8a7CcmCQKTo3kRwTBYSUMRMXyws3Q6Yxc4C2jf/UZIVi97GeXpfJQJZjTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fJkGlJwK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=R8ylreoQ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fJkGlJwK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=R8ylreoQ; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1742251070; c=relaxed/simple;
+	bh=iNWq7YFABAaG0GotsD1wbeGMgiEc7memj+eT6dtNqjg=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=SuAAQ86UFKh4w1Rh90kBLvlPP7yzCHwrOYU22bRdNSx2POOPr0nFOIhk5GemEVtZO5e3eB7YnigEZPgx3XPYryvnPLyzqECGYx2UbUq5I1mG8pYecSbwIM19ZjPCZnP56RGSDy0ywbSEecsSEVSyeD0pyeylI206f9Y88mn9oXE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ilPt7Ind; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fJkGlJwK";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="R8ylreoQ";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fJkGlJwK";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="R8ylreoQ"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 3596E21BD0;
-	Mon, 17 Mar 2025 13:22:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1742217762; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ilPt7Ind"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742251067;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
-	b=fJkGlJwKQQEzmV65yT0UnVaMHyv8LeQDDSX37mVe32HksaYPCVUYsCuv0DDc1tqY1NZHif
-	QqimueQ1kAzZgU3AmM9nSRvC2McsFE7iXSOhY7l+uFtNtqYJPkZxkj8SmLWrru9r763jwK
-	Q3UVgeKrPVwQEaH9eKrPL+qE+DCdXYA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1742217762;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
-	b=R8ylreoQUkDKDHuFhhPdIj79sItoD0nGKwwspRnNPk+9aG8dRzwK3+qAfMF40cyuhxz6y9
-	yOeCeOEL9HteQLCw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=fJkGlJwK;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=R8ylreoQ
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1742217762; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
-	b=fJkGlJwKQQEzmV65yT0UnVaMHyv8LeQDDSX37mVe32HksaYPCVUYsCuv0DDc1tqY1NZHif
-	QqimueQ1kAzZgU3AmM9nSRvC2McsFE7iXSOhY7l+uFtNtqYJPkZxkj8SmLWrru9r763jwK
-	Q3UVgeKrPVwQEaH9eKrPL+qE+DCdXYA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1742217762;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
-	b=R8ylreoQUkDKDHuFhhPdIj79sItoD0nGKwwspRnNPk+9aG8dRzwK3+qAfMF40cyuhxz6y9
-	yOeCeOEL9HteQLCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DF12C139D2;
-	Mon, 17 Mar 2025 13:22:41 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id uPk7NSEi2GdFWQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 17 Mar 2025 13:22:41 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: airlied@gmail.com,
-	simona@ffwll.ch,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org
-Cc: dri-devel@lists.freedesktop.org,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH 12/15] drm/virtio: Test for imported buffers with drm_gem_is_imported()
-Date: Mon, 17 Mar 2025 14:06:50 +0100
-Message-ID: <20250317131923.238374-13-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250317131923.238374-1-tzimmermann@suse.de>
-References: <20250317131923.238374-1-tzimmermann@suse.de>
+	bh=uz73BbCUaqtdYR+gICGbN6AT48ejOu9pXaDANWFGjaE=;
+	b=ilPt7IndygqbBshLqzD5ifIlAiiXL2llL20DqGIeAUseDUjYcNUT6jvl1lTGCrrloRQcDn
+	NoIXScGv5+YWL2+nlgCZdChG8l1XdzkePwi+GSVbjHzoqlcER4ca1zutIGUyra+PQOIG/o
+	YrNS2OeE3JuWuIQP7unqJGmiJu3aC+s=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-211-8QDuW97xMASxkEk2430tog-1; Mon, 17 Mar 2025 18:37:46 -0400
+X-MC-Unique: 8QDuW97xMASxkEk2430tog-1
+X-Mimecast-MFC-AGG-ID: 8QDuW97xMASxkEk2430tog_1742251066
+Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-85b402f69d4so492016339f.3
+        for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 15:37:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742251066; x=1742855866;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uz73BbCUaqtdYR+gICGbN6AT48ejOu9pXaDANWFGjaE=;
+        b=vytEu9kVC1CNy4Hbsfqou8wVOPcB+dIXPmbkCaShgKWrQEnzMKImSqwqTHRy0Py9pB
+         1sAaBAVZjZJaz0uP+yChBGRwrXcmDjTEcfMtbsk9ADrrZFWuRLhi3VXyqlc+QVEU1Mrt
+         0nBfcy/ufy+BQGgXg1DrZk38ed/D3B03R4gTF5iwn424cRKZL+cx1v256dDIivqnMlvC
+         n8SI8MUwfVq+3Pw2OqGyjUqxMCULE6lgNF4rErUoL5QKclMRH1pIzhxOKFgHMjA48Vn4
+         VhH0uqXAE1B++DzVG9ZdspRkUe0tWQWDSx9qHXUG2nAHkED8K7T1I1D/PKAc9HqSjnAy
+         0oiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW5XSQ4iVxWcImuJZtQKD99TRuEQzeUKSgYkONnLgGP3z3WzjHYQpO0dj0qqSIyeR0eZTI9DX2YQRqEf2KDFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwBRTjzqhYBEfkOinhWL7QEwZStpKTmc7MV3By0llXxa/YRWzrG
+	8/7RZcpp1nL8xPCaTlB9kuMlrC9IvaIWt1ZWqpNDOUmGbnjBrm6jtrEpyrCrpeExeVYcEKelx+1
+	kPcNtk530Ls0cRolMVNOOOMvItYwkgJy5eue9FC7GxnVq0zjccp1c7iepJbUdIdRX
+X-Gm-Gg: ASbGnct27p/KBj4bPBjzXkZADm08PbOYQv6SV9r7Js0w1ZFXmf8x67LbcG1krDOpkZy
+	RmkvMyTvZ7+tGKT7OcDk6aUKL9oLsBoYM8espF5bGL/l3w7GFnB49uKuKmmLJmTGhj6XwAyFR+/
+	NWD8trexUg8uHu4soCZ7RJGf61skFNnXCVQP9GPL5Ee8CrjhCORnsyrtAgnAM3HG288UECFkS+O
+	rb6cHAjAMn8R9YedugJPVmUqFuIWBZYv/wDaaOWTk6gb9k4QJnrw4xiaYeiR+Ql5btHGaBsUYAL
+	dNqdls3HfEFF3Q8CnfE5
+X-Received: by 2002:a05:6602:4084:b0:85b:59f3:2ed3 with SMTP id ca18e2360f4ac-85dc4832c03mr1654237739f.8.1742251065758;
+        Mon, 17 Mar 2025 15:37:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFXMhXDdQ9jMsi3nNSx90SCr5dH1/wJp5bRT/DRCJ6UEq4at0o5Rp4a0vN5yQf18mlko59M2g==
+X-Received: by 2002:a05:6602:4084:b0:85b:59f3:2ed3 with SMTP id ca18e2360f4ac-85dc4832c03mr1654234539f.8.1742251065465;
+        Mon, 17 Mar 2025 15:37:45 -0700 (PDT)
+Received: from ?IPV6:2601:282:c100:48a0::aa6? ([2601:282:c100:48a0::aa6])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4f263702075sm2481735173.6.2025.03.17.15.37.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Mar 2025 15:37:44 -0700 (PDT)
+Message-ID: <a0315ccf-f244-460e-8643-fd7388724fe5@redhat.com>
+Date: Mon, 17 Mar 2025 16:37:43 -0600
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 3596E21BD0
-X-Spam-Score: -3.01
-X-Rspamd-Action: no action
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_DN_SOME(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com,ffwll.ch,linux.intel.com,kernel.org];
-	FREEMAIL_CC(0.00)[lists.freedesktop.org,suse.de,redhat.com,chromium.org,gmail.com,lists.linux.dev];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_HAS_DN(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCPT_COUNT_SEVEN(0.00)[11];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Flag: NO
-X-Spam-Level: 
+User-Agent: Mozilla Thunderbird
+From: Nico Pache <npache@redhat.com>
+Subject: Re: [PATCH v2 1/4] meminfo: add a per node counter for balloon
+ drivers
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+ xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
+ linux-mm@kvack.org, virtualization@lists.linux.dev,
+ alexander.atanasov@virtuozzo.com, muchun.song@linux.dev,
+ roman.gushchin@linux.dev, mhocko@kernel.org, kys@microsoft.com,
+ haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+ jgross@suse.com, sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
+ mst@redhat.com, david@redhat.com, yosry.ahmed@linux.dev, hannes@cmpxchg.org,
+ nphamcs@gmail.com, chengming.zhou@linux.dev, kanchana.p.sridhar@intel.com,
+ llong@redhat.com, shakeel.butt@linux.dev
+References: <20250314213757.244258-1-npache@redhat.com>
+ <20250314213757.244258-2-npache@redhat.com>
+ <20250314180625.8c3a2a5a990a132a7b0b9072@linux-foundation.org>
+In-Reply-To: <20250314180625.8c3a2a5a990a132a7b0b9072@linux-foundation.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nnOPm3fYTTEHM3t0XGSn_u93G1oYtxHupXP0X_p8vTQ_1742251066
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US, en-ZM
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Instead of testing import_attach for imported GEM buffers, invoke
-drm_gem_is_imported() to do the test. The helper tests the dma_buf
-itself while import_attach is just an artifact of the import. Prepares
-to make import_attach optional.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: Chia-I Wu <olvaffe@gmail.com>
-Cc: virtualization@lists.linux.dev
+
+On 3/14/25 7:06 PM, Andrew Morton wrote:
+> On Fri, 14 Mar 2025 15:37:54 -0600 Nico Pache <npache@redhat.com> wrote:
+> 
+>> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
+>> expose it through /proc/meminfo and other memory reporting interfaces.
+>>
+>> ...
+>>
+>> --- a/fs/proc/meminfo.c
+>> +++ b/fs/proc/meminfo.c
+>> @@ -162,6 +162,8 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
+>>  	show_val_kb(m, "Unaccepted:     ",
+>>  		    global_zone_page_state(NR_UNACCEPTED));
+>>  #endif
+>> +	show_val_kb(m, "Balloon:        ",
+>> +		    global_node_page_state(NR_BALLOON_PAGES));
+> 
+> Please update Documentation/filesystems/proc.rst for this.
+
+@Andrew
+
+Can you please squash the following?
+
+From b1b379a32752e64c60b5e3b6365c93db8e1daf9f Mon Sep 17 00:00:00 2001
+From: Nico Pache <npache@redhat.com>
+Date: Mon, 17 Mar 2025 16:07:18 -0600
+Subject: [PATCH] Documentation: document Balloon Meminfo entry
+
+Add a Balloon entry to the Meminfo documention.
+
+Signed-off-by: Nico Pache <npache@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_plane.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/filesystems/proc.rst | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index a6f5a78f436a..e1dd38e7efe8 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -366,13 +366,13 @@ static int virtio_gpu_plane_prepare_fb(struct drm_plane *plane,
- 		return 0;
- 
- 	obj = new_state->fb->obj[0];
--	if (obj->import_attach) {
-+	if (drm_gem_is_imported(obj)) {
- 		ret = virtio_gpu_prepare_imported_obj(plane, new_state, obj);
- 		if (ret)
- 			return ret;
- 	}
- 
--	if (bo->dumb || obj->import_attach) {
-+	if (bo->dumb || drm_gem_is_imported(obj)) {
- 		vgplane_st->fence = virtio_gpu_fence_alloc(vgdev,
- 						     vgdev->fence_drv.context,
- 						     0);
-@@ -409,7 +409,7 @@ static void virtio_gpu_plane_cleanup_fb(struct drm_plane *plane,
- 	}
- 
- 	obj = state->fb->obj[0];
--	if (obj->import_attach)
-+	if (drm_gem_is_imported(obj))
- 		virtio_gpu_cleanup_imported_obj(obj);
- }
- 
-@@ -501,7 +501,7 @@ static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
- 	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
- 
- 	/* Only support mapped shmem bo */
--	if (virtio_gpu_is_vram(bo) || bo->base.base.import_attach || !bo->base.vaddr)
-+	if (virtio_gpu_is_vram(bo) || drm_gem_is_imported(&bo->base.base) || !bo->base.vaddr)
- 		return -ENODEV;
- 
- 	iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
+diff --git a/Documentation/filesystems/proc.rst b/Documentation/filesystems/proc.rst
+index 09f0aed5a08b..2868bb74f76e 100644
+--- a/Documentation/filesystems/proc.rst
++++ b/Documentation/filesystems/proc.rst
+@@ -1060,6 +1060,7 @@ Example output. You may not have all of these fields.
+     FilePmdMapped:         0 kB
+     CmaTotal:              0 kB
+     CmaFree:               0 kB
++    Balloon:               0 kB
+     HugePages_Total:       0
+     HugePages_Free:        0
+     HugePages_Rsvd:        0
+@@ -1228,6 +1229,8 @@ CmaTotal
+               Memory reserved for the Contiguous Memory Allocator (CMA)
+ CmaFree
+               Free remaining memory in the CMA reserves
++Balloon
++              Memory returned to Host by VM Balloon Drivers
+ HugePages_Total, HugePages_Free, HugePages_Rsvd, HugePages_Surp, Hugepagesize,
+Hugetlb
+               See Documentation/admin-guide/mm/hugetlbpage.rst.
+ DirectMap4k, DirectMap2M, DirectMap1G
 -- 
 2.48.1
+> 
 
