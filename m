@@ -1,46 +1,46 @@
 Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C01922ACD3;
-	Mon, 17 Mar 2025 09:52:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1564A230272;
+	Mon, 17 Mar 2025 09:53:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742205178; cv=none; b=ncOdwak/Cb79UoDm3Ie4mzq5UNYiBVR+fc0HdRf+mZMubP3T6QRlr4wZmbWXvcwJjNSuR3NNVkgvbszpNTorYcEg//vU0Z3Zo7l1yPfXBAmCcQpKz/OmB/w3u1XAWGgV2m+Jgl3wMc9nN5bmf96++5wvNdwptOyAqZr82D3S/2I=
+	t=1742205183; cv=none; b=Z1s+7lJwsRXZInGYQ2Kp4R+SFrtBmaz+B5OVTIz7nJllEW/J4TOnvO1+nQjxtZc2EwPK+u0+mDM+mcXdflTsD1rrGESe1DjJLG7ryja02lOrV5XpODBCCqcJebGOjD46d+A533sqpx8UFYcr4lRKpIdzJ1DrDFHim/bvGpJiubQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742205178; c=relaxed/simple;
-	bh=ZG5kxGG80yT+wC6pgOpiIDlC4UZa5bpkuHW4Bf0jXLI=;
+	s=arc-20240116; t=1742205183; c=relaxed/simple;
+	bh=3tj+sd1hBSK0PpyiKGpyyTMF/4GJvPBwbGnV9vwWXd0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=d1/P0kBliLQJbE/jAPaAl3+0y18qgBtLHRMADaNqfjoGWAaoAxZ1kij/SNIBtdIzW46pAQEVanL9j84gOxxpC9LFdNHtkalzmPPezN6ygnoRjNAnH0Wylfq6lUBNkiZorAcAWuCloF3kZgOgKvcSDxwqFf32wegR9AL+pnZtdY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Px3F4wXs; arc=none smtp.client-ip=185.226.149.38
+	 In-Reply-To:To:Cc; b=orr2OZ9L8PWvJxhAddnmSkiADZ3W/W1rZyxQc5eDSrwn33TGsWbeU+hhtqoN97UO0UcuiL/CW5tuwSg7HEEJtwsb1PDQWSdGfvd1o6cNIu7/47BkcT69poEFFD6TheOrs9RuVcJ4+j6a7YxZSWYi+oaoaYXG5lXWZ+UDmx0x9js=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=HhbaFGun; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Px3F4wXs"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="HhbaFGun"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
 	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1tu79S-00Dmxi-Ad; Mon, 17 Mar 2025 10:52:54 +0100
+	id 1tu79W-00Dmy8-8L; Mon, 17 Mar 2025 10:52:58 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
 	s=selector1; h=Cc:To:In-Reply-To:References:Message-Id:
 	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=aMx/ebEU2TmluYJADSJ8PMYLlDnHQ7biwjbfX3GHHD4=; b=Px3F4wXsRwoTyE69Z8/8odj6kn
-	ji0Nc5ulI/ZftQWbCmgeCUafIFR14A2fFgyqe4omarS4j84uUJFqCGukl1o/o9A7Q4Tr6vxpnpufQ
-	sKud9OEhYpih+byIhAMSFQDk9Qw8bupg5+U9gU8VYohzaO80xmiCGDB+c5CE2qxgFPJTCpVFvIFaB
-	By4f4GzxjDy6KWxZ33HECY10HsWgD8C4MZNYgnMtU4tlL+cBCT//E+WhvVJv1NxVHhbITkXJrASDw
-	1+a+LNG6T5biBaYrd/NeogNj7rxq4xsWN2i1L+bokpecr1fUYUPpLPCFjTeVXQ93amNVBjG2exYGT
-	ciGVLIvg==;
+	bh=bxiMFSV63H5IMVOHX04yoU+77ubhpH+TthNc1KSiRUY=; b=HhbaFGun6t3z7GgB0kuVz5pl4F
+	222dyubEa2BnbPJCZ6HOTiIf2rmBp7eTUz8X3Yc96PXpUshypqtNg+gO6qGDy8kZkg8eKzlqBKokp
+	IaWOGZCNMKBnXKGd+MMqZ5AutUXXXf/BexI6Iiuz29YxajHJw7dNtJl+Q2sI1iuiKaS9ynzWVJFRH
+	FNEnktz5u1Qn0l1VmS+cwNoZH0jVTl44B0Nr1XU8aITiQdw3xmp3vtGwE7l4uglDQz/l1885DU6jA
+	iKu1XagdqCDIPf/44MER5G/G/pUK/K/AkvwCQHsBGmsBpANZX9iGyTdCAyQU8qin+vX9MWDeukYvz
+	gu2BYcnQ==;
 Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1tu79S-0006s8-00; Mon, 17 Mar 2025 10:52:54 +0100
+	id 1tu79Q-0007ox-7D; Mon, 17 Mar 2025 10:52:52 +0100
 Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1tu797-00DI8D-9p; Mon, 17 Mar 2025 10:52:33 +0100
+	id 1tu796-00DI8D-4b; Mon, 17 Mar 2025 10:52:32 +0100
 From: Michal Luczaj <mhal@rbox.co>
-Date: Mon, 17 Mar 2025 10:52:24 +0100
-Subject: [PATCH net v4 2/3] selftest/bpf: Add test for AF_VSOCK connect()
- racing sockmap update
+Date: Mon, 17 Mar 2025 10:52:23 +0100
+Subject: [PATCH net v4 1/3] vsock/bpf: Fix EINTR connect() racing sockmap
+ update
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250317-vsock-trans-signal-race-v4-2-fc8837f3f1d4@rbox.co>
+Message-Id: <20250317-vsock-trans-signal-race-v4-1-fc8837f3f1d4@rbox.co>
 References: <20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co>
 In-Reply-To: <20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co>
 To: Stefano Garzarella <sgarzare@redhat.com>, 
@@ -70,10 +70,12 @@ Cc: netdev@vger.kernel.org, bpf@vger.kernel.org,
  linux-kselftest@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-Racing signal-interrupted connect() and sockmap update may result in an
-unconnected (and missing vsock transport) socket in a sockmap.
-
-Test spends 2 seconds attempting to reach WARN_ON_ONCE().
+Signal delivery during connect() may result in a disconnect of an already
+TCP_ESTABLISHED socket. Problem is that such established socket might have
+been placed in a sockmap before the connection was closed. We end up with a
+SS_UNCONNECTED vsock in a sockmap. And this, combined with the ability to
+reassign (unconnected) vsock's transport to NULL, breaks the sockmap
+contract. As manifested by WARN_ON_ONCE.
 
 connect
   / state = SS_CONNECTED /
@@ -86,132 +88,57 @@ connect
                                 vsock_bpf_recvmsg
                                   WARN_ON_ONCE(!vsk->transport)
 
+Ensure the socket does not stay in sockmap.
+
+WARNING: CPU: 8 PID: 1228 at net/vmw_vsock/vsock_bpf.c:97 vsock_bpf_recvmsg+0xb43/0xe00
+CPU: 8 UID: 0 PID: 1228 Comm: a.out Not tainted 6.14.0-rc5+
+RIP: 0010:vsock_bpf_recvmsg+0xb43/0xe00
+ sock_recvmsg+0x1b2/0x220
+ __sys_recvfrom+0x190/0x270
+ __x64_sys_recvfrom+0xdc/0x1b0
+ do_syscall_64+0x93/0x1b0
+ entry_SYSCALL_64_after_hwframe+0x76/0x7e
+
+Fixes: 634f1a7110b4 ("vsock: support sockmap")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- .../selftests/bpf/prog_tests/sockmap_basic.c       | 99 ++++++++++++++++++++++
- 1 file changed, 99 insertions(+)
+ net/vmw_vsock/af_vsock.c  | 10 +++++++++-
+ net/vmw_vsock/vsock_bpf.c |  1 +
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c b/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
-index 1e3e4392dcca0e1722c1982ecc649a80c27443b2..2f8bba27866354848f1e30b5473cedb6a85244ff 100644
---- a/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
-+++ b/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
-@@ -3,6 +3,7 @@
- #include <error.h>
- #include <netinet/tcp.h>
- #include <sys/epoll.h>
-+#include <linux/time64.h>
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 7e3db87ae4333cf63327ec105ca99253569bb9fe..81b1b8e9c946a646778367ab78ca180cef75ef72 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1579,7 +1579,15 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
  
- #include "test_progs.h"
- #include "test_skmsg_load_helpers.skel.h"
-@@ -1042,6 +1043,102 @@ static void test_sockmap_vsock_unconnected(void)
- 	xclose(map);
- }
- 
-+#define CONNECT_SIGNAL_RACE_TIMEOUT 2 /* seconds */
+ 		if (signal_pending(current)) {
+ 			err = sock_intr_errno(timeout);
+-			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
++			if (sk->sk_state == TCP_ESTABLISHED) {
++				/* Might have raced with a sockmap update. */
++				if (sk->sk_prot->unhash)
++					sk->sk_prot->unhash(sk);
 +
-+static void sig_handler(int signum)
-+{
-+	/* nop */
-+}
-+
-+static void connect_signal_racer_cleanup(void *map)
-+{
-+	xclose(*(int *)map);
-+}
-+
-+static void *connect_signal_racer(void *arg)
-+{
-+	pid_t pid;
-+	int map;
-+
-+	map = bpf_map_create(BPF_MAP_TYPE_SOCKMAP, NULL, sizeof(int),
-+			     sizeof(int), 1, NULL);
-+	if (!ASSERT_OK_FD(map, "bpf_map_create"))
-+		return NULL;
-+
-+	pthread_cleanup_push(connect_signal_racer_cleanup, &map);
-+	pid = getpid();
-+
-+	for (;;) {
-+		int c = *(int *)arg;
-+		int zero = 0;
-+
-+		(void)bpf_map_update_elem(map, &zero, &c, BPF_ANY);
-+
-+		if (kill(pid, SIGUSR1)) {
-+			FAIL_ERRNO("kill");
-+			break;
-+		}
-+
-+		if ((recv(c, NULL, 0, MSG_DONTWAIT) < 0) && errno == ENODEV) {
-+			FAIL_ERRNO("recv");
-+			break;
-+		}
-+	}
-+
-+	pthread_cleanup_pop(1);
-+
-+	return NULL;
-+}
-+
-+static void test_sockmap_vsock_connect_signal_race(void)
-+{
-+	struct sockaddr_vm addr, bad_addr;
-+	socklen_t alen = sizeof(addr);
-+	sighandler_t orig_handler;
-+	pthread_t thread;
-+	int s, c, p;
-+	__u64 tout;
-+
-+	orig_handler = signal(SIGUSR1, sig_handler);
-+	if (!ASSERT_NEQ(orig_handler, SIG_ERR, "signal handler setup"))
-+		return;
-+
-+	s = socket_loopback(AF_VSOCK, SOCK_SEQPACKET | SOCK_NONBLOCK);
-+	if (s < 0)
-+		goto restore;
-+
-+	if (xgetsockname(s, (struct sockaddr *)&addr, &alen))
-+		goto close;
-+
-+	bad_addr = addr;
-+	bad_addr.svm_cid = 0x42424242; /* non-existing */
-+
-+	if (xpthread_create(&thread, 0, connect_signal_racer, &c))
-+		goto close;
-+
-+	tout = get_time_ns() + CONNECT_SIGNAL_RACE_TIMEOUT * NSEC_PER_SEC;
-+	do {
-+		c = xsocket(AF_VSOCK, SOCK_SEQPACKET, 0);
-+		if (c < 0)
-+			break;
-+
-+		if (connect(c, (struct sockaddr *)&addr, alen) && errno == EINTR)
-+			(void)connect(c, (struct sockaddr *)&bad_addr, alen);
-+
-+		xclose(c);
-+		p = accept(s, NULL, NULL);
-+		if (p >= 0)
-+			xclose(p);
-+	} while (get_time_ns() < tout);
-+
-+	ASSERT_OK(pthread_cancel(thread), "pthread_cancel");
-+	xpthread_join(thread, NULL);
-+close:
-+	xclose(s);
-+restore:
-+	ASSERT_NEQ(signal(SIGUSR1, orig_handler), SIG_ERR, "handler restore");
-+}
-+
- void test_sockmap_basic(void)
++				sk->sk_state = TCP_CLOSING;
++			} else {
++				sk->sk_state = TCP_CLOSE;
++			}
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
+ 			vsock_remove_connected(vsk);
+diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
+index 07b96d56f3a577af71021b1b8132743554996c4f..c68fdaf09046b68254dac3ea70ffbe73dfa45cef 100644
+--- a/net/vmw_vsock/vsock_bpf.c
++++ b/net/vmw_vsock/vsock_bpf.c
+@@ -127,6 +127,7 @@ static void vsock_bpf_rebuild_protos(struct proto *prot, const struct proto *bas
  {
- 	if (test__start_subtest("sockmap create_update_free"))
-@@ -1108,4 +1205,6 @@ void test_sockmap_basic(void)
- 		test_sockmap_skb_verdict_vsock_poll();
- 	if (test__start_subtest("sockmap vsock unconnected"))
- 		test_sockmap_vsock_unconnected();
-+	if (test__start_subtest("sockmap vsock connect signal race"))
-+		test_sockmap_vsock_connect_signal_race();
+ 	*prot        = *base;
+ 	prot->close  = sock_map_close;
++	prot->unhash = sock_map_unhash;
+ 	prot->recvmsg = vsock_bpf_recvmsg;
+ 	prot->sock_is_readable = sk_msg_is_readable;
  }
 
 -- 
