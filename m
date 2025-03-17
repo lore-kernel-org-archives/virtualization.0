@@ -1,163 +1,145 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2D291F5855
-	for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 22:37:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E75341DD0D5
+	for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 23:51:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742251070; cv=none; b=UVfpSH+Ils480UhCiSCl18emwJSsCVXvzlpVfEG6M98VsXOINOWJ/QhLuLovYj9SIdnZUOLPyJZueOaOMVMD3mKGYqOmKvA1Aio/S+R4g9QdYeLZdqmPFK9Ns4LGlt02SI36UDLSoTGBpGfdryQ/0JrnoOdtsI9yolhUDr4vbe8=
+	t=1742255508; cv=none; b=tPksLboZMvUFZ2U9vCjm17N1mjR00VSz3gPGsUUmOPDdoPbHeKiP9q11xfmvCjQo76ri2ayPp8ZUs8W21xJAYeZtyyy94cpfSNNqUWoZvKy7HKScIxfZ2vRGFNpV1S+vCCkEp6kmLEo6Ol1lS6B2WqMzmlWOkSeA/njbctirKKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742251070; c=relaxed/simple;
-	bh=iNWq7YFABAaG0GotsD1wbeGMgiEc7memj+eT6dtNqjg=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=SuAAQ86UFKh4w1Rh90kBLvlPP7yzCHwrOYU22bRdNSx2POOPr0nFOIhk5GemEVtZO5e3eB7YnigEZPgx3XPYryvnPLyzqECGYx2UbUq5I1mG8pYecSbwIM19ZjPCZnP56RGSDy0ywbSEecsSEVSyeD0pyeylI206f9Y88mn9oXE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ilPt7Ind; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1742255508; c=relaxed/simple;
+	bh=XsNjQyivH1Hog8A2iZ+anJbWkZpmM+zPGmHGJX63sTY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Y4Uyw7m6Y6yfpDn7sDBOArCtAKD66+dQ58AufTClBOASaLD5QC1o+Nqx6U2q3271AhsQz8mVa0zB1qiV5PxTDijNI6QAgZ4LO4mAeLUjQblJlTfs9APtJJeV+5Ho+0NT3SSVYD8al+T2bIwssySQOfQEfU3SIdRKwQMLCNRNCPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=XjmkDS/d; arc=none smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ilPt7Ind"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742251067;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uz73BbCUaqtdYR+gICGbN6AT48ejOu9pXaDANWFGjaE=;
-	b=ilPt7IndygqbBshLqzD5ifIlAiiXL2llL20DqGIeAUseDUjYcNUT6jvl1lTGCrrloRQcDn
-	NoIXScGv5+YWL2+nlgCZdChG8l1XdzkePwi+GSVbjHzoqlcER4ca1zutIGUyra+PQOIG/o
-	YrNS2OeE3JuWuIQP7unqJGmiJu3aC+s=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-211-8QDuW97xMASxkEk2430tog-1; Mon, 17 Mar 2025 18:37:46 -0400
-X-MC-Unique: 8QDuW97xMASxkEk2430tog-1
-X-Mimecast-MFC-AGG-ID: 8QDuW97xMASxkEk2430tog_1742251066
-Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-85b402f69d4so492016339f.3
-        for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 15:37:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742251066; x=1742855866;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:from:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uz73BbCUaqtdYR+gICGbN6AT48ejOu9pXaDANWFGjaE=;
-        b=vytEu9kVC1CNy4Hbsfqou8wVOPcB+dIXPmbkCaShgKWrQEnzMKImSqwqTHRy0Py9pB
-         1sAaBAVZjZJaz0uP+yChBGRwrXcmDjTEcfMtbsk9ADrrZFWuRLhi3VXyqlc+QVEU1Mrt
-         0nBfcy/ufy+BQGgXg1DrZk38ed/D3B03R4gTF5iwn424cRKZL+cx1v256dDIivqnMlvC
-         n8SI8MUwfVq+3Pw2OqGyjUqxMCULE6lgNF4rErUoL5QKclMRH1pIzhxOKFgHMjA48Vn4
-         VhH0uqXAE1B++DzVG9ZdspRkUe0tWQWDSx9qHXUG2nAHkED8K7T1I1D/PKAc9HqSjnAy
-         0oiQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW5XSQ4iVxWcImuJZtQKD99TRuEQzeUKSgYkONnLgGP3z3WzjHYQpO0dj0qqSIyeR0eZTI9DX2YQRqEf2KDFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwBRTjzqhYBEfkOinhWL7QEwZStpKTmc7MV3By0llXxa/YRWzrG
-	8/7RZcpp1nL8xPCaTlB9kuMlrC9IvaIWt1ZWqpNDOUmGbnjBrm6jtrEpyrCrpeExeVYcEKelx+1
-	kPcNtk530Ls0cRolMVNOOOMvItYwkgJy5eue9FC7GxnVq0zjccp1c7iepJbUdIdRX
-X-Gm-Gg: ASbGnct27p/KBj4bPBjzXkZADm08PbOYQv6SV9r7Js0w1ZFXmf8x67LbcG1krDOpkZy
-	RmkvMyTvZ7+tGKT7OcDk6aUKL9oLsBoYM8espF5bGL/l3w7GFnB49uKuKmmLJmTGhj6XwAyFR+/
-	NWD8trexUg8uHu4soCZ7RJGf61skFNnXCVQP9GPL5Ee8CrjhCORnsyrtAgnAM3HG288UECFkS+O
-	rb6cHAjAMn8R9YedugJPVmUqFuIWBZYv/wDaaOWTk6gb9k4QJnrw4xiaYeiR+Ql5btHGaBsUYAL
-	dNqdls3HfEFF3Q8CnfE5
-X-Received: by 2002:a05:6602:4084:b0:85b:59f3:2ed3 with SMTP id ca18e2360f4ac-85dc4832c03mr1654237739f.8.1742251065758;
-        Mon, 17 Mar 2025 15:37:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFXMhXDdQ9jMsi3nNSx90SCr5dH1/wJp5bRT/DRCJ6UEq4at0o5Rp4a0vN5yQf18mlko59M2g==
-X-Received: by 2002:a05:6602:4084:b0:85b:59f3:2ed3 with SMTP id ca18e2360f4ac-85dc4832c03mr1654234539f.8.1742251065465;
-        Mon, 17 Mar 2025 15:37:45 -0700 (PDT)
-Received: from ?IPV6:2601:282:c100:48a0::aa6? ([2601:282:c100:48a0::aa6])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4f263702075sm2481735173.6.2025.03.17.15.37.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Mar 2025 15:37:44 -0700 (PDT)
-Message-ID: <a0315ccf-f244-460e-8643-fd7388724fe5@redhat.com>
-Date: Mon, 17 Mar 2025 16:37:43 -0600
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="XjmkDS/d"
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52HLuhUO029836;
+	Mon, 17 Mar 2025 23:51:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=corp-2023-11-20; bh=2c4Tw6svFVVlMG5F1jrrJOHoil02h
+	jZZOtzQ9FEz1Hc=; b=XjmkDS/degSYOs30P9v6YK8zMDZzuoaBFVKatpuNs34Ex
+	vwCVEEnUF0xK5Aw/3SHHO+AiKKrMSRs5f59rmr/Mvfa8KX812tl9QbMYMlC/lpCz
+	+zmQ77dYUONLOk9ZkIADZtAw+LwrBbao+33/sJfNvuywOhKtARYhwgSxxkpR0fNh
+	hxsTMCjAz+mL2S10CZhRWyz3JVeOZ9ToVCtm/HeCBcdA6leVsRC8Ngy/rVo32xCr
+	0wqG28JCnuMI6G6PHQX+XV3RH6tbbmY3CFdiucUvNVMKW3Gazw561sOS/OXa9W0w
+	+PIU6m6XIlcH0XiK9VDqot7zCVWxPTNgN4r/iZhlw==
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45d23rv2yv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 17 Mar 2025 23:51:45 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 52HLjXp0022498;
+	Mon, 17 Mar 2025 23:51:45 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 45dxeekf77-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 17 Mar 2025 23:51:45 +0000
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 52HNpi2f016519;
+	Mon, 17 Mar 2025 23:51:44 GMT
+Received: from localhost.localdomain (ca-dev80.us.oracle.com [10.211.9.80])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 45dxeekf68-1;
+	Mon, 17 Mar 2025 23:51:44 +0000
+From: Dongli Zhang <dongli.zhang@oracle.com>
+To: virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        netdev@vger.kernel.org
+Cc: mst@redhat.com, jasowang@redhat.com, michael.christie@oracle.com,
+        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
+        joao.m.martins@oracle.com, joe.jin@oracle.com, si-wei.liu@oracle.com,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 00/10] vhost-scsi: log write descriptors for live migration (and three bugfix)
+Date: Mon, 17 Mar 2025 16:55:08 -0700
+Message-ID: <20250317235546.4546-1-dongli.zhang@oracle.com>
+X-Mailer: git-send-email 2.43.5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Nico Pache <npache@redhat.com>
-Subject: Re: [PATCH v2 1/4] meminfo: add a per node counter for balloon
- drivers
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
- xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
- linux-mm@kvack.org, virtualization@lists.linux.dev,
- alexander.atanasov@virtuozzo.com, muchun.song@linux.dev,
- roman.gushchin@linux.dev, mhocko@kernel.org, kys@microsoft.com,
- haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
- jgross@suse.com, sstabellini@kernel.org, oleksandr_tyshchenko@epam.com,
- mst@redhat.com, david@redhat.com, yosry.ahmed@linux.dev, hannes@cmpxchg.org,
- nphamcs@gmail.com, chengming.zhou@linux.dev, kanchana.p.sridhar@intel.com,
- llong@redhat.com, shakeel.butt@linux.dev
-References: <20250314213757.244258-1-npache@redhat.com>
- <20250314213757.244258-2-npache@redhat.com>
- <20250314180625.8c3a2a5a990a132a7b0b9072@linux-foundation.org>
-In-Reply-To: <20250314180625.8c3a2a5a990a132a7b0b9072@linux-foundation.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nnOPm3fYTTEHM3t0XGSn_u93G1oYtxHupXP0X_p8vTQ_1742251066
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US, en-ZM
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-17_10,2025-03-17_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 phishscore=0 mlxscore=0
+ adultscore=0 mlxlogscore=999 spamscore=0 malwarescore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2502280000
+ definitions=main-2503170173
+X-Proofpoint-GUID: zpUf-Csj4TO_jCYy7QHMXr_QTfgwFaBB
+X-Proofpoint-ORIG-GUID: zpUf-Csj4TO_jCYy7QHMXr_QTfgwFaBB
+
+The live migration with vhost-scsi has been enabled by QEMU commit
+b3e89c941a85 ("vhost-scsi: Allow user to enable migration"), which
+thoroughly explains the workflow that QEMU collaborates with vhost-scsi on
+the live migration.
+
+Although it logs dirty data for the used ring, it doesn't log any write
+descriptor (VRING_DESC_F_WRITE).
+
+In comparison, vhost-net logs write descriptors via vhost_log_write(). The
+SPDK (vhost-user-scsi backend) also logs write descriptors via
+vhost_log_req_desc().
+
+As a result, there is likely data mismatch between memory and vhost-scsi
+disk during the live migration.
+
+1. Suppose there is high workload and high memory usage. Suppose some
+systemd userspace pages are swapped out to the swap disk.
+
+2. Upon request from systemd, the kernel reads some pages from the swap
+disk to the memory via vhost-scsi.
+
+3. Although those userspace pages' data are updated, they are not marked as
+dirty by vhost-scsi (this is the bug). They are not going to migrate to the
+target host during memory transfer iterations.
+
+4. Suppose systemd doesn't write to those pages any longer. Those pages
+never get the chance to be dirty or migrated any longer.
+
+5. Once the guest VM is resumed on the target host, because of the lack of
+those dirty pages' data, the systemd may run into abnormal status, i.e.,
+there may be systemd segfault.
+
+Log all write descriptors to fix the issue.
+
+In addition, the patchset also fixes three bugs in vhost-scsi.
+
+Changed since v1:
+  - Rebase on top of most recent vhost changes.
+  - Don't allocate log buffer during initialization. Allocate during
+    VHOST_SET_FEATURES or VHOST_SCSI_SET_ENDPOINT.
+  - Add bugfix for vhost_scsi_send_status().
+
+Dongli Zhang (vhost-scsi bugfix):
+  vhost-scsi: protect vq->log_used with vq->mutex
+  vhost-scsi: Fix vhost_scsi_send_bad_target()
+  vhost-scsi: Fix vhost_scsi_send_status()
+
+Dongli Zhang (log descriptor, suggested by Joao Martins):
+  vhost: modify vhost_log_write() for broader users
+  vhost-scsi: adjust vhost_scsi_get_desc() to log vring descriptors
+  vhost-scsi: cache log buffer in I/O queue vhost_scsi_cmd
+  vhost-scsi: log I/O queue write descriptors
+  vhost-scsi: log control queue write descriptors
+  vhost-scsi: log event queue write descriptors
+  vhost: add WARNING if log_num is more than limit
+
+ drivers/vhost/net.c   |   2 +-
+ drivers/vhost/scsi.c  | 314 ++++++++++++++++++++++++++++++++++++++++-----
+ drivers/vhost/vhost.c |  46 +++++--
+ drivers/vhost/vhost.h |   2 +-
+ 4 files changed, 322 insertions(+), 42 deletions(-)
 
 
+base-commit: 9d8960672d63db4b3b04542f5622748b345c637a
+branch: remotes/origin/linux-next
+tree: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
 
-On 3/14/25 7:06 PM, Andrew Morton wrote:
-> On Fri, 14 Mar 2025 15:37:54 -0600 Nico Pache <npache@redhat.com> wrote:
-> 
->> Add NR_BALLOON_PAGES counter to track memory used by balloon drivers and
->> expose it through /proc/meminfo and other memory reporting interfaces.
->>
->> ...
->>
->> --- a/fs/proc/meminfo.c
->> +++ b/fs/proc/meminfo.c
->> @@ -162,6 +162,8 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
->>  	show_val_kb(m, "Unaccepted:     ",
->>  		    global_zone_page_state(NR_UNACCEPTED));
->>  #endif
->> +	show_val_kb(m, "Balloon:        ",
->> +		    global_node_page_state(NR_BALLOON_PAGES));
-> 
-> Please update Documentation/filesystems/proc.rst for this.
+Thank you very much!
 
-@Andrew
-
-Can you please squash the following?
-
-From b1b379a32752e64c60b5e3b6365c93db8e1daf9f Mon Sep 17 00:00:00 2001
-From: Nico Pache <npache@redhat.com>
-Date: Mon, 17 Mar 2025 16:07:18 -0600
-Subject: [PATCH] Documentation: document Balloon Meminfo entry
-
-Add a Balloon entry to the Meminfo documention.
-
-Signed-off-by: Nico Pache <npache@redhat.com>
----
- Documentation/filesystems/proc.rst | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/Documentation/filesystems/proc.rst b/Documentation/filesystems/proc.rst
-index 09f0aed5a08b..2868bb74f76e 100644
---- a/Documentation/filesystems/proc.rst
-+++ b/Documentation/filesystems/proc.rst
-@@ -1060,6 +1060,7 @@ Example output. You may not have all of these fields.
-     FilePmdMapped:         0 kB
-     CmaTotal:              0 kB
-     CmaFree:               0 kB
-+    Balloon:               0 kB
-     HugePages_Total:       0
-     HugePages_Free:        0
-     HugePages_Rsvd:        0
-@@ -1228,6 +1229,8 @@ CmaTotal
-               Memory reserved for the Contiguous Memory Allocator (CMA)
- CmaFree
-               Free remaining memory in the CMA reserves
-+Balloon
-+              Memory returned to Host by VM Balloon Drivers
- HugePages_Total, HugePages_Free, HugePages_Rsvd, HugePages_Surp, Hugepagesize,
-Hugetlb
-               See Documentation/admin-guide/mm/hugetlbpage.rst.
- DirectMap4k, DirectMap2M, DirectMap1G
--- 
-2.48.1
-> 
+Dongli Zhang
 
