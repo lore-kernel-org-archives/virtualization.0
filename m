@@ -1,244 +1,193 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17135238160
-	for <virtualization@lists.linux-foundation.org>; Mon, 17 Mar 2025 10:59:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C31323F369
+	for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 13:22:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742209153; cv=none; b=sXbsgwVSkahStUWmEjqxFDL6cIhgwZ1nUOCS/ektfl2SO2YeoBrR7dL2TdXdAoy6Liod0w3zJfMcIbobB6nrlJTo1J8aMyByeoc/9NW988KCgiWFHx5p73NMq+P1N3F8Fh6bKZbieV4pIsb8yUEQkaZY/XIdrxYhIXfNcdzHJ0g=
+	t=1742217765; cv=none; b=ZYhZ9GbOCY9b1C1tuWa0PiMXTAce1XDV1pd3MubRRfjBIVDI+Kgb5ybyyVwnraLwcr4tgMhjqvaEa+WmFLMww5ThQlbJtvXVg4P6APuWhLzPC6/8WmhTukG6MnXXV8/ZXdSrOxU75d/WSAHFgeSu1OVSbBmWnBy8++3gXC3FxG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742209153; c=relaxed/simple;
-	bh=QysKwJMoIqaKFtrng8JoZjRW/Qn7QIvbuXMh0UY/638=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To; b=jwueMt5/WYZDQ2e+LIiTDLBJg8tkKg9bCXPP7KLSWE+/UscUigbGosiZVLtuR7RjHGAvWl2V5xCK5vNhtYxii212e1jhs5vrqwQ5BDp0iQP6AxzN0CUre4j2vg9Di/KpHP9I9IR0urPIMA4rAdnNzXynT7Wb5Xl18M8xvNs+E3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=fetOvu++; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1742217765; c=relaxed/simple;
+	bh=Bl1lH+leE4JeIyQfzwYCikfCvsRJ41mDVussZo9Yzhs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Hq1UBIKEPMr0Ukqpi9omQcv/OLUAg2i2ta207FsVyuYydTyY3PUiI+0rvMQBqVSUXFOWkxzedE1LxAEPJqkbte1hd14tLG6lh8srhEcjkzX/JPkma8a7CcmCQKTo3kRwTBYSUMRMXyws3Q6Yxc4C2jf/UZIVi97GeXpfJQJZjTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fJkGlJwK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=R8ylreoQ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fJkGlJwK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=R8ylreoQ; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="fetOvu++"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A400B40B9E
-	for <virtualization@lists.linux-foundation.org>; Mon, 17 Mar 2025 10:59:11 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id FL6pjCFUSbhi for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Mar 2025 10:59:10 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::102e; helo=mail-pj1-x102e.google.com; envelope-from=akihiko.odaki@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 8493640480
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8493640480
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=fetOvu++
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8493640480
-	for <virtualization@lists.linux-foundation.org>; Mon, 17 Mar 2025 10:59:10 +0000 (UTC)
-Received: by mail-pj1-x102e.google.com with SMTP id 98e67ed59e1d1-30155bbbed9so2151288a91.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 17 Mar 2025 03:59:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1742209150; x=1742813950; darn=lists.linux-foundation.org;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jXhv781+liPB0AwwevhkbIFrQwob4kiywxMETbO/hoM=;
-        b=fetOvu++eyImiRQzC4DUEEm6jvk1ZR4NPxKbs004KFNWK1DuPJHLBqTt1ziKuuJ6h6
-         GgaR9MdX7SzwgyuVbONrdM8rRgl/feq+D7zFnNrTlMfWnwb4n/rG5JBKySLsBoe294NW
-         +werN7UJQpBygzJw59mc5iHxPX8C7CCupt3S8fimTQD4HiQFwnh28tNia5aAdbNhdCzy
-         wEEW4tWDEu+hzats4DIWMCtq4I2FNXP23vUiBAKDSeQ91EOVpns+iXO7OEZx3MZffC1n
-         Mv23GqKu6bcogyufM28qs7aVKw6UHY2XeEEVqlCgATJOuX3ciAEBzECRJbW/E+j9bWPe
-         2jJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742209150; x=1742813950;
-        h=to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jXhv781+liPB0AwwevhkbIFrQwob4kiywxMETbO/hoM=;
-        b=orlGePU4MAv9KTyLlGnRZL1kb4DdvZXcLQphAlXSGzWSN3xySjTLQlIOlT+eqowRJE
-         j1pdkIs1KTkod0M5znwDqGIsUTcr7HfI3P3mPqtABelc1wR14W+qphjH6MFbWkcSOHvv
-         TuZMntiogpouc4KUv6CtbtLryg9mrKKV9kwJyJBGeOyBb/bO3iLcTQUSgQcmkJA2admL
-         tJpcjehPq/oGo9W7vNJpHXfQP2vAgEop+jdS9jWW82FgXOJqz/BMqK/GnTCdvRvWuWNh
-         drXvciqrzbclfP6sJRz+MFbgJP1MBIf5MWusdFZK1ARXhOJsmjRkkZNzQRpN/0VHhMfm
-         f/Mg==
-X-Forwarded-Encrypted: i=1; AJvYcCUakeeQ4oXJ3PzbcS+ooAaWI7ASUeCdjTz2ItSi9ghAfMJ83RWXC+hXH/ae3snWmoOS5HbfmYNew3PNzhEX9w==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxDf+sao3kuLHiiTCZ2BzrS0ZxbmVPXjjE53b2vWPIIkC4UnIMt
-	d81MSv+4xlchZL+Xm4jREe/PDSOg74vaQ83xYlVd123DaZBteFKTOB/zqZgbqX0=
-X-Gm-Gg: ASbGncsaXV1hfcJLwLG0qO3odh3LxJimFAlffi4knceho8PfahWEDDfRyD2RWgn2dTw
-	Q+6Up3UEYXdttWEY+nvqQ7aUCkCb62JqpTYWQUnyMrxNUzEMqa/qL4PycMgQMUKl/auUoW5ht0U
-	YiyAWRDMb6v64v1XUnl3e0NZpppjTcSSzg3sh1cY+TB+K3VschDWsXlpTGFWvaT5Gmx1tnq3aMn
-	dRnUOvds4xxrVHw8Ba0T1YNBTq0ufFVJT6NUjBOnx3qT8MGJ1mYVsfFVscD/RMFCyoYUswQLDLz
-	6Cry3wEFXGbloKQt2h6W0nzVAaHqPSakNLKAuTbSLQvp+eci
-X-Google-Smtp-Source: AGHT+IFBTzBt4W91RO9hEmwf21fzT3s8Bp70zxhXco8GCOaNp4xUeMJNMRSu3auEGTPJcF2HKgGT2A==
-X-Received: by 2002:a17:90b:5347:b0:2ff:58c7:a71f with SMTP id 98e67ed59e1d1-30151dc7588mr13016176a91.32.1742209149802;
-        Mon, 17 Mar 2025 03:59:09 -0700 (PDT)
-Received: from localhost ([157.82.207.107])
-        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-3015364ec6esm5760309a91.49.2025.03.17.03.59.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Mar 2025 03:59:09 -0700 (PDT)
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Mon, 17 Mar 2025 19:58:00 +0900
-Subject: [PATCH net-next v11 10/10] vhost/net: Support
- VIRTIO_NET_F_HASH_REPORT
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fJkGlJwK";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="R8ylreoQ";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fJkGlJwK";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="R8ylreoQ"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 3596E21BD0;
+	Mon, 17 Mar 2025 13:22:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1742217762; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
+	b=fJkGlJwKQQEzmV65yT0UnVaMHyv8LeQDDSX37mVe32HksaYPCVUYsCuv0DDc1tqY1NZHif
+	QqimueQ1kAzZgU3AmM9nSRvC2McsFE7iXSOhY7l+uFtNtqYJPkZxkj8SmLWrru9r763jwK
+	Q3UVgeKrPVwQEaH9eKrPL+qE+DCdXYA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1742217762;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
+	b=R8ylreoQUkDKDHuFhhPdIj79sItoD0nGKwwspRnNPk+9aG8dRzwK3+qAfMF40cyuhxz6y9
+	yOeCeOEL9HteQLCw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=fJkGlJwK;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=R8ylreoQ
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1742217762; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
+	b=fJkGlJwKQQEzmV65yT0UnVaMHyv8LeQDDSX37mVe32HksaYPCVUYsCuv0DDc1tqY1NZHif
+	QqimueQ1kAzZgU3AmM9nSRvC2McsFE7iXSOhY7l+uFtNtqYJPkZxkj8SmLWrru9r763jwK
+	Q3UVgeKrPVwQEaH9eKrPL+qE+DCdXYA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1742217762;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z9GY+bMqBMcy0IiCvV/hq7iM/O0+edNNwpZBaTpydMY=;
+	b=R8ylreoQUkDKDHuFhhPdIj79sItoD0nGKwwspRnNPk+9aG8dRzwK3+qAfMF40cyuhxz6y9
+	yOeCeOEL9HteQLCw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DF12C139D2;
+	Mon, 17 Mar 2025 13:22:41 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id uPk7NSEi2GdFWQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 17 Mar 2025 13:22:41 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: airlied@gmail.com,
+	simona@ffwll.ch,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org
+Cc: dri-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH 12/15] drm/virtio: Test for imported buffers with drm_gem_is_imported()
+Date: Mon, 17 Mar 2025 14:06:50 +0100
+Message-ID: <20250317131923.238374-13-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250317131923.238374-1-tzimmermann@suse.de>
+References: <20250317131923.238374-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250317-rss-v11-10-4cacca92f31f@daynix.com>
-References: <20250317-rss-v11-0-4cacca92f31f@daynix.com>
-In-Reply-To: <20250317-rss-v11-0-4cacca92f31f@daynix.com>
-To: Jonathan Corbet <corbet@lwn.net>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, 
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, kvm@vger.kernel.org, 
- virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
- Yuri Benditovich <yuri.benditovich@daynix.com>, 
- Andrew Melnychenko <andrew@daynix.com>, 
- Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
- Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-X-Mailer: b4 0.15-dev-edae6
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 3596E21BD0
+X-Spam-Score: -3.01
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	FREEMAIL_TO(0.00)[gmail.com,ffwll.ch,linux.intel.com,kernel.org];
+	FREEMAIL_CC(0.00)[lists.freedesktop.org,suse.de,redhat.com,chromium.org,gmail.com,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_HAS_DN(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCPT_COUNT_SEVEN(0.00)[11];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-VIRTIO_NET_F_HASH_REPORT allows to report hash values calculated on the
-host. When VHOST_NET_F_VIRTIO_NET_HDR is employed, it will report no
-hash values (i.e., the hash_report member is always set to
-VIRTIO_NET_HASH_REPORT_NONE). Otherwise, the values reported by the
-underlying socket will be reported.
+Instead of testing import_attach for imported GEM buffers, invoke
+drm_gem_is_imported() to do the test. The helper tests the dma_buf
+itself while import_attach is just an artifact of the import. Prepares
+to make import_attach optional.
 
-VIRTIO_NET_F_HASH_REPORT requires VIRTIO_F_VERSION_1.
-
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-Tested-by: Lei Yang <leiyang@redhat.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>
+Cc: Chia-I Wu <olvaffe@gmail.com>
+Cc: virtualization@lists.linux.dev
 ---
- drivers/vhost/net.c | 68 +++++++++++++++++++++++++++--------------------------
- 1 file changed, 35 insertions(+), 33 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index b9b9e9d40951..fc5b43e43a06 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -73,6 +73,7 @@ enum {
- 	VHOST_NET_FEATURES = VHOST_FEATURES |
- 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
- 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			 (1ULL << VIRTIO_NET_F_HASH_REPORT) |
- 			 (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
- 			 (1ULL << VIRTIO_F_RING_RESET)
- };
-@@ -1097,10 +1098,6 @@ static void handle_rx(struct vhost_net *net)
- 		.msg_controllen = 0,
- 		.msg_flags = MSG_DONTWAIT,
- 	};
--	struct virtio_net_hdr hdr = {
--		.flags = 0,
--		.gso_type = VIRTIO_NET_HDR_GSO_NONE
--	};
- 	size_t total_len = 0;
- 	int err, mergeable;
- 	s16 headcount;
-@@ -1174,11 +1171,15 @@ static void handle_rx(struct vhost_net *net)
- 		/* We don't need to be notified again. */
- 		iov_iter_init(&msg.msg_iter, ITER_DEST, vq->iov, in, vhost_len);
- 		fixup = msg.msg_iter;
--		if (unlikely((vhost_hlen))) {
--			/* We will supply the header ourselves
--			 * TODO: support TSO.
--			 */
--			iov_iter_advance(&msg.msg_iter, vhost_hlen);
-+		/*
-+		 * Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR
-+		 * TODO: support TSO.
-+		 */
-+		if (unlikely(vhost_hlen) &&
-+		    iov_iter_zero(vhost_hlen, &msg.msg_iter) != vhost_hlen) {
-+			vq_err(vq, "Unable to write vnet_hdr at addr %p\n",
-+			       vq->iov->iov_base);
-+			goto out;
- 		}
- 		err = sock->ops->recvmsg(sock, &msg,
- 					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
-@@ -1191,30 +1192,24 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_discard_vq_desc(vq, headcount);
- 			continue;
- 		}
--		/* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR */
--		if (unlikely(vhost_hlen)) {
--			if (copy_to_iter(&hdr, sizeof(hdr),
--					 &fixup) != sizeof(hdr)) {
--				vq_err(vq, "Unable to write vnet_hdr "
--				       "at addr %p\n", vq->iov->iov_base);
--				goto out;
--			}
--		} else {
--			/* Header came from socket; we'll need to patch
--			 * ->num_buffers over if VIRTIO_NET_F_MRG_RXBUF
--			 */
--			iov_iter_advance(&fixup, sizeof(hdr));
--		}
- 		/* TODO: Should check and handle checksum. */
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a6f5a78f436a..e1dd38e7efe8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -366,13 +366,13 @@ static int virtio_gpu_plane_prepare_fb(struct drm_plane *plane,
+ 		return 0;
  
-+		/*
-+		 * We'll need to patch ->num_buffers over if
-+		 * VIRTIO_NET_F_MRG_RXBUF or VIRTIO_F_VERSION_1
-+		 */
- 		num_buffers = cpu_to_vhost16(vq, headcount);
--		if (likely(set_num_buffers) &&
--		    copy_to_iter(&num_buffers, sizeof num_buffers,
--				 &fixup) != sizeof num_buffers) {
--			vq_err(vq, "Failed num_buffers write");
--			vhost_discard_vq_desc(vq, headcount);
--			goto out;
-+		if (likely(set_num_buffers)) {
-+			iov_iter_advance(&fixup, offsetof(struct virtio_net_hdr_v1, num_buffers));
-+
-+			if (copy_to_iter(&num_buffers, sizeof(num_buffers),
-+					 &fixup) != sizeof(num_buffers)) {
-+				vq_err(vq, "Failed num_buffers write");
-+				vhost_discard_vq_desc(vq, headcount);
-+				goto out;
-+			}
- 		}
-+
- 		nvq->done_idx += headcount;
- 		if (nvq->done_idx > VHOST_NET_BATCH)
- 			vhost_net_signal_used(nvq);
-@@ -1607,10 +1602,13 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 	size_t vhost_hlen, sock_hlen, hdr_len;
- 	int i;
+ 	obj = new_state->fb->obj[0];
+-	if (obj->import_attach) {
++	if (drm_gem_is_imported(obj)) {
+ 		ret = virtio_gpu_prepare_imported_obj(plane, new_state, obj);
+ 		if (ret)
+ 			return ret;
+ 	}
  
--	hdr_len = (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
--			       (1ULL << VIRTIO_F_VERSION_1))) ?
--			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
--			sizeof(struct virtio_net_hdr);
-+	if (features & (1ULL << VIRTIO_NET_F_HASH_REPORT))
-+		hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
-+	else if (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			     (1ULL << VIRTIO_F_VERSION_1)))
-+		hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-+	else
-+		hdr_len = sizeof(struct virtio_net_hdr);
- 	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
- 		/* vhost provides vnet_hdr */
- 		vhost_hlen = hdr_len;
-@@ -1691,6 +1689,10 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 		if (features & ~VHOST_NET_FEATURES)
- 			return -EOPNOTSUPP;
-+		if ((features & ((1ULL << VIRTIO_F_VERSION_1) |
-+				 (1ULL << VIRTIO_NET_F_HASH_REPORT))) ==
-+		    (1ULL << VIRTIO_NET_F_HASH_REPORT))
-+			return -EINVAL;
- 		return vhost_net_set_features(n, features);
- 	case VHOST_GET_BACKEND_FEATURES:
- 		features = VHOST_NET_BACKEND_FEATURES;
-
+-	if (bo->dumb || obj->import_attach) {
++	if (bo->dumb || drm_gem_is_imported(obj)) {
+ 		vgplane_st->fence = virtio_gpu_fence_alloc(vgdev,
+ 						     vgdev->fence_drv.context,
+ 						     0);
+@@ -409,7 +409,7 @@ static void virtio_gpu_plane_cleanup_fb(struct drm_plane *plane,
+ 	}
+ 
+ 	obj = state->fb->obj[0];
+-	if (obj->import_attach)
++	if (drm_gem_is_imported(obj))
+ 		virtio_gpu_cleanup_imported_obj(obj);
+ }
+ 
+@@ -501,7 +501,7 @@ static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
+ 	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
+ 
+ 	/* Only support mapped shmem bo */
+-	if (virtio_gpu_is_vram(bo) || bo->base.base.import_attach || !bo->base.vaddr)
++	if (virtio_gpu_is_vram(bo) || drm_gem_is_imported(&bo->base.base) || !bo->base.vaddr)
+ 		return -ENODEV;
+ 
+ 	iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
 -- 
 2.48.1
 
