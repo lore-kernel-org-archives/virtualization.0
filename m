@@ -1,204 +1,401 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5179622EE5
-	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 01:13:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B73FADDCD
+	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 02:04:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742260391; cv=none; b=Ak1bqNIWJgb2irrkW9SyhuUB6gyVoTG475oddgUkNkmKpkrBbbJwgz2GnfAFNgLB9MLsrXz8TiERuq4FT1i1iX6z2oRQKDHcaWTUJ8M0e17fOrvSqeu8aTqFif1PGNHt+Wl6opbi/pjFMgxhFLwQocgVMxNg4g/OTnsUp7mlIgs=
+	t=1742263490; cv=none; b=UepUNXhF6CnkFSTpHMDLbhKfRIsGRmuDMdnEJBkZ89kDTVYAsC7H4JuZpKbHyGgTCBhods3MuCXhPaDDFJFmM0cwf9p+FlLV5OVuAcEHSVYtr8BvjW1SV/edr6Z1GCRhVUGBaWC9Riqc+8l7DETb+R1bsfDANtCRlhVhV1JyFpQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742260391; c=relaxed/simple;
-	bh=vVnJRAcF4XjPI6SSdN6jevcltS6LnQAekeugzFVLO8A=;
+	s=arc-20240116; t=1742263490; c=relaxed/simple;
+	bh=9nssrSXve0zxWBOJD0yExmdQYxoFqyAiqs3raRutUCw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Og6jHGjExb1yCta/AoKKxYVpp+ZePPkqharlQuw3NGPzesz5s1qxMU74zPHmvMveCj0irXsmnHVnvLHMO3UONNSW0eLjBhuKkGmQtCFZYHF1A8n0/Vb4B+TIbb5fCuiRfg/mqDoqwlIIb+LiYGn7sQ3FeIzfqcATc66S34/F2mw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hb2bssKs; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=jqaJIexM/j0OwNerx76TbXfdbDITYKzobYz0I4M+QvvPv3AvmJTCnHIhin6atLgawJBcz7otXfuuSwniVJJfJpPhJD5mdn4r6qWUi8+1lxVvrwCA4M9uqNilMbAGBfjtMhP/wA96F35L3Xnpc3uJc3AYAo0rlpK3M0do9oojWZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MdGOrYsx; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hb2bssKs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MdGOrYsx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742260388;
+	s=mimecast20190719; t=1742263487;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=1M6tJ0kGDf/4rh9VaynueL0NEwnUCgZxe75UeVU/TOY=;
-	b=Hb2bssKsnSSRd+mmFw4dX/htbDT1MCMNsQjofKA9MToMU/bPVrca2s8GjgwQUNbV5xMHxo
-	ryqeDl6ACc3oLU/A+PLuf/+uGkOjVxRDvyw60q0r3sD+C+LomkVkysYyQtjh/YEDE7/DF9
-	WYdiFviEQQR2d2s7zKJuHPMc54CyHCU=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=HagLySi8cLl3r+54xADX7ls5xoEWrbGMKO8f5L1ISh8=;
+	b=MdGOrYsxZ7ApLgOz7dAgY44h7oDuEWHnWZaOc5R9j8gHWq+XfWPHaaLMGjpNlMBPTK+DVX
+	Ew04nMI8V+MDxSPI8ibVFqCpNQRz96qmos+wJvyVTVWQQ2dQZ76SWFlH+cgdrzC4bCn502
+	P0Vhf1ZJinPVfFlurkZcv/uHokpQZvE=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-453-bQPPUaeIOeiRmmiWGpbVog-1; Mon, 17 Mar 2025 21:13:07 -0400
-X-MC-Unique: bQPPUaeIOeiRmmiWGpbVog-1
-X-Mimecast-MFC-AGG-ID: bQPPUaeIOeiRmmiWGpbVog_1742260386
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2233b764fc8so86921975ad.3
-        for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 18:13:07 -0700 (PDT)
+ us-mta-166-lxyLhsS7MQaYo3otVduBbg-1; Mon, 17 Mar 2025 22:04:46 -0400
+X-MC-Unique: lxyLhsS7MQaYo3otVduBbg-1
+X-Mimecast-MFC-AGG-ID: lxyLhsS7MQaYo3otVduBbg_1742263485
+Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-5e636b06d34so2281657a12.1
+        for <virtualization@lists.linux.dev>; Mon, 17 Mar 2025 19:04:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742260386; x=1742865186;
+        d=1e100.net; s=20230601; t=1742263485; x=1742868285;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1M6tJ0kGDf/4rh9VaynueL0NEwnUCgZxe75UeVU/TOY=;
-        b=ntCgeUPHb0OPKQJTeXYQCvx7B8GEz0hAFK0OH8idPD015+sZ0t/lv7Qi2qVDXHu7un
-         dM3bCKGVNxZEzb18oQNVA2V7tBbmjpDOC/J5CJ1zgj7X2pjQIW3VnSrOj24wqIjF8qWr
-         o9y+4hL3SuRJ8vJCzqYOvb0p2DdzXviY6wEalcEhnMp937Wxf5wrhavmoNIAxKgELAiD
-         /SIDXoPzGjISlanghebAFbvnDcX0bJSSXCsS1M0npIL5cmJGSa/6eUWMYZuOM/YIV+gP
-         YSOmSr958Grqn7TdjZijZUOqWGvmGFv+kO1sUkfr5g8FW2hzxb8nSmGRwMkGP9/lfqfL
-         lV/w==
-X-Gm-Message-State: AOJu0YzEfYj06be/7o7cGMqG/4GhkhBAZq+Nf1F4i0cNrTnwbNxXSs5I
-	a2YwTOfdTolaX9+5FvWaC6Oe7nCJ+GmxFI5DWeylwSIWMh3/GqZgdplfoEWHnPsRJrnOThTPm51
-	iatuM+ap9yTkwQlSBdb5ItzG7o5QXUdYblTNXu1XwoMaYKElG5Drv1khH6tQLmXVbQLBYRPDsAV
-	0hgVY6kJr7JR6iLmW0k4I+fWe9+OSApV0NytWpc94=
-X-Gm-Gg: ASbGncs5/v/pqJgM+zgVs6l/vRagEBpycV/BN0unV4WhI+D2qszD18mmz27ptUMGtzu
-	oLDyCyEAooMa2N6LhQ/1F9ngl7N+3Q6kOxmsPVf+s5Vru+q4zkCThIn62ihXtpM/Z3s9Maw==
-X-Received: by 2002:a17:902:c949:b0:223:4537:65b1 with SMTP id d9443c01a7336-225e0af0420mr180659695ad.36.1742260386009;
-        Mon, 17 Mar 2025 18:13:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGIVPHDIs5M9plAOorlau4YdurAALCKn+kxBp22IbRBmqOdZKYB31BAjG6ty8opgO8ulSCd62gsOH3FMiNLFLU=
-X-Received: by 2002:a17:902:c949:b0:223:4537:65b1 with SMTP id
- d9443c01a7336-225e0af0420mr180659405ad.36.1742260385637; Mon, 17 Mar 2025
- 18:13:05 -0700 (PDT)
+        bh=HagLySi8cLl3r+54xADX7ls5xoEWrbGMKO8f5L1ISh8=;
+        b=EmIwBs8nRl/GDV2ihVGnS+fD2JJ2vzMbC/XEin43l2Adut2AKxeq3mdqwpWU8UhBv9
+         wpmniM1ubzX40eoPr/aItLNgqmnYLmzX2mi0WNTqQ5t0JXQ17kWpPVlMT98ViiRtsSQ3
+         X+Hn4YTlEMorMyLrDDDzvThv3rzPdq46S70qHHNHPCeApfjGq6zm2e1GUTEOmhlal8Eu
+         J4Eq9G5jDb8zuNOG5e4KTFI9+KCOLH4IWh5Q7cd5oo/7bqWGrjzMmtj4h0nE6LyLMsVM
+         xBPzJtezAcDR9bchvQMMe3PIZXABIIO5HOBY3I3149E4axebYIHOqyX3eC+d0C/rJc4i
+         6u2w==
+X-Forwarded-Encrypted: i=1; AJvYcCV+UpV1pbhb9RtU79XYA08lHzih+/TYDQqz23gtY5cR3hagnK4t4W2x78CUmZxDJNX5GTw+4fnpUw74CsIIGA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwzgrKW/PBvvV/Yjsna6MbSCUKG+qCDe2OjZzHWzQx55G4gcAhG
+	y5nZqyhNHzCfQSiP1eLZnas0x7B0lux7RW08Lzi55WTrqyiUwkKfL06PTZ0MlYA/L3E5mgP8q/j
+	HORT36yR+o42aMRZUW+mi3fKyZiyH2Skzvy6qp4zraJkP9xcOUybNWykuPVb5I4MOkhm6dkSR7z
+	m3e8rioUO7pGgEhQ7VuNbpo+8UzX3HNK80pR9CmAg=
+X-Gm-Gg: ASbGncvjxi4nqfQlbERKhNjE1Gmb+Mqxphg/12vUU0kWknw5Kn7BRq0moAjfj5tHrff
+	2BRFKFqqHP/T/T0g5vwAUIH96IqZjRVfdpzAn4IyhO4UOOff3SWUjbQHr33k5Jh87m64055QxEQ
+	==
+X-Received: by 2002:a05:6402:2813:b0:5dc:94ce:42a6 with SMTP id 4fb4d7f45d1cf-5e8a04269dcmr12618039a12.22.1742263484903;
+        Mon, 17 Mar 2025 19:04:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFTHOOl6Hk7CUXcBJnZcgEEeHkmDGirQ0K5SylxbpBmJhN12iZN0vDQ4dXRO1NR5QuZfjHl7zqPMlB3eBqqNbA=
+X-Received: by 2002:a05:6402:2813:b0:5dc:94ce:42a6 with SMTP id
+ 4fb4d7f45d1cf-5e8a04269dcmr12618008a12.22.1742263484512; Mon, 17 Mar 2025
+ 19:04:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250317235546.4546-1-dongli.zhang@oracle.com> <20250317235546.4546-5-dongli.zhang@oracle.com>
-In-Reply-To: <20250317235546.4546-5-dongli.zhang@oracle.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 18 Mar 2025 09:12:53 +0800
-X-Gm-Features: AQ5f1JpW64jPZ95eCFPlRfsQ1ehFyqhUrVvJdzZsIx4MNfGhOKRdnRftHbIpkhg
-Message-ID: <CACGkMEtOsQg68O+Nqo9ycLSq7sN4AMZ92ZvLLMEF7xYDCA5Ycw@mail.gmail.com>
-Subject: Re: [PATCH v2 04/10] vhost: modify vhost_log_write() for broader users
-To: Dongli Zhang <dongli.zhang@oracle.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	netdev@vger.kernel.org, mst@redhat.com, michael.christie@oracle.com, 
-	pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com, 
-	joao.m.martins@oracle.com, joe.jin@oracle.com, si-wei.liu@oracle.com, 
-	linux-kernel@vger.kernel.org
+References: <20250313173707.1492-1-quic_philber@quicinc.com>
+In-Reply-To: <20250313173707.1492-1-quic_philber@quicinc.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Tue, 18 Mar 2025 10:04:07 +0800
+X-Gm-Features: AQ5f1JraV-K8l7M1witBxN1YhEzF_YkK0S9tGmarwOVGMg-B43l_lWg4rMiqWYk
+Message-ID: <CAPpAL=we6VkyBXBO2cBiszpGUP5f7QSioQbp6x3YoCqa9qUPRQ@mail.gmail.com>
+Subject: Re: [PATCH v6 0/4] Add virtio_rtc module
+To: Peter Hilber <quic_philber@quicinc.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Richard Cochran <richardcochran@gmail.com>, Marc Zyngier <maz@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Trilok Soni <quic_tsoni@quicinc.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	David Woodhouse <dwmw2@infradead.org>, "Ridoux, Julien" <ridouxj@amazon.com>, 
+	Daniel Lezcano <daniel.lezcano@linaro.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Parav Pandit <parav@nvidia.com>, 
+	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Simon Horman <horms@kernel.org>, 
+	virtio-dev@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-rtc@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: BsvD96qBlb1maUwTQeDHIwHlSFgiRFu5KDaz7USDH6k_1742260386
+X-Mimecast-MFC-PROC-ID: tIf7W9XIcH6xtruKO5ziYdvEKczibbPMujkdtU0gXYk_1742263485
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 18, 2025 at 7:51=E2=80=AFAM Dongli Zhang <dongli.zhang@oracle.c=
-om> wrote:
->
-> Currently, the only user of vhost_log_write() is vhost-net. The 'len'
-> argument prevents logging of pages that are not tainted by the RX path.
->
-> Adjustments are needed since more drivers (i.e. vhost-scsi) begin using
-> vhost_log_write(). So far vhost-net RX path may only partially use pages
-> shared by the last vring descriptor. Unlike vhost-net, vhost-scsi always
-> logs all pages shared via vring descriptors. To accommodate this, a new
-> argument 'partial' is introduced. This argument works alongside 'len' to
-> indicate whether the driver should log all pages of a vring descriptor, o=
-r
-> only pages that are tainted by the driver.
->
-> In addition, removes BUG().
->
-> Suggested-by: Joao Martins <joao.m.martins@oracle.com>
-> Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-> ---
->  drivers/vhost/net.c   |  2 +-
->  drivers/vhost/vhost.c | 28 +++++++++++++++++-----------
->  drivers/vhost/vhost.h |  2 +-
->  3 files changed, 19 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index b9b9e9d40951..0e5d82bfde76 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -1219,7 +1219,7 @@ static void handle_rx(struct vhost_net *net)
->                 if (nvq->done_idx > VHOST_NET_BATCH)
->                         vhost_net_signal_used(nvq);
->                 if (unlikely(vq_log))
-> -                       vhost_log_write(vq, vq_log, log, vhost_len,
-> +                       vhost_log_write(vq, vq_log, log, vhost_len, true,
->                                         vq->iov, in);
->                 total_len +=3D vhost_len;
->         } while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)=
-));
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 9ac25d08f473..db3b30aba940 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2304,8 +2304,14 @@ static int log_used(struct vhost_virtqueue *vq, u6=
-4 used_offset, u64 len)
->         return 0;
->  }
->
-> -int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
-> -                   unsigned int log_num, u64 len, struct iovec *iov, int=
- count)
-> +/*
-> + * 'len' is used only when 'partial' is true, to indicate whether the
-> + * entire length of each descriptor is logged.
-> + */
+QE tested this series of patches v6 with virtio-net regression tests,
+everything works fine.
 
-While at it, let's document all the parameters here.
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-> +int vhost_log_write(struct vhost_virtqueue *vq,
-> +                   struct vhost_log *log, unsigned int log_num,
-> +                   u64 len, bool partial,
-> +                   struct iovec *iov, int count)
->  {
->         int i, r;
+On Fri, Mar 14, 2025 at 1:38=E2=80=AFAM Peter Hilber <quic_philber@quicinc.=
+com> wrote:
 >
-> @@ -2323,19 +2329,19 @@ int vhost_log_write(struct vhost_virtqueue *vq, s=
-truct vhost_log *log,
->         }
+> This series implements a driver for a virtio-rtc device conforming to spe=
+c
+> proposal v8 [1]. It includes a PTP clock driver and an RTC class driver
+> with alarm.
 >
->         for (i =3D 0; i < log_num; ++i) {
-> -               u64 l =3D min(log[i].len, len);
-> +               u64 l =3D partial ? min(log[i].len, len) : log[i].len;
-> +
->                 r =3D log_write(vq->log_base, log[i].addr, l);
->                 if (r < 0)
->                         return r;
-> -               len -=3D l;
-> -               if (!len) {
-> -                       if (vq->log_ctx)
-> -                               eventfd_signal(vq->log_ctx);
-> -                       return 0;
-> -               }
-> +
-> +               if (partial)
-> +                       len -=3D l;
-
-I wonder if it's simpler to just tweak the caller to call with the
-correct len (or probably U64_MAX) in this case?
-
->         }
-> -       /* Length written exceeds what we have stored. This is a bug. */
-> -       BUG();
-> +
-> +       if (vq->log_ctx)
-> +               eventfd_signal(vq->log_ctx);
-> +
->         return 0;
->  }
->  EXPORT_SYMBOL_GPL(vhost_log_write);
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index bb75a292d50c..5de5941988fe 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -224,7 +224,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct =
-vhost_virtqueue *);
->  bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+> v6 updates
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 >
->  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
-> -                   unsigned int log_num, u64 len,
-> +                   unsigned int log_num, u64 len, bool partial,
->                     struct iovec *iov, int count);
->  int vq_meta_prefetch(struct vhost_virtqueue *vq);
+> v6 fixes the PTP clock name length, and a few style issues, some of which
+> resulted in warnings.
 >
+> Overview
+> =3D=3D=3D=3D=3D=3D=3D=3D
+>
+> This patch series adds the virtio_rtc module, and related bugfixes. The
+> virtio_rtc module implements a driver compatible with the proposed Virtio
+> RTC device specification [1]. The Virtio RTC (Real Time Clock) device
+> provides information about current time. The device can provide different
+> clocks, e.g. for the UTC or TAI time standards, or for physical time
+> elapsed since some past epoch. The driver can read the clocks with simple
+> or more accurate methods. Optionally, the driver can set an alarm.
+>
+> For the Virtio RTC device, there is currently a proprietary implementatio=
+n,
+> which has been used for testing.
+>
+> PTP clock interface
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> virtio_rtc exposes clocks as PTP clocks to userspace, similar to ptp_kvm.
+> If both the Virtio RTC device and this driver have special support for th=
+e
+> current clocksource, time synchronization programs can use
+> cross-timestamping using ioctl PTP_SYS_OFFSET_PRECISE2 aka
+> PTP_SYS_OFFSET_PRECISE. Similar to ptp_kvm, system time synchronization
+> with single-digit ns precision is possible with a quiescent reference clo=
+ck
+> (from the Virtio RTC device). This works even when the Virtio device
+> response is slow compared to ptp_kvm hypercalls.
+>
+> The following illustrates a test using PTP_SYS_OFFSET_PRECISE, with
+> interspersed strace log and chrony [2] refclocks log, on arm64. In the
+> example, chrony tracks a virtio_rtc PTP clock ("PHCV", /dev/ptp0). The ra=
+w
+> offset between the virtio_rtc clock and CLOCK_REALTIME is 0 to 1 ns. At t=
+he
+> device side, the Virtio RTC device artificially delays both the clock rea=
+d
+> request, and the response, by 50 ms. Cross-timestamp interpolation still
+> works with this delay. chrony also monitors a ptp_kvm clock ("PHCK",
+> /dev/ptp3) for comparison, which yields a similar offset.
+>
+>         ioctl(5</dev/ptp3>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) =3D 0=
+ <0.000329>
+>         =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+>            Date (UTC) Time         Refid  DP L P  Raw offset   Cooked off=
+set      Disp.
+>         =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+>         2023-06-29 18:49:55.595742 PHCK    0 N 0  1.000000e-09  8.717931e=
+-10  5.500e-08
+>         2023-06-29 18:49:55.595742 PHCK    - N -       -        8.717931e=
+-10  5.500e-08
+>         ioctl(6</dev/ptp0>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) =3D 0=
+ <0.101545>
+>         2023-06-29 18:49:56.147766 PHCV    0 N 0  1.000000e-09  8.801870e=
+-10  5.500e-08
+>         2023-06-29 18:49:56.147766 PHCV    - N -       -        8.801870e=
+-10  5.500e-08
+>         ioctl(5</dev/ptp3>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) =3D 0=
+ <0.000195>
+>         2023-06-29 18:49:56.202446 PHCK    0 N 0  1.000000e-09  7.364180e=
+-10  5.500e-08
+>         2023-06-29 18:49:56.202446 PHCK    - N -       -        7.364180e=
+-10  5.500e-08
+>         ioctl(6</dev/ptp0>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) =3D 0=
+ <0.101484>
+>         2023-06-29 18:49:56.754641 PHCV    0 N 0  0.000000e+00 -2.617368e=
+-10  5.500e-08
+>         2023-06-29 18:49:56.754641 PHCV    - N -       -       -2.617368e=
+-10  5.500e-08
+>         ioctl(5</dev/ptp3>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) =3D 0=
+ <0.000270>
+>         2023-06-29 18:49:56.809282 PHCK    0 N 0  1.000000e-09  7.779321e=
+-10  5.500e-08
+>         2023-06-29 18:49:56.809282 PHCK    - N -       -        7.779321e=
+-10  5.500e-08
+>         ioctl(6</dev/ptp0>, PTP_SYS_OFFSET_PRECISE, 0xffffe86691c8) =3D 0=
+ <0.101510>
+>         2023-06-29 18:49:57.361376 PHCV    0 N 0  0.000000e+00 -2.198794e=
+-10  5.500e-08
+>         2023-06-29 18:49:57.361376 PHCV    - N -       -       -2.198794e=
+-10  5.500e-08
+>
+> This patch series only adds special support for the Arm Generic Timer
+> clocksource. At the driver side, it should be easy to support more
+> clocksources.
+>
+> Fallback PTP clock interface
+> ----------------------------
+>
+> Without special support for the current clocksource, time synchronization
+> programs can still use ioctl PTP_SYS_OFFSET_EXTENDED2 aka
+> PTP_SYS_OFFSET_EXTENDED. In this case, precision will generally be worse
+> and will depend on the Virtio device response characteristics.
+>
+> The following illustrates a test using PTP_SYS_OFFSET_EXTENDED, with
+> interspersed strace log and chrony refclocks log, on x86-64 (with `ts'
+> values omitted):
+>
+>         ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=3D10, ts=3DOMITTED})=
+ =3D 0
+>         =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+>            Date (UTC) Time         Refid  DP L P  Raw offset   Cooked off=
+set      Disp.
+>         =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+>         2023-06-28 14:11:26.697782 PHCV    0 N 0  3.318200e-05  3.450891e=
+-05  4.611e-06
+>         2023-06-28 14:11:26.697782 PHCV    - N -       -        3.450891e=
+-05  4.611e-06
+>         ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=3D10, ts=3DOMITTED})=
+ =3D 0
+>         2023-06-28 14:11:27.208763 PHCV    0 N 0 -3.792800e-05 -4.023965e=
+-05  4.611e-06
+>         2023-06-28 14:11:27.208763 PHCV    - N -       -       -4.023965e=
+-05  4.611e-06
+>         ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=3D10, ts=3DOMITTED})=
+ =3D 0
+>         2023-06-28 14:11:27.722818 PHCV    0 N 0 -3.328600e-05 -3.134404e=
+-05  4.611e-06
+>         2023-06-28 14:11:27.722818 PHCV    - N -       -       -3.134404e=
+-05  4.611e-06
+>         ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=3D10, ts=3DOMITTED})=
+ =3D 0
+>         2023-06-28 14:11:28.233572 PHCV    0 N 0 -4.966900e-05 -4.584331e=
+-05  4.611e-06
+>         2023-06-28 14:11:28.233572 PHCV    - N -       -       -4.584331e=
+-05  4.611e-06
+>         ioctl(5, PTP_SYS_OFFSET_EXTENDED, {n_samples=3D10, ts=3DOMITTED})=
+ =3D 0
+>         2023-06-28 14:11:28.742737 PHCV    0 N 0  4.902700e-05  5.361388e=
+-05  4.611e-06
+>         2023-06-28 14:11:28.742737 PHCV    - N -       -        5.361388e=
+-05  4.611e-06
+>
+> PTP clock setup
+> ---------------
+>
+> The following udev rule can be used to get a symlink /dev/ptp_virtio to t=
+he
+> UTC clock:
+>
+>         SUBSYSTEM=3D=3D"ptp", ATTR{clock_name}=3D=3D"Virtio PTP type 0/va=
+riant 0", SYMLINK +=3D "ptp_virtio"
+>
+> The following chrony configuration directive can then be added in
+> /etc/chrony/chrony.conf to synchronize to the Virtio UTC clock:
+>
+>         refclock PHC /dev/ptp_virtio refid PHCV poll -1 dpoll -1
+>
+> RTC interface
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> This patch series adds virtio_rtc as a generic Virtio driver, including
+> both a PTP clock driver and an RTC class driver.
+>
+> Feedback is greatly appreciated.
+>
+> [1] https://lore.kernel.org/virtio-comment/20250306095112.1293-1-quic_phi=
+lber@quicinc.com/
+> [2] https://chrony.tuxfamily.org/
+>
+> Changelog
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> v6:
+>
+> - Shorten PTP clock names to always fit into 32 bytes.
+>
+> - Fix sparse warning about endianness mismatch (Simon Horman).
+>
+> - Do not mark comments missing parameter documentation as kernel doc (Sim=
+on
+>   Horman).
+>
+> - Improve error status computation readability.
+>
+> - Avoid conditional locking within a block.
+>
+> v5:
+>
+> - Update to virtio-rtc spec v7, essentially removing definitions.
+>
+> - Fix multiple bugs after readying device during probe and restore.
+>
+> - Actually initialize Virtio clock id for RTC class device.
+>
+> - Add freeze/restore ops already in first patch.
+>
+> - Minor changes:
+>
+>   - Use new APIs devm_device_init_wakeup(), secs_to_jiffies().
+>
+>   - Fix style issues.
+>
+>   - Improve logging types and clarity.
+>
+>   - Drop unnecessary memory barrier pair.
+>
+>   - Return error status from device, whenever available.
+>
+> v4:
+>
+> - Update Virtio interface to spec v6.
+>
+> - Distinguish UTC-like clocks by handling of leap seconds (spec v6).
+>
+> - Do not create RTC class device for clocks which may step on leap second=
+s
+>   (Alexandre Belloni).
+>
+> - Clear RTC class feature bit instead of defining reduced ops
+>   (Alexandre Belloni).
+>
+> - For PTP clock name, always use numeric clock type, and numeric variant.
+>
+> - Use macros for 64-bit divisions.
+>
+> - Remove unnecessary memory barriers.
+>
+> - Cosmetic improvements.
+>
+> - Drop upstreamed timekeeping bugfixes from series.
+>
+> v3:
+>
+> - Update to conform to virtio spec RFC v3 (no significant behavioral
+>   changes).
+>
+> - Add RTC class driver with alarm according to virtio spec RFC v3.
+>
+> - For cross-timestamp corner case fix, switch back to v1 style closed
+>   interval test (Thomas Gleixner).
+>
+> v2:
+>
+> - Depend on patch series "treewide: Use clocksource id for
+>   get_device_system_crosststamp()" to avoid requiring a clocksource point=
+er
+>   with get_device_system_crosststamp().
+>
+> - Assume Arm Generic Timer will use CP15 virtual counter. Drop
+>   arm_arch_timer helper functions (Marc Zyngier).
+>
+> - Improve cross-timestamp fixes problem description and implementation
+>   (John Stultz).
+>
+>
+> Peter Hilber (4):
+>   virtio_rtc: Add module and driver core
+>   virtio_rtc: Add PTP clocks
+>   virtio_rtc: Add Arm Generic Timer cross-timestamping
+>   virtio_rtc: Add RTC class driver
+>
+>  MAINTAINERS                          |    7 +
+>  drivers/virtio/Kconfig               |   64 ++
+>  drivers/virtio/Makefile              |    5 +
+>  drivers/virtio/virtio_rtc_arm.c      |   23 +
+>  drivers/virtio/virtio_rtc_class.c    |  262 +++++
+>  drivers/virtio/virtio_rtc_driver.c   | 1407 ++++++++++++++++++++++++++
+>  drivers/virtio/virtio_rtc_internal.h |  122 +++
+>  drivers/virtio/virtio_rtc_ptp.c      |  347 +++++++
+>  include/uapi/linux/virtio_rtc.h      |  237 +++++
+>  9 files changed, 2474 insertions(+)
+>  create mode 100644 drivers/virtio/virtio_rtc_arm.c
+>  create mode 100644 drivers/virtio/virtio_rtc_class.c
+>  create mode 100644 drivers/virtio/virtio_rtc_driver.c
+>  create mode 100644 drivers/virtio/virtio_rtc_internal.h
+>  create mode 100644 drivers/virtio/virtio_rtc_ptp.c
+>  create mode 100644 include/uapi/linux/virtio_rtc.h
+>
+>
+> base-commit: 9d8960672d63db4b3b04542f5622748b345c637a
 > --
-> 2.39.3
+> 2.43.0
 >
-
-Thanks
+>
 
