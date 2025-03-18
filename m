@@ -1,166 +1,238 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5428192D8A
-	for <virtualization@lists.linux-foundation.org>; Tue, 18 Mar 2025 02:10:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B03651FCF47
+	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 08:39:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742263839; cv=none; b=KFPIqlV4rHQKZtCpyipJ+JLCPUAFib+HGK4J4IdBUnt/HT4lzqv6+BR07TXL/ZvCJGr9sNim11LxB/hilvuU+3hp9rXHGLp9Vm4M8kv5LgItaNKipMY74bZK1EVOZAcfoNEtEp21yYRG8NL8yQquXc3B+MvGbv0t3Ze2CCPyAZg=
+	t=1742287167; cv=none; b=e63jnndC17EQHyO46BcNiZOykkKCuFT5YfYSWAxsolnLtwfGy4HhuB0lh5iQPd5IlyFnXb4Q+YwSAgBgHlwm6vZ61Kf2paQimS5w3T61DEuTeYRdFU6UDvLntxhfSRM3l4ViY4mthasUZXPWvPtMflHYYQb0h11w+6Z1dv36s84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742263839; c=relaxed/simple;
-	bh=QR2+CQhFtF3wiXNVfMMn04N/Zgc7E9vWUP/WZyEzsE4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KbR9436VA/qd4kuZNN2JqktwofhK0eymvAcGT4bct2bzSoFlrzVNdKMQfQgToRbmIme04MjMEjeTIgzMDUOXotdJzsGpkKTUGcTiHAqTTAHoQnmdY2EYi1ob+snNEvZsJ6Tdmghqw3CUKA6a7dyXYwirwgnDhMwOnvYwRaxeNXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L0k64aBK; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1742287167; c=relaxed/simple;
+	bh=FQ4xSX7c3WjFB6LdpO8VQQHptKeGaZvZ79lk7PEmeu4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mX9CuBDU4zI7HHJzqpjercDN4X0SqLk7Vj3aOfUX16ZGKF5gt4a/JSAGWojzMIof+diRe6j91WEFAWZES4uulytVQsliuOWK5JiMdWLZpwNEvmSxjOUtIeSP9mpw+1z0AAKdbssfyGspIGPN1xyN+f9dSi93S5yjMKn4lCg3xkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Fj/Y5uSO; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L0k64aBK"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5903840F28
-	for <virtualization@lists.linux-foundation.org>; Tue, 18 Mar 2025 02:10:33 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id f4BajXMAE0mC for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Mar 2025 02:10:32 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1067540F57
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1067540F57
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L0k64aBK
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1067540F57
-	for <virtualization@lists.linux-foundation.org>; Tue, 18 Mar 2025 02:10:31 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fj/Y5uSO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742263830;
+	s=mimecast20190719; t=1742287163;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=bocJ4xY+cvLvF8Z2x24tl3LRmmXAsvkZEGxfx5yQFuM=;
-	b=L0k64aBKhp6EbDzupLaFCy+aPU5PrxFhExHhz/+PM1VwUpxn0oFPKX+3zTvabHatSTYEvL
-	eczio3BysO3SeOPgC5KWjqCSVJz2U6IwRwx4GVa+vCs/EguTBT0WbQ6mOx5mr3y/vdxd0y
-	nyGMqBmL4vikhmDdUUOhj5OJZDwCL1g=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=QJ0VMEseaolIU+CS+bme3Nsh7S58tb1KlcpXTP+Vo3o=;
+	b=Fj/Y5uSOPZI52WMg0mfjr313t0wVd8o2mAvwCXVjiAY+ItZi1/Ho4oXivUGIR+2yGjwx/V
+	pR2viuhJcWZnfi2hkP/8T9JA5vhx6/4+Z1i5+jBrhX9Zo+zA5nV+SsY+w+RnYdpdWJ6kjv
+	YZ5Hxcy7SaM695bQxmJr+zXQYNfkXtY=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-191-kfd4tOxCOciK8JCbB1ECTw-1; Mon, 17 Mar 2025 22:10:28 -0400
-X-MC-Unique: kfd4tOxCOciK8JCbB1ECTw-1
-X-Mimecast-MFC-AGG-ID: kfd4tOxCOciK8JCbB1ECTw_1742263828
-Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-5e5be5ec846so4517145a12.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 17 Mar 2025 19:10:28 -0700 (PDT)
+ us-mta-96-YJFEbLd5MESOaUUDKDA4bQ-1; Tue, 18 Mar 2025 04:39:22 -0400
+X-MC-Unique: YJFEbLd5MESOaUUDKDA4bQ-1
+X-Mimecast-MFC-AGG-ID: YJFEbLd5MESOaUUDKDA4bQ_1742287161
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43cf172ff63so18447435e9.3
+        for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 01:39:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742263827; x=1742868627;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bocJ4xY+cvLvF8Z2x24tl3LRmmXAsvkZEGxfx5yQFuM=;
-        b=EkDXe+0pAWE/eRwhmd2CgZ2zZOTimrsn83KyHGhzN9qjvpORtClqP2Rw5QL619VEo7
-         EjXFDzosnRjSO+I44bjhsTi4wNfLQtzRA2a168MRLbu42CDbbu+6Go75i0c1Ir3N/mAx
-         vxOAj7aTWybf7RXuZxODR8FpqOKOav94h+RadplFl1W5ktN0QOy1Z5edfT9O/drTlQT3
-         2eVJh7ASPbOeOVRA4MSFoUw8ESkdr4MkXdMvWvL0Um4smDYpGco+oSaKc+qZW63LuUAw
-         9rfTwREV2NsBTjLBgJtNEdonrOU2XYnvikQkeSV7sY4Wjt0TsyTIjtMNq5gi3dHZbdTx
-         1DOA==
-X-Forwarded-Encrypted: i=1; AJvYcCWwV/gPeUiX04eDwQbmbgdez9ak6z19PQZe2j1GsO2E/L4Ajx0zJRs/nYCEIejZE2DNw9sJpmfsep/Vytv8Ww==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxresqTsvXTfMie4XMQYbYSe42UNc4S+11vQOozy2nes/dedxA3
-	Moec+odaifognHnrq95bGrmu5zJsehy1QQLniPoml40O58cs4C5vgKKFGAjHjbDSoBlwsXwdFdQ
-	ajYieQNEa6tGtxzIy5U0YOKXFdz4KNQKz3X/utuYsZ1IuDXCs9Jdh3myQQ6KJOmdDaZWoSWV+FL
-	61Tv2P9M2VV1nromTViovt301xIF7WclLYa9orRC0S1vT281WTQFAi3w==
-X-Gm-Gg: ASbGnctmUrksEpDKM3JtBIBz/FCnk8JyOxifjnRoxVwwWQEJdFmlNY6toNQjoClZvIP
-	a12BxHHZn7Dyx/NG+hqUEbHufqoXkLyihLTyoW2mn91cmPcpcJuaJ4DGMs5mwdQREX3svKQk/BQ
-	==
-X-Received: by 2002:a05:6402:348d:b0:5de:cbed:c955 with SMTP id 4fb4d7f45d1cf-5e89fa5252bmr15904543a12.17.1742263827511;
-        Mon, 17 Mar 2025 19:10:27 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHCvFJRxiUrK3Hl8RQJ4gACrb1PAEIxR0Zqht6rIjp/tdZBCVDepPjzyLxDhCMISfCanvYlkZjNzb4UQTjWFWQ=
-X-Received: by 2002:a05:6402:348d:b0:5de:cbed:c955 with SMTP id
- 4fb4d7f45d1cf-5e89fa5252bmr15904525a12.17.1742263827103; Mon, 17 Mar 2025
- 19:10:27 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1742287161; x=1742891961;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=QJ0VMEseaolIU+CS+bme3Nsh7S58tb1KlcpXTP+Vo3o=;
+        b=XuY/sCb9ASVouy5elPYjC0unRoBYG0YdIUrBlNBJqc9J81wxfk1PmS4BgS0PWLDBq2
+         V1BoGOC3Fugpg2IN0Tedu+JJdM3qELu6IDDpAMM/Wzm927NQQMcVqRrLK1nGaIgJETuZ
+         W/HomqDQv6AWOTYJn4O5CtOnjnidZ4xtbmEWJqr6jdlLbMgzWvEmvl8sFo4ZnT/OeOy5
+         uWsOGtuwgZ0wkbAaMaTbVSKkgsd/XDnRy+cG0g7ad4ZgsQQpOwKiXgyTn2yvxSqME9jP
+         uz4BhCzF7PNYNkPt+qr4bT+HLjgkHr/JYsrLaosCvbl5yqmptrKvf//bIv8iaqIP6rGi
+         V5Lg==
+X-Forwarded-Encrypted: i=1; AJvYcCXf34tfPqkvaEmU3ez2ctyaRY7q2sfAg0UjUSP44l/LvZ1IyB2Bzd4DBs/HGJiOMp22+0sRcMIdrl0vI9lXag==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyN77I7xSzPNXh/AmSsdk71+1ftLGiJASdR0uSeM2bjg5gSEdxw
+	dmR0MKxpnNljfUi2348UjIBTL5Zy+zPahItdxeIVpVCwbH7vwp4xIrO/7hTBWVARbzbFdWVfSJi
+	6rRFiepk+regrPn/JOliYKQ0+IGCOBtP7+PM0vsag8cB4QvKOqDRtOEU4tVwacusi
+X-Gm-Gg: ASbGncvZXODf1BqLog6+v1JtuWkPrkMEeogH2dqDr9hxcLXPJlgveTPHPl+B3vXkIYH
+	aQCnlAoM6XSqST8253UJWNgwdCnSha4O8qHN7zQ4+u/fdgth4YWQy/v9FdBpTXMmoSiIuw58H23
+	jqw26WfnK8lPg620hNTbAAegOpIz3IBPw0enmMrjrLmPG0P78xuFOuYrldVYI3e2bHi5CriCtGY
+	CNQab9fkONcTk5pXGsLwXaqjHYgLFSzKWcr+A+vn8F7WnTrysFFnZQVj5YWwBJkcL+/jWjyj16Y
+	qa90iVcWD/HA6RLEt54gGIrY9e6olWoyGOWLCthEOlDEew==
+X-Received: by 2002:a5d:6484:0:b0:390:df02:47f0 with SMTP id ffacd0b85a97d-3971ee444e2mr15972247f8f.42.1742287160757;
+        Tue, 18 Mar 2025 01:39:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH7stufewyuFI6UX+sGIqRr7QTxoyguINXWTrLlPA7lpLF9hM8oFkQrmLLjxUlPq2VCHq/n8Q==
+X-Received: by 2002:a5d:6484:0:b0:390:df02:47f0 with SMTP id ffacd0b85a97d-3971ee444e2mr15972216f8f.42.1742287160309;
+        Tue, 18 Mar 2025 01:39:20 -0700 (PDT)
+Received: from [192.168.88.253] (146-241-10-172.dyn.eolo.it. [146.241.10.172])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-395c83b748bsm17684458f8f.39.2025.03.18.01.39.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Mar 2025 01:39:19 -0700 (PDT)
+Message-ID: <8fb48d36-f5ce-40ce-bb05-b4c342da8b4f@redhat.com>
+Date: Tue, 18 Mar 2025 09:39:17 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250317-rss-v11-0-4cacca92f31f@daynix.com> <CACGkMEu=pPTd-QHKRDw7noRCTu-18c7JLJNKZCEu5=BHAE0aJQ@mail.gmail.com>
-In-Reply-To: <CACGkMEu=pPTd-QHKRDw7noRCTu-18c7JLJNKZCEu5=BHAE0aJQ@mail.gmail.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Tue, 18 Mar 2025 10:09:50 +0800
-X-Gm-Features: AQ5f1Jpjunc8xib_cyTewZlm6iAFgRKVvfy1UVZQ0lyOQH2XWEffoxUQGNr9u5c
-Message-ID: <CAPpAL=yfgiuFA-SyrCe0Ud8Wm9tJMcMm9L4Q-AnnuRzN+Q9M=A@mail.gmail.com>
-Subject: Re: [PATCH net-next v11 00/10] tun: Introduce virtio-net hashing feature
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
-	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>, 
-	Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
-	Simon Horman <horms@kernel.org>, Jason Wang <jasowang@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v7 3/9] net: devmem: TCP tx netlink api
+To: Mina Almasry <almasrymina@google.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kselftest@vger.kernel.org
+Cc: Donald Hunter <donald.hunter@gmail.com>, Jakub Kicinski
+ <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
+ Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Jeroen de Borst <jeroendb@google.com>,
+ Harshitha Ramamurthy <hramamurthy@google.com>,
+ Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
+ <willemb@google.com>, David Ahern <dsahern@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>, sdf@fomichev.me,
+ asml.silence@gmail.com, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>,
+ Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
+ <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
+References: <20250308214045.1160445-1-almasrymina@google.com>
+ <20250308214045.1160445-4-almasrymina@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250308214045.1160445-4-almasrymina@google.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XT0CxPMSxrdaUAGushCqpU8jpp_tWRLj1A5S8SBMHg8_1742263828
+X-Mimecast-MFC-PROC-ID: saH0D9gB4qK2y8J6YkI5EMOldrXCMdRrOQt3zDvvyeQ_1742287161
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-QE tested this series of patches v11 under linux-next repo with
-virtio-net regression tests, everything works fine.
+On 3/8/25 10:40 PM, Mina Almasry wrote:
+> From: Stanislav Fomichev <sdf@fomichev.me>
+> 
+> Add bind-tx netlink call to attach dmabuf for TX; queue is not
+> required, only ifindex and dmabuf fd for attachment.
+> 
+> Signed-off-by: Stanislav Fomichev <sdf@fomichev.me>
+> Signed-off-by: Mina Almasry <almasrymina@google.com>
+> 
+> ---
+> 
+> v3:
+> - Fix ynl-regen.sh error (Simon).
+> 
+> ---
+>  Documentation/netlink/specs/netdev.yaml | 12 ++++++++++++
+>  include/uapi/linux/netdev.h             |  1 +
+>  net/core/netdev-genl-gen.c              | 13 +++++++++++++
+>  net/core/netdev-genl-gen.h              |  1 +
+>  net/core/netdev-genl.c                  |  6 ++++++
+>  tools/include/uapi/linux/netdev.h       |  1 +
+>  6 files changed, 34 insertions(+)
+> 
+> diff --git a/Documentation/netlink/specs/netdev.yaml b/Documentation/netlink/specs/netdev.yaml
+> index 36f1152bfac3..e560b05eb528 100644
+> --- a/Documentation/netlink/specs/netdev.yaml
+> +++ b/Documentation/netlink/specs/netdev.yaml
+> @@ -743,6 +743,18 @@ operations:
+>              - defer-hard-irqs
+>              - gro-flush-timeout
+>              - irq-suspend-timeout
+> +    -
+> +      name: bind-tx
+> +      doc: Bind dmabuf to netdev for TX
+> +      attribute-set: dmabuf
+> +      do:
+> +        request:
+> +          attributes:
+> +            - ifindex
+> +            - fd
+> +        reply:
+> +          attributes:
+> +            - id
+>  
+>  kernel-family:
+>    headers: [ "linux/list.h"]
+> diff --git a/include/uapi/linux/netdev.h b/include/uapi/linux/netdev.h
+> index 7600bf62dbdf..7eb9571786b8 100644
+> --- a/include/uapi/linux/netdev.h
+> +++ b/include/uapi/linux/netdev.h
+> @@ -219,6 +219,7 @@ enum {
+>  	NETDEV_CMD_QSTATS_GET,
+>  	NETDEV_CMD_BIND_RX,
+>  	NETDEV_CMD_NAPI_SET,
+> +	NETDEV_CMD_BIND_TX,
+>  
+>  	__NETDEV_CMD_MAX,
+>  	NETDEV_CMD_MAX = (__NETDEV_CMD_MAX - 1)
+> diff --git a/net/core/netdev-genl-gen.c b/net/core/netdev-genl-gen.c
+> index 996ac6a449eb..f27608d6301c 100644
+> --- a/net/core/netdev-genl-gen.c
+> +++ b/net/core/netdev-genl-gen.c
+> @@ -99,6 +99,12 @@ static const struct nla_policy netdev_napi_set_nl_policy[NETDEV_A_NAPI_IRQ_SUSPE
+>  	[NETDEV_A_NAPI_IRQ_SUSPEND_TIMEOUT] = { .type = NLA_UINT, },
+>  };
+>  
+> +/* NETDEV_CMD_BIND_TX - do */
+> +static const struct nla_policy netdev_bind_tx_nl_policy[NETDEV_A_DMABUF_FD + 1] = {
+> +	[NETDEV_A_DMABUF_IFINDEX] = NLA_POLICY_MIN(NLA_U32, 1),
+> +	[NETDEV_A_DMABUF_FD] = { .type = NLA_U32, },
+> +};
+> +
+>  /* Ops table for netdev */
+>  static const struct genl_split_ops netdev_nl_ops[] = {
+>  	{
+> @@ -190,6 +196,13 @@ static const struct genl_split_ops netdev_nl_ops[] = {
+>  		.maxattr	= NETDEV_A_NAPI_IRQ_SUSPEND_TIMEOUT,
+>  		.flags		= GENL_ADMIN_PERM | GENL_CMD_CAP_DO,
+>  	},
+> +	{
+> +		.cmd		= NETDEV_CMD_BIND_TX,
+> +		.doit		= netdev_nl_bind_tx_doit,
+> +		.policy		= netdev_bind_tx_nl_policy,
+> +		.maxattr	= NETDEV_A_DMABUF_FD,
+> +		.flags		= GENL_CMD_CAP_DO,
+> +	},
+>  };
+>  
+>  static const struct genl_multicast_group netdev_nl_mcgrps[] = {
+> diff --git a/net/core/netdev-genl-gen.h b/net/core/netdev-genl-gen.h
+> index e09dd7539ff2..c1fed66e92b9 100644
+> --- a/net/core/netdev-genl-gen.h
+> +++ b/net/core/netdev-genl-gen.h
+> @@ -34,6 +34,7 @@ int netdev_nl_qstats_get_dumpit(struct sk_buff *skb,
+>  				struct netlink_callback *cb);
+>  int netdev_nl_bind_rx_doit(struct sk_buff *skb, struct genl_info *info);
+>  int netdev_nl_napi_set_doit(struct sk_buff *skb, struct genl_info *info);
+> +int netdev_nl_bind_tx_doit(struct sk_buff *skb, struct genl_info *info);
+>  
+>  enum {
+>  	NETDEV_NLGRP_MGMT,
+> diff --git a/net/core/netdev-genl.c b/net/core/netdev-genl.c
+> index 2b774183d31c..6e5f2de4d947 100644
+> --- a/net/core/netdev-genl.c
+> +++ b/net/core/netdev-genl.c
+> @@ -931,6 +931,12 @@ int netdev_nl_bind_rx_doit(struct sk_buff *skb, struct genl_info *info)
+>  	return err;
+>  }
+>  
+> +/* stub */
+> +int netdev_nl_bind_tx_doit(struct sk_buff *skb, struct genl_info *info)
+> +{
+> +	return 0;
+> +}
+> +
+>  void netdev_nl_sock_priv_init(struct list_head *priv)
+>  {
+>  	INIT_LIST_HEAD(priv);
 
-Tested-by: Lei Yang <leiyang@redhat.com>
+I'm sorry, but this chunck does not apply cleanly anymore.
 
-On Tue, Mar 18, 2025 at 8:29=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Mon, Mar 17, 2025 at 6:58=E2=80=AFPM Akihiko Odaki <akihiko.odaki@dayn=
-ix.com> wrote:
-> >
-> > virtio-net have two usage of hashes: one is RSS and another is hash
-> > reporting. Conventionally the hash calculation was done by the VMM.
-> > However, computing the hash after the queue was chosen defeats the
-> > purpose of RSS.
-> >
-> > Another approach is to use eBPF steering program. This approach has
-> > another downside: it cannot report the calculated hash due to the
-> > restrictive nature of eBPF.
-> >
-> > Introduce the code to compute hashes to the kernel in order to overcome
-> > thse challenges.
-> >
-> > An alternative solution is to extend the eBPF steering program so that =
-it
-> > will be able to report to the userspace, but it is based on context
-> > rewrites, which is in feature freeze. We can adopt kfuncs, but they wil=
-l
-> > not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
-> > and vhost_net).
-> >
-> > The patches for QEMU to use this new feature was submitted as RFC and
-> > is available at:
-> > https://patchew.org/QEMU/20250313-hash-v4-0-c75c494b495e@daynix.com/
-> >
-> > This work was presented at LPC 2024:
-> > https://lpc.events/event/18/contributions/1963/
-> >
-> > V1 -> V2:
-> >   Changed to introduce a new BPF program type.
-> >
-> > Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> > ---
-> > Changes in v11:
-> > - Added the missing code to free vnet_hash in patch
-> >   "tap: Introduce virtio-net hash feature".
-> > - Link to v10: https://lore.kernel.org/r/20250313-rss-v10-0-3185d73a9af=
-0@daynix.com
-> >
->
-> We only have 2 or 3 points that need to be sorted out. Let's hold on
-> to the iteration until we had an agreement.
->
-> Thanks
->
+Please rebase.
+
+Disclaimer: unfortunately I must note that due to the long backlog
+pending and the upcoming merge window, I'm unsure I'll be able to
+process the next revision before the net-next closing.
+
+Thanks.
+
+Paolo
 
