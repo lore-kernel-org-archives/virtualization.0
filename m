@@ -1,125 +1,164 @@
-Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90ED81DD88D
-	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 18:53:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82EED1F0988;
+	Tue, 18 Mar 2025 22:57:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742324026; cv=none; b=UpycYSPHDEQSrC6f7M24c1i20hgFGAj2b1XQHG1UjkxFPYzL/KijDq3l6XxM4vENYDRS42KBZSQ7MM0NH+0P17TXnzg/gRk8cz1Fcsby8N/cAXT+HatGszawYW+JAYbKyJyUdAch+rVT7UOnr6mSzZtz8IgkbD76WWMqUL8w7DE=
+	t=1742338652; cv=none; b=rxHhe57Byv4A2yHdtmHxj48tDNI87Lz4KKEuPw86us9pVZunCQgqboExWN9OLjZUiff1FFTPDNGoTKfcFqyLzals6N9hRoJX4gI0QzMypzscnofTFDAzdXjEp8ccjsVonzzzd6v6Ch+p7OXC6D3vWF0O1uG2g80v11Q+KuDgV3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742324026; c=relaxed/simple;
-	bh=K8NrPJvJ8M1iVaaSo49zqyhxNu5E57OgZm4oAvKQ80A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=o5IITS0tJO3U9cdIVs2LN/nCYETAqr3qW3Ms90mnsCRsk8oHvdCDKb55Vig98D0wVuKKimsU4WuYjulrGmfbMbFqNKGJeeHVEKJ5tOTzIHNEzMMvNUc5S+6o3L1A3wxbdeNoO4RBFuzg1Yq/7wIoR5pZ8wueuYyucG2Dm8RU9G4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WEP/fUHM; arc=none smtp.client-ip=209.85.218.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742338652; c=relaxed/simple;
+	bh=Ab0mjpny9YV3cDgaOEiBxiCSt5kA5wyfbzdqOnZMbfM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tFJt8ZTNluJ9mXZegDQl5jwBrndTglhprbRFtR/9m3gVD4SHx65IglsYDbO4C8NlZ+CM39kBjVLngEoG4oa9UnK5/GbK/gdRENyjU1cLHXSbT/toWRIXDAY4k0xH7hC67QrffRFHIcRNq9NVUrtaSxwrQKDbRVeXCmUWWSyOiJg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=oLHTmfmk; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WEP/fUHM"
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-aaf0f1adef8so578041066b.3
-        for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 11:53:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742324020; x=1742928820; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kSmaS9SiczKcQtf09ulZT+5WIK4YMWt6OMaokGfRCsg=;
-        b=WEP/fUHM5rfjP9y5qD32FUTOViUBpbkp+6Vwo9Dx3G6SP+VNRm1OGJuC6vEQ9z05wO
-         eM5aBSu9cfsng+PFkxHoDErPJPR3nsc6hVMa4Pt0C8zbyYsV31kuavSSp+SzJPQMjUdQ
-         l01/IxevFDAuvVnUw0vAsjTKhzf0JF93zSlglgpVSMW7jo5kym30Yj6DvSNv8FJOSfjr
-         Uz9arkQa++VvVx5fAKIXVE8nHYHyYL7PHEOVu/Rqs1mBiZN+Pe/XO9tZ20x1u+OiWFjt
-         SY2RzfEq6l4+vZ3t+4RMWUs3qZ+zykVXJplgC198j4vxGyMMfV7oqvnWKbrsv8fA1Blj
-         o77g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742324020; x=1742928820;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kSmaS9SiczKcQtf09ulZT+5WIK4YMWt6OMaokGfRCsg=;
-        b=em0Wd/xBBdsxQLr3zDloWTyO359PjdvJhY6a2JLA7/UlISPH+2Dm9sKnclY7xQkgow
-         FrpQPeCnBvz/7/uuTzGiAsQRW5cu08JNtZpOmSvOWUEJFXaH+MEqabP2BKxiU6LYrruy
-         2x80cMYTTPHlKvzK5d2oti2PvZWj93PpPPzPoFo1zjqeJfdcUcbjqjgGlK5ePdzbSy3b
-         UGFI+xJpqODzmvTwO/fOrlGq4mpGfnBFnKdnhFhQYD69BowYk4FYnOJ9+q4sP2i21szK
-         ahbmshcS2lAv82XQFSGH6PNmmnsep4tfU8z7+/gszyCivlWowHn4BmHzNfOv1ewMhP5y
-         8kCA==
-X-Forwarded-Encrypted: i=1; AJvYcCV6qW3PCjfmsU3xajOZEluJbiqmduZa/nYCnzebvQHSyO/rFjPmLq8DDduVjFRsTeNXJq46dKHL9V3NACuhxQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywu6nzQ4dESxr0DqdvVMu8xWybUKw4jLIlNIMWLOAhFnUIGetqO
-	2/3xyQtLY0lPqfPWBm753xBvlQMc7/Hqd/21qeY+QaNf2sYH5j1CMvYTBQLlldYqeUDMVKU5+xF
-	cvysjil2IXLNTL47Fe5shlW6jYbw=
-X-Gm-Gg: ASbGncsg2aOGxQp071sGbvK6JgaaCITbXJWis6Fzkjyzw80D6m+nQxn5MkpSP7Slca+
-	Zibqz1G1gN78vElcMYwTRk5bAGYj0gjwqK6XmIt07FvMmfZg5wW4AjLDId4X5hmsAeic935sg5q
-	ifaKuT8GU+tA/AmY5Cc61NCVd1L4s=
-X-Google-Smtp-Source: AGHT+IHy0byJnCuVMXrI6AJh5ocZ8SngCGKvQOgZlVqfox+lUeg50TwL+nwFYQw3i7wWPHJ8oVgwl+RCo/bDzBfxPsI=
-X-Received: by 2002:a17:907:6093:b0:ac3:17b6:737 with SMTP id
- a640c23a62f3a-ac330489663mr2006657366b.45.1742324019491; Tue, 18 Mar 2025
- 11:53:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="oLHTmfmk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1742338650; x=1773874650;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Ab0mjpny9YV3cDgaOEiBxiCSt5kA5wyfbzdqOnZMbfM=;
+  b=oLHTmfmkX0WLbrpSr8BDX7nC+CBjtUgivGRbUI3tsf6Zf2A3RnmKI5P3
+   BJWQgaUS2NwllSNvUlrSzC5M0p5BLp8CSiQIx74To1BXifEzjBDOJK9DZ
+   ZvSXMCUkuey67EzZeliDB/ztmFBK3Q3xGs8dVAfe6wPVZbIrWlUjet6mM
+   CfBUHU5URdNjjgTnhJcrozOHJrrcuelxtarYyh3xUqozlA7+f5eMe54Qe
+   NUxeV04jnZ/HU6SYaIh5gsOYazYj1IjhQKBXxWybQ30BnLMGdNZfiIWpr
+   RCjroi5zH4vk5Pdx0IXSx2iCqa4EZBr/SISFCHI4Ay8JREgisOElXOzVi
+   A==;
+X-CSE-ConnectionGUID: r9rwr/YjR7api4tNOTB4GA==
+X-CSE-MsgGUID: QhXyZHI3RDCTmdgmgenaKQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11377"; a="60899293"
+X-IronPort-AV: E=Sophos;i="6.14,258,1736841600"; 
+   d="scan'208";a="60899293"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2025 15:57:29 -0700
+X-CSE-ConnectionGUID: LkmWyGn/TXCsM8/yBE1esg==
+X-CSE-MsgGUID: jjNBGmTXT6Cr8oaTnsh5vw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.14,258,1736841600"; 
+   d="scan'208";a="159556524"
+Received: from lkp-server02.sh.intel.com (HELO a4747d147074) ([10.239.97.151])
+  by orviesa001.jf.intel.com with ESMTP; 18 Mar 2025 15:57:25 -0700
+Received: from kbuild by a4747d147074 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tufs6-000EE2-2N;
+	Tue, 18 Mar 2025 22:57:19 +0000
+Date: Wed, 19 Mar 2025 06:56:22 +0800
+From: kernel test robot <lkp@intel.com>
+To: Peter Hilber <quic_philber@quicinc.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Richard Cochran <richardcochran@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev, Trilok Soni <quic_tsoni@quicinc.com>,
+	Peter Hilber <quic_philber@quicinc.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+	"Ridoux, Julien" <ridouxj@amazon.com>,
+	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Parav Pandit <parav@nvidia.com>,
+	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
+	Cornelia Huck <cohuck@redhat.com>, Simon Horman <horms@kernel.org>,
+	virtio-dev@lists.linux.dev, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v6 2/4] virtio_rtc: Add PTP clocks
+Message-ID: <202503190602.IElWB74j-lkp@intel.com>
+References: <20250313173707.1492-3-quic_philber@quicinc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250314085858.39328-1-vignesh.raman@collabora.com> <20250314085858.39328-4-vignesh.raman@collabora.com>
-In-Reply-To: <20250314085858.39328-4-vignesh.raman@collabora.com>
-From: Helen Mae Koike Fornazier <helen.fornazier@gmail.com>
-Date: Tue, 18 Mar 2025 15:53:27 -0300
-X-Gm-Features: AQ5f1Jqexkq1v060b1nOUslkHnhYmXG2PP3WoUMn-4HQvHnlhFu6oru5qnG3QTk
-Message-ID: <CAPW4XYb6zci74=maL8bCPDXMV=WZG=M9sFnpNxMX3auELvzUSQ@mail.gmail.com>
-Subject: Re: [PATCH v1 3/3] drm/ci: arm64.config: mediatek: enable PHY drivers
-To: Vignesh Raman <vignesh.raman@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, airlied@gmail.com, 
-	simona.vetter@ffwll.ch, robdclark@gmail.com, guilherme.gallo@collabora.com, 
-	sergi.blanch.torne@collabora.com, valentine.burley@collabora.com, 
-	lumag@kernel.org, quic_abhinavk@quicinc.com, mripard@kernel.org, 
-	jani.nikula@linux.intel.com, linux-mediatek@lists.infradead.org, 
-	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
-	intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250313173707.1492-3-quic_philber@quicinc.com>
 
-Em sex., 14 de mar. de 2025 =C3=A0s 05:59, Vignesh Raman
-<vignesh.raman@collabora.com> escreveu:
->
-> The mediatek display driver fails to probe on mt8173-elm-hana and
-> mt8183-kukui-jacuzzi-juniper-sku16 in v6.14-rc4 due to missing PHY
-> configurations.
->
-> Enable the following PHY drivers for MediaTek platforms:
-> - CONFIG_PHY_MTK_HDMI=3Dy for HDMI display
-> - CONFIG_PHY_MTK_MIPI_DSI=3Dy for DSI display
->
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+Hi Peter,
 
-Acked-by: Helen Koike <helen.fornazier@gmail.com>
+kernel test robot noticed the following build warnings:
 
-Thanks,
-Helen
+[auto build test WARNING on 9d8960672d63db4b3b04542f5622748b345c637a]
 
-> ---
->  drivers/gpu/drm/ci/arm64.config | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/gpu/drm/ci/arm64.config b/drivers/gpu/drm/ci/arm64.c=
-onfig
-> index a8fca079921b..fddfbd4d2493 100644
-> --- a/drivers/gpu/drm/ci/arm64.config
-> +++ b/drivers/gpu/drm/ci/arm64.config
-> @@ -193,6 +193,8 @@ CONFIG_PWM_MTK_DISP=3Dy
->  CONFIG_MTK_CMDQ=3Dy
->  CONFIG_REGULATOR_DA9211=3Dy
->  CONFIG_DRM_ANALOGIX_ANX7625=3Dy
-> +CONFIG_PHY_MTK_HDMI=3Dy
-> +CONFIG_PHY_MTK_MIPI_DSI=3Dy
->
->  # For nouveau.  Note that DRM must be a module so that it's loaded after=
- NFS is up to provide the firmware.
->  CONFIG_ARCH_TEGRA=3Dy
-> --
-> 2.47.2
->
+url:    https://github.com/intel-lab-lkp/linux/commits/Peter-Hilber/virtio_rtc-Add-module-and-driver-core/20250314-014130
+base:   9d8960672d63db4b3b04542f5622748b345c637a
+patch link:    https://lore.kernel.org/r/20250313173707.1492-3-quic_philber%40quicinc.com
+patch subject: [PATCH v6 2/4] virtio_rtc: Add PTP clocks
+config: sparc-allyesconfig (https://download.01.org/0day-ci/archive/20250319/202503190602.IElWB74j-lkp@intel.com/config)
+compiler: sparc64-linux-gcc (GCC) 7.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250319/202503190602.IElWB74j-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202503190602.IElWB74j-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   drivers/virtio/virtio_rtc_driver.c: In function 'viortc_probe':
+>> drivers/virtio/virtio_rtc_driver.c:665:23: warning: '/variant ' directive output may be truncated writing 9 bytes into a region of size between 6 and 15 [-Wformat-truncation=]
+       "Virtio PTP type %d/variant %d", clock_type,
+                          ^~~~~~~~~
+   drivers/virtio/virtio_rtc_driver.c:665:4: note: directive argument in the range [0, 2147483647]
+       "Virtio PTP type %d/variant %d", clock_type,
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/virtio/virtio_rtc_driver.c:664:2: note: 'snprintf' output between 28 and 46 bytes into a destination of size 32
+     snprintf(ptp_clock_name, PTP_CLOCK_NAME_LEN,
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       "Virtio PTP type %d/variant %d", clock_type,
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       leap_second_smearing);
+       ~~~~~~~~~~~~~~~~~~~~~
 
 
---=20
-Helen Koike
+vim +665 drivers/virtio/virtio_rtc_driver.c
+
+   641	
+   642	/*
+   643	 * init, deinit
+   644	 */
+   645	
+   646	/**
+   647	 * viortc_init_ptp_clock() - init and register PTP clock
+   648	 * @viortc: device data
+   649	 * @vio_clk_id: virtio_rtc clock id
+   650	 * @clock_type: virtio_rtc clock type
+   651	 * @leap_second_smearing: virtio_rtc leap second smearing
+   652	 *
+   653	 * Context: Process context.
+   654	 * Return: Positive if registered, zero if not supported by configuration,
+   655	 *         negative error code otherwise.
+   656	 */
+   657	static int viortc_init_ptp_clock(struct viortc_dev *viortc, u16 vio_clk_id,
+   658					 u8 clock_type, u8 leap_second_smearing)
+   659	{
+   660		struct device *dev = &viortc->vdev->dev;
+   661		char ptp_clock_name[PTP_CLOCK_NAME_LEN];
+   662		struct viortc_ptp_clock *vio_ptp;
+   663	
+   664		snprintf(ptp_clock_name, PTP_CLOCK_NAME_LEN,
+ > 665			 "Virtio PTP type %d/variant %d", clock_type,
+   666			 leap_second_smearing);
+   667	
+   668		vio_ptp = viortc_ptp_register(viortc, dev, vio_clk_id, ptp_clock_name);
+   669		if (IS_ERR(vio_ptp)) {
+   670			dev_err(dev, "failed to register PTP clock '%s'\n",
+   671				ptp_clock_name);
+   672			return PTR_ERR(vio_ptp);
+   673		}
+   674	
+   675		viortc->clocks_to_unregister[vio_clk_id] = vio_ptp;
+   676	
+   677		return !!vio_ptp;
+   678	}
+   679	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
