@@ -1,63 +1,65 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D044219F424
-	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 09:56:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F95E207DE7
+	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 09:57:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742291821; cv=none; b=UhNEGsyT7ysjRjwukRHEahyct1wQkUw0qeg4wI+EZ8zB147VCqiCggYsWM+FlamjnZzvvoHIJpvj21b3aFcQ1IYl4lZjdnHzsCw+VbzIacEkSc3SyPA7RsxmXR1XScJJHMnAfjBKzm4Cgh9NLQCPJhh/YokYSUWAVPZs5WTc1es=
+	t=1742291827; cv=none; b=kpuhYfTiqD3JKcy76p63KjTVrVn3T5W0+k/Bhu6Lg6Y4G3OOzpC/kjWk4sGWR+h6SW+QCVsnWejbGwAs9wXT8KVBNUlMXhHrCSc1BGWWF1UWO8UAFM79BNgiTWXE2dtsm3K82aLZm8/JhyRiMolzz9JxxrXZPVP0Q2w5rqdDSXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742291821; c=relaxed/simple;
-	bh=V0LTKhHSeqp8axFnG3MXcESZ5lvqeqj7WVpujBwX9cU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rXJ2xg4AOwTzEifsylZLAcLHYxG/O0BYY8z4GtdW9yPSwoxdEA1GrFP9aE2xribHejA3r2bJuHjJJ2g9dWhVZ55seh0VBcbAPpi9Xev1nvC4OiJc8qLOJA65h/kK3XCXytNdpZSZoYzeHFlJd59bBJcqlZjCX0JGlybuwvZueAs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=1Pu8Dl/o; arc=none smtp.client-ip=209.85.214.175
+	s=arc-20240116; t=1742291827; c=relaxed/simple;
+	bh=y7xGmXz1+joLuyF7rRKoRaRnhcPRU8zLLhDGbCzRvUU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=h37hghx2tt3tTBMS91G18z1IdY0Gzlh/bfVzpC9FqhuVhIhfzShm0+GRo97RKEe09aCaPLOQWAJ6wCuir5lpU5LwMHZ0kieiLa9sDbvsVSfCAZpGXs6wBw8hLoNElJuyDnGfjF3GaPbtngY3EEU+AQFTW5dYcyPWFm5Afj7Lh5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=emCzVpn6; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="1Pu8Dl/o"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-22438c356c8so92871395ad.1
-        for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 02:56:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="emCzVpn6"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-225477548e1so92862685ad.0
+        for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 02:57:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1742291819; x=1742896619; darn=lists.linux.dev;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=DYxrtds9WuAyx/VMy5k9Yihosia715CLjXw9v61XzK8=;
-        b=1Pu8Dl/o1hM1jPDD0TQwUkOXGbKnySXkgfk0IB76HRZDdl7nj5Dtwt2wzl0J5+3hUM
-         IvB5Qlj3QKXbs2rIhpnYjrgM/C0k0FPX7vI5/hCsYJtmj4XtaPAPCQYhwwaeUHbTZIHh
-         OScXhZWrvwktdcoTnYr8jU0B16PMl6CYqOpHchh/dD2vs9nTl2a6PuC+int5MnfBFnj1
-         Wl6j3c+oZ15AthcBo2lAWOLiZoNmGAquNV1rSewlC5oraux2rPEwUWOeADhsDzMaCoDj
-         1WztER30zW3bZb5U3fnX62Xl+tHQazY5av/0bxDQEUw1SUlRk5eGlINUKGxtCAqoPsz/
-         JWeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742291819; x=1742896619;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1742291824; x=1742896624; darn=lists.linux.dev;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=DYxrtds9WuAyx/VMy5k9Yihosia715CLjXw9v61XzK8=;
-        b=F6S8v5EdarNE6M2J7t0GPzCLPEJ2nYPFweioFg/zodrUY3xnPs8+D8znr8evBpUIwJ
-         wyWFxThv+amt9w2SmwUVhk/uUnAG4TdM5F0W90iHgwByyWOs3gzml5fHC0Z3rVYmxwBT
-         +AGGuC+/nZjw2j4vxyo2/KNzdxSFFEoHChl12i78PfX/6TUsSfg/SZl8mL/wpWkHCyDM
-         sfwhN2wxofsYfP63cotocDa2LhS1UsOKkVSIFhgY0sGF74vgqp6Zg2YQGizjyH1jggWX
-         XfD591XFwyoxI5ZXfs/IF1TucMBUd0ImAUcAfkHLW31xrKjaQZ2BYAtOb59BkTHN3vXO
-         Oi8w==
-X-Gm-Message-State: AOJu0YzQlSzFLumynZeJ78jaGiGVwPO/bX/Pg6QZsvmEGvbiJr5svBn7
-	GFrrHpRIEvrz6ZzvEYrZtJ1RKAFi3WXwt8fQwJd/I24XKNNts7U/DOdoyFVXnuI=
-X-Gm-Gg: ASbGncs7gn7N9LJxqV79T6KiFNfnxkxV4PSqh9UKfGt2JVx3lth1Z/X/8M+HHpi3TRx
-	Q1g4SDxIKn1kdFSwOjuORTrQEUnNqk6hbTJ9v2GQPWz3jIqmD2VaxQgfzTus832o1MtdsCUd6Aa
-	f0iYvi6WJmYPIJsrDU9nR2OEm3I4eZg+/420zAuG+A71Q8ZyepxVWd763iyvyHtZxqtSiJ/R8IU
-	NyZyJVrZORrUHnZaYr3kvkLD60MXhc28pfANh9L3WXrFuk7dZg6oA5Su0T65cAa0lHBmJ0bbmdZ
-	s3tCxuwNV/OHMr/FxukmF8Th0lBlmb60345l34gXkviWkO4CuWQ1lkkzbhc=
-X-Google-Smtp-Source: AGHT+IHrk0Ye2VW3IkLXWNA3Y7JUi4Z0k3Yg5or8rzVPS9hPOf7HJ1+PfOM0m9d8tJMNA1KQW6fotA==
-X-Received: by 2002:a05:6a21:9185:b0:1f5:70af:a32a with SMTP id adf61e73a8af0-1f5c1386049mr24959333637.32.1742291819121;
-        Tue, 18 Mar 2025 02:56:59 -0700 (PDT)
+        bh=VFcdkuZXdG0nFv0JVqG4IlwwkUXBEREwH0bBsZlwErc=;
+        b=emCzVpn6C33P+FtZwnkeKm8JIQyLp57HYKEhwruxe0RTh1zg+VnxaB1f+FwzZtxk3t
+         muJGj7+gfDrolm5+Y+t2uWcFimuFToYNxZdNCmFmRzkLkUwP1d2UnjgVNho/yNKB3H7r
+         ppEkqqMJFj5wVI38mO+aOkEb933r2sTDtvD/XYB35rOVClMNeja5l1pQKIY8FxNAYP/i
+         aox4E3SDACNjrLsjrd5QeqA/42QY+QtYWdd36sj6XfsoHWdt9eNZCNlrGgCIcpj/tf9B
+         Gb2VskX/kXTDcfYdo/jIa/okR6TWLL79xi6gu69Pri38JV68lYEKA2B/Du2HPZ4efNq9
+         NMIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742291824; x=1742896624;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VFcdkuZXdG0nFv0JVqG4IlwwkUXBEREwH0bBsZlwErc=;
+        b=kdDCdqlTKnC7uKvJZFQ239Y1QbWcxhIf+c9F48cTNmXxjPVNMO11ftaamhxcn/XQm5
+         M1SABcngs5VEwaZDlqm2YdDaGevYF/eucIZy0UCMA+SCkMCSvW/JrugbCxgFmryhJaMJ
+         QKKmbo9RbhPileCwuTmWDoKpS6Iv5GXh26mFj619s9I7QTr/38HVabVyHAdQHfNbCHs5
+         DDw1Zg9KKHH9B1n5iCaoYcCILWBV9LprwaANIEVBtbtj4AhqZrXIQkHAhXXGRW1PbIxG
+         HVdxawZuDH0dPJnxCAoZ+82PDzyxNEkevO50tfKWvDfTF5X10DrQ2hrWqYySLHRCODEO
+         DCpw==
+X-Gm-Message-State: AOJu0YzQpIdHThpau3LO0mNm0i03+0FE4lVyB9sW9JGWuzZVSjUAsE+S
+	dAekOc5LMbbEmucgDYX8acWSkSM2NVIXfbcLUZVnSwNNzOWG7oPBhhBSvF8ligQ=
+X-Gm-Gg: ASbGncuY3Jvxh2orktvbtyII/ZkTZTWtHhdhv7WeDWiWRdgoHytDk4o0GbV0oTREZO4
+	fT0iNItwquSKwtVQBwLqXFxyaHruRlAODPYoMLgYLcVasAob0PH7q0iAQlYsGFy06WK0EGGPCRK
+	mVa4/cx9Ld0X0KOxjBUH5I8mUFcewUWIOwaSqNrdgO9ojubCTnFj+PtccUrqPSdoSR0pOfTSxeW
+	04hpg+e+ob5x8T1oA1XqGirhmwJPProPUjM+Zgw+pBJx0dSm5gr6S6SeAT0OQ4QvSC2YIVfF00A
+	tqlq1qC92wnzNnU/cRhupdj7sRE3blboQqjXeKQIcF3C1eg1
+X-Google-Smtp-Source: AGHT+IEDg7sBznXHtheXcTwTR0qQJ5XZCTzq1W3+7+Ny1lJUvohFaD6bIzC8LuHltfp6YLS3zy5cUg==
+X-Received: by 2002:a05:6a00:2d95:b0:736:4d44:8b77 with SMTP id d2e1a72fcca58-7372236edfbmr23606104b3a.8.1742291824189;
+        Tue, 18 Mar 2025 02:57:04 -0700 (PDT)
 Received: from localhost ([157.82.207.107])
-        by smtp.gmail.com with UTF8SMTPSA id 41be03b00d2f7-af56e9ccb0csm8634097a12.2.2025.03.18.02.56.55
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-737115781f3sm9150521b3a.76.2025.03.18.02.57.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Mar 2025 02:56:58 -0700 (PDT)
+        Tue, 18 Mar 2025 02:57:03 -0700 (PDT)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Subject: [PATCH net-next 0/4] virtio_net: Fixes and improvements
-Date: Tue, 18 Mar 2025 18:56:50 +0900
-Message-Id: <20250318-virtio-v1-0-344caf336ddd@daynix.com>
+Date: Tue, 18 Mar 2025 18:56:51 +0900
+Subject: [PATCH net-next 1/4] virtio_net: Split struct
+ virtio_net_rss_config
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,10 +68,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAGJD2WcC/x3MQQqAIBBA0avErBvIQrOuEi0qp5qNhooI0t2Tl
- g8+v0AgzxRgbgp4ShzY2QrRNnDcm70I2VRD3/WyG4TGxD6yQyXlZNQk9Gh2qPHj6eT8jxawFNF
- SjrC+7wfuSPvWYgAAAA==
-X-Change-ID: 20250318-virtio-6559d69187db
+Message-Id: <20250318-virtio-v1-1-344caf336ddd@daynix.com>
+References: <20250318-virtio-v1-0-344caf336ddd@daynix.com>
+In-Reply-To: <20250318-virtio-v1-0-344caf336ddd@daynix.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
  =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
@@ -83,29 +84,41 @@ Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
  Akihiko Odaki <akihiko.odaki@daynix.com>
 X-Mailer: b4 0.15-dev-edae6
 
-Jason Wang recently proposed an improvement to struct
-virtio_net_rss_config:
-https://lore.kernel.org/r/CACGkMEud0Ki8p=z299Q7b4qEDONpYDzbVqhHxCNVk_vo-KdP9A@mail.gmail.com
+struct virtio_net_rss_config was less useful in actual code because of a
+flexible array placed in the middle. Add new structures that split it
+into two to avoid having a flexible array in the middle.
 
-This patch series implements it and also fixes a few minor bugs I found
-when writing patches.
-
+Suggested-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 ---
-Akihiko Odaki (4):
-      virtio_net: Split struct virtio_net_rss_config
-      virtio_net: Fix endian with virtio_net_ctrl_rss
-      virtio_net: Use new RSS config structs
-      virtio_net: Allocate rss_hdr with devres
+ include/uapi/linux/virtio_net.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
- drivers/net/virtio_net.c        | 119 +++++++++++++++-------------------------
- include/uapi/linux/virtio_net.h |  13 +++++
- 2 files changed, 56 insertions(+), 76 deletions(-)
----
-base-commit: d082ecbc71e9e0bf49883ee4afd435a77a5101b6
-change-id: 20250318-virtio-6559d69187db
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index ac9174717ef1..963540deae66 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -327,6 +327,19 @@ struct virtio_net_rss_config {
+ 	__u8 hash_key_data[/* hash_key_length */];
+ };
+ 
++struct virtio_net_rss_config_hdr {
++	__le32 hash_types;
++	__le16 indirection_table_mask;
++	__le16 unclassified_queue;
++	__le16 indirection_table[/* 1 + indirection_table_mask */];
++};
++
++struct virtio_net_rss_config_trailer {
++	__le16 max_tx_vq;
++	__u8 hash_key_length;
++	__u8 hash_key_data[/* hash_key_length */];
++};
++
+  #define VIRTIO_NET_CTRL_MQ_RSS_CONFIG          1
+ 
+ /*
 
-Best regards,
 -- 
-Akihiko Odaki <akihiko.odaki@daynix.com>
+2.48.1
 
