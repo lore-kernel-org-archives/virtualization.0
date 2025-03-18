@@ -1,233 +1,308 @@
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on2061.outbound.protection.outlook.com [40.107.96.61])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87307209F5C
-	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 11:25:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.96.61
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742297158; cv=fail; b=ZHH/wd1yBGEi7SdZCpJ2zxFgvnaB8X2wFn5IH/E88/834FvgkopFqlPL8p8xQoTT23vws5q4n2TRKJ0TzYxxSG+awXfTrfGtYirNFZpBQIGFL7FdhaMeFioCpK1ozCucj7U7PG0rRlI6abdQm9+mzPpiY9VcLzB0YwNtAwpUNf8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742297158; c=relaxed/simple;
-	bh=6OeRATPAZrI3nJwskZ3mey/ngyR6Vyy8uW6kYyGXmyc=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=GOiQLZnOSif+WOzuwzjaORYOVGvn8xeus2AUybrr+hua5jTnqJBgfS+M+lgTAIJRBtGGfWcocGQmaVUArVDooHsQdie5niAGwnjNPDpKfHYcqtwQGOgMfjc3rdEMWev3UBFzI4X30UTHmQw4j/EXJXqx1DWUTf4dpatStLQW2LA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Q0hjCxh4; arc=fail smtp.client-ip=40.107.96.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41206207650
+	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 15:24:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1742311479; cv=none; b=pL80h9pYheNUy6VKdMZfnvETiFOm9yUbTLZ6EMjPJAXimwy3RNTf9gKBg3jWqWdkbNhZyDl2GnxQKTpg2XMZixrAVIpCs0qnL+ZkO+aK0K5lbqO0PQ7qmD1GlFGyvH0KSbWJ/V34o9D4BZfcpdoWZSomQ5Hiiah+zln0idUFGpM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1742311479; c=relaxed/simple;
+	bh=nwUVJN4gAnpHbpMJTe6ZpZkbPRBWjH0WP7Gslu1wwWw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=M7xi0ic9k5u4SheD7bbnw2Xw69CZ74/EnnP+JRIS2K2FxnmYwyrPzwkHZwB69u10meZxn5cQ+L0Wyk/qDYzDgLr0qtQBwgCrkw00Yi6iJioTnI+sPk3VbmPtggHHFu4p7t1u6XKBP1S37QS2d0TBq0x9VGsI+2S6gQwuVULxF5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iVu5yFpS; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Q0hjCxh4"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=mJeuUwxaQTLEHQJ2YtG04YB9RfYGCtAI/fCBgw82eZ2hzFuXjoWlooB9MdYraqnKcWkCEUptN5pO3Vf9oDsr6eSQ4ik1mCUE2HwZGZgkwc6LE9wGE4sEuLSPzEJ4T6+QE3yA0Idv+JNNiDAO9avhp4tond7q9rNH/HtuWXqqNbks/fYv3Ww+4XCBplF2KWMH/+6hneqJGa8LJY9YXE3oRkVNPYcFYrc94yHMipYUwJYIwaKJSYKozCZ4otRESTRYaME3Q8lM0WwmiM0xTru8hJxM25DLoc/9tpCmGXWJmuAfE0kdlZS65vOUohMA61V6yKhlCgKMV545qxXLxGmNCA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uUnQSru0XsLXzsMeozq0OPgVh8ujRfgKt2tLEjYLXDw=;
- b=OQbVuJTNxwUI3JfS3ChA50IAe0jH0bXPF7BRk2VrST1IvUap8DmYVg806rDGyuLa9jfaz+YbniS0WPIK0df0G+bxN2SOKI8mRYD3GugV0D99wr/sNV/7ykSc2MwrZGwR/Gl937YzSiEsDqksq2EyTdoweL5McXsGaVklH69CK+u+y4QQHR8MOP8Sf26RI6KSJcD5gh3nY7nqJjEV3tSq53XEk95NeKIXFRbvR9TP7i9h1lEEUSX0PZRLKpOJgk2ZIgtwbgz6aYr4po/5uX5EyAtwU5WoG01n6Tn56qcYICujv7lTZlyL8WQAj9NPF8zVvuOsftQBcXymEyCY8GZp8g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uUnQSru0XsLXzsMeozq0OPgVh8ujRfgKt2tLEjYLXDw=;
- b=Q0hjCxh4AF8/gehB65A+pmRmj6aZV3+w3tijla6ci219vCcS3wXQmkwsa+g6Mx2TzpxMAnya61Uc6kDOn93kt3JP1evrYDjUU2NFc/6xLCWblu5IhQfXW11J9QCBP6HO9+qvOeN78Er5olNwsMWcTyyhGU9wZovhraTXr/OV8m4=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
- by DS0PR12MB8320.namprd12.prod.outlook.com (2603:10b6:8:f8::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.33; Tue, 18 Mar
- 2025 11:25:54 +0000
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941%4]) with mapi id 15.20.8534.031; Tue, 18 Mar 2025
- 11:25:53 +0000
-Message-ID: <e7614b27-e9b4-49a8-831b-0acd33911336@amd.com>
-Date: Tue, 18 Mar 2025 19:25:42 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/7] virtio-gpu api: add blob userptr resource
-To: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: Demi Marie Obenour <demiobenour@gmail.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Chia-I Wu <olvaffe@gmail.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
- Huang Rui <ray.huang@amd.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>
-References: <20250228053650.393646-1-honglei1.huang@amd.com>
- <20250228053650.393646-2-honglei1.huang@amd.com>
- <cd9f85a5-0d99-4007-bba2-d792ac9d84da@gmail.com>
- <c2d1334f-6f5a-493f-bbf0-3e92789f128a@amd.com>
- <CAAfnVBk-JJKxJXAstwmgL4=EM15RHfVm4NQST+p3nE4xi2220g@mail.gmail.com>
-Content-Language: en-US
-From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
-In-Reply-To: <CAAfnVBk-JJKxJXAstwmgL4=EM15RHfVm4NQST+p3nE4xi2220g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SG2PR01CA0185.apcprd01.prod.exchangelabs.com
- (2603:1096:4:189::19) To IA1PR12MB6435.namprd12.prod.outlook.com
- (2603:10b6:208:3ad::10)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iVu5yFpS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742311476;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=hqTTkSk1AS0bS0c1yGdSEW4YtI0XIvKuEUyQjEJj824=;
+	b=iVu5yFpSh6YY/R2Y1T3vvDrSQhgcHHVW6N2yAz8j7fAiIxnlrhRkmTBRWmC5FwI43dPzq1
+	2ozHuS8wcDoHf6yEqdkx/reVdtspJQJ2kt8I8nxCPX4YjepzSE9mvq7K/fBB1HpO1EWGkE
+	u+P1g9pvyR56AFNllUTrw3i+2n/j9QA=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-668-V_vph0JoNOOtrpjC-7q3Ug-1; Tue, 18 Mar 2025 11:24:35 -0400
+X-MC-Unique: V_vph0JoNOOtrpjC-7q3Ug-1
+X-Mimecast-MFC-AGG-ID: V_vph0JoNOOtrpjC-7q3Ug_1742311474
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ac31990bdfdso520733166b.1
+        for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 08:24:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742311474; x=1742916274;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hqTTkSk1AS0bS0c1yGdSEW4YtI0XIvKuEUyQjEJj824=;
+        b=sRvIa/zzXVw3TijNN8um70rF8+1tuh4frwM/bav2Ml+0HqScbQj7+g9nw61qIN/cjh
+         /yf7U5g3X1JhN3zNKVg1x2qG1bRI4yEdo6jW7eMgxUzyr0gP2mwAnGvhHoAKrIOFHyFm
+         R/no24YZ7pPmULSQgvlgPHmJqI9HxGSTagMK7BrQLphLLBm6tyQT/nGRuZO9MFp5+3ol
+         qCH241abfKiTOpZ6nEeLP9nnb6JipTVZ8dgLtVyGfs+lhsAPk9ttxK7hC8t/JXLvoG1W
+         hbmArefhqedAT9jzGCmpd2GLzJfT9D6GJAP15uZ31su0bbex9RAXTYK9IY4eBATrdQFz
+         0rLg==
+X-Forwarded-Encrypted: i=1; AJvYcCXUluDpjHItiW4c3KteqncxusEpCNY1w1Rca0krON2N2PrqzJ1530rDU6I4f8dCdveNKMY0jb4vfkrhHq42XA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwEpZwv9+4ld/Z25SGZKtxN24HzyG4fOj9n5CdNmFnJV/WCDme8
+	2OPqjRNnRAEP9HSZGh6MWmy5JP+gJzj3F59tBgDA3I+JaF9/q5qLJq160ola6y0k39Gy38QuujP
+	RaD9BtTV5Q4zQnmsf4Q4joAuc/qjgD0E7J6LGKWjJTFjy+YJrEKj36fQRcxcF/M9W
+X-Gm-Gg: ASbGnct1jBIJbe+5Ellw1/ivfGhzHTCGQktszviyQF04T10P1ix8NSIE7NAAxXYl+Y+
+	Xm/Lu7rSGDkscU8JO8LaqKnz3mx2pKLZGGL7Iv2fAsIk+voYQQw7LdWEwrvRtTJ0SsURTeQ8JGe
+	t04iaScbgjbqqYWK4vXKiEslNvrBZleKEmONXUIeIu8a7e2HUlvmR1sgmr4CUIOg5Egphm/1etS
+	5Xp5mYYUkS1neRVLcx0m7BJDrkxg3CpxbIWd7egX4NfZETAyoZWThB4mxx8oYGCL+BT3PFBcjLS
+	4NuAjOKn+XndHkeZfF5QR7jGyvw+GnttJmlSR0OnfIGfAGtmCamqSMZEnJqv2RL3
+X-Received: by 2002:a17:907:d92:b0:abe:fa18:1fc6 with SMTP id a640c23a62f3a-ac33010b594mr1889901666b.10.1742311473953;
+        Tue, 18 Mar 2025 08:24:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEYKgdyBOe4N9SqzNdQv0/ja/tFgBWXAA/B9X5QxvZp4bZLbnQYU/EpiDkc3dvPqkEg8rOP6g==
+X-Received: by 2002:a17:907:d92:b0:abe:fa18:1fc6 with SMTP id a640c23a62f3a-ac33010b594mr1889895666b.10.1742311473178;
+        Tue, 18 Mar 2025 08:24:33 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-29.retail.telecomitalia.it. [79.46.200.29])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac37dc4e0afsm292211266b.21.2025.03.18.08.24.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Mar 2025 08:24:32 -0700 (PDT)
+Date: Tue, 18 Mar 2025 16:24:28 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Luigi Leonardi <leonardi@redhat.com>
+Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Hyunwoo Kim <v4bel@theori.io>
+Subject: Re: [PATCH net-next v2] vsock/test: Add test for null ptr deref when
+ transport changes
+Message-ID: <tjuxwbbkwyi2ggjv6744h27rkk3kjhdbkv6mnzflg22brhakzq@dvcduolqwhl6>
+References: <20250314-test_vsock-v2-1-3c0a1d878a6d@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|DS0PR12MB8320:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3aec28c7-88d6-4770-e322-08dd660fa4ca
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?KzgzUjVBTWVWazdnU2VnR3NEaVZoeVRaQzEwUGRhdHg3ZWdTaHZRYXhRQkZE?=
- =?utf-8?B?c0FJSno5UE9vc1REdVFpZEtjWkI5T3ovd25RRmpPbW1RMWdoYnN4QWxpM0RG?=
- =?utf-8?B?SEZNS3BlNUZjb3RReUdLakJLb05OWDZ6OE00Rno0SHBQNThHTzVrMUZQQkRs?=
- =?utf-8?B?RzhGMmI4V2JzZmtWdS9qUzhzMjAvTkQrbWVzK0RTdkhoa0J0eXd1QTZ3OHAv?=
- =?utf-8?B?UHlQWnhtcitmTzd0UXhBYTZHZWVaVmltTTV0cVNIWU1CSGE3L0R4Y0ovZTRk?=
- =?utf-8?B?U0EvNS9yQlJXRHZRdVRoMVh2bHJOUVJ4Ylg5c2RTank5YTllbXNaSnc5c0ZV?=
- =?utf-8?B?V25waWxzQkhHdU5kdGxQK0RIdnhEVWk3NEwzdnBvdTJmLzkyWHIzQTluU3Y1?=
- =?utf-8?B?a1EyQjFQd2psQUc5K055NUNzSE42em1SejNqZUplOGlnRGlDK0ZOWHY0aTBs?=
- =?utf-8?B?cU4xVFA2blFrZTlMMzBrSng4UHc2NmJlSDNadUtUM2NiV3BPR3VvV3RFTDdB?=
- =?utf-8?B?ZXlZOG9Edk1PLzBzVEszdUdnNmV5dTBQZFFIUE9xQlkzSUx0c3h0YmFiV1dE?=
- =?utf-8?B?c09xS3kxbHIwUFdwbEFDNkdaSmU3NTNmT1J3MTM3SVM4b2crUlJoNTdLNVFz?=
- =?utf-8?B?eHhCVlZTaG1IVGhxdjZEZHhJQWdFVTdvREg4QXlPMUhXL1AwcnFDOHZqOTlL?=
- =?utf-8?B?OVJYUGhSVXlNWHVqa3l3SnFZVm1lSTVvV2wybEFJNHpRVVJGc01va2FzaWpr?=
- =?utf-8?B?L2Y3cldaY2NuNnNGM2VUSk1udG4zSDNOc3pROXBucm5YVGhQTE9zclFxMWI5?=
- =?utf-8?B?MllyQytCcnZCNFMrcG54T0JyZGt1Y29kVTFqMkhqOGVoWFFSc2tHaTNxOWtw?=
- =?utf-8?B?d1FOS0JuM1ZMckNOYnNKTnBmVklOVFowblNWdnJ1bE1PTFlEWGx3ZUcwQUFB?=
- =?utf-8?B?QWltNG9QNGMwM3g5WmhpWjVIbnVpYVNNamQ2aFltMmhwV2dMczhjK0IxbTll?=
- =?utf-8?B?VjREUHFBbEpQTkVGTk5kS2FsS2hNdEZXNDZTV3dQeUw2QWpjbFEzWE53UHFG?=
- =?utf-8?B?UDRNTGhXRjFwZ0tFa0kwSUVEazJNQUlhQWlYTjBLZTBXOS9TTDJndkpYTmFn?=
- =?utf-8?B?WUFicTlRLzFZaE9QTkRUdVpGcW8zV2VRSTVqdGM1emloNjdhMERHN0RFYysw?=
- =?utf-8?B?eXVyYitIdlBJOC81dUxBNUlhUWx5YlYxdkllc2JLK2FNOTZZa0k5TndQczYy?=
- =?utf-8?B?aEpyZ2FlZmJzNnoyQUc2TllCRlEvU3QzT0tvRXNrMkRwdEUwQVZWRHpWUXRl?=
- =?utf-8?B?QVNra3hxRFJ1RmxtY1ROOEhOOHlHRjRya0V4a0d6RmNPZmR0SDRSZHdjNFZQ?=
- =?utf-8?B?eitvc01ac1dRbDlldG9xa29BYVJhU1lBUy8rd3Rld3hPblQwczBnQXpDUGly?=
- =?utf-8?B?L1hVQW1sTmxSRy9hYS9odmhBRlgyYVA4dTFWNktRTWtZOXY1RitKYk9yWXhB?=
- =?utf-8?B?bnF1d09DRU5ob3JqeWpxS1BwZ3BLbEEvR2paYmZrVVJKUjI1NmUzMFA5c3ZI?=
- =?utf-8?B?UmVObkJNeThBSUVudEJtaFV1ZGFnaDlzS252L3dnNm9aTlNEdUxQMkszUllD?=
- =?utf-8?B?ekpZNzVOYzRQY2g5SXYzVmVYQ2ZBR1BiVW05eE9KWlZ3Z0p4cHpubFZTZFZw?=
- =?utf-8?B?YUdzTjZabEtCMmZsdHRVUkxWd3VRak5sWTZ2L0h2eGRlOERNa0lNcFJqWnY3?=
- =?utf-8?B?K1F6SFJtZ0x6QW5xazNLUFB3QXRvaUpPQ3pELzFBbVkwK2prNWp6cURUUWRn?=
- =?utf-8?B?YVY4K3hCTEYveWZKWkFnN01zWWlhT0NUa2FLYnFuVHVlay9BM21ueStOaGVz?=
- =?utf-8?Q?D/x3OwEK/4Yhs?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dHZOdm1UdFRSaFJIM2cwSno5N3ZlN3QzRDJGOFpLUjJBOVVyYStjenhKQ1dC?=
- =?utf-8?B?RmxFcTNWLytReG9kR0JPcjRHVk9yRFRKVlpFbjd0OGRIRDdRNkNiRGNBTkFw?=
- =?utf-8?B?aEtOMHk5WVJPRFRROG1sZTNpMkx6RGl3bUFZckk3T3VRNkhrTVNONmM4dS9u?=
- =?utf-8?B?Skxla3VGakU5VXc1UGZpVWc4NmxvcTJ1WTlzRUdzUXVabHpvTDllYU9lckNj?=
- =?utf-8?B?YmFtZXNFZFIrSnlIUmswWmRvTEZ4b1MrZzcyMlJnWDFldDdhOEI0V05qRW1s?=
- =?utf-8?B?eFR5WDNqMlhYQytidHQwVWk4aVRoSldKclM0Q2RLc1Rja1ZPK2dTSG84alA3?=
- =?utf-8?B?UEM0RkRLd2x3L0U5RjRNYnVZbk1ZQW5VWlFFZjZUNkx2VzhtN090dXdsUkNw?=
- =?utf-8?B?MG9jTWMvYkQzNFlkTlNUOEppSXkwcFBZOFk4N0F0U1l3a1JjbWppK09EN1lF?=
- =?utf-8?B?TTNmNXliaE9PTkZtZWx0OWlRVm9vQmJlNU05cGFHQkxSNkUyWi9pYW04anhS?=
- =?utf-8?B?UXNhTU5qSDQ0akRJMU0yVzdETFlQQ2YzeWZkSCtCOC91NWp4M3h4SW8vSm9m?=
- =?utf-8?B?dmdrdWh6Z0FIYXo3WkhvK1A1UzRzU1RET08wWDlaQmlZREJNc3pVSTNXVnlI?=
- =?utf-8?B?dWNoYlpEQ25YUjBnN0tMbEwwMW96LzhMbHZ5Sm5ObnNoOEppYWtkNm1Lc2xF?=
- =?utf-8?B?cnkyR1U2M29XSC9Lb1dodVA5bnREOERCdXE4UTNsQ1JRaUZUUHIrdVhJTCtL?=
- =?utf-8?B?OWYvWGhmb2xwZUhPNXRYdDltbnJ4Y3ZjSzE0KzE5dEwyYW11R0dWa2x2ajZC?=
- =?utf-8?B?VDNpMEd5YUR4MzkzbmNHS2o5bnY1ZFdFSXFtd3FSdzQ5WWFpaSsxOHJnempm?=
- =?utf-8?B?TWpoL20yNHdTdGljT0Zvc0FPN0prT0kzKzR2REM4Y1MzTkpucThvS2M3dDNj?=
- =?utf-8?B?dk03TWQ3OEMvb3REODZBZTFOKzZsVWFLdFJrWGFkMHhRTHd1SXdjZDJFdndN?=
- =?utf-8?B?ZWFIZzVSdEZOQmthRjZ3dUlHTFFmem4xdHRJYSt6S3ZWVklmV3RoNFdMSUdN?=
- =?utf-8?B?c1ZJZy9YYStWT3EwdXFYY0NLOWxnTUlaalU4bUpoUlhhWmVpb1lCeDg2dGhj?=
- =?utf-8?B?b0ZYNzlRS1NHNHZrL1FFQzBHd1hUUU1NUHZ0bHMxODBobEczd2tWL1FPcEZn?=
- =?utf-8?B?bDlQZzkxZm50VUtiRVhDZFVmd25NdzBOa2lLenZqOU1wTW8vR1hFY0lFK2Vs?=
- =?utf-8?B?QlFCV1NQYm50TzY4MG1VQWR5UzV4T3VXRTA1MGtxNUFtWkVLeExjKy8wa1hS?=
- =?utf-8?B?NmlTeDZJanM1VFJhUkIrZWFYM3k0MU93QWlQT1dSQlg4WE42a2cxL25SYXpP?=
- =?utf-8?B?dk9SKzV1Q054VEVDNUNlK0VldkI2dTMwaXF2Mk52Mzh2d3VGRjZrd1JRSFBG?=
- =?utf-8?B?SlZyQnJ4UTlQRVFuSkJrYWxEQ21QUWhRbXUwZllNSTl0STRPK29VNDJaWHBJ?=
- =?utf-8?B?dVRaaERreHJmNVozNkVWSlpwdXN5U3NpQk1VaWtLNFg0Z2h6TXdpTzEwRmhm?=
- =?utf-8?B?M0hYS3lTbTI3cytlYUhrMHk3RkVVbUlEbFVrOHJCN0U2d2xPZ09jdkV0aXFh?=
- =?utf-8?B?YUdzZmZ5OXBPWUMvTXNQMktMZ0ZiNDNkWHpzYkNIb0p0SnVHMVovOHpUQXJa?=
- =?utf-8?B?cmxKV3JPemhXQ1p0QmE5eHpnR29lOW1SSmZJbmc0VEhMd0kvREJBRXJFQloz?=
- =?utf-8?B?SmVRR3dURWpxRm5xUFNLTTRhenNlOXBMTVlkd2t2OUNlSkMwZW5NZ2FmVUQr?=
- =?utf-8?B?QllDMTBiWExtcnZpR2JsVjNPLzNkYzFnczFhVTBsUUFyUEhVU2krcCtsOE03?=
- =?utf-8?B?VytYOGUyNkNVajRtcTVvY0I4VTFhWmR5cElDaWc5MWttMCtLNUFraC9USG1x?=
- =?utf-8?B?azRQRFFkc1ZkNmxrZU40OG5oS2lWZDlHT2NoM25sdkdnSHpBSkZvc0hiSTg0?=
- =?utf-8?B?VTgvTTRTbVU4SGFuQ2x1UGZFN1BQbkFWQm5uS3VXTDdOcVBQMWw1VzJMQmYz?=
- =?utf-8?B?cE1RMHRSTkxISkVMbUUzdnZtY0o5N2dqTlptdkl5N2l1WFZrSERIOTVlTHB1?=
- =?utf-8?Q?z8mlyaT7kfPO/pMkQL5ESi7b3?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3aec28c7-88d6-4770-e322-08dd660fa4ca
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Mar 2025 11:25:53.5234
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: JzHB0O1XcaZkO0aVdDIBMqFb+hpdssAB9vNiLunW4ALEO0hYas9fbiMj14n0M946/U8b8E4v1wCZS2pYINZ0zg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8320
+In-Reply-To: <20250314-test_vsock-v2-1-3c0a1d878a6d@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ndNHHm-9IVUHw1_QgsyewYUWrySvhnTqDmxXErfO33c_1742311474
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
+On Fri, Mar 14, 2025 at 10:27:33AM +0100, Luigi Leonardi wrote:
+>Add a new test to ensure that when the transport changes a null pointer
+>dereference does not occur[1].
 
+I'd add something like this:
 
-On 2025/3/18 9:37, Gurchetan Singh wrote:
-> 
-> 
-> On Thu, Mar 6, 2025 at 2:52 AM Huang, Honglei1 <Honglei1.Huang@amd.com 
-> <mailto:Honglei1.Huang@amd.com>> wrote:
-> 
-> 
->     On 2025/3/1 5:21, Demi Marie Obenour wrote:
->      > On 2/28/25 12:36 AM, Honglei Huang wrote:
->      >> From: Honglei Huang <Honglei1.Huang@amd.com
->     <mailto:Honglei1.Huang@amd.com>>
->      >>
->      >> Add a new resource for blob resource, called userptr, used for let
->      >> host access guest user space memory, to acquire buffer based userptr
->      >> feature in virtio GPU.
->      >>
->      >> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
->      >> in this series patches only HSAKMT context can use the userptr
->      >> feature. HSAKMT is a GPU compute library in HSA stack, like
->      >> the role libdrm in mesa stack.
->      >
->      > Userptr should not be limited to HSMKMT contexts.  Userptr can
->      > accelerate shm buffers by avoiding a copy from guest to host, and
->      > it can be implemented using grant tables on Xen.
-> 
->     Yes, I totally agree userptr can accelerate shm buffers, but I currently
->     don't know if there are any other projects working on similar features,
->     or if maintainers have any opinions or better ways to implement them, so
->     I temporarily limit this feature to HSAKMT context only.
-> 
->     I am waiting for everyone's opinions, please provide your thoughts.
-> 
-> 
-> I wonder if you can emulate userptr using udmabuf on the host-side?
-> 
-> Essentially for the guest, it'll be a malloc'ed memory, which means a 
-> guest sg list.  We can convert the guest sg-list to udmabuf using well- 
-> known mechanisms on the host side.  I hope amdkfd can operate on dma- 
-> bufs too?
-> 
-> I do such a feature that would have a more generic utility outside of 
-> HSAKMT contexts and not rely on Xen-specific grant tables  ... 
-> checkout VIRTIO_GPU_BLOB_FLAG_CREATE_GUEST_HANDLE in crosvm for an example.
+"... does not occur. The bug was reported upstream [1] and fixed with
+commit 2cb7c756f605 ("vsock/virtio: discard packets if the transport
+changes")."
 
-I think userptr can be emulated by udmabuf if the sg list is from guest 
-user sapce and not moveable, amdkfd can operate dma-buf, and the userptr 
-feature can be achieved by partial functions of dma-buf as far as I can see.
+>
+>Note that this test does not fail, but it may hang on the client side if
+>it triggers a kernel oops.
 
-But the udmabuf need managed by UMD, this will result in some 
-performance loss, and we are planning to implement virtio GPU userptr 
-using hmm_rang_fault, udmabuf solution may be completely different from 
-this one.
+In my case the test failed (I guess the other side that was still
+working), so I'd say: "Note that this test may not fail in a kernel
+without the fix, ..."
 
-I saw the feature VIRTIO_GPU_BLOB_FLAG_CREATE_GUEST_HANDLE is used by 
-the crosvm in beta branch, but I can not find the kernel virtio gpu 
-part, how to access it? Maybe I can try or help.
+>
+>This works by creating a socket, trying to connect to a server, and then
+>executing a second connect operation on the same socket but to a
+>different CID (0). This triggers a transport change. If the connect
+>operation is interrupted by a signal, this could cause a null-ptr-deref.
+>
+>Since this bug is non-deterministic, we need to try several times. It
+>is safe to assume that the bug will show up within the timeout period.
 
-> 
-> 
-> 
->     Regards,
->     Honglei
-> 
+s/safe/reasonable
+
+>
+>If there is a G2H transport loaded in the system, the bug is not
+>triggered and this test will always pass.
+
+The rest LGTM.
+
+Thanks,
+Stefano
+
+>
+>[1]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
+>
+>Suggested-by: Hyunwoo Kim <v4bel@theori.io>
+>Suggested-by: Michal Luczaj <mhal@rbox.co>
+>Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
+>---
+>This series introduces a new test that checks for a null pointer
+>dereference that may happen when there is a transport change[1]. This
+>bug was fixed in [2].
+>
+>Note that this test *cannot* fail, it hangs if it triggers a kernel
+>oops. The intended use-case is to run it and then check if there is any
+>oops in the dmesg.
+>
+>This test is based on Hyunwoo Kim's[3] and Michal's python
+>reproducers[4].
+>
+>[1]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
+>[2]https://lore.kernel.org/netdev/20250110083511.30419-1-sgarzare@redhat.com/
+>[3]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/#t
+>[4]https://lore.kernel.org/netdev/2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co/
+>---
+>Changes in v2:
+>- Addressed Stefano's comments:
+>    - Timeout is now using current_nsec()
+>    - Check for return values
+>    - Style issues
+>- Added Hyunwoo Kim to Suggested-by
+>- Link to v1: https://lore.kernel.org/r/20250306-test_vsock-v1-0-0320b5accf92@redhat.com
+>---
+> tools/testing/vsock/Makefile     |   1 +
+> tools/testing/vsock/vsock_test.c | 101 +++++++++++++++++++++++++++++++++++++++
+> 2 files changed, 102 insertions(+)
+>
+>diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+>index 6e0b4e95e230500f99bb9c74350701a037ecd198..88211fd132d23ecdfd56ab0815580a237889e7f2 100644
+>--- a/tools/testing/vsock/Makefile
+>+++ b/tools/testing/vsock/Makefile
+>@@ -5,6 +5,7 @@ vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util.o msg_ze
+> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
+> vsock_perf: vsock_perf.o msg_zerocopy_common.o
+>
+>+vsock_test: LDLIBS = -lpthread
+> vsock_uring_test: LDLIBS = -luring
+> vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o msg_zerocopy_common.o
+>
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index d0f6d253ac72d08a957cb81a3c38fcc72bec5a53..d2820a67403c95bc4a7e7a16113ae2f6137b4c73 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -23,6 +23,7 @@
+> #include <sys/ioctl.h>
+> #include <linux/sockios.h>
+> #include <linux/time64.h>
+>+#include <pthread.h>
+>
+> #include "vsock_test_zerocopy.h"
+> #include "timeout.h"
+>@@ -1788,6 +1789,101 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
+> 	close(fd);
+> }
+>
+>+static void *test_stream_transport_change_thread(void *vargp)
+>+{
+>+	pid_t *pid = (pid_t *)vargp;
+>+
+>+	/* We want this thread to terminate as soon as possible */
+>+	if (pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL)) {
+>+		perror("pthread_setcanceltype");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	while (true) {
+>+		if (kill(*pid, SIGUSR1) < 0) {
+>+			perror("kill");
+>+			exit(EXIT_FAILURE);
+>+		}
+>+	}
+>+	return NULL;
+>+}
+>+
+>+static void test_transport_change_signal_handler(int signal)
+>+{
+>+	/* We need a custom handler for SIGUSR1 as the default one terminates the process. */
+>+}
+>+
+>+static void test_stream_transport_change_client(const struct test_opts *opts)
+>+{
+>+	__sighandler_t old_handler;
+>+	pid_t pid = getpid();
+>+	pthread_t thread_id;
+>+	time_t tout;
+>+
+>+	old_handler = signal(SIGUSR1, test_transport_change_signal_handler);
+>+	if (old_handler == SIG_ERR) {
+>+		perror("signal");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	if (pthread_create(&thread_id, NULL, test_stream_transport_change_thread, &pid)) {
+>+		perror("pthread_create");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+>+	do {
+>+		struct sockaddr_vm sa = {
+>+			.svm_family = AF_VSOCK,
+>+			.svm_cid = opts->peer_cid,
+>+			.svm_port = opts->peer_port,
+>+		};
+>+		int s;
+>+
+>+		s = socket(AF_VSOCK, SOCK_STREAM, 0);
+>+		if (s < 0) {
+>+			perror("socket");
+>+			exit(EXIT_FAILURE);
+>+		}
+>+
+>+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>+
+>+		/* Set CID to 0 cause a transport change. */
+>+		sa.svm_cid = 0;
+>+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>+
+>+		close(s);
+>+	} while (current_nsec() < tout);
+>+
+>+	if (pthread_cancel(thread_id)) {
+>+		perror("pthread_cancel");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	/* Wait for the thread to terminate */
+>+	if (pthread_join(thread_id, NULL)) {
+>+		perror("pthread_join");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	/* Restore the old handler */
+>+	if (signal(SIGUSR1, old_handler) == SIG_ERR) {
+>+		perror("signal");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+}
+>+
+>+static void test_stream_transport_change_server(const struct test_opts *opts)
+>+{
+>+	time_t tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+>+
+>+	do {
+>+		int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+>+
+>+		close(s);
+>+	} while (current_nsec() < tout);
+>+}
+>+
+> static void test_stream_linger_client(const struct test_opts *opts)
+> {
+> 	struct linger optval = {
+>@@ -1984,6 +2080,11 @@ static struct test_case test_cases[] = {
+> 		.run_client = test_stream_linger_client,
+> 		.run_server = test_stream_linger_server,
+> 	},
+>+	{
+>+		.name = "SOCK_STREAM transport change null-ptr-deref",
+>+		.run_client = test_stream_transport_change_client,
+>+		.run_server = test_stream_transport_change_server,
+>+	},
+> 	{},
+> };
+>
+>
+>---
+>base-commit: 4d872d51bc9d7b899c1f61534e3dbde72613f627
+>change-id: 20250306-test_vsock-3e77a9c7a245
+>
+>Best regards,
+>-- 
+>Luigi Leonardi <leonardi@redhat.com>
+>
 
