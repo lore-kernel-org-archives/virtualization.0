@@ -1,148 +1,196 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528B9209695
-	for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 09:57:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E1E224CC;
+	Tue, 18 Mar 2025 10:07:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742291846; cv=none; b=ogD7JJen2iqxWLn/2PrPSFtKYfgb6rK+F13nqTlBLGR0m1a7DJidexGGS2FIb+p+CaLiNT8Ic6xpEEHqclego6EAjlaRfQUvmGiFMai9yTzo1LRndlfjdl29VJSHSGnVlNq4l82KIijnDJQTak83OPId4Z3esX5WUs2vhjCVLoQ=
+	t=1742292459; cv=none; b=kvl1Pjh6bH3ploREtY9SXAeNeqA7JUcTa2GnSNG563mp91NBJV7WDWzR9AFZS3DTPRfF8JXSH+NI4U+VaIPF+LGdO0clAvp4eVi6bntVWhdFMimvCPk1V6k2bxNRK4+zz73qk3tuqDV2iWbZwziQ2DK2r3WA4/owGe+BCQ0zpuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742291846; c=relaxed/simple;
-	bh=PTPRleizS1Yo/Zj2lCHknRUrDScXS7LpuAGSZt5GrG4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=nG32m1IPdXEWIMRGpMGFcugP+CreRZDveyS/EgX/LNjpoxTobGHcOZE3cT/wp1Fgvlt9GzeK5cmK1tmOv9OcpjutJPRvbFiyTfki15JiV+ShWHlD0D1EFBfGdme8XyPpQQsEn7C+bKla41pDn1UixL7+pwjNpNEW3PrNL+E5pwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=o3etnJ1E; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
+	s=arc-20240116; t=1742292459; c=relaxed/simple;
+	bh=+ISdKmXgFs1C7oP9Ozri5R8MClEuKMPYaSraYlfzSEQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=jDvNruCaGqI9/V+8YCVkkPELgojTXQx63iCBNQAAE/qLyzENDwfeYpz2i9Z2vHyLT5MDtPR4sfBJa3sYquB6s/d92EowcN9TnfCQ5rTkF261i5PIQdZ0qUUsaxkCPCBP8O2zKpb7Ka/D5zH5h4xsI58p3v3/bse/LgpeF/1J7lA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M4vzoOBT; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="o3etnJ1E"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2240b4de12bso2756295ad.2
-        for <virtualization@lists.linux.dev>; Tue, 18 Mar 2025 02:57:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1742291840; x=1742896640; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Wp+TkaR3KA/C/LJhQd39jSgt/1NvtxrTDAfmjY+x69o=;
-        b=o3etnJ1E1ZjuYhCsyMFa+VMunmbKGyHRKMSUZerh9Fyi2Bgh6NWNLZB9ZV4YSCSsQZ
-         7NUkd/+w/AWM/6kPU7k5QCZuxJNaysOFE9xgN6GWul75pleY2CF5Ji3L4SDUnsWUDdhr
-         k9IFSpEHFUgiGR32oJc8V/Cci/flWTsolQg0hXFcKcLb6ysojiJ1FXy7YDtuJyzOnrVA
-         6VM8FkAeY2OCr/vJoS2AH92+j0s2Pu/tm5F5gwhWEhRu8EeZWvYeuFgArXE9yoLlWVQJ
-         BojLH8lcwudC4EnhlAg1zXCMAetby1Dw6xT3zr8dvmreDKBtZO0GNUMSEt/s1288Nv8O
-         Qwpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742291840; x=1742896640;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Wp+TkaR3KA/C/LJhQd39jSgt/1NvtxrTDAfmjY+x69o=;
-        b=GAtc3dd6McKKjoWPXfNL2k3Yxaqa6qGQpGU4iPujvezos2UiobN7ZbK/RiTX6DvvOt
-         +SoeBrmZ4l3R9oRCqkgBZZulZmxb5YRdguLs+ibpY5kdTdQEFM/peSR2Yqnt20ncDTQZ
-         yACrvV8sAH9CY3WhhbGGClDBdmt8FDj0dMbcfX5esLrLmv4sFSrmyOuqR59OxGJrEZ8i
-         yaLlFe8M0Fg2sRzSrMO5g2i1uDUiY6WoAMQXdqzcrVExkUk/Sw9HHoD90uxhJFclSAqk
-         OKdxqKEsO7MNPj/16dCPrHZHJXE8xxVK1x5BMzI0YNdU3Qg0kJi9FpXsm0QUkPCJ+5G9
-         Z7Wg==
-X-Gm-Message-State: AOJu0YwAfnz9Zl6jM3/Wr6h/qNm6TYaMymZ53iEBBwjQHMtsWBAqcKRZ
-	hNIWyKPXq1vsw+uMP4QLoKO0o3CM0LxMNVVs6N5WapFeRCQI/MlKSSNDw99jNajH9UC9pFe3Ttg
-	4NXE=
-X-Gm-Gg: ASbGnctssA6qLb5noi6CscGiL/lMB8jhjmhVRaGTIkrLkdqEjGVLgNoT53/bw7iHbVD
-	zPa81AlZw+r8SPV//0kloZjRWeQSWlDg813lvTVAoGNl0ENt9yCjooHTctfxyBn1Z0vibzH57lC
-	KDHGI05cxcraQ4+juupJxdPG18iizgARr6X5Z23EYZEFPe652w8ke7PBz+EsFJ4uX3yChIBXqF+
-	1/phulatWxUP6mzf3iKjOUWUJuFxreEI51m0CoXVtSf+0tZhrkv8l8ncfJKudeId5ADbp4gA64Z
-	SUABTYfYoU0Aj8z/ja5RKVUEGE9Q5yIRkWa5mSwEThD8GSUa
-X-Google-Smtp-Source: AGHT+IEau+wjrdRHJMlS5nyOT1rvXp0wuHKf/Prbu5sQ6Jh/4b7CF8c7TS8qmvF6EWe5N8kKungcAQ==
-X-Received: by 2002:a05:6a00:b91:b0:736:42a8:a742 with SMTP id d2e1a72fcca58-737223b9098mr15931032b3a.11.1742291840607;
-        Tue, 18 Mar 2025 02:57:20 -0700 (PDT)
-Received: from localhost ([157.82.207.107])
-        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-737116b0ec4sm9074760b3a.159.2025.03.18.02.57.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Mar 2025 02:57:20 -0700 (PDT)
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Tue, 18 Mar 2025 18:56:54 +0900
-Subject: [PATCH net-next 4/4] virtio_net: Allocate rss_hdr with devres
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M4vzoOBT"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52I8xLdu012733;
+	Tue, 18 Mar 2025 10:07:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=OW7FGx
+	twuhQz7FQIkRKh8JRCfEKnWnHWxNLHxJQKBy8=; b=M4vzoOBTuatzC3uwpWrKWY
+	OsL4VpMJiTgyYh2HbBHtp41WVc135SwDZYn/wxtPkruqJbvefHbttZ113wz7zzmc
+	EGL320DFhd5+0KUsBfz2dWwN5xcbdNSbuvqvc2SUWWAFyBlkQyvyfxDJrFaZbf45
+	N98d08Y/j7x2XZ9pfpd1y41ijoTOn1bQHWXMsA3YnXWnsIWuRmUxjQb/nhi0QHMB
+	rPUdiHTWFdyf6gXtr10lqOK/KS0KX7EtE9nA61vIg7DB5aTqmN9y4FB2hif7Kd9i
+	1t8I81FfXbu5ttAhaFynUr4QOXO2zHAdyYYpC91XEqDHfC0AdFyXoS9md1nCd9bg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45eu55twja-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Mar 2025 10:07:31 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52I7vq2g024440;
+	Tue, 18 Mar 2025 10:07:30 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45dncm34s2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Mar 2025 10:07:30 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52IA7Q4d48300482
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 18 Mar 2025 10:07:27 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E0E752006B;
+	Tue, 18 Mar 2025 10:07:26 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ADCF22006A;
+	Tue, 18 Mar 2025 10:07:26 +0000 (GMT)
+Received: from li-9b52914c-2c8b-11b2-a85c-a36f6d484b4a.boeblingen.de.ibm.com (unknown [9.155.199.15])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 18 Mar 2025 10:07:26 +0000 (GMT)
+Message-ID: <649563cf1b8abd42401ed78d84bfd576d48bdbb8.camel@linux.ibm.com>
+Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio
+ spec
+From: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
+To: Amit Shah <amit@kernel.org>, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux.dev
+Cc: arnd@arndb.de, gregkh@linuxfoundation.org, brueckner@linux.ibm.com,
+        schnelle@linux.ibm.com, pasic@linux.ibm.com
+Date: Tue, 18 Mar 2025 11:07:26 +0100
+In-Reply-To: <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
+References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
+	 <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250318-virtio-v1-4-344caf336ddd@daynix.com>
-References: <20250318-virtio-v1-0-344caf336ddd@daynix.com>
-In-Reply-To: <20250318-virtio-v1-0-344caf336ddd@daynix.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Andrew Melnychenko <andrew@daynix.com>, Joe Damato <jdamato@fastly.com>, 
- Philo Lu <lulie@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
- netdev@vger.kernel.org, devel@daynix.com, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-X-Mailer: b4 0.15-dev-edae6
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: tnZDim3aAFqnogX3XY3ymudg_94svXBV
+X-Proofpoint-GUID: tnZDim3aAFqnogX3XY3ymudg_94svXBV
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-18_04,2025-03-17_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ mlxlogscore=999 priorityscore=1501 adultscore=0 suspectscore=0
+ impostorscore=0 mlxscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503180072
 
-virtnet_probe() lacks the code to free rss_hdr in its error path.
-Allocate rss_hdr with devres so that it will be automatically freed.
+On Mon, 2025-03-03 at 12:54 +0100, Amit Shah wrote:
+> On Tue, 2025-02-25 at 10:21 +0100, Maximilian Immanuel Brandtner
+> wrote:
+> > According to the virtio spec[0] the virtio console resize struct
+> > defines
+> > cols before rows. In the kernel implementation it is the other way
+> > around
+> > resulting in the two properties being switched.
+>=20
+> Not true, see below.
+>=20
+> > While QEMU doesn't currently support resizing consoles, TinyEMU
+>=20
+> QEMU does support console resizing - just that it uses the classical
+> way of doing it: via the config space, and not via a control message
+> (yet).
+>=20
+> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tr=
+ee/drivers/char/virtio_console.c#n1787
+>=20
+> https://lists.nongnu.org/archive/html/qemu-devel/2010-05/msg00031.html
+>=20
+> > diff --git a/drivers/char/virtio_console.c
+> > b/drivers/char/virtio_console.c
+> > index 24442485e73e..9668e89873cf 100644
+> > --- a/drivers/char/virtio_console.c
+> > +++ b/drivers/char/virtio_console.c
+> > @@ -1579,8 +1579,8 @@ static void handle_control_message(struct
+> > virtio_device *vdev,
+> > =C2=A0		break;
+> > =C2=A0	case VIRTIO_CONSOLE_RESIZE: {
+> > =C2=A0		struct {
+> > -			__u16 rows;
+> > =C2=A0			__u16 cols;
+> > +			__u16 rows;
+> > =C2=A0		} size;
+> > =C2=A0
+> > =C2=A0		if (!is_console_port(port))
+>=20
+> This VIRTIO_CONSOLE_RESIZE message is a control message, as opposed
+> to
+> the config space row/col values that is documented in the spec.
+>=20
+> Maybe more context will be helpful:
+>=20
+> Initially, virtio_console was just a way to create one hvc console
+> port
+> over the virtio transport.=C2=A0 The size of that console port could be
+> changed by changing the size parameters in the virtio device's
+> configuration space.=C2=A0 Those are the values documented in the spec.=
+=20
+> These are read via virtio_cread(), and do not have a struct
+> representation.
+>=20
+> When the MULTIPORT feature was added to the virtio_console.c driver,
+> more than one console port could be associated with the single
+> device.
+> Eg. we could have hvc0, hvc1, hvc2 all as part of the same device.=20
+> With this, the single config space value for row/col could not be
+> used
+> for the "extra" hvc1/hvc2 devices -- so a new VIRTIO_CONSOLE_RESIZE
+> control message was added that conveys each console's dimensions.
+>=20
+> Your patch is trying to change the control message, and not the
+> config
+> space.
+>=20
+> Now - the lack of the 'struct size' definition for the control
+> message
+> in the spec is unfortunate, but that can be easily added -- and I
+> prefer we add it based on this Linux implementation (ie. first rows,
+> then cols).
 
-Fixes: 86a48a00efdf ("virtio_net: Support dynamic rss indirection table size")
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
----
- drivers/net/virtio_net.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+Under section 5.3.6.2 multiport device operation for
+VIRTIO_CONSOLE_RESIZE the spec says the following
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4153a0a5f278..6cbeba65a4a4 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3580,7 +3580,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
- 		old_rss_hdr = vi->rss_hdr;
- 		old_rss_trailer = vi->rss_trailer;
--		vi->rss_hdr = kmalloc(virtnet_rss_hdr_size(vi), GFP_KERNEL);
-+		vi->rss_hdr = devm_kmalloc(&dev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
- 		if (!vi->rss_hdr) {
- 			vi->rss_hdr = old_rss_hdr;
- 			return -ENOMEM;
-@@ -3591,7 +3591,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 
- 		if (!virtnet_commit_rss_command(vi)) {
- 			/* restore ctrl_rss if commit_rss_command failed */
--			kfree(vi->rss_hdr);
-+			devm_kfree(&dev->dev, vi->rss_hdr);
- 			vi->rss_hdr = old_rss_hdr;
- 			vi->rss_trailer = old_rss_trailer;
- 
-@@ -3599,7 +3599,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 				 queue_pairs);
- 			return -EINVAL;
- 		}
--		kfree(old_rss_hdr);
-+		devm_kfree(&dev->dev, old_rss_hdr);
- 		goto succ;
- 	}
- 
-@@ -6702,7 +6702,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
- 				rss_max_indirection_table_length));
- 	}
--	vi->rss_hdr = kmalloc(virtnet_rss_hdr_size(vi), GFP_KERNEL);
-+	vi->rss_hdr = devm_kmalloc(&vdev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
- 	if (!vi->rss_hdr) {
- 		err = -ENOMEM;
- 		goto free;
-@@ -6985,8 +6985,6 @@ static void virtnet_remove(struct virtio_device *vdev)
- 
- 	remove_vq_common(vi);
- 
--	kfree(vi->rss_hdr);
--
- 	free_netdev(vi->dev);
- }
- 
+```
+Sent by the device to indicate a console size change. value is unused.
+The buffer is followed by the number of columns and rows:
 
--- 
-2.48.1
+struct virtio_console_resize {=20
+        le16 cols;=20
+        le16 rows;=20
+};
+```
+
+It would be extremely surprising to me if the section `multiport device
+operation` does not document resize for multiport control messages, but
+rather config messages, especially as VIRTIO_CONSOLE_RESIZE is
+documented as a virtio_console_control event.
+
+In fact as far as I can tell this is the only part of the spec that
+documents resize. I would be legitimately interested in resizing
+without multiport and I would genuinely like to find out about how it
+could be used. In what section of the documentation could I find it?
+
+>=20
+> But note that all this only affects devices that implement multiport
+> support, and have multiple console ports on a single device.=C2=A0 I don'=
+t
+> recall there are any implementations using such a configuration.
+>=20
+> ... which all leads me to ask if you've actually seen a
+> misconfiguration happen when trying to resize consoles which led to
+> this patch.
+>=20
+> 		Amit
 
