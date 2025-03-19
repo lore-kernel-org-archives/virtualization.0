@@ -1,365 +1,352 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 483EEA935
-	for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 13:03:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C3412561A4
+	for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 13:24:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742389396; cv=none; b=krexayfRmkV3DaiXUIgFSZh7eGvNjghZAK65fY5hJvWxJra8ttgYrb7sxSVw1/GgNDnmDww/apgv6/Sh92i3g73usLe4aGkhRlf05A4o4uDx5NeOH64qxhpN9NI2JM42Tw4cyjx7zCRzXSF7q0uL63FzW2crJJ5SqN92InkvaQc=
+	t=1742390648; cv=none; b=jhIKQOSkFG+xzSZUHx8PtkxG1YSgmfasW5ab5QJ0D0tAPSlCAHFyaKwyMYSZnSAsr/O1h8RCfrm3vGYi+z9P2ppfiZXm+dexeL49rAK0DUPkvhao/CpGo0pzdxgkvA9D1WLfxs+US4Sd/qBoJhKci7EqwlGUzJY8hDPyQ1rAzbA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742389396; c=relaxed/simple;
-	bh=yAzx0c228WGA/nr3V4BYObbrF98vgjmkRWrSf0j3H8A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=n4hoIS7aJlsYo6vG8jLM4FgvHHMhB2YnaeA1oZpoo4tUvOtsCj3opDtr/9kvMcIwgAMX+T+HXzTMuht/9GqDKq6hLmQ7AIoF1ezbyCnTr2lpHq8G3uNYJ2yfKkcnpf8XH4QPFF0KZ2aCACI3VmJlZb2JLSszw/woQJlrbsFwPlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xl4B7fpd; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1742390648; c=relaxed/simple;
+	bh=/q0O6SoH0MFOJQ+VtkIjMVBenhQqH+wVMIprdvwEass=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CsXiHjik88dJ7bHXQfIN055Im9Xu7IBRzcZgHQWDevNJ9UPKgGnCBrPmYvbqDqYIeyzSmj9zBJLcB3bI3MeAeX63Mfup3OU5+GH7Q/wwKc6z29oAlMzaUau2Be3RbCMfkFJp3PSjxUg6sACE+mzR+/wPPgLTUTsW3iNnx1mMjiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=mHoJNP10; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xl4B7fpd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742389393;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=L5KvoLvfCO2GqePbpG++oDUZVlLR8Oc0vObG3V7PZYI=;
-	b=Xl4B7fpdVXhSwDqoPMj4Bu0OBmejwZasOJJLxJn0D7ogm5JZXY6Bt66Jr/D3nJPseKG/1Q
-	rWJzSt1mkqYL2p5FB8FNR1UHaBS2ue81XzZzOykFYVgdShHGtqOT6NIgMcLmuqMbTqL7Fr
-	QiGw/VX2qt+U7eT1kFqKApIFQ8NhV5c=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-137-m1ry9XAiMVWlWZ1roWPdvQ-1; Wed, 19 Mar 2025 09:03:07 -0400
-X-MC-Unique: m1ry9XAiMVWlWZ1roWPdvQ-1
-X-Mimecast-MFC-AGG-ID: m1ry9XAiMVWlWZ1roWPdvQ_1742389386
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ac31990bdfdso617049766b.1
-        for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 06:03:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742389386; x=1742994186;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=L5KvoLvfCO2GqePbpG++oDUZVlLR8Oc0vObG3V7PZYI=;
-        b=Vv9cALy9lhpvAAkZQetnwPv2p7jOMbEHw+aR+XRJDVPDckqoKcxyMZyThSpxIo+z1r
-         M2CBaeYxQSc9ees4exquD2RUcSJ5M8xCsXKA4I5eSKcKHcjRiWdb/WmwKDH3EJk3QDya
-         IAHTAqXXp4fD4am9TmgsfbN18v4ZHINr+HIcu8DVazmzIfxeRBp6cPjy1qkYd1Y1B1NR
-         xvTc+XEsaVPf6b35VCZZc/vBT1x1dcjHtLViptlEtOeQWefbYxb1Q5+5/h/eDKXv8Oci
-         BtIrtZ7l/QwfWR9mllQSKgjigOZaU9FkM9XqpqB9U66O6/YKXGESSi5ODIXHeVaVMFQw
-         iIQg==
-X-Forwarded-Encrypted: i=1; AJvYcCV66cAsF4Dsw56uBhUAwBu/kNNkyT/0FVOjzbBnb/5Y7E/05FDB+HwgPXWifhA0M0EA65TAMHKWZCaNX/zPoA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyAtcPRzQpFSLji35DVtQG7mWiyoqKwihNh3DV/ueWQfLnm9Nel
-	cpVmlRGjymqvAVQY5i5079A3VxJGSyZ8RgjPcOE1+GJcq87d3Of4v5hRT2wblqUqirQ19eqRaw3
-	Nc7djhv35yiZaTDtFIJru8MiQVdAsmkjk2Fv2kKHzrmwhqfy2rXQgFC5Ck2PMWfLD
-X-Gm-Gg: ASbGncumZE4NTamVGuUKw6ym7vbnlatinHzjjbZgB8rCn4I8Quxpu48p5uNE0uFBHDk
-	TTmsT27R6WR5atq7CLaViOUEWqYSfi5vFYH3rAmDtSAxyw3YuH8Z4veSmD8bk8una7igeNuDXE1
-	DEtWZg9fmYEkcdkBp/KHYmM5itCnLYmNigatOrE1MQcfd2A7Fisiz7ZP5/OPhHTo6k6QdV5NpsQ
-	WKbeVkXxBJEgO4YXrup0efGCUpeh5U76vFMY+wm1LMdBIU0Tx3/55hDmDHtEasfKQUfpEND98NK
-	T5WI3OChRgmegIUp6+yU0UW9kbAB1riSpZ+r/4X0q+AAEvXnGz++qgvcEE8thQ==
-X-Received: by 2002:a17:907:94c5:b0:ac3:50b:b810 with SMTP id a640c23a62f3a-ac3b7e81331mr283802066b.33.1742389385899;
-        Wed, 19 Mar 2025 06:03:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHX8tsi7utsUzXyDOLGgGqVSjOZ0FllgK/3DLytjT5YpmEthJZMbrdByXJvSa+B6nX/bHrLOA==
-X-Received: by 2002:a17:907:94c5:b0:ac3:50b:b810 with SMTP id a640c23a62f3a-ac3b7e81331mr283614366b.33.1742389362916;
-        Wed, 19 Mar 2025 06:02:42 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-53-30-53.retail.telecomitalia.it. [79.53.30.53])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac3b2b94da0sm133809866b.148.2025.03.19.06.02.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Mar 2025 06:02:42 -0700 (PDT)
-Date: Wed, 19 Mar 2025 14:02:32 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, 
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
-	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, "David S. Miller" <davem@davemloft.net>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] vsock: add network namespace support
-Message-ID: <sqvqvlovlxpfo2tlkazugkocwmlhc7iay2kvq7b75bgwk7vhfw@tvgfe5fj3mw6>
-References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
- <20250312-vsock-netns-v2-1-84bffa1aa97a@gmail.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="mHoJNP10"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1742390643;
+	bh=/q0O6SoH0MFOJQ+VtkIjMVBenhQqH+wVMIprdvwEass=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=mHoJNP10AgtwqBskl0LN65UQ0xnHsutVsDDfy3bwvrJ7UMm0M6ZZyp3T9eeeuQDcT
+	 U61MCWmaVD+lTq5t62sP9iLIzxwjt/cc+hjtYS6eKJ8KYtsh+QMCGOR3UGE/GWNUTw
+	 91IymJmdEAz6lfDjUMieJohzuYGUe/PmuGdzYghW6JGDEnldNOzO5HrWPtTYnliwpm
+	 k+WLD3O+8jTVhdlIaN5Vd4gyDB2qb7GHcsh5RKnWrDj351H2uIHanGyZ0WtDwSyFzW
+	 W7m+B0KocDHuZRCzJa//B4LrvJIssR98yp96Um/C4FYjd5K/wYYfZiRzuFleORMB4E
+	 04I7dujFHkJPQ==
+Received: from [192.168.50.250] (unknown [171.76.87.92])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 2570F17E0C37;
+	Wed, 19 Mar 2025 14:23:58 +0100 (CET)
+Message-ID: <38315386-9975-4bbb-91e8-34b872487c26@collabora.com>
+Date: Wed, 19 Mar 2025 18:53:46 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250312-vsock-netns-v2-1-84bffa1aa97a@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LE1jxYVmKj3dVfIP2-Sj5ybYeMmo5sqnlDAVblxyhqo_1742389386
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] drm/ci: uprev mesa
+To: Helen Mae Koike Fornazier <helen.fornazier@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
+ airlied@gmail.com, simona.vetter@ffwll.ch, robdclark@gmail.com,
+ guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
+ valentine.burley@collabora.com, lumag@kernel.org, quic_abhinavk@quicinc.com,
+ mripard@kernel.org, jani.nikula@linux.intel.com,
+ linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20250314085858.39328-1-vignesh.raman@collabora.com>
+ <20250314085858.39328-2-vignesh.raman@collabora.com>
+ <CAPW4XYZ6+kc+Pj61_Kz8-CEy0Aed92XeXDnUiDAEGNBU+SPxAg@mail.gmail.com>
+Content-Language: en-US
+From: Vignesh Raman <vignesh.raman@collabora.com>
+In-Reply-To: <CAPW4XYZ6+kc+Pj61_Kz8-CEy0Aed92XeXDnUiDAEGNBU+SPxAg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 12, 2025 at 01:59:35PM -0700, Bobby Eshleman wrote:
->From: Stefano Garzarella <sgarzare@redhat.com>
->
->This patch adds a check of the "net" assigned to a socket during
->the vsock_find_bound_socket() and vsock_find_connected_socket()
->to support network namespace, allowing to share the same address
->(cid, port) across different network namespaces.
->
->This patch preserves old behavior, and does not yet bring up namespace
->support fully.
->
->Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Hi Helen,
 
-I'd describe here a bit the new behaviour related to `fallback` that you 
-developed.
+On 19/03/25 00:22, Helen Mae Koike Fornazier wrote:
+> Em sex., 14 de mar. de 2025 às 05:59, Vignesh Raman
+> <vignesh.raman@collabora.com> escreveu:
+>>
+>> LAVA was recently patched [1] with a fix on how parameters are parsed in
+>> `lava-test-case`, so we don't need to repeat quotes to send the
+>> arguments properly to it. Uprev mesa to fix this issue.
+>>
+>> [1] https://gitlab.com/lava/lava/-/commit/18c9cf79
+>>
+>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+>> ---
+>>   drivers/gpu/drm/ci/build.sh       | 16 ++++++++--------
+>>   drivers/gpu/drm/ci/build.yml      |  8 ++++++++
+>>   drivers/gpu/drm/ci/container.yml  | 24 +++++++++++++++++++++++
+>>   drivers/gpu/drm/ci/gitlab-ci.yml  | 32 ++++++++++++++++++++++++++++++-
+>>   drivers/gpu/drm/ci/image-tags.yml |  4 +++-
+>>   drivers/gpu/drm/ci/lava-submit.sh |  3 ++-
+>>   drivers/gpu/drm/ci/test.yml       |  2 +-
+>>   7 files changed, 77 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/ci/build.sh b/drivers/gpu/drm/ci/build.sh
+>> index 19fe01257ab9..284873e94d8d 100644
+>> --- a/drivers/gpu/drm/ci/build.sh
+>> +++ b/drivers/gpu/drm/ci/build.sh
+>> @@ -98,14 +98,14 @@ done
+>>
+>>   make ${KERNEL_IMAGE_NAME}
+>>
+>> -mkdir -p /lava-files/
+>> +mkdir -p /kernel/
+> 
+> the folder is not lava specific, correct?
 
-Or we can split this patch in two patches, one with my changes without 
-fallback, and another with fallback as you as author.
+It is not lava specific. Only the directory name where the kernel image 
+is copied is changed and the kernel image is uploaded to S3 for lava.
 
-WDYT?
+This is based on,
+https://gitlab.freedesktop.org/mesa/mesa/-/commit/5b65bbf72ce7024c5df2100ce4b12d59e8f3dd26
 
+> 
+>>   for image in ${KERNEL_IMAGE_NAME}; do
+>> -    cp arch/${KERNEL_ARCH}/boot/${image} /lava-files/.
+>> +    cp arch/${KERNEL_ARCH}/boot/${image} /kernel/.
+>>   done
+>>
+>>   if [[ -n ${DEVICE_TREES} ]]; then
+>>       make dtbs
+>> -    cp ${DEVICE_TREES} /lava-files/.
+>> +    cp ${DEVICE_TREES} /kernel/.
+>>   fi
+>>
+>>   make modules
+>> @@ -121,11 +121,11 @@ if [[ ${DEBIAN_ARCH} = "arm64" ]]; then
+>>           -d arch/arm64/boot/Image.lzma \
+>>           -C lzma\
+>>           -b arch/arm64/boot/dts/qcom/sdm845-cheza-r3.dtb \
+>> -        /lava-files/cheza-kernel
+>> +        /kernel/cheza-kernel
+>>       KERNEL_IMAGE_NAME+=" cheza-kernel"
+>>
+>>       # Make a gzipped copy of the Image for db410c.
+>> -    gzip -k /lava-files/Image
+>> +    gzip -k /kernel/Image
+>>       KERNEL_IMAGE_NAME+=" Image.gz"
+>>   fi
+>>
+>> @@ -139,7 +139,7 @@ cp -rfv drivers/gpu/drm/ci/* install/.
+>>   . .gitlab-ci/container/container_post_build.sh
+>>
+>>   if [[ "$UPLOAD_TO_MINIO" = "1" ]]; then
+>> -    xz -7 -c -T${FDO_CI_CONCURRENT:-4} vmlinux > /lava-files/vmlinux.xz
+>> +    xz -7 -c -T${FDO_CI_CONCURRENT:-4} vmlinux > /kernel/vmlinux.xz
+>>       FILES_TO_UPLOAD="$KERNEL_IMAGE_NAME vmlinux.xz"
+>>
+>>       if [[ -n $DEVICE_TREES ]]; then
+>> @@ -148,7 +148,7 @@ if [[ "$UPLOAD_TO_MINIO" = "1" ]]; then
+>>
+>>       ls -l "${S3_JWT_FILE}"
+>>       for f in $FILES_TO_UPLOAD; do
+>> -        ci-fairy s3cp --token-file "${S3_JWT_FILE}" /lava-files/$f \
+>> +        ci-fairy s3cp --token-file "${S3_JWT_FILE}" /kernel/$f \
+>>                   https://${PIPELINE_ARTIFACTS_BASE}/${DEBIAN_ARCH}/$f
+>>       done
+>>
+>> @@ -165,7 +165,7 @@ ln -s common artifacts/install/ci-common
+>>   cp .config artifacts/${CI_JOB_NAME}_config
+>>
+>>   for image in ${KERNEL_IMAGE_NAME}; do
+>> -    cp /lava-files/$image artifacts/install/.
+>> +    cp /kernel/$image artifacts/install/.
+>>   done
+>>
+>>   tar -C artifacts -cf artifacts/install.tar install
+>> diff --git a/drivers/gpu/drm/ci/build.yml b/drivers/gpu/drm/ci/build.yml
+>> index 6c0dc10b547c..8eb56ebcf4aa 100644
+>> --- a/drivers/gpu/drm/ci/build.yml
+>> +++ b/drivers/gpu/drm/ci/build.yml
+>> @@ -143,6 +143,10 @@ debian-arm64-release:
+>>     rules:
+>>       - when: never
+>>
+>> +debian-arm64-ubsan:
+>> +  rules:
+>> +    - when: never
+>> +
+>>   debian-build-testing:
+>>     rules:
+>>       - when: never
+>> @@ -183,6 +187,10 @@ debian-testing-msan:
+>>     rules:
+>>       - when: never
+>>
+>> +debian-testing-ubsan:
+>> +  rules:
+>> +    - when: never
+>> +
+>>   debian-vulkan:
+>>     rules:
+>>       - when: never
+>> diff --git a/drivers/gpu/drm/ci/container.yml b/drivers/gpu/drm/ci/container.yml
+>> index 07dc13ff865d..56c95c2f91ae 100644
+>> --- a/drivers/gpu/drm/ci/container.yml
+>> +++ b/drivers/gpu/drm/ci/container.yml
+>> @@ -24,6 +24,18 @@ alpine/x86_64_build:
+>>     rules:
+>>       - when: never
+>>
+>> +debian/arm32_test-base:
+>> +  rules:
+>> +    - when: never
+>> +
+>> +debian/arm32_test-gl:
+>> +  rules:
+>> +    - when: never
+>> +
+>> +debian/arm32_test-vk:
+>> +  rules:
+>> +    - when: never
+>> +
+>>   debian/arm64_test-gl:
+>>     rules:
+>>       - when: never
+>> @@ -32,6 +44,10 @@ debian/arm64_test-vk:
+>>     rules:
+>>       - when: never
+>>
+>> +debian/baremetal_arm32_test:
+>> +  rules:
+>> +    - when: never
+>> +
+>>   debian/ppc64el_build:
+>>     rules:
+>>       - when: never
+>> @@ -40,6 +56,14 @@ debian/s390x_build:
+>>     rules:
+>>       - when: never
+>>
+>> +debian/x86_32_build:
+>> +  rules:
+>> +    - when: never
+>> +
+>> +debian/x86_64_test-android:
+>> +  rules:
+>> +    - when: never
+>> +
+>>   debian/x86_64_test-vk:
+>>     rules:
+>>       - when: never
+>> diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml b/drivers/gpu/drm/ci/gitlab-ci.yml
+>> index b06b9e7d3d09..55b540c4cf92 100644
+>> --- a/drivers/gpu/drm/ci/gitlab-ci.yml
+>> +++ b/drivers/gpu/drm/ci/gitlab-ci.yml
+>> @@ -1,6 +1,6 @@
+>>   variables:
+>>     DRM_CI_PROJECT_PATH: &drm-ci-project-path mesa/mesa
+>> -  DRM_CI_COMMIT_SHA: &drm-ci-commit-sha 7d3062470f3ccc6cb40540e772e902c7e2248024
+>> +  DRM_CI_COMMIT_SHA: &drm-ci-commit-sha 82ab58f6c6f94fa80ca7e1615146f08356e3ba69
+>>
+>>     UPSTREAM_REPO: https://gitlab.freedesktop.org/drm/kernel.git
+>>     TARGET_BRANCH: drm-next
+>> @@ -187,6 +187,36 @@ stages:
+>>       - when: manual
+>>
+>>
+>> +# Repeat of the above but with `when: on_success` replaced with
+>> +# `when: delayed` + `start_in:`, for build-only jobs.
+>> +# Note: make sure the branches in this list are the same as in
+>> +# `.container+build-rules` above.
+>> +.build-only-delayed-rules:
+>> +  rules:
+>> +    - !reference [.common-rules, rules]
+>> +    # Run when re-enabling a disabled farm, but not when disabling it
+>> +    - !reference [.disable-farm-mr-rules, rules]
+>> +    # Never run immediately after merging, as we just ran everything
+>> +    - !reference [.never-post-merge-rules, rules]
+>> +    # Build everything in merge pipelines
+>> +    - if: *is-merge-attempt
+>> +      when: delayed
+>> +      start_in: &build-delay 5 minutes
+>> +    # Same as above, but for pre-merge pipelines
+>> +    - if: *is-pre-merge
+>> +      when: manual
+>> +    # Build everything after someone bypassed the CI
+>> +    - if: *is-direct-push
+>> +      when: manual
+>> +    # Build everything in scheduled pipelines
+>> +    - if: *is-scheduled-pipeline
+>> +      when: delayed
+>> +      start_in: *build-delay
+>> +    # Allow building everything in fork pipelines, but build nothing unless
+>> +    # manually triggered
+>> +    - when: manual
+>> +
+> 
+> Do you think we could avoid repeating code by using anchor (&) and
+> reference (*) ?
+> 
+> https://docs.gitlab.com/ci/yaml/yaml_optimization/#yaml-anchors-for-scripts
 
->Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
->---
->v1 -> v2:
->* remove 'netns' module param
->* remove vsock_net_eq()
->* use vsock_global_net() for "global" namespace
->* use fallback logic in socket lookup functions, giving precedence to
->  non-global vsock namespaces
->
->RFC -> v1
->* added 'netns' module param
->* added 'vsock_net_eq()' to check the "net" assigned to a socket
->  only when 'netns' support is enabled
->---
-> include/net/af_vsock.h                  |  7 +++--
-> net/vmw_vsock/af_vsock.c                | 55 ++++++++++++++++++++++++---------
-> net/vmw_vsock/hyperv_transport.c        |  2 +-
-> net/vmw_vsock/virtio_transport_common.c |  5 +--
-> net/vmw_vsock/vmci_transport.c          |  4 +--
-> 5 files changed, 51 insertions(+), 22 deletions(-)
->
->diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index 9e85424c834353d016a527070dd62e15ff3bfce1..41afbc18648c953da27a93571d408de968aa7668 100644
->--- a/include/net/af_vsock.h
->+++ b/include/net/af_vsock.h
->@@ -213,9 +213,10 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected);
-> void vsock_insert_connected(struct vsock_sock *vsk);
-> void vsock_remove_bound(struct vsock_sock *vsk);
-> void vsock_remove_connected(struct vsock_sock *vsk);
->-struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr);
->+struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net);
-> struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
->-					 struct sockaddr_vm *dst);
->+					 struct sockaddr_vm *dst,
->+					 struct net *net);
-> void vsock_remove_sock(struct vsock_sock *vsk);
-> void vsock_for_each_connected_socket(struct vsock_transport *transport,
-> 				     void (*fn)(struct sock *sk));
->@@ -255,4 +256,6 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
-> {
-> 	return t->msgzerocopy_allow && t->msgzerocopy_allow();
-> }
->+
->+struct net *vsock_global_net(void);
+We could create anchors for the repeated rules in .container+build-rules 
+and .build-only-delayed-rules, but I would prefer to first do this in 
+mesa and then adapt the same in drm-ci. Right now it is the same as 
+mesa, so maybe fix this in the next mesa uprev. What do you suggest?
 
-If it just returns null, maybe we can make it inline here.
+Regards,
+Vignesh
 
-> #endif /* __AF_VSOCK_H__ */
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 7e3db87ae4333cf63327ec105ca99253569bb9fe..d206489bf0a81cf989387c7c8063be91a7c21a7d 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -235,37 +235,60 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
-> 	sock_put(&vsk->sk);
-> }
->
->-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
->+struct net *vsock_global_net(void)
-> {
->+	return NULL;
->+}
->+EXPORT_SYMBOL_GPL(vsock_global_net);
->+
->+static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr,
->+					      struct net *net)
->+{
-
-Please add a comment here to describe what fallback is used for.
-And I would suggest also something on top of this file to explain a bit
-how netns are handled in AF_VSOCK.
-
->+	struct sock *fallback = NULL;
-> 	struct vsock_sock *vsk;
->
-> 	list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
->-		if (vsock_addr_equals_addr(addr, &vsk->local_addr))
->-			return sk_vsock(vsk);
->+		if (vsock_addr_equals_addr(addr, &vsk->local_addr)) {
->+			if (net_eq(net, sock_net(sk_vsock(vsk))))
->+				return sk_vsock(vsk);
->
->+			if (net_eq(net, vsock_global_net()))
->+				fallback = sk_vsock(vsk);
->+		}
-> 		if (addr->svm_port == vsk->local_addr.svm_port &&
-> 		    (vsk->local_addr.svm_cid == VMADDR_CID_ANY ||
->-		     addr->svm_cid == VMADDR_CID_ANY))
->-			return sk_vsock(vsk);
->+		     addr->svm_cid == VMADDR_CID_ANY)) {
->+			if (net_eq(net, sock_net(sk_vsock(vsk))))
->+				return sk_vsock(vsk);
->+
->+			if (net_eq(net, vsock_global_net()))
->+				fallback = sk_vsock(vsk);
->+		}
-> 	}
->
->-	return NULL;
->+	return fallback;
-> }
->
-> static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
->-						  struct sockaddr_vm *dst)
->+						  struct sockaddr_vm *dst,
->+						  struct net *net)
-> {
->+	struct sock *fallback = NULL;
-> 	struct vsock_sock *vsk;
->
-> 	list_for_each_entry(vsk, vsock_connected_sockets(src, dst),
-> 			    connected_table) {
-> 		if (vsock_addr_equals_addr(src, &vsk->remote_addr) &&
-> 		    dst->svm_port == vsk->local_addr.svm_port) {
->-			return sk_vsock(vsk);
->+			if (net_eq(net, sock_net(sk_vsock(vsk))))
->+				return sk_vsock(vsk);
->+
->+			if (net_eq(net, vsock_global_net()))
->+				fallback = sk_vsock(vsk);
-
-This pattern seems to be repeated 3 times, can we make a function/macro?
-
-> 		}
-> 	}
->
->-	return NULL;
->+	return fallback;
-> }
->
-> static void vsock_insert_unbound(struct vsock_sock *vsk)
->@@ -304,12 +327,12 @@ void vsock_remove_connected(struct vsock_sock *vsk)
-> }
-> EXPORT_SYMBOL_GPL(vsock_remove_connected);
->
->-struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
->+struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net)
-> {
-> 	struct sock *sk;
->
-> 	spin_lock_bh(&vsock_table_lock);
->-	sk = __vsock_find_bound_socket(addr);
->+	sk = __vsock_find_bound_socket(addr, net);
-> 	if (sk)
-> 		sock_hold(sk);
->
->@@ -320,12 +343,13 @@ struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
-> EXPORT_SYMBOL_GPL(vsock_find_bound_socket);
->
-> struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
->-					 struct sockaddr_vm *dst)
->+					 struct sockaddr_vm *dst,
->+					 struct net *net)
-> {
-> 	struct sock *sk;
->
-> 	spin_lock_bh(&vsock_table_lock);
->-	sk = __vsock_find_connected_socket(src, dst);
->+	sk = __vsock_find_connected_socket(src, dst, net);
-> 	if (sk)
-> 		sock_hold(sk);
->
->@@ -644,6 +668,7 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
-> {
-> 	static u32 port;
-> 	struct sockaddr_vm new_addr;
->+	struct net *net = sock_net(sk_vsock(vsk));
->
-> 	if (!port)
-> 		port = get_random_u32_above(LAST_RESERVED_PORT);
->@@ -660,7 +685,7 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
->
-> 			new_addr.svm_port = port++;
->
->-			if (!__vsock_find_bound_socket(&new_addr)) {
->+			if (!__vsock_find_bound_socket(&new_addr, net)) {
-> 				found = true;
-> 				break;
-> 			}
->@@ -677,7 +702,7 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
-> 			return -EACCES;
-> 		}
->
->-		if (__vsock_find_bound_socket(&new_addr))
->+		if (__vsock_find_bound_socket(&new_addr, net))
-> 			return -EADDRINUSE;
-> 	}
->
->diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
->index 31342ab502b4fc35feb812d2c94e0e35ded73771..253609898d24f8a484fcfc3296011c6f501a72a8 100644
->--- a/net/vmw_vsock/hyperv_transport.c
->+++ b/net/vmw_vsock/hyperv_transport.c
->@@ -313,7 +313,7 @@ static void hvs_open_connection(struct vmbus_channel *chan)
-> 		return;
->
-> 	hvs_addr_init(&addr, conn_from_host ? if_type : if_instance);
->-	sk = vsock_find_bound_socket(&addr);
->+	sk = vsock_find_bound_socket(&addr, NULL);
-> 	if (!sk)
-> 		return;
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 7f7de6d8809655fe522749fbbc9025df71f071bd..256d2a4fe482b3cb938a681b6924be69b2065616 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1590,6 +1590,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
-> 			       struct sk_buff *skb)
-> {
-> 	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
->+	struct net *net = vsock_global_net();
-
-Why using vsock_global_net() in virtio and directly NULL in the others 
-transports?
-
-> 	struct sockaddr_vm src, dst;
-> 	struct vsock_sock *vsk;
-> 	struct sock *sk;
->@@ -1617,9 +1618,9 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
-> 	/* The socket must be in connected or bound table
-> 	 * otherwise send reset back
-> 	 */
->-	sk = vsock_find_connected_socket(&src, &dst);
->+	sk = vsock_find_connected_socket(&src, &dst, net);
-> 	if (!sk) {
->-		sk = vsock_find_bound_socket(&dst);
->+		sk = vsock_find_bound_socket(&dst, net);
-> 		if (!sk) {
-> 			(void)virtio_transport_reset_no_sock(t, skb);
-> 			goto free_pkt;
->diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
->index b370070194fa4ac0df45a073d389ffccf69a0029..373b9fe30a26c18aaa181fbc16db840d8f839b13 100644
->--- a/net/vmw_vsock/vmci_transport.c
->+++ b/net/vmw_vsock/vmci_transport.c
->@@ -703,9 +703,9 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
-> 	vsock_addr_init(&src, pkt->dg.src.context, pkt->src_port);
-> 	vsock_addr_init(&dst, pkt->dg.dst.context, pkt->dst_port);
->
->-	sk = vsock_find_connected_socket(&src, &dst);
->+	sk = vsock_find_connected_socket(&src, &dst, NULL);
-> 	if (!sk) {
->-		sk = vsock_find_bound_socket(&dst);
->+		sk = vsock_find_bound_socket(&dst, NULL);
-> 		if (!sk) {
-> 			/* We could not find a socket for this specified
-> 			 * address.  If this packet is a RST, we just drop it.
->
->-- 2.47.1
->
+> 
+> Regards,
+> Helen
+> 
+>> +
+>>   .ci-deqp-artifacts:
+>>     artifacts:
+>>       name: "${CI_PROJECT_NAME}_${CI_JOB_NAME}"
+>> diff --git a/drivers/gpu/drm/ci/image-tags.yml b/drivers/gpu/drm/ci/image-tags.yml
+>> index 20049f3626b2..c04ba0e69935 100644
+>> --- a/drivers/gpu/drm/ci/image-tags.yml
+>> +++ b/drivers/gpu/drm/ci/image-tags.yml
+>> @@ -1,5 +1,5 @@
+>>   variables:
+>> -   CONTAINER_TAG: "20250204-mesa-uprev"
+>> +   CONTAINER_TAG: "20250307-mesa-uprev"
+>>      DEBIAN_X86_64_BUILD_BASE_IMAGE: "debian/x86_64_build-base"
+>>      DEBIAN_BASE_TAG: "${CONTAINER_TAG}"
+>>
+>> @@ -20,3 +20,5 @@ variables:
+>>      DEBIAN_PYUTILS_TAG: "${CONTAINER_TAG}"
+>>
+>>      ALPINE_X86_64_LAVA_SSH_TAG: "${CONTAINER_TAG}"
+>> +
+>> +   CONDITIONAL_BUILD_ANGLE_TAG: fec96cc945650c5fe9f7188cabe80d8a
+>> diff --git a/drivers/gpu/drm/ci/lava-submit.sh b/drivers/gpu/drm/ci/lava-submit.sh
+>> index 6e5ac51e8c0a..f22720359b33 100755
+>> --- a/drivers/gpu/drm/ci/lava-submit.sh
+>> +++ b/drivers/gpu/drm/ci/lava-submit.sh
+>> @@ -48,7 +48,8 @@ ROOTFS_URL="$(get_path_to_artifact lava-rootfs.tar.zst)"
+>>   rm -rf results
+>>   mkdir -p results/job-rootfs-overlay/
+>>
+>> -artifacts/ci-common/generate-env.sh > results/job-rootfs-overlay/set-job-env-vars.sh
+>> +artifacts/ci-common/export-gitlab-job-env-for-dut.sh \
+>> +    > results/job-rootfs-overlay/set-job-env-vars.sh
+>>   cp artifacts/ci-common/init-*.sh results/job-rootfs-overlay/
+>>   cp "$SCRIPTS_DIR"/setup-test-env.sh results/job-rootfs-overlay/
+>>
+>> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
+>> index dbc4ff50d8ff..84a25f0e783b 100644
+>> --- a/drivers/gpu/drm/ci/test.yml
+>> +++ b/drivers/gpu/drm/ci/test.yml
+>> @@ -112,7 +112,7 @@
+>>       - kvm
+>>     script:
+>>       - ln -sf $CI_PROJECT_DIR/install /install
+>> -    - mv install/bzImage /lava-files/bzImage
+>> +    - mv install/bzImage /kernel/bzImage
+>>       - mkdir -p /lib/modules
+>>       - install/crosvm-runner.sh install/igt_runner.sh
+>>     needs:
+>> --
+>> 2.47.2
+>>
+> 
+> 
 
