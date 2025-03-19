@@ -1,327 +1,148 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2466D170A11
-	for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 16:38:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742402309; cv=fail; b=PG4dRJr0/dUAB5T6atCJnK9nr3ZNMi+EU8cQuiOrJ3VUluxp5pevGbHRpBS1no9eiMJRCPSuPhIPvrrXAzQnrQG+jC/6/7MJ+fagjbEKYjajiF+0H2hWDO0pSLHZPKRIlfOnK/k3UE0AspCvKRJEy+HUN2rxT0M8o73jamyL84o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742402309; c=relaxed/simple;
-	bh=1lEJhpuItdXZGMldiihGJ8NQx2WFje0AqwxETgOqvFw=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=uc72DlceTuBgNxOEIngX7DG1OS/WjewHzsfdFQqc/pZY2Ge23G8U0opdnFwY3U3y+tgmyHbBFpKbP6TncgdhmoPkR9ZlIz9N/iMpBFR1V6vwzt/6urAJx9XFbdmuie81rpHmlGl8zPOSGdFl/608RPloSQGLWZYkn7ka/hasViE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UlxlPSd4; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=C40nnx2n; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC1121EF394
+	for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 17:13:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1742404409; cv=none; b=sX+lyIk8jkFUsv4UZbXqdySyJnrsqaUOnTb3neqgPDDusldP5XjRz5npsAxnYbuo6RYx4SK0DGRZtDoGGTyiAKAPUSd6o1kxcU/AcFxckrTN6iF76dUSYW3JI/IA84eByaB7jDnYVmLVLnldR29+uuOfwqM9pUeWLoQ96+8U+DE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1742404409; c=relaxed/simple;
+	bh=IAjut6kA6biRQj8j/Er7jEHY1eriV31CNC9TAMH4rNM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=tKXFcQJrcLaYMM/m/+HPFhJjhDwI+ZaALS8ei9hgTpFlQPlHsctYDpGpaZW/5NRLIysUd5+dx3oO1aVZ/mqNLDZy6Lep9ovBSLvjHIFzu0LkH/CUSP5m2b182eKwreuSTPYy21HUiWSlpC0ShKKQmaGTh/Kv2JAwK12hSnlxJrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Nye3yCmC; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UlxlPSd4";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="C40nnx2n"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52JGBmGc030843;
-	Wed, 19 Mar 2025 16:38:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Nye3yCmC"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52JAKBp5014576;
+	Wed, 19 Mar 2025 17:13:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2023-11-20; bh=8zwjbmUnakMjqoXxDlQeaSVYzbRJsOmCCaCuOl4pqos=; b=
-	UlxlPSd4V8zMy66Fd9oHN7JrXLcBt8NGHV+rm3HBsBK9OMAAavD1sDnvZEPMRqlw
-	dw3zg8hTar3giXb0YbR9YFUvMwdrQAiWs/WvEILeQcBJdxHawVMgCVJy7dJnSAv4
-	KstVf7O/S+KhCqglcFwh4jaAdbvE2rtgCixUzv82iNcCCNeH42bu71/xx5G4rzrF
-	G7H7UkugexNCW0U76Aukd8V4jQvw91YJ87+cpUGZyprlojAfnH6jsj2EVPsFUm8m
-	NqcYlESQGGEpYM7kEW93SfTiq9UlFL0NdE3tFsmqO63/+/szjVGVIqfJb7Wqh2Nc
-	7LOrPVSeye899pGA/G0Tnw==
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45d1s8uxnk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Mar 2025 16:38:25 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 52JG30M0024466;
-	Wed, 19 Mar 2025 16:38:24 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2177.outbound.protection.outlook.com [104.47.56.177])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 45dxbk5xpp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Mar 2025 16:38:24 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=cWLpENIcL8T0L7eTv3BdmqzK6zGGuWU2nmO72VxeYcjeu3do7USjYqY0e7F9QeLp+IvvUgHuD6Ae/uc1Ou8fpHnT/5smrCUIt+9KTB4bQYp0OZU8qV5GAV7VrNJLDJNGfbpMv5OHBxutv/NbCVDz+u8/zpdZ9MCHA789XT2qPHANGMsoTtwtYxT/ZPulFJgXyThUDAaXf8ol2Xf7sradL/rCq1NTfNnHmBIpsI64YdrKbtw4TnbRRmZg3sIh1ak815VTNEjdDZuEw+QkfHID7o+uTCPXYcCGCAuvWKxGHjx/tDZ8j2kMIAKnVIh6mkJSICt0gTxI8Qk0gl8adXv9RA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8zwjbmUnakMjqoXxDlQeaSVYzbRJsOmCCaCuOl4pqos=;
- b=Uz4WA6sTZKQGPR2vTmjzZ9tYIbj/XYDeLGsPN3EAdYK9dl043g80tfkLpDvfdtC2mPa2JIPf/8+GFIdvcGPmpTTjk7i3M2iq5Gm5+Nm6tMflSU44WkANz/N/+cRj6yEKRHE16LR8oOlnWdzIhTPC/TK1/oc6iEmNlNf3sVg0D16YFrSvW4xtzFU5TXRlwin5Kzhue/vFL7rrmxxriKi9ZHDylZqCblCzgbFXjDNi4nWK3vMMiFv+wfSsxgSXl6nWE1zQBplCvgG+/t9vktGp++1WoJlSkdXsS+iHnq5CK/koT1NYkzuFZjKO7l6HuAWFrNQXFjdHP9rg+Z3fwY9QCg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8zwjbmUnakMjqoXxDlQeaSVYzbRJsOmCCaCuOl4pqos=;
- b=C40nnx2ni9i9YWxsXx2c0zqtvnqokn/FUIM5eggg3nPuYdkFnYvSotYLLzpSWYep0LftzOF9fY6Kc7U5BzbsXUd1JkfaODpSqy3oRY0Jc1MeYs3FAOoX7ytSxNR0O8vMC7evayItWOi8MHIEFcc9CGw0LtngJm7sde1vWQV6PNE=
-Received: from MWHPR1001MB2079.namprd10.prod.outlook.com
- (2603:10b6:301:2b::27) by CH3PR10MB7713.namprd10.prod.outlook.com
- (2603:10b6:610:1bc::6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.34; Wed, 19 Mar
- 2025 16:38:21 +0000
-Received: from MWHPR1001MB2079.namprd10.prod.outlook.com
- ([fe80::6977:3987:8e08:831b]) by MWHPR1001MB2079.namprd10.prod.outlook.com
- ([fe80::6977:3987:8e08:831b%6]) with mapi id 15.20.8511.031; Wed, 19 Mar 2025
- 16:38:21 +0000
-Message-ID: <93797957-b23c-4861-a755-28bfc506051f@oracle.com>
-Date: Wed, 19 Mar 2025 09:38:17 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 04/10] vhost: modify vhost_log_write() for broader
- users
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        netdev@vger.kernel.org, mst@redhat.com, michael.christie@oracle.com,
-        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
-        joao.m.martins@oracle.com, joe.jin@oracle.com, si-wei.liu@oracle.com,
-        linux-kernel@vger.kernel.org
-References: <20250317235546.4546-1-dongli.zhang@oracle.com>
- <20250317235546.4546-5-dongli.zhang@oracle.com>
- <CACGkMEtOsQg68O+Nqo9ycLSq7sN4AMZ92ZvLLMEF7xYDCA5Ycw@mail.gmail.com>
-Content-Language: en-US
-From: Dongli Zhang <dongli.zhang@oracle.com>
-In-Reply-To: <CACGkMEtOsQg68O+Nqo9ycLSq7sN4AMZ92ZvLLMEF7xYDCA5Ycw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BN9PR03CA0877.namprd03.prod.outlook.com
- (2603:10b6:408:13c::12) To MWHPR1001MB2079.namprd10.prod.outlook.com
- (2603:10b6:301:2b::27)
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RsCNcM
+	qK04N1b38eos//s0uJB0c+0qaqrQjFA+WVsks=; b=Nye3yCmCWXcFXX3yVfbJz7
+	Fp+ismWImz1pwMiiDCGSS71jcPbaI1eKwdday50b8RGRrHbddUgz8KT3DDznWsV/
+	N8KNdKCu/9hSU1PCNntIGaB6jicr/+9YYs3DMOCMrHPAKj4+u0HeHZ71tlzF3ACz
+	y6ZOuBPteGDG3TqJpGAnJpoxiEfQZWILQlGCVhSWm0SDL8ndR5vhjWPRU8VbeBEu
+	i8vvF+t87ISFmu17tj4ToMt2cO4NzaW8UtaiEyxE+BmxGSTI5zgfqtAj8AhUdxyC
+	P1997TFqU/oRVnIOBZsMYjKHka5bQgJae3r5AJn2QBkinBC+Mg7YZzsmwX6EQAvw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45fg0pw66j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 17:13:14 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52JEjkNX023214;
+	Wed, 19 Mar 2025 17:13:13 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dp3ktjdg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 17:13:13 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52JHDAVr20971836
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Mar 2025 17:13:10 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5C22D20043;
+	Wed, 19 Mar 2025 17:13:10 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1F2B320040;
+	Wed, 19 Mar 2025 17:13:10 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Mar 2025 17:13:10 +0000 (GMT)
+Date: Wed, 19 Mar 2025 18:13:08 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>,
+        Amit Shah
+ <amit@kernel.org>, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux.dev, arnd@arndb.de,
+        gregkh@linuxfoundation.org, brueckner@linux.ibm.com,
+        schnelle@linux.ibm.com, Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio
+ spec
+Message-ID: <20250319181308.365ee0ea.pasic@linux.ibm.com>
+In-Reply-To: <20250319105852-mutt-send-email-mst@kernel.org>
+References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
+	<f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
+	<649563cf1b8abd42401ed78d84bfd576d48bdbb8.camel@linux.ibm.com>
+	<f27debf87882df65574f21cfced31fecf1dd1da3.camel@kernel.org>
+	<dc3ff60fd16e5b5f94c12cf6a5a7893b94f705a8.camel@linux.ibm.com>
+	<20250319105852-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWHPR1001MB2079:EE_|CH3PR10MB7713:EE_
-X-MS-Office365-Filtering-Correlation-Id: 316c9641-4b41-47e8-74e3-08dd670475fd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?RXQxMGRablpsMmFsaUdKZ1hUaDhPeUlUSDF4YjdTeDFyOEFsVTNIWG1xVXZo?=
- =?utf-8?B?blZiSmRuLzAzU3h0V2V3eEVXckU0ZjBHekMyYnB1N2p4NEtqMVdjeHdPNFZw?=
- =?utf-8?B?aG5GQzZ6QkxTakc2bStxMG9KSFlBTG5mUGhSYVlVTGt0OWJBakdqc2FHUlJQ?=
- =?utf-8?B?aDk2aTAzVW95NXRaWUxQTU1CQzZNQkJtenJRNEgxNU1qU04ydkdPZUdLc2pV?=
- =?utf-8?B?eUttMEtyU3RMMEhxa3dKL0JHcU5NY0U3bVRmaERRUXZKYWJoUVBEUGo4Vmhq?=
- =?utf-8?B?dmxBcmhYeFVYTTJxNVlEc2IrdmJzclpMNG9YVnFzdU5BSVQ1dnlMT0plckFS?=
- =?utf-8?B?bW9HYXRWVVJ0YlorTWdWaVE2dmlObnlNMmtrUDI0WnExa0lJSThFbEV6U1p3?=
- =?utf-8?B?RjJ1TlRyRXpYOHQ0UmdTV3IyR0FoUXE0WnNsc3ArS05sYTg2b0w1MXhudjVs?=
- =?utf-8?B?UXJWQkg5T1lZVjJ0ODlNVDUzQUdVMkF2d0d1RStlUi9KR3J0RzVWWjhjcjN4?=
- =?utf-8?B?NThiNzlmd0MralVyeEtYRDZid0lnOEJwRWNzOGhlQmhOU0N3RktSSmVOMVNl?=
- =?utf-8?B?STNlNE1hMDk3L1F1N3ZmMGY4YVo2R0k4UHNCWHV5bUlrVy9DcDdEejNsaDVh?=
- =?utf-8?B?bVVsa1BKdXZmVmg2Y3MxdG1Yd082Y1hHalhXVG55YWdkZlJxd3VEd0FzQkM3?=
- =?utf-8?B?R1FZSU5QU3Bjam95SFR3UXhxWlpFWDh2dFNXUU03OHBGY3c5c1lSM3lZbFdV?=
- =?utf-8?B?OWpWNUNidityRStYUnl6Ky9HUEt3aVVmVzZSTnJZa3IvUTBqWHo1NDhnNitR?=
- =?utf-8?B?OTJsa3duUU5RNUVyMCtrckJReFpDSmpxUkZJMkI1Vnc0R2lNSWtvNnpQcEkr?=
- =?utf-8?B?dFB2bThyWTJmaGgxSXhsYVlVb2czN0FzYitOc2JycE9jM0ZvelNWMXVjdTMr?=
- =?utf-8?B?RVFEVEZQcWNtOXRDVms4NUdVUHByWmVWRXR4QzJMcUR6a051ZGFORjRpSU5t?=
- =?utf-8?B?bENUYnlwNFNyK2crcGkzVklmZUR6eWJnMW9HQVhaVVhIWTFYTCtVZTMwUEJS?=
- =?utf-8?B?N042ZGxtMXFobHdKMk1raWtZSDBRcVpUT2cwa1RuQXB0dGVvMndpOE1kMFo4?=
- =?utf-8?B?MlM1QXlHNGk0Zlg3Mm1sZEFlZFdyOEZpLzR5OEFEV050UFdDV2xmSm9Hc0o1?=
- =?utf-8?B?ODR2WWZHd1Z1TnpXZzRsSkNyZG53d2lFeUU4a09xMVFvMnpGZHF0Y29HWVN3?=
- =?utf-8?B?b0pRcEtxUC84ejVxcDVjRm1ubXlIN0tnWDZQQ3RYUE1aKzdGQU15N0FUNFNa?=
- =?utf-8?B?aHJFdnRqR3A2QzJLZU50VjNZWU5jUFFHUXpVb2g5MHRzWDdhSHhkWDk2WXNL?=
- =?utf-8?B?NFIveHNnNUJ0NGJnMFV2MHV6UEhXMnFmMDF5U0c2Nno5NFIvWGJGc294aUNk?=
- =?utf-8?B?Q0JzRmNqSGRWOW1UTEl0aG1aak5NRjh1QTh3UmxFbFMrQnVtdkJ3SmZTcnln?=
- =?utf-8?B?dVc4L3ByOXdXNHd6RC9ULzlkcHZoYXgrNlJFTWo3SHBFYnJFOW9mVXFXYmx3?=
- =?utf-8?B?MUNEdTQxY0liQWIybWNxV2krRXBEb1dtYlhxMEtyVUtYNUZMOW4xcjJYRWcw?=
- =?utf-8?B?K2VmVWNPSUVsb01LSUZwNUhKR09vOWpWMm9aYXZlSzZXaEdlNEszdnR6UmFP?=
- =?utf-8?B?T3o0VTk4U0hCUEJ0eW5kQ3hRcjdjYXlKMmhIVjVaRWNDRjRGeFF3OU9IU1pi?=
- =?utf-8?B?SGJEaEZnWjFIVUtRaStwMmwxZ2dSYkYxV09lSmhnQ3hyd2RjNk9ZNTRlMnBk?=
- =?utf-8?B?SXkwQ0M5SXI0Zit3Mk1vcTUyamV2S1VaejdpRkZnYlpLUkpNOGgvR1phOEVm?=
- =?utf-8?Q?t052ALMSpzgdj?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1001MB2079.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?TTNaUEVFQjM0dVFydHFyZVVNdU9RcTZnT3NZNzV1ZkZVUXhvOTlFWlRqOWVm?=
- =?utf-8?B?T3ZoblFxRTFyOWpoemVKek1QRVNncEFuQWxnMDZZMktRL25Rb2NBaHlPa1po?=
- =?utf-8?B?OHlJL20wMllsWGVuYlZueXhNeEVkZE9DTlRCM1FmaVo5bS93d2pqbU05WnE2?=
- =?utf-8?B?UkoxVjhmUG9TSHhjUngvUnBqd0tUbnNqb2sybjhhNkFZYVVReVlVVlBwQ1pR?=
- =?utf-8?B?MDlweWZSeVdQTnRTRENvWnFIbDZBMkpEMWFBTGdzSmVJOWI4b0pFSjd6YUkv?=
- =?utf-8?B?eUp2YXNJNSs4cEZtT2d5L1R3cUtHSWtrTDdCVTFkNTRXOW1TRDhzd3NZR2Vv?=
- =?utf-8?B?MFUza3Bob2UwYTJnMmVYZkY5NzJIZVJ3bXdGSGJDbEl2Y3BCeXB2NVF4Tmcr?=
- =?utf-8?B?M0s5NVMvOGdMdWljVm40aXE2a2ZQejlHZ2g2bldXYmk1NTVBSWhkYkFlV1JO?=
- =?utf-8?B?K2d3V0E4L2ZQSmZCR1RBTHR0WGNpZ2JGTHJ2VkJva1V0dVEyWDZsRHVmWWox?=
- =?utf-8?B?UEFVaWJrZjEwZFlIbkVBa09RdnlUYXFVQy8wNnpWU2pvNHZJQUdDaVZVYXVC?=
- =?utf-8?B?VTZ5OGxDd3NBTXJlR1g1bVRXMjhWanUwenBSS1lJM1FNemZUSWM1ZE80YlNQ?=
- =?utf-8?B?bVJZa2VFWUZNek9Db3JLS2tLSUpGUnF2UkxlTVBPWjA1QjNFT3ArV1E2RHlq?=
- =?utf-8?B?bXB2SHI5QnBYTG9ITHZhVXFTVEE2OUFZYkpUckIvQjNYODlXM0tYRTNTU0Nk?=
- =?utf-8?B?dHZuTFNzbTUwcEUxdG9QMkFKSEZlN1k2ekdEZ2lZbitKakVwTHlLQ0kvMVVP?=
- =?utf-8?B?NXY4aGJnR3JPQ21malI5bnlmQlRmZ1U0dFBVS285TTZlUjVLMXB4T083Nnpz?=
- =?utf-8?B?Vk1nV0dzTXhrVjFvRzhCb0ZaZ3BySnhod1M0WHlkUUdiOUpnN3ZhMVAwSDBz?=
- =?utf-8?B?UVBraGtRMWpCci9YdUM1bTdJUm5pRFc3SmYzUzkxanVrUSsyb3dLVUtUVW43?=
- =?utf-8?B?NHRHWjhjdFZkYzFxMHlITWtaODl5YzRuSDV6MWpVbHVVeSs1QUc4QzI5cWhF?=
- =?utf-8?B?K2REaUk3MG1POWh0L3pnVmJVOFlBalNCT1c2TDJxR0k0L1QycnhaRjRrR291?=
- =?utf-8?B?Q3g5L0N2b1VRcktJdzRDbit1WnFkd0RrenlLMXJxVWxYUkNVN1FnVVlBZVF5?=
- =?utf-8?B?UnhrbXNjd0NKVDk5NjBTYU1zRm1PQlpya1RZMW9iNHpFdCtBSCtGdTQyaVFj?=
- =?utf-8?B?VGJSMEVCbDMxMDQyajJyMnpnVElXSXIzY3o1K1NYSG9oN2twRWpWR2NtQWRX?=
- =?utf-8?B?dW5BME1xLzVEQ1VJVHFnbGMyTlk0WmhwTStZNVhtcWorSWNtbm1Vd1JiU3By?=
- =?utf-8?B?RmhxWllFSGw3M0dNRVVOencxVnVHYW4yK1owZmRrcmtPZzFSL0ZwUk91WjJa?=
- =?utf-8?B?bFVRQzQ3RFhPaDRiWlNSeGo5WVp5WWhwWlRlZ1lrT2FkbXVEbzBySWUrUlhN?=
- =?utf-8?B?RDNDQ0FPWWFQVDR0Y05NVzdiOWdmYysra0Vya3ZPNU9tTWc0R0VudDJkZDRU?=
- =?utf-8?B?TTJSNm4zZUFSSW1waXBjLzJCRnN6aEM1eTN0SlZVeGt1Um8wdjBNOTVhUkRS?=
- =?utf-8?B?enY3Z0lzNVE3ZVc4blpLWW1salRiV1JHK09sRkpVYU1OU0FKMktNT2pHT2d2?=
- =?utf-8?B?dllrOE5kQzhEdmtodzFEV1FDQTNqdGo2L2UrTmdzTFgwOTlSR1Q1cGUwMmZ4?=
- =?utf-8?B?d2JtenZMV1dqWmI1dTRGSEQ3NmtFL2dFQlFpcFdLTzFwL0F1d0dzYWNjK0NZ?=
- =?utf-8?B?Y2RTOTJjeldyYXJJWFRoV0Zkb1NHQXQ1MkNGRTZQaUV6REM2TkpqK0NyRzUz?=
- =?utf-8?B?WXQvNFVyQllkVmd1ZGVuK280am0zQlRGVW5zWkFOcEZORTNiVStBam8vRXFj?=
- =?utf-8?B?MFRENGdqbjJ0LzRmOTNNWDRqWDR6L08vZ1RXRHJtZ3J1NWdieng3Q09TZnVm?=
- =?utf-8?B?eEYxUHFMZ3RoRkRiaHcxN3llWnpVbmR3WU84S1R2T0RYaGhpU25HbUd0RkFl?=
- =?utf-8?B?blRBZjRUellLNm5SOHhjSWJtMEppRkMrMVhtc1dBWCs5UlE3SVVyc2FjWkE5?=
- =?utf-8?B?cTBwMEVFOVlmV3gxT3pqdS80SjQ3SXBtR09XcG53WW4yU0FtY3M5K1BncGY3?=
- =?utf-8?B?QkE9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	viRFLLsTc5NykRaCqL0jkMUjI1uu8FnaQeUcYauVnmI9nWkHna34ZcfrU8DKw2J/y3vMNZ8oDXCyDokWpjZW48pX/xU7mlq+dv/fSyVVK/nBMrhdZwG553rxfoMY01SNfZKVIa8pXR+A6yxmYxXSiXhEUCIrdl0sf3p6aJzqHvZH0KqL8BH+9qTDkBrsMn4Csz2Tt3m7sa6eSsKfbh9oP1IAQzmYgEqcyDB7v8wp5mWe34DCpvGzrYVC3NZ5cIKPCY3C37yj3UVaBYN7+xjt/WbI2F+xhmpkaGHUlRgLCrDu8qlypa2jAtd2nL3PBtWpLsKmT144IMLM4jBX0Clok+uvQVJfynt1g4jG4Zn2RbwwNJTZkoB8V1wUB6OQZOeHOnaDgNPxaQ2z+cksVl3pWx1uHRVkBOd/8OUwvFi27OAxCzVgF7MRxSeMRl3tDcXKpSCLyi0jw5YE4he7BadguGmlfzW0LLSourOgj824xm+/1blMk6oZxEEw4rpU/3JeYg2YQc+a8ZiwhQWu+afeK58F2UV/uv/1rFHidEp42HAgflrx42wpzZufbSIVp8h3cU0TvefdmK0CtSrQUuSc0FwO28jI1jPCMm8nK+/nJa0=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 316c9641-4b41-47e8-74e3-08dd670475fd
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2079.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Mar 2025 16:38:21.5847
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: phvWPegGXT8AdfMrnDJ0UdTNCTwXr85URYYyvOOyTFd1qhWl10w5lFAQ36z1SYk542MTJYwCaYEJWiy+45/1uA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR10MB7713
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RlE0oyKHYFLv8Z_-Ctd2EQediNuR3Sg6
+X-Proofpoint-ORIG-GUID: RlE0oyKHYFLv8Z_-Ctd2EQediNuR3Sg6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-19_06,2025-03-19_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 mlxscore=0
- adultscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2502280000
- definitions=main-2503190112
-X-Proofpoint-ORIG-GUID: nNtz54NM1dhPcA-HIZ9oqTcqnWivrcAk
-X-Proofpoint-GUID: nNtz54NM1dhPcA-HIZ9oqTcqnWivrcAk
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ bulkscore=0 suspectscore=0 spamscore=0 adultscore=0 clxscore=1011
+ impostorscore=0 mlxlogscore=999 priorityscore=1501 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503190111
 
-Hi Jason,
+On Wed, 19 Mar 2025 11:00:06 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-On 3/17/25 6:12 PM, Jason Wang wrote:
-> On Tue, Mar 18, 2025 at 7:51 AM Dongli Zhang <dongli.zhang@oracle.com> wrote:
->>
->> Currently, the only user of vhost_log_write() is vhost-net. The 'len'
->> argument prevents logging of pages that are not tainted by the RX path.
->>
->> Adjustments are needed since more drivers (i.e. vhost-scsi) begin using
->> vhost_log_write(). So far vhost-net RX path may only partially use pages
->> shared by the last vring descriptor. Unlike vhost-net, vhost-scsi always
->> logs all pages shared via vring descriptors. To accommodate this, a new
->> argument 'partial' is introduced. This argument works alongside 'len' to
->> indicate whether the driver should log all pages of a vring descriptor, or
->> only pages that are tainted by the driver.
->>
->> In addition, removes BUG().
->>
->> Suggested-by: Joao Martins <joao.m.martins@oracle.com>
->> Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
->> ---
->>  drivers/vhost/net.c   |  2 +-
->>  drivers/vhost/vhost.c | 28 +++++++++++++++++-----------
->>  drivers/vhost/vhost.h |  2 +-
->>  3 files changed, 19 insertions(+), 13 deletions(-)
->>
->> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
->> index b9b9e9d40951..0e5d82bfde76 100644
->> --- a/drivers/vhost/net.c
->> +++ b/drivers/vhost/net.c
->> @@ -1219,7 +1219,7 @@ static void handle_rx(struct vhost_net *net)
->>                 if (nvq->done_idx > VHOST_NET_BATCH)
->>                         vhost_net_signal_used(nvq);
->>                 if (unlikely(vq_log))
->> -                       vhost_log_write(vq, vq_log, log, vhost_len,
->> +                       vhost_log_write(vq, vq_log, log, vhost_len, true,
->>                                         vq->iov, in);
->>                 total_len += vhost_len;
->>         } while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index 9ac25d08f473..db3b30aba940 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -2304,8 +2304,14 @@ static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
->>         return 0;
->>  }
->>
->> -int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
->> -                   unsigned int log_num, u64 len, struct iovec *iov, int count)
->> +/*
->> + * 'len' is used only when 'partial' is true, to indicate whether the
->> + * entire length of each descriptor is logged.
->> + */
+> > > I was mistaken in my earlier reply - I had missed this
+> > > virtio_console_resize definition in the spec.  So indeed there's a
+> > > discrepancy in Linux kernel and the spec's ordering for the control
+> > > message.
+> > > 
+> > > OK, that needs fixing someplace.  Perhaps in the kernel (like your
+> > > orig. patch), but with an accurate commit message.  
+> > 
+> > So should I send a patch v2 or should the spec be changed instead? Or
+> > would you like to first await the opinion of the spec maintainers?
+> > 
+> > The mail I initially sent to the virtio mailing list seems to have
+> > fallen on deaf ears. I now added Michael Tsirkin to this thread so that
+> > things might get going.  
 > 
-> While at it, let's document all the parameters here.
-
-Sure.
-
 > 
->> +int vhost_log_write(struct vhost_virtqueue *vq,
->> +                   struct vhost_log *log, unsigned int log_num,
->> +                   u64 len, bool partial,
->> +                   struct iovec *iov, int count)
->>  {
->>         int i, r;
->>
->> @@ -2323,19 +2329,19 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
->>         }
->>
->>         for (i = 0; i < log_num; ++i) {
->> -               u64 l = min(log[i].len, len);
->> +               u64 l = partial ? min(log[i].len, len) : log[i].len;
->> +
->>                 r = log_write(vq->log_base, log[i].addr, l);
->>                 if (r < 0)
->>                         return r;
->> -               len -= l;
->> -               if (!len) {
->> -                       if (vq->log_ctx)
->> -                               eventfd_signal(vq->log_ctx);
->> -                       return 0;
->> -               }
->> +
->> +               if (partial)
->> +                       len -= l;
-> 
-> I wonder if it's simpler to just tweak the caller to call with the
-> correct len (or probably U64_MAX) in this case?
+> If we can fix the driver to fit the spec, that's best.
+> We generally try to avoid changing the spec just because
+> drivers are buggy.
 
-To "tweak the caller to call with the correct len" may need to sum the length
-of all log[i].
+I think the call if fixing the driver is possible needs to be made by
+the maintainers of the driver. Fixing the driver IMHO implies that
+if this is seeing any usage in the wild where it properly works a
+fix on the driver side would imply a function regression. But any
+implementers should have complained. So IMHO it is not unreasonable to
+assume that this is not seeing any usage in the wild.
 
-Regarding U64_MAX, would you like something below? That is, only use 'len'
-when it isn't U64_MAX.
+And people would still have the opportunity to catch the regression
+during testing and complain about it.
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 9ac25d08f473..5b49de05e752 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2327,15 +2327,14 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
- 		r = log_write(vq->log_base, log[i].addr, l);
- 		if (r < 0)
- 			return r;
--		len -= l;
--		if (!len) {
--			if (vq->log_ctx)
--				eventfd_signal(vq->log_ctx);
--			return 0;
--		}
-+
-+		if (len != U64_MAX) ---> It is impossible to have len = U64_MAX from vhost-net
-+			len -= l;        How about keeping those two lines?
- 	}
--	/* Length written exceeds what we have stored. This is a bug. */
--	BUG();
-+
-+	if (vq->log_ctx)
-+		eventfd_signal(vq->log_ctx);
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(vhost_log_write);
+I agree with Michael, changing the spec because of a buggy
+implementation should rather be the exception than the rule. And AFAIK
+it is not like we have declared something a reference implementation,
+so in that sense the implementation in Linux is just one implementation.
 
+I suppose making it runtime configurable via module parameter is an
+overkill at this point.
 
-Thank you very much!
+So based no what we know I'm slightly in favor of let us just fix it
+in Linux and see if anybody complains.
 
-Dongli Zhang
+Another thing I noticed during looking at this. AFAICT Linux does not
+seem to handle endiannes here. And AFAIU the message is supposed to hold
+le16 that is little endian u16! Maximilian, is this in your opinion
+something we need to fix as well? Or am I just missing the conversion?
 
+Regards,
+Halil
