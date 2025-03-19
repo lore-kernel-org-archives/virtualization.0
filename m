@@ -1,240 +1,252 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 788A52512DE;
-	Wed, 19 Mar 2025 09:13:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAC4F2116ED
+	for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 09:17:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742375583; cv=none; b=D5R70DDRSV1EzbULv5bup4gBilqtslJgdjvkSFqsaSQm6O4Tu5PqwMXBOTxPItlm+VfaMH9ttx4rFG3wlUhWDjqJZ1ynhH3Se9ENofMIRmsGp163wHU5UU/JOwb7DAgx1QyrLSVEyM010X62TSAKdjsfSNKcJ1rMkmdkbFZXbO4=
+	t=1742375849; cv=none; b=F2NqlJuQSOuEidf6SVBN9xtd+MMzuGa/6RjQ+c8z/wTrEsm4MnCfLj+fJLGnnhCkZKs3iKwP/cYJ703JLmEjXqnf84X56srBChacgwJ6SPbbEGEZgSqm+DgpYQyl4GZ/K8smkobkIlQxI03iidnTin/PBrSd5+CfwfSYvHapVXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742375583; c=relaxed/simple;
-	bh=Mi1MTCTK3bzz3F58KuznINtPcGv3R+R6E1K9KEVJTeU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=E9mfUbR9DR77H2VSWVK9bZYnn4bJUG1lO0I4Zkb3bHEQuPiNAaz8UHS8htCk0SEOKjHx/RnZyk057yeC9IBJvDyRsvx2lI+Zbv6ZPamU2RUesDAapxbEp62wp/WQ1oXFX2vuHTKHNVp7DiKIkT4jqYaBE6zIGX739w72pjpnJs8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=flMv/SXI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1742375849; c=relaxed/simple;
+	bh=NzMd+cZZ4AuMOKsWgqjQ2wWoCskTOv5VZM4sRUzG9xY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=fL5ud6j5xZhCTZQMeuBWMR0sjGcm5mXztTclSlU5r37jBg9kj82IXXtvBMvL4estqHHCefZwy+GK48z68SsjNLXTmu9KlEJ1V9VKcjEfPBjSFgXu98VWVmBT1Uzhuyy1OT0HFFKMlg64rnrAVZtFWKxm/wJ5Cb7w+U77sl4EvMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i/3Alxu3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="flMv/SXI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE7BEC4CEE9;
-	Wed, 19 Mar 2025 09:13:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1742375582;
-	bh=Mi1MTCTK3bzz3F58KuznINtPcGv3R+R6E1K9KEVJTeU=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=flMv/SXI2+a9OWJWwBf5kxte7Tfg+pomOJO/WIjjB4hpwF2EEDtbdEwkTcUqb1Kl1
-	 BDtG3b/F6tM0LL2BQzP15ZNywd6Jw5ymjT4Yg2DzDtGgbq5Gr62ZlVgefQLwa1myDt
-	 cHfrW+GcSLukXcMVTpPOhzLAFcTB8jN8FSj7VlGYG9WPD07enhlz/GPkKjxacWh7JT
-	 JHJ2MpZgUAqIalanjrRwbpwGljNbdj5A4AotStcFPQo7nSMLQw6EKPG6mQYC6pDLT2
-	 0OhAcLFqotkLW1TkkleimY7yAcbKQ0avEM+oPL5co9zHX/mXz54iFFnlNWB9Pqw+50
-	 3n9J/GKIxo6Zw==
-Message-ID: <47658d4bed58f30e2dcb806f2e6c0258de87ba43.camel@kernel.org>
-Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio
- spec
-From: Amit Shah <amit@kernel.org>
-To: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
-Cc: arnd@arndb.de, gregkh@linuxfoundation.org, brueckner@linux.ibm.com, 
-	schnelle@linux.ibm.com, pasic@linux.ibm.com
-Date: Wed, 19 Mar 2025 10:12:58 +0100
-In-Reply-To: <1da328a9ec235e3c163dec1631fbb2d39966ac1f.camel@linux.ibm.com>
-References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
-		 <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
-		 <649563cf1b8abd42401ed78d84bfd576d48bdbb8.camel@linux.ibm.com>
-		 <f27debf87882df65574f21cfced31fecf1dd1da3.camel@kernel.org>
-	 <1da328a9ec235e3c163dec1631fbb2d39966ac1f.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i/3Alxu3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742375846;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GpuGE8jwydSTtf5vqaCaaq5V296av9hmHXy0jgwtvI0=;
+	b=i/3Alxu3cnX9h4XlU88+foLvNreGzI9Gk/FjMrrwvD/drbc0rSY8TuqGPMl2eJe5kKMbkt
+	mh19Q4cwazeqSbfJffGWz7Fpa1Q+HWZiCFwhmqeckHjPwSsVg04frCK8jazjF472XipDJM
+	0ppU4/WySD7hi7m3W3Zc55OSpnAF3ig=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-350-GT9ddUHmM1SHZRTOwZ4GkQ-1; Wed, 19 Mar 2025 05:17:24 -0400
+X-MC-Unique: GT9ddUHmM1SHZRTOwZ4GkQ-1
+X-Mimecast-MFC-AGG-ID: GT9ddUHmM1SHZRTOwZ4GkQ_1742375843
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43bd0586a73so26040715e9.2
+        for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 02:17:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742375843; x=1742980643;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GpuGE8jwydSTtf5vqaCaaq5V296av9hmHXy0jgwtvI0=;
+        b=GU6mo8EqSmSG8JvO0I2fIKe1yabqvY1GT3rNmqWSxtgLJEQXkcrEQ3ldeycfA47HT/
+         po7XpJkG0GC5j5rf5PrXsXwgfJnJI1EFz0EDiPPRwRHoX7BcaDNK24Qu4kVEnxDBNlwF
+         DdlA8AAWaeFhu6snHc2RlZ7/3jVqc9XuXkp7hbZTO3qGBeGHqaOZOYpdKwRBJ5tjSH31
+         O5D61A61CDWV0N0VfNhakdUEB738sxb4+SGlpwXm1ecV1VT1Oto6WzpSh7qkeZv29rIm
+         MLkLTB5YvoE+BifAIN6t76ulVSczEvSlcgj7Qe4RHGXOWOjD+2O6tj5SFhKmkyk49aGG
+         vpFg==
+X-Forwarded-Encrypted: i=1; AJvYcCXAh3kUriflVNOLKav57HaHRNX8DOGnzcYDl8c4i7RoYSF0osyz/ev9L1GQFgr2G7hL4pDYfODaekwgaZa55g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw/KAfJOWdfmOjMgWMb59o4Tsg2vd0pXysoDe6O72vb+RJ5qyki
+	NZXeNufLEHr06kf8khBGCZKdKLVu+1sBOiSywrBE8t4mo1hNcTUwvmiOiKJ7e2EDLE7w7HyEIwp
+	cz5VmHwet0fDTMtajG4htPb/nVxBHrprTzYWvZRPqkocy7Mgc4RzZTlntCooL+WWC
+X-Gm-Gg: ASbGnctyRWiDeUYFvkQvYpHc0rC+PJO2RuwGbi+FfEZy+CMsmxW1dbiOa72dqLyM7tx
+	fQBaqxUu/9/J3fzB/EFn9tG1t2PbYWeA6XQkxfoaKDdo4VJFGzq6opruSMmrJky7tQEsZSAmWaM
+	EKDtKj8GgkfwIcXOkJ90726lZNgIXcCYm6s2bU3KMP+B8tjcvsuhVddecg72z0ftiYsWMtEQuIi
+	bGAT0xFYacAZT/Mqy5pluYSPAMSuLJo4pCUxNmU6JDFDaldXsH8cqenFdHeFUiZJaW0OTcyOgUa
+	EyejnxpT5G+ChBiKiN/NI+rBxkaRS5FSbtLV/av26pJSLF54magW6A84ywT4CA==
+X-Received: by 2002:a05:600c:3845:b0:43c:f969:13c0 with SMTP id 5b1f17b1804b1-43d438a66afmr15766525e9.29.1742375843170;
+        Wed, 19 Mar 2025 02:17:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF4AK1/6C4o6ihOcsyzkBG0ZkSaNoGqJBe8vr/NeUglQARpjCQ9rSgLBRWhjQdmkOJ/XhVmJg==
+X-Received: by 2002:a05:600c:3845:b0:43c:f969:13c0 with SMTP id 5b1f17b1804b1-43d438a66afmr15766005e9.29.1742375842419;
+        Wed, 19 Mar 2025 02:17:22 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-53-30-53.retail.telecomitalia.it. [79.53.30.53])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d4743dd13sm2275855e9.1.2025.03.19.02.17.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Mar 2025 02:17:21 -0700 (PDT)
+Date: Wed, 19 Mar 2025 10:17:18 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Mykola Lysenko <mykolal@fb.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <martin.lau@linux.dev>, 
+	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, 
+	John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Shuah Khan <shuah@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net v4 2/3] selftest/bpf: Add test for AF_VSOCK connect()
+ racing sockmap update
+Message-ID: <hlfjllms6ih53rdw45apgajek6fp4ljnfxlwkr2efyqcuf6fqo@rj6yjmj4fjem>
+References: <20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co>
+ <20250317-vsock-trans-signal-race-v4-2-fc8837f3f1d4@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20250317-vsock-trans-signal-race-v4-2-fc8837f3f1d4@rbox.co>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: lBjO6ge-BhsylmYOgz0v_cUnFad7XF_zcYd5fLhlvic_1742375843
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Wed, 2025-03-19 at 09:54 +0100, Maximilian Immanuel Brandtner wrote:
-> On Tue, 2025-03-18 at 15:25 +0100, Amit Shah wrote:
-> > On Tue, 2025-03-18 at 11:07 +0100, Maximilian Immanuel Brandtner
-> > wrote:
-> > > On Mon, 2025-03-03 at 12:54 +0100, Amit Shah wrote:
-> > > > On Tue, 2025-02-25 at 10:21 +0100, Maximilian Immanuel
-> > > > Brandtner
-> > > > wrote:
-> > > > > According to the virtio spec[0] the virtio console resize
-> > > > > struct
-> > > > > defines
-> > > > > cols before rows. In the kernel implementation it is the
-> > > > > other
-> > > > > way
-> > > > > around
-> > > > > resulting in the two properties being switched.
-> > > >=20
-> > > > Not true, see below.
-> > > >=20
-> > > > > While QEMU doesn't currently support resizing consoles,
-> > > > > TinyEMU
-> > > >=20
-> > > > QEMU does support console resizing - just that it uses the
-> > > > classical
-> > > > way of doing it: via the config space, and not via a control
-> > > > message
-> > > > (yet).
-> > > >=20
-> > > > https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.=
-git/tree/drivers/char/virtio_console.c#n1787
-> > > >=20
-> > > > https://lists.nongnu.org/archive/html/qemu-devel/2010-05/msg00031.h=
-tml
-> > > >=20
-> > > > > diff --git a/drivers/char/virtio_console.c
-> > > > > b/drivers/char/virtio_console.c
-> > > > > index 24442485e73e..9668e89873cf 100644
-> > > > > --- a/drivers/char/virtio_console.c
-> > > > > +++ b/drivers/char/virtio_console.c
-> > > > > @@ -1579,8 +1579,8 @@ static void
-> > > > > handle_control_message(struct
-> > > > > virtio_device *vdev,
-> > > > > =C2=A0		break;
-> > > > > =C2=A0	case VIRTIO_CONSOLE_RESIZE: {
-> > > > > =C2=A0		struct {
-> > > > > -			__u16 rows;
-> > > > > =C2=A0			__u16 cols;
-> > > > > +			__u16 rows;
-> > > > > =C2=A0		} size;
-> > > > > =C2=A0
-> > > > > =C2=A0		if (!is_console_port(port))
-> > > >=20
-> > > > This VIRTIO_CONSOLE_RESIZE message is a control message, as
-> > > > opposed
-> > > > to
-> > > > the config space row/col values that is documented in the spec.
-> > > >=20
-> > > > Maybe more context will be helpful:
-> > > >=20
-> > > > Initially, virtio_console was just a way to create one hvc
-> > > > console
-> > > > port
-> > > > over the virtio transport.=C2=A0 The size of that console port coul=
-d
-> > > > be
-> > > > changed by changing the size parameters in the virtio device's
-> > > > configuration space.=C2=A0 Those are the values documented in the
-> > > > spec.=20
-> > > > These are read via virtio_cread(), and do not have a struct
-> > > > representation.
-> > > >=20
-> > > > When the MULTIPORT feature was added to the virtio_console.c
-> > > > driver,
-> > > > more than one console port could be associated with the single
-> > > > device.
-> > > > Eg. we could have hvc0, hvc1, hvc2 all as part of the same
-> > > > device.=20
-> > > > With this, the single config space value for row/col could not
-> > > > be
-> > > > used
-> > > > for the "extra" hvc1/hvc2 devices -- so a new
-> > > > VIRTIO_CONSOLE_RESIZE
-> > > > control message was added that conveys each console's
-> > > > dimensions.
-> > > >=20
-> > > > Your patch is trying to change the control message, and not the
-> > > > config
-> > > > space.
-> > > >=20
-> > > > Now - the lack of the 'struct size' definition for the control
-> > > > message
-> > > > in the spec is unfortunate, but that can be easily added -- and
-> > > > I
-> > > > prefer we add it based on this Linux implementation (ie. first
-> > > > rows,
-> > > > then cols).
-> > >=20
-> > > Under section 5.3.6.2 multiport device operation for
-> > > VIRTIO_CONSOLE_RESIZE the spec says the following
-> > >=20
-> > > ```
-> > > Sent by the device to indicate a console size change. value is
-> > > unused.
-> > > The buffer is followed by the number of columns and rows:
-> > >=20
-> > > struct virtio_console_resize {=20
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 le16 cols;=20
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 le16 rows;=20
-> > > };
-> > > ```
-> >=20
-> > Indeed.
-> >=20
-> >=20
-> > > It would be extremely surprising to me if the section `multiport
-> > > device
-> > > operation` does not document resize for multiport control
-> > > messages,
-> > > but
-> > > rather config messages, especially as VIRTIO_CONSOLE_RESIZE is
-> > > documented as a virtio_console_control event.
-> >=20
-> > You're right.
-> >=20
-> > I was mistaken in my earlier reply - I had missed this
-> > virtio_console_resize definition in the spec.=C2=A0 So indeed there's a
-> > discrepancy in Linux kernel and the spec's ordering for the control
-> > message.
-> >=20
-> > OK, that needs fixing someplace.=C2=A0 Perhaps in the kernel (like your
-> > orig. patch), but with an accurate commit message.
-> >=20
-> > Like I said, I don't think anyone is using this control message to
-> > change console sizes.=C2=A0 I don't even think anyone's using multiple
-> > console ports on the same device.
-> >=20
-> > > In fact as far as I can tell this is the only part of the spec
-> > > that
-> > > documents resize. I would be legitimately interested in resizing
-> > > without multiport and I would genuinely like to find out about
-> > > how
-> > > it
-> > > could be used. In what section of the documentation could I find
-> > > it?
-> >=20
-> > See section 5.3.4 that describes `struct virtio_console_config` and
-> > this note:
-> >=20
-> > ```
-> > =C2=A0=C2=A0=C2=A0 If the VIRTIO_CONSOLE_F_SIZE feature is negotiated, =
-the driver
-> > can
-> > read the console dimensions from cols and rows.=20
-> > ```
-> > 		Amit
->=20
-> The way I understand VIRTIO_CONSOLE_F_SIZE, it has to be negotiated
-> for
-> any resize events to be sent (including resize control messages) (at
-> least as of right now it is necessary to enable this feature to sent
-> resize control messages).
+On Mon, Mar 17, 2025 at 10:52:24AM +0100, Michal Luczaj wrote:
+>Racing signal-interrupted connect() and sockmap update may result in an
+>unconnected (and missing vsock transport) socket in a sockmap.
+>
+>Test spends 2 seconds attempting to reach WARN_ON_ONCE().
+>
+>connect
+>  / state = SS_CONNECTED /
+>                                sock_map_update_elem
+>  if signal_pending
+>    state = SS_UNCONNECTED
+>
+>connect
+>  transport = NULL
+>                                vsock_bpf_recvmsg
+>                                  WARN_ON_ONCE(!vsk->transport)
+>
+>Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>---
+> .../selftests/bpf/prog_tests/sockmap_basic.c       | 99 ++++++++++++++++++++++
+> 1 file changed, 99 insertions(+)
 
-That's right, but virtio feature negotiation just means that the host
-and guest figure out what the other endpoint supports.  Console
-resizing wasn't part of the orig virtio console implementation, and was
-added later.
+LGTM for the vsock part!
 
-For the resizing case, it's one-way communication from the host to the
-guest: the host sets row/col values and notifies the guest.  If the
-guest is old and does not have the F_SIZE feature, it will just ignore
-it.  If the host doesn't have that feature, well, it can't send the
-resize messages.
+Acked-by: Stefano Garzarella <sgarzare@redhat.com>
 
-The commit to resize the console was added way back in 2008:
+>
+>diff --git a/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c b/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
+>index 1e3e4392dcca0e1722c1982ecc649a80c27443b2..2f8bba27866354848f1e30b5473cedb6a85244ff 100644
+>--- a/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
+>+++ b/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
+>@@ -3,6 +3,7 @@
+> #include <error.h>
+> #include <netinet/tcp.h>
+> #include <sys/epoll.h>
+>+#include <linux/time64.h>
+>
+> #include "test_progs.h"
+> #include "test_skmsg_load_helpers.skel.h"
+>@@ -1042,6 +1043,102 @@ static void test_sockmap_vsock_unconnected(void)
+> 	xclose(map);
+> }
+>
+>+#define CONNECT_SIGNAL_RACE_TIMEOUT 2 /* seconds */
+>+
+>+static void sig_handler(int signum)
+>+{
+>+	/* nop */
+>+}
+>+
+>+static void connect_signal_racer_cleanup(void *map)
+>+{
+>+	xclose(*(int *)map);
+>+}
+>+
+>+static void *connect_signal_racer(void *arg)
+>+{
+>+	pid_t pid;
+>+	int map;
+>+
+>+	map = bpf_map_create(BPF_MAP_TYPE_SOCKMAP, NULL, sizeof(int),
+>+			     sizeof(int), 1, NULL);
+>+	if (!ASSERT_OK_FD(map, "bpf_map_create"))
+>+		return NULL;
+>+
+>+	pthread_cleanup_push(connect_signal_racer_cleanup, &map);
+>+	pid = getpid();
+>+
+>+	for (;;) {
+>+		int c = *(int *)arg;
+>+		int zero = 0;
+>+
+>+		(void)bpf_map_update_elem(map, &zero, &c, BPF_ANY);
+>+
+>+		if (kill(pid, SIGUSR1)) {
+>+			FAIL_ERRNO("kill");
+>+			break;
+>+		}
+>+
+>+		if ((recv(c, NULL, 0, MSG_DONTWAIT) < 0) && errno == ENODEV) {
+>+			FAIL_ERRNO("recv");
+>+			break;
+>+		}
+>+	}
+>+
+>+	pthread_cleanup_pop(1);
+>+
+>+	return NULL;
+>+}
+>+
+>+static void test_sockmap_vsock_connect_signal_race(void)
+>+{
+>+	struct sockaddr_vm addr, bad_addr;
+>+	socklen_t alen = sizeof(addr);
+>+	sighandler_t orig_handler;
+>+	pthread_t thread;
+>+	int s, c, p;
+>+	__u64 tout;
+>+
+>+	orig_handler = signal(SIGUSR1, sig_handler);
+>+	if (!ASSERT_NEQ(orig_handler, SIG_ERR, "signal handler setup"))
+>+		return;
+>+
+>+	s = socket_loopback(AF_VSOCK, SOCK_SEQPACKET | SOCK_NONBLOCK);
+>+	if (s < 0)
+>+		goto restore;
+>+
+>+	if (xgetsockname(s, (struct sockaddr *)&addr, &alen))
+>+		goto close;
+>+
+>+	bad_addr = addr;
+>+	bad_addr.svm_cid = 0x42424242; /* non-existing */
+>+
+>+	if (xpthread_create(&thread, 0, connect_signal_racer, &c))
+>+		goto close;
+>+
+>+	tout = get_time_ns() + CONNECT_SIGNAL_RACE_TIMEOUT * NSEC_PER_SEC;
+>+	do {
+>+		c = xsocket(AF_VSOCK, SOCK_SEQPACKET, 0);
+>+		if (c < 0)
+>+			break;
+>+
+>+		if (connect(c, (struct sockaddr *)&addr, alen) && errno == EINTR)
+>+			(void)connect(c, (struct sockaddr *)&bad_addr, alen);
+>+
+>+		xclose(c);
+>+		p = accept(s, NULL, NULL);
+>+		if (p >= 0)
+>+			xclose(p);
+>+	} while (get_time_ns() < tout);
+>+
+>+	ASSERT_OK(pthread_cancel(thread), "pthread_cancel");
+>+	xpthread_join(thread, NULL);
+>+close:
+>+	xclose(s);
+>+restore:
+>+	ASSERT_NEQ(signal(SIGUSR1, orig_handler), SIG_ERR, "handler restore");
+>+}
+>+
+> void test_sockmap_basic(void)
+> {
+> 	if (test__start_subtest("sockmap create_update_free"))
+>@@ -1108,4 +1205,6 @@ void test_sockmap_basic(void)
+> 		test_sockmap_skb_verdict_vsock_poll();
+> 	if (test__start_subtest("sockmap vsock unconnected"))
+> 		test_sockmap_vsock_unconnected();
+>+	if (test__start_subtest("sockmap vsock connect signal race"))
+>+		test_sockmap_vsock_connect_signal_race();
+> }
+>
+>-- 
+>2.48.1
+>
 
-https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/comm=
-it/drivers/char/virtio_console.c?id=3Dc29834584ea4eafccf2f62a0b8a32e64f7920=
-44c
-
-This line:
-
-+	if (virtio_has_feature(dev, VIRTIO_CONSOLE_F_SIZE)) {
-
-is the negotiation part -- if the host device has that feature, read
-the values from the config space and apply them.
-
-		Amit
