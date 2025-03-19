@@ -1,250 +1,327 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D539019AD89
-	for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 15:00:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742396417; cv=none; b=t8NOkgtLeY3QAxCimRuLXzY5ckkLQTxTcIAxoKdahgFv4HGWNI5CV3of0SHo5tLXL4q0+l6/3JYN5mZrfyI1jZQoIiwfIk+fpHw4M8FSlaqbppAdnl+NFqaF69RKnn8lZt/gsjhFBuCHaOVnoEyMbkKZnRymXlHqNC7OPkXwefw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742396417; c=relaxed/simple;
-	bh=PFBm2I4N5jYoUgCLRmxJIOtwy7bj+cX6hvDXoT5qs+g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YKHRtVQNykZHFljf7VtSBrAF9a3EYKb39586UbWnEkVpCOSTcIV2CV1O553H6DYivdMkR4mIRA+kL2WyVVlPaUfE6uXMEFuaSEJQqDcQYSgzceEXpJfB75Cqv9UCDJTRNl9fiDyXe/tAWHP2Co4s2rcaHnKqngDGMSs1DD9Th0M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WY2FYx2T; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2466D170A11
+	for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 16:38:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1742402309; cv=fail; b=PG4dRJr0/dUAB5T6atCJnK9nr3ZNMi+EU8cQuiOrJ3VUluxp5pevGbHRpBS1no9eiMJRCPSuPhIPvrrXAzQnrQG+jC/6/7MJ+fagjbEKYjajiF+0H2hWDO0pSLHZPKRIlfOnK/k3UE0AspCvKRJEy+HUN2rxT0M8o73jamyL84o=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1742402309; c=relaxed/simple;
+	bh=1lEJhpuItdXZGMldiihGJ8NQx2WFje0AqwxETgOqvFw=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=uc72DlceTuBgNxOEIngX7DG1OS/WjewHzsfdFQqc/pZY2Ge23G8U0opdnFwY3U3y+tgmyHbBFpKbP6TncgdhmoPkR9ZlIz9N/iMpBFR1V6vwzt/6urAJx9XFbdmuie81rpHmlGl8zPOSGdFl/608RPloSQGLWZYkn7ka/hasViE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UlxlPSd4; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=C40nnx2n; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WY2FYx2T"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742396413;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Znos5WaUC4/XydmSkRRiQaq6by5qPuZbVqgImjMATjw=;
-	b=WY2FYx2TqW91msJ2BnwTZP3OysLRB25FzaIzhfWRI6bDv7QwzQUj8aLCHQsf14rK+/mJeg
-	hRgFLwjwWMrKsZoXAimtO61gd6aGy+uOEV7HQK8VfdFkzqLn1Oj6AJa38zE7vCx9WantMk
-	KjSsG4T4S12G/R5D0E78l6GaLR5gA/E=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-454-Xp_vLVsYPsiP9YDB7cTXyw-1; Wed, 19 Mar 2025 11:00:11 -0400
-X-MC-Unique: Xp_vLVsYPsiP9YDB7cTXyw-1
-X-Mimecast-MFC-AGG-ID: Xp_vLVsYPsiP9YDB7cTXyw_1742396410
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-39141ffa913so4111130f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 19 Mar 2025 08:00:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742396410; x=1743001210;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Znos5WaUC4/XydmSkRRiQaq6by5qPuZbVqgImjMATjw=;
-        b=E1Di556TI4zjArNsv1ISQ0zxumFKe7TSnyjJXRzlDSerlwf6xGDRA5TtsODNIZnT/s
-         qeb5FrDwIkynWagHzFORkfE1cLmHCqBq/IFHdBeDxlYvSLXKILoHKEt/r9TlBWfj3iMe
-         Vd5VCEtFAJpTusSURU5lS0i3SfxfIBMkIN77s0oUdyMLHfrhEhfUldqf1zb5l2jbZ7dG
-         efjmFznqYkYjEezfMZWnEO2lCs2BE3L8I1/U6fu6yHSQbSrvpDHbaN1lNwBF3XYqZFQ0
-         gm5PfcyNQk4baSOzY6K9sc4sxdPikJ5gDmgz93FkHIbokbp5LOpTv8KpjALJS7Ayodum
-         8nkw==
-X-Forwarded-Encrypted: i=1; AJvYcCWez/1GQzXCrzRZ4KiuPcuAX0KZROU8TyNj734UR31fZw9DN7jL+WdhluMjkotSdUeG2aqDkiMUFow9ByxNhw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwdzwzezxVctOFSFmv4A71ELVy4PJ8xgMwcJC6Tmzg4oH6NABb9
-	iLvqe1Jhu2hpsSzK8zZhu8uZuOLjtok+N/Ainf0gvquFRvjeepQuJm+Kz+NXWaB24iPyZrWE9Ka
-	5hM70Y3jfHvWHAerL+FWiigFz0CR3Gbgn4qJoJMsKFEDmImOKrLF5Q42b9eoNH0ZG
-X-Gm-Gg: ASbGncuNXULSBnGuqqJEv64UJJZ/anNkHESND1cSrrElC1HZlhno3VE7NS5AY7+ySOj
-	bsUi9SUKr6pAXILUv5mRF/0YzR3TcS5qDQ2lBuYw780Me3v1bahEwXg6KguNRk3GWzn7wOI/rWW
-	NaXHV0jSEgZRKjfcVMXWR092H9BkEHlDap/ftV+To2Lq8vqvfo9juiOedlxxdTDf6W1n4nm8gaH
-	cx91wbHG0lw78XskP5iflP3tfs6PLE5hH0AgHtf65CR1o7+cxwtXsevUjIkk95C4mT+3XV3RHfa
-	XT0MFgzlQQ==
-X-Received: by 2002:a5d:47c9:0:b0:391:12a5:3c95 with SMTP id ffacd0b85a97d-399739d4817mr2819060f8f.22.1742396410335;
-        Wed, 19 Mar 2025 08:00:10 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEtQGh+I2vuGaNYtN5Wod5Mm6S3SyNqy9i9AO1JYL9vJ/bbEsx6r52lPyyaG5tlRjOWFPfqNQ==
-X-Received: by 2002:a5d:47c9:0:b0:391:12a5:3c95 with SMTP id ffacd0b85a97d-399739d4817mr2819012f8f.22.1742396409808;
-        Wed, 19 Mar 2025 08:00:09 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3978ef9a23bsm16981307f8f.15.2025.03.19.08.00.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Mar 2025 08:00:09 -0700 (PDT)
-Date: Wed, 19 Mar 2025 11:00:06 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
-Cc: Amit Shah <amit@kernel.org>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, arnd@arndb.de,
-	gregkh@linuxfoundation.org, brueckner@linux.ibm.com,
-	schnelle@linux.ibm.com, pasic@linux.ibm.com
-Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio spec
-Message-ID: <20250319105852-mutt-send-email-mst@kernel.org>
-References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
- <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
- <649563cf1b8abd42401ed78d84bfd576d48bdbb8.camel@linux.ibm.com>
- <f27debf87882df65574f21cfced31fecf1dd1da3.camel@kernel.org>
- <dc3ff60fd16e5b5f94c12cf6a5a7893b94f705a8.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UlxlPSd4";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="C40nnx2n"
+Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52JGBmGc030843;
+	Wed, 19 Mar 2025 16:38:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2023-11-20; bh=8zwjbmUnakMjqoXxDlQeaSVYzbRJsOmCCaCuOl4pqos=; b=
+	UlxlPSd4V8zMy66Fd9oHN7JrXLcBt8NGHV+rm3HBsBK9OMAAavD1sDnvZEPMRqlw
+	dw3zg8hTar3giXb0YbR9YFUvMwdrQAiWs/WvEILeQcBJdxHawVMgCVJy7dJnSAv4
+	KstVf7O/S+KhCqglcFwh4jaAdbvE2rtgCixUzv82iNcCCNeH42bu71/xx5G4rzrF
+	G7H7UkugexNCW0U76Aukd8V4jQvw91YJ87+cpUGZyprlojAfnH6jsj2EVPsFUm8m
+	NqcYlESQGGEpYM7kEW93SfTiq9UlFL0NdE3tFsmqO63/+/szjVGVIqfJb7Wqh2Nc
+	7LOrPVSeye899pGA/G0Tnw==
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45d1s8uxnk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Mar 2025 16:38:25 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 52JG30M0024466;
+	Wed, 19 Mar 2025 16:38:24 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2177.outbound.protection.outlook.com [104.47.56.177])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 45dxbk5xpp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Mar 2025 16:38:24 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=cWLpENIcL8T0L7eTv3BdmqzK6zGGuWU2nmO72VxeYcjeu3do7USjYqY0e7F9QeLp+IvvUgHuD6Ae/uc1Ou8fpHnT/5smrCUIt+9KTB4bQYp0OZU8qV5GAV7VrNJLDJNGfbpMv5OHBxutv/NbCVDz+u8/zpdZ9MCHA789XT2qPHANGMsoTtwtYxT/ZPulFJgXyThUDAaXf8ol2Xf7sradL/rCq1NTfNnHmBIpsI64YdrKbtw4TnbRRmZg3sIh1ak815VTNEjdDZuEw+QkfHID7o+uTCPXYcCGCAuvWKxGHjx/tDZ8j2kMIAKnVIh6mkJSICt0gTxI8Qk0gl8adXv9RA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8zwjbmUnakMjqoXxDlQeaSVYzbRJsOmCCaCuOl4pqos=;
+ b=Uz4WA6sTZKQGPR2vTmjzZ9tYIbj/XYDeLGsPN3EAdYK9dl043g80tfkLpDvfdtC2mPa2JIPf/8+GFIdvcGPmpTTjk7i3M2iq5Gm5+Nm6tMflSU44WkANz/N/+cRj6yEKRHE16LR8oOlnWdzIhTPC/TK1/oc6iEmNlNf3sVg0D16YFrSvW4xtzFU5TXRlwin5Kzhue/vFL7rrmxxriKi9ZHDylZqCblCzgbFXjDNi4nWK3vMMiFv+wfSsxgSXl6nWE1zQBplCvgG+/t9vktGp++1WoJlSkdXsS+iHnq5CK/koT1NYkzuFZjKO7l6HuAWFrNQXFjdHP9rg+Z3fwY9QCg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8zwjbmUnakMjqoXxDlQeaSVYzbRJsOmCCaCuOl4pqos=;
+ b=C40nnx2ni9i9YWxsXx2c0zqtvnqokn/FUIM5eggg3nPuYdkFnYvSotYLLzpSWYep0LftzOF9fY6Kc7U5BzbsXUd1JkfaODpSqy3oRY0Jc1MeYs3FAOoX7ytSxNR0O8vMC7evayItWOi8MHIEFcc9CGw0LtngJm7sde1vWQV6PNE=
+Received: from MWHPR1001MB2079.namprd10.prod.outlook.com
+ (2603:10b6:301:2b::27) by CH3PR10MB7713.namprd10.prod.outlook.com
+ (2603:10b6:610:1bc::6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.34; Wed, 19 Mar
+ 2025 16:38:21 +0000
+Received: from MWHPR1001MB2079.namprd10.prod.outlook.com
+ ([fe80::6977:3987:8e08:831b]) by MWHPR1001MB2079.namprd10.prod.outlook.com
+ ([fe80::6977:3987:8e08:831b%6]) with mapi id 15.20.8511.031; Wed, 19 Mar 2025
+ 16:38:21 +0000
+Message-ID: <93797957-b23c-4861-a755-28bfc506051f@oracle.com>
+Date: Wed, 19 Mar 2025 09:38:17 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 04/10] vhost: modify vhost_log_write() for broader
+ users
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        netdev@vger.kernel.org, mst@redhat.com, michael.christie@oracle.com,
+        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
+        joao.m.martins@oracle.com, joe.jin@oracle.com, si-wei.liu@oracle.com,
+        linux-kernel@vger.kernel.org
+References: <20250317235546.4546-1-dongli.zhang@oracle.com>
+ <20250317235546.4546-5-dongli.zhang@oracle.com>
+ <CACGkMEtOsQg68O+Nqo9ycLSq7sN4AMZ92ZvLLMEF7xYDCA5Ycw@mail.gmail.com>
+Content-Language: en-US
+From: Dongli Zhang <dongli.zhang@oracle.com>
+In-Reply-To: <CACGkMEtOsQg68O+Nqo9ycLSq7sN4AMZ92ZvLLMEF7xYDCA5Ycw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: BN9PR03CA0877.namprd03.prod.outlook.com
+ (2603:10b6:408:13c::12) To MWHPR1001MB2079.namprd10.prod.outlook.com
+ (2603:10b6:301:2b::27)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <dc3ff60fd16e5b5f94c12cf6a5a7893b94f705a8.camel@linux.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: W2MV3B8RgC9hP20rpXSh9m2_EAll4b7SrEvuOnZZMks_1742396410
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWHPR1001MB2079:EE_|CH3PR10MB7713:EE_
+X-MS-Office365-Filtering-Correlation-Id: 316c9641-4b41-47e8-74e3-08dd670475fd
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?RXQxMGRablpsMmFsaUdKZ1hUaDhPeUlUSDF4YjdTeDFyOEFsVTNIWG1xVXZo?=
+ =?utf-8?B?blZiSmRuLzAzU3h0V2V3eEVXckU0ZjBHekMyYnB1N2p4NEtqMVdjeHdPNFZw?=
+ =?utf-8?B?aG5GQzZ6QkxTakc2bStxMG9KSFlBTG5mUGhSYVlVTGt0OWJBakdqc2FHUlJQ?=
+ =?utf-8?B?aDk2aTAzVW95NXRaWUxQTU1CQzZNQkJtenJRNEgxNU1qU04ydkdPZUdLc2pV?=
+ =?utf-8?B?eUttMEtyU3RMMEhxa3dKL0JHcU5NY0U3bVRmaERRUXZKYWJoUVBEUGo4Vmhq?=
+ =?utf-8?B?dmxBcmhYeFVYTTJxNVlEc2IrdmJzclpMNG9YVnFzdU5BSVQ1dnlMT0plckFS?=
+ =?utf-8?B?bW9HYXRWVVJ0YlorTWdWaVE2dmlObnlNMmtrUDI0WnExa0lJSThFbEV6U1p3?=
+ =?utf-8?B?RjJ1TlRyRXpYOHQ0UmdTV3IyR0FoUXE0WnNsc3ArS05sYTg2b0w1MXhudjVs?=
+ =?utf-8?B?UXJWQkg5T1lZVjJ0ODlNVDUzQUdVMkF2d0d1RStlUi9KR3J0RzVWWjhjcjN4?=
+ =?utf-8?B?NThiNzlmd0MralVyeEtYRDZid0lnOEJwRWNzOGhlQmhOU0N3RktSSmVOMVNl?=
+ =?utf-8?B?STNlNE1hMDk3L1F1N3ZmMGY4YVo2R0k4UHNCWHV5bUlrVy9DcDdEejNsaDVh?=
+ =?utf-8?B?bVVsa1BKdXZmVmg2Y3MxdG1Yd082Y1hHalhXVG55YWdkZlJxd3VEd0FzQkM3?=
+ =?utf-8?B?R1FZSU5QU3Bjam95SFR3UXhxWlpFWDh2dFNXUU03OHBGY3c5c1lSM3lZbFdV?=
+ =?utf-8?B?OWpWNUNidityRStYUnl6Ky9HUEt3aVVmVzZSTnJZa3IvUTBqWHo1NDhnNitR?=
+ =?utf-8?B?OTJsa3duUU5RNUVyMCtrckJReFpDSmpxUkZJMkI1Vnc0R2lNSWtvNnpQcEkr?=
+ =?utf-8?B?dFB2bThyWTJmaGgxSXhsYVlVb2czN0FzYitOc2JycE9jM0ZvelNWMXVjdTMr?=
+ =?utf-8?B?RVFEVEZQcWNtOXRDVms4NUdVUHByWmVWRXR4QzJMcUR6a051ZGFORjRpSU5t?=
+ =?utf-8?B?bENUYnlwNFNyK2crcGkzVklmZUR6eWJnMW9HQVhaVVhIWTFYTCtVZTMwUEJS?=
+ =?utf-8?B?N042ZGxtMXFobHdKMk1raWtZSDBRcVpUT2cwa1RuQXB0dGVvMndpOE1kMFo4?=
+ =?utf-8?B?MlM1QXlHNGk0Zlg3Mm1sZEFlZFdyOEZpLzR5OEFEV050UFdDV2xmSm9Hc0o1?=
+ =?utf-8?B?ODR2WWZHd1Z1TnpXZzRsSkNyZG53d2lFeUU4a09xMVFvMnpGZHF0Y29HWVN3?=
+ =?utf-8?B?b0pRcEtxUC84ejVxcDVjRm1ubXlIN0tnWDZQQ3RYUE1aKzdGQU15N0FUNFNa?=
+ =?utf-8?B?aHJFdnRqR3A2QzJLZU50VjNZWU5jUFFHUXpVb2g5MHRzWDdhSHhkWDk2WXNL?=
+ =?utf-8?B?NFIveHNnNUJ0NGJnMFV2MHV6UEhXMnFmMDF5U0c2Nno5NFIvWGJGc294aUNk?=
+ =?utf-8?B?Q0JzRmNqSGRWOW1UTEl0aG1aak5NRjh1QTh3UmxFbFMrQnVtdkJ3SmZTcnln?=
+ =?utf-8?B?dVc4L3ByOXdXNHd6RC9ULzlkcHZoYXgrNlJFTWo3SHBFYnJFOW9mVXFXYmx3?=
+ =?utf-8?B?MUNEdTQxY0liQWIybWNxV2krRXBEb1dtYlhxMEtyVUtYNUZMOW4xcjJYRWcw?=
+ =?utf-8?B?K2VmVWNPSUVsb01LSUZwNUhKR09vOWpWMm9aYXZlSzZXaEdlNEszdnR6UmFP?=
+ =?utf-8?B?T3o0VTk4U0hCUEJ0eW5kQ3hRcjdjYXlKMmhIVjVaRWNDRjRGeFF3OU9IU1pi?=
+ =?utf-8?B?SGJEaEZnWjFIVUtRaStwMmwxZ2dSYkYxV09lSmhnQ3hyd2RjNk9ZNTRlMnBk?=
+ =?utf-8?B?SXkwQ0M5SXI0Zit3Mk1vcTUyamV2S1VaejdpRkZnYlpLUkpNOGgvR1phOEVm?=
+ =?utf-8?Q?t052ALMSpzgdj?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1001MB2079.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?TTNaUEVFQjM0dVFydHFyZVVNdU9RcTZnT3NZNzV1ZkZVUXhvOTlFWlRqOWVm?=
+ =?utf-8?B?T3ZoblFxRTFyOWpoemVKek1QRVNncEFuQWxnMDZZMktRL25Rb2NBaHlPa1po?=
+ =?utf-8?B?OHlJL20wMllsWGVuYlZueXhNeEVkZE9DTlRCM1FmaVo5bS93d2pqbU05WnE2?=
+ =?utf-8?B?UkoxVjhmUG9TSHhjUngvUnBqd0tUbnNqb2sybjhhNkFZYVVReVlVVlBwQ1pR?=
+ =?utf-8?B?MDlweWZSeVdQTnRTRENvWnFIbDZBMkpEMWFBTGdzSmVJOWI4b0pFSjd6YUkv?=
+ =?utf-8?B?eUp2YXNJNSs4cEZtT2d5L1R3cUtHSWtrTDdCVTFkNTRXOW1TRDhzd3NZR2Vv?=
+ =?utf-8?B?MFUza3Bob2UwYTJnMmVYZkY5NzJIZVJ3bXdGSGJDbEl2Y3BCeXB2NVF4Tmcr?=
+ =?utf-8?B?M0s5NVMvOGdMdWljVm40aXE2a2ZQejlHZ2g2bldXYmk1NTVBSWhkYkFlV1JO?=
+ =?utf-8?B?K2d3V0E4L2ZQSmZCR1RBTHR0WGNpZ2JGTHJ2VkJva1V0dVEyWDZsRHVmWWox?=
+ =?utf-8?B?UEFVaWJrZjEwZFlIbkVBa09RdnlUYXFVQy8wNnpWU2pvNHZJQUdDaVZVYXVC?=
+ =?utf-8?B?VTZ5OGxDd3NBTXJlR1g1bVRXMjhWanUwenBSS1lJM1FNemZUSWM1ZE80YlNQ?=
+ =?utf-8?B?bVJZa2VFWUZNek9Db3JLS2tLSUpGUnF2UkxlTVBPWjA1QjNFT3ArV1E2RHlq?=
+ =?utf-8?B?bXB2SHI5QnBYTG9ITHZhVXFTVEE2OUFZYkpUckIvQjNYODlXM0tYRTNTU0Nk?=
+ =?utf-8?B?dHZuTFNzbTUwcEUxdG9QMkFKSEZlN1k2ekdEZ2lZbitKakVwTHlLQ0kvMVVP?=
+ =?utf-8?B?NXY4aGJnR3JPQ21malI5bnlmQlRmZ1U0dFBVS285TTZlUjVLMXB4T083Nnpz?=
+ =?utf-8?B?Vk1nV0dzTXhrVjFvRzhCb0ZaZ3BySnhod1M0WHlkUUdiOUpnN3ZhMVAwSDBz?=
+ =?utf-8?B?UVBraGtRMWpCci9YdUM1bTdJUm5pRFc3SmYzUzkxanVrUSsyb3dLVUtUVW43?=
+ =?utf-8?B?NHRHWjhjdFZkYzFxMHlITWtaODl5YzRuSDV6MWpVbHVVeSs1QUc4QzI5cWhF?=
+ =?utf-8?B?K2REaUk3MG1POWh0L3pnVmJVOFlBalNCT1c2TDJxR0k0L1QycnhaRjRrR291?=
+ =?utf-8?B?Q3g5L0N2b1VRcktJdzRDbit1WnFkd0RrenlLMXJxVWxYUkNVN1FnVVlBZVF5?=
+ =?utf-8?B?UnhrbXNjd0NKVDk5NjBTYU1zRm1PQlpya1RZMW9iNHpFdCtBSCtGdTQyaVFj?=
+ =?utf-8?B?VGJSMEVCbDMxMDQyajJyMnpnVElXSXIzY3o1K1NYSG9oN2twRWpWR2NtQWRX?=
+ =?utf-8?B?dW5BME1xLzVEQ1VJVHFnbGMyTlk0WmhwTStZNVhtcWorSWNtbm1Vd1JiU3By?=
+ =?utf-8?B?RmhxWllFSGw3M0dNRVVOencxVnVHYW4yK1owZmRrcmtPZzFSL0ZwUk91WjJa?=
+ =?utf-8?B?bFVRQzQ3RFhPaDRiWlNSeGo5WVp5WWhwWlRlZ1lrT2FkbXVEbzBySWUrUlhN?=
+ =?utf-8?B?RDNDQ0FPWWFQVDR0Y05NVzdiOWdmYysra0Vya3ZPNU9tTWc0R0VudDJkZDRU?=
+ =?utf-8?B?TTJSNm4zZUFSSW1waXBjLzJCRnN6aEM1eTN0SlZVeGt1Um8wdjBNOTVhUkRS?=
+ =?utf-8?B?enY3Z0lzNVE3ZVc4blpLWW1salRiV1JHK09sRkpVYU1OU0FKMktNT2pHT2d2?=
+ =?utf-8?B?dllrOE5kQzhEdmtodzFEV1FDQTNqdGo2L2UrTmdzTFgwOTlSR1Q1cGUwMmZ4?=
+ =?utf-8?B?d2JtenZMV1dqWmI1dTRGSEQ3NmtFL2dFQlFpcFdLTzFwL0F1d0dzYWNjK0NZ?=
+ =?utf-8?B?Y2RTOTJjeldyYXJJWFRoV0Zkb1NHQXQ1MkNGRTZQaUV6REM2TkpqK0NyRzUz?=
+ =?utf-8?B?WXQvNFVyQllkVmd1ZGVuK280am0zQlRGVW5zWkFOcEZORTNiVStBam8vRXFj?=
+ =?utf-8?B?MFRENGdqbjJ0LzRmOTNNWDRqWDR6L08vZ1RXRHJtZ3J1NWdieng3Q09TZnVm?=
+ =?utf-8?B?eEYxUHFMZ3RoRkRiaHcxN3llWnpVbmR3WU84S1R2T0RYaGhpU25HbUd0RkFl?=
+ =?utf-8?B?blRBZjRUellLNm5SOHhjSWJtMEppRkMrMVhtc1dBWCs5UlE3SVVyc2FjWkE5?=
+ =?utf-8?B?cTBwMEVFOVlmV3gxT3pqdS80SjQ3SXBtR09XcG53WW4yU0FtY3M5K1BncGY3?=
+ =?utf-8?B?QkE9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	viRFLLsTc5NykRaCqL0jkMUjI1uu8FnaQeUcYauVnmI9nWkHna34ZcfrU8DKw2J/y3vMNZ8oDXCyDokWpjZW48pX/xU7mlq+dv/fSyVVK/nBMrhdZwG553rxfoMY01SNfZKVIa8pXR+A6yxmYxXSiXhEUCIrdl0sf3p6aJzqHvZH0KqL8BH+9qTDkBrsMn4Csz2Tt3m7sa6eSsKfbh9oP1IAQzmYgEqcyDB7v8wp5mWe34DCpvGzrYVC3NZ5cIKPCY3C37yj3UVaBYN7+xjt/WbI2F+xhmpkaGHUlRgLCrDu8qlypa2jAtd2nL3PBtWpLsKmT144IMLM4jBX0Clok+uvQVJfynt1g4jG4Zn2RbwwNJTZkoB8V1wUB6OQZOeHOnaDgNPxaQ2z+cksVl3pWx1uHRVkBOd/8OUwvFi27OAxCzVgF7MRxSeMRl3tDcXKpSCLyi0jw5YE4he7BadguGmlfzW0LLSourOgj824xm+/1blMk6oZxEEw4rpU/3JeYg2YQc+a8ZiwhQWu+afeK58F2UV/uv/1rFHidEp42HAgflrx42wpzZufbSIVp8h3cU0TvefdmK0CtSrQUuSc0FwO28jI1jPCMm8nK+/nJa0=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 316c9641-4b41-47e8-74e3-08dd670475fd
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2079.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Mar 2025 16:38:21.5847
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: phvWPegGXT8AdfMrnDJ0UdTNCTwXr85URYYyvOOyTFd1qhWl10w5lFAQ36z1SYk542MTJYwCaYEJWiy+45/1uA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR10MB7713
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-19_06,2025-03-19_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 mlxscore=0
+ adultscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2502280000
+ definitions=main-2503190112
+X-Proofpoint-ORIG-GUID: nNtz54NM1dhPcA-HIZ9oqTcqnWivrcAk
+X-Proofpoint-GUID: nNtz54NM1dhPcA-HIZ9oqTcqnWivrcAk
 
-On Wed, Mar 19, 2025 at 02:00:44PM +0100, Maximilian Immanuel Brandtner wrote:
-> On Tue, 2025-03-18 at 15:25 +0100, Amit Shah wrote:
-> > On Tue, 2025-03-18 at 11:07 +0100, Maximilian Immanuel Brandtner
-> > wrote:
-> > > On Mon, 2025-03-03 at 12:54 +0100, Amit Shah wrote:
-> > > > On Tue, 2025-02-25 at 10:21 +0100, Maximilian Immanuel Brandtner
-> > > > wrote:
-> > > > > According to the virtio spec[0] the virtio console resize
-> > > > > struct
-> > > > > defines
-> > > > > cols before rows. In the kernel implementation it is the other
-> > > > > way
-> > > > > around
-> > > > > resulting in the two properties being switched.
-> > > > 
-> > > > Not true, see below.
-> > > > 
-> > > > > While QEMU doesn't currently support resizing consoles, TinyEMU
-> > > > 
-> > > > QEMU does support console resizing - just that it uses the
-> > > > classical
-> > > > way of doing it: via the config space, and not via a control
-> > > > message
-> > > > (yet).
-> > > > 
-> > > > https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/char/virtio_console.c#n1787
-> > > > 
-> > > > https://lists.nongnu.org/archive/html/qemu-devel/2010-05/msg00031.html
-> > > > 
-> > > > > diff --git a/drivers/char/virtio_console.c
-> > > > > b/drivers/char/virtio_console.c
-> > > > > index 24442485e73e..9668e89873cf 100644
-> > > > > --- a/drivers/char/virtio_console.c
-> > > > > +++ b/drivers/char/virtio_console.c
-> > > > > @@ -1579,8 +1579,8 @@ static void handle_control_message(struct
-> > > > > virtio_device *vdev,
-> > > > >  		break;
-> > > > >  	case VIRTIO_CONSOLE_RESIZE: {
-> > > > >  		struct {
-> > > > > -			__u16 rows;
-> > > > >  			__u16 cols;
-> > > > > +			__u16 rows;
-> > > > >  		} size;
-> > > > >  
-> > > > >  		if (!is_console_port(port))
-> > > > 
-> > > > This VIRTIO_CONSOLE_RESIZE message is a control message, as
-> > > > opposed
-> > > > to
-> > > > the config space row/col values that is documented in the spec.
-> > > > 
-> > > > Maybe more context will be helpful:
-> > > > 
-> > > > Initially, virtio_console was just a way to create one hvc
-> > > > console
-> > > > port
-> > > > over the virtio transport.  The size of that console port could
-> > > > be
-> > > > changed by changing the size parameters in the virtio device's
-> > > > configuration space.  Those are the values documented in the
-> > > > spec. 
-> > > > These are read via virtio_cread(), and do not have a struct
-> > > > representation.
-> > > > 
-> > > > When the MULTIPORT feature was added to the virtio_console.c
-> > > > driver,
-> > > > more than one console port could be associated with the single
-> > > > device.
-> > > > Eg. we could have hvc0, hvc1, hvc2 all as part of the same
-> > > > device. 
-> > > > With this, the single config space value for row/col could not be
-> > > > used
-> > > > for the "extra" hvc1/hvc2 devices -- so a new
-> > > > VIRTIO_CONSOLE_RESIZE
-> > > > control message was added that conveys each console's dimensions.
-> > > > 
-> > > > Your patch is trying to change the control message, and not the
-> > > > config
-> > > > space.
-> > > > 
-> > > > Now - the lack of the 'struct size' definition for the control
-> > > > message
-> > > > in the spec is unfortunate, but that can be easily added -- and I
-> > > > prefer we add it based on this Linux implementation (ie. first
-> > > > rows,
-> > > > then cols).
-> > > 
-> > > Under section 5.3.6.2 multiport device operation for
-> > > VIRTIO_CONSOLE_RESIZE the spec says the following
-> > > 
-> > > ```
-> > > Sent by the device to indicate a console size change. value is
-> > > unused.
-> > > The buffer is followed by the number of columns and rows:
-> > > 
-> > > struct virtio_console_resize { 
-> > >         le16 cols; 
-> > >         le16 rows; 
-> > > };
-> > > ```
-> > 
-> > Indeed.
-> > 
-> > 
-> > > It would be extremely surprising to me if the section `multiport
-> > > device
-> > > operation` does not document resize for multiport control messages,
-> > > but
-> > > rather config messages, especially as VIRTIO_CONSOLE_RESIZE is
-> > > documented as a virtio_console_control event.
-> > 
-> > You're right.
-> > 
-> > I was mistaken in my earlier reply - I had missed this
-> > virtio_console_resize definition in the spec.  So indeed there's a
-> > discrepancy in Linux kernel and the spec's ordering for the control
-> > message.
-> > 
-> > OK, that needs fixing someplace.  Perhaps in the kernel (like your
-> > orig. patch), but with an accurate commit message.
+Hi Jason,
+
+On 3/17/25 6:12 PM, Jason Wang wrote:
+> On Tue, Mar 18, 2025 at 7:51â€¯AM Dongli Zhang <dongli.zhang@oracle.com> wrote:
+>>
+>> Currently, the only user of vhost_log_write() is vhost-net. The 'len'
+>> argument prevents logging of pages that are not tainted by the RX path.
+>>
+>> Adjustments are needed since more drivers (i.e. vhost-scsi) begin using
+>> vhost_log_write(). So far vhost-net RX path may only partially use pages
+>> shared by the last vring descriptor. Unlike vhost-net, vhost-scsi always
+>> logs all pages shared via vring descriptors. To accommodate this, a new
+>> argument 'partial' is introduced. This argument works alongside 'len' to
+>> indicate whether the driver should log all pages of a vring descriptor, or
+>> only pages that are tainted by the driver.
+>>
+>> In addition, removes BUG().
+>>
+>> Suggested-by: Joao Martins <joao.m.martins@oracle.com>
+>> Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+>> ---
+>>  drivers/vhost/net.c   |  2 +-
+>>  drivers/vhost/vhost.c | 28 +++++++++++++++++-----------
+>>  drivers/vhost/vhost.h |  2 +-
+>>  3 files changed, 19 insertions(+), 13 deletions(-)
+>>
+>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+>> index b9b9e9d40951..0e5d82bfde76 100644
+>> --- a/drivers/vhost/net.c
+>> +++ b/drivers/vhost/net.c
+>> @@ -1219,7 +1219,7 @@ static void handle_rx(struct vhost_net *net)
+>>                 if (nvq->done_idx > VHOST_NET_BATCH)
+>>                         vhost_net_signal_used(nvq);
+>>                 if (unlikely(vq_log))
+>> -                       vhost_log_write(vq, vq_log, log, vhost_len,
+>> +                       vhost_log_write(vq, vq_log, log, vhost_len, true,
+>>                                         vq->iov, in);
+>>                 total_len += vhost_len;
+>>         } while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
+>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>> index 9ac25d08f473..db3b30aba940 100644
+>> --- a/drivers/vhost/vhost.c
+>> +++ b/drivers/vhost/vhost.c
+>> @@ -2304,8 +2304,14 @@ static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
+>>         return 0;
+>>  }
+>>
+>> -int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+>> -                   unsigned int log_num, u64 len, struct iovec *iov, int count)
+>> +/*
+>> + * 'len' is used only when 'partial' is true, to indicate whether the
+>> + * entire length of each descriptor is logged.
+>> + */
 > 
-> So should I send a patch v2 or should the spec be changed instead? Or
-> would you like to first await the opinion of the spec maintainers?
+> While at it, let's document all the parameters here.
+
+Sure.
+
 > 
-> The mail I initially sent to the virtio mailing list seems to have
-> fallen on deaf ears. I now added Michael Tsirkin to this thread so that
-> things might get going.
+>> +int vhost_log_write(struct vhost_virtqueue *vq,
+>> +                   struct vhost_log *log, unsigned int log_num,
+>> +                   u64 len, bool partial,
+>> +                   struct iovec *iov, int count)
+>>  {
+>>         int i, r;
+>>
+>> @@ -2323,19 +2329,19 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+>>         }
+>>
+>>         for (i = 0; i < log_num; ++i) {
+>> -               u64 l = min(log[i].len, len);
+>> +               u64 l = partial ? min(log[i].len, len) : log[i].len;
+>> +
+>>                 r = log_write(vq->log_base, log[i].addr, l);
+>>                 if (r < 0)
+>>                         return r;
+>> -               len -= l;
+>> -               if (!len) {
+>> -                       if (vq->log_ctx)
+>> -                               eventfd_signal(vq->log_ctx);
+>> -                       return 0;
+>> -               }
+>> +
+>> +               if (partial)
+>> +                       len -= l;
+> 
+> I wonder if it's simpler to just tweak the caller to call with the
+> correct len (or probably U64_MAX) in this case?
+
+To "tweak the caller to call with the correct len" may need to sum the length
+of all log[i].
+
+Regarding U64_MAX, would you like something below? That is, only use 'len'
+when it isn't U64_MAX.
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9ac25d08f473..5b49de05e752 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2327,15 +2327,14 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+ 		r = log_write(vq->log_base, log[i].addr, l);
+ 		if (r < 0)
+ 			return r;
+-		len -= l;
+-		if (!len) {
+-			if (vq->log_ctx)
+-				eventfd_signal(vq->log_ctx);
+-			return 0;
+-		}
++
++		if (len != U64_MAX) ---> It is impossible to have len = U64_MAX from vhost-net
++			len -= l;        How about keeping those two lines?
+ 	}
+-	/* Length written exceeds what we have stored. This is a bug. */
+-	BUG();
++
++	if (vq->log_ctx)
++		eventfd_signal(vq->log_ctx);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(vhost_log_write);
 
 
-If we can fix the driver to fit the spec, that's best.
-We generally try to avoid changing the spec just because
-drivers are buggy.
+Thank you very much!
 
-> > 
-> > Like I said, I don't think anyone is using this control message to
-> > change console sizes.  I don't even think anyone's using multiple
-> > console ports on the same device.
-> > 
-> > > In fact as far as I can tell this is the only part of the spec that
-> > > documents resize. I would be legitimately interested in resizing
-> > > without multiport and I would genuinely like to find out about how
-> > > it
-> > > could be used. In what section of the documentation could I find
-> > > it?
-> > 
-> > See section 5.3.4 that describes `struct virtio_console_config` and
-> > this note:
-> > 
-> > ```
-> >     If the VIRTIO_CONSOLE_F_SIZE feature is negotiated, the driver
-> > can
-> > read the console dimensions from cols and rows. 
-> > ```
-> > 
-> > 		Amit
+Dongli Zhang
 
