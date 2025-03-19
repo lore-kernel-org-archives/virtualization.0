@@ -1,164 +1,175 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82EED1F0988;
-	Tue, 18 Mar 2025 22:57:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D3161B95B;
+	Wed, 19 Mar 2025 00:28:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742338652; cv=none; b=rxHhe57Byv4A2yHdtmHxj48tDNI87Lz4KKEuPw86us9pVZunCQgqboExWN9OLjZUiff1FFTPDNGoTKfcFqyLzals6N9hRoJX4gI0QzMypzscnofTFDAzdXjEp8ccjsVonzzzd6v6Ch+p7OXC6D3vWF0O1uG2g80v11Q+KuDgV3w=
+	t=1742344090; cv=none; b=AaJtoisglRicA8tV10WFgwxDrntLjgjrS6C43xWGswQEgvYaIensRip69YzD4As0p4wYH/WTBFWWQthK/Y7dRuhtGQPIijiz9u+2CDyE7xlgYkKcoPjCXrO/fXWvotTkS0EVcnXL4ZT5REaaUCfNcL2vP6/n3a2L6AeD95mOnFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742338652; c=relaxed/simple;
-	bh=Ab0mjpny9YV3cDgaOEiBxiCSt5kA5wyfbzdqOnZMbfM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tFJt8ZTNluJ9mXZegDQl5jwBrndTglhprbRFtR/9m3gVD4SHx65IglsYDbO4C8NlZ+CM39kBjVLngEoG4oa9UnK5/GbK/gdRENyjU1cLHXSbT/toWRIXDAY4k0xH7hC67QrffRFHIcRNq9NVUrtaSxwrQKDbRVeXCmUWWSyOiJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=oLHTmfmk; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1742344090; c=relaxed/simple;
+	bh=m0Zz9gxVif1U4ymWLXs8jG0OQ1KBLhLy2E/YTmAsNR8=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=S/GDSOntwVCKwC0iN5L1TRpAdjWfRh8dCS3n0mdaH+qI9cxMnJEMLcldnJ+7zVoRC58owTCCmXuqISq9e1ai5GGFGCXtMQ97sl+FDU8qk0uzjJ8ie5Pjn/U6i1oE0O5ritRd+iY3lyUtT8hMIwXIbyohoPHEYuwpLKlMIuo3ntg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=abhxtknv; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="oLHTmfmk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1742338650; x=1773874650;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Ab0mjpny9YV3cDgaOEiBxiCSt5kA5wyfbzdqOnZMbfM=;
-  b=oLHTmfmkX0WLbrpSr8BDX7nC+CBjtUgivGRbUI3tsf6Zf2A3RnmKI5P3
-   BJWQgaUS2NwllSNvUlrSzC5M0p5BLp8CSiQIx74To1BXifEzjBDOJK9DZ
-   ZvSXMCUkuey67EzZeliDB/ztmFBK3Q3xGs8dVAfe6wPVZbIrWlUjet6mM
-   CfBUHU5URdNjjgTnhJcrozOHJrrcuelxtarYyh3xUqozlA7+f5eMe54Qe
-   NUxeV04jnZ/HU6SYaIh5gsOYazYj1IjhQKBXxWybQ30BnLMGdNZfiIWpr
-   RCjroi5zH4vk5Pdx0IXSx2iCqa4EZBr/SISFCHI4Ay8JREgisOElXOzVi
-   A==;
-X-CSE-ConnectionGUID: r9rwr/YjR7api4tNOTB4GA==
-X-CSE-MsgGUID: QhXyZHI3RDCTmdgmgenaKQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11377"; a="60899293"
-X-IronPort-AV: E=Sophos;i="6.14,258,1736841600"; 
-   d="scan'208";a="60899293"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2025 15:57:29 -0700
-X-CSE-ConnectionGUID: LkmWyGn/TXCsM8/yBE1esg==
-X-CSE-MsgGUID: jjNBGmTXT6Cr8oaTnsh5vw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.14,258,1736841600"; 
-   d="scan'208";a="159556524"
-Received: from lkp-server02.sh.intel.com (HELO a4747d147074) ([10.239.97.151])
-  by orviesa001.jf.intel.com with ESMTP; 18 Mar 2025 15:57:25 -0700
-Received: from kbuild by a4747d147074 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tufs6-000EE2-2N;
-	Tue, 18 Mar 2025 22:57:19 +0000
-Date: Wed, 19 Mar 2025 06:56:22 +0800
-From: kernel test robot <lkp@intel.com>
-To: Peter Hilber <quic_philber@quicinc.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Richard Cochran <richardcochran@gmail.com>
-Cc: oe-kbuild-all@lists.linux.dev, Trilok Soni <quic_tsoni@quicinc.com>,
-	Peter Hilber <quic_philber@quicinc.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-	"Ridoux, Julien" <ridouxj@amazon.com>,
-	Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Parav Pandit <parav@nvidia.com>,
-	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
-	Cornelia Huck <cohuck@redhat.com>, Simon Horman <horms@kernel.org>,
-	virtio-dev@lists.linux.dev, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v6 2/4] virtio_rtc: Add PTP clocks
-Message-ID: <202503190602.IElWB74j-lkp@intel.com>
-References: <20250313173707.1492-3-quic_philber@quicinc.com>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="abhxtknv"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tuhHo-001bZs-4O; Wed, 19 Mar 2025 01:27:56 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=YqOpd7H4mqMcldHN5Q5/K00SxC1j9Za4w+dyTwnLJtI=; b=abhxtknvG7Nj/ksGOPnNThzz2M
+	YCf5dzpKvGraTfhZrsADYE6/4hh7CC3MNqmN3qtaq7+/WBqNooANT58rW6Iw8I8yxNr7ZsnNRJdyv
+	KLwZToNs5VYCBMgL76JdtlcrMBNkJl1PcHf/0MyrnjTCf7vZh8mg3EsqXPgIOGDYl3+qq7GqgffQQ
+	KzoumfKfGNOLsM2R2XlHBK3jx4lJr8nP2ik2tR9TwaeQ3MxOKs9lWOlbJitPqyOwpWLukrj2sBk5I
+	XZZEsLrbNbVQePXd6w+cxMoSbe1fTqvsVBvjjqsyJCCB+hWu6Wrt5DA0rlkVx++LzS1oFmvOUOIxi
+	O/oKGr0Q==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tuhHn-000887-NH; Wed, 19 Mar 2025 01:27:55 +0100
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tuhHU-0053Vx-FG; Wed, 19 Mar 2025 01:27:36 +0100
+Message-ID: <85a034b7-a22d-438f-802e-ac193099dbe7@rbox.co>
+Date: Wed, 19 Mar 2025 01:27:35 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250313173707.1492-3-quic_philber@quicinc.com>
+User-Agent: Mozilla Thunderbird
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [PATCH net-next v2] vsock/test: Add test for null ptr deref when
+ transport changes
+To: Luigi Leonardi <leonardi@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Hyunwoo Kim <v4bel@theori.io>
+References: <20250314-test_vsock-v2-1-3c0a1d878a6d@redhat.com>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <20250314-test_vsock-v2-1-3c0a1d878a6d@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Peter,
+On 3/14/25 10:27, Luigi Leonardi wrote:
+> Add a new test to ensure that when the transport changes a null pointer
+> dereference does not occur[1].
+> 
+> Note that this test does not fail, but it may hang on the client side if
+> it triggers a kernel oops.
+> 
+> This works by creating a socket, trying to connect to a server, and then
+> executing a second connect operation on the same socket but to a
+> different CID (0). This triggers a transport change. If the connect
+> operation is interrupted by a signal, this could cause a null-ptr-deref.
 
-kernel test robot noticed the following build warnings:
+Just to be clear: that's the splat, right?
 
-[auto build test WARNING on 9d8960672d63db4b3b04542f5622748b345c637a]
+Oops: general protection fault, probably for non-canonical address 0xdffffc000000000c: 0000 [#1] PREEMPT SMP KASAN NOPTI
+KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
+CPU: 2 UID: 0 PID: 463 Comm: kworker/2:3 Not tainted
+Workqueue: vsock-loopback vsock_loopback_work
+RIP: 0010:vsock_stream_has_data+0x44/0x70
+Call Trace:
+ virtio_transport_do_close+0x68/0x1a0
+ virtio_transport_recv_pkt+0x1045/0x2ae4
+ vsock_loopback_work+0x27d/0x3f0
+ process_one_work+0x846/0x1420
+ worker_thread+0x5b3/0xf80
+ kthread+0x35a/0x700
+ ret_from_fork+0x2d/0x70
+ ret_from_fork_asm+0x1a/0x30
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Peter-Hilber/virtio_rtc-Add-module-and-driver-core/20250314-014130
-base:   9d8960672d63db4b3b04542f5622748b345c637a
-patch link:    https://lore.kernel.org/r/20250313173707.1492-3-quic_philber%40quicinc.com
-patch subject: [PATCH v6 2/4] virtio_rtc: Add PTP clocks
-config: sparc-allyesconfig (https://download.01.org/0day-ci/archive/20250319/202503190602.IElWB74j-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 7.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250319/202503190602.IElWB74j-lkp@intel.com/reproduce)
+> ...
+> +static void test_stream_transport_change_client(const struct test_opts *opts)
+> +{
+> +	__sighandler_t old_handler;
+> +	pid_t pid = getpid();
+> +	pthread_t thread_id;
+> +	time_t tout;
+> +
+> +	old_handler = signal(SIGUSR1, test_transport_change_signal_handler);
+> +	if (old_handler == SIG_ERR) {
+> +		perror("signal");
+> +		exit(EXIT_FAILURE);
+> +	}
+> +
+> +	if (pthread_create(&thread_id, NULL, test_stream_transport_change_thread, &pid)) {
+> +		perror("pthread_create");
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202503190602.IElWB74j-lkp@intel.com/
+Does pthread_create() set errno on failure?
 
-All warnings (new ones prefixed by >>):
+> +		exit(EXIT_FAILURE);
+> +	}
+> +
+> +	tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
 
-   drivers/virtio/virtio_rtc_driver.c: In function 'viortc_probe':
->> drivers/virtio/virtio_rtc_driver.c:665:23: warning: '/variant ' directive output may be truncated writing 9 bytes into a region of size between 6 and 15 [-Wformat-truncation=]
-       "Virtio PTP type %d/variant %d", clock_type,
-                          ^~~~~~~~~
-   drivers/virtio/virtio_rtc_driver.c:665:4: note: directive argument in the range [0, 2147483647]
-       "Virtio PTP type %d/variant %d", clock_type,
-       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/virtio/virtio_rtc_driver.c:664:2: note: 'snprintf' output between 28 and 46 bytes into a destination of size 32
-     snprintf(ptp_clock_name, PTP_CLOCK_NAME_LEN,
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-       "Virtio PTP type %d/variant %d", clock_type,
-       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-       leap_second_smearing);
-       ~~~~~~~~~~~~~~~~~~~~~
+Isn't 10 seconds a bit excessive? I see the oops pretty much immediately.
 
+> +	do {
+> +		struct sockaddr_vm sa = {
+> +			.svm_family = AF_VSOCK,
+> +			.svm_cid = opts->peer_cid,
+> +			.svm_port = opts->peer_port,
+> +		};
+> +		int s;
+> +
+> +		s = socket(AF_VSOCK, SOCK_STREAM, 0);
+> +		if (s < 0) {
+> +			perror("socket");
+> +			exit(EXIT_FAILURE);
+> +		}
+> +
+> +		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+> +
+> +		/* Set CID to 0 cause a transport change. */
+> +		sa.svm_cid = 0;
+> +		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+> +
+> +		close(s);
+> +	} while (current_nsec() < tout);
+> +
+> +	if (pthread_cancel(thread_id)) {
+> +		perror("pthread_cancel");
 
-vim +665 drivers/virtio/virtio_rtc_driver.c
+And errno here.
 
-   641	
-   642	/*
-   643	 * init, deinit
-   644	 */
-   645	
-   646	/**
-   647	 * viortc_init_ptp_clock() - init and register PTP clock
-   648	 * @viortc: device data
-   649	 * @vio_clk_id: virtio_rtc clock id
-   650	 * @clock_type: virtio_rtc clock type
-   651	 * @leap_second_smearing: virtio_rtc leap second smearing
-   652	 *
-   653	 * Context: Process context.
-   654	 * Return: Positive if registered, zero if not supported by configuration,
-   655	 *         negative error code otherwise.
-   656	 */
-   657	static int viortc_init_ptp_clock(struct viortc_dev *viortc, u16 vio_clk_id,
-   658					 u8 clock_type, u8 leap_second_smearing)
-   659	{
-   660		struct device *dev = &viortc->vdev->dev;
-   661		char ptp_clock_name[PTP_CLOCK_NAME_LEN];
-   662		struct viortc_ptp_clock *vio_ptp;
-   663	
-   664		snprintf(ptp_clock_name, PTP_CLOCK_NAME_LEN,
- > 665			 "Virtio PTP type %d/variant %d", clock_type,
-   666			 leap_second_smearing);
-   667	
-   668		vio_ptp = viortc_ptp_register(viortc, dev, vio_clk_id, ptp_clock_name);
-   669		if (IS_ERR(vio_ptp)) {
-   670			dev_err(dev, "failed to register PTP clock '%s'\n",
-   671				ptp_clock_name);
-   672			return PTR_ERR(vio_ptp);
-   673		}
-   674	
-   675		viortc->clocks_to_unregister[vio_clk_id] = vio_ptp;
-   676	
-   677		return !!vio_ptp;
-   678	}
-   679	
+> +		exit(EXIT_FAILURE);
+> +	}
+> +
+> +	/* Wait for the thread to terminate */
+> +	if (pthread_join(thread_id, NULL)) {
+> +		perror("pthread_join");
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+And here.
+Aaand I've realized I've made exactly the same mistake elsewhere :)
+
+> ...
+> +static void test_stream_transport_change_server(const struct test_opts *opts)
+> +{
+> +	time_t tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+> +
+> +	do {
+> +		int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+> +
+> +		close(s);
+> +	} while (current_nsec() < tout);
+> +}
+
+I'm not certain you need to re-create the listener or measure the time
+here. What about something like
+
+	int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+	control_expectln("DONE");
+	close(s);
+
+Thanks,
+Michal
