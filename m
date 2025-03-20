@@ -1,129 +1,156 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 890DA46B5
-	for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 21:05:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6182422A7F8;
+	Thu, 20 Mar 2025 22:17:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742504743; cv=none; b=KgbWQ7NoDtyR4grYL2MZ8aS1K/cCExJb+Wqc4P/JXqW1tzSXtExQuTXZSqa74cpbsOF/TN/c41pHNHrQENScPq1Yff57WWk+vZpkcM1gIVP2xvppyRhZbOit+h0ifsCgkgu7fIQqjdqS3As8D2QiqexUOC8Zap3aDc3+t666828=
+	t=1742509029; cv=none; b=SHWx30Iri9fBA6H1V9dt0nl4QhZ45/4fSd/G4Yj1NbmTZZKeS6Ec9gUK07PCTkov74YWrh4ft3iZwvb3KENrtRRTzC8Y2OE4Gyf77TGtkK4S0LdfkVwvV8rWx1RTBcA/EnkFEDgrXsM6qfrIiu56cv5RMWpkUzUEczFEKZddgRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742504743; c=relaxed/simple;
-	bh=YgdpRvORfQrJXyGjouHiXsPKxSh1pKbm6IQi0Z4fEqc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZQ31EbaxPbzl8SrQ+N+ePqGeaY/SVKVNhijQUuErqYwUi1pqC62VyhW/xezQQR6EZaEt1pZVxK0TsfHrim2b+FBf2rNhsnBuU3myNBUuDKXTH6V4DV5VjPgNpjUc0Kxq+arNKChpFn4u4AcW0Vur/Zige9kbpCiDiLR1CsQRfXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TRPT5axM; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742509029; c=relaxed/simple;
+	bh=znUtvKKc0CdQfSr9afLsvnM83KX4tqIW527OQlcZHb8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RxcPJeIcGMQg0rbg9miKbS7sGwwZLWkJHZSEJfcT4Xbt0CsYATS3yhOtFJB3DxaRdxCS+nlBdTYTJcBo1Nirmb9Rc1Hh4tU98BpBdvl5kO5m/pVH9uvgt/oOIrwfLsH38IGc86eD2hmaAL3GV8z6JBUYciALKZMDi8tNUj6xrUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=DppHj6DT; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TRPT5axM"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-223fb0f619dso26686055ad.1
-        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 14:05:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742504741; x=1743109541; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=3jPDdAZsU2RRMMAuFebBCueBYeGg/JKuNefmjD9nyKY=;
-        b=TRPT5axMARdxcXieGMkkoPTnRjBl7sO1aced4K8rD30OSA9tJh2dTRsXScy+xgtAOO
-         1W6PPiKI9I3dHTsOjQx6m9xul/AsIUOtG4+RvLq6b0Xt3mx+zu8rg388KTsUtU2nhRtT
-         YGinhs5kahf4SU0Oneuz21Ndn2VE+d560/WD2zl4yqeXgIsRW78qVcWUTNdueSerMgBp
-         kjSB+bqM6hB4LbT15K4nC4pn/rJOa98Zzc+5OU4PUv0pkMF0w3/sl1S9riZqmEWUhZ0o
-         HddIQppfBi9lpiz1PZDqCjmzf5S3EJjzOj7l4NMZ8FqzMmHKeTGg45aSUY1OHFIKNkN/
-         edSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742504741; x=1743109541;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3jPDdAZsU2RRMMAuFebBCueBYeGg/JKuNefmjD9nyKY=;
-        b=cnTXpMj9rJ2mJL7TpVgA3d4QuYhrXCWuMYfdIu63Sot4cOrxWUWqgqlnRtfF2pcEUH
-         RglmhHTYhsVq/mIoERapucTdv14i5ig0TA38SpGKSoDPB6SQYJbFxd5gEHJZG1BAxdHy
-         0T+1QuCleHQNkBzaiC6IvNUsIh7AnPoJ7mel7foshLOWOheH0dpcBCz4c/tHAsNh8kgC
-         gaGLmKeAGdrKkHUmLGK+z3BJhbYy7nKarnq4gGIpt86chdCpVOmbEj/oNNMoDtXOvdU1
-         SHdaQyx/Mqp51krJLUXsxXzv4HwXpI8QCJMXe/B6drMeDqwi//Lc3I55OzUyOr1sYLO/
-         fJzw==
-X-Forwarded-Encrypted: i=1; AJvYcCWZnomfmn0Tavm97Oc4QKfDilcJrUxMjcogRoEg8596DXbTCLwrWJeBNHrE56X7RN76OpvxCbbwmc/3T0KukQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx70TzmpaOZ33t5wQGsOmmnBsyuFSFRfB/AIRUYKgF6izmwCEeC
-	oDPEaMn5VKyxOHVeQ5HlkZEXJPasBmTGTocDlp3vmJPLDuJsiv9w
-X-Gm-Gg: ASbGncsFMDz8+C+3gEqbjXK/R+uuluP3zkIEiFhH9wDIqy/z7t4G62XDJzoey9imnZt
-	q/a3afkxfs6o+EHH17rn0UaNFR74T8apa65WVOmqaJfkST8cShwm4Aj43597eWp1MSOQdeSdz5Y
-	BNR/EP2o5XgDWwmbaGPn7NOXtqEFtQr/DwQKSXhQljXTz/t6KWOnPf9p7GjUVVWV3qX7gch868v
-	HxYR93fPjgnUVeFaJ8nqEB8XJzylLdm+rJ+8HeTBasOim8ivHQuGDTLryvV1fHLYNOm3ObLMk3Z
-	GMi05/kaBLsF9TZJElbbm7QHGGDQVcXmkHM09qfl0iTGRWxj5b0MmXdasKeqPOrl7w==
-X-Google-Smtp-Source: AGHT+IGByHBrbBgXXk1MNKK8PoOJzGBZqACnvtAZVXwzJ5Mt98hUmINKtxNrRQVVmQU2iZkin8qKTA==
-X-Received: by 2002:a17:903:182:b0:223:653e:eb09 with SMTP id d9443c01a7336-22780c50a59mr11694335ad.7.1742504740770;
-        Thu, 20 Mar 2025 14:05:40 -0700 (PDT)
-Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:7::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2278120981fsm2458075ad.250.2025.03.20.14.05.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Mar 2025 14:05:40 -0700 (PDT)
-Date: Thu, 20 Mar 2025 14:05:38 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] vhost/vsock: use netns of process that opens the
- vhost-vsock-netns device
-Message-ID: <Z9yDIl8taTAmG873@devvm6277.cco0.facebook.com>
-References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
- <20250312-vsock-netns-v2-3-84bffa1aa97a@gmail.com>
- <09c84a94-85f3-4e28-8e7d-bdc227bf99ab@redhat.com>
- <nwksousz7f4pkzwefvrpbgmmq6bt5kimv4icdkvm7n2nlom6yu@e62c5gdzmamg>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="DppHj6DT"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1tvOBx-008151-8g; Thu, 20 Mar 2025 23:16:45 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=XqP8KhBPjAdHvJU8dNi3259DC9br7mRBDOfW+7RNQzY=; b=DppHj6DTTO+TwyljifZmNfwXzd
+	YxvW1rLrTunS7A7GoivopZq8kYbfVcTY5k7EXvJLzfwWm+nHgOrRliepkIMEawCYJbJn6IrR4mEA9
+	6nS1dQh9hdKF1Fp6vpy+ER+8FygdouS5cDE1xukqpeP8Fm/exitNpWIlUBszLqmgDv/SNpqzpdwsm
+	8QiHK5Ij8zD9F+eAnzXuat3gNC3Lu+EkGFIOJTkt7qWMUqPdQYgOPGYzTjC+ZIhhfTRHJ4FUWU73I
+	IkN4aA7wbJTIwT4wgoAYh6i8bFevWhTcODB1l+BebSWdJypoHnSkG08bigEUBMyJhgXpHK25e3Y5O
+	w/cbYWVw==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1tvOBv-0007kq-OP; Thu, 20 Mar 2025 23:16:43 +0100
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1tvOBq-001YeG-Fv; Thu, 20 Mar 2025 23:16:38 +0100
+Message-ID: <d78bbd0c-5a56-4a5c-be84-567d98aa281e@rbox.co>
+Date: Thu, 20 Mar 2025 23:16:36 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <nwksousz7f4pkzwefvrpbgmmq6bt5kimv4icdkvm7n2nlom6yu@e62c5gdzmamg>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v4 3/3] vsock/bpf: Fix bpf recvmsg() racing transport
+ reassignment
+To: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>,
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
+ Mykola Lysenko <mykolal@fb.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Martin KaFai Lau <martin.lau@linux.dev>, Song Liu <song@kernel.org>,
+ Yonghong Song <yonghong.song@linux.dev>,
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
+ Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>,
+ Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>,
+ netdev@vger.kernel.org, bpf@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+References: <20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co>
+ <20250317-vsock-trans-signal-race-v4-3-fc8837f3f1d4@rbox.co>
+ <Z9tCnq0rBw+nETfW@pop-os.localdomain>
+ <4de119d5-c9c7-4f66-9e31-91c44a92c773@rbox.co>
+ <Z9yAnhMsupaaVCII@pop-os.localdomain>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <Z9yAnhMsupaaVCII@pop-os.localdomain>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Mar 20, 2025 at 10:08:02AM +0100, Stefano Garzarella wrote:
-> On Wed, Mar 19, 2025 at 10:09:44PM +0100, Paolo Abeni wrote:
-> > On 3/12/25 9:59 PM, Bobby Eshleman wrote:
-> > > @@ -753,6 +783,8 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
-> > >  	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
-> > > 
-> > >  	vhost_dev_cleanup(&vsock->dev);
-> > > +	if (vsock->net)
-> > > +		put_net(vsock->net);
-> > 
-> > put_net() is a deprecated API, you should use put_net_track() instead.
-> > 
-> > >  	kfree(vsock->dev.vqs);
-> > >  	vhost_vsock_free(vsock);
-> > >  	return 0;
-> > 
-> > Also series introducing new features should also include the related
-> > self-tests.
+On 3/20/25 21:54, Cong Wang wrote:
+> On Thu, Mar 20, 2025 at 01:05:27PM +0100, Michal Luczaj wrote:
+>> On 3/19/25 23:18, Cong Wang wrote:
+>>> On Mon, Mar 17, 2025 at 10:52:25AM +0100, Michal Luczaj wrote:
+>>>> Signal delivery during connect() may lead to a disconnect of an already
+>>>> established socket. That involves removing socket from any sockmap and
+>>>> resetting state to SS_UNCONNECTED. While it correctly restores socket's
+>>>> proto, a call to vsock_bpf_recvmsg() might have been already under way in
+>>>> another thread. If the connect()ing thread reassigns the vsock transport to
+>>>> NULL, the recvmsg()ing thread may trigger a WARN_ON_ONCE.
+>>>>
+>>
+>>    *THREAD 1*                      *THREAD 2*
+>>
+>>>> connect
+>>>>   / state = SS_CONNECTED /
+>>>>                                 sock_map_update_elem
+>>>>                                 vsock_bpf_recvmsg
+>>>>                                   psock = sk_psock_get()
+>>>>   lock sk
+>>>>   if signal_pending
+>>>>     unhash
+>>>>       sock_map_remove_links
+>>>
+>>> So vsock's ->recvmsg() should be restored after this, right? Then how is
+>>> vsock_bpf_recvmsg() called afterward?
+>>
+>> I'm not sure I understand the question, so I've added a header above: those
+>> are 2 parallel flows of execution. vsock_bpf_recvmsg() wasn't called
+>> afterwards. It was called before sock_map_remove_links(). Note that at the
+>> time of sock_map_remove_links() (in T1), vsock_bpf_recvmsg() is still
+>> executing (in T2).
 > 
-> Yes, I was thinking about testing as well, but to test this I think we need
-> to run QEMU with Linux in it, is this feasible in self-tests?
+> I thought the above vsock_bpf_recvmsg() on the right side completed
+> before sock_map_remove_links(), sorry for the confusion.
+
+No problem, I see why you've might. Perhaps deeper indentation would make
+things clearer.
+
+>>>>     state = SS_UNCONNECTED
+>>>>   release sk
+>>>>
+>>>> connect
+>>>>   transport = NULL
+>>>>                                   lock sk
+>>>>                                   WARN_ON_ONCE(!vsk->transport)
+>>>>
+>>>
+>>> And I am wondering why we need to WARN here since we can handle this error
+>>> case correctly?
+>>
+>> The WARN and transport check are here for defensive measures, and to state
+>> a contract.
+>>
+>> But I think I get your point. If we accept for a fact of life that BPF code
+>> should be able to handle transport disappearing - then WARN can be removed
+>> (while keeping the check) and this patch can be dropped.
 > 
-> We should start looking at that, because for now I have my own ansible
-> script that runs tests (tools/testing/vsock/vsock_test) in nested VMs to
-> test both host (vhost-vsock) and guest (virtio-vsock).
+> I am thinking whether we have more elegant way to handle this case,
+> WARN looks not pretty.
+
+Since the case should never happen, I like to think of WARN as a deliberate
+eyesore :)
+
+>> My aim, instead, was to keep things consistent. By which I mean sticking to
+>> the conditions expressed in vsock_bpf_update_proto() as invariants; so that
+>> vsock with a psock is guaranteed to have transport assigned.
 > 
+> Other than the WARN, I am also concerned about locking vsock_bpf_recvmsg()
+> because for example UDP is (almost) lockless, so enforcing the sock lock
+> for all vsock types looks not flexible and may hurt performance.
+>
+> Maybe it is time to let vsock_bpf_rebuild_protos() build different hooks
+> for different struct proto (as we did for TCP/UDP)?
 
-Maybe as a baseline we could follow the model of
-tools/testing/selftests/bpf/vmtest.sh and start by reusing your
-vsock_test parameters from your Ansible script?
+By UDP you mean vsock SOCK_DGRAM? No need to worry. VMCI is the only
+transport that features VSOCK_TRANSPORT_F_DGRAM, but it does not
+implemented read_skb() callback, making it unsupported by BPF/sockmap.
 
-I don't mind writing the patches.
-
-Best,
-Bobby
