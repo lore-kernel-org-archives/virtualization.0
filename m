@@ -1,91 +1,87 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51948229B36
-	for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 20:54:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 943FB22A4FD
+	for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 20:56:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742504098; cv=none; b=CqJ9dsPZn9j/2LoPtlC9IRNT+cFWx+4yKVWHVwsMeSSoHxSVb+rjVLqLrDTc/aJ6Ue4Z6Whkal5sqvF2xg4+rAiysc1DDx2JqQfvwrZ+Ypwf+fHu9uK9OUtiOW6jd9Mhfi5ZBrtF4o1KfumbdwG9fbmu3oPP7FkI+4EcTXvBLiM=
+	t=1742504219; cv=none; b=rvYyO4kRwgmZa5Cvn9pmtYtoKwk3AnIerq0PaqcjMgUVuPHSRJXf1BlTeXqJ3YU6PMKorv12Yb201vx7gZZ9qKNdFYAEZQgSiU1W+HYbhdfLzYONmwRDzKAe65HxaENPBvRD2C6FQR5r89mHs9k+QhuRD/Q+ABPZNIWXdIune5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742504098; c=relaxed/simple;
-	bh=iXQ18XPUgoYJiSFSxjhg3L0CNHDwv1VsQkAjlNWUKpI=;
+	s=arc-20240116; t=1742504219; c=relaxed/simple;
+	bh=YbkcEp08crIyVSJNAbnRj22WAOqP2FQy1uoUXoMkAOA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QUnMqBlsQXYvuil6E+AqtE+OEZnbHCnw8b+3P8MDGEYT+eahfvrwCF+jY0519TL4XsebbiTXwtRiP16/WMLohuZq6+LS82Qx4Y7Qol7BRTFYriPpPF1yXg1dm7Tj1ioVdwVN/W1zoArOQR8nZfRVZs6zzzX1bGVeJAgNL6EeNJM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AVCvMzna; arc=none smtp.client-ip=209.85.214.177
+	 Content-Type:Content-Disposition:In-Reply-To; b=uGPhbS+t9LTF2Xn63C/M5E7z6bL5I2z4W0r+FJIUpMuPuPp3K4WGdZAVIGaYC1Dis6EsYX8LKRBH1n1pQz2cRr08+rwFHALu1MEzQWF6SuMZrF9Qc+pHJGIHVHuu7yX7ayRO+V7FLHdKF9rm9h2663dD4T2Jy7nxrVX1zzo/YSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hF6oo0J8; arc=none smtp.client-ip=209.85.214.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AVCvMzna"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-223fb0f619dso26539995ad.1
-        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 13:54:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hF6oo0J8"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-22349bb8605so29354395ad.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 13:56:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742504096; x=1743108896; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1742504218; x=1743109018; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=MmBASaW+GqNY/UJNZ84+vFK6yD9rkYMUDyMz4fd0U0A=;
-        b=AVCvMznaCqPgRmjkCaNpg/qrE7e096G+WVrwRcMI9GLKLZOjZ5ZWg5EnfOT5lE1Bey
-         /SNGfswmXYrPsVcsikIVr9F3ZpUyaAAc0EujbjNy7DCXvJS2LBHcW04uBmRZxE3Y+zeh
-         gqEKuw0412Fh8LGRXO0Zxc+BXv9WTIOT7zzWtlzSXbwf9P9LxwVqwW1eF/HN/iXBJtqx
-         nD63cHJHQ+CkBpU5/lLQCGApgWcpqC52K0jkP6s3BxtWIW8wBPvlAV8mNBcBbNkCcOUO
-         MPH68WqBlzFLZt/owTKf3RCB6+Nxmc2fkBxoS6QL2Mvho6EpifjGz24QN6vxpL5qCLEh
-         PRXA==
+        bh=eHYP+FzwYtTkT6zfxoUjmlhsBz/CXrX0uDvDDrwF0V0=;
+        b=hF6oo0J87FSx75HsFfHT2aGc/djm6w9WoPxEnddzS3It0wWrjgBfMOBCD7oVRaRmxa
+         kz0gbwptkPuTvxBaNftEYf1p7sAnyPpdWrRdkNj2UUGwScujjMUro9KVv31EWZbfEZ4Z
+         TLxyfHf5d/Rdwek8QqfEZ6T/M3M3iCUQ33yAoyGae4gfvYmsOZv3gcxfCBVp5HfLz1gN
+         m+lQ97/7Zovu2pa2EKHTV7G3mXmGwE6/LCmF50wKk2t0kPhLIfxl5LQSjo8NGiKPv4vM
+         qbi4qCOFtjVPjgW+S1x2AAwwLOys3DRyMk2AJ6xVgrEDtL19vzp+1LDX//P8fHXcG/fb
+         L3+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742504096; x=1743108896;
+        d=1e100.net; s=20230601; t=1742504218; x=1743109018;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MmBASaW+GqNY/UJNZ84+vFK6yD9rkYMUDyMz4fd0U0A=;
-        b=UHMMgAhCY3CdP6A9NAN1Symrixpnq298l3W0EjHdtuZFQ1FWWyt7KYZ6anMDM0NaX8
-         xsYuz4U/EeGurvoEIwmtHBV1OY64QgKwIVKwhVken0Duh+L4KFjTzcZQc69rWW2DG3zq
-         CzWfAotNH5LO86D8NVcVTYiMouQaKSETfs9hGcgHf2RZLb/1kaTFvyYNVUs/GyAcMV7k
-         MmWJO9fgx0Xutzjknfm4urgNvkpcAIJXhw77IOtshgijDf+HPTWlo5D6qXOMOjptsd9U
-         9YG5KAJk6t5Ta94xrwK84VxiEUn5c0/NZxAgyh5QuDTGZeEP5CgbWxYz7tehgycyKIEp
-         kueg==
-X-Forwarded-Encrypted: i=1; AJvYcCUMmOK4tlK9pvba+5gnsXq4kj+UMbOv8NabOhbKYVRwnQcEns2PJyWcUTmsT+kHaxISqlIszVPnVlwlgRAgUg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzoPYcqx2ETtNyHAC40tIiFSOTJePJf3/hcddRCc5SdVhd6e2t+
-	VvTXPd3A8cxQz8pXCa2cmarDMH5NYoiomAHZKp0EujVWF45pTBaQ
-X-Gm-Gg: ASbGncvQjpx4ObigfZg7ex2lr3EbShAC5bOKxO/s7vsbFY78ddEqijJig5dewOvYfOc
-	mgt46AVQ7/8mvE38BeMwKJqB9S+0aCPmIY8X/mjpock7XURvuBgfzF8UTMDcziFWSEr7W1Lo8vi
-	/JXM53g9KZ71RFlOBSaKByR5KP6LMrOrX78B4xWBm4QNr2NW4RriNmrvl8eNhNMBX2DO2tWOMjc
-	LCauM3ArKo61Ba5BeZeqFzZ9hiOtL+xtUffqNcwWj27xO7Uv0f9eDv/uMLxuxIv3SKV8c7m8C7f
-	uM5iSl/LY/wC8QIJEes95i5niRWBrUVoXXljb1VcSsYRahc9
-X-Google-Smtp-Source: AGHT+IGVYYQZcFd57VZXj1o+MK4h5npJo8HOGu2ixgfY4o0AjAyD4std72Wt6w9yNTxK+u0HMfnPJQ==
-X-Received: by 2002:a17:902:cec4:b0:219:e4b0:4286 with SMTP id d9443c01a7336-22780db462fmr12039995ad.29.1742504096349;
-        Thu, 20 Mar 2025 13:54:56 -0700 (PDT)
-Received: from localhost ([129.210.115.104])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af8a2a24410sm340304a12.56.2025.03.20.13.54.55
+        bh=eHYP+FzwYtTkT6zfxoUjmlhsBz/CXrX0uDvDDrwF0V0=;
+        b=t+zVaya7BsF9YHHV+CVlwm5eBR5JhMLyVb6ghGn5i0m+PHH6GpGFz28K6JkpQvGGZO
+         JoAUjsQxIn5gLj3M9GwYJfl4QXi2yMy7g0BEcaur5VClsfzmIw7ED3qe/h2I406OLev9
+         SXo07bqDfjMXoLYiteo6ebeJQzy9LY4SbxR1CknD2EhJCG/t31NukXZ6475/lGlqVRxb
+         Yw1Cwz4VTXH7MVeszhDrINwjM5gr6ITSLRgcb/mxW9s0s20cTGqJGoGZOFev/zxw+xyw
+         THYdHGj6xSelrNMayjn01am3RUK3COve/bUbovWYyYwfWSZbzb6ey3FlS98zkgqPMNJI
+         PQ/w==
+X-Forwarded-Encrypted: i=1; AJvYcCVIQz9vLO7Wq4EvznG6E/VOWdBBUK4dxcvs47kt4G+1EexjvCVJbfGhkt0T4LnDgVFe8+DM9qXy2Nim2ERLOg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YygdQjvB/0uzzPp9BP98bF9skhTJETUtSM4arOCzT+pYCoItFmS
+	XVBSlNyh6eslO42xO5hZ+qIYlZq2/rD751MedtVRzTO1JReQS5Gf
+X-Gm-Gg: ASbGnctBHCCuCuxlbgxyOt3TWKoDoOOownnOH5s+lIzKu2rRp0rZC3V6CFGOwgo97ji
+	MHR7+YCewMCc5KuAyZkT4sNse9mThEFQFejcxxGsxLNuuSHyFz3otjHkS5mGeoDlRFiEfR2z7OF
+	qtyUt7JeO2PBeh411RMRzl+lWxBSLK8gu/nO/g0XMVMQbMs2bmAWo2sFXehe3iVVG2YJRvNmTHA
+	GJJ1RS4m/pTEOym5FVPZnSNKwoaQqDwqqWqDKW7bwlGKgc7aBnUdRASv8DSCUO2J6sa7s/HGnUE
+	U6vOFuTSI8t9vjEIMXM2oJKoyHcOG/aYZZy+ngKFucwCM5mOC0SYSZc1qpanDZhRXw==
+X-Google-Smtp-Source: AGHT+IFObV1UYBWVHJijbUkAFQ5WtUBQhMfiBb9p0afEFRGISPI3ams4CTR87ewzq5lhgqlJcABDfw==
+X-Received: by 2002:a17:902:d48a:b0:223:2cae:4a96 with SMTP id d9443c01a7336-22780e3fb29mr9391595ad.42.1742504217670;
+        Thu, 20 Mar 2025 13:56:57 -0700 (PDT)
+Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:3::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2278120981fsm2384085ad.250.2025.03.20.13.56.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Mar 2025 13:54:55 -0700 (PDT)
-Date: Thu, 20 Mar 2025 13:54:54 -0700
-From: Cong Wang <xiyou.wangcong@gmail.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
+        Thu, 20 Mar 2025 13:56:56 -0700 (PDT)
+Date: Thu, 20 Mar 2025 13:56:54 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
-	Bobby Eshleman <bobby.eshleman@bytedance.com>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Mykola Lysenko <mykolal@fb.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Martin KaFai Lau <martin.lau@linux.dev>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	John Fastabend <john.fastabend@gmail.com>,
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	Shuah Khan <shuah@kernel.org>, netdev@vger.kernel.org,
-	bpf@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH net v4 3/3] vsock/bpf: Fix bpf recvmsg() racing transport
- reassignment
-Message-ID: <Z9yAnhMsupaaVCII@pop-os.localdomain>
-References: <20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co>
- <20250317-vsock-trans-signal-race-v4-3-fc8837f3f1d4@rbox.co>
- <Z9tCnq0rBw+nETfW@pop-os.localdomain>
- <4de119d5-c9c7-4f66-9e31-91c44a92c773@rbox.co>
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] vsock: add network namespace support
+Message-ID: <Z9yBFrmGLdKzfgBd@devvm6277.cco0.facebook.com>
+References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
+ <20250312-vsock-netns-v2-1-84bffa1aa97a@gmail.com>
+ <sqvqvlovlxpfo2tlkazugkocwmlhc7iay2kvq7b75bgwk7vhfw@tvgfe5fj3mw6>
+ <Z9sUVs1Tq3SN83MQ@devvm6277.cco0.facebook.com>
+ <sarbzv7tqaljonkuerlmirulq25ouk6mwyfbr4oaqfzfry2kcm@efbhpxgpxikk>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -94,76 +90,27 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4de119d5-c9c7-4f66-9e31-91c44a92c773@rbox.co>
+In-Reply-To: <sarbzv7tqaljonkuerlmirulq25ouk6mwyfbr4oaqfzfry2kcm@efbhpxgpxikk>
 
-On Thu, Mar 20, 2025 at 01:05:27PM +0100, Michal Luczaj wrote:
-> On 3/19/25 23:18, Cong Wang wrote:
-> > On Mon, Mar 17, 2025 at 10:52:25AM +0100, Michal Luczaj wrote:
-> >> Signal delivery during connect() may lead to a disconnect of an already
-> >> established socket. That involves removing socket from any sockmap and
-> >> resetting state to SS_UNCONNECTED. While it correctly restores socket's
-> >> proto, a call to vsock_bpf_recvmsg() might have been already under way in
-> >> another thread. If the connect()ing thread reassigns the vsock transport to
-> >> NULL, the recvmsg()ing thread may trigger a WARN_ON_ONCE.
-> >>
-> 
->    *THREAD 1*                      *THREAD 2*
-> 
-> >> connect
-> >>   / state = SS_CONNECTED /
-> >>                                 sock_map_update_elem
-> >>                                 vsock_bpf_recvmsg
-> >>                                   psock = sk_psock_get()
-> >>   lock sk
-> >>   if signal_pending
-> >>     unhash
-> >>       sock_map_remove_links
+On Thu, Mar 20, 2025 at 09:57:57AM +0100, Stefano Garzarella wrote:
+> On Wed, Mar 19, 2025 at 12:00:38PM -0700, Bobby Eshleman wrote:
+> > On Wed, Mar 19, 2025 at 02:02:32PM +0100, Stefano Garzarella wrote:
+> > > On Wed, Mar 12, 2025 at 01:59:35PM -0700, Bobby Eshleman wrote:
+> > > > From: Stefano Garzarella <sgarzare@redhat.com>
 > > 
-> > So vsock's ->recvmsg() should be restored after this, right? Then how is
-> > vsock_bpf_recvmsg() called afterward?
+> > BTW, I was unsure about just making NULL a macro (e.g.,
+> > VIRTIO_VSOCK_GLOBAL_NET?) instead of a function. I just used a function
+> > because A) I noticed in the prior rev that the default net was a
+> > function instead of some macro to &init_net, and B) the function seemed
+> > a little more flexible for future changes. What are your thoughts here?
 > 
-> I'm not sure I understand the question, so I've added a header above: those
-> are 2 parallel flows of execution. vsock_bpf_recvmsg() wasn't called
-> afterwards. It was called before sock_map_remove_links(). Note that at the
-> time of sock_map_remove_links() (in T1), vsock_bpf_recvmsg() is still
-> executing (in T2).
-
-I thought the above vsock_bpf_recvmsg() on the right side completed
-before sock_map_remove_links(), sorry for the confusion.
-
+> Inline function in the header should be fine IMHO.
 > 
-> >>     state = SS_UNCONNECTED
-> >>   release sk
-> >>
-> >> connect
-> >>   transport = NULL
-> >>                                   lock sk
-> >>                                   WARN_ON_ONCE(!vsk->transport)
-> >>
-> > 
-> > And I am wondering why we need to WARN here since we can handle this error
-> > case correctly?
+> Thanks,
+> Stefano
 > 
-> The WARN and transport check are here for defensive measures, and to state
-> a contract.
-> 
-> But I think I get your point. If we accept for a fact of life that BPF code
-> should be able to handle transport disappearing - then WARN can be removed
-> (while keeping the check) and this patch can be dropped.
 
-I am thinking whether we have more elegant way to handle this case,
-WARN looks not pretty.
+Got it, thanks!
 
-> 
-> My aim, instead, was to keep things consistent. By which I mean sticking to
-> the conditions expressed in vsock_bpf_update_proto() as invariants; so that
-> vsock with a psock is guaranteed to have transport assigned.
-
-Other than the WARN, I am also concerned about locking vsock_bpf_recvmsg()
-because for example UDP is (almost) lockless, so enforcing the sock lock
-for all vsock types looks not flexible and may hurt performance.
-
-Maybe it is time to let vsock_bpf_rebuild_protos() build different hooks
-for different struct proto (as we did for TCP/UDP)?
-
-Thanks.
+Best,
+Bobby
