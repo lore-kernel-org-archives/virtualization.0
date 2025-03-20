@@ -1,247 +1,371 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 173051E378C;
-	Thu, 20 Mar 2025 07:23:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A443921CA12
+	for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 08:58:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742455438; cv=none; b=ocSzpkuekANRcmYepxC29kTobpye2Dh/SIQ4usWvRhrrnqlHlBgpUWaO1GIaNHMfSihm5pmszcgu9Q3/J1mSNUF3FPvKazht7dTRhM3zSwJ/y8oAozcHq9sdnAn+HB0Hy5QSoW1sjfuV26Ot6x/ViJgPe7BDkmX0tkZQcnt9GU8=
+	t=1742461092; cv=none; b=TOK3GSyiHueKSbvKliHpuQ1+koPVoTRDqGC8TweU0gi0qhWM/ctE1Ff68f1AoqpgzsHiXvpU0C1k+jI3XRCbbff97TnWrNy7lgFLILwpG7aT0yxudE69O0ifc+l8llczz3I41gUhxqSA/aZ6YANnVbbRHLBvjycFBKos9+uBxQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742455438; c=relaxed/simple;
-	bh=Ef/v1S7KSonF2hXC+jsXzgEivJWZgJJ4PuB2T7iPgW4=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=UXdVN1lu/QbejDVbnqDtujiyxU1S6QjU2ZFgpHh3Efu9f34CYnFe10cUTk/TzMa3kp6dPjAGxmSRFJvpOO2uCKsubMenvLYgBj9IvQSOnuslTtfw9pMHD7ZfMiZh+Df7leBw6PwyV6pTUFcsIgHXBd5U3xszKIP+c63wGZh+K3E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ebdFlopP; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1742461092; c=relaxed/simple;
+	bh=DM/ccL3ibK097z90TQvPWmYrGyoMDZe8c1dLJKbrEyQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=lWauQJrqn7FwpVlywxJkmlECLkQ/gmEczSslXNjiyGLyH3kcog4A5afgad4frzkQY54Nj2q81XqY/xYAwInAVrQOIppZEmXkWEYQPKVHq0ow/aGmWyTBMtVwCXJasEiqX44uO/z3EpEezil6+spSiZHYjCZ1pfftfAUIKL3TKH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OG7LSZmd; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ebdFlopP"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52K79ReW029965;
-	Thu, 20 Mar 2025 07:23:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=2RLQtA
-	NJOsY9F23aeFI0Eifr5tCnaCx1RfFpmrkeSpE=; b=ebdFlopPTsv9UtzyUsNDdT
-	1kb2ya3HNypn92qNe1PW0ADFZAsz+IVLqkdPzthr0k2y3sxRyrSR0gwXFsEEBUX3
-	EcBFGyjHRWsV/4bYg/Gd5/QEo4qqZXSJGNx9enZHkMZ6F1VB4gnIW2MkkeUxmBtu
-	kXVAjkrULpsAz6Aa/O/8kdpwouhR0bqR1d+dt2q2+4uHPAvI5NdtncQdAjhJdLeV
-	kKNtVJiuOqBptCWLGtKCTppYGMe+sYB+eDcuLVRMN7j4R8mnzJ3Scu96x7qQ1HAH
-	Jsgq4FLpE4fH0mpY7VEKvYwlNjY7Sn14Mhuzbn7zczeh+Zq3VUEuDSOj9NP42mFQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45g53qak9w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Mar 2025 07:23:51 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52K4c7L7012447;
-	Thu, 20 Mar 2025 07:23:50 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45dmvp6npt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Mar 2025 07:23:50 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52K7Nk2454591854
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Mar 2025 07:23:46 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7030920043;
-	Thu, 20 Mar 2025 07:23:46 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4AE2920040;
-	Thu, 20 Mar 2025 07:23:46 +0000 (GMT)
-Received: from li-9b52914c-2c8b-11b2-a85c-a36f6d484b4a.boeblingen.de.ibm.com (unknown [9.155.199.15])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 20 Mar 2025 07:23:46 +0000 (GMT)
-Message-ID: <f3b74fc70a02f01eaf41ee74de636c0a86829011.camel@linux.ibm.com>
-Subject: Re: [PATCH] virtio: console: Make resizing compliant with virtio
- spec
-From: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
-To: Amit Shah <amit@kernel.org>, linux-kernel@vger.kernel.org,
-        virtualization@lists.linux.dev
-Cc: arnd@arndb.de, gregkh@linuxfoundation.org, brueckner@linux.ibm.com,
-        schnelle@linux.ibm.com, pasic@linux.ibm.com
-Date: Thu, 20 Mar 2025 08:23:46 +0100
-In-Reply-To: <f27debf87882df65574f21cfced31fecf1dd1da3.camel@kernel.org>
-References: <20250225092135.1200551-1-maxbr@linux.ibm.com>
-	 <f5ab160dadc2219b9576e50588dce88f22e9bcb1.camel@kernel.org>
-	 <649563cf1b8abd42401ed78d84bfd576d48bdbb8.camel@linux.ibm.com>
-	 <f27debf87882df65574f21cfced31fecf1dd1da3.camel@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OG7LSZmd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742461089;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bd61lUn+sRLHMmwZN8hWDOwnbFohDDuP+YHOHn1Rqxs=;
+	b=OG7LSZmdDvsct3cYFH6OhlmEQZVBgW3pM7nOlm6WMgmRfOmQ6RGeuFcWHdZM/BBC9kx4yN
+	oViRupgW13xFSPOcm74a2/ymmS/Vv0GXNEgW8HYKTxQW3XHvQrXOrYU4qm8UF7nVhjv5f/
+	fb3reTSXTD3y0YDGnnGHHKEh/WhrRt8=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-196-7oPAHtFMNMCyUgoPdEVXdQ-1; Thu, 20 Mar 2025 04:58:07 -0400
+X-MC-Unique: 7oPAHtFMNMCyUgoPdEVXdQ-1
+X-Mimecast-MFC-AGG-ID: 7oPAHtFMNMCyUgoPdEVXdQ_1742461086
+Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-5e5be5ec846so520874a12.2
+        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 01:58:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742461085; x=1743065885;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bd61lUn+sRLHMmwZN8hWDOwnbFohDDuP+YHOHn1Rqxs=;
+        b=dblQwpuajfxkDg/gzo8ieq+Ffn0tPblZRU25eAD2oW7ZbvbnhRs9RizdwJHiOQVQyP
+         FWVTVptWYRLHInW4EObzt7EOPJkqo1Gij6chz0FCv1SVU+fR/OK8SpsHoHAjqfBRU0U/
+         QDpTOPiounpePPDJs7RqIWpTvxaflvPCHY21X/bJ8aYfvrSfmKx51UyIP0hWNUX+BlhO
+         /rIcNBcq3oZt6hY3Cyh40ZPNqtKrz1cN4o/re1XIpaJ8lhZXmmOoLrWCvGRyUPdAF8qm
+         olw9bSK5faeroQaNL3tisK30YJDjHFiEy21XrhniQvJr7imbyvHvs6s8ysRljtHre6Pc
+         6MTg==
+X-Forwarded-Encrypted: i=1; AJvYcCWFaJaRs8vEnKUYbdGdFxJOYBP6HMYK+1dtvETNhMH5ntAxFAfw/OavfswgRynHnsSFWooLe9DTkYP0IwZNNg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyBGfsxTIZDlJoufXhKrhsC7ClRFwCusFYF75Ye7bG5cWgHre3r
+	QmYUQMyhxobxmbAQw3FHYZThEyvcT5sBElXs9Z8YERfB2ZkF2W4WQY2G+X66uhOVjLERq6uEpzs
+	g+YZcD7LrEwxaUaYtsYUTtD+imdqTflb1PG0WwcI3zCO0/Th4IOjlmrhkqp7kJyp/
+X-Gm-Gg: ASbGncudG7ZsJIPWPUTiAlcm2dhAyZ9yXFTqYtdOUD/kxQqzv6KAHiK+OkByc6DAtPo
+	QDLenTBMiRM5g2XA9EqWMurkNVQQtUcPIGldrkoZwoyNKvg59ZLtMPxiGA1utHqfyqC5GdiB4Dd
+	WoYSPMek0IbvynuCkNe5h3kHhxFxyyCMAXkEUCWCAXeOo2J61xDggIC9gNp/uMVr4C3Yz3brRkf
+	iEhW0XJE7uV/zWZnB1VjvAG2lCgMc4GVN77taN6/QbKucXdKTLxx7Ydwipzdzi1KlkMVL0ZrpfG
+	7DPFojO4uAhISYp5muwdxUJzyfC/IWamEu63l42n70sZe4/FIZN7bHCIs4b63x1h
+X-Received: by 2002:a17:907:d1a:b0:ac3:9587:f2a1 with SMTP id a640c23a62f3a-ac3cdfbaad6mr295753466b.20.1742461085293;
+        Thu, 20 Mar 2025 01:58:05 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGq0juNbqCxFJGV1XJKgWfbIVjl7qoYd4fj9juFeRDlZBNQGi5NZBdC6rDGZqTEbwHSGFJEAQ==
+X-Received: by 2002:a17:907:d1a:b0:ac3:9587:f2a1 with SMTP id a640c23a62f3a-ac3cdfbaad6mr295748566b.20.1742461084564;
+        Thu, 20 Mar 2025 01:58:04 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-12-25-55.business.telecomitalia.it. [87.12.25.55])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac3daddfe94sm66361766b.73.2025.03.20.01.58.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Mar 2025 01:58:03 -0700 (PDT)
+Date: Thu, 20 Mar 2025 09:57:57 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, 
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
+	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, "David S. Miller" <davem@davemloft.net>, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] vsock: add network namespace support
+Message-ID: <sarbzv7tqaljonkuerlmirulq25ouk6mwyfbr4oaqfzfry2kcm@efbhpxgpxikk>
+References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
+ <20250312-vsock-netns-v2-1-84bffa1aa97a@gmail.com>
+ <sqvqvlovlxpfo2tlkazugkocwmlhc7iay2kvq7b75bgwk7vhfw@tvgfe5fj3mw6>
+ <Z9sUVs1Tq3SN83MQ@devvm6277.cco0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jYZCbXiqnPyeuzLeiUQOl2xWFBjRTouC
-X-Proofpoint-ORIG-GUID: jYZCbXiqnPyeuzLeiUQOl2xWFBjRTouC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-20_02,2025-03-19_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- mlxscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 impostorscore=0
- priorityscore=1501 phishscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2503200042
+In-Reply-To: <Z9sUVs1Tq3SN83MQ@devvm6277.cco0.facebook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: JxvqPOb8P6mJ-cnBK4_uTc_O5_UR5ES21gciH4cJ-sA_1742461086
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Tue, 2025-03-18 at 15:25 +0100, Amit Shah wrote:
-> On Tue, 2025-03-18 at 11:07 +0100, Maximilian Immanuel Brandtner
-> wrote:
-> > On Mon, 2025-03-03 at 12:54 +0100, Amit Shah wrote:
-> > > On Tue, 2025-02-25 at 10:21 +0100, Maximilian Immanuel Brandtner
-> > > wrote:
-> > > > According to the virtio spec[0] the virtio console resize
-> > > > struct
-> > > > defines
-> > > > cols before rows. In the kernel implementation it is the other
-> > > > way
-> > > > around
-> > > > resulting in the two properties being switched.
-> > >=20
-> > > Not true, see below.
-> > >=20
-> > > > While QEMU doesn't currently support resizing consoles, TinyEMU
-> > >=20
-> > > QEMU does support console resizing - just that it uses the
-> > > classical
-> > > way of doing it: via the config space, and not via a control
-> > > message
-> > > (yet).
-> > >=20
-> > > https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.gi=
-t/tree/drivers/char/virtio_console.c#n1787
-> > >=20
-> > > https://lists.nongnu.org/archive/html/qemu-devel/2010-05/msg00031.htm=
-l
-> > >=20
-> > > > diff --git a/drivers/char/virtio_console.c
-> > > > b/drivers/char/virtio_console.c
-> > > > index 24442485e73e..9668e89873cf 100644
-> > > > --- a/drivers/char/virtio_console.c
-> > > > +++ b/drivers/char/virtio_console.c
-> > > > @@ -1579,8 +1579,8 @@ static void handle_control_message(struct
-> > > > virtio_device *vdev,
-> > > > =C2=A0		break;
-> > > > =C2=A0	case VIRTIO_CONSOLE_RESIZE: {
-> > > > =C2=A0		struct {
-> > > > -			__u16 rows;
-> > > > =C2=A0			__u16 cols;
-> > > > +			__u16 rows;
-> > > > =C2=A0		} size;
-> > > > =C2=A0
-> > > > =C2=A0		if (!is_console_port(port))
-> > >=20
-> > > This VIRTIO_CONSOLE_RESIZE message is a control message, as
-> > > opposed
-> > > to
-> > > the config space row/col values that is documented in the spec.
-> > >=20
-> > > Maybe more context will be helpful:
-> > >=20
-> > > Initially, virtio_console was just a way to create one hvc
-> > > console
-> > > port
-> > > over the virtio transport.=C2=A0 The size of that console port could
-> > > be
-> > > changed by changing the size parameters in the virtio device's
-> > > configuration space.=C2=A0 Those are the values documented in the
-> > > spec.=20
-> > > These are read via virtio_cread(), and do not have a struct
-> > > representation.
-> > >=20
-> > > When the MULTIPORT feature was added to the virtio_console.c
-> > > driver,
-> > > more than one console port could be associated with the single
-> > > device.
-> > > Eg. we could have hvc0, hvc1, hvc2 all as part of the same
-> > > device.=20
-> > > With this, the single config space value for row/col could not be
-> > > used
-> > > for the "extra" hvc1/hvc2 devices -- so a new
-> > > VIRTIO_CONSOLE_RESIZE
-> > > control message was added that conveys each console's dimensions.
-> > >=20
-> > > Your patch is trying to change the control message, and not the
-> > > config
-> > > space.
-> > >=20
-> > > Now - the lack of the 'struct size' definition for the control
-> > > message
-> > > in the spec is unfortunate, but that can be easily added -- and I
-> > > prefer we add it based on this Linux implementation (ie. first
-> > > rows,
-> > > then cols).
-> >=20
-> > Under section 5.3.6.2 multiport device operation for
-> > VIRTIO_CONSOLE_RESIZE the spec says the following
-> >=20
-> > ```
-> > Sent by the device to indicate a console size change. value is
-> > unused.
-> > The buffer is followed by the number of columns and rows:
-> >=20
-> > struct virtio_console_resize {=20
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 le16 cols;=20
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 le16 rows;=20
-> > };
-> > ```
->=20
-> Indeed.
->=20
->=20
-> > It would be extremely surprising to me if the section `multiport
-> > device
-> > operation` does not document resize for multiport control messages,
-> > but
-> > rather config messages, especially as VIRTIO_CONSOLE_RESIZE is
-> > documented as a virtio_console_control event.
->=20
-> You're right.
->=20
-> I was mistaken in my earlier reply - I had missed this
-> virtio_console_resize definition in the spec.=C2=A0 So indeed there's a
-> discrepancy in Linux kernel and the spec's ordering for the control
-> message.
->=20
-> OK, that needs fixing someplace.=C2=A0 Perhaps in the kernel (like your
-> orig. patch), but with an accurate commit message.
->=20
+On Wed, Mar 19, 2025 at 12:00:38PM -0700, Bobby Eshleman wrote:
+>On Wed, Mar 19, 2025 at 02:02:32PM +0100, Stefano Garzarella wrote:
+>> On Wed, Mar 12, 2025 at 01:59:35PM -0700, Bobby Eshleman wrote:
+>> > From: Stefano Garzarella <sgarzare@redhat.com>
+>> >
+>> > This patch adds a check of the "net" assigned to a socket during
+>> > the vsock_find_bound_socket() and vsock_find_connected_socket()
+>> > to support network namespace, allowing to share the same address
+>> > (cid, port) across different network namespaces.
+>> >
+>> > This patch preserves old behavior, and does not yet bring up namespace
+>> > support fully.
+>> >
+>> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>>
+>> I'd describe here a bit the new behaviour related to `fallback` that you
+>> developed.
+>>
+>> Or we can split this patch in two patches, one with my changes without
+>> fallback, and another with fallback as you as author.
+>>
+>> WDYT?
+>>
+>
+>I like the idea of splitting it, that way any unforeseen issues in the
+>new logic can be isolated to the one patch.
+>
+>>
+>> > Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+>> > ---
+>> > v1 -> v2:
+>> > * remove 'netns' module param
+>> > * remove vsock_net_eq()
+>> > * use vsock_global_net() for "global" namespace
+>> > * use fallback logic in socket lookup functions, giving precedence to
+>> >  non-global vsock namespaces
+>> >
+>> > RFC -> v1
+>> > * added 'netns' module param
+>> > * added 'vsock_net_eq()' to check the "net" assigned to a socket
+>> >  only when 'netns' support is enabled
+>> > ---
+>> > include/net/af_vsock.h                  |  7 +++--
+>> > net/vmw_vsock/af_vsock.c                | 55 ++++++++++++++++++++++++---------
+>> > net/vmw_vsock/hyperv_transport.c        |  2 +-
+>> > net/vmw_vsock/virtio_transport_common.c |  5 +--
+>> > net/vmw_vsock/vmci_transport.c          |  4 +--
+>> > 5 files changed, 51 insertions(+), 22 deletions(-)
+>> >
+>> > diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+>> > index 9e85424c834353d016a527070dd62e15ff3bfce1..41afbc18648c953da27a93571d408de968aa7668 100644
+>> > --- a/include/net/af_vsock.h
+>> > +++ b/include/net/af_vsock.h
+>> > @@ -213,9 +213,10 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected);
+>> > void vsock_insert_connected(struct vsock_sock *vsk);
+>> > void vsock_remove_bound(struct vsock_sock *vsk);
+>> > void vsock_remove_connected(struct vsock_sock *vsk);
+>> > -struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr);
+>> > +struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net);
+>> > struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+>> > -					 struct sockaddr_vm *dst);
+>> > +					 struct sockaddr_vm *dst,
+>> > +					 struct net *net);
+>> > void vsock_remove_sock(struct vsock_sock *vsk);
+>> > void vsock_for_each_connected_socket(struct vsock_transport *transport,
+>> > 				     void (*fn)(struct sock *sk));
+>> > @@ -255,4 +256,6 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
+>> > {
+>> > 	return t->msgzerocopy_allow && t->msgzerocopy_allow();
+>> > }
+>> > +
+>> > +struct net *vsock_global_net(void);
+>>
+>> If it just returns null, maybe we can make it inline here.
+>>
+>
+>Roger that.
+>
+>> > #endif /* __AF_VSOCK_H__ */
+>> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>> > index 7e3db87ae4333cf63327ec105ca99253569bb9fe..d206489bf0a81cf989387c7c8063be91a7c21a7d 100644
+>> > --- a/net/vmw_vsock/af_vsock.c
+>> > +++ b/net/vmw_vsock/af_vsock.c
+>> > @@ -235,37 +235,60 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
+>> > 	sock_put(&vsk->sk);
+>> > }
+>> >
+>> > -static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+>> > +struct net *vsock_global_net(void)
+>> > {
+>> > +	return NULL;
+>> > +}
+>> > +EXPORT_SYMBOL_GPL(vsock_global_net);
+>> > +
+>> > +static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr,
+>> > +					      struct net *net)
+>> > +{
+>>
+>> Please add a comment here to describe what fallback is used for.
+>> And I would suggest also something on top of this file to explain a bit
+>> how netns are handled in AF_VSOCK.
+>>
+>
+>sgtm!
+>
+>> > +	struct sock *fallback = NULL;
+>> > 	struct vsock_sock *vsk;
+>> >
+>> > 	list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
+>> > -		if (vsock_addr_equals_addr(addr, &vsk->local_addr))
+>> > -			return sk_vsock(vsk);
+>> > +		if (vsock_addr_equals_addr(addr, &vsk->local_addr)) {
+>> > +			if (net_eq(net, sock_net(sk_vsock(vsk))))
+>> > +				return sk_vsock(vsk);
+>> >
+>> > +			if (net_eq(net, vsock_global_net()))
+>> > +				fallback = sk_vsock(vsk);
+>> > +		}
+>> > 		if (addr->svm_port == vsk->local_addr.svm_port &&
+>> > 		    (vsk->local_addr.svm_cid == VMADDR_CID_ANY ||
+>> > -		     addr->svm_cid == VMADDR_CID_ANY))
+>> > -			return sk_vsock(vsk);
+>> > +		     addr->svm_cid == VMADDR_CID_ANY)) {
+>> > +			if (net_eq(net, sock_net(sk_vsock(vsk))))
+>> > +				return sk_vsock(vsk);
+>> > +
+>> > +			if (net_eq(net, vsock_global_net()))
+>> > +				fallback = sk_vsock(vsk);
+>> > +		}
+>> > 	}
+>> >
+>> > -	return NULL;
+>> > +	return fallback;
+>> > }
+>> >
+>> > static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
+>> > -						  struct sockaddr_vm *dst)
+>> > +						  struct sockaddr_vm *dst,
+>> > +						  struct net *net)
+>> > {
+>> > +	struct sock *fallback = NULL;
+>> > 	struct vsock_sock *vsk;
+>> >
+>> > 	list_for_each_entry(vsk, vsock_connected_sockets(src, dst),
+>> > 			    connected_table) {
+>> > 		if (vsock_addr_equals_addr(src, &vsk->remote_addr) &&
+>> > 		    dst->svm_port == vsk->local_addr.svm_port) {
+>> > -			return sk_vsock(vsk);
+>> > +			if (net_eq(net, sock_net(sk_vsock(vsk))))
+>> > +				return sk_vsock(vsk);
+>> > +
+>> > +			if (net_eq(net, vsock_global_net()))
+>> > +				fallback = sk_vsock(vsk);
+>>
+>> This pattern seems to be repeated 3 times, can we make a function/macro?
+>>
+>
+>yep, no problem!
+>
+>> > 		}
+>> > 	}
+>> >
+>> > -	return NULL;
+>> > +	return fallback;
+>> > }
+>> >
+>> > static void vsock_insert_unbound(struct vsock_sock *vsk)
+>> > @@ -304,12 +327,12 @@ void vsock_remove_connected(struct vsock_sock *vsk)
+>> > }
+>> > EXPORT_SYMBOL_GPL(vsock_remove_connected);
+>> >
+>> > -struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
+>> > +struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net)
+>> > {
+>> > 	struct sock *sk;
+>> >
+>> > 	spin_lock_bh(&vsock_table_lock);
+>> > -	sk = __vsock_find_bound_socket(addr);
+>> > +	sk = __vsock_find_bound_socket(addr, net);
+>> > 	if (sk)
+>> > 		sock_hold(sk);
+>> >
+>> > @@ -320,12 +343,13 @@ struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
+>> > EXPORT_SYMBOL_GPL(vsock_find_bound_socket);
+>> >
+>> > struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+>> > -					 struct sockaddr_vm *dst)
+>> > +					 struct sockaddr_vm *dst,
+>> > +					 struct net *net)
+>> > {
+>> > 	struct sock *sk;
+>> >
+>> > 	spin_lock_bh(&vsock_table_lock);
+>> > -	sk = __vsock_find_connected_socket(src, dst);
+>> > +	sk = __vsock_find_connected_socket(src, dst, net);
+>> > 	if (sk)
+>> > 		sock_hold(sk);
+>> >
+>> > @@ -644,6 +668,7 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>> > {
+>> > 	static u32 port;
+>> > 	struct sockaddr_vm new_addr;
+>> > +	struct net *net = sock_net(sk_vsock(vsk));
+>> >
+>> > 	if (!port)
+>> > 		port = get_random_u32_above(LAST_RESERVED_PORT);
+>> > @@ -660,7 +685,7 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>> >
+>> > 			new_addr.svm_port = port++;
+>> >
+>> > -			if (!__vsock_find_bound_socket(&new_addr)) {
+>> > +			if (!__vsock_find_bound_socket(&new_addr, net)) {
+>> > 				found = true;
+>> > 				break;
+>> > 			}
+>> > @@ -677,7 +702,7 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>> > 			return -EACCES;
+>> > 		}
+>> >
+>> > -		if (__vsock_find_bound_socket(&new_addr))
+>> > +		if (__vsock_find_bound_socket(&new_addr, net))
+>> > 			return -EADDRINUSE;
+>> > 	}
+>> >
+>> > diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+>> > index 31342ab502b4fc35feb812d2c94e0e35ded73771..253609898d24f8a484fcfc3296011c6f501a72a8 100644
+>> > --- a/net/vmw_vsock/hyperv_transport.c
+>> > +++ b/net/vmw_vsock/hyperv_transport.c
+>> > @@ -313,7 +313,7 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+>> > 		return;
+>> >
+>> > 	hvs_addr_init(&addr, conn_from_host ? if_type : if_instance);
+>> > -	sk = vsock_find_bound_socket(&addr);
+>> > +	sk = vsock_find_bound_socket(&addr, NULL);
+>> > 	if (!sk)
+>> > 		return;
+>> >
+>> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>> > index 7f7de6d8809655fe522749fbbc9025df71f071bd..256d2a4fe482b3cb938a681b6924be69b2065616 100644
+>> > --- a/net/vmw_vsock/virtio_transport_common.c
+>> > +++ b/net/vmw_vsock/virtio_transport_common.c
+>> > @@ -1590,6 +1590,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>> > 			       struct sk_buff *skb)
+>> > {
+>> > 	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+>> > +	struct net *net = vsock_global_net();
+>>
+>> Why using vsock_global_net() in virtio and directly NULL in the others
+>> transports?
+>>
+>
+>This was an oversight on my part, I found an unnamed NULL harder to
+>reason about, switched to the func, but forgot to switch over the other
+>transports.
+>
+>BTW, I was unsure about just making NULL a macro (e.g.,
+>VIRTIO_VSOCK_GLOBAL_NET?) instead of a function. I just used a function
+>because A) I noticed in the prior rev that the default net was a
+>function instead of some macro to &init_net, and B) the function seemed
+>a little more flexible for future changes. What are your thoughts here?
 
-Would the following do?
+Inline function in the header should be fine IMHO.
 
-virtio: console: Make resize control event handling compliant with spec
+Thanks,
+Stefano
 
-According to section 5.3.6.2 of the virtio spec a control buffer with
-the event VIRTIO_CONSOLE_RESIZE is followed by a virtio_console_resize
-struct containing 2 little endian 16bit integers cols,rows. The kernel
-implementation assumes native endianness (which results in mangled
-values on big endian architectures) and swaps the ordering of columns
-and rows. This patch fixes these discrepancies between kernel and spec.
-
-> Like I said, I don't think anyone is using this control message to
-> change console sizes.=C2=A0 I don't even think anyone's using multiple
-> console ports on the same device.
->=20
-> > In fact as far as I can tell this is the only part of the spec that
-> > documents resize. I would be legitimately interested in resizing
-> > without multiport and I would genuinely like to find out about how
-> > it
-> > could be used. In what section of the documentation could I find
-> > it?
->=20
-> See section 5.3.4 that describes `struct virtio_console_config` and
-> this note:
->=20
-> ```
-> =C2=A0=C2=A0=C2=A0 If the VIRTIO_CONSOLE_F_SIZE feature is negotiated, th=
-e driver
-> can
-> read the console dimensions from cols and rows.=20
-> ```
->=20
-> 		Amit
+>
+>
+>Thanks for the review!
+>
+>Best,
+>Bobby
+>
 
