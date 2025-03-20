@@ -1,66 +1,65 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 583E7229B02
-	for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 20:57:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 890DA46B5
+	for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 21:05:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742504267; cv=none; b=Pst/vY/p2wc9QaXIIMInZo3AByqHXZoMCTcAP0DzdSfFcnqq+tZ0szJZVEwVyeq4LHnvfRypFULiLr+fYQv5AS8WuqYrBi5B9m6VeOzMF5IS7iCsp3mo25HQ3Pg2LBdqlklTepqpheDgMJBiRDf6bPlfXaQmLTQhFDph4CDHyxY=
+	t=1742504743; cv=none; b=KgbWQ7NoDtyR4grYL2MZ8aS1K/cCExJb+Wqc4P/JXqW1tzSXtExQuTXZSqa74cpbsOF/TN/c41pHNHrQENScPq1Yff57WWk+vZpkcM1gIVP2xvppyRhZbOit+h0ifsCgkgu7fIQqjdqS3As8D2QiqexUOC8Zap3aDc3+t666828=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742504267; c=relaxed/simple;
-	bh=0JRxuNmPWg0BXu1gLvztZG/5XmSPd/ecKkcEAz6ETsg=;
+	s=arc-20240116; t=1742504743; c=relaxed/simple;
+	bh=YgdpRvORfQrJXyGjouHiXsPKxSh1pKbm6IQi0Z4fEqc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=itkKI0CUjlIXItfkvyIDrNPR2et0yUUbTC3LKICaP1Ztbr9h9Mg85V31ZFmQDSpjMOLBqb3uaYMXgkKLX5+OSeAjm1h9ajNtp0gqb1uGgDLsun9lYoXHW6QEbuF68EvFp30z2MMWiolsn1lyjLR2LYcMKRSYVvlotvwY0jBvT70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jQi/7cIA; arc=none smtp.client-ip=209.85.214.178
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZQ31EbaxPbzl8SrQ+N+ePqGeaY/SVKVNhijQUuErqYwUi1pqC62VyhW/xezQQR6EZaEt1pZVxK0TsfHrim2b+FBf2rNhsnBuU3myNBUuDKXTH6V4DV5VjPgNpjUc0Kxq+arNKChpFn4u4AcW0Vur/Zige9kbpCiDiLR1CsQRfXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TRPT5axM; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jQi/7cIA"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-22622ddcc35so32425345ad.2
-        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 13:57:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TRPT5axM"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-223fb0f619dso26686055ad.1
+        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 14:05:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742504265; x=1743109065; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1742504741; x=1743109541; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=yzKy/lOEAHXd03F/+5PHR8yNFdtPSdO5sEmGvZ66KuA=;
-        b=jQi/7cIAQB3S+pRBftYMk/uAlaeoHyeFtsN8iDatTCUxuRN/CSTm2b9tIcpvGEjvrw
-         4zWaEOeBeXCTip8eUXjUys7SdJclI1+ccqYFpae3M6+/kru1Ydnc6fihhTwCrNfdoNf1
-         b1RnyatUxrt3Liy34GgU+F3r7JzydYVYPXwMorFetPNFt/KLOp0frxnHh+z3Zcmj0zcj
-         diB0vMv0EYLV0h/rkYXAX5k2GtCUep4FqVAjAwvOv2USg0p6ujJ8tPteeMm9QlcwbI7q
-         1yRA8yXY/0a1w4goxv2YHHVdQsanIfA94aFPM9vtbYKE2N0yf908bYg6UJr3ujv0qZxp
-         j89w==
+        bh=3jPDdAZsU2RRMMAuFebBCueBYeGg/JKuNefmjD9nyKY=;
+        b=TRPT5axMARdxcXieGMkkoPTnRjBl7sO1aced4K8rD30OSA9tJh2dTRsXScy+xgtAOO
+         1W6PPiKI9I3dHTsOjQx6m9xul/AsIUOtG4+RvLq6b0Xt3mx+zu8rg388KTsUtU2nhRtT
+         YGinhs5kahf4SU0Oneuz21Ndn2VE+d560/WD2zl4yqeXgIsRW78qVcWUTNdueSerMgBp
+         kjSB+bqM6hB4LbT15K4nC4pn/rJOa98Zzc+5OU4PUv0pkMF0w3/sl1S9riZqmEWUhZ0o
+         HddIQppfBi9lpiz1PZDqCjmzf5S3EJjzOj7l4NMZ8FqzMmHKeTGg45aSUY1OHFIKNkN/
+         edSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742504265; x=1743109065;
+        d=1e100.net; s=20230601; t=1742504741; x=1743109541;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yzKy/lOEAHXd03F/+5PHR8yNFdtPSdO5sEmGvZ66KuA=;
-        b=GQw/qp0ddPhpUpNgQldty4tOi68ELtMcYANcZMsSyebIhgXOxG+I6LQP7vml75q/zY
-         ubAa/stGc6wGJ3ntNgpWXvBC2CZMImSzfApdYBd/8vGcke+wND/xkaxvYBT35h0OM+Ga
-         2piLCM1SDuz/u4v5rPCu/TjRBraUCpgb3O9wgvGzHeF9QdxAKdrCh6IAj9bvjPV4kW/O
-         Cq2uDY/m8CLkJA7snmz7hwDnaOvDFxy80OgUVKRh/UQvRyzd5q8JNGtLw01SpV/y82pG
-         7k1sbUxSwaaiY5U6CWMrghBxN2YcZfvYyDFeTdE5KzEy9g6/nz7V22fetOrKUZD8xkRu
-         YXeA==
-X-Forwarded-Encrypted: i=1; AJvYcCVrIDk84odEtZOZWG1T5cx7BoWFsAOKyloZpnsCk7WtPBpne71Uc35kKN1WxgPbqQ40+FjAZZw9AioWJzMT6A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx8zgIkOUgyZMcfCz4wMiItYhEjtyh2vGaJC0JEoJF0knwcImsy
-	IR01lU7v56fTVaxkyegvCJmYXcjpAzj0dQuxLQy7RV/ZAvL4DOpZgefVkFKW
-X-Gm-Gg: ASbGncuOR5zxBb1dV5QDw4/FVxq/4FzDqACbLRBWrgUgAsrimkb5apNTZ3/R7hC4HC9
-	5D4AhdFk9xXIVFd/BjE0I7oTcFYYtdGGWYcBrLl+36ZxwH2tF04uTRzUpPcv3vNOgB1g0G9zYM2
-	FRpOhj+hOHg6Y+JI0PnRS3UQeCTomOC0q70r7OSyiquqwhHtrz4lRamX6XK4w8csKX4cffxqBfO
-	JAKhp3wR5mo80D0+91RXjmhDxnPI5cerXWd2cd2mGFCbskFOicFR2kDhlue+prsYKLSYqnYDJxn
-	SR8xxm0k3GOnTLtwINatggPzoCHnTPVksGO2Y5aUDyWhJMk2rw9TQHPD3WGbshZuHA==
-X-Google-Smtp-Source: AGHT+IEdn0605i1cah5WXs7GYx77tApjB5zexLnr8cToDi7Wb0H33V6afUzxrEpTrcHaOiAbfUfReg==
-X-Received: by 2002:a17:902:e54d:b0:224:76f:9e44 with SMTP id d9443c01a7336-22780c508c6mr9676135ad.8.1742504265569;
-        Thu, 20 Mar 2025 13:57:45 -0700 (PDT)
-Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:4::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22780f45e89sm2568245ad.93.2025.03.20.13.57.44
+        bh=3jPDdAZsU2RRMMAuFebBCueBYeGg/JKuNefmjD9nyKY=;
+        b=cnTXpMj9rJ2mJL7TpVgA3d4QuYhrXCWuMYfdIu63Sot4cOrxWUWqgqlnRtfF2pcEUH
+         RglmhHTYhsVq/mIoERapucTdv14i5ig0TA38SpGKSoDPB6SQYJbFxd5gEHJZG1BAxdHy
+         0T+1QuCleHQNkBzaiC6IvNUsIh7AnPoJ7mel7foshLOWOheH0dpcBCz4c/tHAsNh8kgC
+         gaGLmKeAGdrKkHUmLGK+z3BJhbYy7nKarnq4gGIpt86chdCpVOmbEj/oNNMoDtXOvdU1
+         SHdaQyx/Mqp51krJLUXsxXzv4HwXpI8QCJMXe/B6drMeDqwi//Lc3I55OzUyOr1sYLO/
+         fJzw==
+X-Forwarded-Encrypted: i=1; AJvYcCWZnomfmn0Tavm97Oc4QKfDilcJrUxMjcogRoEg8596DXbTCLwrWJeBNHrE56X7RN76OpvxCbbwmc/3T0KukQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx70TzmpaOZ33t5wQGsOmmnBsyuFSFRfB/AIRUYKgF6izmwCEeC
+	oDPEaMn5VKyxOHVeQ5HlkZEXJPasBmTGTocDlp3vmJPLDuJsiv9w
+X-Gm-Gg: ASbGncsFMDz8+C+3gEqbjXK/R+uuluP3zkIEiFhH9wDIqy/z7t4G62XDJzoey9imnZt
+	q/a3afkxfs6o+EHH17rn0UaNFR74T8apa65WVOmqaJfkST8cShwm4Aj43597eWp1MSOQdeSdz5Y
+	BNR/EP2o5XgDWwmbaGPn7NOXtqEFtQr/DwQKSXhQljXTz/t6KWOnPf9p7GjUVVWV3qX7gch868v
+	HxYR93fPjgnUVeFaJ8nqEB8XJzylLdm+rJ+8HeTBasOim8ivHQuGDTLryvV1fHLYNOm3ObLMk3Z
+	GMi05/kaBLsF9TZJElbbm7QHGGDQVcXmkHM09qfl0iTGRWxj5b0MmXdasKeqPOrl7w==
+X-Google-Smtp-Source: AGHT+IGByHBrbBgXXk1MNKK8PoOJzGBZqACnvtAZVXwzJ5Mt98hUmINKtxNrRQVVmQU2iZkin8qKTA==
+X-Received: by 2002:a17:903:182:b0:223:653e:eb09 with SMTP id d9443c01a7336-22780c50a59mr11694335ad.7.1742504740770;
+        Thu, 20 Mar 2025 14:05:40 -0700 (PDT)
+Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:7::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2278120981fsm2458075ad.250.2025.03.20.14.05.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Mar 2025 13:57:44 -0700 (PDT)
-Date: Thu, 20 Mar 2025 13:57:42 -0700
+        Thu, 20 Mar 2025 14:05:40 -0700 (PDT)
+Date: Thu, 20 Mar 2025 14:05:38 -0700
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
 	"K. Y. Srinivasan" <kys@microsoft.com>,
 	Haiyang Zhang <haiyangz@microsoft.com>,
 	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
@@ -78,10 +77,11 @@ Cc: Stefano Garzarella <sgarzare@redhat.com>,
 	kvm@vger.kernel.org
 Subject: Re: [PATCH v2 3/3] vhost/vsock: use netns of process that opens the
  vhost-vsock-netns device
-Message-ID: <Z9yBRisP+FtTID34@devvm6277.cco0.facebook.com>
+Message-ID: <Z9yDIl8taTAmG873@devvm6277.cco0.facebook.com>
 References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
  <20250312-vsock-netns-v2-3-84bffa1aa97a@gmail.com>
  <09c84a94-85f3-4e28-8e7d-bdc227bf99ab@redhat.com>
+ <nwksousz7f4pkzwefvrpbgmmq6bt5kimv4icdkvm7n2nlom6yu@e62c5gdzmamg>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -90,21 +90,40 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <09c84a94-85f3-4e28-8e7d-bdc227bf99ab@redhat.com>
+In-Reply-To: <nwksousz7f4pkzwefvrpbgmmq6bt5kimv4icdkvm7n2nlom6yu@e62c5gdzmamg>
 
-On Wed, Mar 19, 2025 at 10:09:44PM +0100, Paolo Abeni wrote:
-> On 3/12/25 9:59 PM, Bobby Eshleman wrote:
-> > @@ -753,6 +783,8 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
-> >  	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
-> >  
-> >  	vhost_dev_cleanup(&vsock->dev);
-> > +	if (vsock->net)
-> > +		put_net(vsock->net);
+On Thu, Mar 20, 2025 at 10:08:02AM +0100, Stefano Garzarella wrote:
+> On Wed, Mar 19, 2025 at 10:09:44PM +0100, Paolo Abeni wrote:
+> > On 3/12/25 9:59 PM, Bobby Eshleman wrote:
+> > > @@ -753,6 +783,8 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+> > >  	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+> > > 
+> > >  	vhost_dev_cleanup(&vsock->dev);
+> > > +	if (vsock->net)
+> > > +		put_net(vsock->net);
+> > 
+> > put_net() is a deprecated API, you should use put_net_track() instead.
+> > 
+> > >  	kfree(vsock->dev.vqs);
+> > >  	vhost_vsock_free(vsock);
+> > >  	return 0;
+> > 
+> > Also series introducing new features should also include the related
+> > self-tests.
 > 
-> put_net() is a deprecated API, you should use put_net_track() instead.
+> Yes, I was thinking about testing as well, but to test this I think we need
+> to run QEMU with Linux in it, is this feasible in self-tests?
+> 
+> We should start looking at that, because for now I have my own ansible
+> script that runs tests (tools/testing/vsock/vsock_test) in nested VMs to
+> test both host (vhost-vsock) and guest (virtio-vsock).
 > 
 
-Got it, thanks!
+Maybe as a baseline we could follow the model of
+tools/testing/selftests/bpf/vmtest.sh and start by reusing your
+vsock_test parameters from your Ansible script?
+
+I don't mind writing the patches.
 
 Best,
 Bobby
