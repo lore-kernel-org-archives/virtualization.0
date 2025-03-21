@@ -1,147 +1,147 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B824641C72
-	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 10:02:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E17C1F3B8F
+	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 10:10:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742551367; cv=none; b=Zthj08Fm+xZ4ti6rd7WJvV8kxWp9KQJcQriwwFexkEOA5PZaJ7A9ZQAyPd0cHodpF+VlzMc20J2WF+QvTMbAAgykYA8ZfVQVwy+qXqAuyfVvQpzQ3irMY/Zl3DB6fZ+PxV8N/sCG/WhqGr+F0eV478kU2+QwxyLfoweCsnms/Ss=
+	t=1742551810; cv=none; b=KmbiVogREsuBOPCNf75okIorIB4aMdMe6gxeKDWgCDDzHrKk/nruY2xgRixEXU8EQILx3FJnC7NPVn0TTXe2qM487rj5oNjt3lr2OnORoMeV968X5JVIZEwP5+uQI82uY3wEqS8EJ3+Bab+aD8EO3N2419LS75jpmZIjuz3NC4o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742551367; c=relaxed/simple;
-	bh=7FXB9MgUSNIAeCSTjixx/fGT1P/pEpqm6PYZY4ugldk=;
+	s=arc-20240116; t=1742551810; c=relaxed/simple;
+	bh=cSG/dgb5ouYwXy+0Y8nbWZ7xh9ohZJ22vd/SOyMYhnY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Pdo7q0JWV4Gz2atjsix9NECKF4C5wlXWrCthGfj0I53BUFW8ELYdHZb+Ok+/mSELbst8kIJnkaAD3gQVeurURjIq8zEKv+uN/rM8Cs2o0t5ZLVOUykaeOSd4zdyPML6PYLPH/RTaX76EZPG6nhcD2aWO7smdHkLuDjNKS/Fucxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fh2ozByb; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=tzlfOQROGdiRqNwQQIcRPjfqV08o7KedIyGh6GtUzm5SgTr/duel6A0Owjw7Bi+Z9KmYcca22FVLbhAFUMdsFY/vBhwLnHd4lHzZ0weKmzTWcTqs3ud5XBnhVsi8+a+wDH6W1ub+rNLpUMn4DadpEKNg8verstg6J3r0zqjIYnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=WxWF/NNY; arc=none smtp.client-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fh2ozByb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742551363;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Z1fasRIza0+wiA592mMux1XtH5KpwcITkoYkMYOlXyU=;
-	b=fh2ozByb7XrKwBDe232od9RzU4T8w7G0yMGs6geOIeClm1OdZd5M1RFiAOPsb7z8nrZKQW
-	cya4Q6z4/LgJNScLmHjSjUDuke66TkB+7Z86XkiCYpldJ1iOWgBiAJ0PLhxLOuo2RBtNqR
-	zj79BGx3LkZGjSuwa0hAzPlhgRRvAFM=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-548-AYGIU9QiPzqJePQ8URtYFA-1; Fri, 21 Mar 2025 06:02:42 -0400
-X-MC-Unique: AYGIU9QiPzqJePQ8URtYFA-1
-X-Mimecast-MFC-AGG-ID: AYGIU9QiPzqJePQ8URtYFA_1742551361
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ac28f255a36so144667666b.3
-        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 03:02:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="WxWF/NNY"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-39727fe912cso649066f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 03:10:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1742551807; x=1743156607; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Dgadgbfro0Ytl5CzevN3+XSUjzG1aUeGshCaOrB+Y2I=;
+        b=WxWF/NNY2SuFno09XE+iEQ+xtNcFj5PqY4hIOA7sS44RC55hPDmq00uoBufgEs1knY
+         YXDHa0vppub5t2ZvpCYG8F4n8d3rvhVhw64NDIcsfv9mhZb+SxR7h5y7VL/pqtDQlNLF
+         6dIEUTlX3Ms9h/LVyy4V2tj5daUwvSfs3RvJBq8F+JibCP5IfODvrdrCKuhf1l26xuEo
+         ZxVVkZhEPeK2KASfM7EQj6lyVj0rU91U63RlAo2DbuiayHbD+Z4b08tGVNuZjNZuq2tq
+         F4YAIHy5dklh45bY6/tv68TglIMmsLfRqp4/GfwoxBqSfd0huaWEPgL1+At9pqlAjup7
+         zrvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742551361; x=1743156161;
+        d=1e100.net; s=20230601; t=1742551807; x=1743156607;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Z1fasRIza0+wiA592mMux1XtH5KpwcITkoYkMYOlXyU=;
-        b=ZYoTKhoNLElWfYCSpfB/n7fjplZBoIbJ7/MByFLaRL/urUBxFTYaHRh8frCCovMxFh
-         v7kQVyZLle9f5fGZOfy/XWNI+YT6eZYEOK6xCAy99mxnzGTOGwFbz/a6hDxT7+mmYyTu
-         jM7Hf1pBzETM9ug5GTS36uzh5bnj7pxYbUwIGFVUL1cuvPOJy7o9Zn7qtMOMyurC9l4D
-         uc4eSOmWqo+1Czh2oEkQh0VKe+4hVL+17RSG8JfScFtnjjKEPcnF+zaZfgi5Nm3DCGlM
-         aoX9bwBFVdsX8DyTvYAk0BP+Hm4G5aT9k+p+1mRo0YMVjcSuoBass3dppIk4vZIfv4GB
-         CXwA==
-X-Forwarded-Encrypted: i=1; AJvYcCWjdVEzMG57hjAlRR82kwKSQMHN/koxApW2DJnZnVzE/1ZEYq2kjOK7CmqmxW3YCs7VqLPOwxbfR7J/oQfVxA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxdE0SHhw3EflVsI7NXe366A14ZBNAtQgBUazCNuYmkNWjRObIx
-	Ucz0qTnmbxYoVFnfNjXwnl6Qvcguc4jMVijsA7nSAfdSd+yV8HLL1j5gJCTWfpFgJDhSW8VKW6y
-	P9eaBUEw11dZS7MF4P9HDIvECMnygaCc9AI7Moh9fdzXvwb+M+fxkwnQzIci9xSzV
-X-Gm-Gg: ASbGncuBEUQIt0vixk6patC9Mee6IFjeqT5N3pLnnGEmIsGnvDHl5VNHV+Rg2j+EEJh
-	kdb9gVAk/70EQsd7CviJMCdliACBAyYWyXMe3XMMCsk/LB56gVVHeZX1vAsm2twLdKHSjR9Ik0P
-	gv7OH5aMx9U0UCys1IpP685Q7yciHODN80w6MFClnuJPQ11f2dJRO7xr0F1c+QqsL7DjOt8gTN/
-	CKvaKQ1bjvGY+qp7U/ri3pp8KZXb6KTsML3NfAAzn8e0G5dezONXrm2ZBEtGn/bjx+JEZALkSxo
-	hkhitiSDjmwwRfDJGhkWw6xFFq+7Om05oed1juUmT5wuaiWqOj+ypDxlhAS6Uy0Y
-X-Received: by 2002:a17:907:d7c8:b0:ac3:9587:f2a1 with SMTP id a640c23a62f3a-ac3f20f2eadmr273954966b.20.1742551360975;
-        Fri, 21 Mar 2025 03:02:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHI1seRG9imWZDzSDGMTwRVM4KqTGFuBDv5cjB/u4qDI0LlvpoSZCACNxNmno6+XKEHNnW4Jg==
-X-Received: by 2002:a17:907:d7c8:b0:ac3:9587:f2a1 with SMTP id a640c23a62f3a-ac3f20f2eadmr273949266b.20.1742551360312;
-        Fri, 21 Mar 2025 03:02:40 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-25-55.business.telecomitalia.it. [87.12.25.55])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac3ef8e50b9sm125525366b.55.2025.03.21.03.02.38
+        bh=Dgadgbfro0Ytl5CzevN3+XSUjzG1aUeGshCaOrB+Y2I=;
+        b=evxrtiAG+OQno74WKIGAHwNJ5KlD8yxkw+G+MO6roF7K7ypW2OsPkymEy0gP48Hz2b
+         sMoe5+zUwom05/MvzNmIWGljG5ar2hSyV0iYPeyaxmbJeh43O3YRMBz1bX1KS55MdLw6
+         DU7VoMeEwM3sbgvVh0kB2QV3jqr9Dlw+bL6X+KgZnjaU5iS6grmP7KqakIzXppKTGs7H
+         0PDz8vtwisFEBf/0MVlatq3r8hjZfL52kZ07WrrrhRuJ7mYB1e1ApwQixGjD54IzR4ZT
+         ++28leuc7uRUexkryLRfKJr72A/d1ExtbQWaOSnaasYRuQgS5t8Sld0a8FNxWllY0FIq
+         nbIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX/zPRwASgkBhhJSpRknbWYxbhf5tyw0iZjl0Ff07GQnBPl/nfGPh137QcPzHnRWGga0OGZ1w7vICi+AC9Zxw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyq1QZb51leQJ0ozGuzK/w2r2Qq36AhPL3bRBBR+um5co34gkDI
+	esaFiwwa9OP4gWrgDTHJ0AfcQHiwyevOACuPxixCEBVf1tiysWuZGx1+LjmT+hGte1ivDpTJDq4
+	t7Tw=
+X-Gm-Gg: ASbGncs88BuiBf/5+PgCjWn/k3xZ6xB/KNaX82+a/6I+/hAUr9WpXSGSAUXPYuln8YY
+	hRixQSMTonexHgPHFF+EIvMIL7Q9wcRVhFoMoWL1yZUe0PZJ/OeB+ndhvGtyrW4LOwQIIbf7LWO
+	J9PY+OC48IjHDWbaDjnUrqqsDfF0se/IQFnx8ybaoSF8mfkx7CWJTzob6iOwAPAu0fPI0wmmCcF
+	LrYgVte+Fjcj22BZmuxL6wE/s5w277NfO+aup0Y0I2aQvSfcjT/6JUD169MI3bQ4obU1zMySuGq
+	EjN+NJkaOSde6iolRTLuXlraNSJxrRXeH32ocYk+yeE=
+X-Google-Smtp-Source: AGHT+IGrK8MOj1Gb5k1VtA3JM/paS+CvdnDZ1/arBk1SWXXHnz0wY0XFwRInaReJTtN9gtF5Sxl8cw==
+X-Received: by 2002:a5d:6d86:0:b0:38d:d701:419c with SMTP id ffacd0b85a97d-3997f92da9amr2879454f8f.41.1742551807121;
+        Fri, 21 Mar 2025 03:10:07 -0700 (PDT)
+Received: from myrica ([2.221.137.100])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3997f9e65besm1946808f8f.65.2025.03.21.03.10.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Mar 2025 03:02:39 -0700 (PDT)
-Date: Fri, 21 Mar 2025 11:02:34 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, 
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
-	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, "David S. Miller" <davem@davemloft.net>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] vhost/vsock: use netns of process that opens the
- vhost-vsock-netns device
-Message-ID: <aqkgzoo2yswmb52x72fwmch2k7qh2vzq42rju7l5puxc775jjj@duqqm4h3rmlh>
-References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
- <20250312-vsock-netns-v2-3-84bffa1aa97a@gmail.com>
- <09c84a94-85f3-4e28-8e7d-bdc227bf99ab@redhat.com>
- <nwksousz7f4pkzwefvrpbgmmq6bt5kimv4icdkvm7n2nlom6yu@e62c5gdzmamg>
- <Z9yDIl8taTAmG873@devvm6277.cco0.facebook.com>
+        Fri, 21 Mar 2025 03:10:06 -0700 (PDT)
+Date: Fri, 21 Mar 2025 10:10:31 +0000
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: joro@8bytes.org, will@kernel.org, iommu@lists.linux.dev,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH] iommu/virtio: Make instance lookup robust
+Message-ID: <20250321101031.GA3998895@myrica>
+References: <9beaed48da83a0882dba153e65e6cfd0a8e21482.1742484773.git.robin.murphy@arm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <Z9yDIl8taTAmG873@devvm6277.cco0.facebook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zgD-75iNvyzWzIKULsbscpkTyGDja0uD6ZDcbf2c9RQ_1742551361
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <9beaed48da83a0882dba153e65e6cfd0a8e21482.1742484773.git.robin.murphy@arm.com>
 
-On Thu, Mar 20, 2025 at 02:05:38PM -0700, Bobby Eshleman wrote:
->On Thu, Mar 20, 2025 at 10:08:02AM +0100, Stefano Garzarella wrote:
->> On Wed, Mar 19, 2025 at 10:09:44PM +0100, Paolo Abeni wrote:
->> > On 3/12/25 9:59 PM, Bobby Eshleman wrote:
->> > > @@ -753,6 +783,8 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
->> > >  	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
->> > >
->> > >  	vhost_dev_cleanup(&vsock->dev);
->> > > +	if (vsock->net)
->> > > +		put_net(vsock->net);
->> >
->> > put_net() is a deprecated API, you should use put_net_track() instead.
->> >
->> > >  	kfree(vsock->dev.vqs);
->> > >  	vhost_vsock_free(vsock);
->> > >  	return 0;
->> >
->> > Also series introducing new features should also include the related
->> > self-tests.
->>
->> Yes, I was thinking about testing as well, but to test this I think we need
->> to run QEMU with Linux in it, is this feasible in self-tests?
->>
->> We should start looking at that, because for now I have my own ansible
->> script that runs tests (tools/testing/vsock/vsock_test) in nested VMs to
->> test both host (vhost-vsock) and guest (virtio-vsock).
->>
->
->Maybe as a baseline we could follow the model of
->tools/testing/selftests/bpf/vmtest.sh and start by reusing your
->vsock_test parameters from your Ansible script?
+On Thu, Mar 20, 2025 at 03:32:54PM +0000, Robin Murphy wrote:
+> Much like arm-smmu in commit 7d835134d4e1 ("iommu/arm-smmu: Make
+> instance lookup robust"), virtio-iommu appears to have the same issue
+> where iommu_device_register() makes the IOMMU instance visible to other
+> API callers (including itself) straight away, but internally the
+> instance isn't ready to recognise itself for viommu_probe_device() to
+> work correctly until after viommu_probe() has returned. This matters a
+> lot more now that bus_iommu_probe() has the DT/VIOT knowledge to probe
+> client devices the way that was always intended. Tweak the lookup and
+> initialisation in much the same way as for arm-smmu, to ensure that what
+> we register is functional and ready to go.
+> 
+> Fixes: bcb81ac6ae3c ("iommu: Get DT/ACPI parsing into the proper probe path")
+> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+> ---
+> 
+> Pre-emptive fix by inspection...
 
-Yeah, my playbooks are here: 
-https://github.com/stefano-garzarella/ansible-vsock
+I get the warning introduced by bcb81ac6ae3c with DT boot, but this patch
+doesn't remove it:
 
-Note: they are heavily customized on my env, I wrote some notes on how 
-to change various wired path.
+[    1.463193] igb 0000:00:03.0: late IOMMU probe at driver bind, something fishy here!
+[    1.464265] WARNING: CPU: 3 PID: 1 at drivers/iommu/iommu.c:446 iommu_init_device+0xdc/0x300
+[    1.468885] Modules linked in:
+[    1.469835] CPU: 3 UID: 0 PID: 1 Comm: swapper/0 Not tainted 6.14.0-rc7-00005-g18abf92a52cf #2120
+[    1.470170] Hardware name: linux,dummy-virt (DT)
+[    1.470441] pstate: 61000005 (nZCv daif -PAN -UAO -TCO +DIT -SSBS BTYPE=--)
+[    1.470692] pc : iommu_init_device+0xdc/0x300
+[    1.470808] lr : iommu_init_device+0xdc/0x300
+[    1.470920] sp : ffff80008278b970
+[    1.471022] x29: ffff80008278b980 x28: 0000000000000000 x27: 0000000000000000
+[    1.471382] x26: 0000000000000000 x25: ffff800081f49960 x24: 0000000000000000
+[    1.471557] x23: ffff0000c156b0c8 x22: ffff8000826f4930 x21: ffff8000826f4928
+[    1.471861] x20: ffff80008248d878 x19: ffff80008248c8c8 x18: 0000000000000006
+[    1.472046] x17: ffff800082489500 x16: 00000000f8a49ce1 x15: ffff80008278b52f
+[    1.472223] x14: ffff80008278b340 x13: ffff80010278b527 x12: ffff80008228d478
+[    1.472396] x11: ffff8000821dd4d0 x10: ffff80008228d4d0 x9 : ffff80008018908c
+[    1.472597] x8 : 0000000000000001 x7 : 000000000002ffe8 x6 : c0000000ffffdfff
+[    1.472773] x5 : 00000000000affa8 x4 : 0000000000000000 x3 : 0000000000000000
+[    1.472948] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff0000c03fc500
+[    1.473220] Call trace:
+[    1.473478]  iommu_init_device+0xdc/0x300 (P)
+[    1.473723]  __iommu_probe_device+0x48/0x208
+[    1.473859]  iommu_probe_device+0x3c/0x88
+[    1.473961]  of_iommu_configure+0x270/0x2b8
+[    1.474069]  of_dma_configure_id+0xc0/0x2f8
+[    1.474180]  pci_dma_configure+0x5c/0x110
+[    1.474285]  really_probe+0x7c/0x3a0
+[    1.474383]  __driver_probe_device+0x84/0x160
+[    1.474488]  driver_probe_device+0x44/0x130
+[    1.474597]  __driver_attach+0xcc/0x208
+[    1.474700]  bus_for_each_dev+0x84/0x100
+[    1.474803]  driver_attach+0x2c/0x40
+[    1.474900]  bus_add_driver+0x118/0x250
+[    1.474998]  driver_register+0x70/0x138
+[    1.475096]  __pci_register_driver+0x4c/0x60
+[    1.475198]  igb_init_module+0x58/0x70
+[    1.475300]  do_one_initcall+0x60/0x2f8
+[    1.475400]  do_initcalls+0x114/0x158
+[    1.475500]  kernel_init_freeable+0x18c/0x1e8
+[    1.475640]  kernel_init+0x28/0x168
+[    1.475752]  ret_from_fork+0x10/0x20
+[    1.476008] ---[ end trace 0000000000000000 ]---
 
->
->I don't mind writing the patches.
-
-That would be great and very much appreciated.
-Maybe you can do it in a separate series and then here add just the 
-configuration we need.
+Apart from the warning everything seems to still work, so a fix doesn't
+seem too urgent and I can investigate during the merge window (I haven't
+been following the probe rework).
 
 Thanks,
-Stefano
-
+Jean
