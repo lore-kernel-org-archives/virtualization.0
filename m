@@ -1,228 +1,151 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6080C1EB1B0
-	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 19:49:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DCF523371C
+	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 22:15:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742586592; cv=none; b=ulGkZrSEzCgSuu7JWa/4Qjv4xrw29LCptH1RV1xVu9VVwsb0ehuP8FXfO7+43+Hx3sgYR1KuYKVWw/yb2V3ykZNpa/9CRM54h6ruryW5CIJwhFl1oC5nMVElx7a4Jz9k79ymqVoHdNiVVFxb1sQoVIieMyCUI6uzf67Db+j4jd0=
+	t=1742595331; cv=none; b=rGBg05bHIL2N8t7EJqmAg1d0zbAddYRXNs1sar9y263n0nEANbpt50L864dSxWwE1Gd8HOP/NIxm4/Nq4z4fSRCcdkAhSOmnCWns11qNpppCGWUyLm91GQm57CWBfrU7Xc21bBjIL254OfntG/uWQ29BGSoNYCXrocqdmchSmMg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742586592; c=relaxed/simple;
-	bh=UFdqBVJRDVk8Hlcf3jTu50jsbpG+mU166GYiFitWazE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=FAr6iyfTPCwuZSpN2QSTZDhaRa//33DwkHUQLuMCCzdcgnoEvxHxGFIMDwAf2SDjtjye9p1R8I4c6fBvxMhJxQ2GKeL0XaKHqrSFk4KUGMtJ3HWWn5QqzbpesGrLT3hwpXgCt/EtIUzVPT0OPphoSk+yRipoqNgZP2aQVu6e+KI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O4BoVJ00; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1742595331; c=relaxed/simple;
+	bh=BCN5JQqGHPfZWzsKH88CAQez5y3gRKn+dXSiBfdgsw0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SNj4ijHrgvUhJDzIYYF1oIKJXrh/Y6eNwuFQRCdTITV50CP833dsdtYTje7XTDOyyLaueHRELBoAtwf4xIADpWnajr0na3byHiz/vtE3mlmYqYiwSGVKPKRgHCt0GIj2qfp2IOzmnKateyN4NfSZUOKX7BkFee9yv2HmHdKMgNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FVRezX/x; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O4BoVJ00"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742586589;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ReERJAqHieSO06A2On5uvAOfqLYlr/FeJgCmLUNx8kQ=;
-	b=O4BoVJ00Fs+0i/3ynJVBoLhMsI11msoBxLm3IbfwjsUTnZtjkOXXutG0ymCJlEFaNRlPcp
-	Vv/8FqDoFUOeW+MH90yfyXsnPgwPSt6PixYC38JSNMhq8Dxdfp3IIXTgP2i7kOWlYk1Pic
-	yBXOQYJVM+uTM2NrE1heehvz8Txp2zM=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-140-jlm-VCVyOh6ennW8usn9eQ-1; Fri, 21 Mar 2025 15:49:48 -0400
-X-MC-Unique: jlm-VCVyOh6ennW8usn9eQ-1
-X-Mimecast-MFC-AGG-ID: jlm-VCVyOh6ennW8usn9eQ_1742586587
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2ff6aaa18e8so3554237a91.1
-        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 12:49:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742586587; x=1743191387;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FVRezX/x"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2264c9d0295so67995ad.0
+        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 15:15:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1742595328; x=1743200128; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ReERJAqHieSO06A2On5uvAOfqLYlr/FeJgCmLUNx8kQ=;
-        b=ilBs7h9dTSXlRaqnKX+VmBwQY5qDxXS5pxXRJk3AL48r6xs8JumxRjpbnedqgLPiZz
-         obYWjJ/Y4Nh2Ark8Q/fKCewCJi6rPOnkiY+gGBrhCR5XUEissIrrizgC3Oh4PyJIp8Mc
-         0k4nEBChMAPoo1Pujie/YYuTJCuiZI4nGRvhYPN51owm3UgU6Dt72F2aiL/4XWqx7+B2
-         vCVqEqg3/p2rjuPxOrLwiGkOJ4CYzeJ6jY8+xQ5mQBZBlPrkyw4L+8IPRaIeY6FWjG9o
-         wihmRypgo5hocrFeJv4zzuNF/BBuiQYRJWuYnWoGCtzB8eiYft81Bx1wAoYAfv6IaQAJ
-         53jg==
-X-Forwarded-Encrypted: i=1; AJvYcCWnGPxfI0sjsKjokVh4zjUDoKL+YYowmIaplpv86hW8liiMNzOqesc1Ds5DTRzBCnvbGy46Ltjc2P3X9/j24A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy6KLf/Mhdh+L3OvHE86FNuoM0creu2CRYANApOlhUDmgJgJ1+v
-	5nepTXhHfL3WfNXmN7dz+HyaVj1JGOptaoxVD1ck4HmWd5WHguc+J4wIs8zTKxXNJdXKQP979cO
-	m4gdjQ3DtbJZvtsv/HY3MfJPePOSlr+2nQ3VXnRu5GxlG1ry0nrYvYdZexy4abW3j
-X-Gm-Gg: ASbGncsGCU8pfYwm7Cj2KCXIR1bb34bhxnr6+id80SmaNe9qY/Ztqnul+R47hYgT4kt
-	cQSrBiXn43n4HZM0MEX5J3gFGJykIttKnstb8476Qe8QdkYaNz+4rjx4kKeT3hUspCaooeBh03N
-	aP/EVYCZbL3KZC/WwhRWgF+yv3Fh4/1LFPAhkeAdmbZGoKA625a1upbLQpga82BZJByaIFogOmg
-	7BiVCcVXJKVXJEauLEb9G9lttWYD673HDmSTktS9SdEP99l0CCb+9utIY655GWKCAIsQcp77+35
-	Q6MJqH9L
-X-Received: by 2002:a05:6a21:6182:b0:1f5:55b7:1bb4 with SMTP id adf61e73a8af0-1fe42f2ca16mr8343016637.11.1742586586909;
-        Fri, 21 Mar 2025 12:49:46 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHgaPER9WdLR23YdQNltOTaAZ+YfxNnRQHaimB6OsbRkGfsA5VnV3pJYV1//O3S4oQcK/34rw==
-X-Received: by 2002:a05:6a21:6182:b0:1f5:55b7:1bb4 with SMTP id adf61e73a8af0-1fe42f2ca16mr8342982637.11.1742586586558;
-        Fri, 21 Mar 2025 12:49:46 -0700 (PDT)
-Received: from redhat.com ([195.133.138.172])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af8a2841c02sm1900123a12.39.2025.03.21.12.49.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Mar 2025 12:49:46 -0700 (PDT)
-Date: Fri, 21 Mar 2025 15:49:38 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] vsock: add namespace support to vhost-vsock
-Message-ID: <20250321154922-mutt-send-email-mst@kernel.org>
-References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
+        bh=hz7SI+MRITJdDDcuu+iapQr7TxDqFp3vr+TXoSWWGCE=;
+        b=FVRezX/xbhooypPq8JP7ABGlhDK8Pmf722oNLKMNWz0rSXVh+WK73nvFnjHJws+rrs
+         SFSts4dlOjVE3Wax2Z15zDmykC5M2pTcnw1ViE3zz6Xw9h6JtPX3zrWJaXxMQtJXX14K
+         h18bQYa7f37pKnGPKkQvv6C94Qq0uZyfgPcrEXQDhD7sDrkb5ionWbmkV4vGHqBRG+40
+         wFYsKakzPMROneZxmAgRaddZEaRk2dG/geIE60CavNOi1VVtse+nhb2MipzVzepn7QuO
+         XmopUpvKhmVv10ZkBY+/DPdvGRkKr404Q8BRRbms0Jbv+X/nS3YhxjRE2sKcU0uxho/I
+         KQlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742595328; x=1743200128;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hz7SI+MRITJdDDcuu+iapQr7TxDqFp3vr+TXoSWWGCE=;
+        b=qacRvHiXVK3IxFvJp/5mGe4StUDFofu1AwQuZlPkp/pMV+vHI9iebzNpp0tKWV82lw
+         6JiNAclFx0MjUrsgDxcDjSBeBQlQsgJDjTJzjJm1GUd0JVikVYrUQTveOWswFi0nsPXW
+         FZo3i4Vj+wyo+e8rw6/mADBgBsDOi4pGYY2MvMQ8DR/H+mnU26x2H9UpAPQaIGjvjLug
+         04LiH0x7uixDbvQC/HRys8boeVg9LKnxvg4/K3DLo9/3+m14W4LycEsSDhH4ANuIfEmr
+         AKmyiDn9Xf2mP5PJpWYOvqHnB8Ih5B6C/or4/DPNaZF2p32t9T0oMnQ++YJ4pPmnLI7n
+         FeaA==
+X-Forwarded-Encrypted: i=1; AJvYcCW3+0GNFsPb5lrgZjALC41EIEV9KJJqGbx+0BODSQhfSefxj0h2xciKQkyOfeDO7qC/pPO1mbGvOr8/wofmtQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxD1pZlgYeCyKof/NsghoDf52nDKm9SLHI1cS/x6wIMzymb0TxC
+	HL4U/XDUnXfZgy9KkAbSsHUf1klagJeGCw2UJrDnSz6Y1t5lOfzEVSn4nWHIysPi8+ePT6Sy1Zz
+	ObN3EsgbQkj1j1vlPhbPYbguaKjuaY0Wm7UuLzAoMRiMC+pDwadO+wlU=
+X-Gm-Gg: ASbGnctH00lcwlzhOlDf4oqyAW3PI4pacQSr+ZYISLivilW9e5gZqbkaqguoC5r6FQG
+	tSt9gWnoJmk3fK/7tlVDR7z2NMZy4w6exteedTprrdcc+Se2U5hukPoeZEjZNdzEjFE6BZ76eOd
+	3lbotMiGDtz0WoMAb3StjoBaKYLOvDfWWKgkQpz11jiTcgk4BkrYmcHKs=
+X-Google-Smtp-Source: AGHT+IGBoa3JmICUjXYWbIuZG1QnxGwt2v2Pxt/ddhpOPWc2le0JOM4R9EEoSgO2H5EsypXp8nLSfXGBeIbvxdvRzAY=
+X-Received: by 2002:a17:902:d4cf:b0:215:f0c6:4dbf with SMTP id
+ d9443c01a7336-227982bd0e7mr778235ad.14.1742595327611; Fri, 21 Mar 2025
+ 15:15:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _xZa5w5isaYusfyY76seR6EvCxCVlbgXBXneTLnlBmQ_1742586587
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20250308214045.1160445-1-almasrymina@google.com>
+ <20250308214045.1160445-5-almasrymina@google.com> <5de5943b-5527-49f6-a454-b3c7358cff56@redhat.com>
+In-Reply-To: <5de5943b-5527-49f6-a454-b3c7358cff56@redhat.com>
+From: Mina Almasry <almasrymina@google.com>
+Date: Fri, 21 Mar 2025 15:15:14 -0700
+X-Gm-Features: AQ5f1Jp_bSaJYceldtfK0dIdQEXx63Idm2vF7CtmSVJ_E1ycJl8iObtXRhrS3vg
+Message-ID: <CAHS8izNfyfVhMj0wBvP0qa=7E4xL+eo9wn_Fi4o2PT8piwACWA@mail.gmail.com>
+Subject: Re: [PATCH net-next v7 4/9] net: devmem: Implement TX path
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, 
+	Kuniyuki Iwashima <kuniyu@amazon.com>, Donald Hunter <donald.hunter@gmail.com>, 
+	Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, Jeroen de Borst <jeroendb@google.com>, 
+	Harshitha Ramamurthy <hramamurthy@google.com>, Willem de Bruijn <willemb@google.com>, 
+	David Ahern <dsahern@kernel.org>, Neal Cardwell <ncardwell@google.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me, asml.silence@gmail.com, dw@davidwei.uk, 
+	Jamal Hadi Salim <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, 
+	Pedro Tammela <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>, 
+	Kaiyuan Zhang <kaiyuanz@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 12, 2025 at 01:59:34PM -0700, Bobby Eshleman wrote:
-> Picking up Stefano's v1 [1], this series adds netns support to
-> vhost-vsock. Unlike v1, this series does not address guest-to-host (g2h)
-> namespaces, defering that for future implementation and discussion.
-> 
-> Any vsock created with /dev/vhost-vsock is a global vsock, accessible
-> from any namespace. Any vsock created with /dev/vhost-vsock-netns is a
-> "scoped" vsock, accessible only to sockets in its namespace. If a global
-> vsock or scoped vsock share the same CID, the scoped vsock takes
-> precedence.
-> 
-> If a socket in a namespace connects with a global vsock, the CID becomes
-> unavailable to any VMM in that namespace when creating new vsocks. If
-> disconnected, the CID becomes available again.
+On Tue, Mar 18, 2025 at 1:53=E2=80=AFAM Paolo Abeni <pabeni@redhat.com> wro=
+te:
+>
+> Adding Kuniyuki.
+>
+> On 3/8/25 10:40 PM, Mina Almasry wrote:
+> > @@ -931,10 +932,67 @@ int netdev_nl_bind_rx_doit(struct sk_buff *skb, s=
+truct genl_info *info)
+> >       return err;
+> >  }
+> >
+> > -/* stub */
+> >  int netdev_nl_bind_tx_doit(struct sk_buff *skb, struct genl_info *info=
+)
+> >  {
+> > -     return 0;
+> > +     struct net_devmem_dmabuf_binding *binding;
+> > +     struct list_head *sock_binding_list;
+> > +     struct net_device *netdev;
+> > +     u32 ifindex, dmabuf_fd;
+> > +     struct sk_buff *rsp;
+> > +     int err =3D 0;
+> > +     void *hdr;
+> > +
+> > +     if (GENL_REQ_ATTR_CHECK(info, NETDEV_A_DEV_IFINDEX) ||
+> > +         GENL_REQ_ATTR_CHECK(info, NETDEV_A_DMABUF_FD))
+> > +             return -EINVAL;
+> > +
+> > +     ifindex =3D nla_get_u32(info->attrs[NETDEV_A_DEV_IFINDEX]);
+> > +     dmabuf_fd =3D nla_get_u32(info->attrs[NETDEV_A_DMABUF_FD]);
+> > +
+> > +     sock_binding_list =3D genl_sk_priv_get(&netdev_nl_family,
+> > +                                          NETLINK_CB(skb).sk);
+> > +     if (IS_ERR(sock_binding_list))
+> > +             return PTR_ERR(sock_binding_list);
+> > +
+> > +     rsp =3D genlmsg_new(GENLMSG_DEFAULT_SIZE, GFP_KERNEL);
+> > +     if (!rsp)
+> > +             return -ENOMEM;
+> > +
+> > +     hdr =3D genlmsg_iput(rsp, info);
+> > +     if (!hdr) {
+> > +             err =3D -EMSGSIZE;
+> > +             goto err_genlmsg_free;
+> > +     }
+> > +
+> > +     rtnl_lock();
+>
+> The above could possibly be a rtnl_net_lock(), right?
+>
+> (not strictily related to this series) The same for the existing
+> rtnl_lock() call in netdev-genl.c, right?
+>
+
+Actually I think this can follow the example set in commit
+1d22d3060b9b ("net: drop rtnl_lock for queue_mgmt operations") and
+take the netdev_get_by_index_lock().
 
 
-yea that's a sane way to do it.
-Thanks!
-
-> Testing
-> 
-> QEMU with /dev/vhost-vsock-netns support:
-> 	https://github.com/beshleman/qemu/tree/vsock-netns
-> 
-> Test: Scoped vsocks isolated by namespace
-> 
->   host# ip netns add ns1
->   host# ip netns add ns2
->   host# ip netns exec ns1 \
-> 				  qemu-system-x86_64 \
-> 					  -m 8G -smp 4 -cpu host -enable-kvm \
-> 					  -serial mon:stdio \
-> 					  -drive if=virtio,file=${IMAGE1} \
-> 					  -device vhost-vsock-pci,netns=on,guest-cid=15
->   host# ip netns exec ns2 \
-> 				  qemu-system-x86_64 \
-> 					  -m 8G -smp 4 -cpu host -enable-kvm \
-> 					  -serial mon:stdio \
-> 					  -drive if=virtio,file=${IMAGE2} \
-> 					  -device vhost-vsock-pci,netns=on,guest-cid=15
-> 
->   host# socat - VSOCK-CONNECT:15:1234
->   2025/03/10 17:09:40 socat[255741] E connect(5, AF=40 cid:15 port:1234, 16): No such device
-> 
->   host# echo foobar1 | sudo ip netns exec ns1 socat - VSOCK-CONNECT:15:1234
->   host# echo foobar2 | sudo ip netns exec ns2 socat - VSOCK-CONNECT:15:1234
-> 
->   vm1# socat - VSOCK-LISTEN:1234
->   foobar1
->   vm2# socat - VSOCK-LISTEN:1234
->   foobar2
-> 
-> Test: Global vsocks accessible to any namespace
-> 
->   host# qemu-system-x86_64 \
-> 	  -m 8G -smp 4 -cpu host -enable-kvm \
-> 	  -serial mon:stdio \
-> 	  -drive if=virtio,file=${IMAGE2} \
-> 	  -device vhost-vsock-pci,guest-cid=15,netns=off
-> 
->   host# echo foobar | sudo ip netns exec ns1 socat - VSOCK-CONNECT:15:1234
-> 
->   vm# socat - VSOCK-LISTEN:1234
->   foobar
-> 
-> Test: Connecting to global vsock makes CID unavailble to namespace
-> 
->   host# qemu-system-x86_64 \
-> 	  -m 8G -smp 4 -cpu host -enable-kvm \
-> 	  -serial mon:stdio \
-> 	  -drive if=virtio,file=${IMAGE2} \
-> 	  -device vhost-vsock-pci,guest-cid=15,netns=off
-> 
->   vm# socat - VSOCK-LISTEN:1234
-> 
->   host# sudo ip netns exec ns1 socat - VSOCK-CONNECT:15:1234
->   host# ip netns exec ns1 \
-> 				  qemu-system-x86_64 \
-> 					  -m 8G -smp 4 -cpu host -enable-kvm \
-> 					  -serial mon:stdio \
-> 					  -drive if=virtio,file=${IMAGE1} \
-> 					  -device vhost-vsock-pci,netns=on,guest-cid=15
-> 
->   qemu-system-x86_64: -device vhost-vsock-pci,netns=on,guest-cid=15: vhost-vsock: unable to set guest cid: Address already in use
-> 
-> Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
-> ---
-> Changes in v2:
-> - only support vhost-vsock namespaces
-> - all g2h namespaces retain old behavior, only common API changes
->   impacted by vhost-vsock changes
-> - add /dev/vhost-vsock-netns for "opt-in"
-> - leave /dev/vhost-vsock to old behavior
-> - removed netns module param
-> - Link to v1: https://lore.kernel.org/r/20200116172428.311437-1-sgarzare@redhat.com
-> 
-> Changes in v1:
-> - added 'netns' module param to vsock.ko to enable the
->   network namespace support (disabled by default)
-> - added 'vsock_net_eq()' to check the "net" assigned to a socket
->   only when 'netns' support is enabled
-> - Link to RFC: https://patchwork.ozlabs.org/cover/1202235/
-> 
-> ---
-> Stefano Garzarella (3):
->       vsock: add network namespace support
->       vsock/virtio_transport_common: handle netns of received packets
->       vhost/vsock: use netns of process that opens the vhost-vsock-netns device
-> 
->  drivers/vhost/vsock.c                   | 96 +++++++++++++++++++++++++++------
->  include/linux/miscdevice.h              |  1 +
->  include/linux/virtio_vsock.h            |  2 +
->  include/net/af_vsock.h                  | 10 ++--
->  net/vmw_vsock/af_vsock.c                | 85 +++++++++++++++++++++++------
->  net/vmw_vsock/hyperv_transport.c        |  2 +-
->  net/vmw_vsock/virtio_transport.c        |  5 +-
->  net/vmw_vsock/virtio_transport_common.c | 14 ++++-
->  net/vmw_vsock/vmci_transport.c          |  4 +-
->  net/vmw_vsock/vsock_loopback.c          |  4 +-
->  10 files changed, 180 insertions(+), 43 deletions(-)
-> ---
-> base-commit: 0ea09cbf8350b70ad44d67a1dcb379008a356034
-> change-id: 20250312-vsock-netns-45da9424f726
-> 
-> Best regards,
-> -- 
-> Bobby Eshleman <bobbyeshleman@gmail.com>
-
+--=20
+Thanks,
+Mina
