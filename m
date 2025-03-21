@@ -1,64 +1,64 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 366031EC009
-	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 06:49:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58C8F1EF0B2
+	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 06:49:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742539755; cv=none; b=RsiYPQQaTQCtIhUUimMk1sjF9nEarSzHGbADO1MA8N5Cz3KIcIW603DgIsdlfkcDnms3IfD+i0xVLF9I6z/dWJC1M4NORiOPmvUN2lmhxnfOVxEKlEl7Rq/EatTrmDHM1ntg7W049r+/DhtSEYZfE8EAzq1rnDF7Jv0UEyuJNfA=
+	t=1742539759; cv=none; b=TjpqO79xbjjYd4H7DohkmhUXG3/2zjIctXWfYtfdEXlXw7esxvXIS55YtKXExfIDwEStMKOjzyjeuxr6ILaBqXe9ELGs3AjseLL/qxE6Gcf3dsPgio3WMqOqQMOxqPI1K+bvANEhBYmf6c7XkGKST4ItJqp5evVoUONa5PzBYok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742539755; c=relaxed/simple;
-	bh=Z2Y9O3eqhn1rvYaihC/gieVlbnv+PDXtqqJuzacNaoM=;
+	s=arc-20240116; t=1742539759; c=relaxed/simple;
+	bh=9CUrz9dhvu15FJYjSA2vyaWutvF8gNFVLxLx3NxqRDI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=uCANo7o7dGt5/d2pVz4QSOxlUPgsyh6YNU4S3yO6O5RdA+fshCMahq3/e35quxfz+i6FWD5w/yR3A+zy/9dnLb7L6q29b8PWjUZjPm/p8MPs/V/ibPvnNcS9RL6Ox90xroeeZ49WWNX7UXaJ3jqKVGpHB4aftWIcYFISMSQN5A8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=dnNBAbII; arc=none smtp.client-ip=209.85.214.177
+	 In-Reply-To:To:Cc; b=Q1/WF2JhXy9K5E/HeRrDpXqrcbbmi5eWkYiwco+WOcUEY1avDs2mpWLfXprArWeeOZadVDz6mMmxtrE1OxQMVQnr2xKzOUZp4Mc9FasyNjkHyoNYUWQKf9p8qx2VIe8j+U/qUL5t7sVtiPkDGa4xQ6D9msKVoQH9qWMwtpvD0GA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=d5+pc0Zz; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="dnNBAbII"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-226185948ffso31582035ad.0
-        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 23:49:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="d5+pc0Zz"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2243803b776so3191175ad.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Mar 2025 23:49:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1742539752; x=1743144552; darn=lists.linux.dev;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1742539757; x=1743144557; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=uzn3T+nuCYQGYh/wLolPV7n3f3AMHuiTROhjSuXNiYA=;
-        b=dnNBAbIIbhPavTJ81obAREV+wHdupiE+pUsKRALE6kx+JEiGwsnuehs16FL+v+EO8d
-         sNdoOmUqnEHdpMjt8iLucZHjSzVmGHcPHI2Iz2AK69VqJ/eW/v/nuuji6I+n38zASLep
-         WDzbx4X4tGaS4vpmys2B5plsWslc8ab2PwHwpUBfEyo0IOD5fLZN67seogPoPKqHssMq
-         3/EC33mOcw9EejOu6FU9p/zGazeeWQfWxBYZKnFaGlvNN/3uzX4qFaXuBaM0z5gy9vZ6
-         GUGoySML5/ZLEWXMB09sv+aI//5Rkh8NYYsxgT4DfajeGoBOjWAnmXUCYJjdq6nKliEY
-         Lo+g==
+        bh=50SxeWFRe74DdNLvKUCrTVWbecxWk/tvvWU0un1oLD8=;
+        b=d5+pc0ZzxxXZE2w+Weh4kpFI2rr0GN0IZRYlryQb7spesR0zPtRmL+b3Ld53nyTA8t
+         azkxMVFJY0SFeEHDsXwICRk4jXN1Nm/3okrwjLmhdMasxTFwz79aZTwB02BLVu8CAw2Q
+         E3xWJcLt5ZRwI+SkJy09EPVNksIY1fzaG2zQQUQSU/lG4XcJ2CBTluNanIxil2NMN93K
+         VX64Ug8fzjdOULAJb1rQSy/rsllwKTI0uW1LRlk5nvd+kLXqRhyQmKyxD/EUHtOV+ww+
+         nPcmXVjqjc7kmV8QDh5oAFW4g/C8dJBms+QfJ6rM03TSzw9GYq403nvSmS8GiMGAU1Oe
+         zQWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742539752; x=1743144552;
+        d=1e100.net; s=20230601; t=1742539757; x=1743144557;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=uzn3T+nuCYQGYh/wLolPV7n3f3AMHuiTROhjSuXNiYA=;
-        b=orZXa/5sdtANtcn9oMA8MD6E7e3PEDK6+uIhQlul8WCpZ2Y/3BpwkpZ0tZ+WkH2qTj
-         J1D1bxvfg0dmZbKS0bOOKoiT02njlPW4fAReq2HaXn2O1JeW3TEUh6nbxJCDlB01VQJK
-         uWozbG2pHVsDxDyALIUHoxwChI+UZKoi37CeHJ3hFz5iZAKpBKfmhzPwlCaHbmrqfxnR
-         p5/D67MVSaV7C66yw6YTmiTR4kCCC2O28mmmVD5AJRz4CHF6gPHoveC3jYxBI2kY4JuU
-         +6D8dNkCkXEwSYcpjxXWyqEU7UDM8iro2T73ukOOnfcgi7YxZDUedsLWg8nB1IWiM5ql
-         rIYg==
-X-Gm-Message-State: AOJu0Yz59cB8jQ5zlKfDhemGGPAwUWK5mQW/wHTHXg6AfZ/A+RPBz/Id
-	4Xa31e/SIP7njy+6yH60vu6xwrmyXJycfnOzC/M5kk+XCvlnBSGTQ8yROIjuUKo=
-X-Gm-Gg: ASbGncs8YGnnpElgMMW6JN6FwuLV5Oc2LZXDmSr/AMouNhM/ipOo5HtbhA2qOBL/Zbz
-	dEgX9QT9+00pTfZqdg2Rzer2ffWOdaSkUO0F0rFOKn8BbcFrUMo8SMiFG6o5nhvZiyLAS7y0EQF
-	ymV8SwpIe8fNs95Vs3gUZm4k7yydQZzE5cN4njoS2/gitEDVKXwCka0S6gXaIG61TIHopC9+0a4
-	zvdaoQTRLapuLpxmevuTR7nsY6Ok/zV7ZFKvld4B4YiUjgFfxdhafr8oYuuRS+OXogL8p44yYJ5
-	6DMtFhmKiCeoWZdjEuORsmGVTPzUP5MMvleJR7kGyxtSApB/
-X-Google-Smtp-Source: AGHT+IG8dBmG9jS+xEQ6Ng0OGzGrq0W4LvqVBYyQ/bWMu3It8TGgG3Ug4znLWd6q2IeFKq2SAqukNg==
-X-Received: by 2002:a17:902:ec87:b0:216:393b:23d4 with SMTP id d9443c01a7336-22780c68a0fmr31888685ad.11.1742539752424;
-        Thu, 20 Mar 2025 23:49:12 -0700 (PDT)
+        bh=50SxeWFRe74DdNLvKUCrTVWbecxWk/tvvWU0un1oLD8=;
+        b=ZUMfIcNKbdAO4ZVUYm9WNGEbbSnFbAD07fNJSLrZhyOFRastxC4Jjf8HfkDzLoEHb/
+         orxslibQvMm5vv/diIpIo+h+29nekCAlupFgc/1220p59ZIAfg325mJyL6fij6AJjUoZ
+         1sY4aQSV0ct/Zv2Ky1RubFqayuJkiQkK6M1CjknMPqXepI9Ai6KwhVH8uNyyE1aKWRXm
+         xIqEtEDWI9wTC/KyiQhcWZEma4MsVJsreqbNiYoX1lnbdPwyVD0HTR7mYIbRB0FQYpjm
+         XQeqdVM3l2dj++Ewzp9qa9fcFdjzJfYphkBQ3hA3Fbxr95rk5rrq24es6PVjeXFJT3Lw
+         HW7w==
+X-Gm-Message-State: AOJu0Yz4X5/9vOvt4tFJV9l7Oo1qVcHYp9PIPGJtfyHycFx0/hn7djsi
+	HJtF5dTftEd/XfYPuWPkhYbl/DTsesVLNYbDCs1B7N+qC9tfMNnrQGL82n0M8Gg=
+X-Gm-Gg: ASbGnctKXXd5I9sFWtU0wdMV8jckAG/CyY3DGZ9fD/jvQLCVM0mDidSa+PN43vwC99g
+	kaRLbi0GT34cwimy1Zim5kcyRHzNO/1TydF5lCfvKQt5980KMJa+ijrcqZZldvNqqmgnPm+iFd4
+	7OBxglu272tP7AoNcji5qOQaQ74XRJtBxaXOawGYeE8ga2/mt8uL9x7R9I6S5+rIJVNz/EI51cV
+	DCm/iyV6r27HPaGyEXQwfAzhUTXC5keuW6siMX0BM+sN+Ax+TOnhG2fIsQdHKD52HSbPqul/j1c
+	GZHEZx4l7vl2OP6pbUbvVkDoBvu4xq9ecKLQbQMB/2GvJvos
+X-Google-Smtp-Source: AGHT+IF0uHlKSVlfre+IRVuMyIVROaUprT3kAYWQuGSmWoRdQtDg0pKD8EXS5S828nJMT0659WKQDA==
+X-Received: by 2002:a17:903:19e6:b0:223:397f:46be with SMTP id d9443c01a7336-22780e19bbfmr36357865ad.47.1742539757618;
+        Thu, 20 Mar 2025 23:49:17 -0700 (PDT)
 Received: from localhost ([157.82.207.107])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-227811d9f0dsm9039095ad.165.2025.03.20.23.49.08
+        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-3030f807533sm1080930a91.49.2025.03.20.23.49.13
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Mar 2025 23:49:12 -0700 (PDT)
+        Thu, 20 Mar 2025 23:49:17 -0700 (PDT)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Fri, 21 Mar 2025 15:48:34 +0900
-Subject: [PATCH net-next v2 3/4] virtio_net: Use new RSS config structs
+Date: Fri, 21 Mar 2025 15:48:35 +0900
+Subject: [PATCH net-next v2 4/4] virtio_net: Allocate rss_hdr with devres
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,7 +67,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250321-virtio-v2-3-33afb8f4640b@daynix.com>
+Message-Id: <20250321-virtio-v2-4-33afb8f4640b@daynix.com>
 References: <20250321-virtio-v2-0-33afb8f4640b@daynix.com>
 In-Reply-To: <20250321-virtio-v2-0-33afb8f4640b@daynix.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
@@ -83,273 +83,67 @@ Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
  Akihiko Odaki <akihiko.odaki@daynix.com>, Lei Yang <leiyang@redhat.com>
 X-Mailer: b4 0.15-dev-edae6
 
-The new RSS configuration structures allow easily constructing data for
-VIRTIO_NET_CTRL_MQ_RSS_CONFIG as they strictly follow the order of data
-for the command.
+virtnet_probe() lacks the code to free rss_hdr in its error path.
+Allocate rss_hdr with devres so that it will be automatically freed.
 
+Fixes: 86a48a00efdf ("virtio_net: Support dynamic rss indirection table size")
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Tested-by: Lei Yang <leiyang@redhat.com>
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c | 117 +++++++++++++++++------------------------------
- 1 file changed, 43 insertions(+), 74 deletions(-)
+ drivers/net/virtio_net.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d1ed544ba03a..570f77534dfb 100644
+index 570f77534dfb..6efec9c50b25 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -360,24 +360,7 @@ struct receive_queue {
- 	struct xdp_buff **xsk_buffs;
- };
- 
--/* This structure can contain rss message with maximum settings for indirection table and keysize
-- * Note, that default structure that describes RSS configuration virtio_net_rss_config
-- * contains same info but can't handle table values.
-- * In any case, structure would be passed to virtio hw through sg_buf split by parts
-- * because table sizes may be differ according to the device configuration.
-- */
- #define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
--struct virtio_net_ctrl_rss {
--	__le32 hash_types;
--	__le16 indirection_table_mask;
--	__le16 unclassified_queue;
--	__le16 hash_cfg_reserved; /* for HASH_CONFIG (see virtio_net_hash_config for details) */
--	__le16 max_tx_vq;
--	u8 hash_key_length;
--	u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
--
--	__le16 *indirection_table;
--};
- 
- /* Control VQ buffers: protected by the rtnl lock */
- struct control_buf {
-@@ -421,7 +404,9 @@ struct virtnet_info {
- 	u16 rss_indir_table_size;
- 	u32 rss_hash_types_supported;
- 	u32 rss_hash_types_saved;
--	struct virtio_net_ctrl_rss rss;
-+	struct virtio_net_rss_config_hdr *rss_hdr;
-+	struct virtio_net_rss_config_trailer rss_trailer;
-+	u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
- 
- 	/* Has control virtqueue */
- 	bool has_cvq;
-@@ -523,23 +508,16 @@ enum virtnet_xmit_type {
- 	VIRTNET_XMIT_TYPE_XSK,
- };
- 
--static int rss_indirection_table_alloc(struct virtio_net_ctrl_rss *rss, u16 indir_table_size)
-+static size_t virtnet_rss_hdr_size(const struct virtnet_info *vi)
- {
--	if (!indir_table_size) {
--		rss->indirection_table = NULL;
--		return 0;
--	}
-+	u16 indir_table_size = vi->has_rss ? vi->rss_indir_table_size : 1;
- 
--	rss->indirection_table = kmalloc_array(indir_table_size, sizeof(u16), GFP_KERNEL);
--	if (!rss->indirection_table)
--		return -ENOMEM;
--
--	return 0;
-+	return struct_size(vi->rss_hdr, indirection_table, indir_table_size);
- }
- 
--static void rss_indirection_table_free(struct virtio_net_ctrl_rss *rss)
-+static size_t virtnet_rss_trailer_size(const struct virtnet_info *vi)
- {
--	kfree(rss->indirection_table);
-+	return struct_size(&vi->rss_trailer, hash_key_data, vi->rss_key_size);
- }
- 
- /* We use the last two bits of the pointer to distinguish the xmit type. */
-@@ -3576,15 +3554,16 @@ static void virtnet_rss_update_by_qpairs(struct virtnet_info *vi, u16 queue_pair
- 
- 	for (; i < vi->rss_indir_table_size; ++i) {
- 		indir_val = ethtool_rxfh_indir_default(i, queue_pairs);
--		vi->rss.indirection_table[i] = cpu_to_le16(indir_val);
-+		vi->rss_hdr->indirection_table[i] = cpu_to_le16(indir_val);
- 	}
--	vi->rss.max_tx_vq = cpu_to_le16(queue_pairs);
-+	vi->rss_trailer.max_tx_vq = cpu_to_le16(queue_pairs);
- }
- 
- static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- {
- 	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
--	struct virtio_net_ctrl_rss old_rss;
-+	struct virtio_net_rss_config_hdr *old_rss_hdr;
-+	struct virtio_net_rss_config_trailer old_rss_trailer;
- 	struct net_device *dev = vi->dev;
- 	struct scatterlist sg;
- 
-@@ -3599,24 +3578,28 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 	 * update (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
- 	 */
+@@ -3580,7 +3580,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
  	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
--		memcpy(&old_rss, &vi->rss, sizeof(old_rss));
--		if (rss_indirection_table_alloc(&vi->rss, vi->rss_indir_table_size)) {
--			vi->rss.indirection_table = old_rss.indirection_table;
-+		old_rss_hdr = vi->rss_hdr;
-+		old_rss_trailer = vi->rss_trailer;
-+		vi->rss_hdr = kzalloc(virtnet_rss_hdr_size(vi), GFP_KERNEL);
-+		if (!vi->rss_hdr) {
-+			vi->rss_hdr = old_rss_hdr;
+ 		old_rss_hdr = vi->rss_hdr;
+ 		old_rss_trailer = vi->rss_trailer;
+-		vi->rss_hdr = kzalloc(virtnet_rss_hdr_size(vi), GFP_KERNEL);
++		vi->rss_hdr = devm_kzalloc(&dev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
+ 		if (!vi->rss_hdr) {
+ 			vi->rss_hdr = old_rss_hdr;
  			return -ENOMEM;
- 		}
- 
-+		*vi->rss_hdr = *old_rss_hdr;
- 		virtnet_rss_update_by_qpairs(vi, queue_pairs);
+@@ -3591,7 +3591,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
  
  		if (!virtnet_commit_rss_command(vi)) {
  			/* restore ctrl_rss if commit_rss_command failed */
--			rss_indirection_table_free(&vi->rss);
--			memcpy(&vi->rss, &old_rss, sizeof(old_rss));
-+			kfree(vi->rss_hdr);
-+			vi->rss_hdr = old_rss_hdr;
-+			vi->rss_trailer = old_rss_trailer;
+-			kfree(vi->rss_hdr);
++			devm_kfree(&dev->dev, vi->rss_hdr);
+ 			vi->rss_hdr = old_rss_hdr;
+ 			vi->rss_trailer = old_rss_trailer;
  
- 			dev_warn(&dev->dev, "Fail to set num of queue pairs to %d, because committing RSS failed\n",
+@@ -3599,7 +3599,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
  				 queue_pairs);
  			return -EINVAL;
  		}
--		rss_indirection_table_free(&old_rss);
-+		kfree(old_rss_hdr);
+-		kfree(old_rss_hdr);
++		devm_kfree(&dev->dev, old_rss_hdr);
  		goto succ;
  	}
  
-@@ -4059,28 +4042,12 @@ static int virtnet_set_ringparam(struct net_device *dev,
- static bool virtnet_commit_rss_command(struct virtnet_info *vi)
- {
- 	struct net_device *dev = vi->dev;
--	struct scatterlist sgs[4];
--	unsigned int sg_buf_size;
-+	struct scatterlist sgs[2];
- 
- 	/* prepare sgs */
--	sg_init_table(sgs, 4);
--
--	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, hash_cfg_reserved);
--	sg_set_buf(&sgs[0], &vi->rss, sg_buf_size);
--
--	if (vi->has_rss) {
--		sg_buf_size = sizeof(uint16_t) * vi->rss_indir_table_size;
--		sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
--	} else {
--		sg_set_buf(&sgs[1], &vi->rss.hash_cfg_reserved, sizeof(uint16_t));
--	}
--
--	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, key)
--			- offsetof(struct virtio_net_ctrl_rss, max_tx_vq);
--	sg_set_buf(&sgs[2], &vi->rss.max_tx_vq, sg_buf_size);
--
--	sg_buf_size = vi->rss_key_size;
--	sg_set_buf(&sgs[3], vi->rss.key, sg_buf_size);
-+	sg_init_table(sgs, 2);
-+	sg_set_buf(&sgs[0], vi->rss_hdr, virtnet_rss_hdr_size(vi));
-+	sg_set_buf(&sgs[1], &vi->rss_trailer, virtnet_rss_trailer_size(vi));
- 
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
- 				  vi->has_rss ? VIRTIO_NET_CTRL_MQ_RSS_CONFIG
-@@ -4097,17 +4064,17 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
- 
- static void virtnet_init_default_rss(struct virtnet_info *vi)
- {
--	vi->rss.hash_types = cpu_to_le32(vi->rss_hash_types_supported);
-+	vi->rss_hdr->hash_types = cpu_to_le32(vi->rss_hash_types_supported);
- 	vi->rss_hash_types_saved = vi->rss_hash_types_supported;
--	vi->rss.indirection_table_mask = vi->rss_indir_table_size
-+	vi->rss_hdr->indirection_table_mask = vi->rss_indir_table_size
- 						? cpu_to_le16(vi->rss_indir_table_size - 1) : 0;
--	vi->rss.unclassified_queue = 0;
-+	vi->rss_hdr->unclassified_queue = 0;
- 
- 	virtnet_rss_update_by_qpairs(vi, vi->curr_queue_pairs);
- 
--	vi->rss.hash_key_length = vi->rss_key_size;
-+	vi->rss_trailer.hash_key_length = vi->rss_key_size;
- 
--	netdev_rss_key_fill(vi->rss.key, vi->rss_key_size);
-+	netdev_rss_key_fill(vi->rss_hash_key_data, vi->rss_key_size);
- }
- 
- static void virtnet_get_hashflow(const struct virtnet_info *vi, struct ethtool_rxnfc *info)
-@@ -4218,7 +4185,7 @@ static bool virtnet_set_hashflow(struct virtnet_info *vi, struct ethtool_rxnfc *
- 
- 	if (new_hashtypes != vi->rss_hash_types_saved) {
- 		vi->rss_hash_types_saved = new_hashtypes;
--		vi->rss.hash_types = cpu_to_le32(vi->rss_hash_types_saved);
-+		vi->rss_hdr->hash_types = cpu_to_le32(vi->rss_hash_types_saved);
- 		if (vi->dev->features & NETIF_F_RXHASH)
- 			return virtnet_commit_rss_command(vi);
- 	}
-@@ -5398,11 +5365,11 @@ static int virtnet_get_rxfh(struct net_device *dev,
- 
- 	if (rxfh->indir) {
- 		for (i = 0; i < vi->rss_indir_table_size; ++i)
--			rxfh->indir[i] = le16_to_cpu(vi->rss.indirection_table[i]);
-+			rxfh->indir[i] = le16_to_cpu(vi->rss_hdr->indirection_table[i]);
- 	}
- 
- 	if (rxfh->key)
--		memcpy(rxfh->key, vi->rss.key, vi->rss_key_size);
-+		memcpy(rxfh->key, vi->rss_hash_key_data, vi->rss_key_size);
- 
- 	rxfh->hfunc = ETH_RSS_HASH_TOP;
- 
-@@ -5426,7 +5393,7 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 			return -EOPNOTSUPP;
- 
- 		for (i = 0; i < vi->rss_indir_table_size; ++i)
--			vi->rss.indirection_table[i] = cpu_to_le16(rxfh->indir[i]);
-+			vi->rss_hdr->indirection_table[i] = cpu_to_le16(rxfh->indir[i]);
- 		update = true;
- 	}
- 
-@@ -5438,7 +5405,7 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 		if (!vi->has_rss && !vi->has_rss_hash_report)
- 			return -EOPNOTSUPP;
- 
--		memcpy(vi->rss.key, rxfh->key, vi->rss_key_size);
-+		memcpy(vi->rss_hash_key_data, rxfh->key, vi->rss_key_size);
- 		update = true;
- 	}
- 
-@@ -6044,9 +6011,9 @@ static int virtnet_set_features(struct net_device *dev,
- 
- 	if ((dev->features ^ features) & NETIF_F_RXHASH) {
- 		if (features & NETIF_F_RXHASH)
--			vi->rss.hash_types = cpu_to_le32(vi->rss_hash_types_saved);
-+			vi->rss_hdr->hash_types = cpu_to_le32(vi->rss_hash_types_saved);
- 		else
--			vi->rss.hash_types = cpu_to_le32(VIRTIO_NET_HASH_REPORT_NONE);
-+			vi->rss_hdr->hash_types = cpu_to_le32(VIRTIO_NET_HASH_REPORT_NONE);
- 
- 		if (!virtnet_commit_rss_command(vi))
- 			return -EINVAL;
-@@ -6735,9 +6702,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+@@ -6702,7 +6702,7 @@ static int virtnet_probe(struct virtio_device *vdev)
  			virtio_cread16(vdev, offsetof(struct virtio_net_config,
  				rss_max_indirection_table_length));
  	}
--	err = rss_indirection_table_alloc(&vi->rss, vi->rss_indir_table_size);
--	if (err)
-+	vi->rss_hdr = kzalloc(virtnet_rss_hdr_size(vi), GFP_KERNEL);
-+	if (!vi->rss_hdr) {
-+		err = -ENOMEM;
+-	vi->rss_hdr = kzalloc(virtnet_rss_hdr_size(vi), GFP_KERNEL);
++	vi->rss_hdr = devm_kzalloc(&vdev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
+ 	if (!vi->rss_hdr) {
+ 		err = -ENOMEM;
  		goto free;
-+	}
- 
- 	if (vi->has_rss || vi->has_rss_hash_report) {
- 		vi->rss_key_size =
-@@ -7016,7 +6985,7 @@ static void virtnet_remove(struct virtio_device *vdev)
+@@ -6985,8 +6985,6 @@ static void virtnet_remove(struct virtio_device *vdev)
  
  	remove_vq_common(vi);
  
--	rss_indirection_table_free(&vi->rss);
-+	kfree(vi->rss_hdr);
- 
+-	kfree(vi->rss_hdr);
+-
  	free_netdev(vi->dev);
  }
+ 
 
 -- 
 2.48.1
