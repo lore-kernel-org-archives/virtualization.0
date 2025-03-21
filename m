@@ -1,259 +1,176 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D0C61ADC6D;
-	Fri, 21 Mar 2025 18:42:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B28822FACA
+	for <virtualization@lists.linux-foundation.org>; Fri, 21 Mar 2025 19:37:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742582573; cv=none; b=hiyTJk/DU4QuT/WZ+PFFiNPNO7fGePHK12ObhOP2f1UoCpqc5wSyO7jH08EoTZt5EjdTbhxsPkX6Wbnh1DRLpJRtku8uJLCrIUzBUuldWPxT7CXE0L0U478LI6l6a25YP5yBHK5YxE1JUPcmtqFmp/hf+xrmFULxYUiEZ4zpyVE=
+	t=1742585832; cv=none; b=O4ObHLgh6NNmYlj3upOR9Pc1CmAoB0R0FUfDeu/GsA3ET3/vEXkStyXtUw2f0pTxtknWXY4DPqqepjA9YcdEHVJ1PIzqDTfuNW+3iC5zoBiR7Sq1XGg77xc/3qDni7D1meVN3itcC08uiy4h6BTmrewgOWVxJKKPyXOXhvewMk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742582573; c=relaxed/simple;
-	bh=6p9/xCFwuiZLdlnx3CHna7SmFJBXvkdGfKbhrFQIG0k=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=GzDQ6b6y4mTBQ6+RKXu30VLi4f0G13GQR9J9yP05pmMrU8BKAjsglP8aVDMDcD5wKRrS8s9w+Qiomk1J0e83Oa6uGk+tQXfQlmvlpwvshEIDZDw7blvxHp4QUmG7tsx2rMZyxb6tY1WumT9nPgLuNohugAPfiCSq3oshBY6Bg8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ZM2XwXtA; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1742585832; c=relaxed/simple;
+	bh=C5dSvFClHUK1mf991gzXd1Vn4vGKVld6B02AmFGbYzA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=nXkSc6H5QGvMy53c/KWmJqcYUToDu8GX1UO9BsHyiILfjbfq9JX0U/0gIDZXt+IgWTlFjGPgOO8Df5ytYgh/lQEvot/3cruKKMrXF2fqJjZ6tx9RX1lF8RAy4WsVQbsH7uQkOWH0Jjkagcq5I0norUwNsYjn0ZRDRMtjoDFV/1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XC490/WB; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ZM2XwXtA"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=6p9/xCFwuiZLdlnx3CHna7SmFJBXvkdGfKbhrFQIG0k=; b=ZM2XwXtAnlCfsKo0XNxstP2jSG
-	U865vPXju9/sBv+RnSL1oLUhFaTt2GFwko2fe13ZTxN5XgbKStRgAAR78S0c8riUBjLDHxGGFTN5Q
-	IQA4Yi+4+rZ1VNApBOPqo7TyG2AJozAp9crvsFlBasJmN1P5+A7mtenETUUxqwfBL+zH+cZmbIYLr
-	z7cSt9GR1dDsUHs+EJK9M+UxkQ6+mlITOdRL0A3LxKgHPzuJ5TZVQYJ/rn2uCfWHQp3OCwzyzp8bt
-	Ww29Q/jlsLm3WtWuqretBM4DoH7lfYgqvIceQ+Kh7p6DoVlSSAYtY5sYDJJFhZ6ik+JXg10G+yCzE
-	Wt0j8Uxw==;
-Received: from [172.31.31.145] (helo=u09cd745991455d.ant.amazon.com)
-	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1tvhK0-00000004VRm-4BjR;
-	Fri, 21 Mar 2025 18:42:21 +0000
-Message-ID: <d1382a6ee959f22dc5f6628d8648af77f4702418.camel@infradead.org>
-Subject: Re: Using Restricted DMA for virtio-pci
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Claire Chang <tientzu@chromium.org>, Rob Herring <robh+dt@kernel.org>, 
- mpe@ellerman.id.au, Joerg Roedel <joro@8bytes.org>, Will Deacon
- <will@kernel.org>,  Frank Rowand <frowand.list@gmail.com>, Konrad Rzeszutek
- Wilk <konrad.wilk@oracle.com>,  boris.ostrovsky@oracle.com,
- jgross@suse.com, Christoph Hellwig <hch@lst.de>,  Marek Szyprowski
- <m.szyprowski@samsung.com>, heikki.krogerus@linux.intel.com,
- peterz@infradead.org,  benh@kernel.crashing.org, grant.likely@arm.com,
- paulus@samba.org, mingo@kernel.org,  sstabellini@kernel.org, Saravana
- Kannan <saravanak@google.com>,  xypron.glpk@gmx.de, "Rafael J . Wysocki"
- <rafael.j.wysocki@intel.com>,  Bartosz Golaszewski
- <bgolaszewski@baylibre.com>, xen-devel@lists.xenproject.org, Thierry Reding
- <treding@nvidia.com>,  linux-devicetree <devicetree@vger.kernel.org>,
- linuxppc-dev@lists.ozlabs.org, Nicolas Boichat <drinkcat@chromium.org>, 
- Dan Williams <dan.j.williams@intel.com>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>, Greg KH <gregkh@linuxfoundation.org>,
- Randy Dunlap <rdunlap@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
- "list@263.net:IOMMU DRIVERS" <iommu@lists.linux-foundation.org>, Jim
- Quinlan <james.quinlan@broadcom.com>,  Robin Murphy <robin.murphy@arm.com>,
- hch@infradead.org, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev, graf@amazon.de
-Date: Fri, 21 Mar 2025 18:42:20 +0000
-In-Reply-To: <20250321142947-mutt-send-email-mst@kernel.org>
-References: <20210209062131.2300005-1-tientzu@chromium.org>
-	 <979b6a34ca5724ced1d4871b58bf227065d7da57.camel@infradead.org>
-	 <20250321142947-mutt-send-email-mst@kernel.org>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-9um69C3QOUe8WBwkTdXa"
-User-Agent: Evolution 3.52.3-0ubuntu1 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XC490/WB"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id C3914406D1
+	for <virtualization@lists.linux-foundation.org>; Fri, 21 Mar 2025 19:37:09 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id YxKvSgfR1Q-S for <virtualization@lists.linux-foundation.org>;
+ Fri, 21 Mar 2025 19:37:09 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E897F406CF
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E897F406CF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XC490/WB
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E897F406CF
+	for <virtualization@lists.linux-foundation.org>; Fri, 21 Mar 2025 19:37:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742585827;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/QQC0oRuX+H1qRng4JbQdwL2Ntm0XtGldJhk0GkoAWw=;
+	b=XC490/WBrBOJAgJuVozqmTFwvaVP7TpCTUxp+KDdJXTOPAa1GTwDpflh8pLPTsWNzRwNvU
+	Fy6sTiL4ucT/nJqJgJchpfVW8kp283o7vqOGIgLpl1GflFjcSAy9XRd66ejLxMayXnwuRn
+	9yzOYG90LK6o5q2YbpxneVwhfBaNt+k=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-207-GFIozKGUPuyD2ndBq6aU-Q-1; Fri, 21 Mar 2025 15:37:05 -0400
+X-MC-Unique: GFIozKGUPuyD2ndBq6aU-Q-1
+X-Mimecast-MFC-AGG-ID: GFIozKGUPuyD2ndBq6aU-Q_1742585825
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-224364f2492so33682495ad.3
+        for <virtualization@lists.linux-foundation.org>; Fri, 21 Mar 2025 12:37:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742585825; x=1743190625;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/QQC0oRuX+H1qRng4JbQdwL2Ntm0XtGldJhk0GkoAWw=;
+        b=XXo+DLoZVIMnxGgkJLQNUrOO3Mys/L2c9t8CRwAYngR+qcx5P+9GQrZ5dr8/u7J38W
+         QJqk68rI//CkEJGJn82qNlG2VBJUBSH1X6zLXfXR18dz3X1hBsX+Z3sfl7VhFr3/EuXo
+         CHh9snxa3GXstChnGSkkZrzDDfBPC7kjqQoJsHeevEDRYSD2NzVtexcaMqXsxFV4GOJv
+         3BfCi1qLwfkB0HiMnJUN/g08BF4Ux8Q61Oof96Lt+uxbTBGEBV13vKgDTt+hlarWE81+
+         zzTQ5ivlFXOfT+0bO+5q/spuU20ifzXYkmDGrSN80JMV9NVmrvYQ5Cw96zS9emNTEC3t
+         4EEA==
+X-Forwarded-Encrypted: i=1; AJvYcCVYpWoImbD8SXE3vppDVJCRjjwVqAnNdy+NEpvFBmgkUWkunRuFPUDzXbZuGzww3cmEAVej2PV/oCNbTgYCKA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YyW6JAbUytsxE9ovP7L+MYskq8QgdZly6UbZvNIkPhPE6KvXaAd
+	fag2PpyXff/JvF/Zcfsl0AEWxhgCAsFq4dHA2H2z+5tTTbu/2sR4WJA3F3317YPs4WwZCKHtSlC
+	s+FcOXYQcQBaBsCbq9RYsbp3HrmkuPu1hnz0E0NKEOnD4RDlXC3QNXRY+g+Cg7tsJkLF1LWYb5/
+	0TmAA=
+X-Gm-Gg: ASbGnctFzaw9wrSq3I5IYUoEd2p0AdavS9CevqSBvDEcJFFwUXSkFkk4FqsJ+1kzY+S
+	p28Rtfv4YrTNdhjS4CO9FVIAA78WBa+c7UhfIB5EY9oJO9dB7gaTuduTT3kpqYPK4phRmiEG5jj
+	sougeEPzbDqLo7tcY3x77Fl4/faSwOU6CJEYjbvNGbl+nrxufEARV87EGcO83u+Arp0analYQE2
+	oyYv0PjVqqSx1oqje6z668KeZG5eoralxwZtzN6KOo3I4pFUkTb5SG4stVHWpbbq/Av2HfZRfmi
+	j3bvv+uQ
+X-Received: by 2002:a05:6a00:398d:b0:736:b402:533a with SMTP id d2e1a72fcca58-7390593b622mr6060488b3a.1.1742585824596;
+        Fri, 21 Mar 2025 12:37:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEowWUXagoZIoweCvQRfmtjqA/SNMQoj6gAyfhHZS9vDb6q+jhLEaKJ62zuuxrIuV9JfDVSgQ==
+X-Received: by 2002:a05:6a00:398d:b0:736:b402:533a with SMTP id d2e1a72fcca58-7390593b622mr6060440b3a.1.1742585823983;
+        Fri, 21 Mar 2025 12:37:03 -0700 (PDT)
+Received: from redhat.com ([195.133.138.172])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73905fd5c72sm2500514b3a.59.2025.03.21.12.37.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Mar 2025 12:37:03 -0700 (PDT)
+Date: Fri, 21 Mar 2025 15:36:58 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: Re: [PATCH v7 0/8] vhost: Add support of kthread API
+Message-ID: <20250321153611-mutt-send-email-mst@kernel.org>
+References: <20250302143259.1221569-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <20250302143259.1221569-1-lulu@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: vZSiOsy9HcL2tC5cKqSgqndn72GcrK-JDs-5l-INX6g_1742585825
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Sun, Mar 02, 2025 at 10:32:02PM +0800, Cindy Lu wrote:
+> In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),   
+> the vhost now uses vhost_task and operates as a child of the   
+> owner thread. This aligns with containerization principles.   
+> However, this change has caused confusion for some legacy   
+> userspace applications. Therefore, we are reintroducing   
+> support for the kthread API. 
+> 
+> In this series, a new UAPI is implemented to allow   
+> userspace applications to configure their thread mode.
 
---=-9um69C3QOUe8WBwkTdXa
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+This seems to be on top of an old tree.
+Can you rebase pls?
 
-On Fri, 2025-03-21 at 14:32 -0400, Michael S. Tsirkin wrote:
-> On Fri, Mar 21, 2025 at 03:38:10PM +0000, David Woodhouse wrote:
-> > On Tue, 2021-02-09 at 14:21 +0800, Claire Chang wrote:
-> > > This series implements mitigations for lack of DMA access control on
-> > > systems without an IOMMU, which could result in the DMA accessing the
-> > > system memory at unexpected times and/or unexpected addresses, possib=
-ly
-> > > leading to data leakage or corruption.
-> >=20
-> > Replying to an ancient (2021) thread which has already been merged...
-> >=20
-> > I'd like to be able to use this facility for virtio devices.
-> >=20
-> > Virtio already has a complicated relationship with the DMA API, because
-> > there were a bunch of early VMM bugs where the virtio devices where
-> > magically exempted from IOMMU protection, but the VMM lied to the guest
-> > and claimed they weren't.
-> >=20
-> > With the advent of confidential computing, and the VMM (or whatever's
-> > emulating the virtio device) not being *allowed* to arbitrarily access
-> > all of the guest's memory, the DMA API becomes necessary again.
-> >=20
-> > Either a virtual IOMMU needs to determine which guest memory the VMM
-> > may access, or the DMA API is wrappers around operations which
-> > share/unshare (or unencrypt/encrypt) the memory in question.
-> >=20
-> > All of which is complicated and slow, if we're looking at a minimal
-> > privileged hypervisor stub like pKVM which enforces the lack of guest
-> > memory access from VMM.
-> >=20
-> > I'm thinking of defining a new type of virtio-pci device which cannot
-> > do DMA to arbitrary system memory. Instead it has an additional memory
-> > BAR which is used as a SWIOTLB for bounce buffering.
-> >=20
-> > The driver for it would look much like the existing virtio-pci device
-> > except that it would register the restricted-dma region first (and thus
-> > the swiotlb dma_ops), and then just go through the rest of the setup
-> > like any other virtio device.
-> >=20
-> > That seems like it ought to be fairly simple, and seems like a
-> > reasonable way to allow an untrusted VMM to provide virtio devices with
-> > restricted DMA access.
-> >=20
-> > While I start actually doing the typing... does anyone want to start
-> > yelling at me now? Christoph? mst? :)
->=20
->=20
-> I don't mind as such (though I don't understand completely), but since
-> this is changing the device anyway, I am a bit confused why you can't
-> just set the VIRTIO_F_ACCESS_PLATFORM feature bit?=C2=A0 This forces DMA =
-API
-> which will DTRT for you, will it not?
+> Changelog v2:
+>  1. Change the module_param's name to enforce_inherit_owner, and the default value is true.
+>  2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
+> 
+> Changelog v3:
+>  1. Change the module_param's name to inherit_owner_default, and the default value is true.
+>  2. Add a structure for task function; the worker will select a different mode based on the value inherit_owner.
+>  3. device will have their own inherit_owner in struct vhost_dev
+>  4. Address other comments
+> 
+> Changelog v4:
+>  1. remove the module_param, only keep the UAPI
+>  2. remove the structure for task function; change to use the function pointer in vhost_worker
+>  3. fix the issue in vhost_worker_create and vhost_dev_ioctl
+>  4. Address other comments
+> 
+> Changelog v5:
+>  1. Change wakeup and stop function pointers in struct vhost_worker to void.
+>  2. merging patches 4, 5, 6 in a single patch
+>  3. Fix spelling issues and address other comments.
+> 
+> Changelog v6:
+>  1. move the check of VHOST_NEW_WORKER from vhost_scsi to vhost
+>  2. Change the ioctl name VHOST_SET_INHERIT_FROM_OWNER to VHOST_FORK_FROM_OWNER
+>  3. reuse the function __vhost_worker_flush
+>  4. use a ops sturct to support worker relates function
+>  5. reset the value of inherit_owner in vhost_dev_reset_owner s.
+>  
+> Changelog v7: 
+>  1. add a KConfig knob to disable legacy app support
+>  2. Split the changes into two patches to separately introduce the ops and add kthread support.
+>  3. Utilized INX_MAX to avoid modifications in __vhost_worker_flush
+>  4. Rebased on the latest kernel
+>  5. Address other comments
+>   
+> Tested with QEMU with kthread mode/task mode/kthread+task mode
+> 
+> Cindy Lu (8):
+>   vhost: Add a new parameter in vhost_dev to allow user select kthread
+>   vhost: Reintroduce vhost_worker to support kthread
+>   vhost: Add the cgroup related function
+>   vhost: Introduce vhost_worker_ops in vhost_worker
+>   vhost: Reintroduce kthread mode support in vhost
+>   vhost: uapi to control task mode (owner vs kthread)
+>   vhost: Add check for inherit_owner status
+>   vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
+> 
+>  drivers/vhost/Kconfig      |  15 +++
+>  drivers/vhost/vhost.c      | 227 +++++++++++++++++++++++++++++++++----
+>  drivers/vhost/vhost.h      |  21 ++++
+>  include/uapi/linux/vhost.h |  15 +++
+>  4 files changed, 259 insertions(+), 19 deletions(-)
+> 
+> -- 
+> 2.45.0
 
-That would be necessary but not sufficient. The question is *what* does
-the DMA API do?
-
-For a real passthrough PCI device, perhaps we'd have a vIOMMU exposed
-to the guest so that it can do real protection with two-stage page
-tables (IOVA=E2=86=92GPA under control of the guest, GPA=E2=86=92HPA under =
-control of
-the hypervisor). For that to work in the pKVM model though, you'd need
-pKVM to be talking the guest's stage1 I/O page tables to see if a given
-access from the VMM ought to be permitted?
-
-Or for confidential guests there could be DMA ops which are an
-'enlightenment'; a hypercall into pKVM to share/unshare pages so that
-the VMM can actually access them, or SEV-SNP guests might mark pages
-unencrypted to have the same effect with hardware protection.
-
-Doing any of those dynamically to allow the VMM to access buffers in
-arbitrary guest memory (when it wouldn't normally have access to
-arbitrary guest memory) is complex and doesn't perform very well. And
-exposes a full 4KiB page for any byte that needs to be made available.
-
-Thus the idea of having a fixed range of memory to use for a SWIOTLB,
-which is fairly much what the restricted DMA setup is all about.
-
-We're just proposing that we build it in to a virtio-pci device model,
-which automatically uses the extra memory BAR instead of the
-restricted-dma-pool DT node.
-
-It's basically just allowing us to expose through PCI, what I believe
-we can already do for virtio in DT.
-
---=-9um69C3QOUe8WBwkTdXa
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
-ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
-MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
-a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
-jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
-GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
-aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
-nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
-8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
-HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
-IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
-KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
-BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
-QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
-ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
-/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
-uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
-xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
-W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
-c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
-VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
-NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
-sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
-w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
-i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
-kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
-0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
-ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
-blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
-hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
-VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
-HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
-ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
-AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
-cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
-cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
-AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
-aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
-hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
-iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
-8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
-JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
-xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
-EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
-B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
-MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
-KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
-Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
-nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
-WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
-W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
-nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
-g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
-9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
-9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
-sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
-a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
-ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
-AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
-dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
-MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
-YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
-4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
-6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
-QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
-nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
-MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
-VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI1MDMyMTE4NDIy
-MFowLwYJKoZIhvcNAQkEMSIEIGcyYTz0b1vuiH1kWWxvYDxf5DNV/dQ7A75n0iBOd8eNMGQGCSsG
-AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
-cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
-VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
-cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIARn19baiF2SH2
-Qb9UeIoovp68Lz+c9QM1LVM2qfpB5Vd0Mo6gccUM+8DiDyJMxYXZYd+Ib/AHhooSjCJ7Vd+x1jd/
-eE2BveuRvzQsn0gH191zw8awf3fPMrbOk3llDZYRVLcacd7BN4nPbidbrJoba0bd+Jae2M/3XhTl
-3HaAW+ipsj4grnoF8FHOYmjFh1S1ck7PIW6ktorhKEm172YFUTt2cX/R6v+CBBdCOxLtolCNEAFW
-hXXC+4TAFIm4oOHe739VwqO5ZmeggeWlRL9obSOFMKFoSKP0oE/Uad1ix97JVg0Q1rtKNONJOr5B
-XSKJ94cbE6IidFlzqYP+yCv4MnkcV5FAI3Rqbsn4lHPBQDkE455yrBp0B4p0D4pVh2if7/EDc1rm
-UBXYoQaZCOeKwmmI6oP1OSRG1NVAy6ocmiVmdMoSERlcn4xl91AdRWa4VYi8zku3lBXBMc+P3015
-DJUkXfrC+CPC+xcubKPvGF8gEOm0eQquHCBVzBnkp+BFkoAYyjAwZ44Qj2OCSacwvkEnqVmFO3BZ
-HopfPoXAIL3bQEYPdQMQ0xN945VVQvkv0cAfQShC7INrjhQSVFFN5FkLEXhcdDDEYdajiVk4KP3I
-Q3tytvpDIY7DQy7Ps1tS5IPFaTquT8yBCWN7DBonmrigS/kpax+uh53Ph5AVDcQAAAAAAAA=
-
-
---=-9um69C3QOUe8WBwkTdXa--
