@@ -1,131 +1,168 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DC80222582
-	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 18:27:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B29B1E9B36
+	for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 18:32:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742581631; cv=none; b=p1xjtZb4HqFSX4G1LWBgvNmd4FfUGn5b2St5i+SY0bAJj9Lhoc0kC9XulUb/+BfEUmKOSR/3McShPVKsVAMxX6KctnteWwDboeqgEn7ueAzGo0HxNWZDrbX0HdANWShRiINibBqD4ZY7lZ1M8rvwSp0egfjD0rbXcW57z9Xx3Fk=
+	t=1742581963; cv=none; b=Lybz+AiKQmLIwtzbMnjGN0sss/r8r+cEpcJhBFB9tLccJx0zTjy3b9i2NtH+yLIsuhbDv7hNfq29td6emtBP3ToW+8aI9hyVaEVYxJ3KEBxg5MWStLKK3u9+fcqlbIvXImCrv2viuMiRb7bzzFqVwjblCPV4zXnPMzkngarZ38k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742581631; c=relaxed/simple;
-	bh=bTQZl+jKYwsLzl4vfj4ptDXiTWI3OAMPApOYg8CTBCI=;
+	s=arc-20240116; t=1742581963; c=relaxed/simple;
+	bh=OGIF01jTzLLwnp3yRBbvZluiVgmfjC+jL66qfu3gwks=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DmaFtctN5HQ4IIu5Xyx5Vg5dkvz3vlCtQebEAc5N3rQW4TM+Tf97JHwgTCPUmlYKNiV/QC/6LLHD1h4x4jRcvKIeb1dxMvaqNWEuQO2qBwB3kg7xkCzhN9/mq8g6LBagImbWyXmZkQznBgobzk6TA+rK1X89ByYIsE4N2Pj8Ht4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eAxy/fYc; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=QNnGqKS1P/swgnc38TEW++wtXIOfYy0fiOv99PO/8JpEhPDsB0Z09fwhDAQORGrmxRn1DtwjwpC+kMt5SVlgpGiriGYpNNnCNpVh1mS+AzRckVOu/23Ynr7ho31kmSFfIZ4pONsXhY4bKyWu9X8SgPU/rFNqs6lW0lMxtRATVfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gjiCZJR/; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eAxy/fYc"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gjiCZJR/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742581628;
+	s=mimecast20190719; t=1742581960;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CBvAZI44TSwYckHNoPIjidtJUdEM1gfFKOJZR81EuoM=;
-	b=eAxy/fYcv1uI6yp2ZVhJYjHcw71zxa5Q/uxmLU3aOfHj7t4F5BW0AiVmd7LmRHDdPpPXjr
-	UmIefqwb8Np0Ep6oYgpSnijf840d8n+mh/+HkxNTnx/mO6PP4JbttBDFddDwOcPXNDom15
-	frEPDPt90JSfFmb3RhcX89CynrMUQ6w=
+	bh=x6Pr4yNEy0Ee63hyTGb7eb9xdvxKn8eEKjzFLCkdY+o=;
+	b=gjiCZJR/w6OyouwB1eYm+pfhTMryG+34TEiMtudulzNowUkFNrCtKAh8w3ezVhLs5/9YJ3
+	NZ6RJfuVF39zokC+yeBDVfFibTf2ZuVLMHxgAHoYyqjrUu4fvBq7JqqCHd43DBuHR/mVyt
+	GLM/R07wK9wTpuz36emgUC/81UCjBtY=
 Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
  [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-160-BRrfnYo5MQyw44JttZdhjg-1; Fri, 21 Mar 2025 14:27:07 -0400
-X-MC-Unique: BRrfnYo5MQyw44JttZdhjg-1
-X-Mimecast-MFC-AGG-ID: BRrfnYo5MQyw44JttZdhjg_1742581626
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-22647ff3cf5so30513585ad.0
-        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 11:27:07 -0700 (PDT)
+ us-mta-689-XzRgAuPuOL6Voxd2vX-vTA-1; Fri, 21 Mar 2025 14:32:35 -0400
+X-MC-Unique: XzRgAuPuOL6Voxd2vX-vTA-1
+X-Mimecast-MFC-AGG-ID: XzRgAuPuOL6Voxd2vX-vTA_1742581955
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-22410053005so57680515ad.1
+        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 11:32:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742581626; x=1743186426;
+        d=1e100.net; s=20230601; t=1742581955; x=1743186755;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CBvAZI44TSwYckHNoPIjidtJUdEM1gfFKOJZR81EuoM=;
-        b=Pb3Vy1MTSZYaFeu7pZu6WvMlZO8VGPlRN36uLTn/BjVQwOtx6AB0EE48XmzDcHVydb
-         lrqEiyhc0BmoiLDYQUQxXJvFuDZJ9iXfwnCno05sZKHLtzqjn69OXQva8t8ruqqzpIny
-         WLE9C5p4PzW/4LEV18AkrDSE4MYRQ8Wx2s0hokuHCaivs/NPR3Q5bEbXcowrX3ygynfm
-         kBRLGPdD2HhZUkJJQY3bsSho4azMBlprdJ1myARb1kCFAo4EbgaQ+6IzoZ2iATSKkt8l
-         Wfpv44HWiPNbC23RcIie+sUljB9s79aGsuIIRuwAsuAH+QB85GnCypgLJm2fxcB3yGom
-         A5mw==
-X-Forwarded-Encrypted: i=1; AJvYcCXjt+Jpe5k7UMnMfCvqMgklEWcu0MIIJYMYcU5zXYr7xoWdEfsv0HltuqH6EANISxpmwMz2i0UL34bSi+u+TA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxWp/A3DCuNvucPZDBewP6JBaiV9C3r89icREyKePyL+AOFIdGj
-	3hqBefq2TiyMoCI6XHNSooRYyFdiJU7ChkRBQDI8u3V/ka9MTDUGIT/xqxoEac7QCOaj6Na8SVe
-	fsm6lm1cc7P9umsyORfkNBrGl7tsS3G2jJYleR+Q1HF+rsMirpk1iHQbqKgvFhoV5
-X-Gm-Gg: ASbGnct2v9OgUY31acxk0ff8t8DmVAXXHiPYCz565EDSdK7OwXnOIOySpYyJudtGlAc
-	8xyPoIFaTuxOY/uMLTm4zdkUxGSyODYtPRSBrU3SknyjiZifjRgfqOgPiF5988Bg8GMFVYJMMLv
-	whOpz0VQTSlmdLioDAHSeqa1NiGlw20UlFL2LiDLh2EXK6gEa7VhlVkuEXJVhbDni6xaaPDZksI
-	7PTZptexs2srYEe1vrdinPZkoHcUJn63aSAW85gz0glEr4Qulg/jPaXrJShbqUBmsEtnbj7z+FD
-	QXXGbgoZ
-X-Received: by 2002:a17:902:d4c5:b0:224:e2a:9ff5 with SMTP id d9443c01a7336-22780c68927mr63231065ad.9.1742581626018;
-        Fri, 21 Mar 2025 11:27:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEHESOlmKUv4omuiIQXNajC9s1OooXjFczUMnufBWcD/XHD7P+eP9u2TgzZG1Ni8l4wIF+1XA==
-X-Received: by 2002:a17:902:d4c5:b0:224:e2a:9ff5 with SMTP id d9443c01a7336-22780c68927mr63230655ad.9.1742581625648;
-        Fri, 21 Mar 2025 11:27:05 -0700 (PDT)
+        bh=x6Pr4yNEy0Ee63hyTGb7eb9xdvxKn8eEKjzFLCkdY+o=;
+        b=afkHG0mL9gyJdsjuCH+rm0ahjOARtwvyBuOcgfNrKH3tOWur2IyXoX/VZoDQwmhGf9
+         2l7fggLhppeiHKISCIX9OBVFezF45GEpzTf3/rYjuiSqVi/hefXrZaYJVtSw5Z3l2I6g
+         K0CIwdwBpur6BgYRQ0Mcjz+cAE3xxkhdfopHTDwAtRUQNFTyKH+a8SDxib6rcOGk5Qea
+         /jMe2cWI16k3KEJPrxAKZZ8Po8LhmBlRxHYf4Mm77bnotKTtFtvF3Ordt2sWl1jTS4l2
+         DOmzGOCKX/t6U0W+2sy+aSn8WClXkGwhSQfvioFj7DpIH5c524DJKJ8iXpDF+ZEJyuDa
+         vJag==
+X-Forwarded-Encrypted: i=1; AJvYcCXsPZQ/HePLvnvX58BJuX87jAGvmbDsUaGmewPTDv20y9mgj7RVPBZxOmHpRvJA8syMWzpph5ZVML7bdPFKjQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwGVl1kQjepfQHsocmFertBeeKQqDi8jTPdedHnScfgGRUXkQMA
+	Lzr0Y+wOarh/M9DXGh0noY0e64SjSq+FhGBzNYckfpr6M55r7PPsnskDqK8aOmeyLY/0ppgRdiG
+	dc6iAT443HBbPYiocpk+bw/9VVgE49ddvXnLs80v9Ngh9NFmWLG5jmlyWmvVwxxWD
+X-Gm-Gg: ASbGncs9q7q8uE//ePD/Igh05QWSgg1TAheerM61AOAD7To+/t4P9tPgRKAVVPxbOzM
+	mKglXMssZeGg1JejZmyTCmaP/xZz8RWsFh9QhP8VFZbvhP1I+EVCCiB2uWBinyKHz4Yvz2GXx+x
+	tcDWHLzst62IzZb+o8/tYfgCjncO2tGYJapfNaXWb81AWuqfAvaggh/YFlBEIbYmohZplL1KsqO
+	uoKLY/AltqkT6vBLC3EX8hoMeCWPk6qV6RcJbRwFb9M/9KzRPiFNhmFJB25+MMQtubytSAM0aK8
+	UpTZnkDw
+X-Received: by 2002:a05:6a00:3d49:b0:736:592e:795f with SMTP id d2e1a72fcca58-7390598e637mr6094590b3a.9.1742581954607;
+        Fri, 21 Mar 2025 11:32:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHgvI4Fq7PhyVG2/6UfPhY7tEePZCtkHS/CCaoQm+lEN40XhsJxvkXhRtIdT7ONaz8I8Nvvbw==
+X-Received: by 2002:a05:6a00:3d49:b0:736:592e:795f with SMTP id d2e1a72fcca58-7390598e637mr6094532b3a.9.1742581953971;
+        Fri, 21 Mar 2025 11:32:33 -0700 (PDT)
 Received: from redhat.com ([195.133.138.172])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22780f3b242sm20686155ad.41.2025.03.21.11.27.01
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7390618e08esm2305706b3a.169.2025.03.21.11.32.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Mar 2025 11:27:04 -0700 (PDT)
-Date: Fri, 21 Mar 2025 14:26:59 -0400
+        Fri, 21 Mar 2025 11:32:33 -0700 (PDT)
+Date: Fri, 21 Mar 2025 14:32:24 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jason Wang <jasowang@redhat.com>,
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Claire Chang <tientzu@chromium.org>, Rob Herring <robh+dt@kernel.org>,
+	mpe@ellerman.id.au, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	Frank Rowand <frowand.list@gmail.com>,
+	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+	boris.ostrovsky@oracle.com, jgross@suse.com,
+	Christoph Hellwig <hch@lst.de>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	heikki.krogerus@linux.intel.com, peterz@infradead.org,
+	benh@kernel.crashing.org, grant.likely@arm.com, paulus@samba.org,
+	mingo@kernel.org, sstabellini@kernel.org,
+	Saravana Kannan <saravanak@google.com>, xypron.glpk@gmx.de,
+	"Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+	Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+	xen-devel@lists.xenproject.org, Thierry Reding <treding@nvidia.com>,
+	linux-devicetree <devicetree@vger.kernel.org>,
+	linuxppc-dev@lists.ozlabs.org,
+	Nicolas Boichat <drinkcat@chromium.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Greg KH <gregkh@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	"list@263.net:IOMMU DRIVERS" <iommu@lists.linux-foundation.org>,
+	Jim Quinlan <james.quinlan@broadcom.com>,
+	Robin Murphy <robin.murphy@arm.com>, hch@infradead.org,
+	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Andrew Melnychenko <andrew@daynix.com>,
-	Joe Damato <jdamato@fastly.com>, Philo Lu <lulie@linux.alibaba.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, devel@daynix.com,
-	Lei Yang <leiyang@redhat.com>
-Subject: Re: [PATCH net-next v2 0/4] virtio_net: Fixes and improvements
-Message-ID: <20250321142648-mutt-send-email-mst@kernel.org>
-References: <20250321-virtio-v2-0-33afb8f4640b@daynix.com>
+	virtualization@lists.linux.dev, graf@amazon.de
+Subject: Re: Using Restricted DMA for virtio-pci
+Message-ID: <20250321142947-mutt-send-email-mst@kernel.org>
+References: <20210209062131.2300005-1-tientzu@chromium.org>
+ <979b6a34ca5724ced1d4871b58bf227065d7da57.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250321-virtio-v2-0-33afb8f4640b@daynix.com>
+In-Reply-To: <979b6a34ca5724ced1d4871b58bf227065d7da57.camel@infradead.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ooNE2uqsjdplIaPrK9FCfRpgLh0CxYEYeYZ67gSmjJQ_1742581626
+X-Mimecast-MFC-PROC-ID: LqEEoqXDwLrS36WbRN2I1vv7uOjwUZOu1wkUb6kqC9s_1742581955
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Mar 21, 2025 at 03:48:31PM +0900, Akihiko Odaki wrote:
-> Jason Wang recently proposed an improvement to struct
-> virtio_net_rss_config:
-> https://lore.kernel.org/r/CACGkMEud0Ki8p=z299Q7b4qEDONpYDzbVqhHxCNVk_vo-KdP9A@mail.gmail.com
+On Fri, Mar 21, 2025 at 03:38:10PM +0000, David Woodhouse wrote:
+> On Tue, 2021-02-09 at 14:21 +0800, Claire Chang wrote:
+> > This series implements mitigations for lack of DMA access control on
+> > systems without an IOMMU, which could result in the DMA accessing the
+> > system memory at unexpected times and/or unexpected addresses, possibly
+> > leading to data leakage or corruption.
 > 
-> This patch series implements it and also fixes a few minor bugs I found
-> when writing patches.
+> Replying to an ancient (2021) thread which has already been merged...
 > 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+> I'd like to be able to use this facility for virtio devices.
+> 
+> Virtio already has a complicated relationship with the DMA API, because
+> there were a bunch of early VMM bugs where the virtio devices where
+> magically exempted from IOMMU protection, but the VMM lied to the guest
+> and claimed they weren't.
+> 
+> With the advent of confidential computing, and the VMM (or whatever's
+> emulating the virtio device) not being *allowed* to arbitrarily access
+> all of the guest's memory, the DMA API becomes necessary again.
+> 
+> Either a virtual IOMMU needs to determine which guest memory the VMM
+> may access, or the DMA API is wrappers around operations which
+> share/unshare (or unencrypt/encrypt) the memory in question.
+> 
+> All of which is complicated and slow, if we're looking at a minimal
+> privileged hypervisor stub like pKVM which enforces the lack of guest
+> memory access from VMM.
+> 
+> I'm thinking of defining a new type of virtio-pci device which cannot
+> do DMA to arbitrary system memory. Instead it has an additional memory
+> BAR which is used as a SWIOTLB for bounce buffering.
+> 
+> The driver for it would look much like the existing virtio-pci device
+> except that it would register the restricted-dma region first (and thus
+> the swiotlb dma_ops), and then just go through the rest of the setup
+> like any other virtio device.
+> 
+> That seems like it ought to be fairly simple, and seems like a
+> reasonable way to allow an untrusted VMM to provide virtio devices with
+> restricted DMA access.
+> 
+> While I start actually doing the typing... does anyone want to start
+> yelling at me now? Christoph? mst? :)
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> ---
-> Changes in v2:
-> - Replaced kmalloc() with kzalloc() to initialize the reserved fields.
-> - Link to v1: https://lore.kernel.org/r/20250318-virtio-v1-0-344caf336ddd@daynix.com
-> 
-> ---
-> Akihiko Odaki (4):
->       virtio_net: Split struct virtio_net_rss_config
->       virtio_net: Fix endian with virtio_net_ctrl_rss
->       virtio_net: Use new RSS config structs
->       virtio_net: Allocate rss_hdr with devres
-> 
->  drivers/net/virtio_net.c        | 119 +++++++++++++++-------------------------
->  include/uapi/linux/virtio_net.h |  13 +++++
->  2 files changed, 56 insertions(+), 76 deletions(-)
-> ---
-> base-commit: d082ecbc71e9e0bf49883ee4afd435a77a5101b6
-> change-id: 20250318-virtio-6559d69187db
-> 
-> Best regards,
-> -- 
-> Akihiko Odaki <akihiko.odaki@daynix.com>
+I don't mind as such (though I don't understand completely), but since
+this is changing the device anyway, I am a bit confused why you can't
+just set the VIRTIO_F_ACCESS_PLATFORM feature bit?  This forces DMA API
+which will DTRT for you, will it not?
+
+-- 
+MST
 
