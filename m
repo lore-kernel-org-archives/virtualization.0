@@ -1,116 +1,139 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B33E4C6C
-	for <virtualization@lists.linux.dev>; Sat, 22 Mar 2025 01:04:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02561C68F
+	for <virtualization@lists.linux.dev>; Sat, 22 Mar 2025 01:08:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742605489; cv=none; b=TQLhOPofJF1oNtUl/n+mCKT1IWs27ZTHRMbUftPCYH1bhzFSbAfXl0pf8GgfFVvDO9UgW2++F78zu1p15mR87zwstECbZc9664XRqa2p7HeHmiaFy1/Qw1fWPJwjcVBfmJHZBOXMMezyF1JXrF9e15Hy/ECpYDYTATB8o8f4XHI=
+	t=1742605701; cv=none; b=H4eAWFRlGjHDGsKgAXdYWmPMGFmfCthy49APN9wAO9597FP8M8YEY+jtOWILKeb9SXuGMhcdwNOiEeXBK1zlKN1oGSvQPQPv9y/3scqd3fpQlHbxzyC8JhML0hjC13RMzKHsHv4/PG4m6kwWKIuAVUlkonXQfJn4ng5ll9RzZok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742605489; c=relaxed/simple;
-	bh=aHWEoyZwm8s25Ueay7Kinp+YHcLq+mIXDmffZMu7ec4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LKXRfHnbnmEljceZBb2nlOc+qR1DA1Q1t/5QJ2RWrqq/lkLCaRkqq+K+cqUsKIqlJVQeL5+/IskwytAr/YaMy4lDS2PljSxQDKpz/USk4+RUdUI3Bytn44Wk1w+7lQFOagk6TPW9rSwv2gT3KASe2ohXMazeFMC4MBtSmJ5FNXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iQol54k9; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742605701; c=relaxed/simple;
+	bh=UlCEukpy828X+t+n7YKj+Gp5G6r5hcYtbALRFRMl084=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=peaE/PzzF5smib35Z7Nk4GFHbdwS7moxYy5RgqONqKFx7NaDh89VC5e03v1Ufk6rL+NANE+J7e1Z5JC8aE4I0vfmlSOHXNbtk9Hv2RtA1cjZGHOe4CaNJcllxEoWWXDSBbJl8Li8speHqqy6bNdROSJEmPyFWZJEht69OKz8baM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=GFtuOukf; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iQol54k9"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-301cda78d48so5006619a91.0
-        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 18:04:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GFtuOukf"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2263428c8baso51375ad.1
+        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 18:08:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742605488; x=1743210288; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=c35jq7Zk6VAC2p9swunNZp8j09umIQmd2y6i+B5qS2c=;
-        b=iQol54k9pYpeoYraRJiIPXkmALKAcuXyoWSIvRCqGj/XE+azPN53uNL0TlsNFeQuS/
-         VNYXiYKWlZ8KzndwzieRLIYcCT0W9so1x3GUcRAjaV0QqXxdF6D6ZxUcoNAMtvUdyVUy
-         J3T4ELFUrUMGgvtkJX3nMjnTZ5Npb8Drc3iHEFhSFy800xPJ6OlQFvebuOiUzOUgJHMr
-         jmcA3gJ13e0mhzonF0YI1+BUXSLHLEFMxomHo1ygjBCB+J9gBZWv738JCDJeEMyYXOXW
-         JM7/jzKv5oPvvu7UFuHlhG9TUaQue8pfC+JIbeSELVdDUnoznymhJL7i9KVef1tgK7Zx
-         LsiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742605488; x=1743210288;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=google.com; s=20230601; t=1742605699; x=1743210499; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=c35jq7Zk6VAC2p9swunNZp8j09umIQmd2y6i+B5qS2c=;
-        b=UBOf1/y66OyAp1K6drZgbCUec+E9sxWlAxR6ymDR2QWmTW1bz4ayk64CJG2bWX7cr/
-         s5azKPRdboQjVxjmWfH56SDRdU/bNRBe0fhssielQz25FmnAXLVwRb7vIP+cBlD4TDJD
-         yqj4x2U8pcaFRDfgaK1/hAicaj5lkVbtXnRC/TgKR6Ik0raKjrzUxZUQ0H49HqqJr4/v
-         iXDnVPXKWRtlrXwbSFah3aUqMd5MQl+N1ThBNWBY5X/8D3b5vrVXOGkNeCJ0dI8hIUVJ
-         iBTkoE5E1k/p2Es1lNAZ20adHy5vQx8Zf8Prv3sPwP60BrPNr5qrx9YOPNmKv7u9uaO+
-         TQZQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXWs0Zb1VzOjXefU678yjU33Ok+VPns7WIj/1Tp2HuH2F+uRwnHyNVWS2Hc+qG3uxbmvqMBzajU7YyhBiei2w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyfN85/yiaQEOm5q6H0J2mAkAYnZwUNHN9C5ZdVcMq422Jmqoe0
-	bBU9D+Z0pFbq0XHhBppLOkWlGh1yhoYA2Zt2g2GLRUnj1W774kxF
-X-Gm-Gg: ASbGncs13uPTR6pnqvwOD2Vy9cN3Zue3dNmTJiSuvPDBbshgzpRf28lHTvY/nGDhkbf
-	Z6QGF9BlkGKxMysyICGKykCmrzuS0f529m7kRs7sA8tAPsXk4edRifqQumPyQnHNWRJki5tfpv4
-	8r3sXRcRgS+GcrcJoArmd6+iQ9bQLnMU54iTA/yTyMG4DwFD0jTNBwJxQihQk/hAoxhP0wv1PiV
-	dFnE5mc4BEJBcQcGIomT6r+66FxkFVxazFQZlmYcLTAuNb1croiNa1m10OjRMMH3pXYGLvWcy5t
-	IT2zthumt83Loe2Q363oQm7NvPFDLda5NGflX1XMf4ySB9BNlS3xA6lsvNYICNqFIA==
-X-Google-Smtp-Source: AGHT+IGwgm/iem66z0f29AU0aiEjc4aN+XSZ83V3BdggHxqxoQdD5aHTSOOQXyr9ICwMM4Rwy4qg6g==
-X-Received: by 2002:a17:90b:1f86:b0:2ee:c291:765a with SMTP id 98e67ed59e1d1-3030fe83c21mr8500288a91.8.1742605487804;
-        Fri, 21 Mar 2025 18:04:47 -0700 (PDT)
-Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:5::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-227811b2aefsm24515665ad.109.2025.03.21.18.04.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Mar 2025 18:04:46 -0700 (PDT)
-Date: Fri, 21 Mar 2025 18:04:44 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] vsock: add namespace support to vhost-vsock
-Message-ID: <Z94MrEM/wM3G72pf@devvm6277.cco0.facebook.com>
-References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
- <20250321154922-mutt-send-email-mst@kernel.org>
+        bh=PORJkvOxkuHko+fxCJKgIIFheR3by/P8aDDODWCERsg=;
+        b=GFtuOukfRENEuVg61W5+ojo7QQV6nBS8+5k3MrukzH9SJBvUvoNoHc5eOj3fzyOW4V
+         Uz1v1xqAL3L+bz9++2IVkFCYMM2rP596LIapCwtNwTLaeaKdUAe2BVZXrFML0GZYLZMW
+         SYwbIyCNmPDWmF0qq0Hl26iTkavpEc420R31fJLv1gVCXgsnsJKGuCAd+h6AriaWjzoP
+         0PB7odLlr07HEGFx4vl49pGy5bcgAG0jwZQm5xQCqKu1CMv8s1GM+vwF2UpfhQo4q01X
+         JTuZPCVTG3OpQwz3FZ4bfRPoNBwz7NzJcoAn9uqpGh3t4NDD41Px6HlEy/ItBLUUavrx
+         jRcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742605699; x=1743210499;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PORJkvOxkuHko+fxCJKgIIFheR3by/P8aDDODWCERsg=;
+        b=p3Mr+187j52S0+0VpDLRKkMsnIu2KXnP2K5wX3Mha9Kg5mozaYLyAOn+/6mnqTU6v3
+         2kmk2hRLLcWD1G6HMntR8R3iUKsbWHT3q8LLqYVrbYdcpgCriS5IxXsoB1YpqYa/OJvU
+         UdpSDoNT6WUQ/TaR6RQMzT4taybyDukslTePo0GMGqqdgrMCDze4r/hch7brqNMx/Bau
+         qvy2cCMgaaWAayUwlPaFYFYKlm+XFbaCZGli6Txm8EOGukEwI72WU7YqCzlOCJS+uOkh
+         kfKSUzd+PgMDOErt8M5tapnndDjWWfBtwT7Y8/+0oqn1aZTNbGLiISmgsBj1sNFqfFQr
+         xwDw==
+X-Forwarded-Encrypted: i=1; AJvYcCVfUMc/sak5bnFmlYfG4lzgbFsJOKONsXMPl8Kd8AIKqBCee3zY/yk/ob7pCHxXsbtzH8CmlqzsHNOL98IkRQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz/XxdWJFRbGAVHnf/dRlFLaXvt8NyGiiJ9A86+CkezsxZL3ZiG
+	zKDwFVAbU5b7FJOWPsCMeL3IneEmbuyFzqfaIanZROclpkTUfcG4Xqh0G+Qxg3/Ek3ny5kMYmMY
+	7cjlVmtVJp+FsaHIDjM7RacZkkbd87yWDRP1M
+X-Gm-Gg: ASbGncuSNU2GxXxORC5FZqFav3kdPRZ+CHwYeCEy/kjrA1j9cLYq8iqdBQkyQmAh8WT
+	ZK9wRvKfjX7lk//i5OsJ0CwEPwQe3K+FTnF4hSQVTNv/dz1ZnSaUqkAL8qKh2VSBrDVm0DYDup4
+	nGZV7E9ez7FIbOr+Nea73uOjhtYIC9uRbFug9o0LrCNArpN4EbbcxQMfy/RV4JhdLdGeo=
+X-Google-Smtp-Source: AGHT+IHwBjcoBQJD7PgR24WQYCLIQsyJ/8mCgJRTKFIdiYFR1Yc44CsmaI9H6JC3a7kMd6MKs5kEznfjIsb/OAkQoIg=
+X-Received: by 2002:a17:902:e742:b0:215:79b5:aa7e with SMTP id
+ d9443c01a7336-22799f46955mr693655ad.13.1742605698803; Fri, 21 Mar 2025
+ 18:08:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250321154922-mutt-send-email-mst@kernel.org>
+References: <20250228014416.3925664-1-vannapurve@google.com>
+In-Reply-To: <20250228014416.3925664-1-vannapurve@google.com>
+From: Vishal Annapurve <vannapurve@google.com>
+Date: Fri, 21 Mar 2025 18:08:06 -0700
+X-Gm-Features: AQ5f1JoTxkcQ6rnzBlVlnNhEnnZwVceT5ZUnX3gSJIePazDtJUJ8CyOxsH4dLZY
+Message-ID: <CAGtprH-8oJ66nunFHvZu_KcHjDM3=nTn1g46dSUOHMaOwo5HrA@mail.gmail.com>
+Subject: Re: [PATCH v7 0/3] x86/tdx: Fix HLT logic execution for TDX VMs
+To: dave.hansen@linux.intel.com, kirill.shutemov@linux.intel.com, 
+	jgross@suse.com, ajay.kaher@broadcom.com, ak@linux.intel.com, 
+	tony.luck@intel.com, thomas.lendacky@amd.com
+Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, 
+	pbonzini@redhat.com, seanjc@google.com, kai.huang@intel.com, 
+	chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com, 
+	sathyanarayanan.kuppuswamy@linux.intel.com, erdemaktas@google.com, 
+	ackerleytng@google.com, jxgao@google.com, sagis@google.com, 
+	afranji@google.com, kees@kernel.org, jikos@kernel.org, peterz@infradead.org, 
+	x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	virtualization@lists.linux.dev, bcm-kernel-feedback-list@broadcom.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 21, 2025 at 03:49:38PM -0400, Michael S. Tsirkin wrote:
-> On Wed, Mar 12, 2025 at 01:59:34PM -0700, Bobby Eshleman wrote:
-> > Picking up Stefano's v1 [1], this series adds netns support to
-> > vhost-vsock. Unlike v1, this series does not address guest-to-host (g2h)
-> > namespaces, defering that for future implementation and discussion.
-> > 
-> > Any vsock created with /dev/vhost-vsock is a global vsock, accessible
-> > from any namespace. Any vsock created with /dev/vhost-vsock-netns is a
-> > "scoped" vsock, accessible only to sockets in its namespace. If a global
-> > vsock or scoped vsock share the same CID, the scoped vsock takes
-> > precedence.
-> > 
-> > If a socket in a namespace connects with a global vsock, the CID becomes
-> > unavailable to any VMM in that namespace when creating new vsocks. If
-> > disconnected, the CID becomes available again.
-> 
-> 
-> yea that's a sane way to do it.
-> Thanks!
-> 
+On Thu, Feb 27, 2025 at 5:44=E2=80=AFPM Vishal Annapurve <vannapurve@google=
+.com> wrote:
+>
+> Direct HLT instruction execution causes #VEs for TDX VMs which is routed
+> to hypervisor via TDCALL. safe_halt() routines execute HLT in STI-shadow
+> so IRQs need to remain disabled until the TDCALL to ensure that pending
+> IRQs are correctly treated as wake events. As per current TDX spec, HLT
+> #VE handler doesn't have access to interruptibility state to selectively
+> enable interrupts, it ends up enabling interrupts during #VE handling
+> before the TDCALL is executed.
+>
+> Commit bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
+> effectively solved this issue for idle routines by defining TDX specific
+> idle routine which directly invokes TDCALL while keeping interrupts
+> disabled, but missed handling arch_safe_halt(). This series intends to fi=
+x
+> arch_safe_halt() execution for TDX VMs.
+>
+> Changes introduced by the series include:
+> - Move *halt() variants outside CONFIG_PARAVIRT_XXL and under
+>   CONFIG_PARAVIRT [1].
+> - Add explicit dependency on CONFIG_PARAVIRT for TDX VMs.
+> - Route "sti; hlt" sequences via tdx_safe_halt() for reliability.
+> - Route "hlt" sequences via tdx_halt() to avoid unnecessary #VEs.
+> - Warn and fail emulation if HLT #VE emulation executes with interrupts
+>   enabled.
+>
+> Changes since v6:
+> 1) Addressed Kirills's comments.
+> 2) Fixed a build failure.
+>
+> v6: https://lore.kernel.org/lkml/20250225004704.603652-1-vannapurve@googl=
+e.com/
+>
+> Kirill A. Shutemov (1):
+>   x86/paravirt: Move halt paravirt calls under CONFIG_PARAVIRT
+>
+> Vishal Annapurve (2):
+>   x86/tdx: Fix arch_safe_halt() execution for TDX VMs
+>   x86/tdx: Emit warning if IRQs are enabled during HLT #VE handling
+>
+>  arch/x86/Kconfig                      |  1 +
+>  arch/x86/coco/tdx/tdx.c               | 34 ++++++++++++++++++++++-
+>  arch/x86/include/asm/irqflags.h       | 40 +++++++++++++++------------
+>  arch/x86/include/asm/paravirt.h       | 20 +++++++-------
+>  arch/x86/include/asm/paravirt_types.h |  3 +-
+>  arch/x86/include/asm/tdx.h            |  4 +--
+>  arch/x86/kernel/paravirt.c            | 14 ++++++----
+>  arch/x86/kernel/process.c             |  2 +-
+>  8 files changed, 78 insertions(+), 40 deletions(-)
+>
+> --
+> 2.48.1.711.g2feabab25a-goog
+>
 
-Sgtm, thank you!
-
-Best,
-Bobby
+Just a ping for review of this series if anything more needs to be discusse=
+d.
