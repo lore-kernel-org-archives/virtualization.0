@@ -1,139 +1,151 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02561C68F
-	for <virtualization@lists.linux.dev>; Sat, 22 Mar 2025 01:08:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49F2E163
+	for <virtualization@lists.linux.dev>; Sun, 23 Mar 2025 12:40:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742605701; cv=none; b=H4eAWFRlGjHDGsKgAXdYWmPMGFmfCthy49APN9wAO9597FP8M8YEY+jtOWILKeb9SXuGMhcdwNOiEeXBK1zlKN1oGSvQPQPv9y/3scqd3fpQlHbxzyC8JhML0hjC13RMzKHsHv4/PG4m6kwWKIuAVUlkonXQfJn4ng5ll9RzZok=
+	t=1742733623; cv=none; b=XhNg/8i2S+YQ6Vn8rXhJ5n/ksiIihij5B76X6e4OEwaPS5EFQ3QUfADspWz+cyFjcJXAKNheEFMq4Bfs/z5n69ArlVlod4BNXH9n+zh4+0id8m3GJSO+a5KhczU5pkUx1A83Tebzs7dV0dY04Vsdmpxt4zUcXwtgH6N1gOsIpuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742605701; c=relaxed/simple;
-	bh=UlCEukpy828X+t+n7YKj+Gp5G6r5hcYtbALRFRMl084=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=peaE/PzzF5smib35Z7Nk4GFHbdwS7moxYy5RgqONqKFx7NaDh89VC5e03v1Ufk6rL+NANE+J7e1Z5JC8aE4I0vfmlSOHXNbtk9Hv2RtA1cjZGHOe4CaNJcllxEoWWXDSBbJl8Li8speHqqy6bNdROSJEmPyFWZJEht69OKz8baM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=GFtuOukf; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1742733623; c=relaxed/simple;
+	bh=sDQQWolVVAwUj2FFoOe71h7C9U0e3SoNEYBkjX19iAg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cO+XwX4DHPnSlRODcysH4zDOT4sbXNiYZXpkOGqrIVKyAzEo5pMa9T22KSH0WJw1ob9Fs+hV6JVw/4opiFIMRXTYidHtbvD+8jMG0SYERqM5UVP3XlrUamWE+OR4yXVD3Bu6r0r0Ph+zNSasJQ7BcJMcvMQafbV1+VevnX42kiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FGhAMjat; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GFtuOukf"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2263428c8baso51375ad.1
-        for <virtualization@lists.linux.dev>; Fri, 21 Mar 2025 18:08:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1742605699; x=1743210499; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PORJkvOxkuHko+fxCJKgIIFheR3by/P8aDDODWCERsg=;
-        b=GFtuOukfRENEuVg61W5+ojo7QQV6nBS8+5k3MrukzH9SJBvUvoNoHc5eOj3fzyOW4V
-         Uz1v1xqAL3L+bz9++2IVkFCYMM2rP596LIapCwtNwTLaeaKdUAe2BVZXrFML0GZYLZMW
-         SYwbIyCNmPDWmF0qq0Hl26iTkavpEc420R31fJLv1gVCXgsnsJKGuCAd+h6AriaWjzoP
-         0PB7odLlr07HEGFx4vl49pGy5bcgAG0jwZQm5xQCqKu1CMv8s1GM+vwF2UpfhQo4q01X
-         JTuZPCVTG3OpQwz3FZ4bfRPoNBwz7NzJcoAn9uqpGh3t4NDD41Px6HlEy/ItBLUUavrx
-         jRcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742605699; x=1743210499;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PORJkvOxkuHko+fxCJKgIIFheR3by/P8aDDODWCERsg=;
-        b=p3Mr+187j52S0+0VpDLRKkMsnIu2KXnP2K5wX3Mha9Kg5mozaYLyAOn+/6mnqTU6v3
-         2kmk2hRLLcWD1G6HMntR8R3iUKsbWHT3q8LLqYVrbYdcpgCriS5IxXsoB1YpqYa/OJvU
-         UdpSDoNT6WUQ/TaR6RQMzT4taybyDukslTePo0GMGqqdgrMCDze4r/hch7brqNMx/Bau
-         qvy2cCMgaaWAayUwlPaFYFYKlm+XFbaCZGli6Txm8EOGukEwI72WU7YqCzlOCJS+uOkh
-         kfKSUzd+PgMDOErt8M5tapnndDjWWfBtwT7Y8/+0oqn1aZTNbGLiISmgsBj1sNFqfFQr
-         xwDw==
-X-Forwarded-Encrypted: i=1; AJvYcCVfUMc/sak5bnFmlYfG4lzgbFsJOKONsXMPl8Kd8AIKqBCee3zY/yk/ob7pCHxXsbtzH8CmlqzsHNOL98IkRQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/XxdWJFRbGAVHnf/dRlFLaXvt8NyGiiJ9A86+CkezsxZL3ZiG
-	zKDwFVAbU5b7FJOWPsCMeL3IneEmbuyFzqfaIanZROclpkTUfcG4Xqh0G+Qxg3/Ek3ny5kMYmMY
-	7cjlVmtVJp+FsaHIDjM7RacZkkbd87yWDRP1M
-X-Gm-Gg: ASbGncuSNU2GxXxORC5FZqFav3kdPRZ+CHwYeCEy/kjrA1j9cLYq8iqdBQkyQmAh8WT
-	ZK9wRvKfjX7lk//i5OsJ0CwEPwQe3K+FTnF4hSQVTNv/dz1ZnSaUqkAL8qKh2VSBrDVm0DYDup4
-	nGZV7E9ez7FIbOr+Nea73uOjhtYIC9uRbFug9o0LrCNArpN4EbbcxQMfy/RV4JhdLdGeo=
-X-Google-Smtp-Source: AGHT+IHwBjcoBQJD7PgR24WQYCLIQsyJ/8mCgJRTKFIdiYFR1Yc44CsmaI9H6JC3a7kMd6MKs5kEznfjIsb/OAkQoIg=
-X-Received: by 2002:a17:902:e742:b0:215:79b5:aa7e with SMTP id
- d9443c01a7336-22799f46955mr693655ad.13.1742605698803; Fri, 21 Mar 2025
- 18:08:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FGhAMjat"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52MJkAVw025743;
+	Sun, 23 Mar 2025 12:40:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=pZ1tpm
+	pahgzLQ9BBWtucRBsw1sVzO382Pg9fhIj0QtA=; b=FGhAMjatEFKqF1+czsWk3n
+	YhWHp2PCiIbqz5iH3gjvQ00ooM4IBZBQvATpnMg0dum6FGn8b+F5TtyHeTTc1Ld2
+	2xUT5WW/B2xSj5uHKTW6YURDTzmdmeKa2a7My/S7QuFQSDnjeK8SFGVjCGinGKaD
+	DqsVf9DpOKdMxR0KhOFdP+XDZtTWtFk8+jZN8OUdPmQdlaVZKXLPPoBeOPzojsLV
+	zatvugCOIVMhdLo3hx0Uwhrgglfprt7Oge9RfucXdFMgDgAb/VYn5bwoOdxVY4FV
+	PWuoUnYk7dwdcj86vUgyEvr3ImqlXhhPTcCjnReGrLVOn6eTcO22+TW9hl4Fd3tA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45j1cwtrcy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 23 Mar 2025 12:40:16 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52N855xj009692;
+	Sun, 23 Mar 2025 12:40:15 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45j9rk9kw6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 23 Mar 2025 12:40:15 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52NCeC1t27656912
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 23 Mar 2025 12:40:12 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 592D320040;
+	Sun, 23 Mar 2025 12:40:12 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D83AC20043;
+	Sun, 23 Mar 2025 12:40:11 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.20.112])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Sun, 23 Mar 2025 12:40:11 +0000 (GMT)
+Date: Sun, 23 Mar 2025 13:40:10 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+        mst@redhat.com, amit@kernel.org, schnelle@linux.ibm.com,
+        Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH] virtio: console: Make resize control event handling
+ compliant with spec
+Message-ID: <20250323134010.30ea007d.pasic@linux.ibm.com>
+In-Reply-To: <20250320172654.624657-1-maxbr@linux.ibm.com>
+References: <20250320172654.624657-1-maxbr@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250228014416.3925664-1-vannapurve@google.com>
-In-Reply-To: <20250228014416.3925664-1-vannapurve@google.com>
-From: Vishal Annapurve <vannapurve@google.com>
-Date: Fri, 21 Mar 2025 18:08:06 -0700
-X-Gm-Features: AQ5f1JoTxkcQ6rnzBlVlnNhEnnZwVceT5ZUnX3gSJIePazDtJUJ8CyOxsH4dLZY
-Message-ID: <CAGtprH-8oJ66nunFHvZu_KcHjDM3=nTn1g46dSUOHMaOwo5HrA@mail.gmail.com>
-Subject: Re: [PATCH v7 0/3] x86/tdx: Fix HLT logic execution for TDX VMs
-To: dave.hansen@linux.intel.com, kirill.shutemov@linux.intel.com, 
-	jgross@suse.com, ajay.kaher@broadcom.com, ak@linux.intel.com, 
-	tony.luck@intel.com, thomas.lendacky@amd.com
-Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, 
-	pbonzini@redhat.com, seanjc@google.com, kai.huang@intel.com, 
-	chao.p.peng@linux.intel.com, isaku.yamahata@gmail.com, 
-	sathyanarayanan.kuppuswamy@linux.intel.com, erdemaktas@google.com, 
-	ackerleytng@google.com, jxgao@google.com, sagis@google.com, 
-	afranji@google.com, kees@kernel.org, jikos@kernel.org, peterz@infradead.org, 
-	x86@kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
-	virtualization@lists.linux.dev, bcm-kernel-feedback-list@broadcom.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: z75Do0MsR9I3EyGhfGk7v9MGNMGITD84
+X-Proofpoint-ORIG-GUID: z75Do0MsR9I3EyGhfGk7v9MGNMGITD84
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-23_06,2025-03-21_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ mlxlogscore=999 malwarescore=0 impostorscore=0 clxscore=1015 mlxscore=0
+ lowpriorityscore=0 spamscore=0 priorityscore=1501 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503230092
 
-On Thu, Feb 27, 2025 at 5:44=E2=80=AFPM Vishal Annapurve <vannapurve@google=
-.com> wrote:
->
-> Direct HLT instruction execution causes #VEs for TDX VMs which is routed
-> to hypervisor via TDCALL. safe_halt() routines execute HLT in STI-shadow
-> so IRQs need to remain disabled until the TDCALL to ensure that pending
-> IRQs are correctly treated as wake events. As per current TDX spec, HLT
-> #VE handler doesn't have access to interruptibility state to selectively
-> enable interrupts, it ends up enabling interrupts during #VE handling
-> before the TDCALL is executed.
->
-> Commit bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
-> effectively solved this issue for idle routines by defining TDX specific
-> idle routine which directly invokes TDCALL while keeping interrupts
-> disabled, but missed handling arch_safe_halt(). This series intends to fi=
-x
-> arch_safe_halt() execution for TDX VMs.
->
-> Changes introduced by the series include:
-> - Move *halt() variants outside CONFIG_PARAVIRT_XXL and under
->   CONFIG_PARAVIRT [1].
-> - Add explicit dependency on CONFIG_PARAVIRT for TDX VMs.
-> - Route "sti; hlt" sequences via tdx_safe_halt() for reliability.
-> - Route "hlt" sequences via tdx_halt() to avoid unnecessary #VEs.
-> - Warn and fail emulation if HLT #VE emulation executes with interrupts
->   enabled.
->
-> Changes since v6:
-> 1) Addressed Kirills's comments.
-> 2) Fixed a build failure.
->
-> v6: https://lore.kernel.org/lkml/20250225004704.603652-1-vannapurve@googl=
-e.com/
->
-> Kirill A. Shutemov (1):
->   x86/paravirt: Move halt paravirt calls under CONFIG_PARAVIRT
->
-> Vishal Annapurve (2):
->   x86/tdx: Fix arch_safe_halt() execution for TDX VMs
->   x86/tdx: Emit warning if IRQs are enabled during HLT #VE handling
->
->  arch/x86/Kconfig                      |  1 +
->  arch/x86/coco/tdx/tdx.c               | 34 ++++++++++++++++++++++-
->  arch/x86/include/asm/irqflags.h       | 40 +++++++++++++++------------
->  arch/x86/include/asm/paravirt.h       | 20 +++++++-------
->  arch/x86/include/asm/paravirt_types.h |  3 +-
->  arch/x86/include/asm/tdx.h            |  4 +--
->  arch/x86/kernel/paravirt.c            | 14 ++++++----
->  arch/x86/kernel/process.c             |  2 +-
->  8 files changed, 78 insertions(+), 40 deletions(-)
->
-> --
-> 2.48.1.711.g2feabab25a-goog
->
+On Thu, 20 Mar 2025 18:26:54 +0100
+Maximilian Immanuel Brandtner <maxbr@linux.ibm.com> wrote:
 
-Just a ping for review of this series if anything more needs to be discusse=
-d.
+Let my try to do some nitpicking here. First on the subject. I would go
+with something more specific like "fix order of fields cols and rows",
+especially now that we have figured out the byte order handling is absent
+as well.
+
+> According to section 5.3.6.2 of the virtio spec a control buffer with
+
+I would refrain form referencing section from the spec only by its
+number without also telling which incarnation of the spec you mean. I
+don't think those numbers are set in stone.
+
+> the event VIRITO_CONSOLE_RESIZE is followed by a virtio_console_resize
+> struct containing 2 little endian 16bit integerts cols,rows. 
+
+s/integerts/integers/
+
+I think technically it is still the same buffer. I would opt for struct
+virtio_console_control is followed by struct virtio_console_resize. 
+
+> The kernel
+> implementation assums native endianness (which results in mangled
+> values on big endian architectures)(a seperate patch by Halil Pasic
+> will deal with that issue) and swaps the ordering of columns and rows.
+
+I would simply omit the reference to the other patch. I understand that
+you introduced this because your patch does not deliver everything that
+the short description promises.
+
+I didn't realize that addressing the byte order stuff would cause
+a merge conflict, but it does. So maybe it would make sense to rebase
+your fix on top of mine and send it as a series titled.
+"Make resize control event handling compliant with spec". Just an idea.
+
+
+> This patch changes the ordering of rows and columns to columns then
+> rows.
+> 
+> Fixes: 8345adbf96fc1 ("virtio: console: Accept console size along with
+> resize control message") Signed-off-by: Maximilian Immanuel Brandtner
+> <maxbr@linux.ibm.com> Cc: stable@vger.kernel.org # v2.6.35+
+> ---
+>  drivers/char/virtio_console.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/char/virtio_console.c
+> b/drivers/char/virtio_console.c index 24442485e73e..9668e89873cf 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1579,8 +1579,8 @@ static void handle_control_message(struct
+> virtio_device *vdev, break;
+>  	case VIRTIO_CONSOLE_RESIZE: {
+>  		struct {
+> -			__u16 rows;
+>  			__u16 cols;
+> +			__u16 rows;
+>  		} size;
+>  
+>  		if (!is_console_port(port))
+
