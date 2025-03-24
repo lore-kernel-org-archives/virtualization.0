@@ -1,108 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8697F6125
-	for <virtualization@lists.linux.dev>; Mon, 24 Mar 2025 14:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 811C66125
+	for <virtualization@lists.linux.dev>; Mon, 24 Mar 2025 14:44:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742827391; cv=none; b=QmRaZ/MeEBBkIZSw2mFqOeaCkD0HoAZJ7a46oPZJRqlToamNJohYhEG1qwc23LWEDtkeU3/Zfv0KrUwjF0qQ17rt4YZ/o2Q6jjV16gB8YDsVrAkK1MkNiS5hYYNrAeLsYDMNyz6C6EAOz5qzXpoX6NgCA4S53bCcbAZSLr1FjEc=
+	t=1742827444; cv=none; b=idQ8yw9qQ1DwS7udnohPJcshc95aD0XO/o2Qp2GsHMGsC2XQ+3hido5d0lkjp9PO4ZW9MQNAzyh3NybYR2VoA4mMFzXq5w0yqaubG4Lghj4Ix30Br3/bX7xkWl/GuwizOhdBMNo3DlvQZ4R2/JOfEnDbYE14HVtt1UuR5lRg8f8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742827391; c=relaxed/simple;
-	bh=PYEbY72dpy4AhFJgdkxTlgNmyXa6hqElQV4pCL3kHKM=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=hwbef4JL1aQJVW0dHbpk4wijIcJpbHieemjHPXutmNgvZYoIUHSZhiJ31sZ4kKEWEzCQT0IHJWCsnu/Ep6TYnVttCM4rUYe/mSbkP8g1adc3Z1lNcjYpUyjkSuWya5zx1+Ye6Qmm9dQx6HKYbH9iR7hvVfU0mefJjcBm5LqQqqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=X/7wDzge; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1742827444; c=relaxed/simple;
+	bh=kWGmO5Fe9n1QZBql/9XX3gMxWfQD39pTNi6RUSi7VkM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pjhPSzlApJu21gvVIZJ5CXxHGUuz9gBqh41KbcVVqyVw5cDKZ6lBiEUtiblUz4v40rcgknMWi428bxaqZXpZTqNNXvAx81wZkXpDeD0bJijgBvs8/6cZe+jvwLyFdfb3FvrBPgRVZYWxxp3rXOtRsFKqBs3Z8AZJ0LFJEovDkQE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T2yXWHLK; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X/7wDzge"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52O95uTL015822;
-	Mon, 24 Mar 2025 14:43:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=T7LEL+GWUh8MURVuH+jQFBh6NvGbG9blBlZjqcl9A
-	Pk=; b=X/7wDzge9tGTN/HUChj4ZYQxuQFNYXdrjs+KLSZsldyJYn0EeXaS95rzs
-	Kdtvn5xqGzwMy7yT90GpN5c9ad2WzxnM27G/6SWEV8Ds3arRarp5Hx2fT5hh0t4C
-	y1HbZRRsKblCDEbbJO3HHJj8nCXrFX9WBKUJa6kkeRdUUWNH34PMcEHhex0ozGOI
-	R7lL6sjTGy3H/sQOVxmGMSoUIahlUKIehYERPa6q/NZ3VTt4qVXS/MmcNJW7wNzi
-	KB2FBMJHUHo0PBSbZXkwJwIG0QUvjR9U7AeqDrjUhLH6sSZ6pccgNFsGW174+j0B
-	t7ta/y3sEOc+p5YmSN+iIeytrg7Hg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45jsh04444-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Mar 2025 14:43:07 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52OBWMGZ025443;
-	Mon, 24 Mar 2025 14:43:06 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45j7wyxsv6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Mar 2025 14:43:06 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52OEh27N17039636
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Mar 2025 14:43:02 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A401220040;
-	Mon, 24 Mar 2025 14:43:02 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 76E522005A;
-	Mon, 24 Mar 2025 14:43:02 +0000 (GMT)
-Received: from li-9b52914c-2c8b-11b2-a85c-a36f6d484b4a.boeblingen.de.ibm.com (unknown [9.155.199.15])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Mar 2025 14:43:02 +0000 (GMT)
-From: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-        mst@redhat.com, pasic@linux.ibm.com, amit@kernel.org,
-        schnelle@linux.ibm.com
-Subject: [PATCH] virtio_console: fix order of fields cols and rows
-Date: Mon, 24 Mar 2025 15:42:46 +0100
-Message-ID: <20250324144300.905535-1-maxbr@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T2yXWHLK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742827441;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EKtNS87VKI3qBZ7UZtNdNXHh6kQ26WV+OsLcli3oRo0=;
+	b=T2yXWHLK9wXs4pi0mGoeu14CpxuaODe1tsrna9LrJjnBvt8IKjOCQ376qtP9r6OhgqVPzK
+	NXRDvDDUzhRgze+v8lrnK5ycehQ1TROI6QN7QtSWnuOvIZiBGWQhL3r9Wi+hygplIAZgcA
+	D6ay/ODndIAfTlrhrScItskQk2c94L8=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-74-VbheBH4zMgGAf8X5aqAnvw-1; Mon, 24 Mar 2025 10:43:59 -0400
+X-MC-Unique: VbheBH4zMgGAf8X5aqAnvw-1
+X-Mimecast-MFC-AGG-ID: VbheBH4zMgGAf8X5aqAnvw_1742827438
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ac27d8ac365so281793466b.2
+        for <virtualization@lists.linux.dev>; Mon, 24 Mar 2025 07:43:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742827438; x=1743432238;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EKtNS87VKI3qBZ7UZtNdNXHh6kQ26WV+OsLcli3oRo0=;
+        b=tR7L1zROmFRJpRU8Y1FQN0GHr2zNt6xixq96VC3q/dmEdF8m+8/STIJSBhmMF0cjMj
+         wdOiWfpBCq4FuJGrNHyvf9y9vYkdamrMvW0GTE20BhIq2A8F6zmnlP+EpPxyoMJqk1rx
+         2Uwmm5vk+f8K/u2IxEZRJlUYnXUVRq3vZq4h1UR8N5ySBuN5vmHI830ik/ginvArQ1ql
+         T8tJl+yYy175SBkJF9G/WP3pt9wt1PnNtwcK5zRGLh1PHwDHreiMztZdtICPymGeUvwN
+         OtPYcaMWqfdPyTFHk/nzUrVWZhiZSd26WqZ2Vep0m97+jyrIt5CFr2Ge89zQbpMydv7s
+         ciXg==
+X-Forwarded-Encrypted: i=1; AJvYcCUb+9tSyZud7GOcnuQnNfafnYm9EYRvVKwqYKdD1YLK8pr6uxhFDvuM2j7ea2rM2+lZm+i2clV2rkTDHcpJ2A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFj8HTwTgHa3d++hU327UVyohSAzBFP3tju+ktAP8HOMLxliZx
+	sffvo3s5AzEhN0vouAkVCSpG+WSWbUdYDNYQT9/PGz3oMAaR5oNyDKA8JE2o1YaeUsDOKw1pV6K
+	hrpPw6O6bm+iv+stoVAoCnc9bxozPiIKTvBzxrgUvog8Jacy3XIGeZ3KTDK92Viypxp1trpEki6
+	jJxVwTvyh0GKOjnhrrl8LvffXhXu6Si7IZTztyoTY=
+X-Gm-Gg: ASbGncu+M26812erte6cpYMGQKYsKFCS18zkGxBdLVR/M4yqWw2DP8lZ3L+VRqaRx9J
+	w1TZP9EYvbTsewjuW9xkcMTD0tphydvPxINb11YH7kyzIBNVXG3lX8Z7DmbHSB4T8CeYxNtK7WA
+	==
+X-Received: by 2002:a17:907:1b2a:b0:ac2:8784:4bea with SMTP id a640c23a62f3a-ac3f20d30dbmr1419332566b.8.1742827438449;
+        Mon, 24 Mar 2025 07:43:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFZAeQO5AXXjuoyLKgLAtV81kTmhy/K3XnGUy84KHZoby/SQototvIvcST30HTNJ8fj33AYAC+idf9EUDSDIY8=
+X-Received: by 2002:a17:907:1b2a:b0:ac2:8784:4bea with SMTP id
+ a640c23a62f3a-ac3f20d30dbmr1419328866b.8.1742827438007; Mon, 24 Mar 2025
+ 07:43:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: vE93AZ2pvJg3DIzgj0W27JR_y5BfzyHy
-X-Proofpoint-GUID: vE93AZ2pvJg3DIzgj0W27JR_y5BfzyHy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-24_04,2025-03-21_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- mlxlogscore=999 suspectscore=0 lowpriorityscore=0 spamscore=0
- priorityscore=1501 bulkscore=0 clxscore=1015 malwarescore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503240105
+References: <20250324054333.1954-1-jasowang@redhat.com>
+In-Reply-To: <20250324054333.1954-1-jasowang@redhat.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 24 Mar 2025 22:43:20 +0800
+X-Gm-Features: AQ5f1JrXfkHTzuma5AqSaSU6COxpwVpHkbBrjXnrgtbUVryJALh0TzOw4CmentQ
+Message-ID: <CAPpAL=x4BWNh__YpzkzpErkseh04FT7WNLmg=xMXtfZ0S9BabQ@mail.gmail.com>
+Subject: Re: [PATCH 00/19] virtio_ring in order support
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: v8eQvQTfKgtumI4oLhq3GKW_G6Wdv28B693uWS1G7P8_1742827438
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-According to section 5.3.6.2 (Multiport Device Operation) of the virtio
-spec(version 1.2) a control buffer with the event VIRTIO_CONSOLE_RESIZE
-is followed by a virtio_console_resize struct containing cols then rows.
-The kernel implements this the wrong way around (rows then cols) resulting
-in the two values being swapped.
+QE tested this series of patches with virtio-net regression tests,
+everything works fine.
 
-Signed-off-by: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
----
- drivers/char/virtio_console.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 21de774996ad..38af3029da39 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1579,8 +1579,8 @@ static void handle_control_message(struct virtio_device *vdev,
- 		break;
- 	case VIRTIO_CONSOLE_RESIZE: {
- 		struct {
--			__virtio16 rows;
- 			__virtio16 cols;
-+			__virtio16 rows;
- 		} size;
- 
- 		if (!is_console_port(port))
--- 
-2.48.1
+On Mon, Mar 24, 2025 at 1:45=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> Hello all:
+>
+> This sereis tries to implement the VIRTIO_F_IN_ORDER to
+> virtio_ring. This is done by introducing virtqueue ops so we can
+> implement separate helpers for different virtqueue layout/features
+> then the in-order were implmeented on top.
+>
+> Tests shows 5% imporvemnt in RX PPS with KVM guest + testpmd on the
+> host.
+>
+> Please review.
+>
+> Thanks
+>
+> Jason Wang (19):
+>   virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
+>   virtio_ring: switch to use vring_virtqueue in virtqueue_poll variants
+>   virtio_ring: unify logic of virtqueue_poll() and more_used()
+>   virtio_ring: switch to use vring_virtqueue for virtqueue resize
+>     variants
+>   virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare
+>     variants
+>   virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
+>   virtio: switch to use vring_virtqueue for virtqueue_add variants
+>   virtio_ring: switch to use vring_virtqueue for enable_cb_prepare
+>     variants
+>   virtio_ring: use vring_virtqueue for enable_cb_delayed variants
+>   virtio_ring: switch to use vring_virtqueue for disable_cb variants
+>   virtio_ring: switch to use vring_virtqueue for detach_unused_buf
+>     variants
+>   virtio_ring: use u16 for last_used_idx in virtqueue_poll_split()
+>   virtio_ring: introduce virtqueue ops
+>   virtio_ring: determine descriptor flags at one time
+>   virtio_ring: factor out core logic of buffer detaching
+>   virtio_ring: factor out core logic for updating last_used_idx
+>   virtio_ring: move next_avail_idx to vring_virtqueue
+>   virtio_ring: factor out split indirect detaching logic
+>   virtio_ring: add in order support
+>
+>  drivers/virtio/virtio_ring.c | 856 ++++++++++++++++++++++++++---------
+>  1 file changed, 653 insertions(+), 203 deletions(-)
+>
+> --
+> 2.42.0
+>
+>
 
