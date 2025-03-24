@@ -1,201 +1,84 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BEE61DC985
-	for <virtualization@lists.linux.dev>; Mon, 24 Mar 2025 17:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED51625EFA6
+	for <virtualization@lists.linux.dev>; Mon, 24 Mar 2025 18:54:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742838974; cv=none; b=fypQ7seV/iSqxNSKJh4NgJrv9h8hUtPfthqluqOnJP2j6QhErNHiu5gRL3h5HjEPSA44w4ggE75fuVvPZd5EEkBcCLHaJHnsncfOL3+NKkEKYy8rkP6Su9YmJV5/badAfazVs+Sr/VwKF0otp5Yx21YCPDNgqQsA8QIX5ys4Qvw=
+	t=1742842443; cv=none; b=K5AKrpb6PrACaR94qEs08DELfDUEPMZ2dtMd7zv+7iKpVGkqDKoCfVGt/iAxhFbnYZNe/7uPrzgckE+Nmwb5/oMGyodmyFu+1PVpZle9tqIeK3LzFkqPN7TyeT5i1LnrTk+vEi+LjtNHuylMpvRKlpL3ArKCFyenahKWONDLZLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742838974; c=relaxed/simple;
-	bh=55aSHf+XbnaEkNNtZWAap9c2eiaxcY92LDR82+5KUkE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=WOmqqJoyjF2ZoJU/tZD3YReBqxtNMJpk5gkkwnLghPlmx0QHbUn9/kXuCovm1xTA7qgwTBBBJavCPCvrjDWDNQmxIXmZ77dlBjr5LrmPs++SOqCrp/SM0LHnjIerj3KXK7v1nA2+K9stl4GHBE4uWWpw/e5CqStFUwsjhz2k/wI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ey8acH8B; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1742842443; c=relaxed/simple;
+	bh=5Oc9X4WPpkb0I7xxxkTExY9Kqtnuab39zq/DpuRW+9k=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=BwXJz9rRF9ZVSTvG12I4WFoIX4ALZxoRoErocLR3/hMl8d+0Y0guxRMgONcnap44ryqswG7/hLQ/2go9DHFi+E14eZNolSOPtVyoOxFZGSYvbtX+t+c46etRaQX4nX5EpC6IeTIWPEucAYPLljrpudw3wSfmM9Qzb2FLxsXN9L4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--afranji.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=An1HGXvN; arc=none smtp.client-ip=209.85.214.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--afranji.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ey8acH8B"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52OHBZPn027062;
-	Mon, 24 Mar 2025 17:56:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=prxcL7
-	Ol0gDHWADygOhfxw4rXA3/txwyq4L2EIdtr0o=; b=ey8acH8BhQQpV7Rkkcv3qk
-	iYB1qdSCJmXBJGd5tKEllxA4e4tHn0M8AaS5H/npjL1f62a34tG0sEoSVSmmvkGo
-	/g+qF9pA6KqTiYYMh/8IqXXEByZvU8t6HNij+2AwOXo4fVEpKZGZyfVgYs3K5QNw
-	858npq/6lkGam1ZJ8E/osa1RPW4zcKFLJ5aDph5BZzVe1oizfHkY3wS3aJUFHeik
-	r8irsF+5AfGF8s0f5my4vKdFcu1HykPo+9L183UaOSMJO1fKRbhBtT7RXDng1LJD
-	+SPOA7N6PkSBOGzaElIOq6FlJA5LY+06l3eHd9I/4gzGsLBdeSPRPuVV2kvU93yA
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45kbjwr6v4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Mar 2025 17:56:06 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52OFKECV030330;
-	Mon, 24 Mar 2025 17:56:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45j7ht7nw4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Mar 2025 17:56:06 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52OHu4RE33292630
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Mar 2025 17:56:04 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5DF7220043;
-	Mon, 24 Mar 2025 17:56:04 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3654120040;
-	Mon, 24 Mar 2025 17:56:04 +0000 (GMT)
-Received: from li-9b52914c-2c8b-11b2-a85c-a36f6d484b4a.boeblingen.de.ibm.com (unknown [9.155.199.15])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 24 Mar 2025 17:56:04 +0000 (GMT)
-Message-ID: <3920c0f0da1b6e324d6367cbff22d313d6981742.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/1] virtio_console: fix missing byte order handling for
- cols and rows
-From: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
-To: Halil Pasic <pasic@linux.ibm.com>, Amit Shah <amit@kernel.org>,
-        Arnd
- Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: stable@vger.kernel.org
-Date: Mon, 24 Mar 2025 18:56:03 +0100
-In-Reply-To: <20250322002954.3129282-1-pasic@linux.ibm.com>
-References: <20250322002954.3129282-1-pasic@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="An1HGXvN"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-223f3357064so63073595ad.3
+        for <virtualization@lists.linux.dev>; Mon, 24 Mar 2025 11:54:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1742842441; x=1743447241; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5Oc9X4WPpkb0I7xxxkTExY9Kqtnuab39zq/DpuRW+9k=;
+        b=An1HGXvNoauhD2PRO4QCA5z9j2IKk2sApwt2ixMbqYepBJaqDeTja6c67AUR3NC6F3
+         LQ+4xuJV4qQzqYw8Js8ziB7OEd3fsQgncm5r9uZ/rK3JZ5tDnDSGyyGyN3LtcGrDv4g5
+         3+v6lHRiXJFv1lxgcp0xd89yFCqbkzYff9Z8qGRC1uyv86k6j69vNAJLop9Uh/HYQmn+
+         mDzc3VRV9h4TF428kUmYaiAWBVG+a3ymOEZKWaEDOqgztI1k9vqEPiF/i8mchm91vqQ5
+         ZiBkyK6jOaXWyCPsmsjx90b6bC7XehSZWFb68yNSIeICsFIfqeAZlyE5R15hb/BPauep
+         ypbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742842441; x=1743447241;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5Oc9X4WPpkb0I7xxxkTExY9Kqtnuab39zq/DpuRW+9k=;
+        b=AA1Yd+nbxMyB6D3qNNxvigYBpGBJsvftY08a+7WhentN1LEwSTWzBTHYV6xjIsPBAR
+         Q2Ka2Roa2t2RD44AlbbF9yI0EsoXKfPM1PM11xhqN8Z2cUFy6r9WgMzWXYaZcmlButDk
+         5i81xEs0vWaZKP+VikaXTQVDdYaZRp3FXH5dDnaSmnvlIIVBUhZ+wbYTlZB1ZI8Nuctc
+         he2oE2HuHZvj6zqWhaA4eTtHyo11fPfdUaoUYykMLiyxcDZjnyq/kP1JbPXmhe8kBhO8
+         unOkpsNEPeGQVe0pcF4DA/GPuFf9ZdvjQyrkT9DvfeCbyz/Njq8aFydIL3zbW4Oyy5fb
+         nvnA==
+X-Forwarded-Encrypted: i=1; AJvYcCXvUXFEW/XBR4U1E1bjg9KmB4D12Beyi2aYyfoaUjOB1QAGoni/jP0o6IgMbbaHKqsAuv1a8TUkwl7a2md3CQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxKe6PgetK9Y8Bfqb89J66dL/bErMgObZ6dzIKNISyLUJ5EhkVr
+	s+H9SVVf8sdIkOkao8iS0SG2bxiXMsKcnORBozuBaZ+kxO10PtwY3tbkoXNyk3FahcxtZkAnzLm
+	6URsG7g==
+X-Google-Smtp-Source: AGHT+IFgmKsprpaGDjxSOAFPcgtylxDFAlGJWR3zzYK2eH1W43TjKeWbEuCfuwWXukUdHLsJ/AaSlcsX4NnQ
+X-Received: from plj11.prod.google.com ([2002:a17:902:c14b:b0:21f:651b:6fd6])
+ (user=afranji job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:d2c9:b0:216:7926:8d69
+ with SMTP id d9443c01a7336-22780e26127mr200986085ad.47.1742842441044; Mon, 24
+ Mar 2025 11:54:01 -0700 (PDT)
+Date: Mon, 24 Mar 2025 18:53:53 +0000
+In-Reply-To: <20250228014416.3925664-1-vannapurve@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: INZKdWk_pasSNB8PIaiuDorK7o5Zx59a
-X-Proofpoint-ORIG-GUID: INZKdWk_pasSNB8PIaiuDorK7o5Zx59a
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-24_06,2025-03-21_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 lowpriorityscore=0 phishscore=0 spamscore=0
- clxscore=1011 bulkscore=0 adultscore=0 suspectscore=0 malwarescore=0
- mlxlogscore=999 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503240125
+Mime-Version: 1.0
+References: <20250228014416.3925664-1-vannapurve@google.com>
+X-Mailer: git-send-email 2.49.0.395.g12beb8f557-goog
+Message-ID: <20250324185353.1974105-1-afranji@google.com>
+Subject: Re: [PATCH v7 0/3] x86/tdx: Fix HLT logic execution for TDX VMs
+From: Ryan Afranji <afranji@google.com>
+To: vannapurve@google.com
+Cc: ackerleytng@google.com, afranji@google.com, ajay.kaher@broadcom.com, 
+	ak@linux.intel.com, bcm-kernel-feedback-list@broadcom.com, bp@alien8.de, 
+	chao.p.peng@linux.intel.com, dave.hansen@linux.intel.com, 
+	erdemaktas@google.com, hpa@zytor.com, isaku.yamahata@gmail.com, 
+	jgross@suse.com, jikos@kernel.org, jxgao@google.com, kai.huang@intel.com, 
+	kees@kernel.org, kirill.shutemov@linux.intel.com, linux-coco@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, mingo@redhat.com, pbonzini@redhat.com, 
+	peterz@infradead.org, sagis@google.com, 
+	sathyanarayanan.kuppuswamy@linux.intel.com, seanjc@google.com, 
+	tglx@linutronix.de, thomas.lendacky@amd.com, tony.luck@intel.com, 
+	virtualization@lists.linux.dev, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Sat, 2025-03-22 at 01:29 +0100, Halil Pasic wrote:
-> As per virtio spec the fields cols and rows are specified as little
-> endian. Although there is no legacy interface requirement that would
-> state that cols and rows need to be handled as native endian when
-> legacy
-> interface is used, unlike for the fields of the adjacent struct
-> virtio_console_control, I decided to err on the side of caution based
-> on some non-conclusive virtio spec repo archaeology and opt for using
-> virtio16_to_cpu() much like for virtio_console_control.event.
-> Strictly
-> by the letter of the spec virtio_le_to_cpu() would have been
-> sufficient.
-> But when the legacy interface is not used, it boils down to the same.
->=20
-> And when using the legacy interface, the device formatting these as
-> little endian when the guest is big endian would surprise me more
-> than
-> it using guest native byte order (which would make it compatible with
-> the current implementation). Nevertheless somebody trying to
-> implement
-> the spec following it to the letter could end up forcing little
-> endian
-> byte order when the legacy interface is in use. So IMHO this
-> ultimately
-> needs a judgement call by the maintainers.
->=20
-> Fixes: 8345adbf96fc1 ("virtio: console: Accept console size along
-> with resize control message")
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Cc: stable@vger.kernel.org=C2=A0# v2.6.35+
-> ---
->=20
-> @Michael: I think it would be nice to add a clarification on the byte
-> order to be used for cols and rows when the legacy interface is used
-> to
-> the spec, regardless of what we decide the right byte order is. If
-> it is native endian that shall be stated much like it is stated for
-> virtio_console_control. If it is little endian, I would like to add
-> a sentence that states that unlike for the fields of
-> virtio_console_control
-> the byte order of the fields of struct virtio_console_resize is
-> little
-> endian also when the legacy interface is used.
->=20
-> @Maximilian: Would you mind giving this a spin with your
-> implementation
-> on the device side of things in QEMU?
-> ---
-> =C2=A0drivers/char/virtio_console.c | 7 ++++---
-> =C2=A01 file changed, 4 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/char/virtio_console.c
-> b/drivers/char/virtio_console.c
-> index 18f92dd44d45..fc698e2b1da1 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1579,8 +1579,8 @@ static void handle_control_message(struct
-> virtio_device *vdev,
-> =C2=A0		break;
-> =C2=A0	case VIRTIO_CONSOLE_RESIZE: {
-> =C2=A0		struct {
-> -			__u16 rows;
-> -			__u16 cols;
-> +			__virtio16 rows;
-> +			__virtio16 cols;
-> =C2=A0		} size;
-> =C2=A0
-> =C2=A0		if (!is_console_port(port))
-> @@ -1588,7 +1588,8 @@ static void handle_control_message(struct
-> virtio_device *vdev,
-> =C2=A0
-> =C2=A0		memcpy(&size, buf->buf + buf->offset +
-> sizeof(*cpkt),
-> =C2=A0		=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sizeof(size));
-> -		set_console_size(port, size.rows, size.cols);
-> +		set_console_size(port, virtio16_to_cpu(vdev,
-> size.rows),
-> +				 virtio16_to_cpu(vdev, size.cols));
-> =C2=A0
-> =C2=A0		port->cons.hvc->irq_requested =3D 1;
-> =C2=A0		resize_console(port);
->=20
-> base-commit: b3ee1e4609512dfff642a96b34d7e5dfcdc92d05
+Tested with the specjbb2015 benchmark. It has heavy lock contention which leads
+to many halt calls. TDX VMs suffered a poor score before this patchset.
 
-It took me a while to recompile the kernel, but now that it has
-compiled it works! Unfortunately, images don't lend themselves well to
-mailing lists, but here is tmux running at 18x55(you'll just have to
-trust me that it's over a virtio serial console)
+Verified the major performance improvement with this patchset applied.
 
-                           =E2=94=82top - 12:54:04 up 4 min,  1
-~                          =E2=94=82Tasks: 222 total,   1 runni
-~                          =E2=94=82%Cpu(s):  0.0 us,  0.0 sy,=20
-~                          =E2=94=82MiB Mem :  15987.2 total, =20
-~                          =E2=94=82MiB Swap:   8192.0 total, =20
-~                          =E2=94=82
-~                          =E2=94=82    PID USER      PR  NI=20
-~                          =E2=94=82      1 root      20   0=20
-~                          =E2=94=82      2 root      20   0=20
-~                          =E2=94=82      3 root      20   0=20
-~                          =E2=94=82      4 root       0 -20=20
-~                          =E2=94=82      5 root       0 -20=20
-~                          =E2=94=82      6 root       0 -20=20
-~                          =E2=94=82      7 root       0 -20=20
-~                          =E2=94=82      8 root       0 -20=20
-[No Name]     0,0-1     All=E2=94=82      9 root      20   0=20
-                           =E2=94=82     10 root       0 -20=20
-[0] 0:zsh*                     "fedora" 12:53 24-Mar-25
-
-Cheers,
-Max
-
+Tested-by: Ryan Afranji <afranji@google.com>
