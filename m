@@ -1,87 +1,85 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39320253F1C
-	for <virtualization@lists.linux.dev>; Tue, 25 Mar 2025 11:06:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C50A619F13B;
+	Tue, 25 Mar 2025 16:39:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742900799; cv=none; b=qFkVJmnZQP2Zq97/Ms8SArS7dTt3u1BVElXcE1a8i65dnAkCJyGg0rVH69F+MV/EHYNuqlioCjcNrehiLQ6m0MQFavHOVtDSLqjIKj+cBYglc+VS2ECW+3L2d2sZXmC1L+xGRNOcO9r5pQ4+vnZkG7hjX95nHpiTrdIOoe4vqSc=
+	t=1742920798; cv=none; b=LoT5BuxBQtSKTDm7i5uyi/qm5CAJBCyuriBoydcdtIPBfBjmPrBMDVGrkBucH9+FudKktIyERu/3IZyglCuENZQLKRBril7dWDl+jEtBNl5Ya3JAQ97BsU/uya61PH0j5cyGeWd5+HE5e+0ztWa1c3JSNJgB8i3eFsBTiWSWnlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742900799; c=relaxed/simple;
-	bh=D0N/mgLzCXi4oZJoUT9/lMZngBeCJnMRqCEe8RPVzCw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gQ05cZxF/aJ2jTEX85ApRfHrCX/P0AlCeLcoouX6swHoEIVMYFHgc2BNepvlWNBNFwmyt2gxqSloVscQAfb5D/s/VAQ1aoIJixbfFOQXqFcuEwe9o4D3UMKhXgfo6z6XcuFEIUyWwKb9jskxt7i5BpC7BXdFXdAg75txaRGUWms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=BDM6SVMI; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1742920798; c=relaxed/simple;
+	bh=CcCpmQ2C/F3isCH+LAunPzZPAfUEnTS/eOJ5mm5dvFM=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=YTzFAj1UU6hyJZ4QsixhsXq/LkzoqJQdZ7suXuk3vLS1F1vrHMixsQF7qOcTsuf0+RxXSeHqiEkJXOxjPhN/5b5jidG3rP0W40FL6cAor0JzxDYjXcZNH3NTIAi1pbjyDNJ9sxqyj2hRqmIm1i9MLoEXQOm73khpJfaRvWLswDc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fxraOzyl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="BDM6SVMI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1742900795;
-	bh=D0N/mgLzCXi4oZJoUT9/lMZngBeCJnMRqCEe8RPVzCw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=BDM6SVMILwPq70pCVbl5bItk8GC0tcw9Yf/34rYFw6mCnsN+0yUhfJ/hjiEeDmn72
-	 U/rtTB5SmTcJGgmK3BZgMDjTc0hOnJaukjn/UNzwgBnVk7brn9q0PkuiUIBfUuZDFV
-	 /zv/Zxa8KTIPQG2taIBBWZ5p/GXotmZq93q8rvpyMR3QhlH9TaqL4UWMJLUDFeiJav
-	 oaWEJjL7EdSh00MXLBQG9R/fO5qaK1ES5NL0feETn5ewOfDXhGrOCpSZC+OTwfLJOL
-	 KAzWvgqVBrQpvPHyVOUJI/5otjdYifxjbuAroFyqWGttAulvH7kZxZ+7Cd/mLVZAPr
-	 QrTihiq9olnjw==
-Received: from [192.168.50.250] (unknown [171.76.87.92])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 8ED1117E09D6;
-	Tue, 25 Mar 2025 12:06:30 +0100 (CET)
-Message-ID: <c71855d0-2638-4f06-9b75-cdbd137837bb@collabora.com>
-Date: Tue, 25 Mar 2025 16:36:00 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fxraOzyl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37D7FC4CEE4;
+	Tue, 25 Mar 2025 16:39:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1742920798;
+	bh=CcCpmQ2C/F3isCH+LAunPzZPAfUEnTS/eOJ5mm5dvFM=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=fxraOzylm1CY40Xy/mCXija6raz9hEyNcNGcg2QMH4tIxUBqmJmizWmylTXkoFI2l
+	 jJdjezHNKQ2sS4ThVC5NuVJDryDHGESpZUBfVmVMUW+3CBjvlaFvNZiir2DnVBGSWd
+	 1da8yCeJzBE/0/1HzUcI2IhYVuK3oYHjGqI1Be3P0AY3tvfcI8R3k95X0wKlAuCBMF
+	 00LN1eYfmhtBtbbDIMHAcd8fqhV/aSGSchiPF0CJjACl4ycErXGf2lB8Y00hUMEzWu
+	 inVUIhNgutQhDS1/+FNqzQGFaVmt/H0Yf6BHpwVNiGJ5QYCQ780HYpnHKlA/PH/j53
+	 aRe6wz1r3UVyA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADFEE380CFE7;
+	Tue, 25 Mar 2025 16:40:35 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/3] drm/ci: uprev mesa
-To: Daniel Stone <daniel@fooishbar.org>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.fornazier@gmail.com, airlied@gmail.com, simona.vetter@ffwll.ch,
- robdclark@gmail.com, guilherme.gallo@collabora.com,
- sergi.blanch.torne@collabora.com, valentine.burley@collabora.com,
- lumag@kernel.org, quic_abhinavk@quicinc.com, mripard@kernel.org,
- jani.nikula@linux.intel.com, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20250314085858.39328-1-vignesh.raman@collabora.com>
- <20250314085858.39328-2-vignesh.raman@collabora.com>
- <CAPj87rMjF84yyPqBshuGu=8qx6Xhq9Z-HgEnQe=tRtbu3E8OtQ@mail.gmail.com>
-Content-Language: en-US
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <CAPj87rMjF84yyPqBshuGu=8qx6Xhq9Z-HgEnQe=tRtbu3E8OtQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v2 0/4] virtio_net: Fixes and improvements
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <174292083452.643641.3571008462591384727.git-patchwork-notify@kernel.org>
+Date: Tue, 25 Mar 2025 16:40:34 +0000
+References: <20250321-virtio-v2-0-33afb8f4640b@daynix.com>
+In-Reply-To: <20250321-virtio-v2-0-33afb8f4640b@daynix.com>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, andrew@daynix.com,
+ jdamato@fastly.com, lulie@linux.alibaba.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, devel@daynix.com,
+ leiyang@redhat.com
 
+Hello:
 
-On 21/03/25 15:56, Daniel Stone wrote:
-> Hi Vignesh,
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Fri, 21 Mar 2025 15:48:31 +0900 you wrote:
+> Jason Wang recently proposed an improvement to struct
+> virtio_net_rss_config:
+> https://lore.kernel.org/r/CACGkMEud0Ki8p=z299Q7b4qEDONpYDzbVqhHxCNVk_vo-KdP9A@mail.gmail.com
 > 
-> On Fri, 14 Mar 2025 at 08:59, Vignesh Raman <vignesh.raman@collabora.com> wrote:
->> LAVA was recently patched [1] with a fix on how parameters are parsed in
->> `lava-test-case`, so we don't need to repeat quotes to send the
->> arguments properly to it. Uprev mesa to fix this issue.
+> This patch series implements it and also fixes a few minor bugs I found
+> when writing patches.
 > 
-> Thanks a lot; the series is:
-> Acked-by: Daniel Stone <daniels@collabora.com>
+> [...]
 
-Applied to drm-misc-next.
+Here is the summary with links:
+  - [net-next,v2,1/4] virtio_net: Split struct virtio_net_rss_config
+    https://git.kernel.org/netdev/net-next/c/976c2696b71d
+  - [net-next,v2,2/4] virtio_net: Fix endian with virtio_net_ctrl_rss
+    https://git.kernel.org/netdev/net-next/c/97841341e302
+  - [net-next,v2,3/4] virtio_net: Use new RSS config structs
+    https://git.kernel.org/netdev/net-next/c/ed3100e90d0d
+  - [net-next,v2,4/4] virtio_net: Allocate rss_hdr with devres
+    https://git.kernel.org/netdev/net-next/c/4944be2f5ad8
 
-Regards,
-Vignesh
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-> 
-> Cheers,
-> Daniel
-> 
 
