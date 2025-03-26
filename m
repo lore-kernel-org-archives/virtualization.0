@@ -1,76 +1,76 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35E391DDC1E
-	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 15:32:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D42981F560D
+	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 16:21:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743003157; cv=none; b=Ha9rKziJlTjCKKJp2ILaUVBEF6J1t5XS4AH/Xq2s9tjD0NQBhtYM1PmxnrBZdY0qnQ5Li1fp/2cHyI5B/xC52BIpSVDBU5FNB0QEz2cpnhjzq7B/QlKMcTscMmEoP/NaBTrOBSiKl/2O2oroN9pBbCf1E7laDHB7pKSYv6J/whU=
+	t=1743006074; cv=none; b=J57+eHQsEdlmpRQ8JJ30AO1KHnidby6detuvcJ5C+dCQDQBjxDZQQWbTekvcMjQEdrG5EOCbXtUbxoxIO/q/wSfR4NOyRfhc6hT5n/qX2z+eAv6Asw2Llu26StFDxL+m8TjJTmF82+S+1fdlQR9GHDqKMJz+i43ZgY2D0WI/OW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743003157; c=relaxed/simple;
-	bh=3FJc+P6b3zzJcpkV8eK+FP3TgtJw7jYvpWP0TF2ajgA=;
+	s=arc-20240116; t=1743006074; c=relaxed/simple;
+	bh=xejv/BHNYIpVxEwvi1agd8alfJnmDYOHhuQeSbz9TdE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=e+zY8w92xVRQCRlAPaDpTJ3o6ehCIeVZ4i1bZuAUnEio/niksl6BOTV9MdWKoZtvjG2UauZJ1rLdis5u9TLgKB9lRQQtFGoAM6lG6SqGbk2SRfTnl8S8tsZHPMfbFvOl+vRsXWWPMjAN0Xn6qW6Vb2hTKCetLfAshdZ2HXCWHwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PYwCYMlN; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=PLznhYo7bs+yzb0YfIFZHmdiitSOcUkcKYd+DQh0EAt+ZBcbTaYs0cYd0EMnJjwhwEEG+ZwIS2rdrX1I6i/9O62L3caF+uU8Jk6RPvhY8/irFVNK7UkXYgTZFJFcSP00KFBUnOoAJoYEqdXuk91sTjXfoTUJGlLvO5bvRNA28VE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QIYmj5qR; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PYwCYMlN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QIYmj5qR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743003155;
+	s=mimecast20190719; t=1743006071;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=cy6PJe0sMeoJhLcbhlkwSjbydSqh6/me/pxc/YeYWRY=;
-	b=PYwCYMlNa2gUVWUpZBBnOdejJKr6eUC1GhpL/9hnl8LmwY19s8uT+ZuANKUw3qX4gbtngS
-	r4EqFwmsTE6BpYQtEyMwfHsHKJq0Pkc9czJc/XcTCcvwedP0huMh5GqpokLS3ITpRda4PG
-	cHTyc2FcqWCONss+zdDpahF+oozWyTI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7rhDUOfYTdvyvV/eFaMDlyCyK0NwjyAggH/NGIgz/Q8=;
+	b=QIYmj5qR3I0N0B2jNc9JpdprvCRzwcA3OoQ3BoPjOPyWJADBdf+MMUnXBcLrWwkyNpwYjf
+	U53Rf6ACUoGiCTA+GIOxR+vm63STE1k29gDEi86kFHpajbwjL2zjJWCBiZhJWZbbXrzfTd
+	iUMYULXToTP1coU+kEMt2DJnFziLZM4=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-436-xWBiJ8DPOr6a6e9Zowm8_g-1; Wed, 26 Mar 2025 11:32:33 -0400
-X-MC-Unique: xWBiJ8DPOr6a6e9Zowm8_g-1
-X-Mimecast-MFC-AGG-ID: xWBiJ8DPOr6a6e9Zowm8_g_1743003152
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43bd0586a73so47145355e9.2
-        for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 08:32:33 -0700 (PDT)
+ us-mta-500-o4Rmxa5ZMROhu4dxO_WQMg-1; Wed, 26 Mar 2025 12:21:10 -0400
+X-MC-Unique: o4Rmxa5ZMROhu4dxO_WQMg-1
+X-Mimecast-MFC-AGG-ID: o4Rmxa5ZMROhu4dxO_WQMg_1743006069
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43bc97e6360so126145e9.3
+        for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 09:21:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743003152; x=1743607952;
+        d=1e100.net; s=20230601; t=1743006069; x=1743610869;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cy6PJe0sMeoJhLcbhlkwSjbydSqh6/me/pxc/YeYWRY=;
-        b=dKbWDcnFo2C5Nng4XfE6WUUgYZ07WZZnGVTfyKV8ksBtIudkKr1kjBfyf96gGJpsXP
-         X0OoO1oEjT5cgMCMPyKX81Qa8f2eX+oCA2zIdsuLtA7VuLxN3f8eqgD5iJf26prVu0W+
-         ilUXKDrP74/W96FeLYbLnjMgb0e6pKgQzlDAGmmDUWfzSBZmtIx+qi799ppZy7Ex8cGD
-         BBOs+tx3O38nKP5G5u3b2UumcfxPhJLg+eUyn9ZaKrzg5UDcA24F1jWENle+USMJC8XQ
-         2lXvImJI5JKQU/GUAEoSlamXbQ+AiLN75y/3ZeuNkJxm4+FSbhAHsXYjthVRj2SdDTkP
-         SDtA==
-X-Forwarded-Encrypted: i=1; AJvYcCUaWZL9CbJ/J7BuW237DuLLB2Rq/vy2Hr6MPzCNX2CRxHCg95K62jrfElb5wiMTL3SDhakXwAGPGR+tyB0CXg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy3U3zntEByJ0tdr4fHgwWnUxeiPcr+v3mPXSKn83C7yArPD9hE
-	7CWdhtHX1NeV0pmdBtrOKae6OHYX0mIAXAcsOpM/UBIwrmFPW6T2SBHAEwHm7sHVt821W3vXirR
-	x/oPmeFN5AhadllWh1WzHiVqe/bOUXVhuFC0l60HWfHIhRhCEvDkTEAFQAUoMSbHM
-X-Gm-Gg: ASbGncvpqK54ubXAdtKiDz7u26ZNgQrF4N8LhlrZBIfqEkADx9xJX0ELWLQ/RxeRAkX
-	DayNT7gQY4IJ5pFbQur1rF+oWpThWkwl2YojPhF/9rKKVxZr0tvwepuONI2mID/CC1a/sWItugV
-	t1bN9TYwov2zoGTvEo02C4lnP/rymS8vBEmWHxS9HKUZKx5/vufrx4Yxc56hc2N20UhmtWGJfU7
-	0jSAYz9lpY5dkG4uWn79MTr6Gu8A8bctfOvpQxkjHi8ik3vNffzjnFuxWqy62o64mRlgqkRt+Qc
-	VMEZCZumP/1dqDEBwRVg0XSFDtFIDlu8IurYxsoRXUaJDNRTLFbCbPLFYTWOP8sY
-X-Received: by 2002:a05:600c:3d93:b0:43d:300f:fa4a with SMTP id 5b1f17b1804b1-43d58db553amr142517335e9.12.1743003152358;
-        Wed, 26 Mar 2025 08:32:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFRLuNTDcftGdYLrF6TRN76YPNKGjROf60zN8Q6h9HxP9LzdIxTJHT5qWOkTTFeksKVqeo81g==
-X-Received: by 2002:a05:600c:3d93:b0:43d:300f:fa4a with SMTP id 5b1f17b1804b1-43d58db553amr142517035e9.12.1743003151832;
-        Wed, 26 Mar 2025 08:32:31 -0700 (PDT)
+        bh=7rhDUOfYTdvyvV/eFaMDlyCyK0NwjyAggH/NGIgz/Q8=;
+        b=Q4GzYHzALJmlopBwqboX5g0D1OReVB+2qVqJ6nYMfRy/g5lXw91A7TKeLJTZe5QdTj
+         PqIX1LQ68ymLRXNcq1m59WMwyDkIbEVGEAgnOb4iLPO0AEmAJk/yo5YvJ4W7rk0B1HHh
+         lIhMKiUb1IUrDIqLAGjHwLZch28EPHQxun6VE7XylZliqwSkjjiZUEUqBjxUgoCnx11K
+         iRJotDwp87q8VklsXFqHmyPDbhyoYvM84wIGosIe1eFSDRINMJl94Ro0YlNNIV/E2A0A
+         hLls7NIoWKYWVOTQVWfeLnCMXDUnW6fdF4DpGCII0qY27rgMJproqphgJ5C8QTraWLuE
+         nbVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXXFBzsb9+A/V946xQMpCmIgDB5dCWpb6um0yFitTGauboh11NcgjqTyBrOQ5ZHaTWWQprb+UZk6+ryfJRr9g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwJS6cIgAfewzYonvE3eHw2OipZtrCdg/5YIcLfRORQMyYgx8CY
+	d9yKqW+/OByag+j3LCTS/s+Nf1AqLURIYNbChxnxsry6BeHHxFlGO7+9vR6fm+On4pvp+PBm9cO
+	Ea1ylla0+O3JWkjdp6IEY63dak7BJ9J0vLVZEjHczynOacXhfOVBtvGFm7ruD+8Fm
+X-Gm-Gg: ASbGncsinvMaBjQ5RUjMRY4ZODQTR2WE5s4DJnI5i6nwCzqBETi4Ebqpxp+TysgqL3u
+	5T+7EWc1dd6xs2DFMy+5J87r3Gj7lgisPwYs4UWMCduo0WPIx0OO/nQqoHEj1Wipfr/KFzxlS6S
+	sd6nuM7dnTTblyij7wJ5LG1pchJSi3pqna+OEWGlsPr4FyyAN8LchUvFHSuzh4fM5v687iESOoQ
+	WoLOOCO1QIVJ/9aUACQLnVhWkr9ZxO+n/dUTIZWaG9sN1YKvfXlccvlVYsDy19ujsfeRZDatUGG
+	ax/vGMxipYjfsrh97r5tQIowZ7PNJoS7BhrjENOXOIlpZxtC/Gtcj43rbvS5N4YP
+X-Received: by 2002:a05:600c:5126:b0:43d:abd:ad0e with SMTP id 5b1f17b1804b1-43d84fb9f22mr885695e9.18.1743006069135;
+        Wed, 26 Mar 2025 09:21:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGx8/eCeBPFFtCPoCe1ZXCccXEQdNSFsGJQ/ayYaSjeZ5wE7SFAm2rdiOMf/B0yRu5sY+HFTg==
+X-Received: by 2002:a05:600c:5126:b0:43d:abd:ad0e with SMTP id 5b1f17b1804b1-43d84fb9f22mr885245e9.18.1743006068534;
+        Wed, 26 Mar 2025 09:21:08 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-12-25-55.business.telecomitalia.it. [87.12.25.55])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d82e834a5sm5891945e9.13.2025.03.26.08.32.29
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3997f9e6445sm17341376f8f.71.2025.03.26.09.21.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Mar 2025 08:32:30 -0700 (PDT)
-Date: Wed, 26 Mar 2025 16:32:26 +0100
+        Wed, 26 Mar 2025 09:21:07 -0700 (PDT)
+Date: Wed, 26 Mar 2025 17:21:03 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Luigi Leonardi <leonardi@redhat.com>
 Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Hyunwoo Kim <v4bel@theori.io>
 Subject: Re: [PATCH net-next v2] vsock/test: Add test for null ptr deref when
  transport changes
-Message-ID: <7ursz6zrffsljkvo25qvgaa5vroflpibtrgnz446ga36kzqtfc@l7v62brwdvod>
+Message-ID: <qp67w36nyzgyd45wi7oosxe6syx7dzcifc5s2eg47engirtrnf@ewnk6ngqw7h3>
 References: <20250314-test_vsock-v2-1-3c0a1d878a6d@redhat.com>
  <85a034b7-a22d-438f-802e-ac193099dbe7@rbox.co>
  <ghik6xpa5oxhb5lc4ztmqlwm3tkv5qbkj63h5mfqs33vursd5y@6jttd2lwwo7h>
@@ -82,7 +82,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <ghik6xpa5oxhb5lc4ztmqlwm3tkv5qbkj63h5mfqs33vursd5y@6jttd2lwwo7h>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5GQn2MFQswMpxGMY9bf7RRT72NoN2KE62zqyvgAkbFs_1743003152
+X-Mimecast-MFC-PROC-ID: YLjaYSzudsW7PnFX0AWjhIrRtEw9DN3HmU4AikOIoDc_1743006069
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
@@ -150,9 +150,93 @@ On Wed, Mar 26, 2025 at 04:14:20PM +0100, Luigi Leonardi wrote:
 >>Isn't 10 seconds a bit excessive? I see the oops pretty much immediately.
 >Yeah it's probably excessive. I used because it's the default timeout 
 >value.
+>>
+>>>+	do {
+>>>+		struct sockaddr_vm sa = {
+>>>+			.svm_family = AF_VSOCK,
+>>>+			.svm_cid = opts->peer_cid,
+>>>+			.svm_port = opts->peer_port,
+>>>+		};
+>>>+		int s;
+>>>+
+>>>+		s = socket(AF_VSOCK, SOCK_STREAM, 0);
+>>>+		if (s < 0) {
+>>>+			perror("socket");
+>>>+			exit(EXIT_FAILURE);
+>>>+		}
+>>>+
+>>>+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>>>+
+>>>+		/* Set CID to 0 cause a transport change. */
+>>>+		sa.svm_cid = 0;
+>>>+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>>>+
+>>>+		close(s);
+>>>+	} while (current_nsec() < tout);
+>>>+
+>>>+	if (pthread_cancel(thread_id)) {
+>>>+		perror("pthread_cancel");
+>>
+>>And errno here.
+>>
+>>>+		exit(EXIT_FAILURE);
+>>>+	}
+>>>+
+>>>+	/* Wait for the thread to terminate */
+>>>+	if (pthread_join(thread_id, NULL)) {
+>>>+		perror("pthread_join");
+>>
+>>And here.
+>>Aaand I've realized I've made exactly the same mistake elsewhere :)
+>>
+>>>...
+>>>+static void test_stream_transport_change_server(const struct test_opts *opts)
+>>>+{
+>>>+	time_t tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+>>>+
+>>>+	do {
+>>>+		int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+>>>+
+>>>+		close(s);
+>>>+	} while (current_nsec() < tout);
+>>>+}
+>>
+>>I'm not certain you need to re-create the listener or measure the time
+>>here. What about something like
+>>
+>>	int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+>>	control_expectln("DONE");
+>>	close(s);
+>>
+>Just tried and it triggers the oops :)
 
-Please define a new macro with less time, something like we did with
-ACCEPTQ_LEAK_RACE_TIMEOUT.
+If this works (as I also initially thought), we should check the result 
+of the first connect() in the client code. It can succeed or fail with 
+-EINTR, in other cases we should report an error because it is not 
+expected.
+
+And we should check also the second connect(), it should always fail, 
+right?
+
+For this I think you need another sync point to be sure the server is 
+listening before try to connect the first time:
+
+client:
+     // pthread_create, etc.
+
+     control_expectln("LISTENING");
+
+     do {
+         ...
+     } while();
+
+     control_writeln("DONE");
+
+server:
+     int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+     control_writeln("LISTENING");
+     control_expectln("DONE");
+     close(s);
 
 Thanks,
 Stefano
