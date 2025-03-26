@@ -1,107 +1,219 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0194A18EB0
-	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 14:46:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743000415; cv=pass; b=JfnAVVCNNlRq7lTWmjxD3553tlGP5lB3suO72Ai2wRUvd5iwx2nq/1spUAkkiGgCcPUjDw1uyWdUw9DWR05At3WirP2uy3JP2QS54EINYEfiiWwxjAW0Q9ewcGkkG30qYIno8RaFG+Q8k82k1A2Exv2vwISyPV/jjuS1avhreyA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743000415; c=relaxed/simple;
-	bh=BBJJp7brECBnD5Lxk7Yxy9YoxzxJ98QGVJjxIODinM4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EgOH+eK4kzVQPbuKLaQqtbMLxn9a/g7CCBjAyVbVCjf9FxQWJLys8p48/+bDTbfLVvXXgWUFbq9Ji9OyfhIBv2X5985ABWAZknSBQI7SytbWrzeMRI5UHRHtmQQRLzEH3YT/aweXW+DvoavRKA9umv26wP7eSD3xEazxhHao8d4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=FRBgU1Ca; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DD1F1F3BB9
+	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 15:14:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743002068; cv=none; b=CkVoOMgoRF9W8hq6Wq7nRrckCgUe3qm8dVKwUnUv+7t9+MmkIpzlIGn+pIkuw4V/1EgSD7qJnjkTgQGjv1hDg3wm6fEGW3r2XFMhKqCu8RhuNAgmFvZjn0VxBgV7Huc4KGvh+wYJx/+hcOedKn22tjI3kTcKe3wcvBsiIDtmpWM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743002068; c=relaxed/simple;
+	bh=HQUnbYOHztWJlIEUmRKH75bQVKxvC05Z8Czi7nqAq54=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=bU/N6mcV4+KLbnEeTtlQ6Lab89djtRJQ30nJy2vzZY31pDj03WJvfFv1I0MJ2HwdnPbcNkyC9BbgmBOsMxevE0YvvXaU/su1S11spQxE5JsVEBH3Vtet4ePfrdffgKrmSqgAn13AqKxq4NwMBTDwRPKPAiXAvOTzShgnRx4uLK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UdzMKDui; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="FRBgU1Ca"
-ARC-Seal: i=1; a=rsa-sha256; t=1743000395; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=ghZpvDPIx2W4upA6AWCap5qOIs4idAM13yP3crLjPK1kCGyX2UJsyd9lFx/f6AMnnt2tkoE2DiU6/PTe8WcItH3rrwD+Is/HnEV3FIp6+OnARNFrVL2ohvYpgAmvEXSmDabJ0IEqRa02hHBPQZt4ExvLrhRxLffgoKqAZpno+9k=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1743000395; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=UM0Ih6VqtqbtAFJFS/WtVT4fHB3Sai9RsrTsE09plNk=; 
-	b=j3l79jGiCQLmzYVr5krK0FMQ6XM/5RAfgg+eXUMKqxZnnYAub2idfsBCh7+9aI6Zmf/4mBDIl8yONUd6D0Acv+GMM7nBe8VhkDeQYVeRA0/mvqOkyiY8rcphOtp+3ok6M38fTnEkZyiE8lf3ylBZWIrqRsHY/ES73+dR1AOXAL8=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1743000395;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=UM0Ih6VqtqbtAFJFS/WtVT4fHB3Sai9RsrTsE09plNk=;
-	b=FRBgU1CaK7Zy+0AL4OpfnUwHAm0RT6VgaukKrE+DxzjT0N4Z8l31PZOqcu9xvnoi
-	lqD6OfIi1E/V9wE1Vv0YqA0Bw0f5KrYdHb3hUKghbxaVwXn95E5oVERxepoabadpyRe
-	jQRRrD+44BzBr63ne0py+i6WAr7KzC/8V99oju4o=
-Received: by mx.zohomail.com with SMTPS id 1743000392935887.9682124854454;
-	Wed, 26 Mar 2025 07:46:32 -0700 (PDT)
-Message-ID: <85470439-3c03-4787-be91-b6b680a5aca5@collabora.com>
-Date: Wed, 26 Mar 2025 17:46:27 +0300
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UdzMKDui"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743002066;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xPLJoTpj9mwt9aNlegdCeCagVemKudQjbGtSj2yURtA=;
+	b=UdzMKDuiKuxZiAnAE2/3+j7ISnyxR07MvPkGqEsSjPC2C3rG8rK2bYZxkuvtmyXK4CCfNi
+	lUpyI7qf2covl9bsIC1gXff5lkSgrafZGiXUN8z03ACfawvOgM/3F/QnPXhnNW+GQ2uA66
+	F0NoLct/TZmsS1wTPozvhbJHG3iY8Kg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-509-NT8qoD4UPBeNg5jxRfJ8Mw-1; Wed, 26 Mar 2025 11:14:24 -0400
+X-MC-Unique: NT8qoD4UPBeNg5jxRfJ8Mw-1
+X-Mimecast-MFC-AGG-ID: NT8qoD4UPBeNg5jxRfJ8Mw_1743002063
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3913f546dfdso3739317f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 08:14:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743002063; x=1743606863;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xPLJoTpj9mwt9aNlegdCeCagVemKudQjbGtSj2yURtA=;
+        b=Lo6f9d0a1p7IrYPbQ9GaZFATy+5fC/wQqqew+ahLhV4FahUQ5/9MPWAN+H0A/D3PDD
+         dOgALRLKONR0841f8ZOoOlEYd1dSJKCD2v1b4IHPkaJ6a+H52UqZVvaIkLObvk5wOJoq
+         4+iPWVEQFpHjdzchySqQUdbQgiWej7UTSpwIvDn3BXZxwIN5PtVVPYExNS3JM1S4Xe2R
+         AAI3gAKZZGgAShQmat7PfAnrejkWl+Y6mKFvCgIAYvGHUf6SQM6Ol7s4hUCi2eIRyreh
+         AoXRRZy3W5J/LHsZB4RXiPRv6TlXLEUkJqkVxfnzBjFlayPPGvXXhCfcBENur3BnIu2Z
+         0Pyw==
+X-Forwarded-Encrypted: i=1; AJvYcCURW4qsBf4IId5ecyzu7DtUg536GC+0CYDeXVZwjb+A2G76FtIRijkeOArEwzgm2O0HFFqq1H2V/SNx40CibA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx5BkMNTp6+hGyPJ1M99gJk6mxCzQPy+g5ZTFf4TTC5TZdyXmHb
+	CDLaK1txrmTSbi4KV+5zXPIAifJe68AVPcAXjQERuB/hG1MhiTu7UXyql1tnjZ9ZYZPjuFvyudt
+	vhcHKT8vTIYQ13fnSnwsoZfHBBiA1nN08kC8UvUh4QG1bGIJQBtTHpXNsJRDXVZs0
+X-Gm-Gg: ASbGncu3rvpzUZ9W7gXSk+ZMLK2oaX+KKlD1VYHZzi7+7kqrTdIONRF0qKsanAZheia
+	0i5MfbHw1lq/S0fmWqgTRewgFq9woWqOjPpXiZ/MPC/42L0L7BqMZUVookaC7J1i1ddnicFbmCq
+	e5NXypGlhY+BPankYVdIDIsvDAEeeR5Kxj+YBHy4sMMHth/wI965EHowzts4+JPxSHva3Dn6rFb
+	2B0p7TtBDF26jWS5+l//bFMY4cCVwyD5AoS4pY3ggj6+FbQBACxHTurh8mDjWUCOAgXfjcvUZzp
+	oZPKy9kKWBjUpeDdlA==
+X-Received: by 2002:a5d:6c63:0:b0:38d:e304:7470 with SMTP id ffacd0b85a97d-3997f90aa79mr21794406f8f.25.1743002063258;
+        Wed, 26 Mar 2025 08:14:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGLDszGJVF0UQWbzTWPDs66IMD9GSVlTSXE4mrjhgf35Uxdu3u5FMnMzdvDiVttQywI4kT7Hw==
+X-Received: by 2002:a5d:6c63:0:b0:38d:e304:7470 with SMTP id ffacd0b85a97d-3997f90aa79mr21794380f8f.25.1743002062777;
+        Wed, 26 Mar 2025 08:14:22 -0700 (PDT)
+Received: from leonardi-redhat ([151.29.33.62])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d82efdff2sm4960435e9.17.2025.03.26.08.14.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Mar 2025 08:14:22 -0700 (PDT)
+Date: Wed, 26 Mar 2025 16:14:20 +0100
+From: Luigi Leonardi <leonardi@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: Stefano Garzarella <sgarzare@redhat.com>, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Hyunwoo Kim <v4bel@theori.io>
+Subject: Re: [PATCH net-next v2] vsock/test: Add test for null ptr deref when
+ transport changes
+Message-ID: <ghik6xpa5oxhb5lc4ztmqlwm3tkv5qbkj63h5mfqs33vursd5y@6jttd2lwwo7h>
+References: <20250314-test_vsock-v2-1-3c0a1d878a6d@redhat.com>
+ <85a034b7-a22d-438f-802e-ac193099dbe7@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/7] virtio-gpu api: add blob userptr resource
-To: "Huang, Honglei1" <Honglei1.Huang@amd.com>,
- Demi Marie Obenour <demiobenour@gmail.com>, David Airlie
- <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
- Huang Rui <ray.huang@amd.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20250228053650.393646-1-honglei1.huang@amd.com>
- <20250228053650.393646-2-honglei1.huang@amd.com>
- <cd9f85a5-0d99-4007-bba2-d792ac9d84da@gmail.com>
- <c2d1334f-6f5a-493f-bbf0-3e92789f128a@amd.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <c2d1334f-6f5a-493f-bbf0-3e92789f128a@amd.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+In-Reply-To: <85a034b7-a22d-438f-802e-ac193099dbe7@rbox.co>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: gshnGjWJlMaRfTlQWXEHtCgORS4iRlLf2drHb1kMmuU_1743002063
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 3/6/25 13:51, Huang, Honglei1 wrote:
-> 
-> On 2025/3/1 5:21, Demi Marie Obenour wrote:
->> On 2/28/25 12:36 AM, Honglei Huang wrote:
->>> From: Honglei Huang <Honglei1.Huang@amd.com>
->>>
->>> Add a new resource for blob resource, called userptr, used for let
->>> host access guest user space memory, to acquire buffer based userptr
->>> feature in virtio GPU.
->>>
->>> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
->>> in this series patches only HSAKMT context can use the userptr
->>> feature. HSAKMT is a GPU compute library in HSA stack, like
->>> the role libdrm in mesa stack.
+Hi Michal,
+
+On Wed, Mar 19, 2025 at 01:27:35AM +0100, Michal Luczaj wrote:
+>On 3/14/25 10:27, Luigi Leonardi wrote:
+>> Add a new test to ensure that when the transport changes a null pointer
+>> dereference does not occur[1].
 >>
->> Userptr should not be limited to HSMKMT contexts.  Userptr can
->> accelerate shm buffers by avoiding a copy from guest to host, and
->> it can be implemented using grant tables on Xen.
-> 
-> Yes, I totally agree userptr can accelerate shm buffers, but I currently
-> don't know if there are any other projects working on similar features,
-> or if maintainers have any opinions or better ways to implement them, so
-> I temporarily limit this feature to HSAKMT context only.
-> 
-> I am waiting for everyone's opinions, please provide your thoughts.
+>> Note that this test does not fail, but it may hang on the client side if
+>> it triggers a kernel oops.
+>>
+>> This works by creating a socket, trying to connect to a server, and then
+>> executing a second connect operation on the same socket but to a
+>> different CID (0). This triggers a transport change. If the connect
+>> operation is interrupted by a signal, this could cause a null-ptr-deref.
+>
+>Just to be clear: that's the splat, right?
+>
+>Oops: general protection fault, probably for non-canonical address 0xdffffc000000000c: 0000 [#1] PREEMPT SMP KASAN NOPTI
+>KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
+>CPU: 2 UID: 0 PID: 463 Comm: kworker/2:3 Not tainted
+>Workqueue: vsock-loopback vsock_loopback_work
+>RIP: 0010:vsock_stream_has_data+0x44/0x70
+>Call Trace:
+> virtio_transport_do_close+0x68/0x1a0
+> virtio_transport_recv_pkt+0x1045/0x2ae4
+> vsock_loopback_work+0x27d/0x3f0
+> process_one_work+0x846/0x1420
+> worker_thread+0x5b3/0xf80
+> kthread+0x35a/0x700
+> ret_from_fork+0x2d/0x70
+> ret_from_fork_asm+0x1a/0x30
+>
 
-USERPTR should be relevant for anything Vulkan-related, like Venus and
-native contexts. I expect that this new feature will work universally
-good for all context types.
+Yep! I'll add it to the commit message in v3.
+>> ...
+>> +static void test_stream_transport_change_client(const struct test_opts *opts)
+>> +{
+>> +	__sighandler_t old_handler;
+>> +	pid_t pid = getpid();
+>> +	pthread_t thread_id;
+>> +	time_t tout;
+>> +
+>> +	old_handler = signal(SIGUSR1, test_transport_change_signal_handler);
+>> +	if (old_handler == SIG_ERR) {
+>> +		perror("signal");
+>> +		exit(EXIT_FAILURE);
+>> +	}
+>> +
+>> +	if (pthread_create(&thread_id, NULL, test_stream_transport_change_thread, &pid)) {
+>> +		perror("pthread_create");
+>
+>Does pthread_create() set errno on failure?
+It does not, very good catch!
+>
+>> +		exit(EXIT_FAILURE);
+>> +	}
+>> +
+>> +	tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+>
+>Isn't 10 seconds a bit excessive? I see the oops pretty much immediately.
+Yeah it's probably excessive. I used because it's the default timeout 
+value.
+>
+>> +	do {
+>> +		struct sockaddr_vm sa = {
+>> +			.svm_family = AF_VSOCK,
+>> +			.svm_cid = opts->peer_cid,
+>> +			.svm_port = opts->peer_port,
+>> +		};
+>> +		int s;
+>> +
+>> +		s = socket(AF_VSOCK, SOCK_STREAM, 0);
+>> +		if (s < 0) {
+>> +			perror("socket");
+>> +			exit(EXIT_FAILURE);
+>> +		}
+>> +
+>> +		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>> +
+>> +		/* Set CID to 0 cause a transport change. */
+>> +		sa.svm_cid = 0;
+>> +		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>> +
+>> +		close(s);
+>> +	} while (current_nsec() < tout);
+>> +
+>> +	if (pthread_cancel(thread_id)) {
+>> +		perror("pthread_cancel");
+>
+>And errno here.
+>
+>> +		exit(EXIT_FAILURE);
+>> +	}
+>> +
+>> +	/* Wait for the thread to terminate */
+>> +	if (pthread_join(thread_id, NULL)) {
+>> +		perror("pthread_join");
+>
+>And here.
+>Aaand I've realized I've made exactly the same mistake elsewhere :)
+>
+>> ...
+>> +static void test_stream_transport_change_server(const struct test_opts *opts)
+>> +{
+>> +	time_t tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+>> +
+>> +	do {
+>> +		int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+>> +
+>> +		close(s);
+>> +	} while (current_nsec() < tout);
+>> +}
+>
+>I'm not certain you need to re-create the listener or measure the time
+>here. What about something like
+>
+>	int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
+>	control_expectln("DONE");
+>	close(s);
+>
+Just tried and it triggers the oops :)
 
-In order to merge USERPTR support upstream, we at least will need to
-prototype the guest USERPTR in one of native context driver to know that
-it works. You'll need to post the whole set of host/guest USERPTR
-patches including QEMU and etc, not just the kernel patches.
+>Thanks,
+>Michal
+>
 
--- 
-Best regards,
-Dmitry
+Thanks for the review!
+
+Luigi
+
