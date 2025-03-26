@@ -1,192 +1,107 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CB6F18EB0
-	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 14:02:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742997779; cv=none; b=RZ0FYghCQkfVNv74snsWXU57htd9dsbL7ov1pVUzQr+n1gbjrqN5pxpUKyp+k3MdBu3Nk/kHO2qTbClOuvyEzQh51qa/bXySVpKgbwvzs8OFz7GYwPEJ2CzKONm7iaAUnvlm9RjKCkky8D8nLkMcbfGdArHo6oughAgp3Ou5G3I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742997779; c=relaxed/simple;
-	bh=3qzzuciwFiHhgnR+NjBWc+rKPxYkw4M3p/jQtmvaWSQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pr4u5l4TMqsEjedd2BNlXJ6oLbZZ7erutgd+sUq2mRSFicVI23Ealsg1R88Iys9phI71i5huB/6lTf6BoWLaZvYV8SyaT4/nzLB7yNdErz23zJwqFq0WUd7JRh4I1EoB/LZ6K3Fpxf+rcN5Fb9VO03FYkNT6JdUmqNeNwsxnbnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PywAU2AP; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0194A18EB0
+	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 14:46:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743000415; cv=pass; b=JfnAVVCNNlRq7lTWmjxD3553tlGP5lB3suO72Ai2wRUvd5iwx2nq/1spUAkkiGgCcPUjDw1uyWdUw9DWR05At3WirP2uy3JP2QS54EINYEfiiWwxjAW0Q9ewcGkkG30qYIno8RaFG+Q8k82k1A2Exv2vwISyPV/jjuS1avhreyA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743000415; c=relaxed/simple;
+	bh=BBJJp7brECBnD5Lxk7Yxy9YoxzxJ98QGVJjxIODinM4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EgOH+eK4kzVQPbuKLaQqtbMLxn9a/g7CCBjAyVbVCjf9FxQWJLys8p48/+bDTbfLVvXXgWUFbq9Ji9OyfhIBv2X5985ABWAZknSBQI7SytbWrzeMRI5UHRHtmQQRLzEH3YT/aweXW+DvoavRKA9umv26wP7eSD3xEazxhHao8d4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=FRBgU1Ca; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PywAU2AP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742997776;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HnbLFSfaVr4Q22ZcBNrQlalkQrGvDzjjby77ROH2VlI=;
-	b=PywAU2APf63i5vzARGdfimCi7pq4AULnxD9LmJVD8v2H0tkAOaStug9NOmHl4SChyx4dCy
-	u5OpZOPUsrL1k+E9zv9ZzTqgshsIttzGKKgE+RQQz/omb6kDZUOXw2ltvvx5RPQJ9d+dIn
-	LE1DhZCz9Ac5kKFA2Yo2sRrlWBtRnFI=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-VSFK2Mt0P3WuOjXWN0B2GQ-1; Wed, 26 Mar 2025 10:02:55 -0400
-X-MC-Unique: VSFK2Mt0P3WuOjXWN0B2GQ-1
-X-Mimecast-MFC-AGG-ID: VSFK2Mt0P3WuOjXWN0B2GQ_1742997774
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5d9e4d33f04so5650760a12.0
-        for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 07:02:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742997773; x=1743602573;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HnbLFSfaVr4Q22ZcBNrQlalkQrGvDzjjby77ROH2VlI=;
-        b=Ipe40XT8ZyTjunqXa2AiTnJzdLlDxAw4mFmBqpACb1xOx5Cu0dG/fMlVOj3K86MM1r
-         yxIeqOROnkphTIw17AlPemA7cfIAYBZS7P8D7Mwzox+dOgPe+W/XQpaVqQzORVh6azi5
-         pM1DmkUzCs96f9FruS2g/77zMba0AqNfaJpBza0wtjwkRj6cYj+yHTDc9lJVLahI6R8c
-         WZz4JzG7EbJz8wAj5rRNHi3/bThtXheU0HloTpThJqeIa0FZlXh5uJmYVBdWojIdxd0W
-         7skMVAWNuTx/pwgcYp3dwdcmd74RG5151XGjuEabG5CxvTF+ZWQkIcqWpFLxWjAsD/To
-         LGqg==
-X-Forwarded-Encrypted: i=1; AJvYcCUyDfCe3rfeZgNxfLqDGvr+bfPvF2C9e057tJ1YW0/yl7HPefJP0CaJPneVFM5XDaJABJz0PWgMIogUDyqwFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwHyCOQXc4lsaYch6seMvNxs8vf6fuy4IImgOvRFGvN20wMaPs/
-	3L8FKtbB+wX5AwD5Jr70E2obZ1HqVV/iTaAE42seSOumetUkAW0Q43h7gDPaYPGdKTecdii0Zav
-	iQumQlYomHiE0uPkYzhiDcvDo3lZCw01ihtziECfHSVgP3LEWcaLLPzQYUwYjQ+8Pb7qYPYMX2p
-	LxFVS0KfVoJ/SAzLcqSYweF8IsPpdaUcomnawVTmTtDHIrU2lnSw==
-X-Gm-Gg: ASbGnculwuWXTTdAPLl7ivDwP3TppdZ0fRJwbJYkCexkjsX9Hq/KhydLkYq9aLtmdum
-	6UcjXSNF2WBcjpaK//Ioq1GXc8KN/l8WSLahYVac9Vd0ipjRxo8wpQ98F4dfu/eIYFFQRyhI=
-X-Received: by 2002:a05:6402:50ce:b0:5ed:6192:3759 with SMTP id 4fb4d7f45d1cf-5ed61923892mr795745a12.0.1742997772943;
-        Wed, 26 Mar 2025 07:02:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGNz4NecBFhHtJh14xuH66vPEkf/EqjvhB0U+5xZoM1iUladqkUX08Zn44oe38tBlmrzjNvm4QWreip61547JM=
-X-Received: by 2002:a05:6402:50ce:b0:5ed:6192:3759 with SMTP id
- 4fb4d7f45d1cf-5ed61923892mr795482a12.0.1742997770904; Wed, 26 Mar 2025
- 07:02:50 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="FRBgU1Ca"
+ARC-Seal: i=1; a=rsa-sha256; t=1743000395; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=ghZpvDPIx2W4upA6AWCap5qOIs4idAM13yP3crLjPK1kCGyX2UJsyd9lFx/f6AMnnt2tkoE2DiU6/PTe8WcItH3rrwD+Is/HnEV3FIp6+OnARNFrVL2ohvYpgAmvEXSmDabJ0IEqRa02hHBPQZt4ExvLrhRxLffgoKqAZpno+9k=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1743000395; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=UM0Ih6VqtqbtAFJFS/WtVT4fHB3Sai9RsrTsE09plNk=; 
+	b=j3l79jGiCQLmzYVr5krK0FMQ6XM/5RAfgg+eXUMKqxZnnYAub2idfsBCh7+9aI6Zmf/4mBDIl8yONUd6D0Acv+GMM7nBe8VhkDeQYVeRA0/mvqOkyiY8rcphOtp+3ok6M38fTnEkZyiE8lf3ylBZWIrqRsHY/ES73+dR1AOXAL8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1743000395;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=UM0Ih6VqtqbtAFJFS/WtVT4fHB3Sai9RsrTsE09plNk=;
+	b=FRBgU1CaK7Zy+0AL4OpfnUwHAm0RT6VgaukKrE+DxzjT0N4Z8l31PZOqcu9xvnoi
+	lqD6OfIi1E/V9wE1Vv0YqA0Bw0f5KrYdHb3hUKghbxaVwXn95E5oVERxepoabadpyRe
+	jQRRrD+44BzBr63ne0py+i6WAr7KzC/8V99oju4o=
+Received: by mx.zohomail.com with SMTPS id 1743000392935887.9682124854454;
+	Wed, 26 Mar 2025 07:46:32 -0700 (PDT)
+Message-ID: <85470439-3c03-4787-be91-b6b680a5aca5@collabora.com>
+Date: Wed, 26 Mar 2025 17:46:27 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250324054333.1954-1-jasowang@redhat.com> <20250324060127.2358-6-jasowang@redhat.com>
-In-Reply-To: <20250324060127.2358-6-jasowang@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 26 Mar 2025 15:02:12 +0100
-X-Gm-Features: AQ5f1JrzMmqRzjZ2QP_VVFzie1zTkK-Q3AUK4a9ZoX6-xBZKdIqB5CZikFJJcDk
-Message-ID: <CAJaqyWeDOjsJ1wv7PvXt86JztEVMuwKSR1-g9NS35DUbopK8ag@mail.gmail.com>
-Subject: Re: [PATCH 18/19] virtio_ring: factor out split indirect detaching logic
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: qyRv05Uh_NWDy0Nh4sMmgQEY22MkhxlppIKsowAw-3E_1742997774
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/7] virtio-gpu api: add blob userptr resource
+To: "Huang, Honglei1" <Honglei1.Huang@amd.com>,
+ Demi Marie Obenour <demiobenour@gmail.com>, David Airlie
+ <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
+ Huang Rui <ray.huang@amd.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20250228053650.393646-1-honglei1.huang@amd.com>
+ <20250228053650.393646-2-honglei1.huang@amd.com>
+ <cd9f85a5-0d99-4007-bba2-d792ac9d84da@gmail.com>
+ <c2d1334f-6f5a-493f-bbf0-3e92789f128a@amd.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Content-Language: en-US
+In-Reply-To: <c2d1334f-6f5a-493f-bbf0-3e92789f128a@amd.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Mon, Mar 24, 2025 at 7:02=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> Factor out the split indirect descriptor detaching logic in order to
-> make it be reused by the in order support.
->
+On 3/6/25 13:51, Huang, Honglei1 wrote:
+> 
+> On 2025/3/1 5:21, Demi Marie Obenour wrote:
+>> On 2/28/25 12:36 AM, Honglei Huang wrote:
+>>> From: Honglei Huang <Honglei1.Huang@amd.com>
+>>>
+>>> Add a new resource for blob resource, called userptr, used for let
+>>> host access guest user space memory, to acquire buffer based userptr
+>>> feature in virtio GPU.
+>>>
+>>> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
+>>> in this series patches only HSAKMT context can use the userptr
+>>> feature. HSAKMT is a GPU compute library in HSA stack, like
+>>> the role libdrm in mesa stack.
+>>
+>> Userptr should not be limited to HSMKMT contexts.  Userptr can
+>> accelerate shm buffers by avoiding a copy from guest to host, and
+>> it can be implemented using grant tables on Xen.
+> 
+> Yes, I totally agree userptr can accelerate shm buffers, but I currently
+> don't know if there are any other projects working on similar features,
+> or if maintainers have any opinions or better ways to implement them, so
+> I temporarily limit this feature to HSAKMT context only.
+> 
+> I am waiting for everyone's opinions, please provide your thoughts.
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+USERPTR should be relevant for anything Vulkan-related, like Venus and
+native contexts. I expect that this new feature will work universally
+good for all context types.
 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c | 63 ++++++++++++++++++++----------------
->  1 file changed, 35 insertions(+), 28 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index a1a8cd931052..0fad8e8419c8 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -765,11 +765,42 @@ static bool virtqueue_kick_prepare_split(struct vri=
-ng_virtqueue *vq)
->         return needs_kick;
->  }
->
-> +static void detach_indirect_split(struct vring_virtqueue *vq,
-> +                                 unsigned int head)
-> +{
-> +       struct vring_desc_extra *extra =3D vq->split.desc_extra;
-> +       struct vring_desc *indir_desc =3D
-> +              vq->split.desc_state[head].indir_desc;
-> +       unsigned int j;
-> +       u32 len, num;
-> +
-> +       /* Free the indirect table, if any, now that it's unmapped. */
-> +       if (!indir_desc)
-> +               return;
-> +       len =3D vq->split.desc_extra[head].len;
-> +
-> +       BUG_ON(!(vq->split.desc_extra[head].flags &
-> +                       VRING_DESC_F_INDIRECT));
-> +       BUG_ON(len =3D=3D 0 || len % sizeof(struct vring_desc));
-> +
-> +       num =3D len / sizeof(struct vring_desc);
-> +
-> +       extra =3D (struct vring_desc_extra *)&indir_desc[num];
-> +
-> +       if (vq->use_dma_api) {
-> +               for (j =3D 0; j < num; j++)
-> +                       vring_unmap_one_split(vq, &extra[j]);
-> +       }
-> +
-> +       kfree(indir_desc);
-> +       vq->split.desc_state[head].indir_desc =3D NULL;
-> +}
-> +
->  static void detach_buf_split(struct vring_virtqueue *vq, unsigned int he=
-ad,
->                              void **ctx)
->  {
->         struct vring_desc_extra *extra;
-> -       unsigned int i, j;
-> +       unsigned int i;
->         __virtio16 nextflag =3D cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F=
-_NEXT);
->
->         /* Clear data ptr. */
-> @@ -793,34 +824,10 @@ static void detach_buf_split(struct vring_virtqueue=
- *vq, unsigned int head,
->         /* Plus final descriptor */
->         vq->vq.num_free++;
->
-> -       if (vq->indirect) {
-> -               struct vring_desc *indir_desc =3D
-> -                               vq->split.desc_state[head].indir_desc;
-> -               u32 len, num;
-> -
-> -               /* Free the indirect table, if any, now that it's unmappe=
-d. */
-> -               if (!indir_desc)
-> -                       return;
-> -               len =3D vq->split.desc_extra[head].len;
-> -
-> -               BUG_ON(!(vq->split.desc_extra[head].flags &
-> -                               VRING_DESC_F_INDIRECT));
-> -               BUG_ON(len =3D=3D 0 || len % sizeof(struct vring_desc));
-> -
-> -               num =3D len / sizeof(struct vring_desc);
-> -
-> -               extra =3D (struct vring_desc_extra *)&indir_desc[num];
-> -
-> -               if (vq->use_dma_api) {
-> -                       for (j =3D 0; j < num; j++)
-> -                               vring_unmap_one_split(vq, &extra[j]);
-> -               }
-> -
-> -               kfree(indir_desc);
-> -               vq->split.desc_state[head].indir_desc =3D NULL;
-> -       } else if (ctx) {
-> +       if (vq->indirect)
-> +               detach_indirect_split(vq, head);
-> +       else if (ctx)
->                 *ctx =3D vq->split.desc_state[head].indir_desc;
-> -       }
->  }
->
->  static bool virtqueue_poll_split(const struct vring_virtqueue *vq,
-> --
-> 2.42.0
->
+In order to merge USERPTR support upstream, we at least will need to
+prototype the guest USERPTR in one of native context driver to know that
+it works. You'll need to post the whole set of host/guest USERPTR
+patches including QEMU and etc, not just the kernel patches.
 
+-- 
+Best regards,
+Dmitry
