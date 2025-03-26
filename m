@@ -1,83 +1,82 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884B41E1E16
-	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 12:31:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 752E21A8407
+	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 12:32:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742992309; cv=none; b=L0oBWD+bGLypH/U8yY/9BGOZ+8hM++EbGab+oKXAVEgpLDDYkVFWZJ58qe8SV0XctaMfOcPC6kan9Fz2Bmx8diXBDnh+TrQ7SCIz2/tnpVRR+DNb+7S0GJCCkQ6uIIB/JeqITJFl9uTZxhDCRh3/+0lGz/JiKrUhKLxYJSDoCn4=
+	t=1742992341; cv=none; b=ldNy2AQ0S1USef0nZhxb3PiJxHeqrt1NI9lihYBJ6795T/0kCK9pgvRl4k+CUCpnubVI/Nmu5ArD3DQlWakYb0PAZtvcyk18W9FSE/jovviQN11yCPJimNGT3attZuxrLDsumo+A1JPSb4/g2/+Pe5XyoxxJCEAJIu6xfXVYCwA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742992309; c=relaxed/simple;
-	bh=j1PgJNIW3viI9aUjPkcKwLkz/LrCzWVeZgttB5sdsZQ=;
+	s=arc-20240116; t=1742992341; c=relaxed/simple;
+	bh=2TTqg+lX1dQhtProIvhVeWwU3LN5GCVx00xGdLNnELE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tBY6EAF9UoraKOxIgFUyGWmBhZlHPVpC0MuAHK9CUC+8JEuzA1bEL1gZFSoDzQKiTYfGFoZXcQ51t9ROWCfQJ+3zJegPkXSYBVwB/fqEzwi3yObe89NWaK5BwHcGr6CyPWQKpvTKZboKSHd/UaKtE5QPYJwO8As2jgs2n+3armw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JDnx6/Tg; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=bA58xmoCBOTxDZQW48g+y9x1jOqcCxOLRLE9luycNKD+RYgXx61uczElaKrj6qDh/PMFXHmoPV/9bgJejBai6XgNIVpiQz4y2bBLHBPkAUD6TkB6yovieuX3u6BsTuP+ZYZW04lpqAdvsP7AYw+wxq1eym2GOtF6KCr6Jo3Kux0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HSoCDXij; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JDnx6/Tg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HSoCDXij"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742992306;
+	s=mimecast20190719; t=1742992338;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Iml6swh0i7lBeQVcG26hls4lzAH12sEjWHyxF8tp8XU=;
-	b=JDnx6/TgpRh4Db0Y9ZZ4SXtpi8FV1LS0yzmaCd2zdhXVhUIsJxmQhjoDwu/IMW+lZLprKS
-	y1ilUOVXnM5qxyDnqccV9HNkDDihGxy9O409lXEJWPOR4ok3NFe8OkYMonEcaLm9xpLkli
-	AmCs48zGcJmFuyDV3OO5Ul2hZlLej0s=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=KwcA5Ry4ZMsWvxEDjHDWkPrYz/bbKoxfDEYy7G5GMTY=;
+	b=HSoCDXijxwA/P1r8BTkM2w0nLUHol4YRYN61tlXUFvkUFsgKkW+aIwfHb0zFTjtRemlgjR
+	jfWZEC3aZxWEYP1QkM50Cghm+vNlBIWZzDb36iOFfWZ9yErFjXAJ2nmEkDUjpbnF+fnyyh
+	ld9Hnuhbm6aXlzOx6U3qVGdeofeKiLE=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-57-TVqkzycRPrmqNwAgk2f_uQ-1; Wed, 26 Mar 2025 08:31:44 -0400
-X-MC-Unique: TVqkzycRPrmqNwAgk2f_uQ-1
-X-Mimecast-MFC-AGG-ID: TVqkzycRPrmqNwAgk2f_uQ_1742992303
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2ff6af1e264so19207231a91.3
-        for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 05:31:44 -0700 (PDT)
+ us-mta-365-7PIZmLs0OJWEk1covjjyhw-1; Wed, 26 Mar 2025 08:32:16 -0400
+X-MC-Unique: 7PIZmLs0OJWEk1covjjyhw-1
+X-Mimecast-MFC-AGG-ID: 7PIZmLs0OJWEk1covjjyhw_1742992336
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-3032f4ea8cfso7082609a91.3
+        for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 05:32:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742992303; x=1743597103;
+        d=1e100.net; s=20230601; t=1742992335; x=1743597135;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Iml6swh0i7lBeQVcG26hls4lzAH12sEjWHyxF8tp8XU=;
-        b=kM67igdlkwpOWFyKjIq+vmSUhxgpKmT6pbEGi+U2s6jPUzCb9ZZ0CNOCiTlOPoswFt
-         X9KNiFX2Eb3uXbhPvlxybSFABjNnurG+ycir5mtEIFBpRmRS3zQmdw41Vj/VWqY8VceI
-         EpkEL/fn11/4bhqazT/V8wgOtSjKfz08jBldgRDzaS6tY5ju9Eok6cRz5TYeUxSYwQKs
-         sDPnFM0rfXIP7BqdVsBhjaM3AZ2v69eVRIEiuivowovpsw9rz6TltgzouYHSvKXDmqBv
-         FqpDr4oFIbrjhdWvYaiaxPTmuxEaABVV4Jrp/scC6EoYw+UjVsDcDxSrQYpTVICpFqJN
-         EXJA==
-X-Forwarded-Encrypted: i=1; AJvYcCVoXeBw9QS6sRuPUvCSlyGrOyMiGmjdb86wgY8Fmu6mCjWVgFfIuELnL+rP1kpxvvAJ172/KbbSXTpmw8m1BQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyq9vPgYcBn6fGAEzj0VjoZYy7pfEROS0yz9FoXGgGVT8xWZicJ
-	lqU2Ih5g38WLt1Ow4q/0e0x9GdGxdnSC37We+HC5Z+Oqt5jMLZsPq/NyIDkDQ3s+NE2yDxEIXhQ
-	SlNjWedKiONF7Vt7YEaE7BQZpUrs4mFJdQE3tREpX0+AQ/UrsP8AU7MiH0AIN8XbieXmPVHNCjz
-	wO++an0d7MzXSymOB2F7H5aDnW5JGuKxRlDpx4iEM=
-X-Gm-Gg: ASbGncvFM2i1/x+lzgcOlPVcTMz3dhlI5w1J58jkfmoJOl7dnvlpKVYvxrUumEKGeXu
-	BlN84sRLpFfHotiTqCOllWUL4BeUllBc8xk/Kq3qS+bhCvtnG1oD9K9lv0RAd8ak2gMBNxA4=
-X-Received: by 2002:a17:90b:2647:b0:2ff:592d:23bc with SMTP id 98e67ed59e1d1-3030fe58cc6mr32759829a91.4.1742992303327;
-        Wed, 26 Mar 2025 05:31:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEGVFQzn+Y0z6JNs/or65j22c6R82kHGtishESvAExGqtxlwrwA8tRNSq9MhfHCoOvDPTzRqP6kI11gRu69gT8=
-X-Received: by 2002:a17:90b:2647:b0:2ff:592d:23bc with SMTP id
- 98e67ed59e1d1-3030fe58cc6mr32759796a91.4.1742992302862; Wed, 26 Mar 2025
- 05:31:42 -0700 (PDT)
+        bh=KwcA5Ry4ZMsWvxEDjHDWkPrYz/bbKoxfDEYy7G5GMTY=;
+        b=ZoT3C3luULJz4T7ekbYiiy4q3pdYDB5mHbuxyjm2aVcEQi7Ymjkzyg1YlHN7EGsgQc
+         8Tv8jdwZxih/M/64muEidhFEgRF4pPAQHKFq/MNh+hiSoazpYqK9xDCb3Agsjtm+lmA/
+         ZjbJx9uor6r77MjH7dGOu4rw/Z9uZ8S5SElcsVaVWo9C1dnETQf/zk2B6P5CLPTTBww2
+         ubjBHL0M9pZQSrcgm73lrbcc80oof+tGMEFBenOX/1w9YNZpBVYaa6SsXV9mBI52B5Jx
+         W5xBmiwFlF+YAOQMqx87do+1cb/DGL9mf8OJNI48IXD21u+hv/BxixUDoxHHTVsjkqrd
+         ctyg==
+X-Forwarded-Encrypted: i=1; AJvYcCV51dKOhEIslzsFIc8gCcZ53xfLgULlI9LAjLdFlDkLyZRXORTGZMZvjjHOvK9i4oTYjyK7h3iF9Fg3o/fhrw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy8rncr6iGvq8bS+gW4Q3oJ4LAkB7Qkua4a9Y2OSqVJdtKXWV50
+	G+DCSSdURXCqefUoRU7zT1GXuzZwV5qXh7DZ1UsOru4xTenk9txe/3tHXtluqoMJEwY6+gMSvyX
+	TSHXBZUg7fHI59vPNmGPo0msvba/gdY/I3KoJowE4ZJAnbN0q276b16/7dzrGA4yLjFg87jM7sK
+	W43o6QARBCUDY2TC6rBzc2NK5x8dmJrmpDltz4Ku0=
+X-Gm-Gg: ASbGncsmyRDuVjoq5JrAFVDTrsovUGG0segfca+U44jQhm6WZAki9rjn9ZxUf1Q/wVO
+	PcuJMQoZImcyxFxSxwT5Vv+BcNYwGRMRiBbrIaw95IyyB5V7kKR8xkOpGA98JOnicf1gB6aQ=
+X-Received: by 2002:a17:90b:3bc7:b0:301:1bce:c252 with SMTP id 98e67ed59e1d1-3030fee95d3mr32689246a91.27.1742992335538;
+        Wed, 26 Mar 2025 05:32:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEAsjbfru13QMabqyG6unsNqqtxh9L2u1VKTgXAP4lw2AyiaiL/J+8/3kJMAZafGRPNuOL2P5TkzAlcPjkHOW8=
+X-Received: by 2002:a17:90b:3bc7:b0:301:1bce:c252 with SMTP id
+ 98e67ed59e1d1-3030fee95d3mr32689193a91.27.1742992334967; Wed, 26 Mar 2025
+ 05:32:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250324054333.1954-1-jasowang@redhat.com> <20250324054333.1954-12-jasowang@redhat.com>
-In-Reply-To: <20250324054333.1954-12-jasowang@redhat.com>
+References: <20250324054333.1954-1-jasowang@redhat.com> <20250324054333.1954-13-jasowang@redhat.com>
+In-Reply-To: <20250324054333.1954-13-jasowang@redhat.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 26 Mar 2025 13:31:06 +0100
-X-Gm-Features: AQ5f1JpmUSjk9F5tsDREnBeJZ7NTPykh0XX2gC-sNmEouR7JUIoBSu8q5nZyCJs
-Message-ID: <CAJaqyWf-=xnNvO3SjCEH1wBd+es3GJEOEdGsi=sndPkGwtcQpQ@mail.gmail.com>
-Subject: Re: [PATCH 11/19] virtio_ring: switch to use vring_virtqueue for
- detach_unused_buf variants
+Date: Wed, 26 Mar 2025 13:31:38 +0100
+X-Gm-Features: AQ5f1Jr4PDWFekYrqp6Q4ssDNwRggMV_WQEba50a3Ao5vNGZTJ4WtphM4KqyAic
+Message-ID: <CAJaqyWerWJpLgpaMtaAYfBPW4UUWqLO7ja9C7-U7Y5YukLN1Tg@mail.gmail.com>
+Subject: Re: [PATCH 12/19] virtio_ring: use u16 for last_used_idx in virtqueue_poll_split()
 To: Jason Wang <jasowang@redhat.com>
 Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
 	linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ruIxpn-YznkVMDdVFXUJkIPdjIYL6KNniytVp1EM-Wk_1742992303
+X-Mimecast-MFC-PROC-ID: UPB7vzryVu2zfTTITNj0xMZ7MdvRwqdCqG-_3zs1XYM_1742992336
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -85,72 +84,31 @@ Content-Transfer-Encoding: quoted-printable
 On Mon, Mar 24, 2025 at 6:44=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
 ote:
 >
-> Those variants are used internally so let's switch to use
-> vring_virtqueue as parameter to be consistent with other internal
-> virtqueue helpers.
+> Use u16 for last_used_idx in virtqueue_poll_split() to align with the
+> spec.
 >
-
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/virtio/virtio_ring.c | 12 +++++-------
->  1 file changed, 5 insertions(+), 7 deletions(-)
+>  drivers/virtio/virtio_ring.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index f754da8c2ac6..19aa24d62d20 100644
+> index 19aa24d62d20..a2884eae14d9 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
-> @@ -950,9 +950,8 @@ static bool virtqueue_enable_cb_delayed_split(struct =
-vring_virtqueue *vq)
->         return true;
+> @@ -801,7 +801,7 @@ static void detach_buf_split(struct vring_virtqueue *=
+vq, unsigned int head,
 >  }
 >
-> -static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
-> +static void *virtqueue_detach_unused_buf_split(struct vring_virtqueue *v=
-q)
+>  static bool virtqueue_poll_split(const struct vring_virtqueue *vq,
+> -                                unsigned int last_used_idx)
+> +                                u16 last_used_idx)
 >  {
-> -       struct vring_virtqueue *vq =3D to_vvq(_vq);
->         unsigned int i;
->         void *buf;
->
-> @@ -965,7 +964,7 @@ static void *virtqueue_detach_unused_buf_split(struct=
- virtqueue *_vq)
->                 buf =3D vq->split.desc_state[i].data;
->                 detach_buf_split(vq, i, NULL);
->                 vq->split.avail_idx_shadow--;
-> -               vq->split.vring.avail->idx =3D cpu_to_virtio16(_vq->vdev,
-> +               vq->split.vring.avail->idx =3D cpu_to_virtio16(vq->vq.vde=
-v,
->                                 vq->split.avail_idx_shadow);
->                 END_USE(vq);
->                 return buf;
-> @@ -1892,9 +1891,8 @@ static bool virtqueue_enable_cb_delayed_packed(stru=
-ct vring_virtqueue *vq)
->         return true;
->  }
->
-> -static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
-> +static void *virtqueue_detach_unused_buf_packed(struct vring_virtqueue *=
-vq)
->  {
-> -       struct vring_virtqueue *vq =3D to_vvq(_vq);
->         unsigned int i;
->         void *buf;
->
-> @@ -2642,8 +2640,8 @@ void *virtqueue_detach_unused_buf(struct virtqueue =
-*_vq)
->  {
->         struct vring_virtqueue *vq =3D to_vvq(_vq);
->
-> -       return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq) =
-:
-> -                                virtqueue_detach_unused_buf_split(_vq);
-> +       return vq->packed_ring ? virtqueue_detach_unused_buf_packed(vq) :
-> +                                virtqueue_detach_unused_buf_split(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
->
+>         return (u16)last_used_idx !=3D virtio16_to_cpu(vq->vq.vdev,
+
+So this cast to u16 is not needed anymore, isn't it?
+
+>                         vq->split.vring.used->idx);
 > --
 > 2.42.0
 >
