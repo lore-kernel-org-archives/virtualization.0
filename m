@@ -1,350 +1,138 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D560619A298
-	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 12:33:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38B5A1A0BDB
+	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 13:05:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742992407; cv=none; b=RBmHfb/RmV9RwPx+1BApMkr/l9s5aXlpEdhAdRprt+3E5KmdR5dn2KXJfo8gQUp+pZl7qpO24HqK5NoXSsgb93thvDC7c0BuH0C/naxsmxRmkhPDtkQwLrrM/ibUKzDn8lpEshyOWzetwqecuQFL/oLDxVBCZWlbG6lteHZPYes=
+	t=1742994309; cv=none; b=DaOyj6/N70vZjnRq9nNgUQwf3nriL/IZoKF6DMuogsr8YHTF0tL8wJjzGUXtAZg8fy8pewAc+SGalH+C+aR9VNOHZf5EHQGeEi8iYMprXHtKEMPGORPgvXwGhBOxqOUaUKUp5Gw/gUtaviDpN0MW9EdKb/vEOIODXMBRdawdT+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742992407; c=relaxed/simple;
-	bh=N3grN2QV7gu6NVwtY15esedESYw549yVIA9oYYKyqvM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uRXi+W+/q8qznyWzC+xRN/p/y0grQOP1bXM9WpVwJvUB9LYHaOUFAI4GXU12RUAgM6G8/DmHdxY/i8oHoSlqNQ83e3Is/OgNGndG+nuBGximCMYRlRcaYAjhVSQB2H55Bpz6IxmsKLkZHE6kvWr+N3KlKCSveweVo8Jy04rX/fk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GH0IhBn+; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1742994309; c=relaxed/simple;
+	bh=Q8KRqjjlHZ40u/KO7uaIEHQ3ZCPEbh9kJxiy/RGAiGQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=swngd/RBtjFrpkzy8nJsgatmjlEvZvrtv/opRmZYNt4uoQJMUH04ufZWOaJ8//xRproLawazEFH0QFBUjWrT/ovNMc5KQu8F4iCgo8kr0rNWR/fV4vHfIjUwyKA9u3V70P825C54KbEgCgzK6XRGXye7fuNYnQ++gKcnRr6t5m8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Oo0ert7t; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GH0IhBn+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Oo0ert7t"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742992403;
+	s=mimecast20190719; t=1742994304;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6h9zkBtZAENxGAjMf2g3QIo4BYdNbxYuXCOfwd31ChY=;
-	b=GH0IhBn+4wiKed0308c7JRQK4NaVyGcvC6acl3sGAmj38hlHG1CxAjX8kb1jxehxvnF6eX
-	1yr87B54UkPW7JiYP+ND10rCqyvdNKX4xJKgvn4nOe/U+aryUilHhhEiI0viLJWFNdjADh
-	JicJV9sPnOH38vWjVMB9Bs3NQUTHp6Q=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-246-hizqT5goOmSMwQHRddb9Qw-1; Wed, 26 Mar 2025 08:33:22 -0400
-X-MC-Unique: hizqT5goOmSMwQHRddb9Qw-1
-X-Mimecast-MFC-AGG-ID: hizqT5goOmSMwQHRddb9Qw_1742992401
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-30364fc706fso4383861a91.3
-        for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 05:33:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742992401; x=1743597201;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6h9zkBtZAENxGAjMf2g3QIo4BYdNbxYuXCOfwd31ChY=;
-        b=L4lMjJ5/3azr0XQ7M8x8xlYTAOjjtcPlwNMxREGxV5f66rja+fbFA/bzcc787P+8SS
-         BCfcfXaDCadFLjXZgU6dzffJF3MUX9ZWxwyYjCdTpDcKIsdYd7bZcRozS+kAVfec1f4B
-         rtcxgimaMrczV8excEK/wcwiPlDg6Nl7vuvEV28HifM12lJgJyHWSAFKa38SRDzZPfAb
-         y4M3Bg9uQPUXL5c8n/4zwfcYgfS7GlUOHsTPgpqFfZHnCLHtr3hbi4ylttn0Lglr/Tec
-         YEpPiuZru11ozcg9u7tg8vXeEQ1hq6iLcKCtRPgo/s+Fjp71+tkLCdPlIrhpcZXLNg6y
-         KINg==
-X-Forwarded-Encrypted: i=1; AJvYcCVibWkC9MTH+TPEu7iJc9vOZvDzv5qUfx7c1Jup8eh/ksGWjPDJ5Tl5x3TSLFSa8XBTmey3mplAgJ4mTBc1OQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwGlvk20UK3nnLmgbaErDvau0b4w9Cr2MGgICgKIklXrNK9UuaB
-	aZT240nvKn5/T/z03oYfm6yNVO7I6UpkMM9Y7ExLMTH19pawIN3aoaDmgs5/iIsTOUel+WI+is3
-	yDL68ntQKHEhaKWfy8HrG/DVMojU3FSUTiPRuKiUOaPrlwbwED6CADo8wVJeQq7eXny7AMsdPSb
-	/V7p69GdOlHC2CfDoOKMLm1n0vizoBxAXFGKYmFE4=
-X-Gm-Gg: ASbGnctX9r+R+d26O7CSk/OXoE+YLqkA2xt+RC0nlAAemgUOGG1LC0cN2AnJZe9rV+9
-	ZDR8JVG7uYDXEDG63ERzhTVCNo7Aso0VEPOjuFINGySyJYSrAYi980U1TthGqKGgeJiGI32o=
-X-Received: by 2002:a17:90b:51c1:b0:2ff:58c7:a71f with SMTP id 98e67ed59e1d1-3030ff0dfa8mr26773240a91.32.1742992400976;
-        Wed, 26 Mar 2025 05:33:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHkJtrTwIWW7ZQ6nbvOaulTxmv88Dab//R+/xNCwb9ubPeaIKEVomqCDml25dXFpJfuz5Ql/72Ydnzl53UzWtg=
-X-Received: by 2002:a17:90b:51c1:b0:2ff:58c7:a71f with SMTP id
- 98e67ed59e1d1-3030ff0dfa8mr26773192a91.32.1742992400385; Wed, 26 Mar 2025
- 05:33:20 -0700 (PDT)
+	bh=DVQHKi1v6ZJuoZpbTUeTTwk753IlYenrtjuxZpJpJjA=;
+	b=Oo0ert7tNro5xRn/D9MGLPUAW2KZsn4cf3ym86pZTQm9S/YycMzyUZ7apt5B30JAZ0oo/x
+	zMGD4FSyFQfnCNnZO9RDI5ad/dFrw5yYsztsDSMcVKCJJFhAD0df/CEi3XC5sXw/1i0Wx8
+	GIGIIpQpMYtw1ejn6At+94dP5ySgEqc=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-84-jrUx5pFNNvaUdDFRIVmFcg-1; Wed,
+ 26 Mar 2025 09:04:59 -0400
+X-MC-Unique: jrUx5pFNNvaUdDFRIVmFcg-1
+X-Mimecast-MFC-AGG-ID: jrUx5pFNNvaUdDFRIVmFcg_1742994298
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 784641809CA5;
+	Wed, 26 Mar 2025 13:04:58 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.45.224.27])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1B5711801756;
+	Wed, 26 Mar 2025 13:04:58 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+	id 2D2741800787; Wed, 26 Mar 2025 14:04:55 +0100 (CET)
+Date: Wed, 26 Mar 2025 14:04:55 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@redhat.com, virtualization@lists.linux.dev, 
+	dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH 3/4] drm/cirrus-qemu: Use framebuffer format as-is, drop
+ adjustments
+Message-ID: <iks6ntl56uyo2cx3k4trgeu5z6ilxe6leaoexi7azd4woutefa@yct7554fra2i>
+References: <20250325171716.154097-1-tzimmermann@suse.de>
+ <20250325171716.154097-4-tzimmermann@suse.de>
+ <hujnqeg74eoiz4lj46xhetdpytfgndg4iegwpszqf3ztjzuw6o@tis4zsp7slc3>
+ <98df4fc3-019f-4feb-a49e-987a97e36c95@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250324054333.1954-1-jasowang@redhat.com> <20250324060127.2358-1-jasowang@redhat.com>
-In-Reply-To: <20250324060127.2358-1-jasowang@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 26 Mar 2025 13:32:44 +0100
-X-Gm-Features: AQ5f1JqKF6Qxbf62oUTBAxf2A2BZTLAqOerFJrXaOCoGW8jflzH7dxm2eXZRNOY
-Message-ID: <CAJaqyWeCvT0ArsT+K4Of-+kT6uDFAT2v83bKNqKm+OeDBA5kZA@mail.gmail.com>
-Subject: Re: [PATCH 13/19] virtio_ring: introduce virtqueue ops
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
+In-Reply-To: <98df4fc3-019f-4feb-a49e-987a97e36c95@suse.de>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: AroHxiIxAhzl5RFvwoQmw6o8fV1PdH9P-Uzh8ArFa6M_1742992401
+X-Mimecast-MFC-PROC-ID: biKKMEdIeG2jFNbWrg032XzeoIs8Q5WWaB9C4DWk5rw_1742994298
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, Mar 24, 2025 at 7:01=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> This patch introduces virtqueue ops which is a set of the callbacks
-> that will be called for different queue layout or features. This would
-> help to avoid branches for split/packed and will ease the future
-> implementation like in order.
->
+On Wed, Mar 26, 2025 at 01:30:13PM +0100, Thomas Zimmermann wrote:
+> Hi,
+> 
+> first of all, what about the other patches?
+> 
+> - Patch 1 is a bugfix.
+> - Patch 4 depends on this one.
+> - Patch 2 should be given consideration.
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Looks reasonable to me.  Don't feel like giving a reviewed-by due to not
+following drm development very closely any more, so
 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c | 96 +++++++++++++++++++++++++-----------
->  1 file changed, 67 insertions(+), 29 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index a2884eae14d9..ce1dc90ee89d 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -159,9 +159,30 @@ struct vring_virtqueue_packed {
->         size_t event_size_in_bytes;
->  };
->
-> +struct vring_virtqueue;
-> +
-> +struct virtqueue_ops {
-> +       int (*add)(struct vring_virtqueue *_vq, struct scatterlist *sgs[]=
-,
-> +                  unsigned int total_sg, unsigned int out_sgs,
-> +                  unsigned int in_sgs, void *data,
-> +                  void *ctx, bool premapped, gfp_t gfp);
-> +       void *(*get)(struct vring_virtqueue *vq, unsigned int *len, void =
-**ctx);
-> +       bool (*kick_prepare)(struct vring_virtqueue *vq);
-> +       void (*disable_cb)(struct vring_virtqueue *vq);
-> +       bool (*enable_cb_delayed)(struct vring_virtqueue *vq);
-> +       unsigned int (*enable_cb_prepare)(struct vring_virtqueue *vq);
-> +       bool (*poll)(const struct vring_virtqueue *vq, u16 last_used_idx)=
-;
-> +       void *(*detach_unused_buf)(struct vring_virtqueue *vq);
-> +       bool (*more_used)(const struct vring_virtqueue *vq);
-> +       int (*resize)(struct vring_virtqueue *vq, u32 num);
-> +       void (*reset)(struct vring_virtqueue *vq);
-> +};
-> +
->  struct vring_virtqueue {
->         struct virtqueue vq;
->
-> +       struct virtqueue_ops *ops;
-> +
->         /* Is this a packed ring? */
->         bool packed_ring;
->
-> @@ -1116,6 +1137,8 @@ static int vring_alloc_queue_split(struct vring_vir=
-tqueue_split *vring_split,
->         return 0;
->  }
->
-> +struct virtqueue_ops split_ops;
-> +
->  static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
->                                                struct vring_virtqueue_spl=
-it *vring_split,
->                                                struct virtio_device *vdev=
-,
-> @@ -1134,6 +1157,7 @@ static struct virtqueue *__vring_new_virtqueue_spli=
-t(unsigned int index,
->                 return NULL;
->
->         vq->packed_ring =3D false;
-> +       vq->ops =3D &split_ops;
->         vq->vq.callback =3D callback;
->         vq->vq.vdev =3D vdev;
->         vq->vq.name =3D name;
-> @@ -2076,6 +2100,8 @@ static void virtqueue_reset_packed(struct vring_vir=
-tqueue *vq)
->         virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
->  }
->
-> +struct virtqueue_ops packed_ops;
-> +
->  static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index=
-,
->                                                struct vring_virtqueue_pac=
-ked *vring_packed,
->                                                struct virtio_device *vdev=
-,
-> @@ -2107,6 +2133,7 @@ static struct virtqueue *__vring_new_virtqueue_pack=
-ed(unsigned int index,
->         vq->broken =3D false;
->  #endif
->         vq->packed_ring =3D true;
-> +       vq->ops =3D &packed_ops;
->         vq->dma_dev =3D dma_dev;
->         vq->use_dma_api =3D vring_use_dma_api(vdev);
->
-> @@ -2194,6 +2221,34 @@ static int virtqueue_resize_packed(struct vring_vi=
-rtqueue *vq, u32 num)
->         return -ENOMEM;
->  }
->
-> +struct virtqueue_ops split_ops =3D {
-> +       .add =3D virtqueue_add_split,
-> +       .get =3D virtqueue_get_buf_ctx_split,
-> +       .kick_prepare =3D virtqueue_kick_prepare_split,
-> +       .disable_cb =3D virtqueue_disable_cb_split,
-> +       .enable_cb_delayed =3D virtqueue_enable_cb_delayed_split,
-> +       .enable_cb_prepare =3D virtqueue_enable_cb_prepare_split,
-> +       .poll =3D virtqueue_poll_split,
-> +       .detach_unused_buf =3D virtqueue_detach_unused_buf_split,
-> +       .more_used =3D more_used_split,
-> +       .resize =3D virtqueue_resize_split,
-> +       .reset =3D virtqueue_reset_split,
-> +};
-> +
-> +struct virtqueue_ops packed_ops =3D {
-> +       .add =3D virtqueue_add_packed,
-> +       .get =3D virtqueue_get_buf_ctx_packed,
-> +       .kick_prepare =3D virtqueue_kick_prepare_packed,
-> +       .disable_cb =3D virtqueue_disable_cb_packed,
-> +       .enable_cb_delayed =3D virtqueue_enable_cb_delayed_packed,
-> +       .enable_cb_prepare =3D virtqueue_enable_cb_prepare_packed,
-> +       .poll =3D virtqueue_poll_packed,
-> +       .detach_unused_buf =3D virtqueue_detach_unused_buf_packed,
-> +       .more_used =3D more_used_packed,
-> +       .resize =3D virtqueue_resize_packed,
-> +       .reset =3D virtqueue_reset_packed,
-> +};
-> +
->  static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
->                                          void (*recycle)(struct virtqueue=
- *vq, void *buf))
->  {
-> @@ -2248,10 +2303,8 @@ static inline int virtqueue_add(struct virtqueue *=
-_vq,
->  {
->         struct vring_virtqueue *vq =3D to_vvq(_vq);
->
-> -       return vq->packed_ring ? virtqueue_add_packed(vq, sgs, total_sg,
-> -                                       out_sgs, in_sgs, data, ctx, prema=
-pped, gfp) :
-> -                                virtqueue_add_split(vq, sgs, total_sg,
-> -                                       out_sgs, in_sgs, data, ctx, prema=
-pped, gfp);
-> +       return vq->ops->add(vq, sgs, total_sg,
-> +                           out_sgs, in_sgs, data, ctx, premapped, gfp);
->  }
->
->  /**
-> @@ -2437,8 +2490,7 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
->  {
->         struct vring_virtqueue *vq =3D to_vvq(_vq);
->
-> -       return vq->packed_ring ? virtqueue_kick_prepare_packed(vq) :
-> -                                virtqueue_kick_prepare_split(vq);
-> +       return vq->ops->kick_prepare(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_kick_prepare);
->
-> @@ -2508,8 +2560,7 @@ void *virtqueue_get_buf_ctx(struct virtqueue *_vq, =
-unsigned int *len,
->  {
->         struct vring_virtqueue *vq =3D to_vvq(_vq);
->
-> -       return vq->packed_ring ? virtqueue_get_buf_ctx_packed(vq, len, ct=
-x) :
-> -                                virtqueue_get_buf_ctx_split(vq, len, ctx=
-);
-> +       return vq->ops->get(vq, len, ctx);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
->
-> @@ -2531,10 +2582,7 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
->  {
->         struct vring_virtqueue *vq =3D to_vvq(_vq);
->
-> -       if (vq->packed_ring)
-> -               virtqueue_disable_cb_packed(vq);
-> -       else
-> -               virtqueue_disable_cb_split(vq);
-> +       return vq->ops->disable_cb(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
->
-> @@ -2557,8 +2605,7 @@ unsigned int virtqueue_enable_cb_prepare(struct vir=
-tqueue *_vq)
->         if (vq->event_triggered)
->                 vq->event_triggered =3D false;
->
-> -       return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(vq) :
-> -                                virtqueue_enable_cb_prepare_split(vq);
-> +       return vq->ops->enable_cb_prepare(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
->
-> @@ -2579,8 +2626,7 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned=
- int last_used_idx)
->                 return false;
->
->         virtio_mb(vq->weak_barriers);
-> -       return vq->packed_ring ? virtqueue_poll_packed(vq, last_used_idx)=
- :
-> -                                virtqueue_poll_split(vq, last_used_idx);
-> +       return vq->ops->poll(vq, last_used_idx);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_poll);
->
-> @@ -2623,8 +2669,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *=
-_vq)
->         if (vq->event_triggered)
->                 vq->event_triggered =3D false;
->
-> -       return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(vq) :
-> -                                virtqueue_enable_cb_delayed_split(vq);
-> +       return vq->ops->enable_cb_delayed(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
->
-> @@ -2640,14 +2685,13 @@ void *virtqueue_detach_unused_buf(struct virtqueu=
-e *_vq)
->  {
->         struct vring_virtqueue *vq =3D to_vvq(_vq);
->
-> -       return vq->packed_ring ? virtqueue_detach_unused_buf_packed(vq) :
-> -                                virtqueue_detach_unused_buf_split(vq);
-> +       return vq->ops->detach_unused_buf(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
->
->  static inline bool more_used(const struct vring_virtqueue *vq)
->  {
-> -       return vq->packed_ring ? more_used_packed(vq) : more_used_split(v=
-q);
-> +       return vq->ops->more_used(vq);
->  }
->
->  /**
-> @@ -2785,10 +2829,7 @@ int virtqueue_resize(struct virtqueue *_vq, u32 nu=
-m,
->         if (recycle_done)
->                 recycle_done(_vq);
->
-> -       if (vq->packed_ring)
-> -               err =3D virtqueue_resize_packed(vq, num);
-> -       else
-> -               err =3D virtqueue_resize_split(vq, num);
-> +       err =3D vq->ops->resize(vq, num);
->
->         return virtqueue_enable_after_reset(_vq);
->  }
-> @@ -2822,10 +2863,7 @@ int virtqueue_reset(struct virtqueue *_vq,
->         if (recycle_done)
->                 recycle_done(_vq);
->
-> -       if (vq->packed_ring)
-> -               virtqueue_reset_packed(vq);
-> -       else
-> -               virtqueue_reset_split(vq);
-> +       vq->ops->reset(vq);
->
->         return virtqueue_enable_after_reset(_vq);
->  }
-> --
-> 2.42.0
->
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+> > Second, because there is no way to communicate the hardware constrains
+> > of the cirrus.  userspace can query the formats, and userspace can query
+> > the resolutions, but there is no way to tell userspace that not all
+> > combinations are valid and that you have to go for the DRM_FORMAT_RGB565
+> > format if you want higher resolutions.
+> 
+> The viable strategy for user space is to allocate a variety of different
+> configs and check them one by one, thus filtering out the ones that work.
+
+Last time I checked (which has been a few years) alot of existing
+software didn't do that.  Maybe that changed with atomic becoming
+more mature though.
+
+> > Essentially the format conversations allows the driver to hide the
+> > oddities of the prehistoric hardware from userspace, so things are
+> > more smooth when running wayland on the cirrus.
+> 
+> I'm aware of the situation. We've had similar discussions about other
+> low-end hardware, but generally went with the hardware limits.
+> 
+> Please note that there is a trade-off here: the effect of this series is
+> that the maximum resolution will be limited to 800x600.
+
+Ah, ok, this is how you deal with the problem, go with the max
+resolution the cirrus can support at 32 bpp.
+
+Could be more explicit in the commit message, especially the 800x600
+limit, there is a high chance people search for that when their display
+resolution changes after a kernel update.
+
+> If user space would appropriately validate atomic states, lower bpp
+> could still support higher resolutions. But converting color formats
+> on the fly isn't free. I recently did some simple measurements in a
+> different context and converting from 32 bpp to 16 bpp took 3 times as
+> long as memcpy'ing the raw pixels.
+
+Ouch.  That is alot.
+
+> > PS: https://www.kraxel.org/blog/2014/10/qemu-using-cirrus-considered-harmful/
+> > still applies of course.
+> 
+> It's been 10 years since you wrote that. So maybe it's time to re-consider
+> cirrus' exceptions and just go for a 'dumb implementation'. Anyone can
+> easily switch to better alternatives.
+
+Fair enough.
+
+With an improved commit message:
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+take care,
+  Gerd
 
