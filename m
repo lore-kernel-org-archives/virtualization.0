@@ -1,177 +1,155 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 319BF1F03E8
-	for <virtualization@lists.linux.dev>; Tue, 25 Mar 2025 18:42:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63ABC376
+	for <virtualization@lists.linux.dev>; Wed, 26 Mar 2025 00:11:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742928152; cv=none; b=Y4EQ/OY3bUwttLr8sGEFLzzyD9b2Te5sLVuI7UdzUbRrpeuNOfXxUxxzDRJc+RzeAy0W9LzXG0R0niRuXEU4EKN26benguTo6/zNTLW8OG4+N7GQ3dLmtaZR+sM62syVBTbeNTzIYnomdpEMYVzyO9hz0kMX1wdYD+81aS4uGwg=
+	t=1742947915; cv=none; b=e3ndDGZzbKVWEUDICE1gOrlHL+L/ertKCoECAe9aiLGiMwkHE8NPO/7gKXyni4ph3aonUqQRzwYfiZrOZsQxxOgWEA5YTL4TtdCGWmdvCoIAuyLtyw4BMqPd/gMH8WjznpAIBT13spkh82p5aSqIR+Rn4BME09qgGEk1lW5RNIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742928152; c=relaxed/simple;
-	bh=EmA40F4/20MOXQFbjxKTM15ghk+QohARugBibWdivjM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=An/eyoAw5aidskzi2UR7OtgCe+3G3HOV9DYyTxulZmsoqIRvFUAkV4e4m5bTxNfMhCwFVDTwqHdOGvzwLE1Q08t5wELg5s2R6loTUrfuyyGc78HaUtWig7WvxNG+XFtJ/Bzs33xgDFsXF3kd5W5sOYOb1CqATgfGmr5GoNAElrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=om9fb4XF; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1742947915; c=relaxed/simple;
+	bh=Ds5elK0EiYSgBbG1o5wtpaJmT1vD/nl22PdcXN437WE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=S7jmJ44i2kCTuTtGzXwUzUCCfEL2hojtIWfSh2PEaMq+gLEzr91pCzduTX0QfKoiCAYYYsLx/uAmj/mMKy3dpckvQooHDXvfS28aQOUEs597KIwjjQleUeJenA0dZS8a3cnYrDTPj+nMOwbudgslr4nYXuv6yHDel/k7CmrE0T4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OOGT+rCa; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="om9fb4XF"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-5e50bae0f5bso2029a12.0
-        for <virtualization@lists.linux.dev>; Tue, 25 Mar 2025 11:42:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OOGT+rCa"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-22403cbb47fso123232485ad.0
+        for <virtualization@lists.linux.dev>; Tue, 25 Mar 2025 17:11:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1742928147; x=1743532947; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ohWbm/UuIc3MDUKHoYt0YitrpdOZotQW09VJZwN6f+A=;
-        b=om9fb4XFGsuAi/Tnz9Fs1E3ECp6o7iuubeGj/IkptUlqVAW8/Gi7oHYd4stOstRNS3
-         FJc8ov8CrP9mMNVJ6x0D16vM7AwHflN68l3sTbTwsRLEG/tOqFUTZJ5vUzPxoqQFwqcp
-         mtU3lhe+kPo6fVROdkeWmwiQWrherlzN/yo04kRKjOvWyybs4JAcMo965HdkQ8NANGre
-         cuV6pkS+7g+b3yCylGWnfuXhbVOInTbLdesGVNwgFVGapKmhHQr0TH34dHqwYhx7gF/j
-         eLTBtPSYdbqJeKMIZlu3G9Whv+vlXDjutHbr3HtbXOXgDKrq28g21sXGBxlyI581wJGV
-         iclg==
+        d=gmail.com; s=20230601; t=1742947912; x=1743552712; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=CY8eIyZm61ckxiaVzTuPDCRXGNO6HtSN1mJX9W6zGQQ=;
+        b=OOGT+rCaXu7mXIlc6fWPAZWz2IoI3cy/FJ4RIiGRGCSbvYVUDJhqc00h5Qe54w1Ko/
+         nNdsK3UB+VBR4+UPDNOw9wZPa3sIJ90gAH/54nBJB2oyjS6W9hRoFPRiMcjrdtDL7AZE
+         ie29dc4SuIGgHndIZD/nWVN5efnreeJZHFaaUnajOa3rfbOePmkbVH8EhQYqvMbvK1WY
+         uzW7d5eyX+L2Zh1SPBiz9Kiow4MyQZs7OZc4NYv2p/Ts9FPN1owPxGMpNd/2l8jSApfx
+         XUjBcEnS4VH8GzbcmWpb5Km/CjU5o7t75YtqypztU0MRuQ4UQmqtLg6HCWw9bWvuDaEo
+         RQmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742928147; x=1743532947;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ohWbm/UuIc3MDUKHoYt0YitrpdOZotQW09VJZwN6f+A=;
-        b=hwpibjBX8T8D5ZtvAUo7fyxAdvyotEOPyA1Ew4iYcn5fQWXx1cgjI/gKy+Ibv0y+xo
-         qdAUZA4R8k6CjotbaRDjkDKZbMn0PXbY7pJtl8wGyKQGHXN/+HyVL7rO9DkTWbeWRLxo
-         UH8uOgXQ5uTA+uK9mpW9IzuxCx0+hPGyNkGINUADfs6YU4JgSpDgN5YEYlLzBaRiHxiO
-         US5/oLHFvCeuj05BuZvU73SqsrbsUkNsBaZ3v19XVWD2AqqlzBQtFN+6OMEoGGhiII6n
-         SQOZzkIpHI46pUE5Z1wPKwCABwFkSTndxdVTBjpq0mB/XKLaudicFXzZ+3tFdlX0YiUT
-         Jq6g==
-X-Forwarded-Encrypted: i=1; AJvYcCWRzvHFdAsA0Ilim+ebGr/EppiFUKNbCdKZbZ12Vnngc0pICIS4FA9EUA4D4HR18OCxUBVsO8QxdmzuhxBdgA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzNUVq0pO18xHOrStH2owlNyLj89Dadkr3O5pRq9pDWUHcRpXPc
-	4eTwNnmKctQtpsU8kE/AIyQT8tNkjh07kwx/ObwZwfI/yxswlSuXqBtcwQwIwfP+ApYYpRT+XPQ
-	eUkPCCRtHVbHNOStStOD+xvz6RWVazGzXbG8N
-X-Gm-Gg: ASbGncvGl9CQFPcPMvHlLE4BkT3W7MNJzMQw7ZqDY5oeeEdRzPsn3RrZBaWVLqN83a/
-	kXrW0RSm+lSRBYePCSDFOZJm8hbHCPqg1efODipaALez78f+kZ9/XSSotWgaWDgvJEIJEP6ZgDV
-	O8VP5k7hjsXr3ZKD6oBnwe9Bnt6UhL7Ip3Z2v4v42m817LXqLagYqb0MvK3LaG9StM
-X-Google-Smtp-Source: AGHT+IG/oxMHsUwCe/Pv38c6tGHW1E+mjtkA7yC/Fgzn+9xwryPNKquWqjWfGFAmY6c6RcrvuYp4RqLtrV1djsqY7q0=
-X-Received: by 2002:a50:ed83:0:b0:5dc:ccb4:cb11 with SMTP id
- 4fb4d7f45d1cf-5ed53ee96e9mr10451a12.4.1742928147101; Tue, 25 Mar 2025
- 11:42:27 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1742947912; x=1743552712;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CY8eIyZm61ckxiaVzTuPDCRXGNO6HtSN1mJX9W6zGQQ=;
+        b=vYqXHkUDk3VIN1xxOLhpYxAOauwMd3Em3r1M1xFiqtJrKEz8OL+UDt4ZPKNtL01In6
+         d52wNSoPazXu5MhaGHcy6RYLYDjBayKcag7sH09oHd9plLNF3CQ2Bp8rcmJ7dIUtQMoj
+         ZFr3Xxc6Z7L2YFKV5lXnZqBaoZfy0XVRsOMt3cV3uREgQcEld0ADIDkZj61tx7iUYhbj
+         O7u8e9HptW1IaGQt+RTfDlAA0VbjKfLWp59oSwhpMydRFRohu+aNqUiHJJrpGHl4SPa7
+         YXQXDlnrgALpZx50RRlULp19kkjpG6nfjI0tEQX8f6AcNERLjBgKK7zck/2tSRxb6PGG
+         OZ1Q==
+X-Forwarded-Encrypted: i=1; AJvYcCV+ThDkGDC9Z3dXDzV2F12hI/Y7MCY2t6BeyTfW95VKh/arxHbM13AqANEjh3Yv9USjIXe5F3fIZlk7XUGvuw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyK3cXlk9Mp9Pwerufs5aXm3Agn2TehYpJyf3wGSrvaffj4eUUJ
+	BsMmbnZ7uLSUi+Nl/xMGwGpNubkRrMF+ILz1GwNdDyyp59R9Vrfg
+X-Gm-Gg: ASbGncuc67Wdp83Nes54sv9zIDdWFb6qd6/CqHTnFvhEAO6usMHfAnve49G1I2BZdmZ
+	UKJgnycKOEqR3FYZ5m9HZE8YJAH8noGwDAQ+7MP6JI5300TkXKNEraPzHrcTQBz+mCU7XNg+rnu
+	lDVgr75ktFdF+CpycjKTqWU2HT9kIkNXWek0nUHkjDRukM085LzIhXJ37bAZPSpuQl7VDTz+IcZ
+	tObBgNWi/GMw1vd1AvxRJR2xcJtlwvnKX+eMfnK+gbk9scn6g3rJUVmt6tEdgsCOOF4GdPamMV/
+	JNVQsoiL850VirREHl96ZPexOLTSD1iENTkWncGbcYR2mi1qj2Ydfm1lFX25GqLvAw==
+X-Google-Smtp-Source: AGHT+IHxY4Vgr8ATi1uVdyopW2+f/aLhWWNzfk7UHIfMOoRiFLbmaJkjO523spjjVjgNAJSnkFxkQQ==
+X-Received: by 2002:a05:6a21:339a:b0:1f5:51d5:9ef3 with SMTP id adf61e73a8af0-1fe42f995edmr26069754637.20.1742947912351;
+        Tue, 25 Mar 2025 17:11:52 -0700 (PDT)
+Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:8::])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af8a280e572sm9690206a12.32.2025.03.25.17.11.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Mar 2025 17:11:51 -0700 (PDT)
+Date: Tue, 25 Mar 2025 17:11:49 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH v2 3/3] vhost/vsock: use netns of process that opens the
+ vhost-vsock-netns device
+Message-ID: <Z+NGRX7g2CgV9ODM@devvm6277.cco0.facebook.com>
+References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
+ <20250312-vsock-netns-v2-3-84bffa1aa97a@gmail.com>
+ <09c84a94-85f3-4e28-8e7d-bdc227bf99ab@redhat.com>
+ <nwksousz7f4pkzwefvrpbgmmq6bt5kimv4icdkvm7n2nlom6yu@e62c5gdzmamg>
+ <Z9yDIl8taTAmG873@devvm6277.cco0.facebook.com>
+ <aqkgzoo2yswmb52x72fwmch2k7qh2vzq42rju7l5puxc775jjj@duqqm4h3rmlh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250114175143.81438-1-vschneid@redhat.com> <20250114175143.81438-30-vschneid@redhat.com>
- <CAG48ez1Mh+DOy0ysOo7Qioxh1W7xWQyK9CLGNU9TGOsLXbg=gQ@mail.gmail.com>
- <xhsmh34hhh37q.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <CAG48ez3H8OVP1GxBLdmFgusvT1gQhwu2SiXbgi8T9uuCYVK52w@mail.gmail.com>
- <xhsmh5xlhk5p2.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <CAG48ez1EAATYcX520Nnw=P8XtUDSr5pe+qGH1YVNk3xN2LE05g@mail.gmail.com>
- <xhsmh34gkk3ls.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <352317e3-c7dc-43b4-b4cb-9644489318d0@intel.com> <xhsmhjz9mj2qo.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <d0450bc8-6585-49ca-9cad-49e65934bd5c@intel.com> <xhsmhh64qhssj.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <eef09bdc-7546-462b-9ac0-661a44d2ceae@intel.com> <xhsmhfrk84k5k.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <408ebd8b-4bfb-4c4f-b118-7fe853c6e897@intel.com> <xhsmhy0wtngkd.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
-In-Reply-To: <xhsmhy0wtngkd.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
-From: Jann Horn <jannh@google.com>
-Date: Tue, 25 Mar 2025 19:41:49 +0100
-X-Gm-Features: AQ5f1Jo2l3CP6X5vd0V2T3oskBTdoXupZsoP0HqqqOWE1sDQ_J5UAMa3wCMvDAw
-Message-ID: <CAG48ez2bSh6=J8cXJhqYX=Y8pXcGsFgC05HsGcF0b1sJK2VH7A@mail.gmail.com>
-Subject: Re: [PATCH v4 29/30] x86/mm, mm/vmalloc: Defer flush_tlb_kernel_range()
- targeting NOHZ_FULL CPUs
-To: Valentin Schneider <vschneid@redhat.com>, Rik van Riel <riel@surriel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org, x86@kernel.org, 
-	virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	loongarch@lists.linux.dev, linux-riscv@lists.infradead.org, 
-	linux-perf-users@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	kvm@vger.kernel.org, linux-arch@vger.kernel.org, rcu@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kselftest@vger.kernel.org, bpf@vger.kernel.org, 
-	bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.amakhalov@broadcom.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
-	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Thomas Gleixner <tglx@linutronix.de>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	"Liang, Kan" <kan.liang@linux.intel.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, 
-	Josh Poimboeuf <jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, 
-	Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Frederic Weisbecker <frederic@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, 
-	Jason Baron <jbaron@akamai.com>, Steven Rostedt <rostedt@goodmis.org>, 
-	Ard Biesheuvel <ardb@kernel.org>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, 
-	Joel Fernandes <joel@joelfernandes.org>, Josh Triplett <josh@joshtriplett.org>, 
-	Boqun Feng <boqun.feng@gmail.com>, Uladzislau Rezki <urezki@gmail.com>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>, 
-	Zqiang <qiang.zhang1211@gmail.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Clark Williams <williams@redhat.com>, Yair Podemsky <ypodemsk@redhat.com>, 
-	Tomas Glozar <tglozar@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
-	Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall <bsegall@google.com>, 
-	Mel Gorman <mgorman@suse.de>, Kees Cook <kees@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, 
-	Shuah Khan <shuah@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
-	Miguel Ojeda <ojeda@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
-	"Mike Rapoport (Microsoft)" <rppt@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, Rong Xu <xur@google.com>, 
-	Nicolas Saenz Julienne <nsaenzju@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Yosry Ahmed <yosryahmed@google.com>, 
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, 
-	"Masami Hiramatsu (Google)" <mhiramat@kernel.org>, Jinghao Jia <jinghao7@illinois.edu>, 
-	Luis Chamberlain <mcgrof@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, 
-	Tiezhu Yang <yangtiezhu@loongson.cn>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aqkgzoo2yswmb52x72fwmch2k7qh2vzq42rju7l5puxc775jjj@duqqm4h3rmlh>
 
-On Tue, Mar 25, 2025 at 6:52=E2=80=AFPM Valentin Schneider <vschneid@redhat=
-.com> wrote:
-> On 20/02/25 09:38, Dave Hansen wrote:
-> > But, honestly, I'm still not sure this is worth all the trouble. If
-> > folks want to avoid IPIs for TLB flushes, there are hardware features
-> > that *DO* that. Just get new hardware instead of adding this complicate=
-d
-> > pile of software that we have to maintain forever. In 10 years, we'll
-> > still have this software *and* 95% of our hardware has the hardware
-> > feature too.
->
-> Sorry, you're going to have to deal with my ignorance a little bit longer=
-...
->
-> Were you thinking x86 hardware specifically, or something else?
-> AIUI things like arm64's TLBIVMALLE1IS can do what is required without an=
-y
-> IPI:
->
-> C5.5.78
-> """
-> The invalidation applies to all PEs in the same Inner Shareable shareabil=
-ity domain as the PE that
-> executes this System instruction.
-> """
->
-> But for (at least) these architectures:
->
->   alpha
->   x86
->   loongarch
->   mips
->   (non-freescale 8xx) powerpc
->   riscv
->   xtensa
->
-> flush_tlb_kernel_range() has a path with a hardcoded use of on_each_cpu()=
-,
-> so AFAICT for these the IPIs will be sent no matter the hardware.
+On Fri, Mar 21, 2025 at 11:02:34AM +0100, Stefano Garzarella wrote:
+> On Thu, Mar 20, 2025 at 02:05:38PM -0700, Bobby Eshleman wrote:
+> > On Thu, Mar 20, 2025 at 10:08:02AM +0100, Stefano Garzarella wrote:
+> > > On Wed, Mar 19, 2025 at 10:09:44PM +0100, Paolo Abeni wrote:
+> > > > On 3/12/25 9:59 PM, Bobby Eshleman wrote:
+> > > > > @@ -753,6 +783,8 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+> > > > >  	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+> > > > >
+> > > > >  	vhost_dev_cleanup(&vsock->dev);
+> > > > > +	if (vsock->net)
+> > > > > +		put_net(vsock->net);
+> > > >
+> > > > put_net() is a deprecated API, you should use put_net_track() instead.
+> > > >
+> > > > >  	kfree(vsock->dev.vqs);
+> > > > >  	vhost_vsock_free(vsock);
+> > > > >  	return 0;
+> > > >
+> > > > Also series introducing new features should also include the related
+> > > > self-tests.
+> > > 
+> > > Yes, I was thinking about testing as well, but to test this I think we need
+> > > to run QEMU with Linux in it, is this feasible in self-tests?
+> > > 
+> > > We should start looking at that, because for now I have my own ansible
+> > > script that runs tests (tools/testing/vsock/vsock_test) in nested VMs to
+> > > test both host (vhost-vsock) and guest (virtio-vsock).
+> > > 
+> > 
+> > Maybe as a baseline we could follow the model of
+> > tools/testing/selftests/bpf/vmtest.sh and start by reusing your
+> > vsock_test parameters from your Ansible script?
+> 
+> Yeah, my playbooks are here:
+> https://github.com/stefano-garzarella/ansible-vsock
+> 
+> Note: they are heavily customized on my env, I wrote some notes on how to
+> change various wired path.
+> 
+> > 
+> > I don't mind writing the patches.
+> 
+> That would be great and very much appreciated.
+> Maybe you can do it in a separate series and then here add just the
+> configuration we need.
+> 
+> Thanks,
+> Stefano
+> 
 
-On X86, both AMD and Intel have some fairly recently introduced CPU
-features that can shoot down TLBs remotely.
+Hey Stefano,
 
-The patch series
-<https://lore.kernel.org/all/20250226030129.530345-1-riel@surriel.com/>
-adds support for the AMD flavor; that series landed in the current
-merge window (it's present in the mainline git repository now and should
-be part of 6.15). I think support for the Intel flavor has not yet
-been implemented, but the linked patch series mentions a plan to look
-at the Intel flavor next.
+I noticed that bpf/vmtest.sh uses images hosted from libbpf's CI/CD. I
+wonder if you have any thoughts on a good repo we may use to pull our
+qcow image(s)? Or a preferred way to host some images, if no repo
+exists?
+
+Thanks,
+Bobby
