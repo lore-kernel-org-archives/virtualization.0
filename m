@@ -1,241 +1,232 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5771155A59
-	for <virtualization@lists.linux.dev>; Thu, 27 Mar 2025 07:15:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.12
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743059702; cv=fail; b=AY/9ZwiQnvhub3UlFgcuVjdrNry8xMSegsVxe8JqW9AtrmGDHFz8EqWgf1aHyr+MB2b96sK5AFf1D0OG5QrsQxMqwgk2vx6BuZbVjcVl9EuB0IybCk0AnKg7ufavzsQc6yQxEwCZfkO1LtFMAQDQJIWnCCO/dix74r8v9U4Nf/g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743059702; c=relaxed/simple;
-	bh=y2SXRItw/yl39Pe798jZryECpgfWUds7xoYjeO3Ziz8=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=XQMv1gdv4b1TxmG8QjRQ1kXG/NKwmfbmq4O0AOvOk7u1sO9/pvdomZdImzu+45Q9zI/pHrUat7DFyJXE/zTNEG4V2uNILR0JUax5z5NFTZP7ajRlZA46S7E/Ow3C8mRMGjo8Y2EqVBrAqpvNBJ36TVEe38VQdyqT3bKFPYVQSCc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BYvOE41X; arc=fail smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90EA71F463C
+	for <virtualization@lists.linux.dev>; Thu, 27 Mar 2025 07:44:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743061451; cv=none; b=HkKTMwu9Tksf8lv2IHHNiyRod16dew74BtUb2uF2FgWImBaZLudOMwSuxe+p5IJzfrm6C/DGfdvNAlZ0xlljgieLwc2bIZHF7kDRxGZLoJskubGOJZIgug/goATCqeMtuzw5LZ6fmMF/P/U4TeU7HdBeq3z2003uIZ2xUc3SEbY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743061451; c=relaxed/simple;
+	bh=JZtsiwQQB0T1Vj8BvymkatqGqnD3i/99kr3vAEo9CdU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Y1uNUYWCSN/orNsOmm9C0nR5G6lUQR+Gv8WjaX/AR82gSjXoUeEBE6wUu9T3KNj0Oxv4OfZG8xrywf3eV2NmkGvNPVAU44IYGbGckDgdA43qP7e3jd5TREJkoSZDsUsDGl3prCdGYwvloxiqkPArIL3oFi9vM95Zi9nrm4M5KcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=sY6+7Etu; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=z0jExAd5; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=sY6+7Etu; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=z0jExAd5; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BYvOE41X"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1743059701; x=1774595701;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=y2SXRItw/yl39Pe798jZryECpgfWUds7xoYjeO3Ziz8=;
-  b=BYvOE41XCKDc/Ahz0NsIUV5ndgsHJGkwT+XJyQzx0bJLvOb8rbOVRkKX
-   ZtkRPD9QRaNitLXFkJ51QyV+caoqWz+NxO4WS5MHaExw5giS85DriCcai
-   hLXzP/SG36Q/kgXVm/xjLyvoGjuhIAZwV4uhf5ZuiPdc41kOKKoPUtGRD
-   ZKTu7IF+BMKxdr3CADEgLNbuQu2FtMM8YpuVly0dBt4h+32rbjHz3Ezpg
-   gT7Z7LbSpaqUFICjQCiaP+FE8xEJAGWZbz2OYSz2TSNnVQAkQV+pfiejd
-   rs8OeuFoWqnAD9ZIrKCKzSRXMSOYtn7GWP54YyIj/fkvQWNduOdBsfoY3
-   A==;
-X-CSE-ConnectionGUID: khRBQo7dSkWQV2WbeMCnLw==
-X-CSE-MsgGUID: oJffc7fbRk697lDE4RJvAQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11385"; a="48253704"
-X-IronPort-AV: E=Sophos;i="6.14,279,1736841600"; 
-   d="scan'208";a="48253704"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2025 00:15:00 -0700
-X-CSE-ConnectionGUID: iOExeJBvQF+Xy7Bl403LKA==
-X-CSE-MsgGUID: XvRsulJqTrGW/DqaURD4aw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.14,279,1736841600"; 
-   d="scan'208";a="129898277"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by orviesa003.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2025 00:15:00 -0700
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Thu, 27 Mar 2025 00:14:59 -0700
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14 via Frontend Transport; Thu, 27 Mar 2025 00:14:59 -0700
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (104.47.74.41) by
- edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.44; Thu, 27 Mar 2025 00:14:59 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Df3+SQf3DLpbBBiyjkSsJYdmojYdxiaNBYt2UGEXeeaLFHQEoLM07Upl6VM9BccrYauDe1J8LyCQbQCDPOn8O30zbzG1u0SaP7PkjVPTizPA5QRLM7h6ia72ZFIg0b6jLrSECky6lx0pkN/Mev7vr7oTqDRWV3PxQMHWZ7nurZp+7nr5kryw1mJwpREf/k5DovMwLtR4rsjNVO5EToRez8CRnO0Ra3Sf1/owJjIyllGb7KbeW5OQ504sH0CmzVNLX4Z1Q6fCSPhhkPixP4AVZmdW+qhoI7cZIZPGQy6Tozectwxdb/Qi2tojoPcOwt8JNWR3XR7F2nV32VTQerzGuQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=y2SXRItw/yl39Pe798jZryECpgfWUds7xoYjeO3Ziz8=;
- b=Z9XjwSbEk4GwEF7A1D3Yg6k07h0FyyufxKY5SRSPvEgTHfRUXGgHwbcoaY5z/FL3RDXr3p3eBDz5CYXKrSQ+mDHgvWWbBtJkD5YpvKPRa/bSHtZKHWwNDfAdQKDKl5s9OJjVobzAZQc829ea8drRebdi6UTovN2Fb/0JFcZyo/i36XNfePuklAIhOsaVaiWFQvKnXkuMNSUp31iT18Sx2Rp+Y7w4pa46Ghrr8mOxGbYc2TJgFvHOQVD3kZXlVJ8i2WNjrhk0xqic/KcKQLSY5ovS1KaW/WK7FQ/VZgwo1csBJ5EUq7Ja4vN0a1biZzaPRDuoPyDcxZwyAti8B1+qdQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from IA0PR11MB7185.namprd11.prod.outlook.com (2603:10b6:208:432::20)
- by CO1PR11MB4994.namprd11.prod.outlook.com (2603:10b6:303:91::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.44; Thu, 27 Mar
- 2025 07:14:57 +0000
-Received: from IA0PR11MB7185.namprd11.prod.outlook.com
- ([fe80::dd3b:ce77:841a:722b]) by IA0PR11MB7185.namprd11.prod.outlook.com
- ([fe80::dd3b:ce77:841a:722b%3]) with mapi id 15.20.8534.043; Thu, 27 Mar 2025
- 07:14:56 +0000
-From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie
-	<airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
-	<gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, "Pierre-Eric
- Pelloux-Prayer" <pierre-eric.pelloux-prayer@amd.com>
-CC: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"kernel@collabora.com" <kernel@collabora.com>
-Subject: RE: [PATCH v1 2/2] drm/virtio: Fix missed dmabuf unpinning in error
- path of prepare_fb()
-Thread-Topic: [PATCH v1 2/2] drm/virtio: Fix missed dmabuf unpinning in error
- path of prepare_fb()
-Thread-Index: AQHbnfGBeSAw8gFsy0Sck8QBafnwF7OE3R3AgAByhgCAASzF4A==
-Date: Thu, 27 Mar 2025 07:14:56 +0000
-Message-ID: <IA0PR11MB71851C0607629875CC458A90F8A12@IA0PR11MB7185.namprd11.prod.outlook.com>
-References: <20250326014902.379339-1-dmitry.osipenko@collabora.com>
- <20250326014902.379339-2-dmitry.osipenko@collabora.com>
- <IA0PR11MB7185345D3DFA8C7900059144F8A62@IA0PR11MB7185.namprd11.prod.outlook.com>
- <16a30d03-9c98-47a4-959f-8671f7cb7fab@collabora.com>
-In-Reply-To: <16a30d03-9c98-47a4-959f-8671f7cb7fab@collabora.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA0PR11MB7185:EE_|CO1PR11MB4994:EE_
-x-ms-office365-filtering-correlation-id: 997d151d-033b-4b8d-0e8b-08dd6cff1447
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014|38070700018;
-x-microsoft-antispam-message-info: =?utf-8?B?NXFxa2RhRlg1OWk1V3dlVGQyL1RBL2FHUXRCZThyUW9UQUhpOGNiMERvemVu?=
- =?utf-8?B?dGdabFdLTDUxLzlvMDVOUUdRK3RFY2lzSGVFdmc4U1ZmdG8vWWNYa015VjN0?=
- =?utf-8?B?bWJuVE9JcmZ2WnF3THBFaG51MEVNWGpwWTVlekZCcHdpOHR3VExORzZRWGZB?=
- =?utf-8?B?VkdxYjdtcjRMdnVwVm1BVWNoRG5xdWt4cklyaUxmV3pISHN0S2cveG84QVF1?=
- =?utf-8?B?bTByWXNMS3lhNW41SVlRNnEzZGxrMmtXMEloYXl4bGtML2VuM3AzSWZWQnM2?=
- =?utf-8?B?VDE1ckNvZGR1RmVyK3NDR1pKK2JhY1JtSTNNVHE4TmtLZ1JFb0tZNVhRK2xt?=
- =?utf-8?B?VHpPMCtMSlNqbXU5MnBFSW4zM2RyYXB2cVhKWjZ5Q3ptS1hSa29IZTBTU3hn?=
- =?utf-8?B?VWdpL0c1MC9aMTBpZ0RuNWEvTUcwM2R2NDNBMStGQmFScHFqalRab3VrL2N4?=
- =?utf-8?B?bEhURGR5MHhhVHJjNThSNTdUWGhrdE1YYjN0cjg0WGZKVGo0ejVic3MxZGEr?=
- =?utf-8?B?ZWtRZ2hHZzlGUWg1aXg1UGZLTWdub1RScHNhQk9OV2lkZUZtT1ZxVSt6TW1w?=
- =?utf-8?B?V0ZUY2VvL1NWZkZkUURtdmRFak9iOVN5VFhRSENEUTFNSy91c0ZLMERFSno4?=
- =?utf-8?B?aVFBbVhyQkswRnVhM2JMWU44TVQxOGdQTVZMcXFMZ3FEVTNmRGxsRHZtSGNT?=
- =?utf-8?B?YkNhamxjSmZraDVaOEF3STZUZXp2VmRkcVU3cFJaR29WNWdQN3U1TCtNSFdI?=
- =?utf-8?B?QnNPRGFuV0lVSjQ4cURVK1NHN1ltdElBTXMyNXd0d0FDZkJNd0hmcVg1WVdq?=
- =?utf-8?B?Mlo5L3JmcU9DWVBxNVhCZmJTWW9KcG1mNGRVMVJ0cUZTeWFkS3VrV01nOGNY?=
- =?utf-8?B?T25hOUVVMXAwYkJ1dld0Z1E5eFErVFNKWDRndlNMTG9sa09uWFZ1R3UraXk5?=
- =?utf-8?B?b0NQY2MzRkRxTHRmN0xtVjJpd2tzT1NtOS9jd2J6UC9IbUI1YmNZWHBmdTNS?=
- =?utf-8?B?c1RJTXIvTytLOGx0NjJPNHJOS3c2R3pXdGd5NHZYTGNzbS9jU210bkZ0OEhs?=
- =?utf-8?B?UmQ2RlA3YTZtTkxqZGtySHY3c0tqaTJ6SGFhMFpJSEdCU09xYklYQnZjU3g2?=
- =?utf-8?B?SGRGVjNjakRxK1ZKOGhzSHFlSkMzaEtmRTRxMktUaVl5eXB1bXN2a0FHdDdn?=
- =?utf-8?B?dUxueFZOMDg3aXppTFVETnNXK3k0NTNDV0ttV0diMGR1SHB6NThMVHdmd0pD?=
- =?utf-8?B?eE1zeElSY1R2NmlJdU9LQlRtK0VyakEyM09kcVcvdkVFNzNaZ3VhVnhmcjBt?=
- =?utf-8?B?YytGVHRXeHBHWFlhNFJFbktTSEErbVB5dTVIOHF6Z1ZnZm0vc2M5ZzJmWk0w?=
- =?utf-8?B?blJjeDZqcXA2OWY2ZGVZSEwrSDJraEJoWXFnV21pTzBBNm1jWHFqZzVYSjFT?=
- =?utf-8?B?ZVJYcWJWL2xTZFhkdSt5MEUrWVk2d2xXTjVBaUJpUTBGUGtOa1hrNVJsa3Jy?=
- =?utf-8?B?UkRNR2UzL2x2WExVeCtyNHVBYTlDMU9zT3Vjeml3RElyVmt5bEVheXgxellW?=
- =?utf-8?B?Tm1xRnZ6TnhLN2RSazcxckFXNGNTSzRXZHhqSDRmcFo3VDhqbHl4UmFaRkJQ?=
- =?utf-8?B?dWQvb0w0L01CbUtpdlJhekd1bG5wZGJZYzNWeWdXdDlCeFBDS1lpU2hLa3F3?=
- =?utf-8?B?ZXRiSmdRMTIrZGU4cXR4M1Z6aGw4T0lCY3k2MGwvMVN1VHpvRFgzSHNyTksx?=
- =?utf-8?B?c1NtQ2syMEl6OEJtb0phQmp1ZmtPaklFRXQ2Unk0eHNVSXYvZ3J3M1RiUmRy?=
- =?utf-8?B?OWZCSU8xSVpyNXF3RHNWWDZRU1J6ZlFCbjd1OE9WTmRvcVF2czZNWmF0WUVV?=
- =?utf-8?B?ekcrSHNYQVVGczBzSEt5RGRWZXZzckFXOFlacVo4djMzSWxhdGg5WWZZSXhM?=
- =?utf-8?Q?FYzjpMdhkvrnrwbH/i567tYTyZdHhnyI?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR11MB7185.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?MmFPdFkybDNnNjR4OGxyOTREMUpiT0xoZmFKbm13WE1JcFdGWjYrc25oUktN?=
- =?utf-8?B?Wk9pZUdzTXlFY25iVWl0QjYyOUQ2bEgrbmNmT1gxaUZMYXpTcFVFcHV3YS95?=
- =?utf-8?B?QThDc0JVdEdLckF2ajhaR3F1bG9jNmF2QUd0TEduZnhGd0ptbTJXVzhGVXZN?=
- =?utf-8?B?UUV0dVNETzFyQlpXaXVLOW9qMW95SzhUOHZzQ1hycExYdndyeGZQeUQzbE92?=
- =?utf-8?B?TmVSL29DOEJuN3krRWdtWTdYd2xDLzJCUE90WFlEdmpOM2N1a1daUk0wd1NR?=
- =?utf-8?B?UnlBZUVKaVB0Sms5NDBLeEdrUEgxcGdCcEpUNFdlSWJkT2o3ajNmSUdNNGFx?=
- =?utf-8?B?VFlWaVNMa3lFY2pyZlBndzg1YldZVGFkUE1JcjhHaWEwNjJiRWk0ZkdtYkxH?=
- =?utf-8?B?YnZmUnpjWTlGRWx2SUlzY3dWMWxpcVlvcjczTm5Oay94ZXgxSHZjV09FQUx2?=
- =?utf-8?B?ZjJ2VVlJZ3ZJaVAxZjZzZCs2emJnSWdEYVVLcHAvTjlFNS9FYmZrT1EyTEhC?=
- =?utf-8?B?MzhBd0ZXRWhNalhUTm83UnM1b1Ivd1pIRU95MzVjUDVwUjVYb1dLUmtLVkty?=
- =?utf-8?B?SjZjSm92L2twaFMySVErNklUejVJaDRPK3hqSytTSm5odUpIK1JjWEhNRGdi?=
- =?utf-8?B?cnhXdlVKTm53ZzhpTmtkekRhR09aVXZsSDhhMWpNMzg4YktDcE84WDNpbXZ5?=
- =?utf-8?B?L2NFYXcyU0lKMUxsTmZkNzQwZmlMMWhKUndCMVF4b3hGcWxBb09ZcTF1UTlp?=
- =?utf-8?B?VUxwUzJGQzY3OVpqRTZ6NUtQbmZNN29TWFowRzZ0dlJpaFZBK0V0dERqY3Ar?=
- =?utf-8?B?aXdvVG54c1V4QVd6VURXWnA2MkJ4V05pWlhSU05HMGFCLzVFREM1UXlCNnJJ?=
- =?utf-8?B?bjFUQ2ZOVUhXY2VQRmNhUW1hUmdWV3JIS3RmQ2tMMGlyMExkeVVZSTZibHBM?=
- =?utf-8?B?RmM5SHJFK29YTXRVY0J6WE0xZDRhUHE4SHJKWjdtM3lFdjNwY05CbXZmWEtQ?=
- =?utf-8?B?cTNoWEVBV1Fmd2ZvR0RMVHhwelEzeWFTc2hHTmhjNVBRSjlTMFVBS2tSdHJn?=
- =?utf-8?B?TTd2RVBXR2ZHY3lLUmdXVGhjak55dk54eTQ2Q0F6MGUrRFQ4T3JUL0xFR0Ns?=
- =?utf-8?B?dXpteG1sM084K1krVDg3SUlnTjl5TXZnVzdkQThubmp5QUUzSjcyTTFTeG9D?=
- =?utf-8?B?ZEZqMFd5aFRsTGZnVTRFc2J4UTJTVmY4R2IyOGszNUhaT0ZTNzdIM1BpZURJ?=
- =?utf-8?B?NGdjNWdCWFBFSzBtOW5GWDR0S1NWM0FlcGNqNU5KT3BrTmx1aVRHSWh2aDFN?=
- =?utf-8?B?RmRFMDlqNC9QVUpOY0ovQUtNRHVBc0JUcWVBZzhybmp1S0N6enZjc0IwWEcz?=
- =?utf-8?B?bnJCVmtuUEZuQk9MTjMzUE42QUF1dTlzRWlCWHVPczNZMDcwcWNkdTBhL25I?=
- =?utf-8?B?NlQraVU5MzZlMWtDOVN0Y0UvOVoveFdrS1Fyb0FGMHN0OHNJYkcxSjZWUjNr?=
- =?utf-8?B?RXJ6YSs0MGZrbkRVMjZQazBNaHk3M0svMmdqSjNwUG5ldWpkY2pDSU43WnJF?=
- =?utf-8?B?WDZnUStBSTZwM3dHQWtESUtGalZpZGYwQ25zTlN6MlgzdUs2YWx2MjJxcU1W?=
- =?utf-8?B?eHBWSFk5dW5kUXFVbDJORjZCVWF1TkFPNXY5QXBvemptR2FNSnVGcXlqdXJy?=
- =?utf-8?B?bjJFY3ZLaDFreVNYSHpDOFJMVGJzcGZFdU1lSEE3NTlEMWFXdVA4K2xLWHZX?=
- =?utf-8?B?K2tCSjhVWm1hMkpHcmNaQnpjSmozM21BdGV6RGRtZ0h5Nzl4Ym9saytZYldW?=
- =?utf-8?B?bjhlR2g4bk9sMnlFaUJTMWRjK3pTdUYvUlluTDVjRVV6NXJLTlNjWndaczZp?=
- =?utf-8?B?NmJlOFBWY0NydjExSjBETU13N2NCbHpFbkFSYzVKUlkvUjB6bU5kS3Qxbmpq?=
- =?utf-8?B?cnhKRGd1Q3VPVmdKcy9wM0Nrd3Z3KzFhMFdiZ2tMNmVYdUVicklaWjdUbDlx?=
- =?utf-8?B?SzlSb2Joc2wzbWVidEVvNWNLcStlZGh0Vk5LbmRIR0hWNDZ1QWdoVGFzakVN?=
- =?utf-8?B?eVJIZG5tbE9meDJjWGRpL1FRUUdUN201UFpZQnRjVjBHYVRYeGpnSVFISjJ5?=
- =?utf-8?Q?qCMYrvFfd4mUEPY21Jq3B3/Tm?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="sY6+7Etu";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="z0jExAd5";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="sY6+7Etu";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="z0jExAd5"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 56ACC1F395;
+	Thu, 27 Mar 2025 07:44:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1743061446; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=F5KAlevZCj/tA2hrXD8uiOlTMS5SEiExwS2cdruF7cc=;
+	b=sY6+7EtuFlZ++7aFXn3Q/A7mutgrygoRoV/iAI2w3/qXM/X510jGjoSuE5H9NiuJpEBset
+	fowTPECsWEiP8/j7sT2IvutK1FymoBkxaHDssKSL9bVxNwkdy2GgMg6VOjbID0Ub1tsfnF
+	l+tiDxcBOXyeHe6YpqBrthqEztwP66k=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1743061446;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=F5KAlevZCj/tA2hrXD8uiOlTMS5SEiExwS2cdruF7cc=;
+	b=z0jExAd5Q9S0kovIE8pmUHwLWL7TQbmAocPGetkNqT0bNsPvwilgrXhheubFmsouNoH4Df
+	R90NjsBp6/Xsr5AQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=sY6+7Etu;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=z0jExAd5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1743061446; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=F5KAlevZCj/tA2hrXD8uiOlTMS5SEiExwS2cdruF7cc=;
+	b=sY6+7EtuFlZ++7aFXn3Q/A7mutgrygoRoV/iAI2w3/qXM/X510jGjoSuE5H9NiuJpEBset
+	fowTPECsWEiP8/j7sT2IvutK1FymoBkxaHDssKSL9bVxNwkdy2GgMg6VOjbID0Ub1tsfnF
+	l+tiDxcBOXyeHe6YpqBrthqEztwP66k=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1743061446;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=F5KAlevZCj/tA2hrXD8uiOlTMS5SEiExwS2cdruF7cc=;
+	b=z0jExAd5Q9S0kovIE8pmUHwLWL7TQbmAocPGetkNqT0bNsPvwilgrXhheubFmsouNoH4Df
+	R90NjsBp6/Xsr5AQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 306041376E;
+	Thu, 27 Mar 2025 07:44:06 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id c/JFCsYB5WcTYAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 27 Mar 2025 07:44:06 +0000
+Message-ID: <b9a9cf64-154d-4efd-8cf8-a3e39fe55a21@suse.de>
+Date: Thu, 27 Mar 2025 08:44:05 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA0PR11MB7185.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 997d151d-033b-4b8d-0e8b-08dd6cff1447
-X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Mar 2025 07:14:56.8632
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ZcwSUqWsvk78J3xa0DRhvX21D4uXmMvMDa3IOC8UVP6fA0Ics/CQ0m0RtN34WhK9oKoDurW4LtvUhhvd2sfoygUM0HYpTY3ljUq91HF7wzE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR11MB4994
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/4] drm/cirrus-qemu: Use framebuffer format as-is, drop
+ adjustments
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: airlied@redhat.com, virtualization@lists.linux.dev,
+ dri-devel@lists.freedesktop.org
+References: <20250325171716.154097-1-tzimmermann@suse.de>
+ <20250325171716.154097-4-tzimmermann@suse.de>
+ <hujnqeg74eoiz4lj46xhetdpytfgndg4iegwpszqf3ztjzuw6o@tis4zsp7slc3>
+ <98df4fc3-019f-4feb-a49e-987a97e36c95@suse.de>
+ <iks6ntl56uyo2cx3k4trgeu5z6ilxe6leaoexi7azd4woutefa@yct7554fra2i>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <iks6ntl56uyo2cx3k4trgeu5z6ilxe6leaoexi7azd4woutefa@yct7554fra2i>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 56ACC1F395
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCPT_COUNT_THREE(0.00)[4];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -4.51
+X-Spam-Flag: NO
 
-SGkgRG1pdHJ5LA0KDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjEgMi8yXSBkcm0vdmlydGlvOiBG
-aXggbWlzc2VkIGRtYWJ1ZiB1bnBpbm5pbmcgaW4gZXJyb3INCj4gcGF0aCBvZiBwcmVwYXJlX2Zi
-KCkNCj4gDQo+IE9uIDMvMjYvMjUgMDg6MTQsIEthc2lyZWRkeSwgVml2ZWsgd3JvdGU6DQo+IC4u
-Lg0KPiA+PiAgc3RhdGljIGludCB2aXJ0aW9fZ3B1X3BsYW5lX3ByZXBhcmVfZmIoc3RydWN0IGRy
-bV9wbGFuZSAqcGxhbmUsDQo+ID4+ICAJCQkJICAgICAgIHN0cnVjdCBkcm1fcGxhbmVfc3RhdGUg
-Km5ld19zdGF0ZSkNCj4gPj4gIHsNCj4gPj4gQEAgLTM3NiwyMyArMzg2LDE2IEBAIHN0YXRpYyBp
-bnQgdmlydGlvX2dwdV9wbGFuZV9wcmVwYXJlX2ZiKHN0cnVjdA0KPiA+PiBkcm1fcGxhbmUgKnBs
-YW5lLA0KPiA+PiAgCQl2Z3BsYW5lX3N0LT5mZW5jZSA9IHZpcnRpb19ncHVfZmVuY2VfYWxsb2Mo
-dmdkZXYsDQo+ID4+ICAJCQkJCQkgICAgIHZnZGV2LT5mZW5jZV9kcnYuY29udGV4dCwNCj4gPj4g
-IAkJCQkJCSAgICAgMCk7DQo+ID4+IC0JCWlmICghdmdwbGFuZV9zdC0+ZmVuY2UpDQo+ID4+ICsJ
-CWlmICghdmdwbGFuZV9zdC0+ZmVuY2UpIHsNCj4gPj4gKwkJCWlmIChvYmotPmltcG9ydF9hdHRh
-Y2gpDQo+ID4+ICsJCQkJdmlydGlvX2dwdV9jbGVhbnVwX2ltcG9ydGVkX29iaihvYmopOw0KPiA+
-IEkgdGhpbmsgY2hlY2tpbmcgZm9yIGZlbmNlIGFsbG9jYXRpb24gZmFpbHVyZSBiZWZvcmUgaW1w
-b3J0IHdvdWxkIGJlIG11Y2gNCj4gYmV0dGVyLg0KPiA+IEluIG90aGVyIHdvcmRzLCBjbGVhbmlu
-ZyB1cCB0aGUgZmVuY2UgaW4gY2FzZSBvZiBhbnkgaW1wb3J0IGVycm9ycyB3b3VsZCBiZQ0KPiA+
-IG11Y2ggc2ltcGxlciBJTU8uDQo+ID4NCj4gPiBSZWdhcmRsZXNzLA0KPiA+IEFja2VkLWJ5OiBW
-aXZlayBLYXNpcmVkZHkgPHZpdmVrLmthc2lyZWRkeUBpbnRlbC5jb20+DQo+IA0KPiBBbm90aGVy
-IHF1ZXN0aW9uLCB3aHkgZG8gd2UgbmVlZCB0aGlzIGZlbmNpbmcgZm9yIGltcG9ydGVkIGRtYWJ1
-Zj8NCj4gRmVuY2luZyBpc24ndCBkb25lIGhvc3QvZ3Vlc3QgYmxvYnMgaW4gdGhpcyBjb2RlLCB3
-aGlsZSBkbWFidWYgaXMNCj4gZXNzZW50aWFsbHkgYSBndWVzdCBibG9iLiBDb3VsZCB5b3UgcGxl
-YXNlIGNsYXJpZnkgd2h5IHRoaXMgZmVuY2UgaXMNCj4gbmVlZGVkPyBNYXliZSB3ZSBzaG91bGRu
-J3QgYWxsb2NhdGUgZmVuY2UgaW4gdGhlIGZpcnN0IHBsYWNlIGZvciB0aGUgZG1hYnVmLg0KQXQt
-bGVhc3QgZm9yIHRoZSBub24tdmlyZ2wgdXNlLWNhc2VzICh3aGVyZSB0aGUgcmVuZGVyaW5nIGlz
-IGRvbmUgaW4gdGhlIEd1ZXN0IHN1Y2gNCmFzIGluIHBhc3N0aHJvdWdoKSwgdGhpcyBHdWVzdC9I
-b3N0IHN5bmNocm9uaXphdGlvbiBmZW5jZSBzZXJ2ZXMgdHdvIHB1cnBvc2VzOg0KLSBJdCBwcmV2
-ZW50cyB0aGUgR3Vlc3QgZnJvbSByZXVzaW5nL2Rlc3Ryb3lpbmcgdGhlIHN1Ym1pdHRlZCBidWZm
-ZXIgKEd1ZXN0IGNvbXBvc2l0b3INCiAgRkIpIHVudGlsIHRoZSBIb3N0IGlzIGRvbmUgdXNpbmcg
-aXQuIE90aGVyd2lzZSwgdGhlIEd1ZXN0IGNvbXBvc2l0b3IgbWlnaHQgcmVuZGVyDQogIGludG8g
-dGhpcyBidWZmZXIgYXQgdGhlIHNhbWUgdGltZSB3aGlsZSB0aGUgSG9zdCBpcyBjb25zdW1pbmcg
-aXQsIGxlYWRpbmcgdG8gaXNzdWVzDQogIHN1Y2ggYXMgdGVhcmluZy9mbGlja2VyaW5nLiBUaGlz
-IHByb2JsZW0gaXMgbW9yZSBub3RpY2VhYmxlIGluIGNhc2VzIHdoZXJlIHRoZQ0KICBHdWVzdCBj
-b21wb3NpdG9yIGhhcyBvbmx5IG9uZSBiYWNrYnVmZmVyIHN1Y2ggYXMgWG9yZyArIGRpcnRmeUZi
-Lg0KDQotIEl0IGFsc28gcHJldmVudHMgdGhlIEd1ZXN0IGNvbXBvc2l0b3IgZnJvbSByZW5kZXJp
-bmcgZmFzdGVyIHRoYW4gdGhlIEhvc3QgcmVmcmVzaA0KICByYXRlLiBJbiBvdGhlciB3b3Jkcywg
-aXQganVzdCBzZXRzIHRoZSB1cHBlciBib3VuZCBpbiB0ZXJtcyBvZiB0aGUgYnVmZmVyIHN1Ym1p
-c3Npb24NCiAgcmF0ZSBhcyB0aGVyZSBpcyBubyBwb2ludCBpbiBnb2luZyBvdmVyIHRoZSBIb3N0
-IHJlZnJlc2ggcmF0ZSwgd2hpY2ggd291bGQgbGlrZWx5DQogIGxlYWQgdG8gd2FzdGFnZSBvZiBH
-UFUgY3ljbGVzIGFuZCBkcm9wcGVkIGZyYW1lcy4NCg0KVGhlcmVmb3JlLCB0aGlzIGZlbmNlIGlz
-IHJlYWxseSBuZWVkZWQgZm9yIEd1ZXN0IGJsb2JzIGluY2x1ZGluZyBpbXBvcnRlZCBkbWFidWZz
-Lg0KDQpUaGFua3MsDQpWaXZlaw0KDQo+IA0KPiAtLQ0KPiBCZXN0IHJlZ2FyZHMsDQo+IERtaXRy
-eQ0K
+Hi
+
+Am 26.03.25 um 14:04 schrieb Gerd Hoffmann:
+> On Wed, Mar 26, 2025 at 01:30:13PM +0100, Thomas Zimmermann wrote:
+>> Hi,
+>>
+>> first of all, what about the other patches?
+>>
+>> - Patch 1 is a bugfix.
+>> - Patch 4 depends on this one.
+>> - Patch 2 should be given consideration.
+> Looks reasonable to me.  Don't feel like giving a reviewed-by due to not
+> following drm development very closely any more, so
+>
+> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+>
+>>> Second, because there is no way to communicate the hardware constrains
+>>> of the cirrus.  userspace can query the formats, and userspace can query
+>>> the resolutions, but there is no way to tell userspace that not all
+>>> combinations are valid and that you have to go for the DRM_FORMAT_RGB565
+>>> format if you want higher resolutions.
+>> The viable strategy for user space is to allocate a variety of different
+>> configs and check them one by one, thus filtering out the ones that work.
+> Last time I checked (which has been a few years) alot of existing
+> software didn't do that.  Maybe that changed with atomic becoming
+> more mature though.
+>
+>>> Essentially the format conversations allows the driver to hide the
+>>> oddities of the prehistoric hardware from userspace, so things are
+>>> more smooth when running wayland on the cirrus.
+>> I'm aware of the situation. We've had similar discussions about other
+>> low-end hardware, but generally went with the hardware limits.
+>>
+>> Please note that there is a trade-off here: the effect of this series is
+>> that the maximum resolution will be limited to 800x600.
+> Ah, ok, this is how you deal with the problem, go with the max
+> resolution the cirrus can support at 32 bpp.
+>
+> Could be more explicit in the commit message, especially the 800x600
+> limit, there is a high chance people search for that when their display
+> resolution changes after a kernel update.
+>
+>> If user space would appropriately validate atomic states, lower bpp
+>> could still support higher resolutions. But converting color formats
+>> on the fly isn't free. I recently did some simple measurements in a
+>> different context and converting from 32 bpp to 16 bpp took 3 times as
+>> long as memcpy'ing the raw pixels.
+> Ouch.  That is alot.
+>
+>>> PS: https://www.kraxel.org/blog/2014/10/qemu-using-cirrus-considered-harmful/
+>>> still applies of course.
+>> It's been 10 years since you wrote that. So maybe it's time to re-consider
+>> cirrus' exceptions and just go for a 'dumb implementation'. Anyone can
+>> easily switch to better alternatives.
+> Fair enough.
+>
+> With an improved commit message:
+> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Thanks for reconsidering. I'll send out an updated series with an 
+expanded commit message.
+
+Best regards
+Thomas
+
+>
+> take care,
+>    Gerd
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
+
