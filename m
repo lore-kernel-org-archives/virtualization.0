@@ -1,43 +1,43 @@
 Received: from sender3-pp-f112.zoho.com (sender3-pp-f112.zoho.com [136.143.184.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 170C1224CC
-	for <virtualization@lists.linux.dev>; Fri, 28 Mar 2025 01:36:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32CD3224CC
+	for <virtualization@lists.linux.dev>; Fri, 28 Mar 2025 01:39:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.184.112
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743125786; cv=pass; b=kGqQUIVKibCDKlExMTRM0MtLDu3dJpsuQkUIWuviiCSgp+bW8ZOpeaojppYSZycFUyfXceCPlfrfFIsPKd2Q1PrOODhxPy8gB0Td0tHNKaQOl2RGBmc6oqEyTj+13o99ooWNwPZDrGE2tbSKvJ6nhmiRq9LUBPsG7g9EgDn4gsI=
+	t=1743125995; cv=pass; b=HRaBmeNHUV7zXDVrxNme2lBIlh9s1jvCQ85twWVB2wFCz1Qn3V4beEbrDukYkoVWqxwfPfravc6xg/0By8kDka5wm9+ZcBHXqeNmyOc6/CsgtAd+kdkIbYxIxY6+4EteQW6weKBmsA82iYz6RJMPS4Yy/DX3JdmQ89o4ydcJz60=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743125786; c=relaxed/simple;
-	bh=8JArjRxnFIEWAa8Z3EZ6r/0xEXjHpy2xMRzcmhybK8E=;
+	s=arc-20240116; t=1743125995; c=relaxed/simple;
+	bh=JkBhY9pOgIClwKBni1BBTOZ5kTvHJY9rbnRef3t0GMo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P3VpADcvMh9+5QoafUQyVdvs+kObkAyZpXuyLtdn5a3JC7upNI4ILVFW+zH93Sli3jui3EXGxiiAKU1mXPoAtbDyeRD46Cc/BiqFv53yPm/TegzEgAUPCZXtb9LO+q3euvYwqe2oSYt7xXjTOn26dIj2tCdH8bXarTHGt08ljZc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Mh1OCcnG; arc=pass smtp.client-ip=136.143.184.112
+	 In-Reply-To:Content-Type; b=ZhQWtIJt9V+bzRs3On/9O4Jxt8eHpAKXEwRc7M1MN1aJWs8r0wzJw1LgepexS8mYym1jSUBcDNlNJBYoGz2sKKS84kpdM19a/L5Gf4P56297QEXlJFzZWlmJZM6fOrfzudraBkYeMEtd7PeqMZYeQfDVUUkfMsbQTjHqkXLmUw8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Nd9OZvfP; arc=pass smtp.client-ip=136.143.184.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Mh1OCcnG"
-ARC-Seal: i=1; a=rsa-sha256; t=1743125763; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Nd9OZvfP"
+ARC-Seal: i=1; a=rsa-sha256; t=1743125981; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=RQRS6F8pY0ZJ6se+EmJajCBo02km4vAJbM5kE5YWpB6mEu9dP2AFkvHzPsLxuRrVkCon4JJ+RO93K/qCNl9vdJ27SE0fyLYdTyCqcJL7ST9Utn241Fj2F1xV223GNmIjolbJw2LXwVNPUb1xsR3JQeDw2C29dANeJ/SxYxzMB6k=
+	b=Mhn/ZCxU8t9otcHXbh/Fb/XObMRcFW3Rrqq71NbRA2QDbD6oWYkRfbk6y76apzqVmWm0FpoVht8UesUlBDMPtM0nams9t1CYA6axvIcaxbcT9gzhB0/XLlnocbNplsdz97+WFB5IexRSf77u58Pu3Av3R31z6dey7Y0WNtshRPg=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1743125763; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=v+83m7PeA/Hi77apWlhVpRurgQRvbvqEjxvPe005cPI=; 
-	b=B/TYuOLC2uHclrYTLu8tlqPEdkpFZ6lhKw30t1o6MoAznSLgDsIbXKKVAmOdFmUuMLVjsYZ3rkVyFOTRMlV9Z1NLeEOk65yeXuZ/POngx+IvQuWZ/+8kiTXmEZWB8PS4wlSOUJSuFWpqINNSaSd0YLZIg4U6BwfGw8xLFzKqsXk=
+	t=1743125981; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=bLlskPcsFqLG0KS6/xzkgCRavgzWpJNLaxnhVXBKMzM=; 
+	b=RlamE35L/9NgA8dX9DBNKSc9LZG3VlJCSlqOfd4Y3oxtnm2b4huo8j294YKtEa6x2KtoLwuZd0RsxO8k9DcNRzHZVhwWIz7Ctt8XxLUyly/uNEIJRYLZJBQ3xFGhd/WlFEQhgNABLpVhJhbA8YpWl1VNvlX9vZyMSiXqr8Ch0Ww=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1743125763;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1743125981;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
 	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=v+83m7PeA/Hi77apWlhVpRurgQRvbvqEjxvPe005cPI=;
-	b=Mh1OCcnGh9vuwx9w+gZUo9FrVDe0z8qpcBA28Qb3BdVsMNBjaq3kkXVvITmKiMLq
-	clbYuOQudpjzyV2Jv+Qf1Yy/FTrzgxkQAqVIBQei5HZnVdSSKpT5EOdP5cw7Mdn3Wtl
-	IY1bPuiCIrYKDUvEOjiw09QoMdqU2Jaw/IXE/anI=
-Received: by mx.zohomail.com with SMTPS id 1743125760960269.99873457084107;
-	Thu, 27 Mar 2025 18:36:00 -0700 (PDT)
-Message-ID: <ce386264-db89-4e96-865b-59f1fe39858c@collabora.com>
-Date: Fri, 28 Mar 2025 04:35:57 +0300
+	bh=bLlskPcsFqLG0KS6/xzkgCRavgzWpJNLaxnhVXBKMzM=;
+	b=Nd9OZvfPZzsgevFY98n4hPoKGcrGoZdtXxSFbGVca/AtDCiPpJAYs23K3PEo/u6c
+	gr9ycLvS2syOCuGCk8kNIW2+1VvGQ7sfcj3BY9LcH649pYiOH02GWW+G3ibrD3xf/dh
+	GEe5YDGxShS6nWYDxaNDBa2aUklOC32+6O/fSFt4=
+Received: by mx.zohomail.com with SMTPS id 1743125979819361.1158011960416;
+	Thu, 27 Mar 2025 18:39:39 -0700 (PDT)
+Message-ID: <e9122ec3-3d85-40ac-983a-553a498e5203@collabora.com>
+Date: Fri, 28 Mar 2025 04:39:32 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,50 +45,78 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/2] drm/virtio: Fix missed dmabuf unpinning in error
- path of prepare_fb()
-To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+Subject: Re: [PATCH v1 1/7] virtio-gpu api: add blob userptr resource
+To: "Huang, Honglei1" <Honglei1.Huang@amd.com>,
+ Demi Marie Obenour <demiobenour@gmail.com>, David Airlie
+ <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>,
- Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
-Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "kernel@collabora.com" <kernel@collabora.com>
-References: <20250326014902.379339-1-dmitry.osipenko@collabora.com>
- <20250326014902.379339-2-dmitry.osipenko@collabora.com>
- <IA0PR11MB7185345D3DFA8C7900059144F8A62@IA0PR11MB7185.namprd11.prod.outlook.com>
- <16a30d03-9c98-47a4-959f-8671f7cb7fab@collabora.com>
- <IA0PR11MB71851C0607629875CC458A90F8A12@IA0PR11MB7185.namprd11.prod.outlook.com>
-Content-Language: en-US
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
+ Huang Rui <ray.huang@amd.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20250228053650.393646-1-honglei1.huang@amd.com>
+ <20250228053650.393646-2-honglei1.huang@amd.com>
+ <cd9f85a5-0d99-4007-bba2-d792ac9d84da@gmail.com>
+ <c2d1334f-6f5a-493f-bbf0-3e92789f128a@amd.com>
+ <85470439-3c03-4787-be91-b6b680a5aca5@collabora.com>
+ <79d642cc-fe61-48c3-bda1-aafeeb07fe2a@amd.com>
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <IA0PR11MB71851C0607629875CC458A90F8A12@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Language: en-US
+In-Reply-To: <79d642cc-fe61-48c3-bda1-aafeeb07fe2a@amd.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-ZohoMailClient: External
 
-On 3/27/25 10:14, Kasireddy, Vivek wrote:
->> Another question, why do we need this fencing for imported dmabuf?
->> Fencing isn't done host/guest blobs in this code, while dmabuf is
->> essentially a guest blob. Could you please clarify why this fence is
->> needed? Maybe we shouldn't allocate fence in the first place for the dmabuf.
-> At-least for the non-virgl use-cases (where the rendering is done in the Guest such
-> as in passthrough), this Guest/Host synchronization fence serves two purposes:
-> - It prevents the Guest from reusing/destroying the submitted buffer (Guest compositor
->   FB) until the Host is done using it. Otherwise, the Guest compositor might render
->   into this buffer at the same time while the Host is consuming it, leading to issues
->   such as tearing/flickering. This problem is more noticeable in cases where the
->   Guest compositor has only one backbuffer such as Xorg + dirtfyFb.
+On 3/27/25 06:00, Huang, Honglei1 wrote:
 > 
-> - It also prevents the Guest compositor from rendering faster than the Host refresh
->   rate. In other words, it just sets the upper bound in terms of the buffer submission
->   rate as there is no point in going over the Host refresh rate, which would likely
->   lead to wastage of GPU cycles and dropped frames.
 > 
-> Therefore, this fence is really needed for Guest blobs including imported dmabufs.
+> On 2025/3/26 22:46, Dmitry Osipenko wrote:
+>> On 3/6/25 13:51, Huang, Honglei1 wrote:
+>>>
+>>> On 2025/3/1 5:21, Demi Marie Obenour wrote:
+>>>> On 2/28/25 12:36 AM, Honglei Huang wrote:
+>>>>> From: Honglei Huang <Honglei1.Huang@amd.com>
+>>>>>
+>>>>> Add a new resource for blob resource, called userptr, used for let
+>>>>> host access guest user space memory, to acquire buffer based userptr
+>>>>> feature in virtio GPU.
+>>>>>
+>>>>> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
+>>>>> in this series patches only HSAKMT context can use the userptr
+>>>>> feature. HSAKMT is a GPU compute library in HSA stack, like
+>>>>> the role libdrm in mesa stack.
+>>>>
+>>>> Userptr should not be limited to HSMKMT contexts.  Userptr can
+>>>> accelerate shm buffers by avoiding a copy from guest to host, and
+>>>> it can be implemented using grant tables on Xen.
+>>>
+>>> Yes, I totally agree userptr can accelerate shm buffers, but I currently
+>>> don't know if there are any other projects working on similar features,
+>>> or if maintainers have any opinions or better ways to implement them, so
+>>> I temporarily limit this feature to HSAKMT context only.
+>>>
+>>> I am waiting for everyone's opinions, please provide your thoughts.
+>>
+>> USERPTR should be relevant for anything Vulkan-related, like Venus and
+>> native contexts. I expect that this new feature will work universally
+>> good for all context types.
+>>
+>> In order to merge USERPTR support upstream, we at least will need to
+>> prototype the guest USERPTR in one of native context driver to know that
+>> it works. You'll need to post the whole set of host/guest USERPTR
+>> patches including QEMU and etc, not just the kernel patches.
+> 
+> Ok totally understood, I will upload other components as soon as
+> possiable, cause we only have limited resource for this matter, please
+> understand the speed is relatively slow.
+> And for Vulkan use case, yes it is very important, I will make some
+> prototype implementation for it, and will test it locally. The
+> implementation for USERPTR must comply with Vulakan's standard.
+> Really thanks for your comments.
 
-Thanks a lot
+We aren't in rush, thanks for working on this feature.
 
 -- 
 Best regards,
