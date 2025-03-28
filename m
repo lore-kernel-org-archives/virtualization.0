@@ -1,231 +1,95 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from sender3-pp-f112.zoho.com (sender3-pp-f112.zoho.com [136.143.184.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3B791C84B7
-	for <virtualization@lists.linux.dev>; Thu, 27 Mar 2025 20:27:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 170C1224CC
+	for <virtualization@lists.linux.dev>; Fri, 28 Mar 2025 01:36:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.184.112
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743107263; cv=fail; b=LTrNDfEM7TSwAkgzWTv7nCU9pMmJWqsP3SfA+EHhPjTevRTiRwMJhnsWnfQoN++x/W8LXXKIg+i9JgKf7qnCXsAqQiww+nG/J+QjwQmgkp+GeERgfBMrLB3GoCnu7pZJ963D46V5xgUeMHzRsJVfxeKhJ8jC7XYxz1UR9WMsfis=
+	t=1743125786; cv=pass; b=kGqQUIVKibCDKlExMTRM0MtLDu3dJpsuQkUIWuviiCSgp+bW8ZOpeaojppYSZycFUyfXceCPlfrfFIsPKd2Q1PrOODhxPy8gB0Td0tHNKaQOl2RGBmc6oqEyTj+13o99ooWNwPZDrGE2tbSKvJ6nhmiRq9LUBPsG7g9EgDn4gsI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743107263; c=relaxed/simple;
-	bh=+1R4Oq9HD/dH15eJke79DdqOJaQL8bnNEIemqchhcUc=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=eLkDZgDb5VGArBYErVo17qlA4RiCa53zmLjja6mAQnHt5JdCUuIBoMoiKWqyQJlr3LmOTQTui2NRHQA4Uoi5fESI2RAJMK45sKBnR6uZJbVOejgib0oBOJycP0LmuFgaZai6czAD9Q+Jz16VK4PPyH8AoJM5d0kuwA/zfxa6XBs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=XxjYHzgS; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=X5Kl9IuW; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	s=arc-20240116; t=1743125786; c=relaxed/simple;
+	bh=8JArjRxnFIEWAa8Z3EZ6r/0xEXjHpy2xMRzcmhybK8E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=P3VpADcvMh9+5QoafUQyVdvs+kObkAyZpXuyLtdn5a3JC7upNI4ILVFW+zH93Sli3jui3EXGxiiAKU1mXPoAtbDyeRD46Cc/BiqFv53yPm/TegzEgAUPCZXtb9LO+q3euvYwqe2oSYt7xXjTOn26dIj2tCdH8bXarTHGt08ljZc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Mh1OCcnG; arc=pass smtp.client-ip=136.143.184.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="XxjYHzgS";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="X5Kl9IuW"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52RJuBXf028963;
-	Thu, 27 Mar 2025 20:27:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2023-11-20; bh=nj01qvc+60d0VExU7oiPtCxC2mvtbDlEL4v3mWA4Vts=; b=
-	XxjYHzgSCxfc7WuWBJgPrqoYCJGwMWbx9ZWTOXTOR0LEQykvYZZMWqVkK/XB/YVc
-	cVGX8pSoIQiG/yddRMejWMZj+0IFdSF8harIjZAeurXyrIQHsflrN4R+HNXPyLgu
-	nuJ4TXzLHPidGhrIDq3qQNOONmBazRrPmyHtl/Lglt+tIwTrPoJBoHSSjRvgncrl
-	2OM/l0SLLBjkJO1ApXJ9tTm3glB2BAjc/i9l+DW+i7rObyQrGxrp4Lyg7CWCPenn
-	GQSk9nuWwIjilPC77fHPTSCBCI08n6+oXjHPu8WVgVx9IS5UbRMfBgSDdfXsZAOD
-	sOqUbUJxpqhHoK3KD3QcnA==
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45hncrwkr9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Mar 2025 20:27:40 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 52RKCT8Z008360;
-	Thu, 27 Mar 2025 20:27:40 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2046.outbound.protection.outlook.com [104.47.66.46])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 45jj6xjb5p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Mar 2025 20:27:40 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=iDidgyve6L9w1FWyV15ywKhBqBU0CmzD1ch2dcdwabn9bkLwjM3vzu3ctNceTAcjRjxoM6ZGbF5m/wspJ4BIgdDaYq9BpApUs6jrLdXl9Ukow+VOX211jV8pPSiSrMRdOMq/2Eu5nc7Wc9cjyoPI8rtHX21fgao0eZgLWMNC0+CvQ/io+RtwMkML0o6youJYF/r2jJWB1rJV1AIIaXuyJdsZKuOgx+QAHdjysM8om7LTcK28MDJFAl1v+HB13+QF79BWYXkz+vHMqnYXqRnj41OAgtt7wausY7A1QslMKOir9VptLSfF6wiFpHz963J2YZ6XYef34cQ8b9JYfTWAjg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nj01qvc+60d0VExU7oiPtCxC2mvtbDlEL4v3mWA4Vts=;
- b=TOBt2LoVhsxOXv0UItihX4QcoRIhPi3DznnWYYU4bBOM1A4T6qqz4dh6oQ3z8MYYaJM/7PTTIaFlDJL6OpKZK/gQWcGod5ilJoUPgwmzK4iQTO84yE2DXE/0vb8r/RogKvbbjCUeOjCr9KC3OFdm6aEYpV3NSuKQ5EO/HOslWkwPFKKCLR/luVWU31Tsp0F6GmKm2/RotBSw8A5FLAscSqJkTL3tEPPrD9kDhXpsFmiCGxkiPVNQKrq9w6l+hnQzPVfNUo29zkgX+B/UfQSa5cw8zypXQwoVcXgPULf2fn8TCV6hJfr8kFxicgstfvT9lUXh0+RsEd22vMavc5A9Kg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nj01qvc+60d0VExU7oiPtCxC2mvtbDlEL4v3mWA4Vts=;
- b=X5Kl9IuW/zhmAqNWi9I5NaW4rlfud+f0hCVXpAsfKOHorhyjIHLu4gSQ1mNeQGoqnkg/UbhXSX74vVU5B6kw2s3SvooObPV96LR6hNyrbr8a5uqyUFUWd85t4VIj97kywbSwr7wPT+z8R2peakzwvkA/oGf0tOP/AyXBOwAJsCY=
-Received: from DS7PR10MB7129.namprd10.prod.outlook.com (2603:10b6:8:e6::5) by
- DS4PPF9F760C0CB.namprd10.prod.outlook.com (2603:10b6:f:fc00::d37) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.44; Thu, 27 Mar
- 2025 20:27:38 +0000
-Received: from DS7PR10MB7129.namprd10.prod.outlook.com
- ([fe80::721c:7e49:d8c5:799c]) by DS7PR10MB7129.namprd10.prod.outlook.com
- ([fe80::721c:7e49:d8c5:799c%5]) with mapi id 15.20.8534.040; Thu, 27 Mar 2025
- 20:27:38 +0000
-Message-ID: <b7fb2187-1475-4e39-927e-8b8990d4fbdd@oracle.com>
-Date: Thu, 27 Mar 2025 13:27:36 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 06/10] vhost-scsi: cache log buffer in I/O queue
- vhost_scsi_cmd
-To: Mike Christie <michael.christie@oracle.com>,
-        virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        netdev@vger.kernel.org
-Cc: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com,
-        stefanha@redhat.com, eperezma@redhat.com, joao.m.martins@oracle.com,
-        joe.jin@oracle.com, si-wei.liu@oracle.com,
-        linux-kernel@vger.kernel.org
-References: <20250317235546.4546-1-dongli.zhang@oracle.com>
- <20250317235546.4546-7-dongli.zhang@oracle.com>
- <80a47281-d995-4499-a4c8-f251ca309450@oracle.com>
- <38b02ca5-59dd-4193-bea7-e15e4f5f426e@oracle.com>
-Content-Language: en-US
-From: Dongli Zhang <dongli.zhang@oracle.com>
-In-Reply-To: <38b02ca5-59dd-4193-bea7-e15e4f5f426e@oracle.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BYAPR05CA0001.namprd05.prod.outlook.com
- (2603:10b6:a03:c0::14) To DS7PR10MB7129.namprd10.prod.outlook.com
- (2603:10b6:8:e6::5)
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Mh1OCcnG"
+ARC-Seal: i=1; a=rsa-sha256; t=1743125763; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=RQRS6F8pY0ZJ6se+EmJajCBo02km4vAJbM5kE5YWpB6mEu9dP2AFkvHzPsLxuRrVkCon4JJ+RO93K/qCNl9vdJ27SE0fyLYdTyCqcJL7ST9Utn241Fj2F1xV223GNmIjolbJw2LXwVNPUb1xsR3JQeDw2C29dANeJ/SxYxzMB6k=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1743125763; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=v+83m7PeA/Hi77apWlhVpRurgQRvbvqEjxvPe005cPI=; 
+	b=B/TYuOLC2uHclrYTLu8tlqPEdkpFZ6lhKw30t1o6MoAznSLgDsIbXKKVAmOdFmUuMLVjsYZ3rkVyFOTRMlV9Z1NLeEOk65yeXuZ/POngx+IvQuWZ/+8kiTXmEZWB8PS4wlSOUJSuFWpqINNSaSd0YLZIg4U6BwfGw8xLFzKqsXk=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1743125763;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=v+83m7PeA/Hi77apWlhVpRurgQRvbvqEjxvPe005cPI=;
+	b=Mh1OCcnGh9vuwx9w+gZUo9FrVDe0z8qpcBA28Qb3BdVsMNBjaq3kkXVvITmKiMLq
+	clbYuOQudpjzyV2Jv+Qf1Yy/FTrzgxkQAqVIBQei5HZnVdSSKpT5EOdP5cw7Mdn3Wtl
+	IY1bPuiCIrYKDUvEOjiw09QoMdqU2Jaw/IXE/anI=
+Received: by mx.zohomail.com with SMTPS id 1743125760960269.99873457084107;
+	Thu, 27 Mar 2025 18:36:00 -0700 (PDT)
+Message-ID: <ce386264-db89-4e96-865b-59f1fe39858c@collabora.com>
+Date: Fri, 28 Mar 2025 04:35:57 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS7PR10MB7129:EE_|DS4PPF9F760C0CB:EE_
-X-MS-Office365-Filtering-Correlation-Id: dd5feaf0-624b-4513-af1a-08dd6d6dd0b1
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?cm82L0VRYWc3WkxNcEN3WjMzejFwazhmVG9jME81TWJZdHJyVkRTalRYSitH?=
- =?utf-8?B?d2M1dkdNelVBL0tXZFdjcTRCbnFZUG1wRUlFY3gwNWw1YUx6Yk5iVHIzV2xD?=
- =?utf-8?B?VEpZVXZuNEdHZ0szT1JoSVNMb3g0RG1qN0h6NzVhTmkvOEZNeGtnZmlhbGNp?=
- =?utf-8?B?Vm0zT0hTSFFXZnVCODE2c0VkTjV3V2cxSkZ3RkNxbXgwNzl0Slh6SFl2b3Nl?=
- =?utf-8?B?aVVJNWt2Ym93cldXak9TUlU2WDhTbUNIczVFR2ZQZFpSMEVJL2pWamVGdU5F?=
- =?utf-8?B?ZWZHOWtHZzNzY0ZVdklpcVpwOWRHR3gzbFpOZWR0dkhlMVc2QzM3WE9rQjQ4?=
- =?utf-8?B?L0FUbW9oUG1VZ3A2enVjcHdiR1JTdFlzdHRPN0Y3eHdlcDNCSHdnRWlSMnRm?=
- =?utf-8?B?NHBmUzZNbGk4RHBQa2tnWXYrVjhZNUg3VWtHdDk3a0M5bjRhbElMcVdsN3ZL?=
- =?utf-8?B?bG1qdDU3MG9wQjlKY2hBWFU4WUROOFpJelRZZ0FtU1hSL252Z2UxTjhQN29D?=
- =?utf-8?B?MHlLU2lrQXI4KzNZVDByMCsvZkJhcUlVWjJVcXRqQU5oRlFqdjV6QzJkeHVi?=
- =?utf-8?B?ZmMxclhVa2Mzc0hwVlR4Ull1M2hPZmlVaDJFOVZTT04yNUMxSS9yL2dQc2Iw?=
- =?utf-8?B?SnlTQllCTTVYeFh5RTY5ZjhFYklQaWRRTndyS3VSZE00NndZTzg3QXN1MDZV?=
- =?utf-8?B?eWpuWVVLakp5NTVRdkkzbC96UzZ3azRBQWQ1Yy9aK0hlYUZGbDQ2UExJVXpN?=
- =?utf-8?B?enB2WkNZS0NwVEUyVko0MEptd0tGWThrem5Gem1yYVZYUnVBWFpQNThzVGZC?=
- =?utf-8?B?czJiN0hJQm1ab3BadUJhNDVuRUhtQmViLzg3YW5DRzgvS2RZT3BraEFmNkdj?=
- =?utf-8?B?am1HMmJDT0FnN0J3eHh5QndFZXF6ZjZ6dlJUTE5ud3dRaFordnpEZUtNUEE2?=
- =?utf-8?B?V3pzM3RrZGdlRlJDajduL001eEtJUjU4eTNLOUVqUDI0dmc1bjZURXZZbkt4?=
- =?utf-8?B?enkxVER0Y0lsamVWN1kveEIyVlA5b285UlRwWXVrYnJLRG00RmhDbCtnam5z?=
- =?utf-8?B?cjJvZjFlYmFSQzlrZ21reHlSNy92RFVEaGNkOWdQd1BqRnF4WlBvWlhrenp6?=
- =?utf-8?B?M0ZPR3V2WElFMHhyb1c4T25kVklhYUg2SmwwSVpHZ1FLV2tTL0ZaOWpUZDBq?=
- =?utf-8?B?aE9xbDQ5NXZTMWplMWk2NXorcXM5OWgzc2ZtU0p5cStiY09uMzJiNGVNZ21L?=
- =?utf-8?B?UWJPSndIdTdsZkgrdWppMkxWK05WSXZMWk9IcXIremh6YTFnSmYzRkxESUtK?=
- =?utf-8?B?Q3AwZ0ptNS93cko0Qlo1TGc2NDdOSTFHR0Fpb1FRMHNJLzZOc3RTNnRCMVEy?=
- =?utf-8?B?OHFQRnN1aXR4RjZ0dUZkamptcjRXb0ZhWTRhQ0d6MmtKZ2Z5czlsMTZHc25v?=
- =?utf-8?B?U3FwbUpVOHJwN2FLUzdoemFRN3FxTWFTWDlDZUoyZmZ3R1dIa1AwSk1FU1h4?=
- =?utf-8?B?bmxpcDRJNVpIZGxNSitONDZuVTEwc21OeFpTVUhFR29LeWhpd3BxVUdSR3R0?=
- =?utf-8?B?Q1NVamVRTXhlVEMrV2grc2hESGhsamtZenJ1Q05XVDdIN2Nmd2N4eHdHR1RJ?=
- =?utf-8?B?bGhHWFVYOUpmUWppODNISnkvc21Vb0NlOEtaT0FPVG12dXB1WHlNZlFqdk1N?=
- =?utf-8?B?cW5BcktHRk80Rm9rQlNiVktyNE5jVnNLdklJaHZpVWNoSGxpQjArdjZSZkxs?=
- =?utf-8?B?Sk5nSWlVcWtBd0tJaktFSjd5WlhMY2FJM0gwMXVXdmtMbmxnbkJtMCtiZDhj?=
- =?utf-8?B?NzJnN0FjZzRsRWdsM0xSVnhxMjRSYlZ1dkt0SCt2TlhXU0pSbWZzNWwrK0hp?=
- =?utf-8?B?aVRhQVZDTXFYMlltOVZRTnBSWkNhNzVXakdJckVPWERldUE9PQ==?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR10MB7129.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?eEUxVFV2bTJsYThNTmRKemRqRkJEa1pCMG53S0xLRTNHcUtYNkxvZFZMd0g3?=
- =?utf-8?B?a3hRVHd5dHNsTnB1OFFnUDdKVWxIajdhQlMzeVEyT3FwUVRsUGk3Y2d6TzE2?=
- =?utf-8?B?SzNHTHVBdmpUOU1xclVENU4vbU1Lb3hXZDJ5SThZa1A0cVdsWmJFMzZMNUJa?=
- =?utf-8?B?R1N0bTJkalVpaWNUbS8zQ05CbGx5VWFZM2lrS3hVeU50UzJiQndzbjFSbXNF?=
- =?utf-8?B?UFk1SjNSbG5yN3hybVhPL0tTYW4xN2VWcURDQUdtWkZLYjFDZHVxeTBjRElN?=
- =?utf-8?B?bmloVWxSMEQ2ZFdHM01tMTNPd0crazdZeVo1LzVXL2ZkdHk4RTIyMlViMk52?=
- =?utf-8?B?bVFOMGpJYlNMVUJ6d1BIVHNFN1VpVllURzdIZkc2OTBwVVhpRE4yc295Q1Rj?=
- =?utf-8?B?RzNVTWl3MXE5cHB2UGlOUk5qWmpGK0JqY3BXdGxOVURGemlDaUxPdlRNUVd4?=
- =?utf-8?B?eWNxNyt2SWllNHF6Z2RSTWFsdGZrWjA1TFVZZGdrM2pZS3dYb01LSnEyS2tW?=
- =?utf-8?B?SE9JV3R1a3A0cVlrTGUwaVhjeklScVBhNHBBenpwYXgzOEZEVkRvUVV0M3h6?=
- =?utf-8?B?dkM5VWZhRjlyenFRRVA5ZG1pS210WVVKVElEeWhscEJVSE83QVBNR2xoeWly?=
- =?utf-8?B?b3NoUGswOEhJVzdlVzRvcDFEQUsxcnpSck5vTjNpeUtYK2pFb1czTjhvQlg1?=
- =?utf-8?B?cFFKZk9OY0tpMGZ3QTVZTDhJVytxeC9lM0ZyUVlmNDEwNUNOM0hhMkJ3QU9r?=
- =?utf-8?B?aFVLdmNpSGNlVFpiTzRISTRRMGZwRkFCSS94YnNxQXdFSTRDbjg1YU5mWTBi?=
- =?utf-8?B?RDltandQMmcwazEvTmJWQlE3ZDVWbVNMUjRiNktKNm04UzMrT21EdUpXUmpH?=
- =?utf-8?B?L1RmeDV2Z1paY1VSV0xobGZwc1FWLy9DU0IrUUhkN3VMK0RXc0ZkOXk4MVVQ?=
- =?utf-8?B?YUtacnhScVc3bWhRVi8vWWduajZ6ZGVucng2aHl1blM4WG42UzNlYWF5cFVk?=
- =?utf-8?B?blRzQVJoSUhaYitCaFBsRVFONXNTS29yZ21ZWDVVOHNNWlVrYURCVUp2d2NH?=
- =?utf-8?B?M0t4ZTllckY2bFRwb01aRTY1eU5UTSt0RGM5MHBxeEhiZmZ5eldLdFR0R09z?=
- =?utf-8?B?WFR2ZEtKN1hwbWsyMUU2bnZ2YVpHb08yaytrWDdxNWdwcVBlR2ZyV3J5T3Jk?=
- =?utf-8?B?c3NMMmlZaFBGVmNiZGpTdTFUZU8vREd2WVpxVFlnVmtJMW15ZUdvdEpHUUhU?=
- =?utf-8?B?MGFHckZ5eCtNKzRBVnZkbG9WczN6VWdaOXB3RUsvZ0dwLzloQ0FQWVFPMWlX?=
- =?utf-8?B?a3VtYlpJaXVuSDNRYzF6aldpbGRmS3BidUp1R1JoYk9jREVFdkFJbmFDeE1s?=
- =?utf-8?B?L3NaOWNNK2ozbUtKcjZ3YWQreS91ZnNKZzhHakJyUzlSUjdkQTJLZG9sam5C?=
- =?utf-8?B?UW9BWFJvWldpK01ERVQzTUFTbFBKU0FKcWFNdG5GUWxubi9MTXpXbDFLTkdN?=
- =?utf-8?B?T3V5N1hVYTRRdWYvYzdYcGFUWVpzME9TZVdJRmdySEdNdXlvbFk1Wlg1UHoy?=
- =?utf-8?B?aUFidzJ2Nmd0elRMei9OV1lRRDNNc2tZK0FpNTRIWXZ3czNMWEhCY29qZEYy?=
- =?utf-8?B?ekEzYjVTNDh3SVZXWndnNE9RRGFLT1dGN045ckdpNzQvMnR1YUsvcWtpWG55?=
- =?utf-8?B?SEZ2ZkFlY2FBLzAxeHU5Q003VHRLd2VmRG9UQ2tpRitXUzVqUnZqczVZbmRL?=
- =?utf-8?B?ZUFZYkJyUjV3dkk2WU01ZlNXZ3gwRkZPd0Z4YTlwNldtSXI4cC9oaWN2dUR6?=
- =?utf-8?B?SHROT0pCWTJ3NTMyem5tbWdpdlplZzRIalVEUllDNWRZaURJTW1IWENxZ1pv?=
- =?utf-8?B?bUVoMHJRSGlDeGxJcnlMN2svbjlOTEduNzExa2xYTHhKa2ZBT3FwN0ZlL3Vm?=
- =?utf-8?B?T2lta3Zsa0E0a2lHWlhLcFZBRHJLSWs2NTVvRUVmelFYSTRObzdLL2t5VGZq?=
- =?utf-8?B?UGZNNTJDb3NZWG5LVW9vTmgwZWFJMWZUUjl1R1padE1mQlJJUldQazA4Rmxh?=
- =?utf-8?B?TWRMRWdNb01wMHdYUFdReHp1QjVNcks2NE1IcTZxaUxYL3ZaUkVRRWxCcVNk?=
- =?utf-8?B?V2tkOStWSWE1STIwWWFWTzl0SS94RWZNZEJETVBscU1aTHlxRlc0cEwveDZB?=
- =?utf-8?B?b1E9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	EacYf33nivcc0qApvnZ6D2NAKwbH3Zs1b9VXN8rWOqiNJZlv06lW6uRjHRzMQuPWG9wpnLONK+oqL2ZV27J28CHQJhDmUABclcvjqHYUd7cx/zaVqaNbPsC8FWEaiSpf30zwqclxlFISWx3mRvlBx3/95m4Z73xh8g8N9c+/F92k6jiUMJXgK4aiaKqB09Mu9ghhLUT+Gm8/v555JJOjw/PGWHhJAP1HGGFc+IBnsNh93o3wwDvdEUivYV/3f7RyXcrRcxIFY8T0WtiqJC2LpvEScFoM6l6cw19OI0HmrdQtV1LavVjVYLq8jwofPa5W8AbnTRf4DaTXxe7tzG3SF7NFsi1XLwPJ7K/gJWKJTiiLlloE51fDjPMxMKE1//n+lQ03eK4sLCvEJpIh7IUl6R8GQJ4eLasHSgxhqHwcCZZCcFdl9cJXVqv2oRkcVFVDgbXumskNsGHPoTLe6P7dJeC1PYIHiiVLbAKYjahzddIaQJVXiYNaYFkf0N9WezhMoGQEfCFpEyHw+Bd3vk5AQDP5no5/7GdICpoR0Sutnhd74Kn42CaBRN7h1fGp585C3CRrKei6VtOYNZGGJy0RVQ7v2erlFKoMBPK5zedvI3Q=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dd5feaf0-624b-4513-af1a-08dd6d6dd0b1
-X-MS-Exchange-CrossTenant-AuthSource: DS7PR10MB7129.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Mar 2025 20:27:37.9562
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: pSPBFfiXRB5eoBgURCVjVI7iFWt2TG9//gMAyQ0sf4VX9FBMW/WW7dngcAfS1d79HeYVGH5XFhg/+dmcp8+qWA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PPF9F760C0CB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-27_04,2025-03-27_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
- phishscore=0 suspectscore=0 malwarescore=0 spamscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2502280000
- definitions=main-2503270137
-X-Proofpoint-GUID: xp8S3CHPNxjXtMzstAjeoB3fJhOiQhK4
-X-Proofpoint-ORIG-GUID: xp8S3CHPNxjXtMzstAjeoB3fJhOiQhK4
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 2/2] drm/virtio: Fix missed dmabuf unpinning in error
+ path of prepare_fb()
+To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>,
+ Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "kernel@collabora.com" <kernel@collabora.com>
+References: <20250326014902.379339-1-dmitry.osipenko@collabora.com>
+ <20250326014902.379339-2-dmitry.osipenko@collabora.com>
+ <IA0PR11MB7185345D3DFA8C7900059144F8A62@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <16a30d03-9c98-47a4-959f-8671f7cb7fab@collabora.com>
+ <IA0PR11MB71851C0607629875CC458A90F8A12@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <IA0PR11MB71851C0607629875CC458A90F8A12@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-Hi Mike,
-
-On 3/26/25 4:37 PM, Mike Christie wrote:
-> On 3/17/25 7:04 PM, Dongli Zhang wrote:
->> @@ -1390,6 +1424,24 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
->>  			goto err;
->>  		}
->>
->> +		if (unlikely(vq_log && log_num)) {
->> +			if (!cmd->tvc_log)
->> +				cmd->tvc_log = kmalloc_array(vq->dev->iov_limit,
->> +							     sizeof(*cmd->tvc_log),
->> +							     GFP_KERNEL);
->> +
->> +			if (likely(cmd->tvc_log)) {
->> +				memcpy(cmd->tvc_log, vq->log,> +				       sizeof(*cmd->tvc_log) * log_num);
->> +				cmd->tvc_log_num = log_num;
+On 3/27/25 10:14, Kasireddy, Vivek wrote:
+>> Another question, why do we need this fencing for imported dmabuf?
+>> Fencing isn't done host/guest blobs in this code, while dmabuf is
+>> essentially a guest blob. Could you please clarify why this fence is
+>> needed? Maybe we shouldn't allocate fence in the first place for the dmabuf.
+> At-least for the non-virgl use-cases (where the rendering is done in the Guest such
+> as in passthrough), this Guest/Host synchronization fence serves two purposes:
+> - It prevents the Guest from reusing/destroying the submitted buffer (Guest compositor
+>   FB) until the Host is done using it. Otherwise, the Guest compositor might render
+>   into this buffer at the same time while the Host is consuming it, leading to issues
+>   such as tearing/flickering. This problem is more noticeable in cases where the
+>   Guest compositor has only one backbuffer such as Xorg + dirtfyFb.
 > 
+> - It also prevents the Guest compositor from rendering faster than the Host refresh
+>   rate. In other words, it just sets the upper bound in terms of the buffer submission
+>   rate as there is no point in going over the Host refresh rate, which would likely
+>   lead to wastage of GPU cycles and dropped frames.
 > 
-> Hey Dongli, this approach seems ok.
-> 
-> Could you just move this to a function?
+> Therefore, this fence is really needed for Guest blobs including imported dmabufs.
 
-Sure. I may re-send v3 following this approach (allocate on-demand in runtime),
-and encapsulate above code into a function.
+Thanks a lot
 
-Thank you very much!
-
-Dongli Zhang
-
+-- 
+Best regards,
+Dmitry
