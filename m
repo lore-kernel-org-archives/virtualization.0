@@ -1,68 +1,77 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 600D31DE4D0
-	for <virtualization@lists.linux.dev>; Fri, 28 Mar 2025 09:21:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 886CB20E003
+	for <virtualization@lists.linux.dev>; Fri, 28 Mar 2025 09:22:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743153716; cv=none; b=ulKNhXp+Y8sUZ9JSUuYXozZa4xsChF3sw4j4e/0tU4l/ZwZRHA8+2rmIRmXn38sQVTWaLvNOpw8RNGm0GdJ222ecIL4jk/pZixzibN/VPNSeU49oMamxsQSiE4RG8jfGF/l0M9CdIGdj92zWc74OFmLJF6dBUgKVn+LQKuWlpzs=
+	t=1743153722; cv=none; b=FOOVJ98QZ9asI/LMbBu4vp/eZmcAtOr1NNE/I0swKUIPizTZInXNwUZOl+8rgCKx2Z2cSK9R3wC0jHT8QIbAqbJlXS4/8qqcpYZUJrqnFryLLiipYO7mmPjl6V2tJcOYNtAO7aWzyQKL3QyuOPgD9BxS9KxVgoKRqrokwly1bUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743153716; c=relaxed/simple;
-	bh=VHzZ+ZMIRFcKVZpK4Rnmr4GowmA9lSyWQ0EJMrFV5q4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LSuKLY5XPZWquXIpGz5kvdXW8MjyRKzRf0SJQCBHTeKw4+14XX2zQ8Zm/FUXR0SLcdAPSMTkkrx52pbLKeL5t6X9J4uc+Wrx5ZlaUHy4mLhj70dtrD1R1r+L4KVoEPjhZ+SQ2tZTIVzy5sqAFpKqSRskSVs18lHNK/5cw6HxNbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DtvWmD85; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=BNHDjuox; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DtvWmD85; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=BNHDjuox; arc=none smtp.client-ip=195.135.223.131
+	s=arc-20240116; t=1743153722; c=relaxed/simple;
+	bh=+f/eJWDlsnfXJY4z70obutXO2dcfKD4tMDPQimIWx5k=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=TFLx9UnAMEYf97pRscFjpKbtLSABIblRUupF9ErF2Yreq1wJrrelPjT+Va0AhWT4yFdIOXC4tmHS6sZYpCd+RjY8JkEFMMvBz17U2os3c4AgKkiRQTHfvDK9czUFTmfOe55I/GtIQJDDVXMMlw2xmEojtl/XGSjJk36yF4nCXEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eDs/ttWY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=iEj4h4ib; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=j069adGx; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=B79qi1ix; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DtvWmD85";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="BNHDjuox";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DtvWmD85";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="BNHDjuox"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eDs/ttWY";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="iEj4h4ib";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="j069adGx";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="B79qi1ix"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 7B1221F388;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id EF2092118E;
 	Fri, 28 Mar 2025 09:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1743153712; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
-	b=DtvWmD85oK5COLHW/4bcQiDbs2QwXrAfmao0gKd/qw+1z/iUlGiTwHBOnPN5m5qXHRWzgK
-	Hv8YJWcsw1st1eN5UUH3CFt7llbovtIZwOxRyOC8hAao05R3qPyBUkx8lRz/ztZ2me16Io
-	Bp5sQjzfczxgMUU+wduoxvy2ShbICms=
+	t=1743153713; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VzQPAoBvCW+0TleETRDVvfoU8jGg30OBv182MBzm9l8=;
+	b=eDs/ttWYXt35C+y9+hZYXFRKqihYup9NcjGvUo7hKGEVgfRRL0KR1t/OUopIHhvdpD1+Ag
+	HAbYAf7V5YffR22wdnUSx1sQm5SvFkAI4iaogoLznQ9rKmmX7KNDxfAmbtvMnbsFM2eRYf
+	6l8+p10JGgvUgx6aIfjcRSPIdWmvEoU=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1743153712;
+	s=susede2_ed25519; t=1743153713;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
-	b=BNHDjuoxalwWC7S167s4GipOv/GhQ1uYqRk4QKHOwnqjgDz6WPTyR/v/qx+imYvrJ2DGVV
-	GoWJ9ZNGt34z8gBw==
-Authentication-Results: smtp-out2.suse.de;
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VzQPAoBvCW+0TleETRDVvfoU8jGg30OBv182MBzm9l8=;
+	b=iEj4h4ibu06NUdiYUci39+75qg2oT7VrPQQTvUKjtJC+bsGxxitOHY0xAaY84nLQFUt0Rh
+	XxyODZGAqbAkQ0Aw==
+Authentication-Results: smtp-out1.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
 	t=1743153712; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
-	b=DtvWmD85oK5COLHW/4bcQiDbs2QwXrAfmao0gKd/qw+1z/iUlGiTwHBOnPN5m5qXHRWzgK
-	Hv8YJWcsw1st1eN5UUH3CFt7llbovtIZwOxRyOC8hAao05R3qPyBUkx8lRz/ztZ2me16Io
-	Bp5sQjzfczxgMUU+wduoxvy2ShbICms=
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VzQPAoBvCW+0TleETRDVvfoU8jGg30OBv182MBzm9l8=;
+	b=j069adGxtJMhPjxUlTvRQvOq4bVU6JnXRHTeApmwX4ZkM6TBdCx8+TTOCPUchu5A0cT9PG
+	zepLCvFtuZP6LlhGqbJFDg0mP5IQBW4An5smUrVEZyLLlZeuj85nucsIhn65qFwq0Ez6jm
+	f8Ki7RRgRHXQJIpj26V0SCyUrNbsWfg=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
 	s=susede2_ed25519; t=1743153712;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
-	b=BNHDjuoxalwWC7S167s4GipOv/GhQ1uYqRk4QKHOwnqjgDz6WPTyR/v/qx+imYvrJ2DGVV
-	GoWJ9ZNGt34z8gBw==
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VzQPAoBvCW+0TleETRDVvfoU8jGg30OBv182MBzm9l8=;
+	b=B79qi1ix2+rIWYmcHUEwCsxjmV59MYVcjolBTOFD6fd/BSA4MXj86izLv2HC9cdW0RVtOB
+	21Vmra0Vqe3thIAg==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 47315139D4;
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C5070139D4;
 	Fri, 28 Mar 2025 09:21:52 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 6rYVEDBq5mciEwAAD6G6ig
+	id yALoLjBq5mciEwAAD6G6ig
 	(envelope-from <tzimmermann@suse.de>); Fri, 28 Mar 2025 09:21:52 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: kraxel@redhat.com,
@@ -70,10 +79,12 @@ To: kraxel@redhat.com,
 Cc: virtualization@lists.linux.dev,
 	dri-devel@lists.freedesktop.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 0/4] drm/cirrus-qemu: Various fixes
-Date: Fri, 28 Mar 2025 10:17:04 +0100
-Message-ID: <20250328091821.195061-1-tzimmermann@suse.de>
+Subject: [PATCH v2 2/4] drm/cirrus-qemu: Stricter mode validation
+Date: Fri, 28 Mar 2025 10:17:06 +0100
+Message-ID: <20250328091821.195061-3-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250328091821.195061-1-tzimmermann@suse.de>
+References: <20250328091821.195061-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -81,8 +92,9 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
+X-Spam-Score: -6.80
+X-Spamd-Result: default: False [-6.80 / 50.00];
+	REPLY(-4.00)[];
 	BAYES_HAM(-3.00)[100.00%];
 	MID_CONTAINS_FROM(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
@@ -98,36 +110,62 @@ X-Spamd-Result: default: False [-2.80 / 50.00];
 	FROM_EQ_ENVFROM(0.00)[];
 	FROM_HAS_DN(0.00)[];
 	RCPT_COUNT_FIVE(0.00)[5];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email];
 	RCVD_COUNT_TWO(0.00)[2];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid];
 	RCVD_TLS_ALL(0.00)[]
 X-Spam-Flag: NO
 X-Spam-Level: 
 
-Fix various issues in cirrus-qemu and clean up.
+Implement strict checking of a display mode's minimum scanline
+pitch in cirrus_mode_config_mode_valid(). Sort out all modes that
+possibly overflow the maximum pitch.
 
-Patch 1 fixes a long-standing, but apparently harmless, bug. Patches
-2 and 3 make mode programming more reliable. Patch 4 cleans up after
-patch 3.
+The current validation only tests against a display mode's minimum
+requirements for video memory. Only atomic_check later tests against
+the pitch limit before programming the framebuffer.
 
-This series makes cirrus-qemu more reliable at the cost of some higher
-resolutions.
+The problem is that user-space compositors do not handle this
+gracefully. If atomic_check fails to validate the scanline pitch
+and returns an error, the compositor, namely Weston, does nothing
+and the display remains stale.
 
-Testeded on qemu-i368.
+Ruling out display modes that possibly overflow the pitch avoids
+this problem. With only 4 MiB of video memory available, this
+effectively limits horizontal resolution to 800 pixels. But with
+cirrus-qemu being low-end and obsolete, this is probably not an
+issue in practice. Better alternatives are available in qemu.
 
-v2:
-- expand commit message (Gerd)
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/tiny/cirrus-qemu.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-Thomas Zimmermann (4):
-  drm/cirrus-qemu: Fix pitch programming
-  drm/cirrus-qemu: Stricter mode validation
-  drm/cirrus-qemu: Use framebuffer format as-is, drop adjustments
-  drm/cirrus-qemu: Remove custom plane state
-
- drivers/gpu/drm/tiny/cirrus-qemu.c | 143 ++++-------------------------
- 1 file changed, 20 insertions(+), 123 deletions(-)
-
+diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
+index a00d3b7ded6c5..0306433ec117c 100644
+--- a/drivers/gpu/drm/tiny/cirrus-qemu.c
++++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
+@@ -613,9 +613,17 @@ static enum drm_mode_status cirrus_mode_config_mode_valid(struct drm_device *dev
+ 							  const struct drm_display_mode *mode)
+ {
+ 	const struct drm_format_info *format = drm_format_info(DRM_FORMAT_XRGB8888);
+-	uint64_t pitch = drm_format_info_min_pitch(format, 0, mode->hdisplay);
++	u64 pitch;
+ 
+-	if (pitch * mode->vdisplay > CIRRUS_VRAM_SIZE)
++	if (drm_WARN_ON_ONCE(dev, !format))
++		return MODE_ERROR; /* driver bug */
++
++	pitch = drm_format_info_min_pitch(format, 0, mode->hdisplay);
++	if (!pitch)
++		return MODE_BAD_WIDTH;
++	if (pitch > CIRRUS_MAX_PITCH)
++		return MODE_BAD_WIDTH; /* maximum programmable pitch */
++	if (pitch > CIRRUS_VRAM_SIZE / mode->vdisplay)
+ 		return MODE_MEM;
+ 
+ 	return MODE_OK;
 -- 
 2.48.1
 
