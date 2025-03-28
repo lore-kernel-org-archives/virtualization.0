@@ -1,213 +1,159 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0A9212FB1
-	for <virtualization@lists.linux-foundation.org>; Fri, 28 Mar 2025 08:25:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E0F11D5170;
+	Fri, 28 Mar 2025 09:11:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743150302; cv=none; b=StiE2po/fy7PZmLWWbvuVR0LWm2Tqm9SU2Gbiaj5KUNhCmLA5zdnfKIR9Gg9QJTxgUoH0Pq+P0u7Qo9Nncg6qOmAqKkP/URdqDTnSZRL9avcq0aZzDViN6lUIMG+qQGoTGkS3AKPPqaYhshfz9MCFUnSHc76hwDFo5E+M5ncKMI=
+	t=1743153104; cv=none; b=FL6vnyyPC35qK66x55h5jyq6UQrue1uixxLE39e/LiClUcU+kPyvQrqciMK+vGQQKAePOKY5vJeNO97Vlejao/mKtDeDPoa2IP6kiVa88vj3oeZrODR1qhXRpGVg545Gz4bsIyAmsf+9kC5RICGUU+spaPculhHHw0tbnV55Csw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743150302; c=relaxed/simple;
-	bh=2SQ18ucLJlA/WDehkdf9V9I8lMbGgu+W41AmkvrU9lA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pAWvxWwToExWcPKtr4ng8SB2HhgBgp4lhlpMUYD3qJ6/MxPueDWJ2NVnQFtaHQ1c2uMRXw7wwzYWOvmmnK7JmziZ0ORlb5QBvHhoYwkLYWzqdBU5QSToOsQeiPbqNkAAbArtc4GfiUmVJDtIgKKN+uzffebOnLaix+0Q1bAMsnk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DYddYJ2n; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1743153104; c=relaxed/simple;
+	bh=/fQ2l7cD/isQx2nupZb1macgcLB2IW4AcXV0qJ4AiJ0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=acNnqPcu+7vGddqdrxBMYy7WtmnYSzSLjmW3FE8WVuN1OweHsm9Z0b1mKOsAnFGBwsBH9jDKHDASQ6igIk4FUafy/4QlWAgzTsQ0MXOjp7kfgGL+fF6lv8ev0pbfdsF0o4v6xm4eX+rBuCbIkbGsMTrdGhm3zu08UlRqutEDtos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NlYHQI0E; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DYddYJ2n"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 92D8742193
-	for <virtualization@lists.linux-foundation.org>; Fri, 28 Mar 2025 08:25:00 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id VIb5lcMGzM26 for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Mar 2025 08:25:00 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org DEDED41E69
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DEDED41E69
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DYddYJ2n
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DEDED41E69
-	for <virtualization@lists.linux-foundation.org>; Fri, 28 Mar 2025 08:24:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743150298;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BByPHc1EbJ+bRVfFsgitlx6Z4FNGFeovzxNX8sqbyWM=;
-	b=DYddYJ2nugGS7NMIjFembvaw2Mpal9YM4NkhetUJorV8RsgoiXdD4p/PfAMmY1/UNNffAJ
-	lV2wKzrrGmeRkBVyD69xMFkYBhYiLwU0jYMoQkShorlUIyA05xkOwexTXjRwHPfvfbtn4U
-	0gl3yzNciKyYVUv3btYPJlsZdqd2Bko=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-343-3jkSCIPNPaOnjh6fpp0A5Q-1; Fri, 28 Mar 2025 04:24:55 -0400
-X-MC-Unique: 3jkSCIPNPaOnjh6fpp0A5Q-1
-X-Mimecast-MFC-AGG-ID: 3jkSCIPNPaOnjh6fpp0A5Q_1743150294
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ac3e0c13278so146642466b.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 28 Mar 2025 01:24:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743150294; x=1743755094;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BByPHc1EbJ+bRVfFsgitlx6Z4FNGFeovzxNX8sqbyWM=;
-        b=urYpZmg2PBH8d0eFt8xvTpNqPDlgR6JOgFqFUmMKNk5y5NUTlhpbnIOIz7LJBSKLKA
-         8rC1atOc1WxLgRNCHKnoiYmbNSKwTU7Zxxev3ZpdWmvo/ClmaMlrxqtzuwWqk0tjiB2T
-         fdtCMbPzRH4oN7SbP6nV2Ydcz6+HN+XrZu5TnGcAfH6AYOY5y9R3c4Xra9ZNb+rPzNwj
-         TCtN+NrImAOJXboE4BllQV1tLZRGOV+oHSMgnXCpVhz0U23Vo6aLxZMRGZpDWztKKbJ+
-         MM3WkE/8GHmofzqVrv+ProtO30VRN27NmH8Bx9wvNAE+sOeX4tYcsdgCg5PSVREzyjiC
-         ij2A==
-X-Forwarded-Encrypted: i=1; AJvYcCUvA8PuVaHEBrbCOB29IkITUT2NT1DDsFWuNi4SmPNlpiFMBpoe28/g09zzokmuBm1BVE5pqHWRc185G2jPKA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxiJTkMrT34RpXh8shPg8hQH+TVUKBZca5qw2xqUFs//3h/DGdE
-	0/8wddjQfCN8p0lcep97Lq20761C6FCwh6s2PcUeZdqK2N9oGYPMuayMfxPHlrUfmtEaMm1P58G
-	fVdN0syw5ktrBSOa+5wCYaDvC8FR5R1ZRfhWdPDe/xbrpQu3//sMLPDMce9UQyaLMkBFFefbZVF
-	6G0gIKxInL/mYzeIGJMliwr5TPYTULQbgsIhlSw9EkhAkwFhm+CwHj7Q==
-X-Gm-Gg: ASbGncsUMesh18cUO7A0w5CFBUPlY/v5EtfeW97KT4ZtNzAG7wPc/vcR39Lapy3b5bL
-	hzynsOWe285xAlvt54jNh9srFvFbmO1WV5Ahsta8bxZhSYOJoeMESNKqU8iBV/U41BXRTYT7ipw
-	==
-X-Received: by 2002:a17:907:3da1:b0:ac2:6bb5:413c with SMTP id a640c23a62f3a-ac6faf45fbcmr606738566b.31.1743150293892;
-        Fri, 28 Mar 2025 01:24:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHtMhfeTWQPQjJeKYr+nJHbqXTHzDbGeqlUciCnVAp35iT66VTiKxpvEvBTFOnIR4IcWISTOodMTXSNsbNA918=
-X-Received: by 2002:a17:907:3da1:b0:ac2:6bb5:413c with SMTP id
- a640c23a62f3a-ac6faf45fbcmr606736266b.31.1743150293417; Fri, 28 Mar 2025
- 01:24:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NlYHQI0E"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3E4C4CEE4;
+	Fri, 28 Mar 2025 09:11:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1743153103;
+	bh=/fQ2l7cD/isQx2nupZb1macgcLB2IW4AcXV0qJ4AiJ0=;
+	h=Date:From:To:Cc:Subject:From;
+	b=NlYHQI0E0t3V6LAxmMvMQTx0CTpo8GWONUz65LhA7mSzdh4aMvEu9b5G0/GIubz1z
+	 ieNbbIGsDPqPe15+rCNGbUTE2kVQjZeQEXf9r4jMUbvdGyZnfZGIHk52MFb4hfCWSP
+	 J2FXnc9IKO1Q7tTO1U0vlf9ga5hDZwV6IOTCyc1mDVB7tXAMPma70yEi0Rt2ZxpbPK
+	 7uakO5uQ3t6ttEBACHaXqyiN5V0D7cmraP0wNlw+jFtNwunrgeDnAEVRxN4SM6rhNY
+	 avdqubYgKzuilui0sKZhUPBShJpn3dLx2rDEnDviA5mRRhsJzj0Ws8B80wE7Eqm9ZQ
+	 vfMV/8QAOAF7g==
+Date: Fri, 28 Mar 2025 10:11:13 +0100
+From: Joel Granados <joel.granados@kernel.org>
+To: iommu@lists.linux.dev
+Cc: David Woodhouse <dwmw2@infradead.org>, 
+	Jason Gunthorpe <jgg@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, 
+	Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>, 
+	Lu Baolu <baolu.lu@linux.intel.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+	Matthew Rosato <mjrosato@linux.ibm.com>, Niklas Schnelle <schnelle@linux.ibm.com>, 
+	Rob Clark <robdclark@gmail.com>, Robin Murphy <robin.murphy@arm.com>, 
+	Thierry Reding <thierry.reding@gmail.com>, Tomasz Jeznach <tjeznach@rivosinc.com>, 
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>, Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>, 
+	virtualization@lists.linux.dev, iommu@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: RFC iommutests_: Testing software for everything IOMMU
+Message-ID: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250302143259.1221569-1-lulu@redhat.com> <20250302143259.1221569-9-lulu@redhat.com>
- <CACGkMEv7WdOds0D+QtfMSW86TNMAbjcdKvO1x623sLANkE5jig@mail.gmail.com> <20250303122619-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250303122619-mutt-send-email-mst@kernel.org>
-From: Cindy Lu <lulu@redhat.com>
-Date: Fri, 28 Mar 2025 16:24:16 +0800
-X-Gm-Features: AQ5f1JqvVP-O68vnR03mHsDRfnjJbKsFvNhVjO1Pg4znL65FpHw8MZuudqkctsg
-Message-ID: <CACLfguWmXVDr6hgGvCEsNBpTEd-3zePR2fMk6BhBf7z8F4r0uA@mail.gmail.com>
-Subject: Re: [PATCH v7 8/8] vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, michael.christie@oracle.com, sgarzare@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: K9C5rC5QopIgb2GZekbTsKd7CD2m8Tok_qjvjeE5Si8_1743150294
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 4, 2025 at 1:33=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com> =
-wrote:
->
-> On Mon, Mar 03, 2025 at 01:52:06PM +0800, Jason Wang wrote:
-> > On Sun, Mar 2, 2025 at 10:34=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrot=
-e:
-> > >
-> > > Introduce a new config knob `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL`,
-> > > to control the availability of the `VHOST_FORK_FROM_OWNER` ioctl.
-> > > When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is set to n, the ioctl
-> > > is disabled, and any attempt to use it will result in failure.
-> > >
-> > > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > > ---
-> > >  drivers/vhost/Kconfig | 15 +++++++++++++++
-> > >  drivers/vhost/vhost.c | 11 +++++++++++
-> > >  2 files changed, 26 insertions(+)
-> > >
-> > > diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> > > index b455d9ab6f3d..e5b9dcbf31b6 100644
-> > > --- a/drivers/vhost/Kconfig
-> > > +++ b/drivers/vhost/Kconfig
-> > > @@ -95,3 +95,18 @@ config VHOST_CROSS_ENDIAN_LEGACY
-> > >           If unsure, say "N".
-> > >
-> > >  endif
-> > > +
-> > > +config VHOST_ENABLE_FORK_OWNER_IOCTL
-> > > +       bool "Enable IOCTL VHOST_FORK_FROM_OWNER"
-> > > +       default n
-> > > +       help
-> > > +         This option enables the IOCTL VHOST_FORK_FROM_OWNER, which =
-allows
-> > > +         userspace applications to modify the thread mode for vhost =
-devices.
-> > > +
-> > > +          By default, `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL` is set =
-to `n`,
-> > > +          meaning the ioctl is disabled and any operation using this=
- ioctl
-> > > +          will fail.
-> > > +          When the configuration is enabled (y), the ioctl becomes
-> > > +          available, allowing users to set the mode if needed.
-> > > +
-> > > +         If unsure, say "N".
-> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > index fb0c7fb43f78..09e5e44dc516 100644
-> > > --- a/drivers/vhost/vhost.c
-> > > +++ b/drivers/vhost/vhost.c
-> > > @@ -2294,6 +2294,8 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsig=
-ned int ioctl, void __user *argp)
-> > >                 r =3D vhost_dev_set_owner(d);
-> > >                 goto done;
-> > >         }
-> > > +
-> > > +#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
-> > >         if (ioctl =3D=3D VHOST_FORK_FROM_OWNER) {
-> > >                 u8 inherit_owner;
-> > >                 /*inherit_owner can only be modified before owner is =
-set*/
-> > > @@ -2313,6 +2315,15 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsi=
-gned int ioctl, void __user *argp)
-> > >                 r =3D 0;
-> > >                 goto done;
-> > >         }
-> > > +
-> > > +#else
-> > > +       if (ioctl =3D=3D VHOST_FORK_FROM_OWNER) {
-> > > +               /* When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is 'n', =
-return error */
-> > > +               r =3D -ENOTTY;
-> > > +               goto done;
-> > > +       }
->
-> why do we need this? won't it fail as any other unsupported ioctl?
->
-Sure, will remove  this
-thanks
-cindy
-> > > +#endif
-> > > +
-> > >         /* You must be the owner to do anything else */
-> > >         r =3D vhost_dev_check_owner(d);
-> > >         if (r)
-> > > --
-> > > 2.45.0
-> >
-> > Do we need to change the default value of the inhert_owner? For example=
-:
-> >
-> > #ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
-> > inherit_owner =3D false;
-> > #else
-> > inherit_onwer =3D true;
-> > #endif
-> >
-> > ?
->
-> I feel it is best to keep the default consistent.
-> All the kconfig should do, is block the ioctl.
->
->
-> > Other patches look good to me.
-> >
-> > Thanks
-> >
-> > >
->
+Hello everyone
+
+This is a Request For Comment (RFC) describing a new testing infra
+called iommutests. It is motivated by interest expressed during the "IO
+Page Fault for all" [1] talk in LPC 2024 [2]. At the end of that
+presentation in the "VFIO/IOMMU/PCI MC" microconference, There was a
+clear "yes please" after asking if it made sense to have an
+infrastructure that could evaluate the full spectrum of IOMMU
+interactions — from host software to IOMMU in hardware and in emulated
+environments.
+
+What is iommutests?
+--------------------
+The primary goal of iommutests [3] is to provide a modular framework to
+test IOMMU-mediated Direct Memory Access (DMA). It is meant to run
+PASS/NO_PASS tests for the interaction between kernel subsystems and
+hardware/virtual devices. All this in the hope of clarifying which IOMMU
+features are working correctly and which are not. You can find the
+project in github : https://github.com/SamsungDS/iommutests
+
+* Test Orchestration:
+  This component is implemented in pytest [4], a testing framework where
+  tests can be parametrized, filtered and implemented concisely and
+  easily. Additionally, pyudev [5] is employed for device enumeration
+  and monitoring, as well as querying device properties and attributes.
+
+* Test Executables:
+  For the creation and execution of tests, iommutests leans heavily on
+  libvfn [6], a zero-dependency C library designed for interacting with
+  PCIe-based devices from user-space using the Linux kernel user API.
+  The libvfn library can be used to abstract away common lower-level
+  interactions which can then be re-used through out.
+
+A Working Demonstration
+-----------------------
+To better illustrate how everything fits together, There’s a demo script
+[7], with some demo notes [8] explaining the setup and output. It does
+the following:
+
+1. Sets up a custom qemu [9] virtual machine environment using a custom
+   test device.
+2. Builds both libvfn and iommutests.
+3. Runs a pair of example tests (one of them always fails to show how
+   how that would look like)
+
+This demo shows how everything comes together to give the pass/no-pass
+IOMMU testing results. It is there for anyone interested in trying it
+out or contributing. To run it, you need to pass it a local ssh key and
+linux kernel compiled with VFIO support
+
+Custom qemu device: pci-ats-testdev
+-------------------------------------
+To support IOMMU testing under qemu, the pci-ats-testdev [10]
+(different from pci-testdev [11]) was used to emulate DMA transactions.
+It is a full fledged pci device capable of executing emulated DMA
+accesses. It was originally intended to test Linux kernel interactions
+with devices that had a working Address Translation Cache (ATC) but can
+become a platform capable of testing anything PCI/IOMMU related if
+needed.
+
+Feedback
+--------
+This is a first draft, and many implementation details are still open to
+refinement. I would appreciate your thoughts on any part of the project
+— its design, scope, implementation language choices, or usability.
+These are however some of the questions that are still outstanding from
+my POV:
+
+Q1: Beyond binary testing:
+    Would iommutests be used for something other than pass/no-pass
+    tests? Like performance? Stress testing?
+
+Q2: Kernel Integration:
+    Should iommutests interact with the already existing IOMMU linux
+    kernel unit tests? Since it is an orchestration framework, then it
+    can execute the unit tests in some way. This could actually be the
+    next step, if found useful.
+
+Thanks for your time
+Best regards,
+
+-- 
+
+Joel Granados
+
+[1] https://www.youtube.com/watch?v=UFrAjJ5TUf4
+[2] https://lpc.events/event/18/timetable/#20240918
+[3] https://github.com/SamsungDS/iommutests
+[4] https://docs.pytest.org/en/stable/
+[5] https://github.com/pyudev/pyudev
+[6] https://github.com/SamsungDS/libvfn
+[7] https://github.com/SamsungDS/iommutests/blob/master/docs/demo0_debian.sh
+[8] https://github.com/SamsungDS/iommutests/blob/master/docs/demo0.md
+[9] https://github.com/Joelgranados/qemu/tree/pcie-testdev
+[10] https://github.com/Joelgranados/qemu/blob/pcie-testdev/hw/misc/pcie-ats-testdev.c
+[11] https://github.com/Joelgranados/qemu/blob/pcie-testdev/hw/misc/pci-testdev.c
+
+PS:
+  Apologies for the long CC list. I always try to include the ppl that I
+  think will be interested, but its not always easy to know who you are
+  :). In this case, you are included because you appear as "M" under a
+  subsystem that contains the string "IOMMU" in the MAINTAINERS file. Feel
+  free to shoot me a mail if you don't want to be included in the future,
+  I'll try my best to remove you.
+
 
