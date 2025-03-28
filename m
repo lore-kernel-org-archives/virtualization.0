@@ -1,90 +1,75 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 039CA20E003
-	for <virtualization@lists.linux.dev>; Fri, 28 Mar 2025 09:22:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28D15219300
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Mar 2025 10:04:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743153729; cv=none; b=smvxoQ3injkeB6TAs1X4teAlKhc365SPtz43nPg9lqmT7lbGMtsBDxyA9EZ6LsQbJ323TvwtpSdCWQ/NhTv3gvlcL1A/lCzYQzRIn9sB530otXukufTx3gFiZZq1SPMU6nf+Z0BbDl38iwHuotqZmGSm45ZOFIBa9HipJwwTCZQ=
+	t=1743156260; cv=none; b=tzVKEN+WTiJvQb72x2h0+3ZNWjHaYFeYLMvltMnL6jY/lYM1Qitt+GfCTGlQg6Co0ei0fH4X1cEeZ3+vZ1aSBpqyJFJswS5M4odvBuOtUaGOoAh4lgn1d5EbDl49cLrdFyPMofwVPe3qgG6z0XlHA5DKS/vtWHdfysNJK+ND3qM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743153729; c=relaxed/simple;
-	bh=migIo778amftSgdsSfFBYoIALoJkmBlaknZ+77OKeys=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=H3QVvdczxLuvQ9juAuOrjNteO2yC7SE7TulOhIbblLOZSsxNgZfv0262Bfu5nN5fMkvvLuYWL0fDkT25XW52ClbOXeHAviSxXKsMkRSI04BbXCFXbqUoPXLQnYEOJG8EE4DIsFAYSH/Pn7cDAJhY7FVzbVhOEcpZSABwmTOx3D8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DjBzpwhI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=6u+VsFq3; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DjBzpwhI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=6u+VsFq3; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1743156260; c=relaxed/simple;
+	bh=BxJyqfjqFFWb7rQZBzkcHbcIzZRMsG2X38T6Q0EPsMg=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=j7yVNV1TYpCYst+73YgmMModKqJsriOxak8ZPPZY1KKgwS8iXcwXoN+gu6jJC5xMsJfO/ea0jlvwd1DdAFXaR6k7yAMiLwZ8Zp2QRfUYaxxQZabDG17X67oyBPFj1t2Hv5WbQ+QOJU8JuUoYfzx0hbg5+Qi1IgD8bhspCkJIYyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c1bKpiOg; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DjBzpwhI";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="6u+VsFq3";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DjBzpwhI";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="6u+VsFq3"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c1bKpiOg"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id A473A60790
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Mar 2025 10:04:18 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id dBMTeaL2itfr for <virtualization@lists.linux-foundation.org>;
+ Fri, 28 Mar 2025 10:04:18 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org DE6FA60A79
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DE6FA60A79
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c1bKpiOg
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DE6FA60A79
+	for <virtualization@lists.linux-foundation.org>; Fri, 28 Mar 2025 10:04:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743156256;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=yfBi3j6rR33aofiDW5F1wW7fpF1R8tZfVl3qCFGPgFc=;
+	b=c1bKpiOgm3wpP5hBo87cI77/grD93D2Le7TU5krB0l+tbCOQDCf+2LZuU4oIldfpwLe7XW
+	g8Mq/pc4UK2xtTBqPjM3u/yVymDyPTXF9ebJRPuQWAGsrDQ9lufqUwE94NRjizMo7V6cRu
+	MFXtN3dXUmbN/h4FUcTx1rNHcJwkdQs=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-663-qHMZhdlUNCSu37dT0GmKzw-1; Fri,
+ 28 Mar 2025 06:04:11 -0400
+X-MC-Unique: qHMZhdlUNCSu37dT0GmKzw-1
+X-Mimecast-MFC-AGG-ID: qHMZhdlUNCSu37dT0GmKzw_1743156249
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 617C61F45B;
-	Fri, 28 Mar 2025 09:21:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1743153713; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UQxO5ijWVS1SeJJC6CnixaRaP7FOlg9n56GuWqnG7NM=;
-	b=DjBzpwhIcCLF+5X5bLLx50OLvDhz0Yyk2AsbH9Nv3of+h9yduCm3rdH8V6KqdKizvyNtbt
-	MRftrcRG1cFdUxVaF9dsFfAfj09Sg/Vqh2uUWtnP9gsSbjZwOO9uABRWvxovTWlKMcsM3e
-	Zoqyx4O8iGasC3BvJbYss6n5icplGto=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1743153713;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UQxO5ijWVS1SeJJC6CnixaRaP7FOlg9n56GuWqnG7NM=;
-	b=6u+VsFq3rYLk7Gct5n2WbVm+BIMo54NXq56niqWES0yf+Wg1W1KZExYS1OgLaQZTcDQQWv
-	QJCWejm/kIwV/KDg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1743153713; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UQxO5ijWVS1SeJJC6CnixaRaP7FOlg9n56GuWqnG7NM=;
-	b=DjBzpwhIcCLF+5X5bLLx50OLvDhz0Yyk2AsbH9Nv3of+h9yduCm3rdH8V6KqdKizvyNtbt
-	MRftrcRG1cFdUxVaF9dsFfAfj09Sg/Vqh2uUWtnP9gsSbjZwOO9uABRWvxovTWlKMcsM3e
-	Zoqyx4O8iGasC3BvJbYss6n5icplGto=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1743153713;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UQxO5ijWVS1SeJJC6CnixaRaP7FOlg9n56GuWqnG7NM=;
-	b=6u+VsFq3rYLk7Gct5n2WbVm+BIMo54NXq56niqWES0yf+Wg1W1KZExYS1OgLaQZTcDQQWv
-	QJCWejm/kIwV/KDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2F122139D4;
-	Fri, 28 Mar 2025 09:21:53 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id eOtVCjFq5mciEwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 28 Mar 2025 09:21:53 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: kraxel@redhat.com,
-	airlied@redhat.com
-Cc: virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 4/4] drm/cirrus-qemu: Remove custom plane state
-Date: Fri, 28 Mar 2025 10:17:08 +0100
-Message-ID: <20250328091821.195061-5-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250328091821.195061-1-tzimmermann@suse.de>
-References: <20250328091821.195061-1-tzimmermann@suse.de>
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id ABAC0180025B;
+	Fri, 28 Mar 2025 10:04:09 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.11])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3D70730001A1;
+	Fri, 28 Mar 2025 10:04:03 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	jasowang@redhat.com,
+	mst@redhat.com,
+	michael.christie@oracle.com,
+	sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v8 0/8] vhost: Add support of kthread API
+Date: Fri, 28 Mar 2025 18:02:44 +0800
+Message-ID: <20250328100359.1306072-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -92,121 +77,75 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -6.80
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[5];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Level: 
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Remove struct cirrus_primary_plane_state and its helpers, which
-are all unused. Use struct drm_shadow_plane_state instead.
+In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),
+the vhost now uses vhost_task and operates as a child of the
+owner thread. This aligns with containerization principles.
+However, this change has caused confusion for some legacy
+userspace applications. Therefore, we are reintroducing
+support for the kthread API.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/tiny/cirrus-qemu.c | 59 +-----------------------------
- 1 file changed, 1 insertion(+), 58 deletions(-)
+In this series, a new UAPI is implemented to allow
+userspace applications to configure their thread mode.
 
-diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
-index 76744394e2a3b..ccf3f6551344a 100644
---- a/drivers/gpu/drm/tiny/cirrus-qemu.c
-+++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
-@@ -70,16 +70,6 @@ struct cirrus_device {
- 
- #define to_cirrus(_dev) container_of(_dev, struct cirrus_device, dev)
- 
--struct cirrus_primary_plane_state {
--	struct drm_shadow_plane_state base;
--};
--
--static inline struct cirrus_primary_plane_state *
--to_cirrus_primary_plane_state(struct drm_plane_state *plane_state)
--{
--	return container_of(plane_state, struct cirrus_primary_plane_state, base.base);
--};
--
- /* ------------------------------------------------------------------ */
- /*
-  * The meat of this driver. The core passes us a mode and we have to program
-@@ -374,58 +364,11 @@ static const struct drm_plane_helper_funcs cirrus_primary_plane_helper_funcs = {
- 	.atomic_update = cirrus_primary_plane_helper_atomic_update,
- };
- 
--static struct drm_plane_state *
--cirrus_primary_plane_atomic_duplicate_state(struct drm_plane *plane)
--{
--	struct drm_plane_state *plane_state = plane->state;
--	struct cirrus_primary_plane_state *new_primary_plane_state;
--	struct drm_shadow_plane_state *new_shadow_plane_state;
--
--	if (!plane_state)
--		return NULL;
--
--	new_primary_plane_state = kzalloc(sizeof(*new_primary_plane_state), GFP_KERNEL);
--	if (!new_primary_plane_state)
--		return NULL;
--	new_shadow_plane_state = &new_primary_plane_state->base;
--
--	__drm_gem_duplicate_shadow_plane_state(plane, new_shadow_plane_state);
--
--	return &new_shadow_plane_state->base;
--}
--
--static void cirrus_primary_plane_atomic_destroy_state(struct drm_plane *plane,
--						      struct drm_plane_state *plane_state)
--{
--	struct cirrus_primary_plane_state *primary_plane_state =
--		to_cirrus_primary_plane_state(plane_state);
--
--	__drm_gem_destroy_shadow_plane_state(&primary_plane_state->base);
--	kfree(primary_plane_state);
--}
--
--static void cirrus_reset_primary_plane(struct drm_plane *plane)
--{
--	struct cirrus_primary_plane_state *primary_plane_state;
--
--	if (plane->state) {
--		cirrus_primary_plane_atomic_destroy_state(plane, plane->state);
--		plane->state = NULL; /* must be set to NULL here */
--	}
--
--	primary_plane_state = kzalloc(sizeof(*primary_plane_state), GFP_KERNEL);
--	if (!primary_plane_state)
--		return;
--	__drm_gem_reset_shadow_plane(plane, &primary_plane_state->base);
--}
--
- static const struct drm_plane_funcs cirrus_primary_plane_funcs = {
- 	.update_plane = drm_atomic_helper_update_plane,
- 	.disable_plane = drm_atomic_helper_disable_plane,
- 	.destroy = drm_plane_cleanup,
--	.reset = cirrus_reset_primary_plane,
--	.atomic_duplicate_state = cirrus_primary_plane_atomic_duplicate_state,
--	.atomic_destroy_state = cirrus_primary_plane_atomic_destroy_state,
-+	DRM_GEM_SHADOW_PLANE_FUNCS,
- };
- 
- static int cirrus_crtc_helper_atomic_check(struct drm_crtc *crtc, struct drm_atomic_state *state)
+Changelog v2:
+ 1. Change the module_param's name to enforce_inherit_owner, and the default value is true.
+ 2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
+
+Changelog v3:
+ 1. Change the module_param's name to inherit_owner_default, and the default value is true.
+ 2. Add a structure for task function; the worker will select a different mode based on the value inherit_owner.
+ 3. device will have their own inherit_owner in struct vhost_dev
+ 4. Address other comments
+
+Changelog v4:
+ 1. remove the module_param, only keep the UAPI
+ 2. remove the structure for task function; change to use the function pointer in vhost_worker
+ 3. fix the issue in vhost_worker_create and vhost_dev_ioctl
+ 4. Address other comments
+
+Changelog v5:
+ 1. Change wakeup and stop function pointers in struct vhost_worker to void.
+ 2. merging patches 4, 5, 6 in a single patch
+ 3. Fix spelling issues and address other comments.
+
+Changelog v6:
+ 1. move the check of VHOST_NEW_WORKER from vhost_scsi to vhost
+ 2. Change the ioctl name VHOST_SET_INHERIT_FROM_OWNER to VHOST_FORK_FROM_OWNER
+ 3. reuse the function __vhost_worker_flush
+ 4. use a ops sturct to support worker relates function
+ 5. reset the value of inherit_owner in vhost_dev_reset_owner.
+
+Changelog v7:
+ 1. add a KConfig knob to disable legacy app support
+ 2. Split the changes into two patches to separately introduce the ops and add kthread support.
+ 3. Utilized INX_MAX to avoid modifications in __vhost_worker_flush
+ 4. Rebased on the latest kernel
+ 5. Address other comments
+
+Changelog v8:
+ 1. Rebased on the latest kernel
+ 2. Address some other comments
+
+Tested with QEMU with kthread mode/task mode/kthread+task mode
+
+Cindy Lu (8):
+  vhost: Add a new parameter in vhost_dev to allow user select kthread
+  vhost: Reintroduce vhost_worker to support kthread
+  vhost: Add the cgroup related function
+  vhost: Introduce vhost_worker_ops in vhost_worker
+  vhost: Reintroduce kthread mode support in vhost
+  vhost: uapi to control task mode (owner vs kthread)
+  vhost: Add check for inherit_owner status
+  vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
+
+ drivers/vhost/Kconfig      |  15 +++
+ drivers/vhost/vhost.c      | 219 +++++++++++++++++++++++++++++++++----
+ drivers/vhost/vhost.h      |  21 ++++
+ include/uapi/linux/vhost.h |  16 +++
+ 4 files changed, 252 insertions(+), 19 deletions(-)
+
 -- 
-2.48.1
+2.45.0
 
