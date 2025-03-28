@@ -1,159 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E0F11D5170;
-	Fri, 28 Mar 2025 09:11:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 600D31DE4D0
+	for <virtualization@lists.linux.dev>; Fri, 28 Mar 2025 09:21:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743153104; cv=none; b=FL6vnyyPC35qK66x55h5jyq6UQrue1uixxLE39e/LiClUcU+kPyvQrqciMK+vGQQKAePOKY5vJeNO97Vlejao/mKtDeDPoa2IP6kiVa88vj3oeZrODR1qhXRpGVg545Gz4bsIyAmsf+9kC5RICGUU+spaPculhHHw0tbnV55Csw=
+	t=1743153716; cv=none; b=ulKNhXp+Y8sUZ9JSUuYXozZa4xsChF3sw4j4e/0tU4l/ZwZRHA8+2rmIRmXn38sQVTWaLvNOpw8RNGm0GdJ222ecIL4jk/pZixzibN/VPNSeU49oMamxsQSiE4RG8jfGF/l0M9CdIGdj92zWc74OFmLJF6dBUgKVn+LQKuWlpzs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743153104; c=relaxed/simple;
-	bh=/fQ2l7cD/isQx2nupZb1macgcLB2IW4AcXV0qJ4AiJ0=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=acNnqPcu+7vGddqdrxBMYy7WtmnYSzSLjmW3FE8WVuN1OweHsm9Z0b1mKOsAnFGBwsBH9jDKHDASQ6igIk4FUafy/4QlWAgzTsQ0MXOjp7kfgGL+fF6lv8ev0pbfdsF0o4v6xm4eX+rBuCbIkbGsMTrdGhm3zu08UlRqutEDtos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NlYHQI0E; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1743153716; c=relaxed/simple;
+	bh=VHzZ+ZMIRFcKVZpK4Rnmr4GowmA9lSyWQ0EJMrFV5q4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LSuKLY5XPZWquXIpGz5kvdXW8MjyRKzRf0SJQCBHTeKw4+14XX2zQ8Zm/FUXR0SLcdAPSMTkkrx52pbLKeL5t6X9J4uc+Wrx5ZlaUHy4mLhj70dtrD1R1r+L4KVoEPjhZ+SQ2tZTIVzy5sqAFpKqSRskSVs18lHNK/5cw6HxNbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DtvWmD85; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=BNHDjuox; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DtvWmD85; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=BNHDjuox; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NlYHQI0E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3E4C4CEE4;
-	Fri, 28 Mar 2025 09:11:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1743153103;
-	bh=/fQ2l7cD/isQx2nupZb1macgcLB2IW4AcXV0qJ4AiJ0=;
-	h=Date:From:To:Cc:Subject:From;
-	b=NlYHQI0E0t3V6LAxmMvMQTx0CTpo8GWONUz65LhA7mSzdh4aMvEu9b5G0/GIubz1z
-	 ieNbbIGsDPqPe15+rCNGbUTE2kVQjZeQEXf9r4jMUbvdGyZnfZGIHk52MFb4hfCWSP
-	 J2FXnc9IKO1Q7tTO1U0vlf9ga5hDZwV6IOTCyc1mDVB7tXAMPma70yEi0Rt2ZxpbPK
-	 7uakO5uQ3t6ttEBACHaXqyiN5V0D7cmraP0wNlw+jFtNwunrgeDnAEVRxN4SM6rhNY
-	 avdqubYgKzuilui0sKZhUPBShJpn3dLx2rDEnDviA5mRRhsJzj0Ws8B80wE7Eqm9ZQ
-	 vfMV/8QAOAF7g==
-Date: Fri, 28 Mar 2025 10:11:13 +0100
-From: Joel Granados <joel.granados@kernel.org>
-To: iommu@lists.linux.dev
-Cc: David Woodhouse <dwmw2@infradead.org>, 
-	Jason Gunthorpe <jgg@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, 
-	Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>, 
-	Lu Baolu <baolu.lu@linux.intel.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Matthew Rosato <mjrosato@linux.ibm.com>, Niklas Schnelle <schnelle@linux.ibm.com>, 
-	Rob Clark <robdclark@gmail.com>, Robin Murphy <robin.murphy@arm.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, Tomasz Jeznach <tjeznach@rivosinc.com>, 
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>, Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>, 
-	virtualization@lists.linux.dev, iommu@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: RFC iommutests_: Testing software for everything IOMMU
-Message-ID: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DtvWmD85";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="BNHDjuox";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DtvWmD85";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="BNHDjuox"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 7B1221F388;
+	Fri, 28 Mar 2025 09:21:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1743153712; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
+	b=DtvWmD85oK5COLHW/4bcQiDbs2QwXrAfmao0gKd/qw+1z/iUlGiTwHBOnPN5m5qXHRWzgK
+	Hv8YJWcsw1st1eN5UUH3CFt7llbovtIZwOxRyOC8hAao05R3qPyBUkx8lRz/ztZ2me16Io
+	Bp5sQjzfczxgMUU+wduoxvy2ShbICms=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1743153712;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
+	b=BNHDjuoxalwWC7S167s4GipOv/GhQ1uYqRk4QKHOwnqjgDz6WPTyR/v/qx+imYvrJ2DGVV
+	GoWJ9ZNGt34z8gBw==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1743153712; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
+	b=DtvWmD85oK5COLHW/4bcQiDbs2QwXrAfmao0gKd/qw+1z/iUlGiTwHBOnPN5m5qXHRWzgK
+	Hv8YJWcsw1st1eN5UUH3CFt7llbovtIZwOxRyOC8hAao05R3qPyBUkx8lRz/ztZ2me16Io
+	Bp5sQjzfczxgMUU+wduoxvy2ShbICms=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1743153712;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=m7ymwg0zFsVDnm4IDbw4ACKQH9ffKncZgyFWho0KzEE=;
+	b=BNHDjuoxalwWC7S167s4GipOv/GhQ1uYqRk4QKHOwnqjgDz6WPTyR/v/qx+imYvrJ2DGVV
+	GoWJ9ZNGt34z8gBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 47315139D4;
+	Fri, 28 Mar 2025 09:21:52 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 6rYVEDBq5mciEwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 28 Mar 2025 09:21:52 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: kraxel@redhat.com,
+	airlied@redhat.com
+Cc: virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 0/4] drm/cirrus-qemu: Various fixes
+Date: Fri, 28 Mar 2025 10:17:04 +0100
+Message-ID: <20250328091821.195061-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[5];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid];
+	RCVD_TLS_ALL(0.00)[]
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-Hello everyone
+Fix various issues in cirrus-qemu and clean up.
 
-This is a Request For Comment (RFC) describing a new testing infra
-called iommutests. It is motivated by interest expressed during the "IO
-Page Fault for all" [1] talk in LPC 2024 [2]. At the end of that
-presentation in the "VFIO/IOMMU/PCI MC" microconference, There was a
-clear "yes please" after asking if it made sense to have an
-infrastructure that could evaluate the full spectrum of IOMMU
-interactions — from host software to IOMMU in hardware and in emulated
-environments.
+Patch 1 fixes a long-standing, but apparently harmless, bug. Patches
+2 and 3 make mode programming more reliable. Patch 4 cleans up after
+patch 3.
 
-What is iommutests?
---------------------
-The primary goal of iommutests [3] is to provide a modular framework to
-test IOMMU-mediated Direct Memory Access (DMA). It is meant to run
-PASS/NO_PASS tests for the interaction between kernel subsystems and
-hardware/virtual devices. All this in the hope of clarifying which IOMMU
-features are working correctly and which are not. You can find the
-project in github : https://github.com/SamsungDS/iommutests
+This series makes cirrus-qemu more reliable at the cost of some higher
+resolutions.
 
-* Test Orchestration:
-  This component is implemented in pytest [4], a testing framework where
-  tests can be parametrized, filtered and implemented concisely and
-  easily. Additionally, pyudev [5] is employed for device enumeration
-  and monitoring, as well as querying device properties and attributes.
+Testeded on qemu-i368.
 
-* Test Executables:
-  For the creation and execution of tests, iommutests leans heavily on
-  libvfn [6], a zero-dependency C library designed for interacting with
-  PCIe-based devices from user-space using the Linux kernel user API.
-  The libvfn library can be used to abstract away common lower-level
-  interactions which can then be re-used through out.
+v2:
+- expand commit message (Gerd)
 
-A Working Demonstration
------------------------
-To better illustrate how everything fits together, There’s a demo script
-[7], with some demo notes [8] explaining the setup and output. It does
-the following:
+Thomas Zimmermann (4):
+  drm/cirrus-qemu: Fix pitch programming
+  drm/cirrus-qemu: Stricter mode validation
+  drm/cirrus-qemu: Use framebuffer format as-is, drop adjustments
+  drm/cirrus-qemu: Remove custom plane state
 
-1. Sets up a custom qemu [9] virtual machine environment using a custom
-   test device.
-2. Builds both libvfn and iommutests.
-3. Runs a pair of example tests (one of them always fails to show how
-   how that would look like)
-
-This demo shows how everything comes together to give the pass/no-pass
-IOMMU testing results. It is there for anyone interested in trying it
-out or contributing. To run it, you need to pass it a local ssh key and
-linux kernel compiled with VFIO support
-
-Custom qemu device: pci-ats-testdev
--------------------------------------
-To support IOMMU testing under qemu, the pci-ats-testdev [10]
-(different from pci-testdev [11]) was used to emulate DMA transactions.
-It is a full fledged pci device capable of executing emulated DMA
-accesses. It was originally intended to test Linux kernel interactions
-with devices that had a working Address Translation Cache (ATC) but can
-become a platform capable of testing anything PCI/IOMMU related if
-needed.
-
-Feedback
---------
-This is a first draft, and many implementation details are still open to
-refinement. I would appreciate your thoughts on any part of the project
-— its design, scope, implementation language choices, or usability.
-These are however some of the questions that are still outstanding from
-my POV:
-
-Q1: Beyond binary testing:
-    Would iommutests be used for something other than pass/no-pass
-    tests? Like performance? Stress testing?
-
-Q2: Kernel Integration:
-    Should iommutests interact with the already existing IOMMU linux
-    kernel unit tests? Since it is an orchestration framework, then it
-    can execute the unit tests in some way. This could actually be the
-    next step, if found useful.
-
-Thanks for your time
-Best regards,
+ drivers/gpu/drm/tiny/cirrus-qemu.c | 143 ++++-------------------------
+ 1 file changed, 20 insertions(+), 123 deletions(-)
 
 -- 
-
-Joel Granados
-
-[1] https://www.youtube.com/watch?v=UFrAjJ5TUf4
-[2] https://lpc.events/event/18/timetable/#20240918
-[3] https://github.com/SamsungDS/iommutests
-[4] https://docs.pytest.org/en/stable/
-[5] https://github.com/pyudev/pyudev
-[6] https://github.com/SamsungDS/libvfn
-[7] https://github.com/SamsungDS/iommutests/blob/master/docs/demo0_debian.sh
-[8] https://github.com/SamsungDS/iommutests/blob/master/docs/demo0.md
-[9] https://github.com/Joelgranados/qemu/tree/pcie-testdev
-[10] https://github.com/Joelgranados/qemu/blob/pcie-testdev/hw/misc/pcie-ats-testdev.c
-[11] https://github.com/Joelgranados/qemu/blob/pcie-testdev/hw/misc/pci-testdev.c
-
-PS:
-  Apologies for the long CC list. I always try to include the ppl that I
-  think will be interested, but its not always easy to know who you are
-  :). In this case, you are included because you appear as "M" under a
-  subsystem that contains the string "IOMMU" in the MAINTAINERS file. Feel
-  free to shoot me a mail if you don't want to be included in the future,
-  I'll try my best to remove you.
-
+2.48.1
 
