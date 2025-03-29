@@ -1,64 +1,64 @@
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCE1B1DE88C
-	for <virtualization@lists.linux.dev>; Sat, 29 Mar 2025 19:50:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BB011D6188
+	for <virtualization@lists.linux.dev>; Sat, 29 Mar 2025 19:55:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743277830; cv=none; b=Ff237sTy0vp94JL8Pp6LKtU3fcb7HIrkpAEgHo2DIiqVcPIPN5P+fiHaV+IeEWxZ3pG92ZwJMQny2Ds1LFZRb26eC1W3n9xgX/uw+t7Fckz1FjC2105lnuswbNjOtaglEy5g6b0mqPYTn0ILSUgViMMmHBaFkQgZvdsnVV5N1Xg=
+	t=1743278144; cv=none; b=OoRgWDEyhFEkn/dssJSMujh+0tyvP1eGZ0mPf2B8Zm0eVPtYIO3ZRRZjKJXysf1ALkuMco2PEp6wzsxP76Xi0maCElrhvtNNdhSBBDwJ6mqh5x4+EpNUzFYykJCKkkCuNdshaNLAMZKHiLCm/mAiQKjX3o6soiIphRyblMsBebc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743277830; c=relaxed/simple;
-	bh=/b3dSuh7I0AxoN3ATNw0fUcPywc6KnLw+3CYpa/w2PM=;
+	s=arc-20240116; t=1743278144; c=relaxed/simple;
+	bh=eZE8/hjKsHgtycknl8v1WA+0nxrA0HY3fPZvx4gGCLk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=plJQyH+yRTIVquuJT/vwFDsWqYScfWM0BjZKUF7FhW4MF+Pv5d9skyRNsElXIzJZToa2zdtiQ9Q+2z+m9DHs+EjT9oVVRDJoKt3Ks/ugEd0POYIDKhTr91iWEq/ndGzTJ9hFfpCdwjsfZUsxZL7zoDUvTRaG5Pz2+8guo5yVQ8w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Qo0bH2w0; arc=none smtp.client-ip=209.85.128.180
+	 In-Reply-To:Content-Type; b=FaS7/n9j6q3tLMdjGM8W9VPL1QfgYXSjCXQxKU5QM5iTj1tT1U/OMgaiHygB59UyJo2FQKUIe4ZAzVQY5TwWaxat+O2UqaWJx4kUXXzFQW0d+ivmcu+/PSFXOmypqYJl1hKTArbDVyv2LrjAM+CIr3KlGXykk2u8nyhfmjFXPBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QxYmdTmw; arc=none smtp.client-ip=209.85.219.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qo0bH2w0"
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-6f768e9be1aso41485817b3.0
-        for <virtualization@lists.linux.dev>; Sat, 29 Mar 2025 12:50:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QxYmdTmw"
+Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-e694601f624so1863457276.1
+        for <virtualization@lists.linux.dev>; Sat, 29 Mar 2025 12:55:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743277828; x=1743882628; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1743278141; x=1743882941; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=kgUng1lsLClhuHLGL9t/6EycDsTNPfaDVFfdT+Zvh3A=;
-        b=Qo0bH2w0hqyCXSf2zjggpzlq9+Gy7ZDAZnkzkqqm2EKrp8cnKKwucvRLKUXLJKIDzS
-         c4DAwn/ClsxcWk968jp3dzIuBoHjuOkFxgQktLS4MESYAdH7rC2Loj89rbvRGz4aDVxu
-         O+qLL0jzXz46+tQl5JmcWPP4LIMo+gy+PvlizQ2lzGRLmQK9GG82XenXIdIkrjNhVvWH
-         2UvuzftDKusDMfIjjTEz2DvKm915kLJBhbAZxaHdgpwbeUaJp0VVogcp0jmj/RbTpxqa
-         fd29gr3bahxqO4FeBom/zkLHPSqXwQSMiDE1zFt0l6/cWaQIbJUcQe6MweX/AsACPSFp
-         kM7w==
+        bh=u308vrKVuoCKv+aJT65raHq9rbK345amQxp+zuYQWyM=;
+        b=QxYmdTmw9Z60Yl/ZEBfmubgdObn/iE/isCJgHR6vQm+BPQ9ew7uHx/vMp4tfdRy7mR
+         cfm65pirfTbU/N2ilgaia6YV/Rk2Vg9ZA9WJgkKaPjAI66rXwtcvy+5Y4imvgAl5AfIP
+         Wrjj7l2cfgn70SI3Zv+r20zU4hiq9z2m5paRxoNqEarX17ca5f8Bc2CcjlvqK09EVfks
+         hY0nHaUt6g/5GSVcT6o8dnSSh93snjEQgIKX87t3I99ALcAAmr+/U229kM7pxUAWcKtA
+         y+9SeirT1kLXq8eHbPQmnKW7GcXu4+VqLhLauhAqp40GpBY7iHtHoDuB7mDwtbONUxJS
+         94cA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743277828; x=1743882628;
+        d=1e100.net; s=20230601; t=1743278141; x=1743882941;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kgUng1lsLClhuHLGL9t/6EycDsTNPfaDVFfdT+Zvh3A=;
-        b=lZ6aS/u0PeESDzasiBCVztNvY3Y71DfrUp+GOb9IUQEQMlZ8tzhM+IiI8Pnmbz3KtN
-         7np6MZMvcmTFCXCvXmqZobTvlCs86PD+95IF2krHh9Ck3zqXZt3BFPXkCuuBD3fMGioN
-         bxyLwlX6LMp3hDAq3GVUZiLTMXNE4Yq7BSNKbt2HdJzC9dcU/700i/TlleW4/KR10v2m
-         4b8OC8SCBe767DJ1xzClreMyEI4qM4OHsMSf9MiWumUld0ZZbK7GSAa/BTr5Hj1fTvQS
-         NlTK+NKiMIrVekFus/j0rf8iKm0c3WwinAR7ASoSPcMOmVrcIlj8H4sK2GJ9WFmngioW
-         pw4g==
-X-Forwarded-Encrypted: i=1; AJvYcCUWUZuJuQ6lF8UFb1BuWiQ/Nxb+avfeBLeFkdsgO80FEsQcg3Jp2TQ6df5tHADPmKrjGrjEGC7wiaqk4mf1lQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwyWa7ZoYUKI828yKEgEhY2a3oIkTlO0482bHneNY7LgTMRHtEp
-	OaJX8Fqa7oNmKOqSPngnGIvWAPyH4n/17We0xaY9/jzVGMmwhjoW
-X-Gm-Gg: ASbGncvjAuBUw2L0QDEl+Yedq3u63h4JLuiF+yHKDFiw0jNBfyZ8wLVJbDWxbuyYRfx
-	oFOqz/GNUeoyOQkbsudH7PCqBAWAQxiQ/Bukopydzb7OZ7WF3qRLKK6lNWMImvgcEH/eVrbO6fX
-	zDmJPPRy4UX5Mth9R0DhAF2trFug4LxH6aMtLr0zEy5i2gv9Azz99Zv4j9TLo9l2nSLT4zrlQV4
-	3wsDdhY/oF/jJAkjX0ci9uZMJyTTnHcQwXK3w2j34h7StTpA34KAG6PRXlOmvjmGNL2XDQBuyv7
-	vHxHLXmED5cgVe2zpRdYTnlV+mRXLb1+wUw3gPDYrpdOZUhTTeg=
-X-Google-Smtp-Source: AGHT+IFXYHGF1kbfN6DrpHRX6V4TwAnNDp2HMI6U89Z+SpTpIjE4sgJHSH4xQxwFLc3mE4l32HKTFg==
-X-Received: by 2002:a05:690c:3345:b0:6f9:e4e1:a86 with SMTP id 00721157ae682-7023e105414mr105948257b3.16.1743277827709;
-        Sat, 29 Mar 2025 12:50:27 -0700 (PDT)
+        bh=u308vrKVuoCKv+aJT65raHq9rbK345amQxp+zuYQWyM=;
+        b=pWrgfHeoQ+bwqEjqETJ4OEH0XrPcQEZRKnvuUnX5hkDthqJG3P0TvLkvP9Hhw8rTWl
+         sufVTcI2IwwUhqBlW7etEreBBZfhKibK6vo60yZyNUsbubyzHyFROAAXrA/6UJogj27G
+         bqj0ZfSapSycasxRU0kiBogF5WlkwIeGofqluOs/Zxipt2JmBoU+nWvAHkRj6voxWuEy
+         TGX4xq4/xRgUf7+aZhIrCK96vl3admGxD+3iIA7a0a06EZMlDM7R9ksebCkMQDLzPwh2
+         5o7yt/rGaxoKRSbXZS8DGyAc19f9I7UXI3NI3tdo7sxrfR/8ufa1qafccaP16DvMKoZE
+         WCgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV5A0rcJsZJLyFoEgkFRGrxLCxSqKHruRM72fbzgNYSHZywBCST7jCQdUfamw1dBmFB9A/Ip7iQ7mFaihEePg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyuawfTMED9FRsRLNfLkLUa6kKhRz/JEQpbfRwvMTaa5lwl79va
+	jzVoyAhf4KZtITpBRTdiX6Ty29PbbB7UcnDUAcGezPphY33kpqhc
+X-Gm-Gg: ASbGnct3Ltr1eJ49u9AFXAayqm1L77v2Wsp00eVMJUrTO019shGE4JP7InHApQyAKPt
+	5bbQIzL7z4ffmCDH3spwNtly+dXpbz8E6ng3+N3bpj4wNp0KyKYxoFdQigLsSnBrk2ZSNlAK3mH
+	YDjqB2/w41F5UA62rq9ZCssnLFUONz6G7wsCEfSln2rNzLsdbqjYxchK9RwZDQRp4sFo8s+3804
+	sGc3bIvWIOtzz8dm/8N5k+2nFnQm4ueM+OXzvXog41l2hmGLoNMDyv2PH1zxlpqvZyEY7RUvJIm
+	tdtndcPPKRNQQ73q+IGax/3FzCWy6+egHtBAAdozlW+1mnHFrvg=
+X-Google-Smtp-Source: AGHT+IG4rcKHYfG6fUGVUeKFoCaHXdI7Vf7h1ZSu+rjN4tPNcDUIdkmqIFpDhXKjne+NQj0YXgNZuQ==
+X-Received: by 2002:a05:690c:4883:b0:6fb:3b2b:e73e with SMTP id 00721157ae682-702571117d1mr59207557b3.14.1743278141336;
+        Sat, 29 Mar 2025 12:55:41 -0700 (PDT)
 Received: from [10.138.35.215] ([45.134.140.51])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7023a341a52sm13676117b3.23.2025.03.29.12.50.26
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7023a3c44besm13457077b3.55.2025.03.29.12.55.40
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 29 Mar 2025 12:50:27 -0700 (PDT)
-Message-ID: <42048a80-a736-4ccc-953b-924d1e640cd0@gmail.com>
-Date: Sat, 29 Mar 2025 15:50:46 -0400
+        Sat, 29 Mar 2025 12:55:40 -0700 (PDT)
+Message-ID: <3baabd6b-95ba-4f84-bdef-b44d6d071aba@gmail.com>
+Date: Sat, 29 Mar 2025 15:56:00 -0400
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,10 +66,9 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/7] virtio-gpu api: add blob userptr resource
+Subject: Re: [PATCH v2 0/7] *** Add virtio gpu userptr support ***
 Content-Language: en-US
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- "Huang, Honglei1" <Honglei1.Huang@amd.com>, David Airlie
+To: Honglei Huang <honglei1.huang@amd.com>, David Airlie
  <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
  <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
@@ -77,12 +76,8 @@ To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
  Huang Rui <ray.huang@amd.com>
 Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20250228053650.393646-1-honglei1.huang@amd.com>
- <20250228053650.393646-2-honglei1.huang@amd.com>
- <cd9f85a5-0d99-4007-bba2-d792ac9d84da@gmail.com>
- <c2d1334f-6f5a-493f-bbf0-3e92789f128a@amd.com>
- <85470439-3c03-4787-be91-b6b680a5aca5@collabora.com>
+ linux-kernel@vger.kernel.org, Dmitry Osipenko <dmitry.osipenko@collabora.com>
+References: <20250321080029.1715078-1-honglei1.huang@amd.com>
 From: Demi Marie Obenour <demiobenour@gmail.com>
 Autocrypt: addr=demiobenour@gmail.com; keydata=
  xsFNBFp+A0oBEADffj6anl9/BHhUSxGTICeVl2tob7hPDdhHNgPR4C8xlYt5q49yB+l2nipd
@@ -127,48 +122,44 @@ Autocrypt: addr=demiobenour@gmail.com; keydata=
  vUSQHSrmfOzX3cV4yfmjM5lewgSstoxGyTx2M8enslgdXhPthZlDnTnOT+C+OTsh8+m5tos8
  HQjaPM01MKBiAqdPgksm1wu2DrrwUi6ChRVTUBcj6+/9IJ81H2P2gJk3Ls3AVIxIffLoY34E
  +MYSfkEjBz0E8CLOcAw7JIwAaeBT
-In-Reply-To: <85470439-3c03-4787-be91-b6b680a5aca5@collabora.com>
+In-Reply-To: <20250321080029.1715078-1-honglei1.huang@amd.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 3/26/25 10:46 AM, Dmitry Osipenko wrote:
-> On 3/6/25 13:51, Huang, Honglei1 wrote:
->>
->> On 2025/3/1 5:21, Demi Marie Obenour wrote:
->>> On 2/28/25 12:36 AM, Honglei Huang wrote:
->>>> From: Honglei Huang <Honglei1.Huang@amd.com>
->>>>
->>>> Add a new resource for blob resource, called userptr, used for let
->>>> host access guest user space memory, to acquire buffer based userptr
->>>> feature in virtio GPU.
->>>>
->>>> - The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
->>>> in this series patches only HSAKMT context can use the userptr
->>>> feature. HSAKMT is a GPU compute library in HSA stack, like
->>>> the role libdrm in mesa stack.
->>>
->>> Userptr should not be limited to HSMKMT contexts.  Userptr can
->>> accelerate shm buffers by avoiding a copy from guest to host, and
->>> it can be implemented using grant tables on Xen.
->>
->> Yes, I totally agree userptr can accelerate shm buffers, but I currently
->> don't know if there are any other projects working on similar features,
->> or if maintainers have any opinions or better ways to implement them, so
->> I temporarily limit this feature to HSAKMT context only.
->>
->> I am waiting for everyone's opinions, please provide your thoughts.
+On 3/21/25 4:00 AM, Honglei Huang wrote:
+> From: Honglei Huang <Honglei1.Huang@amd.com>
 > 
-> USERPTR should be relevant for anything Vulkan-related, like Venus and
-> native contexts. I expect that this new feature will work universally
-> good for all context types.
+> Hello,
 > 
-> In order to merge USERPTR support upstream, we at least will need to
-> prototype the guest USERPTR in one of native context driver to know that
-> it works. You'll need to post the whole set of host/guest USERPTR
-> patches including QEMU and etc, not just the kernel patches.
+> This series add virtio gpu userptr support and add libhsakmt capset.
+> The userptr feature is used for let host access guest user space memory,
+> this feature is used for GPU compute use case, to enable ROCm/OpenCL native
+> context. It should be pointed out that we are not to implement SVM here, 
+> this is just a buffer based userptr implementation.
+> The libhsakmt capset is used for ROCm context, libhsakmt is like the role 
+> of libdrm in Mesa.
+> 
+> Patches 1-2 add libhsakmt capset and userptr blob resource flag.
 
-Does the user-mode VMM need to be QEMU or would patches to
-another open-source VMM, such as crosvm, be sufficient?
+libhsakmt and userptr are orthogonal from each other.
+Should the libhsakmt context be a separate patch series?
+
+> Patches 3-5 implement basic userptr feature, in some popular bench marks,
+> it has an efficiency of about 70% compared to bare metal in OpenCL API.
+> Patch 6 adds interval tree to manage userptrs and prevent duplicate creation.
+> 
+> V2: - Split add HSAKMT context and blob userptr resource to two patches.
+>     - Remove MMU notifier related patches, cause use not moveable user space
+>       memory with MMU notifier is not a good idea.
+>     - Remove HSAKMT context check when create context, let all the context
+>       support the userptr feature.
+>     - Remove MMU notifier related content in cover letter.
+>     - Add more comments  for patch 6 in cover letter.
+
+I have not looked at the implementation, but thanks for removing the MMU
+notifier support.  Should the interval tree be added before the feature
+is exposed to userspace?  That would prevent users who are doing kernel
+bisects from temporarily exposing a buggy feature to userspace.
 -- 
 Sincerely,
 Demi Marie Obenour (she/her/hers)
