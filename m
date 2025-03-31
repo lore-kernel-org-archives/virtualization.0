@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 058F01D7E52;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05EE41D86FF;
 	Mon, 31 Mar 2025 08:23:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743409442; cv=none; b=T6s5bkeZHuL8gXuXLH4vss2GFOMYLLpTVdIHdupLTHx+QL//w+TBgfHZZXM0SLARPP3DNTjFQqOgDPcmTN/B3yZmGNr97aQ5gKVbRz04aKPscBjrza64LaQZxThIPzwwn1Tcj5199VKBaYIbTSED2lI2q1hOWIFfcrhVVZE/Zks=
+	t=1743409443; cv=none; b=HbC2cJADGqciFLhfq2uVYDWQfTb+S8cejb48fa5jEKSI41+9VruQJ1qedrzNtjiI2dAU140RD/AMqj+TY3frbzmCZeaaRH0bgIPhzZpDSG/8RY1Mr0zhpXLSsWC9TbC81QD2jcYa7/ZvzTGLzV9QiXB6v/jxTvMTUMYYmdRBJGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743409442; c=relaxed/simple;
-	bh=gbh0m3B09/512sJ59MDydTRVOSmVcP06GMLUAWGZ7us=;
+	s=arc-20240116; t=1743409443; c=relaxed/simple;
+	bh=a/q0kPgNYF3+FXDewvszN3tEL/ZiGdovN3OV/WHf8Rc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h8tMUDbvkZvkpHtANc01G/ds4lFSxqMv+0V1Jgo8FWQh9nqFNmYRUvAphL5BqeDSvUu/Y9PBx6d7cVXyaN60tN+SHuPtIWqm4B4LDynjmR2CtLTp+aP5KY72py/fXlxXGZCztiKp/FUhPVsNW3QzEDiN4qZk5c6KS9FiEFKCbWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=D7JCbMeX; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=pAMp/bzQQ61Q6IXYt0r9UXrt15V+L9fGPBMMsB687CfAA6aLhQVhlKlr9zMw9WcTHoOfiB2iWaYQL0DqF8y9uaXX9eGE/j0udwHpf20536b+4GkLXdcZQseryGPGq6jNkjFnr2GTD+8Ka91cDAzpgXDOO3UkLDN69zLz1EEvZIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=fYJJM8Xj; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="D7JCbMeX"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="fYJJM8Xj"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 52V8Mp0E3171319
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 52V8Mp0A3171319
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Mon, 31 Mar 2025 01:23:26 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 52V8Mp0E3171319
+	Mon, 31 Mar 2025 01:23:18 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 52V8Mp0A3171319
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1743409408;
-	bh=tIAU2yy9AOedAvkyMYNrk111yRXguMSruNF4FMMzeHg=;
+	s=2025032001; t=1743409400;
+	bh=K1q53eo/E11QGaBNCmuuiEewoEjYIhJFKtCNyzdMWfk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=D7JCbMeXqweNh4pJPPw3+DgPKkMbuFPHUf0gRRzqUD2N/ecx68NbyfGuhSjPaQoWY
-	 mPmtnI1wTz8QnIJupt2R52o2elidYMFxQqTBQit0V10L9BDFmClZT/ppYUt5in2qs4
-	 e9j2ZDUURdepMNCTtW+l4EcDMhlQH5vFCF5V7jlR9s/o3tpqLx+Hqmm4jgFgtPgYf1
-	 eoMDOqWoJNnyPqToiT5yyUynx2AtKyvNZcR+n2ZUNik3Ln6pveOKPIJCouqGM6x74X
-	 1pVyDGySW5ixXeseTIbyEzgsxuHGPcgoTg9cznUx900NH2wgPPUTESijAYougzG4f5
-	 SiD+uPwm/kYOQ==
+	b=fYJJM8Xj8oLRQMrpq1oZ9Rnts/L5sB1pkc/gbLLiuGLqwOG9qwxAGu/4BG68QY0E9
+	 wfBdSwh4eQvvh2/Y3Z6WaX7t7pE5x/AyF9EYYVoeYUsrgjy5aQsLhKl3r8wbyqsS8o
+	 qh1pRd13tdt4PmpmLxqluvo/m8RcpuW2x76HH/JRrb1yV8WiUIE4hCpEtDNED/Yh+6
+	 sNVHvloh/CyqgKztI+Tc3MQqU27RJiZ6HQl+pwJmYWKADo2kfVmQTIr7agdhUDKEDb
+	 anOJ6HwZplUeZ1KVIk1BWCIusZV2JYQ1KiyYhKxPqQ6qOrnhQXCF8X6edaiE7NigVe
+	 yW2IFXjim5dUQ==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
         linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
@@ -49,9 +49,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com,
         seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com,
         kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com
-Subject: [RFC PATCH v1 14/15] x86/extable: Add support for the immediate form MSR instructions
-Date: Mon, 31 Mar 2025 01:22:50 -0700
-Message-ID: <20250331082251.3171276-15-xin@zytor.com>
+Subject: [RFC PATCH v1 10/15] KVM: VMX: Use WRMSRNS or its immediate form when available
+Date: Mon, 31 Mar 2025 01:22:46 -0700
+Message-ID: <20250331082251.3171276-11-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250331082251.3171276-1-xin@zytor.com>
 References: <20250331082251.3171276-1-xin@zytor.com>
@@ -65,100 +65,71 @@ Content-Transfer-Encoding: 8bit
 
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 ---
- arch/x86/mm/extable.c | 59 ++++++++++++++++++++++++++++++-------------
- 1 file changed, 41 insertions(+), 18 deletions(-)
+ arch/x86/include/asm/msr-index.h |  6 ++++++
+ arch/x86/kvm/vmx/vmenter.S       | 28 ++++++++++++++++++++++++----
+ 2 files changed, 30 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/mm/extable.c b/arch/x86/mm/extable.c
-index eb9331240a88..56138c0762b7 100644
---- a/arch/x86/mm/extable.c
-+++ b/arch/x86/mm/extable.c
-@@ -164,31 +164,54 @@ static bool ex_handler_uaccess(const struct exception_table_entry *fixup,
- 	return ex_handler_default(fixup, regs);
- }
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index e6134ef2263d..04244c3ba374 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -1226,4 +1226,10 @@
+ 						* a #GP
+ 						*/
  
-+#ifdef CONFIG_X86_64
-+static const u8 msr_imm_insn_prefix[] = { 0xc4, 0xe7 };
-+#endif
++/* Instruction opcode for WRMSRNS supported in binutils >= 2.40 */
++#define ASM_WRMSRNS		_ASM_BYTES(0x0f,0x01,0xc6)
 +
- static bool ex_handler_msr(const struct exception_table_entry *fixup,
--			   struct pt_regs *regs, bool wrmsr, bool safe, int reg)
-+			   struct pt_regs *regs, bool wrmsr, bool safe)
- {
-+	/*
-+	 * To ensure consistency with the existing RDMSR and WRMSR(NS), the register
-+	 * operand of the immediate form MSR access instructions is ALWAYS encoded as
-+	 * RAX in <asm/msr.h> for the MSR value to be written or read.
-+	 *
-+	 * Full decoder for the immediate form MSR access instructions looks overkill.
-+	 */
-+	bool is_imm_insn;
-+	u32 msr;
-+	u64 msr_val;
++/* Instruction opcode for the immediate form RDMSR/WRMSRNS */
++#define ASM_WRMSRNS_RAX		_ASM_BYTES(0xc4,0xe7,0x7a,0xf6,0xc0)
 +
-+#ifdef CONFIG_X86_64
-+	is_imm_insn = !memcmp((void *)regs->ip, msr_imm_insn_prefix, sizeof(msr_imm_insn_prefix));
-+#else
-+	is_imm_insn = false;
-+#endif
-+
-+	if (is_imm_insn) {
-+		u8 *insn = (u8 *)regs->ip;
-+
-+		msr = insn[5] | (insn[6] << 8) | (insn[7] << 16) | (insn[8] << 24);
-+	} else {
-+		msr = (u32)regs->cx;
-+	}
-+
- 	if (__ONCE_LITE_IF(!safe && wrmsr)) {
--		pr_warn("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
--			(unsigned int)regs->cx, (unsigned int)regs->dx,
--			(unsigned int)regs->ax,  regs->ip, (void *)regs->ip);
-+		msr_val = regs->ax;
-+		if (!is_imm_insn)
-+			msr_val |= (u64)regs->dx << 32;
-+
-+		pr_warn("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%016llx) at rIP: 0x%lx (%pS)\n",
-+			msr, msr_val, regs->ip, (void *)regs->ip);
- 		show_stack_regs(regs);
- 	}
+ #endif /* _ASM_X86_MSR_INDEX_H */
+diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
+index f6986dee6f8c..9fae43723c44 100644
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -64,6 +64,29 @@
+ 	RET
+ .endm
  
- 	if (__ONCE_LITE_IF(!safe && !wrmsr)) {
- 		pr_warn("unchecked MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
--			(unsigned int)regs->cx, regs->ip, (void *)regs->ip);
-+			msr, regs->ip, (void *)regs->ip);
- 		show_stack_regs(regs);
- 	}
++/*
++ * Write EAX to MSR_IA32_SPEC_CTRL.
++ *
++ * Choose the best WRMSR instruction based on availability.
++ *
++ * Replace with 'wrmsrns' and 'wrmsrns %rax, $MSR_IA32_SPEC_CTRL' once binutils support them.
++ */
++.macro WRITE_EAX_TO_MSR_IA32_SPEC_CTRL
++	ALTERNATIVE_2 __stringify(mov $MSR_IA32_SPEC_CTRL, %ecx;		\
++				  xor %edx, %edx;				\
++				  mov %edi, %eax;				\
++				  ds wrmsr),					\
++		      __stringify(mov $MSR_IA32_SPEC_CTRL, %ecx;		\
++				  xor %edx, %edx;				\
++				  mov %edi, %eax;				\
++				  ASM_WRMSRNS),					\
++		      X86_FEATURE_WRMSRNS,					\
++		      __stringify(xor %_ASM_AX, %_ASM_AX;			\
++				  mov %edi, %eax;				\
++				  ASM_WRMSRNS_RAX; .long MSR_IA32_SPEC_CTRL),	\
++		      X86_FEATURE_MSR_IMM
++.endm
++
+ .section .noinstr.text, "ax"
  
--	if (!wrmsr) {
--		/* Pretend that the read succeeded and returned 0. */
--		regs->ax = 0;
--		regs->dx = 0;
--	}
--
--	if (safe)
--		*pt_regs_nr(regs, reg) = -EIO;
--
- 	return ex_handler_default(fixup, regs);
- }
+ /**
+@@ -123,10 +146,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	movl PER_CPU_VAR(x86_spec_ctrl_current), %esi
+ 	cmp %edi, %esi
+ 	je .Lspec_ctrl_done
+-	mov $MSR_IA32_SPEC_CTRL, %ecx
+-	xor %edx, %edx
+-	mov %edi, %eax
+-	wrmsr
++	WRITE_EAX_TO_MSR_IA32_SPEC_CTRL
  
-@@ -366,13 +389,13 @@ int fixup_exception(struct pt_regs *regs, int trapnr, unsigned long error_code,
- 		case EX_TYPE_BPF:
- 			return ex_handler_bpf(e, regs);
- 		case EX_TYPE_WRMSR:
--			return ex_handler_msr(e, regs, true, false, reg);
-+			return ex_handler_msr(e, regs, true, false);
- 		case EX_TYPE_RDMSR:
--			return ex_handler_msr(e, regs, false, false, reg);
-+			return ex_handler_msr(e, regs, false, false);
- 		case EX_TYPE_WRMSR_SAFE:
--			return ex_handler_msr(e, regs, true, true, reg);
-+			return ex_handler_msr(e, regs, true, true);
- 		case EX_TYPE_RDMSR_SAFE:
--			return ex_handler_msr(e, regs, false, true, reg);
-+			return ex_handler_msr(e, regs, false, true);
- 		case EX_TYPE_WRMSR_IN_MCE:
- 			ex_handler_msr_mce(regs, true);
- 			break;
+ .Lspec_ctrl_done:
+ 
 -- 
 2.49.0
 
