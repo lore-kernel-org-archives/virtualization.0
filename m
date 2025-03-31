@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 058981D79BE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B9A11D7999;
 	Mon, 31 Mar 2025 08:23:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743409440; cv=none; b=ke6u60d1PGfKXjwq/tkmjwHLZAa+HdrR4qoIP78QisT0PsixPLHXdjMc7/lCjng//rBrU8ksQ/vLtVQloyXdsMvi4Dsxj8ZOT2wurnoUnERZJKZI3pHUePnW1EdfpPZ1dcUuRabWKNk4DYE7Yo3IE1Ik/3lyWRLA///qKQCePOs=
+	t=1743409440; cv=none; b=psvB6xAm1vJN7pE1rVqgVNNXXVQC3uArBHeHRAbx7GFtED3np2YCM1mbtUocxpnxkQUv7E9Z0f5icupUSN8jISxyr2SKOf5PUS3rBHRqXaNs9BLEGjx2MCL2ZMbgoAUB0TyKQgDIs7I5exgDQ4yfbjAUwIe0JT/3C4EcI9U47ZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1743409440; c=relaxed/simple;
-	bh=FN5g8giJJxRRxCOVXKjUG367o7XXihVRjnOAVof1uB0=;
+	bh=Dt+JPai8+zal0PU5TNa9Qc5El9RrxyJOxdkK3MpXOcA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=K0cn/p6afSDSGiEQDd1ASkPEWQIyWGXikN6ylZZyN/coifAfJO0IdFTs6hFSQIM6IGo/088jLukMZjsK33gfhGV1GQwyD3fs9VBDb8Q8YBRe3OJUAHzkwMhQ94NQDDBVYI3ILsJfl9Sy24oaphJ7dMr2eY9NET/ufWRH71hedDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=jg4QkVHW; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=PJODplU9/xhJc6hIdeZ3qO0+pxbpf6g1/GsjGfxuEUyPh/t4T4gPt/EnbXAcAVV6Y9i4Oh0cm9Cjtnr+/VSIN+OyMETo8g7zUWiaqCQbcFi3kz/gvzRLnI/pKSmn5e8Q67HZet1R8GzFKY/MSVR26DVTPaQ5kia2VssfpF+CjcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=DfikwSBt; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="jg4QkVHW"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="DfikwSBt"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 52V8Mp083171319
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 52V8Mp013171319
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Mon, 31 Mar 2025 01:23:14 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 52V8Mp083171319
+	Mon, 31 Mar 2025 01:23:00 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 52V8Mp013171319
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1743409396;
-	bh=LUf6J4OHKn6Yqz/cuiPFW5gyz7UWQzJR/hPRWef8Heg=;
+	s=2025032001; t=1743409382;
+	bh=8NBvcv0ohTWU39bJ6aL9yuUsmviH/IXJjGBdBncqKAA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=jg4QkVHWmuNxTSaNr3aLQCDAx0pfc5MzZ6zHM+wqM8DSTcQ3v/RsKHxoUQpqWtNbJ
-	 m458JdmtvOkoM5D9ageqtKl9oHpcXzkGBie1zx4Z64jnAGFmPZKoyTrDoCRBO1dSLT
-	 mR0rsGe9H8URcFY2CBgpai+T0h9txzTfzfHRjKd6U95Ungph1Kwv+yEPzL4fhScW5l
-	 Ab8OKE5fJ02Tagt2yFWbB7GGJh/377QIshI1xuLWxMSYTo8yAwJfG0LGkBemhVlVjc
-	 tTZHvLjVyjNvdRXxd7vUQNm4YDAIWKVIT4qPZoTRRR4mD09RG0QuehmydgeXZydpxd
-	 2Z/C61/mQ2MUw==
+	b=DfikwSBtepDkTPWSndBbjw9sQVnN64z4KXbHHV4byiheN5oN3c8108HUHo0WlTHiO
+	 fbuV4mKhMgYKnfiBPbYoVLpeAEW1C8xaUoDBQBJOqlka2Ux1zE5IQP96taH035GT/e
+	 xjt8OpAXfqCNG5GQQNWIsO0juYtYQXHFy1GfDKPCFncm+WTFt1opnlrPH8zpyO5lys
+	 AWQreJObo0N83zSyBr8Uut3butD6okD1jJ5CCQoAsoeWQqGbWx83aVOu3dhvPlDmYf
+	 JoUzckPNpFkOLgLe6na+VCr251PNcWOk98ANs3QkFTe88p9rHaeel6kOYEiLGzsU7J
+	 1iQD+J8vO7ZXg==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
         linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
@@ -49,9 +49,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com,
         seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com,
         kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com
-Subject: [RFC PATCH v1 08/15] x86/cpufeatures: Add a CPU feature bit for MSR immediate form instructions
-Date: Mon, 31 Mar 2025 01:22:44 -0700
-Message-ID: <20250331082251.3171276-9-xin@zytor.com>
+Subject: [RFC PATCH v1 01/15] x86/msr: Replace __wrmsr() with native_wrmsrl()
+Date: Mon, 31 Mar 2025 01:22:37 -0700
+Message-ID: <20250331082251.3171276-2-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250331082251.3171276-1-xin@zytor.com>
 References: <20250331082251.3171276-1-xin@zytor.com>
@@ -63,62 +63,109 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The immediate form of MSR access instructions are primarily motivated
-by performance, not code size: by having the MSR number in an immediate,
-it is available *much* earlier in the pipeline, which allows the
-hardware much more leeway about how a particular MSR is handled.
+__wrmsr() is the lowest level primitive MSR write API, and its direct
+use is NOT preferred.  Use its wrapper function native_wrmsrl() instead.
 
-Use a scattered CPU feature bit for MSR immediate form instructions.
+No functional change intended.
 
-Suggested-by: Borislav Petkov <bp@alien8.de>
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 ---
- arch/x86/include/asm/cpufeatures.h | 19 ++++++++++---------
- arch/x86/kernel/cpu/scattered.c    |  1 +
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ arch/x86/events/amd/brs.c                 | 2 +-
+ arch/x86/include/asm/apic.h               | 2 +-
+ arch/x86/include/asm/msr.h                | 6 ++++--
+ arch/x86/kernel/cpu/mce/core.c            | 2 +-
+ arch/x86/kernel/cpu/resctrl/pseudo_lock.c | 6 +++---
+ 5 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 6c2c152d8a67..a742a3d34712 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -472,15 +472,16 @@
-  *
-  * Reuse free bits when adding new feature flags!
-  */
--#define X86_FEATURE_AMD_LBR_PMC_FREEZE	(21*32+ 0) /* "amd_lbr_pmc_freeze" AMD LBR and PMC Freeze */
--#define X86_FEATURE_CLEAR_BHB_LOOP	(21*32+ 1) /* Clear branch history at syscall entry using SW loop */
--#define X86_FEATURE_BHI_CTRL		(21*32+ 2) /* BHI_DIS_S HW control available */
--#define X86_FEATURE_CLEAR_BHB_HW	(21*32+ 3) /* BHI_DIS_S HW control enabled */
--#define X86_FEATURE_CLEAR_BHB_LOOP_ON_VMEXIT (21*32+ 4) /* Clear branch history at vmexit using SW loop */
--#define X86_FEATURE_AMD_FAST_CPPC	(21*32 + 5) /* Fast CPPC */
--#define X86_FEATURE_AMD_HETEROGENEOUS_CORES (21*32 + 6) /* Heterogeneous Core Topology */
--#define X86_FEATURE_AMD_WORKLOAD_CLASS	(21*32 + 7) /* Workload Classification */
--#define X86_FEATURE_PREFER_YMM		(21*32 + 8) /* Avoid ZMM registers due to downclocking */
-+#define X86_FEATURE_AMD_LBR_PMC_FREEZE		(21*32+ 0) /* "amd_lbr_pmc_freeze" AMD LBR and PMC Freeze */
-+#define X86_FEATURE_CLEAR_BHB_LOOP		(21*32+ 1) /* Clear branch history at syscall entry using SW loop */
-+#define X86_FEATURE_BHI_CTRL			(21*32+ 2) /* BHI_DIS_S HW control available */
-+#define X86_FEATURE_CLEAR_BHB_HW		(21*32+ 3) /* BHI_DIS_S HW control enabled */
-+#define X86_FEATURE_CLEAR_BHB_LOOP_ON_VMEXIT	(21*32+ 4) /* Clear branch history at vmexit using SW loop */
-+#define X86_FEATURE_AMD_FAST_CPPC		(21*32+ 5) /* Fast CPPC */
-+#define X86_FEATURE_AMD_HETEROGENEOUS_CORES	(21*32+ 6) /* Heterogeneous Core Topology */
-+#define X86_FEATURE_AMD_WORKLOAD_CLASS		(21*32+ 7) /* Workload Classification */
-+#define X86_FEATURE_PREFER_YMM			(21*32+ 8) /* Avoid ZMM registers due to downclocking */
-+#define X86_FEATURE_MSR_IMM			(21*32+ 9) /* MSR immediate form instructions */
+diff --git a/arch/x86/events/amd/brs.c b/arch/x86/events/amd/brs.c
+index ec3427463382..4a47f3c108de 100644
+--- a/arch/x86/events/amd/brs.c
++++ b/arch/x86/events/amd/brs.c
+@@ -44,7 +44,7 @@ static inline unsigned int brs_to(int idx)
+ static __always_inline void set_debug_extn_cfg(u64 val)
+ {
+ 	/* bits[4:3] must always be set to 11b */
+-	__wrmsr(MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3, val >> 32);
++	native_wrmsrl(MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3);
+ }
  
- /*
-  * BUG word(s)
-diff --git a/arch/x86/kernel/cpu/scattered.c b/arch/x86/kernel/cpu/scattered.c
-index 16f3ca30626a..9eda656e9793 100644
---- a/arch/x86/kernel/cpu/scattered.c
-+++ b/arch/x86/kernel/cpu/scattered.c
-@@ -27,6 +27,7 @@ static const struct cpuid_bit cpuid_bits[] = {
- 	{ X86_FEATURE_APERFMPERF,		CPUID_ECX,  0, 0x00000006, 0 },
- 	{ X86_FEATURE_EPB,			CPUID_ECX,  3, 0x00000006, 0 },
- 	{ X86_FEATURE_INTEL_PPIN,		CPUID_EBX,  0, 0x00000007, 1 },
-+	{ X86_FEATURE_MSR_IMM,			CPUID_ECX,  5, 0x00000007, 1 },
- 	{ X86_FEATURE_RRSBA_CTRL,		CPUID_EDX,  2, 0x00000007, 2 },
- 	{ X86_FEATURE_BHI_CTRL,			CPUID_EDX,  4, 0x00000007, 2 },
- 	{ X86_FEATURE_CQM_LLC,			CPUID_EDX,  1, 0x0000000f, 0 },
+ static __always_inline u64 get_debug_extn_cfg(void)
+diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
+index c903d358405d..3345a819c859 100644
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -214,7 +214,7 @@ static inline void native_apic_msr_write(u32 reg, u32 v)
+ 
+ static inline void native_apic_msr_eoi(void)
+ {
+-	__wrmsr(APIC_BASE_MSR + (APIC_EOI >> 4), APIC_EOI_ACK, 0);
++	native_wrmsrl(APIC_BASE_MSR + (APIC_EOI >> 4), APIC_EOI_ACK);
+ }
+ 
+ static inline u32 native_apic_msr_read(u32 reg)
+diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
+index 9397a319d165..27ea8793705d 100644
+--- a/arch/x86/include/asm/msr.h
++++ b/arch/x86/include/asm/msr.h
+@@ -144,10 +144,12 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
+ static inline void notrace
+ native_write_msr(unsigned int msr, u32 low, u32 high)
+ {
+-	__wrmsr(msr, low, high);
++	u64 val = (u64)high << 32 | low;
++
++	native_wrmsrl(msr, val);
+ 
+ 	if (tracepoint_enabled(write_msr))
+-		do_trace_write_msr(msr, ((u64)high << 32 | low), 0);
++		do_trace_write_msr(msr, val, 0);
+ }
+ 
+ /* Can be uninlined because referenced by paravirt */
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index 1f14c3308b6b..0eaeaba12df2 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -1306,7 +1306,7 @@ static noinstr bool mce_check_crashing_cpu(void)
+ 		}
+ 
+ 		if (mcgstatus & MCG_STATUS_RIPV) {
+-			__wrmsr(MSR_IA32_MCG_STATUS, 0, 0);
++			native_wrmsrl(MSR_IA32_MCG_STATUS, 0);
+ 			return true;
+ 		}
+ 	}
+diff --git a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
+index 01fa7890b43f..55536120c8d1 100644
+--- a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
++++ b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
+@@ -481,7 +481,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
+ 	 * cache.
+ 	 */
+ 	saved_msr = __rdmsr(MSR_MISC_FEATURE_CONTROL);
+-	__wrmsr(MSR_MISC_FEATURE_CONTROL, prefetch_disable_bits, 0x0);
++	native_wrmsrl(MSR_MISC_FEATURE_CONTROL, prefetch_disable_bits);
+ 	closid_p = this_cpu_read(pqr_state.cur_closid);
+ 	rmid_p = this_cpu_read(pqr_state.cur_rmid);
+ 	mem_r = plr->kmem;
+@@ -493,7 +493,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
+ 	 * pseudo-locked followed by reading of kernel memory to load it
+ 	 * into the cache.
+ 	 */
+-	__wrmsr(MSR_IA32_PQR_ASSOC, rmid_p, plr->closid);
++	native_wrmsrl(MSR_IA32_PQR_ASSOC, (u64)plr->closid << 32 | rmid_p);
+ 
+ 	/*
+ 	 * Cache was flushed earlier. Now access kernel memory to read it
+@@ -530,7 +530,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
+ 	 * Critical section end: restore closid with capacity bitmask that
+ 	 * does not overlap with pseudo-locked region.
+ 	 */
+-	__wrmsr(MSR_IA32_PQR_ASSOC, rmid_p, closid_p);
++	native_wrmsrl(MSR_IA32_PQR_ASSOC, (u64)closid_p << 32 | rmid_p);
+ 
+ 	/* Re-enable the hardware prefetcher(s) */
+ 	wrmsrl(MSR_MISC_FEATURE_CONTROL, saved_msr);
 -- 
 2.49.0
 
