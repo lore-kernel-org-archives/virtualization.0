@@ -1,338 +1,85 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F4F01C5D5E;
-	Mon, 31 Mar 2025 09:42:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C768D17A2E2;
+	Mon, 31 Mar 2025 10:17:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743414177; cv=none; b=UOL/IKRxKBlGpJHZD7HvSvXfo6CFNf3N8n0H+piqDBJ+WCOB99NsujFyC3wCKcpcM2fAnz7EU+4rQE4zDEdHR2NKAvUzelfJAo16lGldVhnOimmam48AgkFbZ9U6M6jOZefuxNw0R2EeX7EOS/Ko/3wnGpxugIk5I9APExfRBNs=
+	t=1743416263; cv=none; b=eoujVJbWPGc9FDPrwDyKKuc6JS+Xetx59j611uvhKoroq+76o348E6pm0eQAGue5S6mLtv/A9woZhgrkz5ZmCmByLi+7qSo90pZQN7r/ezwJbhrOjsajPqRxOydE2yGBfKK7+ctzcptS5BzbKKHYj9d3qgG+xHOjeHVhULRb7zQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743414177; c=relaxed/simple;
-	bh=qSbT7gVhavBqCvnIdHN+SsoJQ8QMGEQtBO+4V3PpiDk=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=aZvEnxaj2RwuAXdeogPrGrAv7RwyUlBJ/T2I6EfFVSByFnoU6gfxfz3klEAtOjhqTZdvUk5mSL+m11xXotSlc8pmtsN537hK8WcWNqIVRbCh+gaMKtItdnW1tQveCGuiwf9OvzsWCXLUIxkyLZUiymg/Kmamoxv0Hh798XTGEHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=TnmWvfnk; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1743416263; c=relaxed/simple;
+	bh=OnEcQ86N1b/nWwzloNbMBTvRyH+I2tQtz+Iwgl9ovf8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aK3aFgHojCtVzcELId59Jyl7HUtlpN/G3L4HVZCR3MmOtzpGit415e+07D3Si5/yN0a2Rg1bSSg0mBf/VYY0NAyhmpQBZLDI+KIQbkGTMrs7p8e5j9bcIP5YHkOGwNfPeO6yc8QGMGYyDVBBpc1W3Zn9ES6ljLdAA5oBSXwtvY8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N1su6Ole; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="TnmWvfnk"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=qSbT7gVhavBqCvnIdHN+SsoJQ8QMGEQtBO+4V3PpiDk=; b=TnmWvfnkBylXteILU+DtV8DBPY
-	6sFuBqY6SUlmMSrjsD+vIGgRIPW8XbETQievhQp8PPcpohOYQybmOx6BdGqswLsCpmW6ylWydb8vZ
-	Bzbw1TvpcCJkUwn+ZCwSf9mU54/2uA23JhsUflODvDy+Z6xb4KDQvjE+bwxRKVk90tZJyp/ypsn2e
-	YUnP+ZdrCMEnKMQ9d7ojUt7l0LYlMa1+ERL6ZiT/zq22aB5o1PSM3DL58pN49v9kv9k7boU5MzRvw
-	LQJrX1bW5tO6nZKaQHTHpkL3CMPXm4jYcvMCUzC/qAXib8Br6gfGdXUG2IBqrLPDS+BuD38zA2ITk
-	YD9LDtLg==;
-Received: from [172.31.31.145] (helo=u09cd745991455d.ant.amazon.com)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.1 #2 (Red Hat Linux))
-	id 1tzBeq-00000006cS5-3h6m;
-	Mon, 31 Mar 2025 09:42:17 +0000
-Message-ID: <1ec5a55bdc828aeb17ecba19e50d45e5a0815ae2.camel@infradead.org>
-Subject: Re: Using Restricted DMA for virtio-pci
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linuxppc-dev@lists.ozlabs.org, Claire Chang <tientzu@chromium.org>, Rob
- Herring <robh+dt@kernel.org>, mpe@ellerman.id.au, Joerg Roedel
- <joro@8bytes.org>, Will Deacon <will@kernel.org>, Frank Rowand
- <frowand.list@gmail.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
- boris.ostrovsky@oracle.com, jgross@suse.com,  Christoph Hellwig
- <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, 
- heikki.krogerus@linux.intel.com, peterz@infradead.org,
- benh@kernel.crashing.org,  grant.likely@arm.com, paulus@samba.org,
- mingo@kernel.org, sstabellini@kernel.org,  Saravana Kannan
- <saravanak@google.com>, xypron.glpk@gmx.de, "Rafael J . Wysocki"
- <rafael.j.wysocki@intel.com>,  xen-devel@lists.xenproject.org, Thierry
- Reding <treding@nvidia.com>,  linux-devicetree
- <devicetree@vger.kernel.org>, Nicolas Boichat <drinkcat@chromium.org>, Dan
- Williams <dan.j.williams@intel.com>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>,  Greg KH <gregkh@linuxfoundation.org>,
- Randy Dunlap <rdunlap@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
- "list@263.net:IOMMU DRIVERS" <iommu@lists.linux-foundation.org>, Jim
- Quinlan <james.quinlan@broadcom.com>,  Robin Murphy <robin.murphy@arm.com>,
- hch@infradead.org, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev, graf@amazon.de
-Date: Mon, 31 Mar 2025 10:42:16 +0100
-In-Reply-To: <20250330173951-mutt-send-email-mst@kernel.org>
-References: <20210209062131.2300005-1-tientzu@chromium.org>
-	 <979b6a34ca5724ced1d4871b58bf227065d7da57.camel@infradead.org>
-	 <20250321142947-mutt-send-email-mst@kernel.org>
-	 <d1382a6ee959f22dc5f6628d8648af77f4702418.camel@infradead.org>
-	 <20250330125929-mutt-send-email-mst@kernel.org>
-	 <E3EE485D-AD74-457C-BDEC-F8C62DFE4909@infradead.org>
-	 <20250330173951-mutt-send-email-mst@kernel.org>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-EfBIpG9vYqSFcVZ1I3yN"
-User-Agent: Evolution 3.52.3-0ubuntu1 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N1su6Ole"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 515D5C4CEE3;
+	Mon, 31 Mar 2025 10:17:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1743416262;
+	bh=OnEcQ86N1b/nWwzloNbMBTvRyH+I2tQtz+Iwgl9ovf8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=N1su6OlesOh1iys2BALYaqexBKG7IcFqHgPaafBKTCbyQo6geGjhLQKz7O0OcoXvT
+	 YQIpzmw1tQSWTsF9vwtzrlcdIcF7KcjPFAwykaVs903WQhoAu/+qZ7Ggeiwe7IRAvi
+	 Y8aEbjENC3F1wRSXqHhXFrzi6g01c1oFTHI0YEi4v3pDcQrlIYk7ErbPRAXMN1Gvnt
+	 gSg2xKJSTtBhyue1C7dnSzI120JEcG6dtEm9tY06MaoOdl/kTFn/fkjNUhbHm5WCdt
+	 7HMZ5EnAV1JEKUK7IsVxDNhULSyJAaVCFvsuIggC5RwuFJb0eGVdW8LT9vTHsipJF2
+	 GZDbcKOlstJLA==
+Date: Mon, 31 Mar 2025 12:17:30 +0200
+From: Ingo Molnar <mingo@kernel.org>
+To: "Xin Li (Intel)" <xin@zytor.com>
+Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-edac@vger.kernel.org, kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org,
+	linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev,
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+	jgross@suse.com, andrew.cooper3@citrix.com, peterz@infradead.org,
+	acme@kernel.org, namhyung@kernel.org, mark.rutland@arm.com,
+	alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+	irogers@google.com, adrian.hunter@intel.com,
+	kan.liang@linux.intel.com, wei.liu@kernel.org,
+	ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
+	pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+	luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+	haiyangz@microsoft.com, decui@microsoft.com
+Subject: Re: [RFC PATCH v1 01/15] x86/msr: Replace __wrmsr() with
+ native_wrmsrl()
+Message-ID: <Z-pruogreCuU66wm@gmail.com>
+References: <20250331082251.3171276-1-xin@zytor.com>
+ <20250331082251.3171276-2-xin@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250331082251.3171276-2-xin@zytor.com>
 
 
---=-EfBIpG9vYqSFcVZ1I3yN
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+* Xin Li (Intel) <xin@zytor.com> wrote:
 
-On Sun, 2025-03-30 at 17:48 -0400, Michael S. Tsirkin wrote:
-> On Sun, Mar 30, 2025 at 10:27:58PM +0100, David Woodhouse wrote:
-> > On 30 March 2025 18:06:47 BST, "Michael S. Tsirkin" <mst@redhat.com> wr=
-ote:
-> > > > It's basically just allowing us to expose through PCI, what I belie=
-ve
-> > > > we can already do for virtio in DT.
-> > >=20
-> > > I am not saying I am against this extension.
-> > > The idea to restrict DMA has a lot of merit outside pkvm.
-> > > For example, with a physical devices, limiting its DMA
-> > > to a fixed range can be good for security at a cost of
-> > > an extra data copy.
-> > >=20
-> > > So I am not saying we have to block this specific hack.
-> > >=20
-> > > what worries me fundamentally is I am not sure it works well
-> > > e.g. for physical virtio cards.
-> >=20
-> > Not sure why it doesn't work for physical cards. They don't need to
-> > be bus-mastering; they just take data from a buffer in their own
-> > RAM.
->=20
-> I mean, it kind of does, it is just that CPU pulling data over the PCI bu=
-s
-> stalls it so is very expensive. It is not by chance people switched to
-> DMA almost exclusively.
+> -	__wrmsr      (MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3, val >> 32);
+> +	native_wrmsrl(MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3);
 
-Yes. For a physical implementation it would not be the most high-
-performance option... unless DMA is somehow blocked as it is in the
-pKVM+virt case.
+This is an improvement.
 
-In the case of a virtual implementation, however, the performance is
-not an issue because it'll be backed by host memory anyway. (It's just
-that because it's presented to the guest and the trusted part of the
-hypervisor as PCI BAR space instead of main memory, it's a whole lot
-more practical to deal with the fact that it's *shared* with the VMM.)
+> -	__wrmsr      (MSR_IA32_PQR_ASSOC, rmid_p, plr->closid);
+> +	native_wrmsrl(MSR_IA32_PQR_ASSOC, (u64)plr->closid << 32 | rmid_p);
 
-> > > Attempts to pass data between devices will now also require
-> > > extra data copies.
-> >=20
-> > Yes. I think that's acceptable, but if we really cared we could
-> > perhaps extend the capability to refer to a range inside a given
-> > BAR on a specific *device*? Or maybe just *function*, and allow
-> > sharing of SWIOTLB buffer within a multi-function device?
->=20
-> Fundamentally, this is what dmabuf does.
+> -	__wrmsr      (MSR_IA32_PQR_ASSOC, rmid_p, closid_p);
+> +	native_wrmsrl(MSR_IA32_PQR_ASSOC, (u64)closid_p << 32 | rmid_p);
 
-In software, yes. Extending it to hardware is a little harder.
+This is not an improvement.
 
-In principle, it might be quite nice to offer a single SWIOTLB buffer
-region (in a BAR of one device) and have multiple virtio devices share
-it. Not just because of passing data between devices, as you mentioned,
-but also because it'll be a more efficient use of memory than each
-device having its own buffer and allocation pool.
+Please provide a native_wrmsrl() API variant where natural [rmid_p, closid_p]
+high/lo parameters can be used, without the shift-uglification...
 
-So how would a device indicate that it can use a SWIOTLB buffer which
-is in a BAR of a *different* device?
+Thanks,
 
-Not by physical address, because BARs get moved around.
-Not even by PCI bus/dev/fn/BAR# because *buses* get renumbered.
-
-You could limit it to sharing within one PCI "bus", and use just
-dev/fn/BAR#? Or even within one PCI device and just fn/BAR#? The latter
-could theoretically be usable by multi-function physical devices.
-
-The standard struct virtio_pci_cap (which I used for
-VIRTIO_PCI_CAP_SWIOTLB) just contains BAR and offset/length. We could
-extend it with device + function, using -1 for 'self', to allow for
-such sharing?
-
-Still not convinced it isn't overkill, but it's certainly easy enough
-to add on the *spec* side. I haven't yet looked at how that sharing
-would work in Linux on the guest side; thus far what I'm proposing is
-intended to be almost identical to the per-device thing that should
-already work with a `restricted-dma-pool' node in device-tree.
-
-> > I think it's overkill though.
-> >=20
-> > > Did you think about adding an swiotlb mode to virtio-iommu at all?
-> > > Much easier than parsing page tables.
-> >=20
-> > Often the guests which need this will have a real IOMMU for the true
-> > pass-through devices.
->=20
-> Not sure I understand. You mean with things like stage 2 passthrough?
-
-Yes. AMD's latest IOMMU spec documents it, for example. Exposing a
-'vIOMMU' to the guest which handles just stage 1 (IOVA=E2=86=92GPA) while t=
-he
-hypervisor controls the normal GPA=E2=86=92HPA translation in stage 2.
-
-Then the guest gets an accelerated path *directly* to the hardware for
-its IOTLB flushes... which means the hypervisor doesn't get to *see*
-those IOTLB flushes so it's a PITA to do device emulation as if it's
-covered by that same IOMMU.
-
-(Actually I haven't checked the AMD one in detail for that flaw; most
-*other* 2-stage IOMMUs I've seen do have it, and I *bet* AMD does too).
-
-> > Adding a virtio-iommu into the mix (or any other
-> > system-wide way of doing something different for certain devices) is
-> > problematic.
->=20
-> OK... but the issue isn't specific to no DMA devices, is it?
-
-Hm? Allowing virtio devices to operate as "no-DMA devices" is a
-*workaround* for the issue.
-
-The issue is that the VMM may not have full access to the guest's
-memory for emulating devices. These days, virtio covers a large
-proportion of emulated devices.
-
-So I do think the issue is fairly specific to virtio devices, and
-suspect that's what you meant to type above?
-
-We pondered teaching the trusted part of the hypervisor (e.g. pKVM) to
-snoop on virtqueues enough to 'know' which memory the VMM was genuinely
-being *invited* to read/write... and we ran away screaming. (In order
-to have sufficient trust, you end up not just snooping but implementing
-quite a lot of the emulation on the trusted side. And then complex
-enlightenments in the VMM and the untrusted Linux/KVM which hosts it,
-to interact with that.)
-
-Then we realised that for existing DT guests it's trivial just to add
-the `restricted-dma-pool` node. And wanted to do the same for the
-guests who are afflicted with UEFI/ACPI too. So here we are, trying to
-add the same capability to virtio-pci.
-
-> > The on-device buffer keeps it nice and simple,
->=20
-> I am not saying it is not.
-> It's just a little boutique.
-
-Fair. Although with the advent of confidential computing and
-restrictions on guest memory access, perhaps becoming less boutique
-over time?
-
-And it should also be fairly low-friction; it's a whole lot cleaner in
-the spec than the awful VIRTIO_F_ACCESS_PLATFORM legacy, and even in
-the Linux guest driver it should work fairly simply given the existing
-restricted-dma support (although of course that shouldn't entirely be
-our guiding motivation).
-
-> > and even allows us to
-> > do device support for operating systems like Windows where it's a lot
-> > harder to do anything generic in the core OS.
->=20
-> Well we do need virtio iommu windows support sooner or later, anyway.
-
-Heh, good luck with that :)
-
-And actually, doesn't that only support *DMA* remapping? So you still
-wouldn't be able to boot a Windows guest with >255 vCPUs without some
-further enlightenment (like Windows guests finally supporting the 15-
-bit MSI extension that even Hyper-V supports on the host side...)
-
-=20
-
---=-EfBIpG9vYqSFcVZ1I3yN
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
-ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
-MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
-a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
-jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
-GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
-aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
-nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
-8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
-HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
-IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
-KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
-BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
-QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
-ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
-/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
-uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
-xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
-W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
-c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
-VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
-NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
-sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
-w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
-i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
-kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
-0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
-ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
-blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
-hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
-VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
-HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
-ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
-AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
-cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
-cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
-AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
-aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
-hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
-iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
-8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
-JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
-xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
-EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
-B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
-MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
-KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
-Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
-nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
-WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
-W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
-nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
-g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
-9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
-9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
-sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
-a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
-ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
-AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
-dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
-MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
-YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
-4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
-6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
-QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
-nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
-MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
-VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI1MDMzMTA5NDIx
-NlowLwYJKoZIhvcNAQkEMSIEIJcN5NIl4yVSF0bj+SQFMx/p6FwYDTZf4b2ZfQZZJwIZMGQGCSsG
-AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
-cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
-VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
-cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAyvYxp+QlIsNz
-Yvz9vEv1VxBd0WQgSyzQFpHD8W7SezYmEahcfap7IdP/EzCbxXVDgXL994pbIl+s69ECFHqNGCrK
-liWDtmdC/0sdBfsDt1DpUNIxEfATQslqs45cc62dhL2gkgBtH5ABg28230T/GYMMg8juE+/lH7gB
-sn6rFEuylquLSr9Wq/54SyQkFkNZylqB6q90AeZWhetV4Iv+UapP1xzHaiF6sW7m9lnRY/65EmGl
-gAXEHLu5nPsadeD2NR/tL2hazmxsRykYa0ig/FlrtoIUV/QryTB1jltI4PCP1Xf6w4ZbH9UyFYMQ
-NmH5TOwmzKLOwh4b1uz+P+5ba+RUL2e+MPKAMrkHXbfA6JZzok0UsKm7/Gk7u3/LcySoqGYFjGuT
-RmC9Iv5tN8L2Z0x336qX2xKSKKB+192B0WZYpXlx4vsqZki26zwlV4Z981qmaN6DsHLOQVCcAnn6
-wczLQ5ifFEI5y591Oxcz8yST7ZfudaNcv+9GwmBbkXlPIGpqdxyUvHBgTuxAhrM85MrNH8ANS4Mt
-X4hAa72Qt5OjDaUWDOnktyE4s1iqaVg6I79czrNLGImW6veRpSzsEEy/8Ee2XUfkIlxxWOZZwSlO
-dHV1i/aLqqdlLL2rhyU6Y4CDHddGWLCRN1SKYqoRH4uSvpi6yesrra0I8K1F5cIAAAAAAAA=
-
-
---=-EfBIpG9vYqSFcVZ1I3yN--
+	Ingo
