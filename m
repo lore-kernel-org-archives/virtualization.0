@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B9A11D7999;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 058401D7984;
 	Mon, 31 Mar 2025 08:23:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743409440; cv=none; b=psvB6xAm1vJN7pE1rVqgVNNXXVQC3uArBHeHRAbx7GFtED3np2YCM1mbtUocxpnxkQUv7E9Z0f5icupUSN8jISxyr2SKOf5PUS3rBHRqXaNs9BLEGjx2MCL2ZMbgoAUB0TyKQgDIs7I5exgDQ4yfbjAUwIe0JT/3C4EcI9U47ZU=
+	t=1743409441; cv=none; b=qkGcOicrh0nGrlZus7bNv/XyS/zuG5y/BGl4idkAV0aQeZ6M6k46LOGt8T4i34JNr9jrhH28s2dJawhdlorlW34l3td27hhs1SKMKHKRHxdQqBHSeOv6mKTOH7qBlI3r9U865vjmUqcTKAh8SAWPLtasO91BnVBsi3hmOrDBDo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743409440; c=relaxed/simple;
-	bh=Dt+JPai8+zal0PU5TNa9Qc5El9RrxyJOxdkK3MpXOcA=;
+	s=arc-20240116; t=1743409441; c=relaxed/simple;
+	bh=tME7mojeJezeDUpP+ObCQecGa9XLxXIzWAI0QCCNPoE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PJODplU9/xhJc6hIdeZ3qO0+pxbpf6g1/GsjGfxuEUyPh/t4T4gPt/EnbXAcAVV6Y9i4Oh0cm9Cjtnr+/VSIN+OyMETo8g7zUWiaqCQbcFi3kz/gvzRLnI/pKSmn5e8Q67HZet1R8GzFKY/MSVR26DVTPaQ5kia2VssfpF+CjcE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=DfikwSBt; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=KMKegiUOl1lrDTvhdUxln/GtoY03oVchfrGVCJQJ0xM+t+qtkGjsuezOht502qbkI+IA3umlNnbQ/wtNUgrX1p2imAB77Lvln/8+igxOBEQ882al/CJJpEDOMST6ruP9l+i7HaZV2yQBBvBIbb1mC/meJyvslsw5dvVVSTqcbsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=cjtZINut; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="DfikwSBt"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="cjtZINut"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 52V8Mp013171319
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 52V8Mp043171319
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Mon, 31 Mar 2025 01:23:00 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 52V8Mp013171319
+	Mon, 31 Mar 2025 01:23:06 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 52V8Mp043171319
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1743409382;
-	bh=8NBvcv0ohTWU39bJ6aL9yuUsmviH/IXJjGBdBncqKAA=;
+	s=2025032001; t=1743409388;
+	bh=R5lkZK1BttlgoDRIcsGie/EvPC/1EsVxCj2GWRAyo+M=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DfikwSBtepDkTPWSndBbjw9sQVnN64z4KXbHHV4byiheN5oN3c8108HUHo0WlTHiO
-	 fbuV4mKhMgYKnfiBPbYoVLpeAEW1C8xaUoDBQBJOqlka2Ux1zE5IQP96taH035GT/e
-	 xjt8OpAXfqCNG5GQQNWIsO0juYtYQXHFy1GfDKPCFncm+WTFt1opnlrPH8zpyO5lys
-	 AWQreJObo0N83zSyBr8Uut3butD6okD1jJ5CCQoAsoeWQqGbWx83aVOu3dhvPlDmYf
-	 JoUzckPNpFkOLgLe6na+VCr251PNcWOk98ANs3QkFTe88p9rHaeel6kOYEiLGzsU7J
-	 1iQD+J8vO7ZXg==
+	b=cjtZINutBa+FD44rvEKBI/bQn/6JnE37jJg8UfQt76je9oer8CW+KU4+GASTM697n
+	 43XgUKC7AUoEwu3/CB/moVDg2HKzbhmtehqO4aY0qEvC/qHCgIZb3cKa7RdsVrgwnl
+	 AUil1g8TJnz5dWM5rTRr4QNzdiKcsuNrqQZvGQjKzzHfZaQiw5xA2m5iYN6sK7sImI
+	 oREOYUP88D8O6Cp/ISnEuVJDEMudARxBOJb7gcgFfJ1/rgsxpmKmOjcw84nWzZkB3C
+	 VsITyaqW7KXt9Q1SvVjBLyJNoLTgoCY1Ptdb7Cq8X9iccW9VZz7LSfWoqKxg9r1F67
+	 TUz6F6A4Ni/IA==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
         linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
@@ -49,9 +49,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com,
         seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com,
         kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com
-Subject: [RFC PATCH v1 01/15] x86/msr: Replace __wrmsr() with native_wrmsrl()
-Date: Mon, 31 Mar 2025 01:22:37 -0700
-Message-ID: <20250331082251.3171276-2-xin@zytor.com>
+Subject: [RFC PATCH v1 04/15] x86/msr: Let pv_cpu_ops.write_msr{_safe}() take an u64 instead of two u32
+Date: Mon, 31 Mar 2025 01:22:40 -0700
+Message-ID: <20250331082251.3171276-5-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250331082251.3171276-1-xin@zytor.com>
 References: <20250331082251.3171276-1-xin@zytor.com>
@@ -63,109 +63,273 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-__wrmsr() is the lowest level primitive MSR write API, and its direct
-use is NOT preferred.  Use its wrapper function native_wrmsrl() instead.
+Refactor pv_cpu_ops.write_msr{_safe}() to take the input MSR value
+in a single u64 argument, replacing the current dual u32 arguments.
 
 No functional change intended.
 
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 ---
- arch/x86/events/amd/brs.c                 | 2 +-
- arch/x86/include/asm/apic.h               | 2 +-
- arch/x86/include/asm/msr.h                | 6 ++++--
- arch/x86/kernel/cpu/mce/core.c            | 2 +-
- arch/x86/kernel/cpu/resctrl/pseudo_lock.c | 6 +++---
- 5 files changed, 10 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/msr.h            | 33 ++++++++++++---------------
+ arch/x86/include/asm/paravirt.h       | 10 ++++----
+ arch/x86/include/asm/paravirt_types.h |  4 ++--
+ arch/x86/kernel/kvmclock.c            |  2 +-
+ arch/x86/kvm/svm/svm.c                | 15 +++---------
+ arch/x86/xen/enlighten_pv.c           | 13 +++++------
+ 6 files changed, 30 insertions(+), 47 deletions(-)
 
-diff --git a/arch/x86/events/amd/brs.c b/arch/x86/events/amd/brs.c
-index ec3427463382..4a47f3c108de 100644
---- a/arch/x86/events/amd/brs.c
-+++ b/arch/x86/events/amd/brs.c
-@@ -44,7 +44,7 @@ static inline unsigned int brs_to(int idx)
- static __always_inline void set_debug_extn_cfg(u64 val)
- {
- 	/* bits[4:3] must always be set to 11b */
--	__wrmsr(MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3, val >> 32);
-+	native_wrmsrl(MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3);
- }
- 
- static __always_inline u64 get_debug_extn_cfg(void)
-diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-index c903d358405d..3345a819c859 100644
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -214,7 +214,7 @@ static inline void native_apic_msr_write(u32 reg, u32 v)
- 
- static inline void native_apic_msr_eoi(void)
- {
--	__wrmsr(APIC_BASE_MSR + (APIC_EOI >> 4), APIC_EOI_ACK, 0);
-+	native_wrmsrl(APIC_BASE_MSR + (APIC_EOI >> 4), APIC_EOI_ACK);
- }
- 
- static inline u32 native_apic_msr_read(u32 reg)
 diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index 9397a319d165..27ea8793705d 100644
+index fb3d7c4cb774..121597fc5d41 100644
 --- a/arch/x86/include/asm/msr.h
 +++ b/arch/x86/include/asm/msr.h
-@@ -144,10 +144,12 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
- static inline void notrace
- native_write_msr(unsigned int msr, u32 low, u32 high)
- {
--	__wrmsr(msr, low, high);
-+	u64 val = (u64)high << 32 | low;
-+
-+	native_wrmsrl(msr, val);
+@@ -91,12 +91,12 @@ static __always_inline unsigned long long __rdmsr(unsigned int msr)
+ 	return EAX_EDX_VAL(val, low, high);
+ }
  
- 	if (tracepoint_enabled(write_msr))
--		do_trace_write_msr(msr, ((u64)high << 32 | low), 0);
-+		do_trace_write_msr(msr, val, 0);
+-static __always_inline void __wrmsr(unsigned int msr, u32 low, u32 high)
++static __always_inline void __wrmsr(u32 msr, u64 val)
+ {
+ 	asm volatile("1: wrmsr\n"
+ 		     "2:\n"
+ 		     _ASM_EXTABLE_TYPE(1b, 2b, EX_TYPE_WRMSR)
+-		     : : "c" (msr), "a"(low), "d" (high) : "memory");
++		     : : "c" (msr), "a"((u32)val), "d" ((u32)(val >> 32)) : "memory");
+ }
+ 
+ #define native_rdmsr(msr, val1, val2)			\
+@@ -112,11 +112,10 @@ static __always_inline u64 native_rdmsrl(const u32 msr)
+ }
+ 
+ #define native_wrmsr(msr, low, high)			\
+-	__wrmsr(msr, low, high)
++	__wrmsr((msr), ((u64)(high) << 32) | (low))
+ 
+ #define native_wrmsrl(msr, val)				\
+-	__wrmsr((msr), (u32)((u64)(val)),		\
+-		       (u32)((u64)(val) >> 32))
++	__wrmsr((msr), (val))
+ 
+ static inline unsigned long long native_read_msr(unsigned int msr)
+ {
+@@ -146,11 +145,8 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
  }
  
  /* Can be uninlined because referenced by paravirt */
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 1f14c3308b6b..0eaeaba12df2 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -1306,7 +1306,7 @@ static noinstr bool mce_check_crashing_cpu(void)
- 		}
+-static inline void notrace
+-native_write_msr(unsigned int msr, u32 low, u32 high)
++static inline void notrace native_write_msr(u32 msr, u64 val)
+ {
+-	u64 val = (u64)high << 32 | low;
+-
+ 	native_wrmsrl(msr, val);
  
- 		if (mcgstatus & MCG_STATUS_RIPV) {
--			__wrmsr(MSR_IA32_MCG_STATUS, 0, 0);
-+			native_wrmsrl(MSR_IA32_MCG_STATUS, 0);
- 			return true;
- 		}
- 	}
-diff --git a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
-index 01fa7890b43f..55536120c8d1 100644
---- a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
-+++ b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
-@@ -481,7 +481,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
- 	 * cache.
- 	 */
- 	saved_msr = __rdmsr(MSR_MISC_FEATURE_CONTROL);
--	__wrmsr(MSR_MISC_FEATURE_CONTROL, prefetch_disable_bits, 0x0);
-+	native_wrmsrl(MSR_MISC_FEATURE_CONTROL, prefetch_disable_bits);
- 	closid_p = this_cpu_read(pqr_state.cur_closid);
- 	rmid_p = this_cpu_read(pqr_state.cur_rmid);
- 	mem_r = plr->kmem;
-@@ -493,7 +493,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
- 	 * pseudo-locked followed by reading of kernel memory to load it
- 	 * into the cache.
- 	 */
--	__wrmsr(MSR_IA32_PQR_ASSOC, rmid_p, plr->closid);
-+	native_wrmsrl(MSR_IA32_PQR_ASSOC, (u64)plr->closid << 32 | rmid_p);
+ 	if (tracepoint_enabled(write_msr))
+@@ -158,8 +154,7 @@ native_write_msr(unsigned int msr, u32 low, u32 high)
+ }
+ 
+ /* Can be uninlined because referenced by paravirt */
+-static inline int notrace
+-native_write_msr_safe(unsigned int msr, u32 low, u32 high)
++static inline int notrace native_write_msr_safe(u32 msr, u64 val)
+ {
+ 	int err;
+ 
+@@ -167,10 +162,10 @@ native_write_msr_safe(unsigned int msr, u32 low, u32 high)
+ 		     "2:\n\t"
+ 		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_WRMSR_SAFE, %[err])
+ 		     : [err] "=a" (err)
+-		     : "c" (msr), "0" (low), "d" (high)
++		     : "c" (msr), "0" ((u32)val), "d" ((u32)(val >> 32))
+ 		     : "memory");
+ 	if (tracepoint_enabled(write_msr))
+-		do_trace_write_msr(msr, ((u64)high << 32 | low), err);
++		do_trace_write_msr(msr, val, err);
+ 	return err;
+ }
+ 
+@@ -258,23 +253,23 @@ do {								\
+ 	(void)((high) = (u32)(__val >> 32));			\
+ } while (0)
+ 
+-static inline void wrmsr(unsigned int msr, u32 low, u32 high)
++static inline void wrmsr(u32 msr, u32 low, u32 high)
+ {
+-	native_write_msr(msr, low, high);
++	native_write_msr(msr, (u64)high << 32 | low);
+ }
+ 
+ #define rdmsrl(msr, val)			\
+ 	((val) = native_read_msr((msr)))
+ 
+-static inline void wrmsrl(unsigned int msr, u64 val)
++static inline void wrmsrl(u32 msr, u64 val)
+ {
+-	native_write_msr(msr, (u32)(val & 0xffffffffULL), (u32)(val >> 32));
++	native_write_msr(msr, val);
+ }
+ 
+ /* wrmsr with exception handling */
+-static inline int wrmsr_safe(unsigned int msr, u32 low, u32 high)
++static inline int wrmsr_safe(u32 msr, u32 low, u32 high)
+ {
+-	return native_write_msr_safe(msr, low, high);
++	return native_write_msr_safe(msr, (u64)high << 32 | low);
+ }
+ 
+ /* rdmsr with exception handling */
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index c4c23190925c..f3d6e8394d38 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -180,10 +180,9 @@ static inline u64 paravirt_read_msr(unsigned msr)
+ 	return PVOP_CALL1(u64, cpu.read_msr, msr);
+ }
+ 
+-static inline void paravirt_write_msr(unsigned msr,
+-				      unsigned low, unsigned high)
++static inline void paravirt_write_msr(u32 msr, u32 low, u32 high)
+ {
+-	PVOP_VCALL3(cpu.write_msr, msr, low, high);
++	PVOP_VCALL2(cpu.write_msr, msr, (u64)high << 32 | low);
+ }
+ 
+ static inline u64 paravirt_read_msr_safe(unsigned msr, int *err)
+@@ -191,10 +190,9 @@ static inline u64 paravirt_read_msr_safe(unsigned msr, int *err)
+ 	return PVOP_CALL2(u64, cpu.read_msr_safe, msr, err);
+ }
+ 
+-static inline int paravirt_write_msr_safe(unsigned msr,
+-					  unsigned low, unsigned high)
++static inline int paravirt_write_msr_safe(u32 msr, u32 low, u32 high)
+ {
+-	return PVOP_CALL3(int, cpu.write_msr_safe, msr, low, high);
++	return PVOP_CALL2(int, cpu.write_msr_safe, msr, (u64)high << 32 | low);
+ }
+ 
+ #define rdmsr(msr, val1, val2)			\
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 631c306ce1ff..78777b78da12 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -92,14 +92,14 @@ struct pv_cpu_ops {
+ 
+ 	/* Unsafe MSR operations.  These will warn or panic on failure. */
+ 	u64 (*read_msr)(unsigned int msr);
+-	void (*write_msr)(unsigned int msr, unsigned low, unsigned high);
++	void (*write_msr)(u32 msr, u64 val);
  
  	/*
- 	 * Cache was flushed earlier. Now access kernel memory to read it
-@@ -530,7 +530,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
- 	 * Critical section end: restore closid with capacity bitmask that
- 	 * does not overlap with pseudo-locked region.
+ 	 * Safe MSR operations.
+ 	 * read sets err to 0 or -EIO.  write returns 0 or -EIO.
  	 */
--	__wrmsr(MSR_IA32_PQR_ASSOC, rmid_p, closid_p);
-+	native_wrmsrl(MSR_IA32_PQR_ASSOC, (u64)closid_p << 32 | rmid_p);
+ 	u64 (*read_msr_safe)(unsigned int msr, int *err);
+-	int (*write_msr_safe)(unsigned int msr, unsigned low, unsigned high);
++	int (*write_msr_safe)(u32 msr, u64 val);
  
- 	/* Re-enable the hardware prefetcher(s) */
- 	wrmsrl(MSR_MISC_FEATURE_CONTROL, saved_msr);
+ 	u64 (*read_pmc)(int counter);
+ 
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index 5b2c15214a6b..6b4102365ae5 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -196,7 +196,7 @@ static void kvm_setup_secondary_clock(void)
+ void kvmclock_disable(void)
+ {
+ 	if (msr_kvm_system_time)
+-		native_write_msr(msr_kvm_system_time, 0, 0);
++		native_write_msr(msr_kvm_system_time, 0);
+ }
+ 
+ static void __init kvmclock_init_mem(void)
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index d5d0c5c3300b..5cbc4ccb145c 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -475,7 +475,6 @@ static void svm_inject_exception(struct kvm_vcpu *vcpu)
+ 
+ static void svm_init_erratum_383(void)
+ {
+-	u32 low, high;
+ 	int err;
+ 	u64 val;
+ 
+@@ -489,10 +488,7 @@ static void svm_init_erratum_383(void)
+ 
+ 	val |= (1ULL << 47);
+ 
+-	low  = lower_32_bits(val);
+-	high = upper_32_bits(val);
+-
+-	native_write_msr_safe(MSR_AMD64_DC_CFG, low, high);
++	native_write_msr_safe(MSR_AMD64_DC_CFG, val);
+ 
+ 	erratum_383_found = true;
+ }
+@@ -2167,17 +2163,12 @@ static bool is_erratum_383(void)
+ 
+ 	/* Clear MCi_STATUS registers */
+ 	for (i = 0; i < 6; ++i)
+-		native_write_msr_safe(MSR_IA32_MCx_STATUS(i), 0, 0);
++		native_write_msr_safe(MSR_IA32_MCx_STATUS(i), 0);
+ 
+ 	value = native_read_msr_safe(MSR_IA32_MCG_STATUS, &err);
+ 	if (!err) {
+-		u32 low, high;
+-
+ 		value &= ~(1ULL << 2);
+-		low    = lower_32_bits(value);
+-		high   = upper_32_bits(value);
+-
+-		native_write_msr_safe(MSR_IA32_MCG_STATUS, low, high);
++		native_write_msr_safe(MSR_IA32_MCG_STATUS, value);
+ 	}
+ 
+ 	/* Flush tlb to evict multi-match entries */
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 2bfe57469ac3..7401cce19939 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1165,9 +1165,9 @@ static void xen_do_write_msr(unsigned int msr, unsigned int low,
+ 
+ 		if (!pmu_msr_write(msr, val)) {
+ 			if (err)
+-				*err = native_write_msr_safe(msr, low, high);
++				*err = native_write_msr_safe(msr, val);
+ 			else
+-				native_write_msr(msr, low, high);
++				native_write_msr(msr, val);
+ 		}
+ 	}
+ }
+@@ -1177,12 +1177,11 @@ static u64 xen_read_msr_safe(unsigned int msr, int *err)
+ 	return xen_do_read_msr(msr, err);
+ }
+ 
+-static int xen_write_msr_safe(unsigned int msr, unsigned int low,
+-			      unsigned int high)
++static int xen_write_msr_safe(u32 msr, u64 val)
+ {
+ 	int err = 0;
+ 
+-	xen_do_write_msr(msr, low, high, &err);
++	xen_do_write_msr(msr, val, (u32)(val >> 32), &err);
+ 
+ 	return err;
+ }
+@@ -1194,11 +1193,11 @@ static u64 xen_read_msr(unsigned int msr)
+ 	return xen_do_read_msr(msr, xen_msr_safe ? &err : NULL);
+ }
+ 
+-static void xen_write_msr(unsigned int msr, unsigned low, unsigned high)
++static void xen_write_msr(u32 msr, u64 val)
+ {
+ 	int err;
+ 
+-	xen_do_write_msr(msr, low, high, xen_msr_safe ? &err : NULL);
++	xen_do_write_msr(msr, val, (u32)(val >> 32), xen_msr_safe ? &err : NULL);
+ }
+ 
+ /* This is called once we have the cpu_possible_mask */
 -- 
 2.49.0
 
