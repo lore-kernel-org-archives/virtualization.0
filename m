@@ -1,189 +1,186 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92C701E2823
-	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 12:00:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E760214809
+	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 16:34:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743422421; cv=none; b=tzzjhDZYNhW6iVvOQqTiAVl3VVrlIKlNXae0yWE6RN9Mvlg1EB+1I5DLdOZH/qmUOEfqm5/sxcbk8HD2p8GRhO9vwzzS/KaCGqU3BvQA4Ht/xPxe96E61Zw+abv1AOCGMh0vcsI5MXIyJh5+DTJ36G4GVyDmC8RDZXDOm4D28+M=
+	t=1743438855; cv=none; b=UX69VPBQ/AfSdxYiuSQY94GkX7TaRTiQnnXsRMu915I0jXLOi/k6zTAJAplhpXQ3JDDIULh0IfE8JmczqD6OhHoR8fqRv41xS3EtHq1nKFWWI1FyHd+gjyusCKBRH6ivCXvYcg/sUzIazkJ5A3prosepiQU9aMXt+yIa9zljRwk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743422421; c=relaxed/simple;
-	bh=76SU+zIo7WlCNaXWUl6aelYPfKu7lO0vioy9H+xSEnc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LmkeCUUonXAmoH+eJeuX33roXvLMNWGzNl5iXBSkr4oRwMMp9ODzRLn9X2OCznftThT1A2UkgJYRYYEwt7Rxo3uahlXx8EbWDDrPKYkqGj+a72lTYQ6tT3q9aFIHV3dRwuCcqiOrF00YjtT6y1ntSqSVsljEEVHSYZHeISwqgOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PgxcX5KJ; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1743438855; c=relaxed/simple;
+	bh=LyymiZcnvyCARp+PZ9YDJ/WjZzd+um0odXUXVVG8jWU=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=TAA3vbZ1pAnEw2nqTpRMfX/dOqy2vgBSeby1SL9mp/rkH9VO18n/nPVWX+x0W3ATaUKZmtP3TrIDw1o31o84AXqoXJ4GfKEPprfnUvRTsqlIG/gXW9dyjOQhSlfpySubFqg0ynvmt+TJeBJYcLfjxLqKf1kB/AUZXuQvBWtJ01k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UF4MBujQ; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PgxcX5KJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UF4MBujQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1A1C6400D7
-	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 12:00:20 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7F64460855
+	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 16:34:13 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id BQlVRWyTJApb for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Mar 2025 12:00:19 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 5C93240065
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5C93240065
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PgxcX5KJ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id pna9ORuc1_ui for <virtualization@lists.linux-foundation.org>;
+ Mon, 31 Mar 2025 16:34:12 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 7F9C96076D
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7F9C96076D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UF4MBujQ
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5C93240065
-	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 12:00:18 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7F9C96076D
+	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 16:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743422417;
+	s=mimecast20190719; t=1743438851;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SALfqHpaVZ7H1/T2YDaQ+8Ub/OE8/ksE1OnbpJljKQE=;
-	b=PgxcX5KJYBVcF13kaDHwhDeuMUC3TVEVFxGBNf2qlOga0148XC8lUDKGNCCQm4a21iR0zY
-	vOGtE5vPAWbXySwmoGt4+1Frm71MjtscTlwuKmrDWsafkQkd45c16xUF8HzUR3PAxdhb+u
-	UUYexB4m1D6PU2vyh1m/QgMkXg6fWFw=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=buRU4hcgPy2p/+OGQ7gQUBzV/bybYL5hkzFKdPTt7bo=;
+	b=UF4MBujQ8sYrKPxc2J3IpGdlRIFP2AACCveL1IlsBvhYMcB+u05jWbewIBW8THsrMz1QXr
+	R7mnTUYfZ57DFTHIzOV+SOFu8kH4VBjTBsOv2xYzq8jhEjzBOQNqc5WyZbZSynRzfASiN1
+	VJS967WZi5sZtc4Y45RZo6AwTmh5d/A=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-301--UVGfCvtPaqXjthZmOgm7w-1; Mon, 31 Mar 2025 08:00:16 -0400
-X-MC-Unique: -UVGfCvtPaqXjthZmOgm7w-1
-X-Mimecast-MFC-AGG-ID: -UVGfCvtPaqXjthZmOgm7w_1743422415
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ac6a0443bafso402642566b.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 05:00:15 -0700 (PDT)
+ us-mta-139-jhKQwZgbP9KZ4oT95UYzlA-1; Mon, 31 Mar 2025 12:34:09 -0400
+X-MC-Unique: jhKQwZgbP9KZ4oT95UYzlA-1
+X-Mimecast-MFC-AGG-ID: jhKQwZgbP9KZ4oT95UYzlA_1743438849
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43cf172ffe1so44762915e9.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 09:34:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743422415; x=1744027215;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1743438848; x=1744043648;
+        h=content-transfer-encoding:content-disposition:mime-version
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SALfqHpaVZ7H1/T2YDaQ+8Ub/OE8/ksE1OnbpJljKQE=;
-        b=V7cv1zXh/CRUplIzEgtIBb7PJkGa/cHzjQKJ2+VVRiqBzy9ZK0A5nkRp4avzcKqnEx
-         BvCNcC+bNqfqOW4nXCV5Gtb7WiIlnvdFcOp6+kmCqzhi5GZv9zyI5n7UuOSKUErR4MBT
-         4J4ENUDtj54vRv+fUle93nk0ZoD08jEhqm6NjTmZvszi9tYIa1LgfpKNgHWGoWJARcNG
-         VOE7fGmHDgAMWNkSTl25Gg2mZnn4zjEaWohjzj0KborKWVS0GNrBdFH6fREeamwB261B
-         fhVIUDh5aOUkVZgPsXwpB0+TK41pmfrcwcreFqmWPF3d+2YkluboA4fExKx7l9wr/yr4
-         CN6g==
-X-Forwarded-Encrypted: i=1; AJvYcCVB74jhXfsGc5o9RYWpA4ZgoYDNWSL2Sy2xAYUOL7/ae954baMwATBSxbPVYLeeXdXjQelJPPysPkEFyxnqUQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxgW5646z5oLgtaJUcahEVse9OpniRPJ3v31gryPZfYBvsverC0
-	JZrTljR+HUOiHtwzdpx2Xr7Am9XCwUGAe8Ng0CNlLK1TiOtiAbxWkOtz9w5Uobqyq5LWprutqOP
-	+ZQizO3ZwEG3B+gSXVnjPJlrq8N8FOCxhrWqvGAP4E8oUzjiw6pMbkW90FTx+RBxr0XXJ0CFQZ+
-	ihuJrk1VzdPBAnzfDyQAu2DVauDNQanU5T78+wC4yUcMnglgPEobYqQw==
-X-Gm-Gg: ASbGnctxQUscNfQGgWadgaNugv7wgeBmndvwKDjGcZDOf+MyXjXlZAqkpJjv1mErtQW
-	RbDWWugEtZ41rt7YS2y6XfhhkEBrdrHRJTVZZvmAF2LIIqCPJ9N+LKLIFSUbc7eRYPlFNiiBRrg
-	==
-X-Received: by 2002:a17:907:a08a:b0:ac3:cff:80f1 with SMTP id a640c23a62f3a-ac738c880d3mr758638466b.54.1743422414490;
-        Mon, 31 Mar 2025 05:00:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFDnA3ED+fmlUHGPDP9zSXTFcjlj2+EA7N/YnNwtisbC+ekVhCoZq1nyT+pnlJz/9pdqBVMe0AoZpt/YKM5Oao=
-X-Received: by 2002:a17:907:a08a:b0:ac3:cff:80f1 with SMTP id
- a640c23a62f3a-ac738c880d3mr758635266b.54.1743422414079; Mon, 31 Mar 2025
- 05:00:14 -0700 (PDT)
+        bh=buRU4hcgPy2p/+OGQ7gQUBzV/bybYL5hkzFKdPTt7bo=;
+        b=XU6nCz98Wda2BdecwPxk8wb6AHgA+SfOzUBN9Yfm/bMqFMGwtUS7a2ighze/K84OrP
+         o0otvSTzqzWIKQVkg3ILN5Gl7Dy5DCDBsYBriupD+jCGARb8Ib3QGhr7VK0I+YGlRu7w
+         YSL1fVkr9uile9Hy2wuSfpqz1vyNfqSAr11S3euaCK3O31ENHxMx+VKiJyOCIN903o3x
+         aP3slGvbpGcYAv7553/X18AcYxNzE1uOL9ubf800cs1vzRWIROL7e+q5AIy/MCpqQFEw
+         GpBSsul0UrJyWvDvUfroFcQj3jG/SzyyQ6KpdZ3aOIE2KDdxQ78cFcoFRaZXk1ekKqc/
+         yAVg==
+X-Forwarded-Encrypted: i=1; AJvYcCVbJ3F7J/x5pbnX8qVNOIsQc7BYCJmz2K1mgjQ0lVJHuqSmyNy86ibGWxtoFT3tUOzv6v6jMPjJY8jrzR2baA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yw5R2pP4gJkNycsfseyz75wauQ/kW0zumhUGKNl3a4SgT9m+cQ9
+	XW90dv+e0Vz71qEvJHpvKIW+lO1lO8pQCRSKuWQqx4JBA4krsc5Vpaxiq6sagLy/0tpiF9XG+Vy
+	SXer/oFNKfBiX6/gf/5AlrQPSgVLZCot8qaMDQDTzwJASIuW2pv7Nbuy0dH35A8xFmpszh2DcjP
+	czRcA=
+X-Gm-Gg: ASbGncsMlbwE5ivh5wwodJvppmsSdbVVCbqHQ6dLeOfbZyMq4cPeF5qaLsHXiM8D1Vt
+	Oqnhh63L0TCO03egGlFv/ubNd2FURN20qqcDKxRHlJGUY2WXQxCZulFlfKbazhcPRB0/e9Y8JtZ
+	jHtEF40WBOGzTJBnpY08Z0vFlLyFWVpyKSZa2DHLY5nyA0Wcmcn7Qrb9DfKP9ktfj9GN0qu9ock
+	ifSWxZmUIU+KfTYDFU1q++jPkmrz8s2HKdmC+zVVj2hZISHS1isBXG7V2k4wbpB2PNhPosg/iV7
+	MLQlQpSRQw==
+X-Received: by 2002:a05:600c:8117:b0:43c:efed:732d with SMTP id 5b1f17b1804b1-43e8e3cf858mr88891525e9.16.1743438848574;
+        Mon, 31 Mar 2025 09:34:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGRJoF9PNksiJNrRvv1RABMA+H1wRnu+cFNlckFr23sh4bFVTCISuxXvKws13VYTTCpsWyCEA==
+X-Received: by 2002:a05:600c:8117:b0:43c:efed:732d with SMTP id 5b1f17b1804b1-43e8e3cf858mr88891065e9.16.1743438848107;
+        Mon, 31 Mar 2025 09:34:08 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d82efeb11sm171403855e9.22.2025.03.31.09.34.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Mar 2025 09:34:07 -0700 (PDT)
+Date: Mon, 31 Mar 2025 12:34:04 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	anton.yakovlev@opensynergy.com, bettyzhou@google.com,
+	cong.meng@oracle.com, dtatulea@nvidia.com, eauger@redhat.com,
+	eperezma@redhat.com, eric.auger@redhat.com,
+	hongyu.ning@linux.intel.com, jasowang@redhat.com,
+	jstultz@google.com, kernel-team@android.com, kshk@linux.ibm.com,
+	linux-sound@vger.kernel.org, michael.christie@oracle.com,
+	mst@redhat.com, perex@perex.cz, sgarzare@redhat.com,
+	si-wei.liu@oracle.com, stable@vger.kernel.org, stefanha@redhat.com,
+	tiwai@suse.com, virtualization@lists.linux.dev,
+	wangyufeng@kylinos.cn, wh1sper@zju.edu.cn
+Subject: [GIT PULL] virtio: features, fixes, cleanups
+Message-ID: <20250331123404-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250328100359.1306072-1-lulu@redhat.com>
-In-Reply-To: <20250328100359.1306072-1-lulu@redhat.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Mon, 31 Mar 2025 19:59:37 +0800
-X-Gm-Features: AQ5f1JroAFl0j8Y8E1rVmceWhY1UAp8ypP7a0k97xGC3a_KBzP4oWFz8KEo9czA
-Message-ID: <CAPpAL=x00fw7qV3GdOCQPZcry-VyQFFUq1NXu7uOH7zVmESNqA@mail.gmail.com>
-Subject: Re: [PATCH v8 0/8] vhost: Add support of kthread API
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
-	sgarzare@redhat.com, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0d3wXUfH1FLGDORzZ-SmsDtLdjFEqYTIlJOnVlbgeXk_1743422415
+X-Mimecast-MFC-PROC-ID: B3Hpu8gLbVdvchdWr-XjiNBo_HiKse-3OaFy_OKu_V8_1743438849
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-QE tested this series of v8 with virtio-net regression tests,
-everything works fine.
+The following changes since commit d082ecbc71e9e0bf49883ee4afd435a77a5101b6:
 
-Tested-by: Lei Yang <leiyang@redhat.com>
+  Linux 6.14-rc4 (2025-02-23 12:32:57 -0800)
 
-On Fri, Mar 28, 2025 at 6:04=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
->
-> In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),
-> the vhost now uses vhost_task and operates as a child of the
-> owner thread. This aligns with containerization principles.
-> However, this change has caused confusion for some legacy
-> userspace applications. Therefore, we are reintroducing
-> support for the kthread API.
->
-> In this series, a new UAPI is implemented to allow
-> userspace applications to configure their thread mode.
->
-> Changelog v2:
->  1. Change the module_param's name to enforce_inherit_owner, and the defa=
-ult value is true.
->  2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
->
-> Changelog v3:
->  1. Change the module_param's name to inherit_owner_default, and the defa=
-ult value is true.
->  2. Add a structure for task function; the worker will select a different=
- mode based on the value inherit_owner.
->  3. device will have their own inherit_owner in struct vhost_dev
->  4. Address other comments
->
-> Changelog v4:
->  1. remove the module_param, only keep the UAPI
->  2. remove the structure for task function; change to use the function po=
-inter in vhost_worker
->  3. fix the issue in vhost_worker_create and vhost_dev_ioctl
->  4. Address other comments
->
-> Changelog v5:
->  1. Change wakeup and stop function pointers in struct vhost_worker to vo=
-id.
->  2. merging patches 4, 5, 6 in a single patch
->  3. Fix spelling issues and address other comments.
->
-> Changelog v6:
->  1. move the check of VHOST_NEW_WORKER from vhost_scsi to vhost
->  2. Change the ioctl name VHOST_SET_INHERIT_FROM_OWNER to VHOST_FORK_FROM=
-_OWNER
->  3. reuse the function __vhost_worker_flush
->  4. use a ops sturct to support worker relates function
->  5. reset the value of inherit_owner in vhost_dev_reset_owner.
->
-> Changelog v7:
->  1. add a KConfig knob to disable legacy app support
->  2. Split the changes into two patches to separately introduce the ops an=
-d add kthread support.
->  3. Utilized INX_MAX to avoid modifications in __vhost_worker_flush
->  4. Rebased on the latest kernel
->  5. Address other comments
->
-> Changelog v8:
->  1. Rebased on the latest kernel
->  2. Address some other comments
->
-> Tested with QEMU with kthread mode/task mode/kthread+task mode
->
-> Cindy Lu (8):
->   vhost: Add a new parameter in vhost_dev to allow user select kthread
->   vhost: Reintroduce vhost_worker to support kthread
->   vhost: Add the cgroup related function
->   vhost: Introduce vhost_worker_ops in vhost_worker
->   vhost: Reintroduce kthread mode support in vhost
->   vhost: uapi to control task mode (owner vs kthread)
->   vhost: Add check for inherit_owner status
->   vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
->
->  drivers/vhost/Kconfig      |  15 +++
->  drivers/vhost/vhost.c      | 219 +++++++++++++++++++++++++++++++++----
->  drivers/vhost/vhost.h      |  21 ++++
->  include/uapi/linux/vhost.h |  16 +++
->  4 files changed, 252 insertions(+), 19 deletions(-)
->
-> --
-> 2.45.0
->
->
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 9d8960672d63db4b3b04542f5622748b345c637a:
+
+  vhost-scsi: Reduce response iov mem use (2025-02-25 07:10:46 -0500)
+
+----------------------------------------------------------------
+virtio: features, fixes, cleanups
+
+A small number of improvements all over the place:
+
+shutdown has been reworked to reset devices.
+virtio fs is now allowed in vduse.
+vhost-scsi memory use has been reduced.
+
+cleanups, fixes all over the place.
+
+A couple more fixes are being tested and will be merged after rc1.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Eugenio Pérez (1):
+      vduse: add virtio_fs to allowed dev id
+
+John Stultz (1):
+      sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+
+Konstantin Shkolnyy (1):
+      vdpa/mlx5: Fix mlx5_vdpa_get_config() endianness on big-endian machines
+
+Michael S. Tsirkin (1):
+      virtio: break and reset virtio devices on device_shutdown()
+
+Mike Christie (9):
+      vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
+      vhost-scsi: Reduce mem use by moving upages to per queue
+      vhost-scsi: Allocate T10 PI structs only when enabled
+      vhost-scsi: Add better resource allocation failure handling
+      vhost-scsi: Return queue full for page alloc failures during copy
+      vhost-scsi: Dynamically allocate scatterlists
+      vhost-scsi: Stop duplicating se_cmd fields
+      vhost-scsi: Allocate iov_iter used for unaligned copies when needed
+      vhost-scsi: Reduce response iov mem use
+
+Si-Wei Liu (1):
+      vdpa/mlx5: Fix oversized null mkey longer than 32bit
+
+Yufeng Wang (3):
+      tools/virtio: Add DMA_MAPPING_ERROR and sg_dma_len api define for virtio test
+      tools: virtio/linux/compiler.h: Add data_race() define.
+      tools: virtio/linux/module.h add MODULE_DESCRIPTION() define.
+
+ drivers/vdpa/mlx5/core/mr.c        |   7 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  |   3 +
+ drivers/vdpa/vdpa_user/vduse_dev.c |   1 +
+ drivers/vhost/Kconfig              |   1 +
+ drivers/vhost/scsi.c               | 549 +++++++++++++++++++++++--------------
+ drivers/virtio/virtio.c            |  29 ++
+ sound/virtio/virtio_pcm.c          |  21 +-
+ tools/virtio/linux/compiler.h      |  25 ++
+ tools/virtio/linux/dma-mapping.h   |  13 +
+ tools/virtio/linux/module.h        |   7 +
+ 10 files changed, 439 insertions(+), 217 deletions(-)
 
