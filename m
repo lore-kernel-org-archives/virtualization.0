@@ -1,186 +1,352 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from hr2.samba.org (hr2.samba.org [144.76.82.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E760214809
-	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 16:34:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 061E821A443;
+	Mon, 31 Mar 2025 20:11:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.76.82.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743438855; cv=none; b=UX69VPBQ/AfSdxYiuSQY94GkX7TaRTiQnnXsRMu915I0jXLOi/k6zTAJAplhpXQ3JDDIULh0IfE8JmczqD6OhHoR8fqRv41xS3EtHq1nKFWWI1FyHd+gjyusCKBRH6ivCXvYcg/sUzIazkJ5A3prosepiQU9aMXt+yIa9zljRwk=
+	t=1743451919; cv=none; b=BjwFwpTWbIe7YAPOT+eganzHXtTxPN/Jh8jyW8qZCmEgqxIHP9HPvb5/6rQxGGmBWcemjNz/0MAcbP4vm02KhbspBcKY+XHY9K2kqBh1N+05BsGDzH8W/rF0x8RnousNYC7pchLPhMwJP2cvcjwylIVvUUUxQ7e+YM/DLzyb24k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743438855; c=relaxed/simple;
-	bh=LyymiZcnvyCARp+PZ9YDJ/WjZzd+um0odXUXVVG8jWU=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=TAA3vbZ1pAnEw2nqTpRMfX/dOqy2vgBSeby1SL9mp/rkH9VO18n/nPVWX+x0W3ATaUKZmtP3TrIDw1o31o84AXqoXJ4GfKEPprfnUvRTsqlIG/gXW9dyjOQhSlfpySubFqg0ynvmt+TJeBJYcLfjxLqKf1kB/AUZXuQvBWtJ01k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UF4MBujQ; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1743451919; c=relaxed/simple;
+	bh=RNzXqslmQzT7+IeMpXEothGKbg0DnGRbDCZvHNoZApM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=EOWCXg1PFMM6jmo/86LIr4C332P2VDZJsYn7j0VgE6L8KvZxsLoCxO7z77Ij5DWUnYySTtBmVOA7pdti9NyUOvWymG1d+Vlr8FsAbOV8JMOm8nnN5fV7scxx8v0PwaGHTQzvs9yaJ5z3yJpB9D2KYDwVGjmQ9yPR5/0QpbusnWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org; spf=pass smtp.mailfrom=samba.org; dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b=VGP/0nn0; arc=none smtp.client-ip=144.76.82.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samba.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UF4MBujQ"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7F64460855
-	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 16:34:13 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id pna9ORuc1_ui for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Mar 2025 16:34:12 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 7F9C96076D
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7F9C96076D
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UF4MBujQ
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7F9C96076D
-	for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 16:34:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743438851;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=buRU4hcgPy2p/+OGQ7gQUBzV/bybYL5hkzFKdPTt7bo=;
-	b=UF4MBujQ8sYrKPxc2J3IpGdlRIFP2AACCveL1IlsBvhYMcB+u05jWbewIBW8THsrMz1QXr
-	R7mnTUYfZ57DFTHIzOV+SOFu8kH4VBjTBsOv2xYzq8jhEjzBOQNqc5WyZbZSynRzfASiN1
-	VJS967WZi5sZtc4Y45RZo6AwTmh5d/A=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-139-jhKQwZgbP9KZ4oT95UYzlA-1; Mon, 31 Mar 2025 12:34:09 -0400
-X-MC-Unique: jhKQwZgbP9KZ4oT95UYzlA-1
-X-Mimecast-MFC-AGG-ID: jhKQwZgbP9KZ4oT95UYzlA_1743438849
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43cf172ffe1so44762915e9.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 31 Mar 2025 09:34:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743438848; x=1744043648;
-        h=content-transfer-encoding:content-disposition:mime-version
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=buRU4hcgPy2p/+OGQ7gQUBzV/bybYL5hkzFKdPTt7bo=;
-        b=XU6nCz98Wda2BdecwPxk8wb6AHgA+SfOzUBN9Yfm/bMqFMGwtUS7a2ighze/K84OrP
-         o0otvSTzqzWIKQVkg3ILN5Gl7Dy5DCDBsYBriupD+jCGARb8Ib3QGhr7VK0I+YGlRu7w
-         YSL1fVkr9uile9Hy2wuSfpqz1vyNfqSAr11S3euaCK3O31ENHxMx+VKiJyOCIN903o3x
-         aP3slGvbpGcYAv7553/X18AcYxNzE1uOL9ubf800cs1vzRWIROL7e+q5AIy/MCpqQFEw
-         GpBSsul0UrJyWvDvUfroFcQj3jG/SzyyQ6KpdZ3aOIE2KDdxQ78cFcoFRaZXk1ekKqc/
-         yAVg==
-X-Forwarded-Encrypted: i=1; AJvYcCVbJ3F7J/x5pbnX8qVNOIsQc7BYCJmz2K1mgjQ0lVJHuqSmyNy86ibGWxtoFT3tUOzv6v6jMPjJY8jrzR2baA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yw5R2pP4gJkNycsfseyz75wauQ/kW0zumhUGKNl3a4SgT9m+cQ9
-	XW90dv+e0Vz71qEvJHpvKIW+lO1lO8pQCRSKuWQqx4JBA4krsc5Vpaxiq6sagLy/0tpiF9XG+Vy
-	SXer/oFNKfBiX6/gf/5AlrQPSgVLZCot8qaMDQDTzwJASIuW2pv7Nbuy0dH35A8xFmpszh2DcjP
-	czRcA=
-X-Gm-Gg: ASbGncsMlbwE5ivh5wwodJvppmsSdbVVCbqHQ6dLeOfbZyMq4cPeF5qaLsHXiM8D1Vt
-	Oqnhh63L0TCO03egGlFv/ubNd2FURN20qqcDKxRHlJGUY2WXQxCZulFlfKbazhcPRB0/e9Y8JtZ
-	jHtEF40WBOGzTJBnpY08Z0vFlLyFWVpyKSZa2DHLY5nyA0Wcmcn7Qrb9DfKP9ktfj9GN0qu9ock
-	ifSWxZmUIU+KfTYDFU1q++jPkmrz8s2HKdmC+zVVj2hZISHS1isBXG7V2k4wbpB2PNhPosg/iV7
-	MLQlQpSRQw==
-X-Received: by 2002:a05:600c:8117:b0:43c:efed:732d with SMTP id 5b1f17b1804b1-43e8e3cf858mr88891525e9.16.1743438848574;
-        Mon, 31 Mar 2025 09:34:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGRJoF9PNksiJNrRvv1RABMA+H1wRnu+cFNlckFr23sh4bFVTCISuxXvKws13VYTTCpsWyCEA==
-X-Received: by 2002:a05:600c:8117:b0:43c:efed:732d with SMTP id 5b1f17b1804b1-43e8e3cf858mr88891065e9.16.1743438848107;
-        Mon, 31 Mar 2025 09:34:08 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d82efeb11sm171403855e9.22.2025.03.31.09.34.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Mar 2025 09:34:07 -0700 (PDT)
-Date: Mon, 31 Mar 2025 12:34:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	anton.yakovlev@opensynergy.com, bettyzhou@google.com,
-	cong.meng@oracle.com, dtatulea@nvidia.com, eauger@redhat.com,
-	eperezma@redhat.com, eric.auger@redhat.com,
-	hongyu.ning@linux.intel.com, jasowang@redhat.com,
-	jstultz@google.com, kernel-team@android.com, kshk@linux.ibm.com,
-	linux-sound@vger.kernel.org, michael.christie@oracle.com,
-	mst@redhat.com, perex@perex.cz, sgarzare@redhat.com,
-	si-wei.liu@oracle.com, stable@vger.kernel.org, stefanha@redhat.com,
-	tiwai@suse.com, virtualization@lists.linux.dev,
-	wangyufeng@kylinos.cn, wh1sper@zju.edu.cn
-Subject: [GIT PULL] virtio: features, fixes, cleanups
-Message-ID: <20250331123404-mutt-send-email-mst@kernel.org>
+	dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b="VGP/0nn0"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+	s=42; h=Message-Id:Date:Cc:To:From;
+	bh=ISfSMCAgKp8z55PiQhU0z6kwdG7zxeB+WY0nWqLYJPA=; b=VGP/0nn0y1hq6UZZ2Xgtb/aRCs
+	b5dAxvYVE0vpLGixgXlJlDtn2SYHFl5m6kw6cdmrGgWYnVoxi+Q+6LQlvu7ezsvwdUqe7nCreq7Rb
+	65w9Ccui3mmYFh2hsx0NWTRw0bECxoj8ol1mr7dmQIe6lZfd2b9krDed7thG+VJl3/0QOj04fhid5
+	IulmHBJ24fLweRBGqNH1CkehpVbY61FQx0Xf2QNMa1gyo4f206+f+wHSPNrdnUljwqo4cuSzD7sGl
+	vqgvLVJ72lG6qWQ4FP54CfAVHBYWjkbvKKycUYcvJ/C/N56w86Kri7QVQmJlokcodtPI51IOEe7/S
+	n4yXvakpmRTnYwvgnXgXuznjLeG/teaA/Ici/DZJi2yYqTXruujvSSluQd0AaYTZ3aNtDWAa+x1iy
+	n40hAdCLrl6bFwMBodJKjr5uFXD1AgYkGcPvxiFCuYFpaHJpRHj/lkwDPo6VL1Vzzih1pWdiVVNj/
+	yp6JlSH7/NlXybuT+tXxYkpk;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+	by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
+	(Exim)
+	id 1tzLTx-007Y5c-0g;
+	Mon, 31 Mar 2025 20:11:41 +0000
+From: Stefan Metzmacher <metze@samba.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>,
+	Jens Axboe <axboe@kernel.dk>
+Cc: Stefan Metzmacher <metze@samba.org>,
+	Pavel Begunkov <asml.silence@gmail.com>,
+	Breno Leitao <leitao@debian.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Christoph Hellwig <hch@lst.de>,
+	Karsten Keil <isdn@linux-pingi.de>,
+	Ayush Sawal <ayush.sawal@chelsio.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Willem de Bruijn <willemb@google.com>,
+	David Ahern <dsahern@kernel.org>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	Neal Cardwell <ncardwell@google.com>,
+	Joerg Reuter <jreuter@yaina.de>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Johan Hedberg <johan.hedberg@gmail.com>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Oliver Hartkopp <socketcan@hartkopp.net>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Robin van der Gracht <robin@protonic.nl>,
+	Oleksij Rempel <o.rempel@pengutronix.de>,
+	kernel@pengutronix.de,
+	Alexander Aring <alex.aring@gmail.com>,
+	Stefan Schmidt <stefan@datenfreihafen.org>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	James Chapman <jchapman@katalix.com>,
+	Jeremy Kerr <jk@codeconstruct.com.au>,
+	Matt Johnston <matt@codeconstruct.com.au>,
+	Matthieu Baerts <matttbe@kernel.org>,
+	Mat Martineau <martineau@kernel.org>,
+	Geliang Tang <geliang@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Remi Denis-Courmont <courmisch@gmail.com>,
+	Allison Henderson <allison.henderson@oracle.com>,
+	David Howells <dhowells@redhat.com>,
+	Marc Dionne <marc.dionne@auristor.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Jon Maloy <jmaloy@redhat.com>,
+	Boris Pismenny <borisp@nvidia.com>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Martin Schiller <ms@dev.tdt.de>,
+	=?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+	Magnus Karlsson <magnus.karlsson@intel.com>,
+	Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+	Jonathan Lemon <jonathan.lemon@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-sctp@vger.kernel.org,
+	linux-hams@vger.kernel.org,
+	linux-bluetooth@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	dccp@vger.kernel.org,
+	linux-wpan@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	mptcp@lists.linux.dev,
+	linux-rdma@vger.kernel.org,
+	rds-devel@oss.oracle.com,
+	linux-afs@lists.infradead.org,
+	tipc-discussion@lists.sourceforge.net,
+	virtualization@lists.linux.dev,
+	linux-x25@vger.kernel.org,
+	bpf@vger.kernel.org,
+	isdn4linux@listserv.isdn4linux.de,
+	io-uring@vger.kernel.org
+Subject: [RFC PATCH 0/4] net/io_uring: pass a kernel pointer via optlen_t to proto[_ops].getsockopt()
+Date: Mon, 31 Mar 2025 22:10:52 +0200
+Message-Id: <cover.1743449872.git.metze@samba.org>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: B3Hpu8gLbVdvchdWr-XjiNBo_HiKse-3OaFy_OKu_V8_1743438849
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The following changes since commit d082ecbc71e9e0bf49883ee4afd435a77a5101b6:
+The motivation for this is to remove the SOL_SOCKET limitation
+from io_uring_cmd_getsockopt().
 
-  Linux 6.14-rc4 (2025-02-23 12:32:57 -0800)
+The reason for this limitation is that io_uring_cmd_getsockopt()
+passes a kernel pointer as optlen to do_sock_getsockopt()
+and can't reach the ops->getsockopt() path.
 
-are available in the Git repository at:
+The first idea would be to change the optval and optlen arguments
+to the protocol specific hooks also to sockptr_t, as that
+is already used for setsockopt() and also by do_sock_getsockopt()
+sk_getsockopt() and BPF_CGROUP_RUN_PROG_GETSOCKOPT().
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+But as Linus don't like 'sockptr_t' I used a different approach.
 
-for you to fetch changes up to 9d8960672d63db4b3b04542f5622748b345c637a:
+@Linus, would that optlen_t approach fit better for you?
 
-  vhost-scsi: Reduce response iov mem use (2025-02-25 07:10:46 -0500)
+Instead of passing the optlen as user or kernel pointer,
+we only ever pass a kernel pointer and do the
+translation from/to userspace in do_sock_getsockopt().
 
-----------------------------------------------------------------
-virtio: features, fixes, cleanups
+The simple solution would be to just remove the
+'__user' from the int *optlen argument, but it
+seems the compiler doesn't complain about
+'__user' vs. without it, so instead I used
+a helper struct in order to make sure everything
+compiles with a typesafe change.
 
-A small number of improvements all over the place:
+The patchset does the transformation in 3
+easy to review steps:
 
-shutdown has been reworked to reset devices.
-virtio fs is now allowed in vduse.
-vhost-scsi memory use has been reduced.
+1/4: introduces get_optlen(len, optlen) and put_optlen(len, optlen) helpers
+     on top of the existing get_user(len, optlen) and put_user(len, optlen)
+     usages.
 
-cleanups, fixes all over the place.
+2/4: introduces a simple optlen_t that just contains 'int __user *up;'
+     that makes sure get_optlen and put_optlen get a typesafe optlen argument
+     and they are the only functions looking at optlen.
+     (The existing sockptr_t optlen code gets OPTLEN_SOCKPTR(optlen) passed)
 
-A couple more fixes are being tested and will be merged after rc1.
+3/4: The changes do_sock_getsockopt() to pass a kernel pointer instead
+     of a __user pointer via optlen_t. This is a bit tricky as
+     directly failing the copy_from_sockptr(&koptlen, optlen, sizeof(koptlen)
+     with -EFAULT might change the uapi, as some getsockopt() hooks
+     doesn't even touch optlen at all. And userspace could do something
+     like this:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+        feature_x_supported = true;
+        ret = getsockopt(fd, level, optname, NULL, NULL);
+        if (ret == -1 && errno == ENOTSUPP) {
+            feature_x_supported = false;
+        }
 
-----------------------------------------------------------------
-Eugenio Pérez (1):
-      vduse: add virtio_fs to allowed dev id
+     And this should not give -EFAULT after the changes,
+     so optlen.kp is passed down as NULL, so that -EFAULT is
+     deferred to get_optlen() and put_optlen().
 
-John Stultz (1):
-      sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+4/4: Removes the SOL_SOCKET restriction for io-uring.
 
-Konstantin Shkolnyy (1):
-      vdpa/mlx5: Fix mlx5_vdpa_get_config() endianness on big-endian machines
+This patchset doesn't touch any existing getsockopt() that
+was already converted to sockptr_t optlen, that's something
+for a later cleanup.
 
-Michael S. Tsirkin (1):
-      virtio: break and reset virtio devices on device_shutdown()
+Link: https://lore.kernel.org/io-uring/86b1dce5-4bb4-4a0b-9cff-e72f488bf57d@samba.org/T/#t
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Cc: Breno Leitao <leitao@debian.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Karsten Keil <isdn@linux-pingi.de>
+Cc: Ayush Sawal <ayush.sawal@chelsio.com>
+Cc: Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Simon Horman <horms@kernel.org>
+Cc: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Cc: David Ahern <dsahern@kernel.org>
+Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc: Xin Long <lucien.xin@gmail.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Cc: Joerg Reuter <jreuter@yaina.de>
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Johan Hedberg <johan.hedberg@gmail.com>
+Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: Robin van der Gracht <robin@protonic.nl>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: kernel@pengutronix.de
+Cc: Alexander Aring <alex.aring@gmail.com>
+Cc: Stefan Schmidt <stefan@datenfreihafen.org>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Alexandra Winter <wintera@linux.ibm.com>
+Cc: Thorsten Winkler <twinkler@linux.ibm.com>
+Cc: James Chapman <jchapman@katalix.com>
+Cc: Jeremy Kerr <jk@codeconstruct.com.au>
+Cc: Matt Johnston <matt@codeconstruct.com.au>
+Cc: Matthieu Baerts <matttbe@kernel.org>
+Cc: Mat Martineau <martineau@kernel.org>
+Cc: Geliang Tang <geliang@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Remi Denis-Courmont <courmisch@gmail.com>
+Cc: Allison Henderson <allison.henderson@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Marc Dionne <marc.dionne@auristor.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Jan Karcher <jaka@linux.ibm.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>
+Cc: Wen Gu <guwen@linux.alibaba.com>
+Cc: Jon Maloy <jmaloy@redhat.com>
+Cc: Boris Pismenny <borisp@nvidia.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Cc: "Björn Töpel" <bjorn@kernel.org>
+Cc: Magnus Karlsson <magnus.karlsson@intel.com>
+Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Cc: Jonathan Lemon <jonathan.lemon@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>
+CC: Stefan Metzmacher <metze@samba.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-sctp@vger.kernel.org
+Cc: linux-hams@vger.kernel.org
+Cc: linux-bluetooth@vger.kernel.org
+Cc: linux-can@vger.kernel.org
+Cc: dccp@vger.kernel.org
+Cc: linux-wpan@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: mptcp@lists.linux.dev
+Cc: linux-rdma@vger.kernel.org
+Cc: rds-devel@oss.oracle.com
+Cc: linux-afs@lists.infradead.org
+Cc: tipc-discussion@lists.sourceforge.net
+Cc: virtualization@lists.linux.dev
+Cc: linux-x25@vger.kernel.org
+Cc: bpf@vger.kernel.org
+Cc: isdn4linux@listserv.isdn4linux.de
+Cc: io-uring@vger.kernel.org
 
-Mike Christie (9):
-      vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
-      vhost-scsi: Reduce mem use by moving upages to per queue
-      vhost-scsi: Allocate T10 PI structs only when enabled
-      vhost-scsi: Add better resource allocation failure handling
-      vhost-scsi: Return queue full for page alloc failures during copy
-      vhost-scsi: Dynamically allocate scatterlists
-      vhost-scsi: Stop duplicating se_cmd fields
-      vhost-scsi: Allocate iov_iter used for unaligned copies when needed
-      vhost-scsi: Reduce response iov mem use
+Stefan Metzmacher (4):
+  net: introduce get_optlen() and put_optlen() helpers
+  net: pass 'optlen_t' to proto[ops].getsockopt() hooks
+  net: pass a kernel pointer via 'optlen_t' to proto[ops].getsockopt()
+    hooks
+  io_uring: let io_uring_cmd_getsockopt() allow level other than
+    SOL_SOCKET
 
-Si-Wei Liu (1):
-      vdpa/mlx5: Fix oversized null mkey longer than 32bit
+ drivers/isdn/mISDN/socket.c                   |   4 +-
+ .../chelsio/inline_crypto/chtls/chtls_main.c  |   4 +-
+ include/linux/net.h                           |   2 +-
+ include/linux/sockptr.h                       |  41 ++++
+ include/net/inet_connection_sock.h            |   2 +-
+ include/net/ip.h                              |   2 +-
+ include/net/ipv6.h                            |   2 +-
+ include/net/sctp/structs.h                    |   2 +-
+ include/net/sock.h                            |   4 +-
+ include/net/tcp.h                             |   2 +-
+ include/net/udp.h                             |   2 +-
+ io_uring/uring_cmd.c                          |   3 -
+ net/atm/common.c                              |   4 +-
+ net/atm/common.h                              |   2 +-
+ net/atm/pvc.c                                 |   2 +-
+ net/atm/svc.c                                 |   4 +-
+ net/ax25/af_ax25.c                            |   6 +-
+ net/bluetooth/hci_sock.c                      |   6 +-
+ net/bluetooth/iso.c                           |   6 +-
+ net/bluetooth/l2cap_sock.c                    |   8 +-
+ net/bluetooth/rfcomm/sock.c                   |   8 +-
+ net/bluetooth/sco.c                           |  10 +-
+ net/can/isotp.c                               |   6 +-
+ net/can/j1939/socket.c                        |   6 +-
+ net/can/raw.c                                 |  14 +-
+ net/core/sock.c                               |   2 +-
+ net/dccp/ccid.c                               |   4 +-
+ net/dccp/ccid.h                               |  10 +-
+ net/dccp/ccids/ccid3.c                        |   8 +-
+ net/dccp/dccp.h                               |   2 +-
+ net/dccp/proto.c                              |  12 +-
+ net/ieee802154/socket.c                       |   8 +-
+ net/ipv4/ip_sockglue.c                        |   8 +-
+ net/ipv4/raw.c                                |  10 +-
+ net/ipv4/tcp.c                                |   4 +-
+ net/ipv4/udp.c                                |   8 +-
+ net/ipv4/udp_impl.h                           |   2 +-
+ net/ipv6/ipv6_sockglue.c                      |   8 +-
+ net/ipv6/raw.c                                |  14 +-
+ net/ipv6/udp.c                                |   2 +-
+ net/ipv6/udp_impl.h                           |   2 +-
+ net/iucv/af_iucv.c                            |   6 +-
+ net/kcm/kcmsock.c                             |   6 +-
+ net/l2tp/l2tp_ppp.c                           |   6 +-
+ net/llc/af_llc.c                              |   6 +-
+ net/mctp/af_mctp.c                            |   4 +-
+ net/mptcp/protocol.h                          |   2 +-
+ net/mptcp/sockopt.c                           |  48 ++--
+ net/netlink/af_netlink.c                      |   8 +-
+ net/netrom/af_netrom.c                        |   6 +-
+ net/nfc/llcp_sock.c                           |   6 +-
+ net/packet/af_packet.c                        |   6 +-
+ net/phonet/pep.c                              |   6 +-
+ net/rds/af_rds.c                              |   8 +-
+ net/rds/info.c                                |   6 +-
+ net/rds/info.h                                |   2 +-
+ net/rose/af_rose.c                            |   6 +-
+ net/rxrpc/af_rxrpc.c                          |   6 +-
+ net/sctp/socket.c                             | 220 +++++++++---------
+ net/smc/af_smc.c                              |   8 +-
+ net/smc/smc.h                                 |   2 +-
+ net/socket.c                                  |  34 ++-
+ net/tipc/socket.c                             |   8 +-
+ net/tls/tls_main.c                            |  18 +-
+ net/vmw_vsock/af_vsock.c                      |   6 +-
+ net/x25/af_x25.c                              |   6 +-
+ net/xdp/xsk.c                                 |  10 +-
+ 67 files changed, 387 insertions(+), 319 deletions(-)
 
-Yufeng Wang (3):
-      tools/virtio: Add DMA_MAPPING_ERROR and sg_dma_len api define for virtio test
-      tools: virtio/linux/compiler.h: Add data_race() define.
-      tools: virtio/linux/module.h add MODULE_DESCRIPTION() define.
-
- drivers/vdpa/mlx5/core/mr.c        |   7 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.c  |   3 +
- drivers/vdpa/vdpa_user/vduse_dev.c |   1 +
- drivers/vhost/Kconfig              |   1 +
- drivers/vhost/scsi.c               | 549 +++++++++++++++++++++++--------------
- drivers/virtio/virtio.c            |  29 ++
- sound/virtio/virtio_pcm.c          |  21 +-
- tools/virtio/linux/compiler.h      |  25 ++
- tools/virtio/linux/dma-mapping.h   |  13 +
- tools/virtio/linux/module.h        |   7 +
- 10 files changed, 439 insertions(+), 217 deletions(-)
+-- 
+2.34.1
 
