@@ -1,147 +1,101 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B2CC202C38
-	for <virtualization@lists.linux.dev>; Tue,  1 Apr 2025 12:27:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743510465; cv=none; b=rFgyi9tJ2IuOXkhmfwPooNt33JXG7jNL6JMveYmWQg6Akpss6+gJoU7fhrx2jnrVyWUgowvyQwhO+WYHj9X3eLR+P+WE6UJRvXeNHdFlAJz7gGM6YVo1gHIKjIurC1rSKYSNFbhgc0jNXZlVLmOfFWA4kulbcImEa+h1V3l/eps=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743510465; c=relaxed/simple;
-	bh=BClutkQpqyZvckcjwzWJ1OK2iF2XXQt7os9vtNK7sKk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=c30MuhNjummuPVPRAkDUp+eri5Z0lq05g1lUpJLixkX7T+6WHOICIP1goJuDv8Smv0klXifk3o8l8UrwGRvimtDJ9lqZcVNSlZDOKXs/olz9fep7sGr1zGNYeUlQ7k3U4DFXcxn6Bbt63KTibjRZXO8swX1av/YejausHiuMSWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RMZCx7oX; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FBBA1F0E56
+	for <virtualization@lists.linux.dev>; Tue,  1 Apr 2025 12:39:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743511171; cv=pass; b=lhDae6WIMO6bhimwsNgSyCgYMnir9yOPQ/fSI3z5ee130ElPzmzhn2gY62SDjlTkf7kZQ8aecFLA1mC4kO4OMVoU5SUs9og11Z335sOnQiH6cNnrp3kNdvNTPsyIGJroqKbZfb6QDKmadp6ElEhxZbqAeVruqpfiSAFdCi0t4H0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743511171; c=relaxed/simple;
+	bh=m4DDJRWD3O5j4Ifb7W9vKEAfdZ+yQZJlLz/Na0uicpM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QQWIrKjYA7wLDN8YauWG5vtla4+OiVSy2WMLvXmWBLaI+4wVlXA8VTQTROkQR3JqR9Vspb8bvsLepwsL4sd9c3S7iVP4yoGN/Bvb0ZDWRL5tTbxxiDZYP/fxE5gPZo5A7MAJX1ObrHcZixeMXyrs4Q/bdOtyoekPyJAO5EP363Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=MXK8HA0W; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RMZCx7oX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743510462;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FNoSdGtyM+b9K0jvjiDPZCfEnjTJKg0RDqC1m3p719E=;
-	b=RMZCx7oXPL6mzK1uawX4LFnJAxZzjpl2wJqxmUi5RBHgwvnON+kKpHsnf3cx9+2RJXpZzt
-	Ubhca//dd+xQ6jf6NfU9AB/xNvCu7doNEJNrZrc6SREu9ommwYTMIIHldUy6iGX15fJsrv
-	H5DRH4KO3Dp59ssOHhVkXoG9p4o+qP8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-7-OzohHjFZN0OKF729X3oBLw-1; Tue, 01 Apr 2025 08:27:41 -0400
-X-MC-Unique: OzohHjFZN0OKF729X3oBLw-1
-X-Mimecast-MFC-AGG-ID: OzohHjFZN0OKF729X3oBLw_1743510460
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-391459c0395so2236711f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 01 Apr 2025 05:27:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743510460; x=1744115260;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FNoSdGtyM+b9K0jvjiDPZCfEnjTJKg0RDqC1m3p719E=;
-        b=LYjKrTAwmk/wS4QohE7cZCGqtGDTgNVQs1TNi1OZSzMevjVWCP0QZcXkgiUKbbRb6S
-         RRlQ+5mQwOiosojUM2tZFJLFXGupAWo+TrA40gS5uOEt68qYmzHXeZsWXEferDG4e4dG
-         fDVUyD9lZoqhTXXwNk4Mbv8Nc7TC95Fhx2/YpCyneCY8RvK05IMp687OkpNuV7KkFUx+
-         +8k5Ua5j0N5WMu2sCqB4ZpT6m7LR1tX+puKqwy9IXqDxMxEdbCM/CS6fL9EKq7dk6EDG
-         p3yK6pkhM28+VAPrBL5Hc21fYj6Xi67AzURSxdcjjSI4W0R7bHdsJirAfizCQaWF3dM2
-         hVsg==
-X-Forwarded-Encrypted: i=1; AJvYcCXqk/D+qpeFLWUKa8VzGSsQyJ3Vdgu5OfJ0iRv3KZMHApOHrUYPFD+4k8g8gYa/C8fsOcdDB86uYvy5gfAP8A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx6MDlOXAYYNwfLF8E2OdPZ7ncA+dzGclNPxd63hEUP6lb8sfXj
-	dL1HF0Jhl/z5MBiRUCJT/9vcUmDYRh2WAccwn+NhU2QzeyMvxrzW5k9ALBxjrLZuPiVhgy+mjbZ
-	X8NmK3kM5Ow4GBwU+YnF6DovTYhv1YuDzxOwEy+QxNezfZcyWFjrMnSi8w1N9BeoU
-X-Gm-Gg: ASbGncsTrW7UgE/dGAWwXEVi/Dn39KmGeiSnYUDJo9Cqwcy8Gm8+zuGnCeT5OR6OmPc
-	T0wIZIPaw1R41D6JvAd/t9Ql9T8z5bO8DD4UprA0g1xTkO2R61kZDkAq5EB1UB3X/dAL8PxUyp3
-	QZDScC0grthFw3jxrWlj2Xg3iCqMXfpfdUQibXhIhPVq6j2VA2scw6qdN3ggZ1JyL2+Mt8PAIy4
-	AfYf3G7z53H9SxSTUQhZeODqAwAdKw0iPa5I67qrAOgFP4Nj3+cbsaaoLu2YxYLzIlTOcvwDKIL
-	fM6lRVnepY6r+JIzQQ==
-X-Received: by 2002:a05:6000:18ad:b0:391:2fe3:24ec with SMTP id ffacd0b85a97d-39c120daf7cmr10194179f8f.14.1743510460014;
-        Tue, 01 Apr 2025 05:27:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHNDLZxIYTRL0m7LzO7a9ysoMH6UHZb/pAKwZvCOmabgUAWbDiDNTPAJI1m2fpOK9WDP9gyTw==
-X-Received: by 2002:a05:6000:18ad:b0:391:2fe3:24ec with SMTP id ffacd0b85a97d-39c120daf7cmr10194159f8f.14.1743510459607;
-        Tue, 01 Apr 2025 05:27:39 -0700 (PDT)
-Received: from leonardi-redhat ([151.29.33.62])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c0b7a41b4sm13805481f8f.85.2025.04.01.05.27.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Apr 2025 05:27:39 -0700 (PDT)
-Date: Tue, 1 Apr 2025 14:27:36 +0200
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Michal Luczaj <mhal@rbox.co>, 
-	Paolo Abeni <pabeni@redhat.com>, George Zhang <georgezhang@vmware.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Andy King <acking@vmware.com>, 
-	Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Jakub Kicinski <kuba@kernel.org>, Dmitry Torokhov <dtor@vmware.com>, 
-	Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH net] vsock: avoid timeout during connect() if the socket
- is closing
-Message-ID: <jsq3jgl3fks7uv2v37c2o4m7p6u5vhv3ftklccpr2flcyssdwk@75x4zbey7j3i>
-References: <20250328141528.420719-1-sgarzare@redhat.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="MXK8HA0W"
+ARC-Seal: i=1; a=rsa-sha256; t=1743511153; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=EBqZ5HCJCUL3CNGfTvGMAFW5hd69p2cDxYGl5C0pH5adsR2LDzbw5YlkDmk6SVCh6WG7PVSZEbxe/5ek7ByJmqtv0DOg0GVm1btZq/yOchRMinAqFRLd6R3p05OIXl/SCgaK6xgzZokiyqd95d6vhS3I9uYQYZ1bGvsLrnmCkX8=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1743511153; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=KYw/wFSISeadrIKTK5nd5AHNKKQw3bKBlfJXdtAH8jA=; 
+	b=VBVO81nsev+0dtjGYe2BJr0fw8EHQPiuRRENgBm9Jdcjyh9tYOspr6Te6wm9uLXypJb3H3KKmBmKxTX6GMScNWsjHN2bo8XG3E9bYSuimhtEUblTUHSYHHD9WlXDa1kZrsuFBmQ8npneAeLmNeVTlDrpVfFMf3OVnB6R6/DEzD8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1743511153;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=KYw/wFSISeadrIKTK5nd5AHNKKQw3bKBlfJXdtAH8jA=;
+	b=MXK8HA0Wg5L3218AA7GV7pmL8jRBBcbgd+1Cn6Tzc8iLaMNjpjs95ofCpY537bOc
+	EUlg1Lm43B1GMuSGAKnYNonw8UexkLjCPen8NZpB792f+a4p7a9xSDxuddS40axV0Lx
+	TDguMriWiQaXreoSs3IGS0siCl6P2Q5QZ1flBkZk=
+Received: by mx.zohomail.com with SMTPS id 1743511148517505.586650767228;
+	Tue, 1 Apr 2025 05:39:08 -0700 (PDT)
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+	Rob Clark <robdclark@gmail.com>
+Cc: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	kernel@collabora.com
+Subject: [PATCH v2 1/2] drm/virtio: Don't attach GEM to a non-created context in gem_object_open()
+Date: Tue,  1 Apr 2025 15:38:41 +0300
+Message-ID: <20250401123842.2232205-1-dmitry.osipenko@collabora.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250328141528.420719-1-sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: DL8ktiu50aIBCshBc9GHx6tVmveX7RfiUM2XjRZ5B58_1743510460
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Fri, Mar 28, 2025 at 03:15:28PM +0100, Stefano Garzarella wrote:
->From: Stefano Garzarella <sgarzare@redhat.com>
->
->When a peer attempts to establish a connection, vsock_connect() contains
->a loop that waits for the state to be TCP_ESTABLISHED. However, the
->other peer can be fast enough to accept the connection and close it
->immediately, thus moving the state to TCP_CLOSING.
->
->When this happens, the peer in the vsock_connect() is properly woken up,
->but since the state is not TCP_ESTABLISHED, it goes back to sleep
->until the timeout expires, returning -ETIMEDOUT.
->
->If the socket state is TCP_CLOSING, waiting for the timeout is pointless.
->vsock_connect() can return immediately without errors or delay since the
->connection actually happened. The socket will be in a closing state,
->but this is not an issue, and subsequent calls will fail as expected.
->
->We discovered this issue while developing a test that accepts and
->immediately closes connections to stress the transport switch between
->two connect() calls, where the first one was interrupted by a signal
->(see Closes link).
->
->Reported-by: Luigi Leonardi <leonardi@redhat.com>
->Closes: https://lore.kernel.org/virtualization/bq6hxrolno2vmtqwcvb5bljfpb7mvwb3kohrvaed6auz5vxrfv@ijmd2f3grobn/
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->---
-> net/vmw_vsock/af_vsock.c | 6 +++++-
-> 1 file changed, 5 insertions(+), 1 deletion(-)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 7e3db87ae433..fc6afbc8d680 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -1551,7 +1551,11 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
-> 	timeout = vsk->connect_timeout;
-> 	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
->
->-	while (sk->sk_state != TCP_ESTABLISHED && sk->sk_err == 0) {
->+	/* If the socket is already closing or it is in an error state, there
->+	 * is no point in waiting.
->+	 */
->+	while (sk->sk_state != TCP_ESTABLISHED &&
->+	       sk->sk_state != TCP_CLOSING && sk->sk_err == 0) {
-> 		if (flags & O_NONBLOCK) {
-> 			/* If we're not going to block, we schedule a timeout
-> 			 * function to generate a timeout on the connection
->-- 
->2.49.0
->
+The vfpriv->ctx_id is always initialized to a non-zero value. Check whether
+context was created before attaching GEM to this context ID. This left
+unnoticed previously because host silently skips attachment if context
+doesn't exist, still we shouldn't do that for consistency.
 
-Just tested and fixes the issue! Thanks Stefano!
+Fixes: 086b9f27f0ab ("drm/virtio: Don't create a context with default param if context_init is supported")
+Cc: <stable@vger.kernel.org> # v6.14+
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_gem.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-Tested-by: Luigi Leonardi <leonardi@redhat.com>
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 5aab588fc400..3d6aa26fdb53 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -115,13 +115,14 @@ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+ 	if (!vgdev->has_context_init)
+ 		virtio_gpu_create_context(obj->dev, file);
+ 
+-	objs = virtio_gpu_array_alloc(1);
+-	if (!objs)
+-		return -ENOMEM;
+-	virtio_gpu_array_add_obj(objs, obj);
++	if (vfpriv->context_created) {
++		objs = virtio_gpu_array_alloc(1);
++		if (!objs)
++			return -ENOMEM;
++		virtio_gpu_array_add_obj(objs, obj);
+ 
+-	if (vfpriv->ctx_id)
+ 		virtio_gpu_cmd_context_attach_resource(vgdev, vfpriv->ctx_id, objs);
++	}
+ 
+ out_notify:
+ 	virtio_gpu_notify(vgdev);
+-- 
+2.49.0
 
