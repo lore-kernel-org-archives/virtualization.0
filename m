@@ -1,178 +1,122 @@
-Received: from hr2.samba.org (hr2.samba.org [144.76.82.148])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E184D1E47DD;
-	Tue,  1 Apr 2025 08:24:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.76.82.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA3E1F12F1
+	for <virtualization@lists.linux.dev>; Tue,  1 Apr 2025 10:35:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743495879; cv=none; b=eletZ/lG+xCU2sYrfDF5XdoTN3mlDblU7ByRCndimwrcWQfqvj61WWS1j110e8iU8iAV0PDe3iT0a2DHaKlRKcF4va/xCkHE/diqTreO57ZOLvMdKIsxukXU4x8jYJMMbyIvPgVMZAi//kMM2aeTd5xMxLUBDf4nEXbswhVP9qI=
+	t=1743503725; cv=none; b=uLy52pepAJDF5pG2ecDkeCLV4JKVnvnRybnY0TZ25LyPVEeXIA7jVXMJLBGIU+634xIW5FiUq8sALMcF3i8oIS1mB03bzCbM70Btx4T1WYtfXsLjPCqpEMxbS/JVtGEcZq8wYt0Aaqwd7fYCdtwRVClmVQ3YZObq6a6HN2OtBVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743495879; c=relaxed/simple;
-	bh=SB2q6xQ56/3mpPcfMH9fyJWiPwvHFAbAR+tuJWgebls=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V5dsu9gZGvbT7xxUCfD0dzly/H+B9xz3dRc4r+UHplC47gijYX3CBDaqRKNmrS5dEIUbIr0YWnDN1rgXjTUfMIsfvxE178NLUj6HtppT1N+rNht2ABwrjHtefTKDEg+AMFJ4SJatFaNZKF+rKAKD/rEaUbxtTFS6jtsr9UGCkiU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org; spf=pass smtp.mailfrom=samba.org; dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b=3Fq/qU1j; arc=none smtp.client-ip=144.76.82.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samba.org
+	s=arc-20240116; t=1743503725; c=relaxed/simple;
+	bh=bB0Q88NaQ1z3A+sAKvbKfweAcqrwjXi0SB3rHqKzM6Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C3PJ1d0BUa+Lz8XUvK9cXqcFol3ky59q4EGwfRUugC/KGIXP7UeTRJPu8Tn5eSF2ajvcXStMhbfbFCxXi8nmDJ+LqBF/Pf9Dh/Cg2eRlGH4OanChZP/SQkLwDCWh+e9nNo8E/LZhSx+louNrI0UuFasI5idY020xqvYihFm8QYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=S7KduqAL; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b="3Fq/qU1j"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-	s=42; h=From:Cc:To:Date:Message-ID;
-	bh=P2vCMgKs60kE2AEX7EBwSn8Ro/J/oeai91FyuRtK384=; b=3Fq/qU1j2+zydWavWoxfAcA+HK
-	TKI4UvNHnhwFprYvUSDhd/3g172hIDos3qtk3cBwAqJau7Jhvq4tL41vm2l+ADVCkiocupdWJOVV9
-	3ql30+yvvyae6VsUM3J7Ho+XZD0hOHcAcb3P3IaIR9Fau7GUsyxSJRscTfjSw1IIJ/+i8wF6Y7WJW
-	vpnL7/YUDkat74R3AevuO9U2FwYyU0h5hqTzt9D7JnIfzoT6hCTiiqAHln7Nfpr5hkPfZwYhz9lRN
-	fLYDUS+e8G5ZMVcKG8sSMA005efyjFsifeGCyB0zCn9XI47K+K3yIgCUMzDP2hA8J6QinWnPoiBrH
-	AToIIUnvWg47OEFx9eir/cQlNMMu9gkPCUuvmtc0NA+8ULSsYhiEONjvU/M7aKAobjU56cv1KLDYy
-	rD56flFnuBVlPW0d8J7D3M+Ja1yDDNunOFIiCoQAP8LG52u2txNMmM8CdZicF/Y+R05Hcl8XrdDW2
-	XC695dYaZdJI//kShfqpRZux;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-	by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
-	(Exim)
-	id 1tzWvB-007dPk-1c;
-	Tue, 01 Apr 2025 08:24:33 +0000
-Message-ID: <51bb66d4-eaf3-4247-ba11-d793b6f0d56c@samba.org>
-Date: Tue, 1 Apr 2025 10:24:32 +0200
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="S7KduqAL"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-43d0618746bso37169205e9.2
+        for <virtualization@lists.linux.dev>; Tue, 01 Apr 2025 03:35:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1743503722; x=1744108522; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=094SZ9fz+o6eVY5ZaePMpljZ6ZXESAEN9w/PXff7gsU=;
+        b=S7KduqALguK4NWtjIOmz25qBDMhw4iAKyDMh8EFLnbGHKJ7yykeoVeFeTk3RQ6f5kl
+         3GtyRhrJvXd+AqKv6yBoR/UTrA+HhQfV1r5i/kcUijGj5Br4857L0x5CssQlRXqiGuqm
+         mSi3WPFAmRnLZGm31z0vKs7J8wMdxujLE+IrQkLgN3P/GS6tQaUH8HrL28oyq+BQpitm
+         8NGkT5dlA3LmeLIaY1gnU20sn9oRJw9EGGemtpEQU6F80lUegrDZZXeGvTQOnnpAOi41
+         oVFkbiNu8F6F5+6CkGfrJxkdN+6wchHu1QHuE9HRMgW1erbmC0Pppb/rZ4m6TC3E/ds5
+         QC+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743503722; x=1744108522;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=094SZ9fz+o6eVY5ZaePMpljZ6ZXESAEN9w/PXff7gsU=;
+        b=lteQ9FVAY0yAwoOOMlPD77KjAbcTuhseUXbBXxW6Xj5/3brn50E4FtJpqxGLGGMwCR
+         UO1uU1bvUFVeocQjHtS2wLQK14AxaUaieglder8lXsO5zs9KjDx4L2OUjkgJGR1gJzjf
+         8X6ZLNlvMje32aY0P9WYcqaBBIH75f3qwsDuBj4bOaeAAGe+sDRhOh7p6PJrGMOLDY87
+         mOGTZ6sev0iUcQwGMsXF4ABN+f+S7xVoWJSTWMPy59ltQOREPOO2XqxFtPvSA93viVGX
+         5S0ncbUNaI8eRzYm1+gL5XPMU75x12vqFmHDhgk3cOT6FdZNiCO5LtpURpqIpVpnE75S
+         +D2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCU4myd1URnOE9CeExsD3pr1NcZpz2fl1bF3GvswPOGzp5sNDjz1MW5VMe2Mq1Brr0ef4P9t7Rb4l4ak5+UtMg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxVnD4FtPi/i3bMdeGp50mgclKVMowPNyp2myzcTVk9/AFB6EMc
+	HIojfe2O7Md+WJvEM1UeGYNOnTDw4BGMztnbIe7b85yzqzRIwWLDkoEtjVR2ah0=
+X-Gm-Gg: ASbGnctBprqrrqqzpankY6l6xVEGgYAkMFXxKXYBRv3x95WfZ9bjf2/SUsunSPhp7bw
+	zAiliiKb7ZhT28vEFzeiahh8aPpw4bbnRADr9pRsqEAP1IXQndjpMaHJkN33GVWBXdOt0DvONOJ
+	iZIgktG/WRlEtOEBIXXTH6otkq+aV9hddVppwTEpZBnKYMT/du+++IbQSDPXX02krDdqN5tb8RZ
+	FNENu0I9NQwipJ6pvVlCZnPf+IMsiMqgtxPzBAyvsJkx5Y0Hqs89aoyubxZSkQZqJxK6+DtCqAk
+	RE7h+l/VZPPrJ+fD9u4uP7KTJ64Zm1DnGXAas8E8CeA=
+X-Google-Smtp-Source: AGHT+IH0MYFlI+kNZ16n6YuowDwZDpAgl0lcpbfUtl1S5hYwQqcUs9sspCA+WvoevEZPVnDHgpx5gw==
+X-Received: by 2002:a05:600c:4e87:b0:43d:8ea:8d80 with SMTP id 5b1f17b1804b1-43db61d5fd2mr102696825e9.5.1743503721639;
+        Tue, 01 Apr 2025 03:35:21 -0700 (PDT)
+Received: from myrica ([2.221.137.100])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c0b658c87sm13912049f8f.9.2025.04.01.03.35.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Apr 2025 03:35:21 -0700 (PDT)
+Date: Tue, 1 Apr 2025 11:35:19 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: iommu@lists.linux.dev, David Woodhouse <dwmw2@infradead.org>,
+	Jason Gunthorpe <jgg@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Rob Clark <robdclark@gmail.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Tomasz Jeznach <tjeznach@rivosinc.com>,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
+	virtualization@lists.linux.dev, linux-arm-msm@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-tegra@vger.kernel.org, pierrick.bouvier@linaro.org
+Subject: Re: RFC iommutests_: Testing software for everything IOMMU
+Message-ID: <20250401103519.GC2424925@myrica>
+References: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 3/4] net: pass a kernel pointer via 'optlen_t' to
- proto[ops].getsockopt() hooks
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
- Jens Axboe <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>,
- Breno Leitao <leitao@debian.org>, Jakub Kicinski <kuba@kernel.org>,
- Christoph Hellwig <hch@lst.de>, Karsten Keil <isdn@linux-pingi.de>,
- Ayush Sawal <ayush.sawal@chelsio.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
- <willemb@google.com>, David Ahern <dsahern@kernel.org>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, Neal Cardwell <ncardwell@google.com>,
- Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>,
- Johan Hedberg <johan.hedberg@gmail.com>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Oliver Hartkopp <socketcan@hartkopp.net>,
- Marc Kleine-Budde <mkl@pengutronix.de>,
- Robin van der Gracht <robin@protonic.nl>,
- Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
- Alexander Aring <alex.aring@gmail.com>,
- Stefan Schmidt <stefan@datenfreihafen.org>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Alexandra Winter <wintera@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>,
- James Chapman <jchapman@katalix.com>, Jeremy Kerr <jk@codeconstruct.com.au>,
- Matt Johnston <matt@codeconstruct.com.au>,
- Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
- Geliang Tang <geliang@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>,
- Remi Denis-Courmont <courmisch@gmail.com>,
- Allison Henderson <allison.henderson@oracle.com>,
- David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
- Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>,
- Boris Pismenny <borisp@nvidia.com>, John Fastabend
- <john.fastabend@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>,
- Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@kernel.org>, Magnus Karlsson <magnus.karlsson@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Jonathan Lemon <jonathan.lemon@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org,
- linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
- linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
- linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
- linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
- virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
- bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
- io-uring@vger.kernel.org
-References: <cover.1743449872.git.metze@samba.org>
- <d482e207223f434f0d306d3158b2142dceac4631.1743449872.git.metze@samba.org>
- <20250331224946.13899fcf@pumpkin>
-Content-Language: en-US, de-DE
-From: Stefan Metzmacher <metze@samba.org>
-In-Reply-To: <20250331224946.13899fcf@pumpkin>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
 
-Am 31.03.25 um 23:49 schrieb David Laight:
-> On Mon, 31 Mar 2025 22:10:55 +0200
-> Stefan Metzmacher <metze@samba.org> wrote:
-> 
->> The motivation for this is to remove the SOL_SOCKET limitation
->> from io_uring_cmd_getsockopt().
->>
->> The reason for this limitation is that io_uring_cmd_getsockopt()
->> passes a kernel pointer.
->>
->> The first idea would be to change the optval and optlen arguments
->> to the protocol specific hooks also to sockptr_t, as that
->> is already used for setsockopt() and also by do_sock_getsockopt()
->> sk_getsockopt() and BPF_CGROUP_RUN_PROG_GETSOCKOPT().
->>
->> But as Linus don't like 'sockptr_t' I used a different approach.
->>
->> Instead of passing the optlen as user or kernel pointer,
->> we only ever pass a kernel pointer and do the
->> translation from/to userspace in do_sock_getsockopt().
->>
->> The simple solution would be to just remove the
->> '__user' from the int *optlen argument, but it
->> seems the compiler doesn't complain about
->> '__user' vs. without it, so instead I used
->> a helper struct in order to make sure everything
->> compiles with a typesafe change.
->>
->> That together with get_optlen() and put_optlen() helper
->> macros make it relatively easy to review and check the
->> behaviour is most likely unchanged.
-> 
-> I've looked into this before (and fallen down the patch rabbit hole).
+On Fri, Mar 28, 2025 at 10:11:13AM +0100, Joel Granados wrote:
+> Custom qemu device: pci-ats-testdev
+> -------------------------------------
+> To support IOMMU testing under qemu, the pci-ats-testdev [10]
+> (different from pci-testdev [11]) was used to emulate DMA transactions.
+> It is a full fledged pci device capable of executing emulated DMA
+> accesses. It was originally intended to test Linux kernel interactions
+> with devices that had a working Address Translation Cache (ATC) but can
+> become a platform capable of testing anything PCI/IOMMU related if
+> needed.
 
-Yes, if you want to change the logic at the same time as
-changing the kind of argument variable, then it get messy
-quite fast.
+Yes please!  Maybe "pcie-testdev" rather than "pci-ats-testdev"?  There
+are other PCIe features that are poorly tested at the moment, for example
+PASID and PRI. The programming model of devices that actually implement
+those can get too complex so we need something simpler to precisely stress
+the IOMMU driver infrastructure. Driver unit-tests alone aren't good
+enough for exercising TLB invalidation (DMA after removing a mapping must
+crash), tricky cleanup paths (eg. killing a process bound to a device
+that's issuing page requests), runtime PM, MSIs etc. I'm guessing testing
+newer/future features like TDISP would also benefit from a simple device.
 
-> I think the best (final) solution is to pass a validated non-negative
-> 'optlen' into all getsockopt() functions and to have them usually return
-> either -errno or the modified length.
-> This simplifies 99% of the functions.
+Some time back I needed a device like that to reproduce some tricky races
+but never got round to implementing extra PCIe features. Although this one
+[1] is based on virtio any programming interface should work as long as it
+can instruct the device to send precise DMA transactions, ideally many in
+parallel.
 
-Yes, maybe not 99%, but a lot.
+Thanks,
+Jean
 
-> The problem case is functions that want to update the length and return
-> an error.
-> By best solution is to support return values of -errno << 20 | length
-> (as well as -errno and length).
-> 
-> There end up being some slight behaviour changes.
-> - Some code tries to 'undo' actions if the length can't be updated.
->    I'm sure this is unnecessary and the recovery path is untested and
->    could be buggy. Provided the kernel data is consistent there is
->    no point trying to get code to recover from EFAULT.
->    The 'length' has been read - so would also need to be readonly
->    or unmapped by a second thread!
-> - A lot of getsockopt functions actually treat a negative length as 4.
->    I think this 'bug' needs to preserved to avoid breaking applications.
-> 
-> The changes are mechanical but very widespread.
-> 
-> They also give the option of not writing back the length if unchanged.
-
-See my other mail regarding proto[_ops].getsockopt_iter(),
-where implementation could be converted step by step.
-
-But we may still need to keep the current  proto[ops].getsockopt()
-as proto[ops].getsockopt_legacy() in order to keep the
-insane uapi semantics alive.
-
-metze
-
-
+[1] https://jpbrucker.net/git/linux/log/?h=virtio-dmatest/latest
+    https://jpbrucker.net/git/qemu/log/?h=virtio-dmatest/latest
