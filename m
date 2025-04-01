@@ -1,129 +1,272 @@
-Received: from mail-io1-f54.google.com (mail-io1-f54.google.com [209.85.166.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-fw-6002.amazon.com (smtp-fw-6002.amazon.com [52.95.49.90])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC60784039
-	for <virtualization@lists.linux.dev>; Tue,  1 Apr 2025 19:53:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E40B1F30A4
+	for <virtualization@lists.linux.dev>; Tue,  1 Apr 2025 20:13:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.95.49.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743537221; cv=none; b=nuD6IbOqWO9w1srMxKrF80O2Yd1c3ZjHs+68a9hgGC0QQTdQVIqY/blaSNVLLqEWWfYkWxhsHfWrDYtgV+EkJSKHFIMLIG2UeJBheFIT9cHyYA7BzkBca/HrVoVhdlCUbn/tQtAV1CGwzBCfCzCIBLq5V5r7rIvUBW4JhyZYHgE=
+	t=1743538440; cv=none; b=N143wvAXMgs5AnZDqKctovbSIe1jUK3vWZ+x1G7m8rzJl0EtMUKPsQrShNBy4UGiQu69QdxMeO6vTxGB74VXr1wLYf0rUDWCYqKmCHzGxl7VxQomJfIAK9urQVI040pwbkC8SmA/O2Tric1ascN6aeEUwR44i+9nCwpRqrH8EcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743537221; c=relaxed/simple;
-	bh=zPfW6zElnlUyhJ3e8iC6TcgDU1kGgEtSygY6fjC98wE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=a034Atkai8ookFECwMfVJadQDTFOt7R4tk0p+w7ReKa8l/B0s0axXp9Y0Db2uie6jzp9ztAObgg+Zg/DaS3kYMwPO/hkz/HVsDJiUHvlq9GKyCHKRQuOqjJ+kMUmxaGnS3BYMGPxP0CKmN6LKaBIuscJXMCEniSMaOL6xA9ucCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Csuqokdo; arc=none smtp.client-ip=209.85.166.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1743538440; c=relaxed/simple;
+	bh=xIukMokWqGIO0Piiex8r6UKKugymvOTtUTqiK2HO3lY=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=TTglVgpdsqgmpooJihcFyRodDPmDx8pIZYUPc72SDsdZdHs2AoprGxgQCFwZqu0ucYfrfym1yjCB28UQUwEGt/iaGj6ePJFRggIElb958KXpbJmCnJr/0qwx0P7VR0vScxdOD9gVuuhN0tWVZPz/X77/srwdHI7rBFnMbT6xvFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=a4v7bm8b; arc=none smtp.client-ip=52.95.49.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Csuqokdo"
-Received: by mail-io1-f54.google.com with SMTP id ca18e2360f4ac-85e73f7ba09so486608339f.3
-        for <virtualization@lists.linux.dev>; Tue, 01 Apr 2025 12:53:38 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="a4v7bm8b"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743537218; x=1744142018; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gc7B5TWF5E7dS0lIFexpVCDTxyXmK4Y/wIY/rEIEhGo=;
-        b=CsuqokdoflIA9CsLpobxcW43ocbJcNalra498R2AfOyq96q5E7d9xM0jsh/WYh1f4Z
-         PSb1aLloD0tduYnF06IjXzVorvIj47tSVEUAgaGLoO83iPJH3m1xTrdviEwYitjQa0Hm
-         D+YqJcpDpXXG3WdmZ2HNJMmLsJ9nPYBSg9X9fCQclRotxzkTOVvTJF4+Gkm1cY+jmK6B
-         auNqW/19coIiLNOeX4oZimiizTam/zJRTPvU1U2nVKievJ5nYRPWlDk+si4fVpO+WxQP
-         bLqThSA87B0t18OtWc7Rkj21BBeWnj9m57EqSoOvkKSMdh6OELPeRe9K4gFRtV3L5SiT
-         k1gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743537218; x=1744142018;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gc7B5TWF5E7dS0lIFexpVCDTxyXmK4Y/wIY/rEIEhGo=;
-        b=TF6m0h8yuGKmNP4NMKsKoLoAvnhjQjhd1xegwQ20WOFz7qy0AyEeFcFGtuLZHtTahZ
-         J90ivCNeg93rH0K4f9AI9hEU6HZUfzTVkvNkq1HYU+0dllY0FzLS3Z3fgyd+Qet08/N6
-         o7Tu4UXf43cBVRbrp+36E5sVUhlEE5GW+Ym2HpBQ+8DN3tbHQLwjVuVEx6SzlGoEv3hO
-         LVnvNceSjcbBXSJ0xjcg+hKp4m3XLJtOAAC6WlUc1xsi5VQKlMOQPaUP3pHtxHHS33dO
-         3yGsPYRReglI5QsSQJUbrAeAR7QGyr06lgItC0QU+uYBugugyvmgiiiPnCwvLVxdW7lB
-         cS/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWX73UL2Q0gHjG7EAbqswi0Ac8fjOjjJLAmd96y25NRiaj06lSrIjlb9FwrgS92PzJZdpQ/7tStlaRK2vHBbw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YydJwNCUcEBLpFStrJA9GAuJKoP5ZsZZo/uT2HTaMc2loeVrYJ6
-	4SK4mNOQtr2zuLA+3+vLw6+lz0S2lWo9I9L+nwfXL+E93mbCX9kngQ3aQl5VedmXSGIaYRl/yTf
-	ZdIsSDI6I3gz3MqFfroCiORfpfPE=
-X-Gm-Gg: ASbGncueZEpOEph6rdE2JHsYnua032xywQw9xc8HlxwsTUu9Ts+iAnoRc5MypSNrTFj
-	QOTU3y0lhT1Jip+y46r8i3lxR11K/qV1EXtOLFJXlYg1bnIbDRpce6zUzWsSWLaeiBeaVZq8J5W
-	FvzM/MxBu1AQ2MK6QaLkq30PY2qQjHWASwJz34dEHSnfdvgy2b+Qxu7QLi
-X-Google-Smtp-Source: AGHT+IH3S71OAEwFMQD4R/OEKTAMcAKSmJhwYs7vzK+zU99RQKuLFvb95AfvxDZWWU8kud8NGXbifBK7Do0dL2fI2Sw=
-X-Received: by 2002:a05:6e02:4401:10b0:3d1:9999:4f62 with SMTP id
- e9e14a558f8ab-3d6ca5b1852mr42452585ab.2.1743537217735; Tue, 01 Apr 2025
- 12:53:37 -0700 (PDT)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1743538439; x=1775074439;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=grg7HgwkYOsDDxkskMb2VZiR76/MifH64emaphfZUPg=;
+  b=a4v7bm8bZg3FSoZSx+WondL/GZxFtZRE285H2JptfxBF31hInkp+L/ef
+   Tsj27/4NGFLj2zyK7pA0TxNj9rkLMjy74EvEVme4/UA2c5v6HQbG6VowT
+   Kqapp9pHHDLKfAkhzGdr1E87r/g7vcvIeXAm+IvGTn6T9cGZZbxaIRHK9
+   M=;
+X-IronPort-AV: E=Sophos;i="6.14,294,1736812800"; 
+   d="scan'208";a="485691106"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
+  by smtp-border-fw-6002.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2025 20:13:55 +0000
+Received: from EX19MTAUWB001.ant.amazon.com [10.0.7.35:33099]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.62.254:2525] with esmtp (Farcaster)
+ id 4bfd118a-a928-41f8-95b5-a09364cefa05; Tue, 1 Apr 2025 20:13:53 +0000 (UTC)
+X-Farcaster-Flow-ID: 4bfd118a-a928-41f8-95b5-a09364cefa05
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
+ Tue, 1 Apr 2025 20:13:53 +0000
+Received: from ip-10-253-83-51.amazon.com (10.253.83.51) by
+ EX19D020UWC004.ant.amazon.com (10.13.138.149) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
+ Tue, 1 Apr 2025 20:13:51 +0000
+From: Alexander Graf <graf@amazon.com>
+To: <netdev@vger.kernel.org>
+CC: Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi
+	<stefanha@redhat.com>, <linux-kernel@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <kvm@vger.kernel.org>, Asias He
+	<asias@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Paolo Abeni
+	<pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet
+	<edumazet@google.com>, "David S . Miller" <davem@davemloft.net>,
+	<nh-open-source@amazon.com>
+Subject: [PATCH v2] vsock/virtio: Remove queued_replies pushback logic
+Date: Tue, 1 Apr 2025 20:13:49 +0000
+Message-ID: <20250401201349.23867-1-graf@amazon.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250401123842.2232205-1-dmitry.osipenko@collabora.com>
-In-Reply-To: <20250401123842.2232205-1-dmitry.osipenko@collabora.com>
-From: Rob Clark <robdclark@gmail.com>
-Date: Tue, 1 Apr 2025 12:53:25 -0700
-X-Gm-Features: AQ5f1JoQHRRLbQWDkENOEX3GOQ6LDd-52WdH18mm3il4tRiQyy7pyqd6guv7zl8
-Message-ID: <CAF6AEGu8XZktM9Y0t=KEF68uGLz7D_+9H1GnAPnZqc1YsT8iGA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] drm/virtio: Don't attach GEM to a non-created
- context in gem_object_open()
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Vivek Kasireddy <vivek.kasireddy@intel.com>, 
-	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	kernel@collabora.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D043UWC004.ant.amazon.com (10.13.139.206) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
 
-On Tue, Apr 1, 2025 at 5:39=E2=80=AFAM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
->
-> The vfpriv->ctx_id is always initialized to a non-zero value. Check wheth=
-er
-> context was created before attaching GEM to this context ID. This left
-> unnoticed previously because host silently skips attachment if context
-> doesn't exist, still we shouldn't do that for consistency.
->
-> Fixes: 086b9f27f0ab ("drm/virtio: Don't create a context with default par=
-am if context_init is supported")
-> Cc: <stable@vger.kernel.org> # v6.14+
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Ever since the introduction of the virtio vsock driver, it included
+pushback logic that blocks it from taking any new RX packets until the
+TX queue backlog becomes shallower than the virtqueue size.
 
-Reviewed-by: Rob Clark <robdclark@gmail.com>
+This logic works fine when you connect a user space application on the
+hypervisor with a virtio-vsock target, because the guest will stop
+receiving data until the host pulled all outstanding data from the VM.
 
-> ---
->  drivers/gpu/drm/virtio/virtgpu_gem.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virti=
-o/virtgpu_gem.c
-> index 5aab588fc400..3d6aa26fdb53 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> @@ -115,13 +115,14 @@ int virtio_gpu_gem_object_open(struct drm_gem_objec=
-t *obj,
->         if (!vgdev->has_context_init)
->                 virtio_gpu_create_context(obj->dev, file);
->
-> -       objs =3D virtio_gpu_array_alloc(1);
-> -       if (!objs)
-> -               return -ENOMEM;
-> -       virtio_gpu_array_add_obj(objs, obj);
-> +       if (vfpriv->context_created) {
-> +               objs =3D virtio_gpu_array_alloc(1);
-> +               if (!objs)
-> +                       return -ENOMEM;
-> +               virtio_gpu_array_add_obj(objs, obj);
->
-> -       if (vfpriv->ctx_id)
->                 virtio_gpu_cmd_context_attach_resource(vgdev, vfpriv->ctx=
-_id, objs);
-> +       }
->
->  out_notify:
->         virtio_gpu_notify(vgdev);
-> --
-> 2.49.0
->
+With Nitro Enclaves however, we connect 2 VMs directly via vsock:
+
+  Parent      Enclave
+
+    RX -------- TX
+    TX -------- RX
+
+This means we now have 2 virtio-vsock backends that both have the pushback
+logic. If the parent's TX queue runs full at the same time as the
+Enclave's, both virtio-vsock drivers fall into the pushback path and
+no longer accept RX traffic. However, that RX traffic is TX traffic on
+the other side which blocks that driver from making any forward
+progress. We're now in a deadlock.
+
+To resolve this, let's remove that pushback logic altogether and rely on
+higher levels (like credits) to ensure we do not consume unbounded
+memory.
+
+RX and TX queues share the same work queue. To prevent starvation of TX
+by an RX flood and vice versa now that the pushback logic is gone, let's
+deliberately reschedule RX and TX work after a fixed threshold (256) of
+packets to process.
+
+Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
+Signed-off-by: Alexander Graf <graf@amazon.com>
+---
+ net/vmw_vsock/virtio_transport.c | 70 +++++++++-----------------------
+ 1 file changed, 19 insertions(+), 51 deletions(-)
+
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index f0e48e6911fc..54030c729767 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -26,6 +26,12 @@ static struct virtio_vsock __rcu *the_virtio_vsock;
+ static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
+ static struct virtio_transport virtio_transport; /* forward declaration */
+ 
++/*
++ * Max number of RX packets transferred before requeueing so we do
++ * not starve TX traffic because they share the same work queue.
++ */
++#define VSOCK_MAX_PKTS_PER_WORK 256
++
+ struct virtio_vsock {
+ 	struct virtio_device *vdev;
+ 	struct virtqueue *vqs[VSOCK_VQ_MAX];
+@@ -44,8 +50,6 @@ struct virtio_vsock {
+ 	struct work_struct send_pkt_work;
+ 	struct sk_buff_head send_pkt_queue;
+ 
+-	atomic_t queued_replies;
+-
+ 	/* The following fields are protected by rx_lock.  vqs[VSOCK_VQ_RX]
+ 	 * must be accessed with rx_lock held.
+ 	 */
+@@ -158,7 +162,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+ 		container_of(work, struct virtio_vsock, send_pkt_work);
+ 	struct virtqueue *vq;
+ 	bool added = false;
+-	bool restart_rx = false;
++	int pkts = 0;
+ 
+ 	mutex_lock(&vsock->tx_lock);
+ 
+@@ -172,6 +176,12 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+ 		bool reply;
+ 		int ret;
+ 
++		if (++pkts > VSOCK_MAX_PKTS_PER_WORK) {
++			/* Allow other works on the same queue to run */
++			queue_work(virtio_vsock_workqueue, work);
++			break;
++		}
++
+ 		skb = virtio_vsock_skb_dequeue(&vsock->send_pkt_queue);
+ 		if (!skb)
+ 			break;
+@@ -184,17 +194,6 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+ 			break;
+ 		}
+ 
+-		if (reply) {
+-			struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
+-			int val;
+-
+-			val = atomic_dec_return(&vsock->queued_replies);
+-
+-			/* Do we now have resources to resume rx processing? */
+-			if (val + 1 == virtqueue_get_vring_size(rx_vq))
+-				restart_rx = true;
+-		}
+-
+ 		added = true;
+ 	}
+ 
+@@ -203,9 +202,6 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+ 
+ out:
+ 	mutex_unlock(&vsock->tx_lock);
+-
+-	if (restart_rx)
+-		queue_work(virtio_vsock_workqueue, &vsock->rx_work);
+ }
+ 
+ /* Caller need to hold RCU for vsock.
+@@ -261,9 +257,6 @@ virtio_transport_send_pkt(struct sk_buff *skb)
+ 	 */
+ 	if (!skb_queue_empty_lockless(&vsock->send_pkt_queue) ||
+ 	    virtio_transport_send_skb_fast_path(vsock, skb)) {
+-		if (virtio_vsock_skb_reply(skb))
+-			atomic_inc(&vsock->queued_replies);
+-
+ 		virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, skb);
+ 		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
+ 	}
+@@ -277,7 +270,7 @@ static int
+ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
+ {
+ 	struct virtio_vsock *vsock;
+-	int cnt = 0, ret;
++	int ret;
+ 
+ 	rcu_read_lock();
+ 	vsock = rcu_dereference(the_virtio_vsock);
+@@ -286,17 +279,7 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
+ 		goto out_rcu;
+ 	}
+ 
+-	cnt = virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
+-
+-	if (cnt) {
+-		struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
+-		int new_cnt;
+-
+-		new_cnt = atomic_sub_return(cnt, &vsock->queued_replies);
+-		if (new_cnt + cnt >= virtqueue_get_vring_size(rx_vq) &&
+-		    new_cnt < virtqueue_get_vring_size(rx_vq))
+-			queue_work(virtio_vsock_workqueue, &vsock->rx_work);
+-	}
++	virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
+ 
+ 	ret = 0;
+ 
+@@ -367,18 +350,6 @@ static void virtio_transport_tx_work(struct work_struct *work)
+ 		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
+ }
+ 
+-/* Is there space left for replies to rx packets? */
+-static bool virtio_transport_more_replies(struct virtio_vsock *vsock)
+-{
+-	struct virtqueue *vq = vsock->vqs[VSOCK_VQ_RX];
+-	int val;
+-
+-	smp_rmb(); /* paired with atomic_inc() and atomic_dec_return() */
+-	val = atomic_read(&vsock->queued_replies);
+-
+-	return val < virtqueue_get_vring_size(vq);
+-}
+-
+ /* event_lock must be held */
+ static int virtio_vsock_event_fill_one(struct virtio_vsock *vsock,
+ 				       struct virtio_vsock_event *event)
+@@ -613,6 +584,7 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ 	struct virtio_vsock *vsock =
+ 		container_of(work, struct virtio_vsock, rx_work);
+ 	struct virtqueue *vq;
++	int pkts = 0;
+ 
+ 	vq = vsock->vqs[VSOCK_VQ_RX];
+ 
+@@ -627,11 +599,9 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ 			struct sk_buff *skb;
+ 			unsigned int len;
+ 
+-			if (!virtio_transport_more_replies(vsock)) {
+-				/* Stop rx until the device processes already
+-				 * pending replies.  Leave rx virtqueue
+-				 * callbacks disabled.
+-				 */
++			if (++pkts > VSOCK_MAX_PKTS_PER_WORK) {
++				/* Allow other works on the same queue to run */
++				queue_work(virtio_vsock_workqueue, work);
+ 				goto out;
+ 			}
+ 
+@@ -675,8 +645,6 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+ 	vsock->rx_buf_max_nr = 0;
+ 	mutex_unlock(&vsock->rx_lock);
+ 
+-	atomic_set(&vsock->queued_replies, 0);
+-
+ 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
+ 	if (ret < 0)
+ 		return ret;
+-- 
+2.47.1
+
