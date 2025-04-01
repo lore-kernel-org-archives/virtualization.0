@@ -1,183 +1,263 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-002c1b01.pphosted.com (mx0a-002c1b01.pphosted.com [148.163.151.68])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6726218ADD;
-	Mon, 31 Mar 2025 21:49:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743457793; cv=none; b=pTmtsdEuDBoyElYV0bWROe43C7JE3vH0mH9uOyyHVh7mdzXCjLPpp/gGeJd4XJHT+xMuyE74Mxh0sY9BcuXJF/4VGGK9mONrggIvM5bl/n6XvglrlhF5KTxYNzcaGnT8RpjYUyY0q5BHKwBBPmdlehKqVuXIsRRZK24RvUMsXME=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743457793; c=relaxed/simple;
-	bh=AWpak+pu550+V4KBVwcURhmwvApWhG8AaMXUc5d76HI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qGtx4Z7Z1sXkWDKLN6A6yHfzshyp7z0hpydEKH0Is4CY8pLTotMlPfNBMKjb4O8SdAxnrDFjpGAfvXAAzOjrqjll84u93efWd4+dJkLTrA+K419sEoY5LWxibW5pxkCLsW/j45T0tsSPSfk2oBRObu9Nl+sJr0szUfjJvTwaAu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c4/gluOw; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0C1417C211;
+	Tue,  1 Apr 2025 04:06:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=148.163.151.68
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743480372; cv=fail; b=WobxpleuMCtQ1+mpLqu3fSdaBR+zZ/1SLsT1hlS4NlXhWieoxaC4IeyLciJ/+KgSh4vvp9M/OY6myR91UKu6bzeqBeYkHHNLgaZD11RhYjFFeRKFGRGR47B2IWUH9NpKUoN6/tbWGB7z4rIHLDOtEaYJApgxoEslOUrkiIAconE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743480372; c=relaxed/simple;
+	bh=tEZuR2JDZdfcPs4AU/w4VNQI5IT+9YRxDwGp8gciVc4=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=hCMcmXwgkoNoe3LL6Q0WzNCxBIhU8JcJwTN+errCYIKvJm0gTYQjUFK6bzDJPT0TbZD+pGM8XD1hRPx9ymmK776H5SycTQ2+5WRZsGkk8ZhBICOBIVzQbbrCL5adeD0XKZdmHHJx6nN7MlOjhHKH1jNylSxt5q2hWhKm1REC0DM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nutanix.com; spf=pass smtp.mailfrom=nutanix.com; dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b=p3x0ylsl; dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b=SuTMWA7z; arc=fail smtp.client-ip=148.163.151.68
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nutanix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nutanix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c4/gluOw"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-3965c995151so2642413f8f.1;
-        Mon, 31 Mar 2025 14:49:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743457790; x=1744062590; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Vdstssp5d3ULMv78iW5ykH4+Ki4j9LIskO4UfhbPQIo=;
-        b=c4/gluOw0di80mouD/HCuYS+VjkhrhTab5EVfpr0qACEZkelrrPvJpiE8N6mWY32jp
-         hmyo6Hy8dddI34QQRfa93ncad1BQc+EPKTGxOzj9CfhIZmhUr1Od0G8Wpw7XeG96abRb
-         ZzatfY4GMpq4BhyFhCvGDDJ4ABZ7GKYGwWuCwKCGTzwH5rKYr6ti/Lkfbdu1jEWI0sDB
-         xK+Pt3ulLr/ocn1Bv5wh3CaaVXBTZ+bkMcOAjRjaVkvlMXmGCehpPjv2+ubRcYBomnC8
-         /P+jZ5RcLf4jdb2DcSULujXAzFTCraGDUuF7qOrqRwEa/pK2sj9oeV+CnDOQpFL63l88
-         I4sQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743457790; x=1744062590;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Vdstssp5d3ULMv78iW5ykH4+Ki4j9LIskO4UfhbPQIo=;
-        b=shvmDkMlDFnfMi/7Y4kDLTrBUiFBvhoYWOgnojD8A+nkgISvWL3iSSi3WQQuJ24oLD
-         U5h8nkQmzqOItjaW3ZkUaBP1mjGxRB5TYI080bNi9ClRP36fktDmrdoHKERaW9I+7HzV
-         MEUdo09wz4EuYfRCP+7ZtcVhOn8lQO2asEHaLJeCzJL1D0HYLHLgyFJVCiVWhMuGohVu
-         iOu9uow21HL1yPU9On4SVcj8hmDpdxVNgTKSAWNXmcvCF99B9wh1w0or04H7kO4Jrbi9
-         YPwefEXabQbNkdgVvlflfY9OaogklIZFsqvYorq+bEEKdVku2yndNsG21b5SR9TikXuw
-         z53g==
-X-Forwarded-Encrypted: i=1; AJvYcCVfbvS1MJb42z9LF9yCa96oxnpi6DNTrW3TBJgP5oEi5iax0Y3zfNkaQRym19P2XTCSZ7k5V05PKALCgdC5TGU=@lists.linux.dev, AJvYcCWiNdnog6Ih7pLtfX+CQ7FYQDS5Nzm6G7NYsTqpjtmKcBWGuz8KD+nPQXSYRDGVEAU4MdUIwA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz5qwljpZRc1BdKtCygUM7qhlVJ0avbLNzjYh3vH62KkKHzw1oS
-	jJ/LbgyS1TOUha7SIU0Rqd8xNrf1xMDHynm7tiqt9F33kSn17PFi
-X-Gm-Gg: ASbGncsW9vova7labb+XhUPyewVKf/OZoZR90TX+pmZR5VDdXzjTdim8hMyymcfln7K
-	L368h0oFtu0mKo2ieRhOOcCiJgycw19eCMbnSH6zSlLHpci8X4cqyhGiHG/u1uU7hJ5oMFe63wQ
-	1mLx1V9X8hB+M+tTfsdbpJs+MlMQtr0VI3IAh3fA59xybvl2/MxtmEFFRJH/PlJtegPdTtok+TM
-	mmYMLB0pges7uDY1i0JnIEMQdAZhQommp4CoJxRZIEs8r1JFH6eZ9S0sVfGQHE6nFB66DTr0eOM
-	ngHgxvKbv6wrXIQ7M1WF1sqotk83QNbUCVfIMuG8iUaIKtewhUCVxDvwDYX6+sdA6czuaq7vLJO
-	mpRRWJuk=
-X-Google-Smtp-Source: AGHT+IHDaz6qc5K6SYy9jlhEIozUCY4N2JwSt3T6Lks7AZ/C8EYmlUGrPLhFAhoyTSOCg3hYOLXzSQ==
-X-Received: by 2002:a05:6000:18a8:b0:399:6d53:68d9 with SMTP id ffacd0b85a97d-39c12118aedmr9281669f8f.38.1743457789764;
-        Mon, 31 Mar 2025 14:49:49 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c0b7a4200sm12490080f8f.96.2025.03.31.14.49.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Mar 2025 14:49:48 -0700 (PDT)
-Date: Mon, 31 Mar 2025 22:49:46 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Stefan Metzmacher <metze@samba.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Jens Axboe
- <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>, Breno Leitao
- <leitao@debian.org>, Jakub Kicinski <kuba@kernel.org>, Christoph Hellwig
- <hch@lst.de>, Karsten Keil <isdn@linux-pingi.de>, Ayush Sawal
- <ayush.sawal@chelsio.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Kuniyuki
- Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, David
- Ahern <dsahern@kernel.org>, Marcelo Ricardo Leitner
- <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Neal Cardwell
- <ncardwell@google.com>, Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann
- <marcel@holtmann.org>, Johan Hedberg <johan.hedberg@gmail.com>, Luiz
- Augusto von Dentz <luiz.dentz@gmail.com>, Oliver Hartkopp
- <socketcan@hartkopp.net>, Marc Kleine-Budde <mkl@pengutronix.de>, Robin van
- der Gracht <robin@protonic.nl>, Oleksij Rempel <o.rempel@pengutronix.de>,
- kernel@pengutronix.de, Alexander Aring <alex.aring@gmail.com>, Stefan
- Schmidt <stefan@datenfreihafen.org>, Miquel Raynal
- <miquel.raynal@bootlin.com>, Alexandra Winter <wintera@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>, James Chapman
- <jchapman@katalix.com>, Jeremy Kerr <jk@codeconstruct.com.au>, Matt
- Johnston <matt@codeconstruct.com.au>, Matthieu Baerts <matttbe@kernel.org>,
- Mat Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>,
- Krzysztof Kozlowski <krzk@kernel.org>, Remi Denis-Courmont
- <courmisch@gmail.com>, Allison Henderson <allison.henderson@oracle.com>,
- David Howells <dhowells@redhat.com>, Marc Dionne
- <marc.dionne@auristor.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Jan
- Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, Tony
- Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Jon Maloy
- <jmaloy@redhat.com>, Boris Pismenny <borisp@nvidia.com>, John Fastabend
- <john.fastabend@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>,
- Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@kernel.org>, Magnus Karlsson <magnus.karlsson@intel.com>, Maciej
- Fijalkowski <maciej.fijalkowski@intel.com>, Jonathan Lemon
- <jonathan.lemon@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
- dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
- linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
- linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
- linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
- virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
- bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
- io-uring@vger.kernel.org
-Subject: Re: [RFC PATCH 3/4] net: pass a kernel pointer via 'optlen_t' to
- proto[ops].getsockopt() hooks
-Message-ID: <20250331224946.13899fcf@pumpkin>
-In-Reply-To: <d482e207223f434f0d306d3158b2142dceac4631.1743449872.git.metze@samba.org>
-References: <cover.1743449872.git.metze@samba.org>
-	<d482e207223f434f0d306d3158b2142dceac4631.1743449872.git.metze@samba.org>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b="p3x0ylsl";
+	dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b="SuTMWA7z"
+Received: from pps.filterd (m0127837.ppops.net [127.0.0.1])
+	by mx0a-002c1b01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52VJlETb026789;
+	Mon, 31 Mar 2025 21:04:04 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nutanix.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=proofpoint20171006; bh=SORhW/NVaJzmZ
+	GrE1vDDEFpc/5IspP9jasAFzBkYGE8=; b=p3x0ylsl5KgPdgcAePp/NCtuz8Xwz
+	cEyGMD89T21zr4P1DmFCoIKEX5Bs94oW1JM6f/kfXCr6QBcmGJrgRHdJRPz+BI/j
+	hlONvXrrMeh9zgan68bG68ssgkrnQjanDGbL3FseEl+jBtcE2WUWfIHERLulqwAR
+	JG0XrSxm60oLFwYQidvbvMiSqQvK40P3xtbSbyyHvqs/rTZzYTbILkOlHGl91JjT
+	xLUw6VTEodHq4WXB1y1SQ4wz8xQmDsAJo2MBBPPMIWA/+L9RPlZ2Nrbc99uaD+vq
+	TWo9gbReC8EmPUOZXGElIr1c1BRgcD+0XHbz7J9ji2raiEinNoH9g6LdA==
+Received: from nam02-sn1-obe.outbound.protection.outlook.com (mail-sn1nam02lp2045.outbound.protection.outlook.com [104.47.57.45])
+	by mx0a-002c1b01.pphosted.com (PPS) with ESMTPS id 45pcs8vmqu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Mar 2025 21:04:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=BxM/t/+7OgfpYtsu42LCzpvlmFBUwT4yYX/QZpdsCUi5v6+UnOQoKrakBJ8j4HqDCcDpN0ZWqExdkGSpm2W4FRYNr/h8y5LDFDXweMQygFsQbaHNwnZ10iaeBD/8PYK4uh6QAMGLdHjp3f3EDV8PTD2oOOAHy9hJ/yK5y1hrHijLpBJJmKgZXeIt6PS4T59aFHHwLZK85gEJr5sT2zaYMftpWJFuUkH5BgrOHdfZHbUeGFUOUCHNm6Cb8VdYSxufgBTIpMrndotftIdUO+X9rXMrXCJphQzL+uzL+Ag329NLt7f/JGQHHURdQJWPd+ke8TEHKKKbIKGFClr9LC4YFQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SORhW/NVaJzmZGrE1vDDEFpc/5IspP9jasAFzBkYGE8=;
+ b=H/n+JuRhX8EvE6Q9rM+z2sMQeEsXOn5diRTqKWfRuqAvww8rNPNx9rDfKcf36vCmtQVBMeQNoWG3wpuwh+vOv+Npn1zAg+moYeSVIMRew2GmLRQk3rAxF2UbWm1633U1Ac39/t3MuUfRiIjt6X3G/kIMFnWcaBjql6tqBxGpmRlkdxrP4yHNBRwpt05ZyRvIzixIIWVuv3YS8DBgGugRvtu8waJFcZbE3YV/eXL0Ih8dci+fKUjkWo2o3pxu1yYkLk3S0Hp4ckdA5hsgHoQRgsB7Pg9MUI0KS+W7ivHQ7of5hxm1aWCb2sdE9mu2ZO38O2GvCeh1r9g3LCoduK5qyg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nutanix.com; dmarc=pass action=none header.from=nutanix.com;
+ dkim=pass header.d=nutanix.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nutanix.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SORhW/NVaJzmZGrE1vDDEFpc/5IspP9jasAFzBkYGE8=;
+ b=SuTMWA7zWqZne8vyHS+KTAXvC/Jfw0go8yOzDup37/rBOzjOJiwci7vyH9yKm3PaohlBSZrn8h26kIXThs05LmuhpaS6NXuujzMeethbQzhstD25LCkaFJ/yipxlmUKL/JG8hQ/SoHphimnBAWACxBxAxBfssc6H574rMtMPua0RxlkNsQbyQEwGdm8JRjN7jBuzR8qtw14ewEF/tR8VYsvCoOJKa7qFnyb8Dh+xwHkRPKcPzxNcUxJPZMtHBLoZqNCw6sAcVR5SChm1itWFLaUT72XF1Rtc2qvMZF0Z6oocejGRO+udNYsYB2QohNPY3V+As5RCaTQVwFtUERq0bA==
+Received: from LV8PR02MB10287.namprd02.prod.outlook.com
+ (2603:10b6:408:1fa::10) by SJ0PR02MB8513.namprd02.prod.outlook.com
+ (2603:10b6:a03:3f2::15) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.44; Tue, 1 Apr
+ 2025 04:04:00 +0000
+Received: from LV8PR02MB10287.namprd02.prod.outlook.com
+ ([fe80::b769:6234:fd94:5054]) by LV8PR02MB10287.namprd02.prod.outlook.com
+ ([fe80::b769:6234:fd94:5054%4]) with mapi id 15.20.8534.048; Tue, 1 Apr 2025
+ 04:03:59 +0000
+From: Jon Kohler <jon@nutanix.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        kvm@vger.kernel.org, virtualization@lists.linux.dev,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jon Kohler <jon@nutanix.com>
+Subject: [PATCH] vhost/net: Defer TX queue re-enable until after sendmsg
+Date: Mon, 31 Mar 2025 21:32:29 -0700
+Message-ID: <20250401043230.790419-1-jon@nutanix.com>
+X-Mailer: git-send-email 2.43.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BY5PR20CA0008.namprd20.prod.outlook.com
+ (2603:10b6:a03:1f4::21) To LV8PR02MB10287.namprd02.prod.outlook.com
+ (2603:10b6:408:1fa::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV8PR02MB10287:EE_|SJ0PR02MB8513:EE_
+X-MS-Office365-Filtering-Correlation-Id: 83c7c42a-e386-4094-e333-08dd70d23b42
+x-proofpoint-crosstenant: true
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|366016|52116014|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?oJAl9KYZtmsQRju0eskQNKW24XXUGgrwkrUhZCXtXNO9I/uw4sVDjEGqXCKc?=
+ =?us-ascii?Q?5Wn0EigmGDy3YCKJZA9omEQspFSzzeM8JoOTRnc3uvKiWHP0L/A+vZWFHaLK?=
+ =?us-ascii?Q?TbbOzxZ3+zmlROvB8Xikha4WeWBBlcaqrsuM7jrETy/xHpD6R2daDRYYuo1g?=
+ =?us-ascii?Q?1IeATs4+h5lP5Dw4is690FK+xbW/UQ1Qa/756PCfoujQe4zKeTC0aIvZcDwY?=
+ =?us-ascii?Q?1NCy2c5VpksLTHHuqbBCz7nJPX5/rI2RnVlGVb+x/VkfJo21Sdig3dsrerQ9?=
+ =?us-ascii?Q?CJFyc2WjknPTZEB69y7UbaP14f9dXnjqQlPsBw6jkGeDpdXz+bn55MjsDATA?=
+ =?us-ascii?Q?GzPcbTLL1nnGt08JlPQXWyPBcscRA1IL9iiafsUjXYGoR4FB5WwmgUMJY9qw?=
+ =?us-ascii?Q?Im3evJ0HfSk5n0zbZnq40QrlwL4MRI8Fn+cDgX1aBpsBhnEDfR5OPaISDYCR?=
+ =?us-ascii?Q?TyClATgl/zaySexTkHhzvjlWI8MyeHPvgw1L+1eJ8BncPB5lr6XwI6ClQwT0?=
+ =?us-ascii?Q?+UdCBaNkcqTYjOm2jz8mAW8HDdelqOasdvflvJ2TYLMmZWFjFufacQ1jalkl?=
+ =?us-ascii?Q?cP5LS1G+4+xieQ+iAvES98fNw4uYhTFKL5Yb8zGYZKnr25+fvCwfnva+AyTa?=
+ =?us-ascii?Q?knaYAFNFE5Qnn8Exw6nEFRng/XYhfSuePnW8uLaGHxwNI3rSNQaBeHdBVp3H?=
+ =?us-ascii?Q?a1+ISwFUQTqTlyKPITsPZvrBHhvOEo0BXGD/PH0aCaTjo0jVo7Gh3NZmKtkd?=
+ =?us-ascii?Q?vpGQ5808ciF2GbFKKvxWhxo2KMCveQqoLdpr6XTv1pWRUiNW6RG4bfUPunXL?=
+ =?us-ascii?Q?lGZSh7+QMzABpnMxR2Gm74wKzfw+CoA7dZarDN5qzriNhG7sf7YdawsOn5Wa?=
+ =?us-ascii?Q?SZgNSdq7VKmlfzZW8lGPorvzQ0sSejZ50haPmS7An7IgBfH3Qa+AVeSY7XJ1?=
+ =?us-ascii?Q?4gkuKzB0wSoqUt3rObXwPSFju9U5vTXRTFu3X1VPphGGLOkGcVCEl+jh/Jto?=
+ =?us-ascii?Q?xzrgehY8vhN2kSmB3DlIb2w92WkoqjZBLveW5dMizoNw69tHSrI0v9was4C+?=
+ =?us-ascii?Q?9wjexbWqCV3CTiIew0xRcMyMQdK7HCYT6DWzOhyjyUHZsbJBMmKetHCFMXE0?=
+ =?us-ascii?Q?WOnlfaY3gj6HJW4qJZZp3ExkO9qx+aZ7g5q3PwSTKR4JcJ5jYTfxi+Kx+8mU?=
+ =?us-ascii?Q?hGU2ZRNMIpRQPnO5IJI3lxsI6N1bz/T4uSuH84ouOy8rZSFlwq53nIW3jDTO?=
+ =?us-ascii?Q?R1QV1uyTmCEkyryEHvpWJz4qvjK4u+tvqiL9Poe/XqAFTNJaNgjFBCpyGQUP?=
+ =?us-ascii?Q?A20XJouHxeumnXOrkWLciGpgkZBBl/RLNqEtv3mFBnSz9oKdSZb06AONjz6z?=
+ =?us-ascii?Q?u3wGiFlM4TFpXrIGeTxRpinc3pub1tZDtSCZyJed2HK7dpNkQ9cs104gnd3/?=
+ =?us-ascii?Q?t94ZkveTS5h01zxTJCr+hsxXu86zAth60vSDNgMRBYdGiV0llhyxLA=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR02MB10287.namprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(52116014)(38350700014);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?XQDYfI+SL0LLdyuLXFYsFfEA7k+AWb+CC9/CbYIHdni6zhe7GZRPaM/jtUjr?=
+ =?us-ascii?Q?KM2506Ytg5et+Oongi+BPFZVN7Pvz1m9GYe3cncozU07aDOXUjBc/jajWJgd?=
+ =?us-ascii?Q?XqxxAq6EVxkeM1+UK82Y+LqFrFT4duX+ERC+eKaeBHoMKzp1k2QXyx/PDEYB?=
+ =?us-ascii?Q?709XfZF2g7+iI+Vs8B4k0JWrMAGWtX2667XVf6htAlzebuGTacRI+t/XadrK?=
+ =?us-ascii?Q?hSn9hUf4zZKQt2501BxL8r38up7iGi5jHj4p1QgEDvqT1DQQs2Z95z256yMg?=
+ =?us-ascii?Q?4u1HxWaspfADWW4Frcc/WbTKVbGDnHFgv1WthWxzFAQK0AjcLGMw3X5lBH9D?=
+ =?us-ascii?Q?jrjkS405Q850XfJ/N4lzh8v+9BOt+jWP4c0Y3PE8ByJ2HGucsV+5yp79/BiY?=
+ =?us-ascii?Q?PVLkdc3yncPYdD0FRzfT9spFnGMk138NMrajpwSMfyHXzYd1JpqUfkDYVhni?=
+ =?us-ascii?Q?+ASzDgpNrTUflXaC8d1xbyg6y4iiY1BnuP37VVDQc84D043xmwou2Omsvh8c?=
+ =?us-ascii?Q?eZZRepOE8jNKbt8SnLZULEEt/aS+4Qxcu3rFuHGSvRy8BMhHhCM694Kl83aX?=
+ =?us-ascii?Q?wVd7BTaSXJK4YX1KrkbLUM91EsjIjABd7u9/cJpUQOQw+wA7QmxTxli8Z7EI?=
+ =?us-ascii?Q?bvpa5U9LIPJ8s8MsP57bSN4I/DwDnyMUuZiNgUufV0OXzyPHCIRbBmdIYFBa?=
+ =?us-ascii?Q?BtyxzTmNfAwT0hN/8lzG43Ep4q4zDIlYGl2TTjG0/St+yjPOKhsvDk+ozgBm?=
+ =?us-ascii?Q?U7CKJ0o+anfxBWLQ8qMUs4AuKonfrn/V4owFAFavddqxiGyx9uZQQIqIiNVT?=
+ =?us-ascii?Q?HdcQczWjN7cpZl6eEGAPicDuRhp/KkQsN4IzMWw5iBojNzxeQgQZ6ldRWy7b?=
+ =?us-ascii?Q?74ZxB5vPAH1Nq036VGIB3pCU6Jki/IIqmISnv99u7jtJvfEtbmIk/FpdeDGw?=
+ =?us-ascii?Q?2vFGR4zdoU8znfqN4aMsmQ3N5swirBUnACA1kusbZ5xjWqOPfmoxS7pS7qWh?=
+ =?us-ascii?Q?C61uDHksAF67h8PivMlF6fC0xCC8Fgs47YZcEVyJ+eZCKQJK6RmQ4twdVQzI?=
+ =?us-ascii?Q?fozXaE1QlwiVsqxy5u18FwVUfd4NpqVK4K0jm/hOzzeV/KkwYtb5wvyRyijN?=
+ =?us-ascii?Q?OOeauGKqHTwNdnqdUGaJJW13aGGh743ls4Anx4f0Rwj39OgNRwrHE3nrQkR2?=
+ =?us-ascii?Q?76gmvGauTK8UgwnI9vd47DEGh5ktVk0pRVNfdU3Sd5EmWb6rVPzyWEqgO7BV?=
+ =?us-ascii?Q?4lQLW5SV+c713aKnzVoQy/+8fOChR7duY/fZf9wYRrssYCopgg3+f78+joja?=
+ =?us-ascii?Q?7r5RnRIioyABn9yLpdMVVaOT7nZTrC5dWLG+1aUWZx83tAwJfBsRWFTAsOrH?=
+ =?us-ascii?Q?j0eXk2sXK3dxb4t0V+NVrh3iaO46ysDSqadf8apz5H7R5FECVYLicrKktePb?=
+ =?us-ascii?Q?C3Wr6ExN9cdK5w5jqVpR1VTyDhXXZTerkTgBhmr3e76qGedmOakMlVIThTPK?=
+ =?us-ascii?Q?2i0rTw36uQ8jQrFd+4lTw49L/7z/Kb66JZHYBBLaPfCilDyvgl7uXiXiHLTM?=
+ =?us-ascii?Q?sp64/AYXaX/Xzm4lgJUJB4Kf7aKrqwN/0s3yzsPN39oWxqsD63yGtuN7EuA3?=
+ =?us-ascii?Q?Hg=3D=3D?=
+X-OriginatorOrg: nutanix.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 83c7c42a-e386-4094-e333-08dd70d23b42
+X-MS-Exchange-CrossTenant-AuthSource: LV8PR02MB10287.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Apr 2025 04:03:59.7492
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: bb047546-786f-4de1-bd75-24e5b6f79043
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: TUEFCHKEvUh88f0km8xansJZ4czFyd29BO/vySGFU0aJ7iJpBFfO+XWiH8vlk6PAGzAc2CdOeAtnSbty33qty5obTWDzPXld0MR+gIwUfZQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR02MB8513
+X-Proofpoint-GUID: joQxscvfP9fLFzNZLQh3WuBcATvyrKQn
+X-Proofpoint-ORIG-GUID: joQxscvfP9fLFzNZLQh3WuBcATvyrKQn
+X-Authority-Analysis: v=2.4 cv=PMMP+eqC c=1 sm=1 tr=0 ts=67eb65b4 cx=c_pps a=hSS9g3ca6WprpwKybkK64g==:117 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19 a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=Vs1iUdzkB0EA:10
+ a=H5OGdu5hBBwA:10 a=0kUYKlekyDsA:10 a=64Cc0HZtAAAA:8 a=Ngy3d7EZHYTq51gLL0IA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-01_01,2025-03-27_02,2024-11-22_01
+X-Proofpoint-Spam-Reason: safe
 
-On Mon, 31 Mar 2025 22:10:55 +0200
-Stefan Metzmacher <metze@samba.org> wrote:
+In handle_tx_copy, TX batching processes packets below ~PAGE_SIZE and
+batches up to 64 messages before calling sock->sendmsg.
 
-> The motivation for this is to remove the SOL_SOCKET limitation
-> from io_uring_cmd_getsockopt().
-> 
-> The reason for this limitation is that io_uring_cmd_getsockopt()
-> passes a kernel pointer.
-> 
-> The first idea would be to change the optval and optlen arguments
-> to the protocol specific hooks also to sockptr_t, as that
-> is already used for setsockopt() and also by do_sock_getsockopt()
-> sk_getsockopt() and BPF_CGROUP_RUN_PROG_GETSOCKOPT().
-> 
-> But as Linus don't like 'sockptr_t' I used a different approach.
-> 
-> Instead of passing the optlen as user or kernel pointer,
-> we only ever pass a kernel pointer and do the
-> translation from/to userspace in do_sock_getsockopt().
-> 
-> The simple solution would be to just remove the
-> '__user' from the int *optlen argument, but it
-> seems the compiler doesn't complain about
-> '__user' vs. without it, so instead I used
-> a helper struct in order to make sure everything
-> compiles with a typesafe change.
-> 
-> That together with get_optlen() and put_optlen() helper
-> macros make it relatively easy to review and check the
-> behaviour is most likely unchanged.
+Currently, when there are no more messages on the ring to dequeue,
+handle_tx_copy re-enables kicks on the ring *before* firing off the
+batch sendmsg. However, sock->sendmsg incurs a non-zero delay,
+especially if it needs to wake up a thread (e.g., another vhost worker).
 
-I've looked into this before (and fallen down the patch rabbit hole).
+If the guest submits additional messages immediately after the last ring
+check and disablement, it triggers an EPT_MISCONFIG vmexit to attempt to
+kick the vhost worker. This may happen while the worker is still
+processing the sendmsg, leading to wasteful exit(s).
 
-I think the best (final) solution is to pass a validated non-negative
-'optlen' into all getsockopt() functions and to have them usually return
-either -errno or the modified length.
-This simplifies 99% of the functions.
+This is particularly problematic for single-threaded guest submission
+threads, as they must exit, wait for the exit to be processed
+(potentially involving a TTWU), and then resume.
 
-The problem case is functions that want to update the length and return
-an error.
-By best solution is to support return values of -errno << 20 | length
-(as well as -errno and length).
+In scenarios like a constant stream of UDP messages, this results in a
+sawtooth pattern where the submitter frequently vmexits, and the
+vhost-net worker alternates between sleeping and waking.
 
-There end up being some slight behaviour changes.
-- Some code tries to 'undo' actions if the length can't be updated.
-  I'm sure this is unnecessary and the recovery path is untested and
-  could be buggy. Provided the kernel data is consistent there is
-  no point trying to get code to recover from EFAULT.
-  The 'length' has been read - so would also need to be readonly
-  or unmapped by a second thread!
-- A lot of getsockopt functions actually treat a negative length as 4.
-  I think this 'bug' needs to preserved to avoid breaking applications.
+A common solution is to configure vhost-net busy polling via userspace
+(e.g., qemu poll-us). However, treating the sendmsg as the "busy"
+period by keeping kicks disabled during the final sendmsg and
+performing one additional ring check afterward provides a significant
+performance improvement without any excess busy poll cycles.
 
-The changes are mechanical but very widespread.
+If messages are found in the ring after the final sendmsg, requeue the
+TX handler. This ensures fairness for the RX handler and allows
+vhost_run_work_list to cond_resched() as needed.
 
-They also give the option of not writing back the length if unchanged.
+Test Case
+    TX VM: taskset -c 2 iperf3  -c rx-ip-here -t 60 -p 5200 -b 0 -u -i 5
+    RX VM: taskset -c 2 iperf3 -s -p 5200 -D
+    6.12.0, each worker backed by tun interface with IFF_NAPI setup.
+    Note: TCP side is largely unchanged as that was copy bound
 
-	David
+6.12.0 unpatched
+    EPT_MISCONFIG/second: 5411
+    Datagrams/second: ~382k
+    Interval         Transfer     Bitrate         Lost/Total Datagrams
+    0.00-30.00  sec  15.5 GBytes  4.43 Gbits/sec  0/11481630 (0%)  sender
+
+6.12.0 patched
+    EPT_MISCONFIG/second: 58 (~93x reduction)
+    Datagrams/second: ~650k  (~1.7x increase)
+    Interval         Transfer     Bitrate         Lost/Total Datagrams
+    0.00-30.00  sec  26.4 GBytes  7.55 Gbits/sec  0/19554720 (0%)  sender
+
+Signed-off-by: Jon Kohler <jon@nutanix.com>
+---
+ drivers/vhost/net.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index b9b9e9d40951..9b04025eea66 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -769,13 +769,17 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
+ 			break;
+ 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
+ 		if (head == vq->num) {
++			/* If interrupted while doing busy polling, requeue
++			 * the handler to be fair handle_rx as well as other
++			 * tasks waiting on cpu
++			 */
+ 			if (unlikely(busyloop_intr)) {
+ 				vhost_poll_queue(&vq->poll);
+-			} else if (unlikely(vhost_enable_notify(&net->dev,
+-								vq))) {
+-				vhost_disable_notify(&net->dev, vq);
+-				continue;
+ 			}
++			/* Kicks are disabled at this point, break loop and
++			 * process any remaining batched packets. Queue will
++			 * be re-enabled afterwards.
++			 */
+ 			break;
+ 		}
  
+@@ -825,7 +829,14 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
+ 		++nvq->done_idx;
+ 	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
+ 
++	/* Kicks are still disabled, dispatch any remaining batched msgs. */
+ 	vhost_tx_batch(net, nvq, sock, &msg);
++
++	/* All of our work has been completed; however, before leaving the
++	 * TX handler, do one last check for work, and requeue handler if
++	 * necessary. If there is no work, queue will be reenabled.
++	 */
++	vhost_net_busy_poll_try_queue(net, vq);
+ }
+ 
+ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
+-- 
+2.43.0
+
