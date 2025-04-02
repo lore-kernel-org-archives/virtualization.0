@@ -1,126 +1,145 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28B992E3372
-	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 15:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33D952E3372;
+	Wed,  2 Apr 2025 15:41:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743608412; cv=none; b=B9+4BBG3Akb1kIR/hqExKtze3cOLfJQPBewDhv6p8O4squ5vz+Wf4ec+Vm3TQvdJkm+x48TrT6vQYpCGADbu8Z2Y9SZDTbM7t6Q8+lVTwMRzhV/6RcZ8DaYQJhU8XF82zoHf+1qnR+PXirrVWZM7+/31SUpi7L8jbXZzvQwD4sM=
+	t=1743608473; cv=none; b=abwqRQsURhbToiNsc72J4n9A/mA+MjScdEcDoAiiUgoOzQAn+sPvJxtBFTe5rPNSatdFQtjzEhC3WNrBn5ca9JPXT4Sovx1Yq2Y1LZvvkCPxvhOedHmVUdn0z4HP91bCYCrJD6tr5w9FIaxS2PzcRpDsiUWouu6afrCj8bT6UMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743608412; c=relaxed/simple;
-	bh=Pbq1dx/OnJbPO7NellCFhQ39y6lY/rmd0Eej3PvX2s4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Xxn91TVScYN6TDVy4yHntkOoXQUDXkUx2fs9aLCofk3R72bjXwLJqirLy+hJkQUKpD69wQYmeU6V1epYKu9Vn1yn47zqeDwmc4AsAwJQe1ucODjSHZgNscudnTndTwtpCamogZHxbPOH4ZGdWFtX45WiYbmjJHwkmYxq+bOCnm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hqghdk3L; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1743608473; c=relaxed/simple;
+	bh=Y/O2DK5Lf6ey6Pfej1vFZZLi5jn02o1oRvHXFQ36iCQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=L/arm2DgjM30bbyQYWCaSpjjyl8peJM5t+/HCItFfBv+toAn6fxA2dh1XG56cxZBMJ0FL1ZOHOEDJnlvcYTuo+D9KRgaQVXL/pIUUNS+F5SfsVuz8gCy6HzyP2B4I7atLLKfOCiJtCtQ3NmdEyOveBcW48SQeXiYO1lWT2bE/Gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OH1LsY4q; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hqghdk3L"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743608410;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6nUx7Vl7EvSuoWp742ECf14m48HpSY6aOAHXmisq0nE=;
-	b=Hqghdk3L0WmHFcqIgTcvZIObcQtFIOPDXqyJzhtw4sP+OYgYlcBt65Qcg6f41sPuHUpPzk
-	wxTVE+Pebw4w0Ztk97/1ro+7uTpRgJ2x8UoSeHcrvx/qHJBG9FDyr51gjeiXdK6KcJdyLd
-	k3kVnXF7ZQ+ujhVgpytXyGvGXkyCRTw=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-501-wFMdoC11O9G1echZi_dmVA-1; Wed, 02 Apr 2025 11:40:08 -0400
-X-MC-Unique: wFMdoC11O9G1echZi_dmVA-1
-X-Mimecast-MFC-AGG-ID: wFMdoC11O9G1echZi_dmVA_1743608408
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43bd0586a73so51944375e9.2
-        for <virtualization@lists.linux.dev>; Wed, 02 Apr 2025 08:40:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743608407; x=1744213207;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6nUx7Vl7EvSuoWp742ECf14m48HpSY6aOAHXmisq0nE=;
-        b=NCBrbtFRnkzSiE/qyUtZo/FEJMnDFIYSAYCPzNpy0k+lc2jSceQzEb3rtlfbDrBv9D
-         Fbe3wEY0/S9+k0gWQmIkFvG7NzxYsZXwdJa0ZnBKzu49eLHxGV+XCJS9reeZoJbu/495
-         p3uKp/OHK8CjRP2RGwisgRTQfQ/Qgj+wWPr4+I4jeUdbrD05q3nidBukBy1LgsFwHKxi
-         LM87aThM93D+k+P9HCEM2VrJxNCoq6C1m6kprfso5/C5Jtwxlb7rGgqLGIhA6hA3oxRV
-         DJ2VeKY2REXXjUSGe3rqOXuvDznjiDM3TAyzNczt9uOlPcXQ8dl4GKQxD1v/TPN3L9ST
-         /GrA==
-X-Forwarded-Encrypted: i=1; AJvYcCUFxIr6JmxM65NZuLhHTxou56Gc/bmTd06KlkRfhYY/lFvOacqCGzT39NeNQY25CEw47j2SJm9969WC/jbINA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YynzXD9aIEgotpDlmdSrOOhULxqOGIUUGZOPiuXxc8REg+P8rk1
-	qgAzmE68y45AhiYccHxQI4+0yvb7ra+lpimNlK9TVxHL3plhklNHD9IG9ML9pUlRgLGs5up6bCN
-	KOglBqQawxHA+L7o2z0YJFvc5dl4/4igjCKGOdabMoycOiaGL41W6Wq4M4XOFKwQRGDu57q/P
-X-Gm-Gg: ASbGncv488YxOC0zNzcU9ZXKMcQsO07z7x9flFVUuq/hRzZknOJOS5W5nT9CJtRuJlP
-	nC4MxHtryUrpReQfuFVkLJ7RHlkqToaex9oeo+5+h3h3VwroHlcwg+wvJC2YuiQ9HekIU+7kThb
-	ZizDNlSMb8Ie5osrcY9JCOQ66pNV1lHRlnK5jO6POkyX+qdEMFggpW2FsJjdBqwCFJLpC0N/99e
-	o7sE0aZlF67/s/mPM2oNiOsIis2HVFIz/ufcNZYKQMATTNztr0OWqHACfl3Q5qkHn0T4VPz3htJ
-	WsMVWiko4w==
-X-Received: by 2002:a05:600c:190b:b0:43d:45a:8fc1 with SMTP id 5b1f17b1804b1-43db61e0327mr166905445e9.4.1743608407271;
-        Wed, 02 Apr 2025 08:40:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFnFH42jKvsNA+QiJsZ/dd/OiaMejjhtC78pMe0Jb00FkOJVLLyR+cxJWkaCicl8B+/i2omrA==
-X-Received: by 2002:a05:600c:190b:b0:43d:45a:8fc1 with SMTP id 5b1f17b1804b1-43db61e0327mr166905175e9.4.1743608406852;
-        Wed, 02 Apr 2025 08:40:06 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43eb5fcd489sm24265995e9.11.2025.04.02.08.40.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Apr 2025 08:40:06 -0700 (PDT)
-Date: Wed, 2 Apr 2025 11:40:03 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, stable@vger.kernel.org,
-	Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>
-Subject: Re: [PATCH 1/1] virtio_console: fix missing byte order handling for
- cols and rows
-Message-ID: <20250402113755-mutt-send-email-mst@kernel.org>
-References: <20250322002954.3129282-1-pasic@linux.ibm.com>
- <20250402172659.59df72d2.pasic@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OH1LsY4q"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1743608472; x=1775144472;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=Y/O2DK5Lf6ey6Pfej1vFZZLi5jn02o1oRvHXFQ36iCQ=;
+  b=OH1LsY4qizQgV0jbTK7Uekah+5OqsBFcRTO2M19ErtZGnF1hgWR+hnUw
+   ntdbTz9l2LCxStga+Tm1fEJjJ3ttHzwSGJvlDqnC60bJt7eDNAPogAx90
+   Kw571iZ/seT2Ys8zPnV/mAG3p+vj7hTjOy7aKnnM5HgqZfK0REhLmsy6e
+   hLGwd8kawgbJ3ajjJzr3Y0txPSXvO7I/n7WLXa7OsbDFxTblXIo0jNNLI
+   w70Ng5w2WkQDz+2a5xPimzlWXea0tZYMeeqjQlrgJMeLa52DEULEBgeEv
+   i/TG3mdySNB5PqWXArlK8psyr5Mnz2yI7VtvTND0Y7sb/bJz2fSMT6s9+
+   Q==;
+X-CSE-ConnectionGUID: LF1dijstTZmaFwiYpFfAUQ==
+X-CSE-MsgGUID: 4fDJtL3oSSmHpD9RAzRwPg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11392"; a="45106882"
+X-IronPort-AV: E=Sophos;i="6.15,182,1739865600"; 
+   d="scan'208";a="45106882"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2025 08:41:11 -0700
+X-CSE-ConnectionGUID: zHDjNtvDTouroy5OyapFag==
+X-CSE-MsgGUID: S3MiKWOZRGuvNqyyZyUeaQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,182,1739865600"; 
+   d="scan'208";a="131603092"
+Received: from johunt-mobl9.ger.corp.intel.com (HELO [10.124.222.41]) ([10.124.222.41])
+  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2025 08:41:08 -0700
+Message-ID: <e5770add-9d18-40e1-929d-df7c40f3c7d1@intel.com>
+Date: Wed, 2 Apr 2025 08:41:07 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250402172659.59df72d2.pasic@linux.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: kcdRJ-X90TSvZSzIR1WXX2z32sNVgYJUt08wNJ13GHg_1743608408
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v1 01/15] x86/msr: Replace __wrmsr() with
+ native_wrmsrl()
+To: Xin Li <xin@zytor.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Ingo Molnar <mingo@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-edac@vger.kernel.org, kvm@vger.kernel.org,
+ xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org,
+ linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev,
+ tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, x86@kernel.org, jgross@suse.com,
+ andrew.cooper3@citrix.com, peterz@infradead.org, acme@kernel.org,
+ namhyung@kernel.org, mark.rutland@arm.com,
+ alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com,
+ adrian.hunter@intel.com, kan.liang@linux.intel.com, wei.liu@kernel.org,
+ ajay.kaher@broadcom.com, alexey.amakhalov@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
+ pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+ luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+ haiyangz@microsoft.com, decui@microsoft.com
+References: <20250331082251.3171276-1-xin@zytor.com>
+ <20250331082251.3171276-2-xin@zytor.com> <Z-pruogreCuU66wm@gmail.com>
+ <9D15DE81-2E68-4FCD-A133-4963602E18C9@zytor.com>
+ <a0254e73-bf7c-4876-b64e-b08e96044666@zytor.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <a0254e73-bf7c-4876-b64e-b08e96044666@zytor.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 02, 2025 at 05:26:59PM +0200, Halil Pasic wrote:
-> On Sat, 22 Mar 2025 01:29:54 +0100
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+On 3/31/25 22:53, Xin Li wrote:
+> Per "struct msr" defined in arch/x86/include/asm/shared/msr.h:
 > 
-> > As per virtio spec the fields cols and rows are specified as little
-> > endian. 
-> [..]
+> struct msr {
+>         union {
+>                 struct {
+>                         u32 l;
+>                         u32 h;
+>                 };
+>                 u64 q;
+>         };
+> };
 > 
-> @Amit: Any feedback?
-> 
-> > 
-> > Fixes: 8345adbf96fc1 ("virtio: console: Accept console size along with resize control message")
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > Cc: stable@vger.kernel.org # v2.6.35+
-> > ---
-> > 
-> > @Michael: I think it would be nice to add a clarification on the byte
-> > order to be used for cols and rows when the legacy interface is used to
-> > the spec, regardless of what we decide the right byte order is. If
-> > it is native endian that shall be stated much like it is stated for
-> > virtio_console_control. If it is little endian, I would like to add
-> > a sentence that states that unlike for the fields of virtio_console_control
-> > the byte order of the fields of struct virtio_console_resize is little
-> > endian also when the legacy interface is used.
-> 
-> @MST: any opinion on that?
-> 
-> [..]
+> Probably *msrq() is what we want?
 
-
-native endian for legacy. Yes extending the spec to say this is right.
-
--- 
-MST
-
+What would folks think about "wrmsr64()"? It's writing a 64-bit value to
+an MSR and there are a lot of functions in the kernel that are named
+with the argument width in bits.
