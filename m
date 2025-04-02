@@ -1,329 +1,205 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BD6A18A93F
-	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 16:14:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 911CF15575B
+	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 16:38:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743610475; cv=none; b=q0Sfxjt6crfhIrcjL8RUw0RaBDHYlk1JC7yuR1EbMgE/OGc6TeGUt8mvqMcQJ+ds8zSu7ruPva/lHNp4NlgsBsagN3lea3bt8mHtPWM6lpkGV5WoHF1WfABCa2AdWPCGra6OFuFD4eX9Wis7rDE5Q6KzHuOmLquifofl1eFHRRU=
+	t=1743611940; cv=none; b=HsgskMwkMU+grlvtcWyS/3IMIxXxvDaTBpM8zIvjGtcoVN2GfqazCktFxgbUEI8S6s4A6DGuSUp6DDVu9fw1hc4pGDOhUJ704huNm1/YtM0mLrbrvElPajoCtcBmcGKfyIaMtKE4C5RDvfZVRGPwb5zb4KXccTcNRgHGhCS2VWQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743610475; c=relaxed/simple;
-	bh=Ydm+k8HkvRBKYcyFFDL+gDh1pQECSDhmqUceWQb7CQk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SVePosUeQf6sgnFYPw+K3QTSLYEnuZGOsbmEw7nJQNnCAXg0O/NKM5+c7NAZeqQFklxpa2aMcM2N7CAmrFrxOu5Amrnfw4ZNH2e1+ewoRNONMGjbDPXzQuXCTqc8W2Vkvl2XUrDu774uR8mPtig0vHrxfyjzN2eDgF8gufkSkR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aGVejpSK; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1743611940; c=relaxed/simple;
+	bh=JbpQGyS2k2ae5y5xVtR1Gxoy3SaqtFSjvZ/rBlydswQ=;
+	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Tmfv0w9rC4SKOOALav1NuLTnYMXNMivbgD4nwliwm+/LFvkZl0LPfwUHbhm+2uRyU9S2AomKomMvvzDbrx/0pdnR6h8GN0B8bbWA+XXnfO4vk1bVGK3XEL9MGL0Vh0iwtohS3LNM01dTX2aiK3/N4JnxZny2OBiP7Hk/teE6epU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PhFyt3Dj; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aGVejpSK"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PhFyt3Dj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743610472;
+	s=mimecast20190719; t=1743611937;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KAThrOka30otNhmkUJggV+4jdbUQdUkKGhzfYFKV8wA=;
-	b=aGVejpSKlEzTf5w8yr+mIPydQxIH/VNbRONxYh/1ysqM/0K6jiyAJDjaw4dC+aSKOP7WHA
-	FZcihAMKcZo5pVAQE8xfZaGgvMzCsmoYYtZuDhzM8TI0BtNqrTl7Hv2Cs877AZbGKWQWJ9
-	i4Hny4+Ve+yap2tVPq6kDHZWfFHVzZs=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-472-nJMGd8svOFyrmItM8fChUA-1; Wed,
- 02 Apr 2025 12:14:28 -0400
-X-MC-Unique: nJMGd8svOFyrmItM8fChUA-1
-X-Mimecast-MFC-AGG-ID: nJMGd8svOFyrmItM8fChUA_1743610467
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 880E5180AF4D;
-	Wed,  2 Apr 2025 16:14:26 +0000 (UTC)
-Received: from localhost (unknown [10.2.16.101])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id AE4671801747;
-	Wed,  2 Apr 2025 16:14:25 +0000 (UTC)
-Date: Wed, 2 Apr 2025 12:14:24 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Alexander Graf <graf@amazon.com>
-Cc: netdev@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, Asias He <asias@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S . Miller" <davem@davemloft.net>, nh-open-source@amazon.com
-Subject: Re: [PATCH v2] vsock/virtio: Remove queued_replies pushback logic
-Message-ID: <20250402161424.GA305204@fedora>
-References: <20250401201349.23867-1-graf@amazon.com>
+	bh=jA07gZAckB5bQhywn6Vwf6YGCI+Gg9x9Lpp/1wjtdSQ=;
+	b=PhFyt3Dje+jQIPTHrevqM7UXEPBBNX0OQEDLj7Lq/8j4iHgZBQq3tqN3e9ONAo0dYmbsAX
+	nLCzNK0T0ADO9TrhToZnI/kcOkPYo9lg4J0qIbJwHJ/4ZprgRoUOs2cGbqBB0Rw0Vrosw0
+	m+blJenT81xx6sjMms/zF7LoYxKgnOQ=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-113-PVsBxscYMMKdWvKk5Ze3GQ-1; Wed, 02 Apr 2025 12:38:56 -0400
+X-MC-Unique: PVsBxscYMMKdWvKk5Ze3GQ-1
+X-Mimecast-MFC-AGG-ID: PVsBxscYMMKdWvKk5Ze3GQ_1743611935
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-af96cdd7f5bso28214a12.1
+        for <virtualization@lists.linux.dev>; Wed, 02 Apr 2025 09:38:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743611935; x=1744216735;
+        h=content-transfer-encoding:cc:to:subject:message-id:date
+         :mime-version:references:in-reply-to:from:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=jA07gZAckB5bQhywn6Vwf6YGCI+Gg9x9Lpp/1wjtdSQ=;
+        b=GulvNIH7oCHGtPk1N5MnPmvyjNqmzG3DRQujwDHY7Kpl+3fawSFa2glu9twGRcZUR9
+         KeRtZk5gKffoVTLWIztvqZj8JXAyEx8Dy4+CHM8cXk5aFB/7C4FMEH7q2j1WqDhnMq3R
+         gSM1gYyb38RNDtYXbnhpRNQse1HQyXTuK2UG3A9ggKZ+fFVNIvFqDtvrWSJU2xgthivj
+         kwgmxk7cw0tGXsxeeotIcjiW+O4v66/DIFY1gYVdwd13C+Fhc67sUlPr5wz+tDY0kQRl
+         VN9tUVbxKDmkab5x54JC81jpW+1G+zd7yhM6kNMCD0yv7nQZNPNE4QAhIexVdxDbYBPf
+         caTA==
+X-Forwarded-Encrypted: i=1; AJvYcCWd+GtgFDxny4GRLJ/+1LdzOX1Zdf8P1B2yQZOnMp71aisZ+NBdNNacOn7Ohmzlk6HExLbf0GinHUcjZOCnrQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwWCY5/PffB8DNGyTpbUI9uEUV8Fb9IoTbZP/cQHQ7bp9VC8+2M
+	Wzn9AZ3ahLvwclyec4OujBmnqbW38/KWOxY1X0iq6+ff5x51x+6L7CqpHmb8aquZepEW5YQz1g1
+	hpJH1Bz4/C2UoKXxphzKm9Ds6S03zGUGbjlgdGwRjq1gxq1Z649r6vRinwAVUsOr30JbAJTznvk
+	bek7+gkmrkhz4jcGoXrP1rPaMbGyFhGkDYk0d5yLA=
+X-Gm-Gg: ASbGncv/ClzoT4XvxKy1OQ4kRQtExo8+vQQy8nuAIaexqvDH858r8PgJ0j9FfygX+Pi
+	UbffRxFxVM3WZausCLSEH4CegbFjeW277uzvol7KORoW0z6nakhZcSYNg2yzrUibgy6EfTw==
+X-Received: by 2002:a17:90a:e183:b0:2ff:5e4e:861 with SMTP id 98e67ed59e1d1-3056094b28amr11892719a91.24.1743611935193;
+        Wed, 02 Apr 2025 09:38:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFJeSWFRN5z2wxWXtKvRsOPT5CfAHrY7buz3TM6wH9tz9gjBfwFVkgsnjlHEgDTEqYebTRrhaxUSg2BrAW/4wM=
+X-Received: by 2002:a17:90a:e183:b0:2ff:5e4e:861 with SMTP id
+ 98e67ed59e1d1-3056094b28amr11892695a91.24.1743611934877; Wed, 02 Apr 2025
+ 09:38:54 -0700 (PDT)
+Received: from 753933720722 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 2 Apr 2025 18:38:54 +0200
+From: Sergio Lopez Pascual <slp@redhat.com>
+In-Reply-To: <CAAfnVBki816fSPuQ_FcvuwYzbSwiS_WaYsGSA1AyitmAA5OsXg@mail.gmail.com>
+References: <20240723114914.53677-1-slp@redhat.com> <942afa37-a24c-48ed-ae10-c811849165bf@collabora.com>
+ <CAAiTLFV6mAgrMj=itcxoBCibvYRyrAk02wYp-gYJ8kxhF0EPmw@mail.gmail.com>
+ <CAAfnVBkWKn3+YEhNz0CTmw-T_jjL72axkWqYgkzkSa72t_Gf0A@mail.gmail.com>
+ <CAF6AEGsnpEYFsCfZUAPopWzY=wv_GWn0P5f5D6U9y-JrWGQVnw@mail.gmail.com> <CAAfnVBki816fSPuQ_FcvuwYzbSwiS_WaYsGSA1AyitmAA5OsXg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="9/YZwLxNw5hXaRvd"
-Content-Disposition: inline
-In-Reply-To: <20250401201349.23867-1-graf@amazon.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-
-
---9/YZwLxNw5hXaRvd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Wed, 2 Apr 2025 18:38:54 +0200
+X-Gm-Features: AQ5f1Jqh3JlHDowKtF1SlejjtYnTX8s9zM8BYZmloreOmj3oPMj4ojBdK_5F-_E
+Message-ID: <CAAiTLFWOfX+TOcLFKpgqZvGoC6xSbDyHcefET-jtbm=bCTtqeQ@mail.gmail.com>
+Subject: Re: [PATCH 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
+To: Gurchetan Singh <gurchetansingh@chromium.org>, Rob Clark <robdclark@gmail.com>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, tzimmermann@suse.de, mripard@kernel.org, 
+	olvaffe@gmail.com, kraxel@redhat.com, daniel@ffwll.ch, 
+	maarten.lankhorst@linux.intel.com, airlied@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	dri-devel@lists.freedesktop.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: YfpXvtsh3L2C2zlrLusDGKwVR4ZNEiQUp2DyDYwvz9E_1743611935
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 01, 2025 at 08:13:49PM +0000, Alexander Graf wrote:
-> Ever since the introduction of the virtio vsock driver, it included
-> pushback logic that blocks it from taking any new RX packets until the
-> TX queue backlog becomes shallower than the virtqueue size.
->=20
-> This logic works fine when you connect a user space application on the
-> hypervisor with a virtio-vsock target, because the guest will stop
-> receiving data until the host pulled all outstanding data from the VM.
->=20
-> With Nitro Enclaves however, we connect 2 VMs directly via vsock:
->=20
->   Parent      Enclave
->=20
->     RX -------- TX
->     TX -------- RX
->=20
-> This means we now have 2 virtio-vsock backends that both have the pushback
-> logic. If the parent's TX queue runs full at the same time as the
-> Enclave's, both virtio-vsock drivers fall into the pushback path and
-> no longer accept RX traffic. However, that RX traffic is TX traffic on
-> the other side which blocks that driver from making any forward
-> progress. We're now in a deadlock.
->=20
-> To resolve this, let's remove that pushback logic altogether and rely on
-> higher levels (like credits) to ensure we do not consume unbounded
-> memory.
+Gurchetan Singh <gurchetansingh@chromium.org> writes:
 
-The reason for queued_replies is that rx packet processing may emit tx
-packets. Therefore tx virtqueue space is required in order to process
-the rx virtqueue.
+> On Tue, Aug 6, 2024 at 1:15=E2=80=AFPM Rob Clark <robdclark@gmail.com> wr=
+ote:
+>
+>> On Tue, Aug 6, 2024 at 9:15=E2=80=AFAM Gurchetan Singh
+>> <gurchetansingh@chromium.org> wrote:
+>> >
+>> >
+>> >
+>> > On Mon, Aug 5, 2024 at 2:14=E2=80=AFAM Sergio Lopez Pascual <slp@redha=
+t.com>
+>> wrote:
+>> >>
+>> >> Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
+>> >>
+>> >> > On 7/23/24 14:49, Sergio Lopez wrote:
+>> >> >> There's an incresing number of machines supporting multiple page
+>> sizes
+>> >> >> and on these machines the host and a guest can be running, each on=
+e,
+>> >> >> with a different page size.
+>> >> >>
+>> >> >> For what pertains to virtio-gpu, this is not a problem if the page
+>> size
+>> >> >> of the guest happens to be bigger or equal than the host, but will
+>> >> >> potentially lead to failures in memory allocations and/or mappings
+>> >> >> otherwise.
+>> >> >
+>> >> > Please describe concrete problem you're trying to solve. Guest memo=
+ry
+>> >> > allocation consists of guest pages, I don't see how knowledge of ho=
+st
+>> >> > page size helps anything in userspace.
+>> >> >
+>> >> > I suspect you want this for host blobs, but then it should be
+>> >> > virtio_gpu_vram_create() that should use max(host_page_sz,
+>> >> > guest_page_size), AFAICT. It's kernel who is responsible for memory
+>> >> > management, userspace can't be trusted for doing that.
+>> >>
+>> >> Mesa's Vulkan/Venus uses CREATE_BLOB to request the host the creation
+>> >> and mapping into the guest of device-backed memory and shmem regions.
+>> >> The CREATE_BLOB ioctl doesn't update drm_virtgpu_resource_create->siz=
+e,
+>> >> so the guest kernel (and, as a consequence, the host kernel) can't
+>> >> override the user's request.
+>> >>
+>> >> I'd like Mesa's Vulkan/Venus in the guest to be able to obtain the ho=
+st
+>> >> page size to align the size of the CREATE_BLOB requests as required.
+>> >
+>> >
+>> > gfxstream solves this problem by putting the relevant information in t=
+he
+>> capabilities obtained from the host:
+>> >
+>> >
+>> https://android.googlesource.com/platform/hardware/google/gfxstream/+/re=
+fs/heads/main/host/virtio-gpu-gfxstream-renderer.cpp#1691
+>> >
+>> > If you want to be paranoid, you can also validate the
+>> ResourceCreateBlob::size is properly host-page aligned when that request
+>> reaches the host.
+>> >
+>> > So you can probably solve this problem using current interfaces.
+>> Whether it's cleaner for all context types to use the capabilities, or h=
+ave
+>> all VMMs to expose VIRTIO_GPU_F_HOST_PAGE_SIZE, would be the cost/benefi=
+t
+>> tradeoff.
+>> >
+>>
+>> I guess solving it in a context-type specific way is possible.  But I
+>> think it is a relatively universal constraint.  And maybe it makes
+>> sense for virtgpu guest kernel to enforce alignment (at least it can
+>> return an error synchronously) in addition to the host.
+>>
+>
+> virtio-media may have support for VIRTIO_MEDIA_CMD_MMAP too, so could run
+> into this issue.
+>
+> https://github.com/chromeos/virtio-media?tab=3Dreadme-ov-file#shared-memo=
+ry-regions
+>
+> virtio-fs also has the DAX window which uses the same memory mapping
+> mechanism.
+>
+> https://virtio-fs.gitlab.io/design.html
+>
+> Maybe this should not be a virtio-gpu thing, but a virtio thing?
 
-queued_replies puts a bound on the amount of tx packets that can be
-queued in memory so the other side cannot consume unlimited memory. Once
-that bound has been reached, rx processing stops until the other side
-frees up tx virtqueue space.
+There seem to be certain consensus that the information about alignment
+restrictions must be shared in a device-specific way:
 
-It's been a while since I looked at this problem, so I don't have a
-solution ready. In fact, last time I thought about it I wondered if the
-design of virtio-vsock fundamentally suffers from deadlocks.
+https://lore.kernel.org/virtio-comment/CY8PR12MB7195B5E575099CD9CA1F2F39DCA=
+F2@CY8PR12MB7195.namprd12.prod.outlook.com/T/#t
 
-I don't think removing queued_replies is possible without a replacement
-for the bounded memory and virtqueue exhaustion issue though. Credits
-are not a solution - they are about socket buffer space, not about
-virtqueue space, which includes control packets that are not accounted
-by socket buffer space.
+There's also the precedent of virtio-fs already sharing the alignment
+restrictions through FUSE_INIT (from VIRTIO SPECS 1.3, section
+5.11.6.4).
 
->=20
-> RX and TX queues share the same work queue. To prevent starvation of TX
-> by an RX flood and vice versa now that the pushback logic is gone, let's
-> deliberately reschedule RX and TX work after a fixed threshold (256) of
-> packets to process.
->=20
-> Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
-> Signed-off-by: Alexander Graf <graf@amazon.com>
-> ---
->  net/vmw_vsock/virtio_transport.c | 70 +++++++++-----------------------
->  1 file changed, 19 insertions(+), 51 deletions(-)
->=20
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_tran=
-sport.c
-> index f0e48e6911fc..54030c729767 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -26,6 +26,12 @@ static struct virtio_vsock __rcu *the_virtio_vsock;
->  static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsoc=
-k */
->  static struct virtio_transport virtio_transport; /* forward declaration =
-*/
-> =20
-> +/*
-> + * Max number of RX packets transferred before requeueing so we do
-> + * not starve TX traffic because they share the same work queue.
-> + */
-> +#define VSOCK_MAX_PKTS_PER_WORK 256
-> +
->  struct virtio_vsock {
->  	struct virtio_device *vdev;
->  	struct virtqueue *vqs[VSOCK_VQ_MAX];
-> @@ -44,8 +50,6 @@ struct virtio_vsock {
->  	struct work_struct send_pkt_work;
->  	struct sk_buff_head send_pkt_queue;
-> =20
-> -	atomic_t queued_replies;
-> -
->  	/* The following fields are protected by rx_lock.  vqs[VSOCK_VQ_RX]
->  	 * must be accessed with rx_lock held.
->  	 */
-> @@ -158,7 +162,7 @@ virtio_transport_send_pkt_work(struct work_struct *wo=
-rk)
->  		container_of(work, struct virtio_vsock, send_pkt_work);
->  	struct virtqueue *vq;
->  	bool added =3D false;
-> -	bool restart_rx =3D false;
-> +	int pkts =3D 0;
-> =20
->  	mutex_lock(&vsock->tx_lock);
-> =20
-> @@ -172,6 +176,12 @@ virtio_transport_send_pkt_work(struct work_struct *w=
-ork)
->  		bool reply;
->  		int ret;
-> =20
-> +		if (++pkts > VSOCK_MAX_PKTS_PER_WORK) {
-> +			/* Allow other works on the same queue to run */
-> +			queue_work(virtio_vsock_workqueue, work);
-> +			break;
-> +		}
-> +
->  		skb =3D virtio_vsock_skb_dequeue(&vsock->send_pkt_queue);
->  		if (!skb)
->  			break;
-> @@ -184,17 +194,6 @@ virtio_transport_send_pkt_work(struct work_struct *w=
-ork)
->  			break;
->  		}
-> =20
-> -		if (reply) {
-> -			struct virtqueue *rx_vq =3D vsock->vqs[VSOCK_VQ_RX];
-> -			int val;
-> -
-> -			val =3D atomic_dec_return(&vsock->queued_replies);
-> -
-> -			/* Do we now have resources to resume rx processing? */
-> -			if (val + 1 =3D=3D virtqueue_get_vring_size(rx_vq))
-> -				restart_rx =3D true;
-> -		}
-> -
->  		added =3D true;
->  	}
-> =20
-> @@ -203,9 +202,6 @@ virtio_transport_send_pkt_work(struct work_struct *wo=
-rk)
-> =20
->  out:
->  	mutex_unlock(&vsock->tx_lock);
-> -
-> -	if (restart_rx)
-> -		queue_work(virtio_vsock_workqueue, &vsock->rx_work);
->  }
-> =20
->  /* Caller need to hold RCU for vsock.
-> @@ -261,9 +257,6 @@ virtio_transport_send_pkt(struct sk_buff *skb)
->  	 */
->  	if (!skb_queue_empty_lockless(&vsock->send_pkt_queue) ||
->  	    virtio_transport_send_skb_fast_path(vsock, skb)) {
-> -		if (virtio_vsock_skb_reply(skb))
-> -			atomic_inc(&vsock->queued_replies);
-> -
->  		virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, skb);
->  		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
->  	}
-> @@ -277,7 +270,7 @@ static int
->  virtio_transport_cancel_pkt(struct vsock_sock *vsk)
->  {
->  	struct virtio_vsock *vsock;
-> -	int cnt =3D 0, ret;
-> +	int ret;
-> =20
->  	rcu_read_lock();
->  	vsock =3D rcu_dereference(the_virtio_vsock);
-> @@ -286,17 +279,7 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
->  		goto out_rcu;
->  	}
-> =20
-> -	cnt =3D virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
-> -
-> -	if (cnt) {
-> -		struct virtqueue *rx_vq =3D vsock->vqs[VSOCK_VQ_RX];
-> -		int new_cnt;
-> -
-> -		new_cnt =3D atomic_sub_return(cnt, &vsock->queued_replies);
-> -		if (new_cnt + cnt >=3D virtqueue_get_vring_size(rx_vq) &&
-> -		    new_cnt < virtqueue_get_vring_size(rx_vq))
-> -			queue_work(virtio_vsock_workqueue, &vsock->rx_work);
-> -	}
-> +	virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
-> =20
->  	ret =3D 0;
-> =20
-> @@ -367,18 +350,6 @@ static void virtio_transport_tx_work(struct work_str=
-uct *work)
->  		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
->  }
-> =20
-> -/* Is there space left for replies to rx packets? */
-> -static bool virtio_transport_more_replies(struct virtio_vsock *vsock)
-> -{
-> -	struct virtqueue *vq =3D vsock->vqs[VSOCK_VQ_RX];
-> -	int val;
-> -
-> -	smp_rmb(); /* paired with atomic_inc() and atomic_dec_return() */
-> -	val =3D atomic_read(&vsock->queued_replies);
-> -
-> -	return val < virtqueue_get_vring_size(vq);
-> -}
-> -
->  /* event_lock must be held */
->  static int virtio_vsock_event_fill_one(struct virtio_vsock *vsock,
->  				       struct virtio_vsock_event *event)
-> @@ -613,6 +584,7 @@ static void virtio_transport_rx_work(struct work_stru=
-ct *work)
->  	struct virtio_vsock *vsock =3D
->  		container_of(work, struct virtio_vsock, rx_work);
->  	struct virtqueue *vq;
-> +	int pkts =3D 0;
-> =20
->  	vq =3D vsock->vqs[VSOCK_VQ_RX];
-> =20
-> @@ -627,11 +599,9 @@ static void virtio_transport_rx_work(struct work_str=
-uct *work)
->  			struct sk_buff *skb;
->  			unsigned int len;
-> =20
-> -			if (!virtio_transport_more_replies(vsock)) {
-> -				/* Stop rx until the device processes already
-> -				 * pending replies.  Leave rx virtqueue
-> -				 * callbacks disabled.
-> -				 */
-> +			if (++pkts > VSOCK_MAX_PKTS_PER_WORK) {
-> +				/* Allow other works on the same queue to run */
-> +				queue_work(virtio_vsock_workqueue, work);
->  				goto out;
->  			}
-> =20
-> @@ -675,8 +645,6 @@ static int virtio_vsock_vqs_init(struct virtio_vsock =
-*vsock)
->  	vsock->rx_buf_max_nr =3D 0;
->  	mutex_unlock(&vsock->rx_lock);
-> =20
-> -	atomic_set(&vsock->queued_replies, 0);
-> -
->  	ret =3D virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
->  	if (ret < 0)
->  		return ret;
-> --=20
-> 2.47.1
->=20
+---
+The driver maps a file range into the DAX window using the
+FUSE_SETUPMAPPING request. Alignment
+constraints for FUSE_SETUPMAPPING and FUSE_REMOVEMAPPING requests are
+communicated dur-
+ing FUSE_INIT negotiation.
+---
 
---9/YZwLxNw5hXaRvd
-Content-Type: application/pgp-signature; name=signature.asc
+Given this information, I'm going to rebase and respin this series.
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmftYmAACgkQnKSrs4Gr
-c8iHJwf8DA62FfOqEa7CozkdJzfzPBDN2Mp5277J19LYcEKpXUoxufoTN8Os0CFy
-dNDZX0ipYNHwLLSxqUY4n4RWgrJ9S46eZ5e3U1+3+Pk72YOrSN/gYErnoauynhnK
-Aw1Ai2S2bAFU+YxiPH2mwqzZTbHV0FdtYrO03U39QptOp4+IIKy5IM0OXMcj3ilR
-nOC0o5f/QTKwKSne9lgC+t/3QbXeH34DsID8oSHp6w4Q8Lj2d5g2GWHIRkNfc9rm
-hKLnOVblK2IEJ6QaztTDpYtoECFlWuYOy5K+vryC1MAzopkYavSsxZTP6httJzii
-T7j+rofOap/1icDDiW3ld85xWHSyKQ==
-=uC9e
------END PGP SIGNATURE-----
-
---9/YZwLxNw5hXaRvd--
+Thanks,
+Sergio.
 
