@@ -1,213 +1,206 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2070.outbound.protection.outlook.com [40.107.93.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777EE6AA7
-	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 00:46:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743554780; cv=none; b=cggHb2n5Gs9X6el/I9YNvab+NOkLgBvyKZdRakslYxMita/ODUYSFnYRIRgzDik1w32ah+tfEZXv1d6HSgqKGR0KTPTrSKz65Dk0VfUmh0wYvfUdhkxdeolu4CcdLhssPnF6tPL8XERqb4YXTL+KJk0xOiJBVqD3hXg1YBIV0PQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743554780; c=relaxed/simple;
-	bh=gKvtz1iMes15Dk29gHgnGLSQ0AzIDyIu+TI574Yzf08=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HRqKaP5dg+27ntS4oNcaZtTN5+CKmBEd2pMY7EdSLnyUM6gOPVMEJo/4DfOjgKUezifEoSea0kOu38B9n6yTUM+hjnbkdC8QZT7zKVoo7Yu1OCZhLQWDXzZZCWW4u3BzFXE5AlHz19FN7D+2NFNukNEAONBOJuIS0yU2Gm+Hisc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=HP8yjay9; arc=none smtp.client-ip=209.85.208.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC1842E3386
+	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 01:47:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.70
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743558476; cv=fail; b=u7cBEzOuj/W9MphExX4bpt++UImXZrcfWSf0tNkuzzDVXNaqHfnVlpvGms0kHpUyXGU67jr1A5fuw/l8EjB48xsnbCU5oVzfQvzuz+dE//Hf4yq5NjnR/L0vPZUO+wOOAonOksoTUhkFwW9ZaLP5YFxHPxILP4cPF0BWtMcIPGk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743558476; c=relaxed/simple;
+	bh=quXlEbVH+LPoOI0NijaDpvT7BdErRVQl6S/eGKaJI/U=;
+	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=UZlmQXOLlPpTwrNnfYiz1ebLLShFYdZLMWv3oUnffg5n/R1mpSQ1LImNzPbRv4tAZKlL8ok3VLZEBSSyj8mNwMz+sMiGxr1T+44zvvI+U+JjM9XUfqV7FFh/jyp/Zq//HObRcHntchcjB1697ueu1eg95RyYG9NzoAr5k3nF6dE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Vt73e/bC; arc=fail smtp.client-ip=40.107.93.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="HP8yjay9"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-5ec9d24acfbso697457a12.0
-        for <virtualization@lists.linux.dev>; Tue, 01 Apr 2025 17:46:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1743554775; x=1744159575; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=vu/Ham6OvzEjp0kQLpwOmOKgb686vhg9IiykSVIyewU=;
-        b=HP8yjay920QSzNK4mTeASFp+4xfb6gs0HOcoF60ZLGZwXtEsGqhk4tuIMWNeW54/8+
-         AglT0otgzEgG4EYdw/KV16qbaZXhITf2FWilF9Ig4Sk5KLrtDTDfmJ1Ft/ougTRVFTQP
-         5IvNPtysV4G76SQMhdR0bn+RThhQAWxdls1AI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743554775; x=1744159575;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=vu/Ham6OvzEjp0kQLpwOmOKgb686vhg9IiykSVIyewU=;
-        b=P7BgZ2ANrALabKFqBQUlaV94LehpcV/vxhn/3kU204GWeOR3CYxZiF+xNyQR9PqQjU
-         d4il8CnAVJ7VYdtw5GTArYF32wd1jZ/iRecpiXjIsij7hF9FtC4FXhgCwthLXyAqJ68G
-         GK8xIlSTM9odL4TGFyza+DhZDN7/Ts38SlBBH4xR96G6XfX01fITUVGV82drmrh/GICt
-         xDjvK791IWUxFFV62QpU1QFyZ9rAnuyINlnVM/FugCmFo4nPr/ZA1hRG+hR/foB17W0j
-         4D/j8Ae2yWN1sOhQQKZ2J0FAR7WKpALkZ3e7H9oWqyul6nQMc0IOPLNkaua/8J3J7qYr
-         ICEA==
-X-Forwarded-Encrypted: i=1; AJvYcCUTRuMy+VLamTz7V2zUyuIm74pIvri9D8MHyNf+Vm0DRSNiTM4Kpii6l1LFSpPH/uy82WkJBRlXj/J07BSr2A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzE00Q5ShkExT4dgsL+ndNu3zJc760LxtogAWwHfL+xktNo72IG
-	/umun/iiW4CvqK1yUnBFr8hs+UIAtRt01RU2XLhGlHkc6nOSEpgmt35/luPjvtBhPMqqrULcmzf
-	48So=
-X-Gm-Gg: ASbGncv7to3Mb970ee2kppOlYoG+z9cF2WUStp+B7NdL7jyArrAgXuZ3dM923P4O2iL
-	jKi8PGeFRpbJkb1oeRIqEEyoZJuSHB180zPYwLqgDd0X0A1MmlaxcxyDZa7ihcSPnM+mnmqSCMZ
-	gAnAJ95hv8vCVcgQq3McwycMmgQ7QC3n0w/RicphZZRzVR0vWJGTTNkhkbFz+zCDD2ZMoP2lnoO
-	KSW9btAkQ5GtD2cZEw7tmJbzmghUvbyYt38QNI+NiAl0m0uxQz8JsY8xn5GAHymQyuYNJmdZTEv
-	fHClmoX3JJK65huYHBzFe3Oa4E9Qp5y1L9Mo/RG4YnPYWJwVK6wpO6NByS/ulVHaeJPxoAAFw9a
-	xMD2BHTlsmGhm+PBMkK0=
-X-Google-Smtp-Source: AGHT+IFKjOLkX2hsKOoplmmBiGKMDn0YDk+NJjRJaJXZFLbRI0v4BYxBpx9Ru6Mfq4NTt+vLMBkh3A==
-X-Received: by 2002:a17:907:720d:b0:ac3:ed4d:c9a1 with SMTP id a640c23a62f3a-ac7a5c6721amr6643466b.17.1743554775458;
-        Tue, 01 Apr 2025 17:46:15 -0700 (PDT)
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com. [209.85.208.51])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac71967ff84sm830687366b.133.2025.04.01.17.46.15
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Apr 2025 17:46:15 -0700 (PDT)
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-5ec9d24acfbso697442a12.0
-        for <virtualization@lists.linux.dev>; Tue, 01 Apr 2025 17:46:15 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUbavEX7e5dOLu8nMJ60RHpELhrlCdG1eMaxrG4gWFIPdJ90Cl/F92HotLBNfJU0kPy4s72n3KmG/K4fNd9fA==@lists.linux.dev
-X-Received: by 2002:a17:906:5a58:b0:ac6:b80b:2331 with SMTP id
- a640c23a62f3a-ac7a5a6a7femr5394166b.4.1743554436373; Tue, 01 Apr 2025
- 17:40:36 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Vt73e/bC"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=BtDMkFMiLrzwQLUx7GzDqfUuRkPtv6VUhO2BDCzjhaVWn2YEtsgod8/QmhhKkc7Nw3I9669XG9L4MNJzUhO5keCvKevmkYtpxre328DB1LE2zduVAFBL0oCQwI/noh5OCF5uQf96g6qv20jKN/n7Nd9c7UU7fZhslH6SPi8SkS0hwUD32/OTsOcSUtN6g+zDkoy87B6ECDrZenbTIpD+lWIsCjqRl1cnlAHuqhcqN7+BTEyn2OSXrLKK6rluNt1DLrD9EE3GPcc8ZMnPwvWZRi2hUPgjTbrSVbqUo3uErNS1yQcXQUaCbdm96xoVPh0PsyS6orsMaLIMMUohvklj5g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=YtOCJIhfuXkWZmkhGLjfRjEOUU+Uac5bW5NmqbITMA8=;
+ b=vXGH0m1TZUSCM4VPbRDkXZ/B2n7ttOYLTXrKtCC/PCvqfy2jXWGhYvaDiRBWGFLUKjggiXge5u2Hl+rpXZVPSgLC2dUaE5s9UV6/ox8/2psFq5Ddn+MmKLQZgFGMadkH/xwFz+wnraDj9aY180eyF7Om5AWiLaVtx2Y9nGNcFwCQ5RwwL1ePJzvqezU8K9/AkKG0sLt1oPQeixtchqb9ouOzUCen2bMd0wSIZh3ANmZmqyUYB5WUWjfw14qIAdh6vFChDDfRjZRIbwZd/oMLcyykTO1TqlPQCXILKXrCk3NJ21ip47dw4RjYp7t0cMVzIUU/tzTDtuKTayo9lFEx9Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=YtOCJIhfuXkWZmkhGLjfRjEOUU+Uac5bW5NmqbITMA8=;
+ b=Vt73e/bC59gflhL40ips87H24az9WG54HFq2Yy31aFUiytjhtg66zTkvibv8wiMkght1HkzgsPWXaOULrDimcbnVeNpyElfnA2c3z8YyvGrnoHWnyaIfsqLpXFh8l1NnAfnBfT80FMKk64DOtgMjh38S8N5FSY/OzOqIWxzZQK0=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
+ by DS7PR12MB8289.namprd12.prod.outlook.com (2603:10b6:8:d8::7) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8534.44; Wed, 2 Apr 2025 01:47:52 +0000
+Received: from IA1PR12MB6435.namprd12.prod.outlook.com
+ ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
+ ([fe80::273a:80c9:35fc:6941%4]) with mapi id 15.20.8534.052; Wed, 2 Apr 2025
+ 01:47:51 +0000
+Message-ID: <a8636797-061c-4799-8017-1fee51228e8c@amd.com>
+Date: Wed, 2 Apr 2025 09:47:40 +0800
+User-Agent: Mozilla Thunderbird
+From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
+Subject: Re: [PATCH v2 0/7] Add virtio gpu userptr support
+To: Demi Marie Obenour <demiobenour@gmail.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
+ Huang Rui <ray.huang@amd.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Dmitry Osipenko <dmitry.osipenko@collabora.com>
+References: <20250321080029.1715078-1-honglei1.huang@amd.com>
+ <3baabd6b-95ba-4f84-bdef-b44d6d071aba@gmail.com>
+Content-Language: en-US
+In-Reply-To: <3baabd6b-95ba-4f84-bdef-b44d6d071aba@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SI1PR02CA0032.apcprd02.prod.outlook.com
+ (2603:1096:4:1f6::12) To IA1PR12MB6435.namprd12.prod.outlook.com
+ (2603:10b6:208:3ad::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <cover.1743449872.git.metze@samba.org>
-In-Reply-To: <cover.1743449872.git.metze@samba.org>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Tue, 1 Apr 2025 17:40:19 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whmzrO-BMU=uSVXbuoLi-3tJsO=0kHj1BCPBE3F2kVhTA@mail.gmail.com>
-X-Gm-Features: AQ5f1JqzSUFwvrLn7ljSUlWXdbqdVpjtPJUQgf_7X3eWbMud67Mtv15-jjUkgBs
-Message-ID: <CAHk-=whmzrO-BMU=uSVXbuoLi-3tJsO=0kHj1BCPBE3F2kVhTA@mail.gmail.com>
-Subject: Re: [RFC PATCH 0/4] net/io_uring: pass a kernel pointer via optlen_t
- to proto[_ops].getsockopt()
-To: Stefan Metzmacher <metze@samba.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>, 
-	Breno Leitao <leitao@debian.org>, Jakub Kicinski <kuba@kernel.org>, Christoph Hellwig <hch@lst.de>, 
-	Karsten Keil <isdn@linux-pingi.de>, Ayush Sawal <ayush.sawal@chelsio.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, 
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, 
-	Neal Cardwell <ncardwell@google.com>, Joerg Reuter <jreuter@yaina.de>, 
-	Marcel Holtmann <marcel@holtmann.org>, Johan Hedberg <johan.hedberg@gmail.com>, 
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>, Oliver Hartkopp <socketcan@hartkopp.net>, 
-	Marc Kleine-Budde <mkl@pengutronix.de>, Robin van der Gracht <robin@protonic.nl>, 
-	Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de, 
-	Alexander Aring <alex.aring@gmail.com>, Stefan Schmidt <stefan@datenfreihafen.org>, 
-	Miquel Raynal <miquel.raynal@bootlin.com>, Alexandra Winter <wintera@linux.ibm.com>, 
-	Thorsten Winkler <twinkler@linux.ibm.com>, James Chapman <jchapman@katalix.com>, 
-	Jeremy Kerr <jk@codeconstruct.com.au>, Matt Johnston <matt@codeconstruct.com.au>, 
-	Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>, 
-	Geliang Tang <geliang@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	Remi Denis-Courmont <courmisch@gmail.com>, Allison Henderson <allison.henderson@oracle.com>, 
-	David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, 
-	Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, 
-	"D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
-	Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>, 
-	Boris Pismenny <borisp@nvidia.com>, John Fastabend <john.fastabend@gmail.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
-	Magnus Karlsson <magnus.karlsson@intel.com>, 
-	Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jonathan Lemon <jonathan.lemon@gmail.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Jesper Dangaard Brouer <hawk@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, 
-	linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org, 
-	dccp@vger.kernel.org, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, 
-	mptcp@lists.linux.dev, linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com, 
-	linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, 
-	virtualization@lists.linux.dev, linux-x25@vger.kernel.org, 
-	bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de, 
-	io-uring@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|DS7PR12MB8289:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2619f307-52e6-42fb-d94b-08dd718860c5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|366016|376014|1800799024|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?TmcxclEwamJqQVo4OTA1TlVNUnQ3clFCeGNuRk1lemVJRDIreEVpT2dMNTgw?=
+ =?utf-8?B?bzNvWUNKR1RpV3YvbjRBbHFWQ3ZXY0s4eE5yczFaek9yc3loZGJ5UU1oU3U2?=
+ =?utf-8?B?ejZxMVM1RWJYREZXVFpETm5qTExncE9rZjhEbWRONWtFcUVpZ294V0FoZUZV?=
+ =?utf-8?B?RWdDMVVjdTJVOWI2SVBRSkZiZWVwc015YS95YWd2VisrNWlRVDYyZ0ttNm5D?=
+ =?utf-8?B?WFV2QXlNcTJPU3FPZEp6aEpjR1JxcGRqck0xd2NRMHJFQXgzUzJ2dU9kRWNo?=
+ =?utf-8?B?d0g5U09mT0laN0FCSHBBL21sSks1S3l1dlo5TENDV0FDbmhqOHE4a1EyUjJT?=
+ =?utf-8?B?SFRWVCtnWlJJVVR6NllEbklEckF4Zk5QVzE0bnRsVTFLMTRKVEN6VlRXTUx0?=
+ =?utf-8?B?NnAxTnJhVnpqSmVaV0tIRmtmUHdhWWlQU0w3M1ZpeWw3RnNWUWtrQWxUcDFF?=
+ =?utf-8?B?RGN0ZWJoS0FmMkdDYVN5R082cFFYNTdabGc3WTZkS3ZKZVhOckVJT3p6cUlP?=
+ =?utf-8?B?d2h5VTZlc1RzNEd0N2YvZStrOEVKYWhzeHJJc3FPamYvblA4VFh3S0hPNG94?=
+ =?utf-8?B?UHlyYVhqdW83Z2d1NTFyaVJQWEcyVDhTUWZkMWZiTXVCbkZ5b3d1UmtZT3V4?=
+ =?utf-8?B?dU53RTI4MDNkQ085QWlMazdGSVhwcGovTDZFQ1BvZDhPNi9wUlNUMzZDeDFp?=
+ =?utf-8?B?dlFRZGJGVWV6UlYyNnRPeGtPNytKVHdYTE0zRVVpMVFuK2FVT01Wc3E2RGhK?=
+ =?utf-8?B?Nmc2N0x4aG1NVVFNZWFSNFhESVZXOXJpcWh6RWp2YWJDREtzNVV4ZFVacm1L?=
+ =?utf-8?B?dWZtdXZBRHJ5TXFTTzNtQ0N2V1BuUW0rbm5tcTFlODlQV2lLQnB6ckZDa3Zo?=
+ =?utf-8?B?aUYwWHJCbW03OE1yVTNLS3RCUWZyL1IwZm9DUnVtZTdLNitCV1dZTnBHSFZU?=
+ =?utf-8?B?K3RHU0ZIUG10WHpxUFpoM05tNjFFS21nQ2RBdTUwZlV2UDkrc011RS9DK0Ry?=
+ =?utf-8?B?cC9ZT0h6WTZkeUtvZGMwTTFVL3NxUnpJcWR1cHlOME90UTlVa0p2WXVRQWNs?=
+ =?utf-8?B?dGtMbC9Nd2Z5ZnpxV21Za1FROHdhYmwxdklRcDk3V1FqODB1bGJ1aDRwTzNL?=
+ =?utf-8?B?QytpVVNWdkZoaUtMRWE5dXdCeStpTWZhaVMxZTFtZkxCekdoQ2tqTXZySFZI?=
+ =?utf-8?B?MTRrNWUxenorb3dvQmRqYnRsaDE0KzBYek5ScnBzNnIxNmZWa1RzV0djRlJ6?=
+ =?utf-8?B?YlNMWUwxWlA0ZE5QVjhrSm1YRE1lTFFUNldIRXVkd0dCVGR5UWUveENQR0gr?=
+ =?utf-8?B?Y2JwTUxZaTVqMGFYWDJLNWNWczI1VnAzOENGdXYxZzBzb1JzbEpveVNHbVhN?=
+ =?utf-8?B?bGF1NjlQT0lPYnhZMWRCeENma20rRW9SS2tsbGM5bHZMWUFoNTN4V2FrM3Ey?=
+ =?utf-8?B?TkVNcGYyTVFiQUIyZDAxUGNDUVJ4Q1pkRHdZeEtVcEpwVGl1UTIyaTY0c2NV?=
+ =?utf-8?B?b1MwYmZoTGV5dFpvaDB1RGtnbWxFT3lJYng4UDFUMHA4MnArNStVNUJoYzV1?=
+ =?utf-8?B?Y2lKVXRwUW0vWFNMQjBxUjNyT3VoMWtMNCtZU1JKUVgyZC9XWnZaUzFxdm9Q?=
+ =?utf-8?B?VmNxUFM5d1ErMThvL1duRTREZWMrbi9tQkV3T1BXMTQ5dmxhbUppeEtTak4v?=
+ =?utf-8?B?ZldYY2ZJeVlPYjBESzI3ZEM2cDNGUXFEMTRkRC82VzQ3bUhPalpyVU83d3ZH?=
+ =?utf-8?B?Z3ZXTzM3Q2d0RDB0UlNzT0Y2TGtBY1NOZnpjUGpIQ3B0aWRxd1pDMW9Fc2xF?=
+ =?utf-8?B?bmlpVTdOcHE2UFNRcW5IYlJtRmsxdVR2SG5oaVBEcktDajA0aDVteGFvZlZH?=
+ =?utf-8?B?cVl1TjdDd0FaeTBGbnVEYldWa2owSC9vYnN6b3lrVjJCcGR6NWZxK2NFNktr?=
+ =?utf-8?Q?dARJicLh+fs=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(366016)(376014)(1800799024)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?Nk84SEhHRVh3L2Q2OWs1UUtBd0J6UTUvY25zYlJTZGJIQk5ZTXp3bjFVdzRW?=
+ =?utf-8?B?a2Z4blJoR0MzVXN6V2tDTEpyU25TcjlhbFg1WGl4RUVWTDJ3VHdQU1N4WnFi?=
+ =?utf-8?B?THBSRzBQR01UbDZHazJFeVNRU1E0azA0b09ZVG85QzVnelgwbWcyaTlOMkIy?=
+ =?utf-8?B?VkZiMlg1TW1oMGlqem9qVUZUQkZDeDJIU2xBaHVNVSt1bVQxd01LUGhaZXps?=
+ =?utf-8?B?UEhXTFVzS0oySUNGcHlwRXkyMTk0ZC9RTVNsM0hUNnQ0bks4Y21GR1NLZi9M?=
+ =?utf-8?B?NHJoQlpZci8vVXo2cmY1dkpqTnNZS3lJMTNQQ094QVZnNDZ1ZUxXRWJ3dS9a?=
+ =?utf-8?B?Q1prVHBGMzl5aGxvZHViVGp6SDlVaHZpSUU4cHpKaS8wbkNOS1FQY2ZsUjEy?=
+ =?utf-8?B?eXdybDdOS2NHa0hPS1o2NmlwclIrTmN4N3IwWFdHL2t4YUMxejdkVDFrL2xN?=
+ =?utf-8?B?c21ZNE5xdWxSYWxxbWpMcFZSWGV3R3JEczRKS0NybGtOR2ZJanFQc1p4djF0?=
+ =?utf-8?B?THZNK3RqMmNUN0UyMTdGWTBCUzRteHFyaW1WazRHTkNHZ1BvZ1lFMDgxbEJH?=
+ =?utf-8?B?YkZOamhNemdFbzQwMjVHU0JHL1RkNDVDUTkzRkJ6NUYrZEFHWk5qNmhaYUVo?=
+ =?utf-8?B?MjkrSFVZMTJUMXBaSzhJc2F2THZiV2FXNmlSZVk0R1FQcmkxYkpWemcxMjZz?=
+ =?utf-8?B?TmsycnZIVjkyMytFakY5SEl1Q3l5SERSWVZOSWFqOFBReVRJb0VmNU5aTkdV?=
+ =?utf-8?B?UjNLaThVQ0xXeDVSVEQ0T2JxR3V0QzZPbTdmU1Z0ei9JOXM4MnBMeCtHdEFU?=
+ =?utf-8?B?MmgweVc4emdsV1gvUHJlVEpweUJkT0JkVFROQmRSYjljcEE3ZG0rSGFCK3lQ?=
+ =?utf-8?B?a1VUcjRsa2ZoZkg5QXR3ZmJPL0U5d2lsWTA5TmgzN0dBb2cwTWltSndZckt2?=
+ =?utf-8?B?bkdROExKTHA4RXZINjNlSXV0c0QwRlRVa2FLQ2FaTTNkNjRGYjJWVEF0M1Br?=
+ =?utf-8?B?bUZLOXI3aU1nOElBZlFOSi9vSVJvUXc5aCs3em1YcXZYbEtSNlNjU1ZGK1Rv?=
+ =?utf-8?B?aHF4anNmeVNXT1NWYkpIZlRIZFAzSGJ6cFZ4a2tMMEhuTENCYnE3bkppc1hM?=
+ =?utf-8?B?YTVERDEyemF2QlNNNWJxWG9HUnlMeHdPdDl0OVBxM1Ryd001Nk9VbzlWTHQ5?=
+ =?utf-8?B?TTgvMmVpZlB0ZXZad210WUJRV2RaaTdVeTN1Qnc3bHppbVBIL1NKVzJhdGlI?=
+ =?utf-8?B?NjJQUklIR1NFWkxQT3k5VStFNnhMN0NHQWZuenZYV0JQbVZ3a3ZVYU1oc2Y2?=
+ =?utf-8?B?c2IzTTN0dkpGQ3VpYWtoNnlkOWFJQ1BqazBVWGRld1VVdjR2YndhbDJIVVRx?=
+ =?utf-8?B?Q0JEbHkxZVM5eDNhN2dJSE56YUI1UjFoa3ZIQXM0T0xlK0F6d2tlOXVOcDA3?=
+ =?utf-8?B?SndJV1NnRkppSktuYWs0cmg3dGE2TjIvd1JLNXNWT0JIRUlyUXMrUUJpOXU4?=
+ =?utf-8?B?T1FmY2NlWE1NS1BTSTRqY3ZydUd1SElZVUtORngrakV3SDZ1NVhUQ0FQOGc4?=
+ =?utf-8?B?cy94a21OZURvNzJkcDhPcEZMcEh2a2pxQ1R6Q3YrSUY0QjlGVWtOcVNCTUNE?=
+ =?utf-8?B?eTlRUDRGdVlzYlhQeVZzWEZGYzF0bVhndHd5anlMMHJiZ1JRZ3NvN0NVV2FJ?=
+ =?utf-8?B?WWNjZ3dtbXFJaitBTnRVZTNmTWdmNHBpekF1L01EYTFGb1dtRzBuZHVseHY2?=
+ =?utf-8?B?K1k3ZmZTTXJyY0JjdjBhT2t2V0dBWE04TDZFd0MzQ1lqSEtrcEx3cVY5L2ls?=
+ =?utf-8?B?eWs1TVFGUGFpZkRlK1pocVVSb2EwcGtYanNKRlM5d2RzQnh0YWtzM1htWVh2?=
+ =?utf-8?B?SG1GMG1BRnp6VmN3dFBhTEczaEpteFp5NkpHT2Jrbm5YUk1jeU0vMFVYWEhI?=
+ =?utf-8?B?cmRZVGljZHVDR3ZtK25OREdmRG1qaW14MW1nVVRHNVV1UG9tcmJPd0YyL2lI?=
+ =?utf-8?B?a0xiTXBsZ1VKUGRFOGdPUC9Kd0FCQTFIUG9xU011Zm9UNmsxQUY2MHpRQm5t?=
+ =?utf-8?B?Y2FNOStzallaaURRNk55eHlTdjVuWU85U0JGSmlhb0lwclFqSHNKNFZUY3RD?=
+ =?utf-8?Q?jIBRjMFOjh4jS+VZZ5DJO9/KL?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2619f307-52e6-42fb-d94b-08dd718860c5
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2025 01:47:51.3607
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7fRjOlFIk2cTXdKf2yI/JuZ0Fhstdb3LibXbX/VPvQ+4UnGM7ZFNqYP9Rk4CHxCNP/21p71qqJpX19P12FjRxg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB8289
 
-"
+On 2025/3/30 3:56, Demi Marie Obenour wrote:
+> On 3/21/25 4:00 AM, Honglei Huang wrote:
+>> From: Honglei Huang <Honglei1.Huang@amd.com>
+>>
+>> Hello,
+>>
+>> This series add virtio gpu userptr support and add libhsakmt capset.
+>> The userptr feature is used for let host access guest user space memory,
+>> this feature is used for GPU compute use case, to enable ROCm/OpenCL native
+>> context. It should be pointed out that we are not to implement SVM here,
+>> this is just a buffer based userptr implementation.
+>> The libhsakmt capset is used for ROCm context, libhsakmt is like the role
+>> of libdrm in Mesa.
+>>
+>> Patches 1-2 add libhsakmt capset and userptr blob resource flag.
+> 
+> libhsakmt and userptr are orthogonal from each other.
+> Should the libhsakmt context be a separate patch series?
 
-On Mon, 31 Mar 2025 at 13:11, Stefan Metzmacher <metze@samba.org> wrote:
->
-> But as Linus don't like 'sockptr_t' I used a different approach.
+I will separate libhsakmt capset patch into another patch series.
 
-So the sockptr_t thing has already happened. I hate it, and I think
-it's ugly as hell, but it is what it is.
+> 
+>> Patches 3-5 implement basic userptr feature, in some popular bench marks,
+>> it has an efficiency of about 70% compared to bare metal in OpenCL API.
+>> Patch 6 adds interval tree to manage userptrs and prevent duplicate creation.
+>>
+>> V2: - Split add HSAKMT context and blob userptr resource to two patches.
+>>      - Remove MMU notifier related patches, cause use not moveable user space
+>>        memory with MMU notifier is not a good idea.
+>>      - Remove HSAKMT context check when create context, let all the context
+>>        support the userptr feature.
+>>      - Remove MMU notifier related content in cover letter.
+>>      - Add more comments  for patch 6 in cover letter.
+> 
+> I have not looked at the implementation, but thanks for removing the MMU
+> notifier support.  Should the interval tree be added before the feature
+> is exposed to userspace?  That would prevent users who are doing kernel
+> bisects from temporarily exposing a buggy feature to userspace.
+Ok I will add interval tree patch before introduce the feature into user 
+space in next version. Really thanks for the review.
 
-I think it's a complete hack and having that "kernel or user" pointer
-flag is disgusting.
 
-Making things worse, the naming is disgusting too, talking about some
-random "socket pointer", when it has absolutely nothing to do with
-socket, and isn't even a pointer. It's something else.
-
-It's literally called "socket" not because it has anything to do with
-sockets, but because it's a socket-specific hack that isn't acceptable
-anywhere else in the kernel.
-
-So that "socket" part of the name is literally shorthand for "only
-sockets are disgusting enough to use this, and nobody else should ever
-touch this crap".
-
-At least so far that part has mostly worked, even if there's some
-"sockptr_t" use in the crypto code. I didn't look closer, because I
-didn't want to lose my lunch.
-
-I don't understand why the networking code uses that thing.
-
-If you have a "fat pointer", you should damn well make it have the
-size of the area too, and do things *right*.
-
-Instead of doing what sockptr_t does, which is a complete hack to just
-pass a kernel/user flag, and then passes the length *separately*
-because the socket code couldn't be arsed to do the right thing.
-
-So I do still think "sockptr_t" should die.
-
-As Stanislav says, if you actually want that "user or kernel" thing,
-just use an "iov_iter".
-
-No, an "iov_iter" isn't exactly a pretty thing either, but at least
-it's the standard way to say "this pointer can have multiple different
-kinds of sources".
-
-And it keeps the size of the thing it points to around, so it's at
-least a fat pointer with proper ranges, even if it isn't exactly "type
-safe" (yes, it's type safe in the sense that it stays as a "iov_iter",
-but it's still basically a "random pointer").
-
-> @Linus, would that optlen_t approach fit better for you?
-
-The optlen_t thing is slightly better mainly because it's more
-type-safe. At least it's not a "random misnamed
-user-or-kernel-pointer" thing where the name is about how nothing else
-is so broken as to use it.
-
-So it's better because it's more limited, and it's better in that at
-least it has a type-safe pointer rather than a "void *" with no size
-or type associated with it.
-
-That said, I don't think it's exactly great.
-
-It's just another case of "networking can't just do it right, and uses
-a random hack with special flag values".
-
-So I do think that it would be better to actually get rid of
-"sockptr_t optval, unsigned int optlen" ENTIRELY, and replace that
-with iov_iter and just make networking bite the bullet and do the
-RightThing(tm).
-
-In fact, to make it *really* typesafe, it might be a good idea to wrap
-the iov_iter in another struct, something like
-
-   typedef struct sockopt {
-        struct iov_iter iter;
-   } sockopt_t;
-
-and make the networking functions make the typing very clear, and end
-up with an interface something like
-
-   int do_tcp_setsockopt(struct sock *sk,
-                     int level, int optname,
-                     sockopt_t *val);
-
-where that "sockopt_t *val" replaces not just the "sockptr_t optval",
-but also the "unsigned int optlen" thing.
-
-And no, I didn't look at how much churn that would be. Probably a lot.
-Maybe more than people are willing to do - even if I think some of it
-could be automated with coccinelle or whatever.
-
-                Linus
