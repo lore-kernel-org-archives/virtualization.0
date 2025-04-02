@@ -1,157 +1,316 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CCBA205AD7;
-	Wed,  2 Apr 2025 09:26:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5E7723906A;
+	Wed,  2 Apr 2025 12:29:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743585971; cv=none; b=FBeOgCgwAihxHZ5CKosuPH+fRmpHnOR4Hd/iZmHru2IaY0MdGHpKSgYyg0upN1LH3o5iMqUo880nV0xIiOSCqLLN2foIBDLrCHHvj8/QNMl0YFLU9PDaXmaHcUY8/zEqNrt/xPzXukFZRtiqo2BaxoYTQEa8MqWGX0OGKPoJySQ=
+	t=1743596953; cv=none; b=cP19OcnffcGWqAUOlA/yguWEwzp1mrEnHoYgCswwdZsV0vhmrlM/R3aOZxgOCUVXlsWopsd+NgS69etX2mhqXdW11N17VsDH1f4eEdOlzXkT+i7O4QAzba4lwj2uJj3h2NUK9/jd/p5DpCtAVbj+2wis7F2V/i2tw8DQ3U3aVt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743585971; c=relaxed/simple;
-	bh=UrEYev3gTVK2sp5pdFb3fCyxVMvmTB7pMIYsSE6G+/Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f0UJPZmZdpGqqMMc1Cv/IPJMxZUST5FwZ2wnEFn36MEmsfj8Jcf+pd1g6r+VSC2SKmr1sDpPIaNbtLSRlgGEAIVGwNAacm5MSPxoSax+3kRmnxXh2NKoUe34Z+5jyoGmWgqjO2/ouFr6LPGhbWrk+4+uqdjcPsX1F6kgrKMPCck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qnk6uNTC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1743596953; c=relaxed/simple;
+	bh=lp+YA/fs6Gmn5OE5Jny0VBAJxUFaGSyweqtyP+gBfCM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=agQlK9jx1uKlIc2E4QAFA52MCHiSAy2w5TNXwvXdhoOOp10VzZFzKMplKHWPDsO6mmkorq8ZmBsUPUENvKDv9wXCW/8wYIKyYvbhyBZ7/NWuVPO3WEJaL4oRDtsoy2sjFLk+76H+SVrgLd+vCMkKkxidkQuU9t3VCyLNnuaL3p0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PlsfMya5; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qnk6uNTC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CBDBC4CEDD;
-	Wed,  2 Apr 2025 09:26:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1743585969;
-	bh=UrEYev3gTVK2sp5pdFb3fCyxVMvmTB7pMIYsSE6G+/Q=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=qnk6uNTCD4FAegNtPTzvmqtYr8HhwgZC63m8UvDrbJ+jtWCcaEv0R9JlTcD1FgAuO
-	 15OjR90Rrm50QfiGh+F+8Weypj12hn1RAbekQxq8A34AY4gkvsQ1A19W1iDWD+IPSo
-	 igm2tdTZTXOrT589fpUgLmjzDYEfYioExTX/nj/pZ0gVE42HVNatQGKcgZxEDcf/O8
-	 t9RQpiWwgmv0A2YPWIyA7Lm5MeiWcYQp5HA+Mek3whA8g/RsPw2KI7erEpZeb5IgCa
-	 PijpXofM323Mn/XRPeSv4RO897GzqMg2fUN0c6jJNQaKd191A4F4rDOxLmpwVJ6+Uo
-	 d9dRnCZGXTYRQ==
-Date: Wed, 2 Apr 2025 10:26:05 +0100
-From: Simon Horman <horms@kernel.org>
-To: Alexander Graf <graf@amazon.com>
-Cc: netdev@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	Asias He <asias@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S . Miller" <davem@davemloft.net>, nh-open-source@amazon.com
-Subject: Re: [PATCH v2] vsock/virtio: Remove queued_replies pushback logic
-Message-ID: <20250402092605.GJ214849@horms.kernel.org>
-References: <20250401201349.23867-1-graf@amazon.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PlsfMya5"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-43cfa7e7f54so5057045e9.1;
+        Wed, 02 Apr 2025 05:29:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743596950; x=1744201750; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Il534IhkejCI4Ayn2bikfVS/0bKncvWcHsPlCVwOuNc=;
+        b=PlsfMya5WUi86tp+Yl8c/zY0sLDs3HhEEXQN0cYqsJxNYuOA0+O3aSurbKXYlTcKi6
+         I6V50Ya1GMkXw+TAcC14FIW7uX/OJExUAoVB8sJ+8M1RkrlrM7pxgEN1iQKNJIqAoQFy
+         pZrr2kaafLB5jz0yZ74p76WBgmc5Xbp4L5mwY7YTi5/5sUfg+BckjQbRZ/hpcbmwxqN+
+         yj3+yLPlb00FwIQq/G4EYn2H6BK0zt9aWYl1Gp5Zupfn9K+owgtabTEVEx8ugQg3gdSL
+         XLcamdr/97ebV8YhlaCmJmSViqy9+zkow3CE4ZprK+JnndKoJF8pALNFii27tbtE8rWx
+         icvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743596950; x=1744201750;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Il534IhkejCI4Ayn2bikfVS/0bKncvWcHsPlCVwOuNc=;
+        b=hn6aRFHecsDjvaWrIEVc8K8NRqUjszWm4uxAavemLk72QzW/Lmp4KREKLS26T5+ERT
+         wChDF3eBx62bKmEwvd5aq9q3urJRHFin/kj/DYpAIvIJLKnpMInprfpRpu9VaV8mmxWq
+         zzhICzZxP342+8T8TJoMohbIvq1unkxi2iY5V3N1z6ubAt/rOu9QJRkJ45Fz7ri42N0S
+         Jl5T4DTQcjGUAck2kIoBz2tCWu8EVeWg58Q5TEBEoJMbkOspTfvZVg2K6rWcJNLhw9Hd
+         0PquhcQGxr8gucRRH31vBu+L0j052YXsuFvpRzBhKswitM8nhVYu0Y3VaVkgFHmAA0zs
+         uzkA==
+X-Forwarded-Encrypted: i=1; AJvYcCUL8bKvW3FHIf80fNMAkuA3FrltccAtu2bGN2mDog2vka9QbuXgsC7Yu4YUeh9SVBzlh1OXZ1WCmK9dniXRxKc=@lists.linux.dev, AJvYcCX1Dp4PmhVGTUDWeUPRnn/CVLiml7UcLb/d+Ib+bbYKVW/oQiTr5X8OOM+DCXsh5ef27/b5+A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxUpMft0Q7WAV3EdERz4YpME94QNawWQwFZ/vBLReXgUlR3WQFU
+	Rjhd9xpZB/oO/kNWlB4DCSf6PX1v5B9ShmXxQS7Awd/2Rrlgs43W
+X-Gm-Gg: ASbGncukYIEVkzhd/K/hTujpJYCLRznP1ntkvCb6zmq+7Aowmi5zXfHO3gk7O46Cw9+
+	3lKFg/fczIy4hp0lDJD0W8AN5epUOcD3grBPWsHAdGQ2aMduBSxepLKYbI3TgYHiXlzfejzTJ1t
+	b+WEobmqxdgt5BjI7QowBmcwl8P1m5YrcNbf6/UaVUEZARzPWeuONmSD3Sd94O23eVOYraP6yhC
+	XOlIbI4telhlGzAo0bMp/gx8vkb7D8FnDldgLigmpKarOjc9qVNN/75MoxtjTJexOK1+BLNASQx
+	c8UKKbnBN9Mtx1dQBDBowmDPN+ckNUl5E5F7AXN9wQKsnGM2I0CSypjchPRr7O0sIIzE25d2lwQ
+	Ut+K9/K4wOowjA8NaDQ==
+X-Google-Smtp-Source: AGHT+IEk7MA6QK3wmhaRTmYvHcjiHCHIud3xMp8o+rHoud6p5lee5Ws7y0rYVkxpRg0uiSAPvkTfhA==
+X-Received: by 2002:a05:600c:22c6:b0:43b:baf7:76e4 with SMTP id 5b1f17b1804b1-43eb6fea8eemr16852415e9.1.1743596949724;
+        Wed, 02 Apr 2025 05:29:09 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43eb60caac5sm19127485e9.17.2025.04.02.05.29.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Apr 2025 05:29:09 -0700 (PDT)
+Date: Wed, 2 Apr 2025 13:29:06 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Stefan Metzmacher <metze@samba.org>
+Cc: Stanislav Fomichev <stfomichev@gmail.com>, Breno Leitao
+ <leitao@debian.org>, Linus Torvalds <torvalds@linux-foundation.org>, Jens
+ Axboe <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>, Jakub
+ Kicinski <kuba@kernel.org>, Christoph Hellwig <hch@lst.de>, Karsten Keil
+ <isdn@linux-pingi.de>, Ayush Sawal <ayush.sawal@chelsio.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de
+ Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, Marcelo
+ Ricardo Leitner <marcelo.leitner@gmail.com>, Xin Long
+ <lucien.xin@gmail.com>, Neal Cardwell <ncardwell@google.com>, Joerg Reuter
+ <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>, Johan Hedberg
+ <johan.hedberg@gmail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Oliver Hartkopp <socketcan@hartkopp.net>, Marc Kleine-Budde
+ <mkl@pengutronix.de>, Robin van der Gracht <robin@protonic.nl>, Oleksij
+ Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de, Alexander Aring
+ <alex.aring@gmail.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Miquel
+ Raynal <miquel.raynal@bootlin.com>, Alexandra Winter
+ <wintera@linux.ibm.com>, Thorsten Winkler <twinkler@linux.ibm.com>, James
+ Chapman <jchapman@katalix.com>, Jeremy Kerr <jk@codeconstruct.com.au>, Matt
+ Johnston <matt@codeconstruct.com.au>, Matthieu Baerts <matttbe@kernel.org>,
+ Mat Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>,
+ Krzysztof Kozlowski <krzk@kernel.org>, Remi Denis-Courmont
+ <courmisch@gmail.com>, Allison Henderson <allison.henderson@oracle.com>,
+ David Howells <dhowells@redhat.com>, Marc Dionne
+ <marc.dionne@auristor.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Jan
+ Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, Tony
+ Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Jon Maloy
+ <jmaloy@redhat.com>, Boris Pismenny <borisp@nvidia.com>, John Fastabend
+ <john.fastabend@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>,
+ Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
+ <bjorn@kernel.org>, Magnus Karlsson <magnus.karlsson@intel.com>, Maciej
+ Fijalkowski <maciej.fijalkowski@intel.com>, Jonathan Lemon
+ <jonathan.lemon@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Daniel
+ Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org,
+ linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
+ dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
+ linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
+ linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
+ linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
+ virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
+ bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
+ io-uring@vger.kernel.org
+Subject: Re: [RFC PATCH 0/4] net/io_uring: pass a kernel pointer via
+ optlen_t to proto[_ops].getsockopt()
+Message-ID: <20250402132906.0ceb8985@pumpkin>
+In-Reply-To: <4b7ac4e9-6856-4e54-a2ba-15465e9622ac@samba.org>
+References: <cover.1743449872.git.metze@samba.org>
+	<Z-sDc-0qyfPZz9lv@mini-arch>
+	<39515c76-310d-41af-a8b4-a814841449e3@samba.org>
+	<407c1a05-24a7-430b-958c-0ca78c467c07@samba.org>
+	<ed2038b1-0331-43d6-ac15-fd7e004ab27e@samba.org>
+	<Z+wH1oYOr1dlKeyN@gmail.com>
+	<Z-wKI1rQGSgrsjbl@mini-arch>
+	<0f0f9cfd-77be-4988-8043-0d1bd0d157e7@samba.org>
+	<Z-xi7TH83upf-E3q@mini-arch>
+	<4b7ac4e9-6856-4e54-a2ba-15465e9622ac@samba.org>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250401201349.23867-1-graf@amazon.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 01, 2025 at 08:13:49PM +0000, Alexander Graf wrote:
-> Ever since the introduction of the virtio vsock driver, it included
-> pushback logic that blocks it from taking any new RX packets until the
-> TX queue backlog becomes shallower than the virtqueue size.
-> 
-> This logic works fine when you connect a user space application on the
-> hypervisor with a virtio-vsock target, because the guest will stop
-> receiving data until the host pulled all outstanding data from the VM.
-> 
-> With Nitro Enclaves however, we connect 2 VMs directly via vsock:
-> 
->   Parent      Enclave
-> 
->     RX -------- TX
->     TX -------- RX
-> 
-> This means we now have 2 virtio-vsock backends that both have the pushback
-> logic. If the parent's TX queue runs full at the same time as the
-> Enclave's, both virtio-vsock drivers fall into the pushback path and
-> no longer accept RX traffic. However, that RX traffic is TX traffic on
-> the other side which blocks that driver from making any forward
-> progress. We're now in a deadlock.
-> 
-> To resolve this, let's remove that pushback logic altogether and rely on
-> higher levels (like credits) to ensure we do not consume unbounded
-> memory.
-> 
-> RX and TX queues share the same work queue. To prevent starvation of TX
-> by an RX flood and vice versa now that the pushback logic is gone, let's
-> deliberately reschedule RX and TX work after a fixed threshold (256) of
-> packets to process.
-> 
-> Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
-> Signed-off-by: Alexander Graf <graf@amazon.com>
-> ---
->  net/vmw_vsock/virtio_transport.c | 70 +++++++++-----------------------
->  1 file changed, 19 insertions(+), 51 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+On Wed, 2 Apr 2025 00:53:58 +0200
+Stefan Metzmacher <metze@samba.org> wrote:
 
-...
+> Am 02.04.25 um 00:04 schrieb Stanislav Fomichev:
+> > On 04/01, Stefan Metzmacher wrote: =20
+> >> Am 01.04.25 um 17:45 schrieb Stanislav Fomichev: =20
+> >>> On 04/01, Breno Leitao wrote: =20
+> >>>> On Tue, Apr 01, 2025 at 03:48:58PM +0200, Stefan Metzmacher wrote: =
+=20
+> >>>>> Am 01.04.25 um 15:37 schrieb Stefan Metzmacher: =20
+> >>>>>> Am 01.04.25 um 10:19 schrieb Stefan Metzmacher: =20
+> >>>>>>> Am 31.03.25 um 23:04 schrieb Stanislav Fomichev: =20
+> >>>>>>>> On 03/31, Stefan Metzmacher wrote: =20
+> >>>>>>>>> The motivation for this is to remove the SOL_SOCKET limitation
+> >>>>>>>>> from io_uring_cmd_getsockopt().
+> >>>>>>>>>
+> >>>>>>>>> The reason for this limitation is that io_uring_cmd_getsockopt()
+> >>>>>>>>> passes a kernel pointer as optlen to do_sock_getsockopt()
+> >>>>>>>>> and can't reach the ops->getsockopt() path.
+> >>>>>>>>>
+> >>>>>>>>> The first idea would be to change the optval and optlen argumen=
+ts
+> >>>>>>>>> to the protocol specific hooks also to sockptr_t, as that
+> >>>>>>>>> is already used for setsockopt() and also by do_sock_getsockopt=
+()
+> >>>>>>>>> sk_getsockopt() and BPF_CGROUP_RUN_PROG_GETSOCKOPT().
+> >>>>>>>>>
+> >>>>>>>>> But as Linus don't like 'sockptr_t' I used a different approach.
+> >>>>>>>>>
+> >>>>>>>>> @Linus, would that optlen_t approach fit better for you? =20
+> >>>>>>>>
+> >>>>>>>> [..]
+> >>>>>>>> =20
+> >>>>>>>>> Instead of passing the optlen as user or kernel pointer,
+> >>>>>>>>> we only ever pass a kernel pointer and do the
+> >>>>>>>>> translation from/to userspace in do_sock_getsockopt(). =20
+> >>>>>>>>
+> >>>>>>>> At this point why not just fully embrace iov_iter? You have the =
+size
+> >>>>>>>> now + the user (or kernel) pointer. Might as well do
+> >>>>>>>> s/sockptr_t/iov_iter/ conversion? =20
+> >>>>>>>
+> >>>>>>> I think that would only be possible if we introduce
+> >>>>>>> proto[_ops].getsockopt_iter() and then convert the implementations
+> >>>>>>> step by step. Doing it all in one go has a lot of potential to br=
+eak
+> >>>>>>> the uapi. I could try to convert things like socket, ip and tcp m=
+yself, but
+> >>>>>>> the rest needs to be converted by the maintainer of the specific =
+protocol,
+> >>>>>>> as it needs to be tested. As there are crazy things happening in =
+the existing
+> >>>>>>> implementations, e.g. some getsockopt() implementations use optva=
+l as in and out
+> >>>>>>> buffer.
+> >>>>>>>
+> >>>>>>> I first tried to convert both optval and optlen of getsockopt to =
+sockptr_t,
+> >>>>>>> and that showed that touching the optval part starts to get compl=
+ex very soon,
+> >>>>>>> see https://git.samba.org/?p=3Dmetze/linux/wip.git;a=3Dcommitdiff=
+;h=3D141912166473bf8843ec6ace76dc9c6945adafd1
+> >>>>>>> (note it didn't converted everything, I gave up after hitting
+> >>>>>>> sctp_getsockopt_peer_addrs and sctp_getsockopt_local_addrs.
+> >>>>>>> sctp_getsockopt_context, sctp_getsockopt_maxseg, sctp_getsockopt_=
+associnfo and maybe
+> >>>>>>> more are the ones also doing both copy_from_user and copy_to_user=
+ on optval)
+> >>>>>>>
+> >>>>>>> I come also across one implementation that returned -ERANGE becau=
+se *optlen was
+> >>>>>>> too short and put the required length into *optlen, which means t=
+he returned
+> >>>>>>> *optlen is larger than the optval buffer given from userspace.
+> >>>>>>>
+> >>>>>>> Because of all these strange things I tried to do a minimal change
+> >>>>>>> in order to get rid of the io_uring limitation and only converted
+> >>>>>>> optlen and leave optval as is.
+> >>>>>>>
+> >>>>>>> In order to have a patchset that has a low risk to cause regressi=
+ons.
+> >>>>>>>
+> >>>>>>> But as alternative introducing a prototype like this:
+> >>>>>>>
+> >>>>>>>   =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int (*getsocko=
+pt_iter)(struct socket *sock, int level, int optname,
+> >>>>>>>   =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct iov_iter *optval_it=
+er);
+> >>>>>>>
+> >>>>>>> That returns a non-negative value which can be placed into *optlen
+> >>>>>>> or negative value as error and *optlen will not be changed on err=
+or.
+> >>>>>>> optval_iter will get direction ITER_DEST, so it can only be writt=
+en to.
+> >>>>>>>
+> >>>>>>> Implementations could then opt in for the new interface and
+> >>>>>>> allow do_sock_getsockopt() work also for the io_uring case,
+> >>>>>>> while all others would still get -EOPNOTSUPP.
+> >>>>>>>
+> >>>>>>> So what should be the way to go? =20
+> >>>>>>
+> >>>>>> Ok, I've added the infrastructure for getsockopt_iter, see below,
+> >>>>>> but the first part I wanted to convert was
+> >>>>>> tcp_ao_copy_mkts_to_user() and that also reads from userspace befo=
+re
+> >>>>>> writing.
+> >>>>>>
+> >>>>>> So we could go with the optlen_t approach, or we need
+> >>>>>> logic for ITER_BOTH or pass two iov_iters one with ITER_SRC and one
+> >>>>>> with ITER_DEST...
+> >>>>>>
+> >>>>>> So who wants to decide? =20
+> >>>>>
+> >>>>> I just noticed that it's even possible in same cases
+> >>>>> to pass in a short buffer to optval, but have a longer value in opt=
+len,
+> >>>>> hci_sock_getsockopt() with SOL_BLUETOOTH completely ignores optlen.
+> >>>>>
+> >>>>> This makes it really hard to believe that trying to use iov_iter fo=
+r this
+> >>>>> is a good idea :-( =20
+> >>>>
+> >>>> That was my finding as well a while ago, when I was planning to get =
+the
+> >>>> __user pointers converted to iov_iter. There are some weird ways of
+> >>>> using optlen and optval, which makes them non-trivial to covert to
+> >>>> iov_iter. =20
+> >>>
+> >>> Can we ignore all non-ip/tcp/udp cases for now? This should cover +90%
+> >>> of useful socket opts. See if there are any obvious problems with them
+> >>> and if not, try converting. The rest we can cover separately when/if
+> >>> needed. =20
+> >>
+> >> That's what I tried, but it fails with
+> >> tcp_getsockopt ->
+> >>     do_tcp_getsockopt ->
+> >>       tcp_ao_get_mkts ->
+> >>          tcp_ao_copy_mkts_to_user ->
+> >>             copy_struct_from_sockptr
+> >>       tcp_ao_get_sock_info ->
+> >>          copy_struct_from_sockptr
+> >>
+> >> That's not possible with a ITER_DEST iov_iter.
+> >>
+> >> metze =20
+> >=20
+> > Can we create two iterators over the same memory? One for ITER_SOURCE a=
+nd
+> > another for ITER_DEST. And then make getsockopt_iter accept optval_in a=
+nd
+> > optval_out. We can also use optval_out position (iov_offset) as optlen =
+output
+> > value. Don't see why it won't work, but I agree that's gonna be a messy
+> > conversion so let's see if someone else has better suggestions. =20
+>=20
+> Yes, that might work, but it would be good to get some feedback
+> if this would be the way to go:
+>=20
+>            int (*getsockopt_iter)(struct socket *sock,
+> 				 int level, int optname,
+> 				 struct iov_iter *optval_in,
+> 				 struct iov_iter *optval_out);
+>=20
+> And *optlen =3D optval_out->iov_offset;
+>=20
+> Any objection or better ideas? Linus would that be what you had in mind?
 
-> @@ -158,7 +162,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
->  		container_of(work, struct virtio_vsock, send_pkt_work);
->  	struct virtqueue *vq;
->  	bool added = false;
-> -	bool restart_rx = false;
-> +	int pkts = 0;
->  
->  	mutex_lock(&vsock->tx_lock);
->  
-> @@ -172,6 +176,12 @@ virtio_transport_send_pkt_work(struct work_struct *work)
->  		bool reply;
->  		int ret;
->  
-> +		if (++pkts > VSOCK_MAX_PKTS_PER_WORK) {
-> +			/* Allow other works on the same queue to run */
-> +			queue_work(virtio_vsock_workqueue, work);
-> +			break;
-> +		}
-> +
->  		skb = virtio_vsock_skb_dequeue(&vsock->send_pkt_queue);
->  		if (!skb)
->  			break;
+I'd worry about performance - yes I know 'iter' are used elsewhere but...
+Also look at the SCTP code.
 
-Hi Alexander,
+How do you handle code that wants to return an updated length (often longer
+than the one provided) and an error code (eg ERRSIZE or similar).
 
-The next non-blank line of code looks like this:
+There is also a very strange use (I think it is a sockopt rather than an io=
+ctl)
+where the buffer length the application provides is only that of the header.
+The actual buffer length is contained in the header.
+The return length is the amount written into the full buffer.
 
-		reply = virtio_vsock_skb_reply(skb);
+	David
 
-But with this patch reply is assigned but otherwise unused.
-So perhaps the line above, and the declaration of reply, can be removed?
 
-Flagged by W=1 builds.
-
-> @@ -184,17 +194,6 @@ virtio_transport_send_pkt_work(struct work_struct *work)
->  			break;
->  		}
->  
-> -		if (reply) {
-> -			struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
-> -			int val;
-> -
-> -			val = atomic_dec_return(&vsock->queued_replies);
-> -
-> -			/* Do we now have resources to resume rx processing? */
-> -			if (val + 1 == virtqueue_get_vring_size(rx_vq))
-> -				restart_rx = true;
-> -		}
-> -
->  		added = true;
->  	}
->  
-> @@ -203,9 +202,6 @@ virtio_transport_send_pkt_work(struct work_struct *work)
->  
->  out:
->  	mutex_unlock(&vsock->tx_lock);
-> -
-> -	if (restart_rx)
-> -		queue_work(virtio_vsock_workqueue, &vsock->rx_work);
->  }
->  
->  /* Caller need to hold RCU for vsock.
-
-...
