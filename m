@@ -1,133 +1,98 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74C251EFF99
-	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 17:46:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743616012; cv=none; b=ub7nznNBuSw46LnZvIhvK6m7i1H5LEoQmLS6bSrkcC8p1u4aI8yz0P5zCqNUbAUoyqO9aCg2hyFKdTCBFvg+r6e8VWBQRBSQibgDnBOOhBdNJw+KX2HOyhAmvs8/DGdiBNEQezRFOQ/xL4CDc5h+HvsDNPPHT8yOYJK0NFQJbq4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743616012; c=relaxed/simple;
-	bh=DaC4xIu8S920LD9rwCqJXW5v8vFKT9MSwvYIoasRtA8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OyFgJ1NoEI9hlK4LoUCEBHXgZpB0P/txFuBTE6ig0FNwHLf//2iZSDjF2/wvjiyYjgnBkxKl1NX2NQCK7wOtnvS77s0dctU+TSKTmbY4kJwneKIYjk6J1kizU8GosG5ShF3EyvXc3JknWZkPDWNuBTeHz8s+r7XhLwxE95WH+eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Dr9sG2Y4; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AE951E4A4
+	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 17:55:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743616527; cv=pass; b=edtkmlIpPeD+F4oHSEmrXr0kyP/foLytkF+GpRFCeLEJzAM+vUF3Vdp6e3Oo+ihOX5csbv7DmTZcr3K41XddNlOLpXz3ZVZ8PW7AXI4OYE03YubSU0fy+EHj2C57P0poRzGnzuhGaqZQPyCL4/N+MB0MtPW5BdTGV25K0TyWkCI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743616527; c=relaxed/simple;
+	bh=bjmjN0u9o9dFxsGqOq9Okderup4ilJI7jJ8ZyBtaPd0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QtlJLZi0uYfmVlxAqcVhZzROgmNZIEfXs4xsGGLNIP3j72/DHfqwhWf+5byCouzeBKfFWRcbydQjwbG6UkxKSxRjqFZNzyzOoTqm4J5DYEZEV9xPB+Mg4pL9+B5iosyIT+hG14b0OtCEhS0B27Wr1R2B6pghAipgYLwbpzSmRcw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=CfYt5j0v; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dr9sG2Y4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743616009;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Ue9UDRpcZFfRT6ZZ3d1v/ptuQfesmwypehS6C96747U=;
-	b=Dr9sG2Y4dHH6Gc7aHjpIfbR806Y/o7oWfg6tm/uwJrny53Mzo8eEwOw3BjRXT6g9sPz6bP
-	q+Xi6gZN2T3OGiJTu+zmjM8fzTVZsrgjbViUL1Kg6zNlII6KWCeOqR9xtE+TwrBSgEVEa8
-	WkrMAbEPo3d3YDu16tUoyA+kHOt1+RQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-433-kw_GrFiVMlSP8i_dIaLUnA-1; Wed,
- 02 Apr 2025 13:46:45 -0400
-X-MC-Unique: kw_GrFiVMlSP8i_dIaLUnA-1
-X-Mimecast-MFC-AGG-ID: kw_GrFiVMlSP8i_dIaLUnA_1743616003
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2ECDF19560B3;
-	Wed,  2 Apr 2025 17:46:43 +0000 (UTC)
-Received: from [127.0.1.1] (unknown [10.44.32.79])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5EA6C180174E;
-	Wed,  2 Apr 2025 17:46:36 +0000 (UTC)
-From: Sergio Lopez <slp@redhat.com>
-Date: Wed, 02 Apr 2025 19:46:01 +0200
-Subject: [PATCH v2 2/2] drm/virtio: add VIRTGPU_PARAM_HOST_PAGE_SIZE to
- params
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="CfYt5j0v"
+ARC-Seal: i=1; a=rsa-sha256; t=1743616513; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=lJVUxAnirQlEU+rJVX2xQlCD2jV1AZKeOP72HADn71pX2cIHTWHX7a+xqOqqRE57d6nfoYSNMBVwiSr5y1Evj5r/N+Hv/BzBjmKb2eozp2chtMktiIeBzmRjsi6js2yghBRjs10SZlHQ6cl6YebfBgWylfcWkc1kaC73NQXmjbU=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1743616513; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=UUibI/fSKc86USVu6DqXrZGKEGmqiWnbzh9cT1ooXjs=; 
+	b=hSomf38/AQHwXKB7qteL//sZImsBrRjb4dyZKUaOtRu4Z8edH2FeHZAj4JQHL/M7zCJ4b9IgGse5tHU7AzE2YX7pcDKS3v5jZK0jbW4y+cqj8YO6pWdiYrs2C3vhsATGvHvB7e5VFP6pbnUG9agAmFpvG2+qWA/VsaUj3Rh0kzs=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1743616513;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=UUibI/fSKc86USVu6DqXrZGKEGmqiWnbzh9cT1ooXjs=;
+	b=CfYt5j0v+Q9FWqUIApf/ZN7h05F+YZ+cnSnD73Lm96wtFwAH8KmZwKuRHJe5Y3fY
+	a9blTNODxFtfFXiSZGnB9d5vALluVnsS7ClF1VM5RoeLX/tUiP63jrbFwp1fPVOFJAd
+	WGOntwTLE/AqnfXOmt6UmAWrqgJqS/waL8Ea0gc0=
+Received: by mx.zohomail.com with SMTPS id 1743616511686372.84492676785374;
+	Wed, 2 Apr 2025 10:55:11 -0700 (PDT)
+Message-ID: <712de3a8-83c2-4ae7-8a5c-dd1baa3d50e4@collabora.com>
+Date: Wed, 2 Apr 2025 20:55:06 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250402-virtio-gpu-host-page-size-v2-2-0afdc8c16cb9@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
+To: Sergio Lopez <slp@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Rob Clark <robdclark@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
 References: <20250402-virtio-gpu-host-page-size-v2-0-0afdc8c16cb9@redhat.com>
-In-Reply-To: <20250402-virtio-gpu-host-page-size-v2-0-0afdc8c16cb9@redhat.com>
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Simona Vetter <simona@ffwll.ch>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Rob Clark <robdclark@gmail.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, Sergio Lopez <slp@redhat.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1770; i=slp@redhat.com;
- h=from:subject:message-id; bh=DaC4xIu8S920LD9rwCqJXW5v8vFKT9MSwvYIoasRtA8=;
- b=owEBbQKS/ZANAwAIAfRpJ40vDAI1AcsmYgBn7Xftkj6yT9EYp57Tc7Bmv1zyoPKTdeDBQ7qkl
- d5Bd7CqT4+JAjMEAAEIAB0WIQS+1fz3US2GgJFC6KL0aSeNLwwCNQUCZ+137QAKCRD0aSeNLwwC
- NRArD/0f+7eo5bUxWQvbJN9KrMRdB2fyPQ13i4nJAfYT2e5NlYqIOhBo+y/gR947CahgRByLNV8
- jx8rTk7ec5IxbSV91+/+vY0HdH7yYPCfZv9cqTikzbYNU/vKRPJnoz3yLjJy/DxOFKIl5VmUzZu
- lCGqhAcV5pUkDcOZIGasG8w3Ep4yKTb5nHFMbtVr9Wf1lijRwgFwVZ5IqcLQ3LlSwzQID1WaNn0
- N0bXN0mpScF2yetVddZSZWm/1mdUyaYpa6xT2NTy9kSEZlSNL9lyTp26q0yngn/O5OZ44t1KVdj
- KpuRWNbdQZePkyV2yO8fgRRxFYr4yWzIyhnul27ocIi8cUIIV8TjLGhro930WzpXpW+MpH9Edv1
- sFkdhGn1Az2kHAqVrvucxuZGc3MUIx81KQKXOQLGIUrDkKjdN+iQxdlu1vUKP3FoSQnVLwxxZae
- HwcbB1dO4Wh2FjClL6uGFKWjtT/X1PUAq64opjQxpMzeovGquNOPdjzr0yeWnOpICLrXGaCZrsf
- hkqcoKur8y7PKCIHiynf/TEONEmBpkv+MG6MAdohfF0l38IM6ALTOykqyizM3Fk/iLqMQK+9IZd
- bKWy/z1Raq7iOS3z42kPCMv5aDJvCibrOSat/d25u4ZIKy6upBMx2qjqxOqhHlJBOeJHa13i/tA
- 5FpFGFmlEcviBYQ==
-X-Developer-Key: i=slp@redhat.com; a=openpgp;
- fpr=BED5FCF7512D86809142E8A2F469278D2F0C0235
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+ <20250402-virtio-gpu-host-page-size-v2-1-0afdc8c16cb9@redhat.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20250402-virtio-gpu-host-page-size-v2-1-0afdc8c16cb9@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-Add VIRTGPU_PARAM_HOST_PAGE_SIZE as a param that can be read with
-VIRTGPU_GETPARAM by userspace applications running in the guest to
-obtain the host's page size and find out the right alignment to be used
-in shared memory allocations.
+On 4/2/25 20:46, Sergio Lopez wrote:
+> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+> index bf2c9cabd20793e3851e749baadf210341445501..adc264df4e458e9c754936c3015c069e5ee6b899 100644
+> --- a/include/uapi/linux/virtio_gpu.h
+> +++ b/include/uapi/linux/virtio_gpu.h
+> @@ -64,6 +64,10 @@
+>   * context_init and multiple timelines
+>   */
+>  #define VIRTIO_GPU_F_CONTEXT_INIT        4
+> +/*
+> + * Config struct contains host page size
+> + */
+> +#define VIRTIO_GPU_F_HOST_PAGE_SIZE      5
+>  
+>  enum virtio_gpu_ctrl_type {
+>  	VIRTIO_GPU_UNDEFINED = 0,
+> @@ -364,6 +368,7 @@ struct virtio_gpu_config {
+>  	__le32 events_clear;
+>  	__le32 num_scanouts;
+>  	__le32 num_capsets;
+> +	__le32 host_page_size;
+>  };
 
-Signed-off-by: Sergio Lopez <slp@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 5 +++++
- include/uapi/drm/virtgpu_drm.h         | 1 +
- 2 files changed, 6 insertions(+)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index c33c057365f85a2ace536f91655c903036827312..405203b3c3847a8b318a7118aa34356c839d249e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -117,6 +117,11 @@ static int virtio_gpu_getparam_ioctl(struct drm_device *dev, void *data,
- 	case VIRTGPU_PARAM_EXPLICIT_DEBUG_NAME:
- 		value = vgdev->has_context_init ? 1 : 0;
- 		break;
-+	case VIRTGPU_PARAM_HOST_PAGE_SIZE:
-+		if (!vgdev->has_host_page_size)
-+			return -EINVAL;
-+		value = vgdev->host_page_size;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-index c2ce71987e9bb816d13a300679336cb756f1cbcf..505f87263a15f55302d7134335bebd91ff4cdae3 100644
---- a/include/uapi/drm/virtgpu_drm.h
-+++ b/include/uapi/drm/virtgpu_drm.h
-@@ -98,6 +98,7 @@ struct drm_virtgpu_execbuffer {
- #define VIRTGPU_PARAM_CONTEXT_INIT 6 /* DRM_VIRTGPU_CONTEXT_INIT */
- #define VIRTGPU_PARAM_SUPPORTED_CAPSET_IDs 7 /* Bitmask of supported capability set ids */
- #define VIRTGPU_PARAM_EXPLICIT_DEBUG_NAME 8 /* Ability to set debug name from userspace */
-+#define VIRTGPU_PARAM_HOST_PAGE_SIZE 9 /* Host's page size */
- 
- struct drm_virtgpu_getparam {
- 	__u64 param;
+Hi, this is still a spec change and the virtio-gpu spec update is need.
+Please send the spec patch, I'd want to see that it won't have new
+objections before merging the kernel patches.
 
 -- 
-2.48.1
-
+Best regards,
+Dmitry
