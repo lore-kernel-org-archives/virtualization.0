@@ -1,246 +1,275 @@
-Received: from hr2.samba.org (hr2.samba.org [144.76.82.148])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B0031EE03C;
-	Tue,  1 Apr 2025 22:54:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.76.82.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAD22802
+	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 00:21:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743548050; cv=none; b=aLOMTG6LBHddj2MySr89JO22bZKAA0HOkxQnlae1AJ3o8S+eFLgbjGjD+2cSKPVsVJlFcwM0mqQuNROKGIHU0/Jpi2LZg0wnZBbISSXEfbqb0ATi0YkL360OQVv7uJFAReRH0je4SrpliY3I9jv64Cbrpw6Dh07ipcGdkmK0C/E=
+	t=1743553294; cv=none; b=lIlM0aH1APWslAJ6rXkqR9poHPjyPVThJoG5oD+joCVoeANXKTjDV9e/ntTJnY/fnHwIagI8h2jQeO3i22CXKcWtdMiVGlPRtTy39QsF9naIcwLE6JLoWIG3IlEkFLYcBFtpeG4eDFS//q+nFRY85rMn8q/6urThfxk/m6PsCp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743548050; c=relaxed/simple;
-	bh=6HoAuf2vzPHVJ2QZmJsjedZxev9+dXlJ30t8kC/q4so=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JDkAvaTvKqW1mw8Gmh/jCCZRdhq0nWpG4vFm8M0HQzfwtXvpWFNkQJYinGCDdRb3yyW7PhS4BDqxFeEMw5AJKw+ohZazeq9XSma6wcaLtP6n9SJdpkNVpq2PeKsR25uTyPJKtXVnBxKe43yOqYEZNjRY+d35ShoIqIsW6iXJVnI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org; spf=pass smtp.mailfrom=samba.org; dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b=IW6fwwEP; arc=none smtp.client-ip=144.76.82.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samba.org
+	s=arc-20240116; t=1743553294; c=relaxed/simple;
+	bh=g/vGnOWj+RLoNXJFxO2hLBeGdbkn6WT69EDQvJ//6Dk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lB+5HTf8rAxXV2S4gs+QfD3KiEp5RT0Uur2yDXCCu3gz14h2G0gvdr/V2zWrnCjb+4LAdpgEv9pbXBn14C4hi8uCfUcEedu/u0s1L2ZJdbwlvEBZe23uK5dHXPUOuOE1J9Wx8XdD2dJPQb4UxVBPZTx6WEFNXkaGkN24fTEAqnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jLLsULM4; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b="IW6fwwEP"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-	s=42; h=From:Cc:To:Date:Message-ID;
-	bh=jhU/1epdO5g4YL4nxOBTdkpLkxHYpKmTVfMEhpcPmlc=; b=IW6fwwEPPkmdsZxj7g+aJ77oDC
-	TZyj9OYgjt/oW3rcg6zc2IwcQY7PucVHacoqhFZSuioxiwP0c+TVmlQwkKwmEDuQfYKrelB30pne8
-	noM/hAERvxydKZC6534MSnuc9o3Qr33dybs8XteUuD/5wua8UuX/LUwmsHPGxvWSAPSECmUwLh/M7
-	vEf4pcSnxVomrCHam4VbiuJsYzt56PnKWhLrhZrL7VHPzXxBK6lYt9saEluaMHu+ay5Rabd3yy7ry
-	ccPOD9QwS43fl7ikIpva5xA8dkMNjLlBWf3z8NTITGnd2Fc0GzaMPITJ/3v1wThNnxrBKxJZccqSE
-	bZxWPAxIwTxeRauuNwKMt9VV5mMfgz3j385xbS1RGLMjKeCLMjE6J2zM3RM6k//TEot8Fk2z8SpNm
-	NLW2Z3pf1R/KCx/hLlgYyBRUIURmY1UxocoUq7NkcjzxtAspKukJcih61F5qrPB+CiT2By/MFJJjV
-	mAvBS4EBxvZDwzm75pXT80bF;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-	by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
-	(Exim)
-	id 1tzkUb-007jIP-01;
-	Tue, 01 Apr 2025 22:54:01 +0000
-Message-ID: <4b7ac4e9-6856-4e54-a2ba-15465e9622ac@samba.org>
-Date: Wed, 2 Apr 2025 00:53:58 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jLLsULM4"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2243803b776so52880105ad.0
+        for <virtualization@lists.linux.dev>; Tue, 01 Apr 2025 17:21:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743553292; x=1744158092; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=ZeLn/wYhVo9FIJa6C3cWnGduVLCV+HiAmOS2o0hOnJo=;
+        b=jLLsULM42AjyecowPKEYNT+ZFmx+VtEOjRcZdVDH2y0ZHGJyGqsIQpL5Xc0d5hDXk0
+         D9hPelDQb1iSDEQenOKOiXQ05sLE//aOXsV/3BApH55AKg0zkV15tjOxd1ptqzww4XBB
+         m9EfzbnlkX99F1fDV/9mWnRZinQiCRC32wchpmtC5cuD2Sog+vJL13Zz3lPw1yO5xrSQ
+         P9Y/R7Hpp0C9JkgSW1/LdZ4iF/8XvT7GO296ZwrsDMdhxSC9X/Y6DFc1DOZEbV1BJetR
+         i2CeTYIuXLC7r2xtP1QM3FOC2EnoRAa04S4DB4hdzIGUHo/gNpn0TBrHTFT2yQG3qdpu
+         L8JA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743553292; x=1744158092;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZeLn/wYhVo9FIJa6C3cWnGduVLCV+HiAmOS2o0hOnJo=;
+        b=HcPceXPcOvp4IqjXKPHZG1B66ZFSnEmZcI04IglWHTW0HZqJnVL7CHL/NcZWQfmAQF
+         vk1NFvB0LbrsPBTnmx64UQVrCWxVqEQZD6ewzLSqvk+BU6guBYynnbhzAiZDdBCoGUBG
+         dDBIAOQYNOr+DqhTH2+m7p7rEf9nUF/CixoM2D5aD9N6pumuv7PM1tDrqosAC9yjRRfJ
+         +QiaUU2PxGVSz+sVLl5YlU33SfoX0Tu4Vo6+3K+pojJzapZ9FUeeujeBLWhYlODxHwuy
+         wbA+Vm7IMZMzRhjgM4qppwBcJO4EoXDKWm6E2o+dc9sOjMgDo7gFOj+rFNSyUoKrm7RB
+         YcYA==
+X-Forwarded-Encrypted: i=1; AJvYcCVHq3f7YyV1Tb9R7Ebb+prXsipp54g4C4hA7wSMBaCm+AsUmOFrT5OSGsbh81fOiMRbXgNb2W+WLqnuEz2f1A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyJ8MwhsoafA70aLy+LnHw/v/TgxNhUgLai3Y41dapG0Z3QvQSV
+	5mq9c4nGTfrV32ugIQ58YbuzYPvYcC6v9WIjr58gK5NyBNCEFGny
+X-Gm-Gg: ASbGncu390++8Gid0UfDMo9MlZ6HOk2CfwBo+CalxDYaRNBENI9pSWNMQlAR48v4DO6
+	zO9gaUXmoKi/e+Gu43B/h/8K7Bup7QI1BQSFZ1OyIYBN1Bkj2viEGP2GZyaQiJu4P7OQrHdxGmO
+	Rj/n9oRMeUIVRy37gun00rWreU0TzfGkhbPum2Wk9NSf/5CBUSHTlWefA9U6EWMG2y1/s7TbT84
+	5tnaqVQBw7SnXJd8Xlwt5Ou1pSim1I0dLQnXR1RQff6kEQ8HkvIxy8Rd8GqzDKIXMXIrwBLmvXz
+	gcSEfo9JBqAHqgzW9n9l6k6vAcuxJL9BcrPspce+gSA0OsX+JjxzzJEY68yj+UuxoNhTzJX0EuD
+	J
+X-Google-Smtp-Source: AGHT+IG+mezWcwSTSWGHMlaSZh1ZMn0L/JmAS44qUO3mIuUAuBB2BnPV9gzUgWR5YRWldZH9Je5K7g==
+X-Received: by 2002:a05:6a00:4b0f:b0:736:6202:3530 with SMTP id d2e1a72fcca58-739c796698dmr774634b3a.22.1743553291831;
+        Tue, 01 Apr 2025 17:21:31 -0700 (PDT)
+Received: from devvm6277.cco0.facebook.com ([2a03:2880:2ff:5::])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-739710b453dsm9646252b3a.155.2025.04.01.17.21.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Apr 2025 17:21:30 -0700 (PDT)
+Date: Tue, 1 Apr 2025 17:21:28 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Daniel =?iso-8859-1?Q?P=2E_Berrang=E9?= <berrange@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] vsock: add namespace support to vhost-vsock
+Message-ID: <Z+yDCKt7GpubbTKJ@devvm6277.cco0.facebook.com>
+References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
+ <r6a6ihjw3etlb5chqsb65u7uhcav6q6pjxu65iqpp76423w2wd@kmctvoaywmbu>
+ <Z-w47H3qUXZe4seQ@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 0/4] net/io_uring: pass a kernel pointer via optlen_t
- to proto[_ops].getsockopt()
-To: Stanislav Fomichev <stfomichev@gmail.com>
-Cc: Breno Leitao <leitao@debian.org>,
- Linus Torvalds <torvalds@linux-foundation.org>, Jens Axboe
- <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>,
- Jakub Kicinski <kuba@kernel.org>, Christoph Hellwig <hch@lst.de>,
- Karsten Keil <isdn@linux-pingi.de>, Ayush Sawal <ayush.sawal@chelsio.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
- <willemb@google.com>, David Ahern <dsahern@kernel.org>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, Neal Cardwell <ncardwell@google.com>,
- Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>,
- Johan Hedberg <johan.hedberg@gmail.com>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Oliver Hartkopp <socketcan@hartkopp.net>,
- Marc Kleine-Budde <mkl@pengutronix.de>,
- Robin van der Gracht <robin@protonic.nl>,
- Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
- Alexander Aring <alex.aring@gmail.com>,
- Stefan Schmidt <stefan@datenfreihafen.org>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Alexandra Winter <wintera@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>,
- James Chapman <jchapman@katalix.com>, Jeremy Kerr <jk@codeconstruct.com.au>,
- Matt Johnston <matt@codeconstruct.com.au>,
- Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
- Geliang Tang <geliang@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>,
- Remi Denis-Courmont <courmisch@gmail.com>,
- Allison Henderson <allison.henderson@oracle.com>,
- David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
- Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>,
- Boris Pismenny <borisp@nvidia.com>, John Fastabend
- <john.fastabend@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>,
- Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@kernel.org>, Magnus Karlsson <magnus.karlsson@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Jonathan Lemon <jonathan.lemon@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org,
- linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
- linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
- linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
- linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
- virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
- bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
- io-uring@vger.kernel.org
-References: <cover.1743449872.git.metze@samba.org>
- <Z-sDc-0qyfPZz9lv@mini-arch> <39515c76-310d-41af-a8b4-a814841449e3@samba.org>
- <407c1a05-24a7-430b-958c-0ca78c467c07@samba.org>
- <ed2038b1-0331-43d6-ac15-fd7e004ab27e@samba.org> <Z+wH1oYOr1dlKeyN@gmail.com>
- <Z-wKI1rQGSgrsjbl@mini-arch> <0f0f9cfd-77be-4988-8043-0d1bd0d157e7@samba.org>
- <Z-xi7TH83upf-E3q@mini-arch>
-Content-Language: en-US, de-DE
-From: Stefan Metzmacher <metze@samba.org>
-In-Reply-To: <Z-xi7TH83upf-E3q@mini-arch>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <Z-w47H3qUXZe4seQ@redhat.com>
 
-Am 02.04.25 um 00:04 schrieb Stanislav Fomichev:
-> On 04/01, Stefan Metzmacher wrote:
->> Am 01.04.25 um 17:45 schrieb Stanislav Fomichev:
->>> On 04/01, Breno Leitao wrote:
->>>> On Tue, Apr 01, 2025 at 03:48:58PM +0200, Stefan Metzmacher wrote:
->>>>> Am 01.04.25 um 15:37 schrieb Stefan Metzmacher:
->>>>>> Am 01.04.25 um 10:19 schrieb Stefan Metzmacher:
->>>>>>> Am 31.03.25 um 23:04 schrieb Stanislav Fomichev:
->>>>>>>> On 03/31, Stefan Metzmacher wrote:
->>>>>>>>> The motivation for this is to remove the SOL_SOCKET limitation
->>>>>>>>> from io_uring_cmd_getsockopt().
->>>>>>>>>
->>>>>>>>> The reason for this limitation is that io_uring_cmd_getsockopt()
->>>>>>>>> passes a kernel pointer as optlen to do_sock_getsockopt()
->>>>>>>>> and can't reach the ops->getsockopt() path.
->>>>>>>>>
->>>>>>>>> The first idea would be to change the optval and optlen arguments
->>>>>>>>> to the protocol specific hooks also to sockptr_t, as that
->>>>>>>>> is already used for setsockopt() and also by do_sock_getsockopt()
->>>>>>>>> sk_getsockopt() and BPF_CGROUP_RUN_PROG_GETSOCKOPT().
->>>>>>>>>
->>>>>>>>> But as Linus don't like 'sockptr_t' I used a different approach.
->>>>>>>>>
->>>>>>>>> @Linus, would that optlen_t approach fit better for you?
->>>>>>>>
->>>>>>>> [..]
->>>>>>>>
->>>>>>>>> Instead of passing the optlen as user or kernel pointer,
->>>>>>>>> we only ever pass a kernel pointer and do the
->>>>>>>>> translation from/to userspace in do_sock_getsockopt().
->>>>>>>>
->>>>>>>> At this point why not just fully embrace iov_iter? You have the size
->>>>>>>> now + the user (or kernel) pointer. Might as well do
->>>>>>>> s/sockptr_t/iov_iter/ conversion?
->>>>>>>
->>>>>>> I think that would only be possible if we introduce
->>>>>>> proto[_ops].getsockopt_iter() and then convert the implementations
->>>>>>> step by step. Doing it all in one go has a lot of potential to break
->>>>>>> the uapi. I could try to convert things like socket, ip and tcp myself, but
->>>>>>> the rest needs to be converted by the maintainer of the specific protocol,
->>>>>>> as it needs to be tested. As there are crazy things happening in the existing
->>>>>>> implementations, e.g. some getsockopt() implementations use optval as in and out
->>>>>>> buffer.
->>>>>>>
->>>>>>> I first tried to convert both optval and optlen of getsockopt to sockptr_t,
->>>>>>> and that showed that touching the optval part starts to get complex very soon,
->>>>>>> see https://git.samba.org/?p=metze/linux/wip.git;a=commitdiff;h=141912166473bf8843ec6ace76dc9c6945adafd1
->>>>>>> (note it didn't converted everything, I gave up after hitting
->>>>>>> sctp_getsockopt_peer_addrs and sctp_getsockopt_local_addrs.
->>>>>>> sctp_getsockopt_context, sctp_getsockopt_maxseg, sctp_getsockopt_associnfo and maybe
->>>>>>> more are the ones also doing both copy_from_user and copy_to_user on optval)
->>>>>>>
->>>>>>> I come also across one implementation that returned -ERANGE because *optlen was
->>>>>>> too short and put the required length into *optlen, which means the returned
->>>>>>> *optlen is larger than the optval buffer given from userspace.
->>>>>>>
->>>>>>> Because of all these strange things I tried to do a minimal change
->>>>>>> in order to get rid of the io_uring limitation and only converted
->>>>>>> optlen and leave optval as is.
->>>>>>>
->>>>>>> In order to have a patchset that has a low risk to cause regressions.
->>>>>>>
->>>>>>> But as alternative introducing a prototype like this:
->>>>>>>
->>>>>>>            int (*getsockopt_iter)(struct socket *sock, int level, int optname,
->>>>>>>                                   struct iov_iter *optval_iter);
->>>>>>>
->>>>>>> That returns a non-negative value which can be placed into *optlen
->>>>>>> or negative value as error and *optlen will not be changed on error.
->>>>>>> optval_iter will get direction ITER_DEST, so it can only be written to.
->>>>>>>
->>>>>>> Implementations could then opt in for the new interface and
->>>>>>> allow do_sock_getsockopt() work also for the io_uring case,
->>>>>>> while all others would still get -EOPNOTSUPP.
->>>>>>>
->>>>>>> So what should be the way to go?
->>>>>>
->>>>>> Ok, I've added the infrastructure for getsockopt_iter, see below,
->>>>>> but the first part I wanted to convert was
->>>>>> tcp_ao_copy_mkts_to_user() and that also reads from userspace before
->>>>>> writing.
->>>>>>
->>>>>> So we could go with the optlen_t approach, or we need
->>>>>> logic for ITER_BOTH or pass two iov_iters one with ITER_SRC and one
->>>>>> with ITER_DEST...
->>>>>>
->>>>>> So who wants to decide?
->>>>>
->>>>> I just noticed that it's even possible in same cases
->>>>> to pass in a short buffer to optval, but have a longer value in optlen,
->>>>> hci_sock_getsockopt() with SOL_BLUETOOTH completely ignores optlen.
->>>>>
->>>>> This makes it really hard to believe that trying to use iov_iter for this
->>>>> is a good idea :-(
->>>>
->>>> That was my finding as well a while ago, when I was planning to get the
->>>> __user pointers converted to iov_iter. There are some weird ways of
->>>> using optlen and optval, which makes them non-trivial to covert to
->>>> iov_iter.
->>>
->>> Can we ignore all non-ip/tcp/udp cases for now? This should cover +90%
->>> of useful socket opts. See if there are any obvious problems with them
->>> and if not, try converting. The rest we can cover separately when/if
->>> needed.
->>
->> That's what I tried, but it fails with
->> tcp_getsockopt ->
->>     do_tcp_getsockopt ->
->>       tcp_ao_get_mkts ->
->>          tcp_ao_copy_mkts_to_user ->
->>             copy_struct_from_sockptr
->>       tcp_ao_get_sock_info ->
->>          copy_struct_from_sockptr
->>
->> That's not possible with a ITER_DEST iov_iter.
->>
->> metze
+On Tue, Apr 01, 2025 at 08:05:16PM +0100, Daniel P. Berrang� wrote:
+> On Fri, Mar 28, 2025 at 06:03:19PM +0100, Stefano Garzarella wrote:
+> > CCing Daniel
+> > 
+> > On Wed, Mar 12, 2025 at 01:59:34PM -0700, Bobby Eshleman wrote:
+> > > Picking up Stefano's v1 [1], this series adds netns support to
+> > > vhost-vsock. Unlike v1, this series does not address guest-to-host (g2h)
+> > > namespaces, defering that for future implementation and discussion.
+> > > 
+> > > Any vsock created with /dev/vhost-vsock is a global vsock, accessible
+> > > from any namespace. Any vsock created with /dev/vhost-vsock-netns is a
+> > > "scoped" vsock, accessible only to sockets in its namespace. If a global
+> > > vsock or scoped vsock share the same CID, the scoped vsock takes
+> > > precedence.
+> > > 
+> > > If a socket in a namespace connects with a global vsock, the CID becomes
+> > > unavailable to any VMM in that namespace when creating new vsocks. If
+> > > disconnected, the CID becomes available again.
+> > 
+> > I was talking about this feature with Daniel and he pointed out something
+> > interesting (Daniel please feel free to correct me):
+> > 
+> >     If we have a process in the host that does a listen(AF_VSOCK) in a
+> > namespace, can this receive connections from guests connected to
+> > /dev/vhost-vsock in any namespace?
+> > 
+> >     Should we provide something (e.g. sysctl/sysfs entry) to disable
+> > this behaviour, preventing a process in a namespace from receiving
+> > connections from the global vsock address space (i.e.      /dev/vhost-vsock
+> > VMs)?
 > 
-> Can we create two iterators over the same memory? One for ITER_SOURCE and
-> another for ITER_DEST. And then make getsockopt_iter accept optval_in and
-> optval_out. We can also use optval_out position (iov_offset) as optlen output
-> value. Don't see why it won't work, but I agree that's gonna be a messy
-> conversion so let's see if someone else has better suggestions.
+> I think my concern goes a bit beyond that, to the general conceptual
+> idea of sharing the CID space between the global vsocks and namespace
+> vsocks. So I'm not sure a sysctl would be sufficient...details later
+> below..
+> 
+> > I understand that by default maybe we should allow this behaviour in order
+> > to not break current applications, but in some cases the user may want to
+> > isolate sockets in a namespace also from being accessed by VMs running in
+> > the global vsock address space.
+> > 
+> > Indeed in this series we have talked mostly about the host -> guest path (as
+> > the direction of the connection), but little about the guest -> host path,
+> > maybe we should explain it better in the cover/commit
+> > descriptions/documentation.
+> 
+> > > Testing
+> > > 
+> > > QEMU with /dev/vhost-vsock-netns support:
+> > > 	https://github.com/beshleman/qemu/tree/vsock-netns
+> > > 
+> > > Test: Scoped vsocks isolated by namespace
+> > > 
+> > >  host# ip netns add ns1
+> > >  host# ip netns add ns2
+> > >  host# ip netns exec ns1 \
+> > > 				  qemu-system-x86_64 \
+> > > 					  -m 8G -smp 4 -cpu host -enable-kvm \
+> > > 					  -serial mon:stdio \
+> > > 					  -drive if=virtio,file=${IMAGE1} \
+> > > 					  -device vhost-vsock-pci,netns=on,guest-cid=15
+> > >  host# ip netns exec ns2 \
+> > > 				  qemu-system-x86_64 \
+> > > 					  -m 8G -smp 4 -cpu host -enable-kvm \
+> > > 					  -serial mon:stdio \
+> > > 					  -drive if=virtio,file=${IMAGE2} \
+> > > 					  -device vhost-vsock-pci,netns=on,guest-cid=15
+> > > 
+> > >  host# socat - VSOCK-CONNECT:15:1234
+> > >  2025/03/10 17:09:40 socat[255741] E connect(5, AF=40 cid:15 port:1234, 16): No such device
+> > > 
+> > >  host# echo foobar1 | sudo ip netns exec ns1 socat - VSOCK-CONNECT:15:1234
+> > >  host# echo foobar2 | sudo ip netns exec ns2 socat - VSOCK-CONNECT:15:1234
+> > > 
+> > >  vm1# socat - VSOCK-LISTEN:1234
+> > >  foobar1
+> > >  vm2# socat - VSOCK-LISTEN:1234
+> > >  foobar2
+> > > 
+> > > Test: Global vsocks accessible to any namespace
+> > > 
+> > >  host# qemu-system-x86_64 \
+> > > 	  -m 8G -smp 4 -cpu host -enable-kvm \
+> > > 	  -serial mon:stdio \
+> > > 	  -drive if=virtio,file=${IMAGE2} \
+> > > 	  -device vhost-vsock-pci,guest-cid=15,netns=off
+> > > 
+> > >  host# echo foobar | sudo ip netns exec ns1 socat - VSOCK-CONNECT:15:1234
+> > > 
+> > >  vm# socat - VSOCK-LISTEN:1234
+> > >  foobar
+> > > 
+> > > Test: Connecting to global vsock makes CID unavailble to namespace
+> > > 
+> > >  host# qemu-system-x86_64 \
+> > > 	  -m 8G -smp 4 -cpu host -enable-kvm \
+> > > 	  -serial mon:stdio \
+> > > 	  -drive if=virtio,file=${IMAGE2} \
+> > > 	  -device vhost-vsock-pci,guest-cid=15,netns=off
+> > > 
+> > >  vm# socat - VSOCK-LISTEN:1234
+> > > 
+> > >  host# sudo ip netns exec ns1 socat - VSOCK-CONNECT:15:1234
+> > >  host# ip netns exec ns1 \
+> > > 				  qemu-system-x86_64 \
+> > > 					  -m 8G -smp 4 -cpu host -enable-kvm \
+> > > 					  -serial mon:stdio \
+> > > 					  -drive if=virtio,file=${IMAGE1} \
+> > > 					  -device vhost-vsock-pci,netns=on,guest-cid=15
+> > > 
+> > >  qemu-system-x86_64: -device vhost-vsock-pci,netns=on,guest-cid=15: vhost-vsock: unable to set guest cid: Address already in use
+> 
+> I find it conceptually quite unsettling that the VSOCK CID address
+> space for AF_VSOCK is shared between the host and the namespace.
+> That feels contrary to how namespaces are more commonly used for
+> deterministically isolating resources between the namespace and the
+> host.
+> 
+> Naively I would expect that in a namespace, all VSOCK CIDs are
+> free for use, without having to concern yourself with what CIDs
+> are in use in the host now, or in future.
+> 
 
-Yes, that might work, but it would be good to get some feedback
-if this would be the way to go:
+True, that would be ideal. I think the definition of backwards
+compatibility we've established includes the notion that any VM may
+reach any namespace and any namespace may reach any VM. IIUC, it sounds
+like you are suggesting this be revised to more strictly adhere to
+namespace semantics?
 
-           int (*getsockopt_iter)(struct socket *sock,
-				 int level, int optname,
-				 struct iov_iter *optval_in,
-				 struct iov_iter *optval_out);
+I do like Stefano's suggestion to add a sysctl for a "strict" mode,
+Since it offers the best of both worlds, and still tends conservative in
+protecting existing applications... but I agree, the non-strict mode
+vsock would be unique WRT the usual concept of namespaces.
 
-And *optlen = optval_out->iov_offset;
+> What happens if we reverse the QEMU order above, to get the
+> following scenario
+> 
+>    # Launch VM1 inside the NS
+>    host# ip netns exec ns1 \
+>   				  qemu-system-x86_64 \
+>   					  -m 8G -smp 4 -cpu host -enable-kvm \
+>   					  -serial mon:stdio \
+>   					  -drive if=virtio,file=${IMAGE1} \
+>   					  -device vhost-vsock-pci,netns=on,guest-cid=15
+>    # Launch VM2
+>    host# qemu-system-x86_64 \
+>   	  -m 8G -smp 4 -cpu host -enable-kvm \
+>   	  -serial mon:stdio \
+>   	  -drive if=virtio,file=${IMAGE2} \
+>   	  -device vhost-vsock-pci,guest-cid=15,netns=off
+>   
+>    vm1# socat - VSOCK-LISTEN:1234
+>    vm2# socat - VSOCK-LISTEN:1234
+> 
+>    host# socat - VSOCK-CONNECT:15:1234
+>      => Presume this connects to "VM2" running outside the NS
+> 
+>    host# sudo ip netns exec ns1 socat - VSOCK-CONNECT:15:1234
+> 
+>      => Does this connect to "VM1" inside the NS, or "VM2"
+>         outside the NS ?
+> 
 
-Any objection or better ideas? Linus would that be what you had in mind?
+VM1 inside the NS. Current logic says that whenever two CIDs collide
+(local vs global), always select the one in the local namespace
+(irrespective of creation order).
 
-Thanks!
-metze
+Adding a sysctl option... it would *never* connect to the global one,
+even if there was no local match but there was a global one.
+
+> 
+> 
+> With regards,
+> Daniel
+
+Thanks for the review!
+
+Best,
+Bobby
