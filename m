@@ -1,116 +1,140 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08702AD27;
-	Wed,  2 Apr 2025 04:58:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0086013AA27
+	for <virtualization@lists.linux.dev>; Wed,  2 Apr 2025 05:43:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743569892; cv=none; b=tkWbjcBY79KhWvjubLNXAYDRfF9EOhR5OKYhQ7moXmccSRfiVeiFi5lrI7W/UZ0vmC/afFePn5ZgPdV7oTWuCovdHdHfKCTRDgQ6Z14LzcU90GZbu8AXGAFj3F8QBSR3fCTVNkZEuHi+KewOkACxgrGRjfZBhQU7wp3Rm0cvNjg=
+	t=1743572619; cv=none; b=hPkWXv1FonzKePRAY/V4OqGTM7uJhaJUJ+2e2JtUqwtS9hknpQNwX5kIw/ephoPTmZx56fFRzl8Bs8DGaD9H2mZXwFj4Bec+PaFMWfutGOGZS5rswCeOdJyGJO8Xe6xX1wsWR36syug0FDPfSFR4HqkYDAQuFTnHkkmis+qCFtc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743569892; c=relaxed/simple;
-	bh=5UiAmTnqltfwvRyVzGRX8Q7LYriFM9zM4G8+bmQFFPc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EjWWpI9nqDBevdsQwzVFCCSK1wp+nMSPbq45NGfpiGVJnjrnjIVzSy0mK7lOj05Kuoks+TvxJhWsruZsw8DWGwPOqXznCa4Syv6XUfZVxDa5QwuE+Oc8wKWj8ge2sjuYaqE7GGKJshVXMq4INO2bXVy0/YoD6tMC3fcIRR3UQhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=KgWEvIDk; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1743572619; c=relaxed/simple;
+	bh=4YodOXIyddgrUGXCDpWh7pKVlP0DqqsIUu4EW1rqHZU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Njtdr4wO6l2X5cIMrR1kBjL544GlH2VfxUQQBjiuui88RaJmnrlPAVAsc0sn0SL6AtAOAdX64dYUPfKBHcljXC28cinuPT70ER05z01ELncn2LHB5fqkbKvWmZCaMygnjwaWh6DAnCHxeELLutcBFrpqAkbKFTJEfsgRdD+y/5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B1F9eQQY; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="KgWEvIDk"
-Received: from [192.168.7.202] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 5324vV334074560
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Tue, 1 Apr 2025 21:57:32 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 5324vV334074560
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1743569855;
-	bh=dP9zemrGBwQsO7PTwDde7OdOBV5enCnih/h0UjXSaBY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=KgWEvIDk0ptJ+2Le7Mljabnd1tBAvTAd/OvynSGx3lkb8s5fLKNxnDaj/u6UOdm7W
-	 +vrd3NNd0O6rV4BrlX3+iTxEb+jQH1rTuOJUcJicRl6Z5aajvTac/lcdNUGieGqjjX
-	 JSlO+qiJtqShYTz1ktaVl5/AEupYKCdX1Vrjn9eBhZPMm+kj1KbCioask+G0OE5dak
-	 XkwL1uVpPyRsdjk5rXoZkjb1lPz4F5EDEJvOXCJXyv6CyddNA3AKO8tKk5NZ4l3PNj
-	 cc4XoBuOZEJzMmYpZNWg/T2fgE69DPZZ1BoWAegBH6U0jZ4x2DVCYEdvlHUn9gNB5t
-	 CzEyh2X4dfeiA==
-Message-ID: <7f76e23e-45a9-4e9d-b792-02da9e6deee5@zytor.com>
-Date: Tue, 1 Apr 2025 21:57:31 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B1F9eQQY"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-301493f45aeso10377839a91.1
+        for <virtualization@lists.linux.dev>; Tue, 01 Apr 2025 22:43:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743572617; x=1744177417; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7oMFt6rTiybYoRdpooKvYV5UYutJybr7cfusGu3htIA=;
+        b=B1F9eQQYcMUQJOI3EGkfHJuNQpVDuETLwmMQtzdzz+fskuobUeuftD2S6jlJlSWwuX
+         /KdIEVeZ0Fn+OHVrxIyBDdQknKNw3ETZ05BrOFgh9ETFC4jfzX29ymv6VT3mSBlajnCl
+         pnCmlwvRCCG/EnAX+f7o9rAbUfkxGTBl7VpWyzZzM4YBkgqkBA849Q2riScgao8l5vuG
+         2TeWbFtSmUw0CFAdyvqSGbKf7WMjHq7jdouZ2NwIHwM/whr9MmPFaYMPNnkbRtep99Ye
+         9aQY32TVNrS5KksCu/+zqUpiDI+bQRdpaWHzQoUxGskeZ+ahUf+lV4hOTb80kZFCEBZL
+         u2sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743572617; x=1744177417;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7oMFt6rTiybYoRdpooKvYV5UYutJybr7cfusGu3htIA=;
+        b=vcVgLsozFlUxN6lVANql22mAhkeLBN2nJulTP58LnkhDPjJfgK9vbnqCoE3LPundqR
+         Ieid3Y4Yeh79UgPiAEQkn/uvkw7kVKiDmjM14s+1jVVmh/IV4mLVt0TjrREpI6iL3mow
+         vbo2c1N0lc5pVcQ/k3ZGsUMTBjejwyaw/xDyNi+j7HL0qCDvgTqFF5en57ib2jPpxY/E
+         4YdC7ojf0XYbWY1b/iE91rEzJtm2e9xIhulUKfWv6TtgX86I69FxKoKjk9COwAA4MTas
+         cjiFH+8rvgtWkhSpRaiLS5aRhpXeV4K7NEcPzERhP4MN3uiJgpbt0/XAu+wD9lJeZJkw
+         qi6A==
+X-Gm-Message-State: AOJu0Yz47JLDOkUt/kKNamcEKICbxlIUApZAdSaezSZcvjybp4ZpeR2C
+	PsCJYy7bR0K/N4HJlvXcTcSlnfw0QOVFVoq0ZTzD2DPpBqtVdvTsBOrwvinn
+X-Gm-Gg: ASbGncvZSLbowUUi7a0qbhKMHr+8z/7oYX8wEgHHS1haUFd8c2X7IXNVxcpLwc20AQo
+	cIqWk63JrJrz2F490bdYfWnoO4lxeyp/bUFy8/mEWLbqMmzSNdnLdyjhDrmv55hIpTLULha2zih
+	uFR5duh8lx8yPi+hZpmcE/6zvFPMQiJAmCzOnagUz5zTszMK7YyTajne9jAXRsW0IZnMlFX9ved
+	IecwiQSTbh+aafKCBPLoM703nKfyiWLaN1YIZIcNO+2K+Adxebrz+3re5gYTm59s8nH487oqjKT
+	HgllBCYu95JPT3GKe6XIokwBBHCghjQVWh2HPO6SAvv5OP9VJi1XDXxagi0K
+X-Google-Smtp-Source: AGHT+IEic+6AY+ZdBrLSKJCMvjDVGOhMYUP1QxYWYvLdMiiVD00LmEfJ4lEnY8i5M2nghj2SBWMTbA==
+X-Received: by 2002:a17:90b:5210:b0:2ee:9d49:3ae6 with SMTP id 98e67ed59e1d1-30531f93127mr25734500a91.10.1743572616792;
+        Tue, 01 Apr 2025 22:43:36 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f4e:bd30:194b:b252:cf33:1fe5])
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-3056f83c93asm720529a91.14.2025.04.01.22.43.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Apr 2025 22:43:36 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH] virtio-net: disable delayed refill when setting up xdp
+Date: Wed,  2 Apr 2025 12:42:10 +0700
+Message-ID: <20250402054210.67623-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v1 01/15] x86/msr: Replace __wrmsr() with
- native_wrmsrl()
-To: Ingo Molnar <mingo@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-edac@vger.kernel.org,
-        kvm@vger.kernel.org, xen-devel@lists.xenproject.org,
-        linux-ide@vger.kernel.org, linux-pm@vger.kernel.org,
-        bpf@vger.kernel.org, llvm@lists.linux.dev, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com,
-        peterz@infradead.org, acme@kernel.org, namhyung@kernel.org,
-        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
-        jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com,
-        kan.liang@linux.intel.com, wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        alexey.amakhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
-        tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com,
-        seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com,
-        kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com,
-        Linus Torvalds <torvalds@linux-foundation.org>
-References: <20250331082251.3171276-1-xin@zytor.com>
- <20250331082251.3171276-2-xin@zytor.com> <Z-pruogreCuU66wm@gmail.com>
- <9D15DE81-2E68-4FCD-A133-4963602E18C9@zytor.com> <Z-ubVFyoOzwKhI53@gmail.com>
- <7a503d55-db41-42da-8133-4a3dbbd36c7e@zytor.com> <Z-y4pGxgiP55lpOj@gmail.com>
-Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- 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
- l75w1xInsg==
-In-Reply-To: <Z-y4pGxgiP55lpOj@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 4/1/2025 9:10 PM, Ingo Molnar wrote:
-> Yeah, I moved it over to:
-> 
->    git://git.kernel.org/pub/scm/linux/kernel/git/mingo/tip.git WIP.x86/msr
+When setting up XDP for a running interface, we call napi_disable() on
+the receive queue's napi. In delayed refill_work, it also calls
+napi_disable() on the receive queue's napi. This can leads to deadlock
+when napi_disable() is called on an already disabled napi. This commit
+fixes this by disabling future and cancelling all inflight delayed
+refill works before calling napi_disabled() in virtnet_xdp_set.
 
-On it now.
+Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+---
+ drivers/net/virtio_net.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-Thanks!
-     Xin
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7e4617216a4b..33406d59efe2 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -5956,6 +5956,15 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 	if (!prog && !old_prog)
+ 		return 0;
+ 
++	/*
++	 * Make sure refill_work does not run concurrently to
++	 * avoid napi_disable race which leads to deadlock.
++	 */
++	if (netif_running(dev)) {
++		disable_delayed_refill(vi);
++		cancel_delayed_work_sync(&vi->refill);
++	}
++
+ 	if (prog)
+ 		bpf_prog_add(prog, vi->max_queue_pairs - 1);
+ 
+@@ -6004,6 +6013,8 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 			virtnet_napi_tx_enable(&vi->sq[i]);
+ 		}
+ 	}
++	if (netif_running(dev))
++		enable_delayed_refill(vi);
+ 
+ 	return 0;
+ 
+@@ -6019,6 +6030,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 			virtnet_napi_enable(&vi->rq[i]);
+ 			virtnet_napi_tx_enable(&vi->sq[i]);
+ 		}
++		enable_delayed_refill(vi);
+ 	}
+ 	if (prog)
+ 		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
+-- 
+2.43.0
+
