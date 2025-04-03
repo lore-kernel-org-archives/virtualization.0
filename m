@@ -1,400 +1,127 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C12E3B1A4
-	for <virtualization@lists.linux-foundation.org>; Thu,  3 Apr 2025 22:05:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1F2E1A5B8F
+	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 23:26:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743717955; cv=none; b=Uj9rTpksEJgmZQAbPYJ33SB2hcuJWHoIfkCdkqjCUeg+W4F+KT1noXd0fcoRYpdBYNRFyK0+Mws0MWVBdzmSiPhBY3A2kV8YYlyWtXCxVQywi3HZst/Xqf/C4YehMkbwqpO3ZJyCp4Mw6YpUeRnxtJo1znszSlRexuKka2cuEXw=
+	t=1743722783; cv=none; b=EHBXlOD6YcDfM4+ws77S5vVFmGQuMCerdie1CGjGktodQkMrtSnEto0xwBvzVcyxt/LOSuoARZhGiwxtk6QK400hRFE1T8oUrZYetRaZg/+ALPaBVi4u/KmzQcaC5BZRpjQzKtQgjFX/uZifciWpKHKzp4LH4vOzzlrct3kDQwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743717955; c=relaxed/simple;
-	bh=eKqzYyjIi2T79dBU8LcLsXkzWmFMmVDyNb6oq7/9R+I=;
+	s=arc-20240116; t=1743722783; c=relaxed/simple;
+	bh=4UzC/VLVd7ky4BarzKv5YEItSxNeADmRgcM+DEoOJYs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=utkWCe63X3VPtrjQtUAt0RZ1rYpyTokRXDx3dlLp4ReruKk9wOb+puVo1ZuSMmGxOMzv0IIcNavjzJ//LblG3PYOpSeSpJB8TYTV9L3Y7zHCcCZveedp5CcZBgI/p9h8n/lI1xed2nAIh0dyMPRLZBK+DpGKNV1+MlSR4ZBfCJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LqsqFsHz; arc=none smtp.client-ip=140.211.166.136
+	 Content-Type:Content-Disposition:In-Reply-To; b=Mmq6iYArynu/MeTi61UFkbLqNZN9OeV7QWliEYUtF8C358SacFAB8Vpf89UUXcuo8ctVNJjIlRWWLfVLfwbiNnu658danoe4VXyqhqfziNxx/9j+FJ8GItZif/CYOSTcqG8zgLYQMr2stwL5NBSrPQ9UCEcagxiNiGJtUTJ7ytE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=dBhNZfhf; arc=none smtp.client-ip=209.85.219.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LqsqFsHz"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B9AC860B23
-	for <virtualization@lists.linux-foundation.org>; Thu,  3 Apr 2025 22:05:53 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id a3Wx_uieh0-F for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Apr 2025 22:05:52 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 8215E60B25
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8215E60B25
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LqsqFsHz
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8215E60B25
-	for <virtualization@lists.linux-foundation.org>; Thu,  3 Apr 2025 22:05:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743717950;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QAVFBnpk4VtqkCeBmziZc7aEtpDNjYwZQhVxgdIMsz4=;
-	b=LqsqFsHzY6s6tpp2Nn9eIpuXj7d7POj5m3MxMQQJTXmJD6bcTEMv8LUNL02jZPKOYFEXCm
-	H7qaiNpQHaeRSA1BMphhGeLXmQLhccbjsKNgWrf51xlBbk0aJyDySwwWsb7756LlM+gQsz
-	eFJImhkPcAatxvN8GPW3ZaEG11NOKtE=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-214-GcLQ4BvZMW2tvaj9QKCn7w-1; Thu, 03 Apr 2025 18:05:49 -0400
-X-MC-Unique: GcLQ4BvZMW2tvaj9QKCn7w-1
-X-Mimecast-MFC-AGG-ID: GcLQ4BvZMW2tvaj9QKCn7w_1743717948
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43cec217977so8528505e9.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 03 Apr 2025 15:05:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="dBhNZfhf"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-6e8ffa00555so12907566d6.0
+        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 16:26:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1743722780; x=1744327580; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=0dnmrlpBGeFmqcu0Pq2phWVQb3k+1PXSaVmeXw2bjGQ=;
+        b=dBhNZfhfoBhLusUVCBjCatLaMjhVpZV2gwEhpWvjnKgzogs/SkNUieYntOD0Inkm13
+         cKD1tfsAg6OKzQa5I4Fil2J0woKNkT21zOyKsXq6Puv7eHJcthk+lC6XWbSYaxkeCKWm
+         f2HhAfPM7Nevku9vA/7NzIl+vtuXxMW0fgCBRweuZ2zyeG3Yb4/zgoCSHpslGMT5qvIH
+         GRAE9LOTN+bdsyCUrKYXRwm1OEwcI+WWbdHDTiPyzMJK1/uHCx8WJROf9lsiDmUd/CN7
+         hfcwHbRP8r4oEbJZArLei5hJSRXQzxUHGbDDD1+WTnnUy4pSZmEwIZ6OOqZ6aNvE0nGA
+         bS8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743717948; x=1744322748;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QAVFBnpk4VtqkCeBmziZc7aEtpDNjYwZQhVxgdIMsz4=;
-        b=lHOZMGHjXLGxZ9gFcbaA16OvMTkGHJ9O06mqyqogIw8m7U74+qqTOdDBDKExeBdBXQ
-         uiPa2NaDb/FoCuh2jw/IKAguDbT8hsKvqkJOwWz77u0ElzWHX+jswDRjgRXP7J5vp3DR
-         hPXyGVMhxgdjlftbcDELdfqmMUZeA1RP5qlhYea2MY03ZaeqNjDhmCkymhMxi8DAqrgT
-         E5Z567tl8qYUz3KThdI7Acs9v+rFFMFa60SebAJMPrFALd1bw7eOguW/F/bZ10gswY2d
-         zYR4MWW4thqqpAdsgpRG69D8uqSCGsf7kRZL9FOrO24FAMeYQyf3IdO2040f/hvEN3p+
-         wmfA==
-X-Gm-Message-State: AOJu0YzsqnkAxVAqYjoFxpRZp6Ay3bOBKOQww8ubaFPyXNZqLn3q5Mx3
-	JCGakNln7cQ0ppp32Gl6IBnsBuGa91OiBrUvIwm5qDtZZ5v9+sMhl7Q3SCCf/fZg+WuhTfOuyA7
-	JRv6OZ8sTyMXxTbm1NW9PO9yo6UBzPQyEAXDDx2i1xaVD8bsubCytIepcisrCV1GOHG31YMsVSg
-	eTwB8=
-X-Gm-Gg: ASbGncv1e6ejySXAZF1kWE2usVy4jmzAUlI7WLcgTvL+2+roo6u4LLYxB4Hiv3s9+2H
-	qp2dmUZDd7Q6evu9lkoODQCuXm+5H2OzbJY/BwzwJFi9/SrV3jEt090y19Tsi8FXE9xcDAQ1pJe
-	z29NW7DxabTQy3VLbrEyh0C309AOXpXacHT8NhwUgJ/Lv4EcoVqjduSw/d7gP5JuLIfKRGmUvfu
-	CvSAgFNbMdFBTKc7GA2YVcBF0f7X1q2mRjQvgCS5iBzfj8ng4Tleet0EsltaqcqNc2JBWSV/O9L
-	FRqXVzv32Q==
-X-Received: by 2002:a05:6000:220b:b0:39c:2692:4259 with SMTP id ffacd0b85a97d-39cb35981fdmr851932f8f.21.1743717948383;
-        Thu, 03 Apr 2025 15:05:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEW79kGoZJtIy40Yyv2kYOF7XH99mDIi3DHMq1I1roAepV4AIJGqkODQhQwHwIeDrJwacw5tw==
-X-Received: by 2002:a05:6000:220b:b0:39c:2692:4259 with SMTP id ffacd0b85a97d-39cb35981fdmr851912f8f.21.1743717947920;
-        Thu, 03 Apr 2025 15:05:47 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c301a6a60sm2740151f8f.29.2025.04.03.15.05.45
+        d=1e100.net; s=20230601; t=1743722780; x=1744327580;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0dnmrlpBGeFmqcu0Pq2phWVQb3k+1PXSaVmeXw2bjGQ=;
+        b=FotZPUQH+Fj1JlHiCewT/J5ACUDccijz3uksl//XbOIlvBD5bT298HG93nMrcvsSLN
+         TyiijLeVTQXe/5NtyNAU/GE1jXutDuNPdgKskcPJGaswHIVnjyK+7s4C3TbofT2HyYLU
+         zhgQPpiVGQdSVw4jULspY77AFQjvbLnGMzDcYNmcCJu8iAOXsbda0zEUhLwUTzaAnXSU
+         LcKWirYCI0fr4/QgPIayxjSmBcHYFwdlH2+fLl1+gbb2sKl9rTqN+17AFwPHjBmUDHV7
+         maZfeCvG60JKLoFsKPROFicwUVDgdQf3sXI8WVi/FwSaVWWkuvEOqtB6aBxSxUUIpbrB
+         W8zg==
+X-Forwarded-Encrypted: i=1; AJvYcCXayfxi4w68hqjvBrUjZBfiKQPy8Xn0fYGY0nC3rpf8FHTb9VX5PHsztW9e2e3J6U+ySxZpLS+AfqzZfqxNmA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyNnuMKEQDqLyGDLc6UGdCu0aIcTUebLQ9YbnbgI4IGDLIiSOTN
+	dXICdLC5sr0MzF7X6S6jLEzq8Q0Kvux8E6TKOXwskCQgc/QhtvHw8QQFK3w6C38=
+X-Gm-Gg: ASbGncvzEjxH0uyDrlQ49o3O5nnD6toZr/PVZ0ogx+RKmTnMJ9lbhEkDY9rwRQVTwAH
+	XJOa3WLIY+xrDkWi7hbq7jNAGNhHoBMaPgJcDz4aVyLTPjcPM7ZWdb81b4wxFRUa1GGtHOSxcQf
+	ut6XPwsLoyrVm+sWdlVKetzfBE33J7bSYWsj5gYJVo41HOZhAQWKejHwz3fNO8iIsXjogffk9ie
+	iW2dEJ/VXh2Gf6kO+AZTjQfiSma4fswDsqzP+wwRLftT9I7No4SNNnk9nCu8oURRH4iFvrYTlon
+	2foAvy50MWj3W7S6Zo801MVq+/eampBxtbK9Rzslms7yFoMCEZNbrY3593PUn37XdmJlsNZSGA9
+	VUtxE6zZER5mBnvgiRd/grPk=
+X-Google-Smtp-Source: AGHT+IFibU2LV4UUp0WQxSSCxFeutQYAvG/Wra81FTOp1ufuIAX96AWEwxKC9ZZdCWczg5MiXC+AeA==
+X-Received: by 2002:ad4:5e87:0:b0:6e4:2872:45f5 with SMTP id 6a1803df08f44-6f01e76f04fmr21453616d6.25.1743722780451;
+        Thu, 03 Apr 2025 16:26:20 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-167-219-86.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.167.219.86])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6ef0f1652a3sm13173396d6.119.2025.04.03.16.26.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Apr 2025 15:05:47 -0700 (PDT)
-Date: Thu, 3 Apr 2025 18:05:43 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Markus Fohrer <markus.fohrer@webked.de>
-Cc: virtualization@lists.linux-foundation.org, jasowang@redhat.com,
-	davem@davemloft.net, edumazet@google.com, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM with
- Linux 6.8+
-Message-ID: <20250403180403-mutt-send-email-mst@kernel.org>
-References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
- <20250403090001-mutt-send-email-mst@kernel.org>
- <f8909f5bbc2532ea234cdaa8dbdb46a48249803f.camel@webked.de>
- <20250403100206-mutt-send-email-mst@kernel.org>
- <da1c8647c4efcfcf7e7d2ba7e6235afc7b0f63ae.camel@webked.de>
- <20250403170543-mutt-send-email-mst@kernel.org>
- <fa9aec4d5d5148cff37a17d076b90ab835b8c7ef.camel@webked.de>
+        Thu, 03 Apr 2025 16:26:19 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1u0Twx-00000005TkW-0sfD;
+	Thu, 03 Apr 2025 20:26:19 -0300
+Date: Thu, 3 Apr 2025 20:26:19 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Shyam Saini <shyamsaini@linux.microsoft.com>
+Cc: code@tyhicks.com, devicetree@vger.kernel.org,
+	eahariha@linux.microsoft.com, eric.auger@redhat.com,
+	iommu@lists.linux.dev, jacob.pan@linux.microsoft.com,
+	linux-arm-kernel@lists.infradead.org, vijayb@linux.microsoft.com,
+	virtualization@lists.linux.dev, will@kernel.org
+Subject: Re: [PATCH 0/3] make MSI IOVA base address and its length
+ configurable
+Message-ID: <20250403232619.GA681099@ziepe.ca>
+References: <20250131003618.GB2296753@ziepe.ca>
+ <20250403193458.158085-1-shyamsaini@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <fa9aec4d5d5148cff37a17d076b90ab835b8c7ef.camel@webked.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: x43m7H-jju54sft9PUlv42LQzGUqe4L-c0-BMUUWQW8_1743717948
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250403193458.158085-1-shyamsaini@linux.microsoft.com>
 
-On Thu, Apr 03, 2025 at 11:24:43PM +0200, Markus Fohrer wrote:
-> Am Donnerstag, dem 03.04.2025 um 17:06 -0400 schrieb Michael S.
-> Tsirkin:
-> > On Thu, Apr 03, 2025 at 10:07:12PM +0200, Markus Fohrer wrote:
-> > > Am Donnerstag, dem 03.04.2025 um 10:03 -0400 schrieb Michael S.
-> > > Tsirkin:
-> > > > On Thu, Apr 03, 2025 at 03:51:01PM +0200, Markus Fohrer wrote:
-> > > > > Am Donnerstag, dem 03.04.2025 um 09:04 -0400 schrieb Michael S.
-> > > > > Tsirkin:
-> > > > > > On Wed, Apr 02, 2025 at 11:12:07PM +0200, Markus Fohrer
-> > > > > > wrote:
-> > > > > > > Hi,
-> > > > > > > 
-> > > > > > > I'm observing a significant performance regression in KVM
-> > > > > > > guest
-> > > > > > > VMs
-> > > > > > > using virtio-net with recent Linux kernels (6.8.1+ and
-> > > > > > > 6.14).
-> > > > > > > 
-> > > > > > > When running on a host system equipped with a Broadcom
-> > > > > > > NetXtreme-E
-> > > > > > > (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in
-> > > > > > > the
-> > > > > > > guest drops to 100–200 KB/s. The same guest configuration
-> > > > > > > performs
-> > > > > > > normally (~100 MB/s) when using kernel 6.8.0 or when the VM
-> > > > > > > is
-> > > > > > > moved to a host with Intel NICs.
-> > > > > > > 
-> > > > > > > Test environment:
-> > > > > > > - Host: QEMU/KVM, Linux 6.8.1 and 6.14.0
-> > > > > > > - Guest: Linux with virtio-net interface
-> > > > > > > - NIC: Broadcom BCM57416 (bnxt_en driver, no issues at host
-> > > > > > > level)
-> > > > > > > - CPU: AMD EPYC
-> > > > > > > - Storage: virtio-scsi
-> > > > > > > - VM network: virtio-net, virtio-scsi (no CPU or IO
-> > > > > > > bottlenecks)
-> > > > > > > - Traffic test: iperf3, scp, wget consistently slow in
-> > > > > > > guest
-> > > > > > > 
-> > > > > > > This issue is not present:
-> > > > > > > - On 6.8.0 
-> > > > > > > - On hosts with Intel NICs (same VM config)
-> > > > > > > 
-> > > > > > > I have bisected the issue to the following upstream commit:
-> > > > > > > 
-> > > > > > >   49d14b54a527 ("virtio-net: Suppress tx timeout warning
-> > > > > > > for
-> > > > > > > small
-> > > > > > > tx")
-> > > > > > >   https://git.kernel.org/linus/49d14b54a527
-> > > > > > 
-> > > > > > Thanks a lot for the info!
-> > > > > > 
-> > > > > > 
-> > > > > > both the link and commit point at:
-> > > > > > 
-> > > > > > commit 49d14b54a527289d09a9480f214b8c586322310a
-> > > > > > Author: Eric Dumazet <edumazet@google.com>
-> > > > > > Date:   Thu Sep 26 16:58:36 2024 +0000
-> > > > > > 
-> > > > > >     net: test for not too small csum_start in
-> > > > > > virtio_net_hdr_to_skb()
-> > > > > >     
-> > > > > > 
-> > > > > > is this what you mean?
-> > > > > > 
-> > > > > > I don't know which commit is "virtio-net: Suppress tx timeout
-> > > > > > warning
-> > > > > > for small tx"
-> > > > > > 
-> > > > > > 
-> > > > > > 
-> > > > > > > Reverting this commit restores normal network performance
-> > > > > > > in
-> > > > > > > affected guest VMs.
-> > > > > > > 
-> > > > > > > I’m happy to provide more data or assist with testing a
-> > > > > > > potential
-> > > > > > > fix.
-> > > > > > > 
-> > > > > > > Thanks,
-> > > > > > > Markus Fohrer
-> > > > > > 
-> > > > > > 
-> > > > > > Thanks! First I think it's worth checking what is the setup,
-> > > > > > e.g.
-> > > > > > which offloads are enabled.
-> > > > > > Besides that, I'd start by seeing what's doing on. Assuming
-> > > > > > I'm
-> > > > > > right
-> > > > > > about
-> > > > > > Eric's patch:
-> > > > > > 
-> > > > > > diff --git a/include/linux/virtio_net.h
-> > > > > > b/include/linux/virtio_net.h
-> > > > > > index 276ca543ef44d8..02a9f4dc594d02 100644
-> > > > > > --- a/include/linux/virtio_net.h
-> > > > > > +++ b/include/linux/virtio_net.h
-> > > > > > @@ -103,8 +103,10 @@ static inline int
-> > > > > > virtio_net_hdr_to_skb(struct
-> > > > > > sk_buff *skb,
-> > > > > >  
-> > > > > >  		if (!skb_partial_csum_set(skb, start, off))
-> > > > > >  			return -EINVAL;
-> > > > > > +		if (skb_transport_offset(skb) < nh_min_len)
-> > > > > > +			return -EINVAL;
-> > > > > >  
-> > > > > > -		nh_min_len = max_t(u32, nh_min_len,
-> > > > > > skb_transport_offset(skb));
-> > > > > > +		nh_min_len = skb_transport_offset(skb);
-> > > > > >  		p_off = nh_min_len + thlen;
-> > > > > >  		if (!pskb_may_pull(skb, p_off))
-> > > > > >  			return -EINVAL;
-> > > > > > 
-> > > > > > 
-> > > > > > sticking a printk before return -EINVAL to show the offset
-> > > > > > and
-> > > > > > nh_min_len
-> > > > > > would be a good 1st step. Thanks!
-> > > > > > 
-> > > > > 
-> > > > > 
-> > > > > Hi Eric,
-> > > > > 
-> > > > > thanks a lot for the quick response — and yes, you're
-> > > > > absolutely
-> > > > > right.
-> > > > > 
-> > > > > Apologies for the confusion: I mistakenly wrote the wrong
-> > > > > commit
-> > > > > description in my initial mail.
-> > > > > 
-> > > > > The correct commit is indeed:
-> > > > > 
-> > > > > commit 49d14b54a527289d09a9480f214b8c586322310a
-> > > > > Author: Eric Dumazet <edumazet@google.com>
-> > > > > Date:   Thu Sep 26 16:58:36 2024 +0000
-> > > > > 
-> > > > >     net: test for not too small csum_start in
-> > > > > virtio_net_hdr_to_skb()
-> > > > > 
-> > > > > This is the one I bisected and which causes the performance
-> > > > > regression
-> > > > > in my environment.
-> > > > > 
-> > > > > Thanks again,
-> > > > > Markus
-> > > > 
-> > > > 
-> > > > I'm not Eric but good to know.
-> > > > Alright, so I would start with the two items: device features and
-> > > > printk.
-> > > > 
-> > > 
-> > > as requested, here’s the device/feature information from the guest
-> > > running kernel 6.14 (mainline):
-> > > 
-> > > Interface: ens18
-> > > 
-> > > ethtool -i ens18:
-> > > driver: virtio_net
-> > > version: 1.0.0
-> > > firmware-version: 
-> > > expansion-rom-version: 
-> > > bus-info: 0000:00:12.0
-> > > supports-statistics: yes
-> > > supports-test: no
-> > > supports-eeprom-access: no
-> > > supports-register-dump: no
-> > > supports-priv-flags: no
-> > > 
-> > > 
-> > > ethtool -k ens18:
-> > > Features for ens18:
-> > > rx-checksumming: on [fixed]
-> > > tx-checksumming: on
-> > > 	tx-checksum-ipv4: off [fixed]
-> > > 	tx-checksum-ip-generic: on
-> > > 	tx-checksum-ipv6: off [fixed]
-> > > 	tx-checksum-fcoe-crc: off [fixed]
-> > > 	tx-checksum-sctp: off [fixed]
-> > > scatter-gather: on
-> > > 	tx-scatter-gather: on
-> > > 	tx-scatter-gather-fraglist: off [fixed]
-> > > tcp-segmentation-offload: on
-> > > 	tx-tcp-segmentation: on
-> > > 	tx-tcp-ecn-segmentation: on
-> > > 	tx-tcp-mangleid-segmentation: off
-> > > 	tx-tcp6-segmentation: on
-> > > generic-segmentation-offload: on
-> > > generic-receive-offload: on
-> > > large-receive-offload: off [fixed]
-> > > rx-vlan-offload: off [fixed]
-> > > tx-vlan-offload: off [fixed]
-> > > ntuple-filters: off [fixed]
-> > > receive-hashing: off [fixed]
-> > > highdma: on [fixed]
-> > > rx-vlan-filter: on [fixed]
-> > > vlan-challenged: off [fixed]
-> > > tx-gso-robust: on [fixed]
-> > > tx-fcoe-segmentation: off [fixed]
-> > > tx-gre-segmentation: off [fixed]
-> > > tx-gre-csum-segmentation: off [fixed]
-> > > tx-ipxip4-segmentation: off [fixed]
-> > > tx-ipxip6-segmentation: off [fixed]
-> > > tx-udp_tnl-segmentation: off [fixed]
-> > > tx-udp_tnl-csum-segmentation: off [fixed]
-> > > tx-gso-partial: off [fixed]
-> > > tx-tunnel-remcsum-segmentation: off [fixed]
-> > > tx-sctp-segmentation: off [fixed]
-> > > tx-esp-segmentation: off [fixed]
-> > > tx-udp-segmentation: off
-> > > tx-gso-list: off [fixed]
-> > > tx-nocache-copy: off
-> > > loopback: off [fixed]
-> > > rx-fcs: off [fixed]
-> > > rx-all: off [fixed]
-> > > tx-vlan-stag-hw-insert: off [fixed]
-> > > rx-vlan-stag-hw-parse: off [fixed]
-> > > rx-vlan-stag-filter: off [fixed]
-> > > l2-fwd-offload: off [fixed]
-> > > hw-tc-offload: off [fixed]
-> > > esp-hw-offload: off [fixed]
-> > > esp-tx-csum-hw-offload: off [fixed]
-> > > rx-udp_tunnel-port-offload: off [fixed]
-> > > tls-hw-tx-offload: off [fixed]
-> > > tls-hw-rx-offload: off [fixed]
-> > > rx-gro-hw: on
-> > > tls-hw-record: off [fixed]
-> > > rx-gro-list: off
-> > > macsec-hw-offload: off [fixed]
-> > > rx-udp-gro-forwarding: off
-> > > hsr-tag-ins-offload: off [fixed]
-> > > hsr-tag-rm-offload: off [fixed]
-> > > hsr-fwd-offload: off [fixed]
-> > > hsr-dup-offload: off [fixed]
-> > > 
-> > > ethtool ens18:
-> > > Settings for ens18:
-> > > 	Supported ports: [  ]
-> > > 	Supported link modes:   Not reported
-> > > 	Supported pause frame use: No
-> > > 	Supports auto-negotiation: No
-> > > 	Supported FEC modes: Not reported
-> > > 	Advertised link modes:  Not reported
-> > > 	Advertised pause frame use: No
-> > > 	Advertised auto-negotiation: No
-> > > 	Advertised FEC modes: Not reported
-> > > 	Speed: Unknown!
-> > > 	Duplex: Unknown! (255)
-> > > 	Auto-negotiation: off
-> > > 	Port: Other
-> > > 	PHYAD: 0
-> > > 	Transceiver: internal
-> > > netlink error: Operation not permitted
-> > > 	Link detected: yes
-> > > 
-> > > 
-> > > Kernel log (journalctl -k):
-> > > Apr 03 19:50:37 kb-test.allod.com kernel: virtio_scsi virtio2:
-> > > 4/0/0
-> > > default/read/poll queues  
-> > > Apr 03 19:50:37 kb-test.allod.com kernel: virtio_net virtio1 ens18:
-> > > renamed from eth0
-> > > 
-> > > Let me know if you’d like comparison data from kernel 6.11 or any
-> > > additional tests
+On Thu, Apr 03, 2025 at 12:34:58PM -0700, Shyam Saini wrote:
+> Hi Jason,
+> 
+> > On Thu, Jan 30, 2025 at 03:21:37PM -0800, Shyam Saini wrote:
 > > 
+> > > Unfortunately, it is an HW issue.
 > > 
-> > I think let's redo bisect first then I will suggest which traces to
-> > add.
+> > Well, that's pretty bad to have built HW that can't DMA to low
+> > addresses at all.. But OK.
+> >  
+> > > Are you okay with this passing custom MSI_IOVA via DTS approach ?
+> > 
+> > It isn't up to me, but I've understood the DT maintainers would reject
+> > this as it isn't is describing HW but just a random Linux software
+> > knob.
 > > 
 > 
-> The build with the added printk is currently running. I’ll test it
-> shortly and report the results.
+> If i understood correctly MSI window IOVA is hw property, if yes
+> then it should be accepted by DTS folks, did i misundertstand that?
+
+It is not a HW property. The MSI window in the SMMU is entirely up to
+software.
+
+Yuor HW proprerty is the regions of IOVA that do not function in the
+SMMU.
+
+> > I think you should make selecting the sw_msi dynamic in Linux.
 > 
-> Should the bisect be done between v6.11 and v6.12, or v6.11 and v6.14?
+> My understanding is that if we have to make it dynamic, we have to
+> use iova allocator that would need iova_domain as a member of struct
+> arm_smmu_domain, and allocate iova for MSI window dynamically using
+> alloc_iova() in arm_smmu_get_resv_regions() is that what you meant
+> when you mentioned selecting the sw_msi dynamically?
 
-The commit you showed is between 6.11 and 6.12. Having said that,
-you can manually checkout 49d14b54a527289d09a9480f214b8c586322310a
-and 49d14b54a527289d09a9480f214b8c586322310a~1 and record
-the results with git bisect bad/good and if it works
-then git bisect will stop immediately for you.
+I would not structure it like that..
 
+The simplest thing would be to have the SMMU driver have a list of
+potential addresses and select the first one that does not intersect
+with the non-working IOVA ranges.
+
+Jason
