@@ -1,50 +1,50 @@
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B8B014B06C
-	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 06:32:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 067DF1922DE
+	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 06:32:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743661957; cv=none; b=aQ7vN/F5uOOOk1vJ2vFSeoAy6comBvQXGfjVJ81zylTokk9rjZ+CXNDgYDjywHOXcA5ZcCu4hTLMAJfCFX5Xuh88UzzVxwPgE4Lpw+CsUp2u6QNjMq4Hkxok37AuS043XyjXog9FYo+yEHuFfLSN1CXChpxSWhJSs4rhH7hSFTo=
+	t=1743661957; cv=none; b=C6rpCNOXqaALwFTmCOWyUg7mdRvqCFXSUbmdYQiAbZpqlx5SNyJH4po6wYjesuHoE4dcAIzcM0qC4X1NuovCayWxRtnuiI9rQ9rARFJb7lDE5JzFxYcUpN2zGpvCNVkMWQY/lWkEdGj/OtY3iBr0Wdhs9rCB0En8jDxNDVrmIzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1743661957; c=relaxed/simple;
-	bh=+MoSZdkXB8P8wlNJnarUXq4B9nciJZZWT6fkgPK6mOE=;
+	bh=3K/UlJs1dsf97yiuY6Bb9E5kNsDbytX9WTP2odegu0I=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lQucDbz4R2uV6EoDNq/I4XYTGIvTX+FG9LZFKZ7VUGOJbGulnYDjh4lEkYiiD5OCeAvtG8sSJru+TTieH8wSK5xco+YnEZVfVgrDxwymeFa1sONKlPN3cuR+EAXoZu/IixB1+tDCcJb44HbZKMTEItGqm1QdYXbshrNM1Fka6mw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=NjAC/Ek6; arc=none smtp.client-ip=205.220.177.32
+	 MIME-Version; b=RF628Km2JqhsxWyKZyZ8oWpdrZFoTh14qNuCX/7PS/dcuQDo4gPl6yXlqK6ms/q5BnqOdKn2eMpYai4ijNx9jK1gIaLPRj1bKCvjU3BOZMOokEbRttnb2/Ietuk7TEh+V+5rUhbAn4Kb3+08gE/bCs44qwqj9IXRsI+Vh/OHoiM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=Cqq5Ngks; arc=none smtp.client-ip=205.220.177.32
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="NjAC/Ek6"
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 532NMrcQ026560;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Cqq5Ngks"
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 532NMpAo032002;
 	Thu, 3 Apr 2025 06:32:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=corp-2023-11-20; bh=BlFGb
-	dl3kMGnJTb1iEd/Fu/J459efqX8nafqrQ+D4mU=; b=NjAC/Ek6X1kkj3HSJOVg/
-	8u6o+zhKI7nFdXjz6jWCEdM+TUCp/Mt88bNkENFqgyyHmlyakEeW18wLA+PFHdRi
-	+c89GkMiSBZ8HG+GvYDOZVNPilvLXjNBi1sWgmGeb5CZI3jYanmAriGJaCVWkTF+
-	QFLH2fGkJfav1oeBRwbEz5L9AcJ6o9YTp7qHgtlWY0+jokPBP8W/MYTr11pDYcfZ
-	PtNzxvOF+olk+cuH6fSinU+gHlnM53Smy1hZDc55SutleV/k7+Tni1kW/TZH+iGW
-	bC8E+xxd1HrhdlefDt1Hs3/F5A6VURETOdORG4i3DCcJr7WUVOUsc+gFAZxMKLDG
-	Q==
+	:mime-version:references:subject:to; s=corp-2023-11-20; bh=t+nxk
+	K3nseyGMWW6rfotAeAMK3+o2XHXb4dX0pbXGTs=; b=Cqq5NgkslT2YCNfzFfAkP
+	9z+tppr4QSuZzZq8se46FEyVBhhm6LvyIp4D114mg9hPXi2FUjPDhpz5A1GfVHZ0
+	2AJojCLRHjbnyAe/rU7i86PZySa60YEryzfN3Gf5pFRQesjE3F58Gc+iLmLu/Y/x
+	lIKCrzqrRPKEDcyuwof4fRX2dhdAt14wqnAuLE8sopYscynjw32nslNSHbO4K8b5
+	GI9zPUHqqZc9B+Id3iM82pYxotnhSPGTbdD/xGOtKKRA1vXoltgufu1IpDNkVxzY
+	ps9EneRM+tSCPPnhcE5HnbpdYspkA8fFo5lMYIUNtIXDsk7WHPjux6b7U+gLmDqZ
+	w==
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45p79ccb17-1
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45p8fscgj9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 03 Apr 2025 06:32:33 +0000 (GMT)
+	Thu, 03 Apr 2025 06:32:34 +0000 (GMT)
 Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 53360Znd002620;
-	Thu, 3 Apr 2025 06:32:32 GMT
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 5335TvbF002700;
+	Thu, 3 Apr 2025 06:32:33 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 45pr8stj6c-1
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 45pr8stj6w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 03 Apr 2025 06:32:32 +0000
+	Thu, 03 Apr 2025 06:32:33 +0000
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 5336WTx9032092;
-	Thu, 3 Apr 2025 06:32:32 GMT
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 5336WTxB032092;
+	Thu, 3 Apr 2025 06:32:33 GMT
 Received: from localhost.localdomain (ca-dev80.us.oracle.com [10.211.9.80])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 45pr8stj4h-4;
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 45pr8stj4h-5;
 	Thu, 03 Apr 2025 06:32:32 +0000
 From: Dongli Zhang <dongli.zhang@oracle.com>
 To: virtualization@lists.linux.dev, kvm@vger.kernel.org,
@@ -53,9 +53,9 @@ Cc: mst@redhat.com, jasowang@redhat.com, michael.christie@oracle.com,
         pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
         joao.m.martins@oracle.com, joe.jin@oracle.com, si-wei.liu@oracle.com,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 3/9] vhost-scsi: Fix vhost_scsi_send_status()
-Date: Wed,  2 Apr 2025 23:29:48 -0700
-Message-ID: <20250403063028.16045-4-dongli.zhang@oracle.com>
+Subject: [PATCH v3 4/9] vhost: modify vhost_log_write() for broader users
+Date: Wed,  2 Apr 2025 23:29:49 -0700
+Message-ID: <20250403063028.16045-5-dongli.zhang@oracle.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20250403063028.16045-1-dongli.zhang@oracle.com>
 References: <20250403063028.16045-1-dongli.zhang@oracle.com>
@@ -73,75 +73,79 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 ad
  mlxlogscore=999 mlxscore=0 phishscore=0 suspectscore=0 spamscore=0
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2502280000 definitions=main-2504030033
-X-Proofpoint-GUID: RDl9xRJhxkYpbyXSWsCBm3muA03n_s6O
-X-Proofpoint-ORIG-GUID: RDl9xRJhxkYpbyXSWsCBm3muA03n_s6O
+X-Proofpoint-ORIG-GUID: bs2I2fp2F0QdzTm1k6L_zahEYWqeGS6A
+X-Proofpoint-GUID: bs2I2fp2F0QdzTm1k6L_zahEYWqeGS6A
 
-Although the support of VIRTIO_F_ANY_LAYOUT + VIRTIO_F_VERSION_1 was
-signaled by the commit 664ed90e621c ("vhost/scsi: Set
-VIRTIO_F_ANY_LAYOUT + VIRTIO_F_VERSION_1 feature bits"),
-vhost_scsi_send_bad_target() still assumes the response in a single
-descriptor.
+Currently, the only user of vhost_log_write() is vhost-net. The 'len'
+argument prevents logging of pages that are not tainted by the RX path.
 
-Similar issue in vhost_scsi_send_bad_target() has been fixed in previous
-commit. In addition, similar issue for vhost_scsi_complete_cmd_work() has
-been fixed by the commit 6dd88fd59da8 ("vhost-scsi: unbreak any layout for
-response").
+Adjustments are needed since more drivers (i.e. vhost-scsi) begin using
+vhost_log_write(). So far vhost-net RX path may only partially use pages
+shared via the last vring descriptor. Unlike vhost-net, vhost-scsi always
+logs all pages shared via vring descriptors. To accommodate this,
+use (len == U64_MAX) to indicate whether the driver would log all pages of
+vring descriptors, or only pages that are tainted by the driver.
 
-Fixes: 3ca51662f818 ("vhost-scsi: Add better resource allocation failure handling")
+In addition, removes BUG().
+
+Suggested-by: Joao Martins <joao.m.martins@oracle.com>
 Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
 ---
-Changed since v1:
-  - New patch to fix vhost_scsi_send_status().
 Changed since v2:
-  - Mention the commit 6dd88fd59da8 in the commit message.
+  - Document parameters of vhost_log_write().
+  - Use (len == U64_MAX) to indicate whether log all pages, instead of
+    introducing a new parameter.
 
- drivers/vhost/scsi.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/vhost/vhost.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 59d907b94c5e..26bcf3a7f70c 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -999,18 +999,22 @@ static void vhost_scsi_target_queue_cmd(struct vhost_scsi_nexus *nexus,
- 
- static void
- vhost_scsi_send_status(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
--		       int head, unsigned int out, u8 status)
-+		       struct vhost_scsi_ctx *vc, u8 status)
- {
--	struct virtio_scsi_cmd_resp __user *resp;
- 	struct virtio_scsi_cmd_resp rsp;
-+	struct iov_iter iov_iter;
- 	int ret;
- 
- 	memset(&rsp, 0, sizeof(rsp));
- 	rsp.status = status;
--	resp = vq->iov[out].iov_base;
--	ret = __copy_to_user(resp, &rsp, sizeof(rsp));
--	if (!ret)
--		vhost_add_used_and_signal(&vs->dev, vq, head, 0);
-+
-+	iov_iter_init(&iov_iter, ITER_DEST, &vq->iov[vc->out], vc->in,
-+		      sizeof(rsp));
-+
-+	ret = copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
-+
-+	if (likely(ret == sizeof(rsp)))
-+		vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
- 	else
- 		pr_err("Faulted on virtio_scsi_cmd_resp\n");
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9ac25d08f473..494b3da5423a 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2304,6 +2304,19 @@ static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
+ 	return 0;
  }
-@@ -1420,7 +1424,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 		else if (ret == -EIO)
- 			vhost_scsi_send_bad_target(vs, vq, &vc, TYPE_IO_CMD);
- 		else if (ret == -ENOMEM)
--			vhost_scsi_send_status(vs, vq, vc.head, vc.out,
-+			vhost_scsi_send_status(vs, vq, &vc,
- 					       SAM_STAT_TASK_SET_FULL);
- 	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
- out:
+ 
++/*
++ * vhost_log_write() - Log in dirty page bitmap
++ * @vq:      vhost virtqueue.
++ * @log:     Array of dirty memory in GPA.
++ * @log_num: Size of vhost_log arrary.
++ * @len:     The total length of memory buffer to log in the dirty bitmap.
++ *	     Some drivers may only partially use pages shared via the last
++ *	     vring descriptor (i.e. vhost-net RX buffer).
++ *	     Use (len == U64_MAX) to indicate the driver would log all
++ *           pages of vring descriptors.
++ * @iov:     Array of dirty memory in HVA.
++ * @count:   Size of iovec array.
++ */
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+ 		    unsigned int log_num, u64 len, struct iovec *iov, int count)
+ {
+@@ -2327,15 +2340,14 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+ 		r = log_write(vq->log_base, log[i].addr, l);
+ 		if (r < 0)
+ 			return r;
+-		len -= l;
+-		if (!len) {
+-			if (vq->log_ctx)
+-				eventfd_signal(vq->log_ctx);
+-			return 0;
+-		}
++
++		if (len != U64_MAX)
++			len -= l;
+ 	}
+-	/* Length written exceeds what we have stored. This is a bug. */
+-	BUG();
++
++	if (vq->log_ctx)
++		eventfd_signal(vq->log_ctx);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(vhost_log_write);
 -- 
 2.39.3
 
