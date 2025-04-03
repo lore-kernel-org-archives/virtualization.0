@@ -1,71 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89BD918E050
-	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 07:24:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AA724169E
+	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 08:11:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743665054; cv=none; b=GmPsO5N+sdKf7UHUgFf3LXqiSs6fHzQk3EZ+2mqoYRNM8yxI1XV88lkYXEeS6LGgLqhKiivpipSzycJnJRUM02wvgteOt6LOijHNmAB/5RZSiiJ1J4brNhE+211k3+/nHDu8Se2kTcA5sqVZoxfH7NqlBBLv4eUgEGJLsHjfz5k=
+	t=1743667866; cv=none; b=iUQa1zoocjnHvWsvgFPt/colWJWR8QKpmovMsJpxDOxbnHgAFOyEylVTu86pXcrbrFTEUrdTGzcThcudRGZkkOMXZYCaJvfxbvSBBL5ZzGqiBkamaV/0rje8mHBAuyx96kJEsb0xDixiNrZus5S6mcIW7AkoG+kiQAD9tSDDqO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743665054; c=relaxed/simple;
-	bh=BmGXNVrTqxXAkUExqcGcIkfGVthayzRf/XdQRf0ErJs=;
+	s=arc-20240116; t=1743667866; c=relaxed/simple;
+	bh=2R7xbK2zYAifCYk+bxYA2fYSAJkn/8z0fvehWJ4nvyw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QKYdqfCmUnwLKKSCKzB3zVlpNgm14XWZANU5aYluyPDOLm+88F2L7CUihaJAVjHdYF8QzOaVxmxU5mSR3ahVzExgtODx0zmIftW7bM9CTwg2Qp2JDch7VxWKKCCl4kkgufF/Eyvi7jap+ra9cu8+sxFBYKIf6pZm2RuoOXaObDw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fZye6mhy; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=icC/9pnoy0DiZz0OFhiTR49VG/MkEWh3gs+tBkftEZbcFdnuY8MpirWNRNMe2pPKmqTZJJG9xbNF+qaqZFOO9Tg2xq2w78g2fgF0YfCoW4Uik4MtxvO5nqefaxjLdM5Jgyz279sCuWuXsBwUyJmcW+9y8zJKFvboYoYUcwyY/Vc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZY54kcdY; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fZye6mhy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743665051;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=i4GpbdVAioAsBhxItBe3Gp1I1aqveVV1B4xHRWy2NlY=;
-	b=fZye6mhylmx+dpbsv2k4N6OZMzqaOgsvd/qgqR3DLbEhi59sHTr3QISe97Kbsb37eQ8zkz
-	LOCrYZC5lSV2SNy/d5dycRKQ6pMfY3l5n4acDkgOSsJDRl5qsmBRUyR3wLZ9wsafMeyTU5
-	q6vcxp/WPWcnxpEcj91COc/s4cm6nYI=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-637-5damY6v1NaOdIGI765qW8g-1; Thu, 03 Apr 2025 03:24:10 -0400
-X-MC-Unique: 5damY6v1NaOdIGI765qW8g-1
-X-Mimecast-MFC-AGG-ID: 5damY6v1NaOdIGI765qW8g_1743665049
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-39123912ff0so232726f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 00:24:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZY54kcdY"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-223f4c06e9fso5737185ad.1
+        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 01:11:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743667864; x=1744272664; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=iUzFKSfu3nO5CAOYlZxLMd314d5zWCMqkdsMAHHXslE=;
+        b=ZY54kcdY7kJK9k6p4EqPpy7+oOBnUc5mSzhpSu5onstmawrINlkvj2oUgdV0QUUqWN
+         2AhvADWOGkrQMfa6iYclX6hoMxPBFdSr1IhGn4lMM8yBNn0HzlOeW6+PdViU/L/1SndX
+         N2tqiuY4nz6sxt16SnZl6nzFvbVN/HuKT1F2XXq/qltbbRLtEoj0aK8Z1PvY+PfvqST/
+         8fRZKLZ+ItfY6VQibI3SxnVP4Ni7Zb/11Y6lU3nLQNVAf+pNg5BCFz+9w/R6bXj6tojM
+         +1pMB0N+460vfm2E1FlZ9Zd1fPWgdZ/5rt757OWZHhd0ptgNu7mSLrK6TVJdXKk2pD4i
+         8f/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743665049; x=1744269849;
+        d=1e100.net; s=20230601; t=1743667864; x=1744272664;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=i4GpbdVAioAsBhxItBe3Gp1I1aqveVV1B4xHRWy2NlY=;
-        b=YVdEwyj7Q07dDwEF9XSLLN7miXSS1RC1RPFegFKBSNgHFrHzMGOFaci0YbOvueVWvL
-         EGTISgBKKEFqKYd9Rs2oSrqJtBQK6ZdxM7rVre6txdWqVuYdjOc8WDADdJj4lsCYJX5/
-         LzuaBozfKc7oMGjN34/obBqoBktRGNOnek8ShQQIUc8N8M7+/ucf5xv/hstNL9jZpeTJ
-         UQ/G4O8l0oxYBaLQ7615iDnqCV/LLOe8ZK1oDkJL9no0wXEUzWzup6TCgGt6/zkj3cLp
-         R716VRfcOWY3h+gpBzJ52xJcJkEgngzIA8so6Z+vmy/uIpbxLo5K8PWEHeiqfIkMbX+Z
-         5K2Q==
-X-Forwarded-Encrypted: i=1; AJvYcCX7SsXXDmCC6SOTCZtKzLHpFXaJfYbp/1cflfSaIgZjPE6c9SsOFIx1K7GP4psJ6qQb0sNUN4vkDQ9kYZ/Oww==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzI4823RuNqN54oDj705JPbGeACCIlfq8tA9e6DVYDn8ORdntB5
-	D9EKUMWGoMu75iaBH8JUe717SB/xOdGMkI/KFBg9LjPBw1IqEumxeRpMakA90cJT0VlDdzE6q26
-	3DCSnk8azd5wCB5d0OUDOGgcZRfXkZnBKcLrDRsJJYT+pnxaEAf14t1zNCOmWaHjT
-X-Gm-Gg: ASbGncs+Wj6VEs0yfGyh+RAT1qyjoIaa7+E7MRBAW2eWjeQ6WkYA8KoiCjPW23GHVkd
-	4eqvIv9sxJcfL0+1Ts/foR0IcD6FUVo7k1GS0S/qLRKm6gi0zD5VwV6er2bpi1LwjdSGCbwjbpn
-	epkLZ8Uab/6I3W2woHDg6Ws86UvWzBWFarptzNZofUbTeY5vPIlJXfBSisu+3FBnRDdbKnvcOum
-	XuLQZ8a6TdY8FG4GAC0IgHCVX+vdJ7CC54sZMfQtx9Q3CwAtAIjRCjvZck6DfvlgE11KvXOG0wb
-	fLZPkXtOk2NBkQjQhG4aFYj78dEHPhZSRBQGwgqs5/Sp/g==
-X-Received: by 2002:a5d:6d8a:0:b0:39c:dcc:f589 with SMTP id ffacd0b85a97d-39c120dd036mr17302218f8f.20.1743665049150;
-        Thu, 03 Apr 2025 00:24:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFLjiN+esCynIJ2+bi2OUprGrFibkCQORORxWzFxwa+nAcvodEQofseNEFH/q+D6t/l5rRnhg==
-X-Received: by 2002:a5d:6d8a:0:b0:39c:dcc:f589 with SMTP id ffacd0b85a97d-39c120dd036mr17302194f8f.20.1743665048726;
-        Thu, 03 Apr 2025 00:24:08 -0700 (PDT)
-Received: from [192.168.88.253] (146-241-68-231.dyn.eolo.it. [146.241.68.231])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c3020d68esm975281f8f.67.2025.04.03.00.24.07
+        bh=iUzFKSfu3nO5CAOYlZxLMd314d5zWCMqkdsMAHHXslE=;
+        b=jH+0NGFFI+ckxalhnXHIRWdyaZtv2ORECqBQlu8SW0GqbM9WlmYAgsYpjxU5z9aC1Q
+         ZRwGwlgS1KkU9qklegMmui1pXABbKyrnOoiuW1tyqykFRYp3vFIr44bhd72z7KnA2/Tq
+         RFggRX2v3WEemG+RaLsLyCU48LMzJtwAwnUCoEp5sHN8JFOTgCkjovzue7MUMsXksQKE
+         y1OkUgobl8P8/8zg+6hK+mvL4ec6HmHLD25tHM4RcmF24JQAzdLkUGM3sxeWYAN3s0td
+         RC5n5pwjssmKgtg7f09OXHwhsWIWnVJWqdyBk3K8fIrVwIIff2wue2Zr2TwA3CxmsqRo
+         5AOw==
+X-Forwarded-Encrypted: i=1; AJvYcCXHTTh0fhp0EiGGjNy4kzeySKg+rZepCNdEM3pU3xcM7vRQaIAs8ft4m13pri9C93jGhgBCpk2MAtnGfeJMvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywq63qfsMQv4YpfPVaQ9dUo+6+YZbq31z6CNzonhe8Bm4EbkQ2R
+	xwT15nZ22PUXft0JcjjSgNnKEJKpUihWizDt6fE6z5S3IPzSYfQMgTEXsFWf
+X-Gm-Gg: ASbGncu7iurEk00HlVpnXXzb7SISKEicymGgoVhzu2N82PXirmWvqMoj6stJoF7nyVu
+	haDsMDQmiUjSxFhe+lPGbSTe0cp3g444l7umxxyG68HbrgqfaSaTflHH2jPc55e5n5G+X5QMl//
+	HFikmjReudn9FPH5JfQ+XyP63YHv0hjmU0dpN/2FfrWkdhAnDGCWJ1OAh3V60CPIO+C5oQxTQqW
+	WdVgh4nxk6JI6nxifz8lPyqmnOBzFmGI4/KreVrUlvztd3s1iZzHG2HILXvsa/NHn9/gQ6xrbfO
+	3arUO2hyao1Ug0X1eiQzD10Z0fm/XYryz1mPbA6eo7X/YPsXmciV0Sk6lW090ITPuArdoBv0vI0
+	gN6CfyCz5Pfp9QcOoeUH5lik=
+X-Google-Smtp-Source: AGHT+IF4eQzBfv+ODf73ZPw7KCMX4BruvGE2f4o7JP7Bv1oXNuTH3a7SodgEPjBCqKICofhoR7aC0A==
+X-Received: by 2002:a17:902:820d:b0:21f:40de:ae4e with SMTP id d9443c01a7336-229765ce2bdmr28438375ad.9.1743667863970;
+        Thu, 03 Apr 2025 01:11:03 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f4e:bd30:1c8a:9f9b:3aa6:dc25? ([2001:ee0:4f4e:bd30:1c8a:9f9b:3aa6:dc25])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-229785ad0d6sm8658415ad.22.2025.04.03.01.10.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 03 Apr 2025 00:24:08 -0700 (PDT)
-Message-ID: <4b3bea7c-110d-48eb-bcf6-58f4b2cd1999@redhat.com>
-Date: Thu, 3 Apr 2025 09:24:06 +0200
+        Thu, 03 Apr 2025 01:11:03 -0700 (PDT)
+Message-ID: <653b71a4-99a5-49d4-b927-fe2bf5890896@gmail.com>
+Date: Thu, 3 Apr 2025 15:10:57 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -74,7 +68,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] virtio-net: disable delayed refill when setting up xdp
-To: Bui Quang Minh <minhquangbui99@gmail.com>, virtualization@lists.linux.dev
+To: Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
  Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
@@ -85,52 +79,54 @@ Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, bpf@vger.kernel.org
 References: <20250402054210.67623-1-minhquangbui99@gmail.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250402054210.67623-1-minhquangbui99@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: oTOh_lrMX6UeDEREiGrNWhGWog9mixErJqsIFO_cCrw_1743665049
-X-Mimecast-Originator: redhat.com
+ <4b3bea7c-110d-48eb-bcf6-58f4b2cd1999@redhat.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <4b3bea7c-110d-48eb-bcf6-58f4b2cd1999@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 4/2/25 7:42 AM, Bui Quang Minh wrote:
-> When setting up XDP for a running interface, we call napi_disable() on
-> the receive queue's napi. In delayed refill_work, it also calls
-> napi_disable() on the receive queue's napi. This can leads to deadlock
-> when napi_disable() is called on an already disabled napi. This commit
-> fixes this by disabling future and cancelling all inflight delayed
-> refill works before calling napi_disabled() in virtnet_xdp_set.
-> 
-> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7e4617216a4b..33406d59efe2 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -5956,6 +5956,15 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  	if (!prog && !old_prog)
->  		return 0;
->  
-> +	/*
-> +	 * Make sure refill_work does not run concurrently to
-> +	 * avoid napi_disable race which leads to deadlock.
-> +	 */
-> +	if (netif_running(dev)) {
-> +		disable_delayed_refill(vi);
-> +		cancel_delayed_work_sync(&vi->refill);
+On 4/3/25 14:24, Paolo Abeni wrote:
+> On 4/2/25 7:42 AM, Bui Quang Minh wrote:
+>> When setting up XDP for a running interface, we call napi_disable() on
+>> the receive queue's napi. In delayed refill_work, it also calls
+>> napi_disable() on the receive queue's napi. This can leads to deadlock
+>> when napi_disable() is called on an already disabled napi. This commit
+>> fixes this by disabling future and cancelling all inflight delayed
+>> refill works before calling napi_disabled() in virtnet_xdp_set.
+>>
+>> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
+>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>> ---
+>>   drivers/net/virtio_net.c | 12 ++++++++++++
+>>   1 file changed, 12 insertions(+)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 7e4617216a4b..33406d59efe2 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -5956,6 +5956,15 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>>   	if (!prog && !old_prog)
+>>   		return 0;
+>>   
+>> +	/*
+>> +	 * Make sure refill_work does not run concurrently to
+>> +	 * avoid napi_disable race which leads to deadlock.
+>> +	 */
+>> +	if (netif_running(dev)) {
+>> +		disable_delayed_refill(vi);
+>> +		cancel_delayed_work_sync(&vi->refill);
+> AFAICS at this point refill_work() could still be running, why don't you
+> need to call flush_delayed_work()?
 
-AFAICS at this point refill_work() could still be running, why don't you
-need to call flush_delayed_work()?
-
-@Jason: somewhat related, why virtnet_close() does not use
-flush_delayed_work(), too?
+AFAIK, the cancel_delayed_work_sync (this is a synchronous version) 
+provides somewhat stronger guarantee than the flush_delayed_work. 
+Internally, the cancel_delayed_work_sync will also call to __flush_work. 
+The cancel_delayed_work_sync temporarily disables the work before 
+calling __flush_work, so that even if refill_work tries to re-queue 
+itself, that re-queue will fail. As the refill_work can actually 
+re-queue itself, I think we must use cancel_delayed_work_sync here.
 
 Thanks,
-
-Paolo
+Quang Minh.
 
