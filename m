@@ -1,130 +1,200 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C13C33C9;
-	Thu,  3 Apr 2025 05:10:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E41C19258E
+	for <virtualization@lists.linux-foundation.org>; Thu,  3 Apr 2025 05:49:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743657009; cv=none; b=I/krtX4P9y60oQsDzJRUUuBywEH5YMokh9yk0VNM0CB1WCBlSpqDCnUpTGda2RhZWjhxrgH87/v/Dt3UyXYyPMDsBgCklMBi26t1NcUGY+8UBJQ86n7XPhWNCW7ogxAo5TawoRZ9AcvGCuKjYk3P4C5JKhpjUOMMt9fy5z1LFtU=
+	t=1743659390; cv=none; b=AkjIM9l5eaQ9/5ZNdG1bvE0K880sO9ApSPy+2s6MvVeJ2JYaaQt/jhdagrwg9/bpkTaejZsrrCvG87iersG/I68QsjW8piEfujwjXFA6TJ50Gha5cw7D5xZ4ZoUVJujvPZjVYPhxpj7Jc+CxnVLBo/t7QSe8kZRK1eh2i3r/ORQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743657009; c=relaxed/simple;
-	bh=MTxYIeG6rjC76KiaCXCUAaJgwwxt3fQ9t7T7cB6jvQs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Tax/T4yrGjBma/S3k1eF9B5m9Nisd1p4ne/nAEn+kP1KysMK/bpVAt+0qrZPaNltpgLMJvZkbPnb66jzUbKpoZ0eH9bflNc2GVq45BYsUXvsDxAFdfmXQWLKDHvRmAjEMC6CkobkAwmyjSI0TeC6JFiNLJq6yBKFqNN716jG1ug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=V9uVTX4x; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1743659390; c=relaxed/simple;
+	bh=FJmm1WgaUGtVr0255+qylffWIZyP0RAouYyXZJ8u+RU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mXMiTsneB8eQCPQcyDIMUmKMP8DlUKe74QzwYbNrYqa7OPe1vUeMTqZXdCRtPDj/fqIW+OYT7GWJ/1j8KUXFWfm7/vbYaQXNXoaMeF94OQbfoU9F5mFQ0yLkzD8uXF5p3uYz/ZVgqyOe8rDnVZvOEfOEdls96/iUMso3z8D5NVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iJkqjGAa; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="V9uVTX4x"
-Received: from [192.168.7.202] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53359MMx352770
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Wed, 2 Apr 2025 22:09:23 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53359MMx352770
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1743656967;
-	bh=vsKRR0KcxHt+bY5piLdo+Eui94XS6wGecFObRFyi4AA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=V9uVTX4xgBbACAe/f7Zrx5r+z9b4d1DfYgbNIB8wYvA68c1uxe0ihfeMYGbviPIoI
-	 wTMFzQg2Fid5gHaVjQFISDACPHyspg7RzwHijSy6/ZmCrt/DlP4GvTHPiqGcB/4cvd
-	 AXYWHXLY7oKRr3YH+gVlWe8bvGTKcZn6fFapbQodpDHtCHy2EbuxOzLWKaU/ptKGkZ
-	 YqGfSlTUalEu5dyJYTz3tBI0kwslGoJnWU1+IYMdKiUnn8nJQY3z4rbePe1d1wtRq2
-	 Ft7OOFI4h7fGZ1G8M4ScF2LdGFEFm/MkylKdAYsHDEPOzjpBz+P8h/DypI1JQXduc+
-	 RpGH73LFcK3gg==
-Message-ID: <c316a6c6-b97c-48b2-9598-d44e2ec72fbc@zytor.com>
-Date: Wed, 2 Apr 2025 22:09:21 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iJkqjGAa"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0B33140179
+	for <virtualization@lists.linux-foundation.org>; Thu,  3 Apr 2025 05:49:49 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id zVsWNyHwGrXl for <virtualization@lists.linux-foundation.org>;
+ Thu,  3 Apr 2025 05:49:48 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 3E4F640065
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3E4F640065
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iJkqjGAa
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3E4F640065
+	for <virtualization@lists.linux-foundation.org>; Thu,  3 Apr 2025 05:49:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743659386;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lGOUCwnLFb2DGhe7rL9rPyM+h3AAwNQ0nyeu269GqgE=;
+	b=iJkqjGAabwADo0npyI9GT5/ERDKeyKrI9BdS0uPDP1Wk+CFb3EOSG/QK356iYdNpzkb4kv
+	P/72fkhSNcdDXjiMw4rT7GKsy/n//PTrINvaqnlntORoXw4ihicAs5V5adh75EEbqbLYof
+	xNysITLLU4YcsBfy1F05+YPsB7XMBuM=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-642-Yq_z_tEKO_qIdb6ElQ_Esg-1; Thu, 03 Apr 2025 01:49:45 -0400
+X-MC-Unique: Yq_z_tEKO_qIdb6ElQ_Esg-1
+X-Mimecast-MFC-AGG-ID: Yq_z_tEKO_qIdb6ElQ_Esg_1743659384
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ac3e0c13278so38358466b.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 02 Apr 2025 22:49:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743659384; x=1744264184;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lGOUCwnLFb2DGhe7rL9rPyM+h3AAwNQ0nyeu269GqgE=;
+        b=A2OV80W2rpV56wLf1LlPQfk0KsPOlBFnr+lU/nKiTNjBauVUlt3ezS+sRyEBbypFxc
+         JL6iZlN5ltHjG9HUeMZAu7rf/gxhps4Pksx4joJ/qVK0rdOqJvxtMF7ZH9BrV0FLACmd
+         qqN2oGZpaaHMC83RdnGrkUA6gCAcvT//5n1qUT3+eJAIvYEIdGLoTIFocZn3eJmi/kz2
+         T40J9KQLpQ8xfhpsBZ6jqSPSVR0EuxmHF9gJzF47r6kAtTMFdbzFz1hM4t9Y2PMlk306
+         CWVwqWKhIZV0wF0dY9i5X4K+/62bOmCK6+nFkfAL12Ro+9wW6Jwy+e9duQSsxo5wfpQt
+         tKeA==
+X-Forwarded-Encrypted: i=1; AJvYcCXBrvLiK/r89lwE4d1K3Qg/MHw2QAC20hANCFyApkxEvmP+vBT3HjiSbKWuftBlWxK03ukNe+L/Y8lDpkIz2g==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YygPj6EdksM+mtKgF9XeOKyp52vrwgN18CeckxJWKg/8l7k4o81
+	D/gG46W73GUCLSz3gy505HovhEoAC3nyJKE3X9udyMR8lh8a/bkhVBaFe4d7+NUsuxJYntOVjOQ
+	oeP4KV3IYGb5vzqXzSFNk/TEo7W5McMLEYqOqbbh1Kc6FebJ+/WHtFnczVjWZC25QgdQ2R+RDGn
+	vI/jbLVz084K5ydmo/heLm3rQF7d6sneRE++olBcIKtfyKRFqXpsxk9Q==
+X-Gm-Gg: ASbGncsXfJ7pd0eFuIuEndGg4RO1IQ7gh2K+8+I9L5gEvn1djwGIkJkY/9DJfrJeOBj
+	WqiuJU4sFADSji58Hwm4TeLfqCaMU6AXbSw2EcYzztp+7stLSdnLa93DvffGm2k1yoTipBkdBLA
+	==
+X-Received: by 2002:a17:907:9693:b0:abf:6a53:2cd5 with SMTP id a640c23a62f3a-ac738bee1bfmr1738562066b.48.1743659384213;
+        Wed, 02 Apr 2025 22:49:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGz4yBfQlsL4mjZciTzHbBn7fCLVHD6K77EGTEFJy1FS/52vh/BwGXdtwiiQaNJWcmUiMtg7i216HCs0W4l6Ao=
+X-Received: by 2002:a17:907:9693:b0:abf:6a53:2cd5 with SMTP id
+ a640c23a62f3a-ac738bee1bfmr1738558866b.48.1743659383835; Wed, 02 Apr 2025
+ 22:49:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v1 01/15] x86/msr: Replace __wrmsr() with
- native_wrmsrl()
-To: Ingo Molnar <mingo@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-edac@vger.kernel.org, kvm@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org,
-        linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, jgross@suse.com,
-        andrew.cooper3@citrix.com, peterz@infradead.org, acme@kernel.org,
-        namhyung@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
-        wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
-        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
-        haiyangz@microsoft.com, decui@microsoft.com,
-        Linus Torvalds <torvalds@linux-foundation.org>
-References: <20250331082251.3171276-1-xin@zytor.com>
- <20250331082251.3171276-2-xin@zytor.com> <Z-pruogreCuU66wm@gmail.com>
- <9D15DE81-2E68-4FCD-A133-4963602E18C9@zytor.com> <Z-ubVFyoOzwKhI53@gmail.com>
-Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- xsDNBGUPz1cBDACS/9yOJGojBFPxFt0OfTWuMl0uSgpwk37uRrFPTTLw4BaxhlFL0bjs6q+0
- 2OfG34R+a0ZCuj5c9vggUMoOLdDyA7yPVAJU0OX6lqpg6z/kyQg3t4jvajG6aCgwSDx5Kzg5
- Rj3AXl8k2wb0jdqRB4RvaOPFiHNGgXCs5Pkux/qr0laeFIpzMKMootGa4kfURgPhRzUaM1vy
- bsMsL8vpJtGUmitrSqe5dVNBH00whLtPFM7IbzKURPUOkRRiusFAsw0a1ztCgoFczq6VfAVu
- raTye0L/VXwZd+aGi401V2tLsAHxxckRi9p3mc0jExPc60joK+aZPy6amwSCy5kAJ/AboYtY
- VmKIGKx1yx8POy6m+1lZ8C0q9b8eJ8kWPAR78PgT37FQWKYS1uAroG2wLdK7FiIEpPhCD+zH
- wlslo2ETbdKjrLIPNehQCOWrT32k8vFNEMLP5G/mmjfNj5sEf3IOKgMTMVl9AFjsINLHcxEQ
- 6T8nGbX/n3msP6A36FDfdSEAEQEAAc0WWGluIExpIDx4aW5Aenl0b3IuY29tPsLBDQQTAQgA
- NxYhBIUq/WFSDTiOvUIqv2u9DlcdrjdRBQJlD89XBQkFo5qAAhsDBAsJCAcFFQgJCgsFFgID
- AQAACgkQa70OVx2uN1HUpgv/cM2fsFCQodLArMTX5nt9yqAWgA5t1srri6EgS8W3F+3Kitge
- tYTBKu6j5BXuXaX3vyfCm+zajDJN77JHuYnpcKKr13VcZi1Swv6Jx1u0II8DOmoDYLb1Q2ZW
- v83W55fOWJ2g72x/UjVJBQ0sVjAngazU3ckc0TeNQlkcpSVGa/qBIHLfZraWtdrNAQT4A1fa
- sWGuJrChBFhtKbYXbUCu9AoYmmbQnsx2EWoJy3h7OjtfFapJbPZql+no5AJ3Mk9eE5oWyLH+
- QWqtOeJM7kKvn/dBudokFSNhDUw06e7EoVPSJyUIMbYtUO7g2+Atu44G/EPP0yV0J4lRO6EA
- wYRXff7+I1jIWEHpj5EFVYO6SmBg7zF2illHEW31JAPtdDLDHYcZDfS41caEKOQIPsdzQkaQ
- oW2hchcjcMPAfyhhRzUpVHLPxLCetP8vrVhTvnaZUo0xaVYb3+wjP+D5j/3+hwblu2agPsaE
- vgVbZ8Fx3TUxUPCAdr/p73DGg57oHjgezsDNBGUPz1gBDAD4Mg7hMFRQqlzotcNSxatlAQNL
- MadLfUTFz8wUUa21LPLrHBkUwm8RujehJrzcVbPYwPXIO0uyL/F///CogMNx7Iwo6by43KOy
- g89wVFhyy237EY76j1lVfLzcMYmjBoTH95fJC/lVb5Whxil6KjSN/R/y3jfG1dPXfwAuZ/4N
- cMoOslWkfZKJeEut5aZTRepKKF54T5r49H9F7OFLyxrC/uI9UDttWqMxcWyCkHh0v1Di8176
- jjYRNTrGEfYfGxSp+3jYL3PoNceIMkqM9haXjjGl0W1B4BidK1LVYBNov0rTEzyr0a1riUrp
- Qk+6z/LHxCM9lFFXnqH7KWeToTOPQebD2B/Ah5CZlft41i8L6LOF/LCuDBuYlu/fI2nuCc8d
- m4wwtkou1Y/kIwbEsE/6RQwRXUZhzO6llfoN96Fczr/RwvPIK5SVMixqWq4QGFAyK0m/1ap4
- bhIRrdCLVQcgU4glo17vqfEaRcTW5SgX+pGs4KIPPBE5J/ABD6pBnUUAEQEAAcLA/AQYAQgA
- JhYhBIUq/WFSDTiOvUIqv2u9DlcdrjdRBQJlD89ZBQkFo5qAAhsMAAoJEGu9DlcdrjdR4C0L
- /RcjolEjoZW8VsyxWtXazQPnaRvzZ4vhmGOsCPr2BPtMlSwDzTlri8BBG1/3t/DNK4JLuwEj
- OAIE3fkkm+UG4Kjud6aNeraDI52DRVCSx6xff3bjmJsJJMb12mWglN6LjdF6K+PE+OTJUh2F
- dOhslN5C2kgl0dvUuevwMgQF3IljLmi/6APKYJHjkJpu1E6luZec/lRbetHuNFtbh3xgFIJx
- 2RpgVDP4xB3f8r0I+y6ua+p7fgOjDLyoFjubRGed0Be45JJQEn7A3CSb6Xu7NYobnxfkwAGZ
- Q81a2XtvNS7Aj6NWVoOQB5KbM4yosO5+Me1V1SkX2jlnn26JPEvbV3KRFcwV5RnDxm4OQTSk
- PYbAkjBbm+tuJ/Sm+5Yp5T/BnKz21FoCS8uvTiziHj2H7Cuekn6F8EYhegONm+RVg3vikOpn
- gao85i4HwQTK9/D1wgJIQkdwWXVMZ6q/OALaBp82vQ2U9sjTyFXgDjglgh00VRAHP7u1Rcu4
- l75w1xInsg==
-In-Reply-To: <Z-ubVFyoOzwKhI53@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20250328100359.1306072-1-lulu@redhat.com> <20250328100359.1306072-9-lulu@redhat.com>
+ <3zmkrimo2nghk42iatj4tuhfb7qrxx235srleuavi4at5dsv26@zj6wqgj7hj62>
+In-Reply-To: <3zmkrimo2nghk42iatj4tuhfb7qrxx235srleuavi4at5dsv26@zj6wqgj7hj62>
+From: Cindy Lu <lulu@redhat.com>
+Date: Thu, 3 Apr 2025 13:49:06 +0800
+X-Gm-Features: ATxdqUEbovQ8ttG-mQdSdHhj7EeYF7BEzCWN7RY_HyZJvUnN6Z_zvqXd3kASYjA
+Message-ID: <CACLfguX7FJXdMi7CGxyDR+CtkHdgQOXm7T4fO6hBsFJ0Wa-2WA@mail.gmail.com>
+Subject: Re: [PATCH v8 8/8] vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, michael.christie@oracle.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: _cgoyMbziKO9ni-jXCv_CRL6SnNPPhP0h7cKay5ksjU_1743659384
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/1/2025 12:52 AM, Ingo Molnar wrote:
->> Should we rename the *msrl() functions to *msrq() as part of this
->> overhaul?
-> Yeah, that's a good idea, and because talk is cheap I just implemented
-> this in the tip:WIP.x86/msr branch with a couple of other cleanups in
-> this area (see the shortlog & diffstat below), but the churn is high:
-> 
->    144 files changed, 1034 insertions(+), 1034 deletions(-)
+On Tue, Apr 1, 2025 at 9:21=E2=80=AFPM Stefano Garzarella <sgarzare@redhat.=
+com> wrote:
+>
+> On Fri, Mar 28, 2025 at 06:02:52PM +0800, Cindy Lu wrote:
+> >Introduce a new config knob `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL`,
+> >to control the availability of the `VHOST_FORK_FROM_OWNER` ioctl.
+> >When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is set to n, the ioctl
+> >is disabled, and any attempt to use it will result in failure.
+> >
+> >Signed-off-by: Cindy Lu <lulu@redhat.com>
+> >---
+> > drivers/vhost/Kconfig | 15 +++++++++++++++
+> > drivers/vhost/vhost.c |  3 +++
+> > 2 files changed, 18 insertions(+)
+>
+> IMHO this patch should be squashed with "[PATCH v8 6/8] vhost: uapi to
+> control task mode (owner vs kthread)".
+>
+> It might break the bisection to support an ioctl, and after a few
+> commits enable or disable it depending on a kernel configuration.
+>
+> >
+> >diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> >index b455d9ab6f3d..e5b9dcbf31b6 100644
+> >--- a/drivers/vhost/Kconfig
+> >+++ b/drivers/vhost/Kconfig
+> >@@ -95,3 +95,18 @@ config VHOST_CROSS_ENDIAN_LEGACY
+> >         If unsure, say "N".
+> >
+> > endif
+>
+> nit: there is a mix of tabs and spaces in the next block, should we
+> fix it?
+>
+sure ,will fix this
+Thanks
+Cindy
+> >+
+> >+config VHOST_ENABLE_FORK_OWNER_IOCTL
+> >+      bool "Enable IOCTL VHOST_FORK_FROM_OWNER"
+> >+      default n
+> >+      help
+> >+        This option enables the IOCTL VHOST_FORK_FROM_OWNER, which allo=
+ws
+> >+        userspace applications to modify the thread mode for vhost devi=
+ces.
+>    ^
+>    tabs
+>
+> >+
+> >+          By default, `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL` is set to =
+`n`,
+> >+          meaning the ioctl is disabled and any operation using this io=
+ctl
+> >+          will fail.
+> >+          When the configuration is enabled (y), the ioctl becomes
+> >+          available, allowing users to set the mode if needed.
+>    ^
+>    spaces
+> >+
+> >+        If unsure, say "N".
+>    ^
+>    tabs
+>
+will fix this
+Thanks
+Cindy
+> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> >index fb0c7fb43f78..568e43cb54a9 100644
+> >--- a/drivers/vhost/vhost.c
+> >+++ b/drivers/vhost/vhost.c
+> >@@ -2294,6 +2294,8 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned=
+ int ioctl, void __user *argp)
+> >               r =3D vhost_dev_set_owner(d);
+> >               goto done;
+> >       }
+> >+
+> >+#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
+> >       if (ioctl =3D=3D VHOST_FORK_FROM_OWNER) {
+> >               u8 inherit_owner;
+> >               /*inherit_owner can only be modified before owner is set*=
+/
+> >@@ -2313,6 +2315,7 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned=
+ int ioctl, void __user *argp)
+> >               r =3D 0;
+> >               goto done;
+> >       }
+> >+#endif
+> >       /* You must be the owner to do anything else */
+> >       r =3D vhost_dev_check_owner(d);
+> >       if (r)
+> >--
+> >2.45.0
+> >
+>
 
-Hi Ingo,
-
-I noticed that you keep the type of MSR index in these patches as
-"unsigned int".
-
-I'm thinking would it be better to standardize it as "u32"?
-
-Because:
-1) MSR index is placed in ECX to execute MSR instructions, and the
-    high-order 32 bits of RCX are ignored on 64-bit.
-2) MSR index is encoded as a 32-bit immediate in the new immediate form
-    MSR instructions.
-
-Thanks!
-     Xin
