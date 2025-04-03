@@ -1,218 +1,130 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2085.outbound.protection.outlook.com [40.107.223.85])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 983202E339D
-	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 03:28:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.85
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743650937; cv=fail; b=Ub2jFmgIiK6/tyT8d7Fv3NIHmeidaMU0IGQ9silhxwTsDrsiFpAwP4H/O8INi6TIlrhSNS9k5R1mtvdYSdrBQKbX3x0zJq1MmRC5W/U+u9fqTX0scPF2shjKGuHgBLclJaxIU1D1Hxg5A2HJrzaX6TEAK48RJAaIlQKkPHZLIUs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743650937; c=relaxed/simple;
-	bh=kN7fkBsuZBm/kSOHFZXEtjJ8vGwj+Y2X6zgge1ipcgI=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=SbCTq7/e22GCDNBSIruJn8cDoapb5uGLx05p5xcUlDruuB4RvXetenD7FMo+JjKU0X9gmI5U0AvJCBrQwzdaNLczgv3IKkIpAW7u45O0nJ45EV0E8/EFvVv4swWyf+luRNPHoj/zssJjOnbHSo4px40xUkyU/LsO+3tk1KnnLj0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=rrCLHw0o; arc=fail smtp.client-ip=40.107.223.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C13C33C9;
+	Thu,  3 Apr 2025 05:10:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743657009; cv=none; b=I/krtX4P9y60oQsDzJRUUuBywEH5YMokh9yk0VNM0CB1WCBlSpqDCnUpTGda2RhZWjhxrgH87/v/Dt3UyXYyPMDsBgCklMBi26t1NcUGY+8UBJQ86n7XPhWNCW7ogxAo5TawoRZ9AcvGCuKjYk3P4C5JKhpjUOMMt9fy5z1LFtU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743657009; c=relaxed/simple;
+	bh=MTxYIeG6rjC76KiaCXCUAaJgwwxt3fQ9t7T7cB6jvQs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Tax/T4yrGjBma/S3k1eF9B5m9Nisd1p4ne/nAEn+kP1KysMK/bpVAt+0qrZPaNltpgLMJvZkbPnb66jzUbKpoZ0eH9bflNc2GVq45BYsUXvsDxAFdfmXQWLKDHvRmAjEMC6CkobkAwmyjSI0TeC6JFiNLJq6yBKFqNN716jG1ug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=V9uVTX4x; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="rrCLHw0o"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=MioBFtvfYKCGjxQeD+1GXC/ngZv11zEZgay0ickxJJAGr4Vi6Ke1YUwshjwQWzYn9q35dZ/3SZjYMVBDj7fsaOuQ/8pjeG6KoDYOOkJszvgJfIG1bLRzbAuMnWaHnReSsnt2KIksTWzOZMS0w/qlEdkSNqvZR5AOCjUsmgC+MlxFvTAgjbdhYFW8LaRfxp/5Vr+f9ebp4Reu3Puno4IwYB75ZCz3kOBhriFhIvIsNZKCUbqZDdFcAjFZbCNvWM0UnAPgNpgvpAT/aucMXKpZV24u608JOtwnFJqNvNjtXDoRs2roVioMqt9zTKdOA6O0mezH0WVbmjaQWtTw1wHtPA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mm8tX3WIPJcIJmlPEvXnxDqmosQy2E0TWxfup/fCYgM=;
- b=Kts6ubd33ld7+VJi2bwGe1XElXn9n/Dr3m2bkDdtHsEtQUpMcifRZIFLpwCi65ZzF6x25Xag0Jvp4cyTXS0kqTSyS5LamGE9nTdFLPZFGOe2cQsvC++3AcrrqeWTOflKZK86HwquUkpOlJkp4YwT12DMFzom1Ai/HTg0b7vao/LEojBmLRgEkpkGTJeAFZn6v6YHLA6zjrpQcvL/SlGIXNHfFzKd5/pOibewnlrL1tnTpOYy5Pbubo16jMT2RSf2XKk6cRqf6pUalady3bTyc37mKFLCqgA31EXVRHQ92PfePKLJKXY4jZvCHZQqxjpkDRTAfxUkZdzYFJqEHJmP5g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mm8tX3WIPJcIJmlPEvXnxDqmosQy2E0TWxfup/fCYgM=;
- b=rrCLHw0oD9xbXuYLdHEzcUdSLx8IKBq5vmEjOqa02kLlc+YUEEBn2Pksv+J9H7zmTxFVODLW0OzniJTR0kql0wbMc5AtbUFRriA1m+A7pUPUfTIPsATzfT6WTe2a0+Ds5AhqvRku7SI6N+/iDtPnSauaiFY9zwXUxVF+AxRF5q4=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
- by CYYPR12MB8923.namprd12.prod.outlook.com (2603:10b6:930:bc::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.50; Thu, 3 Apr
- 2025 03:28:53 +0000
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941]) by IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::273a:80c9:35fc:6941%4]) with mapi id 15.20.8534.052; Thu, 3 Apr 2025
- 03:28:52 +0000
-Message-ID: <885bf81e-0aa4-4fe7-af81-a4a4485474b7@amd.com>
-Date: Thu, 3 Apr 2025 11:28:41 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/7] drm/virtio: implement userptr: add interval tree
-To: Demi Marie Obenour <demiobenour@gmail.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Rob Clark <robdclark@gmail.com>,
- Huang Rui <ray.huang@amd.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20250321080029.1715078-1-honglei1.huang@amd.com>
- <20250321080029.1715078-8-honglei1.huang@amd.com>
- <810789ec-c034-4bdd-961a-f49c67336e45@collabora.com>
- <6e796751-86f3-42e5-b0a6-3a3602d3af13@amd.com>
- <975582a3-313b-4989-aac2-c3b309ba55b6@collabora.com>
- <6fb21077-c254-49a7-97fd-64c87322ea43@gmail.com>
-Content-Language: en-US
-From: "Huang, Honglei1" <Honglei1.Huang@amd.com>
-In-Reply-To: <6fb21077-c254-49a7-97fd-64c87322ea43@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SG2PR01CA0191.apcprd01.prod.exchangelabs.com
- (2603:1096:4:189::6) To IA1PR12MB6435.namprd12.prod.outlook.com
- (2603:10b6:208:3ad::10)
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="V9uVTX4x"
+Received: from [192.168.7.202] ([71.202.166.45])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53359MMx352770
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Wed, 2 Apr 2025 22:09:23 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53359MMx352770
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025032001; t=1743656967;
+	bh=vsKRR0KcxHt+bY5piLdo+Eui94XS6wGecFObRFyi4AA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=V9uVTX4xgBbACAe/f7Zrx5r+z9b4d1DfYgbNIB8wYvA68c1uxe0ihfeMYGbviPIoI
+	 wTMFzQg2Fid5gHaVjQFISDACPHyspg7RzwHijSy6/ZmCrt/DlP4GvTHPiqGcB/4cvd
+	 AXYWHXLY7oKRr3YH+gVlWe8bvGTKcZn6fFapbQodpDHtCHy2EbuxOzLWKaU/ptKGkZ
+	 YqGfSlTUalEu5dyJYTz3tBI0kwslGoJnWU1+IYMdKiUnn8nJQY3z4rbePe1d1wtRq2
+	 Ft7OOFI4h7fGZ1G8M4ScF2LdGFEFm/MkylKdAYsHDEPOzjpBz+P8h/DypI1JQXduc+
+	 RpGH73LFcK3gg==
+Message-ID: <c316a6c6-b97c-48b2-9598-d44e2ec72fbc@zytor.com>
+Date: Wed, 2 Apr 2025 22:09:21 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|CYYPR12MB8923:EE_
-X-MS-Office365-Filtering-Correlation-Id: ec349abe-3533-46ec-67b6-08dd725fa7da
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|1800799024|366016|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?a1k4MCtmRnRaMGhUYW5RZWk1b294WUFjV3h0MUsyV00rcVJQT0NnTzRrSjc5?=
- =?utf-8?B?dGpVa2pJUURCSXJmZndzYWtyYkdoVEs2SUVKamVvbmFZdmFERXB0RzlIZzlW?=
- =?utf-8?B?YXpUekdIQStxSi9FZzFRUnZLZXUyVjVuVUJESDh4SDNxY0RQUjBTOFd4K3pu?=
- =?utf-8?B?MVhvTTNGM3NaNHhwdExic3k4K3hpMUhZcEs4MUhsMmdISHdiZVZ5ZFpjekl3?=
- =?utf-8?B?dXhlSG5ZdkRiL1dFVTJXeHhFL251NktqL1FXMHBYTnVhVnBIeXoxNi9nSWpI?=
- =?utf-8?B?N3ZpanEyWXd0RTRqaW9JaWFBT0ZUVmV5RG9mdXFZQUFwS1U2SmFXSldCcmhh?=
- =?utf-8?B?L3FmbDMyNVF5a0Mvd2FhQndoUnBQUWQrbENpcXlkL0pHNlNjTnJJb1hwdE0z?=
- =?utf-8?B?VXRjTGtQcHV1K1hlQ2RtZ0twY3I0NFUvckZNLzUxbTVmb0FDdUJMdHlYMjRa?=
- =?utf-8?B?SkxlRVg2aU1RK3h4TzB4eTRKcEMvajY1Uk02RmUvZkEydXRKbzF5OFE2L25E?=
- =?utf-8?B?akpLaTFrc296Y0dkM1o4WUJaTHR6Ti9ibC9kRTRpTVI4WVJYczNaRmNuVmxr?=
- =?utf-8?B?alRGY0FrT3RXUGNrZ3VsSHpSdWRIMnBLMHA4emhPalV0T1VPVTJDVHF2R3Ax?=
- =?utf-8?B?bGtKdyt3L0JsRzNFNkNIcTZnSDV1R29XdXQzN3ZVNXR0WklsMUhnZjYrR3Bl?=
- =?utf-8?B?Q3ZmbHYrNk40VFdPZDdDWTlQLy9WanFmYUQraHhxSnIxVmNCNGFldzhqb2Nh?=
- =?utf-8?B?R1RtWndxTElPenpwWjZ2eEZPVVpoMTZKYXFNNjVQMWVidTFPdDlReUVzejF6?=
- =?utf-8?B?aEptdHQ2QUtSUE4vUDNMeUlZSkwrWEJVdTVjbXkvekV1eC9PSjZUakhZcGxv?=
- =?utf-8?B?QjNaTEw3ajNEWlhMbldDN2ZiTzR4bS9NellUdzI0QStINTRqS0E5bEFrRFN4?=
- =?utf-8?B?OEJKZk9FVUtLYmdaTGRlUUJUQ25sQUNsdVh6Z1gwWU51VTBhWmVqUVlkN3Vh?=
- =?utf-8?B?WERiZHRvN2VJemwwZTJhV1ZpM2xtY3Bnc3VjRE1seTBUdzJweTVkZGV6ME9h?=
- =?utf-8?B?QU5rcVdGbWpzZUdZQ1JtdzRVRDRWWHR6WnMxRnVIYkEvMUZXQllSZ2g5U05Y?=
- =?utf-8?B?aW5QYmNXN3NkUlcwa0M1Z2hhTkRpUTFzcS82cTU4TlJnTHJNeTJWZ1dKVUly?=
- =?utf-8?B?T2J6cm9EZlE2cndHYU92VEg3M1o2YjUvL3ZaUXQ4TmpkanlrZEpTMzFYTjRy?=
- =?utf-8?B?Mm8vUUJqbVlkcjJtQmVFcC9kcHBWTThPZWVGUi9JLy92MkRhMVI2NTU1R2pz?=
- =?utf-8?B?UXo2azEycHNwem5EbjRvMnkzRzZsNFNNeUhHTmxyTk5qUktLL1lzN2lJTjJV?=
- =?utf-8?B?RTJCc1ZRUnpMcnZLR3pxYlZXUytZOUNzKzBhLzdTcjFPZEU3NXlaRE1mZmhO?=
- =?utf-8?B?Z01udDNwd2Z4TDJHcjBHY3NHZTZ0d09IcGZvdllWak9VTVA0NDNKMzVNUWpF?=
- =?utf-8?B?MlNNbCtjSTZwZlNIcDZEbE1qWk1RSjhIYzc0ZzdaQ3Rtbk11bFZ0a1lzZVp0?=
- =?utf-8?B?L1Qxc2d1aWVxZHd4UWlVcWlUQUpRK3VCWGpBL0Rjc2VzU1RjVCtqVEZwdElk?=
- =?utf-8?B?d3A2cytqVlc1TmlkWFVKbUsxQ1haTmhyTkplS3FESzNPaEVVYXJybStNUWdT?=
- =?utf-8?B?OXNJNTA2aVp6SzA2N1FKWDZnM21vK3AzVHRma2ZxM21TT1N3dTBkUG5SdkRN?=
- =?utf-8?B?ek9PLzd5RlJkZE5jQnJPeS9DL2tManRET3IzV0NUb29GYTRxOThkY1FXdmdh?=
- =?utf-8?B?WER6bXJCejNsVUFFRTEwNEsreFloSGZaQnhzdk0rV0RhUUpvOExLdHM3QmtZ?=
- =?utf-8?B?ZjNYNC9lTTFBbGxtelBDLzVuZmF3cXZDVlB6Vy9HZU12d0pyS0VRMzNKOUU0?=
- =?utf-8?Q?eb2vjh0pkCo=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?bzZCQUxobGsxdW1yMURBV3NFZFB3akVONzhRSWZlc3NUUDI4UXpEMHV2WDJO?=
- =?utf-8?B?ODU3YW1YbXArL1I4MVpqZ3czVmhZQkJ2akRTME41QmxBY0NKTk44UWpQZHls?=
- =?utf-8?B?R2lJSmR3V1U2YTVDeUtoc1k0TjNuays4YVB4UHd6dTVoTzlENjIvb005SFdV?=
- =?utf-8?B?WWU5N1VTWkUwTm1DMkEvSm1vSEhvOVZkZzRtYTZKS1laUVRmSDA3ZVNJRmpO?=
- =?utf-8?B?aGVFd0hBQXQ1d09VL0lBMU5FcGdUMkpkeFZJSVo5MStZV3pVVVIwb1BiWU52?=
- =?utf-8?B?cXFZbGNISURhNi9FbkVSeE9Xd2lXVllkVmlSaDJscnhTcU9ramNsZkV1VlQy?=
- =?utf-8?B?Q2FieDllbThOUHV0OE55VHJQNGF2T0w3a1pRak9XYThNUW85QTBiVkZMbkdx?=
- =?utf-8?B?YzNXUkhqU1phcnlCc2VkL0ozRmJXSGo1eW0zSjBKdC90Qnk2K2lzODFadFlC?=
- =?utf-8?B?SHRkd1p0bTJ5QUhjTE0rMmZvK3FOemgrNHFMSkxWN1l0aC8wdjNvTzhPVUZD?=
- =?utf-8?B?ZGdQandWbDN3aDdqK1pocDFTYXJoYi9uV2ZtdmpNUmtJV0xPYTUxMEVzN3Jo?=
- =?utf-8?B?THFnS29LazF0aUI4d0JOcWlmRTllcFUzdkI2YjBzWGwvZ3c2M3B6K1IxeTZS?=
- =?utf-8?B?bHh1a0I1aGtNVjBkVGRRNVNoQ0hiektvRVhOME9yc2ZRMWdyclgzeUZjNUZq?=
- =?utf-8?B?U2NZQUg2NjhZNVdNc1MyUmVHUk1GRE5vNytlMnpycUVCNDNIbzllMzRDOVlp?=
- =?utf-8?B?QTBKOExKTEpGd2VDODY5L2VmSDVxTk1PZEl0andQbWwzZ1VCRGFuMmNURkJ1?=
- =?utf-8?B?VHRtWW13NDVTY3V5ZTYrWEZwQm1ONjh4M3B2aHEvUytQbVU1SWpxNE51WWV2?=
- =?utf-8?B?bit1ZWpWVDZSdUtNT01FaXc1Mm5lWFpnWHZWM1d0NnU4RmNiczEveFF1Rm5l?=
- =?utf-8?B?SzYrZncxNFNXaWN0MkpLNTFmYUFlR3M5cmRiZ2F6NGVVVmdDNGVFdTkxUUYr?=
- =?utf-8?B?YUhlZVdGNDJFRTlJT1pValpOQ25wQnI3MkpDQ2RSRVpoWFFCWkVDM01Vcnlw?=
- =?utf-8?B?OVViUEU4QkdtOUdGdTRna0pMNEpWU0cycEQxcFBKMHJyRnUrdDhhalhxTjdI?=
- =?utf-8?B?bEdTd0VpaU1ZRmdhNXlTdS9oWWdJdk9CNGRwRk9pUHFWcW1SOEZqQkdGSFY0?=
- =?utf-8?B?V2ZKN1ZVR3c0TWNkU3dxdGVuZ0FHVWpyUmoxQVh0elEvREE0SllDN0VYQUJQ?=
- =?utf-8?B?elBFWlZHdU9YRDB0ZGxpMWt0UStwZzNTdlB1U21lQXlGNjU2N2hHZXk4TGZM?=
- =?utf-8?B?NE5Rd3UybVdLemNtMEt0OEN3eG1KL0kvRm0xUmZYeFpoWmYzRDBZM1EyT05x?=
- =?utf-8?B?OVY2OThlQU5ZUk5EMUhNRENSUzZvbUdtajU5VU5nL3lTU3h3QU1hVTdjSnFz?=
- =?utf-8?B?Yk9kRTFPNVV2MnczLzVBY0Rrc05oaGdRSzVhTENQVUtYYTRpdm9UQmlhZHlS?=
- =?utf-8?B?ZC9MZ1RiQ2xpQUhhRm1ZU3kzWmZwajFFQklrazZ4amNQWnhORXpaUFBvMEhx?=
- =?utf-8?B?d091NEx6emx3a0JzREhEKzVndjhPY3d2RmRhRFZKb1BHYUNnV1c2OXV4clIx?=
- =?utf-8?B?a3MzdnBXOUlMNlo2U2ZBbCt3aG40b0xLYU5XbGk1YTlMWC9ZUzBOcjVPdDR0?=
- =?utf-8?B?UndMWmdEWjhoMWZJN3lGeVc3UmhBaytFbStHVi95YmpvbGpnUE1jUEJuc2NY?=
- =?utf-8?B?T0xtd3Fwc2tZajQyWmN5Wk53YU5GSVJsVVdQazhNM25jVkJYK3ZIZnRtSHZx?=
- =?utf-8?B?TWcvcUFVUVB6Wnc1YkZrTld2THBjWWFBejRwemh1bit2cFoyN2pPeGhYbXlZ?=
- =?utf-8?B?SWVva1gxbXdnY0tQU2J5bXNQKzlIMnVjK2dHSE12bDRPWEZLS3JBRGpBbzd6?=
- =?utf-8?B?WXdiNkhUdllkR3F0a09nTzRIeXVKRlVIWU1udXZrSjRFUmhCSHBUUU94K2Js?=
- =?utf-8?B?MFZINDZUOWtrRU5oc2s3QmFVUkkxWDA0UjArelZZL0RBVFBadGpzK0pwVDZC?=
- =?utf-8?B?K2xTRXRhR1hDb296MXFFM1BEVDhDRmdzUGVsSjZkREl1eDV1VnJXS1I1Lzl5?=
- =?utf-8?Q?tDs42EAjjj/kWIFTJ9h8b200c?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ec349abe-3533-46ec-67b6-08dd725fa7da
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Apr 2025 03:28:52.3801
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vm9TNnB+b4Ssn2dU5dB069u6JL9I4rvLkPBGh3q7fyPsZjPLHqSxD1FYY4GQRPeXXeWkHKNr1Xw3Io1H3KqfTQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR12MB8923
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v1 01/15] x86/msr: Replace __wrmsr() with
+ native_wrmsrl()
+To: Ingo Molnar <mingo@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-edac@vger.kernel.org, kvm@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org,
+        linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, jgross@suse.com,
+        andrew.cooper3@citrix.com, peterz@infradead.org, acme@kernel.org,
+        namhyung@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
+        wei.liu@kernel.org, ajay.kaher@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
+        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+        haiyangz@microsoft.com, decui@microsoft.com,
+        Linus Torvalds <torvalds@linux-foundation.org>
+References: <20250331082251.3171276-1-xin@zytor.com>
+ <20250331082251.3171276-2-xin@zytor.com> <Z-pruogreCuU66wm@gmail.com>
+ <9D15DE81-2E68-4FCD-A133-4963602E18C9@zytor.com> <Z-ubVFyoOzwKhI53@gmail.com>
+Content-Language: en-US
+From: Xin Li <xin@zytor.com>
+Autocrypt: addr=xin@zytor.com; keydata=
+ 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
+ l75w1xInsg==
+In-Reply-To: <Z-ubVFyoOzwKhI53@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-
-Hi Dmitry:
-
-Really sorry for missed this comment. Yes it can be done in UMD, 
-actually the interval tree is used with the MMU notifier normally,
-it is for preventing create same MMU notifier for overlapped areas.
-Cause this version patch set doesn't have MMU notifier, removing 
-interval tree is reasonable.
-
-Hi Demi:
-Adding interval tree can make virtio userptr has robust check, it can be 
-done in UMD. And for AMD userptr driver, it is a SVM type driver, it has
-both interval tree and MMU notifier but userptr memory is moveable in 
-it. No interval tree for Intel i386, not sure about the Intel XE driver.
-
-Maybe I can remove the interval tree in next version.
-
-
-On 2025/4/3 2:45, Demi Marie Obenour wrote:
-> On 4/2/25 8:34 AM, Dmitry Osipenko wrote:
->> On 4/2/25 04:53, Huang, Honglei1 wrote:
->>>
->>> On 2025/3/30 19:57, Dmitry Osipenko wrote:
->>>> If the purpose of this feature is to dedup usrptr BOs of a the single
->>>> process/application, can this can be done in userspace?
->>
->> I assume it can be done in userspace, don't see why it needs to be in
->> kernel.
+On 4/1/2025 12:52 AM, Ingo Molnar wrote:
+>> Should we rename the *msrl() functions to *msrq() as part of this
+>> overhaul?
+> Yeah, that's a good idea, and because talk is cheap I just implemented
+> this in the tip:WIP.x86/msr branch with a couple of other cleanups in
+> this area (see the shortlog & diffstat below), but the churn is high:
 > 
-> The kernel definitely does not need to be responsible for deduplication,
-> but is it safe to allow userspace to create overlapping BOs, especially
-> ones that are partially but not entirely overlapping?  If the userspace
-> libraries ~everyone will be using refuse to create such BOs, then
-> overlapping BOs will be tested by ~nobody, and untested kernel code is
-> a good place for security vulnerabilities to linger.
-> 
-> If there are no legitimate use-cases for overlapping BOs, I would treat
-> attempts to create them as an errors and return -EINVAL, indicating that
-> the userspace code attempting to create them is buggy.  Userspace can
-> deduplicate the BOs itself if necessary.  Of course, there need to be
-> tests for userspace attempting to create overlapping BOs, including
-> attempting to do so concurrently from multiple threads.
-> 
-> That said, probably the most important part is consistency with userptr
-> in other (non-virtio) drivers, such as Intel and AMD.  If they allow
-> overlapping userptr BOs, then virtio should too; if they do not, then
-> virtio should also forbid them.
+>    144 files changed, 1034 insertions(+), 1034 deletions(-)
 
+Hi Ingo,
+
+I noticed that you keep the type of MSR index in these patches as
+"unsigned int".
+
+I'm thinking would it be better to standardize it as "u32"?
+
+Because:
+1) MSR index is placed in ECX to execute MSR instructions, and the
+    high-order 32 bits of RCX are ignored on 64-bit.
+2) MSR index is encoded as a 32-bit immediate in the new immediate form
+    MSR instructions.
+
+Thanks!
+     Xin
