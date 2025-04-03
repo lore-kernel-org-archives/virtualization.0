@@ -1,72 +1,64 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B25D3242914
-	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 09:44:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A94F24167F
+	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 10:43:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743673474; cv=none; b=PG6CRY4ASVb3q5DIQ5zSyoICFOFovt7BP+AFY83qZDg/ogWtUHbhg2jbkXGcYDBsj5ABMU3OC2unY3GwiD8Qcqtn33GoKjsRGDhWvhxfyxqsiKBRXnK4cEVov1bPq0bnpZxXYuHsQiTMSdDBGvlIqjsqaINpsjACyhfuaOkpiHM=
+	t=1743677017; cv=none; b=mGL4H04F79A/PWeB1aPadlr+X2a2kxHL+18KwjLmdi+q4jfnQ0HnZecY6vhuHVcXeYK42P+0+TXjCp34byOJe27eXGYDFCI3+3AozFWfHEbVwlKBBUM5O7ttwRvEXP7ZxMq6AVIQEtpEwafch7Pi+XCCMvLTbIc8D/Pn3nJE9mA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743673474; c=relaxed/simple;
-	bh=3RucRNF7f/0e4O35Hd5elBCl4Zt1WkVLOuvSALfHk/0=;
+	s=arc-20240116; t=1743677017; c=relaxed/simple;
+	bh=BnDJa1NQQgaQiyi+V0Ba6o9o2I6eOeRoTuZjMFY/ckE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YSRK6H5m6WZCbFp7zVXHgVLJz6b9kbhLcPyGuGh7Sna653qkYwVlJiw/P0nJUk6RhFd6r7IypuVNGJq69LGsCwrkPiOoZZEx3KVy/4fN4+rQVwHoHdv8q+/z02twpoGnkM+JTAgXlik+sN84rtmmjLyZxX23iZOg3iZwlKYuNSQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LpnyCEOC; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=RS6NUS2M2IagMH2xzCKnpu/GnG631oAwHcfP/hnNUji0dBQ/hg4tSDmtINb9GbMEw7Lr6t0yX+N7Hquzjjrv+4KcDsc2zPzps3kDNdHugK2X1lggFPI/QbRcGcBxZ8LDBeXcmfzX7thK/1rX+Z6aG6QW8bOZpaNTmlhMfRi6JjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ScIizamd; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LpnyCEOC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743673471;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gSdqZyMN/qA57u0AZakL5zHE5rHAQPvR1lJKkRz1QYQ=;
-	b=LpnyCEOCNh5AU+4CEQnDT5rxB+ELD30GViTTolzd1ROE/20ndaT9QFYafOqrMJetkVwKGV
-	Y/1PrZGkNup5ocbtovf/THHfjo62zd8NzJ1CjWgnDAGxEyIhs7vP2c8GSX/MjOJVDGQnVe
-	ur9hbrUSwMMBdonolkD4Kv04+deSUM4=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-110-6gBaz-9TNM-QhyeRq3dEOQ-1; Thu, 03 Apr 2025 05:44:30 -0400
-X-MC-Unique: 6gBaz-9TNM-QhyeRq3dEOQ-1
-X-Mimecast-MFC-AGG-ID: 6gBaz-9TNM-QhyeRq3dEOQ_1743673469
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-391492acb59so449524f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 02:44:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ScIizamd"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7390d21bb1cso696281b3a.2
+        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 03:43:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743677014; x=1744281814; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=XKfPpP5X7BAGuDFo2uD9oJkA83aeZkArrNDesmfrThk=;
+        b=ScIizamd3WNLlDMiPhupL6ucfntCpVtFFtfojBToc7IQofsCpk7DUAJA46gF/NyG+M
+         0AZKFffesb/7JPwjluyT624t7H7tru13la9I1EwwXzGoMLOJqpiD7wgiflU9JqnRYVFJ
+         ij9GV+khsNhtyl/gAuBjbfkf6WZL65eLnQW98xJr1vK18kF9NBomLax++jvWA1y+2wUs
+         bTy88tUk5X9b2Uvhnh8X+9cQ7Zf34liVvjO1+ly/0/vpFx12pUQ3DUG0CSBsaf86X6cE
+         Z4oRbP4tXLWo3PkATeHqH8U+UTXbt+Lpu/gan8VVDMw2/894DHJoN19aGrokf4uncvBM
+         2F2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743673469; x=1744278269;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=gSdqZyMN/qA57u0AZakL5zHE5rHAQPvR1lJKkRz1QYQ=;
-        b=ZpbV8FP1GQ3VyhQQOGxDo+HZtG03SIBbA0f47z7ZofKPaMPSEsudeAMyek2QA+vSMN
-         0eI0UHisB+VXNIDNMSTaoBrPNmOjtdCcyDk9yNtrrMda+nYi//o/6Co4+d5yxPAnmGv0
-         VcUpcpc3RIxxlEs1ikcID8jR697sX3qzXbfm8rgSjEii4q3w3gmoVeDmC4WWewFSs5Qw
-         boS2u0YQJADgLJDx3t+e/1xuAQYvHrNi6Im1TE8IAdzhs/QHEv7hiTT8R/ioDWxYRkHf
-         6JOqBPif2yn0fEjTijVICT4VkzSX1JkWc4zcQgm/w3qOvjOKws7ZY6HrOGafSptr81N4
-         hz0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXxDfPoN5/txPC2OWeZZ6LqXggagS2aS4X2qAe4PNNQ3Q8W/G5sKiNbMRPXdlyQeFwPAqsI4V3JCGiKpaVNJQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwPMw1YTKyVAD7g0IgSL5SP0RgzmDP/XxJrpHx9YCcSF1yi7bYH
-	Ar8QgVjw9IkUFEkEJzH4kNCK3RKI77OfAdMpgQkh61XshMn64AlvIsDHJtqI1zCGqQOtGrHKcH8
-	pvJXI1G3wdYzzcf1swEipf1Cl5vfipBrAgULAFLOtwaDsImD5QDX82wO10p7UjL7b
-X-Gm-Gg: ASbGncsGpANORJs1BVW2yCkY58I08m4a69HjX7L8WHw4zvQ8eify3UF5dVrY4Oep3oW
-	ESmSgvcbmF9da2xIjwIZ2KEeVyurPpkalgFHhcGbpxnHBF4U08TdWOIrd+YNV34ccY8S9eNsXvg
-	krAzCnNVFt1UoY1I3DeWuer4s1o1fRJRpVq+tVXCt1Gd6GcMokLoJ35Yv1M+d2FGld36yJm117a
-	m0YKC7n8N3VvcjX2eGeDKnlfrCAlLHZjAQ38MKmp8FKbPIwvCCzCTiSetdhINfKH/LEXysy2F44
-	1gzXYi6ezgw37ZLxKod0ASFA/WUDK9BPJjJvgJKSFLBE
-X-Received: by 2002:a5d:6dab:0:b0:391:4889:5045 with SMTP id ffacd0b85a97d-39c12114fccmr17337050f8f.36.1743673468935;
-        Thu, 03 Apr 2025 02:44:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG/7cEdSHfURTDRVGlG5T0lSpAh1Bd8WT5kQ0J3SBrbGbJ5bEbAFPspWelmdDFLWhEf9/DFjg==
-X-Received: by 2002:a5d:6dab:0:b0:391:4889:5045 with SMTP id ffacd0b85a97d-39c12114fccmr17337011f8f.36.1743673468511;
-        Thu, 03 Apr 2025 02:44:28 -0700 (PDT)
-Received: from [192.168.0.7] (ip-109-42-51-76.web.vodafone.de. [109.42.51.76])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c30226e9asm1320216f8f.94.2025.04.03.02.44.27
+        d=1e100.net; s=20230601; t=1743677014; x=1744281814;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XKfPpP5X7BAGuDFo2uD9oJkA83aeZkArrNDesmfrThk=;
+        b=SXhXIUWxH9bIPCLRrS/UyB351xV2nnNqNFGik78kgLC5A9MiZLmzvwcoeBqT9nDa1R
+         31VJKgRHVeQ/wG9Ez+RqkYFmvvywc0ds0/apkXmce6mGviSWWtuCLTAlac6EtEj3vdpd
+         pTGOKafw//iKaYPhkOQKL3bAVj6MuOaQKh5PYLc1RxPfUqsNkuqnCn3FVzSs0tee+aRw
+         W1ZZZUoNKtPrzulAGIPaA0of/moENDg1a7LfnjYoMjPVGCuMKoPR7J4zrG+D4X9owk3i
+         76aIHL49jg7dRcDvZXdeyBL8XMzgF2dx3DNuhBmebXdurg9XHiwiPrqzV0kTWFO3F0Fc
+         RLTA==
+X-Gm-Message-State: AOJu0YzBabzd2B2C0DB5QSp1vbt3si8gNYBtXuMnkNOwJ261sXk5tvAW
+	d4bM9WL6pCJeYa+0QJqr8g97dzNDCjplzu17Zwj3MtIGlG/fgpeq5YwQYMyF
+X-Gm-Gg: ASbGncuwjxXkIoykypy0n3BZamhullvGngWsQZ0zbrf2DAMdmd5PUu5mvUOcHxgeKyf
+	tDYZE3mjYIEFny4QI0UJn5fPgQmEpX1zPsd9HmZojdivmlEla2Q5w4RT8LjX64cJlFv/yBdYAXl
+	MFlfzvCMFmJpDdwd3TyfQNs43V7TNyGsP8aYmB0MjKykQ23xgWOAX3Y1gfDSreVcQuk8eeHitzu
+	9JOTI672F5pRRlkilDQ8v9c/1ep4G3OHDAJYHiBMWDww3VL0td+jGvgIQu5SPR/S0pmcxHLyAat
+	sBDp+WUCKRyVmIIhlMtshx8uCcnATLCFlGViQiBnIG6YjbZyY4VDRRpCC3k7WiBmkS580nEvCGY
+	M+OWiLxC3mZh5MLZ4hoFWwGI=
+X-Google-Smtp-Source: AGHT+IHkcCi0YR0D+hOGCuMNoTiX/WY5jnF7Ek8IM7ApPidPGWeW9JEmR3voupoks8wnoR3rCxGzhw==
+X-Received: by 2002:a05:6a00:399d:b0:736:53bc:f1ab with SMTP id d2e1a72fcca58-739d9e96e15mr2649550b3a.12.1743677014350;
+        Thu, 03 Apr 2025 03:43:34 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f4e:bd30:2142:e08e:e207:d31c? ([2001:ee0:4f4e:bd30:2142:e08e:e207:d31c])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-739d9805a00sm1144603b3a.81.2025.04.03.03.43.28
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 03 Apr 2025 02:44:28 -0700 (PDT)
-Message-ID: <9daf03e4-4526-428c-b584-ede6cb77cada@redhat.com>
-Date: Thu, 3 Apr 2025 11:44:15 +0200
+        Thu, 03 Apr 2025 03:43:33 -0700 (PDT)
+Message-ID: <8aad5ff9-6eab-411d-9569-9a2303561ac0@gmail.com>
+Date: Thu, 3 Apr 2025 17:43:26 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -74,166 +66,77 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
- Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Wei Wang <wei.w.wang@intel.com>
-References: <20250402203621.940090-1-david@redhat.com>
-From: Thomas Huth <thuth@redhat.com>
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20250402203621.940090-1-david@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 3Fy1EXfkFaif5KMyMDt0DEjuHnSUxC06QRxvJclKenQ_1743673469
-X-Mimecast-Originator: redhat.com
+Subject: Re: [PATCH] virtio-net: disable delayed refill when setting up xdp
+To: virtualization@lists.linux.dev
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20250402054210.67623-1-minhquangbui99@gmail.com>
 Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <20250402054210.67623-1-minhquangbui99@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 02/04/2025 22.36, David Hildenbrand wrote:
-> If we finds a vq without a name in our input array in
-> virtio_ccw_find_vqs(), we treat it as "non-existing" and set the vq pointer
-> to NULL; we will not call virtio_ccw_setup_vq() to allocate/setup a vq.
-> 
-> Consequently, we create only a queue if it actually exists (name != NULL)
-> and assign an incremental queue index to each such existing queue.
-> 
-> However, in virtio_ccw_register_adapter_ind()->get_airq_indicator() we
-> will not ignore these "non-existing queues", but instead assign an airq
-> indicator to them.
-> 
-> Besides never releasing them in virtio_ccw_drop_indicators() (because
-> there is no virtqueue), the bigger issue seems to be that there will be a
-> disagreement between the device and the Linux guest about the airq
-> indicator to be used for notifying a queue, because the indicator bit
-> for adapter I/O interrupt is derived from the queue index.
-> 
-> The virtio spec states under "Setting Up Two-Stage Queue Indicators":
-> 
-> 	... indicator contains the guest address of an area wherein the
-> 	indicators for the devices are contained, starting at bit_nr, one
-> 	bit per virtqueue of the device.
-> 
-> And further in "Notification via Adapter I/O Interrupts":
-> 
-> 	For notifying the driver of virtqueue buffers, the device sets the
-> 	bit in the guest-provided indicator area at the corresponding
-> 	offset.
-> 
-> For example, QEMU uses in virtio_ccw_notify() the queue index (passed as
-> "vector") to select the relevant indicator bit. If a queue does not exist,
-> it does not have a corresponding indicator bit assigned, because it
-> effectively doesn't have a queue index.
-> 
-> Using a virtio-balloon-ccw device under QEMU with free-page-hinting
-> disabled ("free-page-hint=off") but free-page-reporting enabled
-> ("free-page-reporting=on") will result in free page reporting
-> not working as expected: in the virtio_balloon driver, we'll be stuck
-> forever in virtballoon_free_page_report()->wait_event(), because the
-> waitqueue will not be woken up as the notification from the device is
-> lost: it would use the wrong indicator bit.
-> 
-> Free page reporting stops working and we get splats (when configured to
-> detect hung wqs) like:
-> 
->   INFO: task kworker/1:3:463 blocked for more than 61 seconds.
->         Not tainted 6.14.0 #4
->   "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
->   task:kworker/1:3 [...]
->   Workqueue: events page_reporting_process
->   Call Trace:
->    [<000002f404e6dfb2>] __schedule+0x402/0x1640
->    [<000002f404e6f22e>] schedule+0x3e/0xe0
->    [<000002f3846a88fa>] virtballoon_free_page_report+0xaa/0x110 [virtio_balloon]
->    [<000002f40435c8a4>] page_reporting_process+0x2e4/0x740
->    [<000002f403fd3ee2>] process_one_work+0x1c2/0x400
->    [<000002f403fd4b96>] worker_thread+0x296/0x420
->    [<000002f403fe10b4>] kthread+0x124/0x290
->    [<000002f403f4e0dc>] __ret_from_fork+0x3c/0x60
->    [<000002f404e77272>] ret_from_fork+0xa/0x38
-> 
-> There was recently a discussion [1] whether the "holes" should be
-> treated differently again, effectively assigning also non-existing
-> queues a queue index: that should also fix the issue, but requires other
-> workarounds to not break existing setups.
-> 
-> Let's fix it without affecting existing setups for now by properly ignoring
-> the non-existing queues, so the indicator bits will match the queue
-> indexes.
-> 
-> [1] https://lore.kernel.org/all/cover.1720611677.git.mst@redhat.com/
-> 
-> Fixes: a229989d975e ("virtio: don't allocate vqs when names[i] = NULL")
-> Reported-by: Chandra Merla <cmerla@redhat.com>
-> Cc: <Stable@vger.kernel.org>
-> Cc: Cornelia Huck <cohuck@redhat.com>
-> Cc: Thomas Huth <thuth@redhat.com>
-> Cc: Halil Pasic <pasic@linux.ibm.com>
-> Cc: Eric Farman <farman@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Wei Wang <wei.w.wang@intel.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+On 4/2/25 12:42, Bui Quang Minh wrote:
+> When setting up XDP for a running interface, we call napi_disable() on
+> the receive queue's napi. In delayed refill_work, it also calls
+> napi_disable() on the receive queue's napi. This can leads to deadlock
+> when napi_disable() is called on an already disabled napi. This commit
+> fixes this by disabling future and cancelling all inflight delayed
+> refill works before calling napi_disabled() in virtnet_xdp_set.
+>
+> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 > ---
->   drivers/s390/virtio/virtio_ccw.c | 16 ++++++++++++----
->   1 file changed, 12 insertions(+), 4 deletions(-)
+>   drivers/net/virtio_net.c | 12 ++++++++++++
+>   1 file changed, 12 insertions(+)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7e4617216a4b..33406d59efe2 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -5956,6 +5956,15 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>   	if (!prog && !old_prog)
+>   		return 0;
+>   
+> +	/*
+> +	 * Make sure refill_work does not run concurrently to
+> +	 * avoid napi_disable race which leads to deadlock.
+> +	 */
+> +	if (netif_running(dev)) {
+> +		disable_delayed_refill(vi);
+> +		cancel_delayed_work_sync(&vi->refill);
+> +	}
+> +
+>   	if (prog)
+>   		bpf_prog_add(prog, vi->max_queue_pairs - 1);
+>   
+> @@ -6004,6 +6013,8 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>   			virtnet_napi_tx_enable(&vi->sq[i]);
+>   		}
+>   	}
+> +	if (netif_running(dev))
+> +		enable_delayed_refill(vi);
+While doing some testing, it look likes that we must call try_fill_recv 
+to resume the rx path. I'll do more testing and send a new v2 patch.
+>   
+>   	return 0;
+>   
+> @@ -6019,6 +6030,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>   			virtnet_napi_enable(&vi->rq[i]);
+>   			virtnet_napi_tx_enable(&vi->sq[i]);
+>   		}
+> +		enable_delayed_refill(vi);
+>   	}
+>   	if (prog)
+>   		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
 
-Thanks for tackling this, David!
-
-I tested the patch and the problems are gone now, indeed!
-
-Tested-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
 
