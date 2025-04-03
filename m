@@ -1,325 +1,211 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F5C1241C8C
-	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 08:27:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6C762475C8
+	for <virtualization@lists.linux.dev>; Thu,  3 Apr 2025 09:01:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743668836; cv=none; b=XO0FxqQHLZnND1aXZWpnA8v89D1NEUPM9MaTDYYXR/b8kyLgb8/qubQhSgbBvfAE78ofGX4mMlUykpYPCRIDb98mmx+QYkBzEa7WP15u3fsuKCmTM1wCUwlRtIo2lo1jfQr1oD9cktes2/OH0e8aSmA4z0Ttx4L/V0klJiOfa6M=
+	t=1743670887; cv=none; b=CRkPHaV4Ll1Ie7qBbDWLNplncXL/l9Xm8aVb+H1b9pjrFO+SCHQ3PfUKqbo8A6Lk8szpSD5cWHzG9rkuVSev3yT95ZNJGgIuCsGXpk94M89E9pRFfRMfZyl9sbZ8+jSs/H5KKxrT+/55jGnbP641rz5fUfNtfFJqf/JM7nXAyEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743668836; c=relaxed/simple;
-	bh=mBEnZJfbHssNSwDuQ4ZoDefTpQJ0psPNYc+XIeueAiM=;
+	s=arc-20240116; t=1743670887; c=relaxed/simple;
+	bh=XLaSHPIQi0GraUs3a8fEONalIfB03jXivf0FB3eDu9Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=j8mdhYG1qC/vGykEEAKpYYWawjXq3Oi9R2UvvBlX+CcWHdm378OKoZrVYXyZMHUhGhh4KbFns4XcCKZlXlNVaXXRM8/qCfNN23Zvl5EdqrvJ3vsmk2cNzIZ1y/t2UM4Qv/L8/+ER1wEMaMXRfoKCKGDi5Kb9rjn49uL3w+Gwf2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hyWeWjc2; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=jXbhI9OlnrtIv0YkaCRKdqeUcKlwtk2x8laQjOBfiFuLmwu0shweIwY2cTXQH8vqh5ZaU1OJUlymM7fyn39Uwl2BfjGeWkqGptT9y9A/CcGf3OHqdb9jlys8HOrC0FTDgXMYB1e0olPo8I5w/1T7jNB9pDVOVYgayQF7TaEJcps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iIkIWv31; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hyWeWjc2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iIkIWv31"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743668833;
+	s=mimecast20190719; t=1743670884;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8H3/cfOpLLMF7vHGtp8a2sFO6dkZAsrx2IPt+e+ewfY=;
-	b=hyWeWjc225Ncere8vDwhEECnwdT7PKbpcJoMWmscGFe2EFQHGEd00MsXuC+Sd4ydqQ8FKn
-	1u1VB4tNIJhRDf0R0MdxEPt+T5liCWVMzTN9YTGHfmARMUM5z23/nFruBFjzVGg9VtVXAe
-	+xs/SiXRxLCXfP1WMgh9yQiz8retA8g=
+	bh=u0Fq6CW4btmWUZyI5fPPBqSbZkcj6UpkBIS/toPg3Vg=;
+	b=iIkIWv319iIRTfGT/8FGM0VOgc4ltc+ZcTQxGqdch0sm4hxIuQ6pZI9MD7az/wfN/e4pHL
+	2w0wsawa91AWreUMw4er72Z0JCriQN0+XEt/oYh7H7wlJS72bm9ZuyF0C9DMetzfzUrRbF
+	gOSqPo59kA+gJ58epBgFqJreSBK4LFQ=
 Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
  [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-57-43tJXNJ6NVaQfz2BfyaHfA-1; Thu, 03 Apr 2025 04:27:10 -0400
-X-MC-Unique: 43tJXNJ6NVaQfz2BfyaHfA-1
-X-Mimecast-MFC-AGG-ID: 43tJXNJ6NVaQfz2BfyaHfA_1743668829
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3913f546dfdso364223f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 01:27:10 -0700 (PDT)
+ us-mta-138-ZAmzBPqMPX2nrPwCwTSS7A-1; Thu, 03 Apr 2025 05:01:23 -0400
+X-MC-Unique: ZAmzBPqMPX2nrPwCwTSS7A-1
+X-Mimecast-MFC-AGG-ID: ZAmzBPqMPX2nrPwCwTSS7A_1743670882
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-39141ffa913so345469f8f.2
+        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 02:01:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743668829; x=1744273629;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8H3/cfOpLLMF7vHGtp8a2sFO6dkZAsrx2IPt+e+ewfY=;
-        b=oF2RvlDSQzrST3mtWULWFsbeplFvDoYm49qlkKvCroltBscAC+YHWhL083FJe9YYFA
-         86HKkiIjWpaG+RdDGeL51zZqJhs3REz2D7D6ekcvs7VWJYCP8LrgOU/9UHfWtBvKM8mJ
-         XaKMSCBfMchBWvuXbjNTRxmvybFCsmKPLW4LlLCLLVimgXzsOfOXmKLpsHMx0zGg0Ojs
-         58LVzOsMOMAFo/Mk7nSBzCzDhVs0gBThK2/AtVhKZB8uaSog+q2YFPt6gtKghBiGv8AQ
-         5HUuLozsK5pLBXi5ZbDSlHq2l+31CakzZlf68QaU5AkgYeZV18zDvy8Bicgh1FqWhNdG
-         ZarQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUIcNAIc7fx/nPkiht9DvCkoWeevlImhxTVBzaiHj0QNBooGBRola+Iqmv/1rP2shE5K9NWFliOjR0UUmmHXg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YywrZe2FN30EmQg/UvpJHRnZY2PWL1r6YMRgaQitMYds2Bt/nfE
-	2DpACZPu2HPudi4bQmLVAacZno0pu+EddOEUhr6CTVKXL9Q11/QJwa1dYAPWsa2gYhgjm2B9k0X
-	gtZLdQuGUYkC0993SBYL1TDfIYZQMk8p/qRBy2atqs4Z6q4ChWpz0vgB9tGAAw7Wc
-X-Gm-Gg: ASbGncspkurTF8zuEQPu2cxKRHWnAvKSr2ujEEzMx0oOhHjzOv7mfMFJ6QuslPfYuux
-	cJYrZV0mkzJasegCkaopsLNH1IP0jEqlvdoUgCbJzdcOHZFBOaolXQ3JbxMnrCcpaqqv7nMdlbC
-	sowcVcDF9OqjPp3TU2dOMPkL0DgZ0T8WBWazucqEW7LnOi4P4apFgRAqxQk2yZyBGZV6f0XRy6L
-	cgJGSK1j7tWUKW0EQ9uxqQsAll6IdJxKE+H+cOzNOdeJjceBbny8MjMtpE2X57yWjhEu3k6SwWD
-	Mp6CxJbN4h9ofAfu+G7mS6EVgWVMIDlVXRN7QtTpWqUKyzQ5/PYXpk+KnXk=
-X-Received: by 2002:a05:6000:1787:b0:38d:badf:9df5 with SMTP id ffacd0b85a97d-39c2975344dmr5198692f8f.17.1743668829076;
-        Thu, 03 Apr 2025 01:27:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEkJasUVCkOzYkOOW0hF0pl3+LvSOwHmjYa1Gj63xQYPYwtDCufaqDLic/I99b7VKxwX6pLBg==
-X-Received: by 2002:a05:6000:1787:b0:38d:badf:9df5 with SMTP id ffacd0b85a97d-39c2975344dmr5198641f8f.17.1743668828602;
-        Thu, 03 Apr 2025 01:27:08 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1743670882; x=1744275682;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=u0Fq6CW4btmWUZyI5fPPBqSbZkcj6UpkBIS/toPg3Vg=;
+        b=VENnph3VzkyUeFJ7k4WVcQx2XnB7eYTu5kWnHuAbzzvI39HTU5YolWvuXp9ArQhN+C
+         pC3QRM51/XkDbGPxnPTio8IcMJjkwKlM1UHPlKiArUYAWHw/e4YvZERSeuDKQdP5fzv6
+         WfFfCH9ccw5nIP0cqrm9ateFD6yBnQlCh8FifHZGT42dVMFGxOxrNy1cOt8s5UfwN46V
+         Or37+D9FinHNtjzbCrvu9XsanJzfLvV9ylPg5ofMRaMZCBQcYIseTiUqhIY41NA9gf3/
+         oVmjdLCQmweprRfwbjYvPXZD1zTg6q1zM713JrRsZyn4o+O/K6Hh+aMSVCliRLQrCHz6
+         TqaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVCA4mpAwBekZOvfJeQWZ5WOkRQYsbckYAfm+y726w1s6yMzm3QIff+p5mrLihhZpRDY44UsW1vLak12p6fiQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyyAN8uO07znos0S18BVDNDQlLtf//wcm4oZYJQYVIkI4FDYhI8
+	fo4w4Si0XAe6Xiv1cah8tlS9omnZ7eBw7x4o40WG1uakycekBrGt8Nn0oqkiGNVOjhw0HoIbb77
+	0u0GBp9cVmK8WJP+PGOXQqBxA7lXffK6op8ui/LYyabOX8zAbMvfzGPjWyj1xexU/
+X-Gm-Gg: ASbGncsSLsKW/C091fYNbiTUXwLhNv4hcEX6Gj1mrvkSZRu9gn6FEFsHH0QnPKouQ0Q
+	WAStPtvEnTZhM7AFO+fdAYuktwtxcy8pOePew2dUrELb7vWBkoP3xwAk4qzaZ8eJ5KbMR6jPWLI
+	mg0L3D238EaFf7z0cKkKFsCWFJdSCNnuxvTIrJGIYeDI5jg7yHPbarGknLxuO/xnOxdjHD9ZPtU
+	4uC6Q7n02EjG19UEINdfJUekSOHym+4GHCNZ25OzwADaJjPMb0MJsyQvScZ2txh0VEy5NfIfzP4
+	fMJqRpuZvQaeZSlu5/nbizDy+03BQqR6VMo34l02HkRIqZ1jhKcRHnO89CI=
+X-Received: by 2002:a5d:64c6:0:b0:38f:39e5:6b5d with SMTP id ffacd0b85a97d-39c12117d3emr17332792f8f.44.1743670882236;
+        Thu, 03 Apr 2025 02:01:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEpovJ5UpDSlHVdv51+oenyd/eFQn5aR6V3UwBSXn54lErw6QgoiQzLXfuZblYn8PU/hctiug==
+X-Received: by 2002:a5d:64c6:0:b0:38f:39e5:6b5d with SMTP id ffacd0b85a97d-39c12117d3emr17332729f8f.44.1743670881685;
+        Thu, 03 Apr 2025 02:01:21 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-11-6-59.retail.telecomitalia.it. [87.11.6.59])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec364ce6esm11031055e9.30.2025.04.03.01.27.06
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c30226da7sm1220816f8f.98.2025.04.03.02.01.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Apr 2025 01:27:07 -0700 (PDT)
-Date: Thu, 3 Apr 2025 10:27:03 +0200
+        Thu, 03 Apr 2025 02:01:21 -0700 (PDT)
+Date: Thu, 3 Apr 2025 11:01:16 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Alexander Graf <graf@amazon.com>
-Cc: netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	Asias He <asias@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Eric Dumazet <edumazet@google.com>, "David S . Miller" <davem@davemloft.net>, 
-	nh-open-source@amazon.com, Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH v3] vsock/virtio: Remove queued_replies pushback logic
-Message-ID: <qmhbvdned3ozt366ndshqkrc4p3d22wuo5obpziuaj5oqfwvw7@4cxvxilmt4du>
-References: <20250402150646.42855-1-graf@amazon.com>
+To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+Cc: Bobby Eshleman <bobbyeshleman@gmail.com>, 
+	Jakub Kicinski <kuba@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
+	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, "David S. Miller" <davem@davemloft.net>, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] vsock: add namespace support to vhost-vsock
+Message-ID: <npjlppzeanfwibynwzyuu65gp7uv2o2e3b6bdc6f3kwv42xn6a@sycnrm4yk7ea>
+References: <20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com>
+ <r6a6ihjw3etlb5chqsb65u7uhcav6q6pjxu65iqpp76423w2wd@kmctvoaywmbu>
+ <Z-w47H3qUXZe4seQ@redhat.com>
+ <Z+yDCKt7GpubbTKJ@devvm6277.cco0.facebook.com>
+ <CAGxU2F7=64HHaAD+mYKYLqQD8rHg1CiF1YMDUULgSFw0WSY-Aw@mail.gmail.com>
+ <Z-0BoF4vkC2IS1W4@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250402150646.42855-1-graf@amazon.com>
+In-Reply-To: <Z-0BoF4vkC2IS1W4@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6hz8UCxZE1BzQSwZGZSF7nNIb0L9quhTTxCMYgILdtE_1743668829
+X-Mimecast-MFC-PROC-ID: 1xND09s62AhWpvzjXjD5HUOMsHkPoncJjqTD4sUU7tI_1743670882
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 02, 2025 at 03:06:46PM +0000, Alexander Graf wrote:
->Ever since the introduction of the virtio vsock driver, it included
->pushback logic that blocks it from taking any new RX packets until the
->TX queue backlog becomes shallower than the virtqueue size.
+On Wed, Apr 02, 2025 at 10:21:36AM +0100, Daniel P. Berrangé wrote:
+>On Wed, Apr 02, 2025 at 10:13:43AM +0200, Stefano Garzarella wrote:
+>> On Wed, 2 Apr 2025 at 02:21, Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
+>> >
+>> > I do like Stefano's suggestion to add a sysctl for a "strict" mode,
+>> > Since it offers the best of both worlds, and still tends conservative in
+>> > protecting existing applications... but I agree, the non-strict mode
+>> > vsock would be unique WRT the usual concept of namespaces.
+>>
+>> Maybe we could do the opposite, enable strict mode by default (I think
+>> it was similar to what I had tried to do with the kernel module in v1, I
+>> was young I know xD)
+>> And provide a way to disable it for those use cases where the user wants
+>> backward compatibility, while paying the cost of less isolation.
 >
->This logic works fine when you connect a user space application on the
->hypervisor with a virtio-vsock target, because the guest will stop
->receiving data until the host pulled all outstanding data from the VM.
+>I think backwards compatible has to be the default behaviour, otherwise
+>the change has too high risk of breaking existing deployments that are
+>already using netns and relying on VSOCK being global. Breakage has to
+>be opt in.
 >
->With Nitro Enclaves however, we connect 2 VMs directly via vsock:
+>> I was thinking two options (not sure if the second one can be done):
+>>
+>>   1. provide a global sysfs/sysctl that disables strict mode, but this
+>>   then applies to all namespaces
+>>
+>>   2. provide something that allows disabling strict mode by namespace.
+>>   Maybe when it is created there are options, or something that can be
+>>   set later.
+>>
+>> 2 would be ideal, but that might be too much, so 1 might be enough. In
+>> any case, 2 could also be a next step.
+>>
+>> WDYT?
 >
->  Parent      Enclave
+>It occured to me that the problem we face with the CID space usage is
+>somewhat similar to the UID/GID space usage for user namespaces.
 >
->    RX -------- TX
->    TX -------- RX
+>In the latter case, userns has exposed /proc/$PID/uid_map & gid_map, to
+>allow IDs in the namespace to be arbitrarily mapped onto IDs in the host.
 >
->This means we now have 2 virtio-vsock backends that both have the pushback
->logic. If the parent's TX queue runs full at the same time as the
->Enclave's, both virtio-vsock drivers fall into the pushback path and
->no longer accept RX traffic. However, that RX traffic is TX traffic on
->the other side which blocks that driver from making any forward
->progress. We're now in a deadlock.
+>At the risk of being overkill, is it worth trying a similar kind of
+>approach for the vsock CID space ?
 >
->To resolve this, let's remove that pushback logic altogether and rely on
->higher levels (like credits) to ensure we do not consume unbounded
->memory.
->
->RX and TX queues share the same work queue. To prevent starvation of TX
->by an RX flood and vice versa now that the pushback logic is gone, let's
->deliberately reschedule RX and TX work after a fixed threshold (256) of
->packets to process.
->
->Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
->Signed-off-by: Alexander Graf <graf@amazon.com>
+>A simple variant would be a /proc/net/vsock_cid_outside specifying a set
+>of CIDs which are exclusively referencing /dev/vhost-vsock associations
+>created outside the namespace. Anything not listed would be exclusively
+>referencing associations created inside the namespace.
 
-There is a good point from Stefan on v2:
-https://lore.kernel.org/virtualization/20250402161424.GA305204@fedora/
+I like the idea and I think it is also easily usable in a nested 
+environment, where for example in L1 we can decide whether or not a 
+namespace can access the L0 host (CID=2), by adding 2 to 
+/proc/net/vsock_cid_outside
 
-So, I'm not sure we can merge this as it is.
+>
+>A more complex variant would be to allow a full remapping of CIDs as is
+>done with userns, via a /proc/net/vsock_cid_map, which the same three
+>parameters, so that CID=15 association outside the namespace could be
+>remapped to CID=9015 inside the namespace, allow the inside namespace
+>to define its out association for CID=15 without clashing.
+>
+>IOW, mapped CIDs would be exclusively referencing /dev/vhost-vsock
+>associations created outside namespace, while unmapped CIDs would be
+>exclusively referencing /dev/vhost-vsock associations inside the
+>namespace.
 
-Thanks,
+This is maybe a little overkill, but I don't object to it!
+It could also be a next step. But if it's easy to implement, we can go 
+straight with it.
+
+>
+>A likely benefit of relying on a kernel defined mapping/partition of
+>the CID space is that apps like QEMU don't need changing, as there's
+>no need to invent a new /dev/vhost-vsock-netns device node.
+
+Yeah, I see that!
+However, should this be paired with a sysctl/sysfs to do opt-in?
+
+Or can we do something to figure out if the user didn't write these 
+files, then behave as before (but maybe we need to reverse the logic, I 
+don't know if that makes sense).
+
+>
+>Both approaches give the desirable security protection whereby the
+>inside namespace can be prevented from accessing certain CIDs that
+>were associated outside the namespace.
+>
+>Some rule would need to be defined for updating the /proc/net/vsock_cid_map
+>file as it is the security control mechanism. If it is write-once then
+>if the container mgmt app initializes it, nothing later could change
+>it.
+>
+>A key question is do we need the "first come, first served" behaviour
+>for CIDs where a CID can be arbitrarily used by outside or inside namespace
+>according to whatever tries to associate a CID first ?
+>
+>IMHO those semantics lead to unpredictable behaviour for apps because
+>what happens depends on ordering of app launches inside & outside the
+>namespace, but they do sort of allow for VSOCK namespace behaviour to
+>be 'zero conf' out of the box.
+
+Yes, I agree that we should avoid it if possible.
+
+>
+>A mapping that strictly partitions CIDs to either outside or inside
+>namespace usage, but never both, gives well defined behaviour, at the
+>cost of needing to setup an initial mapping/partition.
+
+Thanks for your points!
 Stefano
-
->
->---
->
->v1 -> v2:
->
->  - Rework to use fixed threshold
->
->v2 -> v3:
->
->  - Remove superfluous reply variable
->---
-> net/vmw_vsock/virtio_transport.c | 73 +++++++++-----------------------
-> 1 file changed, 19 insertions(+), 54 deletions(-)
->
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index f0e48e6911fc..6ae30bf8c85c 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -26,6 +26,12 @@ static struct virtio_vsock __rcu *the_virtio_vsock;
-> static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
-> static struct virtio_transport virtio_transport; /* forward declaration */
->
->+/*
->+ * Max number of RX packets transferred before requeueing so we do
->+ * not starve TX traffic because they share the same work queue.
->+ */
->+#define VSOCK_MAX_PKTS_PER_WORK 256
->+
-> struct virtio_vsock {
-> 	struct virtio_device *vdev;
-> 	struct virtqueue *vqs[VSOCK_VQ_MAX];
->@@ -44,8 +50,6 @@ struct virtio_vsock {
-> 	struct work_struct send_pkt_work;
-> 	struct sk_buff_head send_pkt_queue;
->
->-	atomic_t queued_replies;
->-
-> 	/* The following fields are protected by rx_lock.  vqs[VSOCK_VQ_RX]
-> 	 * must be accessed with rx_lock held.
-> 	 */
->@@ -158,7 +162,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
-> 		container_of(work, struct virtio_vsock, send_pkt_work);
-> 	struct virtqueue *vq;
-> 	bool added = false;
->-	bool restart_rx = false;
->+	int pkts = 0;
->
-> 	mutex_lock(&vsock->tx_lock);
->
->@@ -169,32 +173,24 @@ virtio_transport_send_pkt_work(struct work_struct *work)
->
-> 	for (;;) {
-> 		struct sk_buff *skb;
->-		bool reply;
-> 		int ret;
->
->+		if (++pkts > VSOCK_MAX_PKTS_PER_WORK) {
->+			/* Allow other works on the same queue to run */
->+			queue_work(virtio_vsock_workqueue, work);
->+			break;
->+		}
->+
-> 		skb = virtio_vsock_skb_dequeue(&vsock->send_pkt_queue);
-> 		if (!skb)
-> 			break;
->
->-		reply = virtio_vsock_skb_reply(skb);
->-
-> 		ret = virtio_transport_send_skb(skb, vq, vsock, GFP_KERNEL);
-> 		if (ret < 0) {
-> 			virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, skb);
-> 			break;
-> 		}
->
->-		if (reply) {
->-			struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
->-			int val;
->-
->-			val = atomic_dec_return(&vsock->queued_replies);
->-
->-			/* Do we now have resources to resume rx processing? */
->-			if (val + 1 == virtqueue_get_vring_size(rx_vq))
->-				restart_rx = true;
->-		}
->-
-> 		added = true;
-> 	}
->
->@@ -203,9 +199,6 @@ virtio_transport_send_pkt_work(struct work_struct *work)
->
-> out:
-> 	mutex_unlock(&vsock->tx_lock);
->-
->-	if (restart_rx)
->-		queue_work(virtio_vsock_workqueue, &vsock->rx_work);
-> }
->
-> /* Caller need to hold RCU for vsock.
->@@ -261,9 +254,6 @@ virtio_transport_send_pkt(struct sk_buff *skb)
-> 	 */
-> 	if (!skb_queue_empty_lockless(&vsock->send_pkt_queue) ||
-> 	    virtio_transport_send_skb_fast_path(vsock, skb)) {
->-		if (virtio_vsock_skb_reply(skb))
->-			atomic_inc(&vsock->queued_replies);
->-
-> 		virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, skb);
-> 		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
-> 	}
->@@ -277,7 +267,7 @@ static int
-> virtio_transport_cancel_pkt(struct vsock_sock *vsk)
-> {
-> 	struct virtio_vsock *vsock;
->-	int cnt = 0, ret;
->+	int ret;
->
-> 	rcu_read_lock();
-> 	vsock = rcu_dereference(the_virtio_vsock);
->@@ -286,17 +276,7 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
-> 		goto out_rcu;
-> 	}
->
->-	cnt = virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
->-
->-	if (cnt) {
->-		struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
->-		int new_cnt;
->-
->-		new_cnt = atomic_sub_return(cnt, &vsock->queued_replies);
->-		if (new_cnt + cnt >= virtqueue_get_vring_size(rx_vq) &&
->-		    new_cnt < virtqueue_get_vring_size(rx_vq))
->-			queue_work(virtio_vsock_workqueue, &vsock->rx_work);
->-	}
->+	virtio_transport_purge_skbs(vsk, &vsock->send_pkt_queue);
->
-> 	ret = 0;
->
->@@ -367,18 +347,6 @@ static void virtio_transport_tx_work(struct work_struct *work)
-> 		queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
-> }
->
->-/* Is there space left for replies to rx packets? */
->-static bool virtio_transport_more_replies(struct virtio_vsock *vsock)
->-{
->-	struct virtqueue *vq = vsock->vqs[VSOCK_VQ_RX];
->-	int val;
->-
->-	smp_rmb(); /* paired with atomic_inc() and atomic_dec_return() */
->-	val = atomic_read(&vsock->queued_replies);
->-
->-	return val < virtqueue_get_vring_size(vq);
->-}
->-
-> /* event_lock must be held */
-> static int virtio_vsock_event_fill_one(struct virtio_vsock *vsock,
-> 				       struct virtio_vsock_event *event)
->@@ -613,6 +581,7 @@ static void virtio_transport_rx_work(struct work_struct *work)
-> 	struct virtio_vsock *vsock =
-> 		container_of(work, struct virtio_vsock, rx_work);
-> 	struct virtqueue *vq;
->+	int pkts = 0;
->
-> 	vq = vsock->vqs[VSOCK_VQ_RX];
->
->@@ -627,11 +596,9 @@ static void virtio_transport_rx_work(struct work_struct *work)
-> 			struct sk_buff *skb;
-> 			unsigned int len;
->
->-			if (!virtio_transport_more_replies(vsock)) {
->-				/* Stop rx until the device processes already
->-				 * pending replies.  Leave rx virtqueue
->-				 * callbacks disabled.
->-				 */
->+			if (++pkts > VSOCK_MAX_PKTS_PER_WORK) {
->+				/* Allow other works on the same queue to run */
->+				queue_work(virtio_vsock_workqueue, work);
-> 				goto out;
-> 			}
->
->@@ -675,8 +642,6 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
-> 	vsock->rx_buf_max_nr = 0;
-> 	mutex_unlock(&vsock->rx_lock);
->
->-	atomic_set(&vsock->queued_replies, 0);
->-
-> 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
-> 	if (ret < 0)
-> 		return ret;
->-- 
->2.47.1
->
->
 
