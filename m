@@ -1,193 +1,240 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FB141EF0B9
-	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 13:36:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A37A51EB1B8
+	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 13:48:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743773792; cv=none; b=ePdr9UQo9RtH8UZRWY9TEZLWI/eeAaVCfDhYCBQzbSmFsK/JdhQZSKdwIPMuezOCZwnR8+VKdV7o46a0bf/QpNqjNg38IUv/7XugoZg3DOGhZI56LlBIhZaT88Q2dBB40XomCDuiiNbBP5CXIBR6ZcElGJv2f3Y6rSuV5x+Bm4g=
+	t=1743774538; cv=none; b=HyKfyJR8GilaLxqg4vmkQlL0BtvOFpby6IYnN2yVik6LFdIJfZeNUfQ1dbJlSr3WGlZip48cHfNnTb6urKnv96m52C8KZYb8T68S+h9F3lPxpIy3HsbNlWEsfRlvEEkL+ePRMIbCTo3QESY94WNHtHsqG9L2k4ONJkPvzB48MEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743773792; c=relaxed/simple;
-	bh=I3vcLmVLsFwbGKKNAa5gOJi+kc6XdJdjzcVHrIDFyk0=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IzRffX7XY6eyp6gAFI6Nay6B0aOmFGwHzlE15E3GMvB9M8EpGjnDnJZqKvae/ctEp9Y68MXzpsdKXjClbV0XBD1UMvI0Nw2RTVxdRhJdEKPqrGBsNtHlIaSLiiF/2PkGdy4l6JCvg4kPWGYisQoNEDtz/h/YX4ZNXeMlDev0GJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SSVC65l/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1743774538; c=relaxed/simple;
+	bh=/LoNyuqZkNHlaGAsryiCLwoc4jmD6q9kXkjXuLH92HU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EXxFaFVNOExRbgL0IO/n5i5nVuXCoX9wnlNTjnwmCSWen63PXpVEJw/TG9BLdJr1BfCy7W3LWlR3CO0llAxZi/Zhe19usJBRHoxqsY9ZvoJ/pwAkEI4IpTpDksVjbuNMzvK7XXk2sDgT3pRKcOqc9P3ftTB1OB63c3+V4LnTkeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UYxloa+3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SSVC65l/"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 534DRRHE001973;
-	Fri, 4 Apr 2025 13:36:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=f3aNq9
-	6GpV4DJKKwJmf2EkJ9N2yWAajx4pMWzECAfes=; b=SSVC65l/4jt7jgIpSX0vPx
-	pqkvmeJ7uQyK6UmqAAR45VUX0xZDUCOf/FAHYwAnOM7jKxPGo+jQiTVhkIV4LPTU
-	8xe9HbXrtXaq3gTFmIhZvb1vxsXZ3NVopg4s4Q+xDtokl3CXSFWNpCePoqDm1ZYT
-	RY5LxgyqkKchOKEB4fF2gG7jp9Sqzvb00c9V8rajrdTbGS71piYaOjplwz9bcjkE
-	rzR1Em1L6LtKCei8ZvQUFSh9bl2QgD4any2tKgCH1aQduKlYbik0TbBI5t0p92ky
-	xTUjt5LJl+n21ve+OgpZb+JF9ZRe6LEVhSzzJBd8p20zkLqX+9ajDk5rUa6BVy+w
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45t2qakjtp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Apr 2025 13:36:26 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 534AmuPK003240;
-	Fri, 4 Apr 2025 13:36:25 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45t2cdu5r8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Apr 2025 13:36:25 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 534DaMZ513173160
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 4 Apr 2025 13:36:22 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 53CF62004B;
-	Fri,  4 Apr 2025 13:36:22 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C9D7320043;
-	Fri,  4 Apr 2025 13:36:21 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  4 Apr 2025 13:36:21 +0000 (GMT)
-Date: Fri, 4 Apr 2025 15:36:20 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        Chandra Merla
- <cmerla@redhat.com>, Stable@vger.kernel.org,
-        Cornelia Huck
- <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>,
-        Eric Farman
- <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Wei Wang
- <wei.w.wang@intel.com>, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250404153620.04d2df05.pasic@linux.ibm.com>
-In-Reply-To: <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
-References: <20250402203621.940090-1-david@redhat.com>
-	<20250403161836.7fe9fea5.pasic@linux.ibm.com>
-	<e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
-	<20250404063619.0fa60a41.pasic@linux.ibm.com>
-	<4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
-	<d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UYxloa+3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743774535;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=aIFufL6GeNlo+jVuLlnkG+OJQ7hMrZuqqKT+ehHwkXo=;
+	b=UYxloa+3C4TEgo57yKkJN3cYPm9I/K4CZTdvbfBqmsw9dLIDzJKbMYBEA0bAyZznu+fSwc
+	EAtAD9kwQDoHVpo8S8muCxMR/IjGy2hxJ4H+WDIif1EKcEFV3gfQjnJZp7lnjG2TiDKN20
+	XWcfHATVH5orfXA9aS1MKsX90sDOOts=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-672-ycacbL_SOemssuw7Akx-sw-1; Fri, 04 Apr 2025 09:48:52 -0400
+X-MC-Unique: ycacbL_SOemssuw7Akx-sw-1
+X-Mimecast-MFC-AGG-ID: ycacbL_SOemssuw7Akx-sw_1743774531
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39143311936so1012215f8f.0
+        for <virtualization@lists.linux.dev>; Fri, 04 Apr 2025 06:48:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743774531; x=1744379331;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=aIFufL6GeNlo+jVuLlnkG+OJQ7hMrZuqqKT+ehHwkXo=;
+        b=P8OWPgEsEtlDf7lyrJ20MezGD1gt/SqmroRZYYxbDpHtTPobixVaytYemd/Y5qAIiw
+         cWLUWFsHBvdiXUvHvXr0IvFnJJIb0/PXATf05BHESiwIc0ZEdpmy6EMI1r23KMxSGkDE
+         ozCuFPPIjieF3Ppj1RxsGJC2dCJpSzGH+1YvMN7VIYkgKZKeiF+xy1wsy/3WG6mL0SyG
+         R2espycIuAZEGOwkKf6BwSoW4gajTf/Fj/mk+CFbMY+foEd/zrHHf3MDjJHQd5H9ms6p
+         ol0lCnwXEJwWJrJknEYBB1r5rjI0QRh1ClDC9WaXNcwxIaPiTMaBmL5GfaRLu0CHHx2h
+         tzqw==
+X-Forwarded-Encrypted: i=1; AJvYcCV6uJ9eLK2OIdp/GsB1jQ6CsAqlAzVXhbrX3quZMRxdgyzJCPili93cLKb0oXMHg/jYgylwqUXl/Aw+1u4tNQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwgX/NiKSpOOvK2pNw+NNJYQEtmmdzzCZMXWs5fV+CKn9+OMVGf
+	5Gr1xedqcEaH24PY6DQjI+pHXQw5AELwiIgaIDk0cxXs5fmMyJ+V39/0qos9bXvC22Qbj4W/dz6
+	o1qY3A8AortXgsXcyMdAdbWZukP531S3JaaAs9XfPOC4nbydyBi53fYnTFLRf0aLn
+X-Gm-Gg: ASbGncuJyNGRFlm5ik0C/OUY8k4pgHfO+LcwKlwFEr0b9JnQKDledjsZORoGaEguY3m
+	kdQO959vMAFvaSTJV2Fr11FnmxJtjkg1WVlAebOzIn/5J0pNWvJlFXkuNPib9VWACyHxI/EpkmZ
+	+ouTekbh3gg+xPzmwlKcmLP6ahUm9dVrEYqvmHaU9RECtd7JpVcyGGCNn4eSSwT6xSvY1P25A68
+	3jPszNWfBpyzBT1+fbGw9AYH8KRPcCdNNbk4J7YNkHbKQk0fExnAPT8V0WHhEWqdEJ36njsqhJp
+	V4s7G//JPCKPhvgnXzlMCY7PFh+vxB8FckjnwGK1db9jJyg+vHYf3tLq6GWHZwaPvO7Zy3l6CAn
+	byQ5SAopIfKGj+Xc150uD+q+apEtRFSek8ysLbXY1Ues=
+X-Received: by 2002:a05:6000:248a:b0:391:39fb:59c8 with SMTP id ffacd0b85a97d-39cba93245dmr2879746f8f.25.1743774531195;
+        Fri, 04 Apr 2025 06:48:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHhlPl7enqIiLMXYl6+JR/5GXEO9+RAt+ekX6lCH13CQz2tU1h487SfdpVFZg/GMaC+rM6XGA==
+X-Received: by 2002:a05:6000:248a:b0:391:39fb:59c8 with SMTP id ffacd0b85a97d-39cba93245dmr2879713f8f.25.1743774530824;
+        Fri, 04 Apr 2025 06:48:50 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c71b:7900:8752:fae3:f9c9:a07e? (p200300cbc71b79008752fae3f9c9a07e.dip0.t-ipconnect.de. [2003:cb:c71b:7900:8752:fae3:f9c9:a07e])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c3020dacfsm4439713f8f.72.2025.04.04.06.48.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Apr 2025 06:48:50 -0700 (PDT)
+Message-ID: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+Date: Fri, 4 Apr 2025 15:48:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jjbHEg6GGT9HznXQ3JvmOavD-8W0juTq
-X-Proofpoint-GUID: jjbHEg6GGT9HznXQ3JvmOavD-8W0juTq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-04_05,2025-04-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 suspectscore=0 impostorscore=0 adultscore=0 mlxscore=0
- bulkscore=0 mlxlogscore=999 malwarescore=0 phishscore=0 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504040094
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ Chandra Merla <cmerla@redhat.com>, Stable@vger.kernel.org,
+ Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>,
+ Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Wei Wang <wei.w.wang@intel.com>
+References: <20250402203621.940090-1-david@redhat.com>
+ <20250403161836.7fe9fea5.pasic@linux.ibm.com>
+ <e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
+ <20250404063619.0fa60a41.pasic@linux.ibm.com>
+ <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+ <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+ <20250404153620.04d2df05.pasic@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20250404153620.04d2df05.pasic@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nUnb-M7LpgN_W22Fh2HSLkTeDZG7uWRYLij_14p3SKs_1743774531
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 4 Apr 2025 12:55:09 +0200
-David Hildenbrand <david@redhat.com> wrote:
-
-> For virito-balloon, we should probably do the following:
+On 04.04.25 15:36, Halil Pasic wrote:
+> On Fri, 4 Apr 2025 12:55:09 +0200
+> David Hildenbrand <david@redhat.com> wrote:
 > 
->  From 38e340c2bb53c2a7cc7c675f5dfdd44ecf7701d9 Mon Sep 17 00:00:00 2001
-> From: David Hildenbrand <david@redhat.com>
-> Date: Fri, 4 Apr 2025 12:53:16 +0200
-> Subject: [PATCH] virtio-balloon: Fix queue index assignment for
->   non-existing queues
+>> For virito-balloon, we should probably do the following:
+>>
+>>   From 38e340c2bb53c2a7cc7c675f5dfdd44ecf7701d9 Mon Sep 17 00:00:00 2001
+>> From: David Hildenbrand <david@redhat.com>
+>> Date: Fri, 4 Apr 2025 12:53:16 +0200
+>> Subject: [PATCH] virtio-balloon: Fix queue index assignment for
+>>    non-existing queues
+>>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>    device-types/balloon/description.tex | 22 ++++++++++++++++------
+>>    1 file changed, 16 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/device-types/balloon/description.tex b/device-types/balloon/description.tex
+>> index a1d9603..a7396ff 100644
+>> --- a/device-types/balloon/description.tex
+>> +++ b/device-types/balloon/description.tex
+>> @@ -16,6 +16,21 @@ \subsection{Device ID}\label{sec:Device Types / Memory Balloon Device / Device I
+>>      5
+>>    
+>>    \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtqueues}
+>> +
+>> +\begin{description}
+>> +\item[inflateq] Exists unconditionally.
+>> +\item[deflateq] Exists unconditionally.
+>> +\item[statsq] Only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+>> +\item[free_page_vq] Only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+>> +\item[reporting_vq] Only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
 > 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->   device-types/balloon/description.tex | 22 ++++++++++++++++------
->   1 file changed, 16 insertions(+), 6 deletions(-)
+> s/is set/is negotiated/?
 > 
-> diff --git a/device-types/balloon/description.tex b/device-types/balloon/description.tex
-> index a1d9603..a7396ff 100644
-> --- a/device-types/balloon/description.tex
-> +++ b/device-types/balloon/description.tex
-> @@ -16,6 +16,21 @@ \subsection{Device ID}\label{sec:Device Types / Memory Balloon Device / Device I
->     5
->   
->   \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtqueues}
-> +
-> +\begin{description}
-> +\item[inflateq] Exists unconditionally.
-> +\item[deflateq] Exists unconditionally.
-> +\item[statsq] Only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
-> +\item[free_page_vq] Only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
-> +\item[reporting_vq] Only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
+> I think we should stick to "feature is offered" and "feature is
+> negotiated".
+> 
+>> +\end{description}
+>> +
+>> +\begin{note}
+>> +Virtqueue indexes are assigned sequentially for existing queues, starting
+>> +with index 0; consequently, if a virtqueue does not exist, it does not get
+>> +an index assigned. Assuming all virtqueues exist for a device, the indexes
+>> +are:
+>> +
+>>    \begin{description}
+>>    \item[0] inflateq
+>>    \item[1] deflateq
+>> @@ -23,12 +38,7 @@ \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtque
+>>    \item[3] free_page_vq
+>>    \item[4] reporting_vq
+>>    \end{description}
+>> -
+>> -  statsq only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+>> -
+>> -  free_page_vq only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+>> -
+>> -  reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
+>> +\end{note}
+>>    
+>>    \subsection{Feature bits}\label{sec:Device Types / Memory Balloon Device / Feature bits}
+>>    \begin{description}
+> 
+> Sounds good to me! But I'm still a little confused by the "holes". What
+> confuses me is that i can think of at least 2 distinct types of "holes":
+> 1) Holes that can be filled later. The queue conceptually exists, but
+>     there is no need to back it with any resources for now because it is
+>     dormant (it can be seen a hole in comparison to queues that need to
+>    materialize -- vring, notifiers, ...)
+> 2) Holes that can not be filled without resetting the device: i.e. if
+>     certain features are not negotiated, then a queue X does not exist,
+>     but subsequent queues retain their index.
 
-s/is set/is negotiated/?
+I think it is not about "negotiated", that might be the wrong terminology.
 
-I think we should stick to "feature is offered" and "feature is
-negotiated".
+E.g., in QEMU virtio_balloon_device_realize() we define the virtqueues 
+(virtio_add_queue()) if virtio_has_feature(s->host_features).
 
-> +\end{description}
-> +
-> +\begin{note}
-> +Virtqueue indexes are assigned sequentially for existing queues, starting
-> +with index 0; consequently, if a virtqueue does not exist, it does not get
-> +an index assigned. Assuming all virtqueues exist for a device, the indexes
-> +are:
-> +
->   \begin{description}
->   \item[0] inflateq
->   \item[1] deflateq
-> @@ -23,12 +38,7 @@ \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtque
->   \item[3] free_page_vq
->   \item[4] reporting_vq
->   \end{description}
-> -
-> -  statsq only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
-> -
-> -  free_page_vq only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
-> -
-> -  reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
-> +\end{note}
->   
->   \subsection{Feature bits}\label{sec:Device Types / Memory Balloon Device / Feature bits}
->   \begin{description}
+That is, it's independent of a feature negotiation (IIUC), it's static 
+for the device --  "host_features"
 
-Sounds good to me! But I'm still a little confused by the "holes". What
-confuses me is that i can think of at least 2 distinct types of "holes":
-1) Holes that can be filled later. The queue conceptually exists, but
-   there is no need to back it with any resources for now because it is 
-   dormant (it can be seen a hole in comparison to queues that need to
-  materialize -- vring, notifiers, ...)
-2) Holes that can not be filled without resetting the device: i.e. if
-   certain features are not negotiated, then a queue X does not exist,
-   but subsequent queues retain their index.
 
-Can we have both kinds or was/will be 1) and/or 2) never a thing?
+Is that really "negotiated" or is it "the device offers the feature X" ?
 
-This patch would make sure that neither 1) nor 2) applies to
-virtio-balloon, which is good. But we are talking about a
-transport fix here, and I would like to eventually make sure
-that the abstractions make sense.
+-- 
+Cheers,
 
-That being said, I think we should proceed with this patch, because I
-don't think Linux uses type 1) holes.
+David / dhildenb
 
-Regards,
-Halil
