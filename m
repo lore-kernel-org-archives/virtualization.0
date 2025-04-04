@@ -1,422 +1,219 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 291061EFF9D
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 15:13:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8CA51F427D
+	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 15:39:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743779637; cv=none; b=jd8+WyiFi8/JDTcRCSl/+WHD+KtD9i8O8emN8CN84nVwUE3BAWepuQzme6srl7zhM5f9s/HxELTVlT89P4TcDcKVc3L88y14I4Ifh/95DV53A+09VeGLjke6I6WaEMy1gbo+1C9mmiYrPDt6R95/GD7aMgoLSgOEJwrs44MoTSI=
+	t=1743781167; cv=none; b=DwLcFme/543lPTStRDc9HsiRdPUEI/vn/g/rQL7SDEXFLuNee4ZgVaDoT+TRROSb4rk1TgYgArrByuE1EDJqPGeRT1spYopQcKBt197i/x02h7XQPlTFbkelWvLGHGPbR8V2P2/QD7fuOoNvVMpCoLznbhUlkmlNrSN9VXbSvAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743779637; c=relaxed/simple;
-	bh=WQbI3dyKllE7gweQpwKdM6+FVHrPveHLAJaHhBAMGzY=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=nCXwe3PjI3k03rDxQ7CGgdzwGuRlbEdeuq/+3ayef2sUMIzhpdGKvMle0uucUezFuSbiQLFs2d9S+BqSBEwn7K9f40abjHEVrN2yEGwZxURobtlX1KW3Uzo6ewmvZaquzvAzU11PGjMRcuuOuJXFVj57V9/RHATFpYbqxVKP8dU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GpQ7Qp0E; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1743781167; c=relaxed/simple;
+	bh=HEjQ44ECl6BWQeGt6MRJD0EJeyM16OwfpE3eK/mCCz0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=t+ERvQqUHJ6JSEgnzrOkJ2OQebdFhlOz5nPX8x7R7TRLVWq1IIe4NQNYgI1putFRE3gmuIZOjKJCwwKFRFKAjxx7y0swdPzjAyOOwBIf+3fsEQpv1316W6nPuisM9RlK6qihykUsun32QDIci/Qh0vTAwnGNLqoSF9ad4MfQ9D4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=INalXyZp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GpQ7Qp0E"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 93178411C6
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 15:13:55 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id TvFw4rUwZ51R for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Apr 2025 15:13:54 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::72e; helo=mail-qk1-x72e.google.com; envelope-from=willemdebruijn.kernel@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 7EED7410B4
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7EED7410B4
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=GpQ7Qp0E
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7EED7410B4
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 15:13:54 +0000 (UTC)
-Received: by mail-qk1-x72e.google.com with SMTP id af79cd13be357-7be49f6b331so208293585a.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 04 Apr 2025 08:13:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743779633; x=1744384433; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=T/gFZeVnc+kSH/zqiFoTPbQDrc4DhywqySchfhRCUGg=;
-        b=GpQ7Qp0EsJ7zefaBFfIPTGZKbgll09pOUuWBOO8JBF04SvzZIEyQM7FULHI5GFui4R
-         gzuFsx6f6zRr1Vv4bjoYN2eDXNQC+5QUt1V2W6vdxB4o9og0vRd5EXiwvIHq/MwFFcWL
-         9gwq0YpqJRjbX1N/nhofv0V1T/7CCyjFFHAluw8tsPesqWLdgP5Z77K2cKhXp93NtA/h
-         YObzobs5EqsjbE6+YdgYl+Hq+xSIJkNeC7dyrrkQJeqh51C63aHopswxUK1uaMm/0yOd
-         oBVrDH9TRj4eQnThgyAeBe3lsF8YpwnvO/n+cn53DMi4Y0rfDEHoegPZwnD/8G0GBFkT
-         G9aw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743779633; x=1744384433;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=T/gFZeVnc+kSH/zqiFoTPbQDrc4DhywqySchfhRCUGg=;
-        b=OgP/LTr9ZcP8zFkFStWL9hooylSixJmiA3IOP9m4It53x1FVXVbls7bA6HyxSZeMd1
-         xs7qOK2F5qznl+LZ1KxR8PzQXQBmaPrcj4OgKavL0Nt9Y8HJBRbfxInztrsOh2KUT/ql
-         DTyDvSNSSSHPDKIahsSBGIlxO2KW1zuefsyjtkHuJvsT5ZsrXdMV95/LnolJFzSAmTcM
-         eOT0LZ/Rgsv0qTsr5fb1br3deknf8n3ll1Uf5UMyo4TM3D21RZOgLCy8E0//mG6+vKan
-         BfupUph+tYdOfFQIG6ph6+Xw9IZ1O/oN0ZVIjhojwxmi9CpgO8D+hMKOx7MB83d8QSxd
-         nLQg==
-X-Gm-Message-State: AOJu0YynqQdK8POS6s7i75cmhrD8K1ICgPtD9QYotrU3STGx3hgCqkxD
-	ZRg8fdANnE77ZPkRaacHpaNGGdyfpyVzDoPiy/Tih6O+9UvTPi1R
-X-Gm-Gg: ASbGncsKhI3u5HVdRQ8b55J08l/v33EbWe2KBEEbXIMJYd3CNXnULwijRLlbwVkVq2C
-	vWY/Zt56MI1LMF2KgXwcSumZ3ccvlRXEfCNJMISRTKkU+U262IDfFyle5iZqfGJ9VqTcXFcYKQG
-	71WFNfh36C4BFGHuO8/sjQq+3wPyAi+rVmNi9NzeNtgU0/SDMLkkxUe7Jyc0UxlblQ9xFlGwIBu
-	hdCkAlpxPWGUfUurlAL8NPuYgbRqq5k/+EidTqfq3J9rgFU9j5v7IFnaPGA7zZMePA0PDBw+SLJ
-	/+CTRFkK6Tnjus76Shlvd8kGYwV/assk8Ni1jVRkjtIW1E//wzTLjgSdrdi9xf6QPtLFSLvmuBc
-	x45LATBHCIkUAnNJZp2So/g==
-X-Google-Smtp-Source: AGHT+IFJi2tzpNLKZWpEPzGAGH5aga7+T+NCkeMlRPFClkmPT1RGO2gImTS1cr49l3Tpn3kkj8Il4Q==
-X-Received: by 2002:a05:620a:4449:b0:7c5:f6be:bdae with SMTP id af79cd13be357-7c774d205eamr466302885a.20.1743779633097;
-        Fri, 04 Apr 2025 08:13:53 -0700 (PDT)
-Received: from localhost (86.235.150.34.bc.googleusercontent.com. [34.150.235.86])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c76e96e566sm228375685a.63.2025.04.04.08.13.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Apr 2025 08:13:52 -0700 (PDT)
-Date: Fri, 04 Apr 2025 11:13:52 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Markus Fohrer <markus.fohrer@webked.de>, 
- "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, 
- jasowang@redhat.com, 
- davem@davemloft.net, 
- edumazet@google.com, 
- netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org
-Message-ID: <67eff7303df69_1ddca829490@willemb.c.googlers.com.notmuch>
-In-Reply-To: <3b02f37ee12232359672a6a6c2bccaa340fbb6ff.camel@webked.de>
-References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
- <20250403090001-mutt-send-email-mst@kernel.org>
- <11c5cb52d024a5158c5b8c5e69e2e4639a055a31.camel@webked.de>
- <20250404042711-mutt-send-email-mst@kernel.org>
- <e75cb5881a97485b08cdd76efd8a7d2191ecd106.camel@webked.de>
- <3b02f37ee12232359672a6a6c2bccaa340fbb6ff.camel@webked.de>
-Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM with
- Linux 6.8+
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="INalXyZp"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 534BQYJ6011494;
+	Fri, 4 Apr 2025 15:39:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=9vFnFX
+	GmFN4YVJC6HHTNW4/vjVozGULmM9qZqtND68A=; b=INalXyZpdW/tTGAKjLVGeC
+	AraD0yfauhb111SuqaGxlL+Mo/Imn/wlgTSRIuiBE9wKgf0EM2cUSFYNluToQJSC
+	q+j7ogv/3m9daxvxA7Ugm+tB8+YsBGhJOunmyl4+vvMdFveZcH0bTB3s9zdVAQKS
+	3qTrcjHwvfxr2NHw6OVWlBEugNv6QbPPhs8XuYtkkv74qHDrGZOiSkEaLcwgLNRW
+	FEBnGZNwnpcFYSXHADfUB5mlwwWKKWZ5cPgoK/CCd56Bk3c1gFNEgTCHV/ps/cCC
+	E0FndjQuYTFhgh4giHBFjB2HmfgV0gmUcULFWbCyQAHaQEEhqdEErhddwl61EH2A
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45t2qbv6c7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Apr 2025 15:39:22 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 534F57RT021283;
+	Fri, 4 Apr 2025 15:39:22 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45t2e7bk97-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Apr 2025 15:39:22 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 534FdIwv22020418
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 4 Apr 2025 15:39:18 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2D4A520043;
+	Fri,  4 Apr 2025 15:39:18 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A203820040;
+	Fri,  4 Apr 2025 15:39:17 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  4 Apr 2025 15:39:17 +0000 (GMT)
+Date: Fri, 4 Apr 2025 17:39:10 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        Chandra Merla
+ <cmerla@redhat.com>, Stable@vger.kernel.org,
+        Cornelia Huck
+ <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>,
+        Eric Farman
+ <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Wei Wang
+ <wei.w.wang@intel.com>, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+Message-ID: <20250404173910.6581706a.pasic@linux.ibm.com>
+In-Reply-To: <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+References: <20250402203621.940090-1-david@redhat.com>
+	<20250403161836.7fe9fea5.pasic@linux.ibm.com>
+	<e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
+	<20250404063619.0fa60a41.pasic@linux.ibm.com>
+	<4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+	<d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+	<20250404153620.04d2df05.pasic@linux.ibm.com>
+	<d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+	<20250404160025.3ab56f60.pasic@linux.ibm.com>
+	<6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-Markus Fohrer wrote:
-> Am Freitag, dem 04.04.2025 um 10:52 +0200 schrieb Markus Fohrer:
-> > Am Freitag, dem 04.04.2025 um 04:29 -0400 schrieb Michael S. Tsirkin:=
-
-> > > On Fri, Apr 04, 2025 at 10:16:55AM +0200, Markus Fohrer wrote:
-> > > > Am Donnerstag, dem 03.04.2025 um 09:04 -0400 schrieb Michael S.
-> > > > Tsirkin:
-> > > > > On Wed, Apr 02, 2025 at 11:12:07PM +0200, Markus Fohrer wrote:
-> > > > > > Hi,
-> > > > > > =
-
-> > > > > > I'm observing a significant performance regression in KVM
-> > > > > > guest
-> > > > > > VMs
-> > > > > > using virtio-net with recent Linux kernels (6.8.1+ and 6.14).=
-
-> > > > > > =
-
-> > > > > > When running on a host system equipped with a Broadcom
-> > > > > > NetXtreme-E
-> > > > > > (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in
-> > > > > > the
-> > > > > > guest drops to 100=E2=80=93200 KB/s. The same guest configura=
-tion
-> > > > > > performs
-> > > > > > normally (~100 MB/s) when using kernel 6.8.0 or when the VM
-> > > > > > is
-> > > > > > moved to a host with Intel NICs.
-> > > > > > =
-
-> > > > > > Test environment:
-> > > > > > - Host: QEMU/KVM, Linux 6.8.1 and 6.14.0
-> > > > > > - Guest: Linux with virtio-net interface
-> > > > > > - NIC: Broadcom BCM57416 (bnxt_en driver, no issues at host
-> > > > > > level)
-> > > > > > - CPU: AMD EPYC
-> > > > > > - Storage: virtio-scsi
-> > > > > > - VM network: virtio-net, virtio-scsi (no CPU or IO
-> > > > > > bottlenecks)
-> > > > > > - Traffic test: iperf3, scp, wget consistently slow in guest
-> > > > > > =
-
-> > > > > > This issue is not present:
-> > > > > > - On 6.8.0 =
-
-> > > > > > - On hosts with Intel NICs (same VM config)
-> > > > > > =
-
-> > > > > > I have bisected the issue to the following upstream commit:
-> > > > > > =
-
-> > > > > > =C2=A0 49d14b54a527 ("virtio-net: Suppress tx timeout warning=
- for
-> > > > > > small
-> > > > > > tx")
-> > > > > > =C2=A0 https://git.kernel.org/linus/49d14b54a527
-> > > > > =
-
-> > > > > Thanks a lot for the info!
-> > > > > =
-
-> > > > > =
-
-> > > > > both the link and commit point at:
-> > > > > =
-
-> > > > > commit 49d14b54a527289d09a9480f214b8c586322310a
-> > > > > Author: Eric Dumazet <edumazet@google.com>
-> > > > > Date:=C2=A0=C2=A0 Thu Sep 26 16:58:36 2024 +0000
-> > > > > =
-
-> > > > > =C2=A0=C2=A0=C2=A0 net: test for not too small csum_start in
-> > > > > virtio_net_hdr_to_skb()
-> > > > > =C2=A0=C2=A0=C2=A0 =
-
-> > > > > =
-
-> > > > > is this what you mean?
-> > > > > =
-
-> > > > > I don't know which commit is "virtio-net: Suppress tx timeout
-> > > > > warning
-> > > > > for small tx"
-> > > > > =
-
-> > > > > =
-
-> > > > > =
-
-> > > > > > Reverting this commit restores normal network performance in
-> > > > > > affected guest VMs.
-> > > > > > =
-
-> > > > > > I=E2=80=99m happy to provide more data or assist with testing=
- a
-> > > > > > potential
-> > > > > > fix.
-> > > > > > =
-
-> > > > > > Thanks,
-> > > > > > Markus Fohrer
-> > > > > =
-
-> > > > > =
-
-> > > > > Thanks! First I think it's worth checking what is the setup,
-> > > > > e.g.
-> > > > > which offloads are enabled.
-> > > > > Besides that, I'd start by seeing what's doing on. Assuming I'm=
-
-> > > > > right
-> > > > > about
-> > > > > Eric's patch:
-> > > > > =
-
-> > > > > diff --git a/include/linux/virtio_net.h
-> > > > > b/include/linux/virtio_net.h
-> > > > > index 276ca543ef44d8..02a9f4dc594d02 100644
-> > > > > --- a/include/linux/virtio_net.h
-> > > > > +++ b/include/linux/virtio_net.h
-> > > > > @@ -103,8 +103,10 @@ static inline int
-> > > > > virtio_net_hdr_to_skb(struct
-> > > > > sk_buff *skb,
-> > > > > =C2=A0
-> > > > > =C2=A0		if (!skb_partial_csum_set(skb, start, off))
-> > > > > =C2=A0			return -EINVAL;
-> > > > > +		if (skb_transport_offset(skb) < nh_min_len)
-> > > > > +			return -EINVAL;
-> > > > > =C2=A0
-> > > > > -		nh_min_len =3D max_t(u32, nh_min_len,
-> > > > > skb_transport_offset(skb));
-> > > > > +		nh_min_len =3D skb_transport_offset(skb);
-> > > > > =C2=A0		p_off =3D nh_min_len + thlen;
-> > > > > =C2=A0		if (!pskb_may_pull(skb, p_off))
-> > > > > =C2=A0			return -EINVAL;
-> > > > > =
-
-> > > > > =
-
-> > > > > sticking a printk before return -EINVAL to show the offset and
-> > > > > nh_min_len
-> > > > > would be a good 1st step. Thanks!
-> > > > > =
-
-> > > > =
-
-> > > > I added the following printk inside virtio_net_hdr_to_skb():
-> > > > =
-
-> > > > =C2=A0=C2=A0=C2=A0 if (skb_transport_offset(skb) < nh_min_len){
-> > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 printk(KERN_INFO "virt=
-io_net: 3 drop,
-> > > > transport_offset=3D%u,
-> > > > nh_min_len=3D%u\n",
-> > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 skb_transport_offset(skb), nh_min_len);
-> > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
-> > > > =C2=A0=C2=A0=C2=A0 }
-> > > > =
-
-> > > > Built and installed the kernel, then triggered a large download
-> > > > via:
-> > > > =
-
-> > > > =C2=A0=C2=A0=C2=A0 wget http://speedtest.belwue.net/10G
-> > > > =
-
-> > > > Relevant output from `dmesg -w`:
-> > > > =
-
-> > > > [=C2=A0=C2=A0 57.327943] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.428942] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.428962] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.553068] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.553088] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.576678] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.618438] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.618453] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.703077] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.823072] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.891982] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 57.946190] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > > [=C2=A0=C2=A0 58.218686] virtio_net: 3 drop, transport_offset=3D3=
-4,
-> > > > nh_min_len=3D40=C2=A0 =
-
-> > > =
-
-> > > Hmm indeed. And what about these values?
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 u32 start =3D __virtio16_to_cpu(little_endian, hdr-=
-
-> > > > csum_start);
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 u32 off =3D __virtio16_to_cpu(little_endian, hdr-
-> > > > csum_offset);
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 u32 needed =3D start + max_t(u32, thlen, off +
-> > > sizeof(__sum16));
-> > > print them too?
-> > > =
-
-> > > =
-
-> > > =
-
-> > > > I would now do the test with commit
-> > > > 49d14b54a527289d09a9480f214b8c586322310a and commit
-> > > > 49d14b54a527289d09a9480f214b8c586322310a~1
-> > > > =
-
-> > > =
-
-> > > Worth checking though it seems likely now the hypervisor is doing
-> > > weird
-> > > things. what kind of backend is it? qemu? tun? vhost-user? vhost-
-> > > net?
-> > > =
-
-> > =
-
-> > Backend: QEMU/KVM hypervisor (Proxmox)
-> > =
-
-> > =
-
-> > printk output:
-> > =
-
-> > [=C2=A0=C2=A0 58.641906] virtio_net: drop, transport_offset=3D34=C2=A0=
- start=3D34,
-> > off=3D16,
-> > needed=3D54, nh_min_len=3D40
-> > [=C2=A0=C2=A0 58.678048] virtio_net: drop, transport_offset=3D34=C2=A0=
- start=3D34,
-> > off=3D16,
-> > needed=3D54, nh_min_len=3D40
-> > [=C2=A0=C2=A0 58.952871] virtio_net: drop, transport_offset=3D34=C2=A0=
- start=3D34,
-> > off=3D16,
-> > needed=3D54, nh_min_len=3D40
-> > [=C2=A0=C2=A0 58.962157] virtio_net: drop, transport_offset=3D34=C2=A0=
- start=3D34,
-> > off=3D16,
-> > needed=3D54, nh_min_len=3D40
-> > [=C2=A0=C2=A0 59.071645] virtio_net: drop, transport_offset=3D34=C2=A0=
- start=3D34,
-> > off=3D16,
-> > needed=3D54, nh_min_len=3D40
-
-So likely a TCP/IPv4 packet, but with VIRTIO_NET_HDR_GSO_TCPV6.
-
-This is observed in the guest on the ingress path, right? In
-virtnet_receive_done.
-
-Is this using vhost-net in the host for pass-through? IOW, is
-the host writing the virtio_net_hdr too?
-
-> > =
-
-> > =
-
-> > =
-
-> > =
-
-> =
-
-> I just noticed that commit 17bd3bd82f9f79f3feba15476c2b2c95a9b11ff8
-> (tcp_offload.c: gso fix) also touches checksum handling and may
-> affect how skb state is passed to virtio_net_hdr_to_skb().
-> =
-
-> Is it possible that the regression only appears due to the combination
-> of 17bd3bd8 and 49d14b54a5?
-
-That patch only affects packets with SKB_GSO_FRAGLIST. Which is only
-set on forwarding if NETIF_F_FRAGLIST is set. I don =
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WiU9dmC01eA-xDfoYKI1bTZ-BrqP5WXq
+X-Proofpoint-GUID: WiU9dmC01eA-xDfoYKI1bTZ-BrqP5WXq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-04_06,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 suspectscore=0 spamscore=0 phishscore=0
+ mlxscore=0 adultscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2504040107
+
+On Fri, 4 Apr 2025 16:17:14 +0200
+David Hildenbrand <david@redhat.com> wrote:
+
+> > It is offered. And this is precisely why I'm so keen on having a
+> > precise wording here.  
+> 
+> Yes, me too. The current phrasing in the spec is not clear.
+> 
+> Linux similarly checks 
+> virtio_has_feature()->virtio_check_driver_offered_feature().
+
+Careful, that is a *driver* offered and not a *device* offered! 
+
+We basically mandate that one can only check for a feature F with
+virtio_has_feature() such that it is either in drv->feature_table or in
+drv->feature_table_legacy.
+
+AFAICT *device_features* obtained via dev->config->get_features(dev)
+isn't even saved but is only used for binary and-ing it with the
+driver_features to obtain the negotiated features.
+
+That basically means that if I was, for the sake of fun do
+
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1197,7 +1197,6 @@ static unsigned int features[] = {
+        VIRTIO_BALLOON_F_MUST_TELL_HOST,
+        VIRTIO_BALLOON_F_STATS_VQ,
+        VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
+-       VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+        VIRTIO_BALLOON_F_PAGE_POISON,
+        VIRTIO_BALLOON_F_REPORTING,
+ };
+
+I would end up with virtio_check_driver_offered_feature() calling
+BUG().
+
+That basically means that Linux mandates implementing all previous
+features regardless whether does are supposed to be optional ones or
+not. Namely if you put the feature into drv->feature_table it will
+get negotiated. 
+
+Which is not nice IMHO.
+
+> 
+> > 
+> > Usually for compatibility one needs negotiated. Because the feature
+> > negotiation is mostly about compatibility. I.e. the driver should be
+> > able to say, hey I don't know about that feature, and get compatible
+> > behavior. If for example VIRTIO_BALLOON_F_FREE_PAGE_HINT and
+> > VIRTIO_BALLOON_F_PAGE_REPORTING are both offered but only
+> > VIRTIO_BALLOON_F_PAGE_REPORTING is negotiated. That would make
+> > reporting_vq jump to +1 compared to the case where
+> > VIRTIO_BALLOON_F_FREE_PAGE_HINT is not offered. Which is IMHO no
+> > good, because for the features that the driver is going to reject in
+> > most of the cases it should not matter if it was offered or not.  
+> 
+> Yes. The key part is that we may only add new features to the tail of 
+> our feature list; maybe we should document that as well.
+> 
+> I agree that a driver that implements VIRTIO_BALLOON_F_PAGE_REPORTING 
+> *must* be aware that VIRTIO_BALLOON_F_FREE_PAGE_HINT exists. So queue 
+> existence is not about feature negotiation but about features being 
+> offered from the device.
+> 
+> ... which is a bit the same behavior as with fixed-assigned numbers a 
+> bit. VIRTIO_BALLOON_F_PAGE_REPORTING was documented as "4" because 
+> VIRTIO_BALLOON_F_FREE_PAGE_HINT was documented to be "3" -- IOW, it 
+> already existed in the spec.
+
+I don't agree with the comparison.  One obviously needs to avoid fatal
+collisions when extending the spec, and has to consider prior art.
+
+But ideally not implemented  or fenced optional features A should have no
+impact to implemented optional or not optional features B -- unless the
+features are actually interdependent, but then the spec would prohibit
+the combo of having B but not A. And IMHO exactly this would have been
+the advantage of fixed-assigned numbers: you may not care if the other
+queueues exist or not. 
+
+Also like cloud-hypervisor has decided that they are going only to
+support VIRTIO_BALLOON_F_REPORTING some weird OS could in theory
+decide that they only care about VIRTIO_BALLOON_F_REPORTING. In that
+setting having to look at VIRTIO_BALLOON_F_STATS_VQ and 
+VIRTIO_BALLOON_F_FREE_PAGE_HINT are offered is weird. But that is all water
+under the bridge. We have to respect what is out there in the field.
 
+> 
+> Not perfect, but AFAIKS, not horrible.
+
+It is like it is. QEMU does queue exist if the corresponding feature
+is offered by the device, and that is what we have to live with.
+
+Yes, I agree we should make the spec reflect reality!
+
+> 
+> (as Linux supports all these features, it's easy. A driver that only 
+> supports some features has to calculate the queue index manually based 
+> on the offered features)
+
+As I've tried to explain above, not implementing/accepting optional
+features and then implementing/accepting a newer feature is problematic
+with the current code. Supporting some features would work only as
+supporting all features up to X.
+
+Regards,
+Halil
