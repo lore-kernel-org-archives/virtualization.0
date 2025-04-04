@@ -1,64 +1,68 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE55B1AD41F
-	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 21:15:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90078215075
+	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 21:15:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743801306; cv=none; b=I068XD+ziyzp41CfNZczr9qPWgbheE6qXpLrFflbk5vuc87YaRSpydiHqT47nvdLupJW2cFgomKowFh+oaxtR+Ojig0U8tZb/ituF/2Zx75Inmr+K2TIl74FYsbWRjqzWtV9KYVBgNM0YHLjTMUHAUYy+GeRwnLYUWOd0td3niU=
+	t=1743801308; cv=none; b=Im6C+R3/bBk0wkWWTDmb3U0kl3zJFGpCt+KjZ8DdO15CjS2zgU1chrB3wx69+DX4GmugNTQ/IzAj7EVs3nRFYAtH1NjNqfn7LEl8/l6JGBHBdGNj9x97aqge0LiH6mPtPbWPlrxxWeJe/eoh0d3aZaGw7DLauWTefRq44ShlV/4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743801306; c=relaxed/simple;
-	bh=ItUeEJxyPrZVjz5fmXJVd+IubAfuc0Tp3x2Umz+G76g=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=KizZaVeBDts/WJ/4bUCwSTKRDz4vye6AP5Muw8vjriyrAYxzQXm/rERc6o91K8PkvY86YWLHxYyebWkob71ycqMjITU1MHjy8m6sAIHIXlD/a3YvffPwJyxcJZ+fN6KV4x+fFATVCzxReqVYI5KAekhFcErziAku2OPBOmMu9MM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=gHlhtgd3; arc=none smtp.client-ip=209.85.216.73
+	s=arc-20240116; t=1743801308; c=relaxed/simple;
+	bh=3eQJAa9cubM3sOJ48FmMAgTG/qqYFR22T28SrTWB6pw=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=txU/Nx/16FdOk4jtMi0SDP1GJlEDF/Au6HV/zdkygHMC5eDnkQBp7KIBIB127F8xRemmCMOKy/Rqvn2Oc10bAE/hVQWEJfhWk6uZSbEa1jZBhGzmSqJWc5GUI23V/By6fmrzcR8KYVVJ6sWNxEnCKLx4TIu5ECy9pJsJPlkiCk4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XnjHj6f3; arc=none smtp.client-ip=209.85.214.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gHlhtgd3"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2ff58318acaso3968545a91.0
-        for <virtualization@lists.linux.dev>; Fri, 04 Apr 2025 14:15:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XnjHj6f3"
+Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-22406ee0243so20434635ad.3
+        for <virtualization@lists.linux.dev>; Fri, 04 Apr 2025 14:15:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1743801304; x=1744406104; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:mime-version:date:reply-to:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SkG9/Gie3NkMh7eSDfJzty3mxspo7ZZ0xVy2Q3dHWOM=;
-        b=gHlhtgd31oX0OQwHtZ9F2yjh4GLcr82/pWEs6xlSnXykAx+Ufj+MLGvDcjRPdCLiKI
-         AL4PtiZBzp+/NVZ/CuXdw3FRfyRPqivYQkku9bRFPyZkeyh5b17m0NjWcZMLbKQlZSQH
-         JJ1svDClzNQrUOldgBnliZSejDHxN9RIpHJFs/sX6FJtvLmQVoFmFECMeaES4PAcDDoE
-         Ah6NLSZJZNdbLVo0j38jVw/3l/sPEHbMrnlt6naW8HSE5KD/AnALQxm+rkYYal4NA25E
-         MD6Xlxq3pWavB82n9GZtsmdxYKsbPEWs+NNmxmAEChIqn3pMdRM7rfFSnsYgH2B322LT
-         OHbQ==
+        d=google.com; s=20230601; t=1743801306; x=1744406106; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
+        bh=BV0n160bdAMJIwF9gIdsee0gSXMixk7gnYOIwMBSkTY=;
+        b=XnjHj6f3YJg6HrzlamLEpZn9up0EMfn1suwxdyFh+slnZQx4llu0tPxt+MOAAWqgWd
+         8SHpMmk9KnDLH1L/1F/TWrNqQ24sCQA5Bf4Ck9+4Le2P1ASEsFKZcKbD+yvNXJllYgw2
+         eD61ZtewTduLNKVe1BcFvRwFGerwnXvSr2W4prO6Gd3wgFGYadFo+YuMsXCTwcgK8p0T
+         2m9UgczYGDRcRZOb00dTL6Uq8Mc8i9CAbV5VpnF3YnB3mxP0IwpisZRoPRHeqQRyP7UT
+         VSAyzH2lpMNw2wJVmC0gA6zUQDegx6vtCcNsAMsMRB7VvEeB55BnnWuDA32zKDwx35l3
+         b4KQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743801304; x=1744406104;
-        h=cc:to:from:subject:message-id:mime-version:date:reply-to
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SkG9/Gie3NkMh7eSDfJzty3mxspo7ZZ0xVy2Q3dHWOM=;
-        b=aO2SdrQNxAWdfXI/RgLonuNs6by5FERwKhHNpeovUiTtkOI0cGuUymPG2uQxEJ6I1W
-         W7ML7hy/Exg8L1KgAWTh8Holy+96/fFnnQTwcHp9NNszsdsnXZ22VqimjKqp3Z9Us1yc
-         FU4Yb3LYFNLB+m/BDLRlwP8BzmvGHqWFHFQ5O8/CqIfMIjHyx5XL18QLK/pLuebgLs05
-         pFQBNbqd0oFGRbZRG2PZaEAkcio9ie8Z5Sc8KksjK99hAK4lHJNYflLNPK9Bz+2THWCM
-         hVTIOka0MvG9unEBfvmEE37qNfF9sE8DwhbbRguPmAqqE85awLCD98hduXJDno8glbNs
-         TeTg==
-X-Forwarded-Encrypted: i=1; AJvYcCWSqBG+jGU5X91M3xqxT5CczDWhR+GMp5FiLAkVdb8sQ3Nros7CTSSQnNwKw5xxbvc2V6iqk3CqQWrStV0+fA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyJPrgGF10JQDlMiRqwaWVCEzU1AA8i+fGhTKB9cb6aYODjpzl6
-	TiINYDiLFSIAOSJkDHsxccPoTIjLtr8jaYUeY/qpmZGGRVIlA414MgfvQ9mrpEqk/FwP8HfRlcN
-	hmQ==
-X-Google-Smtp-Source: AGHT+IFs32FT+Ce+FtTQ8URjvqmCz/3ftaqwgA6qZrIK3r+Twdavhp7tQfXy+gW0pJuBHlqTt3ifIanpTwI=
-X-Received: from pjbsf11.prod.google.com ([2002:a17:90b:51cb:b0:2ea:46ed:5d3b])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:6c3:b0:2f4:432d:250d
- with SMTP id 98e67ed59e1d1-306a617d201mr5610182a91.21.1743801304083; Fri, 04
- Apr 2025 14:15:04 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1743801306; x=1744406106;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BV0n160bdAMJIwF9gIdsee0gSXMixk7gnYOIwMBSkTY=;
+        b=lKyMkMDr+IL4u2iw83HH3AFPTrv1pNSZyW13fct2FK5vn0/ioSMPo7qBNpNUkB9/EI
+         kqRII8WT7T9YTZHI9kMvZfNzPhzq5vTlDR8d8gJqIr15lIWF7qS/JV1LnXZ0Rejqvv0l
+         /CiGwZzxlSQ/jK1Y6MZZhvREe8exD0rRvFdgqWKzX8dEbhhT8sfEVkaWRLZ5uyrlmWqS
+         yViDwaSMXAYxp2OuleuYVqE1k2KpIlr81Wgpj0BCeCMWZYKUJTHP12rqS3CZNyjKDqSv
+         1YmFXJ3FrSy4jACZmFsFW65SNkK5p05iRP/0JEHGZXiFlw658l4ifMT/KI9xSimaZGkt
+         Nw4g==
+X-Forwarded-Encrypted: i=1; AJvYcCUADQlVLZYczIS4osDeURtGAJbhWGAKZ2oN8lnn+xHAoest4kJTAV7f1FzCPx8XzIZT0tIQlUcWzPanBYnxiQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwJSsIz3N1lgBHahrYFJESk68seumVYIclSqcZll5S23W0OTL1d
+	YnGarRzDZTF9gEW7NO0gFYQgvpz5lpBCKYYGbwvlHqp5KcHKy7IFPi2vnc/6Gpuz8FsjxLdj+8n
+	itQ==
+X-Google-Smtp-Source: AGHT+IHGnE8XslHm/Dp26htMuuamh5CyH4BkTccpSE3E94306LmR6+QWCeFh1nKaosRJPLYDlX1yhMluHf0=
+X-Received: from pfcf1.prod.google.com ([2002:a05:6a00:2381:b0:732:858a:729f])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:e883:b0:224:255b:c932
+ with SMTP id d9443c01a7336-22a8a04a526mr44725315ad.3.1743801305822; Fri, 04
+ Apr 2025 14:15:05 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Fri,  4 Apr 2025 14:14:42 -0700
+Date: Fri,  4 Apr 2025 14:14:43 -0700
+In-Reply-To: <20250404211449.1443336-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
+References: <20250404211449.1443336-1-seanjc@google.com>
 X-Mailer: git-send-email 2.49.0.504.g3bcea36a83-goog
-Message-ID: <20250404211449.1443336-1-seanjc@google.com>
-Subject: [PATCH 0/7] irqbypass: Cleanups and a perf improvement
+Message-ID: <20250404211449.1443336-2-seanjc@google.com>
+Subject: [PATCH 1/7] irqbypass: Drop pointless and misleading THIS_MODULE get/put
 From: Sean Christopherson <seanjc@google.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
 	Paolo Bonzini <pbonzini@redhat.com>, Alex Williamson <alex.williamson@redhat.com>
@@ -69,61 +73,106 @@ Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
 	Yong He <alexyonghe@tencent.com>
 Content-Type: text/plain; charset="UTF-8"
 
-The two primary goals of this series are to make the irqbypass concept
-easier to understand, and to address the terrible performance that can
-result from using a list to track connections.
+Drop irqbypass.ko's superfluous and misleading get/put calls on
+THIS_MODULE.  A module taking a reference to itself is useless; no amount
+of checks will prevent doom and destruction if the caller hasn't already
+guaranteed the liveliness of the module (this goes for any module).  E.g.
+if try_module_get() fails because irqbypass.ko is being unloaded, then the
+kernel has already hit a use-after-free by virtue of executing code whose
+lifecycle is tied to irqbypass.ko.
 
-For the first goal, track the producer/consumer "tokens" as eventfd context
-pointers instead of opaque "void *".  Supporting arbitrary token types was
-dead infrastructure when it was added 10 years ago, and nothing has changed
-since.  Taking an opaque token makes a *very* simple concept (device signals
-eventfd; KVM listens to eventfd) unnecessarily difficult to understand.
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+---
+ virt/lib/irqbypass.c | 20 --------------------
+ 1 file changed, 20 deletions(-)
 
-Burying that simple behind a layer of obfuscation also makes the overall
-code more brittle, as callers can pass in literally anything. I.e. passing
-in a token that will never be paired would go unnoticed.
-
-For the performance issue, use an xarray.  I'm definitely not wedded to an
-xarray, but IMO it doesn't add meaningful complexity (even requires less
-code), and pretty much Just Works.  Like tried this a while back[1], but
-the implementation had undesirable behavior changes and stalled out.
-
-To address the use case where huge numbers of VMs are being created without
-_any_ possibility for irqbypass, KVM should probably add a
-KVM_IRQFD_FLAG_NO_IRQBYPASS flag so that userspace can opt-out on a per-IRQ
-basis.  I already proposed a KVM module param[2] to let userspace disable
-IRQ bypass, but that obviously affects all IRQs in all VMs.  It might
-suffice for most use cases, but I can imagine scenarios where the VMM wants
-to be more selective, e.g. when it *knows* a KVM_IRQFD isn't eligible for
-bypass.  And both of those require userspace changes.
-
-Note, I want to do more aggressive cleanups of irqbypass at some point,
-e.g. not reporting an error to userspace if connect() fails is *awful*
-behavior for environments that want/need irqbypass to always work.  But
-that's a future problem.
-
-[1] https://lore.kernel.org/all/20230801115646.33990-1-likexu@tencent.com
-[2] https://lore.kernel.org/all/20250401161804.842968-1-seanjc@google.com
-
-Sean Christopherson (7):
-  irqbypass: Drop pointless and misleading THIS_MODULE get/put
-  irqbypass: Drop superfluous might_sleep() annotations
-  irqbypass: Take ownership of producer/consumer token tracking
-  irqbypass: Explicitly track producer and consumer bindings
-  irqbypass: Use paired consumer/producer to disconnect during
-    unregister
-  irqbypass: Use guard(mutex) in lieu of manual lock+unlock
-  irqbypass: Use xarray to track producers and consumers
-
- drivers/vfio/pci/vfio_pci_intrs.c |   5 +-
- drivers/vhost/vdpa.c              |   4 +-
- include/linux/irqbypass.h         |  38 +++---
- virt/kvm/eventfd.c                |   3 +-
- virt/lib/irqbypass.c              | 185 ++++++++++--------------------
- 5 files changed, 88 insertions(+), 147 deletions(-)
-
-
-base-commit: 782f9feaa9517caf33186dcdd6b50a8f770ed29b
+diff --git a/virt/lib/irqbypass.c b/virt/lib/irqbypass.c
+index 28fda42e471b..080c706f3b01 100644
+--- a/virt/lib/irqbypass.c
++++ b/virt/lib/irqbypass.c
+@@ -92,9 +92,6 @@ int irq_bypass_register_producer(struct irq_bypass_producer *producer)
+ 
+ 	might_sleep();
+ 
+-	if (!try_module_get(THIS_MODULE))
+-		return -ENODEV;
+-
+ 	mutex_lock(&lock);
+ 
+ 	list_for_each_entry(tmp, &producers, node) {
+@@ -120,7 +117,6 @@ int irq_bypass_register_producer(struct irq_bypass_producer *producer)
+ 	return 0;
+ out_err:
+ 	mutex_unlock(&lock);
+-	module_put(THIS_MODULE);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(irq_bypass_register_producer);
+@@ -142,9 +138,6 @@ void irq_bypass_unregister_producer(struct irq_bypass_producer *producer)
+ 
+ 	might_sleep();
+ 
+-	if (!try_module_get(THIS_MODULE))
+-		return; /* nothing in the list anyway */
+-
+ 	mutex_lock(&lock);
+ 
+ 	list_for_each_entry(tmp, &producers, node) {
+@@ -159,13 +152,10 @@ void irq_bypass_unregister_producer(struct irq_bypass_producer *producer)
+ 		}
+ 
+ 		list_del(&producer->node);
+-		module_put(THIS_MODULE);
+ 		break;
+ 	}
+ 
+ 	mutex_unlock(&lock);
+-
+-	module_put(THIS_MODULE);
+ }
+ EXPORT_SYMBOL_GPL(irq_bypass_unregister_producer);
+ 
+@@ -188,9 +178,6 @@ int irq_bypass_register_consumer(struct irq_bypass_consumer *consumer)
+ 
+ 	might_sleep();
+ 
+-	if (!try_module_get(THIS_MODULE))
+-		return -ENODEV;
+-
+ 	mutex_lock(&lock);
+ 
+ 	list_for_each_entry(tmp, &consumers, node) {
+@@ -216,7 +203,6 @@ int irq_bypass_register_consumer(struct irq_bypass_consumer *consumer)
+ 	return 0;
+ out_err:
+ 	mutex_unlock(&lock);
+-	module_put(THIS_MODULE);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(irq_bypass_register_consumer);
+@@ -238,9 +224,6 @@ void irq_bypass_unregister_consumer(struct irq_bypass_consumer *consumer)
+ 
+ 	might_sleep();
+ 
+-	if (!try_module_get(THIS_MODULE))
+-		return; /* nothing in the list anyway */
+-
+ 	mutex_lock(&lock);
+ 
+ 	list_for_each_entry(tmp, &consumers, node) {
+@@ -255,12 +238,9 @@ void irq_bypass_unregister_consumer(struct irq_bypass_consumer *consumer)
+ 		}
+ 
+ 		list_del(&consumer->node);
+-		module_put(THIS_MODULE);
+ 		break;
+ 	}
+ 
+ 	mutex_unlock(&lock);
+-
+-	module_put(THIS_MODULE);
+ }
+ EXPORT_SYMBOL_GPL(irq_bypass_unregister_consumer);
 -- 
 2.49.0.504.g3bcea36a83-goog
 
