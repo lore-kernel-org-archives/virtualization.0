@@ -1,137 +1,161 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp-fw-52002.amazon.com (smtp-fw-52002.amazon.com [52.119.213.150])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E0A01990B7
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 07:59:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DBCD191493
+	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 08:04:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.119.213.150
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743753572; cv=none; b=W31qBiU5aLE9AV6wpGNVJ4BH4T/uCGGVw6mXFQUGWqVqZASYQ4AAWEs+uhReuWbpKIRMfESA0v0n8Kdw1M0ulcqulxWDj2+caKG3Lyqbru0L5c3Y0g29vWBxTgUSM7WDV15IjIh7fOLh2sJgscbBXcx5ysBhOWRqR/pbMcN0Eh8=
+	t=1743753890; cv=none; b=BWO2dqtbzrQIbC3u9GWSOeLMT2CyLRTVMwhNTh8x8h+L0CJv8/0T0ZdWr+F1uZnZ5Y/eMz3EM7bzsrazI4FgwplsKM6+KpAjb7AJpzuEb71ps3hk1ZvdcSiLMmevHdKI2KPLqqR6YYcVj2UimxbM7giwIX/8MU9UCsrZlo0UDfU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743753572; c=relaxed/simple;
-	bh=yGuboUMthTnrSr0YxktMqa6s6aGvoefMlWmXmxJDGv4=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Izp9GKib9gCmfoZ5xlCaKDoZl05aErauTJkcPCda214meWu0maBg/b88fxvqCF24gBvVAbcsNuIYYA6UPt4JZqXDNoATQXZx8mkHyTKHn4P3uolit/fYIgpciwE2EMoEdwk6nbkUQSyTtf+Oja4HJXjqT8FZeRdzaZJChEGAIOQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lVMBL48Y; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1743753890; c=relaxed/simple;
+	bh=zgxljn3pdO7HKVjvDZCDLSoX0wHxgeY4k9s/aZAWLyY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=k2GmIpRmQPjchwd9uV31Am1I35c+zTEE0JHKig/yNOgm07AlvVg4UGPsvWBHa8EJme/VZxHseNWa6/IckQ1G0+N9cATllL0ZyQXr2q/u1Ciwdth302AMUmp2a/Ap93nSHm3DelRrxHlWO4lteOiPxul4tuAPNMoi2EOVI7gHpck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=Tp3yRMd4; arc=none smtp.client-ip=52.119.213.150
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lVMBL48Y"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DE67F607A7
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 07:59:30 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id weR0afgYmUmI for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Apr 2025 07:59:30 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::42f; helo=mail-wr1-x42f.google.com; envelope-from=krah.tm@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CA0566070B
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CA0566070B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=lVMBL48Y
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CA0566070B
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 07:59:29 +0000 (UTC)
-Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-391342fc1f6so1473564f8f.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 04 Apr 2025 00:59:29 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="Tp3yRMd4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743753567; x=1744358367; darn=lists.linux-foundation.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=Nr/t6BskpDZsQWS/KHvw+5O1AbfwUb+OCjtyeJ/2soE=;
-        b=lVMBL48YYpT+SAAPQ/DLKYwhgvx2nn7pBJcaXdfSOLqt0HfhbDM1+KhZegWjsGT1zK
-         C+6GuuwBrBJSyC+RU9XKgW2OGShfLd3B+Hnb7HuLXYIu1ga08UJgBt1MyYCSxSihcS2E
-         7yKLyVyhsY3h0X62RvWeVSiwVkrVvoBdLNgGoD2gy+xxAbdp1MPoMQBAmXV94Y44bofB
-         y1icVGGT0weanMdn9Pyt3o/7l6Rr/ey4LVAHJXSQryUDBE38I7kzfOcY0rxu/kgx2w+u
-         2GzNU2WsPiys/6fkXnVPY+i/FvUOh1VM8FU8RzbOyo2d+BZyqHK/oiWTrxQueb9Z7wC9
-         QuyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743753567; x=1744358367;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Nr/t6BskpDZsQWS/KHvw+5O1AbfwUb+OCjtyeJ/2soE=;
-        b=ca65siGb27e+lWcI2fZZy9YvMLgbmM4q21sbJ5zxEn0I360yGk/0MFIOFHkd7fq7bV
-         SGOQzi/UWZLKzBx/D5GwEaU8a0wa05HckgkkAFKNLE5vPEFykHD23wP7RMwgZXCg7/un
-         8uquyr/UJ8mM1ipNpqJ9fWHhpFMrKOSMDGaW3jRNrzJEhBxnBxJ/31OI+ofA/mF2IIxJ
-         F6sHkj18cK8Yv50Mw8Bwm97OSklOH7yoA/ZYWQLF5dnbIvH1kHs0uEmngeeE2jkaIHQZ
-         Dq2hnPok7Dsp9zHPCN1mCTK4c8znXZvWd6oYb2wwGgunSkUE5AlQ4bapZ8qwxaHL83Ed
-         YJQQ==
-X-Gm-Message-State: AOJu0YzctrFZXqzvlgto2Z0j+GWoKKt5HP0v6/O+JSJvYEDDBsHRFk6U
-	wGTUmiIf1osc8u1HGDPV5nhbBjR1ZdDcJ3j541QZF4Gtj/7U+EvIIkOJ+bK/
-X-Gm-Gg: ASbGncu/acAnF7PeaYSM7x9vA0Mk4aylXPh2QiZ1bTwhZ++UhCvoaa4yix8PaJtbfZQ
-	k43TpcgdGuaqow8c3F16f8Nd52c1n7d1mmJ/zrW0d+neL3it+kh/LMU+FwYEZ/R5S+YqC5T2Zz3
-	U8T20P8aX361VMIB4zmSK4Ae9cYKADzfJO+ca7OPdw+iFe61WbZRURW6+gnuvREEopyngqcULUi
-	qUbgAKhILLIHZp/UjtAc65/ZetUK9p+KFEoGDZl32EnpgVDUcaGSy7VlFUUPeyzcTg79MvfGWaP
-	ZCUwJjqOSovs3Xtczy3ETwjqbkgPYlov4raLKf3RERNZtOjQYxeEwweq
-X-Google-Smtp-Source: AGHT+IGy0FnVsV73jUujcayMrD7rYIs9G/cxOlRjUi4l53/BlPFVn3dQEG1Vf4RXOkfRc3KVHv1q4g==
-X-Received: by 2002:a05:6000:2902:b0:391:3f4f:a17f with SMTP id ffacd0b85a97d-39d0de67b6dmr1352589f8f.42.1743753566484;
-        Fri, 04 Apr 2025 00:59:26 -0700 (PDT)
-Received: from ?IPv6:2a01:50a0:aa10:1a36::11d? ([2a01:50a0:aa:0:185:40:248:10])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec1794e94sm42791465e9.31.2025.04.04.00.59.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Apr 2025 00:59:26 -0700 (PDT)
-Message-ID: <4d0c0cb9e9d513bf9ba81346ea72c9e58359ff93.camel@gmail.com>
-Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM
- with Linux 6.8+
-From: Torsten Krah <krah.tm@gmail.com>
-To: virtualization@lists.linux-foundation.org
-Cc: Markus Fohrer <markus.fohrer@webked.de>, mst@redhat.com, 
-	jasowang@redhat.com, davem@davemloft.net, edumazet@google.com, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Fri, 04 Apr 2025 09:59:19 +0200
-In-Reply-To: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
-References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.3-0ubuntu1 
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1743753889; x=1775289889;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=b1JqVe+LlcQEqQ5UTMrgb294HSTh8vlr/zAQ/LotKnA=;
+  b=Tp3yRMd4dnMVrZxk4fsVuxx5rfcQKqHFQyOkWRqNDuzv8WufWnwM8xJw
+   7xSYG83fs3eK3QCltSktJJa9pBnLNNuRMEPPNpbQ2ypoY6o7HQ20nLN8j
+   XGnzHlEhyssb0MiDd0kCiRJQeNhZGgs07oL5uYJlUJUDzXWL2qNx1y3+E
+   Q=;
+X-IronPort-AV: E=Sophos;i="6.15,187,1739836800"; 
+   d="scan'208";a="711049091"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
+  by smtp-border-fw-52002.iad7.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Apr 2025 08:04:45 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [10.0.21.151:9580]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.47.226:2525] with esmtp (Farcaster)
+ id 0ebe5713-faf2-4492-b600-33b458c6eb8b; Fri, 4 Apr 2025 08:04:44 +0000 (UTC)
+X-Farcaster-Flow-ID: 0ebe5713-faf2-4492-b600-33b458c6eb8b
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
+ Fri, 4 Apr 2025 08:04:44 +0000
+Received: from [0.0.0.0] (10.253.83.51) by EX19D020UWC004.ant.amazon.com
+ (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14; Fri, 4 Apr 2025
+ 08:04:40 +0000
+Message-ID: <32ca5221-5b25-4bfd-acd7-9eebae8c3635@amazon.com>
+Date: Fri, 4 Apr 2025 10:04:38 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-
-Am Mittwoch, dem 02.04.2025 um 23:12 +0200 schrieb Markus Fohrer:
-> When running on a host system equipped with a Broadcom NetXtreme-E
-> (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in the guest
-> drops to 100=E2=80=93200 KB/s. The same guest configuration performs norm=
-ally
-> (~100 MB/s) when using kernel 6.8.0 or when the VM is moved to a host
-> with Intel NICs.
-
-Hi,
-
-as I am affected too, here is the link to the Ubuntu issue, just in
-case someone wants to have a look:
-
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2098961
-
-We're seeing lots of those in dmesg output:
-
-[  561.505323] net_ratelimit: 1396 callbacks suppressed
-[  561.505339] ens18: bad gso: type: 4, size: 1448
-[  561.505343] ens18: bad gso: type: 4, size: 1448
-[  561.507270] ens18: bad gso: type: 4, size: 1448
-[  561.508257] ens18: bad gso: type: 4, size: 1448
-[  561.511432] ens18: bad gso: type: 4, size: 1448
-[  561.511452] ens18: bad gso: type: 4, size: 1448
-[  561.514719] ens18: bad gso: type: 4, size: 1448
-[  561.514966] ens18: bad gso: type: 4, size: 1448
-[  561.518553] ens18: bad gso: type: 4, size: 1448
-[  561.518781] ens18: bad gso: type: 4, size: 1448
-[  566.506044] net_ratelimit: 1363 callbacks suppressed
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] vsock/virtio: Remove queued_replies pushback logic
+To: "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi
+	<stefanha@redhat.com>
+CC: <netdev@vger.kernel.org>, Stefano Garzarella <sgarzare@redhat.com>,
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<kvm@vger.kernel.org>, Asias He <asias@redhat.com>, Paolo Abeni
+	<pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet
+	<edumazet@google.com>, "David S . Miller" <davem@davemloft.net>,
+	<nh-open-source@amazon.com>
+References: <20250401201349.23867-1-graf@amazon.com>
+ <20250402161424.GA305204@fedora>
+ <20250403073111-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Alexander Graf <graf@amazon.com>
+In-Reply-To: <20250403073111-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: EX19D037UWC001.ant.amazon.com (10.13.139.197) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
 
 
-And another interesting thing we observed - at least in our environment
-- that we can trigger that regression only with IPv4 traffic (bad
-performance and lots of bad gso messages) - if we only use IPv6, it
-does work (good performance and not one bad gso message).
+On 03.04.25 14:21, Michael S. Tsirkin wrote:
+> On Wed, Apr 02, 2025 at 12:14:24PM -0400, Stefan Hajnoczi wrote:
+>> On Tue, Apr 01, 2025 at 08:13:49PM +0000, Alexander Graf wrote:
+>>> Ever since the introduction of the virtio vsock driver, it included
+>>> pushback logic that blocks it from taking any new RX packets until the
+>>> TX queue backlog becomes shallower than the virtqueue size.
+>>>
+>>> This logic works fine when you connect a user space application on the
+>>> hypervisor with a virtio-vsock target, because the guest will stop
+>>> receiving data until the host pulled all outstanding data from the VM.
+>>>
+>>> With Nitro Enclaves however, we connect 2 VMs directly via vsock:
+>>>
+>>>    Parent      Enclave
+>>>
+>>>      RX -------- TX
+>>>      TX -------- RX
+>>>
+>>> This means we now have 2 virtio-vsock backends that both have the pushback
+>>> logic. If the parent's TX queue runs full at the same time as the
+>>> Enclave's, both virtio-vsock drivers fall into the pushback path and
+>>> no longer accept RX traffic. However, that RX traffic is TX traffic on
+>>> the other side which blocks that driver from making any forward
+>>> progress. We're now in a deadlock.
+>>>
+>>> To resolve this, let's remove that pushback logic altogether and rely on
+>>> higher levels (like credits) to ensure we do not consume unbounded
+>>> memory.
+>> The reason for queued_replies is that rx packet processing may emit tx
+>> packets. Therefore tx virtqueue space is required in order to process
+>> the rx virtqueue.
+>>
+>> queued_replies puts a bound on the amount of tx packets that can be
+>> queued in memory so the other side cannot consume unlimited memory. Once
+>> that bound has been reached, rx processing stops until the other side
+>> frees up tx virtqueue space.
+>>
+>> It's been a while since I looked at this problem, so I don't have a
+>> solution ready. In fact, last time I thought about it I wondered if the
+>> design of virtio-vsock fundamentally suffers from deadlocks.
+>>
+>> I don't think removing queued_replies is possible without a replacement
+>> for the bounded memory and virtqueue exhaustion issue though. Credits
+>> are not a solution - they are about socket buffer space, not about
+>> virtqueue space, which includes control packets that are not accounted
+>> by socket buffer space.
+>
+> Hmm.
+> Actually, let's think which packets require a response.
+>
+> VIRTIO_VSOCK_OP_REQUEST
+> VIRTIO_VSOCK_OP_SHUTDOWN
+> VIRTIO_VSOCK_OP_CREDIT_REQUEST
+>
+>
+> the response to these always reports a state of an existing socket.
+> and, only one type of response is relevant for each socket.
+>
+> So here's my suggestion:
+> stop queueing replies on the vsock device, instead,
+> simply store the response on the socket, and create a list of sockets
+> that have replies to be transmitted
+>
+>
+> WDYT?
 
-kind regards
 
-Torsten
+Wouldn't that create the same problem again? The socket will eventually 
+push back any new data that it can take because its FIFO is full. At 
+that point, the "other side" could still have a queue full of requests 
+on exactly that socket that need to get processed. We can now not pull 
+those packets off the virtio queue, because we can not enqueue responses.
+
+But that means now the one queue is blocked from making forward 
+progress, because we are applying back pressure. And that means 
+everything can grind to a halt and we have the same deadlock this patch 
+is trying to fix.
+
+I don't see how we can possibly guarantee a lossless data channel over a 
+tiny wire (single, fixed size, in order virtio ring) while also 
+guaranteeing bounded memory usage. One of the constraints need to go: 
+Either we are no longer lossless or we effectively allow unbounded 
+memory usage.
+
+
+Alex
 
