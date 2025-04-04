@@ -1,261 +1,214 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6514919F464
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:52:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86F582E62C9
+	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 09:17:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743756741; cv=none; b=gzEpdEhzhPkoUiBZcwEAcfnJ4JJJZh1EEkPfc0AYfRwmLSrYN5vE1rrwlryeKYrzKQomIhJLtiu/W8yMv04cXeQzo+1h6pWdU9ZG0uXVo0sH05H2p+ZRly24+wIvl9KA4Q+snO2mc1XRR2n0+EAZnITiHStEnLDQfracw9UU3To=
+	t=1743758260; cv=none; b=GoXiI9T13/m2R7ZMER6lDlXqn9dysWlPPQaRyGh9vGtrvv+rnGSbnf2zUHG+YcmSdotZJEZaIzADcaRzXtoOaRhvWtfl7J5e+7OzY35V4lCzc7WN0EXTUUWoXG3OO/gYlLMBLQ+NI1elRLfVD/LiyEe1PC4XwHxIXfL5hYoz7KY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743756741; c=relaxed/simple;
-	bh=Y/iH1wk4bgH4xibIUWVmQXY/sVGMZAhzE5PSW0nKRek=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=fQ/t1lcZn7wdcauREDSdz8i8ZtZPdC4rTcQgWuWO3tHibDgUscVEZ9hwscf1dUiV3ZgMutcxiP6ZUiZX5LIjCxNwuSFN7g6dncHY+L4FUWnqwOdPtd14DYT2VkwMRUJQLVkTSF4piNq6gEhETadWMyMiMQ8bg+kN9uIWELbsIN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 80B3140B1F
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:52:18 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.591
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id GV-aeNGAMxpG for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Apr 2025 08:52:17 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=159.69.203.94; helo=webmail.webked.de; envelope-from=markus.fohrer@webked.de; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E803740A62
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=webked.de
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E803740A62
-Received: from webmail.webked.de (webmail.webked.de [159.69.203.94])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E803740A62
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:52:16 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C106E62BAA;
-	Fri,  4 Apr 2025 10:52:09 +0200 (CEST)
-Message-ID: <e75cb5881a97485b08cdd76efd8a7d2191ecd106.camel@webked.de>
-Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM
- with Linux 6.8+
-From: Markus Fohrer <markus.fohrer@webked.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, jasowang@redhat.com, 
-	davem@davemloft.net, edumazet@google.com, netdev@vger.kernel.org, 
+	s=arc-20240116; t=1743758260; c=relaxed/simple;
+	bh=Bhskp+8KUmzT6+yWnWxUIv+I1Ci7IWHGxaZ5DAc6aF4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=DHaznIPxwFl4SdNZlvXwJW7QgMK1kTiIwohmbP5LH1qjd5Aw47N8K/OZ5T5vOS5TXmnRvLhrkaOeAHCg+fdv70p9+4wjAOyvzb+OI1btZ8yNQzo4OdWjEVaNxg4TeLKFsV5xaA93uvPGe4abGbqPEpbwFcbw12/nOBSpzML72GE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fGG3cCsh; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fGG3cCsh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743758257;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=jdt0UC5Y+YSICWNN9M7UpOd4+QGCXUQrqY/ZjKnsARY=;
+	b=fGG3cCshquFG0rzvVS2cee7KpdoMZoiFjj+f99QP0QBqdAp0j7jXqAwBjuDyIToyFqf+tp
+	69jbjvsgbDPYUvvYizgSnOydf08fWT5fHkOTaQak0tr062U5koXmlBNMyYUwchmmgO0FN3
+	FKsTABKn6V0FYkYt+jgmamVZpOizUxM=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-633-MePOSRhlO0WD13RE33BKaQ-1; Fri, 04 Apr 2025 05:17:36 -0400
+X-MC-Unique: MePOSRhlO0WD13RE33BKaQ-1
+X-Mimecast-MFC-AGG-ID: MePOSRhlO0WD13RE33BKaQ_1743758255
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-af96cdd7f5bso1280129a12.1
+        for <virtualization@lists.linux.dev>; Fri, 04 Apr 2025 02:17:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743758255; x=1744363055;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jdt0UC5Y+YSICWNN9M7UpOd4+QGCXUQrqY/ZjKnsARY=;
+        b=PS0Bcz/Xq0xTCzVEgwNpRzmxl3OrDEJgdvWcB/fVYnVwOr+kGXExaYtpyjb/DLi+0X
+         msejR9fikAXOETIuvkKdbYmfMcjH1M2WFQRCfj18uxRj3TkeYHWeIHxgJe/4yqzHuort
+         xh7qbjYuXUCzZ4JsMEvxM4qEz8zBwFg1K1fA1kq7/QYP+UDE4DIHHLLUu3E7wWHD1u4g
+         Nx0IGGNm1Y4aqgqY0OvwkxzSxwInfgSKkUYRUt1TwkCLm/JRzUfVyGkjR8mLar0HBYNo
+         wQGe+oX0LUHM4hYO+0+bszUuZTndVePRjzJNMIruWcYN8jrIcOXMxUicjbOmlNArRqpo
+         qEzg==
+X-Forwarded-Encrypted: i=1; AJvYcCU8HEL6RN8cDtxc+Z/V7WAQqEKRekaBX952h3lHTCqVZAs1PCGMu5OAU4P6FRdShZ4mM+AA+qrkLa8vJovkmg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzAapuGVpEPIBE8zkPB5HiJVeKg/AQdGBwp/jgYZvVIUKcH/O5l
+	Sve7C68JCvyXhzXhHrTZV4pMS3K+7OljK5ROZlg509Qgu+5WcnYiKh179Fj1QKja1CAyb/OQKSp
+	HqHHquVdJ7x/BivANf3YRiJV3+1SI+OJ6aJDpuc557uErNl7H0dmenU5Y1girm/Q7
+X-Gm-Gg: ASbGnct2rbYdViAmvIgwaNbW9AZWV1RneoPZ4QmLH7ba4SvlDLnNSjc8hVWnQc+fC7M
+	fM68qZo5QKxVXzAlUTIVhC3xTq8p4bG/pT4dVjHdMFfAtOrJJvIDMpWcx1U1qQ46Nz9pWF6faIp
+	W/p5AN8PRgAxecY4iUTXwR9izwrt54xDzn0CSBjMdWXwJsv7oo60RMGaWNgniI9KhlUEKG/MUAv
+	lzPvPTWTo8L9uSadB+gCfyNLysrWUG45DmRNpVnbTQL4mUKl5P1kNj5OwOp9iG2F4P8u8o1VDmB
+	dfZoOROz8TZDqUaQ
+X-Received: by 2002:a05:6a20:2d14:b0:1f5:55b7:1bb4 with SMTP id adf61e73a8af0-201045a6c2dmr4306815637.11.1743758255250;
+        Fri, 04 Apr 2025 02:17:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG4cF4AJ9IrgwOr6kkgUgDT+AZY2Wj7fW+I4Ga378jGkThhOH+aHldzacKBbkECHVRoyItLUQ==
+X-Received: by 2002:a05:6a20:2d14:b0:1f5:55b7:1bb4 with SMTP id adf61e73a8af0-201045a6c2dmr4306786637.11.1743758254905;
+        Fri, 04 Apr 2025 02:17:34 -0700 (PDT)
+Received: from zeus.elecom ([240b:10:83a2:bd00:6e35:f2f5:2e21:ae3a])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af9bc3fd411sm2432493a12.52.2025.04.04.02.17.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Apr 2025 02:17:34 -0700 (PDT)
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	simona@ffwll.ch
+Cc: Ryosuke Yasuoka <ryasuoka@redhat.com>,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org
-Date: Fri, 04 Apr 2025 10:52:09 +0200
-In-Reply-To: <20250404042711-mutt-send-email-mst@kernel.org>
-References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
-	 <20250403090001-mutt-send-email-mst@kernel.org>
-	 <11c5cb52d024a5158c5b8c5e69e2e4639a055a31.camel@webked.de>
-	 <20250404042711-mutt-send-email-mst@kernel.org>
-Organization: WEBKED IT Markus Fohrer
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.3-0ubuntu1 
+Subject: [PATCH] drm/qxl: Remove unused argument from qxl_alloc_release_reserved
+Date: Fri,  4 Apr 2025 18:16:51 +0900
+Message-ID: <20250404091654.1664838-1-ryasuoka@redhat.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Last-TLS-Session-Version: TLSv1.3
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: YIm2FIvpXJNtD3rtFyLgSuJNpGxLXmdCDvfz2HZE8vk_1743758255
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Am Freitag, dem 04.04.2025 um 04:29 -0400 schrieb Michael S. Tsirkin:
-> On Fri, Apr 04, 2025 at 10:16:55AM +0200, Markus Fohrer wrote:
-> > Am Donnerstag, dem 03.04.2025 um 09:04 -0400 schrieb Michael S.
-> > Tsirkin:
-> > > On Wed, Apr 02, 2025 at 11:12:07PM +0200, Markus Fohrer wrote:
-> > > > Hi,
-> > > >=20
-> > > > I'm observing a significant performance regression in KVM guest
-> > > > VMs
-> > > > using virtio-net with recent Linux kernels (6.8.1+ and 6.14).
-> > > >=20
-> > > > When running on a host system equipped with a Broadcom
-> > > > NetXtreme-E
-> > > > (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in the
-> > > > guest drops to 100=E2=80=93200 KB/s. The same guest configuration
-> > > > performs
-> > > > normally (~100 MB/s) when using kernel 6.8.0 or when the VM is
-> > > > moved to a host with Intel NICs.
-> > > >=20
-> > > > Test environment:
-> > > > - Host: QEMU/KVM, Linux 6.8.1 and 6.14.0
-> > > > - Guest: Linux with virtio-net interface
-> > > > - NIC: Broadcom BCM57416 (bnxt_en driver, no issues at host
-> > > > level)
-> > > > - CPU: AMD EPYC
-> > > > - Storage: virtio-scsi
-> > > > - VM network: virtio-net, virtio-scsi (no CPU or IO
-> > > > bottlenecks)
-> > > > - Traffic test: iperf3, scp, wget consistently slow in guest
-> > > >=20
-> > > > This issue is not present:
-> > > > - On 6.8.0=20
-> > > > - On hosts with Intel NICs (same VM config)
-> > > >=20
-> > > > I have bisected the issue to the following upstream commit:
-> > > >=20
-> > > > =C2=A0 49d14b54a527 ("virtio-net: Suppress tx timeout warning for
-> > > > small
-> > > > tx")
-> > > > =C2=A0 https://git.kernel.org/linus/49d14b54a527
-> > >=20
-> > > Thanks a lot for the info!
-> > >=20
-> > >=20
-> > > both the link and commit point at:
-> > >=20
-> > > commit 49d14b54a527289d09a9480f214b8c586322310a
-> > > Author: Eric Dumazet <edumazet@google.com>
-> > > Date:=C2=A0=C2=A0 Thu Sep 26 16:58:36 2024 +0000
-> > >=20
-> > > =C2=A0=C2=A0=C2=A0 net: test for not too small csum_start in
-> > > virtio_net_hdr_to_skb()
-> > > =C2=A0=C2=A0=C2=A0=20
-> > >=20
-> > > is this what you mean?
-> > >=20
-> > > I don't know which commit is "virtio-net: Suppress tx timeout
-> > > warning
-> > > for small tx"
-> > >=20
-> > >=20
-> > >=20
-> > > > Reverting this commit restores normal network performance in
-> > > > affected guest VMs.
-> > > >=20
-> > > > I=E2=80=99m happy to provide more data or assist with testing a
-> > > > potential
-> > > > fix.
-> > > >=20
-> > > > Thanks,
-> > > > Markus Fohrer
-> > >=20
-> > >=20
-> > > Thanks! First I think it's worth checking what is the setup, e.g.
-> > > which offloads are enabled.
-> > > Besides that, I'd start by seeing what's doing on. Assuming I'm
-> > > right
-> > > about
-> > > Eric's patch:
-> > >=20
-> > > diff --git a/include/linux/virtio_net.h
-> > > b/include/linux/virtio_net.h
-> > > index 276ca543ef44d8..02a9f4dc594d02 100644
-> > > --- a/include/linux/virtio_net.h
-> > > +++ b/include/linux/virtio_net.h
-> > > @@ -103,8 +103,10 @@ static inline int
-> > > virtio_net_hdr_to_skb(struct
-> > > sk_buff *skb,
-> > > =C2=A0
-> > > =C2=A0		if (!skb_partial_csum_set(skb, start, off))
-> > > =C2=A0			return -EINVAL;
-> > > +		if (skb_transport_offset(skb) < nh_min_len)
-> > > +			return -EINVAL;
-> > > =C2=A0
-> > > -		nh_min_len =3D max_t(u32, nh_min_len,
-> > > skb_transport_offset(skb));
-> > > +		nh_min_len =3D skb_transport_offset(skb);
-> > > =C2=A0		p_off =3D nh_min_len + thlen;
-> > > =C2=A0		if (!pskb_may_pull(skb, p_off))
-> > > =C2=A0			return -EINVAL;
-> > >=20
-> > >=20
-> > > sticking a printk before return -EINVAL to show the offset and
-> > > nh_min_len
-> > > would be a good 1st step. Thanks!
-> > >=20
-> >=20
-> > I added the following printk inside virtio_net_hdr_to_skb():
-> >=20
-> > =C2=A0=C2=A0=C2=A0 if (skb_transport_offset(skb) < nh_min_len){
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 printk(KERN_INFO "virtio_net=
-: 3 drop, transport_offset=3D%u,
-> > nh_min_len=3D%u\n",
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0 skb_transport_offset(skb), nh_min_len);
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
-> > =C2=A0=C2=A0=C2=A0 }
-> >=20
-> > Built and installed the kernel, then triggered a large download
-> > via:
-> >=20
-> > =C2=A0=C2=A0=C2=A0 wget http://speedtest.belwue.net/10G
-> >=20
-> > Relevant output from `dmesg -w`:
-> >=20
-> > [=C2=A0=C2=A0 57.327943] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.428942] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.428962] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.553068] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.553088] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.576678] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.618438] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.618453] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.703077] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.823072] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.891982] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 57.946190] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
-> > [=C2=A0=C2=A0 58.218686] virtio_net: 3 drop, transport_offset=3D34,
-> > nh_min_len=3D40=C2=A0=20
->=20
-> Hmm indeed. And what about these values?
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 u32 start =3D __virtio16_to_cpu(little_endian, hdr-
-> >csum_start);
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 u32 off =3D __virtio16_to_cpu(little_endian, hdr-
-> >csum_offset);
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 u32 needed =3D start + max_t(u32, thlen, off +
-> sizeof(__sum16));
-> print them too?
->=20
->=20
->=20
-> > I would now do the test with commit
-> > 49d14b54a527289d09a9480f214b8c586322310a and commit
-> > 49d14b54a527289d09a9480f214b8c586322310a~1
-> >=20
->=20
-> Worth checking though it seems likely now the hypervisor is doing
-> weird
-> things. what kind of backend is it? qemu? tun? vhost-user? vhost-net?
->=20
+The `size` argument in the `qxl_alloc_release_reserved` function is
+currently unused and has no effect on the function's logic. So remove
+this argument to clean up the code. No functional changes are expected.
 
-Backend: QEMU/KVM hypervisor (Proxmox)
+Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 9 +++------
+ drivers/gpu/drm/qxl/qxl_draw.c    | 3 +--
+ drivers/gpu/drm/qxl/qxl_drv.h     | 5 ++---
+ drivers/gpu/drm/qxl/qxl_ioctl.c   | 7 +------
+ drivers/gpu/drm/qxl/qxl_release.c | 8 +++-----
+ 5 files changed, 10 insertions(+), 22 deletions(-)
 
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 70aff64ced87..c0c65efbfa32 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -496,8 +496,7 @@ static int qxl_primary_apply_cursor(struct qxl_device *qdev,
+ 	if (!qcrtc->cursor_bo)
+ 		return 0;
+ 
+-	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
+-					 QXL_RELEASE_CURSOR_CMD,
++	ret = qxl_alloc_release_reserved(qdev, QXL_RELEASE_CURSOR_CMD,
+ 					 &release, NULL);
+ 	if (ret)
+ 		return ret;
+@@ -541,8 +540,7 @@ static int qxl_primary_move_cursor(struct qxl_device *qdev,
+ 	if (!qcrtc->cursor_bo)
+ 		return 0;
+ 
+-	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
+-					 QXL_RELEASE_CURSOR_CMD,
++	ret = qxl_alloc_release_reserved(qdev, QXL_RELEASE_CURSOR_CMD,
+ 					 &release, NULL);
+ 	if (ret)
+ 		return ret;
+@@ -714,8 +712,7 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
+ 	struct qxl_cursor_cmd *cmd;
+ 	int ret;
+ 
+-	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
+-					 QXL_RELEASE_CURSOR_CMD,
++	ret = qxl_alloc_release_reserved(qdev, QXL_RELEASE_CURSOR_CMD,
+ 					 &release, NULL);
+ 	if (ret)
+ 		return;
+diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_draw.c
+index 3a3e127ce297..b4c41545fb06 100644
+--- a/drivers/gpu/drm/qxl/qxl_draw.c
++++ b/drivers/gpu/drm/qxl/qxl_draw.c
+@@ -64,8 +64,7 @@ static struct qxl_rect *drawable_set_clipping(struct qxl_device *qdev,
+ static int
+ alloc_drawable(struct qxl_device *qdev, struct qxl_release **release)
+ {
+-	return qxl_alloc_release_reserved(qdev, sizeof(struct qxl_drawable),
+-					  QXL_RELEASE_DRAWABLE, release, NULL);
++	return qxl_alloc_release_reserved(qdev, QXL_RELEASE_DRAWABLE, release, NULL);
+ }
+ 
+ static void
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index cc02b5f10ad9..fbc15338ae3c 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -372,9 +372,8 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
+ 				       enum qxl_surface_cmd_type surface_cmd_type,
+ 				       struct qxl_release *create_rel,
+ 				       struct qxl_release **release);
+-int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+-			       int type, struct qxl_release **release,
+-			       struct qxl_bo **rbo);
++int qxl_alloc_release_reserved(struct qxl_device *qdev, int type,
++			       struct qxl_release **release, struct qxl_bo **rbo);
+ 
+ int
+ qxl_push_command_ring_release(struct qxl_device *qdev, struct qxl_release *release,
+diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
+index 506ae1f5e099..5e0321b6f319 100644
+--- a/drivers/gpu/drm/qxl/qxl_ioctl.c
++++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+@@ -171,12 +171,7 @@ static int qxl_process_single_command(struct qxl_device *qdev,
+ 	if (!reloc_info)
+ 		return -ENOMEM;
+ 
+-	ret = qxl_alloc_release_reserved(qdev,
+-					 sizeof(union qxl_release_info) +
+-					 cmd->command_size,
+-					 release_type,
+-					 &release,
+-					 &cmd_bo);
++	ret = qxl_alloc_release_reserved(qdev, release_type, &release, &cmd_bo);
+ 	if (ret)
+ 		goto out_free_reloc;
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 05204a6a3fa8..52c444a482be 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -279,13 +279,11 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
+ 		return 0;
+ 	}
+ 
+-	return qxl_alloc_release_reserved(qdev, sizeof(struct qxl_surface_cmd),
+-					 QXL_RELEASE_SURFACE_CMD, release, NULL);
++	return qxl_alloc_release_reserved(qdev, QXL_RELEASE_SURFACE_CMD, release, NULL);
+ }
+ 
+-int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+-				       int type, struct qxl_release **release,
+-				       struct qxl_bo **rbo)
++int qxl_alloc_release_reserved(struct qxl_device *qdev, int type,
++			       struct qxl_release **release, struct qxl_bo **rbo)
+ {
+ 	struct qxl_bo *bo, *free_bo = NULL;
+ 	int idr_ret;
 
-printk output:
-
-[   58.641906] virtio_net: drop, transport_offset=3D34  start=3D34, off=3D1=
-6,
-needed=3D54, nh_min_len=3D40
-[   58.678048] virtio_net: drop, transport_offset=3D34  start=3D34, off=3D1=
-6,
-needed=3D54, nh_min_len=3D40
-[   58.952871] virtio_net: drop, transport_offset=3D34  start=3D34, off=3D1=
-6,
-needed=3D54, nh_min_len=3D40
-[   58.962157] virtio_net: drop, transport_offset=3D34  start=3D34, off=3D1=
-6,
-needed=3D54, nh_min_len=3D40
-[   59.071645] virtio_net: drop, transport_offset=3D34  start=3D34, off=3D1=
-6,
-needed=3D54, nh_min_len=3D40
-
-
-
-
+base-commit: e48e99b6edf41c69c5528aa7ffb2daf3c59ee105
+-- 
+2.48.1
 
