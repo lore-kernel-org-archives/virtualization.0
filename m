@@ -1,214 +1,222 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86F582E62C9
-	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 09:17:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B43371ACEC6
+	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 09:39:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743758260; cv=none; b=GoXiI9T13/m2R7ZMER6lDlXqn9dysWlPPQaRyGh9vGtrvv+rnGSbnf2zUHG+YcmSdotZJEZaIzADcaRzXtoOaRhvWtfl7J5e+7OzY35V4lCzc7WN0EXTUUWoXG3OO/gYlLMBLQ+NI1elRLfVD/LiyEe1PC4XwHxIXfL5hYoz7KY=
+	t=1743759565; cv=none; b=TUNNqCkQmIo8EDV0kT7Fo9klm88FHgQVr1ydPm4uTwtMq/sit8yV/WRsCMuP5pz3I4vq1OiUWtVvlLUXKkT9lsMmdoROlVNRM3JA7enoIIN4vBy3AEQI+4Igo/8si4belZ8wEpt9EPwY+I53yN1MjHzrYov40EM+drS2m8Iq+2A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743758260; c=relaxed/simple;
-	bh=Bhskp+8KUmzT6+yWnWxUIv+I1Ci7IWHGxaZ5DAc6aF4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=DHaznIPxwFl4SdNZlvXwJW7QgMK1kTiIwohmbP5LH1qjd5Aw47N8K/OZ5T5vOS5TXmnRvLhrkaOeAHCg+fdv70p9+4wjAOyvzb+OI1btZ8yNQzo4OdWjEVaNxg4TeLKFsV5xaA93uvPGe4abGbqPEpbwFcbw12/nOBSpzML72GE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fGG3cCsh; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1743759565; c=relaxed/simple;
+	bh=+dpKkoozxnNaU9u7pO5A4IVxMeZurwq+MVc0D/b9zUI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=amGx9IpnQRp39cVyEGU13xpGxiTugxlAeqx9y1iH9roLEMy3JxrO9TI5Fc2kGS1am03c7usxYw7XP8dbSS/VYcPHOC/q+8ft8GnXiDHsCPJ/fj5ZgujZzuJIXltcFYD1uPs9guXPI/OVJCBrNE4en/aV+/6QtVXrJZv6z4Bmei8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bAW6uItN; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fGG3cCsh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743758257;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=jdt0UC5Y+YSICWNN9M7UpOd4+QGCXUQrqY/ZjKnsARY=;
-	b=fGG3cCshquFG0rzvVS2cee7KpdoMZoiFjj+f99QP0QBqdAp0j7jXqAwBjuDyIToyFqf+tp
-	69jbjvsgbDPYUvvYizgSnOydf08fWT5fHkOTaQak0tr062U5koXmlBNMyYUwchmmgO0FN3
-	FKsTABKn6V0FYkYt+jgmamVZpOizUxM=
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
- [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-633-MePOSRhlO0WD13RE33BKaQ-1; Fri, 04 Apr 2025 05:17:36 -0400
-X-MC-Unique: MePOSRhlO0WD13RE33BKaQ-1
-X-Mimecast-MFC-AGG-ID: MePOSRhlO0WD13RE33BKaQ_1743758255
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-af96cdd7f5bso1280129a12.1
-        for <virtualization@lists.linux.dev>; Fri, 04 Apr 2025 02:17:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bAW6uItN"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-7376e311086so2461903b3a.3
+        for <virtualization@lists.linux.dev>; Fri, 04 Apr 2025 02:39:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743759562; x=1744364362; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5i+BIOjdTujePTHxJ/EQhWONPgHHGsVjwziXnIVw+1U=;
+        b=bAW6uItNMNxuB1rmCzBOjgxdLbLQDfu0yn9jfSX9NOw4qEXxUoKIKNg+yA63Qgq/dl
+         1MDqIuSTjjalmPDkwirDzoViv+Opc3XQ9sO2pPJ0L32Uq+2AUaQ/5LPEHiDONf+sbaN8
+         FCD65mYiJ2SShYaK7yssFjyTCd4pxCDNuTyV4UTl8GRSmlD7m8QAN1Sy4yRcYcj4gqh0
+         hbLA78102Yan5KTjlPfzAx9kAJUhjwY5GP2LJnjgUfa9c264Ydqx6nJikjQzlMy+vBtZ
+         HVCe8rjwtW1s3aSJffDPBvcZqPlcV8Qv9z/UoPTuQqaJzm+gCtjlFXAWlDb83ki4jiDs
+         uuSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743758255; x=1744363055;
+        d=1e100.net; s=20230601; t=1743759562; x=1744364362;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=jdt0UC5Y+YSICWNN9M7UpOd4+QGCXUQrqY/ZjKnsARY=;
-        b=PS0Bcz/Xq0xTCzVEgwNpRzmxl3OrDEJgdvWcB/fVYnVwOr+kGXExaYtpyjb/DLi+0X
-         msejR9fikAXOETIuvkKdbYmfMcjH1M2WFQRCfj18uxRj3TkeYHWeIHxgJe/4yqzHuort
-         xh7qbjYuXUCzZ4JsMEvxM4qEz8zBwFg1K1fA1kq7/QYP+UDE4DIHHLLUu3E7wWHD1u4g
-         Nx0IGGNm1Y4aqgqY0OvwkxzSxwInfgSKkUYRUt1TwkCLm/JRzUfVyGkjR8mLar0HBYNo
-         wQGe+oX0LUHM4hYO+0+bszUuZTndVePRjzJNMIruWcYN8jrIcOXMxUicjbOmlNArRqpo
-         qEzg==
-X-Forwarded-Encrypted: i=1; AJvYcCU8HEL6RN8cDtxc+Z/V7WAQqEKRekaBX952h3lHTCqVZAs1PCGMu5OAU4P6FRdShZ4mM+AA+qrkLa8vJovkmg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzAapuGVpEPIBE8zkPB5HiJVeKg/AQdGBwp/jgYZvVIUKcH/O5l
-	Sve7C68JCvyXhzXhHrTZV4pMS3K+7OljK5ROZlg509Qgu+5WcnYiKh179Fj1QKja1CAyb/OQKSp
-	HqHHquVdJ7x/BivANf3YRiJV3+1SI+OJ6aJDpuc557uErNl7H0dmenU5Y1girm/Q7
-X-Gm-Gg: ASbGnct2rbYdViAmvIgwaNbW9AZWV1RneoPZ4QmLH7ba4SvlDLnNSjc8hVWnQc+fC7M
-	fM68qZo5QKxVXzAlUTIVhC3xTq8p4bG/pT4dVjHdMFfAtOrJJvIDMpWcx1U1qQ46Nz9pWF6faIp
-	W/p5AN8PRgAxecY4iUTXwR9izwrt54xDzn0CSBjMdWXwJsv7oo60RMGaWNgniI9KhlUEKG/MUAv
-	lzPvPTWTo8L9uSadB+gCfyNLysrWUG45DmRNpVnbTQL4mUKl5P1kNj5OwOp9iG2F4P8u8o1VDmB
-	dfZoOROz8TZDqUaQ
-X-Received: by 2002:a05:6a20:2d14:b0:1f5:55b7:1bb4 with SMTP id adf61e73a8af0-201045a6c2dmr4306815637.11.1743758255250;
-        Fri, 04 Apr 2025 02:17:35 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG4cF4AJ9IrgwOr6kkgUgDT+AZY2Wj7fW+I4Ga378jGkThhOH+aHldzacKBbkECHVRoyItLUQ==
-X-Received: by 2002:a05:6a20:2d14:b0:1f5:55b7:1bb4 with SMTP id adf61e73a8af0-201045a6c2dmr4306786637.11.1743758254905;
-        Fri, 04 Apr 2025 02:17:34 -0700 (PDT)
-Received: from zeus.elecom ([240b:10:83a2:bd00:6e35:f2f5:2e21:ae3a])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-af9bc3fd411sm2432493a12.52.2025.04.04.02.17.31
+        bh=5i+BIOjdTujePTHxJ/EQhWONPgHHGsVjwziXnIVw+1U=;
+        b=ekcq9nQb/EOKbqoxUsr2rmfEBcyh3JaMe6vhkUmF1/HOk+kjiUvoZFZNh3KAQjQlNU
+         s94jqwWEeV+0m7XUEpjFAnHajKm3KzZXAEebOA1bUL+Dx1ulskrtkNwnI/R8niCEWdI9
+         JbMbjprZoO4aeK75ioAEA9lDH+nwbjer/gdnc7hV+DLaWVUmlyfKYTtb7Zobn80tJbkQ
+         YzV+q2UvWDTG199aUJ0AsnefoL6pOLRed0Hu+gGFFgouDrQ7bfgwB8XQzMGGEDW8Rw+J
+         tu9TCv+5C1nr/Jzl7g9Xa7BprS2hHSmlGPyZRdBVg5bUGiS89dmvUjR+IoeQqkSR6vRF
+         HByw==
+X-Gm-Message-State: AOJu0YwFDW1QVlOhZ5JqGImJIKIeuaHVkFgvV9ASMu3dijIT/aX50jWP
+	lUzSgWQDLTf9JP8cUiMYBcc3qz5XB+odXz29qDJIXN1de/N/SzareV4JsDaa
+X-Gm-Gg: ASbGncuAXUC8bm1CgspUW4a9gtriC3zK7JYFHULRt5+xMU+nZRpzc26b7MJaBedzVZO
+	e+6bi/X0NPzyW+exBrn1xjA+RzOBeikB/iEt1hy60sw5rSMBO7UTQrPmiQig8t2TMOUTXbJ3hr1
+	y+JJHBQsi8jGNvwN2p1T9L2JNVOCwKIKVec1ybYaDJLuwIHjhmfkFcXCdNNAh1/JtoKLhXfjXHw
+	AoYREFLOxHx//GKaQLzTbsimqXyn3zb/hax5yrrpZfvw8fQIMa/lApwE+OtWkX+ZUAUp6JOZ/o3
+	q0JOMFsqdO1zJL4O5AwC+tJFbuaLpVS8qSd5URUnIY5K1pmGOj6Qk2H/pt5fQaOL8i2ve9M=
+X-Google-Smtp-Source: AGHT+IHa/5L+A3L+9sEjmYyA6HOtMUS6wEI/lZdumO9FTs5UcgTfoCysQRymr5lSNhp1scktPuIOOg==
+X-Received: by 2002:a05:6a20:9f8a:b0:1f5:931d:ca6d with SMTP id adf61e73a8af0-20107ea558cmr3208933637.1.1743759561831;
+        Fri, 04 Apr 2025 02:39:21 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f4e:bd30:f724:d4da:7a88:b9d5])
+        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-af9bc41a665sm2080619a12.67.2025.04.04.02.39.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Apr 2025 02:17:34 -0700 (PDT)
-From: Ryosuke Yasuoka <ryasuoka@redhat.com>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	simona@ffwll.ch
-Cc: Ryosuke Yasuoka <ryasuoka@redhat.com>,
-	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/qxl: Remove unused argument from qxl_alloc_release_reserved
-Date: Fri,  4 Apr 2025 18:16:51 +0900
-Message-ID: <20250404091654.1664838-1-ryasuoka@redhat.com>
-X-Mailer: git-send-email 2.48.1
+        Fri, 04 Apr 2025 02:39:21 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH] virtio-net: disable delayed refill when pausing rx
+Date: Fri,  4 Apr 2025 16:39:03 +0700
+Message-ID: <20250404093903.37416-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: YIm2FIvpXJNtD3rtFyLgSuJNpGxLXmdCDvfz2HZE8vk_1743758255
-X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-The `size` argument in the `qxl_alloc_release_reserved` function is
-currently unused and has no effect on the function's logic. So remove
-this argument to clean up the code. No functional changes are expected.
+When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+napi_disable() on the receive queue's napi. In delayed refill_work, it
+also calls napi_disable() on the receive queue's napi. This can leads to
+deadlock when napi_disable() is called on an already disabled napi. This
+scenario can be reproducible by binding a XDP socket to virtio-net
+interface without setting up the fill ring. As a result, try_fill_recv
+will fail until the fill ring is set up and refill_work is scheduled.
 
-Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+This commit adds virtnet_rx_(pause/resume)_all helpers and fixes up the
+virtnet_rx_resume to disable future and cancel all inflights delayed
+refill_work before calling napi_disable() to pause the rx.
+
+Fixes: 6a4763e26803 ("virtio_net: support rx queue resize")
+Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
+Fixes: 09d2b3182c8e ("virtio_net: xsk: bind/unbind xsk for rx")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 9 +++------
- drivers/gpu/drm/qxl/qxl_draw.c    | 3 +--
- drivers/gpu/drm/qxl/qxl_drv.h     | 5 ++---
- drivers/gpu/drm/qxl/qxl_ioctl.c   | 7 +------
- drivers/gpu/drm/qxl/qxl_release.c | 8 +++-----
- 5 files changed, 10 insertions(+), 22 deletions(-)
+ drivers/net/virtio_net.c | 60 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 51 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 70aff64ced87..c0c65efbfa32 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -496,8 +496,7 @@ static int qxl_primary_apply_cursor(struct qxl_device *qdev,
- 	if (!qcrtc->cursor_bo)
- 		return 0;
- 
--	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
--					 QXL_RELEASE_CURSOR_CMD,
-+	ret = qxl_alloc_release_reserved(qdev, QXL_RELEASE_CURSOR_CMD,
- 					 &release, NULL);
- 	if (ret)
- 		return ret;
-@@ -541,8 +540,7 @@ static int qxl_primary_move_cursor(struct qxl_device *qdev,
- 	if (!qcrtc->cursor_bo)
- 		return 0;
- 
--	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
--					 QXL_RELEASE_CURSOR_CMD,
-+	ret = qxl_alloc_release_reserved(qdev, QXL_RELEASE_CURSOR_CMD,
- 					 &release, NULL);
- 	if (ret)
- 		return ret;
-@@ -714,8 +712,7 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
- 	struct qxl_cursor_cmd *cmd;
- 	int ret;
- 
--	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
--					 QXL_RELEASE_CURSOR_CMD,
-+	ret = qxl_alloc_release_reserved(qdev, QXL_RELEASE_CURSOR_CMD,
- 					 &release, NULL);
- 	if (ret)
- 		return;
-diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_draw.c
-index 3a3e127ce297..b4c41545fb06 100644
---- a/drivers/gpu/drm/qxl/qxl_draw.c
-+++ b/drivers/gpu/drm/qxl/qxl_draw.c
-@@ -64,8 +64,7 @@ static struct qxl_rect *drawable_set_clipping(struct qxl_device *qdev,
- static int
- alloc_drawable(struct qxl_device *qdev, struct qxl_release **release)
- {
--	return qxl_alloc_release_reserved(qdev, sizeof(struct qxl_drawable),
--					  QXL_RELEASE_DRAWABLE, release, NULL);
-+	return qxl_alloc_release_reserved(qdev, QXL_RELEASE_DRAWABLE, release, NULL);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7e4617216a4b..4361b91ccc64 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3342,10 +3342,53 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	return NETDEV_TX_OK;
  }
  
- static void
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index cc02b5f10ad9..fbc15338ae3c 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -372,9 +372,8 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
- 				       enum qxl_surface_cmd_type surface_cmd_type,
- 				       struct qxl_release *create_rel,
- 				       struct qxl_release **release);
--int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
--			       int type, struct qxl_release **release,
--			       struct qxl_bo **rbo);
-+int qxl_alloc_release_reserved(struct qxl_device *qdev, int type,
-+			       struct qxl_release **release, struct qxl_bo **rbo);
++static void virtnet_rx_pause_all(struct virtnet_info *vi)
++{
++	bool running = netif_running(vi->dev);
++
++	/*
++	 * Make sure refill_work does not run concurrently to
++	 * avoid napi_disable race which leads to deadlock.
++	 */
++	disable_delayed_refill(vi);
++	cancel_delayed_work_sync(&vi->refill);
++	if (running) {
++		int i;
++
++		for (i = 0; i < vi->max_queue_pairs; i++) {
++			virtnet_napi_disable(&vi->rq[i]);
++			virtnet_cancel_dim(vi, &vi->rq[i].dim);
++		}
++	}
++}
++
++static void virtnet_rx_resume_all(struct virtnet_info *vi)
++{
++	bool running = netif_running(vi->dev);
++	int i;
++
++	enable_delayed_refill(vi);
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		if (i < vi->curr_queue_pairs) {
++			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
++				schedule_delayed_work(&vi->refill, 0);
++		}
++
++		if (running)
++			virtnet_napi_enable(&vi->rq[i]);
++	}
++}
++
+ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
+ {
+ 	bool running = netif_running(vi->dev);
  
- int
- qxl_push_command_ring_release(struct qxl_device *qdev, struct qxl_release *release,
-diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-index 506ae1f5e099..5e0321b6f319 100644
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -171,12 +171,7 @@ static int qxl_process_single_command(struct qxl_device *qdev,
- 	if (!reloc_info)
- 		return -ENOMEM;
++	/*
++	 * Make sure refill_work does not run concurrently to
++	 * avoid napi_disable race which leads to deadlock.
++	 */
++	disable_delayed_refill(vi);
++	cancel_delayed_work_sync(&vi->refill);
+ 	if (running) {
+ 		virtnet_napi_disable(rq);
+ 		virtnet_cancel_dim(vi, &rq->dim);
+@@ -3356,6 +3399,7 @@ static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
+ {
+ 	bool running = netif_running(vi->dev);
  
--	ret = qxl_alloc_release_reserved(qdev,
--					 sizeof(union qxl_release_info) +
--					 cmd->command_size,
--					 release_type,
--					 &release,
--					 &cmd_bo);
-+	ret = qxl_alloc_release_reserved(qdev, release_type, &release, &cmd_bo);
- 	if (ret)
- 		goto out_free_reloc;
++	enable_delayed_refill(vi);
+ 	if (!try_fill_recv(vi, rq, GFP_KERNEL))
+ 		schedule_delayed_work(&vi->refill, 0);
  
-diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-index 05204a6a3fa8..52c444a482be 100644
---- a/drivers/gpu/drm/qxl/qxl_release.c
-+++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -279,13 +279,11 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
- 		return 0;
+@@ -5959,12 +6003,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 	if (prog)
+ 		bpf_prog_add(prog, vi->max_queue_pairs - 1);
+ 
++	virtnet_rx_pause_all(vi);
++
+ 	/* Make sure NAPI is not using any XDP TX queues for RX. */
+ 	if (netif_running(dev)) {
+-		for (i = 0; i < vi->max_queue_pairs; i++) {
+-			virtnet_napi_disable(&vi->rq[i]);
++		for (i = 0; i < vi->max_queue_pairs; i++)
+ 			virtnet_napi_tx_disable(&vi->sq[i]);
+-		}
  	}
  
--	return qxl_alloc_release_reserved(qdev, sizeof(struct qxl_surface_cmd),
--					 QXL_RELEASE_SURFACE_CMD, release, NULL);
-+	return qxl_alloc_release_reserved(qdev, QXL_RELEASE_SURFACE_CMD, release, NULL);
- }
+ 	if (!prog) {
+@@ -5996,13 +6040,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 		vi->xdp_enabled = false;
+ 	}
  
--int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
--				       int type, struct qxl_release **release,
--				       struct qxl_bo **rbo)
-+int qxl_alloc_release_reserved(struct qxl_device *qdev, int type,
-+			       struct qxl_release **release, struct qxl_bo **rbo)
- {
- 	struct qxl_bo *bo, *free_bo = NULL;
- 	int idr_ret;
-
-base-commit: e48e99b6edf41c69c5528aa7ffb2daf3c59ee105
++	virtnet_rx_resume_all(vi);
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		if (old_prog)
+ 			bpf_prog_put(old_prog);
+-		if (netif_running(dev)) {
+-			virtnet_napi_enable(&vi->rq[i]);
++		if (netif_running(dev))
+ 			virtnet_napi_tx_enable(&vi->sq[i]);
+-		}
+ 	}
+ 
+ 	return 0;
+@@ -6014,11 +6057,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 			rcu_assign_pointer(vi->rq[i].xdp_prog, old_prog);
+ 	}
+ 
++	virtnet_rx_resume_all(vi);
+ 	if (netif_running(dev)) {
+-		for (i = 0; i < vi->max_queue_pairs; i++) {
+-			virtnet_napi_enable(&vi->rq[i]);
++		for (i = 0; i < vi->max_queue_pairs; i++)
+ 			virtnet_napi_tx_enable(&vi->sq[i]);
+-		}
+ 	}
+ 	if (prog)
+ 		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
 -- 
-2.48.1
+2.43.0
 
