@@ -1,236 +1,366 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7721821D3EB
-	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 17:36:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03D4D166F1A
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 20:23:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743788198; cv=none; b=b/nQR1sVwCVrK/kMGosCRuTmB5+iYn05zV74lp/CXpYLRe5IYKql99Ul4ErsJEknuzpxrOtYarGxeUPAuFKRXK0ZZkVT3Jov8TRx1H+y3qqFVedn2kGY1X1x3vC+gTLxOgikPKZ4Xb+iSP21BTdx8n1C3J6RTF7lrpi8pPhF7nw=
+	t=1743798206; cv=none; b=IE2pDGS21RJk6uaB8TPiwYgJcBdes7Pqdzj0JtqHLGDgMQ1l/8UEcms9NDeCKI0unBo3ydxWWMJWoWC0MB7IXSQhqPmyvYMw1LF4Vy8PmhMaWhWBGYUumFKYEBNS5CAuDQw+/YPtbR3hlXATHgpatZanGnej+UKXrHxQrv+9GBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743788198; c=relaxed/simple;
-	bh=yunu/rgX6xlai49HhM2W0+0A+BpWAImHxQ/t3MoXx9U=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=s18u5wmDHgy/LcWqMoQRimF5RSe7lcYNVqbW3afT58tMPrj+HGHZBs8f76AEM3GIerhbF+yslxpPauaTsisfvhrOlvsnAL3Jv1UaBwudV0/OBQoqQhnEPMJv6grxVBYtPlOJ/AeQBIoHTKPYdkeEGaaTvsQTvC7SokI1GB8u+Ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BVUkFl+B; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BVUkFl+B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743788194;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=R4340KJrzxwLVivTpxZjpQyM7QjWjGmIJMe5TfbBu9c=;
-	b=BVUkFl+B0pLxlo8GrG9GaMvBf+Mb3CbOly+0QVhOgyQssmwJGjxrU1BW1DnBTXypmhmWrI
-	IQ5lqh5nqtzb3ZX8B5C4vrjNlaJnYS1WcMwoJaqu/sSRSaIZBAh9vAM6KY43qSUkA3rZAQ
-	94K0bZcEjGbSOa4B2H1g6uCXBTmVk+I=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-21-XDADG4hvPRe46fpJB69q_g-1; Fri, 04 Apr 2025 13:36:33 -0400
-X-MC-Unique: XDADG4hvPRe46fpJB69q_g-1
-X-Mimecast-MFC-AGG-ID: XDADG4hvPRe46fpJB69q_g_1743788192
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43ea256f039so18945785e9.0
-        for <virtualization@lists.linux.dev>; Fri, 04 Apr 2025 10:36:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743788192; x=1744392992;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:references:cc:to:from:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=R4340KJrzxwLVivTpxZjpQyM7QjWjGmIJMe5TfbBu9c=;
-        b=IbawWwqWC0+3uF6kBuDaLBWDUpkqqDF9Z4e0zC8BINAkfpaxUutEJOLR31UPlmgpvV
-         2n4dGu/hpCNw6LR+gfmvMI6GPDLBpUNQJKqxblWz/wBQEuqVWls+7wUsfFr7eu2pjrRy
-         nn9QbWX9BQR/Lw64KHZ1URksEb2wTPQIRyfi7QLKcpI4aqr6qGu1qza66No+JZbGzPXE
-         KzHQblvvRVGx2nD9/gvw/6mp30EYk9Wa4w+5JhmBNTcrKgOkz3KzCSQN9q4Wmn+C8a4Y
-         /ns5vIsegVVrbN7BaMQmKF0g0otajZZjfTJYSBjSK4gRUa6y6INKKtM098YUNMFqZwyO
-         AzAQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVeLuQ1lmlxsP77LCd/QREv6n+NbrW7sVxxTOkZquheonch2hu5zf7mtcgyljHatYxJ6UvL2IRZdNLAJPw4zA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxdABYHa/nGo+37p1FwyP24M5kBaEL/hWO6g3yEQyO/2Z46W2kM
-	M+B7wKDMF9k8s5QIUELWh5AWcCjZg9Pt8VnOvXitUVq0X6JNGARhjI4EGujvUNjMr/79Ok6jcD5
-	Sm1X6AvfGCW4EayxcCfxijqX3RqD+QfVACZup31OPX1dGBQ9nvHIXYhZ+vvPfY8jE
-X-Gm-Gg: ASbGncssdJWY5q2inBEg+dXT99MJekVimcyqhyQgG9jOb7aU8jx1E/V6lPEyDtPO5g4
-	Y9NF+HCqqnjuqbV6YNhok4EpeMF1+Dp9IV74NQBQjWoORAwXE+0hyOLwO1D4KI6RRgZaEMNzymY
-	H7DviZpVIVmNkbH5l8OAWTOkxJdoheM5YSd3Aer5lwIPVcZSghPotZtiYbS4xlQK1cn8uuEFZTt
-	FRgNmYOs/VRglWAjnadvPcChDuZW3msnwOuao2sSj83M5uzhUFVEvjuAAZ9I1Sxr4JBokGM8l+X
-	tMf58LMIttz4O8be3oWoMPJnO+Pis19+hfpem2/59w1r0jP5KIzxOOxSjcCXY7uB4cD68FbD4ul
-	vTntasxEj3f8LSNEy99ppWOVp1+IMIO5oVm4OOBXh3+8=
-X-Received: by 2002:a05:600c:698c:b0:43c:fa0e:471a with SMTP id 5b1f17b1804b1-43ed6615862mr29578035e9.5.1743788192104;
-        Fri, 04 Apr 2025 10:36:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IETLcrbSlwBwxMnCyQo7ltsVM/FnStajCig+iEbNMtIKS+v6wnVbq4bZ0Gr1gVoSX8E8MsR+w==
-X-Received: by 2002:a05:600c:698c:b0:43c:fa0e:471a with SMTP id 5b1f17b1804b1-43ed6615862mr29577735e9.5.1743788191756;
-        Fri, 04 Apr 2025 10:36:31 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c71b:7900:8752:fae3:f9c9:a07e? (p200300cbc71b79008752fae3f9c9a07e.dip0.t-ipconnect.de. [2003:cb:c71b:7900:8752:fae3:f9c9:a07e])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec1795081sm55936625e9.27.2025.04.04.10.36.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Apr 2025 10:36:30 -0700 (PDT)
-Message-ID: <608773a9-535f-4f0c-aa0e-426dccb8ca0c@redhat.com>
-Date: Fri, 4 Apr 2025 19:36:28 +0200
+	s=arc-20240116; t=1743798206; c=relaxed/simple;
+	bh=KynK17m8gzCfpiirN3+RmhG9s7QXD8jjm7XlUSRzDBI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=LhsXvVvJfa0TX1baf3kHLzi4q74JM/OuQKtOVCtwkXBEq0H543EKmVuhmiDGI2LQhkNr8ezcX84w9l3h4QSr37SCB8xVmrgiZZKPH4s5licJcmj+jMC93vlzssT7HydLyIWAshbSvzkKhVG7IE/CzmQRbN3XKE0+7OvVfAgsu4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3F9C3608B6
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 20:23:23 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.591
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id F25J7ksZ6Ocf for <virtualization@lists.linux-foundation.org>;
+ Fri,  4 Apr 2025 20:23:22 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=159.69.203.94; helo=webmail.webked.de; envelope-from=markus.fohrer@webked.de; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 982FE60BCD
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=webked.de
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 982FE60BCD
+Received: from webmail.webked.de (webmail.webked.de [159.69.203.94])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 982FE60BCD
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 20:23:20 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id AD1C061A78;
+	Fri,  4 Apr 2025 22:23:01 +0200 (CEST)
+Message-ID: <62a6bf463858c443f6380bbf7ae5a3cc76b81844.camel@webked.de>
+Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM
+ with Linux 6.8+
+From: Markus Fohrer <markus.fohrer@webked.de>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "Michael S. Tsirkin"
+	 <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, jasowang@redhat.com, 
+	davem@davemloft.net, edumazet@google.com, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Date: Fri, 04 Apr 2025 22:23:01 +0200
+In-Reply-To: <67eff7303df69_1ddca829490@willemb.c.googlers.com.notmuch>
+References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
+	 <20250403090001-mutt-send-email-mst@kernel.org>
+	 <11c5cb52d024a5158c5b8c5e69e2e4639a055a31.camel@webked.de>
+	 <20250404042711-mutt-send-email-mst@kernel.org>
+	 <e75cb5881a97485b08cdd76efd8a7d2191ecd106.camel@webked.de>
+	 <3b02f37ee12232359672a6a6c2bccaa340fbb6ff.camel@webked.de>
+	 <67eff7303df69_1ddca829490@willemb.c.googlers.com.notmuch>
+Organization: WEBKED IT Markus Fohrer
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.3-0ubuntu1 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-From: David Hildenbrand <david@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- Chandra Merla <cmerla@redhat.com>, Stable@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Wei Wang <wei.w.wang@intel.com>
-References: <20250402203621.940090-1-david@redhat.com>
- <20250403161836.7fe9fea5.pasic@linux.ibm.com>
- <e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
- <20250404063619.0fa60a41.pasic@linux.ibm.com>
- <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
- <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
- <20250404153620.04d2df05.pasic@linux.ibm.com>
- <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
- <20250404160025.3ab56f60.pasic@linux.ibm.com>
- <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
- <20250404173910.6581706a.pasic@linux.ibm.com>
- <b30a0ff7-e885-462d-92d4-53f15accd1c0@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <b30a0ff7-e885-462d-92d4-53f15accd1c0@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: WKE2VI9ZlWNqQd_zMd9atjRILAX6SRi8kAAXtjz4uIw_1743788192
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On 04.04.25 18:49, David Hildenbrand wrote:
-> On 04.04.25 17:39, Halil Pasic wrote:
->> On Fri, 4 Apr 2025 16:17:14 +0200
->> David Hildenbrand <david@redhat.com> wrote:
->>
->>>> It is offered. And this is precisely why I'm so keen on having a
->>>> precise wording here.
->>>
->>> Yes, me too. The current phrasing in the spec is not clear.
->>>
->>> Linux similarly checks
->>> virtio_has_feature()->virtio_check_driver_offered_feature().
->>
->> Careful, that is a *driver* offered and not a *device* offered!
-> 
-> Right, I was pointing at the usage of the term "offered".
-> virtio_check_driver_offered_feature(). (but was also confused about that
-> function)
-> 
-> virtio_has_feature() is clearer: "helper to determine if this device has
-> this feature."
-> 
-> The way it's currently implemented is that it's essentially "device has
-> this feature and we know about it (->feature_table)"
-> 
->>
->> We basically mandate that one can only check for a feature F with
->> virtio_has_feature() such that it is either in drv->feature_table or in
->> drv->feature_table_legacy.
->>
->> AFAICT *device_features* obtained via dev->config->get_features(dev)
->> isn't even saved but is only used for binary and-ing it with the
->> driver_features to obtain the negotiated features.
->>
->> That basically means that if I was, for the sake of fun do
->>
->> --- a/drivers/virtio/virtio_balloon.c
->> +++ b/drivers/virtio/virtio_balloon.c
->> @@ -1197,7 +1197,6 @@ static unsigned int features[] = {
->>           VIRTIO_BALLOON_F_MUST_TELL_HOST,
->>           VIRTIO_BALLOON_F_STATS_VQ,
->>           VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
->> -       VIRTIO_BALLOON_F_FREE_PAGE_HINT,
->>           VIRTIO_BALLOON_F_PAGE_POISON,
->>           VIRTIO_BALLOON_F_REPORTING,
->>    };
->>
->> I would end up with virtio_check_driver_offered_feature() calling
->> BUG().
->>
-> 
-> Right.
-> 
->> That basically means that Linux mandates implementing all previous
->> features regardless whether does are supposed to be optional ones or
->> not. Namely if you put the feature into drv->feature_table it will
->> get negotiated.
->>
->> Which is not nice IMHO.
-> 
-> I think the validate() callbacks allows for fixing that up.
-> 
-> Like us unconditionally clearing VIRTIO_F_ACCESS_PLATFORM (I know,
-> that's a transport feature and a bit different for this reason).
-> 
-> ... not that I think the current way of achieving that is nice :)
+Am Freitag, dem 04.04.2025 um 11:13 -0400 schrieb Willem de Bruijn:
+> Markus Fohrer wrote:
+> > Am Freitag, dem 04.04.2025 um 10:52 +0200 schrieb Markus Fohrer:
+> > > Am Freitag, dem 04.04.2025 um 04:29 -0400 schrieb Michael S.
+> > > Tsirkin:
+> > > > On Fri, Apr 04, 2025 at 10:16:55AM +0200, Markus Fohrer wrote:
+> > > > > Am Donnerstag, dem 03.04.2025 um 09:04 -0400 schrieb Michael
+> > > > > S.
+> > > > > Tsirkin:
+> > > > > > On Wed, Apr 02, 2025 at 11:12:07PM +0200, Markus Fohrer
+> > > > > > wrote:
+> > > > > > > Hi,
+> > > > > > >=20
+> > > > > > > I'm observing a significant performance regression in KVM
+> > > > > > > guest
+> > > > > > > VMs
+> > > > > > > using virtio-net with recent Linux kernels (6.8.1+ and
+> > > > > > > 6.14).
+> > > > > > >=20
+> > > > > > > When running on a host system equipped with a Broadcom
+> > > > > > > NetXtreme-E
+> > > > > > > (bnxt_en) NIC and AMD EPYC CPUs, the network throughput
+> > > > > > > in
+> > > > > > > the
+> > > > > > > guest drops to 100=E2=80=93200 KB/s. The same guest configura=
+tion
+> > > > > > > performs
+> > > > > > > normally (~100 MB/s) when using kernel 6.8.0 or when the
+> > > > > > > VM
+> > > > > > > is
+> > > > > > > moved to a host with Intel NICs.
+> > > > > > >=20
+> > > > > > > Test environment:
+> > > > > > > - Host: QEMU/KVM, Linux 6.8.1 and 6.14.0
+> > > > > > > - Guest: Linux with virtio-net interface
+> > > > > > > - NIC: Broadcom BCM57416 (bnxt_en driver, no issues at
+> > > > > > > host
+> > > > > > > level)
+> > > > > > > - CPU: AMD EPYC
+> > > > > > > - Storage: virtio-scsi
+> > > > > > > - VM network: virtio-net, virtio-scsi (no CPU or IO
+> > > > > > > bottlenecks)
+> > > > > > > - Traffic test: iperf3, scp, wget consistently slow in
+> > > > > > > guest
+> > > > > > >=20
+> > > > > > > This issue is not present:
+> > > > > > > - On 6.8.0=20
+> > > > > > > - On hosts with Intel NICs (same VM config)
+> > > > > > >=20
+> > > > > > > I have bisected the issue to the following upstream
+> > > > > > > commit:
+> > > > > > >=20
+> > > > > > > =C2=A0 49d14b54a527 ("virtio-net: Suppress tx timeout warning
+> > > > > > > for
+> > > > > > > small
+> > > > > > > tx")
+> > > > > > > =C2=A0 https://git.kernel.org/linus/49d14b54a527
+> > > > > >=20
+> > > > > > Thanks a lot for the info!
+> > > > > >=20
+> > > > > >=20
+> > > > > > both the link and commit point at:
+> > > > > >=20
+> > > > > > commit 49d14b54a527289d09a9480f214b8c586322310a
+> > > > > > Author: Eric Dumazet <edumazet@google.com>
+> > > > > > Date:=C2=A0=C2=A0 Thu Sep 26 16:58:36 2024 +0000
+> > > > > >=20
+> > > > > > =C2=A0=C2=A0=C2=A0 net: test for not too small csum_start in
+> > > > > > virtio_net_hdr_to_skb()
+> > > > > > =C2=A0=C2=A0=C2=A0=20
+> > > > > >=20
+> > > > > > is this what you mean?
+> > > > > >=20
+> > > > > > I don't know which commit is "virtio-net: Suppress tx
+> > > > > > timeout
+> > > > > > warning
+> > > > > > for small tx"
+> > > > > >=20
+> > > > > >=20
+> > > > > >=20
+> > > > > > > Reverting this commit restores normal network performance
+> > > > > > > in
+> > > > > > > affected guest VMs.
+> > > > > > >=20
+> > > > > > > I=E2=80=99m happy to provide more data or assist with testing=
+ a
+> > > > > > > potential
+> > > > > > > fix.
+> > > > > > >=20
+> > > > > > > Thanks,
+> > > > > > > Markus Fohrer
+> > > > > >=20
+> > > > > >=20
+> > > > > > Thanks! First I think it's worth checking what is the
+> > > > > > setup,
+> > > > > > e.g.
+> > > > > > which offloads are enabled.
+> > > > > > Besides that, I'd start by seeing what's doing on. Assuming
+> > > > > > I'm
+> > > > > > right
+> > > > > > about
+> > > > > > Eric's patch:
+> > > > > >=20
+> > > > > > diff --git a/include/linux/virtio_net.h
+> > > > > > b/include/linux/virtio_net.h
+> > > > > > index 276ca543ef44d8..02a9f4dc594d02 100644
+> > > > > > --- a/include/linux/virtio_net.h
+> > > > > > +++ b/include/linux/virtio_net.h
+> > > > > > @@ -103,8 +103,10 @@ static inline int
+> > > > > > virtio_net_hdr_to_skb(struct
+> > > > > > sk_buff *skb,
+> > > > > > =C2=A0
+> > > > > > =C2=A0		if (!skb_partial_csum_set(skb, start,
+> > > > > > off))
+> > > > > > =C2=A0			return -EINVAL;
+> > > > > > +		if (skb_transport_offset(skb) <
+> > > > > > nh_min_len)
+> > > > > > +			return -EINVAL;
+> > > > > > =C2=A0
+> > > > > > -		nh_min_len =3D max_t(u32, nh_min_len,
+> > > > > > skb_transport_offset(skb));
+> > > > > > +		nh_min_len =3D skb_transport_offset(skb);
+> > > > > > =C2=A0		p_off =3D nh_min_len + thlen;
+> > > > > > =C2=A0		if (!pskb_may_pull(skb, p_off))
+> > > > > > =C2=A0			return -EINVAL;
+> > > > > >=20
+> > > > > >=20
+> > > > > > sticking a printk before return -EINVAL to show the offset
+> > > > > > and
+> > > > > > nh_min_len
+> > > > > > would be a good 1st step. Thanks!
+> > > > > >=20
+> > > > >=20
+> > > > > I added the following printk inside virtio_net_hdr_to_skb():
+> > > > >=20
+> > > > > =C2=A0=C2=A0=C2=A0 if (skb_transport_offset(skb) < nh_min_len){
+> > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 printk(KERN_INFO "virt=
+io_net: 3 drop,
+> > > > > transport_offset=3D%u,
+> > > > > nh_min_len=3D%u\n",
+> > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 skb_transport_offset(skb), nh_min_len);
+> > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
+> > > > > =C2=A0=C2=A0=C2=A0 }
+> > > > >=20
+> > > > > Built and installed the kernel, then triggered a large
+> > > > > download
+> > > > > via:
+> > > > >=20
+> > > > > =C2=A0=C2=A0=C2=A0 wget http://speedtest.belwue.net/10G
+> > > > >=20
+> > > > > Relevant output from `dmesg -w`:
+> > > > >=20
+> > > > > [=C2=A0=C2=A0 57.327943] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.428942] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.428962] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.553068] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.553088] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.576678] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.618438] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.618453] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.703077] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.823072] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.891982] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 57.946190] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > > > [=C2=A0=C2=A0 58.218686] virtio_net: 3 drop, transport_offset=3D3=
+4,
+> > > > > nh_min_len=3D40=C2=A0=20
+> > > >=20
+> > > > Hmm indeed. And what about these values?
+> > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 u32 start =3D __virtio16_to_cpu(little_endian,
+> > > > hdr-
+> > > > > csum_start);
+> > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 u32 off =3D __virtio16_to_cpu(little_endian, hdr-
+> > > > > csum_offset);
+> > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 u32 needed =3D start + max_t(u32, thlen, off +
+> > > > sizeof(__sum16));
+> > > > print them too?
+> > > >=20
+> > > >=20
+> > > >=20
+> > > > > I would now do the test with commit
+> > > > > 49d14b54a527289d09a9480f214b8c586322310a and commit
+> > > > > 49d14b54a527289d09a9480f214b8c586322310a~1
+> > > > >=20
+> > > >=20
+> > > > Worth checking though it seems likely now the hypervisor is
+> > > > doing
+> > > > weird
+> > > > things. what kind of backend is it? qemu? tun? vhost-user?
+> > > > vhost-
+> > > > net?
+> > > >=20
+> > >=20
+> > > Backend: QEMU/KVM hypervisor (Proxmox)
+> > >=20
+> > >=20
+> > > printk output:
+> > >=20
+> > > [=C2=A0=C2=A0 58.641906] virtio_net: drop, transport_offset=3D34=C2=
+=A0 start=3D34,
+> > > off=3D16,
+> > > needed=3D54, nh_min_len=3D40
+> > > [=C2=A0=C2=A0 58.678048] virtio_net: drop, transport_offset=3D34=C2=
+=A0 start=3D34,
+> > > off=3D16,
+> > > needed=3D54, nh_min_len=3D40
+> > > [=C2=A0=C2=A0 58.952871] virtio_net: drop, transport_offset=3D34=C2=
+=A0 start=3D34,
+> > > off=3D16,
+> > > needed=3D54, nh_min_len=3D40
+> > > [=C2=A0=C2=A0 58.962157] virtio_net: drop, transport_offset=3D34=C2=
+=A0 start=3D34,
+> > > off=3D16,
+> > > needed=3D54, nh_min_len=3D40
+> > > [=C2=A0=C2=A0 59.071645] virtio_net: drop, transport_offset=3D34=C2=
+=A0 start=3D34,
+> > > off=3D16,
+> > > needed=3D54, nh_min_len=3D40
+>=20
+> So likely a TCP/IPv4 packet, but with VIRTIO_NET_HDR_GSO_TCPV6.
+>=20
+> This is observed in the guest on the ingress path, right? In
+> virtnet_receive_done.
 
-Thinking again, that won't work, because it would also make 
-virtio_has_feature() say that the device does not have that feature.
+Yes, all tests are done inside the guest system. Packet drops are seen
+when receiving traffic.
 
-So yeah, virtio_has_feature() is confusing and the documentation does 
-not quite match.
+I hadn't tested upload before, so I did now:
 
-Would need a change/cleanup to handle such features that we don't 
-implement but still want to check if they are offered.
+- Download is slow (<200 KB/s)
+- Upload works fine (~190 MB/s)
 
--- 
-Cheers,
+>=20
+> Is this using vhost-net in the host for pass-through? IOW, is
+> the host writing the virtio_net_hdr too?
 
-David / dhildenb
+Yes, the guest runs on a Proxmox host using QEMU/KVM with vhost-net.
 
+vhost_net module is loaded:
+
+  # lsmod | grep vhost
+  vhost_net              32768  30
+  vhost                  61440  1 vhost_net
+  vhost_iotlb            16384  1 vhost
+  tap                    28672  1 vhost_net
+
+QEMU is launched with:
+
+  -netdev type=3Dtap,...,vhost=3Don
+  -device virtio-net-pci,...
+
+>=20
+> > >=20
+> > >=20
+> > >=20
+> > >=20
+> >=20
+> > I just noticed that commit 17bd3bd82f9f79f3feba15476c2b2c95a9b11ff8
+> > (tcp_offload.c: gso fix) also touches checksum handling and may
+> > affect how skb state is passed to virtio_net_hdr_to_skb().
+> >=20
+> > Is it possible that the regression only appears due to the
+> > combination
+> > of 17bd3bd8 and 49d14b54a5?
+>=20
+> That patch only affects packets with SKB_GSO_FRAGLIST. Which is only
+> set on forwarding if NETIF_F_FRAGLIST is set. I don=20
+
+Checked in the guest:
+
+  # ethtool -k eth0 | grep frag
+    tx-scatter-gather-fraglist: off [fixed]
+
+So fraglist offload is disabled in the guest.
