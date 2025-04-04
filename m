@@ -1,168 +1,137 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65B03165EFC
-	for <virtualization@lists.linux.dev>; Fri,  4 Apr 2025 05:33:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E0A01990B7
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 07:59:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743744820; cv=none; b=hii2FC/M2hpxzg9Ix/mc94d8Hv+XSgUaZFZ7ZSGakyxPqmOaq0Xz5MPBoR13gOVNTCuMR/Hiz/h0tO/PgskaNOhWkrcwlWOxIlyqXCcy0cUdHTlpGRkUEpXhfDPPsvhHCurTB2fumVjPVdzfUYftADkh+a0ko+GrpDim75TpNRs=
+	t=1743753572; cv=none; b=W31qBiU5aLE9AV6wpGNVJ4BH4T/uCGGVw6mXFQUGWqVqZASYQ4AAWEs+uhReuWbpKIRMfESA0v0n8Kdw1M0ulcqulxWDj2+caKG3Lyqbru0L5c3Y0g29vWBxTgUSM7WDV15IjIh7fOLh2sJgscbBXcx5ysBhOWRqR/pbMcN0Eh8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743744820; c=relaxed/simple;
-	bh=t5YrEvo1Qv7V/OOCE0jzPDPPWuEcHK5DHyugrkXD3oU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=k2ooNYSiE8oY3dyZnCPlQp9mJ/rUzTMgPUlndndxsvOGH1B2EriLJtAjJoH64CDokORzWtxtEvXkrwxUMdjYrv2qJakISX57+elD6IRmRrQq56Cxulumz1Bus/Xe9wiyysCBMJmsa4VurEgBy5r8P/nzFMmY9XvkFMS5CtO55lc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B8rx+1jI; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1743753572; c=relaxed/simple;
+	bh=yGuboUMthTnrSr0YxktMqa6s6aGvoefMlWmXmxJDGv4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Izp9GKib9gCmfoZ5xlCaKDoZl05aErauTJkcPCda214meWu0maBg/b88fxvqCF24gBvVAbcsNuIYYA6UPt4JZqXDNoATQXZx8mkHyTKHn4P3uolit/fYIgpciwE2EMoEdwk6nbkUQSyTtf+Oja4HJXjqT8FZeRdzaZJChEGAIOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lVMBL48Y; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B8rx+1jI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743744817;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W8DadzuBkB0b+TswMeRC57LXNTfY/qY6jGCVQ+lHwe0=;
-	b=B8rx+1jIIiHi4+s0CVyzN29uKWCQ85uQ2cRRCD7szz0P3hUBF54fIJ/S/SsfpN7TzrJQes
-	zfCPoU3BLfcoE76OKDKijHDAX8PXOr5/XOqg0gOwC8wHLiOW37BQV9vQdlW5XfmNmIF1Hv
-	d4YyBhjrtmw0SJs0sJwkKYwouHk52LE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-122-WKTTnEwUP8eH2-VOF33lMA-1; Fri, 04 Apr 2025 01:33:33 -0400
-X-MC-Unique: WKTTnEwUP8eH2-VOF33lMA-1
-X-Mimecast-MFC-AGG-ID: WKTTnEwUP8eH2-VOF33lMA_1743744812
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43d0a037f97so9069465e9.2
-        for <virtualization@lists.linux.dev>; Thu, 03 Apr 2025 22:33:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lVMBL48Y"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id DE67F607A7
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 07:59:30 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id weR0afgYmUmI for <virtualization@lists.linux-foundation.org>;
+ Fri,  4 Apr 2025 07:59:30 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::42f; helo=mail-wr1-x42f.google.com; envelope-from=krah.tm@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CA0566070B
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CA0566070B
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=lVMBL48Y
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CA0566070B
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 07:59:29 +0000 (UTC)
+Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-391342fc1f6so1473564f8f.1
+        for <virtualization@lists.linux-foundation.org>; Fri, 04 Apr 2025 00:59:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743753567; x=1744358367; darn=lists.linux-foundation.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Nr/t6BskpDZsQWS/KHvw+5O1AbfwUb+OCjtyeJ/2soE=;
+        b=lVMBL48YYpT+SAAPQ/DLKYwhgvx2nn7pBJcaXdfSOLqt0HfhbDM1+KhZegWjsGT1zK
+         C+6GuuwBrBJSyC+RU9XKgW2OGShfLd3B+Hnb7HuLXYIu1ga08UJgBt1MyYCSxSihcS2E
+         7yKLyVyhsY3h0X62RvWeVSiwVkrVvoBdLNgGoD2gy+xxAbdp1MPoMQBAmXV94Y44bofB
+         y1icVGGT0weanMdn9Pyt3o/7l6Rr/ey4LVAHJXSQryUDBE38I7kzfOcY0rxu/kgx2w+u
+         2GzNU2WsPiys/6fkXnVPY+i/FvUOh1VM8FU8RzbOyo2d+BZyqHK/oiWTrxQueb9Z7wC9
+         QuyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743744812; x=1744349612;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=W8DadzuBkB0b+TswMeRC57LXNTfY/qY6jGCVQ+lHwe0=;
-        b=fqy/ReHRN5M+2Iz8Xm9jziC5iVMXucpGt/Xx9Em9lZftsRonCMtdIRDr9Xcwho1LHK
-         Wh4N1Jwua1pCJChJhQ3c+xYfQvuQc8YqqsPmgXbg0Bh/fDpIUALjrU74za1gLMvr52ZH
-         EACxsDjXh2sXSub0mROALG2CMu7WR5u6FY+zwkg6/zUQJWC+QfaqqqIn5kxUouhLhuB2
-         znxtuHIW6xkDofCdI0urGy1Wd0xeLJpQZact7iiEEABhAWGqhcCAYr1E3SpCtGVnuZ7Y
-         Dy+X/Dj5TRLacah8YSOqw6l/BVf3ZoARJCR5ouLy7yKocXtIY48+o3QTvAlKIdVVNCjK
-         6H1A==
-X-Forwarded-Encrypted: i=1; AJvYcCWAONUc3DmZFPXuouBHARqdR14xkEM6/rUEqvG3tFwJho3/JJvKCE6M0KtjesfYN8SRag/qslP6NzMiTr5OkQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/BJQtpvCHNH9Mc3RbuKQ8TQc7vVikL6b8F7F/zKrspQDDhUrw
-	d5EMgAxZt73G4gXdNSypoVmyscSymRVlr43nkh3Q/T5D2gQCdTPxAUiiw5OogFedDWtCgo6qxpN
-	rsvJH+gko2dDxTRCGHxm3TqqAOMx6U12VA1uwUJPS5PlD26pUl8pU21sg0cUnF3T7
-X-Gm-Gg: ASbGncv0kFNj1DBk4Eq0SFSWabTJcxCA36nZAcXLpLbOkxTvH+GOXkukiiZGOUEtKci
-	RczvoMSUewiuRjrXUG0hPEJVIRl88WYBbFu/LIFJVn2oZf0MFVxKzJmCvnbFJtzw9ed08cSQTWo
-	nRjDQNVkl2swypuUX4oZHfbrSwdmUrNHDoRP52OK+HUo/N9JhVwHl3ftCABpaVcefunmkIkQInM
-	tWwPF7REKaTKfIZhIpRJxI8iCLhbXDUvgajwggf9WTxMyCJlqaNi9pPqIvXuGk2/kLGLlZjmghW
-	sa9YUSMhEg==
-X-Received: by 2002:a05:600c:6986:b0:43d:a90:9f1 with SMTP id 5b1f17b1804b1-43ecf822cf4mr12380275e9.6.1743744812320;
-        Thu, 03 Apr 2025 22:33:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFOWcVoqDuuU1EzwnYMSgwjMR/a8JCeY7bzgZQlbtecRuO04aJY8fG8iABZRmySxq9rz0/+0A==
-X-Received: by 2002:a05:600c:6986:b0:43d:a90:9f1 with SMTP id 5b1f17b1804b1-43ecf822cf4mr12380055e9.6.1743744811973;
-        Thu, 03 Apr 2025 22:33:31 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec342a3dfsm36561555e9.4.2025.04.03.22.33.29
+        d=1e100.net; s=20230601; t=1743753567; x=1744358367;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Nr/t6BskpDZsQWS/KHvw+5O1AbfwUb+OCjtyeJ/2soE=;
+        b=ca65siGb27e+lWcI2fZZy9YvMLgbmM4q21sbJ5zxEn0I360yGk/0MFIOFHkd7fq7bV
+         SGOQzi/UWZLKzBx/D5GwEaU8a0wa05HckgkkAFKNLE5vPEFykHD23wP7RMwgZXCg7/un
+         8uquyr/UJ8mM1ipNpqJ9fWHhpFMrKOSMDGaW3jRNrzJEhBxnBxJ/31OI+ofA/mF2IIxJ
+         F6sHkj18cK8Yv50Mw8Bwm97OSklOH7yoA/ZYWQLF5dnbIvH1kHs0uEmngeeE2jkaIHQZ
+         Dq2hnPok7Dsp9zHPCN1mCTK4c8znXZvWd6oYb2wwGgunSkUE5AlQ4bapZ8qwxaHL83Ed
+         YJQQ==
+X-Gm-Message-State: AOJu0YzctrFZXqzvlgto2Z0j+GWoKKt5HP0v6/O+JSJvYEDDBsHRFk6U
+	wGTUmiIf1osc8u1HGDPV5nhbBjR1ZdDcJ3j541QZF4Gtj/7U+EvIIkOJ+bK/
+X-Gm-Gg: ASbGncu/acAnF7PeaYSM7x9vA0Mk4aylXPh2QiZ1bTwhZ++UhCvoaa4yix8PaJtbfZQ
+	k43TpcgdGuaqow8c3F16f8Nd52c1n7d1mmJ/zrW0d+neL3it+kh/LMU+FwYEZ/R5S+YqC5T2Zz3
+	U8T20P8aX361VMIB4zmSK4Ae9cYKADzfJO+ca7OPdw+iFe61WbZRURW6+gnuvREEopyngqcULUi
+	qUbgAKhILLIHZp/UjtAc65/ZetUK9p+KFEoGDZl32EnpgVDUcaGSy7VlFUUPeyzcTg79MvfGWaP
+	ZCUwJjqOSovs3Xtczy3ETwjqbkgPYlov4raLKf3RERNZtOjQYxeEwweq
+X-Google-Smtp-Source: AGHT+IGy0FnVsV73jUujcayMrD7rYIs9G/cxOlRjUi4l53/BlPFVn3dQEG1Vf4RXOkfRc3KVHv1q4g==
+X-Received: by 2002:a05:6000:2902:b0:391:3f4f:a17f with SMTP id ffacd0b85a97d-39d0de67b6dmr1352589f8f.42.1743753566484;
+        Fri, 04 Apr 2025 00:59:26 -0700 (PDT)
+Received: from ?IPv6:2a01:50a0:aa10:1a36::11d? ([2a01:50a0:aa:0:185:40:248:10])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec1794e94sm42791465e9.31.2025.04.04.00.59.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Apr 2025 22:33:31 -0700 (PDT)
-Date: Fri, 4 Apr 2025 01:33:28 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
-	Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-	Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250404013208-mutt-send-email-mst@kernel.org>
-References: <20250402203621.940090-1-david@redhat.com>
- <20250403161836.7fe9fea5.pasic@linux.ibm.com>
- <20250403103127-mutt-send-email-mst@kernel.org>
- <20250404060204.04db301d.pasic@linux.ibm.com>
+        Fri, 04 Apr 2025 00:59:26 -0700 (PDT)
+Message-ID: <4d0c0cb9e9d513bf9ba81346ea72c9e58359ff93.camel@gmail.com>
+Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM
+ with Linux 6.8+
+From: Torsten Krah <krah.tm@gmail.com>
+To: virtualization@lists.linux-foundation.org
+Cc: Markus Fohrer <markus.fohrer@webked.de>, mst@redhat.com, 
+	jasowang@redhat.com, davem@davemloft.net, edumazet@google.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Fri, 04 Apr 2025 09:59:19 +0200
+In-Reply-To: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
+References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.3-0ubuntu1 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250404060204.04db301d.pasic@linux.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: EZHEqaqfsyixgzfmPG0B1nOMf-jzpmzEwGtpgjLMcPQ_1743744812
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Fri, Apr 04, 2025 at 06:02:04AM +0200, Halil Pasic wrote:
-> On Thu, 3 Apr 2025 10:35:33 -0400
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Thu, Apr 03, 2025 at 04:18:36PM +0200, Halil Pasic wrote:
-> > > On Wed,  2 Apr 2025 22:36:21 +0200
-> [..]
-> > > 
-> > > 5.5.2 Virtqueues
-> > > 
-> > > 0
-> > >     inflateq 
-> > > 1
-> > >     deflateq 
-> > > 2
-> > >     statsq 
-> > > 3
-> > >     free_page_vq 
-> > > 4
-> > >     reporting_vq  
-> > 
-> > Indeed. Unfortunately, no one at all implemented this properly as
-> > per spec :(.
-> > 
-> > Balloon is the worst offender here but other devices are broken
-> > too in some configurations.
-> > 
-> > 
-> > Given it has been like this for many years I'm inclined in this
-> > instance to fix the spec not the implementations.
-> > 
-> 
-> I understand! For me at least knowing if we are going to change the
-> spec or the implementations is pretty important. It would probably
-> make sense to spin a patch for the spec, just for the unlikely case that
-> somebody did end up implementing this by the spec and wants to protest.
-> 
-> I think, a consequence of this design is that all queues need to be
-> created and allocated at initialization time.
+Am Mittwoch, dem 02.04.2025 um 23:12 +0200 schrieb Markus Fohrer:
+> When running on a host system equipped with a Broadcom NetXtreme-E
+> (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in the guest
+> drops to 100=E2=80=93200 KB/s. The same guest configuration performs norm=
+ally
+> (~100 MB/s) when using kernel 6.8.0 or when the VM is moved to a host
+> with Intel NICs.
 
-Why? after feature negotiation.
+Hi,
 
-> I mean in the spec we have something like 
-> """
-> 5.1.6.5.6.1 Driver Requirements: Automatic receive steering in multiqueue mode
-> The driver MUST configure the virtqueues before enabling them with the VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command. 
-> """
-> 
-> For example one could want to hotplug 2 more vCPUs and still have a
-> queue-pair per cpu (and a controlq). Those 2 extra queue-pairs could
-> in theory be allocated on-demand instead of having to allocate memory
-> for the rings for all the queues corresponding to the maxed out setup.
-> I've had a look at the Linux virtio-net and it does allocate all the
-> queues up front.
-> 
-> Also with this design, I believe we would effectively prohibit "holes".
+as I am affected too, here is the link to the Ubuntu issue, just in
+case someone wants to have a look:
 
-For existing devices at least.
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2098961
 
-> Now if holes are prohibited, IMHO it does not make a whole lot of
-> sense for the virtio_find_vqs() to support holes. Because the holes
-> and a fair amount of complexity. Of course that would make sense as a
-> cleanup on top.
-> 
-> Regards,
-> Halil
+We're seeing lots of those in dmesg output:
+
+[  561.505323] net_ratelimit: 1396 callbacks suppressed
+[  561.505339] ens18: bad gso: type: 4, size: 1448
+[  561.505343] ens18: bad gso: type: 4, size: 1448
+[  561.507270] ens18: bad gso: type: 4, size: 1448
+[  561.508257] ens18: bad gso: type: 4, size: 1448
+[  561.511432] ens18: bad gso: type: 4, size: 1448
+[  561.511452] ens18: bad gso: type: 4, size: 1448
+[  561.514719] ens18: bad gso: type: 4, size: 1448
+[  561.514966] ens18: bad gso: type: 4, size: 1448
+[  561.518553] ens18: bad gso: type: 4, size: 1448
+[  561.518781] ens18: bad gso: type: 4, size: 1448
+[  566.506044] net_ratelimit: 1363 callbacks suppressed
 
 
+And another interesting thing we observed - at least in our environment
+- that we can trigger that regression only with IPv4 traffic (bad
+performance and lots of bad gso messages) - if we only use IPv6, it
+does work (good performance and not one bad gso message).
+
+kind regards
+
+Torsten
 
