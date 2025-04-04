@@ -1,202 +1,167 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A522D1CD3F
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:17:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 838C219ABC2
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:26:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743754640; cv=none; b=ZTN8eCg0LP2LIhuyOq14xOU85CkRgP+nZDkGYmesg3tAmW3rn21tl8t06/I8s+p/8Muf/XQ8tBPNEX0dNLWfs5vZFC9ZfThKtYhnPyDXkal5CCsf9tmMI4LfJSWEQcm4Sgb5bqCF5xkySSH2u5FMp7M2X3bShdNh2Dqzk5u/cIY=
+	t=1743755217; cv=none; b=Xlwu/RA2EiwYqH64zGm/6TBoGuEts2QuEBhMSv5mLcd0JYNiKjyyiMCROi7Ad+O4a9eHlyFFfX3gojnVlyKW/aLNIFzjLG5aX3p4HJykt6yaYMwgq2185PDHn9WHwb0MaVengnTwY+z4nr01QmLAgqPim/TsVcpExCGUOBncyw8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743754640; c=relaxed/simple;
-	bh=Cum2HBj0wq3wG0kYJgWZyERuNJx/Px6KBEHhIMFuuDw=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=KytaUrqMuLjG2ot/9c740l55n8iLV2QGIOWmzbYTUBn/27GueBuKbIqAKdO8phqazyUDzTbyOpn33HVFWdblFPhJEmdxvz0b9FM1e+df+iBkP9etqBzbPRqluK3s9vMGtd2RCP2kFcVDWJa6715+ldK+UxJnYyK9m2PUoXvt/hM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1743755217; c=relaxed/simple;
+	bh=mxOPmaHNNmijVfz1CVwVMXGKnvkZakTcfnOKolxNCzY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=XQWwaWd5qt35uXNW5cJv83E506nRe4wyQP6c9QAbL0nxJ/I/+bqTgIW2KwN5XTmEF4nJN6ONpxKKraeo2RZ3974zTsUd9XQE7La0Fnbz2cGdEz2D/FVQLmTYoREUFcwO+27etfzhQVgpYh4qjOxvVeQSQmimohrqgib3kjAXq6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c4YCu0hY; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c4YCu0hY"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0B27E40989
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:17:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1BA3761196
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:26:56 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.591
+X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id gBUvtq0zH_YK for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Apr 2025 08:17:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=159.69.203.94; helo=webmail.webked.de; envelope-from=markus.fohrer@webked.de; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 83429400B9
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=webked.de
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 83429400B9
-Received: from webmail.webked.de (webmail.webked.de [159.69.203.94])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 83429400B9
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:17:13 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 08FD562BA4;
-	Fri,  4 Apr 2025 10:16:55 +0200 (CEST)
-Message-ID: <11c5cb52d024a5158c5b8c5e69e2e4639a055a31.camel@webked.de>
-Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM
- with Linux 6.8+
-From: Markus Fohrer <markus.fohrer@webked.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, jasowang@redhat.com, 
-	davem@davemloft.net, edumazet@google.com, netdev@vger.kernel.org, 
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 5chxQcWfuBa0 for <virtualization@lists.linux-foundation.org>;
+ Fri,  4 Apr 2025 08:26:55 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 2476B60809
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2476B60809
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c4YCu0hY
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2476B60809
+	for <virtualization@lists.linux-foundation.org>; Fri,  4 Apr 2025 08:26:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743755213;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=c3R/FwwTm36lOogPDfsrJ2NATa0Y/PG/vq80IpIZYTw=;
+	b=c4YCu0hYnD9xUqnh5tftpC3Ofu8TNDi0orPokUknLxyHQ2G0v72AegjEm4Utep8FpyVuA7
+	sXfRrENfdv/v8aJTUJERu7TcAV33zhXq4Co/RhJaMEN961DSY38QluzI5XLITxoeyh8rX2
+	B+Vji7yLXvgdxWP/8oJ7KqpNV+NqxB8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-86-YSP_09q9MPunzJOLmU0e0Q-1; Fri, 04 Apr 2025 04:26:50 -0400
+X-MC-Unique: YSP_09q9MPunzJOLmU0e0Q-1
+X-Mimecast-MFC-AGG-ID: YSP_09q9MPunzJOLmU0e0Q_1743755209
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-39979ad285bso1063879f8f.2
+        for <virtualization@lists.linux-foundation.org>; Fri, 04 Apr 2025 01:26:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743755209; x=1744360009;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=c3R/FwwTm36lOogPDfsrJ2NATa0Y/PG/vq80IpIZYTw=;
+        b=wJ3xlr41DE3FRvPDs1LAMux1Fkp3D+OlyiqV6Z+R/GroWblWM54eZDFP4dJNFWOAhl
+         OrMcnyfmcel/TN6WjT2MSUDi1mErkHoyvTCTj/YamZld0Z6kVTdhVEmNDiSCSugz0fBk
+         2wbM+F2OP9FdeVKItUJ+ODzHcALMLyi5X5mzN7Sd7P7H+eYt8JxR0NKjB86RU3apoBTM
+         s5+wRKp+qwaZjYH9r1gIgOGplp723itBYDFEH93ie/1lIGmrHjexc+87vWasDDg9Tdms
+         lb7lcnNMdFgB4Fcv5Uh5EXN3HDKH7GBGvI1oPwpru/iownxs8ZO3qFx0kNAjmWRieUCr
+         7Apg==
+X-Gm-Message-State: AOJu0YxrwU5gIXvYYNdFZ5lkRyVwuhJ66/iwcWgjqMmV9GVMMXRP8EUF
+	ptNpw0GMI7VEbmNp4h//N5AINZoxarc64oDpdiCNSZz9/t8BzNbFdnpGEd5bPAYlyAk09+eozCa
+	axF/f8k0QCrTqSSKrelZDCa7f+QAkcvc7nX+/Qjs6wnDYB8uhCFVC+8mYP9KQuUWeo9ojLaJGnx
+	bA5nQ=
+X-Gm-Gg: ASbGncszUAJYaFMUWu5oiqRRw1YLLrdUnNmgKW+8XsLgJnOIT4XjtAHEI6vLOb5ohIS
+	y8ZYawheZycl8cC4Biftm5BBUC9y4UnwnEMJ/NZOlR1JAcyl+zxpsYHqSS24ydVe1S3ocib9cwL
+	jHqy34ZhsdrJNcBSa5Gclz2xp7CIN20Dp5Fj8qwKpKFRxCGUnuBBGMJscED3XLWvhKcOO1YCL97
+	ltlhOGWCrK0VO6vSo3Upev3zZ4U9Z04+aEOmy248qZ189MeKdFEwuaravJ/0a14D0cJSaBgjdtr
+	bxOccEL95g==
+X-Received: by 2002:a05:6000:1845:b0:391:3cb0:3d8d with SMTP id ffacd0b85a97d-39d0de179e8mr1425007f8f.19.1743755209061;
+        Fri, 04 Apr 2025 01:26:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFry/je4DWnZKjNa0BdbFTTJdiIP/YGNaOLTb1x67wtVqnOvUq7clsozKVFoIyWoDydiJxwVQ==
+X-Received: by 2002:a05:6000:1845:b0:391:3cb0:3d8d with SMTP id ffacd0b85a97d-39d0de179e8mr1424982f8f.19.1743755208677;
+        Fri, 04 Apr 2025 01:26:48 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c301b8ad6sm3848446f8f.56.2025.04.04.01.26.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Apr 2025 01:26:48 -0700 (PDT)
+Date: Fri, 4 Apr 2025 04:26:45 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Torsten Krah <krah.tm@gmail.com>
+Cc: virtualization@lists.linux-foundation.org,
+	Markus Fohrer <markus.fohrer@webked.de>, jasowang@redhat.com,
+	davem@davemloft.net, edumazet@google.com, netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Date: Fri, 04 Apr 2025 10:16:55 +0200
-In-Reply-To: <20250403090001-mutt-send-email-mst@kernel.org>
+Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM with
+ Linux 6.8+
+Message-ID: <20250404041708-mutt-send-email-mst@kernel.org>
 References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
-	 <20250403090001-mutt-send-email-mst@kernel.org>
-Organization: WEBKED IT Markus Fohrer
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.3-0ubuntu1 
+ <4d0c0cb9e9d513bf9ba81346ea72c9e58359ff93.camel@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <4d0c0cb9e9d513bf9ba81346ea72c9e58359ff93.camel@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: pp9b-4w_enmG665Dm6eRdDTT5XtTKHFT9kpoqQbv-s4_1743755209
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Am Donnerstag, dem 03.04.2025 um 09:04 -0400 schrieb Michael S.
-Tsirkin:
-> On Wed, Apr 02, 2025 at 11:12:07PM +0200, Markus Fohrer wrote:
-> > Hi,
-> >=20
-> > I'm observing a significant performance regression in KVM guest VMs
-> > using virtio-net with recent Linux kernels (6.8.1+ and 6.14).
-> >=20
+On Fri, Apr 04, 2025 at 09:59:19AM +0200, Torsten Krah wrote:
+> Am Mittwoch, dem 02.04.2025 um 23:12 +0200 schrieb Markus Fohrer:
 > > When running on a host system equipped with a Broadcom NetXtreme-E
-> > (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in the
-> > guest drops to 100=E2=80=93200 KB/s. The same guest configuration perfo=
-rms
-> > normally (~100 MB/s) when using kernel 6.8.0 or when the VM is
-> > moved to a host with Intel NICs.
-> >=20
-> > Test environment:
-> > - Host: QEMU/KVM, Linux 6.8.1 and 6.14.0
-> > - Guest: Linux with virtio-net interface
-> > - NIC: Broadcom BCM57416 (bnxt_en driver, no issues at host level)
-> > - CPU: AMD EPYC
-> > - Storage: virtio-scsi
-> > - VM network: virtio-net, virtio-scsi (no CPU or IO bottlenecks)
-> > - Traffic test: iperf3, scp, wget consistently slow in guest
-> >=20
-> > This issue is not present:
-> > - On 6.8.0=20
-> > - On hosts with Intel NICs (same VM config)
-> >=20
-> > I have bisected the issue to the following upstream commit:
-> >=20
-> > =C2=A0 49d14b54a527 ("virtio-net: Suppress tx timeout warning for small
-> > tx")
-> > =C2=A0 https://git.kernel.org/linus/49d14b54a527
->=20
-> Thanks a lot for the info!
->=20
->=20
-> both the link and commit point at:
->=20
-> commit 49d14b54a527289d09a9480f214b8c586322310a
-> Author: Eric Dumazet <edumazet@google.com>
-> Date:=C2=A0=C2=A0 Thu Sep 26 16:58:36 2024 +0000
->=20
-> =C2=A0=C2=A0=C2=A0 net: test for not too small csum_start in virtio_net_h=
-dr_to_skb()
-> =C2=A0=C2=A0=C2=A0=20
->=20
-> is this what you mean?
->=20
-> I don't know which commit is "virtio-net: Suppress tx timeout warning
-> for small tx"
->=20
->=20
->=20
-> > Reverting this commit restores normal network performance in
-> > affected guest VMs.
-> >=20
-> > I=E2=80=99m happy to provide more data or assist with testing a potenti=
-al
-> > fix.
-> >=20
-> > Thanks,
-> > Markus Fohrer
->=20
->=20
-> Thanks! First I think it's worth checking what is the setup, e.g.
-> which offloads are enabled.
-> Besides that, I'd start by seeing what's doing on. Assuming I'm right
-> about
-> Eric's patch:
->=20
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 276ca543ef44d8..02a9f4dc594d02 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -103,8 +103,10 @@ static inline int virtio_net_hdr_to_skb(struct
-> sk_buff *skb,
-> =C2=A0
-> =C2=A0		if (!skb_partial_csum_set(skb, start, off))
-> =C2=A0			return -EINVAL;
-> +		if (skb_transport_offset(skb) < nh_min_len)
-> +			return -EINVAL;
-> =C2=A0
-> -		nh_min_len =3D max_t(u32, nh_min_len,
-> skb_transport_offset(skb));
-> +		nh_min_len =3D skb_transport_offset(skb);
-> =C2=A0		p_off =3D nh_min_len + thlen;
-> =C2=A0		if (!pskb_may_pull(skb, p_off))
-> =C2=A0			return -EINVAL;
->=20
->=20
-> sticking a printk before return -EINVAL to show the offset and
-> nh_min_len
-> would be a good 1st step. Thanks!
->=20
-
-I added the following printk inside virtio_net_hdr_to_skb():
-
-    if (skb_transport_offset(skb) < nh_min_len){
-        printk(KERN_INFO "virtio_net: 3 drop, transport_offset=3D%u,
-nh_min_len=3D%u\n",
-               skb_transport_offset(skb), nh_min_len);
-        return -EINVAL;
-    }
-
-Built and installed the kernel, then triggered a large download via:
-
-    wget http://speedtest.belwue.net/10G
-
-Relevant output from `dmesg -w`:
-
-[   57.327943] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.428942] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.428962] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.553068] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.553088] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.576678] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.618438] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.618453] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.703077] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.823072] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.891982] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   57.946190] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-[   58.218686] virtio_net: 3 drop, transport_offset=3D34, nh_min_len=3D40 =
-=20
-
-I would now do the test with commit
-49d14b54a527289d09a9480f214b8c586322310a and commit
-49d14b54a527289d09a9480f214b8c586322310a~1
+> > (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in the guest
+> > drops to 100–200 KB/s. The same guest configuration performs normally
+> > (~100 MB/s) when using kernel 6.8.0 or when the VM is moved to a host
+> > with Intel NICs.
+> 
+> Hi,
+> 
+> as I am affected too, here is the link to the Ubuntu issue, just in
+> case someone wants to have a look:
+> 
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2098961
+> 
+> We're seeing lots of those in dmesg output:
+> 
+> [  561.505323] net_ratelimit: 1396 callbacks suppressed
+> [  561.505339] ens18: bad gso: type: 4, size: 1448
+> [  561.505343] ens18: bad gso: type: 4, size: 1448
+> [  561.507270] ens18: bad gso: type: 4, size: 1448
+> [  561.508257] ens18: bad gso: type: 4, size: 1448
+> [  561.511432] ens18: bad gso: type: 4, size: 1448
+> [  561.511452] ens18: bad gso: type: 4, size: 1448
+> [  561.514719] ens18: bad gso: type: 4, size: 1448
+> [  561.514966] ens18: bad gso: type: 4, size: 1448
+> [  561.518553] ens18: bad gso: type: 4, size: 1448
+> [  561.518781] ens18: bad gso: type: 4, size: 1448
+> [  566.506044] net_ratelimit: 1363 callbacks suppressed
+> 
+> 
+> And another interesting thing we observed - at least in our environment
+> - that we can trigger that regression only with IPv4 traffic (bad
+> performance and lots of bad gso messages) - if we only use IPv6, it
+> does work (good performance and not one bad gso message).
+> 
+> kind regards
+> 
+> Torsten
 
 
+I suspect it's something weird on the ubuntu hypervisor side,
+supplying wrong checksum offsets.
+
+Can you stick a printk here:
+                if (skb_transport_offset(skb) < nh_min_len)
+                        return -EINVAL;
+
+printing, on error, all of: start, off, needed, nh_min_len.
+
+
+Also, what kind of device is this? QEMU? vhost-user? vhost-net?
+Thanks!
+
+-- 
+MST
 
