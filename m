@@ -1,453 +1,313 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F2D91B0412
-	for <virtualization@lists.linux-foundation.org>; Sat,  5 Apr 2025 12:19:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCA2121D5BC
+	for <virtualization@lists.linux.dev>; Sun,  6 Apr 2025 15:40:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743855545; cv=none; b=krTxWr0pNrw57fQOA6sweDJqVZWkKdqjfNxorcTjkxFDfSDToF4FY76ABIJG+3o2BVcZsX5nVw2Ivi4eNB/3SJDi2G3lvPh81alISUUj1/Xg7OOUvEswnaGwNi1ATPiZXTRY8JJ486O8i3CGPsu4A+EdeNxeHn1csniAn3eYNy0=
+	t=1743954045; cv=none; b=qAv794lDrK7oTnU56N8GB8ela0bZMikhapzywB6t2KvqZhaeQHEHH1Q8pIF/qMhSjfBwNPNsGSo9cwPolFbxRCJsYSZ4zv9ROI6wcOO8vAR2LxxN1MBLGl6EZk0aOmGZN7GgZVeicuwXshRrfa+7/Up01o2/lVrhl7feuyYqDNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743855545; c=relaxed/simple;
-	bh=FHzAQLnpcXs/w85QnGjQQRZuIVfbC9bPliMos1LNi/o=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=IiNTCU8Z5Rth6CaMfiNpIQaD3t6meA7Mzt224iJb94r2H56EaHs3EacvkDfTMJy5PuDoXyPX9XRGPerwBA8rI0lZb6QYZ/nanft7TTLUVqjNhr6VOgJKpOaMkLcFdi4fBzfCzWCZDL7x1iSFbD3b+Z9yQowmAF3naYY/ERAhpBk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B4542406F4
-	for <virtualization@lists.linux-foundation.org>; Sat,  5 Apr 2025 12:19:03 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.089
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id yXfs9-6OJD5A for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Apr 2025 12:19:02 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=209.85.218.66; helo=mail-ej1-f66.google.com; envelope-from=i.maximets.ovn@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2545C406E5
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=ovn.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2545C406E5
-Received: from mail-ej1-f66.google.com (mail-ej1-f66.google.com [209.85.218.66])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2545C406E5
-	for <virtualization@lists.linux-foundation.org>; Sat,  5 Apr 2025 12:19:02 +0000 (UTC)
-Received: by mail-ej1-f66.google.com with SMTP id a640c23a62f3a-abf3d64849dso443995966b.3
-        for <virtualization@lists.linux-foundation.org>; Sat, 05 Apr 2025 05:19:01 -0700 (PDT)
+	s=arc-20240116; t=1743954045; c=relaxed/simple;
+	bh=QPQgC7kvXKpnKQQ0zZIdhCNfWb/+UL0O59Sg480zvCA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=SDBbnOWV8ScYkcbEgFiTcmCgJhzk5TQ8L8x2klySY/YRXsHkTuI9Ck3JM9CX5zv6yzJie8RzIAIPtQi6CihVBW20t/eNts6bfM/fYVASOmGS6pKZ+iCcSjaMr6ZpB8wTO9PdGycNeYZJRZ67nws414fr5gVweqMRUEBXRB415v8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H2hhBRMn; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H2hhBRMn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743954041;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vB1cPTM6kQM0IccundSU9yqiAslJfta8o011pO2Z12I=;
+	b=H2hhBRMn0xHNCWxqXR0nIdyRw7Co466K6daqZ7pjuPejbyjnsrPKooMtYO5mlElEIcAIa/
+	cuEWeu16Pj+lk/mQaMQ6gKfjktvDLi8Bcfx4b/Kz4hOmwR6H2Jinn7WyuM1ZbMF8aZCT/T
+	LjYQclC68d66WBvFpYCqn2duRpjx0KI=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-193-9hYW980mOymgW-JCtV5pzg-1; Sun, 06 Apr 2025 11:40:40 -0400
+X-MC-Unique: 9hYW980mOymgW-JCtV5pzg-1
+X-Mimecast-MFC-AGG-ID: 9hYW980mOymgW-JCtV5pzg_1743954039
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43d51bd9b41so30944415e9.3
+        for <virtualization@lists.linux.dev>; Sun, 06 Apr 2025 08:40:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743855540; x=1744460340;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:to:subject:cc:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1743954039; x=1744558839;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=S6qpZkqWE0sV7InwKQVyinI4neXB6H7GCZgdvTOZiVQ=;
-        b=cYwKBPP+srh9/jBOVaGxJQoxamqREzKe2zJGaTIcwSeuftRzZV+/3mRWL8H06wuBRq
-         CKXfWDhEoK4H1eFlpOhE+zhlHb16g/cbpThTKSIdgS++2WbdkWYUmN+ez8QMPVujDqlx
-         vA25hFD6XFWEs5OfKJOwJFnajtMdrcSFM8me+G7h66GEdf8uebNGEqAC50vURYO3bzt8
-         TCdnd9YvM8A/i/sde3NthEob6sZ54G4OaN33ZJVnrJUmx403cG+2b96Nf4QC+DJYYFAT
-         6KRBpsb50O5fyQwIMmWptmzVhrtyUho7qTvKWRxjtC7UcvIkgC6AQnoOniQSU+wb5hU8
-         nrdw==
-X-Forwarded-Encrypted: i=1; AJvYcCUjiVsWvKIooGgvC70ucHB4dYMaAPFl2+DeR6y1IlY0c4cHBWI5JWqAkDpXM1kIMRYecKGdN6bVTghPI0i1gw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxYCdhR7v+RCQ2k6HB/Gm2H8kW15nvBlfEAAeAoyvR2lFD/0uYv
-	proEErAOVfI5LLDT8c0R0aePpa/ONEnoDqtwiZgVpvDBSXEuuswCRKc+MA4S
-X-Gm-Gg: ASbGncu9358gExlpb5baEa1ht3GZGHfMw3AM5Ov4zCGuikcWatgS45d6EdhKKKJ8d76
-	0whmfZhi4RkXhtaKnuCgtC2cY008AjNkp1lNioPBx6+2yznMqXDvxulWDP6VuASzu4yam+K61ef
-	dGG+IjwBcYKq31q8f7hNVF9GRyfoK5Lsht6C35e5lZODH2+QYyjdW07u6uh4JTcFFFo8B20y3TK
-	bQBAfFxcCpeUUBJ7/Vljpx4lfF5Ae9A5MH4HLLcUHfRHQeFcMZe0QQPHk3aMya6qsn+NHDlXU+o
-	sh5LSKE0swYWL67QINdNW2srbh2LaphZOz17dj17+7SmuxSxBo08mkLRQhI4bt2y8fLd2Aru1bC
-	MOg==
-X-Google-Smtp-Source: AGHT+IHZgWgvOec6QvpHZRzs9DbUTqk0jESzrhg9GsJtcKNj+18OAfXkAREoDrIKv8scp7MHE41nxw==
-X-Received: by 2002:a17:907:60d0:b0:ac3:48e4:f8bc with SMTP id a640c23a62f3a-ac7d198fd31mr624507666b.48.1743855539691;
-        Sat, 05 Apr 2025 05:18:59 -0700 (PDT)
-Received: from [192.168.0.234] (ip-86-49-44-151.bb.vodafone.cz. [86.49.44.151])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac7c013f2b4sm410713466b.116.2025.04.05.05.18.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 05 Apr 2025 05:18:59 -0700 (PDT)
-Message-ID: <2b2d686e-9164-4ad6-aa83-2d97aba680b6@ovn.org>
-Date: Sat, 5 Apr 2025 14:18:57 +0200
+        bh=vB1cPTM6kQM0IccundSU9yqiAslJfta8o011pO2Z12I=;
+        b=wTIO/maAcUT2Wl8L+fxn/8g19gibh08eV/+3QNm7tYvJbIEsPi7ucorAOTyLvqVQeF
+         ZpQ+7i37mrH+hvtE+Q278Sjb8z131CQVxztI9dfPHwZcSjphXRWdQOFAA3NxlFVMRTfZ
+         Le7EOz/v7yp3jRhZkDynkUJAPFhcO94OvXEsPiKKAdDyab3I9ZqYgVE4Xdm6eLFWJDL1
+         N1dBZaWPZwUCWurTZ+9pW8D3keEaBJckrViXb39eW8NasiJtRqLpRDTxt2FE8Uwqxyhd
+         BdewjrngUHt78A3SxcUPChh8tnYCHUKjXCCfUvcujIwQ6MHbEopWr4887TS+1tZlo5c2
+         6oRw==
+X-Forwarded-Encrypted: i=1; AJvYcCXuZq8qLkolbsQvLDE+uiDIa/rYQRN6kui1mevEsdm79F+9easDzmzD8BHRfHayEu+3yb/nLF+5+TAygLikCg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxV3Lu8jHl4bz5icQ9XCk7tsuljub78ARwzyUV7MI3JPvbneAmo
+	vg+NifCkG6XXsL0L7xN/O4Z2SBNBeyDsNxQwAxOTLm7IRGt6rwfeDUkt6hyYpqw/ONw5f0uADGJ
+	kK42XYCd7zW98YtF4RH1+uZcRKvVrJ77HAFSklsknqBeGx0bFLpuzV8NyU6jt9rxI
+X-Gm-Gg: ASbGncuaeXLKHoct6mxeWBvg/QQiC5CmUBR6gyXrXQJvF6BfKd7Dxkb+DSaixmfHiA0
+	pfO7Ghav70ARFVrdYt2Rc224CiFyDn6LGClmv5FqLMDH0YDgc0Z/RQn5l+UoAHXAa4Ovf8LGmc9
+	aeCrItdqZCxkUjFnrExKamAL5KUW8uOiLVxHzvgFUyTPwGCWQaEEvpaNBgJ3Yl/54nN096HSRHa
+	OKKbcb58MFR4rJ+V0sHOh1Yz893EVbN2tWgIKOwhppIC65iAKsRnkIYtfCWpEnl572eK3HCVL5X
+	6TBBk5j5NQ==
+X-Received: by 2002:a05:600c:3596:b0:43c:fe5e:f03b with SMTP id 5b1f17b1804b1-43ed0db35d6mr95618275e9.30.1743954038949;
+        Sun, 06 Apr 2025 08:40:38 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFN/IYHI1ly9zqzd/yipZ2IxNmlWWEkP3lQh8Sl8IvCxIbI13KHnpOGc/44mG1AnIZVtDsnLw==
+X-Received: by 2002:a05:600c:3596:b0:43c:fe5e:f03b with SMTP id 5b1f17b1804b1-43ed0db35d6mr95618065e9.30.1743954038489;
+        Sun, 06 Apr 2025 08:40:38 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec163107csm108121185e9.3.2025.04.06.08.40.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Apr 2025 08:40:36 -0700 (PDT)
+Date: Sun, 6 Apr 2025 11:40:33 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+	Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+	Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+Message-ID: <20250406113926-mutt-send-email-mst@kernel.org>
+References: <20250402203621.940090-1-david@redhat.com>
+ <20250403161836.7fe9fea5.pasic@linux.ibm.com>
+ <e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
+ <20250404063619.0fa60a41.pasic@linux.ibm.com>
+ <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+ <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: i.maximets@ovn.org, virtualization@lists.linux-foundation.org,
- jasowang@redhat.com, davem@davemloft.net, edumazet@google.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [REGRESSION] Massive virtio-net throughput drop in guest VM with
- Linux 6.8+
-To: Markus Fohrer <markus.fohrer@webked.de>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <1d388413ab9cfd765cd2c5e05b5e69cdb2ec5a10.camel@webked.de>
- <20250403090001-mutt-send-email-mst@kernel.org>
- <11c5cb52d024a5158c5b8c5e69e2e4639a055a31.camel@webked.de>
- <20250404042711-mutt-send-email-mst@kernel.org>
- <e75cb5881a97485b08cdd76efd8a7d2191ecd106.camel@webked.de>
- <3b02f37ee12232359672a6a6c2bccaa340fbb6ff.camel@webked.de>
- <67eff7303df69_1ddca829490@willemb.c.googlers.com.notmuch>
- <d50c0384-4607-4890-8012-e2e7032a5354@ovn.org>
- <8a5012787351ece41cfcd19b05ba60ad336fe29f.camel@webked.de>
-Content-Language: en-US
-From: Ilya Maximets <i.maximets@ovn.org>
-Autocrypt: addr=i.maximets@ovn.org; keydata=
- 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
-In-Reply-To: <8a5012787351ece41cfcd19b05ba60ad336fe29f.camel@webked.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: lFhntCuDU88ZJ7UDwBJe0_-xRf6g3tQSerQuVfyC5MI_1743954039
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 4/5/25 8:15 AM, Markus Fohrer wrote:
-> Am Samstag, dem 05.04.2025 um 00:05 +0200 schrieb Ilya Maximets:
+On Fri, Apr 04, 2025 at 12:55:09PM +0200, David Hildenbrand wrote:
+> On 04.04.25 12:00, David Hildenbrand wrote:
+> > On 04.04.25 06:36, Halil Pasic wrote:
+> > > On Thu, 3 Apr 2025 16:28:31 +0200
+> > > David Hildenbrand <david@redhat.com> wrote:
+> > > 
+> > > > > Sorry I have to have a look at that discussion. Maybe it will answer
+> > > > > some my questions.
+> > > > 
+> > > > Yes, I think so.
+> > > > 
+> > > > > > Let's fix it without affecting existing setups for now by properly
+> > > > > > ignoring the non-existing queues, so the indicator bits will match
+> > > > > > the queue indexes.
+> > > > > 
+> > > > > Just one question. My understanding is that the crux is that Linux
+> > > > > and QEMU (or the driver and the device) disagree at which index
+> > > > > reporting_vq is actually sitting. Is that right?
+> > > > 
+> > > > I thought I made it clear: this is only about the airq indicator bit.
+> > > > That's where both disagree.
+> > > > 
+> > > > Not the actual queue index (see above).
+> > > 
+> > > I did some more research including having a look at that discussion. Let
+> > > me try to sum up how did we end up here.
+> > 
+> > Let me add some more details after digging as well:
+> > 
+> > > 
+> > > Before commit a229989d975e ("virtio: don't allocate vqs when names[i] =
+> > > NULL") the kernel behavior used to be in spec, but QEMU and possibly
+> > > other hypervisor were out of spec and things did not work.
+> > 
+> > It all started with VIRTIO_BALLOON_F_FREE_PAGE_HINT. Before that,
+> > we only had the single optional VIRTIO_BALLOON_F_STATS_VQ queue at the very
+> > end. So there was no possibility for holes "in-between".
+> > 
+> > In the Linux driver, we created the stats queue only if the feature bit
+> > VIRTIO_BALLOON_F_STATS_VQ was actually around:
+> > 
+> > 	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
+> > 	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
+> > 
+> > That changed with VIRTIO_BALLOON_F_FREE_PAGE_HINT, because we would
+> > unconditionally create 4 queues. QEMU always supported the first 3 queues
+> > unconditionally, but old QEMU did obviously not support the (new)
+> > VIRTIO_BALLOON_F_FREE_PAGE_HINT queue.
+> > 
+> > 390x didn't particularly like getting queried for non-existing
+> > queues. [1] So the fix was not for a hypervisor that was out of spec, but
+> > because quering non-existing queues didn't work.
+> > 
+> > The fix implied that if VIRTIO_BALLOON_F_STATS_VQ is missing, suddenly the queue
+> > index of VIRTIO_BALLOON_F_FREE_PAGE_HINT changed as well.
+> > 
+> > Again, as QEMU always implemented the 3 first queues unconditionally, this was
+> > not a problem.
+> > 
+> > [1] https://lore.kernel.org/all/c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com/#t
+> > 
+> > > 
+> > > Possibly because of the complexity of fixing the hypervisor(s) commit
+> > > a229989d975e ("virtio: don't allocate vqs when names[i] = NULL") opted
+> > > for changing the guest side so that it does not fit the spec but fits
+> > > the hypervisor(s). It unfortunately also broke notifiers (for the with
+> > > holes) scenario for virtio-ccw only.
+> > 
+> > Yes, it broke the notifiers.
+> > 
+> > But note that everything was in spec at that point, because we only documented
+> > "free_page_vq == 3" in the spec *2 years later*, in 2020:
+> > 
+> > commit 38448268eba0c105200d131c3f7f660129a4d673
+> > Author: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> > Date:   Tue Aug 25 07:45:02 2020 -0700
+> > 
+> >       content: Document balloon feature free page hints
+> >       Free page hints allow the balloon driver to provide information on what
+> >       pages are not currently in use so that we can avoid the cost of copying
+> >       them in migration scenarios. Add a feature description for free page hints
+> >       describing basic functioning and requirements.
+> > At that point, what we documented in the spec *did not match reality* in
+> > Linux. QEMU was fully compatible, because VIRTIO_BALLOON_F_STATS_VQ is
+> > unconditionally set.
+> > 
+> > 
+> > QEMU and Linux kept using that queue index assignment model, and the spec
+> > was wrong (out of sync?) at that point. The spec got more wrong with
+> > 
+> > commit d917d4a8d552c003e046b0e3b1b529d98f7e695b
+> > Author: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> > Date:   Tue Aug 25 07:45:17 2020 -0700
+> > 
+> >       content: Document balloon feature free page reporting
+> >       Free page reporting is a feature that allows the guest to proactively
+> >       report unused pages to the host. By making use of this feature is is
+> >       possible to reduce the overall memory footprint of the guest in cases where
+> >       some significant portion of the memory is idle. Add documentation for the
+> >       free page reporting feature describing the functionality and requirements.
+> > 
+> > Where we documented VIRTIO_BALLOON_F_REPORTING after the changes were added to
+> > QEMU+Linux implementation, so the spec did not reflect reality.
+> > 
+> > I'll note also cloud-hypervisor [2] today follows that model.
+> > 
+> > In particular, it *only* supports VIRTIO_BALLOON_F_REPORTING, turning
+> > the queue index of VIRTIO_BALLOON_F_REPORTING into *2* instead of documented
+> > in the spec to be *4*.
+> > 
+> > So in reality, we can see VIRTIO_BALLOON_F_REPORTING to be either 2/3/4, depending
+> > on the availability of the other two features/queues.
+> > 
+> > [2] https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/virtio-devices/src/balloon.rs
+> > 
+> > 
+> > > 
+> > > Now we had another look at this, and have concluded that fixing the
+> > > hypervisor(s) and fixing the kernel, and making sure that the fixed
+> > > kernel can tolerate the old broken hypervisor(s) is way to complicated
+> > > if possible at all. So we decided to give the spec a reality check and
+> > > fix the notifier bit assignment for virtio-ccw which is broken beyond
+> > > doubt if we accept that the correct virtqueue index is the one that the
+> > > hypervisor(s) use and not the one that the spec says they should use.
+> > 
+> > In case of virtio-balloon, it's unfortunate that it went that way, but the
+> > spec simply did not / does not reflect reality when it was added to the spec.
+> > 
+> > > 
+> > > With the spec fixed, the whole notion of "holes" will be something that
+> > > does not make sense any more. With that the merit of the kernel interface
+> > > virtio_find_vqs() supporting "holes" is quite questionable. Now we need
+> > > it because the drivers within the Linux kernel still think of the queues
+> > > in terms of the current spec, i.e. they try to have the "holes" as
+> > > mandated by the spec, and the duty of making it work with the broken
+> > > device implementations falls to the transports.
+> > > 
+> > 
+> > Right, the "holes" only exist in the input array.
+> > 
+> > > Under the assumption that the spec is indeed going to be fixed:
 > 
->> On 4/4/25 5:13 PM, Willem de Bruijn wrote:
->>
->>> Markus Fohrer wrote:
->>>
->>>> Am Freitag, dem 04.04.2025 um 10:52 +0200 schrieb Markus Fohrer:
->>>>
->>>>> Am Freitag, dem 04.04.2025 um 04:29 -0400 schrieb Michael S. Tsirkin:
->>>>>
->>>>>> On Fri, Apr 04, 2025 at 10:16:55AM +0200, Markus Fohrer wrote:
->>>>>>
->>>>>>> Am Donnerstag, dem 03.04.2025 um 09:04 -0400 schrieb Michael S.
->>>>>>> Tsirkin:
->>>>>>>
->>>>>>>> On Wed, Apr 02, 2025 at 11:12:07PM +0200, Markus Fohrer wrote:
->>>>>>>>
->>>>>>>>> Hi,
->>>>>>>>>
->>>>>>>>> I'm observing a significant performance regression in KVM
->>>>>>>>> guest
->>>>>>>>> VMs
->>>>>>>>> using virtio-net with recent Linux kernels (6.8.1+ and 6.14).
->>>>>>>>>
->>>>>>>>> When running on a host system equipped with a Broadcom
->>>>>>>>> NetXtreme-E
->>>>>>>>> (bnxt_en) NIC and AMD EPYC CPUs, the network throughput in
->>>>>>>>> the
->>>>>>>>> guest drops to 100–200 KB/s. The same guest configuration
->>>>>>>>> performs
->>>>>>>>> normally (~100 MB/s) when using kernel 6.8.0 or when the VM
->>>>>>>>> is
->>>>>>>>> moved to a host with Intel NICs.
->>>>>>>>>
->>>>>>>>> Test environment:
->>>>>>>>> - Host: QEMU/KVM, Linux 6.8.1 and 6.14.0
->>>>>>>>> - Guest: Linux with virtio-net interface
->>>>>>>>> - NIC: Broadcom BCM57416 (bnxt_en driver, no issues at host
->>>>>>>>> level)
->>>>>>>>> - CPU: AMD EPYC
->>>>>>>>> - Storage: virtio-scsi
->>>>>>>>> - VM network: virtio-net, virtio-scsi (no CPU or IO
->>>>>>>>> bottlenecks)
->>>>>>>>> - Traffic test: iperf3, scp, wget consistently slow in guest
->>>>>>>>>
->>>>>>>>> This issue is not present:
->>>>>>>>> - On 6.8.0 
->>>>>>>>> - On hosts with Intel NICs (same VM config)
->>>>>>>>>
->>>>>>>>> I have bisected the issue to the following upstream commit:
->>>>>>>>>
->>>>>>>>>   49d14b54a527 ("virtio-net: Suppress tx timeout warning for
->>>>>>>>> small
->>>>>>>>> tx")
->>>>>>>>>   [https://git.kernel.org/linus/49d14b54a527](https://git.kernel.org/linus/49d14b54a527)
->>>>>>>>
->>>>>>>>
->>>>>>>> Thanks a lot for the info!
->>>>>>>>
->>>>>>>>
->>>>>>>> both the link and commit point at:
->>>>>>>>
->>>>>>>> commit 49d14b54a527289d09a9480f214b8c586322310a
->>>>>>>> Author: Eric Dumazet <[edumazet@google.com](mailto:edumazet@google.com)>
->>>>>>>> Date:   Thu Sep 26 16:58:36 2024 +0000
->>>>>>>>
->>>>>>>>     net: test for not too small csum_start in
->>>>>>>> virtio_net_hdr_to_skb()
->>>>>>>>     
->>>>>>>>
->>>>>>>> is this what you mean?
->>>>>>>>
->>>>>>>> I don't know which commit is "virtio-net: Suppress tx timeout
->>>>>>>> warning
->>>>>>>> for small tx"
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>>> Reverting this commit restores normal network performance in
->>>>>>>>> affected guest VMs.
->>>>>>>>>
->>>>>>>>> I’m happy to provide more data or assist with testing a
->>>>>>>>> potential
->>>>>>>>> fix.
->>>>>>>>>
->>>>>>>>> Thanks,
->>>>>>>>> Markus Fohrer
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> Thanks! First I think it's worth checking what is the setup,
->>>>>>>> e.g.
->>>>>>>> which offloads are enabled.
->>>>>>>> Besides that, I'd start by seeing what's doing on. Assuming I'm
->>>>>>>> right
->>>>>>>> about
->>>>>>>> Eric's patch:
->>>>>>>>
->>>>>>>> diff --git a/include/linux/virtio_net.h
->>>>>>>> b/include/linux/virtio_net.h
->>>>>>>> index 276ca543ef44d8..02a9f4dc594d02 100644
->>>>>>>> --- a/include/linux/virtio_net.h
->>>>>>>> +++ b/include/linux/virtio_net.h
->>>>>>>> @@ -103,8 +103,10 @@ static inline int
->>>>>>>> virtio_net_hdr_to_skb(struct
->>>>>>>> sk_buff *skb,
->>>>>>>>  
->>>>>>>>  		if (!skb_partial_csum_set(skb, start, off))
->>>>>>>>  			return -EINVAL;
->>>>>>>> +		if (skb_transport_offset(skb) < nh_min_len)
->>>>>>>> +			return -EINVAL;
->>>>>>>>  
->>>>>>>> -		nh_min_len = max_t(u32, nh_min_len,
->>>>>>>> skb_transport_offset(skb));
->>>>>>>> +		nh_min_len = skb_transport_offset(skb);
->>>>>>>>  		p_off = nh_min_len + thlen;
->>>>>>>>  		if (!pskb_may_pull(skb, p_off))
->>>>>>>>  			return -EINVAL;
->>>>>>>>
->>>>>>>>
->>>>>>>> sticking a printk before return -EINVAL to show the offset and
->>>>>>>> nh_min_len
->>>>>>>> would be a good 1st step. Thanks!
->>>>>>>>
->>>>>>>
->>>>>>>
->>>>>>> I added the following printk inside virtio_net_hdr_to_skb():
->>>>>>>
->>>>>>>     if (skb_transport_offset(skb) < nh_min_len){
->>>>>>>         printk(KERN_INFO "virtio_net: 3 drop,
->>>>>>> transport_offset=%u,
->>>>>>> nh_min_len=%u\n",
->>>>>>>                skb_transport_offset(skb), nh_min_len);
->>>>>>>         return -EINVAL;
->>>>>>>     }
->>>>>>>
->>>>>>> Built and installed the kernel, then triggered a large download
->>>>>>> via:
->>>>>>>
->>>>>>>     wget [http://speedtest.belwue.net/10G](http://speedtest.belwue.net/10G)
->>>>>>>
->>>>>>> Relevant output from `dmesg -w`:
->>>>>>>
->>>>>>> [   57.327943] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.428942] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.428962] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.553068] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.553088] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.576678] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.618438] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.618453] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.703077] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.823072] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.891982] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   57.946190] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>> [   58.218686] virtio_net: 3 drop, transport_offset=34,
->>>>>>> nh_min_len=40  
->>>>>>
->>>>>>
->>>>>> Hmm indeed. And what about these values?
->>>>>>                 u32 start = __virtio16_to_cpu(little_endian, hdr-
->>>>>>
->>>>>>> csum_start);
->>>>>>
->>>>>>                 u32 off = __virtio16_to_cpu(little_endian, hdr-
->>>>>>
->>>>>>> csum_offset);
->>>>>>
->>>>>>                 u32 needed = start + max_t(u32, thlen, off +
->>>>>> sizeof(__sum16));
->>>>>> print them too?
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>> I would now do the test with commit
->>>>>>> 49d14b54a527289d09a9480f214b8c586322310a and commit
->>>>>>> 49d14b54a527289d09a9480f214b8c586322310a~1
->>>>>>>
->>>>>>
->>>>>>
->>>>>> Worth checking though it seems likely now the hypervisor is doing
->>>>>> weird
->>>>>> things. what kind of backend is it? qemu? tun? vhost-user? vhost-
->>>>>> net?
->>>>>>
->>>>>
->>>>>
->>>>> Backend: QEMU/KVM hypervisor (Proxmox)
->>>>>
->>>>>
->>>>> printk output:
->>>>>
->>>>> [   58.641906] virtio_net: drop, transport_offset=34  start=34,
->>>>> off=16,
->>>>> needed=54, nh_min_len=40
->>>>> [   58.678048] virtio_net: drop, transport_offset=34  start=34,
->>>>> off=16,
->>>>> needed=54, nh_min_len=40
->>>>> [   58.952871] virtio_net: drop, transport_offset=34  start=34,
->>>>> off=16,
->>>>> needed=54, nh_min_len=40
->>>>> [   58.962157] virtio_net: drop, transport_offset=34  start=34,
->>>>> off=16,
->>>>> needed=54, nh_min_len=40
->>>>> [   59.071645] virtio_net: drop, transport_offset=34  start=34,
->>>>> off=16,
->>>>> needed=54, nh_min_len=40
->>>>
->>>
->>>
->>> So likely a TCP/IPv4 packet, but with VIRTIO_NET_HDR_GSO_TCPV6.
->>
->>
->>
->> Hi, Markus.
->>
->> Given this and the fact that the issue depends on the bnxt_en NIC on the
->> hist, I'd make an educated guess that the problem is the host NIC driver.
->>
->> There are some known GRO issues in the nbxt_en driver fixed recently in
->>
->>   commit de37faf41ac55619dd329229a9bd9698faeabc52
->>   Author: Michael Chan <[michael.chan@broadcom.com](mailto:michael.chan@broadcom.com)>
->>   Date:   Wed Dec 4 13:59:17 2024 -0800
->>
->>     bnxt_en: Fix GSO type for HW GRO packets on 5750X chips
->>
->> It's not clear to me what's your host kernel version.  But the commit
->> above was introduced in 6.14 and may be in fairly recent stable kernels.
->> The oldest is v6.12.6 AFAICT.  Can you try one of these host kernels?
->>
->> Also, to confirm and workaround the problem, please, try disabling HW GRO
->> on the bnxt_en NIC first:
->>
->>   ethtool -K <BNXT_EN NIC IFACE> rx-gro-hw off
->>
->> If that doesn't help, then the problem is likely something different.
->>
->> Best regards, Ilya Maximets.
+> For virito-balloon, we should probably do the following:
+> 
+> From 38e340c2bb53c2a7cc7c675f5dfdd44ecf7701d9 Mon Sep 17 00:00:00 2001
+> From: David Hildenbrand <david@redhat.com>
+> Date: Fri, 4 Apr 2025 12:53:16 +0200
+> Subject: [PATCH] virtio-balloon: Fix queue index assignment for
+>  non-existing queues
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  device-types/balloon/description.tex | 22 ++++++++++++++++------
+>  1 file changed, 16 insertions(+), 6 deletions(-)
+> 
+> diff --git a/device-types/balloon/description.tex b/device-types/balloon/description.tex
+> index a1d9603..a7396ff 100644
+> --- a/device-types/balloon/description.tex
+> +++ b/device-types/balloon/description.tex
+> @@ -16,6 +16,21 @@ \subsection{Device ID}\label{sec:Device Types / Memory Balloon Device / Device I
+>    5
+>  \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtqueues}
+> +
+> +\begin{description}
+> +\item[inflateq] Exists unconditionally.
+> +\item[deflateq] Exists unconditionally.
+> +\item[statsq] Only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+> +\item[free_page_vq] Only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+> +\item[reporting_vq] Only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
+> +\end{description}
+> +
+> +\begin{note}
+> +Virtqueue indexes are assigned sequentially for existing queues, starting
+> +with index 0; consequently, if a virtqueue does not exist, it does not get
+> +an index assigned. Assuming all virtqueues exist for a device, the indexes
+> +are:
+> +
+>  \begin{description}
+>  \item[0] inflateq
+>  \item[1] deflateq
+> @@ -23,12 +38,7 @@ \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtque
+>  \item[3] free_page_vq
+>  \item[4] reporting_vq
+>  \end{description}
+> -
+> -  statsq only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+> -
+> -  free_page_vq only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+> -
+> -  reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
+> +\end{note}
+>  \subsection{Feature bits}\label{sec:Device Types / Memory Balloon Device / Feature bits}
+>  \begin{description}
+> -- 
+> 2.48.1
 > 
 > 
-> Setting `rx-gro-hw off` on the Broadcom interfaces also resolves the issue:
-> 
-> ethtool -K ens1f0np0 rx-gro-hw off  
-> ethtool -K ens1f1np1 rx-gro-hw off  
-> ethtool -K ens1f2np2 rx-gro-hw off  
-> ethtool -K ens1f3np3 rx-gro-hw off
-> 
-> With this setting applied, the guest receives traffic correctly even when GRO is enabled on the host.
+> If something along these lines sounds reasonable, I can send a proper patch to the
+> proper audience.
 
-OK.  It's definitely a host bnxt_en driver bug then.
 
-> 
-> The system is running the latest Proxmox kernel:
-> 
-> 6.8.12-9-pve
+Indeed, but do we want to add a note about previous spec versions
+saying something different? Maybe, with a hint how devices following
+old spec can be detected?
 
-6.8 is long EoL upstream, so you need to ask distribution maintainers to
-backport aforementioned bnxt_en driver fix (de37faf41ac5), or move to
-latest 6.12+ stable kernels which are supported upstream.
 
-Since proxmox mostly just rebuilds ubuntu kernels, you probably need to
-ask for fixes to be backported in the corresponding ubuntu kernel first.
 
-Meanwhile, you may run with rx-gro-hw off on those cards.
-
-Best regards, Ilya Maximets.
-
+> -- 
+> Cheers,
 > 
-> 
-> 
-> 
->>> This is observed in the guest on the ingress path, right? In
->>> virtnet_receive_done.
->>>
->>> Is this using vhost-net in the host for pass-through? IOW, is
->>> the host writing the virtio_net_hdr too?
->>>
->>>
->>>>
->>>>>
->>>>>
->>>>>
->>>>>
->>>>
->>>>
->>>> I just noticed that commit 17bd3bd82f9f79f3feba15476c2b2c95a9b11ff8
->>>> (tcp_offload.c: gso fix) also touches checksum handling and may
->>>> affect how skb state is passed to virtio_net_hdr_to_skb().
->>>>
->>>> Is it possible that the regression only appears due to the combination
->>>> of 17bd3bd8 and 49d14b54a5?
->>>
->>>
->>> That patch only affects packets with SKB_GSO_FRAGLIST. Which is only
->>> set on forwarding if NETIF_F_FRAGLIST is set. I don 
->>
->>
-> 
+> David / dhildenb
 
