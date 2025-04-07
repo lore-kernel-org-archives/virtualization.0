@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787AF2309AA
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 09:13:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59461227E9E
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 09:22:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744017233; cv=none; b=Ubi062x15T3fhaYuWBZtoEU38+eJgdiHG6KMnikos0ieCR5fLV9ggI/tfphyvhx0rGqvOWr0qLHf365ZCKLeUPyRCt90t/ct+rwxKY8ovPbwkaFTILkYp3z8pl25FJBOo+sqBG89kCGZXWlQzS18NgHexf8jLF3ugLxd/GK5avo=
+	t=1744017755; cv=none; b=mfBmBnYr0Nc1uuYuvNuXE8RuLBi9K06QBgSQ/wbmDfhvWtyOqx4UcjY0QWKZl+AcVsR3s+N8dP1nWO3ZaHl6IRSaGdsh1s6V81H6FodcCVzH/+zO+cvTz8IBJtPv3+qwcKy4z7MvxO+RrfWmk0FAW2Qp2GIZ0OaExCz2VMtOl3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744017233; c=relaxed/simple;
-	bh=qXdKydonsxFLkA5dIsMoX0kJIDrRO1y7T2Mx+qFRkzM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=EYYkzPRNSjKQgS7Qz8eNBpsfUyMIcZHaY1pQzbpXOaHydKXaWq2fT7d517fcaur1l/2oGf1GImja7S47FUent6OENpcxcHltMwN6BTD06qB82Pkh7ljOuqmSFbqkCZ0/74M51SYNTLdqmCNYpJZH89td5DRvcyxyGrMMRFFL3X0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YVaNbJzj; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1744017755; c=relaxed/simple;
+	bh=VqyGAa/Wnple9ormWUNewXd2QL7o32mB++LF6Ev1Zls=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BvBtaXEu9CHrDe9JcbvCFFah/f/eF7rHWVVEpEAB6Mze0dRhP86DKyQCVrSkpt+gbjSMSzYDoNibn1Ei3CXAoJHUPOTVu/A91YsvAS6B0fxIazY44yfJ3mL044DJgqyE2j3s0r8YltEZvbbDLJTMyzK/xr6nL9frCFvcuoZ8gx0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OjyBY2B/; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YVaNbJzj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OjyBY2B/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744017230;
+	s=mimecast20190719; t=1744017752;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=JK4bT9yDflbfbLz0+zZQCKQJJD07YSHdaz2wMcN19qQ=;
-	b=YVaNbJzj8X6k4HMFWRIACO8686zQym1/GHi2Yhy0AFuAmC1DHExzXPgCmYTOZDQyNc0B3w
-	aa/BTWRxZlra+QVGPOAH3VdS7Xx76Y4XpRH9TQv+vQ73tU+eeWjQlbyVG2f4nr7HMVWNRt
-	Wt34AqLhhDIMKGssDXL54jDaoSep/JM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/yCYFM5XQ5OKPftJDCwWOuxcCEJiJqE9Gf8hXOCSC2Y=;
+	b=OjyBY2B/7k75ML5Hwnx8xnUnJNbKCF2Dxu/0l6lQp/CMyVzmzZW3msNAxz0YUNKDSUiZv5
+	i6EirqpF1CgMLHEfKPTMalB25lhj+3GaKi3XFlLgAz+33/5yDayBggvCq7BPJHEB55NZjp
+	l5+jSXiz73k8fGRXekLdGEZd/i01bXY=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-683-GrZ30YEQNxSqEma0qY1U5A-1; Mon, 07 Apr 2025 05:13:46 -0400
-X-MC-Unique: GrZ30YEQNxSqEma0qY1U5A-1
-X-Mimecast-MFC-AGG-ID: GrZ30YEQNxSqEma0qY1U5A_1744017225
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43d007b2c79so32020445e9.2
-        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 02:13:46 -0700 (PDT)
+ us-mta-272-8Lj3x-snP_Gk08KzR1FR8w-1; Mon, 07 Apr 2025 05:22:31 -0400
+X-MC-Unique: 8Lj3x-snP_Gk08KzR1FR8w-1
+X-Mimecast-MFC-AGG-ID: 8Lj3x-snP_Gk08KzR1FR8w_1744017750
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39126c3469fso1599457f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 02:22:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744017225; x=1744622025;
+        d=1e100.net; s=20230601; t=1744017750; x=1744622550;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:references:cc:to:from:subject:user-agent
+         :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=JK4bT9yDflbfbLz0+zZQCKQJJD07YSHdaz2wMcN19qQ=;
-        b=VDf6rUM7+esVkz5TYqAFmSdB6ei407hFx0hC26qlRDOZ0GBPrIfwpQzpd57vz4ter0
-         CktfHSr/n7LNBABrF2Iae8Bddo7GX4ShmDh2DBiI8pQ4Yf/PQHHlkxPYamDBAaAfHwKu
-         NzDfLsQO1b4rSC/LlHzFqG9SyIBa21ilZJfVCIvcCSotqM5jj06EvWjMNeL9mc5orsS1
-         zoMiT2mmkGKAWHu65U9H7XBsBvt+O2Dizqjn2bIENUdaSHtnZzfomMRU/3/ZvRsR4b4v
-         J6Fdu0uBkj0qzdhNdviZjkj7sKAjW7y4fsNRMvdpqEHAsk3mMd/kAhbz4cXCKSMN3+Xc
-         lpgQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWGOs67JmQMauTP4TBt9xvDaQBqi6aUz6mGT3W8dLYNgqK6p4JA4mSo+l+EeC9g9sttegrYaHe0z3nXYE36Ew==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzYQnUrWbOhQILZ1jzMvyTbat7FZvsNdHOVUWp14pUuEjNKGfqI
-	hK8luFR251NKWvK32Lg6Iyc3ygoO5ngtPkSnfGLOM2KyPmEqoTEnvuHBf2odtD6d5AaaXPxXYgl
-	JsPouRYq4BSCOaIntL0hq36ZAX9gZRZAHz+PHraCEuKHQ7gXJ8qJaJ2ve2tOejTBi
-X-Gm-Gg: ASbGncu53oAZTiZ/3o6JCnrIEe7I8KsEjdf0f8hYsG1YV1sR1ybH1AjaBdbO4doZ9zE
-	XC/CwxYOvRHrat8En9ozQDz/fQvKKArFXUjKVBHEKn6AXHG6jgBLtOCIlcyYYP+bKgWFxAP4aZQ
-	TOlZwEJOj/avgo6hZClURW6898ESOF7BeUCXf6HHXbl/ReJYEW1buXSbDQcJY1pO5JB2pMb4KtH
-	+LjL+Y5vsljOjCRF4RzcM3bPSkTxan0MfT28mRUjfJ5xdwhSwndzSpGW1WPbz/Yr95O0wwL/nN6
-	r4eGvuRakq/lkj0eaC5rbGN65jaGOvN8td/AccXD6H7/Kg8Oz2flA1mz90bLZnnX06LgUsNkgN7
-	dAVLGuqr/uCtHaDwdgNakOxSXU+9lMc4Nf0iEeZrN0MU=
-X-Received: by 2002:a05:600c:a016:b0:439:9b2a:1b2f with SMTP id 5b1f17b1804b1-43ee0613661mr100738855e9.3.1744017225309;
-        Mon, 07 Apr 2025 02:13:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF9IyhdhY/VgyFk9aw1ei601lFUWgvOu8pFixgJufRhTU9shyn6SoOxwjzIe0e9NNg+c3ap7A==
-X-Received: by 2002:a05:600c:a016:b0:439:9b2a:1b2f with SMTP id 5b1f17b1804b1-43ee0613661mr100738425e9.3.1744017224823;
-        Mon, 07 Apr 2025 02:13:44 -0700 (PDT)
+        bh=/yCYFM5XQ5OKPftJDCwWOuxcCEJiJqE9Gf8hXOCSC2Y=;
+        b=umksH8IAlTfxAd48d6WEMSN+AQG5Az565Fe07wnYuCBz6WwaU4gNA6rH5/VacFItAm
+         Lkq8TfuoUXERJwK9EQmAUMd6Pp12uiKehCGg7nKMBYvsVSyCHV+AZ4uTkghBNYR9KHYh
+         CJpyZKY9jFqCJ/JvgzwVDzdoMUPWW926ki1TqOQCoMnS4LayvM40n+mJmw+ltq+jXiCj
+         gGAtzkQaMXQExfbs6JeYI049600QxqJ4qzCHKD0XSLhV2XvqgUQVcmHdlBTCj5B6L+rs
+         H723eSkCEyJonX6SQr+Dl/9/nNlGAzuWvgWypym6iCVnRD/nIjlmKTpoDH3MzSKe4xoE
+         e6Cg==
+X-Forwarded-Encrypted: i=1; AJvYcCW5qUd2Q/XDZTBRV85xeHX8pEpnCEkJLL19TdI93OO9vCRcDVpfkwtcf8QMt5FEBZQW9+OOOOYHuHpORqA8LQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwAlTB4llKl+H0jMIVvuWji9NKL6uWJI/nYvcjiOIHebvFg2FZJ
+	2fQmsjE5jwWNIOGNKSExv1lMuHyg/UMGZuPBRg/jbBCI+R9mHs1afSqyOuVIMoelYDW5x9I7JQg
+	qafjMlytxkd1yfTEIzFwwO1szvb/OBVSV3NfQ6TZi2IgDkepPl/AIyUeVuoz/M7s7
+X-Gm-Gg: ASbGnctrqqFCEh7VFxH0Z3gRjUf+uzHQRM/yAtqXVXZDXm7S3qhPm8185lC75JbKcvt
+	luZIFwCs1UhOj2jrQx5GdGuPD+ASIJS0/sgorrHCT062KaNuUtbsmAMY4YdHTaw7EvDlvirfIXY
+	GVP4/PMyUplBj6st9pTErR/YHoRLNwb0Cv4UkPNf9/kN8OukPc7epdA7vdPKKFgVJcfVK6A2VcX
+	f3bmuNlEQoAutXu8NiLFqeETr8XqZJNhtcWzesSWslAC/uOi0SWMKi44Nl3MMA+gDea2ctl/qby
+	gkDU4bmgmqg7m322F3rqBSpkvZbp/QLN7OBmV9/jh8gnHxPNlG7GGH7SrqMOZTeW/q9c/rC8XQl
+	6or7FYHglMQWEH0P5PuleCk+/HxivPVarXBFl4U2XwUQ=
+X-Received: by 2002:a05:6000:1842:b0:390:d796:b946 with SMTP id ffacd0b85a97d-39cba975b7amr10984328f8f.44.1744017749687;
+        Mon, 07 Apr 2025 02:22:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFpnuVhkewnRTqYTGM8Rx3shfIX+fz32ljJ3fzJujcF/CDjD46/a7MbDgl6ZMvURv3xWypjfg==
+X-Received: by 2002:a05:6000:1842:b0:390:d796:b946 with SMTP id ffacd0b85a97d-39cba975b7amr10984301f8f.44.1744017749294;
+        Mon, 07 Apr 2025 02:22:29 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c738:3c00:8b01:4fd9:b833:e1e9? (p200300cbc7383c008b014fd9b833e1e9.dip0.t-ipconnect.de. [2003:cb:c738:3c00:8b01:4fd9:b833:e1e9])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec3174cf0sm127495935e9.0.2025.04.07.02.13.43
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c301b816csm11532758f8f.57.2025.04.07.02.22.27
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Apr 2025 02:13:44 -0700 (PDT)
-Message-ID: <33def1b0-d9d5-46f1-9b61-b0269753ecce@redhat.com>
-Date: Mon, 7 Apr 2025 11:13:43 +0200
+        Mon, 07 Apr 2025 02:22:28 -0700 (PDT)
+Message-ID: <d5080785-b197-4444-b9c1-25838cd9496a@redhat.com>
+Date: Mon, 7 Apr 2025 11:22:27 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -77,7 +77,6 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
  non-existing queues
-From: David Hildenbrand <david@redhat.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -88,18 +87,18 @@ Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
  Alexander Gordeev <agordeev@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
  Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
-References: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+References: <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+ <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+ <20250404153620.04d2df05.pasic@linux.ibm.com>
+ <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
  <20250404160025.3ab56f60.pasic@linux.ibm.com>
  <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
  <20250404173910.6581706a.pasic@linux.ibm.com>
  <20250407034901-mutt-send-email-mst@kernel.org>
  <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
- <20250407042058-mutt-send-email-mst@kernel.org>
- <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com>
- <20250407044743-mutt-send-email-mst@kernel.org>
- <b331a780-a9db-4d76-af7c-e9e8e7d1cc10@redhat.com>
- <20250407045456-mutt-send-email-mst@kernel.org>
- <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
+ <39a67ca9-966b-40c1-b080-95d8e2cde376@redhat.com>
+ <20250407044246-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
  dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
@@ -145,65 +144,50 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
+In-Reply-To: <20250407044246-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: MX-WZXERat8uXypKG3BZ2-tz1uXCAN_Rno9P0Rm1oTU_1744017225
+X-Mimecast-MFC-PROC-ID: dhFNp6kbgZGxd_YwvZDTFB4OZyvbqhrJ-x5sZH23H0c_1744017750
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 07.04.25 11:11, David Hildenbrand wrote:
-> On 07.04.25 10:58, Michael S. Tsirkin wrote:
->> On Mon, Apr 07, 2025 at 10:54:00AM +0200, David Hildenbrand wrote:
->>> On 07.04.25 10:49, Michael S. Tsirkin wrote:
->>>> On Mon, Apr 07, 2025 at 10:44:21AM +0200, David Hildenbrand wrote:
->>>>>>
->>>>>>
->>>>>>
->>>>>>> Whoever adds new feat_X *must be aware* about all previous features,
->>>>>>> otherwise we'd be reusing feature bits and everything falls to pieces.
->>>>>>
->>>>>>
->>>>>> The knowledge is supposed be limited to which feature bit to use.
->>>>>
->>>>> I think we also have to know which virtqueue bits can be used, right?
->>>>>
->>>>
->>>> what are virtqueue bits? vq number?
->>>
->>> Yes, sorry.
->>
->> I got confused myself, it's vq index actually now, we made the spec
->> consistent with that terminology. used to be number/index
->> interchangeably.
->>
->>> Assume cross-vm as an example. It would make use of virtqueue indexes 5+6
->>> with their VIRTIO_BALLOON_F_WS_REPORTING.
->>
->>
->> crossvm guys really should have reserved the feature bit even if they
->> did not bother specifying it. Let's reserve it now at least?
-> 
-> Along with the virtqueue indices, right?
-> 
-> Note that there was
-> 
-> https://lists.gnu.org/archive/html/qemu-devel/2023-05/msg02503.html
-> 
-> and
-> 
-> https://groups.oasis-open.org/communities/community-home/digestviewer/viewthread?GroupId=3973&MessageKey=afb07613-f56c-4d40-8981-2fad1c723998&CommunityKey=2f26be99-3aa1-48f6-93a5-018dce262226&hlmlt=VT
-> 
-> But it only was RFC, and as the QEMU implementation didn't materialize,
-> nobody seemed to care ...
+On 07.04.25 10:44, Michael S. Tsirkin wrote:
+> Wow great job digging through all these hypervisors!
 
-Heh, but that one said:
+There is more ... :(
 
-+\item[ VIRTIO_BALLOON_F_WS_REPORTING(6) ] The device has support for
-Working Set
+aloith: 
+https://github.com/google/alioth/blob/main/alioth/src/virtio/dev/balloon.rs
 
-Which does not seem to reflect reality ...
+It uses the incremental vq index assignment like QEMU.
+
+impl VirtioMio for Balloon {
+     fn activate<'a, 'm, Q: VirtQueue<'m>, S: IrqSender>(
+         &mut self,
+         feature: u64,
+         _active_mio: &mut ActiveMio<'a, 'm, Q, S>,
+     ) -> Result<()> {
+         let feature = BalloonFeature::from_bits_retain(feature);
+         self.queues[0] = BalloonQueue::Inflate;
+         self.queues[1] = BalloonQueue::Deflate;
+         let mut index = 2;
+         if feature.contains(BalloonFeature::STATS_VQ) {
+             self.queues[index] = BalloonQueue::Stats;
+             index += 1;
+         }
+         if feature.contains(BalloonFeature::FREE_PAGE_HINT) {
+             self.queues[index] = BalloonQueue::FreePage;
+             index += 1;
+         }
+         if feature.contains(BalloonFeature::PAGE_REPORTING) {
+             self.queues[index] = BalloonQueue::Reporting;
+         }
+         Ok(())
+     }
+
+
+I'll dig some more, but this is getting out of hand :D
 
 -- 
 Cheers,
