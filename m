@@ -1,134 +1,109 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0959212B1F
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 02:15:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF9CE211A24
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 02:27:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743992107; cv=none; b=LS+Knf+mjYrZa+gzuzoI4xv0iYE9KPsbYC0g409yGUVedyAm4apimdGlEUSh73XILdI9f1mj0tPjm4ubRtbuE/ImymH4T/dJ7h3TvHvriqF+C7R96ZzgOUhxNgFLP1yB5+asxYiaXNH+Yw6N0x27WpRxIX1M/ANoemMcGcQT7NA=
+	t=1743992871; cv=none; b=AFbNXLkhBrLIe7gdZWl5I+zRx5AVEE0Wl0MH/SuuajvO8ILQpyPSAaNlXkmGBJ7/7VRaot10KzL7d/K6EsaBRHWXjIjSPi9wruCEdpm0JtKOMbD01FCrwQ7BiU/xXKVRhlDTINXGA5CRa16J4zoOFdwVK1dMYgm9XjkmcpR/PNs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743992107; c=relaxed/simple;
-	bh=5iGnaKTdh8qdUpTGBnIaXxXw7Npl7YWIGBbllmqoExE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ieZFo3EG30r2hF0YkxW0tXZIXDlJE/6Lb8Yq34Xfy6E6aWPuUjXwI9BZT06cEYKjdek1Kv0fu2re5JXb/KxD6+HO5jUjiwkjcrm0AcxSK9DswpRzbWGldx3LD8vyFf1fngQKK7qxrN0OUvAR39vDESoKvzeLobzwqUAofefNsVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KnSCPLdd; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1743992871; c=relaxed/simple;
+	bh=lBAsK4128QqAndyQK1xQuEI3avTd269+XLXJMVQegYk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Fc9P0McQNemAAqhv0LC1esqGlzwC/agkRZTzXlu7eVsD1MF10N6aC6zgDoxI1BCEyBeddZwKaCjBf4rinYJslbIEQyfAcimz9l5Jkz8waJ3F74ecQiNGWS45uT1IwTDEgY1UZ135/V7GJyL68sfheInnngAS+F27G6dKjQgASmg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DZ+um5Bz; arc=none smtp.client-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KnSCPLdd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743992104;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5iGnaKTdh8qdUpTGBnIaXxXw7Npl7YWIGBbllmqoExE=;
-	b=KnSCPLddSynLTtvxfQGVHpXe3C3iA45Eph81H50bcLguZMiAv0kOy1tRwgySB6yFSxtk+S
-	tBnSYAcocbRMRW+0ogZsKTgibVPgIhbFtKMvYskoJXVlqY1ojmzL62E9/UQ+nSa40wIAQk
-	K9thyJGsiguuf14MLaO0lV696q01l0w=
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
- [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-554-6oKTXR1FMIKUUxAags1omQ-1; Sun, 06 Apr 2025 22:15:03 -0400
-X-MC-Unique: 6oKTXR1FMIKUUxAags1omQ-1
-X-Mimecast-MFC-AGG-ID: 6oKTXR1FMIKUUxAags1omQ_1743992102
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-736c89461d1so5992226b3a.3
-        for <virtualization@lists.linux.dev>; Sun, 06 Apr 2025 19:15:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DZ+um5Bz"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-301918a4e1bso2641813a91.1
+        for <virtualization@lists.linux.dev>; Sun, 06 Apr 2025 19:27:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743992869; x=1744597669; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZMXI96KY1NlyfuaSnxUqUHlO9ydv3v+nJJ7C8/Y0/PY=;
+        b=DZ+um5Bzv57+GzMoMVlkjE49csoHLwPuettaVHmhxbsrSVeJkuQd78K75zh8Kestdu
+         GOpIHsCe8/4LM0T4SFFhYX6qLGirSzEj4pE0M7zYiWNFDmF8O5tdhBnfvCrkywUcZBTH
+         /3oC5ax93ogX/muOAEFWAsXCmnuiEZ6r8f7xbpo7ctTmmX7kR6yzjgFo4wj3tlp+MLXZ
+         SibLidJKDLUCmBoPe919721MmHneQ3QVU2gXKlANDSE3NCPYZzYC5YJhQXdQZXTQBWh9
+         V0C+rglZZ/c2IcZDjv3TJPuTmnzSptcIK3kdDWDKSZYSPAvzz5MzUg4oBfTuKmHE5DtG
+         T8Zw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743992102; x=1744596902;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5iGnaKTdh8qdUpTGBnIaXxXw7Npl7YWIGBbllmqoExE=;
-        b=ww3W+xNLUVNZH1YobMWVlbzR2Vu19292HdpVWWKa0kfX9YJi9Agrj67LlRYIL7+eIK
-         SIb3Y7gn5NGneE+sI0JH8B3jtx3uwniSPrGvHMnTWkKVkPyFPs+bRpswBi3LRVI9lS7F
-         9LrtMT6/k5aV/+y6tgNxrLa0TyfKf6CMGTgeGizVu3HaTys+bKbSJqVEtjeLp4xlvrNo
-         cetAJNx35rrITwCNTHL50rHUZ7Jk1sRQEFGO20H2mQX/0dwX3wltJQTBV+IetjrTpl1g
-         +yWl3TfHtYKiU6G4t1wsQBvoyddkpSSsDqy544SgZrFJJFBDH21gJeCuvOfAd95rlIKJ
-         g0eQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWASnX/Q0JE50PFHjIiziG5UIjNF+jb4hJuqLBx/3zTYVuhe0GGVhQr/4D+wt/ofxFSrJWp1uglPp0rcOxwIA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzq5TbCIQli+xYBZOFC5lp2MkYI6pt+I1IfqOqi86aPbxvGuAG+
-	snqjlWX75itqcYpTZ4BJYyDLCPkFxyBUpn/yWS5x7nRtiK/vZ83d0o2HFNumLnZ5uCBg9uyC+p1
-	HgQQMHMA6a81NlsoZEq8px3yHsfMi0XBTaDGLNf2mfzHrpvJVrpv60m+5SWOylIdxqiou4HczsZ
-	NsaYPfUi8Fy/lu2034TE9QVeaWc+vMDxWaeQ1sEYU=
-X-Gm-Gg: ASbGnctZ6UO3wgysOG9xShgqlq/Xk/p5kGiHUuq6aNtYrj4hzgQslO2n3E924URjj3b
-	nrAobb6K8bYyFX1xP8Q3HCEQex2m3wtR9uO+A+zRL7mRpk0ylrsjbFWx0xUeAmhnw0mHbqw==
-X-Received: by 2002:a05:6a21:6f01:b0:1f5:8655:3287 with SMTP id adf61e73a8af0-201081894f9mr15997602637.40.1743992102454;
-        Sun, 06 Apr 2025 19:15:02 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG2xrRUCjmDh8gU4TsrPWubO4RaHlHA1/mZMFsc3k0pvCi4jb3ExJetOAjK+ODkU/PKVNydcIKM1LkzsCQTKWs=
-X-Received: by 2002:a05:6a21:6f01:b0:1f5:8655:3287 with SMTP id
- adf61e73a8af0-201081894f9mr15997577637.40.1743992102154; Sun, 06 Apr 2025
- 19:15:02 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1743992869; x=1744597669;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZMXI96KY1NlyfuaSnxUqUHlO9ydv3v+nJJ7C8/Y0/PY=;
+        b=e9GitgQqEgAEc+4jgyn17KY6CHqX9HoWRppaANuFGpdqrCB/HrLkUhHSrAnIc4Nqkd
+         w6cgH14eH9uctFmB64luA2VSXS0pcWj2aZohKfHHAc4Ls7hw0ICvJ0fPYxWIgKyMv6ME
+         vnH6qSs8YFs5n+fJhp1IOHjOH+Yq4u/Sw6K5lGJzd2/wbCbUAm2biLC5Q/w/SsZheP8F
+         1nPjl0J30F60C+zDSQjv5RtlLDhG8m8aZ6Zt+uDgmLwMugcg7GvNce5VPAL5ruZd9QIf
+         HX5eA1/4seOFV6IO9IxT9BczeMMGLdVpGTE4lMLwvJ54FoyXVIhKRbzGro38YIqzvffd
+         Hy3w==
+X-Forwarded-Encrypted: i=1; AJvYcCV93wrY9YDaBlteeJnMw2uCRp/hrFoq9fVbJX49Dqq1bLZ7/fv7GMZXwVRDvB8G40dwiIMOP4uAoYXMVHveSQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwGja81Pvu8gJO5bjxqsQwX2OoTokoQ2YFeV0DyruzXhYzUtXPW
+	k+swaU27Du0PZmz6F9pfpCn+ms1KxtzLlXytQxVM9rcI6+Qzu9Ga
+X-Gm-Gg: ASbGncsUcocd19W/zrMvVJ2x/xjq2q10m9AuKZO26052fcrL7U7sKFttzz8q9vfOUq1
+	RSer/J/OXbulbPQRqJ67tCev5VdYAgWsti8J4GwhwuQd90d6Bh3EYh/EwUxEMSTgNNDSM2zt5SE
+	+5uKyERyQh67eyT9rIknVnHDOX9/4/kph5i5jkao2YuwmPDmfwd8QRy5RNnuM2uwjWq0JgEwsl3
+	GUUtTF2Paue06+pa/7mVUR+AJkkLRWr+eapMNr9vcb0i62HfKHuDaiFfT8iozVyIwY8DVzm3Ve0
+	xVdz37Z2SjO+Mq5csMd+pUkbv5GcU0btIYeyBkZuUHtmD7BbGgz7B99E7DOArvDYguHfD+BlG3D
+	3Y+3UdiurKmepMYcWjqeWlyc=
+X-Google-Smtp-Source: AGHT+IFLx8dLNxCZzv12MywXhBO0lTHHnKGTceaSSuaAjzKfGMQlupPZA3H1O36DYRXf2E9QaW3B+w==
+X-Received: by 2002:a17:90b:2552:b0:305:5f32:d9f5 with SMTP id 98e67ed59e1d1-306a60eddc1mr15700652a91.7.1743992869012;
+        Sun, 06 Apr 2025 19:27:49 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:cbc1:cad1:513d:e384? ([2001:ee0:4f0e:fb30:cbc1:cad1:513d:e384])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3058494aa8csm7608800a91.16.2025.04.06.19.27.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 06 Apr 2025 19:27:48 -0700 (PDT)
+Message-ID: <30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
+Date: Mon, 7 Apr 2025 09:27:41 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250404145241.1125078-1-jon@nutanix.com>
-In-Reply-To: <20250404145241.1125078-1-jon@nutanix.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 7 Apr 2025 10:14:51 +0800
-X-Gm-Features: ATxdqUHS0zfr8JGoyzsGJ5km2ABwTqNENhD1uX4yKsHGytOkPk4bkII2gJMMLUM
-Message-ID: <CACGkMEsFc-URhXBCGZ1=CTMZKcWPf57pYy1TcyKLL=N65u+F0Q@mail.gmail.com>
-Subject: Re: [PATCH] vhost/net: remove zerocopy support
-To: Jon Kohler <jon@nutanix.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: IBBsP8rQbjkick1kug5BYRhDkUlGNUKFh3YC8Zt8Sao_1743992102
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio-net: disable delayed refill when pausing rx
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20250404093903.37416-1-minhquangbui99@gmail.com>
+ <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Apr 4, 2025 at 10:24=E2=80=AFPM Jon Kohler <jon@nutanix.com> wrote:
+On 4/7/25 08:03, Xuan Zhuo wrote:
+> On Fri,  4 Apr 2025 16:39:03 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+>> napi_disable() on the receive queue's napi. In delayed refill_work, it
+>> also calls napi_disable() on the receive queue's napi. This can leads to
+>> deadlock when napi_disable() is called on an already disabled napi. This
+>> scenario can be reproducible by binding a XDP socket to virtio-net
+>> interface without setting up the fill ring. As a result, try_fill_recv
+>> will fail until the fill ring is set up and refill_work is scheduled.
 >
-> Commit 098eadce3c62 ("vhost_net: disable zerocopy by default") disabled
-> the module parameter for the handle_tx_zerocopy path back in 2019,
-> nothing that many downstream distributions (e.g., RHEL7 and later) had
-> already done the same.
->
-> Both upstream and downstream disablement suggest this path is rarely
-> used.
->
-> Testing the module parameter shows that while the path allows packet
-> forwarding, the zerocopy functionality itself is broken. On outbound
-> traffic (guest TX -> external), zerocopy SKBs are orphaned by either
-> skb_orphan_frags_rx() (used with the tun driver via tun_net_xmit())
+> So, what is the problem? The refill_work is waiting? As I know, that thread
+> will sleep some time, so the cpu can do other work.
 
-This is by design to avoid DOS.
+When napi_disable is called on an already disabled napi, it will sleep 
+in napi_disable_locked while still holding the netdev_lock. As a result, 
+later napi_enable gets stuck too as it cannot acquire the netdev_lock. 
+This leads to refill_work and the pause-then-resume tx are stuck altogether.
 
-> or
-> skb_orphan_frags() elsewhere in the stack,
-
-Basically zerocopy is expected to work for guest -> remote case, so
-could we still hit skb_orphan_frags() in this case?
-
-> as vhost_net does not set
-> SKBFL_DONT_ORPHAN.
->
-> Orphaning enforces a memcpy and triggers the completion callback, which
-> increments the failed TX counter, effectively disabling zerocopy again.
->
-> Even after addressing these issues to prevent SKB orphaning and error
-> counter increments, performance remains poor. By default, only 64
-> messages can be zerocopied, which is immediately exhausted by workloads
-> like iperf, resulting in most messages being memcpy'd anyhow.
->
-> Additionally, memcpy'd messages do not benefit from the XDP batching
-> optimizations present in the handle_tx_copy path.
->
-> Given these limitations and the lack of any tangible benefits, remove
-> zerocopy entirely to simplify the code base.
->
-> Signed-off-by: Jon Kohler <jon@nutanix.com>
-
-Any chance we can fix those issues? Actually, we had a plan to make
-use of vhost-net and its tx zerocopy (or even implement the rx
-zerocopy) in pasta.
-
-Eugenio may explain more here.
-
-Thanks
-
+Thanks,
+Quang Minh.
