@@ -1,265 +1,206 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f194.google.com (mail-pf1-f194.google.com [209.85.210.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8D8621C177
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 19:05:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744052759; cv=fail; b=qX9UMxcchwTxWiLFW0OxTRbMi8ywOGtDMa5rq9BIGA+3Y9Lvu0yytl5Jjw2uFsRVOi5jMcV6qhTLFbC7RmkFYFjYPitLcDEtGIUvtbtNFhqRq3HBGs0boUWxkOjH6SjDF4dTQi8uoUPuJ6tlhaTYwCUXwyJ2uDYWTjkK/salmKk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744052759; c=relaxed/simple;
-	bh=G3GqWmhWU04PcR23Ii2JjEwbRF1jxAyiQsbBvLS+DwE=;
-	h=To:Cc:Subject:From:In-Reply-To:Message-ID:References:Date:
-	 Content-Type:MIME-Version; b=RbY5tJhBXUmncUJtqjhVCNSHmw/8rj/A8ug2fdQz8EEDP2zghyovmKOk9fQXT+z32qlvhbOUC9WqmL0OfyXYpdoqT+yCeYktAx/j443KqxsDE5wg1q7oSolNc+BpVIHFu8auia4LdVN6AYAJ/2WMRDiU8gh6gP7Fjte07Ix+Ma0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=eSQ9Q41/; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=pp2Gs1Fn; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D7BA225419
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 21:10:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.194
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744060227; cv=none; b=AnX7H55QGphur1lf/IcY31ID3m5vqil/zlE/LgCccfzjU8BuswDvzEnJSfm3pjmR5qMwE7c3sb8ghOO9Rm0g3+ChR8teRQcZsR5KF6bnEy01g0cgwOc7IaG5j//MpI9VXW2JxaErDNahaMkL2HUPSL3WNl1hgYcaKryWR+B7k6I=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744060227; c=relaxed/simple;
+	bh=Cs3JRT0u4iOUCEOdJXAbObwY/0a42FVTlXSMgmPRyko=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KL4jjN9dAYkvWjvM/7/TxSm1ldxsVhRZq6s4bXmGCfc7XnFLbG2mAz13Q5q50AlQvGHjzz9ebXk1G4vG7zwBxj1a8eQykGcHfHZyg3m/9tA0PzBoynbpwlL2n3QmRNoa6SNPbbJGNBKPF3TSXAPpqdlktp6ri4VYM9F5SVvUueg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=OBVW6ZBK; arc=none smtp.client-ip=209.85.210.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="eSQ9Q41/";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="pp2Gs1Fn"
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537H0jMA003449;
-	Mon, 7 Apr 2025 19:05:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2023-11-20; bh=B3WCo0q+e1sxnY7xin
-	uIe1QGKqyrop7GNjHs0bt+yjA=; b=eSQ9Q41/EE2YxVePb7zs0bwZmcXmHu6Pwh
-	lmZC2ef5BSTMDJe5v5YNQi1vChelCphJbZOXqy/u3cIx9aXal1giv4kysqDjSvr5
-	R7F+u3DHeQHndX8bPP1ZHG18iBKeWHiv+Oz3/n1CiyD3hpGc5ouHg6uWsOyPQSqe
-	dSXmXpem2kwuNzcJWuz3ftMLqe8lEXfWnSBugeSg78nt5fhhomeUTqtdhmp2IBQn
-	Le8HojtPNQ/cS0+qr/29wI0FgyPsfaPUNNMoBCYo4iqhH4XX/ownWDwSplXKtn59
-	DglxgbBRmhvAR2oPVixk07yDIbKlBW33ED7F0JE5S8Vdp1/PGk/g==
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45tv4sub8x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 07 Apr 2025 19:05:27 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 537HUjQm013671;
-	Mon, 7 Apr 2025 19:05:26 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2176.outbound.protection.outlook.com [104.47.55.176])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 45ttyeh555-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 07 Apr 2025 19:05:26 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=UITh9u0E1Of7pFV9fjsw39mBpn41swxTTjW72x50MxvOS7fZcX5MW+ZxlUnMDhzPxzmN2h64zgZ8uVMlBKpCA+XCfp4Ouoiqq2uW/WSDUVzWTDHTCQ6OEkPVlxWler3ZcmxfaLPzySLzdnRt6yWm8zGxC6tJCHKRhcqwElYYtSOyNFGjrbBWqfXFweAJMEMmZu4hzqEWYh06sboU+ytOKYdUmtrlB9dp7pc+gbpPI7+rYFEsFH7vH4UDEI3a/ILein5ac3RlrXO3fEYsHLtGiv/KIMw1j9nqkPpDxDrBvEfaHSpFGZd0yAY439ztSngVFyjvTyillEIiPlXn05nu9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=B3WCo0q+e1sxnY7xinuIe1QGKqyrop7GNjHs0bt+yjA=;
- b=R+JyRHM5TDq75+e1uOVF3u8jjKUtRjAi+vpNsRKuCCkVd6JwHKgGOV8MGiCnW8J3T3AuOu73YLevjk7dhk43DARh6xXFglgsfFrG4o3z0Wh6zYJloDDhapG8wPyv3hmo9mbRVrfTQA1HhS0oRmHoFax+UXmkBHcJ1PJ9l9xO5UsHiYhpqnlP96RS2zidU26rzpqPA3/nUI32NhIg0LDKJtVrW4eVbdZciuvHchpVp5+ADC5tKyGjhREKkHurwWWVcGqV8JpNx2mNSZRU1JGhNoPwBFUIp/DbgwAeeMpQQjhGL2aIsOT6guUgbu6xiWh0sGMYkDgdNFrcgcLJA5hpnw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="OBVW6ZBK"
+Received: by mail-pf1-f194.google.com with SMTP id d2e1a72fcca58-73b71a9a991so183670b3a.2
+        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 14:10:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=B3WCo0q+e1sxnY7xinuIe1QGKqyrop7GNjHs0bt+yjA=;
- b=pp2Gs1Fn39D3+4xa4asCOqKaui2Tt+hQueaq4wbVwxBwm1hTcmcrN42Hs4t31GYnTdcmPeS88Svw6NVyKWQFd+ymjyY6qKvSXhRy4diYl15ApiKZuTm80AjHQuVp3XwZUPIhfBypDgKUuChHxxY1DexGwKN3BqCVp8lsDjR5lsM=
-Received: from CH0PR10MB5338.namprd10.prod.outlook.com (2603:10b6:610:cb::8)
- by CH3PR10MB7807.namprd10.prod.outlook.com (2603:10b6:610:1bd::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8606.32; Mon, 7 Apr
- 2025 19:05:22 +0000
-Received: from CH0PR10MB5338.namprd10.prod.outlook.com
- ([fe80::5cca:2bcc:cedb:d9bf]) by CH0PR10MB5338.namprd10.prod.outlook.com
- ([fe80::5cca:2bcc:cedb:d9bf%3]) with mapi id 15.20.8606.033; Mon, 7 Apr 2025
- 19:05:22 +0000
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Arnd Bergmann <arnd@arndb.de>,
-        Jeff Hugo <jeff.hugo@oss.qualcomm.com>,
-        Carl Vanderlip
- <quic_carlv@quicinc.com>,
-        Oded Gabbay <ogabbay@kernel.org>,
-        Takashi
- Sakamoto <o-takashi@sakamocchi.jp>,
-        Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie
- <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Alex Deucher
- <alexander.deucher@amd.com>,
-        Christian =?utf-8?Q?K=C3=B6nig?=
- <christian.koenig@amd.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Jocelyn Falempe <jfalempe@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Xinliang Liu
- <xinliang.liu@linaro.org>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        Xinwei
- Kong <kong.kongxinwei@hisilicon.com>,
-        Sumit Semwal
- <sumit.semwal@linaro.org>,
-        Yongqin Liu <yongqin.liu@linaro.org>,
-        John
- Stultz <jstultz@google.com>,
-        Sui Jingfeng <suijingfeng@loongson.cn>, Lyude Paul <lyude@redhat.com>,
-        Danilo Krummrich <dakr@kernel.org>, Gerd
- Hoffmann <kraxel@redhat.com>,
-        Zack Rusin <zack.rusin@broadcom.com>,
-        Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
-        Lucas De Marchi
- <lucas.demarchi@intel.com>,
-        Thomas =?utf-8?Q?Hellstr=C3=B6m?=
- <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi
- <rodrigo.vivi@intel.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S.
- Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Saurav
- Kashyap <skashyap@marvell.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        GR-QLogic-Storage-Upstream@marvell.com,
-        "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>,
-        "Martin K. Petersen"
- <martin.petersen@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        Alex Williamson
- <alex.williamson@redhat.com>,
-        Geert Uytterhoeven
- <geert+renesas@glider.be>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Mario Limonciello
- <mario.limonciello@amd.com>,
-        Thomas =?utf-8?Q?Wei=C3=9Fschuh?=
- <linux@weissschuh.net>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Niklas Schnelle
- <schnelle@linux.ibm.com>,
-        Dmitry Baryshkov <lumag@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        linux1394-devel@lists.sourceforge.net, amd-gfx@lists.freedesktop.org,
-        nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
-        spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
-        netdev@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-scsi@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [RFC] PCI: add CONFIG_MMU dependency
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-In-Reply-To: <20250407104025.3421624-1-arnd@kernel.org> (Arnd Bergmann's
-	message of "Mon, 7 Apr 2025 12:38:14 +0200")
-Organization: Oracle Corporation
-Message-ID: <yq14iyzsshv.fsf@ca-mkp.ca.oracle.com>
-References: <20250407104025.3421624-1-arnd@kernel.org>
-Date: Mon, 07 Apr 2025 15:05:20 -0400
-Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0424.namprd13.prod.outlook.com
- (2603:10b6:208:2c3::9) To CH0PR10MB5338.namprd10.prod.outlook.com
- (2603:10b6:610:cb::8)
+        d=chromium.org; s=google; t=1744060223; x=1744665023; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Cs3JRT0u4iOUCEOdJXAbObwY/0a42FVTlXSMgmPRyko=;
+        b=OBVW6ZBKa71oMNHpPPq7yhDs89K4SQcSTG051IA3Vx5RVcNkPcYn3eplPbxPbALAkL
+         WqikgDGSKASd0Be7MQHm1PgUFnCtut58a8w4SSlQwDxxkXms6n/vZFvNSMktmdefVurv
+         ex1XkNqp76bBk5XI71XiaRusip+pt3aZ7hRS0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744060223; x=1744665023;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Cs3JRT0u4iOUCEOdJXAbObwY/0a42FVTlXSMgmPRyko=;
+        b=ufXJ4cSI8/tfj8hRvGMguiWU6EuDaw8TiqnVC+l1YWMkKGwRX9fvDxUn+LY294SUbR
+         Q5bL84i2KD9fl9XddUDHJ8BweWmG1f8SKXZrKu3VJBMA2vUR13AJbT2kkwMKjpKd55pr
+         NaaYOsWG/iq/3+Au+P0J43ctl8zzDU0Jzf8Q8ed6n9fdXEHQACjHNkkxGTFFx13uJcDl
+         KrWmhICcXJx0OXD7lVASrbhE3CvvgENppVy4qOKwqjbBGGWJIW2cOMTZRsALPlnFhst2
+         Zkkq5zyvF1QUp+L0s1nmZjC5E6gNeabXv3ifw95mV6P1JAvY3uhj2TnV8Pfebqru142U
+         Zgqg==
+X-Forwarded-Encrypted: i=1; AJvYcCVvhOidu+RU91S+6BjVV6+Bs+Zjqo5CDVx9j6osQG+dYw+A+/bN+ToSDePUULwBSsjOFxLbC0R+DbukEE5NuA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxXaLRRFRdt9PWSm9gl5/s3q+xSYzYiCaOCV4lLR9FZTdMsMGig
+	wHycsDa1/ogQAZF5Ec9L2n2vs/cveswCkC8eiaMMmmj/xryhtKhseSrLSjagUOxfAhclnrJ2x9D
+	q6g==
+X-Gm-Gg: ASbGnctQHHJov7ZWPWyKsGhkCLALx+fXSHC5rpgNaPHCkq1awwewpRisj8Gy4k44tul
+	5xkA2h1gGNGL8wNK/hSfv+YkA2wwuP10+xfiXvp7yyh+so82oSHvNH0IJXMEuTBb7BVGqbpWQrN
+	bbpSPVjdg/J5z0ioA+t+obXkWLZu+pLbl8chV0wL4o0KYcnspMs/5u2pcSQ4TxDqJ2Ua5rwan8l
+	FaT2rlQXjHckzTy4PGkAlvQbRuDiYfGBWoFhpTB/jFbFS4EjmpK0PkDe8gR/UnNXVh5UE4ME7Su
+	96k4edr0ZUeAOdfhoar+TNxHwhqXusCTZw6MIObDQvKRZdH4HraBs7z60rGgOrQ7fGC8rP31ul3
+	1Uho3GMHkxqJg
+X-Google-Smtp-Source: AGHT+IFsByaHQ8DMXFRoYk8HmWRqxPb8pdahnuLuMlRleGv7fa/VxgXcoq5unKt2g/LKdLipcHF96w==
+X-Received: by 2002:a05:6a00:1145:b0:730:9a85:c931 with SMTP id d2e1a72fcca58-739e4c7bb18mr6484720b3a.7.1744060223217;
+        Mon, 07 Apr 2025 14:10:23 -0700 (PDT)
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com. [209.85.215.169])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-739da0e7deasm9314978b3a.170.2025.04.07.14.10.23
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Apr 2025 14:10:23 -0700 (PDT)
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-af93cd64ef3so3180642a12.2
+        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 14:10:23 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCW4aVKFfzHdXSPJ+a84prk6WrvmRNf6kDcSfiKJYF7BlPvTqXY4DYb3u0g/+pMnTlPhgkdO4NXSpTD+RCjS1g==@lists.linux.dev
+X-Received: by 2002:a17:90a:d646:b0:2fe:ba7f:8032 with SMTP id
+ 98e67ed59e1d1-306a485e486mr21065018a91.9.1744060222504; Mon, 07 Apr 2025
+ 14:10:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH0PR10MB5338:EE_|CH3PR10MB7807:EE_
-X-MS-Office365-Filtering-Correlation-Id: d8924944-39ce-4ae5-8c0e-08dd7607256a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|7416014|376014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?eBONaVh8QtxCQ1WlqX7mmGus6c8vZ2U6wWoatXIuyNr29pZJUVcbItvoiZZv?=
- =?us-ascii?Q?oJpmUY0Fa3Dea3IxP+nFpOsxnoZdMLBr5DOW9qQduHpKE6en9YemKsRnZnjc?=
- =?us-ascii?Q?AIgVxbx//7w9/vkMzeQtnVkDb1k0yOqGIsG+5+jSvkTTObPFvZC4p78dlyq0?=
- =?us-ascii?Q?avOBhBZLliVfBqMwBnSZRUQUWi0ZjBT9Abjqo/7b3nIyg3FQRT8LMLE5co9F?=
- =?us-ascii?Q?5wWPfa29wb1huBknUDtj1/iRtQRq8FVjMZBghVHUwQnbnPAKzxZL5GRgPnVs?=
- =?us-ascii?Q?dLQYz8fZ+Vf0qik3YXn7rAL6kHOgh3bVxHKH6nR4PvCI8yzHDDYmEsgTcjRl?=
- =?us-ascii?Q?qTtlyD+4xZwuYH7+rSCqCVzezNccELN2dtSziA3g69//VWdVcM4hDHpG2Sx6?=
- =?us-ascii?Q?jNkT1n5l7nIfZ0W++3WCvLVjAzNZLZDhUOJyGET5i9nQkBo4/UVlJF12m+WO?=
- =?us-ascii?Q?1ZJ0z0VVQnUVoG5QEBF4CvlwwylaPQfVR2zCLwatk/opms6tdvWmxj45L0yg?=
- =?us-ascii?Q?IpXFyYSafWWtTkC9zw9cvwjZMLSjElSGChy8I/mdO7PTwwftfCafRUFu7vLm?=
- =?us-ascii?Q?JwIBqbgJRFxfKh2elP81s4wcu8vb7nenbj4L0dR5aODfzeWFc+AJSQEpQl0/?=
- =?us-ascii?Q?Hlc7BehJlm7a3qTdxpuS9hY6Mjb0Ug0IpZ+MtU/H3ZQBYOv/RCEiAlwS1kbD?=
- =?us-ascii?Q?pLJK6AAveObSYKWwKVMIGuS5FzvC12vWgamWxNfStkpFDBAaVV+SlRyXFaF/?=
- =?us-ascii?Q?cOUWQg1PQzkkr34uHjAfkTrq4uLR//KsytOIRP6t543gUX1kAatGjJwdPyUq?=
- =?us-ascii?Q?AAfZmxd2oZXa79dhPPv1CuVGtg8z7qi1/ds22dJjgKCHyr5xAt+tqzOCmKoq?=
- =?us-ascii?Q?zjmKh65q4fK9rzqVAF5BY+WqtlHWBVwhabW7lLGTWAiReHxPCJB4Nk3o6XKr?=
- =?us-ascii?Q?l3kCMP7gUvzGImXFoQ+n79IEZPMq6mtHfcV7ebn6k0B9ariQbkU47vjD1XeA?=
- =?us-ascii?Q?jtlZQiROa+0ECtxBg84bXmhqKMa22VUcSDuDktDA1sTgUGZvyfeVW6HWKVqU?=
- =?us-ascii?Q?4nraP7ZDKtD1PSveuEeMc7s3SZYvWlS6fdGVDYbqpnpgCBTIzBjpvV50f0iI?=
- =?us-ascii?Q?k6y8CNHcWT0WSb2GfW+cHrZfnmIpX3MXmza+D78oBzYszOa+J7Ezg8oRdWzL?=
- =?us-ascii?Q?04IgXV/SDBCR1qg1GjaTexT2hfBuRIN2bUZKcOcQ1pOoj7Aaigz+Iy6R60R9?=
- =?us-ascii?Q?jcHfyLOtlgUqoA0h+4j4sPCtyiXbs+FRPiHWOlMk3dtheSKh9uYyrLbrg2Xo?=
- =?us-ascii?Q?0Qj48/Jt7td4N7UGVAqrzKo/i92NQngw8GBwKmDDKbreNCsgrQT8mKc35xqp?=
- =?us-ascii?Q?rG70DeaQ4alikFDIvxMO6DDoQCSz?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR10MB5338.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?j+SyJhzzhA7/YOkWe9T094AU9tKsT76juiZbzA5IzFCaZDwMEOo+iwl4/bfe?=
- =?us-ascii?Q?Tb6NIuJIZ2Jq3y0sggWA6de01FJabiBkZNg0rkpHx+EllqTR1viZ4nP2mo9H?=
- =?us-ascii?Q?+UXMMpTSkzdDDtlDFIWKwkiCsGiY8+AbY/q3r/936ycSgbkloFFkZRGbrsCl?=
- =?us-ascii?Q?Pjp80+djDPcHdrSxQGnlWJ8XIM6M0IwQ1OMiP9yUWAoL2/WOr/1Z90FQi//B?=
- =?us-ascii?Q?VJHWLvtrWcS2UfnhXv12g6cD3XkCp3DIlU6BDvOLd/caH/Fq4bEUvjcUNdSz?=
- =?us-ascii?Q?jOwhETwIehX5yCI3kTRm18v/yW7uMVnoQGACC/l9yUXoxPrAOk7ybu6BrS/J?=
- =?us-ascii?Q?5CKsJ//LIYKz5mPuDGCUqjXnJCnQbdES+iiV9qy7mXxO8aUAD2MAAUwfoM1l?=
- =?us-ascii?Q?iEvGHknofN9iFgytE7A4ZohgLiN640tfJxGgnOE/oyJUTz12lZKtettVo5YY?=
- =?us-ascii?Q?t458VoKDwPp62FDioVR+dPcovBT+LF92MfcbP24MUx6CCjaGO409b2lc3CPO?=
- =?us-ascii?Q?qSzJcR5NBf4gMAk+TvNSMsw8eaTSmJ6QWvDsaGil47gMZlKWsXAlwXBlU0OZ?=
- =?us-ascii?Q?z7foTq+ikLWhMU+l0G356AHtaL3KJWYLzCL3ohhAkKw6I8O0qd8UI4qyRLuE?=
- =?us-ascii?Q?eV9XzBvDFeHWBMKlnrY/3cDlyjTlqpTj5dFVOXISZWcD5wO2IhEZ4mUZrVK+?=
- =?us-ascii?Q?etxUJ2AxZqL0+O8lxgygrdVcTfkCC6lMJgv3WYId30OmTI1seioFfOsuouu1?=
- =?us-ascii?Q?M9+Xh4EVWc4nAPjzAAEUTbZwg63IKQZ3djCSSxDijb7ajSdHLSz9roVy60Bc?=
- =?us-ascii?Q?iujPRWl4mGk6kLWi4ZImqOHx7UmHe0L1yIzVGXuJpYTin0PNUa3ODmhUt3pC?=
- =?us-ascii?Q?VK9S5pO3kQYOJACphXAAjJYm25ZeF5uBht5FnJFBjL/Te34OUK6wAMU/DAxn?=
- =?us-ascii?Q?ORzL5Fy5Ca/flsCUQ/c0XZq28cI6orWcQpAIQMFC/6sFbVOhcdOqU6dzKxL/?=
- =?us-ascii?Q?eR82ezYw5V9pzPJQWJWQj4lLmS2umF5317Ib8orsYP7G+MuRaooCU74NWuuE?=
- =?us-ascii?Q?Bq/MX6qCZqyBj0wAnjOgtwnOg979Xv8mefygcXB7wGZUwWp6HFKeoGId5E3l?=
- =?us-ascii?Q?GsT1PTo4iDmBvNdA/vSV06uA4u0KSihfltaNnlY5/cuqXeLD4qCwHkjPPOIH?=
- =?us-ascii?Q?CKOzofJboWX0yUF+A6XU5LfWF3YiU/QhlTnQrWoX4xoeBUOQwAL5dQSdgp38?=
- =?us-ascii?Q?3J8v/ISPl3MYmC16D9A1FQ7C9G8rfEDSFTpKRXo+2DG3T8HR0Ys3Z6lRgfxw?=
- =?us-ascii?Q?T2Ai9Fqu1ppBg33zrBF2HKynG7Yju2Z1EKyuO/dkEsNtiVe7u4Ai6OQEVM7x?=
- =?us-ascii?Q?/dus6YqKY1joXibJWpiNNifrTHQwinFK4QkULK14nDylKZcLwuQRNUc0ItI8?=
- =?us-ascii?Q?9D4CYYClFmZcOiqNzakSPaDBnp7K4EsHip6xO3YY3vuu1zcLla6XSqCBeQ04?=
- =?us-ascii?Q?T5jXfVZQB1VLqsGHHz0e7OifhRvxxee5cpR5tO4AoJeDKE5jHDYKJqt1+AZx?=
- =?us-ascii?Q?1lWy7tTJ/BRVuU7EoqobKf1z62LixbgH/H4G/lnOFKutVxG5yCr8O2G1QnN4?=
- =?us-ascii?Q?ug=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	yuenlQ07brVYh9e4uU4+HSRUBZ4n8g9qUM5U4dPcIOwwHs1JYxywFVTUQA91/sRkazedm7CJ7BWlVFwxKuKPumkT1aOco4Cn9pVh8TmQTRXWdnJE2OEivMvKcrv6/A0ilob80NHBfc+19kqsGOJLXy/4ztBVgL6UVpGiizNvwuEESXMqxMtWGl9L4ZV/icim/e/VfDQNNeDfbDOf9isCFf9p30+Inq09uuXJct61OEQWi/7SUavVZrRY9130zd+DhYC9adqezpPQAnzrMlo6Cbi2/ZzVIE4D1VXSF3Tvd8oCG5B772MJv070TsEI9X2UZ+xQvmgHM79uoaRABDNy4PDpspEzrgwb/DlyDMN18uRXMMaWsRoiim4Uh+PG/fT8X/mu7Fnd6ZOO8wNtmY/7Xm9k1e2mfKg6VkRfbxSxkxzViPOMt5dsy9kny9zkUSV00+N1nQD1Yfzp8l730mYKXxjwpsAq/wQBRZMOJ+ehW3QYCGsiGQfx/6D//REhOX7Lj61fD/MVsK4Px0DFXU3eEPkuV4uCc9wLiY+mYPy/hI/+9Y3x1cKamExYcmDbHEMxav3pIgHNtGoqd+9aopEGpiWZxT/qykA8MAgQx2Ucq8A=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d8924944-39ce-4ae5-8c0e-08dd7607256a
-X-MS-Exchange-CrossTenant-AuthSource: CH0PR10MB5338.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Apr 2025 19:05:22.3393
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EHgFJF0FYh/n1VlOHFQiGCmtc8DTBf47dd6sKV+T0rYOeOT89Wh9AAt/5AfcNjOBvjk2UdN6XHzym0KrldwCAj8P6Oec62DLqNzlvjULd+U=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR10MB7807
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-07_05,2025-04-07_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0
- mlxlogscore=999 bulkscore=0 suspectscore=0 mlxscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2502280000 definitions=main-2504070133
-X-Proofpoint-ORIG-GUID: O6n7nSyyLh3aHfwOADshPdULIWtE9VdI
-X-Proofpoint-GUID: O6n7nSyyLh3aHfwOADshPdULIWtE9VdI
+References: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+ <20250404160025.3ab56f60.pasic@linux.ibm.com> <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+ <20250404173910.6581706a.pasic@linux.ibm.com> <20250407034901-mutt-send-email-mst@kernel.org>
+ <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com> <20250407042058-mutt-send-email-mst@kernel.org>
+ <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com> <20250407044743-mutt-send-email-mst@kernel.org>
+ <b331a780-a9db-4d76-af7c-e9e8e7d1cc10@redhat.com> <20250407045456-mutt-send-email-mst@kernel.org>
+ <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com> <33def1b0-d9d5-46f1-9b61-b0269753ecce@redhat.com>
+ <88d8f2d2-7b8a-458f-8fc4-c31964996817@redhat.com> <CABVzXAmMEsw70Tftg4ZNi0G4d8j9pGTyrNqOFMjzHwEpy0JqyA@mail.gmail.com>
+ <3bbad51d-d7d8-46f7-a28c-11cc3af6ef76@redhat.com>
+In-Reply-To: <3bbad51d-d7d8-46f7-a28c-11cc3af6ef76@redhat.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Date: Mon, 7 Apr 2025 14:09:55 -0700
+X-Gmail-Original-Message-ID: <CABVzXAnLjNeTYFvBBXyvB=h63b-rkjncBMzkV=+PY-Mi5fvi3g@mail.gmail.com>
+X-Gm-Features: ATxdqUE0HO7NR8RDwJ6zzKPsdwnp2tanOwCvCL2_IqsDFdqHWotUVnDaMU86evY
+Message-ID: <CABVzXAnLjNeTYFvBBXyvB=h63b-rkjncBMzkV=+PY-Mi5fvi3g@mail.gmail.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+To: David Hildenbrand <david@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>, Stable@vger.kernel.org, 
+	Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-Arnd,
-
-> It turns out that there are no platforms that have PCI but don't have
-> an MMU, so adding a Kconfig dependency on CONFIG_PCI simplifies build
-> testing kernels for those platforms a lot, and avoids a lot of
-> inadvertent build regressions.
+On Mon, Apr 7, 2025 at 11:47=E2=80=AFAM David Hildenbrand <david@redhat.com=
+> wrote:
 >
-> Add a dependency for CONFIG_PCI and remove all the ones for PCI
-> specific device drivers that are currently marked not having it.
+> >>> Heh, but that one said:
+> >>>
+> >>> +\item[ VIRTIO_BALLOON_F_WS_REPORTING(6) ] The device has support for
+> >>> Working Set
+> >>>
+> >>> Which does not seem to reflect reality ...
+> >
+> > Please feel free to disregard these features and reuse their bits and
+> > queue indexes; as far as I know, they are not actually enabled
+> > anywhere currently and the corresponding guest patches were only
+> > applied to some (no-longer-used) ChromeOS kernel trees, so the
+> > compatibility impact should be minimal. I will also try to clean up
+> > the leftover bits on the crosvm side just to clear things up.
+>
+> Thanks for your reply, and thanks for clarifying+cleaning it up.
+>
+[...]
+> >> IIRC, in that commit they switched to the "spec" behavior.
+> >>
+> >> That's when they started hard-coding the queue indexes.
+> >>
+> >> CCing Daniel. All Linux versions should be incompatible with cross-vmm=
+ regarding free page reporting.
+> >> How is that handled?
+> >
+> > In practice, it only works because nobody calls crosvm with
+> > --balloon-page-reporting (it's off by default), so the balloon device
+> > does not advertise the VIRTIO_BALLOON_F_PAGE_REPORTING feature.
+> >
+> > (I just went searching now, and it does seem like there is actually
+> > one user in Android that does try to enable page reporting[1], which
+> > I'll have to look into...)
+> >
+> > In my opinion, it makes the most sense to keep the spec as it is and
+> > change QEMU and the kernel to match, but obviously that's not trivial
+> > to do in a way that doesn't break existing devices and drivers.
+>
+> If only it would be limited to QEMU and Linux ... :)
+>
+> Out of curiosity, assuming we'd make the spec match the current
+> QEMU/Linux implementation at least for the 3 involved features only,
+> would there be a way to adjust crossvm without any disruption?
+>
+> I still have the feeling that it will be rather hard to get that all
+> implementations match the spec ... For new features+queues it will be
+> easy to force the usage of fixed virtqueue numbers, but for
+> free-page-hinting and reporting, it's a mess :(
 
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com> # SCSI
+If the spec is changed, we can certainly update crosvm to match it; I
+think this only really affects a few devices (balloon and technically
+filesystem, but see below), only affects features that are generally
+not turned on, and in many cases, the guest kernel is updated
+simultaneously with the crosvm binary. I'm not opposed to changing the
+spec to match reality, although that feels like a bad move from a
+spec-integrity perspective.
 
--- 
-Martin K. Petersen
+Regardless of the chosen path, I think the spec should be clarified -
+the meaning of "queue only exists if <feature> is set" leaves the
+reader with too many questions:
+- What does "if <feature> is set" mean? If it's advertised by the
+device? If it's acked by the driver? (To me, "set" definitely hints at
+the latter, but it should be explicit.)
+- What does it mean for a virtqueue to "exist"? Does that queue index
+disappear from the numbering if it does not exist, sliding all of the
+later queues down? If so, the spec should really not have the static
+queue numbers listed for the later queues, since they are only correct
+if all previous feature-dependent queues were also "set", whatever
+that means.
+
+The way crosvm interpreted this was:
+- "if <feature> is set" means "if the device advertised <feature>
+*and* driver acknowledged <feature>"
+- "queue only exists" means "if <feature> was not acked, the
+corresponding virtqueue cannot be enabled by the driver" (attempting
+to set queue_enable =3D 1 has no effect).
+- Any later virtqueues are unaffected and still have the same queue indexes=
+.
+
+The way QEMU interpeted this (I think, just skimming the code and
+working from memory here):
+- "if <feature> is set" means "if the device advertised <feature>" (it
+is checking host_features, not guest_features)
+- "queue only exists" means "if <feature> was not offered by the
+device, all later virtqueues are shifted down one index"
+
+---
+
+The spec for the filesystem device has a similar issue to the balloon devic=
+e:
+- Queue 0 (hiprio) is always available regardless of features.
+- Queue 1 (notification queue) has a note that "The notification queue
+only exists if VIRTIO_FS_F_NOTIFICATION is set."
+- Queue 2..n are supposed to be the request queues per the numbering
+in the spec.
+
+This is how it has been specified since virtio 1.2 when the fs device
+was originally added. However, the Linux driver (and probably all
+existing device implementations - at least virtiofsd and crosvm's fs
+device) don't support VIRTIO_FS_F_NOTIFICATION and use queue 1 as a
+request queue, which matches the QEMU/Linux interpretation but means
+the spec doesn't match reality again.
+
+Thanks,
+-- Daniel
