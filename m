@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D66A5225A40
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 08:51:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 146AE22A4F3
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 08:54:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744015864; cv=none; b=UjBt0fQyslTlOLH4EDcqoccuPL0X1F3IoYw99rvbXHb/Fuocip+V5QA5ykFjRRmJ8NoaEd3AUNB9cm9G4UD62uqUlL/KPDcVS7FBTopNr/D9/tZBiRUz/rA1CgaFpgbavsiMyX+u23z/zbIZWhWL99Ah9HD5qutT6bSVMy7BS5A=
+	t=1744016047; cv=none; b=Bl0VRsMiMU0oYKYZqrb3ozu83wmTdwK3MvX0rfV6tB2s3VPD20kXBoNTxY98MiaOZMeG6TCBP+IhirbFwGDXzk2j/3LICcgwtnQHHTVGDOItOsfZ5Vzt82YQ8NRU41ZQNwOhER29VXqoJ48ZwLkm4Tx/QhoWKTj1A3/sJoP+sWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744015864; c=relaxed/simple;
-	bh=ivifpmJA5RzuP+2VfL7wZfuN1Is6XWXXTnQ1F141g1E=;
+	s=arc-20240116; t=1744016047; c=relaxed/simple;
+	bh=TANN6f2gSC05mbo+WIMs8oICkZzKx6S4A0qgYF7W2C0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=vD0UW4ec5d6qEk+EejOydJl0riSbkp8Q+iM3AV3nyJEcn9WeqL6FRondpBM9+vvdULNClxXYKVPmmcR7mwKmo/9WWIINaPzVroIxy30p3D3WfBMvzen0apD1iEBvv8PojQnPWrrjhvib0V+96JuWq5+LW7YhNwxhobrrTpOz0i4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V22P3ufQ; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=ZL8xMc77XKW/OebRuRrh6mRMUbYBwa/YwXFgSkRkfrICoF34959bx4vwTrsgRqxC93gAY4iQsE8QDdwvrYyFE70GsUcHDjw15YEEHvuXrI4QNC4nSn570wk+P0/IYrWa6xOroHlYlVcapAzDF26OFnk/E17mJ4kje68PtkBG6U8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GNc3XpuT; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V22P3ufQ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GNc3XpuT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744015861;
+	s=mimecast20190719; t=1744016045;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jdWTVOx71WrbrI+bILmB8IlavscoRW8coYO7NfgYHhI=;
-	b=V22P3ufQ1WW1T1hKfV+VMyGj4DiLwYsKJL9F9g/LsiAox7qeCVijUICjISWHLXUEpbsIpD
-	hEmIM7Uxc+QindY9czwV7/3mr5uuosRbNEKCdLrkzH46cAW/TWdtGKz4r5asHJcehn4KmH
-	RFwipDI/GXaAluqz4JpKVgBl9xzHjgs=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=k7Uzb3UjBkw5m5b4lvL7h9ht1pG8QEC8Q9QUE3uuc40=;
+	b=GNc3XpuTqX/yajAi0eArCRERI9jVMeWniNqwECGTmzjYoE2zY4ScTrvoTsnk29NsIYpZsU
+	UEvx/E3UWfVCKN3IyN7fvlNyr4LPpVet0wwIoJ+jt7yG97O0So2FP2OWZhx4UnKHMf27L+
+	8c1UuA8r/ul0auoNIE05mconqFtFy3Q=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-428-UWjeC7ZzPvuOIrzv3W4ZvQ-1; Mon, 07 Apr 2025 04:51:00 -0400
-X-MC-Unique: UWjeC7ZzPvuOIrzv3W4ZvQ-1
-X-Mimecast-MFC-AGG-ID: UWjeC7ZzPvuOIrzv3W4ZvQ_1744015859
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43d0830c3f7so34367245e9.2
-        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 01:50:59 -0700 (PDT)
+ us-mta-244-R2f7AY4jP2C32glWCJsUCg-1; Mon, 07 Apr 2025 04:54:04 -0400
+X-MC-Unique: R2f7AY4jP2C32glWCJsUCg-1
+X-Mimecast-MFC-AGG-ID: R2f7AY4jP2C32glWCJsUCg_1744016043
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43efa869b19so5422085e9.2
+        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 01:54:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744015859; x=1744620659;
+        d=1e100.net; s=20230601; t=1744016043; x=1744620843;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=jdWTVOx71WrbrI+bILmB8IlavscoRW8coYO7NfgYHhI=;
-        b=u+nBNoENaTWa328FONIyRc3W4YXpjCTsYJViD2ZQUrJ1RH2F14a2TbKbSvSMBT45W4
-         0DlHE/MiiGiQEXGO9B6doxwjKbj3mcsXpo5QT919TIaAYzz+YMuGrBO9KEqV6p1As4J+
-         Yau02Swp/sftaYbYQS0YFudXGjqOrT3xKhc4aNk6IhuSqcVbm3EJtmBQ2pKqapSeeizA
-         bio/DLlYqzWV6B0uFojSZ9nOLla1vtDAKZdwSJqAtQeO/V0+dWbLoo6Dv6wuugtb294I
-         P3xKPP36jLmEVAkHBAMKKIlUcxA8Qlu7EGsnRIiF9cwbrAeCCOpIGusItmNO3wEJssiS
-         kI6g==
-X-Forwarded-Encrypted: i=1; AJvYcCUmkRpYKPiSYkhZY2cb4wlCfkVKaTVKLdoPxs1Po8mXPNs9i04AyQQuOrhFwFQalYEShgGZNNYsN1a25PdGuA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyPyus0K8J8ndVlOrXUCe3Lr2tQksSgb+lD8DKlbooD/dtLkmuC
-	pQX7AmFGtMGc6KnZ4fYH89kr3ohIlo8A0khzTFE7F59K9jeS7fpKBUXHs/j5J5yhAv30xyjjirv
-	uG6JPravQgmh/gepx6Dmj/G+jOygRIo+9udkkHa/svymGYJoBNeLI44PajR6jN9Nf
-X-Gm-Gg: ASbGncsBQ///ba5dbh6TQyA7zh35rmUbuUfPzC3lavlkz9r9nYRk7POsHuPqS9QAI6w
-	1+BqF4geLbCfJjV7Rf4yt81iOvRzPk97bYnU1VIAyqv2me8akDTMue9hzUy5o4kTBRzHWe27A8y
-	wyXEx2vdyva7AYAq3Qg0oKfq53InwXzzP7tsInq4+1Pyhe9kNnSXQLgel/sydJi+nbD4sbEiszg
-	llep0+SaUK+IwufGQnvPvhC4aBqw6vlryPjzYjQPK3QSqoyxtrbGO/70SCZw1gXnBF6KRG6m13v
-	cm4IUYvfzwa/gMoxIYk/5gm8GnE1mVLwh/rQQgXkYnoUHVBWElDRO6Vkr30rTYizM8+NvFTCOHd
-	MZ9uDJarlfHl7EDfkfW9gXFfIH6aL5+WInAbZn71PWk8=
-X-Received: by 2002:a05:6000:40dc:b0:391:122c:8b2 with SMTP id ffacd0b85a97d-39d0de29387mr8430334f8f.31.1744015858754;
-        Mon, 07 Apr 2025 01:50:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGLN7bHhtvPRoeB2LIslpGvlY/eR4p3LIlYzOev7LpsbPTKPEJQ1+mxYzmjkKRaA1ybGp2MTA==
-X-Received: by 2002:a05:6000:40dc:b0:391:122c:8b2 with SMTP id ffacd0b85a97d-39d0de29387mr8430310f8f.31.1744015858397;
-        Mon, 07 Apr 2025 01:50:58 -0700 (PDT)
+        bh=k7Uzb3UjBkw5m5b4lvL7h9ht1pG8QEC8Q9QUE3uuc40=;
+        b=pfjUPl6bLdO+sqRVnKxdpXXQmv7s4gGOQJS/HFVTRzL4M6pbACljoyU5DB8Kd+27XQ
+         pc1OUwgirPOOopidtMiqLL9jh24bBntgyVTp7WlXpIpe9VOQfLGaB0D0rHmo2Cbl6mDk
+         9gg6H9o/LGBSzncrSvaDZP9Wv0jQCKHB0mz8LK/bGzXlZhfcMk4pwtWe7+8nX88aMb52
+         k5su4qmKTGtQGaooT5SPQPyWSol9nRkRAkLGxV89JEUw/oWFqw/XLiR48RQ0yb1ob/t/
+         NoQDDKYOnE0w1H7KneIvxxdXb9MVvpEbKjPPFMGlZbcFR7QoVoSZcIcIiDwbbrsHVDwy
+         TdlA==
+X-Forwarded-Encrypted: i=1; AJvYcCUB8BiNrn6/Ic009cIeW2gfoEP8OEGpeTWaXMMyj5uunllN30DimBqf35iLlRYfdzpgDzwI8AFJxuANhBBChA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy3LN5Zzf3KFlxxLndp9615LLT8mnzZV/uYJFvn9ETUPo+eWC3M
+	cwWfVpSgXu9HMsrv3E0AXWeOKlx6Bamcx0cVoOL5q8X3IaJVfXVcRNdWPnApjQosBc0hiXjLTGB
+	PPf79mWkFZgiuqB/+4i1JhZ5qkdUSVYjwt/MCfmJ9WqtB7STpnAy5+uq7OjBMpIhu
+X-Gm-Gg: ASbGncuCmS6COBGk1cTwjohTzUDcW+wHf8YlaTFzy4ys+mGvCVsVuZMf55jEjgYp46r
+	t25k+u28InDise62k/USd/bomi7VRl6hu0RvM5O9rR3Vj3eI9PMcs1vYO796atlerbKDu8NNT46
+	nkGsxZGQrScOZXhaA1RRF13CcZYmqWNJxC0BnC/ga1T1KCCHqS/knymFB1ATpoEefKDSTn+0q1C
+	Tm/V0CES5UytlOl8ZkeyMKYR2xR84b/SAKVJgF6U8nwkPX3vs6BhjTP+tM0wE9lNihNOvWHgcjA
+	ZVE5dt1UvzaXEYAYP80hGRg/MfChprLS/UBzdeEqbXw2jAkb7dJaeLCI2uuJlzubo71Zv1O7DQ7
+	INjpqPzUhGT0MQDnB6BXg4TlrLvrzCyyBg+oqJnSuEAo=
+X-Received: by 2002:a05:600c:1d91:b0:439:9424:1b70 with SMTP id 5b1f17b1804b1-43ecfa18d8fmr140498055e9.30.1744016042783;
+        Mon, 07 Apr 2025 01:54:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFY4o2pgToU8K/fkMKcSy66bOlXQkgTor8GLtJJVjDrzBy3Blwf7FrgQSuGJ1CvpjOJy2nf6g==
+X-Received: by 2002:a05:600c:1d91:b0:439:9424:1b70 with SMTP id 5b1f17b1804b1-43ecfa18d8fmr140497675e9.30.1744016042399;
+        Mon, 07 Apr 2025 01:54:02 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c738:3c00:8b01:4fd9:b833:e1e9? (p200300cbc7383c008b014fd9b833e1e9.dip0.t-ipconnect.de. [2003:cb:c738:3c00:8b01:4fd9:b833:e1e9])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c30226ee4sm11716681f8f.93.2025.04.07.01.50.57
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec34a8952sm122676575e9.10.2025.04.07.01.54.01
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Apr 2025 01:50:57 -0700 (PDT)
-Message-ID: <25adc196-1070-4d55-b5bb-34dcdd6639d2@redhat.com>
-Date: Mon, 7 Apr 2025 10:50:56 +0200
+        Mon, 07 Apr 2025 01:54:01 -0700 (PDT)
+Message-ID: <b331a780-a9db-4d76-af7c-e9e8e7d1cc10@redhat.com>
+Date: Mon, 7 Apr 2025 10:54:00 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,8 +87,7 @@ Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
  Alexander Gordeev <agordeev@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
  Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
-References: <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
- <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+References: <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
  <20250404153620.04d2df05.pasic@linux.ibm.com>
  <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
  <20250404160025.3ab56f60.pasic@linux.ibm.com>
@@ -96,8 +95,9 @@ References: <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
  <20250404173910.6581706a.pasic@linux.ibm.com>
  <20250407034901-mutt-send-email-mst@kernel.org>
  <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
- <39a67ca9-966b-40c1-b080-95d8e2cde376@redhat.com>
- <20250407044246-mutt-send-email-mst@kernel.org>
+ <20250407042058-mutt-send-email-mst@kernel.org>
+ <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com>
+ <20250407044743-mutt-send-email-mst@kernel.org>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -144,55 +144,42 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20250407044246-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250407044743-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Doss3r0B2Crz2EYHYlTUfmCG4mOvvsox2dQJYnD57_A_1744015859
+X-Mimecast-MFC-PROC-ID: eQVUNltNO8pHWY6hqd_twZc7DEL1nFPfhPogOwIDZ0Q_1744016043
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 07.04.25 10:44, Michael S. Tsirkin wrote:
-> Wow great job digging through all these hypervisors!
+On 07.04.25 10:49, Michael S. Tsirkin wrote:
+> On Mon, Apr 07, 2025 at 10:44:21AM +0200, David Hildenbrand wrote:
+>>>
+>>>
+>>>
+>>>> Whoever adds new feat_X *must be aware* about all previous features,
+>>>> otherwise we'd be reusing feature bits and everything falls to pieces.
+>>>
+>>>
+>>> The knowledge is supposed be limited to which feature bit to use.
+>>
+>> I think we also have to know which virtqueue bits can be used, right?
+>>
 > 
-> On Mon, Apr 07, 2025 at 10:38:59AM +0200, David Hildenbrand wrote:
->> crossvm:
->> https://github.com/google/crosvm/blob/main/devices/src/virtio/balloon.rs
->>
->> -> Hard-codes queue numbers; does *not* offer/implement
->>     VIRTIO_BALLOON_F_STATS_VQ but does offer VIRTIO_BALLOON_F_STATS_VQ
->>     and VIRTIO_BALLOON_F_DEFLATE_ON_OOM.
->>
->> -> Implements something that is not in the virtio-spec
->>
->> const VIRTIO_BALLOON_F_WS_REPORTING: u32 = 8; // Working Set Reporting
->> virtqueues
->>
->> and
->>
->> const WS_DATA_VQ: usize = 5;
->> const WS_OP_VQ: usize = 6;
->>
->>
->> IIUC, Linux inside cross-vm might actually be problematic? They would
->> disagree on the virtqueue for free-page-reporting
-> 
-> 
-> That's why things must be tied to negotiated features, not to offered
-> ones.
+> what are virtqueue bits? vq number?
 
-cross-vm also has this weird comment:
+Yes, sorry.
 
-"
-const VIRTIO_BALLOON_F_PAGE_REPORTING: u32 = 5; // Page reporting virtqueue
-                                                 // TODO(b/273973298): 
-this should maybe be bit 6? to be changed later
-"
+Assume cross-vm as an example. It would make use of virtqueue indexes 
+5+6 with their VIRTIO_BALLOON_F_WS_REPORTING.
 
-Not sure why that should be bit 6, the spec says 5 ...
+So whatever feature another device implements couldn't use this feature 
+bit or these virtqueue indexes.
 
-So maybe whatever they run inside the VM is also out of spec ... Really 
-hard to tell.
+(as long the other device never intends to implement 
+VIRTIO_BALLOON_F_WS_REPORTING, the virtqueue indexes could be reused. 
+But the spec will also be a mess, because virtqueue indexes could also 
+have duplicate meanings ... ugh)
 
 -- 
 Cheers,
