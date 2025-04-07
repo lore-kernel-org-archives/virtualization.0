@@ -1,88 +1,93 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A6B2288EA
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 08:41:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64261228C9D
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 08:44:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744015316; cv=none; b=DYG7k2fxUwpjFtvzEeu9r8j9N2cDKRymotosGvqJQitu8G19vzF2ZPNhyQIm2E+f3KtGzuIjzoCTAOwRYTDkfKQeS63m4q2Ju/E7b0ToIxaC2xZdVfM/cEkj/zEokhnpTec9rYUyi6bqHhNj9oot2CaVkcj+uFAV3kAUCTo+zm4=
+	t=1744015472; cv=none; b=jM2k95XGkLDqYmW+1U0a0Duqg2SDR7wSYd9oiYxY+imWWipYUYEnO8gr3dOulon/5AJEfHWJUkKX/AJTy37AsvVOAWWbllrvhxzWCyXEPUCtUdFZ78FvftOWx/+RTDhdX/Akm4zFEeC88sDQ2BIXF/VoN0yQh94LQWiMm0MsIso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744015316; c=relaxed/simple;
-	bh=dubat8tCLJKpXwu98mOgPZCaGLWjN3X5sHoHO7zCnlE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ZrriNgqCOmOdAmzsHPFNr/uIhvTYAitcAWfhqAnpg1iWamV+fuGzQkC8v1GIDTBx7DVpqqfjPUSGCEhhoRw3tdY9Z6aEu38Vz39h3Wvm4rrmsP79TTRKahc7bhSADSPVBQhLshjYrhyKkRoNs8joG4AEljYNgSvtVAdsZcOVbvQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RQutNH+3; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1744015472; c=relaxed/simple;
+	bh=DxdHvUIBKZwcIHQV7v/k0aiM/Xh6lmFeOTIoWQLdY7c=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s92M7XfzFL2uf5Gl8YswfRsvPzw98fmnRmSn6JXjaMFgbhVNZuN437CfkyJZL9vTDFzWhzXiUswtYQrfiwflp0xmtQFJBpv3jc5xIOoF3Dvfzt6iTDNLvzvR8S8oVVDUCUJfKpPPdKXiZRJTMvhr+ei5D9UgZXnHt0xGTV60gkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lp5ddqFe; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RQutNH+3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lp5ddqFe"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744015313;
+	s=mimecast20190719; t=1744015469;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=m3pK6yIdPNYZ4p3nnxwbYWeXbQyAyM0EzrK62OMGx28=;
-	b=RQutNH+3gj66LIQoYG903N0K2VeIMj/UZn+Ud6woJiGQox/i88hZytQCKaE1l21TSSP28z
-	xP5dpKzTIoochi1764oHIQBgh7EmHauotXU2cEUcu5fHQZk8Wm1K1UdVNBQPM7feHd1cId
-	aNWHaUBFLPV0pjouu/M21FK0YTa/fxk=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/3QxZPk/vuIOLK1nwxbDV+/Kivs7gJb/xl0dNU7nvmc=;
+	b=Lp5ddqFezdB6qBks5Te1alb0jZj479P3vfx9FGpsDW9fKSAq8zbRNiimdxAaL3wewgHwe1
+	tGszuHyX7lD47otGm3JBcb+r3Bz2L89Sglf6lNNCUpCLKQgNMd4Vaf6zjFHZUmiV8VNWsx
+	lEK+RQ7J1a2BFkh31qTK3vZR4HjoeO4=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-497-IkJUp99fMEW8CNXPYTp_qg-1; Mon, 07 Apr 2025 04:41:50 -0400
-X-MC-Unique: IkJUp99fMEW8CNXPYTp_qg-1
-X-Mimecast-MFC-AGG-ID: IkJUp99fMEW8CNXPYTp_qg_1744015309
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43cec217977so26286075e9.0
-        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 01:41:50 -0700 (PDT)
+ us-mta-185-Vs6-N7yrMfWeLFwaNbVfVg-1; Mon, 07 Apr 2025 04:44:26 -0400
+X-MC-Unique: Vs6-N7yrMfWeLFwaNbVfVg-1
+X-Mimecast-MFC-AGG-ID: Vs6-N7yrMfWeLFwaNbVfVg_1744015465
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3978ef9a284so1814354f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 07 Apr 2025 01:44:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744015309; x=1744620109;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=m3pK6yIdPNYZ4p3nnxwbYWeXbQyAyM0EzrK62OMGx28=;
-        b=KqOwrSdsXobFoLQFAp628WXZZQOp5hP7/4G+RnYqLtQnmXCh5j3NVji/1Rxbxcjmtv
-         6kC1M/Mpmg8hL5vurgEvyQtbXhj9a7+MQO6heL84cVb0/c8egdxC8Ba8sUvDZWCQe27e
-         F9ugxQbJjl7GJ7Yt9V7hDSb+voOBCVAKwLgrkb1PBTcVWZCpmi/UCq3RsFKUzewUN5ay
-         x6x2Fjenkm+FlI0MlfVvQw1/e6XS0G5TrJj5E0v77kyAgcM7pQjYh18+m/RWoA0gUQ4a
-         9OIdYAlnMnImmJ4hd6r9yZnxylz4PN1f2SnPIe9WYF4nY0GaAt3S0lsoyr6i+/u4iAW7
-         dVLw==
-X-Forwarded-Encrypted: i=1; AJvYcCXfz6FZ4BQ3nnWAeOfBzR5pJcELGYDoZb3cSCUB8OnoEyJ+OUAJcxROcHLLrYXs9VdemdwIxlIlbkAj+aoglg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwzqyRZxU1/k0RzQP18AlOv8p34/ovHn+FbeCpaAOmScDLB7A9W
-	AtBq6lt40s2iA07hbv+qcuT8GnwwwWmIpTFSI2KrptFiSWn9Dg60MaGR+5yvSCmwC1EgaDT6n+G
-	Id1zflwnI75N7mIsbodMYfQdfz2WbOdRK1B9JPeGwJI6pi+e5PckN7D+Nf5Osj9GM
-X-Gm-Gg: ASbGncuLDO3MSVGGSApM8fQ27zzQ9UhV/OGZHPp8aX7GlXeU04EwqqmlrUpns3Hc39h
-	us+Vx3nkDOKp6aFTwFeC4ZLfQTwXcwwiDdP36knOMLmLi9EaEyTBPBfI0aaQwD1XD6jX9AtMz2K
-	SfDskm1wE6SLaFxuSgNPxHD2yYqWeMRQmzhPAaW3sYfOLiulbYI1ZHK2lmPE9vJNVSpgAoXjDBh
-	nzqSwkCm29oQvAKyVKe0XdOIF8a7w9EIQdNn7nK1051cRrdKSBDscISFq/9BFIrTO3Kf5KgQc9C
-	IwNo4Dp+0Q==
-X-Received: by 2002:a05:600c:5248:b0:43c:eeee:b70a with SMTP id 5b1f17b1804b1-43edf8a28d1mr45333005e9.22.1744015309267;
-        Mon, 07 Apr 2025 01:41:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEnMOiX9O9gk9kURjhnnuCNT1UVrytArjtGV7ecRUIBKrJSc0PSzOsjWjaDnmkVaY/+rUOMfQ==
-X-Received: by 2002:a05:600c:5248:b0:43c:eeee:b70a with SMTP id 5b1f17b1804b1-43edf8a28d1mr45332875e9.22.1744015308965;
-        Mon, 07 Apr 2025 01:41:48 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c302269a2sm11484143f8f.91.2025.04.07.01.41.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Apr 2025 01:41:48 -0700 (PDT)
-Date: Mon, 7 Apr 2025 04:41:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
-	Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-	Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Wei Wang <wei.w.wang@intel.com>
+        d=1e100.net; s=20230601; t=1744015465; x=1744620265;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=/3QxZPk/vuIOLK1nwxbDV+/Kivs7gJb/xl0dNU7nvmc=;
+        b=eN/QOjISyVqaW9kaRqwdSsua3kwKMO5+1ZR7bTRjWhls9gIxD6/ywX3OlzVKkFp3bl
+         iPjGBopUtLD1iWlWHp1IUiA27efM7QrX+hjV9mRoDUXZ3Usfj3To+x7j3oDPigSyfL+C
+         7x1HjDcaU1+EhkMKUIMyi4EByEdMCin1zzmuEcYcH49CA36/87UBa+yIygN92MAFIasv
+         dp8+iGMVfMDyI42YkBUNgIPvuJq2pomj0kjFG2koUHNZq7hi3ualUXAg3Xe84zoxx0WS
+         t60tFJtb/AsiiDOa75gccGuYjfFMlog5RbjgWJQDavMnhNOgvT3NNmYhurtJtFJ16lfr
+         vvlQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWjLZpTMrE1gTeqFw0aqvygvwdtq2Upv319V1H3UnChTjVCQiCvOmcuhFvh8inDl2rD+UzS6nDJioL1C6SVFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy6nXayH5+rWppHV84akIJ0SbMlPATYa1TdSxFhQ8WHrI+3SFeX
+	C7nB4pp/pIOqdHyuN2IPgmtP95myxX4WfJ0S1PnwKw3lSIKBJ1Hec8gZ22nXrekD9s0vhQSE04r
+	NIiFLMGUoHU5j2m/b8ldzeQUUGAD3zrH3tPETZxjKmFo4Mo3vIKwNaA+o2Je3wbKF
+X-Gm-Gg: ASbGncvdVCnEm/4NP92U5MZZ1RVTExK+b5WnF0MaF3c2w5QcLyHPL+8z5jK311WRNWf
+	nV+hu67HeofG5eVN3d69kCR8QMIsPxZgYsLDQOby+D3SqZWcv4skf7utACMNWCBKXv+IqKXJ4rx
+	pSacT7LcR1WEZvnMQWERwNJDvDKBvky00PwkKZMl+8E/fgXga1fCjH3P9HRuvzePTBzAqL48t2e
+	w7o2Cmz62q2Zqwhg/fsJzfWWkk2IBBbnIohkhXqj1GkM8QZNkGTGbueRjM6gLLEPtPaesbhae7e
+	oSerlb7KvwvrOBl1zIJqT4E6hZ/jw2+ziPqcJZZ5y5u0d21K0vTkc+6ziJUvNoo4nOJE3Y1B6T5
+	2v6F/x/6bohAT3iyj78RppnfX/2hbH86J+nquKDdNgQ4=
+X-Received: by 2002:a5d:5f52:0:b0:39c:1424:2827 with SMTP id ffacd0b85a97d-39cb3594e72mr9659954f8f.15.1744015464892;
+        Mon, 07 Apr 2025 01:44:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFCWFQYkJcJEVnQ3LjoD4a7PX8sINteAC+F9y4nrTkd0ydEosOtYznrvIYSEyyJ1+xQ11Nchw==
+X-Received: by 2002:a5d:5f52:0:b0:39c:1424:2827 with SMTP id ffacd0b85a97d-39cb3594e72mr9659921f8f.15.1744015464527;
+        Mon, 07 Apr 2025 01:44:24 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c738:3c00:8b01:4fd9:b833:e1e9? (p200300cbc7383c008b014fd9b833e1e9.dip0.t-ipconnect.de. [2003:cb:c738:3c00:8b01:4fd9:b833:e1e9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec36699e0sm122875385e9.35.2025.04.07.01.44.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Apr 2025 01:44:24 -0700 (PDT)
+Message-ID: <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com>
+Date: Mon, 7 Apr 2025 10:44:21 +0200
+Precedence: bulk
+X-Mailing-List: virtualization@lists.linux.dev
+List-Id: <virtualization.lists.linux.dev>
+List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
  non-existing queues
-Message-ID: <20250407044029-mutt-send-email-mst@kernel.org>
-References: <20250403161836.7fe9fea5.pasic@linux.ibm.com>
- <e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
- <20250404063619.0fa60a41.pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+ Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+ Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
+References: <20250404063619.0fa60a41.pasic@linux.ibm.com>
  <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
  <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
  <20250404153620.04d2df05.pasic@linux.ibm.com>
@@ -90,41 +95,141 @@ References: <20250403161836.7fe9fea5.pasic@linux.ibm.com>
  <20250404160025.3ab56f60.pasic@linux.ibm.com>
  <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
  <20250404173910.6581706a.pasic@linux.ibm.com>
-Precedence: bulk
-X-Mailing-List: virtualization@lists.linux.dev
-List-Id: <virtualization.lists.linux.dev>
-List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20250404173910.6581706a.pasic@linux.ibm.com>
+ <20250407034901-mutt-send-email-mst@kernel.org>
+ <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
+ <20250407042058-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20250407042058-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LUqr0mLJ85AkUnb3JJIbDIqH78e6JjFHhchWXkFutmQ_1744015309
+X-Mimecast-MFC-PROC-ID: -suMaDQb0psr-h7Y1BhuebboU653aKrRZfuTIyC8L8Y_1744015465
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Apr 04, 2025 at 05:39:10PM +0200, Halil Pasic wrote:
-> That basically means that if I was, for the sake of fun do
+On 07.04.25 10:34, Michael S. Tsirkin wrote:
+> On Mon, Apr 07, 2025 at 10:17:10AM +0200, David Hildenbrand wrote:
+>> On 07.04.25 09:52, Michael S. Tsirkin wrote:
+>>> On Fri, Apr 04, 2025 at 05:39:10PM +0200, Halil Pasic wrote:
+>>>>>
+>>>>> Not perfect, but AFAIKS, not horrible.
+>>>>
+>>>> It is like it is. QEMU does queue exist if the corresponding feature
+>>>> is offered by the device, and that is what we have to live with.
+>>>
+>>> I don't think we can live with this properly though.
+>>> It means a guest that does not know about some features
+>>> does not know where to find things.
+>>
+>> Please describe a real scenario, I'm missing the point.
 > 
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -1197,7 +1197,6 @@ static unsigned int features[] = {
->         VIRTIO_BALLOON_F_MUST_TELL_HOST,
->         VIRTIO_BALLOON_F_STATS_VQ,
->         VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
-> -       VIRTIO_BALLOON_F_FREE_PAGE_HINT,
->         VIRTIO_BALLOON_F_PAGE_POISON,
->         VIRTIO_BALLOON_F_REPORTING,
->  };
 > 
-> I would end up with virtio_check_driver_offered_feature() calling
-> BUG().
+> OK so.
+> 
+> Device has VIRTIO_BALLOON_F_FREE_PAGE_HINT and VIRTIO_BALLOON_F_REPORTING
+> Driver only knows about VIRTIO_BALLOON_F_REPORTING so
+> it does not know what does VIRTIO_BALLOON_F_FREE_PAGE_HINT do.
+> How does it know which vq to use for reporting?
+> It will try to use the free page hint one.
 
+"only knows" -- VIRTIO_BALLOON_F_FREE_PAGE_HINT was proposed + specified 
+in the spec.
 
-I mean, yes, this is exactly to catch drivers that use
-features without negotiating them first. 
+So I think this is not a very good example.
 
+> 
+> 
+> 
+>> Whoever adds new feat_X *must be aware* about all previous features,
+>> otherwise we'd be reusing feature bits and everything falls to pieces.
+> 
+> 
+> The knowledge is supposed be limited to which feature bit to use.
+
+I think we also have to know which virtqueue bits can be used, right?
+
+I mean, I agree that it's all nasty ...
+
+>>>
+>>> So now, I am inclined to add linux code to work with current qemu and
+>>> with spec compliant one, and add qemu code to work with current linux
+>>> and spec compliant one.
+>>>
+>>> Document the bug in the spec, maybe, in a non conformance section.
+>>
+>> I'm afraid this results in a lot of churn without really making things
+>> better.
+> 
+>> IMHO, documenting things how they actually behave, and maybe moving towards
+>> fixed queue indexes for new features is the low hanging fruit.
+> 
+> I worry about how to we ensure that?
+> If old code is messed up people will just keep propagating that.
+> I would like to fix old code so that new code is correct.
+> 
+>>
+>> As raised, it's not just qemu+linux, it's *at least* also cloud-hypervisor.
+>>
+>> -- 
+>> Cheers,
+>>
+>> David / dhildenb
+> 
+> There's a slippery slope here in that people will come to us
+> with buggy devices and ask to change the spec.
+
+I yet have to fully digest cross-vm: 
+https://github.com/google/crosvm/blob/main/devices/src/virtio/balloon.rs
+
+and how it would free-page-reporting work with upstream Linux ... :(
 
 -- 
-MST
+Cheers,
+
+David / dhildenb
 
