@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A930B25F98F;
-	Mon,  7 Apr 2025 18:13:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB2BD266574;
+	Mon,  7 Apr 2025 18:14:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744049625; cv=none; b=SESs4Lyq/y3/TeeJJAJhW9LqjWVKWWZGleyntCaeRft66R8zTWjN2HLuX/SO3nCYP/IrLAjYCOW8EOuhxxZkjnctTF/5ghVUCzs9xAnoVPt+Bmres6j7HKrYvsoExH51z5+lhpjCo2+tMYoZ+LVto2/HYm3Zhz1tNlxT44evGN8=
+	t=1744049668; cv=none; b=bZs9wljzCGDQwZQdJR+BTMV9QwTyUTluLWUvai+k8cHTNiOX4epqFwz6Mglc+/qXSQxOnx4Jr71UgdQJLg6JtAn08ot5uMEPj1vXkaB4Pu/RlWiWdc+h2EQF1tz5qkcOVtDddFK0VX7gbVNiHwGwbpc1LnpnSHnx/4IW+mtVHpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744049625; c=relaxed/simple;
-	bh=5P89sXxtBIlT0wEuM1sFJ4xm2Bx1KLp8Xd6qLhzwK7c=;
+	s=arc-20240116; t=1744049668; c=relaxed/simple;
+	bh=9MZmQ3RNAYgi3VfmPE9AOSD+2RKITI9HdG8hqPzZGAc=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=k33eMJpDLgZ15O8pv6Fq19KLV3MHk447CrHElWSzl3f+8WPksvVZvmLTUrvTsnmJ4Av1IBaOp4uKfDo/r/9AUlfOqo+dpBG0bGXROrBDJlyTv88qjJdzMa5CTkYzgIL6rn4cHJDBE41XN+Aw6YjvTtrRL/A2BTAVfkgHremC9fU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pZiqTpy0; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=RHYZlphNIYjuImpSWTkbimfM0JNwxAUrInoRQQJMYc/sE2Nz/NgBV53Ops8nEALqgrfe30yNE2tDE9PH5Xy+VmTWPJTvISkwSwEWiOdY5FFhuwRxbZGGxc2DvGIWKkVhGtoaA4V6g2J+fMgyaPIGRKPaYZExBoHtbjNE8Q+9xvI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n4lg88nu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pZiqTpy0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB78C4CEDD;
-	Mon,  7 Apr 2025 18:13:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n4lg88nu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5711C4CEE7;
+	Mon,  7 Apr 2025 18:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744049625;
-	bh=5P89sXxtBIlT0wEuM1sFJ4xm2Bx1KLp8Xd6qLhzwK7c=;
+	s=k20201202; t=1744049668;
+	bh=9MZmQ3RNAYgi3VfmPE9AOSD+2RKITI9HdG8hqPzZGAc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=pZiqTpy0/u1J955z+/h736NLvJ6JvKCVR+yrWEjDKDKYzrEOmINVpInx0klwtYaFS
-	 hADNJknydWGk2yyxrgh0czSak0IjNDmoGBG4Wx2AkA8oBwQQp46OhltoKh8/MiGYzW
-	 enuFCzNa6FSQn0DxmpNZFpYtYyNQij0L3A1HsiMsoWL8VegI9n5IThkuQBVdEzfWoU
-	 BgnxI4rlGCGBHBnDLZq7E40JQY34j977wmS77elTag5t2CO4JEuklxGNygd8akFMdU
-	 Uu4AEHd30oKTZ7FwQ2MG9GRE6fOSZ86ZXYRQQRsWZA9UDIzf6jJSVw7fCWkuCz4Zz9
-	 HUEo+nLJsLZhg==
+	b=n4lg88nuMV2CIV2i3YTkGmCn+V+9fwuY9is2B/UxYfL87ODyVnjJyNPt+W1Uhqpo3
+	 4/souL1O6wU46wR49yn6u/nt0g/h4WUvlZ5rC4vavWvNjNfhAbZuHvxqi7N2CxXRy5
+	 uibN+W9kJxj514mMB+31uejghG/rx0jNE/UKo46htgCMP53MSBWllGFLX31c0cFMnv
+	 T5wCZexRHP70MyFglEwhQbMUikNzvLg24Lvdd821WqLpiZS+RkYmLHbBkhpx3HyPa5
+	 +YDX0/IFypbp+HjpjJZRKUnfRHmC+20tHcvBAASoCxXQLOoHBl/cNQan0a2RwTSPT1
+	 6tl96i1osnZmw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -40,12 +40,12 @@ Cc: John Stultz <jstultz@google.com>,
 	Betty Zhou <bettyzhou@google.com>,
 	Takashi Iwai <tiwai@suse.de>,
 	Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 6.12 06/22] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
-Date: Mon,  7 Apr 2025 14:13:16 -0400
-Message-Id: <20250407181333.3182622-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 05/15] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+Date: Mon,  7 Apr 2025 14:14:05 -0400
+Message-Id: <20250407181417.3183475-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250407181333.3182622-1-sashal@kernel.org>
-References: <20250407181333.3182622-1-sashal@kernel.org>
+In-Reply-To: <20250407181417.3183475-1-sashal@kernel.org>
+References: <20250407181417.3183475-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -54,7 +54,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.12.22
+X-stable-base: Linux 6.6.86
 Content-Transfer-Encoding: 8bit
 
 From: John Stultz <jstultz@google.com>
@@ -119,10 +119,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 15 insertions(+), 6 deletions(-)
 
 diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
-index 967e4c45be9bb..2f7c5e709f075 100644
+index c10d91fff2fb0..1ddec1f4f05d5 100644
 --- a/sound/virtio/virtio_pcm.c
 +++ b/sound/virtio/virtio_pcm.c
-@@ -339,6 +339,21 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+@@ -337,6 +337,21 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
  	if (!snd->substreams)
  		return -ENOMEM;
  
@@ -144,7 +144,7 @@ index 967e4c45be9bb..2f7c5e709f075 100644
  	info = kcalloc(snd->nsubstreams, sizeof(*info), GFP_KERNEL);
  	if (!info)
  		return -ENOMEM;
-@@ -352,12 +367,6 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+@@ -350,12 +365,6 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
  		struct virtio_pcm_substream *vss = &snd->substreams[i];
  		struct virtio_pcm *vpcm;
  
