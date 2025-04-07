@@ -1,85 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF682253B4B;
-	Mon,  7 Apr 2025 13:24:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26D50253B61
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 13:28:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744032289; cv=none; b=oSxZb/QZHOBvDmDFu6MFTLj9D13X0Gv98CxDM/gZA6MKlIp3jCPzDIep2q9xkRMNCMUvDU6MYth/hxNCKqOxs1mBCyZM3AHFmsUic/Nw9CcQQOrY/XVxP9qZNqrd9Ut17LzXIQbW6BwsLr55WbwH/Nx0llpLkCahELJIWqSnTJM=
+	t=1744032505; cv=none; b=NtVP7pcfETL866NZC+NM5lGtbiCikFPoxvMrfn8vNUtmg9QC+/yWsIV1cgyLySG05zQVTl2sXt5+TQdapfOaToo8TuY7IVF81d439clGuoDSGSxsv8S0L1YziYwb21dH7uh3UZzkbD3gXSJBxcClj/cGAEyr4Vz4AoQD9A91f7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744032289; c=relaxed/simple;
-	bh=phz+W/y/P98TEbJzgV0y5Ve9zvJ2zXTVkoIK4Sd0Rz0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PrfS5GF4/5FRBHm9YNAjLYt6v9B2m6ap9AL4lzJ4VunG/tCV2VBe4Y9bPmjGMgHjKsY9k1H1FIKG0TlleY1pSNKyR7vujFyC3zAnKyIuae69dItNB7gqNyfpQuUA5gekbbHadhB+DU2HaClQedQjS+q9zeTYLidzCj5pV6U+4gE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cMPH9s83; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744032505; c=relaxed/simple;
+	bh=WBhV0P50uEemvYkCTcchjpLIuIOu7LWYOWRI3TWiHow=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=i5XoXfXZBR3V0pnskC4GLM9hHClU5p9Jjm2EuRQX1lyRsM2OHxh5F4hkhKdMKUEet/ki2vC1K5LweV2IOu30E/+IbPrhHfGKxAdq9Nhk5I1sd0niSH37CnLtYkFFPxJeuYEgSca/mV/gQu5BTcXww37PcLN+EGhpmq8v3VUcLB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dBSs1Pb1; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cMPH9s83"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF6D7C4CEDD;
-	Mon,  7 Apr 2025 13:24:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744032288;
-	bh=phz+W/y/P98TEbJzgV0y5Ve9zvJ2zXTVkoIK4Sd0Rz0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=cMPH9s83obHD/J4Ik3GrucvSZ1HvxqMFUaVBhBsE3ECURdL3gO0LMM+1wzfO+2Nl0
-	 msMJIbdgl6bqFjf9LW3gMuy/IdtAhjyZabrVLFlZP9ni28+XAA2QvxaqEsuZbwu6qU
-	 eT1wYu2AUHehWodKeTcx0yvWhAd0qboDezG4HVQZyX0cB8jvIsxj6QMjDrbrCbRpjw
-	 h5WhU5otun52iDmd2aWnsBjuFFxu5uTJB4foYrIEUONew7GP5GyLPHyfZJgju/mkWH
-	 Yn0EQegdKgTzPqRbxD2OWXVcQUdNqLPClwq+U7FTKQByobcUnrY+T9m7Nt7pdFDvB0
-	 5UbxZyrOEIvPw==
-From: Christian Brauner <brauner@kernel.org>
-To: Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	eperezma@redhat.com,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Xiangsheng Hou <xiangsheng.hou@mediatek.com>
-Cc: Christian Brauner <brauner@kernel.org>,
-	virtualization@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	benliang.zhao@mediatek.com,
-	bin.zhang@mediatek.com
-Subject: Re: [RESEND] virtiofs: add filesystem context source name check
-Date: Mon,  7 Apr 2025 15:24:32 +0200
-Message-ID: <20250407-erzeugen-granit-5fdd39986bfd@brauner>
-X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250407115111.25535-1-xiangsheng.hou@mediatek.com>
-References: <20250407115111.25535-1-xiangsheng.hou@mediatek.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dBSs1Pb1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744032503;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jFoPwO5vUc8+rAcXR9YnRFfcZSPIuCpPg3z/cEeH+VA=;
+	b=dBSs1Pb1fZRMyxZWsNYTmzWdW7i+xkp+SUVy3mULHzSGBurubg6XTMCthwCT7e4/Wb8GaR
+	yPA3RCB4BChMUNn9ZlZZxe5RmCk4MqtXTNaGe5MvFSYVS2ydFySDQT1de8rxdbDXsaL0g+
+	bTclumIAeQSj+AOvI4GfctCwSwZKEN0=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-686-9rJso_2iP4mEcPXsMMgHMg-1; Mon,
+ 07 Apr 2025 09:28:19 -0400
+X-MC-Unique: 9rJso_2iP4mEcPXsMMgHMg-1
+X-Mimecast-MFC-AGG-ID: 9rJso_2iP4mEcPXsMMgHMg_1744032497
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EBAE0195608A;
+	Mon,  7 Apr 2025 13:28:16 +0000 (UTC)
+Received: from localhost (dhcp-192-216.str.redhat.com [10.33.192.216])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C48FF1809B6A;
+	Mon,  7 Apr 2025 13:28:15 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org, Chandra Merla
+ <cmerla@redhat.com>, Stable@vger.kernel.org, Thomas Huth
+ <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Wei Wang
+ <wei.w.wang@intel.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+In-Reply-To: <9126bfbf-9461-4959-bd38-1d7bc36d7701@redhat.com>
+Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
+ Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
+ 153243,
+ =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
+ Michael O'Neill, Amy
+ Ross"
+References: <20250404063619.0fa60a41.pasic@linux.ibm.com>
+ <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+ <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+ <20250404153620.04d2df05.pasic@linux.ibm.com>
+ <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+ <20250404160025.3ab56f60.pasic@linux.ibm.com>
+ <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+ <20250404173910.6581706a.pasic@linux.ibm.com>
+ <20250407034901-mutt-send-email-mst@kernel.org>
+ <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
+ <20250407042058-mutt-send-email-mst@kernel.org>
+ <20250407151249.7fe1e418.pasic@linux.ibm.com>
+ <9126bfbf-9461-4959-bd38-1d7bc36d7701@redhat.com>
+User-Agent: Notmuch/0.38.3 (https://notmuchmail.org)
+Date: Mon, 07 Apr 2025 15:28:13 +0200
+Message-ID: <87h6309k42.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1025; i=brauner@kernel.org; h=from:subject:message-id; bh=phz+W/y/P98TEbJzgV0y5Ve9zvJ2zXTVkoIK4Sd0Rz0=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaR/viR+uDh1wTkdg2mVAqyb9F9PjM/5EuUp+WuDsM4ji +1hxcsKOkpZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACYS9prhn9mM5ufHhQ6aZO9W Sj5W8KfH77Dxml8ORjnFaRM6rnde3s7wV2rV5Dd+oj93p21bwVGiemdh7qntsfvfRakuDHkSuq9 lJhcA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Mon, 07 Apr 2025 19:50:49 +0800, Xiangsheng Hou wrote:
-> In certain scenarios, for example, during fuzz testing, the source
-> name may be NULL, which could lead to a kernel panic. Therefore, an
-> extra check for the source name should be added.
-> 
-> 
+On Mon, Apr 07 2025, David Hildenbrand <david@redhat.com> wrote:
 
-Applied to the vfs.fixes branch of the vfs/vfs.git tree.
-Patches in the vfs.fixes branch should appear in linux-next soon.
+> On 07.04.25 15:12, Halil Pasic wrote:
+>> On Mon, 7 Apr 2025 04:34:29 -0400
+>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> 
+>>> On Mon, Apr 07, 2025 at 10:17:10AM +0200, David Hildenbrand wrote:
+>>>> On 07.04.25 09:52, Michael S. Tsirkin wrote:
+>>>>> On Fri, Apr 04, 2025 at 05:39:10PM +0200, Halil Pasic wrote:
+>>>>>>>
+>>>>>>> Not perfect, but AFAIKS, not horrible.
+>>>>>>
+>>>>>> It is like it is. QEMU does queue exist if the corresponding feature
+>>>>>> is offered by the device, and that is what we have to live with.
+>>>>>
+>>>>> I don't think we can live with this properly though.
+>>>>> It means a guest that does not know about some features
+>>>>> does not know where to find things.
+>>>>
+>>>> Please describe a real scenario, I'm missing the point.
+>>>
+>>>
+>>> OK so.
+>>>
+>>> Device has VIRTIO_BALLOON_F_FREE_PAGE_HINT and VIRTIO_BALLOON_F_REPORTING
+>>> Driver only knows about VIRTIO_BALLOON_F_REPORTING so
+>>> it does not know what does VIRTIO_BALLOON_F_FREE_PAGE_HINT do.
+>>> How does it know which vq to use for reporting?
+>>> It will try to use the free page hint one.
+>> 
+>> First, sorry for not catching up again with the discussion earlier.
+>> 
+>> I think David's point is based on the assumption that by the time feature
+>> with the feature bit N+1 is specified and allocates a queue Q, all
+>> queues with indexes smaller than Q are allocated and possibly associated
+>> with features that were previously specified (and probably have feature
+>> bits smaller than N+1).
+>> 
+>> I.e. that we can mandate, even if you don't want to care about other
+>> optional features, you have to, because we say so, for the matter of
+>> virtqueue existence. And anything in the future, you don't have to care
+>> about because the queue index associated with future features is larger
+>> than Q, so it does not affect our position.
+>> 
+>> I think that argument can fall a part if:
+>> * future features reference optional queues defined in the past
+>> * somebody managed to introduce a limbo where a feature is reserved, and
+>>    they can not decide if they want a queue or not, or make the existence
+>>    of the queue depend on something else than a feature bit.
+>
+> Staring at the cross-vmm, including the adding+removing of features and 
+> queues that are not in the spec, I am wondering if (in a world with 
+> fixed virtqueues)
+>
+> 1) Feature bits must be reserved before used.
+>
+> 2) Queue indices must be reserved before used.
+>
+> It all smells like a problem similar to device IDs ...
 
-Please report any outstanding bugs that were missed during review in a
-new review to the original patch series allowing us to drop it.
+Indeed, we need a rule "reserve a feature bit/queue index before using
+it, even if you do not plan to spec it properly".
 
-It's encouraged to provide Acked-bys and Reviewed-bys even though the
-patch has now been applied. If possible patch trailers will be updated.
-
-Note that commit hashes shown below are subject to change due to rebase,
-trailer updates or similar. If in doubt, please check the listed branch.
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
-branch: vfs.fixes
-
-[1/1] virtiofs: add filesystem context source name check
-      https://git.kernel.org/vfs/vfs/c/a94fd938df2b
