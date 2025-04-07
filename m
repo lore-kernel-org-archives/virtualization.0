@@ -1,109 +1,141 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF9CE211A24
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 02:27:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8AF135280
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 02:54:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743992871; cv=none; b=AFbNXLkhBrLIe7gdZWl5I+zRx5AVEE0Wl0MH/SuuajvO8ILQpyPSAaNlXkmGBJ7/7VRaot10KzL7d/K6EsaBRHWXjIjSPi9wruCEdpm0JtKOMbD01FCrwQ7BiU/xXKVRhlDTINXGA5CRa16J4zoOFdwVK1dMYgm9XjkmcpR/PNs=
+	t=1743994473; cv=none; b=CM4kssZcAuHl6H9S+1Zg+c2PeeWNPl3YoNfAc0SA0pSbC3O4jZ7NEelRConJzb4Z1e/M2VrXeC96dn3j+S31z97crhbgBYa9AFFO5QWKpcVDyHHrqc3m19vETqfpUqd3KHBVfmTKbBXE5+s0WODJsDlx8fbyYLcBeCjMIhjCPS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743992871; c=relaxed/simple;
-	bh=lBAsK4128QqAndyQK1xQuEI3avTd269+XLXJMVQegYk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Fc9P0McQNemAAqhv0LC1esqGlzwC/agkRZTzXlu7eVsD1MF10N6aC6zgDoxI1BCEyBeddZwKaCjBf4rinYJslbIEQyfAcimz9l5Jkz8waJ3F74ecQiNGWS45uT1IwTDEgY1UZ135/V7GJyL68sfheInnngAS+F27G6dKjQgASmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DZ+um5Bz; arc=none smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1743994473; c=relaxed/simple;
+	bh=78VYBtVNDDMVcqLfVurU2jzF/nks381crfP8S6661CI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aHk/GBW/78ZGRQ4vDVBHtkO3PyY/G1CzCdGXP0uIdNVSAtMytxbJFnW+vO3PQs1Y5ypJyU/H20s0dW3vPJe4gWkHvCz4YApaR4Y3FkkxUxBJGVOM7mAOd1xalvcWwyf9jCmYIbwKfSkyrne3ZLQsSr4IXaod1EiyX2Xjg+z417I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P3ljwfo7; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DZ+um5Bz"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-301918a4e1bso2641813a91.1
-        for <virtualization@lists.linux.dev>; Sun, 06 Apr 2025 19:27:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743992869; x=1744597669; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZMXI96KY1NlyfuaSnxUqUHlO9ydv3v+nJJ7C8/Y0/PY=;
-        b=DZ+um5Bzv57+GzMoMVlkjE49csoHLwPuettaVHmhxbsrSVeJkuQd78K75zh8Kestdu
-         GOpIHsCe8/4LM0T4SFFhYX6qLGirSzEj4pE0M7zYiWNFDmF8O5tdhBnfvCrkywUcZBTH
-         /3oC5ax93ogX/muOAEFWAsXCmnuiEZ6r8f7xbpo7ctTmmX7kR6yzjgFo4wj3tlp+MLXZ
-         SibLidJKDLUCmBoPe919721MmHneQ3QVU2gXKlANDSE3NCPYZzYC5YJhQXdQZXTQBWh9
-         V0C+rglZZ/c2IcZDjv3TJPuTmnzSptcIK3kdDWDKSZYSPAvzz5MzUg4oBfTuKmHE5DtG
-         T8Zw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P3ljwfo7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743994470;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=fRYTVXsNSGpfzKQctOT6faNFmutksfxmob0Nbhsev3k=;
+	b=P3ljwfo7LjuHp1h1RUFkopyEtytYnsgatc+6SyKMmyahnO1fQ9LUAFjGh+TwCpzsZSXfjl
+	lZcwushdumSo0Wwy5t2JEXeMZz4fSvbjryfomEGCtv4nLyzCyTnvnjREKx4bxIoGy6eeLu
+	lCKnU7remxPLFdf4XPFELEg1v2sBLVU=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-156-swIB-kX-O_aHQRwqJ1xkZg-1; Sun, 06 Apr 2025 22:54:29 -0400
+X-MC-Unique: swIB-kX-O_aHQRwqJ1xkZg-1
+X-Mimecast-MFC-AGG-ID: swIB-kX-O_aHQRwqJ1xkZg_1743994468
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-af534e796baso2335992a12.3
+        for <virtualization@lists.linux.dev>; Sun, 06 Apr 2025 19:54:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743992869; x=1744597669;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZMXI96KY1NlyfuaSnxUqUHlO9ydv3v+nJJ7C8/Y0/PY=;
-        b=e9GitgQqEgAEc+4jgyn17KY6CHqX9HoWRppaANuFGpdqrCB/HrLkUhHSrAnIc4Nqkd
-         w6cgH14eH9uctFmB64luA2VSXS0pcWj2aZohKfHHAc4Ls7hw0ICvJ0fPYxWIgKyMv6ME
-         vnH6qSs8YFs5n+fJhp1IOHjOH+Yq4u/Sw6K5lGJzd2/wbCbUAm2biLC5Q/w/SsZheP8F
-         1nPjl0J30F60C+zDSQjv5RtlLDhG8m8aZ6Zt+uDgmLwMugcg7GvNce5VPAL5ruZd9QIf
-         HX5eA1/4seOFV6IO9IxT9BczeMMGLdVpGTE4lMLwvJ54FoyXVIhKRbzGro38YIqzvffd
-         Hy3w==
-X-Forwarded-Encrypted: i=1; AJvYcCV93wrY9YDaBlteeJnMw2uCRp/hrFoq9fVbJX49Dqq1bLZ7/fv7GMZXwVRDvB8G40dwiIMOP4uAoYXMVHveSQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwGja81Pvu8gJO5bjxqsQwX2OoTokoQ2YFeV0DyruzXhYzUtXPW
-	k+swaU27Du0PZmz6F9pfpCn+ms1KxtzLlXytQxVM9rcI6+Qzu9Ga
-X-Gm-Gg: ASbGncsUcocd19W/zrMvVJ2x/xjq2q10m9AuKZO26052fcrL7U7sKFttzz8q9vfOUq1
-	RSer/J/OXbulbPQRqJ67tCev5VdYAgWsti8J4GwhwuQd90d6Bh3EYh/EwUxEMSTgNNDSM2zt5SE
-	+5uKyERyQh67eyT9rIknVnHDOX9/4/kph5i5jkao2YuwmPDmfwd8QRy5RNnuM2uwjWq0JgEwsl3
-	GUUtTF2Paue06+pa/7mVUR+AJkkLRWr+eapMNr9vcb0i62HfKHuDaiFfT8iozVyIwY8DVzm3Ve0
-	xVdz37Z2SjO+Mq5csMd+pUkbv5GcU0btIYeyBkZuUHtmD7BbGgz7B99E7DOArvDYguHfD+BlG3D
-	3Y+3UdiurKmepMYcWjqeWlyc=
-X-Google-Smtp-Source: AGHT+IFLx8dLNxCZzv12MywXhBO0lTHHnKGTceaSSuaAjzKfGMQlupPZA3H1O36DYRXf2E9QaW3B+w==
-X-Received: by 2002:a17:90b:2552:b0:305:5f32:d9f5 with SMTP id 98e67ed59e1d1-306a60eddc1mr15700652a91.7.1743992869012;
-        Sun, 06 Apr 2025 19:27:49 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:cbc1:cad1:513d:e384? ([2001:ee0:4f0e:fb30:cbc1:cad1:513d:e384])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3058494aa8csm7608800a91.16.2025.04.06.19.27.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 06 Apr 2025 19:27:48 -0700 (PDT)
-Message-ID: <30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
-Date: Mon, 7 Apr 2025 09:27:41 +0700
+        d=1e100.net; s=20230601; t=1743994468; x=1744599268;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=fRYTVXsNSGpfzKQctOT6faNFmutksfxmob0Nbhsev3k=;
+        b=b6Ti/olQrSxCMm2aGWm5C5YY1bE6vlvUaUW9AEiMcZrkZzt3TrOAEhPbpIAnZq7HDA
+         itDkvtcT+w8FJ+aOyv+v3ItZvZM7lyC4gbybA91+d5oxvUqD+9ODJhULwCFPyEjq4/SZ
+         XfH6HJiUr8npIChi/Ic5yd/OeHbmy4m7zfyYZ0nIbEKOLC2a5af9BtN8E4oY8fM/Rajz
+         ncsao2A5cWN4i74gXwaaCNGrnPQbLYN/5rAyEiAT3SDg9CgwOV3oiF36hRKcjzzu15ht
+         LS081YL9IObMHEmVNWB//wkKeyfW7FHPvfKQEfp3Q0nzsgfxhFNDgiGSr7CiA5+YXsJe
+         Ckvw==
+X-Forwarded-Encrypted: i=1; AJvYcCVl4JUmNs5nxlDTZiVhp20nYARZQ2GXwpFhCobER2TZLTzZp949Oaopve3p9RACq3AR/CYoQhNxoJbbLDjrtA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyBjMAH5qNN6RynHUWPpoMS2IDRtxss2ljq3On5FgGSWZVlZKec
+	VQO43YvnWQKLkndyQaa7Mqb58aQeIs8vGETTTDF4585cRaR7Lb+M2oK4AQ4F0dBHVKmjpIm7hHo
+	P9ouPuU5iX5m2KgyHqrdNnHMMaRowYAUsLXwxMTx5jtTWZn16s4HwP8V9Xe3+cnv+JYLBAeI5uW
+	wt8nr5PIy4TjEI/tJcSgqDsB9YyrSdeUoi85ZeCUI=
+X-Gm-Gg: ASbGncvV2C06dJmIfJfVylCXveaWZUw8Rg1nYof9+Fno3Chrhr/BgjnPjQs9Hz0Rr/B
+	wCE674fkmGYq6g9y38t/jAwOXsDFpHCk4MISxja7XGaJXGZZbPepANgpPl+qxAPlTaoHB4A==
+X-Received: by 2002:a17:90a:fc4d:b0:2fe:80cb:ac05 with SMTP id 98e67ed59e1d1-306a612a138mr15338039a91.9.1743994468413;
+        Sun, 06 Apr 2025 19:54:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFXA7LEkfeKj+UJM3EgBo9JimsT+EXs1f53vLTWxMaMpQ0p3dYoCeDfB1sKILY75A1/XhDlE0eb1/3ARXiXCQg=
+X-Received: by 2002:a17:90a:fc4d:b0:2fe:80cb:ac05 with SMTP id
+ 98e67ed59e1d1-306a612a138mr15338003a91.9.1743994468043; Sun, 06 Apr 2025
+ 19:54:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio-net: disable delayed refill when pausing rx
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20250404093903.37416-1-minhquangbui99@gmail.com>
- <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20250401043230.790419-1-jon@nutanix.com>
+In-Reply-To: <20250401043230.790419-1-jon@nutanix.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 7 Apr 2025 10:54:16 +0800
+X-Gm-Features: ATxdqUFts7q2N1G290I9w5fzC7i8BKP_qVhbpym_CyiIkKmnXdbijEE_7p0Hj9Y
+Message-ID: <CACGkMEty2SC--kiq64yfgWQ-q6Fg8b0+Le-dUGMaJgcOFhosRw@mail.gmail.com>
+Subject: Re: [PATCH] vhost/net: Defer TX queue re-enable until after sendmsg
+To: Jon Kohler <jon@nutanix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: mWYwKBB5DtW6WHvna2IVPHDI1y2ntQV5ZK7fgT5VQL8_1743994468
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/7/25 08:03, Xuan Zhuo wrote:
-> On Fri,  4 Apr 2025 16:39:03 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
->> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
->> napi_disable() on the receive queue's napi. In delayed refill_work, it
->> also calls napi_disable() on the receive queue's napi. This can leads to
->> deadlock when napi_disable() is called on an already disabled napi. This
->> scenario can be reproducible by binding a XDP socket to virtio-net
->> interface without setting up the fill ring. As a result, try_fill_recv
->> will fail until the fill ring is set up and refill_work is scheduled.
+On Tue, Apr 1, 2025 at 12:04=E2=80=AFPM Jon Kohler <jon@nutanix.com> wrote:
 >
-> So, what is the problem? The refill_work is waiting? As I know, that thread
-> will sleep some time, so the cpu can do other work.
+> In handle_tx_copy, TX batching processes packets below ~PAGE_SIZE and
+> batches up to 64 messages before calling sock->sendmsg.
+>
+> Currently, when there are no more messages on the ring to dequeue,
+> handle_tx_copy re-enables kicks on the ring *before* firing off the
+> batch sendmsg. However, sock->sendmsg incurs a non-zero delay,
+> especially if it needs to wake up a thread (e.g., another vhost worker).
+>
+> If the guest submits additional messages immediately after the last ring
+> check and disablement, it triggers an EPT_MISCONFIG vmexit to attempt to
+> kick the vhost worker. This may happen while the worker is still
+> processing the sendmsg, leading to wasteful exit(s).
+>
+> This is particularly problematic for single-threaded guest submission
+> threads, as they must exit, wait for the exit to be processed
+> (potentially involving a TTWU), and then resume.
+>
+> In scenarios like a constant stream of UDP messages, this results in a
+> sawtooth pattern where the submitter frequently vmexits, and the
+> vhost-net worker alternates between sleeping and waking.
+>
+> A common solution is to configure vhost-net busy polling via userspace
+> (e.g., qemu poll-us). However, treating the sendmsg as the "busy"
+> period by keeping kicks disabled during the final sendmsg and
+> performing one additional ring check afterward provides a significant
+> performance improvement without any excess busy poll cycles.
+>
+> If messages are found in the ring after the final sendmsg, requeue the
+> TX handler. This ensures fairness for the RX handler and allows
+> vhost_run_work_list to cond_resched() as needed.
+>
+> Test Case
+>     TX VM: taskset -c 2 iperf3  -c rx-ip-here -t 60 -p 5200 -b 0 -u -i 5
+>     RX VM: taskset -c 2 iperf3 -s -p 5200 -D
+>     6.12.0, each worker backed by tun interface with IFF_NAPI setup.
+>     Note: TCP side is largely unchanged as that was copy bound
+>
+> 6.12.0 unpatched
+>     EPT_MISCONFIG/second: 5411
+>     Datagrams/second: ~382k
+>     Interval         Transfer     Bitrate         Lost/Total Datagrams
+>     0.00-30.00  sec  15.5 GBytes  4.43 Gbits/sec  0/11481630 (0%)  sender
+>
+> 6.12.0 patched
+>     EPT_MISCONFIG/second: 58 (~93x reduction)
+>     Datagrams/second: ~650k  (~1.7x increase)
+>     Interval         Transfer     Bitrate         Lost/Total Datagrams
+>     0.00-30.00  sec  26.4 GBytes  7.55 Gbits/sec  0/19554720 (0%)  sender
+>
+> Signed-off-by: Jon Kohler <jon@nutanix.com>
 
-When napi_disable is called on an already disabled napi, it will sleep 
-in napi_disable_locked while still holding the netdev_lock. As a result, 
-later napi_enable gets stuck too as it cannot acquire the netdev_lock. 
-This leads to refill_work and the pause-then-resume tx are stuck altogether.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-Thanks,
-Quang Minh.
+Thanks
+
